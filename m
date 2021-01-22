@@ -1,16 +1,24 @@
-Return-Path: <rasmus.villemoes@prevas.dk>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.dk; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zpkkFwXLIHzY8BlZXKg3oBEANHhM8BBvDNZNHRVaxXY=;
- b=jQZqn3Pc242n/taN0tkL7gv9y/rmMRAa+phNukEx8mJfK58Gwm0I/DZPWZsPf/c+wERmjZNELSYu4M9l3NdGq33LI7c6M1AsKTJ0tGeNSWXfq7v62VUdWtZPubRw6OFmRS7avmTgIIrfLx/CDLBJApMfsLQAHGYOBSQMlP7szg0=
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Date: Mon, 18 Jan 2021 19:13:19 +0100
-Message-Id: <20210118181319.25419-1-rasmus.villemoes@prevas.dk>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Return-Path: <troglobit@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:subject:in-reply-to:references:date:message-id:mime-version;
+ bh=dYnyyDVesC6Z9/jeabSdXpAorVFlaVIqQIB+RhVpm20=;
+ b=Pjk8XN0YQxDSUm0xUJqm0sY6ZgUSIKRGcuyScCBDKU62oyPWiFsPlYm0eGDjATy1ux
+ Wi0pqVdpZ4UJqGG5jrqJn1C79iqJLS3ff92ZspYcX9f34oAOIpN2MK0Z/zK5loKz4oWr
+ ylNlljL+Tp5QHdw7mG0i7dKnff35K15eQXAe66PW0a3yHrW5i+NdWrxNi5WHlLeAJfhp
+ PVmXFv1bPnMYS7icgAEdqy5UYwDwmp9Fc7+J8CXxaXOyeeuw5MhtW1mr6CZv05b88chG
+ 8ZcbCIplVT8XUEq7blupmNhPcBuwf1vFfXK9czYXR+5en2Wlf8Q73jrym1XLEGMGlEEx
+ 8p3Q==
+From: Joachim Wiberg <troglobit@gmail.com>
+In-Reply-To: <b54644f6-b559-b13b-adf8-d95f7b2a6885@nvidia.com>
+References: <20210112135903.3730765-1-horatiu.vultur@microchip.com>
+ <32bf6a72-6aff-5e36-fb02-333f3c450f49@nvidia.com> <8735z0zyab.fsf@gmail.com>
+ <b54644f6-b559-b13b-adf8-d95f7b2a6885@nvidia.com>
+Date: Fri, 22 Jan 2021 17:05:57 +0100
+Message-ID: <87czxxvtwa.fsf@gmail.com>
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net] net: mrp: use stp state as substitute for
-	unimplemented mrp state
+Content-Type: text/plain
+Subject: Re: [Bridge] [RFC PATCH v2] net: bridge: igmp: Extend IGMP query to
+	be per vlan
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,55 +27,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Vladimir Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Nikolay Aleksandrov <nikolay@nvidia.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, allan.nielsen@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 
-When using MRP with hardware that does understand the concept of
-blocked or forwarding ports, but not the full MRP offload, we
-currently fail to tell the hardware what state it should put the port
-in when the ring is closed - resulting in a ring of forwarding ports
-and all the trouble that comes with that.
+On Mon, Jan 18, 2021 at 13:53, Nikolay Aleksandrov <nikolay@nvidia.com> wrote:
+> On 16/01/2021 17:39, Joachim Wiberg wrote:
+>> We have discussed at length at work if an IGMP snooping implementation
+>> really belongs in the bridge, or if it's better suited as a user space
+>> daemon?  Similar to what was decided for RSTP/MSTP support, i.e., the
+>> bridge only has STP and RSTP/MSTP is handled by mstpd[2].
+>> 
+>> Most of what's required for a user space implementation is available,
+>> but it would've been nice if a single AF_PACKET socket on br0 could be
+>> used to catch what brport (ifindex) a query or report comes in on.  As
+>> it is now that information is lost/replaced with the ifindex of br0.
+>> And then there's the issue of detecting and forwarding to a multicast
+>> routing daemon on top of br0.  That br0 is not a brport in the MDB, or
+>> that host_joined cannot be set/seen with iproute2 is quite limiting.
+>> These issues can of course be addressed, but are they of interest to
+>> the community at large?
+>> 
+>> [1]: https://lore.kernel.org/netdev/20180418120713.GA10742@troglobit/
+>> [2]: https://github.com/mstpd/mstpd
 
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
----
+Ni Nik,
 
-I don't really understand why SWITCHDEV_ATTR_ID_MRP_PORT_STATE even
-has to exist seperately from SWITCHDEV_ATTR_ID_PORT_STP_STATE, and
-it's hard to tell what the difference might be since no kernel code
-implements the former.
+> I actually had started implementing IGMPv3/MLDv2 as a user-space daemon part of
+> FRRouting (since it already has a lot of the required infra to talk to the kernel).
+> It also has IGMPv3/MLDv2 support within pimd, so a lot of code can be shared.
 
- net/bridge/br_mrp_switchdev.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+Interesting!  Glad to hear other people have had similar ideas :)
 
-diff --git a/net/bridge/br_mrp_switchdev.c b/net/bridge/br_mrp_switchdev.c
-index ed547e03ace1..8a1c7953e57a 100644
---- a/net/bridge/br_mrp_switchdev.c
-+++ b/net/bridge/br_mrp_switchdev.c
-@@ -180,6 +180,24 @@ int br_mrp_port_switchdev_set_state(struct net_bridge_port *p,
- 	int err;
- 
- 	err = switchdev_port_attr_set(p->dev, &attr);
-+	if (err == -EOPNOTSUPP) {
-+		attr.id = SWITCHDEV_ATTR_ID_PORT_STP_STATE;
-+		switch (state) {
-+		case BR_MRP_PORT_STATE_DISABLED:
-+		case BR_MRP_PORT_STATE_NOT_CONNECTED:
-+			attr.u.stp_state = BR_STATE_DISABLED;
-+			break;
-+		case BR_MRP_PORT_STATE_BLOCKED:
-+			attr.u.stp_state = BR_STATE_BLOCKING;
-+			break;
-+		case BR_MRP_PORT_STATE_FORWARDING:
-+			attr.u.stp_state = BR_STATE_FORWARDING;
-+			break;
-+		default:
-+			return err;
-+		};
-+		err = switchdev_port_attr_set(p->dev, &attr);
-+	}
- 	if (err && err != -EOPNOTSUPP)
- 		br_warn(p->br, "error setting offload MRP state on port %u(%s)\n",
- 			(unsigned int)p->port_no, p->dev->name);
--- 
-2.23.0
+> Obviously there are pros and cons to each choice, but I'd be interested to see a
+> full user-space implementation. I decided to make the kernel support more complete
+> since it already did IGMPv2 and so stopped with the new FRR daemon.
 
+Yeah it's difficult to find the right cut-off for when it'll be more
+useful to do it all in userspace.  For us I think it was the combination
+of having many VLANs and wanting full querier support, i.e., not having
+any multicast router available.  When we had to go dumpster diving for
+useful IP address in IGMP queries on higher-level VLAN interfaces.
+
+> If needed I'd be happy to help with the kernel support for a new
+> user-space daemon, and also can contribute to the daemon itself if
+> time permits.
+
+That's good to know.  I think I'll start breathing life into a small
+IGMP-only (for now) userspace daemon and see where it leads.  I need
+it both for work and for all the various multicast routing projects
+I maintain on my spare time.
+
+Would it be OK to send questions regarding issues interfacing with the
+bridge and updates/progress to this list for such a project?
+
+Best regards
+ /Joachim
