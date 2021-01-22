@@ -1,24 +1,9 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=Qa2CnxrmfdpWhxwQfNcz/QRx0LAMcqvtJo3oWicVNSc=;
- b=zXXHq7R/yS26GFBFwlhLMCwY2QJ6QfAT6vp6c8h2+sA2NkO70FVxe2VxT/KvT2isvj
- xt5l/rUzNzrkKVk2HYgFBCuvJtQBc4LDSrClvDckfvV4yoYSctMTYDdIieyJFMOQT3Su
- 4wK/6NQUapdz4d4tnn6aS7B5CdnJqIiDJzT4x4Y7Y7UDAabstt2pI4pNXF0/kqZOF6d4
- mpdFcAS6dIgX/twCCcqUX0jTQGMbJmQXQU1AbySYTjJGutXLgzffldqQLJffQiPYUIX1
- FK9CD5YMEJuZMIrBCtysDcHxhN5rGV4m1NRexk63viIvBj4OMVN9bh2lPl8vYzxyBbBP
- mE+g==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Wed, 20 Jan 2021 16:52:00 +0200
-Message-Id: <20210120145203.1109140-12-razor@blackwall.org>
-In-Reply-To: <20210120145203.1109140-1-razor@blackwall.org>
-References: <20210120145203.1109140-1-razor@blackwall.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 11/14] net: bridge: multicast: optimize
-	TO_INCLUDE EHT timeouts
+Return-Path: <abaci-bugfix@linux.alibaba.com>
+From: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+Date: Fri, 22 Jan 2021 17:32:13 +0800
+Message-Id: <1611307933-115887-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+Subject: [Bridge] [PATCH] bridge: Use PTR_ERR_OR_ZERO instead
+	if(IS_ERR(...)) + PTR_ERR
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,69 +12,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+To: roopa@nvidia.com
+Cc: bridge@lists.linux-foundation.org, ndesaulniers@google.com, linux-kernel@vger.kernel.org, Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>, clang-built-linux@googlegroups.com, nikolay@nvidia.com, kuba@kernel.org, natechancellor@gmail.com, davem@davemloft.net
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+coccicheck suggested using PTR_ERR_OR_ZERO() and looking at the code.
 
-This is an optimization specifically for TO_INCLUDE which sends queries
-for the older entries and thus lowers the S,G timers to LMQT. If we have
-the following situation for a group in either include or exclude mode:
- - host A was interested in srcs X and Y, but is timing out
- - host B sends TO_INCLUDE src Z, the bridge lowers X and Y's timeouts
-   to LMQT
- - host B sends BLOCK src Z after LMQT time has passed
- => since host B is the last host we can delete the group, but if we
-    still have host A's EHT entries for X and Y (i.e. if they weren't
-    lowered to LMQT previously) then we'll have to wait another LMQT
-    time before deleting the group, with this optimization we can
-    directly remove it regardless of the group mode as there are no more
-    interested hosts
+Fix the following coccicheck warnings:
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+./net/bridge/br_multicast.c:1295:7-13: WARNING: PTR_ERR_OR_ZERO can be
+used.
+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
 ---
- net/bridge/br_multicast_eht.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ net/bridge/br_multicast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_multicast_eht.c b/net/bridge/br_multicast_eht.c
-index 861ae63f4a1c..fee3060d0495 100644
---- a/net/bridge/br_multicast_eht.c
-+++ b/net/bridge/br_multicast_eht.c
-@@ -656,6 +656,8 @@ static bool __eht_inc_exc(struct net_bridge_port_group *pg,
- 	}
- 	/* we can be missing sets only if we've deleted some entries */
- 	if (flush_entries) {
-+		struct net_bridge *br = pg->key.port->br;
-+		struct net_bridge_group_eht_set *eht_set;
- 		struct net_bridge_group_src *src_ent;
- 		struct hlist_node *tmp;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 257ac4e..2229d10 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1292,7 +1292,7 @@ static int br_multicast_add_group(struct net_bridge *br,
+ 	pg = __br_multicast_add_group(br, port, group, src, filter_mode,
+ 				      igmpv2_mldv1, false);
+ 	/* NULL is considered valid for host joined groups */
+-	err = IS_ERR(pg) ? PTR_ERR(pg) : 0;
++	err = PTR_ERR_OR_ZERO(pg);
+ 	spin_unlock(&br->multicast_lock);
  
-@@ -667,6 +669,25 @@ static bool __eht_inc_exc(struct net_bridge_port_group *pg,
- 				changed = true;
- 				continue;
- 			}
-+			/* this is an optimization for TO_INCLUDE where we lower
-+			 * the set's timeout to LMQT to catch timeout hosts:
-+			 * - host A (timing out): set entries X, Y
-+			 * - host B: set entry Z (new from current TO_INCLUDE)
-+			 *           sends BLOCK Z after LMQT but host A's EHT
-+			 *           entries still exist (unless lowered to LMQT
-+			 *           so they can timeout with the S,Gs)
-+			 * => we wait another LMQT, when we can just delete the
-+			 *    group immediately
-+			 */
-+			if (!(src_ent->flags & BR_SGRP_F_SEND) ||
-+			    filter_mode != MCAST_INCLUDE ||
-+			    !to_report)
-+				continue;
-+			eht_set = br_multicast_eht_set_lookup(pg,
-+							      &eht_src_addr);
-+			if (!eht_set)
-+				continue;
-+			mod_timer(&eht_set->timer, jiffies + br_multicast_lmqt(br));
- 		}
- 	}
- 
+ 	return err;
 -- 
-2.29.2
+1.8.3.1
 
