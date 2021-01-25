@@ -1,24 +1,42 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=FJyorqRdVcMr4H3CHmU331uPAEpW16yWV7e4SmBCjxw=;
- b=FEeWeXk+x+8IjDWcPJr1Q5JuO4PaLPPmgsa3YH/b3YPsEVHUpVbQRIiUlcdnCn98Cd
- 1dMWXg8aE9ISYRMUzLfSh/a4/AQj3mAVwsSI2lED+yhujAQYei5N9eGu9J/jzBEwFMKc
- mYHg98230wURiRZojHyAaq4d6kNDpNbLRHyJmA+wSIzdORsIdcFSTwzo3eygZxs9bh7c
- Y0S9jucq/4jSnzl8LHznW+KWYZ6jnRCJ90gkdl9eDNSpFQMoPhyZ6ztuSmpBHHaR35wd
- tDPMsE3kqdmM25AP9m7gMn+7zqDGso8K19c6gbgxfQggvbd2VpGr6eHMAVq6GmQwoLXF
- Vl7w==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 25 Jan 2021 10:20:40 +0200
-Message-Id: <20210125082040.13022-1-razor@blackwall.org>
-In-Reply-To: <202101250327.48TBMqng-lkp@intel.com>
-References: <202101250327.48TBMqng-lkp@intel.com>
+Return-Path: <nikolay@nvidia.com>
+References: <1611542381-91178-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <4c68f49c-a537-3f8f-73ed-5f243cb142a9@nvidia.com>
+Date: Mon, 25 Jan 2021 10:23:00 +0200
+In-Reply-To: <1611542381-91178-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: multicast: fix
-	br_multicast_eht_set_entry_lookup indentation
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1611562990; bh=PIRuWXZCFHS5EcypCfN7alZbx+dHw8KfVNzh7RiZl98=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
+ Authentication-Results:Subject:To:CC:References:From:Message-ID:
+ Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
+ Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
+ MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
+ X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
+ X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
+ X-Microsoft-Antispam-PRVS:X-MS-Oob-TLC-OOBClassifiers:
+ X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
+ X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+ X-MS-Exchange-AntiSpam-MessageData:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+ X-MS-Exchange-CrossTenant-FromEntityHeader:
+ X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+ X-MS-Exchange-CrossTenant-UserPrincipalName:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=MmD/eIM6JGtlNoaOOoP0+gYYHKGdqmH2PsZDqw8VTfowbQpflMj1OcOCW58d5eMHS
+ BzkKVHBZOW2MwLBqtftcuOcac3dVAvdyrSfIOG+eVSeRmpc62RcmNnwlgt+XocK8fK
+ JtCC1JhGDeofkQFK4b0mw4rJmN+5L/I8zCNF/vR/j7U0QVFAydsXMLavcDOOG++u/7
+ BHSDklBT3VTk8am0ONzJPHPdM/AJelooD5JpWknWdtTwaiNHgECsim91FRvMhHyHs1
+ uu+4haYcG1ttLlzmjJA64QT32LSPLUAG4iG+0lsDfGVCDBgzLprNv2x2k9jHj5/YXi
+ wR1zwP2AveBAw==
+Subject: Re: [Bridge] [PATCH] bridge: Use PTR_ERR_OR_ZERO instead
+ if(IS_ERR(...)) + PTR_ERR
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,49 +45,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: kernel test robot <lkp@intel.com>, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>, roopa@nvidia.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, ndesaulniers@google.com, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, kuba@kernel.org, natechancellor@gmail.com, davem@davemloft.net
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 25/01/2021 04:39, Jiapeng Zhong wrote:
+> coccicheck suggested using PTR_ERR_OR_ZERO() and looking at the code.
+> 
+> Fix the following coccicheck warnings:
+> 
+> ./net/bridge/br_multicast.c:1295:7-13: WARNING: PTR_ERR_OR_ZERO can be
+> used.
+> 
+> Reported-by: Abaci <abaci@linux.alibaba.com>
+> Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+> ---
+>  net/bridge/br_multicast.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 257ac4e..2229d10 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -1292,7 +1292,7 @@ static int br_multicast_add_group(struct net_bridge *br,
+>  	pg = __br_multicast_add_group(br, port, group, src, filter_mode,
+>  				      igmpv2_mldv1, false);
+>  	/* NULL is considered valid for host joined groups */
+> -	err = IS_ERR(pg) ? PTR_ERR(pg) : 0;
+> +	err = PTR_ERR_OR_ZERO(pg);
+>  	spin_unlock(&br->multicast_lock);
+>  
+>  	return err;
+> 
 
-Fix the messed up indentation in br_multicast_eht_set_entry_lookup().
+This should be targeted at net-next.
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Fixes: baa74d39ca39 ("net: bridge: multicast: add EHT source set handling functions")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/bridge/br_multicast_eht.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/bridge/br_multicast_eht.c b/net/bridge/br_multicast_eht.c
-index a4fa1760bc8a..ff9b3ba37cab 100644
---- a/net/bridge/br_multicast_eht.c
-+++ b/net/bridge/br_multicast_eht.c
-@@ -85,15 +85,15 @@ br_multicast_eht_set_entry_lookup(struct net_bridge_group_eht_set *eht_set,
- 		struct net_bridge_group_eht_set_entry *this;
- 		int result;
- 
--	this = rb_entry(node, struct net_bridge_group_eht_set_entry,
--			rb_node);
--	result = memcmp(h_addr, &this->h_addr, sizeof(*h_addr));
--	if (result < 0)
--		node = node->rb_left;
--	else if (result > 0)
--		node = node->rb_right;
--	else
--		return this;
-+		this = rb_entry(node, struct net_bridge_group_eht_set_entry,
-+				rb_node);
-+		result = memcmp(h_addr, &this->h_addr, sizeof(*h_addr));
-+		if (result < 0)
-+			node = node->rb_left;
-+		else if (result > 0)
-+			node = node->rb_right;
-+		else
-+			return this;
- 	}
- 
- 	return NULL;
--- 
-2.29.2
 
