@@ -1,24 +1,42 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=SuR1iWSnWTqH0nrAv2mw90IusiF91+bmYioErH616vU=;
- b=ZC7+TCTiGqiDMFSkasL7GbsdZU9sdNBRe5WUoo5T/5icNI1nkmJ8lbN7AiAJFzd289
- C2WP/1T0maOBwqEezckfB2X0Wq52l5FIsoNWoiAy/CnI5OTLfO0bE6M40bbfE1YDZH2U
- x3G04DmNpMwbXoD9PIDRXWQoVnkERDLkB5gj/zifQaeZyVn8snlTpEk/T2cuT0Zgg9Or
- JwgzLqr2acBTM9vflfYXN+asaYMviNEs6PHD8V67+5KZ5LvtsYHei6Hzx4O9Ly4/8tXz
- 6TIEJ7aZWEWKQ40RbzMSnWgcin9tWSO6dRJz/Q0OnttJbtO/oxpuZybfX1YtqPHwUwJk
- Ttag==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue, 26 Jan 2021 11:21:32 +0200
-Message-Id: <20210126092132.407355-3-razor@blackwall.org>
-In-Reply-To: <20210126092132.407355-1-razor@blackwall.org>
+Return-Path: <nikolay@nvidia.com>
 References: <20210126092132.407355-1-razor@blackwall.org>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <f0f19c6c-f5bf-0d07-fb49-60167e281bd1@nvidia.com>
+Date: Tue, 26 Jan 2021 11:23:38 +0200
+In-Reply-To: <20210126092132.407355-1-razor@blackwall.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 2/2] net: bridge: multicast: make tracked
-	EHT hosts limit configurable
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1611653041; bh=/jUBdUOkbwd/WN8tHGLMNUyg6S3FbagX4rD7ZwwdgPE=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
+ Authentication-Results:Subject:To:CC:References:From:Message-ID:
+ Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
+ Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
+ MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
+ X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
+ X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
+ X-Microsoft-Antispam-PRVS:X-MS-Oob-TLC-OOBClassifiers:
+ X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
+ X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+ X-MS-Exchange-AntiSpam-MessageData:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+ X-MS-Exchange-CrossTenant-FromEntityHeader:
+ X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+ X-MS-Exchange-CrossTenant-UserPrincipalName:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=sPijnaqxpDxn3megZiIySBj7LO/ZD3a6EfaBcbhwBe6hJbtjVYzNNd72v8HqeRbcX
+ IP6XozumK5dHXLUuu5pFvr0pTyLzCXL8PIwvtJYjKti/Ujm5asLH42sudQkRxCTKc5
+ w1x/G+6TmEOvlBVZP3oY1YHCTpXqvjhQxbLXqyS5rFFR5Rt0Ef2iLsXeHmkeIa7Z65
+ AqiYUBGbTRsHBfoyTYYwX6FbUttpi9WqqZGAQc/YlAPQA51X6f4rvTEOGMxOBJe68M
+ Vjnvr9jntjFM2UTVtBKZWMXwJyZhmpGAQp2NcvqsWzpDYbI7sIFJnpdPs/4Elb6HCW
+ dynQVguU1U9fA==
+Subject: Re: [Bridge] [PATCH net-next 0/2] net: bridge: multicast: per-port
+ EHT hosts limit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,201 +45,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc: kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 26/01/2021 11:21, Nikolay Aleksandrov wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Hi,
+> This set adds a simple configurable per-port EHT tracked hosts limit.
+> Patch 01 adds a default limit of 512 tracked hosts per-port, since the EHT
+> changes are still only in net-next that shouldn't be a problem. Then
+> patch 02 adds the ability to configure and retrieve the hosts limit
+> and to retrieve the current number of tracked hosts per port.
+> 
+> Thanks,
+>  Nik
+> 
+> Nikolay Aleksandrov (2):
+>   net: bridge: multicast: add per-port EHT hosts limit
+>   net: bridge: multicast: make tracked EHT hosts limit configurable
+> 
+>  include/uapi/linux/if_link.h      |  2 ++
+>  net/bridge/br_multicast.c         | 16 ++++++++++++++++
+>  net/bridge/br_multicast_eht.c     |  7 +++++++
+>  net/bridge/br_netlink.c           | 19 ++++++++++++++++++-
+>  net/bridge/br_private.h           |  2 ++
+>  net/bridge/br_private_mcast_eht.h | 28 ++++++++++++++++++++++++++++
+>  net/bridge/br_sysfs_if.c          | 26 ++++++++++++++++++++++++++
+>  net/core/rtnetlink.c              |  2 +-
+>  8 files changed, 100 insertions(+), 2 deletions(-)
+> 
 
-Add two new port attributes which make EHT hosts limit configurable and
-export the current number of tracked EHT hosts:
- - IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT: configure/retrieve current limit
- - IFLA_BRPORT_MCAST_EHT_HOSTS_CNT: current number of tracked hosts
-Setting IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT to 0 is currently not allowed.
+Self-NAK
+Aaargh.. sent older version, sorry about the noise. I'll send the proper one as
+v2 in a bit.
 
-Note that we have to increase RTNL_SLAVE_MAX_TYPE to 38 minimum, I've
-increased it to 40 to have space for two more future entries.
-
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- include/uapi/linux/if_link.h      |  2 ++
- net/bridge/br_multicast.c         | 15 +++++++++++++++
- net/bridge/br_netlink.c           | 19 ++++++++++++++++++-
- net/bridge/br_private_mcast_eht.h |  2 ++
- net/bridge/br_sysfs_if.c          | 26 ++++++++++++++++++++++++++
- net/core/rtnetlink.c              |  2 +-
- 6 files changed, 64 insertions(+), 2 deletions(-)
-
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 2bd0d8bbcdb2..eb8018c3a737 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -525,6 +525,8 @@ enum {
- 	IFLA_BRPORT_BACKUP_PORT,
- 	IFLA_BRPORT_MRP_RING_OPEN,
- 	IFLA_BRPORT_MRP_IN_OPEN,
-+	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
-+	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
- 	__IFLA_BRPORT_MAX
- };
- #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 8c0029f415ea..907cfd85f05b 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -4024,3 +4024,18 @@ void br_mdb_hash_fini(struct net_bridge *br)
- 	rhashtable_destroy(&br->sg_port_tbl);
- 	rhashtable_destroy(&br->mdb_hash_tbl);
- }
-+
-+int br_multicast_eht_set_hosts_limit(struct net_bridge_port *p,
-+				     u32 eht_hosts_limit)
-+{
-+	struct net_bridge *br = p->br;
-+
-+	if (!eht_hosts_limit)
-+		return -EINVAL;
-+
-+	spin_lock_bh(&br->multicast_lock);
-+	p->multicast_eht_hosts_limit = eht_hosts_limit;
-+	spin_unlock_bh(&br->multicast_lock);
-+
-+	return 0;
-+}
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 762f273802cd..bd3962da345a 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -18,6 +18,7 @@
- #include "br_private_stp.h"
- #include "br_private_cfm.h"
- #include "br_private_tunnel.h"
-+#include "br_private_mcast_eht.h"
- 
- static int __get_num_vlan_infos(struct net_bridge_vlan_group *vg,
- 				u32 filter_mask)
-@@ -199,6 +200,8 @@ static inline size_t br_port_info_size(void)
- 		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_GROUP_FWD_MASK */
- 		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MRP_RING_OPEN */
- 		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MRP_IN_OPEN */
-+		+ nla_total_size(sizeof(u32))	/* IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT */
-+		+ nla_total_size(sizeof(u32))	/* IFLA_BRPORT_MCAST_EHT_HOSTS_CNT */
- 		+ 0;
- }
- 
-@@ -283,7 +286,11 @@ static int br_port_fill_attrs(struct sk_buff *skb,
- 
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	if (nla_put_u8(skb, IFLA_BRPORT_MULTICAST_ROUTER,
--		       p->multicast_router))
-+		       p->multicast_router) ||
-+	    nla_put_u32(skb, IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
-+			p->multicast_eht_hosts_limit) ||
-+	    nla_put_u32(skb, IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
-+			p->multicast_eht_hosts_cnt))
- 		return -EMSGSIZE;
- #endif
- 
-@@ -820,6 +827,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
- 	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
- 	[IFLA_BRPORT_ISOLATED]	= { .type = NLA_U8 },
- 	[IFLA_BRPORT_BACKUP_PORT] = { .type = NLA_U32 },
-+	[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT] = { .type = NLA_U32 },
- };
- 
- /* Change the state of the port and notify spanning tree */
-@@ -955,6 +963,15 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
- 		if (err)
- 			return err;
- 	}
-+
-+	if (tb[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT]) {
-+		u32 hlimit;
-+
-+		hlimit = nla_get_u32(tb[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT]);
-+		err = br_multicast_eht_set_hosts_limit(p, hlimit);
-+		if (err)
-+			return err;
-+	}
- #endif
- 
- 	if (tb[IFLA_BRPORT_GROUP_FWD_MASK]) {
-diff --git a/net/bridge/br_private_mcast_eht.h b/net/bridge/br_private_mcast_eht.h
-index b2c8d988721f..f89049f4892c 100644
---- a/net/bridge/br_private_mcast_eht.h
-+++ b/net/bridge/br_private_mcast_eht.h
-@@ -57,6 +57,8 @@ bool br_multicast_eht_handle(struct net_bridge_port_group *pg,
- 			     u32 nsrcs,
- 			     size_t addr_size,
- 			     int grec_type);
-+int br_multicast_eht_set_hosts_limit(struct net_bridge_port *p,
-+				     u32 eht_hosts_limit);
- 
- static inline bool
- br_multicast_eht_should_del_pg(const struct net_bridge_port_group *pg)
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 7a59cdddd3ce..b66305fae26b 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -16,6 +16,7 @@
- #include <linux/sched/signal.h>
- 
- #include "br_private.h"
-+#include "br_private_mcast_eht.h"
- 
- struct brport_attribute {
- 	struct attribute	attr;
-@@ -245,6 +246,29 @@ static int store_multicast_router(struct net_bridge_port *p,
- static BRPORT_ATTR(multicast_router, 0644, show_multicast_router,
- 		   store_multicast_router);
- 
-+static ssize_t show_multicast_eht_hosts_limit(struct net_bridge_port *p,
-+					      char *buf)
-+{
-+	return sprintf(buf, "%u\n", p->multicast_eht_hosts_limit);
-+}
-+
-+static int store_multicast_eht_hosts_limit(struct net_bridge_port *p,
-+					   unsigned long v)
-+{
-+	return br_multicast_eht_set_hosts_limit(p, v);
-+}
-+static BRPORT_ATTR(multicast_eht_hosts_limit, 0644,
-+		   show_multicast_eht_hosts_limit,
-+		   store_multicast_eht_hosts_limit);
-+
-+static ssize_t show_multicast_eht_hosts_cnt(struct net_bridge_port *p,
-+					    char *buf)
-+{
-+	return sprintf(buf, "%u\n", p->multicast_eht_hosts_cnt);
-+}
-+static BRPORT_ATTR(multicast_eht_hosts_cnt, 0444, show_multicast_eht_hosts_cnt,
-+		   NULL);
-+
- BRPORT_ATTR_FLAG(multicast_fast_leave, BR_MULTICAST_FAST_LEAVE);
- BRPORT_ATTR_FLAG(multicast_to_unicast, BR_MULTICAST_TO_UNICAST);
- #endif
-@@ -274,6 +298,8 @@ static const struct brport_attribute *brport_attrs[] = {
- 	&brport_attr_multicast_router,
- 	&brport_attr_multicast_fast_leave,
- 	&brport_attr_multicast_to_unicast,
-+	&brport_attr_multicast_eht_hosts_limit,
-+	&brport_attr_multicast_eht_hosts_cnt,
- #endif
- 	&brport_attr_proxyarp,
- 	&brport_attr_proxyarp_wifi,
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 3d6ab194d0f5..c313aaf2bce1 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -55,7 +55,7 @@
- #include <net/net_namespace.h>
- 
- #define RTNL_MAX_TYPE		50
--#define RTNL_SLAVE_MAX_TYPE	36
-+#define RTNL_SLAVE_MAX_TYPE	40
- 
- struct rtnl_link {
- 	rtnl_doit_func		doit;
--- 
-2.29.2
 
