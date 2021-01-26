@@ -1,24 +1,21 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1611631211;
- bh=Eq7bieJZtKDYCyu5A++q0xsq5LHk5AJNhRbeLAevgdk=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=e4XxxYD40rJleLQi42qn7kvmAkwBxaqGEjWstE4aOwuoWt+ZMhgq/VWipysdKO+YC
- TkVy6Db7ic/Nw4oaxK8mmiJVjQGVfdOqrpnO9u/N893yI20SVXd6nn62S6inwc0TES
- 6SlpkoQB0D8J6YED5f1Zs2tcG/Ep5aW7B9BTclcdxD4SdhyR+DeQLKAXsjZCQ8MMcN
- TB9WFp8GbzAKl5G37tc0PpoLOMVb8ExlGMlpqU/bRevTPRt8GXuS8FT5izzyMqkqs+
- Cp4xBCpxP84y/Okvz8lSSx/Gxad9jxLoq95VsX8Jt6zxDwHL5Ukjudsy86ieVeakjd
- P2RE7IsfwFoYw==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <liuhangbin@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=aKVkEDBagljuX3YCkGFMWzS+lPPdBp7IpdpqtPio3EU=;
+ b=f0NIGHVBopI0yPqJVr/PiUV/mhKQiqe9Zkr1Ss+4XSbNk5DhohIa6DolWNsmB2DccW
+ 6ljXAdWx0+uM7qFc/tpWeUvJx+IQhUU4WZEQOMpM5PFfCvCcawF+21VSP+7hbhtvSVoH
+ vXg5fWv1FdiYiyrSfvy1wLtuqn39uPftTEtbPbhb8DK036ka0oTsJtcNby9QPy0ipT10
+ mKeC80M6GDWPx+xX1naF5S0AGlEWgRgwo0H8LUOecxg/mTWmpjnXwIV9vMhhUoX9Gd6M
+ OTZ5mg69q2xam+YVhbRRsQo/rEnPUalloNWn1vm2jfaGhM4rGSvf74PG2Iq4le7LHsTb
+ USiw==
+From: Hangbin Liu <liuhangbin@gmail.com>
+Date: Tue, 26 Jan 2021 12:09:49 +0800
+Message-Id: <20210126040949.3130937-1-liuhangbin@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161163121094.4087.10728008683417299022.git-patchwork-notify@kernel.org>
-Date: Tue, 26 Jan 2021 03:20:10 +0000
-References: <1611542381-91178-1-git-send-email-abaci-bugfix@linux.alibaba.com>
-In-Reply-To: <1611542381-91178-1-git-send-email-abaci-bugfix@linux.alibaba.com>
-Subject: Re: [Bridge] [PATCH] bridge: Use PTR_ERR_OR_ZERO instead
-	if(IS_ERR(...)) + PTR_ERR
+Subject: [Bridge] [PATCH net-next] bridge: Propagate NETDEV_NOTIFY_PEERS
+	notifier
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,30 +24,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, ndesaulniers@google.com, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, natechancellor@gmail.com, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Jiri Pirko <jiri@resnulli.us>, bridge@lists.linux-foundation.org, Jarod Wilson <jarod@redhat.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Hangbin Liu <liuhangbin@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, "David S . Miller" <davem@davemloft.net>
 
-Hello:
+After adding bridge as upper layer of bond/team, we usually clean up the
+IP address on bond/team and set it on bridge. When there is a failover,
+bond/team will not send gratuitous ARP since it has no IP address.
+Then the down layer(e.g. VM tap dev) of bridge will not able to receive
+this notification.
 
-This patch was applied to netdev/net-next.git (refs/heads/master):
+Make bridge to be able to handle NETDEV_NOTIFY_PEERS notifier.
 
-On Mon, 25 Jan 2021 10:39:41 +0800 you wrote:
-> coccicheck suggested using PTR_ERR_OR_ZERO() and looking at the code.
-> 
-> Fix the following coccicheck warnings:
-> 
-> ./net/bridge/br_multicast.c:1295:7-13: WARNING: PTR_ERR_OR_ZERO can be
-> used.
-> 
-> [...]
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+---
+ net/bridge/br.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Here is the summary with links:
-  - bridge: Use PTR_ERR_OR_ZERO instead if(IS_ERR(...)) + PTR_ERR
-    https://git.kernel.org/netdev/net-next/c/8d21c882aba8
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/net/bridge/br.c b/net/bridge/br.c
+index ef743f94254d..b6a0921bb498 100644
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -125,6 +125,7 @@ static int br_device_event(struct notifier_block *unused, unsigned long event, v
+ 		/* Forbid underlying device to change its type. */
+ 		return NOTIFY_BAD;
+ 
++	case NETDEV_NOTIFY_PEERS:
+ 	case NETDEV_RESEND_IGMP:
+ 		/* Propagate to master device */
+ 		call_netdevice_notifiers(event, br->dev);
+-- 
+2.26.2
 
