@@ -1,23 +1,24 @@
-Return-Path: <willemdebruijn.kernel@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=s0qDWtLwcyse6Vw+4qM2uEdaJXfCHIGfegIlcnD3nSg=;
- b=XzALX73D2ahOpMtnBeDzQZdG8emxXcoDU47wCB6L7ZrQvNSpSSNUxTqfEhYv59IDEQ
- 515cfRf12SN7Kd8rZoZrCaQtDBCu90ZhHOcvT0WaVyJSotIU4kkSxgUhPcMdImkNnwqh
- Slo4NPmBV8SzdaWtme3ek/eFNq2JwodAJy+g3iHFYwz6QWVJXbxGhQE0xMu9SawdeNcz
- Jz8PQfyGztxUXQ7yvawUqtm8Y93I3q8f+EqtCY6czY1VHUx+fGfwC57Fq9wob1gCKHEy
- 7MUVG1alEHQE2vTRaLZ+O8sXh/U/HF8PK4hnRZQksgU0RYKEFmAOIXtibjy1MND8aKMS
- Pc5g==
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=sGsRWy51vjzAAtKfm5HLV3fNy1Jk4kk0SKHg2lCkGU0=;
+ b=kEQWCDjvtuvjd6M8uTc5wfk2OWNPfWOQWCw4t4QXxwV+1HKuEyOOygdrIiUJj7ZaG8
+ DtpHDKIfc6Ed0Ja/hgmsAnbYN3+xUgJLkak7o3RaiE01cWEt2mFG9Cihnl8uAVCA11sg
+ chj+cFOr/6HWmh/CN9XEKytrz78Qxf0cZoUHsui4KebU/WRjVga4arv0t24VGE/Zg+Ld
+ 8CyzxMp1O3Jsg/c5vgMPjgygNLDAjocF1AiNsyxzsIHVI0PtWVhB4vyUe8W1iGhC0iiG
+ XxzwfSqSWB+NiILCUrcEI+wzprgfG8x2Ezxj9M5Wa4tMd93bTJLzDVOsdacsUpik3Wrh
+ gV4Q==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Tue, 26 Jan 2021 11:21:31 +0200
+Message-Id: <20210126092132.407355-2-razor@blackwall.org>
+In-Reply-To: <20210126092132.407355-1-razor@blackwall.org>
+References: <20210126092132.407355-1-razor@blackwall.org>
 MIME-Version: 1.0
-References: <20210123161812.1043345-1-horatiu.vultur@microchip.com>
- <20210123161812.1043345-4-horatiu.vultur@microchip.com>
-In-Reply-To: <20210123161812.1043345-4-horatiu.vultur@microchip.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Mon, 25 Jan 2021 19:06:18 -0500
-Message-ID: <CAF=yD-KdqagGYZwzke-tX257JbtbPwi-2p0esOV1EFX3DN_ZUg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH net-next 3/4] bridge: mrp: Extend
- br_mrp_switchdev to detect better the errors
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 1/2] net: bridge: multicast: add per-port
+	EHT hosts limit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,160 +27,127 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: ivecera@redhat.com, Andrew Lunn <andrew@lunn.ch>, =?UTF-8?B?SmnFmcOtIFDDrXJrbw==?= <jiri@resnulli.us>, Rasmus Villemoes <rasmus.villemoes@prevas.dk>, Network Development <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, nikolay@nvidia.com, roopa@nvidia.com, Jakub Kicinski <kuba@kernel.org>, David Miller <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-On Sat, Jan 23, 2021 at 11:23 AM Horatiu Vultur
-<horatiu.vultur@microchip.com> wrote:
->
-> This patch extends the br_mrp_switchdev functions to be able to have a
-> better understanding what cause the issue and if the SW needs to be used
-> as a backup.
->
-> There are the following cases:
-> - when the code is compiled without CONFIG_NET_SWITCHDEV. In this case
->   return success so the SW can continue with the protocol. Depending on
->   the function it returns 0 or BR_MRP_SW.
-> - when code is compiled with CONFIG_NET_SWITCHDEV and the driver doesn't
->   implement any MRP callbacks, then the HW can't run MRP so it just
->   returns -EOPNOTSUPP. So the SW will stop further to configure the
->   node.
-> - when code is compiled with CONFIG_NET_SWITCHDEV and the driver fully
->   supports any MRP functionality then the SW doesn't need to do
->   anything.  The functions will return 0 or BR_MRP_HW.
-> - when code is compiled with CONFIG_NET_SWITCHDEV and the HW can't run
->   completely the protocol but it can help the SW to run it.  For
->   example, the HW can't support completely MRM role(can't detect when it
->   stops receiving MRP Test frames) but it can redirect these frames to
->   CPU. In this case it is possible to have a SW fallback. The SW will
->   try initially to call the driver with sw_backup set to false, meaning
->   that the HW can implement completely the role. If the driver returns
->   -EOPNOTSUPP, the SW will try again with sw_backup set to false,
->   meaning that the SW will detect when it stops receiving the frames. In
->   case the driver returns 0 then the SW will continue to configure the
->   node accordingly.
->
-> In this way is more clear when the SW needs to stop configuring the
-> node, or when the SW is used as a backup or the HW can implement the
-> functionality.
->
-> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
+Add a default limit of 512 for number of tracked EHT hosts per-port.
 
-> -int br_mrp_switchdev_set_ring_role(struct net_bridge *br,
-> -                                  struct br_mrp *mrp,
-> -                                  enum br_mrp_ring_role_type role)
-> +enum br_mrp_hw_support
-> +br_mrp_switchdev_set_ring_role(struct net_bridge *br, struct br_mrp *mrp,
-> +                              enum br_mrp_ring_role_type role)
->  {
->         struct switchdev_obj_ring_role_mrp mrp_role = {
->                 .obj.orig_dev = br->dev,
->                 .obj.id = SWITCHDEV_OBJ_ID_RING_ROLE_MRP,
->                 .ring_role = role,
->                 .ring_id = mrp->ring_id,
-> +               .sw_backup = false,
->         };
->         int err;
->
-> +       /* If switchdev is not enabled then just run in SW */
-> +       if (!IS_ENABLED(CONFIG_NET_SWITCHDEV))
-> +               return BR_MRP_SW;
-> +
-> +       /* First try to see if HW can implement comptletly the role in HW */
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+---
+ net/bridge/br_multicast.c         |  1 +
+ net/bridge/br_multicast_eht.c     |  7 +++++++
+ net/bridge/br_private.h           |  2 ++
+ net/bridge/br_private_mcast_eht.h | 26 ++++++++++++++++++++++++++
+ 4 files changed, 36 insertions(+)
 
-typo: completely
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index df5db6a58e95..8c0029f415ea 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1608,6 +1608,7 @@ static void br_mc_disabled_update(struct net_device *dev, bool value)
+ int br_multicast_add_port(struct net_bridge_port *port)
+ {
+ 	port->multicast_router = MDB_RTR_TYPE_TEMP_QUERY;
++	port->multicast_eht_hosts_limit = BR_MCAST_DEFAULT_EHT_HOSTS_LIMIT;
+ 
+ 	timer_setup(&port->multicast_router_timer,
+ 		    br_multicast_router_expired, 0);
+diff --git a/net/bridge/br_multicast_eht.c b/net/bridge/br_multicast_eht.c
+index ff9b3ba37cab..445768c8495f 100644
+--- a/net/bridge/br_multicast_eht.c
++++ b/net/bridge/br_multicast_eht.c
+@@ -127,6 +127,8 @@ static void __eht_destroy_host(struct net_bridge_group_eht_host *eht_host)
+ {
+ 	WARN_ON(!hlist_empty(&eht_host->set_entries));
+ 
++	br_multicast_eht_hosts_dec(eht_host->pg);
++
+ 	rb_erase(&eht_host->rb_node, &eht_host->pg->eht_host_tree);
+ 	RB_CLEAR_NODE(&eht_host->rb_node);
+ 	kfree(eht_host);
+@@ -257,6 +259,9 @@ __eht_lookup_create_host(struct net_bridge_port_group *pg,
+ 			return this;
+ 	}
+ 
++	if (br_multicast_eht_hosts_over_limit(pg))
++		return NULL;
++
+ 	eht_host = kzalloc(sizeof(*eht_host), GFP_ATOMIC);
+ 	if (!eht_host)
+ 		return NULL;
+@@ -269,6 +274,8 @@ __eht_lookup_create_host(struct net_bridge_port_group *pg,
+ 	rb_link_node(&eht_host->rb_node, parent, link);
+ 	rb_insert_color(&eht_host->rb_node, &pg->eht_host_tree);
+ 
++	br_multicast_eht_hosts_inc(pg);
++
+ 	return eht_host;
+ }
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 0e26ba623006..d242ba668e47 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -310,6 +310,8 @@ struct net_bridge_port {
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	struct bridge_mcast_own_query	ip6_own_query;
+ #endif /* IS_ENABLED(CONFIG_IPV6) */
++	u32				multicast_eht_hosts_limit;
++	u32				multicast_eht_hosts_cnt;
+ 	unsigned char			multicast_router;
+ 	struct bridge_mcast_stats	__percpu *mcast_stats;
+ 	struct timer_list		multicast_router_timer;
+diff --git a/net/bridge/br_private_mcast_eht.h b/net/bridge/br_private_mcast_eht.h
+index 9daffa3ad8d5..b2c8d988721f 100644
+--- a/net/bridge/br_private_mcast_eht.h
++++ b/net/bridge/br_private_mcast_eht.h
+@@ -4,6 +4,8 @@
+ #ifndef _BR_PRIVATE_MCAST_EHT_H_
+ #define _BR_PRIVATE_MCAST_EHT_H_
+ 
++#define BR_MCAST_DEFAULT_EHT_HOSTS_LIMIT 512
++
+ union net_bridge_eht_addr {
+ 	__be32				ip4;
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -47,6 +49,7 @@ struct net_bridge_group_eht_set {
+ 	struct net_bridge_mcast_gc	mcast_gc;
+ };
+ 
++#ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ void br_multicast_eht_clean_sets(struct net_bridge_port_group *pg);
+ bool br_multicast_eht_handle(struct net_bridge_port_group *pg,
+ 			     void *h_addr,
+@@ -62,4 +65,27 @@ br_multicast_eht_should_del_pg(const struct net_bridge_port_group *pg)
+ 		  RB_EMPTY_ROOT(&pg->eht_host_tree));
+ }
+ 
++static inline bool
++br_multicast_eht_hosts_over_limit(const struct net_bridge_port_group *pg)
++{
++	const struct net_bridge_port *p = pg->key.port;
++
++	return !!(p->multicast_eht_hosts_cnt >= p->multicast_eht_hosts_limit);
++}
++
++static inline void br_multicast_eht_hosts_inc(struct net_bridge_port_group *pg)
++{
++	struct net_bridge_port *p = pg->key.port;
++
++	p->multicast_eht_hosts_cnt++;
++}
++
++static inline void br_multicast_eht_hosts_dec(struct net_bridge_port_group *pg)
++{
++	struct net_bridge_port *p = pg->key.port;
++
++	p->multicast_eht_hosts_cnt--;
++}
++#endif /* CONFIG_BRIDGE_IGMP_SNOOPING */
++
+ #endif /* _BR_PRIVATE_MCAST_EHT_H_ */
+-- 
+2.29.2
 
->         if (role == BR_MRP_RING_ROLE_DISABLED)
->                 err = switchdev_port_obj_del(br->dev, &mrp_role.obj);
->         else
->                 err = switchdev_port_obj_add(br->dev, &mrp_role.obj, NULL);
->
-> -       return err;
-> +       /* In case of success then just return and notify the SW that doesn't
-> +        * need to do anything
-> +        */
-> +       if (!err)
-> +               return BR_MRP_HW;
-> +
-> +       /* There was some issue then is not possible at all to have this role so
-> +        * just return failire
-
-typo: failure
-
-> +        */
-> +       if (err != -EOPNOTSUPP)
-> +               return BR_MRP_NONE;
-> +
-> +       /* In case the HW can't run complety in HW the protocol, we try again
-
-typo: completely. Please proofread your comments closely. I saw at
-least one typo in the commit messages too.
-
-More in general comments that say what the code does can generally be eschewed.
-
-> +        * and this time to allow the SW to help, but the HW needs to redirect
-> +        * the frames to CPU.
-> +        */
-> +       mrp_role.sw_backup = true;
-> +       err = switchdev_port_obj_add(br->dev, &mrp_role.obj, NULL);
-
-This calls the same function. I did not see code that changes behavior
-based on sw_backup. Will this not give the same result?
-
-Also, this lacks the role test (add or del). Is that because if
-falling back onto SW mode during add, this code does not get called at
-all on delete?
-
-> +
-> +       /* In case of success then notify the SW that it needs to help with the
-> +        * protocol
-> +        */
-> +       if (!err)
-> +               return BR_MRP_SW;
-> +
-> +       return BR_MRP_NONE;
->  }
->
-> -int br_mrp_switchdev_send_ring_test(struct net_bridge *br,
-> -                                   struct br_mrp *mrp, u32 interval,
-> -                                   u8 max_miss, u32 period,
-> -                                   bool monitor)
-> +enum br_mrp_hw_support
-> +br_mrp_switchdev_send_ring_test(struct net_bridge *br, struct br_mrp *mrp,
-> +                               u32 interval, u8 max_miss, u32 period,
-> +                               bool monitor)
->  {
->         struct switchdev_obj_ring_test_mrp test = {
->                 .obj.orig_dev = br->dev,
-> @@ -79,12 +106,29 @@ int br_mrp_switchdev_send_ring_test(struct net_bridge *br,
->         };
->         int err;
->
-> +       /* If switchdev is not enabled then just run in SW */
-> +       if (!IS_ENABLED(CONFIG_NET_SWITCHDEV))
-> +               return BR_MRP_SW;
-> +
->         if (interval == 0)
->                 err = switchdev_port_obj_del(br->dev, &test.obj);
->         else
->                 err = switchdev_port_obj_add(br->dev, &test.obj, NULL);
->
-> -       return err;
-> +       /* If everything succeed then the HW can send this frames, so the SW
-> +        * doesn't need to generate them
-> +        */
-> +       if (!err)
-> +               return BR_MRP_HW;
-> +
-> +       /* There was an error when the HW was configured so the SW return
-> +        * failure
-> +        */
-> +       if (err != -EOPNOTSUPP)
-> +               return BR_MRP_NONE;
-> +
-> +       /* So the HW can't generate these frames so allow the SW to do that */
-> +       return BR_MRP_SW;
-
-This is the same ternary test as above. It recurs a few times. Perhaps
-it can use a helper.
