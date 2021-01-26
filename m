@@ -1,25 +1,25 @@
-Return-Path: <rasmus.villemoes@prevas.dk>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=prevas.dk; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QeE9PIWmK8ZtnPPsM5maKWOUEmzyBru4XDJdBahPyPA=;
- b=QqCb9hPPSXOLo1mz9e1IGbXkOVb/Hf6pbmpsh8HRzQROiR3N/4Qhuq1Vl5qYMIxtSgcl/95lcT4kyslT4e4bZKI5e1ye1Ef14YjW8K2Y9Maj8OGPLl8ivENGSX2yKJX/IvoQgAISO30PV4YsEsKO41jMCH4iRWAWC2/wdE7w5YA=
-References: <20210118181319.25419-1-rasmus.villemoes@prevas.dk>
- <20210118185618.75h45rjf6qqberic@soft-dev3.localdomain>
- <20210118194632.zn5yucjfibguemjq@skbuf>
- <20210118202036.wk2fuwa3hysg4dmj@soft-dev3.localdomain>
- <20210118212735.okoov5ndybszd6m5@skbuf>
- <20210119083240.37cxv3lxi25hwduj@soft-dev3.localdomain>
- <YAcAIcwfp8za9JUo@lunn.ch>
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Message-ID: <6770bb94-e615-8f14-f83b-8bf95b5739de@prevas.dk>
-Date: Mon, 25 Jan 2021 22:36:48 +0100
-In-Reply-To: <YAcAIcwfp8za9JUo@lunn.ch>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <kuba@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1611628401;
+ bh=4ajdCImO6fw2kJ8zy315owSVLJtWw0Ta2IZ7DSbr9wQ=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=gqXiV+Hv0ke4PHl3hhSq5hcW42UDT19C43qo7wvy8/NBx0HTIHXh78t2lix0GHPiW
+ dVQtFeJGqsEtGN5RLJF5HZSw25wXdS5Ovqrr7Ho1FD5vwtVdnxzXHUTditKXr7i0zQ
+ rzTWPDAKczvGknLnNVABd4CsFlLg9O7OF6yADbkQDG1MsqNBt9VJGQb9KJxv5fLK3Q
+ GPE0NXixrNQ+g3adPkrPoXF8f9nPKNYtUu0VRARCSG3f3/xgU4r7ckwqr7O+Bkjwu4
+ FN0KGGTVklkppydsLy8IvyMQ6Gqb44Zie4844WHJYI/QCIUWblgAd1ANDBwvO5xfgn
+ 7mb9ecqKS2cJw==
+Date: Mon, 25 Jan 2021 18:33:20 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+Message-ID: <20210125183320.161f0afb@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <4c68f49c-a537-3f8f-73ed-5f243cb142a9@nvidia.com>
+References: <1611542381-91178-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+ <4c68f49c-a537-3f8f-73ed-5f243cb142a9@nvidia.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net] net: mrp: use stp state as substitute for
- unimplemented mrp state
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: Use PTR_ERR_OR_ZERO instead
+ if(IS_ERR(...)) + PTR_ERR
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,61 +28,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>, Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean <vladimir.oltean@nxp.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Nikolay Aleksandrov <nikolay@nvidia.com>, Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, ndesaulniers@google.com, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, roopa@nvidia.com, natechancellor@gmail.com, davem@davemloft.net
 
-On 19/01/2021 16.52, Andrew Lunn wrote:
-> On Tue, Jan 19, 2021 at 09:32:40AM +0100, Horatiu Vultur wrote:
->> The 01/18/2021 21:27, Vladimir Oltean wrote:
->>> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
->>>
->>> On Mon, Jan 18, 2021 at 09:20:36PM +0100, Horatiu Vultur wrote:
->>>> The 01/18/2021 19:46, Vladimir Oltean wrote:
->>>>>
->>>>> On Mon, Jan 18, 2021 at 07:56:18PM +0100, Horatiu Vultur wrote:
->>>>>> The reason was to stay away from STP, because you can't run these two
->>>>>> protocols at the same time. Even though in SW, we reuse port's state.
->>>>>> In our driver(which is not upstreamed), we currently implement
->>>>>> SWITCHDEV_ATTR_ID_MRP_PORT_STATE and just call the
->>>>>> SWITCHDEV_ATTR_ID_PORT_STP_STATE.
->>>>>
->>>>> And isn't Rasmus's approach reasonable, in that it allows unmodified
->>>>> switchdev drivers to offload MRP port states without creating
->>>>> unnecessary code churn?
->>>>
->>>> I am sorry but I don't see this as the correct solution. In my opinion,
->>>> I would prefer to have 3 extra lines in the driver and have a better
->>>> view of what is happening. Than having 2 calls in the driver for
->>>> different protocols.
->>>
->>> I think the question boils down to: is a MRP-unaware driver expected to
->>> work with the current bridge MRP code?
->>
->> If the driver has switchdev support, then is not expected to work with
->> the current bridge MRP code.
+On Mon, 25 Jan 2021 10:23:00 +0200 Nikolay Aleksandrov wrote:
+> On 25/01/2021 04:39, Jiapeng Zhong wrote:
+> > coccicheck suggested using PTR_ERR_OR_ZERO() and looking at the code.
+> > 
+> > Fix the following coccicheck warnings:
+> > 
+> > ./net/bridge/br_multicast.c:1295:7-13: WARNING: PTR_ERR_OR_ZERO can be
+> > used.
+> > 
+> > Reported-by: Abaci <abaci@linux.alibaba.com>
+> > Signed-off-by: Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
+> > ---
+> >  net/bridge/br_multicast.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> > index 257ac4e..2229d10 100644
+> > --- a/net/bridge/br_multicast.c
+> > +++ b/net/bridge/br_multicast.c
+> > @@ -1292,7 +1292,7 @@ static int br_multicast_add_group(struct net_bridge *br,
+> >  	pg = __br_multicast_add_group(br, port, group, src, filter_mode,
+> >  				      igmpv2_mldv1, false);
+> >  	/* NULL is considered valid for host joined groups */
+> > -	err = IS_ERR(pg) ? PTR_ERR(pg) : 0;
+> > +	err = PTR_ERR_OR_ZERO(pg);
+> >  	spin_unlock(&br->multicast_lock);
+> >  
+> >  	return err;
+> >   
 > 
->>
->> For example, the Ocelot driver, it has switchdev support but no MRP
->> support so this is not expected to work.
-> 
-> Then ideally, we need switchdev core to be testing for the needed ops
-> and returning an error which prevents MRP being configured when it
-> cannot work.
+> This should be targeted at net-next.
+> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Why are we now discussing crippling switchdev code instead of making it
-work? Yeah, this is not all that is needed to make MRP work with
-existing switchdev/dsa drivers, but it's certainly part of the puzzle.
-The patch at the beginning of this thread did that.
-
-Another approach that I'd probably prefer even more, given that Horatiu
-said that even in the only driver (and an out-of-tree at that) currently
-knowing about SWITCHDEV_ATTR_ID_MRP_PORT_STATE actually just translates
-that to the equivalent SWITCHDEV_ATTR_ID_PORT_STP_STATE, is to simply do
-that translation back in br_mrp_port_switchdev_set_state() (i.e., not
-having the translation as a fallback). We'd keep the netlink
-IFLA_BRIDGE_MRP_PORT_STATE_STATE because that's already uapi, and there
-_might_ be some future driver that would need to do something different,
-but until then I don't see the point of duplicating code down the call
-stack.
-
-Rasmus
+Applied, thanks!
