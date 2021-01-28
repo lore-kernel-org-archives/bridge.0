@@ -1,30 +1,43 @@
-Return-Path: <liuhangbin@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=PiWPUkYWirALNH3srwHMZyB8M+2z39u4PPSrRrniMj0=;
- b=X9Cz6XO/3EAt6MSawZAW8HJBYaEM3CpAF7LwXY/bUY7Xq5iE5bCtpKvVE81jnuRH6M
- YmF5wPFW0p3/cAq0kieYeXBKrHtHbWKU0VTuR8d1Ao39E4XAWb6defdNh7J81/3kuhdG
- lK8Lor1+q+VO4qcGqmPMVTbEOSj8lXw+t1ueLMTbkt3XWgmCVKSpjxLZS/x4fgccUokQ
- 9qLVfvH+SlkxIU7EeJX0u0UvUVVZPMgVK6/pG0DhwOu0VryYdKhJE+dKl61nknpqywQm
- lTh8cBJm5bnEvfwAVQm92rwQjjxs3ObZD6n8sQpzQ+/VhovFNLwA0hJLkZ2itcWv7Hm1
- UpOA==
-Date: Thu, 28 Jan 2021 11:27:26 +0800
-From: Hangbin Liu <liuhangbin@gmail.com>
-Message-ID: <20210128032726.GP1421720@Leo-laptop-t470s>
-References: <20210126040949.3130937-1-liuhangbin@gmail.com>
- <8a34f089-204f-aeb1-afc7-26ccc06419eb@nvidia.com>
- <20210126132448.GN1421720@Leo-laptop-t470s>
- <90df4fe6-fcc5-f59a-c89c-6f596443af4d@nvidia.com>
- <0b5741b6-48c0-0c34-aed8-257f3e203ac5@nvidia.com>
- <20210127041521.GO1421720@Leo-laptop-t470s>
- <e22d0eea-4236-5916-cc42-532a3dfcc9dd@nvidia.com>
+Return-Path: <nikolay@nvidia.com>
+References: <20210126093533.441338-1-razor@blackwall.org>
+ <20210127174226.4d29f454@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <046fad19-2f44-21d2-82b9-feb1fd62b068@nvidia.com>
+Date: Thu, 28 Jan 2021 11:12:26 +0200
+In-Reply-To: <20210127174226.4d29f454@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e22d0eea-4236-5916-cc42-532a3dfcc9dd@nvidia.com>
-Subject: Re: [Bridge] [PATCH net-next] bridge: Propagate NETDEV_NOTIFY_PEERS
-	notifier
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1611825163; bh=6434+fx3NeTTQzriDT1tL1g4EM7i187MlZg28mNBPeE=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
+ Authentication-Results:Subject:To:CC:References:From:Message-ID:
+ Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
+ Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
+ MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
+ X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
+ X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
+ X-Microsoft-Antispam-PRVS:X-MS-Oob-TLC-OOBClassifiers:
+ X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
+ X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+ X-MS-Exchange-AntiSpam-MessageData:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+ X-MS-Exchange-CrossTenant-FromEntityHeader:
+ X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+ X-MS-Exchange-CrossTenant-UserPrincipalName:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=YnZStjHaf+6bzVPdmJA4QAEgq+srZgxy98AjqLhZU4UtWyYpBSj/mvo1UNkzeCFR0
+ 68FcXw+3rTHfwkoMTjdbDrbFYtPyN4g+/HDJa+4t8vcTn/FK/I4SfuF5aIbgnCutIR
+ KSfQIHHcQ9fMlYcnzVbyNsqsbfOuSP5u5rDdxWr37ktzlUCsFNt0r8zCJurAsgwznG
+ NtAPhUiflMbciWQMm6jY5F2zalC1Nc6EW7k3N/NgIEZC0zgXvxZ47jI/8zXv74+fSz
+ aqDIaLRYxYn1KbtPDf1ayfq1vk5cYvo+gra/dRpWZ7gC0Z8m/5Z30RhQJqtY882Ccn
+ XU2uge+M1FDsQ==
+Subject: Re: [Bridge] [PATCH net-next v2 0/2] net: bridge: multicast:
+ per-port EHT hosts limit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,38 +46,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Jarod Wilson <jarod@redhat.com>, Ido Schimmel <idosch@idosch.org>, Roopa Prabhu <roopa@nvidia.com>, "David S . Miller" <davem@davemloft.net>
+To: Jakub Kicinski <kuba@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-On Wed, Jan 27, 2021 at 11:43:30AM +0200, Nikolay Aleksandrov wrote:
-> > For IGMP, although you said they are different. In my understanding, when
-> > bridge mac changed, we need to re-join multicast group, while a gratuitous
-> > ARP is also needed. I couldn't find a reason why IGMP message is OK but GARP
-> > is not.
-> > 
+On 28/01/2021 03:42, Jakub Kicinski wrote:
+> On Tue, 26 Jan 2021 11:35:31 +0200 Nikolay Aleksandrov wrote:
+>> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+>>
+>> Hi,
+>> This set adds a simple configurable per-port EHT tracked hosts limit.
+>> Patch 01 adds a default limit of 512 tracked hosts per-port, since the EHT
+>> changes are still only in net-next that shouldn't be a problem. Then
+>> patch 02 adds the ability to configure and retrieve the hosts limit
+>> and to retrieve the current number of tracked hosts per port.
+>> Let's be on the safe side and limit the number of tracked hosts by
+>> default while allowing the user to increase that limit if needed.
 > 
-> I think that's needed more because of port changing rather than mac changing.
-> Switches need to be updated if the port has changed, all of that is already handled
-> correctly by the bond. And I also meant that mcast is handled very differently in
-> the bridge, usually you'd have snooping enabled.
+> Applied, thanks!
 > 
-> The patch below isn't correct and will actually break some cases when bonding
-> flaps ports and propagates NETDEV_RESEND_IGMP with a bridge on top.
+> I'm curious that you add those per-port sysfs files, is this a matter
+> of policy for the bridge? Seems a bit like a waste of memory at this
+> point.
+> 
 
-Hi Nikolay,
+Indeed, that's how historically new port and bridge options are added.
+They're all exposed via sysfs. I wonder if we should just draw the line
+and continue with netlink-only attributes. Perhaps we should add a comment
+about it for anyone adding new ones.
 
-I'm little curious. bond/team device will resend IGMP as their MAC address changed.
+Since this is in net-next I can send a follow up to drop the sysfs part
+and another to add that comment.
 
-- bond_resend_igmp_join_requests_delayed()
-  - call_netdevice_notifiers(NETDEV_RESEND_IGMP, bond->dev);
-- team_mcast_rejoin_work()
-  - call_netdevice_notifiers(NETDEV_RESEND_IGMP, team->dev);
+WDYT?
 
-What's the purpose that bridge resend IGMP if it's mac address not changed?
+Cheers,
+ Nik
 
-I mean, when there is a bridge on top of bond/team, when bond/team flap ports,
-bond/team will re-send IGMP and bridge just need to forward it. bridge doesn't
-need to re-send the IGMP itself if it's MAC address not changed.
-
-Thanks
-Hangbin
