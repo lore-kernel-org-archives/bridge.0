@@ -1,24 +1,30 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1611802210;
- bh=vii+OCZ5Nl2HePoyD10UsBIj2kCrR8hpfV4ficfZ7w8=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=SvPVAwdccF0zoNRlq0q/7mQMXiBM89Xjp71jYn/2Lx+gL1nfZhTeY0v9L5VXqOK/C
- rZIOh4CfJgYiymWwSRMJ5YajsHgGp9R1iJngG4Egn4/wXFV8NWA4emWilxZzxdFiIm
- 58kumg8BoJJqjuIKkMN4GhhJgLKSHVB2IctI6ulb3PcLHSE1oqz6qk2udtH8BGVl82
- iyonObTU70Qq0rVqQhg9eZsu+2zTnLiK0MpIQXsQe4jBIDGJVF3sCTq+xjjhNbTbTQ
- gSlduQ/ZwnB6oDqhpCKUnr/vMAuqPiT8XThASXWWEWEishjrZ/zhkalVH+yq5AKFUW
- lZfBq/ZS1yH5Q==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <liuhangbin@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=PiWPUkYWirALNH3srwHMZyB8M+2z39u4PPSrRrniMj0=;
+ b=X9Cz6XO/3EAt6MSawZAW8HJBYaEM3CpAF7LwXY/bUY7Xq5iE5bCtpKvVE81jnuRH6M
+ YmF5wPFW0p3/cAq0kieYeXBKrHtHbWKU0VTuR8d1Ao39E4XAWb6defdNh7J81/3kuhdG
+ lK8Lor1+q+VO4qcGqmPMVTbEOSj8lXw+t1ueLMTbkt3XWgmCVKSpjxLZS/x4fgccUokQ
+ 9qLVfvH+SlkxIU7EeJX0u0UvUVVZPMgVK6/pG0DhwOu0VryYdKhJE+dKl61nknpqywQm
+ lTh8cBJm5bnEvfwAVQm92rwQjjxs3ObZD6n8sQpzQ+/VhovFNLwA0hJLkZ2itcWv7Hm1
+ UpOA==
+Date: Thu, 28 Jan 2021 11:27:26 +0800
+From: Hangbin Liu <liuhangbin@gmail.com>
+Message-ID: <20210128032726.GP1421720@Leo-laptop-t470s>
+References: <20210126040949.3130937-1-liuhangbin@gmail.com>
+ <8a34f089-204f-aeb1-afc7-26ccc06419eb@nvidia.com>
+ <20210126132448.GN1421720@Leo-laptop-t470s>
+ <90df4fe6-fcc5-f59a-c89c-6f596443af4d@nvidia.com>
+ <0b5741b6-48c0-0c34-aed8-257f3e203ac5@nvidia.com>
+ <20210127041521.GO1421720@Leo-laptop-t470s>
+ <e22d0eea-4236-5916-cc42-532a3dfcc9dd@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161180221086.27895.14934580567433280199.git-patchwork-notify@kernel.org>
-Date: Thu, 28 Jan 2021 02:50:10 +0000
-References: <20210126093533.441338-1-razor@blackwall.org>
-In-Reply-To: <20210126093533.441338-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next v2 0/2] net: bridge: multicast:
- per-port EHT hosts limit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e22d0eea-4236-5916-cc42-532a3dfcc9dd@nvidia.com>
+Subject: Re: [Bridge] [PATCH net-next] bridge: Propagate NETDEV_NOTIFY_PEERS
+	notifier
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,36 +33,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Jarod Wilson <jarod@redhat.com>, Ido Schimmel <idosch@idosch.org>, Roopa Prabhu <roopa@nvidia.com>, "David S . Miller" <davem@davemloft.net>
 
-Hello:
-
-This series was applied to netdev/net-next.git (refs/heads/master):
-
-On Tue, 26 Jan 2021 11:35:31 +0200 you wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On Wed, Jan 27, 2021 at 11:43:30AM +0200, Nikolay Aleksandrov wrote:
+> > For IGMP, although you said they are different. In my understanding, when
+> > bridge mac changed, we need to re-join multicast group, while a gratuitous
+> > ARP is also needed. I couldn't find a reason why IGMP message is OK but GARP
+> > is not.
+> > 
 > 
-> Hi,
-> This set adds a simple configurable per-port EHT tracked hosts limit.
-> Patch 01 adds a default limit of 512 tracked hosts per-port, since the EHT
-> changes are still only in net-next that shouldn't be a problem. Then
-> patch 02 adds the ability to configure and retrieve the hosts limit
-> and to retrieve the current number of tracked hosts per port.
-> Let's be on the safe side and limit the number of tracked hosts by
-> default while allowing the user to increase that limit if needed.
+> I think that's needed more because of port changing rather than mac changing.
+> Switches need to be updated if the port has changed, all of that is already handled
+> correctly by the bond. And I also meant that mcast is handled very differently in
+> the bridge, usually you'd have snooping enabled.
 > 
-> [...]
+> The patch below isn't correct and will actually break some cases when bonding
+> flaps ports and propagates NETDEV_RESEND_IGMP with a bridge on top.
 
-Here is the summary with links:
-  - [net-next,v2,1/2] net: bridge: multicast: add per-port EHT hosts limit
-    https://git.kernel.org/netdev/net-next/c/89268b056ed1
-  - [net-next,v2,2/2] net: bridge: multicast: make tracked EHT hosts limit configurable
-    https://git.kernel.org/netdev/net-next/c/2dba407f994e
+Hi Nikolay,
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+I'm little curious. bond/team device will resend IGMP as their MAC address changed.
 
+- bond_resend_igmp_join_requests_delayed()
+  - call_netdevice_notifiers(NETDEV_RESEND_IGMP, bond->dev);
+- team_mcast_rejoin_work()
+  - call_netdevice_notifiers(NETDEV_RESEND_IGMP, team->dev);
 
+What's the purpose that bridge resend IGMP if it's mac address not changed?
+
+I mean, when there is a bridge on top of bond/team, when bond/team flap ports,
+bond/team will re-send IGMP and bridge just need to forward it. bridge doesn't
+need to re-send the IGMP itself if it's MAC address not changed.
+
+Thanks
+Hangbin
