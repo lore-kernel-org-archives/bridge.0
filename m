@@ -1,22 +1,22 @@
-Return-Path: <kuba@kernel.org>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1611798147;
- bh=4vLfmeyK9AuDFxkUBs0MB1PAHNzPTWLRrZAfsUxxuhY=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=f/qYBVMaB8KKg7rQbGniI96CxgU6uiTi1mzhuP+uWQ/h2IW6HVX3RG1+kY2EcEuhy
- jrQbp/jteSR+5EFzqAxiY3erQifVlTyERtWEMf1cyijsf3j+sWvYtyaghDHaFHRo48
- Ap4flzMUqNk0421/SO6YlarmETgB88Ajub0CzItNt3y7SfDVZXty3oX5XyhvUpMeHd
- uUl3umrmGD3qWc8JWD21vbj3gM9hDbBY49McVAwhJOraX6mp3t2FVCY4d1JoGOJTTF
- j4ktdoRstVNqx+h7snM1PoxDuBvCGfDlGFU+YF2JV/wnigZlQ/AuvPOTLkQLek1zJa
- 1UkHqc4xBJyrQ==
-Date: Wed, 27 Jan 2021 17:42:26 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20210127174226.4d29f454@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210126093533.441338-1-razor@blackwall.org>
-References: <20210126093533.441338-1-razor@blackwall.org>
+ s=k20201202; t=1611802210;
+ bh=vii+OCZ5Nl2HePoyD10UsBIj2kCrR8hpfV4ficfZ7w8=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=SvPVAwdccF0zoNRlq0q/7mQMXiBM89Xjp71jYn/2Lx+gL1nfZhTeY0v9L5VXqOK/C
+ rZIOh4CfJgYiymWwSRMJ5YajsHgGp9R1iJngG4Egn4/wXFV8NWA4emWilxZzxdFiIm
+ 58kumg8BoJJqjuIKkMN4GhhJgLKSHVB2IctI6ulb3PcLHSE1oqz6qk2udtH8BGVl82
+ iyonObTU70Qq0rVqQhg9eZsu+2zTnLiK0MpIQXsQe4jBIDGJVF3sCTq+xjjhNbTbTQ
+ gSlduQ/ZwnB6oDqhpCKUnr/vMAuqPiT8XThASXWWEWEishjrZ/zhkalVH+yq5AKFUW
+ lZfBq/ZS1yH5Q==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <161180221086.27895.14934580567433280199.git-patchwork-notify@kernel.org>
+Date: Thu, 28 Jan 2021 02:50:10 +0000
+References: <20210126093533.441338-1-razor@blackwall.org>
+In-Reply-To: <20210126093533.441338-1-razor@blackwall.org>
 Subject: Re: [Bridge] [PATCH net-next v2 0/2] net: bridge: multicast:
  per-port EHT hosts limit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -28,9 +28,13 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Tue, 26 Jan 2021 11:35:31 +0200 Nikolay Aleksandrov wrote:
+Hello:
+
+This series was applied to netdev/net-next.git (refs/heads/master):
+
+On Tue, 26 Jan 2021 11:35:31 +0200 you wrote:
 > From: Nikolay Aleksandrov <nikolay@nvidia.com>
 > 
 > Hi,
@@ -41,9 +45,18 @@ On Tue, 26 Jan 2021 11:35:31 +0200 Nikolay Aleksandrov wrote:
 > and to retrieve the current number of tracked hosts per port.
 > Let's be on the safe side and limit the number of tracked hosts by
 > default while allowing the user to increase that limit if needed.
+> 
+> [...]
 
-Applied, thanks!
+Here is the summary with links:
+  - [net-next,v2,1/2] net: bridge: multicast: add per-port EHT hosts limit
+    https://git.kernel.org/netdev/net-next/c/89268b056ed1
+  - [net-next,v2,2/2] net: bridge: multicast: make tracked EHT hosts limit configurable
+    https://git.kernel.org/netdev/net-next/c/2dba407f994e
 
-I'm curious that you add those per-port sysfs files, is this a matter
-of policy for the bridge? Seems a bit like a waste of memory at this
-point.
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
