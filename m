@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20150623.gappssmtp.com; s=20150623;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=W+AoUXtDRqmvCnzMPgUsFve3ZW9qFjze1BaacgAckyQ=;
- b=rP7bBBZ1y4rd4WfGTlIm+GisET+CW5rLxqmHCokDkYwVzZePgFY5fSj9316v4KKNjm
- 51gkDjnuaT5LGRN1GJvODnoLAKomScvIzrnLbLJx1EJE194d7fTqkcnJNXw8Y8z2LTwy
- no0BDxl/TyxRwRrijqB1yR1srEqxWMNc11ILC3jy0ZhIBSSlxCkZlA4pirKFaEpwio4f
- F9J3iwWXddGMsyBiudQkShN9NUn2aihtJcyaDuDNJBU6LdMf3+oBbN18enZqq8P14wDI
- PS5uwcBTI2iXYsw9bIeSNeqct/vK1Lc9czduDJs8WlignzTUGeMsFM+Dto8k7Ix4vMf3
- xMcg==
+ bh=ZvmKhhGuNfQqKYS0ONCipHml5PaR0WqqxykEBH6rscI=;
+ b=ip6LdHc/G3yEH9xz5h6f+xeDxBXZwmiONIChDNt1lGD19nYiDc5DCCLV7DxI555Xn+
+ bUMtYieBQ6B1aLSk42ueetUHQenPlixh/wlXfBONAPcEVP6SrBbKhR+HTee0o+YZv+qP
+ Y0IBsyKgJMFi6JOScWUujlkZtAwGvtCK3a4KsyGtTYuhOnUY+THayB0DQPMe9eVZy6RT
+ y/zPae2K1TC+d7Y6z1jlPCe109/JGMabIq+EWdBi+OKdKgNukHTIouABMas6FY++1Zt/
+ Z6KKFFEb52V8o3tsPp8ybiRzmCZallGfD066bIRU3xFog5Ts20bAfDDR/rpktm0comUI
+ rfGA==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Fri, 29 Jan 2021 13:51:41 +0200
-Message-Id: <20210129115142.188455-2-razor@blackwall.org>
+Date: Fri, 29 Jan 2021 13:51:42 +0200
+Message-Id: <20210129115142.188455-3-razor@blackwall.org>
 In-Reply-To: <20210129115142.188455-1-razor@blackwall.org>
 References: <20210129115142.188455-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 1/2] net: bridge: mcast: drop hosts limit
-	sysfs support
+Subject: [Bridge] [PATCH net-next 2/2] net: bridge: add warning comments to
+	avoid extending sysfs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,65 +32,45 @@ Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linu
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-We decided to stop adding new sysfs bridge options and continue with
-netlink only, so remove hosts limit sysfs support.
+We're moving to netlink-only options, so add comments in the bridge's
+sysfs files to warn against adding any new sysfs entries.
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- net/bridge/br_sysfs_if.c | 26 --------------------------
- 1 file changed, 26 deletions(-)
+ net/bridge/br_sysfs_br.c | 4 ++++
+ net/bridge/br_sysfs_if.c | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index b66305fae26b..7a59cdddd3ce 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -16,7 +16,6 @@
- #include <linux/sched/signal.h>
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 7db06e3f642a..71f0f671c4ef 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -19,6 +19,10 @@
  
  #include "br_private.h"
--#include "br_private_mcast_eht.h"
  
++/* IMPORTANT: new bridge options must be added with netlink support only
++ *            please do not add new sysfs entries
++ */
++
+ #define to_bridge(cd)	((struct net_bridge *)netdev_priv(to_net_dev(cd)))
+ 
+ /*
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 7a59cdddd3ce..96ff63cde1be 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -17,6 +17,10 @@
+ 
+ #include "br_private.h"
+ 
++/* IMPORTANT: new bridge port options must be added with netlink support only
++ *            please do not add new sysfs entries
++ */
++
  struct brport_attribute {
  	struct attribute	attr;
-@@ -246,29 +245,6 @@ static int store_multicast_router(struct net_bridge_port *p,
- static BRPORT_ATTR(multicast_router, 0644, show_multicast_router,
- 		   store_multicast_router);
- 
--static ssize_t show_multicast_eht_hosts_limit(struct net_bridge_port *p,
--					      char *buf)
--{
--	return sprintf(buf, "%u\n", p->multicast_eht_hosts_limit);
--}
--
--static int store_multicast_eht_hosts_limit(struct net_bridge_port *p,
--					   unsigned long v)
--{
--	return br_multicast_eht_set_hosts_limit(p, v);
--}
--static BRPORT_ATTR(multicast_eht_hosts_limit, 0644,
--		   show_multicast_eht_hosts_limit,
--		   store_multicast_eht_hosts_limit);
--
--static ssize_t show_multicast_eht_hosts_cnt(struct net_bridge_port *p,
--					    char *buf)
--{
--	return sprintf(buf, "%u\n", p->multicast_eht_hosts_cnt);
--}
--static BRPORT_ATTR(multicast_eht_hosts_cnt, 0444, show_multicast_eht_hosts_cnt,
--		   NULL);
--
- BRPORT_ATTR_FLAG(multicast_fast_leave, BR_MULTICAST_FAST_LEAVE);
- BRPORT_ATTR_FLAG(multicast_to_unicast, BR_MULTICAST_TO_UNICAST);
- #endif
-@@ -298,8 +274,6 @@ static const struct brport_attribute *brport_attrs[] = {
- 	&brport_attr_multicast_router,
- 	&brport_attr_multicast_fast_leave,
- 	&brport_attr_multicast_to_unicast,
--	&brport_attr_multicast_eht_hosts_limit,
--	&brport_attr_multicast_eht_hosts_cnt,
- #endif
- 	&brport_attr_proxyarp,
- 	&brport_attr_proxyarp_wifi,
+ 	ssize_t (*show)(struct net_bridge_port *, char *);
 -- 
 2.29.2
 
