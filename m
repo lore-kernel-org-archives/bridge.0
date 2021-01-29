@@ -1,24 +1,42 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=ZvmKhhGuNfQqKYS0ONCipHml5PaR0WqqxykEBH6rscI=;
- b=ip6LdHc/G3yEH9xz5h6f+xeDxBXZwmiONIChDNt1lGD19nYiDc5DCCLV7DxI555Xn+
- bUMtYieBQ6B1aLSk42ueetUHQenPlixh/wlXfBONAPcEVP6SrBbKhR+HTee0o+YZv+qP
- Y0IBsyKgJMFi6JOScWUujlkZtAwGvtCK3a4KsyGtTYuhOnUY+THayB0DQPMe9eVZy6RT
- y/zPae2K1TC+d7Y6z1jlPCe109/JGMabIq+EWdBi+OKdKgNukHTIouABMas6FY++1Zt/
- Z6KKFFEb52V8o3tsPp8ybiRzmCZallGfD066bIRU3xFog5Ts20bAfDDR/rpktm0comUI
- rfGA==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Fri, 29 Jan 2021 13:51:42 +0200
-Message-Id: <20210129115142.188455-3-razor@blackwall.org>
-In-Reply-To: <20210129115142.188455-1-razor@blackwall.org>
+Return-Path: <nikolay@nvidia.com>
 References: <20210129115142.188455-1-razor@blackwall.org>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <e0c38c2a-3e72-2ee0-c48d-900e63227528@nvidia.com>
+Date: Fri, 29 Jan 2021 13:55:24 +0200
+In-Reply-To: <20210129115142.188455-1-razor@blackwall.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 2/2] net: bridge: add warning comments to
-	avoid extending sysfs
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1611921333; bh=wuxAtOt9LJPVIPTspQUGnvDsLt+MvgPqr5yMRjXX0nQ=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
+ Authentication-Results:Subject:To:CC:References:From:Message-ID:
+ Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
+ Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
+ MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
+ X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
+ X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
+ X-Microsoft-Antispam-PRVS:X-MS-Oob-TLC-OOBClassifiers:
+ X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
+ X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
+ X-MS-Exchange-AntiSpam-MessageData:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+ X-MS-Exchange-CrossTenant-FromEntityHeader:
+ X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+ X-MS-Exchange-CrossTenant-UserPrincipalName:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=TRLVy/NGYkyuVICUES8gBX2dLKeV/mtbyxlK0N+VJjvd/vZZcwMCZ9vWu9SB01vHr
+ eT6Aq/mE3C5y4Lqr9X9TxmDuVEKb5IYsdtj675x4ynt6TI9WKJwd+Rc1TTy0sWD5qU
+ qS5ZNwAjrqKrlER90rJcXQ/JlTgUO6cPzRyP/lSirYq+7Zkjx2118MUEO9aoN7EORp
+ S+Rh3x8ck6w7P7fBIzyJNRGS/ZBRNTAMv0/5P/s70j6lu+5/GhFNbvZEGpGl6uSByN
+ dCKF+tOSAg9gM/JZ9ZQiTwP0C9TNgmdRmAmaJ6AihWi4J3MJLn+okdq/xMcBJrnCQj
+ mwKL5Mn2B+Z3w==
+Subject: Re: [Bridge] [PATCH net-next 0/2] net: bridge: drop hosts limit
+ sysfs and add a comment
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,50 +45,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc: kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 29/01/2021 13:51, Nikolay Aleksandrov wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Hi,
+> As recently discussed[1] we should stop extending the bridge sysfs
+> support for new options and move to using netlink only, so patch 01
+> drops the recently added hosts limit sysfs support which is still in
+> net-next only and patch 02 adds comments in br_sysfs_br/if.c to warn
+> against adding new sysfs options.
+> 
+> Thanks,
+>  Nik
+> 
+> Nikolay Aleksandrov (2):
+>   net: bridge: mcast: drop hosts limit sysfs support
+>   net: bridge: add warning comments to avoid extending sysfs
+> 
+>  net/bridge/br_sysfs_br.c |  4 ++++
+>  net/bridge/br_sysfs_if.c | 30 ++++--------------------------
+>  2 files changed, 8 insertions(+), 26 deletions(-)
+> 
 
-We're moving to netlink-only options, so add comments in the bridge's
-sysfs files to warn against adding any new sysfs entries.
+Oops :) the [1] addendum should be:
 
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/bridge/br_sysfs_br.c | 4 ++++
- net/bridge/br_sysfs_if.c | 4 ++++
- 2 files changed, 8 insertions(+)
+[1] https://lore.kernel.org/netdev/20210128105201.7c6bed82@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/T/#mda7265b2e57b52bdab863f286efa85291cf83822
 
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 7db06e3f642a..71f0f671c4ef 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -19,6 +19,10 @@
- 
- #include "br_private.h"
- 
-+/* IMPORTANT: new bridge options must be added with netlink support only
-+ *            please do not add new sysfs entries
-+ */
-+
- #define to_bridge(cd)	((struct net_bridge *)netdev_priv(to_net_dev(cd)))
- 
- /*
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 7a59cdddd3ce..96ff63cde1be 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -17,6 +17,10 @@
- 
- #include "br_private.h"
- 
-+/* IMPORTANT: new bridge port options must be added with netlink support only
-+ *            please do not add new sysfs entries
-+ */
-+
- struct brport_attribute {
- 	struct attribute	attr;
- 	ssize_t (*show)(struct net_bridge_port *, char *);
--- 
-2.29.2
+Since this is in the cover letter I don't think v2 is needed.
+Please let me know if you'd like me to resend.
+
+Cheers,
+ Nik
 
