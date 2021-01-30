@@ -1,24 +1,25 @@
 Return-Path: <kuba@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1611975675;
- bh=1g7TFqM32r+X2G4XFMePCA3nPEQwqjwlXbzXGKcz2Fg=;
+ s=k20201202; t=1611985063;
+ bh=O7gUiLmThPz3xqnmNCVRJznYl1bUntj77i5W4NKUpg0=;
  h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=Fpstn8GumhB9aN2VYNzcfMHIETojhLD/lUsuuTb3UIhzrbqwoZIrnh14s4eqaFjZG
- oh3ragFnct6W0/owoHZBHl8UMx1haRVPyMSNWuV3w7bTkGJseMGTsipAS1lexGeY3z
- 9j+AywEh1D2VFpQJdZSVTN7TctmGm379C7fb5Tq+0rZmIH0wGnw8nxX9BkbfTWkqw2
- E/2JsptAfTpqBqUD+Xiq1PEOKT/HEPNoIHZR8CvJZHEXuSuSTyW9q8hH4qzBbS3fpb
- t/dYSZwccpHCfjvzpxFaYikdcJpv5Gm6bvfR8AirRmvFJkZwJB0xnhnMVa+ZM+nyhf
- PPzTkGlGp4hPw==
-Date: Fri, 29 Jan 2021 19:01:14 -0800
+ b=H+WWnduVgWEoI/Y94mLSkT9rzX342RY/50HH5Hpc7idI1m+eOeynVjQNWFddUHtwt
+ Nun1L3YBvUelcBUKJ2GhvRGtnkgAL+bWK4WeFUrNkVuKapJRM7JlzJo8AhwT17j/SN
+ h41lzk2KRqrxz2YgONx3xYiJyRl2T8tUAlWTLMQ910f+72unp3ZEuLJXQkgdJKPZwP
+ Z8SN7y0AypGI/WX7cX9Ehe1x/Pdqu8wBu3OIsFsceYlA9weuzQOwZHo0gLin/uZy0g
+ 77ctOhwKzGgZ5Mi/nMSW8oSVDX8N2AYRsebjSNCjzhKu+yp0Y7BW+bhdUaURFnRomp
+ SidOnHWo/yXfw==
+Date: Fri, 29 Jan 2021 21:37:42 -0800
 From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20210129190114.3f5b6b44@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210127205241.2864728-1-horatiu.vultur@microchip.com>
-References: <20210127205241.2864728-1-horatiu.vultur@microchip.com>
+Message-ID: <20210129213742.7da125ee@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <e0c38c2a-3e72-2ee0-c48d-900e63227528@nvidia.com>
+References: <20210129115142.188455-1-razor@blackwall.org>
+ <e0c38c2a-3e72-2ee0-c48d-900e63227528@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 0/4] bridge: mrp: Extend
-	br_mrp_switchdev_*
+Subject: Re: [Bridge] [PATCH net-next 0/2] net: bridge: drop hosts limit
+ sysfs and add a comment
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,30 +28,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: rasmus.villemoes@prevas.dk, andrew@lunn.ch, Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: ivecera@redhat.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, davem@davemloft.net, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-On Wed, 27 Jan 2021 21:52:37 +0100 Horatiu Vultur wrote:
-> This patch series extends MRP switchdev to allow the SW to have a better
-> understanding if the HW can implement the MRP functionality or it needs
-> to help the HW to run it. There are 3 cases:
-> - when HW can't implement at all the functionality.
-> - when HW can implement a part of the functionality but needs the SW
->   implement the rest. For example if it can't detect when it stops
->   receiving MRP Test frames but it can copy the MRP frames to CPU to
->   allow the SW to determine this.  Another example is generating the MRP
->   Test frames. If HW can't do that then the SW is used as backup.
-> - when HW can implement completely the functionality.
+On Fri, 29 Jan 2021 13:55:24 +0200 Nikolay Aleksandrov wrote:
+> On 29/01/2021 13:51, Nikolay Aleksandrov wrote:
+> > From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> > 
+> > Hi,
+> > As recently discussed[1] we should stop extending the bridge sysfs
+> > support for new options and move to using netlink only, so patch 01
+> > drops the recently added hosts limit sysfs support which is still in
+> > net-next only and patch 02 adds comments in br_sysfs_br/if.c to warn
+> > against adding new sysfs options.
+> > 
+> > Thanks,
+> >  Nik
+> > 
+> > Nikolay Aleksandrov (2):
+> >   net: bridge: mcast: drop hosts limit sysfs support
+> >   net: bridge: add warning comments to avoid extending sysfs
+> > 
+> >  net/bridge/br_sysfs_br.c |  4 ++++
+> >  net/bridge/br_sysfs_if.c | 30 ++++--------------------------
+> >  2 files changed, 8 insertions(+), 26 deletions(-)
+> >   
 > 
-> So, initially the SW tries to offload the entire functionality in HW, if
-> that fails it tries offload parts of the functionality in HW and use the
-> SW as helper and if also this fails then MRP can't run on this HW.
+> Oops :) the [1] addendum should be:
 > 
-> v2:
->  - fix typos in comments and in commit messages
->  - remove some of the comments
->  - move repeated code in helper function
->  - fix issue when deleting a node when sw_backup was true
+> [1] https://lore.kernel.org/netdev/20210128105201.7c6bed82@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/T/#mda7265b2e57b52bdab863f286efa85291cf83822
+> 
+> Since this is in the cover letter I don't think v2 is needed.
+> Please let me know if you'd like me to resend.
 
-Folks who were involved in previous MRP conversations - does this look
-good to you? Anyone planning to test?
+Seems that vger ate the cover letter completely, but not the patches,
+so I was putting the merge commit message together by hand, anyway :)
+
+Applied, thanks!
