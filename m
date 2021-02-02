@@ -1,41 +1,26 @@
-Return-Path: <nikolay@nvidia.com>
+Return-Path: <gustavo@embeddedor.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+ In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+ :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+ Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+ List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=nOm3cT2EI0nT8+C3V1J7uHhdzivtBVpP5E91dQPGljo=; b=z3Btq0dUhw3yVPSTkGqN5Qi5Vv
+ LbPaFSlB+OSKkji0pd3h7Vb4TtTZnlIalSuG9KOXrEFMTdpB+0wfbMVaKKMOT54IqaB2GovYNhw+m
+ cLVL2zif0TVZIbKkel8HUhngO8V2ISm0t6+/9THOvT/sOxE4hmy8w4mIaCibPj7qbREN0MrhN4JB9
+ 52KcsLqN+vZ1HztFvGNROUzwiKsK7dx5CLSJ8jae71DgtAUqKDfdcGKLvPXTKpEzNUChmPuFUXKTD
+ WryOTjlut3IdJ+zvx6jJvWiOTqTIf9Au27TaTWKVuSo9A/nhzL9Ra2Bzb+BaUTV6qG3V4iknO1JW3
+ hR9YtGhA==;
 References: <cover.1605896059.git.gustavoars@kernel.org>
  <44b2e50d345f1319071a53fb191ac0a0cf3fcf37.1605896060.git.gustavoars@kernel.org>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <143dd4a9-b0b7-36a6-ee33-0b5cb024c1e6@nvidia.com>
-Date: Tue, 2 Feb 2021 16:16:07 +0200
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Message-ID: <456cb178-5a6a-ab3b-3cc9-16ca84b5a251@embeddedor.com>
+Date: Tue, 2 Feb 2021 08:07:38 -0600
+MIME-Version: 1.0
 In-Reply-To: <44b2e50d345f1319071a53fb191ac0a0cf3fcf37.1605896060.git.gustavoars@kernel.org>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1612275382; bh=JsL7qfg+zKynB5Z7OSyECdPUdFbLmsetrFPFxTBwbOU=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
- Authentication-Results:Subject:To:CC:References:From:Message-ID:
- Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
- Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy:
- MIME-Version:X-MS-Exchange-MessageSentRepresentingType:
- X-MS-PublicTrafficType:X-MS-Office365-Filtering-Correlation-Id:
- X-MS-TrafficTypeDiagnostic:X-MS-Exchange-Transport-Forked:
- X-Microsoft-Antispam-PRVS:X-Header:X-MS-Oob-TLC-OOBClassifiers:
- X-MS-Exchange-SenderADCheck:X-Microsoft-Antispam:
- X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
- X-MS-Exchange-AntiSpam-MessageData:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-OriginalArrivalTime:
- X-MS-Exchange-CrossTenant-FromEntityHeader:
- X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
- X-MS-Exchange-CrossTenant-UserPrincipalName:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=osREM9QiAR6Zy07bBDJYEdibzkxFUz/TZIhJNFQCyygvZ77yeuSnbMgu/APf14/W6
- 8ZEVEDU9/bn6YriIVWf/ZeC7kYX9uf/ScDWf7bB9Zk9mkmHuM0AtS/O94sMYYzmeTk
- Rh1Zwrx15O7Qgd2eUHFtjbOcLT+J75nk0UrTkh2xhdMWuw18wVnKavzE1FD/sWgTM3
- V/sqB//G67azEHgJreq8ur9S88emD7VscZXO26CmXU2zmT2J//gYOEmFo+IwFBakiX
- HcPYF4M5TLOGAD5mYJj5d+zVdIMqYGKL3YrfEl/SsuyohL1bhGqRtUsNvgUTW3dXHw
- AxpCkKGmX53/Q==
 Subject: Re: [Bridge] [PATCH 106/141] net: bridge: Fix fall-through warnings
 	for Clang
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -46,10 +31,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+To: "Gustavo A. R. Silva" <gustavoars@kernel.org>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
 
-On 20/11/2020 20:37, Gustavo A. R. Silva wrote:
+Hi all,
+
+Who can take this? :)
+
+Thanks
+--
+Gustavo
+
+On 11/20/20 12:37, Gustavo A. R. Silva wrote:
 > In preparation to enable -Wimplicit-fallthrough for Clang, fix a warning
 > by explicitly adding a break statement instead of letting the code fall
 > through to the next case.
@@ -73,9 +66,3 @@ On 20/11/2020 20:37, Gustavo A. R. Silva wrote:
 >  		break;
 >  	}
 > 
-
-Somehow this hasn't hit my inbox, good thing I just got the reply and saw the
-patch. Anyway, thanks!
-
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-
