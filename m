@@ -1,28 +1,26 @@
-Return-Path: <gustavo@embeddedor.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
- In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
- :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
- Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
- List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=nOm3cT2EI0nT8+C3V1J7uHhdzivtBVpP5E91dQPGljo=; b=z3Btq0dUhw3yVPSTkGqN5Qi5Vv
- LbPaFSlB+OSKkji0pd3h7Vb4TtTZnlIalSuG9KOXrEFMTdpB+0wfbMVaKKMOT54IqaB2GovYNhw+m
- cLVL2zif0TVZIbKkel8HUhngO8V2ISm0t6+/9THOvT/sOxE4hmy8w4mIaCibPj7qbREN0MrhN4JB9
- 52KcsLqN+vZ1HztFvGNROUzwiKsK7dx5CLSJ8jae71DgtAUqKDfdcGKLvPXTKpEzNUChmPuFUXKTD
- WryOTjlut3IdJ+zvx6jJvWiOTqTIf9Au27TaTWKVuSo9A/nhzL9Ra2Bzb+BaUTV6qG3V4iknO1JW3
- hR9YtGhA==;
-References: <cover.1605896059.git.gustavoars@kernel.org>
- <44b2e50d345f1319071a53fb191ac0a0cf3fcf37.1605896060.git.gustavoars@kernel.org>
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Message-ID: <456cb178-5a6a-ab3b-3cc9-16ca84b5a251@embeddedor.com>
-Date: Tue, 2 Feb 2021 08:07:38 -0600
+Return-Path: <kuba@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1612295433;
+ bh=/jebZP6tgM1BgzsuzazAlaJBzv6xqKN0Lbg6lsAaKDY=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=Cs7ihMFc3JyRXVrrWtZZ/cVFGe+sXlhMDew6LwyD1Es1XRUwG2s6Syeb3aZ47biL0
+ zbP+0dV1DBD5eOkfQZSSGIUck/5einjE8A2kPnHuWWOchPVy/DZ9G4OckfI7ZcW5N1
+ Ft2st+jNHIo5UDS2zqqOzCihkv3Q3fghbsz0JIAq0sArKl+v4aSEpCiM4AvWw5e3bE
+ 7IIJ7YsYpn2NNurd9dT2rgz5rX89l93qyNoauUW0sIRXxPaMUAAJJPipNPWoSAKfUV
+ BarBSVsVQGqXnMwjqNHuvkdW+9ooOivsYPlKGsyMkSKeOOozK0OIOPztvh+aZ24+7R
+ UmjmkFbyELzAw==
+Date: Tue, 2 Feb 2021 11:50:32 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+Message-ID: <20210202115032.6affffdc@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <9143d15f-c41d-f0ab-7be0-32d797820384@prevas.dk>
+References: <20210127205241.2864728-1-horatiu.vultur@microchip.com>
+ <20210129190114.3f5b6b44@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <9143d15f-c41d-f0ab-7be0-32d797820384@prevas.dk>
 MIME-Version: 1.0
-In-Reply-To: <44b2e50d345f1319071a53fb191ac0a0cf3fcf37.1605896060.git.gustavoars@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 106/141] net: bridge: Fix fall-through warnings
-	for Clang
+Subject: Re: [Bridge] [PATCH net-next v2 0/4] bridge: mrp: Extend
+	br_mrp_switchdev_*
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,38 +29,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+To: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc: ivecera@redhat.com, andrew@lunn.ch, jiri@resnulli.us, Vladimir Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Horatiu Vultur <horatiu.vultur@microchip.com>, netdev@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, davem@davemloft.net
 
-Hi all,
-
-Who can take this? :)
-
-Thanks
---
-Gustavo
-
-On 11/20/20 12:37, Gustavo A. R. Silva wrote:
-> In preparation to enable -Wimplicit-fallthrough for Clang, fix a warning
-> by explicitly adding a break statement instead of letting the code fall
-> through to the next case.
+On Tue, 2 Feb 2021 08:40:02 +0100 Rasmus Villemoes wrote:
+> On 30/01/2021 04.01, Jakub Kicinski wrote:
+> > On Wed, 27 Jan 2021 21:52:37 +0100 Horatiu Vultur wrote:  
+> >> This patch series extends MRP switchdev to allow the SW to have a better
+> >> understanding if the HW can implement the MRP functionality or it needs
+> >> to help the HW to run it. There are 3 cases:  
 > 
-> Link: https://github.com/KSPP/linux/issues/115
-> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-> ---
->  net/bridge/br_input.c | 1 +
->  1 file changed, 1 insertion(+)
+> >> v2:
+> >>  - fix typos in comments and in commit messages
+> >>  - remove some of the comments
+> >>  - move repeated code in helper function
+> >>  - fix issue when deleting a node when sw_backup was true  
+> > 
+> > Folks who were involved in previous MRP conversations - does this look
+> > good to you? Anyone planning to test?
 > 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 59a318b9f646..8db219d979c5 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -148,6 +148,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
->  		break;
->  	case BR_PKT_UNICAST:
->  		dst = br_fdb_find_rcu(br, eth_hdr(skb)->h_dest, vid);
-> +		break;
->  	default:
->  		break;
->  	}
-> 
+> I am planning to test these, but it's unlikely I'll get around to it
+> this week unfortunately.
+
+Horatiu are you okay with deferring the series until Rasmus validates?
+Given none of this HW is upstream now (AFAIU) this is an awkward set 
+to handle. Having a confirmation from Rasmus would make us a little bit
+more comfortable.
