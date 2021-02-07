@@ -2,22 +2,22 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=m/M4BuWposQchCicdEReyb7C0vsmEwgOGgW3VC+NZ6g=;
- b=JQSNwUzn0XRH4kCIjTYgB9hynQ9YZhunXZZbzjvMHjndkOq/oXEUHV5vepZJO17jT6
- qTawomR7TcUgpb2mM3xGIY6MYvIiu+wWdXL7YBk+zns0HAKh5VU1wSEGnOtD/yRJaUiX
- AkYQ4bzoL4JY6q94LlvDG27eB4HaHi17mPCWGuOW1Vc/VauW6PWyWtHwPF+iJl7g5kus
- zlfcMyvYvkKH2/1FLSmwif8moVa0sdRyV0E3vHfTnVPXm4RxYsUa2CZIRbqkSyzT/Ero
- IOgAimIKosnCYeLhG/dtCumaPP+iH3oaZct72mL4m9lDh9J2fFo+39FBfeC1Goqqip1d
- NTEQ==
+ bh=6V55UnxJUNtfF6mxxNh3yKhc1dFJ3yj+qa4nTLp6jtE=;
+ b=DPRbClDr7Vg+0mguADIfQHBYikc2VIF/iM9jM1UCG+tDLOMb14ohD6ddMzvpiWH6E+
+ e3PuoUs0X8dmbHkNJEa+LpbU8LB7BYinlyk6jRSyDV5G3SCNyzqkcn1hCgosQwn0hN/M
+ MShwLFFPiEXvVcai0LX5TmQZ9Xpr2mcTU+b4xGd4xpQwlUQFXd8pLktm/NSpaTsp3T6e
+ RxHuhW6uy4eRxUt0IIVUNdGc6FlQY042PsLa1fB2zWO+Oj5Bi9rdHWb9juts3Lo4yA+M
+ 0LwOSZY0XxvXMvfP0XAJ+phaYAsHekZR1AwrikpYsQXv3nblfAm5YEnTRGE/ZdnipA0N
+ OtsA==
 From: Vladimir Oltean <olteanv@gmail.com>
-Date: Mon,  8 Feb 2021 01:21:33 +0200
-Message-Id: <20210207232141.2142678-2-olteanv@gmail.com>
+Date: Mon,  8 Feb 2021 01:21:34 +0200
+Message-Id: <20210207232141.2142678-3-olteanv@gmail.com>
 In-Reply-To: <20210207232141.2142678-1-olteanv@gmail.com>
 References: <20210207232141.2142678-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 1/9] net: bridge: don't print in
-	br_switchdev_set_port_flag
+Subject: [Bridge] [PATCH net-next 2/9] net: bridge: offload initial and
+	final port flags through switchdev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,233 +31,174 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Currently br_switchdev_set_port_flag has two options for error handling
-and neither is good:
-- The driver returns -EOPNOTSUPP in PRE_BRIDGE_FLAGS if it doesn't
-  support offloading that flag, and this gets silently ignored and
-  converted to an errno of 0. Nobody does this.
-- The driver returns some other error code, like -EINVAL, in
-  PRE_BRIDGE_FLAGS, and br_switchdev_set_port_flag shouts loudly.
+It must first be admitted that switchdev device drivers have a life
+beyond the bridge, and when they aren't offloading the bridge driver
+they are operating with forwarding disabled between ports, emulating as
+closely as possible N standalone network interfaces.
 
-The problem is that we'd like to offload some port flags during bridge
-join and leave, but also not have the bridge shout at us if those fail.
-But on the other hand we'd like the user to know that we can't offload
-something when they set that through netlink. And since we can't have
-the driver return -EOPNOTSUPP or -EINVAL depending on whether it's
-called by the user or internally by the bridge, let's just add an extack
-argument to br_switchdev_set_port_flag and propagate it to its callers.
-Then, when we need offloading to really fail silently, this can simply
-be passed a NULL argument.
+Now it must be said that for a switchdev port operating in standalone
+mode, address learning doesn't make much sense since that is a bridge
+function. In fact, address learning even breaks setups such as this one:
 
-This is just a temporary patch because it's rather noisy. We'll
-propagate the extack through the switchdev notifier next.
+   +---------------------------------------------+
+   |                                             |
+   | +-------------------+                       |
+   | |        br0        |    send      receive  |
+   | +--------+-+--------+ +--------+ +--------+ |
+   | |        | |        | |        | |        | |
+   | |  swp0  | |  swp1  | |  swp2  | |  swp3  | |
+   | |        | |        | |        | |        | |
+   +-+--------+-+--------+-+--------+-+--------+-+
+          |         ^           |          ^
+          |         |           |          |
+          |         +-----------+          |
+          |                                |
+          +--------------------------------+
+
+because if the ASIC has a single FDB (can offload a single bridge)
+then source address learning on swp3 can "steal" the source MAC address
+of swp2 from br0's FDB, because learning frames coming from swp2 will be
+done twice: first on the swp1 ingress port, second on the swp3 ingress
+port. So the hardware FDB will become out of sync with the software
+bridge, and when swp2 tries to send one more packet towards swp1, the
+ASIC will attempt to short-circuit the forwarding path and send it
+directly to swp3 (since that's the last port it learned that address on),
+which it obviously can't, because swp3 operates in standalone mode.
+
+So switchdev drivers operating in standalone mode should disable address
+learning. As a matter of practicality, we can reduce code duplication in
+drivers by having the bridge notify through switchdev of the initial and
+final brport flags. Then, drivers can simply start up hardcoded for no
+address learning (similar to how they already start up hardcoded for no
+forwarding), then they only need to listen for
+SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS and their job is basically done, no
+need for special cases when the port joins or leaves the bridge etc.
+
+When a port leaves the bridge (and therefore becomes standalone), we
+issue a switchdev attribute that apart from disabling address learning,
+enables flooding of all kinds. This is also done for pragmatic reasons,
+because even though standalone switchdev ports might not need to have
+flooding enabled in order to inject traffic with any MAC DA from the
+control interface, it certainly doesn't hurt either, and it even makes
+more sense than disabling flooding of unknown traffic towards that port.
+
+Note that the implementation is a bit wacky because the switchdev API
+for port attributes is very counterproductive. Instead of issuing a
+single switchdev notification with a bitwise OR of all flags that we're
+modifying, we need to issue 4 individual notifications, one for each bit.
+This is because the SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS notifier
+forces you to refuse the entire operation if there's at least one bit
+which you can't offload, and that is currently BR_BCAST_FLOOD which
+nobody does. So this change would do nothing for no one if we offloaded
+all flags at once, but the idea is to offload as much as possible
+instead of all or nothing.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- net/bridge/br_netlink.c   | 53 +++++++++++++++++++++++++--------------
- net/bridge/br_private.h   |  6 +++--
- net/bridge/br_switchdev.c |  9 +++----
- 3 files changed, 42 insertions(+), 26 deletions(-)
+ net/bridge/br_if.c      | 24 +++++++++++++++++++++++-
+ net/bridge/br_netlink.c | 16 ++++------------
+ net/bridge/br_private.h |  2 ++
+ 3 files changed, 29 insertions(+), 13 deletions(-)
 
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index f7d2f472ae24..8903333654f0 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -89,6 +89,21 @@ void br_port_carrier_check(struct net_bridge_port *p, bool *notified)
+ 	spin_unlock_bh(&br->lock);
+ }
+ 
++int nbp_flags_change(struct net_bridge_port *p, unsigned long flags,
++		     unsigned long mask, struct netlink_ext_ack *extack)
++{
++	int err;
++
++	err = br_switchdev_set_port_flag(p, flags, mask, extack);
++	if (err)
++		return err;
++
++	p->flags &= ~mask;
++	p->flags |= flags;
++
++	return 0;
++}
++
+ static void br_port_set_promisc(struct net_bridge_port *p)
+ {
+ 	int err = 0;
+@@ -343,6 +358,10 @@ static void del_nbp(struct net_bridge_port *p)
+ 		update_headroom(br, get_max_headroom(br));
+ 	netdev_reset_rx_headroom(dev);
+ 
++	nbp_flags_change(p, 0, BR_LEARNING, NULL);
++	nbp_flags_change(p, BR_FLOOD, BR_FLOOD, NULL);
++	nbp_flags_change(p, BR_MCAST_FLOOD, BR_MCAST_FLOOD, NULL);
++	nbp_flags_change(p, BR_BCAST_FLOOD, BR_BCAST_FLOOD, NULL);
+ 	nbp_vlan_flush(p);
+ 	br_fdb_delete_by_port(br, p, 0, 1);
+ 	switchdev_deferred_process();
+@@ -428,7 +447,10 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+ 	p->path_cost = port_cost(dev);
+ 	p->priority = 0x8000 >> BR_PORT_BITS;
+ 	p->port_no = index;
+-	p->flags = BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD | BR_BCAST_FLOOD;
++	nbp_flags_change(p, BR_LEARNING, BR_LEARNING, NULL);
++	nbp_flags_change(p, BR_FLOOD, BR_FLOOD, NULL);
++	nbp_flags_change(p, BR_MCAST_FLOOD, BR_MCAST_FLOOD, NULL);
++	nbp_flags_change(p, BR_BCAST_FLOOD, BR_BCAST_FLOOD, NULL);
+ 	br_init_port(p);
+ 	br_set_state(p, BR_STATE_DISABLED);
+ 	br_stp_port_timer_init(p);
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index bd3962da345a..02aa95c08b77 100644
+index 02aa95c08b77..ab54d1daa9b4 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -854,7 +854,8 @@ static int br_set_port_state(struct net_bridge_port *p, u8 state)
+@@ -852,28 +852,20 @@ static int br_set_port_state(struct net_bridge_port *p, u8 state)
+ 	return 0;
+ }
  
- /* Set/clear or port flags based on attribute */
+-/* Set/clear or port flags based on attribute */
++/* Set/clear or port flags based on netlink attribute */
  static int br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
--			    int attrtype, unsigned long mask)
-+			    int attrtype, unsigned long mask,
-+			    struct netlink_ext_ack *extack)
+ 			    int attrtype, unsigned long mask,
+ 			    struct netlink_ext_ack *extack)
  {
- 	unsigned long flags;
- 	int err;
-@@ -867,7 +868,7 @@ static int br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
- 	else
- 		flags = p->flags & ~mask;
+-	unsigned long flags;
+-	int err;
++	unsigned long flags = 0;
  
--	err = br_switchdev_set_port_flag(p, flags, mask);
-+	err = br_switchdev_set_port_flag(p, flags, mask, extack);
- 	if (err)
- 		return err;
+ 	if (!tb[attrtype])
+ 		return 0;
  
-@@ -876,58 +877,71 @@ static int br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
+ 	if (nla_get_u8(tb[attrtype]))
+-		flags = p->flags | mask;
+-	else
+-		flags = p->flags & ~mask;
+-
+-	err = br_switchdev_set_port_flag(p, flags, mask, extack);
+-	if (err)
+-		return err;
++		flags = mask;
+ 
+-	p->flags = flags;
+-	return 0;
++	return nbp_flags_change(p, flags, mask, extack);
  }
  
  /* Process bridge protocol info on port */
--static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
-+static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
-+		      struct netlink_ext_ack *extack)
- {
- 	unsigned long old_flags = p->flags;
- 	bool br_vlan_tunnel_old = false;
- 	int err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_MODE, BR_HAIRPIN_MODE);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_MODE, BR_HAIRPIN_MODE,
-+			       extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_GUARD, BR_BPDU_GUARD);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_GUARD, BR_BPDU_GUARD,
-+			       extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_FAST_LEAVE, BR_MULTICAST_FAST_LEAVE);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_FAST_LEAVE,
-+			       BR_MULTICAST_FAST_LEAVE, extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_PROTECT, BR_ROOT_BLOCK);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_PROTECT, BR_ROOT_BLOCK,
-+			       extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_LEARNING, BR_LEARNING);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_LEARNING, BR_LEARNING,
-+			       extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_UNICAST_FLOOD, BR_FLOOD);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_UNICAST_FLOOD, BR_FLOOD,
-+			       extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_MCAST_FLOOD, BR_MCAST_FLOOD);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_MCAST_FLOOD, BR_MCAST_FLOOD,
-+			       extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_MCAST_TO_UCAST, BR_MULTICAST_TO_UNICAST);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_MCAST_TO_UCAST,
-+			       BR_MULTICAST_TO_UNICAST, extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_BCAST_FLOOD, BR_BCAST_FLOOD);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_BCAST_FLOOD,
-+			       BR_BCAST_FLOOD, extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP, BR_PROXYARP);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP, BR_PROXYARP,
-+			       extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP_WIFI, BR_PROXYARP_WIFI);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP_WIFI,
-+			       BR_PROXYARP_WIFI, extack);
- 	if (err)
- 		return err;
- 
- 	br_vlan_tunnel_old = (p->flags & BR_VLAN_TUNNEL) ? true : false;
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_VLAN_TUNNEL, BR_VLAN_TUNNEL);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_VLAN_TUNNEL, BR_VLAN_TUNNEL,
-+			       extack);
- 	if (err)
- 		return err;
- 
-@@ -983,11 +997,12 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
- 	}
- 
- 	err = br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS,
--			       BR_NEIGH_SUPPRESS);
-+			       BR_NEIGH_SUPPRESS, extack);
- 	if (err)
- 		return err;
- 
--	err = br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
-+	err = br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED,
-+			       extack);
- 	if (err)
- 		return err;
- 
-@@ -1046,7 +1061,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh, u16 flags,
- 				return err;
- 
- 			spin_lock_bh(&p->br->lock);
--			err = br_setport(p, tb);
-+			err = br_setport(p, tb, extack);
- 			spin_unlock_bh(&p->br->lock);
- 		} else {
- 			/* Binary compatibility with old RSTP */
-@@ -1141,7 +1156,7 @@ static int br_port_slave_changelink(struct net_device *brdev,
- 		return 0;
- 
- 	spin_lock_bh(&br->lock);
--	ret = br_setport(br_port_get_rtnl(dev), data);
-+	ret = br_setport(br_port_get_rtnl(dev), data, extack);
- 	spin_unlock_bh(&br->lock);
- 
- 	return ret;
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index d242ba668e47..a1639d41188b 100644
+index a1639d41188b..f064abd86bdf 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -1575,7 +1575,8 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
- 				  const struct sk_buff *skb);
- int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 			       unsigned long flags,
--			       unsigned long mask);
-+			       unsigned long mask,
-+			       struct netlink_ext_ack *extack);
- void br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb,
- 			     int type);
- int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags,
-@@ -1605,7 +1606,8 @@ static inline bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+@@ -749,6 +749,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+ void br_port_flags_change(struct net_bridge_port *port, unsigned long mask);
+ void br_manage_promisc(struct net_bridge *br);
+ int nbp_backup_change(struct net_bridge_port *p, struct net_device *backup_dev);
++int nbp_flags_change(struct net_bridge_port *p, unsigned long flags,
++		     unsigned long mask, struct netlink_ext_ack *extack);
  
- static inline int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 					     unsigned long flags,
--					     unsigned long mask)
-+					     unsigned long mask,
-+					     struct netlink_ext_ack *extack)
- {
- 	return 0;
- }
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index a9c23ef83443..c18e1d600dc6 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -60,7 +60,8 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
- 
- int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 			       unsigned long flags,
--			       unsigned long mask)
-+			       unsigned long mask,
-+			       struct netlink_ext_ack *extack)
- {
- 	struct switchdev_attr attr = {
- 		.orig_dev = p->dev,
-@@ -83,8 +84,7 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 		return 0;
- 
- 	if (err) {
--		br_warn(p->br, "bridge flag offload is not supported %u(%s)\n",
--			(unsigned int)p->port_no, p->dev->name);
-+		NL_SET_ERR_MSG_MOD(extack, "bridge flag offload is not supported");
- 		return -EOPNOTSUPP;
- 	}
- 
-@@ -94,8 +94,7 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 
- 	err = switchdev_port_attr_set(p->dev, &attr);
- 	if (err) {
--		br_warn(p->br, "error setting offload flag on port %u(%s)\n",
--			(unsigned int)p->port_no, p->dev->name);
-+		NL_SET_ERR_MSG_MOD(extack, "error setting offload flag on port");
- 		return err;
- 	}
- 
+ /* br_input.c */
+ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
 -- 
 2.25.1
 
