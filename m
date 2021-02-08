@@ -1,15 +1,16 @@
 Return-Path: <nikolay@nvidia.com>
-References: <20210207194733.1811529-1-olteanv@gmail.com>
+References: <20210207232141.2142678-1-olteanv@gmail.com>
+ <20210207232141.2142678-3-olteanv@gmail.com>
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <3d1758eb-1aa0-1272-4183-27b14524127f@nvidia.com>
-Date: Mon, 8 Feb 2021 13:11:31 +0200
-In-Reply-To: <20210207194733.1811529-1-olteanv@gmail.com>
+Message-ID: <95dede91-56aa-1852-8fbf-71d446fa7ede@nvidia.com>
+Date: Mon, 8 Feb 2021 13:37:03 +0200
+In-Reply-To: <20210207232141.2142678-3-olteanv@gmail.com>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1612782702; bh=54eFnTmaGhhT3f7XgVqe3P7OVXl69xXA7g9t9Ic2PyI=;
+ t=1612784254; bh=5xrkjlH3C4M0l4QFwJ9WihSogJ5HmSrMHPgdbhnBQHk=;
  h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:
  Authentication-Results:Subject:To:CC:References:From:Message-ID:
  Date:User-Agent:In-Reply-To:Content-Type:Content-Language:
@@ -29,14 +30,14 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
  X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
  X-MS-Exchange-CrossTenant-UserPrincipalName:
  X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=sIAMF3UbE+Ye18EOVZ4r/gWZCDu+GAzjoLu+m1VjvNdxPJx1eF3hlovaWXwuTzen8
- P1Uvwq4BpsyM6gsAG2+jKYcbrnB3EpXbzNZStXuMHr4BFq4Wp6XxBIFcyQ5KDuiALs
- a8mYfZKn3tABOVDg6m3wR9qOmRFK1o9CBl8UL0kdOXK2pIcze7CaDDMlixvGs+6ZrC
- Xku+sT02Du7T/G4rJgraXypJxQDkQmis1yEyXI2XXerGEHUdtm2UEs6EKrGKCEwpnF
- LnTfYHqsmciTfW4qsVE9USw9w86ooB/81ftBqxeoKdr5q18IIfUi/DTunXVpEgT7GT
- XhGD2IA/Pi7pw==
-Subject: Re: [Bridge] [PATCH net] net: bridge: use switchdev for port flags
- set through sysfs too
+ b=gEc+mLGwAUcH2ESLfXNEEwrqG0sNlauVFi0rKMTwZIT7ETGU3FtGmV2LrI1gEhwTL
+ jykAobx9auobevX19GNBfLcFiIZ+J/MhhOTnMQamsRbWbc2+2aHE4zuXL1yZ6txw8o
+ +3/MSpARiIWrvj9TXE41lECdhkkQHdqIKRGvMlDYVzYkP/2FFEjniPTwxkFGNSK5AS
+ cgXdJqSNT2RrCPEcm7IwPABedZofJKrylCeIc38xF58ZCZ7UdlNVKh86suOHiL/MNF
+ AcY5V1lbkovWflh74qWAMY7jaJvIaaqPJ7m3IHuZpfaXoRW8tGJCFKK5UP/RmI120D
+ NaSGD1Srni9jg==
+Subject: Re: [Bridge] [PATCH net-next 2/9] net: bridge: offload initial and
+ final port flags through switchdev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -46,53 +47,193 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Vladimir Oltean <olteanv@gmail.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@idosch.org>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Vadym Kochan <vkochan@marvell.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Ioana Ciornei <ioana.ciornei@nxp.com>, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Taras Chornyi <tchornyi@marvell.com>, Ido Schimmel <idosch@idosch.org>, Claudiu Manoil <claudiu.manoil@nxp.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Roopa Prabhu <roopa@nvidia.com>, linux-omap@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>
 
-On 07/02/2021 21:47, Vladimir Oltean wrote:
+On 08/02/2021 01:21, Vladimir Oltean wrote:
 > From: Vladimir Oltean <vladimir.oltean@nxp.com>
 > 
-> Looking through patchwork I don't see that there was any consensus to
-> use switchdev notifiers only in case of netlink provided port flags but
-> not sysfs (as a sort of deprecation, punishment or anything like that),
-> so we should probably keep the user interface consistent in terms of
-> functionality.
+> It must first be admitted that switchdev device drivers have a life
+> beyond the bridge, and when they aren't offloading the bridge driver
+> they are operating with forwarding disabled between ports, emulating as
+> closely as possible N standalone network interfaces.
 > 
-> http://patchwork.ozlabs.org/project/netdev/patch/20170605092043.3523-3-jiri@resnulli.us/
-> http://patchwork.ozlabs.org/project/netdev/patch/20170608064428.4785-3-jiri@resnulli.us/
+> Now it must be said that for a switchdev port operating in standalone
+> mode, address learning doesn't make much sense since that is a bridge
+> function. In fact, address learning even breaks setups such as this one:
 > 
-> Fixes: 3922285d96e7 ("net: bridge: Add support for offloading port attributes")
+>    +---------------------------------------------+
+>    |                                             |
+>    | +-------------------+                       |
+>    | |        br0        |    send      receive  |
+>    | +--------+-+--------+ +--------+ +--------+ |
+>    | |        | |        | |        | |        | |
+>    | |  swp0  | |  swp1  | |  swp2  | |  swp3  | |
+>    | |        | |        | |        | |        | |
+>    +-+--------+-+--------+-+--------+-+--------+-+
+>           |         ^           |          ^
+>           |         |           |          |
+>           |         +-----------+          |
+>           |                                |
+>           +--------------------------------+
+> 
+> because if the ASIC has a single FDB (can offload a single bridge)
+> then source address learning on swp3 can "steal" the source MAC address
+> of swp2 from br0's FDB, because learning frames coming from swp2 will be
+> done twice: first on the swp1 ingress port, second on the swp3 ingress
+> port. So the hardware FDB will become out of sync with the software
+> bridge, and when swp2 tries to send one more packet towards swp1, the
+> ASIC will attempt to short-circuit the forwarding path and send it
+> directly to swp3 (since that's the last port it learned that address on),
+> which it obviously can't, because swp3 operates in standalone mode.
+> 
+> So switchdev drivers operating in standalone mode should disable address
+> learning. As a matter of practicality, we can reduce code duplication in
+> drivers by having the bridge notify through switchdev of the initial and
+> final brport flags. Then, drivers can simply start up hardcoded for no
+> address learning (similar to how they already start up hardcoded for no
+> forwarding), then they only need to listen for
+> SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS and their job is basically done, no
+> need for special cases when the port joins or leaves the bridge etc.
+> 
+> When a port leaves the bridge (and therefore becomes standalone), we
+> issue a switchdev attribute that apart from disabling address learning,
+> enables flooding of all kinds. This is also done for pragmatic reasons,
+> because even though standalone switchdev ports might not need to have
+> flooding enabled in order to inject traffic with any MAC DA from the
+> control interface, it certainly doesn't hurt either, and it even makes
+> more sense than disabling flooding of unknown traffic towards that port.
+> 
+> Note that the implementation is a bit wacky because the switchdev API
+> for port attributes is very counterproductive. Instead of issuing a
+> single switchdev notification with a bitwise OR of all flags that we're
+> modifying, we need to issue 4 individual notifications, one for each bit.
+> This is because the SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS notifier
+> forces you to refuse the entire operation if there's at least one bit
+> which you can't offload, and that is currently BR_BCAST_FLOOD which
+> nobody does. So this change would do nothing for no one if we offloaded
+> all flags at once, but the idea is to offload as much as possible
+> instead of all or nothing.
+> 
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 > ---
->  net/bridge/br_sysfs_if.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-> index 96ff63cde1be..5aea9427ffe1 100644
-> --- a/net/bridge/br_sysfs_if.c
-> +++ b/net/bridge/br_sysfs_if.c
-> @@ -59,9 +59,8 @@ static BRPORT_ATTR(_name, 0644,					\
->  static int store_flag(struct net_bridge_port *p, unsigned long v,
->  		      unsigned long mask)
->  {
-> -	unsigned long flags;
-> -
-> -	flags = p->flags;
-> +	unsigned long flags = p->flags;
-> +	int err;
->  
->  	if (v)
->  		flags |= mask;
-> @@ -69,6 +68,10 @@ static int store_flag(struct net_bridge_port *p, unsigned long v,
->  		flags &= ~mask;
->  
->  	if (flags != p->flags) {
-> +		err = br_switchdev_set_port_flag(p, flags, mask);
-> +		if (err)
-> +			return err;
-> +
->  		p->flags = flags;
->  		br_port_flags_change(p, mask);
->  	}
+>  net/bridge/br_if.c      | 24 +++++++++++++++++++++++-
+>  net/bridge/br_netlink.c | 16 ++++------------
+>  net/bridge/br_private.h |  2 ++
+>  3 files changed, 29 insertions(+), 13 deletions(-)
 > 
 
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Hi Vladimir,
+I think this patch potentially breaks some use cases. There are a few problems, I'll
+start with the more serious one: before the ports would have a set of flags that were
+always set when joining, now due to how nbp_flags_change() handles flag setting some might
+not be set which would immediately change behaviour w.r.t software fwding. I'll use your
+example of BR_BCAST_FLOOD: a lot of drivers will return an error for it and any broadcast
+towards these ports will be dropped, we have mixed environments with software ports that
+sometimes have traffic (e.g. decapped ARP requests) software forwarded which will stop working.
+The other lesser issue is with the style below, I mean these three calls for each flag are
+just ugly and look weird as you've also noted, since these APIs are internal can we do better?
+
+Cheers,
+ Nik
+
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index f7d2f472ae24..8903333654f0 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -89,6 +89,21 @@ void br_port_carrier_check(struct net_bridge_port *p, bool *notified)
+>  	spin_unlock_bh(&br->lock);
+>  }
+>  
+> +int nbp_flags_change(struct net_bridge_port *p, unsigned long flags,
+> +		     unsigned long mask, struct netlink_ext_ack *extack)
+> +{
+> +	int err;
+> +
+> +	err = br_switchdev_set_port_flag(p, flags, mask, extack);
+> +	if (err)
+> +		return err;
+> +
+> +	p->flags &= ~mask;
+> +	p->flags |= flags;
+> +
+> +	return 0;
+> +}
+> +
+>  static void br_port_set_promisc(struct net_bridge_port *p)
+>  {
+>  	int err = 0;
+> @@ -343,6 +358,10 @@ static void del_nbp(struct net_bridge_port *p)
+>  		update_headroom(br, get_max_headroom(br));
+>  	netdev_reset_rx_headroom(dev);
+>  
+> +	nbp_flags_change(p, 0, BR_LEARNING, NULL);
+> +	nbp_flags_change(p, BR_FLOOD, BR_FLOOD, NULL);
+> +	nbp_flags_change(p, BR_MCAST_FLOOD, BR_MCAST_FLOOD, NULL);
+> +	nbp_flags_change(p, BR_BCAST_FLOOD, BR_BCAST_FLOOD, NULL);
+>  	nbp_vlan_flush(p);
+>  	br_fdb_delete_by_port(br, p, 0, 1);
+>  	switchdev_deferred_process();
+> @@ -428,7 +447,10 @@ static struct net_bridge_port *new_nbp(struct net_bridge *br,
+>  	p->path_cost = port_cost(dev);
+>  	p->priority = 0x8000 >> BR_PORT_BITS;
+>  	p->port_no = index;
+> -	p->flags = BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD | BR_BCAST_FLOOD;
+> +	nbp_flags_change(p, BR_LEARNING, BR_LEARNING, NULL);
+> +	nbp_flags_change(p, BR_FLOOD, BR_FLOOD, NULL);
+> +	nbp_flags_change(p, BR_MCAST_FLOOD, BR_MCAST_FLOOD, NULL);
+> +	nbp_flags_change(p, BR_BCAST_FLOOD, BR_BCAST_FLOOD, NULL);
+>  	br_init_port(p);
+>  	br_set_state(p, BR_STATE_DISABLED);
+>  	br_stp_port_timer_init(p);
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 02aa95c08b77..ab54d1daa9b4 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -852,28 +852,20 @@ static int br_set_port_state(struct net_bridge_port *p, u8 state)
+>  	return 0;
+>  }
+>  
+> -/* Set/clear or port flags based on attribute */
+> +/* Set/clear or port flags based on netlink attribute */
+>  static int br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
+>  			    int attrtype, unsigned long mask,
+>  			    struct netlink_ext_ack *extack)
+>  {
+> -	unsigned long flags;
+> -	int err;
+> +	unsigned long flags = 0;
+>  
+>  	if (!tb[attrtype])
+>  		return 0;
+>  
+>  	if (nla_get_u8(tb[attrtype]))
+> -		flags = p->flags | mask;
+> -	else
+> -		flags = p->flags & ~mask;
+> -
+> -	err = br_switchdev_set_port_flag(p, flags, mask, extack);
+> -	if (err)
+> -		return err;
+> +		flags = mask;
+>  
+> -	p->flags = flags;
+> -	return 0;
+> +	return nbp_flags_change(p, flags, mask, extack);
+>  }
+>  
+>  /* Process bridge protocol info on port */
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index a1639d41188b..f064abd86bdf 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -749,6 +749,8 @@ netdev_features_t br_features_recompute(struct net_bridge *br,
+>  void br_port_flags_change(struct net_bridge_port *port, unsigned long mask);
+>  void br_manage_promisc(struct net_bridge *br);
+>  int nbp_backup_change(struct net_bridge_port *p, struct net_device *backup_dev);
+> +int nbp_flags_change(struct net_bridge_port *p, unsigned long flags,
+> +		     unsigned long mask, struct netlink_ext_ack *extack);
+>  
+>  /* br_input.c */
+>  int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
+> 
+
