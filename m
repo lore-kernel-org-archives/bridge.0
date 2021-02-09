@@ -1,26 +1,25 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1612902277; x=1644438277;
- h=from:to:cc:subject:date:message-id:in-reply-to:
- references:mime-version:content-transfer-encoding;
- bh=QtwOaRIv2PtLKpYjgqSxl18uh6l2sLduk/xVC1keVzM=;
- b=x3YXQvmxXgK2wElBbL72uLLzS+HWU1/+/JPYXyOhqd/2CL57eg/T8dCT
- uCxcYPZm9KZ1+dRxQyvuKWsAXk4JLVVdXu/2i4Gd2YdmpRruMH69HINg4
- W51+WtHFZBU6uSuNe+0lB4dOgiUUMknWlhr8klZE+MyZggSS72a5sg8j/
- KK41rtLD8V1PfqL8g4WXB090aiTiFTEKk5WzINWu8e97ZjXsvc+FWhFWW
- 6Uf5kSBfdKDDm2EAko5JnAuyjU/90gq1+YzcP3T/ZVO4k30eQGKVSIWUU
- Y1SWjX4BPlgnsYiioMjQYl4aOct8OvpTh+IUNFXjm7VUvBMKandlfuCTh w==;
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 9 Feb 2021 21:21:12 +0100
-Message-ID: <20210209202112.2545325-6-horatiu.vultur@microchip.com>
-In-Reply-To: <20210209202112.2545325-1-horatiu.vultur@microchip.com>
-References: <20210209202112.2545325-1-horatiu.vultur@microchip.com>
+Return-Path: <olteanv@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=vpXupxI4EmB9jS8FnsBDy9X9aAilQow9eZdElk5z5YU=;
+ b=EaCnqleR9co1ayX9zw8/Gbww2num6HhuM4rM/kM9NM7GKDe5pOvkyc4u1Yyqkwgb84
+ 0ZmEdA9aOXpR65pmNEYgE0NybjZ2WP5hFK4g5Av6jBc23CsFz15v3La7dXi41gCy0pcm
+ 0lNs7LXQers1shnqM/BafxrFDuS7hrqMB1968zH/0w+SdalfFn8KJRKJ6E0H8bVgF44y
+ ZY2Mw2MtExe5Aa4zYKcdhUWXyTD3rY0ApxtQB+eawTlVtuADNwjbEG/nHV63FLXyKmsQ
+ X3AIXJFUUjJFsVqp343pSzGKATCXc5sAVoIWnYwpHifWavfp5gPQwuQSzwJa1Xoc5E8I
+ QQdA==
+Date: Tue, 9 Feb 2021 22:37:24 +0200
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20210209203724.t3gvjdzhxbkt3qu2@skbuf>
+References: <20210209151936.97382-1-olteanv@gmail.com>
+ <20210209151936.97382-8-olteanv@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 5/5] net: mscc: ocelot: Add support for
-	MRP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210209151936.97382-8-olteanv@gmail.com>
+Subject: Re: [Bridge] [PATCH v2 net-next 07/11] net: dsa: kill
+ .port_egress_floods overengineering
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,248 +28,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, rasmus.villemoes@prevas.dk, andrew@lunn.ch, vladimir.oltean@nxp.com, claudiu.manoil@nxp.com, alexandre.belloni@bootlin.com, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Vadym Kochan <vkochan@marvell.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Ioana Ciornei <ioana.ciornei@nxp.com>, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Taras Chornyi <tchornyi@marvell.com>, Ido Schimmel <idosch@idosch.org>, Claudiu Manoil <claudiu.manoil@nxp.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, linux-omap@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>
 
-Add basic support for MRP. The HW will just trap all MRP frames on the
-ring ports to CPU and allow the SW to process them. In this way it is
-possible to for this node to behave both as MRM and MRC.
+On Tue, Feb 09, 2021 at 05:19:32PM +0200, Vladimir Oltean wrote:
+> From: Vladimir Oltean <vladimir.oltean@nxp.com>
+>
+> The bridge offloads the port flags through a single bit mask using
+> switchdev, which among others, contains learning and flooding settings.
+>
+> The commit 57652796aa97 ("net: dsa: add support for bridge flags")
+> missed one crucial aspect of the SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS API
+> when designing the API one level lower, towards the drivers.
+> This is that the bitmask of passed brport flags never has more than one
+> bit set at a time. On the other hand, the prototype passed to the driver
+> is .port_egress_floods(int port, bool unicast, bool multicast), which
+> configures two flags at a time.
+>
+> DSA currently checks if .port_egress_floods is implemented, and if it
+> is, reports both BR_FLOOD and BR_MCAST_FLOOD as supported. So the driver
+> has no choice if it wants to inform the bridge that, for example, it
+> can't configure unicast flooding independently of multicast flooding -
+> the DSA mid layer is standing in the way. Or the other way around: a new
+> driver wants to start configuring BR_BCAST_FLOOD separately, but what do
+> we do with the rest, which only support unicast and multicast flooding?
+> Do we report broadcast flooding configuration as supported for those
+> too, and silently do nothing?
+>
+> Secondly, currently DSA deems the driver too dumb to deserve knowing that
+> a SWITCHDEV_ATTR_ID_BRIDGE_MROUTER attribute was offloaded, because it
+> just calls .port_egress_floods for the CPU port. When we'll add support
+> for the plain SWITCHDEV_ATTR_ID_PORT_MROUTER, that will become a real
+> problem because the flood settings will need to be held statefully in
+> the DSA middle layer, otherwise changing the mrouter port attribute will
+> impact the flooding attribute. And that's _assuming_ that the underlying
+> hardware doesn't have anything else to do when a multicast router
+> attaches to a port than flood unknown traffic to it. If it does, there
+> will need to be a dedicated .port_set_mrouter anyway.
+>
+> Lastly, we have DSA drivers that have a backlink into a pure switchdev
+> driver (felix -> ocelot). It seems reasonable that the other switchdev
+> drivers should not have to suffer from the oddities of DSA overengineering,
+> so keeping DSA a pass-through layer makes more sense there.
+>
+> To simplify the brport flags situation we just delete .port_egress_floods
+> and we introduce a simple .port_bridge_flags which is passed to the
+> driver. Also, the logic from dsa_port_mrouter is removed and a
+> .port_set_mrouter is created.
+>
+> Functionally speaking, we simply move the calls to .port_egress_floods
+> one step lower, in the two drivers that implement it: mv88e6xxx and b53,
+> so things should work just as before.
+>
+> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> ---
 
-Current limitations are:
-- it doesn't support Interconnect roles.
-- it supports only a single ring.
-- the HW should be able to do forwarding of MRP Test frames so the SW
-  will not need to do this. So it would be able to have the role MRC
-  without SW support.
-
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
----
- drivers/net/ethernet/mscc/ocelot_net.c     | 154 +++++++++++++++++++++
- drivers/net/ethernet/mscc/ocelot_vsc7514.c |   6 +
- include/soc/mscc/ocelot.h                  |   6 +
- 3 files changed, 166 insertions(+)
-
-diff --git a/drivers/net/ethernet/mscc/ocelot_net.c b/drivers/net/ethernet/mscc/ocelot_net.c
-index 8f12fa45b1b5..65971403e823 100644
---- a/drivers/net/ethernet/mscc/ocelot_net.c
-+++ b/drivers/net/ethernet/mscc/ocelot_net.c
-@@ -9,7 +9,10 @@
-  */
- 
- #include <linux/if_bridge.h>
-+#include <linux/mrp_bridge.h>
- #include <net/pkt_cls.h>
-+#include <soc/mscc/ocelot_vcap.h>
-+#include <uapi/linux/mrp_bridge.h>
- #include "ocelot.h"
- #include "ocelot_vcap.h"
- 
-@@ -1069,6 +1072,139 @@ static int ocelot_port_obj_del_mdb(struct net_device *dev,
- 	return ocelot_port_mdb_del(ocelot, port, mdb);
- }
- 
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+static int ocelot_mrp_del_vcap(struct ocelot *ocelot, int port)
-+{
-+	struct ocelot_vcap_block *block_vcap_is2;
-+	struct ocelot_vcap_filter *filter;
-+
-+	block_vcap_is2 = &ocelot->block[VCAP_IS2];
-+	filter = ocelot_vcap_block_find_filter_by_id(block_vcap_is2, port,
-+						     false);
-+	if (!filter)
-+		return 0;
-+
-+	return ocelot_vcap_filter_del(ocelot, filter);
-+}
-+
-+static int ocelot_add_mrp(struct net_device *dev,
-+			  const struct switchdev_obj_mrp *mrp)
-+{
-+	struct ocelot_port_private *priv = netdev_priv(dev);
-+	struct ocelot_port *ocelot_port = &priv->port;
-+	struct ocelot *ocelot = ocelot_port->ocelot;
-+
-+	if (mrp->p_port != dev && mrp->s_port != dev)
-+		return 0;
-+
-+	if (ocelot->mrp_ring_id != 0 &&
-+	    ocelot->mrp_s_port &&
-+	    ocelot->mrp_p_port)
-+		return -EINVAL;
-+
-+	if (mrp->p_port == dev)
-+		ocelot->mrp_p_port = dev;
-+
-+	if (mrp->s_port == dev)
-+		ocelot->mrp_s_port = dev;
-+
-+	ocelot->mrp_ring_id = mrp->ring_id;
-+
-+	return 0;
-+}
-+
-+static int ocelot_del_mrp(struct net_device *dev,
-+			  const struct switchdev_obj_mrp *mrp)
-+{
-+	struct ocelot_port_private *priv = netdev_priv(dev);
-+	struct ocelot_port *ocelot_port = &priv->port;
-+	struct ocelot *ocelot = ocelot_port->ocelot;
-+
-+	if (ocelot->mrp_p_port != dev && ocelot->mrp_s_port != dev)
-+		return 0;
-+
-+	if (ocelot->mrp_ring_id == 0 &&
-+	    !ocelot->mrp_s_port &&
-+	    !ocelot->mrp_p_port)
-+		return -EINVAL;
-+
-+	if (ocelot_mrp_del_vcap(ocelot, priv->chip_port))
-+		return -EINVAL;
-+
-+	if (ocelot->mrp_p_port == dev)
-+		ocelot->mrp_p_port = NULL;
-+
-+	if (ocelot->mrp_s_port == dev)
-+		ocelot->mrp_s_port = NULL;
-+
-+	ocelot->mrp_ring_id = 0;
-+
-+	return 0;
-+}
-+
-+static int ocelot_add_ring_role(struct net_device *dev,
-+				const struct switchdev_obj_ring_role_mrp *mrp)
-+{
-+	struct ocelot_port_private *priv = netdev_priv(dev);
-+	struct ocelot_port *ocelot_port = &priv->port;
-+	struct ocelot *ocelot = ocelot_port->ocelot;
-+	struct ocelot_vcap_filter *filter;
-+	int err;
-+
-+	if (ocelot->mrp_ring_id != mrp->ring_id)
-+		return -EINVAL;
-+
-+	if (!mrp->sw_backup)
-+		return -EOPNOTSUPP;
-+
-+	if (ocelot->mrp_p_port != dev && ocelot->mrp_s_port != dev)
-+		return 0;
-+
-+	filter = kzalloc(sizeof(*filter), GFP_KERNEL);
-+	if (!filter)
-+		return -ENOMEM;
-+
-+	filter->key_type = OCELOT_VCAP_KEY_ETYPE;
-+	filter->prio = 1;
-+	filter->id.cookie = priv->chip_port;
-+	filter->id.tc_offload = false;
-+	filter->block_id = VCAP_IS2;
-+	filter->type = OCELOT_VCAP_FILTER_OFFLOAD;
-+	filter->ingress_port_mask = BIT(priv->chip_port);
-+	*(__be16 *)filter->key.etype.etype.value = htons(ETH_P_MRP);
-+	*(__be16 *)filter->key.etype.etype.mask = htons(0xffff);
-+	filter->action.mask_mode = OCELOT_MASK_MODE_PERMIT_DENY;
-+	filter->action.port_mask = 0x0;
-+	filter->action.cpu_copy_ena = true;
-+	filter->action.cpu_qu_num = 0;
-+
-+	err = ocelot_vcap_filter_add(ocelot, filter, NULL);
-+	if (err)
-+		kfree(filter);
-+
-+	return err;
-+}
-+
-+static int ocelot_del_ring_role(struct net_device *dev,
-+				const struct switchdev_obj_ring_role_mrp *mrp)
-+{
-+	struct ocelot_port_private *priv = netdev_priv(dev);
-+	struct ocelot_port *ocelot_port = &priv->port;
-+	struct ocelot *ocelot = ocelot_port->ocelot;
-+
-+	if (ocelot->mrp_ring_id != mrp->ring_id)
-+		return -EINVAL;
-+
-+	if (!mrp->sw_backup)
-+		return -EOPNOTSUPP;
-+
-+	if (ocelot->mrp_p_port != dev && ocelot->mrp_s_port != dev)
-+		return 0;
-+
-+	return ocelot_mrp_del_vcap(ocelot, priv->chip_port);
-+}
-+#endif
-+
- static int ocelot_port_obj_add(struct net_device *dev,
- 			       const struct switchdev_obj *obj,
- 			       struct netlink_ext_ack *extack)
-@@ -1083,6 +1219,15 @@ static int ocelot_port_obj_add(struct net_device *dev,
- 	case SWITCHDEV_OBJ_ID_PORT_MDB:
- 		ret = ocelot_port_obj_add_mdb(dev, SWITCHDEV_OBJ_PORT_MDB(obj));
- 		break;
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+	case SWITCHDEV_OBJ_ID_MRP:
-+		ret = ocelot_add_mrp(dev, SWITCHDEV_OBJ_MRP(obj));
-+		break;
-+	case SWITCHDEV_OBJ_ID_RING_ROLE_MRP:
-+		ret = ocelot_add_ring_role(dev,
-+					   SWITCHDEV_OBJ_RING_ROLE_MRP(obj));
-+		break;
-+#endif
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-@@ -1103,6 +1248,15 @@ static int ocelot_port_obj_del(struct net_device *dev,
- 	case SWITCHDEV_OBJ_ID_PORT_MDB:
- 		ret = ocelot_port_obj_del_mdb(dev, SWITCHDEV_OBJ_PORT_MDB(obj));
- 		break;
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+	case SWITCHDEV_OBJ_ID_MRP:
-+		ret = ocelot_del_mrp(dev, SWITCHDEV_OBJ_MRP(obj));
-+		break;
-+	case SWITCHDEV_OBJ_ID_RING_ROLE_MRP:
-+		ret = ocelot_del_ring_role(dev,
-+					   SWITCHDEV_OBJ_RING_ROLE_MRP(obj));
-+		break;
-+#endif
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/drivers/net/ethernet/mscc/ocelot_vsc7514.c b/drivers/net/ethernet/mscc/ocelot_vsc7514.c
-index 6b6eb92149ba..96a9c9f98060 100644
---- a/drivers/net/ethernet/mscc/ocelot_vsc7514.c
-+++ b/drivers/net/ethernet/mscc/ocelot_vsc7514.c
-@@ -698,6 +698,12 @@ static irqreturn_t ocelot_xtr_irq_handler(int irq, void *arg)
- 			skb->offload_fwd_mark = 1;
- 
- 		skb->protocol = eth_type_trans(skb, dev);
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+		if (skb->protocol == ntohs(ETH_P_MRP) &&
-+		    (priv->dev == ocelot->mrp_p_port ||
-+		     priv->dev == ocelot->mrp_s_port))
-+			skb->offload_fwd_mark = 0;
-+#endif
- 		if (!skb_defer_rx_timestamp(skb))
- 			netif_rx(skb);
- 		dev->stats.rx_bytes += len;
-diff --git a/include/soc/mscc/ocelot.h b/include/soc/mscc/ocelot.h
-index d0d48e9620fb..d95c019ad84e 100644
---- a/include/soc/mscc/ocelot.h
-+++ b/include/soc/mscc/ocelot.h
-@@ -682,6 +682,12 @@ struct ocelot {
- 	/* Protects the PTP clock */
- 	spinlock_t			ptp_clock_lock;
- 	struct ptp_pin_desc		ptp_pins[OCELOT_PTP_PINS_NUM];
-+
-+#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-+	u16				mrp_ring_id;
-+	struct net_device		*mrp_p_port;
-+	struct net_device		*mrp_s_port;
-+#endif
- };
- 
- struct ocelot_policer {
--- 
-2.27.0
-
+Florian, Andrew, what are your opinions on this patch? I guess what I
+dislike the most about .port_egress_floods is that it combines the
+unicast and multicast settings in the same callback, for no good
+apparent reason. So that, at the very least, needs to change.
+What do you prefer between having:
+	.port_set_unicast_floods
+	.port_set_multicast_floods
+	.port_set_broadcast_floods
+	.port_set_learning
+and a single:
+	.port_bridge_flags
+?
