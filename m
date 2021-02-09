@@ -1,26 +1,26 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1612902260; x=1644438260;
+ t=1612902263; x=1644438263;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=IhUdd2jlbfwy16e6uNnfyIi6STcN4Cush5DPbsaIFTY=;
- b=GZ2zAO/50GsTLSEgGWsPIeJkx9UddsXqcr1IOBRd5KleRKVlbc6GWTvP
- KcKMyG98U8R+7sQLJtrFUHA9VH2YZrDdImXhDUkfIVheL0xrTa4W9y0OZ
- lhiQNb0YJgVVAirDrDBJF9pzpB9xdNpZ3ChLbI9eqIoW39A4gzakkFWnR
- f3VpEF2Lsv/6lCrvTW/1gqcXGI7OEM8Ae8ef5QZgfszu/fGfMMXQXoz9z
- /JD9masAN5uwafqld9diTkogav1lYwDaggC4MLrTgPjWXYjuke62yjnSF
- i1d8d/HXONX28G8CITyaufpymQFiOJ+v3pMkzG6kgNxdpt2C3SJQTeBiu A==;
+ bh=EHLVPvUVJez21AH8PebxAXBSYM5AvLzTmtWmafYTWPs=;
+ b=YwYcsCaQVyflmkG8UJZeWem+5G+C9IYXwYCXFN9/jIOQvY6t5n7OLVEg
+ i3M+FMtCMTv0bbUqNs9MJRo9STlMXAmICFk4uwvsucO7NETwheNHr/red
+ pjXXMzxhm2MzFAhgHWAkHFo3UCOyrf1W9TcdqgeKn87anFZFzpZio6XeJ
+ P7JW7grTFta9rcbLyTtzPKJMJpXV/XxaiDVRP2oBWcX2sZZC7UYBeke7m
+ 2/qXgcgQeKC/3Er0nBgdzjZlLkyXbTdOzmJbgujtXL8qyJB0LmUF7lJgg
+ GRPlhnnt6UhNYMAt5sHgZgxRhp5TCYzyi9p93vaH2cljtLCIJ9zrqUu7z g==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 9 Feb 2021 21:21:08 +0100
-Message-ID: <20210209202112.2545325-2-horatiu.vultur@microchip.com>
+Date: Tue, 9 Feb 2021 21:21:09 +0100
+Message-ID: <20210209202112.2545325-3-horatiu.vultur@microchip.com>
 In-Reply-To: <20210209202112.2545325-1-horatiu.vultur@microchip.com>
 References: <20210209202112.2545325-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 1/5] switchdev: mrp: Extend
-	ring_role_mrp and in_role_mrp
+Subject: [Bridge] [PATCH net-next v3 2/5] bridge: mrp: Add 'enum
+	br_mrp_hw_support'
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,43 +32,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: jiri@resnulli.us, ivecera@redhat.com, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, rasmus.villemoes@prevas.dk, andrew@lunn.ch, vladimir.oltean@nxp.com, claudiu.manoil@nxp.com, alexandre.belloni@bootlin.com, UNGLinuxDriver@microchip.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-Add the member sw_backup to the structures switchdev_obj_ring_role_mrp
-and switchdev_obj_in_role_mrp. In this way the SW can call the driver in
-2 ways, once when sw_backup is set to false, meaning that the driver
-should implement this completely in HW. And if that is not supported the
-SW will call again but with sw_backup set to true, meaning that the
-HW should help or allow the SW to run the protocol.
-
-For example when role is MRM, if the HW can't detect when it stops
-receiving MRP Test frames but it can trap these frames to CPU, then it
-needs to return -EOPNOTSUPP when sw_backup is false and return 0 when
-sw_backup is true.
+Add the enum br_mrp_hw_support that is used by the br_mrp_switchdev
+functions to allow the SW to detect the cases where HW can't implement
+the functionality or when SW is used as a backup.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- include/net/switchdev.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bridge/br_private_mrp.h | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 6dcfc4c51a6e..067f259279e1 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -130,6 +130,7 @@ struct switchdev_obj_ring_role_mrp {
- 	struct switchdev_obj obj;
- 	u8 ring_role;
- 	u32 ring_id;
-+	u8 sw_backup;
+diff --git a/net/bridge/br_private_mrp.h b/net/bridge/br_private_mrp.h
+index 32a48e5418da..a94017f86cda 100644
+--- a/net/bridge/br_private_mrp.h
++++ b/net/bridge/br_private_mrp.h
+@@ -46,6 +46,20 @@ struct br_mrp {
+ 	struct rcu_head			rcu;
  };
  
- #define SWITCHDEV_OBJ_RING_ROLE_MRP(OBJ) \
-@@ -164,6 +165,7 @@ struct switchdev_obj_in_role_mrp {
- 	u32 ring_id;
- 	u16 in_id;
- 	u8 in_role;
-+	u8 sw_backup;
- };
- 
- #define SWITCHDEV_OBJ_IN_ROLE_MRP(OBJ) \
++/* This type is returned by br_mrp_switchdev functions that allow to have a SW
++ * backup in case the HW can't implement completely the protocol.
++ * BR_MRP_NONE - means the HW can't run at all the protocol, so the SW stops
++ *               configuring the node anymore.
++ * BR_MRP_SW - the HW can help the SW to run the protocol, by redirecting MRP
++ *             frames to CPU.
++ * BR_MRP_HW - the HW can implement completely the protocol.
++ */
++enum br_mrp_hw_support {
++	BR_MRP_NONE,
++	BR_MRP_SW,
++	BR_MRP_HW,
++};
++
+ /* br_mrp.c */
+ int br_mrp_add(struct net_bridge *br, struct br_mrp_instance *instance);
+ int br_mrp_del(struct net_bridge *br, struct br_mrp_instance *instance);
 -- 
 2.27.0
 
