@@ -1,21 +1,21 @@
-Return-Path: <ioana.ciornei@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=exkoNkB4sKnYOGWCAq/KbIKLo3oZIEKBU8fvAi6+BCY=;
- b=ZcosWDECG0AWYnXOaSvHD4PxxeWXgN7gqd1wwfQRufp1aFxSWN75mNao95M5cSDsdZr/A1QPvcOhxFYzxEnu//YNSEgFZ46eUwsbReUVbVgK/1vzDJCcRzmmodTLm47tnV1r5HZcxvs0Lspb9oDoccDQWtEiriYKi0rSj7Zvu94=
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
-Date: Mon, 8 Feb 2021 16:04:20 +0000
-Message-ID: <20210208160418.pen47yf3xhtzuwkb@skbuf>
-References: <20210207232141.2142678-1-olteanv@gmail.com>
- <20210207232141.2142678-6-olteanv@gmail.com>
-In-Reply-To: <20210207232141.2142678-6-olteanv@gmail.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <EBBD033502BAE849A5733453869BC577@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <olteanv@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=qNqiC3tG2xwOJq2qddxb/1WR+HrSzwiNawlUePCsQFs=;
+ b=FZHA5b7/YbuGyx85UjaXr9oA7wpfJd4MyLm1ksHXD3V6l7MiRrIaewHCmrv+bq8Zi8
+ hiJ22S3maNnxwqq2z4zZn9+TANcjaVDKFB6MX/1Vi3hnHUH+cTuWfy5r8n1etiZUXQdM
+ LMfkTM71xfGGdEwcSrTmn70MpKhdA0FNWu4YQIStGJ4vr55WIyH7/AYfQ4SALcTXr6sk
+ rxpgfNbQc9Z22hNYBB9+cL8Z/2Ue9GL8iuCl06lZN9wyyarPc4pKVqdZn0f5WJIBAoeg
+ 5F2jOum72Q5wcrtY5tjoR2ETeeXSk1Aai3Vc3ZChzfqCRC5WpEVJKfwwvp9XZAYFw3zI
+ ccTQ==
+From: Vladimir Oltean <olteanv@gmail.com>
+Date: Wed, 10 Feb 2021 11:14:34 +0200
+Message-Id: <20210210091445.741269-1-olteanv@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 5/9] net: squash switchdev attributes
- PRE_BRIDGE_FLAGS and BRIDGE_FLAGS
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v3 net-next 00/11] Cleanup in brport flags
+	switchdev offload for DSA
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,113 +24,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Vadym Kochan <vkochan@marvell.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Taras Chornyi <tchornyi@marvell.com>, Ido Schimmel <idosch@idosch.org>, Claudiu Manoil <claudiu.manoil@nxp.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, "David S. Miller" <davem@davemloft.net>
+To: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Vadym Kochan <vkochan@marvell.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Ioana Ciornei <ioana.ciornei@nxp.com>, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Taras Chornyi <tchornyi@marvell.com>, Ido Schimmel <idosch@idosch.org>, Claudiu Manoil <claudiu.manoil@nxp.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, linux-omap@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Mon, Feb 08, 2021 at 01:21:37AM +0200, Vladimir Oltean wrote:
-> From: Vladimir Oltean <vladimir.oltean@nxp.com>
->=20
-> There does not appear to be any strong reason why
-> br_switchdev_set_port_flag issues a separate notification for checking
-> the supported brport flags rather than just attempting to apply them and
-> propagating the error if that fails.
->=20
-> However, there is a reason why this switchdev API is counterproductive
-> for a driver writer, and that is because although br_switchdev_set_port_f=
-lag
-> gets passed a "flags" and a "mask", those are passed piecemeal to the
-> driver, so while the PRE_BRIDGE_FLAGS listener knows what changed
-> because it has the "mask", the BRIDGE_FLAGS listener doesn't, because it
-> only has the final value. This means that "edge detection" needs to be
-> done by each individual BRIDGE_FLAGS listener by XOR-ing the old and the
-> new flags, which in turn means that copying the flags into a driver
-> private variable is strictly necessary.
->=20
-> This can be solved by passing the "flags" and the "value" together into
-> a single switchdev attribute, and it also reduces some boilerplate in
-> the drivers that offload this.
->=20
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> ---
->  drivers/net/dsa/b53/b53_common.c              | 16 ++++-------
->  drivers/net/dsa/mv88e6xxx/chip.c              | 17 ++++-------
->  .../marvell/prestera/prestera_switchdev.c     | 16 +++++------
->  .../mellanox/mlxsw/spectrum_switchdev.c       | 28 ++++++-------------
->  drivers/net/ethernet/rocker/rocker_main.c     | 24 +++-------------
->  drivers/net/ethernet/ti/cpsw_switchdev.c      | 20 ++++---------
->  drivers/staging/fsl-dpaa2/ethsw/ethsw.c       | 22 ++++-----------
->  include/net/dsa.h                             |  4 +--
->  include/net/switchdev.h                       |  8 ++++--
->  net/bridge/br_switchdev.c                     | 19 ++++---------
->  net/dsa/dsa_priv.h                            |  4 +--
->  net/dsa/port.c                                | 15 ++--------
->  net/dsa/slave.c                               |  3 --
->  13 files changed, 58 insertions(+), 138 deletions(-)
->=20
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-(..)
+The initial goal of this series was to have better support for
+standalone ports mode and multiple bridges on the DSA drivers like
+ocelot/felix and sja1105. Proper support for standalone mode requires
+disabling address learning, which in turn requires interaction with the
+switchdev notifier, which is actually where most of the patches are.
 
-> --- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-> +++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
-> @@ -908,28 +908,22 @@ static int dpaa2_switch_port_attr_stp_state_set(str=
-uct net_device *netdev,
->  	return dpaa2_switch_port_set_stp_state(port_priv, state);
->  }
-> =20
-> -static int dpaa2_switch_port_attr_br_flags_pre_set(struct net_device *ne=
-tdev,
-> -						   unsigned long flags)
-> -{
-> -	if (flags & ~(BR_LEARNING | BR_FLOOD))
-> -		return -EINVAL;
-> -
-> -	return 0;
-> -}
-> -
->  static int dpaa2_switch_port_attr_br_flags_set(struct net_device *netdev=
-,
-> -					       unsigned long flags)
-> +					       struct switchdev_brport_flags val)
->  {
->  	struct ethsw_port_priv *port_priv =3D netdev_priv(netdev);
->  	int err =3D 0;
-> =20
-> +	if (val.mask & ~(BR_LEARNING | BR_FLOOD))
-> +		return -EINVAL;
-> +
->  	/* Learning is enabled per switch */
->  	err =3D dpaa2_switch_set_learning(port_priv->ethsw_data,
-> -					!!(flags & BR_LEARNING));
-> +					!!(val.flags & BR_LEARNING));
->  	if (err)
->  		goto exit;
-> =20
-> -	err =3D dpaa2_switch_port_set_flood(port_priv, !!(flags & BR_FLOOD));
-> +	err =3D dpaa2_switch_port_set_flood(port_priv, !!(val.flags & BR_FLOOD)=
-);
+I also noticed that most of the drivers are actually talking either to
+firmware or SPI/MDIO connected devices from the brport flags switchdev
+attribute handler, so it makes sense to actually make it sleepable
+instead of atomic.
 
+Vladimir Oltean (11):
+  net: switchdev: propagate extack to port attributes
+  net: bridge: offload all port flags at once in br_setport
+  net: bridge: don't print in br_switchdev_set_port_flag
+  net: dsa: configure proper brport flags when ports leave the bridge
+  net: squash switchdev attributes PRE_BRIDGE_FLAGS and BRIDGE_FLAGS
+  net: dsa: kill .port_egress_floods overengineering
+  net: prep switchdev drivers for concurrent
+    SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS
+  net: bridge: put SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS on the blocking
+    call chain
+  net: mscc: ocelot: use separate flooding PGID for broadcast
+  net: mscc: ocelot: offload bridge port flags to device
+  net: dsa: sja1105: offload bridge port flags to device
 
-Could you also check the mask to see if the flag needs to be actually chang=
-ed?
+ drivers/net/dsa/b53/b53_common.c              |  20 +-
+ drivers/net/dsa/mv88e6xxx/chip.c              |  21 +-
+ drivers/net/dsa/ocelot/felix.c                |  10 +
+ drivers/net/dsa/sja1105/sja1105.h             |   2 +
+ drivers/net/dsa/sja1105/sja1105_main.c        | 212 +++++++++++++++++-
+ drivers/net/dsa/sja1105/sja1105_spi.c         |   6 +
+ .../marvell/prestera/prestera_switchdev.c     |  54 +++--
+ .../mellanox/mlxsw/spectrum_switchdev.c       |  90 ++++----
+ drivers/net/ethernet/mscc/ocelot.c            |  72 +++++-
+ drivers/net/ethernet/mscc/ocelot_net.c        |   7 +-
+ drivers/net/ethernet/rocker/rocker.h          |   2 +-
+ drivers/net/ethernet/rocker/rocker_main.c     |  24 +-
+ drivers/net/ethernet/rocker/rocker_ofdpa.c    |  26 ++-
+ drivers/net/ethernet/ti/cpsw_switchdev.c      |  35 ++-
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c       |  43 ++--
+ include/net/dsa.h                             |   7 +-
+ include/net/switchdev.h                       |  14 +-
+ include/soc/mscc/ocelot.h                     |  18 +-
+ net/bridge/br_netlink.c                       | 162 ++++++-------
+ net/bridge/br_private.h                       |   6 +-
+ net/bridge/br_switchdev.c                     |  33 ++-
+ net/bridge/br_sysfs_if.c                      |  21 +-
+ net/dsa/dsa_priv.h                            |   8 +-
+ net/dsa/port.c                                |  76 ++++---
+ net/dsa/slave.c                               |  10 +-
+ net/switchdev/switchdev.c                     |  11 +-
+ 26 files changed, 654 insertions(+), 336 deletions(-)
 
-> --- a/include/net/dsa.h
-> +++ b/include/net/dsa.h
-> @@ -621,10 +621,8 @@ struct dsa_switch_ops {
->  	void	(*port_stp_state_set)(struct dsa_switch *ds, int port,
->  				      u8 state);
->  	void	(*port_fast_age)(struct dsa_switch *ds, int port);
-> -	int	(*port_pre_bridge_flags)(struct dsa_switch *ds, int port,
-> -					 unsigned long mask);
->  	int	(*port_bridge_flags)(struct dsa_switch *ds, int port,
-> -				     unsigned long flags);
-> +				     struct switchdev_brport_flags val);
->  	int	(*port_set_mrouter)(struct dsa_switch *ds, int port,
->  				    bool mrouter);
-> =20
+-- 
+2.25.1
 
-In the previous patch you add the .port_pre_bridge_flags()
-dsa_switch_ops only to remove it here. Couldn't these two patches be in
-reverse order so that there is no need to actually add the callback in
-the first place?
-
-Ioana=
