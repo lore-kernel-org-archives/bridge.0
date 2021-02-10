@@ -2,22 +2,22 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=aF26U34aBL8K6bVtwaJCBU2DkCwMTfcd91sYoywprTY=;
- b=WCKQ+LtKE/UOlQrWFxrHn28+qeGzJlG6joOQzDOEXxMuc52/bvbwwIWCJfpSdEnemZ
- i9+ZCibdt0/ARIwOmkJfNQQx3wjQfdNwdri68i5YfKJC57taNHzwEPJoLse0GkTvHUBu
- d3oCV0gH5620B/1/yyQ4yYuEUQNqbhWqbJClWRwEJJRbT06RhSnIMfyV06exk1J9ZNrb
- Q64okac0fkO1ek5M9R7yG/XL04bchQfjJxOIQzLwwxD3ZPcwLvU0H4pEWMwA6HAWRpT2
- yRVark7GGOD3fhXGEPbP7xu6nHE/k6LJijyA0s/cg4QhLuCl+evXa7iYZk4tLFOupnen
- 81KQ==
+ bh=VuZTEPYHMg3ShgofbvGoqs9eGEg01aAq4yuwAM+XNnk=;
+ b=llFPHmLvhLGFXxaCSMKvKR0NGGdq6GpGMXgrxyQCDOIka8JKqsSparIRtSjxe96eV1
+ DHAkUwEu0RHu21UwzoqJNk2/ES3lCxlHp1SQwMW1zX1QHHygDY3K01k0veSt5SnBsnxv
+ ALD7cEku3cRKPvRv8fNNkrIRvtsA7BH0TeuE46Xeq0u6dRvaLCprMdoBvt8t8k4QUD2E
+ +WShvWxi4FimoshbiVNux+9Hb1TUQBfZwcSxAPbJXFOE5UuxnZ68ZXAgSvC+KhG7WJAM
+ 3moz+4OzfhfsPP1hU2RS6R6Trf7KDZSRTXPGuq2o0t3oYdwseF55pmEDunto0I/YtVsr
+ JK1g==
 From: Vladimir Oltean <olteanv@gmail.com>
-Date: Wed, 10 Feb 2021 11:14:42 +0200
-Message-Id: <20210210091445.741269-9-olteanv@gmail.com>
+Date: Wed, 10 Feb 2021 11:14:43 +0200
+Message-Id: <20210210091445.741269-10-olteanv@gmail.com>
 In-Reply-To: <20210210091445.741269-1-olteanv@gmail.com>
 References: <20210210091445.741269-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v3 net-next 08/11] net: bridge: put
-	SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS on the blocking call chain
+Subject: [Bridge] [PATCH v3 net-next 09/11] net: mscc: ocelot: use separate
+	flooding PGID for broadcast
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,126 +31,88 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Since we would like br_switchdev_set_port_flag to not use an atomic
-notifier, it should be called from outside spinlock context.
-
-We can temporarily drop br->lock, but that creates some concurrency
-complications (example below is given for sysfs):
-- There might be an "echo 1 > multicast_flood" simultaneous with an
-  "echo 0 > multicast_flood". The result of this is nondeterministic
-  either way, so I'm not too concerned as long as the result is
-  consistent (no other flags have changed).
-- There might be an "echo 1 > multicast_flood" simultaneous with an
-  "echo 0 > learning". My expectation is that none of the two writes are
-  "eaten", and the final flags contain BR_MCAST_FLOOD=1 and BR_LEARNING=0
-  regardless of the order of execution. That is actually possible if, on
-  the commit path, we don't do a trivial "p->flags = flags" which might
-  overwrite bits outside of our mask, but instead we just change the
-  flags corresponding to our mask.
-
-Now that br_switchdev_set_port_flag is never called from under br->lock,
-it runs in sleepable context.
-
-All switchdev drivers handle SWITCHDEV_PORT_ATTR_SET as both blocking
-and atomic, so no changes are needed on that front.
+In preparation of offloading the bridge port flags which have
+independent settings for unknown multicast and for broadcast, we should
+also start reserving one destination Port Group ID for the flooding of
+broadcast packets, to allow configuring it individually.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
 Changes in v3:
-- Drop the br->lock around br_switchdev_set_port_flag in this patch, for
-  both sysfs and netlink.
-- Only set/restore the masked bits in p->flags to avoid concurrency
-  issues.
+None.
 
 Changes in v2:
-Patch is new.
+None.
 
- net/bridge/br_netlink.c   | 10 +++++++---
- net/bridge/br_switchdev.c |  5 ++---
- net/bridge/br_sysfs_if.c  | 22 ++++++++++++++--------
- 3 files changed, 23 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c | 13 ++++++++-----
+ include/soc/mscc/ocelot.h          | 15 ++++++++-------
+ 2 files changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index b7731614c036..8f09106966c4 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -869,7 +869,7 @@ static void br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
- static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
- 		      struct netlink_ext_ack *extack)
- {
--	unsigned long old_flags, changed_mask;
-+	unsigned long flags, old_flags, changed_mask;
- 	bool br_vlan_tunnel_old;
- 	int err;
- 
-@@ -896,10 +896,14 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
- 	br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
- 
- 	changed_mask = old_flags ^ p->flags;
-+	flags = p->flags;
- 
--	err = br_switchdev_set_port_flag(p, p->flags, changed_mask, extack);
-+	spin_unlock_bh(&p->br->lock);
-+	err = br_switchdev_set_port_flag(p, flags, changed_mask, extack);
-+	spin_lock_bh(&p->br->lock);
- 	if (err) {
--		p->flags = old_flags;
-+		p->flags &= ~changed_mask;
-+		p->flags |= (old_flags & changed_mask);
- 		goto out;
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index f8b85ab8be5d..8c1052346b58 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -1662,7 +1662,7 @@ int ocelot_init(struct ocelot *ocelot)
+ 	/* Setup flooding PGIDs */
+ 	for (i = 0; i < ocelot->num_flooding_pgids; i++)
+ 		ocelot_write_rix(ocelot, ANA_FLOODING_FLD_MULTICAST(PGID_MC) |
+-				 ANA_FLOODING_FLD_BROADCAST(PGID_MC) |
++				 ANA_FLOODING_FLD_BROADCAST(PGID_BC) |
+ 				 ANA_FLOODING_FLD_UNICAST(PGID_UC),
+ 				 ANA_FLOODING, i);
+ 	ocelot_write(ocelot, ANA_FLOODING_IPMC_FLD_MC6_DATA(PGID_MCIPV6) |
+@@ -1683,15 +1683,18 @@ int ocelot_init(struct ocelot *ocelot)
+ 		ocelot_write_rix(ocelot, 0, ANA_PGID_PGID, PGID_SRC + port);
  	}
  
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index dbd94156960f..a79164ee65b9 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -79,9 +79,8 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 	attr.u.brport_flags.val = flags & mask;
- 	attr.u.brport_flags.mask = mask;
+-	/* Allow broadcast MAC frames. */
+ 	for_each_nonreserved_multicast_dest_pgid(ocelot, i) {
+ 		u32 val = ANA_PGID_PGID_PGID(GENMASK(ocelot->num_phys_ports - 1, 0));
  
--	/* We run from atomic context here */
--	err = call_switchdev_notifiers(SWITCHDEV_PORT_ATTR_SET, p->dev,
--				       &info.info, extack);
-+	err = call_switchdev_blocking_notifiers(SWITCHDEV_PORT_ATTR_SET, p->dev,
-+						&info.info, extack);
- 	err = notifier_to_errno(err);
- 	if (err == -EOPNOTSUPP)
- 		return 0;
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 72e92376eef1..3f21fdd1cdaa 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -68,16 +68,22 @@ static int store_flag(struct net_bridge_port *p, unsigned long v,
- 	else
- 		flags &= ~mask;
- 
--	if (flags != p->flags) {
--		err = br_switchdev_set_port_flag(p, flags, mask, &extack);
--		if (err) {
--			netdev_err(p->dev, "%s\n", extack._msg);
--			return err;
--		}
-+	if (flags == p->flags)
-+		return 0;
- 
--		p->flags = flags;
--		br_port_flags_change(p, mask);
-+	spin_unlock_bh(&p->br->lock);
-+	err = br_switchdev_set_port_flag(p, flags, mask, &extack);
-+	spin_lock_bh(&p->br->lock);
-+	if (err) {
-+		netdev_err(p->dev, "%s\n", extack._msg);
-+		return err;
+ 		ocelot_write_rix(ocelot, val, ANA_PGID_PGID, i);
  	}
-+
-+	p->flags &= ~mask;
-+	p->flags |= (flags & mask);
-+
-+	br_port_flags_change(p, mask);
-+
- 	return 0;
- }
+-	ocelot_write_rix(ocelot,
+-			 ANA_PGID_PGID_PGID(GENMASK(ocelot->num_phys_ports, 0)),
+-			 ANA_PGID_PGID, PGID_MC);
++	/* Allow broadcast and unknown L2 multicast to the CPU. */
++	ocelot_rmw_rix(ocelot, ANA_PGID_PGID_PGID(BIT(ocelot->num_phys_ports)),
++		       ANA_PGID_PGID_PGID(BIT(ocelot->num_phys_ports)),
++		       ANA_PGID_PGID, PGID_MC);
++	ocelot_rmw_rix(ocelot, ANA_PGID_PGID_PGID(BIT(ocelot->num_phys_ports)),
++		       ANA_PGID_PGID_PGID(BIT(ocelot->num_phys_ports)),
++		       ANA_PGID_PGID, PGID_BC);
+ 	ocelot_write_rix(ocelot, 0, ANA_PGID_PGID, PGID_MCIPV4);
+ 	ocelot_write_rix(ocelot, 0, ANA_PGID_PGID, PGID_MCIPV6);
  
+diff --git a/include/soc/mscc/ocelot.h b/include/soc/mscc/ocelot.h
+index d0d48e9620fb..7ee85527cb5f 100644
+--- a/include/soc/mscc/ocelot.h
++++ b/include/soc/mscc/ocelot.h
+@@ -54,16 +54,17 @@
+  * PGID_CPU: used for whitelisting certain MAC addresses, such as the addresses
+  *           of the switch port net devices, towards the CPU port module.
+  * PGID_UC: the flooding destinations for unknown unicast traffic.
+- * PGID_MC: the flooding destinations for broadcast and non-IP multicast
+- *          traffic.
++ * PGID_MC: the flooding destinations for non-IP multicast traffic.
+  * PGID_MCIPV4: the flooding destinations for IPv4 multicast traffic.
+  * PGID_MCIPV6: the flooding destinations for IPv6 multicast traffic.
++ * PGID_BC: the flooding destinations for broadcast traffic.
+  */
+-#define PGID_CPU			59
+-#define PGID_UC				60
+-#define PGID_MC				61
+-#define PGID_MCIPV4			62
+-#define PGID_MCIPV6			63
++#define PGID_CPU			58
++#define PGID_UC				59
++#define PGID_MC				60
++#define PGID_MCIPV4			61
++#define PGID_MCIPV6			62
++#define PGID_BC				63
+ 
+ #define for_each_unicast_dest_pgid(ocelot, pgid)		\
+ 	for ((pgid) = 0;					\
 -- 
 2.25.1
 
