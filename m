@@ -2,22 +2,22 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=nqM+4Yr8F4+GxUXddkhAIS+khdj8bCCJ5YLHti1P+HU=;
- b=t1iDYvmnaAH3vkKod3rlfHYrB22+6raztYFdCkY0RnPZc1dOHA/yevv2oPYrc+DWvI
- VjU8cpj9gN7VU7tteqZdiv3BioQVyL9e6PTS51cXYhQfoCJFcKV85quRsaZgVCVzuYhK
- dXCenpS7r7AIPWdtzVKmHr1ktYGQU4nlkSC/9twTVc0SFTAmqZ/jGyPr3elV+G1FMR0L
- sqMI/EzunQM3dygBPtSXHf+pRfL96XzcKJ9sLeKLt4op3PwQm7aBV2rZCIhHKUEf3Nud
- LDXwOv0KktTgIv23+rDowtMNZ2t3zsxyCLvJ/3Z0Y1ANpexOuulTW9IvS0E1x/jRZ/6X
- EVeQ==
+ bh=GnyLHUEqfbFZKhOko3snrMsD4MwmfsvRgnw9w/p/K9Y=;
+ b=u9lYigzYSZDqsQeewhDtyFqT2feyd8uExMZ99sCmsGwDZEr4qukTvPXyWtXMqdKBCz
+ sgNljAdQ35O8U0nq0DZLjlZRvAn0JMzWNHKZ6eT0gbZkn0CSvslwFdkUiw7dlXSJvViJ
+ TzB+LZIO+2wAhAfLBBSo5PdvRB6tNUFNlBUaSgGw04cETTKFGlYt42Zv3V43N1mvKGb6
+ s9WRVKSbpxVH2cHLbrT8tKthcX/XLGQN4hWBqQcle4+0tQDL3uf5kDVzHd6/4rAUu6Yd
+ CedBMG1ecR4MmrXMIAXSIahbV3aw3GUxH4BNQne+K6LG9NGv4d69KAIcdHM3Jfdor5Kv
+ 2VYQ==
 From: Vladimir Oltean <olteanv@gmail.com>
-Date: Wed, 10 Feb 2021 11:14:41 +0200
-Message-Id: <20210210091445.741269-8-olteanv@gmail.com>
+Date: Wed, 10 Feb 2021 11:14:40 +0200
+Message-Id: <20210210091445.741269-7-olteanv@gmail.com>
 In-Reply-To: <20210210091445.741269-1-olteanv@gmail.com>
 References: <20210210091445.741269-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v3 net-next 07/11] net: prep switchdev drivers for
-	concurrent SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS
+Subject: [Bridge] [PATCH v3 net-next 06/11] net: dsa: kill
+	.port_egress_floods overengineering
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,338 +31,251 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Because the bridge will start offloading SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS
-while not serialized by any lock such as the br->lock spinlock, existing
-drivers that treat that attribute and cache the brport flags might no
-longer work correctly.
+The bridge offloads the port flags through a single bit mask using
+switchdev, which among others, contains learning and flooding settings.
 
-The issue is that the brport flags are a single unsigned long bitmask,
-and the bridge only guarantees the validity of the changed bits, not the
-full state. So when offloading two concurrent switchdev attributes, such
-as one for BR_LEARNING and another for BR_FLOOD, it might happen that
-the flags having BR_FLOOD are written into the cached value, and this in
-turn disables the BR_LEARNING bit which was set previously.
+The commit 57652796aa97 ("net: dsa: add support for bridge flags")
+missed one crucial aspect of the SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS API
+when designing the API one level lower, towards the drivers.
+This is that the bitmask of passed brport flags never has more than one
+bit set at a time. On the other hand, the prototype passed to the driver
+is .port_egress_floods(int port, bool unicast, bool multicast), which
+configures two flags at a time.
 
-We can fix this across the board by keeping individual boolean variables
-for each brport flag. Note that mlxsw and prestera were setting the
-BR_LEARNING_SYNC flag too, but that appears to be just dead code, so I
-removed it.
+DSA currently checks if .port_egress_floods is implemented, and if it
+is, reports both BR_FLOOD and BR_MCAST_FLOOD as supported. So the driver
+has no choice if it wants to inform the bridge that, for example, it
+can't configure unicast flooding independently of multicast flooding -
+the DSA mid layer is standing in the way. Or the other way around: a new
+driver wants to start configuring BR_BCAST_FLOOD separately, but what do
+we do with the rest, which only support unicast and multicast flooding?
+Do we report broadcast flooding configuration as supported for those
+too, and silently do nothing?
+
+Secondly, currently DSA deems the driver too dumb to deserve knowing that
+a SWITCHDEV_ATTR_ID_BRIDGE_MROUTER attribute was offloaded, because it
+just calls .port_egress_floods for the CPU port. When we'll add support
+for the plain SWITCHDEV_ATTR_ID_PORT_MROUTER, that will become a real
+problem because the flood settings will need to be held statefully in
+the DSA middle layer, otherwise changing the mrouter port attribute will
+impact the flooding attribute. And that's _assuming_ that the underlying
+hardware doesn't have anything else to do when a multicast router
+attaches to a port than flood unknown traffic to it. If it does, there
+will need to be a dedicated .port_set_mrouter anyway.
+
+Lastly, we have DSA drivers that have a backlink into a pure switchdev
+driver (felix -> ocelot). It seems reasonable that the other switchdev
+drivers should not have to suffer from the oddities of DSA overengineering,
+so keeping DSA a pass-through layer makes more sense there.
+
+To simplify the brport flags situation we just delete .port_egress_floods
+and we introduce a simple .port_bridge_flags which is passed to the
+driver. Also, the logic from dsa_port_mrouter is removed and a
+.port_set_mrouter is created.
+
+Functionally speaking, we simply move the calls to .port_egress_floods
+one step lower, in the two drivers that implement it: mv88e6xxx and b53,
+so things should work just as before.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
 Changes in v3:
-Patch is new.
+- Pass extack through the newly introduce dsa_port_change_brport_flags.
 
- .../marvell/prestera/prestera_switchdev.c     | 32 ++++++++++------
- .../mellanox/mlxsw/spectrum_switchdev.c       | 38 ++++++++++++-------
- drivers/net/ethernet/rocker/rocker.h          |  2 +-
- drivers/net/ethernet/rocker/rocker_main.c     |  2 +-
- drivers/net/ethernet/rocker/rocker_ofdpa.c    | 26 +++++++------
- net/bridge/br_switchdev.c                     |  3 +-
- 6 files changed, 62 insertions(+), 41 deletions(-)
+Changes in v2:
+- Reordered with previous patch such that we don't need to introduce
+  .port_pre_bridge_flags
+- Pass extack to drivers.
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
-index a797a7ff0cfe..76030c4c1546 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
-@@ -49,7 +49,9 @@ struct prestera_bridge_port {
- 	struct prestera_bridge *bridge;
- 	struct list_head vlan_list;
- 	refcount_t ref_count;
--	unsigned long flags;
-+	bool learning;
-+	bool ucast_flood;
-+	bool mcast_flood;
- 	u8 stp_state;
- };
- 
-@@ -339,8 +341,9 @@ prestera_bridge_port_create(struct prestera_bridge *bridge,
- 	if (!br_port)
- 		return NULL;
- 
--	br_port->flags = BR_LEARNING | BR_FLOOD | BR_LEARNING_SYNC |
--				BR_MCAST_FLOOD;
-+	br_port->learning = true;
-+	br_port->ucast_flood = true;
-+	br_port->mcast_flood = true;
- 	br_port->stp_state = BR_STATE_DISABLED;
- 	refcount_set(&br_port->ref_count, 1);
- 	br_port->bridge = bridge;
-@@ -404,11 +407,11 @@ prestera_bridge_1d_port_join(struct prestera_bridge_port *br_port)
- 	if (err)
- 		return err;
- 
--	err = prestera_hw_port_flood_set(port, br_port->flags & BR_FLOOD);
-+	err = prestera_hw_port_flood_set(port, br_port->ucast_flood);
- 	if (err)
- 		goto err_port_flood_set;
- 
--	err = prestera_hw_port_learning_set(port, br_port->flags & BR_LEARNING);
-+	err = prestera_hw_port_learning_set(port, br_port->learning);
- 	if (err)
- 		goto err_port_learning_set;
- 
-@@ -594,19 +597,24 @@ static int prestera_port_attr_br_flags_set(struct prestera_port *port,
- 		return 0;
- 
- 	if (flags.mask & BR_FLOOD) {
--		err = prestera_hw_port_flood_set(port, flags.val & BR_FLOOD);
-+		bool ucast_flood = !!(flags.val & BR_FLOOD);
-+
-+		err = prestera_hw_port_flood_set(port, ucast_flood);
- 		if (err)
- 			return err;
-+
-+		br_port->ucast_flood = ucast_flood;
- 	}
- 
- 	if (flags.mask & BR_LEARNING) {
--		err = prestera_hw_port_learning_set(port,
--						    flags.val & BR_LEARNING);
-+		bool learning = !!(flags.val & BR_LEARNING);
-+
-+		err = prestera_hw_port_learning_set(port, learning);
- 		if (err)
- 			return err;
--	}
- 
--	memcpy(&br_port->flags, &flags.val, sizeof(flags.val));
-+		br_port->learning = learning;
-+	}
- 
- 	return 0;
+ drivers/net/dsa/b53/b53_common.c | 20 +++++++++++++++++++-
+ drivers/net/dsa/mv88e6xxx/chip.c | 21 ++++++++++++++++++++-
+ include/net/dsa.h                |  7 +++++--
+ net/dsa/dsa_priv.h               |  6 ++++--
+ net/dsa/port.c                   | 20 +++++++++-----------
+ net/dsa/slave.c                  |  4 ++--
+ 6 files changed, 59 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
+index 23fc7225c8d1..d480493cb64d 100644
+--- a/drivers/net/dsa/b53/b53_common.c
++++ b/drivers/net/dsa/b53/b53_common.c
+@@ -1948,6 +1948,23 @@ int b53_br_egress_floods(struct dsa_switch *ds, int port,
  }
-@@ -899,11 +907,11 @@ prestera_port_vlan_bridge_join(struct prestera_port_vlan *port_vlan,
- 	if (port_vlan->br_port)
- 		return 0;
+ EXPORT_SYMBOL(b53_br_egress_floods);
  
--	err = prestera_hw_port_flood_set(port, br_port->flags & BR_FLOOD);
-+	err = prestera_hw_port_flood_set(port, br_port->ucast_flood);
- 	if (err)
- 		return err;
- 
--	err = prestera_hw_port_learning_set(port, br_port->flags & BR_LEARNING);
-+	err = prestera_hw_port_learning_set(port, br_port->learning);
- 	if (err)
- 		goto err_port_learning_set;
- 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index 7af79e3a3c7a..0c00754e0cb5 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -62,9 +62,11 @@ struct mlxsw_sp_bridge_port {
- 	struct list_head vlans_list;
- 	unsigned int ref_count;
- 	u8 stp_state;
--	unsigned long flags;
- 	bool mrouter;
- 	bool lagged;
-+	bool ucast_flood;
-+	bool mcast_flood;
-+	bool learning;
- 	union {
- 		u16 lag_id;
- 		u16 system_port;
-@@ -349,8 +351,9 @@ mlxsw_sp_bridge_port_create(struct mlxsw_sp_bridge_device *bridge_device,
- 	bridge_port->dev = brport_dev;
- 	bridge_port->bridge_device = bridge_device;
- 	bridge_port->stp_state = BR_STATE_DISABLED;
--	bridge_port->flags = BR_LEARNING | BR_FLOOD | BR_LEARNING_SYNC |
--			     BR_MCAST_FLOOD;
-+	bridge_port->learning = true;
-+	bridge_port->ucast_flood = true;
-+	bridge_port->mcast_flood = true;
- 	INIT_LIST_HEAD(&bridge_port->vlans_list);
- 	list_add(&bridge_port->list, &bridge_device->ports_list);
- 	bridge_port->ref_count = 1;
-@@ -669,36 +672,45 @@ static int mlxsw_sp_port_attr_br_flags_set(struct mlxsw_sp_port *mlxsw_sp_port,
- 		return 0;
- 
- 	if (flags.mask & BR_FLOOD) {
-+		bool ucast_flood = !!(flags.val & BR_FLOOD);
++static int b53_br_flags(struct dsa_switch *ds, int port,
++			struct switchdev_brport_flags flags,
++			struct netlink_ext_ack *extack)
++{
++	if (flags.mask & ~(BR_FLOOD | BR_MCAST_FLOOD))
++		return -EINVAL;
 +
- 		err = mlxsw_sp_bridge_port_flood_table_set(mlxsw_sp_port,
- 							   bridge_port,
- 							   MLXSW_SP_FLOOD_TYPE_UC,
--							   flags.val & BR_FLOOD);
-+							   ucast_flood);
- 		if (err)
- 			return err;
++	return b53_br_egress_floods(ds, port, flags.val & BR_FLOOD,
++				    flags.val & BR_MCAST_FLOOD);
++}
 +
-+		bridge_port->ucast_flood = ucast_flood;
- 	}
- 
- 	if (flags.mask & BR_LEARNING) {
-+		bool learning = !!(flags.val & BR_LEARNING);
++static int b53_set_mrouter(struct dsa_switch *ds, int port, bool mrouter,
++			   struct netlink_ext_ack *extack)
++{
++	return b53_br_egress_floods(ds, port, true, mrouter);
++}
 +
- 		err = mlxsw_sp_bridge_port_learning_set(mlxsw_sp_port,
--							bridge_port,
--							flags.val & BR_LEARNING);
-+							bridge_port, learning);
- 		if (err)
- 			return err;
-+
-+		bridge_port->learning = learning;
- 	}
- 
- 	if (bridge_port->bridge_device->multicast_enabled)
--		goto out;
-+		return 0;
- 
- 	if (flags.mask & BR_MCAST_FLOOD) {
-+		bool mcast_flood = !!(flags.val & BR_MCAST_FLOOD);
-+
- 		err = mlxsw_sp_bridge_port_flood_table_set(mlxsw_sp_port,
- 							   bridge_port,
- 							   MLXSW_SP_FLOOD_TYPE_MC,
--							   flags.val & BR_MCAST_FLOOD);
-+							   mcast_flood);
- 		if (err)
- 			return err;
-+
-+		bridge_port->mcast_flood = mcast_flood;
- 	}
- 
--out:
--	memcpy(&bridge_port->flags, &flags.val, sizeof(flags.val));
- 	return 0;
+ static bool b53_possible_cpu_port(struct dsa_switch *ds, int port)
+ {
+ 	/* Broadcom switches will accept enabling Broadcom tags on the
+@@ -2187,9 +2204,10 @@ static const struct dsa_switch_ops b53_switch_ops = {
+ 	.set_mac_eee		= b53_set_mac_eee,
+ 	.port_bridge_join	= b53_br_join,
+ 	.port_bridge_leave	= b53_br_leave,
++	.port_bridge_flags	= b53_br_flags,
++	.port_set_mrouter	= b53_set_mrouter,
+ 	.port_stp_state_set	= b53_br_set_stp_state,
+ 	.port_fast_age		= b53_br_fast_age,
+-	.port_egress_floods	= b53_br_egress_floods,
+ 	.port_vlan_filtering	= b53_vlan_filtering,
+ 	.port_vlan_add		= b53_vlan_add,
+ 	.port_vlan_del		= b53_vlan_del,
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index ae0b490f00cd..b230bfcc4050 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -5380,6 +5380,24 @@ static int mv88e6xxx_port_egress_floods(struct dsa_switch *ds, int port,
+ 	return err;
  }
  
-@@ -796,7 +808,7 @@ static bool mlxsw_sp_mc_flood(const struct mlxsw_sp_bridge_port *bridge_port)
++static int mv88e6xxx_port_bridge_flags(struct dsa_switch *ds, int port,
++				       struct switchdev_brport_flags flags,
++				       struct netlink_ext_ack *extack)
++{
++	if (flags.mask & ~(BR_FLOOD | BR_MCAST_FLOOD))
++		return -EINVAL;
++
++	return mv88e6xxx_port_egress_floods(ds, port, flags.val & BR_FLOOD,
++					    flags.val & BR_MCAST_FLOOD);
++}
++
++static int mv88e6xxx_port_set_mrouter(struct dsa_switch *ds, int port,
++				      bool mrouter,
++				      struct netlink_ext_ack *extack)
++{
++	return mv88e6xxx_port_egress_floods(ds, port, true, mrouter);
++}
++
+ static bool mv88e6xxx_lag_can_offload(struct dsa_switch *ds,
+ 				      struct net_device *lag,
+ 				      struct netdev_lag_upper_info *info)
+@@ -5678,7 +5696,8 @@ static const struct dsa_switch_ops mv88e6xxx_switch_ops = {
+ 	.set_ageing_time	= mv88e6xxx_set_ageing_time,
+ 	.port_bridge_join	= mv88e6xxx_port_bridge_join,
+ 	.port_bridge_leave	= mv88e6xxx_port_bridge_leave,
+-	.port_egress_floods	= mv88e6xxx_port_egress_floods,
++	.port_bridge_flags	= mv88e6xxx_port_bridge_flags,
++	.port_set_mrouter	= mv88e6xxx_port_set_mrouter,
+ 	.port_stp_state_set	= mv88e6xxx_port_stp_state_set,
+ 	.port_fast_age		= mv88e6xxx_port_fast_age,
+ 	.port_vlan_filtering	= mv88e6xxx_port_vlan_filtering,
+diff --git a/include/net/dsa.h b/include/net/dsa.h
+index 60acb9fca124..09aa28e667c7 100644
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -621,8 +621,11 @@ struct dsa_switch_ops {
+ 	void	(*port_stp_state_set)(struct dsa_switch *ds, int port,
+ 				      u8 state);
+ 	void	(*port_fast_age)(struct dsa_switch *ds, int port);
+-	int	(*port_egress_floods)(struct dsa_switch *ds, int port,
+-				      bool unicast, bool multicast);
++	int	(*port_bridge_flags)(struct dsa_switch *ds, int port,
++				     struct switchdev_brport_flags flags,
++				     struct netlink_ext_ack *extack);
++	int	(*port_set_mrouter)(struct dsa_switch *ds, int port, bool mrouter,
++				    struct netlink_ext_ack *extack);
  
- 	bridge_device = bridge_port->bridge_device;
- 	return bridge_device->multicast_enabled ? bridge_port->mrouter :
--					bridge_port->flags & BR_MCAST_FLOOD;
-+						  bridge_port->mcast_flood;
+ 	/*
+ 	 * VLAN support
+diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
+index 63770e421e4d..8125806ee135 100644
+--- a/net/dsa/dsa_priv.h
++++ b/net/dsa/dsa_priv.h
+@@ -175,8 +175,10 @@ int dsa_port_mdb_add(const struct dsa_port *dp,
+ int dsa_port_mdb_del(const struct dsa_port *dp,
+ 		     const struct switchdev_obj_port_mdb *mdb);
+ int dsa_port_bridge_flags(const struct dsa_port *dp,
+-			  struct switchdev_brport_flags flags);
+-int dsa_port_mrouter(struct dsa_port *dp, bool mrouter);
++			  struct switchdev_brport_flags flags,
++			  struct netlink_ext_ack *extack);
++int dsa_port_mrouter(struct dsa_port *dp, bool mrouter,
++		     struct netlink_ext_ack *extack);
+ int dsa_port_vlan_add(struct dsa_port *dp,
+ 		      const struct switchdev_obj_port_vlan *vlan);
+ int dsa_port_vlan_del(struct dsa_port *dp,
+diff --git a/net/dsa/port.c b/net/dsa/port.c
+index 736c5debcb96..545f83c7b193 100644
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -140,7 +140,7 @@ static void dsa_port_change_brport_flags(struct dsa_port *dp,
+ 		tmp.val = flags.val & BIT(flag);
+ 		tmp.mask = BIT(flag);
+ 
+-		dsa_port_bridge_flags(dp, tmp);
++		dsa_port_bridge_flags(dp, tmp, NULL);
+ 	}
  }
  
- static int mlxsw_sp_port_mc_disabled_set(struct mlxsw_sp_port *mlxsw_sp_port,
-@@ -962,7 +974,7 @@ mlxsw_sp_port_vlan_fid_join(struct mlxsw_sp_port_vlan *mlxsw_sp_port_vlan,
- 		return PTR_ERR(fid);
+@@ -425,28 +425,26 @@ int dsa_port_ageing_time(struct dsa_port *dp, clock_t ageing_clock)
+ }
  
- 	err = mlxsw_sp_fid_flood_set(fid, MLXSW_SP_FLOOD_TYPE_UC, local_port,
--				     bridge_port->flags & BR_FLOOD);
-+				     bridge_port->ucast_flood);
- 	if (err)
- 		goto err_fid_uc_flood_set;
+ int dsa_port_bridge_flags(const struct dsa_port *dp,
+-			  struct switchdev_brport_flags flags)
++			  struct switchdev_brport_flags flags,
++			  struct netlink_ext_ack *extack)
+ {
+ 	struct dsa_switch *ds = dp->ds;
+-	int port = dp->index;
  
-@@ -1043,7 +1055,7 @@ mlxsw_sp_port_vlan_bridge_join(struct mlxsw_sp_port_vlan *mlxsw_sp_port_vlan,
- 		return err;
- 
- 	err = mlxsw_sp_port_vid_learning_set(mlxsw_sp_port, vid,
--					     bridge_port->flags & BR_LEARNING);
-+					     bridge_port->learning);
- 	if (err)
- 		goto err_port_vid_learning_set;
- 
-diff --git a/drivers/net/ethernet/rocker/rocker.h b/drivers/net/ethernet/rocker/rocker.h
-index 315a6e5c0f59..2f533c44fe88 100644
---- a/drivers/net/ethernet/rocker/rocker.h
-+++ b/drivers/net/ethernet/rocker/rocker.h
-@@ -103,7 +103,7 @@ struct rocker_world_ops {
- 	int (*port_attr_stp_state_set)(struct rocker_port *rocker_port,
- 				       u8 state);
- 	int (*port_attr_bridge_flags_set)(struct rocker_port *rocker_port,
--					  unsigned long brport_flags);
-+					  struct switchdev_brport_flags flags);
- 	int (*port_attr_bridge_flags_support_get)(const struct rocker_port *
- 						  rocker_port,
- 						  unsigned long *
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index 898abf3d14d0..b1a67c6423a8 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -1593,7 +1593,7 @@ rocker_world_port_attr_bridge_flags_set(struct rocker_port *rocker_port,
- 	if (flags.mask & ~brport_flags_s)
+-	if (!ds->ops->port_egress_floods ||
+-	    (flags.mask & ~(BR_FLOOD | BR_MCAST_FLOOD)))
++	if (!ds->ops->port_bridge_flags)
  		return -EINVAL;
  
--	return wops->port_attr_bridge_flags_set(rocker_port, flags.val);
-+	return wops->port_attr_bridge_flags_set(rocker_port, flags);
+-	return ds->ops->port_egress_floods(ds, port, flags.val & BR_FLOOD,
+-					   flags.val & BR_MCAST_FLOOD);
++	return ds->ops->port_bridge_flags(ds, dp->index, flags, extack);
  }
  
- static int
-diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-index 967a634ee9ac..eb36c2a2da7b 100644
---- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
-+++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-@@ -198,7 +198,7 @@ struct ofdpa_port {
- 	struct net_device *bridge_dev;
- 	__be16 internal_vlan_id;
- 	int stp_state;
--	u32 brport_flags;
-+	bool learning;
- 	unsigned long ageing_time;
- 	bool ctrls[OFDPA_CTRL_MAX];
- 	unsigned long vlan_bitmap[OFDPA_VLAN_BITMAP_LEN];
-@@ -2423,7 +2423,7 @@ static int ofdpa_port_pre_init(struct rocker_port *rocker_port)
- 	ofdpa_port->rocker_port = rocker_port;
- 	ofdpa_port->dev = rocker_port->dev;
- 	ofdpa_port->pport = rocker_port->pport;
--	ofdpa_port->brport_flags = BR_LEARNING;
-+	ofdpa_port->learning = true;
- 	ofdpa_port->ageing_time = BR_DEFAULT_AGEING_TIME;
- 	return 0;
- }
-@@ -2433,8 +2433,7 @@ static int ofdpa_port_init(struct rocker_port *rocker_port)
- 	struct ofdpa_port *ofdpa_port = rocker_port->wpriv;
- 	int err;
- 
--	rocker_port_set_learning(rocker_port,
--				 !!(ofdpa_port->brport_flags & BR_LEARNING));
-+	rocker_port_set_learning(rocker_port, ofdpa_port->learning);
- 
- 	err = ofdpa_port_ig_tbl(ofdpa_port, 0);
- 	if (err) {
-@@ -2488,20 +2487,23 @@ static int ofdpa_port_attr_stp_state_set(struct rocker_port *rocker_port,
- }
- 
- static int ofdpa_port_attr_bridge_flags_set(struct rocker_port *rocker_port,
--					    unsigned long brport_flags)
-+					    struct switchdev_brport_flags flags)
+-int dsa_port_mrouter(struct dsa_port *dp, bool mrouter)
++int dsa_port_mrouter(struct dsa_port *dp, bool mrouter,
++		     struct netlink_ext_ack *extack)
  {
- 	struct ofdpa_port *ofdpa_port = rocker_port->wpriv;
--	unsigned long orig_flags;
--	int err = 0;
-+	int err;
+ 	struct dsa_switch *ds = dp->ds;
+-	int port = dp->index;
  
--	orig_flags = ofdpa_port->brport_flags;
--	ofdpa_port->brport_flags = brport_flags;
-+	if (flags.mask & BR_LEARNING) {
-+		bool learning = !!(flags.val & BR_LEARNING);
+-	if (!ds->ops->port_egress_floods)
++	if (!ds->ops->port_set_mrouter)
+ 		return -EOPNOTSUPP;
  
--	if ((orig_flags ^ ofdpa_port->brport_flags) & BR_LEARNING)
- 		err = rocker_port_set_learning(ofdpa_port->rocker_port,
--					       !!(ofdpa_port->brport_flags & BR_LEARNING));
-+					       learning);
-+		if (err)
-+			return err;
- 
--	return err;
-+		ofdpa_port->learning = learning;
-+	}
-+
-+	return 0;
+-	return ds->ops->port_egress_floods(ds, port, true, mrouter);
++	return ds->ops->port_set_mrouter(ds, dp->index, mrouter, extack);
  }
  
- static int
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 92d207c8a30e..dbd94156960f 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -72,12 +72,11 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 	};
- 	int err;
- 
--	flags &= BR_PORT_FLAGS_HW_OFFLOAD;
- 	mask &= BR_PORT_FLAGS_HW_OFFLOAD;
- 	if (!mask)
- 		return 0;
- 
--	attr.u.brport_flags.val = flags;
-+	attr.u.brport_flags.val = flags & mask;
- 	attr.u.brport_flags.mask = mask;
- 
- 	/* We run from atomic context here */
+ int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu,
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 0e1f8f1d4e2c..4a979245e059 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -291,10 +291,10 @@ static int dsa_slave_port_attr_set(struct net_device *dev,
+ 		ret = dsa_port_ageing_time(dp, attr->u.ageing_time);
+ 		break;
+ 	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
+-		ret = dsa_port_bridge_flags(dp, attr->u.brport_flags);
++		ret = dsa_port_bridge_flags(dp, attr->u.brport_flags, extack);
+ 		break;
+ 	case SWITCHDEV_ATTR_ID_BRIDGE_MROUTER:
+-		ret = dsa_port_mrouter(dp->cpu_dp, attr->u.mrouter);
++		ret = dsa_port_mrouter(dp->cpu_dp, attr->u.mrouter, extack);
+ 		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
 -- 
 2.25.1
 
