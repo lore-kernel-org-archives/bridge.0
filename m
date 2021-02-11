@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=d6XXSm05yAYK7MxQIvnC5Li5SPel5Sylz9f4M9rMQbA=;
- b=OUpVDVStC18mNs0vHeJDSl9HhvfAaUXCjIMBhqAOBx/7YyyOhkZHLh0FvNoEIpIQPp
- q5mqfcwfXfWHy6u1lyayaQkL4hpnMlnbCwN+bm2WjpJB84rVzVFfiwZfp03pQpqJ7Mh5
- Zo5pJkfPKJxzv89/8m7f+eClZzRs7hpbwntEKuFECqZMe1voBfOfxlEOxPY+XGqTig4H
- QpMX59GSb1EV+H3F11emfCeFwYaqLBNjtpxXoxDE2iQl5BWaLcJpU6e7FVhusZ7iLsOo
- I33cVczpjAf9BYw298Dee57df69Lr0xNk51TRqQdD2H1nlt+V/ExxLzrrVizMRCjdoAa
- Dv0A==
+ bh=ySQs/bUrDiTXrbAw1rcoAwSp8NINSHA8BKI1E9gDSMc=;
+ b=ZPgTOhUWUmB14eeEZokD8KQf4APDXMsP7Bm7zcBbwWSKmhHylXKsVx0ilbDaGF32sr
+ 4Pnyx6vpgzo6qXW8cJD1mUkICvbD0dU8GPhFDIQTCpvr3UbkvdIjqAd7KGn7fwt0xbKv
+ fMvL6VBhrW077N/ocwMZEkwT5E2jUZ4ag29qCubKsuiEpg3XXJQPPBP7DP40sOoMBWSg
+ LudXJQp6xgApRIy6TMo0MCojoSF7TNrrHBiTfxu8liMTFHfP/ytQegEKfrz0YqErPKf2
+ dKAvcvx6PHS5F7VRB3aJwEbgf1B1p7oMxQ+vdsl7sBhRIhAAj83j8RDk0rPinI4oBWBw
+ oV9Q==
 References: <20210210091445.741269-1-olteanv@gmail.com>
- <20210210091445.741269-5-olteanv@gmail.com>
+ <20210210091445.741269-7-olteanv@gmail.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <90e52ca0-e068-9a9e-9310-51e4dcd4ab09@gmail.com>
-Date: Wed, 10 Feb 2021 20:16:31 -0800
+Message-ID: <fa66ce8e-4292-808a-e9ee-4a0afd2d32ce@gmail.com>
+Date: Wed, 10 Feb 2021 20:18:27 -0800
 MIME-Version: 1.0
-In-Reply-To: <20210210091445.741269-5-olteanv@gmail.com>
+In-Reply-To: <20210210091445.741269-7-olteanv@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v3 net-next 04/11] net: dsa: configure proper
- brport flags when ports leave the bridge
+Subject: Re: [Bridge] [PATCH v3 net-next 06/11] net: dsa: kill
+ .port_egress_floods overengineering
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,61 +37,51 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 On 2/10/2021 1:14 AM, Vladimir Oltean wrote:
 > From: Vladimir Oltean <vladimir.oltean@nxp.com>
 > 
-> For a DSA switch port operating in standalone mode, address learning
-> doesn't make much sense since that is a bridge function. In fact,
-> address learning even breaks setups such as this one:
+> The bridge offloads the port flags through a single bit mask using
+> switchdev, which among others, contains learning and flooding settings.
 > 
->    +---------------------------------------------+
->    |                                             |
->    | +-------------------+                       |
->    | |        br0        |    send      receive  |
->    | +--------+-+--------+ +--------+ +--------+ |
->    | |        | |        | |        | |        | |
->    | |  swp0  | |  swp1  | |  swp2  | |  swp3  | |
->    | |        | |        | |        | |        | |
->    +-+--------+-+--------+-+--------+-+--------+-+
->           |         ^           |          ^
->           |         |           |          |
->           |         +-----------+          |
->           |                                |
->           +--------------------------------+
+> The commit 57652796aa97 ("net: dsa: add support for bridge flags")
+> missed one crucial aspect of the SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS API
+> when designing the API one level lower, towards the drivers.
+> This is that the bitmask of passed brport flags never has more than one
+> bit set at a time. On the other hand, the prototype passed to the driver
+> is .port_egress_floods(int port, bool unicast, bool multicast), which
+> configures two flags at a time.
 > 
-> because if the switch has a single FDB (can offload a single bridge)
-> then source address learning on swp3 can "steal" the source MAC address
-> of swp2 from br0's FDB, because learning frames coming from swp2 will be
-> done twice: first on the swp1 ingress port, second on the swp3 ingress
-> port. So the hardware FDB will become out of sync with the software
-> bridge, and when swp2 tries to send one more packet towards swp1, the
-> ASIC will attempt to short-circuit the forwarding path and send it
-> directly to swp3 (since that's the last port it learned that address on),
-> which it obviously can't, because swp3 operates in standalone mode.
+> DSA currently checks if .port_egress_floods is implemented, and if it
+> is, reports both BR_FLOOD and BR_MCAST_FLOOD as supported. So the driver
+> has no choice if it wants to inform the bridge that, for example, it
+> can't configure unicast flooding independently of multicast flooding -
+> the DSA mid layer is standing in the way. Or the other way around: a new
+> driver wants to start configuring BR_BCAST_FLOOD separately, but what do
+> we do with the rest, which only support unicast and multicast flooding?
+> Do we report broadcast flooding configuration as supported for those
+> too, and silently do nothing?
 > 
-> So DSA drivers operating in standalone mode should still configure a
-> list of bridge port flags even when they are standalone. Currently DSA
-> attempts to call dsa_port_bridge_flags with 0, which disables egress
-> flooding of unknown unicast and multicast, something which doesn't make
-> much sense. For the switches that implement .port_egress_floods - b53
-> and mv88e6xxx, it probably doesn't matter too much either, since they
-> can possibly inject traffic from the CPU into a standalone port,
-> regardless of MAC DA, even if egress flooding is turned off for that
-> port, but certainly not all DSA switches can do that - sja1105, for
-> example, can't. So it makes sense to use a better common default there,
-> such as "flood everything".
+> Secondly, currently DSA deems the driver too dumb to deserve knowing that
+> a SWITCHDEV_ATTR_ID_BRIDGE_MROUTER attribute was offloaded, because it
+> just calls .port_egress_floods for the CPU port. When we'll add support
+> for the plain SWITCHDEV_ATTR_ID_PORT_MROUTER, that will become a real
+> problem because the flood settings will need to be held statefully in
+> the DSA middle layer, otherwise changing the mrouter port attribute will
+> impact the flooding attribute. And that's _assuming_ that the underlying
+> hardware doesn't have anything else to do when a multicast router
+> attaches to a port than flood unknown traffic to it. If it does, there
+> will need to be a dedicated .port_set_mrouter anyway.
 > 
-> It should also be noted that what DSA calls "dsa_port_bridge_flags()"
-> is a degenerate name for just calling .port_egress_floods(), since
-> nothing else is implemented - not learning, in particular. But disabling
-> address learning, something that this driver is also coding up for, will
-> be supported by individual drivers once .port_egress_floods is replaced
-> with a more generic .port_bridge_flags.
+> Lastly, we have DSA drivers that have a backlink into a pure switchdev
+> driver (felix -> ocelot). It seems reasonable that the other switchdev
+> drivers should not have to suffer from the oddities of DSA overengineering,
+> so keeping DSA a pass-through layer makes more sense there.
 > 
-> Previous attempts to code up this logic have been in the common bridge
-> layer, but as pointed out by Ido Schimmel, there are corner cases that
-> are missed when doing that:
-> https://patchwork.kernel.org/project/netdevbpf/patch/20210209151936.97382-5-olteanv@gmail.com/
+> To simplify the brport flags situation we just delete .port_egress_floods
+> and we introduce a simple .port_bridge_flags which is passed to the
+> driver. Also, the logic from dsa_port_mrouter is removed and a
+> .port_set_mrouter is created.
 > 
-> So, at least for now, let's leave DSA in charge of setting port flags
-> before and after the bridge join and leave.
+> Functionally speaking, we simply move the calls to .port_egress_floods
+> one step lower, in the two drivers that implement it: mv88e6xxx and b53,
+> so things should work just as before.
 > 
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
