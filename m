@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=DYSCyXslW7JpprNOrHc5FjADncBRkdDqs3PWphAwNEU=;
- b=rSedlesAGjgO7MengPEN38iUKrRFhSnQ9IDS57b7dEzmhPwvLXpm4PNrLLqaLDDWGS
- t/bek5mE5JocEFy2hDyqKsNBZ2HCm7vdjEUWKHIkuEsfjaug3X2zFKE1z1uQX7BgqDh9
- TSyV16NxdPZkBIWcjgFH5a5pqLm/LVbULSIs3cD9oaqMfL0gLc3nh/2+2SkAcg7N4tdW
- 3vh3jyeQaCtNfInJMcufkK6qZ7z9DHhAYOU60lj9P30xtEjbMkwnQrvpm/CC/LvpzAKW
- IrOHNxRFtakhbjWHauelHwN6T50yg5AWQ8CaK2dr7uBQQRjCJ5qLIF9QvzigTgkd0QlS
- o6Zg==
+ bh=LjggpD0ZH/Pqu3nkvvYgvuE8A11ApMPMgPJmvgr5AOc=;
+ b=hCYlf9Bd/xukRXSaj9KNSXuGNpdT3LKCCM8afVgruvN/IgilhYlrbApS/H5kvBac9C
+ f20TZYDRynrncNa2dFQbzpnaMyHHr+xWjKtv9FDQlZmfm2C/Wltc7IRtcYTi2miEGQy6
+ Yv93I3W90ML3E6FnkeThqAXXjA/jE9X1vEXaS1B+Q6NBKCU/tYWkg9qfXr4um3LOUMpj
+ DZjUxQhM77V1uxArxyyFeuAQICGDypJmtORkXElLLX3Fs+JsOJsRDbSNoA9m9W92quiu
+ gyzKcoG7JFOuySRWQrtnxJMAKARgb1I6Mt+AIhAb32l3YXdwLGkJNNfZo/YnnoptZAfT
+ 1hjQ==
 References: <20210212151600.3357121-1-olteanv@gmail.com>
- <20210212151600.3357121-8-olteanv@gmail.com>
+ <20210212151600.3357121-7-olteanv@gmail.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <05a93c4b-2180-afea-d077-3b1c91312b41@gmail.com>
-Date: Fri, 12 Feb 2021 10:12:34 -0800
+Message-ID: <77072163-86e3-a6a5-350c-22bdab10d890@gmail.com>
+Date: Fri, 12 Feb 2021 10:19:21 -0800
 MIME-Version: 1.0
-In-Reply-To: <20210212151600.3357121-8-olteanv@gmail.com>
+In-Reply-To: <20210212151600.3357121-7-olteanv@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v5 net-next 07/10] net: dsa: felix: restore
- multicast flood to CPU when NPI tagger reinitializes
+Subject: Re: [Bridge] [PATCH v5 net-next 06/10] net: dsa: act as passthrough
+ for bridge port flags
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,15 +37,71 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 On 2/12/2021 7:15 AM, Vladimir Oltean wrote:
 > From: Vladimir Oltean <vladimir.oltean@nxp.com>
 > 
-> ocelot_init sets up PGID_MC to include the CPU port module, and that is
-> fine, but the ocelot-8021q tagger removes the CPU port module from the
-> unknown multicast replicator. So after a transition from the default
-> ocelot tagger towards ocelot-8021q and then again towards ocelot,
-> multicast flooding towards the CPU port module will be disabled.
+> There are multiple ways in which a PORT_BRIDGE_FLAGS attribute can be
+> expressed by the bridge through switchdev, and not all of them can be
+> emulated by DSA mid-layer API at the same time.
 > 
-> Fixes: e21268efbe26 ("net: dsa: felix: perform switch setup for tag_8021q")
+> One possible configuration is when the bridge offloads the port flags
+> using a mask that has a single bit set - therefore only one feature
+> should change. However, DSA currently groups together unicast and
+> multicast flooding in the .port_egress_floods method, which limits our
+> options when we try to add support for turning off broadcast flooding:
+> do we extend .port_egress_floods with a third parameter which b53 and
+> mv88e6xxx will ignore? But that means that the DSA layer, which
+> currently implements the PRE_BRIDGE_FLAGS attribute all by itself, will
+> see that .port_egress_floods is implemented, and will report that all 3
+> types of flooding are supported - not necessarily true.
+> 
+> Another configuration is when the user specifies more than one flag at
+> the same time, in the same netlink message. If we were to create one
+> individual function per offloadable bridge port flag, we would limit the
+> expressiveness of the switch driver of refusing certain combinations of
+> flag values. For example, a switch may not have an explicit knob for
+> flooding of unknown multicast, just for flooding in general. In that
+> case, the only correct thing to do is to allow changes to BR_FLOOD and
+> BR_MCAST_FLOOD in tandem, and never allow mismatched values. But having
+> a separate .port_set_unicast_flood and .port_set_multicast_flood would
+> not allow the driver to possibly reject that.
+> 
+> Also, DSA doesn't consider it necessary to inform the driver that a
+> SWITCHDEV_ATTR_ID_BRIDGE_MROUTER attribute was offloaded, because it
+> just calls .port_egress_floods for the CPU port. When we'll add support
+> for the plain SWITCHDEV_ATTR_ID_PORT_MROUTER, that will become a real
+> problem because the flood settings will need to be held statefully in
+> the DSA middle layer, otherwise changing the mrouter port attribute will
+> impact the flooding attribute. And that's _assuming_ that the underlying
+> hardware doesn't have anything else to do when a multicast router
+> attaches to a port than flood unknown traffic to it.  If it does, there
+> will need to be a dedicated .port_set_mrouter anyway.
+> 
+> So we need to let the DSA drivers see the exact form that the bridge
+> passes this switchdev attribute in, otherwise we are standing in the
+> way. Therefore we also need to use this form of language when
+> communicating to the driver that it needs to configure its initial
+> (before bridge join) and final (after bridge leave) port flags.
+> 
+> The b53 and mv88e6xxx drivers are converted to the passthrough API and
+> their implementation of .port_egress_floods is split into two: a
+> function that configures unicast flooding and another for multicast.
+> The mv88e6xxx implementation is quite hairy, and it turns out that
+> the implementations of unknown unicast flooding are actually the same
+> for 6185 and for 6352:
+> 
+> behind the confusing names actually lie two individual bits:
+> NO_UNKNOWN_MC -> FLOOD_UC = 0x4 = BIT(2)
+> NO_UNKNOWN_UC -> FLOOD_MC = 0x8 = BIT(3)
+> 
+> so there was no reason to entangle them in the first place.
+> 
+> Whereas the 6185 writes to MV88E6185_PORT_CTL0_FORWARD_UNKNOWN of
+> PORT_CTL0, which has the exact same bit index. I have left the
+> implementations separate though, for the only reason that the names are
+> different enough to confuse me, since I am not able to double-check with
+> a user manual. The multicast flooding setting for 6185 is in a different
+> register than for 6352 though.
+> 
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-
+> ---
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
 Florian
