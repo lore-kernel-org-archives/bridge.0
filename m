@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=jzL26zkMdAnOD2IACVtEn2EhF+H59r0z5RTwLn52Y3M=;
- b=GGYIq9OqvYpdw/0qjHnAVD0LJTXFfZcF0KciroJWpaauQnVLdTBpp/glr+Vy5rULBz
- 9VQOkY+RSQu4SXh0pD54mneZPEI8+KptrYQxXK2wDgIv7dRYwDkvBbXidHT29ddo2i9u
- QMWmiWE3Clmpx/3DFGzuaaDPXA8xVqFM8kqIKuoDLbSdppwy39dQhLw6H33A/7tjNqRf
- 0rrqJegRUUHMsrSQu0qKnuVbRY376nmZlbdGeyrM4WjUol11Z91O6oXU8BJKwaOIkEeT
- IhbGpgQV/Ev8g2EZ5l6XtPPUyZU1vOrrxCilIU3WEk6hoi9TFj5Gs0+sBMLGJyD7GuOM
- 9pEg==
+ bh=bytmtoINOEdkBtL4V2XAs15+q8GmAS7yZKBoJvhkgLk=;
+ b=akE2ozj4n+Syf78UgJqCInvzuDDz+8VmFwiwu0NVDiPEtd9yuZancJkUYDsXQzYUbp
+ ObndXxrSoodxkK60wJ6CouUlchzBZ3QP8k4bGVwfdMaQGNShPX5gMyLHokdta2A9EPEP
+ DEApGNbbS247uAc79ayPDzMVwo1pC/QOSoxC2xFMT3tSTWuPrGkZqDtrKvfi0c+4YG1v
+ kKxdMB4aFm280e4uW/KM2G4eO3f0iQkqyTYgX5pdNZKGS+IqNofZo2HkZD+KsnCZs9kZ
+ RaHYXbRaeC1CMggg6p0Lw0mzj7wAvEO/tfwHENqV3oJSpWqbcOcPesH9LsuuO+2V3Sd2
+ SRuQ==
 References: <20210212151600.3357121-1-olteanv@gmail.com>
- <20210212151600.3357121-4-olteanv@gmail.com>
+ <20210212151600.3357121-6-olteanv@gmail.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <6097810e-9b74-df81-ccc4-3a4b47b94b67@gmail.com>
-Date: Fri, 12 Feb 2021 10:07:14 -0800
+Message-ID: <9a1efd0d-9930-cbc7-5450-ffb47a0034e4@gmail.com>
+Date: Fri, 12 Feb 2021 10:10:37 -0800
 MIME-Version: 1.0
-In-Reply-To: <20210212151600.3357121-4-olteanv@gmail.com>
+In-Reply-To: <20210212151600.3357121-6-olteanv@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v5 net-next 03/10] net: bridge: don't print in
- br_switchdev_set_port_flag
+Subject: Re: [Bridge] [PATCH v5 net-next 05/10] net: switchdev: pass flags
+ and mask to both {PRE_, }BRIDGE_FLAGS attributes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,18 +37,25 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 On 2/12/2021 7:15 AM, Vladimir Oltean wrote:
 > From: Vladimir Oltean <vladimir.oltean@nxp.com>
 > 
-> For the netlink interface, propagate errors through extack rather than
-> simply printing them to the console. For the sysfs interface, we still
-> print to the console, but at least that's one layer higher than in
-> switchdev, which also allows us to silently ignore the offloading of
-> flags if that is ever needed in the future.
+> This switchdev attribute offers a counterproductive API for a driver
+> writer, because although br_switchdev_set_port_flag gets passed a
+> "flags" and a "mask", those are passed piecemeal to the driver, so while
+> the PRE_BRIDGE_FLAGS listener knows what changed because it has the
+> "mask", the BRIDGE_FLAGS listener doesn't, because it only has the final
+> value. But certain drivers can offload only certain combinations of
+> settings, like for example they cannot change unicast flooding
+> independently of multicast flooding - they must be both on or both off.
+> The way the information is passed to switchdev makes drivers not
+> expressive enough, and unable to reject this request ahead of time, in
+> the PRE_BRIDGE_FLAGS notifier, so they are forced to reject it during
+> the deferred BRIDGE_FLAGS attribute, where the rejection is currently
+> ignored.
+> 
+> This patch also changes drivers to make use of the "mask" field for edge
+> detection when possible.
 > 
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-
-I suppose the slight "loss" of information on which port failed the
-operation is okay since it was implied by either the path (sysfs) or the
-bridge command.
 -- 
 Florian
