@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=bytmtoINOEdkBtL4V2XAs15+q8GmAS7yZKBoJvhkgLk=;
- b=akE2ozj4n+Syf78UgJqCInvzuDDz+8VmFwiwu0NVDiPEtd9yuZancJkUYDsXQzYUbp
- ObndXxrSoodxkK60wJ6CouUlchzBZ3QP8k4bGVwfdMaQGNShPX5gMyLHokdta2A9EPEP
- DEApGNbbS247uAc79ayPDzMVwo1pC/QOSoxC2xFMT3tSTWuPrGkZqDtrKvfi0c+4YG1v
- kKxdMB4aFm280e4uW/KM2G4eO3f0iQkqyTYgX5pdNZKGS+IqNofZo2HkZD+KsnCZs9kZ
- RaHYXbRaeC1CMggg6p0Lw0mzj7wAvEO/tfwHENqV3oJSpWqbcOcPesH9LsuuO+2V3Sd2
- SRuQ==
+ bh=DYSCyXslW7JpprNOrHc5FjADncBRkdDqs3PWphAwNEU=;
+ b=rSedlesAGjgO7MengPEN38iUKrRFhSnQ9IDS57b7dEzmhPwvLXpm4PNrLLqaLDDWGS
+ t/bek5mE5JocEFy2hDyqKsNBZ2HCm7vdjEUWKHIkuEsfjaug3X2zFKE1z1uQX7BgqDh9
+ TSyV16NxdPZkBIWcjgFH5a5pqLm/LVbULSIs3cD9oaqMfL0gLc3nh/2+2SkAcg7N4tdW
+ 3vh3jyeQaCtNfInJMcufkK6qZ7z9DHhAYOU60lj9P30xtEjbMkwnQrvpm/CC/LvpzAKW
+ IrOHNxRFtakhbjWHauelHwN6T50yg5AWQ8CaK2dr7uBQQRjCJ5qLIF9QvzigTgkd0QlS
+ o6Zg==
 References: <20210212151600.3357121-1-olteanv@gmail.com>
- <20210212151600.3357121-6-olteanv@gmail.com>
+ <20210212151600.3357121-8-olteanv@gmail.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <9a1efd0d-9930-cbc7-5450-ffb47a0034e4@gmail.com>
-Date: Fri, 12 Feb 2021 10:10:37 -0800
+Message-ID: <05a93c4b-2180-afea-d077-3b1c91312b41@gmail.com>
+Date: Fri, 12 Feb 2021 10:12:34 -0800
 MIME-Version: 1.0
-In-Reply-To: <20210212151600.3357121-6-olteanv@gmail.com>
+In-Reply-To: <20210212151600.3357121-8-olteanv@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v5 net-next 05/10] net: switchdev: pass flags
- and mask to both {PRE_, }BRIDGE_FLAGS attributes
+Subject: Re: [Bridge] [PATCH v5 net-next 07/10] net: dsa: felix: restore
+ multicast flood to CPU when NPI tagger reinitializes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,23 +37,13 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 On 2/12/2021 7:15 AM, Vladimir Oltean wrote:
 > From: Vladimir Oltean <vladimir.oltean@nxp.com>
 > 
-> This switchdev attribute offers a counterproductive API for a driver
-> writer, because although br_switchdev_set_port_flag gets passed a
-> "flags" and a "mask", those are passed piecemeal to the driver, so while
-> the PRE_BRIDGE_FLAGS listener knows what changed because it has the
-> "mask", the BRIDGE_FLAGS listener doesn't, because it only has the final
-> value. But certain drivers can offload only certain combinations of
-> settings, like for example they cannot change unicast flooding
-> independently of multicast flooding - they must be both on or both off.
-> The way the information is passed to switchdev makes drivers not
-> expressive enough, and unable to reject this request ahead of time, in
-> the PRE_BRIDGE_FLAGS notifier, so they are forced to reject it during
-> the deferred BRIDGE_FLAGS attribute, where the rejection is currently
-> ignored.
+> ocelot_init sets up PGID_MC to include the CPU port module, and that is
+> fine, but the ocelot-8021q tagger removes the CPU port module from the
+> unknown multicast replicator. So after a transition from the default
+> ocelot tagger towards ocelot-8021q and then again towards ocelot,
+> multicast flooding towards the CPU port module will be disabled.
 > 
-> This patch also changes drivers to make use of the "mask" field for edge
-> detection when possible.
-> 
+> Fixes: e21268efbe26 ("net: dsa: felix: perform switch setup for tag_8021q")
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
