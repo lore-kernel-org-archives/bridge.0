@@ -2,22 +2,22 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=NsYYUoZirikxAfZHJuEiC70aCOck9XBnivP9XJTWXCE=;
- b=BXMn0rOx9X7XegIpk2IcxDqSSuscQfwbNBXd9qbKBYm1SlJY27Tmdv7gldMckrifvV
- J/PDJYd2XOet3dhV0hmvAzJC52Jp1gfAHBH0XzNFe5/Rz5Eq7lWMPkH91TPAIvaEHCj0
- SirsLoaXkhFhPbjKvmFPa03f4IPyI1BSKFw1qH5R6K1x3kyNhjcm1EW2J8qb9GNyoH80
- HgkjuptGopiqaYjJtko7mf0ir28rBXhbNBMVVB4aeIrMq7lowaTiYEwmhmy3vupz/rNd
- Yp9lczZIsPu/9DYoevi7WUQD52zsCPsG0r2fMmh/OJRTSY6Eb0qV41uHPGZAxxhLt7Y1
- 9qLw==
+ bh=pPHN5exI8LlhPYWncs7eYYfmwkQYpLRSRK+ky/9ukC8=;
+ b=oydEAb5X33jCiaCQSSqtMUgZ18cEEqVUvKdIVeZj8+eqiIjO5e4XGmTO6upGvCRe3v
+ Q9Vfs6WTvVcO9Y5Q5nx1vAB0LUgDjGAQRWgvUPlW2q0MddiU+86HzB78V/5Cx7OuoY/+
+ EqrXAkwvaijxaU24EPCA06c9SJicSjCglRDHmr0Ft6c5uiKZkd/5LfVuTRt3bH5MD8gG
+ 3qYheHc9EPTPxJXWCDJzuidkup5wch1UcLi5HjkKXCGs5oEzyL0FGanqKWXwcdssAb36
+ EHzcGQq4ldTOHgTjXuZ4N1lKjiqyaDQj4zpK6L+AvzfkjNfJNfkbDANU6PDrtZd3wVNo
+ XGDA==
 From: Vladimir Oltean <olteanv@gmail.com>
-Date: Fri, 12 Feb 2021 03:05:23 +0200
-Message-Id: <20210212010531.2722925-2-olteanv@gmail.com>
+Date: Fri, 12 Feb 2021 03:05:25 +0200
+Message-Id: <20210212010531.2722925-4-olteanv@gmail.com>
 In-Reply-To: <20210212010531.2722925-1-olteanv@gmail.com>
 References: <20210212010531.2722925-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v4 net-next 1/9] net: switchdev: propagate extack
-	to port attributes
+Subject: [Bridge] [PATCH v4 net-next 3/9] net: bridge: don't print in
+	br_switchdev_set_port_flag
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,156 +31,166 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Be
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-When a struct switchdev_attr is notified through switchdev, there is no
-way to report informational messages, unlike for struct switchdev_obj.
+For the netlink interface, propagate errors through extack rather than
+simply printing them to the console. For the sysfs interface, we still
+print to the console, but at least that's one layer higher than in
+switchdev, which also allows us to silently ignore the offloading of
+flags if that is ever needed in the future.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 ---
+Changes in v4:
+- Adjust the commit message now that we aren't notifying initial and
+  final port flags from the bridge any longer.
+
 Changes in v3:
-None.
+- Deal with the br_switchdev_set_port_flag call from sysfs too.
 
 Changes in v2:
-Patch is new.
+- br_set_port_flag now returns void, so no extack there.
+- don't overwrite extack in br_switchdev_set_port_flag if already
+  populated.
 
- .../ethernet/marvell/prestera/prestera_switchdev.c    |  3 ++-
- .../net/ethernet/mellanox/mlxsw/spectrum_switchdev.c  |  3 ++-
- drivers/net/ethernet/mscc/ocelot_net.c                |  3 ++-
- drivers/net/ethernet/ti/cpsw_switchdev.c              |  3 ++-
- include/net/switchdev.h                               |  6 ++++--
- net/dsa/slave.c                                       |  3 ++-
- net/switchdev/switchdev.c                             | 11 ++++++++---
- 7 files changed, 22 insertions(+), 10 deletions(-)
+ net/bridge/br_netlink.c   |  9 +++++----
+ net/bridge/br_private.h   |  6 ++++--
+ net/bridge/br_switchdev.c | 13 +++++++------
+ net/bridge/br_sysfs_if.c  |  7 +++++--
+ 4 files changed, 21 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
-index 8c2b03151736..2c1619715a4b 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
-@@ -695,7 +695,8 @@ static int prestera_port_attr_stp_state_set(struct prestera_port *port,
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index bf469f824944..7b513c5d347f 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -866,7 +866,8 @@ static void br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
  }
  
- static int prestera_port_obj_attr_set(struct net_device *dev,
--				      const struct switchdev_attr *attr)
-+				      const struct switchdev_attr *attr,
-+				      struct netlink_ext_ack *extack)
+ /* Process bridge protocol info on port */
+-static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
++static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
++		      struct netlink_ext_ack *extack)
  {
- 	struct prestera_port *port = netdev_priv(dev);
- 	int err = 0;
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index 20c4f3c2cf23..18e4f1cd5587 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -887,7 +887,8 @@ mlxsw_sp_port_attr_br_mrouter_set(struct mlxsw_sp_port *mlxsw_sp_port,
- }
+ 	unsigned long old_flags, changed_mask;
+ 	bool br_vlan_tunnel_old;
+@@ -894,7 +895,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[])
  
- static int mlxsw_sp_port_attr_set(struct net_device *dev,
--				  const struct switchdev_attr *attr)
-+				  const struct switchdev_attr *attr,
-+				  struct netlink_ext_ack *extack)
- {
- 	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
- 	int err;
-diff --git a/drivers/net/ethernet/mscc/ocelot_net.c b/drivers/net/ethernet/mscc/ocelot_net.c
-index 8f12fa45b1b5..f9da4aa39444 100644
---- a/drivers/net/ethernet/mscc/ocelot_net.c
-+++ b/drivers/net/ethernet/mscc/ocelot_net.c
-@@ -1005,7 +1005,8 @@ static void ocelot_port_attr_mc_set(struct ocelot *ocelot, int port, bool mc)
- }
+ 	changed_mask = old_flags ^ p->flags;
  
- static int ocelot_port_attr_set(struct net_device *dev,
--				const struct switchdev_attr *attr)
-+				const struct switchdev_attr *attr,
-+				struct netlink_ext_ack *extack)
- {
- 	struct ocelot_port_private *priv = netdev_priv(dev);
- 	struct ocelot *ocelot = priv->port.ocelot;
-diff --git a/drivers/net/ethernet/ti/cpsw_switchdev.c b/drivers/net/ethernet/ti/cpsw_switchdev.c
-index 9967cf985728..13524cbaa8b6 100644
---- a/drivers/net/ethernet/ti/cpsw_switchdev.c
-+++ b/drivers/net/ethernet/ti/cpsw_switchdev.c
-@@ -83,7 +83,8 @@ static int cpsw_port_attr_br_flags_pre_set(struct net_device *netdev,
- }
+-	err = br_switchdev_set_port_flag(p, p->flags, changed_mask);
++	err = br_switchdev_set_port_flag(p, p->flags, changed_mask, extack);
+ 	if (err) {
+ 		p->flags = old_flags;
+ 		return err;
+@@ -1007,7 +1008,7 @@ int br_setlink(struct net_device *dev, struct nlmsghdr *nlh, u16 flags,
+ 				return err;
  
- static int cpsw_port_attr_set(struct net_device *ndev,
--			      const struct switchdev_attr *attr)
-+			      const struct switchdev_attr *attr,
-+			      struct netlink_ext_ack *extack)
- {
- 	struct cpsw_priv *priv = netdev_priv(ndev);
- 	int ret;
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 6dcfc4c51a6e..9279d4245bab 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -281,7 +281,8 @@ int switchdev_handle_port_attr_set(struct net_device *dev,
- 			struct switchdev_notifier_port_attr_info *port_attr_info,
- 			bool (*check_cb)(const struct net_device *dev),
- 			int (*set_cb)(struct net_device *dev,
--				      const struct switchdev_attr *attr));
-+				      const struct switchdev_attr *attr,
-+				      struct netlink_ext_ack *extack));
- #else
+ 			spin_lock_bh(&p->br->lock);
+-			err = br_setport(p, tb);
++			err = br_setport(p, tb, extack);
+ 			spin_unlock_bh(&p->br->lock);
+ 		} else {
+ 			/* Binary compatibility with old RSTP */
+@@ -1102,7 +1103,7 @@ static int br_port_slave_changelink(struct net_device *brdev,
+ 		return 0;
  
- static inline void switchdev_deferred_process(void)
-@@ -372,7 +373,8 @@ switchdev_handle_port_attr_set(struct net_device *dev,
- 			struct switchdev_notifier_port_attr_info *port_attr_info,
- 			bool (*check_cb)(const struct net_device *dev),
- 			int (*set_cb)(struct net_device *dev,
--				      const struct switchdev_attr *attr))
-+				      const struct switchdev_attr *attr,
-+				      struct netlink_ext_ack *extack))
+ 	spin_lock_bh(&br->lock);
+-	ret = br_setport(br_port_get_rtnl(dev), data);
++	ret = br_setport(br_port_get_rtnl(dev), data, extack);
+ 	spin_unlock_bh(&br->lock);
+ 
+ 	return ret;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index d242ba668e47..a1639d41188b 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1575,7 +1575,8 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+ 				  const struct sk_buff *skb);
+ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 			       unsigned long flags,
+-			       unsigned long mask);
++			       unsigned long mask,
++			       struct netlink_ext_ack *extack);
+ void br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb,
+ 			     int type);
+ int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags,
+@@ -1605,7 +1606,8 @@ static inline bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+ 
+ static inline int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 					     unsigned long flags,
+-					     unsigned long mask)
++					     unsigned long mask,
++					     struct netlink_ext_ack *extack)
  {
  	return 0;
  }
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index 431bdbdd8473..8f4c7c232e2c 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -271,7 +271,8 @@ static int dsa_slave_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
- }
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 6a9db6aa5c04..bb21dd35ae85 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -60,7 +60,8 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
  
- static int dsa_slave_port_attr_set(struct net_device *dev,
--				   const struct switchdev_attr *attr)
-+				   const struct switchdev_attr *attr,
-+				   struct netlink_ext_ack *extack)
+ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 			       unsigned long flags,
+-			       unsigned long mask)
++			       unsigned long mask,
++			       struct netlink_ext_ack *extack)
  {
- 	struct dsa_port *dp = dsa_slave_to_port(dev);
- 	int ret;
-diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
-index 94113ca29dcf..0b84f076591e 100644
---- a/net/switchdev/switchdev.c
-+++ b/net/switchdev/switchdev.c
-@@ -488,14 +488,18 @@ static int __switchdev_handle_port_attr_set(struct net_device *dev,
- 			struct switchdev_notifier_port_attr_info *port_attr_info,
- 			bool (*check_cb)(const struct net_device *dev),
- 			int (*set_cb)(struct net_device *dev,
--				      const struct switchdev_attr *attr))
-+				      const struct switchdev_attr *attr,
-+				      struct netlink_ext_ack *extack))
- {
-+	struct netlink_ext_ack *extack;
- 	struct net_device *lower_dev;
- 	struct list_head *iter;
- 	int err = -EOPNOTSUPP;
+ 	struct switchdev_attr attr = {
+ 		.orig_dev = p->dev,
+@@ -79,14 +80,15 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
  
-+	extack = switchdev_notifier_info_to_extack(&port_attr_info->info);
-+
- 	if (check_cb(dev)) {
--		err = set_cb(dev, port_attr_info->attr);
-+		err = set_cb(dev, port_attr_info->attr, extack);
- 		if (err != -EOPNOTSUPP)
- 			port_attr_info->handled = true;
+ 	/* We run from atomic context here */
+ 	err = call_switchdev_notifiers(SWITCHDEV_PORT_ATTR_SET, p->dev,
+-				       &info.info, NULL);
++				       &info.info, extack);
+ 	err = notifier_to_errno(err);
+ 	if (err == -EOPNOTSUPP)
+ 		return 0;
+ 
+ 	if (err) {
+-		br_warn(p->br, "bridge flag offload is not supported %u(%s)\n",
+-			(unsigned int)p->port_no, p->dev->name);
++		if (extack && !extack->_msg)
++			NL_SET_ERR_MSG_MOD(extack,
++					   "bridge flag offload is not supported");
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+@@ -96,8 +98,7 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 
+ 	err = switchdev_port_attr_set(p->dev, &attr);
+ 	if (err) {
+-		br_warn(p->br, "error setting offload flag on port %u(%s)\n",
+-			(unsigned int)p->port_no, p->dev->name);
++		NL_SET_ERR_MSG_MOD(extack, "error setting offload flag on port");
  		return err;
-@@ -525,7 +529,8 @@ int switchdev_handle_port_attr_set(struct net_device *dev,
- 			struct switchdev_notifier_port_attr_info *port_attr_info,
- 			bool (*check_cb)(const struct net_device *dev),
- 			int (*set_cb)(struct net_device *dev,
--				      const struct switchdev_attr *attr))
-+				      const struct switchdev_attr *attr,
-+				      struct netlink_ext_ack *extack))
+ 	}
+ 
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 5aea9427ffe1..72e92376eef1 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -59,6 +59,7 @@ static BRPORT_ATTR(_name, 0644,					\
+ static int store_flag(struct net_bridge_port *p, unsigned long v,
+ 		      unsigned long mask)
  {
++	struct netlink_ext_ack extack = {0};
+ 	unsigned long flags = p->flags;
  	int err;
  
+@@ -68,9 +69,11 @@ static int store_flag(struct net_bridge_port *p, unsigned long v,
+ 		flags &= ~mask;
+ 
+ 	if (flags != p->flags) {
+-		err = br_switchdev_set_port_flag(p, flags, mask);
+-		if (err)
++		err = br_switchdev_set_port_flag(p, flags, mask, &extack);
++		if (err) {
++			netdev_err(p->dev, "%s\n", extack._msg);
+ 			return err;
++		}
+ 
+ 		p->flags = flags;
+ 		br_port_flags_change(p, mask);
 -- 
 2.25.1
 
