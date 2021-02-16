@@ -1,25 +1,24 @@
-Return-Path: <vigneshr@ti.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
- s=ti-com-17Q1; t=1613474577;
- bh=tQ1UDP5cdCJOnIdIDk0m4x6l7OoqNMl/eT40Lh0UPR0=;
- h=From:Subject:To:CC:References:Date:In-Reply-To;
- b=TcTmnU3UwG3wfWNIH9hQ3dCW3wwMUOxH1in80hi5Bck485afl/lScXQdPnAnCSRGB
- d8uFIqiKwV6ojpH0TeoQscv89GTYCFGCqyahiOVm7ddLJYEugZzSA5qZNtpIEyh9Jq
- EkJ72X2hu7tc8hKjQCnUA6FS5rQZyCBNu212IhJc=
-From: Vignesh Raghavendra <vigneshr@ti.com>
-References: <20210212010531.2722925-1-olteanv@gmail.com>
- <97ae293a-f59d-cc7c-21a6-f83880c69c71@ti.com>
- <ba7350f1-f9ff-b77e-65c9-cd5a4ae652d8@ti.com>
- <20210212144053.2pumwc6mlt4l2gcj@skbuf>
-Message-ID: <adcbe8ce-60b3-551a-941b-f8de52a134d7@ti.com>
-Date: Tue, 16 Feb 2021 16:52:50 +0530
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1613511791; x=1645047791;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=70pTgPudqkcV6r9RtS3PrcUAeOt0oFNkyIhOREHyv0A=;
+ b=wiwE4OxAE+k0FLdsPJwwsWssZrU9pBru1Cflmv+z3ZtYS4pgy60wpBFO
+ 2DtXQCXWl0D+CzrrFjhMsxYxTn7xpwg6ts1DwNACCiU+TcMcORoGVFrcR
+ AJz0tZz8TSvrlslGcEFLJ/7UcpnV8bJ626CHhXSCnr/qcFI4U4WrlsibW
+ 1KhZTMMQTJtJ7NNlhgD6mnE+96XisG5TYyRiFxZOlnXr3YvUY5g0xgbrR
+ BiUlJFKSUMqqskuFyxNbzL0ngyefaW9s0ZXIi4TiysSRsBa2D+lWdLQLS
+ faTv7YUXCorj/7GbcOctqbAEn/zhbq/hCYYvIUdsneEl9SY46T62HNPyt A==;
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Date: Tue, 16 Feb 2021 22:41:57 +0100
+Message-ID: <20210216214205.32385-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
-In-Reply-To: <20210212144053.2pumwc6mlt4l2gcj@skbuf>
-Content-Type: text/plain; charset="windows-1252"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4 net-next 0/9] Cleanup in brport flags
- switchdev offload for DSA
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net-next v4 0/8] bridge: mrp: Extend
+	br_mrp_switchdev_*
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,53 +27,77 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Vadym Kochan <vkochan@marvell.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Ioana Ciornei <ioana.ciornei@nxp.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Taras Chornyi <tchornyi@marvell.com>, Ido Schimmel <idosch@idosch.org>, Claudiu Manoil <claudiu.manoil@nxp.com>, "Strashko,
- Grygorii" <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, "David S. Miller" <davem@davemloft.net>
+To: davem@davemloft.net, kuba@kernel.org
+Cc: ivecera@redhat.com, andrew@lunn.ch, alexandre.belloni@bootlin.com, f.fainelli@gmail.com, jiri@resnulli.us, rasmus.villemoes@prevas.dk, vladimir.oltean@nxp.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, claudiu.manoil@nxp.com, netdev@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, vivien.didelot@gmail.com
 
-Hi,
+This patch series extends MRP switchdev to allow the SW to have a better
+understanding if the HW can implement the MRP functionality or it needs
+to help the HW to run it. There are 3 cases:
+- when HW can't implement at all the functionality.
+- when HW can implement a part of the functionality but needs the SW
+  implement the rest. For example if it can't detect when it stops
+  receiving MRP Test frames but it can copy the MRP frames to CPU to
+  allow the SW to determine this.  Another example is generating the MRP
+  Test frames. If HW can't do that then the SW is used as backup.
+- when HW can implement completely the functionality.
 
-On 2/12/21 8:10 PM, Vladimir Oltean wrote:
-> On Fri, Feb 12, 2021 at 08:01:33PM +0530, Vignesh Raghavendra wrote:
->> Hi Vladimir,
->>
->> On 2/12/21 7:47 PM, Grygorii Strashko wrote:
->>>
->>>
->>> On 12/02/2021 03:05, Vladimir Oltean wrote:
->>>> From: Vladimir Oltean <vladimir.oltean@nxp.com>
->> [...]
->>>
->>> Sorry, but we seems just added more work for you.
->>> https://lore.kernel.org/patchwork/cover/1379380/
->>>
->>
->> Could you squash these when you post new version:
->> Sorry for not noticing earlier.
-> 
-> Hey, thanks for the fixup patch and congrats on the new driver support
-> for the AM65 NUSS! What's functionally different compared to the other
-> CPSW instantiations?
-> 
+So, initially the SW tries to offload the entire functionality in HW, if
+that fails it tries offload parts of the functionality in HW and use the
+SW as helper and if also this fails then MRP can't run on this HW.
 
-CPSW is mostly present on older TI's 32 bit SoCs and can support upto 2
-external ports.
+Based on these new calls, implement the switchdev for Ocelot driver. This
+is an example where the HW can't run completely the functionality but it
+can help the SW to run it, by trapping all MRP frames to CPU.
 
-AM65 NUSS is next generation multi port switch IP (up to 8 external
-ports) present on TI's newer 64 bit platform. It also has different DMA integration and has native HW support to work as both Multi Mac and Switch mode.
+Also this patch series adds MRP support to DSA and implements the Felix
+driver which just reuse the Ocelot functions. This part was just compiled
+tested because I don't have any HW on which to do the actual tests.
 
-> Also, do I get it right that you also tested the bridge port flags
-> passed in the new format and that they still work ok? May I add your
-> Tested-by tag?
-> 
+v4:
+ - remove ifdef MRP from include/net/switchdev.h
+ - move MRP implementation for Ocelot in a different file such that
+   Felix driver can use it.
+ - extend DSA with MRP support
+ - implement MRP support for Felix.
+v3:
+ - implement the switchdev calls needed by Ocelot driver.
+v2:
+ - fix typos in comments and in commit messages
+ - remove some of the comments
+ - move repeated code in helper function
+ - fix issue when deleting a node when sw_backup was true
 
-Sorry, I have not done extensive testing but tried couple of cmds. Those worked as expected:
+Horatiu Vultur (8):
+  switchdev: mrp: Remove CONFIG_BRIDGE_MRP
+  switchdev: mrp: Extend ring_role_mrp and in_role_mrp
+  bridge: mrp: Add 'enum br_mrp_hw_support'
+  bridge: mrp: Extend br_mrp_switchdev to detect better the errors
+  bridge: mrp: Update br_mrp to use new return values of
+    br_mrp_switchdev
+  net: mscc: ocelot: Add support for MRP
+  net: dsa: add MRP support
+  net: dsa: felix: Add support for MRP
 
-root@evm:~# ip link set eth0 type bridge_slave flood off mcast_flood off learning off                                                  
-Error: bridge: bridge flag offload is not supported.
+ drivers/net/dsa/ocelot/felix.c         |  38 ++++++
+ drivers/net/ethernet/mscc/Makefile     |   1 +
+ drivers/net/ethernet/mscc/ocelot.c     |  10 +-
+ drivers/net/ethernet/mscc/ocelot_mrp.c | 175 +++++++++++++++++++++++++
+ drivers/net/ethernet/mscc/ocelot_net.c |  60 +++++++++
+ include/linux/dsa/ocelot.h             |   5 +
+ include/net/dsa.h                      |  12 ++
+ include/net/switchdev.h                |  12 +-
+ include/soc/mscc/ocelot.h              |  45 +++++++
+ net/bridge/br_mrp.c                    |  43 +++---
+ net/bridge/br_mrp_switchdev.c          | 171 ++++++++++++++----------
+ net/bridge/br_private_mrp.h            |  38 ++++--
+ net/dsa/dsa_priv.h                     |  26 ++++
+ net/dsa/port.c                         |  48 +++++++
+ net/dsa/slave.c                        |  22 ++++
+ net/dsa/switch.c                       | 105 +++++++++++++++
+ net/dsa/tag_ocelot.c                   |   8 ++
+ 17 files changed, 715 insertions(+), 104 deletions(-)
+ create mode 100644 drivers/net/ethernet/mscc/ocelot_mrp.c
 
-root@evm:~# ip link set eth0 type bridge_slave  mcast_flood off
-[ 65.025285] am65-cpsw-nuss 8000000.ethernet eth0: BR_MCAST_FLOOD: 0 port 1
+-- 
+2.27.0
 
-Regards
-Vignesh
