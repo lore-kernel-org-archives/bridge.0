@@ -1,26 +1,25 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1613511816; x=1645047816;
+ t=1613511819; x=1645047819;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=f5geSd6pjJ0N+Fxoxpo/NSh5XSs8UlW8frZ6CCHDsDY=;
- b=oW5mrIScY9dLsb/ztlroRhtbowE2jMvRuC3/3Ek+H3bS08c+cxcwbudc
- yLrRxKCo5L0pY5ZSAHGzr4n17x5nEAoc7oquewds/iPUUbFipTKI2019O
- pWpiwYTS1bfJm4dRvIte87BIGxNDmfPVTmodx4WimCp1pt6U1BneTkWD3
- khaWII0W9OL3qs/Vjgt24natIJZfdFS9Q7HVqZdQPADcAVcn7fdmIlLie
- cIacVEOwwdPngp39J9t/trNMB8UWa7nfpe2PVRgCsTGW+18ZggI3u8FaG
- tOaSKkka7+cJcterJmPPbDb5eNn69UQmSrw0oSjLmjSPq+oexd1ugmfXn w==;
+ bh=Gp4caLKlfnoLVZRpF6jlM07fPL/2zmo4pnd4nWdMjJ0=;
+ b=Ieg0hK0Nn8xR0ZWbgUKafI04jtwqz1E1lL61+aWLdkVaNk8Qz8zfYcm7
+ ASwDvINf9gDDtlZLoYYeO3Q5HEHFkJiooASjfWUCvVsiv4qR2R2Aod/Ld
+ 6ne4xuZK/u8woNH7cPI6v0zXkjHw1szVK8jfoi51uoOkmmxvDJY5m1Yj/
+ rOnDIjy5ZT1sgTrUVTK2Huw7poT2bS/ZaobBL0KanDTP9eH+brVbLQ47T
+ N3GPJ4eApZ2/687oKh9m2c1kUfCfSFnjRB+AWMSGjkX3HSLJA9AT4tTIN
+ 2aY00sH8uCcPUIPI/9QKW8s+ek22EaTnLEnsKkmdUP3K/5+4EsxPHdEyk A==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 16 Feb 2021 22:42:02 +0100
-Message-ID: <20210216214205.32385-6-horatiu.vultur@microchip.com>
+Date: Tue, 16 Feb 2021 22:42:04 +0100
+Message-ID: <20210216214205.32385-8-horatiu.vultur@microchip.com>
 In-Reply-To: <20210216214205.32385-1-horatiu.vultur@microchip.com>
 References: <20210216214205.32385-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 5/8] bridge: mrp: Update br_mrp to use
-	new return values of br_mrp_switchdev
+Subject: [Bridge] [PATCH net-next v4 7/8] net: dsa: add MRP support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,135 +31,319 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org
 Cc: ivecera@redhat.com, andrew@lunn.ch, alexandre.belloni@bootlin.com, f.fainelli@gmail.com, jiri@resnulli.us, rasmus.villemoes@prevas.dk, vladimir.oltean@nxp.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, claudiu.manoil@nxp.com, netdev@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, vivien.didelot@gmail.com
 
-Check the return values of the br_mrp_switchdev function.
-In case of:
-- BR_MRP_NONE, return the error to userspace,
-- BR_MRP_SW, continue with SW implementation,
-- BR_MRP_HW, continue without SW implementation,
+Add support for offloading MRP in HW. Currently implement the switchdev
+calls 'SWITCHDEV_OBJ_ID_MRP', 'SWITCHDEV_OBJ_ID_RING_ROLE_MRP',
+to allow to create MRP instances and to set the role of these instances.
+
+Add DSA_NOTIFIER_MRP_ADD/DEL and DSA_NOTIFIER_MRP_ADD/DEL_RING_ROLE
+which calls to .port_mrp_add/del and .port_mrp_add/del_ring_role in the
+DSA driver for the switch.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- net/bridge/br_mrp.c | 43 +++++++++++++++++++++++++++----------------
- 1 file changed, 27 insertions(+), 16 deletions(-)
+ include/net/dsa.h  |  12 ++++++
+ net/dsa/dsa_priv.h |  26 +++++++++++
+ net/dsa/port.c     |  48 +++++++++++++++++++++
+ net/dsa/slave.c    |  22 ++++++++++
+ net/dsa/switch.c   | 105 +++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 213 insertions(+)
 
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index 01c67ed727a9..12487f6fe9b4 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -639,7 +639,7 @@ int br_mrp_set_ring_role(struct net_bridge *br,
- 			 struct br_mrp_ring_role *role)
+diff --git a/include/net/dsa.h b/include/net/dsa.h
+index 68f8159564a3..83a933e563fe 100644
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -792,6 +792,18 @@ struct dsa_switch_ops {
+ 				 struct net_device *hsr);
+ 	int	(*port_hsr_leave)(struct dsa_switch *ds, int port,
+ 				  struct net_device *hsr);
++
++	/*
++	 * MRP integration
++	 */
++	int	(*port_mrp_add)(struct dsa_switch *ds, int port,
++				const struct switchdev_obj_mrp *mrp);
++	int	(*port_mrp_del)(struct dsa_switch *ds, int port,
++				const struct switchdev_obj_mrp *mrp);
++	int	(*port_mrp_add_ring_role)(struct dsa_switch *ds, int port,
++					  const struct switchdev_obj_ring_role_mrp *mrp);
++	int	(*port_mrp_del_ring_role)(struct dsa_switch *ds, int port,
++					  const struct switchdev_obj_ring_role_mrp *mrp);
+ };
+ 
+ #define DSA_DEVLINK_PARAM_DRIVER(_id, _name, _type, _cmodes)		\
+diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
+index e9d1e76c42ba..2eeaa42f2e08 100644
+--- a/net/dsa/dsa_priv.h
++++ b/net/dsa/dsa_priv.h
+@@ -31,6 +31,10 @@ enum {
+ 	DSA_NOTIFIER_VLAN_DEL,
+ 	DSA_NOTIFIER_MTU,
+ 	DSA_NOTIFIER_TAG_PROTO,
++	DSA_NOTIFIER_MRP_ADD,
++	DSA_NOTIFIER_MRP_DEL,
++	DSA_NOTIFIER_MRP_ADD_RING_ROLE,
++	DSA_NOTIFIER_MRP_DEL_RING_ROLE,
+ };
+ 
+ /* DSA_NOTIFIER_AGEING_TIME */
+@@ -91,6 +95,20 @@ struct dsa_notifier_tag_proto_info {
+ 	const struct dsa_device_ops *tag_ops;
+ };
+ 
++/* DSA_NOTIFIER_MRP_* */
++struct dsa_notifier_mrp_info {
++	const struct switchdev_obj_mrp *mrp;
++	int sw_index;
++	int port;
++};
++
++/* DSA_NOTIFIER_MRP_* */
++struct dsa_notifier_mrp_ring_role_info {
++	const struct switchdev_obj_ring_role_mrp *mrp;
++	int sw_index;
++	int port;
++};
++
+ struct dsa_switchdev_event_work {
+ 	struct dsa_switch *ds;
+ 	int port;
+@@ -198,6 +216,14 @@ int dsa_port_vlan_add(struct dsa_port *dp,
+ 		      struct netlink_ext_ack *extack);
+ int dsa_port_vlan_del(struct dsa_port *dp,
+ 		      const struct switchdev_obj_port_vlan *vlan);
++int dsa_port_mrp_add(const struct dsa_port *dp,
++		     const struct switchdev_obj_mrp *mrp);
++int dsa_port_mrp_del(const struct dsa_port *dp,
++		     const struct switchdev_obj_mrp *mrp);
++int dsa_port_mrp_add_ring_role(const struct dsa_port *dp,
++			       const struct switchdev_obj_ring_role_mrp *mrp);
++int dsa_port_mrp_del_ring_role(const struct dsa_port *dp,
++			       const struct switchdev_obj_ring_role_mrp *mrp);
+ int dsa_port_link_register_of(struct dsa_port *dp);
+ void dsa_port_link_unregister_of(struct dsa_port *dp);
+ int dsa_port_hsr_join(struct dsa_port *dp, struct net_device *hsr);
+diff --git a/net/dsa/port.c b/net/dsa/port.c
+index 14a1d0d77657..c9c6d7ab3f47 100644
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -564,6 +564,54 @@ int dsa_port_vlan_del(struct dsa_port *dp,
+ 	return dsa_port_notify(dp, DSA_NOTIFIER_VLAN_DEL, &info);
+ }
+ 
++int dsa_port_mrp_add(const struct dsa_port *dp,
++		     const struct switchdev_obj_mrp *mrp)
++{
++	struct dsa_notifier_mrp_info info = {
++		.sw_index = dp->ds->index,
++		.port = dp->index,
++		.mrp = mrp,
++	};
++
++	return dsa_port_notify(dp, DSA_NOTIFIER_MRP_ADD, &info);
++}
++
++int dsa_port_mrp_del(const struct dsa_port *dp,
++		     const struct switchdev_obj_mrp *mrp)
++{
++	struct dsa_notifier_mrp_info info = {
++		.sw_index = dp->ds->index,
++		.port = dp->index,
++		.mrp = mrp,
++	};
++
++	return dsa_port_notify(dp, DSA_NOTIFIER_MRP_DEL, &info);
++}
++
++int dsa_port_mrp_add_ring_role(const struct dsa_port *dp,
++			       const struct switchdev_obj_ring_role_mrp *mrp)
++{
++	struct dsa_notifier_mrp_ring_role_info info = {
++		.sw_index = dp->ds->index,
++		.port = dp->index,
++		.mrp = mrp,
++	};
++
++	return dsa_port_notify(dp, DSA_NOTIFIER_MRP_ADD_RING_ROLE, &info);
++}
++
++int dsa_port_mrp_del_ring_role(const struct dsa_port *dp,
++			       const struct switchdev_obj_ring_role_mrp *mrp)
++{
++	struct dsa_notifier_mrp_ring_role_info info = {
++		.sw_index = dp->ds->index,
++		.port = dp->index,
++		.mrp = mrp,
++	};
++
++	return dsa_port_notify(dp, DSA_NOTIFIER_MRP_DEL_RING_ROLE, &info);
++}
++
+ void dsa_port_set_tag_protocol(struct dsa_port *cpu_dp,
+ 			       const struct dsa_device_ops *tag_ops)
  {
- 	struct br_mrp *mrp = br_mrp_find_id(br, role->ring_id);
--	int err;
-+	enum br_mrp_hw_support support;
- 
- 	if (!mrp)
- 		return -EINVAL;
-@@ -647,9 +647,9 @@ int br_mrp_set_ring_role(struct net_bridge *br,
- 	mrp->ring_role = role->ring_role;
- 
- 	/* If there is an error just bailed out */
--	err = br_mrp_switchdev_set_ring_role(br, mrp, role->ring_role);
--	if (err && err != -EOPNOTSUPP)
--		return err;
-+	support = br_mrp_switchdev_set_ring_role(br, mrp, role->ring_role);
-+	if (support == BR_MRP_NONE)
-+		return -EOPNOTSUPP;
- 
- 	/* Now detect if the HW actually applied the role or not. If the HW
- 	 * applied the role it means that the SW will not to do those operations
-@@ -657,7 +657,7 @@ int br_mrp_set_ring_role(struct net_bridge *br,
- 	 * SW when ring is open, but if the is not pushed to the HW the SW will
- 	 * need to detect when the ring is open
- 	 */
--	mrp->ring_role_offloaded = err == -EOPNOTSUPP ? 0 : 1;
-+	mrp->ring_role_offloaded = support == BR_MRP_SW ? 0 : 1;
- 
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 5ecb43a1b6e0..491e3761b5f4 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -404,6 +404,17 @@ static int dsa_slave_port_obj_add(struct net_device *dev,
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		err = dsa_slave_vlan_add(dev, obj, extack);
+ 		break;
++	case SWITCHDEV_OBJ_ID_MRP:
++		if (!dsa_port_offloads_netdev(dp, obj->orig_dev))
++			return -EOPNOTSUPP;
++		err = dsa_port_mrp_add(dp, SWITCHDEV_OBJ_MRP(obj));
++		break;
++	case SWITCHDEV_OBJ_ID_RING_ROLE_MRP:
++		if (!dsa_port_offloads_netdev(dp, obj->orig_dev))
++			return -EOPNOTSUPP;
++		err = dsa_port_mrp_add_ring_role(dp,
++						 SWITCHDEV_OBJ_RING_ROLE_MRP(obj));
++		break;
+ 	default:
+ 		err = -EOPNOTSUPP;
+ 		break;
+@@ -461,6 +472,17 @@ static int dsa_slave_port_obj_del(struct net_device *dev,
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		err = dsa_slave_vlan_del(dev, obj);
+ 		break;
++	case SWITCHDEV_OBJ_ID_MRP:
++		if (!dsa_port_offloads_netdev(dp, obj->orig_dev))
++			return -EOPNOTSUPP;
++		err = dsa_port_mrp_del(dp, SWITCHDEV_OBJ_MRP(obj));
++		break;
++	case SWITCHDEV_OBJ_ID_RING_ROLE_MRP:
++		if (!dsa_port_offloads_netdev(dp, obj->orig_dev))
++			return -EOPNOTSUPP;
++		err = dsa_port_mrp_del_ring_role(dp,
++						 SWITCHDEV_OBJ_RING_ROLE_MRP(obj));
++		break;
+ 	default:
+ 		err = -EOPNOTSUPP;
+ 		break;
+diff --git a/net/dsa/switch.c b/net/dsa/switch.c
+index db2a9b221988..4b5da89dc27a 100644
+--- a/net/dsa/switch.c
++++ b/net/dsa/switch.c
+@@ -372,6 +372,99 @@ static int dsa_switch_change_tag_proto(struct dsa_switch *ds,
  	return 0;
  }
-@@ -670,6 +670,7 @@ int br_mrp_start_test(struct net_bridge *br,
- 		      struct br_mrp_start_test *test)
- {
- 	struct br_mrp *mrp = br_mrp_find_id(br, test->ring_id);
-+	enum br_mrp_hw_support support;
  
- 	if (!mrp)
- 		return -EINVAL;
-@@ -677,9 +678,13 @@ int br_mrp_start_test(struct net_bridge *br,
- 	/* Try to push it to the HW and if it fails then continue with SW
- 	 * implementation and if that also fails then return error.
- 	 */
--	if (!br_mrp_switchdev_send_ring_test(br, mrp, test->interval,
--					     test->max_miss, test->period,
--					     test->monitor))
-+	support = br_mrp_switchdev_send_ring_test(br, mrp, test->interval,
-+						  test->max_miss, test->period,
-+						  test->monitor);
-+	if (support == BR_MRP_NONE)
++static bool dsa_switch_mrp_match(struct dsa_switch *ds, int port,
++				 struct dsa_notifier_mrp_info *info)
++{
++	if (ds->index == info->sw_index && port == info->port)
++		return true;
++
++	if (dsa_is_dsa_port(ds, port))
++		return true;
++
++	return false;
++}
++
++static int dsa_switch_mrp_add(struct dsa_switch *ds,
++			      struct dsa_notifier_mrp_info *info)
++{
++	int err = 0;
++	int port;
++
++	if (!ds->ops->port_mrp_add)
 +		return -EOPNOTSUPP;
 +
-+	if (support == BR_MRP_HW)
- 		return 0;
- 
- 	mrp->test_interval = test->interval;
-@@ -721,8 +726,8 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
- int br_mrp_set_in_role(struct net_bridge *br, struct br_mrp_in_role *role)
- {
- 	struct br_mrp *mrp = br_mrp_find_id(br, role->ring_id);
-+	enum br_mrp_hw_support support;
- 	struct net_bridge_port *p;
--	int err;
- 
- 	if (!mrp)
- 		return -EINVAL;
-@@ -780,10 +785,10 @@ int br_mrp_set_in_role(struct net_bridge *br, struct br_mrp_in_role *role)
- 	mrp->in_id = role->in_id;
- 
- 	/* If there is an error just bailed out */
--	err = br_mrp_switchdev_set_in_role(br, mrp, role->in_id,
--					   role->ring_id, role->in_role);
--	if (err && err != -EOPNOTSUPP)
--		return err;
-+	support = br_mrp_switchdev_set_in_role(br, mrp, role->in_id,
-+					       role->ring_id, role->in_role);
-+	if (support == BR_MRP_NONE)
-+		return -EOPNOTSUPP;
- 
- 	/* Now detect if the HW actually applied the role or not. If the HW
- 	 * applied the role it means that the SW will not to do those operations
-@@ -791,7 +796,7 @@ int br_mrp_set_in_role(struct net_bridge *br, struct br_mrp_in_role *role)
- 	 * SW when interconnect ring is open, but if the is not pushed to the HW
- 	 * the SW will need to detect when the interconnect ring is open.
- 	 */
--	mrp->in_role_offloaded = err == -EOPNOTSUPP ? 0 : 1;
-+	mrp->in_role_offloaded = support == BR_MRP_SW ? 0 : 1;
- 
- 	return 0;
- }
-@@ -804,6 +809,7 @@ int br_mrp_start_in_test(struct net_bridge *br,
- 			 struct br_mrp_start_in_test *in_test)
- {
- 	struct br_mrp *mrp = br_mrp_find_in_id(br, in_test->in_id);
-+	enum br_mrp_hw_support support;
- 
- 	if (!mrp)
- 		return -EINVAL;
-@@ -814,8 +820,13 @@ int br_mrp_start_in_test(struct net_bridge *br,
- 	/* Try to push it to the HW and if it fails then continue with SW
- 	 * implementation and if that also fails then return error.
- 	 */
--	if (!br_mrp_switchdev_send_in_test(br, mrp, in_test->interval,
--					   in_test->max_miss, in_test->period))
-+	support =  br_mrp_switchdev_send_in_test(br, mrp, in_test->interval,
-+						 in_test->max_miss,
-+						 in_test->period);
-+	if (support == BR_MRP_NONE)
++	for (port = 0; port < ds->num_ports; port++) {
++		if (dsa_switch_mrp_match(ds, port, info)) {
++			err = ds->ops->port_mrp_add(ds, port, info->mrp);
++			if (err)
++				break;
++		}
++	}
++
++	return err;
++}
++
++static int dsa_switch_mrp_del(struct dsa_switch *ds,
++			      struct dsa_notifier_mrp_info *info)
++{
++	if (!ds->ops->port_mrp_del)
 +		return -EOPNOTSUPP;
 +
-+	if (support == BR_MRP_HW)
- 		return 0;
- 
- 	mrp->in_test_interval = in_test->interval;
++	if (ds->index == info->sw_index)
++		return ds->ops->port_mrp_del(ds, info->port, info->mrp);
++
++	return 0;
++}
++
++static bool
++dsa_switch_mrp_ring_role_match(struct dsa_switch *ds, int port,
++			       struct dsa_notifier_mrp_ring_role_info *info)
++{
++	if (ds->index == info->sw_index && port == info->port)
++		return true;
++
++	if (dsa_is_dsa_port(ds, port))
++		return true;
++
++	return false;
++}
++
++static int
++dsa_switch_mrp_add_ring_role(struct dsa_switch *ds,
++			     struct dsa_notifier_mrp_ring_role_info *info)
++{
++	int err = 0;
++	int port;
++
++	if (!ds->ops->port_mrp_add)
++		return -EOPNOTSUPP;
++
++	for (port = 0; port < ds->num_ports; port++) {
++		if (dsa_switch_mrp_ring_role_match(ds, port, info)) {
++			err = ds->ops->port_mrp_add_ring_role(ds, port,
++							      info->mrp);
++			if (err)
++				break;
++		}
++	}
++
++	return err;
++}
++
++static int
++dsa_switch_mrp_del_ring_role(struct dsa_switch *ds,
++			     struct dsa_notifier_mrp_ring_role_info *info)
++{
++	if (!ds->ops->port_mrp_del)
++		return -EOPNOTSUPP;
++
++	if (ds->index == info->sw_index)
++		return ds->ops->port_mrp_del_ring_role(ds, info->port,
++						       info->mrp);
++
++	return 0;
++}
++
+ static int dsa_switch_event(struct notifier_block *nb,
+ 			    unsigned long event, void *info)
+ {
+@@ -427,6 +520,18 @@ static int dsa_switch_event(struct notifier_block *nb,
+ 	case DSA_NOTIFIER_TAG_PROTO:
+ 		err = dsa_switch_change_tag_proto(ds, info);
+ 		break;
++	case DSA_NOTIFIER_MRP_ADD:
++		err = dsa_switch_mrp_add(ds, info);
++		break;
++	case DSA_NOTIFIER_MRP_DEL:
++		err = dsa_switch_mrp_del(ds, info);
++		break;
++	case DSA_NOTIFIER_MRP_ADD_RING_ROLE:
++		err = dsa_switch_mrp_add_ring_role(ds, info);
++		break;
++	case DSA_NOTIFIER_MRP_DEL_RING_ROLE:
++		err = dsa_switch_mrp_del_ring_role(ds, info);
++		break;
+ 	default:
+ 		err = -EOPNOTSUPP;
+ 		break;
 -- 
 2.27.0
 
