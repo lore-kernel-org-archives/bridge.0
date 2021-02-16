@@ -1,24 +1,26 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1613511791; x=1645047791;
- h=from:to:cc:subject:date:message-id:mime-version:
- content-transfer-encoding;
- bh=70pTgPudqkcV6r9RtS3PrcUAeOt0oFNkyIhOREHyv0A=;
- b=wiwE4OxAE+k0FLdsPJwwsWssZrU9pBru1Cflmv+z3ZtYS4pgy60wpBFO
- 2DtXQCXWl0D+CzrrFjhMsxYxTn7xpwg6ts1DwNACCiU+TcMcORoGVFrcR
- AJz0tZz8TSvrlslGcEFLJ/7UcpnV8bJ626CHhXSCnr/qcFI4U4WrlsibW
- 1KhZTMMQTJtJ7NNlhgD6mnE+96XisG5TYyRiFxZOlnXr3YvUY5g0xgbrR
- BiUlJFKSUMqqskuFyxNbzL0ngyefaW9s0ZXIi4TiysSRsBa2D+lWdLQLS
- faTv7YUXCorj/7GbcOctqbAEn/zhbq/hCYYvIUdsneEl9SY46T62HNPyt A==;
+ t=1613511794; x=1645047794;
+ h=from:to:cc:subject:date:message-id:in-reply-to:
+ references:mime-version:content-transfer-encoding;
+ bh=toNEZFJJYd5FgfnhWtjPWmHGIkQV7vwszU+NWqwwudI=;
+ b=PhaZNro/o/9aH9RSjG7ikWDwZGZOGMXMV1PAl9tbRP9n2rXuGbMZLKm8
+ laC7064I07K/9HK+WMDHh97ddVoL3o6RacuA+f0RlDTlA7M++jUtACqbj
+ 8dRRiX4QDDov4H4e/M+Q7BatnHUi23pRAjBZMjkpfbCNxWgI2UBF+MX14
+ xI5G+nkeGVeLX5lVXZDPB2hAkp9QaxTI4kCY1gERgB9isW1RPcUaLCq07
+ CHSiFedNgEpFCcR7g0nowiSPVeVb11Yq70o+INChIvulRMc2bvJxZYB3M
+ g0qHFt2jZSEky0Zq0FmWY/1hJqVrf8zE2OJ8i2TKc8ue3arSMVlDjXrv7 A==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 16 Feb 2021 22:41:57 +0100
-Message-ID: <20210216214205.32385-1-horatiu.vultur@microchip.com>
+Date: Tue, 16 Feb 2021 22:41:59 +0100
+Message-ID: <20210216214205.32385-3-horatiu.vultur@microchip.com>
+In-Reply-To: <20210216214205.32385-1-horatiu.vultur@microchip.com>
+References: <20210216214205.32385-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v4 0/8] bridge: mrp: Extend
-	br_mrp_switchdev_*
+Subject: [Bridge] [PATCH net-next v4 2/8] switchdev: mrp: Extend
+	ring_role_mrp and in_role_mrp
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,74 +32,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org
 Cc: ivecera@redhat.com, andrew@lunn.ch, alexandre.belloni@bootlin.com, f.fainelli@gmail.com, jiri@resnulli.us, rasmus.villemoes@prevas.dk, vladimir.oltean@nxp.com, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, claudiu.manoil@nxp.com, netdev@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, Horatiu Vultur <horatiu.vultur@microchip.com>, vivien.didelot@gmail.com
 
-This patch series extends MRP switchdev to allow the SW to have a better
-understanding if the HW can implement the MRP functionality or it needs
-to help the HW to run it. There are 3 cases:
-- when HW can't implement at all the functionality.
-- when HW can implement a part of the functionality but needs the SW
-  implement the rest. For example if it can't detect when it stops
-  receiving MRP Test frames but it can copy the MRP frames to CPU to
-  allow the SW to determine this.  Another example is generating the MRP
-  Test frames. If HW can't do that then the SW is used as backup.
-- when HW can implement completely the functionality.
+Add the member sw_backup to the structures switchdev_obj_ring_role_mrp
+and switchdev_obj_in_role_mrp. In this way the SW can call the driver in
+2 ways, once when sw_backup is set to false, meaning that the driver
+should implement this completely in HW. And if that is not supported the
+SW will call again but with sw_backup set to true, meaning that the
+HW should help or allow the SW to run the protocol.
 
-So, initially the SW tries to offload the entire functionality in HW, if
-that fails it tries offload parts of the functionality in HW and use the
-SW as helper and if also this fails then MRP can't run on this HW.
+For example when role is MRM, if the HW can't detect when it stops
+receiving MRP Test frames but it can trap these frames to CPU, then it
+needs to return -EOPNOTSUPP when sw_backup is false and return 0 when
+sw_backup is true.
 
-Based on these new calls, implement the switchdev for Ocelot driver. This
-is an example where the HW can't run completely the functionality but it
-can help the SW to run it, by trapping all MRP frames to CPU.
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+---
+ include/net/switchdev.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Also this patch series adds MRP support to DSA and implements the Felix
-driver which just reuse the Ocelot functions. This part was just compiled
-tested because I don't have any HW on which to do the actual tests.
-
-v4:
- - remove ifdef MRP from include/net/switchdev.h
- - move MRP implementation for Ocelot in a different file such that
-   Felix driver can use it.
- - extend DSA with MRP support
- - implement MRP support for Felix.
-v3:
- - implement the switchdev calls needed by Ocelot driver.
-v2:
- - fix typos in comments and in commit messages
- - remove some of the comments
- - move repeated code in helper function
- - fix issue when deleting a node when sw_backup was true
-
-Horatiu Vultur (8):
-  switchdev: mrp: Remove CONFIG_BRIDGE_MRP
-  switchdev: mrp: Extend ring_role_mrp and in_role_mrp
-  bridge: mrp: Add 'enum br_mrp_hw_support'
-  bridge: mrp: Extend br_mrp_switchdev to detect better the errors
-  bridge: mrp: Update br_mrp to use new return values of
-    br_mrp_switchdev
-  net: mscc: ocelot: Add support for MRP
-  net: dsa: add MRP support
-  net: dsa: felix: Add support for MRP
-
- drivers/net/dsa/ocelot/felix.c         |  38 ++++++
- drivers/net/ethernet/mscc/Makefile     |   1 +
- drivers/net/ethernet/mscc/ocelot.c     |  10 +-
- drivers/net/ethernet/mscc/ocelot_mrp.c | 175 +++++++++++++++++++++++++
- drivers/net/ethernet/mscc/ocelot_net.c |  60 +++++++++
- include/linux/dsa/ocelot.h             |   5 +
- include/net/dsa.h                      |  12 ++
- include/net/switchdev.h                |  12 +-
- include/soc/mscc/ocelot.h              |  45 +++++++
- net/bridge/br_mrp.c                    |  43 +++---
- net/bridge/br_mrp_switchdev.c          | 171 ++++++++++++++----------
- net/bridge/br_private_mrp.h            |  38 ++++--
- net/dsa/dsa_priv.h                     |  26 ++++
- net/dsa/port.c                         |  48 +++++++
- net/dsa/slave.c                        |  22 ++++
- net/dsa/switch.c                       | 105 +++++++++++++++
- net/dsa/tag_ocelot.c                   |   8 ++
- 17 files changed, 715 insertions(+), 104 deletions(-)
- create mode 100644 drivers/net/ethernet/mscc/ocelot_mrp.c
-
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index 465362d9d063..b7fc7d0f54e2 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -127,6 +127,7 @@ struct switchdev_obj_ring_role_mrp {
+ 	struct switchdev_obj obj;
+ 	u8 ring_role;
+ 	u32 ring_id;
++	u8 sw_backup;
+ };
+ 
+ #define SWITCHDEV_OBJ_RING_ROLE_MRP(OBJ) \
+@@ -161,6 +162,7 @@ struct switchdev_obj_in_role_mrp {
+ 	u32 ring_id;
+ 	u16 in_id;
+ 	u8 in_role;
++	u8 sw_backup;
+ };
+ 
+ #define SWITCHDEV_OBJ_IN_ROLE_MRP(OBJ) \
 -- 
 2.27.0
 
