@@ -1,21 +1,28 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=06lku1VLDwnTxzqqiCIOKPjsSlw8LNx4PZpLXgBnDNA=;
- b=b8VrmMZyN3Ug5QiORMn/5PjAVWorevHWZITfTlWhbtzdxA4F/bwlDn0eOFzX0TwCzLmwdU4Cx+DDyRHQhaeOnZPSHj9T0LT/MZsk7jUIJxymghfKb0CtgZLj9X+jSpH/AFS6rP43amU2rWJQy+J6HSsFrHAUYKG7NVPYCmGKuew=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Wed, 17 Feb 2021 10:24:49 +0000
-Message-ID: <20210217102448.oea5dwl2qnhybir3@skbuf>
+Return-Path: <Horatiu.Vultur@microchip.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+ d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+ t=1613577527; x=1645113527;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=TrSgV4ppZBB1E4H994V5PZn9jNxoOv0E4rNOorIzQXM=;
+ b=JnW1MbcF+8UNeR/RCrYkphHOpCr/Y9U33VBmD6l+WH7sWjG62abFV8LU
+ 83//qgsR4RtknCqK3+jHdIOXF+YPyDppDucxat1Ycr1RwxYZtCyG6Fmj2
+ CY5ZFgKgDAleH5IFCXD4cI3zA2r6dnu+hXroYy8pgAPo0oJ2qlL9Sa783
+ KRmVrbpz4tf/YDk+ZGB4P88MtzRgClKq5tq1WcJ8GOI9A7JE7nkE5ZQte
+ 1jArqUBRNqNv4lR2Vy/Y9a5fTxGCpK/9FrGv2441U9CxXZkt3XxKBkrda
+ zYHwf1eWJRsmMs2682YrTBb2uGGgu+mMuVq+DMlLbzGBprWs5QUQdVIT2 A==;
+Date: Wed, 17 Feb 2021 16:58:45 +0100
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
+Message-ID: <20210217155845.oegbmsnxykkqc6um@soft-dev3.localdomain>
 References: <20210216214205.32385-1-horatiu.vultur@microchip.com>
- <20210216214205.32385-9-horatiu.vultur@microchip.com>
-In-Reply-To: <20210216214205.32385-9-horatiu.vultur@microchip.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <A48D8AA98F35B34D9F68B6F85E2DB033@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+ <20210216214205.32385-3-horatiu.vultur@microchip.com>
+ <20210217103433.bilnuo2tfvgvjmxy@skbuf>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next v4 8/8] net: dsa: felix: Add support
-	for MRP
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+In-Reply-To: <20210217103433.bilnuo2tfvgvjmxy@skbuf>
+Subject: Re: [Bridge] [PATCH net-next v4 2/8] switchdev: mrp: Extend
+ ring_role_mrp and in_role_mrp
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,46 +31,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
 Cc: "ivecera@redhat.com" <ivecera@redhat.com>, "andrew@lunn.ch" <andrew@lunn.ch>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "f.fainelli@gmail.com" <f.fainelli@gmail.com>, "jiri@resnulli.us" <jiri@resnulli.us>, "rasmus.villemoes@prevas.dk" <rasmus.villemoes@prevas.dk>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "vivien.didelot@gmail.com" <vivien.didelot@gmail.com>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "nikolay@nvidia.com" <nikolay@nvidia.com>, "roopa@nvidia.com" <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>
 
-On Tue, Feb 16, 2021 at 10:42:05PM +0100, Horatiu Vultur wrote:
-> @@ -112,6 +113,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb=
-,
->  	ocelot_xfh_get_qos_class(extraction, &qos_class);
->  	ocelot_xfh_get_tag_type(extraction, &tag_type);
->  	ocelot_xfh_get_vlan_tci(extraction, &vlan_tci);
-> +	ocelot_xfh_get_cpuq(extraction, &cpuq);
-> =20
->  	skb->dev =3D dsa_master_find_slave(netdev, 0, src_port);
->  	if (!skb->dev)
-> @@ -126,6 +128,12 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *sk=
-b,
->  	skb->offload_fwd_mark =3D 1;
->  	skb->priority =3D qos_class;
-> =20
-> +#if IS_ENABLED(CONFIG_BRIDGE_MRP)
-> +	if (eth_hdr(skb)->h_proto =3D=3D cpu_to_be16(ETH_P_MRP) &&
-> +	    cpuq & BIT(OCELOT_MRP_CPUQ))
+The 02/17/2021 10:34, Vladimir Oltean wrote:
 
-Checking the EtherType seems redundant, since those are the only frames
-trapped to the MRP CPU queue.
+Hi Vladimir,
 
-Also, the cpuq variable is potentially unused when CONFIG_BRIDGE_MRP is
-unset. I'm concerned that static analysis people may come in and try to
-fix it up with even more ifdeffery, which is definitely not what I would
-like to go for.
+> 
+> On Tue, Feb 16, 2021 at 10:41:59PM +0100, Horatiu Vultur wrote:
+> > Add the member sw_backup to the structures switchdev_obj_ring_role_mrp
+> > and switchdev_obj_in_role_mrp. In this way the SW can call the driver in
+> > 2 ways, once when sw_backup is set to false, meaning that the driver
+> > should implement this completely in HW. And if that is not supported the
+> > SW will call again but with sw_backup set to true, meaning that the
+> > HW should help or allow the SW to run the protocol.
+> >
+> > For example when role is MRM, if the HW can't detect when it stops
+> > receiving MRP Test frames but it can trap these frames to CPU, then it
+> > needs to return -EOPNOTSUPP when sw_backup is false and return 0 when
+> > sw_backup is true.
+> >
+> > Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+> > ---
+> >  include/net/switchdev.h | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+> > index 465362d9d063..b7fc7d0f54e2 100644
+> > --- a/include/net/switchdev.h
+> > +++ b/include/net/switchdev.h
+> > @@ -127,6 +127,7 @@ struct switchdev_obj_ring_role_mrp {
+> >       struct switchdev_obj obj;
+> >       u8 ring_role;
+> >       u32 ring_id;
+> > +     u8 sw_backup;
+> >  };
+> >
+> >  #define SWITCHDEV_OBJ_RING_ROLE_MRP(OBJ) \
+> > @@ -161,6 +162,7 @@ struct switchdev_obj_in_role_mrp {
+> >       u32 ring_id;
+> >       u16 in_id;
+> >       u8 in_role;
+> > +     u8 sw_backup;
+> 
+> What was wrong with 'bool'?
+Yeah, that would be a better match.
+> 
+> >  };
+> >
+> >  #define SWITCHDEV_OBJ_IN_ROLE_MRP(OBJ) \
+> > --
+> > 2.27.0
+> >
+> 
+> If a driver implements full MRP offload for a ring/interconnect
+> manager/automanager, should it return -EOPNOTSUPP when sw_backup=false?
 
-How about just the following, which is not conditionally compiled:
-	if (!(cpuq & BIT(OCELOT_MRP_CPUQ)))
-		skb->offload_fwd_mark =3D 1;
+In that case it should return 0.
+So if the driver can:
+- fully support MRP, when sw_backup = false, return 0. Then end of story.
+- partially support MRP, when sw_backup = false, return -EOPNOTSUPP,
+                         when sw_backup = true, return 0.
+- no support at all, return -EOPNOTSUPP.
 
-> +		skb->offload_fwd_mark =3D 0;
-> +#endif
-> +
->  	/* Ocelot switches copy frames unmodified to the CPU. However, it is
->  	 * possible for the user to request a VLAN modification through
->  	 * VCAP_IS1_ACT_VID_REPLACE_ENA. In this case, what will happen is that
-> --=20
-> 2.27.0
-> =
+-- 
+/Horatiu
