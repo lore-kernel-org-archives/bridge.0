@@ -1,24 +1,18 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1615410013;
- bh=6cChmF4xo+CrWaB4TpPNDEZ+Y6NLPBdULri5dNShqtw=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=BBjdrMJ9kFsZQPX97oHs+6xhfuCKuOJQIUczXvUdywmCYJ0HDlibYp7MUI2ZZJAY5
- n4atZbHKbFHcWrsQrjnO9VYd5I1gcg0sQRt3D8RDLtRM8DCp5aaHOSH20zOsDON8mV
- cuQPOx/ngmA1saULqykE+fu3by9NEB8aEFV6yd3uKDMBRRFNi9Lz9bjJVuVcaGIBBr
- rVMRGdsVXaYnbOCaRuHK1qj29ZS3efKyj+5Co7gMXPsrelldmhCwIoyEf97WDXMkbA
- 1h+XlQDorf89wZdUp8os6oOkWyLFjscKFvhNv5Z9AETJY57CJuY9otblJJf+LyrzSd
- wo/eosjpipqxA==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161541001297.4631.3343209004781162292.git-patchwork-notify@kernel.org>
-Date: Wed, 10 Mar 2021 21:00:12 +0000
-References: <20210310054115.GA285785@embeddedor>
-In-Reply-To: <20210310054115.GA285785@embeddedor>
-Subject: Re: [Bridge] [PATCH RESEND][next] net: bridge: Fix fall-through
-	warnings for Clang
+Return-Path: <baijiaju1990@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id;
+ bh=TFmmV9TVaaNUuaMbsO9KBOUJCI3DKPpFnOVgzqi7U6w=;
+ b=apZSNVUIOKcBJTA2nDNXj8M/+Sm/J1CDcmtn4dh+G1TtfBQLVB1fCOy/VOwWVfJJrx
+ tj1oL1/oE1PiHygPm2ldmo2IsMxeMsAG8V/NzrxRlUoyv3vPYKPr1tb9GcYsHYaaOMW5
+ kvYBaAioNG8NEV+jhuDPtTLY7V134eJXP3WxpoD4bLvWgTf4XK0c4ozJakbj4ep0eOKX
+ /saUXnACQ+gITn188nVyPqs0DkKYA5jQ9BN+Mn7hiOt3ilzyxNrFYGGP7w78PtFEDxRz
+ n/bIng9BhhBr1aVYWUP2oWXotxybmvmNjN5JPPRI+4ouq3/h9wujb/+3xfKEeGEO4CPK
+ nUGg==
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
+Date: Mon,  8 Mar 2021 18:28:54 -0800
+Message-Id: <20210309022854.17904-1-baijiaju1990@gmail.com>
+Subject: [Bridge] [PATCH] net: bridge: fix error return code of
+	do_update_counters()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,31 +21,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net, linux-hardening@vger.kernel.org
+To: pablo@netfilter.org, kadlec@netfilter.org, fw@strlen.de, roopa@nvidia.com, nikolay@nvidia.com, davem@davemloft.net, kuba@kernel.org
+Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>, netfilter-devel@vger.kernel.org
 
-Hello:
+When find_table_lock() returns NULL to t, no error return code of
+do_update_counters() is assigned.
+To fix this bug, ret is assigned with -ENOENT in this case.
 
-This patch was applied to netdev/net-next.git (refs/heads/master):
+Fixes: 49facff9f925 ("netfilter: ebtables: split update_counters into two functions")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+---
+ net/bridge/netfilter/ebtables.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-On Tue, 9 Mar 2021 23:41:15 -0600 you wrote:
-> In preparation to enable -Wimplicit-fallthrough for Clang, fix a warning
-> by explicitly adding a break statement instead of letting the code fall
-> through to the next case.
-> 
-> Link: https://github.com/KSPP/linux/issues/115
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-> 
-> [...]
-
-Here is the summary with links:
-  - [RESEND,next] net: bridge: Fix fall-through warnings for Clang
-    https://git.kernel.org/netdev/net-next/c/ecd1c6a51fcc
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index ebe33b60efd6..66c9e4077985 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1256,8 +1256,10 @@ static int do_update_counters(struct net *net, const char *name,
+ 		return -ENOMEM;
+ 
+ 	t = find_table_lock(net, name, &ret, &ebt_mutex);
+-	if (!t)
++	if (!t) {
++		ret = -ENOENT;
+ 		goto free_tmp;
++	}
+ 
+ 	if (num_counters != t->private->nentries) {
+ 		ret = -EINVAL;
+-- 
+2.17.1
 
