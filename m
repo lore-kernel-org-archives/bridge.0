@@ -1,20 +1,22 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yrcEKyxLLfRA2ghTLDadh5n8T6ImHMxOr/Vcv2QkIzw=;
- b=QgaS5YaL0z3cfaLgSdsowf89CNS5dhcmBunrLjX4t94hK5QadJurpLvy9R/oH6Ytt660PxmYQz4tmmap2N748Ghhf0bgBAImV133ApUCdGCZrPV6C6bbng+3oZhbKnRBCjcU9NJs8J6RhhLDNrxqyiq1DTyBOqsIWU2oAfV43NaFwEM3xGc/E/73a5xng1Ve6+weG+XMog3a8GAc33QYqaPxKaZxbMxz+j1I7gy1zeVD+cDo8IwlQ4sjOoAGKKDnqHGwgnDrlKlyMOu6ZJJm0ilzW/gOdij2yIi6AKdn4BlYsdiCHmKfKHoHR02iHUtieVMzZl4LdTDUfNNHWXHaIQ==
-References: <20210315153835.190174-1-razor@blackwall.org>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <ad95c2f3-a3c8-cd56-1e83-e4a7d53c7f7f@nvidia.com>
-Date: Mon, 15 Mar 2021 17:44:19 +0200
-In-Reply-To: <20210315153835.190174-1-razor@blackwall.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=1RURcpmMch727Ry8e1e4rE7LPwmwCCm3CKQbXHTVP1k=;
+ b=VjaRKYrlU6zrK4i5Dbl2mp11CL4okopm1GnZdyIJPuqiQoK/zuwrDKG6RGT7Ebx9k/
+ j3yGlADue1PlYQ8x2ktROsbItQVr/mvzwaHP1oTK4pCiPWmGVD8n6tQb8FieUxwim3wO
+ 5CO2+rbqDjn8jTgTV8V/S4bGDN4QRWw5wfw8BkW28E4uMu6GnpuWF1dFnoKOR+ZmdoFt
+ 3ljn5xKw8RMOTANCOA33zD410Jr8TEXekSsReLhFyZwIN2T4En4qJeYqNLLFeBkS3kic
+ 12cf/JjXcGm1rwa8i3rgO9X4uUIqfRDALgr8c2nEWvA5tJvKsc79E6zDpAylSUtZsWFF
+ 19/w==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Mon, 15 Mar 2021 19:13:40 +0200
+Message-Id: <20210315171342.232809-1-razor@blackwall.org>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: mcast: remove
-	unreachable EHT code
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next v2 0/2] net: bridge: mcast: simplify
+	allow/block EHT code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,27 +25,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
-Cc: kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-On 15/03/2021 17:38, Nikolay Aleksandrov wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
-> 
-> In the initial EHT versions there were common functions which handled
-> allow/block messages for both INCLUDE and EXCLUDE modes, but later they
-> were separated. It seems I've left some common code which cannot be
-> reached because the filter mode is checked before calling the respective
-> functions, i.e. the host filter is always in EXCLUDE mode when using
-> __eht_allow_excl() and __eht_block_excl() thus we can drop the host_excl
-> checks inside and simplify the code a bit.
-> 
-> Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> ---
->  net/bridge/br_multicast_eht.c | 54 ++++++++++-------------------------
->  1 file changed, 15 insertions(+), 39 deletions(-)
-> 
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Oh well, sent the wrong patch version. I'll send the proper version as v2.
-Self-NAK and sorry for the noise
+Hi,
+The set does two minor cleanups of the EHT allow/block handling code:
+patch 01 removes code which is unreachable (it was used in initial EHT
+versions, but isn't anymore) and prepares the allow/block functions to be
+factored out. Patch 02 factors out common allow/block handling code.
+There are no functional changes.
 
+v2: send patch 02 and the proper version of both patches
+
+Thanks,
+ Nik
+
+Nikolay Aleksandrov (2):
+  net: bridge: mcast: remove unreachable EHT code
+  net: bridge: mcast: factor out common allow/block EHT handling
+
+ net/bridge/br_multicast_eht.c | 141 +++++++++-------------------------
+ 1 file changed, 35 insertions(+), 106 deletions(-)
+
+-- 
+2.29.2
 
