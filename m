@@ -1,26 +1,25 @@
 Return-Path: <Horatiu.Vultur@microchip.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1616488538; x=1648024538;
+ t=1616488541; x=1648024541;
  h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=9lxgTCKRb/dXejM+dtq7XdfnshCfyP/EiqkevaxcJeg=;
- b=la+h9dmkbJRiJYttmM9x2qiqRZqOKWfolWah80JYH8s/3MJz5wPD06Iy
- i6oC0KKJbDL9aPJcfR7seU540GB3gAP0R5ZvT85pAAghKZehS+BwyAqut
- bU1PNPuwLLOX6KBa2W8MKQN/B5vLguAyd6P1G70wML3qEsLBqWvsy3bNV
- oJwkECr1YB5VOFNuGlisnZxwaVU7dvwvT4Js5Mx3/YqRclNszIUQTkolw
- dn3pSGRT/CScV7X9XwYK3hS+SZETL9PCbNrHWDBUYd9D/MlTdacQeqpq8
- jw3uZw+6lV3ZV3lVA9eAE0tMTIj2V7iuKYqJ5LOeeI7tPKujRUybXAW3C w==;
+ bh=eP8Cr4YL2a0w4yi+/hKrPPiwiCM67cN8kXpAO4EXfHk=;
+ b=QnV544ynisfdBu1mZsQ3ws27VkyJj7Xmeo/foOawyjLpqcAoXkqTpQ8q
+ UNeyXuTZQInTinNDhOvNnaasXP3O9wu5OxTS4yCFih+CfwwhVEDLDB8BP
+ 1b8VURN4jGXWD6mfUoMi8HpCWdVYov2UXESpE5p3LnXz30/Qbwd6DZ+YP
+ a+RNRfYKWOM89RXcqKIsUAR2wmSkUODU1JvS74Wq1JJBQXe1zQSNVb+wj
+ svWJIwKqr1IAk/QHkJ2VYnVSrjpLeNi3hcpjIEkstsHrwfrSpvTi3KpIc
+ a3BDvPhJNiIWgL1tNWYuLy2t2FmCE7oQicY1P8CVGGgEk9MjfYRRgqA0J w==;
 From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Tue, 23 Mar 2021 09:33:46 +0100
-Message-ID: <20210323083347.1474883-2-horatiu.vultur@microchip.com>
+Date: Tue, 23 Mar 2021 09:33:47 +0100
+Message-ID: <20210323083347.1474883-3-horatiu.vultur@microchip.com>
 In-Reply-To: <20210323083347.1474883-1-horatiu.vultur@microchip.com>
 References: <20210323083347.1474883-1-horatiu.vultur@microchip.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 1/2] bridge: mrp: Disable roles before
-	deleting the MRP instance
+Subject: [Bridge] [PATCH net-next 2/2] net: ocelot: Simplify MRP deletion
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,39 +31,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com, nikolay@nvidia.com, vladimir.oltean@nxp.com, claudiu.manoil@nxp.com, alexandre.belloni@bootlin.com
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Horatiu Vultur <horatiu.vultur@microchip.com>, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com
 
-When an MRP instance was created, the driver was notified that the
-instance is created and then in a different callback about role of the
-instance. But when the instance was deleted the driver was notified only
-that the MRP instance is deleted and not also that the role is disabled.
-
-This patch make sure that the driver is notified that the role is
-changed to disabled before the MRP instance is deleted to have similar
-callbacks with the creating of the instance. In this way it would
-simplify the logic in the drivers.
+Now that the driver will always be notified that the role is deleted
+before the ring is deleted, then we don't need to duplicate the logic of
+cleaning the resources also in the delete function.
 
 Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 ---
- net/bridge/br_mrp.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/mscc/ocelot_mrp.c | 16 ----------------
+ 1 file changed, 16 deletions(-)
 
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index 12487f6fe9b4..cd2b1e424e54 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -411,6 +411,13 @@ static void br_mrp_del_impl(struct net_bridge *br, struct br_mrp *mrp)
- 	cancel_delayed_work_sync(&mrp->in_test_work);
- 	br_mrp_switchdev_send_in_test(br, mrp, 0, 0, 0);
+diff --git a/drivers/net/ethernet/mscc/ocelot_mrp.c b/drivers/net/ethernet/mscc/ocelot_mrp.c
+index c3cbcaf64bb2..08b481a93460 100644
+--- a/drivers/net/ethernet/mscc/ocelot_mrp.c
++++ b/drivers/net/ethernet/mscc/ocelot_mrp.c
+@@ -154,7 +154,6 @@ int ocelot_mrp_del(struct ocelot *ocelot, int port,
+ 		   const struct switchdev_obj_mrp *mrp)
+ {
+ 	struct ocelot_port *ocelot_port = ocelot->ports[port];
+-	int i;
  
-+	/* Disable the roles */
-+	br_mrp_switchdev_set_ring_role(br, mrp, BR_MRP_RING_ROLE_DISABLED);
-+	p = rtnl_dereference(mrp->i_port);
-+	if (p)
-+		br_mrp_switchdev_set_in_role(br, mrp, mrp->in_id, mrp->ring_id,
-+					     BR_MRP_IN_ROLE_DISABLED);
-+
- 	br_mrp_switchdev_del(br, mrp);
+ 	if (!ocelot_port)
+ 		return -EOPNOTSUPP;
+@@ -162,23 +161,8 @@ int ocelot_mrp_del(struct ocelot *ocelot, int port,
+ 	if (ocelot_port->mrp_ring_id != mrp->ring_id)
+ 		return 0;
  
- 	/* Reset the ports */
+-	ocelot_mrp_del_vcap(ocelot, port);
+-	ocelot_mrp_del_vcap(ocelot, port + ocelot->num_phys_ports);
+-
+ 	ocelot_port->mrp_ring_id = 0;
+ 
+-	for (i = 0; i < ocelot->num_phys_ports; ++i) {
+-		ocelot_port = ocelot->ports[i];
+-
+-		if (!ocelot_port)
+-			continue;
+-
+-		if (ocelot_port->mrp_ring_id != 0)
+-			goto out;
+-	}
+-
+-	ocelot_mrp_del_mac(ocelot, ocelot->ports[port]);
+-out:
+ 	return 0;
+ }
+ EXPORT_SYMBOL(ocelot_mrp_del);
 -- 
 2.30.1
 
