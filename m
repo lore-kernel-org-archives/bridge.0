@@ -1,24 +1,11 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1616615408;
- bh=jWlbCW3ZvY9ep7+jRAH9k7cY3rs1dnmpwgoeOz00z3w=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=XvWZJy4NHh8YmWYB8PAjHxyx49VVepw96KB0QiUqOhGfsgQCMCMHass0aSITxUnDL
- zqONfHDu2Rh9xt9iydwQhFVQFV2qFsC/RsE5JCuhuJud+kSv43icaaSJ8WV36rNDBB
- u6w5SeXpFQp4y6w/sWCgjN4Amn6DM0dkE9NRG25pygwhWBIbKJ+rQZYP0KjhAUPYlp
- /tcnv+aGplz62JyEtRGuJDU53WmGky+Z5BbgHOcExhGOSdU4BzICJbSEzoAPfTf/zz
- l5OkSCqmE5EvKhJHjeDDzITvjfUFKYqW1jOkeGZ1mFnhR3yb6GfRtc3PWxATBmMJpt
- 2iaqc+kkiH6Bw==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Tue, 6 Apr 2021 22:49:44 +0200
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <20210406204944.GH2742@otheros>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161661540817.24400.14095983696664158789.git-patchwork-notify@kernel.org>
-Date: Wed, 24 Mar 2021 19:50:08 +0000
-References: <20210324150950.253698-1-colin.king@canonical.com>
-In-Reply-To: <20210324150950.253698-1-colin.king@canonical.com>
-Subject: Re: [Bridge] [PATCH][next] net: bridge: Fix missing return
- assignment from br_vlan_replay_one call
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Subject: [Bridge] IPv4/IPv6 separation in bridge code for multicast routers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,30 +14,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Colin King <colin.king@canonical.com>
-Cc: vladimir.oltean@nxp.com, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: bridge@lists.linux-foundation.org
+Cc: b.a.t.m.a.n@lists.open-mesh.org
 
-Hello:
+Hi,
 
-This patch was applied to netdev/net-next.git (refs/heads/master):
+I wanted to add the remaining pieces for batman-adv to support
+IPv4 multicast groups in bridged setups, next to the IPv6 support
+already in place. For which we'd need MRD support. So once more
+I'd tap into the bridge for this information from batman-adv.
 
-On Wed, 24 Mar 2021 15:09:50 +0000 you wrote:
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> The call to br_vlan_replay_one is returning an error return value but
-> this is not being assigned to err and the following check on err is
-> currently always false because err was initialized to zero. Fix this
-> by assigning err.
-> 
-> [...]
+Then I realized again that the bridge keeps track of the
+IGMP/MLD querier per protocol family but not for the multicast
+router ports. For the latter we only have one list right now. For
+batman-adv we have the multicast router flags and logic already
+separate though.
 
-Here is the summary with links:
-  - [next] net: bridge: Fix missing return assignment from br_vlan_replay_one call
-    https://git.kernel.org/netdev/net-next/c/ad248f7761eb
+I started separating the router list for IPv4 and IPv6 in the
+bridge, but it seems there are already external users for the
+protocol family unaware router list right now: netlink and switchdev.
+Now I'm wondering:
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+A) For netlink:
+
+Would it be fine to just add a MDBA_ROUTER_PATTR_FAMILY with
+either the value PF_INET or PF_INET6? The downside would be that
+a userspace application which does not know this new attribute
+yet would potentially see or list a duplicate.
+
+Another option would be to add two separate attributes:
+MDBA_ROUTER_PATTR_{INET,INET6}. Which looks a bit more clumsy and
+and inflexible to me. But would have a better compatiblity when
+userspace requests a router ports dump. For events there'd still
+be the same issue of duplicates though, as IPv4 and IPv6 routers
+might appear or disappear asynchronously.
+
+B) For switchdev:
+
+I'm not that familiar with switchdev. Should it generally be
+possible to separate the protocol family here? Or would it be
+better to add a few more lines to the bridge code to
+only call switchdev_port_attr_set() when transitioning between
+v4-rtr, v6-rtr: (off, off) <=> (on, on) | (on, off) | (off, on)?
+At least for a start, maybe?
+
+C)
+
+Or am I missing something in the MRD RFC (RFC4286) which implies
+that a Multicast router Advertisement should be interpreted
+across protocol families?
 
 
+Any ideas what might be the best way to tackle this?
+
+Regards, Linus
