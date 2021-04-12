@@ -1,10 +1,18 @@
-Return-Path: <3WdFnYAkbAKQWcdOEPPIVETTMH.KSSKPIYWIVGSRXIRX.GSQ@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
-MIME-Version: 1.0
-Date: Fri, 02 Apr 2021 19:22:17 -0700
-Message-ID: <00000000000028104905bf0822ce@google.com>
-From: syzbot <syzbot+b221933e5f9ad5b0e2fd@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: [Bridge] [syzbot] WARNING: suspicious RCU usage in find_inlist_lock
+Return-Path: <matthew.weber@rockwellcollins.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=rockwellcollins.com; s=hrcrc2020;
+ h=from:to:cc:subject:date:message-id;
+ bh=7LIvHoGH5BOpbn/7Pvv1gTxxp/EZlQ7PilgSRSf9hzM=;
+ b=aG7siru3l8o3/4+Up7xvvxoRqeXb+7HBIqrGZ4ia/Pl55skYUyQJMPKT
+ zv95opXSa1Upaj7xXLaRSJHwD+p6yfHu7WMCfTX/pRGtiUO458ni8gNAG
+ Fvli7jQV7F6hFmFjYVOOAl4VevO5zaujzWnsSs54j2TQpZxbR/GyjEjIi
+ EhsJOcuJNAreDsw72qrSa7gNTCON7wDzkAKRta58YRaJHY65fLmMpu3Qd
+ QkwPFs0/c08RtGBjyLYMRwGuhirc7VKh8g8ga9LjG6c1j5IezCvaVaSk0
+ 4qKajk/zTmYA2X0Bw6FACOYts+TXEQPUgtO7QxVGI9O0ylQeqTy7cmI42 Q==;
+From: Matt Weber <matthew.weber@rockwellcollins.com>
+Date: Mon, 12 Apr 2021 09:30:34 -0500
+Message-Id: <20210412143034.22415-1-matthew.weber@rockwellcollins.com>
+Subject: [Bridge] [PATCH] Include header for use of PATH_MAX
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -13,72 +21,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, fw@strlen.de, kadlec@netfilter.org, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, nikolay@nvidia.com, pablo@netfilter.org, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
+To: bridge@lists.linux-foundation.org
 
-Hello,
+Since a1f20223cfcf7b9eae8c9e7e7a07e7bf1377f65b in some build
+configurations PATH_MAX is undefined.
 
-syzbot found the following issue on:
+Build log from Buildroot testing failure:
+http://autobuild.buildroot.net/results/3ec818e676827c03f08c264c6c7a53b025b7ba1d/build-end.log
 
-HEAD commit:    1e43c377 Merge tag 'xtensa-20210329' of git://github.com/j..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=114cdd4ad00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=78ef1d159159890
-dashboard link: https://syzkaller.appspot.com/bug?extid=b221933e5f9ad5b0e2fd
+...
+/home/giuliobenetti/autobuild/run/instance-0/output-1/host/bin/arm-buildroot-linux-musleabihf-gcc -Wall -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -O2   -I/home/giuliobenetti/autobuild/run/instance-0/output-1/host/arm-buildroot-linux-musleabihf/sysroot/usr/include  -c libbridge_misc.c
+libbridge_init.c: In function 'isbridge':
+libbridge_init.c:49:12: error: 'PATH_MAX' undeclared (first use in this function); did you mean 'AF_MAX'?
+   49 |  char path[PATH_MAX];
+      |            ^~~~~~~~
+      |            AF_MAX
+libbridge_init.c:49:12: note: each undeclared identifier is reported only once for each function it appears in
+libbridge_init.c:49:7: warning: unused variable 'path' [-Wunused-variable]
+   49 |  char path[PATH_MAX];
+      |       ^~~~
+make[2]: *** [Makefile:37: libbridge_init.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+libbridge_devif.c: In function 'fpopen':
+libbridge_devif.c:33:12: error: 'PATH_MAX' undeclared (first use in this function); did you mean 'AF_MAX'?
+   33 |  char path[PATH_MAX];
+      |            ^~~~~~~~
+      |            AF_MAX
 
-Unfortunately, I don't have any reproducer for this issue yet.
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+b221933e5f9ad5b0e2fd@syzkaller.appspotmail.com
-
-=============================
-WARNING: suspicious RCU usage
-5.12.0-rc5-syzkaller #0 Not tainted
------------------------------
-kernel/sched/core.c:8294 Illegal context switch in RCU-sched read-side critical section!
-
-other info that might help us debug this:
-
-
-rcu_scheduler_active = 2, debug_locks = 0
-no locks held by syz-executor.1/8425.
-
-stack backtrace:
-CPU: 1 PID: 8425 Comm: syz-executor.1 Not tainted 5.12.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- ___might_sleep+0x266/0x2c0 kernel/sched/core.c:8294
- __mutex_lock_common kernel/locking/mutex.c:928 [inline]
- __mutex_lock+0xa9/0x1120 kernel/locking/mutex.c:1096
- find_inlist_lock_noload net/bridge/netfilter/ebtables.c:316 [inline]
- find_inlist_lock.constprop.0+0x26/0x220 net/bridge/netfilter/ebtables.c:330
- find_table_lock net/bridge/netfilter/ebtables.c:339 [inline]
- do_ebt_get_ctl+0x208/0x790 net/bridge/netfilter/ebtables.c:2329
- nf_getsockopt+0x72/0xd0 net/netfilter/nf_sockopt.c:116
- ip_getsockopt net/ipv4/ip_sockglue.c:1777 [inline]
- ip_getsockopt+0x164/0x1c0 net/ipv4/ip_sockglue.c:1756
- tcp_getsockopt+0x86/0xd0 net/ipv4/tcp.c:4239
- __sys_getsockopt+0x21f/0x5f0 net/socket.c:2161
- __do_sys_getsockopt net/socket.c:2176 [inline]
- __se_sys_getsockopt net/socket.c:2173 [inline]
- __x64_sys_getsockopt+0xba/0x150 net/socket.c:2173
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x467a6a
-Code: 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 37 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe660d82f8 EFLAGS: 00000202 ORIG_RAX: 0000000000000037
-RAX: ffffffffffffffda RBX: 00000000005401a0 RCX: 0000000000467a6a
-RDX: 0000000000000081 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 00007ffe660d831c R09: 00007ffe660d83a0
-R10: 00007ffe660d8320 R11: 0000000000000202 R12: 0000000000000003
-R13: 00007ffe660d8320 R14: 0000000000540128 R15: 00007ffe660d831c
-
-
+Signed-off-by: Matthew Weber <matthew.weber@rockwellcollins.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ libbridge/libbridge_devif.c | 1 +
+ libbridge/libbridge_init.c  | 1 +
+ 2 files changed, 2 insertions(+)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/libbridge/libbridge_devif.c b/libbridge/libbridge_devif.c
+index 8b7d954..95f7769 100644
+--- a/libbridge/libbridge_devif.c
++++ b/libbridge/libbridge_devif.c
+@@ -24,6 +24,7 @@
+ #include <string.h>
+ #include <dirent.h>
+ #include <fcntl.h>
++#include <linux/limits.h>
+ 
+ #include "libbridge.h"
+ #include "libbridge_private.h"
+diff --git a/libbridge/libbridge_init.c b/libbridge/libbridge_init.c
+index c914971..645dda6 100644
+--- a/libbridge/libbridge_init.c
++++ b/libbridge/libbridge_init.c
+@@ -24,6 +24,7 @@
+ #include <dirent.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#include <linux/limits.h>
+ 
+ #include "libbridge.h"
+ #include "libbridge_private.h"
+-- 
+2.17.1
+
