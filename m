@@ -1,26 +1,18 @@
-Return-Path: <olteanv@gmail.com>
+Return-Path: <ap420073@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=6HryAfYx3/zRXSaYfBE41paZ2g8+TvoZJzNvgMqI3p0=;
- b=samMgfVtK07V7kktgrg6kYx5HKlNUtfR+kqEs4e832tnWwHxUpdT1WUviBRKrk5Sc0
- P5VCd4DirH9sZlY49wNWi2YmzfYatnXc4deNz92XfvhebmAMxv/JUhgNmTPewmDwDr+P
- 7bIOudiJqvMV5aYSi0wET0rr4d7OfFBG0bDVkyR4lfItpXXJMkdEE1kAwYorh/gNPlGz
- G3qS1JHwbJEMTySYXm+LFmDxgY9ZUs/N9bDg0JoaGmGKIt5Ta4Jx9nRUngo2u++hap9i
- y9vuN6P/S0guspjhiUuNZBuvUt5+PpTwrTYd0WSxcmX4zQ0CuckqlBHLWmP4SHZRI1+p
- iLUg==
-Date: Mon, 26 Apr 2021 23:28:00 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20210426202800.y4hfurf5k3hrbvqf@skbuf>
-References: <20210426170411.1789186-1-tobias@waldekranz.com>
- <20210426170411.1789186-6-tobias@waldekranz.com>
- <20210426194026.3sr22rqyf2srrwtq@skbuf>
- <877dkoq09r.fsf@waldekranz.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877dkoq09r.fsf@waldekranz.com>
-Subject: Re: [Bridge] [RFC net-next 5/9] net: dsa: Track port PVIDs
+ h=from:to:cc:subject:date:message-id;
+ bh=RNOs0gippc48oI1ljVSqLonFCd5o2axGJZBKtTvPhSc=;
+ b=bvDRD6V45T+aam+5saAJ+SuWVFHrBil11q/s2FR4D5/4KC+7XdTT9ycg0X2YAHX77x
+ 255DPBeqEZuFzM0uaLq3X/uudpcGTOpcag1WF1LE0KBjimAXli0Chwr+5SxiwJxXSWmk
+ ifi7wN4XZIK0F8kuzbGk4n1chL7sp7ULLZ50Wgk6mPLwu1q9Q5br9lTOG+Tq4gPgGy+L
+ O4WmOgbGYMUw0BY00uRQicDWPxcXLdXk/h3MEGSPiiuUv0LwJZAfmh9PI7nkBmxD8TMD
+ z7odcj7Z3zUlSdgaqnDDy0s/eCkooLVLPB7FhlUqp6ucedOaQwOlEUfY1Coada/V+Qyn
+ Tngw==
+From: Taehee Yoo <ap420073@gmail.com>
+Date: Sun, 25 Apr 2021 15:52:05 +0000
+Message-Id: <20210425155207.29888-1-ap420073@gmail.com>
+Subject: [Bridge] [PATCH net 0/2] Subject: [PATCH net 0/2] net: fix lockdep
+	false positive splat
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,64 +21,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: davem@davemloft.net, kuba@kernel.org, dsahern@kernel.org, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, j.vosburgh@gmail.com, vfalico@gmail.com, andy@greyhouse.net, roopa@nvidia.com, nikolay@nvidia.com, ast@kernel.org, andriin@fb.com, daniel@iogearbox.net, weiwan@google.com, cong.wang@bytedance.com, bjorn@kernel.org, herbert@gondor.apana.org.au, bridge@lists.linux-foundation.org
+Cc: ap420073@gmail.com
 
-On Mon, Apr 26, 2021 at 10:05:52PM +0200, Tobias Waldekranz wrote:
-> On Mon, Apr 26, 2021 at 22:40, Vladimir Oltean <olteanv@gmail.com> wrote:
-> > Hi Tobias,
-> >
-> > On Mon, Apr 26, 2021 at 07:04:07PM +0200, Tobias Waldekranz wrote:
-> >> In some scenarios a tagger must know which VLAN to assign to a packet,
-> >> even if the packet is set to egress untagged. Since the VLAN
-> >> information in the skb will be removed by the bridge in this case,
-> >> track each port's PVID such that the VID of an outgoing frame can
-> >> always be determined.
-> >> 
-> >> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-> >> ---
-> >
-> > Let me give you this real-life example:
-> >
-> > #!/bin/bash
-> >
-> > ip link add br0 type bridge vlan_filtering 1
-> > for eth in eth0 eth1 swp2 swp3 swp4 swp5; do
-> > 	ip link set $eth up
-> > 	ip link set $eth master br0
-> > done
-> > ip link set br0 up
-> >
-> > bridge vlan add dev eth0 vid 100 pvid untagged
-> > bridge vlan del dev swp2 vid 1
-> > bridge vlan del dev swp3 vid 1
-> > bridge vlan add dev swp2 vid 100
-> > bridge vlan add dev swp3 vid 100 untagged
-> >
-> > reproducible on the NXP LS1021A-TSN board.
-> > The bridge receives an untagged packet on eth0 and floods it.
-> > It should reach swp2 and swp3, and be tagged on swp2, and untagged on
-> > swp3 respectively.
-> >
-> > With your idea of sending untagged frames towards the port's pvid,
-> > wouldn't we be leaking this packet to VLAN 1, therefore towards ports
-> > swp4 and swp5, and the real destination ports would not get this packet?
-> 
-> I am not sure I follow. The bridge would never send the packet to
-> swp{4,5} because should_deliver() rejects them (as usual). So it could
-> only be sent either to swp2 or swp3. In the case that swp3 is first in
-> the bridge's port list, it would be sent untagged, but the PVID would be
-> 100 and the flooding would thus be limited to swp{2,3}.
+This patchset is to fix lockdep false positive splat in multicast part of
+the bridge.
 
-Sorry, _I_ don't understand.
+When mdb or multicast config is changed, it acquires multicast_lock,
+which is a per-interface(bridge) lock.
+So, spin_lock_nested() should be used instead of spin_lock() because
+interfaces can be recursive.
+The spin_lock_nested() needs 'subclass' parameter.
 
-When you say that the PVID is 100, whose PVID is it, exactly? Is it the
-pvid of the source port (aka eth0 in this example)? That's not what I
-see, I see the pvid of the egress port (the Marvell device)...
+The first patch adds a new helper function, which returns the nest_level
+variable under RCU. The nest_level variable can be used as 'subclass'
+parameter of spin_lock_nested().
+The second patch fix lockdep false positive splat in the bridge multicast
+part by using netdev_get_nest_level_rcu().
 
-So to reiterate: when you transmit a packet towards your hardware switch
-which has br0 inside the sb_dev, how does the switch know in which VLAN
-to forward that packet? As far as I am aware, when the bridge had
-received the packet as untagged on eth0, it did not insert VLAN 100 into
-the skb itself, so the bridge VLAN information is lost when delivering
-the frame to the egress net device. Am I wrong?
+Taehee Yoo (2):
+  net: core: make bond_get_lowest_level_rcu() generic
+  net: bridge: fix lockdep multicast_lock false positive splat
+
+ drivers/net/bonding/bond_main.c |  45 +---------
+ include/linux/netdevice.h       |   1 +
+ net/bridge/br_mdb.c             |  12 +--
+ net/bridge/br_multicast.c       | 146 ++++++++++++++++++++------------
+ net/bridge/br_multicast_eht.c   |  18 ++--
+ net/bridge/br_private.h         |  48 +++++++++++
+ net/core/dev.c                  |  44 ++++++++++
+ 7 files changed, 204 insertions(+), 110 deletions(-)
+
+-- 
+2.17.1
+
