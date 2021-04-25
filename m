@@ -1,12 +1,21 @@
-Return-Path: <linus.luessing@c0d3.blue>
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Sun, 25 Apr 2021 18:00:48 +0200
-Message-Id: <20210425160050.8732-1-linus.luessing@c0d3.blue>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=YEkoeTyegjO1k7XOGHDcE5f8uOI/emx6l/0U6mSNdOM=;
+ b=Ux+JF9biQFDKB25CT9H6kTMylUZ2/+nhTstXvlezTPkXdPCooCDpsk81TlaeyJobjQWcLkkz8hcGd4ZeBlLbEei6PeNSZA1DmyGo2kUJSsZSrSjbIgMNkPmhYMNX5NH0Yuom31PMOxIo4Prl4rjJVl8Qz6BK+wwQA8VutBUZFkDv/sHd7M9Z8lCEjGYhzDPaKdXZX/ReR3F03lNc6Exqlerx2GCkx8x01np+tkDrmmU8uziZ1o/C38R130DwYxdoaEN9Y89gKrBz9bM6L7VQQJrdZ8i8EUv5Opt70vvTWbi4z9u2+VejfP8kkBX/xW001tbUBuZnveY5ATWfivwJKw==
+References: <20210425155742.30057-1-ap420073@gmail.com>
+ <20210425155742.30057-3-ap420073@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <ed54816f-2591-d8a7-61d8-63b7f49852c1@nvidia.com>
+Date: Sun, 25 Apr 2021 19:45:27 +0300
+In-Reply-To: <20210425155742.30057-3-ap420073@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 0/2] net: bridge: split IPv4/v6 mc router
-	state and export for batman-adv
+Subject: Re: [Bridge] [PATCH net 2/2] net: bridge: fix lockdep
+ multicast_lock false positive splat
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,34 +24,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>
+To: Taehee Yoo <ap420073@gmail.com>, davem@davemloft.net, kuba@kernel.org, dsahern@kernel.org, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, j.vosburgh@gmail.com, vfalico@gmail.com, andy@greyhouse.net, roopa@nvidia.com, ast@kernel.org, andriin@fb.com, daniel@iogearbox.net, weiwan@google.com, cong.wang@bytedance.com, bjorn@kernel.org, herbert@gondor.apana.org.au, bridge@lists.linux-foundation.org
 
-Hi,
+On 25/04/2021 18:57, Taehee Yoo wrote:
+> multicast_lock is a per-interface(bridge) lock.
+> This lock can be used recursively because interfaces can be used
+> recursively. So, it should use spin_lock_nested() but it doesn't.
+> So lockdep false positive splat occurred.
+> 
+> Some inline helper functions are added.
+> These functions internally get 'subclass' variable, which is used as
+> parameter of spin_lock_nested() and use spin_lock_nested() with a
+> subclass parameter.
+> 
+> Test commands:
+>     ip link add br0 type bridge
+>     ip link add bond0 type bond
+>     ip link add br1 type bridge
+>     ip link set br0 master bond0
+>     ip link set bond0 up
+>     ip link set bond0 master br1
+>     ip link set br0 up
+>     ip link set br1 up
+>     ip link set br0 type bridge mcast_router 1 mcast_querier 1
+>     ip link set br1 type bridge mcast_querier 1 mcast_router 1
+> 
+> Splat looks like:
+> ============================================
+> WARNING: possible recursive locking detected
+> 5.12.0-rc7+ #855 Not tainted
+> --------------------------------------------
+> kworker/5:1/56 is trying to acquire lock:
+> ffff88810f833000 (&br->multicast_lock){+.-.}-{2:2}, at:
+> br_multicast_rcv+0x1484/0x5280 [bridge]
+> 
+[snip]
+> 
+> Fixes: eb1d16414339 ("bridge: Add core IGMP snooping support")
+> Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+> ---
+> 
+> v2:
+>  - No change
+> 
+>  net/bridge/br_mdb.c           |  12 +--
+>  net/bridge/br_multicast.c     | 146 +++++++++++++++++++++-------------
+>  net/bridge/br_multicast_eht.c |  18 +++--
+>  net/bridge/br_private.h       |  48 +++++++++++
+>  4 files changed, 158 insertions(+), 66 deletions(-)
+> 
 
-The following are two patches for the Linux bridge regarding multicast
-routers. They are rebased on top of the following fix:
-"net: bridge: mcast: fix broken length + header check for MRDv6 Adv." [0]
-And should be applied afterwards.
+Hi Taehee,
+Ugh.. that's just very ugly. :) The setup you've described above is by all means invalid, but
+possible unfortunately. The bridge already checks if it's being added as a port to another
+bridge, but not through multiple levels of indirection. These locks are completely unrelated
+as they're in very different contexts (different devices).
 
-The first one splits the so far combined multicast router state into two
-ones, one for IPv4 and one for IPv6, for a more fine-grained detection of
-multicast routers. This avoids sending IPv4 multicast packets to an
-IPv6-only multicast router and avoids sending IPv6 multicast packets to
-an IPv4-only multicast router. This is also in preparation for the
-second patch:
+At the very least please push the rcu_read_lock() calls in br_multicast_lock_rcu/_bh() 
+as they're needed only to get the nest level for netdev_get_nest_level_rcu(), we don't need
+them for the whole code paths (right ?), we could save a few lines in the process and
+avoid confusion about the locking rules for those code paths.
 
-The second patch exports this now per protocol family multicast router
-state so that batman-adv can then later make full use of the
-Multicast Router Discovery (MRD) support in the Linux bridge. The
-batman-adv protocol format currently expects separate multicast router
-states for IPv4 and IPv6, therefore it depends on the first patch.
-batman-adv will then make use of this newly exported functions like
-this[1].
+I wish there was a better solution.
 
-Regards, Linus
-
-[0]: https://patchwork.kernel.org/project/netdevbpf/patch/20210425152736.8421-1-linus.luessing@c0d3.blue/
-[1]: https://git.open-mesh.org/batman-adv.git/shortlog/refs/heads/linus/multicast-routeable-mrd
-     -> https://git.open-mesh.org/batman-adv.git/commit/d4bed3a92427445708baeb1f2d1841c5fb816fd4
+Thanks,
+ Nik
 
