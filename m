@@ -1,25 +1,24 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JAyIvH6kpfBCfm7Rp6bKOWHb7tzs1amp6FWoqm48lZQ=;
- b=aHTjqgyQ7FJFT/RKoMfaeoO3ywCLgGhGjh9G3Tnwy84jOUQzoSEMPlSfbnFOEQ0PLH5CW/3vNjT0JSrFyAugK+QB5oMqr+NqP8oMARIiG+vfua0EyBbM/H7L7o6K9Hw+3tSg31lmyKBRzsjPwE7pDXl96VZZp8/D5YUCikJ9n4ruCtcYWFqpghPlwOh8oxYWf1ZUJTAzlAU7/kTR8K0kb2+0Dwr7HIoJjgSKIAIq/BUA4PC6I0u1q+t4T8XwvxSlWkrVi8V0Q2OhrUyvB9+S//A+d7AfI5dGscemp1RATOMUsUiUky0xfX0Y9+keenwpMKGGbhmRUeSiCJxrk2yTyQ==
-References: <20210425155742.30057-1-ap420073@gmail.com>
- <20210425155742.30057-3-ap420073@gmail.com>
- <ed54816f-2591-d8a7-61d8-63b7f49852c1@nvidia.com>
- <20210426124806.4zqhtn4wewair4ua@gondor.apana.org.au>
- <1e8cda49-4bc3-6f0b-29f3-97848aab18f0@nvidia.com>
- <68b18d15-d472-3305-4f91-5e61f8b60488@gmail.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <a1c51f0a-314b-fecb-7ba7-cd10f3a53a53@nvidia.com>
-Date: Mon, 26 Apr 2021 18:39:19 +0300
-In-Reply-To: <68b18d15-d472-3305-4f91-5e61f8b60488@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <olteanv@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=Is2SDw8WeN8XVXoywR6GIkJzDlR3VcflqryG4qw9d8I=;
+ b=ueRq8J2oOg2cDQawuLIidmcLpsWVOn320XQbHevQDQFX1pqUMprNUFGbR23FVS3nTE
+ Uc4qQs2befSyroRSuplHhB0omOiXVJCP1fvYP3UaoyaijKoG7KYyLRyaGdvzALeELsZK
+ GfTbZnHlX8cgz3L9NpiaFj0cJmzb7zeWSfA331y50C6TPL401IUVkivlNKAloSjkAvxd
+ zhU1D6vM9q5MQ/1JzQ0+2HVlenqXYpZCflgkCeda7NOqkyaprjlQJL/O/YrYeUteHMKr
+ 0jI6+q1Uq+ZQAQgeDj+ER/xsnHtcnTEAiddGXRpldDhA27/dOoQ6eKh2Wu/xE7Uh/WhR
+ L+2A==
+Date: Mon, 26 Apr 2021 22:40:26 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20210426194026.3sr22rqyf2srrwtq@skbuf>
+References: <20210426170411.1789186-1-tobias@waldekranz.com>
+ <20210426170411.1789186-6-tobias@waldekranz.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net 2/2] net: bridge: fix lockdep
- multicast_lock false positive splat
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210426170411.1789186-6-tobias@waldekranz.com>
+Subject: Re: [Bridge] [RFC net-next 5/9] net: dsa: Track port PVIDs
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,42 +27,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Taehee Yoo <ap420073@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: bridge@lists.linux-foundation.org, cong.wang@bytedance.com, daniel@iogearbox.net, yoshfuji@linux-ipv6.org, j.vosburgh@gmail.com, dsahern@kernel.org, roopa@nvidia.com, ast@kernel.org, bjorn@kernel.org, vfalico@gmail.com, netdev@vger.kernel.org, kuba@kernel.org, weiwan@google.com, andriin@fb.com, davem@davemloft.net
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On 26/04/2021 18:17, Taehee Yoo wrote:
-> On 4/26/21 10:15 PM, Nikolay Aleksandrov wrote:
->> On 26/04/2021 15:48, Herbert Xu wrote:
+Hi Tobias,
+
+On Mon, Apr 26, 2021 at 07:04:07PM +0200, Tobias Waldekranz wrote:
+> In some scenarios a tagger must know which VLAN to assign to a packet,
+> even if the packet is set to egress untagged. Since the VLAN
+> information in the skb will be removed by the bridge in this case,
+> track each port's PVID such that the VID of an outgoing frame can
+> always be determined.
 > 
-> Hi Nikolay and Herbert,
-> Thank you for the reviews!
-> 
->>> On Sun, Apr 25, 2021 at 07:45:27PM +0300, Nikolay Aleksandrov wrote:
->>>>
->>>> Ugh.. that's just very ugly. :) The setup you've described above is by all means invalid, but
->>>> possible unfortunately. The bridge already checks if it's being added as a port to another
->>>> bridge, but not through multiple levels of indirection. These locks are completely unrelated
->>>> as they're in very different contexts (different devices).
->>>
->>> Surely we should forbid this? Otherwise what's to stop someone
->>> from creating a loop?
->>>
->>> Cheers,
->>>
->>
->> Indeed that would be best, it's very easy to loop them.
->>
-> 
-> We can make very various interface graphs with master/slave interface types.
-> So, if we need something to forbid it, I think it should be generic code, not only for the bridge module.
+> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+> ---
 
-Forbidding bridge nesting would be the correct fix. I'm surprised this is the
-only lock you've seen a splat about, I'd like to avoid littering the code with
-these custom lock helpers when it's correct. Moreover stacking most interfaces
-is fine even if it doesn't make any sense, but in this case (there probably are
-others too) we have to forbid it because looping 2 bridges is obviously bad.
+Let me give you this real-life example:
 
-Cheers,
- Nik
+#!/bin/bash
 
+ip link add br0 type bridge vlan_filtering 1
+for eth in eth0 eth1 swp2 swp3 swp4 swp5; do
+	ip link set $eth up
+	ip link set $eth master br0
+done
+ip link set br0 up
 
+bridge vlan add dev eth0 vid 100 pvid untagged
+bridge vlan del dev swp2 vid 1
+bridge vlan del dev swp3 vid 1
+bridge vlan add dev swp2 vid 100
+bridge vlan add dev swp3 vid 100 untagged
+
+reproducible on the NXP LS1021A-TSN board.
+The bridge receives an untagged packet on eth0 and floods it.
+It should reach swp2 and swp3, and be tagged on swp2, and untagged on
+swp3 respectively.
+
+With your idea of sending untagged frames towards the port's pvid,
+wouldn't we be leaking this packet to VLAN 1, therefore towards ports
+swp4 and swp5, and the real destination ports would not get this packet?
