@@ -1,24 +1,21 @@
 Return-Path: <tobias@waldekranz.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=waldekranz-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:organization:content-transfer-encoding;
- bh=9e8JRkG41zW/5KdiIxv2KB6MG/HZU7gsqYrz+vYOpJM=;
- b=HjoP7SFxBGd9DCxY6qTHb1EN6VrJ69lc1OJYEGtW/i50YnmGqpunHIhuv0lP131Zl6
- ASYDIPoJaspQR0Pm4YxugNQ9106oYo2MfrZpOQLqvbtuZmtbK4cReZBVDQ8yblBwpXoZ
- 9KzoY9thc7onAqtVGBlaqGGFP1YnrZpEqF986de+U7liBMf3HEhQL60Bs3DRMZFeYhAl
- Vjs6G1L4sHcidEFUjhAtiaYtmPD1cykij0g4XDBWCENVMjAJJ+ZroXGKVrDIF5GuSzgi
- 2SPhsOmwZvhVC8gdQAp5ZxfONiy2Mcm5nwMe9/YV3gqnteCUa58FN7cxNU8MktBBe48a
- yJ4w==
+ h=from:to:cc:subject:date:message-id:mime-version:organization
+ :content-transfer-encoding;
+ bh=Jr2O6QSEtOHevsAE5YFTt/YIC0swEXg9oy1TkL8tb2c=;
+ b=hZ4E5qrh/uXKwSwpGYAAoXNvtrcOSEQkNHGC5DdEFD1Cz5iepVBfYUgYKfqrKGPHqm
+ V7/JfUN/5tFPvbSRI74rerPVudta4hAARuAp//M1Qv3SelDmpesJKyD01s6cxfxZL73S
+ 8ppoxafEiXyXTHXreytYwcKpCI2hf2Wsi7m/jIQbiPJGGA1b1pev1seooNytxsT1dTmO
+ 4/PEgLAMEfpgCTfPdhhtbzlcD4NAJpUd1a3H2C7A5uVk7SY4UCMwm8C/h77yfiacZNYW
+ JQAOxMfoxiB9RxNQAMIdnCwa70IRb8e2EQmf3i7eG7jEpw2qIRI97Qk1f+u3idEn90is
+ MxtQ==
 From: Tobias Waldekranz <tobias@waldekranz.com>
-Date: Mon, 26 Apr 2021 19:04:05 +0200
-Message-Id: <20210426170411.1789186-4-tobias@waldekranz.com>
-In-Reply-To: <20210426170411.1789186-1-tobias@waldekranz.com>
-References: <20210426170411.1789186-1-tobias@waldekranz.com>
+Date: Mon, 26 Apr 2021 19:04:02 +0200
+Message-Id: <20210426170411.1789186-1-tobias@waldekranz.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC net-next 3/9] net: bridge: switchdev: Recycle unused
-	hwdoms
+Subject: [Bridge] [RFC net-next 0/9] net: bridge: Forward offloading
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,245 +27,171 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org
 Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, olteanv@gmail.com, vivien.didelot@gmail.com
 
-Since hwdoms has thus far only been used for equality comparisons, the
-bridge has used the simplest possible assignment policy; using a
-counter to keep track of the last value handed out.
+## Overview
 
-With the upcoming transmit offloading, we need to perform set
-operations efficiently based on hwdoms, e.g. we want to answer
-questions like "has this skb been forwarded to any port within this
-hwdom?"
+   vlan1   vlan2
+       \   /
+   .-----------.
+   |    br0    |
+   '-----------'
+   /   /   \   \
+swp0 swp1 swp2 eth0
+  :   :   :
+  (hwdom 1)
 
-Move to a bitmap-based allocation scheme that recycles hwdoms once all
-members leaves the bridge. This means that we can use a single
-unsigned long to keep track of the hwdoms that have received an skb.
+Up to this point, switchdevs have been trusted with offloading
+forwarding between bridge ports, e.g. forwarding a unicast from swp0
+to swp1 or flooding a broadcast from swp2 to swp1 and swp0. This
+series extends forward offloading to include some new classes of
+traffic:
 
-Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
----
- net/bridge/br_if.c        |  4 +-
- net/bridge/br_private.h   | 29 +++++++++---
- net/bridge/br_switchdev.c | 94 ++++++++++++++++++++++++++-------------
- 3 files changed, 87 insertions(+), 40 deletions(-)
+- Locally originating flows, i.e. packets that ingress on br0 that are
+  to be forwarded to one or several of the ports swp{0,1,2}. Notably
+  this also includes routed flows, e.g. a packet ingressing swp0 on
+  VLAN 1 which is then routed over to VLAN 2 by the CPU and then
+  forwarded to swp1 is "locally originating" from br0's point of view.
 
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 73fa703f8df5..adaf78e45c23 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -349,6 +349,7 @@ static void del_nbp(struct net_bridge_port *p)
- 	nbp_backup_clear(p);
- 
- 	nbp_update_port_count(br);
-+	nbp_switchdev_del(p);
- 
- 	netdev_upper_dev_unlink(dev, br->dev);
- 
-@@ -643,7 +644,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	if (err)
- 		goto err5;
- 
--	err = nbp_switchdev_hwdom_set(p);
-+	err = nbp_switchdev_add(p);
- 	if (err)
- 		goto err6;
- 
-@@ -704,6 +705,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	list_del_rcu(&p->list);
- 	br_fdb_delete_by_port(br, p, 0, 1);
- 	nbp_update_port_count(br);
-+	nbp_switchdev_del(p);
- err6:
- 	netdev_upper_dev_unlink(dev, br->dev);
- err5:
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 53248715f631..aba92864d285 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -29,6 +29,8 @@
- 
- #define BR_MULTICAST_DEFAULT_HASH_MAX 4096
- 
-+#define BR_HWDOM_MAX BITS_PER_LONG
-+
- #define BR_VERSION	"2.3"
- 
- /* Control of forwarding link local multicast */
-@@ -54,6 +56,8 @@ typedef struct bridge_id bridge_id;
- typedef struct mac_addr mac_addr;
- typedef __u16 port_id;
- 
-+typedef DECLARE_BITMAP(br_hwdom_map_t, BR_HWDOM_MAX);
-+
- struct bridge_id {
- 	unsigned char	prio[2];
- 	unsigned char	addr[ETH_ALEN];
-@@ -472,7 +476,7 @@ struct net_bridge {
- 	u32				auto_cnt;
- 
- #ifdef CONFIG_NET_SWITCHDEV
--	int last_hwdom;
-+	br_hwdom_map_t			busy_hwdoms;
- #endif
- 	struct hlist_head		fdb_list;
- 
-@@ -1593,7 +1597,6 @@ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
- 
- /* br_switchdev.c */
- #ifdef CONFIG_NET_SWITCHDEV
--int nbp_switchdev_hwdom_set(struct net_bridge_port *p);
- void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
- 			      struct sk_buff *skb);
- bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
-@@ -1607,17 +1610,15 @@ void br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb,
- int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags,
- 			       struct netlink_ext_ack *extack);
- int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid);
-+int nbp_switchdev_add(struct net_bridge_port *p);
-+void nbp_switchdev_del(struct net_bridge_port *p);
-+void br_switchdev_init(struct net_bridge *br);
- 
- static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
- {
- 	skb->offload_fwd_mark = 0;
- }
- #else
--static inline int nbp_switchdev_hwdom_set(struct net_bridge_port *p)
--{
--	return 0;
--}
--
- static inline void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
- 					    struct sk_buff *skb)
- {
-@@ -1657,6 +1658,20 @@ br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb, int type)
- static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
- {
- }
-+
-+static inline int nbp_switchdev_add(struct net_bridge_port *p)
-+{
-+	return 0;
-+}
-+
-+static inline void nbp_switchdev_del(struct net_bridge_port *p)
-+{
-+}
-+
-+static inline void br_switchdev_init(struct net_bridge *br)
-+{
-+}
-+
- #endif /* CONFIG_NET_SWITCHDEV */
- 
- /* br_arp_nd_proxy.c */
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index bc085077ae71..54bd7205bfb5 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -8,38 +8,6 @@
- 
- #include "br_private.h"
- 
--static int br_switchdev_hwdom_get(struct net_bridge *br, struct net_device *dev)
--{
--	struct net_bridge_port *p;
--
--	/* dev is yet to be added to the port list. */
--	list_for_each_entry(p, &br->port_list, list) {
--		if (netdev_port_same_parent_id(dev, p->dev))
--			return p->hwdom;
--	}
--
--	return ++br->last_hwdom;
--}
--
--int nbp_switchdev_hwdom_set(struct net_bridge_port *p)
--{
--	struct netdev_phys_item_id ppid = { };
--	int err;
--
--	ASSERT_RTNL();
--
--	err = dev_get_port_parent_id(p->dev, &ppid, true);
--	if (err) {
--		if (err == -EOPNOTSUPP)
--			return 0;
--		return err;
--	}
--
--	p->hwdom = br_switchdev_hwdom_get(p->br, p->dev);
--
--	return 0;
--}
--
- void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
- 			      struct sk_buff *skb)
- {
-@@ -156,3 +124,65 @@ int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
- 
- 	return switchdev_port_obj_del(dev, &v.obj);
- }
-+
-+static int nbp_switchdev_hwdom_set(struct net_bridge_port *joining)
-+{
-+	struct net_bridge *br = joining->br;
-+	struct net_bridge_port *p;
-+	int hwdom;
-+
-+	/* joining is yet to be added to the port list. */
-+	list_for_each_entry(p, &br->port_list, list) {
-+		if (netdev_port_same_parent_id(joining->dev, p->dev)) {
-+			joining->hwdom = p->hwdom;
-+			return 0;
-+		}
-+	}
-+
-+	hwdom = find_next_zero_bit(br->busy_hwdoms, BR_HWDOM_MAX, 1);
-+	if (hwdom >= BR_HWDOM_MAX)
-+		return -EBUSY;
-+
-+	set_bit(hwdom, br->busy_hwdoms);
-+	joining->hwdom = hwdom;
-+	return 0;
-+}
-+
-+static void nbp_switchdev_hwdom_put(struct net_bridge_port *leaving)
-+{
-+	struct net_bridge *br = leaving->br;
-+	struct net_bridge_port *p;
-+
-+	/* leaving is no longer in the port list. */
-+	list_for_each_entry(p, &br->port_list, list) {
-+		if (p->hwdom == leaving->hwdom)
-+			return;
-+	}
-+
-+	clear_bit(leaving->hwdom, br->busy_hwdoms);
-+}
-+
-+int nbp_switchdev_add(struct net_bridge_port *p)
-+{
-+	struct netdev_phys_item_id ppid = { };
-+	int err;
-+
-+	ASSERT_RTNL();
-+
-+	err = dev_get_port_parent_id(p->dev, &ppid, true);
-+	if (err) {
-+		if (err == -EOPNOTSUPP)
-+			return 0;
-+		return err;
-+	}
-+
-+	return nbp_switchdev_hwdom_set(p);
-+}
-+
-+void nbp_switchdev_del(struct net_bridge_port *p)
-+{
-+	ASSERT_RTNL();
-+
-+	if (p->hwdom)
-+		nbp_switchdev_hwdom_put(p);
-+}
+- Flows originating from "foreign" interfaces, i.e. an interface that
+  is not offloaded by a particular switchdev instance. This includes
+  ports belonging to other switchdev instances. A typical example
+  would be flows from eth0 towards swp{0,1,2}.
+
+The bridge still looks up its FDB/MDB as usual and then notifies the
+switchdev driver that a particular skb should be offloaded if it
+matches one of the classes above. It does so by using the _accel
+version of dev_queue_xmit, supplying its own netdev as the
+"subordinate" device. The driver can react to the presence of the
+subordinate in its .ndo_select_queue in what ever way it needs to make
+sure to forward the skb in much the same way that it would for packets
+ingressing on regular ports.
+
+Hardware domains to which a particular skb has been forwarded are
+recorded so that duplicates are avoided.
+
+The main performance benefit is thus seen on multicast flows. Imagine
+for example that:
+
+- An IP camera is connected to swp0 (VLAN 1)
+
+- The CPU is acting as a multicast router, routing the group from VLAN
+  1 to VLAN 2.
+
+- There are subscribers for the group in question behind both swp1 and
+  swp2 (VLAN 2).
+
+With this offloading in place, the bridge need only send a single skb
+to the driver, which will send it to the hardware marked in such a way
+that the switch will perform the multicast replication according to
+the MDB configuration. Naturally, the number of saved skb_clones
+increase linearly with the number of subscribed ports.
+
+As an extra benefit, on mv88e6xxx, this also allows the switch to
+perform source address learning on these flows, which avoids having to
+sync dynamic FDB entries over slow configuration interfaces like MDIO
+to avoid flows directed towards the CPU being flooded as unknown
+unicast by the switch.
+
+
+## RFC
+
+- In general, what do you think about this idea?
+
+- hwdom. What do you think about this terminology? Personally I feel
+  that we had too many things called offload_fwd_mark, and that as the
+  use of the bridge internal ID (nbp->offload_fwd_mark) expands, it
+  might be useful to have a separate term for it.
+
+- .dfwd_{add,del}_station. Am I stretching this abstraction too far,
+  and if so do you have any suggestion/preference on how to signal the
+  offloading from the bridge down to the switchdev driver?
+
+- The way that flooding is implemented in br_forward.c (lazily cloning
+  skbs) means that you have to mark the forwarding as completed very
+  early (right after should_deliver in maybe_deliver) in order to
+  avoid duplicates. Is there some way to move this decision point to a
+  later stage that I am missing?
+
+- BR_MULTICAST_TO_UNICAST. Right now, I expect that this series is not
+  compatible with unicast-to-multicast being used on a port. Then
+  again, I think that this would also be broken for regular switchdev
+  bridge offloading as this flag is not offloaded to the switchdev
+  port, so there is no way for the driver to refuse it. Any ideas on
+  how to handle this?
+
+
+## mv88e6xxx Specifics
+
+Since we are now only receiving a single skb for both unicast and
+multicast flows, we can tag the packets with the FORWARD command
+instead of FROM_CPU. The swich(es) will then forward the packet in
+accordance with its ATU, VTU, STU, and PVT configuration - just like
+for packets ingressing on user ports.
+
+Crucially, FROM_CPU is still used for:
+
+- Ports in standalone mode.
+
+- Flows that are trapped to the CPU and software-forwarded by a
+  bridge. Note that these flows match neither of the classes discussed
+  in the overview.
+
+- Packets that are sent directly to a port netdev without going
+  through the bridge, e.g. lldpd sending out PDU via an AF_PACKET
+  socket.
+
+We thus have a pretty clean separation where the data plane uses
+FORWARDs and the control plane uses TO_/FROM_CPU.
+
+The barrier between different bridges is enforced by port based VLANs
+on mv88e6xxx, which in essence is a mapping from a source device/port
+pair to an allowed set of egress ports. In order to have a FORWARD
+frame (which carries a _source_ device/port) correctly mapped by the
+PVT, we must use a unique pair for each bridge.
+
+Fortunately, there is typically lots of unused address space in most
+switch trees. When was the last time you saw an mv88e6xxx product
+using more than 4 chips? Even if you found one with 16 (!) devices,
+you would still have room to allocate 16*16 virtual ports to software
+bridges.
+
+Therefore, the mv88e6xxx driver will allocate a virtual device/port
+pair to each bridge that it offloads. All members of the same bridge
+are then configured to allow packets from this virtual port in their
+PVTs.
+
+Tobias Waldekranz (9):
+  net: dfwd: Constrain existing users to macvlan subordinates
+  net: bridge: Disambiguate offload_fwd_mark
+  net: bridge: switchdev: Recycle unused hwdoms
+  net: bridge: switchdev: Forward offloading
+  net: dsa: Track port PVIDs
+  net: dsa: Forward offloading
+  net: dsa: mv88e6xxx: Allocate a virtual DSA port for each bridge
+  net: dsa: mv88e6xxx: Map virtual bridge port in PVT
+  net: dsa: mv88e6xxx: Forward offloading
+
+ MAINTAINERS                                   |   1 +
+ drivers/net/dsa/mv88e6xxx/Makefile            |   1 +
+ drivers/net/dsa/mv88e6xxx/chip.c              |  61 ++++++-
+ drivers/net/dsa/mv88e6xxx/dst.c               | 160 ++++++++++++++++++
+ drivers/net/dsa/mv88e6xxx/dst.h               |  14 ++
+ .../net/ethernet/intel/fm10k/fm10k_netdev.c   |   3 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c   |   3 +
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |   3 +
+ include/linux/dsa/mv88e6xxx.h                 |  13 ++
+ include/net/dsa.h                             |  13 ++
+ net/bridge/br_forward.c                       |  11 +-
+ net/bridge/br_if.c                            |   4 +-
+ net/bridge/br_private.h                       |  54 +++++-
+ net/bridge/br_switchdev.c                     | 141 +++++++++++----
+ net/dsa/port.c                                |  16 +-
+ net/dsa/slave.c                               |  36 +++-
+ net/dsa/tag_dsa.c                             |  33 +++-
+ 17 files changed, 510 insertions(+), 57 deletions(-)
+ create mode 100644 drivers/net/dsa/mv88e6xxx/dst.c
+ create mode 100644 drivers/net/dsa/mv88e6xxx/dst.h
+ create mode 100644 include/linux/dsa/mv88e6xxx.h
+
 -- 
 2.25.1
 
