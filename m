@@ -1,29 +1,27 @@
 Return-Path: <ap420073@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=dqh4dH8aZ6HN+B6a/NbTwQiRYC2u5Akv4+7vt6N7BqI=;
- b=XY9Yv9AWPcZwWKle2oLxy6MXxZYJ/wI3gWfHvn1lwE0JJXaahPaKvpQZfVqimJVczU
- 6cKT0NyHZMxVxRYb1j2gl3iw6Tk0aJJSghG2us6p4q5uzGj/Bi7mgOvUX+hqf3MhzQg+
- gTBcuWVt1SUt7oWg50ZtZ1OR0L2iUpJEBqTZ12/nkPhOna7owJ3beyuLuIs3y6kI1/0z
- +V/a4ZdA7XHpDRqjZ4u5iYt6ECEjJ3wudJb3xa4WXtVz2JMzaaRgGQ4XBw4aHI86j7pH
- D+LyTlb4q5HRHj7KWC+tPmNrO2NaYpKzJ1YP7lWKjUMaesuaq1PzEn1tPnB5qQMKro/f
- FqHA==
+ h=subject:to:references:from:message-id:date:user-agent:mime-version
+ :in-reply-to:content-language:content-transfer-encoding;
+ bh=q0T9jbT9J+TwSihAcCr3HGKEWP12uQgYZvS3pdHVqZo=;
+ b=d4UWmkkRHMFKP3kmi5OF+3tUt2yHNzgDLOlWEj7T2XOeHCDvRyd8JHq8AbUrzST7FX
+ Z8REYPJxb+n6Y62qo4mLz7ghuRtgyF70jkT3Sk6yeZNd9gfP+9XX8OLicZQxJRxk8SD6
+ JUbVsWMhMqlEsuOnprSxi4DZG6/esyvBE5KAdH6S0u/qJRtrV7TopyYavmlaqkXt2tI3
+ pEZnblHvFjEbRq7nugYy2HTtuOOJkZp8wvIiReVoodNkAGi1nqYMqrdBueMMRFG/GO1I
+ a6xbjZyddbFIB8y5BzfquAN2EF/uLQSVQuaONjZE0DOQJOV1v5nI0jPvVGxNQTpv9mVy
+ 7Dug==
 References: <20210425155742.30057-1-ap420073@gmail.com>
- <20210425155742.30057-3-ap420073@gmail.com>
- <ed54816f-2591-d8a7-61d8-63b7f49852c1@nvidia.com>
- <20210426124806.4zqhtn4wewair4ua@gondor.apana.org.au>
- <1e8cda49-4bc3-6f0b-29f3-97848aab18f0@nvidia.com>
+ <20210425155742.30057-2-ap420073@gmail.com>
+ <d7cf5368-21a4-a551-169a-00a4cb2b3a0d@gmail.com>
 From: Taehee Yoo <ap420073@gmail.com>
-Message-ID: <68b18d15-d472-3305-4f91-5e61f8b60488@gmail.com>
-Date: Tue, 27 Apr 2021 00:17:52 +0900
+Message-ID: <a43a957a-0fc8-cfff-f04a-cf0bc1ae612b@gmail.com>
+Date: Tue, 27 Apr 2021 00:24:31 +0900
 MIME-Version: 1.0
-In-Reply-To: <1e8cda49-4bc3-6f0b-29f3-97848aab18f0@nvidia.com>
+In-Reply-To: <d7cf5368-21a4-a551-169a-00a4cb2b3a0d@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net 2/2] net: bridge: fix lockdep
- multicast_lock false positive splat
+Subject: Re: [Bridge] [PATCH net v2 1/2] net: core: make
+ bond_get_lowest_level_rcu() generic
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,34 +30,202 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: bridge@lists.linux-foundation.org, cong.wang@bytedance.com, daniel@iogearbox.net, yoshfuji@linux-ipv6.org, j.vosburgh@gmail.com, dsahern@kernel.org, roopa@nvidia.com, ast@kernel.org, bjorn@kernel.org, vfalico@gmail.com, netdev@vger.kernel.org, kuba@kernel.org, weiwan@google.com, andriin@fb.com, davem@davemloft.net
+To: Heiner Kallweit <hkallweit1@gmail.com>, davem@davemloft.net, kuba@kernel.org, dsahern@kernel.org, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, j.vosburgh@gmail.com, vfalico@gmail.com, andy@greyhouse.net, roopa@nvidia.com, nikolay@nvidia.com, ast@kernel.org, andriin@fb.com, daniel@iogearbox.net, weiwan@google.com, cong.wang@bytedance.com, bjorn@kernel.org, herbert@gondor.apana.org.au, bridge@lists.linux-foundation.org
 
-On 4/26/21 10:15 PM, Nikolay Aleksandrov wrote:
- > On 26/04/2021 15:48, Herbert Xu wrote:
+On 4/26/21 3:03 AM, Heiner Kallweit wrote:
 
-Hi Nikolay and Herbert,
-Thank you for the reviews!
+Hi Heiner,
+Thank you for the review!
 
- >> On Sun, Apr 25, 2021 at 07:45:27PM +0300, Nikolay Aleksandrov wrote:
- >>>
- >>> Ugh.. that's just very ugly. :) The setup you've described above is 
-by all means invalid, but
- >>> possible unfortunately. The bridge already checks if it's being 
-added as a port to another
- >>> bridge, but not through multiple levels of indirection. These locks 
-are completely unrelated
- >>> as they're in very different contexts (different devices).
+ > On 25.04.2021 17:57, Taehee Yoo wrote:
+ >> The purpose of bond_get_lowest_level_rcu() is to get nested_level under
+ >> RCU. Because dev->nested_level is protected by RTNL, so it shouldn't be
+ >> used without RTNL. But bonding module needs this value under RCU without
+ >> RTNL.
+ >> So, this function was added.
  >>
- >> Surely we should forbid this? Otherwise what's to stop someone
- >> from creating a loop?
+ >> But, there is another module, which needs this function.
+ >> So, make this function generic.
+ >> the new name is netdev_get_nest_level_rcu().
  >>
- >> Cheers,
+ >> Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+ >> ---
+ >>
+ >> v2:
+ >>   - No change
+ >>
+ >>   drivers/net/bonding/bond_main.c | 45 +--------------------------------
+ >>   include/linux/netdevice.h       |  1 +
+ >>   net/core/dev.c                  | 44 ++++++++++++++++++++++++++++++++
+ >>   3 files changed, 46 insertions(+), 44 deletions(-)
+ >>
+ >> diff --git a/drivers/net/bonding/bond_main.c 
+b/drivers/net/bonding/bond_main.c
+ >> index 83ef62db6285..a9feb039ffa6 100644
+ >> --- a/drivers/net/bonding/bond_main.c
+ >> +++ b/drivers/net/bonding/bond_main.c
+ >> @@ -3754,47 +3754,6 @@ static void bond_fold_stats(struct 
+rtnl_link_stats64 *_res,
+ >>   	}
+ >>   }
+ >>
+ >> -#ifdef CONFIG_LOCKDEP
+ >> -static int bond_get_lowest_level_rcu(struct net_device *dev)
+ >> -{
+ >> -	struct net_device *ldev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
+ >> -	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
+ >> -	int cur = 0, max = 0;
+ >> -
+ >> -	now = dev;
+ >> -	iter = &dev->adj_list.lower;
+ >> -
+ >> -	while (1) {
+ >> -		next = NULL;
+ >> -		while (1) {
+ >> -			ldev = netdev_next_lower_dev_rcu(now, &iter);
+ >> -			if (!ldev)
+ >> -				break;
+ >> -
+ >> -			next = ldev;
+ >> -			niter = &ldev->adj_list.lower;
+ >> -			dev_stack[cur] = now;
+ >> -			iter_stack[cur++] = iter;
+ >> -			if (max <= cur)
+ >> -				max = cur;
+ >> -			break;
+ >> -		}
+ >> -
+ >> -		if (!next) {
+ >> -			if (!cur)
+ >> -				return max;
+ >> -			next = dev_stack[--cur];
+ >> -			niter = iter_stack[cur];
+ >> -		}
+ >> -
+ >> -		now = next;
+ >> -		iter = niter;
+ >> -	}
+ >> -
+ >> -	return max;
+ >> -}
+ >> -#endif
+ >> -
+ >>   static void bond_get_stats(struct net_device *bond_dev,
+ >>   			   struct rtnl_link_stats64 *stats)
+ >>   {
+ >> @@ -3806,9 +3765,7 @@ static void bond_get_stats(struct net_device 
+*bond_dev,
+ >>
+ >>
+ >>   	rcu_read_lock();
+ >> -#ifdef CONFIG_LOCKDEP
+ >> -	nest_level = bond_get_lowest_level_rcu(bond_dev);
+ >> -#endif
+ >> +	nest_level = netdev_get_nest_level_rcu(bond_dev);
+ >>
+ >>   	spin_lock_nested(&bond->stats_lock, nest_level);
+ >>   	memcpy(stats, &bond->bond_stats, sizeof(*stats));
+ >> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+ >> index 87a5d186faff..507c06bf5dba 100644
+ >> --- a/include/linux/netdevice.h
+ >> +++ b/include/linux/netdevice.h
+ >> @@ -4699,6 +4699,7 @@ int netdev_walk_all_lower_dev(struct 
+net_device *dev,
+ >>   			      int (*fn)(struct net_device *lower_dev,
+ >>   					struct netdev_nested_priv *priv),
+ >>   			      struct netdev_nested_priv *priv);
+ >> +int netdev_get_nest_level_rcu(struct net_device *dev);
+ >>   int netdev_walk_all_lower_dev_rcu(struct net_device *dev,
+ >>   				  int (*fn)(struct net_device *lower_dev,
+ >>   					    struct netdev_nested_priv *priv),
+ >> diff --git a/net/core/dev.c b/net/core/dev.c
+ >> index 15fe36332fb8..efc2bf88eafd 100644
+ >> --- a/net/core/dev.c
+ >> +++ b/net/core/dev.c
+ >> @@ -7709,6 +7709,50 @@ static int __netdev_update_lower_level(struct 
+net_device *dev,
+ >>   	return 0;
+ >>   }
+ >>
+ >> +int netdev_get_nest_level_rcu(struct net_device *dev)
+ >> +{
+ >> +#ifdef CONFIG_LOCKDEP
+ >> +	struct net_device *ldev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
+ >> +	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
+ >> +	int cur = 0, max = 0;
+ >> +
+ >> +	now = dev;
+ >> +	iter = &dev->adj_list.lower;
+ >> +
+ >> +	while (1) {
+ >> +		next = NULL;
+ >> +		while (1) {
+ >> +			ldev = netdev_next_lower_dev_rcu(now, &iter);
+ >> +			if (!ldev)
+ >> +				break;
+ >> +
+ >> +			next = ldev;
+ >> +			niter = &ldev->adj_list.lower;
+ >> +			dev_stack[cur] = now;
+ >> +			iter_stack[cur++] = iter;
+ >> +			if (max <= cur)
+ >> +				max = cur;
+ >> +			break;
+ >
+ > This looks odd. Why a while loop if it's left in the first iteration
+ > anyway? The whole loop looks unnecessarily complex. The following
+ > should do the same, just in a simpler way (untested!)
+ >
+ >          while (1) {
+ >                  ldev = netdev_next_lower_dev_rcu(now, &iter);
+ >                  if (ldev) {
+ >                          dev_stack[cur] = now;
+ >                          iter_stack[cur++] = iter;
+ >                          if (max <= cur)
+ >                                  max = cur;
+ >                          now = ldev;
+ >                          iter = &ldev->adj_list.lower;
+ >                  } else {
+ >                          if (!cur)
+ >                                  break;
+ >                          now = dev_stack[--cur];
+ >                          iter = iter_stack[cur];
+ >                  }
+ >          }
+ >
+ > I know that you just copied the original function.
+ > Simplifying the function should be something for a
+ > follow-up patch.
+ >
+ >> +		}
+ >> +
+ >> +		if (!next) {
+ >> +			if (!cur)
+ >> +				return max;
+ >> +			next = dev_stack[--cur];
+ >> +			niter = iter_stack[cur];
+ >> +		}
+ >> +
+ >> +		now = next;
+ >> +		iter = niter;
+ >> +	}
+ >> +
+ >> +	return max;
+ >> +#else
+ >> +	return 0;
+ >> +#endif
+ >> +}
+ >> +EXPORT_SYMBOL_GPL(netdev_get_nest_level_rcu);
+ >> +
+ >>   int netdev_walk_all_lower_dev_rcu(struct net_device *dev,
+ >>   				  int (*fn)(struct net_device *dev,
+ >>   					    struct netdev_nested_priv *priv),
  >>
  >
- > Indeed that would be best, it's very easy to loop them.
- >
 
-We can make very various interface graphs with master/slave interface types.
-So, if we need something to forbid it, I think it should be generic 
-code, not only for the bridge module.
+I think you're right.
+Your logic is more simple and stable.
+If I send a v3 patch, I will use your logic after some tests.
+
+Thanks a lot!
+Taehee
