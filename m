@@ -2,20 +2,20 @@ Return-Path: <nikolay@nvidia.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mvDrsW/MKdl9io654kXHRVI1XiR1fBEsnjacBEJ3Chw=;
- b=peMYWDU7WaFeztst7cehCW1C/PjORJvhnA7MdM7KRbdSSk853X/0MdSwpLbipFDzTRr9yn6XOVeEFPGHbTcZgNWvgSI+WgDDyblf5ylcXeD7hhHKr7nvq3LIvAeddk3lvIRWfYOFii+ikJONf72FCxyNc4pHC7UWVlRcH3h7aJ8rWVWdB8a/MqyezBesTaYwAs7yCC4v27s82+HFjuQr0GC+CrA/nYnaZTOAEKrKinp1FpiV6X+e7NUcnGJf+gHzL4MDf65k7hZwiQ8tHDtO/mWbApEq/FaJ7EUpprKKq8vNJmSFK/oWRxeibhBsvfEpUFVXA91xxFNMKCevO2Py6g==
+ bh=dxngR24Xun8w7PYnV9RV909Yu9fnBY0je9+WfuAMWEY=;
+ b=E7zmfQA2PKRZXXASn4OD1rLunWt8lZ44x21Prm03ipI50ZGlIGq/dsJpD3+jwKKqU11O82jp8SPv7isZ1yTOlP8A71vr4f3WJUX8OKs7Xx19bgyK/KqysD+OiaxyeylWOZQoPhQBxWN4vSsDt73EidMtS//MkCC8OlrtIa4jCVIHrBPy8wQSYrrgDWSpiUR/a/URlk8gdfsetmhKY5wz9lZMHCiWgmFCX4GOEZ8W0ubbAYk8HureY+soFXPz8aZjOuA3xl7dAKzTVedLY9dPVVGRmaD+lT7bDqpr1teh3IMjk+gOspyIlquxH2EcEJIKV2jdI7cW/tsKuQs7SIrQsA==
 References: <20210426170411.1789186-1-tobias@waldekranz.com>
- <20210426170411.1789186-5-tobias@waldekranz.com>
+ <20210426170411.1789186-4-tobias@waldekranz.com>
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <ac177d80-6530-be48-95bc-57652a31fe6a@nvidia.com>
-Date: Tue, 27 Apr 2021 13:35:46 +0300
-In-Reply-To: <20210426170411.1789186-5-tobias@waldekranz.com>
+Message-ID: <26e631b0-f5d0-343e-194d-c15b4a8dc7aa@nvidia.com>
+Date: Tue, 27 Apr 2021 13:42:00 +0300
+In-Reply-To: <20210426170411.1789186-4-tobias@waldekranz.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Subject: Re: [Bridge] [RFC net-next 4/9] net: bridge: switchdev: Forward
-	offloading
+Subject: Re: [Bridge] [RFC net-next 3/9] net: bridge: switchdev: Recycle
+	unused hwdoms
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,261 +28,248 @@ To: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net, kuba@kernel.
 Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, olteanv@gmail.com, vivien.didelot@gmail.com
 
 On 26/04/2021 20:04, Tobias Waldekranz wrote:
-> Allow switchdevs to forward frames from the CPU in accordance with the
-> bridge configuration in the same way as is done between bridge
-> ports. This means that the bridge will only send a single skb towards
-> one of the ports under the switchdev's control, and expects the driver
-> to deliver the packet to all eligible ports in its domain.
+> Since hwdoms has thus far only been used for equality comparisons, the
+> bridge has used the simplest possible assignment policy; using a
+> counter to keep track of the last value handed out.
 > 
-> Primarily this improves the performance of multicast flows with
-> multiple subscribers, as it allows the hardware to perform the frame
-> replication.
+> With the upcoming transmit offloading, we need to perform set
+> operations efficiently based on hwdoms, e.g. we want to answer
+> questions like "has this skb been forwarded to any port within this
+> hwdom?"
 > 
-> The basic flow between the driver and the bridge is as follows:
-> 
-> - The switchdev accepts the offload by returning a non-null pointer
->   from .ndo_dfwd_add_station when the port is added to the bridge.
-> 
-> - The bridge sends offloadable skbs to one of the ports under the
->   switchdev's control using dev_queue_xmit_accel.
-> 
-> - The switchdev notices the offload by checking for a non-NULL
->   "sb_dev" in the core's call to .ndo_select_queue.
+> Move to a bitmap-based allocation scheme that recycles hwdoms once all
+> members leaves the bridge. This means that we can use a single
+> unsigned long to keep track of the hwdoms that have received an skb.
 > 
 > Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 > ---
->  net/bridge/br_forward.c   | 11 +++++++-
->  net/bridge/br_private.h   | 27 ++++++++++++++++++
->  net/bridge/br_switchdev.c | 59 +++++++++++++++++++++++++++++++++++++--
->  3 files changed, 93 insertions(+), 4 deletions(-)
+>  net/bridge/br_if.c        |  4 +-
+>  net/bridge/br_private.h   | 29 +++++++++---
+>  net/bridge/br_switchdev.c | 94 ++++++++++++++++++++++++++-------------
+>  3 files changed, 87 insertions(+), 40 deletions(-)
 > 
-
-Hi,
-Please try to find a way to reduce the number of new tests in the fast path.
-This specific feature might help these devices, but the new tests hurt everybody else.
-I don't mind the control plane changes, but I'd like to minimize the fast-path impact.
-
-Do you need "accel_priv" to be a pointer, I mean can't derive sb_dev from the port alone ?
-Either way - you can mark the port via its internal flags if it can accelerate, those are
-used frequently and are in a hot cache line (by the way that reminds me that the port
-offload mark/hwdom should be moved in the first cache line).
-
-For example you could possibly drop fwd_accel, add the bitmap in a union with sb_dev pointer
-in br_input_skb_cb which can be set at __br_forward at the accel check and pass it down to
-avoid the final test. Furthermore since the hwdoms are bits and if the port accel is a bit
-you could probably reduce the nbp_switchdev_can_accel() helper to one test with a few bitops.
-
-In nbp_switchdev_allowed_egress() I'd make the hwdom tests rely on skb's offload_fwd_mark
-so in the software forwarding case we could avoid them.
-
-I might be missing something above, but we have to try and reduce these tests as much as
-possible, also the port's first cache line is quite crowded so avoiding any new fields
-would be best, i.e. at some point we'll move the hwdom/offload mark there to avoid pulling
-in the last cache line of net_bridge_port, so it'd be best to avoid having to move accel_priv
-there too.
-
-Cheers,
- Nik
-
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index 6e9b049ae521..b4fb3b0bb1ec 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -32,6 +32,8 @@ static inline int should_deliver(const struct net_bridge_port *p,
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 73fa703f8df5..adaf78e45c23 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -349,6 +349,7 @@ static void del_nbp(struct net_bridge_port *p)
+>  	nbp_backup_clear(p);
 >  
->  int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
->  {
-> +	struct net_device *sb_dev = NULL;
-> +
->  	skb_push(skb, ETH_HLEN);
->  	if (!is_skb_forwardable(skb->dev, skb))
->  		goto drop;
-> @@ -48,7 +50,10 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
->  		skb_set_network_header(skb, depth);
->  	}
+>  	nbp_update_port_count(br);
+> +	nbp_switchdev_del(p);
 >  
-> -	dev_queue_xmit(skb);
-> +	if (br_switchdev_accels_skb(skb))
-> +		sb_dev = BR_INPUT_SKB_CB(skb)->brdev;
-> +
-> +	dev_queue_xmit_accel(skb, sb_dev);
+>  	netdev_upper_dev_unlink(dev, br->dev);
 >  
->  	return 0;
+> @@ -643,7 +644,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+>  	if (err)
+>  		goto err5;
 >  
-> @@ -105,6 +110,8 @@ static void __br_forward(const struct net_bridge_port *to,
->  		indev = NULL;
->  	}
+> -	err = nbp_switchdev_hwdom_set(p);
+> +	err = nbp_switchdev_add(p);
+>  	if (err)
+>  		goto err6;
 >  
-> +	nbp_switchdev_frame_mark_accel(to, skb);
-> +
->  	NF_HOOK(NFPROTO_BRIDGE, br_hook,
->  		net, NULL, skb, indev, skb->dev,
->  		br_forward_finish);
-> @@ -174,6 +181,8 @@ static struct net_bridge_port *maybe_deliver(
->  	if (!should_deliver(p, skb))
->  		return prev;
->  
-> +	nbp_switchdev_frame_mark_fwd(p, skb);
-> +
->  	if (!prev)
->  		goto out;
->  
+> @@ -704,6 +705,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+>  	list_del_rcu(&p->list);
+>  	br_fdb_delete_by_port(br, p, 0, 1);
+>  	nbp_update_port_count(br);
+> +	nbp_switchdev_del(p);
+>  err6:
+>  	netdev_upper_dev_unlink(dev, br->dev);
+>  err5:
 > diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index aba92864d285..933e951b0d7a 100644
+> index 53248715f631..aba92864d285 100644
 > --- a/net/bridge/br_private.h
 > +++ b/net/bridge/br_private.h
-> @@ -332,6 +332,7 @@ struct net_bridge_port {
->  #endif
->  #ifdef CONFIG_NET_SWITCHDEV
->  	int				hwdom;
-> +	void				*accel_priv;
->  #endif
->  	u16				group_fwd_mask;
->  	u16				backup_redirected_cnt;
-> @@ -506,7 +507,9 @@ struct br_input_skb_cb {
->  #endif
+> @@ -29,6 +29,8 @@
+>  
+>  #define BR_MULTICAST_DEFAULT_HASH_MAX 4096
+>  
+> +#define BR_HWDOM_MAX BITS_PER_LONG
+> +
+>  #define BR_VERSION	"2.3"
+>  
+>  /* Control of forwarding link local multicast */
+> @@ -54,6 +56,8 @@ typedef struct bridge_id bridge_id;
+>  typedef struct mac_addr mac_addr;
+>  typedef __u16 port_id;
+>  
+> +typedef DECLARE_BITMAP(br_hwdom_map_t, BR_HWDOM_MAX);
+> +
+
+You can avoid the typedef and DECLARE_BITMAP() and just use an
+unsigned long below. In general avoiding new typedefs is a good thing. :)
+
+>  struct bridge_id {
+>  	unsigned char	prio[2];
+>  	unsigned char	addr[ETH_ALEN];
+> @@ -472,7 +476,7 @@ struct net_bridge {
+>  	u32				auto_cnt;
 >  
 >  #ifdef CONFIG_NET_SWITCHDEV
-> +	u8 fwd_accel:1;
->  	int src_hwdom;
-> +	br_hwdom_map_t fwd_hwdoms;
+> -	int last_hwdom;
+> +	br_hwdom_map_t			busy_hwdoms;
 >  #endif
->  };
+>  	struct hlist_head		fdb_list;
 >  
-> @@ -1597,6 +1600,15 @@ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
+> @@ -1593,7 +1597,6 @@ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
 >  
 >  /* br_switchdev.c */
 >  #ifdef CONFIG_NET_SWITCHDEV
-> +static inline bool br_switchdev_accels_skb(struct sk_buff *skb)
-> +{
-> +	return BR_INPUT_SKB_CB(skb)->fwd_accel;
-> +}
-> +
-> +void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
-> +				    struct sk_buff *skb);
-> +void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
-> +				  struct sk_buff *skb);
+> -int nbp_switchdev_hwdom_set(struct net_bridge_port *p);
 >  void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
 >  			      struct sk_buff *skb);
 >  bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
-> @@ -1619,6 +1631,21 @@ static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
+> @@ -1607,17 +1610,15 @@ void br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb,
+>  int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags,
+>  			       struct netlink_ext_ack *extack);
+>  int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid);
+> +int nbp_switchdev_add(struct net_bridge_port *p);
+> +void nbp_switchdev_del(struct net_bridge_port *p);
+> +void br_switchdev_init(struct net_bridge *br);
+>  
+>  static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
+>  {
 >  	skb->offload_fwd_mark = 0;
 >  }
 >  #else
-> +static inline bool br_switchdev_accels_skb(struct sk_buff *skb)
-> +{
-> +	return false;
-> +}
-> +
-> +static inline void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
-> +						  struct sk_buff *skb)
-> +{
-> +}
-> +
-> +static inline void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
-> +						struct sk_buff *skb)
-> +{
-> +}
-> +
+> -static inline int nbp_switchdev_hwdom_set(struct net_bridge_port *p)
+> -{
+> -	return 0;
+> -}
+> -
 >  static inline void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
 >  					    struct sk_buff *skb)
 >  {
+> @@ -1657,6 +1658,20 @@ br_switchdev_fdb_notify(const struct net_bridge_fdb_entry *fdb, int type)
+>  static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
+>  {
+>  }
+> +
+> +static inline int nbp_switchdev_add(struct net_bridge_port *p)
+> +{
+> +	return 0;
+> +}
+> +
+> +static inline void nbp_switchdev_del(struct net_bridge_port *p)
+> +{
+> +}
+> +
+> +static inline void br_switchdev_init(struct net_bridge *br)
+> +{
+> +}
+> +
+>  #endif /* CONFIG_NET_SWITCHDEV */
+>  
+>  /* br_arp_nd_proxy.c */
 > diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index 54bd7205bfb5..c903171ad291 100644
+> index bc085077ae71..54bd7205bfb5 100644
 > --- a/net/bridge/br_switchdev.c
 > +++ b/net/bridge/br_switchdev.c
-> @@ -8,6 +8,26 @@
+> @@ -8,38 +8,6 @@
 >  
 >  #include "br_private.h"
 >  
-> +static bool nbp_switchdev_can_accel(const struct net_bridge_port *p,
-> +				    const struct sk_buff *skb)
-> +{
-> +	return p->accel_priv && (p->hwdom != BR_INPUT_SKB_CB(skb)->src_hwdom);
-> +}
-> +
-> +void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
-> +				    struct sk_buff *skb)
-> +{
-> +	if (nbp_switchdev_can_accel(p, skb))
-> +		BR_INPUT_SKB_CB(skb)->fwd_accel = true;
-> +}
-> +
-> +void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
-> +				  struct sk_buff *skb)
-> +{
-> +	if (nbp_switchdev_can_accel(p, skb))
-> +		set_bit(p->hwdom, BR_INPUT_SKB_CB(skb)->fwd_hwdoms);
-> +}
-> +
+> -static int br_switchdev_hwdom_get(struct net_bridge *br, struct net_device *dev)
+> -{
+> -	struct net_bridge_port *p;
+> -
+> -	/* dev is yet to be added to the port list. */
+> -	list_for_each_entry(p, &br->port_list, list) {
+> -		if (netdev_port_same_parent_id(dev, p->dev))
+> -			return p->hwdom;
+> -	}
+> -
+> -	return ++br->last_hwdom;
+> -}
+> -
+> -int nbp_switchdev_hwdom_set(struct net_bridge_port *p)
+> -{
+> -	struct netdev_phys_item_id ppid = { };
+> -	int err;
+> -
+> -	ASSERT_RTNL();
+> -
+> -	err = dev_get_port_parent_id(p->dev, &ppid, true);
+> -	if (err) {
+> -		if (err == -EOPNOTSUPP)
+> -			return 0;
+> -		return err;
+> -	}
+> -
+> -	p->hwdom = br_switchdev_hwdom_get(p->br, p->dev);
+> -
+> -	return 0;
+> -}
+> -
 >  void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
 >  			      struct sk_buff *skb)
 >  {
-> @@ -18,8 +38,10 @@ void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
->  bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
->  				  const struct sk_buff *skb)
->  {
-> -	return !skb->offload_fwd_mark ||
-> -	       BR_INPUT_SKB_CB(skb)->src_hwdom != p->hwdom;
-> +	struct br_input_skb_cb *cb = BR_INPUT_SKB_CB(skb);
-> +
-> +	return !test_bit(p->hwdom, cb->fwd_hwdoms) &&
-> +		(!skb->offload_fwd_mark || cb->src_hwdom != p->hwdom);
->  }
+> @@ -156,3 +124,65 @@ int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
 >  
->  /* Flags that can be offloaded to hardware */
-> @@ -125,6 +147,27 @@ int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
 >  	return switchdev_port_obj_del(dev, &v.obj);
 >  }
->  
-> +static void nbp_switchdev_fwd_offload_add(struct net_bridge_port *p)
+> +
+> +static int nbp_switchdev_hwdom_set(struct net_bridge_port *joining)
 > +{
-> +	void *priv;
+> +	struct net_bridge *br = joining->br;
+> +	struct net_bridge_port *p;
+> +	int hwdom;
 > +
-> +	if (!(p->dev->features & NETIF_F_HW_L2FW_DOFFLOAD))
-> +		return;
+> +	/* joining is yet to be added to the port list. */
+> +	list_for_each_entry(p, &br->port_list, list) {
+> +		if (netdev_port_same_parent_id(joining->dev, p->dev)) {
+> +			joining->hwdom = p->hwdom;
+> +			return 0;
+> +		}
+> +	}
 > +
-> +	priv = p->dev->netdev_ops->ndo_dfwd_add_station(p->dev, p->br->dev);
-> +	if (!IS_ERR_OR_NULL(priv))
-> +		p->accel_priv = priv;
+> +	hwdom = find_next_zero_bit(br->busy_hwdoms, BR_HWDOM_MAX, 1);
+> +	if (hwdom >= BR_HWDOM_MAX)
+> +		return -EBUSY;
+> +
+> +	set_bit(hwdom, br->busy_hwdoms);
+> +	joining->hwdom = hwdom;
+> +	return 0;
 > +}
 > +
-> +static void nbp_switchdev_fwd_offload_del(struct net_bridge_port *p)
+> +static void nbp_switchdev_hwdom_put(struct net_bridge_port *leaving)
 > +{
-> +	if (!p->accel_priv)
-> +		return;
+> +	struct net_bridge *br = leaving->br;
+> +	struct net_bridge_port *p;
 > +
-> +	p->dev->netdev_ops->ndo_dfwd_del_station(p->dev, p->accel_priv);
-> +	p->accel_priv = NULL;
+> +	/* leaving is no longer in the port list. */
+> +	list_for_each_entry(p, &br->port_list, list) {
+> +		if (p->hwdom == leaving->hwdom)
+> +			return;
+> +	}
+> +
+> +	clear_bit(leaving->hwdom, br->busy_hwdoms);
 > +}
 > +
->  static int nbp_switchdev_hwdom_set(struct net_bridge_port *joining)
->  {
->  	struct net_bridge *br = joining->br;
-> @@ -176,13 +219,23 @@ int nbp_switchdev_add(struct net_bridge_port *p)
->  		return err;
->  	}
->  
-> -	return nbp_switchdev_hwdom_set(p);
-> +	err = nbp_switchdev_hwdom_set(p);
-> +	if (err)
+> +int nbp_switchdev_add(struct net_bridge_port *p)
+> +{
+> +	struct netdev_phys_item_id ppid = { };
+> +	int err;
+> +
+> +	ASSERT_RTNL();
+> +
+> +	err = dev_get_port_parent_id(p->dev, &ppid, true);
+> +	if (err) {
+> +		if (err == -EOPNOTSUPP)
+> +			return 0;
 > +		return err;
+> +	}
+> +
+> +	return nbp_switchdev_hwdom_set(p);
+> +}
+> +
+> +void nbp_switchdev_del(struct net_bridge_port *p)
+> +{
+> +	ASSERT_RTNL();
 > +
 > +	if (p->hwdom)
-> +		nbp_switchdev_fwd_offload_add(p);
-> +
-> +	return 0;
->  }
->  
->  void nbp_switchdev_del(struct net_bridge_port *p)
->  {
->  	ASSERT_RTNL();
->  
-> +	if (p->accel_priv)
-> +		nbp_switchdev_fwd_offload_del(p);
-> +
->  	if (p->hwdom)
->  		nbp_switchdev_hwdom_put(p);
->  }
+> +		nbp_switchdev_hwdom_put(p);
+> +}
 > 
 
