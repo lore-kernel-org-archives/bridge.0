@@ -1,24 +1,21 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=jS8mRrVLDbaMyDpr/LGOADIkfzJVPQFO2ymhmDViSxs=;
- b=SC93pnBiT+4OyRyZhIROJviKb++caWsXnBmTV1wQ3TZY6NhVBd3et/G1sQ3466kKlS
- vAQ+JgWSgaMdsbFZKGMNbUh+l96p3DbPA/WmAPgGgi/N01hmElZhWWo1XWB9GDFADatC
- elGzzyKuwK7ZTM030Aw91J4T4nk14zB/GxCDnoXma3eGbamlrTlfiKTzIeRIEK58x7Za
- 0Z4Nm1Xuu0oiH3HQZiJniOr8oU+BEod+mP3BC41o0dWG1GOj6tyQAW/9qFp+kBpnRHgH
- IOT2w+kMPC39nE7DvPfoF8AHoAWN5o1BR3+iP0vataH6fDt2i0nznbLqBPqU1YPTv5+k
- fTgQ==
-Date: Tue, 27 Apr 2021 13:17:47 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20210427101747.n3y6w6o7thl5cz3r@skbuf>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mvDrsW/MKdl9io654kXHRVI1XiR1fBEsnjacBEJ3Chw=;
+ b=peMYWDU7WaFeztst7cehCW1C/PjORJvhnA7MdM7KRbdSSk853X/0MdSwpLbipFDzTRr9yn6XOVeEFPGHbTcZgNWvgSI+WgDDyblf5ylcXeD7hhHKr7nvq3LIvAeddk3lvIRWfYOFii+ikJONf72FCxyNc4pHC7UWVlRcH3h7aJ8rWVWdB8a/MqyezBesTaYwAs7yCC4v27s82+HFjuQr0GC+CrA/nYnaZTOAEKrKinp1FpiV6X+e7NUcnGJf+gHzL4MDf65k7hZwiQ8tHDtO/mWbApEq/FaJ7EUpprKKq8vNJmSFK/oWRxeibhBsvfEpUFVXA91xxFNMKCevO2Py6g==
 References: <20210426170411.1789186-1-tobias@waldekranz.com>
- <20210426170411.1789186-7-tobias@waldekranz.com>
+ <20210426170411.1789186-5-tobias@waldekranz.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <ac177d80-6530-be48-95bc-57652a31fe6a@nvidia.com>
+Date: Tue, 27 Apr 2021 13:35:46 +0300
+In-Reply-To: <20210426170411.1789186-5-tobias@waldekranz.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210426170411.1789186-7-tobias@waldekranz.com>
-Subject: Re: [Bridge] [RFC net-next 6/9] net: dsa: Forward offloading
+Subject: Re: [Bridge] [RFC net-next 4/9] net: bridge: switchdev: Forward
+	offloading
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,68 +24,265 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net, kuba@kernel.org
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, olteanv@gmail.com, vivien.didelot@gmail.com
 
-On Mon, Apr 26, 2021 at 07:04:08PM +0200, Tobias Waldekranz wrote:
-> Allow DSA drivers to support forward offloading from a bridge by:
+On 26/04/2021 20:04, Tobias Waldekranz wrote:
+> Allow switchdevs to forward frames from the CPU in accordance with the
+> bridge configuration in the same way as is done between bridge
+> ports. This means that the bridge will only send a single skb towards
+> one of the ports under the switchdev's control, and expects the driver
+> to deliver the packet to all eligible ports in its domain.
 > 
-> - Passing calls to .ndo_dfwd_{add,del}_station to the drivers.
+> Primarily this improves the performance of multicast flows with
+> multiple subscribers, as it allows the hardware to perform the frame
+> replication.
 > 
-> - Recording the subordinate device of offloaded skbs in the control
->   buffer so that the tagger can take the appropriate action.
+> The basic flow between the driver and the bridge is as follows:
+> 
+> - The switchdev accepts the offload by returning a non-null pointer
+>   from .ndo_dfwd_add_station when the port is added to the bridge.
+> 
+> - The bridge sends offloadable skbs to one of the ports under the
+>   switchdev's control using dev_queue_xmit_accel.
+> 
+> - The switchdev notices the offload by checking for a non-NULL
+>   "sb_dev" in the core's call to .ndo_select_queue.
 > 
 > Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 > ---
->  include/net/dsa.h |  7 +++++++
->  net/dsa/slave.c   | 36 ++++++++++++++++++++++++++++++++++--
->  2 files changed, 41 insertions(+), 2 deletions(-)
+>  net/bridge/br_forward.c   | 11 +++++++-
+>  net/bridge/br_private.h   | 27 ++++++++++++++++++
+>  net/bridge/br_switchdev.c | 59 +++++++++++++++++++++++++++++++++++++--
+>  3 files changed, 93 insertions(+), 4 deletions(-)
 > 
-> diff --git a/include/net/dsa.h b/include/net/dsa.h
-> index 1f9ba9889034..77d4df819299 100644
-> --- a/include/net/dsa.h
-> +++ b/include/net/dsa.h
-> @@ -119,6 +119,7 @@ struct dsa_netdevice_ops {
+
+Hi,
+Please try to find a way to reduce the number of new tests in the fast path.
+This specific feature might help these devices, but the new tests hurt everybody else.
+I don't mind the control plane changes, but I'd like to minimize the fast-path impact.
+
+Do you need "accel_priv" to be a pointer, I mean can't derive sb_dev from the port alone ?
+Either way - you can mark the port via its internal flags if it can accelerate, those are
+used frequently and are in a hot cache line (by the way that reminds me that the port
+offload mark/hwdom should be moved in the first cache line).
+
+For example you could possibly drop fwd_accel, add the bitmap in a union with sb_dev pointer
+in br_input_skb_cb which can be set at __br_forward at the accel check and pass it down to
+avoid the final test. Furthermore since the hwdoms are bits and if the port accel is a bit
+you could probably reduce the nbp_switchdev_can_accel() helper to one test with a few bitops.
+
+In nbp_switchdev_allowed_egress() I'd make the hwdom tests rely on skb's offload_fwd_mark
+so in the software forwarding case we could avoid them.
+
+I might be missing something above, but we have to try and reduce these tests as much as
+possible, also the port's first cache line is quite crowded so avoiding any new fields
+would be best, i.e. at some point we'll move the hwdom/offload mark there to avoid pulling
+in the last cache line of net_bridge_port, so it'd be best to avoid having to move accel_priv
+there too.
+
+Cheers,
+ Nik
+
+> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+> index 6e9b049ae521..b4fb3b0bb1ec 100644
+> --- a/net/bridge/br_forward.c
+> +++ b/net/bridge/br_forward.c
+> @@ -32,6 +32,8 @@ static inline int should_deliver(const struct net_bridge_port *p,
 >  
->  struct dsa_skb_cb {
->  	struct sk_buff *clone;
-> +	struct net_device *sb_dev;
->  };
->  
->  struct __dsa_skb_cb {
-> @@ -828,6 +829,12 @@ struct dsa_switch_ops {
->  					  const struct switchdev_obj_ring_role_mrp *mrp);
->  	int	(*port_mrp_del_ring_role)(struct dsa_switch *ds, int port,
->  					  const struct switchdev_obj_ring_role_mrp *mrp);
+>  int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
+>  {
+> +	struct net_device *sb_dev = NULL;
 > +
-> +	/* L2 forward offloading */
-> +	void *	(*dfwd_add_station)(struct dsa_switch *ds, int port,
-> +				    struct net_device *sb_dev);
-> +	void	(*dfwd_del_station)(struct dsa_switch *ds, int port,
-> +				    struct net_device *sb_dev);
+>  	skb_push(skb, ETH_HLEN);
+>  	if (!is_skb_forwardable(skb->dev, skb))
+>  		goto drop;
+> @@ -48,7 +50,10 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
+>  		skb_set_network_header(skb, depth);
+>  	}
+>  
+> -	dev_queue_xmit(skb);
+> +	if (br_switchdev_accels_skb(skb))
+> +		sb_dev = BR_INPUT_SKB_CB(skb)->brdev;
+> +
+> +	dev_queue_xmit_accel(skb, sb_dev);
+>  
+>  	return 0;
+>  
+> @@ -105,6 +110,8 @@ static void __br_forward(const struct net_bridge_port *to,
+>  		indev = NULL;
+>  	}
+>  
+> +	nbp_switchdev_frame_mark_accel(to, skb);
+> +
+>  	NF_HOOK(NFPROTO_BRIDGE, br_hook,
+>  		net, NULL, skb, indev, skb->dev,
+>  		br_forward_finish);
+> @@ -174,6 +181,8 @@ static struct net_bridge_port *maybe_deliver(
+>  	if (!should_deliver(p, skb))
+>  		return prev;
+>  
+> +	nbp_switchdev_frame_mark_fwd(p, skb);
+> +
+>  	if (!prev)
+>  		goto out;
+>  
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index aba92864d285..933e951b0d7a 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -332,6 +332,7 @@ struct net_bridge_port {
+>  #endif
+>  #ifdef CONFIG_NET_SWITCHDEV
+>  	int				hwdom;
+> +	void				*accel_priv;
+>  #endif
+>  	u16				group_fwd_mask;
+>  	u16				backup_redirected_cnt;
+> @@ -506,7 +507,9 @@ struct br_input_skb_cb {
+>  #endif
+>  
+>  #ifdef CONFIG_NET_SWITCHDEV
+> +	u8 fwd_accel:1;
+>  	int src_hwdom;
+> +	br_hwdom_map_t fwd_hwdoms;
+>  #endif
 >  };
 >  
->  #define DSA_DEVLINK_PARAM_DRIVER(_id, _name, _type, _cmodes)		\
-> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-> index 77b33bd161b8..3689ffa2dbb8 100644
-> --- a/net/dsa/slave.c
-> +++ b/net/dsa/slave.c
-> @@ -657,6 +657,13 @@ static netdev_tx_t dsa_slave_xmit(struct sk_buff *skb, struct net_device *dev)
->  	return dsa_enqueue_skb(nskb, dev);
->  }
+> @@ -1597,6 +1600,15 @@ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
 >  
-> +static u16 dsa_slave_select_queue(struct net_device *dev, struct sk_buff *skb,
-> +				  struct net_device *sb_dev)
+>  /* br_switchdev.c */
+>  #ifdef CONFIG_NET_SWITCHDEV
+> +static inline bool br_switchdev_accels_skb(struct sk_buff *skb)
 > +{
-> +	DSA_SKB_CB(skb)->sb_dev = sb_dev;
-> +	return netdev_pick_tx(dev, skb, sb_dev);
+> +	return BR_INPUT_SKB_CB(skb)->fwd_accel;
 > +}
 > +
+> +void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
+> +				    struct sk_buff *skb);
+> +void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
+> +				  struct sk_buff *skb);
+>  void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>  			      struct sk_buff *skb);
+>  bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+> @@ -1619,6 +1631,21 @@ static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
+>  	skb->offload_fwd_mark = 0;
+>  }
+>  #else
+> +static inline bool br_switchdev_accels_skb(struct sk_buff *skb)
+> +{
+> +	return false;
+> +}
+> +
+> +static inline void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
+> +						  struct sk_buff *skb)
+> +{
+> +}
+> +
+> +static inline void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
+> +						struct sk_buff *skb)
+> +{
+> +}
+> +
+>  static inline void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>  					    struct sk_buff *skb)
+>  {
+> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+> index 54bd7205bfb5..c903171ad291 100644
+> --- a/net/bridge/br_switchdev.c
+> +++ b/net/bridge/br_switchdev.c
+> @@ -8,6 +8,26 @@
+>  
+>  #include "br_private.h"
+>  
+> +static bool nbp_switchdev_can_accel(const struct net_bridge_port *p,
+> +				    const struct sk_buff *skb)
+> +{
+> +	return p->accel_priv && (p->hwdom != BR_INPUT_SKB_CB(skb)->src_hwdom);
+> +}
+> +
+> +void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
+> +				    struct sk_buff *skb)
+> +{
+> +	if (nbp_switchdev_can_accel(p, skb))
+> +		BR_INPUT_SKB_CB(skb)->fwd_accel = true;
+> +}
+> +
+> +void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
+> +				  struct sk_buff *skb)
+> +{
+> +	if (nbp_switchdev_can_accel(p, skb))
+> +		set_bit(p->hwdom, BR_INPUT_SKB_CB(skb)->fwd_hwdoms);
+> +}
+> +
+>  void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>  			      struct sk_buff *skb)
+>  {
+> @@ -18,8 +38,10 @@ void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>  bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+>  				  const struct sk_buff *skb)
+>  {
+> -	return !skb->offload_fwd_mark ||
+> -	       BR_INPUT_SKB_CB(skb)->src_hwdom != p->hwdom;
+> +	struct br_input_skb_cb *cb = BR_INPUT_SKB_CB(skb);
+> +
+> +	return !test_bit(p->hwdom, cb->fwd_hwdoms) &&
+> +		(!skb->offload_fwd_mark || cb->src_hwdom != p->hwdom);
+>  }
+>  
+>  /* Flags that can be offloaded to hardware */
+> @@ -125,6 +147,27 @@ int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
+>  	return switchdev_port_obj_del(dev, &v.obj);
+>  }
+>  
+> +static void nbp_switchdev_fwd_offload_add(struct net_bridge_port *p)
+> +{
+> +	void *priv;
+> +
+> +	if (!(p->dev->features & NETIF_F_HW_L2FW_DOFFLOAD))
+> +		return;
+> +
+> +	priv = p->dev->netdev_ops->ndo_dfwd_add_station(p->dev, p->br->dev);
+> +	if (!IS_ERR_OR_NULL(priv))
+> +		p->accel_priv = priv;
+> +}
+> +
+> +static void nbp_switchdev_fwd_offload_del(struct net_bridge_port *p)
+> +{
+> +	if (!p->accel_priv)
+> +		return;
+> +
+> +	p->dev->netdev_ops->ndo_dfwd_del_station(p->dev, p->accel_priv);
+> +	p->accel_priv = NULL;
+> +}
+> +
+>  static int nbp_switchdev_hwdom_set(struct net_bridge_port *joining)
+>  {
+>  	struct net_bridge *br = joining->br;
+> @@ -176,13 +219,23 @@ int nbp_switchdev_add(struct net_bridge_port *p)
+>  		return err;
+>  	}
+>  
+> -	return nbp_switchdev_hwdom_set(p);
+> +	err = nbp_switchdev_hwdom_set(p);
+> +	if (err)
+> +		return err;
+> +
+> +	if (p->hwdom)
+> +		nbp_switchdev_fwd_offload_add(p);
+> +
+> +	return 0;
+>  }
+>  
+>  void nbp_switchdev_del(struct net_bridge_port *p)
+>  {
+>  	ASSERT_RTNL();
+>  
+> +	if (p->accel_priv)
+> +		nbp_switchdev_fwd_offload_del(p);
+> +
+>  	if (p->hwdom)
+>  		nbp_switchdev_hwdom_put(p);
+>  }
+> 
 
-DSA_SKB_CB is going away:
-https://patchwork.kernel.org/project/netdevbpf/patch/20210427042203.26258-5-yangbo.lu@nxp.com/
-
-Let's either negotiate with Yangbo on keeping it, or make
-.ndo_select_queue a bypass towards the tagger, where it can use its own
-SKB_CB structure and be more flexible in general (I think I'm leaning
-towards the latter).
