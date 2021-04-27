@@ -2,27 +2,23 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=Wk3WhvG5+x2X6+e/LTcYs4sKDrKDTT2ZvIkkcwCdm7c=;
- b=PAwNU/ebxN7FawSKYBz54buUyQWyuTyNB1zGnJgtBCsH26c0cqS+yHX3V5eU39y4/k
- khWTC8Jkx5xNLD670i7xAKVjjCUllz7j1UG5s1fGlCuDuHIhEprWSoCmHrTzi0n3/09p
- AsXe8trPEufPRaySbJoD0+JPSP9Qs/NS+PZrx1S8hRtTnRQDiBo5Agca2uRiXGIVdMom
- MOMLKL77AnknlYWSBG+4viTEiS/fDCYt+A9p325cZ5aCv3+Kd40dmZtYODYJ2FA6MGZS
- +tKlxuNYwKdSHIkL28srrQxbZkiwQoTlt9EsDE5d/VLde9oUi8kbKwVKEMQl/RXrfo63
- /TBw==
-Date: Tue, 27 Apr 2021 13:07:53 +0300
+ bh=jS8mRrVLDbaMyDpr/LGOADIkfzJVPQFO2ymhmDViSxs=;
+ b=SC93pnBiT+4OyRyZhIROJviKb++caWsXnBmTV1wQ3TZY6NhVBd3et/G1sQ3466kKlS
+ vAQ+JgWSgaMdsbFZKGMNbUh+l96p3DbPA/WmAPgGgi/N01hmElZhWWo1XWB9GDFADatC
+ elGzzyKuwK7ZTM030Aw91J4T4nk14zB/GxCDnoXma3eGbamlrTlfiKTzIeRIEK58x7Za
+ 0Z4Nm1Xuu0oiH3HQZiJniOr8oU+BEod+mP3BC41o0dWG1GOj6tyQAW/9qFp+kBpnRHgH
+ IOT2w+kMPC39nE7DvPfoF8AHoAWN5o1BR3+iP0vataH6fDt2i0nznbLqBPqU1YPTv5+k
+ fTgQ==
+Date: Tue, 27 Apr 2021 13:17:47 +0300
 From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20210427100753.pvkjbqp2qzkfbcpq@skbuf>
+Message-ID: <20210427101747.n3y6w6o7thl5cz3r@skbuf>
 References: <20210426170411.1789186-1-tobias@waldekranz.com>
- <20210426170411.1789186-6-tobias@waldekranz.com>
- <20210426194026.3sr22rqyf2srrwtq@skbuf>
- <877dkoq09r.fsf@waldekranz.com>
- <20210426202800.y4hfurf5k3hrbvqf@skbuf>
- <8735vcoztz.fsf@waldekranz.com>
+ <20210426170411.1789186-7-tobias@waldekranz.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8735vcoztz.fsf@waldekranz.com>
-Subject: Re: [Bridge] [RFC net-next 5/9] net: dsa: Track port PVIDs
+In-Reply-To: <20210426170411.1789186-7-tobias@waldekranz.com>
+Subject: Re: [Bridge] [RFC net-next 6/9] net: dsa: Forward offloading
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,119 +30,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Tobias Waldekranz <tobias@waldekranz.com>
 Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Tue, Apr 27, 2021 at 11:12:56AM +0200, Tobias Waldekranz wrote:
-> On Mon, Apr 26, 2021 at 23:28, Vladimir Oltean <olteanv@gmail.com> wrote:
-> > On Mon, Apr 26, 2021 at 10:05:52PM +0200, Tobias Waldekranz wrote:
-> >> On Mon, Apr 26, 2021 at 22:40, Vladimir Oltean <olteanv@gmail.com> wrote:
-> >> > Hi Tobias,
-> >> >
-> >> > On Mon, Apr 26, 2021 at 07:04:07PM +0200, Tobias Waldekranz wrote:
-> >> >> In some scenarios a tagger must know which VLAN to assign to a packet,
-> >> >> even if the packet is set to egress untagged. Since the VLAN
-> >> >> information in the skb will be removed by the bridge in this case,
-> >> >> track each port's PVID such that the VID of an outgoing frame can
-> >> >> always be determined.
-> >> >> 
-> >> >> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-> >> >> ---
-> >> >
-> >> > Let me give you this real-life example:
-> >> >
-> >> > #!/bin/bash
-> >> >
-> >> > ip link add br0 type bridge vlan_filtering 1
-> >> > for eth in eth0 eth1 swp2 swp3 swp4 swp5; do
-> >> > 	ip link set $eth up
-> >> > 	ip link set $eth master br0
-> >> > done
-> >> > ip link set br0 up
-> >> >
-> >> > bridge vlan add dev eth0 vid 100 pvid untagged
-> >> > bridge vlan del dev swp2 vid 1
-> >> > bridge vlan del dev swp3 vid 1
-> >> > bridge vlan add dev swp2 vid 100
-> >> > bridge vlan add dev swp3 vid 100 untagged
-> >> >
-> >> > reproducible on the NXP LS1021A-TSN board.
-> >> > The bridge receives an untagged packet on eth0 and floods it.
-> >> > It should reach swp2 and swp3, and be tagged on swp2, and untagged on
-> >> > swp3 respectively.
-> >> >
-> >> > With your idea of sending untagged frames towards the port's pvid,
-> >> > wouldn't we be leaking this packet to VLAN 1, therefore towards ports
-> >> > swp4 and swp5, and the real destination ports would not get this packet?
-> >> 
-> >> I am not sure I follow. The bridge would never send the packet to
-> >> swp{4,5} because should_deliver() rejects them (as usual). So it could
-> >> only be sent either to swp2 or swp3. In the case that swp3 is first in
-> >> the bridge's port list, it would be sent untagged, but the PVID would be
-> >> 100 and the flooding would thus be limited to swp{2,3}.
-> >
-> > Sorry, _I_ don't understand.
-> >
-> > When you say that the PVID is 100, whose PVID is it, exactly? Is it the
-> > pvid of the source port (aka eth0 in this example)? That's not what I
-> > see, I see the pvid of the egress port (the Marvell device)...
+On Mon, Apr 26, 2021 at 07:04:08PM +0200, Tobias Waldekranz wrote:
+> Allow DSA drivers to support forward offloading from a bridge by:
 > 
-> I meant the PVID of swp3.
+> - Passing calls to .ndo_dfwd_{add,del}_station to the drivers.
 > 
-> In summary: This series incorrectly assumes that a port's PVID always
-> corresponds to the VID that should be assigned to untagged packets on
-> egress. This is wrong because PVID only specifies which VID to assign
-> packets to on ingress, it says nothing about policy on egress. Multiple
-> VIDs can also be configured to egress untagged on a given port. The VID
-> must thus be sent along with each packet in order for the driver to be
-> able to assign it to the correct VID.
-
-So yes, I think you and I are on the same page now, in that the port
-driver must not inject untagged packets into the port's PVID, since the
-PVID is an ingress setting. Heck, the PVID might not even be installed
-on the egress port, and that doesn't mean it shouldn't send untagged
-packets, it only means it shouldn't receive them.
-
-Just to be even more clear, this is what I think happens with your
-change.
-
-Untagged packets classified to VLAN 100 are reinterpreted by the port
-driver as untagged, and sent to VLAN 1 (the PVID of the egress port).
-What you said about should_deliver() doesn't matter/doesn't make sense,
-because the offload forwarding domain contains all of swp2, swp3, swp4,
-swp5. It is not per-VLAN. So the bridge has no idea that the port driver
-will inject the packet with the wrong VLAN information. The packet
-_will_ end up on the wrong ports, and it has hopped VLANs.
-
-> > So to reiterate: when you transmit a packet towards your hardware switch
-> > which has br0 inside the sb_dev, how does the switch know in which VLAN
-> > to forward that packet? As far as I am aware, when the bridge had
-> > received the packet as untagged on eth0, it did not insert VLAN 100 into
-> > the skb itself, so the bridge VLAN information is lost when delivering
-> > the frame to the egress net device. Am I wrong?
+> - Recording the subordinate device of offloaded skbs in the control
+>   buffer so that the tagger can take the appropriate action.
 > 
-> VID 100 is inserted into skb->vlan_tci on ingress from eth0, in
-> br_vlan.c/__allowed_ingress. It is then cleared again in
-> br_vlan.c/br_handle_vlan if the egress port (swp3 in our example) is set
-> to egress the VID untagged.
+> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+> ---
+>  include/net/dsa.h |  7 +++++++
+>  net/dsa/slave.c   | 36 ++++++++++++++++++++++++++++++++++--
+>  2 files changed, 41 insertions(+), 2 deletions(-)
 > 
-> The last step only clears skb->vlan_present though, the actual VID
-> information still resides in skb->vlan_tci. I tried just removing 5/9
-> from this series, and then sourced the VID from skb->vlan_tci for
-> untagged packets. It works like a charm! I think this is the way
-> forward.
-> 
-> The question is if we need another bit of information to signal that
-> skb->vlan_tci contains valid information, but the packet should still be
-> considered untagged? This could also be used on Rx to carry priority
-> (PCP) information to the bridge.
+> diff --git a/include/net/dsa.h b/include/net/dsa.h
+> index 1f9ba9889034..77d4df819299 100644
+> --- a/include/net/dsa.h
+> +++ b/include/net/dsa.h
+> @@ -119,6 +119,7 @@ struct dsa_netdevice_ops {
+>  
+>  struct dsa_skb_cb {
+>  	struct sk_buff *clone;
+> +	struct net_device *sb_dev;
+>  };
+>  
+>  struct __dsa_skb_cb {
+> @@ -828,6 +829,12 @@ struct dsa_switch_ops {
+>  					  const struct switchdev_obj_ring_role_mrp *mrp);
+>  	int	(*port_mrp_del_ring_role)(struct dsa_switch *ds, int port,
+>  					  const struct switchdev_obj_ring_role_mrp *mrp);
+> +
+> +	/* L2 forward offloading */
+> +	void *	(*dfwd_add_station)(struct dsa_switch *ds, int port,
+> +				    struct net_device *sb_dev);
+> +	void	(*dfwd_del_station)(struct dsa_switch *ds, int port,
+> +				    struct net_device *sb_dev);
+>  };
+>  
+>  #define DSA_DEVLINK_PARAM_DRIVER(_id, _name, _type, _cmodes)		\
+> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+> index 77b33bd161b8..3689ffa2dbb8 100644
+> --- a/net/dsa/slave.c
+> +++ b/net/dsa/slave.c
+> @@ -657,6 +657,13 @@ static netdev_tx_t dsa_slave_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	return dsa_enqueue_skb(nskb, dev);
+>  }
+>  
+> +static u16 dsa_slave_select_queue(struct net_device *dev, struct sk_buff *skb,
+> +				  struct net_device *sb_dev)
+> +{
+> +	DSA_SKB_CB(skb)->sb_dev = sb_dev;
+> +	return netdev_pick_tx(dev, skb, sb_dev);
+> +}
+> +
 
-Either we add another bit of information, or we don't clear the VLAN
-in this bit of code, if the port supports fwd offload:
+DSA_SKB_CB is going away:
+https://patchwork.kernel.org/project/netdevbpf/patch/20210427042203.26258-5-yangbo.lu@nxp.com/
 
-br_handle_vlan:
-
-	if (v->flags & BRIDGE_VLAN_INFO_UNTAGGED)
-		__vlan_hwaccel_clear_tag(skb);
-
-The expectation that the hardware handles VLAN popping on the egress of
-individual ports (as part of the replication procedure) should be valid,
-I guess. In the case of DSA, all packets sent between the DSA master and
-the CPU port using fwd offload should be VLAN-tagged.
+Let's either negotiate with Yangbo on keeping it, or make
+.ndo_select_queue a bypass towards the tagger, where it can use its own
+SKB_CB structure and be more flexible in general (I think I'm leaning
+towards the latter).
