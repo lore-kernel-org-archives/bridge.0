@@ -2,16 +2,16 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=bkXVbfyTzXslA6g8B5OHGeF3+6CBeq2YX/4rC8qa19M=;
- b=Nhby/PJRRYrkOwRNFKttFii8O1vc9ei/3JlKQ2bwF5Y6XeZHALmjymmaP317VN5G+d
- Cih5qW2WFckUGsDsfZfMvkiLfpzCNwL7ahWC0f2OYyqS+FZ1omo/7e8xLQeG5jlklhIf
- mVerd8x0YI8eTSxl6QndVfhQ2ZBE1FDHVyfuIa2HKdqFzwWtqDBR/Fa60arNYX784l/L
- A1f6d4E38XG2PNdcKJG6m6IdEqSu/7zL+9cuCw0rImSr1KboCe4QftUi2Wk5Ac8y1qnR
- bdxsztqyhFOrgs4/zOSOVejeuhMsjQWk7r7ZPrToT8mwzN0dMsJlqdcqdHRIgTQol1Dv
- 6mPQ==
-Date: Tue, 27 Apr 2021 12:27:58 +0300
+ bh=Wk3WhvG5+x2X6+e/LTcYs4sKDrKDTT2ZvIkkcwCdm7c=;
+ b=PAwNU/ebxN7FawSKYBz54buUyQWyuTyNB1zGnJgtBCsH26c0cqS+yHX3V5eU39y4/k
+ khWTC8Jkx5xNLD670i7xAKVjjCUllz7j1UG5s1fGlCuDuHIhEprWSoCmHrTzi0n3/09p
+ AsXe8trPEufPRaySbJoD0+JPSP9Qs/NS+PZrx1S8hRtTnRQDiBo5Agca2uRiXGIVdMom
+ MOMLKL77AnknlYWSBG+4viTEiS/fDCYt+A9p325cZ5aCv3+Kd40dmZtYODYJ2FA6MGZS
+ +tKlxuNYwKdSHIkL28srrQxbZkiwQoTlt9EsDE5d/VLde9oUi8kbKwVKEMQl/RXrfo63
+ /TBw==
+Date: Tue, 27 Apr 2021 13:07:53 +0300
 From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20210427092758.uejhxl7ahuulf34m@skbuf>
+Message-ID: <20210427100753.pvkjbqp2qzkfbcpq@skbuf>
 References: <20210426170411.1789186-1-tobias@waldekranz.com>
  <20210426170411.1789186-6-tobias@waldekranz.com>
  <20210426194026.3sr22rqyf2srrwtq@skbuf>
@@ -97,7 +97,24 @@ On Tue, Apr 27, 2021 at 11:12:56AM +0200, Tobias Waldekranz wrote:
 > VIDs can also be configured to egress untagged on a given port. The VID
 > must thus be sent along with each packet in order for the driver to be
 > able to assign it to the correct VID.
-> 
+
+So yes, I think you and I are on the same page now, in that the port
+driver must not inject untagged packets into the port's PVID, since the
+PVID is an ingress setting. Heck, the PVID might not even be installed
+on the egress port, and that doesn't mean it shouldn't send untagged
+packets, it only means it shouldn't receive them.
+
+Just to be even more clear, this is what I think happens with your
+change.
+
+Untagged packets classified to VLAN 100 are reinterpreted by the port
+driver as untagged, and sent to VLAN 1 (the PVID of the egress port).
+What you said about should_deliver() doesn't matter/doesn't make sense,
+because the offload forwarding domain contains all of swp2, swp3, swp4,
+swp5. It is not per-VLAN. So the bridge has no idea that the port driver
+will inject the packet with the wrong VLAN information. The packet
+_will_ end up on the wrong ports, and it has hopped VLANs.
+
 > > So to reiterate: when you transmit a packet towards your hardware switch
 > > which has br0 inside the sb_dev, how does the switch know in which VLAN
 > > to forward that packet? As far as I am aware, when the bridge had
@@ -121,6 +138,15 @@ On Tue, Apr 27, 2021 at 11:12:56AM +0200, Tobias Waldekranz wrote:
 > considered untagged? This could also be used on Rx to carry priority
 > (PCP) information to the bridge.
 
-My expectation is that when you do this forwarding offload thing, the
-bridge passes the classified VLAN down to the port driver, encoded
-inside the accel_priv alongside the sb_dev somehow.
+Either we add another bit of information, or we don't clear the VLAN
+in this bit of code, if the port supports fwd offload:
+
+br_handle_vlan:
+
+	if (v->flags & BRIDGE_VLAN_INFO_UNTAGGED)
+		__vlan_hwaccel_clear_tag(skb);
+
+The expectation that the hardware handles VLAN popping on the egress of
+individual ports (as part of the replication procedure) should be valid,
+I guess. In the case of DSA, all packets sent between the DSA master and
+the CPU port using fwd offload should be VLAN-tagged.
