@@ -1,10 +1,10 @@
 Return-Path: <zhangzhengming@huawei.com>
 From: zhangzhengming <zhangzhengming@huawei.com>
-Date: Wed, 28 Apr 2021 15:29:09 +0800
-Message-ID: <1619594949-20428-1-git-send-email-zhangzhengming@huawei.com>
+Date: Wed, 28 Apr 2021 22:38:14 +0800
+Message-ID: <1619620694-12419-1-git-send-email-zhangzhengming@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [Bridge] [PATCH] bridge: Fix possible races between assigning
+Subject: [Bridge] [PATCH v2] bridge: Fix possible races between assigning
 	rx_handler_data and setting IFF_BRIDGE_PORT bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -64,45 +64,32 @@ rtnl_calcit()                                                 br_add_slave()
                                                                     -> rcu_assign_pointer(dev->rx_handler_data, rx_handler_data);
                                                                      ...
 
-Fix this by adding memory barrier instruction to ensure the order.
+Fix it in br_get_link_af_size_filtered, using br_port_get_check_rcu() and checking the return value.
 
 Signed-off-by: Zhang Zhengming <zhangzhengming@huawei.com>
 Reviewed-by: Zhao Lei <zhaolei69@huawei.com>
 Reviewed-by: Wang Xiaogang <wangxiaogang3@huawei.com>
+Suggested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- net/bridge/br_if.c      | 6 ++++++
- net/bridge/br_netlink.c | 1 +
- 2 files changed, 7 insertions(+)
+ net/bridge/br_netlink.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index f7d2f47..42895be 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -636,6 +636,12 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	err = netdev_rx_handler_register(dev, br_get_rx_handler(dev), p);
- 	if (err)
- 		goto err4;
-+
-+	/* Make sure dev->rx_handler_data is written in netdev_rx_handler_register
-+	 * before the bit IFF_BRIDGE_PORT of dev->priv_flags is set.
-+	 * coupled with smp_rmb() in br_get_link_af_size_filtered.
-+	 */
-+	smp_wmb();
- 
- 	dev->priv_flags |= IFF_BRIDGE_PORT;
- 
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index f2b1343..ccc1fd7 100644
+index f2b1343..ed5aba2 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -103,6 +103,7 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
+@@ -103,8 +103,9 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
  
  	rcu_read_lock();
  	if (netif_is_bridge_port(dev)) {
-+		smp_rmb(); /* coupled with smp_wmb() in br_add_if() */
- 		p = br_port_get_rcu(dev);
- 		vg = nbp_vlan_group_rcu(p);
+-		p = br_port_get_rcu(dev);
+-		vg = nbp_vlan_group_rcu(p);
++		p = br_port_get_check_rcu(dev);
++		if (p)
++			vg = nbp_vlan_group_rcu(p);
  	} else if (dev->priv_flags & IFF_EBRIDGE) {
+ 		br = netdev_priv(dev);
+ 		vg = br_vlan_group_rcu(br);
 -- 
 2.7.4
 
