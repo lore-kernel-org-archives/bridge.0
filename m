@@ -1,26 +1,23 @@
-Return-Path: <tobias@waldekranz.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=waldekranz-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=UWpZlaBMjKz4UP0WedOlFwoa27E2OItNueqHQod90wE=;
- b=u3ImikCHb3itOPRZgI+mVBFcvUR/Y0xn0DqVYk6nEFB0L5avMEG4NKv4d0iwME8KqT
- azA8f0rP6FUt0giABRXlKN+mbz/gtKm8ZYSOfsQ5wkuaDIzAuTFzJGr9gpw3yEOxfZFe
- h2TAPjc/zDLMpsAWzbAJw++ziyJ3ejQ7NZ0+Ony8lPXhFsUGZH6CYQFWHYXHcxYmX3n0
- DQ9W0qsz2juQCu4i32spc43pc22v3XEdTZ1G9e+6Ksx7LLpRvIKr4zw1CbHVScwZ6q9N
- RZJBdA3jgjzKBHDIa/RPGby4pCsO4tB9yu4RJOHFOxMRDC4sywllZvTmFUqd8CykAbkE
- h0Yg==
-From: Tobias Waldekranz <tobias@waldekranz.com>
-In-Reply-To: <20210427100753.pvkjbqp2qzkfbcpq@skbuf>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nFITK1aL21pIIpQ42+jX0WnCiao57sobbj3r5uJKad0=;
+ b=Zsg9x9H7Yrimz7Uq4AheUppQMaZmjmS2oWi83PJ5+ttyp7lOufJPYOgnsN6jq5M0ibSDV9QIPwBCA47vXNCY0GoYf7I8Vliul97MtJQZS8dt/RwCbzU66gQBJDvY/B6TVc/ECCbQAadpm2LFqo8PFdJD2LHyYsDkDUBscHSY2AdsipsDdDDycKav4AO7xzm8pbuZnJO3E9DiYAakYzaSWrzISxP4n2vHR/vosGgZD+QPE7uRsGpwHActBIgKYxhTQDzCRHGDdze2v/84QHFMIq90idW8vDoo9IknKQXnyKa+WeBnMLOOVHaNleyBrEegS9T5TZ/FEkDKh1hM5Twmsw==
 References: <20210426170411.1789186-1-tobias@waldekranz.com>
- <20210426170411.1789186-6-tobias@waldekranz.com>
- <20210426194026.3sr22rqyf2srrwtq@skbuf> <877dkoq09r.fsf@waldekranz.com>
- <20210426202800.y4hfurf5k3hrbvqf@skbuf> <8735vcoztz.fsf@waldekranz.com>
- <20210427100753.pvkjbqp2qzkfbcpq@skbuf>
-Date: Thu, 29 Apr 2021 01:10:30 +0200
-Message-ID: <87pmyengyh.fsf@waldekranz.com>
+ <20210426170411.1789186-5-tobias@waldekranz.com>
+ <ac177d80-6530-be48-95bc-57652a31fe6a@nvidia.com>
+ <87tunqni1d.fsf@waldekranz.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <51e241f3-cd75-44a1-f4bf-4f040dae0d7c@nvidia.com>
+Date: Thu, 29 Apr 2021 12:16:35 +0300
+In-Reply-To: <87tunqni1d.fsf@waldekranz.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [RFC net-next 5/9] net: dsa: Track port PVIDs
+Subject: Re: [Bridge] [RFC net-next 4/9] net: bridge: switchdev: Forward
+	offloading
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,149 +26,333 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net, kuba@kernel.org
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, olteanv@gmail.com, vivien.didelot@gmail.com
 
-On Tue, Apr 27, 2021 at 13:07, Vladimir Oltean <olteanv@gmail.com> wrote:
-> On Tue, Apr 27, 2021 at 11:12:56AM +0200, Tobias Waldekranz wrote:
->> On Mon, Apr 26, 2021 at 23:28, Vladimir Oltean <olteanv@gmail.com> wrote:
->> > On Mon, Apr 26, 2021 at 10:05:52PM +0200, Tobias Waldekranz wrote:
->> >> On Mon, Apr 26, 2021 at 22:40, Vladimir Oltean <olteanv@gmail.com> wrote:
->> >> > Hi Tobias,
->> >> >
->> >> > On Mon, Apr 26, 2021 at 07:04:07PM +0200, Tobias Waldekranz wrote:
->> >> >> In some scenarios a tagger must know which VLAN to assign to a packet,
->> >> >> even if the packet is set to egress untagged. Since the VLAN
->> >> >> information in the skb will be removed by the bridge in this case,
->> >> >> track each port's PVID such that the VID of an outgoing frame can
->> >> >> always be determined.
->> >> >> 
->> >> >> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
->> >> >> ---
->> >> >
->> >> > Let me give you this real-life example:
->> >> >
->> >> > #!/bin/bash
->> >> >
->> >> > ip link add br0 type bridge vlan_filtering 1
->> >> > for eth in eth0 eth1 swp2 swp3 swp4 swp5; do
->> >> > 	ip link set $eth up
->> >> > 	ip link set $eth master br0
->> >> > done
->> >> > ip link set br0 up
->> >> >
->> >> > bridge vlan add dev eth0 vid 100 pvid untagged
->> >> > bridge vlan del dev swp2 vid 1
->> >> > bridge vlan del dev swp3 vid 1
->> >> > bridge vlan add dev swp2 vid 100
->> >> > bridge vlan add dev swp3 vid 100 untagged
->> >> >
->> >> > reproducible on the NXP LS1021A-TSN board.
->> >> > The bridge receives an untagged packet on eth0 and floods it.
->> >> > It should reach swp2 and swp3, and be tagged on swp2, and untagged on
->> >> > swp3 respectively.
->> >> >
->> >> > With your idea of sending untagged frames towards the port's pvid,
->> >> > wouldn't we be leaking this packet to VLAN 1, therefore towards ports
->> >> > swp4 and swp5, and the real destination ports would not get this packet?
->> >> 
->> >> I am not sure I follow. The bridge would never send the packet to
->> >> swp{4,5} because should_deliver() rejects them (as usual). So it could
->> >> only be sent either to swp2 or swp3. In the case that swp3 is first in
->> >> the bridge's port list, it would be sent untagged, but the PVID would be
->> >> 100 and the flooding would thus be limited to swp{2,3}.
->> >
->> > Sorry, _I_ don't understand.
->> >
->> > When you say that the PVID is 100, whose PVID is it, exactly? Is it the
->> > pvid of the source port (aka eth0 in this example)? That's not what I
->> > see, I see the pvid of the egress port (the Marvell device)...
->> 
->> I meant the PVID of swp3.
->> 
->> In summary: This series incorrectly assumes that a port's PVID always
->> corresponds to the VID that should be assigned to untagged packets on
->> egress. This is wrong because PVID only specifies which VID to assign
->> packets to on ingress, it says nothing about policy on egress. Multiple
->> VIDs can also be configured to egress untagged on a given port. The VID
->> must thus be sent along with each packet in order for the driver to be
->> able to assign it to the correct VID.
->
-> So yes, I think you and I are on the same page now, in that the port
-> driver must not inject untagged packets into the port's PVID, since the
-> PVID is an ingress setting. Heck, the PVID might not even be installed
-> on the egress port, and that doesn't mean it shouldn't send untagged
-> packets, it only means it shouldn't receive them.
->
-> Just to be even more clear, this is what I think happens with your
-> change.
->
-> Untagged packets classified to VLAN 100 are reinterpreted by the port
-> driver as untagged, and sent to VLAN 1 (the PVID of the egress port).
-> What you said about should_deliver() doesn't matter/doesn't make sense,
-> because the offload forwarding domain contains all of swp2, swp3, swp4,
-> swp5. It is not per-VLAN. So the bridge has no idea that the port driver
-> will inject the packet with the wrong VLAN information. The packet
-> _will_ end up on the wrong ports, and it has hopped VLANs.
+On 29/04/2021 01:47, Tobias Waldekranz wrote:
+> On Tue, Apr 27, 2021 at 13:35, Nikolay Aleksandrov <nikolay@nvidia.com> wrote:
+>> On 26/04/2021 20:04, Tobias Waldekranz wrote:
+>>> Allow switchdevs to forward frames from the CPU in accordance with the
+>>> bridge configuration in the same way as is done between bridge
+>>> ports. This means that the bridge will only send a single skb towards
+>>> one of the ports under the switchdev's control, and expects the driver
+>>> to deliver the packet to all eligible ports in its domain.
+>>>
+>>> Primarily this improves the performance of multicast flows with
+>>> multiple subscribers, as it allows the hardware to perform the frame
+>>> replication.
+>>>
+>>> The basic flow between the driver and the bridge is as follows:
+>>>
+>>> - The switchdev accepts the offload by returning a non-null pointer
+>>>   from .ndo_dfwd_add_station when the port is added to the bridge.
+>>>
+>>> - The bridge sends offloadable skbs to one of the ports under the
+>>>   switchdev's control using dev_queue_xmit_accel.
+>>>
+>>> - The switchdev notices the offload by checking for a non-NULL
+>>>   "sb_dev" in the core's call to .ndo_select_queue.
+>>>
+>>> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+>>> ---
+>>>  net/bridge/br_forward.c   | 11 +++++++-
+>>>  net/bridge/br_private.h   | 27 ++++++++++++++++++
+>>>  net/bridge/br_switchdev.c | 59 +++++++++++++++++++++++++++++++++++++--
+>>>  3 files changed, 93 insertions(+), 4 deletions(-)
+>>>
+>>
+>> Hi,
+>> Please try to find a way to reduce the number of new tests in the fast path.
+>> This specific feature might help these devices, but the new tests hurt everybody else.
+>> I don't mind the control plane changes, but I'd like to minimize the fast-path impact.
+> 
+> Wholeheartedly agree.
+> 
+>> Do you need "accel_priv" to be a pointer, I mean can't derive sb_dev from the port alone ?
+>> Either way - you can mark the port via its internal flags if it can accelerate, those are
+>> used frequently and are in a hot cache line (by the way that reminds me that the port
+>> offload mark/hwdom should be moved in the first cache line).
+> 
+> I need to stash accel_priv somewhere as .ndo_dfwd_del_station expects it
+> sent back when unregistering the offload. But there is no need for it to
+> be part of the fast-path. Would it be ok to add a BR_FORWARD_OFFLOAD to
+> p->flags, which would be used in the fast-path, while also keeping
+> accel_priv on the port, but on a colder line?
+> 
 
-My brain's iproute2 simulator must have malfunctioned :) Anyway, we
-agree that the current implementation only works for the common case
-where there is a single untagged VID on a port that is also set as the
-PVID.
+About the flag - yes, that is what I'm proposing. Use an internal port flag for it
+and for the tests.
 
->> > So to reiterate: when you transmit a packet towards your hardware switch
->> > which has br0 inside the sb_dev, how does the switch know in which VLAN
->> > to forward that packet? As far as I am aware, when the bridge had
->> > received the packet as untagged on eth0, it did not insert VLAN 100 into
->> > the skb itself, so the bridge VLAN information is lost when delivering
->> > the frame to the egress net device. Am I wrong?
->> 
->> VID 100 is inserted into skb->vlan_tci on ingress from eth0, in
->> br_vlan.c/__allowed_ingress. It is then cleared again in
->> br_vlan.c/br_handle_vlan if the egress port (swp3 in our example) is set
->> to egress the VID untagged.
->> 
->> The last step only clears skb->vlan_present though, the actual VID
->> information still resides in skb->vlan_tci. I tried just removing 5/9
->> from this series, and then sourced the VID from skb->vlan_tci for
->> untagged packets. It works like a charm! I think this is the way
->> forward.
->> 
->> The question is if we need another bit of information to signal that
->> skb->vlan_tci contains valid information, but the packet should still be
->> considered untagged? This could also be used on Rx to carry priority
->> (PCP) information to the bridge.
->
-> Either we add another bit of information, or we don't clear the VLAN
-> in this bit of code, if the port supports fwd offload:
->
-> br_handle_vlan:
->
-> 	if (v->flags & BRIDGE_VLAN_INFO_UNTAGGED)
-> 		__vlan_hwaccel_clear_tag(skb);
->
-> The expectation that the hardware handles VLAN popping on the egress of
-> individual ports (as part of the replication procedure) should be valid,
-> I guess. In the case of DSA, all packets sent between the DSA master and
-> the CPU port using fwd offload should be VLAN-tagged.
+About the pointer - it is certainly not appropriate to use net_bridge_port for a void pointer
+coming in from a driver or external place. I see that it's always the bridge device so can
+we just compare the result of the add op to the bridge dev and set only the flag based on it?
+Then on the del path if the flag is set we know it's the bridge and use it as sb_dev.
 
-Yeah I agree that for this offload, it would be fine to always send
-packets tagged. There are some things that might be helped by that extra
-bit of info though:
+>> For example you could possibly drop fwd_accel, add the bitmap in a union with sb_dev pointer
+>> in br_input_skb_cb which can be set at __br_forward at the accel check and pass it down to
+>> avoid the final test.
+> 
+> Great idea! I will add it in v1.
+> 
+Actually you can also use a static key to avoid all checks and effects of this feature on
+the bridge fast-path. You can enable it when the first device that can accelerate shows
+up and disable it when the last one leaves.
 
-- VLAN PCP. The switchdev and bridge could communicate the priority bits
-  also for untagged packets, both on ingress and egress. This would
-  maintain the priority up to a VLAN upper on top of the bridge, where
-  you can use the standard {ingress,egress}-qos-map feature to map PCP
-  to socket priority.
+By the way __br_forward() can take one more argument (sb_dev) and always set it because
+that cache line is dirty anyway due to the tstamp zeroing, but that doesn't matter if
+static keys are used. Just noting it. :)
 
-- TC. Right now, matching on VLANs is messy because there is no way to
-  express "match VLAN1" in a filter that can be reused across a group of
-  ports ("block" in TC parlance) where some may be untagged members and
-  others are tagged. In hardware, the VLAN parser typically resides much
-  earlier in the pipeline (way before reaching the bridge engine) so
-  TCAMs can easily do these things.
+>> Furthermore since the hwdoms are bits and if the port accel is a bit
+>> you could probably reduce the nbp_switchdev_can_accel() helper to one test with a few bitops.
+> 
+> Not sure I follow. The current code has two tests:
+> 
+> 1. Is offloading enabled on the port. (To be done using p->flags in v1)
+> 2. Is offloading allowed for this frame to this port.
+> 
+> The port can be part of a hwdom that does not support forward
+> offloading; indeed only one driver would support it initially. So how do
+> I avoid having to test the conditions individually?
+> 
 
-But this is perhaps a separate job. Nothing stops us from going the
-always-tagged-route now and adding "untagged awareness" to the stack
-later on.
+Coming to think of it with the port bit test first it should be fine.
+
+
+For the sake of fun here's one way that can turn it into one test,
+obviously I haven't tested anything:
+ - reserve a few most significant bits of hwdom as "feature" bits, say 4
+ - add a "feature" bit which encodes ability to accelerate
+ => test becomes p->hwdom | (src_hwdom & hwdom_bitmask) > (accel feature bit) | p->hwdom
+It's very hacky and _not_ to be used. :)
+
+>> In nbp_switchdev_allowed_egress() I'd make the hwdom tests rely on skb's offload_fwd_mark
+>> so in the software forwarding case we could avoid them.
+> 
+> Flipping the left and right side of the expression is possible, but I
+> think that would only impact the case where the frame is _not_ allowed
+> to egress. Is that what you mean? Otherwise you still need to test for
+> the condition that we have forwarded to this port's hwdom already, to
+> avoid sending duplicates on the wire. This is independent of
+> skb->offload_fwd_mark as both Rx-offloaded and non-Rx-offloaded frames
+> can still be Tx-offloaded to other hwdoms.
+> 
+> A typical example would be a broadcast frame ingressing the bridge from
+> eth0 in the figure from the cover letter. skb->offload_fwd_mark would
+> always be 0, but you still need to test fwd_hwdoms to skip over swp{1,2}
+> after you have sent the skb to swp0.
+> 
+
+Yeah, you're right I was still thinking only of offloaded skbs, didn't consider
+mixing the two.
+
+>> I might be missing something above, but we have to try and reduce these tests as much as
+>> possible, also the port's first cache line is quite crowded so avoiding any new fields
+>> would be best, i.e. at some point we'll move the hwdom/offload mark there to avoid pulling
+>> in the last cache line of net_bridge_port, so it'd be best to avoid having to move accel_priv
+>> there too.
+>>
+>> Cheers,
+>>  Nik
+>>
+>>> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+>>> index 6e9b049ae521..b4fb3b0bb1ec 100644
+>>> --- a/net/bridge/br_forward.c
+>>> +++ b/net/bridge/br_forward.c
+>>> @@ -32,6 +32,8 @@ static inline int should_deliver(const struct net_bridge_port *p,
+>>>  
+>>>  int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb)
+>>>  {
+>>> +	struct net_device *sb_dev = NULL;
+>>> +
+>>>  	skb_push(skb, ETH_HLEN);
+>>>  	if (!is_skb_forwardable(skb->dev, skb))
+>>>  		goto drop;
+>>> @@ -48,7 +50,10 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
+>>>  		skb_set_network_header(skb, depth);
+>>>  	}
+>>>  
+>>> -	dev_queue_xmit(skb);
+>>> +	if (br_switchdev_accels_skb(skb))
+>>> +		sb_dev = BR_INPUT_SKB_CB(skb)->brdev;
+>>> +
+>>> +	dev_queue_xmit_accel(skb, sb_dev);
+>>>  
+>>>  	return 0;
+>>>  
+>>> @@ -105,6 +110,8 @@ static void __br_forward(const struct net_bridge_port *to,
+>>>  		indev = NULL;
+>>>  	}
+>>>  
+>>> +	nbp_switchdev_frame_mark_accel(to, skb);
+>>> +
+>>>  	NF_HOOK(NFPROTO_BRIDGE, br_hook,
+>>>  		net, NULL, skb, indev, skb->dev,
+>>>  		br_forward_finish);
+>>> @@ -174,6 +181,8 @@ static struct net_bridge_port *maybe_deliver(
+>>>  	if (!should_deliver(p, skb))
+>>>  		return prev;
+>>>  
+>>> +	nbp_switchdev_frame_mark_fwd(p, skb);
+>>> +
+>>>  	if (!prev)
+>>>  		goto out;
+>>>  
+>>> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+>>> index aba92864d285..933e951b0d7a 100644
+>>> --- a/net/bridge/br_private.h
+>>> +++ b/net/bridge/br_private.h
+>>> @@ -332,6 +332,7 @@ struct net_bridge_port {
+>>>  #endif
+>>>  #ifdef CONFIG_NET_SWITCHDEV
+>>>  	int				hwdom;
+>>> +	void				*accel_priv;
+>>>  #endif
+>>>  	u16				group_fwd_mask;
+>>>  	u16				backup_redirected_cnt;
+>>> @@ -506,7 +507,9 @@ struct br_input_skb_cb {
+>>>  #endif
+>>>  
+>>>  #ifdef CONFIG_NET_SWITCHDEV
+>>> +	u8 fwd_accel:1;
+>>>  	int src_hwdom;
+>>> +	br_hwdom_map_t fwd_hwdoms;
+>>>  #endif
+>>>  };
+>>>  
+>>> @@ -1597,6 +1600,15 @@ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
+>>>  
+>>>  /* br_switchdev.c */
+>>>  #ifdef CONFIG_NET_SWITCHDEV
+>>> +static inline bool br_switchdev_accels_skb(struct sk_buff *skb)
+>>> +{
+>>> +	return BR_INPUT_SKB_CB(skb)->fwd_accel;
+>>> +}
+>>> +
+>>> +void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
+>>> +				    struct sk_buff *skb);
+>>> +void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
+>>> +				  struct sk_buff *skb);
+>>>  void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>>>  			      struct sk_buff *skb);
+>>>  bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+>>> @@ -1619,6 +1631,21 @@ static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
+>>>  	skb->offload_fwd_mark = 0;
+>>>  }
+>>>  #else
+>>> +static inline bool br_switchdev_accels_skb(struct sk_buff *skb)
+>>> +{
+>>> +	return false;
+>>> +}
+>>> +
+>>> +static inline void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
+>>> +						  struct sk_buff *skb)
+>>> +{
+>>> +}
+>>> +
+>>> +static inline void nbp_switchdev_frame_mark_fwd(const struct net_bridge_port *p,
+>>> +						struct sk_buff *skb)
+>>> +{
+>>> +}
+>>> +
+>>>  static inline void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>>>  					    struct sk_buff *skb)
+>>>  {
+>>> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+>>> index 54bd7205bfb5..c903171ad291 100644
+>>> --- a/net/bridge/br_switchdev.c
+>>> +++ b/net/bridge/br_switchdev.c
+>>> @@ -8,6 +8,26 @@
+>>>  
+>>>  #include "br_private.h"
+>>>  
+>>> +static bool nbp_switchdev_can_accel(const struct net_bridge_port *p,
+>>> +				    const struct sk_buff *skb)
+>>> +{
+>>> +	return p->accel_priv && (p->hwdom != BR_INPUT_SKB_CB(skb)->src_hwdom);
+>>> +}
+>>> +
+>>> +void nbp_switchdev_frame_mark_accel(const struct net_bridge_port *p,
+>>> +				    struct sk_buff *skb)
+>>> +{
+>>> +	if (nbp_switchdev_can_accel(p, skb))
+>>> +		BR_INPUT_SKB_CB(skb)->fwd_accel = true;
+>>> +}
+>>> +
+>>> +void  (const struct net_bridge_port *p,
+>>> +				  struct sk_buff *skb)
+>>> +{
+>>> +	if (nbp_switchdev_can_accel(p, skb))
+>>> +		set_bit(p->hwdom, BR_INPUT_SKB_CB(skb)->fwd_hwdoms);
+>>> +}
+>>> +
+>>>  void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>>>  			      struct sk_buff *skb)
+>>>  {
+>>> @@ -18,8 +38,10 @@ void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+>>>  bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+>>>  				  const struct sk_buff *skb)
+>>>  {
+>>> -	return !skb->offload_fwd_mark ||
+>>> -	       BR_INPUT_SKB_CB(skb)->src_hwdom != p->hwdom;
+>>> +	struct br_input_skb_cb *cb = BR_INPUT_SKB_CB(skb);
+>>> +
+>>> +	return !test_bit(p->hwdom, cb->fwd_hwdoms) &&
+>>> +		(!skb->offload_fwd_mark || cb->src_hwdom != p->hwdom);
+>>>  }
+>>>  
+>>>  /* Flags that can be offloaded to hardware */
+>>> @@ -125,6 +147,27 @@ int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
+>>>  	return switchdev_port_obj_del(dev, &v.obj);
+>>>  }
+>>>  
+>>> +static void nbp_switchdev_fwd_offload_add(struct net_bridge_port *p)
+>>> +{
+>>> +	void *priv;
+>>> +
+>>> +	if (!(p->dev->features & NETIF_F_HW_L2FW_DOFFLOAD))
+>>> +		return;
+>>> +
+>>> +	priv = p->dev->netdev_ops->ndo_dfwd_add_station(p->dev, p->br->dev);
+>>> +	if (!IS_ERR_OR_NULL(priv))
+>>> +		p->accel_priv = priv;
+>>> +}
+>>> +
+>>> +static void nbp_switchdev_fwd_offload_del(struct net_bridge_port *p)
+>>> +{
+>>> +	if (!p->accel_priv)
+>>> +		return;
+>>> +
+>>> +	p->dev->netdev_ops->ndo_dfwd_del_station(p->dev, p->accel_priv);
+>>> +	p->accel_priv = NULL;
+>>> +}
+>>> +
+>>>  static int nbp_switchdev_hwdom_set(struct net_bridge_port *joining)
+>>>  {
+>>>  	struct net_bridge *br = joining->br;
+>>> @@ -176,13 +219,23 @@ int nbp_switchdev_add(struct net_bridge_port *p)
+>>>  		return err;
+>>>  	}
+>>>  
+>>> -	return nbp_switchdev_hwdom_set(p);
+>>> +	err = nbp_switchdev_hwdom_set(p);
+>>> +	if (err)
+>>> +		return err;
+>>> +
+>>> +	if (p->hwdom)
+>>> +		nbp_switchdev_fwd_offload_add(p);
+>>> +
+>>> +	return 0;
+>>>  }
+>>>  
+>>>  void nbp_switchdev_del(struct net_bridge_port *p)
+>>>  {
+>>>  	ASSERT_RTNL();
+>>>  
+>>> +	if (p->accel_priv)
+>>> +		nbp_switchdev_fwd_offload_del(p);
+>>> +
+>>>  	if (p->hwdom)
+>>>  		nbp_switchdev_hwdom_put(p);
+>>>  }
+>>>
+
