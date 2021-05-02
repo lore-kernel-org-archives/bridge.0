@@ -1,24 +1,26 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1619736010;
- bh=kQFx8Pwf7KAmyZVuDu0CSPZWkOVdAGYFuE4Hv0jweNg=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=INWBvu5ahgW03E8MPEByClQ1ZkRhxh97IovHaixR/0EfpkHqcQ3k1Nvl9EKjv5Y9Q
- Dp1V1USB56UNO63fuZhfiwcfL15YpT3UqqT5Svahfw2O6eHmhNIRalmrtp/zFaigHg
- plwp2TIQUQWKhWUwMdYmMAUTo/b8z0Itt0GHmuQu2C3KxPbNUEt03A0DlUxxysVMPa
- mEg+KSB41dt1d5wJ5y9iI7CzFA5D0TPq97/5QwX8lDiFbJgFBkVW1Vm+MAIlZC8Cgi
- Z1ARLaB9sJpNdJ/aZSBakmZVIXWbgdzfN9rDzswapPTbQnIiKS0BnD8C9hiiUCBq9+
- +OJGAfbXuj/rg==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:content-type:date:from:in-reply-to
+ :message-id:mime-version:references:subject:to:x-me-proxy
+ :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=MQUkWK
+ w9RCDKfqU9d+QuZkH1t07x/WW5tw+ukNqYQ5A=; b=toVyAOSn7fm87WscwoiYas
+ bKbnXw10S1R+2Ar8fKvdRsYuRrQv3vJu23MEiHEKJifJFIrTxwn1AZYB632d7LKw
+ nihJhDpGxl/MQyzejdc5CjJyPzw8uHQQEESNw8ImtUXiU3GwA+2o48lHo91E8tPg
+ eP0rb+SRGSPzkj0qAr1+SxxhyVBhXnGYwZyRUgBavi2YyjrAPubJLlmCYJi2VCtW
+ hERMUnmArPMtoV0xA5dNuFqDc+xbUiyf5oKFcXX7jnb5FQqm2j+aOPe4tmKy0dH5
+ sJoefOoNqjcuHJ7avqTzZBxoaYhXrBLKPT7xnZ8DSKs1h5eMDozvz28k/c7458eQ
+ ==
+Date: Sun, 2 May 2021 18:04:54 +0300
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <YI6/li9hwHo8GfCm@shredder>
+References: <20210426170411.1789186-1-tobias@waldekranz.com>
+ <20210426170411.1789186-5-tobias@waldekranz.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161973601038.15907.11344410460500659654.git-patchwork-notify@kernel.org>
-Date: Thu, 29 Apr 2021 22:40:10 +0000
-References: <1619620694-12419-1-git-send-email-zhangzhengming@huawei.com>
-In-Reply-To: <1619620694-12419-1-git-send-email-zhangzhengming@huawei.com>
-Subject: Re: [Bridge] [PATCH v2] bridge: Fix possible races between
- assigning rx_handler_data and setting IFF_BRIDGE_PORT bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210426170411.1789186-5-tobias@waldekranz.com>
+Subject: Re: [Bridge] [RFC net-next 4/9] net: bridge: switchdev: Forward
+	offloading
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,49 +29,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: zhangzhengming <zhangzhengming@huawei.com>
-Cc: netdev@vger.kernel.org, wangxiaogang3@huawei.com, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net, xuhanbing@huawei.com
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, olteanv@gmail.com, davem@davemloft.net
 
-Hello:
+On Mon, Apr 26, 2021 at 07:04:06PM +0200, Tobias Waldekranz wrote:
+> +static void nbp_switchdev_fwd_offload_add(struct net_bridge_port *p)
+> +{
+> +	void *priv;
+> +
+> +	if (!(p->dev->features & NETIF_F_HW_L2FW_DOFFLOAD))
+> +		return;
+> +
+> +	priv = p->dev->netdev_ops->ndo_dfwd_add_station(p->dev, p->br->dev);
 
-This patch was applied to netdev/net.git (refs/heads/master):
+Some changes to team/bond/8021q will be needed in order to get this
+optimization to work when they are enslaved to the bridge instead of the
+front panel port itself?
 
-On Wed, 28 Apr 2021 22:38:14 +0800 you wrote:
-> From: Zhang Zhengming <zhangzhengming@huawei.com>
-> 
-> There is a crash in the function br_get_link_af_size_filtered,
-> as the port_exists(dev) is true and the rx_handler_data of dev is NULL.
-> But the rx_handler_data of dev is correct saved in vmcore.
-> 
-> The oops looks something like:
->  ...
->  pc : br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
->  ...
->  Call trace:
->   br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
->   if_nlmsg_size+0x180/0x1b0
->   rtnl_calcit.isra.12+0xf8/0x148
->   rtnetlink_rcv_msg+0x334/0x370
->   netlink_rcv_skb+0x64/0x130
->   rtnetlink_rcv+0x28/0x38
->   netlink_unicast+0x1f0/0x250
->   netlink_sendmsg+0x310/0x378
->   sock_sendmsg+0x4c/0x70
->   __sys_sendto+0x120/0x150
->   __arm64_sys_sendto+0x30/0x40
->   el0_svc_common+0x78/0x130
->   el0_svc_handler+0x38/0x78
->   el0_svc+0x8/0xc
-> 
-> [...]
-
-Here is the summary with links:
-  - [v2] bridge: Fix possible races between assigning rx_handler_data and setting IFF_BRIDGE_PORT bit
-    https://git.kernel.org/netdev/net/c/59259ff7a81b
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+> +	if (!IS_ERR_OR_NULL(priv))
+> +		p->accel_priv = priv;
+> +}
+> +
+> +static void nbp_switchdev_fwd_offload_del(struct net_bridge_port *p)
+> +{
+> +	if (!p->accel_priv)
+> +		return;
+> +
+> +	p->dev->netdev_ops->ndo_dfwd_del_station(p->dev, p->accel_priv);
+> +	p->accel_priv = NULL;
+> +}
