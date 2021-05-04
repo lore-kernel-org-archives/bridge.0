@@ -3,26 +3,27 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com;
  h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding : content-type; s=pps1;
- bh=Dn1EcMNWZGsvJjV6KjhfFTdFjIc9V485NuIEyRCC98A=;
- b=0MYctD2v+C2H/CpmoxP+07w18h1DMWdSVCugHLRnkvI+WHhSRkJIDXX3aUhU9k0UaPoU
- RFaFpDOOMU612onaB54po7CgDjQ0t3oXcxryokwLkDPAe8Y/XG59rTXC4ndo97X3VAnC
- a7uBAcr4nXL0CEb6o+r5J3W86PYW0rZZeB3KHgcUBxnbivawMkqCW5YW9WcNR+KzDEhh
- dZXq+SiYGDemAMwSjcGFXL2dGpwydBgx6sYEkHiFKUJrDjD+jTW3Ls/3h++YSq1w3ac/
- HMnnHSHrvrvYcaz6lTAJiDqw4CZx8DXBWjoDTG6QKXHCMWuOMg4Kjw91N/YMYEtWKpvC 5A== 
+ bh=eGB4vdoqn/KudE2r/6GyvU8YVGKeGDDX+aBr9Ms9O88=;
+ b=heWUE/Eyu7rg6O4+O5OyFfHOOi5Tb/Ggco6nuv+glqjaFk0F6jKGnVyhSsEnM0TI5Plk
+ +7629hQ2/INPWo4LnVjizunq8/HcqliU4//DaCx0i93RFguJehjUw89gKjgMQvV0pOS4
+ 9RfgPtFibhbskj2hYcup+tkyKjlfNqFsXgmZFDYMDQNB+c3T5/REBKMLykQnqw9oHHnl
+ Hz+O3it9H2DPQuszdCsqXLe7m5YRvtE7c55DdAkAltp/G+zgDiwpAWMeGgigbAch2RvE
+ 1MLLFU0+XCCB8nFmlfMzhDL7KAlR0+FUsGOy+xempYcRP1tVjmNOSkH6Lz/bRB3jgscs cQ== 
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=garmin.onmicrosoft.com; s=selector1-garmin-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Dn1EcMNWZGsvJjV6KjhfFTdFjIc9V485NuIEyRCC98A=;
- b=DnnkYM6WWDQ+Pcw+fOYu4ui1ru/5ctsUwnwJ4+QHgY8ZLIktY/xBK09PWBk1mhRQ2a8GZ4jr0wYznu9X472/ovTDx2n3gljqRQeaIqFS0K4kmQizcb/Y6kApyzGCnaGmJoVe/PmHqMhwXN+un4fz+0fOuBqUc20Gzby8y+1NVCHfJQg5nhJ1VH2eFef4TwWCpRpxs1f8sYz8+GucAOnwjLPtiIgZDhrjduA595GLvA7OeZXQptRWBLi3IWwqfVFF0HQ34rXkocEn0/Bfspx5EBOo6O2rVo73c49uia3Jt5ubFfNLj7mxbFde11YOt3yU05J3fQEvXe/RgnG4dfJnuQ==
+ bh=eGB4vdoqn/KudE2r/6GyvU8YVGKeGDDX+aBr9Ms9O88=;
+ b=Q7OLogtpLy9t6HYXi44dtp8fAht4NfP9+UKYNknUu09kHDVPnqavCVAMUVfJxDxGQK7Rzkga2iMXQI2NZvHauRHr+MwiQ3ab3wchoW83ifAIadBMtZpSgaFHZt2L0/Sh0Yy7/all0hvH4e9DRjqet4bk5WAQ1GO4ElbMBU4s3Fx02wZE9fp/Rdw//FqnpXrSo4WlNfGV/t9PysiFC2/LgzeWgVLSz+cYcXgzOEc9YG9pt+hnyy5f/i6Jtlo/6aqCskrQanO1Ms4Lk5FpyHOLB9dKNqIVB0Wkn7wjUHc5Dmw+VegMaVsAcp2McPtaJAeGJAAgQF8KJpSVZQNxfxyM5A==
 From: Joseph Huang <Joseph.Huang@garmin.com>
-Date: Tue, 4 May 2021 14:22:54 -0400
-Message-ID: <20210504182259.5042-2-Joseph.Huang@garmin.com>
+Date: Tue, 4 May 2021 14:22:55 -0400
+Message-ID: <20210504182259.5042-3-Joseph.Huang@garmin.com>
 In-Reply-To: <20210504182259.5042-1-Joseph.Huang@garmin.com>
 References: <20210504182259.5042-1-Joseph.Huang@garmin.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH 1/6] bridge: Refactor br_mdb_notify
+Subject: [Bridge] [PATCH 2/6] bridge: Offload mrouter port forwarding to
+	switchdev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,108 +35,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Joseph Huang <Joseph.Huang@garmin.com>
 
-Separate out switchdev notification to its own function in preparation
-for the patch "bridge: Offload mrouter port forwarding to switchdev".
+Offload the mrouter port forwarding to switchdev also.
+
+Currently multicast snooping fails to forward traffic in some cases
+where there're multiple hardware-offloading bridges involved.
+
+Consider the following scenario:
+
+                 +--------------------+
+                 |                    |
+                 |      Snooping   +--|    +------------+
+                 |      Bridge 1   |P1|----| Listener 1 |
+                 |     (Querier)   +--|    +------------+
+                 |                    |
+                 +--------------------+
+                           |
+                           |
+                 +--------------------+
+                 |    | mrouter |     |
++-----------+    |    +---------+  +--|    +------------+
+| MC Source |----|      Snooping   |P2|----| Listener 2 |
++-----------|    |      Bridge 2   +--|    +------------+
+                 |    (Non-Querier)   |
+                 +--------------------+
+
+In this scenario, Listener 2 is able to receive multicast traffic
+from MC Source while Listener 1 is not. The reason is that, on
+Snooping Bridge 2, when the (soft) bridge attempts to forward
+a packet to the mrouter port via br_multicast_flood, the effort
+is blocked by nbp_switchdev_allowed_egress, since offload_fwd_mark
+indicates that the packet should have been handled by the hardware
+already. Listener 2 would receive the packets without any problem
+since P2 is programmed into the hardware as a member of the group;
+however the mrouter port would not since the mrouter port would
+normally not be a member of any group, and thus will not be added
+to the address database on the hardware switch chip.
+
+This patch takes a simplistic approach: when an mrouter port is added/
+deleted, it's added/deleted to all mdb groups; and similarly, when
+an mdb group is added/deleted, all mrouter ports are added/deleted
+to/from it.
+
+Before this patch, switchdev programming matches exactly with mdb:
+ +-----+
+ | mdb |
+ +-----+
+    |
+ +----------------------------------------------+
+ |  |        +--------------------------------+ |
+ |  |        | both in mdb and switchdev      | |
+ |  |        | +------+   +------+   +------+ | |
+ |  +--------|-| port |---| port |---| port | | |
+ |           | +------+   +------+   +------+ | |
+ | switchdev +--------------------------------+ |
+ +----------------------------------------------+
+
+After this patch, some entries will only exist in switchdev and not
+in mdb:
+ +-----+
+ | mdb |
+ +-----+
+    |
+ +---------------------------------------------------------------------+
+ |  |        +--------------------------------++---------------------+ |
+ |  |        |  both in mdb and switchdev     ||  only in switchdev  | |
+ |  |        | +------+   +------+   +------+ || +------+   +------+ | |
+ |  +--------|-| port |---| port |---| port | || |  mr  |---|  mr  | | |
+ |           | +------+   +------+   +------+ || +------+   +------+ | |
+ | switchdev +--------------------------------++---------------------+ |
+ +---------------------------------------------------------------------+
 
 Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
 ---
- net/bridge/br_mdb.c     | 57 ++++++++++++++++++++++++-----------------
- net/bridge/br_private.h |  2 ++
- 2 files changed, 36 insertions(+), 23 deletions(-)
+ net/bridge/br_multicast.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 95fa4af0e8dd..e8684d798ec3 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -669,10 +669,9 @@ static void br_mdb_switchdev_host(struct net_device *dev,
- 		br_mdb_switchdev_host_port(dev, lower_dev, mp, type);
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 226bb05c3b42..5ed0d5efef09 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -522,10 +522,26 @@ static void br_multicast_destroy_mdb_entry(struct net_bridge_mcast_gc *gc)
+ 	kfree_rcu(mp, rcu);
  }
  
--void br_mdb_notify(struct net_device *dev,
--		   struct net_bridge_mdb_entry *mp,
--		   struct net_bridge_port_group *pg,
--		   int type)
-+void br_mdb_switchdev_port(struct net_bridge_mdb_entry *mp,
-+			   struct net_bridge_port *p,
-+			   int type)
- {
- 	struct br_mdb_complete_info *complete_info;
- 	struct switchdev_obj_port_mdb mdb = {
-@@ -681,30 +680,42 @@ void br_mdb_notify(struct net_device *dev,
- 			.flags = SWITCHDEV_F_DEFER,
- 		},
- 	};
++/* Add/delete all mrouter ports to/from a group
++ * called while br->multicast_lock is held
++ */
++static void br_multicast_group_change(struct net_bridge_mdb_entry *mp,
++				      bool is_group_added)
++{
++	struct net_bridge_port *p;
++	struct hlist_node *n;
 +
-+	if (!p)
-+		return;
-+
-+	br_switchdev_mdb_populate(&mdb, mp);
-+
-+	mdb.obj.orig_dev = p->dev;
-+	switch (type) {
-+	case RTM_NEWMDB:
-+		complete_info = kmalloc(sizeof(*complete_info), GFP_ATOMIC);
-+		if (!complete_info)
-+			break;
-+		complete_info->port = p;
-+		complete_info->ip = mp->addr;
-+		mdb.obj.complete_priv = complete_info;
-+		mdb.obj.complete = br_mdb_complete;
-+		if (switchdev_port_obj_add(p->dev, &mdb.obj, NULL))
-+			kfree(complete_info);
-+		break;
-+	case RTM_DELMDB:
-+		switchdev_port_obj_del(p->dev, &mdb.obj);
-+		break;
-+	}
++	hlist_for_each_entry_safe(p, n, &mp->br->router_list, rlist)
++		br_mdb_switchdev_port(mp, p, is_group_added ?
++				      RTM_NEWMDB : RTM_DELMDB);
 +}
 +
-+void br_mdb_notify(struct net_device *dev,
-+		   struct net_bridge_mdb_entry *mp,
-+		   struct net_bridge_port_group *pg,
-+		   int type)
-+{
- 	struct net *net = dev_net(dev);
- 	struct sk_buff *skb;
- 	int err = -ENOBUFS;
+ static void br_multicast_del_mdb_entry(struct net_bridge_mdb_entry *mp)
+ {
+ 	struct net_bridge *br = mp->br;
  
- 	if (pg) {
--		br_switchdev_mdb_populate(&mdb, mp);
--
--		mdb.obj.orig_dev = pg->key.port->dev;
--		switch (type) {
--		case RTM_NEWMDB:
--			complete_info = kmalloc(sizeof(*complete_info), GFP_ATOMIC);
--			if (!complete_info)
--				break;
--			complete_info->port = pg->key.port;
--			complete_info->ip = mp->addr;
--			mdb.obj.complete_priv = complete_info;
--			mdb.obj.complete = br_mdb_complete;
--			if (switchdev_port_obj_add(pg->key.port->dev, &mdb.obj, NULL))
--				kfree(complete_info);
--			break;
--		case RTM_DELMDB:
--			switchdev_port_obj_del(pg->key.port->dev, &mdb.obj);
--			break;
--		}
-+		br_mdb_switchdev_port(mp, pg->key.port, type);
- 	} else {
- 		br_mdb_switchdev_host(dev, mp, type);
++	br_multicast_group_change(mp, false);
++
+ 	rhashtable_remove_fast(&br->mdb_hash_tbl, &mp->rhnode,
+ 			       br_mdb_rht_params);
+ 	hlist_del_init_rcu(&mp->mdb_node);
+@@ -1068,6 +1084,8 @@ struct net_bridge_mdb_entry *br_multicast_new_group(struct net_bridge *br,
+ 		hlist_add_head_rcu(&mp->mdb_node, &br->mdb_list);
  	}
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 7ce8a77cc6b6..5cba9d228b9c 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -829,6 +829,8 @@ br_multicast_new_port_group(struct net_bridge_port *port, struct br_ip *group,
- 			    u8 filter_mode, u8 rt_protocol);
- int br_mdb_hash_init(struct net_bridge *br);
- void br_mdb_hash_fini(struct net_bridge *br);
-+void br_mdb_switchdev_port(struct net_bridge_mdb_entry *mp,
-+			   struct net_bridge_port *p, int type);
- void br_mdb_notify(struct net_device *dev, struct net_bridge_mdb_entry *mp,
- 		   struct net_bridge_port_group *pg, int type);
- void br_rtr_notify(struct net_device *dev, struct net_bridge_port *port,
+ 
++	br_multicast_group_change(mp, true);
++
+ 	return mp;
+ }
+ 
+@@ -2651,8 +2669,18 @@ static void br_port_mc_router_state_change(struct net_bridge_port *p,
+ 		.flags = SWITCHDEV_F_DEFER,
+ 		.u.mrouter = is_mc_router,
+ 	};
++	struct net_bridge_mdb_entry *mp;
++	struct hlist_node *n;
+ 
+ 	switchdev_port_attr_set(p->dev, &attr, NULL);
++
++	/* Add/delete the router port to/from all multicast group
++	 * called whle br->multicast_lock is held
++	 */
++	hlist_for_each_entry_safe(mp, n, &p->br->mdb_list, mdb_node) {
++		br_mdb_switchdev_port(mp, p, is_mc_router ?
++				      RTM_NEWMDB : RTM_DELMDB);
++	}
+ }
+ 
+ /*
 -- 
 2.17.1
 
