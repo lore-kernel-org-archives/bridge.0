@@ -1,29 +1,20 @@
-Return-Path: <Joseph.Huang@garmin.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com;
- h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=pps1;
- bh=Fj46d+TFO6oS9m9H9NaMKRavcBycZmgywtCruQcLscg=;
- b=OJhdxKx6hEgp7j7TT6nzISmkxKLf7sQ/jhSNPZG1ZfoOMIhhw4bBUxVZLzF/ZrBnuRMQ
- /rSUiFaQ4nW5lrQXQ+6lXK0FYi88qGl9Gr4eUWkz16giinH+zu8ElL+aSgtI1BTpqI9c
- aoCZdN1UdT85iRxvDgtqZ1jx+QltAQoYbiBn90mfVLcLT8QITlijNAphZI1FeWHZXYcc
- +T/MBkqD3thxpq6ZA/7w/65QXt4I+rNZS60eS8iUVZnslw/Om8dy1LZH33Kp+tlJJ+4X
- WraZXZPdETnMaWj7bkXI/ueXR043GjMvSBWNr2NCfTIKBHd08dKHbQQCX9TNsGxC+zcQ TA== 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=garmin.onmicrosoft.com; s=selector1-garmin-onmicrosoft-com;
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Fj46d+TFO6oS9m9H9NaMKRavcBycZmgywtCruQcLscg=;
- b=GLYwZ3cgydMX0maQcdUxqt0CBhxPUSmMqOTP7mTOYDnoERjmHYFJ8GLmnVv3UHYR3oRiA5wu/aVG1uc78caRgNXm51Af3PSgpas7dVaT7lCjcThfxecR7xQfGWMXoO2IttmvukKISyZFYZGtnNCBmZ5s4jKW2nudHSFQW298utp9BfhfF2qeECeiAamItpewN3x1upfyjCwge3GfYvET/GrRgwSx63fUbrZJdM92aR3gaudb5PxXvgAL80yZxKAC+oKubly+0Knuqz4sJBBYSxD6Uq3EZtar32vHTedM0cN4uRrQRjzAy3XWiut3z5A2x/MGjCHm4zz7wEXd3ucs0A==
-From: Joseph Huang <Joseph.Huang@garmin.com>
-Date: Tue, 4 May 2021 14:22:58 -0400
-Message-ID: <20210504182259.5042-6-Joseph.Huang@garmin.com>
-In-Reply-To: <20210504182259.5042-1-Joseph.Huang@garmin.com>
+ bh=xDaZfruxRLOBNCUNl44GntcTxlfx0NYWY3plBC20+I0=;
+ b=F/KwvChQgRDm8FZ3yh3PFp4cs3Tysu5UJ1cbawxIcbHFPeDN/NxjYIoTd8hPHuslaQGsHIWROfdQvEzlX3avX6Fl4ILrecQ8YNw4imKylOO7n2EHuLpNrMMgNKngabN+LTAgwqT3yDfF1ez8R2XR3rYc4z1IL3hFMfOZliDSvEJ+vu41aVtwpkJjydpnDQlCwR2YAqBicWQWG6357LCikViEzUIZ9crWC25U89086FAGg/j1e/p8i5RnqcabctTmBlfVpeiP02zjSInikVUwRoYn3DlAQIuPc/iMJALiBlR3gmGZrQuP0VEJIqesAR1i1cqiOS5GbQ3Mb0aoSzklEw==
 References: <20210504182259.5042-1-Joseph.Huang@garmin.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <6fd5711c-8d53-d72b-995d-1caf77047ecf@nvidia.com>
+Date: Tue, 4 May 2021 23:05:24 +0300
+In-Reply-To: <20210504182259.5042-1-Joseph.Huang@garmin.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [PATCH 5/6] bridge: Flood Queries even when mcast_flood is
-	disabled
+Subject: Re: [Bridge] [PATCH net 0/6] bridge: Fix snooping in multi-bridge
+ config with switchdev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,88 +23,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Joseph Huang <Joseph.Huang@garmin.com>
+To: Joseph Huang <Joseph.Huang@garmin.com>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@idosch.org>
 
-Modify the forwarding path so that received Queries are always flooded
-even when mcast_flood is disabled on a bridge port.
+On 04/05/2021 21:22, Joseph Huang wrote:
+> This series of patches contains the following fixes:
+> 
+> 1. In a distributed system with multiple hardware-offloading bridges,
+>    if a multicast source is attached to a Non-Querier bridge, the bridge
+>    will not forward any multicast packets from that source to the Querier.
+> 
+>                     +--------------------+
+>                     |                    |
+>                     |      Snooping      |    +------------+
+>                     |      Bridge 1      |----| Listener 1 |
+>                     |     (Querier)      |    +------------+
+>                     |                    |
+>                     +--------------------+
+>                               |
+>                               |
+>                     +----+---------+-----+
+>                     |    | mrouter |     |
+>    +-----------+    |    +---------+     |    +------------+
+>    | MC Source |----|      Snooping      |----| Listener 2 |
+>    +-----------|    |      Bridge 2      |    +------------+
+>                     |    (Non-Querier)   |
+>                     +--------------------+
+> 
+>    In this scenario, Listener 1 will never receive multicast traffic
+>    from MC Source since Snooping Bridge 2 does not forward multicast
+>    packets to the mrouter port. Patches 0001, 0002, and 0003 address
+>    this issue.
+> 
+> 2. If mcast_flood is disabled on a bridge port, some of the snooping
+>    functions stop working properly.
+> 
+>    a. Consider the following scenario:
+> 
+>                        +--------------------+
+>                        |                    |
+>                        |      Snooping      |    +------------+
+>                        |      Bridge 1      |----| Listener 1 |
+>                        |     (Querier)      |    +------------+
+>                        |                    |
+>                        +--------------------+
+>                                  |
+>                                  |
+>                        +--------------------+
+>                        |    | mrouter |     |
+>       +-----------+    |    +---------+     |
+>       | MC Source |----|      Snooping      |
+>       +-----------|    |      Bridge 2      |
+>                        |    (Non-Querier)   |
+>                        +--------------------+
+> 
+>       In this scenario, Listener 1 will never receive multicast traffic
+>       from MC Source if mcast_flood is disabled on the mrouter port on
+>       Snooping Bridge 2. Patch 0004 addresses this issue.
+> 
+>    b. For a Non-Querier bridge, if mcast_flood is disabled on a bridge
+>       port, Queries received from other Querier will not be forwarded
+>       out of that bridge port. Patch 0005 addresses this issue.
+> 
+> 3. After a system boots up, the first couple Reports are not handled
+>    properly:
+> 
+>    1) the Report from the Host is being flooded (via br_flood) to all
+>       bridge ports, and
+>    2) if the mrouter port's mcast_flood is disabled, the Reports received
+>       from other hosts will not be forwarded to the Querier.
+> 
+>    Patch 0006 addresses this issue.
+> 
+> These patches were developed and verified initially against 5.4 kernel
+> (due to hardware platform limitation) and forward-patched to 5.12.
+> Snooping code introduced between 5.4 and 5.12 are not extensively tested
+> (only IGMPv2/MLDv1 were tested). The hardware platform used were two
+> bridges utilizing a single Marvell 88E6352 Ethernet switch chip (i.e.,
+> no cross-chip bridging involved).
+> 
+> Joseph Huang (6):
+>   bridge: Refactor br_mdb_notify
+>   bridge: Offload mrouter port forwarding to switchdev
+>   bridge: Avoid traffic disruption when Querier state changes
+>   bridge: Force mcast_flooding for mrouter ports
+>   bridge: Flood Queries even when mcast_flood is disabled
+>   bridge: Always multicast_flood Reports
+> 
+>  net/bridge/br_device.c    |   5 +-
+>  net/bridge/br_forward.c   |   3 +-
+>  net/bridge/br_input.c     |   5 +-
+>  net/bridge/br_mdb.c       |  70 +++++++++++++---------
+>  net/bridge/br_multicast.c | 121 ++++++++++++++++++++++++++++++++++----
+>  net/bridge/br_private.h   |  11 +++-
+>  6 files changed, 169 insertions(+), 46 deletions(-)
+> 
+> 
+> base-commit: 5e321ded302da4d8c5d5dd953423d9b748ab3775
+> 
 
-In current implementation, when mcast_flood is disabled on a bridge
-port, Queries received from other Querier will not be forwarded out of
-that bridge port. This unfortunately broke multicast snooping.
+Hi,
+This patch-set is inappropriate for -net, if at all. It's quite late over here
+and I'll review the rest later, but I can say from a quick peek that patch 02
+is unacceptable for it increases the complexity with 1 order of magnitude of all
+add/del call paths and some of them can be invoked on user packets. A lot of this
+functionality should be "hidden" in the driver or done by a user-space daemon/helper.
+Most of the flooding behaviour changes must be hidden behind some new option
+otherwise they'll break user setups that rely on the current. I'll review the patches
+in detail over the following few days, net-next is closed anyway.
 
-Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
----
- net/bridge/br_forward.c   | 3 ++-
- net/bridge/br_multicast.c | 3 +++
- net/bridge/br_private.h   | 3 +++
- 3 files changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 6e9b049ae521..2fb9b4a78881 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -203,7 +203,8 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 				continue;
- 			break;
- 		case BR_PKT_MULTICAST:
--			if (!(p->flags & BR_MCAST_FLOOD) && skb->dev != br->dev)
-+			if (!(p->flags & BR_MCAST_FLOOD) && skb->dev != br->dev &&
-+			    !BR_INPUT_SKB_CB_FORCE_FLOOD(skb))
- 				continue;
- 			break;
- 		case BR_PKT_BROADCAST:
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 719ded3204a0..b7d9c491abe0 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -3238,6 +3238,7 @@ static int br_multicast_ipv4_rcv(struct net_bridge *br,
- 		err = br_ip4_multicast_igmp3_report(br, port, skb, vid);
- 		break;
- 	case IGMP_HOST_MEMBERSHIP_QUERY:
-+		BR_INPUT_SKB_CB(skb)->force_flood = 1;
- 		br_ip4_multicast_query(br, port, skb, vid);
- 		break;
- 	case IGMP_HOST_LEAVE_MESSAGE:
-@@ -3300,6 +3301,7 @@ static int br_multicast_ipv6_rcv(struct net_bridge *br,
- 		err = br_ip6_multicast_mld2_report(br, port, skb, vid);
- 		break;
- 	case ICMPV6_MGM_QUERY:
-+		BR_INPUT_SKB_CB(skb)->force_flood = 1;
- 		err = br_ip6_multicast_query(br, port, skb, vid);
- 		break;
- 	case ICMPV6_MGM_REDUCTION:
-@@ -3322,6 +3324,7 @@ int br_multicast_rcv(struct net_bridge *br, struct net_bridge_port *port,
- 
- 	BR_INPUT_SKB_CB(skb)->igmp = 0;
- 	BR_INPUT_SKB_CB(skb)->mrouters_only = 0;
-+	BR_INPUT_SKB_CB(skb)->force_flood = 0;
- 
- 	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
- 		return 0;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 9aa51508ba83..59af599d48eb 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -491,6 +491,7 @@ struct br_input_skb_cb {
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	u8 igmp;
- 	u8 mrouters_only:1;
-+	u8 force_flood:1;
- #endif
- 	u8 proxyarp_replied:1;
- 	u8 src_port_isolated:1;
-@@ -510,8 +511,10 @@ struct br_input_skb_cb {
- 
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- # define BR_INPUT_SKB_CB_MROUTERS_ONLY(__skb)	(BR_INPUT_SKB_CB(__skb)->mrouters_only)
-+# define BR_INPUT_SKB_CB_FORCE_FLOOD(__skb)		(BR_INPUT_SKB_CB(__skb)->force_flood)
- #else
- # define BR_INPUT_SKB_CB_MROUTERS_ONLY(__skb)	(0)
-+# define BR_INPUT_SKB_CB_FORCE_FLOOD(__skb)		(0)
- #endif
- 
- #define br_printk(level, br, format, args...)	\
--- 
-2.17.1
+Cheers,
+ Nik
 
