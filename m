@@ -1,25 +1,30 @@
-Return-Path: <tobias@waldekranz.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=waldekranz-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:subject:in-reply-to:references:date:message-id:mime-version;
- bh=dQBiEe1w/Wbleue4r5yuQeIdpsQf7Sq0aXc76H99xao=;
- b=iIufQxxW8hySWIa22QbcxyqBs5YEgAI0TzCsFn+ytIXv5e7I5oEBMqVSt2Kcxl4K6P
- o2h10ypehs0O6e58uG8pxTjkP7KZjKLQ1RzkCne3i8EJxYHYCuueIwt0c0mBjSUut2xA
- cngewEY7xVeBS3XtBiGVPuLuqPpC5+rMCMiEBwLoplnA/nytJPdAFc08+Ut+RgXd5B3f
- Lzx71XERAyoXpczck4cTyikyu6Pu3v/isgjWJq3FRuYq6gDgeVckMdHeIaxLNiwDCcZe
- CvDH8Eao1l09zROQx9F0oiUDqbqTIkhiF9pEtJklM4FRBlZ7lGEp5ay1jDNwkc8WSkR8
- Gp6w==
-From: Tobias Waldekranz <tobias@waldekranz.com>
-In-Reply-To: <685c25c2423c451480c0ad2cf78877be@garmin.com>
-References: <20210504182259.5042-1-Joseph.Huang@garmin.com>
- <6fd5711c-8d53-d72b-995d-1caf77047ecf@nvidia.com>
- <685c25c2423c451480c0ad2cf78877be@garmin.com>
-Date: Wed, 05 May 2021 00:29:51 +0200
-Message-ID: <87v97ym8tc.fsf@waldekranz.com>
+Return-Path: <olteanv@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=XS9eVQQm0ICA5clq7aGO+GeBxT02cu0PyE0FYwLbSn0=;
+ b=KRZJRmSFkpfNmsXGHBLowNForVyQalqpK2f3Smci2Be07uF52HFbmgCnclGxRYM1Fs
+ gJhFFkRrIMe1AVE4ZP+T0MonB3c+o8xTChaJ7EEeWw91ONXnKg26OQumIH7JyaCRLX7E
+ 2qUJ0eJS8PbhV1+osyUsDALyMB4NJYvfSqxrUXEVjvHM0QuMj1tQyTtrh2u+F0SRhb55
+ gb/VNqVd6JYM7ElLiCWM0DUkCpUgV8OYti8XNvLOt85hQEv2qChMjO/Tj/sd6CAcRrnW
+ KSl6tx6X1W90X1G3UuWQr25hg17UheGN0HkyBaEh7NJnyCgYodsGME13IN7JD3+Dd7wQ
+ LPkQ==
+Date: Wed, 5 May 2021 02:04:09 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20210504230409.kohxoc4cl7sjpkrg@skbuf>
+References: <20210426170411.1789186-1-tobias@waldekranz.com>
+ <20210426170411.1789186-7-tobias@waldekranz.com>
+ <20210427101747.n3y6w6o7thl5cz3r@skbuf>
+ <878s4uo8xc.fsf@waldekranz.com>
+ <20210504152106.oppawchuruapg4sb@skbuf>
+ <874kfintzh.fsf@waldekranz.com>
+ <20210504205823.j5wg547lgyw776rl@skbuf>
+ <87y2cum9mo.fsf@waldekranz.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net 0/6] bridge: Fix snooping in multi-bridge
-	config with switchdev
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87y2cum9mo.fsf@waldekranz.com>
+Subject: Re: [Bridge] [RFC net-next 6/9] net: dsa: Forward offloading
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,56 +33,42 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Huang, Joseph" <Joseph.Huang@garmin.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@idosch.org>
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Tue, May 04, 2021 at 20:37, "Huang, Joseph" <Joseph.Huang@garmin.com> wrote:
->> Hi,
->> This patch-set is inappropriate for -net, if at all. It's quite late over here and I'll
->> review the rest later, but I can say from a quick peek that patch 02 is
->> unacceptable for it increases the complexity with 1 order of magnitude of all
->> add/del call paths and some of them can be invoked on user packets. A lot of
->> this functionality should be "hidden" in the driver or done by a user-space
->> daemon/helper.
->> Most of the flooding behaviour changes must be hidden behind some new
->> option otherwise they'll break user setups that rely on the current. I'll review
->> the patches in detail over the following few days, net-next is closed anyway.
->> 
->> Cheers,
->>  Nik
->
-> Hi Nik,
->
-> Thanks for your quick response!
-> Once you have a chance to review the set, please let me know how I can improve them to make them acceptable. These are real problems and we do need to fix them.
+On Wed, May 05, 2021 at 12:12:15AM +0200, Tobias Waldekranz wrote:
+> > and you create a dependency between the tagger and the switch driver
+> > which was supposed by design to not exist.
+> 
+> Sure, but _why_ should it not exist? Many fields in the tag can only be
+> correctly generated/interpreted in combination with knowledge of the
+> current configuration, which is the driver's domain. The dependency is
+> already there, etched in silicon.
 
-If I may make a suggestion: I also work with mv88e6xxx systems, and we
-have the same issues with known multicast not being flooded to router
-ports. Knowing that chipset, I see what you are trying to do.
+I'm a bit more of a pragmatic person, it's not so much that I think that
+Lennert Buytenhek's original DSA design from 2008 was the holy grail and
+that we should do everything we can to preserve it intact. Far from it.
+But I actually like having the option to inject a DSA-tagged packet
+using Spirent TestCenter and measure IP forwarding between dsa_loop
+"switch" ports (actually a one-armed router is what it is). I also like,
+as a reviewer, to be able to test, if I want to, how a tail tagger
+behaves even if I don't own a switch with tail tagging. And this
+separation between the switch driver and the tag protocol driver makes
+that possible, just see it as a nice perk which we don't want to lose.
 
-But other chips may work differently. Imagine for example a switch where
-there is a separate vector of router ports that the hardware can OR in
-after looking up the group in the ATU. This implementation would render
-the performance gains possible on that device useless. As another
-example, you could imagine a device where an ATU operation exists that
-sets a bit in the vector of every group in a particular database;
-instead of having to update each entry individually.
-
-I think we (mv88e6xxx) will have to accept that we need to add the
-proper scaffolding to manage this on the driver side. That way the
-bridge can stay generic. The bridge could just provide some MDB iterator
-to save us from having to cache all the configured groups.
-
-So basically:
-
-- In mv88e6xxx, maintain a per-switch vector of router ports.
-
-- When a ports router state is toggled:
-  1. Update the vector.
-  2. Ask the bridge to iterate through all applicable groups and update
-     the corresponding ATU entries.
-
-- When a new MDB entry is updated, make sure to also OR in the current
-  vector of router ports in the DPV of the ATU entry.
-
-
-I would be happy to help out with testing of this!
+As for more advanced features, like "the hardware requires me to invent
+a unique number based on a rolling counter, call it a TX timestamp ID,
+put it in the DSA header, then when transmission is done, an IRQ will be
+raised, and I need to match that TX timestamp that just became available
+to me, which is identifiable via the timestamp ID that I put in the DSA
+header, with the original skb", of course you can't do that without
+communication between the tagger and the driver itself, unless you make
+the tagger handle interrupts (and then there's the whole issue that the
+tagging protocol driver needs to be instantiated per switch, if it's
+going to be stateful), or the switch driver send packets. As a general
+rule of thumb, just don't break dsa_loop and we should be fine. For
+example, yes, PTP requires driver <-> tagger communication, but PTP
+timestamping is also not enabled by default, and guarded by an ioctl
+which dsa_loop doesn't implement. So the tagger can never trigger faulty
+code, dereferencing a ds->priv pointer which it thinks is "struct
+mv88e6xxx_chip" but is actually "struct dsa_loop_priv".
