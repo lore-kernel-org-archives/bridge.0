@@ -1,23 +1,23 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1620232640;
- bh=bx9BBY/AfT4RyPg1holEfsAsmhFrOH7twyygm48EmYU=;
+ s=k20201202; t=1620232757;
+ bh=nz3Z5sM/05N+UqtzH9mUGxRGExsUafPLfAvtce1O0Ms=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=VJZ4hFUMC1CZK/UQA1SpDU+yXwCkWKigtudO5uvBDmFNI7FKPPfGjMrnB1XT+0NAb
- 7ZXo4esFFmVxPpi8RHBUKO7efGR2y+J4j0l/PeYxoiNpHUXVcC7kwrdIhH28ykYlYu
- 8otiNH6FaXZ3UEaagnQ+Zy/uHYaCis0bKPgA5sSziERqf8PO8Oig6gyR2dr8LI9J+e
- 7jRHiIFpNOJn/HBvRWLToF0WQ7ZbiV9pnaZF8Xj9Xgoqh/B1xy9A18M5e46TGeiF7D
- v3V++k1HtDK+DOaJfabzclvdyarFRoFcX5O70kUWTZNqTP733pxkoe7gV5yfoQUyYF
- zlvz+bggQ2F8w==
+ b=BmfEzqRhOOYneQpJ4CSrm3ax8knDhIXTZkIKjMghjxjGPo5cI4ydjjCEtIciCK5+i
+ C2foR0gnFUjxOZ+3+Pijrwpkt2OYrPDTEIIotPYv/ZI289F/DKjsx06NgV/myV8HJQ
+ 59X07oio8/bVFK4mneovQa4MBVc7PeOV2kxg+YKLcdN2kQoXG+szpqXb+8wCZ3IiPD
+ gi9uv7CEjkpbgj3kODbdo0o3GqyuM316Dl7fVf7ifJNiQr5NDNsRmxhIRPPxddE4dp
+ xB6GPCFpT42ew+vRGdoTczwQqiG1zPNkyyn2cDRFphxEmqv5qaKCCwhJmHR0CNyR70
+ d8bbi55sNYMxA==
 From: Sasha Levin <sashal@kernel.org>
-Date: Wed,  5 May 2021 12:35:45 -0400
-Message-Id: <20210505163648.3462507-22-sashal@kernel.org>
-In-Reply-To: <20210505163648.3462507-1-sashal@kernel.org>
-References: <20210505163648.3462507-1-sashal@kernel.org>
+Date: Wed,  5 May 2021 12:38:24 -0400
+Message-Id: <20210505163856.3463279-14-sashal@kernel.org>
+In-Reply-To: <20210505163856.3463279-1-sashal@kernel.org>
+References: <20210505163856.3463279-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.10 22/85] net: bridge: when suppression
-	is enabled exclude RARP packets
+Subject: [Bridge] [PATCH AUTOSEL 5.4 14/46] net: bridge: when suppression is
+	enabled exclude RARP packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -51,10 +51,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index dfec65eca8a6..3db1def4437b 100644
+index b18cdf03edb3..c4e0f4777df5 100644
 --- a/net/bridge/br_arp_nd_proxy.c
 +++ b/net/bridge/br_arp_nd_proxy.c
-@@ -160,7 +160,9 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
+@@ -155,7 +155,9 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
  	if (br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED)) {
  		if (p && (p->flags & BR_NEIGH_SUPPRESS))
  			return;
