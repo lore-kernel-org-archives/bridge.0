@@ -1,26 +1,14 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=5dWfQBlf5OfCEX63KNQKTMBrmuE9VEsWTKJ/CKEXQrc=;
- b=ZJMC377CEcG3jsRUzzY486AWcII4/CnqUc4avz8c/V9BImhMrKYjPuWS8H1/3yPFu0
- 4jruOYgK/YW1tTACWYlmAuZj8ADXjyOvCaMQH+0ALt//OFIU+ajp4gVPhUEZt+y56AYy
- hDj/i43py82vHd/luggzigkGkH4mv4PAeX9+6uPttoyXQIh/3aSr9/nGVXYd87L9U4Us
- PKNIuEJgR6L1LwZZW9c6fypfZgluIxEnBPoEAUeLN6nMsiuBPEpWiqLU51yqmOzIl7zd
- dTZOA5PBiFceip5KejOW6Am/VGoTDc2gOPEeC5Thrgz7kZ8YE5rfv4egIgsQruWD7t+f
- Xhag==
-Date: Thu, 6 May 2021 14:01:13 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20210506110113.xeb6yzh6ycxr5nxi@skbuf>
-References: <20210426170411.1789186-1-tobias@waldekranz.com>
- <20210426170411.1789186-5-tobias@waldekranz.com>
- <YI6/li9hwHo8GfCm@shredder> <87eeeonqpb.fsf@waldekranz.com>
+Return-Path: <linus.luessing@c0d3.blue>
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Date: Sun,  9 May 2021 21:45:00 +0200
+Message-Id: <20210509194509.10849-3-linus.luessing@c0d3.blue>
+In-Reply-To: <20210509194509.10849-1-linus.luessing@c0d3.blue>
+References: <20210509194509.10849-1-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87eeeonqpb.fsf@waldekranz.com>
-Subject: Re: [Bridge] [RFC net-next 4/9] net: bridge: switchdev: Forward
-	offloading
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [net-next v2 02/11] net: bridge: mcast: add wrappers for
+	router node retrieval
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,29 +17,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, Ido Schimmel <idosch@idosch.org>, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>
 
-On Mon, May 03, 2021 at 10:53:36AM +0200, Tobias Waldekranz wrote:
-> On Sun, May 02, 2021 at 18:04, Ido Schimmel <idosch@idosch.org> wrote:
-> > On Mon, Apr 26, 2021 at 07:04:06PM +0200, Tobias Waldekranz wrote:
-> >> +static void nbp_switchdev_fwd_offload_add(struct net_bridge_port *p)
-> >> +{
-> >> +	void *priv;
-> >> +
-> >> +	if (!(p->dev->features & NETIF_F_HW_L2FW_DOFFLOAD))
-> >> +		return;
-> >> +
-> >> +	priv = p->dev->netdev_ops->ndo_dfwd_add_station(p->dev, p->br->dev);
-> >
-> > Some changes to team/bond/8021q will be needed in order to get this
-> > optimization to work when they are enslaved to the bridge instead of the
-> > front panel port itself?
-> 
-> Right you are. We should probably do something similar to the
-> switchdev_handle_port_* family of helpers that could be reused in
-> stacked devices. I will look at it for v1.
+In preparation for the upcoming split of multicast router state into
+their IPv4 and IPv6 variants and to avoid IPv6 #ifdef clutter later add
+two wrapper functions for router node retrieval in the payload
+forwarding code.
 
-Makes sense, issuing a switchdev notifier of some sort will allow the
-switchdev driver to act upon the bridge's request for a net device
-belonging to a different driver.
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ net/bridge/br_forward.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 3b67184..b5ec4f9 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -264,6 +264,16 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
+ 	__br_forward(p, skb, local_orig);
+ }
+ 
++static inline struct hlist_node *
++br_multicast_get_first_rport_node(struct net_bridge *b, struct sk_buff *skb) {
++	return rcu_dereference(hlist_first_rcu(&b->ip4_mc_router_list));
++}
++
++static inline struct net_bridge_port *
++br_multicast_rport_from_node(struct hlist_node *rp, struct sk_buff *skb) {
++	return hlist_entry_safe(rp, struct net_bridge_port, ip4_rlist);
++}
++
+ /* called with rcu_read_lock */
+ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+ 			struct sk_buff *skb,
+@@ -276,7 +286,8 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+ 	bool allow_mode_include = true;
+ 	struct hlist_node *rp;
+ 
+-	rp = rcu_dereference(hlist_first_rcu(&br->router_list));
++	rp = br_multicast_get_first_rport_node(br, skb);
++
+ 	if (mdst) {
+ 		p = rcu_dereference(mdst->ports);
+ 		if (br_multicast_should_handle_mode(br, mdst->addr.proto) &&
+@@ -290,7 +301,7 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+ 		struct net_bridge_port *port, *lport, *rport;
+ 
+ 		lport = p ? p->key.port : NULL;
+-		rport = hlist_entry_safe(rp, struct net_bridge_port, ip4_rlist);
++		rport = br_multicast_rport_from_node(rp, skb);
+ 
+ 		if ((unsigned long)lport > (unsigned long)rport) {
+ 			port = lport;
+-- 
+2.31.0
+
