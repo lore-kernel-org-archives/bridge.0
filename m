@@ -2,20 +2,20 @@ Return-Path: <nikolay@nvidia.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d+/piBf48LlschlvzBayvAuu29lowlVonGdHNovQ5Jw=;
- b=iphiAwbP8srCqKteY6esNAUUhFwFKu/VTdpIRjNauBCZkaxBoYneDZpeoLYtMerJXN1659lL6XkUhwKXit+8Bs2a61XPOjHDg4E6aRiy003TXixxwe5l4a17k7qZcIRHNQM4Pd2pXaOtAyZTX3Sb0Thce4A2HMdK7MZyd+TpEgeIxDsdq+f+6lF2wK7CfD+gVFDEmgihY1AqMwubxPJAASBsbSwQJSVTaub1nYzxsuu4FrfZiXc0LN71krmSQg1y8tBg2E3MDsV9nlJ3aKSmENH9DOD5QJzr0bFHHU2ZfLRBtFo4qHOkeTnrvs3p9zhPcgmGs5vect84FW2SbE3j+Q==
+ bh=GW42DRbSEf8AdlC+pqaeyj+pJFrlKqKOjDbDsuiCFkg=;
+ b=hibKb73kbtLFz1IJGyCV/tQzca5GMscb6CQzEDNxm3Y5SXd+nOXw9Zq9cBrh7ERKqdkXiKQSAJoXn6SLzorNzF/7xPyejUdGs/pz/Eb0pgKP5fEyh3mvW3mAgFU9CsKiS6sSPCLaNay6TwR/0JnI4RcCx7r7jSFBJxu/O/YESxxPDreUv7c3ZlujVi1nDztR8Ov4Y8r1+saTR8pW14p6r7DRhvK+PBVCPrWRQnaoWIHPHkMi4LbD/r7ZAtAqgM31Czf8r4Tks/1DSdTCFZQtVNs2wYoYhhWAIqdAGcR3vW5SIfaFXqoXVGINIWkDZ9fWqkkprkMbVqm4PuV4k3BGzw==
 References: <20210509194509.10849-1-linus.luessing@c0d3.blue>
- <20210509194509.10849-7-linus.luessing@c0d3.blue>
+ <20210509194509.10849-9-linus.luessing@c0d3.blue>
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <0998c872-f18e-19a0-d137-9144dcb7b18d@nvidia.com>
-Date: Tue, 11 May 2021 12:16:59 +0300
-In-Reply-To: <20210509194509.10849-7-linus.luessing@c0d3.blue>
+Message-ID: <640d2ba9-9e56-a36c-3734-44d72d8a6512@nvidia.com>
+Date: Tue, 11 May 2021 12:19:59 +0300
+In-Reply-To: <20210509194509.10849-9-linus.luessing@c0d3.blue>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Subject: Re: [Bridge] [net-next v2 06/11] net: bridge: mcast: prepare expiry
- functions for mcast router split
+Subject: Re: [Bridge] [net-next v2 08/11] net: bridge: mcast: split router
+ port del+notify for mcast router split
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,100 +29,136 @@ Cc: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-ke
 
 On 09/05/2021 22:45, Linus Lüssing wrote:
 > In preparation for the upcoming split of multicast router state into
-> their IPv4 and IPv6 variants move the protocol specific timer access to
-> an ip4 wrapper function.
+> their IPv4 and IPv6 variants split router port deletion and notification
+> into two functions. When we disable a port for instance later we want to
+> only send one notification to switchdev and netlink for compatibility
+> and want to avoid sending one for IPv4 and one for IPv6. For that the
+> split is needed.
 > 
 > Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 > ---
->  net/bridge/br_multicast.c | 31 ++++++++++++++++++++++---------
->  1 file changed, 22 insertions(+), 9 deletions(-)
+>  net/bridge/br_multicast.c | 40 ++++++++++++++++++++++++++++++---------
+>  1 file changed, 31 insertions(+), 9 deletions(-)
 > 
 > diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 048b5b9..6c844b2 100644
+> index 839d21b..39854d5 100644
 > --- a/net/bridge/br_multicast.c
 > +++ b/net/bridge/br_multicast.c
-> @@ -1354,16 +1354,16 @@ static int br_ip6_multicast_add_group(struct net_bridge *br,
+> @@ -60,7 +60,8 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
+>  					 const unsigned char *src);
+>  static void br_multicast_port_group_rexmit(struct timer_list *t);
+>  
+> -static void __del_port_router(struct net_bridge_port *p);
+> +static void
+> +br_multicast_rport_del_notify(struct net_bridge_port *p, bool deleted);
+>  #if IS_ENABLED(CONFIG_IPV6)
+>  static void br_ip6_multicast_leave_group(struct net_bridge *br,
+>  					 struct net_bridge_port *port,
+> @@ -1354,11 +1355,26 @@ static int br_ip6_multicast_add_group(struct net_bridge *br,
 >  }
 >  #endif
 >  
-> -static void br_multicast_router_expired(struct timer_list *t)
-> +static void br_multicast_router_expired(struct net_bridge_port *port,
-> +					struct timer_list *t,
-> +					struct hlist_node *rlist)
+> +static bool br_multicast_rport_del(struct hlist_node *rlist)
+> +{
+> +	if (hlist_unhashed(rlist))
+> +		return false;
+> +
+> +	hlist_del_init_rcu(rlist);
+> +	return true;
+> +}
+> +
+> +static inline bool br_ip4_multicast_rport_del(struct net_bridge_port *p)
+> +{
+> +	return br_multicast_rport_del(&p->ip4_rlist);
+> +}
+> +
+
+Same comment about inline in .c files, either drop the inline or move it to br_private.h
+For functions that are not critical for performance(fast-path) I'd just drop the inline
+in the .c files and leave them there.
+
+>  static void br_multicast_router_expired(struct net_bridge_port *port,
+>  					struct timer_list *t,
+>  					struct hlist_node *rlist)
 >  {
-> -	struct net_bridge_port *port =
-> -			from_timer(port, t, ip4_mc_router_timer);
 >  	struct net_bridge *br = port->br;
+> +	bool del;
 >  
 >  	spin_lock(&br->multicast_lock);
 >  	if (port->multicast_router == MDB_RTR_TYPE_DISABLED ||
->  	    port->multicast_router == MDB_RTR_TYPE_PERM ||
-> -	    timer_pending(&port->ip4_mc_router_timer))
-> +	    timer_pending(t))
+> @@ -1366,7 +1382,8 @@ static void br_multicast_router_expired(struct net_bridge_port *port,
+>  	    timer_pending(t))
 >  		goto out;
 >  
->  	__del_port_router(port);
-> @@ -1371,6 +1371,13 @@ out:
+> -	__del_port_router(port);
+> +	del = br_multicast_rport_del(rlist);
+> +	br_multicast_rport_del_notify(port, del);
+>  out:
 >  	spin_unlock(&br->multicast_lock);
 >  }
+> @@ -1706,19 +1723,20 @@ void br_multicast_disable_port(struct net_bridge_port *port)
+>  	struct net_bridge *br = port->br;
+>  	struct net_bridge_port_group *pg;
+>  	struct hlist_node *n;
+> +	bool del = false;
 >  
-> +static void br_ip4_multicast_router_expired(struct timer_list *t)
-> +{
-> +	struct net_bridge_port *port = from_timer(port, t, ip4_mc_router_timer);
-> +
-> +	br_multicast_router_expired(port, t, &port->ip4_rlist);
-> +}
-> +
->  static void br_mc_router_state_change(struct net_bridge *p,
->  				      bool is_mc_router)
->  {
-> @@ -1384,10 +1391,9 @@ static void br_mc_router_state_change(struct net_bridge *p,
->  	switchdev_port_attr_set(p->dev, &attr, NULL);
->  }
->  
-> -static void br_multicast_local_router_expired(struct timer_list *t)
-> +static void br_multicast_local_router_expired(struct net_bridge *br,
-> +					      struct timer_list *timer)
->  {
-> -	struct net_bridge *br = from_timer(br, t, ip4_mc_router_timer);
-> -
 >  	spin_lock(&br->multicast_lock);
->  	if (br->multicast_router == MDB_RTR_TYPE_DISABLED ||
->  	    br->multicast_router == MDB_RTR_TYPE_PERM ||
-> @@ -1400,6 +1406,13 @@ out:
+>  	hlist_for_each_entry_safe(pg, n, &port->mglist, mglist)
+>  		if (!(pg->flags & MDB_PG_FLAGS_PERMANENT))
+>  			br_multicast_find_del_pg(br, pg);
+>  
+> -	__del_port_router(port);
+> -
+> +	del |= br_ip4_multicast_rport_del(port);
+>  	del_timer(&port->ip4_mc_router_timer);
+>  	del_timer(&port->ip4_own_query.timer);
+>  #if IS_ENABLED(CONFIG_IPV6)
+>  	del_timer(&port->ip6_own_query.timer);
+>  #endif
+> +	br_multicast_rport_del_notify(port, del);
 >  	spin_unlock(&br->multicast_lock);
 >  }
 >  
-> +static inline void br_ip4_multicast_local_router_expired(struct timer_list *t)
-> +{
-> +	struct net_bridge *br = from_timer(br, t, ip4_mc_router_timer);
-> +
-> +	br_multicast_local_router_expired(br, t);
-> +}
-> +
-
-Same comment about inlines in .c files, please move them to br_private.h or drop the inline
-
->  static void br_multicast_querier_expired(struct net_bridge *br,
->  					 struct bridge_mcast_own_query *query)
+> @@ -3508,11 +3526,12 @@ int br_multicast_set_router(struct net_bridge *br, unsigned long val)
+>  	return err;
+>  }
+>  
+> -static void __del_port_router(struct net_bridge_port *p)
+> +static void
+> +br_multicast_rport_del_notify(struct net_bridge_port *p, bool deleted)
 >  {
-> @@ -1615,7 +1628,7 @@ int br_multicast_add_port(struct net_bridge_port *port)
->  	port->multicast_eht_hosts_limit = BR_MCAST_DEFAULT_EHT_HOSTS_LIMIT;
+> -	if (hlist_unhashed(&p->ip4_rlist))
+> +	if (!deleted)
+>  		return;
+> -	hlist_del_init_rcu(&p->ip4_rlist);
+> +
+>  	br_rtr_notify(p->br->dev, p, RTM_DELMDB);
+>  	br_port_mc_router_state_change(p, false);
 >  
->  	timer_setup(&port->ip4_mc_router_timer,
-> -		    br_multicast_router_expired, 0);
-> +		    br_ip4_multicast_router_expired, 0);
->  	timer_setup(&port->ip4_own_query.timer,
->  		    br_ip4_multicast_port_query_expired, 0);
->  #if IS_ENABLED(CONFIG_IPV6)
-> @@ -3319,7 +3332,7 @@ void br_multicast_init(struct net_bridge *br)
+> @@ -3526,6 +3545,7 @@ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val)
+>  	struct net_bridge *br = p->br;
+>  	unsigned long now = jiffies;
+>  	int err = -EINVAL;
+> +	bool del = false;
 >  
->  	spin_lock_init(&br->multicast_lock);
->  	timer_setup(&br->ip4_mc_router_timer,
-> -		    br_multicast_local_router_expired, 0);
-> +		    br_ip4_multicast_local_router_expired, 0);
->  	timer_setup(&br->ip4_other_query.timer,
->  		    br_ip4_multicast_querier_expired, 0);
->  	timer_setup(&br->ip4_own_query.timer,
+>  	spin_lock(&br->multicast_lock);
+>  	if (p->multicast_router == val) {
+> @@ -3539,12 +3559,14 @@ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val)
+>  	switch (val) {
+>  	case MDB_RTR_TYPE_DISABLED:
+>  		p->multicast_router = MDB_RTR_TYPE_DISABLED;
+> -		__del_port_router(p);
+> +		del |= br_ip4_multicast_rport_del(p);
+>  		del_timer(&p->ip4_mc_router_timer);
+> +		br_multicast_rport_del_notify(p, del);
+>  		break;
+>  	case MDB_RTR_TYPE_TEMP_QUERY:
+>  		p->multicast_router = MDB_RTR_TYPE_TEMP_QUERY;
+> -		__del_port_router(p);
+> +		del |= br_ip4_multicast_rport_del(p);
+> +		br_multicast_rport_del_notify(p, del);
+>  		break;
+>  	case MDB_RTR_TYPE_PERM:
+>  		p->multicast_router = MDB_RTR_TYPE_PERM;
 > 
 
