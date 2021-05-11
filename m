@@ -2,20 +2,20 @@ Return-Path: <nikolay@nvidia.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GW42DRbSEf8AdlC+pqaeyj+pJFrlKqKOjDbDsuiCFkg=;
- b=hibKb73kbtLFz1IJGyCV/tQzca5GMscb6CQzEDNxm3Y5SXd+nOXw9Zq9cBrh7ERKqdkXiKQSAJoXn6SLzorNzF/7xPyejUdGs/pz/Eb0pgKP5fEyh3mvW3mAgFU9CsKiS6sSPCLaNay6TwR/0JnI4RcCx7r7jSFBJxu/O/YESxxPDreUv7c3ZlujVi1nDztR8Ov4Y8r1+saTR8pW14p6r7DRhvK+PBVCPrWRQnaoWIHPHkMi4LbD/r7ZAtAqgM31Czf8r4Tks/1DSdTCFZQtVNs2wYoYhhWAIqdAGcR3vW5SIfaFXqoXVGINIWkDZ9fWqkkprkMbVqm4PuV4k3BGzw==
+ bh=QslpgAfoPSMyQTcwVuRxE/Clc9H3kQJwpSw0ATzzLfM=;
+ b=A4WJgu5U1MfknRodQBGk03f9hDOevSNbW1whKJ8i/FJPs+k97L8+DNHp40FEaAc/plSBqKPPe+Mt/m5tPA+rCmHzwi3s9b5p5nPvMIcwgSA9Pu7a+tuYaJ1YwKcGM+er7MyNflDZn+wswSKbiv8//hy7qvzsrPe3XT3EXqOx+KnzOAqJFSkbZMA3qmxnn76d5qyp3ay1BBarD/5EXBpcZFEn0hXsb8+FdWblckMfzso9JADsDi6waJWjHrK5fQh5ZgruPOLG3yUYDPJ4DS15ct67dRSqDpDCP9TYDTvpEVIfxp+a+2W9KJWn/UuASqgylc/gB7I5ux0I9Y69Regulg==
 References: <20210509194509.10849-1-linus.luessing@c0d3.blue>
- <20210509194509.10849-9-linus.luessing@c0d3.blue>
+ <20210509194509.10849-12-linus.luessing@c0d3.blue>
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <640d2ba9-9e56-a36c-3734-44d72d8a6512@nvidia.com>
-Date: Tue, 11 May 2021 12:19:59 +0300
-In-Reply-To: <20210509194509.10849-9-linus.luessing@c0d3.blue>
+Message-ID: <7279c94e-a4ff-2fbb-290e-bdaf5844148c@nvidia.com>
+Date: Tue, 11 May 2021 12:23:24 +0300
+In-Reply-To: <20210509194509.10849-12-linus.luessing@c0d3.blue>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Subject: Re: [Bridge] [net-next v2 08/11] net: bridge: mcast: split router
- port del+notify for mcast router split
+Subject: Re: [Bridge] [net-next v2 11/11] net: bridge: mcast: export
+ multicast router presence adjacent to a port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,137 +28,92 @@ To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, netdev@vger.kerne
 Cc: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>
 
 On 09/05/2021 22:45, Linus Lüssing wrote:
-> In preparation for the upcoming split of multicast router state into
-> their IPv4 and IPv6 variants split router port deletion and notification
-> into two functions. When we disable a port for instance later we want to
-> only send one notification to switchdev and netlink for compatibility
-> and want to avoid sending one for IPv4 and one for IPv6. For that the
-> split is needed.
+> To properly support routable multicast addresses in batman-adv in a
+> group-aware way, a batman-adv node needs to know if it serves multicast
+> routers.
+> 
+> This adds a function to the bridge to export this so that batman-adv
+> can then make full use of the Multicast Router Discovery capability of
+> the bridge.
 > 
 > Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 > ---
->  net/bridge/br_multicast.c | 40 ++++++++++++++++++++++++++++++---------
->  1 file changed, 31 insertions(+), 9 deletions(-)
+>  net/bridge/br_multicast.c | 58 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 58 insertions(+)
 > 
 > diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 839d21b..39854d5 100644
+> index b625fd6..e963de5 100644
 > --- a/net/bridge/br_multicast.c
 > +++ b/net/bridge/br_multicast.c
-> @@ -60,7 +60,8 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
->  					 const unsigned char *src);
->  static void br_multicast_port_group_rexmit(struct timer_list *t);
->  
-> -static void __del_port_router(struct net_bridge_port *p);
-> +static void
-> +br_multicast_rport_del_notify(struct net_bridge_port *p, bool deleted);
->  #if IS_ENABLED(CONFIG_IPV6)
->  static void br_ip6_multicast_leave_group(struct net_bridge *br,
->  					 struct net_bridge_port *port,
-> @@ -1354,11 +1355,26 @@ static int br_ip6_multicast_add_group(struct net_bridge *br,
+> @@ -4061,6 +4061,64 @@ unlock:
 >  }
->  #endif
+>  EXPORT_SYMBOL_GPL(br_multicast_has_querier_adjacent);
 >  
-> +static bool br_multicast_rport_del(struct hlist_node *rlist)
+> +/**
+> + * br_multicast_has_router_adjacent - Checks for a router behind a bridge port
+> + * @dev: The bridge port adjacent to which to check for a multicast router
+> + * @proto: The protocol family to check for: IGMP -> ETH_P_IP, MLD -> ETH_P_IPV6
+> + *
+> + * Checks whether the given interface has a bridge on top and if so returns
+> + * true if a multicast router is behind one of the other ports of this
+> + * bridge. Otherwise returns false.
+> + */
+> +bool br_multicast_has_router_adjacent(struct net_device *dev, int proto)
 > +{
-> +	if (hlist_unhashed(rlist))
-> +		return false;
+> +	struct net_bridge_port *port, *p;
+> +	bool ret = false;
 > +
-> +	hlist_del_init_rcu(rlist);
-> +	return true;
-> +}
+> +	rcu_read_lock();
+> +	if (!netif_is_bridge_port(dev))
+> +		goto unlock;
 > +
-> +static inline bool br_ip4_multicast_rport_del(struct net_bridge_port *p)
-> +{
-> +	return br_multicast_rport_del(&p->ip4_rlist);
-> +}
-> +
+> +	port = br_port_get_rcu(dev);
 
-Same comment about inline in .c files, either drop the inline or move it to br_private.h
-For functions that are not critical for performance(fast-path) I'd just drop the inline
-in the .c files and leave them there.
+You can combine both of netif_is_bridge_port and br_port_get_rcu() checks and use
+br_port_get_check_rcu(). Then you can also drop the port->br check.
 
->  static void br_multicast_router_expired(struct net_bridge_port *port,
->  					struct timer_list *t,
->  					struct hlist_node *rlist)
->  {
->  	struct net_bridge *br = port->br;
-> +	bool del;
->  
->  	spin_lock(&br->multicast_lock);
->  	if (port->multicast_router == MDB_RTR_TYPE_DISABLED ||
-> @@ -1366,7 +1382,8 @@ static void br_multicast_router_expired(struct net_bridge_port *port,
->  	    timer_pending(t))
->  		goto out;
->  
-> -	__del_port_router(port);
-> +	del = br_multicast_rport_del(rlist);
-> +	br_multicast_rport_del_notify(port, del);
->  out:
->  	spin_unlock(&br->multicast_lock);
->  }
-> @@ -1706,19 +1723,20 @@ void br_multicast_disable_port(struct net_bridge_port *port)
->  	struct net_bridge *br = port->br;
->  	struct net_bridge_port_group *pg;
->  	struct hlist_node *n;
-> +	bool del = false;
->  
->  	spin_lock(&br->multicast_lock);
->  	hlist_for_each_entry_safe(pg, n, &port->mglist, mglist)
->  		if (!(pg->flags & MDB_PG_FLAGS_PERMANENT))
->  			br_multicast_find_del_pg(br, pg);
->  
-> -	__del_port_router(port);
-> -
-> +	del |= br_ip4_multicast_rport_del(port);
->  	del_timer(&port->ip4_mc_router_timer);
->  	del_timer(&port->ip4_own_query.timer);
->  #if IS_ENABLED(CONFIG_IPV6)
->  	del_timer(&port->ip6_own_query.timer);
->  #endif
-> +	br_multicast_rport_del_notify(port, del);
->  	spin_unlock(&br->multicast_lock);
->  }
->  
-> @@ -3508,11 +3526,12 @@ int br_multicast_set_router(struct net_bridge *br, unsigned long val)
->  	return err;
->  }
->  
-> -static void __del_port_router(struct net_bridge_port *p)
-> +static void
-> +br_multicast_rport_del_notify(struct net_bridge_port *p, bool deleted)
->  {
-> -	if (hlist_unhashed(&p->ip4_rlist))
-> +	if (!deleted)
->  		return;
-> -	hlist_del_init_rcu(&p->ip4_rlist);
+
+> +	if (!port || !port->br)
+> +		goto unlock;
 > +
->  	br_rtr_notify(p->br->dev, p, RTM_DELMDB);
->  	br_port_mc_router_state_change(p, false);
->  
-> @@ -3526,6 +3545,7 @@ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val)
->  	struct net_bridge *br = p->br;
->  	unsigned long now = jiffies;
->  	int err = -EINVAL;
-> +	bool del = false;
->  
->  	spin_lock(&br->multicast_lock);
->  	if (p->multicast_router == val) {
-> @@ -3539,12 +3559,14 @@ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val)
->  	switch (val) {
->  	case MDB_RTR_TYPE_DISABLED:
->  		p->multicast_router = MDB_RTR_TYPE_DISABLED;
-> -		__del_port_router(p);
-> +		del |= br_ip4_multicast_rport_del(p);
->  		del_timer(&p->ip4_mc_router_timer);
-> +		br_multicast_rport_del_notify(p, del);
->  		break;
->  	case MDB_RTR_TYPE_TEMP_QUERY:
->  		p->multicast_router = MDB_RTR_TYPE_TEMP_QUERY;
-> -		__del_port_router(p);
-> +		del |= br_ip4_multicast_rport_del(p);
-> +		br_multicast_rport_del_notify(p, del);
->  		break;
->  	case MDB_RTR_TYPE_PERM:
->  		p->multicast_router = MDB_RTR_TYPE_PERM;
+> +	switch (proto) {
+> +	case ETH_P_IP:
+> +		hlist_for_each_entry_rcu(p, &port->br->ip4_mc_router_list,
+> +					 ip4_rlist) {
+> +			if (p == port)
+> +				continue;
+> +
+> +			ret = true;
+> +			goto unlock;
+> +		}
+> +		break;
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +	case ETH_P_IPV6:
+> +		hlist_for_each_entry_rcu(p, &port->br->ip6_mc_router_list,
+> +					 ip6_rlist) {
+> +			if (p == port)
+> +				continue;
+> +
+> +			ret = true;
+> +			goto unlock;
+> +		}
+> +		break;
+> +#endif
+> +	default:
+> +		/* when compiled without IPv6 support, be conservative and
+> +		 * always assume presence of an IPv6 multicast router
+> +		 */
+> +		ret = true;
+> +	}
+> +
+> +unlock:
+> +	rcu_read_unlock();
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(br_multicast_has_router_adjacent);
+> +
+>  static void br_mcast_stats_add(struct bridge_mcast_stats __percpu *stats,
+>  			       const struct sk_buff *skb, u8 type, u8 dir)
+>  {
 > 
 
