@@ -1,14 +1,21 @@
-Return-Path: <linus.luessing@c0d3.blue>
-From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Sun,  9 May 2021 21:45:09 +0200
-Message-Id: <20210509194509.10849-12-linus.luessing@c0d3.blue>
-In-Reply-To: <20210509194509.10849-1-linus.luessing@c0d3.blue>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tnHV5mJNnwgq/koCsth+OHwF0qvxxSoE41hzLBBf3f4=;
+ b=TaN2A0vg3d9w9dbXcQmcPA5d1mn7cM37G77LRleKGROWOvwSmhxav+aMOAoKLcfEVEqGFhAulhAk5pv5hdmsRdgxh8ZyjPfswXUHityz5pD6m3NbOy8vr3C3MjcdVs2f67kbyzcrY0OJKqE4TUHJief+SU7IQHfmnIZfMBIs9PH8zk1m1NbU89LT6hyQlBcvOoFGmP12u5Gr1cT9HPe2IicBQG1ZB3VceE4ww2YAi6Qs2mKM2FjM8kobp6wXXzjaSF0b7Q2oKZBDJ3n0DSrQU7WEEfETuC2Rp66Uoup3hyZi47OTrmL2VBbtJ2U7IJ63NImyr49Wvos2tWPExroCFw==
 References: <20210509194509.10849-1-linus.luessing@c0d3.blue>
-MIME-Version: 1.0
+ <20210509194509.10849-3-linus.luessing@c0d3.blue>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <971325eb-b0e9-d1a8-b7a1-b8a2b30fc267@nvidia.com>
+Date: Tue, 11 May 2021 12:12:35 +0300
+In-Reply-To: <20210509194509.10849-3-linus.luessing@c0d3.blue>
 Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [net-next v2 11/11] net: bridge: mcast: export multicast
-	router presence adjacent to a port
+MIME-Version: 1.0
+Subject: Re: [Bridge] [net-next v2 02/11] net: bridge: mcast: add wrappers
+ for router node retrieval
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,91 +24,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>
+To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, netdev@vger.kernel.org
+Cc: b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>
 
-To properly support routable multicast addresses in batman-adv in a
-group-aware way, a batman-adv node needs to know if it serves multicast
-routers.
+On 09/05/2021 22:45, Linus Lüssing wrote:
+> In preparation for the upcoming split of multicast router state into
+> their IPv4 and IPv6 variants and to avoid IPv6 #ifdef clutter later add
+> two wrapper functions for router node retrieval in the payload
+> forwarding code.
+> 
+> Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+> ---
+>  net/bridge/br_forward.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+> index 3b67184..b5ec4f9 100644
+> --- a/net/bridge/br_forward.c
+> +++ b/net/bridge/br_forward.c
+> @@ -264,6 +264,16 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
+>  	__br_forward(p, skb, local_orig);
+>  }
+>  
+> +static inline struct hlist_node *
+> +br_multicast_get_first_rport_node(struct net_bridge *b, struct sk_buff *skb) {
+> +	return rcu_dereference(hlist_first_rcu(&b->ip4_mc_router_list));
+> +}
+> +
+> +static inline struct net_bridge_port *
+> +br_multicast_rport_from_node(struct hlist_node *rp, struct sk_buff *skb) {
+> +	return hlist_entry_safe(rp, struct net_bridge_port, ip4_rlist);
+> +}
+> +
 
-This adds a function to the bridge to export this so that batman-adv
-can then make full use of the Multicast Router Discovery capability of
-the bridge.
+Inline functions in .c files are not allowed, please move these to br_private.h
 
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
----
- net/bridge/br_multicast.c | 58 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index b625fd6..e963de5 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -4061,6 +4061,64 @@ unlock:
- }
- EXPORT_SYMBOL_GPL(br_multicast_has_querier_adjacent);
- 
-+/**
-+ * br_multicast_has_router_adjacent - Checks for a router behind a bridge port
-+ * @dev: The bridge port adjacent to which to check for a multicast router
-+ * @proto: The protocol family to check for: IGMP -> ETH_P_IP, MLD -> ETH_P_IPV6
-+ *
-+ * Checks whether the given interface has a bridge on top and if so returns
-+ * true if a multicast router is behind one of the other ports of this
-+ * bridge. Otherwise returns false.
-+ */
-+bool br_multicast_has_router_adjacent(struct net_device *dev, int proto)
-+{
-+	struct net_bridge_port *port, *p;
-+	bool ret = false;
-+
-+	rcu_read_lock();
-+	if (!netif_is_bridge_port(dev))
-+		goto unlock;
-+
-+	port = br_port_get_rcu(dev);
-+	if (!port || !port->br)
-+		goto unlock;
-+
-+	switch (proto) {
-+	case ETH_P_IP:
-+		hlist_for_each_entry_rcu(p, &port->br->ip4_mc_router_list,
-+					 ip4_rlist) {
-+			if (p == port)
-+				continue;
-+
-+			ret = true;
-+			goto unlock;
-+		}
-+		break;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	case ETH_P_IPV6:
-+		hlist_for_each_entry_rcu(p, &port->br->ip6_mc_router_list,
-+					 ip6_rlist) {
-+			if (p == port)
-+				continue;
-+
-+			ret = true;
-+			goto unlock;
-+		}
-+		break;
-+#endif
-+	default:
-+		/* when compiled without IPv6 support, be conservative and
-+		 * always assume presence of an IPv6 multicast router
-+		 */
-+		ret = true;
-+	}
-+
-+unlock:
-+	rcu_read_unlock();
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(br_multicast_has_router_adjacent);
-+
- static void br_mcast_stats_add(struct bridge_mcast_stats __percpu *stats,
- 			       const struct sk_buff *skb, u8 type, u8 dir)
- {
--- 
-2.31.0
+>  /* called with rcu_read_lock */
+>  void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+>  			struct sk_buff *skb,
+> @@ -276,7 +286,8 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+>  	bool allow_mode_include = true;
+>  	struct hlist_node *rp;
+>  
+> -	rp = rcu_dereference(hlist_first_rcu(&br->router_list));
+> +	rp = br_multicast_get_first_rport_node(br, skb);
+> +
+>  	if (mdst) {
+>  		p = rcu_dereference(mdst->ports);
+>  		if (br_multicast_should_handle_mode(br, mdst->addr.proto) &&
+> @@ -290,7 +301,7 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+>  		struct net_bridge_port *port, *lport, *rport;
+>  
+>  		lport = p ? p->key.port : NULL;
+> -		rport = hlist_entry_safe(rp, struct net_bridge_port, ip4_rlist);
+> +		rport = br_multicast_rport_from_node(rp, skb);
+>  
+>  		if ((unsigned long)lport > (unsigned long)rport) {
+>  			port = lport;
+> 
 
