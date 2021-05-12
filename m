@@ -1,22 +1,22 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1620842570;
- bh=NxRr3i/3FfdnK/KAHIiXOLrAkGgYPUD+efpTLGlFqX4=;
+ s=k20201202; t=1620842630;
+ bh=VDUosEsJvzk5DKSA2eIVQH5GA6mro6Oe7eIha4U+KJk=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=vEt+pP136ssI4AaYaSSHE8/ZuVLLDyoR9ifNtWwr99SYQ3VnypXWUnn/SMoZC0EeH
- HCzHRr6La8xKYoczNxc2+Vs1iPNhtpqNHD68ZolFyMuVZcRE6I/6eZdMgZZd1YHoJR
- ZIODsrZZYiNwlxx2T46PDLk74yKjWpNl6TCIYahCoWuSK2EcNr7EktIQO6J9XUrY43
- ue0dqu5CL8kGZtriOFEboE6yt0YPBfMBCQy8kItcUISOahaWWoEoT6san9tsW8SBFW
- J48UDVJ9Qz24wLcTcccAJKQFpBYaULQ5Jit6WLuc/UaFxOSz1rJRU8P6R6/uWvZOAC
- HuMbHfgkjL90w==
+ b=YO2dOzoB5l814JfSbBzbrulSKyygXucPMmd04EfItv06FrpVXsYfzSBUTbCC/8eyW
+ dupA5u4BX/gQtx9852+vRvORJ02P3rtYXbNmfE6ToFdi06D48dlntZjrsbw159vjVq
+ AgtzX2V3Vs3/pXvNNaZh3KrH/5dZKNbSqqBWM7ekdUa+qVen4wRAMivxzKg0fW2iOj
+ rltj8TosrQcY1kEOasjhaYQkLKU0D2v6fPCg/4/qUyJ9A6ZMUa3whdD7awuz+YWbQ+
+ ol3n89ic57qB9oDORiJmWvnR7h9yvKuWVADbn9iayUkR+c5RfX6a/ZKEwztvGAMm3I
+ pjyE3wiJ9fDCA==
 From: Sasha Levin <sashal@kernel.org>
-Date: Wed, 12 May 2021 14:01:56 -0400
-Message-Id: <20210512180206.664536-26-sashal@kernel.org>
-In-Reply-To: <20210512180206.664536-1-sashal@kernel.org>
-References: <20210512180206.664536-1-sashal@kernel.org>
+Date: Wed, 12 May 2021 14:02:56 -0400
+Message-Id: <20210512180306.664925-25-sashal@kernel.org>
+In-Reply-To: <20210512180306.664925-1-sashal@kernel.org>
+References: <20210512180306.664925-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.11 26/35] bridge: Fix possible races
+Subject: [Bridge] [PATCH AUTOSEL 5.10 25/34] bridge: Fix possible races
 	between assigning rx_handler_data and setting IFF_BRIDGE_PORT bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -91,10 +91,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 49700ce0e919..a0a134050b2c 100644
+index 92d64abffa87..73f71c22f4c0 100644
 --- a/net/bridge/br_netlink.c
 +++ b/net/bridge/br_netlink.c
-@@ -102,8 +102,9 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
+@@ -99,8 +99,9 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
  
  	rcu_read_lock();
  	if (netif_is_bridge_port(dev)) {
