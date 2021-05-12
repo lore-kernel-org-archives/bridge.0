@@ -1,16 +1,23 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Tue, 11 May 2021 13:28:54 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20210511112854.GA2222@otheros>
-References: <20210509194509.10849-1-linus.luessing@c0d3.blue>
- <20210509194509.10849-10-linus.luessing@c0d3.blue>
- <f2f1c811-0502-bde4-8ece-e47b3e30dc66@nvidia.com>
+Return-Path: <sashal@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1620842506;
+ bh=A0Tn6cgL/nNYlXK6awgCA3wXIqEGNrIqSa2qBv/KxG4=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=oSSVQEpa5uECDUo2lMZwzOo8tecYysUS/+HuDJ8CbEv4XV7YOvcFwBvIrRFHHQoTi
+ YI6Zi/AePoV3fRjNlN8vzY0qE6oAowOw2nyoXYBcbOhbyimqTuqkz8skdGzFzTk7C3
+ 7XFWd72IBZVPL1gaqUY4eHpjXurtg68PThdhda0OstSGDoqjmt0lFY6mtkMVAxX4zR
+ BKQ/fYZwle49lGiTZBGdbQqPOrxU1SE90y5AoQuWTJGnQGP4iKKfaAt9xcNEmtKRO0
+ EPMz9HjRX0z72fTy3MnkrdCTIz+C3bp0bZE8o7mGTWShEt/XfFyRE1aVLniElIUf52
+ J+kehX9NhIC3w==
+From: Sasha Levin <sashal@kernel.org>
+Date: Wed, 12 May 2021 14:00:55 -0400
+Message-Id: <20210512180104.664121-28-sashal@kernel.org>
+In-Reply-To: <20210512180104.664121-1-sashal@kernel.org>
+References: <20210512180104.664121-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <f2f1c811-0502-bde4-8ece-e47b3e30dc66@nvidia.com>
-Subject: Re: [Bridge] [net-next v2 09/11] net: bridge: mcast: split
- multicast router state for IPv4 and IPv6
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH AUTOSEL 5.12 28/37] bridge: Fix possible races
+	between assigning rx_handler_data and setting IFF_BRIDGE_PORT bit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,41 +26,86 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: The list for a Better Approach To Mobile Ad-hoc Networking <b.a.t.m.a.n@lists.open-mesh.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, Zhao Lei <zhaolei69@huawei.com>, netdev@vger.kernel.org, Wang Xiaogang <wangxiaogang3@huawei.com>, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Zhang Zhengming <zhangzhengming@huawei.com>, "David S . Miller" <davem@davemloft.net>
 
-On Tue, May 11, 2021 at 12:29:41PM +0300, Nikolay Aleksandrov wrote:
-> [...]
-> > -static void br_multicast_mark_router(struct net_bridge *br,
-> > -				     struct net_bridge_port *port)
-> > +#if IS_ENABLED(CONFIG_IPV6)
-> > +struct hlist_node *
-> > +br_ip6_multicast_get_rport_slot(struct net_bridge *br, struct net_bridge_port *port)
-> > +{
-> > +	struct hlist_node *slot = NULL;
-> > +	struct net_bridge_port *p;
-> > +
-> > +	hlist_for_each_entry(p, &br->ip6_mc_router_list, ip6_rlist) {
-> > +		if ((unsigned long)port >= (unsigned long)p)
-> > +			break;
-> > +		slot = &p->ip6_rlist;
-> > +	}
-> > +
-> > +	return slot;
-> > +}
-> 
-> The ip4/ip6 get_rport_slot functions are identical, why not add a list pointer
-> and use one function ?
+From: Zhang Zhengming <zhangzhengming@huawei.com>
 
-Hi Nikolay,
+[ Upstream commit 59259ff7a81b9eb6213891c6451221e567f8f22f ]
 
-Thanks for all the feedback and reviewing again! I'll
-remove (most of) the inlines as the router list modifications are
-not in the fast path.
+There is a crash in the function br_get_link_af_size_filtered,
+as the port_exists(dev) is true and the rx_handler_data of dev is NULL.
+But the rx_handler_data of dev is correct saved in vmcore.
 
-For the get_rport_slot functions, maybe I'm missing a simple
-solution. Note that "ip6_rlist" in hlist_for_each_entry() is not a
-pointer but will be expanded by the macro. I currently don't see
-how I could solve this with just one hlist_for_each_entry().
+The oops looks something like:
+ ...
+ pc : br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
+ ...
+ Call trace:
+  br_get_link_af_size_filtered+0x28/0x1c8 [bridge]
+  if_nlmsg_size+0x180/0x1b0
+  rtnl_calcit.isra.12+0xf8/0x148
+  rtnetlink_rcv_msg+0x334/0x370
+  netlink_rcv_skb+0x64/0x130
+  rtnetlink_rcv+0x28/0x38
+  netlink_unicast+0x1f0/0x250
+  netlink_sendmsg+0x310/0x378
+  sock_sendmsg+0x4c/0x70
+  __sys_sendto+0x120/0x150
+  __arm64_sys_sendto+0x30/0x40
+  el0_svc_common+0x78/0x130
+  el0_svc_handler+0x38/0x78
+  el0_svc+0x8/0xc
 
-Regards, Linus
+In br_add_if(), we found there is no guarantee that
+assigning rx_handler_data to dev->rx_handler_data
+will before setting the IFF_BRIDGE_PORT bit of priv_flags.
+So there is a possible data competition:
+
+CPU 0:                                                        CPU 1:
+(RCU read lock)                                               (RTNL lock)
+rtnl_calcit()                                                 br_add_slave()
+  if_nlmsg_size()                                               br_add_if()
+    br_get_link_af_size_filtered()                              -> netdev_rx_handler_register
+                                                                    ...
+                                                                    // The order is not guaranteed
+      ...                                                           -> dev->priv_flags |= IFF_BRIDGE_PORT;
+      // The IFF_BRIDGE_PORT bit of priv_flags has been set
+      -> if (br_port_exists(dev)) {
+        // The dev->rx_handler_data has NOT been assigned
+        -> p = br_port_get_rcu(dev);
+        ....
+                                                                    -> rcu_assign_pointer(dev->rx_handler_data, rx_handler_data);
+                                                                     ...
+
+Fix it in br_get_link_af_size_filtered, using br_port_get_check_rcu() and checking the return value.
+
+Signed-off-by: Zhang Zhengming <zhangzhengming@huawei.com>
+Reviewed-by: Zhao Lei <zhaolei69@huawei.com>
+Reviewed-by: Wang Xiaogang <wangxiaogang3@huawei.com>
+Suggested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/bridge/br_netlink.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index f2b1343f8332..ed5aba21d3d5 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -103,8 +103,9 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
+ 
+ 	rcu_read_lock();
+ 	if (netif_is_bridge_port(dev)) {
+-		p = br_port_get_rcu(dev);
+-		vg = nbp_vlan_group_rcu(p);
++		p = br_port_get_check_rcu(dev);
++		if (p)
++			vg = nbp_vlan_group_rcu(p);
+ 	} else if (dev->priv_flags & IFF_EBRIDGE) {
+ 		br = netdev_priv(dev);
+ 		vg = br_vlan_group_rcu(br);
+-- 
+2.30.2
+
