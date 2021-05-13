@@ -2,20 +2,20 @@ Return-Path: <nikolay@nvidia.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Z1E/lC5Sf5SIPVMoorqPSt74xMA/vuk13tqjIEYp1Ao=;
- b=lcRgzbgUtgWm8bViz1d3Obhh05CCRTNiFsUD4uDgR0mHtpAUF8xWOLN9r3dQFHvrDDtdXOJzCT9GVI5NxD6hFqJaXsXWntl9UCHAnD3n7koyIFqa8TPfnn9r6/H3VmHVGafU0ALwmJpP02yyRQuio9+GCOgiUdHS/hCH6tSorUUOvgI1R2sMZTRyBgRTxTVFDb3HkJ4y3nodr7Jv0oiGE3tE8yowtWNZTys46wQC09Nrm7IdLZxyMqDj9xUkJ0oCdVCVQz8AHunmdSJ2cYTUtr3QJj3dtEdmheJEoD3/De4ozOPM4fQlU/ptRAGASnDTegIvkosOLAjfhlU3BnzL8Q==
+ bh=qqw89t/M2amB8SM1NnWj1eHg5nIHze4lql2eXRdnFXE=;
+ b=Oq1eobls9WCOlI5DntjoVqsp45in985ctRgF7lkFOJa8WcxwCf+ovK48Cvs9MgVCrJfbKA4q92aqZ0tp45Ck5G1T4Ksdp3vpSSkQEEqeVjbqNQPmeLI2ePw61zo/BcaOC4wFLO1DSuf5qUQ9qxK35x4tAAz4BYHXLMg5euDL8s2DktnA78Kz5BDhRG9oCV4vZPdeh/VvmOU+xGTTseW9rKz17gFQyDJ0woAzTPVG2lKXcSwOezYRzVQB//QiEIavZaW/16arkW0CGG8IK1d9d9QX5l4M1MfNwqysfOzMKNXJB21O48+vh+UPUvZVdPsyqGGdZ0inKwvw8gfdtwc4/g==
 References: <20210512231941.19211-1-linus.luessing@c0d3.blue>
- <20210512231941.19211-2-linus.luessing@c0d3.blue>
+ <20210512231941.19211-3-linus.luessing@c0d3.blue>
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <2e58a4ab-1e40-d11c-d84e-798dd36ad679@nvidia.com>
-Date: Thu, 13 May 2021 14:29:19 +0300
-In-Reply-To: <20210512231941.19211-2-linus.luessing@c0d3.blue>
+Message-ID: <bade919c-8535-aa53-4fac-6532ca140c03@nvidia.com>
+Date: Thu, 13 May 2021 14:29:33 +0300
+In-Reply-To: <20210512231941.19211-3-linus.luessing@c0d3.blue>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Subject: Re: [Bridge] [net-next v3 01/11] net: bridge: mcast: rename
- multicast router lists and timers
+Subject: Re: [Bridge] [net-next v3 02/11] net: bridge: mcast: add wrappers
+ for router node retrieval
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,18 +29,16 @@ Cc: Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, "David 
 
 On 13/05/2021 02:19, Linus Lüssing wrote:
 > In preparation for the upcoming split of multicast router state into
-> their IPv4 and IPv6 variants, rename the affected variable to the IPv4
-> version first to avoid some renames in later commits.
+> their IPv4 and IPv6 variants and to avoid IPv6 #ifdef clutter later add
+> two wrapper functions for router node retrieval in the payload
+> forwarding code.
 > 
 > Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 > ---
->  net/bridge/br_forward.c   |  4 ++--
->  net/bridge/br_mdb.c       |  6 ++---
->  net/bridge/br_multicast.c | 48 +++++++++++++++++++--------------------
->  net/bridge/br_private.h   | 10 ++++----
->  4 files changed, 34 insertions(+), 34 deletions(-)
+>  net/bridge/br_forward.c |  5 +++--
+>  net/bridge/br_private.h | 10 ++++++++++
+>  2 files changed, 13 insertions(+), 2 deletions(-)
 > 
 
 Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-
 
