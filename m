@@ -1,14 +1,14 @@
 Return-Path: <linus.luessing@c0d3.blue>
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Date: Thu, 13 May 2021 15:20:45 +0200
-Message-Id: <20210513132053.23445-4-linus.luessing@c0d3.blue>
+Date: Thu, 13 May 2021 15:20:53 +0200
+Message-Id: <20210513132053.23445-12-linus.luessing@c0d3.blue>
 In-Reply-To: <20210513132053.23445-1-linus.luessing@c0d3.blue>
 References: <20210513132053.23445-1-linus.luessing@c0d3.blue>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [net-next v4 03/11] net: bridge: mcast: prepare mdb
-	netlink for mcast router split
+Subject: [Bridge] [net-next v4 11/11] net: bridge: mcast: export multicast
+	router presence adjacent to a port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,86 +20,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>
 
-In preparation for the upcoming split of multicast router state into
-their IPv4 and IPv6 variants and to avoid IPv6 #ifdef clutter later add
-some inline functions for the protocol specific parts in the mdb router
-netlink code. Also the we need iterate over the port instead of router
-list to be able put one router port entry with both the IPv4 and IPv6
-multicast router info later.
+To properly support routable multicast addresses in batman-adv in a
+group-aware way, a batman-adv node needs to know if it serves multicast
+routers.
+
+This adds a function to the bridge to export this so that batman-adv
+can then make full use of the Multicast Router Discovery capability of
+the bridge.
 
 Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 ---
- net/bridge/br_mdb.c | 39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
+ include/linux/if_bridge.h |  8 ++++++
+ net/bridge/br_multicast.c | 55 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 63 insertions(+)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index d61def8..482edb9 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -16,29 +16,58 @@
- 
- #include "br_private.h"
- 
-+static bool br_rports_have_mc_router(struct net_bridge *br)
-+{
-+	return !hlist_empty(&br->ip4_mc_router_list);
-+}
-+
-+static bool
-+br_ip4_rports_get_timer(struct net_bridge_port *port, unsigned long *timer)
-+{
-+	*timer = br_timer_value(&port->ip4_mc_router_timer);
-+	return !hlist_unhashed(&port->ip4_rlist);
-+}
-+
-+static bool
-+br_ip6_rports_get_timer(struct net_bridge_port *port, unsigned long *timer)
-+{
-+	*timer = 0;
-+	return false;
-+}
-+
- static int br_rports_fill_info(struct sk_buff *skb, struct netlink_callback *cb,
- 			       struct net_device *dev)
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index 2cc3503..12e9a32 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -67,6 +67,7 @@ int br_multicast_list_adjacent(struct net_device *dev,
+ 			       struct list_head *br_ip_list);
+ bool br_multicast_has_querier_anywhere(struct net_device *dev, int proto);
+ bool br_multicast_has_querier_adjacent(struct net_device *dev, int proto);
++bool br_multicast_has_router_adjacent(struct net_device *dev, int proto);
+ bool br_multicast_enabled(const struct net_device *dev);
+ bool br_multicast_router(const struct net_device *dev);
+ int br_mdb_replay(struct net_device *br_dev, struct net_device *dev,
+@@ -87,6 +88,13 @@ static inline bool br_multicast_has_querier_adjacent(struct net_device *dev,
  {
- 	struct net_bridge *br = netdev_priv(dev);
--	struct net_bridge_port *p;
-+	bool have_ip4_mc_rtr, have_ip6_mc_rtr;
-+	unsigned long ip4_timer, ip6_timer;
- 	struct nlattr *nest, *port_nest;
-+	struct net_bridge_port *p;
+ 	return false;
+ }
++
++static inline bool br_multicast_has_router_adjacent(struct net_device *dev,
++						    int proto)
++{
++	return true;
++}
++
+ static inline bool br_multicast_enabled(const struct net_device *dev)
+ {
+ 	return false;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index f234c48..0703725 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -4054,6 +4054,61 @@ unlock:
+ }
+ EXPORT_SYMBOL_GPL(br_multicast_has_querier_adjacent);
  
--	if (!br->multicast_router || hlist_empty(&br->ip4_mc_router_list))
-+	if (!br->multicast_router)
-+		return 0;
++/**
++ * br_multicast_has_router_adjacent - Checks for a router behind a bridge port
++ * @dev: The bridge port adjacent to which to check for a multicast router
++ * @proto: The protocol family to check for: IGMP -> ETH_P_IP, MLD -> ETH_P_IPV6
++ *
++ * Checks whether the given interface has a bridge on top and if so returns
++ * true if a multicast router is behind one of the other ports of this
++ * bridge. Otherwise returns false.
++ */
++bool br_multicast_has_router_adjacent(struct net_device *dev, int proto)
++{
++	struct net_bridge_port *port, *p;
++	bool ret = false;
 +
-+	if (!br_rports_have_mc_router(br))
- 		return 0;
- 
- 	nest = nla_nest_start_noflag(skb, MDBA_ROUTER);
- 	if (nest == NULL)
- 		return -EMSGSIZE;
- 
--	hlist_for_each_entry_rcu(p, &br->ip4_mc_router_list, ip4_rlist) {
--		if (!p)
-+	list_for_each_entry_rcu(p, &br->port_list, list) {
-+		have_ip4_mc_rtr = br_ip4_rports_get_timer(p, &ip4_timer);
-+		have_ip6_mc_rtr = br_ip6_rports_get_timer(p, &ip6_timer);
++	rcu_read_lock();
++	port = br_port_get_check_rcu(dev);
++	if (!port)
++		goto unlock;
 +
-+		if (!have_ip4_mc_rtr && !have_ip6_mc_rtr)
- 			continue;
++	switch (proto) {
++	case ETH_P_IP:
++		hlist_for_each_entry_rcu(p, &port->br->ip4_mc_router_list,
++					 ip4_rlist) {
++			if (p == port)
++				continue;
 +
- 		port_nest = nla_nest_start_noflag(skb, MDBA_ROUTER_PORT);
- 		if (!port_nest)
- 			goto fail;
++			ret = true;
++			goto unlock;
++		}
++		break;
++#if IS_ENABLED(CONFIG_IPV6)
++	case ETH_P_IPV6:
++		hlist_for_each_entry_rcu(p, &port->br->ip6_mc_router_list,
++					 ip6_rlist) {
++			if (p == port)
++				continue;
 +
- 		if (nla_put_nohdr(skb, sizeof(u32), &p->dev->ifindex) ||
- 		    nla_put_u32(skb, MDBA_ROUTER_PATTR_TIMER,
--				br_timer_value(&p->ip4_mc_router_timer)) ||
-+				max(ip4_timer, ip6_timer)) ||
- 		    nla_put_u8(skb, MDBA_ROUTER_PATTR_TYPE,
- 			       p->multicast_router)) {
- 			nla_nest_cancel(skb, port_nest);
++			ret = true;
++			goto unlock;
++		}
++		break;
++#endif
++	default:
++		/* when compiled without IPv6 support, be conservative and
++		 * always assume presence of an IPv6 multicast router
++		 */
++		ret = true;
++	}
++
++unlock:
++	rcu_read_unlock();
++	return ret;
++}
++EXPORT_SYMBOL_GPL(br_multicast_has_router_adjacent);
++
+ static void br_mcast_stats_add(struct bridge_mcast_stats __percpu *stats,
+ 			       const struct sk_buff *skb, u8 type, u8 dir)
+ {
 -- 
 2.31.0
 
