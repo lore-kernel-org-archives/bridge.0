@@ -2,20 +2,20 @@ Return-Path: <nikolay@nvidia.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=L2NAw2IL+9UQ8hjV0lH7nPLMMbQL4XA9AgK+HUCn4Vg=;
- b=Nor+EEXWve0RDJsd7DzVKtdAF2wXEW4twGvy/q3GU/ucSojfGJw0WgU8ZyL+QIZuLHRx0RIvFxQtOJEl4cmkbgqnJSyKM84r6qvc5GJO/KIr1WiMzcBbwXltimYFm1KZlF6MH7ZiHf0KgJKSxW1V8T+WXXqyP/gptNKc5ClVxk3o9ad5lXLrAazSFXwNzI0ruWkdDt1KGN0AJ7rJz4AAhcxohEViqb/ksCZyfJI7w1zSqMqHUdRy9eiJTMN+IOUf8XkHhJI80NHyUuwNyZLINYzGAz0/Hhw6JGVcBy/dfjDwSFA4IyCd/LVsbVILOGGzZ6RPUavXOLRx6DLp0GzbKw==
+ bh=9jzQduEjD3G/jvJzLUPq8xfxoTdzTnPlDw5So0f5+hs=;
+ b=qXoIOUYvbtpVp4eRUCt7Uhh5delYaiapYaSnw4fyopBETuG3ARyYnNq3JYDYCfhHAEcVEaRfb/qp0L6/kCRlJ7bFhptmQZrcDxx63W+SSfRIQLEfpE0CE3AQKPly+yPfVpgd90w4s2HzOT2ix4JAwF8i+Q25BxoqupvBk4XaXAEZBGY0d5hrkMWJnfwlrLbpicFiJwC2lo7IN6mE5/tD6hFAfySXZkWCo2x9mM9D0Eq1WdF4xdMYk+Fgt6CNzkqWuI3iEtEtwaDpKKns2kx5Sp9Z6RlKKMlQTFT4tsAheCDkCMG+0GEkeqOLEKXu2JPIR+W8LlTpmP7jbP3vBI/LFQ==
 References: <20210512231941.19211-1-linus.luessing@c0d3.blue>
- <20210512231941.19211-12-linus.luessing@c0d3.blue>
+ <20210512231941.19211-9-linus.luessing@c0d3.blue>
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <44fa04ee-752a-34b9-d5d1-e6264aa859c1@nvidia.com>
-Date: Thu, 13 May 2021 14:39:17 +0300
-In-Reply-To: <20210512231941.19211-12-linus.luessing@c0d3.blue>
+Message-ID: <3f003dcc-66d0-e4a8-aaa1-99d9a9fb3940@nvidia.com>
+Date: Thu, 13 May 2021 14:46:56 +0300
+In-Reply-To: <20210512231941.19211-9-linus.luessing@c0d3.blue>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Subject: Re: [Bridge] [net-next v3 11/11] net: bridge: mcast: export
- multicast router presence adjacent to a port
+Subject: Re: [Bridge] [net-next v3 08/11] net: bridge: mcast: split router
+ port del+notify for mcast router split
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,21 +28,136 @@ To: =?UTF-8?Q?Linus_L=c3=bcssing?= <linus.luessing@c0d3.blue>, netdev@vger.kerne
 Cc: Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>
 
 On 13/05/2021 02:19, Linus Lüssing wrote:
-> To properly support routable multicast addresses in batman-adv in a
-> group-aware way, a batman-adv node needs to know if it serves multicast
-> routers.
-> 
-> This adds a function to the bridge to export this so that batman-adv
-> can then make full use of the Multicast Router Discovery capability of
-> the bridge.
+> In preparation for the upcoming split of multicast router state into
+> their IPv4 and IPv6 variants split router port deletion and notification
+> into two functions. When we disable a port for instance later we want to
+> only send one notification to switchdev and netlink for compatibility
+> and want to avoid sending one for IPv4 and one for IPv6. For that the
+> split is needed.
 > 
 > Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 > ---
->  include/linux/if_bridge.h |  8 ++++++
->  net/bridge/br_multicast.c | 55 +++++++++++++++++++++++++++++++++++++++
->  2 files changed, 63 insertions(+)
+>  net/bridge/br_multicast.c | 40 ++++++++++++++++++++++++++++++---------
+>  1 file changed, 31 insertions(+), 9 deletions(-)
 > 
 
+Not a fan of using bitwise ops with booleans, but the code looks correct:
 Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 1d55709..01a1de4 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -60,7 +60,8 @@ static void br_ip4_multicast_leave_group(struct net_bridge *br,
+>  					 const unsigned char *src);
+>  static void br_multicast_port_group_rexmit(struct timer_list *t);
+>  
+> -static void __del_port_router(struct net_bridge_port *p);
+> +static void
+> +br_multicast_rport_del_notify(struct net_bridge_port *p, bool deleted);
+>  #if IS_ENABLED(CONFIG_IPV6)
+>  static void br_ip6_multicast_leave_group(struct net_bridge *br,
+>  					 struct net_bridge_port *port,
+> @@ -1354,11 +1355,26 @@ static int br_ip6_multicast_add_group(struct net_bridge *br,
+>  }
+>  #endif
+>  
+> +static bool br_multicast_rport_del(struct hlist_node *rlist)
+> +{
+> +	if (hlist_unhashed(rlist))
+> +		return false;
+> +
+> +	hlist_del_init_rcu(rlist);
+> +	return true;
+> +}
+> +
+> +static bool br_ip4_multicast_rport_del(struct net_bridge_port *p)
+> +{
+> +	return br_multicast_rport_del(&p->ip4_rlist);
+> +}
+> +
+>  static void br_multicast_router_expired(struct net_bridge_port *port,
+>  					struct timer_list *t,
+>  					struct hlist_node *rlist)
+>  {
+>  	struct net_bridge *br = port->br;
+> +	bool del;
+>  
+>  	spin_lock(&br->multicast_lock);
+>  	if (port->multicast_router == MDB_RTR_TYPE_DISABLED ||
+> @@ -1366,7 +1382,8 @@ static void br_multicast_router_expired(struct net_bridge_port *port,
+>  	    timer_pending(t))
+>  		goto out;
+>  
+> -	__del_port_router(port);
+> +	del = br_multicast_rport_del(rlist);
+> +	br_multicast_rport_del_notify(port, del);
+>  out:
+>  	spin_unlock(&br->multicast_lock);
+>  }
+> @@ -1706,19 +1723,20 @@ void br_multicast_disable_port(struct net_bridge_port *port)
+>  	struct net_bridge *br = port->br;
+>  	struct net_bridge_port_group *pg;
+>  	struct hlist_node *n;
+> +	bool del = false;
+>  
+>  	spin_lock(&br->multicast_lock);
+>  	hlist_for_each_entry_safe(pg, n, &port->mglist, mglist)
+>  		if (!(pg->flags & MDB_PG_FLAGS_PERMANENT))
+>  			br_multicast_find_del_pg(br, pg);
+>  
+> -	__del_port_router(port);
+> -
+> +	del |= br_ip4_multicast_rport_del(port);
+>  	del_timer(&port->ip4_mc_router_timer);
+>  	del_timer(&port->ip4_own_query.timer);
+>  #if IS_ENABLED(CONFIG_IPV6)
+>  	del_timer(&port->ip6_own_query.timer);
+>  #endif
+> +	br_multicast_rport_del_notify(port, del);
+>  	spin_unlock(&br->multicast_lock);
+>  }
+>  
+> @@ -3508,11 +3526,12 @@ int br_multicast_set_router(struct net_bridge *br, unsigned long val)
+>  	return err;
+>  }
+>  
+> -static void __del_port_router(struct net_bridge_port *p)
+> +static void
+> +br_multicast_rport_del_notify(struct net_bridge_port *p, bool deleted)
+>  {
+> -	if (hlist_unhashed(&p->ip4_rlist))
+> +	if (!deleted)
+>  		return;
+> -	hlist_del_init_rcu(&p->ip4_rlist);
+> +
+>  	br_rtr_notify(p->br->dev, p, RTM_DELMDB);
+>  	br_port_mc_router_state_change(p, false);
+>  
+> @@ -3526,6 +3545,7 @@ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val)
+>  	struct net_bridge *br = p->br;
+>  	unsigned long now = jiffies;
+>  	int err = -EINVAL;
+> +	bool del = false;
+>  
+>  	spin_lock(&br->multicast_lock);
+>  	if (p->multicast_router == val) {
+> @@ -3539,12 +3559,14 @@ int br_multicast_set_port_router(struct net_bridge_port *p, unsigned long val)
+>  	switch (val) {
+>  	case MDB_RTR_TYPE_DISABLED:
+>  		p->multicast_router = MDB_RTR_TYPE_DISABLED;
+> -		__del_port_router(p);
+> +		del |= br_ip4_multicast_rport_del(p);
+>  		del_timer(&p->ip4_mc_router_timer);
+> +		br_multicast_rport_del_notify(p, del);
+>  		break;
+>  	case MDB_RTR_TYPE_TEMP_QUERY:
+>  		p->multicast_router = MDB_RTR_TYPE_TEMP_QUERY;
+> -		__del_port_router(p);
+> +		del |= br_ip4_multicast_rport_del(p);
+> +		br_multicast_rport_del_notify(p, del);
+>  		break;
+>  	case MDB_RTR_TYPE_PERM:
+>  		p->multicast_router = MDB_RTR_TYPE_PERM;
+> 
 
