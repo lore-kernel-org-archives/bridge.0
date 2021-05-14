@@ -1,15 +1,21 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Fri, 14 May 2021 11:52:26 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <20210514095226.GE2222@otheros>
-References: <20210514073233.2564187-1-razor@blackwall.org>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=erYHtcNZBE7I1lDDEg5p4qb0b9DVuP6c1KHWYqgua5A=;
+ b=ugms00XOFLkMI81IBmIU6v/fgKWiq/7/DjpFFtzP0+dh1BWs0DTy1GcTobItpt1wMLyg+E36aaBnEfHHcIVOaNmWnNfv6f1YOa6pP00ohnlPCa6hVY78KzZXok0TizgzdURwjKaQUGlYM2dfNVRVZjp9H0tABBdSxu0V4vV9wk/QPs8Ge+FanKUSNDRG5pnNHRpDbw4FqHAxOHZu5PscLTT+7PqPsAolbB5QOdCIHCf7Oj7FaAoC7hlMmsZdhrEt12qHy9SP8MsQR0ZVr2mjRlgBgZkPYzXH88r6CQdXKMvtUsETt5G+iFN7gPn1peh6qzU7MIf8E2NZL7vD7rjSYw==
+References: <202105140925.xZEBEK7v-lkp@intel.com>
+ <CA+G9fYuSVLOOu0aEs1bm5myxDMGe1VK_MVm61BmY3dwDx_yRmA@mail.gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <7dde3521-3df5-8b65-b6a9-c974b84ab0eb@nvidia.com>
+Date: Fri, 14 May 2021 13:12:12 +0300
+In-Reply-To: <CA+G9fYuSVLOOu0aEs1bm5myxDMGe1VK_MVm61BmY3dwDx_yRmA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210514073233.2564187-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: fix
- br_multicast_is_router stub when igmp is disabled
+Subject: Re: [Bridge] [net-next:master 40/65] net/bridge/br_input.c:135:8:
+ error: too many arguments to function 'br_multicast_is_router'
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,37 +24,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: bridge@lists.linux-foundation.org, netdev@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, davem@davemloft.net, roopa@nvidia.com
+To: Naresh Kamboju <naresh.kamboju@linaro.org>, kernel test robot <lkp@intel.com>
+Cc: kbuild-all@lists.01.org, Netdev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, linux-mips@vger.kernel.org, Linux-Next Mailing List <linux-next@vger.kernel.org>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-On Fri, May 14, 2021 at 10:32:33AM +0300, Nikolay Aleksandrov wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 14/05/2021 13:06, Naresh Kamboju wrote:
+> [Please ignore this email if you already know these build failures]
 > 
-> br_multicast_is_router takes two arguments when bridge IGMP is enabled
-> and just one when it's disabled, fix the stub to take two as well.
+> + Adding maintainers
 > 
-> Fixes: 1a3065a26807 ("net: bridge: mcast: prepare is-router function for mcast router split")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> ---
->  net/bridge/br_private.h | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 53cace4d9487..28f91b111085 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -1081,7 +1081,8 @@ static inline void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
->  {
->  }
->  
-> -static inline bool br_multicast_is_router(struct net_bridge *br)
-> +static inline bool br_multicast_is_router(struct net_bridge *br,
-> +					  struct sk_buff *skb)
->  {
->  	return false;
->  }
-> -- 
-> 2.30.2
-> 
+> On Fri, 14 May 2021 at 06:35, kernel test robot <lkp@intel.com> wrote:
+>>
+>> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git master
+>> head:   ea89c862f01e02ec459932c7c3113fa37aedd09a
+>> commit: 1a3065a26807b4cdd65d3b696ddb18385610f7da [40/65] net: bridge: mcast: prepare is-router function for mcast router split
+>> config: um-randconfig-s032-20210514 (attached as .config)
+>> compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
+>> reproduce:
+>>         # apt-get install sparse
+>>         # sparse version: v0.6.3-341-g8af24329-dirty
+>>         # https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/commit/?id=1a3065a26807b4cdd65d3b696ddb18385610f7da
+>>         git remote add net-next https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git
+>>         git fetch --no-tags net-next master
+>>         git checkout 1a3065a26807b4cdd65d3b696ddb18385610f7da
+>>         # save the attached .config to linux build tree
+>>         make W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' W=1 ARCH=um
+>>
+>> If you fix the issue, kindly add following tag as appropriate
+>> Reported-by: kernel test robot <lkp@intel.com>
+>>
+>> All errors (new ones prefixed by >>):
+>>
+>>    net/bridge/br_input.c: In function 'br_handle_frame_finish':
+>>>> net/bridge/br_input.c:135:8: error: too many arguments to function 'br_multicast_is_router'
+>>      135 |        br_multicast_is_router(br, skb)) {
+>>          |        ^~~~~~~~~~~~~~~~~~~~~~
+>>    In file included from net/bridge/br_input.c:23:
+>>    net/bridge/br_private.h:1059:20: note: declared here
+>>     1059 | static inline bool br_multicast_is_router(struct net_bridge *br)
+>>          |                    ^~~~~~~~~~~~~~~~~~~~~~
+>>
 
-Acked-by: Linus Lüssing <linus.luessing@c0d3.blue>
+I have already sent a patch for this one:
+https://patchwork.kernel.org/project/netdevbpf/patch/20210514073233.2564187-1-razor@blackwall.org/
+
+
