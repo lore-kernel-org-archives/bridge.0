@@ -1,21 +1,23 @@
-Return-Path: <trix@redhat.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1621111136;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=RjAWv7j/zHfhk0YuuOMHIejR7YmGA5R8BOsaPxYr0kQ=;
- b=iC4MK9UWM+xdb0TPBGyvYy/9wSSexD1CNPRg5/tRO9tya6zISQNMZiC99pz7HKOSE/mvSe
- sxJtBNzlSH+y9Dps9vel3HW+fIL9GV1qGHtv/bWO4FcU+5Zw3A08CvQcGS78HO0JwfBS5s
- e3CLl8Vlz+eJRRraNt2Oxw/J9MgITJY=
-From: trix@redhat.com
-Date: Sat, 15 May 2021 13:38:49 -0700
-Message-Id: <20210515203849.1756371-1-trix@redhat.com>
-MIME-Version: 1.0
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1621981811;
+ bh=OP+2crvbUdflDGJs+DZrs5Hsm5swebZhY7rgc9PlKBE=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=uM2XgOdHN/pg7sxi8fpJGFYmT7i4nOO8OI0B+IOeEo/J3jta35kTJNQ+aYnQKhP33
+ +bXK0zKDrUnUBQOf7ITanU3cLPn1VWEnzHCqeIg+hYjrqNQmTI9gH2bqtcb2GL55Nt
+ NAZe58AvHWKBGjxvS6TMpBGAt8IrtZb5TCwCI2gfnQLO+ARQ9HkLTTqI+mBN3XsZ66
+ Ls270nYNwvJypzlrjKxy9hzQcDUs+afHRw6X3iSlW6XzmRxv1pqsc5Z6BxjRmDb2zy
+ Wb5xUWflAsmVWZQfqNJmJaNUYnBRo/q5+153pwcWghxH85vLxvVmL/CeZu/miDfMWY
+ jyqwiJnbL0KzQ==
 Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] net: bridge: fix signature of stub
-	br_multicast_is_router
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162198181119.18500.5211226351903654537.git-patchwork-notify@kernel.org>
+Date: Tue, 25 May 2021 22:30:11 +0000
+References: <YKx3ptXPNbd3Bdiq@fedora>
+In-Reply-To: <YKx3ptXPNbd3Bdiq@fedora>
+Subject: Re: [Bridge] [PATCH] net: bridge: remove redundant assignment
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,43 +26,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: roopa@nvidia.com, nikolay@nvidia.com, davem@davemloft.net, kuba@kernel.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Tom Rix <trix@redhat.com>
+To: Nigel Christian <nigel.l.christian@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-From: Tom Rix <trix@redhat.com>
+Hello:
 
-Building with CONFIG_IPV6 off causes this build error
+This patch was applied to netdev/net-next.git (refs/heads/master):
 
-br_input.c:135:8: error: too many arguments to function
-  ‘br_multicast_is_router’
-        br_multicast_is_router(br, skb)) {
-        ^~~~~~~~~~~~~~~~~~~~~~
-In file included from net/bridge/br_input.c:23:
-net/bridge/br_private.h:1059:20: note: declared here
- static inline bool br_multicast_is_router(struct net_bridge *br)
-                    ^~~~~~~~~~~~~~~~~~~~~~
+On Mon, 24 May 2021 23:05:58 -0500 you wrote:
+> The variable br is assigned a value that is not being read after
+> exiting case IFLA_STATS_LINK_XSTATS_SLAVE. The assignment is
+> redundant and can be removed.
+> 
+> Addresses-Coverity ("Unused value")
+> Signed-off-by: Nigel Christian <nigel.l.christian@gmail.com>
+> 
+> [...]
 
-Comparing the stub with the real function shows the stub needs
-another parameter.
+Here is the summary with links:
+  - net: bridge: remove redundant assignment
+    https://git.kernel.org/netdev/net-next/c/ccc882f0d838
 
-Signed-off-by: Tom Rix <trix@redhat.com>
----
- net/bridge/br_private.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index f9a381fcff094..9fd54626ca809 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1056,7 +1056,7 @@ static inline void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- {
- }
- 
--static inline bool br_multicast_is_router(struct net_bridge *br)
-+static inline bool br_multicast_is_router(struct net_bridge *br, struct sk_buff *skb)
- {
- 	return false;
- }
--- 
-2.26.3
 
