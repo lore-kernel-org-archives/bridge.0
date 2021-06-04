@@ -1,23 +1,24 @@
-Return-Path: <Horatiu.Vultur@microchip.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
- d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
- t=1622803083; x=1654339083;
- h=from:to:cc:subject:date:message-id:mime-version:
- content-transfer-encoding;
- bh=4sXc9RFUGLKrPBrTE/aA0NwwQbDYVun7rUmFq44v2zA=;
- b=KZmv+fk030p1ROt1V3Mb0BeYbAb9YOJmx0mZuNGvEFSzTngDIaoW+GKF
- NixSCOP7VvGa3IpLKpHDVha3ym9Wg/jR0q32rk9Mdp79ihgdDjm7OKvzG
- S+OX8Oheyl9zFMN2fnUpsMeaVOqqAepXBzEh5rOoZf1hjtiGPLLuetuUu
- 7o9Y+/WbyoYcSkfpLEw3t+6s8tnEeXPDMQWLYhptrpnkeLNhFYTJhFcsq
- ppHWY/lZ/D6rJLP120jjFhEuvCZ2iz1FnwzvkOEueeFKHp00nLKFqdnj3
- 6rqmQpzN5IuVcEQ4lFaPv+eSWHNkBJgUgFZUFGbHSv6Non0LL4lRH3lKH w==;
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
-Date: Fri, 4 Jun 2021 12:37:47 +0200
-Message-ID: <20210604103747.3824212-1-horatiu.vultur@microchip.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1622843404;
+ bh=wEGISPwpp3pYI5B6deH40LEMJDeq72dbo/qap1ROPiU=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=idgU3/OsrjNCFhH8yC3wNfS8RrA2ooORTrOWmyGjPpJJLV6jvZXgZIuM4uKIQpcZL
+ 5YyBhwz9e/AzpqRmTv1kwxIa6MgiNh+n0YG7gmPGIXiGwesUYhCshdZLMnvGRFde7Z
+ tLOwUqW0aCAuqMf8+aNW9smHeLoB6BjssZmkePheM6sdMB+IvaoWNpUu7VKOjs7lTB
+ H+wGHOYE7dBLehTPFrrxdwLmFsVXq58/wHbSulNz4LmIUwMe4F6VxmCZfnsH1aAsjC
+ sQAZfQ/5YVJ6NaN8TYmnC5XnB3yVs6xXXndVI9O8gMh6Iq2Z91bZ5uYB2/D+LSctQ9
+ BPWidwJSR/9NQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next] net: bridge: mrp: Update ring transitions.
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162284340476.5449.16639869522186820582.git-patchwork-notify@kernel.org>
+Date: Fri, 04 Jun 2021 21:50:04 +0000
+References: <20210604103747.3824212-1-horatiu.vultur@microchip.com>
+In-Reply-To: <20210604103747.3824212-1-horatiu.vultur@microchip.com>
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: mrp: Update ring
+	transitions.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,44 +27,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: roopa@nvidia.com, nikolay@nvidia.com, davem@davemloft.net, kuba@kernel.org, UNGLinuxDriver@microchip.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: Horatiu Vultur <horatiu.vultur@microchip.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-According to the standard IEC 62439-2, the number of transitions needs
-to be counted for each transition 'between' ring state open and ring
-state closed and not from open state to closed state.
+Hello:
 
-Therefore fix this for both ring and interconnect ring.
+This patch was applied to netdev/net-next.git (refs/heads/master):
 
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
----
- net/bridge/br_mrp.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+On Fri, 4 Jun 2021 12:37:47 +0200 you wrote:
+> According to the standard IEC 62439-2, the number of transitions needs
+> to be counted for each transition 'between' ring state open and ring
+> state closed and not from open state to closed state.
+> 
+> Therefore fix this for both ring and interconnect ring.
+> 
+> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+> 
+> [...]
 
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index cd2b1e424e54..f7012b7d7ce4 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -627,8 +627,7 @@ int br_mrp_set_ring_state(struct net_bridge *br,
- 	if (!mrp)
- 		return -EINVAL;
- 
--	if (mrp->ring_state == BR_MRP_RING_STATE_CLOSED &&
--	    state->ring_state != BR_MRP_RING_STATE_CLOSED)
-+	if (mrp->ring_state != state->ring_state)
- 		mrp->ring_transitions++;
- 
- 	mrp->ring_state = state->ring_state;
-@@ -715,8 +714,7 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
- 	if (!mrp)
- 		return -EINVAL;
- 
--	if (mrp->in_state == BR_MRP_IN_STATE_CLOSED &&
--	    state->in_state != BR_MRP_IN_STATE_CLOSED)
-+	if (mrp->in_state != state->in_state)
- 		mrp->in_transitions++;
- 
- 	mrp->in_state = state->in_state;
--- 
-2.31.1
+Here is the summary with links:
+  - [net-next] net: bridge: mrp: Update ring transitions.
+    https://git.kernel.org/netdev/net-next/c/fcb34635854a
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
