@@ -1,24 +1,25 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1622843404;
- bh=wEGISPwpp3pYI5B6deH40LEMJDeq72dbo/qap1ROPiU=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=idgU3/OsrjNCFhH8yC3wNfS8RrA2ooORTrOWmyGjPpJJLV6jvZXgZIuM4uKIQpcZL
- 5YyBhwz9e/AzpqRmTv1kwxIa6MgiNh+n0YG7gmPGIXiGwesUYhCshdZLMnvGRFde7Z
- tLOwUqW0aCAuqMf8+aNW9smHeLoB6BjssZmkePheM6sdMB+IvaoWNpUu7VKOjs7lTB
- H+wGHOYE7dBLehTPFrrxdwLmFsVXq58/wHbSulNz4LmIUwMe4F6VxmCZfnsH1aAsjC
- sQAZfQ/5YVJ6NaN8TYmnC5XnB3yVs6xXXndVI9O8gMh6Iq2Z91bZ5uYB2/D+LSctQ9
- BPWidwJSR/9NQ==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=networkplumber-org.20150623.gappssmtp.com; s=20150623;
+ h=date:from:to:cc:subject:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=Ley0ZV8wDk+WyRdH1QdkNT8cH2cyBlW9JyOpeJgzHEI=;
+ b=dS2FsnITrxu/HHyNu4GkyWB5mSo2cwU9z3MazXFOzlF0WolGpGWbhAQozatjm/EOH4
+ ToCzVzAcX/93SoX4NpmSoSVykXyY49TZmB/iJdUD92GAo2HiECTfY6QsZTrH4Q42m+qj
+ OfZbBR6kj8ea0i8RQxtuZXSXL2wIN3Qbb0Wy7P1ksm2gAXoDKYTX6sGLN/4egmAtAcjV
+ tEum9+ZE987fULyC6UzYRrBQsido6zeY/dqnvRpvKtxiRywyZIb6Qa669eNDcpe/ebst
+ EuXOd0JPASJPY31vdx3+1eOgdEuCcN/To+E/ckNU6LAApUzah2LIDZccnWu9B7dFFBOy
+ BnOg==
+Date: Mon, 7 Jun 2021 09:59:13 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20210607095913.32c17900@hermes.local>
+In-Reply-To: <CAE2MWkkL9x+FRzggdOSPcyFpguwP9VuQPD9AJWLTsfLzaLodfQ@mail.gmail.com>
+References: <CAE2MWkkL9x+FRzggdOSPcyFpguwP9VuQPD9AJWLTsfLzaLodfQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162284340476.5449.16639869522186820582.git-patchwork-notify@kernel.org>
-Date: Fri, 04 Jun 2021 21:50:04 +0000
-References: <20210604103747.3824212-1-horatiu.vultur@microchip.com>
-In-Reply-To: <20210604103747.3824212-1-horatiu.vultur@microchip.com>
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: mrp: Update ring
-	transitions.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] net: bridge: multicast: Renaming of flag
+	BRIDGE_IGMP_SNOOPING
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,31 +28,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Ujjal Roy <royujjal@gmail.com>
+Cc: Kernel <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 
-Hello:
+On Mon, 7 Jun 2021 21:29:34 +0530
+Ujjal Roy <royujjal@gmail.com> wrote:
 
-This patch was applied to netdev/net-next.git (refs/heads/master):
-
-On Fri, 4 Jun 2021 12:37:47 +0200 you wrote:
-> According to the standard IEC 62439-2, the number of transitions needs
-> to be counted for each transition 'between' ring state open and ring
-> state closed and not from open state to closed state.
+> Hi Stephen,
 > 
-> Therefore fix this for both ring and interconnect ring.
+> Can we rename this flag BRIDGE_IGMP_SNOOPING into something like
+> BRIDGE_MULTICAST_SNOOPING/BRIDGE_MCAST_SNOOPING? I am starting this
+> thread because this BRIDGE_IGMP_SNOOPING flag holds information about
+> IGMP only but not about MLD. Or this is not a common name to describe
+> both IGMP and MLD. Please let me know about my concern, so that I can
+> change the code and submit a patch.
 > 
-> Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-> 
-> [...]
+> Thanks,
+> UjjaL Roy
 
-Here is the summary with links:
-  - [net-next] net: bridge: mrp: Update ring transitions.
-    https://git.kernel.org/netdev/net-next/c/fcb34635854a
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+It is part of user API at this point so not possible to remove old definition.
