@@ -1,18 +1,22 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J8ymBOaT7fdjda4eQd3+azcQcApZtzF7FNoDVGA8xmc=;
- b=EVa4AugCKT1AnsHqy+6/kSFkV7uqXgzvm6K0gCcmTqmPFu7SZBdzgixIae1cy4vAmJiXYOTHA1GL0P0B878zmq29yUn1F2jn3R75QvvBBdWtUe1HcG62g0QjXSmdhyFHv21D7pcn1K6Y/pcDYxlN/13ZHq1sbtFhqoTZvWH0Mqx1rdKtq27gusI2To9ZCl14h8jBRaL8OjYXOvkKYWC5Rnh9PsVVIX17AYLd7E8vWFI5W92DspvBhYP2gBhWgw96Xt2ZxfPSfnvoNUEeSoOwbDkSuUshTZo8s17E6weT7pnaQM/d2f/cp9oLZWeHiFmSPJZSk6BgDhbfxtnpZpqldg==
-References: <20210618100155.101386-1-colin.king@canonical.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <2bf73453-1bd9-3f3a-ecc7-7e0003c886e4@nvidia.com>
-Date: Fri, 18 Jun 2021 13:12:32 +0300
-In-Reply-To: <20210618100155.101386-1-colin.king@canonical.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1624044006;
+ bh=mYgWKU/yFlFwqULnKKlEddjTohRi2vp79RE6lcadDus=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=Ya1dUiVpey5BGTaPAgG72l5NSbk68K6gUlnuPIXj4nIU8PKKmPHpMDXzOINxdXnfx
+ A/bDEC+eXvijvwpWL1eMpChIlzrHUN1fvQz8oq49AFc2yokrMSATP6siskPrQNL++K
+ oZRw9cYtNFFj3zSsv2wo/qlZ+CIQKwDBUgnaVsz7h50bLds0uI25eidLsBo1V3rF0u
+ 6DU/Vm6HlW6IfxIgpA/XR+/OtWfGHHtziyON1A+CxhX05y1UG41Pzodoa+5IMTbUcE
+ NJMsfnOTnk2sN70bXfiH/CfB7DejDeN+votONz8/cQtg0QkobwID/HAuKWC7vrN3Vd
+ B03WSkZX8V5KQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162404400650.12339.9396305686886729563.git-patchwork-notify@kernel.org>
+Date: Fri, 18 Jun 2021 19:20:06 +0000
+References: <20210618100155.101386-1-colin.king@canonical.com>
+In-Reply-To: <20210618100155.101386-1-colin.king@canonical.com>
 Subject: Re: [Bridge] [PATCH] net: bridge: remove redundant continue
 	statement
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -23,10 +27,14 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Colin King <colin.king@canonical.com>, Roopa Prabhu <roopa@nvidia.com>, "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On 18/06/2021 13:01, Colin King wrote:
+Hello:
+
+This patch was applied to netdev/net-next.git (refs/heads/master):
+
+On Fri, 18 Jun 2021 11:01:55 +0100 you wrote:
 > From: Colin Ian King <colin.king@canonical.com>
 > 
 > The continue statement at the end of a for-loop has no effect,
@@ -34,26 +42,16 @@ On 18/06/2021 13:01, Colin King wrote:
 > 
 > Addresses-Coverity: ("Continue has no effect")
 > Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  net/bridge/br_vlan.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index da3256a3eed0..8789a57af543 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -113,9 +113,7 @@ static void __vlan_add_list(struct net_bridge_vlan *v)
->  	headp = &vg->vlan_list;
->  	list_for_each_prev(hpos, headp) {
->  		vent = list_entry(hpos, struct net_bridge_vlan, vlist);
-> -		if (v->vid < vent->vid)
-> -			continue;
-> -		else
-> +		if (v->vid >= vent->vid)
->  			break;
->  	}
->  	list_add_rcu(&v->vlist, hpos);
-> 
+> [...]
 
-This should be targeted at net-next. Thanks,
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Here is the summary with links:
+  - net: bridge: remove redundant continue statement
+    https://git.kernel.org/netdev/net-next/c/040c12570e68
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
