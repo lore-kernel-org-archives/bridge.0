@@ -3,21 +3,21 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
  h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=KNfCdZT6JTIzp69RQLFCxVKoQyQ1xvDgq5ZoDK67PcY=;
- b=Y/S7U/jfedtMy1vycU90huGYWiI/o07q5rJGhCU1juTgqZWma+2+L/1k8SA+rs2GwSpu
- R+jwNj/XCOfei8cL7jGxDlYR9z8CehIxvc1nMUZqYtTWwH3q5TuHIc73AHO++O0D0zmm
- 6v5Vk/fnmtL1taICuJCZllcnZEsew60d/CRxD6L8tpCHi13jlxPxrAzRWvlInKU7D4tb
- daQQbTdI2hlVOyIwODfo3VLTpj37DCekD1U/pM9RqKv32u3THe7LmyyfQ9RgZnTS4Vjo
- 0+j1GCwfIj/SsknoVpIaIbZitovtw6IOSyjMKh2VMdR5YmasA5TGRkcvrmWtQPaQnX7g 7A== 
+ bh=KiWb4Ct4RjsEggy6D6xJhqDA2kRzT2DHK+IqY8DlhIk=;
+ b=BGJmDblwIeveKcmRAH0FlXwPVbkVZgXvG5FEyMaGEIFNK94bQ2ERvfvIIGz8T+4Lw8PV
+ uLQ2ywcU+8kPEKUo/5TMORVCX52w60rAVdojWMjE6tmVj2NiNOOwdZeZuAVVzCEftzS1
+ RxG/PiYNSDB0VR8N0ZCZd4mNCt4v5VnRryGr5usGCZzpxfWpQHXdAeaOLkdIYFlrBZ7h
+ SNEU48oxTyS4oRGTvi2264WctK1tKxb5akc/a0CHFV9SKxa1xrmn7naDM0QiTPYMg2DL
+ CZSFJ1jI7ic2VjggInm2LkBmOy728cKxWCWZtb91LDNxu/0Rjvd9YDkogWYl0UdRDbmX Ag== 
 From: Alexandra Winter <wintera@linux.ibm.com>
-Date: Wed, 23 Jun 2021 15:34:25 +0200
-Message-Id: <20210623133426.2613847-2-wintera@linux.ibm.com>
+Date: Wed, 23 Jun 2021 15:34:26 +0200
+Message-Id: <20210623133426.2613847-3-wintera@linux.ibm.com>
 In-Reply-To: <20210623133426.2613847-1-wintera@linux.ibm.com>
 References: <20210623133426.2613847-1-wintera@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 1/2] net/bridge: Support learning_sync on
-	master
+Subject: [Bridge] [PATCH net-next 2/2] net/bridge: Update uc addr on
+	LEARNING_SYNC bp
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,66 +29,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: roopa@nvidia.com, nikolay@nvidia.com, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, jwi@linux.ibm.com
 Cc: Alexandra Winter <wintera@linux.ibm.com>
 
-Add support to set and get the 'learning_sync [master]' attribute of a
-bridgeport. A following patch adds support to synchronize the software
-bridge's fdb changes to the hardware fdb of this bridgeport.
+Whenever a unicast fdb entry is added or deleted in the software
+bridge's fdb, synchronize it to the hardware fdb of a bridgeport
+device, if the bridgeport has the attribute LEARNING_SYNC and is not
+isolated from the target of the changed fdb entry.
+
+To inform HW, that messages with a specific unicast target address
+should be sent to the software bridge via this bridgeport, simply
+register this address with the device.
+
+Without this patch smart NICs attached to a bridgeport of a software
+bridge can already do their own learning on the messages that the
+SW bridge sends out via this port. And otherwise accept/flood all
+unknown target messages to the SW bridge (promiscuous port).
+This patch gives the attached HW the chance to update its fdb, even
+when it does not see the respective message, because it is forwarded
+to another piece of HW attached to another bridgeport. Or when the NIC
+is not capable of learning or flooding.
+
+An alternative solution would be to subscribe to the
+SWITCHDEV_FDB_ADD/DEL_TO_DEVICE switchdev notifiers in the respective
+device drivers. But as there's no HW-specific part in this
+implementation, it was felt that this should rather be implemented in
+the common layer of the bridge code.
 
 Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- include/uapi/linux/if_link.h | 2 +-
- net/bridge/br_netlink.c      | 5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ net/bridge/br_fdb.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index cd5b382a4138..4d8e4c9b803c 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -499,7 +499,7 @@ enum {
- 	IFLA_BRPORT_LEARNING,	/* mac learning */
- 	IFLA_BRPORT_UNICAST_FLOOD, /* flood unicast traffic */
- 	IFLA_BRPORT_PROXYARP,	/* proxy ARP */
--	IFLA_BRPORT_LEARNING_SYNC, /* mac learning sync from device */
-+	IFLA_BRPORT_LEARNING_SYNC, /* mac learning sync from/to device */
- 	IFLA_BRPORT_PROXYARP_WIFI, /* proxy ARP for Wi-Fi */
- 	IFLA_BRPORT_ROOT_ID,	/* designated root */
- 	IFLA_BRPORT_BRIDGE_ID,	/* designated bridge */
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index e4e6e991313e..d91a5a319a4b 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -180,6 +180,7 @@ static inline size_t br_port_info_size(void)
- 		+ nla_total_size(1)	/* IFLA_BRPORT_MCAST_FLOOD */
- 		+ nla_total_size(1)	/* IFLA_BRPORT_BCAST_FLOOD */
- 		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP */
-+		+ nla_total_size(1)	/* IFLA_BRPORT_LEARNING_SYNC */
- 		+ nla_total_size(1)	/* IFLA_BRPORT_PROXYARP_WIFI */
- 		+ nla_total_size(1)	/* IFLA_BRPORT_VLAN_TUNNEL */
- 		+ nla_total_size(1)	/* IFLA_BRPORT_NEIGH_SUPPRESS */
-@@ -247,6 +248,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
- 	    nla_put_u8(skb, IFLA_BRPORT_BCAST_FLOOD,
- 		       !!(p->flags & BR_BCAST_FLOOD)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_PROXYARP, !!(p->flags & BR_PROXYARP)) ||
-+	    nla_put_u8(skb, IFLA_BRPORT_LEARNING_SYNC,
-+		       !!(p->flags & BR_LEARNING_SYNC)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_PROXYARP_WIFI,
- 		       !!(p->flags & BR_PROXYARP_WIFI)) ||
- 	    nla_put(skb, IFLA_BRPORT_ROOT_ID, sizeof(struct ifla_bridge_id),
-@@ -818,6 +821,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
- 	[IFLA_BRPORT_LEARNING]	= { .type = NLA_U8 },
- 	[IFLA_BRPORT_UNICAST_FLOOD] = { .type = NLA_U8 },
- 	[IFLA_BRPORT_PROXYARP]	= { .type = NLA_U8 },
-+	[IFLA_BRPORT_LEARNING_SYNC] = { .type = NLA_U8 },
- 	[IFLA_BRPORT_PROXYARP_WIFI] = { .type = NLA_U8 },
- 	[IFLA_BRPORT_MULTICAST_ROUTER] = { .type = NLA_U8 },
- 	[IFLA_BRPORT_MCAST_TO_UCAST] = { .type = NLA_U8 },
-@@ -889,6 +893,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
- 			 BR_MULTICAST_TO_UNICAST);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_BCAST_FLOOD, BR_BCAST_FLOOD);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP, BR_PROXYARP);
-+	br_set_port_flag(p, tb, IFLA_BRPORT_LEARNING_SYNC, BR_LEARNING_SYNC);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_PROXYARP_WIFI, BR_PROXYARP_WIFI);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_VLAN_TUNNEL, BR_VLAN_TUNNEL);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS, BR_NEIGH_SUPPRESS);
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 698b79747d32..2075b5da6db3 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -567,6 +567,32 @@ int br_fdb_insert(struct net_bridge *br, struct net_bridge_port *source,
+ 	return ret;
+ }
+ 
++static void br_fdb_learning_sync(struct net_bridge *br,
++				 const struct net_bridge_fdb_entry *fdb,
++				 int type)
++{
++	struct net_bridge_port *p;
++
++	if (!fdb->dst)
++		return;
++	list_for_each_entry(p, &br->port_list, list) {
++		if ((p->flags & BR_LEARNING_SYNC) && p != fdb->dst &&
++		    (!(p->flags & BR_ISOLATED) ||
++		     !(fdb->dst->flags & BR_ISOLATED))) {
++			switch (type) {
++			case RTM_DELNEIGH:
++				dev_uc_del(p->dev, fdb->key.addr.addr);
++				break;
++			case RTM_NEWNEIGH:
++				dev_uc_add(p->dev, fdb->key.addr.addr);
++				break;
++			default:
++				break;
++			}
++		}
++	}
++}
++
+ /* returns true if the fdb was modified */
+ static bool __fdb_mark_active(struct net_bridge_fdb_entry *fdb)
+ {
+@@ -603,6 +629,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 			if (unlikely(source != fdb->dst &&
+ 				     !test_bit(BR_FDB_STICKY, &fdb->flags))) {
+ 				br_switchdev_fdb_notify(fdb, RTM_DELNEIGH);
++				br_fdb_learning_sync(br, fdb, RTM_DELNEIGH);
+ 				fdb->dst = source;
+ 				fdb_modified = true;
+ 				/* Take over HW learned entry */
+@@ -799,6 +826,7 @@ static void fdb_notify(struct net_bridge *br,
+ 		goto errout;
+ 	}
+ 	rtnl_notify(skb, net, 0, RTNLGRP_NEIGH, NULL, GFP_ATOMIC);
++	br_fdb_learning_sync(br, fdb, type);
+ 	return;
+ errout:
+ 	rtnl_set_sk_err(net, RTNLGRP_NEIGH, err);
 -- 
 2.25.1
 
