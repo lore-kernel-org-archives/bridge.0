@@ -1,24 +1,11 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1625258404;
- bh=OyQZy/I8dxoOQfJEI6phs2UUBiK8Qq73CK6aBW7MdtU=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=NnEDHsRQKVQkfreAcKtvD94Vj18WnvdUliS/0J73Iq5xK9DVo7T7BwcY8R4X2KWd5
- KrA24F4DZyjPDNMXAAsY+TNXr0DhJWeLRPLNTL6FykksDnTd70QR45iQdx4WQQ1w7y
- uj0yWT2bFd5WruIc3Ye+UkJ+MAD3peuNVntZU2aX2+w0JaULAi5G0IA59R0dVbkZ9W
- wov/ZEfwhG0xKRjFTQ2H33N7WvdkPHwrWOv4I0v5HndZN8Pl3TVWoS2o5400wMkfYI
- 7bIBsN5hnc5HzJF9WJsY4zfOJ8jM72k1bxv4LbUWsMkCxVwv33+86UApYFxwIVu/nT
- dmyU+xAXMb6Zg==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <w.bumiller@proxmox.com>
+From: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Date: Thu,  1 Jul 2021 14:28:29 +0200
+Message-Id: <20210701122830.2652-1-w.bumiller@proxmox.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162525840470.26489.12119463597617944366.git-patchwork-notify@kernel.org>
-Date: Fri, 02 Jul 2021 20:40:04 +0000
-References: <20210702120736.3746-1-w.bumiller@proxmox.com>
-In-Reply-To: <20210702120736.3746-1-w.bumiller@proxmox.com>
-Subject: Re: [Bridge] [PATCH v3] net: bridge: sync fdb to new
-	unicast-filtering ports
+Subject: [Bridge] [PATCH 0/1] Fixup unicast filter for new vlan-aware-bridge
+	ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,34 +14,117 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Cc: vyasevic@redhat.com, mst@redhat.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, t.lamprecht@proxmox.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, bridge@lists.linux-foundation.org, Thomas Lamprecht <t.lamprecht@proxmox.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-Hello:
+With this patch I'd like to fix an issue with vlan-aware bridges with a
+single auto-port and a different MAC address on the bridge than its
+port.
 
-This patch was applied to netdev/net.git (refs/heads/master):
+It took me a while to dig into this, and I hope to get some feedback and
+would very much like to help out with more debugging if necessary and
+hope this patch is a good first start.
 
-On Fri,  2 Jul 2021 14:07:36 +0200 you wrote:
-> Since commit 2796d0c648c9 ("bridge: Automatically manage
-> port promiscuous mode.")
-> bridges with `vlan_filtering 1` and only 1 auto-port don't
-> set IFF_PROMISC for unicast-filtering-capable ports.
-> 
-> Normally on port changes `br_manage_promisc` is called to
-> update the promisc flags and unicast filters if necessary,
-> but it cannot distinguish between *new* ports and ones
-> losing their promisc flag, and new ports end up not
-> receiving the MAC address list.
-> 
-> [...]
+Here's are the details I gathered:
 
-Here is the summary with links:
-  - [v3] net: bridge: sync fdb to new unicast-filtering ports
-    https://git.kernel.org/netdev/net/c/a019abd80220
+When using devices with IFF_UNICAST_FLT support as bridge ports, they
+sometimes don't get both MAC addresses added to their MAC filter
+(seemingly limited to the time they're *added* to the bridge).
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Since 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode."),
+bridges with `vlan_filtering 1` and only 1 auto-port don't set
+IFF_PROMISC for unicast-filtering-capable ports.
+This causes the bridge to "fail" if it has a different MAC than its
+port, as the address is not added to the unicast filter when the port is
+added.
+
+This has become apparent with systemd's switch to
+`MACAddressPolicy=persistent` which causes bridges to get different mac
+addresses.
+
+This is easily reproduced in qemu with `e1000` cards or virtio with
+`vhost=off`.
+
+Normally this should happen right when creating the bridge...
+
+    ## This should be perfectly sufficient to reproduce this:
+    # ip link add br0 type bridge vlan_filtering 1
+    # ip link set eno1 master br0
+    ## Setup addresses on the bridge and try to ping something
+
+unless the port had IFF_PROMISC set when it was added to the bridge. In
+that case it should be sufficient to simply re-plug the port.
+
+    # ip link set eno1 nomaster
+    # ip link set eno1 master br0
+
+In my virtio-net based reproducer, I sprinkled some debugging output
+into qemu (on top of the 6.0 tag from git, if you'd like the patch for a
+quick test I'd be happy to provide it, too) and got the following:
+----
+VIRTIO_NET_CTRL_MAC
+handle mac table set
+    mac_data.entries = 1
+    copying 1 single macs
+    in_use now 1
+    first_multi=1
+    mac_data.entries = 1 (multi)
+    copying 1 multi macs
+    now have: in_use=2 first_multi=1, uni_ovf=0 multi_ovf=0
+    mac 0: 52:54:00:12:34:56
+    mac 1: 01:00:5e:00:00:01
+----
+
+This shows only 1 unicast MAC (the one I assigned to the virtio NIC).
+The bridge has a different MAC.
+
+The quickest fix here is to change the mac address on the bridge while
+the port is connected, this ends up re-syncing the MAC filter:
+
+# ip link set br0 address 52:54:00:12:11:12
+
+This created the following debug output:
+----
+VIRTIO_NET_CTRL_MAC
+handle mac table set
+    mac_data.entries = 2
+    copying 2 single macs
+    in_use now 2
+    first_multi=2
+    mac_data.entries = 1 (multi)
+    copying 1 multi macs
+    now have: in_use=3 first_multi=2, uni_ovf=0 multi_ovf=0
+    mac 0: 52:54:00:12:34:56
+    mac 1: 52:54:00:12:11:12
+    mac 2: 01:00:5e:00:00:01
+----
+
+Above, both MAC addresses are visible in the mac table, and the bridge
+works as expected.
+
+Other noteworthy behaviors:
+
+* setting `vlan_filtering 1` *after* adding a port does not cause the
+  issue.
+* adding another auto-port puts all of the bridge's ports in promisc
+  mode and flushes the UC MAC list, networking works; removing the new
+  port resyncs the UC MAC list to correctly contain both addresses and
+  networking keeps working
+
+So it seems to be limited to the time where the port is being *added* to
+the bridge.
+
+I've tested git-master, and proxmox kernels (ubuntu based) 5.11 and 5.4,
+all of which experience the same behavior, patch applies cleanly to all
+of them.
+
+Wolfgang Bumiller (1):
+  net: bridge: sync fdb to new unicast-filtering ports
+
+ net/bridge/br_if.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+-- 
+2.32.0
 
 
