@@ -1,18 +1,18 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/8ARGCbzXYmxoVhI/W45fy7wsub+EkJDR8//ZmjXIV0=;
- b=UdldaYw4PcFuEjx+U3FA+s70+P9JWLeP7uPnZYH/3YA8Kfxiq4vdgSWVbDvpIApj+WYejlfqc1G9kEOj9NU6RrFUL8wuFl+0xtn1TOUQyo+05vOYnbA4vWUM5bQhTTwbn6QsYxsDY74SZ6I0WWz6IhPwmFl6e77CfcxD04IY+bk=
+ bh=vzrmRMFH55T/ycNRCVZN7/f2Fva2SypalG7KrtWnBFU=;
+ b=cYzWzvG/+SxMcWL0LzviySjZGnuVQT6Ujw3Idz/4jzNDpiR/PniZBvRlQdnDwgR20XhbU9HqDXkBT5QaxoN0m2lWYE9O5oa0h6P1/aESoa2IAh7PbkHJb2w24DdsHqsmAqezpuyYgaTZlyuJvYueBjch6cACoVP6vObxG+ZIhYk=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Sat,  3 Jul 2021 14:56:56 +0300
-Message-Id: <20210703115705.1034112-2-vladimir.oltean@nxp.com>
+Date: Sat,  3 Jul 2021 14:56:57 +0300
+Message-Id: <20210703115705.1034112-3-vladimir.oltean@nxp.com>
 In-Reply-To: <20210703115705.1034112-1-vladimir.oltean@nxp.com>
 References: <20210703115705.1034112-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH v2 net-next 01/10] net: dfwd: constrain
-	existing users to macvlan subordinates
+Subject: [Bridge] [RFC PATCH v2 net-next 02/10] net: bridge: disambiguate
+	offload_fwd_mark
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,62 +26,198 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri 
 
 From: Tobias Waldekranz <tobias@waldekranz.com>
 
-The dfwd_add/del_station NDOs are currently only used by the macvlan
-subsystem to request L2 forwarding offload from lower devices. In
-order add support for other types of devices (like bridges), we
-constrain the current users to make sure that the subordinate
-requesting the offload is in fact a macvlan.
+Before this change, four related - but distinct - concepts where named
+offload_fwd_mark:
+
+- skb->offload_fwd_mark: Set by the switchdev driver if the underlying
+  hardware has already forwarded this frame to the other ports in the
+  same hardware domain.
+
+- nbp->offload_fwd_mark: An idetifier used to group ports that share
+  the same hardware forwarding domain.
+
+- br->offload_fwd_mark: Counter used to make sure that unique IDs are
+  used in cases where a bridge contains ports from multiple hardware
+  domains.
+
+- skb->cb->offload_fwd_mark: The hardware domain on which the frame
+  ingressed and was forwarded.
+
+Introduce the term "hardware forwarding domain" ("hwdom") in the
+bridge to denote a set of ports with the following property:
+
+    If an skb with skb->offload_fwd_mark set, is received on a port
+    belonging to hwdom N, that frame has already been forwarded to all
+    other ports in hwdom N.
+
+By decoupling the name from "offload_fwd_mark", we can extend the
+term's definition in the future - e.g. to add constraints that
+describe expected egress behavior - without overloading the meaning of
+"offload_fwd_mark".
+
+- nbp->offload_fwd_mark thus becomes nbp->hwdom.
+
+- br->offload_fwd_mark becomes br->last_hwdom.
+
+- skb->cb->offload_fwd_mark becomes skb->cb->src_hwdom. The slight
+  change in naming here mandates a slight change in behavior of the
+  nbp_switchdev_frame_mark() function. Previously, it only set this
+  value in skb->cb for packets with skb->offload_fwd_mark true (ones
+  which were forwarded in hardware). Whereas now we always track the
+  incoming hwdom for all packets coming from a switchdev (even for the
+  packets which weren't forwarded in hardware, such as STP BPDUs, IGMP
+  reports etc). As all uses of skb->cb->offload_fwd_mark were already
+  gated behind checks of skb->offload_fwd_mark, this will not introduce
+  any functional change, but it paves the way for future changes where
+  the ingressing hwdom must be known for frames coming from a switchdev
+  regardless of whether they were forwarded in hardware or not
+  (basically, if the skb comes from a switchdev, skb->cb->src_hwdom now
+  always tracks which one).
+
+  A typical example where this is relevant: the switchdev has a fixed
+  configuration to trap STP BPDUs, but STP is not running on the bridge
+  and the group_fwd_mask allows them to be forwarded. Say we have this
+  setup:
+
+        br0
+       / | \
+      /  |  \
+  swp0 swp1 swp2
+
+  A BPDU comes in on swp0 and is trapped to the CPU; the driver does not
+  set skb->offload_fwd_mark. The bridge determines that the frame should
+  be forwarded to swp{1,2}. It is imperative that forward offloading is
+  _not_ allowed in this case, as the source hwdom is already "poisoned".
+
+  Recording the source hwdom allows this case to be handled properly.
 
 Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- drivers/net/ethernet/intel/fm10k/fm10k_netdev.c | 3 +++
- drivers/net/ethernet/intel/i40e/i40e_main.c     | 3 +++
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c   | 3 +++
- 3 files changed, 9 insertions(+)
+ net/bridge/br_if.c        |  2 +-
+ net/bridge/br_private.h   | 10 +++++-----
+ net/bridge/br_switchdev.c | 16 ++++++++--------
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c b/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c
-index 2fb52bd6fc0e..4dba6e6a282d 100644
---- a/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c
-+++ b/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c
-@@ -1352,6 +1352,9 @@ static void *fm10k_dfwd_add_station(struct net_device *dev,
- 	int size, i;
- 	u16 vid, glort;
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index f7d2f472ae24..73fa703f8df5 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -643,7 +643,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+ 	if (err)
+ 		goto err5;
  
-+	if (!netif_is_macvlan(sdev))
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	/* The hardware supported by fm10k only filters on the destination MAC
- 	 * address. In order to avoid issues we only support offloading modes
- 	 * where the hardware can actually provide the functionality.
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 861e59a350bd..812ad241a049 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -7629,6 +7629,9 @@ static void *i40e_fwd_add(struct net_device *netdev, struct net_device *vdev)
- 	struct i40e_fwd_adapter *fwd;
- 	int avail_macvlan, ret;
+-	err = nbp_switchdev_mark_set(p);
++	err = nbp_switchdev_hwdom_set(p);
+ 	if (err)
+ 		goto err6;
  
-+	if (!netif_is_macvlan(vdev))
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	if ((pf->flags & I40E_FLAG_DCB_ENABLED)) {
- 		netdev_info(netdev, "Macvlans are not supported when DCB is enabled\n");
- 		return ERR_PTR(-EINVAL);
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index ffff69efd78a..1ecdb7dc9534 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -9938,6 +9938,9 @@ static void *ixgbe_fwd_add(struct net_device *pdev, struct net_device *vdev)
- 	int tcs = adapter->hw_tcs ? : 1;
- 	int pool, err;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 2b48b204205e..e16879caaaf3 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -329,7 +329,7 @@ struct net_bridge_port {
+ 	struct netpoll			*np;
+ #endif
+ #ifdef CONFIG_NET_SWITCHDEV
+-	int				offload_fwd_mark;
++	int				hwdom;
+ #endif
+ 	u16				group_fwd_mask;
+ 	u16				backup_redirected_cnt;
+@@ -476,7 +476,7 @@ struct net_bridge {
+ 	u32				auto_cnt;
  
-+	if (!netif_is_macvlan(vdev))
-+		return ERR_PTR(-EOPNOTSUPP);
-+
- 	if (adapter->xdp_prog) {
- 		e_warn(probe, "L2FW offload is not supported with XDP\n");
- 		return ERR_PTR(-EINVAL);
+ #ifdef CONFIG_NET_SWITCHDEV
+-	int offload_fwd_mark;
++	int last_hwdom;
+ #endif
+ 	struct hlist_head		fdb_list;
+ 
+@@ -506,7 +506,7 @@ struct br_input_skb_cb {
+ #endif
+ 
+ #ifdef CONFIG_NET_SWITCHDEV
+-	int offload_fwd_mark;
++	int src_hwdom;
+ #endif
+ };
+ 
+@@ -1645,7 +1645,7 @@ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
+ 
+ /* br_switchdev.c */
+ #ifdef CONFIG_NET_SWITCHDEV
+-int nbp_switchdev_mark_set(struct net_bridge_port *p);
++int nbp_switchdev_hwdom_set(struct net_bridge_port *p);
+ void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+ 			      struct sk_buff *skb);
+ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+@@ -1665,7 +1665,7 @@ static inline void br_switchdev_frame_unmark(struct sk_buff *skb)
+ 	skb->offload_fwd_mark = 0;
+ }
+ #else
+-static inline int nbp_switchdev_mark_set(struct net_bridge_port *p)
++static inline int nbp_switchdev_hwdom_set(struct net_bridge_port *p)
+ {
+ 	return 0;
+ }
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index d3adee0f91f9..833fd30482c2 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -8,20 +8,20 @@
+ 
+ #include "br_private.h"
+ 
+-static int br_switchdev_mark_get(struct net_bridge *br, struct net_device *dev)
++static int br_switchdev_hwdom_get(struct net_bridge *br, struct net_device *dev)
+ {
+ 	struct net_bridge_port *p;
+ 
+ 	/* dev is yet to be added to the port list. */
+ 	list_for_each_entry(p, &br->port_list, list) {
+ 		if (netdev_port_same_parent_id(dev, p->dev))
+-			return p->offload_fwd_mark;
++			return p->hwdom;
+ 	}
+ 
+-	return ++br->offload_fwd_mark;
++	return ++br->last_hwdom;
+ }
+ 
+-int nbp_switchdev_mark_set(struct net_bridge_port *p)
++int nbp_switchdev_hwdom_set(struct net_bridge_port *p)
+ {
+ 	struct netdev_phys_item_id ppid = { };
+ 	int err;
+@@ -35,7 +35,7 @@ int nbp_switchdev_mark_set(struct net_bridge_port *p)
+ 		return err;
+ 	}
+ 
+-	p->offload_fwd_mark = br_switchdev_mark_get(p->br, p->dev);
++	p->hwdom = br_switchdev_hwdom_get(p->br, p->dev);
+ 
+ 	return 0;
+ }
+@@ -43,15 +43,15 @@ int nbp_switchdev_mark_set(struct net_bridge_port *p)
+ void nbp_switchdev_frame_mark(const struct net_bridge_port *p,
+ 			      struct sk_buff *skb)
+ {
+-	if (skb->offload_fwd_mark && !WARN_ON_ONCE(!p->offload_fwd_mark))
+-		BR_INPUT_SKB_CB(skb)->offload_fwd_mark = p->offload_fwd_mark;
++	if (p->hwdom)
++		BR_INPUT_SKB_CB(skb)->src_hwdom = p->hwdom;
+ }
+ 
+ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+ 				  const struct sk_buff *skb)
+ {
+ 	return !skb->offload_fwd_mark ||
+-	       BR_INPUT_SKB_CB(skb)->offload_fwd_mark != p->offload_fwd_mark;
++	       BR_INPUT_SKB_CB(skb)->src_hwdom != p->hwdom;
+ }
+ 
+ /* Flags that can be offloaded to hardware */
 -- 
 2.25.1
 
