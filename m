@@ -1,11 +1,18 @@
-Return-Path: <w.bumiller@proxmox.com>
-From: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Date: Fri,  2 Jul 2021 14:07:36 +0200
-Message-Id: <20210702120736.3746-1-w.bumiller@proxmox.com>
-MIME-Version: 1.0
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/8ARGCbzXYmxoVhI/W45fy7wsub+EkJDR8//ZmjXIV0=;
+ b=UdldaYw4PcFuEjx+U3FA+s70+P9JWLeP7uPnZYH/3YA8Kfxiq4vdgSWVbDvpIApj+WYejlfqc1G9kEOj9NU6RrFUL8wuFl+0xtn1TOUQyo+05vOYnbA4vWUM5bQhTTwbn6QsYxsDY74SZ6I0WWz6IhPwmFl6e77CfcxD04IY+bk=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Sat,  3 Jul 2021 14:56:56 +0300
+Message-Id: <20210703115705.1034112-2-vladimir.oltean@nxp.com>
+In-Reply-To: <20210703115705.1034112-1-vladimir.oltean@nxp.com>
+References: <20210703115705.1034112-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v3] net: bridge: sync fdb to new unicast-filtering
-	ports
+Content-Type: text/plain
+MIME-Version: 1.0
+Subject: [Bridge] [RFC PATCH v2 net-next 01/10] net: dfwd: constrain
+	existing users to macvlan subordinates
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -14,87 +21,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Vlad Yasevich <vyasevic@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, bridge@lists.linux-foundation.org, Thomas Lamprecht <t.lamprecht@proxmox.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, bridge@lists.linux-foundation.org, Alexander Duyck <alexander.duyck@gmail.com>, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Since commit 2796d0c648c9 ("bridge: Automatically manage
-port promiscuous mode.")
-bridges with `vlan_filtering 1` and only 1 auto-port don't
-set IFF_PROMISC for unicast-filtering-capable ports.
+From: Tobias Waldekranz <tobias@waldekranz.com>
 
-Normally on port changes `br_manage_promisc` is called to
-update the promisc flags and unicast filters if necessary,
-but it cannot distinguish between *new* ports and ones
-losing their promisc flag, and new ports end up not
-receiving the MAC address list.
+The dfwd_add/del_station NDOs are currently only used by the macvlan
+subsystem to request L2 forwarding offload from lower devices. In
+order add support for other types of devices (like bridges), we
+constrain the current users to make sure that the subordinate
+requesting the offload is in fact a macvlan.
 
-Fix this by calling `br_fdb_sync_static` in `br_add_if`
-after the port promisc flags are updated and the unicast
-filter was supposed to have been filled.
-
-Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
-Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
+Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
-Changes to v2:
-  * Added 'fdb_synced' boolean to only unsync on error if it was
-    actually synced.
-    `br_fdb_sync_static()` already unrolls changes if it encounters an
-    error in the middle, so only a successful call will trigger the
-    unsync.
-    I opted for the explicit error handling as I felt that avoiding the
-    error cleanup by moving the code down might be more easily missed in
-    future changes (I just felt safer this way), plus, it's closer to
-    the call which would normally be responsible for doing this which
-    felt more natural to me.
+ drivers/net/ethernet/intel/fm10k/fm10k_netdev.c | 3 +++
+ drivers/net/ethernet/intel/i40e/i40e_main.c     | 3 +++
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c   | 3 +++
+ 3 files changed, 9 insertions(+)
 
-    I hope this is fine, otherwise I can still move it :-)
-
- net/bridge/br_if.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index f7d2f472ae24..6e4a32354a13 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -562,7 +562,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	struct net_bridge_port *p;
- 	int err = 0;
- 	unsigned br_hr, dev_hr;
--	bool changed_addr;
-+	bool changed_addr, fdb_synced = false;
+diff --git a/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c b/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c
+index 2fb52bd6fc0e..4dba6e6a282d 100644
+--- a/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c
++++ b/drivers/net/ethernet/intel/fm10k/fm10k_netdev.c
+@@ -1352,6 +1352,9 @@ static void *fm10k_dfwd_add_station(struct net_device *dev,
+ 	int size, i;
+ 	u16 vid, glort;
  
- 	/* Don't allow bridging non-ethernet like devices. */
- 	if ((dev->flags & IFF_LOOPBACK) ||
-@@ -652,6 +652,19 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	list_add_rcu(&p->list, &br->port_list);
++	if (!netif_is_macvlan(sdev))
++		return ERR_PTR(-EOPNOTSUPP);
++
+ 	/* The hardware supported by fm10k only filters on the destination MAC
+ 	 * address. In order to avoid issues we only support offloading modes
+ 	 * where the hardware can actually provide the functionality.
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 861e59a350bd..812ad241a049 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7629,6 +7629,9 @@ static void *i40e_fwd_add(struct net_device *netdev, struct net_device *vdev)
+ 	struct i40e_fwd_adapter *fwd;
+ 	int avail_macvlan, ret;
  
- 	nbp_update_port_count(br);
-+	if (!br_promisc_port(p) && (p->dev->priv_flags & IFF_UNICAST_FLT)) {
-+		/* When updating the port count we also update all ports'
-+		 * promiscuous mode.
-+		 * A port leaving promiscuous mode normally gets the bridge's
-+		 * fdb synced to the unicast filter (if supported), however,
-+		 * `br_port_clear_promisc` does not distinguish between
-+		 * non-promiscuous ports and *new* ports, so we need to
-+		 * sync explicitly here.
-+		 */
-+		fdb_synced = br_fdb_sync_static(br, p) == 0;
-+		if (!fdb_synced)
-+			netdev_err(dev, "failed to sync bridge static fdb addresses to this port\n");
-+	}
++	if (!netif_is_macvlan(vdev))
++		return ERR_PTR(-EOPNOTSUPP);
++
+ 	if ((pf->flags & I40E_FLAG_DCB_ENABLED)) {
+ 		netdev_info(netdev, "Macvlans are not supported when DCB is enabled\n");
+ 		return ERR_PTR(-EINVAL);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index ffff69efd78a..1ecdb7dc9534 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -9938,6 +9938,9 @@ static void *ixgbe_fwd_add(struct net_device *pdev, struct net_device *vdev)
+ 	int tcs = adapter->hw_tcs ? : 1;
+ 	int pool, err;
  
- 	netdev_update_features(br->dev);
- 
-@@ -701,6 +714,8 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	return 0;
- 
- err7:
-+	if (fdb_synced)
-+		br_fdb_unsync_static(br, p);
- 	list_del_rcu(&p->list);
- 	br_fdb_delete_by_port(br, p, 0, 1);
- 	nbp_update_port_count(br);
++	if (!netif_is_macvlan(vdev))
++		return ERR_PTR(-EOPNOTSUPP);
++
+ 	if (adapter->xdp_prog) {
+ 		e_warn(probe, "L2FW offload is not supported with XDP\n");
+ 		return ERR_PTR(-EINVAL);
 -- 
-2.32.0
-
+2.25.1
 
