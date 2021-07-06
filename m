@@ -1,22 +1,22 @@
 Return-Path: <sashal@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1625570156;
- bh=UIZQa9iSQhxcVaXMJJxbl1bvgrn5SEdBhZXIr0j9owk=;
+ s=k20201202; t=1625570394;
+ bh=6BREJ0k9L9mE1E4tZx8e9Dg/2tIQvEdSjFwZmz7JpRU=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Jtw9A6YhntZ9/WUFChD6fbVNxkJM5XymcKkRDFbIuOMGNfxbepMHhmzriv87GZC1Y
- JTauwuVaMO4BZnlezQrsfgJbj6j49TSkero6BQNN4Jst568HdkEzqc4c55SULQd4tU
- fJPSVogcU3GwMq7+7Y5Po5USVVo0RzDfzOWnoLeByrdFroimZZY210ECo62cHvDopR
- JpEEDHlR/qw7E048bwUturxUepoAO8mJf20s/ILskQcy3tYQrJ5mxaXwFc0GY4423u
- Au3/d3hTS8Ka35hBMZvntUDxCgqji6/F+4NvVZCc474MmEHtxqLP2CN12W626Q+8/2
- iyPxpzCjfF9Pg==
+ b=eXHI01WHz051k/f6U7ZP7D2LgcIdbkrK3E4+3K7uVD8YEo/KtLT/Zj4SSGowYkGXP
+ Kj4t/hE/6ht1KFmW58a/TYLFR20ba1OJLHBjv01p6WhBeWHGadt9ADZQmJ98yqROcF
+ jatArWup4S7eIX1AWewvvp5w0pN6bUdG2DDqDK2zMvJKDrdfp+buuROCMDLFK9wsID
+ RI1dsKLRoIKOwYJrzpHv9jBm2gFTGVjrSjY/wmacbnd/gQnFknduvgRgBJ0Wl9104J
+ WtYKYcPHIa358/OyjK9ptS3UmPT4G8eeAVprDZOInMdCnqAyNQ7j1if3OTdAOBr807
+ dyxh3BMkvNagA==
 From: Sasha Levin <sashal@kernel.org>
-Date: Tue,  6 Jul 2021 07:12:18 -0400
-Message-Id: <20210706111409.2058071-78-sashal@kernel.org>
-In-Reply-To: <20210706111409.2058071-1-sashal@kernel.org>
-References: <20210706111409.2058071-1-sashal@kernel.org>
+Date: Tue,  6 Jul 2021 07:16:51 -0400
+Message-Id: <20210706111827.2060499-65-sashal@kernel.org>
+In-Reply-To: <20210706111827.2060499-1-sashal@kernel.org>
+References: <20210706111827.2060499-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.13 078/189] net: bridge: mrp: Update ring
+Subject: [Bridge] [PATCH AUTOSEL 5.12 065/160] net: bridge: mrp: Update ring
 	transitions.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -47,10 +47,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index cd2b1e424e54..f7012b7d7ce4 100644
+index 12487f6fe9b4..58254fbfda85 100644
 --- a/net/bridge/br_mrp.c
 +++ b/net/bridge/br_mrp.c
-@@ -627,8 +627,7 @@ int br_mrp_set_ring_state(struct net_bridge *br,
+@@ -620,8 +620,7 @@ int br_mrp_set_ring_state(struct net_bridge *br,
  	if (!mrp)
  		return -EINVAL;
  
@@ -60,7 +60,7 @@ index cd2b1e424e54..f7012b7d7ce4 100644
  		mrp->ring_transitions++;
  
  	mrp->ring_state = state->ring_state;
-@@ -715,8 +714,7 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
+@@ -708,8 +707,7 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
  	if (!mrp)
  		return -EINVAL;
  
