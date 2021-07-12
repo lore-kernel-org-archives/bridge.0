@@ -1,21 +1,24 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hi68UCk//tATx9kRXqunHnkORQeNS2cTaOQVCItiVL0=;
- b=JVU6pbgfh98WL+a6sDjIVeYAN+kGKzWq5ka+ro8km3PMdrJjBJNAzW5/YZKmxsNioYd2BjiHWjnUN1SFduasXVbyKawUQzlpVqn0brOR8r0jhwf6m2KZpXTVp7E9n3mjAXqkiPHOjrinFfAl5pRpxFI6nAzGnLnooYH8ThaR+M8=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 12 Jul 2021 17:01:21 +0000
-Message-ID: <20210712170120.xo34ztomimq5oqdg@skbuf>
-References: <20210712152142.800651-1-vladimir.oltean@nxp.com>
- <20210712174059.7916c0da@thinkpad>
-In-Reply-To: <20210712174059.7916c0da@thinkpad>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <1BB5E62C3DFF8548A3F571CCC8C557B5@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1626112203;
+ bh=m1u+wsv4BJOX3LivCYyJp0GfsFgFqYK+vfWFUwQLN38=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=b+uicz15iiBfEcOLpE4brAL1ii21QEunJ698xJX21eGLJP/q4iRHLmc1vsTEm5TuK
+ f/JSlbXiCLwTE2Jm7rOnUbqpzfZie5El9np9MsQkGIgJrWteDWOwE7caZfKFXYyMCX
+ SnyPwPoIdG1JWRCvRE4c8LTA193tN9o+eAvl8ZtcZ7s7FHWK08dnBJmFeOTGifvZ8A
+ rSkFQWewoy1RU50hmdYg9O+P6NSjG83l9yNYZEGxCDR5VfWrnpZti1kczHa29dO0ba
+ T687BCvCPT6AR2DTk06xaFmLzStmWySiPj+tU43pJHJHAANbwnWDiYNkbjLxfaRfu9
+ P+Wd/PY5v6NXA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: Re: [Bridge] [RFC PATCH v3 net-next 00/24] Allow forwarding for the
- software bridge data path to be offloaded to capable devices
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162611220380.1672.9078277385481579129.git-patchwork-notify@kernel.org>
+Date: Mon, 12 Jul 2021 17:50:03 +0000
+References: <20210711095629.2986949-1-razor@blackwall.org>
+In-Reply-To: <20210711095629.2986949-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net 0/2] net: bridge: multicast: fix automatic
+ router port marking races
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,32 +27,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Marek Behun <kabel@blackhole.sk>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, stable@vger.kernel.org, roopa@nvidia.com
 
-Hi Marek,
+Hello:
 
-On Mon, Jul 12, 2021 at 05:40:59PM +0200, Marek Behun wrote:
-> Vladimir, on what mv88e6xxx devices are you developing this stuff?
-> Do you use Turris MOX for this?
+This series was applied to netdev/net.git (refs/heads/master):
 
-I didn't develop the Marvell stuff nor did I come up with the idea
-there, Tobias did. I also am not particularly interested in supporting
-this for Marvell beyond making sure that the patches look simple and
-okay, and pave the way for other drivers to do the same thing.
+On Sun, 11 Jul 2021 12:56:27 +0300 you wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Hi,
+> While working on per-vlan multicast snooping I found two race conditions
+> when multicast snooping is enabled. They're identical and happen when
+> the router port list is modified without the multicast lock. One requires
+> a PIM hello message to be received on a port and the other an MRD
+> advertisement. To fix them we just need to take the multicast_lock when
+> adding the ports to the router port list (marking them as router ports).
+> Tested on an affected setup by generating the required packets while
+> modifying the port list in parallel.
+> 
+> [...]
 
-I did my testing using a different DSA driver and extra patches which
-I did not post here yet. I just reposted/adapted Tobias' work because
-mv88e6xxx needs less work to support the TX data plane offload, and this
-framework does need a first user to get accepted, so why delay it any
-further if mv88e6xxx needs 2 patches whereas other drivers need 30.
+Here is the summary with links:
+  - [net,1/2] net: bridge: multicast: fix PIM hello router port marking race
+    https://git.kernel.org/netdev/net/c/04bef83a3358
+  - [net,2/2] net: bridge: multicast: fix MRD advertisement router port marking race
+    https://git.kernel.org/netdev/net/c/000b7287b675
 
-I did use the MOX for some minimal testing however, at least as far as
-I could - there is this COMPHY SERDES bug in the bootloader which makes
-the board fail to boot, and now the device tree workaround you gave me
-does not appear to bypass the issue any longer or I didn't reaply it
-properly. The point is that it isn't as easy as I would have liked to
-use the MOX for testing. I was able to validate the "net: dsa: track the
-number of switches in a tree" patch on MOX, though, since DSA probes
-earlier than xhci, and even though the boot hung, I did put some prints
-and got the expected results.=
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
