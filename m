@@ -1,18 +1,16 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4fa/GIxMWj0fNCHBGxwYOP+lgVtD3UA9ZDx31dli7Pw=;
- b=s5FkBeqg0yyHqFKzJDdmQQAHFISYBCizsiW0mIRSXOx0ov3lgf/QiQwS0UMDb/u35BtZB2afouG7YJgEs17xxlP1bYZZ6i2jxRn1ZFkcCyzSmuUKUvgdUPi0p6U2/6QkHqUNZD20eqeidxzmP9M9DOKD5eCq/Vr+iJahageXxSk=
+ bh=0AU/r/fvq4/WXHk0odMl95TUEOkigCnFX93soJ79NcM=;
+ b=HYemXxZsHGDNSAfO9BnN9xQ9nhPXbUOoR51QkbwM/MgfHlmdqC/lx974XLi4MYzSmcxVCuUMOLJpn0zGJkxgqzRMPjdUA5I1vkPmcgP3AX56uTyJhS7Dzp4ufRSGo5qrjg4XiXjPem2nhI5XAKRUScHhdp81xS5YE7P1hudmpdQ=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 12 Jul 2021 18:21:20 +0300
-Message-Id: <20210712152142.800651-3-vladimir.oltean@nxp.com>
-In-Reply-To: <20210712152142.800651-1-vladimir.oltean@nxp.com>
-References: <20210712152142.800651-1-vladimir.oltean@nxp.com>
+Date: Mon, 12 Jul 2021 18:21:18 +0300
+Message-Id: <20210712152142.800651-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH v3 net-next 02/24] net: dpaa2-switch: refactor
-	prechangeupper sanity checks
+Subject: [Bridge] [RFC PATCH v3 net-next 00/24] Allow forwarding for the
+	software bridge data path to be offloaded to capable devices
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,70 +22,262 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Make more room for some extra code in the NETDEV_PRECHANGEUPPER handler
-by moving what already exists into a dedicated function.
+Message for v3:
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- .../ethernet/freescale/dpaa2/dpaa2-switch.c   | 37 +++++++++++++------
- 1 file changed, 26 insertions(+), 11 deletions(-)
+In this submission I have introduced a "native switchdev" driver API to
+signal whether the TX forwarding offload is supported or not. This comes
+after a third person has said that the macvlan offload framework used
+for v2 and v1 was simply too convoluted.
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-index 62d322ebf1f2..f6d4cf053ff7 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-@@ -2030,6 +2030,28 @@ static int dpaa2_switch_prevent_bridging_with_8021q_upper(struct net_device *net
- 	return 0;
- }
- 
-+static int
-+dpaa2_switch_prechangeupper_sanity_checks(struct net_device *dev,
-+					  struct net_device *upper_dev,
-+					  struct netlink_ext_ack *extack)
-+{
-+	int err;
-+
-+	if (!br_vlan_enabled(upper_dev)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Cannot join a VLAN-unaware bridge");
-+		return -EOPNOTSUPP;
-+	}
-+
-+	err = dpaa2_switch_prevent_bridging_with_8021q_upper(netdev);
-+	if (err) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Cannot join a bridge while VLAN uppers are present");
-+		return 0;
-+	}
-+
-+	return 0;
-+}
-+
- static int dpaa2_switch_port_netdevice_event(struct notifier_block *nb,
- 					     unsigned long event, void *ptr)
- {
-@@ -2050,18 +2072,11 @@ static int dpaa2_switch_port_netdevice_event(struct notifier_block *nb,
- 		if (!netif_is_bridge_master(upper_dev))
- 			break;
- 
--		if (!br_vlan_enabled(upper_dev)) {
--			NL_SET_ERR_MSG_MOD(extack, "Cannot join a VLAN-unaware bridge");
--			err = -EOPNOTSUPP;
--			goto out;
--		}
--
--		err = dpaa2_switch_prevent_bridging_with_8021q_upper(netdev);
--		if (err) {
--			NL_SET_ERR_MSG_MOD(extack,
--					   "Cannot join a bridge while VLAN uppers are present");
-+		err = dpaa2_switch_prechangeupper_sanity_checks(netdev,
-+								upper_dev,
-+								extack);
-+		if (err)
- 			goto out;
--		}
- 
- 		break;
- 	case NETDEV_CHANGEUPPER:
+This large patch set is submitted for discussion purposes (it is
+provided in its entirety so it can be applied & tested on net-next).
+It is only minimally tested, and yet I will not copy all switchdev
+driver maintainers until we agree on the viability of this approach.
+
+The major changes compared to v2:
+- The introduction of switchdev_bridge_port_offload() and
+  switchdev_bridge_port_unoffload() as two major API changes from the
+  perspective of a switchdev driver. All drivers were converted to call
+  these.
+- Augment switchdev_bridge_port_{,un}offload to also handle the
+  switchdev object replays on port join/leave.
+- Augment switchdev_bridge_port_offload to also signal whether the TX
+  forwarding offload is supported.
+
+Message for v2:
+
+For this series I have taken Tobias' work from here:
+https://patchwork.kernel.org/project/netdevbpf/cover/20210426170411.1789186-1-tobias@waldekranz.com/
+and made the following changes:
+- I collected and integrated (hopefully all of) Nikolay's, Ido's and my
+  feedback on the bridge driver changes. Otherwise, the structure of the
+  bridge changes is pretty much the same as Tobias left it.
+- I basically rewrote the DSA infrastructure for the data plane
+  forwarding offload, based on the commonalities with another switch
+  driver for which I implemented this feature (not submitted here)
+- I adapted mv88e6xxx to use the new infrastructure, hopefully it still
+  works but I didn't test that
+
+The data plane of the software bridge can be partially offloaded to
+switchdev, in the sense that we can trust the accelerator to:
+(a) look up its FDB (which is more or less in sync with the software
+    bridge FDB) for selecting the destination ports for a packet
+(b) replicate the frame in hardware in case it's a multicast/broadcast,
+    instead of the software bridge having to clone it and send the
+    clones to each net device one at a time. This reduces the bandwidth
+    needed between the CPU and the accelerator, as well as the CPU time
+    spent.
+
+The data path forwarding offload is managed per "hardware domain" - a
+generalization of the "offload_fwd_mark" concept which is being
+introduced in this series. Every packet is delivered only once to each
+hardware domain.
+
+In addition, Tobias said in the original cover letter:
+
+====================
+## Overview
+
+   vlan1   vlan2
+       \   /
+   .-----------.
+   |    br0    |
+   '-----------'
+   /   /   \   \
+swp0 swp1 swp2 eth0
+  :   :   :
+  (hwdom 1)
+
+Up to this point, switchdevs have been trusted with offloading
+forwarding between bridge ports, e.g. forwarding a unicast from swp0
+to swp1 or flooding a broadcast from swp2 to swp1 and swp0. This
+series extends forward offloading to include some new classes of
+traffic:
+
+- Locally originating flows, i.e. packets that ingress on br0 that are
+  to be forwarded to one or several of the ports swp{0,1,2}. Notably
+  this also includes routed flows, e.g. a packet ingressing swp0 on
+  VLAN 1 which is then routed over to VLAN 2 by the CPU and then
+  forwarded to swp1 is "locally originating" from br0's point of view.
+
+- Flows originating from "foreign" interfaces, i.e. an interface that
+  is not offloaded by a particular switchdev instance. This includes
+  ports belonging to other switchdev instances. A typical example
+  would be flows from eth0 towards swp{0,1,2}.
+
+The bridge still looks up its FDB/MDB as usual and then notifies the
+switchdev driver that a particular skb should be offloaded if it
+matches one of the classes above. It does so by using the _accel
+version of dev_queue_xmit, supplying its own netdev as the
+"subordinate" device. The driver can react to the presence of the
+subordinate in its .ndo_select_queue in what ever way it needs to make
+sure to forward the skb in much the same way that it would for packets
+ingressing on regular ports.
+
+Hardware domains to which a particular skb has been forwarded are
+recorded so that duplicates are avoided.
+
+The main performance benefit is thus seen on multicast flows. Imagine
+for example that:
+
+- An IP camera is connected to swp0 (VLAN 1)
+
+- The CPU is acting as a multicast router, routing the group from VLAN
+  1 to VLAN 2.
+
+- There are subscribers for the group in question behind both swp1 and
+  swp2 (VLAN 2).
+
+With this offloading in place, the bridge need only send a single skb
+to the driver, which will send it to the hardware marked in such a way
+that the switch will perform the multicast replication according to
+the MDB configuration. Naturally, the number of saved skb_clones
+increase linearly with the number of subscribed ports.
+
+As an extra benefit, on mv88e6xxx, this also allows the switch to
+perform source address learning on these flows, which avoids having to
+sync dynamic FDB entries over slow configuration interfaces like MDIO
+to avoid flows directed towards the CPU being flooded as unknown
+unicast by the switch.
+
+
+## RFC
+
+- In general, what do you think about this idea?
+
+- hwdom. What do you think about this terminology? Personally I feel
+  that we had too many things called offload_fwd_mark, and that as the
+  use of the bridge internal ID (nbp->offload_fwd_mark) expands, it
+  might be useful to have a separate term for it.
+
+- .dfwd_{add,del}_station. Am I stretching this abstraction too far,
+  and if so do you have any suggestion/preference on how to signal the
+  offloading from the bridge down to the switchdev driver?
+
+- The way that flooding is implemented in br_forward.c (lazily cloning
+  skbs) means that you have to mark the forwarding as completed very
+  early (right after should_deliver in maybe_deliver) in order to
+  avoid duplicates. Is there some way to move this decision point to a
+  later stage that I am missing?
+
+- BR_MULTICAST_TO_UNICAST. Right now, I expect that this series is not
+  compatible with unicast-to-multicast being used on a port. Then
+  again, I think that this would also be broken for regular switchdev
+  bridge offloading as this flag is not offloaded to the switchdev
+  port, so there is no way for the driver to refuse it. Any ideas on
+  how to handle this?
+
+
+## mv88e6xxx Specifics
+
+Since we are now only receiving a single skb for both unicast and
+multicast flows, we can tag the packets with the FORWARD command
+instead of FROM_CPU. The swich(es) will then forward the packet in
+accordance with its ATU, VTU, STU, and PVT configuration - just like
+for packets ingressing on user ports.
+
+Crucially, FROM_CPU is still used for:
+
+- Ports in standalone mode.
+
+- Flows that are trapped to the CPU and software-forwarded by a
+  bridge. Note that these flows match neither of the classes discussed
+  in the overview.
+
+- Packets that are sent directly to a port netdev without going
+  through the bridge, e.g. lldpd sending out PDU via an AF_PACKET
+  socket.
+
+We thus have a pretty clean separation where the data plane uses
+FORWARDs and the control plane uses TO_/FROM_CPU.
+
+The barrier between different bridges is enforced by port based VLANs
+on mv88e6xxx, which in essence is a mapping from a source device/port
+pair to an allowed set of egress ports. In order to have a FORWARD
+frame (which carries a _source_ device/port) correctly mapped by the
+PVT, we must use a unique pair for each bridge.
+
+Fortunately, there is typically lots of unused address space in most
+switch trees. When was the last time you saw an mv88e6xxx product
+using more than 4 chips? Even if you found one with 16 (!) devices,
+you would still have room to allocate 16*16 virtual ports to software
+bridges.
+
+Therefore, the mv88e6xxx driver will allocate a virtual device/port
+pair to each bridge that it offloads. All members of the same bridge
+are then configured to allow packets from this virtual port in their
+PVTs.
+====================
+
+Tobias Waldekranz (4):
+  net: bridge: disambiguate offload_fwd_mark
+  net: bridge: switchdev: recycle unused hwdoms
+  net: bridge: switchdev: allow the TX data plane forwarding to be
+    offloaded
+  net: dsa: tag_dsa: offload the bridge forwarding process
+
+Vladimir Oltean (20):
+  net: dpaa2-switch: use extack in dpaa2_switch_port_bridge_join
+  net: dpaa2-switch: refactor prechangeupper sanity checks
+  net: mlxsw: refactor prechangeupper sanity checks
+  net: ocelot: fix switchdev objects synced for wrong netdev with LAG
+    offload
+  net: prestera: if the LAG that we're joining is under a bridge, join
+    it
+  net: prestera: refactor prechangeupper sanity checks
+  net: bridge: switchdev: let drivers inform which bridge ports are
+    offloaded
+  net: prestera: guard against multiple switchdev obj replays on same
+    bridge port
+  net: mlxsw: guard against multiple switchdev obj replays on same
+    bridge port
+  net: bridge: drop context pointer from br_fdb_replay
+  net: bridge: use the public notifier chain for br_fdb_replay
+  net: bridge: unexport call_switchdev_blocking_notifiers
+  net: bridge: propagate ctx to switchdev_port_obj_{add,del}
+  net: bridge: propagate ctx to br_switchdev_port_vlan_{add,del}
+  net: bridge: replay mdb entries on the public switchdev notifier chain
+  net: bridge: replay vlan entries on the public switchdev notifier
+  net: bridge: switchdev object replay helpers for everybody
+  net: dsa: track the number of switches in a tree
+  net: dsa: add support for bridge TX forwarding offload
+  net: dsa: mv88e6xxx: map virtual bridges with forwarding offload in
+    the PVT
+
+ drivers/net/dsa/mv88e6xxx/chip.c              |  78 ++++-
+ .../ethernet/freescale/dpaa2/dpaa2-switch.c   |  61 +++-
+ .../ethernet/marvell/prestera/prestera_main.c | 107 +++++--
+ .../marvell/prestera/prestera_switchdev.c     |  36 ++-
+ .../marvell/prestera/prestera_switchdev.h     |   7 +-
+ .../net/ethernet/mellanox/mlxsw/spectrum.c    | 275 ++++++++++-------
+ .../net/ethernet/mellanox/mlxsw/spectrum.h    |   4 +
+ .../mellanox/mlxsw/spectrum_switchdev.c       |  21 +-
+ .../microchip/sparx5/sparx5_switchdev.c       |  41 ++-
+ drivers/net/ethernet/mscc/ocelot_net.c        | 116 +++++--
+ drivers/net/ethernet/rocker/rocker.h          |   6 +-
+ drivers/net/ethernet/rocker/rocker_main.c     |  30 +-
+ drivers/net/ethernet/rocker/rocker_ofdpa.c    |  37 ++-
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c      |  28 +-
+ drivers/net/ethernet/ti/cpsw_new.c            |  26 +-
+ include/linux/if_bridge.h                     |  55 ++--
+ include/net/dsa.h                             |  22 +-
+ include/net/switchdev.h                       |  20 +-
+ net/bridge/br_fdb.c                           |  46 +--
+ net/bridge/br_forward.c                       |   9 +
+ net/bridge/br_if.c                            |  11 +-
+ net/bridge/br_mdb.c                           |  51 ++--
+ net/bridge/br_mrp_switchdev.c                 |  20 +-
+ net/bridge/br_private.h                       |  87 +++++-
+ net/bridge/br_switchdev.c                     | 284 ++++++++++++++++--
+ net/bridge/br_vlan.c                          |  62 ++--
+ net/dsa/dsa2.c                                |   4 +
+ net/dsa/dsa_priv.h                            |   8 +-
+ net/dsa/port.c                                | 172 +++++++----
+ net/dsa/slave.c                               |  17 +-
+ net/dsa/tag_dsa.c                             |  52 +++-
+ net/switchdev/switchdev.c                     |  58 ++--
+ 32 files changed, 1369 insertions(+), 482 deletions(-)
+
 -- 
 2.25.1
 
