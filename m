@@ -1,24 +1,26 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1626112203;
- bh=m1u+wsv4BJOX3LivCYyJp0GfsFgFqYK+vfWFUwQLN38=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=b+uicz15iiBfEcOLpE4brAL1ii21QEunJ698xJX21eGLJP/q4iRHLmc1vsTEm5TuK
- f/JSlbXiCLwTE2Jm7rOnUbqpzfZie5El9np9MsQkGIgJrWteDWOwE7caZfKFXYyMCX
- SnyPwPoIdG1JWRCvRE4c8LTA193tN9o+eAvl8ZtcZ7s7FHWK08dnBJmFeOTGifvZ8A
- rSkFQWewoy1RU50hmdYg9O+P6NSjG83l9yNYZEGxCDR5VfWrnpZti1kczHa29dO0ba
- T687BCvCPT6AR2DTk06xaFmLzStmWySiPj+tU43pJHJHAANbwnWDiYNkbjLxfaRfu9
- P+Wd/PY5v6NXA==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=VZLJ586W2PwJd2sivbAeLi0nlzQsGfkkjBmYbr9j5wA=;
+ b=Q0dC9RzGsj902Tzs5OsHXueHNW2RKcNs1HQ6Il/WazTI2aiM2ms7l3cK01aB96VdWx
+ 9S2TFUFphF+bSA8temDFhBxnSYpTzgBF7UCTQkniXEW4SrMZUh9MO9yfDjtvGaa+7aCp
+ pa4/rl7ZG3mdkVYhTiYMxRU37sSfOiIQQDMBBpcp881Oo3/9M8yk5bQxGj+/xoMp/V28
+ u+4RzGx5ydEW5vjnbsmuR83bVbMr9SfgYYMtX3nSVU/jWOaOnLcApUsp9O6gbjOFsLkH
+ zWt/1FBzDMAYnMyD7CToaD6JK42cpAAVeoxpcSoZ5gM2yj2bnHhAoac/ooY4XEn+Unky
+ aIkw==
+References: <20210712152142.800651-1-vladimir.oltean@nxp.com>
+ <20210712152142.800651-2-vladimir.oltean@nxp.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <48103d5c-9d2e-2cd8-727a-658b0bbab663@gmail.com>
+Date: Mon, 12 Jul 2021 19:20:50 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162611220380.1672.9078277385481579129.git-patchwork-notify@kernel.org>
-Date: Mon, 12 Jul 2021 17:50:03 +0000
-References: <20210711095629.2986949-1-razor@blackwall.org>
-In-Reply-To: <20210711095629.2986949-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net 0/2] net: bridge: multicast: fix automatic
- router port marking races
+In-Reply-To: <20210712152142.800651-2-vladimir.oltean@nxp.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC PATCH v3 net-next 01/24] net: dpaa2-switch: use
+ extack in dpaa2_switch_port_bridge_join
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,37 +29,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, stable@vger.kernel.org, roopa@nvidia.com
+To: Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, Jiri Pirko <jiri@resnulli.us>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Hello:
 
-This series was applied to netdev/net.git (refs/heads/master):
 
-On Sun, 11 Jul 2021 12:56:27 +0300 you wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 7/12/2021 8:21 AM, Vladimir Oltean wrote:
+> We need to propagate the extack argument for
+> dpaa2_switch_port_bridge_join to use it in a future patch, and it looks
+> like there is already an error message there which is currently printed
+> to the console. Move it over netlink so it is properly transmitted to
+> user space.
 > 
-> Hi,
-> While working on per-vlan multicast snooping I found two race conditions
-> when multicast snooping is enabled. They're identical and happen when
-> the router port list is modified without the multicast lock. One requires
-> a PIM hello message to be received on a port and the other an MRD
-> advertisement. To fix them we just need to take the multicast_lock when
-> adding the ports to the router port list (marking them as router ports).
-> Tested on an affected setup by generating the required packets while
-> modifying the port list in parallel.
-> 
-> [...]
+> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Here is the summary with links:
-  - [net,1/2] net: bridge: multicast: fix PIM hello router port marking race
-    https://git.kernel.org/netdev/net/c/04bef83a3358
-  - [net,2/2] net: bridge: multicast: fix MRD advertisement router port marking race
-    https://git.kernel.org/netdev/net/c/000b7287b675
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
