@@ -1,23 +1,25 @@
-Return-Path: <kabel@blackhole.sk>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=blackhole.sk;
- s=mail; t=1626110835;
- bh=1Z+7eKuQGefXsiLmO54SfAanWObwQV+Nmi5tV4R3u7o=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References;
- b=M1B/1GM91bA66bvkS5pB9vyTSJM2mE6+CKSdJq0ZKYfGSaXIWZxsg+Mf71uN6aUmq
- DorGBzhYUzlU/b8kw5102jFwR2MGv3BGVK+9ADN/zjEJgBWbZjGt/rV0XHcNB76QFe
- n+wqu3Ft2GrNYEzUTu1R/lD7ZkQVRmvSF0TJT9Co=
-Date: Mon, 12 Jul 2021 19:27:11 +0200
-From: Marek Behun <kabel@blackhole.sk>
-Message-ID: <20210712192711.126f2b35@thinkpad>
-In-Reply-To: <20210712170120.xo34ztomimq5oqdg@skbuf>
+Return-Path: <olteanv@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=VkHeawapFxvFE6350X6CQgGsPoo5+76V86NE1YTDZZY=;
+ b=UCw4fcFiE2bu30hwS5e53xnmFf+zg/e3F4GQSOf+CxTd+/UU2nPZ0Lv4BfuRyw22uc
+ CDod9C4FfBlOTDCB2ZUDsDPLR9UI29zIbwcxnnobpyQc2kXJiWaTdm/oSo3WFy2KTXol
+ 1qL7NpIrmTG+IC8MwIR3dC8yu/CLxOhBcApyJ9aIRHY4pyTYzpRRACAkcAnIpi81LY8g
+ pmC74sEB878o/1vGjgLlk2EVOhfl54LAaFQNWEpUZuLTMtR92vHJb8i4ZSSXhnJaZZP/
+ X9vdSHQVr5SU0CDzgCGNlu3m9L4siq0kEpBAtnbOlIirLJldET+9pt6bDAt8+GPdGv4D
+ cddg==
+Date: Thu, 15 Jul 2021 17:49:29 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20210715144929.oa3u44is3v6gewr5@skbuf>
 References: <20210712152142.800651-1-vladimir.oltean@nxp.com>
- <20210712174059.7916c0da@thinkpad>
- <20210712170120.xo34ztomimq5oqdg@skbuf>
+ <20210712152142.800651-23-vladimir.oltean@nxp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH v3 net-next 00/24] Allow forwarding for the
- software bridge data path to be offloaded to capable devices
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210712152142.800651-23-vladimir.oltean@nxp.com>
+Subject: Re: [Bridge] [RFC PATCH v3 net-next 22/24] net: dsa: add support
+ for bridge TX forwarding offload
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,55 +29,94 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Hi Vladimir,
+On Mon, Jul 12, 2021 at 06:21:40PM +0300, Vladimir Oltean wrote:
+> +static bool dsa_port_bridge_tx_fwd_prepare(struct dsa_port *dp,
+> +					   struct net_device *bridge_dev)
+> +{
+> +	struct dsa_switch *ds = dp->ds;
+> +	struct dsa_switch_tree *dst;
+> +	int bridge_num, err;
+> +
+> +	dst = ds->dst;
+> +
+> +	bridge_num = dsa_tree_find_bridge_num(dst, bridge_dev);
+> +	if (bridge_num < 0) {
+> +		/* First port that offloads TX forwarding for this bridge */
+> +		int bridge_num;
 
-On Mon, 12 Jul 2021 17:01:21 +0000
-Vladimir Oltean <vladimir.oltean@nxp.com> wrote:
+Stupid bug: "bridge_num" is redeclared here as a different variable with
+a different scope, shadowing the one from dsa_port_bridge_tx_fwd_prepare().
 
-> Hi Marek,
-> 
-> On Mon, Jul 12, 2021 at 05:40:59PM +0200, Marek Behun wrote:
-> > Vladimir, on what mv88e6xxx devices are you developing this stuff?
-> > Do you use Turris MOX for this?  
-> 
-> I didn't develop the Marvell stuff nor did I come up with the idea
-> there, Tobias did. I also am not particularly interested in supporting
-> this for Marvell beyond making sure that the patches look simple and
-> okay, and pave the way for other drivers to do the same thing.
-> 
-> I did my testing using a different DSA driver and extra patches which
-> I did not post here yet. I just reposted/adapted Tobias' work because
-> mv88e6xxx needs less work to support the TX data plane offload, and this
-> framework does need a first user to get accepted, so why delay it any
-> further if mv88e6xxx needs 2 patches whereas other drivers need 30.
-> 
-> I did use the MOX for some minimal testing however, at least as far as
-> I could - there is this COMPHY SERDES bug in the bootloader which makes
-> the board fail to boot, and now the device tree workaround you gave me
-> does not appear to bypass the issue any longer or I didn't reaply it
-> properly.
+> +
+> +		bridge_num = find_first_zero_bit(&dst->fwd_offloading_bridges,
+> +						 DSA_MAX_NUM_OFFLOADING_BRIDGES);
+> +		if (bridge_num >= ds->num_fwd_offloading_bridges)
+> +			return false;
+> +
+> +		set_bit(bridge_num, &dst->fwd_offloading_bridges);
+> +	}
+> +
+> +	dp->bridge_num = bridge_num;
 
-Sorry about that. Current upstream U-Boot solves this issue, but we did
-not release official update yet because there are still some things that
-need to be done. We have some RCs, though.
+and then here, the scope from the "if" block is lost, so the bridge_num
+variable is still -1. So dp->bridge_num remains -1.
 
-If you are interested, it is pretty easy to upgrade:
-- MTD partition "secure-firmware" needs to be flashed with
-    https://gitlab.nic.cz/turris/mox-boot-builder/uploads/8d5a17fae8f6e14ca11968ee5174c7ca/trusted-secure-firmware.bin
-  (this file needs to be signed by CZ.NIC)
-- MTD partition "a53-firmware" (or "u-boot" in older DTS) needs to be
-  flashed with
-    https://secure.nic.cz/files/mbehun/a53-firmware.bin
-  (this file can be built by users themselves)
+Deleting the "int bridge_num" declaration from the "if" block fixes the
+issue. This got introduced between v2 and v3.
 
-> The point is that it isn't as easy as I would have liked to
-> use the MOX for testing. I was able to validate the "net: dsa: track the
-> number of switches in a tree" patch on MOX, though, since DSA probes
-> earlier than xhci, and even though the boot hung, I did put some prints
-> and got the expected results.
+> +
+> +	/* Notify the driver */
+> +	err = dsa_port_bridge_fwd_offload_add(dp, bridge_dev, bridge_num);
+> +	if (err) {
+> +		dsa_port_bridge_tx_fwd_unprepare(dp, bridge_dev);
+> +		return false;
+> +	}
+> +
+> +	return true;
+> +}
+> +
+>  int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
+>  			 struct netlink_ext_ack *extack)
+>  {
+> @@ -241,6 +310,7 @@ int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
+>  	};
+>  	struct net_device *dev = dp->slave;
+>  	struct net_device *brport_dev;
+> +	bool tx_fwd_offload;
+>  	int err;
+>  
+>  	/* Here the interface is already bridged. Reflect the current
+> @@ -254,7 +324,10 @@ int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
+>  	if (err)
+>  		goto out_rollback;
+>  
+> -	err = switchdev_bridge_port_offload(brport_dev, dev, dp, false, extack);
+> +	tx_fwd_offload = dsa_port_bridge_tx_fwd_prepare(dp, br);
+> +
+> +	err = switchdev_bridge_port_offload(brport_dev, dev, dp, tx_fwd_offload,
+> +					    extack);
+>  	if (err)
+>  		goto out_rollback_unbridge;
+>  
+> @@ -279,6 +352,8 @@ int dsa_port_pre_bridge_leave(struct dsa_port *dp, struct net_device *br,
+>  	struct net_device *brport_dev = dsa_port_to_bridge_port(dp);
+>  	struct net_device *dev = dp->slave;
+>  
+> +	dsa_port_bridge_tx_fwd_prepare(dp, br);
 
-I will try to do some tests with this patch series.
+We are in the pre_bridge_leave path, this should have been _unprepare.
 
-Marek
+> +
+>  	return switchdev_bridge_port_unoffload(brport_dev, dev, dp, extack);
+>  }
+
+The patches should work otherwise, if somebody wants to test they should
+make these changes.
+
+There are also some more changes that need to be made to mlxsw to
+properly handle the unoffload of bridge ports that are LAG devices and
+VLAN devices. I have them in my tree now. When net-next reopens I will
+first send a series of 7 refactoring patches for dpaa2-switch, mlxsw and
+prestera, and then the TX data plane offload in DSA as a 15-patch series.
