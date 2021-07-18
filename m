@@ -1,18 +1,18 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qocFjnfds/Q3esaj8xNKnBZ3Tz/PgB7Ko5kKVsqifIo=;
- b=mVK+uhJ7oQr7QJ1cqJj2JVgEBB3tp85sUvGAYC21syOlqmuDjK4bjLFlsDqavpt9sial0QQ3fDzkti9uKyjOKcRoft1EqPkzAaf7vmFW6lCayQg4a3hSu3emia9vzy/B3uYukWBNFONs4O+aOkSYXaGhoE3xUUlnMk1pkSoAz1o=
+ bh=XpXyt2PXHF7+V8kLQBMsqSrFhyu/EgM7vwyFVIoYviA=;
+ b=lKdTRo4V9/M0qcsJH02/Ik+3hF+rE8D+I8SZoyLzUYZqqilb97u7BhwSmqLvZW+OIRA+koy4vk3ZAjg2TqUFoXDPTfW4mL+iRi4UKlgzn2SYOV/R+ux2Kp76flKdY5Vdhjt4DTep1x8vYAwpc2YdATWHRq/JuzGamnFGus0czSU=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 19 Jul 2021 00:44:24 +0300
-Message-Id: <20210718214434.3938850-6-vladimir.oltean@nxp.com>
+Date: Mon, 19 Jul 2021 00:44:25 +0300
+Message-Id: <20210718214434.3938850-7-vladimir.oltean@nxp.com>
 In-Reply-To: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
 References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH v4 net-next 05/15] net: marvell: prestera: refactor
-	prechangeupper sanity checks
+Subject: [Bridge] [PATCH v4 net-next 06/15] net: switchdev: guard drivers
+	against multiple obj replays on same bridge port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,115 +24,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, Vadym Kochan <vkochan@marvell.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Marek Behun <kabel@blackhole.sk>, Taras Chornyi <tchornyi@marvell.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-In preparation of adding more code to the NETDEV_PRECHANGEUPPER handler,
-move the existing sanity checks into a dedicated function.
+Prepare the drivers which support LAG offload but don't have support for
+switchdev object replay yet, i.e. the mlxsw and prestera drivers, to
+deal with bridge switchdev objects being replayed on the LAG bridge port
+multiple times, once for each time a physical port beneath the LAG calls
+switchdev_bridge_port_offload().
 
 Cc: Vadym Kochan <vkochan@marvell.com>
 Cc: Taras Chornyi <tchornyi@marvell.com>
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
-v2->v3: patch is new
-v3->v4: none
+v3->v4: squash mlxsw and prestera into a single patch
 
- .../ethernet/marvell/prestera/prestera_main.c | 71 ++++++++++++-------
- 1 file changed, 44 insertions(+), 27 deletions(-)
+ drivers/net/ethernet/marvell/prestera/prestera_switchdev.c | 6 ++++++
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c   | 6 ++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_main.c b/drivers/net/ethernet/marvell/prestera/prestera_main.c
-index 226f4ff29f6e..1f3c8cd6ced2 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_main.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_main.c
-@@ -699,6 +699,45 @@ static bool prestera_lag_master_check(struct net_device *lag_dev,
- 	return true;
- }
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
+index 0b3e8f2db294..a1fc4ab53ccf 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
+@@ -1047,6 +1047,9 @@ static int prestera_port_obj_add(struct net_device *dev, const void *ctx,
+ 	struct prestera_port *port = netdev_priv(dev);
+ 	const struct switchdev_obj_port_vlan *vlan;
  
-+static int prestera_prechangeupper_sanity_checks(struct net_device *dev,
-+						 struct net_device *upper,
-+						 struct netdev_notifier_changeupper_info *info,
-+						 struct netlink_ext_ack *extack)
-+{
-+	if (!netif_is_bridge_master(upper) &&
-+	    !netif_is_lag_master(upper)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Unknown upper device type");
-+		return -EINVAL;
-+	}
-+
-+	if (!info->linking)
++	if (ctx && ctx != port)
 +		return 0;
 +
-+	if (netdev_has_any_upper_dev(upper)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Upper device is already enslaved");
-+		return -EINVAL;
-+	}
-+
-+	if (netif_is_lag_master(upper) &&
-+	    !prestera_lag_master_check(upper, info->upper_info, extack))
-+		return -EOPNOTSUPP;
-+
-+	if (netif_is_lag_master(upper) && vlan_uses_dev(dev)) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Master device is a LAG master and port has a VLAN");
-+		return -EINVAL;
-+	}
-+
-+	if (netif_is_lag_port(dev) && is_vlan_dev(upper) &&
-+	    !netif_is_lag_master(vlan_dev_real_dev(upper))) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Can not put a VLAN on a LAG port");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- static int prestera_netdev_port_event(struct net_device *lower,
- 				      struct net_device *dev,
- 				      unsigned long event, void *ptr)
-@@ -707,40 +746,18 @@ static int prestera_netdev_port_event(struct net_device *lower,
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
+@@ -1083,6 +1086,9 @@ static int prestera_port_obj_del(struct net_device *dev, const void *ctx,
+ {
  	struct prestera_port *port = netdev_priv(dev);
- 	struct netlink_ext_ack *extack;
- 	struct net_device *upper;
-+	int err;
  
- 	extack = netdev_notifier_info_to_extack(&info->info);
- 	upper = info->upper_dev;
++	if (ctx && ctx != port)
++		return 0;
++
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		return prestera_port_vlans_del(port, SWITCHDEV_OBJ_PORT_VLAN(obj));
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 61911fed6aeb..5a0c7c94874e 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -1772,6 +1772,9 @@ static int mlxsw_sp_port_obj_add(struct net_device *dev, const void *ctx,
+ 	const struct switchdev_obj_port_vlan *vlan;
+ 	int err = 0;
  
- 	switch (event) {
- 	case NETDEV_PRECHANGEUPPER:
--		if (!netif_is_bridge_master(upper) &&
--		    !netif_is_lag_master(upper)) {
--			NL_SET_ERR_MSG_MOD(extack, "Unknown upper device type");
--			return -EINVAL;
--		}
--
--		if (!info->linking)
--			break;
--
--		if (netdev_has_any_upper_dev(upper)) {
--			NL_SET_ERR_MSG_MOD(extack, "Upper device is already enslaved");
--			return -EINVAL;
--		}
-+		err = prestera_prechangeupper_sanity_checks(dev, upper, info,
-+							    extack);
-+		if (err)
-+			return err;
++	if (ctx && ctx != mlxsw_sp_port)
++		return 0;
++
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
+@@ -1920,6 +1923,9 @@ static int mlxsw_sp_port_obj_del(struct net_device *dev, const void *ctx,
+ 	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
+ 	int err = 0;
  
--		if (netif_is_lag_master(upper) &&
--		    !prestera_lag_master_check(upper, info->upper_info, extack))
--			return -EOPNOTSUPP;
--		if (netif_is_lag_master(upper) && vlan_uses_dev(dev)) {
--			NL_SET_ERR_MSG_MOD(extack,
--					   "Master device is a LAG master and port has a VLAN");
--			return -EINVAL;
--		}
--		if (netif_is_lag_port(dev) && is_vlan_dev(upper) &&
--		    !netif_is_lag_master(vlan_dev_real_dev(upper))) {
--			NL_SET_ERR_MSG_MOD(extack,
--					   "Can not put a VLAN on a LAG port");
--			return -EINVAL;
--		}
- 		break;
- 
- 	case NETDEV_CHANGEUPPER:
++	if (ctx && ctx != mlxsw_sp_port)
++		return 0;
++
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		err = mlxsw_sp_port_vlans_del(mlxsw_sp_port,
 -- 
 2.25.1
 
