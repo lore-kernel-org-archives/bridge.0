@@ -1,18 +1,18 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bvbeIVZl88ToICjHAmeKYYP1j/OuFxc9fvRDjVuotjE=;
- b=Sd4aeuSai407f7UpA0h3P78QAd+Ues01MzTqCmBudZ9q0/3vu0BjXabrYXHI1j/nl1TThmRvrpXJgdawJzntOFrMf5h/JMD3SW9WIRNhdTWomspOlGqwUx7FHwaoddO+tLNp3C+IDJldtHyKQ3cAbojqJdegLXNADDrTNhXDH6M=
+ bh=qocFjnfds/Q3esaj8xNKnBZ3Tz/PgB7Ko5kKVsqifIo=;
+ b=mVK+uhJ7oQr7QJ1cqJj2JVgEBB3tp85sUvGAYC21syOlqmuDjK4bjLFlsDqavpt9sial0QQ3fDzkti9uKyjOKcRoft1EqPkzAaf7vmFW6lCayQg4a3hSu3emia9vzy/B3uYukWBNFONs4O+aOkSYXaGhoE3xUUlnMk1pkSoAz1o=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 19 Jul 2021 00:44:23 +0300
-Message-Id: <20210718214434.3938850-5-vladimir.oltean@nxp.com>
+Date: Mon, 19 Jul 2021 00:44:24 +0300
+Message-Id: <20210718214434.3938850-6-vladimir.oltean@nxp.com>
 In-Reply-To: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
 References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH v4 net-next 04/15] mlxsw: spectrum: refactor
-	leaving an 8021q upper that is a bridge port
+Subject: [Bridge] [PATCH v4 net-next 05/15] net: marvell: prestera: refactor
+	prechangeupper sanity checks
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,63 +22,117 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Marek Behun <kabel@blackhole.sk>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, Vadym Kochan <vkochan@marvell.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Marek Behun <kabel@blackhole.sk>, Taras Chornyi <tchornyi@marvell.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-For symmetry with mlxsw_sp_port_lag_leave(), introduce a small function
-called mlxsw_sp_port_vlan_leave() which checks whether the 8021q upper
-we're leaving is a bridge port, and if it is, stop offloading that
-bridge too.
+In preparation of adding more code to the NETDEV_PRECHANGEUPPER handler,
+move the existing sanity checks into a dedicated function.
 
+Cc: Vadym Kochan <vkochan@marvell.com>
+Cc: Taras Chornyi <tchornyi@marvell.com>
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
-v3->v4: patch is new
+v2->v3: patch is new
+v3->v4: none
 
- .../net/ethernet/mellanox/mlxsw/spectrum.c    | 25 +++++++++++--------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ .../ethernet/marvell/prestera/prestera_main.c | 71 ++++++++++++-------
+ 1 file changed, 44 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index c1b78878e5cf..b3d1fdc2d094 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -3994,6 +3994,19 @@ static void mlxsw_sp_port_ovs_leave(struct mlxsw_sp_port *mlxsw_sp_port)
- 	mlxsw_sp_port_vp_mode_set(mlxsw_sp_port, false);
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_main.c b/drivers/net/ethernet/marvell/prestera/prestera_main.c
+index 226f4ff29f6e..1f3c8cd6ced2 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_main.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_main.c
+@@ -699,6 +699,45 @@ static bool prestera_lag_master_check(struct net_device *lag_dev,
+ 	return true;
  }
  
-+static void mlxsw_sp_port_vlan_leave(struct mlxsw_sp_port *mlxsw_sp_port,
-+				     struct net_device *vlan_dev)
++static int prestera_prechangeupper_sanity_checks(struct net_device *dev,
++						 struct net_device *upper,
++						 struct netdev_notifier_changeupper_info *info,
++						 struct netlink_ext_ack *extack)
 +{
-+	struct net_device *br_dev;
++	if (!netif_is_bridge_master(upper) &&
++	    !netif_is_lag_master(upper)) {
++		NL_SET_ERR_MSG_MOD(extack, "Unknown upper device type");
++		return -EINVAL;
++	}
 +
-+	if (!netif_is_bridge_port(vlan_dev))
-+		return;
++	if (!info->linking)
++		return 0;
 +
-+	br_dev = netdev_master_upper_dev_get(vlan_dev);
++	if (netdev_has_any_upper_dev(upper)) {
++		NL_SET_ERR_MSG_MOD(extack, "Upper device is already enslaved");
++		return -EINVAL;
++	}
 +
-+	mlxsw_sp_port_bridge_leave(mlxsw_sp_port, vlan_dev, br_dev);
++	if (netif_is_lag_master(upper) &&
++	    !prestera_lag_master_check(upper, info->upper_info, extack))
++		return -EOPNOTSUPP;
++
++	if (netif_is_lag_master(upper) && vlan_uses_dev(dev)) {
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Master device is a LAG master and port has a VLAN");
++		return -EINVAL;
++	}
++
++	if (netif_is_lag_port(dev) && is_vlan_dev(upper) &&
++	    !netif_is_lag_master(vlan_dev_real_dev(upper))) {
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Can not put a VLAN on a LAG port");
++		return -EINVAL;
++	}
++
++	return 0;
 +}
 +
- static bool mlxsw_sp_bridge_has_multiple_vxlans(struct net_device *br_dev)
- {
- 	unsigned int num_vxlans = 0;
-@@ -4225,16 +4238,8 @@ static int mlxsw_sp_netdevice_port_upper_event(struct net_device *lower_dev,
- 		} else if (netif_is_macvlan(upper_dev)) {
- 			if (!info->linking)
- 				mlxsw_sp_rif_macvlan_del(mlxsw_sp, upper_dev);
--		} else if (is_vlan_dev(upper_dev)) {
--			struct net_device *br_dev;
+ static int prestera_netdev_port_event(struct net_device *lower,
+ 				      struct net_device *dev,
+ 				      unsigned long event, void *ptr)
+@@ -707,40 +746,18 @@ static int prestera_netdev_port_event(struct net_device *lower,
+ 	struct prestera_port *port = netdev_priv(dev);
+ 	struct netlink_ext_ack *extack;
+ 	struct net_device *upper;
++	int err;
+ 
+ 	extack = netdev_notifier_info_to_extack(&info->info);
+ 	upper = info->upper_dev;
+ 
+ 	switch (event) {
+ 	case NETDEV_PRECHANGEUPPER:
+-		if (!netif_is_bridge_master(upper) &&
+-		    !netif_is_lag_master(upper)) {
+-			NL_SET_ERR_MSG_MOD(extack, "Unknown upper device type");
+-			return -EINVAL;
+-		}
 -
--			if (!netif_is_bridge_port(upper_dev))
--				break;
--			if (info->linking)
--				break;
--			br_dev = netdev_master_upper_dev_get(upper_dev);
--			mlxsw_sp_port_bridge_leave(mlxsw_sp_port, upper_dev,
--						   br_dev);
-+		} else if (is_vlan_dev(upper_dev) && !info->linking) {
-+			mlxsw_sp_port_vlan_leave(mlxsw_sp_port, upper_dev);
- 		}
+-		if (!info->linking)
+-			break;
+-
+-		if (netdev_has_any_upper_dev(upper)) {
+-			NL_SET_ERR_MSG_MOD(extack, "Upper device is already enslaved");
+-			return -EINVAL;
+-		}
++		err = prestera_prechangeupper_sanity_checks(dev, upper, info,
++							    extack);
++		if (err)
++			return err;
+ 
+-		if (netif_is_lag_master(upper) &&
+-		    !prestera_lag_master_check(upper, info->upper_info, extack))
+-			return -EOPNOTSUPP;
+-		if (netif_is_lag_master(upper) && vlan_uses_dev(dev)) {
+-			NL_SET_ERR_MSG_MOD(extack,
+-					   "Master device is a LAG master and port has a VLAN");
+-			return -EINVAL;
+-		}
+-		if (netif_is_lag_port(dev) && is_vlan_dev(upper) &&
+-		    !netif_is_lag_master(vlan_dev_real_dev(upper))) {
+-			NL_SET_ERR_MSG_MOD(extack,
+-					   "Can not put a VLAN on a LAG port");
+-			return -EINVAL;
+-		}
  		break;
- 	}
+ 
+ 	case NETDEV_CHANGEUPPER:
 -- 
 2.25.1
 
