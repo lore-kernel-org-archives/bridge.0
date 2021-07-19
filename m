@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=cTgRVDtghkxyZQfyDmHBQUQJXuRVf+/7cKDTFF5F3gU=;
- b=WApIw/si/Yd74Gfm/puLIoV+MV73/wft6KVqOYzzRSPaigvY6OpdaVlC/cS5RQ8q5B
- /+Pjjkuhd+hHdwGQp57T3/vu+DvRQhT8Nb90oqM+FgYkXYJgnRvqhNm39bD2J2Y26LJI
- jezveRuR3nPFvRjOfotkB8rp1Da62ymknwU+6Z6X15PO/0Yj6Xaqs0aCp0hLp82ruqPg
- 7UhyqUxAPvqgAdZH5xligAUF/n2Y/W3/UhVCLtj2WBoYETEy590Pb4pggKXgCf3gxVLQ
- 9Mgxd32atma7EiA2sROLHNjmmawK40+NYfjeqkQegss+sIZyjrBzPMox0h8di2X3DQh/
- ePmw==
+ bh=EsGNcxhUNDjpw3jd2PBLWZrFBrLemsllXRQ5T8XmNN4=;
+ b=i/+5sh9nbghabMKPFon1cWSeCuZG+3hzirZxIEbeq1aVY1aSNB5SD/64V/P2ljBLGj
+ 0TH9h9ViC9rx7AtbR6Qm6zLtvezcyoObd3p78GjXf9qjNBEhGhQUXPPccJhqqQhfmMF0
+ Jwn9N0TciYjAkDCYLaUcqZBplJ2qImSZw/AAzASnYHSf0/J6PgO83rWzKlK6YsRP+w6t
+ cpXI0KrJ9WGHHSDfelz0EEaQ27mPxsBBE7T/HDHHwiUrBN1QacUTEBrH8YbGEmYJCREw
+ C12qyBEEbRl6jPth9ZX2gFrxRXqgSonPBxkFsfaI9fbQx4ePhtX6GjTqQpayA9JC7uP/
+ g2AA==
 References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
- <20210718214434.3938850-7-vladimir.oltean@nxp.com>
+ <20210718214434.3938850-6-vladimir.oltean@nxp.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <d4ee8b6c-d171-9b7d-130b-d244de756cfe@gmail.com>
-Date: Sun, 18 Jul 2021 19:17:52 -0700
+Message-ID: <df6e4013-31e4-39f6-3c40-52a897b3b723@gmail.com>
+Date: Sun, 18 Jul 2021 19:20:34 -0700
 MIME-Version: 1.0
-In-Reply-To: <20210718214434.3938850-7-vladimir.oltean@nxp.com>
+In-Reply-To: <20210718214434.3938850-6-vladimir.oltean@nxp.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4 net-next 06/15] net: switchdev: guard
- drivers against multiple obj replays on same bridge port
+Subject: Re: [Bridge] [PATCH v4 net-next 05/15] net: marvell: prestera:
+ refactor prechangeupper sanity checks
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,11 +35,8 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, 
 
 
 On 7/18/2021 2:44 PM, Vladimir Oltean wrote:
-> Prepare the drivers which support LAG offload but don't have support for
-> switchdev object replay yet, i.e. the mlxsw and prestera drivers, to
-> deal with bridge switchdev objects being replayed on the LAG bridge port
-> multiple times, once for each time a physical port beneath the LAG calls
-> switchdev_bridge_port_offload().
+> In preparation of adding more code to the NETDEV_PRECHANGEUPPER handler,
+> move the existing sanity checks into a dedicated function.
 > 
 > Cc: Vadym Kochan <vkochan@marvell.com>
 > Cc: Taras Chornyi <tchornyi@marvell.com>
