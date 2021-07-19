@@ -1,26 +1,25 @@
-Return-Path: <f.fainelli@gmail.com>
+Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=aoEErOZcjbmHWVyzLSCzQUjB6elXDaTEJvEABHsrA1M=;
- b=bzvxh2eiwKELuviYlOC1eGgVdhFqWCsqPbiUXmpkLc0D1ZacxIwLvPrxY8Fp7R5m5N
- ttgFG+u4izjrVKW92j7JDSkyzhUS88RHmNMS5mSCDWaiDcIaZMlrgNaO90mxBxBWEe58
- YjI56tfnQwEjPpweuWe1b1228SZXkGJPkCEqX1VD3P1H7b0Dtxy4rSNq6qdyEVfVuM9I
- bqlyGVb+S/8bVlXftiLUAbT1agg7toIjPSz70zEZFndGxumwEDS4gceMXXdiDWGY6MXD
- MX3fDo+LcPHlh+Q0Tt3tkJVIsq80h+umUkUg/If5lGkQM+e1iStBT8DTQMS564KoW5+6
- 3v2w==
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=wM1rb/gmdPeOZ6FJpFaplJnOYR4K1cm0jlU1hEXr38s=;
+ b=KATtogEFo9OqXImI3C/eS7sxD8mDnUTjCyBuXvJf6hjAcSw+ClT4A2jfaGzJExvEPp
+ SzsnIyRLX58g9zPXkg5SRLHfmX0az2cusXDoadf4JjBO93QCysHE2fFHzUg90FYYH80S
+ j3arLrmaGV9xPRfxLXrRGFYicOQK6CB4urRCjocPJtIxPg4BfteRRJUn7B4pWxKZHE4/
+ w6+I7NY3l+7BbbNv0Xx7gvKXp5GWgjhP1xVShzFsHkrJnum3z7Ral5ARsnCTByYXFhni
+ hSl0dPxMls/gKvT1cTeTOAtDEdFMdk008bEQNBDnvtLhfn9mS5VCuOX49Xh4t02Jkzdk
+ l52g==
+Date: Mon, 19 Jul 2021 10:22:51 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20210719072251.encyen5fbln6z6je@skbuf>
 References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
- <20210718214434.3938850-13-vladimir.oltean@nxp.com>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <42519a8c-65e8-34c6-6513-21e115b08005@gmail.com>
-Date: Sun, 18 Jul 2021 19:54:11 -0700
+ <20210718214434.3938850-12-vladimir.oltean@nxp.com>
 MIME-Version: 1.0
-In-Reply-To: <20210718214434.3938850-13-vladimir.oltean@nxp.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4 net-next 12/15] net: dsa: track the number
- of switches in a tree
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210718214434.3938850-12-vladimir.oltean@nxp.com>
+Subject: Re: [Bridge] [PATCH v4 net-next 11/15] net: bridge: switchdev:
+ allow the TX data plane forwarding to be offloaded
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,33 +28,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Lunn <andrew@lunn.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Marek Behun <kabel@blackhole.sk>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Marek Behun <kabel@blackhole.sk>, "David S. Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
+On Mon, Jul 19, 2021 at 12:44:30AM +0300, Vladimir Oltean wrote:
+>  static int nbp_switchdev_add(struct net_bridge_port *p,
+>  			     struct netdev_phys_item_id ppid,
+> +			     bool tx_fwd_offload,
+>  			     struct netlink_ext_ack *extack)
+>  {
+> +	int err;
+> +
+>  	if (p->offload_count) {
+>  		/* Prevent unsupported configurations such as a bridge port
+>  		 * which is a bonding interface, and the member ports are from
+> @@ -189,7 +228,16 @@ static int nbp_switchdev_add(struct net_bridge_port *p,
+>  	p->ppid = ppid;
+>  	p->offload_count = 1;
+>  
+> -	return nbp_switchdev_hwdom_set(p);
+> +	err = nbp_switchdev_hwdom_set(p);
+> +	if (err)
+> +		return err;
+> +
+> +	if (tx_fwd_offload) {
+> +		p->flags |= BR_TX_FWD_OFFLOAD;
+> +		static_branch_inc(&br_switchdev_fwd_offload_used);
+> +	}
+> +
+> +	return 0;
+>  }
+>  
+>  static void nbp_switchdev_del(struct net_bridge_port *p,
+> @@ -210,6 +258,8 @@ static void nbp_switchdev_del(struct net_bridge_port *p,
+>  
+>  	if (p->hwdom)
+>  		nbp_switchdev_hwdom_put(p);
+> +
+> +	p->flags &= ~BR_TX_FWD_OFFLOAD;
+>  }
 
-
-On 7/18/2021 2:44 PM, Vladimir Oltean wrote:
-> In preparation of supporting data plane forwarding on behalf of a
-> software bridge, some drivers might need to view bridges as virtual
-> switches behind the CPU port in a cross-chip topology.
-> 
-> Give them some help and let them know how many physical switches there
-> are in the tree, so that they can count the virtual switches starting
-> from that number on.
-> 
-> Note that the first dsa_switch_ops method where this information is
-> reliably available is .setup(). This is because of how DSA works:
-> in a tree with 3 switches, each calling dsa_register_switch(), the first
-> 2 will advance until dsa_tree_setup() -> dsa_tree_setup_routing_table()
-> and exit with error code 0 because the topology is not complete. Since
-> probing is parallel at this point, one switch does not know about the
-> existence of the other. Then the third switch comes, and for it,
-> dsa_tree_setup_routing_table() returns complete = true. This switch goes
-> ahead and calls dsa_tree_setup_switches() for everybody else, calling
-> their .setup() methods too. This acts as the synchronization point.
-> 
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Not the end of the world, but the static_branch_dec(&br_switchdev_fwd_offload_used)
+was lost here in a rebase. Not a functional issue per se, but it is on
+my list of things I would like to fix when I resend.
