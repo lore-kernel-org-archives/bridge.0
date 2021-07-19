@@ -1,21 +1,16 @@
-Return-Path: <ioana.ciornei@nxp.com>
+Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=kDk7iu4bU+NNj8YO6A31AIaqXeSoGpD6DvY+AqknM9Y=;
- b=KO6iAO0Tr3WDYHA4G7HCGJeI/tQzfAKVzLXrwKw/RJEP7CGDr2XGi2XF85vEAeCpeC0BP0HqnEriVkTR5OUYSxL0uZTnkPnm7YWgEq5HaSS6lGulC1YB/czZtKYOM3FRhplPUWDtZpvZuo8dAFuCi3dn3P8pxE3T7goTRPrkaK4=
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
-Date: Mon, 19 Jul 2021 09:26:26 +0000
-Message-ID: <20210719092625.tnbgghblfqiwtrwl@skbuf>
-References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
- <20210718214434.3938850-11-vladimir.oltean@nxp.com>
-In-Reply-To: <20210718214434.3938850-11-vladimir.oltean@nxp.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <F50B7B1BB8BB4E40956FFE541EF2452A@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+ bh=c7o9J0S8l6x7vFeL6vC550cfCfB16mSIdMYzy3heZZg=;
+ b=eBDgd1rBiL0/6p9WrSRSfuE66FnPYQ0kTrBRf7Yci2s5V820egX/jPvgSoQWavza8itXMZaSximwkgTfeKbJe4drfRVTqlWDIt5UHG41mCfIMda1yyamjAlMaQpvOoUT+LOzV6PsjIXJjIyO93j8jpMqFu/ZTxz8ljQYkkFQizo=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Mon, 19 Jul 2021 12:39:16 +0300
+Message-Id: <20210719093916.4099032-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH v4 net-next 10/15] net: bridge: switchdev
- object replay helpers for everybody
+Subject: [Bridge] [PATCH net] net: bridge: do not replay fdb entries
+	pointing towards the bridge twice
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,117 +19,80 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Ido Schimmel <idosch@idosch.org>, Marek Behun <kabel@blackhole.sk>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Steen Hegelund <Steen.Hegelund@microchip.com>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Jiri Pirko <jiri@resnulli.us>, Vadym Kochan <vkochan@marvell.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, Lars Povlsen <lars.povlsen@microchip.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>, Taras Chornyi <tchornyi@marvell.com>, Tobias Waldekranz <tobias@waldekranz.com>
+To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-On Mon, Jul 19, 2021 at 12:44:29AM +0300, Vladimir Oltean wrote:
-> Starting with commit 4f2673b3a2b6 ("net: bridge: add helper to replay
-> port and host-joined mdb entries"), DSA has introduced some bridge
-> helpers that replay switchdev events (FDB/MDB/VLAN additions and
-> deletions) that can be lost by the switchdev drivers in a variety of
-> circumstances:
->=20
-> - an IP multicast group was host-joined on the bridge itself before any
->   switchdev port joined the bridge, leading to the host MDB entries
->   missing in the hardware database.
-> - during the bridge creation process, the MAC address of the bridge was
->   added to the FDB as an entry pointing towards the bridge device
->   itself, but with no switchdev ports being part of the bridge yet, this
->   local FDB entry would remain unknown to the switchdev hardware
->   database.
-> - a VLAN/FDB/MDB was added to a bridge port that is a LAG interface,
->   before any switchdev port joined that LAG, leading to the hardware
->   database missing those entries.
-> - a switchdev port left a LAG that is a bridge port, while the LAG
->   remained part of the bridge, and all FDB/MDB/VLAN entries remained
->   installed in the hardware database of the switchdev port.
->=20
-> Also, since commit 0d2cfbd41c4a ("net: bridge: ignore switchdev events
-> for LAG ports which didn't request replay"), DSA introduced a method,
-> based on a const void *ctx, to ensure that two switchdev ports under the
-> same LAG that is a bridge port do not see the same MDB/VLAN entry being
-> replayed twice by the bridge, once for every bridge port that joins the
-> LAG.
->=20
-> With so many ordering corner cases being possible, it seems unreasonable
-> to expect a switchdev driver writer to get it right from the first try.
-> Therefore, now that we are past the beta testing period for the bridge
-> replay helpers used in DSA only, it is time to roll them out to all
-> switchdev drivers.
->=20
-> To convert the switchdev object replay helpers from "pull mode" (where
-> the driver asks for them) to a "push mode" (where the bridge offers them
-> automatically), the biggest problem is that the bridge needs to be aware
-> when a switchdev port joins and leaves, even when the switchdev is only
-> indirectly a bridge port (for example when the bridge port is a LAG
-> upper of the switchdev).
->=20
-> Luckily, we already have a hook for that, in the form of the newly
-> introduced switchdev_bridge_port_offload() and
-> switchdev_bridge_port_unoffload() calls. These offer a natural place for
-> hooking the object addition and deletion replays.
->=20
-> Extend the above 2 functions with:
-> - pointers to the switchdev atomic notifier (for FDB replays) and the
->   blocking notifier (for MDB and VLAN replays).
-> - the "const void *ctx" argument required for drivers to be able to
->   disambiguate between which port is targeted, when multiple ports are
->   lowers of the same LAG that is a bridge port. Most of the drivers pass
->   NULL to this argument, except the ones that support LAG offload and hav=
-e
->   the proper context check already in place in the switchdev blocking
->   notifier handler.
->=20
-> am65_cpsw and cpsw had the same name for the switchdev notifiers, so I
-> renamed the am65_cpsw ones with an am65_ prefix.
->=20
-> Also unexport the replay helpers, since nobody except the bridge calls
-> them directly now.
->=20
-> Note that:
-> (a) we abuse the terminology slightly, because FDB entries are not
->     "switchdev objects", but we count them as objects nonetheless.
->     With no direct way to prove it, I think they are not modeled as
->     switchdev objects because those can only be installed by the bridge
->     to the hardware (as opposed to FDB entries which can be propagated
->     in the other direction too). This is merely an abuse of terms, FDB
->     entries are replayed too, despite not being objects.
-> (b) the bridge does not attempt to sync port attributes to newly joined
->     ports, just the countable stuff (the objects). The reason for this
->     is simple: no universal and symmetric way to sync and unsync them is
->     known. For example, VLAN filtering: what to do on unsync, disable or
->     leave it enabled? Similarly, STP state, ageing timer, etc etc. What
->     a switchdev port does when it becomes standalone again is not really
->     up to the bridge's competence, and the driver should deal with it.
->     On the other hand, replaying deletions of switchdev objects can be
->     seen a matter of cleanup and therefore be treated by the bridge,
->     hence this patch.
-> (c) I do not expect a lot of functional change introduced for drivers in
->     this patch, because:
->     - nbp_vlan_init() is called _after_ netdev_master_upper_dev_link(),
->       so br_vlan_replay() should not do anything for the new drivers on
->       which we call it. The existing drivers where there was even a
->       slight possibility for there to exist a VLAN on a bridge port
->       before they join it are already guarded against this: mlxsw and
->       prestera deny joining LAG interfaces that are members of a bridge.
->     - br_fdb_replay() should now notify of local FDB entries, but I
->       patched all drivers except DSA to ignore these new entries in
->       commit 2c4eca3ef716 ("net: bridge: switchdev: include local flag
->       in FDB notifications"). Driver authors can lift this restriction
->       as they wish.
->     - br_mdb_replay() should now fix the issue described in commit
->       2c4eca3ef716 ("net: bridge: switchdev: include local flag in FDB
->       notifications") for all drivers, I don't see any downside.
->=20
-> Cc: Vadym Kochan <vkochan@marvell.com>
-> Cc: Taras Chornyi <tchornyi@marvell.com>
-> Cc: Ioana Ciornei <ioana.ciornei@nxp.com>
-> Cc: Lars Povlsen <lars.povlsen@microchip.com>
-> Cc: Steen Hegelund <Steen.Hegelund@microchip.com>
-> Cc: UNGLinuxDriver@microchip.com
-> Cc: Claudiu Manoil <claudiu.manoil@nxp.com>
-> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+This simple script:
 
-Acked-by: Ioana Ciornei <ioana.ciornei@nxp.com> # dpaa2-switch
+ip link add br0 type bridge
+ip link set swp2 master br0
+ip link set br0 address 00:01:02:03:04:05
+ip link del br0
+
+produces this result on a DSA switch:
+
+[  421.306399] br0: port 1(swp2) entered blocking state
+[  421.311445] br0: port 1(swp2) entered disabled state
+[  421.472553] device swp2 entered promiscuous mode
+[  421.488986] device swp2 left promiscuous mode
+[  421.493508] br0: port 1(swp2) entered disabled state
+[  421.886107] sja1105 spi0.1: port 1 failed to delete 00:01:02:03:04:05 vid 1 from fdb: -ENOENT
+[  421.894374] sja1105 spi0.1: port 1 failed to delete 00:01:02:03:04:05 vid 0 from fdb: -ENOENT
+[  421.943982] br0: port 1(swp2) entered blocking state
+[  421.949030] br0: port 1(swp2) entered disabled state
+[  422.112504] device swp2 entered promiscuous mode
+
+A very simplified view of what happens is:
+
+(1) the bridge port is created, and the bridge device inherits its MAC
+    address
+
+(2) when joining, the bridge port (DSA) requests a replay of the
+    addition of all FDB entries towards this bridge port and towards the
+    bridge device itself. In fact, DSA calls br_fdb_replay() twice:
+
+	br_fdb_replay(br, brport_dev);
+	br_fdb_replay(br, br);
+
+    DSA uses reference counting for the FDB entries. So the MAC address
+    of the bridge is simply kept with refcount 2. When the bridge port
+    leaves under normal circumstances, everything cancels out since the
+    replay of the FDB entry deletion is also done twice per VLAN.
+
+(3) when the bridge MAC address changes, switchdev is notified of the
+    deletion of the old address and of the insertion of the new one.
+    But the old address does not really go away, since it had refcount
+    2, and the new address is added "only" with refcount 1.
+
+(4) when the bridge port leaves now, it will replay a deletion of the
+    FDB entries pointing towards the bridge twice. Then DSA will
+    complain that it can't delete something that no longer exists.
+
+It is clear that the problem is that the FDB entries towards the bridge
+are replayed too many times, so let's fix that problem.
+
+Fixes: 63c51453c82c ("net: dsa: replay the local bridge FDB entries pointing to the bridge dev too")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+Reverting the blamed commit would have worked just as fine, but I prefer
+to do it this way to avoid conflicts between "net" and "net-next".
+
+ net/bridge/br_fdb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 2b862cffc03a..a16191dcaed1 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -780,7 +780,7 @@ int br_fdb_replay(const struct net_device *br_dev, const struct net_device *dev,
+ 		struct net_device *dst_dev;
+ 
+ 		dst_dev = dst ? dst->dev : br->dev;
+-		if (dst_dev != br_dev && dst_dev != dev)
++		if (dst_dev && dst_dev != dev)
+ 			continue;
+ 
+ 		err = br_fdb_replay_one(nb, fdb, dst_dev, action, ctx);
+-- 
+2.25.1
+
