@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=jibvRJ8x4gDFYeeL7+2QzukIzWDDAy7tWepHyOMPSYk=;
- b=WmzljnzfdyCKejRVwaGUTWf32CFVrEe05Hp/D3gKkNwRLzGfz5I2l3tw6eQbc4NgTr
- +B7WFDq93w/dbGeQWaoLroU4EwWddE/Scvdk09ShsO3fS1+SCSOHiYBvm92eRG/vjwy6
- HgfGFB8GGLrzwzuUfLOdXC1B3fux4Vc5ljWM/CDnUStO+0cLMjz/eJbRyh8s1Z/QcQSr
- IQx858KvB/hHrsYxFGFwC46i/pppFrZDHH4bE+2OoczE7ZRTlTQxlHx9i96g3XfQ7p9m
- 7ErdnFXVMDI1F66a8bvOZreteFp/MOVfknYym74WMcQJm7RicSF0FkVWmgZoh5wura9B
- 5zKg==
+ bh=jNyhd+T/9d9anCSoGKOeiOQZUa2KbCVT/Y/R829odA0=;
+ b=kd/pME7pXs/YdCnqRxrbKWW2Gqhh4kDLHBsOyRE8A6RrQ4YCNnLEY8zQpEReVUMEL6
+ 32d7JKq2Ik57CpKb5yj4J4ir46O6OlRuw9a6txjY/gXQebtX/JQ2Z/eK/AbTzyixQH46
+ 9QD+WkAvH6nzjE6vnvHWZly7cMi1PYLIL5Cg7ulFOQ/R1DmyQ7nljIXBOP7c9nz+YJNT
+ jtgmuguBRRu1PVkqPcaxNOUFMxrYm2T1yTZfFxQhsCvdrgoriH6lC2XZSuB3mHqSmAu1
+ QnzJHTH5fYBIaafDUTK60wUDyyHCWKcE94NDgNHr7mCrA7D3dMTAhbbDIrFeKX+W1AAO
+ jLNw==
 References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
- <20210718214434.3938850-12-vladimir.oltean@nxp.com>
+ <20210718214434.3938850-16-vladimir.oltean@nxp.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <d81cf0d4-3680-8f87-63ba-d2d843394d5b@gmail.com>
-Date: Sun, 18 Jul 2021 19:43:23 -0700
+Message-ID: <7c2b81e8-db72-4665-fe81-7254cba1e797@gmail.com>
+Date: Sun, 18 Jul 2021 19:47:22 -0700
 MIME-Version: 1.0
-In-Reply-To: <20210718214434.3938850-12-vladimir.oltean@nxp.com>
+In-Reply-To: <20210718214434.3938850-16-vladimir.oltean@nxp.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4 net-next 11/15] net: bridge: switchdev:
- allow the TX data plane forwarding to be offloaded
+Subject: Re: [Bridge] [PATCH v4 net-next 15/15] net: dsa: tag_dsa: offload
+ the bridge forwarding process
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,49 +37,17 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, 
 On 7/18/2021 2:44 PM, Vladimir Oltean wrote:
 > From: Tobias Waldekranz <tobias@waldekranz.com>
 > 
-> Allow switchdevs to forward frames from the CPU in accordance with the
-> bridge configuration in the same way as is done between bridge
-> ports. This means that the bridge will only send a single skb towards
-> one of the ports under the switchdev's control, and expects the driver
-> to deliver the packet to all eligible ports in its domain.
-> 
-> Primarily this improves the performance of multicast flows with
-> multiple subscribers, as it allows the hardware to perform the frame
-> replication.
-> 
-> The basic flow between the driver and the bridge is as follows:
-> 
-> - When joining a bridge port, the switchdev driver calls
->    switchdev_bridge_port_offload() with tx_fwd_offload = true.
-> 
-> - The bridge sends offloadable skbs to one of the ports under the
->    switchdev's control using skb->offload_fwd_mark = true.
-> 
-> - The switchdev driver checks the skb->offload_fwd_mark field and lets
->    its FDB lookup select the destination port mask for this packet.
-> 
-> v1->v2:
-> - convert br_input_skb_cb::fwd_hwdoms to a plain unsigned long
-> - introduce a static key "br_switchdev_fwd_offload_used" to minimize the
->    impact of the newly introduced feature on all the setups which don't
->    have hardware that can make use of it
-> - introduce a check for nbp->flags & BR_FWD_OFFLOAD to optimize cache
->    line access
-> - reorder nbp_switchdev_frame_mark_accel() and br_handle_vlan() in
->    __br_forward()
-> - do not strip VLAN on egress if forwarding offload on VLAN-aware bridge
->    is being used
-> - propagate errors from .ndo_dfwd_add_station() if not EOPNOTSUPP
-> 
-> v2->v3:
-> - replace the solution based on .ndo_dfwd_add_station with a solution
->    based on switchdev_bridge_port_offload
-> - rename BR_FWD_OFFLOAD to BR_TX_FWD_OFFLOAD
-> v3->v4: rebase
+> Allow the DSA tagger to generate FORWARD frames for offloaded skbs
+> sent from a bridge that we offload, allowing the switch to handle any
+> frame replication that may be required. This also means that source
+> address learning takes place on packets sent from the CPU, meaning
+> that return traffic no longer needs to be flooded as unknown unicast.
 > 
 > Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+This looks pretty complicated to but if this is how it has to work, it 
+has to. For tag_brcm.c we can simply indicate that the frame to be 
+transmitted should have a specific bitmask of egress ports.
 -- 
 Florian
