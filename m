@@ -1,18 +1,22 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=i+wlcFQmlttP1MyZSwz0f2uvGjTh91BntK9D0CsW3mk=;
- b=aQuHUCSKrboL8uyuzfSn8llHui/B5s9XMoi9zOl88bBfrdcbgd0G9piKg0mjtyxpViAe0GzI5VUuWjj/oZPJBK/rpD4HnjBmagiwAMioT4wc0h+Vl+G5bPqdOPN7EJkVU17a3utMJvgGDf4okPcKJpmE076VNLF7e5KLwiFFt4I=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 19 Jul 2021 16:51:40 +0300
-Message-Id: <20210719135140.278938-4-vladimir.oltean@nxp.com>
-In-Reply-To: <20210719135140.278938-1-vladimir.oltean@nxp.com>
-References: <20210719135140.278938-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=hCwCFJ1+trCTxtyY5c2JV6920R4rE/IWrnFMqMl4GWo=;
+ b=YzzyiOCo0H8SkPJ2eAjW8nucLWYg0LWlYhln2BRJaBlR3kkC+zsL0nAGG7Wn476dIE
+ mVJgrjVfMaWt4d2l5AeTRkwjHle82IwiASWbNrvFUr0QIARBsYiRFP5K+49RDslxd8Rs
+ PI+6a/8d8ZpAFsBWJuSVCvuSg/3gT2SH9ap6Dy55Ku2Wa6dqJYXj5+Q8XEUs8N+UlmWB
+ PZ+KZVrApWnk/8HcMHqyakEOLM1jj/OKJBmag5ZsV24HTUSUQ6vjPNb3QLXjRgL1yPrn
+ MkMF/nABewbQYF/Je4+8/illMSOMde8WhrMv08ZrrefMuz7/oa0GNPRklNgxOmQ19P8u
+ ZN9g==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Mon, 19 Jul 2021 20:06:22 +0300
+Message-Id: <20210719170637.435541-1-razor@blackwall.org>
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 3/3] net: dsa: use
-	switchdev_handle_fdb_{add, del}_to_device
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 00/15] net: bridge: multicast: add vlan
+	support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,310 +25,149 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
 
-Using the new fan-out helper for FDB entries installed on the software
-bridge, we can install host addresses with the proper refcount on the
-CPU port, such that this case:
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-ip link set swp0 master br0
-ip link set swp1 master br0
-ip link set swp2 master br0
-ip link set swp3 master br0
-ip link set br0 address 00:01:02:03:04:05
-ip link set swp3 nomaster
+Hi all,
+This patchset adds initial per-vlan multicast support, most of the code
+deals with moving to multicast context pointers from bridge/port pointers.
+That allows us to switch them with the per-vlan contexts when a multicast
+packet is being processed and vlan multicast snooping has been enabled.
+That is controlled by a global bridge option added in patch 06 which is
+off by default (BR_BOOLOPT_MCAST_VLAN_SNOOPING). It is important to note
+that this option can change only under RTNL and doesn't require
+multicast_lock, so we need to be careful when retrieving mcast contexts
+in parallel. For packet processing they are switched only once in
+br_multicast_rcv() and then used until the packet has been processed.
+For the most part we need these contexts only to read config values and
+check if they are disabled. The global mcast state which is maintained
+consists of querier and router timers, the rest are config options.
+The port mcast state which is maintained consists of query timer and
+link to router port list if it's ever marked as a router port. Port
+multicast contexts _must_ be used only with their respective global
+contexts, that is a bridge port's mcast context must be used only with
+bridge's global mcast context and a vlan/port's mcast context must be
+used only with that vlan's global mcast context due to the router port
+lists. This way a bridge port can be marked as a router in multiple
+vlans, but might not be a router in some other vlan. Also this allows us
+to have per-vlan querier elections, per-vlan queries and basically the
+whole multicast state becomes per-vlan when the option is enabled.
+One of the hardest parts is synchronization with vlan's memory
+management, that is done through a new vlan flag: BR_VLFLAG_MCAST_ENABLED
+which is changed only under multicast_lock. When a vlan is being
+destroyed first that flag is removed under the lock, then the multicast
+context is torn down which includes waiting for any outstanding context
+timers. Since all of the vlan processing depends on BR_VLFLAG_MCAST_ENABLED
+it must be checked first if the contexts are vlan and the multicast_lock
+has been acquired. That is done by all IGMP/MLD packet processing
+functions and timers. When processing a packet we have RCU so the vlan
+memory won't be freed, but if the flag is missing we must not process it.
+The timers are synchronized in the same way with the addition of waiting
+for them to finish in case they are running after removing the flag
+under multicast_lock (i.e. they were waiting for the lock). Multicast vlan
+snooping requires vlan filtering to be enabled, if it's disabled then
+snooping gets automatically disabled, too. BR_VLFLAG_GLOBAL_MCAST_ENABLED
+controls if a vlan has BR_VLFLAG_MCAST_ENABLED set which is used in all
+vlan disabled checks. We need both flags because one is controlled by
+user-space globally (BR_VLFLAG_GLOBAL_MCAST_ENABLED) and the other is
+for a particular bridge/vlan or port/vlan entry (BR_VLFLAG_MCAST_ENABLED).
+Since the latter is also used for synchronization between the multicast
+and vlan code, and also controlled by BR_VLFLAG_GLOBAL_MCAST_ENABLED we
+rely on it when checking if a vlan context is disabled. The multicast
+fast-path has 3 new bit tests on the cache-hot bridge flags field, I
+didn't observe any measurable difference. I haven't forced either
+context options to be always disabled when the other type is enabled
+because the state consists of timers which either expire (router) or
+don't affect the normal operation. Some options, like the mcast querier
+one, won't be allowed to change for the disabled context type, that will
+come with a future patch-set which adds per-vlan querier control.
 
-works properly and the br0 address remains installed as a host entry
-with refcount 3 instead of getting deleted.
+Another important addition is the global vlan options, so far we had
+only per bridge/port vlan options but in order to control vlan multicast
+snooping globally we need to add a new type of global vlan options.
+They can be changed only on the bridge device and are dumped only when a
+special flag is set in the dump request. The first global option is vlan
+mcast snooping control, it controls the vlan BR_VLFLAG_GLOBAL_MCAST_ENABLED
+private flag. It can be set only on master vlan entries. There will be
+many more global vlan options in the future both for multicast config
+and other per-vlan options (e.g. STP).
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- net/dsa/dsa_priv.h |  19 ++++-
- net/dsa/slave.c    | 199 ++++++++++++++++++++++-----------------------
- 2 files changed, 113 insertions(+), 105 deletions(-)
+There's a lot of room for improvements, I'll do some of the initial
+ones but splitting the state to different contexts opens the door
+for a lot more. Also any new multicast options become vlan-supported with
+very little to no effort by using the same contexts.
 
-diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-index f201c33980bf..e4b2e9f2a020 100644
---- a/net/dsa/dsa_priv.h
-+++ b/net/dsa/dsa_priv.h
-@@ -256,13 +256,13 @@ void dsa_port_hsr_leave(struct dsa_port *dp, struct net_device *hsr);
- extern const struct phylink_mac_ops dsa_port_phylink_mac_ops;
- 
- static inline bool dsa_port_offloads_bridge_port(struct dsa_port *dp,
--						 struct net_device *dev)
-+						 const struct net_device *dev)
- {
- 	return dsa_port_to_bridge_port(dp) == dev;
- }
- 
- static inline bool dsa_port_offloads_bridge(struct dsa_port *dp,
--					    struct net_device *bridge_dev)
-+					    const struct net_device *bridge_dev)
- {
- 	/* DSA ports connected to a bridge, and event was emitted
- 	 * for the bridge.
-@@ -272,7 +272,7 @@ static inline bool dsa_port_offloads_bridge(struct dsa_port *dp,
- 
- /* Returns true if any port of this tree offloads the given net_device */
- static inline bool dsa_tree_offloads_bridge_port(struct dsa_switch_tree *dst,
--						 struct net_device *dev)
-+						 const struct net_device *dev)
- {
- 	struct dsa_port *dp;
- 
-@@ -283,6 +283,19 @@ static inline bool dsa_tree_offloads_bridge_port(struct dsa_switch_tree *dst,
- 	return false;
- }
- 
-+/* Returns true if any port of this tree offloads the given bridge */
-+static inline bool dsa_tree_offloads_bridge(struct dsa_switch_tree *dst,
-+					    const struct net_device *bridge_dev)
-+{
-+	struct dsa_port *dp;
-+
-+	list_for_each_entry(dp, &dst->ports, list)
-+		if (dsa_port_offloads_bridge(dp, bridge_dev))
-+			return true;
-+
-+	return false;
-+}
-+
- /* slave.c */
- extern const struct dsa_device_ops notag_netdev_ops;
- extern struct notifier_block dsa_slave_switchdev_notifier;
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index feb64f58faed..22ce11cd770e 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -2353,26 +2353,98 @@ static void dsa_slave_switchdev_event_work(struct work_struct *work)
- 	kfree(switchdev_work);
- }
- 
--static int dsa_lower_dev_walk(struct net_device *lower_dev,
--			      struct netdev_nested_priv *priv)
-+static bool dsa_foreign_dev_check(const struct net_device *dev,
-+				  const struct net_device *foreign_dev)
- {
--	if (dsa_slave_dev_check(lower_dev)) {
--		priv->data = (void *)netdev_priv(lower_dev);
--		return 1;
--	}
-+	const struct dsa_port *dp = dsa_slave_to_port(dev);
-+	struct dsa_switch_tree *dst = dp->ds->dst;
- 
--	return 0;
-+	if (netif_is_bridge_master(foreign_dev))
-+		return !dsa_tree_offloads_bridge(dst, foreign_dev);
-+
-+	if (netif_is_bridge_port(foreign_dev))
-+		return !dsa_tree_offloads_bridge_port(dst, foreign_dev);
-+
-+	/* Everything else is foreign */
-+	return true;
- }
- 
--static struct dsa_slave_priv *dsa_slave_dev_lower_find(struct net_device *dev)
-+static int dsa_slave_fdb_event(struct net_device *dev,
-+			       const struct net_device *orig_dev,
-+			       const void *ctx,
-+			       const struct switchdev_notifier_fdb_info *fdb_info,
-+			       unsigned long event)
- {
--	struct netdev_nested_priv priv = {
--		.data = NULL,
--	};
-+	struct dsa_switchdev_event_work *switchdev_work;
-+	struct dsa_port *dp = dsa_slave_to_port(dev);
-+	bool host_addr = fdb_info->is_local;
-+	struct dsa_switch *ds = dp->ds;
-+
-+	if (ctx && ctx != dp)
-+		return 0;
-+
-+	if (!ds->ops->port_fdb_add || !ds->ops->port_fdb_del)
-+		return -EOPNOTSUPP;
-+
-+	if (dsa_slave_dev_check(orig_dev) &&
-+	    switchdev_fdb_is_dynamically_learned(fdb_info))
-+		return 0;
-+
-+	/* FDB entries learned by the software bridge should be installed as
-+	 * host addresses only if the driver requests assisted learning.
-+	 */
-+	if (switchdev_fdb_is_dynamically_learned(fdb_info) &&
-+	    !ds->assisted_learning_on_cpu_port)
-+		return 0;
-+
-+	/* Also treat FDB entries on foreign interfaces bridged with us as host
-+	 * addresses.
-+	 */
-+	if (dsa_foreign_dev_check(dev, orig_dev))
-+		host_addr = true;
-+
-+	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
-+	if (!switchdev_work)
-+		return -ENOMEM;
-+
-+	netdev_dbg(dev, "%s FDB entry towards %s, addr %pM vid %d%s\n",
-+		   event == SWITCHDEV_FDB_ADD_TO_DEVICE ? "Adding" : "Deleting",
-+		   orig_dev->name, fdb_info->addr, fdb_info->vid,
-+		   host_addr ? " as host address" : "");
- 
--	netdev_walk_all_lower_dev_rcu(dev, dsa_lower_dev_walk, &priv);
-+	INIT_WORK(&switchdev_work->work, dsa_slave_switchdev_event_work);
-+	switchdev_work->ds = ds;
-+	switchdev_work->port = dp->index;
-+	switchdev_work->event = event;
-+	switchdev_work->dev = dev;
- 
--	return (struct dsa_slave_priv *)priv.data;
-+	ether_addr_copy(switchdev_work->addr, fdb_info->addr);
-+	switchdev_work->vid = fdb_info->vid;
-+	switchdev_work->host_addr = host_addr;
-+
-+	/* Hold a reference for dsa_fdb_offload_notify */
-+	dev_hold(dev);
-+	dsa_schedule_work(&switchdev_work->work);
-+
-+	return 0;
-+}
-+
-+static int
-+dsa_slave_fdb_add_to_device(struct net_device *dev,
-+			    const struct net_device *orig_dev, const void *ctx,
-+			    const struct switchdev_notifier_fdb_info *fdb_info)
-+{
-+	return dsa_slave_fdb_event(dev, orig_dev, ctx, fdb_info,
-+				   SWITCHDEV_FDB_ADD_TO_DEVICE);
-+}
-+
-+static int
-+dsa_slave_fdb_del_to_device(struct net_device *dev,
-+			    const struct net_device *orig_dev, const void *ctx,
-+			    const struct switchdev_notifier_fdb_info *fdb_info)
-+{
-+	return dsa_slave_fdb_event(dev, orig_dev, ctx, fdb_info,
-+				   SWITCHDEV_FDB_DEL_TO_DEVICE);
- }
- 
- /* Called under rcu_read_lock() */
-@@ -2380,10 +2452,6 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
- 				     unsigned long event, void *ptr)
- {
- 	struct net_device *dev = switchdev_notifier_info_to_dev(ptr);
--	const struct switchdev_notifier_fdb_info *fdb_info;
--	struct dsa_switchdev_event_work *switchdev_work;
--	bool host_addr = false;
--	struct dsa_port *dp;
- 	int err;
- 
- 	switch (event) {
-@@ -2393,92 +2461,19 @@ static int dsa_slave_switchdev_event(struct notifier_block *unused,
- 						     dsa_slave_port_attr_set);
- 		return notifier_from_errno(err);
- 	case SWITCHDEV_FDB_ADD_TO_DEVICE:
-+		err = switchdev_handle_fdb_add_to_device(dev, ptr,
-+							 dsa_slave_dev_check,
-+							 dsa_foreign_dev_check,
-+							 dsa_slave_fdb_add_to_device,
-+							 NULL);
-+		return notifier_from_errno(err);
- 	case SWITCHDEV_FDB_DEL_TO_DEVICE:
--		fdb_info = ptr;
--
--		if (dsa_slave_dev_check(dev)) {
--			dp = dsa_slave_to_port(dev);
--
--			if (fdb_info->is_local)
--				host_addr = true;
--			else if (!fdb_info->added_by_user)
--				return NOTIFY_OK;
--		} else {
--			/* Snoop addresses added to foreign interfaces
--			 * bridged with us, or the bridge
--			 * itself. Dynamically learned addresses can
--			 * also be added for switches that don't
--			 * automatically learn SA from CPU-injected
--			 * traffic.
--			 */
--			struct net_device *br_dev;
--			struct dsa_slave_priv *p;
--
--			if (netif_is_bridge_master(dev))
--				br_dev = dev;
--			else
--				br_dev = netdev_master_upper_dev_get_rcu(dev);
--
--			if (!br_dev)
--				return NOTIFY_DONE;
--
--			if (!netif_is_bridge_master(br_dev))
--				return NOTIFY_DONE;
--
--			p = dsa_slave_dev_lower_find(br_dev);
--			if (!p)
--				return NOTIFY_DONE;
--
--			dp = p->dp;
--			host_addr = fdb_info->is_local;
--
--			/* FDB entries learned by the software bridge should
--			 * be installed as host addresses only if the driver
--			 * requests assisted learning.
--			 * On the other hand, FDB entries for local termination
--			 * should always be installed.
--			 */
--			if (switchdev_fdb_is_dynamically_learned(fdb_info) &&
--			    !dp->ds->assisted_learning_on_cpu_port)
--				return NOTIFY_DONE;
--
--			/* When the bridge learns an address on an offloaded
--			 * LAG we don't want to send traffic to the CPU, the
--			 * other ports bridged with the LAG should be able to
--			 * autonomously forward towards it.
--			 * On the other hand, if the address is local
--			 * (therefore not learned) then we want to trap it to
--			 * the CPU regardless of whether the interface it
--			 * belongs to is offloaded or not.
--			 */
--			if (dsa_tree_offloads_bridge_port(dp->ds->dst, dev) &&
--			    !fdb_info->is_local)
--				return NOTIFY_DONE;
--		}
--
--		if (!dp->ds->ops->port_fdb_add || !dp->ds->ops->port_fdb_del)
--			return NOTIFY_DONE;
--
--		switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
--		if (!switchdev_work)
--			return NOTIFY_BAD;
--
--		INIT_WORK(&switchdev_work->work,
--			  dsa_slave_switchdev_event_work);
--		switchdev_work->ds = dp->ds;
--		switchdev_work->port = dp->index;
--		switchdev_work->event = event;
--		switchdev_work->dev = dev;
--
--		ether_addr_copy(switchdev_work->addr,
--				fdb_info->addr);
--		switchdev_work->vid = fdb_info->vid;
--		switchdev_work->host_addr = host_addr;
--
--		/* Hold a reference for dsa_fdb_offload_notify */
--		dev_hold(dev);
--		dsa_schedule_work(&switchdev_work->work);
--		break;
-+		err = switchdev_handle_fdb_del_to_device(dev, ptr,
-+							 dsa_slave_dev_check,
-+							 dsa_foreign_dev_check,
-+							 dsa_slave_fdb_del_to_device,
-+							 NULL);
-+		return notifier_from_errno(err);
- 	default:
- 		return NOTIFY_DONE;
- 	}
+Short patch description:
+  patches 01-04: initial mcast context add, no functional changes
+  patch      05: adds vlan mcast init and control helpers and uses them on
+                 vlan create/destroy
+  patch      06: adds a global bridge mcast vlan snooping knob (default
+                 off)
+  patches 07-08: add a helper for users which must derive the contexts
+                 based on current bridge and vlan options (e.g. timers)
+  patch      09: adds checks for disabled vlan contexts in packet
+                 processing and timers
+  patch      10: adds support for per-vlan querier and tagged queries
+  patch      11: adds router port vlan id in the notifications
+  patches 12-14: add global vlan options support (change, dump, notify)
+  patch      15: adds per-vlan global mcast snooping control
+
+Future patch-sets which build on this one (in order):
+ - vlan state mcast handling
+ - user-space mdb contexts (currently only the bridge contexts are used
+   there)
+ - all bridge multicast config options added per-vlan global and per
+   vlan/port
+ - iproute2 support for all the new uAPIs
+ - selftests
+
+This set has been stress-tested (deleting/adding ports/vlans while changing
+vlan mcast snooping while processing IGMP/MLD packets), and also has
+passed all bridge self-tests. I'm sending this set as early as possible
+since there're a few more related sets that should go in the same
+release to get proper and full mcast vlan snooping support.
+
+Thanks,
+ Nik
+
+Nikolay Aleksandrov (15):
+  net: bridge: multicast: factor out port multicast context
+  net: bridge: multicast: factor out bridge multicast context
+  net: bridge: multicast: use multicast contexts instead of bridge or
+    port
+  net: bridge: vlan: add global and per-port multicast context
+  net: bridge: multicast: add vlan state initialization and control
+  net: bridge: add vlan mcast snooping knob
+  net: bridge: multicast: add helper to get port mcast context from port
+    group
+  net: bridge: multicast: use the port group to port context helper
+  net: bridge: multicast: check if should use vlan mcast ctx
+  net: bridge: multicast: add vlan querier and query support
+  net: bridge: multicast: include router port vlan id in notifications
+  net: bridge: vlan: add support for global options
+  net: bridge: vlan: add support for dumping global vlan options
+  net: bridge: vlan: notify when global options change
+  net: bridge: vlan: add mcast snooping control
+
+ include/uapi/linux/if_bridge.h    |   18 +
+ net/bridge/br.c                   |    9 +-
+ net/bridge/br_device.c            |   14 +-
+ net/bridge/br_forward.c           |    7 +-
+ net/bridge/br_input.c             |   17 +-
+ net/bridge/br_mdb.c               |   64 +-
+ net/bridge/br_multicast.c         | 1656 ++++++++++++++++++-----------
+ net/bridge/br_multicast_eht.c     |   92 +-
+ net/bridge/br_netlink.c           |   41 +-
+ net/bridge/br_private.h           |  355 +++++--
+ net/bridge/br_private_mcast_eht.h |    3 +-
+ net/bridge/br_sysfs_br.c          |   38 +-
+ net/bridge/br_sysfs_if.c          |    2 +-
+ net/bridge/br_vlan.c              |   85 +-
+ net/bridge/br_vlan_options.c      |  216 ++++
+ 15 files changed, 1791 insertions(+), 826 deletions(-)
+
 -- 
-2.25.1
+2.31.1
 
