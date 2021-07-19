@@ -2,25 +2,25 @@ Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=T4ERkVqJZcwb9mf7YWlUyzp+3vyVmdMQC/BK4sjX73w=;
- b=vdhQbeqMeu5Oj0KMv2kIJcn5mjbmuTwDk/tRFXMAF7M0o8XLBjKPzj8Yx6uAAlQncz
- I7ik6Di1US+9Ul/KYgmFHa1eCB862EDGbz4RY9wYGHd/F1642e5/uRvgi9d21HYjA+b3
- KaEVSQ+Ah5U+ffBcwwbF9xY8akNAM2ywNVKQAdJnxew+PpNsVUfAE3s4acsYplIRa/QR
- 4+xtLT/pWbLGbzNGwfkL9AStdGQIZ5jJstUtf2UbLCRy9h23uRNVscsFsptZMUVrs34T
- d6Y4X8d4QUBNw+9lc4VwXwZcYxr/CEGX8s53Crw99lQ4Y040ke1jkNMuYjQ+Rq7pBxgs
- yyvw==
+ bh=jibvRJ8x4gDFYeeL7+2QzukIzWDDAy7tWepHyOMPSYk=;
+ b=WmzljnzfdyCKejRVwaGUTWf32CFVrEe05Hp/D3gKkNwRLzGfz5I2l3tw6eQbc4NgTr
+ +B7WFDq93w/dbGeQWaoLroU4EwWddE/Scvdk09ShsO3fS1+SCSOHiYBvm92eRG/vjwy6
+ HgfGFB8GGLrzwzuUfLOdXC1B3fux4Vc5ljWM/CDnUStO+0cLMjz/eJbRyh8s1Z/QcQSr
+ IQx858KvB/hHrsYxFGFwC46i/pppFrZDHH4bE+2OoczE7ZRTlTQxlHx9i96g3XfQ7p9m
+ 7ErdnFXVMDI1F66a8bvOZreteFp/MOVfknYym74WMcQJm7RicSF0FkVWmgZoh5wura9B
+ 5zKg==
 References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
- <20210718214434.3938850-8-vladimir.oltean@nxp.com>
+ <20210718214434.3938850-12-vladimir.oltean@nxp.com>
 From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <4191ea0a-09ce-d52f-f40e-2d680ef4b9ca@gmail.com>
-Date: Sun, 18 Jul 2021 19:26:45 -0700
+Message-ID: <d81cf0d4-3680-8f87-63ba-d2d843394d5b@gmail.com>
+Date: Sun, 18 Jul 2021 19:43:23 -0700
 MIME-Version: 1.0
-In-Reply-To: <20210718214434.3938850-8-vladimir.oltean@nxp.com>
+In-Reply-To: <20210718214434.3938850-12-vladimir.oltean@nxp.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4 net-next 07/15] net: bridge: disambiguate
- offload_fwd_mark
+Subject: Re: [Bridge] [PATCH v4 net-next 11/15] net: bridge: switchdev:
+ allow the TX data plane forwarding to be offloaded
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,77 +37,48 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, 
 On 7/18/2021 2:44 PM, Vladimir Oltean wrote:
 > From: Tobias Waldekranz <tobias@waldekranz.com>
 > 
-> Before this change, four related - but distinct - concepts where named
-> offload_fwd_mark:
+> Allow switchdevs to forward frames from the CPU in accordance with the
+> bridge configuration in the same way as is done between bridge
+> ports. This means that the bridge will only send a single skb towards
+> one of the ports under the switchdev's control, and expects the driver
+> to deliver the packet to all eligible ports in its domain.
 > 
-> - skb->offload_fwd_mark: Set by the switchdev driver if the underlying
->    hardware has already forwarded this frame to the other ports in the
->    same hardware domain.
+> Primarily this improves the performance of multicast flows with
+> multiple subscribers, as it allows the hardware to perform the frame
+> replication.
 > 
-> - nbp->offload_fwd_mark: An idetifier used to group ports that share
->    the same hardware forwarding domain.
+> The basic flow between the driver and the bridge is as follows:
 > 
-> - br->offload_fwd_mark: Counter used to make sure that unique IDs are
->    used in cases where a bridge contains ports from multiple hardware
->    domains.
+> - When joining a bridge port, the switchdev driver calls
+>    switchdev_bridge_port_offload() with tx_fwd_offload = true.
 > 
-> - skb->cb->offload_fwd_mark: The hardware domain on which the frame
->    ingressed and was forwarded.
+> - The bridge sends offloadable skbs to one of the ports under the
+>    switchdev's control using skb->offload_fwd_mark = true.
 > 
-> Introduce the term "hardware forwarding domain" ("hwdom") in the
-> bridge to denote a set of ports with the following property:
+> - The switchdev driver checks the skb->offload_fwd_mark field and lets
+>    its FDB lookup select the destination port mask for this packet.
 > 
->      If an skb with skb->offload_fwd_mark set, is received on a port
->      belonging to hwdom N, that frame has already been forwarded to all
->      other ports in hwdom N.
+> v1->v2:
+> - convert br_input_skb_cb::fwd_hwdoms to a plain unsigned long
+> - introduce a static key "br_switchdev_fwd_offload_used" to minimize the
+>    impact of the newly introduced feature on all the setups which don't
+>    have hardware that can make use of it
+> - introduce a check for nbp->flags & BR_FWD_OFFLOAD to optimize cache
+>    line access
+> - reorder nbp_switchdev_frame_mark_accel() and br_handle_vlan() in
+>    __br_forward()
+> - do not strip VLAN on egress if forwarding offload on VLAN-aware bridge
+>    is being used
+> - propagate errors from .ndo_dfwd_add_station() if not EOPNOTSUPP
 > 
-> By decoupling the name from "offload_fwd_mark", we can extend the
-> term's definition in the future - e.g. to add constraints that
-> describe expected egress behavior - without overloading the meaning of
-> "offload_fwd_mark".
-> 
-> - nbp->offload_fwd_mark thus becomes nbp->hwdom.
-> 
-> - br->offload_fwd_mark becomes br->last_hwdom.
-> 
-> - skb->cb->offload_fwd_mark becomes skb->cb->src_hwdom. The slight
->    change in naming here mandates a slight change in behavior of the
->    nbp_switchdev_frame_mark() function. Previously, it only set this
->    value in skb->cb for packets with skb->offload_fwd_mark true (ones
->    which were forwarded in hardware). Whereas now we always track the
->    incoming hwdom for all packets coming from a switchdev (even for the
->    packets which weren't forwarded in hardware, such as STP BPDUs, IGMP
->    reports etc). As all uses of skb->cb->offload_fwd_mark were already
->    gated behind checks of skb->offload_fwd_mark, this will not introduce
->    any functional change, but it paves the way for future changes where
->    the ingressing hwdom must be known for frames coming from a switchdev
->    regardless of whether they were forwarded in hardware or not
->    (basically, if the skb comes from a switchdev, skb->cb->src_hwdom now
->    always tracks which one).
-> 
->    A typical example where this is relevant: the switchdev has a fixed
->    configuration to trap STP BPDUs, but STP is not running on the bridge
->    and the group_fwd_mask allows them to be forwarded. Say we have this
->    setup:
-> 
->          br0
->         / | \
->        /  |  \
->    swp0 swp1 swp2
-> 
->    A BPDU comes in on swp0 and is trapped to the CPU; the driver does not
->    set skb->offload_fwd_mark. The bridge determines that the frame should
->    be forwarded to swp{1,2}. It is imperative that forward offloading is
->    _not_ allowed in this case, as the source hwdom is already "poisoned".
-> 
->    Recording the source hwdom allows this case to be handled properly.
-> 
-> v2->v3: added code comments
-> v3->v4: none
+> v2->v3:
+> - replace the solution based on .ndo_dfwd_add_station with a solution
+>    based on switchdev_bridge_port_offload
+> - rename BR_FWD_OFFLOAD to BR_TX_FWD_OFFLOAD
+> v3->v4: rebase
 > 
 > Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
 
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
