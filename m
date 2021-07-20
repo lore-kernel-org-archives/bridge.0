@@ -1,25 +1,24 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=WWdVTBpkXpCkzjS8MZKauwExseyl+0vHSz3Ttw3XI78=;
- b=HYqB/RtMKvhnSct/pRiblvvLVjNZundUrBFnyuEgaqprWGrqqEoaAyCUhIu6gT6DFN
- g066L/ReLq/bpE1Sp+/+vJyKGz9k6Ey4aBsIqtrXgr2n/Y5gYPFfpQ/3DuLKNsU/5Q8O
- woN9aYsDvZ7p/3AlA0QL3FYYDgZZPxQgiVFpe1n9w+edX2hxAu7JXKRP5eDatqVca/18
- hQSlUSBJ/ZOAn3KvZziH+TSaUKyO7ob7BIYL0ye1lcaZiG0Tj2d+I3Nqg6zaBNz5LM8S
- YIuqpY/x9bBG9o8q80PfQs3pDnwVJ0Q79L6rrDj3gKHaTxoEeWJYfdre66l+IH4My6/X
- dQbg==
-Date: Tue, 20 Jul 2021 16:20:26 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20210720132026.mpk3iq3z6vmmzxyd@skbuf>
-References: <20210718214434.3938850-1-vladimir.oltean@nxp.com>
- <YPaybQZE8l6mRE2l@shredder>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1626787810;
+ bh=pM/Z7xBX0awLX5qAZcCmzltz6LpWjzPsabVIVtiP95Q=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=Ni2DTwoP6Nf5/sChghNv1vY3uySkuw3zo5pRp0xjh/8A39SuWOGg84LcrCGs48eWU
+ vpkjN+OgjTruPbG3+4Kfs9C2TuBap3RKtc+DFxSXjDpxFD1sraEK00AU4GeEHi3cIj
+ +OcfndnVE0QN1k54MKka5BaTjNaRQvk/3Iuistsf4kgV9k8sptVKIzIpFTikUIQtNY
+ 1m82TNBj3j0esP4Xma+AQ9BnuAQYTGqhtggkHRB8/mdkiULksIQI28omo2Fcgo7gsW
+ 1UoEaYmUD8j1+i/HNJ7HzoqS8kib1txRUK35J7KOUEU7GX27qOqu5Cz87npkvXslOu
+ pOwGPojp/WKoQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YPaybQZE8l6mRE2l@shredder>
-Subject: Re: [Bridge] [PATCH v4 net-next 00/15] Allow forwarding for the
- software bridge data path to be offloaded to capable devices
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162678781035.19709.7575566902962912080.git-patchwork-notify@kernel.org>
+Date: Tue, 20 Jul 2021 13:30:10 +0000
+References: <20210719170637.435541-1-razor@blackwall.org>
+In-Reply-To: <20210719170637.435541-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next 00/15] net: bridge: multicast: add
+	vlan support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,47 +27,107 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Vladimir Oltean <vladimir.oltean@nxp.com>, Ioana Ciornei <ioana.ciornei@nxp.com>, Marek Behun <kabel@blackhole.sk>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Steen Hegelund <Steen.Hegelund@microchip.com>, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Jiri Pirko <jiri@resnulli.us>, Vadym Kochan <vkochan@marvell.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, Lars Povlsen <lars.povlsen@microchip.com>, netdev@vger.kernel.org, UNGLinuxDriver@microchip.com, Taras Chornyi <tchornyi@marvell.com>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
 
-On Tue, Jul 20, 2021 at 02:24:29PM +0300, Ido Schimmel wrote:
-> Too many things are squashed into this one patchset. It needs to be
-> split.
->
-> The TX forwarding offload in mv88e6xxx is not related to the replay
-> stuff and should be added in a separate patchset. This can be done by
-> first adding the switchdev_bridge_port_offload() /
-> switchdev_bridge_port_unoffload() APIs that only take care of setting /
-> unsetting the hardware domain for the bridge port. Then, in a different
-> patchset, these APIs can be augmented with a parameter for the replay
-> stuff. It should be easier to review that way and require less
-> unnecessary surgeries in drivers that do not require the added
-> functionality.
+Hello:
 
-Fair point. I will submit patches 1-10 and 11-15 separately.
+This series was applied to netdev/net-next.git (refs/heads/master):
 
-> According to the title, the patchset is focused on improving
-> performance, but there are no performance numbers that I could see and
-> most of the patches deal with the replay stuff instead.
+On Mon, 19 Jul 2021 20:06:22 +0300 you wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Hi all,
+> This patchset adds initial per-vlan multicast support, most of the code
+> deals with moving to multicast context pointers from bridge/port pointers.
+> That allows us to switch them with the per-vlan contexts when a multicast
+> packet is being processed and vlan multicast snooping has been enabled.
+> That is controlled by a global bridge option added in patch 06 which is
+> off by default (BR_BOOLOPT_MCAST_VLAN_SNOOPING). It is important to note
+> that this option can change only under RTNL and doesn't require
+> multicast_lock, so we need to be careful when retrieving mcast contexts
+> in parallel. For packet processing they are switched only once in
+> br_multicast_rcv() and then used until the packet has been processed.
+> For the most part we need these contexts only to read config values and
+> check if they are disabled. The global mcast state which is maintained
+> consists of querier and router timers, the rest are config options.
+> The port mcast state which is maintained consists of query timer and
+> link to router port list if it's ever marked as a router port. Port
+> multicast contexts _must_ be used only with their respective global
+> contexts, that is a bridge port's mcast context must be used only with
+> bridge's global mcast context and a vlan/port's mcast context must be
+> used only with that vlan's global mcast context due to the router port
+> lists. This way a bridge port can be marked as a router in multiple
+> vlans, but might not be a router in some other vlan. Also this allows us
+> to have per-vlan querier elections, per-vlan queries and basically the
+> whole multicast state becomes per-vlan when the option is enabled.
+> One of the hardest parts is synchronization with vlan's memory
+> management, that is done through a new vlan flag: BR_VLFLAG_MCAST_ENABLED
+> which is changed only under multicast_lock. When a vlan is being
+> destroyed first that flag is removed under the lock, then the multicast
+> context is torn down which includes waiting for any outstanding context
+> timers. Since all of the vlan processing depends on BR_VLFLAG_MCAST_ENABLED
+> it must be checked first if the contexts are vlan and the multicast_lock
+> has been acquired. That is done by all IGMP/MLD packet processing
+> functions and timers. When processing a packet we have RCU so the vlan
+> memory won't be freed, but if the flag is missing we must not process it.
+> The timers are synchronized in the same way with the addition of waiting
+> for them to finish in case they are running after removing the flag
+> under multicast_lock (i.e. they were waiting for the lock). Multicast vlan
+> snooping requires vlan filtering to be enabled, if it's disabled then
+> snooping gets automatically disabled, too. BR_VLFLAG_GLOBAL_MCAST_ENABLED
+> controls if a vlan has BR_VLFLAG_MCAST_ENABLED set which is used in all
+> vlan disabled checks. We need both flags because one is controlled by
+> user-space globally (BR_VLFLAG_GLOBAL_MCAST_ENABLED) and the other is
+> for a particular bridge/vlan or port/vlan entry (BR_VLFLAG_MCAST_ENABLED).
+> Since the latter is also used for synchronization between the multicast
+> and vlan code, and also controlled by BR_VLFLAG_GLOBAL_MCAST_ENABLED we
+> rely on it when checking if a vlan context is disabled. The multicast
+> fast-path has 3 new bit tests on the cache-hot bridge flags field, I
+> didn't observe any measurable difference. I haven't forced either
+> context options to be always disabled when the other type is enabled
+> because the state consists of timers which either expire (router) or
+> don't affect the normal operation. Some options, like the mcast querier
+> one, won't be allowed to change for the disabled context type, that will
+> come with a future patch-set which adds per-vlan querier control.
+> 
+> [...]
 
-Maybe, but the truth is that it is not really the performance
-improvement that I care about. The performance quote is from Tobias'
-original cover letter, which I took as-is. I can build a synthetic test
-for multicasting on 10 mv88e6xxx ports or something like that, or maybe
-Tobias can provide a more relevant example out of Westermo's use cases.
-But it would be silly if this patchset's acceptance would depend on the
-numbers. This is one of those cases where completely different interests
-led me and Tobias to the the same solution.
+Here is the summary with links:
+  - [net-next,01/15] net: bridge: multicast: factor out port multicast context
+    https://git.kernel.org/netdev/net-next/c/9632233e7de8
+  - [net-next,02/15] net: bridge: multicast: factor out bridge multicast context
+    https://git.kernel.org/netdev/net-next/c/d3d065c0032b
+  - [net-next,03/15] net: bridge: multicast: use multicast contexts instead of bridge or port
+    https://git.kernel.org/netdev/net-next/c/adc47037a7d5
+  - [net-next,04/15] net: bridge: vlan: add global and per-port multicast context
+    https://git.kernel.org/netdev/net-next/c/613d61dbef8e
+  - [net-next,05/15] net: bridge: multicast: add vlan state initialization and control
+    https://git.kernel.org/netdev/net-next/c/7b54aaaf53cb
+  - [net-next,06/15] net: bridge: add vlan mcast snooping knob
+    https://git.kernel.org/netdev/net-next/c/f4b7002a7076
+  - [net-next,07/15] net: bridge: multicast: add helper to get port mcast context from port group
+    https://git.kernel.org/netdev/net-next/c/74edfd483de8
+  - [net-next,08/15] net: bridge: multicast: use the port group to port context helper
+    https://git.kernel.org/netdev/net-next/c/eb1593a0b4c4
+  - [net-next,09/15] net: bridge: multicast: check if should use vlan mcast ctx
+    https://git.kernel.org/netdev/net-next/c/4cdd0d10f31d
+  - [net-next,10/15] net: bridge: multicast: add vlan querier and query support
+    https://git.kernel.org/netdev/net-next/c/615cc23e6283
+  - [net-next,11/15] net: bridge: multicast: include router port vlan id in notifications
+    https://git.kernel.org/netdev/net-next/c/1e9ca45662d6
+  - [net-next,12/15] net: bridge: vlan: add support for global options
+    https://git.kernel.org/netdev/net-next/c/47ecd2dbd8ec
+  - [net-next,13/15] net: bridge: vlan: add support for dumping global vlan options
+    https://git.kernel.org/netdev/net-next/c/743a53d9636a
+  - [net-next,14/15] net: bridge: vlan: notify when global options change
+    https://git.kernel.org/netdev/net-next/c/9aba624d7cb2
+  - [net-next,15/15] net: bridge: vlan: add mcast snooping control
+    https://git.kernel.org/netdev/net-next/c/9dee572c3848
 
-I don't want to bore you to death with details, but for some switches
-(DSA or otherwise), being able to send bridge packets as they are (data
-plane packets) instead of what they aren't (control plane packets) is a
-matter of functionality and not performance. Such switches only use
-control plane packets for link-local packet traps, and sending/receiving
-a control packet is expensive.
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-For this class of switches (some may call them "dumb", but whatever),
-this patch series makes the difference between supporting and not
-supporting local IP termination through a VLAN-aware bridge, bridging
-with a foreign interface, bridging with software upper interfaces like
-LAG, etc.
+
