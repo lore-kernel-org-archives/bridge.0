@@ -1,24 +1,21 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1626790205;
- bh=QHPi1SgHTJ+jVsXJuZMmsL5Frcd/QclJHG3SP/hUrmI=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=f9Ss/cYPiIqd0kwgavL8JGXr/iJ0Hubg74x08cT2HRgshNIQOUzBzbnlsnYnFM4Eo
- X6W1BEE3paPlTBefsC/hmjSEtbye9LfFhKYfFbiDEuTuVVghG7rP9bD3cuFzctmOBt
- 16SWDjarBbhdA/X2dGNICH7ZI3iEpJK4lyqHjWpeczFSCk/ItuhoiCo6Hc+am937jf
- BwkcK0twzsrlwsnyXDseSxnFGpoL96ctOc5Yd3ClizcyMs9EbH+n2QGUWc3xvhUuyA
- RxISjH+NACMO7Q5oVng58dDjyGjHjVHb/5z6WkEln9qsjHilMMXPJRrEtB0hZxiSGA
- FjS9znfn7mcZQ==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0FtfHsUJ0xVo6mBSS0eqRxwObXBZjq/upNin70ySGYI=;
+ b=qFT8r5qs5R5dn1xb2pdtgllPZ7I3v5jBph5SVBcRVegWI4PEiWiWhSBU2p9RJJLbXmeslCxmH+v4sfKgcSaktLzuOXpSwGtZZm0eJwv8Kax/l6b9bQ8+zcEDhEFZXVuOoosL7IIdHzrFeRwryTLadA8rRFHTseRC5Fz7RA1kGmU=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Tue, 20 Jul 2021 14:12:01 +0000
+Message-ID: <20210720141200.xgk3mlipp2mzerjl@skbuf>
+References: <20210720134655.892334-1-vladimir.oltean@nxp.com>
+ <YPbXTKj4teQZ1QRi@shredder>
+In-Reply-To: <YPbXTKj4teQZ1QRi@shredder>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2DD482720318ED4397DBBD6260B0C006@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162679020560.11280.5860965048088740851.git-patchwork-notify@kernel.org>
-Date: Tue, 20 Jul 2021 14:10:05 +0000
-References: <20210719135140.278938-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20210719135140.278938-1-vladimir.oltean@nxp.com>
-Subject: Re: [Bridge] [PATCH net-next 0/3] Fan out FDB entries pointing
- towards the bridge to all switchdev member ports
+Subject: Re: [Bridge] [PATCH v5 net-next 00/10] Let switchdev drivers
+ offload and unoffload bridge ports at their own convenience
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,39 +24,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, dqfext@gmail.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net, tobias@waldekranz.com
+To: Ido Schimmel <idosch@idosch.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Vivien Didelot <vivien.didelot@gmail.com>, DENG Qingfang <dqfext@gmail.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Marek Behun <kabel@blackhole.sk>, "David S. Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Hello:
+On Tue, Jul 20, 2021 at 05:01:48PM +0300, Ido Schimmel wrote:
+> > The patches were split from a larger series for easier review:
+>=20
+> This is not what I meant. I specifically suggested to get the TX
+> forwarding offload first and then extending the API with an argument to
+> opt-in for the replay / cleanup:
 
-This series was applied to netdev/net-next.git (refs/heads/master):
+Yeah, ok, I did not get that and I had already reposted by the time you
+clarified, sorry.
 
-On Mon, 19 Jul 2021 16:51:37 +0300 you wrote:
-> The "DSA RX filtering" series has added some important support for
-> interpreting addresses towards the bridge device as host addresses and
-> installing them as FDB entries towards the CPU port, but it does not
-> cover all circumstances and needs further work.
-> 
-> To be precise, the mechanism introduced in that series only works as
-> long as the ports are fairly static and no port joins or leaves the
-> bridge once the configuration is done. If any port leaves, host FDB
-> entries that were installed during runtime (for example the user changes
-> the MAC address of the bridge device) will be prematurely deleted,
-> resulting in a broken setup.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next,1/3] net: switchdev: introduce helper for checking dynamically learned FDB entries
-    https://git.kernel.org/netdev/net-next/c/c6451cda100d
-  - [net-next,2/3] net: switchdev: introduce a fanout helper for SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE
-    https://git.kernel.org/netdev/net-next/c/8ca07176ab00
-  - [net-next,3/3] net: dsa: use switchdev_handle_fdb_{add,del}_to_device
-    https://git.kernel.org/netdev/net-next/c/b94dc99c0ddb
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Anyway, is it so bad that we cannot look at the patches in the order
+that they are in right now (even if this means that maybe a few more
+days would pass)? To me it makes a bit more sense anyway to first
+consolidate the code that is already in the tree right now, before
+adding new logic. And I don't really want to rebase the patches again to
+change the ordering and risk a build breakage without a good reason.=
