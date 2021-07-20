@@ -1,18 +1,18 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5NwT0Lcz2EF0/jNw7fQ1Gxfv28nsd+8u+Xgwk9fQA94=;
- b=NdohlsnPhkPFoBu6eKUCcWEZpug758hCBlWARd45qZZO8JDWRRSGLPaX1mFa+kiWmktDz6P1ijh54xvvuBCOX2jPaihLU7hLgbMUCB7X1PFGPAfpjbIOQSoLgX3Tea5Lu6QHC28jGJBB/VuBx1nZX8J3bzMJdxeEim/DSbVqMhM=
+ bh=vBi/m/e9fTm98LFndmKnwMPNFVaW1NGhQCY9cnxGwhM=;
+ b=cCT851NTRm1GhX/3C0/+46MRVyQMRNK5yVju2SYzb6TZuzOfHjQq07DibOLuGV1acPpc8coHtAx0nPCOnsLKXqETCNGuZE63iHBA0hgEIzlKJtBl9ktTEgdV3LsUxPr7K593GIv0ehSsEZ5wtfAkOu6YhMYO41ax1OeJ+8+M03U=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue, 20 Jul 2021 16:46:49 +0300
-Message-Id: <20210720134655.892334-5-vladimir.oltean@nxp.com>
+Date: Tue, 20 Jul 2021 16:46:51 +0300
+Message-Id: <20210720134655.892334-7-vladimir.oltean@nxp.com>
 In-Reply-To: <20210720134655.892334-1-vladimir.oltean@nxp.com>
 References: <20210720134655.892334-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH v5 net-next 04/10] mlxsw: spectrum: refactor
-	leaving an 8021q upper that is a bridge port
+Subject: [Bridge] [PATCH v5 net-next 06/10] net: switchdev: guard drivers
+	against multiple obj replays on same bridge port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,65 +22,74 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Marek Behun <kabel@blackhole.sk>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, Vadym Kochan <vkochan@marvell.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Marek Behun <kabel@blackhole.sk>, Taras Chornyi <tchornyi@marvell.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-For symmetry with mlxsw_sp_port_lag_leave(), introduce a small function
-called mlxsw_sp_port_vlan_leave() which checks whether the 8021q upper
-we're leaving is a bridge port, and if it is, stop offloading that
-bridge too.
+Prepare the drivers which support LAG offload but don't have support for
+switchdev object replay yet, i.e. the mlxsw and prestera drivers, to
+deal with bridge switchdev objects being replayed on the LAG bridge port
+multiple times, once for each time a physical port beneath the LAG calls
+switchdev_bridge_port_offload().
 
+Cc: Vadym Kochan <vkochan@marvell.com>
+Cc: Taras Chornyi <tchornyi@marvell.com>
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
-v3->v4: patch is new
+v3->v4: squash mlxsw and prestera into a single patch
 v4->v5: none
 
- .../net/ethernet/mellanox/mlxsw/spectrum.c    | 25 +++++++++++--------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/marvell/prestera/prestera_switchdev.c | 6 ++++++
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c   | 6 ++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index c1b78878e5cf..b3d1fdc2d094 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -3994,6 +3994,19 @@ static void mlxsw_sp_port_ovs_leave(struct mlxsw_sp_port *mlxsw_sp_port)
- 	mlxsw_sp_port_vp_mode_set(mlxsw_sp_port, false);
- }
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
+index 0b3e8f2db294..a1fc4ab53ccf 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_switchdev.c
+@@ -1047,6 +1047,9 @@ static int prestera_port_obj_add(struct net_device *dev, const void *ctx,
+ 	struct prestera_port *port = netdev_priv(dev);
+ 	const struct switchdev_obj_port_vlan *vlan;
  
-+static void mlxsw_sp_port_vlan_leave(struct mlxsw_sp_port *mlxsw_sp_port,
-+				     struct net_device *vlan_dev)
-+{
-+	struct net_device *br_dev;
++	if (ctx && ctx != port)
++		return 0;
 +
-+	if (!netif_is_bridge_port(vlan_dev))
-+		return;
-+
-+	br_dev = netdev_master_upper_dev_get(vlan_dev);
-+
-+	mlxsw_sp_port_bridge_leave(mlxsw_sp_port, vlan_dev, br_dev);
-+}
-+
- static bool mlxsw_sp_bridge_has_multiple_vxlans(struct net_device *br_dev)
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
+@@ -1083,6 +1086,9 @@ static int prestera_port_obj_del(struct net_device *dev, const void *ctx,
  {
- 	unsigned int num_vxlans = 0;
-@@ -4225,16 +4238,8 @@ static int mlxsw_sp_netdevice_port_upper_event(struct net_device *lower_dev,
- 		} else if (netif_is_macvlan(upper_dev)) {
- 			if (!info->linking)
- 				mlxsw_sp_rif_macvlan_del(mlxsw_sp, upper_dev);
--		} else if (is_vlan_dev(upper_dev)) {
--			struct net_device *br_dev;
--
--			if (!netif_is_bridge_port(upper_dev))
--				break;
--			if (info->linking)
--				break;
--			br_dev = netdev_master_upper_dev_get(upper_dev);
--			mlxsw_sp_port_bridge_leave(mlxsw_sp_port, upper_dev,
--						   br_dev);
-+		} else if (is_vlan_dev(upper_dev) && !info->linking) {
-+			mlxsw_sp_port_vlan_leave(mlxsw_sp_port, upper_dev);
- 		}
- 		break;
- 	}
+ 	struct prestera_port *port = netdev_priv(dev);
+ 
++	if (ctx && ctx != port)
++		return 0;
++
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		return prestera_port_vlans_del(port, SWITCHDEV_OBJ_PORT_VLAN(obj));
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 61911fed6aeb..5a0c7c94874e 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -1772,6 +1772,9 @@ static int mlxsw_sp_port_obj_add(struct net_device *dev, const void *ctx,
+ 	const struct switchdev_obj_port_vlan *vlan;
+ 	int err = 0;
+ 
++	if (ctx && ctx != mlxsw_sp_port)
++		return 0;
++
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
+@@ -1920,6 +1923,9 @@ static int mlxsw_sp_port_obj_del(struct net_device *dev, const void *ctx,
+ 	struct mlxsw_sp_port *mlxsw_sp_port = netdev_priv(dev);
+ 	int err = 0;
+ 
++	if (ctx && ctx != mlxsw_sp_port)
++		return 0;
++
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+ 		err = mlxsw_sp_port_vlans_del(mlxsw_sp_port,
 -- 
 2.25.1
 
