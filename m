@@ -1,23 +1,24 @@
-Return-Path: <kuba@kernel.org>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1626777876;
- bh=J4am9/bVVh/y4DpPyboBO49mcaLQLuHHpQ8U9G74tLM=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=GLafNpJFthhFofmm7KYcXWxJZ8kEW8iN5MLI/SE2NA6r0HtLmmoBpV3HURGhRWnbB
- h6r+J2co8OCnH11uB16ZdOSHJOGqPmb5HH5LSSWzXzyqihDtvF96i1U7AgVwiygyb4
- JatBw+Zkksw1rKKxRhKSpcpca4soppvBHGoEEnRIY8AiTa9+YiQuhwO77EWeLYNAKc
- dBewllbngb1F4G1CR/PUXrUfKoGCUh1DGhTkRHgAQ+TDf7+cVJ3tvm42aME8I2PpbU
- lNdTCWUx6ZppCbkV8I7jExAG+jM7w/jQZ8q0Evspkip4O+uwDChCr3rl1Wks0ViBu6
- 5G8TV2uXPUOUg==
-Date: Tue, 20 Jul 2021 12:44:27 +0200
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20210720124427.6b4e05a8@cakuba>
-In-Reply-To: <20210719122158.5037-1-yajun.deng@linux.dev>
-References: <20210719122158.5037-1-yajun.deng@linux.dev>
+ s=k20201202; t=1626780005;
+ bh=bjCSTDsNnZcM6Rf4+njSyX2tnJwMT/TUdE6nL7Hn3mM=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=LURPow1Brmq+EUDGnp0EepLdaA+525NP7HRJgQWy0TzfzbiWkOKdBK9vMnQdigL/c
+ KOyB2Tn8qM1MMZW+Ivy7ZeUgLcHyj4kbEM8wlOjghQAMY4lpWWo14hj/xW9Lrd5VJP
+ 3mUhcwslbN/Tdb+5VuvkVTZXoCl1CwUNHUMrN+zp3iQSalpz/arLX5rLg5HTu70Rex
+ ROmk07Yxx534punF6Nk38RiYfgBSTDqORPA9RFAco1XM4SYrOWRwaTL9W2dMEoqiUz
+ F36K8MOXjXeQUb5PdU78siOa9xTFb1sbbx4+qa0I9mRl/mXIDsv5up4vwEllxlOCFc
+ UAh+nsutWgOaA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH 0/4] Remove rtnetlink_send() in rtnetlink
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162678000558.21231.2477207642313158352.git-patchwork-notify@kernel.org>
+Date: Tue, 20 Jul 2021 11:20:05 +0000
+References: <20210719093916.4099032-1-vladimir.oltean@nxp.com>
+In-Reply-To: <20210719093916.4099032-1-vladimir.oltean@nxp.com>
+Subject: Re: [Bridge] [PATCH net] net: bridge: do not replay fdb entries
+ pointing towards the bridge twice
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,24 +27,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Yajun Deng <yajun.deng@linux.dev>
-Cc: linux-decnet-user@lists.sourceforge.net, jiri@resnulli.us, xiyou.wangcong@gmail.com, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, dsahern@kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, jhs@mojatatu.com, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, courmisch@gmail.com, johannes@sipsolutions.net, davem@davemloft.net
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net, tobias@waldekranz.com
 
-On Mon, 19 Jul 2021 20:21:54 +0800, Yajun Deng wrote:
-> rtnetlink_send() is similar to rtnl_notify(), there is no need for two 
-> functions to do the same thing. we can remove rtnetlink_send() and 
-> modify rtnl_notify() to adapt more case.
->
-> Patch1: remove rtnetlink_send() modify rtnl_notify() to adapt 
-> more case in rtnetlink.
-> Path2,Patch3: Adjustment parameters in rtnl_notify().
-> Path4: rtnetlink_send() already removed, use rtnl_notify() instead 
-> of rtnetlink_send().
+Hello:
 
-You can't break compilation in between patches. Each step of the series
-(each patch) must be self-contained, build, and work correctly.
-Otherwise bisection becomes a nightmare.
+This patch was applied to netdev/net.git (refs/heads/master):
 
-Please also post series as a thread (patches in reply to the cover
-letter), it seems that patchwork did not group the patches correctly
-here.
+On Mon, 19 Jul 2021 12:39:16 +0300 you wrote:
+> This simple script:
+> 
+> ip link add br0 type bridge
+> ip link set swp2 master br0
+> ip link set br0 address 00:01:02:03:04:05
+> ip link del br0
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] net: bridge: do not replay fdb entries pointing towards the bridge twice
+    https://git.kernel.org/netdev/net/c/cbb56b03ec3f
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
