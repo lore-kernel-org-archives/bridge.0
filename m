@@ -1,26 +1,24 @@
-Return-Path: <f.fainelli@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=E8q+sxQ/OKWc9Yjv2NdwSWvKkf3e/JsO3sjkasoj5T4=;
- b=PFbCjhOF3i/Qih8MWpNpCV1WDr1IkD812JarIXVhPKFUS9GojJTTe9Laxl6eXH9Ox/
- lI5XNcYavP+RTWIGHN7tfcaET9UVWn70R26wRRPg0q6y1T5yr6QdY3wIghHroOC6Kw1V
- XGzivzeBTQU9Cn3p/4OYMqb115LRSNYarpmjRC4rgVLAeC8p2msJQ6SZN3OGyn8OwbAJ
- nsBXbx8ENY96O0ku0YZc9gJysN8/aiYyMetHRXBGhhTGlhIr4dhITRRQxTC5Mqt3uzkI
- 8QYa6s47awW6f9ZQT986o03QSi7re61pvRzgVt7aej4jGk64HrmMbl/BKbxU1oLw15an
- x+1w==
-References: <20210721162403.1988814-1-vladimir.oltean@nxp.com>
- <20210721162403.1988814-7-vladimir.oltean@nxp.com>
-From: Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <dce98c0f-5ec4-8a54-209e-7891d239fbc9@gmail.com>
-Date: Wed, 21 Jul 2021 09:27:31 -0700
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1626904204;
+ bh=8tkeDtxOoppgqWkTF5198Sw+Ha/XDXYFXWHjo7kC51c=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=EosbHorcyJdiBrK0nvFn+OI1sSzhF1iVW7RPE7hAMejgdzjOoqj90ZRCQfbGGF9wS
+ YQAVy5VtSPhXap6TvkZTuW9dFVUke8aDaZnhJeiUsEotaJ+u6KNHLJbiTZ2Y9A04hc
+ 5lPBPiAH/Q4yFZ5vO6mrBE4eYVof4Q5Nx+O9VamWC3mOg1Y+KG0TfwcyJoJ1g3Lzl1
+ Yipf/NZO0vDWVys3FU/IBMvviH98f+Th/ZH4mSmqsCkDeqZ6/UcciKZ6ywdR9vlIRR
+ ep5GJIFC1B9ObHjdPbKa649T3ycX1DJc+bWHw9ikRXc2wepRa87egeQBErjuHDiKo+
+ DUzKMRYqdIkBg==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210721162403.1988814-7-vladimir.oltean@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v6 net-next 6/7] net: bridge: guard the
- switchdev replay helpers against a NULL notifier block
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162690420436.1414.1687254067791597948.git-patchwork-notify@kernel.org>
+Date: Wed, 21 Jul 2021 21:50:04 +0000
+References: <20210721140127.773194-1-razor@blackwall.org>
+In-Reply-To: <20210721140127.773194-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next 0/2] net: bridge: multicast: add mdb
+ and host context support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,21 +27,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Lunn <andrew@lunn.ch>, Grygorii Strashko <grygorii.strashko@ti.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Marek Behun <kabel@blackhole.sk>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
 
-On 7/21/21 9:24 AM, Vladimir Oltean wrote:
-> There is a desire to make the object and FDB replay helpers optional
-> when moving them inside the bridge driver. For example a certain driver
-> might not offload host MDBs and there is no case where the replay
-> helpers would be of immediate use to it.
-> 
-> So it would be nice if we could allow drivers to pass NULL pointers for
-> the atomic and blocking notifier blocks, and the replay helpers to do
-> nothing in that case.
-> 
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Hello:
 
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+This series was applied to netdev/net-next.git (refs/heads/master):
+
+On Wed, 21 Jul 2021 17:01:25 +0300 you wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Hi,
+> This is a minor context improvement which chooses the proper multicast
+> context when adding user mdb entries or host-joined entries (pointing to
+> the bridge device). Patch 01 adds a helper which chooses the proper
+> context when user-space is adding an mdb entry, note that it requires
+> the vlan to be configured on at least 1 device (port or bridge) so it
+> would have a multicast context. Patch 02 changes br_multicast_host_join
+> to take a bridge multicast context parameter which is passed down from
+> the respective functions, currently it is used for the timer config
+> value only. This set is in preparation for adding all multicast options
+> for vlans.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,1/2] net: bridge: multicast: add mdb context support
+    https://git.kernel.org/netdev/net-next/c/6567cb438a51
+  - [net-next,2/2] net: bridge: multicast: add context support for host-joined groups
+    https://git.kernel.org/netdev/net-next/c/58d913a32664
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
