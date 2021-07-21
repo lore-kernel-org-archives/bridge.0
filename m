@@ -1,24 +1,16 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1626904204;
- bh=8tkeDtxOoppgqWkTF5198Sw+Ha/XDXYFXWHjo7kC51c=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=EosbHorcyJdiBrK0nvFn+OI1sSzhF1iVW7RPE7hAMejgdzjOoqj90ZRCQfbGGF9wS
- YQAVy5VtSPhXap6TvkZTuW9dFVUke8aDaZnhJeiUsEotaJ+u6KNHLJbiTZ2Y9A04hc
- 5lPBPiAH/Q4yFZ5vO6mrBE4eYVof4Q5Nx+O9VamWC3mOg1Y+KG0TfwcyJoJ1g3Lzl1
- Yipf/NZO0vDWVys3FU/IBMvviH98f+Th/ZH4mSmqsCkDeqZ6/UcciKZ6ywdR9vlIRR
- ep5GJIFC1B9ObHjdPbKa649T3ycX1DJc+bWHw9ikRXc2wepRa87egeQBErjuHDiKo+
- DUzKMRYqdIkBg==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qMlAATUQNoiSpSLH6nwNifBU3P3Yztf287tfE98zNq0=;
+ b=nL1BeQIi/hYAN11fQrVG/AhMjitSXPJ0/16oXxbAUFmZG6jAnYMBEZjYFC/Qw4AAF4oSKfLjN19bikHsXsImzDI0hKJORBHgLriUVGM0+xzy360z8J7IN4/b+IdxiA168V5p5qA7TPSnuYyJ/3ccZb5tjObf0rzlqLQFZOSXtTo=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Thu, 22 Jul 2021 02:05:55 +0300
+Message-Id: <20210721230555.2207542-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162690420436.1414.1687254067791597948.git-patchwork-notify@kernel.org>
-Date: Wed, 21 Jul 2021 21:50:04 +0000
-References: <20210721140127.773194-1-razor@blackwall.org>
-In-Reply-To: <20210721140127.773194-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next 0/2] net: bridge: multicast: add mdb
- and host context support
+Content-Type: text/plain
+MIME-Version: 1.0
+Subject: [Bridge] [PATCH net-next] net: switchdev: fix FDB entries towards
+	foreign ports not getting propagated to us
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,39 +19,324 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
+To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, DENG Qingfang <dqfext@gmail.com>, Eric Woudstra <ericwouds@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Hello:
+The newly introduced switchdev_handle_fdb_{add,del}_to_device helpers
+solved a problem but introduced another one. They have a severe design
+bug: they do not propagate FDB events on foreign interfaces to us, i.e.
+this use case:
 
-This series was applied to netdev/net-next.git (refs/heads/master):
+         br0
+        /   \
+       /     \
+      /       \
+     /         \
+   swp0       eno0
+(switchdev)  (foreign)
 
-On Wed, 21 Jul 2021 17:01:25 +0300 you wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
-> 
-> Hi,
-> This is a minor context improvement which chooses the proper multicast
-> context when adding user mdb entries or host-joined entries (pointing to
-> the bridge device). Patch 01 adds a helper which chooses the proper
-> context when user-space is adding an mdb entry, note that it requires
-> the vlan to be configured on at least 1 device (port or bridge) so it
-> would have a multicast context. Patch 02 changes br_multicast_host_join
-> to take a bridge multicast context parameter which is passed down from
-> the respective functions, currently it is used for the timer config
-> value only. This set is in preparation for adding all multicast options
-> for vlans.
-> 
-> [...]
+when an address is learned on eno0, what is supposed to happen is that
+this event should also be propagated towards swp0. Somehow I managed to
+convince myself that this did work correctly, but obviously it does not.
 
-Here is the summary with links:
-  - [net-next,1/2] net: bridge: multicast: add mdb context support
-    https://git.kernel.org/netdev/net-next/c/6567cb438a51
-  - [net-next,2/2] net: bridge: multicast: add context support for host-joined groups
-    https://git.kernel.org/netdev/net-next/c/58d913a32664
+The trouble with foreign interfaces is that we must reach a switchdev
+net_device pointer through a foreign net_device that has no direct
+upper/lower relationship with it. So we need to do exploratory searching
+through the lower interfaces of the foreign net_device's bridge upper
+(to reach swp0 from eno0, we must check its upper, br0, for lower
+interfaces that pass the check_cb and foreign_dev_check_cb). This is
+something that the previous code did not do, it just assumed that "dev"
+will become a switchdev interface at some point, somehow, probably by
+magic.
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+With this patch, assisted address learning on the CPU port works again
+in DSA:
 
+ip link add br0 type bridge
+ip link set swp0 master br0
+ip link set eno0 master br0
+ip link set br0 up
+
+[   46.708929] mscc_felix 0000:00:00.5 swp0: Adding FDB entry towards eno0, addr 00:04:9f:05:f4:ab vid 0 as host address
+
+Fixes: 8ca07176ab00 ("net: switchdev: introduce a fanout helper for SWITCHDEV_FDB_{ADD,DEL}_TO_DEVICE")
+Reported-by: Eric Woudstra <ericwouds@gmail.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/switchdev/switchdev.c | 214 +++++++++++++++++++++++++-------------
+ 1 file changed, 142 insertions(+), 72 deletions(-)
+
+diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
+index 42e88d3d66a7..0ae3478561f4 100644
+--- a/net/switchdev/switchdev.c
++++ b/net/switchdev/switchdev.c
+@@ -378,6 +378,56 @@ int call_switchdev_blocking_notifiers(unsigned long val, struct net_device *dev,
+ }
+ EXPORT_SYMBOL_GPL(call_switchdev_blocking_notifiers);
+ 
++struct switchdev_nested_priv {
++	bool (*check_cb)(const struct net_device *dev);
++	bool (*foreign_dev_check_cb)(const struct net_device *dev,
++				     const struct net_device *foreign_dev);
++	const struct net_device *dev;
++	struct net_device *lower_dev;
++};
++
++static int switchdev_lower_dev_walk(struct net_device *lower_dev,
++				    struct netdev_nested_priv *priv)
++{
++	struct switchdev_nested_priv *switchdev_priv = priv->data;
++	bool (*foreign_dev_check_cb)(const struct net_device *dev,
++				     const struct net_device *foreign_dev);
++	bool (*check_cb)(const struct net_device *dev);
++	const struct net_device *dev;
++
++	check_cb = switchdev_priv->check_cb;
++	foreign_dev_check_cb = switchdev_priv->foreign_dev_check_cb;
++	dev = switchdev_priv->dev;
++
++	if (check_cb(lower_dev) && !foreign_dev_check_cb(lower_dev, dev)) {
++		switchdev_priv->lower_dev = lower_dev;
++		return 1;
++	}
++
++	return 0;
++}
++
++static struct net_device *
++switchdev_lower_dev_find(struct net_device *dev,
++			 bool (*check_cb)(const struct net_device *dev),
++			 bool (*foreign_dev_check_cb)(const struct net_device *dev,
++						      const struct net_device *foreign_dev))
++{
++	struct switchdev_nested_priv switchdev_priv = {
++		.check_cb = check_cb,
++		.foreign_dev_check_cb = foreign_dev_check_cb,
++		.dev = dev,
++		.lower_dev = NULL,
++	};
++	struct netdev_nested_priv priv = {
++		.data = &switchdev_priv,
++	};
++
++	netdev_walk_all_lower_dev_rcu(dev, switchdev_lower_dev_walk, &priv);
++
++	return switchdev_priv.lower_dev;
++}
++
+ static int __switchdev_handle_fdb_add_to_device(struct net_device *dev,
+ 		const struct net_device *orig_dev,
+ 		const struct switchdev_notifier_fdb_info *fdb_info,
+@@ -392,37 +442,18 @@ static int __switchdev_handle_fdb_add_to_device(struct net_device *dev,
+ 				  const struct switchdev_notifier_fdb_info *fdb_info))
+ {
+ 	const struct switchdev_notifier_info *info = &fdb_info->info;
+-	struct net_device *lower_dev;
++	struct net_device *br, *lower_dev;
+ 	struct list_head *iter;
+ 	int err = -EOPNOTSUPP;
+ 
+-	if (check_cb(dev)) {
+-		/* Handle FDB entries on foreign interfaces as FDB entries
+-		 * towards the software bridge.
+-		 */
+-		if (foreign_dev_check_cb && foreign_dev_check_cb(dev, orig_dev)) {
+-			struct net_device *br = netdev_master_upper_dev_get_rcu(dev);
+-
+-			if (!br || !netif_is_bridge_master(br))
+-				return 0;
+-
+-			/* No point in handling FDB entries on a foreign bridge */
+-			if (foreign_dev_check_cb(dev, br))
+-				return 0;
+-
+-			return __switchdev_handle_fdb_add_to_device(br, orig_dev,
+-								    fdb_info, check_cb,
+-								    foreign_dev_check_cb,
+-								    add_cb, lag_add_cb);
+-		}
+-
++	if (check_cb(dev))
+ 		return add_cb(dev, orig_dev, info->ctx, fdb_info);
+-	}
+ 
+-	/* If we passed over the foreign check, it means that the LAG interface
+-	 * is offloaded.
+-	 */
+ 	if (netif_is_lag_master(dev)) {
++		if (!switchdev_lower_dev_find(dev, check_cb, foreign_dev_check_cb))
++			goto maybe_bridged_with_us;
++
++		/* This is a LAG interface that we offload */
+ 		if (!lag_add_cb)
+ 			return -EOPNOTSUPP;
+ 
+@@ -432,20 +463,49 @@ static int __switchdev_handle_fdb_add_to_device(struct net_device *dev,
+ 	/* Recurse through lower interfaces in case the FDB entry is pointing
+ 	 * towards a bridge device.
+ 	 */
+-	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+-		/* Do not propagate FDB entries across bridges */
+-		if (netif_is_bridge_master(lower_dev))
+-			continue;
++	if (netif_is_bridge_master(dev)) {
++		if (!switchdev_lower_dev_find(dev, check_cb, foreign_dev_check_cb))
++			return 0;
++
++		/* This is a bridge interface that we offload */
++		netdev_for_each_lower_dev(dev, lower_dev, iter) {
++			/* Do not propagate FDB entries across bridges */
++			if (netif_is_bridge_master(lower_dev))
++				continue;
++
++			/* Bridge ports might be either us, or LAG interfaces
++			 * that we offload.
++			 */
++			if (!check_cb(lower_dev) &&
++			    !switchdev_lower_dev_find(lower_dev, check_cb,
++						      foreign_dev_check_cb))
++				continue;
++
++			err = __switchdev_handle_fdb_add_to_device(lower_dev, orig_dev,
++								   fdb_info, check_cb,
++								   foreign_dev_check_cb,
++								   add_cb, lag_add_cb);
++			if (err && err != -EOPNOTSUPP)
++				return err;
++		}
+ 
+-		err = __switchdev_handle_fdb_add_to_device(lower_dev, orig_dev,
+-							   fdb_info, check_cb,
+-							   foreign_dev_check_cb,
+-							   add_cb, lag_add_cb);
+-		if (err && err != -EOPNOTSUPP)
+-			return err;
++		return 0;
+ 	}
+ 
+-	return err;
++maybe_bridged_with_us:
++	/* Event is neither on a bridge nor a LAG. Check whether it is on an
++	 * interface that is in a bridge with us.
++	 */
++	br = netdev_master_upper_dev_get_rcu(dev);
++	if (!br || !netif_is_bridge_master(br))
++		return 0;
++
++	if (!switchdev_lower_dev_find(br, check_cb, foreign_dev_check_cb))
++		return 0;
++
++	return __switchdev_handle_fdb_add_to_device(br, orig_dev, fdb_info,
++						    check_cb, foreign_dev_check_cb,
++						    add_cb, lag_add_cb);
+ }
+ 
+ int switchdev_handle_fdb_add_to_device(struct net_device *dev,
+@@ -487,37 +547,18 @@ static int __switchdev_handle_fdb_del_to_device(struct net_device *dev,
+ 				  const struct switchdev_notifier_fdb_info *fdb_info))
+ {
+ 	const struct switchdev_notifier_info *info = &fdb_info->info;
+-	struct net_device *lower_dev;
++	struct net_device *br, *lower_dev;
+ 	struct list_head *iter;
+ 	int err = -EOPNOTSUPP;
+ 
+-	if (check_cb(dev)) {
+-		/* Handle FDB entries on foreign interfaces as FDB entries
+-		 * towards the software bridge.
+-		 */
+-		if (foreign_dev_check_cb && foreign_dev_check_cb(dev, orig_dev)) {
+-			struct net_device *br = netdev_master_upper_dev_get_rcu(dev);
+-
+-			if (!br || !netif_is_bridge_master(br))
+-				return 0;
+-
+-			/* No point in handling FDB entries on a foreign bridge */
+-			if (foreign_dev_check_cb(dev, br))
+-				return 0;
+-
+-			return __switchdev_handle_fdb_del_to_device(br, orig_dev,
+-								    fdb_info, check_cb,
+-								    foreign_dev_check_cb,
+-								    del_cb, lag_del_cb);
+-		}
+-
++	if (check_cb(dev))
+ 		return del_cb(dev, orig_dev, info->ctx, fdb_info);
+-	}
+ 
+-	/* If we passed over the foreign check, it means that the LAG interface
+-	 * is offloaded.
+-	 */
+ 	if (netif_is_lag_master(dev)) {
++		if (!switchdev_lower_dev_find(dev, check_cb, foreign_dev_check_cb))
++			goto maybe_bridged_with_us;
++
++		/* This is a LAG interface that we offload */
+ 		if (!lag_del_cb)
+ 			return -EOPNOTSUPP;
+ 
+@@ -527,20 +568,49 @@ static int __switchdev_handle_fdb_del_to_device(struct net_device *dev,
+ 	/* Recurse through lower interfaces in case the FDB entry is pointing
+ 	 * towards a bridge device.
+ 	 */
+-	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+-		/* Do not propagate FDB entries across bridges */
+-		if (netif_is_bridge_master(lower_dev))
+-			continue;
++	if (netif_is_bridge_master(dev)) {
++		if (!switchdev_lower_dev_find(dev, check_cb, foreign_dev_check_cb))
++			return 0;
++
++		/* This is a bridge interface that we offload */
++		netdev_for_each_lower_dev(dev, lower_dev, iter) {
++			/* Do not propagate FDB entries across bridges */
++			if (netif_is_bridge_master(lower_dev))
++				continue;
++
++			/* Bridge ports might be either us, or LAG interfaces
++			 * that we offload.
++			 */
++			if (!check_cb(lower_dev) &&
++			    !switchdev_lower_dev_find(lower_dev, check_cb,
++						      foreign_dev_check_cb))
++				continue;
++
++			err = __switchdev_handle_fdb_del_to_device(lower_dev, orig_dev,
++								   fdb_info, check_cb,
++								   foreign_dev_check_cb,
++								   del_cb, lag_del_cb);
++			if (err && err != -EOPNOTSUPP)
++				return err;
++		}
+ 
+-		err = __switchdev_handle_fdb_del_to_device(lower_dev, orig_dev,
+-							   fdb_info, check_cb,
+-							   foreign_dev_check_cb,
+-							   del_cb, lag_del_cb);
+-		if (err && err != -EOPNOTSUPP)
+-			return err;
++		return 0;
+ 	}
+ 
+-	return err;
++maybe_bridged_with_us:
++	/* Event is neither on a bridge nor a LAG. Check whether it is on an
++	 * interface that is in a bridge with us.
++	 */
++	br = netdev_master_upper_dev_get_rcu(dev);
++	if (!br || !netif_is_bridge_master(br))
++		return 0;
++
++	if (!switchdev_lower_dev_find(br, check_cb, foreign_dev_check_cb))
++		return 0;
++
++	return __switchdev_handle_fdb_del_to_device(br, orig_dev, fdb_info,
++						    check_cb, foreign_dev_check_cb,
++						    del_cb, lag_del_cb);
+ }
+ 
+ int switchdev_handle_fdb_del_to_device(struct net_device *dev,
+-- 
+2.25.1
 
