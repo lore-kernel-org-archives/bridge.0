@@ -1,24 +1,16 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1627055405;
- bh=+K3ROxkv2Wdhl+4C12AmUCoCtE1n0FYZaWBOSEgVLoQ=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=So8b3PFkoJKPh6LD1CVplGqsSECVNu8GymqlBgiHp6zdZLROCDBtlIIPCEFjYUkAX
- vL7pP7VXhx0jw6nzNobtxtL1bbYJTouvabcosDas+tHVFs619Vg4PI67MuAEVgHHSD
- cOw8yiluVzJNtWXzY251eliVUFAWY6qLRgBLamwXTIuVB/wX3aheDZEvBUYU09WXhy
- N8e2LFZvUuNwaZZG+Fu56uoEVfq4U0rHdVfBOnGuHR9do44a1p60AeOSxU2oAM0Yf7
- 89Uyzce6/RBMb/h7FTEj+Ur5dgotC9/Us1ZtoaTkXRQaarvWI76SlNuWa7iihjzdtd
- VmwHWzPPGVnlA==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SmrlvSnXkakUKZ93sT1RJo8+DwxzGtFpOoO1S2GBF0Y=;
+ b=agu7M+GzO3q6bmGY2ZEQBUGDdw1EQ8KSpIPonHBhPzgWCoTzPUU0i6aMcs8UJ16P4wTEjU67Ms5mG35pJ9KugPuhy0ltqq0gFFEq3/jNb+WVFDU+TTyJ7bopRJ7DI175lB9OjaDYNuiPYsTEmRCFa3URnN2at20vZv4PwGOfiRQ=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Fri, 23 Jul 2021 23:49:11 +0300
+Message-Id: <20210723204911.3884995-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162705540587.23511.775470565736247308.git-patchwork-notify@kernel.org>
-Date: Fri, 23 Jul 2021 15:50:05 +0000
-References: <20210722155542.2897921-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20210722155542.2897921-1-vladimir.oltean@nxp.com>
-Subject: Re: [Bridge] [PATCH v5 net-next 0/5] Allow TX forwarding for the
- software bridge data path to be offloaded to capable devices
+Content-Type: text/plain
+MIME-Version: 1.0
+Subject: [Bridge] [PATCH net-next] net: bridge: fix build when setting
+	skb->offload_fwd_mark with CONFIG_NET_SWITCHDEV=n
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,47 +19,79 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: andrew@lunn.ch, alexandre.belloni@bootlin.com, idosch@idosch.org, ioana.ciornei@nxp.com, kabel@blackhole.sk, f.fainelli@gmail.com, davem@davemloft.net, Steen.Hegelund@microchip.com, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, vivien.didelot@gmail.com, grygorii.strashko@ti.com, jiri@resnulli.us, vkochan@marvell.com, dqfext@gmail.com, claudiu.manoil@nxp.com, lars.povlsen@microchip.com, netdev@vger.kernel.org, UNGLinuxDriver@microchip.com, tchornyi@marvell.com, tobias@waldekranz.com
+To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, kernel test robot <lkp@intel.com>, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Hello:
+Switchdev support can be disabled at compile time, and in that case,
+struct sk_buff will not contain the offload_fwd_mark field.
 
-This series was applied to netdev/net-next.git (refs/heads/master):
+To make the code in br_forward.c work in both cases, we do what is done
+in other places and we create a helper function, with an empty shim
+definition, that is implemented by the br_switchdev.o translation module.
+This is always compiled if and only if CONFIG_NET_SWITCHDEV is y or m.
 
-On Thu, 22 Jul 2021 18:55:37 +0300 you wrote:
-> On RX, switchdev drivers have the ability to mark packets for the
-> software bridge as "already forwarded in hardware" via
-> skb->offload_fwd_mark. This instructs the nbp_switchdev_allowed_egress()
-> function to perform software forwarding of that packet only to the bridge
-> ports that are not in the same hardware domain as the source packet.
-> 
-> This series expands the concept for TX, in the sense that we can trust
-> the accelerator to:
-> (a) look up its FDB (which is more or less in sync with the software
->     bridge FDB) for selecting the destination ports for a packet
-> (b) replicate the frame in hardware in case it's a multicast/broadcast,
->     instead of the software bridge having to clone it and send the
->     clones to each net device one at a time. This reduces the bandwidth
->     needed between the CPU and the accelerator, as well as the CPU time
->     spent.
-> 
-> [...]
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 472111920f1c ("net: bridge: switchdev: allow the TX data plane forwarding to be offloaded")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/bridge/br_forward.c   | 2 +-
+ net/bridge/br_private.h   | 6 ++++++
+ net/bridge/br_switchdev.c | 5 +++++
+ 3 files changed, 12 insertions(+), 1 deletion(-)
 
-Here is the summary with links:
-  - [v5,net-next,1/5] net: bridge: switchdev: allow the TX data plane forwarding to be offloaded
-    https://git.kernel.org/netdev/net-next/c/472111920f1c
-  - [v5,net-next,2/5] net: dsa: track the number of switches in a tree
-    https://git.kernel.org/netdev/net-next/c/5b22d3669f2f
-  - [v5,net-next,3/5] net: dsa: add support for bridge TX forwarding offload
-    https://git.kernel.org/netdev/net-next/c/123abc06e74f
-  - [v5,net-next,4/5] net: dsa: mv88e6xxx: map virtual bridges with forwarding offload in the PVT
-    https://git.kernel.org/netdev/net-next/c/ce5df6894a57
-  - [v5,net-next,5/5] net: dsa: tag_dsa: offload the bridge forwarding process
-    https://git.kernel.org/netdev/net-next/c/d82f8ab0d874
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index bc14b1b384e9..ec646656dbf1 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -48,7 +48,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
+ 		skb_set_network_header(skb, depth);
+ 	}
+ 
+-	skb->offload_fwd_mark = br_switchdev_frame_uses_tx_fwd_offload(skb);
++	br_switchdev_frame_set_offload_fwd_mark(skb);
+ 
+ 	dev_queue_xmit(skb);
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 86ca617fec7a..1c57877270f7 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1881,6 +1881,8 @@ static inline void br_sysfs_delbr(struct net_device *dev) { return; }
+ #ifdef CONFIG_NET_SWITCHDEV
+ bool br_switchdev_frame_uses_tx_fwd_offload(struct sk_buff *skb);
+ 
++void br_switchdev_frame_set_offload_fwd_mark(struct sk_buff *skb);
++
+ void nbp_switchdev_frame_mark_tx_fwd_offload(const struct net_bridge_port *p,
+ 					     struct sk_buff *skb);
+ void nbp_switchdev_frame_mark_tx_fwd_to_hwdom(const struct net_bridge_port *p,
+@@ -1910,6 +1912,10 @@ static inline bool br_switchdev_frame_uses_tx_fwd_offload(struct sk_buff *skb)
+ 	return false;
+ }
+ 
++static inline void br_switchdev_frame_set_offload_fwd_mark(struct sk_buff *skb)
++{
++}
++
+ static inline void
+ nbp_switchdev_frame_mark_tx_fwd_offload(const struct net_bridge_port *p,
+ 					struct sk_buff *skb)
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 96ce069d0c8c..9cf9ab320c48 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -28,6 +28,11 @@ bool br_switchdev_frame_uses_tx_fwd_offload(struct sk_buff *skb)
+ 	return BR_INPUT_SKB_CB(skb)->tx_fwd_offload;
+ }
+ 
++void br_switchdev_frame_set_offload_fwd_mark(struct sk_buff *skb)
++{
++	skb->offload_fwd_mark = br_switchdev_frame_uses_tx_fwd_offload(skb);
++}
++
+ /* Mark the frame for TX forwarding offload if this egress port supports it */
+ void nbp_switchdev_frame_mark_tx_fwd_offload(const struct net_bridge_port *p,
+ 					     struct sk_buff *skb)
+-- 
+2.25.1
 
