@@ -1,23 +1,23 @@
-Return-Path: <arnd@kernel.org>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1627393614;
- bh=8ReC+FGP4lYZz9uV6y5T2LUadmvwaKCFRSNklcMmMsU=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=ZOB/Pd9LrBD82LjMCLP4aeHXMJLnVDZeTQ9+6h7YYoDPrCeyrQIA0jObaxmjIVJCf
- 7/3SYletDhE9tk18Oyl9h9DGKVneKrCw1adBnt0ty+J+xszklfvKszDTOaJxtIklml
- Gc4OvZDI95raRq+xyBGqS4e5/3l/x/1aBEbH6kmQ9lV5t1w011c/JdLaFXKMqzTfgY
- 3IsjCbPXr3UD0vs49f3fljZDfS+YTdeUVwYSRZG8fDCN6OXSy63ihoVhwh7O+3zKzI
- 97HHN6rdW3mCvaMPnlOKAmzSw9Krwul6e5czhTFbOoelkbbhtnNS4CP/DEZABrj8tl
- 8YOLHfJ1vPgjw==
-From: Arnd Bergmann <arnd@kernel.org>
-Date: Tue, 27 Jul 2021 15:45:16 +0200
-Message-Id: <20210727134517.1384504-31-arnd@kernel.org>
-In-Reply-To: <20210727134517.1384504-1-arnd@kernel.org>
-References: <20210727134517.1384504-1-arnd@kernel.org>
+ s=k20201202; t=1627416014;
+ bh=7gbluUXqRRDrRRn0YT85HoIea0afHl4fXkBq3wS8myc=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=ZuKh0QZIr0bo4IkkVxJ+KGIS7CN6C3qN0vMjFXehfb5lPWADe0PwPwsnk1qMM5vvO
+ HlWCTVM4ZzSaJEPtmoNUa1vsliz463WcrdCQN1lkHHswUKgaNNtq29styVqu3BjN7r
+ JYjOpWXSrkVvfQxj9Ek6rU+aJOXdBkncGx3bb9Y1mzLSX2u2tkkakG1hfNRYcUUq4e
+ inTy+HHa8/MPQbmrfH3/IPLKgDL9lIMIjHc7+pUM2DHjS9wtjN7iT01LHakbA2lpny
+ sQF0HUZcKsDMvVwqgSaSNCqv1JR5iOvrYNY91Aq7W+oxmNXRaUF211VLnU6VOI+NyL
+ UUZx8tXVJZbzw==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 30/31] net: bridge: move bridge ioctls
-	out of .ndo_do_ioctl
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162741601391.17427.11630081272562695042.git-patchwork-notify@kernel.org>
+Date: Tue, 27 Jul 2021 20:00:13 +0000
+References: <20210727134517.1384504-1-arnd@kernel.org>
+In-Reply-To: <20210727134517.1384504-1-arnd@kernel.org>
+Subject: Re: [Bridge] [PATCH net-next v3 00/31] ndo_ioctl rework
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,228 +26,94 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: andrew@lunn.ch, linux-ppp@vger.kernel.org, hch@lst.de, qiang.zhao@nxp.com, steffen.klassert@secunet.com, linux-s390@vger.kernel.org, herbert@gondor.apana.org.au, linux-x25@vger.kernel.org, davem@davemloft.net, bridge@lists.linux-foundation.org, jwi@linux.ibm.com, linux-hippi@sunsite.dk, vfalico@gmail.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, jpr@f6fbb.org, jreuter@yaina.de, jes@trained-monkey.org, ms@dev.tdt.de, arnd@arndb.de, j@w1.fi, j.vosburgh@gmail.com, linux-mediatek@lists.infradead.org, courmisch@gmail.com, linux-hams@vger.kernel.org, kvalo@codeaurora.org, linux-arm-kernel@lists.infradead.org, linux-parisc@vger.kernel.org, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, dsahern@kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, kevin.curtis@farsite.co.uk, t.sailer@alumni.ethz.ch, rajur@chelsio.com, kgraul@linux.ibm.com, khc@pm.waw.pl
 
-From: Arnd Bergmann <arnd@arndb.de>
+Hello:
 
-Working towards obsoleting the .ndo_do_ioctl operation entirely,
-stop passing the SIOCBRADDIF/SIOCBRDELIF device ioctl commands
-into this callback.
+This series was applied to netdev/net-next.git (refs/heads/master):
 
-My first attempt was to add another ndo_siocbr() callback, but
-as there is only a single driver that takes these commands and
-there is already a hook mechanism to call directly into this
-driver, extend this hook instead, and use it for both the
-deviceless and the device specific ioctl commands.
+On Tue, 27 Jul 2021 15:44:46 +0200 you wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> This series is a follow-up to the series for removing
+> compat_alloc_user_space() and copy_in_user() that has now
+> been merged.
+> 
+> I wanted to be sure I address all the ways that 'struct ifreq' is used
+> in device drivers through .ndo_do_ioctl, originally to prove that
+> my approach of changing the struct definition was correct, but then
+> I discarded that approach and went on anyway.
+> 
+> [...]
 
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: bridge@lists.linux-foundation.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- include/linux/if_bridge.h |  7 ++++++-
- net/bridge/br.c           |  2 +-
- net/bridge/br_device.c    |  1 -
- net/bridge/br_ioctl.c     | 15 +++------------
- net/bridge/br_private.h   |  5 ++---
- net/core/dev_ioctl.c      | 11 ++++++++---
- net/socket.c              | 33 +++++++++++++++++++++++----------
- 7 files changed, 43 insertions(+), 31 deletions(-)
+Here is the summary with links:
+  - [net-next,v3,01/31] net: split out SIOCDEVPRIVATE handling from dev_ioctl
+    https://git.kernel.org/netdev/net-next/c/b9067f5dc4a0
+  - [net-next,v3,02/31] staging: rtlwifi: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/89939e890605
+  - [net-next,v3,03/31] staging: wlan-ng: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/3343c49a959d
+  - [net-next,v3,04/31] hostap: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/3f3fa5340745
+  - [net-next,v3,05/31] bridge: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/561d8352818f
+  - [net-next,v3,06/31] phonet: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/4747c1a8bc50
+  - [net-next,v3,07/31] tulip: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/029a4fef6b22
+  - [net-next,v3,08/31] bonding: use siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/232ec98ec35d
+  - [net-next,v3,09/31] appletalk: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/dbecb011eb78
+  - [net-next,v3,10/31] hamachi: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/99b78a37a371
+  - [net-next,v3,11/31] tehuti: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/32d05468c462
+  - [net-next,v3,12/31] eql: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/d92f7b59d32b
+  - [net-next,v3,13/31] fddi: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/043393d8b478
+  - [net-next,v3,14/31] net: usb: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/ef1b5b0c30bc
+  - [net-next,v3,15/31] slip/plip: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/76b5878cffab
+  - [net-next,v3,16/31] qeth: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/18787eeebd71
+  - [net-next,v3,17/31] cxgb3: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/ebb4a911e09a
+  - [net-next,v3,18/31] hamradio: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/25ec92fbdd23
+  - [net-next,v3,19/31] airo: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/ae6af0120dda
+  - [net-next,v3,20/31] ip_tunnel: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/3e7a1c7c561e
+  - [net-next,v3,21/31] hippi: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/81a68110a22a
+  - [net-next,v3,22/31] sb1000: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/cc0aa831a0d9
+  - [net-next,v3,23/31] ppp: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/34f7cac07c4e
+  - [net-next,v3,24/31] wan: use ndo_siocdevprivate
+    https://git.kernel.org/netdev/net-next/c/73d74f61a559
+  - [net-next,v3,25/31] wan: cosa: remove dead cosa_net_ioctl() function
+    https://git.kernel.org/netdev/net-next/c/8fb75b79cd98
+  - [net-next,v3,26/31] dev_ioctl: pass SIOCDEVPRIVATE data separately
+    https://git.kernel.org/netdev/net-next/c/a554bf96b49d
+  - [net-next,v3,27/31] dev_ioctl: split out ndo_eth_ioctl
+    https://git.kernel.org/netdev/net-next/c/a76053707dbf
+  - [net-next,v3,28/31] net: split out ndo_siowandev ioctl
+    https://git.kernel.org/netdev/net-next/c/ad7eab2ab014
+  - [net-next,v3,29/31] net: socket: return changed ifreq from SIOCDEVPRIVATE
+    https://git.kernel.org/netdev/net-next/c/88fc023f7de2
+  - [net-next,v3,30/31] net: bridge: move bridge ioctls out of .ndo_do_ioctl
+    https://git.kernel.org/netdev/net-next/c/ad2f99aedf8f
+  - [net-next,v3,31/31] net: bonding: move ioctl handling to private ndo operation
+    https://git.kernel.org/netdev/net-next/c/3d9d00bd1885
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index b73b4ff749e1..21daed10322e 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -61,7 +61,12 @@ struct br_ip_list {
- 
- #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
- 
--extern void brioctl_set(int (*ioctl_hook)(struct net *, unsigned int, void __user *));
-+struct net_bridge;
-+void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
-+			     unsigned int cmd, struct ifreq *ifr,
-+			     void __user *uarg));
-+int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
-+		  struct ifreq *ifr, void __user *uarg);
- 
- #if IS_ENABLED(CONFIG_BRIDGE) && IS_ENABLED(CONFIG_BRIDGE_IGMP_SNOOPING)
- int br_multicast_list_adjacent(struct net_device *dev,
-diff --git a/net/bridge/br.c b/net/bridge/br.c
-index 51f2e25c4cd6..8fb5dca5f8e0 100644
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -359,7 +359,7 @@ static int __init br_init(void)
- 	if (err)
- 		goto err_out5;
- 
--	brioctl_set(br_ioctl_deviceless_stub);
-+	brioctl_set(br_ioctl_stub);
- 
- #if IS_ENABLED(CONFIG_ATM_LANE)
- 	br_fdb_test_addr_hook = br_fdb_test_addr;
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 1952bb433ca7..8d6bab244c4a 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -454,7 +454,6 @@ static const struct net_device_ops br_netdev_ops = {
- 	.ndo_set_rx_mode	 = br_dev_set_multicast_list,
- 	.ndo_change_rx_flags	 = br_dev_change_rx_flags,
- 	.ndo_change_mtu		 = br_change_mtu,
--	.ndo_do_ioctl		 = br_dev_ioctl,
- 	.ndo_siocdevprivate	 = br_dev_siocdevprivate,
- #ifdef CONFIG_NET_POLL_CONTROLLER
- 	.ndo_netpoll_setup	 = br_netpoll_setup,
-diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
-index 9f924fe43641..46a24c20e405 100644
---- a/net/bridge/br_ioctl.c
-+++ b/net/bridge/br_ioctl.c
-@@ -366,7 +366,8 @@ static int old_deviceless(struct net *net, void __user *uarg)
- 	return -EOPNOTSUPP;
- }
- 
--int br_ioctl_deviceless_stub(struct net *net, unsigned int cmd, void __user *uarg)
-+int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
-+		  struct ifreq *ifr, void __user *uarg)
- {
- 	switch (cmd) {
- 	case SIOCGIFBR:
-@@ -390,21 +391,11 @@ int br_ioctl_deviceless_stub(struct net *net, unsigned int cmd, void __user *uar
- 
- 		return br_del_bridge(net, buf);
- 	}
--	}
--	return -EOPNOTSUPP;
--}
--
--int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
--{
--	struct net_bridge *br = netdev_priv(dev);
- 
--	switch (cmd) {
- 	case SIOCBRADDIF:
- 	case SIOCBRDELIF:
--		return add_del_if(br, rq->ifr_ifindex, cmd == SIOCBRADDIF);
-+		return add_del_if(br, ifr->ifr_ifindex, cmd == SIOCBRADDIF);
- 
- 	}
--
--	br_debug(br, "Bridge does not support ioctl 0x%x\n", cmd);
- 	return -EOPNOTSUPP;
- }
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 572c28ae41b8..f2d34ea1ea37 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -851,11 +851,10 @@ br_port_get_check_rtnl(const struct net_device *dev)
- }
- 
- /* br_ioctl.c */
--int br_dev_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
- int br_dev_siocdevprivate(struct net_device *dev, struct ifreq *rq,
- 			  void __user *data, int cmd);
--int br_ioctl_deviceless_stub(struct net *net, unsigned int cmd,
--			     void __user *arg);
-+int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
-+		  struct ifreq *ifr, void __user *uarg);
- 
- /* br_multicast.c */
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
-diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
-index 70a379cee5fd..3166f196b296 100644
---- a/net/core/dev_ioctl.c
-+++ b/net/core/dev_ioctl.c
-@@ -6,6 +6,7 @@
- #include <linux/rtnetlink.h>
- #include <linux/net_tstamp.h>
- #include <linux/wireless.h>
-+#include <linux/if_bridge.h>
- #include <net/dsa.h>
- #include <net/wext.h>
- 
-@@ -374,6 +375,12 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
- 	case SIOCWANDEV:
- 		return dev_siocwandev(dev, &ifr->ifr_settings);
- 
-+	case SIOCBRADDIF:
-+	case SIOCBRDELIF:
-+		if (!netif_device_present(dev))
-+			return -ENODEV;
-+		return br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
-+
- 	case SIOCSHWTSTAMP:
- 		err = net_hwtstamp_validate(ifr);
- 		if (err)
-@@ -399,9 +406,7 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
- 		    cmd == SIOCBONDSETHWADDR ||
- 		    cmd == SIOCBONDSLAVEINFOQUERY ||
- 		    cmd == SIOCBONDINFOQUERY ||
--		    cmd == SIOCBONDCHANGEACTIVE ||
--		    cmd == SIOCBRADDIF ||
--		    cmd == SIOCBRDELIF) {
-+		    cmd == SIOCBONDCHANGEACTIVE) {
- 			err = dev_do_ioctl(dev, ifr, cmd);
- 		} else
- 			err = -EINVAL;
-diff --git a/net/socket.c b/net/socket.c
-index 48471a219c1d..42665bd99ea4 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1064,9 +1064,13 @@ static ssize_t sock_write_iter(struct kiocb *iocb, struct iov_iter *from)
-  */
- 
- static DEFINE_MUTEX(br_ioctl_mutex);
--static int (*br_ioctl_hook) (struct net *, unsigned int cmd, void __user *arg);
-+static int (*br_ioctl_hook)(struct net *net, struct net_bridge *br,
-+			    unsigned int cmd, struct ifreq *ifr,
-+			    void __user *uarg);
- 
--void brioctl_set(int (*hook) (struct net *, unsigned int, void __user *))
-+void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
-+			     unsigned int cmd, struct ifreq *ifr,
-+			     void __user *uarg))
- {
- 	mutex_lock(&br_ioctl_mutex);
- 	br_ioctl_hook = hook;
-@@ -1074,6 +1078,22 @@ void brioctl_set(int (*hook) (struct net *, unsigned int, void __user *))
- }
- EXPORT_SYMBOL(brioctl_set);
- 
-+int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
-+		  struct ifreq *ifr, void __user *uarg)
-+{
-+	int err = -ENOPKG;
-+
-+	if (!br_ioctl_hook)
-+		request_module("bridge");
-+
-+	mutex_lock(&br_ioctl_mutex);
-+	if (br_ioctl_hook)
-+		err = br_ioctl_hook(net, br, cmd, ifr, uarg);
-+	mutex_unlock(&br_ioctl_mutex);
-+
-+	return err;
-+}
-+
- static DEFINE_MUTEX(vlan_ioctl_mutex);
- static int (*vlan_ioctl_hook) (struct net *, void __user *arg);
- 
-@@ -1162,14 +1182,7 @@ static long sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 		case SIOCSIFBR:
- 		case SIOCBRADDBR:
- 		case SIOCBRDELBR:
--			err = -ENOPKG;
--			if (!br_ioctl_hook)
--				request_module("bridge");
--
--			mutex_lock(&br_ioctl_mutex);
--			if (br_ioctl_hook)
--				err = br_ioctl_hook(net, cmd, argp);
--			mutex_unlock(&br_ioctl_mutex);
-+			err = br_ioctl_call(net, NULL, cmd, NULL, argp);
- 			break;
- 		case SIOCGIFVLAN:
- 		case SIOCSIFVLAN:
--- 
-2.29.2
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
