@@ -1,12 +1,11 @@
-Return-Path: <hdanton@sina.com>
-From: Hillf Danton <hdanton@sina.com>
-Date: Sun,  1 Aug 2021 21:14:06 +0800
-Message-Id: <20210801131406.1750-1-hdanton@sina.com>
-In-Reply-To: <00000000000014105005c87cffdc@google.com>
-References: <00000000000014105005c87cffdc@google.com>
+Return-Path: <3WAUHYQkbAI09FG1r22v8r66zu.x55x2vB9v8t54Av4A.t53@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [syzbot] possible deadlock in br_ioctl_call
+Date: Sun, 01 Aug 2021 13:34:32 -0700
+Message-ID: <0000000000004fd4c505c8856109@google.com>
+From: syzbot <syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: [Bridge] [syzbot] general protection fault in
+	br_switchdev_fdb_notify
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,111 +14,94 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+34fe5894623c4ab1b379@syzkaller.appspotmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>
+To: bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
 
-On Sun, 01 Aug 2021 03:34:24 -0700
-> syzbot found the following issue on:
-> 
-> HEAD commit:    3bdc70669eb2 Merge branch 'devlink-register'
-> git tree:       net-next
-> console output: https://syzkaller.appspot.com/x/log.txt?x=11ee370a300000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=914a8107c0ffdc14
-> dashboard link: https://syzkaller.appspot.com/bug?extid=34fe5894623c4ab1b379
-> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.1
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=114398c6300000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10d6d61a300000
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+34fe5894623c4ab1b379@syzkaller.appspotmail.com
-> 
-> netdevsim netdevsim0 netdevsim1: set [1, 0] type 2 family 0 port 6081 - 0
-> netdevsim netdevsim0 netdevsim2: set [1, 0] type 2 family 0 port 6081 - 0
-> netdevsim netdevsim0 netdevsim3: set [1, 0] type 2 family 0 port 6081 - 0
-> ======================================================
-> WARNING: possible circular locking dependency detected
-> 5.14.0-rc2-syzkaller #0 Not tainted
-> ------------------------------------------------------
-> syz-executor772/8460 is trying to acquire lock:
-> ffffffff8d0a9608 (br_ioctl_mutex){+.+.}-{3:3}, at: br_ioctl_call+0x3b/0xa0 net/socket.c:1089
-> 
-> but task is already holding lock:
-> ffffffff8d0cb568 (rtnl_mutex){+.+.}-{3:3}, at: dev_ioctl+0x1a7/0xee0 net/core/dev_ioctl.c:579
-> 
-> which lock already depends on the new lock.
-> 
-> 
-> the existing dependency chain (in reverse order) is:
-> 
-> -> #1 (rtnl_mutex){+.+.}-{3:3}:
->        __mutex_lock_common kernel/locking/mutex.c:959 [inline]
->        __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
->        register_netdev+0x11/0x50 net/core/dev.c:10474
->        br_add_bridge+0x97/0xf0 net/bridge/br_if.c:459
->        br_ioctl_stub+0x750/0x7f0 net/bridge/br_ioctl.c:390
->        br_ioctl_call+0x5e/0xa0 net/socket.c:1091
->        sock_ioctl+0x30c/0x640 net/socket.c:1185
->        vfs_ioctl fs/ioctl.c:51 [inline]
->        __do_sys_ioctl fs/ioctl.c:1069 [inline]
->        __se_sys_ioctl fs/ioctl.c:1055 [inline]
->        __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:1055
->        do_syscall_x64 arch/x86/entry/common.c:50 [inline]
->        do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
->        entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> -> #0 (br_ioctl_mutex){+.+.}-{3:3}:
->        check_prev_add kernel/locking/lockdep.c:3051 [inline]
->        check_prevs_add kernel/locking/lockdep.c:3174 [inline]
->        validate_chain kernel/locking/lockdep.c:3789 [inline]
->        __lock_acquire+0x2a07/0x54a0 kernel/locking/lockdep.c:5015
->        lock_acquire kernel/locking/lockdep.c:5625 [inline]
->        lock_acquire+0x1ab/0x510 kernel/locking/lockdep.c:5590
->        __mutex_lock_common kernel/locking/mutex.c:959 [inline]
->        __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
->        br_ioctl_call+0x3b/0xa0 net/socket.c:1089
->        dev_ifsioc+0xc1f/0xf60 net/core/dev_ioctl.c:382
->        dev_ioctl+0x1b9/0xee0 net/core/dev_ioctl.c:580
->        sock_do_ioctl+0x18b/0x210 net/socket.c:1128
->        sock_ioctl+0x2f1/0x640 net/socket.c:1231
->        vfs_ioctl fs/ioctl.c:51 [inline]
->        __do_sys_ioctl fs/ioctl.c:1069 [inline]
->        __se_sys_ioctl fs/ioctl.c:1055 [inline]
->        __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:1055
->        do_syscall_x64 arch/x86/entry/common.c:50 [inline]
->        do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
->        entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> other info that might help us debug this:
-> 
->  Possible unsafe locking scenario:
-> 
->        CPU0                    CPU1
->        ----                    ----
->   lock(rtnl_mutex);
->                                lock(br_ioctl_mutex);
->                                lock(rtnl_mutex);
->   lock(br_ioctl_mutex);
-> 
->  *** DEADLOCK ***
+Hello,
 
-Fix it by doing bridge ioctl outside rtnl lock after checking netdev present
-and bumping up its reference. Recheck netdev state (or take rtnl lock) after
-acquiring br_ioctl_mutex with a stable netdev.
+syzbot found the following issue on:
 
-Now only for thoughts.
+HEAD commit:    b11f0a4c0c81 net: dsa: sja1105: be stateless when installi..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=13b77662300000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=914a8107c0ffdc14
+dashboard link: https://syzkaller.appspot.com/bug?extid=9ba1174359adba5a5b7c
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.1
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1247bf2e300000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=163c441a300000
 
-+++ x/net/core/dev_ioctl.c
-@@ -379,7 +379,12 @@ static int dev_ifsioc(struct net *net, s
- 	case SIOCBRDELIF:
- 		if (!netif_device_present(dev))
- 			return -ENODEV;
--		return br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
-+		dev_hold(dev);
-+		rtnl_unlock();
-+		err = br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
-+		dev_put(dev);
-+		rtnl_lock();
-+		return err;
- 
- 	case SIOCSHWTSTAMP:
- 		err = net_hwtstamp_validate(ifr);
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com
+
+netdevsim netdevsim0 netdevsim1: set [1, 0] type 2 family 0 port 6081 - 0
+netdevsim netdevsim0 netdevsim2: set [1, 0] type 2 family 0 port 6081 - 0
+netdevsim netdevsim0 netdevsim3: set [1, 0] type 2 family 0 port 6081 - 0
+general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 1 PID: 8468 Comm: syz-executor865 Not tainted 5.14.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:br_switchdev_fdb_notify+0x2bf/0x340 net/bridge/br_switchdev.c:137
+Code: c4 a8 00 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 e8 f6 fd 77 f9 49 8d 7e 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 75 71 4d 8b 6e 08 e9 4f ff ff ff e8 cd fd 77 f9 31 c9
+RSP: 0018:ffffc9000186f360 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000001 RSI: ffffffff87fd8c8a RDI: 0000000000000008
+RBP: 1ffff9200030de6d R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff87fd8bc7 R11: 0000000000000000 R12: 000000000000001c
+R13: ffff88801d1c8c00 R14: 0000000000000000 R15: ffff888033cb93e8
+FS:  0000000002147300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000000 CR3: 000000003756d000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ fdb_notify+0x159/0x190 net/bridge/br_fdb.c:798
+ br_fdb_external_learn_add+0x2cc/0x5c0 net/bridge/br_fdb.c:1303
+ __br_fdb_add+0x122/0xa40 net/bridge/br_fdb.c:1033
+ br_fdb_add+0x8aa/0xcd0 net/bridge/br_fdb.c:1105
+ rtnl_fdb_add+0x45f/0xad0 net/core/rtnetlink.c:4046
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5563
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2504
+ netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1340
+ netlink_sendmsg+0x86d/0xdb0 net/netlink/af_netlink.c:1929
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:723
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2402
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2456
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2485
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x443239
+Code: 28 c3 e8 4a 15 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffee38b3de8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007ffee38b3df8 RCX: 0000000000443239
+RDX: 0000000000000000 RSI: 0000000020000040 RDI: 0000000000000003
+RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffee38b3e00
+R13: 00007ffee38b3e20 R14: 00000000004b8018 R15: 00000000004004b8
+Modules linked in:
+---[ end trace aa1b885b5f5494d5 ]---
+RIP: 0010:br_switchdev_fdb_notify+0x2bf/0x340 net/bridge/br_switchdev.c:137
+Code: c4 a8 00 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 e8 f6 fd 77 f9 49 8d 7e 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 75 71 4d 8b 6e 08 e9 4f ff ff ff e8 cd fd 77 f9 31 c9
+RSP: 0018:ffffc9000186f360 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000001 RSI: ffffffff87fd8c8a RDI: 0000000000000008
+RBP: 1ffff9200030de6d R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff87fd8bc7 R11: 0000000000000000 R12: 000000000000001c
+R13: ffff88801d1c8c00 R14: 0000000000000000 R15: ffff888033cb93e8
+FS:  0000000002147300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000000 CR3: 000000003756d000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this issue, for details see:
+https://goo.gl/tpsmEJ#testing-patches
