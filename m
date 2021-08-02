@@ -1,20 +1,24 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1o15jN/Zdxp4cCBMGAsqjBQdsQnQ2oQJcN8GzuXt6+g=;
- b=LDHiGcvkeVB/pOMRU4SN9DQPLhQa74ZuJYN/Kld6UV8Qe1G9pFKZ7lrRNJlkACsOkN0zHe7NcsCEmnAg3MOKEGSPp5M01oIRclLm/Rb+dMoUtnpIhexTGmRPO7QaQ50OGlGPSSqR3dIRWeNRXuhmXxcFMi35x8wfT7abou9uDCBA1A/F2BhOzU0LB9BGqORQTbyiTbKl1IJ3ZJcDXlRoW5gYr1jaN52D3dJJy2/XPR+/MbwgOydnoXnVtDM8CFxAkuKFNVfrwqpqlHjH10ULs8+koY+fRT8LMMvwqtews1zhNitlncUqpNQVlJPaYVdw0TQwYU8uXR2bRzglhU43Vg==
-References: <20210802113633.189831-1-vladimir.oltean@nxp.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <bf8f2ad4-c1d6-9a18-8555-353b526a783e@nvidia.com>
-Date: Mon, 2 Aug 2021 14:40:05 +0300
-In-Reply-To: <20210802113633.189831-1-vladimir.oltean@nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1627942205;
+ bh=e5HDMNUVxVAnWFs/XGtwxzLKoFESQ+SzcrhLxmZo8zg=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=InovInF8f2mareLTbC6Wt0YD97o8jR6KgUl6sKw2lvgXEdSQfKeJow7A7OV3yeeXD
+ b7gvxSZtE3F2Tqnp9x71oVjtzswPEHg1YNnOYwaW+7RiKIBv+UfTVMX7gsLsZGOyNe
+ VjDn7FK4FdFP//qRsXue8VJFX7EeX6WaHknB6xOyGBCxOiD5Ai0Dfyee3oLvR2CzPx
+ 14B8yrHBNcSjp21XzoD8HO4LI6T9d3D79hYt/B0NHa7kpfCtBZ3s3FWKMHTyPqmLIX
+ bp9UKpdH6/4VayzCe5hU/cLWxBTpdpgkTbkEeaonMmrU6DjPaYAYz1wu5AzMsgTO7b
+ v5mnSL8q2FASQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: switchdev: fix incorrect
- use of FDB flags when picking the dst device
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162794220536.7989.3987115619010185604.git-patchwork-notify@kernel.org>
+Date: Mon, 02 Aug 2021 22:10:05 +0000
+References: <20210801231730.7493-1-vladimir.oltean@nxp.com>
+In-Reply-To: <20210801231730.7493-1-vladimir.oltean@nxp.com>
+Subject: Re: [Bridge] [PATCH net] net: bridge: validate the NUD_PERMANENT
+ bit when adding an extern_learn FDB entry
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,61 +27,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
-Cc: Ido Schimmel <idosch@idosch.org>, bridge@lists.linux-foundation.org, Jiri Pirko <jiri@resnulli.us>, Roopa Prabhu <roopa@nvidia.com>
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On 02/08/2021 14:36, Vladimir Oltean wrote:
-> Nikolay points out that it is incorrect to assume that it is impossible
-> to have an fdb entry with fdb->dst == NULL and the BR_FDB_LOCAL bit in
-> fdb->flags not set. This is because there are reader-side places that
-> test_bit(BR_FDB_LOCAL, &fdb->flags) without the br->hash_lock, and if
-> the updating of the FDB entry happens on another CPU, there are no
-> memory barriers at writer or reader side which would ensure that the
-> reader sees the updates to both fdb->flags and fdb->dst in the same
-> order, i.e. the reader will not see an inconsistent FDB entry.
-> 
-> So we must be prepared to deal with FDB entries where fdb->dst and
-> fdb->flags are in a potentially inconsistent state, and that means that
-> fdb->dst == NULL should remain a condition to pick the net_device that
-> we report to switchdev as being the bridge device, which is what the
-> code did prior to the blamed patch.
-> 
-> Fixes: 52e4bec15546 ("net: bridge: switchdev: treat local FDBs the same as entries towards the bridge")
-> Suggested-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> ---
->  net/bridge/br_fdb.c       | 2 +-
->  net/bridge/br_switchdev.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 4ff8c67ac88f..af31cebfda94 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -745,7 +745,7 @@ static int br_fdb_replay_one(struct net_bridge *br, struct notifier_block *nb,
->  	item.added_by_user = test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
->  	item.offloaded = test_bit(BR_FDB_OFFLOADED, &fdb->flags);
->  	item.is_local = test_bit(BR_FDB_LOCAL, &fdb->flags);
-> -	item.info.dev = item.is_local ? br->dev : p->dev;
-> +	item.info.dev = (!p || item.is_local) ? br->dev : p->dev;
->  	item.info.ctx = ctx;
->  
->  	err = nb->notifier_call(nb, action, &item);
-> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index 023de0e958f1..36d75fd4a80c 100644
-> --- a/net/bridge/br_switchdev.c
-> +++ b/net/bridge/br_switchdev.c
-> @@ -134,7 +134,7 @@ br_switchdev_fdb_notify(struct net_bridge *br,
->  		.is_local = test_bit(BR_FDB_LOCAL, &fdb->flags),
->  		.offloaded = test_bit(BR_FDB_OFFLOADED, &fdb->flags),
->  	};
-> -	struct net_device *dev = info.is_local ? br->dev : dst->dev;
-> +	struct net_device *dev = (!dst || info.is_local) ? br->dev : dst->dev;
->  
->  	switch (type) {
->  	case RTM_DELNEIGH:
-> 
+Hello:
 
-Thanks,
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+This patch was applied to netdev/net.git (refs/heads/master):
+
+On Mon,  2 Aug 2021 02:17:30 +0300 you wrote:
+> Currently it is possible to add broken extern_learn FDB entries to the
+> bridge in two ways:
+> 
+> 1. Entries pointing towards the bridge device that are not local/permanent:
+> 
+> ip link add br0 type bridge
+> bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] net: bridge: validate the NUD_PERMANENT bit when adding an extern_learn FDB entry
+    https://git.kernel.org/netdev/net/c/0541a6293298
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
