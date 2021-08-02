@@ -1,22 +1,17 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=225VjnI4g/cwcuGDafQ92hHuuafGlFeEaP4Z9jFRABk=;
- b=jZJFDe09VLZ6R4Hu4wRELDsjwzkQBNSHScE2rxWMR4gOJtaFoaUK+7FePFiSx8ZUObd4/1Nf6f4f83RwpLuYRdqH3vN4nea1TX4Edg1Qc4S40GUlJh5DAZ9EYpm1DxRFyZgk4jwtS0D3THqHSkZ96hM9vYTvLHjbDFttsPrAplY=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 2 Aug 2021 11:20:01 +0000
-Message-ID: <20210802112001.rxfajfttl35bnh5s@skbuf>
+ bh=8Tchkr5EshUZ+VhYo8sfhY+0gq5sEusPRP1T43T7yqA=;
+ b=hd1PLwgPFI95jTEBIIkghx1jjxzyFU3w6nhiI99Q6q3vmdU8GlZHEHyp7r2DxvHMLiruabO2vQEWEf9VF8eMZI7PCuD6XlZ2uYtB+7IDdXEW4q2qN4WcXpwq+rl2IFLFvG/k1NokvfUyTO0nPmEWrB63HvSWT6LzUZ0xj6UDdrObEOgNzfRVJpYCIuK3GX+z/tUqN8E9xwzmMb8MPp2eTmHjTJqOpswIC0aPhDTeE7L3Pq/xvERk7kNp3D1+pONj4OukeSW2ASrRPuwZFU6bvWbK4ptjocyS8ds4CTqlqj4p/2eaj1f97Ql6gRCgpd8g2YzdCqimmwXPIwQquwV6Xw==
 References: <20210801231730.7493-1-vladimir.oltean@nxp.com>
- <ff6d11a2-2931-714a-7301-f624160a2d48@nvidia.com>
- <20210802092053.qyfkuhhqzxjyqf24@skbuf>
- <451c4538-eb77-2865-af74-777e51cd5c31@nvidia.com>
- <20210802105233.64r23kucu4mjnjsu@skbuf>
- <4d85eacb-152e-8e4e-bb18-ad2814d249c1@nvidia.com>
-In-Reply-To: <4d85eacb-152e-8e4e-bb18-ad2814d249c1@nvidia.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <4fb26839-5ce5-99eb-e992-e1380cd36c2e@nvidia.com>
+Date: Mon, 2 Aug 2021 14:25:52 +0300
+In-Reply-To: <20210801231730.7493-1-vladimir.oltean@nxp.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <73DBDAD1B048D546BFAC0CFC0F9CA141@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
 Subject: Re: [Bridge] [PATCH net] net: bridge: validate the NUD_PERMANENT
  bit when adding an extern_learn FDB entry
@@ -28,65 +23,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: "syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com" <syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com>, Jiri Pirko <jiri@resnulli.us>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Ido Schimmel <idosch@idosch.org>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com, Jiri Pirko <jiri@resnulli.us>, bridge@lists.linux-foundation.org, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, Ido Schimmel <idosch@idosch.org>, Roopa Prabhu <roopa@nvidia.com>
 
-On Mon, Aug 02, 2021 at 02:02:36PM +0300, Nikolay Aleksandrov wrote:
-> >> Actually I believe there is still a bug in 52e4bec15546 even with this=
- fix.
-> >> The flag can change after the dst has been read in br_switchdev_fdb_no=
-tify()
-> >> so in theory you could still do a null pointer dereference. fdb_notify=
-()
-> >> can be called from a few places without locking. The code shouldn't de=
-reference
-> >> the dst based on the flag.
-> >
-> > Are you thinking of a specific code path that triggers a race between
-> > (a) a writer side doing WRITE_ONCE(fdb->dst, NULL) and then
-> >     set_bit(BR_FDB_LOCAL, &fdb->flags), exactly in this order, and
->
-> Visible order is not guaranteed, there are no barriers neither at writer =
-nor reader
-> sides, especially when used without locking. So we cannot make any assump=
-tions
-> about the order visibility of these writes.
->
-> > (b) a reader side catching that fdb exactly in between the above 2
-> >     statements, through fdb_notify or otherwise (br_fdb_replay)?
-> >
-> > Because I don't see any.
-> >
-> > Plus, I am a bit nervous about protecting against theoretical/unproven
-> > races in a way that masks real bugs, as we would be doing if I add an
-> > extra check in br_fdb_replay_one and br_switchdev_fdb_notify against th=
-e
-> > case where an entry has fdb->dst =3D=3D NULL but not BR_FDB_LOCAL.
-> >
->
-> The bits are _not_ visible atomically with the setting of ->dst. It is ob=
-vious
-> you must not dereference anything based on them, they are only indication=
-s when used
-> outside of locked regions and code must be able to deal with inconsistenc=
-ies as that
-> is implied by the way they're used. It is a clear and obvious bug derefer=
-encing based
-> on a bit that can change in parallel without any memory ordering guarante=
-es.
+On 02/08/2021 02:17, Vladimir Oltean wrote:
+> Currently it is possible to add broken extern_learn FDB entries to the
+> bridge in two ways:
+> 
+> 1. Entries pointing towards the bridge device that are not local/permanent:
+> 
+> ip link add br0 type bridge
+> bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static
+> 
+> 2. Entries pointing towards the bridge device or towards a port that
+> are marked as local/permanent, however the bridge does not process the
+> 'permanent' bit in any way, therefore they are recorded as though they
+> aren't permanent:
+> 
+> ip link add br0 type bridge
+> bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn permanent
+> 
+> Since commit 52e4bec15546 ("net: bridge: switchdev: treat local FDBs the
+> same as entries towards the bridge"), these incorrect FDB entries can
+> even trigger NULL pointer dereferences inside the kernel.
+> 
+> This is because that commit made the assumption that all FDB entries
+> that are not local/permanent have a valid destination port. For context,
+> local / permanent FDB entries either have fdb->dst == NULL, and these
+> point towards the bridge device and are therefore local and not to be
+> used for forwarding, or have fdb->dst == a net_bridge_port structure
+> (but are to be treated in the same way, i.e. not for forwarding).
+> 
+> That assumption _is_ correct as long as things are working correctly in
+> the bridge driver, i.e. we cannot logically have fdb->dst == NULL under
+> any circumstance for FDB entries that are not local. However, the
+> extern_learn code path where FDB entries are managed by a user space
+> controller show that it is possible for the bridge kernel driver to
+> misinterpret the NUD flags of an entry transmitted by user space, and
+> end up having fdb->dst == NULL while not being a local entry. This is
+> invalid and should be rejected.
+> 
+> Before, the two commands listed above both crashed the kernel in this
+> check from br_switchdev_fdb_notify:
+> 
+> 	struct net_device *dev = info.is_local ? br->dev : dst->dev;
+> 
+> info.is_local == false, dst == NULL.
+> 
+> After this patch, the invalid entry added by the first command is
+> rejected:
+> 
+> ip link add br0 type bridge && bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static; ip link del br0
+> Error: bridge: FDB entry towards bridge must be permanent.
+> 
+> and the valid entry added by the second command is properly treated as a
+> local address and does not crash br_switchdev_fdb_notify anymore:
+> 
+> ip link add br0 type bridge && bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn permanent; ip link del br0
+> 
+> Fixes: eb100e0e24a2 ("net: bridge: allow to add externally learned entries from user-space")
+> Reported-by: syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com
+> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> ---
 
-Ok, I will send a separate patch for that.
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-> You are not "masking" anything, but fixing what is currently buggy use of=
- fdb bits.
 
-I am "masking" in the sense that the bug I am fixing here was not
-obvious to me until it triggered a NPD. That would stop happening with
-the patch I'm about to send, but maybe there are still bridge UAPI
-functions that do not validate the 'permanent' flag from FDB entries.
-
-> As I already said - this doesn't fix the null deref bug completely, in fa=
-ct it fixes a different
-> inconsistency, before at worst you'd get blackholed traffic for such entr=
-ies now
-> you get a null pointer dereference.=
