@@ -1,16 +1,18 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=81X+Bx2MsAfsLoRpNc+d5R3mCTnQmp7qpPlhgsGQIuE=;
- b=RPsqP5maDKwVuKe9vUJxJhQ3KpubehyC2BJcX2WzNHcE7rC7EyBir/7B8fuszGjiR8qJEcOOPRJavPmrTre6cf2XlwVjdF6wuxgYxizxVun6Jfm908cG8UPEDlvHe0oXbairsnkttJ3WHLGdRM93kXXybDG7Pj4f2JFkFAi7saU=
+ bh=bSEdaH4cuHRWJsWtf+PMBbdHlrGh/IhGMYCeF1k9rUo=;
+ b=O29udEaQ2dYjB398BcmZv8pLYqiCGhczvvDT+9/Yc5VsKApDbmuhNRjXk1IR31YkdwAlbSmJEmFzOwMxKEGgXIsQyIT++/jXgM+r3F1gtmzmLoUzVbzzpz/C8u8mheOvpXd90z63rnm7zlZEnnn/9eNEnImC1x/XloPQ49HLh3k=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue,  3 Aug 2021 23:34:07 +0300
-Message-Id: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
+Date: Tue,  3 Aug 2021 23:34:09 +0300
+Message-Id: <20210803203409.1274807-3-vladimir.oltean@nxp.com>
+In-Reply-To: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
+References: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH v2 net-next 0/2] Convert switchdev_bridge_port_{,
-	un}offload to notifiers
+Subject: [Bridge] [PATCH v2 net-next 2/2] Revert "net: build all switchdev
+	drivers as modules when the bridge is a module"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,36 +24,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Arnd Bergmann <arnd@kernel.org>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-The introduction of the explicit switchdev bridge port offloading API
-has introduced dependency regressions between switchdev drivers and the
-bridge, with some drivers where switchdev support was optional before
-being now compiled as a module when the bridge is a module, or worse.
+This reverts commit b0e81817629a496854ff1799f6cbd89597db65fd. Explicit
+driver dependency on the bridge is no longer needed since
+switchdev_bridge_port_{,un}offload() is no longer implemented by the
+bridge driver but by switchdev.
 
-This patch makes the switchdev bridge port offload/unoffload events
-visible on the blocking notifier call chain, so that the bridge can
-indirectly do something when those events happen, without the driver
-explicitly calling a symbol exported by the bridge driver.
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Tested-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+v1->v2: none
 
-v1->v2: removed a bogus return value from a void function
+ drivers/net/ethernet/microchip/sparx5/Kconfig | 1 -
+ drivers/net/ethernet/ti/Kconfig               | 2 --
+ 2 files changed, 3 deletions(-)
 
-Vladimir Oltean (2):
-  net: make switchdev_bridge_port_{,unoffload} loosely coupled with the
-    bridge
-  Revert "net: build all switchdev drivers as modules when the bridge is
-    a module"
-
- drivers/net/ethernet/microchip/sparx5/Kconfig |  1 -
- drivers/net/ethernet/ti/Kconfig               |  2 -
- drivers/net/ethernet/ti/am65-cpsw-nuss.c      |  2 +-
- drivers/net/ethernet/ti/cpsw_new.c            |  2 +-
- include/linux/if_bridge.h                     | 35 -------------
- include/net/switchdev.h                       | 46 +++++++++++++++++
- net/bridge/br.c                               | 51 ++++++++++++++++++-
- net/bridge/br_private.h                       | 29 +++++++++++
- net/bridge/br_switchdev.c                     | 36 ++++---------
- net/switchdev/switchdev.c                     | 48 +++++++++++++++++
- 10 files changed, 184 insertions(+), 68 deletions(-)
-
+diff --git a/drivers/net/ethernet/microchip/sparx5/Kconfig b/drivers/net/ethernet/microchip/sparx5/Kconfig
+index d39ae2a6fb49..7bdbb2d09a14 100644
+--- a/drivers/net/ethernet/microchip/sparx5/Kconfig
++++ b/drivers/net/ethernet/microchip/sparx5/Kconfig
+@@ -1,6 +1,5 @@
+ config SPARX5_SWITCH
+ 	tristate "Sparx5 switch driver"
+-	depends on BRIDGE || BRIDGE=n
+ 	depends on NET_SWITCHDEV
+ 	depends on HAS_IOMEM
+ 	depends on OF
+diff --git a/drivers/net/ethernet/ti/Kconfig b/drivers/net/ethernet/ti/Kconfig
+index 7ac8e5ecbe97..affcf92cd3aa 100644
+--- a/drivers/net/ethernet/ti/Kconfig
++++ b/drivers/net/ethernet/ti/Kconfig
+@@ -64,7 +64,6 @@ config TI_CPSW
+ config TI_CPSW_SWITCHDEV
+ 	tristate "TI CPSW Switch Support with switchdev"
+ 	depends on ARCH_DAVINCI || ARCH_OMAP2PLUS || COMPILE_TEST
+-	depends on BRIDGE || BRIDGE=n
+ 	depends on NET_SWITCHDEV
+ 	depends on TI_CPTS || !TI_CPTS
+ 	select PAGE_POOL
+@@ -110,7 +109,6 @@ config TI_K3_AM65_CPSW_NUSS
+ config TI_K3_AM65_CPSW_SWITCHDEV
+ 	bool "TI K3 AM654x/J721E CPSW Switch mode support"
+ 	depends on TI_K3_AM65_CPSW_NUSS
+-	depends on BRIDGE || BRIDGE=n
+ 	depends on NET_SWITCHDEV
+ 	help
+ 	 This enables switchdev support for TI K3 CPSWxG Ethernet
 -- 
 2.25.1
 
