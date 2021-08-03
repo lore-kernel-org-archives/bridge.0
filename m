@@ -2,19 +2,19 @@ Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
  bh=naiLnK5Z8Oi+Ea1QkJfEpIzr9B1/OLmKcdpkiIqCX8E=;
- b=ULzfQzbIjDTJmuwYSshczugyMyO0FA7c4WaXprZuMrIG+Tg+Bof4r9AjtZ5VTrDT1UAwOq4KxA3NjOD8rrzOpNbTWKIl92yoxUnW3Sj/rKXXWjdVqsoCu6VNcuOBIR1q/rMhsStBZQZnIx/EaA9lWgwhmMtUxMZzqZJV/PN8W6I=
+ b=tBC72Clqx0DFpxW9bmsjMhmt4keThU4nE9N5QeoDOQTD6Nro2sueiysSKrcX3upv7M/CC5xqZfUgdaoaX8X446JMxYJpfjD8gONDd9FNvYDTnNWPh+WYE+l2fNEjta7AKCPQXQIWEqCwqmFbnrAkUFOKeYTJBj7BeVfTnKGCeKI=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue, 3 Aug 2021 20:43:30 +0000
-Message-ID: <20210803204329.534dpqxrlk64kqqi@skbuf>
-References: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
+Date: Tue, 3 Aug 2021 20:44:43 +0000
+Message-ID: <20210803204426.vw3s6mzo3yjeszpd@skbuf>
+References: <20210803143624.1135002-1-vladimir.oltean@nxp.com>
+In-Reply-To: <20210803143624.1135002-1-vladimir.oltean@nxp.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <A898D30362C4784185316C9888DBA9D7@eurprd04.prod.outlook.com>
+Content-ID: <C03B995806504B498A9F42BBAFC65C89@eurprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH v2 net-next 0/2] Convert
- switchdev_bridge_port_{, un}offload to notifiers
+Subject: Re: [Bridge] [PATCH net-next 0/2] Convert switchdev_bridge_port_{,
+ un}offload to notifiers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
