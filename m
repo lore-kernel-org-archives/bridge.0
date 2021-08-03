@@ -1,24 +1,16 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1627942205;
- bh=e5HDMNUVxVAnWFs/XGtwxzLKoFESQ+SzcrhLxmZo8zg=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=InovInF8f2mareLTbC6Wt0YD97o8jR6KgUl6sKw2lvgXEdSQfKeJow7A7OV3yeeXD
- b7gvxSZtE3F2Tqnp9x71oVjtzswPEHg1YNnOYwaW+7RiKIBv+UfTVMX7gsLsZGOyNe
- VjDn7FK4FdFP//qRsXue8VJFX7EeX6WaHknB6xOyGBCxOiD5Ai0Dfyee3oLvR2CzPx
- 14B8yrHBNcSjp21XzoD8HO4LI6T9d3D79hYt/B0NHa7kpfCtBZ3s3FWKMHTyPqmLIX
- bp9UKpdH6/4VayzCe5hU/cLWxBTpdpgkTbkEeaonMmrU6DjPaYAYz1wu5AzMsgTO7b
- v5mnSL8q2FASQ==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/CIInQFhUIvGc9Fp/wsZr+6F94nSrzs2toRlY80F5hE=;
+ b=TdNpMqCvPK1mP8/hSBj/kPSIzETcm+P3+iwpr06VKgRq9pdGOWOIJWlsUK3mMlh6L3ixf+MViej326MEMy87gt8KB/SuDWIhiH8s+0ODxqtawEvrvkYZAKCjHVu9JswgmbOrti56AsdpKq829yZi3wRB/M77nlQ83UkR1klZC1Q=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Tue,  3 Aug 2021 17:36:22 +0300
+Message-Id: <20210803143624.1135002-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162794220536.7989.3987115619010185604.git-patchwork-notify@kernel.org>
-Date: Mon, 02 Aug 2021 22:10:05 +0000
-References: <20210801231730.7493-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20210801231730.7493-1-vladimir.oltean@nxp.com>
-Subject: Re: [Bridge] [PATCH net] net: bridge: validate the NUD_PERMANENT
- bit when adding an extern_learn FDB entry
+Content-Type: text/plain
+MIME-Version: 1.0
+Subject: [Bridge] [PATCH net-next 0/2] Convert switchdev_bridge_port_{,
+	un}offload to notifiers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,31 +19,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com, jiri@resnulli.us, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, idosch@idosch.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Arnd Bergmann <arnd@kernel.org>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-Hello:
+The introduction of the explicit switchdev bridge port offloading API
+has introduced dependency regressions between switchdev drivers and the
+bridge, with some drivers where switchdev support was optional before
+being now compiled as a module when the bridge is a module, or worse.
 
-This patch was applied to netdev/net.git (refs/heads/master):
+This patch makes the switchdev bridge port offload/unoffload events
+visible on the blocking notifier call chain, so that the bridge can
+indirectly do something when those events happen, without the driver
+explicitly calling a symbol exported by the bridge driver.
 
-On Mon,  2 Aug 2021 02:17:30 +0300 you wrote:
-> Currently it is possible to add broken extern_learn FDB entries to the
-> bridge in two ways:
-> 
-> 1. Entries pointing towards the bridge device that are not local/permanent:
-> 
-> ip link add br0 type bridge
-> bridge fdb add 00:01:02:03:04:05 dev br0 self extern_learn static
-> 
-> [...]
+Vladimir Oltean (2):
+  net: make switchdev_bridge_port_{,unoffload} loosely coupled with the
+    bridge
+  Revert "net: build all switchdev drivers as modules when the bridge is
+    a module"
 
-Here is the summary with links:
-  - [net] net: bridge: validate the NUD_PERMANENT bit when adding an extern_learn FDB entry
-    https://git.kernel.org/netdev/net/c/0541a6293298
+ drivers/net/ethernet/microchip/sparx5/Kconfig |  1 -
+ drivers/net/ethernet/ti/Kconfig               |  2 -
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c      |  2 +-
+ drivers/net/ethernet/ti/cpsw_new.c            |  2 +-
+ include/linux/if_bridge.h                     | 35 -------------
+ include/net/switchdev.h                       | 46 +++++++++++++++++
+ net/bridge/br.c                               | 51 ++++++++++++++++++-
+ net/bridge/br_private.h                       | 30 +++++++++++
+ net/bridge/br_switchdev.c                     | 36 ++++---------
+ net/switchdev/switchdev.c                     | 48 +++++++++++++++++
+ 10 files changed, 185 insertions(+), 68 deletions(-)
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+-- 
+2.25.1
 
