@@ -1,21 +1,16 @@
 Return-Path: <vladimir.oltean@nxp.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ri+SD2Yc1KXe7XVzan10Kk/GAeyQKExgjuIbCygDU9w=;
- b=d710FNp1UMItE8gjhxc9o0moyh44p6Am9BDvB7cWRLiHaZODlTFNCMAi9Pd9KqbnPOo5ivnZpfx0W9PMMo1Zajbr6vE/DY4Q4+68g1wIhxTXqAu0erXpE0rBZNIybvhu0PaG363BJhSkeaOF2DTVbR133M88G3YU7MHsOfjXxHg=
+ bh=81X+Bx2MsAfsLoRpNc+d5R3mCTnQmp7qpPlhgsGQIuE=;
+ b=RPsqP5maDKwVuKe9vUJxJhQ3KpubehyC2BJcX2WzNHcE7rC7EyBir/7B8fuszGjiR8qJEcOOPRJavPmrTre6cf2XlwVjdF6wuxgYxizxVun6Jfm908cG8UPEDlvHe0oXbairsnkttJ3WHLGdRM93kXXybDG7Pj4f2JFkFAi7saU=
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue, 3 Aug 2021 18:15:35 +0000
-Message-ID: <20210803181534.qgbcjow4ketd4yio@skbuf>
-References: <20210803143624.1135002-1-vladimir.oltean@nxp.com>
- <00acb107-8ff6-9c98-e6c3-f6718d5ce9f4@ti.com>
-In-Reply-To: <00acb107-8ff6-9c98-e6c3-f6718d5ce9f4@ti.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <5EBB01D20F46D54F874D3AB13112056B@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Date: Tue,  3 Aug 2021 23:34:07 +0300
+Message-Id: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 0/2] Convert switchdev_bridge_port_{,
- un}offload to notifiers
+Subject: [Bridge] [PATCH v2 net-next 0/2] Convert switchdev_bridge_port_{,
+	un}offload to notifiers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,45 +19,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Arnd Bergmann <arnd@kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Arnd Bergmann <arnd@kernel.org>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, Grygorii Strashko <grygorii.strashko@ti.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Tue, Aug 03, 2021 at 08:11:56PM +0300, Grygorii Strashko wrote:
-> I've tested builds, but was not able to test bridge itself on TI am57x pl=
-atform.
->=20
-> 1) See warning
-> [    3.958496] ------------[ cut here ]------------
-> [    3.963165] WARNING: CPU: 0 PID: 1 at lib/refcount.c:25 fib_create_inf=
-o+0xae8/0xbd4
-> [    3.970855] refcount_t: addition on 0; use-after-free.
-> [    3.976043] Modules linked in: autofs4
-> [    3.979827] CPU: 0 PID: 1 Comm: systemd Not tainted 5.14.0-rc4-next-20=
-210802-00002-g5003e4ac441d-dirty #5
-> [    3.989440] Hardware name: Generic DRA72X (Flattened Device Tree)
-> [    3.995574] [<c0111098>] (unwind_backtrace) from [<c010b834>] (show_st=
-ack+0x10/0x14)
-> [    4.003356] [<c010b834>] (show_stack) from [<c09da808>] (dump_stack_lv=
-l+0x40/0x4c)
-> [    4.010986] [<c09da808>] (dump_stack_lvl) from [<c0137b44>] (__warn+0x=
-d8/0x100)
-> [    4.018341] [<c0137b44>] (__warn) from [<c09d6368>] (warn_slowpath_fmt=
-+0x94/0xbc)
-> [    4.025848] [<c09d6368>] (warn_slowpath_fmt) from [<c08f68d4>] (fib_cr=
-eate_info+0xae8/0xbd4)
-> [    4.034332] [<c08f68d4>] (fib_create_info) from [<c08f99c4>] (fib_tabl=
-e_insert+0x5c/0x604=A2=B7=86A=CB=D5=EC=CD_=A1
->=20
-> 2) see warnings and "ip link add name br0 type bridge" just stuck
-> [  158.032135] unregister_netdevice: waiting for lo to become free. Usage=
- count =3D 3
->=20
-> It might not be related to this series.
+The introduction of the explicit switchdev bridge port offloading API
+has introduced dependency regressions between switchdev drivers and the
+bridge, with some drivers where switchdev support was optional before
+being now compiled as a module when the bridge is a module, or worse.
 
-100% not me.
+This patch makes the switchdev bridge port offload/unoffload events
+visible on the blocking notifier call chain, so that the bridge can
+indirectly do something when those events happen, without the driver
+explicitly calling a symbol exported by the bridge driver.
 
-See if you have David Ahern's bug fix, and if you do, try to see what
-other refcount conversion patches Yajun Deng did, revert them one by one
-and see if any one fixes the issue:
-https://patchwork.kernel.org/project/netdevbpf/patch/20210802160221.27263-1=
--dsahern@kernel.org/=
+v1->v2: removed a bogus return value from a void function
+
+Vladimir Oltean (2):
+  net: make switchdev_bridge_port_{,unoffload} loosely coupled with the
+    bridge
+  Revert "net: build all switchdev drivers as modules when the bridge is
+    a module"
+
+ drivers/net/ethernet/microchip/sparx5/Kconfig |  1 -
+ drivers/net/ethernet/ti/Kconfig               |  2 -
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c      |  2 +-
+ drivers/net/ethernet/ti/cpsw_new.c            |  2 +-
+ include/linux/if_bridge.h                     | 35 -------------
+ include/net/switchdev.h                       | 46 +++++++++++++++++
+ net/bridge/br.c                               | 51 ++++++++++++++++++-
+ net/bridge/br_private.h                       | 29 +++++++++++
+ net/bridge/br_switchdev.c                     | 36 ++++---------
+ net/switchdev/switchdev.c                     | 48 +++++++++++++++++
+ 10 files changed, 184 insertions(+), 68 deletions(-)
+
+-- 
+2.25.1
+
