@@ -1,24 +1,21 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1628077206;
- bh=XJaPec5/QHyjwGWIlKEDZ0VG4U3aPIU3P+nAsdhBwPk=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=HP/JX1SCq3YkDqETXyF7AZCtdvPukk6NVtfUIYjW6isxzvFKIl+uAQKxJ03v1OAt/
- yb8oamdizt0Sq2R8NVK2GBxwstPxAqdwlQYPa03TfWszzU226F+UIiEy7v7syI7k3v
- SAomqwWNeS2hJ+xE2N4LVyEppwa/n8pwPnOR6lP8dUTJy6RW0ZDl+2eiEPO2VriKgj
- ALJlqAhAwoEyN0bXynBlPbxM/zZsvwJ8jFY0+JlWTv59HEoiv8tUccYcAqlgLqxCFY
- DdKOIEiic1CXEHUb8Gw0+kVXhYr/ag0+X2Ryhgo2alghiRynbUtqBJ3LcKHqQVUmUg
- oDkGUKzUaanEQ==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=9EkdsdYrApQ7+f5B8Pf+SPksTX/P+n0hxS3e4gT9YU8=;
+ b=xqiRpsxL69vB0rwu/tqx/+M8yMfnqdwIb7raj+3psGPAF3iRPd6FMf46Tn4VpwyItb
+ LHQcr8Ax3liG9F1syUcoSfiF5j2K2cTZ+uVYAhkmZ53Sih1ZFMTUj/Gu5d98VE1eQhz7
+ X4z3w6gR0WR4VvFpZ8vvtEI8fyRyW4zoYDXY4zto0r2hni1xTyxeoy90wsy8N94LR8KJ
+ 8EBf8/GeQwHJMySq3h0zLRqfsq3qd5Upf4TcUUDzHr6CVr6Me78rYi4k3F2S8FQdpFRS
+ okJ1JqXxx7Wu6JYjlmSVM4+0i0pfJYD9BfLnS/ZdbuMifq4WG6dTkFbd/X2jpfwsw/Ti
+ /v3w==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Thu,  5 Aug 2021 11:29:00 +0300
+Message-Id: <20210805082903.711396-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162807720594.23179.2687228457044533864.git-patchwork-notify@kernel.org>
-Date: Wed, 04 Aug 2021 11:40:05 +0000
-References: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
-In-Reply-To: <20210803203409.1274807-1-vladimir.oltean@nxp.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 0/2] Convert
- switchdev_bridge_port_{, un}offload to notifiers
+Subject: [Bridge] [PATCH net-next 0/3] net: bridge: fix recent ioctl changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,35 +24,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, arnd@kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, idosch@idosch.org, grygorii.strashko@ti.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, arnd@arndb.de, roopa@nvidia.com
 
-Hello:
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-This series was applied to netdev/net-next.git (refs/heads/master):
+Hi,
+These are three fixes for the recent bridge removal of ndo_do_ioctl
+done by commit ad2f99aedf8f ("net: bridge: move bridge ioctls out of
+.ndo_do_ioctl"). Patch 01 fixes a deadlock of the new bridge ioctl
+hook lock and rtnl by taking a netdev reference and always taking the
+bridge ioctl lock first then rtnl from within the bridge hook.
+Patch 02 fixes old_deviceless() bridge calls device name argument, and
+patch 03 checks in dev_ifsioc()'s SIOCBRADD/DELIF cases if the netdevice is
+actually a bridge before interpreting its private ptr as net_bridge.
 
-On Tue,  3 Aug 2021 23:34:07 +0300 you wrote:
-> The introduction of the explicit switchdev bridge port offloading API
-> has introduced dependency regressions between switchdev drivers and the
-> bridge, with some drivers where switchdev support was optional before
-> being now compiled as a module when the bridge is a module, or worse.
-> 
-> This patch makes the switchdev bridge port offload/unoffload events
-> visible on the blocking notifier call chain, so that the bridge can
-> indirectly do something when those events happen, without the driver
-> explicitly calling a symbol exported by the bridge driver.
-> 
-> [...]
+Patch 01 was tested by running old bridge-utils commands with lockdep
+enabled. Patch 02 was tested again by using bridge-utils and using the
+respective ioctl calls on a "up" bridge device. Patch 03 was tested by
+using the addif ioctl on a non-bridge device (e.g. loopback).
 
-Here is the summary with links:
-  - [v2,net-next,1/2] net: make switchdev_bridge_port_{,unoffload} loosely coupled with the bridge
-    https://git.kernel.org/netdev/net-next/c/957e2235e526
-  - [v2,net-next,2/2] Revert "net: build all switchdev drivers as modules when the bridge is a module"
-    https://git.kernel.org/netdev/net-next/c/a54182b2a518
+Thanks,
+ Nik
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Nikolay Aleksandrov (3):
+  net: bridge: fix ioctl locking
+  net: bridge: fix ioctl old_deviceless bridge argument
+  net: core: don't call SIOCBRADD/DELIF for non-bridge devices
 
+ net/bridge/br_if.c    |  4 +---
+ net/bridge/br_ioctl.c | 39 +++++++++++++++++++++++++--------------
+ net/core/dev_ioctl.c  |  9 ++++++++-
+ 3 files changed, 34 insertions(+), 18 deletions(-)
+
+-- 
+2.31.1
 
