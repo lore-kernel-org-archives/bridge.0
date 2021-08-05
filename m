@@ -1,20 +1,24 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zAqOag5PAh66I8vpti32dYOZs6rrHwP+fodCPAXcCOM=;
- b=GJWF4U0XO4nnYzt+m9BjggFBUZVi6irZV9dtbrv8npKa9hZHJPRA3Dx2imTYytQK8akIl24XrQuh938wPpPLo/Hk9sIbEzw5F6dizbm/HPvPcbtY1yPVY92pFTc9acjqhioYcEuRtgCXQ4+lIZZfK13jbVVPcXdKrmufdR5RUd5CpF8FRQf/h+vlJsJQMFxeRELE+FBjY4LmfH7xpiAE4qc+8mNTMu5y9i5RyO+Y+VUMj3/46mTIf/3EYrOZKFVeCpPkWNITTcoceaVeHgvZQoCwCX3tF44KbDIe3PkXg/MROUuSSu4c1VcR4BNiTsTC37gpYINPTvkwV2j3V9XBmQ==
-References: <20210805082903.711396-1-razor@blackwall.org>
- <20210805082903.711396-2-razor@blackwall.org>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <53339ad0-1028-2660-3241-58ee70d8247a@nvidia.com>
-Date: Thu, 5 Aug 2021 12:29:34 +0300
-In-Reply-To: <20210805082903.711396-2-razor@blackwall.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1628160006;
+ bh=LhqQugWyEtFPfVHlTMB1zuu+3ElXURLnc+tNxE3iQ/A=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=Iim5TFr8cWPPMlSz5AwA2Uoom71hsnhD71qMwfHYxuA22agOtuaCBNN0bC63ncxEf
+ UA5Nat1hsV7llk0Q9G5KuVPJpGW8lBx7uUE8EtRrqwDUZS4EgGMqAP+IyyDi3dna3h
+ RbDuIkSf9T4kJQKnbdN7cPQxOb/K7RbxPPHKUqpRpn8WatkSwcN5V5blsthL1J2vqd
+ n9t5uHQz79Flu1vUvCFBAaD8ZdafELUcgARSpUz75c9GFHD+dOVCTQTn8PDE0k985N
+ ymmxRtT8GqwQkMz3Kda8fHY7GTwhSUNS3wc7EpkEMCzlvcD5mtK00mvuLDHiNmgQGV
+ xXnGJPyIscLqQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 1/3] net: bridge: fix ioctl locking
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162816000666.17050.13699886393043128255.git-patchwork-notify@kernel.org>
+Date: Thu, 05 Aug 2021 10:40:06 +0000
+References: <20210805082903.711396-1-razor@blackwall.org>
+In-Reply-To: <20210805082903.711396-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next 0/3] net: bridge: fix recent ioctl
+	changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,46 +27,39 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
-Cc: syzbot+34fe5894623c4ab1b379@syzkaller.appspotmail.com, bridge@lists.linux-foundation.org, Hillf Danton <hdanton@sina.com>, arnd@arndb.de, roopa@nvidia.com
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, arnd@arndb.de, roopa@nvidia.com
 
-On 05/08/2021 11:29, Nikolay Aleksandrov wrote:
+Hello:
+
+This series was applied to netdev/net-next.git (refs/heads/master):
+
+On Thu,  5 Aug 2021 11:29:00 +0300 you wrote:
 > From: Nikolay Aleksandrov <nikolay@nvidia.com>
 > 
-> Before commit ad2f99aedf8f ("net: bridge: move bridge ioctls out of
-> .ndo_do_ioctl") the bridge ioctl calls were divided in two parts:
-> one was deviceless called by sock_ioctl and didn't expect rtnl to be held,
-> the other was with a device called by dev_ifsioc() and expected rtnl to be
-> held. After the commit above they were united in a single ioctl stub, but
-> it didn't take care of the locking expectations.
-> For sock_ioctl now we acquire  (1) br_ioctl_mutex, (2) rtnl
-> and for dev_ifsioc we acquire  (1) rtnl,           (2) br_ioctl_mutex
+> Hi,
+> These are three fixes for the recent bridge removal of ndo_do_ioctl
+> done by commit ad2f99aedf8f ("net: bridge: move bridge ioctls out of
+> .ndo_do_ioctl"). Patch 01 fixes a deadlock of the new bridge ioctl
+> hook lock and rtnl by taking a netdev reference and always taking the
+> bridge ioctl lock first then rtnl from within the bridge hook.
+> Patch 02 fixes old_deviceless() bridge calls device name argument, and
+> patch 03 checks in dev_ifsioc()'s SIOCBRADD/DELIF cases if the netdevice is
+> actually a bridge before interpreting its private ptr as net_bridge.
 > 
-> The fix is to get a refcnt on the netdev for dev_ifsioc calls and drop rtnl
-> then to reacquire it in the bridge ioctl stub after br_ioctl_mutex has
-> been acquired. That will avoid playing locking games and make the rules
-> straight-forward: we always take br_ioctl_mutex first, and then rtnl.
-> 
-> Reported-by: syzbot+34fe5894623c4ab1b379@syzkaller.appspotmail.com
-> Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> ---
->  net/bridge/br_if.c    |  4 +---
->  net/bridge/br_ioctl.c | 37 ++++++++++++++++++++++++-------------
->  net/core/dev_ioctl.c  |  7 ++++++-
->  3 files changed, 31 insertions(+), 17 deletions(-)
-> 
-[snip]
+> [...]
 
-I fixed the bridge side of things, but the unlock/lock suggestion was made first by Hillf.
-I forgot to add:
+Here is the summary with links:
+  - [net-next,1/3] net: bridge: fix ioctl locking
+    https://git.kernel.org/netdev/net-next/c/893b19587534
+  - [net-next,2/3] net: bridge: fix ioctl old_deviceless bridge argument
+    https://git.kernel.org/netdev/net-next/c/cbd7ad29a507
+  - [net-next,3/3] net: core: don't call SIOCBRADD/DELIF for non-bridge devices
+    https://git.kernel.org/netdev/net-next/c/9384eacd80f3
 
-Suggested-by: Hillf Danton <hdanton@sina.com>
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-+CC Hillf
 
-Hillf, since the rtnl unlock/lock suggestion was yours feel free to add
-your signed-off-by
-
-Thanks,
- Nik
