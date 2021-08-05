@@ -1,24 +1,20 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=ASFi6LmvPfUEVAfYOyV6LdzH3i0EWd4CXmN64mzKTmI=;
- b=FDd/+X33tYFBuRoA72xCxLV9ETIza+Osqha0JMbpo3+srdWGFrOIoW/0Beh+QHi9Kk
- HAXhay+TdAxUITsr0To4mEhM5/9MwyP/denNRgi64IIq7k8dVBsvjHtJW4hlWSpT6r03
- uWHTMEBm9WLb4yjVENLJfYqDPItPtXhF0/xovtJCmxw2qxqDHh62sXN4dDp9fdpufo+h
- 14thAclH380lVzJhsQYPcNjN26sb3wBH0GiU3kwlLZTR70jH5EWUdywgDVep1K/iFad6
- cjggBcIjBqeli4HnnzC8mctBi1OK/F+/rIwkR6ii1Rv887XYWn54IpGp2mq2V/UTVuSN
- zhQA==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Thu,  5 Aug 2021 11:29:03 +0300
-Message-Id: <20210805082903.711396-4-razor@blackwall.org>
-In-Reply-To: <20210805082903.711396-1-razor@blackwall.org>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zAqOag5PAh66I8vpti32dYOZs6rrHwP+fodCPAXcCOM=;
+ b=GJWF4U0XO4nnYzt+m9BjggFBUZVi6irZV9dtbrv8npKa9hZHJPRA3Dx2imTYytQK8akIl24XrQuh938wPpPLo/Hk9sIbEzw5F6dizbm/HPvPcbtY1yPVY92pFTc9acjqhioYcEuRtgCXQ4+lIZZfK13jbVVPcXdKrmufdR5RUd5CpF8FRQf/h+vlJsJQMFxeRELE+FBjY4LmfH7xpiAE4qc+8mNTMu5y9i5RyO+Y+VUMj3/46mTIf/3EYrOZKFVeCpPkWNITTcoceaVeHgvZQoCwCX3tF44KbDIe3PkXg/MROUuSSu4c1VcR4BNiTsTC37gpYINPTvkwV2j3V9XBmQ==
 References: <20210805082903.711396-1-razor@blackwall.org>
+ <20210805082903.711396-2-razor@blackwall.org>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <53339ad0-1028-2660-3241-58ee70d8247a@nvidia.com>
+Date: Thu, 5 Aug 2021 12:29:34 +0300
+In-Reply-To: <20210805082903.711396-2-razor@blackwall.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 3/3] net: core: don't call SIOCBRADD/DELIF
-	for non-bridge devices
+Subject: Re: [Bridge] [PATCH net-next 1/3] net: bridge: fix ioctl locking
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,79 +23,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: syzbot+79f4a8692e267bdb7227@syzkaller.appspotmail.com, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, arnd@arndb.de, roopa@nvidia.com
+To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc: syzbot+34fe5894623c4ab1b379@syzkaller.appspotmail.com, bridge@lists.linux-foundation.org, Hillf Danton <hdanton@sina.com>, arnd@arndb.de, roopa@nvidia.com
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 05/08/2021 11:29, Nikolay Aleksandrov wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Before commit ad2f99aedf8f ("net: bridge: move bridge ioctls out of
+> .ndo_do_ioctl") the bridge ioctl calls were divided in two parts:
+> one was deviceless called by sock_ioctl and didn't expect rtnl to be held,
+> the other was with a device called by dev_ifsioc() and expected rtnl to be
+> held. After the commit above they were united in a single ioctl stub, but
+> it didn't take care of the locking expectations.
+> For sock_ioctl now we acquire  (1) br_ioctl_mutex, (2) rtnl
+> and for dev_ifsioc we acquire  (1) rtnl,           (2) br_ioctl_mutex
+> 
+> The fix is to get a refcnt on the netdev for dev_ifsioc calls and drop rtnl
+> then to reacquire it in the bridge ioctl stub after br_ioctl_mutex has
+> been acquired. That will avoid playing locking games and make the rules
+> straight-forward: we always take br_ioctl_mutex first, and then rtnl.
+> 
+> Reported-by: syzbot+34fe5894623c4ab1b379@syzkaller.appspotmail.com
+> Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
+> Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+> ---
+>  net/bridge/br_if.c    |  4 +---
+>  net/bridge/br_ioctl.c | 37 ++++++++++++++++++++++++-------------
+>  net/core/dev_ioctl.c  |  7 ++++++-
+>  3 files changed, 31 insertions(+), 17 deletions(-)
+> 
+[snip]
 
-Commit ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
-changed SIOCBRADD/DELIF to use bridge's ioctl hook (br_ioctl_hook)
-without checking if the target netdevice is actually a bridge which can
-cause crashes and generally interpreting other devices' private pointers
-as net_bridge pointers.
+I fixed the bridge side of things, but the unlock/lock suggestion was made first by Hillf.
+I forgot to add:
 
-Crash example (lo - loopback):
-$ brctl addif lo ens16
- BUG: kernel NULL pointer dereference, address: 000000000000059898
- #PF: supervisor read access in kernel modede
- #PF: error_code(0x0000) - not-present pagege
- PGD 0 P4D 0 ^Ac
- Oops: 0000 [#1] SMP NOPTI
- CPU: 2 PID: 1376 Comm: brctl Kdump: loaded Tainted: G        W         5.14.0-rc3+ #405
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
- RIP: 0010:add_del_if+0x1f/0x7c [bridge]
- Code: 80 bf 1b a0 41 5c e9 c0 3c 03 e1 0f 1f 44 00 00 41 55 41 54 41 89 f4 be 0c 00 00 00 55 48 89 fd 53 48 8b 87 88 00 00 00 89 d3 <4c> 8b a8 98 05 00 00 49 8b bd d0 00 00 00 e8 17 d7 f3 e0 84 c0 74
- RSP: 0018:ffff888109d97cb0 EFLAGS: 00010202^Ac
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: 000000000000000c RDI: ffff888101239bc0
- RBP: ffff888101239bc0 R08: 0000000000000001 R09: 0000000000000000
- R10: ffff888109d97cd8 R11: 00000000000000a3 R12: 0000000000000012
- R13: 0000000000000000 R14: ffff888101239bc0 R15: ffff888109d97e10
- FS:  00007fc1e365b540(0000) GS:ffff88822be80000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000598 CR3: 0000000106506000 CR4: 00000000000006e0
- Call Trace:
-  br_ioctl_stub+0x7c/0x441 [bridge]
-  br_ioctl_call+0x6d/0x8a
-  dev_ifsioc+0x325/0x4e8
-  dev_ioctl+0x46b/0x4e1
-  sock_do_ioctl+0x7b/0xad
-  sock_ioctl+0x2de/0x2f2
-  vfs_ioctl+0x1e/0x2b
-  __do_sys_ioctl+0x63/0x86
-  do_syscall_64+0xcb/0xf2
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7fc1e3589427
- Code: 00 00 90 48 8b 05 69 aa 0c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 39 aa 0c 00 f7 d8 64 89 01 48
- RSP: 002b:00007ffc8d501d38 EFLAGS: 00000202 ORIG_RAX: 000000000000001010
- RAX: ffffffffffffffda RBX: 0000000000000012 RCX: 00007fc1e3589427
- RDX: 00007ffc8d501d60 RSI: 00000000000089a3 RDI: 0000000000000003
- RBP: 00007ffc8d501d60 R08: 0000000000000000 R09: fefefeff77686d74
- R10: fffffffffffff8f9 R11: 0000000000000202 R12: 00007ffc8d502e06
- R13: 00007ffc8d502e06 R14: 0000000000000000 R15: 0000000000000000
- Modules linked in: bridge stp llc bonding ipv6 virtio_net [last unloaded: llc]^Ac
- CR2: 0000000000000598
+Suggested-by: Hillf Danton <hdanton@sina.com>
 
-Reported-by: syzbot+79f4a8692e267bdb7227@syzkaller.appspotmail.com
-Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/core/dev_ioctl.c | 2 ++
- 1 file changed, 2 insertions(+)
++CC Hillf
 
-diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
-index ff16326f5903..0e87237fd871 100644
---- a/net/core/dev_ioctl.c
-+++ b/net/core/dev_ioctl.c
-@@ -379,6 +379,8 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
- 	case SIOCBRDELIF:
- 		if (!netif_device_present(dev))
- 			return -ENODEV;
-+		if (!netif_is_bridge_master(dev))
-+			return -EOPNOTSUPP;
- 		dev_hold(dev);
- 		rtnl_unlock();
- 		err = br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
--- 
-2.31.1
+Hillf, since the rtnl unlock/lock suggestion was yours feel free to add
+your signed-off-by
 
+Thanks,
+ Nik
