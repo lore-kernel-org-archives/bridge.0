@@ -1,13 +1,19 @@
-Return-Path: <hdanton@sina.com>
-From: Hillf Danton <hdanton@sina.com>
-Date: Thu,  5 Aug 2021 17:53:52 +0800
-Message-Id: <20210805095352.2913-1-hdanton@sina.com>
-In-Reply-To: <53339ad0-1028-2660-3241-58ee70d8247a@nvidia.com>
-References: <20210805082903.711396-1-razor@blackwall.org>
- <20210805082903.711396-2-razor@blackwall.org>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=S7tvrWFyrba3jBCmQsFCnSm4A6B49OjV7l0aeQrL3mo=;
+ b=VgepStQJvZiRmcW/k5CGwNEScDhx4MF5IevKpW72+ZDWBrTTofFUwO7XYFUGqRpCmLPxOk1q5jZNslERmio88+svIZcK705mrbT9QJWjQ4PNib6o1OOxEyJgcBejSMxv83vjELaHlEW2pKsFPV5xTec8l9hikT4baKHs9DFcFgdW3gaEFobH3bkRBzZeAPhYw9A8nVz1Xxh6N1Hh8GFzuugS3jP35zDiXW/egvSCmFfuQ5Ba7PyMKQI7vqL9QZ5LDT4CawBplDRo3AfI450rZ0HVy23YUYziNnQkVmlfp/uzk//rInz589tmFBsfBaa6GT4WK4Ci2NROwVn8OD4rqw==
+References: <20210809090211.65677-1-yangyingliang@huawei.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <8af55b8a-0844-3fb2-8dd4-f6818c2675db@nvidia.com>
+Date: Mon, 9 Aug 2021 12:09:35 +0300
+In-Reply-To: <20210809090211.65677-1-yangyingliang@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next 1/3] net: bridge: fix ioctl locking
+Subject: Re: [Bridge] [PATCH net v2] net: bridge: fix memleak in br_add_if()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,23 +22,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
-Cc: syzbot+34fe5894623c4ab1b379@syzkaller.appspotmail.com, bridge@lists.linux-foundation.org, arnd@arndb.de, roopa@nvidia.com
+To: Yang Yingliang <yangyingliang@huawei.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: kuba@kernel.org, davem@davemloft.net, roopa@nvidia.com
 
-On Thu, 5 Aug 2021 12:29:34 +0300 Nikolay Aleksandrov wrote:
+On 09/08/2021 12:02, Yang Yingliang wrote:
+> I got a memleak report:
 > 
-> I fixed the bridge side of things,
+> BUG: memory leak
+> unreferenced object 0x607ee521a658 (size 240):
+> comm "syz-executor.0", pid 955, jiffies 4294780569 (age 16.449s)
+> hex dump (first 32 bytes, cpu 1):
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+> backtrace:
+> [<00000000d830ea5a>] br_multicast_add_port+0x1c2/0x300 net/bridge/br_multicast.c:1693
+> [<00000000274d9a71>] new_nbp net/bridge/br_if.c:435 [inline]
+> [<00000000274d9a71>] br_add_if+0x670/0x1740 net/bridge/br_if.c:611
+> [<0000000012ce888e>] do_set_master net/core/rtnetlink.c:2513 [inline]
+> [<0000000012ce888e>] do_set_master+0x1aa/0x210 net/core/rtnetlink.c:2487
+> [<0000000099d1cafc>] __rtnl_newlink+0x1095/0x13e0 net/core/rtnetlink.c:3457
+> [<00000000a01facc0>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
+> [<00000000acc9186c>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5550
+> [<00000000d4aabb9c>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+> [<00000000bc2e12a3>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+> [<00000000bc2e12a3>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+> [<00000000e4dc2d0e>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
+> [<000000000d22c8b3>] sock_sendmsg_nosec net/socket.c:654 [inline]
+> [<000000000d22c8b3>] sock_sendmsg+0x139/0x170 net/socket.c:674
+> [<00000000e281417a>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+> [<00000000237aa2ab>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+> [<000000004f2dc381>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
+> [<0000000005feca6c>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
+> [<000000007304477d>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+> 
+> On error path of br_add_if(), p->mcast_stats allocated in
+> new_nbp() need be freed, or it will be leaked.
+> 
+> Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+> ---
+> v2:
+>   move free_percpu(p->mcast_stats) in release_nbp() and
+>   fix the compile error when CONFIG_BRIDGE_IGMP_SNOOPING
+>   is disabled.
+> ---
+>  net/bridge/br_if.c        | 5 ++++-
+>  net/bridge/br_multicast.c | 1 -
+>  2 files changed, 4 insertions(+), 2 deletions(-)
+> 
 
-Thanks for your fix.
+You can add a helper to free mcast stats and use it in the error path.
+I'd like to keep the port dismantling code as it's currently done, moving
+multicast stats freeing away from br_multicast_del_port is wrong.
 
-> but the unlock/lock suggestion was made first by Hillf.
-> I forgot to add:
-> 
-> Suggested-by: Hillf Danton <hdanton@sina.com>
-> 
-> +CC Hillf
-> 
-> Hillf, since the rtnl unlock/lock suggestion was yours feel free to add
-> your signed-off-by
+In fact I think you can directly use br_multicast_del_port() as it's a noop w.r.t the
+other actions (stopping timers that were never started and walking empty lists).
+You'll have to test it, of course.
 
-I prefer the Cc tag over signed-off-by.
+For this patch:
+Nacked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+
+Thanks,
+ Nik
+
