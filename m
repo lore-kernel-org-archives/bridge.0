@@ -1,27 +1,11 @@
-Return-Path: <dqfext@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-disposition:content-transfer-encoding;
- bh=nKkNOKnR0BjeJ53ALM7gQ03JCstACfSRC5kNtfzT4yk=;
- b=P0XbE8UYynS6GdhVuBw2y3O0dZ+pvc02m/UylndyPNK85wfDC6Gq59QMnx+hMXD4nI
- yCmncJO5qEPDBI0Y9J84bgG6LxAOOx+WTVY8OLTgn1KYIyLATAWYU2FuapnCogqrjuO/
- rBckONFW6CLiyURRvVq4zBgjBcfyOA06tcb0Lrk4f4VPPd3ZK7QMsVYUi+F+P9OJAAoX
- wXH4q72e3n7sZQqX5TPQKpGhmQWalzjvSnKs+DjrTRnKrmjLtdQtnINr85PSLhnsvKzC
- IbirWZdD7XapV5M0ZEMmq36msmXy9bwiBNuChoaDNSmxmHCj0hqb3Ch8xkfvo/tM+c+n
- ZqaA==
-From: DENG Qingfang <dqfext@gmail.com>
-Date: Thu, 12 Aug 2021 14:04:10 +0800
-Message-Id: <20210812060410.1848228-1-dqfext@gmail.com>
-In-Reply-To: <20210811215833.yst5tzgfvih2q4y2@skbuf>
-References: <20210811135247.1703496-1-dqfext@gmail.com>
- <YRRDcGWaWHgBkNhQ@shredder> <20210811214506.4pf5t3wgabs5blqj@skbuf>
- <YRRGsL60WeDGQOnv@shredder> <20210811215833.yst5tzgfvih2q4y2@skbuf>
+Return-Path: <yangyingliang@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Mon, 9 Aug 2021 11:01:35 +0800
+Message-ID: <20210809030135.2445844-1-yangyingliang@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: switchdev: allow port
-	isolation to be offloaded
+Content-Type: text/plain
+Subject: [Bridge] [PATCH net] net: bridge: fix memleak in br_add_if()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,28 +14,68 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, "open list:ETHERNET BRIDGE" <netdev@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: kuba@kernel.org, davem@davemloft.net, nikolay@nvidia.com, roopa@nvidia.com
 
-On Thu, Aug 12, 2021 at 12:58:33AM +0300, Vladimir Oltean wrote:
-> On Thu, Aug 12, 2021 at 12:52:48AM +0300, Ido Schimmel wrote:
-> > 
-> > If the purpose is correctness, then this is not the only flag that was
-> > missed. BR_HAIRPIN_MODE is also relevant for the data path, for example.
-> 
-> I never wanted to suggest that I'm giving a comprehensive answer, I just
-> answered Qingfang's punctual question here:
-> https://lore.kernel.org/netdev/CALW65jbotyW0MSOd-bd1TH_mkiBWhhRCQ29jgn+d12rXdj2pZA@mail.gmail.com/
-> 
-> Tobias also pointed out the same issue about BR_MULTICAST_TO_UNICAST in
-> conjunction with tx_fwd_offload (although the same is probably true even
-> without it):
-> https://patchwork.kernel.org/project/netdevbpf/cover/20210426170411.1789186-1-tobias@waldekranz.com/
-> 
-> > Anyway, the commit message needs to be reworded to reflect the true
-> > purpose of the patch.
-> 
-> Agree, and potentially extended with all the bridge port flags which are
-> broken without switchdev driver intervention.
+I got a memleak report:
 
-So, what else flags should be added to BR_PORT_FLAGS_HW_OFFLOAD?
+BUG: memory leak
+unreferenced object 0x607ee521a658 (size 240):
+comm "syz-executor.0", pid 955, jiffies 4294780569 (age 16.449s)
+hex dump (first 32 bytes, cpu 1):
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+backtrace:
+[<00000000d830ea5a>] br_multicast_add_port+0x1c2/0x300 net/bridge/br_multicast.c:1693
+[<00000000274d9a71>] new_nbp net/bridge/br_if.c:435 [inline]
+[<00000000274d9a71>] br_add_if+0x670/0x1740 net/bridge/br_if.c:611
+[<0000000012ce888e>] do_set_master net/core/rtnetlink.c:2513 [inline]
+[<0000000012ce888e>] do_set_master+0x1aa/0x210 net/core/rtnetlink.c:2487
+[<0000000099d1cafc>] __rtnl_newlink+0x1095/0x13e0 net/core/rtnetlink.c:3457
+[<00000000a01facc0>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
+[<00000000acc9186c>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5550
+[<00000000d4aabb9c>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+[<00000000bc2e12a3>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+[<00000000bc2e12a3>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+[<00000000e4dc2d0e>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
+[<000000000d22c8b3>] sock_sendmsg_nosec net/socket.c:654 [inline]
+[<000000000d22c8b3>] sock_sendmsg+0x139/0x170 net/socket.c:674
+[<00000000e281417a>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+[<00000000237aa2ab>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+[<000000004f2dc381>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
+[<0000000005feca6c>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
+[<000000007304477d>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+On error path of br_add_if(), p->mcast_stats allocated in
+new_nbp() need be freed, or it will be leaked.
+
+Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+---
+ net/bridge/br_if.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 6e4a32354a13..e2867547d303 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -616,6 +616,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+ 
+ 	err = dev_set_allmulti(dev, 1);
+ 	if (err) {
++		free_percpu(p->mcast_stats);
+ 		kfree(p);	/* kobject not yet init'd, manually free */
+ 		goto err1;
+ 	}
+@@ -729,6 +730,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+ err3:
+ 	sysfs_remove_link(br->ifobj, p->dev->name);
+ err2:
++	free_percpu(p->mcast_stats);
+ 	kobject_put(&p->kobj);
+ 	dev_set_allmulti(dev, -1);
+ err1:
+-- 
+2.25.1
+
