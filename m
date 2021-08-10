@@ -1,22 +1,24 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=LGHkd28MWGOCiDBxhGiWFhEVrZHPKuUZlWpdM+gDHPo=;
- b=Os0pBMxreEKRJKeGlgpOk6mhU80oeCPD0k8HXW8LyBX20WrTt35SduZm5PWEMqoFBA
- npOXb5Tno00CL6AJfoTU/RSi998rNHcBE7RfpqJTavKL8md5exUc0lzjKzoYSiU7L3m0
- 5HI8rcceizbw3URhKKmIJf0UD78lRfStAqMtdu42n8HHe5bpW5juP6y6xVPgbyxtSz6m
- FJQM9Y6LUs3idH0JgKvgsrPWgyPJ2GsyBCspBMpHtGSYhmBlzEzldZ+Dttt12jVOkhSp
- H1BekTHWhYi6nRD3iK+mP7g77pAmkstaBku11eAYPjTW/jQgkPz+3Bj2C7jqvo0qfHqV
- IGjQ==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue, 10 Aug 2021 12:21:39 +0300
-Message-Id: <20210810092139.11700-1-razor@blackwall.org>
+Return-Path: <f.fainelli@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=subject:to:references:from:message-id:date:user-agent:mime-version
+ :in-reply-to:content-language:content-transfer-encoding;
+ bh=HuDel8ayMwuZGcNVC/Xca01aagp05sJ/uzkjO6nmwrY=;
+ b=MfmFVDcau+Ht5MC0Z11A0Lodc1upVa5x8ongdWS8TE8tjKiQLuzuK0pn8mBCNzIfSI
+ qs5dNWnAfz2I+dUz6znusiGsfKJ7BDJMNJJqNHtjgPgDuOz/w6QTWaycta6RfSaj5fJd
+ xRELdlQj1pSRQzr80J9k4mya1b6nFDdCC1Y7iw8GO8T31QuclJkAvIMX521fpn85ZBU9
+ FZJOhHVQgXcQmfBRdZHxeYjK0v6CfHTqslJchOvJxdxdb8QzvGcT/6Rqkrmf2JcIGtd8
+ Wk6mB9mSaA1A3L0d8p7I/YpIoBt259/YJdwN1q0JP7svIeqbfMiNa3IMTA8NHqiRtn/+
+ U/cw==
+References: <CALW65jbotyW0MSOd-bd1TH_mkiBWhhRCQ29jgn+d12rXdj2pZA@mail.gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <b9a61559-e7f7-86e9-6ac2-c988255db5f0@gmail.com>
+Date: Tue, 10 Aug 2021 02:43:46 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: vlan: fix global vlan option
-	range dumping
+In-Reply-To: <CALW65jbotyW0MSOd-bd1TH_mkiBWhhRCQ29jgn+d12rXdj2pZA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Bridge port isolation offload
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,43 +27,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
+To: DENG Qingfang <dqfext@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, David Miller <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Vladimir Oltean <olteanv@gmail.com>
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-When global vlan options are equal sequentially we compress them in a
-range to save space and reduce processing time. In order to have the
-proper range end id we need to update range_end if the options are equal
-otherwise we get ranges with the same end vlan id as the start.
 
-Fixes: 743a53d9636a ("net: bridge: vlan: add support for dumping global vlan options")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/bridge/br_vlan.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On 8/9/2021 9:40 PM, DENG Qingfang wrote:
+> Hi,
+> 
+> Bridge port isolation flag (BR_ISOLATED) was added in commit
+> 7d850abd5f4e. But switchdev does not offload it currently.
+> It should be easy to implement in drivers, just like bridge offload
+> but prevent isolated ports to communicate with each other.
+> 
+> Your thoughts?
 
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 8cfd035bbaf9..cbc922681a76 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -2019,7 +2019,7 @@ static int br_vlan_dump_dev(const struct net_device *dev,
- 
- 		if (dump_global) {
- 			if (br_vlan_global_opts_can_enter_range(v, range_end))
--				continue;
-+				goto update_end;
- 			if (!br_vlan_global_opts_fill(skb, range_start->vid,
- 						      range_end->vid,
- 						      range_start)) {
-@@ -2045,6 +2045,7 @@ static int br_vlan_dump_dev(const struct net_device *dev,
- 
- 			range_start = v;
- 		}
-+update_end:
- 		range_end = v;
- 	}
- 
+It maps well on Broadcom switches but there was not a known use case 
+AFAICT that warranted mapping this flag to program the switch hardware 
+accordingly.
 -- 
-2.31.1
-
+Florian
