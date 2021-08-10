@@ -1,21 +1,19 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0zGxz6hlDKFKLDM0lkTsn4+5vr2DoX6Vg4i1fG9WQHI=;
- b=GGjcID9zyVdnsQVzk/dx/ir/d8IQ2NWOxbuD7sBTvs/Eus4DGIwi8NDX+oBHW+mV0uwkfnddBKWb20AOvFyHI+SbsBSHxBoM8ZZQ120mIdP/WfVk2C+RPHCtmFQo5ogLv1jh0kTGmFmFG2KuGNnSmXj4ejyrzsW3QUTfBBgPoKQ=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Mon, 9 Aug 2021 16:05:22 +0000
-Message-ID: <20210809160521.audhnv7o2tugwtmp@skbuf>
-References: <20210801231730.7493-1-vladimir.oltean@nxp.com>
- <YREcqAdU+6IpT0+w@shredder>
-In-Reply-To: <YREcqAdU+6IpT0+w@shredder>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <538578EEE12AF14992003D542A780495@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <dqfext@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:from:date:message-id:subject:to;
+ bh=efM2azY1GAvdk/UvUuz5kJMAAN4U4q/U85YcIAgQ+ME=;
+ b=lMw7+lN7Usqhku94n2XtHEsY/VysmPxQvlS/cwl7nBd3+UIkFC0TNiVyqq5g3ExNnv
+ i7CGs6aKJboxrCIDWGYsB8bYdn2x7gcwGajHuAy4gzm4yFpwVMqh/QTcAXvhSgUL1F7M
+ dMSjDrYuW7Z5e8W2Ai6Su1zoPp4FWLWAKtwLGq4x92fMNExfFh6hnCDJ4LofqUnJbl6G
+ HIdYM4GjzPi4SAXU6UrF9LNXR1JY1ifTxjD6rm2vIeybNwS+GZ0AFhkBlVjICZx3pStU
+ l4ao4yRaHQhjDfI801J3dLy4oEhDTLNkEfxauC1kBkbO+WCI0EZ0YeKzCt8WwKD5yZ7y
+ T+OQ==
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net] net: bridge: validate the NUD_PERMANENT
- bit when adding an extern_learn FDB entry
+From: DENG Qingfang <dqfext@gmail.com>
+Date: Tue, 10 Aug 2021 12:40:49 +0800
+Message-ID: <CALW65jbotyW0MSOd-bd1TH_mkiBWhhRCQ29jgn+d12rXdj2pZA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: [Bridge] Bridge port isolation offload
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,19 +22,16 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
-Cc: "syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com" <syzbot+9ba1174359adba5a5b7c@syzkaller.appspotmail.com>, Jiri Pirko <jiri@resnulli.us>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>, "nikolay@nvidia.com" <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, David Miller <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, Vladimir Oltean <olteanv@gmail.com>
 
-On Mon, Aug 09, 2021 at 03:16:40PM +0300, Ido Schimmel wrote:
-> I have at least once selftest where I forgot the 'static' keyword:
->
-> bridge fdb add de:ad:be:ef:13:37 dev $swp1 master extern_learn vlan 1
->
-> This patch breaks the test when run against both the kernel and hardware
-> data paths. I don't mind patching these tests, but we might get more
-> reports in the future.
+Hi,
 
-Is it the 'static' keyword that you forgot, or 'dynamic'? The
-tools/testing/selftests/net/forwarding/bridge_vlan_aware.sh selftest
-looks to me like it's testing the behavior of an FDB entry which should
-roam, and which without the extern_learn flag would be ageable.=
+Bridge port isolation flag (BR_ISOLATED) was added in commit
+7d850abd5f4e. But switchdev does not offload it currently.
+It should be easy to implement in drivers, just like bridge offload
+but prevent isolated ports to communicate with each other.
+
+Your thoughts?
+
+Regards,
+  Qingfang
