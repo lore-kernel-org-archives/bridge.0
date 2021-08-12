@@ -1,24 +1,27 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1628724006;
- bh=YpmWvW0Qk3w8BFLnyW33YKDX1CeI/iRDbDtSbLHoiJo=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=iwMOsUREf/GPaPrpmyjVx/rP7LulAsoVxRRVmPqtUppDAQQ4ss89ij7wkuHShfxij
- AbpidJMLut4r+BHyVYfwVzU4mbm7IjSSzhjp4+pittUMsgYcKGi7qJ+12M4K5K6rMi
- 4oCqinwRty/GV8HUtOS938+oKzgqhKfVM6o1sd3nar3eTVEW5Wgc3d46DhJi0NFVFP
- CyidOn5JvWuqjxBivM9iskN44GzHufIheZHthVSxFG5Mk6wPTdypiLRt4Mo4nb/sc1
- qXAaIjBQMG/H6DHn+DcMt94bBu8PA8EW/wBQPBz6QjlSzvsXBTG+gtdDb/degmA2Ld
- 6Qi4JYXTAsFIw==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <dqfext@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-disposition:content-transfer-encoding;
+ bh=nKkNOKnR0BjeJ53ALM7gQ03JCstACfSRC5kNtfzT4yk=;
+ b=P0XbE8UYynS6GdhVuBw2y3O0dZ+pvc02m/UylndyPNK85wfDC6Gq59QMnx+hMXD4nI
+ yCmncJO5qEPDBI0Y9J84bgG6LxAOOx+WTVY8OLTgn1KYIyLATAWYU2FuapnCogqrjuO/
+ rBckONFW6CLiyURRvVq4zBgjBcfyOA06tcb0Lrk4f4VPPd3ZK7QMsVYUi+F+P9OJAAoX
+ wXH4q72e3n7sZQqX5TPQKpGhmQWalzjvSnKs+DjrTRnKrmjLtdQtnINr85PSLhnsvKzC
+ IbirWZdD7XapV5M0ZEMmq36msmXy9bwiBNuChoaDNSmxmHCj0hqb3Ch8xkfvo/tM+c+n
+ ZqaA==
+From: DENG Qingfang <dqfext@gmail.com>
+Date: Thu, 12 Aug 2021 14:04:10 +0800
+Message-Id: <20210812060410.1848228-1-dqfext@gmail.com>
+In-Reply-To: <20210811215833.yst5tzgfvih2q4y2@skbuf>
+References: <20210811135247.1703496-1-dqfext@gmail.com>
+ <YRRDcGWaWHgBkNhQ@shredder> <20210811214506.4pf5t3wgabs5blqj@skbuf>
+ <YRRGsL60WeDGQOnv@shredder> <20210811215833.yst5tzgfvih2q4y2@skbuf>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162872400616.25017.15203791570168450663.git-patchwork-notify@kernel.org>
-Date: Wed, 11 Aug 2021 23:20:06 +0000
-References: <20210810092139.11700-1-razor@blackwall.org>
-In-Reply-To: <20210810092139.11700-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: vlan: fix global vlan
- option range dumping
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: switchdev: allow port
+	isolation to be offloaded
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,30 +30,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, "open list:ETHERNET BRIDGE" <netdev@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-Hello:
-
-This patch was applied to netdev/net-next.git (refs/heads/master):
-
-On Tue, 10 Aug 2021 12:21:39 +0300 you wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On Thu, Aug 12, 2021 at 12:58:33AM +0300, Vladimir Oltean wrote:
+> On Thu, Aug 12, 2021 at 12:52:48AM +0300, Ido Schimmel wrote:
+> > 
+> > If the purpose is correctness, then this is not the only flag that was
+> > missed. BR_HAIRPIN_MODE is also relevant for the data path, for example.
 > 
-> When global vlan options are equal sequentially we compress them in a
-> range to save space and reduce processing time. In order to have the
-> proper range end id we need to update range_end if the options are equal
-> otherwise we get ranges with the same end vlan id as the start.
+> I never wanted to suggest that I'm giving a comprehensive answer, I just
+> answered Qingfang's punctual question here:
+> https://lore.kernel.org/netdev/CALW65jbotyW0MSOd-bd1TH_mkiBWhhRCQ29jgn+d12rXdj2pZA@mail.gmail.com/
 > 
-> [...]
+> Tobias also pointed out the same issue about BR_MULTICAST_TO_UNICAST in
+> conjunction with tx_fwd_offload (although the same is probably true even
+> without it):
+> https://patchwork.kernel.org/project/netdevbpf/cover/20210426170411.1789186-1-tobias@waldekranz.com/
+> 
+> > Anyway, the commit message needs to be reworded to reflect the true
+> > purpose of the patch.
+> 
+> Agree, and potentially extended with all the bridge port flags which are
+> broken without switchdev driver intervention.
 
-Here is the summary with links:
-  - [net-next] net: bridge: vlan: fix global vlan option range dumping
-    https://git.kernel.org/netdev/net-next/c/6c4110d9f499
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+So, what else flags should be added to BR_PORT_FLAGS_HW_OFFLOAD?
