@@ -1,21 +1,24 @@
 Return-Path: <razor@blackwall.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=dI0OL75ZDd6qvxHet20KtzBgKETMju9g8K1SgE3M6N0=;
- b=P2UJZm2hzcIeNVyOlO5mFN4pF3gq+JnzhGkW9XxE8KHbLSIohnqzR3b/S2TKmx2yLI
- 368ERvOOJ34F7M9EwV8/4IZQofaGhm6rRlan/cy1CbB/n6nGpPQaGTyyHtDjU9lYj55F
- 2DAMLTw3Fk2PxmvDZn2aZHxPF1WGk54yVd2NXLS055+9UqegdO1Zq4v9142rNSG0VYx6
- 3BoOtU0D1okY9IV9gs3dnZ2A0zNTpqMWJ3v3X4noaDcwo5+F8p0KQmVo8DUzwhfqgOgk
- EPBwbs1IKj725aBLhfJ87NxRB1VyK3NaEuUxREWJ130/v8rxCURGWCQdANoFutyWU5+9
- Q8qg==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=HORlVdyGh2lGDd3y5BvuyOpIor1UFiV3pM2jOqAVHlI=;
+ b=ksU1XqL/LKuIEER0eJhayiZ2Q5QVQXyH29qOAt3vJapvy+/IyFX78qljJI6SHRkeyC
+ bihqJGu0JKIwYjsUH6RWnELkjmFJ7FBy7TBmLkrCiQ+WHlQmcjnOeYNDvi8AkCyHCVw7
+ FhY0ofS9k+jRIQK7zhSRhEfsLci1xs8urECJS21oezGPUlknLrdBip0m7nLJnB5XgLu/
+ 2gBeH70jGu1orHF707eadV8E0omYKddbBY4vykZQ/mXGh3mBF4zy9gs88i/Ou5MoWLP0
+ JRcIMDnbGmu6L0qlmbCWbdmrwsLjuPigA/giB1kW8WDnJv3dRMBCTNmbx+9VEDSEQFeg
+ kX5A==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Fri, 13 Aug 2021 17:59:56 +0300
-Message-Id: <20210813150002.673579-1-razor@blackwall.org>
+Date: Fri, 13 Aug 2021 17:59:59 +0300
+Message-Id: <20210813150002.673579-4-razor@blackwall.org>
+In-Reply-To: <20210813150002.673579-1-razor@blackwall.org>
+References: <20210813150002.673579-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 0/6] net: bridge: mcast: dump querier state
+Subject: [Bridge] [PATCH net-next 3/6] net: bridge: mcast: consolidate
+	querier selection for ipv4 and ipv6
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,60 +32,119 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Hi,
-This set adds the ability to dump the current multicast querier state.
-This is extremely useful when debugging multicast issues, we've had
-many cases of unexpected queriers causing strange behaviour and mcast
-test failures. The first patch changes the querier struct to record
-a port device's ifindex instead of a pointer to the port itself so we
-can later retrieve it, I chose this way because it's much simpler
-and doesn't require us to do querier port ref counting, it is best
-effort anyway. Then patch 02 makes the querier address/port updates
-consistent via a combination of multicast_lock and seqcount, so readers
-can only use seqcount to get a consistent snapshot of address and port.
-Patch 03 is a minor cleanup in preparation for the dump support, it
-consolidates IPv4 and IPv6 querier selection paths as they share most of
-the logic (except address comparisons of course). Finally the last three
-patches add the new querier state dumping support, for the bridge's
-global multicast context we embed the BRIDGE_QUERIER_xxx attributes
-into IFLA_BR_MCAST_QUERIER_STATE and for the per-vlan global mcast
-contexts we embed them into BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE.
+We can consolidate both functions as they share almost the same logic.
+This is easier to maintain and we have a single querier update function.
 
-The structure is:
-  [IFLA_BR_MCAST_QUERIER_STATE / BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE]
-  `[BRIDGE_QUERIER_IP_ADDRESS] - ip address of the querier
-  `[BRIDGE_QUERIER_IP_PORT]    - bridge port ifindex where the querier was
-                                 seen (set only if external querier)
-  `[BRIDGE_QUERIER_IP_OTHER_TIMER]   -  other querier timeout
-  `[BRIDGE_QUERIER_IPV6_ADDRESS] - ip address of the querier
-  `[BRIDGE_QUERIER_IPV6_PORT]    - bridge port ifindex where the querier
-                                   was seen (set only if external querier)
-  `[BRIDGE_QUERIER_IPV6_OTHER_TIMER]   -  other querier timeout
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+---
+ net/bridge/br_multicast.c | 67 +++++++++++++++++----------------------
+ 1 file changed, 29 insertions(+), 38 deletions(-)
 
-Later we can also add IGMP version of seen queriers and last seen values
-from the queries.
-
-Thanks,
- Nik
-
-Nikolay Aleksandrov (6):
-  net: bridge: mcast: record querier port device ifindex instead of
-    pointer
-  net: bridge: mcast: make sure querier port/address updates are
-    consistent
-  net: bridge: mcast: consolidate querier selection for ipv4 and ipv6
-  net: bridge: mcast: dump ipv4 querier state
-  net: bridge: mcast: dump ipv6 querier state
-  net: bridge: vlan: dump mcast ctx querier state
-
- include/uapi/linux/if_bridge.h |  14 +++
- include/uapi/linux/if_link.h   |   1 +
- net/bridge/br_multicast.c      | 211 ++++++++++++++++++++++++++-------
- net/bridge/br_netlink.c        |   5 +-
- net/bridge/br_private.h        |   7 +-
- net/bridge/br_vlan_options.c   |   5 +-
- 6 files changed, 199 insertions(+), 44 deletions(-)
-
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 701cf46b89de..3705b7ace62d 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -2864,55 +2864,46 @@ static int br_ip6_multicast_mld2_report(struct net_bridge_mcast *brmctx,
+ }
+ #endif
+ 
+-static bool br_ip4_multicast_select_querier(struct net_bridge_mcast *brmctx,
+-					    struct net_bridge_mcast_port *pmctx,
+-					    struct br_ip *saddr)
++static bool br_multicast_select_querier(struct net_bridge_mcast *brmctx,
++					struct net_bridge_mcast_port *pmctx,
++					struct br_ip *saddr)
+ {
+ 	int port_ifidx = pmctx ? pmctx->port->dev->ifindex : 0;
++	struct timer_list *own_timer, *other_timer;
++	struct bridge_mcast_querier *querier;
+ 
+-	if (!timer_pending(&brmctx->ip4_own_query.timer) &&
+-	    !timer_pending(&brmctx->ip4_other_query.timer))
+-		goto update;
+-
+-	if (!brmctx->ip4_querier.addr.src.ip4)
+-		goto update;
+-
+-	if (ntohl(saddr->src.ip4) <= ntohl(brmctx->ip4_querier.addr.src.ip4))
+-		goto update;
+-
+-	return false;
+-
+-update:
+-	br_multicast_update_querier(brmctx, &brmctx->ip4_querier, port_ifidx,
+-				    saddr);
+-
+-	return true;
+-}
+-
++	switch (saddr->proto) {
++	case htons(ETH_P_IP):
++		querier = &brmctx->ip4_querier;
++		own_timer = &brmctx->ip4_own_query.timer;
++		other_timer = &brmctx->ip4_other_query.timer;
++		if (!querier->addr.src.ip4 ||
++		    ntohl(saddr->src.ip4) <= ntohl(querier->addr.src.ip4))
++			goto update;
++		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+-static bool br_ip6_multicast_select_querier(struct net_bridge_mcast *brmctx,
+-					    struct net_bridge_mcast_port *pmctx,
+-					    struct br_ip *saddr)
+-{
+-	int port_ifidx = pmctx ? pmctx->port->dev->ifindex : 0;
+-
+-	if (!timer_pending(&brmctx->ip6_own_query.timer) &&
+-	    !timer_pending(&brmctx->ip6_other_query.timer))
+-		goto update;
++	case htons(ETH_P_IPV6):
++		querier = &brmctx->ip6_querier;
++		own_timer = &brmctx->ip6_own_query.timer;
++		other_timer = &brmctx->ip6_other_query.timer;
++		if (ipv6_addr_cmp(&saddr->src.ip6, &querier->addr.src.ip6) <= 0)
++			goto update;
++		break;
++#endif
++	default:
++		return false;
++	}
+ 
+-	if (ipv6_addr_cmp(&saddr->src.ip6,
+-			  &brmctx->ip6_querier.addr.src.ip6) <= 0)
++	if (!timer_pending(own_timer) && !timer_pending(other_timer))
+ 		goto update;
+ 
+ 	return false;
+ 
+ update:
+-	br_multicast_update_querier(brmctx, &brmctx->ip6_querier, port_ifidx,
+-				    saddr);
++	br_multicast_update_querier(brmctx, querier, port_ifidx, saddr);
+ 
+ 	return true;
+ }
+-#endif
+ 
+ static void
+ br_multicast_update_query_timer(struct net_bridge_mcast *brmctx,
+@@ -3115,7 +3106,7 @@ br_ip4_multicast_query_received(struct net_bridge_mcast *brmctx,
+ 				struct br_ip *saddr,
+ 				unsigned long max_delay)
+ {
+-	if (!br_ip4_multicast_select_querier(brmctx, pmctx, saddr))
++	if (!br_multicast_select_querier(brmctx, pmctx, saddr))
+ 		return;
+ 
+ 	br_multicast_update_query_timer(brmctx, query, max_delay);
+@@ -3130,7 +3121,7 @@ br_ip6_multicast_query_received(struct net_bridge_mcast *brmctx,
+ 				struct br_ip *saddr,
+ 				unsigned long max_delay)
+ {
+-	if (!br_ip6_multicast_select_querier(brmctx, pmctx, saddr))
++	if (!br_multicast_select_querier(brmctx, pmctx, saddr))
+ 		return;
+ 
+ 	br_multicast_update_query_timer(brmctx, query, max_delay);
 -- 
 2.31.1
 
