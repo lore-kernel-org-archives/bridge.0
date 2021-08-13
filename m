@@ -1,21 +1,24 @@
-Return-Path: <dqfext@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=Th9WKl0IW7GpxbqwwqPmaZkhN6z6TMP9nRsqCNvkXyc=;
- b=B1kZBxgA7H8EfDvYb+YKpfkgRv4EqGRi2cH1Te2uNIimCZT5XlojbYszrNoi9qIQLx
- 48uzO637fAGckSKocGF6qT99SFw0+S9cg6QmbUWk9xZF085QvQUC1Udn3QqoeTGM7y2s
- +QVOfLPW9B7K9hlkEQHBieJ8HT4t2UpyDEJdmo+f7kRlKCROqxlF/jZr9G02q13tsV8l
- 5FqjNqllTJyw73LCn39+PxASzRsKmbLTeDPoQHU5rMJG51qbyU7nzbQGph6E7u9516r1
- RYtVZPTChFfyfGy2NRW53ClkrGI2mCNaHCUg4Uy4rICDjZpi67kB2NBgClxPDeiutpZh
- Rs1w==
-From: DENG Qingfang <dqfext@gmail.com>
-Date: Thu, 12 Aug 2021 22:22:12 +0800
-Message-Id: <20210812142213.2251697-1-dqfext@gmail.com>
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=uQfunZVnk/RE6hSfXipXCZVnbtxnoI5ozTjpp5YTWOU=;
+ b=FoQ7BIDZOm2dxPrlvnm0LDyVvml47BDIU8Q5yDlOIslHS3S6jn6VvP+rcDOOVpRrYV
+ uDtjAw+InbYkhWbh7QNYYIezhiZ9PECs/bqOZxBPc/w6gRndFbE8+1vpO1wTDa+UBmFx
+ gHFiyeI3olYqnPYCNDNEFHNoAGL9FkeZAyy8CWhjbd85hnNzIy91hyM39y7jaNMMcW4j
+ QORNjX+7ddNIMBSEpkI8OnRCqjfaHYOzLVzRqypkI8TCyWUBsCJAbcT6Kypktj1kR5wQ
+ dK8keegsl2OvHybtYDep5OxG9gUGKff41PpgfPfWtzVtjhbWg112+NTe3uNv6kAsL2PV
+ 1/Ww==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Fri, 13 Aug 2021 18:00:00 +0300
+Message-Id: <20210813150002.673579-5-razor@blackwall.org>
+In-Reply-To: <20210813150002.673579-1-razor@blackwall.org>
+References: <20210813150002.673579-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2] net: bridge: switchdev: pass more port
-	flags to drivers
+Subject: [Bridge] [PATCH net-next 4/6] net: bridge: mcast: dump ipv4 querier
+	state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,41 +27,184 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, "open list:ETHERNET BRIDGE" <netdev@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
-Cc: Ido Schimmel <idosch@idosch.org>, Vladimir Oltean <olteanv@gmail.com>, Tobias Waldekranz <tobias@waldekranz.com>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
 
-These 3 port flags: BR_HAIRPIN_MODE, BR_MULTICAST_TO_UNICAST, and
-BR_ISOLATED, affect the data path and should be handled by switchdev
-drivers.
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Add them to BR_PORT_FLAGS_HW_OFFLOAD so they can be passed down to
-the drivers.
+Add support for dumping global IPv4 querier state, we dump the state
+only if our own querier is enabled or there has been another external
+querier which has won the election. For the bridge global state we use
+a new attribute IFLA_BR_MCAST_QUERIER_STATE and embed the state inside.
+The structure is:
+ [IFLA_BR_MCAST_QUERIER_STATE]
+  `[BRIDGE_QUERIER_IP_ADDRESS] - ip address of the querier
+  `[BRIDGE_QUERIER_IP_PORT]    - bridge port ifindex where the querier was
+                                 seen (set only if external querier)
+  `[BRIDGE_QUERIER_IP_OTHER_TIMER]   -  other querier timeout
 
-Suggested-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
-v1 -> v2: added more flags
+ include/uapi/linux/if_bridge.h | 10 +++++
+ include/uapi/linux/if_link.h   |  1 +
+ net/bridge/br_multicast.c      | 73 ++++++++++++++++++++++++++++++++++
+ net/bridge/br_netlink.c        |  5 ++-
+ net/bridge/br_private.h        |  4 ++
+ 5 files changed, 92 insertions(+), 1 deletion(-)
 
- net/bridge/br_switchdev.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 6bf518d78f02..2ab46178c47c 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -70,8 +70,10 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 620d86e825b8..e0fff67fcd88 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -770,4 +770,14 @@ struct br_boolopt_multi {
+ 	__u32 optval;
+ 	__u32 optmask;
+ };
++
++enum {
++	BRIDGE_QUERIER_UNSPEC,
++	BRIDGE_QUERIER_IP_ADDRESS,
++	BRIDGE_QUERIER_IP_PORT,
++	BRIDGE_QUERIER_IP_OTHER_TIMER,
++	BRIDGE_QUERIER_PAD,
++	__BRIDGE_QUERIER_MAX
++};
++#define BRIDGE_QUERIER_MAX (__BRIDGE_QUERIER_MAX - 1)
+ #endif /* _UAPI_LINUX_IF_BRIDGE_H */
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index 5310003523ce..8aad65b69054 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -479,6 +479,7 @@ enum {
+ 	IFLA_BR_MCAST_MLD_VERSION,
+ 	IFLA_BR_VLAN_STATS_PER_PORT,
+ 	IFLA_BR_MULTI_BOOLOPT,
++	IFLA_BR_MCAST_QUERIER_STATE,
+ 	__IFLA_BR_MAX,
+ };
+ 
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 3705b7ace62d..4513bc13b6d3 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -2905,6 +2905,79 @@ static bool br_multicast_select_querier(struct net_bridge_mcast *brmctx,
+ 	return true;
  }
  
- /* Flags that can be offloaded to hardware */
--#define BR_PORT_FLAGS_HW_OFFLOAD (BR_LEARNING | BR_FLOOD | \
--				  BR_MCAST_FLOOD | BR_BCAST_FLOOD)
-+#define BR_PORT_FLAGS_HW_OFFLOAD (BR_HAIRPIN_MODE | BR_LEARNING | \
-+				  BR_FLOOD | BR_MCAST_FLOOD | \
-+				  BR_MULTICAST_TO_UNICAST | \
-+				  BR_BCAST_FLOOD | BR_ISOLATED)
++static struct net_bridge_port *
++__br_multicast_get_querier_port(struct net_bridge *br,
++				const struct bridge_mcast_querier *querier)
++{
++	int port_ifidx = READ_ONCE(querier->port_ifidx);
++	struct net_bridge_port *p;
++	struct net_device *dev;
++
++	if (port_ifidx == 0)
++		return NULL;
++
++	dev = dev_get_by_index_rcu(dev_net(br->dev), port_ifidx);
++	if (!dev)
++		return NULL;
++	p = br_port_get_rtnl_rcu(dev);
++	if (!p || p->br != br)
++		return NULL;
++
++	return p;
++}
++
++size_t br_multicast_querier_state_size(void)
++{
++	return nla_total_size(sizeof(0)) +      /* nest attribute */
++	       nla_total_size(sizeof(__be32)) + /* BRIDGE_QUERIER_IP_ADDRESS */
++	       nla_total_size(sizeof(int)) +    /* BRIDGE_QUERIER_IP_PORT */
++	       nla_total_size_64bit(sizeof(u64)); /* BRIDGE_QUERIER_IP_OTHER_TIMER */
++}
++
++/* protected by rtnl or rcu */
++int br_multicast_dump_querier_state(struct sk_buff *skb,
++				    const struct net_bridge_mcast *brmctx,
++				    int nest_attr)
++{
++	struct bridge_mcast_querier querier = {};
++	struct net_bridge_port *p;
++	struct nlattr *nest;
++
++	if (!brmctx->multicast_querier &&
++	    !timer_pending(&brmctx->ip4_other_query.timer))
++		return 0;
++
++	nest = nla_nest_start(skb, nest_attr);
++	if (!nest)
++		return -EMSGSIZE;
++
++	rcu_read_lock();
++	br_multicast_read_querier(&brmctx->ip4_querier, &querier);
++	if (nla_put_in_addr(skb, BRIDGE_QUERIER_IP_ADDRESS,
++			    querier.addr.src.ip4)) {
++		rcu_read_unlock();
++		goto out_err;
++	}
++
++	p = __br_multicast_get_querier_port(brmctx->br, &querier);
++	if (timer_pending(&brmctx->ip4_other_query.timer) &&
++	    (nla_put_u64_64bit(skb, BRIDGE_QUERIER_IP_OTHER_TIMER,
++			       br_timer_value(&brmctx->ip4_other_query.timer),
++			       BRIDGE_QUERIER_PAD) ||
++	     (p && nla_put_u32(skb, BRIDGE_QUERIER_IP_PORT, p->dev->ifindex)))) {
++		rcu_read_unlock();
++		goto out_err;
++	}
++	rcu_read_unlock();
++	nla_nest_end(skb, nest);
++
++	return 0;
++
++out_err:
++	nla_nest_cancel(skb, nest);
++	return -EMSGSIZE;
++}
++
+ static void
+ br_multicast_update_query_timer(struct net_bridge_mcast *brmctx,
+ 				struct bridge_mcast_other_query *query,
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 8ae026fa2ad7..2f184ad8ae29 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1501,6 +1501,7 @@ static size_t br_get_size(const struct net_device *brdev)
+ 	       nla_total_size_64bit(sizeof(u64)) + /* IFLA_BR_MCAST_STARTUP_QUERY_INTVL */
+ 	       nla_total_size(sizeof(u8)) +	/* IFLA_BR_MCAST_IGMP_VERSION */
+ 	       nla_total_size(sizeof(u8)) +	/* IFLA_BR_MCAST_MLD_VERSION */
++	       br_multicast_querier_state_size() + /* IFLA_BR_MCAST_QUERIER_STATE */
+ #endif
+ #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+ 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_NF_CALL_IPTABLES */
+@@ -1587,7 +1588,9 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+ 	    nla_put_u32(skb, IFLA_BR_MCAST_STARTUP_QUERY_CNT,
+ 			br->multicast_ctx.multicast_startup_query_count) ||
+ 	    nla_put_u8(skb, IFLA_BR_MCAST_IGMP_VERSION,
+-		       br->multicast_ctx.multicast_igmp_version))
++		       br->multicast_ctx.multicast_igmp_version) ||
++	    br_multicast_dump_querier_state(skb, &br->multicast_ctx,
++					    IFLA_BR_MCAST_QUERIER_STATE))
+ 		return -EMSGSIZE;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	if (nla_put_u8(skb, IFLA_BR_MCAST_MLD_VERSION,
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 6ca9519f18a3..e03fc4c5f283 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -948,6 +948,10 @@ int br_mdb_replay(struct net_device *br_dev, struct net_device *dev,
+ 		  struct netlink_ext_ack *extack);
+ int br_rports_fill_info(struct sk_buff *skb,
+ 			const struct net_bridge_mcast *brmctx);
++int br_multicast_dump_querier_state(struct sk_buff *skb,
++				    const struct net_bridge_mcast *brmctx,
++				    int nest_attr);
++size_t br_multicast_querier_state_size(void);
  
- int br_switchdev_set_port_flag(struct net_bridge_port *p,
- 			       unsigned long flags,
+ static inline bool br_group_is_l2(const struct br_ip *group)
+ {
 -- 
-2.25.1
+2.31.1
 
