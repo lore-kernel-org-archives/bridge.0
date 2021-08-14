@@ -1,24 +1,24 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=PJhUcsspU97g7E83Bpc3xMjAAqh5e3B1I8VLV04Hlg4=;
- b=lvQlGkQMovEbhDOLkEx9FfNMFdUym7QHjOg8TV2oep0SJ3tQ8K2y2owZAeCFaow50x
- 2VGtWy4UVBOA5Hgv2Um7p3LyrGWWlhoOMsocXgMiubAK4BqyJ7BiUZK3h2X8Llpv4ZQw
- k6Gz4suycc94X9lIr3rsjrX+qEQZi/OrloEcd4zZTfo40c/z+ms8sY96+2HI94Hbgyx3
- 8ja3Youg4lK9LB9/A8W/qNaXmqTAfuDxcLGhYNslXyI9Olc4+3JxhEjZpUsjf3teFDlL
- 2oSbRcOpVlSav3/aqavxHG5/c1qX5sqQlWvB+P/I/MrqlkhgtOERuvKS4J1xGnLwyj2w
- XsQg==
-Date: Sat, 14 Aug 2021 04:11:15 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20210814011115.agzyo3cydlupafvy@skbuf>
-References: <20210812142213.2251697-1-dqfext@gmail.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1628946606;
+ bh=RYtYlKZDLFp/vsyM5Zof7b3UUT0n1xGo7+T9ctoG6gE=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=KPzlRtYLpvoV1Rrb7iAV566H9VBLlsAwapVq4Hf/ArSD35+QWvB2fdwNYKvexz2J3
+ 4PZVz7WuvyPBubblGnI88M322cHiLI2mqSPHP/5wOvYDa6rUT8LHXCZwHEFb6CXMxu
+ JBavG65KcsQ8y2kmu3RRY+AX3fVijziCWWMCKizcHTujLvk1YYErhBbfVUVnX8UBMw
+ GqZ3+iOwH9NpAz+dou09KQeAYyszwH+3nLrymSvAAp0e6+1Cpl4ckZmooCbSPMmjq7
+ fWj1ey6X4OnUGm/gOhhfxSHpw7WjuU25CnnAsv+E2omku4U1Qs4uegygijLdnTQHsm
+ Gj0n+oqRXs9MA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210812142213.2251697-1-dqfext@gmail.com>
-Subject: Re: [Bridge] [PATCH net-next v2] net: bridge: switchdev: pass more
- port flags to drivers
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162894660674.3097.4333044818411572799.git-patchwork-notify@kernel.org>
+Date: Sat, 14 Aug 2021 13:10:06 +0000
+References: <20210813150002.673579-1-razor@blackwall.org>
+In-Reply-To: <20210813150002.673579-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next 0/6] net: bridge: mcast: dump querier
+	state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,22 +27,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: DENG Qingfang <dqfext@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Jiri Pirko <jiri@resnulli.us>, "open list:ETHERNET BRIDGE" <netdev@vger.kernel.org>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Ido Schimmel <idosch@idosch.org>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
 
-On Thu, Aug 12, 2021 at 10:22:12PM +0800, DENG Qingfang wrote:
-> These 3 port flags: BR_HAIRPIN_MODE, BR_MULTICAST_TO_UNICAST, and
-> BR_ISOLATED, affect the data path and should be handled by switchdev
-> drivers.
-> 
-> Add them to BR_PORT_FLAGS_HW_OFFLOAD so they can be passed down to
-> the drivers.
-> 
-> Suggested-by: Vladimir Oltean <olteanv@gmail.com>
-> Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-> ---
-> v1 -> v2: added more flags
+Hello:
 
-If you insist to not write a competent commit message which properly
-explains the motivation for the change, then please remove my
-Suggested-by tag and resend. Thanks
+This series was applied to netdev/net-next.git (refs/heads/master):
+
+On Fri, 13 Aug 2021 17:59:56 +0300 you wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Hi,
+> This set adds the ability to dump the current multicast querier state.
+> This is extremely useful when debugging multicast issues, we've had
+> many cases of unexpected queriers causing strange behaviour and mcast
+> test failures. The first patch changes the querier struct to record
+> a port device's ifindex instead of a pointer to the port itself so we
+> can later retrieve it, I chose this way because it's much simpler
+> and doesn't require us to do querier port ref counting, it is best
+> effort anyway. Then patch 02 makes the querier address/port updates
+> consistent via a combination of multicast_lock and seqcount, so readers
+> can only use seqcount to get a consistent snapshot of address and port.
+> Patch 03 is a minor cleanup in preparation for the dump support, it
+> consolidates IPv4 and IPv6 querier selection paths as they share most of
+> the logic (except address comparisons of course). Finally the last three
+> patches add the new querier state dumping support, for the bridge's
+> global multicast context we embed the BRIDGE_QUERIER_xxx attributes
+> into IFLA_BR_MCAST_QUERIER_STATE and for the per-vlan global mcast
+> contexts we embed them into BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,1/6] net: bridge: mcast: record querier port device ifindex instead of pointer
+    https://git.kernel.org/netdev/net-next/c/bb18ef8e7e18
+  - [net-next,2/6] net: bridge: mcast: make sure querier port/address updates are consistent
+    https://git.kernel.org/netdev/net-next/c/67b746f94ff3
+  - [net-next,3/6] net: bridge: mcast: consolidate querier selection for ipv4 and ipv6
+    https://git.kernel.org/netdev/net-next/c/c3fb3698f935
+  - [net-next,4/6] net: bridge: mcast: dump ipv4 querier state
+    https://git.kernel.org/netdev/net-next/c/c7fa1d9b1fb1
+  - [net-next,5/6] net: bridge: mcast: dump ipv6 querier state
+    https://git.kernel.org/netdev/net-next/c/85b410821174
+  - [net-next,6/6] net: bridge: vlan: dump mcast ctx querier state
+    https://git.kernel.org/netdev/net-next/c/ddc649d158c5
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
