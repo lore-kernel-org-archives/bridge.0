@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20150623.gappssmtp.com; s=20150623;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=S6bka7n7gUza4xP2Wps1Ishfu8bAYgf2m92TklQ/eyQ=;
- b=Dp0UXPFRjuNbluIqPUYBwYXP+Hmd9CJzy6JUb+ZgHUOu+EUptSSow2GN94ev2kNQmN
- J+c6exU8gLXZ62x42x7FNkBZdL3VNxq2S0nB/RlrvpcnNgHxd2mgkA2qC6JBBzn3Gfgv
- vVjcu4l3Z8lsC8Fj1Rh5h0huBYC2YNVE2fi6Ptwf3LqCV9pQaQQ19CPSVU3lMjAQBs+e
- rSh/NN1M7Kgm/J3P0HfmJmSzZu7AzY/Mz0FcMeGNq68pqWoHHRzu8a73004lty22HLQD
- Bj//aRqcMrwKhmj3/RXzrrd3SnbZOCPI9SH7Za1iROfCqCV4Wn/YRczGAKnBIt6g6Azs
- rJDw==
+ bh=cEF4JoMHZEME1+G2CZln0Yotihc+zLCjsCuSYLc+j3Q=;
+ b=ZjYbNocK7nQUZmK7tS1SYFaF524im4zpkYuIBe6PLoxPdvEg0nn2rcea6i9NgA8bX4
+ 5WxNZdktA5V1y3KOperLhnJRMWBEby8lRcK9l7YLqU355DpaS10sNON3jKYdlBXK8ytZ
+ jcDmlbG/jOEGCna1DpdOLm16+JkjTsG1COKe/bBUmDBZ5Puj4LqLXK45s9LdVVItgSaS
+ M8AU97MS3myCmrlBPZ+iXOeShvRSHzWI7WtrziFO2XoQv24HwBVQD9wl0A5CCtnsoMb2
+ u2DlHGrvkSDUt3nAQmJ4Oz37oB5aH27bTak8L5rH0jBRcM/dBPzjZ2AcfcmnC3KJ48Is
+ 3kRg==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 16 Aug 2021 17:57:06 +0300
-Message-Id: <20210816145707.671901-4-razor@blackwall.org>
+Date: Mon, 16 Aug 2021 17:57:07 +0300
+Message-Id: <20210816145707.671901-5-razor@blackwall.org>
 In-Reply-To: <20210816145707.671901-1-razor@blackwall.org>
 References: <20210816145707.671901-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 3/4] net: bridge: mcast: use the correct
-	vlan group helper
+Subject: [Bridge] [PATCH net-next 4/4] net: bridge: mcast: toggle also host
+	vlan state in br_multicast_toggle_vlan
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,96 +32,66 @@ Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-When dereferencing the port vlan group we should use the rcu helper
-instead of the one relying on rtnl. In br_multicast_pg_to_port_ctx the
-entry cannot disappear as we hold the multicast lock and rcu as explained
-in the comment above it.
-For the same reason we're ok in br_multicast_start_querier.
+When changing vlan mcast state by br_multicast_toggle_vlan it iterates
+over all ports and enables/disables the port mcast ctx based on the new
+state, but I forgot to update the host vlan (bridge master vlan entry)
+with the new state so it will be left out. Also that function is not
+used outside of br_multicast.c, so make it static.
 
- =============================
- WARNING: suspicious RCU usage
- 5.14.0-rc5+ #429 Tainted: G        W
- -----------------------------
- net/bridge/br_private.h:1478 suspicious rcu_dereference_protected() usage!
-
- other info that might help us debug this:
-
- rcu_scheduler_active = 2, debug_locks = 1
- 3 locks held by swapper/2/0:
-  #0: ffff88822be85eb0 ((&p->timer)){+.-.}-{0:0}, at: call_timer_fn+0x5/0x2da
-  #1: ffff88810b32f260 (&br->multicast_lock){+.-.}-{3:3}, at: br_multicast_port_group_expired+0x28/0x13d [bridge]
-  #2: ffffffff824f6c80 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire.constprop.0+0x0/0x22 [bridge]
-
- stack backtrace:
- CPU: 2 PID: 0 Comm: swapper/2 Kdump: loaded Tainted: G        W         5.14.0-rc5+ #429
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
- Call Trace:
-  <IRQ>
-  dump_stack_lvl+0x45/0x59
-  nbp_vlan_group+0x3e/0x44 [bridge]
-  br_multicast_pg_to_port_ctx+0xd6/0x10d [bridge]
-  br_multicast_star_g_handle_mode+0xa1/0x2ce [bridge]
-  ? netlink_broadcast+0xf/0x11
-  ? nlmsg_notify+0x56/0x99
-  ? br_mdb_notify+0x224/0x2e9 [bridge]
-  ? br_multicast_del_pg+0x1dc/0x26d [bridge]
-  br_multicast_del_pg+0x1dc/0x26d [bridge]
-  br_multicast_port_group_expired+0xaa/0x13d [bridge]
-  ? __grp_src_delete_marked.isra.0+0x35/0x35 [bridge]
-  ? __grp_src_delete_marked.isra.0+0x35/0x35 [bridge]
-  call_timer_fn+0x134/0x2da
-  __run_timers+0x169/0x193
-  run_timer_softirq+0x19/0x2d
-  __do_softirq+0x1bc/0x42a
-  __irq_exit_rcu+0x5c/0xb3
-  irq_exit_rcu+0xa/0x12
-  sysvec_apic_timer_interrupt+0x5e/0x75
-  </IRQ>
-  asm_sysvec_apic_timer_interrupt+0x12/0x20
- RIP: 0010:default_idle+0xc/0xd
- Code: e8 14 40 71 ff e8 10 b3 ff ff 4c 89 e2 48 89 ef 31 f6 5d 41 5c e9 a9 e8 c2 ff cc cc cc cc 0f 1f 44 00 00 e8 7f 55 65 ff fb f4 <c3> 0f 1f 44 00 00 55 65 48 8b 2c 25 40 6f 01 00 53 f0 80 4d 02 20
- RSP: 0018:ffff88810033bf00 EFLAGS: 00000206
- RAX: ffffffff819cf828 RBX: ffff888100328000 RCX: 0000000000000001
- RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff819cfa2d
- RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
- R10: ffff8881008302c0 R11: 00000000000006db R12: 0000000000000000
- R13: 0000000000000002 R14: 0000000000000000 R15: 0000000000000000
-  ? __sched_text_end+0x4/0x4
-  ? default_idle_call+0x15/0x7b
-  default_idle_call+0x4d/0x7b
-  do_idle+0x124/0x2a2
-  cpu_startup_entry+0x1d/0x1f
-  secondary_startup_64_no_verify+0xb0/0xbb
-
-Fixes: 74edfd483de8 ("net: bridge: multicast: add helper to get port mcast context from port group")
+Fixes: f4b7002a7076 ("net: bridge: add vlan mcast snooping knob")
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- net/bridge/br_multicast.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/bridge/br_multicast.c | 5 ++++-
+ net/bridge/br_private.h   | 6 ------
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index e411dd814c58..c9f7f56eaf9b 100644
+index c9f7f56eaf9b..16e686f5b9e9 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -221,7 +221,7 @@ br_multicast_pg_to_port_ctx(const struct net_bridge_port_group *pg)
- 	 * can safely be used on return
- 	 */
- 	rcu_read_lock();
--	vlan = br_vlan_find(nbp_vlan_group(pg->key.port), pg->key.addr.vid);
-+	vlan = br_vlan_find(nbp_vlan_group_rcu(pg->key.port), pg->key.addr.vid);
- 	if (vlan && !br_multicast_port_ctx_vlan_disabled(&vlan->port_mcast_ctx))
- 		pmctx = &vlan->port_mcast_ctx;
- 	else
-@@ -4329,7 +4329,8 @@ static void br_multicast_start_querier(struct net_bridge_mcast *brmctx,
- 		if (br_multicast_ctx_is_vlan(brmctx)) {
- 			struct net_bridge_vlan *vlan;
+@@ -4074,7 +4074,7 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
+ 	}
+ }
  
--			vlan = br_vlan_find(nbp_vlan_group(port), brmctx->vlan->vid);
-+			vlan = br_vlan_find(nbp_vlan_group_rcu(port),
-+					    brmctx->vlan->vid);
- 			if (!vlan ||
- 			    br_multicast_port_ctx_state_stopped(&vlan->port_mcast_ctx))
- 				continue;
+-void br_multicast_toggle_vlan(struct net_bridge_vlan *vlan, bool on)
++static void br_multicast_toggle_vlan(struct net_bridge_vlan *vlan, bool on)
+ {
+ 	struct net_bridge_port *p;
+ 
+@@ -4089,6 +4089,9 @@ void br_multicast_toggle_vlan(struct net_bridge_vlan *vlan, bool on)
+ 			continue;
+ 		br_multicast_toggle_one_vlan(vport, on);
+ 	}
++
++	if (br_vlan_is_brentry(vlan))
++		br_multicast_toggle_one_vlan(vlan, on);
+ }
+ 
+ int br_multicast_toggle_vlan_snooping(struct net_bridge *br, bool on,
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index df0fa246c80c..21b292eb2b3e 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -938,7 +938,6 @@ void br_multicast_port_ctx_init(struct net_bridge_port *port,
+ 				struct net_bridge_mcast_port *pmctx);
+ void br_multicast_port_ctx_deinit(struct net_bridge_mcast_port *pmctx);
+ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on);
+-void br_multicast_toggle_vlan(struct net_bridge_vlan *vlan, bool on);
+ int br_multicast_toggle_vlan_snooping(struct net_bridge *br, bool on,
+ 				      struct netlink_ext_ack *extack);
+ bool br_multicast_toggle_global_vlan(struct net_bridge_vlan *vlan, bool on);
+@@ -1370,11 +1369,6 @@ static inline void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan,
+ {
+ }
+ 
+-static inline void br_multicast_toggle_vlan(struct net_bridge_vlan *vlan,
+-					    bool on)
+-{
+-}
+-
+ static inline int br_multicast_toggle_vlan_snooping(struct net_bridge *br,
+ 						    bool on,
+ 						    struct netlink_ext_ack *extack)
 -- 
 2.31.1
 
