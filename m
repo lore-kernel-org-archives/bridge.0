@@ -1,24 +1,36 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1628946606;
- bh=RYtYlKZDLFp/vsyM5Zof7b3UUT0n1xGo7+T9ctoG6gE=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=KPzlRtYLpvoV1Rrb7iAV566H9VBLlsAwapVq4Hf/ArSD35+QWvB2fdwNYKvexz2J3
- 4PZVz7WuvyPBubblGnI88M322cHiLI2mqSPHP/5wOvYDa6rUT8LHXCZwHEFb6CXMxu
- JBavG65KcsQ8y2kmu3RRY+AX3fVijziCWWMCKizcHTujLvk1YYErhBbfVUVnX8UBMw
- GqZ3+iOwH9NpAz+dou09KQeAYyszwH+3nLrymSvAAp0e6+1Cpl4ckZmooCbSPMmjq7
- fWj1ey6X4OnUGm/gOhhfxSHpw7WjuU25CnnAsv+E2omku4U1Qs4uegygijLdnTQHsm
- Gj0n+oqRXs9MA==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <dan.carpenter@oracle.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : content-type : in-reply-to : mime-version;
+ s=corp-2021-07-09; bh=my+NVrFi3SMEh1O+1a7VE5Q2gtSPMN9s0XFCWqu01mk=;
+ b=ulpd+rkNp3kQpi2sCNtBYRMVVzxznO0I85WInZN74+BnJJXTdU84MI67e6hAwQIezxcS
+ Ai2xvid5w/Fhg6qvqMznVU7RIvmOvEuDAv1kNdMPR1DTM5SQer9fU2ftdgjPzPShI9EZ
+ fKAMaAA37W93bj5gcAXfdiIdhS+j+9vw+Fxbr6Kkad2IehlKdFa0oA+EFCwhblu5Uxtw
+ 6p65iuFQwYO5d2VEKDR234cYtkcjhK9VmAdgjFstc4R0zVWtH1k7HFWqTwB1mjxadev+
+ AFyYpyLWdl5sTY0nZ7t3JZYU/0tXHbHi+xQDXUxwOrH9Sj4pLoeBs/+7+0NgyzR5/uHR EA== 
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : content-type : in-reply-to : mime-version;
+ s=corp-2020-01-29; bh=my+NVrFi3SMEh1O+1a7VE5Q2gtSPMN9s0XFCWqu01mk=;
+ b=wrzSfe8lMTZEYYZ/0vi4T7sVb2VJ94XBZqC5bV0FSmeCZDeeome0mt8vouGFBHoHqfCm
+ 2xq1o0EKkqsw4EHgd4+E6EeOll3f392IlUM6pUrzuGiUnXc5kxIAS+/GPhQPUxb9c2zf
+ EP/86rWq7pbplE02UanvNzUXukIVipjzcBjNvunebXFIqarvCpMkw79O5xiCSzmW7XTr
+ E/IkiJSJkIHXmyf0u4jzMnnGlL7uDm4JFhU6QoiW0Ero4/GjUua9n7mHu4xROpq2A+NR
+ 6Zs0N9WU45wFeg+4IozhFB/wNtpx31kJLjbelbLDWWWM3hpHk/dJxfsF3PUXrQvWBCzS uA== 
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=my+NVrFi3SMEh1O+1a7VE5Q2gtSPMN9s0XFCWqu01mk=;
+ b=hPveWfUAjFy0NHFVBTL87XDWk5NBaqBwMbVqnmgpFPHh4BeUtQCt1x60cVdpkbCV9oUz2DcXeWb4+EhsUjQHI8kREgPryRuBuT4XZ1LS6GAs0481ZnJPlbHCP7QKkOIIPcG+54XEZw6SoInwhNv2XF123UqM9EuUUzIa+2FT0Jw=
+Date: Mon, 16 Aug 2021 11:33:26 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Message-ID: <202108140311.dorJxbPR-lkp@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210813150002.673579-5-razor@blackwall.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162894660674.3097.4333044818411572799.git-patchwork-notify@kernel.org>
-Date: Sat, 14 Aug 2021 13:10:06 +0000
-References: <20210813150002.673579-1-razor@blackwall.org>
-In-Reply-To: <20210813150002.673579-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next 0/6] net: bridge: mcast: dump querier
-	state
+Subject: Re: [Bridge] [PATCH net-next 4/6] net: bridge: mcast: dump ipv4
+	querier state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,54 +39,38 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
+To: kbuild@lists.01.org, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <nikolay@nvidia.com>, bridge@lists.linux-foundation.org, kbuild-all@lists.01.org, lkp@intel.com, roopa@nvidia.com
 
-Hello:
+Hi Nikolay,
 
-This series was applied to netdev/net-next.git (refs/heads/master):
+url:    https://github.com/0day-ci/linux/commits/Nikolay-Aleksandrov/net-bridge-mcast-dump-querier-state/20210813-230258
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git b769cf44ed55f4b277b89cf53df6092f0c9082d0
+config: x86_64-randconfig-m001-20210814 (attached as .config)
+compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
 
-On Fri, 13 Aug 2021 17:59:56 +0300 you wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
-> 
-> Hi,
-> This set adds the ability to dump the current multicast querier state.
-> This is extremely useful when debugging multicast issues, we've had
-> many cases of unexpected queriers causing strange behaviour and mcast
-> test failures. The first patch changes the querier struct to record
-> a port device's ifindex instead of a pointer to the port itself so we
-> can later retrieve it, I chose this way because it's much simpler
-> and doesn't require us to do querier port ref counting, it is best
-> effort anyway. Then patch 02 makes the querier address/port updates
-> consistent via a combination of multicast_lock and seqcount, so readers
-> can only use seqcount to get a consistent snapshot of address and port.
-> Patch 03 is a minor cleanup in preparation for the dump support, it
-> consolidates IPv4 and IPv6 querier selection paths as they share most of
-> the logic (except address comparisons of course). Finally the last three
-> patches add the new querier state dumping support, for the bridge's
-> global multicast context we embed the BRIDGE_QUERIER_xxx attributes
-> into IFLA_BR_MCAST_QUERIER_STATE and for the per-vlan global mcast
-> contexts we embed them into BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE.
-> 
-> [...]
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Here is the summary with links:
-  - [net-next,1/6] net: bridge: mcast: record querier port device ifindex instead of pointer
-    https://git.kernel.org/netdev/net-next/c/bb18ef8e7e18
-  - [net-next,2/6] net: bridge: mcast: make sure querier port/address updates are consistent
-    https://git.kernel.org/netdev/net-next/c/67b746f94ff3
-  - [net-next,3/6] net: bridge: mcast: consolidate querier selection for ipv4 and ipv6
-    https://git.kernel.org/netdev/net-next/c/c3fb3698f935
-  - [net-next,4/6] net: bridge: mcast: dump ipv4 querier state
-    https://git.kernel.org/netdev/net-next/c/c7fa1d9b1fb1
-  - [net-next,5/6] net: bridge: mcast: dump ipv6 querier state
-    https://git.kernel.org/netdev/net-next/c/85b410821174
-  - [net-next,6/6] net: bridge: vlan: dump mcast ctx querier state
-    https://git.kernel.org/netdev/net-next/c/ddc649d158c5
+smatch warnings:
+net/bridge/br_multicast.c:2931 br_multicast_querier_state_size() warn: sizeof(NUMBER)?
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+vim +2931 net/bridge/br_multicast.c
 
+384d7e0455593b Nikolay Aleksandrov 2021-08-13  2929  size_t br_multicast_querier_state_size(void)
+384d7e0455593b Nikolay Aleksandrov 2021-08-13  2930  {
+384d7e0455593b Nikolay Aleksandrov 2021-08-13 @2931  	return nla_total_size(sizeof(0)) +      /* nest attribute */
+                                                                              ^^^^^^^^^
+This looks like it's probably intentional, but wouldn't it be more
+readable to say sizeof(int) as it does below?
+
+384d7e0455593b Nikolay Aleksandrov 2021-08-13  2932  	       nla_total_size(sizeof(__be32)) + /* BRIDGE_QUERIER_IP_ADDRESS */
+384d7e0455593b Nikolay Aleksandrov 2021-08-13  2933  	       nla_total_size(sizeof(int)) +    /* BRIDGE_QUERIER_IP_PORT */
+384d7e0455593b Nikolay Aleksandrov 2021-08-13  2934  	       nla_total_size_64bit(sizeof(u64)); /* BRIDGE_QUERIER_IP_OTHER_TIMER */
+384d7e0455593b Nikolay Aleksandrov 2021-08-13  2935  }
+
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
 
