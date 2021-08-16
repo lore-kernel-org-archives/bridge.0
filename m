@@ -1,24 +1,24 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=hom66D7QlF74ZChwS4t+afVi3WhkjTNJBXj7NjSNFVM=;
- b=tzWe0JAh41Gch5AiXUler1lJGHcqpdBUfWCEMcGGoBuvpGARlOm/fBp4GAqpPZr/eg
- /v2jlAxpf4/MDN2h3VP8hyxcd76IvPO8N2VDN+JgQ3qg0xKxraMsW6v0VrIrxEOClZ8a
- nEffjvCvE2bsllavHYmQd1SPwBRHushTPBFjxy3vRyWhv48f8+xx/apSuijmabUtsO1q
- a/1Tt1jyHBRpsXnr5I5bPhh/uYU2JqkQrh8qp0VwurSmfVGPN3tRdTYU39bkgc1El1ip
- RU7F1RPlIBqriUWYGtNhHP0hr49wbmP57GjqDvgCoSdnb84jZ34lWjhMkdaxKlgHwQE3
- ykIA==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 16 Aug 2021 13:11:34 +0300
-Message-Id: <20210816101134.577413-4-razor@blackwall.org>
-In-Reply-To: <20210816101134.577413-1-razor@blackwall.org>
-References: <20210816101134.577413-1-razor@blackwall.org>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1629119406;
+ bh=OEjXsnwr92JDA8IfjbiPkWnN00OfEKYZhQN0lmo2yBE=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=tJH51f9ARfiLL7RhwEUav5Cy0AiKjsDa43+Vb5SxdNqLRXKEu7VhYv/b0cit6MtYp
+ LLtbW4BFUEptNr/lQaBUJmQQ28UszWzkUOEgrMeQDeg4TsIeVYyGI6LIsFlzv4ocU8
+ O1IPEmeZ8ZAi5cN60gRMLOzKfDynIX6gdnJZAXVk6n/CKV6Ct4HlrCdMjMeOCm8Hi8
+ 89ExygZeMFTDzPATZlqYVjQ6M5y30dipW6HTA9SsiI71iCQajFWTxOf9TfvAQFnxFA
+ VWcnUC9dYCkSbfJeEEwszN4YngSs+7EE0hWYgsU18/2cCJToNfW/rMZD0ecqPrs3xX
+ L86fcamltdI8A==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 3/3] net: bridge: mcast: account for ipv6
-	size when dumping querier state
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162911940606.11903.8900804380948796171.git-patchwork-notify@kernel.org>
+Date: Mon, 16 Aug 2021 13:10:06 +0000
+References: <20210816101134.577413-1-razor@blackwall.org>
+In-Reply-To: <20210816101134.577413-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next 0/3] net: bridge: mcast: fixes for
+ mcast querier state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,38 +27,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Hello:
 
-We need to account for the IPv6 attributes when dumping querier state.
+This series was applied to netdev/net-next.git (refs/heads/master):
 
-Fixes: 5e924fe6ccfd ("net: bridge: mcast: dump ipv6 querier state")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/bridge/br_multicast.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+On Mon, 16 Aug 2021 13:11:31 +0300 you wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Hi,
+> These three fix querier state dumping. The first patch can be considered
+> a minor behaviour improvement, it avoids dumping querier state when mcast
+> snooping is disabled. The second patch was a report of sizeof(0) used
+> for nested netlink attribute size which should be just 0, and the third
+> patch accounts for IPv6 querier state size when allocating skb for
+> notifications.
+> 
+> [...]
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 76992ddac7e0..e411dd814c58 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -2931,7 +2931,13 @@ size_t br_multicast_querier_state_size(void)
- 	return nla_total_size(0) +		/* nest attribute */
- 	       nla_total_size(sizeof(__be32)) + /* BRIDGE_QUERIER_IP_ADDRESS */
- 	       nla_total_size(sizeof(int)) +    /* BRIDGE_QUERIER_IP_PORT */
--	       nla_total_size_64bit(sizeof(u64)); /* BRIDGE_QUERIER_IP_OTHER_TIMER */
-+	       nla_total_size_64bit(sizeof(u64)) + /* BRIDGE_QUERIER_IP_OTHER_TIMER */
-+#if IS_ENABLED(CONFIG_IPV6)
-+	       nla_total_size(sizeof(struct in6_addr)) + /* BRIDGE_QUERIER_IPV6_ADDRESS */
-+	       nla_total_size(sizeof(int)) +		 /* BRIDGE_QUERIER_IPV6_PORT */
-+	       nla_total_size_64bit(sizeof(u64)) +	 /* BRIDGE_QUERIER_IPV6_OTHER_TIMER */
-+#endif
-+	       0;
- }
- 
- /* protected by rtnl or rcu */
--- 
-2.31.1
+Here is the summary with links:
+  - [net-next,1/3] net: bridge: mcast: don't dump querier state if snooping is disabled
+    https://git.kernel.org/netdev/net-next/c/f137b7d4ecf8
+  - [net-next,2/3] net: bridge: mcast: drop sizeof for nest attribute's zero size
+    https://git.kernel.org/netdev/net-next/c/cdda378bd8d9
+  - [net-next,3/3] net: bridge: mcast: account for ipv6 size when dumping querier state
+    https://git.kernel.org/netdev/net-next/c/175e66924719
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
