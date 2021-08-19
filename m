@@ -1,24 +1,22 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1629193211;
- bh=V9Bku/K/4t7oyt1jzwKixNxdquZRMQx4YUQra0E8/ME=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=DW+nWchzNdunC6g/e4SZfCDN7+hkb70xSwIMrAAy1OE4kk5A9g+vQWkWVoZgWJ0yo
- 7edNw+3MUixJm+Wi/LjH4a0U32nEbmtaugrQvvGAZ7E+cej2vKYcKkTcRzYgHneUyB
- uVagpa0/J2h9wOyb5xBHrb1oxXeWBAz2ibfWYqQo9xqB7p1yhwcT+Mp5tezu3x5R7e
- XGsWoIwNp18jws/blTHaVAaNzezRA3/Dsbl0Vg8DMgBDyevWseu2sCVAW320QccZwK
- D+5el5S3VF4fKTm9GUFqjvIleGpCH0Ym8geLTHvo1P6FsIIFGLS0wpdHG2HELxl0ku
- HOhkWmWCbl2aA==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <troglobit@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:in-reply-to:references:date:message-id
+ :mime-version; bh=GClqOFxFEfC+krefx64HgWgWYCi/YRwdN7djuSeQf4U=;
+ b=sDyifaj3eNNHcpO2QoAnYYjlFqNV9jsxHXWLw0hSH9gHYupXSH3AYMPL4D+7gce/M8
+ 36FyYRX9os3bv8RjgqqSA7vtD37MAAV0op6s+l8oviK9LVXDw6R6RplgFscWEvxwO+rJ
+ Ge9r5BRcZwWqWWybi8Wnn6asbhxxdG19/P8jQA9WsHBAYdkNvyfAfOGFJcNQjqpFUV/8
+ b+fKeKUQ7sQhtmwE9pZ/pbEhG31qmnYtCATiIjzCYoKqWW0gkG4ns80qrO6zmq0FLWKG
+ E9T7HmeTcHkQhCRAEK/iHE8isQVJ8vbdLP5cfs+khY4yvOsRLDMhT1XhmKTptu90f8KD
+ DoXg==
+From: Joachim Wiberg <troglobit@gmail.com>
+In-Reply-To: <20210719170637.435541-1-razor@blackwall.org>
+References: <20210719170637.435541-1-razor@blackwall.org>
+Date: Thu, 19 Aug 2021 18:01:05 +0200
+Message-ID: <875yw1qv9a.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162919321138.26227.14459978814742770113.git-patchwork-notify@kernel.org>
-Date: Tue, 17 Aug 2021 09:40:11 +0000
-References: <20210816145707.671901-1-razor@blackwall.org>
-In-Reply-To: <20210816145707.671901-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next 0/4] net: bridge: vlan: fixes for vlan
-	mcast contexts
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH net-next 00/15] net: bridge: multicast: add
+	vlan support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,39 +25,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
+To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
 
-Hello:
+Hi Hik, everyone!
 
-This series was applied to netdev/net-next.git (refs/heads/master):
-
-On Mon, 16 Aug 2021 17:57:03 +0300 you wrote:
+On Mon, Jul 19, 2021 at 20:06, Nikolay Aleksandrov <razor@blackwall.org> wrote:
 > From: Nikolay Aleksandrov <nikolay@nvidia.com>
-> 
-> Hi,
-> These are four fixes for vlan multicast contexts. The first patch enables
-> mcast ctx snooping when adding already existing master vlans to be
-> consistent with the rest of the code. The second patch accounts for the
-> mcast ctx router ports when allocating skb for notification. The third
-> one fixes two suspicious rcu usages due to wrong vlan group helper, and
-> the fourth updates host vlan mcast state along with port mcast state.
-> 
-> [...]
+> This patchset adds initial per-vlan multicast support, most of the code
+> deals with moving to multicast context pointers from bridge/port pointers.
 
-Here is the summary with links:
-  - [net-next,1/4] net: bridge: vlan: enable mcast snooping for existing master vlans
-    https://git.kernel.org/netdev/net-next/c/b92dace38f8f
-  - [net-next,2/4] net: bridge: vlan: account for router port lists when notifying
-    https://git.kernel.org/netdev/net-next/c/05d6f38ec0a5
-  - [net-next,3/4] net: bridge: mcast: use the correct vlan group helper
-    https://git.kernel.org/netdev/net-next/c/3f0d14efe2fa
-  - [net-next,4/4] net: bridge: mcast: toggle also host vlan state in br_multicast_toggle_vlan
-    https://git.kernel.org/netdev/net-next/c/affce9a774ca
+Awesome work, this looks very interesting! :)  I've already built and
+tested net-next for regressions on Marvell SOHO switches, looking good
+so far.
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Curious, are you planning querier per-vlan, including use-ifaddr support
+as well?  In our in-house hack, which I posted a few years ago, we added
+some "dumpster diving" to inet_select_addr(), but it got rather tricky.
+So I've been leaning towards having that in userspace instead.
 
+> Future patch-sets which build on this one (in order):
+>  - iproute2 support for all the new uAPIs
 
+I'm very eager to try out all the new IGMP per-VLAN stuff, do you have
+any branch of the iproute2 support available yet for testing?  For now
+I've hard-coded BROPT_MCAST_VLAN_SNOOPING_ENABLED in br_multicast_init()
+as a workaround, and everything seems to work just as expected :-)
+
+Best regards
+ /Joachim
