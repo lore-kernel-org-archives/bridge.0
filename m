@@ -1,24 +1,20 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1629468605;
- bh=Q53Il28m8kGMtAWjXNQShZZM0+fN0olsOdvSlZ4MQCM=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=K0amjP+HFCKBwmd1G0haYawvfg3UNDkXXFeDlogHYDqvVTQ7JS+iLDxAnkRu+AG+J
- aZoR5gCkWQ84y2AdiHrLFVUlL0dGhSGJF0SvLcWrwjT7Gmn0/a9BcbUbStO6ZwDLLC
- pjWWuJWacTiphCGpNtabREtBW6dC3zqBXE27LyD5pHSgzQB4JLWl3quLrJoDJK9IWc
- 2Hj7eVrS0KfgvUmi55QWWZnDR2FNrBPWCzsSc8xOhY/MhCrijdBUjfajXQeZR+cqBB
- Gq3BFdbT1b/pRyFiTKS9XR31NYy5Mk12C9SACvQjSIvyi0mBW+SSGdFXTG2q8TpIT5
- k1MRjDqq4Elwg==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zhkY4sxH7BnSdsblCHD6C4HSfFyBBXfDAZzZU5UipAI=;
+ b=bGVS3uxCcZIY5z8IlVscb7wYaQz/qmJWHY3gLk1jRspr5XFj+HNsZhprMBeQbFlzUpp+Qqevq8O0HLfMT6wVRTU6NSnivYFLaFZnFeVlVPxlghfdFNsNQQVxh2UXjh8FuH5lgyhzSJg3vhShQP3mTZJ9kAbK4IJrMw6bMHSZp0d/Nq4hWCLwoUt7qraODDTGw/gLYtM+qnyuwQnvWCuMQ87BBmU5pFUyca8BRq+9uFWfcPNyv6TUw6MUIRdktt3weebbbCylj0AXuuPx0A0NMHk0AzUau6eYS7Wy+1mhp7tnsOMF1+gNzjPZ54IZbEm1PosXXDNfWQnm0osEz9J22w==
+References: <20210823061938.28240-1-l4stpr0gr4m@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <13c1df91-be22-f4e0-cd61-7c99eb4e45f4@nvidia.com>
+Date: Mon, 23 Aug 2021 12:00:25 +0300
+In-Reply-To: <20210823061938.28240-1-l4stpr0gr4m@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162946860569.9666.13581662949976824444.git-patchwork-notify@kernel.org>
-Date: Fri, 20 Aug 2021 14:10:05 +0000
-References: <20210820124255.1465672-1-razor@blackwall.org>
-In-Reply-To: <20210820124255.1465672-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next 0/2] net: bridge: mcast: add support
- for port/vlan router control
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: replace
+ __vlan_hwaccel_put_tag with skb_vlan_push
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,40 +23,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
+To: Kangmin Park <l4stpr0gr4m@gmail.com>, Roopa Prabhu <roopa@nvidia.com>
+Cc: Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 
-Hello:
-
-This series was applied to netdev/net-next.git (refs/heads/master):
-
-On Fri, 20 Aug 2021 15:42:53 +0300 you wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 23/08/2021 09:19, Kangmin Park wrote:
+> br_handle_ingress_vlan_tunnel() is called in br_handle_frame() and
+> goto drop when br_handle_ingress_vlan_tunnel() return non-zero.
 > 
-> Hi,
-> This small set adds control over port/vlan mcast router config.
-> Initially I had added host vlan entry router control via vlan's global
-> options but that is really unnecessary and we can use a single per-vlan
-> option to control it both for port/vlan and host/vlan entries. Since
-> it's all still in net-next we can convert BRIDGE_VLANDB_GOPTS_MCAST_ROUTER
-> to BRIDGE_VLANDB_ENTRY_MCAST_ROUTER and use it for both. That makes much
-> more sense and is easier for user-space. Patch 01 prepares the port
-> router function to be used with port mcast context instead of port and
-> then patch 02 converts the global vlan mcast router option to per-vlan
-> mcast router option which directly gives us both host/vlan and port/vlan
-> mcast router control without any additional changes.
+> But, br_handle_ingress_vlan_tunnel() always return 0. So, the goto
+> routine is currently meaningless.
 > 
-> [...]
+> However, paired function br_handle_egress_vlan_tunnel() call
+> skb_vlan_pop(). So, change br_handle_ingress_vlan_tunnel() to call
+> skb_vlan_push() instead of __vlan_hwaccel_put_tag(). And return
+> the return value of skb_vlan_push().
+> 
+> Signed-off-by: Kangmin Park <l4stpr0gr4m@gmail.com>
+> ---
+>  net/bridge/br_vlan_tunnel.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
+> index 01017448ebde..7b5a33dc9d4d 100644
+> --- a/net/bridge/br_vlan_tunnel.c
+> +++ b/net/bridge/br_vlan_tunnel.c
+> @@ -179,9 +179,7 @@ int br_handle_ingress_vlan_tunnel(struct sk_buff *skb,
+>  
+>  	skb_dst_drop(skb);
+>  
+> -	__vlan_hwaccel_put_tag(skb, p->br->vlan_proto, vlan->vid);
+> -
+> -	return 0;
+> +	return skb_vlan_push(skb, p->br->vlan_proto, vlan->vid);
+>  }
+>  
+>  int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+> 
 
-Here is the summary with links:
-  - [net-next,1/2] net: bridge: mcast: br_multicast_set_port_router takes multicast context as argument
-    https://git.kernel.org/netdev/net-next/c/a53581d5559e
-  - [net-next,2/2] net: bridge: vlan: convert mcast router global option to per-vlan entry
-    https://git.kernel.org/netdev/net-next/c/2796d846d74a
+This changes behaviour though, I don't like changing code just for the sake of it.
+Perhaps the author had a reason to use hwaccel_put_tag instead. Before we would
+just put hwaccel tag, now if there already is hwaccel tag we'll push it inside
+the skb and then push the new tag in hwaccel. In fact I think you can even trigger
+the warning inside skb_vlan_push, so:
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Nacked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 
 
