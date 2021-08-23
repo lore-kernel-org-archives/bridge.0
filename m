@@ -1,25 +1,21 @@
 Return-Path: <l4stpr0gr4m@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=MaBl3rDtXESKyw3c63bPJNo7dg2UCFCV5le4IG3pXWo=;
- b=GbfZDaKnoXqjjhUOEGzo6BXu3i1+1SjQifDJV8eWlIzQ9++SCfEWOYg6yN7DqLP1Of
- NNunFBtWyyeoeiu2RuJa4zJgKCSAi88wl4IdP11bPwrelZfDo9IDr6H6OZxvH75Z1/QY
- J+9hkFB6rwPKuP9iZcF+rNCzJdW4SOBHQkDA8AOam9zc+qX0L7FHmwOMyR5YVM+uE8/8
- rDPAt3dXUUs1b2CVohBhOfiaTlDTXq/3xX03BPeStge8+5rNKBIHXQzZHdMoDbqa5GC2
- WYWzbbeb6KeCFlSR9kTe3l12UpPO5uxuFpqLfzoIanrPs7y5pJLW5PpRRyFb6YzQBcUz
- nSbQ==
-MIME-Version: 1.0
-References: <20210823061938.28240-1-l4stpr0gr4m@gmail.com>
- <13c1df91-be22-f4e0-cd61-7c99eb4e45f4@nvidia.com>
-In-Reply-To: <13c1df91-be22-f4e0-cd61-7c99eb4e45f4@nvidia.com>
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=yne3gbAEgfLvuzl4ISOkMOkCXwKPNJ/FBTXv1EJmNsU=;
+ b=YHDP74AbShnhW5meoBsQ1QYdIjc1c4tgZ6mqQmAVTFy848TGQQqIyv+LQ/0DbIvJIe
+ 4OEbNb6G4iCxHpmT7nK4EXbTum5BulylgPIakzGd2yr0czxgI7yOyVKBgrmTnf0mdaRn
+ GfqfXyh2xAzSv3Sg2D7hNz5sMLwA9Dn8t9HnNKHrKhtBydgAdfL42vZMeYtcajYTTDd+
+ 3suCdMlFcSgZjpdYOJkUGIg1wcdnvEWHYKSOBm7r0MG6PPNIjERYe3/BwmZhLVZPiTHO
+ 7uc3wRgttdbRuookpJ/WH/xRCOrGUxAqmll3Kx32OJyVK+ca77M9PGDHWcUXOc8PplwD
+ 9X5g==
 From: Kangmin Park <l4stpr0gr4m@gmail.com>
-Date: Mon, 23 Aug 2021 18:12:31 +0900
-Message-ID: <CAKW4uUyPdQ9hXeyjnC+5VS7zDaw+3sxy53HwOv2AxEZ7tngT=Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: replace
-	__vlan_hwaccel_put_tag with skb_vlan_push
+Date: Mon, 23 Aug 2021 18:56:34 +0900
+Message-Id: <20210823095634.34752-1-l4stpr0gr4m@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v2 net-next] net: bridge: change return type of
+	br_handle_ingress_vlan_tunnel
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,36 +24,109 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Roopa Prabhu <roopa@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-2021=EB=85=84 8=EC=9B=94 23=EC=9D=BC (=EC=9B=94) =EC=98=A4=ED=9B=84 6:00, N=
-ikolay Aleksandrov <nikolay@nvidia.com>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=
-=B1:
->
-> On 23/08/2021 09:19, Kangmin Park wrote:
->
-> This changes behaviour though, I don't like changing code just for the sa=
-ke of it.
-> Perhaps the author had a reason to use hwaccel_put_tag instead. Before we=
- would
-> just put hwaccel tag, now if there already is hwaccel tag we'll push it i=
-nside
-> the skb and then push the new tag in hwaccel. In fact I think you can eve=
-n trigger
-> the warning inside skb_vlan_push, so:
->
-> Nacked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
->
->
+br_handle_ingress_vlan_tunnel() is only referenced in
+br_handle_frame(). If br_handle_ingress_vlan_tunnel() is called and
+return non-zero value, goto drop in br_handle_frame().
 
-Thanks for the review. I got it.
-Then, how about cleanup by changing return type of
-br_handle_ingress_vlan_tunnel()?
-This function is only referenced in br_handle_frame(), and goto drop
-when it return
-non-zero. But, the ingress function always return 0, there is no
-meaning for now.
-If you think the cleanup is worth it, I'll send you a v2 patch.
+But, br_handle_ingress_vlan_tunnel() always return 0. So, the
+routines that check the return value and goto drop has no meaning.
 
-Regards.
+Therefore, change return type of br_handle_ingress_vlan_tunnel() to
+void and remove if statement of br_handle_frame().
+
+Signed-off-by: Kangmin Park <l4stpr0gr4m@gmail.com>
+---
+v2:
+ - cleanup instead of modifying ingress function
+ - change prototype of ingress function
+ - cleanup br_handle_frame function
+ - change commit message accordingly
+
+ net/bridge/br_input.c          |  7 ++-----
+ net/bridge/br_private_tunnel.h |  6 +++---
+ net/bridge/br_vlan_tunnel.c    | 14 +++++++-------
+ 3 files changed, 12 insertions(+), 15 deletions(-)
+
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 8a0c0cc55cb4..b50382f957c1 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -294,11 +294,8 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+ 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
+ 
+ 	p = br_port_get_rcu(skb->dev);
+-	if (p->flags & BR_VLAN_TUNNEL) {
+-		if (br_handle_ingress_vlan_tunnel(skb, p,
+-						  nbp_vlan_group_rcu(p)))
+-			goto drop;
+-	}
++	if (p->flags & BR_VLAN_TUNNEL)
++		br_handle_ingress_vlan_tunnel(skb, p, nbp_vlan_group_rcu(p));
+ 
+ 	if (unlikely(is_link_local_ether_addr(dest))) {
+ 		u16 fwd_mask = p->br->group_fwd_mask_required;
+diff --git a/net/bridge/br_private_tunnel.h b/net/bridge/br_private_tunnel.h
+index c54cc26211d7..2b053289f016 100644
+--- a/net/bridge/br_private_tunnel.h
++++ b/net/bridge/br_private_tunnel.h
+@@ -38,9 +38,9 @@ int nbp_vlan_tunnel_info_add(const struct net_bridge_port *port, u16 vid,
+ void nbp_vlan_tunnel_info_flush(struct net_bridge_port *port);
+ void vlan_tunnel_info_del(struct net_bridge_vlan_group *vg,
+ 			  struct net_bridge_vlan *vlan);
+-int br_handle_ingress_vlan_tunnel(struct sk_buff *skb,
+-				  struct net_bridge_port *p,
+-				  struct net_bridge_vlan_group *vg);
++void br_handle_ingress_vlan_tunnel(struct sk_buff *skb,
++				   struct net_bridge_port *p,
++				   struct net_bridge_vlan_group *vg);
+ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+ 				 struct net_bridge_vlan *vlan);
+ bool vlan_tunid_inrange(const struct net_bridge_vlan *v_curr,
+diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
+index 01017448ebde..7d42b2a5be80 100644
+--- a/net/bridge/br_vlan_tunnel.c
++++ b/net/bridge/br_vlan_tunnel.c
+@@ -158,30 +158,30 @@ void vlan_tunnel_deinit(struct net_bridge_vlan_group *vg)
+ 	rhashtable_destroy(&vg->tunnel_hash);
+ }
+ 
+-int br_handle_ingress_vlan_tunnel(struct sk_buff *skb,
+-				  struct net_bridge_port *p,
+-				  struct net_bridge_vlan_group *vg)
++void br_handle_ingress_vlan_tunnel(struct sk_buff *skb,
++				   struct net_bridge_port *p,
++				   struct net_bridge_vlan_group *vg)
+ {
+ 	struct ip_tunnel_info *tinfo = skb_tunnel_info(skb);
+ 	struct net_bridge_vlan *vlan;
+ 
+ 	if (!vg || !tinfo)
+-		return 0;
++		return;
+ 
+ 	/* if already tagged, ignore */
+ 	if (skb_vlan_tagged(skb))
+-		return 0;
++		return;
+ 
+ 	/* lookup vid, given tunnel id */
+ 	vlan = br_vlan_tunnel_lookup(&vg->tunnel_hash, tinfo->key.tun_id);
+ 	if (!vlan)
+-		return 0;
++		return;
+ 
+ 	skb_dst_drop(skb);
+ 
+ 	__vlan_hwaccel_put_tag(skb, p->br->vlan_proto, vlan->vid);
+ 
+-	return 0;
++	return;
+ }
+ 
+ int br_handle_egress_vlan_tunnel(struct sk_buff *skb,
+-- 
+2.26.2
+
