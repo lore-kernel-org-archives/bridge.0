@@ -1,25 +1,19 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1629849129;
- bh=Y+YdA+2CMsgqdmmpnQ4ORVcuiQP93MiMTcXGC05a0x8=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=P76SmD/+8qyjtGB124/Yo5+ywHRqyZ/spCL7h8+blkI86gF0FXQs/HUJJQKpLiLkB
- 5RhnTM7hVGcPauQvKe9vziKnZGWmCYjdD+tuW4vpXJ92WHG54t5ZP/mnfUizL8CcQW
- QZdvcpTD9z/yHCQjEDJULv8FWPSkrLXW5tFYHv9FKSDoqnVRncqLZkux0n++Ubo+Qr
- VyG5U5nnrWbBdqppsHYfnIjMAlucgE2zy/ypEtF8GXHuP7mJvPIAjimAfYoIeIKh7a
- Y/F7kc3fbApgHP9tJuRaH+CL0EDx9WuVA7IlO894qEzaDHqNbVTjydrfD5xjE7R+GP
- 6sMorJjKV8UPA==
-Date: Tue, 24 Aug 2021 16:52:08 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20210824165208.36944d77@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <d37ff915-6d94-2d22-9e93-46b374fc47d7@nvidia.com>
-References: <20210823102118.17966-1-l4stpr0gr4m@gmail.com>
- <d37ff915-6d94-2d22-9e93-46b374fc47d7@nvidia.com>
+Return-Path: <takpkyra666@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:from:date:message-id:subject:to:cc;
+ bh=bqYee/6ld0ln1QDz/d5FKD7rAylctSHuck8A3MH6AEU=;
+ b=REPW9j5igPAi6YKII+JzIr5WSQP8hJn1ZSRO0gN5DQHRr7d+/Rx0i4uhVca/IYB32b
+ smxCPueGg7m05O7oW5Oh5tGe/DPLlFMKhR1GF/aKavDDsMqpepFw/vfyRZ8BRiHch9nY
+ 93k+stIAr/g1aMDD4bxn2UPrMJIVcqpYCDVWzOwyiceLgWqZMaL8eNoNiCXOs4Lh2Buu
+ 1DAY4AT5UTu10cK40tqphCOelqZUiUz/V9PPXU7Q5oYCVlrnUjrJ7qIr9ZUXHmIHTTlJ
+ oFmCKctHRsZaCCYYZ1erbE8xAZD4hqe5MdlJqNW+UQfq/q2+G4cfEYwVVS0BX5GJ4dOJ
+ 7BDA==
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v3 net-next] net: bridge: change return type of
- br_handle_ingress_vlan_tunnel
+From: Esther Faride Chau Durazo <takpkyra666@gmail.com>
+Date: Tue, 24 Aug 2021 01:11:36 -0700
+Message-ID: <CABH6LpA+aSYEPB19f4zm2DAJdSiO54+OEs2+TB6r0W9jPgpneg@mail.gmail.com>
+Content-Type: multipart/alternative; boundary="000000000000c8665c05ca557a92"
+Subject: Re: [Bridge] Bridge port isolation offload
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,24 +22,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>, Kangmin Park <l4stpr0gr4m@gmail.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>
+To: dqfext@gmail.com
+Cc: andrew@lunn.ch, f.fainelli@gmail.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, olteanv@gmail.com, davem@davemloft.net
 
-On Mon, 23 Aug 2021 13:25:20 +0300 Nikolay Aleksandrov wrote:
-> On 23/08/2021 13:21, Kangmin Park wrote:
-> > br_handle_ingress_vlan_tunnel() is only referenced in
-> > br_handle_frame(). If br_handle_ingress_vlan_tunnel() is called and
-> > return non-zero value, goto drop in br_handle_frame().
-> > 
-> > But, br_handle_ingress_vlan_tunnel() always return 0. So, the
-> > routines that check the return value and goto drop has no meaning.
-> > 
-> > Therefore, change return type of br_handle_ingress_vlan_tunnel() to
-> > void and remove if statement of br_handle_frame().
-> > 
-> > Signed-off-by: Kangmin Park <l4stpr0gr4m@gmail.com>
-> 
-> Looks good to me,
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+--000000000000c8665c05ca557a92
+Content-Type: text/plain; charset="UTF-8"
 
-Applied, thanks!
+
+
+--000000000000c8665c05ca557a92
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="auto"></div>
+
+--000000000000c8665c05ca557a92--
