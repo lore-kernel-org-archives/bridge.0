@@ -1,22 +1,19 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=aiR23CdvX/YW7ASJTZF8b+8Ds0NXrhmWhy57VeViwyo=;
- b=QLeBRmfebetUgt50tunwIMdWH6Xh1XJU9NxhzbFJAB/SEky4PZPW1vehsAR9QpJ1jd
- xnwHiEdsUpkVp20AXnOhuhqv4wrkuEjJUMej4dHJCqo87Bx5RtJ50Pnt35QfLSCW110V
- O6BT5W/I6LvhXGAadQUXekqC7NFdbPWz9lVQPpHVuoA0aJpWuoBz6Jd7GOm+epqC4AxX
- BzNWPn8aBkBPVwINR4Sk3omo8C/M1BzSgwWTODeAs0P52L0HMrc3Yz4637W0bbelGtZL
- LVCDk8IijuC90eH7mP8I5Yp5mCNT7b3nb8tFBQ/9QP6h/CqUf1mxAdjMfYpjFlRMLi4B
- oHCA==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Fri,  3 Sep 2021 12:34:15 +0300
-Message-Id: <20210903093415.1544837-1-razor@blackwall.org>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=OB3hJWEopcX3jrwOqJ3eZxM/ybrrEZHeg5OVrHaLSSk=;
+ b=KsFpqQ2cOT+zRzCqM64VnecJoXh0poJSMXiOW/Y4jTGHaZR2ALQAgewsPQfgI0nYg1LCR3uzYqz2WrOq0NGefppNHxr+t4XznYmwKGt2NJIBulUo3NVVxYsIFQkzXezoGYShS4eZRIqzzRZcb+YEt0lBEd2rC47PlQgXMU5s9g1WWtDELZ/9oMOBmbrIon8OhQYCX6mYOGPhssVLuLjEiUKI4k5+1b4WtoDfc6wNhltfIHG+4q9cTU2nEWckV+UPhqbYaMeVt8l010wF5fWPAqt5V1KHPLJNshVCGxhzOqw/VhQm57Hv+2ZluNxdJ2Ig+gfNWPGvH9XZpzxkYsMh3g==
+References: <0000000000007d0d1a05cb13924c@google.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+Message-ID: <10b89a9f-443c-98d1-ca01-add5f6dd3355@nvidia.com>
+Date: Fri, 3 Sep 2021 13:04:10 +0300
+In-Reply-To: <0000000000007d0d1a05cb13924c@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net] net: bridge: mcast: fix vlan port router
-	deadlock
+Subject: Re: [Bridge] [syzbot] KASAN: slab-out-of-bounds Read in add_del_if
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,46 +22,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
+To: syzbot <syzbot+24b98616278c31afc800@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 03/09/2021 12:03, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following issue on:
+> 
+> HEAD commit:    3bdc70669eb2 Merge branch 'devlink-register'
 
-Before vlan/port mcast router support was added
-br_multicast_set_port_router was used only with bh already disabled due
-to the bridge port lock, but that is no longer the case and when it is
-called to configure a vlan/port mcast router we can deadlock with the
-timer, so always disable bh to make sure it can be called from contexts
-with both enabled and disabled bh.
+That is an older commit, before my ioctl fixes. I think this issue has been
+already fixed by my patch-set:
+ commit d15040a33883
+ Merge: 4167a960574f 9384eacd80f3
+ Author: David S. Miller <davem@davemloft.net>
+ Date:   Thu Aug 5 11:36:59 2021 +0100
 
-Fixes: 2796d846d74a ("net: bridge: vlan: convert mcast router global option to per-vlan entry")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/bridge/br_multicast.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+    Merge branch 'bridge-ioctl-fixes'
+    
+    Nikolay Aleksandrov says:
+    
+    ====================
+    net: bridge: fix recent ioctl changes
+    
+    These are three fixes for the recent bridge removal of ndo_do_ioctl
+    done by commit ad2f99aedf8f ("net: bridge: move bridge ioctls out of
+    .ndo_do_ioctl"). Patch 01 fixes a deadlock of the new bridge ioctl
+    hook lock and rtnl by taking a netdev reference and always taking the
+    bridge ioctl lock first then rtnl from within the bridge hook.
+    Patch 02 fixes old_deviceless() bridge calls device name argument, and
+    patch 03 checks in dev_ifsioc()'s SIOCBRADD/DELIF cases if the netdevice is
+    actually a bridge before interpreting its private ptr as net_bridge.
+    
+    Patch 01 was tested by running old bridge-utils commands with lockdep
+    enabled. Patch 02 was tested again by using bridge-utils and using the
+    respective ioctl calls on a "up" bridge device. Patch 03 was tested by
+    using the addif ioctl on a non-bridge device (e.g. loopback).
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 9231617a16e4..3523c8c7068f 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -4255,7 +4255,7 @@ int br_multicast_set_port_router(struct net_bridge_mcast_port *pmctx,
- 	bool del = false;
- 
- 	brmctx = br_multicast_port_ctx_get_global(pmctx);
--	spin_lock(&brmctx->br->multicast_lock);
-+	spin_lock_bh(&brmctx->br->multicast_lock);
- 	if (pmctx->multicast_router == val) {
- 		/* Refresh the temp router port timer */
- 		if (pmctx->multicast_router == MDB_RTR_TYPE_TEMP) {
-@@ -4305,7 +4305,7 @@ int br_multicast_set_port_router(struct net_bridge_mcast_port *pmctx,
- 	}
- 	err = 0;
- unlock:
--	spin_unlock(&brmctx->br->multicast_lock);
-+	spin_unlock_bh(&brmctx->br->multicast_lock);
- 
- 	return err;
- }
--- 
-2.31.1
+
+> git tree:       net-next
+> console output: https://syzkaller.appspot.com/x/log.txt?x=147a8072300000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=914a8107c0ffdc14
+> dashboard link: https://syzkaller.appspot.com/bug?extid=24b98616278c31afc800
+> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.1
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=13f4ccc9d00000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15b054f4300000
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+24b98616278c31afc800@syzkaller.appspotmail.com
+> 
+> ==================================================================
+> BUG: KASAN: slab-out-of-bounds in add_del_if+0x13a/0x140 net/bridge/br_ioctl.c:85
+> Read of size 8 at addr ffff888019118c88 by task syz-executor790/8443
+> 
+[snip]
+> ---
+> This report is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+> 
+> syzbot will keep track of this issue. See:
+> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> syzbot can test patches for this issue, for details see:
+> https://goo.gl/tpsmEJ#testing-patches
+> 
+
+#syz test: git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git d15040a33883
 
