@@ -1,19 +1,22 @@
-Return-Path: <takpkyra666@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:from:date:message-id:subject:to:cc;
- bh=bqYee/6ld0ln1QDz/d5FKD7rAylctSHuck8A3MH6AEU=;
- b=REPW9j5igPAi6YKII+JzIr5WSQP8hJn1ZSRO0gN5DQHRr7d+/Rx0i4uhVca/IYB32b
- smxCPueGg7m05O7oW5Oh5tGe/DPLlFMKhR1GF/aKavDDsMqpepFw/vfyRZ8BRiHch9nY
- 93k+stIAr/g1aMDD4bxn2UPrMJIVcqpYCDVWzOwyiceLgWqZMaL8eNoNiCXOs4Lh2Buu
- 1DAY4AT5UTu10cK40tqphCOelqZUiUz/V9PPXU7Q5oYCVlrnUjrJ7qIr9ZUXHmIHTTlJ
- oFmCKctHRsZaCCYYZ1erbE8xAZD4hqe5MdlJqNW+UQfq/q2+G4cfEYwVVS0BX5GJ4dOJ
- 7BDA==
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=aiR23CdvX/YW7ASJTZF8b+8Ds0NXrhmWhy57VeViwyo=;
+ b=QLeBRmfebetUgt50tunwIMdWH6Xh1XJU9NxhzbFJAB/SEky4PZPW1vehsAR9QpJ1jd
+ xnwHiEdsUpkVp20AXnOhuhqv4wrkuEjJUMej4dHJCqo87Bx5RtJ50Pnt35QfLSCW110V
+ O6BT5W/I6LvhXGAadQUXekqC7NFdbPWz9lVQPpHVuoA0aJpWuoBz6Jd7GOm+epqC4AxX
+ BzNWPn8aBkBPVwINR4Sk3omo8C/M1BzSgwWTODeAs0P52L0HMrc3Yz4637W0bbelGtZL
+ LVCDk8IijuC90eH7mP8I5Yp5mCNT7b3nb8tFBQ/9QP6h/CqUf1mxAdjMfYpjFlRMLi4B
+ oHCA==
+From: Nikolay Aleksandrov <razor@blackwall.org>
+Date: Fri,  3 Sep 2021 12:34:15 +0300
+Message-Id: <20210903093415.1544837-1-razor@blackwall.org>
 MIME-Version: 1.0
-From: Esther Faride Chau Durazo <takpkyra666@gmail.com>
-Date: Tue, 24 Aug 2021 01:11:36 -0700
-Message-ID: <CABH6LpA+aSYEPB19f4zm2DAJdSiO54+OEs2+TB6r0W9jPgpneg@mail.gmail.com>
-Content-Type: multipart/alternative; boundary="000000000000c8665c05ca557a92"
-Subject: Re: [Bridge] Bridge port isolation offload
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] net: bridge: mcast: fix vlan port router
+	deadlock
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,17 +25,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: dqfext@gmail.com
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, vivien.didelot@gmail.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, olteanv@gmail.com, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com
 
---000000000000c8665c05ca557a92
-Content-Type: text/plain; charset="UTF-8"
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
+Before vlan/port mcast router support was added
+br_multicast_set_port_router was used only with bh already disabled due
+to the bridge port lock, but that is no longer the case and when it is
+called to configure a vlan/port mcast router we can deadlock with the
+timer, so always disable bh to make sure it can be called from contexts
+with both enabled and disabled bh.
 
+Fixes: 2796d846d74a ("net: bridge: vlan: convert mcast router global option to per-vlan entry")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+---
+ net/bridge/br_multicast.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---000000000000c8665c05ca557a92
-Content-Type: text/html; charset="UTF-8"
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 9231617a16e4..3523c8c7068f 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -4255,7 +4255,7 @@ int br_multicast_set_port_router(struct net_bridge_mcast_port *pmctx,
+ 	bool del = false;
+ 
+ 	brmctx = br_multicast_port_ctx_get_global(pmctx);
+-	spin_lock(&brmctx->br->multicast_lock);
++	spin_lock_bh(&brmctx->br->multicast_lock);
+ 	if (pmctx->multicast_router == val) {
+ 		/* Refresh the temp router port timer */
+ 		if (pmctx->multicast_router == MDB_RTR_TYPE_TEMP) {
+@@ -4305,7 +4305,7 @@ int br_multicast_set_port_router(struct net_bridge_mcast_port *pmctx,
+ 	}
+ 	err = 0;
+ unlock:
+-	spin_unlock(&brmctx->br->multicast_lock);
++	spin_unlock_bh(&brmctx->br->multicast_lock);
+ 
+ 	return err;
+ }
+-- 
+2.31.1
 
-<div dir="auto"></div>
-
---000000000000c8665c05ca557a92--
