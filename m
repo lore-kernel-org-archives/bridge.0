@@ -1,19 +1,24 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=kPt8VrMrbL4mgZExAQeWUV6gm5gc+UY8BvtMWzyjT0k=;
- b=I9dCwdsx+wru7b0+aVrhfHs3QiWq+WRS2lfRdK1jVjAxbf6c7OTNMAI9HaFt9CFuMJQOXhsHBF8+GJbk7D0eRrbCp2H/uSfGyO7XgjA7bwX9Rk5z9wQ6rMKO1YNvUWw56jlg7Y/uU9e4XWp2j/Lb8q1yOw/20DLKDzV2BfOYKs5mkpInDkIp12mj8LFdsHvTWbuorwfxPWkUUS7EIFaS1JSU0yT6sSpnbtqIdbAZQ69XDbaz02QhEphDV+Hy0vsdNtcVqqjfL4YRPF3045Er7gxlAzD0vZ6r6h7Ic1r+n4YfkFdNtTHTkFhs8ai50sN2jhQEtKrhQJoXkxZGHrbjag==
-References: <000000000000fdb19d05cb15c938@google.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <4c482173-e2fa-4533-13e0-f8eeb6218eb1@nvidia.com>
-Date: Fri, 3 Sep 2021 14:47:11 +0300
-In-Reply-To: <000000000000fdb19d05cb15c938@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1630674005;
+ bh=AGgbOdSzpaAML4LgVInM2rkoEUdrV9Ncc/pxqjPQmE4=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=a0NQcz6dswV9m90yGOVybZcuAwoS9jGhdMzDBENKcxCeMTTBED6B7ifnUgVb1U1G2
+ 10Th34CfDV47zgkf+cynhVZCKNZVJ0WcxL8uB0aHWe30npA6PadBXX0pAS0ZGYSxCP
+ V47xK7uL/63vWOKfh+q1Hm7RIlRekuXyF+/75bn8VdzSkAEsJQe/xgYK83LYg7xVDN
+ FP770EI2qxnHes7PD8tBekerM6B0a94Rh9z5QbGuXOlCOxjGhGTO4KFqecm7gMcAuU
+ BRJoMMIG7ULXNGsArBvWrha/G4aUplySw68rD8eb2JTPLmcpaGGfOAtjf+l9V5XbV2
+ ITB6lFh+3nCJw==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: Re: [Bridge] [syzbot] KASAN: slab-out-of-bounds Read in add_del_if
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163067400574.8696.628852222789312507.git-patchwork-notify@kernel.org>
+Date: Fri, 03 Sep 2021 13:00:05 +0000
+References: <20210903093415.1544837-1-razor@blackwall.org>
+In-Reply-To: <20210903093415.1544837-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: fix vlan port router
+	deadlock
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,25 +27,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: syzbot <syzbot+24b98616278c31afc800@syzkaller.appspotmail.com>, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
 
-On 03/09/2021 14:42, syzbot wrote:
-> Hello,
-> 
-> syzbot has tested the proposed patch and the reproducer did not trigger any issue:
-> 
-> Reported-and-tested-by: syzbot+24b98616278c31afc800@syzkaller.appspotmail.com
-> 
-> Tested on:
-> 
-> commit:         d15040a3 Merge branch 'bridge-ioctl-fixes'
-> git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=aba0c23f8230e048
-> dashboard link: https://syzkaller.appspot.com/bug?extid=24b98616278c31afc800
-> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.1
-> 
-> Note: testing is done by a robot and is best-effort only.
-> 
+Hello:
 
-#syz fix: net: core: don't call SIOCBRADD/DELIF for non-bridge devices
+This patch was applied to netdev/net.git (refs/heads/master):
+
+On Fri,  3 Sep 2021 12:34:15 +0300 you wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
+> 
+> Before vlan/port mcast router support was added
+> br_multicast_set_port_router was used only with bh already disabled due
+> to the bridge port lock, but that is no longer the case and when it is
+> called to configure a vlan/port mcast router we can deadlock with the
+> timer, so always disable bh to make sure it can be called from contexts
+> with both enabled and disabled bh.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] net: bridge: mcast: fix vlan port router deadlock
+    https://git.kernel.org/netdev/net/c/ddd0d5293810
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
