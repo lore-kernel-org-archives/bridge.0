@@ -1,24 +1,30 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1632912008;
- bh=E0TH8z77BBmELqaI2fYubgpmiK2lzgi9yaK0FARYJiM=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=EEc1j2eDdwlSF9KZ8oLELKzNZeIcXQ7eoPtoBIx1SiY3fEg1ZZHGaLicqLMeMoZ9M
- gUZbPgh987XcQRr7HKgfqDobOVmrAkdCsYrAGg8EjoyQq2hDlR0W+nrB4tX9ldeJJo
- tTvzk9wMhBY6miobUgsGJhfZxn04kL7EJw+dcBehb28eWtLbmO8yuFrZW1VDIoNw6a
- AwzUJGEzdwodvTaWubuUACaZkR52mFn6qYc8pSaDCZ0kcp3hTjgrZEwWqhLEXEANCH
- wYvbAxdr7sgCas9YUg5DvMelfR2m8Gfvb6ZmBO0Sl9OVKR7qDBXF+R3o92ywCyETE2
- VFNMv5lDzKyYw==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <bigeasy@linutronix.de>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020; t=1632838284;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=6yrRrecR/xDa6JwQcSu2PQbU6zn6uCv5AzWCbYYTJ1g=;
+ b=EAGUZt1eIqht/TEUWtPuDXMC2lwGRoNRqSm7EiA7Ps97VNiakfpSR9nFuLpInWgitWNREF
+ +OWMcKZILLHFM0LHciUDzEnyF9DSX9QVNNcsjwfnOphQgbQIE7kPd/GSgK2NB0D5LeW18c
+ EKsttVaB8j1m6jHbEyv5yCLhGApQyiWeNXvZFag4wYqrCu+w4nMy1MAFJL8wkAlmV9AY5K
+ QRtKfoMf6qslvAott0VLuYyNRxKwOeMJ5WzuGx8dWSpzqqFQj7EZjN3LytEHxakkVpJTLq
+ u/CwFgHCuvFhFgO8jKkJyuluaJv8PssO5BcQYR18wkzjUkdtkzZwvs3IrjLxBA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020e; t=1632838284;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=6yrRrecR/xDa6JwQcSu2PQbU6zn6uCv5AzWCbYYTJ1g=;
+ b=Y8vkL4ea/C+M+L8E8P+k+72Rs3rmxK0Dj6Hmzc5DfzWc+Hj+6VBSXL1qKyLc7qjYhrE1Iv
+ BqF0EnBXkoUtiwDw==
+Date: Tue, 28 Sep 2021 16:10:49 +0200
+Message-Id: <20210928141049.593833-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163291200877.26498.13462885838977349261.git-patchwork-notify@kernel.org>
-Date: Wed, 29 Sep 2021 10:40:08 +0000
-References: <20210928201239.GA267176@embeddedor>
-In-Reply-To: <20210928201239.GA267176@embeddedor>
-Subject: Re: [Bridge] [PATCH][net-next] net: bridge: Use array_size() helper
- in copy_to_user()
+Content-Transfer-Encoding: quoted-printable
+Subject: [Bridge] [PATCH net] net: bridge: mcast: Associate the seqcount
+	with its protecting lock.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,30 +33,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net, linux-hardening@vger.kernel.org
+To: bridge@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Mike Galbraith <efault@gmx.de>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "David S. Miller" <davem@davemloft.net>
 
-Hello:
+From: Thomas Gleixner <tglx@linutronix.de>
 
-This patch was applied to netdev/net-next.git (refs/heads/master):
+The sequence count bridge_mcast_querier::seq is protected by
+net_bridge::multicast_lock but seqcount_init() does not associate the
+seqcount with the lock. This leads to a warning on PREEMPT_RT because
+preemption is still enabled.
 
-On Tue, 28 Sep 2021 15:12:39 -0500 you wrote:
-> Use array_size() helper instead of the open-coded version in
-> copy_to_user(). These sorts of multiplication factors need
-> to be wrapped in array_size().
-> 
-> Link: https://github.com/KSPP/linux/issues/160
-> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-> 
-> [...]
+Let seqcount_init() associate the seqcount with lock that protects the
+write section. Remove lockdep_assert_held_once() because lockdep already ch=
+ecks
+whether the associated lock is held.
+=09
+Fixes: 67b746f94ff39 ("net: bridge: mcast: make sure querier port/address u=
+pdates are consistent")
+Reported-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Tested-by: Mike Galbraith <efault@gmx.de>
+---
+ net/bridge/br_multicast.c |    6 ++----
+ net/bridge/br_private.h   |    2 +-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-Here is the summary with links:
-  - [net-next] net: bridge: Use array_size() helper in copy_to_user()
-    https://git.kernel.org/netdev/net-next/c/865bfb2affa8
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1677,8 +1677,6 @@ static void br_multicast_update_querier(
+ 					int ifindex,
+ 					struct br_ip *saddr)
+ {
+-	lockdep_assert_held_once(&brmctx->br->multicast_lock);
+-
+ 	write_seqcount_begin(&querier->seq);
+ 	querier->port_ifidx =3D ifindex;
+ 	memcpy(&querier->addr, saddr, sizeof(*saddr));
+@@ -3867,13 +3865,13 @@ void br_multicast_ctx_init(struct net_br
+=20
+ 	brmctx->ip4_other_query.delay_time =3D 0;
+ 	brmctx->ip4_querier.port_ifidx =3D 0;
+-	seqcount_init(&brmctx->ip4_querier.seq);
++	seqcount_spinlock_init(&brmctx->ip4_querier.seq, &br->multicast_lock);
+ 	brmctx->multicast_igmp_version =3D 2;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	brmctx->multicast_mld_version =3D 1;
+ 	brmctx->ip6_other_query.delay_time =3D 0;
+ 	brmctx->ip6_querier.port_ifidx =3D 0;
+-	seqcount_init(&brmctx->ip6_querier.seq);
++	seqcount_spinlock_init(&brmctx->ip6_querier.seq, &br->multicast_lock);
+ #endif
+=20
+ 	timer_setup(&brmctx->ip4_mc_router_timer,
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -82,7 +82,7 @@ struct bridge_mcast_other_query {
+ struct bridge_mcast_querier {
+ 	struct br_ip addr;
+ 	int port_ifidx;
+-	seqcount_t seq;
++	seqcount_spinlock_t seq;
+ };
+=20
+ /* IGMP/MLD statistics */
