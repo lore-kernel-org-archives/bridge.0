@@ -1,20 +1,22 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UIwQ9/TafDLoAJVWfcXzWWen5B7h2Hct5LhSIUHQr6k=;
- b=JkKc9vjHHdZVm8pD/5ifrBkh/CqjbXC+grcCraYtGzXrPSDyyqhwyxjAb0f+2me6o/sy5QqrcQs4LlBva/xfnjcTKQ01XPENPcDdvGSdpMAWrTeIXhxyBAJSDg6TVtImfQmuS5FKSqKqXbg9t7Uy8ni2dlHQ+f/wgnAUPV5TS02soCOdpfPWVRdWuSj/1bMMWTVu0XeWC16LjWSCCTgxsHiVlljqDGXHSv7v6g0ljb4CYk0yobyuFO7F7iper/0bsMsrYfSckj4/AE8MDjX/V7gOkRQ9BDLUiKXCL1gYwRVR1mBNRVHYNQeaD1GcSNfSBlaafSdhxKbuGFM0IGkfdg==
-References: <20210928141049.593833-1-bigeasy@linutronix.de>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Message-ID: <b98edd1b-2ec0-2b3c-5205-f2f0eaefe868@nvidia.com>
-Date: Tue, 28 Sep 2021 17:41:26 +0300
-In-Reply-To: <20210928141049.593833-1-bigeasy@linutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Return-Path: <gustavoars@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1632859365;
+ bh=JUbEawgwP2c3g8ePRDbJDUMS5ioHTfLNboJDo0lgTFU=;
+ h=Date:From:To:Cc:Subject:From;
+ b=Ux5mxk8+u9s/JuBAUe8lOapvH73pC8IDGMANlVx6y8oPhvgbvBvHWer4TncIe4O5P
+ zRAc9E+j11GMc534Us0lyChK0krofQdH61wQYT+tlB96ajEswJlW5LiB//1WTO2L5f
+ OMdrtwjp0duaQIPR+qZIqgAi6Qa8l2np6wXwolZtpIwLuqrEayWPXVgfeSukyRPcND
+ nY0jFdRZ4a8XxMmYjRaDR7p3FjeSk8z6pkePYifJt/My7UG/ldZJhgQVzS3VbSERG8
+ OBVMvKrRhltAQVgX/vRxXj76KXsBAURq7425SEWqtcbmF2tEpoF58LKK2rfiAYS5sI
+ 9KKrJqsNYsFsw==
+Date: Tue, 28 Sep 2021 15:06:47 -0500
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Message-ID: <20210928200647.GA266402@embeddedor>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: Associate the seqcount
- with its protecting lock.
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [PATCH][net-next] netfilter: ebtables: use array_size()
+ helper in copy_{from, to}_user()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,71 +25,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: Jakub Kicinski <kuba@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Mike Galbraith <efault@gmx.de>, "David S. Miller" <davem@davemloft.net>, Roopa Prabhu <roopa@nvidia.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-hardening@vger.kernel.org
 
-On 28/09/2021 17:10, Sebastian Andrzej Siewior wrote:
-> From: Thomas Gleixner <tglx@linutronix.de>
-> 
-> The sequence count bridge_mcast_querier::seq is protected by
-> net_bridge::multicast_lock but seqcount_init() does not associate the
-> seqcount with the lock. This leads to a warning on PREEMPT_RT because
-> preemption is still enabled.
-> 
-> Let seqcount_init() associate the seqcount with lock that protects the
-> write section. Remove lockdep_assert_held_once() because lockdep already checks
-> whether the associated lock is held.
-> 	
-> Fixes: 67b746f94ff39 ("net: bridge: mcast: make sure querier port/address updates are consistent")
-> Reported-by: Mike Galbraith <efault@gmx.de>
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> Tested-by: Mike Galbraith <efault@gmx.de>
-> ---
->  net/bridge/br_multicast.c |    6 ++----
->  net/bridge/br_private.h   |    2 +-
->  2 files changed, 3 insertions(+), 5 deletions(-)
-> 
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -1677,8 +1677,6 @@ static void br_multicast_update_querier(
->  					int ifindex,
->  					struct br_ip *saddr)
->  {
-> -	lockdep_assert_held_once(&brmctx->br->multicast_lock);
-> -
->  	write_seqcount_begin(&querier->seq);
->  	querier->port_ifidx = ifindex;
->  	memcpy(&querier->addr, saddr, sizeof(*saddr));
-> @@ -3867,13 +3865,13 @@ void br_multicast_ctx_init(struct net_br
->  
->  	brmctx->ip4_other_query.delay_time = 0;
->  	brmctx->ip4_querier.port_ifidx = 0;
-> -	seqcount_init(&brmctx->ip4_querier.seq);
-> +	seqcount_spinlock_init(&brmctx->ip4_querier.seq, &br->multicast_lock);
->  	brmctx->multicast_igmp_version = 2;
->  #if IS_ENABLED(CONFIG_IPV6)
->  	brmctx->multicast_mld_version = 1;
->  	brmctx->ip6_other_query.delay_time = 0;
->  	brmctx->ip6_querier.port_ifidx = 0;
-> -	seqcount_init(&brmctx->ip6_querier.seq);
-> +	seqcount_spinlock_init(&brmctx->ip6_querier.seq, &br->multicast_lock);
->  #endif
->  
->  	timer_setup(&brmctx->ip4_mc_router_timer,
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -82,7 +82,7 @@ struct bridge_mcast_other_query {
->  struct bridge_mcast_querier {
->  	struct br_ip addr;
->  	int port_ifidx;
-> -	seqcount_t seq;
-> +	seqcount_spinlock_t seq;
->  };
->  
->  /* IGMP/MLD statistics */
-> 
+Use array_size() helper instead of the open-coded version in
+copy_{from,to}_user().  These sorts of multiplication factors
+need to be wrapped in array_size().
 
-Thanks for fixing it,
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://github.com/KSPP/linux/issues/160
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+---
+ net/bridge/netfilter/ebtables.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 83d1798dfbb4..32fa05ec4a6d 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1071,7 +1071,7 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 	 */
+ 	if (repl->num_counters &&
+ 	   copy_to_user(repl->counters, counterstmp,
+-	   repl->num_counters * sizeof(struct ebt_counter))) {
++	   array_size(repl->num_counters, sizeof(struct ebt_counter)))) {
+ 		/* Silent error, can't fail, new table is already in place */
+ 		net_warn_ratelimited("ebtables: counters copy to user failed while replacing table\n");
+ 	}
+@@ -1399,7 +1399,8 @@ static int do_update_counters(struct net *net, const char *name,
+ 		goto unlock_mutex;
+ 	}
+ 
+-	if (copy_from_user(tmp, counters, num_counters * sizeof(*counters))) {
++	if (copy_from_user(tmp, counters,
++			   array_size(num_counters, sizeof(*counters)))) {
+ 		ret = -EFAULT;
+ 		goto unlock_mutex;
+ 	}
+@@ -1532,7 +1533,7 @@ static int copy_counters_to_user(struct ebt_table *t,
+ 	write_unlock_bh(&t->lock);
+ 
+ 	if (copy_to_user(user, counterstmp,
+-	   nentries * sizeof(struct ebt_counter)))
++	    array_size(nentries, sizeof(struct ebt_counter))))
+ 		ret = -EFAULT;
+ 	vfree(counterstmp);
+ 	return ret;
+-- 
+2.27.0
 
