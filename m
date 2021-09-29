@@ -1,22 +1,24 @@
-Return-Path: <gustavoars@kernel.org>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1632859717;
- bh=iGeBtWmkRfAzSRTb77ICIIphC0rlNZhpBjX8dqGzNdE=;
- h=Date:From:To:Cc:Subject:From;
- b=QSz+7uuGhjxu5ImIZDs39zDTwyBDTiFHsi1eRagbHh6ByUCOO2mPsQUxgrEenKiAt
- B4aiqepgKIVeEeiai4Sjb+z7aN5rLt2Q/iDTcXC3+dw8jDRSdS6djC2vgsnP6K1pae
- jByhOq3eFccW+h7ol0y5x6IoyZZaHoTqfVdc6Jbcp8pBjYr9KTYic09JTBHS36yOS0
- iF8zDfOU9YzJ0uLSiB/6NVZ6MCA/pt3tXQJ+KkPRZV1FBcca3BTugcf0RPzSbZGMNR
- jahze2rOThLQIVYyKSCdBBF9Merdt1Ax0+h5xbxWFk/h8pbgjydpLXIoAmrCs+4ea6
- WztIrCREd/tUw==
-Date: Tue, 28 Sep 2021 15:12:39 -0500
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Message-ID: <20210928201239.GA267176@embeddedor>
+ s=k20201202; t=1632883207;
+ bh=Yt+Qqw2yGqDgP3vvoWuiOsVwZIpl/fcjT2xixYQjSj8=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=jI4X9C46aUTRF2aDz+tdCZwMwNa0IHZEIssMeGG24VgEYEAiyn8/jg+42bjzL66+Z
+ /MyPpebKHYDREveM5Q7knkA5vr0dDRVALN6hnld1tWI4wd2hZAR1SniuSPp/pnIH5G
+ puKrtHEkbh6joMPwiHKjyCdc9E+/UUscj+ALxJnCqAbpmHf17CXUuIHTjas3grpt7s
+ NU89asyS4dCrrQ9fMgL4F8f4+8zJLnzibSbfEpon06+K0u6bRRRPOrlHx0RDlU8btZ
+ QWc7dhdowVM+gR0ShCs8kGEAVoZV/NjFFnVBRwroDYCzIAPr3cP7d64XI3+UHcDQo1
+ Z+cZ26fW3fbDQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] [PATCH][net-next] net: bridge: Use array_size() helper in
- copy_to_user()
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163288320705.8381.15834079982725881362.git-patchwork-notify@kernel.org>
+Date: Wed, 29 Sep 2021 02:40:07 +0000
+References: <20210928141049.593833-1-bigeasy@linutronix.de>
+In-Reply-To: <20210928141049.593833-1-bigeasy@linutronix.de>
+Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: Associate the seqcount
+ with its protecting lock.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,52 +27,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: efault@gmx.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, tglx@linutronix.de, davem@davemloft.net
 
-Use array_size() helper instead of the open-coded version in
-copy_to_user(). These sorts of multiplication factors need
-to be wrapped in array_size().
+Hello:
 
-Link: https://github.com/KSPP/linux/issues/160
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
----
- net/bridge/br_ioctl.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+This patch was applied to netdev/net.git (refs/heads/master):
 
-diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
-index 793b0db9d9a3..49c268871fc1 100644
---- a/net/bridge/br_ioctl.c
-+++ b/net/bridge/br_ioctl.c
-@@ -71,7 +71,8 @@ static int get_fdb_entries(struct net_bridge *br, void __user *userbuf,
- 
- 	num = br_fdb_fillbuf(br, buf, maxnum, offset);
- 	if (num > 0) {
--		if (copy_to_user(userbuf, buf, num*sizeof(struct __fdb_entry)))
-+		if (copy_to_user(userbuf, buf,
-+				 array_size(num, sizeof(struct __fdb_entry))))
- 			num = -EFAULT;
- 	}
- 	kfree(buf);
-@@ -188,7 +189,7 @@ int br_dev_siocdevprivate(struct net_device *dev, struct ifreq *rq, void __user
- 			return -ENOMEM;
- 
- 		get_port_ifindices(br, indices, num);
--		if (copy_to_user(argp, indices, num * sizeof(int)))
-+		if (copy_to_user(argp, indices, array_size(num, sizeof(int))))
- 			num =  -EFAULT;
- 		kfree(indices);
- 		return num;
-@@ -336,7 +337,8 @@ static int old_deviceless(struct net *net, void __user *uarg)
- 
- 		args[2] = get_bridge_ifindices(net, indices, args[2]);
- 
--		ret = copy_to_user(uarg, indices, args[2]*sizeof(int))
-+		ret = copy_to_user(uarg, indices,
-+				   array_size(args[2], sizeof(int)))
- 			? -EFAULT : args[2];
- 
- 		kfree(indices);
--- 
-2.27.0
+On Tue, 28 Sep 2021 16:10:49 +0200 you wrote:
+> From: Thomas Gleixner <tglx@linutronix.de>
+> 
+> The sequence count bridge_mcast_querier::seq is protected by
+> net_bridge::multicast_lock but seqcount_init() does not associate the
+> seqcount with the lock. This leads to a warning on PREEMPT_RT because
+> preemption is still enabled.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] net: bridge: mcast: Associate the seqcount with its protecting lock.
+    https://git.kernel.org/netdev/net/c/f936bb42aeb9
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
