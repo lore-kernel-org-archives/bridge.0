@@ -1,24 +1,24 @@
 Return-Path: <patchwork-bot+netdevbpf@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1632883207;
- bh=Yt+Qqw2yGqDgP3vvoWuiOsVwZIpl/fcjT2xixYQjSj8=;
+ s=k20201202; t=1632912008;
+ bh=E0TH8z77BBmELqaI2fYubgpmiK2lzgi9yaK0FARYJiM=;
  h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=jI4X9C46aUTRF2aDz+tdCZwMwNa0IHZEIssMeGG24VgEYEAiyn8/jg+42bjzL66+Z
- /MyPpebKHYDREveM5Q7knkA5vr0dDRVALN6hnld1tWI4wd2hZAR1SniuSPp/pnIH5G
- puKrtHEkbh6joMPwiHKjyCdc9E+/UUscj+ALxJnCqAbpmHf17CXUuIHTjas3grpt7s
- NU89asyS4dCrrQ9fMgL4F8f4+8zJLnzibSbfEpon06+K0u6bRRRPOrlHx0RDlU8btZ
- QWc7dhdowVM+gR0ShCs8kGEAVoZV/NjFFnVBRwroDYCzIAPr3cP7d64XI3+UHcDQo1
- Z+cZ26fW3fbDQ==
+ b=EEc1j2eDdwlSF9KZ8oLELKzNZeIcXQ7eoPtoBIx1SiY3fEg1ZZHGaLicqLMeMoZ9M
+ gUZbPgh987XcQRr7HKgfqDobOVmrAkdCsYrAGg8EjoyQq2hDlR0W+nrB4tX9ldeJJo
+ tTvzk9wMhBY6miobUgsGJhfZxn04kL7EJw+dcBehb28eWtLbmO8yuFrZW1VDIoNw6a
+ AwzUJGEzdwodvTaWubuUACaZkR52mFn6qYc8pSaDCZ0kcp3hTjgrZEwWqhLEXEANCH
+ wYvbAxdr7sgCas9YUg5DvMelfR2m8Gfvb6ZmBO0Sl9OVKR7qDBXF+R3o92ywCyETE2
+ VFNMv5lDzKyYw==
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163288320705.8381.15834079982725881362.git-patchwork-notify@kernel.org>
-Date: Wed, 29 Sep 2021 02:40:07 +0000
-References: <20210928141049.593833-1-bigeasy@linutronix.de>
-In-Reply-To: <20210928141049.593833-1-bigeasy@linutronix.de>
-Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: Associate the seqcount
- with its protecting lock.
+Message-Id: <163291200877.26498.13462885838977349261.git-patchwork-notify@kernel.org>
+Date: Wed, 29 Sep 2021 10:40:08 +0000
+References: <20210928201239.GA267176@embeddedor>
+In-Reply-To: <20210928201239.GA267176@embeddedor>
+Subject: Re: [Bridge] [PATCH][net-next] net: bridge: Use array_size() helper
+ in copy_to_user()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,26 +27,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: efault@gmx.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, tglx@linutronix.de, davem@davemloft.net
+To: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net, linux-hardening@vger.kernel.org
 
 Hello:
 
-This patch was applied to netdev/net.git (refs/heads/master):
+This patch was applied to netdev/net-next.git (refs/heads/master):
 
-On Tue, 28 Sep 2021 16:10:49 +0200 you wrote:
-> From: Thomas Gleixner <tglx@linutronix.de>
+On Tue, 28 Sep 2021 15:12:39 -0500 you wrote:
+> Use array_size() helper instead of the open-coded version in
+> copy_to_user(). These sorts of multiplication factors need
+> to be wrapped in array_size().
 > 
-> The sequence count bridge_mcast_querier::seq is protected by
-> net_bridge::multicast_lock but seqcount_init() does not associate the
-> seqcount with the lock. This leads to a warning on PREEMPT_RT because
-> preemption is still enabled.
+> Link: https://github.com/KSPP/linux/issues/160
+> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 > 
 > [...]
 
 Here is the summary with links:
-  - [net] net: bridge: mcast: Associate the seqcount with its protecting lock.
-    https://git.kernel.org/netdev/net/c/f936bb42aeb9
+  - [net-next] net: bridge: Use array_size() helper in copy_to_user()
+    https://git.kernel.org/netdev/net-next/c/865bfb2affa8
 
 You are awesome, thank you!
 --
