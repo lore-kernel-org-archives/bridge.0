@@ -1,24 +1,20 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=kAZh9fqmHigo6xRDqgFos5JwAKHqDbj5bkhVwftM1Ys=;
- b=KrAgOqV1v2KxOuW7pkfy/lKylkCadAUoPsHrJ7bpEFwfLuP2zvalxzqIFo4jfEfjc5
- iBdWZ+bk8TJhhjQqzl5lUgOwloB6XEqqxkJ6FVzvCixT1SLpn/CO0t0IBSYWT6FOhaMv
- /gKEplLZbjCdiUi2TusREYcGOkzdYQts62fGIPetDmKc0djiKFRSj95jwnUZLEMabZHO
- OdzuSOb4svHB018Ff/nQjlhq/Cc/xFw1b1p8qF8OJO6aTJY9z4faJRPBsrre/Hb8W2vI
- jVFmX8D4M7htPSCERrDiepcLTAYmSgdiLjV4EcOeRyfyTQ1q6GIZ3IDQGFsLZ1KbE3Ra
- xmyw==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Fri, 15 Oct 2021 12:05:46 +0300
-Message-Id: <20211015090546.19967-1-razor@blackwall.org>
-In-Reply-To: <357fad9e-581e-7b71-9b32-aac77d5d13c1@nvidia.com>
-References: <357fad9e-581e-7b71-9b32-aac77d5d13c1@nvidia.com>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=AUniiJ6OeGLbG1wAJSEpLFfBJJ74i9fSehgCxYgN2+c=;
+ b=PIz5G9by3kgNh9tIF0M/s2JcFADqltX4LJG0oWIGr8/5GDWdHrNFIUCrU5+zXW5Us/tm1HLryTOCwWC/CTYy4e4xm/hEHNy9R8nx7PgF4JzTvvH3S5oTeOXJoO7VWGpNzWbHaNv0qjA3yNVj6AigQ4OLp8y0Ar4NcrOa6ANWhEd+PoEmupckkQD+i9QLy0ngXgwOTWMIX10P+GhXRHCeR7UT2EB+FyZFGqdHnkqaP8r5dh/KnsG/NKYEpVI3rBSjOONogJlcoIZlpS8lXHuwJzKlB5B0M7eCqXCguMcLoeKEeFIBBY387j+puUvQvY6W7UEjYOihk0DITXqkmnVTRA==
+Message-ID: <badf4e55-ddeb-cfdd-4162-b8b9ae3fed04@nvidia.com>
+Date: Sat, 16 Oct 2021 13:56:26 +0300
+Content-Language: en-US
+References: <20211016050439.2592877-1-acadx0@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+In-Reply-To: <20211016050439.2592877-1-acadx0@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net] net: bridge: mcast: use
-	multicast_membership_interval for IGMPv3
+Subject: Re: [Bridge] [PATCH v2 net-next] net: make use of helper
+ netif_is_bridge_master()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,53 +23,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Hangbin Liu <liuhangbin@gmail.com>, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Kyungrok Chung <acadx0@gmail.com>, Marek Lindner <mareklindner@neomailbox.ch>, Simon Wunderlich <sw@simonwunderlich.de>, Antonio Quartulli <a@unstable.cc>, Sven Eckelmann <sven@narfation.org>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Roopa Prabhu <roopa@nvidia.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>
+Cc: bridge@lists.linux-foundation.org, netdev@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 16/10/2021 08:04, Kyungrok Chung wrote:
+> Make use of netdev helper functions to improve code readability.
+> Replace 'dev->priv_flags & IFF_EBRIDGE' with netif_is_bridge_master(dev).
+> 
+> Signed-off-by: Kyungrok Chung <acadx0@gmail.com>
+> ---
+> 
+> v1->v2:
+>   - Apply fixes to batman-adv, core too.
+> 
+>  net/batman-adv/multicast.c      | 2 +-
+>  net/bridge/br.c                 | 4 ++--
+>  net/bridge/br_fdb.c             | 6 +++---
+>  net/bridge/br_if.c              | 2 +-
+>  net/bridge/br_ioctl.c           | 2 +-
+>  net/bridge/br_mdb.c             | 4 ++--
+>  net/bridge/br_netfilter_hooks.c | 2 +-
+>  net/bridge/br_netlink.c         | 4 ++--
+>  net/core/rtnetlink.c            | 2 +-
+>  9 files changed, 14 insertions(+), 14 deletions(-)
+> 
+[snip]
+>  	err = br_afspec(br, p, afspec, RTM_DELLINK, &changed, NULL);
+> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+> index 2dc1b209ba91..d3676666a529 100644
+> --- a/net/core/rtnetlink.c
+> +++ b/net/core/rtnetlink.c
+> @@ -4384,7 +4384,7 @@ static int rtnl_fdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
+>  					continue;
+>  
+>  				if (br_dev != netdev_master_upper_dev_get(dev) &&
+> -				    !(dev->priv_flags & IFF_EBRIDGE))
+> +				    netif_is_bridge_master(dev))
+>  					continue;
+>  				cops = ops;
+>  			}
+> 
 
-When I added IGMPv3 support I decided to follow the RFC for computing
-the GMI dynamically:
-" 8.4. Group Membership Interval
-
-   The Group Membership Interval is the amount of time that must pass
-   before a multicast router decides there are no more members of a
-   group or a particular source on a network.
-
-   This value MUST be ((the Robustness Variable) times (the Query
-   Interval)) plus (one Query Response Interval)."
-
-But that actually is inconsistent with how the bridge used to compute it
-for IGMPv2, where it was user-configurable that has a correct default value
-but it is up to user-space to maintain it. This would make it consistent
-with the other timer values which are also maintained correct by the user
-instead of being dynamically computed. It also changes back to the previous
-user-expected GMI behaviour for IGMPv3 queries which were supported before
-IGMPv3 was added. Note that to properly compute it dynamically we would
-need to add support for "Robustness Variable" which is currently missing.
-
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
-Fixes: 0436862e417e ("net: bridge: mcast: support for IGMPv3/MLDv2 ALLOW_NEW_SOURCES report")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/bridge/br_private.h | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index b4cef3a97f12..5c68052466a0 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1125,9 +1125,7 @@ static inline unsigned long br_multicast_lmqt(const struct net_bridge_mcast *brm
- 
- static inline unsigned long br_multicast_gmi(const struct net_bridge_mcast *brmctx)
- {
--	/* use the RFC default of 2 for QRV */
--	return 2 * brmctx->multicast_query_interval +
--	       brmctx->multicast_query_response_interval;
-+	return brmctx->multicast_membership_interval;
- }
- 
- static inline bool
--- 
-2.31.1
-
+This looks wrong, the original check is if it's _not_ a bridge master.
