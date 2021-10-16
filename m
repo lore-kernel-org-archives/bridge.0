@@ -2,19 +2,19 @@ Return-Path: <acadx0@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:mime-version
  :content-transfer-encoding;
- bh=Xf2ZZ4dUjskn2wzoA/na9mrwqcf1U/CnBUU6ZdkyGNw=;
- b=f0x0Mp1+aw8gyzjTYOE2fGveQDjihAKtSAu5Rl/PbG2mSba8TWJbdNQybJpHwg0TS6
- 6XJqRb65/IRp/ibW7qXiIgZWjxkofIzOQWvOXl1C1QXeB11zHRj76YDAUHvXdO+CMXle
- jeqTtZ6V9KhkJZnLXZ23/ewqjl1wTla2RrEWewTCB5Rkj7azHWlUQvjfgqFtDgfxSoXZ
- lXKiUtEhap+ac5MeL0A/Tv9VpEUJYZ9vNrSPaTBpgG0oWorTuwe151VKmmUBp9WaAt+x
- c/uMB2pnah2UIFTf9JHyUhHdh58vQydFY6VNAHEiU+L6ZFiRvnikjhdjVz9DAwpsl0zT
- xrpQ==
+ bh=VNg5ZuSqXtZnIDT/1CeK+dUC1AUVpXTi6dIHjGdCB00=;
+ b=O6f/lrGFRvziPIrEcq2SK9AmUeLEU3LElV7tq1rCZPWAQ5lx8VJgS5O+2FOZaY0MYc
+ Z09kxUko1rnjEfPnHhu3FfbANUunLACgh7JnMYQw9sWzjc3NxoHQrqFTzypDj2kjohm0
+ oToW0d88Gm03fTTZVGcxB+3vppPNm4WFpUansTv1NV/qwKEhXttEJMJ/1wcow703btaF
+ MuMzXQGNjeRVmsupDxWx0g1ZCbT5PJV3aknIWoDVFTnM23pOEykGlzMC/AU9CXIxGN+a
+ S6CiUlSWASAPZVO/sBMN6KfI9i8ylnS3yALkQoRydqJLLQC4s1mJJXx6bJL/s355/Uw/
+ tnBg==
 From: Kyungrok Chung <acadx0@gmail.com>
-Date: Tue, 12 Oct 2021 23:18:09 +0900
-Message-Id: <20211012141810.30661-1-acadx0@gmail.com>
+Date: Sat, 16 Oct 2021 14:04:38 +0900
+Message-Id: <20211016050439.2592877-1-acadx0@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next] net: bridge: make use of helper
+Subject: [Bridge] [PATCH v2 net-next] net: make use of helper
 	netif_is_bridge_master()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -24,14 +24,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>
-Cc: coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, netfilter-devel@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Marek Lindner <mareklindner@neomailbox.ch>, Simon Wunderlich <sw@simonwunderlich.de>, Antonio Quartulli <a@unstable.cc>, Sven Eckelmann <sven@narfation.org>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>
+Cc: bridge@lists.linux-foundation.org, netdev@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, linux-kernel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org
 
 Make use of netdev helper functions to improve code readability.
 Replace 'dev->priv_flags & IFF_EBRIDGE' with netif_is_bridge_master(dev).
 
 Signed-off-by: Kyungrok Chung <acadx0@gmail.com>
 ---
+
+v1->v2:
+  - Apply fixes to batman-adv, core too.
+
+ net/batman-adv/multicast.c      | 2 +-
  net/bridge/br.c                 | 4 ++--
  net/bridge/br_fdb.c             | 6 +++---
  net/bridge/br_if.c              | 2 +-
@@ -39,8 +44,22 @@ Signed-off-by: Kyungrok Chung <acadx0@gmail.com>
  net/bridge/br_mdb.c             | 4 ++--
  net/bridge/br_netfilter_hooks.c | 2 +-
  net/bridge/br_netlink.c         | 4 ++--
- 7 files changed, 12 insertions(+), 12 deletions(-)
+ net/core/rtnetlink.c            | 2 +-
+ 9 files changed, 14 insertions(+), 14 deletions(-)
 
+diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
+index a3b6658ed789..433901dcf0c3 100644
+--- a/net/batman-adv/multicast.c
++++ b/net/batman-adv/multicast.c
+@@ -89,7 +89,7 @@ static struct net_device *batadv_mcast_get_bridge(struct net_device *soft_iface)
+ 	rcu_read_lock();
+ 	do {
+ 		upper = netdev_master_upper_dev_get_rcu(upper);
+-	} while (upper && !(upper->priv_flags & IFF_EBRIDGE));
++	} while (upper && !netif_is_bridge_master(upper));
+ 
+ 	dev_hold(upper);
+ 	rcu_read_unlock();
 diff --git a/net/bridge/br.c b/net/bridge/br.c
 index d3a32c6813e0..1fac72cc617f 100644
 --- a/net/bridge/br.c
@@ -177,6 +196,19 @@ index 5c6c4305ed23..0c8b5f1a15bc 100644
  		return -EINVAL;
  
  	err = br_afspec(br, p, afspec, RTM_DELLINK, &changed, NULL);
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 2dc1b209ba91..d3676666a529 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4384,7 +4384,7 @@ static int rtnl_fdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
+ 					continue;
+ 
+ 				if (br_dev != netdev_master_upper_dev_get(dev) &&
+-				    !(dev->priv_flags & IFF_EBRIDGE))
++				    netif_is_bridge_master(dev))
+ 					continue;
+ 				cops = ops;
+ 			}
 -- 
 2.33.0
 
