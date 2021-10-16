@@ -2,19 +2,19 @@ Return-Path: <acadx0@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:mime-version
  :content-transfer-encoding;
- bh=VNg5ZuSqXtZnIDT/1CeK+dUC1AUVpXTi6dIHjGdCB00=;
- b=O6f/lrGFRvziPIrEcq2SK9AmUeLEU3LElV7tq1rCZPWAQ5lx8VJgS5O+2FOZaY0MYc
- Z09kxUko1rnjEfPnHhu3FfbANUunLACgh7JnMYQw9sWzjc3NxoHQrqFTzypDj2kjohm0
- oToW0d88Gm03fTTZVGcxB+3vppPNm4WFpUansTv1NV/qwKEhXttEJMJ/1wcow703btaF
- MuMzXQGNjeRVmsupDxWx0g1ZCbT5PJV3aknIWoDVFTnM23pOEykGlzMC/AU9CXIxGN+a
- S6CiUlSWASAPZVO/sBMN6KfI9i8ylnS3yALkQoRydqJLLQC4s1mJJXx6bJL/s355/Uw/
- tnBg==
+ bh=v+ROWip2DOu/ejvMTpR01JMqGD3ACZ+pK2z8e30nwBU=;
+ b=U6gEy6R2isS5ApGPffAomw4itnMKRCLFRnH5F1vc3cmy3P5fxilDkNWDakQPr6TEn5
+ nY0UTdBZDHpe8Eq9unND/qfujdHhpqp2zCGE+IKpJagGKhMNfSHSVVKPgbHj9+LLW5J6
+ Ekgfu3L/E+Z8d8XQ4c9MDyKQYL2PKl1TtMGnRr+qrzXE7CiAJf2Jzj4KhS3wPv17TUeR
+ 5vp5S3rilwTz3+CWsIMVSno2bSXDhtkmZ2m4RZsPJyQ1HNWjdv3RIuob6PT99l4g5nKW
+ EJ015IviUY6BL4tidEGWSu61iZzKrxHS7a6v2cdioxum98KfoxgWB15si2tUKEv7F5Qe
+ hDsQ==
 From: Kyungrok Chung <acadx0@gmail.com>
-Date: Sat, 16 Oct 2021 14:04:38 +0900
-Message-Id: <20211016050439.2592877-1-acadx0@gmail.com>
+Date: Sat, 16 Oct 2021 20:21:36 +0900
+Message-Id: <20211016112137.18858-1-acadx0@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v2 net-next] net: make use of helper
+Subject: [Bridge] [PATCH v3 net-next] net: make use of helper
 	netif_is_bridge_master()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -35,6 +35,9 @@ Signed-off-by: Kyungrok Chung <acadx0@gmail.com>
 
 v1->v2:
   - Apply fixes to batman-adv, core too.
+
+v2->v3:
+  - Fix wrong logic.
 
  net/batman-adv/multicast.c      | 2 +-
  net/bridge/br.c                 | 4 ++--
@@ -197,7 +200,7 @@ index 5c6c4305ed23..0c8b5f1a15bc 100644
  
  	err = br_afspec(br, p, afspec, RTM_DELLINK, &changed, NULL);
 diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 2dc1b209ba91..d3676666a529 100644
+index 2dc1b209ba91..564d24c451af 100644
 --- a/net/core/rtnetlink.c
 +++ b/net/core/rtnetlink.c
 @@ -4384,7 +4384,7 @@ static int rtnl_fdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
@@ -205,7 +208,7 @@ index 2dc1b209ba91..d3676666a529 100644
  
  				if (br_dev != netdev_master_upper_dev_get(dev) &&
 -				    !(dev->priv_flags & IFF_EBRIDGE))
-+				    netif_is_bridge_master(dev))
++				    !netif_is_bridge_master(dev))
  					continue;
  				cops = ops;
  			}
