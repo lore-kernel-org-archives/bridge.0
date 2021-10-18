@@ -1,20 +1,24 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3h9iP+bpr660/cL/QHyMr/9YPNnb1d7Ml36XvAePJVg=;
- b=QRE2lwB57taADFRUDju+11+ZkNei2GOtjiOKleu9TQ7pn6xlXS7Pmd7NF+eNMErBVltPdr7WWs1Vs3ycBrKBCotO5AqHjWsMsuLsolwF8MJrv8mLT3WjyOjx0ac6G0ZLCHoF7i1IOU6mjqDolG2+ZgKQFLnun3FfJ3ZlsFATi+UHQa3fR+YZqJGJVQY7Zt+3OTnEGNSBsxSRtYK42p2TNt42VC6hmnPRXhH65VB2wzBuIgiKJSq9yH7ABCilrFd84rJ2DKWgePh8SG65/jlOXas98s0pORtImGUP0EylaXAcGDc6JpOi0hPXgcF6s+8nBOGTAmHbXoR3MNRBr1gSeQ==
-Message-ID: <ab707f4d-587a-0fae-e673-5da49f5946db@nvidia.com>
-Date: Mon, 18 Oct 2021 13:28:14 +0300
-Content-Language: en-US
-References: <20211018082612.625417-1-liuhangbin@gmail.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-In-Reply-To: <20211018082612.625417-1-liuhangbin@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1634559011;
+ bh=HqaSPhUMlFlcfNoprF3LE///eSpUVIhd/IiotTyQ6o4=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=lNk3VSo6ST1EAX8d4naHiv4PcjmuiBL57/1MdRtVgD7TbouYUP39Vpq49Kye9Xy3Z
+ MU9nso5x0zCzVmXkWgqgUHwttllaNAfhyTMT2lHxtsdZYdEf+V4hs9BtqCSUKmei8D
+ 4ItRpDCRo56EtBYbwfG2jjvKakDUCqHWp42FTtBbUgusyvJOv6Ds54oM6yyjzEZKSx
+ MtoDJeRoGFa1z8j3rS5q5h/6HMrLOz02OLcXVSFMCt51gnhljdrrZXwMkb/b6pdLeo
+ xlvJ4RmqV+F9YipzHKdvRFNmFFNWYMlSvMgWR3XU0CjYAvtCp3w+jrzZS5p2uVd093
+ jCsDbtQ0BtXKw==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: Do not allow users to
- set IGMP counter/timer to zero
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163455901121.7340.10701802688930426386.git-patchwork-notify@kernel.org>
+Date: Mon, 18 Oct 2021 12:10:11 +0000
+References: <20211016112137.18858-1-acadx0@gmail.com>
+In-Reply-To: <20211016112137.18858-1-acadx0@gmail.com>
+Subject: Re: [Bridge] [PATCH v3 net-next] net: make use of helper
+	netif_is_bridge_master()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,46 +27,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hangbin Liu <liuhangbin@gmail.com>, Nikolay Aleksandrov <razor@blackwall.org>
-Cc: kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+To: Kyungrok Chung <acadx0@gmail.com>
+Cc: bridge@lists.linux-foundation.org, pablo@netfilter.org, coreteam@netfilter.org, mareklindner@neomailbox.ch, sw@simonwunderlich.de, fw@strlen.de, b.a.t.m.a.n@lists.open-mesh.org, a@unstable.cc, linux-kernel@vger.kernel.org, kadlec@netfilter.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net, sven@narfation.org
 
-On 18/10/2021 11:26, Hangbin Liu wrote:
-> There is no meaning to set an IGMP counter/timer to 0. Or it will cause
-> unexpected behavior. E.g. if set multicast_membership_interval to 0,
-> bridge will remove the mdb immediately after adding.
+Hello:
+
+This patch was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Sat, 16 Oct 2021 20:21:36 +0900 you wrote:
+> Make use of netdev helper functions to improve code readability.
+> Replace 'dev->priv_flags & IFF_EBRIDGE' with netif_is_bridge_master(dev).
 > 
-> Fixes: 79b859f573d6 ("bridge: netlink: add support for multicast_last_member_count")
-> Fixes: b89e6babad4b ("bridge: netlink: add support for multicast_startup_query_count")
-> Fixes: 7e4df51eb35d ("bridge: netlink: add support for igmp's intervals")
-> Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+> Signed-off-by: Kyungrok Chung <acadx0@gmail.com>
 > ---
->  net/bridge/br_netlink.c  | 73 +++++++++++++++++++++++++++++---------
->  net/bridge/br_sysfs_br.c | 75 +++++++++++++++++++++++++++++++---------
->  2 files changed, 116 insertions(+), 32 deletions(-)
 > 
+> v1->v2:
+>   - Apply fixes to batman-adv, core too.
+> 
+> [...]
 
-Nacked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Here is the summary with links:
+  - [v3,net-next] net: make use of helper netif_is_bridge_master()
+    https://git.kernel.org/netdev/net-next/c/254ec036db11
 
-For a few reasons,
-I'll start with the obvious that - yes, users are allowed to change the values to non-RFC
-compliant, but we cannot change that now as we'd risk breaking user-space which is probably
-doing that somewhere with some of the values below. We can fix any issues that might arise
-from doing it though, so it doesn't affect normal operation. If changing some of the options
-to 0 or to unreasonably high values lead to problems let's fix those and we could discuss
-adding constraints there if necessary.
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-The second issue is that you're mixing different checks below, you say do not allow zero
-but you're also checking for RFC compliance between different values.
 
-The third issue is that you haven't done the same change for the same values for per-vlan
-multicast options (we have the same options per-vlan as well).
-
-Your fixes tags are wrong, too. Most of these values could be set well before they were
-available through netlink.
-
-Note on the style - generally I'd add helpers to set them and add the constraints in those
-helpers, so they can be used for both netlink and sysfs. It would definitely target net-next
-unless it's an actual bug fix.
-
-Thanks,
- Nik
