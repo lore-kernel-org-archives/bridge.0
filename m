@@ -1,25 +1,21 @@
-Return-Path: <liuhangbin@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=ftphP/rRhj3HAi/sY+WrPVk0b2hRaTcyx6DeAasFrXQ=;
- b=B0CIzVA8hGKlxBlbLI2TXw1a7ZZ4cI4SHyOME6mYX/zv8h4K7atw3/cZ4aDOymv95H
- 3X5Vg7NcqP2XVepAF19Wi7bXeCwcTyJNS4yhadeU5Yel9wMMCqgaqG/kbZboDs3juflh
- OE4H7vqblU4SZteOWMPRSoradW0IED43Y4hJoBd/vB0TF3QdJelCYOyl4TRKsJ2w0Fil
- H/LEvKfwxRdcV3teg2VNyy6KOYPaPnZ7GwhPlAPYg/UYt7Rc8/5J5YEB0C///25Qz+23
- YAtZl6d8tjINLeAZV+twu5jaS3jbnj992LyKB5XZKTG0FSmplO5f+K9RWcH8Gt9V7S0M
- BhIQ==
-Date: Wed, 20 Oct 2021 20:10:04 +0800
-From: Hangbin Liu <liuhangbin@gmail.com>
-Message-ID: <YXAHHBYtFfXbd1hE@Laptop-X1>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RihB78LHNG8yCF8rC7fVPzBAu2JZPGnQi2Ytje75HqM=;
+ b=deTHw27Cd8GfnWXU2gqw/saUg6kRHuP/SxoqxYY8JhcrB2MK4iwLm6vtUWDAG9XctJ9qo5EhAvc6RM2ElLLBEmS9brjMEx1rldkMKDZymq/s8IxiL3TT0+3TMuEfMAJxaxLrT5ooeSKo7HfC6d2KTF5c9w7V3BlMGQ+J6+DvwhSqCyiZDpAyjjp0kj4WV86ZCBLYBLVqu/3jgvN7fejhPAwXzsd3hCkJzPOn3HInwQRjAWzty6BAAIgLrlAAlqYPrtLNFFWRd/OLybkvI+LcwAexQnF8BzUZvCVzEwJBazd0oLmOVL6zHvZjIUp4rcWmMWx2dJ3P0SKxLSigRYgHag==
+Message-ID: <bc778829-1fd3-f108-020b-85440e55f116@nvidia.com>
+Date: Wed, 20 Oct 2021 15:14:54 +0300
+Content-Language: en-US
 References: <20211020023604.695416-1-liuhangbin@gmail.com>
  <20211020024016.695678-1-liuhangbin@gmail.com>
  <c041a184-92cb-0ebd-25e9-13bfc6413fc9@nvidia.com>
- <YW/tLekS17ZF9/w1@Laptop-X1>
+ <YW/tLekS17ZF9/w1@Laptop-X1> <YXAHHBYtFfXbd1hE@Laptop-X1>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+In-Reply-To: <YXAHHBYtFfXbd1hE@Laptop-X1>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YW/tLekS17ZF9/w1@Laptop-X1>
 Subject: Re: [Bridge] [PATCHv2 net] net: bridge: mcast: QRI must be less
 	than QI
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -30,24 +26,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
+To: Hangbin Liu <liuhangbin@gmail.com>
 Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Wed, Oct 20, 2021 at 06:19:25PM +0800, Hangbin Liu wrote:
-> On Wed, Oct 20, 2021 at 12:49:17PM +0300, Nikolay Aleksandrov wrote:
-> > Nacked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> > 
-> > I think we just discussed this a day ago? It is the same problem -
-> > while we all agree the values should follow the RFC, users have had
-> > the option to set any values forever (even non-RFC compliant ones).
-> > This change risks breaking user-space.
+On 20/10/2021 15:10, Hangbin Liu wrote:
+> On Wed, Oct 20, 2021 at 06:19:25PM +0800, Hangbin Liu wrote:
+>> On Wed, Oct 20, 2021 at 12:49:17PM +0300, Nikolay Aleksandrov wrote:
+>>> Nacked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+>>>
+>>> I think we just discussed this a day ago? It is the same problem -
+>>> while we all agree the values should follow the RFC, users have had
+>>> the option to set any values forever (even non-RFC compliant ones).
+>>> This change risks breaking user-space.
+>>
+>> OK, I misunderstood your reply in last mail. I thought you only object to
+>> disabling no meaning values(e.g. set timer to 0, which not is forbid by the
+>> RFC). I don't know you also reject to follow a *MUST* rule defined in the RFC.
 > 
-> OK, I misunderstood your reply in last mail. I thought you only object to
-> disabling no meaning values(e.g. set timer to 0, which not is forbid by the
-> RFC). I don't know you also reject to follow a *MUST* rule defined in the RFC.
+> I know you denied the patch due to user-space compatibility. Forgive me
+> if my last reply sound a little aggressive.
+> 
+> Thanks
+> Hangbin
+> 
 
-I know you denied the patch due to user-space compatibility. Forgive me
-if my last reply sound a little aggressive.
+No worries. :) I obviously agree that it should be RFC compliant, but we must do it
+in a different way that doesn't risk breaking users, it goes also for how the values are
+computed. In the future when more of the RFC is implemented we might need to force
+compliance and that might require adding a new option, I guess we'll see when we get there.
 
-Thanks
-Hangbin
+Cheers,
+ Nik
+
