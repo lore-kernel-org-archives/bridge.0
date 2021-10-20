@@ -1,20 +1,22 @@
 Return-Path: <liuhangbin@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=uP74WpUfIxkFQrw13QDTf0eyIC/o9Ip6dzTaEPhVPzY=;
- b=HXX1pftRzORTj8Px5lEdsuaix32dXDrAzRrLMT4qb8+nQ19QkoDo8IfUJcH4WFm2M2
- aP3znHPiJ5Z/OgRt4qlU3oMrhzz4HzGOAGwAg1kLxCIyEDDPI7NnhBtaMKrHSIRsN62O
- w5bA1Y8ada/17UO6bUAl6Tt94fm9GpBGooLZS5L57b0Ob0BqBs9q8VtXOa+s4HtkIH2n
- ui7iyGpclZKWSTd+JOUTkRwnuSRDiTCAxdKg0ASSHQHlie+1syy4orPzNuORgS2XKcC8
- VpH5mcKmTw/rdk3BNIWWyhkebhZALuh4LG3OoNx1SIAYToi/UEOSyhp02XFZsrT7zIAi
- YbZg==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=g/k6QV2vpt3vH8xJxkTx+3DiBVC3hLVwkQHeAK5Mgfk=;
+ b=Q4nrYsya+U9yJCD42B+ksihz8DeeiDjP1VfdJd73Pys4FFsx7kSFFTQ9NcOFSmo+br
+ R8Z/n7RebPdXUn6VtdcSktRY2xcKlktxC9iETn+uFHH3+qCrdCI8TJWERAxDPLz1fF3m
+ a/YAW3Xgk/We2IYSLR3eQb6gjPgdMtQ38UVyl37vRZ+nLiWSL6IxJRv9rwNHIN4sR/dX
+ prf2BYq+NHtc5tuTgNMMSxeK8lnFA91sdDHgbTrJoqKbhI9ZDeThKnhVlISaTydDUHCG
+ mDcy742Yw3XMCRxB8b8+OtwQWaEDYWjVpoOxuvXJa9weX5cFkXL+xGrfkKfzAC28obto
+ 5tMQ==
 From: Hangbin Liu <liuhangbin@gmail.com>
-Date: Wed, 20 Oct 2021 10:36:04 +0800
-Message-Id: <20211020023604.695416-1-liuhangbin@gmail.com>
+Date: Wed, 20 Oct 2021 10:40:16 +0800
+Message-Id: <20211020024016.695678-1-liuhangbin@gmail.com>
+In-Reply-To: <20211020023604.695416-1-liuhangbin@gmail.com>
+References: <20211020023604.695416-1-liuhangbin@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net] net: bridge: mcast: QRI must be less than QI
+Subject: [Bridge] [PATCHv2 net] net: bridge: mcast: QRI must be less than QI
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -41,7 +43,7 @@ Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
  5 files changed, 45 insertions(+), 8 deletions(-)
 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index f3d751105343..1a865d08a87f 100644
+index f3d751105343..5931f7c81519 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
 @@ -4522,6 +4522,33 @@ int br_multicast_set_mld_version(struct net_bridge_mcast *brmctx,
@@ -57,10 +59,10 @@ index f3d751105343..1a865d08a87f 100644
 +	if (val > brmctx->multicast_query_response_interval) {
 +		brmctx->multicast_query_interval = val;
 +		return 0;
-+	} else {
-+		NL_SET_ERR_MSG(extack, "Invalid QI, must greater than QRI");
-+		return -EINVAL;
 +	}
++
++	NL_SET_ERR_MSG(extack, "Invalid QI, must greater than QRI");
++	return -EINVAL;
 +}
 +
 +int br_multicast_set_qri(struct net_bridge_mcast *brmctx, unsigned long val,
@@ -69,10 +71,10 @@ index f3d751105343..1a865d08a87f 100644
 +	if (val < brmctx->multicast_query_interval) {
 +		brmctx->multicast_query_response_interval = val;
 +		return 0;
-+	} else {
-+		NL_SET_ERR_MSG(extack, "Invalid QRI, must less than QI");
-+		return -EINVAL;
 +	}
++
++	NL_SET_ERR_MSG(extack, "Invalid QRI, must less than QI");
++	return -EINVAL;
 +}
 +
  /**
