@@ -1,27 +1,20 @@
 Return-Path: <liuhangbin@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=hi2XgGMyKlW1UQqVPtudcWKRJ8oy8AP52PmaKHN5Psc=;
- b=TtnXz8j05nBGuK9AZ6rd7YHuSUTGgXo+fTuhC5awTXnhYCoD9ZQUU50R+q/yV24wAF
- TqQP8T+SAV6UEwVqPVpU0mPWV9pfdjcuT6ad0aQPiDYtzzOxTlnHNsbTBSagcH+TZdVR
- NgnNW7PfsUp8d7xgHqLvA0+JcKaiwF+9dByN0lLIuHIgyvGk//P4mCp+Reg5GpuBJ6P/
- HY2/R3ve6aaMjGCi43VJxxcoiQ2hOT77jMQxVuRikI2INC8/Q9F1pnYpTaU28QDATKhb
- ZyU0lgUqMPWn/Af/0N8K6CcUs0izUXaBTEv+hsuxVxB0YzdnNU2U7WqTjNmDA0eyWAYT
- LODg==
-Date: Wed, 20 Oct 2021 09:02:01 +0800
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=uP74WpUfIxkFQrw13QDTf0eyIC/o9Ip6dzTaEPhVPzY=;
+ b=HXX1pftRzORTj8Px5lEdsuaix32dXDrAzRrLMT4qb8+nQ19QkoDo8IfUJcH4WFm2M2
+ aP3znHPiJ5Z/OgRt4qlU3oMrhzz4HzGOAGwAg1kLxCIyEDDPI7NnhBtaMKrHSIRsN62O
+ w5bA1Y8ada/17UO6bUAl6Tt94fm9GpBGooLZS5L57b0Ob0BqBs9q8VtXOa+s4HtkIH2n
+ ui7iyGpclZKWSTd+JOUTkRwnuSRDiTCAxdKg0ASSHQHlie+1syy4orPzNuORgS2XKcC8
+ VpH5mcKmTw/rdk3BNIWWyhkebhZALuh4LG3OoNx1SIAYToi/UEOSyhp02XFZsrT7zIAi
+ YbZg==
 From: Hangbin Liu <liuhangbin@gmail.com>
-Message-ID: <YW9qiUhDKT+56wkd@Laptop-X1>
-References: <20211018082612.625417-1-liuhangbin@gmail.com>
- <ab707f4d-587a-0fae-e673-5da49f5946db@nvidia.com>
- <YW5a9JLnfZc1M8Gh@Laptop-X1>
- <a6bbd579-3d5f-6cbd-9523-49226a2b5a7a@nvidia.com>
+Date: Wed, 20 Oct 2021 10:36:04 +0800
+Message-Id: <20211020023604.695416-1-liuhangbin@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a6bbd579-3d5f-6cbd-9523-49226a2b5a7a@nvidia.com>
-Subject: Re: [Bridge] [PATCH net] net: bridge: mcast: Do not allow users to
- set IGMP counter/timer to zero
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net] net: bridge: mcast: QRI must be less than QI
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,25 +23,149 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: kuba@kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
+To: netdev@vger.kernel.org
+Cc: Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Hangbin Liu <liuhangbin@gmail.com>, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Tue, Oct 19, 2021 at 07:09:42PM +0300, Nikolay Aleksandrov wrote:
-> > I started this patch when I saw there is not limit for setting
-> > multicast_membership_interval to 0, which will cause bridge remove the
-> > mdb directly after adding. Do you think this is a problem.
-> > 
-> > And what about others? I don't think there is a meaning to set other intervals
-> > to 0.
-> > 
-> 
-> The problem is not if there is meaning, we cannot start restricting option values now after
-> they've become uapi (and have been for a very long time) because we can break user-space even
-> though chances are pretty low. I don't think this patch is acceptable, I commented on the other
-> patch issues but they don't matter because of this.
+Based on RFC3376 8.3:
+The number of seconds represented by the [Query Response Interval]
+must be less than the [Query Interval].
 
-OK, I got your mean, we should not restrict the configurations based on whether
-there is a meaning.
+Fixes: d902eee43f19 ("bridge: Add multicast count/interval sysfs entries")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+---
+ net/bridge/br_multicast.c    | 27 +++++++++++++++++++++++++++
+ net/bridge/br_netlink.c      |  8 ++++++--
+ net/bridge/br_private.h      |  4 ++++
+ net/bridge/br_sysfs_br.c     |  6 ++----
+ net/bridge/br_vlan_options.c |  8 ++++++--
+ 5 files changed, 45 insertions(+), 8 deletions(-)
 
-Thanks
-Hangbin
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index f3d751105343..1a865d08a87f 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -4522,6 +4522,33 @@ int br_multicast_set_mld_version(struct net_bridge_mcast *brmctx,
+ }
+ #endif
+ 
++/* RFC3376 8.3: The number of seconds represented by the
++ * [Query Response Interval] must be less than the [Query Interval].
++ */
++int br_multicast_set_qi(struct net_bridge_mcast *brmctx, unsigned long val,
++			struct netlink_ext_ack *extack)
++{
++	if (val > brmctx->multicast_query_response_interval) {
++		brmctx->multicast_query_interval = val;
++		return 0;
++	} else {
++		NL_SET_ERR_MSG(extack, "Invalid QI, must greater than QRI");
++		return -EINVAL;
++	}
++}
++
++int br_multicast_set_qri(struct net_bridge_mcast *brmctx, unsigned long val,
++			 struct netlink_ext_ack *extack)
++{
++	if (val < brmctx->multicast_query_interval) {
++		brmctx->multicast_query_response_interval = val;
++		return 0;
++	} else {
++		NL_SET_ERR_MSG(extack, "Invalid QRI, must less than QI");
++		return -EINVAL;
++	}
++}
++
+ /**
+  * br_multicast_list_adjacent - Returns snooped multicast addresses
+  * @dev:	The bridge port adjacent to which to retrieve addresses
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 5c6c4305ed23..2b32d7d2ce31 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1357,13 +1357,17 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 	if (data[IFLA_BR_MCAST_QUERY_INTVL]) {
+ 		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERY_INTVL]);
+ 
+-		br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
++		err = br_multicast_set_qi(&br->multicast_ctx, clock_t_to_jiffies(val), extack);
++		if (err)
++			return err;
+ 	}
+ 
+ 	if (data[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL]) {
+ 		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL]);
+ 
+-		br->multicast_ctx.multicast_query_response_interval = clock_t_to_jiffies(val);
++		err = br_multicast_set_qri(&br->multicast_ctx, clock_t_to_jiffies(val), extack);
++		if (err)
++			return err;
+ 	}
+ 
+ 	if (data[IFLA_BR_MCAST_STARTUP_QUERY_INTVL]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 37ca76406f1e..5019c601f689 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -906,6 +906,10 @@ int br_multicast_set_igmp_version(struct net_bridge_mcast *brmctx,
+ int br_multicast_set_mld_version(struct net_bridge_mcast *brmctx,
+ 				 unsigned long val);
+ #endif
++int br_multicast_set_qi(struct net_bridge_mcast *brmctx, unsigned long val,
++			struct netlink_ext_ack *extack);
++int br_multicast_set_qri(struct net_bridge_mcast *brmctx, unsigned long val,
++			 struct netlink_ext_ack *extack);
+ struct net_bridge_mdb_entry *
+ br_mdb_ip_get(struct net_bridge *br, struct br_ip *dst);
+ struct net_bridge_mdb_entry *
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index d9a89ddd0331..f794652f8592 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -658,8 +658,7 @@ static ssize_t multicast_query_interval_show(struct device *d,
+ static int set_query_interval(struct net_bridge *br, unsigned long val,
+ 			      struct netlink_ext_ack *extack)
+ {
+-	br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
+-	return 0;
++	return br_multicast_set_qi(&br->multicast_ctx, clock_t_to_jiffies(val), extack);
+ }
+ 
+ static ssize_t multicast_query_interval_store(struct device *d,
+@@ -682,8 +681,7 @@ static ssize_t multicast_query_response_interval_show(
+ static int set_query_response_interval(struct net_bridge *br, unsigned long val,
+ 				       struct netlink_ext_ack *extack)
+ {
+-	br->multicast_ctx.multicast_query_response_interval = clock_t_to_jiffies(val);
+-	return 0;
++	return br_multicast_set_qri(&br->multicast_ctx, clock_t_to_jiffies(val), extack);
+ }
+ 
+ static ssize_t multicast_query_response_interval_store(
+diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
+index 8ffd4ed2563c..71e94ff9d926 100644
+--- a/net/bridge/br_vlan_options.c
++++ b/net/bridge/br_vlan_options.c
+@@ -521,14 +521,18 @@ static int br_vlan_process_global_one_opts(const struct net_bridge *br,
+ 		u64 val;
+ 
+ 		val = nla_get_u64(tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_INTVL]);
+-		v->br_mcast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
++		err = br_multicast_set_qi(&v->br_mcast_ctx, clock_t_to_jiffies(val), extack);
++		if (err)
++			return err;
+ 		*changed = true;
+ 	}
+ 	if (tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_RESPONSE_INTVL]) {
+ 		u64 val;
+ 
+ 		val = nla_get_u64(tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_RESPONSE_INTVL]);
+-		v->br_mcast_ctx.multicast_query_response_interval = clock_t_to_jiffies(val);
++		err = br_multicast_set_qri(&v->br_mcast_ctx, clock_t_to_jiffies(val), extack);
++		if (err)
++			return err;
+ 		*changed = true;
+ 	}
+ 	if (tb[BRIDGE_VLANDB_GOPTS_MCAST_STARTUP_QUERY_INTVL]) {
+-- 
+2.31.1
+
