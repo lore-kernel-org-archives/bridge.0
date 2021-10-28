@@ -1,25 +1,20 @@
 Return-Path: <ivecera@redhat.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635344094;
+ s=mimecast20190719; t=1635436727;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=hJrML/RRrYOCcLcaDpLc5DyYFDVAJz2ir0815yDh2Js=;
- b=JaRW1soB9llkss5+C2fIC7esGFk1ATY6gC1dte8XyM/aZmz959zzDbTcsAIwBmsTvYkACY
- 110YpoGCeMUz1L7+UoCDguQWVsiHSdoypdKA7Jn9HQAhCAmZ8WVRWo9d0maNzvGrsUN7mG
- FmgOUJqjcF5S+LKmCe1UMs8F/+eD9RE=
-Date: Wed, 27 Oct 2021 16:14:40 +0200
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=/ZAZTdtyaSOOs5rc8T6wOKjWpg0v6cCvD+QvTGbgJzM=;
+ b=RwqCT3vi4JsC12m8UiZduV4+6NEMah7/6sZprhnnz0lSmuM/PjmuPyg1TOHixuAsqNlhu5
+ o6x8aWqc5v6jngayWVC569DgEwtt0OL6hI7uddnDgSNanJSKEL1qXORR3tIflXHJifk93H
+ 1IJ41uR300iBe8hlxq451BSNTEh0anE=
 From: Ivan Vecera <ivecera@redhat.com>
-Message-ID: <20211027161440.00cb1107@ceranb>
-In-Reply-To: <a9b7d8d2-da03-42f0-bd16-3446cdcaecc8@nvidia.com>
-References: <20211027134926.1412459-1-ivecera@redhat.com>
- <a9b7d8d2-da03-42f0-bd16-3446cdcaecc8@nvidia.com>
+Date: Thu, 28 Oct 2021 17:58:35 +0200
+Message-Id: <20211028155835.2134753-1-ivecera@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net] net: bridge: fix uninitialized variables
- when BRIDGE_CFM is disabled
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net v2] net: bridge: fix uninitialized variables
+	when BRIDGE_CFM is disabled
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,63 +23,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc: netdev@vger.kernel.org, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, "David S.
- Miller" <davem@davemloft.net>, Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Horatiu Vultur <horatiu.vultur@microchip.com>
+To: netdev@vger.kernel.org
+Cc: "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>, Horatiu Vultur <horatiu.vultur@microchip.com>, Henrik Bjoernlund <henrik.bjoernlund@microchip.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-On Wed, 27 Oct 2021 16:54:39 +0300
-Nikolay Aleksandrov <nikolay@nvidia.com> wrote:
+Function br_get_link_af_size_filtered() calls br_cfm_{,peer}_mep_count()
+that return a count. When BRIDGE_CFM is not enabled these functions
+simply return -EOPNOTSUPP but do not modify count parameter and
+calling function then works with uninitialized variables.
+Modify these inline functions to return zero in count parameter.
 
-> On 27/10/2021 16:49, Ivan Vecera wrote:
-> > Function br_get_link_af_size_filtered() calls br_cfm_{,peer}_mep_count()
-> > but does not check their return value. When BRIDGE_CFM is not enabled
-> > these functions return -EOPNOTSUPP but do not modify count parameter.
-> > Calling function then works with uninitialized variables.
-> > 
-> > Fixes: b6d0425b816e ("bridge: cfm: Netlink Notifications.")
-> > Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-> > ---
-> >  net/bridge/br_netlink.c | 6 ++++--
-> >  1 file changed, 4 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> > index 5c6c4305ed23..12d602495ea0 100644
-> > --- a/net/bridge/br_netlink.c
-> > +++ b/net/bridge/br_netlink.c
-> > @@ -126,8 +126,10 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
-> >  		return vinfo_sz;
-> >  
-> >  	/* CFM status info must be added */
-> > -	br_cfm_mep_count(br, &num_cfm_mep_infos);
-> > -	br_cfm_peer_mep_count(br, &num_cfm_peer_mep_infos);
-> > +	if (br_cfm_mep_count(br, &num_cfm_mep_infos) < 0)
-> > +		num_cfm_mep_infos = 0;
-> > +	if (br_cfm_peer_mep_count(br, &num_cfm_peer_mep_infos) < 0)
-> > +		num_cfm_peer_mep_infos = 0;
-> >  
-> >  	vinfo_sz += nla_total_size(0);	/* IFLA_BRIDGE_CFM */
-> >  	/* For each status struct the MEP instance (u32) is added */
-> >   
-> 
-> Hi,
-> Could you please rather update the EOPNOTSUPP helpers to set these infos to 0 before
-> returning? Someone else might decide to use them and hit the same bug.
-> 
-> E.g.
-> static inline int br_cfm_mep_count(struct net_bridge *br, u32 *count)
-> {
-> 	*count = 0;
->         return -EOPNOTSUPP;
-> }
-> 
-> We already do the same for br_allowed_ingress, nbp_vlan_add() etc.
-> 
-> Thanks,
->  Nik
-> 
+Fixes: b6d0425b816e ("bridge: cfm: Netlink Notifications.")
+Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+---
+ net/bridge/br_private.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Ok, Nik... works for me.
-
-Thanks,
-Ivan
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 37ca76406f1e..fd5e7e74573c 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1911,11 +1911,13 @@ static inline int br_cfm_status_fill_info(struct sk_buff *skb,
+ 
+ static inline int br_cfm_mep_count(struct net_bridge *br, u32 *count)
+ {
++	*count = 0;
+ 	return -EOPNOTSUPP;
+ }
+ 
+ static inline int br_cfm_peer_mep_count(struct net_bridge *br, u32 *count)
+ {
++	*count = 0;
+ 	return -EOPNOTSUPP;
+ }
+ #endif
+-- 
+2.32.0
 
