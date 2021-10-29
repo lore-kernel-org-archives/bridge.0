@@ -1,24 +1,24 @@
 Return-Path: <patchwork-bot+netdevbpf@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1635511808;
- bh=8A7jVNKhe8n8XuPnA2FudeVKdnsBoqU4jLdS3VqA9qY=;
+ s=k20201202; t=1635512407;
+ bh=EjgqJvYcxzTW4ZFSj8a1Nqzq1SYLWuXllXv8KvZGmr8=;
  h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=MO+MMIoX1Xef2V56xXg0iplJ3Lsbgv5Khn1yzzgmbbBikRlUPsT3VMA5HcM8hwzcD
- 06up2y94ZXTxsTopa2oqAaxpMcfWjm866Ol/C5S12+CukDJkB+VPUBn1E/pErAV0Y9
- prOD6k2UO6GaMAwZul1TA5k/w10U+S+WrZ9HF6ioZS/QXKhg0pBCLVHnk9cf1eBUM7
- SMec7DoQB03j7QfLGbZhmvp1aHxxZ3hN69c4P0LDNymyDeaywSdX2STrJVqYV1+RXf
- X3xI3mya+Y3luPNdpeznFT+4burC3/lBcEQzNVUEw2EMb1Z72TB6eJIEazeUkhwU53
- RNsV/ntpNdehA==
+ b=hRWdlxWFL/R3pDTGk9bPc7Q4DdE6CXpvwNgH6qe6iGgDHhvZ/NRzbtbwG151cPySS
+ aTypMFFIRdw52+uPB2Er7BI4Ab/zOhFfTlsb9eyMjs27nYyiHHdDO5nXfbeO6eHCwx
+ cZBX/CPgedYQqzTInZNhUdrR9o7F538PROmfvOIrKavCUghBKjAcmC/xKn9FQa8p76
+ KH7taMk3aD5bE/XXlJ+khY7HyXRlFZM6cNy84lJH2qktVlcS+EOs26FabH9pjspdre
+ ffZ9L3ILnuI/5AYn7TydPkEPqLJ3BZL16emUmaMqV+eCDnHVGXP0IPuCRC9otkNSYb
+ iMfQfwlEuNIww==
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163551180842.32606.14897066407826010805.git-patchwork-notify@kernel.org>
-Date: Fri, 29 Oct 2021 12:50:08 +0000
-References: <20211028155835.2134753-1-ivecera@redhat.com>
-In-Reply-To: <20211028155835.2134753-1-ivecera@redhat.com>
-Subject: Re: [Bridge] [PATCH net v2] net: bridge: fix uninitialized
- variables when BRIDGE_CFM is disabled
+Message-Id: <163551240692.5054.16014732669098206950.git-patchwork-notify@kernel.org>
+Date: Fri, 29 Oct 2021 13:00:06 +0000
+References: <20211029120527.2716884-1-razor@blackwall.org>
+In-Reply-To: <20211029120527.2716884-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net v2] selftests: net: bridge: update IGMP/MLD
+ membership interval value
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,30 +27,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ivan Vecera <ivecera@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, horatiu.vultur@microchip.com, henrik.bjoernlund@microchip.com, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, nikolay@nvidia.com, roopa@nvidia.com
 
 Hello:
 
 This patch was applied to netdev/net.git (master)
 by David S. Miller <davem@davemloft.net>:
 
-On Thu, 28 Oct 2021 17:58:35 +0200 you wrote:
-> Function br_get_link_af_size_filtered() calls br_cfm_{,peer}_mep_count()
-> that return a count. When BRIDGE_CFM is not enabled these functions
-> simply return -EOPNOTSUPP but do not modify count parameter and
-> calling function then works with uninitialized variables.
-> Modify these inline functions to return zero in count parameter.
+On Fri, 29 Oct 2021 15:05:27 +0300 you wrote:
+> From: Nikolay Aleksandrov <nikolay@nvidia.com>
 > 
-> Fixes: b6d0425b816e ("bridge: cfm: Netlink Notifications.")
-> Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
-> Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+> When I fixed IGMPv3/MLDv2 to use the bridge's multicast_membership_interval
+> value which is chosen by user-space instead of calculating it based on
+> multicast_query_interval and multicast_query_response_interval I forgot
+> to update the selftests relying on that behaviour. Now we have to
+> manually set the expected GMI value to perform the tests correctly and get
+> proper results (similar to IGMPv2 behaviour).
 > 
 > [...]
 
 Here is the summary with links:
-  - [net,v2] net: bridge: fix uninitialized variables when BRIDGE_CFM is disabled
-    https://git.kernel.org/netdev/net/c/829e050eea69
+  - [net,v2] selftests: net: bridge: update IGMP/MLD membership interval value
+    https://git.kernel.org/netdev/net/c/34d7ecb3d4f7
 
 You are awesome, thank you!
 -- 
