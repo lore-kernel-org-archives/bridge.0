@@ -1,18 +1,22 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=n67kbimtp8MtHB3A7c08WI1fauMy5KMJ0MyxZBnmcSk=;
- b=g6fylaDzBWMy5+PsYsX4Qxj5ZyqsdlTErr/qegMEjeYrEuBpbrUZ5WOQKGyu7eSC5vV7hfV94mqWvRTXJG/7XyAXHId5d0MNCW0Mtq0oshQyoBxlVF8FBFJj0ITc6uOGoJRnQXg+0+hosGNMPakLGqSTuzd7C/dm8tOLgiMm0hehGU4vhucU5Pyk29K4CInAHQJ8JTYk5qugisg2fLbCkH98JREEyqqTwee9Qt8GGToBKKbc+9O5LpwogLfeze/T/ugoUMk85k4LFFamIGNvLTB6CosnxS+6TJ7a1YAtIaB0smg6JLRWW3hT4IbiuRURTbLJyuYO3Ttjh5XqA/pzqg==
-Message-ID: <ee7c8d05-93bf-3cc8-781f-2d6302778b3f@nvidia.com>
-Date: Mon, 15 Nov 2021 14:57:58 +0200
-Content-Language: en-US
-References: <00c39d09c8df7ad0673bf2043f6566d6ef08b789.1636916479.git.christophe.jaillet@wanadoo.fr>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-In-Reply-To: <00c39d09c8df7ad0673bf2043f6566d6ef08b789.1636916479.git.christophe.jaillet@wanadoo.fr>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1636985409;
+ bh=SIs+iwklv8KfbyfcsPobIZu2x2aKdT3tn5NnV3mSFn4=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=QSuzW6b5ffmWFK6oCQMl0O0SLjurwpJFG8GxvAO2g9Sk2Rv0TQioBmBD4sRv/AJj5
+ b7D/RfbIrxEFoyJ4AzQpizyhRhcqF3pPlu66g4S1WM7CfOk1Rx6G3ID6YcEu6KlDa2
+ AKLbAn/ECR677rrfE50nCkryxroRvS3GuSbWGAD7w1Z/frl+CSK/aH3645kkkXfgYn
+ 4Uk0kNAGciQOT1oT0IEyqXZoSpsnNEHBiV+7ehahmPMgC7AHq4+IlkUU7nH7+n6CwI
+ aRotyVbz0jH9xXuebLTnPYcsj5xucJ9QfUe8Ta3LV/wsRwqAd68yr7XkMcyrUjXVBv
+ caQBg3M38LjFQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163698540899.13805.10527037556945584609.git-patchwork-notify@kernel.org>
+Date: Mon, 15 Nov 2021 14:10:08 +0000
+References: <00c39d09c8df7ad0673bf2043f6566d6ef08b789.1636916479.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <00c39d09c8df7ad0673bf2043f6566d6ef08b789.1636916479.git.christophe.jaillet@wanadoo.fr>
 Subject: Re: [Bridge] [PATCH] net: bridge: Slightly optimize 'find_portno()'
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -22,43 +26,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, roopa@nvidia.com, davem@davemloft.net, kuba@kernel.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On 14/11/2021 21:02, Christophe JAILLET wrote:
+Hello:
+
+This patch was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Sun, 14 Nov 2021 20:02:35 +0100 you wrote:
 > The 'inuse' bitmap is local to this function. So we can use the
 > non-atomic '__set_bit()' to save a few cycles.
 > 
 > While at it, also remove some useless {}.
 > 
 > Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> ---
->  net/bridge/br_if.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index c1183fef1f21..64b2d4fb50f5 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -397,10 +397,10 @@ static int find_portno(struct net_bridge *br)
->  	if (!inuse)
->  		return -ENOMEM;
->  
-> -	set_bit(0, inuse);	/* zero is reserved */
-> -	list_for_each_entry(p, &br->port_list, list) {
-> -		set_bit(p->port_no, inuse);
-> -	}
-> +	__set_bit(0, inuse);	/* zero is reserved */
-> +	list_for_each_entry(p, &br->port_list, list)
-> +		__set_bit(p->port_no, inuse);
-> +
->  	index = find_first_zero_bit(inuse, BR_MAX_PORTS);
->  	bitmap_free(inuse);
->  
-> 
+> [...]
 
-This should be targeted at net-next.
-The patch itself looks ok, TBH it's a slow path so speed
-doesn't really matter but it's a straight-forward change.
+Here is the summary with links:
+  - net: bridge: Slightly optimize 'find_portno()'
+    https://git.kernel.org/netdev/net-next/c/cc0be1ad686f
 
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
