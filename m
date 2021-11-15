@@ -1,26 +1,17 @@
-Return-Path: <dan.carpenter@oracle.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : content-type : in-reply-to :
- mime-version; s=corp-2021-07-09;
- bh=Rfy7/PoE01BBgCAK3Z9KK5eQGQYEaFHqiVsEnkn6FAg=;
- b=hZLYCI6VPjVLsIBTKclsSbry4RhJzisSWeXrtLQ5W2XNAxmXFRQBTwz7bfniH3FsFGXZ
- 9CoqU7d0CE5mQO/4MddkSDzZT+58YQdVwYV7/02naB9inY6edQBjJePVubEnlLD/xqpJ
- XPB19MblGFJS4AgKnv7cHo0LvuAB0GNzvFMGBjVzj4/ay3XsXfh8grKpveyE0uAXFZLw
- p9n+YdPVLH6I0akfSYzHMcSweZUpTWFUS3dxTvJnQZrgaPDDEA0/qfe+zrxaH9arKHfu
- sXgXqkLsmKGNhvOQoCFIID0p/yh6hPZy7OC93TO70eWQP0j3kxPunIq413rdISoQDduv qw== 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Rfy7/PoE01BBgCAK3Z9KK5eQGQYEaFHqiVsEnkn6FAg=;
- b=FUTAdXKarJAqvuY6W3UDy3KF/DlB173kWrPFecseIjxdglYYVe+AZrAhCtO1dtKahLCsNBUJ46aqeeph8gci9IJwRlPdEqFTnM7mGlV3g0+yzwPMFNdKlHhMYePc7MiWGJWkyflqO3vwy4xemXPF+esd1Sr8pyMj0wX0EX+v7Kk=
-Date: Mon, 15 Nov 2021 15:35:34 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Message-ID: <20211115123534.GD26989@kadam>
+ bh=n67kbimtp8MtHB3A7c08WI1fauMy5KMJ0MyxZBnmcSk=;
+ b=g6fylaDzBWMy5+PsYsX4Qxj5ZyqsdlTErr/qegMEjeYrEuBpbrUZ5WOQKGyu7eSC5vV7hfV94mqWvRTXJG/7XyAXHId5d0MNCW0Mtq0oshQyoBxlVF8FBFJj0ITc6uOGoJRnQXg+0+hosGNMPakLGqSTuzd7C/dm8tOLgiMm0hehGU4vhucU5Pyk29K4CInAHQJ8JTYk5qugisg2fLbCkH98JREEyqqTwee9Qt8GGToBKKbc+9O5LpwogLfeze/T/ugoUMk85k4LFFamIGNvLTB6CosnxS+6TJ7a1YAtIaB0smg6JLRWW3hT4IbiuRURTbLJyuYO3Ttjh5XqA/pzqg==
+Message-ID: <ee7c8d05-93bf-3cc8-781f-2d6302778b3f@nvidia.com>
+Date: Mon, 15 Nov 2021 14:57:58 +0200
+Content-Language: en-US
 References: <00c39d09c8df7ad0673bf2043f6566d6ef08b789.1636916479.git.christophe.jaillet@wanadoo.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 In-Reply-To: <00c39d09c8df7ad0673bf2043f6566d6ef08b789.1636916479.git.christophe.jaillet@wanadoo.fr>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
 Subject: Re: [Bridge] [PATCH] net: bridge: Slightly optimize 'find_portno()'
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -31,19 +22,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, roopa@nvidia.com, davem@davemloft.net, kuba@kernel.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, Nov 14, 2021 at 08:02:35PM +0100, Christophe JAILLET wrote:
+On 14/11/2021 21:02, Christophe JAILLET wrote:
 > The 'inuse' bitmap is local to this function. So we can use the
 > non-atomic '__set_bit()' to save a few cycles.
 > 
 > While at it, also remove some useless {}.
+> 
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> ---
+>  net/bridge/br_if.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index c1183fef1f21..64b2d4fb50f5 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -397,10 +397,10 @@ static int find_portno(struct net_bridge *br)
+>  	if (!inuse)
+>  		return -ENOMEM;
+>  
+> -	set_bit(0, inuse);	/* zero is reserved */
+> -	list_for_each_entry(p, &br->port_list, list) {
+> -		set_bit(p->port_no, inuse);
+> -	}
+> +	__set_bit(0, inuse);	/* zero is reserved */
+> +	list_for_each_entry(p, &br->port_list, list)
+> +		__set_bit(p->port_no, inuse);
+> +
+>  	index = find_first_zero_bit(inuse, BR_MAX_PORTS);
+>  	bitmap_free(inuse);
+>  
+> 
 
-I like the {} and tend to add it in new code.  There isn't a rule about
-this one way or the other.
+This should be targeted at net-next.
+The patch itself looks ok, TBH it's a slow path so speed
+doesn't really matter but it's a straight-forward change.
 
-regards,
-dan carpenter
-
-
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
