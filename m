@@ -1,13 +1,23 @@
-Return-Path: <david.laight@aculab.com>
-From: David Laight <David.Laight@ACULAB.COM>
-Date: Sat, 20 Nov 2021 21:57:42 +0000
-Message-ID: <a98476cd4414476980a227c0f053bea7@AcuMS.aculab.com>
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:content-type:date:from:in-reply-to
+ :message-id:mime-version:references:subject:to:x-me-proxy
+ :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7AB/rq
+ zonUOWzLAzTKIR/r2isQMsfo/GkiwD4h91rPk=; b=Akr3wk7NneWaUex6gfdwC6
+ e0KL0P7VzRwGjLuFL7R8Oi+JaazQk8xb+7CjQFxwgIufRHr24cno03AtgGOMc9d3
+ qgCS3uRRtLm1VsYKH+pRGx7LObiuRURpBEV9934LzBhl4BO2jsXACOFqU+lpLbYA
+ en8N549cMme6P4rmduc+oIo9M+O3+UXtIoV+QOk4q7DJaQCKXZVKPwqfQaXC/Nwk
+ 2YD4Sf11QRo1GDyYbEDKRfoUYuDGK166iVS1RDKd2vm3N8kPspPZ1eBlUXs7PSmO
+ AKNAWVi3RAc9YV4ItosimB+veoxFZEeihYSufuVYi04SHEFMBiVGSeq1n2giJDHA
+ ==
+Date: Mon, 22 Nov 2021 12:04:35 +0200
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <YZtrM3Ukz7rKfNLN@shredder>
 References: <20211119020642.108397-1-bernard@vivo.com>
-In-Reply-To: <20211119020642.108397-1-bernard@vivo.com>
 MIME-Version: 1.0
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211119020642.108397-1-bernard@vivo.com>
 Subject: Re: [Bridge] [PATCH] net/bridge: replace simple_strtoul to kstrtol
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -17,57 +27,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: 'Bernard Zhao' <bernard@vivo.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Bernard Zhao <bernard@vivo.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-From: Bernard Zhao
-> Sent: 19 November 2021 02:07
->=20
+On Thu, Nov 18, 2021 at 06:06:42PM -0800, Bernard Zhao wrote:
 > simple_strtoull is obsolete, use kstrtol instead.
-
-I think the death announcement of simple_strtoull() has already
-been deemed premature.
-kstrtol() isn't a replacment in many cases.
-
+> 
 > Signed-off-by: Bernard Zhao <bernard@vivo.com>
 > ---
 >  net/bridge/br_sysfs_br.c | 7 +++----
 >  1 file changed, 3 insertions(+), 4 deletions(-)
->=20
+> 
 > diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
 > index d9a89ddd0331..11c490694296 100644
 > --- a/net/bridge/br_sysfs_br.c
 > +++ b/net/bridge/br_sysfs_br.c
 > @@ -36,15 +36,14 @@ static ssize_t store_bridge_parm(struct device *d,
->  =09struct net_bridge *br =3D to_bridge(d);
->  =09struct netlink_ext_ack extack =3D {0};
->  =09unsigned long val;
-> -=09char *endp;
->  =09int err;
->=20
->  =09if (!ns_capable(dev_net(br->dev)->user_ns, CAP_NET_ADMIN))
->  =09=09return -EPERM;
->=20
-> -=09val =3D simple_strtoul(buf, &endp, 0);
-> -=09if (endp =3D=3D buf)
-> -=09=09return -EINVAL;
-> +=09err =3D kstrtoul(buf, 10, &val);
-> +=09if (err !=3D 0)
-> +=09=09return err;
+>  	struct net_bridge *br = to_bridge(d);
+>  	struct netlink_ext_ack extack = {0};
+>  	unsigned long val;
+> -	char *endp;
+>  	int err;
+>  
+>  	if (!ns_capable(dev_net(br->dev)->user_ns, CAP_NET_ADMIN))
+>  		return -EPERM;
+>  
+> -	val = simple_strtoul(buf, &endp, 0);
+> -	if (endp == buf)
+> -		return -EINVAL;
+> +	err = kstrtoul(buf, 10, &val);
 
-That changes the valid input strings.
-So is a UAPI change.
-Now it might be that no one passes in strings that now fail,
-but you can't tell.
+Base 16 is valid.
 
-Rightfully or not it used to ignore any trailing characters.
-So "10flobbs" would be treated as "10".
+Before this patch:
 
-Did you also check what happens to 0x1234 and 012 ?
+# ip link add name br0 type bridge vlan_filtering 1
+# echo "0x88a8" > /sys/class/net/br0/bridge/vlan_protocol
+# echo $?
+0
 
-=09David
+After this patch:
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1=
-PT, UK
-Registration No: 1397386 (Wales)
+# ip link add name br0 type bridge vlan_filtering 1
+# echo "0x88a8" > /sys/class/net/br0/bridge/vlan_protocol 
+bash: echo: write error: Invalid argument
 
+> +	if (err != 0)
+> +		return err;
+>  
+>  	if (!rtnl_trylock())
+>  		return restart_syscall();
+> -- 
+> 2.33.1
+> 
