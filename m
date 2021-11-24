@@ -1,21 +1,21 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hMkGBr0bXbLoc0r4al3bxzXWiBdclmaz3s2+8RyY/3M=;
- b=JbZsE4d9qhPR12OAkq4xoB+MCP4YAPy2Yq6rzoftX5OaMfDGwvHeDJAnUL1u/T+SlDQqhhxnxScYnhaSLmHZfQp4YQXxgyfwKI3gGpalmL2ktflE+zOOakS/W+fRNOUW61Q162H4WTl0bM7FdZHGDEfo6J483APyhVSbVhWV8GNN/eTRi92dHqNayxxaceXRe7CKoIlP3f1AcXU7gkdcDQ5qDWgzO4xt6LVQlMyo2JZqr1FjH6c5kmjLXCUkpEZYKgw3cddXcavVfhwxf6YI5xRGhgCU2fnvdVzZcM2Su8oy1qetLEXzsXZZUOt3WQibYXZ+Jm6Q5w6Tyjf8UlnCSQ==
-Message-ID: <1db3aae2-2b68-a18e-2ea7-3b193612125f@nvidia.com>
-Date: Wed, 24 Nov 2021 12:18:39 +0200
-Content-Language: en-US
-References: <20211119020642.108397-1-bernard@vivo.com>
- <YZtrM3Ukz7rKfNLN@shredder> <f98615d9-a129-d0b0-e444-cb649c14d7ce@nvidia.com>
- <20211123201327.3689203b@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-In-Reply-To: <20211123201327.3689203b@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Return-Path: <lucien.xin@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=B3QGPgxprh2tb4Gl3h4Uv0GQ0Zm/aQZNDdCKiWQFxV4=;
+ b=Vs6GqXTRoEgfIrL4ioHj2vTbxNFzHHhRKV/cH+MwljLJjuMYhd4Xg6apa5T1kLs1KR
+ G74Y7f3UgHj+a0ZYPksnCWcMIP4vCu6IE7HjdLPJ0WSvXSxNDp3I3+kq3pql1I3a7zKv
+ 0AP8yCngVgBc3ZR/JOMgLRSmnD250nsTeYmVn6gqVoKRX+wXHOFWmLXMKYZSdHvcoEOX
+ rdt+Ouw76gm2cz/AWYpPiQ+dhBgAK1kCpQjm3Pn9JaNPf6iLlgw+bS+TymajlQNdPhmt
+ /aOuZabhtvYAHgU5X6nQdM4/IeSSFNCb3+UYS0WGh+tVLP4Q+I9NreR/Wj3RrY7pD6xD
+ vS9g==
+From: Xin Long <lucien.xin@gmail.com>
+Date: Wed, 24 Nov 2021 14:39:33 -0500
+Message-Id: <4e35f415226765e79c2a11d2c96fbf3061c486e2.1637782773.git.lucien.xin@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH] net/bridge: replace simple_strtoul to kstrtol
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next] bridge: use __set_bit in
+	__br_vlan_set_default_pvid
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,24 +24,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Bernard Zhao <bernard@vivo.com>, Ido Schimmel <idosch@idosch.org>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>
+To: network dev <netdev@vger.kernel.org>, bridge@lists.linux-foundation.org
+Cc: kuba@kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, christophe.jaillet@wanadoo.fr, davem@davemloft.net, Roopa Prabhu <roopa@nvidia.com>
 
-On 24/11/2021 06:13, Jakub Kicinski wrote:
-> On Mon, 22 Nov 2021 12:17:39 +0200 Nikolay Aleksandrov wrote:
->>> # ip link add name br0 type bridge vlan_filtering 1
->>> # echo "0x88a8" > /sys/class/net/br0/bridge/vlan_protocol 
->>> bash: echo: write error: Invalid argument
->>
->> Good catch, Bernard please send a revert. Thanks.
-> 
-> Doesn't look like he did, would you mind taking over?
-> 
+The same optimization as the one in commit cc0be1ad686f ("net:
+bridge: Slightly optimize 'find_portno()'") is needed for the
+'changed' bitmap in __br_vlan_set_default_pvid().
 
-Ido sent a patch to take care of it:
-https://patchwork.kernel.org/project/netdevbpf/patch/20211124101122.3321496-1-idosch@idosch.org/
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+---
+ net/bridge/br_vlan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Cheers,
- Nik
-
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 49e105e0a447..84ba456a78cc 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -1063,7 +1063,7 @@ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid,
+ 		if (br_vlan_delete(br, old_pvid))
+ 			br_vlan_notify(br, NULL, old_pvid, 0, RTM_DELVLAN);
+ 		br_vlan_notify(br, NULL, pvid, 0, RTM_NEWVLAN);
+-		set_bit(0, changed);
++		__set_bit(0, changed);
+ 	}
+ 
+ 	list_for_each_entry(p, &br->port_list, list) {
+@@ -1085,7 +1085,7 @@ int __br_vlan_set_default_pvid(struct net_bridge *br, u16 pvid,
+ 		if (nbp_vlan_delete(p, old_pvid))
+ 			br_vlan_notify(br, p, old_pvid, 0, RTM_DELVLAN);
+ 		br_vlan_notify(p->br, p, pvid, 0, RTM_NEWVLAN);
+-		set_bit(p->port_no, changed);
++		__set_bit(p->port_no, changed);
+ 	}
+ 
+ 	br->default_pvid = pvid;
+-- 
+2.27.0
 
