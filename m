@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=rsXnOvd5nwBThD2qTg9D1pYE4X40JBYkDShPIF1srm0=;
- b=AuWU0dI8dq+Am1E5pw+6CORB6nijQMNR5dkWuKAcGZOilRKprNir0VkqxJGMJsJniP
- SMz3WfKNtQzQK03zbaRkGVGQFeI0FpCwG0YIlzCs2tlcJ5YnBDwrrtJcrndqJu/KUlZV
- 0CEAx/HfVOIwn8WOr1EPnpOUGyVAvUS3yrG873SuxG0UMYGBqKTV0YGIS/9AvFVVL1h4
- ZATIIMEAn/teDTyn9+2uTH24RCY5GUs9mmXkeHwavtsgMdQvjXemrPxP0LmriDMldGJH
- wba/rZ7bbwVOtkfyneUtm2EPl2PscriY8HesZtwgeQCGs8BweoNz6dGsYH2Amubuoa12
- gxcw==
+ bh=DYxPRHRLEYcQrka7MbONriR7V5sW93K2rC+A+CbWUo0=;
+ b=16Km5yqD1Jq7DqqEExTSa8dTgydtuWXkbRI5Ua4QUtOuXqQSDk5JBX9Kk+rxevcQDN
+ k+xgovQkOr0B9aF8hdIj9f6KCj9srlwk0EmuIYDCBqQ7dCA759Rlo831pOZek6OViGie
+ nzORFaOJDeHw9EtShM7FVXaEw4tHSWGa0dSoNA0+7LCrL8phbzO2DisADNWu9nI6uVM/
+ Ff1cnAuwnDtcX+pfb+tCm2V58UQBwDtzplViNpHLL4Pa6SOsmQGXOM8RQLSg+pW6ZsGC
+ YqT88vZLmuI9D4gufEHFMqx8a1+paH+s35KH4LtVjNIGy+NKxulKQCsAqCwni3W8JPhd
+ 0jBQ==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Thu, 25 Nov 2021 16:08:57 +0200
-Message-Id: <20211125140858.3639139-10-razor@blackwall.org>
+Date: Thu, 25 Nov 2021 16:08:55 +0200
+Message-Id: <20211125140858.3639139-8-razor@blackwall.org>
 In-Reply-To: <20211125140858.3639139-1-razor@blackwall.org>
 References: <20211125140858.3639139-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 09/10] selftests: net: bridge: add vlan
-	mcast_router tests
+Subject: [Bridge] [PATCH net-next 07/10] selftests: net: bridge: add vlan
+	mcast_querier_interval tests
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,85 +32,71 @@ Cc: ivecera@redhat.com, bridge@lists.linux-foundation.org, Nikolay Aleksandrov <
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Add tests for the new per-port/vlan mcast_router option, verify that
-unknown multicast packets are flooded only to router ports.
+Add tests which change the new per-vlan mcast_querier_interval and
+verify that it is taken into account when an outside querier is present.
 
-TEST: Port vlan 10 option mcast_router default value                [ OK ]
-TEST: Port vlan 10 mcast_router option changed to 2                 [ OK ]
-TEST: Flood unknown vlan multicast packets to router port only      [ OK ]
+TEST: Vlan mcast_querier_interval global option default value       [ OK ]
+TEST: Vlan 10 mcast_querier_interval option changed to 100          [ OK ]
+TEST: Vlan 10 mcast_querier_interval expire after outside query     [ OK ]
 
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- .../net/forwarding/bridge_vlan_mcast.sh       | 54 ++++++++++++++++++-
- 1 file changed, 53 insertions(+), 1 deletion(-)
+ .../net/forwarding/bridge_vlan_mcast.sh       | 40 ++++++++++++++++++-
+ 1 file changed, 39 insertions(+), 1 deletion(-)
 
 diff --git a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-index fbc7f5045b26..898a70f4d226 100755
+index 87dcd49b0a8d..9a68d56fd74c 100755
 --- a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
 +++ b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-@@ -3,7 +3,8 @@
+@@ -2,7 +2,8 @@
+ # SPDX-License-Identifier: GPL-2.0
  
  ALL_TESTS="vlmc_control_test vlmc_querier_test vlmc_igmp_mld_version_test \
- 	   vlmc_last_member_test vlmc_startup_query_test vlmc_membership_test \
--	   vlmc_querier_intvl_test vlmc_query_intvl_test vlmc_query_response_intvl_test"
-+	   vlmc_querier_intvl_test vlmc_query_intvl_test vlmc_query_response_intvl_test \
-+	   vlmc_router_port_test"
+-	   vlmc_last_member_test vlmc_startup_query_test vlmc_membership_test"
++	   vlmc_last_member_test vlmc_startup_query_test vlmc_membership_test \
++	   vlmc_querier_intvl_test"
  NUM_NETIFS=4
  CHECK_TC="yes"
  TEST_GROUP="239.10.10.10"
-@@ -471,6 +472,57 @@ vlmc_query_response_intvl_test()
- 	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 1000
+@@ -384,6 +385,43 @@ vlmc_membership_test()
+ 	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_membership_interval 26000
  }
  
-+vlmc_router_port_test()
++vlmc_querier_intvl_test()
 +{
 +	RET=0
-+	local goutput=`bridge -j -d vlan show`
++	local goutput=`bridge -j vlan global show`
 +	echo -n $goutput |
-+		jq -e ".[] | select(.ifname == \"$swp1\" and \
-+				    .vlans[].vlan == 10)" &>/dev/null
-+	check_err $? "Could not find port vlan 10's options"
++		jq -e ".[].vlans[] | select(.vlan == 10)" &>/dev/null
++	check_err $? "Could not find vlan 10's global options"
 +
 +	echo -n $goutput |
-+		jq -e ".[] | select(.ifname == \"$swp1\" and \
-+				    .vlans[].vlan == 10 and \
-+				    .vlans[].mcast_router == 1)" &>/dev/null
-+	check_err $? "Wrong default port mcast_router option value"
-+	log_test "Port vlan 10 option mcast_router default value"
++		jq -e ".[].vlans[] | select(.vlan == 10 and \
++					    .mcast_querier_interval == 25500) " &>/dev/null
++	check_err $? "Wrong default mcast_querier_interval global vlan option value"
++	log_test "Vlan mcast_querier_interval global option default value"
 +
 +	RET=0
-+	bridge vlan set vid 10 dev $swp1 mcast_router 2
-+	check_err $? "Could not set port vlan 10's mcast_router option"
-+	log_test "Port vlan 10 mcast_router option changed to 2"
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_querier_interval 100
++	check_err $? "Could not set mcast_querier_interval in vlan 10"
++	log_test "Vlan 10 mcast_querier_interval option changed to 100"
 +
 +	RET=0
-+	tc filter add dev $swp1 egress pref 10 prot 802.1Q \
-+		flower vlan_id 10 vlan_ethtype ipv4 dst_ip 239.1.1.1 ip_proto udp action pass
-+	tc filter add dev $swp2 egress pref 10 prot 802.1Q \
-+		flower vlan_id 10 vlan_ethtype ipv4 dst_ip 239.1.1.1 ip_proto udp action pass
-+	bridge vlan set vid 10 dev $swp2 mcast_router 0
-+	# we need to enable querier and disable query response interval to
-+	# make sure packets are flooded only to router ports
-+	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_querier 1 \
-+					      mcast_query_response_interval 0
-+	bridge vlan add vid 10 dev br0 self
-+	sleep 1
-+	mausezahn br0 -Q 10 -c 10 -p 128 -b 01:00:5e:01:01:01 -B 239.1.1.1 \
-+			-t udp "dp=1024" &>/dev/null
-+	local swp1_tcstats=$(tc_rule_stats_get $swp1 10 egress)
-+	if [[ $swp1_tcstats != 10 ]]; then
-+		check_err 1 "Wrong number of vlan 10 multicast packets flooded"
-+	fi
-+	local swp2_tcstats=$(tc_rule_stats_get $swp2 10 egress)
-+	check_err $swp2_tcstats "Vlan 10 multicast packets flooded to non-router port"
-+	log_test "Flood unknown vlan multicast packets to router port only"
++	ip link add dev br1 type bridge mcast_snooping 1 mcast_querier 1 vlan_filtering 1 \
++					mcast_vlan_snooping 1
++	bridge vlan add vid 10 dev br1 self pvid untagged
++	ip link set dev $h1 master br1
++	ip link set dev br1 up
++	bridge vlan add vid 10 dev $h1 master
++	bridge vlan global set vid 10 dev br1 mcast_snooping 1 mcast_querier 1
++	sleep 2
++	ip link del dev br1
++	ip addr replace 2001:db8:1::1/64 dev $h1
++	vlmc_check_query igmp 2 $swp1 1 1
++	check_err $? "Wrong number of IGMPv2 general queries after querier interval"
++	log_test "Vlan 10 mcast_querier_interval expire after outside query"
 +
-+	tc filter del dev $swp2 egress pref 10
-+	tc filter del dev $swp1 egress pref 10
-+	bridge vlan del vid 10 dev br0 self
-+	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 1000
-+	bridge vlan set vid 10 dev $swp2 mcast_router 1
-+	bridge vlan set vid 10 dev $swp1 mcast_router 1
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_querier_interval 25500
 +}
 +
  trap cleanup EXIT
