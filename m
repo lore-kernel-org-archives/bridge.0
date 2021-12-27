@@ -1,18 +1,22 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rHjc+haXJ3N0fI3TA9Jur+pxStmTK8+xRk3JKyYpXu4=;
- b=MZDkm1eIe8dDle4fvPlAWj2UJzGWlMQT466hy45/eqkmBOB7SP0JlkvU4VuhtWO+1YI2kaM4vt8dHQ9vB41coASIti+x62krHNln5a2IcKdXh1EDUB9nqOKh6o6kSfGNmXU2TqcX9QYzOxigd8NLmx8rZv9n5zV+RQDex0FrdZE62rnh2v/ybdttwQWdkM2xe3vJ26Sokm6lW1E+lQPyk7hyqQmWiD88KIPKpeQfKpSQBiCSxnfEZSsI0he6dVBuzzSXFv+K0dXobdaSZT5LhaPg1WLH8gnDgpLMDes3zlQI8szoKmoCuWNpngHg7238KAekrgKKt/FXxITtAXdF1g==
-Message-ID: <ec0cd540-e785-3a3a-311f-10f0d7bc7adc@nvidia.com>
-Date: Mon, 27 Dec 2021 13:55:51 +0200
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1640608809;
+ bh=/NK8+LkGhicZgiX/HgeQA3rLcix8TFZ17hv+wILvgKY=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=qgKLSjNkeM5+8xOVP2S/ZUzAVttCObwil0/5LZziLctPXqN9PLO0V9AG5Xk1aFK6+
+ t/5TqdhGhfUug1/0UG6EopDJzCyx74R53L2+1aInBimtexChVkOogl7IMMWzYY8hCd
+ WcY7RohF0HAVLWMcpynBkr1kiVvEuiubQqG/NmewJjeHZwNUC/jtZ2xvTJEgA+YEER
+ iXDO7dCjJtE/3CABa0m6Tg7n4MU8Nf3ziDofJSm51pQLlqi/vQ6QuugXe0uTHiT/NH
+ CLGWtNF/avPtQT6fs0ns3H7ocy3DwRSnjanXPmLGE4VFFbFi3vNfkrSEl9mPzlLkar
+ R1zuBTTYFiLQA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164060880950.2123.6082560093716021616.git-patchwork-notify@kernel.org>
+Date: Mon, 27 Dec 2021 12:40:09 +0000
 References: <20211224114640.29679-1-repk@triplefau.lt>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
 In-Reply-To: <20211224114640.29679-1-repk@triplefau.lt>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next] net: bridge: Get SIOCGIFBR/SIOCSIFBR
  ioctl working in compat mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -23,10 +27,15 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Remi Pommarel <repk@triplefau.lt>, netdev@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Remi Pommarel <repk@triplefau.lt>
+Cc: arnd@arndb.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On 24/12/2021 13:46, Remi Pommarel wrote:
+Hello:
+
+This patch was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Fri, 24 Dec 2021 12:46:40 +0100 you wrote:
 > In compat mode SIOC{G,S}IFBR ioctls were only supporting
 > BRCTL_GET_VERSION returning an artificially version to spur userland
 > tool to use SIOCDEVPRIVATE instead. But some userland tools ignore that
@@ -36,21 +45,15 @@ On 24/12/2021 13:46, Remi Pommarel wrote:
 > $ brctl show
 > brctl: SIOCGIFBR: Invalid argument
 > 
-> Example of fixed 32-bit brctl with CONFIG_COMPAT=y:
-> $ brctl show
-> bridge name     bridge id               STP enabled     interfaces
-> br0
-> 
-> Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-> Co-developed-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  net/bridge/br_ioctl.c | 75 ++++++++++++++++++++++++++++---------------
->  net/socket.c          | 20 ++----------
->  2 files changed, 52 insertions(+), 43 deletions(-)
-> 
+> [...]
 
-Looks good to me, thanks.
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Here is the summary with links:
+  - [net-next] net: bridge: Get SIOCGIFBR/SIOCSIFBR ioctl working in compat mode
+    https://git.kernel.org/netdev/net-next/c/fd3a45900055
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
