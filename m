@@ -2,17 +2,15 @@ Return-Path: <nikolay@nvidia.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vzJfyIHpqppYIF33yoT+0q0MjMg5VzgsxAgg2Ui5d5I=;
- b=REsc5emyJHyd/up/Ez59NkKnbR1utI6sd2sUD6QDjMeMSmemgsaQXliIf6RbN/ODABCtu0hYbktcUhr72YOKEKI4R4EhlT2cgkc6WsA/w0yXXbQ5xcuUwUvxB+KSSBT8izr2l9+qujWcUS3HiT+NcJzUrnYw7oqqoNafoQBLzavmPtcUT04cVZ6qOHtqXvVZmGxBLD9BRA72OyRHsay1HuQWxV968cUSF7Vd1LtdRrfp1o1Uyi3RTEDsqEFlH44BoNnmqDw+IajiQ2TpliZLzqAbD8qG0V/Yh+fvADqAghE3ridB02/qEsCkDblYUSWI6Uz2BdW9y3qX8/cLqIQZQQ==
+ bh=IA+KRUzxcy7EpPkf0jMHQd8Qab3G3ZvhQyKoo+92EPM=;
+ b=BR073ALw7LAj2b/jHqFDGfoXJHUCm58pOnl2EDLUcHHsOQRUjGmhBActsCrYMCC4w2EySLQ9cLQcb6arLzA+rReVkyws0g0Zsno8CIkHcr0NogHovW02CUxjFZgMMev5sRG8eG3/YVqK4tHmXQydMxuxwjj/P8/9Uc8glOdPKU43Y8KFyfhtiUV0PXYN28IFfgrnzPUYprmhu+nolZxfT6Peaev2zC0as/MWlmTb6Mo+X4ROHLpUwuKlI2Nqpf536sUJrMXYuhFwyOxCo1TR2VCRKtqY8lNWEBvmvAqxxtFUn1sRaSRr9pCfE4DNLyef2pJ0FDHlL2tbYd00M6SVkw==
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Mon, 27 Dec 2021 19:21:15 +0200
-Message-ID: <20211227172116.320768-2-nikolay@nvidia.com>
-In-Reply-To: <20211227172116.320768-1-nikolay@nvidia.com>
-References: <20211227172116.320768-1-nikolay@nvidia.com>
+Date: Mon, 27 Dec 2021 19:21:14 +0200
+Message-ID: <20211227172116.320768-1-nikolay@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net 1/2] net: bridge: mcast: add and enforce query
+Subject: [Bridge] [PATCH net 0/2] net: bridge: mcast: add and enforce query
 	interval minimum
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -25,114 +23,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: herbert@gondor.apana.org.au, eric.dumazet@gmail.com, bridge@lists.linux-foundation.org, stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-As reported[1] if query interval is set too low and we have multiple
-bridges or even a single bridge with multiple querier vlans configured
-we can crash the machine. Add a 1 second minimum which must be enforced
-by overwriting the value if set lower (i.e. without returning an error) to
-avoid breaking user-space. If that happens a log message is emitted to let
-the administrator know that the interval has been set to the minimum.
-The issue has been present since these intervals could be user-controlled.
+Hi,
+This set adds and enforces 1 second minimum value for bridge multicast
+query and startup query intervals in order to avoid rearming the timers
+too often which could lock and crash the host. I doubt anyone is using
+such low values or anything lower than 1 second, so it seems like a good
+minimum. In order to be compatible if the value is lower then it is
+overwritten and a log message is emitted, since we can't return an error
+at this point.
 
-[1] https://lore.kernel.org/netdev/e8b9ce41-57b9-b6e2-a46a-ff9c791cf0ba@gmail.com/
+Eric, I looked for the syzbot reports in its dashboard but couldn't find
+them so I've added you as the reporter. If you point me to the reports
+I can respin to give syzbot the credit.
 
-Fixes: d902eee43f19 ("bridge: Add multicast count/interval sysfs entries")
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
- net/bridge/br_multicast.c    | 16 ++++++++++++++++
- net/bridge/br_netlink.c      |  2 +-
- net/bridge/br_private.h      |  3 +++
- net/bridge/br_sysfs_br.c     |  2 +-
- net/bridge/br_vlan_options.c |  2 +-
- 5 files changed, 22 insertions(+), 3 deletions(-)
+I've prepared a global bridge igmp rate limiting patch but wasn't
+sure if it's ok for -net. It adds a static limit of 32k packets per
+second, I plan to send it for net-next with added drop counters for
+each bridge so it can be easily debugged.
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index f3d751105343..998da4a2d209 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -4522,6 +4522,22 @@ int br_multicast_set_mld_version(struct net_bridge_mcast *brmctx,
- }
- #endif
- 
-+void br_multicast_set_query_intvl(struct net_bridge_mcast *brmctx,
-+				  unsigned long val)
-+{
-+	unsigned long intvl_jiffies = clock_t_to_jiffies(val);
-+
-+	if (intvl_jiffies < BR_MULTICAST_QUERY_INTVL_MIN) {
-+		br_info(brmctx->br,
-+			"trying to set multicast query interval below minimum, setting to %lu (%ums)\n",
-+			jiffies_to_clock_t(BR_MULTICAST_QUERY_INTVL_MIN),
-+			jiffies_to_msecs(BR_MULTICAST_QUERY_INTVL_MIN));
-+		intvl_jiffies = BR_MULTICAST_QUERY_INTVL_MIN;
-+	}
-+
-+	brmctx->multicast_query_interval = intvl_jiffies;
-+}
-+
- /**
-  * br_multicast_list_adjacent - Returns snooped multicast addresses
-  * @dev:	The bridge port adjacent to which to retrieve addresses
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 0c8b5f1a15bc..701dd8b8455e 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1357,7 +1357,7 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 	if (data[IFLA_BR_MCAST_QUERY_INTVL]) {
- 		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERY_INTVL]);
- 
--		br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
-+		br_multicast_set_query_intvl(&br->multicast_ctx, val);
- 	}
- 
- 	if (data[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL]) {
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index c0efd697865a..4ed7f11042e8 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -28,6 +28,7 @@
- #define BR_MAX_PORTS	(1<<BR_PORT_BITS)
- 
- #define BR_MULTICAST_DEFAULT_HASH_MAX 4096
-+#define BR_MULTICAST_QUERY_INTVL_MIN msecs_to_jiffies(1000)
- 
- #define BR_HWDOM_MAX BITS_PER_LONG
- 
-@@ -963,6 +964,8 @@ int br_multicast_dump_querier_state(struct sk_buff *skb,
- 				    int nest_attr);
- size_t br_multicast_querier_state_size(void);
- size_t br_rports_size(const struct net_bridge_mcast *brmctx);
-+void br_multicast_set_query_intvl(struct net_bridge_mcast *brmctx,
-+				  unsigned long val);
- 
- static inline bool br_group_is_l2(const struct br_ip *group)
- {
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index d9a89ddd0331..f5bd1114a434 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -658,7 +658,7 @@ static ssize_t multicast_query_interval_show(struct device *d,
- static int set_query_interval(struct net_bridge *br, unsigned long val,
- 			      struct netlink_ext_ack *extack)
- {
--	br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
-+	br_multicast_set_query_intvl(&br->multicast_ctx, val);
- 	return 0;
- }
- 
-diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
-index 8ffd4ed2563c..bf1ac0874279 100644
---- a/net/bridge/br_vlan_options.c
-+++ b/net/bridge/br_vlan_options.c
-@@ -521,7 +521,7 @@ static int br_vlan_process_global_one_opts(const struct net_bridge *br,
- 		u64 val;
- 
- 		val = nla_get_u64(tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_INTVL]);
--		v->br_mcast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
-+		br_multicast_set_query_intvl(&v->br_mcast_ctx, val);
- 		*changed = true;
- 	}
- 	if (tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_RESPONSE_INTVL]) {
+Original report can be seen at:
+https://lore.kernel.org/netdev/e8b9ce41-57b9-b6e2-a46a-ff9c791cf0ba@gmail.com/
+
+Thanks,
+ Nik
+
+Nikolay Aleksandrov (2):
+  net: bridge: mcast: add and enforce query interval minimum
+  net: bridge: mcast: add and enforce startup query interval minimum
+
+ net/bridge/br_multicast.c    | 32 ++++++++++++++++++++++++++++++++
+ net/bridge/br_netlink.c      |  4 ++--
+ net/bridge/br_private.h      |  6 ++++++
+ net/bridge/br_sysfs_br.c     |  4 ++--
+ net/bridge/br_vlan_options.c |  4 ++--
+ 5 files changed, 44 insertions(+), 6 deletions(-)
+
 -- 
 2.33.1
 
