@@ -2,15 +2,17 @@ Return-Path: <nikolay@nvidia.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NoXpSSQW7IdRbVP+BTC9wyNpcTmNKbZ1lDIYNUz/d4k=;
- b=ImUCMw1MsjXhlNhnWDZB1OVKafV/GbtRf0D/aXIVzMSdnowlozESpAnnxny3w0NNcOnwdXdo+bqXVx09dVjCE7Sjw0BZZTSAD2H2FDLb1cL4pU87wMbvsCGfmbxw7Fu3a4lHIEvAINK/YL0F2Z1w7hTjwuqaJNPYP32B+HNhCeWH+OoKeGvLjhhiJNDZvdeloLSq5TyOCEaj+B+6Wg/u60cwyGDWWVt+eefyQ3vzcYcxVRutQMC9JUFAAmfaJAkuekCRyN+2o0xBV1EqMPOinLSrXg2NUI2xH5ksPEILeYPPkClYryE9S0rNEGaJ0Pb4Kk0lwcp22DQa4nT3OFMVfQ==
+ bh=p6ZRcqzDnwrqWxQW1yfr4I3M5EOGrCjW647q0rmwcMY=;
+ b=svtwmBhMSgnfxNYsIerfcIdJCXNmAPSiF1VYQ5Ob8o9Wivrp6hiX2swL5eY2RyIC9cg96O8uPGTmSkb5PnCdCg/Pbhy0O/pXvLdsqNy/3utqtqpJtTzx6hM5U5HjxmgLO9/p2X5tYLizfXhRcd0E0UtAy4MRHbC0QHQUkNLhGiQBjIg0qw+AkAcPbwu6znSXXZqB78YDqNSDzgGnioMyH8q6x20qUmhfh9E/Vn2uzBsrseI8Izf/LjLwJgQWCUq3bk5vfTXSqJC81l9Xj/93W3ZDuQLOmuYHOPmuwb6l2qrBXnqk3PadOZGEQeODaqHkuOw7PAFLtxhKqa1cU+uduQ==
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
-Date: Tue, 28 Dec 2021 17:28:11 +0200
-Message-ID: <20211228152811.534521-1-nikolay@nvidia.com>
+Date: Tue, 28 Dec 2021 17:31:42 +0200
+Message-ID: <20211228153142.536969-1-nikolay@nvidia.com>
+In-Reply-To: <20211228152811.534521-1-nikolay@nvidia.com>
+References: <20211228152811.534521-1-nikolay@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net] net: bridge: mcast: fix
+Subject: [Bridge] [PATCH net v2] net: bridge: mcast: fix
 	br_multicast_ctx_vlan_global_disabled helper
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -31,11 +33,13 @@ processing (e.g. querier timers).
 Fixes: 7b54aaaf53cb ("net: bridge: multicast: add vlan state initialization and control")
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
+v2: fix indentation warning by checkpatch
+
  net/bridge/br_private.h | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 2187a0c3fd22..4c7e67d7a5b8 100644
+index 2187a0c3fd22..e8c6ee322c71 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
 @@ -1153,9 +1153,9 @@ br_multicast_port_ctx_get_global(const struct net_bridge_mcast_port *pmctx)
@@ -47,7 +51,7 @@ index 2187a0c3fd22..4c7e67d7a5b8 100644
 -	       !(brmctx->vlan->priv_flags & BR_VLFLAG_GLOBAL_MCAST_ENABLED);
 +	return br_multicast_ctx_is_vlan(brmctx) &&
 +	       (!br_opt_get(brmctx->br, BROPT_MCAST_VLAN_SNOOPING_ENABLED) ||
-+	        !(brmctx->vlan->priv_flags & BR_VLFLAG_GLOBAL_MCAST_ENABLED));
++		!(brmctx->vlan->priv_flags & BR_VLFLAG_GLOBAL_MCAST_ENABLED));
  }
  
  static inline bool
