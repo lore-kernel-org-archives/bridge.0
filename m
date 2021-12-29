@@ -1,25 +1,24 @@
-Return-Path: <kuba@kernel.org>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1640798414;
- bh=mD55XiGnaxJafKvRs4q7sk9He7DhV4oGwfUm+8MHPSs=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=c871heSWCTctS4GfXo9h3MeEdIN3+xN1XMTHmku30iWA8RKuAHoL9vEPa3clSxk3I
- lYqgCYWrSaJvGEZkpKVFAlQ4aUWz0M2PkvdzVNqxJaC37+/H1MBCvkHWOKkmk8kwm1
- sM3b5PIfgSqaCVOjfeV9864HlRBayb4Fua7XLpkebqflAstoOxvBMvEvKw31u31AL2
- iTr8zj8c7GeUnyCv0B2NghKXe3exAf+GB/HqdoF3SN797ly5jlaudliZlisbwPBJMn
- kAX6iM2/LNnkDDiHXND27O7a4DttQZLqab3RVRCQmetqRSTEGQP4cWlwwRwo5w887t
- ZwiJE97ykLWog==
-Date: Wed, 29 Dec 2021 09:20:12 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20211229092012.635e9f2b@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-In-Reply-To: <5a82690c-7dc0-81de-4dd6-06e26e4b9b92@gmail.com>
-References: <20211229004913.513372-1-kuba@kernel.org>
- <5a82690c-7dc0-81de-4dd6-06e26e4b9b92@gmail.com>
+ s=k20201202; t=1640816410;
+ bh=hjQAZLb14OJobDPleSQaofwFXchb/C4eBEa+U9p+ttc=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=Oik0sPGUriGqzI8p2ImomrRWct0hF9V/m4lZO7KxzZ8xNX2kRj59hoPVoOhQE+lZH
+ O6EEJwO2vCBOtk4wd4gVN7XgrHx3vevoIhV9jVkWMsnPLUSl2wTDFi/z+CKV1X+qbY
+ H27Gv8nY2kHXvzqK1ikzUSGeRtIxLg152g1Bbwvt0LU3242MLOherO96NefOwzBCDO
+ miuUQz3ODjkAT2wTX86GGL/d6Uz+D6IyZj0psqcwlw/2rI5M7LES4Pi9IUN90nKqZc
+ ZJ5IKxBvta9Gg+JwVD/dfllsT6eR9xdCd8IWDvA/d8L6vHrLMCBx1dLkkjC0Dft1kN
+ +axquupsYItnQ==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH bpf-next v2] net: don't include filter.h from
-	net/sock.h
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164081641003.5072.12853974016606114194.git-patchwork-notify@kernel.org>
+Date: Wed, 29 Dec 2021 22:20:10 +0000
+References: <20211227172116.320768-1-nikolay@nvidia.com>
+In-Reply-To: <20211227172116.320768-1-nikolay@nvidia.com>
+Subject: Re: [Bridge] [PATCH net 0/2] net: bridge: mcast: add and enforce
+ query interval minimum
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,21 +27,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: linux-s390@vger.kernel.org, linux-nfs@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, netfilter-devel@vger.kernel.org, daniel@iogearbox.net, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, ast@kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-can@vger.kernel.org, linux-bluetooth@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org, bpf@vger.kernel.org, virtualization@lists.linux-foundation.org, ath11k@lists.infradead.org
+To: Nikolay Aleksandrov <nikolay@nvidia.com>
+Cc: herbert@gondor.apana.org.au, eric.dumazet@gmail.com, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, stable@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Tue, 28 Dec 2021 17:33:39 -0800 Florian Fainelli wrote:
-> It would be nice if we used the number of files rebuilt because of a 
-> header file change as another metric that the kernel is evaluated with 
-> from release to release (or even on a commit by commit basis). Food for 
-> thought.
+Hello:
 
-Maybe Andy has some thoughts, he has been working on dropping
-unnecessary includes of kernel.h, it seems.
+This series was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-It'd be cool to plug something that'd warn us about significant
-increases in dependencies into the patchwork build bot.
+On Mon, 27 Dec 2021 19:21:14 +0200 you wrote:
+> Hi,
+> This set adds and enforces 1 second minimum value for bridge multicast
+> query and startup query intervals in order to avoid rearming the timers
+> too often which could lock and crash the host. I doubt anyone is using
+> such low values or anything lower than 1 second, so it seems like a good
+> minimum. In order to be compatible if the value is lower then it is
+> overwritten and a log message is emitted, since we can't return an error
+> at this point.
+> 
+> [...]
 
-I have one more small series which un-includes uapi/bpf.h from
-netdevice.h at which point I hope we'll be largely in the clear 
-from build bot performance perspective.
+Here is the summary with links:
+  - [net,1/2] net: bridge: mcast: add and enforce query interval minimum
+    https://git.kernel.org/netdev/net/c/99b40610956a
+  - [net,2/2] net: bridge: mcast: add and enforce startup query interval minimum
+    https://git.kernel.org/netdev/net/c/f83a112bd91a
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
