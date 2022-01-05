@@ -1,28 +1,26 @@
-Return-Path: <andriy.shevchenko@linux.intel.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1641311039; x=1672847039;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=22y9EjrBRaMVy/mz9REdCI0A1LxLuq5BPOq8HpG1+gg=;
- b=Lwt1OJwTVHlWoTIDAsW9l7wZH57tSzFsO9SRi2qidRjoB0t0bahmNRa2
- srCzWBSKVJ69dcWGOgkrjNE7e3wSStn9tdrrhKz0dWi8ZGJ/qx1Iq0RLY
- 2i8XkAxEN+FXSQTnrYHcRSeG9wt41f6nHVXcYb9HMgYLvfXsjkr1fkvIz
- JtUtPefxH28iKq+iFg0NfI0mOG+6k4zYEGfFY3sto2EZVBUL5F4wiJA79
- ZUk96ff1uy6+hJLeA61TdpRZebavZEYBJaKTJEbqY4p2IzJ3luOAGf6Uc
- TMOxyPqBGBE0uTsofhAxTtzW3876f2I5tPX8l4Nk+SxiOdQ+bBSotootu g==;
-Date: Tue, 4 Jan 2022 17:42:34 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Message-ID: <YdRq6vKceOqscaKK@smile.fi.intel.com>
-References: <20211229004913.513372-1-kuba@kernel.org>
- <5a82690c-7dc0-81de-4dd6-06e26e4b9b92@gmail.com>
- <20211229092012.635e9f2b@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+Return-Path: <eric.dumazet@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=8IjMW6kyewB7HLmt/uQqvKqK5mbucpa6D6MSyk1fHdQ=;
+ b=gKE4UomKBFwRpUshG0snXgWNC/rxvjVyQ8jVCfO9j82EJZwmb/UcMTRrrQbgXq0hrF
+ rTfFlCyhgANb2v7sdxl4Jin7ut5WN1WO44htt/gQJIupRLBZO+PTL6+bHiVoMePRGHBR
+ EX228Bum6EoQAPa+1wnEjBJou/GyrQ5EDD/eROUQYiw/DryE685vocVXA3xysDiXy5kT
+ fZrXKsqOc+QtW22/Ua86OONpG/tzAIjreZFDL2At7gvmadwou/RD1D1P8eexwGOOW3De
+ cktCBuVV8ceC2SnmqXZFU8xKAnIq2ojSpgN2/qoRaBa0pIaf+f9d5x9eEUk9BTmrOqBy
+ wVcg==
+Message-ID: <425e92d0-4321-8f9d-fc75-bba29f172550@gmail.com>
+Date: Wed, 5 Jan 2022 10:14:37 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211229092012.635e9f2b@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
-Subject: Re: [Bridge] [PATCH bpf-next v2] net: don't include filter.h from
-	net/sock.h
+Content-Language: en-US
+References: <20211227172116.320768-1-nikolay@nvidia.com>
+ <20211227172116.320768-2-nikolay@nvidia.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+In-Reply-To: <20211227172116.320768-2-nikolay@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net 1/2] net: bridge: mcast: add and enforce
+ query interval minimum
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,33 +29,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jakub Kicinski <kuba@kernel.org>, mingo@kernel.org
-Cc: linux-s390@vger.kernel.org, linux-nfs@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, netfilter-devel@vger.kernel.org, daniel@iogearbox.net, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-wireless@vger.kernel.org, ast@kernel.org, linux-can@vger.kernel.org, linux-bluetooth@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org, bpf@vger.kernel.org, virtualization@lists.linux-foundation.org, ath11k@lists.infradead.org, linux-decnet-user@lists.sourceforge.net
+To: Nikolay Aleksandrov <nikolay@nvidia.com>, netdev@vger.kernel.org
+Cc: herbert@gondor.apana.org.au, eric.dumazet@gmail.com, bridge@lists.linux-foundation.org, stable@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Wed, Dec 29, 2021 at 09:20:12AM -0800, Jakub Kicinski wrote:
-> On Tue, 28 Dec 2021 17:33:39 -0800 Florian Fainelli wrote:
-> > It would be nice if we used the number of files rebuilt because of a 
-> > header file change as another metric that the kernel is evaluated with 
-> > from release to release (or even on a commit by commit basis). Food for 
-> > thought.
-> 
-> Maybe Andy has some thoughts, he has been working on dropping
-> unnecessary includes of kernel.h, it seems.
 
-With this [1] announcement I believe Ingo is the best to tell you if this is a
-right direction.
+On 12/27/21 09:21, Nikolay Aleksandrov wrote:
+> As reported[1] if query interval is set too low and we have multiple
+> bridges or even a single bridge with multiple querier vlans configured
+> we can crash the machine. Add a 1 second minimum which must be enforced
+> by overwriting the value if set lower (i.e. without returning an error) to
+> avoid breaking user-space. If that happens a log message is emitted to let
+> the administrator know that the interval has been set to the minimum.
+> The issue has been present since these intervals could be user-controlled.
+>
+> [1] https://lore.kernel.org/netdev/e8b9ce41-57b9-b6e2-a46a-ff9c791cf0ba@gmail.com/
+>
+> Fixes: d902eee43f19 ("bridge: Add multicast count/interval sysfs entries")
+> Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+> Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+> ---
 
-> It'd be cool to plug something that'd warn us about significant
-> increases in dependencies into the patchwork build bot.
-> 
-> I have one more small series which un-includes uapi/bpf.h from
-> netdevice.h at which point I hope we'll be largely in the clear 
-> from build bot performance perspective.
 
-[1]: https://lore.kernel.org/lkml/YdIfz+LMewetSaEB@gmail.com/T/#u
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 
--- 
-With Best Regards,
-Andy Shevchenko
+Thanks !
 
 
