@@ -1,16 +1,26 @@
-Return-Path: <oleksandr.mazur@plvision.eu>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plvision.eu;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oilwTxtWG9ioJagG2A1UEQStcPOJxwa1T/rekfuWgyo=;
- b=U4dzlQVJaPv3sGXyzz3Z5x+0vk8BjaBq9E9J7mREyo6pKluj3QghT2StNWE/k4I4RGcv+3JvACebSJSjnVCMN1p/C3++cX/LJdJ3YH5eBvikJvn6ZWeqFIwLq+Z/DFnLL7Gctm5uNectVrCqpbIk3ZvkyLsTivwXolgyK1wJq94=
-From: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
-Date: Thu,  3 Feb 2022 19:06:54 +0200
-Message-Id: <20220203170654.29784-1-oleksandr.mazur@plvision.eu>
-Content-Type: text/plain
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:cc:content-type:date:date:from:from
+ :in-reply-to:in-reply-to:message-id:mime-version:references
+ :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+ :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TLHvkqnvKu+Cu1jgu
+ lQq7VpWe7mcePPJ4UZ8y6nbUXU=; b=YaT8XGxe2r7OcLMTmBgGzNtKo8z5JtMK2
+ 20qSf7vcA449F+polHmIDX8Ut43AM7jg5/jShw5neeWKotINsrOmr7wu+vle5jKx
+ D1MuSttwfPfCCiXPRDTyCAwzhbGHQC0AbKEB8WuZ9EIyL8HZGGjnPSDZU5S10SFO
+ wzW9qzOopd3KB3uacTChG7J/GIQGYGsUyHcaESTvUqHLKlxxfYkYZ3gIIIfdnQ+y
+ mrNuSz+3GQFz4cDNBcwRT9X8SRZYplZ72WhZbJb9KqAgJuhjy8DTPPR6IM3um7EL
+ GbdG6dYErX6fKUSefgE2XYLLY2DNRYBp1BfqGIxEBgJtfMkVXZZ/g==
+Date: Mon, 7 Feb 2022 12:49:22 +0200
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <YgD5MglBy/UbN0uX@shredder>
+References: <20220207100742.15087-1-schultz.hans+netdev@gmail.com>
+ <20220207100742.15087-2-schultz.hans+netdev@gmail.com>
 MIME-Version: 1.0
-Subject: [Bridge] [RFC net-next] net: bridge: multicast: notify switchdev
-	driver whenever MC processing gets disabled
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220207100742.15087-2-schultz.hans+netdev@gmail.com>
+Subject: Re: [Bridge] [PATCH net-next 1/4] net: bridge: Add support for
+ bridge port in locked mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,48 +29,138 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Oleksandr Mazur <oleksandr.mazur@plvision.eu>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Hans Schultz <schultz.hans@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Hans Schultz <schultz.hans+netdev@gmail.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, davem@davemloft.net
 
-Whenever bridge driver hits the max capacity of MDBs, it disables
-the MC processing (by setting corresponding bridge option), but never
-notifies switchdev about such change (the notifiers are called only upon
-explicit setting of this option, through the registered netlink interface).
+On Mon, Feb 07, 2022 at 11:07:39AM +0100, Hans Schultz wrote:
+> In a 802.1X scenario, clients connected to a bridge port shall not
+> be allowed to have traffic forwarded until fully authenticated.
+> A static fdb entry of the clients MAC address for the bridge port
+> unlocks the client and allows bidirectional communication.
+> 
+> This scenario is facilitated with setting the bridge port in locked
+> mode, which is also supported by various switchcore chipsets.
+> 
+> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
+> ---
+>  include/linux/if_bridge.h    |  1 +
+>  include/uapi/linux/if_link.h |  1 +
+>  net/bridge/br_input.c        | 10 +++++++++-
+>  net/bridge/br_netlink.c      |  6 +++++-
+>  4 files changed, 16 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+> index 509e18c7e740..3aae023a9353 100644
+> --- a/include/linux/if_bridge.h
+> +++ b/include/linux/if_bridge.h
+> @@ -58,6 +58,7 @@ struct br_ip_list {
+>  #define BR_MRP_LOST_CONT	BIT(18)
+>  #define BR_MRP_LOST_IN_CONT	BIT(19)
+>  #define BR_TX_FWD_OFFLOAD	BIT(20)
+> +#define BR_PORT_LOCKED		BIT(21)
+>  
+>  #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+>  
+> diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+> index 6218f93f5c1a..8fa2648fbc83 100644
+> --- a/include/uapi/linux/if_link.h
+> +++ b/include/uapi/linux/if_link.h
+> @@ -532,6 +532,7 @@ enum {
+>  	IFLA_BRPORT_GROUP_FWD_MASK,
+>  	IFLA_BRPORT_NEIGH_SUPPRESS,
+>  	IFLA_BRPORT_ISOLATED,
+> +	IFLA_BRPORT_LOCKED,
 
-This could lead to situation when Software MDB processing gets disabled,
-but this event never gets offloaded to the underlying Hardware.
+Please add it at the end to avoid breaking uAPI
 
-I would like to propose to simply add a notify message in such case,
-as in other places where this option gets altered.
+>  	IFLA_BRPORT_BACKUP_PORT,
+>  	IFLA_BRPORT_MRP_RING_OPEN,
+>  	IFLA_BRPORT_MRP_IN_OPEN,
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index b50382f957c1..469e3adbce07 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -69,6 +69,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
+>  	enum br_pkt_type pkt_type = BR_PKT_UNICAST;
+>  	struct net_bridge_fdb_entry *dst = NULL;
+> +	struct net_bridge_fdb_entry *fdb_entry;
+>  	struct net_bridge_mcast_port *pmctx;
+>  	struct net_bridge_mdb_entry *mdst;
+>  	bool local_rcv, mcast_hit = false;
+> @@ -81,6 +82,8 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  	if (!p || p->state == BR_STATE_DISABLED)
+>  		goto drop;
+>  
+> +	br = p->br;
+> +
+>  	brmctx = &p->br->multicast_ctx;
+>  	pmctx = &p->multicast_ctx;
+>  	state = p->state;
+> @@ -88,10 +91,15 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  				&state, &vlan))
+>  		goto out;
+>  
+> +	if (p->flags & BR_PORT_LOCKED) {
+> +		fdb_entry = br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
+> +		if (!(fdb_entry && fdb_entry->dst == p))
+> +			goto drop;
 
-Signed-off-by: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
----
- net/bridge/br_multicast.c | 5 +++++
- 1 file changed, 5 insertions(+)
+I'm not familiar with 802.1X so I have some questions:
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index de2409889489..d53c08906bc8 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -82,6 +82,9 @@ static void br_multicast_find_del_pg(struct net_bridge *br,
- 				     struct net_bridge_port_group *pg);
- static void __br_multicast_stop(struct net_bridge_mcast *brmctx);
- 
-+static int br_mc_disabled_update(struct net_device *dev, bool value,
-+				 struct netlink_ext_ack *extack);
-+
- static struct net_bridge_port_group *
- br_sg_port_find(struct net_bridge *br,
- 		struct net_bridge_port_group_sg_key *sg_p)
-@@ -1156,6 +1159,8 @@ struct net_bridge_mdb_entry *br_multicast_new_group(struct net_bridge *br,
- 		return mp;
- 
- 	if (atomic_read(&br->mdb_hash_tbl.nelems) >= br->hash_max) {
-+		err = br_mc_disabled_update(br->dev, false, NULL);
-+		WARN_ON(err && err != -EOPNOTSUPP);
- 		br_opt_toggle(br, BROPT_MULTICAST_ENABLED, false);
- 		return ERR_PTR(-E2BIG);
- 	}
--- 
-2.17.1
+1. Do we need to differentiate between no FDB entry and an FDB entry
+pointing to a different port than we expect?
 
+2. Does user space care about SAs that did not pass the check? That is,
+does it need to see notifications? Counters?
+
+> +	}
+> +
+>  	nbp_switchdev_frame_mark(p, skb);
+>  
+>  	/* insert into forwarding database after filtering to avoid spoofing */
+> -	br = p->br;
+>  	if (p->flags & BR_LEARNING)
+>  		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, 0);
+>  
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 2ff83d84230d..7d4432ca9a20 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -184,6 +184,7 @@ static inline size_t br_port_info_size(void)
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_VLAN_TUNNEL */
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_NEIGH_SUPPRESS */
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_ISOLATED */
+> +		+ nla_total_size(1)	/* IFLA_BRPORT_LOCKED */
+>  		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_ROOT_ID */
+>  		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_BRIDGE_ID */
+>  		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_DESIGNATED_PORT */
+> @@ -269,7 +270,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+>  							  BR_MRP_LOST_CONT)) ||
+>  	    nla_put_u8(skb, IFLA_BRPORT_MRP_IN_OPEN,
+>  		       !!(p->flags & BR_MRP_LOST_IN_CONT)) ||
+> -	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)))
+> +	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)) ||
+> +	    nla_put_u8(skb, IFLA_BRPORT_LOCKED, !!(p->flags & BR_PORT_LOCKED)))
+>  		return -EMSGSIZE;
+>  
+>  	timerval = br_timer_value(&p->message_age_timer);
+> @@ -827,6 +829,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
+>  	[IFLA_BRPORT_GROUP_FWD_MASK] = { .type = NLA_U16 },
+>  	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
+>  	[IFLA_BRPORT_ISOLATED]	= { .type = NLA_U8 },
+> +	[IFLA_BRPORT_LOCKED] = { .type = NLA_U8 },
+>  	[IFLA_BRPORT_BACKUP_PORT] = { .type = NLA_U32 },
+>  	[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT] = { .type = NLA_U32 },
+>  };
+> @@ -893,6 +896,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
+>  	br_set_port_flag(p, tb, IFLA_BRPORT_VLAN_TUNNEL, BR_VLAN_TUNNEL);
+>  	br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS, BR_NEIGH_SUPPRESS);
+>  	br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
+> +	br_set_port_flag(p, tb, IFLA_BRPORT_LOCKED, BR_PORT_LOCKED);
+>  
+>  	changed_mask = old_flags ^ p->flags;
+>  
+> -- 
+> 2.30.2
+> 
