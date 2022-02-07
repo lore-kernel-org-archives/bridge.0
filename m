@@ -1,20 +1,23 @@
-Return-Path: <nikolay@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QDsgPaGQAZTLjsQ3v5s2KKvlDQ1c0mF7+Owo6M92m4E=;
- b=SOlhjmbKRfs1zTc19LqSeOomHOg4KrbuNt/Do6kDXTFyquCZkhB+hzCcGThz4S5NvdCDdMouA2Q+l7rmuf7Agj9rJGyaau3q1ZYsXyXaEup2rRbxm8nrChjXnttucn6lbMM8gDVgBz8XGcDJlW6w2OYw96tEYdFCRc9ONOIscB3nGi/BQgQRMbe5oSzL5uPd0pX8PAF27acQ/vFl2fC57zGxR+kDJx5JkR/HrGPrzUqSOMZoVP3NdPy30OK7VgQUjAvn74NtyfaxKrG7vpP0llfxgCZsiIUVbJvnsB+CYVoN3S6EM/Jq4KOwI6nyWwq2dFR4U3R9KxAcEys4hAVobA==
-Message-ID: <52b71034-d35a-75cd-cb7b-e7a1d355b361@nvidia.com>
-Date: Sun, 13 Feb 2022 12:13:21 +0200
+Return-Path: <schultz.hans@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:organization:content-transfer-encoding;
+ bh=s++xxEelxsZ96vWiXAkrcjA/Kre1u9zvFXmIkOf3sGQ=;
+ b=bvitSBRqSqrBVCm+TVFEghF7x4ikexf4Ns5xU9Gbh0VQG50YQKQOg48QXV7qkETVkT
+ QaHK2foMEINydByK092MWAMBhApnT7CMu0uqqYt+OzS0rIWt4RgQaf1V6oc9M+9QJ2g3
+ S7J04milc5GDbjJ6BLvctmUxlZeHYRliTcTw6Iy8gNej9LDf6BFWsf+JfXouW16faWxV
+ q8n2ZTqaBJp79Y3U9URNOG/IEMtgQ5B4umxOxph2Q+9y+H5bnhKzI7DOB7RmqbMMVv6e
+ wbCZnGvOGFrzRqwqe/x2Xjrpyz3VtW8bPRoL2QVKWqbXOMWz+nczDKAI3VkPNkK/ZLBL
+ XT1A==
+From: Hans Schultz <schultz.hans@gmail.com>
+Date: Mon,  7 Feb 2022 11:07:39 +0100
+Message-Id: <20220207100742.15087-2-schultz.hans+netdev@gmail.com>
+In-Reply-To: <20220207100742.15087-1-schultz.hans+netdev@gmail.com>
+References: <20220207100742.15087-1-schultz.hans+netdev@gmail.com>
 MIME-Version: 1.0
-Content-Language: en-US
-References: <73f674075ae5279e3d2fa07d61a0a75bc50790f3.1644659879.git.christophe.jaillet@wanadoo.fr>
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
-In-Reply-To: <73f674075ae5279e3d2fa07d61a0a75bc50790f3.1644659879.git.christophe.jaillet@wanadoo.fr>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] net: bridge: Slightly optimize
-	br_stp_change_bridge_id()
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 1/4] net: bridge: Add support for bridge
+	port in locked mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,91 +26,125 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: davem@davemloft.net, kuba@kernel.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Hans Schultz <schultz.hans+netdev@gmail.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>
 
-On 12/02/2022 11:58, Christophe JAILLET wrote:
-> ether_addr_equal_64bits() can easy be used in place of ether_addr_equal()
-> here.
-> Padding in the 'net_bridge_port' structure is already there because it is a
-> huge structure and the required fields are not at the end.
-> 'oldaddr' is local to the function. So add the required padding
-> explicitly and simplify its definition.
-> 
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> ---
-> This patch is more a POC for me.
-> 
-> I'm unsure that using ether_addr_equal_64bits() is really useful. The
-> speedup should be mostly un-noticeable.
-> 
-> To make sure that we have the required padding, we either need to waste
-> some space or rely on the fact that the address is embedded in a large
-> enough structure. (which is the case here)
-> 
-> So, it looks fragile to me and not future-proof.
-> 
-> Feed-back highly appreciated to see if such patches are welcome and if I
-> should spend some time on it.
-> ---
+In a 802.1X scenario, clients connected to a bridge port shall not
+be allowed to have traffic forwarded until fully authenticated.
+A static fdb entry of the clients MAC address for the bridge port
+unlocks the client and allows bidirectional communication.
 
-This is slow path, more so as you've noted above the change is fragile and someone
-can easily miss it, I appreciate the comments but for this case I'd prefer to
-leave the code as-is to keep it obviously correct and avoid future problems.
+This scenario is facilitated with setting the bridge port in locked
+mode, which is also supported by various switchcore chipsets.
 
-Thanks,
- Nik
+Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
+---
+ include/linux/if_bridge.h    |  1 +
+ include/uapi/linux/if_link.h |  1 +
+ net/bridge/br_input.c        | 10 +++++++++-
+ net/bridge/br_netlink.c      |  6 +++++-
+ 4 files changed, 16 insertions(+), 2 deletions(-)
 
->  net/bridge/br_private.h |  5 +++++
->  net/bridge/br_stp_if.c  | 12 +++++++-----
->  2 files changed, 12 insertions(+), 5 deletions(-)
-> 
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 2661dda1a92b..2f78090574c9 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -363,6 +363,11 @@ struct net_bridge_port {
->  	unsigned char			config_pending;
->  	port_id				port_id;
->  	port_id				designated_port;
-> +	/*
-> +	 * designated_root and designated_bridge must NOT be at the end of the
-> +	 * structure because ether_addr_equal_64bits() requires 2 bytes of
-> +	 * padding.
-> +	 */
->  	bridge_id			designated_root;
->  	bridge_id			designated_bridge;
->  	u32				path_cost;
-> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-> index 75204d36d7f9..1bf0aaf29e5e 100644
-> --- a/net/bridge/br_stp_if.c
-> +++ b/net/bridge/br_stp_if.c
-> @@ -221,9 +221,11 @@ int br_stp_set_enabled(struct net_bridge *br, unsigned long val,
->  /* called under bridge lock */
->  void br_stp_change_bridge_id(struct net_bridge *br, const unsigned char *addr)
->  {
-> -	/* should be aligned on 2 bytes for ether_addr_equal() */
-> -	unsigned short oldaddr_aligned[ETH_ALEN >> 1];
-> -	unsigned char *oldaddr = (unsigned char *)oldaddr_aligned;
-> +	/*
-> +	 * should be aligned on 2 bytes and have 2 bytes of padding for
-> +	 * ether_addr_equal_64bits()
-> +	 */
-> +	unsigned char oldaddr[ETH_ALEN + 2] __aligned(2);
->  	struct net_bridge_port *p;
->  	int wasroot;
->  
-> @@ -236,10 +238,10 @@ void br_stp_change_bridge_id(struct net_bridge *br, const unsigned char *addr)
->  	eth_hw_addr_set(br->dev, addr);
->  
->  	list_for_each_entry(p, &br->port_list, list) {
-> -		if (ether_addr_equal(p->designated_bridge.addr, oldaddr))
-> +		if (ether_addr_equal_64bits(p->designated_bridge.addr, oldaddr))
->  			memcpy(p->designated_bridge.addr, addr, ETH_ALEN);
->  
-> -		if (ether_addr_equal(p->designated_root.addr, oldaddr))
-> +		if (ether_addr_equal_64bits(p->designated_root.addr, oldaddr))
->  			memcpy(p->designated_root.addr, addr, ETH_ALEN);
->  	}
->  
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index 509e18c7e740..3aae023a9353 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -58,6 +58,7 @@ struct br_ip_list {
+ #define BR_MRP_LOST_CONT	BIT(18)
+ #define BR_MRP_LOST_IN_CONT	BIT(19)
+ #define BR_TX_FWD_OFFLOAD	BIT(20)
++#define BR_PORT_LOCKED		BIT(21)
+ 
+ #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+ 
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index 6218f93f5c1a..8fa2648fbc83 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -532,6 +532,7 @@ enum {
+ 	IFLA_BRPORT_GROUP_FWD_MASK,
+ 	IFLA_BRPORT_NEIGH_SUPPRESS,
+ 	IFLA_BRPORT_ISOLATED,
++	IFLA_BRPORT_LOCKED,
+ 	IFLA_BRPORT_BACKUP_PORT,
+ 	IFLA_BRPORT_MRP_RING_OPEN,
+ 	IFLA_BRPORT_MRP_IN_OPEN,
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index b50382f957c1..469e3adbce07 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -69,6 +69,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
+ 	enum br_pkt_type pkt_type = BR_PKT_UNICAST;
+ 	struct net_bridge_fdb_entry *dst = NULL;
++	struct net_bridge_fdb_entry *fdb_entry;
+ 	struct net_bridge_mcast_port *pmctx;
+ 	struct net_bridge_mdb_entry *mdst;
+ 	bool local_rcv, mcast_hit = false;
+@@ -81,6 +82,8 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 	if (!p || p->state == BR_STATE_DISABLED)
+ 		goto drop;
+ 
++	br = p->br;
++
+ 	brmctx = &p->br->multicast_ctx;
+ 	pmctx = &p->multicast_ctx;
+ 	state = p->state;
+@@ -88,10 +91,15 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 				&state, &vlan))
+ 		goto out;
+ 
++	if (p->flags & BR_PORT_LOCKED) {
++		fdb_entry = br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
++		if (!(fdb_entry && fdb_entry->dst == p))
++			goto drop;
++	}
++
+ 	nbp_switchdev_frame_mark(p, skb);
+ 
+ 	/* insert into forwarding database after filtering to avoid spoofing */
+-	br = p->br;
+ 	if (p->flags & BR_LEARNING)
+ 		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, 0);
+ 
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 2ff83d84230d..7d4432ca9a20 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -184,6 +184,7 @@ static inline size_t br_port_info_size(void)
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_VLAN_TUNNEL */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_NEIGH_SUPPRESS */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_ISOLATED */
++		+ nla_total_size(1)	/* IFLA_BRPORT_LOCKED */
+ 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_ROOT_ID */
+ 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_BRIDGE_ID */
+ 		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_DESIGNATED_PORT */
+@@ -269,7 +270,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+ 							  BR_MRP_LOST_CONT)) ||
+ 	    nla_put_u8(skb, IFLA_BRPORT_MRP_IN_OPEN,
+ 		       !!(p->flags & BR_MRP_LOST_IN_CONT)) ||
+-	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)))
++	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)) ||
++	    nla_put_u8(skb, IFLA_BRPORT_LOCKED, !!(p->flags & BR_PORT_LOCKED)))
+ 		return -EMSGSIZE;
+ 
+ 	timerval = br_timer_value(&p->message_age_timer);
+@@ -827,6 +829,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
+ 	[IFLA_BRPORT_GROUP_FWD_MASK] = { .type = NLA_U16 },
+ 	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_ISOLATED]	= { .type = NLA_U8 },
++	[IFLA_BRPORT_LOCKED] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_BACKUP_PORT] = { .type = NLA_U32 },
+ 	[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT] = { .type = NLA_U32 },
+ };
+@@ -893,6 +896,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_VLAN_TUNNEL, BR_VLAN_TUNNEL);
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS, BR_NEIGH_SUPPRESS);
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
++	br_set_port_flag(p, tb, IFLA_BRPORT_LOCKED, BR_PORT_LOCKED);
+ 
+ 	changed_mask = old_flags ^ p->flags;
+ 
+-- 
+2.30.2
 
