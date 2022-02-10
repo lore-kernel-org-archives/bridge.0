@@ -3,25 +3,25 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=message-id:date:mime-version:user-agent:subject:content-language:to
  :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=4BAbC2SrKWiikj9sQCe8GZxvTJd08+U2hgXBpuolPto=;
- b=s8pXpBQeUNug2WzF/0ZLJCiDOoSVGmUqybFpEraPZF/lCgswGicM3tDaouz3TeHrOF
- fBsGbAotjowRZ30ET4SpUOXQgWE9T28ljK8qGn0WnjalcAZoppJweaNPqvC6QXowV8oP
- fdGNJk7/6sv/lUAIGXi/0+qClfMjGhbglUkLcjUljRKSIXvi/os3LiG3/CqUOfEWnp2k
- a34gA/sTvHlyxXDs+nNZXdc+mLT8E/kNVL+VXr4qgu9PzX4CJHxJdZIU69fC+VILbQw4
- rnYIgYPV+7eYuHVFwlTVVsalqXogXw30U7cEAi2EOqTVgP4MnQDfyUQv3eklF8LBtG8l
- G0FA==
-Message-ID: <c9374232-00a3-d046-87f6-29f471b50f5c@blackwall.org>
-Date: Thu, 10 Feb 2022 10:30:30 +0200
+ bh=5HYctMBlbUcF9ELod876PiSjtl+wZnwlHpBP7i180qk=;
+ b=4W/BEEtH+1u66zjUlg4i2buOw0kWN7KslsuQrXrs1aoBF7XRoS/XyLbdULBOvzjoMT
+ ins3ef8qYhlshV9+4JrVgxpTcOlD1Z8rw4ZqH1UnEqKnW+PcD52kneTOgDNX16W7F+2V
+ XH4xaYi8qs3mcZHKcJKRSceaMVlzwlt1WKtb5wGZ2lL08nvwFNxHQ/sfhy3ZKmHp/Gzt
+ DUh2dZ2EuIsFdZDYNYd61JGy5o8fGmHq93ganHtWDC0PfyCKdoakDFNlr8JWE6kBXh41
+ Ha9b5YRx+36+UFJsKwrEOuYDyzxtZC404qHuszZ6tuxQgrhmtd55868dn+z1HZLd+2Eq
+ t81A==
+Message-ID: <fed43e8d-de8c-aa76-1451-877cf4cc76d2@blackwall.org>
+Date: Thu, 10 Feb 2022 10:31:43 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20220209130538.533699-1-schultz.hans+netdev@gmail.com>
- <20220209130538.533699-3-schultz.hans+netdev@gmail.com>
+ <20220209130538.533699-6-schultz.hans+netdev@gmail.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20220209130538.533699-3-schultz.hans+netdev@gmail.com>
+In-Reply-To: <20220209130538.533699-6-schultz.hans+netdev@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 2/5] net: bridge: Add support for
- offloading of locked port flag
+Subject: Re: [Bridge] [PATCH net-next v2 5/5] net: bridge: Refactor bridge
+ port in locked mode to use jump labels
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,31 +31,103 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Hans Schultz <schultz.hans+netdev@gmail.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Hans Schultz <schultz.hans+netdev@gmail.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Hans Schultz <schultz.hans+lkml@gmail.com>
 
 On 09/02/2022 15:05, Hans Schultz wrote:
-> Various switchcores support setting ports in locked mode, so that
-> clients behind locked ports cannot send traffic through the port
-> unless a fdb entry is added with the clients MAC address.
+> From: Hans Schultz <schultz.hans+lkml@gmail.com>
 > 
+> As the locked mode feature is in the hot path of the bridge modules
+> reception of packets, it needs to be refactored to use jump labels
+> for optimization.
+> 
+> Signed-off-by: Hans Schultz <schultz.hans+lkml@gmail.com>
 > Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
 > ---
->  net/bridge/br_switchdev.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index f8fbaaa7c501..bf549fc22556 100644
-> --- a/net/bridge/br_switchdev.c
-> +++ b/net/bridge/br_switchdev.c
-> @@ -72,7 +72,7 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
->  
->  /* Flags that can be offloaded to hardware */
->  #define BR_PORT_FLAGS_HW_OFFLOAD (BR_LEARNING | BR_FLOOD | \
-> -				  BR_MCAST_FLOOD | BR_BCAST_FLOOD)
-> +				  BR_MCAST_FLOOD | BR_BCAST_FLOOD | BR_PORT_LOCKED)
->  
->  int br_switchdev_set_port_flag(struct net_bridge_port *p,
->  			       unsigned long flags,
 
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Why two (almost) identical sign-offs?
+
+Also, as Ido mentioned, please fold this patch into patch 01.
+
+>  net/bridge/br_input.c   | 22 ++++++++++++++++++----
+>  net/bridge/br_netlink.c |  6 ++++++
+>  net/bridge/br_private.h |  2 ++
+>  3 files changed, 26 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index 469e3adbce07..6fc428d6bac5 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -23,6 +23,18 @@
+>  #include "br_private.h"
+>  #include "br_private_tunnel.h"
+>  
+> +static struct static_key_false br_input_locked_port_feature;
+> +
+> +void br_input_locked_port_add(void)
+> +{
+> +	static_branch_inc(&br_input_locked_port_feature);
+> +}
+> +
+> +void br_input_locked_port_remove(void)
+> +{
+> +	static_branch_dec(&br_input_locked_port_feature);
+> +}
+> +
+>  static int
+>  br_netif_receive_skb(struct net *net, struct sock *sk, struct sk_buff *skb)
+>  {
+> @@ -91,10 +103,12 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  				&state, &vlan))
+>  		goto out;
+>  
+> -	if (p->flags & BR_PORT_LOCKED) {
+> -		fdb_entry = br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
+> -		if (!(fdb_entry && fdb_entry->dst == p))
+> -			goto drop;
+> +	if (static_branch_unlikely(&br_input_locked_port_feature)) {
+> +		if (p->flags & BR_PORT_LOCKED) {
+> +			fdb_entry = br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
+> +			if (!(fdb_entry && fdb_entry->dst == p))
+> +				goto drop;
+> +		}
+>  	}
+>  
+>  	nbp_switchdev_frame_mark(p, skb);
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 7d4432ca9a20..e3dbe9fed75c 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -860,6 +860,7 @@ static int br_set_port_state(struct net_bridge_port *p, u8 state)
+>  static void br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
+>  			     int attrtype, unsigned long mask)
+>  {
+> +	bool locked = p->flags & BR_PORT_LOCKED;
+>  	if (!tb[attrtype])
+>  		return;
+>  
+> @@ -867,6 +868,11 @@ static void br_set_port_flag(struct net_bridge_port *p, struct nlattr *tb[],
+>  		p->flags |= mask;
+>  	else
+>  		p->flags &= ~mask;
+> +
+> +	if ((p->flags & BR_PORT_LOCKED) && !locked)
+> +		br_input_locked_port_add();
+> +	if (!(p->flags & BR_PORT_LOCKED) && locked)
+> +		br_input_locked_port_remove();
+>  }
+>  
+>  /* Process bridge protocol info on port */
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index 2661dda1a92b..0ec3ef897978 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -832,6 +832,8 @@ void br_manage_promisc(struct net_bridge *br);
+>  int nbp_backup_change(struct net_bridge_port *p, struct net_device *backup_dev);
+>  
+>  /* br_input.c */
+> +void br_input_locked_port_add(void);
+> +void br_input_locked_port_remove(void);
+>  int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
+>  rx_handler_func_t *br_get_rx_handler(const struct net_device *dev);
+>  
 
