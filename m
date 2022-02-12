@@ -1,16 +1,11 @@
-Return-Path: <oleksandr.mazur@plvision.eu>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plvision.eu;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4g+lLdbiHu0kgDl/hDkw5r2h9lOn+QD7czEgTiGehr0=;
- b=GyY/LUFVEdHgkVzx5nQSNMW/FKt7j53k7IDutK9J+e/SF87ymfWGig0m0GDh0QMmzFYyb2/yQjsMZ2MD2srQ9S8YtgqwMWDe4bykPTFW5adSF3zodonA1VwlrAlPutWDaEC4h/r2ribvs90cHnYO9gCyU+q60rU5oYwV7c39/Tw=
-From: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
-Date: Fri, 11 Feb 2022 15:14:26 +0200
-Message-Id: <20220211131426.5433-1-oleksandr.mazur@plvision.eu>
-Content-Type: text/plain
+Return-Path: <christophe.jaillet@wanadoo.fr>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Date: Sat, 12 Feb 2022 10:58:20 +0100
+Message-Id: <73f674075ae5279e3d2fa07d61a0a75bc50790f3.1644659879.git.christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH] net: bridge: multicast: notify switchdev driver
-	whenever MC processing gets disabled
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] net: bridge: Slightly optimize
+	br_stp_change_bridge_id()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,47 +14,84 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Oleksandr Mazur <oleksandr.mazur@plvision.eu>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, bridge@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 
-Whenever bridge driver hits the max capacity of MDBs, it disables
-the MC processing (by setting corresponding bridge option), but never
-notifies switchdev about such change (the notifiers are called only upon
-explicit setting of this option, through the registered netlink interface).
+ether_addr_equal_64bits() can easy be used in place of ether_addr_equal()
+here.
+Padding in the 'net_bridge_port' structure is already there because it is a
+huge structure and the required fields are not at the end.
+'oldaddr' is local to the function. So add the required padding
+explicitly and simplify its definition.
 
-This could lead to situation when Software MDB processing gets disabled,
-but this event never gets offloaded to the underlying Hardware.
-
-Fix this by adding a notify message in such case.
-
-Signed-off-by: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 ---
- net/bridge/br_multicast.c | 5 +++++
- 1 file changed, 5 insertions(+)
+This patch is more a POC for me.
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index de2409889489..d53c08906bc8 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -82,6 +82,9 @@ static void br_multicast_find_del_pg(struct net_bridge *br,
- 				     struct net_bridge_port_group *pg);
- static void __br_multicast_stop(struct net_bridge_mcast *brmctx);
+I'm unsure that using ether_addr_equal_64bits() is really useful. The
+speedup should be mostly un-noticeable.
+
+To make sure that we have the required padding, we either need to waste
+some space or rely on the fact that the address is embedded in a large
+enough structure. (which is the case here)
+
+So, it looks fragile to me and not future-proof.
+
+Feed-back highly appreciated to see if such patches are welcome and if I
+should spend some time on it.
+---
+ net/bridge/br_private.h |  5 +++++
+ net/bridge/br_stp_if.c  | 12 +++++++-----
+ 2 files changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 2661dda1a92b..2f78090574c9 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -363,6 +363,11 @@ struct net_bridge_port {
+ 	unsigned char			config_pending;
+ 	port_id				port_id;
+ 	port_id				designated_port;
++	/*
++	 * designated_root and designated_bridge must NOT be at the end of the
++	 * structure because ether_addr_equal_64bits() requires 2 bytes of
++	 * padding.
++	 */
+ 	bridge_id			designated_root;
+ 	bridge_id			designated_bridge;
+ 	u32				path_cost;
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 75204d36d7f9..1bf0aaf29e5e 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -221,9 +221,11 @@ int br_stp_set_enabled(struct net_bridge *br, unsigned long val,
+ /* called under bridge lock */
+ void br_stp_change_bridge_id(struct net_bridge *br, const unsigned char *addr)
+ {
+-	/* should be aligned on 2 bytes for ether_addr_equal() */
+-	unsigned short oldaddr_aligned[ETH_ALEN >> 1];
+-	unsigned char *oldaddr = (unsigned char *)oldaddr_aligned;
++	/*
++	 * should be aligned on 2 bytes and have 2 bytes of padding for
++	 * ether_addr_equal_64bits()
++	 */
++	unsigned char oldaddr[ETH_ALEN + 2] __aligned(2);
+ 	struct net_bridge_port *p;
+ 	int wasroot;
  
-+static int br_mc_disabled_update(struct net_device *dev, bool value,
-+				 struct netlink_ext_ack *extack);
-+
- static struct net_bridge_port_group *
- br_sg_port_find(struct net_bridge *br,
- 		struct net_bridge_port_group_sg_key *sg_p)
-@@ -1156,6 +1159,8 @@ struct net_bridge_mdb_entry *br_multicast_new_group(struct net_bridge *br,
- 		return mp;
+@@ -236,10 +238,10 @@ void br_stp_change_bridge_id(struct net_bridge *br, const unsigned char *addr)
+ 	eth_hw_addr_set(br->dev, addr);
  
- 	if (atomic_read(&br->mdb_hash_tbl.nelems) >= br->hash_max) {
-+		err = br_mc_disabled_update(br->dev, false, NULL);
-+		WARN_ON(err && err != -EOPNOTSUPP);
- 		br_opt_toggle(br, BROPT_MULTICAST_ENABLED, false);
- 		return ERR_PTR(-E2BIG);
+ 	list_for_each_entry(p, &br->port_list, list) {
+-		if (ether_addr_equal(p->designated_bridge.addr, oldaddr))
++		if (ether_addr_equal_64bits(p->designated_bridge.addr, oldaddr))
+ 			memcpy(p->designated_bridge.addr, addr, ETH_ALEN);
+ 
+-		if (ether_addr_equal(p->designated_root.addr, oldaddr))
++		if (ether_addr_equal_64bits(p->designated_root.addr, oldaddr))
+ 			memcpy(p->designated_root.addr, addr, ETH_ALEN);
  	}
+ 
 -- 
-2.17.1
+2.32.0
 
