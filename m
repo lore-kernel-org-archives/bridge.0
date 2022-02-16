@@ -1,24 +1,27 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1645072809;
- bh=SQie68LtRJwl6pfaDF+fS7AfThug4tVyYsyf5TnnDHk=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=Hu1z+s5TJUTiOBBG6qj4KsIbqwHJn8CImpT8ZxGQs8I0X8ABWw3xjZoGW0mCb6E3R
- dEk3IHHjfuo58mRzDBHomA20lqgcAt8PgYKo+8SpqAznvnQomU00wFLCv4QDk7JK1q
- xjzCk3cEnvOaEv5Ysry4HwGDKJ+uv3kzEohmUEXtnuIT2Nnja2hauxSHgDozI185bI
- ZQEdm53zAzi5QtyS7sa3PTzjf7ggi324TdjgCS7JeiGrErZkH2+uU+MTS+zrc2ALHh
- WMP7OoYXeAVDorjxFcvawulYf/XCYodFkvuWXBuwab+1ivRTdq0ZRxTYttnGxLvjXn
- VfE3XH4mox8Kg==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <linux+bridge=lists.linux-foundation.org@armlinux.org.uk>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+ MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+ Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+ List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=tjvtg6e6rfEBajxf7gEQ25jMTSa3cr331jVbNJooOA0=; b=fRzh+dlUNwjRlxwNg3p81SGp3B
+ iStgmRxGiJO6bKTyqJwOLl8g3KNUsuNbBJrLRQ7UilHK2F8X5sVUfqqLvgT4IA+wsrJTra5I0v0qY
+ dyZ7dqySINcTzpwqnM0bGq/bbzCr879Q3scd+JS3+0YPwLeEp9erYpO0YXsup7ValRWBOpdquQBjz
+ iFOyTAvMnuNfMkyx+WuYaKrh39IiHrhOcAKz5cLMGwOkIAMjOHDgej31lVHn85+QZtw0iya38+4ti
+ pbyviRSYF7YV5Wuln6MXHB4eQXiXuZyPeAkYP2kV5rkjGEdQPeho+Dsp3yOU3Ccq5Yqw6OonUeJHf
+ BSJUVR5g==;
+Date: Wed, 16 Feb 2022 13:39:00 +0000
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
+Message-ID: <Ygz+dNz1YvyiFpxa@shell.armlinux.org.uk>
+References: <20220216132934.1775649-1-tobias@waldekranz.com>
+ <20220216132934.1775649-10-tobias@waldekranz.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164507280928.19778.1810833319273321601.git-patchwork-notify@kernel.org>
-Date: Thu, 17 Feb 2022 04:40:09 +0000
-References: <20220215165303.31908-1-oleksandr.mazur@plvision.eu>
-In-Reply-To: <20220215165303.31908-1-oleksandr.mazur@plvision.eu>
-Subject: Re: [Bridge] [PATCH net v2] net: bridge: multicast: notify
- switchdev driver whenever MC processing gets disabled
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220216132934.1775649-10-tobias@waldekranz.com>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Subject: Re: [Bridge] [RFC net-next 9/9] net: dsa: mv88e6xxx: MST Offloading
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,32 +30,83 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Oleksandr Mazur <oleksandr.mazur@plvision.eu>
-Cc: ivecera@redhat.com, taras.chornyi@plvision.eu, yotamg@mellanox.com, vladimir.oltean@nxp.com, razor@blackwall.org, bridge@lists.linux-foundation.org, volodymyr.mytnyk@plvision.eu, linux-kernel@vger.kernel.org, jiri@mellanox.com, netdev@vger.kernel.org, nogahf@mellanox.com, roopa@nvidia.com, kuba@kernel.org, nikolay@nvidia.com, davem@davemloft.net, mickeyr@marvell.com
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-Hello:
+Hi,
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+On Wed, Feb 16, 2022 at 02:29:34PM +0100, Tobias Waldekranz wrote:
+> +static int mv88e6xxx_sid_new(struct mv88e6xxx_chip *chip, u8 *sid)
+> +{
+> +	DECLARE_BITMAP(busy, MV88E6XXX_N_SID) = { 0 };
+> +	struct mv88e6xxx_mst *mst;
+> +
+> +	set_bit(0, busy);
+> +
+> +	list_for_each_entry(mst, &chip->msts, node) {
+> +		set_bit(mst->stu.sid, busy);
+> +	}
 
-On Tue, 15 Feb 2022 18:53:03 +0200 you wrote:
-> Whenever bridge driver hits the max capacity of MDBs, it disables
-> the MC processing (by setting corresponding bridge option), but never
-> notifies switchdev about such change (the notifiers are called only upon
-> explicit setting of this option, through the registered netlink interface).
-> 
-> This could lead to situation when Software MDB processing gets disabled,
-> but this event never gets offloaded to the underlying Hardware.
-> 
-> [...]
+Do you need these set_bit() operations to be atomic? Would __set_bit()
+produce better code?
 
-Here is the summary with links:
-  - [net,v2] net: bridge: multicast: notify switchdev driver whenever MC processing gets disabled
-    https://git.kernel.org/netdev/net/c/c832962ac972
+> +
+> +	*sid = find_first_zero_bit(busy, MV88E6XXX_N_SID);
+> +
+> +	return (*sid >= mv88e6xxx_max_sid(chip)) ? -ENOSPC : 0;
 
-You are awesome, thank you!
+Hmm. Let's hope that mv88e6xxx_max_sid() never returns a value larger
+than MV88E6XXX_N_SID.
+
+> +}
+> +
+...
+> +static int mv88e6xxx_sid_get(struct mv88e6xxx_chip *chip, struct net_device *br,
+> +			     u16 mstid, u8 *sid)
+> +{
+> +	struct mv88e6xxx_mst *mst;
+> +	int err;
+> +
+> +	if (!br)
+> +		return 0;
+> +
+> +	if (!mv88e6xxx_has_stu(chip))
+> +		return -EOPNOTSUPP;
+> +
+> +	list_for_each_entry(mst, &chip->msts, node) {
+> +		if (mst->br == br && mst->mstid == mstid) {
+> +			refcount_inc(&mst->refcnt);
+> +			*sid = mst->stu.sid;
+> +			return 0;
+> +		}
+> +	}
+> +
+> +	err = mv88e6xxx_sid_new(chip, sid);
+> +	if (err)
+> +		return err;
+> +
+> +	mst = kzalloc(sizeof(*mst), GFP_KERNEL);
+> +	if (!mst)
+> +		return -ENOMEM;
+> +
+> +	INIT_LIST_HEAD(&mst->node);
+
+There is no need to initialise the node if you're then going to be
+adding it to the list.
+
+> +	refcount_set(&mst->refcnt, 1);
+> +	mst->br = br;
+> +	mst->mstid = mstid;
+> +	mst->stu.valid = true;
+> +	mst->stu.sid = *sid;
+> +	list_add_tail(&mst->node, &chip->msts);
+> +	return mv88e6xxx_stu_loadpurge(chip, &mst->stu);
+
+I haven't checked what the locking is here - I hope it's not possible
+for two of these to run concurrently.
+
+Thanks.
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
