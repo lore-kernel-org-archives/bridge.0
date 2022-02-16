@@ -1,23 +1,20 @@
-Return-Path: <tobias@waldekranz.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:organization:content-transfer-encoding;
- bh=u25luItvkqFvSc0IbNowHTs0MkxngGGoablxIWJFpwU=;
- b=3zRscAoQJZnIioqtBwiIL/vS+HSuL/8Cha1JTBeTnsScmyJWJL6yPWMHWoYiXnhWK5
- uClzxydU8kDbfamIU2QAvn66jwTS9se1S9KE+Qc6olXMszJVdb388rvoUTUI4+G9Uigz
- 9Bbbg5EuMDXE6kbHFdvtedX8085umN9i0vcxL+qCGJf/oz2vLQ2PcUWfyX1Z1CJwJ/pM
- l7Zr4mfmdpJLVfnU982RcZOY+OtCZoyml37YU6+6WD1Tk45qdsFH+IhlSMHVcGt6f7V6
- 26OKdqv703p/W3YtC5RgXMyWs018GU69RHGsOtXGQ8Zd43hpnpbcAS9OCz4JeEi1lvOA
- IhXg==
-From: Tobias Waldekranz <tobias@waldekranz.com>
-Date: Wed, 16 Feb 2022 14:29:34 +0100
-Message-Id: <20220216132934.1775649-10-tobias@waldekranz.com>
-In-Reply-To: <20220216132934.1775649-1-tobias@waldekranz.com>
-References: <20220216132934.1775649-1-tobias@waldekranz.com>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ew1arzHTuKB2Dk0aDjj9WdWXGJ7HDJOPRSZGhhw+UgM=;
+ b=KqMdGUOGGiLUwCuPsgAg8bWqkE4cz37WcPsCEPH8GjjOWK9upcCS9iV3EfOpGsxYdfmk8nUV2QxO0JMy83v6NVxJd1QKkYKjJr1ZMACl9Gy4eV3S8FWGS5nsLn4r2U9lY6+qmANIyA0+/YuRf+VrfOoSn3lOvIeW45Ej7uUNxq3nujLeDMEtbcD7AwkyAayTaxPN9lV4zXygfs3F2uMw/Q92JxgPwKuEPqFYRODW90Ti1yqRo1NaLNcvzswrGMFtt8q0qeTmG9b5Zu5m5/wKIwp6ByxxMAi+7LtmMc+gJkWhNHKzs2sbYlxVVBo+L8kifs9LGGczWCpp5xoA6PjGLA==
+Message-ID: <d59ee33c-79f9-2622-cec2-987a35f4ec1e@nvidia.com>
+Date: Wed, 16 Feb 2022 17:28:58 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [RFC net-next 9/9] net: dsa: mv88e6xxx: MST Offloading
+Content-Language: en-US
+References: <20220216132934.1775649-1-tobias@waldekranz.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+In-Reply-To: <20220216132934.1775649-1-tobias@waldekranz.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC net-next 0/9] net: bridge: vlan: Multiple
+	Spanning Trees
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,261 +23,134 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, kuba@kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-Allocate a SID in the STU for each MSTID in use by a bridge and handle
-the mapping of MSTIDs to VLANs using the SID field of each VTU entry.
+On 16/02/2022 15:29, Tobias Waldekranz wrote:
+> The bridge has had per-VLAN STP support for a while now, since:
+> 
+> https://lore.kernel.org/netdev/20200124114022.10883-1-nikolay@cumulusnetworks.com/
+> 
+> The current implementation has some problems:
+> 
+> - The mapping from VLAN to STP state is fixed as 1:1, i.e. each VLAN
+>   is managed independently. This is awkward from an MSTP (802.1Q-2018,
+>   Clause 13.5) point of view, where the model is that multiple VLANs
+>   are grouped into MST instances.
+> 
+>   Because of the way that the standard is written, presumably, this is
+>   also reflected in hardware implementations. It is not uncommon for a
+>   switch to support the full 4k range of VIDs, but that the pool of
+>   MST instances is much smaller. Some examples:
+> 
+>   Marvell LinkStreet (mv88e6xxx): 4k VLANs, but only 64 MSTIs
+>   Marvell Prestera: 4k VLANs, but only 128 MSTIs
+>   Microchip SparX-5i: 4k VLANs, but only 128 MSTIs
+> 
+> - By default, the feature is enabled, and there is no way to disable
+>   it. This makes it hard to add offloading in a backwards compatible
+>   way, since any underlying switchdevs have no way to refuse the
+>   function if the hardware does not support it
+> 
+> - The port-global STP state has precedence over per-VLAN states. In
+>   MSTP, as far as I understand it, all VLANs will use the common
+>   spanning tree (CST) by default - through traffic engineering you can
+>   then optimize your network to group subsets of VLANs to use
+>   different trees (MSTI). To my understanding, the way this is
+>   typically managed in silicon is roughly:
+> 
+>   Incoming packet:
+>   .----.----.--------------.----.-------------
+>   | DA | SA | 802.1Q VID=X | ET | Payload ...
+>   '----'----'--------------'----'-------------
+>                         |
+>                         '->|\     .----------------------------.
+>                            | +--> | VID | Members | ... | MSTI |
+>                    PVID -->|/     |-----|---------|-----|------|
+>                                   |   1 | 0001001 | ... |    0 |
+>                                   |   2 | 0001010 | ... |   10 |
+>                                   |   3 | 0001100 | ... |   10 |
+>                                   '----------------------------'
+>                                                              |
+>                                .-----------------------------'
+>                                |  .------------------------.
+>                                '->| MSTI | Fwding | Lrning |
+>                                   |------|--------|--------|
+>                                   |    0 | 111110 | 111110 |
+>                                   |   10 | 110111 | 110111 |
+>                                   '------------------------'
+> 
+>   What this is trying to show is that the STP state (whether MSTP is
+>   used, or ye olde STP) is always accessed via the VLAN table. If STP
+>   is running, all MSTI pointers in that table will reference the same
+>   index in the STP stable - if MSTP is running, some VLANs may point
+>   to other trees (like in this example).
+> 
+>   The fact that in the Linux bridge, the global state (think: index 0
+>   in most hardware implementations) is supposed to override the
+>   per-VLAN state, is very awkward to offload. In effect, this means
+>   that when the global state changes to blocking, drivers will have to
+>   iterate over all MSTIs in use, and alter them all to match. This
+>   also means that you have to cache whether the hardware state is
+>   currently tracking the global state or the per-VLAN state. In the
+>   first case, you also have to cache the per-VLAN state so that you
+>   can restore it if the global state transitions back to forwarding.
+> 
+> This series adds support for an arbitrary M:N mapping of VIDs to
+> MSTIs, proposing one solution to the first issue. An example of an
+> offload implementation for mv88e6xxx is also provided. Offloading is
+> done on a best-effort basis, i.e. notifications of the relevant events
+> are generated, but there is no way for the user to see whether the
+> per-VLAN state has been offloaded or not. There is also no handling of
+> the relationship between the port-global state the the per-VLAN ditto.
+> 
+> If I was king of net/bridge/*, I would make the following additional
+> changes:
+> 
+> - By default, when a VLAN is created, assign it to MSTID 0, which
+>   would mean that no per-VLAN state is used and that packets belonging
+>   to this VLAN should be filtered according to the port-global state.
+> 
+>   This way, when a VLAN is configured to use a separate tree (setting
+>   a non-zero MSTID), an underlying switchdev could oppose it if it is
+>   not supported.
+> 
+>   Obviously, this adds an extra step for existing users of per-VLAN
+>   STP states and would thus not be backwards compatible. Maybe this
+>   means that that is impossible to do, maybe not.
+> 
+> - Swap the precedence of the port-global and the per-VLAN state,
+>   i.e. the port-global state only applies to packets belonging to
+>   VLANs that does not make use of a per-VLAN state (MSTID != 0).
+> 
+>   This would make the offloading much more natural, as you avoid all
+>   of the caching stuff described above.
+> 
+>   Again, this changes the behavior of the kernel so it is not
+>   backwards compatible. I suspect that this is less of an issue
+>   though, since my guess is that very few people rely on the old
+>   behavior.
+> 
+> Thoughts?
+> 
 
-Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
----
- drivers/net/dsa/mv88e6xxx/chip.c | 169 +++++++++++++++++++++++++++++++
- drivers/net/dsa/mv88e6xxx/chip.h |  13 +++
- 2 files changed, 182 insertions(+)
+Interesting! Would adding a new (e.g. vlan_mst_enable) option which changes the behaviour
+as described help? It can require that there are no vlans present to change 
+similar to the per-port vlan stats option. Also based on that option you can alter
+how the state checks are performed. For example, you can skip the initial port state
+check, then in br_vlan_allowed_ingress() you can use the port state if vlan filtering
+is disabled and mst enabled and you can avoid checking it altogether if filter && mst
+are enabled then always use the vlan mst state. Similar changes would have to happen
+for the egress path. Since we are talking about multiple tests the new MST logic can
+be hidden behind a static key for both br_handle_frame() and later stages.
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 39cf1bae161e..7d9ef041252d 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -1817,6 +1817,128 @@ static int mv88e6xxx_stu_setup(struct mv88e6xxx_chip *chip)
- 	return mv88e6xxx_stu_loadpurge(chip, &stu);
- }
- 
-+static int mv88e6xxx_sid_new(struct mv88e6xxx_chip *chip, u8 *sid)
-+{
-+	DECLARE_BITMAP(busy, MV88E6XXX_N_SID) = { 0 };
-+	struct mv88e6xxx_mst *mst;
-+
-+	set_bit(0, busy);
-+
-+	list_for_each_entry(mst, &chip->msts, node) {
-+		set_bit(mst->stu.sid, busy);
-+	}
-+
-+	*sid = find_first_zero_bit(busy, MV88E6XXX_N_SID);
-+
-+	return (*sid >= mv88e6xxx_max_sid(chip)) ? -ENOSPC : 0;
-+}
-+
-+static int mv88e6xxx_sid_put(struct mv88e6xxx_chip *chip, u8 sid)
-+{
-+	struct mv88e6xxx_mst *mst, *tmp;
-+	int err = 0;
-+
-+	list_for_each_entry_safe(mst, tmp, &chip->msts, node) {
-+		if (mst->stu.sid == sid) {
-+			if (refcount_dec_and_test(&mst->refcnt)) {
-+				mst->stu.valid = false;
-+				err = mv88e6xxx_stu_loadpurge(chip, &mst->stu);
-+				list_del(&mst->node);
-+				kfree(mst);
-+			}
-+
-+			return err;
-+		}
-+	}
-+
-+	return -ENOENT;
-+}
-+
-+static int mv88e6xxx_sid_get(struct mv88e6xxx_chip *chip, struct net_device *br,
-+			     u16 mstid, u8 *sid)
-+{
-+	struct mv88e6xxx_mst *mst;
-+	int err;
-+
-+	if (!br)
-+		return 0;
-+
-+	if (!mv88e6xxx_has_stu(chip))
-+		return -EOPNOTSUPP;
-+
-+	list_for_each_entry(mst, &chip->msts, node) {
-+		if (mst->br == br && mst->mstid == mstid) {
-+			refcount_inc(&mst->refcnt);
-+			*sid = mst->stu.sid;
-+			return 0;
-+		}
-+	}
-+
-+	err = mv88e6xxx_sid_new(chip, sid);
-+	if (err)
-+		return err;
-+
-+	mst = kzalloc(sizeof(*mst), GFP_KERNEL);
-+	if (!mst)
-+		return -ENOMEM;
-+
-+	INIT_LIST_HEAD(&mst->node);
-+	refcount_set(&mst->refcnt, 1);
-+	mst->br = br;
-+	mst->mstid = mstid;
-+	mst->stu.valid = true;
-+	mst->stu.sid = *sid;
-+	list_add_tail(&mst->node, &chip->msts);
-+	return mv88e6xxx_stu_loadpurge(chip, &mst->stu);
-+}
-+
-+static int mv88e6xxx_port_mst_state_set(struct dsa_switch *ds, int port,
-+					const struct switchdev_mst_state *st)
-+{
-+	struct dsa_port *dp = dsa_to_port(ds, port);
-+	struct mv88e6xxx_chip *chip = ds->priv;
-+	struct mv88e6xxx_mst *mst;
-+	u8 state;
-+	int err;
-+
-+	if (!mv88e6xxx_has_stu(chip))
-+		return -EOPNOTSUPP;
-+
-+	switch (st->state) {
-+	case BR_STATE_DISABLED:
-+		state = MV88E6XXX_PORT_CTL0_STATE_DISABLED;
-+		break;
-+	case BR_STATE_BLOCKING:
-+	case BR_STATE_LISTENING:
-+		state = MV88E6XXX_PORT_CTL0_STATE_BLOCKING;
-+		break;
-+	case BR_STATE_LEARNING:
-+		state = MV88E6XXX_PORT_CTL0_STATE_LEARNING;
-+		break;
-+	case BR_STATE_FORWARDING:
-+		state = MV88E6XXX_PORT_CTL0_STATE_FORWARDING;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	list_for_each_entry(mst, &chip->msts, node) {
-+		if (mst->br == dsa_port_bridge_dev_get(dp) &&
-+		    mst->mstid == st->mstid) {
-+			if (mst->stu.state[port] == state)
-+				return 0;
-+
-+			mst->stu.state[port] = state;
-+			mv88e6xxx_reg_lock(chip);
-+			err = mv88e6xxx_stu_loadpurge(chip, &mst->stu);
-+			mv88e6xxx_reg_unlock(chip);
-+			return err;
-+		}
-+	}
-+
-+	return -ENOENT;
-+}
-+
- static int mv88e6xxx_port_check_hw_vlan(struct dsa_switch *ds, int port,
- 					u16 vid)
- {
-@@ -2436,6 +2558,12 @@ static int mv88e6xxx_port_vlan_leave(struct mv88e6xxx_chip *chip,
- 	if (err)
- 		return err;
- 
-+	if (!vlan.valid) {
-+		err = mv88e6xxx_sid_put(chip, vlan.sid);
-+		if (err)
-+			return err;
-+	}
-+
- 	return mv88e6xxx_g1_atu_remove(chip, vlan.fid, port, false);
- }
- 
-@@ -2474,6 +2602,44 @@ static int mv88e6xxx_port_vlan_del(struct dsa_switch *ds, int port,
- 	return err;
- }
- 
-+static int mv88e6xxx_vlan_mstid_set(struct dsa_switch *ds,
-+				    const struct switchdev_attr *attr)
-+{
-+	const struct switchdev_vlan_attr *vattr = &attr->u.vlan_attr;
-+	struct mv88e6xxx_chip *chip = ds->priv;
-+	struct mv88e6xxx_vtu_entry vlan;
-+	u8 new_sid;
-+	int err;
-+
-+	mv88e6xxx_reg_lock(chip);
-+
-+	err = mv88e6xxx_vtu_get(chip, vattr->vid, &vlan);
-+	if (err)
-+		goto unlock;
-+
-+	if (!vlan.valid) {
-+		err = -EINVAL;
-+		goto unlock;
-+	}
-+
-+	err = mv88e6xxx_sid_get(chip, attr->orig_dev, vattr->mstid, &new_sid);
-+	if (err)
-+		goto unlock;
-+
-+	if (vlan.sid) {
-+		err = mv88e6xxx_sid_put(chip, vlan.sid);
-+		if (err)
-+			goto unlock;
-+	}
-+
-+	vlan.sid = new_sid;
-+	err = mv88e6xxx_vtu_loadpurge(chip, &vlan);
-+
-+unlock:
-+	mv88e6xxx_reg_unlock(chip);
-+	return err;
-+}
-+
- static int mv88e6xxx_port_fdb_add(struct dsa_switch *ds, int port,
- 				  const unsigned char *addr, u16 vid)
- {
-@@ -5996,6 +6162,7 @@ static struct mv88e6xxx_chip *mv88e6xxx_alloc_chip(struct device *dev)
- 	mutex_init(&chip->reg_lock);
- 	INIT_LIST_HEAD(&chip->mdios);
- 	idr_init(&chip->policies);
-+	INIT_LIST_HEAD(&chip->msts);
- 
- 	return chip;
- }
-@@ -6518,10 +6685,12 @@ static const struct dsa_switch_ops mv88e6xxx_switch_ops = {
- 	.port_pre_bridge_flags	= mv88e6xxx_port_pre_bridge_flags,
- 	.port_bridge_flags	= mv88e6xxx_port_bridge_flags,
- 	.port_stp_state_set	= mv88e6xxx_port_stp_state_set,
-+	.port_mst_state_set	= mv88e6xxx_port_mst_state_set,
- 	.port_fast_age		= mv88e6xxx_port_fast_age,
- 	.port_vlan_filtering	= mv88e6xxx_port_vlan_filtering,
- 	.port_vlan_add		= mv88e6xxx_port_vlan_add,
- 	.port_vlan_del		= mv88e6xxx_port_vlan_del,
-+	.vlan_mstid_set		= mv88e6xxx_vlan_mstid_set,
- 	.port_fdb_add           = mv88e6xxx_port_fdb_add,
- 	.port_fdb_del           = mv88e6xxx_port_fdb_del,
- 	.port_fdb_dump          = mv88e6xxx_port_fdb_dump,
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.h b/drivers/net/dsa/mv88e6xxx/chip.h
-index 6d4daa24d3e5..af0f53b65689 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.h
-+++ b/drivers/net/dsa/mv88e6xxx/chip.h
-@@ -297,6 +297,16 @@ struct mv88e6xxx_region_priv {
- 	enum mv88e6xxx_region_id id;
- };
- 
-+struct mv88e6xxx_mst {
-+	struct list_head node;
-+
-+	refcount_t refcnt;
-+	struct net_device *br;
-+	u16 mstid;
-+
-+	struct mv88e6xxx_stu_entry stu;
-+};
-+
- struct mv88e6xxx_chip {
- 	const struct mv88e6xxx_info *info;
- 
-@@ -397,6 +407,9 @@ struct mv88e6xxx_chip {
- 
- 	/* devlink regions */
- 	struct devlink_region *regions[_MV88E6XXX_REGION_MAX];
-+
-+	/* Bridge MST to SID mappings */
-+	struct list_head msts;
- };
- 
- struct mv88e6xxx_bus_ops {
--- 
-2.25.1
+This set needs to read a new cache line to fetch mst ptr for all packets in the vlan fast-path,
+that is definitely undesirable. Please either cache that state in the vlan and update it when
+something changes, or think of some way which avoids that cache line in fast-path.
+Alternative would be to make that cache line dependent on the new option, so it's needed
+only when mst feature is enabled.
 
+There are other options, but they way more invasive.. I'll think about it more.
+
+Cheers,
+ Nik
