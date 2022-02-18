@@ -2,22 +2,22 @@ Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:organization:content-transfer-encoding;
- bh=Rcw7NVVt+xRbTVt1okgnvV9SIVxrg6UkjeCztqi7ITU=;
- b=KswQTuqsXHsf71yw2us6jf45qIUFVvmq5HJ70pvj+MnUib22LlFiRJpb9QzRlcm0uM
- v/dweD4d/yJM3pPeovi7nbuXwzEpMETVAi4YoAsWKdAKLiS1cjpAAaoyMbCEWfsBX6mJ
- fIp8AVm49GQQav/mFdJUKUZtMf3hI9Jt+wrKb9cXySLciQdT9gKKQh1ZbnZDiC8u7X+0
- kTjopeRSndk4qxKHWxRAhrSY7SR6V6awvqIEXUD/gFxnJeKwytOqzRPJeXFJtAtXZdAI
- jCuJf5hXXV2WV0cUG+QoXNFQZRb1t2lzDXP9mBKpBhlzM6OVDVH0pEYs4gCLWP7qnUeI
- /RUA==
+ bh=C074Ts6t1RuR/7tYyDWuvKC2BHBuBtLTBdnTVQAyV3k=;
+ b=iwfCoLafgG9YVKvV7zo8I8SL8yF6TiOcM8BFJrMe1xkCw4BADvUTqPrpxBwb/uipbS
+ o6MKYERLMZeEr1Q2SvSAg4Wcv0g/ma3fWCOa9IS/Be+/8LzmTrfFnv9hFVMkZB/DxHGT
+ hRXi7MSSw14vn241aMy0fXph+8OwcZygLZ6WTabZWP4THo1j83Pj/Hpzai6goXcwe15u
+ I1hl2KQNdzbFrfQgjZpGtWw7p4RwIPKyirv1BCmSsisKbh1Zu+8cQN5IT57459jAzh6u
+ 1/osLqneFyc3ffWmmJKZmdnoOaguwG7Ad44FGamwS2PP9DHtHsFW55YAeGQ/Xb5fxSnj
+ 7OcQ==
 From: Hans Schultz <schultz.hans@gmail.com>
-Date: Fri, 18 Feb 2022 16:51:44 +0100
-Message-Id: <20220218155148.2329797-2-schultz.hans+netdev@gmail.com>
+Date: Fri, 18 Feb 2022 16:51:45 +0100
+Message-Id: <20220218155148.2329797-3-schultz.hans+netdev@gmail.com>
 In-Reply-To: <20220218155148.2329797-1-schultz.hans+netdev@gmail.com>
 References: <20220218155148.2329797-1-schultz.hans+netdev@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 1/5] net: bridge: Add support for
-	bridge port in locked mode
+Subject: [Bridge] [PATCH net-next v3 2/5] net: bridge: Add support for
+	offloading of locked port flag
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,115 +29,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Baowen Zheng <baowen.zheng@corigine.com>, Florian Fainelli <f.fainelli@gmail.com>, Amit Cohen <amcohen@nvidia.com>, netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Stephen Suryaputra <ssuryaextr@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Po-Hsu Lin <po-hsu.lin@canonical.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
 
-In a 802.1X scenario, clients connected to a bridge port shall not
-be allowed to have traffic forwarded until fully authenticated.
-A static fdb entry of the clients MAC address for the bridge port
-unlocks the client and allows bidirectional communication.
-
-This scenario is facilitated with setting the bridge port in locked
-mode, which is also supported by various switchcore chipsets.
+Various switchcores support setting ports in locked mode, so that
+clients behind locked ports cannot send traffic through the port
+unless a fdb entry is added with the clients MAC address.
 
 Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
 ---
- include/linux/if_bridge.h    |  1 +
- include/uapi/linux/if_link.h |  1 +
- net/bridge/br_input.c        | 10 +++++++++-
- net/bridge/br_netlink.c      |  6 +++++-
- 4 files changed, 16 insertions(+), 2 deletions(-)
+ net/bridge/br_switchdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 509e18c7e740..3aae023a9353 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -58,6 +58,7 @@ struct br_ip_list {
- #define BR_MRP_LOST_CONT	BIT(18)
- #define BR_MRP_LOST_IN_CONT	BIT(19)
- #define BR_TX_FWD_OFFLOAD	BIT(20)
-+#define BR_PORT_LOCKED		BIT(21)
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index f8fbaaa7c501..bf549fc22556 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -72,7 +72,7 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
  
- #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+ /* Flags that can be offloaded to hardware */
+ #define BR_PORT_FLAGS_HW_OFFLOAD (BR_LEARNING | BR_FLOOD | \
+-				  BR_MCAST_FLOOD | BR_BCAST_FLOOD)
++				  BR_MCAST_FLOOD | BR_BCAST_FLOOD | BR_PORT_LOCKED)
  
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 6218f93f5c1a..a45cc0a1f415 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -537,6 +537,7 @@ enum {
- 	IFLA_BRPORT_MRP_IN_OPEN,
- 	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
- 	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
-+	IFLA_BRPORT_LOCKED,
- 	__IFLA_BRPORT_MAX
- };
- #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index b50382f957c1..e99f635ff727 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -81,6 +81,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 	if (!p || p->state == BR_STATE_DISABLED)
- 		goto drop;
- 
-+	br = p->br;
- 	brmctx = &p->br->multicast_ctx;
- 	pmctx = &p->multicast_ctx;
- 	state = p->state;
-@@ -88,10 +89,17 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 				&state, &vlan))
- 		goto out;
- 
-+	if (p->flags & BR_PORT_LOCKED) {
-+		struct net_bridge_fdb_entry *fdb_src =
-+			br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
-+		if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
-+		    test_bit(BR_FDB_LOCAL, &fdb_src->flags))
-+			goto drop;
-+	}
-+
- 	nbp_switchdev_frame_mark(p, skb);
- 
- 	/* insert into forwarding database after filtering to avoid spoofing */
--	br = p->br;
- 	if (p->flags & BR_LEARNING)
- 		br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, 0);
- 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 2ff83d84230d..7d4432ca9a20 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -184,6 +184,7 @@ static inline size_t br_port_info_size(void)
- 		+ nla_total_size(1)	/* IFLA_BRPORT_VLAN_TUNNEL */
- 		+ nla_total_size(1)	/* IFLA_BRPORT_NEIGH_SUPPRESS */
- 		+ nla_total_size(1)	/* IFLA_BRPORT_ISOLATED */
-+		+ nla_total_size(1)	/* IFLA_BRPORT_LOCKED */
- 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_ROOT_ID */
- 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_BRIDGE_ID */
- 		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_DESIGNATED_PORT */
-@@ -269,7 +270,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
- 							  BR_MRP_LOST_CONT)) ||
- 	    nla_put_u8(skb, IFLA_BRPORT_MRP_IN_OPEN,
- 		       !!(p->flags & BR_MRP_LOST_IN_CONT)) ||
--	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)))
-+	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)) ||
-+	    nla_put_u8(skb, IFLA_BRPORT_LOCKED, !!(p->flags & BR_PORT_LOCKED)))
- 		return -EMSGSIZE;
- 
- 	timerval = br_timer_value(&p->message_age_timer);
-@@ -827,6 +829,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
- 	[IFLA_BRPORT_GROUP_FWD_MASK] = { .type = NLA_U16 },
- 	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
- 	[IFLA_BRPORT_ISOLATED]	= { .type = NLA_U8 },
-+	[IFLA_BRPORT_LOCKED] = { .type = NLA_U8 },
- 	[IFLA_BRPORT_BACKUP_PORT] = { .type = NLA_U32 },
- 	[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT] = { .type = NLA_U32 },
- };
-@@ -893,6 +896,7 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
- 	br_set_port_flag(p, tb, IFLA_BRPORT_VLAN_TUNNEL, BR_VLAN_TUNNEL);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS, BR_NEIGH_SUPPRESS);
- 	br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
-+	br_set_port_flag(p, tb, IFLA_BRPORT_LOCKED, BR_PORT_LOCKED);
- 
- 	changed_mask = old_flags ^ p->flags;
- 
+ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 			       unsigned long flags,
 -- 
 2.30.2
 
