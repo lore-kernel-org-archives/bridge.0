@@ -1,23 +1,21 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:organization:content-transfer-encoding;
- bh=+Mu8RvBnev8GXTejYsZPejfoz1EIMAndo1iFiCzGtfU=;
- b=Ne7ve291QC1Ba2C/uEJ1kQrM/HEA0BtP4jUbz3fW5Zi43QXrH90M4ADD9g/D9y1sq2
- 4nDJo9rkkksFdRJVWv6+MS2HY08pNJvc9HxJfrYhVvV9PPWrroL8CWUBq6hrSm38/rRm
- rV/i42qonsEW7yMLJAzRVLHwFn8/KWEk1RcnscyahJaWwLDDgXR9WLSVYhtPBdFyTxay
- AXHj/yWPjSKpxqLvNaSYskfyqH6a3zBZkYGujTNkKkfkcBIiWJe07mo7RUMo8RonwzyL
- 87F7hwllYfSa5jvOSIQAL1+CIwjUDVc+JFce5Bp+Oe2LWfap7oj2nhK9djtyVILWGtOa
- fYxg==
-From: Hans Schultz <schultz.hans@gmail.com>
-Date: Fri, 18 Feb 2022 16:51:48 +0100
-Message-Id: <20220218155148.2329797-6-schultz.hans+netdev@gmail.com>
-In-Reply-To: <20220218155148.2329797-1-schultz.hans+netdev@gmail.com>
-References: <20220218155148.2329797-1-schultz.hans+netdev@gmail.com>
+Return-Path: <nikolay@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DWidAe/8A4gdk6Kl8311PrlfqqyC1xvATabjBn6pkyk=;
+ b=Ej2Ge6n2InAqQomc87fweyXLr+eFIn43jiZsyuDzU/L1myrc+vf5R+ZxgZC2SPTuGiFUSoda5ouO8paHZRZzbfg6ZOfAqrBba2RF1bFymlBhh/HbLc2vHsCJPBnteuUGVmul/4xvjxRkCXT730UrMnjhwFI8wwgpWhr51+9VjIro6wwLpnkO9levH+VHhapypNGY7aAuWXIj3u/vo4X7vvtErMMPithjtaLpw/BVeVQ0UvjHhh7/QdG2XiAMBFFR5Cfy7MSt9OuJEiAQDDhYS8UWix4p53C5L5Vif0/BPGZJIoP3QBggtzfULBw8kFAEzyylE6vX+rMhHM9fbwO78Q==
+Message-ID: <60f020b7-53b8-4f3c-ead2-8077aad8e5bb@nvidia.com>
+Date: Sat, 19 Feb 2022 11:46:37 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 5/5] selftests: forwarding: tests of
-	locked port feature
+Content-Language: en-US
+References: <20220218155148.2329797-1-schultz.hans+netdev@gmail.com>
+ <20220218155148.2329797-2-schultz.hans+netdev@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
+In-Reply-To: <20220218155148.2329797-2-schultz.hans+netdev@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v3 1/5] net: bridge: Add support for
+ bridge port in locked mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,240 +24,83 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, kuba@kernel.org
-Cc: Petr Machata <petrm@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Baowen Zheng <baowen.zheng@corigine.com>, Florian Fainelli <f.fainelli@gmail.com>, Amit Cohen <amcohen@nvidia.com>, netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Stephen Suryaputra <ssuryaextr@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Po-Hsu Lin <po-hsu.lin@canonical.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Petr Machata <petrm@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Baowen Zheng <baowen.zheng@corigine.com>, Florian Fainelli <f.fainelli@gmail.com>, Amit Cohen <amcohen@nvidia.com>, netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Stephen Suryaputra <ssuryaextr@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Po-Hsu Lin <po-hsu.lin@canonical.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
 
-These tests check that the basic locked port feature works, so that no 'host'
-can communicate (ping) through a locked port unless the MAC address of the
-'host' interface is in the forwarding database of the bridge.
+On 18/02/2022 17:51, Hans Schultz wrote:
+> In a 802.1X scenario, clients connected to a bridge port shall not
+> be allowed to have traffic forwarded until fully authenticated.
+> A static fdb entry of the clients MAC address for the bridge port
+> unlocks the client and allows bidirectional communication.
+> 
+> This scenario is facilitated with setting the bridge port in locked
+> mode, which is also supported by various switchcore chipsets.
+> 
+> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
+> ---
+>  include/linux/if_bridge.h    |  1 +
+>  include/uapi/linux/if_link.h |  1 +
+>  net/bridge/br_input.c        | 10 +++++++++-
+>  net/bridge/br_netlink.c      |  6 +++++-
+>  4 files changed, 16 insertions(+), 2 deletions(-)
+> 
 
-Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
----
- .../testing/selftests/net/forwarding/Makefile |   1 +
- .../net/forwarding/bridge_locked_port.sh      | 174 ++++++++++++++++++
- tools/testing/selftests/net/forwarding/lib.sh |  16 ++
- 3 files changed, 191 insertions(+)
- create mode 100755 tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+Hi Hans,
+The patch looks good overall, I have one minor cosmetic comment below.
 
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index 72ee644d47bf..8fa97ae9af9e 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -1,6 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0+ OR MIT
- 
- TEST_PROGS = bridge_igmp.sh \
-+	bridge_locked_port.sh \
- 	bridge_port_isolation.sh \
- 	bridge_sticky_fdb.sh \
- 	bridge_vlan_aware.sh \
-diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-new file mode 100755
-index 000000000000..d2805441b325
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-@@ -0,0 +1,174 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan"
-+NUM_NETIFS=4
-+CHECK_TC="no"
-+source lib.sh
-+
-+h1_create()
-+{
-+	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
-+	vrf_create "vrf-vlan-h1"
-+        ip link set dev vrf-vlan-h1 up
-+        vlan_create $h1 100 vrf-vlan-h1 192.0.3.1/24 2001:db8:3::1/64
-+}
-+
-+h1_destroy()
-+{
-+	vlan_destroy $h1 100
-+	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
-+}
-+
-+h2_create()
-+{
-+	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
-+	vrf_create "vrf-vlan-h2"
-+	ip link set dev vrf-vlan-h2 up
-+	vlan_create $h2 100 vrf-vlan-h2 192.0.3.2/24 2001:db8:3::2/64
-+}
-+
-+h2_destroy()
-+{
-+	vlan_destroy $h2 100
-+	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
-+}
-+
-+switch_create()
-+{
-+	ip link add dev br0 type bridge vlan_filtering 1
-+
-+	ip link set dev $swp1 master br0
-+	ip link set dev $swp2 master br0
-+
-+	ip link set dev br0 up
-+	ip link set dev $swp1 up
-+	ip link set dev $swp2 up
-+
-+	bridge link set dev $swp1 learning off
-+}
-+
-+switch_destroy()
-+{
-+	ip link set dev $swp2 down
-+	ip link set dev $swp1 down
-+
-+	ip link del dev br0
-+}
-+
-+setup_prepare()
-+{
-+	h1=${NETIFS[p1]}
-+	swp1=${NETIFS[p2]}
-+
-+	swp2=${NETIFS[p3]}
-+	h2=${NETIFS[p4]}
-+
-+	vrf_prepare
-+
-+	h1_create
-+	h2_create
-+
-+	switch_create
-+}
-+
-+cleanup()
-+{
-+	pre_cleanup
-+
-+	switch_destroy
-+
-+	h2_destroy
-+	h1_destroy
-+
-+	vrf_cleanup
-+}
-+
-+ifaddr()
-+{
-+	ip -br link show dev "$1" | awk '{ print($3); }'
-+}
-+
-+locked_port_ipv4()
-+{
-+	RET=0
-+
-+	check_locked_port_support || return 0
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "Ping didn't work when it should have"
-+
-+	bridge link set dev $swp1 locked on
-+
-+	ping_do $h1 192.0.2.2
-+	check_fail $? "Ping worked when it should not have"
-+
-+	bridge fdb add `ifaddr $h1` dev $swp1 master static
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "Ping didn't work when it should have"
-+
-+	bridge link set dev $swp1 locked off
-+	bridge fdb del `ifaddr $h1` dev $swp1 master static
-+	log_test "Locked port ipv4"
-+}
-+
-+locked_port_vlan()
-+{
-+	RET=0
-+
-+	check_locked_port_support || return 0
-+	check_vlan_filtering_support || return 0
-+
-+	bridge vlan add vid 100 dev $swp1 tagged
-+	bridge vlan add vid 100 dev $swp2 tagged
-+
-+	ping_do $h1.100 192.0.3.2
-+	check_err $? "Ping didn't work when it should have"
-+
-+	bridge link set dev $swp1 locked on
-+	ping_do $h1.100 192.0.3.2
-+	check_fail $? "Ping worked when it should not have"
-+
-+	bridge fdb add `ifaddr $h1` dev $swp1 vlan 100 master static
-+
-+	ping_do $h1.100 192.0.3.2
-+	check_err $? "Ping didn't work when it should have"
-+
-+	bridge link set dev $swp1 locked off
-+	bridge vlan del vid 100 dev $swp1
-+	bridge vlan del vid 100 dev $swp2
-+	bridge fdb del `ifaddr $h1` dev $swp1 vlan 100 master static
-+	log_test "Locked port vlan"
-+}
-+
-+locked_port_ipv6()
-+{
-+	RET=0
-+	check_locked_port_support || return 0
-+
-+	ping6_do $h1 2001:db8:1::2
-+	check_err $? "Ping6 didn't work when it should have"
-+
-+	bridge link set dev $swp1 locked on
-+
-+	ping6_do $h1 2001:db8:1::2
-+	check_fail $? "Ping worked when it should not have"
-+
-+	bridge fdb add `ifaddr $h1` dev $swp1 master static
-+	ping6_do $h1 2001:db8:1::2
-+	check_err $? "Ping didn't work when it should have"
-+
-+	bridge link set dev $swp1 locked off
-+	bridge fdb del `ifaddr $h1` dev $swp1 master static
-+	log_test "Locked port ipv6"
-+}
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+setup_wait
-+
-+tests_run
-+
-+exit $EXIT_STATUS
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 7da783d6f453..9ded90f17ead 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -125,6 +125,22 @@ check_ethtool_lanes_support()
- 	fi
- }
- 
-+check_locked_port_support()
-+{
-+        if ! bridge -d link show | grep -q " locked"; then
-+                echo "SKIP: iproute2 too old; Locked port feature not supported."
-+                return $ksft_skip
-+        fi
-+}
-+
-+check_vlan_filtering_support()
-+{
-+	if ! bridge -d vlan show | grep -q "state forwarding"; then
-+		echo "SKIP: vlan filtering not supported."
-+		return $ksft_skip
-+	fi
-+}
-+
- if [[ "$(id -u)" -ne 0 ]]; then
- 	echo "SKIP: need root privileges"
- 	exit $ksft_skip
--- 
-2.30.2
+> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+> index 509e18c7e740..3aae023a9353 100644
+> --- a/include/linux/if_bridge.h
+> +++ b/include/linux/if_bridge.h
+> @@ -58,6 +58,7 @@ struct br_ip_list {
+>  #define BR_MRP_LOST_CONT	BIT(18)
+>  #define BR_MRP_LOST_IN_CONT	BIT(19)
+>  #define BR_TX_FWD_OFFLOAD	BIT(20)
+> +#define BR_PORT_LOCKED		BIT(21)
+>  
+>  #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+>  
+> diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+> index 6218f93f5c1a..a45cc0a1f415 100644
+> --- a/include/uapi/linux/if_link.h
+> +++ b/include/uapi/linux/if_link.h
+> @@ -537,6 +537,7 @@ enum {
+>  	IFLA_BRPORT_MRP_IN_OPEN,
+>  	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
+>  	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
+> +	IFLA_BRPORT_LOCKED,
+>  	__IFLA_BRPORT_MAX
+>  };
+>  #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index b50382f957c1..e99f635ff727 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -81,6 +81,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  	if (!p || p->state == BR_STATE_DISABLED)
+>  		goto drop;
+>  
+> +	br = p->br;
+>  	brmctx = &p->br->multicast_ctx;
+>  	pmctx = &p->multicast_ctx;
+>  	state = p->state;
+> @@ -88,10 +89,17 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  				&state, &vlan))
+>  		goto out;
+>  
+> +	if (p->flags & BR_PORT_LOCKED) {
+> +		struct net_bridge_fdb_entry *fdb_src =
+> +			br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
 
+Please leave an empty line between variable declaration and the code.
+
+> +		if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
+> +		    test_bit(BR_FDB_LOCAL, &fdb_src->flags))
+> +			goto drop;
+> +	}
+> +
+
+With the above change you can add my Acked-by tag.
+
+Thanks,
+ Nik
