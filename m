@@ -1,26 +1,21 @@
 Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version:content-transfer-encoding;
- bh=bk6iCziDs7KEQNE/9x22f3LO3qPYLR33HEQGFJDm3+k=;
- b=aq0QkXeh4owaIu+yypuEQ1a2yBDhwHw/SbxYGwXQJugzlJBo5NGN1vgaSKE1s8blTC
- nWlDO0+/q1CV1osEyC1ffUM28jtOwbQo4awy97wV1Vcg9B3+Z8FQxY6d78m2ViRfd0gm
- E8I3MGRy8Kk6+E7kBzN77teBDGcujJaspYOFJhzzMhBWVhdQIXCMu/af+jiYgaOexucX
- Lw0bstn4EUJRy2pUBz1IprvGW42vTqu1n1xdBYTSOY3twHqMnQvAME0a6FQDOKMJ9ZLi
- I2OySGBHpmlmw1hvIYla97mGlfYFL7tDQScnZw/w8+tUqo+8csOR7UozJ4hP/hAarYre
- qi1A==
+ h=from:to:cc:subject:date:message-id:mime-version:organization
+ :content-transfer-encoding;
+ bh=VHfLSHEUp8KFCoSMOat+t/9h+kqq+wol9Ucvkw0K0Ko=;
+ b=el49x+sn8P8oo55vRYxMrzV9h6912Vs30PpYWE8XEE5Rg+Hbs6HMyLY17n57nDsZ7O
+ aoqx1c9OHaZ+Io5wS879xBafzK7c3Nf0tDkUmGyZL/zAGoHi75UCpa8k6+houBXp1q4V
+ oFKaIFEQ1XZjaAI9XSfYbL/ejqEd9A3NgguMLlye8h++oKStvlezt2WHfREbhW9tu78h
+ TOmJy3YMPDou7kHbHKL01G6PML1X6EUBiyYiH69UE2IfX89VoVAYcQg3lIcVJ2eK9Xgr
+ MRsKNi1LEy5RTLMHVHqNe/dArG8PdYs/+741BQpMPmFGCW6ZciZRDkhPEpznBW+slsoA
+ /Ong==
 From: Hans Schultz <schultz.hans@gmail.com>
-In-Reply-To: <YhIIJxxXP3JzD60/@shredder>
-References: <20220218155148.2329797-1-schultz.hans+netdev@gmail.com>
- <20220218155148.2329797-5-schultz.hans+netdev@gmail.com>
- <20220219100034.lh343dkmc4fbiad3@skbuf> <YhIIJxxXP3JzD60/@shredder>
-Date: Mon, 21 Feb 2022 15:05:58 +0100
-Message-ID: <86h78sqpq1.fsf@gmail.com>
+Date: Tue, 22 Feb 2022 14:28:13 +0100
+Message-Id: <20220222132818.1180786-1-schultz.hans+netdev@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH net-next v3 4/5] net: dsa: mv88e6xxx: Add
- support for bridge port locked mode
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next v4 0/5] Add support for locked bridge
+	ports (for 802.1X)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,65 +24,95 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>, Vladimir Oltean <olteanv@gmail.com>
-Cc: Petr Machata <petrm@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Baowen Zheng <baowen.zheng@corigine.com>, Florian Fainelli <f.fainelli@gmail.com>, Amit Cohen <amcohen@nvidia.com>, netdev@vger.kernel.org, Hans Schultz <schultz.hans@gmail.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, David Ahern <dsahern@kernel.org>, Ido Schimmel <idosch@nvidia.com>, Po-Hsu Lin <po-hsu.lin@canonical.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
+To: davem@davemloft.net, kuba@kernel.org
+Cc: Petr Machata <petrm@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Baowen Zheng <baowen.zheng@corigine.com>, Florian Fainelli <f.fainelli@gmail.com>, Amit Cohen <amcohen@nvidia.com>, netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Stephen Suryaputra <ssuryaextr@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Po-Hsu Lin <po-hsu.lin@canonical.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On s=C3=B6n, feb 20, 2022 at 11:21, Ido Schimmel <idosch@idosch.org> wrote:
-> On Sat, Feb 19, 2022 at 12:00:34PM +0200, Vladimir Oltean wrote:
->> On Fri, Feb 18, 2022 at 04:51:47PM +0100, Hans Schultz wrote:
->> > diff --git a/drivers/net/dsa/mv88e6xxx/port.c b/drivers/net/dsa/mv88e6=
-xxx/port.c
->> > index ab41619a809b..46b7381899a0 100644
->> > --- a/drivers/net/dsa/mv88e6xxx/port.c
->> > +++ b/drivers/net/dsa/mv88e6xxx/port.c
->> > @@ -1234,6 +1234,39 @@ int mv88e6xxx_port_set_mirror(struct mv88e6xxx_=
-chip *chip, int port,
->> >  	return err;
->> >  }
->> >=20=20
->> > +int mv88e6xxx_port_set_lock(struct mv88e6xxx_chip *chip, int port,
->> > +			    bool locked)
->> > +{
->> > +	u16 reg;
->> > +	int err;
->> > +
->> > +	err =3D mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_CTL0, &reg);
->> > +	if (err)
->> > +		return err;
->> > +
->> > +	reg &=3D ~MV88E6XXX_PORT_CTL0_SA_FILT_MASK;
->> > +	if (locked)
->> > +		reg |=3D MV88E6XXX_PORT_CTL0_SA_FILT_DROP_ON_LOCK;
->> > +
->> > +	err =3D mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_CTL0, reg);
->> > +	if (err)
->> > +		return err;
->> > +
->> > +	err =3D mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_ASSOC_VECTOR,=
- &reg);
->> > +	if (err)
->> > +		return err;
->> > +
->> > +	reg &=3D ~MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT;
->> > +	if (locked)
->> > +		reg |=3D MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT;
->> > +
->> > +	err =3D mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_ASSOC_VECTOR=
-, reg);
->>=20
->> 	return mv88e6xxx_port_write(...);
->
-> Not familiar with mv88e6xxx, but shouldn't there be a rollback of
-> previous operations? Specifically mv88e6xxx_port_write()
->
+This series starts by adding support for SA filtering to the bridge,
+which is then allowed to be offloaded to switchdev devices. Furthermore
+an offloading implementation is supplied for the mv88e6xxx driver.
 
-If a register write function fails, I don't think that it would make
-sense to try and resolve the situation by additional register write
-calls (rollback).
+Public Local Area Networks are often deployed such that there is a
+risk of unauthorized or unattended clients getting access to the LAN.
+To prevent such access we introduce SA filtering, such that ports
+designated as secure ports are set in locked mode, so that only
+authorized source MAC addresses are given access by adding them to
+the bridges forwarding database. Incoming packets with source MAC
+addresses that are not in the forwarding database of the bridge are
+discarded. It is then the task of user space daemons to populate the
+bridge's forwarding database with static entries of authorized entities.
 
->>=20
->> > +	if (err)
->> > +		return err;
->> > +
->> > +	return 0;
->> > +}
+The most common approach is to use the IEEE 802.1X protocol to take
+care of the authorization of allowed users to gain access by opening
+for the source address of the authorized host.
+
+With the current use of the bridge parameter in hostapd, there is
+a limitation in using this for IEEE 802.1X port authentication. It
+depends on hostapd attaching the port on which it has a successful
+authentication to the bridge, but that only allows for a single
+authentication per port. This patch set allows for the use of
+IEEE 802.1X port authentication in a more general network context with
+multiple 802.1X aware hosts behind a single port as depicted, which is
+a commonly used commercial use-case, as it is only the number of
+available entries in the forwarding database that limits the number of
+authenticated clients.
+
+      +--------------------------------+
+      |                                |
+      |      Bridge/Authenticator      |
+      |                                |
+      +-------------+------------------+
+       802.1X port  |
+                    |
+                    |
+             +------+-------+
+             |              |
+             |  Hub/Switch  |
+             |              |
+             +-+----------+-+
+               |          |
+            +--+--+    +--+--+
+            |     |    |     |
+    Hosts   |  a  |    |  b  |   . . .
+            |     |    |     |
+            +-----+    +-----+
+
+The 802.1X standard involves three different components, a Supplicant
+(Host), an Authenticator (Network Access Point) and an Authentication
+Server which is typically a Radius server. This patch set thus enables
+the bridge module together with an authenticator application to serve
+as an Authenticator on designated ports.
+
+
+For the bridge to become an IEEE 802.1X Authenticator, a solution using
+hostapd with the bridge driver can be found at
+https://github.com/westermo/hostapd/tree/bridge_driver .
+
+
+The relevant components work transparently in relation to if it is the
+bridge module or the offloaded switchcore case that is in use.
+
+Hans Schultz (5):
+  net: bridge: Add support for bridge port in locked mode
+  net: bridge: Add support for offloading of locked port flag
+  net: dsa: Include BR_PORT_LOCKED in the list of synced brport flags
+  net: dsa: mv88e6xxx: Add support for bridge port locked mode
+  selftests: forwarding: tests of locked port feature
+
+ drivers/net/dsa/mv88e6xxx/chip.c              |   9 +-
+ drivers/net/dsa/mv88e6xxx/port.c              |  29 +++
+ drivers/net/dsa/mv88e6xxx/port.h              |   9 +-
+ include/linux/if_bridge.h                     |   1 +
+ include/uapi/linux/if_link.h                  |   1 +
+ net/bridge/br_input.c                         |  11 +-
+ net/bridge/br_netlink.c                       |   6 +-
+ net/bridge/br_switchdev.c                     |   2 +-
+ net/dsa/port.c                                |   4 +-
+ .../testing/selftests/net/forwarding/Makefile |   1 +
+ .../net/forwarding/bridge_locked_port.sh      | 180 ++++++++++++++++++
+ tools/testing/selftests/net/forwarding/lib.sh |   8 +
+ 12 files changed, 254 insertions(+), 7 deletions(-)
+ create mode 100755 tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+
+-- 
+2.30.2
+
