@@ -1,23 +1,24 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:organization:content-transfer-encoding;
- bh=B62nDdE55WM/1duOKCHxmZ2f2uyelMOuqvpmkuCjkww=;
- b=Jp4+U0Urt1JRgU4N5WbvXyrxpmnyoBYjtIi4vw/zpHLl/ZiZtuvTLDeLEpTFg+nwr/
- mDPHM9uPt3JIMTlSechOPm4Imp2zjVLpqW4TjO3pbZojqeTNANDdnJTJnR82Tj1agcot
- SPB8Vq+ZaZparv+qgffoGEup4n7stDOrbKqVLSVULIWizPgSr9nUzr759Xm6BhS/fIli
- 1ZLS8Dc0CWW/dbTqk2ZdFsUCeakC9rAFGgUKyMQWkM6SWrCl8UorqxLM51VYlaUxayFz
- Skrfsuzn52Roh2mPXoG/8kqWSwa+sxlDZvfCBeXeJxyR9n9XkhcyA+cjeuuWOt52d/t5
- UqwQ==
-From: Hans Schultz <schultz.hans@gmail.com>
-Date: Wed, 23 Feb 2022 11:16:50 +0100
-Message-Id: <20220223101650.1212814-6-schultz.hans+netdev@gmail.com>
-In-Reply-To: <20220223101650.1212814-1-schultz.hans+netdev@gmail.com>
-References: <20220223101650.1212814-1-schultz.hans+netdev@gmail.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1645621212;
+ bh=weB59aojM0OQn/Xy7GXVElCcLRWhcGJyd2VR3nEi3pU=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=ct0NHB9Nd5GUht0vGmmowfkBuECMqOdVCTYuW1bjKGm+GaG4mc4bqoiUMBwijiHqe
+ w0poqSK8qzwF0TgAboZsjKp8IBWR/1oNCuKkb33r3+B5x3Irzead19u2BqTB/Cp96I
+ pYNn49CBc8I/YZxlxEvFEdb9Ne1O55OQYaSbQfQ6aIjAEVTXEWmlECebaF5k9Jwy/Q
+ oDvrX5GRyKwYV6x26QfBHh2LoS392fVVUCcwjcJ42NohYoPs2vbVJPkSQPpyWohlAC
+ SmrLdQL0oXJ1FhfcIMpgjkWMrwVuESYthoTOJv1v4/Eznaj9569JAbVYo5y/NlOUBh
+ xGjR3wU8QmB8Q==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v5 5/5] selftests: forwarding: tests of
-	locked port feature
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164562121216.5194.10519557733137319145.git-patchwork-notify@kernel.org>
+Date: Wed, 23 Feb 2022 13:00:12 +0000
+References: <20220223101650.1212814-1-schultz.hans+netdev@gmail.com>
+In-Reply-To: <20220223101650.1212814-1-schultz.hans+netdev@gmail.com>
+Subject: Re: [Bridge] [PATCH net-next v5 0/5] Add support for locked bridge
+ ports (for 802.1X)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,240 +27,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, kuba@kernel.org
-Cc: Petr Machata <petrm@nvidia.com>, Andrew Lunn <andrew@lunn.ch>, Baowen Zheng <baowen.zheng@corigine.com>, Florian Fainelli <f.fainelli@gmail.com>, Amit Cohen <amcohen@nvidia.com>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>, Roopa Prabhu <roopa@nvidia.com>, linux-kernel@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Po-Hsu Lin <po-hsu.lin@canonical.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, linux-kselftest@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Hans Schultz <schultz.hans@gmail.com>
+Cc: petrm@nvidia.com, andrew@lunn.ch, baowen.zheng@corigine.com, f.fainelli@gmail.com, amcohen@nvidia.com, netdev@vger.kernel.org, dsahern@kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@nvidia.com, vivien.didelot@gmail.com, schultz.hans+netdev@gmail.com, ssuryaextr@gmail.com, po-hsu.lin@canonical.com, nikolay@nvidia.com, linux-kselftest@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, olteanv@gmail.com, shuah@kernel.org, davem@davemloft.net
 
-These tests check that the basic locked port feature works, so that
-no 'host' can communicate (ping) through a locked port unless the
-MAC address of the 'host' interface is in the forwarding database of
-the bridge.
+Hello:
 
-Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
-Acked-by: Ido Schimmel <idosch@nvidia.com>
----
- .../testing/selftests/net/forwarding/Makefile |   1 +
- .../net/forwarding/bridge_locked_port.sh      | 180 ++++++++++++++++++
- tools/testing/selftests/net/forwarding/lib.sh |   8 +
- 3 files changed, 189 insertions(+)
- create mode 100755 tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+This series was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
 
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index 72ee644d47bf..8fa97ae9af9e 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -1,6 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0+ OR MIT
- 
- TEST_PROGS = bridge_igmp.sh \
-+	bridge_locked_port.sh \
- 	bridge_port_isolation.sh \
- 	bridge_sticky_fdb.sh \
- 	bridge_vlan_aware.sh \
-diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-new file mode 100755
-index 000000000000..6e98efa6d371
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-@@ -0,0 +1,180 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan"
-+NUM_NETIFS=4
-+CHECK_TC="no"
-+source lib.sh
-+
-+h1_create()
-+{
-+	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
-+	vrf_create "vrf-vlan-h1"
-+	ip link set dev vrf-vlan-h1 up
-+	vlan_create $h1 100 vrf-vlan-h1 198.51.100.1/24
-+}
-+
-+h1_destroy()
-+{
-+	vlan_destroy $h1 100
-+	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
-+}
-+
-+h2_create()
-+{
-+	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
-+	vrf_create "vrf-vlan-h2"
-+	ip link set dev vrf-vlan-h2 up
-+	vlan_create $h2 100 vrf-vlan-h2 198.51.100.2/24
-+}
-+
-+h2_destroy()
-+{
-+	vlan_destroy $h2 100
-+	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
-+}
-+
-+switch_create()
-+{
-+	ip link add dev br0 type bridge vlan_filtering 1
-+
-+	ip link set dev $swp1 master br0
-+	ip link set dev $swp2 master br0
-+
-+	ip link set dev br0 up
-+	ip link set dev $swp1 up
-+	ip link set dev $swp2 up
-+
-+	bridge link set dev $swp1 learning off
-+}
-+
-+switch_destroy()
-+{
-+	ip link set dev $swp2 down
-+	ip link set dev $swp1 down
-+
-+	ip link del dev br0
-+}
-+
-+setup_prepare()
-+{
-+	h1=${NETIFS[p1]}
-+	swp1=${NETIFS[p2]}
-+
-+	swp2=${NETIFS[p3]}
-+	h2=${NETIFS[p4]}
-+
-+	vrf_prepare
-+
-+	h1_create
-+	h2_create
-+
-+	switch_create
-+}
-+
-+cleanup()
-+{
-+	pre_cleanup
-+
-+	switch_destroy
-+
-+	h2_destroy
-+	h1_destroy
-+
-+	vrf_cleanup
-+}
-+
-+locked_port_ipv4()
-+{
-+	RET=0
-+
-+	check_locked_port_support || return 0
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "Ping did not work before locking port"
-+
-+	bridge link set dev $swp1 locked on
-+
-+	ping_do $h1 192.0.2.2
-+	check_fail $? "Ping worked after locking port, but before adding FDB entry"
-+
-+	bridge fdb add `mac_get $h1` dev $swp1 master static
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "Ping did not work after locking port and adding FDB entry"
-+
-+	bridge link set dev $swp1 locked off
-+	bridge fdb del `mac_get $h1` dev $swp1 master static
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "Ping did not work after unlocking port and removing FDB entry."
-+
-+	log_test "Locked port ipv4"
-+}
-+
-+locked_port_vlan()
-+{
-+	RET=0
-+
-+	check_locked_port_support || return 0
-+
-+	bridge vlan add vid 100 dev $swp1
-+	bridge vlan add vid 100 dev $swp2
-+
-+	ping_do $h1.100 198.51.100.2
-+	check_err $? "Ping through vlan did not work before locking port"
-+
-+	bridge link set dev $swp1 locked on
-+	ping_do $h1.100 198.51.100.2
-+	check_fail $? "Ping through vlan worked after locking port, but before adding FDB entry"
-+
-+	bridge fdb add `mac_get $h1` dev $swp1 vlan 100 master static
-+
-+	ping_do $h1.100 198.51.100.2
-+	check_err $? "Ping through vlan did not work after locking port and adding FDB entry"
-+
-+	bridge link set dev $swp1 locked off
-+	bridge fdb del `mac_get $h1` dev $swp1 vlan 100 master static
-+
-+	ping_do $h1.100 198.51.100.2
-+	check_err $? "Ping through vlan did not work after unlocking port and removing FDB entry"
-+
-+	bridge vlan del vid 100 dev $swp1
-+	bridge vlan del vid 100 dev $swp2
-+	log_test "Locked port vlan"
-+}
-+
-+locked_port_ipv6()
-+{
-+	RET=0
-+	check_locked_port_support || return 0
-+
-+	ping6_do $h1 2001:db8:1::2
-+	check_err $? "Ping6 did not work before locking port"
-+
-+	bridge link set dev $swp1 locked on
-+
-+	ping6_do $h1 2001:db8:1::2
-+	check_fail $? "Ping6 worked after locking port, but before adding FDB entry"
-+
-+	bridge fdb add `mac_get $h1` dev $swp1 master static
-+	ping6_do $h1 2001:db8:1::2
-+	check_err $? "Ping6 did not work after locking port and adding FDB entry"
-+
-+	bridge link set dev $swp1 locked off
-+	bridge fdb del `mac_get $h1` dev $swp1 master static
-+
-+	ping6_do $h1 2001:db8:1::2
-+	check_err $? "Ping6 did not work after unlocking port and removing FDB entry"
-+
-+	log_test "Locked port ipv6"
-+}
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+setup_wait
-+
-+tests_run
-+
-+exit $EXIT_STATUS
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 7da783d6f453..c26b603abb4d 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -125,6 +125,14 @@ check_ethtool_lanes_support()
- 	fi
- }
- 
-+check_locked_port_support()
-+{
-+	if ! bridge -d link show | grep -q " locked"; then
-+		echo "SKIP: iproute2 too old; Locked port feature not supported."
-+		return $ksft_skip
-+	fi
-+}
-+
- if [[ "$(id -u)" -ne 0 ]]; then
- 	echo "SKIP: need root privileges"
- 	exit $ksft_skip
+On Wed, 23 Feb 2022 11:16:45 +0100 you wrote:
+> This series starts by adding support for SA filtering to the bridge,
+> which is then allowed to be offloaded to switchdev devices. Furthermore
+> an offloading implementation is supplied for the mv88e6xxx driver.
+> 
+> Public Local Area Networks are often deployed such that there is a
+> risk of unauthorized or unattended clients getting access to the LAN.
+> To prevent such access we introduce SA filtering, such that ports
+> designated as secure ports are set in locked mode, so that only
+> authorized source MAC addresses are given access by adding them to
+> the bridges forwarding database. Incoming packets with source MAC
+> addresses that are not in the forwarding database of the bridge are
+> discarded. It is then the task of user space daemons to populate the
+> bridge's forwarding database with static entries of authorized entities.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v5,1/5] net: bridge: Add support for bridge port in locked mode
+    https://git.kernel.org/netdev/net-next/c/a21d9a670d81
+  - [net-next,v5,2/5] net: bridge: Add support for offloading of locked port flag
+    https://git.kernel.org/netdev/net-next/c/fa1c83342987
+  - [net-next,v5,3/5] net: dsa: Include BR_PORT_LOCKED in the list of synced brport flags
+    https://git.kernel.org/netdev/net-next/c/b9e8b58fd2cb
+  - [net-next,v5,4/5] net: dsa: mv88e6xxx: Add support for bridge port locked mode
+    https://git.kernel.org/netdev/net-next/c/34ea415f927e
+  - [net-next,v5,5/5] selftests: forwarding: tests of locked port feature
+    https://git.kernel.org/netdev/net-next/c/b2b681a41251
+
+You are awesome, thank you!
 -- 
-2.30.2
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
