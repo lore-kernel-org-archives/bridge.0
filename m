@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:organization:content-transfer-encoding;
- bh=dN16fgCTqmhSfWtON594E0vOkCFf2RmkoetWGdp6JJ4=;
- b=FGP37pZXEBxkL0RxQNnVRGaX5eyOsC22WbmLISe8yfJ43HMUdsFMgaXv9tkRS4DpVG
- tjGzCvGsTtjeWS+jnvH5B8+Yp0D8sycoVCMC3x1VD+fqlEoJdOXBZAkevk4YU74QVAk1
- S5ohNO6qfTP38dNJWcXPMuzxIRN7XtdtSoEONxXDoc74FLrZM4zM8X32zs+4tEagEIkD
- w76Srz/HbjzTAXMO6Jxw6l2CfLw7TcYeWVSyE90AFjDExj1M8DmPp93Em1NJxpYfj38U
- DbO1BDdxtMQwnqJF6B6W6I7OS/++rHXExExII94jWf2+Ux04FqkA2vPbo1YwpemaydjV
- 5Tug==
+ bh=9f7PbMRM1byMWVKRPVH2DH+qKFogCebwnAS9gVQDC5I=;
+ b=LfKQcjKEK5wI+sNFr+DRYqUk+bAEDYWDniCP2ki23Pban4lZywbpkNO37WC9287GE4
+ GUzTXcC7WfXhifu+HNVLh3hQagN1CsjazTGcN3YY2uq8fGGDGzCdya5i61D0NX15he2/
+ dIiLOrDJZrDvV0yjBETAqcapWu/haPjOuIcTKoDX8Paqo2R7I+0MO1yWX5zT2rZgwihK
+ xKwRYi/rzfgmKXKBSRmq020acgJjGZn41GrlcN2YqxDnHHu1Oip0P2qDOMmjgQYO8OBt
+ L2mkd/8V0lV7bWm+pIbFhLZVdOI+r9Ck9VzcPQJYvLqw/AJ/f7OtO1THeQOLZSPJzWcF
+ +Kkw==
 From: Tobias Waldekranz <tobias@waldekranz.com>
-Date: Tue,  1 Mar 2022 11:03:18 +0100
-Message-Id: <20220301100321.951175-8-tobias@waldekranz.com>
+Date: Tue,  1 Mar 2022 11:03:17 +0100
+Message-Id: <20220301100321.951175-7-tobias@waldekranz.com>
 In-Reply-To: <20220301100321.951175-1-tobias@waldekranz.com>
 References: <20220301100321.951175-1-tobias@waldekranz.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v2 net-next 07/10] net: dsa: Pass MST state changes
-	to driver
+Subject: [Bridge] [PATCH v2 net-next 06/10] net: dsa: Pass VLAN MSTI
+	migration notifications to driver
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,100 +31,80 @@ To: davem@davemloft.net, kuba@kernel.org
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
 Add the usual trampoline functionality from the generic DSA layer down
-to the drivers for MST state changes.
+to the drivers for VLAN MSTI migrations.
 
 Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 ---
- include/net/dsa.h  |  2 ++
- net/dsa/dsa_priv.h |  2 ++
- net/dsa/port.c     | 30 ++++++++++++++++++++++++++++++
+ include/net/dsa.h  |  3 +++
+ net/dsa/dsa_priv.h |  1 +
+ net/dsa/port.c     | 10 ++++++++++
  net/dsa/slave.c    |  6 ++++++
- 4 files changed, 40 insertions(+)
+ 4 files changed, 20 insertions(+)
 
 diff --git a/include/net/dsa.h b/include/net/dsa.h
-index cc8acb01bd9b..096e6e3a8e1e 100644
+index cfedcfb86350..cc8acb01bd9b 100644
 --- a/include/net/dsa.h
 +++ b/include/net/dsa.h
-@@ -943,6 +943,8 @@ struct dsa_switch_ops {
- 				     struct dsa_bridge bridge);
- 	void	(*port_stp_state_set)(struct dsa_switch *ds, int port,
- 				      u8 state);
-+	int	(*port_mst_state_set)(struct dsa_switch *ds, int port,
-+				      const struct switchdev_mst_state *state);
- 	void	(*port_fast_age)(struct dsa_switch *ds, int port);
- 	int	(*port_pre_bridge_flags)(struct dsa_switch *ds, int port,
- 					 struct switchdev_brport_flags flags,
+@@ -962,6 +962,9 @@ struct dsa_switch_ops {
+ 				 struct netlink_ext_ack *extack);
+ 	int	(*port_vlan_del)(struct dsa_switch *ds, int port,
+ 				 const struct switchdev_obj_port_vlan *vlan);
++	int	(*vlan_msti_set)(struct dsa_switch *ds,
++				 const struct switchdev_attr *attr);
++
+ 	/*
+ 	 * Forwarding database
+ 	 */
 diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-index 87ec0697e92e..a620e079ebc5 100644
+index 07c0ad52395a..87ec0697e92e 100644
 --- a/net/dsa/dsa_priv.h
 +++ b/net/dsa/dsa_priv.h
-@@ -198,6 +198,8 @@ static inline struct net_device *dsa_master_find_slave(struct net_device *dev,
- void dsa_port_set_tag_protocol(struct dsa_port *cpu_dp,
- 			       const struct dsa_device_ops *tag_ops);
- int dsa_port_set_state(struct dsa_port *dp, u8 state, bool do_fast_age);
-+int dsa_port_set_mst_state(struct dsa_port *dp,
-+			   const struct switchdev_mst_state *state);
- int dsa_port_enable_rt(struct dsa_port *dp, struct phy_device *phy);
- int dsa_port_enable(struct dsa_port *dp, struct phy_device *phy);
- void dsa_port_disable_rt(struct dsa_port *dp);
+@@ -217,6 +217,7 @@ int dsa_port_vlan_filtering(struct dsa_port *dp, bool vlan_filtering,
+ 			    struct netlink_ext_ack *extack);
+ bool dsa_port_skip_vlan_configuration(struct dsa_port *dp);
+ int dsa_port_ageing_time(struct dsa_port *dp, clock_t ageing_clock);
++int dsa_port_vlan_msti(struct dsa_port *dp, const struct switchdev_attr *attr);
+ int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu,
+ 			bool targeted_match);
+ int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
 diff --git a/net/dsa/port.c b/net/dsa/port.c
-index 5f45cb7d70ba..26cfbc8ab499 100644
+index d9da425a17fb..5f45cb7d70ba 100644
 --- a/net/dsa/port.c
 +++ b/net/dsa/port.c
-@@ -108,6 +108,36 @@ int dsa_port_set_state(struct dsa_port *dp, u8 state, bool do_fast_age)
+@@ -778,6 +778,16 @@ int dsa_port_bridge_flags(struct dsa_port *dp,
  	return 0;
  }
  
-+int dsa_port_set_mst_state(struct dsa_port *dp,
-+			   const struct switchdev_mst_state *state)
++int dsa_port_vlan_msti(struct dsa_port *dp, const struct switchdev_attr *attr)
 +{
 +	struct dsa_switch *ds = dp->ds;
-+	int err, port = dp->index;
 +
-+	if (!ds->ops->port_mst_state_set)
++	if (!ds->ops->vlan_msti_set)
 +		return -EOPNOTSUPP;
 +
-+	err = ds->ops->port_mst_state_set(ds, port, state);
-+	if (err)
-+		return err;
-+
-+	if (!dsa_port_can_configure_learning(dp) || dp->learning) {
-+		switch (state->state) {
-+		case BR_STATE_DISABLED:
-+		case BR_STATE_BLOCKING:
-+		case BR_STATE_LISTENING:
-+			/* Ideally we would only fast age entries
-+			 * belonging to VLANs controlled by this
-+			 * MST.
-+			 */
-+			dsa_port_fast_age(dp);
-+			break;
-+		}
-+	}
-+
-+	return 0;
++	return ds->ops->vlan_msti_set(ds, attr);
 +}
 +
- static void dsa_port_set_state_now(struct dsa_port *dp, u8 state,
- 				   bool do_fast_age)
+ int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu,
+ 			bool targeted_match)
  {
 diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index c6ffcd782b5a..32b006a5b778 100644
+index 089616206b11..c6ffcd782b5a 100644
 --- a/net/dsa/slave.c
 +++ b/net/dsa/slave.c
-@@ -288,6 +288,12 @@ static int dsa_slave_port_attr_set(struct net_device *dev, const void *ctx,
+@@ -314,6 +314,12 @@ static int dsa_slave_port_attr_set(struct net_device *dev, const void *ctx,
  
- 		ret = dsa_port_set_state(dp, attr->u.stp_state, true);
+ 		ret = dsa_port_bridge_flags(dp, attr->u.brport_flags, extack);
  		break;
-+	case SWITCHDEV_ATTR_ID_PORT_MST_STATE:
-+		if (!dsa_port_offloads_bridge_port(dp, attr->orig_dev))
++	case SWITCHDEV_ATTR_ID_VLAN_MSTI:
++		if (!dsa_port_offloads_bridge_dev(dp, attr->orig_dev))
 +			return -EOPNOTSUPP;
 +
-+		ret = dsa_port_set_mst_state(dp, &attr->u.mst_state);
++		ret = dsa_port_vlan_msti(dp, attr);
 +		break;
- 	case SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING:
- 		if (!dsa_port_offloads_bridge_dev(dp, attr->orig_dev))
- 			return -EOPNOTSUPP;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+ 		break;
 -- 
 2.25.1
 
