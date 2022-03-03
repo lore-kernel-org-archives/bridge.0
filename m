@@ -1,30 +1,33 @@
 Return-Path: <bigeasy@linutronix.de>
 From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1646327712;
+ s=2020; t=1646327718;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=QA9292ErVJBK3Dbl+AyvCtdfJtIr/aoQIN3k0viXtpQ=;
- b=v18fWMhrIMzCeoFgxsf70BbWn4cVKFGWxNEbyBR3CiiwMhqX6GIlHqTifHamPdb+cxOhOi
- JvBHjeRxT2vKKPdAnbVHCMOoqyx9WDCSRV5ycxYXXUi+Ghm8lqkU52ZUhN5hNsfDPlrWE9
- 2PGGqXg4HQDsUmQw3hVsTRJA0Ur4QEdVcwwVismFCt9IyVqDLdJg2v5i04zR3KZfwycHbx
- zk7crLioyZ3Zlsx47Ua2FaKQ0fx8Ws4g51iwG49Zvb0W3mz4NbKGhbZmUZT2vQwrKChi09
- JWWSmq9a74oUhi1VAsndcMHSv3MLAs8SNtlfg3xLqVCrA6lNydt9ck0oERAQoA==
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ekfc/m1gUeDgqzbzoOq4tlU805jIirBBBnL0GRluSkE=;
+ b=UbMgbC00q9J4LNhJMOvTENKvy3Gri3V1n229kBj6hgGjbGQICe3eYEMvI6xhFdTkClbv2r
+ RM1YZBzT3GtTAWII8P3Ts9VzP591Q8o52R5x1cLNsv68yl/0pl1LfQ790b21peETOc3Pdw
+ KBuDTEHPcasoFr61+HGiU5fkWVbdulo/1/0khDoLv1bgmAmWBqAJiVQAn6l+53P4/1ilpX
+ dUDoS66IxZbMYtswEOazSlsP9QAdFuKQrVC8rpyL+6WbIG0WiKj8YVHAM80OzQq4GAgi25
+ RnZXd+D0gv/OQkCScT/rDjoqrMpz1be6OCsfQ8UQmIfH46CdIzprMJQXxO6p0g==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1646327712;
+ s=2020e; t=1646327718;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=QA9292ErVJBK3Dbl+AyvCtdfJtIr/aoQIN3k0viXtpQ=;
- b=w/urUxUmHyvO2vZ0BDlhWhqntVfH+hl4j06fJsdYIzfNwdzkUVT+dDpfKb/fM0FjxGEqTi
- fs7bEubj+R6bWUCg==
-Date: Thu,  3 Mar 2022 18:14:56 +0100
-Message-Id: <20220303171505.1604775-1-bigeasy@linutronix.de>
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ekfc/m1gUeDgqzbzoOq4tlU805jIirBBBnL0GRluSkE=;
+ b=q2mFoyOzA9IBZHmwMV9PJdWFOCZ2KzMNCHINJ1mDRUnl1liF35lOCv2Te4hyM8xo9sHRt8
+ B8Vy/0Z9hWoV7rBA==
+Date: Thu,  3 Mar 2022 18:15:04 +0100
+Message-Id: <20220303171505.1604775-9-bigeasy@linutronix.de>
+In-Reply-To: <20220303171505.1604775-1-bigeasy@linutronix.de>
+References: <20220303171505.1604775-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Subject: [Bridge] [PATCH net-next 0/9] net: Convert user to netif_rx().
+Subject: [Bridge] [PATCH net-next 8/9] net: bridge: Use netif_rx().
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,32 +37,49 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>, linux-doc@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Max Filippov <jcmvbkbc@gmail.com>, Steve Wahl <steve.wahl@hpe.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>, linux-xtensa@linux-xtensa.org, Mike Travis <mike.travis@hpe.com>, =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>, Thomas Gleixner <tglx@linutronix.de>, Chris Zankel <chris@zankel.net>, Robin Holt <robinmholt@gmail.com>, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "David S. Miller" <davem@davemloft.net>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-This is the first batch of converting netif_rx_ni() caller to
-netif_rx(). The change making this possible is net-next and
-netif_rx_ni() is a wrapper around netif_rx(). This is a clean up in
-order to remove netif_rx_ni().
+Since commit
+   baebdf48c3600 ("net: dev: Makes sure netif_rx() can be invoked in any co=
+ntext.")
 
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: bridge@lists.linux-foundation.org
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Kurt Kanzenbach <kurt@linutronix.de>
-Cc: linux-doc@vger.kernel.org
-Cc: linux-xtensa@linux-xtensa.org
-Cc: =C5=81ukasz Stelmach <l.stelmach@samsung.com>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Mike Travis <mike.travis@hpe.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Robin Holt <robinmholt@gmail.com>
+the function netif_rx() can be used in preemptible/thread context as
+well as in interrupt context.
+
+Use netif_rx().
+
 Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: Steve Wahl <steve.wahl@hpe.com>
-Cc: UNGLinuxDriver@microchip.com
-Cc: Vivien Didelot <vivien.didelot@gmail.com>
-Cc: Vladimir Oltean <olteanv@gmail.com>
-Sebastian
+Cc: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: bridge@lists.linux-foundation.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ net/bridge/br_arp_nd_proxy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
+index 3db1def4437b3..e5e48c6e35d78 100644
+--- a/net/bridge/br_arp_nd_proxy.c
++++ b/net/bridge/br_arp_nd_proxy.c
+@@ -84,7 +84,7 @@ static void br_arp_send(struct net_bridge *br, struct net=
+_bridge_port *p,
+ 		skb->ip_summed =3D CHECKSUM_UNNECESSARY;
+ 		skb->pkt_type =3D PACKET_HOST;
+=20
+-		netif_rx_ni(skb);
++		netif_rx(skb);
+ 	}
+ }
+=20
+@@ -364,7 +364,7 @@ static void br_nd_send(struct net_bridge *br, struct ne=
+t_bridge_port *p,
+ 		reply->ip_summed =3D CHECKSUM_UNNECESSARY;
+ 		reply->pkt_type =3D PACKET_HOST;
+=20
+-		netif_rx_ni(reply);
++		netif_rx(reply);
+ 	}
+ }
+=20
+--=20
+2.35.1
 
