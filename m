@@ -1,25 +1,23 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=qURyynMi/HgXpmSfLyUFNqbqAu/l3MGX7Mv0yI+XyPQ=;
- b=Ep3QG/4ZU24+B32NtMclXeYMmGtv/CULxCL1Xcm8LpSfsHlwc1RTO4xFbc2BtrbqRI
- wDXQD3JBhvqiFguK4cLM0aMfivTA8qyy0+Hnf+PP/zfio3r48S7rMkJeCF35l9tWeIJ9
- mYwxrsKxnteK0lvvQUrJlMPI0Sk2yD/jrwglf9Wv3ZEk+QCLUDHd7m8QPxYd726BqHi7
- 8KYmUHMI7xBVqF/1QJPn4zifeyxo/cOQYMIPV9na6+SiN3Wo5GEnLYo9GjPtjmuA9BvE
- Uzuiej//fqAXgRzjnqLsRzkRu3JqXTga+bPwZPb7aSJRoNSMim0pbBcv3PeymH4LOt94
- ClqQ==
-Date: Fri, 4 Mar 2022 00:29:42 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220303222942.dkz7bfuagkv7hbpp@skbuf>
-References: <20220301100321.951175-1-tobias@waldekranz.com>
- <20220301100321.951175-7-tobias@waldekranz.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1646395812;
+ bh=Xieg0ITcJqTt/jIZLiexhbijH6baoMOJ0W7XtQGkkzM=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=qs7Adw1hN+QtMwm6shLuEst5UfUV5331LQwMSDpww+D4iEiW0ZHDRBG4khl5mwlDa
+ 0Tn4o1Zf6YT3OF5RQBoYo2qdYJbH744V2oAei+fgZbbNyE+bMUEfcsPMyXq2UT5+uq
+ o2F+YzWtER3Dz/zkw1pqP/FJlW8pXWH0732imUCqFkoCLdIVZs/Z5MVJD2wnCCg8yx
+ V9QLXQmgp3dxlc43g3J/KtcNg4xHW6441wjpR7hDrPmm8t/CNuOBI15FnLHvsU2hHW
+ aEnjr3s0akp5MLgFg3DmG/ybA4itaYzoswOzjoaywsyareJs9+44/pYetEYuVYbyC7
+ nW7v75Ht5o9SA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220301100321.951175-7-tobias@waldekranz.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 06/10] net: dsa: Pass VLAN MSTI
- migration notifications to driver
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164639581253.6905.17402968335901101140.git-patchwork-notify@kernel.org>
+Date: Fri, 04 Mar 2022 12:10:12 +0000
+References: <20220303171505.1604775-1-bigeasy@linutronix.de>
+In-Reply-To: <20220303171505.1604775-1-bigeasy@linutronix.de>
+Subject: Re: [Bridge] [PATCH net-next 0/9] net: Convert user to netif_rx().
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,97 +26,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: andrew@lunn.ch, linux-doc@vger.kernel.org, razor@blackwall.org, kurt@linutronix.de, jcmvbkbc@gmail.com, steve.wahl@hpe.com, horatiu.vultur@microchip.com, f.fainelli@gmail.com, corbet@lwn.net, bridge@lists.linux-foundation.org, roopa@nvidia.com, kuba@kernel.org, vivien.didelot@gmail.com, linux-xtensa@linux-xtensa.org, mike.travis@hpe.com, l.stelmach@samsung.com, tglx@linutronix.de, chris@zankel.net, netdev@vger.kernel.org, robinmholt@gmail.com, UNGLinuxDriver@microchip.com, olteanv@gmail.com, davem@davemloft.net
 
-On Tue, Mar 01, 2022 at 11:03:17AM +0100, Tobias Waldekranz wrote:
-> Add the usual trampoline functionality from the generic DSA layer down
-> to the drivers for VLAN MSTI migrations.
+Hello:
+
+This series was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Thu,  3 Mar 2022 18:14:56 +0100 you wrote:
+> This is the first batch of converting netif_rx_ni() caller to
+> netif_rx(). The change making this possible is net-next and
+> netif_rx_ni() is a wrapper around netif_rx(). This is a clean up in
+> order to remove netif_rx_ni().
 > 
-> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-> ---
->  include/net/dsa.h  |  3 +++
->  net/dsa/dsa_priv.h |  1 +
->  net/dsa/port.c     | 10 ++++++++++
->  net/dsa/slave.c    |  6 ++++++
->  4 files changed, 20 insertions(+)
-> 
-> diff --git a/include/net/dsa.h b/include/net/dsa.h
-> index cfedcfb86350..cc8acb01bd9b 100644
-> --- a/include/net/dsa.h
-> +++ b/include/net/dsa.h
-> @@ -962,6 +962,9 @@ struct dsa_switch_ops {
->  				 struct netlink_ext_ack *extack);
->  	int	(*port_vlan_del)(struct dsa_switch *ds, int port,
->  				 const struct switchdev_obj_port_vlan *vlan);
-> +	int	(*vlan_msti_set)(struct dsa_switch *ds,
-> +				 const struct switchdev_attr *attr);
+> Cc: Andrew Lunn <andrew@lunn.ch>
+> Cc: bridge@lists.linux-foundation.org
+> Cc: Chris Zankel <chris@zankel.net>
+> Cc: Florian Fainelli <f.fainelli@gmail.com>
+> Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
+> Cc: Jonathan Corbet <corbet@lwn.net>
+> Cc: Kurt Kanzenbach <kurt@linutronix.de>
+> Cc: linux-doc@vger.kernel.org
+> Cc: linux-xtensa@linux-xtensa.org
+> Cc: Łukasz Stelmach <l.stelmach@samsung.com>
+> Cc: Max Filippov <jcmvbkbc@gmail.com>
+> Cc: Mike Travis <mike.travis@hpe.com>
+> Cc: Nikolay Aleksandrov <razor@blackwall.org>
+> Cc: Robin Holt <robinmholt@gmail.com>
+> Cc: Roopa Prabhu <roopa@nvidia.com>
+> Cc: Steve Wahl <steve.wahl@hpe.com>
+> Cc: UNGLinuxDriver@microchip.com
+> Cc: Vivien Didelot <vivien.didelot@gmail.com>
+> Cc: Vladimir Oltean <olteanv@gmail.com>
+> Sebastian
 
-I would rather pass the struct switchdev_vlan_attr and the orig_dev
-(bridge) as separate arguments here. Or even the struct dsa_bridge, for
-consistency to the API changes for database isolation.
+Here is the summary with links:
+  - [net-next,1/9] docs: networking: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/21f95a88eab4
+  - [net-next,2/9] net: xtensa: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/aa4e5761bff5
+  - [net-next,3/9] net: sgi-xp: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/4343b866aa94
+  - [net-next,4/9] net: caif: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/3fb4430e73bf
+  - [net-next,5/9] net: dsa: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/db00cc9da079
+  - [net-next,6/9] net: ethernet: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/90f77c1c512f
+  - [net-next,7/9] net: macvlan: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/566214f44697
+  - [net-next,8/9] net: bridge: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/2e83bdd5d6cf
+  - [net-next,9/9] net: dev: Use netif_rx().
+    https://git.kernel.org/netdev/net-next/c/ad0a043fc26c
 
-> +
->  	/*
->  	 * Forwarding database
->  	 */
-> diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-> index 07c0ad52395a..87ec0697e92e 100644
-> --- a/net/dsa/dsa_priv.h
-> +++ b/net/dsa/dsa_priv.h
-> @@ -217,6 +217,7 @@ int dsa_port_vlan_filtering(struct dsa_port *dp, bool vlan_filtering,
->  			    struct netlink_ext_ack *extack);
->  bool dsa_port_skip_vlan_configuration(struct dsa_port *dp);
->  int dsa_port_ageing_time(struct dsa_port *dp, clock_t ageing_clock);
-> +int dsa_port_vlan_msti(struct dsa_port *dp, const struct switchdev_attr *attr);
->  int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu,
->  			bool targeted_match);
->  int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
-> diff --git a/net/dsa/port.c b/net/dsa/port.c
-> index d9da425a17fb..5f45cb7d70ba 100644
-> --- a/net/dsa/port.c
-> +++ b/net/dsa/port.c
-> @@ -778,6 +778,16 @@ int dsa_port_bridge_flags(struct dsa_port *dp,
->  	return 0;
->  }
->  
-> +int dsa_port_vlan_msti(struct dsa_port *dp, const struct switchdev_attr *attr)
-> +{
-> +	struct dsa_switch *ds = dp->ds;
-> +
-> +	if (!ds->ops->vlan_msti_set)
-> +		return -EOPNOTSUPP;
-> +
-> +	return ds->ops->vlan_msti_set(ds, attr);
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-I guess this doesn't need to be a cross-chip notifier event for all
-switches, because replication to all bridge ports is handled by
-switchdev_handle_port_attr_set(). Ok. But isn't it called too many times
-per switch?
-
-> +}
-> +
->  int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu,
->  			bool targeted_match)
->  {
-> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-> index 089616206b11..c6ffcd782b5a 100644
-> --- a/net/dsa/slave.c
-> +++ b/net/dsa/slave.c
-> @@ -314,6 +314,12 @@ static int dsa_slave_port_attr_set(struct net_device *dev, const void *ctx,
->  
->  		ret = dsa_port_bridge_flags(dp, attr->u.brport_flags, extack);
->  		break;
-> +	case SWITCHDEV_ATTR_ID_VLAN_MSTI:
-> +		if (!dsa_port_offloads_bridge_dev(dp, attr->orig_dev))
-> +			return -EOPNOTSUPP;
-> +
-> +		ret = dsa_port_vlan_msti(dp, attr);
-> +		break;
->  	default:
->  		ret = -EOPNOTSUPP;
->  		break;
-> -- 
-> 2.25.1
-> 
 
