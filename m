@@ -1,27 +1,24 @@
-Return-Path: <razor@blackwall.org>
+Return-Path: <tobias@waldekranz.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=1jGYNh9y1jCRU2Ce5sNN/KIt4KeyZCiwBUd3+H3/o08=;
- b=EPe6VKyTN3nTIzc2Xu7I2TzJ81mO0rAjis5e8dPqpR3ke+IxwnOlBfNPx+2ws/yGE3
- 6N4/8USZpMXGOwMkBkqaPsVFdpV8/CL4M6KipioCaKru2ps8txN/LvRTjfo3odLRts6j
- fi+KihWJv3uBnoAWDW/kotNPPjMlBie/FtXtowgGvSNW5z1WUt6J+yYac/cEsP5deNzy
- MA/WWVTVHSo3WhWOdvDyX/xgxHTh5EllYSTqr1Fwj2IiAvONMN961PLJ9mcXqr8FOl2c
- GrZBmpYQfZ3YXMy3aolMw9hj5Rniup+pGJVxlRmHJbWomoHnT+ZUyYSJXJ315/KKHgwj
- vM0g==
-Message-ID: <4fc171ed-98dd-2574-6373-f58b4b9e036a@blackwall.org>
-Date: Mon, 7 Mar 2022 17:03:02 +0200
-MIME-Version: 1.0
-Content-Language: en-US
+ d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
+ h=from:to:cc:subject:in-reply-to:references:date:message-id
+ :mime-version; bh=/BTt8YfLqIyHV2xz5yac4//kRwc8vucWlkgPD1H5W5U=;
+ b=geSKUfzqH0ywLbmlSI4UD7XWu1DZAlvfys+W7vVP+VziMkRy9OPLCGWNyAdIXt1Bk5
+ h809Vnkn1UErlMBAksU9IxSwTd3AvnT4UYUsCk8Fbj3N7QPq2u4sVhQA/K7918afijZ/
+ +nXawLyl8sKtpITj3idcFoayKBWNTF8YEL15U34F09L97BWaO82jpZjN3qn9i5EP/WcK
+ YqYWxTW8LazUdo+MmCRa9MQupXERDJ2rNoYVtiqDZr8AJPrvVKVP838BI0qFTNRs0JMg
+ L2C3s4WjE0o6b0WRiadxWMjVi1woqYDlUuZc2YWb8XtkniDw4Hj87xdrKekXMDgAW0uC
+ W9aA==
+From: Tobias Waldekranz <tobias@waldekranz.com>
+In-Reply-To: <5d3acf32-9875-de6d-7495-5e4860fb88f1@nvidia.com>
 References: <20220301100321.951175-1-tobias@waldekranz.com>
  <20220301100321.951175-4-tobias@waldekranz.com>
  <53EED92D-FEAC-4CC6-AF2A-52E73F839AB5@blackwall.org>
- <874k49olix.fsf@waldekranz.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <874k49olix.fsf@waldekranz.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+ <5d3acf32-9875-de6d-7495-5e4860fb88f1@nvidia.com>
+Date: Mon, 07 Mar 2022 16:03:07 +0100
+Message-ID: <871qzdolec.fsf@waldekranz.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH v2 net-next 03/10] net: bridge: mst: Support
  setting and reporting MST port states
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -32,17 +29,17 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net, kuba@kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Ido Schimmel <idosch@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On 07/03/2022 17:00, Tobias Waldekranz wrote:
-> On Wed, Mar 02, 2022 at 00:19, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+On Tue, Mar 01, 2022 at 17:53, Roopa Prabhu <roopa@nvidia.com> wrote:
+> On 3/1/22 15:19, Nikolay Aleksandrov wrote:
 >> On 1 March 2022 11:03:14 CET, Tobias Waldekranz <tobias@waldekranz.com> wrote:
 >>> Make it possible to change the port state in a given MSTI. This is
 >>> done through a new netlink interface, since the MSTIs are objects in
 >>> their own right. The proposed iproute2 interface would be:
 >>>
->>>    bridge mst set dev <PORT> msti <MSTI> state <STATE>
+>>>     bridge mst set dev <PORT> msti <MSTI> state <STATE>
 >>>
 >>> Current states in all applicable MSTIs can also be dumped. The
 >>> proposed iproute interface looks like this:
@@ -130,41 +127,16 @@ On 07/03/2022 17:00, Tobias Waldekranz wrote:
 >>> +	RTM_SETMST,
 >>> +#define RTM_SETMST	RTM_SETMST
 >>> +
->>
 >> I think you should also update selinux  (see nlmsgtab.c)
 >> I'll think about this one, if there is some nice way to avoid the new rtm types.
->>
->>> 	__RTM_MAX,
->>> #define RTM_MAX		(((__RTM_MAX + 3) & ~3) - 1)
->>> };
->>> diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
->>> index f3b8e279b85c..8dea8e7257fd 100644
->>> --- a/net/bridge/br_mst.c
->>> +++ b/net/bridge/br_mst.c
->>> @@ -120,3 +120,247 @@ int br_mst_set_enabled(struct net_bridge *br, unsigned long val)
->>> 	br_opt_toggle(br, BROPT_MST_ENABLED, !!val);
->>> 	return 0;
->>> }
->>> +
->>> +static int br_mst_nl_get_one(struct net_bridge_port *p, struct sk_buff *skb,
->>> +			     struct netlink_callback *cb)
->>> +{
->>> +	struct net_bridge_vlan_group *vg = nbp_vlan_group(p);
->>> +	int err = 0, idx = 0, s_idx = cb->args[1];
->>> +	struct net_bridge_vlan *v;
->>> +	struct br_port_msg *bpm;
->>> +	struct nlmsghdr *nlh;
->>> +	struct nlattr *nest;
->>> +	unsigned long *seen;
->>> +
->>
->> Reverse xmas tree
-> 
-> Both of these lines end at the 28th column. Is there some other
-> tiebreaking mechanism that forces the reverse ordering of nest and seen?
-> 
-> In a variable-width font, the nest declaration does appear shorter. I
-> remember that you did not have your laptop with you, could that be it?
+>
+> yes, since these are all port attributes, seems like 'bridge link set' 
+> should work
+>
+> Tobias, can you pls check if extending RTM_SETLINK (with AF_BRIDGE) is 
+> an option here ?
+>
+> ie via br_setlink
 
-Ah yes, you're right. :) Sorry for the noise.
-
+Yeah that makes sense. Not sure how I convinced myself that I needed a
+separate rtm type for it. I will give it a try. Thanks!
