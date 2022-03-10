@@ -1,27 +1,23 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=oX+0+0DrmOoX0UExiTkiHRjD/PO3ZH5Ft00ctb+zEKI=;
- b=BPRxLuF7n9XtXKwdeuqh95S7kLErSQclSFQdNbqGbFJzJDWmH3Wb/7tEyV1xG95wMw
- 3kfJn51SgR+rTE1KpBjnUHqhhPoUXLJkWK+2Sf6IzO+SXdPbgjlz4oTP4PumMIuY1Kh9
- 82W408Q+3DHPUpvvBOA94keBEAhpUUShpbH0B+Pc+PJD2Ftg49ukCTKAiwNEOvfhD/Lf
- 0TMEKTsBipQwuvdQH7hRdmkTpVhg84LKl76WgqErn7VycOpPuBNIXbyTdgEBwpCnlBB1
- VmWf2fE/wBz0r3YFwYTUg3Bg7BE2NJX8UgNpaxHiC/UtDM0JXF4h6uIS0ZkI0vC+k1zS
- cKeA==
-Message-ID: <0eeaf59f-e7eb-7439-3c0a-17e7ac6741f0@blackwall.org>
-Date: Thu, 10 Mar 2022 16:42:51 +0200
-MIME-Version: 1.0
-Content-Language: en-US
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+ s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+ Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+ Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+ bh=/58cWmygECTkPSPoDwqtqviybzKgiSNcNrLHiVOqlDE=; b=h7/+DopdaFXY6RnCGoW2MCpXek
+ qjKJbQBjWD3BTW7lvhC3/IM7+YQ0Ur/v7fTn0R3Vn7u1Mj6C3SL/3JtCokFcECooPEFCCJLW+1jqP
+ 5EOLJB2P4lgIuPexvsE5raXxdasl+V1XPBy6P/+7lChYHfG1j1xhM21wZXl8I7mPu0cc=;
+Date: Thu, 10 Mar 2022 15:54:58 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+Message-ID: <YioRQpUTJ7WmTLXQ@lunn.ch>
 References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
- <20220310142320.611738-2-schultz.hans+netdev@gmail.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20220310142320.611738-2-schultz.hans+netdev@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 1/3] net: bridge: add fdb flag to
- extent locked port feature
+ <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
+Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
+ implementation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,116 +26,56 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Hans Schultz <schultz.hans+netdev@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Hans Schultz <schultz.hans@gmail.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-On 10/03/2022 16:23, Hans Schultz wrote:
-> Add an intermediate state for clients behind a locked port to allow for
-> possible opening of the port for said clients. This feature corresponds
-> to the Mac-Auth and MAC Authentication Bypass (MAB) named features. The
-> latter defined by Cisco.
-> 
-> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
-> ---
->   include/uapi/linux/neighbour.h |  1 +
->   net/bridge/br_fdb.c            |  6 ++++++
->   net/bridge/br_input.c          | 11 ++++++++++-
->   net/bridge/br_private.h        |  3 ++-
->   4 files changed, 19 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
-> index db05fb55055e..83115a592d58 100644
-> --- a/include/uapi/linux/neighbour.h
-> +++ b/include/uapi/linux/neighbour.h
-> @@ -208,6 +208,7 @@ enum {
->   	NFEA_UNSPEC,
->   	NFEA_ACTIVITY_NOTIFY,
->   	NFEA_DONT_REFRESH,
-> +	NFEA_LOCKED,
->   	__NFEA_MAX
->   };
+> +		if (mv88e6xxx_port_is_locked(chip, chip->ports[spid].port))
+> +			err = mv88e6xxx_switchdev_handle_atu_miss_violation(chip,
+> +									    chip->ports[spid].port,
+> +									    &entry,
+> +									    fid);
 
-Hmm, can you use NDA_FLAGS_EXT instead ?
-That should simplify things and reduce the nl size.
-
->   #define NFEA_MAX (__NFEA_MAX - 1)
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 6ccda68bd473..396dcf3084cf 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -105,6 +105,7 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
->   	struct nda_cacheinfo ci;
->   	struct nlmsghdr *nlh;
->   	struct ndmsg *ndm;
-> +	u8 ext_flags = 0;
->   
->   	nlh = nlmsg_put(skb, portid, seq, type, sizeof(*ndm), flags);
->   	if (nlh == NULL)
-> @@ -125,11 +126,16 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
->   		ndm->ndm_flags |= NTF_EXT_LEARNED;
->   	if (test_bit(BR_FDB_STICKY, &fdb->flags))
->   		ndm->ndm_flags |= NTF_STICKY;
-> +	if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags))
-> +		ext_flags |= 1 << NFEA_LOCKED;
->   
->   	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->key.addr))
->   		goto nla_put_failure;
->   	if (nla_put_u32(skb, NDA_MASTER, br->dev->ifindex))
->   		goto nla_put_failure;
-> +	if (nla_put_u8(skb, NDA_FDB_EXT_ATTRS, ext_flags))
-> +		goto nla_put_failure;
+> +static int mv88e6xxx_find_vid_on_matching_fid(struct mv88e6xxx_chip *chip,
+> +					      const struct mv88e6xxx_vtu_entry *entry,
+> +					      void *priv)
+> +{
+> +	struct mv88e6xxx_fid_search_ctx *ctx = priv;
 > +
->   	ci.ndm_used	 = jiffies_to_clock_t(now - fdb->used);
->   	ci.ndm_confirmed = 0;
->   	ci.ndm_updated	 = jiffies_to_clock_t(now - fdb->updated);
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index e0c13fcc50ed..897908484b18 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -75,6 +75,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
->   	struct net_bridge_mcast *brmctx;
->   	struct net_bridge_vlan *vlan;
->   	struct net_bridge *br;
-> +	unsigned long flags = 0;
+> +	if (ctx->fid_search == entry->fid) {
+> +		ctx->vid_found = entry->vid;
+> +		return 1;
+> +	}
+> +	return 0;
+> +}
+> +
+> +int mv88e6xxx_switchdev_handle_atu_miss_violation(struct mv88e6xxx_chip *chip,
+> +						  int port,
+> +						  struct mv88e6xxx_atu_entry *entry,
+> +						  u16 fid)
+> +{
+> +	struct switchdev_notifier_fdb_info info = {
+> +		.addr = entry->mac,
+> +		.vid = 0,
+> +		.added_by_user = false,
+> +		.is_local = false,
+> +		.offloaded = true,
+> +		.locked = true,
+> +	};
+> +	struct mv88e6xxx_fid_search_ctx ctx;
+> +	struct netlink_ext_ack *extack;
+> +	struct net_device *brport;
+> +	struct dsa_port *dp;
+> +	int err;
+> +
+> +	ctx.fid_search = fid;
+> +	err = mv88e6xxx_vtu_walk(chip, mv88e6xxx_find_vid_on_matching_fid, &ctx);
 
-Please move this below...
+I could be reading this code wrong, but it looks like you assume there
+is a single new entry in the ATU. But interrupts on these devices are
+slow. It would be easy for two or more devices to pop into existence
+at the same time. Don't you need to walk the whole ATU to find all the
+new entries? Have you tried this with a traffic generating populating
+the ATU with new entries at different rates, up to line rate? Do you
+get notifications for them all?
 
->   	u16 vid = 0;
->   	u8 state;
->   
-> @@ -94,8 +95,16 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
->   			br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
->   
->   		if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
-> -		    test_bit(BR_FDB_LOCAL, &fdb_src->flags))
-> +		    test_bit(BR_FDB_LOCAL, &fdb_src->flags)) {
-> +			if (!fdb_src) {
-
-... here where it's only used.
-
-> +				set_bit(BR_FDB_ENTRY_LOCKED, &flags);
-> +				br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, flags);
-> +			}
->   			goto drop;
-> +		} else {
-> +			if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb_src->flags))
-> +				goto drop;
-> +		}
->   	}
->   
->   	nbp_switchdev_frame_mark(p, skb);
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 48bc61ebc211..f5a0b68c4857 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -248,7 +248,8 @@ enum {
->   	BR_FDB_ADDED_BY_EXT_LEARN,
->   	BR_FDB_OFFLOADED,
->   	BR_FDB_NOTIFY,
-> -	BR_FDB_NOTIFY_INACTIVE
-> +	BR_FDB_NOTIFY_INACTIVE,
-> +	BR_FDB_ENTRY_LOCKED,
->   };
->   
->   struct net_bridge_fdb_key {
-
+    Andrew
