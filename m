@@ -1,26 +1,28 @@
-Return-Path: <tobias@waldekranz.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
+Return-Path: <schultz.hans@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=k6OgL/z6xyQraQABSVfYgeydoW+8ffdkM6ASQFGYnFc=;
- b=6tWwYjJO7t29tf8hEjIH77l5ZvdGSdEOvjTLNGyXPWrBD1C0k76cIvbNNJzdJ47uWx
- rmoiAeGmtcWQUFGLe5G3z3D8GAztAkgpGvvRpgHxsAJ5lMmr4aY+m0ABiMMpUYYa+d/+
- w09XuoAaO0Vq4HiEqajEa1VHwEuHKPfdac1z13JphojTaZz5deh9+AjeJnLloWopPini
- QNL+ZK294p36Id1WJCXRfxLegWst6D90i/vyvUGDpV8ryklkLkeiuRcJlHSL8VFVtuWR
- JA5FaRL0z33xNgPvj7z/TQ2hSFXwSR2h6iXs7rVrzvlio+9nPdCkL2F8LbMwhckgnn/3
- 1hsg==
-From: Tobias Waldekranz <tobias@waldekranz.com>
-In-Reply-To: <87h785n67k.fsf@waldekranz.com>
-References: <20220301100321.951175-1-tobias@waldekranz.com>
- <20220301100321.951175-8-tobias@waldekranz.com>
- <20220303222055.7a5pr4la3wmuuekc@skbuf> <87mthymblh.fsf@waldekranz.com>
- <20220310103509.g35syl776kyh5j2n@skbuf> <87h785n67k.fsf@waldekranz.com>
-Date: Thu, 10 Mar 2022 17:20:22 +0100
-Message-ID: <87ee39n5ix.fsf@waldekranz.com>
+ :mime-version; bh=B7oFKopF/ybeQa/teChmQ0Yg8Uh0H2eRFEQBuI2o4kc=;
+ b=I5jVSX/Gy5iKr+6UJuMYJiQ5GXOp4zOsI6dYdUjBQZPcJbPvrY041p13LD1tgt5EIs
+ pZd8OQJdOPhpyZ+ZVntFl3zdgb75JPGzTeZ8+QHdd38MWPWw7QRyS/xXD/SrLY3k50Cx
+ AS3hvkYGyJH9vqTdaWWI5J+lvf1y0QDyswlFbkBHZtbrs4UqYoXyD7RHVXPJcOsmrVIo
+ wxu0pcFU2Kj9K8tSNfuyF2VOQCAY3zK5UWR63MBE3lzviA943i0aNKS4H7LDvoL6CV29
+ NFMjJthhm9s6AKCN5t14VBPKAxm3wpaRoxKAfyqC7vtuq5vhIsX203cka9g0XZxkrFMF
+ EsvA==
+From: Hans Schultz <schultz.hans@gmail.com>
+In-Reply-To: <dc47275b-27f8-5de0-ae6e-e82013a03d1f@blackwall.org>
+References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
+ <20220310142320.611738-2-schultz.hans+netdev@gmail.com>
+ <0eeaf59f-e7eb-7439-3c0a-17e7ac6741f0@blackwall.org>
+ <86v8wles1g.fsf@gmail.com>
+ <e3f57a64-4823-7cf3-0345-3777c44c2fe4@blackwall.org>
+ <8635jp23ez.fsf@gmail.com>
+ <dc47275b-27f8-5de0-ae6e-e82013a03d1f@blackwall.org>
+Date: Thu, 10 Mar 2022 17:33:01 +0100
+Message-ID: <86tuc5939e.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH v2 net-next 07/10] net: dsa: Pass MST state
- changes to driver
+Subject: Re: [Bridge] [PATCH net-next 1/3] net: bridge: add fdb flag to
+ extent locked port feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,128 +31,168 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: Nikolay Aleksandrov <razor@blackwall.org>, Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Thu, Mar 10, 2022 at 17:05, Tobias Waldekranz <tobias@waldekranz.com> wrote:
-> On Thu, Mar 10, 2022 at 12:35, Vladimir Oltean <olteanv@gmail.com> wrote:
->> On Thu, Mar 10, 2022 at 09:54:34AM +0100, Tobias Waldekranz wrote:
->>> >> +	if (!dsa_port_can_configure_learning(dp) || dp->learning) {
->>> >> +		switch (state->state) {
->>> >> +		case BR_STATE_DISABLED:
->>> >> +		case BR_STATE_BLOCKING:
->>> >> +		case BR_STATE_LISTENING:
->>> >> +			/* Ideally we would only fast age entries
->>> >> +			 * belonging to VLANs controlled by this
->>> >> +			 * MST.
->>> >> +			 */
->>> >> +			dsa_port_fast_age(dp);
->>> >
->>> > Does mv88e6xxx support this? If it does, you might just as well
->>> > introduce another variant of ds->ops->port_fast_age() for an msti.
->>> 
->>> You can limit ATU operations to a particular FID. So the way I see it we
->>> could either have:
->>> 
->>> int (*port_vlan_fast_age)(struct dsa_switch *ds, int port, u16 vid)
->>> 
->>> + Maybe more generic. You could imagine there being a way to trigger
->>>   this operation from userspace for example.
->>> - We would have to keep the VLAN<->MSTI mapping in the DSA layer in
->>>   order to be able to do the fan-out in dsa_port_set_mst_state.
->>> 
->>> or:
->>> 
->>> int (*port_msti_fast_age)(struct dsa_switch *ds, int port, u16 msti)
->>> 
->>> + Let's the mapping be an internal affair in the driver.
->>> - Perhaps, less generically useful.
->>> 
->>> Which one do you prefer? Or is there a hidden third option? :)
->>
->> Yes, I was thinking of "port_msti_fast_age". I don't see a cheap way of
->> keeping VLAN to MSTI associations in the DSA layer. Only if we could
->> retrieve this mapping from the bridge layer - maybe with something
->> analogous to br_vlan_get_info(), but br_mst_get_info(), and this gets
->> passed a VLAN_N_VID sized bitmap, which the bridge populates with ones
->> and zeroes.
+On tor, mar 10, 2022 at 18:14, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+> On 10/03/2022 18:11, Hans Schultz wrote:
+>> On tor, mar 10, 2022 at 17:57, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+>>> On 10/03/2022 17:38, Hans Schultz wrote:
+>>>> On tor, mar 10, 2022 at 16:42, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+>>>>> On 10/03/2022 16:23, Hans Schultz wrote:
+>>>>>> Add an intermediate state for clients behind a locked port to allow for
+>>>>>> possible opening of the port for said clients. This feature corresponds
+>>>>>> to the Mac-Auth and MAC Authentication Bypass (MAB) named features. The
+>>>>>> latter defined by Cisco.
+>>>>>>
+>>>>>> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
+>>>>>> ---
+>>>>>>     include/uapi/linux/neighbour.h |  1 +
+>>>>>>     net/bridge/br_fdb.c            |  6 ++++++
+>>>>>>     net/bridge/br_input.c          | 11 ++++++++++-
+>>>>>>     net/bridge/br_private.h        |  3 ++-
+>>>>>>     4 files changed, 19 insertions(+), 2 deletions(-)
+>>>>>>
+>>>>>> diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
+>>>>>> index db05fb55055e..83115a592d58 100644
+>>>>>> --- a/include/uapi/linux/neighbour.h
+>>>>>> +++ b/include/uapi/linux/neighbour.h
+>>>>>> @@ -208,6 +208,7 @@ enum {
+>>>>>>     	NFEA_UNSPEC,
+>>>>>>     	NFEA_ACTIVITY_NOTIFY,
+>>>>>>     	NFEA_DONT_REFRESH,
+>>>>>> +	NFEA_LOCKED,
+>>>>>>     	__NFEA_MAX
+>>>>>>     };
+>>>>>
+>>>>> Hmm, can you use NDA_FLAGS_EXT instead ?
+>>>>> That should simplify things and reduce the nl size.
+>>>>>
+>>>>
+>>>> I am using NDA_FDB_EXT_ATTRS. NFEA_LOCKED is just the
+>>>> flag as the other flags section is full wrt the normal flags, but maybe it
+>>>> doesn't fit in that section?
+>>>>
+>>>
+>>> Actually wait a second, this is completely wrong use of NDA_FDB_EXT_ATTRS.
+>>> That is a nested attribute, so the code below is wrong. More below..
+>>>
+>>>> I will just note that iproute2 support for parsing nested attributes
+>>>> does not work, thus the BR_FDB_NOTIFY section (lines 150-165) are
+>>>> obsolete with respect to iproute2 as it is now. I cannot rule out that
+>>>> someone has some other tool that can handle this BR_FDB_NOTIFY, but I
+>>>> could not make iproute2 as it stands handle nested attributes. And of
+>>>> course there is no handling of NDA_FDB_EXT_ATTRS in iproute2 now.
+>>>>>>>     #define NFEA_MAX (__NFEA_MAX - 1)
+>>>>>> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+>>>>>> index 6ccda68bd473..396dcf3084cf 100644
+>>>>>> --- a/net/bridge/br_fdb.c
+>>>>>> +++ b/net/bridge/br_fdb.c
+>>>>>> @@ -105,6 +105,7 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+>>>>>>     	struct nda_cacheinfo ci;
+>>>>>>     	struct nlmsghdr *nlh;
+>>>>>>     	struct ndmsg *ndm;
+>>>>>> +	u8 ext_flags = 0;
+>>>>>>     
+>>>>>>     	nlh = nlmsg_put(skb, portid, seq, type, sizeof(*ndm), flags);
+>>>>>>     	if (nlh == NULL)
+>>>>>> @@ -125,11 +126,16 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+>>>>>>     		ndm->ndm_flags |= NTF_EXT_LEARNED;
+>>>>>>     	if (test_bit(BR_FDB_STICKY, &fdb->flags))
+>>>>>>     		ndm->ndm_flags |= NTF_STICKY;
+>>>>>> +	if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags))
+>>>>>> +		ext_flags |= 1 << NFEA_LOCKED;
+>>>>>>     
+>>>>>>     	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->key.addr))
+>>>>>>     		goto nla_put_failure;
+>>>>>>     	if (nla_put_u32(skb, NDA_MASTER, br->dev->ifindex))
+>>>>>>     		goto nla_put_failure;
+>>>>>> +	if (nla_put_u8(skb, NDA_FDB_EXT_ATTRS, ext_flags))
+>>>>>> +		goto nla_put_failure;
+>>>>>> +
+>>>
+>>> This is wrong. NDA_FDB_EXT_ATTRS is a nested attribute, you can't use it as a u8.
+>>> You need to have this structure:
+>>>    [ NDA_FDB_EXT_ATTRS ]
+>>>     ` [ NFEA_LOCKED ]
+>>>
+>>> But that's why I asked if you could use the NDA_FLAGS_EXT attribute. You can see
+>>> the logic from the neigh code.
+>> 
+>> Ahh yes, NDA_FLAGS_EXT was not there in the 5.15.x kernel I have
+>> originally being making the patches in.
+>> 
+>> I hope that the handling of nested attributes has been fixed in
+>> iproute2. ;-)
+>> 
 >
-> That can easily be done. Given that, should we go for port_vlan_fast_age
-> instead? port_msti_fast_age feels like an awkward interface, since I
-> don't think there is any hardware out there that can actually perform
-> that operation without internally fanning it out over all affected VIDs
-> (or FIDs in the case of mv88e6xxx).
+> It hasn't been broken, I'm guessing you're having issues with the nested bit being set.
+> Check NLA_F_NESTED and NLA_TYPE_MASK.
 >
->> The reason why I asked for this is because I'm not sure of the
->> implications of flushing the entire FDB of the port for a single MSTP
->> state change. It would trigger temporary useless flooding in other MSTIs
->> at the very least. There isn't any backwards compatibility concern to
->> speak of, so we can at least try from the beginning to limit the
->> flushing to the required VLANs.
->
-> Aside from the performance implications of flows being temporarily
-> flooded I don't think there are any.
->
-> I suppose if you've disabled flooding of unknown unicast on that port,
-> you would loose the flow until you see some return traffic (or when one
-> side gives up and ARPs). While somewhat esoteric, it would be nice to
-> handle this case if the hardware supports it.
->
->> What I didn't think about, and will be a problem, is
->> dsa_port_notify_bridge_fdb_flush() - we don't know the vid to flush.
->> The easy way out here would be to export dsa_port_notify_bridge_fdb_flush(),
->> add a "vid" argument to it, and let drivers call it. Thoughts?
->
-> To me, this seems to be another argument in favor of
-> port_vlan_fast_age. That way you would know the VIDs being flushed at
-> the DSA layer, and driver writers needn't concern themselves with having
-> to remember to generate the proper notifications back to the bridge.
->
->> Alternatively, if you think that cross-flushing FDBs of multiple MSTIs
->> isn't a real problem, I suppose we could keep the "port_fast_age" method.
->
-> What about falling back to it if the driver doesn't support per-VLAN
-> flushing? Flushing all entries will work in most cases, at the cost of
-> some temporary flooding. Seems more useful than refusing the offload
-> completely.
 
-Actually now that I think about it, maybe it is more reasonable to risk
-having stale entries in the VLANs where the topology changed, rather
-than nuking flows in unrelated VLANs.
+Hmmm, then I wonder why I could not make the same code as in the said
+lines (150-165) in br_fdb.c give any parsed attributes in iproute2 under
+tb[NDA_FDB_EXT_ATTR].
 
->>> > And since it is new code, you could require that drivers _do_ support
->>> > configuring learning before they could support MSTP. After all, we don't
->>> > want to keep legacy mechanisms in place forever.
->>> 
->>> By "configuring learning", do you mean this new fast-age-per-vid/msti,
->>> or being able to enable/disable learning per port? If it's the latter,
->>> I'm not sure I understand how those two are related.
->>
->> The code from dsa_port_set_state() which you've copied:
->>
->> 	if (!dsa_port_can_configure_learning(dp) ||
->> 	    (do_fast_age && dp->learning)) {
->>
->> has this explanation:
->>
->> 1. DSA keeps standalone ports in the FORWARDING state.
->> 2. DSA also disables address learning on standalone ports, where this is
->>    possible (dsa_port_can_configure_learning(dp) == true).
->> 3. When a port joins a bridge, it leaves its FORWARDING state from
->>    standalone mode and inherits the bridge port's BLOCKING state
->> 4. dsa_port_set_state() treats a port transition from FORWARDING to
->>    BLOCKING as a transition requiring an FDB flush
->> 5. due to (2), the FDB flush at stage (4) is in fact not needed, because
->>    the FDB of that port should already be empty. Flushing the FDB may be
->>    a costly operation for some drivers, so it is avoided if possible.
->>
->> So this is why the "dsa_port_can_configure_learning()" check is there -
->> for compatibility with drivers that can't configure learning => they
->> keep learning enabled also in standalone mode => they need an FDB flush
->> when a standalone port joins a bridge.
->>
->> What I'm saying is: for drivers that offload MSTP, let's force them to
->> get the basics right first (have configurable learning), rather than go
->> forward forever with a backwards compatibility mode.
->
-> Makes sense, I'll just move it up to the initial capability check.
+Did I miss something, or are those lines incorrect?
+
+>>>
+>>> Also note that you need to account for the new attribute's size in fdb_nlmsg_size().
+>>>
+>>>
+>>>>>>     	ci.ndm_used	 = jiffies_to_clock_t(now - fdb->used);
+>>>>>>     	ci.ndm_confirmed = 0;
+>>>>>>     	ci.ndm_updated	 = jiffies_to_clock_t(now - fdb->updated);
+>>>>>> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+>>>>>> index e0c13fcc50ed..897908484b18 100644
+>>>>>> --- a/net/bridge/br_input.c
+>>>>>> +++ b/net/bridge/br_input.c
+>>>>>> @@ -75,6 +75,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>>>>>>     	struct net_bridge_mcast *brmctx;
+>>>>>>     	struct net_bridge_vlan *vlan;
+>>>>>>     	struct net_bridge *br;
+>>>>>> +	unsigned long flags = 0;
+>>>>>
+>>>>> Please move this below...
+>>>>>
+>>>>>>     	u16 vid = 0;
+>>>>>>     	u8 state;
+>>>>>>     
+>>>>>> @@ -94,8 +95,16 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>>>>>>     			br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
+>>>>>>     
+>>>>>>     		if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
+>>>>>> -		    test_bit(BR_FDB_LOCAL, &fdb_src->flags))
+>>>>>> +		    test_bit(BR_FDB_LOCAL, &fdb_src->flags)) {
+>>>>>> +			if (!fdb_src) {
+>>>>>
+>>>>> ... here where it's only used.
+>>>>>
+>>>>
+>>>> Forgot that one. Shall do!
+>>>>
+>>>>>> +				set_bit(BR_FDB_ENTRY_LOCKED, &flags);
+>>>>>> +				br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, flags);
+>>>>>> +			}
+>>>>>>     			goto drop;
+>>>>>> +		} else {
+>>>>>> +			if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb_src->flags))
+>>>>>> +				goto drop;
+>>>>>> +		}
+>>>>>>     	}
+>>>>>>     
+>>>>>>     	nbp_switchdev_frame_mark(p, skb);
+>>>>>> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+>>>>>> index 48bc61ebc211..f5a0b68c4857 100644
+>>>>>> --- a/net/bridge/br_private.h
+>>>>>> +++ b/net/bridge/br_private.h
+>>>>>> @@ -248,7 +248,8 @@ enum {
+>>>>>>     	BR_FDB_ADDED_BY_EXT_LEARN,
+>>>>>>     	BR_FDB_OFFLOADED,
+>>>>>>     	BR_FDB_NOTIFY,
+>>>>>> -	BR_FDB_NOTIFY_INACTIVE
+>>>>>> +	BR_FDB_NOTIFY_INACTIVE,
+>>>>>> +	BR_FDB_ENTRY_LOCKED,
+>>>>>>     };
+>>>>>>     
+>>>>>>     struct net_bridge_fdb_key {
