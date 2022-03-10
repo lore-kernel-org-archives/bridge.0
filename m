@@ -1,27 +1,21 @@
-Return-Path: <olteanv@gmail.com>
+Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=bQ6VLPxZA/BQp7aelq0Kynpjtxn593KsL+2rRCzYMD8=;
- b=U0dCQsgQp6TCd8rEA8cYnAwdl6fBTgG5WYSQgBEZDxV9AjrH4GFH4fDELvXQizUgC/
- kXIB633n8vkKo38n8IXo0Q1TjrsG2mKXzOFbuXxEnYqjo6M9G+bAs4QXHt2PX5dsA4Ql
- X4MQ9QK1QXZLtbGVOvNATbNZV535UYZRqmIHyW7xpO68RHpSCo72EH6IVCw8XVtT5e8u
- dP10Ixe8X2j/bxSCjm+QbUQFXvmm1vxihFhtJyZCMKL2Hk2tnI8rkzPy64lb7xQ12cKI
- DDVCiQJ2NdtgYVk2fonBeutA9GRSmSIvZJVL78zXh1lY0URGc2YH5GQkyU/hbhbg4qKE
- TxIw==
-Date: Thu, 10 Mar 2022 12:35:09 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220310103509.g35syl776kyh5j2n@skbuf>
-References: <20220301100321.951175-1-tobias@waldekranz.com>
- <20220301100321.951175-8-tobias@waldekranz.com>
- <20220303222055.7a5pr4la3wmuuekc@skbuf>
- <87mthymblh.fsf@waldekranz.com>
+ h=from:to:cc:subject:date:message-id:mime-version:organization
+ :content-transfer-encoding;
+ bh=1DB/xtUlg/bv2cuDVJn+P6RhKyQoRLt8abFtk957r6s=;
+ b=KBGIzYMTJcy4uw8dS+TAg5MvLQFgLkwp2dDT3D+ltBEnHvsAQgnYDBZONyDk4w0Axx
+ PVVD6ezuq5vH+cvZ8jHllKjdd9G/oTQggbuVa29313tGszcpcO5A+42DVTsP4sEtPJHF
+ rFjfeJuRAa5OeLyH49lDkzNLaQ+ThCDPZaQZkOxXNmni4mfRJIJ2M+kpomLff6L1IyaI
+ IU6tc5P1rlt0jsPyBlbYcETV/4IuQE/F2ezJU9KzTltndoCqOhlqnl4s3BW80ekQ1MX4
+ Q9fbbhfYZdo9jE310hgPS9x8zUdqvoRiuNEGZUeWuslxgEBq1cjHHLvNNBpY6gAUvjyL
+ mkWg==
+From: Hans Schultz <schultz.hans@gmail.com>
+Date: Thu, 10 Mar 2022 14:36:14 +0100
+Message-Id: <20220310133617.575673-1-schultz.hans+netdev@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87mthymblh.fsf@waldekranz.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 07/10] net: dsa: Pass MST state
- changes to driver
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH iproute2-next 0/3] Extend locked port feature with
+	FDB locked flag (MAC-Auth/MAB)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,96 +24,64 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Thu, Mar 10, 2022 at 09:54:34AM +0100, Tobias Waldekranz wrote:
-> >> +	if (!dsa_port_can_configure_learning(dp) || dp->learning) {
-> >> +		switch (state->state) {
-> >> +		case BR_STATE_DISABLED:
-> >> +		case BR_STATE_BLOCKING:
-> >> +		case BR_STATE_LISTENING:
-> >> +			/* Ideally we would only fast age entries
-> >> +			 * belonging to VLANs controlled by this
-> >> +			 * MST.
-> >> +			 */
-> >> +			dsa_port_fast_age(dp);
-> >
-> > Does mv88e6xxx support this? If it does, you might just as well
-> > introduce another variant of ds->ops->port_fast_age() for an msti.
-> 
-> You can limit ATU operations to a particular FID. So the way I see it we
-> could either have:
-> 
-> int (*port_vlan_fast_age)(struct dsa_switch *ds, int port, u16 vid)
-> 
-> + Maybe more generic. You could imagine there being a way to trigger
->   this operation from userspace for example.
-> - We would have to keep the VLAN<->MSTI mapping in the DSA layer in
->   order to be able to do the fan-out in dsa_port_set_mst_state.
-> 
-> or:
-> 
-> int (*port_msti_fast_age)(struct dsa_switch *ds, int port, u16 msti)
-> 
-> + Let's the mapping be an internal affair in the driver.
-> - Perhaps, less generically useful.
-> 
-> Which one do you prefer? Or is there a hidden third option? :)
+This patch set extends the locked port feature for devices
+that are behind a locked port, but do not have the ability to
+authorize themselves as a supplicant using IEEE 802.1X.
+Such devices can be printers, meters or anything related to
+fixed installations. Instead of 802.1X authorization, devices
+can get access based on their MAC addresses being whitelisted.
 
-Yes, I was thinking of "port_msti_fast_age". I don't see a cheap way of
-keeping VLAN to MSTI associations in the DSA layer. Only if we could
-retrieve this mapping from the bridge layer - maybe with something
-analogous to br_vlan_get_info(), but br_mst_get_info(), and this gets
-passed a VLAN_N_VID sized bitmap, which the bridge populates with ones
-and zeroes.
+For an authorization daemon to detect that a device is trying
+to get access through a locked port, the bridge will add the
+MAC address of the device to the FDB with a locked flag to it.
+Thus the authorization daemon can catch the FDB add event and
+check if the MAC address is in the whitelist and if so replace
+the FDB entry without the locked flag enabled, and thus open
+the port for the device.
 
-The reason why I asked for this is because I'm not sure of the
-implications of flushing the entire FDB of the port for a single MSTP
-state change. It would trigger temporary useless flooding in other MSTIs
-at the very least. There isn't any backwards compatibility concern to
-speak of, so we can at least try from the beginning to limit the
-flushing to the required VLANs.
+This feature is known as MAC-Auth or MAC Authentication Bypass
+(MAB) in Cisco terminology, where the full MAB concept involves
+additional Cisco infrastructure for authorization. There is no
+real authentication process, as the MAC address of the device
+is the only input the authorization daemon, in the general
+case, has to base the decision if to unlock the port or not.
 
-What I didn't think about, and will be a problem, is
-dsa_port_notify_bridge_fdb_flush() - we don't know the vid to flush.
-The easy way out here would be to export dsa_port_notify_bridge_fdb_flush(),
-add a "vid" argument to it, and let drivers call it. Thoughts?
+With this patch set, an implementation of the offloaded case is
+supplied for the mv88e6xxx driver. When a packet ingresses on
+a locked port, an ATU miss violation event will occur. When
+handling such ATU miss violation interrupts, the MAC address of
+the device is added to the FDB with a zero destination port
+vector (DPV) and the MAC address is communicated through the
+switchdev layer to the bridge, so that a FDB entry with the
+locked flag enabled can be added.
 
-Alternatively, if you think that cross-flushing FDBs of multiple MSTIs
-isn't a real problem, I suppose we could keep the "port_fast_age" method.
+Hans Schultz (3):
+  net: bridge: add fdb flag to extent locked port feature
+  net: switchdev: add support for offloading of fdb locked flag
+  net: dsa: mv88e6xxx: mac-auth/MAB implementation
 
-> > And since it is new code, you could require that drivers _do_ support
-> > configuring learning before they could support MSTP. After all, we don't
-> > want to keep legacy mechanisms in place forever.
-> 
-> By "configuring learning", do you mean this new fast-age-per-vid/msti,
-> or being able to enable/disable learning per port? If it's the latter,
-> I'm not sure I understand how those two are related.
+ drivers/net/dsa/mv88e6xxx/Makefile            |  1 +
+ drivers/net/dsa/mv88e6xxx/chip.c              | 10 +--
+ drivers/net/dsa/mv88e6xxx/chip.h              |  5 ++
+ drivers/net/dsa/mv88e6xxx/global1.h           |  1 +
+ drivers/net/dsa/mv88e6xxx/global1_atu.c       | 29 +++++++-
+ .../net/dsa/mv88e6xxx/mv88e6xxx_switchdev.c   | 67 +++++++++++++++++++
+ .../net/dsa/mv88e6xxx/mv88e6xxx_switchdev.h   | 20 ++++++
+ drivers/net/dsa/mv88e6xxx/port.c              | 11 +++
+ drivers/net/dsa/mv88e6xxx/port.h              |  1 +
+ include/net/switchdev.h                       |  3 +-
+ include/uapi/linux/neighbour.h                |  1 +
+ net/bridge/br.c                               |  3 +-
+ net/bridge/br_fdb.c                           | 13 +++-
+ net/bridge/br_input.c                         | 11 ++-
+ net/bridge/br_private.h                       |  5 +-
+ 15 files changed, 167 insertions(+), 14 deletions(-)
+ create mode 100644 drivers/net/dsa/mv88e6xxx/mv88e6xxx_switchdev.c
+ create mode 100644 drivers/net/dsa/mv88e6xxx/mv88e6xxx_switchdev.h
 
-The code from dsa_port_set_state() which you've copied:
+-- 
+2.30.2
 
-	if (!dsa_port_can_configure_learning(dp) ||
-	    (do_fast_age && dp->learning)) {
-
-has this explanation:
-
-1. DSA keeps standalone ports in the FORWARDING state.
-2. DSA also disables address learning on standalone ports, where this is
-   possible (dsa_port_can_configure_learning(dp) == true).
-3. When a port joins a bridge, it leaves its FORWARDING state from
-   standalone mode and inherits the bridge port's BLOCKING state
-4. dsa_port_set_state() treats a port transition from FORWARDING to
-   BLOCKING as a transition requiring an FDB flush
-5. due to (2), the FDB flush at stage (4) is in fact not needed, because
-   the FDB of that port should already be empty. Flushing the FDB may be
-   a costly operation for some drivers, so it is avoided if possible.
-
-So this is why the "dsa_port_can_configure_learning()" check is there -
-for compatibility with drivers that can't configure learning => they
-keep learning enabled also in standalone mode => they need an FDB flush
-when a standalone port joins a bridge.
-
-What I'm saying is: for drivers that offload MSTP, let's force them to
-get the basics right first (have configurable learning), rather than go
-forward forever with a backwards compatibility mode.
