@@ -1,25 +1,29 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=fqdAl6g8T5b8CCdXDXU4kRWnVjawXTgSM4gnCS0YVDA=;
- b=ZWEgd7vuurDAY2I1OnulI6eiSL8yCLgaJoxMpVzt5uZhruJGgevRtmuMUMEDF/HrhA
- JCzlSUE7nEOuEstZXK1itDK7t2VNObOx8xyy5uxT9r5FS17kwIYw3Cz0wsxWFFE0ybSb
- YvET/f3syD85/VklUOqtDB0b6zfJ17S2Y/MTUHsRfTcabLGRuStz8HvoQ7AgSTZdc1pT
- Nm3ce8YwJ94fV35BlYmiohPT04whu4tCW5+w4L4kcC7z4LX/1nm8ATMQceEk3Bm/Ea9D
- QWN0GR5dVwT5xUq055j/e4Ld2/PAoL4O/cNV6xu9daYhvQwfRzigDSX8GGgcemWmcc9s
- JaXg==
-From: Hans Schultz <schultz.hans@gmail.com>
-In-Reply-To: <20220310150717.h7gaxamvzv47e5zc@skbuf>
-References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
- <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
- <20220310142836.m5onuelv4jej5gvs@skbuf> <865yolg8d7.fsf@gmail.com>
- <20220310150717.h7gaxamvzv47e5zc@skbuf>
-Date: Thu, 10 Mar 2022 16:51:15 +0100
-Message-ID: <86sfrpergs.fsf@gmail.com>
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=/3Y7SdvtHwEXMZpktqa2soQUFfSCdXW3oRVPXSTvSbE=;
+ b=tSpqQw0bwEGHuAanvQKc5+pflShk4r3gq7B+rHffAcSv/JOK4oV94jG4z+j5vImUgu
+ yGXSE5E7P2FCs8jftQW0PEl2V2K72yXlkTF8p0lbN64Yc3tRXaLgDrNk4hXU6o81WvQf
+ zMDojsPuHf78Ga6Ig5LITEb/idNmhedGptxc1RCTYU1iF80MEPx+Qg5uGOm1om98zTBN
+ Ok2FIx/yuBhdiAElx+giJpDl8y279vJKucDKO/IWivpKqLFcVMZgIH0s5aPMA4vIoPj3
+ vgEVuu3wMmmTuPOIB6uKw9sKZIPQku4cjeig+ngjdj1OWDQ2ztornt5QRvnc+mI5u7VC
+ Cqqw==
+Message-ID: <e3f57a64-4823-7cf3-0345-3777c44c2fe4@blackwall.org>
+Date: Thu, 10 Mar 2022 17:57:22 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
- implementation
+Content-Language: en-US
+References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
+ <20220310142320.611738-2-schultz.hans+netdev@gmail.com>
+ <0eeaf59f-e7eb-7439-3c0a-17e7ac6741f0@blackwall.org>
+ <86v8wles1g.fsf@gmail.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <86v8wles1g.fsf@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 1/3] net: bridge: add fdb flag to
+ extent locked port feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,46 +32,148 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>, Hans Schultz <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, davem@davemloft.net
+To: Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On tor, mar 10, 2022 at 17:07, Vladimir Oltean <olteanv@gmail.com> wrote:
-> On Thu, Mar 10, 2022 at 04:00:52PM +0100, Hans Schultz wrote:
->> >> +	brport = dsa_port_to_bridge_port(dp);
->> >
->> > Since this is threaded interrupt context, I suppose it could race with
->> > dsa_port_bridge_leave(). So it is best to check whether "brport" is NULL
->> > or not.
->> >
->> Would something like:
->> if (dsa_is_unused_port(chip->ds, port))
->>         return -ENODATA;
->> 
->> be appropriate and sufficient for that?
->
-> static inline
-> struct net_device *dsa_port_to_bridge_port(const struct dsa_port *dp)
-> {
-> 	if (!dp->bridge)
-> 		return NULL;
->
-> 	if (dp->lag)
-> 		return dp->lag->dev;
-> 	else if (dp->hsr_dev)
-> 		return dp->hsr_dev;
->
-> 	return dp->slave;
-> }
->
-> Notice the "dp->bridge" check. The assignments are in dsa_port_bridge_create()
-> and in dsa_port_bridge_destroy(). These functions assume rtnl_mutex protection.
-> The question was how do you serialize with that, and why do you assume
-> that dsa_port_to_bridge_port() returns non-NULL.
->
-> So no, dsa_is_unused_port() would do absolutely nothing to help.
+On 10/03/2022 17:38, Hans Schultz wrote:
+> On tor, mar 10, 2022 at 16:42, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+>> On 10/03/2022 16:23, Hans Schultz wrote:
+>>> Add an intermediate state for clients behind a locked port to allow for
+>>> possible opening of the port for said clients. This feature corresponds
+>>> to the Mac-Auth and MAC Authentication Bypass (MAB) named features. The
+>>> latter defined by Cisco.
+>>>
+>>> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
+>>> ---
+>>>    include/uapi/linux/neighbour.h |  1 +
+>>>    net/bridge/br_fdb.c            |  6 ++++++
+>>>    net/bridge/br_input.c          | 11 ++++++++++-
+>>>    net/bridge/br_private.h        |  3 ++-
+>>>    4 files changed, 19 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
+>>> index db05fb55055e..83115a592d58 100644
+>>> --- a/include/uapi/linux/neighbour.h
+>>> +++ b/include/uapi/linux/neighbour.h
+>>> @@ -208,6 +208,7 @@ enum {
+>>>    	NFEA_UNSPEC,
+>>>    	NFEA_ACTIVITY_NOTIFY,
+>>>    	NFEA_DONT_REFRESH,
+>>> +	NFEA_LOCKED,
+>>>    	__NFEA_MAX
+>>>    };
+>>
+>> Hmm, can you use NDA_FLAGS_EXT instead ?
+>> That should simplify things and reduce the nl size.
+>>
+> 
+> I am using NDA_FDB_EXT_ATTRS. NFEA_LOCKED is just the
+> flag as the other flags section is full wrt the normal flags, but maybe it
+> doesn't fit in that section?
+> 
 
-I was thinking in indirect terms (dangerous I know :-).
+Actually wait a second, this is completely wrong use of NDA_FDB_EXT_ATTRS.
+That is a nested attribute, so the code below is wrong. More below..
 
-But wrt the nl lock, I wonder when other threads could pull the carpet
-away under this, and so I might have to wait till after the last call
-(mv88e6xxx_g1_atu_loadpurge) to free the nl lock?
+> I will just note that iproute2 support for parsing nested attributes
+> does not work, thus the BR_FDB_NOTIFY section (lines 150-165) are
+> obsolete with respect to iproute2 as it is now. I cannot rule out that
+> someone has some other tool that can handle this BR_FDB_NOTIFY, but I
+> could not make iproute2 as it stands handle nested attributes. And of
+> course there is no handling of NDA_FDB_EXT_ATTRS in iproute2 now.
+> >>>    #define NFEA_MAX (__NFEA_MAX - 1)
+>>> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+>>> index 6ccda68bd473..396dcf3084cf 100644
+>>> --- a/net/bridge/br_fdb.c
+>>> +++ b/net/bridge/br_fdb.c
+>>> @@ -105,6 +105,7 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+>>>    	struct nda_cacheinfo ci;
+>>>    	struct nlmsghdr *nlh;
+>>>    	struct ndmsg *ndm;
+>>> +	u8 ext_flags = 0;
+>>>    
+>>>    	nlh = nlmsg_put(skb, portid, seq, type, sizeof(*ndm), flags);
+>>>    	if (nlh == NULL)
+>>> @@ -125,11 +126,16 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+>>>    		ndm->ndm_flags |= NTF_EXT_LEARNED;
+>>>    	if (test_bit(BR_FDB_STICKY, &fdb->flags))
+>>>    		ndm->ndm_flags |= NTF_STICKY;
+>>> +	if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags))
+>>> +		ext_flags |= 1 << NFEA_LOCKED;
+>>>    
+>>>    	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->key.addr))
+>>>    		goto nla_put_failure;
+>>>    	if (nla_put_u32(skb, NDA_MASTER, br->dev->ifindex))
+>>>    		goto nla_put_failure;
+>>> +	if (nla_put_u8(skb, NDA_FDB_EXT_ATTRS, ext_flags))
+>>> +		goto nla_put_failure;
+>>> +
+
+This is wrong. NDA_FDB_EXT_ATTRS is a nested attribute, you can't use it as a u8.
+You need to have this structure:
+  [ NDA_FDB_EXT_ATTRS ]
+   ` [ NFEA_LOCKED ]
+
+But that's why I asked if you could use the NDA_FLAGS_EXT attribute. You can see
+the logic from the neigh code.
+
+Also note that you need to account for the new attribute's size in fdb_nlmsg_size().
+
+
+>>>    	ci.ndm_used	 = jiffies_to_clock_t(now - fdb->used);
+>>>    	ci.ndm_confirmed = 0;
+>>>    	ci.ndm_updated	 = jiffies_to_clock_t(now - fdb->updated);
+>>> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+>>> index e0c13fcc50ed..897908484b18 100644
+>>> --- a/net/bridge/br_input.c
+>>> +++ b/net/bridge/br_input.c
+>>> @@ -75,6 +75,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>>>    	struct net_bridge_mcast *brmctx;
+>>>    	struct net_bridge_vlan *vlan;
+>>>    	struct net_bridge *br;
+>>> +	unsigned long flags = 0;
+>>
+>> Please move this below...
+>>
+>>>    	u16 vid = 0;
+>>>    	u8 state;
+>>>    
+>>> @@ -94,8 +95,16 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>>>    			br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
+>>>    
+>>>    		if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
+>>> -		    test_bit(BR_FDB_LOCAL, &fdb_src->flags))
+>>> +		    test_bit(BR_FDB_LOCAL, &fdb_src->flags)) {
+>>> +			if (!fdb_src) {
+>>
+>> ... here where it's only used.
+>>
+> 
+> Forgot that one. Shall do!
+> 
+>>> +				set_bit(BR_FDB_ENTRY_LOCKED, &flags);
+>>> +				br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, flags);
+>>> +			}
+>>>    			goto drop;
+>>> +		} else {
+>>> +			if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb_src->flags))
+>>> +				goto drop;
+>>> +		}
+>>>    	}
+>>>    
+>>>    	nbp_switchdev_frame_mark(p, skb);
+>>> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+>>> index 48bc61ebc211..f5a0b68c4857 100644
+>>> --- a/net/bridge/br_private.h
+>>> +++ b/net/bridge/br_private.h
+>>> @@ -248,7 +248,8 @@ enum {
+>>>    	BR_FDB_ADDED_BY_EXT_LEARN,
+>>>    	BR_FDB_OFFLOADED,
+>>>    	BR_FDB_NOTIFY,
+>>> -	BR_FDB_NOTIFY_INACTIVE
+>>> +	BR_FDB_NOTIFY_INACTIVE,
+>>> +	BR_FDB_ENTRY_LOCKED,
+>>>    };
+>>>    
+>>>    struct net_bridge_fdb_key {
+
