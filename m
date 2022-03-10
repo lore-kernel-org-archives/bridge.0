@@ -1,26 +1,27 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+Return-Path: <tobias@waldekranz.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=YT9yTXEiAiBIN9Cn05pl2qQma8luZn1G2Do7oW9PCms=;
- b=bo8Lobd/EcTV1dG/y4cycmLtNX/KQExQLyQX+FjhrOYFmGtKa0yzwXeFJRqK1ufRFd
- Y3YAkwuANDJ3OnDNXPJkmPx3lxbpdLkQyRKvhjvo2G2YDGquPshCacr4VmfTt3eB8ngZ
- qAljb48cfBaC/vak1aNAmeTWnbLbXwW+2FJxkRQOZjvaNjP/VewOT4QQdFmUQKgDfL02
- xnvE2WI/IQAeyV5UKLr/qhf8uN1qhOclDQpUMBaQiZiDquMybutJVt2g0WOvbTt78LYg
- MEI4LRI8utkDMpq78tERn9Wc2s0F2JLKxaTobyneji9Sv+jI1Ckh0+4y7yqK81sh5XJF
- 6TGQ==
-From: Hans Schultz <schultz.hans@gmail.com>
-In-Reply-To: <20220310160542.dihodbfxnexyjo2d@skbuf>
-References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
- <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
- <20220310142836.m5onuelv4jej5gvs@skbuf> <865yolg8d7.fsf@gmail.com>
- <20220310150717.h7gaxamvzv47e5zc@skbuf> <86sfrpergs.fsf@gmail.com>
- <20220310160542.dihodbfxnexyjo2d@skbuf>
-Date: Thu, 10 Mar 2022 17:40:15 +0100
-Message-ID: <86lexhoj68.fsf@gmail.com>
+ :mime-version; bh=kNGw6kwfJ9oR81XHWCviYz3UmAwtDikl6Vryp12s7L4=;
+ b=mm0bhIpm22ir/MobtaQvP5TVOKaZQVMD3quuZEhneXZwcgksahQDr4PLmFTeh+HarY
+ hGAL0SOBgl1HiJt7x2fWvqh+5lvk6DvIpTSzb+BXxrG0oNIA5Y3Opo6Ap3hWLEdEK1kL
+ nhpN1sfwkzVG8wh3daExMd8rMC1Jy9e14CvVnllQ9uoABFj2ZXpwq8nV3Tns4JaYIuGb
+ SU5dAkIbM54+fJzCd0XIWHJbTJxGlo1l/FtdkNJkTg+FS/ycnIk1T1ncbQu0D22fGLc8
+ GUZh8SUyx8hi6Sr7GmOXxhmRJUtjqaW2n/NRikFtGlUUua38qhY6H2yOJKb2VxL0eoEs
+ cvrg==
+From: Tobias Waldekranz <tobias@waldekranz.com>
+In-Reply-To: <20220310161857.33owtynhm3pdyxiy@skbuf>
+References: <20220301100321.951175-1-tobias@waldekranz.com>
+ <20220301100321.951175-8-tobias@waldekranz.com>
+ <20220303222055.7a5pr4la3wmuuekc@skbuf> <87mthymblh.fsf@waldekranz.com>
+ <20220310103509.g35syl776kyh5j2n@skbuf> <87h785n67k.fsf@waldekranz.com>
+ <20220310161857.33owtynhm3pdyxiy@skbuf>
+Date: Thu, 10 Mar 2022 23:46:45 +0100
+Message-ID: <87bkydmnmy.fsf@waldekranz.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
- implementation
+Subject: Re: [Bridge] [PATCH v2 net-next 07/10] net: dsa: Pass MST state
+ changes to driver
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,79 +30,142 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>, Hans Schultz <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, davem@davemloft.net
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-On tor, mar 10, 2022 at 18:05, Vladimir Oltean <olteanv@gmail.com> wrote:
-> On Thu, Mar 10, 2022 at 04:51:15PM +0100, Hans Schultz wrote:
->> On tor, mar 10, 2022 at 17:07, Vladimir Oltean <olteanv@gmail.com> wrote:
->> > On Thu, Mar 10, 2022 at 04:00:52PM +0100, Hans Schultz wrote:
->> >> >> +	brport = dsa_port_to_bridge_port(dp);
+On Thu, Mar 10, 2022 at 18:18, Vladimir Oltean <olteanv@gmail.com> wrote:
+> On Thu, Mar 10, 2022 at 05:05:35PM +0100, Tobias Waldekranz wrote:
+>> On Thu, Mar 10, 2022 at 12:35, Vladimir Oltean <olteanv@gmail.com> wrote:
+>> > On Thu, Mar 10, 2022 at 09:54:34AM +0100, Tobias Waldekranz wrote:
+>> >> >> +	if (!dsa_port_can_configure_learning(dp) || dp->learning) {
+>> >> >> +		switch (state->state) {
+>> >> >> +		case BR_STATE_DISABLED:
+>> >> >> +		case BR_STATE_BLOCKING:
+>> >> >> +		case BR_STATE_LISTENING:
+>> >> >> +			/* Ideally we would only fast age entries
+>> >> >> +			 * belonging to VLANs controlled by this
+>> >> >> +			 * MST.
+>> >> >> +			 */
+>> >> >> +			dsa_port_fast_age(dp);
 >> >> >
->> >> > Since this is threaded interrupt context, I suppose it could race with
->> >> > dsa_port_bridge_leave(). So it is best to check whether "brport" is NULL
->> >> > or not.
->> >> >
->> >> Would something like:
->> >> if (dsa_is_unused_port(chip->ds, port))
->> >>         return -ENODATA;
+>> >> > Does mv88e6xxx support this? If it does, you might just as well
+>> >> > introduce another variant of ds->ops->port_fast_age() for an msti.
 >> >> 
->> >> be appropriate and sufficient for that?
+>> >> You can limit ATU operations to a particular FID. So the way I see it we
+>> >> could either have:
+>> >> 
+>> >> int (*port_vlan_fast_age)(struct dsa_switch *ds, int port, u16 vid)
+>> >> 
+>> >> + Maybe more generic. You could imagine there being a way to trigger
+>> >>   this operation from userspace for example.
+>> >> - We would have to keep the VLAN<->MSTI mapping in the DSA layer in
+>> >>   order to be able to do the fan-out in dsa_port_set_mst_state.
+>> >> 
+>> >> or:
+>> >> 
+>> >> int (*port_msti_fast_age)(struct dsa_switch *ds, int port, u16 msti)
+>> >> 
+>> >> + Let's the mapping be an internal affair in the driver.
+>> >> - Perhaps, less generically useful.
+>> >> 
+>> >> Which one do you prefer? Or is there a hidden third option? :)
 >> >
->> > static inline
->> > struct net_device *dsa_port_to_bridge_port(const struct dsa_port *dp)
->> > {
->> > 	if (!dp->bridge)
->> > 		return NULL;
->> >
->> > 	if (dp->lag)
->> > 		return dp->lag->dev;
->> > 	else if (dp->hsr_dev)
->> > 		return dp->hsr_dev;
->> >
->> > 	return dp->slave;
->> > }
->> >
->> > Notice the "dp->bridge" check. The assignments are in dsa_port_bridge_create()
->> > and in dsa_port_bridge_destroy(). These functions assume rtnl_mutex protection.
->> > The question was how do you serialize with that, and why do you assume
->> > that dsa_port_to_bridge_port() returns non-NULL.
->> >
->> > So no, dsa_is_unused_port() would do absolutely nothing to help.
+>> > Yes, I was thinking of "port_msti_fast_age". I don't see a cheap way of
+>> > keeping VLAN to MSTI associations in the DSA layer. Only if we could
+>> > retrieve this mapping from the bridge layer - maybe with something
+>> > analogous to br_vlan_get_info(), but br_mst_get_info(), and this gets
+>> > passed a VLAN_N_VID sized bitmap, which the bridge populates with ones
+>> > and zeroes.
 >> 
->> I was thinking in indirect terms (dangerous I know :-).
+>> That can easily be done. Given that, should we go for port_vlan_fast_age
+>> instead? port_msti_fast_age feels like an awkward interface, since I
+>> don't think there is any hardware out there that can actually perform
+>> that operation without internally fanning it out over all affected VIDs
+>> (or FIDs in the case of mv88e6xxx).
 >
-> Sorry, I don't understand what you mean by "indirect terms". An "unused
-> port" is one with 'status = "disabled";' in the device tree. I would
-> expect that you don't need to handle FDB entries towards such a port!
+> Yup, yup. My previous email was all over the place with regard to the
+> available options, because I wrote it in multiple phases so it wasn't
+> chronologically ordered top-to-bottom. But port_vlan_fast_age() makes
+> the most sense if you can implement br_mst_get_info(). Same goes for
+> dsa_port_notify_bridge_fdb_flush().
 >
-
-Right!
-
-> You have a port receiving traffic with an unknown {MAC SA, VID}.
-> When the port is configured as locked by the bridge, this traffic will
-> generate ATU miss interrupts. These will be handled in an interrupt
-> thread that is scheduled to be handled some time in the future.
-> In between the moment when the packet is received and the moment when
-> the interrupt thread runs, a user could run "ip link set lan0 nomaster".
-> Then the interrupt thread would notify the bridge about these entries,
-> point during which a bridge port no longer exists => NULL pointer dereference.
-> By taking the rtnl_lock() and then checking whether dsa_port_to_bridge_port()
-> is NULL, you figure out whether the interrupt handler ran completely
-> before dsa_port_bridge_leave(), or completely after dsa_port_bridge_leave().
->
+>> > The reason why I asked for this is because I'm not sure of the
+>> > implications of flushing the entire FDB of the port for a single MSTP
+>> > state change. It would trigger temporary useless flooding in other MSTIs
+>> > at the very least. There isn't any backwards compatibility concern to
+>> > speak of, so we can at least try from the beginning to limit the
+>> > flushing to the required VLANs.
 >> 
->> But wrt the nl lock, I wonder when other threads could pull the carpet
->> away under this, and so I might have to wait till after the last call
->> (mv88e6xxx_g1_atu_loadpurge) to free the nl lock?
+>> Aside from the performance implications of flows being temporarily
+>> flooded I don't think there are any.
+>> 
+>> I suppose if you've disabled flooding of unknown unicast on that port,
+>> you would loose the flow until you see some return traffic (or when one
+>> side gives up and ARPs). While somewhat esoteric, it would be nice to
+>> handle this case if the hardware supports it.
 >
-> That might make sense. It means: if the user runs "ip link set lan0 nomaster",
-> wait until I've notified the bridge and installed the entry to my own
-> ATU, so that they're in sync. Then, del_nbp() -> br_fdb_delete_by_port()
-> would come in, find that entry notified by us (I think!) and remove it.
-> If you call rtnl_unlock() too early, it might be possible that the ATU
-> entry remains lingering (unless I'm missing some subtle implicit
-> serialization based on mv88e6xxx_reg_lock() or similar).
+> If by "handle this case" you mean "flush only the affected VLANs", then
+> yes, I fully agree.
+>
+>> > What I didn't think about, and will be a problem, is
+>> > dsa_port_notify_bridge_fdb_flush() - we don't know the vid to flush.
+>> > The easy way out here would be to export dsa_port_notify_bridge_fdb_flush(),
+>> > add a "vid" argument to it, and let drivers call it. Thoughts?
+>> 
+>> To me, this seems to be another argument in favor of
+>> port_vlan_fast_age. That way you would know the VIDs being flushed at
+>> the DSA layer, and driver writers needn't concern themselves with having
+>> to remember to generate the proper notifications back to the bridge.
+>
+> See above.
+>
+>> > Alternatively, if you think that cross-flushing FDBs of multiple MSTIs
+>> > isn't a real problem, I suppose we could keep the "port_fast_age" method.
+>> 
+>> What about falling back to it if the driver doesn't support per-VLAN
+>> flushing? Flushing all entries will work in most cases, at the cost of
+>> some temporary flooding. Seems more useful than refusing the offload
+>> completely.
+>
+> So here's what I don't understand. Do you expect a driver other than
+> mv88e6xxx to do something remotely reasonable under a bridge with MSTP
+> enabled? The idea being to handle gracefully the case where a port is
+> BLOCKING in an MSTI but FORWARDING in another. Because if not, let's
+> just outright not offload that kind of bridge, and only concern
+> ourselves with what MST-capable drivers can do.
 
-I will go with releasing the lock after the last call. I think that
-should be okay.
+I think you're right. I was trying to make it easier for other driver
+writers, but it will just be more confusing and error prone.
+
+Alright, so v3 will have something like this:
+
+bool dsa_port_can_offload_mst(struct dsa_port *dp)
+{
+	return ds->ops->vlan_msti_set &&
+		ds->ops->port_mst_state_set &&
+		ds->ops->port_vlan_fast_age &&
+		dsa_port_can_configure_learning(dp);
+}
+
+If this returns false, we have two options:
+
+1. Return -EOPNOTSUPP, which the bridge will be unable to discriminate
+   from a non-switchdev port saying "I have no idea what you're talking
+   about". I.e. the bridge will happily apply the config, but the
+   hardware won't match. I don't like this, but it lines up with most
+   other stuff.
+
+2. Return a hard error, e.g. -EINVAL/-ENOSYS. This will keep the bridge
+   in sync with the hardware and also gives some feedback to the
+   user. This seems like the better approach to me, but it is a new kind
+   of paradigm.
+
+What do you think?
+
+> I'm shadowing you with a prototype (and untested so far) MSTP
+> implementation for the ocelot/felix drivers, and those switches can
+> flush the MAC table per VLAN too. So I don't see an immediate need to
+> have a fallback implementation if you'll also provide it for mv88e6xxx.
+> Let's treat that only if the need arises.
+
+Cool. Agreed, v3 will implement .port_vlan_fast_age for mv88e6xxx.
