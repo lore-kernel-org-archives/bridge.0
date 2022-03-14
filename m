@@ -1,31 +1,22 @@
 Return-Path: <tobias@waldekranz.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version:content-transfer-encoding;
- bh=W3zfuD5dHgrDuKUno5kyEdgPfGowqMZSjsoGskY52Po=;
- b=P2znEwK8yU15naBA2c8ZVJCAP9IWe2bqBJa0ZO7Di3nEpK941berc1fWxU2/6hMNCN
- XkdV2rtDEF7D/pSBJ3KJqZq0OO0mgiWH4xcLt59PRu8A8+oR2XVHYdF1pUZ4gmKMKY0i
- iQ/+LHyiof6llqvjnrGLMkE/pYWEAHSjwDGNL7XC/EHt9BiC6RDbdA81UkuJKx4+KkrE
- sFlD4y3+mgxx89kAKBl0e8rd8LfxaApGN3xbztLXlF8exMiIeVXiqjUeE4em7BqDEBA2
- yfd5YmQ7q8lAQqp/FU5XLd9WOVA1kMHMJzDeVjIOn1axEwmV4n/3jcrAdfEM9R1rL5gh
- ljNw==
+ h=from:to:cc:subject:date:message-id:mime-version:organization
+ :content-transfer-encoding;
+ bh=xMFvgybvJF3VqtR+/cQDnuYW+EVkWBbAn5g045aqjjs=;
+ b=EhJVlZkVs2Xkt4rI91TPXAMB8GE5CuQUnrCjhdqKM78NXlyd2KT1xa82G7L123WaK4
+ sk+8gBjWJv/tz4QeL1Wj2ho7VlzGU6i3j/G9L2MfSyrbKbMyeZrvxhN3qFhFz75VqsQj
+ 8HtZfXOQqy3Jwp0oWGeypz0WosQYneZa++8U1Vm+DTPm893QA9d+V8bZjOjsv2XlsIdr
+ RMuszCzrq10aoOump6Bg3MqM0FCzi6vlLY2ofwGR2lUb3yIQnI3vMEWAlBIgGq0oHFil
+ Vuklcxa6QrwBecnnMQhxSpVw34ML5gGET07e3S60l21BxgxZ7AJD8kRAP6OldLkM8Yrg
+ obrQ==
 From: Tobias Waldekranz <tobias@waldekranz.com>
-In-Reply-To: <20220311002235.ws5ag6p4t4j7di4k@skbuf>
-References: <20220301100321.951175-1-tobias@waldekranz.com>
- <20220301100321.951175-8-tobias@waldekranz.com>
- <20220303222055.7a5pr4la3wmuuekc@skbuf> <87mthymblh.fsf@waldekranz.com>
- <20220310103509.g35syl776kyh5j2n@skbuf> <87h785n67k.fsf@waldekranz.com>
- <20220310161857.33owtynhm3pdyxiy@skbuf> <87bkydmnmy.fsf@waldekranz.com>
- <20220310230828.fvx24zhoyue5mkb7@skbuf> <878rthmk91.fsf@waldekranz.com>
- <20220311002235.ws5ag6p4t4j7di4k@skbuf>
-Date: Fri, 11 Mar 2022 10:01:05 +0100
-Message-ID: <875yokn9ri.fsf@waldekranz.com>
+Date: Mon, 14 Mar 2022 10:52:17 +0100
+Message-Id: <20220314095231.3486931-1-tobias@waldekranz.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH v2 net-next 07/10] net: dsa: Pass MST state
- changes to driver
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH v3 net-next 00/14] net: bridge: Multiple Spanning
+	Trees
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,269 +25,177 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, Petr Machata <petrm@nvidia.com>, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Fri, Mar 11, 2022 at 02:22, Vladimir Oltean <olteanv@gmail.com> wrote:
-> On Fri, Mar 11, 2022 at 12:59:54AM +0100, Tobias Waldekranz wrote:
->> On Fri, Mar 11, 2022 at 01:08, Vladimir Oltean <olteanv@gmail.com> wrote:
->> > On Thu, Mar 10, 2022 at 11:46:45PM +0100, Tobias Waldekranz wrote:
->> >> On Thu, Mar 10, 2022 at 18:18, Vladimir Oltean <olteanv@gmail.com> wr=
-ote:
->> >> > On Thu, Mar 10, 2022 at 05:05:35PM +0100, Tobias Waldekranz wrote:
->> >> >> On Thu, Mar 10, 2022 at 12:35, Vladimir Oltean <olteanv@gmail.com>=
- wrote:
->> >> >> > On Thu, Mar 10, 2022 at 09:54:34AM +0100, Tobias Waldekranz wrot=
-e:
->> >> >> >> >> +	if (!dsa_port_can_configure_learning(dp) || dp->learning) {
->> >> >> >> >> +		switch (state->state) {
->> >> >> >> >> +		case BR_STATE_DISABLED:
->> >> >> >> >> +		case BR_STATE_BLOCKING:
->> >> >> >> >> +		case BR_STATE_LISTENING:
->> >> >> >> >> +			/* Ideally we would only fast age entries
->> >> >> >> >> +			 * belonging to VLANs controlled by this
->> >> >> >> >> +			 * MST.
->> >> >> >> >> +			 */
->> >> >> >> >> +			dsa_port_fast_age(dp);
->> >> >> >> >
->> >> >> >> > Does mv88e6xxx support this? If it does, you might just as we=
-ll
->> >> >> >> > introduce another variant of ds->ops->port_fast_age() for an =
-msti.
->> >> >> >>=20
->> >> >> >> You can limit ATU operations to a particular FID. So the way I =
-see it we
->> >> >> >> could either have:
->> >> >> >>=20
->> >> >> >> int (*port_vlan_fast_age)(struct dsa_switch *ds, int port, u16 =
-vid)
->> >> >> >>=20
->> >> >> >> + Maybe more generic. You could imagine there being a way to tr=
-igger
->> >> >> >>   this operation from userspace for example.
->> >> >> >> - We would have to keep the VLAN<->MSTI mapping in the DSA laye=
-r in
->> >> >> >>   order to be able to do the fan-out in dsa_port_set_mst_state.
->> >> >> >>=20
->> >> >> >> or:
->> >> >> >>=20
->> >> >> >> int (*port_msti_fast_age)(struct dsa_switch *ds, int port, u16 =
-msti)
->> >> >> >>=20
->> >> >> >> + Let's the mapping be an internal affair in the driver.
->> >> >> >> - Perhaps, less generically useful.
->> >> >> >>=20
->> >> >> >> Which one do you prefer? Or is there a hidden third option? :)
->> >> >> >
->> >> >> > Yes, I was thinking of "port_msti_fast_age". I don't see a cheap=
- way of
->> >> >> > keeping VLAN to MSTI associations in the DSA layer. Only if we c=
-ould
->> >> >> > retrieve this mapping from the bridge layer - maybe with somethi=
-ng
->> >> >> > analogous to br_vlan_get_info(), but br_mst_get_info(), and this=
- gets
->> >> >> > passed a VLAN_N_VID sized bitmap, which the bridge populates wit=
-h ones
->> >> >> > and zeroes.
->> >> >>=20
->> >> >> That can easily be done. Given that, should we go for port_vlan_fa=
-st_age
->> >> >> instead? port_msti_fast_age feels like an awkward interface, since=
- I
->> >> >> don't think there is any hardware out there that can actually perf=
-orm
->> >> >> that operation without internally fanning it out over all affected=
- VIDs
->> >> >> (or FIDs in the case of mv88e6xxx).
->> >> >
->> >> > Yup, yup. My previous email was all over the place with regard to t=
-he
->> >> > available options, because I wrote it in multiple phases so it wasn=
-'t
->> >> > chronologically ordered top-to-bottom. But port_vlan_fast_age() mak=
-es
->> >> > the most sense if you can implement br_mst_get_info(). Same goes for
->> >> > dsa_port_notify_bridge_fdb_flush().
->> >> >
->> >> >> > The reason why I asked for this is because I'm not sure of the
->> >> >> > implications of flushing the entire FDB of the port for a single=
- MSTP
->> >> >> > state change. It would trigger temporary useless flooding in oth=
-er MSTIs
->> >> >> > at the very least. There isn't any backwards compatibility conce=
-rn to
->> >> >> > speak of, so we can at least try from the beginning to limit the
->> >> >> > flushing to the required VLANs.
->> >> >>=20
->> >> >> Aside from the performance implications of flows being temporarily
->> >> >> flooded I don't think there are any.
->> >> >>=20
->> >> >> I suppose if you've disabled flooding of unknown unicast on that p=
-ort,
->> >> >> you would loose the flow until you see some return traffic (or whe=
-n one
->> >> >> side gives up and ARPs). While somewhat esoteric, it would be nice=
- to
->> >> >> handle this case if the hardware supports it.
->> >> >
->> >> > If by "handle this case" you mean "flush only the affected VLANs", =
-then
->> >> > yes, I fully agree.
->> >> >
->> >> >> > What I didn't think about, and will be a problem, is
->> >> >> > dsa_port_notify_bridge_fdb_flush() - we don't know the vid to fl=
-ush.
->> >> >> > The easy way out here would be to export dsa_port_notify_bridge_=
-fdb_flush(),
->> >> >> > add a "vid" argument to it, and let drivers call it. Thoughts?
->> >> >>=20
->> >> >> To me, this seems to be another argument in favor of
->> >> >> port_vlan_fast_age. That way you would know the VIDs being flushed=
- at
->> >> >> the DSA layer, and driver writers needn't concern themselves with =
-having
->> >> >> to remember to generate the proper notifications back to the bridg=
-e.
->> >> >
->> >> > See above.
->> >> >
->> >> >> > Alternatively, if you think that cross-flushing FDBs of multiple=
- MSTIs
->> >> >> > isn't a real problem, I suppose we could keep the "port_fast_age=
-" method.
->> >> >>=20
->> >> >> What about falling back to it if the driver doesn't support per-VL=
-AN
->> >> >> flushing? Flushing all entries will work in most cases, at the cos=
-t of
->> >> >> some temporary flooding. Seems more useful than refusing the offlo=
-ad
->> >> >> completely.
->> >> >
->> >> > So here's what I don't understand. Do you expect a driver other than
->> >> > mv88e6xxx to do something remotely reasonable under a bridge with M=
-STP
->> >> > enabled? The idea being to handle gracefully the case where a port =
-is
->> >> > BLOCKING in an MSTI but FORWARDING in another. Because if not, let's
->> >> > just outright not offload that kind of bridge, and only concern
->> >> > ourselves with what MST-capable drivers can do.
->> >>=20
->> >> I think you're right. I was trying to make it easier for other driver
->> >> writers, but it will just be more confusing and error prone.
->> >>=20
->> >> Alright, so v3 will have something like this:
->> >>=20
->> >> bool dsa_port_can_offload_mst(struct dsa_port *dp)
->> >> {
->> >> 	return ds->ops->vlan_msti_set &&
->> >> 		ds->ops->port_mst_state_set &&
->> >> 		ds->ops->port_vlan_fast_age &&
->> >> 		dsa_port_can_configure_learning(dp);
->> >> }
->> >>=20
->> >> If this returns false, we have two options:
->> >>=20
->> >> 1. Return -EOPNOTSUPP, which the bridge will be unable to discriminate
->> >>    from a non-switchdev port saying "I have no idea what you're talki=
-ng
->> >>    about". I.e. the bridge will happily apply the config, but the
->> >>    hardware won't match. I don't like this, but it lines up with most
->> >>    other stuff.
->> >>=20
->> >> 2. Return a hard error, e.g. -EINVAL/-ENOSYS. This will keep the brid=
-ge
->> >>    in sync with the hardware and also gives some feedback to the
->> >>    user. This seems like the better approach to me, but it is a new k=
-ind
->> >>    of paradigm.
->> >>=20
->> >> What do you think?
->> >
->> > Wait, what? It matters a lot where you place the call to
->> > dsa_port_can_offload_mst(), too. You don't have to propagate a hard
->> > error code, either, at least if you make dsa_port_bridge_join() return
->> > -EOPNOTSUPP prior to calling switchdev_bridge_port_offload(), no?
->> > DSA transforms this error code into 0, and dsa_port_offloads_bridge*()
->> > starts returning false, which makes us ignore all MSTP related switchd=
-ev
->> > notifiers.
->>=20
->> Right. So we also need:
->>=20
->> 1. A br_mst_enabled() that we can call from dsa_port_bridge_join to
->>    validate the initial state.
->>=20
->> 2. A switchdev attr event sent out when enabling/disabling MST on the
->>    bridge, so that we can NAK the change.
->
-> So far, so good. This, to me, is analogous to the way in which a hypothet=
-ical
-> VLAN-unaware switchdev driver wouldn't deny VLAN additions or removals,
-> but it would only accept a VLAN-unaware bridge, and refuse to transition
-> into a VLAN-aware one. So even though we wouldn't deny the bridge from
-> keeping state that would have effect when VLAN awareness is on, we
-> would just deny the bridge from making that state active. Same with MSTP
-> awareness in my view - don't deny MSTI migrations, per-MSTI port state
-> changes etc, just the ability to turn on MSTP awareness.
->
-> In practice I have only seen things done the other way around - the
-> dpaa2-switch driver refuses VLAN-unaware bridges, so it doesn't need to
-> handle ignoring VLAN switchdev notifiers - a slightly simpler task.
-> Also, the concept of unoffloaded uppers seems to be pretty unique to DSA
-> so far, among switchdev drivers.
->
->> > The important part will be to make sure that MSTP is enabled for this
->> > bridge from the get-go (that being the only case in which we can offlo=
-ad
->> > an MSTP aware bridge), and refusing to offload dynamic changes to its
->> > MSTP state. I didn't re-check now, but I think I remember there being
->>=20
->> Hang on though. Won't that mean that this sequence...
->>=20
->> ip link add dev br0 type bridge \
->>     vlan_filtering 1 vlan_default_pvid 0 mst_enable 1
->> ip link set dev swp1 master br0
->>=20
->> ...will work, but offloading will be disabled on swp0; whereas this
->> sequence...
->>=20
->> ip link add dev br0 type bridge \
->>     vlan_filtering 1 vlan_default_pvid 0
->> ip link set dev swp1 master br0
->> ip link set dev br0 type bridge mst_enable 1
->>=20
->> ...will fail on the final command? Even though they are logically
->> equivalent? But maybe that's just the way the cookie crumbles.
->
-> Well, they could be made equivalent for academic purposes, if you're
-> prepared to dynamically unoffload a bridge port from the MST awareness
-> notifier, be my guest, I never tried it... I suppose we could try it, in
-> theory it's just a call to dsa_port_pre_bridge_leave() +
-> dsa_port_bridge_leave() after all. But it's effort to be spent in work
-> and testing, and I'm not sure whether anyone will see the benefit or use
-> case. During initial bridge join, at least it's an established code
-> path, the drivers which don't implement ds->ops->port_bridge_join() have
-> exercised it. Alvin =C5=A0ipraga has fixed a few bugs related to rtl8365mb
-> and this after some recent rework, it should work just fine now.
+The bridge has had per-VLAN STP support for a while now, since:
 
-I completely agree. Just wanted to make sure that I had understood it
-correctly. Thanks.
+https://lore.kernel.org/netdev/20200124114022.10883-1-nikolay@cumulusnetworks.com/
 
->> > limitations even in the software bridge related to dynamic MSTP mode
->> > changes anyway - there had to not be any port VLANs, which IIUC means
->> > that you actually need to _delete_ the port PVIDs which are automatica=
-lly
->> > created before you could change the MSTP mode.
->>=20
->> There are some ergonomic issues there, yes. I might look at it again and
->> see if there is some reasonable way of allowing the mode to be changed
->> even when VLANs are present.
->>=20
->> > This is the model, what's wrong with it? I said "don't offload the
->> > bridge", not "don't offload specific MSTP operations".
->>=20
->> Nothing is wrong, I just couldn't see the whole picture.
->>=20
->> This is the way.
+The current implementation has some problems:
+
+- The mapping from VLAN to STP state is fixed as 1:1, i.e. each VLAN
+  is managed independently. This is awkward from an MSTP (802.1Q-2018,
+  Clause 13.5) point of view, where the model is that multiple VLANs
+  are grouped into MST instances.
+
+  Because of the way that the standard is written, presumably, this is
+  also reflected in hardware implementations. It is not uncommon for a
+  switch to support the full 4k range of VIDs, but that the pool of
+  MST instances is much smaller. Some examples:
+
+  Marvell LinkStreet (mv88e6xxx): 4k VLANs, but only 64 MSTIs
+  Marvell Prestera: 4k VLANs, but only 128 MSTIs
+  Microchip SparX-5i: 4k VLANs, but only 128 MSTIs
+
+- By default, the feature is enabled, and there is no way to disable
+  it. This makes it hard to add offloading in a backwards compatible
+  way, since any underlying switchdevs have no way to refuse the
+  function if the hardware does not support it
+
+- The port-global STP state has precedence over per-VLAN states. In
+  MSTP, as far as I understand it, all VLANs will use the common
+  spanning tree (CST) by default - through traffic engineering you can
+  then optimize your network to group subsets of VLANs to use
+  different trees (MSTI). To my understanding, the way this is
+  typically managed in silicon is roughly:
+
+  Incoming packet:
+  .----.----.--------------.----.-------------
+  | DA | SA | 802.1Q VID=X | ET | Payload ...
+  '----'----'--------------'----'-------------
+                        |
+                        '->|\     .----------------------------.
+                           | +--> | VID | Members | ... | MSTI |
+                   PVID -->|/     |-----|---------|-----|------|
+                                  |   1 | 0001001 | ... |    0 |
+                                  |   2 | 0001010 | ... |   10 |
+                                  |   3 | 0001100 | ... |   10 |
+                                  '----------------------------'
+                                                             |
+                               .-----------------------------'
+                               |  .------------------------.
+                               '->| MSTI | Fwding | Lrning |
+                                  |------|--------|--------|
+                                  |    0 | 111110 | 111110 |
+                                  |   10 | 110111 | 110111 |
+                                  '------------------------'
+
+  What this is trying to show is that the STP state (whether MSTP is
+  used, or ye olde STP) is always accessed via the VLAN table. If STP
+  is running, all MSTI pointers in that table will reference the same
+  index in the STP stable - if MSTP is running, some VLANs may point
+  to other trees (like in this example).
+
+  The fact that in the Linux bridge, the global state (think: index 0
+  in most hardware implementations) is supposed to override the
+  per-VLAN state, is very awkward to offload. In effect, this means
+  that when the global state changes to blocking, drivers will have to
+  iterate over all MSTIs in use, and alter them all to match. This
+  also means that you have to cache whether the hardware state is
+  currently tracking the global state or the per-VLAN state. In the
+  first case, you also have to cache the per-VLAN state so that you
+  can restore it if the global state transitions back to forwarding.
+
+This series adds a new mst_enable bridge setting (as suggested by Nik)
+that can only be changed when no VLANs are configured on the
+bridge. Enabling this mode has the following effect:
+
+- The port-global STP state is used to represent the CST (Common
+  Spanning Tree) (1/14)
+
+- Ingress STP filtering is deferred until the frame's VLAN has been
+  resolved (1/14)
+
+- The preexisting per-VLAN states can no longer be controlled directly
+  (1/14). They are instead placed under the MST module's control,
+  which is managed using a new netlink interface (described in 3/14)
+
+- VLANs can br mapped to MSTIs in an arbitrary M:N fashion, using a
+  new global VLAN option (2/14)
+
+Switchdev notifications are added so that a driver can track:
+- MST enabled state
+- VID to MSTI mappings
+- MST port states
+
+An offloading implementation is this provided for mv88e6xxx.
+
+A proposal for the corresponding iproute2 interface is available here:
+
+https://github.com/wkz/iproute2/tree/mst
+
+v2 -> v3:
+  Bridge:
+  - Use new boolopt API to enable/disable the MST mode (Nik)
+  - Mark br_mst_vlan_set_state as static (Vladimir)
+  - Avoid updates/notifications on repeated VLAN to MSTI mapping
+    configurations (Vladimir)
+  - Configure MSTI states via the existing RTM_GET/SETLINK interface
+    (Roopa)
+  - Refactor switchdev replay logic (Vladimir)
+  - Send switchdev notifications when enabling/disabling MST
+    (Vladimir)
+  DSA:
+  - Align VLAN MSTI callback with existing APIs (Vladimir)
+  - Only flush entries in the affected VLANs when changing an MST
+    state (Vladimir)
+  - Refuse offloading, unless all required ops are implemented
+    (Vladimir)
+  mv88e6xxx:
+  - Always keep the driver's MST state in sync with hardware
+    (Vladimir)
+  - Fix SID leaks (Vladimir)
+  - Only flush entries in the affected VLANs when changing an MST
+    state (Vladimir)
+
+v1 (RFC) -> v2:
+  - Add a separate MST mode that is distinct from the exiting per-VLAN
+    state functionality
+  - Control MSTI states explicitly, rather than via an associated VLAN
+
+Tobias Waldekranz (14):
+  net: bridge: mst: Multiple Spanning Tree (MST) mode
+  net: bridge: mst: Allow changing a VLAN's MSTI
+  net: bridge: mst: Support setting and reporting MST port states
+  net: bridge: mst: Notify switchdev drivers of MST mode changes
+  net: bridge: mst: Notify switchdev drivers of VLAN MSTI migrations
+  net: bridge: mst: Notify switchdev drivers of MST state changes
+  net: bridge: mst: Add helper to map an MSTI to a VID set
+  net: bridge: mst: Add helper to check if MST is enabled
+  net: dsa: Validate hardware support for MST
+  net: dsa: Pass VLAN MSTI migration notifications to driver
+  net: dsa: Handle MST state changes
+  net: dsa: mv88e6xxx: Disentangle STU from VTU
+  net: dsa: mv88e6xxx: Export STU as devlink region
+  net: dsa: mv88e6xxx: MST Offloading
+
+ drivers/net/dsa/mv88e6xxx/chip.c        | 305 ++++++++++++++++++++++-
+ drivers/net/dsa/mv88e6xxx/chip.h        |  38 +++
+ drivers/net/dsa/mv88e6xxx/devlink.c     |  94 +++++++
+ drivers/net/dsa/mv88e6xxx/global1.h     |  10 +
+ drivers/net/dsa/mv88e6xxx/global1_vtu.c | 311 ++++++++++++++----------
+ include/linux/if_bridge.h               |  11 +
+ include/net/dsa.h                       |   6 +
+ include/net/switchdev.h                 |  16 ++
+ include/uapi/linux/if_bridge.h          |  19 ++
+ include/uapi/linux/rtnetlink.h          |   1 +
+ net/bridge/Makefile                     |   2 +-
+ net/bridge/br.c                         |   5 +
+ net/bridge/br_input.c                   |  17 +-
+ net/bridge/br_mst.c                     | 310 +++++++++++++++++++++++
+ net/bridge/br_netlink.c                 |  32 ++-
+ net/bridge/br_private.h                 |  43 ++++
+ net/bridge/br_stp.c                     |   3 +
+ net/bridge/br_switchdev.c               |  46 ++++
+ net/bridge/br_vlan.c                    |  20 +-
+ net/bridge/br_vlan_options.c            |  20 ++
+ net/dsa/dsa_priv.h                      |   6 +
+ net/dsa/port.c                          |  99 +++++++-
+ net/dsa/slave.c                         |  18 ++
+ 23 files changed, 1281 insertions(+), 151 deletions(-)
+ create mode 100644 net/bridge/br_mst.c
+
+-- 
+2.25.1
+
