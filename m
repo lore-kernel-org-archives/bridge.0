@@ -1,24 +1,25 @@
-Return-Path: <tobias@waldekranz.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:organization:content-transfer-encoding;
- bh=ubTDrM/HLQcbgKJhKkseLppPojCwlLcGyvEvWGWRMWk=;
- b=DDBB4A6mlCEz5d22AzgJU2vOSYyiAlsidTYqeCh78dRcmjKI5yiIoGSCypoKw+fEGH
- 7agQTH1VDaX+SZ/zj+NAFMT2ycO+vnZ/J6TJzZw2XyYFPTN1Pe/CR0ccGGiVzJ1hfjki
- QyKPblRC2wL7Q7uqmHp88SMIkPky0CcAcnnXuP5WMOZV2Mq1IwtEbA4JVMjC71SEaNX3
- yTkACpFlZ/CvqyBZhbwNc5Vvq6Eo3KQIf8bTwcQ/WqYkPLcix2k3rZlZg5Kndm1kqbgt
- jAFPMCbQZWDRyzeZGZGk7SPhzVqbvX5b7fh5NfF3uUjAy2lmDxgGIieZ3Ymcss8WcC6P
- ffVw==
-From: Tobias Waldekranz <tobias@waldekranz.com>
-Date: Tue, 15 Mar 2022 01:25:43 +0100
-Message-Id: <20220315002543.190587-16-tobias@waldekranz.com>
-In-Reply-To: <20220315002543.190587-1-tobias@waldekranz.com>
+Return-Path: <kuba@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1647322367;
+ bh=XwfpXnEY7+wrg7B2csX4wE7a6rKBiz6F6P9neGxhXwA=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=UBUqwwHGlWWkv2/0uGVZBkjaSlGMmZ1WBsYvT4MZVkLCkYoxa6d5Fi9HZXPaBQ6LG
+ kuBdq/Lj3Jz1+RL6rtrpY5qOrORwVS4sAfA422p7vDmvApGnOTQTnRIMurdHRj0HNo
+ y39TUyb4wZXrfkN500PxcuvKhPD0EwhWtZWkYsUVXta0DaSAOsfkLdRnRVTOw6K+Y8
+ 35oPo1Kki+E8Ex5t3TrFcFdFhZStBArIsandoLNetv6WxyFM/1v6iS3cOjTQfkQ1qt
+ 53YZqDGjWKPzvnUPbbaW89Kl6sx7YNTgwXf1mx40axxouESh5z+DeXl+MIjJs7xvvw
+ HDhaUR5otj3Iw==
+Date: Mon, 14 Mar 2022 22:32:46 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+Message-ID: <20220314223246.45cf8305@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20220315002543.190587-5-tobias@waldekranz.com>
 References: <20220315002543.190587-1-tobias@waldekranz.com>
+ <20220315002543.190587-5-tobias@waldekranz.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v4 net-next 15/15] net: dsa: mv88e6xxx: MST
-	Offloading
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH v4 net-next 04/15] net: bridge: mst: Notify
+ switchdev drivers of MST mode changes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,359 +28,66 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, kuba@kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-Allocate a SID in the STU for each MSTID in use by a bridge and handle
-the mapping of MSTIDs to VLANs using the SID field of each VTU entry.
+On Tue, 15 Mar 2022 01:25:32 +0100 Tobias Waldekranz wrote:
+> Trigger a switchdev event whenever the bridge's MST mode is
+> enabled/disabled. This allows constituent ports to either perform any
+> required hardware config, or refuse the change if it not supported.
+>=20
+> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 
-Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
----
- drivers/net/dsa/mv88e6xxx/chip.c | 250 ++++++++++++++++++++++++++++++-
- drivers/net/dsa/mv88e6xxx/chip.h |  13 ++
- 2 files changed, 255 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index c14a62aa6a6c..bed1a5658eac 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -1667,24 +1667,31 @@ static int mv88e6xxx_pvt_setup(struct mv88e6xxx_chip *chip)
- 	return 0;
- }
- 
--static void mv88e6xxx_port_fast_age(struct dsa_switch *ds, int port)
-+static int mv88e6xxx_port_fast_age_fid(struct mv88e6xxx_chip *chip, int port,
-+				       u16 fid)
- {
--	struct mv88e6xxx_chip *chip = ds->priv;
--	int err;
--
--	if (dsa_to_port(ds, port)->lag)
-+	if (dsa_to_port(chip->ds, port)->lag)
- 		/* Hardware is incapable of fast-aging a LAG through a
- 		 * regular ATU move operation. Until we have something
- 		 * more fancy in place this is a no-op.
- 		 */
--		return;
-+		return -EOPNOTSUPP;
-+
-+	return mv88e6xxx_g1_atu_remove(chip, fid, port, false);
-+}
-+
-+static void mv88e6xxx_port_fast_age(struct dsa_switch *ds, int port)
-+{
-+	struct mv88e6xxx_chip *chip = ds->priv;
-+	int err;
- 
- 	mv88e6xxx_reg_lock(chip);
--	err = mv88e6xxx_g1_atu_remove(chip, 0, port, false);
-+	err = mv88e6xxx_port_fast_age_fid(chip, port, 0);
- 	mv88e6xxx_reg_unlock(chip);
- 
- 	if (err)
--		dev_err(ds->dev, "p%d: failed to flush ATU\n", port);
-+		dev_err(chip->ds->dev, "p%d: failed to flush ATU: %d\n",
-+			port, err);
- }
- 
- static int mv88e6xxx_vtu_setup(struct mv88e6xxx_chip *chip)
-@@ -1818,6 +1825,160 @@ static int mv88e6xxx_stu_setup(struct mv88e6xxx_chip *chip)
- 	return mv88e6xxx_stu_loadpurge(chip, &stu);
- }
- 
-+static int mv88e6xxx_sid_get(struct mv88e6xxx_chip *chip, u8 *sid)
-+{
-+	DECLARE_BITMAP(busy, MV88E6XXX_N_SID) = { 0 };
-+	struct mv88e6xxx_mst *mst;
-+
-+	__set_bit(0, busy);
-+
-+	list_for_each_entry(mst, &chip->msts, node)
-+		__set_bit(mst->stu.sid, busy);
-+
-+	*sid = find_first_zero_bit(busy, MV88E6XXX_N_SID);
-+
-+	return (*sid >= mv88e6xxx_max_sid(chip)) ? -ENOSPC : 0;
-+}
-+
-+static int mv88e6xxx_mst_put(struct mv88e6xxx_chip *chip, u8 sid)
-+{
-+	struct mv88e6xxx_mst *mst, *tmp;
-+	int err;
-+
-+	if (!sid)
-+		return 0;
-+
-+	list_for_each_entry_safe(mst, tmp, &chip->msts, node) {
-+		if (mst->stu.sid != sid)
-+			continue;
-+
-+		if (!refcount_dec_and_test(&mst->refcnt))
-+			return 0;
-+
-+		mst->stu.valid = false;
-+		err = mv88e6xxx_stu_loadpurge(chip, &mst->stu);
-+		if (err) {
-+			refcount_set(&mst->refcnt, 1);
-+			return err;
-+		}
-+
-+		list_del(&mst->node);
-+		kfree(mst);
-+		return 0;
-+	}
-+
-+	return -ENOENT;
-+}
-+
-+static int mv88e6xxx_mst_get(struct mv88e6xxx_chip *chip, struct net_device *br,
-+			     u16 msti, u8 *sid)
-+{
-+	struct mv88e6xxx_mst *mst;
-+	int err, i;
-+
-+	if (!mv88e6xxx_has_stu(chip)) {
-+		err = -EOPNOTSUPP;
-+		goto err;
-+	}
-+
-+	if (!msti) {
-+		*sid = 0;
-+		return 0;
-+	}
-+
-+	list_for_each_entry(mst, &chip->msts, node) {
-+		if (mst->br == br && mst->msti == msti) {
-+			refcount_inc(&mst->refcnt);
-+			*sid = mst->stu.sid;
-+			return 0;
-+		}
-+	}
-+
-+	err = mv88e6xxx_sid_get(chip, sid);
-+	if (err)
-+		goto err;
-+
-+	mst = kzalloc(sizeof(*mst), GFP_KERNEL);
-+	if (!mst) {
-+		err = -ENOMEM;
-+		goto err;
-+	}
-+
-+	INIT_LIST_HEAD(&mst->node);
-+	refcount_set(&mst->refcnt, 1);
-+	mst->br = br;
-+	mst->msti = msti;
-+	mst->stu.valid = true;
-+	mst->stu.sid = *sid;
-+
-+	/* The bridge starts out all ports in the disabled state. But
-+	 * a STU state of disabled means to go by the port-global
-+	 * state. So we set all user port's initial state to blocking,
-+	 * to match the bridge's behavior.
-+	 */
-+	for (i = 0; i < mv88e6xxx_num_ports(chip); i++)
-+		mst->stu.state[i] = dsa_is_user_port(chip->ds, i) ?
-+			MV88E6XXX_PORT_CTL0_STATE_BLOCKING :
-+			MV88E6XXX_PORT_CTL0_STATE_DISABLED;
-+
-+	err = mv88e6xxx_stu_loadpurge(chip, &mst->stu);
-+	if (err)
-+		goto err_free;
-+
-+	list_add_tail(&mst->node, &chip->msts);
-+	return 0;
-+
-+err_free:
-+	kfree(mst);
-+err:
-+	return err;
-+}
-+
-+static int mv88e6xxx_port_mst_state_set(struct dsa_switch *ds, int port,
-+					const struct switchdev_mst_state *st)
-+{
-+	struct dsa_port *dp = dsa_to_port(ds, port);
-+	struct mv88e6xxx_chip *chip = ds->priv;
-+	struct mv88e6xxx_mst *mst;
-+	u8 state;
-+	int err;
-+
-+	if (!mv88e6xxx_has_stu(chip))
-+		return -EOPNOTSUPP;
-+
-+	switch (st->state) {
-+	case BR_STATE_DISABLED:
-+	case BR_STATE_BLOCKING:
-+	case BR_STATE_LISTENING:
-+		state = MV88E6XXX_PORT_CTL0_STATE_BLOCKING;
-+		break;
-+	case BR_STATE_LEARNING:
-+		state = MV88E6XXX_PORT_CTL0_STATE_LEARNING;
-+		break;
-+	case BR_STATE_FORWARDING:
-+		state = MV88E6XXX_PORT_CTL0_STATE_FORWARDING;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	list_for_each_entry(mst, &chip->msts, node) {
-+		if (mst->br == dsa_port_bridge_dev_get(dp) &&
-+		    mst->msti == st->msti) {
-+			if (mst->stu.state[port] == state)
-+				return 0;
-+
-+			mst->stu.state[port] = state;
-+			mv88e6xxx_reg_lock(chip);
-+			err = mv88e6xxx_stu_loadpurge(chip, &mst->stu);
-+			mv88e6xxx_reg_unlock(chip);
-+			return err;
-+		}
-+	}
-+
-+	return -ENOENT;
-+}
-+
- static int mv88e6xxx_port_check_hw_vlan(struct dsa_switch *ds, int port,
- 					u16 vid)
- {
-@@ -2437,6 +2598,12 @@ static int mv88e6xxx_port_vlan_leave(struct mv88e6xxx_chip *chip,
- 	if (err)
- 		return err;
- 
-+	if (!vlan.valid) {
-+		err = mv88e6xxx_mst_put(chip, vlan.sid);
-+		if (err)
-+			return err;
-+	}
-+
- 	return mv88e6xxx_g1_atu_remove(chip, vlan.fid, port, false);
- }
- 
-@@ -2482,6 +2649,69 @@ static int mv88e6xxx_port_vlan_del(struct dsa_switch *ds, int port,
- 	return err;
- }
- 
-+static int mv88e6xxx_port_vlan_fast_age(struct dsa_switch *ds, int port, u16 vid)
-+{
-+	struct mv88e6xxx_chip *chip = ds->priv;
-+	struct mv88e6xxx_vtu_entry vlan;
-+	int err;
-+
-+	mv88e6xxx_reg_lock(chip);
-+
-+	err = mv88e6xxx_vtu_get(chip, vid, &vlan);
-+	if (err)
-+		goto unlock;
-+
-+	err = mv88e6xxx_port_fast_age_fid(chip, port, vlan.fid);
-+
-+unlock:
-+	mv88e6xxx_reg_unlock(chip);
-+
-+	return err;
-+}
-+
-+static int mv88e6xxx_vlan_msti_set(struct dsa_switch *ds,
-+				   struct dsa_bridge bridge,
-+				   const struct switchdev_vlan_msti *msti)
-+{
-+	struct mv88e6xxx_chip *chip = ds->priv;
-+	struct mv88e6xxx_vtu_entry vlan;
-+	u8 old_sid, new_sid;
-+	int err;
-+
-+	mv88e6xxx_reg_lock(chip);
-+
-+	err = mv88e6xxx_vtu_get(chip, msti->vid, &vlan);
-+	if (err)
-+		goto unlock;
-+
-+	if (!vlan.valid) {
-+		err = -EINVAL;
-+		goto unlock;
-+	}
-+
-+	old_sid = vlan.sid;
-+
-+	err = mv88e6xxx_mst_get(chip, bridge.dev, msti->msti, &new_sid);
-+	if (err)
-+		goto unlock;
-+
-+	if (new_sid != old_sid) {
-+		vlan.sid = new_sid;
-+
-+		err = mv88e6xxx_vtu_loadpurge(chip, &vlan);
-+		if (err) {
-+			mv88e6xxx_mst_put(chip, new_sid);
-+			goto unlock;
-+		}
-+	}
-+
-+	err = mv88e6xxx_mst_put(chip, old_sid);
-+
-+unlock:
-+	mv88e6xxx_reg_unlock(chip);
-+	return err;
-+}
-+
- static int mv88e6xxx_port_fdb_add(struct dsa_switch *ds, int port,
- 				  const unsigned char *addr, u16 vid,
- 				  struct dsa_db db)
-@@ -6008,6 +6238,7 @@ static struct mv88e6xxx_chip *mv88e6xxx_alloc_chip(struct device *dev)
- 	mutex_init(&chip->reg_lock);
- 	INIT_LIST_HEAD(&chip->mdios);
- 	idr_init(&chip->policies);
-+	INIT_LIST_HEAD(&chip->msts);
- 
- 	return chip;
- }
-@@ -6540,10 +6771,13 @@ static const struct dsa_switch_ops mv88e6xxx_switch_ops = {
- 	.port_pre_bridge_flags	= mv88e6xxx_port_pre_bridge_flags,
- 	.port_bridge_flags	= mv88e6xxx_port_bridge_flags,
- 	.port_stp_state_set	= mv88e6xxx_port_stp_state_set,
-+	.port_mst_state_set	= mv88e6xxx_port_mst_state_set,
- 	.port_fast_age		= mv88e6xxx_port_fast_age,
-+	.port_vlan_fast_age	= mv88e6xxx_port_vlan_fast_age,
- 	.port_vlan_filtering	= mv88e6xxx_port_vlan_filtering,
- 	.port_vlan_add		= mv88e6xxx_port_vlan_add,
- 	.port_vlan_del		= mv88e6xxx_port_vlan_del,
-+	.vlan_msti_set		= mv88e6xxx_vlan_msti_set,
- 	.port_fdb_add           = mv88e6xxx_port_fdb_add,
- 	.port_fdb_del           = mv88e6xxx_port_fdb_del,
- 	.port_fdb_dump          = mv88e6xxx_port_fdb_dump,
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.h b/drivers/net/dsa/mv88e6xxx/chip.h
-index 6d4daa24d3e5..6a0b66354e1d 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.h
-+++ b/drivers/net/dsa/mv88e6xxx/chip.h
-@@ -297,6 +297,16 @@ struct mv88e6xxx_region_priv {
- 	enum mv88e6xxx_region_id id;
- };
- 
-+struct mv88e6xxx_mst {
-+	struct list_head node;
-+
-+	refcount_t refcnt;
-+	struct net_device *br;
-+	u16 msti;
-+
-+	struct mv88e6xxx_stu_entry stu;
-+};
-+
- struct mv88e6xxx_chip {
- 	const struct mv88e6xxx_info *info;
- 
-@@ -397,6 +407,9 @@ struct mv88e6xxx_chip {
- 
- 	/* devlink regions */
- 	struct devlink_region *regions[_MV88E6XXX_REGION_MAX];
-+
-+	/* Bridge MST to SID mappings */
-+	struct list_head msts;
- };
- 
- struct mv88e6xxx_bus_ops {
--- 
-2.25.1
-
+../net/bridge/br_mst.c: In function =E2=80=98br_mst_set_enabled=E2=80=99:
+../net/bridge/br_mst.c:102:16: error: variable =E2=80=98attr=E2=80=99 has i=
+nitializer but incomplete type
+  102 |         struct switchdev_attr attr =3D {
+      |                ^~~~~~~~~~~~~~
+../net/bridge/br_mst.c:103:18: error: =E2=80=98struct switchdev_attr=E2=80=
+=99 has no member named =E2=80=98id=E2=80=99
+  103 |                 .id =3D SWITCHDEV_ATTR_ID_BRIDGE_MST,
+      |                  ^~
+../net/bridge/br_mst.c:103:23: error: =E2=80=98SWITCHDEV_ATTR_ID_BRIDGE_MST=
+=E2=80=99 undeclared (first use in this function)
+  103 |                 .id =3D SWITCHDEV_ATTR_ID_BRIDGE_MST,
+      |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../net/bridge/br_mst.c:103:23: note: each undeclared identifier is reported=
+ only once for each function it appears in
+../net/bridge/br_mst.c:103:23: warning: excess elements in struct initializ=
+er
+../net/bridge/br_mst.c:103:23: note: (near initialization for =E2=80=98attr=
+=E2=80=99)
+../net/bridge/br_mst.c:104:18: error: =E2=80=98struct switchdev_attr=E2=80=
+=99 has no member named =E2=80=98orig_dev=E2=80=99
+  104 |                 .orig_dev =3D br->dev,
+      |                  ^~~~~~~~
+../net/bridge/br_mst.c:104:29: warning: excess elements in struct initializ=
+er
+  104 |                 .orig_dev =3D br->dev,
+      |                             ^~
+../net/bridge/br_mst.c:104:29: note: (near initialization for =E2=80=98attr=
+=E2=80=99)
+../net/bridge/br_mst.c:105:18: error: =E2=80=98struct switchdev_attr=E2=80=
+=99 has no member named =E2=80=98u=E2=80=99
+  105 |                 .u.mst =3D on,
+      |                  ^
+../net/bridge/br_mst.c:105:26: warning: excess elements in struct initializ=
+er
+  105 |                 .u.mst =3D on,
+      |                          ^~
+../net/bridge/br_mst.c:105:26: note: (near initialization for =E2=80=98attr=
+=E2=80=99)
+../net/bridge/br_mst.c:102:31: error: storage size of =E2=80=98attr=E2=80=
+=99 isn=E2=80=99t known
+  102 |         struct switchdev_attr attr =3D {
+      |                               ^~~~
+../net/bridge/br_mst.c:125:15: error: implicit declaration of function =E2=
+=80=98switchdev_port_attr_set=E2=80=99; did you mean =E2=80=98br_switchdev_=
+port_vlan_del=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+  125 |         err =3D switchdev_port_attr_set(br->dev, &attr, extack);
+      |               ^~~~~~~~~~~~~~~~~~~~~~~
+      |               br_switchdev_port_vlan_del
+../net/bridge/br_mst.c:102:31: warning: unused variable =E2=80=98attr=E2=80=
+=99 [-Wunused-variable]
+  102 |         struct switchdev_attr attr =3D {
+      |                               ^~~~
