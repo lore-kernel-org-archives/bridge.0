@@ -1,25 +1,25 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=nsOPoTjYO31xmcYiR0Z53NdVcW3nQ8I9RxXyOBwrxLo=;
- b=ogie58XbyC044aIOIW7cMm2s63cnnv5pxF5kNRlnpnJKw98K03gVDIgH9dnxdDzcYW
- tk6BAoWrdf0iGYtJGuMKek3O6WPX/2om4NDj02C4LpSB6prgmdvnUOLjfT9Wy4K8sKFg
- 2ty+1TbryeKQa6/VGQ0JN/nTlUuCauLN96fU7HFjxgkzpbw8v/ukaVQZF3o1lcgUjQWt
- 9rpa3jil6wCyxfa0xy0SDGcPAe0VwhQm4zZ5+2Xj7MQZx09De0ZzimgGkS5A5MhJQste
- hFKSbv2qjwZ5zz7nTZtX1CU+AqkOcrIyz7BO3GiPz7j+FReCrmRuhpck0ezzDnvUz90C
- kAjg==
-Date: Tue, 15 Mar 2022 19:11:08 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220315171108.ameddbqv2sehq3pp@skbuf>
+Return-Path: <tobias@waldekranz.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
+ h=from:to:cc:subject:in-reply-to:references:date:message-id
+ :mime-version; bh=1eFaiU5+NXOZ2eF/q2c9hS91JEU83jBZdMPIUzAUG/M=;
+ b=W9eHnbhnxZGkzFj4ctqYZx2unDRv0f6pILZnVE29yrAktO5wfV20/6Q5AYy2opt8kW
+ mEsUioTGfGdUFxKKKJLC1YaxkOCTeW2Z1Sx0akQKquuDbdLVis6ZPKyWY5GwYnpzo4xP
+ Jur81GGN4sb0B+FWmLvdm0DkYueYkSa2YrKABgXs+59DS3pNashgTBY1HOaB13LLpgow
+ Ofn21eFrtSHyBy/7w3XlI0057PBHN1Rv0myExHyAZlaWtktSbhS3OFHBvG20IDG2LW6c
+ jBVSKdDoRX5hO9X9MM+7RyHzzIgxbE7dObi9QuznBILzRbBqUSR80QmgHH1DaLxJG3n6
+ PThA==
+From: Tobias Waldekranz <tobias@waldekranz.com>
+In-Reply-To: <20220315163349.k2rmfdzrd3jvzbor@skbuf>
 References: <20220315002543.190587-1-tobias@waldekranz.com>
- <20220315002543.190587-11-tobias@waldekranz.com>
+ <20220315002543.190587-10-tobias@waldekranz.com>
+ <20220315163349.k2rmfdzrd3jvzbor@skbuf>
+Date: Tue, 15 Mar 2022 23:26:59 +0100
+Message-ID: <87ee32lumk.fsf@waldekranz.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220315002543.190587-11-tobias@waldekranz.com>
-Subject: Re: [Bridge] [PATCH v4 net-next 10/15] net: dsa: Validate hardware
- support for MST
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH v4 net-next 09/15] net: dsa: Never offload FDB
+ entries on standalone ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,118 +28,43 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
+To: Vladimir Oltean <olteanv@gmail.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2022 at 01:25:38AM +0100, Tobias Waldekranz wrote:
-> When joining a bridge where MST is enabled, we validate that the
-> proper offloading support is in place, otherwise we fallback to
-> software bridging.
-> 
-> When then mode is changed on a bridge in which we are members, we
-> refuse the change if offloading is not supported.
-> 
-> At the moment we only check for configurable learning, but this will
-> be further restricted as we support more MST related switchdev events.
-> 
-> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-> ---
->  net/dsa/dsa_priv.h |  2 ++
->  net/dsa/port.c     | 22 ++++++++++++++++++++++
->  net/dsa/slave.c    |  6 ++++++
->  3 files changed, 30 insertions(+)
-> 
-> diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-> index f20bdd8ea0a8..2aba420696ef 100644
-> --- a/net/dsa/dsa_priv.h
-> +++ b/net/dsa/dsa_priv.h
-> @@ -234,6 +234,8 @@ int dsa_port_vlan_filtering(struct dsa_port *dp, bool vlan_filtering,
->  			    struct netlink_ext_ack *extack);
->  bool dsa_port_skip_vlan_configuration(struct dsa_port *dp);
->  int dsa_port_ageing_time(struct dsa_port *dp, clock_t ageing_clock);
-> +int dsa_port_mst_enable(struct dsa_port *dp, bool on,
-> +			struct netlink_ext_ack *extack);
->  int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu,
->  			bool targeted_match);
->  int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
-> diff --git a/net/dsa/port.c b/net/dsa/port.c
-> index 58291df14cdb..02214033cec0 100644
-> --- a/net/dsa/port.c
-> +++ b/net/dsa/port.c
-> @@ -321,6 +321,11 @@ static void dsa_port_bridge_destroy(struct dsa_port *dp,
->  	kfree(bridge);
->  }
->  
-> +static bool dsa_port_supports_mst(struct dsa_port *dp)
-> +{
-> +	return dsa_port_can_configure_learning(dp);
-> +}
-> +
->  int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
->  			 struct netlink_ext_ack *extack)
->  {
-> @@ -334,6 +339,9 @@ int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
->  	struct net_device *brport_dev;
->  	int err;
->  
-> +	if (br_mst_enabled(br) && !dsa_port_supports_mst(dp))
-> +		return -EOPNOTSUPP;
-> +
->  	/* Here the interface is already bridged. Reflect the current
->  	 * configuration so that drivers can program their chips accordingly.
->  	 */
-> @@ -735,6 +743,20 @@ int dsa_port_ageing_time(struct dsa_port *dp, clock_t ageing_clock)
->  	return 0;
->  }
->  
-> +int dsa_port_mst_enable(struct dsa_port *dp, bool on,
-> +			struct netlink_ext_ack *extack)
-> +{
-> +	if (!on)
-> +		return 0;
-> +
-> +	if (!dsa_port_supports_mst(dp)) {
-> +		NL_SET_ERR_MSG_MOD(extack, "Hardware does not support MST");
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
+On Tue, Mar 15, 2022 at 18:33, Vladimir Oltean <olteanv@gmail.com> wrote:
+> On Tue, Mar 15, 2022 at 01:25:37AM +0100, Tobias Waldekranz wrote:
+>> If a port joins a bridge that it can't offload, it will fallback to
+>> standalone mode and software bridging. In this case, we never want to
+>> offload any FDB entries to hardware either.
+>> 
+>> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+>> ---
+>
+> When you resend, please send this patch separately, unless something
+> breaks really ugly with your MST series in place.
 
-Experimenting a bit... maybe this looks tidier? We make the "if" condition
-have the same basic structure as the previous "if (br_mst_enabled(br) &&
-!dsa_port_supports_mst(dp))", albeit transformed using De Morgan's rules.
+Sure. I found this while testing the software fallback. It prevents a
+segfault in dsa_port_bridge_host_fdb_add, which (rightly, I think)
+assumes that dp->bridge is valid. I feel like this should have a Fixes:
+tag, but I'm not sure which commit to blame. Any suggestions?
 
-{
-	if (!on || dsa_port_supports_mst(dp))
-		return 0;
-
-	NL_SET_ERR_MSG_MOD(extack, "Hardware does not support MST");
-	return -EINVAL;
-}
-
-> +
->  int dsa_port_pre_bridge_flags(const struct dsa_port *dp,
->  			      struct switchdev_brport_flags flags,
->  			      struct netlink_ext_ack *extack)
-> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-> index 647adee97f7f..879d18cc99cb 100644
-> --- a/net/dsa/slave.c
-> +++ b/net/dsa/slave.c
-> @@ -463,6 +463,12 @@ static int dsa_slave_port_attr_set(struct net_device *dev, const void *ctx,
->  
->  		ret = dsa_port_ageing_time(dp, attr->u.ageing_time);
->  		break;
-> +	case SWITCHDEV_ATTR_ID_BRIDGE_MST:
-> +		if (!dsa_port_offloads_bridge_dev(dp, attr->orig_dev))
-> +			return -EOPNOTSUPP;
-> +
-> +		ret = dsa_port_mst_enable(dp, attr->u.mst, extack);
-> +		break;
->  	case SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS:
->  		if (!dsa_port_offloads_bridge_port(dp, attr->orig_dev))
->  			return -EOPNOTSUPP;
-> -- 
-> 2.25.1
-> 
-
+>>  net/dsa/slave.c | 3 +++
+>>  1 file changed, 3 insertions(+)
+>> 
+>> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+>> index a61a7c54af20..647adee97f7f 100644
+>> --- a/net/dsa/slave.c
+>> +++ b/net/dsa/slave.c
+>> @@ -2624,6 +2624,9 @@ static int dsa_slave_fdb_event(struct net_device *dev,
+>>  	if (ctx && ctx != dp)
+>>  		return 0;
+>>  
+>> +	if (!dp->bridge)
+>> +		return 0;
+>> +
+>>  	if (switchdev_fdb_is_dynamically_learned(fdb_info)) {
+>>  		if (dsa_port_offloads_bridge_port(dp, orig_dev))
+>>  			return 0;
+>> -- 
+>> 2.25.1
+>> 
