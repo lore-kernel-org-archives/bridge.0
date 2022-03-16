@@ -2,24 +2,25 @@ Return-Path: <olteanv@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=CxBlO0C502y1jpeWHAj0rnF5IMS/Z4EuROWhss7SnWs=;
- b=JGMB0dsPB1GrxAi6JpNXgtS72jVkFOHljY4TZdBg6Vn985GUp5yWutHNgiB/ymSvVz
- Ns4YRhE+2mtfwFWgMAyS/l1Wv204oLxxxtjNiDBISwvIdmYli7Zxg30TxJf2PSpo5qD7
- KVfluv9AKpsQtstRO6ImY9Nr9cU8pKn2N/kRRgB8eLUCRZIrBIV0PbtUr9LeS64c/qtO
- HrnYfue7by4ulT6m/17L1358uDPQKiQovIzEpGgnQnQvJG0r3hSGEMZWhZEEirlEVsG9
- Y4cN05Y5px1OY1rXeHVqkf5WjSUfemS6aKqRBK4VBmdC3AkobI4kJakUHp7qgQSVthjH
- CuAg==
-Date: Wed, 16 Mar 2022 17:59:56 +0200
+ bh=ARERQSDKxTIHCnmFYNI1ElJI4Oo2Aq2UKhPNaAbSNg4=;
+ b=Sg3427dW092vAOLJR2XEcQ/K29NB/DZt5twKJ8gVmA9TrPScdCEOtwyPlsi4FCZsiQ
+ bN6oZmE9p4etd9Y6inAr5Puw1utDZX1rFnBWQ/Kpw1SJwyJvdV92GzUsabqabxxpvrUw
+ SuzDuuIWz9zSPEAhmuwzs5F3vzZwI94orfMmhn15cY4No379IIbQ/JRjSzJKRW3gtKKD
+ rxnRnwNQyJvEIEh4HtC9XgiNZGXrJ4PnKGxAYhTfEkNyZz1Hr0L41eJNWrJGUv7Avdcz
+ DmvCS0goyAE/O66WKrs1t7lWQet5Au9SV2XSJTjXfMpLlMmnET6Qdd40ZCIJXPmUKBRG
+ Fj5A==
+Date: Thu, 17 Mar 2022 01:34:47 +0200
 From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220316155956.swin6lhz5r4fn5ef@skbuf>
-References: <20220316150857.2442916-1-tobias@waldekranz.com>
- <20220316150857.2442916-11-tobias@waldekranz.com>
+Message-ID: <20220316233447.kwyirxckgancdqmh@skbuf>
+References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
+ <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
+ <20220310142836.m5onuelv4jej5gvs@skbuf> <86r17495gk.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220316150857.2442916-11-tobias@waldekranz.com>
-Subject: Re: [Bridge] [PATCH v5 net-next 10/15] net: dsa: Validate hardware
- support for MST
+In-Reply-To: <86r17495gk.fsf@gmail.com>
+Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
+ implementation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,108 +29,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: Hans Schultz <schultz.hans@gmail.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, davem@davemloft.net
 
-On Wed, Mar 16, 2022 at 04:08:52PM +0100, Tobias Waldekranz wrote:
-> When joining a bridge where MST is enabled, we validate that the
-> proper offloading support is in place, otherwise we fallback to
-> software bridging.
+On Mon, Mar 14, 2022 at 11:46:51AM +0100, Hans Schultz wrote:
+> >> @@ -396,6 +414,13 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
+> >>  				    "ATU miss violation for %pM portvec %x spid %d\n",
+> >>  				    entry.mac, entry.portvec, spid);
+> >>  		chip->ports[spid].atu_miss_violation++;
+> >> +		if (mv88e6xxx_port_is_locked(chip, chip->ports[spid].port))
+> >> +			err = mv88e6xxx_switchdev_handle_atu_miss_violation(chip,
+> >> +									    chip->ports[spid].port,
+> >> +									    &entry,
+> >> +									    fid);
+> >
+> > Do we want to suppress the ATU miss violation warnings if we're going to
+> > notify the bridge, or is it better to keep them for some reason?
+> > My logic is that they're part of normal operation, so suppressing makes
+> > sense.
+> >
 > 
-> When then mode is changed on a bridge in which we are members, we
-> refuse the change if offloading is not supported.
-> 
-> At the moment we only check for configurable learning, but this will
-> be further restricted as we support more MST related switchdev events.
-> 
-> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-> ---
+> I have been seeing many ATU member violations after the miss violation is
+> handled (using ping), and I think it could be considered to suppress the ATU member
+> violations interrupts by setting the IgnoreWrongData bit for the
+> port (sect 4.4.7). This would be something to do whenever a port is set in locked mode?
 
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+So the first packet with a given MAC SA triggers an ATU miss violation
+interrupt.
 
->  net/dsa/dsa_priv.h |  2 ++
->  net/dsa/port.c     | 22 ++++++++++++++++++++++
->  net/dsa/slave.c    |  6 ++++++
->  3 files changed, 30 insertions(+)
-> 
-> diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-> index f20bdd8ea0a8..2aba420696ef 100644
-> --- a/net/dsa/dsa_priv.h
-> +++ b/net/dsa/dsa_priv.h
-> @@ -234,6 +234,8 @@ int dsa_port_vlan_filtering(struct dsa_port *dp, bool vlan_filtering,
->  			    struct netlink_ext_ack *extack);
->  bool dsa_port_skip_vlan_configuration(struct dsa_port *dp);
->  int dsa_port_ageing_time(struct dsa_port *dp, clock_t ageing_clock);
-> +int dsa_port_mst_enable(struct dsa_port *dp, bool on,
-> +			struct netlink_ext_ack *extack);
->  int dsa_port_mtu_change(struct dsa_port *dp, int new_mtu,
->  			bool targeted_match);
->  int dsa_port_fdb_add(struct dsa_port *dp, const unsigned char *addr,
-> diff --git a/net/dsa/port.c b/net/dsa/port.c
-> index 58291df14cdb..02214033cec0 100644
-> --- a/net/dsa/port.c
-> +++ b/net/dsa/port.c
-> @@ -321,6 +321,11 @@ static void dsa_port_bridge_destroy(struct dsa_port *dp,
->  	kfree(bridge);
->  }
->  
-> +static bool dsa_port_supports_mst(struct dsa_port *dp)
-> +{
-> +	return dsa_port_can_configure_learning(dp);
-> +}
-> +
->  int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
->  			 struct netlink_ext_ack *extack)
->  {
-> @@ -334,6 +339,9 @@ int dsa_port_bridge_join(struct dsa_port *dp, struct net_device *br,
->  	struct net_device *brport_dev;
->  	int err;
->  
-> +	if (br_mst_enabled(br) && !dsa_port_supports_mst(dp))
-> +		return -EOPNOTSUPP;
-> +
->  	/* Here the interface is already bridged. Reflect the current
->  	 * configuration so that drivers can program their chips accordingly.
->  	 */
-> @@ -735,6 +743,20 @@ int dsa_port_ageing_time(struct dsa_port *dp, clock_t ageing_clock)
->  	return 0;
->  }
->  
-> +int dsa_port_mst_enable(struct dsa_port *dp, bool on,
-> +			struct netlink_ext_ack *extack)
-> +{
-> +	if (!on)
-> +		return 0;
-> +
-> +	if (!dsa_port_supports_mst(dp)) {
-> +		NL_SET_ERR_MSG_MOD(extack, "Hardware does not support MST");
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  int dsa_port_pre_bridge_flags(const struct dsa_port *dp,
->  			      struct switchdev_brport_flags flags,
->  			      struct netlink_ext_ack *extack)
-> diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-> index f9cecda791d5..2e8f62476ce9 100644
-> --- a/net/dsa/slave.c
-> +++ b/net/dsa/slave.c
-> @@ -464,6 +464,12 @@ static int dsa_slave_port_attr_set(struct net_device *dev, const void *ctx,
->  
->  		ret = dsa_port_ageing_time(dp, attr->u.ageing_time);
->  		break;
-> +	case SWITCHDEV_ATTR_ID_BRIDGE_MST:
-> +		if (!dsa_port_offloads_bridge_dev(dp, attr->orig_dev))
-> +			return -EOPNOTSUPP;
-> +
-> +		ret = dsa_port_mst_enable(dp, attr->u.mst, extack);
-> +		break;
->  	case SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS:
->  		if (!dsa_port_offloads_bridge_port(dp, attr->orig_dev))
->  			return -EOPNOTSUPP;
-> -- 
-> 2.25.1
-> 
+You program that MAC SA into the ATU with a destination port mask of all
+zeroes. This suppresses further ATU miss interrupts for this MAC SA, but
+now generates ATU member violations, because the MAC SA _is_ present in
+the ATU, but not towards the expected port (in fact, towards _no_ port).
 
+Especially if user space decides it doesn't want to authorize this MAC
+SA, it really becomes a problem because this is now a vector for denial
+of service, with every packet triggering an ATU member violation
+interrupt.
+
+So your suggestion is to set the IgnoreWrongData bit on locked ports,
+and this will suppress the actual member violation interrupts for
+traffic coming from these ports.
+
+So if the user decides to unplug a previously authorized printer from
+switch port 1 and move it to port 2, how is this handled? If there isn't
+a mechanism in place to delete the locked FDB entry when the printer
+goes away, then by setting IgnoreWrongData you're effectively also
+suppressing migration notifications.
+
+Oh, btw, my question was: could you consider suppressing the _prints_ on
+an ATU miss violation on a locked port?
