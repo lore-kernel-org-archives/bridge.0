@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=waldekranz-com.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:organization:content-transfer-encoding;
- bh=i+b2UIYzIPR8HiB7lfNC7HnKeM/AsfglkAUtbevdP9c=;
- b=pKQumBJ+GJsRVp/9DOhiZG5nLwVHg3P0o8Mzd4OiMre2OVw7GwRWHQFDDOj6l1s/vA
- 1w5nGNo0a8hV5fJ/UjSxv9IbAeQoH04ovDHkSWiJsu8KjaUjBh77oag+Hn7Eq4qixUVt
- 6eQTY0sehEiq+KVOLjlm9AJ82yRyh6h5Zy+bEICcQBUHCmYnCsSs+FvWQsVpRKhnSJFp
- fzcz10VupTQQdkofQYGmIUbdEgaZ7hcDA/HtJcCsGUbtxVQtNTFsLfDx3KYyrrFESRJ7
- 0BFwb9iICX8WGq/nTqHGi+B1rime6Vp8ivGp3nf6odxboZd80FFPzo4fl9NKqK1SwJmi
- gSIw==
+ bh=TJ/ysLEqmTIrEKAi22qClFzQAMPt3L4KxozAj/kLyzE=;
+ b=hWyG+mS9Kxs+/LhY6K5HDdevwY5y0klEWciUDA/sqtLTCzp0tYUn6erX4d36ClkWSI
+ VucLJnX+1P9Nj2S4aDw+ehQ4mk/jBhbbC+vjiX3HlzPHnnI685RXwraSVt+RmrsQP7yN
+ 37VfSi3BGd/kPpMqU6yBeTLtn5xl1ZITJmwrwQPGfqxykFdQr7GTjj6CjXhxKSY2jS6H
+ TgWaGAMcQWl4D/+cEXhRkozGZuXibto8+xIsb3xSiHbjumN0Y71L3/DyI2kkog2Q6WCk
+ EhBt6bWXm5DxArP+Bl+oqC07OOXg15f13k7yLkIbTlCsGOvh2b6uhgRuwPa+ly6fUYE2
+ z16g==
 From: Tobias Waldekranz <tobias@waldekranz.com>
-Date: Wed, 16 Mar 2022 16:08:48 +0100
-Message-Id: <20220316150857.2442916-7-tobias@waldekranz.com>
+Date: Wed, 16 Mar 2022 16:08:49 +0100
+Message-Id: <20220316150857.2442916-8-tobias@waldekranz.com>
 In-Reply-To: <20220316150857.2442916-1-tobias@waldekranz.com>
 References: <20220316150857.2442916-1-tobias@waldekranz.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v5 net-next 06/15] net: bridge: mst: Notify
-	switchdev drivers of MST state changes
+Subject: [Bridge] [PATCH v5 net-next 07/15] net: bridge: mst: Add helper to
+	map an MSTI to a VID set
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,84 +30,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-Generate a switchdev notification whenever an MST state changes. This
-notification is keyed by the VLANs MSTI rather than the VID, since
-multiple VLANs may share the same MST instance.
+br_mst_get_info answers the question: "On this bridge, which VIDs are
+mapped to the given MSTI?"
+
+This is useful in switchdev drivers, which might have to fan-out
+operations, relating to an MSTI, per VLAN.
+
+An example: When a port's MST state changes from forwarding to
+blocking, a driver may choose to flush the dynamic FDB entries on that
+port to get faster reconvergence of the network, but this should only
+be done in the VLANs that are managed by the MSTI in question.
 
 Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 ---
- include/net/switchdev.h |  7 +++++++
- net/bridge/br_mst.c     | 18 ++++++++++++++++++
- 2 files changed, 25 insertions(+)
+ include/linux/if_bridge.h |  7 +++++++
+ net/bridge/br_mst.c       | 26 ++++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
 
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 53dfa0f7cf5b..aa0171d5786d 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -19,6 +19,7 @@
- enum switchdev_attr_id {
- 	SWITCHDEV_ATTR_ID_UNDEFINED,
- 	SWITCHDEV_ATTR_ID_PORT_STP_STATE,
-+	SWITCHDEV_ATTR_ID_PORT_MST_STATE,
- 	SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS,
- 	SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS,
- 	SWITCHDEV_ATTR_ID_PORT_MROUTER,
-@@ -32,6 +33,11 @@ enum switchdev_attr_id {
- 	SWITCHDEV_ATTR_ID_VLAN_MSTI,
- };
- 
-+struct switchdev_mst_state {
-+	u16 msti;
-+	u8 state;
-+};
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index 3aae023a9353..1cf0cc46d90d 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -119,6 +119,7 @@ int br_vlan_get_info(const struct net_device *dev, u16 vid,
+ 		     struct bridge_vlan_info *p_vinfo);
+ int br_vlan_get_info_rcu(const struct net_device *dev, u16 vid,
+ 			 struct bridge_vlan_info *p_vinfo);
++int br_mst_get_info(const struct net_device *dev, u16 msti, unsigned long *vids);
+ #else
+ static inline bool br_vlan_enabled(const struct net_device *dev)
+ {
+@@ -151,6 +152,12 @@ static inline int br_vlan_get_info_rcu(const struct net_device *dev, u16 vid,
+ {
+ 	return -EINVAL;
+ }
 +
- struct switchdev_brport_flags {
- 	unsigned long val;
- 	unsigned long mask;
-@@ -50,6 +56,7 @@ struct switchdev_attr {
- 	void (*complete)(struct net_device *dev, int err, void *priv);
- 	union {
- 		u8 stp_state;				/* PORT_STP_STATE */
-+		struct switchdev_mst_state mst_state;	/* PORT_MST_STATE */
- 		struct switchdev_brport_flags brport_flags; /* PORT_BRIDGE_FLAGS */
- 		bool mrouter;				/* PORT_MROUTER */
- 		clock_t ageing_time;			/* BRIDGE_AGEING_TIME */
++static inline int br_mst_get_info(const struct net_device *dev, u16 msti,
++				  unsigned long *vids)
++{
++	return -EINVAL;
++}
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_BRIDGE)
 diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
-index 29266174e6b4..00935a19afcc 100644
+index 00935a19afcc..00b36e629224 100644
 --- a/net/bridge/br_mst.c
 +++ b/net/bridge/br_mst.c
-@@ -30,13 +30,31 @@ static void br_mst_vlan_set_state(struct net_bridge_port *p, struct net_bridge_v
- int br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
- 		     struct netlink_ext_ack *extack)
- {
-+	struct switchdev_attr attr = {
-+		.id = SWITCHDEV_ATTR_ID_PORT_MST_STATE,
-+		.orig_dev = p->dev,
-+		.u.mst_state = {
-+			.msti = msti,
-+			.state = state,
-+		},
-+	};
- 	struct net_bridge_vlan_group *vg;
- 	struct net_bridge_vlan *v;
-+	int err;
+@@ -13,6 +13,32 @@
  
- 	vg = nbp_vlan_group(p);
- 	if (!vg)
- 		return 0;
+ DEFINE_STATIC_KEY_FALSE(br_mst_used);
  
-+	/* MSTI 0 (CST) state changes are notified via the regular
-+	 * SWITCHDEV_ATTR_ID_PORT_STP_STATE.
-+	 */
-+	if (msti) {
-+		err = switchdev_port_attr_set(p->dev, &attr, extack);
-+		if (err && err != -EOPNOTSUPP)
-+			return err;
++int br_mst_get_info(const struct net_device *dev, u16 msti, unsigned long *vids)
++{
++	const struct net_bridge_vlan_group *vg;
++	const struct net_bridge_vlan *v;
++	const struct net_bridge *br;
++
++	ASSERT_RTNL();
++
++	if (!netif_is_bridge_master(dev))
++		return -EINVAL;
++
++	br = netdev_priv(dev);
++	if (!br_opt_get(br, BROPT_MST_ENABLED))
++		return -EINVAL;
++
++	vg = br_vlan_group(br);
++
++	list_for_each_entry(v, &vg->vlan_list, vlist) {
++		if (v->msti == msti)
++			__set_bit(v->vid, vids);
 +	}
 +
- 	list_for_each_entry(v, &vg->vlan_list, vlist) {
- 		if (v->brvlan->msti != msti)
- 			continue;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(br_mst_get_info);
++
+ static void br_mst_vlan_set_state(struct net_bridge_port *p, struct net_bridge_vlan *v,
+ 				  u8 state)
+ {
 -- 
 2.25.1
 
