@@ -1,26 +1,25 @@
-Return-Path: <olteanv@gmail.com>
+Return-Path: <f.fainelli@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=ARERQSDKxTIHCnmFYNI1ElJI4Oo2Aq2UKhPNaAbSNg4=;
- b=Sg3427dW092vAOLJR2XEcQ/K29NB/DZt5twKJ8gVmA9TrPScdCEOtwyPlsi4FCZsiQ
- bN6oZmE9p4etd9Y6inAr5Puw1utDZX1rFnBWQ/Kpw1SJwyJvdV92GzUsabqabxxpvrUw
- SuzDuuIWz9zSPEAhmuwzs5F3vzZwI94orfMmhn15cY4No379IIbQ/JRjSzJKRW3gtKKD
- rxnRnwNQyJvEIEh4HtC9XgiNZGXrJ4PnKGxAYhTfEkNyZz1Hr0L41eJNWrJGUv7Avdcz
- DmvCS0goyAE/O66WKrs1t7lWQet5Au9SV2XSJTjXfMpLlMmnET6Qdd40ZCIJXPmUKBRG
- Fj5A==
-Date: Thu, 17 Mar 2022 01:34:47 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220316233447.kwyirxckgancdqmh@skbuf>
-References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
- <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
- <20220310142836.m5onuelv4jej5gvs@skbuf> <86r17495gk.fsf@gmail.com>
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=JlSDTrMLCmc5n2ZJdwjUCSRTD54RzeM/4/q2sdv25jo=;
+ b=c6sWo3xXkqmXwk4zqCMnEhspLRrdVlstTAEwqW5ADtJsxzmXRVvGDhHJwNbvm3L1GE
+ cBePNIqauQpE2mLrOvmuh2DzSlaizlX28lqEJOuJnCB3essSkUsssjlTc5I9j+YdI+ML
+ ah9cynpMusdLJTPHlaTrCjPCYdY4CKrxFigK4vTd4zcrcugtT/SqBM34cceNXtEn3Cmh
+ n2qX3+Ebtdw7/Fl64N/gScs0ozHSk6Lrnvpjna19n/oGwvzO8M7wFa8UOop1wQBkqki2
+ qujVIXmhyeVE09+4HeePt8Jvw2HQPA7w1UJ5QKLijFRNTqrPN3KOcFQqDIlsIa5f10Kc
+ oC7Q==
+Message-ID: <f9b3ecf5-c2a4-3a7a-5d19-1dbeae5acb69@gmail.com>
+Date: Wed, 16 Mar 2022 17:18:30 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86r17495gk.fsf@gmail.com>
-Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
- implementation
+Content-Language: en-US
+References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 0/3] Extend locked port feature with
+ FDB locked flag (MAC-Auth/MAB)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,53 +28,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, davem@davemloft.net
+To: Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Mon, Mar 14, 2022 at 11:46:51AM +0100, Hans Schultz wrote:
-> >> @@ -396,6 +414,13 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
-> >>  				    "ATU miss violation for %pM portvec %x spid %d\n",
-> >>  				    entry.mac, entry.portvec, spid);
-> >>  		chip->ports[spid].atu_miss_violation++;
-> >> +		if (mv88e6xxx_port_is_locked(chip, chip->ports[spid].port))
-> >> +			err = mv88e6xxx_switchdev_handle_atu_miss_violation(chip,
-> >> +									    chip->ports[spid].port,
-> >> +									    &entry,
-> >> +									    fid);
-> >
-> > Do we want to suppress the ATU miss violation warnings if we're going to
-> > notify the bridge, or is it better to keep them for some reason?
-> > My logic is that they're part of normal operation, so suppressing makes
-> > sense.
-> >
+
+
+On 3/10/2022 6:23 AM, Hans Schultz wrote:
+> This patch set extends the locked port feature for devices
+> that are behind a locked port, but do not have the ability to
+> authorize themselves as a supplicant using IEEE 802.1X.
+> Such devices can be printers, meters or anything related to
+> fixed installations. Instead of 802.1X authorization, devices
+> can get access based on their MAC addresses being whitelisted.
 > 
-> I have been seeing many ATU member violations after the miss violation is
-> handled (using ping), and I think it could be considered to suppress the ATU member
-> violations interrupts by setting the IgnoreWrongData bit for the
-> port (sect 4.4.7). This would be something to do whenever a port is set in locked mode?
+> For an authorization daemon to detect that a device is trying
+> to get access through a locked port, the bridge will add the
+> MAC address of the device to the FDB with a locked flag to it.
+> Thus the authorization daemon can catch the FDB add event and
+> check if the MAC address is in the whitelist and if so replace
+> the FDB entry without the locked flag enabled, and thus open
+> the port for the device.
+> 
+> This feature is known as MAC-Auth or MAC Authentication Bypass
+> (MAB) in Cisco terminology, where the full MAB concept involves
+> additional Cisco infrastructure for authorization. There is no
+> real authentication process, as the MAC address of the device
+> is the only input the authorization daemon, in the general
+> case, has to base the decision if to unlock the port or not.
+> 
+> With this patch set, an implementation of the offloaded case is
+> supplied for the mv88e6xxx driver. When a packet ingresses on
+> a locked port, an ATU miss violation event will occur. When
+> handling such ATU miss violation interrupts, the MAC address of
+> the device is added to the FDB with a zero destination port
+> vector (DPV) and the MAC address is communicated through the
+> switchdev layer to the bridge, so that a FDB entry with the
+> locked flag enabled can be added.
 
-So the first packet with a given MAC SA triggers an ATU miss violation
-interrupt.
-
-You program that MAC SA into the ATU with a destination port mask of all
-zeroes. This suppresses further ATU miss interrupts for this MAC SA, but
-now generates ATU member violations, because the MAC SA _is_ present in
-the ATU, but not towards the expected port (in fact, towards _no_ port).
-
-Especially if user space decides it doesn't want to authorize this MAC
-SA, it really becomes a problem because this is now a vector for denial
-of service, with every packet triggering an ATU member violation
-interrupt.
-
-So your suggestion is to set the IgnoreWrongData bit on locked ports,
-and this will suppress the actual member violation interrupts for
-traffic coming from these ports.
-
-So if the user decides to unplug a previously authorized printer from
-switch port 1 and move it to port 2, how is this handled? If there isn't
-a mechanism in place to delete the locked FDB entry when the printer
-goes away, then by setting IgnoreWrongData you're effectively also
-suppressing migration notifications.
-
-Oh, btw, my question was: could you consider suppressing the _prints_ on
-an ATU miss violation on a locked port?
+FWIW, we may have about a 30% - 70% split between switches that will 
+signal ATU violations over a side band interrupt, like mv88e6xxx will, 
+and the rest will likely signal such events via the proprietary tag format.
+-- 
+Florian
