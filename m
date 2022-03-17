@@ -1,25 +1,27 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=utKCqy7VusDzWJzGDfUfuV+/FoQNmgt468RWLPQd6V0=;
- b=NM6sOaIQvQf9NIJbbFjBIfyieIyU0skVM5rgUkl9FvZneQx2HSPloiBsWeAcsEJzIb
- NP+QzwvBMcuqA2GBaLyzFGxWzrlnzsV8VrzL7WNizIZj9AmgCSOpfy8PHPEhYNC07GNK
- uAmgZWBx9AvC75LJ+jAqm51M56zcFNQyiW3wpajVfafRVeSUAesvWV+m1NrZ32VEQ+KY
- ev2CHEKQf6mBiYGgLNdxzKfXjACQoAbLDzyD7hwFj74JBAXw0BfifRaX7j07i4Hvlofx
- BNBp4OySem/jZbF3Bhd8Ssrowh7qIzGpf0ApNsr8qB4IHbqjlzraGU8nhnfdgS8aUZdn
- AXuw==
-From: Hans Schultz <schultz.hans@gmail.com>
-In-Reply-To: <20220316233447.kwyirxckgancdqmh@skbuf>
-References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
- <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
- <20220310142836.m5onuelv4jej5gvs@skbuf> <86r17495gk.fsf@gmail.com>
- <20220316233447.kwyirxckgancdqmh@skbuf>
-Date: Thu, 17 Mar 2022 09:52:15 +0100
-Message-ID: <86lex9hsg0.fsf@gmail.com>
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=PuxphhtSyojHBQ+/3yS9PotueY01xJQMUnQnfyRU8xE=;
+ b=e0ChA5vHBfySfK2dyMjln2cPS59EYlQLojTArVGCStxvXk2T9CLcJ4nqzFp5g7uJ9o
+ 2OjHeIOgvN3GxF/2AeDiy9a9I+VkoIAW8aefLLgqedaYsCx86FG0v3pE4r+01dEysYWA
+ 8O6kcme2AkqMtYb2Kq7O2fZPPBQjGW874EC28OKCX6DY4U5mpsknygnAZJbArYy4Bscv
+ 4oT9kUeLmGQis/UdflkN74IJU9mJGxfF9R2D4CGELJd+XegKCFiw7t8CmlskHRmDQqpC
+ VHZ1l2Z08drqUZqNKSKQ8KNGGOcGWPjIjMbQemoWboiLE215K73qlONfGbOYqfaq8dcR
+ 4gPA==
+Message-ID: <181d6379-aef0-e606-a1f1-b9f986d8c14d@blackwall.org>
+Date: Thu, 17 Mar 2022 10:55:56 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
- implementation
+Content-Language: en-US
+References: <20220316150857.2442916-1-tobias@waldekranz.com>
+ <20220316150857.2442916-4-tobias@waldekranz.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20220316150857.2442916-4-tobias@waldekranz.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH v5 net-next 03/15] net: bridge: mst: Support
+ setting and reporting MST port states
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,70 +30,66 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>, Hans Schultz <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, davem@davemloft.net
+To: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, Matt Johnston <matt@codeconstruct.com.au>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On tor, mar 17, 2022 at 01:34, Vladimir Oltean <olteanv@gmail.com> wrote:
-> On Mon, Mar 14, 2022 at 11:46:51AM +0100, Hans Schultz wrote:
->> >> @@ -396,6 +414,13 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
->> >>  				    "ATU miss violation for %pM portvec %x spid %d\n",
->> >>  				    entry.mac, entry.portvec, spid);
->> >>  		chip->ports[spid].atu_miss_violation++;
->> >> +		if (mv88e6xxx_port_is_locked(chip, chip->ports[spid].port))
->> >> +			err = mv88e6xxx_switchdev_handle_atu_miss_violation(chip,
->> >> +									    chip->ports[spid].port,
->> >> +									    &entry,
->> >> +									    fid);
->> >
->> > Do we want to suppress the ATU miss violation warnings if we're going to
->> > notify the bridge, or is it better to keep them for some reason?
->> > My logic is that they're part of normal operation, so suppressing makes
->> > sense.
->> >
->> 
->> I have been seeing many ATU member violations after the miss violation is
->> handled (using ping), and I think it could be considered to suppress the ATU member
->> violations interrupts by setting the IgnoreWrongData bit for the
->> port (sect 4.4.7). This would be something to do whenever a port is set in locked mode?
->
-> So the first packet with a given MAC SA triggers an ATU miss violation
-> interrupt.
->
-> You program that MAC SA into the ATU with a destination port mask of all
-> zeroes. This suppresses further ATU miss interrupts for this MAC SA, but
-> now generates ATU member violations, because the MAC SA _is_ present in
-> the ATU, but not towards the expected port (in fact, towards _no_ port).
->
-> Especially if user space decides it doesn't want to authorize this MAC
-> SA, it really becomes a problem because this is now a vector for denial
-> of service, with every packet triggering an ATU member violation
-> interrupt.
->
-> So your suggestion is to set the IgnoreWrongData bit on locked ports,
-> and this will suppress the actual member violation interrupts for
-> traffic coming from these ports.
->
-> So if the user decides to unplug a previously authorized printer from
-> switch port 1 and move it to port 2, how is this handled? If there isn't
-> a mechanism in place to delete the locked FDB entry when the printer
-> goes away, then by setting IgnoreWrongData you're effectively also
-> suppressing migration notifications.
+On 16/03/2022 17:08, Tobias Waldekranz wrote:
+> Make it possible to change the port state in a given MSTI by extending
+> the bridge port netlink interface (RTM_SETLINK on PF_BRIDGE).The
+> proposed iproute2 interface would be:
+> 
+>     bridge mst set dev <PORT> msti <MSTI> state <STATE>
+> 
+> Current states in all applicable MSTIs can also be dumped via a
+> corresponding RTM_GETLINK. The proposed iproute interface looks like
+> this:
+> 
+> $ bridge mst
+> port              msti
+> vb1               0
+> 		    state forwarding
+> 		  100
+> 		    state disabled
+> vb2               0
+> 		    state forwarding
+> 		  100
+> 		    state forwarding
+> 
+> The preexisting per-VLAN states are still valid in the MST
+> mode (although they are read-only), and can be queried as usual if one
+> is interested in knowing a particular VLAN's state without having to
+> care about the VID to MSTI mapping (in this example VLAN 20 and 30 are
+> bound to MSTI 100):
+> 
+> $ bridge -d vlan
+> port              vlan-id
+> vb1               10
+> 		    state forwarding mcast_router 1
+> 		  20
+> 		    state disabled mcast_router 1
+> 		  30
+> 		    state disabled mcast_router 1
+> 		  40
+> 		    state forwarding mcast_router 1
+> vb2               10
+> 		    state forwarding mcast_router 1
+> 		  20
+> 		    state forwarding mcast_router 1
+> 		  30
+> 		    state forwarding mcast_router 1
+> 		  40
+> 		    state forwarding mcast_router 1
+> 
+> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+> ---
+>  include/uapi/linux/if_bridge.h |  16 +++++
+>  include/uapi/linux/rtnetlink.h |   1 +
+>  net/bridge/br_mst.c            | 126 +++++++++++++++++++++++++++++++++
+>  net/bridge/br_netlink.c        |  44 +++++++++++-
+>  net/bridge/br_private.h        |  23 ++++++
+>  5 files changed, 209 insertions(+), 1 deletion(-)
+> 
 
-I don't think such a scenario is so realistic, as changing port is not
-just something done casually, besides port 2 then must also be a locked
-port to have the same policy.
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-The other aspect is that the user space daemon that authorizes catches
-the fdb add entry events and checks if it is a locked entry. So it will
-be up to said daemon to decide the policy, like remove the fdb entry
-after a timeout.
 
->
-> Oh, btw, my question was: could you consider suppressing the _prints_ on
-> an ATU miss violation on a locked port?
-
-As there will only be such on the first packet, I think it should be
-logged and those prints serve that purpose, so I think it is best to
-keep the print.
-If in the future some tests or other can argue for suppressing the
-prints, it is an easy thing to do.
