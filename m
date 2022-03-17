@@ -1,25 +1,23 @@
-Return-Path: <olteanv@gmail.com>
+Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=epMYlP8SwfuajkjtWjH/vdDgnJLu6cKl9OWtKi8Kk94=;
- b=Qoted9Hr0eGzmpkCHTYGlB9GWjkE+TWEPm1lkAgM0fg8igtm6f9hjxNnovjmkFDYYg
- fP51yRAboD900JOQlGUtnah7kk9DgdBI1gKsMEvsfFBu1PiRII59tOUASjKEtfHIfNmC
- GsiLQm5utgUqyqnGBl1HB6D0OkGAvSG7ZrNk3W97LO5I3x2ccRdjBagVxbvf2OCfQ947
- xaLp9TCsmOUGYcs0VB4Ir6NJtEalPEjjJLI6I+FhUnxeAvq/yIbmlz3200tabpvIudC9
- QjbAmRccewrzOEva+71WXoyon9TiNTIRW0BwFSy/cCxAGZJ4A7rpsk3NVjQ+l4s+dB1B
- d9Ig==
-Date: Thu, 17 Mar 2022 02:43:26 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220317004326.ebsc5xjug76qqen3@skbuf>
-References: <20220316150857.2442916-1-tobias@waldekranz.com>
- <20220316150857.2442916-8-tobias@waldekranz.com>
+ h=from:to:cc:subject:in-reply-to:references:date:message-id
+ :mime-version; bh=0LIMf2wAtLBEAi/57yWN7rM87seWRRBpgZ91TFWXDsc=;
+ b=Ct1jRFK9QSNtX/UHfG54ye6ymLlehHvfGhaxcp4KotK30E4V7fGxxSRW2iMJ8nJWjr
+ IX95NN9TNTnCKufsm5+m49eAxrXJSLQ4qH7fpRbR85s03bwOaGnm+mbCZx+tOVKWPqiV
+ PP3yRghqAVBGHCYKL2iX9KS3xZQuFj8g3FPbgrtiMY91HvdR5F9SOQIWs9oSgDdlw754
+ 4Q64Pb4sF5dcuT5B4f2z4x/4MUOM5YegzVCLc34FAg65vxYm67s7hmCfNI6Pqp8p8u9J
+ 2dr+VmwRn2HltCf2aFgEYrTuZNArDMjdDEvTM9dM3VbDgWyVO7Lw/1bf+Rw5gWfyc0Fz
+ j/mA==
+From: Hans Schultz <schultz.hans@gmail.com>
+In-Reply-To: <f9b3ecf5-c2a4-3a7a-5d19-1dbeae5acb69@gmail.com>
+References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
+ <f9b3ecf5-c2a4-3a7a-5d19-1dbeae5acb69@gmail.com>
+Date: Thu, 17 Mar 2022 09:29:10 +0100
+Message-ID: <86o825htih.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220316150857.2442916-8-tobias@waldekranz.com>
-Subject: Re: [Bridge] [PATCH v5 net-next 07/15] net: bridge: mst: Add helper
- to map an MSTI to a VID set
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH net-next 0/3] Extend locked port feature with
+ FDB locked flag (MAC-Auth/MAB)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,93 +26,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Petr Machata <petrm@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, Cooper Lees <me@cooperlees.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Matt Johnston <matt@codeconstruct.com.au>, davem@davemloft.net, linux-kernel@vger.kernel.org
+To: Florian Fainelli <f.fainelli@gmail.com>, Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On Wed, Mar 16, 2022 at 04:08:49PM +0100, Tobias Waldekranz wrote:
-> br_mst_get_info answers the question: "On this bridge, which VIDs are
-> mapped to the given MSTI?"
-> 
-> This is useful in switchdev drivers, which might have to fan-out
-> operations, relating to an MSTI, per VLAN.
-> 
-> An example: When a port's MST state changes from forwarding to
-> blocking, a driver may choose to flush the dynamic FDB entries on that
-> port to get faster reconvergence of the network, but this should only
-> be done in the VLANs that are managed by the MSTI in question.
-> 
-> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-> ---
+On ons, mar 16, 2022 at 17:18, Florian Fainelli <f.fainelli@gmail.com> wrote:
+> On 3/10/2022 6:23 AM, Hans Schultz wrote:
+>> This patch set extends the locked port feature for devices
+>> that are behind a locked port, but do not have the ability to
+>> authorize themselves as a supplicant using IEEE 802.1X.
+>> Such devices can be printers, meters or anything related to
+>> fixed installations. Instead of 802.1X authorization, devices
+>> can get access based on their MAC addresses being whitelisted.
+>> 
+>> For an authorization daemon to detect that a device is trying
+>> to get access through a locked port, the bridge will add the
+>> MAC address of the device to the FDB with a locked flag to it.
+>> Thus the authorization daemon can catch the FDB add event and
+>> check if the MAC address is in the whitelist and if so replace
+>> the FDB entry without the locked flag enabled, and thus open
+>> the port for the device.
+>> 
+>> This feature is known as MAC-Auth or MAC Authentication Bypass
+>> (MAB) in Cisco terminology, where the full MAB concept involves
+>> additional Cisco infrastructure for authorization. There is no
+>> real authentication process, as the MAC address of the device
+>> is the only input the authorization daemon, in the general
+>> case, has to base the decision if to unlock the port or not.
+>> 
+>> With this patch set, an implementation of the offloaded case is
+>> supplied for the mv88e6xxx driver. When a packet ingresses on
+>> a locked port, an ATU miss violation event will occur. When
+>> handling such ATU miss violation interrupts, the MAC address of
+>> the device is added to the FDB with a zero destination port
+>> vector (DPV) and the MAC address is communicated through the
+>> switchdev layer to the bridge, so that a FDB entry with the
+>> locked flag enabled can be added.
+>
+> FWIW, we may have about a 30% - 70% split between switches that will 
+> signal ATU violations over a side band interrupt, like mv88e6xxx will, 
+> and the rest will likely signal such events via the proprietary tag
+> format.
 
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+I guess that the proprietary tag scheme a scenario where the packet can
+be forwarded to the bridge module's ingress queue on the respective
+port?
 
->  include/linux/if_bridge.h |  7 +++++++
->  net/bridge/br_mst.c       | 26 ++++++++++++++++++++++++++
->  2 files changed, 33 insertions(+)
-> 
-> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-> index 3aae023a9353..1cf0cc46d90d 100644
-> --- a/include/linux/if_bridge.h
-> +++ b/include/linux/if_bridge.h
-> @@ -119,6 +119,7 @@ int br_vlan_get_info(const struct net_device *dev, u16 vid,
->  		     struct bridge_vlan_info *p_vinfo);
->  int br_vlan_get_info_rcu(const struct net_device *dev, u16 vid,
->  			 struct bridge_vlan_info *p_vinfo);
-> +int br_mst_get_info(const struct net_device *dev, u16 msti, unsigned long *vids);
->  #else
->  static inline bool br_vlan_enabled(const struct net_device *dev)
->  {
-> @@ -151,6 +152,12 @@ static inline int br_vlan_get_info_rcu(const struct net_device *dev, u16 vid,
->  {
->  	return -EINVAL;
->  }
-> +
-> +static inline int br_mst_get_info(const struct net_device *dev, u16 msti,
-> +				  unsigned long *vids)
-> +{
-> +	return -EINVAL;
-> +}
->  #endif
->  
->  #if IS_ENABLED(CONFIG_BRIDGE)
-> diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
-> index 00935a19afcc..00b36e629224 100644
-> --- a/net/bridge/br_mst.c
-> +++ b/net/bridge/br_mst.c
-> @@ -13,6 +13,32 @@
->  
->  DEFINE_STATIC_KEY_FALSE(br_mst_used);
->  
-> +int br_mst_get_info(const struct net_device *dev, u16 msti, unsigned long *vids)
-> +{
-> +	const struct net_bridge_vlan_group *vg;
-> +	const struct net_bridge_vlan *v;
-> +	const struct net_bridge *br;
-> +
-> +	ASSERT_RTNL();
-> +
-> +	if (!netif_is_bridge_master(dev))
-> +		return -EINVAL;
-> +
-> +	br = netdev_priv(dev);
-> +	if (!br_opt_get(br, BROPT_MST_ENABLED))
-> +		return -EINVAL;
-> +
-> +	vg = br_vlan_group(br);
-> +
-> +	list_for_each_entry(v, &vg->vlan_list, vlist) {
-> +		if (v->msti == msti)
-> +			__set_bit(v->vid, vids);
-> +	}
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(br_mst_get_info);
-> +
->  static void br_mst_vlan_set_state(struct net_bridge_port *p, struct net_bridge_vlan *v,
->  				  u8 state)
->  {
 > -- 
-> 2.25.1
-> 
-
+> Florian
