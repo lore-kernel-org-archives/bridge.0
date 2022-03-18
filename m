@@ -1,25 +1,24 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=/7iAhcR4tM55eEx0OphxTplV89HWokZKexzro1tRyR4=;
- b=B8XIvyZykfMaM6OPqWJsED+v5Dwn3xRPjvNFplB7XHHqcf+b+PsDawQkL/LFEncHXO
- 7BsmBBjN6XsztRPgkTlTEVyciryk7kfyMykxuI0t9DoxYnt6rqJSySkzGa499pRV5xQl
- 2K0JH+lIFThsnhGGADoEf9LSYYhuI6P0EY+ZAWnVI1Aoj9oMpsxKN0wTqYppiQyz2G8a
- /y+0qKS+hz8wZ9WtRe3aGXVnubOQHNZdyZiZpxwrIKXgeyYwZePhUlo/rH6Yb2RuPjCl
- +aXjTlyMvs9HnFgqVZk8dr50w/0ScT/W1K8nPH8qAzkUX5hAtwUQCGZ6EDlKWyUlrOTI
- htjA==
-Date: Thu, 17 Mar 2022 21:27:01 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220317192701.vskynomfmnciv732@skbuf>
-References: <20220317093902.1305816-1-schultz.hans+netdev@gmail.com>
- <20220317093902.1305816-4-schultz.hans+netdev@gmail.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1647562814;
+ bh=VhMA0U/HDQoA1cmOY4Bw3fD0npt5Q4VMst5fHYiRhmA=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=P6Go+x8KVLt2xjAZm2WceBHay10DQUhwETNW0CAa436/pxozvw3gfdDDZLfBCeZjM
+ +iim+PYuyZVmXu3qGxseThgyfqcAWTDgH+SXULnOChAIZCYDpM0PUqby68bZWrttit
+ 8IJ4xAVtwDxfSlZKUU5TPJfZ9Go3KAnIpAPs6uEbGFDQI9G/tiYIGjVd2F2JF7yp1D
+ 84Eo4tyw4xeURBuNUU6v+qQ2iVY4qRomm3WfjQV/qVfHpGnOGydA1a6FzMfuRDNQQL
+ AJ+h3r9m1RKBZnO7xQGOlWhkD8t7SPy32MxvxWeX87Rg78FdTqWZp7v+euptDvT5LI
+ BZ60cpxZaNNFg==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220317093902.1305816-4-schultz.hans+netdev@gmail.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 3/4] net: dsa: mv88e6xxx:
- mac-auth/MAB implementation
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164756281405.28197.1278570234241451207.git-patchwork-notify@kernel.org>
+Date: Fri, 18 Mar 2022 00:20:14 +0000
+References: <20220316150857.2442916-1-tobias@waldekranz.com>
+In-Reply-To: <20220316150857.2442916-1-tobias@waldekranz.com>
+Subject: Re: [Bridge] [PATCH v5 net-next 00/15] net: bridge: Multiple
+	Spanning Trees
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,77 +27,63 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Ido Schimmel <idosch@nvidia.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: ivecera@redhat.com, andrew@lunn.ch, f.fainelli@gmail.com, jiri@resnulli.us, petrm@nvidia.com, razor@blackwall.org, bridge@lists.linux-foundation.org, linux@armlinux.org.uk, vivien.didelot@gmail.com, idosch@nvidia.com, netdev@vger.kernel.org, me@cooperlees.com, roopa@nvidia.com, kuba@kernel.org, matt@codeconstruct.com.au, olteanv@gmail.com, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2022 at 10:39:01AM +0100, Hans Schultz wrote:
-> +int mv88e6xxx_switchdev_handle_atu_miss_violation(struct mv88e6xxx_chip *chip,
-> +						  int port,
-> +						  struct mv88e6xxx_atu_entry *entry,
-> +						  u16 fid)
-> +{
-> +	struct switchdev_notifier_fdb_info info = {
-> +		.addr = entry->mac,
-> +		.vid = 0,
-> +		.added_by_user = false,
-> +		.is_local = false,
-> +		.offloaded = true,
-> +		.locked = true,
-> +	};
-> +	struct mv88e6xxx_fid_search_ctx ctx;
-> +	struct netlink_ext_ack *extack;
-> +	struct net_device *brport;
-> +	struct dsa_port *dp;
-> +	int err;
-> +
-> +	ctx.fid_search = fid;
-> +	err = mv88e6xxx_vtu_walk(chip, mv88e6xxx_find_vid_on_matching_fid, &ctx);
-> +	if (err < 0)
-> +		return err;
-> +	if (err == 1)
-> +		info.vid = ctx.vid_found;
-> +	else
-> +		return -ENODATA;
-> +
-> +	dp = dsa_to_port(chip->ds, port);
-> +	brport = dsa_port_to_bridge_port(dp);
-> +	if (!brport)
-> +		return -ENODEV;
+Hello:
 
-dsa_port_to_bridge_port() must be under rtnl_lock().
+This series was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-On a different CPU rather than the one servicing the interrupt, the
-rtnl_lock is held exactly by the user space command that triggers the
-deletion of the bridge port.
+On Wed, 16 Mar 2022 16:08:42 +0100 you wrote:
+> The bridge has had per-VLAN STP support for a while now, since:
+> 
+> https://lore.kernel.org/netdev/20200124114022.10883-1-nikolay@cumulusnetworks.com/
+> 
+> The current implementation has some problems:
+> 
+> - The mapping from VLAN to STP state is fixed as 1:1, i.e. each VLAN
+>   is managed independently. This is awkward from an MSTP (802.1Q-2018,
+>   Clause 13.5) point of view, where the model is that multiple VLANs
+>   are grouped into MST instances.
+> 
+> [...]
 
-The interrupt thread runs, calls dsa_port_to_bridge_port(), and finds
-a non-NULL brport, because the bridge is still doing something else in
-del_nbp(), it hasn't yet reached the netdev_upper_dev_unlink() function
-which will trigger dsa_port_bridge_leave() -> dsa_port_bridge_destroy().
+Here is the summary with links:
+  - [v5,net-next,01/15] net: bridge: mst: Multiple Spanning Tree (MST) mode
+    https://git.kernel.org/netdev/net-next/c/ec7328b59176
+  - [v5,net-next,02/15] net: bridge: mst: Allow changing a VLAN's MSTI
+    https://git.kernel.org/netdev/net-next/c/8c678d60562f
+  - [v5,net-next,03/15] net: bridge: mst: Support setting and reporting MST port states
+    https://git.kernel.org/netdev/net-next/c/122c29486e1f
+  - [v5,net-next,04/15] net: bridge: mst: Notify switchdev drivers of MST mode changes
+    https://git.kernel.org/netdev/net-next/c/87c167bb94ee
+  - [v5,net-next,05/15] net: bridge: mst: Notify switchdev drivers of VLAN MSTI migrations
+    https://git.kernel.org/netdev/net-next/c/6284c723d9b9
+  - [v5,net-next,06/15] net: bridge: mst: Notify switchdev drivers of MST state changes
+    https://git.kernel.org/netdev/net-next/c/7ae9147f4312
+  - [v5,net-next,07/15] net: bridge: mst: Add helper to map an MSTI to a VID set
+    https://git.kernel.org/netdev/net-next/c/cceac97afa09
+  - [v5,net-next,08/15] net: bridge: mst: Add helper to check if MST is enabled
+    https://git.kernel.org/netdev/net-next/c/48d57b2e5f43
+  - [v5,net-next,09/15] net: bridge: mst: Add helper to query a port's MST state
+    https://git.kernel.org/netdev/net-next/c/f54fd0e16306
+  - [v5,net-next,10/15] net: dsa: Validate hardware support for MST
+    https://git.kernel.org/netdev/net-next/c/332afc4c8c0d
+  - [v5,net-next,11/15] net: dsa: Pass VLAN MSTI migration notifications to driver
+    https://git.kernel.org/netdev/net-next/c/8e6598a7b0fa
+  - [v5,net-next,12/15] net: dsa: Handle MST state changes
+    https://git.kernel.org/netdev/net-next/c/7414af30b7d8
+  - [v5,net-next,13/15] net: dsa: mv88e6xxx: Disentangle STU from VTU
+    https://git.kernel.org/netdev/net-next/c/49c98c1dc7d9
+  - [v5,net-next,14/15] net: dsa: mv88e6xxx: Export STU as devlink region
+    https://git.kernel.org/netdev/net-next/c/7dc96039b967
+  - [v5,net-next,15/15] net: dsa: mv88e6xxx: MST Offloading
+    https://git.kernel.org/netdev/net-next/c/acaf4d2e36b3
 
-So you continue bravely, and you call rtnl_lock() below. This will block
-until the "ip" command finishes. When you acquire the rtnl_lock however,
-the brport is no longer valid, because you have waited for the user
-space command to finish.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Best case, the bridge port deletion command was "ip link set lan0 nomaster".
-So "brport" is "lan0", you call SWITCHDEV_FDB_ADD_TO_BRIDGE, the bridge
-doesn't recognize it as a bridge port, says "huh, weird" and carries on.
 
-Worst case, "brport" was an offloaded LAG device which was a bridge
-port, and when it got destroyed by "ip link del bond0", the bridge port
-got destroyed too. So at this stage, you have a use-after-free because
-bond0 no longer exists.
-
-> +
-> +	rtnl_lock();
-> +	err = call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_BRIDGE, brport, &info.info, extack);
-> +	if (err)
-> +		goto out;
-> +	entry->portvec = MV88E6XXX_G1_ATU_DATA_PORT_VECTOR_NO_EGRESS;
-> +	err = mv88e6xxx_g1_atu_loadpurge(chip, fid, entry);
-> +
-> +out:
-> +	rtnl_unlock();
-> +	return err;
-> +}
