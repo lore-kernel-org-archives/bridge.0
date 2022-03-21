@@ -1,27 +1,26 @@
-Return-Path: <idosch@idosch.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
- messagingengine.com; h=cc:cc:content-type:date:date:from:from
- :in-reply-to:in-reply-to:message-id:mime-version:references
- :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
- :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5S1Qz9qa8y5v6pn+6
- hPiVyR9fbOW9nCX+ik34wPrsIw=; b=GR4U9PbXRmwKlG+92UM35IdYDLE1UnrK7
- Ld0eXeTAX/uq+p5Fc/9ZoksjqPgGZiSpV6ROvs5hTVAqwg7Tr2+I9ClVUMIf1gw6
- Nd4Q5VhefO0IaNXa2OzHrlr4va1hUuM+J6dmJMWx1rQk1pNLLoUPar4yqWHhGchI
- tDdBttofIPw+uIPGAhN4loJ50CoPyybCcFjoZ5qHUL9iFqXOQ643z7LP889vGkPq
- v+3Pmq2E7OXWZv0cSKl/f8Ffr1jVvO3a7Y/rbIHN0fDTkP7v58BS07KKMCkskUG7
- rTPrp+jinp67KmciT0vJHFrcQsbAicJn7KXknDl2WEjI12WPUEW+Q==
-Date: Sun, 20 Mar 2022 09:52:33 +0200
-From: Ido Schimmel <idosch@idosch.org>
-Message-ID: <YjbdQUVYkhkbdp3L@shredder>
-References: <20220317093902.1305816-1-schultz.hans+netdev@gmail.com>
- <20220317093902.1305816-5-schultz.hans+netdev@gmail.com>
- <YjNMS6aFG+93ejj5@shredder> <86mthnw9gr.fsf@gmail.com>
+Return-Path: <schultz.hans@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:in-reply-to:references:date:message-id
+ :mime-version; bh=V9QJhItuGj131X5U24BIjE6xMJa7ckWXlhf3pX2Qb7w=;
+ b=hVNxEkMPFhWNhQ6oKe5bcnNri0UMhznsBewxDmrB8a18rPDQXU3w3+ibFl3giYgcO7
+ 3LN7H+LGrRc8+f9qHNriFO15Z1jKztavMZK70q4eTDKCHkuQR88FoUssKCzIGjwdOSxe
+ qZQNNLp0xRmS6obHoFrpMzCT/FYV73BTqJY31XKRw/zPyPF46kovinfnipbgxvR9QuDc
+ pCCb4FMiYS40owPPP25hJu0RaJq/CIQ/NEaJUnQ8HV0t3Gdljf2j0pYGjvYfr9ShOHnL
+ wlnXEPW8WEFbrLzBP3BqMFI2Pi0JtDjaVvcDx0NVEP6+oQB2HcrzMxIoxsLTWr+2qdeR
+ U5Jg==
+From: Hans Schultz <schultz.hans@gmail.com>
+In-Reply-To: <YjNDgnrYaYfviNTi@lunn.ch>
+References: <20220310142320.611738-1-schultz.hans+netdev@gmail.com>
+ <20220310142320.611738-4-schultz.hans+netdev@gmail.com>
+ <20220310142836.m5onuelv4jej5gvs@skbuf> <86r17495gk.fsf@gmail.com>
+ <20220316233447.kwyirxckgancdqmh@skbuf> <86lex9hsg0.fsf@gmail.com>
+ <YjNDgnrYaYfviNTi@lunn.ch>
+Date: Mon, 21 Mar 2022 15:51:02 +0100
+Message-ID: <86czifxstl.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86mthnw9gr.fsf@gmail.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 4/4] selftests: forwarding: add
- test of MAC-Auth Bypass to locked port tests
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
+ implementation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,90 +29,104 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
+To: Andrew Lunn <andrew@lunn.ch>, Hans Schultz <schultz.hans@gmail.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-On Fri, Mar 18, 2022 at 04:45:24PM +0100, Hans Schultz wrote:
-> On tor, mar 17, 2022 at 16:57, Ido Schimmel <idosch@idosch.org> wrote:
-> > On Thu, Mar 17, 2022 at 10:39:02AM +0100, Hans Schultz wrote:
-> >> Verify that the MAC-Auth mechanism works by adding a FDB entry with the
-> >> locked flag set. denying access until the FDB entry is replaced with a
-> >> FDB entry without the locked flag set.
-> >> 
-> >> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
-> >> ---
-> >>  .../net/forwarding/bridge_locked_port.sh      | 29 ++++++++++++++++++-
-> >>  1 file changed, 28 insertions(+), 1 deletion(-)
-> >> 
-> >> diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-> >> index 6e98efa6d371..2f9519e814b6 100755
-> >> --- a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-> >> +++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-> >> @@ -1,7 +1,7 @@
-> >>  #!/bin/bash
-> >>  # SPDX-License-Identifier: GPL-2.0
-> >>  
-> >> -ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan"
-> >> +ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan locked_port_mab"
-> >>  NUM_NETIFS=4
-> >>  CHECK_TC="no"
-> >>  source lib.sh
-> >> @@ -170,6 +170,33 @@ locked_port_ipv6()
-> >>  	log_test "Locked port ipv6"
-> >>  }
-> >>  
-> >> +locked_port_mab()
-> >> +{
-> >> +	RET=0
-> >> +	check_locked_port_support || return 0
-> >> +
-> >> +	ping_do $h1 192.0.2.2
-> >> +	check_err $? "MAB: Ping did not work before locking port"
-> >> +
-> >> +	bridge link set dev $swp1 locked on
-> >> +	bridge link set dev $swp1 learning on
-> >> +
-> >> +	ping_do $h1 192.0.2.2
-> >> +	check_fail $? "MAB: Ping worked on port just locked"
-> >> +
-> >> +	if ! bridge fdb show | grep `mac_get $h1` | grep -q "locked"; then
-> >> +		RET=1
-> >> +		retmsg="MAB: No locked fdb entry after ping on locked port"
-> >> +	fi
-> >
-> > bridge fdb show | grep `mac_get $h1 | grep -q "locked"
-> > check_err $? "MAB: No locked fdb entry after ping on locked port"
-> >
-> >> +
-> >> +	bridge fdb del `mac_get $h1` dev $swp1 master
-> >> +	bridge fdb add `mac_get $h1` dev $swp1 master static
-> >
-> > bridge fdb replace `mac_get $h1` dev $swp1 master static
-> >
-> Unfortunately for some reason 'replace' does not work in several of the
-> tests, while when replaced with 'del+add', they work.
+On tor, mar 17, 2022 at 15:19, Andrew Lunn <andrew@lunn.ch> wrote:
+> On Thu, Mar 17, 2022 at 09:52:15AM +0100, Hans Schultz wrote:
+>> On tor, mar 17, 2022 at 01:34, Vladimir Oltean <olteanv@gmail.com> wrote:
+>> > On Mon, Mar 14, 2022 at 11:46:51AM +0100, Hans Schultz wrote:
+>> >> >> @@ -396,6 +414,13 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
+>> >> >>  				    "ATU miss violation for %pM portvec %x spid %d\n",
+>> >> >>  				    entry.mac, entry.portvec, spid);
+>> >> >>  		chip->ports[spid].atu_miss_violation++;
+>> >> >> +		if (mv88e6xxx_port_is_locked(chip, chip->ports[spid].port))
+>> >> >> +			err = mv88e6xxx_switchdev_handle_atu_miss_violation(chip,
+>> >> >> +									    chip->ports[spid].port,
+>> >> >> +									    &entry,
+>> >> >> +									    fid);
+>> >> >
+>> >> > Do we want to suppress the ATU miss violation warnings if we're going to
+>> >> > notify the bridge, or is it better to keep them for some reason?
+>> >> > My logic is that they're part of normal operation, so suppressing makes
+>> >> > sense.
+>> >> >
+>> >> 
+>> >> I have been seeing many ATU member violations after the miss violation is
+>> >> handled (using ping), and I think it could be considered to suppress the ATU member
+>> >> violations interrupts by setting the IgnoreWrongData bit for the
+>> >> port (sect 4.4.7). This would be something to do whenever a port is set in locked mode?
+>> >
+>> > So the first packet with a given MAC SA triggers an ATU miss violation
+>> > interrupt.
+>> >
+>> > You program that MAC SA into the ATU with a destination port mask of all
+>> > zeroes. This suppresses further ATU miss interrupts for this MAC SA, but
+>> > now generates ATU member violations, because the MAC SA _is_ present in
+>> > the ATU, but not towards the expected port (in fact, towards _no_ port).
+>> >
+>> > Especially if user space decides it doesn't want to authorize this MAC
+>> > SA, it really becomes a problem because this is now a vector for denial
+>> > of service, with every packet triggering an ATU member violation
+>> > interrupt.
+>> >
+>> > So your suggestion is to set the IgnoreWrongData bit on locked ports,
+>> > and this will suppress the actual member violation interrupts for
+>> > traffic coming from these ports.
+>> >
+>> > So if the user decides to unplug a previously authorized printer from
+>> > switch port 1 and move it to port 2, how is this handled? If there isn't
+>> > a mechanism in place to delete the locked FDB entry when the printer
+>> > goes away, then by setting IgnoreWrongData you're effectively also
+>> > suppressing migration notifications.
+>> 
+>> I don't think such a scenario is so realistic, as changing port is not
+>> just something done casually, besides port 2 then must also be a locked
+>> port to have the same policy.
+>
+> I think it is very realistic. It is also something which does not work
+> is going to cause a lot of confusion. People will blame the printer,
+> when in fact they should be blaming the switch. They will be rebooting
+> the printer, when in fact, they need to reboot the switch etc.
+>
+> I expect there is a way to cleanly support this, you just need to
+> figure it out.
+>
+>> The other aspect is that the user space daemon that authorizes catches
+>> the fdb add entry events and checks if it is a locked entry. So it will
+>> be up to said daemon to decide the policy, like remove the fdb entry
+>> after a timeout.
+>> 
+>> >
+>> > Oh, btw, my question was: could you consider suppressing the _prints_ on
+>> > an ATU miss violation on a locked port?
+>> 
+>> As there will only be such on the first packet, I think it should be
+>> logged and those prints serve that purpose, so I think it is best to
+>> keep the print.
+>> If in the future some tests or other can argue for suppressing the
+>> prints, it is an easy thing to do.
+>
+> Please use a traffic generator and try to DOS one of your own
+> switches. Can you?
+>
+> 	  Andrew
 
-Is it because the 'locked' flag is not removed following the replace? At
-least I don't see where it's handled in fdb_add_entry(). If so, please
-fix it and use "bridge fdb replace" in the test.
+Here is a trafgen report, where I sent packets to a locked port with random SAs:
 
-> 
-> >> +
-> >> +	ping_do $h1 192.0.2.2
-> >> +	check_err $? "MAB: Ping did not work with fdb entry without locked flag"
-> >> +
-> >> +	log_test "Locked port MAB"
-> >
-> > Clean up after the test to revert to initial state:
-> >
-> > bridge fdb del `mac_get $h1` dev $swp1 master
-> > bridge link set dev $swp1 locked off
-> >
-> >
-> >> +}
-> >>  trap cleanup EXIT
-> >>  
-> >>  setup_prepare
-> >> -- 
-> >> 2.30.2
-> >> 
+    42527020 packets outgoing
+  3104472460 bytes outgoing
+         329 sec, 989345 usec on CPU0 (5835746 packets)
+         329 sec, 985243 usec on CPU1 (2119061 packets)
+         329 sec, 997323 usec on CPU2 (5656546 packets)
+         329 sec, 989475 usec on CPU3 (5617322 packets)
+         330 sec, 5228 usec on CPU4 (6034671 packets)
+         330 sec, 1603 usec on CPU5 (5833505 packets)
+         329 sec, 989319 usec on CPU6 (5709841 packets)
+         329 sec, 989294 usec on CPU7 (5720328 packets)
+
+I could do 'bridge fdb show' after stopping the traffic, printing out a
+very long list (minutes to print). The ATU was normal, so there is an
+issue of the soft FDB locked entries not ageing out.
+
+I saw many reports of suppressed IRQs in the kernel log.
