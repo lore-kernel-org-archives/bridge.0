@@ -1,13 +1,13 @@
 Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=Pu11LzVwuByfb36IZDoOrF20LUpwOjWGCIQG1Ta8jIk=;
- b=Ntiazh9dgiTE4IwJgyUwQMnIG/ORs4kK1bZSFbSQydrSo/iK8bqJMWdRu/tsA3bDqG
- IoTMbmyQGQKSwc7re78cg6+wSgvrdWFZKBtGnE1ELpFS90Cxutl6ccSGIHp0OYvyqOuM
- d/BLjJwBQrtiqW4AFg99q/dh4ZEhJ5cJbdwIphqhcP4LGkjrgw5YMKVgnazbiLXpnf7E
- Joyliu8uqdz9KbVNSLnjKhtNvl5TCLXC2pyj449YPVK+J3D/ymqYNhR/wukKVYDsfsmS
- eaPCjYt4cZxsI8AiV6likmQID2ZhEISyR/JVfS/4s+cQnwyb+DJe3c+S8J5ZI9yIes4c
- exYw==
+ :mime-version; bh=OXIgpQewnxlg0QpZCeU/b/t8bzjboH/kCWJvwnGyNJc=;
+ b=MMJDo4C5ZsXS02QHJkGPkc2lyI5LXoN+MlgkdrsVMW5SssCeJVW62Hs8mQRF3COpAT
+ VoO5NNnXNPCV4rNmVczeMJZdEJK+aGSdrLdzEa/e4kve9X3PhraQJf3lE+5NyF/0sQqD
+ MS2xjVtu0Xrt1BF9eRkLSzjEISDF0SDQNKCgEPF/mhGwcW4uoOgOHLtMIEfWVKdS0/17
+ 4TmHYqPFP1N3VJNhdX7S6rtXZvyW8EH2g+P2iZMreLFP5sL3HUkBfPb8eZy1b3fKu7Gn
+ RcXSB1t5eFFxEuRKGIynxbt7uuw1MSFaG0Y2wRLVCmncp7cHrBFYKq7TvBKJtC5cHXXE
+ zP5g==
 From: Hans Schultz <schultz.hans@gmail.com>
 In-Reply-To: <20220323101643.kum3nuqctunakcfo@skbuf>
 References: <20220317161808.psftauoz5iaecduy@skbuf>
@@ -16,8 +16,8 @@ References: <20220317161808.psftauoz5iaecduy@skbuf>
  <86pmmjieyl.fsf@gmail.com> <20220318131943.hc7z52beztqlzwfq@skbuf>
  <86a6dixnd2.fsf@gmail.com> <20220322110806.kbdb362jf6pbtqaf@skbuf>
  <86fsn90ye8.fsf@gmail.com> <20220323101643.kum3nuqctunakcfo@skbuf>
-Date: Wed, 23 Mar 2022 11:46:53 +0100
-Message-ID: <86h77px7xe.fsf@gmail.com>
+Date: Wed, 23 Mar 2022 11:57:16 +0100
+Message-ID: <864k3p5437.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
@@ -92,6 +92,8 @@ On ons, mar 23, 2022 at 12:16, Vladimir Oltean <olteanv@gmail.com> wrote:
 > ATU interrupt handler you do mv88e6xxx_reg_lock() -> rtnl_lock(), while
 > from the port_fdb_dump() handler you do rtnl_lock() -> mv88e6xxx_reg_lock()?
 
-Yes, I forgot that the whole handler is under mv88e6xxx_reg_lock(). I
-hope then that I can release the mv88e6xxx_reg_lock() before calling the
-handler function with issues?
+If I release the mv88e6xxx_reg_lock() before calling the handler, I need
+to get it again for the mv88e6xxx_g1_atu_loadpurge() call at least. But
+maybe the vtu_walk also needs the mv88e6xxx_reg_lock()?
+I could also just release the mv88e6xxx_reg_lock() before the
+call_switchdev_notifiers() call and reacquire it immediately after?
