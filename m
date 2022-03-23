@@ -1,20 +1,20 @@
 Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=nM4ECUsKD86TuX1aebriaMiAFYf1FOMfworhtEK62yY=;
- b=q4QXZ6ZYBRVEjNXVeG4HyqNr/xsvJ41Yrfq1g3qXiSTGEX/JyAKhQYXsucxBKhrPoX
- 1zALqoDFrlUEazH4Utx9a5idSyhlM5jEkiIx8KAhoiW4MqmaSiooQIrlBuZHBc29Kp71
- YdInh1dNzHDr6/a+0Iz5PofA7Zmy3jM0BGyS5+pUq9nEy9jHQDPZGwAhU/R1UBr2fn90
- s14w5/bTh/a70n/j/2g8ScpAjOCveJ2AEywNjgbUN5mTLEcoOepBH10NACleW3L2Enoz
- 33uT5HmvypS9EpSoHduNTMc9H9g0NHv7dBMJIHiR0Pez0K7Mr+MbmNiSjYZOEoG8j34n
- kCPw==
+ :mime-version; bh=wWoDyk0souHL0BfO892KrxnvBcHbZCjITuRPNjJCS4Y=;
+ b=Eeb2BjBdh6gZ3pn03ILA5hayAMXT+FBZurX2u1TenrsRs3wU+bTV1J/VdkuK8svT4Y
+ limKSOwJZJ/axP0N+N+H3hQZ7LyolpT4nsTFCStFPOlcrFzhxFdPx7ebfzek/lMo1wTa
+ Ix6g7Hc91E3thdxBPN7BrjeBOYteUA2MHCO49nHjC0Qy5LGJ7cJ0efMAiNoJZUbzDSoT
+ tKPOo3i7ZNU2u3zOIMi5aeQLKMwiiIkgPvj19OKrOwR4turxWsmbKHvj3HAn6iF+w4ss
+ 38CdsQJJhkMBJyQFSQ8Ugqjab0l98jReUth1lu9lIDLRIpOgLC3xcnIC7qbU3FCqTJuJ
+ DxyQ==
 From: Hans Schultz <schultz.hans@gmail.com>
 In-Reply-To: <20220323123534.i2whyau3doq2xdxg@skbuf>
 References: <20220317093902.1305816-1-schultz.hans+netdev@gmail.com>
  <20220317093902.1305816-3-schultz.hans+netdev@gmail.com>
  <86o81whmwv.fsf@gmail.com> <20220323123534.i2whyau3doq2xdxg@skbuf>
-Date: Wed, 23 Mar 2022 13:49:32 +0100
-Message-ID: <86wngkbzqb.fsf@gmail.com>
+Date: Wed, 23 Mar 2022 15:42:24 +0100
+Message-ID: <86h77owx0v.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH v2 net-next 2/4] net: switchdev: add support
@@ -94,10 +94,8 @@ On ons, mar 23, 2022 at 14:35, Vladimir Oltean <olteanv@gmail.com> wrote:
 > FDB entries learned externally.
 >
 
-It seems to me that something is missing then?
-My tests using trafgen that I gave a report on to Lunn generated massive
-amounts of fdb entries, but after a while the ATU was clean and the fdb
-was still full of random entries...
+How is the mechanism supposed to work to remove fdb entries when ATU
+entries age out?
 
 >> >  	} else {
 >> >  		spin_lock_bh(&br->hash_lock);
