@@ -1,24 +1,23 @@
 Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=Wb2ma3uVeIWnLHFtR3kKOKEIt80yrxzBwcG4cgGN60c=;
- b=mHSjbQq+OgyRwkqECYu3nqz5ujv01cV7cVXHUmooouQxNKsFWEUB4s48v5dviHz9Yd
- wBNrq5OIK0l2Lrh/4XmltSFrCs3Xvi7JTxfWj62cCOb0hQy0lSLzhCLOyuN881QCjJ+j
- YliwuttuJ4nuFGCdYsQoeawBMgz9neTb/DTmwE3WI//X98k9NoSvnmq9n9hl+DgR1RuU
- 2EXvCywQEvcQK6VIKGAUFRHzLPUNy69o1hDrKTLjMsHVKCwS6WM6+xDX595GinO9ubbL
- URUnRL8fTTOM/Cc2Y1Wvf4akOeL6bE13ryIiTrDbw2TlyonSk2MmqzLNbJq9X/0Qc6jW
- 3cfg==
+ :mime-version; bh=hLvX9In1jxN1MmiovYwJxjgsn4VqeCvwwYBZvBi7CO8=;
+ b=Zf5pwO/z+b6zqpeN5dacXhHvcrf713zmafvc8sSy8t0z52u5r1uZRhyV4XZIRIwmbC
+ x9n8Lqxv0rn1j4Nbm2QnMzECR8pvFJTiTByr1e3drc2Iq2NcfyvHfg0L8zdP/N2L8lJO
+ vzobpHKPSZIJE5msoH0TE9nsoYQRU3+MUmXzi470pixY+ZU9XG0skAFJXWd300AP9qfr
+ vllNF++PhJAARRziXJriMiGeMnSlZ924JgNJDW16l+7DdV0C9GF9n0NqZI3rzpfyLPXo
+ Gt7+b+rHI0t6L9g7xL6ZsKc2lth/J6/rJBTHaZti4GGG6cH7za1zCFafr8a+2CJZ+4kc
+ aBvg==
 From: Hans Schultz <schultz.hans@gmail.com>
-In-Reply-To: <86ee2ujf61.fsf@gmail.com>
+In-Reply-To: <20220322110806.kbdb362jf6pbtqaf@skbuf>
 References: <20220317153625.2ld5zgtuhoxbcgvo@skbuf>
  <86ilscr2a4.fsf@gmail.com> <20220317161808.psftauoz5iaecduy@skbuf>
  <8635jg5xe5.fsf@gmail.com> <20220317172013.rhjvknre5w7mfmlo@skbuf>
  <86tubvk24r.fsf@gmail.com> <20220318121400.sdc4guu5m4auwoej@skbuf>
  <86pmmjieyl.fsf@gmail.com> <20220318131943.hc7z52beztqlzwfq@skbuf>
  <86a6dixnd2.fsf@gmail.com> <20220322110806.kbdb362jf6pbtqaf@skbuf>
- <86ee2ujf61.fsf@gmail.com>
-Date: Tue, 22 Mar 2022 15:47:05 +0100
-Message-ID: <86r16u6o46.fsf@gmail.com>
+Date: Wed, 23 Mar 2022 11:13:51 +0100
+Message-ID: <86fsn90ye8.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH net-next 3/3] net: dsa: mv88e6xxx: mac-auth/MAB
@@ -31,63 +30,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <schultz.hans@gmail.com>, Vladimir Oltean <olteanv@gmail.com>, Hans Schultz <schultz.hans@gmail.com>
+To: Vladimir Oltean <olteanv@gmail.com>, Hans Schultz <schultz.hans@gmail.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, davem@davemloft.net
 
-On tis, mar 22, 2022 at 14:21, Hans Schultz <schultz.hans@gmail.com> wrote:
-> On tis, mar 22, 2022 at 13:08, Vladimir Oltean <olteanv@gmail.com> wrote:
->> On Tue, Mar 22, 2022 at 12:01:13PM +0100, Hans Schultz wrote:
->>> On fre, mar 18, 2022 at 15:19, Vladimir Oltean <olteanv@gmail.com> wrote:
->>> > On Fri, Mar 18, 2022 at 02:10:26PM +0100, Hans Schultz wrote:
->>> >> In the offloaded case there is no difference between static and dynamic
->>> >> flags, which I see as a general issue. (The resulting ATU entry is static
->>> >> in either case.)
->>> >
->>> > It _is_ a problem. We had the same problem with the is_local bit.
->>> > Independently of this series, you can add the dynamic bit to struct
->>> > switchdev_notifier_fdb_info and make drivers reject it.
->>> >
->>> >> These FDB entries are removed when link goes down (soft or hard). The
->>> >> zero DPV entries that the new code introduces age out after 5 minutes,
->>> >> while the locked flagged FDB entries are removed by link down (thus the
->>> >> FDB and the ATU are not in sync in this case).
->>> >
->>> > Ok, so don't let them disappear from hardware, refresh them from the
->>> > driver, since user space and the bridge driver expect that they are
->>> > still there.
->>> 
->>> I have now tested with two extra unmanaged switches (each connected to a
->>> seperate port on our managed switch, and when migrating from one port to
->>> another, there is member violations, but as the initial entry ages out,
->>> a new miss violation occurs and the new port adds the locked entry. In
->>> this case I only see one locked entry, either on the initial port or
->>> later on the port the host migrated to (via switch).
->>> 
->>> If I refresh the ATU entries indefinitly, then this migration will for
->>> sure not work, and with the member violation suppressed, it will be
->>> silent about it.
->>
->> Manual says that migrations should trigger miss violations if configured
->> adequately, is this not the case?
->>
-> Yes, but that depends on the ATU entries ageing out. As it is now, it works.
+On tis, mar 22, 2022 at 13:08, Vladimir Oltean <olteanv@gmail.com> wrote:
+> On Tue, Mar 22, 2022 at 12:01:13PM +0100, Hans Schultz wrote:
+>> On fre, mar 18, 2022 at 15:19, Vladimir Oltean <olteanv@gmail.com> wrote:
+>> > On Fri, Mar 18, 2022 at 02:10:26PM +0100, Hans Schultz wrote:
+>> >> In the offloaded case there is no difference between static and dynamic
+>> >> flags, which I see as a general issue. (The resulting ATU entry is static
+>> >> in either case.)
+>> >
+>> > It _is_ a problem. We had the same problem with the is_local bit.
+>> > Independently of this series, you can add the dynamic bit to struct
+>> > switchdev_notifier_fdb_info and make drivers reject it.
+>> >
+>> >> These FDB entries are removed when link goes down (soft or hard). The
+>> >> zero DPV entries that the new code introduces age out after 5 minutes,
+>> >> while the locked flagged FDB entries are removed by link down (thus the
+>> >> FDB and the ATU are not in sync in this case).
+>> >
+>> > Ok, so don't let them disappear from hardware, refresh them from the
+>> > driver, since user space and the bridge driver expect that they are
+>> > still there.
+>> 
+>> I have now tested with two extra unmanaged switches (each connected to a
+>> seperate port on our managed switch, and when migrating from one port to
+>> another, there is member violations, but as the initial entry ages out,
+>> a new miss violation occurs and the new port adds the locked entry. In
+>> this case I only see one locked entry, either on the initial port or
+>> later on the port the host migrated to (via switch).
+>> 
+>> If I refresh the ATU entries indefinitly, then this migration will for
+>> sure not work, and with the member violation suppressed, it will be
+>> silent about it.
 >
->>> So I don't think it is a good idea to refresh the ATU entries
->>> indefinitely.
->>> 
->>> Another issue I see, is that there is a deadlock or similar issue when
->>> receiving violations and running 'bridge fdb show' (it seemed that
->>> member violations also caused this, but not sure yet...), as the unit
->>> freezes, not to return...
-
-I have now verified that it is only on miss violations that the problem
-occurs, so it seems that there is a deadlock (with 'bridge fdb show')
-somehow with the nl lock that the handling of ATU miss violations
-acquires.
-
->>
->> Have you enabled lockdep, debug atomic sleep, detect hung tasks, things
->> like that?
+> Manual says that migrations should trigger miss violations if configured
+> adequately, is this not the case?
 >
-> No, I haven't looked deeper into it yet. Maybe I was hoping someone had
-> an idea... but I guess it cannot be a netlink deadlock?
+>> So I don't think it is a good idea to refresh the ATU entries
+>> indefinitely.
+>> 
+>> Another issue I see, is that there is a deadlock or similar issue when
+>> receiving violations and running 'bridge fdb show' (it seemed that
+>> member violations also caused this, but not sure yet...), as the unit
+>> freezes, not to return...
+>
+> Have you enabled lockdep, debug atomic sleep, detect hung tasks, things
+> like that?
+
+I have now determined that it is the rtnl_lock() that causes the
+"deadlock". The doit() in rtnetlink.c is under rtnl_lock() and is what
+takes care of getting the fdb entries when running 'bridge fdb show'. In
+principle there should be no problem with this, but I don't know if some
+interrupt queue is getting jammed as they are blocked from rtnetlink.c?
