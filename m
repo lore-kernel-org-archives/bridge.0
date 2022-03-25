@@ -1,13 +1,13 @@
 Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=9OJLQ6ye5gJdMBoarB9Cgrd/z/Jtzc4wMw4dqWR4+a8=;
- b=GRfB+qcnr013dAwD92e8Vdl8fv4LNfc8BUWReBkwaz3gxp2W2yrHCgve3zM7T7x2y2
- revHYNT+zAwFunniTrPC0VyCf5yC0FO0CccNY6Bms6IZTZA8Eetbb0/IHqcdcX7a5H9Z
- g1pLpcBb8uWWwNiMB7xzhw9ihiOJr5NOD1HwcmUDC43mPobLg7IENjvFE9S1gCT8TA+T
- afc0p/tPbaDiLZxVvO94z9uXn666UKjfTbQu8c4nrxipo5XOVG+r03kl6rQ/7mCAIgqm
- DkclfAZgdm4fCtMzqMjvKBetWMeZn0WDTzvH055FBg0PqcyqcOtihqrsWC7exuCMIn/6
- cMkw==
+ :mime-version; bh=SSlLErNJDYMhv4sM1Ccd3PQZryIRODWgd2EpDE7WzJU=;
+ b=ImL22cgHLGRLQQxTNXhpXmDpiXyJG03HzVsLsMEkEtHc3oKTUje3duGQDbBq+V+Neh
+ tmPsIpdPpvQtTLdPpg2Lu0lcrXwOQvzbWvadlNb7yw5V4kMhpIY4YXykVkHCOILSnX96
+ JhgL+uZPAevLVwGZE2D782FRMRQoUY0iZ4g3J99icI/q32uPlkNr3WxpnJGOoJsrBua8
+ 77kxf2YMTUq4IDc+TzyZHXVTj96S+jNl/uLu6AiRB8fhY3dJjmy2oFPYlEifrLwYbHaS
+ YOBEYOH2Y26DpmbXAB6sFoUw/AxPKgOSQfqvPS5Bx+XZt1SuKWw1jywskDS6lWllOrgj
+ PdRg==
 From: Hans Schultz <schultz.hans@gmail.com>
 In-Reply-To: <20220324142749.la5til4ys6zva4uf@skbuf>
 References: <20220317093902.1305816-1-schultz.hans+netdev@gmail.com>
@@ -16,8 +16,8 @@ References: <20220317093902.1305816-1-schultz.hans+netdev@gmail.com>
  <86wngkbzqb.fsf@gmail.com> <20220323144304.4uqst3hapvzg3ej6@skbuf>
  <86lewzej4n.fsf@gmail.com> <20220324110959.t4hqale35qbrakdu@skbuf>
  <86v8w3vbk4.fsf@gmail.com> <20220324142749.la5til4ys6zva4uf@skbuf>
-Date: Fri, 25 Mar 2022 08:50:34 +0100
-Message-ID: <86czia1ned.fsf@gmail.com>
+Date: Fri, 25 Mar 2022 10:24:17 +0100
+Message-ID: <865yo21j26.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH v2 net-next 2/4] net: switchdev: add support
@@ -84,7 +84,7 @@ On tor, mar 24, 2022 at 16:27, Vladimir Oltean <olteanv@gmail.com> wrote:
 > DPV=0, right? So will they never trigger any age out interrupt according
 > to this? I'm not clear.
 
-I think that's absolutely right. That leaves two options. Either "port
-10" if it has IntOnAgeOut setting, or the reason why I wrote my comments
-in this part of the code, that it should be able to add a dynamic entry
-in the bridge module from the driver.
+If it could be possible to add a dynamic entry to the bridge module from
+the driver, that would be a solution, and since in the ATU in this case
+ages out entries learned, I don't see why __br_fdb_add() insists that an
+external learned entry must be permanent?
