@@ -1,20 +1,22 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1649386140;
- bh=MoTQZqWDRmP60IMR3gk1tvBf4pwyjG0fN9vCUUQXZpg=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=WUSCjrtM2yniH6HNZyuC26xa7axjkpyVjG9HQ9H5faUYHwXUCVQ5G63l+9wnjxbjq
- H4bUqgChCeqqDrgDCMLJiAp7m0frf9MVrd9yy1VD0H6eKeOWWfAb8QRohwaoA8eEzm
- JxtYCa1sw+Mzo+H7nQhjI5Xs1rbDSso/F0t9lhYRQ1CtUDsDfAZnDcVI6D0G95QvFU
- w5Gc8NrhauOT4syIzMnjP6cMckI8qne8F/edsdKcuKxq9x5fGvHNPEN/z298P/q8lI
- x5wSCymS5TQJnVSVTUnoiok4bpdEeTI09L6dKKUUecooRiUuXWiyQBpu1bt9RTioLV
- lSYfslMZbIBiw==
-Date: Thu, 7 Apr 2022 19:48:59 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20220407194859.1e897edf@kernel.org>
-In-Reply-To: <20220407091640.1551b9d4@hermes.local>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=networkplumber-org.20210112.gappssmtp.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=EPGVb31c9VYtNFxiQ9pmgvnPXTLkuL0jOYpmVyuPVWQ=;
+ b=Kay8uKFyZQV4THgnBTgMBMQFvRcWqk4YW5Z+fwvXEGnN7+7x0t3XiZ2EogACfdRSKP
+ PvvXpZ1YayQ+cP3ehpiLWc6jbGDZgdku3bvPOI7APZ+QtfPbxmzCai3MiTRzMGCSxkT0
+ piCdWho3gYkEpwxd7gGiem+hX/2LR3zb2Cwy3vPaoNPAKbZVopNsgqdSDjc7e8WNE0QS
+ V3hd2+r9//XerfszuVvPiCobig9SBmiS4A21touEG7/5+Tc0now7QK5EAbQCURSgM18r
+ 7aix9lQZhmeaWYCZB1hPMdQ4+tlptsNzxEHD/pvlSc2myeQxVfXQ+BUptzL1eP43ad6h
+ 6K7g==
+Date: Fri, 8 Apr 2022 08:41:29 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20220408084129.26944522@hermes.local>
+In-Reply-To: <20220407194859.1e897edf@kernel.org>
 References: <20220407151217.GA8736@codemonkey.org.uk>
  <20220407091640.1551b9d4@hermes.local>
+ <20220407194859.1e897edf@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -27,65 +29,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
+To: Jakub Kicinski <kuba@kernel.org>
 Cc: bridge@lists.linux-foundation.org, Dave Jones <davej@codemonkey.org.uk>, Nikolay Aleksandrov <razor@blackwall.org>, Roopa Prabhu <roopa@nvidia.com>, netdev@vger.kernel.org
 
-On Thu, 7 Apr 2022 09:16:40 -0700 Stephen Hemminger wrote:
-> > I was wondering why the llc code was getting compiled and it turned out
-> > to be because I had bridging enabled. It turns out to only needs it for
-> > a single function (llc_mac_hdr_init).
+On Thu, 7 Apr 2022 19:48:59 -0700
+Jakub Kicinski <kuba@kernel.org> wrote:
 
-> > +static inline int llc_mac_hdr_init(struct sk_buff *skb,
-> > +				   const unsigned char *sa, const unsigned char *da)
-> > +{
-> > +	int rc = -EINVAL;
-> > +
-> > +	switch (skb->dev->type) {
-> > +	case ARPHRD_ETHER:
-> > +	case ARPHRD_LOOPBACK:
-> > +		rc = dev_hard_header(skb, skb->dev, ETH_P_802_2, da, sa,
-> > +				     skb->len);
-> > +		if (rc > 0)
-> > +			rc = 0;
-> > +		break;
-> > +	default:
-> > +		break;
-> > +	}
-> > +	return rc;
-> > +}
-> > +
-> >  
-
-nit: extra new line
-
-> > -int llc_mac_hdr_init(struct sk_buff *skb,
-> > -		     const unsigned char *sa, const unsigned char *da)
-> > -{
-> > -	int rc = -EINVAL;
-> > -
-> > -	switch (skb->dev->type) {
-> > -	case ARPHRD_ETHER:
-> > -	case ARPHRD_LOOPBACK:
-> > -		rc = dev_hard_header(skb, skb->dev, ETH_P_802_2, da, sa,
-> > -				     skb->len);
-> > -		if (rc > 0)
-> > -			rc = 0;
-> > -		break;
-> > -	default:
-> > -		break;
-> > -	}
-> > -	return rc;
-> > -}
-
-There's also an EXPORT somewhere in this file that has to go.
-
-> >  /**
-> >   *	llc_build_and_send_ui_pkt - unitdata request interface for upper layers
-> >   *	@sap: sap to use  
+> On Thu, 7 Apr 2022 09:16:40 -0700 Stephen Hemminger wrote:
+> > > I was wondering why the llc code was getting compiled and it turned out
+> > > to be because I had bridging enabled. It turns out to only needs it for
+> > > a single function (llc_mac_hdr_init).  
 > 
-> You may break other uses of LLC.
+> > > +static inline int llc_mac_hdr_init(struct sk_buff *skb,
+> > > +				   const unsigned char *sa, const unsigned char *da)
+> > > +{
+> > > +	int rc = -EINVAL;
+> > > +
+> > > +	switch (skb->dev->type) {
+> > > +	case ARPHRD_ETHER:
+> > > +	case ARPHRD_LOOPBACK:
+> > > +		rc = dev_hard_header(skb, skb->dev, ETH_P_802_2, da, sa,
+> > > +				     skb->len);
+> > > +		if (rc > 0)
+> > > +			rc = 0;
+> > > +		break;
+> > > +	default:
+> > > +		break;
+> > > +	}
+> > > +	return rc;
+> > > +}
+> > > +
+> > >    
 > 
-> Why not open code as different function.  I used the llc stuff because there
-> were multiple copies of same code (DRY).
+> nit: extra new line
+> 
+> > > -int llc_mac_hdr_init(struct sk_buff *skb,
+> > > -		     const unsigned char *sa, const unsigned char *da)
+> > > -{
+> > > -	int rc = -EINVAL;
+> > > -
+> > > -	switch (skb->dev->type) {
+> > > -	case ARPHRD_ETHER:
+> > > -	case ARPHRD_LOOPBACK:
+> > > -		rc = dev_hard_header(skb, skb->dev, ETH_P_802_2, da, sa,
+> > > -				     skb->len);
+> > > -		if (rc > 0)
+> > > -			rc = 0;
+> > > -		break;
+> > > -	default:
+> > > -		break;
+> > > -	}
+> > > -	return rc;
+> > > -}  
+> 
+> There's also an EXPORT somewhere in this file that has to go.
+> 
+> > >  /**
+> > >   *	llc_build_and_send_ui_pkt - unitdata request interface for upper layers
+> > >   *	@sap: sap to use    
+> > 
+> > You may break other uses of LLC.
+> > 
+> > Why not open code as different function.  I used the llc stuff because there
+> > were multiple copies of same code (DRY).  
+> 
+> I didn't quite get what you mean, Stephen, would you mind restating?
 
-I didn't quite get what you mean, Stephen, would you mind restating?
+
+Short answer: it was idea that didn't pan out.
+
+Suggestion: get rid of using LLC  in bridge and just rewrite that one place.
