@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=OJhM912bfhb7uMFugRwaEA6kDWsFt0tEfGy7vW0mS0I=;
- b=SIbGuIOlNQM2gXLI6wvPq/OiqaZuZlgUzTQ45QFtUYdm6NIIc3GSxL6kYcVzdawb6b
- YtW8i9z7gmBXEx64ydeD1JW3GTPA4jfmSs7UXYvcry4+LO+XfgoAZ2BAUkhM0BN7fDC3
- ZVTQ4/fosfRQ50fAeOZTNrrhPjvb74jIQ7eojyRiEQaDd2e2lr7ydHrYgHH7DOHESflO
- HIbFJgGZ35WPNj4QMOx+/QVLiwJryGWgzxyc3n8Xgfg/V4MSz/LE8o7IH8YKJgvSwDxO
- qtA4SE/Kn94ydc9pgbR4fj45t3HbfndToPy2YfOehBYZodIAiWm53alkq0FjLLV2UwIn
- vURw==
+ bh=Fbnlf8kTog0ziFAwrjyK4x7U8wwDsSsFVdwcSgNLjgs=;
+ b=AfKOr2kRuukfU0wH1SNJb1vCUdfKMEfMlLVYZ4RpMMTaZvfg1fcnr5POTI06kAX56X
+ EDVKZfXiA9nSiuda7IvHYk3ETzZI718onZohFDGcImrrYLAsW42V/QcMeprq8MfCc5el
+ eU+QrkJOthZINMcjUc1PPwugEQ0+vCUdBrs5XZRxhNQW7YKCulRfJ/D0mF0Pz7lVDpYS
+ UWc4jpBTaPFSM4HO4A++p5x1Z1Cwt9yL/Q1gFJ5OGGvwWe42ZEkzDvZLv1lzyWpf58Hg
+ 5L0MplmZ75bJzL5OxHaOUdIt+UCiZMJegFUwJsSvG3VvChKSuffgG6p5e75eA4XPT8ys
+ VDHg==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Sat,  9 Apr 2022 13:58:52 +0300
-Message-Id: <20220409105857.803667-2-razor@blackwall.org>
+Date: Sat,  9 Apr 2022 13:58:53 +0300
+Message-Id: <20220409105857.803667-3-razor@blackwall.org>
 In-Reply-To: <20220409105857.803667-1-razor@blackwall.org>
 References: <20220409105857.803667-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next 1/6] net: bridge: add a generic flush
-	operation
+Subject: [Bridge] [PATCH net-next 2/6] net: bridge: fdb: add support for
+	fine-grained flushing
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,118 +30,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: kuba@kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-Add a new bridge attribute (IFLA_BRIDGE_FLUSH) which will have embedded
-attributes describing the object types that will be flushed. It will
-allow fine-grained object flushing. Only a single flush attribute is
-allowed per call since it can be a very load heavy operation. Also it is
-allowed only with setlink command (similar to changelink flush). A nice
-side-effect of using an af spec attribute is that it avoids making the
-bridge link attribute options list longer.
-
-An example structure for fdbs:
- [ IFLA_BRIDGE_FLUSH ]
-  `[ BRIDGE_FDB_FLUSH ]
-    `[ FDB_FLUSH_NDM_STATE ]
-    `[ FDB_FLUSH_NDM_FLAGS ]
+Add the ability to specify exactly which fdbs to be flushed. They are
+described by a new structure - net_bridge_fdb_flush_desc. Currently it
+can match on port/bridge ifindex, vlan id and fdb flags. It is used to
+describe the existing dynamic fdb flush operation.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- include/uapi/linux/if_bridge.h |  8 +++++++
- net/bridge/br_netlink.c        | 42 +++++++++++++++++++++++++++++++++-
- 2 files changed, 49 insertions(+), 1 deletion(-)
+ net/bridge/br_fdb.c      | 36 +++++++++++++++++++++++++++++-------
+ net/bridge/br_netlink.c  |  9 +++++++--
+ net/bridge/br_private.h  | 10 +++++++++-
+ net/bridge/br_sysfs_br.c |  6 +++++-
+ 4 files changed, 50 insertions(+), 11 deletions(-)
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index a86a7e7b811f..221a4256808f 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -123,6 +123,7 @@ enum {
- 	IFLA_BRIDGE_MRP,
- 	IFLA_BRIDGE_CFM,
- 	IFLA_BRIDGE_MST,
-+	IFLA_BRIDGE_FLUSH,
- 	__IFLA_BRIDGE_MAX,
- };
- #define IFLA_BRIDGE_MAX (__IFLA_BRIDGE_MAX - 1)
-@@ -802,4 +803,11 @@ enum {
- 	__BRIDGE_QUERIER_MAX
- };
- #define BRIDGE_QUERIER_MAX (__BRIDGE_QUERIER_MAX - 1)
-+
-+/* embedded in IFLA_BRIDGE_FLUSH */
-+enum {
-+	BRIDGE_FLUSH_UNSPEC,
-+	__BRIDGE_FLUSH_MAX
-+};
-+#define BRIDGE_FLUSH_MAX (__BRIDGE_FLUSH_MAX - 1)
- #endif /* _UAPI_LINUX_IF_BRIDGE_H */
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 200ad05b296f..fe2211d4c0c7 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -779,6 +779,34 @@ int br_process_vlan_info(struct net_bridge *br,
- 	return err;
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 6ccda68bd473..4b0bf88c4121 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -558,18 +558,40 @@ void br_fdb_cleanup(struct work_struct *work)
+ 	mod_delayed_work(system_long_wq, &br->gc_work, work_delay);
  }
  
-+static const struct nla_policy br_flush_policy[BRIDGE_FLUSH_MAX + 1] = {
-+	[BRIDGE_FLUSH_UNSPEC]	= { .type = NLA_REJECT },
-+};
-+
-+static int br_flush(struct net_bridge *br, int cmd,
-+		    struct nlattr *flush_attr,
-+		    struct netlink_ext_ack *extack)
+-/* Completely flush all dynamic entries in forwarding database.*/
+-void br_fdb_flush(struct net_bridge *br)
++static bool __fdb_flush_matches(const struct net_bridge *br,
++				const struct net_bridge_fdb_entry *f,
++				const struct net_bridge_fdb_flush_desc *desc)
 +{
-+	struct nlattr *flush_tb[BRIDGE_FLUSH_MAX + 1];
-+	int err;
++	const struct net_bridge_port *dst = READ_ONCE(f->dst);
++	int port_ifidx, br_ifidx = br->dev->ifindex;
 +
-+	switch (cmd) {
-+	case RTM_SETLINK:
-+		break;
-+	default:
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Bridge flush attribute is allowed only with RTM_SETLINK");
-+		return -EINVAL;
-+	}
++	port_ifidx = dst ? dst->dev->ifindex : 0;
 +
-+	err = nla_parse_nested(flush_tb, BRIDGE_FLUSH_MAX, flush_attr,
-+			       br_flush_policy, extack);
-+	if (err)
-+		return err;
-+
-+	return 0;
++	return (!desc->vlan_id || desc->vlan_id == f->key.vlan_id) &&
++	       (!desc->port_ifindex ||
++		(desc->port_ifindex == port_ifidx ||
++		 (!dst && desc->port_ifindex == br_ifidx))) &&
++	       (!desc->flags_mask ||
++		((f->flags & desc->flags_mask) == desc->flags));
 +}
 +
- static int br_afspec(struct net_bridge *br,
- 		     struct net_bridge_port *p,
- 		     struct nlattr *af_spec,
-@@ -787,9 +815,10 @@ static int br_afspec(struct net_bridge *br,
++/* Flush forwarding database entries matching the description */
++void br_fdb_flush(struct net_bridge *br,
++		  const struct net_bridge_fdb_flush_desc *desc)
  {
- 	struct bridge_vlan_info *vinfo_curr = NULL;
- 	struct bridge_vlan_info *vinfo_last = NULL;
--	struct nlattr *attr;
- 	struct vtunnel_info tinfo_last = {};
- 	struct vtunnel_info tinfo_curr = {};
-+	bool flushed = false;
-+	struct nlattr *attr;
- 	int err = 0, rem;
+ 	struct net_bridge_fdb_entry *f;
+-	struct hlist_node *tmp;
  
- 	nla_for_each_nested(attr, af_spec, rem) {
-@@ -845,6 +874,17 @@ static int br_afspec(struct net_bridge *br,
- 			if (err)
- 				return err;
- 			break;
-+		case IFLA_BRIDGE_FLUSH:
-+			if (flushed) {
-+				NL_SET_ERR_MSG_MOD(extack,
-+						   "Multiple bridge flush attributes are not allowed");
-+				return -EINVAL;
-+			}
-+			err = br_flush(br, cmd, attr, extack);
-+			if (err)
-+				return err;
-+			flushed = true;
-+			break;
- 		}
+-	spin_lock_bh(&br->hash_lock);
+-	hlist_for_each_entry_safe(f, tmp, &br->fdb_list, fdb_node) {
+-		if (!test_bit(BR_FDB_STATIC, &f->flags))
++	rcu_read_lock();
++	hlist_for_each_entry_rcu(f, &br->fdb_list, fdb_node) {
++		if (!__fdb_flush_matches(br, f, desc))
++			continue;
++
++		spin_lock_bh(&br->hash_lock);
++		if (!hlist_unhashed(&f->fdb_node))
+ 			fdb_delete(br, f, true);
++		spin_unlock_bh(&br->hash_lock);
  	}
+-	spin_unlock_bh(&br->hash_lock);
++	rcu_read_unlock();
+ }
+ 
+ /* Flush all entries referring to a specific port.
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index fe2211d4c0c7..6e6dce6880c9 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1366,8 +1366,13 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 		br_recalculate_fwd_mask(br);
+ 	}
+ 
+-	if (data[IFLA_BR_FDB_FLUSH])
+-		br_fdb_flush(br);
++	if (data[IFLA_BR_FDB_FLUSH]) {
++		struct net_bridge_fdb_flush_desc desc = {
++			.flags_mask = BR_FDB_STATIC
++		};
++
++		br_fdb_flush(br, &desc);
++	}
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	if (data[IFLA_BR_MCAST_ROUTER]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 6e62af2e07e9..e6930e9ee69d 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -274,6 +274,13 @@ struct net_bridge_fdb_entry {
+ 	struct rcu_head			rcu;
+ };
+ 
++struct net_bridge_fdb_flush_desc {
++	unsigned long			flags;
++	unsigned long			flags_mask;
++	int				port_ifindex;
++	u16				vlan_id;
++};
++
+ #define MDB_PG_FLAGS_PERMANENT	BIT(0)
+ #define MDB_PG_FLAGS_OFFLOAD	BIT(1)
+ #define MDB_PG_FLAGS_FAST_LEAVE	BIT(2)
+@@ -759,7 +766,8 @@ int br_fdb_init(void);
+ void br_fdb_fini(void);
+ int br_fdb_hash_init(struct net_bridge *br);
+ void br_fdb_hash_fini(struct net_bridge *br);
+-void br_fdb_flush(struct net_bridge *br);
++void br_fdb_flush(struct net_bridge *br,
++		  const struct net_bridge_fdb_flush_desc *desc);
+ void br_fdb_find_delete_local(struct net_bridge *br,
+ 			      const struct net_bridge_port *p,
+ 			      const unsigned char *addr, u16 vid);
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 3f7ca88c2aa3..612e367fff20 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -344,7 +344,11 @@ static DEVICE_ATTR_RW(group_addr);
+ static int set_flush(struct net_bridge *br, unsigned long val,
+ 		     struct netlink_ext_ack *extack)
+ {
+-	br_fdb_flush(br);
++	struct net_bridge_fdb_flush_desc desc = {
++		.flags_mask = BR_FDB_STATIC
++	};
++
++	br_fdb_flush(br, &desc);
+ 	return 0;
+ }
  
 -- 
 2.35.1
