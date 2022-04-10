@@ -1,29 +1,19 @@
-Return-Path: <idosch@idosch.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
- messagingengine.com; h=cc:cc:content-type:date:date:from:from
- :in-reply-to:in-reply-to:message-id:mime-version:references
- :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
- :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1649853307; x=
- 1649939707; bh=XMgjqSu330j537uTdk8vlBBLcfWargGjanG7gxBvZyg=; b=z
- QW+9E/xJjz5557ZQvJmGoLEHCR3PqDZ2OV/fW+wKGV6shPhL4bVwe1NBK+Jat8ma
- pQvzsOsB1KmRlIWTz3jcroigAiEuugm4PYzgEleksi1wxXqn1Fu9yE+xMSeQIuS0
- XYV4uIrGhKHdZeWAfEnUsZMfJepRIDUBQAVq9rNRjTZlmKxtN11gnr7upi6ZnLIE
- 7TKPk4+SCnoO3if3V37TCxXGeIdFn/H34kGCWoq6XTvk9S76Q1pjXBdRtMs59azj
- pFf+M16rLDQSaplMhimuWD82QnPtrowWq3U9KXY24OHZq9ZMApinbxH3iLUwzMe3
- UyxL7qSAru56LPfXn9XHw==
-Date: Wed, 13 Apr 2022 15:35:04 +0300
-From: Ido Schimmel <idosch@idosch.org>
-Message-ID: <YlbDeNh7D+BHRscg@shredder>
-References: <20220413105202.2616106-1-razor@blackwall.org>
- <20220413105202.2616106-8-razor@blackwall.org>
- <YlbABWs3ICeeiKsq@shredder>
- <e22bd42c-f257-82d6-f550-6e174c74b500@blackwall.org>
+Return-Path: <arinc.unal@arinc9.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1649598159; 
+ s=zmail; d=arinc9.com; i=arinc.unal@arinc9.com;
+ h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-Id:Message-Id:MIME-Version:Content-Type:Content-Transfer-Encoding:Reply-To;
+ bh=nUJ6HOSqvkRRMt2eDoWZ7kiFdlMq4tupafRJGJ7omfg=;
+ b=BwBdWBIb4azU/DtAQvAmqrw2QOtt2sTm+PeRjZzT/UtnKAEivHFAR3NWchR39fVA
+ gk4LRFqoUi0SUXHTKPD1Qq+q3kd7KCmve6SRArDsoDjXKUu1ZRJLqsr6GyrUgNAVAcR
+ +r72pq3gf4KLtziMTJYPRZcjnHNTzAqzKVWSQ25A=
+From: =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>
+Date: Sun, 10 Apr 2022 16:42:27 +0300
+Message-Id: <20220410134227.18810-1-arinc.unal@arinc9.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e22bd42c-f257-82d6-f550-6e174c74b500@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next v4 07/12] net: rtnetlink: add
- NLM_F_BULK support to rtnl_fdb_del
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next] net: bridge: offload BR_HAIRPIN_MODE,
+	BR_ISOLATED, BR_MULTICAST_TO_UNICAST
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,51 +22,47 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, dsahern@kernel.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Vladimir Oltean <olteanv@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>
 
-On Wed, Apr 13, 2022 at 03:21:54PM +0300, Nikolay Aleksandrov wrote:
-> On 13/04/2022 15:20, Ido Schimmel wrote:
-> > On Wed, Apr 13, 2022 at 01:51:57PM +0300, Nikolay Aleksandrov wrote:
-> >> When NLM_F_BULK is specified in a fdb del message we need to handle it
-> >> differently. First since this is a new call we can strictly validate the
-> >> passed attributes, at first only ifindex and vlan are allowed as these
-> >> will be the initially supported filter attributes, any other attribute
-> >> is rejected. The mac address is no longer mandatory, but we use it
-> >> to error out in older kernels because it cannot be specified with bulk
-> >> request (the attribute is not allowed) and then we have to dispatch
-> >> the call to ndo_fdb_del_bulk if the device supports it. The del bulk
-> >> callback can do further validation of the attributes if necessary.
-> >>
-> >> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
-> >> ---
-> >> v4: mark PF_BRIDGE/RTM_DELNEIGH with RTNL_FLAG_BULK_DEL_SUPPORTED
-> >>
-> >>  net/core/rtnetlink.c | 67 +++++++++++++++++++++++++++++++-------------
-> >>  1 file changed, 48 insertions(+), 19 deletions(-)
-> >>
-> >> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-> >> index 63c7df52a667..520d50fcaaea 100644
-> >> --- a/net/core/rtnetlink.c
-> >> +++ b/net/core/rtnetlink.c
-> >> @@ -4169,22 +4169,34 @@ int ndo_dflt_fdb_del(struct ndmsg *ndm,
-> >>  }
-> >>  EXPORT_SYMBOL(ndo_dflt_fdb_del);
-> >>  
-> >> +static const struct nla_policy fdb_del_bulk_policy[NDA_MAX + 1] = {
-> >> +	[NDA_VLAN]	= { .type = NLA_U16 },
-> > 
-> > In earlier versions br_vlan_valid_id() was used to validate the VLAN,
-> > but I don't see it anymore. Maybe use 
-> > 
-> > NLA_POLICY_RANGE(1, VLAN_N_VID - 2)
-> > 
-> > ?
-> > 
-> > I realize that invalid values won't do anything, but I think it's better
-> > to only allow valid ranges.
-> > 
-> 
-> It's already validated below, see fdb_vid_parse().
+Add BR_HAIRPIN_MODE, BR_ISOLATED and BR_MULTICAST_TO_UNICAST port flags to
+BR_PORT_FLAGS_HW_OFFLOAD so that switchdev drivers which have an offloaded
+data plane have a chance to reject these bridge port flags if they don't
+support them yet.
 
-Sorry, missed it :)
+It makes the code path go through the
+SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS driver handlers, which return
+-EINVAL for everything they don't recognize.
+
+For drivers that don't catch SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS at
+all, switchdev will return -EOPNOTSUPP for those which is then ignored, but
+those are in the minority.
+
+Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+---
+Let me know if this is netdev/net material instead.
+
+Commit log is heavily quoted from Vladimir Oltean <olteanv@gmail.com>.
+
+Arınç
+---
+ net/bridge/br_switchdev.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 8cc44c367231..81400e0b26ac 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -72,7 +72,8 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
+ 
+ /* Flags that can be offloaded to hardware */
+ #define BR_PORT_FLAGS_HW_OFFLOAD (BR_LEARNING | BR_FLOOD | \
+-				  BR_MCAST_FLOOD | BR_BCAST_FLOOD | BR_PORT_LOCKED)
++				  BR_MCAST_FLOOD | BR_BCAST_FLOOD | BR_PORT_LOCKED | \
++				  BR_HAIRPIN_MODE | BR_ISOLATED | BR_MULTICAST_TO_UNICAST)
+ 
+ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 			       unsigned long flags,
+-- 
+2.25.1
+
