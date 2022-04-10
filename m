@@ -1,25 +1,26 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:content-transfer-encoding:in-reply-to;
- bh=c7ppvSGFMjXTyAACKzFwqYFiWmXivSzgvL4BwU7SqKc=;
- b=QCrfuyYV9QtWOFIfcgtA1QjB4ZlZXyDB6yb27ilwN40G9t99u9DV7E4YEcS3iDf1D0
- gPu1ja+uAVRP7g21Exws4PuS4fj1pcxNI50VHKPZb2Z2mHEIgIJ0OroTwI2EKT0Jiylq
- Ak303v1ThmTUdWqUhbe5oCVI9WT4PbxF4zRVX6sKNsMV2TKwOxaIBIa5S+J4Mna6/v9s
- gyKPYSH12bfPTStTQn11Vx8CtQihilapqxB4tJbPJIrQ7ZAcQQu7rkfujT38uf4SPJr7
- rodkAP1za+7grryh4416obMSb0Szv7MeOGiLOaqJ06o1m9LL0e4+GX20R28tHNDWJmrn
- SDWQ==
-Date: Sun, 10 Apr 2022 23:06:57 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220410200657.cwx7xy3t6jycqqrn@skbuf>
-References: <20220410134227.18810-1-arinc.unal@arinc9.com>
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=OidQIHbEm/hM6OAnbFcQVbU0BPrg1Seqw7Y933k7iHk=;
+ b=e4W65seRjaLegmIk/OvxytHviWAisj66NFs6XfVQG39KqoNOSUhXlTq6b1hnm6rgLW
+ idJSXoORhzZ8Y4jYPaLZM94QqaWYf0TNcrD/kk4tS6xP4HlcEtT/w75CoW79Td6IhTcM
+ W1lnAcMAwstXURXMMUkr+iX52kD8vm4aXHK5Z3Ob5dAd53zq/PVS8lIKC/gJ+nCzJXGm
+ CNoRRhPANDOauAPJ+IQFm9Yh65OC5atrbj3uxvxIpsVrsf6GM6Nndop/T2c5Md9vRLHg
+ rRSIx3U9rpH/NkCd83LujQtiPhUJt3LVOkyfIeZDuwQb2+/+wNIFeFCDSTx9PV84ca2s
+ RIWg==
+Message-ID: <b38a740f-fadb-bd2e-38d2-3683ddce69eb@blackwall.org>
+Date: Sun, 10 Apr 2022 23:43:20 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220410134227.18810-1-arinc.unal@arinc9.com>
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: offload BR_HAIRPIN_MODE,
- BR_ISOLATED, BR_MULTICAST_TO_UNICAST
+Content-Language: en-US
+References: <20220409105857.803667-1-razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20220409105857.803667-1-razor@blackwall.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 0/6] net: bridge: add flush filtering
+	support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,59 +29,75 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?utf-8?B?QXLEsW7DpyDDnE5BTA==?= <arinc.unal@arinc9.com>
-Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S . Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Ido Schimmel <idosch@idosch.org>, kuba@kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, roopa@nvidia.com
 
-On Sun, Apr 10, 2022 at 04:42:27PM +0300, Arınç ÜNAL wrote:
-> Add BR_HAIRPIN_MODE, BR_ISOLATED and BR_MULTICAST_TO_UNICAST port flags to
-> BR_PORT_FLAGS_HW_OFFLOAD so that switchdev drivers which have an offloaded
-> data plane have a chance to reject these bridge port flags if they don't
-> support them yet.
+On 09/04/2022 13:58, Nikolay Aleksandrov wrote:
+> Hi,
+> This patch-set adds support to specify filtering conditions for a flush
+> operation. Initially only FDB flush filtering is added, later MDB
+> support will be added as well. Some user-space applications need a way
+> to delete only a specific set of entries, e.g. mlag implementations need
+> a way to flush only dynamic entries excluding externally learned ones
+> or only externally learned ones without static entries etc. Also apps
+> usually want to target only a specific vlan or port/vlan combination.
+> The current 2 flush operations (per port and bridge-wide) are not
+> extensible and cannot provide such filtering, so a new bridge af
+> attribute is added (IFLA_BRIDGE_FLUSH) which contains the filtering
+> information for each object type which has to be flushed.
+> An example structure for fdbs:
+>      [ IFLA_BRIDGE_FLUSH ]
+>       `[ BRIDGE_FDB_FLUSH ]
+>         `[ FDB_FLUSH_NDM_STATE ]
+>         `[ FDB_FLUSH_NDM_FLAGS ]
 > 
-> It makes the code path go through the
-> SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS driver handlers, which return
-> -EINVAL for everything they don't recognize.
+[snip]
+> Note that all flags have their negated version (static vs nostatic etc)
+> and there are some tricky cases to handle like "static" which in flag
+> terms means fdbs that have NUD_NOARP but *not* NUD_PERMANENT, so the
+> mask matches on both but we need only NUD_NOARP to be set. That's
+> because permanent entries have both set so we can't just match on
+> NUD_NOARP. Also note that this flush operation doesn't treat permanent
+> entries in a special way (fdb_delete vs fdb_delete_local), it will
+> delete them regardless if any port is using them. We can extend the api
+> with a flag to do that if needed in the future.
 > 
-> For drivers that don't catch SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS at
-> all, switchdev will return -EOPNOTSUPP for those which is then ignored, but
-> those are in the minority.
+> Patches in this set:
+>  1. adds the new IFLA_BRIDGE_FLUSH bridge af attribute
+>  2. adds a basic structure to describe an fdb flush filter
+>  3. adds fdb netlink flush call via BRIDGE_FDB_FLUSH attribute
+>  4 - 6. add support for specifying various fdb fields to filter
 > 
-> Signed-off-by: Arınç ÜNAL <arinc.unal@arinc9.com>
-> ---
+> Patch-sets (in order):
+>  - Initial flush infra and fdb flush filtering (this set)
+>  - iproute2 support
+>  - selftests
+> 
+> Future work:
+>  - mdb flush support
+> 
+> Thanks,
+>  Nik
+> 
+> Nikolay Aleksandrov (6):
+>   net: bridge: add a generic flush operation
+>   net: bridge: fdb: add support for fine-grained flushing
+>   net: bridge: fdb: add new nl attribute-based flush call
+>   net: bridge: fdb: add support for flush filtering based on ndm flags
+>     and state
+>   net: bridge: fdb: add support for flush filtering based on ifindex
+>   net: bridge: fdb: add support for flush filtering based on vlan id
+> 
+>  include/uapi/linux/if_bridge.h |  22 ++++++
+>  net/bridge/br_fdb.c            | 128 +++++++++++++++++++++++++++++++--
+>  net/bridge/br_netlink.c        |  59 ++++++++++++++-
+>  net/bridge/br_private.h        |  12 +++-
+>  net/bridge/br_sysfs_br.c       |   6 +-
+>  5 files changed, 215 insertions(+), 12 deletions(-)
+> 
 
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Just FYI I plan to send v2 tomorrow with a few cleanups suggested by Ido.
+Please don't apply this one, I'll wait for more feedback and will resubmit.
 
-> Let me know if this is netdev/net material instead.
-
-The thing with targeting this against "net" is that we've seen the
-introduction of BR_PORT_LOCKED fairly recently which has tainted the
-BR_PORT_FLAGS_HW_OFFLOAD macro. So backporting would conflict very
-quickly down the path. Sure that isn't a decisive problem, but I don't
-think it's worth the extra trouble of preparing special patches for the
-"stable" trees, and having those diverge from the current master.
-
-> 
-> Commit log is heavily quoted from Vladimir Oltean <olteanv@gmail.com>.
-> 
-> Arınç
-> ---
->  net/bridge/br_switchdev.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index 8cc44c367231..81400e0b26ac 100644
-> --- a/net/bridge/br_switchdev.c
-> +++ b/net/bridge/br_switchdev.c
-> @@ -72,7 +72,8 @@ bool nbp_switchdev_allowed_egress(const struct net_bridge_port *p,
->  
->  /* Flags that can be offloaded to hardware */
->  #define BR_PORT_FLAGS_HW_OFFLOAD (BR_LEARNING | BR_FLOOD | \
-> -				  BR_MCAST_FLOOD | BR_BCAST_FLOOD | BR_PORT_LOCKED)
-> +				  BR_MCAST_FLOOD | BR_BCAST_FLOOD | BR_PORT_LOCKED | \
-> +				  BR_HAIRPIN_MODE | BR_ISOLATED | BR_MULTICAST_TO_UNICAST)
->  
->  int br_switchdev_set_port_flag(struct net_bridge_port *p,
->  			       unsigned long flags,
-> -- 
-> 2.25.1
-> 
+Thanks,
+ Nik
