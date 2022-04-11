@@ -2,22 +2,22 @@ Return-Path: <troglobit@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:organization:content-transfer-encoding;
- bh=m14KfFMNBJMj3DAuyjsFtzaOxg7nS8IZJkNu+xhWBoQ=;
- b=CF/kSL/5S4j/4pPmpoLhhNdCrfZHMeBh9sE/2PJE0HqUOCEgafv5S1xncVTcNldYka
- bujyLGn0wSb5IBpMJm+DjbZcofg5/n1pMDuRJcjcyGtYVModUHJBdPWkNUMBzWxB+6Y6
- 7XTL1f9ut0IvB8D8LnbeO3VpuapMphxnK6rwcZ8l5muQmDpnS0A6jMN9b1twOzMAjnnV
- CEM6/CdcQV2cA1N2paU8GuKa33A+GOVIFImxq5tUYQEVYgkVcsPZnmaiRKU5QsPIo5mY
- mxmshyVaRmPnCK/qBqOPDhh7da9zMkNNLfLGBgyeVVVlKpHWokexKZ+VU2d8v27C0lO8
- Ob7Q==
+ bh=TFNOjZAXZon/4fuYvoXX/NbbTAf3VntOhKR6DBqpfYk=;
+ b=kvB+hyM6e8RNZhoXuBQ/tSpmItfGCHtV/80UPZA2wcqsSJle472+AMQJQkqTSKG1zm
+ 9Ts/A1anN1MHNODDAuUPyykcEu1h3TncWzzTNf9nyt/TVZtmY+pPFG7NFuUeJhHrhKXa
+ g9WqrFGvVVpE5OLbkZ64U+QIwjL7mx5bxxM82hWCDKNkDygEjR9jbQoxAPm6i/8W5kPR
+ RzHZi9JYFT+8ZqGHUqK4lCk6QIv67edRLjOnrYh6wQB2mGbwq+hC0jyLJCtINGFhAInp
+ U08yaJaXH9DmG3bSRD4IyKJK0gv0HkZDmsae+6ULbupzhH0+WDlM2Kp1QSlSlOP6Jn3H
+ itWQ==
 From: Joachim Wiberg <troglobit@gmail.com>
-Date: Mon, 11 Apr 2022 15:38:31 +0200
-Message-Id: <20220411133837.318876-8-troglobit@gmail.com>
+Date: Mon, 11 Apr 2022 15:38:32 +0200
+Message-Id: <20220411133837.318876-9-troglobit@gmail.com>
 In-Reply-To: <20220411133837.318876-1-troglobit@gmail.com>
 References: <20220411133837.318876-1-troglobit@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH RFC net-next 07/13] selftests: forwarding: new test,
-	verify bridge flood flags
+Subject: [Bridge] [PATCH RFC net-next 08/13] net: bridge: avoid classifying
+	unknown multicast as mrouters_only
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,206 +29,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Vladimir Oltean <vladimir.oltean@nxp.com>, Joachim Wiberg <troglobit@gmail.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Test per-port flood control flags of unknown BUM traffic by injecting
-bc/uc/mc on one bridge port and verifying it being forwarded to both
-the bridge itself and another regular bridge port.
+Unknown multicast, MAC/IPv4/IPv6, should always be flooded according to
+the per-port mcast_flood setting, as well as to detected and configured
+mcast_router ports.
+
+This patch drops the mrouters_only classifier of unknown IP multicast
+and moves the flow handling from br_multicast_flood() to br_flood().
+This in turn means br_flood() must know about multicast router ports.
 
 Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
 ---
- .../testing/selftests/net/forwarding/Makefile |   3 +-
- .../selftests/net/forwarding/bridge_flood.sh  | 170 ++++++++++++++++++
- 2 files changed, 172 insertions(+), 1 deletion(-)
- create mode 100755 tools/testing/selftests/net/forwarding/bridge_flood.sh
+ net/bridge/br_forward.c   | 11 +++++++++++
+ net/bridge/br_multicast.c |  6 +-----
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index ae80c2aef577..873fa61d1ee1 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -1,6 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0+ OR MIT
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 02bb620d3b8d..ab5b97a8c12e 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -199,9 +199,15 @@ static struct net_bridge_port *maybe_deliver(
+ void br_flood(struct net_bridge *br, struct sk_buff *skb,
+ 	      enum br_pkt_type pkt_type, bool local_rcv, bool local_orig)
+ {
++	struct net_bridge_mcast *brmctx = &br->multicast_ctx;
++	struct net_bridge_port *rport = NULL;
+ 	struct net_bridge_port *prev = NULL;
++	struct hlist_node *rp = NULL;
+ 	struct net_bridge_port *p;
  
--TEST_PROGS = bridge_igmp.sh \
-+TEST_PROGS = bridge_flood.sh \
-+	bridge_igmp.sh \
- 	bridge_locked_port.sh \
- 	bridge_mdb.sh \
- 	bridge_port_isolation.sh \
-diff --git a/tools/testing/selftests/net/forwarding/bridge_flood.sh b/tools/testing/selftests/net/forwarding/bridge_flood.sh
-new file mode 100755
-index 000000000000..1966c960d705
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/bridge_flood.sh
-@@ -0,0 +1,170 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Verify per-port flood control flags of unknown BUM traffic.
-+#
-+#                     br0
-+#                    /   \
-+#                  h1     h2
-+#
-+# We inject bc/uc/mc on h1, toggle the three flood flags for
-+# both br0 and h2, then verify that traffic is flooded as per
-+# the flags, and nowhere else.
-+#
-+#set -x
++	if (pkt_type == BR_PKT_MULTICAST)
++		rp = br_multicast_get_first_rport_node(brmctx, skb);
 +
-+ALL_TESTS="br_flood_unknown_bc_test br_flood_unknown_uc_test br_flood_unknown_mc_test"
-+NUM_NETIFS=4
-+
-+SRC_MAC="00:de:ad:be:ef:00"
-+GRP_IP4="225.1.2.3"
-+GRP_MAC="01:00:01:c0:ff:ee"
-+GRP_IP6="ff02::42"
-+
-+BC_PKT="ff:ff:ff:ff:ff:ff $SRC_MAC 00:04 48:45:4c:4f"
-+UC_PKT="02:00:01:c0:ff:ee $SRC_MAC 00:04 48:45:4c:4f"
-+MC_PKT="01:00:5e:01:02:03 $SRC_MAC 08:00 45:00 00:20 c2:10 00:00 ff 11 12:b2 01:02:03:04 e1:01:02:03 04:d2 10:e1 00:0c 6e:84 48:45:4c:4f"
-+
-+# Disable promisc to ensure we only receive flooded frames
-+export TCPDUMP_EXTRA_FLAGS="-pl"
-+
-+source lib.sh
-+
-+h1=${NETIFS[p1]}
-+h2=${NETIFS[p3]}
-+swp1=${NETIFS[p2]}
-+swp2=${NETIFS[p4]}
-+
-+#
-+# Port mappings and flood flag pattern to set/detect
-+#
-+declare -A ports=([br0]=br0 [$swp1]=$h1 [$swp2]=$h2)
-+declare -A flag1=([$swp1]=off [$swp2]=off [br0]=off)
-+declare -A flag2=([$swp1]=off [$swp2]=on  [br0]=off)
-+declare -A flag3=([$swp1]=off [$swp2]=on  [br0]=on )
-+declare -A flag4=([$swp1]=off [$swp2]=off [br0]=on )
-+
-+switch_create()
-+{
-+	ip link add dev br0 type bridge
-+
-+	for port in ${!ports[@]}; do
-+		[ "$port" != "br0" ] && ip link set dev $port master br0
-+		ip link set dev $port up
-+	done
-+}
-+
-+switch_destroy()
-+{
-+	for port in ${!ports[@]}; do
-+		ip link set dev $port down
-+	done
-+	ip link del dev br0
-+}
-+
-+setup_prepare()
-+{
-+	vrf_prepare
-+
-+	let i=1
-+	for iface in ${ports[@]}; do
-+		[ "$iface" = "br0" ] && continue
-+		simple_if_init $iface 192.0.2.$i/24 2001:db8:1::$i/64
-+		let i=$((i + 1))
-+	done
-+
-+	switch_create
-+}
-+
-+cleanup()
-+{
-+	pre_cleanup
-+	switch_destroy
-+
-+	let i=1
-+	for iface in ${ports[@]}; do
-+		[ "$iface" = "br0" ] && continue
-+		simple_if_fini $iface 192.0.2.$i/24 2001:db8:1::$i/64
-+		let i=$((i + 1))
-+	done
-+
-+	vrf_cleanup
-+}
-+
-+do_flood_unknown()
-+{
-+	local type=$1
-+	local pass=$2
-+	local flag=$3
-+	local pkt=$4
-+	local -n flags=$5
-+
-+	RET=0
-+	for port in ${!ports[@]}; do
-+		if [ "$port" = "br0" ]; then
-+			self="self"
-+		else
-+			self=""
-+		fi
-+		bridge link set dev $port $flag ${flags[$port]} $self
-+		check_err $? "Failed setting $port $flag ${flags[$port]}"
-+	done
-+
-+	for iface in ${ports[@]}; do
-+		tcpdump_start $iface
-+	done
-+
-+	$MZ -q $h1 "$pkt"
-+	sleep 1
-+
-+	for iface in ${ports[@]}; do
-+		tcpdump_stop $iface
-+	done
-+
-+	for port in ${!ports[@]}; do
-+		iface=${ports[$port]}
-+
-+#		echo "Dumping PCAP from $iface, expecting ${flags[$port]}:"
-+#		tcpdump_show $iface
-+		tcpdump_show $iface |grep -q "$SRC_MAC"
-+		rc=$?
-+
-+		check_err_fail "${flags[$port]} = on"  $? "failed flooding from $h1 to port $port"
-+		check_err_fail "${flags[$port]} = off" $? "flooding from $h1 to port $port"
-+	done
-+
-+	log_test "flood unknown $type pass $pass/4"
-+}
-+
-+br_flood_unknown_bc_test()
-+{
-+	do_flood_unknown BC 1 bcast_flood "$BC_PKT" flag1
-+	do_flood_unknown BC 2 bcast_flood "$BC_PKT" flag2
-+	do_flood_unknown BC 3 bcast_flood "$BC_PKT" flag3
-+	do_flood_unknown BC 4 bcast_flood "$BC_PKT" flag4
-+}
-+
-+br_flood_unknown_uc_test()
-+{
-+	do_flood_unknown UC 1 flood "$UC_PKT" flag1
-+	do_flood_unknown UC 2 flood "$UC_PKT" flag2
-+	do_flood_unknown UC 3 flood "$UC_PKT" flag3
-+	do_flood_unknown UC 4 flood "$UC_PKT" flag4
-+}
-+
-+br_flood_unknown_mc_test()
-+{
-+	do_flood_unknown MC 1 mcast_flood "$MC_PKT" flag1
-+	do_flood_unknown MC 2 mcast_flood "$MC_PKT" flag2
-+	do_flood_unknown MC 3 mcast_flood "$MC_PKT" flag3
-+	do_flood_unknown MC 4 mcast_flood "$MC_PKT" flag4
-+}
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+setup_wait
-+
-+tests_run
-+
-+exit $EXIT_STATUS
+ 	list_for_each_entry_rcu(p, &br->port_list, list) {
+ 		/* Do not flood unicast traffic to ports that turn it off, nor
+ 		 * other traffic if flood off, except for traffic we originate
+@@ -212,6 +218,11 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
+ 				continue;
+ 			break;
+ 		case BR_PKT_MULTICAST:
++			rport = br_multicast_rport_from_node_skb(rp, skb);
++			if (rport == p) {
++				rp = rcu_dereference(hlist_next_rcu(rp));
++				break;
++			}
+ 			if (!(p->flags & BR_MCAST_FLOOD) && skb->dev != br->dev)
+ 				continue;
+ 			break;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index db4f2641d1cd..c57e3bbb00ad 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -3643,9 +3643,7 @@ static int br_multicast_ipv4_rcv(struct net_bridge_mcast *brmctx,
+ 	err = ip_mc_check_igmp(skb);
+ 
+ 	if (err == -ENOMSG) {
+-		if (!ipv4_is_local_multicast(ip_hdr(skb)->daddr)) {
+-			BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
+-		} else if (pim_ipv4_all_pim_routers(ip_hdr(skb)->daddr)) {
++		if (pim_ipv4_all_pim_routers(ip_hdr(skb)->daddr)) {
+ 			if (ip_hdr(skb)->protocol == IPPROTO_PIM)
+ 				br_multicast_pim(brmctx, pmctx, skb);
+ 		} else if (ipv4_is_all_snoopers(ip_hdr(skb)->daddr)) {
+@@ -3712,8 +3710,6 @@ static int br_multicast_ipv6_rcv(struct net_bridge_mcast *brmctx,
+ 	err = ipv6_mc_check_mld(skb);
+ 
+ 	if (err == -ENOMSG || err == -ENODATA) {
+-		if (!ipv6_addr_is_ll_all_nodes(&ipv6_hdr(skb)->daddr))
+-			BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
+ 		if (err == -ENODATA &&
+ 		    ipv6_addr_is_all_snoopers(&ipv6_hdr(skb)->daddr))
+ 			br_ip6_multicast_mrd_rcv(brmctx, pmctx, skb);
 -- 
 2.25.1
 
