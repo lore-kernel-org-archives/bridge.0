@@ -3,21 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=G4Lf3IeHTYSBP2jBlrEzBtLYrCtWftbohLvXAydSyEo=;
- b=S5NtrlUiP9am+mfWWs0tdCtoJF8LvNMfNHuBR0cH25+Xpn3ZnLgDT87648YbKHJ1/i
- 0w0gru0NSrKVP38xmgX+es38tXRq1lmxRK/A7qXb9LaBBrcmt0gakCd3bfwwL1CvUUWT
- abEqtMI0job1tDc+M8I/C3ZpW8mK5ejPKawnfxxQEZwg1lmITGg16vsJGeF3JRx8W6fX
- PjQCCBVPSeTF8tmwS2uhHXNRfPOSAjlJI8F9Lh2YeKfwvFOlro59hJSoikLGiHJqaPA+
- HXfFFQPlSRLnHhEXB0856jTQwYzGKOBnCGyPGG/PLJkO9BzzsEd79CvZGhROfPjo6LIR
- Z4lw==
+ bh=B5S8XFRnGS4ZuUwwM582W5V1tDhecUOXpZ4BPJOGbzU=;
+ b=IgONo8IR+mPW+pBo96EoLpsMBSlaoliTJ80GEJ4cI2aamHqnxEvremcO0WUtzXOfpv
+ 8e/TREd3DDQVzzDe9PaA7g57+WIDuZjWgY0NECehgdmLB/gY0SGEm1Z/eYuLJmlXxkB+
+ cZ0yPBZOEM4rYjCa8JL9On1ASJaznbSxjrnrf8+Aa4h78FEw+N9D4tmzMSrLmX1ylASZ
+ 9hiMa9Ei/bikJEdX5nkwMEQAsH8dUy7FII7eWGy/GsVqs7xGZ5QFESeJOxQaZzEcOQh9
+ XI2rPv6ETi8vTrXV8R5M4UbcOyRCFfvxZ2xZm+rht7LxEzFDhvLjYMyaIc+FbFXF/f1D
+ reUw==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 11 Apr 2022 20:29:27 +0300
-Message-Id: <20220411172934.1813604-2-razor@blackwall.org>
+Date: Mon, 11 Apr 2022 20:29:29 +0300
+Message-Id: <20220411172934.1813604-4-razor@blackwall.org>
 In-Reply-To: <20220411172934.1813604-1-razor@blackwall.org>
 References: <20220411172934.1813604-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 1/8] net: rtnetlink: add RTM_FLUSHNEIGH
+Subject: [Bridge] [PATCH net-next v2 3/8] net: bridge: fdb: add
+	ndo_fdb_flush op
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,51 +30,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-Add a new rtnetlink type used to flush neigh objects. It will be
-initially used to add flush with filtering support for bridge fdbs, but
-it also opens the door to add similar support to others (e.g. vxlan).
+Add a minimal ndo_fdb_flush implementation which flushes all entries.
+Support for more fine-grained filtering will be added in the following
+patches.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- include/uapi/linux/rtnetlink.h | 3 +++
- security/selinux/nlmsgtab.c    | 3 ++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ net/bridge/br_device.c   |  1 +
+ net/bridge/br_fdb.c      | 25 ++++++++++++++++++++++++-
+ net/bridge/br_netlink.c  |  2 +-
+ net/bridge/br_private.h  |  6 +++++-
+ net/bridge/br_sysfs_br.c |  2 +-
+ 5 files changed, 32 insertions(+), 4 deletions(-)
 
-diff --git a/include/uapi/linux/rtnetlink.h b/include/uapi/linux/rtnetlink.h
-index 83849a37db5b..06001cfd404b 100644
---- a/include/uapi/linux/rtnetlink.h
-+++ b/include/uapi/linux/rtnetlink.h
-@@ -194,6 +194,9 @@ enum {
- 	RTM_GETTUNNEL,
- #define RTM_GETTUNNEL	RTM_GETTUNNEL
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 8d6bab244c4a..76ee2675457a 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -466,6 +466,7 @@ static const struct net_device_ops br_netdev_ops = {
+ 	.ndo_fdb_add		 = br_fdb_add,
+ 	.ndo_fdb_del		 = br_fdb_delete,
+ 	.ndo_fdb_dump		 = br_fdb_dump,
++	.ndo_fdb_flush		 = br_fdb_flush,
+ 	.ndo_fdb_get		 = br_fdb_get,
+ 	.ndo_bridge_getlink	 = br_getlink,
+ 	.ndo_bridge_setlink	 = br_setlink,
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 6ccda68bd473..64a549acdac8 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -559,7 +559,7 @@ void br_fdb_cleanup(struct work_struct *work)
+ }
  
-+	RTM_FLUSHNEIGH = 124,
-+#define RTM_FLUSHNEIGH	RTM_FLUSHNEIGH
+ /* Completely flush all dynamic entries in forwarding database.*/
+-void br_fdb_flush(struct net_bridge *br)
++void __br_fdb_flush(struct net_bridge *br)
+ {
+ 	struct net_bridge_fdb_entry *f;
+ 	struct hlist_node *tmp;
+@@ -572,6 +572,29 @@ void br_fdb_flush(struct net_bridge *br)
+ 	spin_unlock_bh(&br->hash_lock);
+ }
+ 
++int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
++		 struct net_device *dev, u16 vid,
++		 struct netlink_ext_ack *extack)
++{
++	struct net_bridge *br;
 +
- 	__RTM_MAX,
- #define RTM_MAX		(((__RTM_MAX + 3) & ~3) - 1)
- };
-diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-index d8ceee9e0d6f..ff53aea8790f 100644
---- a/security/selinux/nlmsgtab.c
-+++ b/security/selinux/nlmsgtab.c
-@@ -95,6 +95,7 @@ static const struct nlmsg_perm nlmsg_route_perms[] =
- 	{ RTM_NEWTUNNEL,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_DELTUNNEL,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_GETTUNNEL,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
-+	{ RTM_FLUSHNEIGH,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- };
++	if (netif_is_bridge_master(dev)) {
++		br = netdev_priv(dev);
++	} else {
++		struct net_bridge_port *p = br_port_get_rtnl(dev);
++
++		if (!p) {
++			NL_SET_ERR_MSG_MOD(extack, "Device is not a bridge port");
++			return -EINVAL;
++		}
++		br = p->br;
++	}
++
++	__br_fdb_flush(br);
++
++	return 0;
++}
++
+ /* Flush all entries referring to a specific port.
+  * if do_all is set also flush static entries
+  * if vid is set delete all entries that match the vlan_id
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 200ad05b296f..c59c775730bb 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1327,7 +1327,7 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 	}
  
- static const struct nlmsg_perm nlmsg_tcpdiag_perms[] =
-@@ -180,7 +181,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
- 		 * structures at the top of this file with the new mappings
- 		 * before updating the BUILD_BUG_ON() macro!
- 		 */
--		BUILD_BUG_ON(RTM_MAX != (RTM_NEWTUNNEL + 3));
-+		BUILD_BUG_ON(RTM_MAX != (RTM_FLUSHNEIGH + 3));
- 		err = nlmsg_perm(nlmsg_type, perm, nlmsg_route_perms,
- 				 sizeof(nlmsg_route_perms));
- 		break;
+ 	if (data[IFLA_BR_FDB_FLUSH])
+-		br_fdb_flush(br);
++		__br_fdb_flush(br);
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	if (data[IFLA_BR_MCAST_ROUTER]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 6e62af2e07e9..23ef2982d1bc 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -759,7 +759,11 @@ int br_fdb_init(void);
+ void br_fdb_fini(void);
+ int br_fdb_hash_init(struct net_bridge *br);
+ void br_fdb_hash_fini(struct net_bridge *br);
+-void br_fdb_flush(struct net_bridge *br);
++void __br_fdb_flush(struct net_bridge *br);
++int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
++		 struct net_device *dev, u16 vid,
++		 struct netlink_ext_ack *extack);
++
+ void br_fdb_find_delete_local(struct net_bridge *br,
+ 			      const struct net_bridge_port *p,
+ 			      const unsigned char *addr, u16 vid);
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 3f7ca88c2aa3..7a2cf3aebc84 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -344,7 +344,7 @@ static DEVICE_ATTR_RW(group_addr);
+ static int set_flush(struct net_bridge *br, unsigned long val,
+ 		     struct netlink_ext_ack *extack)
+ {
+-	br_fdb_flush(br);
++	__br_fdb_flush(br);
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
