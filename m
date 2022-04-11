@@ -1,24 +1,18 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=Qn0m42DURCvgyA+3fQ3KmY2jO1hPwl7SsCJTQkfJV1s=;
- b=hMkj2kvMUd7imAmQLdIxKRb5Y6stYgX2688k9Otvb5DuBuGpKEVIzX2kLC0il0bbuC
- Dxg8JbTm4UWxbe/cvYxUsKKiAq9QEEvmvHMKr7WnRrnIEf3kz9qvX1sPKAQW45TVLtuo
- fP7XB81maT1NwKW4v3GZ+j2t29xaKL8mD/u4X7aMrGAfrSiz9ha6Mv5ywKLv3sRWrOyq
- Ou/uXdcDhayTAVeJLZkyHql3VVGDXBNGZ4O2vP9fb5SxgaI9qXBg1noS+UbhEC+UQKF8
- PMw3KVI33DheavQ7MDCthvZxpI4Q1hV0sKBug/5/3H5tSnyZVIXZ+fzHE7oAlN120maL
- 6/dQ==
-Message-ID: <e3655cbf-5b8f-85d1-cd5f-80df739d79f4@blackwall.org>
-Date: Mon, 11 Apr 2022 20:42:51 +0300
-MIME-Version: 1.0
+Return-Path: <roopa@nvidia.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=D3ifepJvvOhIUOVKzY5WeM1MuNI5WgIPIJtvqT9dx3g=;
+ b=EsWtSDQZG2aeMwtH8j28T2X7YvLRcZzNx7uE1J35m2XTmIg13cNykpkJeCrLmy5pE4j7wjWz+u2eKWt4aiXpep0R8i/nQxGIEBDTLNxQkXqyCSUCS8NC2v+U9YhOd9rIGLlHBzl/dc73z3tq4Cz9+/piybbbEWczBhmuJ+dZ6RwOo/vuP3eA3fdU2bw18zlUxVW0BspD0D4oae5oaY01OPv/RTfjhb/H0s2929BKPbuz1W/2CBgI9kAQTzG1b7wK/TtNVxjmu8OZyPGVODvmseq6cMZzqAkffS/wlB5XQeyB50dAa8/thdoOvZc9oZOlnp4ttdAAjWJu0fAwLkJeDg==
+Message-ID: <0d08b6ce-53bb-bffa-4f04-ede9bfc8ab63@nvidia.com>
+Date: Mon, 11 Apr 2022 11:08:24 -0700
 Content-Language: en-US
 References: <20220411172934.1813604-1-razor@blackwall.org>
-From: Nikolay Aleksandrov <razor@blackwall.org>
+From: Roopa Prabhu <roopa@nvidia.com>
 In-Reply-To: <20220411172934.1813604-1-razor@blackwall.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
 Subject: Re: [Bridge] [PATCH net-next v2 0/8] net: bridge: add flush
 	filtering support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -29,10 +23,11 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: idosch@idosch.org, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com
+To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc: idosch@idosch.org, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org
 
-On 11/04/2022 20:29, Nikolay Aleksandrov wrote:
+
+On 4/11/22 10:29, Nikolay Aleksandrov wrote:
 > Hi,
 > This patch-set adds support to specify filtering conditions for a flush
 > operation. This version has entirely different entry point (v1 had
@@ -55,22 +50,70 @@ On 11/04/2022 20:29, Nikolay Aleksandrov wrote:
 > supports target ifindex (port or bridge), vlan id and flags/state mask.
 > Patch 07 converts ndm state/flags and their masks to bridge-private flags
 > and fills them in the filter descriptor for matching. Finally patch 08
-
-Aargh.. I mixed up the patch numbers above. Patch 03 adds the minimal ndo_fdb_flush
-to the bridge driver (not patch 05), patch 04 adds the generic rtnl_fdb_flush
-(not patch 03) and patch 05 adds the common attributes (not patch 04).
-
-Let me know if you'd like me to repost it with fixed numbers. I'll wait for
-feedback anyway.
-
 > fills in the target ifindex (after validating it) and vlan id (already
-> validated by rtnl_fdb_flush) for matching. Flush filtering is needed> because user-space applications need a quick way to delete only a
+> validated by rtnl_fdb_flush) for matching. Flush filtering is needed
+> because user-space applications need a quick way to delete only a
 > specific set of entries, e.g. mlag implementations need a way to flush only
 > dynamic entries excluding externally learned ones or only externally
 > learned ones without static entries etc. Also apps usually want to target
 > only a specific vlan or port/vlan combination. The current 2 flush
 > operations (per port and bridge-wide) are not extensible and cannot
 > provide such filtering.
+>
+> I decided against embedding new attrs into the old flush attributes for
+> multiple reasons - proper error handling on unsupported attributes,
+> older kernels silently flushing all, need for a second mechanism to
+> signal that the attribute should be parsed (e.g. using boolopts),
+> special treatment for permanent entries.
+>
+> Examples:
+> $ bridge fdb flush dev bridge vlan 100 static
+> < flush all static entries on vlan 100 >
+> $ bridge fdb flush dev bridge vlan 1 dynamic
+> < flush all dynamic entries on vlan 1 >
+> $ bridge fdb flush dev bridge port ens16 vlan 1 dynamic
+> < flush all dynamic entries on port ens16 and vlan 1 >
+> $ bridge fdb flush dev ens16 vlan 1 dynamic master
+> < as above: flush all dynamic entries on port ens16 and vlan 1 >
+> $ bridge fdb flush dev bridge nooffloaded nopermanent self
+> < flush all non-offloaded and non-permanent entries >
+> $ bridge fdb flush dev bridge static noextern_learn
+> < flush all static entries which are not externally learned >
+> $ bridge fdb flush dev bridge permanent
+> < flush all permanent entries >
+> $ bridge fdb flush dev bridge port bridge permanent
+> < flush all permanent entries pointing to the bridge itself >
+>
+> Note that all flags have their negated version (static vs nostatic etc)
+> and there are some tricky cases to handle like "static" which in flag
+> terms means fdbs that have NUD_NOARP but *not* NUD_PERMANENT, so the
+> mask matches on both but we need only NUD_NOARP to be set. That's
+> because permanent entries have both set so we can't just match on
+> NUD_NOARP. Also note that this flush operation doesn't treat permanent
+> entries in a special way (fdb_delete vs fdb_delete_local), it will
+> delete them regardless if any port is using them. We can extend the api
+> with a flag to do that if needed in the future.
+>
+> Patch-sets (in order):
+>   - Initial flush infra and fdb flush filtering (this set)
+>   - iproute2 support
+>   - selftests
+>
+> Future work:
+>   - mdb flush support (RTM_FLUSHMDB type)
+>
+> Thanks to Ido for the great discussion and feedback while working on this.
+>
+Cant we pile this on to RTM_DELNEIGH with a flush flag ?.
+
+It is a bulk del, and sounds seems similar to the bulk dev del 
+discussion on netdev a few months ago (i dont remember how that api 
+ended up to be. unless i am misremembering).
+
+neigh subsystem also needs this, curious how this api will work there.
+
+(apologies if you guys already discussed this, did not have time to look 
+through all the comments)
 
 
 
