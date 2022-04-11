@@ -1,24 +1,26 @@
 Return-Path: <razor@blackwall.org>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=O/VZLSKKUr9Ihqy6S3wZzx57tDuzGbENOM9GV5qAtjA=;
- b=fFAeWA901r46qOOdPqJ4hjzi3NDTcPdGTCrShzVqlrXGohdJz5OqOhbR53eJj+8/Mz
- jNsj1Ll+69KR3nuryXJWdWkkpKWIrq0tGF98iH4JSZiXpx9yrldzFYvXmWU2LU35kGxI
- 2a0zL+wy9JNmACu4OFV0CW+eoeI6F723MISF2PvEnIHToEZ9xwXZtYYRS9/FFpY97Z9d
- L3z1fX9r31aAfIgro65HkUnPXsAkNUU5O+x+VOr+pCw9pmQaThoJ1+usUZFN8fxTEpbw
- DXGDKEZe1rK0SoyB953x362v9H+VCZ7WHPKRd3soJS63WL6Jh7M/9EjYA34boDNsiCU/
- DuzA==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 11 Apr 2022 20:29:34 +0300
-Message-Id: <20220411172934.1813604-9-razor@blackwall.org>
-In-Reply-To: <20220411172934.1813604-1-razor@blackwall.org>
-References: <20220411172934.1813604-1-razor@blackwall.org>
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=Qn0m42DURCvgyA+3fQ3KmY2jO1hPwl7SsCJTQkfJV1s=;
+ b=hMkj2kvMUd7imAmQLdIxKRb5Y6stYgX2688k9Otvb5DuBuGpKEVIzX2kLC0il0bbuC
+ Dxg8JbTm4UWxbe/cvYxUsKKiAq9QEEvmvHMKr7WnRrnIEf3kz9qvX1sPKAQW45TVLtuo
+ fP7XB81maT1NwKW4v3GZ+j2t29xaKL8mD/u4X7aMrGAfrSiz9ha6Mv5ywKLv3sRWrOyq
+ Ou/uXdcDhayTAVeJLZkyHql3VVGDXBNGZ4O2vP9fb5SxgaI9qXBg1noS+UbhEC+UQKF8
+ PMw3KVI33DheavQ7MDCthvZxpI4Q1hV0sKBug/5/3H5tSnyZVIXZ+fzHE7oAlN120maL
+ 6/dQ==
+Message-ID: <e3655cbf-5b8f-85d1-cd5f-80df739d79f4@blackwall.org>
+Date: Mon, 11 Apr 2022 20:42:51 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 8/8] net: bridge: fdb: add support for
-	flush filtering based on ifindex and vlan
+Content-Language: en-US
+References: <20220411172934.1813604-1-razor@blackwall.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20220411172934.1813604-1-razor@blackwall.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v2 0/8] net: bridge: add flush
+	filtering support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,85 +30,47 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+Cc: idosch@idosch.org, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com
 
-Add support for fdb flush filtering based on destination ifindex and
-vlan id. The ifindex must either match a port's device ifindex or the
-bridge's. The vlan support is trivial since it's already validated by
-rtnl_fdb_flush, we just need to fill it in.
+On 11/04/2022 20:29, Nikolay Aleksandrov wrote:
+> Hi,
+> This patch-set adds support to specify filtering conditions for a flush
+> operation. This version has entirely different entry point (v1 had
+> bridge-specific IFLA attribute, here I add new RTM_FLUSHNEIGH msg and
+> netdev ndo_fdb_flush op) so I'll give a new overview altogether.
+> After me and Ido discussed the feature offlist, we agreed that it would
+> be best to add a new generic RTM_FLUSHNEIGH with a new ndo_fdb_flush
+> callback which can be re-used for other drivers (e.g. vxlan).
+> Patch 01 adds the new RTM_FLUSHNEIGH type, patch 02 then adds the
+> new ndo_fdb_flush call. With this structure we need to add a generic
+> rtnl_fdb_flush which will be used to do basic attribute validation and
+> dispatch the call to the appropriate device based on the NTF_USE/MASTER
+> flags (patch 03). Patch 04 then adds some common flush attributes which
+> are used by the bridge and vxlan drivers (target ifindex, vlan id, ndm
+> flags/state masks) with basic attribute validation, further validation
+> can be done by the implementers of the ndo callback. Patch 05 adds a
+> minimal ndo_fdb_flush to the bridge driver, it uses the current
+> br_fdb_flush implementation to flush all entries similar to existing
+> calls. Patch 06 adds filtering support to the new bridge flush op which
+> supports target ifindex (port or bridge), vlan id and flags/state mask.
+> Patch 07 converts ndm state/flags and their masks to bridge-private flags
+> and fills them in the filter descriptor for matching. Finally patch 08
 
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
----
-v2: validate ifindex and fill in vlan id
+Aargh.. I mixed up the patch numbers above. Patch 03 adds the minimal ndo_fdb_flush
+to the bridge driver (not patch 05), patch 04 adds the generic rtnl_fdb_flush
+(not patch 03) and patch 05 adds the common attributes (not patch 04).
 
- net/bridge/br_fdb.c | 42 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+), 1 deletion(-)
+Let me know if you'd like me to repost it with fixed numbers. I'll wait for
+feedback anyway.
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 2cea03cbc55f..b078a656776a 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -622,12 +622,44 @@ static unsigned long __ndm_flags_to_fdb_flags(u8 ndm_flags)
- 	return flags;
- }
- 
-+static int __fdb_flush_validate_ifindex(const struct net_bridge *br,
-+					int ifindex,
-+					struct netlink_ext_ack *extack)
-+{
-+	const struct net_device *dev;
-+
-+	dev = __dev_get_by_index(dev_net(br->dev), ifindex);
-+	if (!dev) {
-+		NL_SET_ERR_MSG_MOD(extack, "Unknown flush device ifindex");
-+		return -ENODEV;
-+	}
-+	if (!netif_is_bridge_master(dev) && !netif_is_bridge_port(dev)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Flush device is not a bridge or bridge port");
-+		return -EINVAL;
-+	}
-+	if (netif_is_bridge_master(dev) && dev != br->dev) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Flush bridge device does not match target bridge device");
-+		return -EINVAL;
-+	}
-+	if (netif_is_bridge_port(dev)) {
-+		struct net_bridge_port *p = br_port_get_rtnl(dev);
-+
-+		if (p->br != br) {
-+			NL_SET_ERR_MSG_MOD(extack, "Port belongs to a different bridge device");
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
- 		 struct net_device *dev, u16 vid,
- 		 struct netlink_ext_ack *extack)
- {
- 	u8 ndm_flags = ndm->ndm_flags & ~FDB_FLUSH_IGNORED_NDM_FLAGS;
--	struct net_bridge_fdb_flush_desc desc = {};
-+	struct net_bridge_fdb_flush_desc desc = { .vlan_id = vid };
- 	struct net_bridge *br;
- 
- 	if (netif_is_bridge_master(dev)) {
-@@ -663,6 +695,14 @@ int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
- 
- 		desc.flags_mask |= __ndm_flags_to_fdb_flags(ndm_flags_mask);
- 	}
-+	if (tb[NDFA_IFINDEX]) {
-+		int err, ifidx = nla_get_s32(tb[NDFA_IFINDEX]);
-+
-+		err = __fdb_flush_validate_ifindex(br, ifidx, extack);
-+		if (err)
-+			return err;
-+		desc.port_ifindex = ifidx;
-+	}
- 
- 	br_debug(br, "flushing port ifindex: %d vlan id: %u flags: 0x%lx flags mask: 0x%lx\n",
- 		 desc.port_ifindex, desc.vlan_id, desc.flags, desc.flags_mask);
--- 
-2.35.1
+> fills in the target ifindex (after validating it) and vlan id (already
+> validated by rtnl_fdb_flush) for matching. Flush filtering is needed> because user-space applications need a quick way to delete only a
+> specific set of entries, e.g. mlag implementations need a way to flush only
+> dynamic entries excluding externally learned ones or only externally
+> learned ones without static entries etc. Also apps usually want to target
+> only a specific vlan or port/vlan combination. The current 2 flush
+> operations (per port and bridge-wide) are not extensible and cannot
+> provide such filtering.
+
+
 
