@@ -2,22 +2,22 @@ Return-Path: <troglobit@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:organization:content-transfer-encoding;
- bh=TFNOjZAXZon/4fuYvoXX/NbbTAf3VntOhKR6DBqpfYk=;
- b=kvB+hyM6e8RNZhoXuBQ/tSpmItfGCHtV/80UPZA2wcqsSJle472+AMQJQkqTSKG1zm
- 9Ts/A1anN1MHNODDAuUPyykcEu1h3TncWzzTNf9nyt/TVZtmY+pPFG7NFuUeJhHrhKXa
- g9WqrFGvVVpE5OLbkZ64U+QIwjL7mx5bxxM82hWCDKNkDygEjR9jbQoxAPm6i/8W5kPR
- RzHZi9JYFT+8ZqGHUqK4lCk6QIv67edRLjOnrYh6wQB2mGbwq+hC0jyLJCtINGFhAInp
- U08yaJaXH9DmG3bSRD4IyKJK0gv0HkZDmsae+6ULbupzhH0+WDlM2Kp1QSlSlOP6Jn3H
- itWQ==
+ bh=z5/W5d8ndtvXDnyj0JyTra9alKgaGGYDMc0cdYTNV+Y=;
+ b=PrNADXRvCHQzEChEPZg2kZj2LmA3yA1kD5ofn6xym7Neu/ROj+Tf88BEBnHcTrX6zN
+ QA+RXn7FIQd2kWEQ6ciFFhyLUIJaYhBKJ4HgU31OE6xHtbMkGZrgQioXycEHo5wN21Af
+ fW7sXUhV8TThK665pAO8Yg8HmweuI9KaHu/7QTVsOFfZj0NwTfKK1o4UaCmFMLLgO59z
+ VYxD1emxfusy5Hutf+hzI6e64uTHPyYv/MDGVwGZZkI98effVZyPQmceUjp8KlRn/UtF
+ n6QTT0FCD65iAkEO1MRKAoN+w2NM7HBb4iy4sTXlUB1U26NLYF52XQkiYWYAY0hDSU9s
+ l9Mg==
 From: Joachim Wiberg <troglobit@gmail.com>
-Date: Mon, 11 Apr 2022 15:38:32 +0200
-Message-Id: <20220411133837.318876-9-troglobit@gmail.com>
+Date: Mon, 11 Apr 2022 15:38:33 +0200
+Message-Id: <20220411133837.318876-10-troglobit@gmail.com>
 In-Reply-To: <20220411133837.318876-1-troglobit@gmail.com>
 References: <20220411133837.318876-1-troglobit@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH RFC net-next 08/13] net: bridge: avoid classifying
-	unknown multicast as mrouters_only
+Subject: [Bridge] [PATCH RFC net-next 09/13] selftests: forwarding: rename
+	test groups for next bridge mdb tests
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,76 +29,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Vladimir Oltean <vladimir.oltean@nxp.com>, Joachim Wiberg <troglobit@gmail.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Unknown multicast, MAC/IPv4/IPv6, should always be flooded according to
-the per-port mcast_flood setting, as well as to detected and configured
-mcast_router ports.
-
-This patch drops the mrouters_only classifier of unknown IP multicast
-and moves the flow handling from br_multicast_flood() to br_flood().
-This in turn means br_flood() must know about multicast router ports.
+Rename test groups to PASS and FAIL, respectively, for upcoming changes
+to test suite.
 
 Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
 ---
- net/bridge/br_forward.c   | 11 +++++++++++
- net/bridge/br_multicast.c |  6 +-----
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ .../selftests/net/forwarding/bridge_mdb.sh     | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 02bb620d3b8d..ab5b97a8c12e 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -199,9 +199,15 @@ static struct net_bridge_port *maybe_deliver(
- void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 	      enum br_pkt_type pkt_type, bool local_rcv, bool local_orig)
- {
-+	struct net_bridge_mcast *brmctx = &br->multicast_ctx;
-+	struct net_bridge_port *rport = NULL;
- 	struct net_bridge_port *prev = NULL;
-+	struct hlist_node *rp = NULL;
- 	struct net_bridge_port *p;
+diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+index b1ba6876dd86..c0b84b7d4364 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+@@ -7,9 +7,15 @@
+ ALL_TESTS="mdb_add_del_test"
+ NUM_NETIFS=2
  
-+	if (pkt_type == BR_PKT_MULTICAST)
-+		rp = br_multicast_get_first_rport_node(brmctx, skb);
+-TEST_GROUP_IP4="225.1.2.3"
+-TEST_GROUP_IP6="ff02::42"
+-TEST_GROUP_MAC="01:00:01:c0:ff:ee"
++PASS_GRP_IP4="225.1.2.3"
++FAIL_GRP_IP4="225.1.2.4"
 +
- 	list_for_each_entry_rcu(p, &br->port_list, list) {
- 		/* Do not flood unicast traffic to ports that turn it off, nor
- 		 * other traffic if flood off, except for traffic we originate
-@@ -212,6 +218,11 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 				continue;
- 			break;
- 		case BR_PKT_MULTICAST:
-+			rport = br_multicast_rport_from_node_skb(rp, skb);
-+			if (rport == p) {
-+				rp = rcu_dereference(hlist_next_rcu(rp));
-+				break;
-+			}
- 			if (!(p->flags & BR_MCAST_FLOOD) && skb->dev != br->dev)
- 				continue;
- 			break;
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index db4f2641d1cd..c57e3bbb00ad 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -3643,9 +3643,7 @@ static int br_multicast_ipv4_rcv(struct net_bridge_mcast *brmctx,
- 	err = ip_mc_check_igmp(skb);
++PASS_GRP_MAC="01:00:01:c0:ff:ee"
++FAIL_GRP_MAC="01:00:01:c0:ff:ef"
++
++PASS_GRP_IP6="ff02::42"
++FAIL_GRP_IP6="ff02::43"
++
  
- 	if (err == -ENOMSG) {
--		if (!ipv4_is_local_multicast(ip_hdr(skb)->daddr)) {
--			BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
--		} else if (pim_ipv4_all_pim_routers(ip_hdr(skb)->daddr)) {
-+		if (pim_ipv4_all_pim_routers(ip_hdr(skb)->daddr)) {
- 			if (ip_hdr(skb)->protocol == IPPROTO_PIM)
- 				br_multicast_pim(brmctx, pmctx, skb);
- 		} else if (ipv4_is_all_snoopers(ip_hdr(skb)->daddr)) {
-@@ -3712,8 +3710,6 @@ static int br_multicast_ipv6_rcv(struct net_bridge_mcast *brmctx,
- 	err = ipv6_mc_check_mld(skb);
+ source lib.sh
  
- 	if (err == -ENOMSG || err == -ENODATA) {
--		if (!ipv6_addr_is_ll_all_nodes(&ipv6_hdr(skb)->daddr))
--			BR_INPUT_SKB_CB(skb)->mrouters_only = 1;
- 		if (err == -ENODATA &&
- 		    ipv6_addr_is_all_snoopers(&ipv6_hdr(skb)->daddr))
- 			br_ip6_multicast_mrd_rcv(brmctx, pmctx, skb);
+@@ -88,9 +94,9 @@ do_mdb_add_del()
+ 
+ mdb_add_del_test()
+ {
+-	do_mdb_add_del $TEST_GROUP_MAC permanent
+-	do_mdb_add_del $TEST_GROUP_IP4
+-	do_mdb_add_del $TEST_GROUP_IP6
++	do_mdb_add_del $PASS_GRP_MAC permanent
++	do_mdb_add_del $PASS_GRP_IP4
++	do_mdb_add_del $PASS_GRP_IP6
+ }
+ 
+ trap cleanup EXIT
 -- 
 2.25.1
 
