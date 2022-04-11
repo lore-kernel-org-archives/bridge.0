@@ -2,22 +2,22 @@ Return-Path: <troglobit@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:organization:content-transfer-encoding;
- bh=7+9AQPsj4qe+ej9vd9ZSEydjVfvWzHGKKHrVDnEiVdU=;
- b=QCrNRd94foqMNxVskGlMwCCfRXRjQeQ+pp6t1LBGrm9LEuIGq4N4GXTvyNQx4uEUBh
- ++f6ASOqDQLBns5t1I9IMVfxzR6IlWEZIBxk2DBCYDNGcHdL8vyzwCZz4q4YfpIoyC4T
- VZQKvlUgbx+I8b9kNSG2LhpqWaUYBRyHkWKvbeh1lltsD0OniLu8Ay/4e/2S/wAIJH52
- CHAaf8fTEqBgk8G76MuGXEHS/WUiYcZ0SKLtEAqXdZmov79e5faGdOsziIPbICPZ5zfi
- 9T71AKcCSUNE8Dcg7JSOKdCjUQV8IStq7GGOVkNQ2z4KX+WjiWa2kQF1PNysKiFnVtvR
- B/PQ==
+ bh=m14KfFMNBJMj3DAuyjsFtzaOxg7nS8IZJkNu+xhWBoQ=;
+ b=CF/kSL/5S4j/4pPmpoLhhNdCrfZHMeBh9sE/2PJE0HqUOCEgafv5S1xncVTcNldYka
+ bujyLGn0wSb5IBpMJm+DjbZcofg5/n1pMDuRJcjcyGtYVModUHJBdPWkNUMBzWxB+6Y6
+ 7XTL1f9ut0IvB8D8LnbeO3VpuapMphxnK6rwcZ8l5muQmDpnS0A6jMN9b1twOzMAjnnV
+ CEM6/CdcQV2cA1N2paU8GuKa33A+GOVIFImxq5tUYQEVYgkVcsPZnmaiRKU5QsPIo5mY
+ mxmshyVaRmPnCK/qBqOPDhh7da9zMkNNLfLGBgyeVVVlKpHWokexKZ+VU2d8v27C0lO8
+ Ob7Q==
 From: Joachim Wiberg <troglobit@gmail.com>
-Date: Mon, 11 Apr 2022 15:38:30 +0200
-Message-Id: <20220411133837.318876-7-troglobit@gmail.com>
+Date: Mon, 11 Apr 2022 15:38:31 +0200
+Message-Id: <20220411133837.318876-8-troglobit@gmail.com>
 In-Reply-To: <20220411133837.318876-1-troglobit@gmail.com>
 References: <20220411133837.318876-1-troglobit@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH RFC net-next 06/13] selftests: forwarding: multiple
-	instances in tcpdump helper
+Subject: [Bridge] [PATCH RFC net-next 07/13] selftests: forwarding: new test,
+	verify bridge flood flags
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,162 +29,206 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Vladimir Oltean <vladimir.oltean@nxp.com>, Joachim Wiberg <troglobit@gmail.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Extend tcpdump_start() & C:o to handle multiple instances.  Useful when
-observing bridge operation, e.g., unicast learning/flooding, and any
-case of multicast distribution (to these ports but not that one ...).
-
-This means the interface argument is now a mandatory argument to all
-tcpdump_*() functions, hence the changes to the ocelot flower test.
+Test per-port flood control flags of unknown BUM traffic by injecting
+bc/uc/mc on one bridge port and verifying it being forwarded to both
+the bridge itself and another regular bridge port.
 
 Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
 ---
- .../drivers/net/ocelot/tc_flower_chains.sh    | 24 +++++++++---------
- tools/testing/selftests/net/forwarding/lib.sh | 25 +++++++++++++------
- 2 files changed, 30 insertions(+), 19 deletions(-)
+ .../testing/selftests/net/forwarding/Makefile |   3 +-
+ .../selftests/net/forwarding/bridge_flood.sh  | 170 ++++++++++++++++++
+ 2 files changed, 172 insertions(+), 1 deletion(-)
+ create mode 100755 tools/testing/selftests/net/forwarding/bridge_flood.sh
 
-diff --git a/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh b/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
-index eaf8a04a7ca5..7e684e27a682 100755
---- a/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
-+++ b/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
-@@ -215,15 +215,15 @@ test_vlan_pop()
+diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
+index ae80c2aef577..873fa61d1ee1 100644
+--- a/tools/testing/selftests/net/forwarding/Makefile
++++ b/tools/testing/selftests/net/forwarding/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0+ OR MIT
  
- 	sleep 1
- 
--	tcpdump_stop
-+	tcpdump_stop $eth2
- 
--	if tcpdump_show | grep -q "$eth3_mac > $eth2_mac, ethertype IPv4"; then
-+	if tcpdump_show $eth2 | grep -q "$eth3_mac > $eth2_mac, ethertype IPv4"; then
- 		echo "OK"
- 	else
- 		echo "FAIL"
- 	fi
- 
--	tcpdump_cleanup
-+	tcpdump_cleanup $eth2
- }
- 
- test_vlan_push()
-@@ -236,15 +236,15 @@ test_vlan_push()
- 
- 	sleep 1
- 
--	tcpdump_stop
-+	tcpdump_stop $eth3.100
- 
--	if tcpdump_show | grep -q "$eth2_mac > $eth3_mac"; then
-+	if tcpdump_show $eth3.100 | grep -q "$eth2_mac > $eth3_mac"; then
- 		echo "OK"
- 	else
- 		echo "FAIL"
- 	fi
- 
--	tcpdump_cleanup
-+	tcpdump_cleanup $eth3.100
- }
- 
- test_vlan_ingress_modify()
-@@ -267,15 +267,15 @@ test_vlan_ingress_modify()
- 
- 	sleep 1
- 
--	tcpdump_stop
-+	tcpdump_stop $eth2
- 
--	if tcpdump_show | grep -q "$eth3_mac > $eth2_mac, .* vlan 300"; then
-+	if tcpdump_show $eth2 | grep -q "$eth3_mac > $eth2_mac, .* vlan 300"; then
- 		echo "OK"
- 	else
- 		echo "FAIL"
- 	fi
- 
--	tcpdump_cleanup
-+	tcpdump_cleanup $eth2
- 
- 	tc filter del dev $eth0 ingress chain $(IS1 2) pref 3
- 
-@@ -305,15 +305,15 @@ test_vlan_egress_modify()
- 
- 	sleep 1
- 
--	tcpdump_stop
-+	tcpdump_stop $eth2
- 
--	if tcpdump_show | grep -q "$eth3_mac > $eth2_mac, .* vlan 300"; then
-+	if tcpdump_show $eth2 | grep -q "$eth3_mac > $eth2_mac, .* vlan 300"; then
- 		echo "OK"
- 	else
- 		echo "FAIL"
- 	fi
- 
--	tcpdump_cleanup
-+	tcpdump_cleanup $eth2
- 
- 	tc filter del dev $eth1 egress chain $(ES0) pref 3
- 	tc qdisc del dev $eth1 clsact
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 00cdcab7accf..20a6d6b2f389 100755
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1349,13 +1349,17 @@ stop_traffic()
- 	{ kill %% && wait %%; } 2>/dev/null
- }
- 
-+declare -A cappid
-+declare -A capfile
-+declare -A capout
+-TEST_PROGS = bridge_igmp.sh \
++TEST_PROGS = bridge_flood.sh \
++	bridge_igmp.sh \
+ 	bridge_locked_port.sh \
+ 	bridge_mdb.sh \
+ 	bridge_port_isolation.sh \
+diff --git a/tools/testing/selftests/net/forwarding/bridge_flood.sh b/tools/testing/selftests/net/forwarding/bridge_flood.sh
+new file mode 100755
+index 000000000000..1966c960d705
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/bridge_flood.sh
+@@ -0,0 +1,170 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++#
++# Verify per-port flood control flags of unknown BUM traffic.
++#
++#                     br0
++#                    /   \
++#                  h1     h2
++#
++# We inject bc/uc/mc on h1, toggle the three flood flags for
++# both br0 and h2, then verify that traffic is flooded as per
++# the flags, and nowhere else.
++#
++#set -x
 +
- tcpdump_start()
- {
- 	local if_name=$1; shift
- 	local ns=$1; shift
- 
--	capfile=$(mktemp)
--	capout=$(mktemp)
-+	capfile[$if_name]=$(mktemp)
-+	capout[$if_name]=$(mktemp)
- 
- 	if [ -z $ns ]; then
- 		ns_cmd=""
-@@ -1376,26 +1380,33 @@ tcpdump_start()
- 	fi
- 
- 	$ns_cmd tcpdump $extra_flags -e -n -Q in -i $if_name \
--		-s 65535 -B 32768 $capuser -w $capfile > "$capout" 2>&1 &
--	cappid=$!
-+		-s 65535 -B 32768 $capuser -w ${capfile[$if_name]} > "${capout[$if_name]}" 2>&1 &
-+	cappid[$if_name]=$!
- 
- 	sleep 1
- }
- 
- tcpdump_stop()
- {
--	$ns_cmd kill $cappid
-+	local if_name=$1
-+	local pid=${cappid[$if_name]}
++ALL_TESTS="br_flood_unknown_bc_test br_flood_unknown_uc_test br_flood_unknown_mc_test"
++NUM_NETIFS=4
 +
-+	$ns_cmd kill "$pid" && wait "$pid"
- 	sleep 1
- }
- 
- tcpdump_cleanup()
- {
--	rm $capfile $capout
-+	local if_name=$1
++SRC_MAC="00:de:ad:be:ef:00"
++GRP_IP4="225.1.2.3"
++GRP_MAC="01:00:01:c0:ff:ee"
++GRP_IP6="ff02::42"
 +
-+	rm ${capfile[$if_name]} ${capout[$if_name]}
- }
- 
- tcpdump_show()
- {
--	tcpdump -e -n -r $capfile 2>&1
-+	local if_name=$1
++BC_PKT="ff:ff:ff:ff:ff:ff $SRC_MAC 00:04 48:45:4c:4f"
++UC_PKT="02:00:01:c0:ff:ee $SRC_MAC 00:04 48:45:4c:4f"
++MC_PKT="01:00:5e:01:02:03 $SRC_MAC 08:00 45:00 00:20 c2:10 00:00 ff 11 12:b2 01:02:03:04 e1:01:02:03 04:d2 10:e1 00:0c 6e:84 48:45:4c:4f"
 +
-+	tcpdump -e -n -r ${capfile[$if_name]} 2>&1
- }
- 
- # return 0 if the packet wasn't seen on host2_if or 1 if it was
++# Disable promisc to ensure we only receive flooded frames
++export TCPDUMP_EXTRA_FLAGS="-pl"
++
++source lib.sh
++
++h1=${NETIFS[p1]}
++h2=${NETIFS[p3]}
++swp1=${NETIFS[p2]}
++swp2=${NETIFS[p4]}
++
++#
++# Port mappings and flood flag pattern to set/detect
++#
++declare -A ports=([br0]=br0 [$swp1]=$h1 [$swp2]=$h2)
++declare -A flag1=([$swp1]=off [$swp2]=off [br0]=off)
++declare -A flag2=([$swp1]=off [$swp2]=on  [br0]=off)
++declare -A flag3=([$swp1]=off [$swp2]=on  [br0]=on )
++declare -A flag4=([$swp1]=off [$swp2]=off [br0]=on )
++
++switch_create()
++{
++	ip link add dev br0 type bridge
++
++	for port in ${!ports[@]}; do
++		[ "$port" != "br0" ] && ip link set dev $port master br0
++		ip link set dev $port up
++	done
++}
++
++switch_destroy()
++{
++	for port in ${!ports[@]}; do
++		ip link set dev $port down
++	done
++	ip link del dev br0
++}
++
++setup_prepare()
++{
++	vrf_prepare
++
++	let i=1
++	for iface in ${ports[@]}; do
++		[ "$iface" = "br0" ] && continue
++		simple_if_init $iface 192.0.2.$i/24 2001:db8:1::$i/64
++		let i=$((i + 1))
++	done
++
++	switch_create
++}
++
++cleanup()
++{
++	pre_cleanup
++	switch_destroy
++
++	let i=1
++	for iface in ${ports[@]}; do
++		[ "$iface" = "br0" ] && continue
++		simple_if_fini $iface 192.0.2.$i/24 2001:db8:1::$i/64
++		let i=$((i + 1))
++	done
++
++	vrf_cleanup
++}
++
++do_flood_unknown()
++{
++	local type=$1
++	local pass=$2
++	local flag=$3
++	local pkt=$4
++	local -n flags=$5
++
++	RET=0
++	for port in ${!ports[@]}; do
++		if [ "$port" = "br0" ]; then
++			self="self"
++		else
++			self=""
++		fi
++		bridge link set dev $port $flag ${flags[$port]} $self
++		check_err $? "Failed setting $port $flag ${flags[$port]}"
++	done
++
++	for iface in ${ports[@]}; do
++		tcpdump_start $iface
++	done
++
++	$MZ -q $h1 "$pkt"
++	sleep 1
++
++	for iface in ${ports[@]}; do
++		tcpdump_stop $iface
++	done
++
++	for port in ${!ports[@]}; do
++		iface=${ports[$port]}
++
++#		echo "Dumping PCAP from $iface, expecting ${flags[$port]}:"
++#		tcpdump_show $iface
++		tcpdump_show $iface |grep -q "$SRC_MAC"
++		rc=$?
++
++		check_err_fail "${flags[$port]} = on"  $? "failed flooding from $h1 to port $port"
++		check_err_fail "${flags[$port]} = off" $? "flooding from $h1 to port $port"
++	done
++
++	log_test "flood unknown $type pass $pass/4"
++}
++
++br_flood_unknown_bc_test()
++{
++	do_flood_unknown BC 1 bcast_flood "$BC_PKT" flag1
++	do_flood_unknown BC 2 bcast_flood "$BC_PKT" flag2
++	do_flood_unknown BC 3 bcast_flood "$BC_PKT" flag3
++	do_flood_unknown BC 4 bcast_flood "$BC_PKT" flag4
++}
++
++br_flood_unknown_uc_test()
++{
++	do_flood_unknown UC 1 flood "$UC_PKT" flag1
++	do_flood_unknown UC 2 flood "$UC_PKT" flag2
++	do_flood_unknown UC 3 flood "$UC_PKT" flag3
++	do_flood_unknown UC 4 flood "$UC_PKT" flag4
++}
++
++br_flood_unknown_mc_test()
++{
++	do_flood_unknown MC 1 mcast_flood "$MC_PKT" flag1
++	do_flood_unknown MC 2 mcast_flood "$MC_PKT" flag2
++	do_flood_unknown MC 3 mcast_flood "$MC_PKT" flag3
++	do_flood_unknown MC 4 mcast_flood "$MC_PKT" flag4
++}
++
++trap cleanup EXIT
++
++setup_prepare
++setup_wait
++
++tests_run
++
++exit $EXIT_STATUS
 -- 
 2.25.1
 
