@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=fjc7yh9BABEAcWYSv/wz9ajmM8BNqoc42tZ1SpXSbXE=;
- b=Oj3zp3IneXaC6o+Kceh7QeX/CLUGp2OlRLD1CM20EAPW4gj6k7pQmlpObukOT9BU7n
- 6uq/oeNEiaaONOfZ01fv3gLO1Ey/Rattn+Wg6gsfU8GZTd3iM87A6xlIbYpqBIQUxELb
- W2cPXicI5EdAd8hXxtjbGkvIidY2ochvP2Ky122vfdhr3r6opwL47k7FjFDTbjQ84lIC
- 0NANWcIclRZtRe7HKUvCR0pems0HRYwebAl6PmLgqfmr/yTZFGsdab3OKtJtdMoLqZrz
- 1eiJeA8Mkr6051oInD5fWV/qf/3aP9sUYrW51xSqi/ByZZn7peRzXUmfq3VqZnZ5xFtn
- 2SrA==
+ bh=4pZGl1wOEf7Qv3VZG+DB1PDq+c4kDTX/aMWvmPeV+KQ=;
+ b=I1YA9Xc9lyeZ5hUtEQiOREQlD9bTjb3CHHxPkiPiQvv4qw+JwijFa5Vr/qe15UrGsG
+ 5FQoTiFLJbSlhqkLxpYhrMvsPvPS8w1vlzqL+irD+AiTXGh86sRtefkoodiAhtAkyjms
+ QBIaLOGMPgm4w36JTiKn2+vP7TH//56RMuBQ7fi7Clcj7DQB/l3wY5+iWQqqUmyXR+qC
+ Hr76h5BVPnPmrmwGHHv3Nh7ZLTzK4ILrQnROOj+UtxfGBmytXdlUeo649vdOs243b16z
+ 6qsdIshaoFwM8jUYdy15jGX15FObz8C352chK99eDFH5iCBZWx7qX/zS22x2mfkjMNKh
+ NQLA==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Mon, 11 Apr 2022 20:29:32 +0300
-Message-Id: <20220411172934.1813604-7-razor@blackwall.org>
+Date: Mon, 11 Apr 2022 20:29:33 +0300
+Message-Id: <20220411172934.1813604-8-razor@blackwall.org>
 In-Reply-To: <20220411172934.1813604-1-razor@blackwall.org>
 References: <20220411172934.1813604-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v2 6/8] net: bridge: fdb: add support for
-	fine-grained flushing
+Subject: [Bridge] [PATCH net-next v2 7/8] net: bridge: fdb: add support for
+	flush filtering based on ndm flags and state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,160 +30,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-Add the ability to specify exactly which fdbs to be flushed. They are
-described by a new structure - net_bridge_fdb_flush_desc. Currently it
-can match on port/bridge ifindex, vlan id and fdb flags. It is used to
-describe the existing dynamic fdb flush operation. Note that this flush
-operation doesn't treat permanent entries in a special way (fdb_delete vs
-fdb_delete_local), it will delete them regardless if any port is using
-them, so currently it can't directly replace deletes which need to handle
-that case, although we can extend it later for that too.
+Add support for fdb flush filtering based on ndm flags and state. NDM
+state and flags are mapped to bridge-specific flags and matched
+according to the specified masks. NTF_USE is used to represent
+added_by_user flag since it sets it on fdb add and we don't have a 1:1
+mapping for it. Only allowed bits can be set, NTF_USE and NTF_MASTER are
+ignored.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
-v2: changed the flush matches func for better readability (Ido)
+v2: ignore NTF_USE/NTF_MASTER and reject unknown flags
 
- net/bridge/br_fdb.c      | 41 ++++++++++++++++++++++++++++++++--------
- net/bridge/br_netlink.c  |  9 +++++++--
- net/bridge/br_private.h  | 10 +++++++++-
- net/bridge/br_sysfs_br.c |  6 +++++-
- 4 files changed, 54 insertions(+), 12 deletions(-)
+ net/bridge/br_fdb.c     | 58 ++++++++++++++++++++++++++++++++++++++---
+ net/bridge/br_private.h |  5 ++++
+ 2 files changed, 60 insertions(+), 3 deletions(-)
 
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 64a549acdac8..045eb61e833e 100644
+index 045eb61e833e..2cea03cbc55f 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
-@@ -558,24 +558,49 @@ void br_fdb_cleanup(struct work_struct *work)
- 	mod_delayed_work(system_long_wq, &br->gc_work, work_delay);
+@@ -594,13 +594,40 @@ void __br_fdb_flush(struct net_bridge *br,
+ 	rcu_read_unlock();
  }
  
--/* Completely flush all dynamic entries in forwarding database.*/
--void __br_fdb_flush(struct net_bridge *br)
-+static bool __fdb_flush_matches(const struct net_bridge *br,
-+				const struct net_bridge_fdb_entry *f,
-+				const struct net_bridge_fdb_flush_desc *desc)
++static unsigned long __ndm_state_to_fdb_flags(u16 ndm_state)
 +{
-+	const struct net_bridge_port *dst = READ_ONCE(f->dst);
-+	int port_ifidx = dst ? dst->dev->ifindex : br->dev->ifindex;
++	unsigned long flags = 0;
 +
-+	if (desc->vlan_id && desc->vlan_id != f->key.vlan_id)
-+		return false;
-+	if (desc->port_ifindex && desc->port_ifindex != port_ifidx)
-+		return false;
-+	if (desc->flags_mask && (f->flags & desc->flags_mask) != desc->flags)
-+		return false;
++	if (ndm_state & NUD_PERMANENT)
++		__set_bit(BR_FDB_LOCAL, &flags);
++	if (ndm_state & NUD_NOARP)
++		__set_bit(BR_FDB_STATIC, &flags);
 +
-+	return true;
++	return flags;
 +}
 +
-+/* Flush forwarding database entries matching the description */
-+void __br_fdb_flush(struct net_bridge *br,
-+		    const struct net_bridge_fdb_flush_desc *desc)
- {
- 	struct net_bridge_fdb_entry *f;
--	struct hlist_node *tmp;
- 
--	spin_lock_bh(&br->hash_lock);
--	hlist_for_each_entry_safe(f, tmp, &br->fdb_list, fdb_node) {
--		if (!test_bit(BR_FDB_STATIC, &f->flags))
-+	rcu_read_lock();
-+	hlist_for_each_entry_rcu(f, &br->fdb_list, fdb_node) {
-+		if (!__fdb_flush_matches(br, f, desc))
-+			continue;
++static unsigned long __ndm_flags_to_fdb_flags(u8 ndm_flags)
++{
++	unsigned long flags = 0;
 +
-+		spin_lock_bh(&br->hash_lock);
-+		if (!hlist_unhashed(&f->fdb_node))
- 			fdb_delete(br, f, true);
-+		spin_unlock_bh(&br->hash_lock);
- 	}
--	spin_unlock_bh(&br->hash_lock);
-+	rcu_read_unlock();
- }
- 
++	if (ndm_flags & NTF_USE)
++		__set_bit(BR_FDB_ADDED_BY_USER, &flags);
++	if (ndm_flags & NTF_EXT_LEARNED)
++		__set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &flags);
++	if (ndm_flags & NTF_OFFLOADED)
++		__set_bit(BR_FDB_OFFLOADED, &flags);
++	if (ndm_flags & NTF_STICKY)
++		__set_bit(BR_FDB_STICKY, &flags);
++
++	return flags;
++}
++
  int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
  		 struct net_device *dev, u16 vid,
  		 struct netlink_ext_ack *extack)
  {
-+	struct net_bridge_fdb_flush_desc desc = {
-+		.flags_mask = BR_FDB_STATIC
-+	};
+-	struct net_bridge_fdb_flush_desc desc = {
+-		.flags_mask = BR_FDB_STATIC
+-	};
++	u8 ndm_flags = ndm->ndm_flags & ~FDB_FLUSH_IGNORED_NDM_FLAGS;
++	struct net_bridge_fdb_flush_desc desc = {};
  	struct net_bridge *br;
  
  	if (netif_is_bridge_master(dev)) {
-@@ -590,7 +615,7 @@ int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
+@@ -615,6 +642,31 @@ int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
  		br = p->br;
  	}
  
--	__br_fdb_flush(br);
-+	__br_fdb_flush(br, &desc);
++	if (ndm_flags & ~FDB_FLUSH_ALLOWED_NDM_FLAGS) {
++		NL_SET_ERR_MSG(extack, "Unsupported fdb flush ndm flag bits set");
++		return -EINVAL;
++	}
++	if (ndm->ndm_state & ~FDB_FLUSH_ALLOWED_NDM_STATES) {
++		NL_SET_ERR_MSG(extack, "Unsupported fdb flush ndm state bits set");
++		return -EINVAL;
++	}
++
++	desc.flags |= __ndm_state_to_fdb_flags(ndm->ndm_state);
++	desc.flags |= __ndm_flags_to_fdb_flags(ndm_flags);
++	if (tb[NDFA_NDM_STATE_MASK]) {
++		u16 ndm_state_mask = nla_get_u16(tb[NDFA_NDM_STATE_MASK]);
++
++		desc.flags_mask |= __ndm_state_to_fdb_flags(ndm_state_mask);
++	}
++	if (tb[NDFA_NDM_FLAGS_MASK]) {
++		u8 ndm_flags_mask = nla_get_u8(tb[NDFA_NDM_FLAGS_MASK]);
++
++		desc.flags_mask |= __ndm_flags_to_fdb_flags(ndm_flags_mask);
++	}
++
++	br_debug(br, "flushing port ifindex: %d vlan id: %u flags: 0x%lx flags mask: 0x%lx\n",
++		 desc.port_ifindex, desc.vlan_id, desc.flags, desc.flags_mask);
++
+ 	__br_fdb_flush(br, &desc);
  
  	return 0;
- }
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index c59c775730bb..accab38b0b6a 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1326,8 +1326,13 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 		br_recalculate_fwd_mask(br);
- 	}
- 
--	if (data[IFLA_BR_FDB_FLUSH])
--		__br_fdb_flush(br);
-+	if (data[IFLA_BR_FDB_FLUSH]) {
-+		struct net_bridge_fdb_flush_desc desc = {
-+			.flags_mask = BR_FDB_STATIC
-+		};
-+
-+		__br_fdb_flush(br, &desc);
-+	}
- 
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	if (data[IFLA_BR_MCAST_ROUTER]) {
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 23ef2982d1bc..9fb9abdbd3f4 100644
+index 9fb9abdbd3f4..fd5cbd00e12d 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -274,6 +274,13 @@ struct net_bridge_fdb_entry {
- 	struct rcu_head			rcu;
- };
+@@ -762,6 +762,11 @@ static inline void br_netpoll_disable(struct net_bridge_port *p)
+ #endif
  
-+struct net_bridge_fdb_flush_desc {
-+	unsigned long			flags;
-+	unsigned long			flags_mask;
-+	int				port_ifindex;
-+	u16				vlan_id;
-+};
+ /* br_fdb.c */
++#define FDB_FLUSH_IGNORED_NDM_FLAGS (NTF_MASTER | NTF_SELF)
++#define FDB_FLUSH_ALLOWED_NDM_STATES (NUD_PERMANENT | NUD_NOARP)
++#define FDB_FLUSH_ALLOWED_NDM_FLAGS (NTF_USE | NTF_EXT_LEARNED | \
++				     NTF_STICKY | NTF_OFFLOADED)
 +
- #define MDB_PG_FLAGS_PERMANENT	BIT(0)
- #define MDB_PG_FLAGS_OFFLOAD	BIT(1)
- #define MDB_PG_FLAGS_FAST_LEAVE	BIT(2)
-@@ -759,7 +766,8 @@ int br_fdb_init(void);
+ int br_fdb_init(void);
  void br_fdb_fini(void);
  int br_fdb_hash_init(struct net_bridge *br);
- void br_fdb_hash_fini(struct net_bridge *br);
--void __br_fdb_flush(struct net_bridge *br);
-+void __br_fdb_flush(struct net_bridge *br,
-+		    const struct net_bridge_fdb_flush_desc *desc);
- int br_fdb_flush(struct ndmsg *ndm, struct nlattr *tb[],
- 		 struct net_device *dev, u16 vid,
- 		 struct netlink_ext_ack *extack);
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index 7a2cf3aebc84..c863151f1cde 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -344,7 +344,11 @@ static DEVICE_ATTR_RW(group_addr);
- static int set_flush(struct net_bridge *br, unsigned long val,
- 		     struct netlink_ext_ack *extack)
- {
--	__br_fdb_flush(br);
-+	struct net_bridge_fdb_flush_desc desc = {
-+		.flags_mask = BR_FDB_STATIC
-+	};
-+
-+	__br_fdb_flush(br, &desc);
- 	return 0;
- }
- 
 -- 
 2.35.1
 
