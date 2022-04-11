@@ -1,27 +1,21 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=Urg3WNbWAAbmT/1unZ8S+i2ajaf9UWWtyCFD6wiRjuI=;
- b=ibyW2IIHcc8wVZkOHS/s3WSv0MoDzWtmuPnwfhxKEi4RzBk+lE+OjaZj1DhEPuw3Hy
- 6NJ+CVirQCZZcErNoU0TAeox7TvSA/CXrx4gFqLwyEAmtLusg2Gr1PN5ur2YAPvxGmMx
- l1llRE5cg55Kho7+i0Suwu/IgcZ5k6U+blXsx/wc1j5CokN/Ry6tC01zoSbllzYJNACg
- XPkLEi65esJc8k4lnuPC40ZEp1Od8Y5LSzhcmhOtqZMMvnDrZTcodeFp2SWWjdlOUNsK
- 8FLIvFyFV/lB5HpY7PItzvZJ8xADMKRWwUY9xYisLDX7x052HHECkMO+7GDDEzpz1jbu
- 7syw==
-Message-ID: <a869797f-8501-3766-36ae-b73b76e8f7e7@blackwall.org>
-Date: Mon, 11 Apr 2022 12:07:14 +0300
+Return-Path: <troglobit@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:mime-version:organization
+ :content-transfer-encoding;
+ bh=KP4a5Nq5xLfHHBjrnafFha3MFdJr67mljPaP7U+xutA=;
+ b=F1Dl0ogpPpEfisEpBYoUipD0dtHfWYZsL+vsWu36yEcuSnNWht4iB9T1IjrVDNe+oA
+ wmM7GmbVwYTm+tzx12ALZ9nrfvLtBsh1cOkktEHvS7YhbjL+YtND53Wgg7IEe9rsOvvv
+ LDdhVTta2Xu2Z4RDG0OmzHfuryBWnrogT1WHfoxfXTYa4IyIinbz5uRNw1QEvQQX3N9q
+ KZyOPbrJhJHwxIcO/SHOqZbCCdW5rLHrJ5hK8bi2WMvc3wb+EYhaHhDl/2r7ylQc5MRH
+ T57oax7TN3zqjTm/2bp6gct/420puw8j5X9LGnYpCmhF/vb9aF+XK2II+IJ15KhsSR7a
+ oaDw==
+From: Joachim Wiberg <troglobit@gmail.com>
+Date: Mon, 11 Apr 2022 15:38:24 +0200
+Message-Id: <20220411133837.318876-1-troglobit@gmail.com>
 MIME-Version: 1.0
-Content-Language: en-US
-References: <20220409105857.803667-1-razor@blackwall.org>
- <20220409105857.803667-5-razor@blackwall.org> <YlPrJaWjeObhxmwb@shredder>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <YlPrJaWjeObhxmwb@shredder>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 4/6] net: bridge: fdb: add support for
- flush filtering based on ndm flags and state
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH RFC net-next 00/13] net: bridge: forwarding of
+	unknown IPv4/IPv6/MAC BUM traffic
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,84 +24,73 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com
+To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Vladimir Oltean <vladimir.oltean@nxp.com>, Joachim Wiberg <troglobit@gmail.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-On 11/04/2022 11:47, Ido Schimmel wrote:
-> On Sat, Apr 09, 2022 at 01:58:55PM +0300, Nikolay Aleksandrov wrote:
->> Add support for fdb flush filtering based on ndm flags and state. The
->> new attributes allow users to specify a mask and value which are mapped
->> to bridge-specific flags. NTF_USE is used to represent added_by_user
->> flag since it sets it on fdb add and we don't have a 1:1 mapping for it.
->>
->> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
->> ---
->>  include/uapi/linux/if_bridge.h |  4 +++
->>  net/bridge/br_fdb.c            | 55 ++++++++++++++++++++++++++++++++++
->>  2 files changed, 59 insertions(+)
->>
->> diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
->> index 2f3799cf14b2..4638d7e39f2a 100644
->> --- a/include/uapi/linux/if_bridge.h
->> +++ b/include/uapi/linux/if_bridge.h
->> @@ -815,6 +815,10 @@ enum {
->>  /* embedded in BRIDGE_FLUSH_FDB */
->>  enum {
->>  	FDB_FLUSH_UNSPEC,
->> +	FDB_FLUSH_NDM_STATE,
->> +	FDB_FLUSH_NDM_STATE_MASK,
->> +	FDB_FLUSH_NDM_FLAGS,
->> +	FDB_FLUSH_NDM_FLAGS_MASK,
->>  	__FDB_FLUSH_MAX
->>  };
->>  #define FDB_FLUSH_MAX (__FDB_FLUSH_MAX - 1)
->> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
->> index 62f694a739e1..340a2ace1d5e 100644
->> --- a/net/bridge/br_fdb.c
->> +++ b/net/bridge/br_fdb.c
->> @@ -594,8 +594,40 @@ void br_fdb_flush(struct net_bridge *br,
->>  	rcu_read_unlock();
->>  }
->>  
->> +static unsigned long __ndm_state_to_fdb_flags(u16 ndm_state)
->> +{
->> +	unsigned long flags = 0;
->> +
->> +	if (ndm_state & NUD_PERMANENT)
->> +		__set_bit(BR_FDB_LOCAL, &flags);
->> +	if (ndm_state & NUD_NOARP)
->> +		__set_bit(BR_FDB_STATIC, &flags);
->> +
->> +	return flags;
->> +}
->> +
->> +static unsigned long __ndm_flags_to_fdb_flags(u16 ndm_flags)
->> +{
->> +	unsigned long flags = 0;
->> +
->> +	if (ndm_flags & NTF_USE)
->> +		__set_bit(BR_FDB_ADDED_BY_USER, &flags);
->> +	if (ndm_flags & NTF_EXT_LEARNED)
->> +		__set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &flags);
->> +	if (ndm_flags & NTF_OFFLOADED)
->> +		__set_bit(BR_FDB_OFFLOADED, &flags);
->> +	if (ndm_flags & NTF_STICKY)
->> +		__set_bit(BR_FDB_STICKY, &flags);
->> +
->> +	return flags;
->> +}
->> +
->>  static const struct nla_policy br_fdb_flush_policy[FDB_FLUSH_MAX + 1] = {
->>  	[FDB_FLUSH_UNSPEC]	= { .type = NLA_REJECT },
->> +	[FDB_FLUSH_NDM_STATE]	= { .type = NLA_U16 },
->> +	[FDB_FLUSH_NDM_FLAGS]	= { .type = NLA_U16 },
->> +	[FDB_FLUSH_NDM_STATE_MASK]	= { .type = NLA_U16 },
->> +	[FDB_FLUSH_NDM_FLAGS_MASK]	= { .type = NLA_U16 },
-> 
-> Might be better to use NLA_POLICY_MASK(NLA_U16, mask) and reject
-> unsupported states / flags instead of just ignoring them?
-> 
+This is a proposal to improve forwarding control of BUM traffic to the
+bridge itself.  Another, related, issue regarding loss of function when
+an IP multicast router is detected, is also brought up here which can be
+a separate series in v2.
 
-Yep, forgot about that one. Good point!
+First, we add BROPT_BCAST_FLOOD, BROPT_UNICAST_FLOOD, BROPT_MCAST_FLOOD
+flags for unknown traffic to the bridge itself, with netlink support and
+a selftest.  We ensure backwards compatible forwarding behavior is
+preserved by enabling these flags by default.  Please note however,
+these flags do not affect the behavior of IFF_PROMISC on the bridge
+interface.
 
+Second, and with the above in place, we set out to verify flooding of
+unknown *and* known multicast to regular bridge ports, including the
+bridge itself.  We use `tcpdump -p` in the tests to ensure we do not
+trigger IFF_PROIMISC.  Unknown multicast should be forwarded according
+to the MCAST_FLOOD flag, and known multicast according the MDB and to
+multicast router ports.
 
+We find that forwarding of unknown IP multicast stops[1] as soon as a
+multicast router is known.  Affecting all ports, including the bridge
+itself (this series).  The root cause for this is the classification
+`mrouters_only` in br_multicast_rcv().
+
+Dropping this classification of unknown IP multicast and moving the
+multicast flow handling from br_multicast_flood() to br_flood() fixes
+this problem.  The bridge now properly floods all unknown multicast, and
+this can now be controlled using the MCAST_FLOOD flag on all ports
+including the bridge itself.
+
+The use of br_flood() opens up the need for the multicast 'rport' API,
+but that is behind CONFIG_BRIDGE_IGMP_SNOOPING, which is the primary
+reason for this being an RFC series.  I'd love some feedback on how to
+go about all this, opening up that API and even the take on the issue as
+a whole.
+
+Honestly, despite taking great care to not change the bridge's default
+behavior the patch series in itself propose quite radical changes that
+alone mandate RFC status at this point.  There has been some discussion
+already on this in 20220410220324.4c3l3idubwi3w6if@skbuf and I expect
+more disucssion here.
+
+Note: this series builds upon my previous patch for host l2 mdb entries,
+      20220411084054.298807-1-troglobit@gmail.com, extending the test
+      bridge_mdb.sh
+
+Best regards
+ /Joachim
+
+[1]: MAC multicast is not affected.
+
+net/bridge/br_device.c                        |   4 +
+ net/bridge/br_forward.c                       |  11 +
+ net/bridge/br_input.c                         |  11 +-
+ net/bridge/br_multicast.c                     |   6 +-
+ net/bridge/br_netlink.c                       | 170 +++++++---
+ net/bridge/br_private.h                       |   7 +-
+ net/bridge/br_switchdev.c                     |   8 +-
+ net/bridge/br_sysfs_if.c                      |   2 +-
+ .../drivers/net/ocelot/tc_flower_chains.sh    |  24 +-
+ .../testing/selftests/net/forwarding/Makefile |   3 +-
+ .../selftests/net/forwarding/bridge_flood.sh  | 170 ++++++++++
+ .../selftests/net/forwarding/bridge_mdb.sh    | 321 +++++++++++++++++-
+ tools/testing/selftests/net/forwarding/lib.sh |  33 +-
+ 13 files changed, 683 insertions(+), 87 deletions(-)
+ create mode 100755 tools/testing/selftests/net/forwarding/bridge_flood.sh
+ mode change 100644 => 100755 tools/testing/selftests/net/forwarding/lib.sh
