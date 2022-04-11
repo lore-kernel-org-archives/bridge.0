@@ -1,28 +1,21 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1649706551;
- bh=gZxB0KdeZCuJ/fKDoX2iVL6LT+jLWDmJDtAdRJgkmVs=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=OoL0z4lSmg4RpqE5Ukiax339HSlBW6XQ1JxlZRa/WcHBzg6Jhlc/0sCqLh+pQV6Qi
- BzqMpLDb4aVwZgR+Ix9vZNvdDiqWVBEjk4WkQHjn1HZtnpwU3nnfDgpCcGqNkumVXH
- zc5c9WD3RcNV8YGW54eDW22L595OowxGXBDu4Y5qC+Lv63E3bzHEjPDa/Yk+54dfDA
- 6B5RUNofiNpMdS2y46kEBZ+AvUoR9TbDKYfnX22a2k40Ilti5S+xL58oPmHmXnxhaQ
- kkuCRtdsHoWZjm6U9WgWFw66dCSONJL+/8RzzxUqgD75l62fzalznS8qUPxGMk53ml
- EofReIvm1bBwQ==
-Date: Mon, 11 Apr 2022 12:49:10 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20220411124910.772dc7a0@kernel.org>
-In-Reply-To: <ca093c4f-d99c-d885-16cb-240b0ce4d8d8@nvidia.com>
-References: <20220411172934.1813604-1-razor@blackwall.org>
- <0d08b6ce-53bb-bffa-4f04-ede9bfc8ab63@nvidia.com>
- <c46ac324-34a2-ca0c-7c8c-35dc9c1aa0ab@blackwall.org>
- <92f578b7-347e-22c7-be83-cae4dce101f6@blackwall.org>
- <ca093c4f-d99c-d885-16cb-240b0ce4d8d8@nvidia.com>
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Me/DTbVXSoG9I1ySybG/TGZIhn1pLx4AssvjQjthykA=;
+ b=Et9FvgNdek52Enh4mbIUXsdfJYPKvnsocpOkDjVepmNHcCA+a7kmwrd1R6iHS5QYITl1o6RH6tZGYcjd2dYLlgQAmFF4V7Rwc/ImiLdhlMIa13vfF1rpcpOT7/j+p37NVu5sf6OOb29Y7QYR3yHXvGHfgF3+IOZX23O/tMt274E=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Mon, 11 Apr 2022 20:21:29 +0000
+Message-ID: <20220411202128.n4dafks4mnkbzr2k@skbuf>
+References: <20220411133837.318876-1-troglobit@gmail.com>
+ <20220411133837.318876-8-troglobit@gmail.com>
+In-Reply-To: <20220411133837.318876-8-troglobit@gmail.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <DD442BD49C678D4FA5239A49D0B4FA49@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 0/8] net: bridge: add flush
- filtering support
+Subject: Re: [Bridge] [PATCH RFC net-next 07/13] selftests: forwarding: new
+ test, verify bridge flood flags
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,40 +24,258 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>
-Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, davem@davemloft.net, idosch@idosch.org
+To: Joachim Wiberg <troglobit@gmail.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-On Mon, 11 Apr 2022 12:22:24 -0700 Roopa Prabhu wrote:
-> >> I thought about that option, but I didn't like overloading delneigh like that.
-> >> del currently requires a mac address and we need to either signal the device supports> a null mac, or we should push that verification to ndo_fdb_del users. Also we'll have  
-> > that's the only thing, overloading delneigh with a flush-behaviour (multi-del or whatever)
-> > would require to push the mac check to ndo_fdb_del implementers
-> >
-> > I don't mind going that road if others agree that we should do it through delneigh
-> > + a bit/option to signal flush, instead of a new rtm type.
-> >  
-> >> attributes which are flush-specific and will work only when flushing as opposed to when
-> >> deleting a specific mac, so handling them in the different cases can become a pain.  
-> > scratch the specific attributes, those can be adapted for both cases
-> >  
-> >> MDBs will need DELMDB to be modified in a similar way.
-> >>
-> >> IMO a separate flush op is cleaner, but I don't have a strong preference.
-> >> This can very easily be adapted to delneigh with just a bit more mechanical changes
-> >> if the mac check is pushed to the ndo implementers.
-> >>
-> >> FLUSHNEIGH can easily work for neighs, just need another address family rtnl_register
-> >> that implements it, the new ndo is just for PF_BRIDGE. :)  
-> 
-> all great points. My only reason to explore RTM_DELNEIGH is to see if we 
-> can find a recipe to support similar bulk deletes of other objects 
-> handled via rtm msgs in the future. Plus, it allows you to maintain 
-> symmetry between flush requests and object delete notification msg types.
-> 
-> Lets see if there are other opinions.
+On Mon, Apr 11, 2022 at 03:38:31PM +0200, Joachim Wiberg wrote:
+> Test per-port flood control flags of unknown BUM traffic by injecting
+> bc/uc/mc on one bridge port and verifying it being forwarded to both
+> the bridge itself and another regular bridge port.
+>=20
+> Signed-off-by: Joachim Wiberg <troglobit@gmail.com>
+> ---
+>  .../testing/selftests/net/forwarding/Makefile |   3 +-
+>  .../selftests/net/forwarding/bridge_flood.sh  | 170 ++++++++++++++++++
+>  2 files changed, 172 insertions(+), 1 deletion(-)
+>  create mode 100755 tools/testing/selftests/net/forwarding/bridge_flood.s=
+h
+>=20
+> diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/test=
+ing/selftests/net/forwarding/Makefile
+> index ae80c2aef577..873fa61d1ee1 100644
+> --- a/tools/testing/selftests/net/forwarding/Makefile
+> +++ b/tools/testing/selftests/net/forwarding/Makefile
+> @@ -1,6 +1,7 @@
+>  # SPDX-License-Identifier: GPL-2.0+ OR MIT
+> =20
+> -TEST_PROGS =3D bridge_igmp.sh \
+> +TEST_PROGS =3D bridge_flood.sh \
+> +	bridge_igmp.sh \
+>  	bridge_locked_port.sh \
+>  	bridge_mdb.sh \
+>  	bridge_port_isolation.sh \
+> diff --git a/tools/testing/selftests/net/forwarding/bridge_flood.sh b/too=
+ls/testing/selftests/net/forwarding/bridge_flood.sh
+> new file mode 100755
+> index 000000000000..1966c960d705
+> --- /dev/null
+> +++ b/tools/testing/selftests/net/forwarding/bridge_flood.sh
+> @@ -0,0 +1,170 @@
+> +#!/bin/bash
+> +# SPDX-License-Identifier: GPL-2.0
+> +#
+> +# Verify per-port flood control flags of unknown BUM traffic.
+> +#
+> +#                     br0
+> +#                    /   \
+> +#                  h1     h2
 
-I'd vote for reusing RTM_DELNEIGH, but that's purely based on
-intuition, I don't know this code. I'd also lean towards core
-creating struct net_bridge_fdb_flush_desc rather than piping
-raw netlink attrs thru. Lastly feels like fdb ops should find 
-a new home rather than ndos, but that's largely unrelated..
+I think the picture is slightly inaccurate. From it I understand that h1
+and h2 are bridge ports, but they are stations attached to the real
+bridge ports, swp1 and swp2. Maybe it would be good to draw all interfaces.
+
+> +#
+> +# We inject bc/uc/mc on h1, toggle the three flood flags for
+> +# both br0 and h2, then verify that traffic is flooded as per
+> +# the flags, and nowhere else.
+> +#
+> +#set -x
+
+stray debug line
+
+> +
+> +ALL_TESTS=3D"br_flood_unknown_bc_test br_flood_unknown_uc_test br_flood_=
+unknown_mc_test"
+> +NUM_NETIFS=3D4
+> +
+> +SRC_MAC=3D"00:de:ad:be:ef:00"
+> +GRP_IP4=3D"225.1.2.3"
+> +GRP_MAC=3D"01:00:01:c0:ff:ee"
+> +GRP_IP6=3D"ff02::42"
+> +
+> +BC_PKT=3D"ff:ff:ff:ff:ff:ff $SRC_MAC 00:04 48:45:4c:4f"
+
+HELO to you too
+
+> +UC_PKT=3D"02:00:01:c0:ff:ee $SRC_MAC 00:04 48:45:4c:4f"
+> +MC_PKT=3D"01:00:5e:01:02:03 $SRC_MAC 08:00 45:00 00:20 c2:10 00:00 ff 11=
+ 12:b2 01:02:03:04 e1:01:02:03 04:d2 10:e1 00:0c 6e:84 48:45:4c:4f"
+> +
+> +# Disable promisc to ensure we only receive flooded frames
+> +export TCPDUMP_EXTRA_FLAGS=3D"-pl"
+
+Exporting should be required only for sub-shells, doesn't apply when you
+source a script.
+
+> +
+> +source lib.sh
+> +
+> +h1=3D${NETIFS[p1]}
+> +h2=3D${NETIFS[p3]}
+> +swp1=3D${NETIFS[p2]}
+> +swp2=3D${NETIFS[p4]}
+> +
+> +#
+> +# Port mappings and flood flag pattern to set/detect
+> +#
+> +declare -A ports=3D([br0]=3Dbr0 [$swp1]=3D$h1 [$swp2]=3D$h2)
+
+Maybe you could populate the "ports" and the "flagN" arrays in the same
+order, i.e. bridge first for all?
+
+Also, to be honest, a generic name like "ports" is hard to digest,
+especially since you have another generic variable name "iface".
+Maybe "brports" and "station" is a little bit more specific?
+
+> +declare -A flag1=3D([$swp1]=3Doff [$swp2]=3Doff [br0]=3Doff)
+> +declare -A flag2=3D([$swp1]=3Doff [$swp2]=3Don  [br0]=3Doff)
+> +declare -A flag3=3D([$swp1]=3Doff [$swp2]=3Don  [br0]=3Don )
+> +declare -A flag4=3D([$swp1]=3Doff [$swp2]=3Doff [br0]=3Don )
+
+If it's not too much, maybe these could be called "flags_pass1", etc.
+Again, it was a bit hard to digest on first read.
+
+> +
+> +switch_create()
+> +{
+> +	ip link add dev br0 type bridge
+> +
+> +	for port in ${!ports[@]}; do
+> +		[ "$port" !=3D "br0" ] && ip link set dev $port master br0
+> +		ip link set dev $port up
+> +	done
+> +}
+> +
+> +switch_destroy()
+> +{
+> +	for port in ${!ports[@]}; do
+> +		ip link set dev $port down
+> +	done
+> +	ip link del dev br0
+> +}
+> +
+> +setup_prepare()
+> +{
+> +	vrf_prepare
+> +
+> +	let i=3D1
+> +	for iface in ${ports[@]}; do
+> +		[ "$iface" =3D "br0" ] && continue
+> +		simple_if_init $iface 192.0.2.$i/24 2001:db8:1::$i/64
+> +		let i=3D$((i + 1))
+> +	done
+> +
+> +	switch_create
+> +}
+> +
+> +cleanup()
+> +{
+> +	pre_cleanup
+> +	switch_destroy
+> +
+> +	let i=3D1
+> +	for iface in ${ports[@]}; do
+> +		[ "$iface" =3D "br0" ] && continue
+> +		simple_if_fini $iface 192.0.2.$i/24 2001:db8:1::$i/64
+> +		let i=3D$((i + 1))
+> +	done
+> +
+> +	vrf_cleanup
+> +}
+> +
+> +do_flood_unknown()
+> +{
+> +	local type=3D$1
+> +	local pass=3D$2
+> +	local flag=3D$3
+> +	local pkt=3D$4
+> +	local -n flags=3D$5
+
+I find it slightly less confusing if "flag" and "flags" are next to each
+other in the parameter list, since they're related.
+
+> +
+> +	RET=3D0
+> +	for port in ${!ports[@]}; do
+> +		if [ "$port" =3D "br0" ]; then
+> +			self=3D"self"
+> +		else
+> +			self=3D""
+> +		fi
+> +		bridge link set dev $port $flag ${flags[$port]} $self
+> +		check_err $? "Failed setting $port $flag ${flags[$port]}"
+> +	done
+> +
+> +	for iface in ${ports[@]}; do
+> +		tcpdump_start $iface
+> +	done
+> +
+> +	$MZ -q $h1 "$pkt"
+> +	sleep 1
+> +
+> +	for iface in ${ports[@]}; do
+> +		tcpdump_stop $iface
+> +	done
+> +
+> +	for port in ${!ports[@]}; do
+> +		iface=3D${ports[$port]}
+> +
+> +#		echo "Dumping PCAP from $iface, expecting ${flags[$port]}:"
+> +#		tcpdump_show $iface
+
+Do something about the commented lines.
+
+> +		tcpdump_show $iface |grep -q "$SRC_MAC"
+
+Space between pipe and grep.
+
+> +		rc=3D$?
+> +
+> +		check_err_fail "${flags[$port]} =3D on"  $? "failed flooding from $h1 =
+to port $port"
+
+I think the "failed" word here is superfluous, since check_err_fail
+already says "$what succeeded, but should have failed".
+
+> +		check_err_fail "${flags[$port]} =3D off" $? "flooding from $h1 to port=
+ $port"
+> +	done
+> +
+> +	log_test "flood unknown $type pass $pass/4"
+> +}
+> +
+> +br_flood_unknown_bc_test()
+> +{
+> +	do_flood_unknown BC 1 bcast_flood "$BC_PKT" flag1
+> +	do_flood_unknown BC 2 bcast_flood "$BC_PKT" flag2
+> +	do_flood_unknown BC 3 bcast_flood "$BC_PKT" flag3
+> +	do_flood_unknown BC 4 bcast_flood "$BC_PKT" flag4
+> +}
+> +
+> +br_flood_unknown_uc_test()
+> +{
+> +	do_flood_unknown UC 1 flood "$UC_PKT" flag1
+> +	do_flood_unknown UC 2 flood "$UC_PKT" flag2
+> +	do_flood_unknown UC 3 flood "$UC_PKT" flag3
+> +	do_flood_unknown UC 4 flood "$UC_PKT" flag4
+> +}
+> +
+> +br_flood_unknown_mc_test()
+> +{
+> +	do_flood_unknown MC 1 mcast_flood "$MC_PKT" flag1
+> +	do_flood_unknown MC 2 mcast_flood "$MC_PKT" flag2
+> +	do_flood_unknown MC 3 mcast_flood "$MC_PKT" flag3
+> +	do_flood_unknown MC 4 mcast_flood "$MC_PKT" flag4
+> +}
+> +
+> +trap cleanup EXIT
+> +
+> +setup_prepare
+> +setup_wait
+> +
+> +tests_run
+> +
+> +exit $EXIT_STATUS
+> --=20
+> 2.25.1
+>=
