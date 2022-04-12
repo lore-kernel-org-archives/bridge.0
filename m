@@ -3,21 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=TL0c+Hs+0lBMqasciNPJrqUQXbgHwj7xsTQadVbU8KQ=;
- b=fY8ffGGtVbY8dJ+Pum0CRcGC6YXlMA0rkvpKenc11A5lffG+COmeo74YILwokEYNvW
- d1Jx0PgylqFD4fV5MaNcX1juwMsHgexHsy7vDHJMCPwI3vRaP6xsOj465eqv0jtWe8KH
- u4h0rjzKIx3u7t+TaIAywVpqeK+YJBsOtvXRUgfwDlp7b7a/9XOO0GSva/rMjzighPeu
- V5i0lVbjZjETVDO0wGUfaziUHKTXKfS9bIXTOctcHBTBwZXgFgPRu3IReq6b/xidMfx8
- KIPxBTcpUNm0OqFC6HVpVsAEwsDOljp3IGAI2GI3+goo5lB3RjUhowNGg2JP4J+jD0Z5
- MePg==
+ bh=ETWbF7zKsZG9skDxgFBuQOsMiuFT3MmfMSLOxhDh3mw=;
+ b=Q7Dpt9DQjInhOCoN2TX1SM9fAaM/ZcyKh2wLi9yqBD8CWhScrhMlf8KjQdw9i35ktl
+ ALa9AsW7WDZd44cDkQNSIsMMnFkqftQt+Z4p5hQlKbA7xPufx1OQCid2gCrTGp+in0LX
+ CrhSwFsMKQnfPDBO33PnPHpDw6mcG1G5Bg/8kX9L0tYEPJ/tE3avhZkN2SjqblBIFBlG
+ zz1GdiAF+HZG7BuryzyhQfgFp4eikC6THMi9IkFweQZ9qbJoMT55KJalDQ7kbEpapC6k
+ /XAG7JYI7mGHXI6ode8zK9IzGRuWAr1tT5K2m8SSNSgcAqhSUkZ7hk3Jjc6QEnGi+56E
+ GKhw==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue, 12 Apr 2022 16:22:39 +0300
-Message-Id: <20220412132245.2148794-3-razor@blackwall.org>
+Date: Tue, 12 Apr 2022 16:22:40 +0300
+Message-Id: <20220412132245.2148794-4-razor@blackwall.org>
 In-Reply-To: <20220412132245.2148794-1-razor@blackwall.org>
 References: <20220412132245.2148794-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 2/8] net: add ndo_fdb_del_bulk
+Subject: [Bridge] [PATCH net-next v3 3/8] net: rtnetlink: add NLM_F_BULK
+	support to rtnl_fdb_del
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,43 +30,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <razor@blackwall.org>, dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-Add a new netdev op called ndo_fdb_del_bulk, it will be later used for
-driver-specific bulk delete implementation dispatched from rtnetlink. The
-first user will be the bridge, we need it to signal to rtnetlink from
-the driver that we support bulk delete operation (NLM_F_BULK).
+When NLM_F_BULK is specified in a fdb del message we need to handle it
+differently. First since this is a new call we can strictly validate the
+passed attributes, at first only ifindex and vlan are allowed as these
+will be the initially supported filter attributes, any other attribute
+is rejected. The mac address is no longer mandatory, but we use it
+to error out in older kernels because it cannot be specified with bulk
+request (the attribute is not allowed) and then we have to dispatch
+the call to ndo_fdb_del_bulk if the device supports it. The del bulk
+callback can do further validation of the attributes if necessary.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- include/linux/netdevice.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/core/rtnetlink.c | 64 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 46 insertions(+), 18 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 28ea4f8269d4..a602f29365b0 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1260,6 +1260,10 @@ struct netdev_net_notifier {
-  *		      struct net_device *dev,
-  *		      const unsigned char *addr, u16 vid)
-  *	Deletes the FDB entry from dev coresponding to addr.
-+ * int (*ndo_fdb_del_bulk)(struct ndmsg *ndm, struct nlattr *tb[],
-+ *			   struct net_device *dev,
-+ *			   u16 vid,
-+ *			   struct netlink_ext_ack *extack);
-  * int (*ndo_fdb_dump)(struct sk_buff *skb, struct netlink_callback *cb,
-  *		       struct net_device *dev, struct net_device *filter_dev,
-  *		       int *idx)
-@@ -1510,6 +1514,11 @@ struct net_device_ops {
- 					       struct net_device *dev,
- 					       const unsigned char *addr,
- 					       u16 vid);
-+	int			(*ndo_fdb_del_bulk)(struct ndmsg *ndm,
-+						    struct nlattr *tb[],
-+						    struct net_device *dev,
-+						    u16 vid,
-+						    struct netlink_ext_ack *extack);
- 	int			(*ndo_fdb_dump)(struct sk_buff *skb,
- 						struct netlink_callback *cb,
- 						struct net_device *dev,
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 4041b3e2e8ec..824963aa57b1 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4167,22 +4167,34 @@ int ndo_dflt_fdb_del(struct ndmsg *ndm,
+ }
+ EXPORT_SYMBOL(ndo_dflt_fdb_del);
+ 
++static const struct nla_policy fdb_del_bulk_policy[NDA_MAX + 1] = {
++	[NDA_VLAN]	= { .type = NLA_U16 },
++	[NDA_IFINDEX]	= NLA_POLICY_MIN(NLA_S32, 1),
++};
++
+ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			struct netlink_ext_ack *extack)
+ {
++	bool del_bulk = !!(nlh->nlmsg_flags & NLM_F_BULK);
+ 	struct net *net = sock_net(skb->sk);
++	const struct net_device_ops *ops;
+ 	struct ndmsg *ndm;
+ 	struct nlattr *tb[NDA_MAX+1];
+ 	struct net_device *dev;
+-	__u8 *addr;
++	__u8 *addr = NULL;
+ 	int err;
+ 	u16 vid;
+ 
+ 	if (!netlink_capable(skb, CAP_NET_ADMIN))
+ 		return -EPERM;
+ 
+-	err = nlmsg_parse_deprecated(nlh, sizeof(*ndm), tb, NDA_MAX, NULL,
+-				     extack);
++	if (!del_bulk) {
++		err = nlmsg_parse_deprecated(nlh, sizeof(*ndm), tb, NDA_MAX,
++					     NULL, extack);
++	} else {
++		err = nlmsg_parse(nlh, sizeof(*ndm), tb, NDA_MAX,
++				  fdb_del_bulk_policy, extack);
++	}
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -4198,9 +4210,12 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		return -ENODEV;
+ 	}
+ 
+-	if (!tb[NDA_LLADDR] || nla_len(tb[NDA_LLADDR]) != ETH_ALEN) {
+-		NL_SET_ERR_MSG(extack, "invalid address");
+-		return -EINVAL;
++	if (!del_bulk) {
++		if (!tb[NDA_LLADDR] || nla_len(tb[NDA_LLADDR]) != ETH_ALEN) {
++			NL_SET_ERR_MSG(extack, "invalid address");
++			return -EINVAL;
++		}
++		addr = nla_data(tb[NDA_LLADDR]);
+ 	}
+ 
+ 	if (dev->type != ARPHRD_ETHER) {
+@@ -4208,8 +4223,6 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		return -EINVAL;
+ 	}
+ 
+-	addr = nla_data(tb[NDA_LLADDR]);
+-
+ 	err = fdb_vid_parse(tb[NDA_VLAN], &vid, extack);
+ 	if (err)
+ 		return err;
+@@ -4220,10 +4233,16 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	if ((!ndm->ndm_flags || ndm->ndm_flags & NTF_MASTER) &&
+ 	    netif_is_bridge_port(dev)) {
+ 		struct net_device *br_dev = netdev_master_upper_dev_get(dev);
+-		const struct net_device_ops *ops = br_dev->netdev_ops;
+ 
+-		if (ops->ndo_fdb_del)
+-			err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
++		ops = br_dev->netdev_ops;
++		if (!del_bulk) {
++			if (ops->ndo_fdb_del)
++				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
++		} else {
++			if (ops->ndo_fdb_del_bulk)
++				err = ops->ndo_fdb_del_bulk(ndm, tb, dev, vid,
++							    extack);
++		}
+ 
+ 		if (err)
+ 			goto out;
+@@ -4233,15 +4252,24 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ 	/* Embedded bridge, macvlan, and any other device support */
+ 	if (ndm->ndm_flags & NTF_SELF) {
+-		if (dev->netdev_ops->ndo_fdb_del)
+-			err = dev->netdev_ops->ndo_fdb_del(ndm, tb, dev, addr,
+-							   vid);
+-		else
+-			err = ndo_dflt_fdb_del(ndm, tb, dev, addr, vid);
++		ops = dev->netdev_ops;
++		if (!del_bulk) {
++			if (ops->ndo_fdb_del)
++				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
++			else
++				err = ndo_dflt_fdb_del(ndm, tb, dev, addr, vid);
++		} else {
++			/* in case err was cleared by NTF_MASTER call */
++			err = -EOPNOTSUPP;
++			if (ops->ndo_fdb_del_bulk)
++				err = ops->ndo_fdb_del_bulk(ndm, tb, dev, vid,
++							    extack);
++		}
+ 
+ 		if (!err) {
+-			rtnl_fdb_notify(dev, addr, vid, RTM_DELNEIGH,
+-					ndm->ndm_state);
++			if (!del_bulk)
++				rtnl_fdb_notify(dev, addr, vid, RTM_DELNEIGH,
++						ndm->ndm_state);
+ 			ndm->ndm_flags &= ~NTF_SELF;
+ 		}
+ 	}
 -- 
 2.35.1
 
