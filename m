@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=s2jkzw31rfRz/k9DcMuKTznzONYusXn07ORCMc42hSk=;
- b=Y0/saCT3p2F3jNeeNUQ5DmmY/+oty+yJdhMzI8AAkNptlg2goIT2Qmu/8ITBuKDVdC
- 50ApMxf6at+JIlhbPnIVG4XRafnh+ts/mU1vy9C+qC260OVZUU5RN7mj5DxDSZJTNM3M
- EE9V0/eH8ulP0vOzQJGYCboCPycaYHDW24gNL4NvK1r5A1FOJ/gkG0kYrbYe7n/PBTrC
- VKnAWiCf04u1ednj5pg0foDHteVpT1R4t6a5l89ekxsqvUNFODYB6odafqzDEKMh1IJr
- hJSjDkemm+2Jd4zwRd861bjh+ipS1RKQQEBLWUXKktX63Nb91LGeVhDNxcI4XADHDelH
- aN/Q==
+ bh=5T4/8pEJcOoDDZCRqw+G8YMOs1f4+RCS55Hho9AS8Rc=;
+ b=I98pH8/t8476UOYzFQIxzsDoJrWra2RDofkQdd+LhyMO0yps6t0EDsKGBCpr01qgnm
+ Ljxw3eYLGqjZBYH30XNAwj6wvAzS0qb8bgIB4Wqhwv20Cx9piWWUDTG4fME4Ap5v1Clt
+ d/Os50fL33yVOwMh5jtq9e4B7rOt1R8MZr1wYUkyyW1HOyZWtJ/zg7r/Vtzlujvw+o1k
+ ar9QCz/wNuBQ56IUfvCfQz4WR0l9JnpumiWfmA3GV5q1wPaPHvn+HYzF24Jk5lBO8sHX
+ BUX7lakKErwTi3qfN3AqYsqa5G0gVFlB0WCZfB7RXWMkLvURx94nQq5TyR9ZYp8UgYNX
+ brJQ==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue, 12 Apr 2022 16:22:43 +0300
-Message-Id: <20220412132245.2148794-7-razor@blackwall.org>
+Date: Tue, 12 Apr 2022 16:22:44 +0300
+Message-Id: <20220412132245.2148794-8-razor@blackwall.org>
 In-Reply-To: <20220412132245.2148794-1-razor@blackwall.org>
 References: <20220412132245.2148794-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 6/8] net: rtnetlink: add ndm flags and
-	state mask attributes
+Subject: [Bridge] [PATCH net-next v3 7/8] net: bridge: fdb: add support for
+	flush filtering based on ndm flags and state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,43 +30,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <razor@blackwall.org>, dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-Add ndm flags/state masks which will be used for bulk delete filtering.
-All of these are used by the bridge and vxlan drivers. Also minimal attr
-policy validation is added, it is up to ndo_fdb_del_bulk implementers to
-further validate them.
+Add support for fdb flush filtering based on ndm flags and state. NDM
+state and flags are mapped to bridge-specific flags and matched
+according to the specified masks. NTF_USE is used to represent
+added_by_user flag since it sets it on fdb add and we don't have a 1:1
+mapping for it. Only allowed bits can be set, NTF_USE and NTF_MASTER are
+ignored.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- include/uapi/linux/neighbour.h | 2 ++
- net/core/rtnetlink.c           | 2 ++
- 2 files changed, 4 insertions(+)
+v2: ignore NTF_USE/NTF_MASTER and reject unknown flags
+v3: NDFA -> NDA attributes
 
-diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
-index db05fb55055e..39c565e460c7 100644
---- a/include/uapi/linux/neighbour.h
-+++ b/include/uapi/linux/neighbour.h
-@@ -32,6 +32,8 @@ enum {
- 	NDA_NH_ID,
- 	NDA_FDB_EXT_ATTRS,
- 	NDA_FLAGS_EXT,
-+	NDA_NDM_STATE_MASK,
-+	NDA_NDM_FLAGS_MASK,
- 	__NDA_MAX
- };
+ net/bridge/br_fdb.c     | 58 ++++++++++++++++++++++++++++++++++++++---
+ net/bridge/br_private.h |  5 ++++
+ 2 files changed, 60 insertions(+), 3 deletions(-)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index f1deac42bc0d..bbb00a75ef0a 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -594,13 +594,40 @@ void __br_fdb_flush(struct net_bridge *br,
+ 	rcu_read_unlock();
+ }
  
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 824963aa57b1..9118523b328f 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -4170,6 +4170,8 @@ EXPORT_SYMBOL(ndo_dflt_fdb_del);
- static const struct nla_policy fdb_del_bulk_policy[NDA_MAX + 1] = {
- 	[NDA_VLAN]	= { .type = NLA_U16 },
- 	[NDA_IFINDEX]	= NLA_POLICY_MIN(NLA_S32, 1),
-+	[NDA_NDM_STATE_MASK]	= { .type = NLA_U16  },
-+	[NDA_NDM_FLAGS_MASK]	= { .type = NLA_U8 },
- };
++static unsigned long __ndm_state_to_fdb_flags(u16 ndm_state)
++{
++	unsigned long flags = 0;
++
++	if (ndm_state & NUD_PERMANENT)
++		__set_bit(BR_FDB_LOCAL, &flags);
++	if (ndm_state & NUD_NOARP)
++		__set_bit(BR_FDB_STATIC, &flags);
++
++	return flags;
++}
++
++static unsigned long __ndm_flags_to_fdb_flags(u8 ndm_flags)
++{
++	unsigned long flags = 0;
++
++	if (ndm_flags & NTF_USE)
++		__set_bit(BR_FDB_ADDED_BY_USER, &flags);
++	if (ndm_flags & NTF_EXT_LEARNED)
++		__set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &flags);
++	if (ndm_flags & NTF_OFFLOADED)
++		__set_bit(BR_FDB_OFFLOADED, &flags);
++	if (ndm_flags & NTF_STICKY)
++		__set_bit(BR_FDB_STICKY, &flags);
++
++	return flags;
++}
++
+ int br_fdb_delete_bulk(struct ndmsg *ndm, struct nlattr *tb[],
+ 		       struct net_device *dev, u16 vid,
+ 		       struct netlink_ext_ack *extack)
+ {
+-	struct net_bridge_fdb_flush_desc desc = {
+-		.flags_mask = BR_FDB_STATIC
+-	};
++	u8 ndm_flags = ndm->ndm_flags & ~FDB_FLUSH_IGNORED_NDM_FLAGS;
++	struct net_bridge_fdb_flush_desc desc = {};
+ 	struct net_bridge *br;
  
- static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	if (netif_is_bridge_master(dev)) {
+@@ -615,6 +642,31 @@ int br_fdb_delete_bulk(struct ndmsg *ndm, struct nlattr *tb[],
+ 		br = p->br;
+ 	}
+ 
++	if (ndm_flags & ~FDB_FLUSH_ALLOWED_NDM_FLAGS) {
++		NL_SET_ERR_MSG(extack, "Unsupported fdb flush ndm flag bits set");
++		return -EINVAL;
++	}
++	if (ndm->ndm_state & ~FDB_FLUSH_ALLOWED_NDM_STATES) {
++		NL_SET_ERR_MSG(extack, "Unsupported fdb flush ndm state bits set");
++		return -EINVAL;
++	}
++
++	desc.flags |= __ndm_state_to_fdb_flags(ndm->ndm_state);
++	desc.flags |= __ndm_flags_to_fdb_flags(ndm_flags);
++	if (tb[NDA_NDM_STATE_MASK]) {
++		u16 ndm_state_mask = nla_get_u16(tb[NDA_NDM_STATE_MASK]);
++
++		desc.flags_mask |= __ndm_state_to_fdb_flags(ndm_state_mask);
++	}
++	if (tb[NDA_NDM_FLAGS_MASK]) {
++		u8 ndm_flags_mask = nla_get_u8(tb[NDA_NDM_FLAGS_MASK]);
++
++		desc.flags_mask |= __ndm_flags_to_fdb_flags(ndm_flags_mask);
++	}
++
++	br_debug(br, "flushing port ifindex: %d vlan id: %u flags: 0x%lx flags mask: 0x%lx\n",
++		 desc.port_ifindex, desc.vlan_id, desc.flags, desc.flags_mask);
++
+ 	__br_fdb_flush(br, &desc);
+ 
+ 	return 0;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index dd186ac29737..72b934d1edce 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -762,6 +762,11 @@ static inline void br_netpoll_disable(struct net_bridge_port *p)
+ #endif
+ 
+ /* br_fdb.c */
++#define FDB_FLUSH_IGNORED_NDM_FLAGS (NTF_MASTER | NTF_SELF)
++#define FDB_FLUSH_ALLOWED_NDM_STATES (NUD_PERMANENT | NUD_NOARP)
++#define FDB_FLUSH_ALLOWED_NDM_FLAGS (NTF_USE | NTF_EXT_LEARNED | \
++				     NTF_STICKY | NTF_OFFLOADED)
++
+ int br_fdb_init(void);
+ void br_fdb_fini(void);
+ int br_fdb_hash_init(struct net_bridge *br);
 -- 
 2.35.1
 
