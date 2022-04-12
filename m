@@ -1,24 +1,24 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1649736015;
- bh=cb2IK7ZCUYg0hCj+u3irAlPf2Mq2DTpvNrFIhw03YWc=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=DQMSiuzyHCR16iZFZW04LRwCMFM6zgQ6caKxUaG8/R81nQpqtLhLkz6poEnh2R2tf
- Sg938W+z0ihaazpAHZF909HczsHCYXLPZ7w/LtVBG6FQD5Tm3KV4KetKJGmH0Sk0xV
- QycatjgzX0xUY8jw+sDejG0i9xlkLXhHiDh1BWPX4GPQ3+NC1uGQhysGUSKqIYFK9l
- LYzfTdcFT+7idcqIZ928xl7JZwo5D9Tu4/jtg5bCFnnjW1/u+XuczaU4PpkUdPsRef
- bQNWQi8lamVvonXFYYakI51/HpGcQypqAldiMPEN619pA5ycnAsnCKuklsfzML6OFZ
- YSnz9cjGnoTiQ==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <troglobit@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:in-reply-to:references:date:message-id
+ :mime-version; bh=WtbGB7L0QDeE2I+go9zw8Bu1CtyCG18Co3yY1iUrMXY=;
+ b=ZaEFBW4EII8WzlwhSzf+zKPxIRzg6pI962lGZG1WVyYyLaE2cWSS01DKRa0p7ADOkP
+ NL2TyoCJnBBV+UPo4GSFISlTwDlNFNsoyohFLDRN04udEoN2euT4a5ep2pPgMeJQifl1
+ CE2F4c8Fgf0dWkUYXcMRKIa4jwu15X8upnIDHH6RUFz4pglwbYf3t7ySCjN6bWS0SoWC
+ MXhULNYOryUu4uB2xQp3PmgZpBuo8jL5xq1U1OUWTjI973ld/vSPFIGuLXdbIJLSddIc
+ 0FbIdqjCM1tm1ryeUdI/B9/V3hg4fWAjxCpzjRSh8SaqxLwQu9G1Jt/vl6gFa2glKhON
+ Befw==
+From: Joachim Wiberg <troglobit@gmail.com>
+In-Reply-To: <20220411172042.prh3hy7ehpc5o34f@skbuf>
+References: <20220411133837.318876-1-troglobit@gmail.com>
+ <20220411133837.318876-6-troglobit@gmail.com>
+ <20220411172042.prh3hy7ehpc5o34f@skbuf>
+Date: Tue, 12 Apr 2022 09:39:57 +0200
+Message-ID: <87k0bubvhu.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164973601508.30868.14748692315248046303.git-patchwork-notify@kernel.org>
-Date: Tue, 12 Apr 2022 04:00:15 +0000
-References: <20220410134227.18810-1-arinc.unal@arinc9.com>
-In-Reply-To: <20220410134227.18810-1-arinc.unal@arinc9.com>
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: offload BR_HAIRPIN_MODE,
- BR_ISOLATED, BR_MULTICAST_TO_UNICAST
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH RFC net-next 05/13] selftests: forwarding: add
+	TCPDUMP_EXTRA_FLAGS to lib.sh
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,33 +27,30 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?utf-8?b?QXLEsW7DpyDDnE5BTCA8YXJpbmMudW5hbEBhcmluYzkuY29tPg==?=@ci.codeaurora.org
-Cc: olteanv@gmail.com, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
 
-Hello:
+On Mon, Apr 11, 2022 at 17:20, Vladimir Oltean <vladimir.oltean@nxp.com> wrote:
+> On Mon, Apr 11, 2022 at 03:38:29PM +0200, Joachim Wiberg wrote:
+>> -	$ns_cmd tcpdump -e -n -Q in -i $if_name \
+>> +	if [ -z $TCPDUMP_EXTRA_FLAGS ]; then
+>> +		extra_flags=""
+>> +	else
+>> +		extra_flags="$TCPDUMP_EXTRA_FLAGS"
+>> +	fi
+>> +
+>> +	$ns_cmd tcpdump $extra_flags -e -n -Q in -i $if_name \
+>
+> Could you call directly "$ns_cmd tcpdump $TCPDUMP_EXTRA_FLAGS ..." here,
+> without an intermediary "extra_flags" global variable which holds the
+> same content?
+>
+> You could initialize it just like the way other variables are
+> initialized, at the beginning of lib.sh:
+>
+> TCPDUMP_EXTRA_FLAGS=${TCPDUMP_EXTRA_FLAGS:=}
 
-This patch was applied to netdev/net-next.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Ah, yes of course.  Will fix in the next drop!
 
-On Sun, 10 Apr 2022 16:42:27 +0300 you wrote:
-> Add BR_HAIRPIN_MODE, BR_ISOLATED and BR_MULTICAST_TO_UNICAST port flags to
-> BR_PORT_FLAGS_HW_OFFLOAD so that switchdev drivers which have an offloaded
-> data plane have a chance to reject these bridge port flags if they don't
-> support them yet.
-> 
-> It makes the code path go through the
-> SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS driver handlers, which return
-> -EINVAL for everything they don't recognize.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next] net: bridge: offload BR_HAIRPIN_MODE, BR_ISOLATED, BR_MULTICAST_TO_UNICAST
-    https://git.kernel.org/netdev/net-next/c/c3976a3f8445
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+ /J
+ 
