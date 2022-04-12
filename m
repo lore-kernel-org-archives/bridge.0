@@ -1,24 +1,24 @@
-Return-Path: <troglobit@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=5k6k5OzQ/nNaAhxNcy8dyG0hqPxB3EyqZUWXJxiNXVA=;
- b=VZVe0At+6TDw7PG/U/Tm9jp7AUkurQCeKoeiTwS7Ewd+b5wIFjM4lFLnE/5MRKVpYw
- oTdiVYhGwcy6799RvVVQ1vhQTQOus+nSEnUAyc6OskwB3X6sy930UNZntaKE+DkDSDgg
- tLrutCJfRHFbdfKMpIVSavG0JGdIAZ/bMDKOw7MpQ8r91/MHfsO+YwyUBxsrQH5lbXxj
- 85jtwmFsPxcZxp71FoQcp9dkhpwmD2iokeasjqyfI1JmPJ4uItraV582ieHNxjIRWdBW
- /4bcfbbHyXRJlRBoEbboncuRJ5tk/O38r99LSk1XgmmTMZdFizuSgODQwR9+SlZ279Nd
- JWQw==
-From: Joachim Wiberg <troglobit@gmail.com>
-In-Reply-To: <20220411202315.mxgqmvktodavdmwr@skbuf>
-References: <20220411133837.318876-1-troglobit@gmail.com>
- <20220411133837.318876-10-troglobit@gmail.com>
- <20220411202315.mxgqmvktodavdmwr@skbuf>
-Date: Tue, 12 Apr 2022 09:57:16 +0200
-Message-ID: <87czhmbuoz.fsf@gmail.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1649752212;
+ bh=m+1PpGjcwzHYLO+3cx1OqvO/hhTh8rff68hcJcnjGQA=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=bFSn3y8tt33D6MUcoPmxOFx49qQePeyXNBYioOxS3rObIZuOnq3c5WAwcuTkjL7vY
+ JtFd2DOOqld136OWdCzBvJCeZ20Fe2pKgAHSTNjlmE/9p/xNq6X5N2HdWdGh4xuMkq
+ flJasIEY3MLhZoPkv3R89EQ/aN+JIZPTJCM0YNH45K4rdwfAtXcr3jSux1ZTHEUbHj
+ m8wKITzMS/2dLZRaXhUBIbPOwGrcZRRNSnHcgZRf49aIrW95j+nfzpp8+BU691dxiw
+ iyhGsNLLGbMoe7Mu0QySYrA+MiH8BF4P8izivP30NfI2QOdAY7zg+thCFehpt3CSyn
+ uS/ljFgukr4Xw==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH RFC net-next 09/13] selftests: forwarding:
-	rename test groups for next bridge mdb tests
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164975221257.23162.6047417037650246223.git-patchwork-notify@kernel.org>
+Date: Tue, 12 Apr 2022 08:30:12 +0000
+References: <20220411084054.298807-1-troglobit@gmail.com>
+In-Reply-To: <20220411084054.298807-1-troglobit@gmail.com>
+Subject: Re: [Bridge] [PATCH v2 net-next 0/2] net: bridge: add support for
+ host l2 mdb entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,23 +27,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, "David S . Miller" <davem@davemloft.net>, Tobias Waldekranz <tobias@waldekranz.com>
+To: Joachim Wiberg <troglobit@gmail.com>
+Cc: netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-On Mon, Apr 11, 2022 at 20:23, Vladimir Oltean <vladimir.oltean@nxp.com> wrote:
-> On Mon, Apr 11, 2022 at 03:38:33PM +0200, Joachim Wiberg wrote:
->> -TEST_GROUP_IP4="225.1.2.3"
->> -TEST_GROUP_IP6="ff02::42"
->> -TEST_GROUP_MAC="01:00:01:c0:ff:ee"
->> +PASS_GRP_IP4="225.1.2.3"
->> +FAIL_GRP_IP4="225.1.2.4"
->> +PASS_GRP_MAC="01:00:01:c0:ff:ee"
->> +FAIL_GRP_MAC="01:00:01:c0:ff:ef"
->> +
->> +PASS_GRP_IP6="ff02::42"
->> +FAIL_GRP_IP6="ff02::43"
-> This is more than just the advertised rename, the fail groups are new
-> and not used in this change.
+Hello:
 
-Yeah I rushed the set out to get feedback on the overall take, sorry
-about this.  I'll see to fixing this for the non-RFC drop.  Thanks!
+This series was applied to netdev/net-next.git (master)
+by Paolo Abeni <pabeni@redhat.com>:
+
+On Mon, 11 Apr 2022 10:40:52 +0200 you wrote:
+> Fix to an obvious omissions for layer-2 host mdb entries, this v2 adds
+> the missing selftest and some minor style fixes.
+> 
+> Note: this patch revealed some worrying problems in how the bridge
+>       forwards unknown BUM traffic and also how unknown multicast is
+>       forwarded when a IP multicast router is known, which a another
+>       (RFC) patch series intend to address.  That series will build
+>       on this selftest, hence the name of the test.
+> 
+> [...]
+
+Here is the summary with links:
+  - [v2,net-next,1/2] net: bridge: add support for host l2 mdb entries
+    https://git.kernel.org/netdev/net-next/c/e65693b0179e
+  - [v2,net-next,2/2] selftests: forwarding: new test, verify host mdb entries
+    https://git.kernel.org/netdev/net-next/c/50fe062c806e
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
