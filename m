@@ -3,22 +3,21 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=uUhhwavoelOAutf6ZINYv5+4TG3VETWVUGFixQHcuak=;
- b=tLBOr9wUBkhPXAsBErczu7jI2Hf9tNdIWN6672jBjWl09l6oei62gKrRcjRCmtpBdO
- QYiUTa+9xRSvvG8KLnpbFIBIDKVHeHpmgD9+0dHxFCZtzs5AoXBWJKpcXFs4NHQI/ZyO
- JY0AZHS/d6lNQC1igzWeSohKzeYh4+mSSg6NKx2SZgSnSBJYAI1iGGBoxcPeUlYwDHNM
- zTqI4igELqHbQ15BCq0qGXaKwu1T1UlxIutjyWeatLZSEJW+Pf0evVabkYV+lJQ0J1fA
- LVBHw38hevuwNm3GPP5vgrhCJlMnCfVbwLCekONEpzMRrw6JPLeu17PiEGMxOPtrrGF0
- udFQ==
+ bh=TL0c+Hs+0lBMqasciNPJrqUQXbgHwj7xsTQadVbU8KQ=;
+ b=fY8ffGGtVbY8dJ+Pum0CRcGC6YXlMA0rkvpKenc11A5lffG+COmeo74YILwokEYNvW
+ d1Jx0PgylqFD4fV5MaNcX1juwMsHgexHsy7vDHJMCPwI3vRaP6xsOj465eqv0jtWe8KH
+ u4h0rjzKIx3u7t+TaIAywVpqeK+YJBsOtvXRUgfwDlp7b7a/9XOO0GSva/rMjzighPeu
+ V5i0lVbjZjETVDO0wGUfaziUHKTXKfS9bIXTOctcHBTBwZXgFgPRu3IReq6b/xidMfx8
+ KIPxBTcpUNm0OqFC6HVpVsAEwsDOljp3IGAI2GI3+goo5lB3RjUhowNGg2JP4J+jD0Z5
+ MePg==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Tue, 12 Apr 2022 16:22:38 +0300
-Message-Id: <20220412132245.2148794-2-razor@blackwall.org>
+Date: Tue, 12 Apr 2022 16:22:39 +0300
+Message-Id: <20220412132245.2148794-3-razor@blackwall.org>
 In-Reply-To: <20220412132245.2148794-1-razor@blackwall.org>
 References: <20220412132245.2148794-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v3 1/8] net: netlink: add NLM_F_BULK
-	delete request modifier
+Subject: [Bridge] [PATCH net-next v3 2/8] net: add ndo_fdb_del_bulk
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,34 +29,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <razor@blackwall.org>, dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-Add a new delete request modifier called NLM_F_BULK which, when
-supported, would cause the request to delete multiple objects. The flag
-is a convenient way to signal that a multiple delete operation is
-requested which can be gradually added to different delete requests. In
-order to make sure older kernels will error out if the operation is not
-supported instead of doing something unintended we have to break a
-required condition when implementing support for this flag, f.e. for
-neighbors we will omit the mandatory mac address attribute.
-Initially it will be used to add flush with filtering support for bridge
-fdbs, but it also opens the door to add similar support to others.
+Add a new netdev op called ndo_fdb_del_bulk, it will be later used for
+driver-specific bulk delete implementation dispatched from rtnetlink. The
+first user will be the bridge, we need it to signal to rtnetlink from
+the driver that we support bulk delete operation (NLM_F_BULK).
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- include/uapi/linux/netlink.h | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/netdevice.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/include/uapi/linux/netlink.h b/include/uapi/linux/netlink.h
-index 4c0cde075c27..855dffb4c1c3 100644
---- a/include/uapi/linux/netlink.h
-+++ b/include/uapi/linux/netlink.h
-@@ -72,6 +72,7 @@ struct nlmsghdr {
- 
- /* Modifiers to DELETE request */
- #define NLM_F_NONREC	0x100	/* Do not delete recursively	*/
-+#define NLM_F_BULK	0x200	/* Delete multiple objects	*/
- 
- /* Flags for ACK message */
- #define NLM_F_CAPPED	0x100	/* request was capped */
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 28ea4f8269d4..a602f29365b0 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1260,6 +1260,10 @@ struct netdev_net_notifier {
+  *		      struct net_device *dev,
+  *		      const unsigned char *addr, u16 vid)
+  *	Deletes the FDB entry from dev coresponding to addr.
++ * int (*ndo_fdb_del_bulk)(struct ndmsg *ndm, struct nlattr *tb[],
++ *			   struct net_device *dev,
++ *			   u16 vid,
++ *			   struct netlink_ext_ack *extack);
+  * int (*ndo_fdb_dump)(struct sk_buff *skb, struct netlink_callback *cb,
+  *		       struct net_device *dev, struct net_device *filter_dev,
+  *		       int *idx)
+@@ -1510,6 +1514,11 @@ struct net_device_ops {
+ 					       struct net_device *dev,
+ 					       const unsigned char *addr,
+ 					       u16 vid);
++	int			(*ndo_fdb_del_bulk)(struct ndmsg *ndm,
++						    struct nlattr *tb[],
++						    struct net_device *dev,
++						    u16 vid,
++						    struct netlink_ext_ack *extack);
+ 	int			(*ndo_fdb_dump)(struct sk_buff *skb,
+ 						struct netlink_callback *cb,
+ 						struct net_device *dev,
 -- 
 2.35.1
 
