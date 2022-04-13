@@ -1,24 +1,24 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=mqsQMGWoSGIiSBxMnK2lmj4CXMMwYXskZS4euBUat3E=;
- b=CqDiUuwWy9Ar00ARP8AYHLDoMiZ0B5XU5oPXE/n2LzKIKzDb49qspNm4EVvgWriuLB
- KZinTcU15VppmpjZEA9orOK8DU7Fo2EdjIq516B5dDIi3jLwGJ4d1e3sGe2O+aDhJKY+
- H9VjOjlcifF4ptjMaqMKm55ysi4GaMzGDDfudxGhosRVz+6ueUxA+jloInbsRhcDb53O
- BwZTcmhYey2vPRJNCxvZxI2Xuz5WeRJyvv6jWAxY+JB7qlxOUvKlNqP06BAXFyx5wTRW
- u2a2YqRGR7QoqxFD7gp5t4D9kXT208DcQkRoSH6JOZTt+0/FHhUaA1KOsD5huESnC9iO
- hKvw==
-From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Wed, 13 Apr 2022 13:52:02 +0300
-Message-Id: <20220413105202.2616106-13-razor@blackwall.org>
-In-Reply-To: <20220413105202.2616106-1-razor@blackwall.org>
-References: <20220413105202.2616106-1-razor@blackwall.org>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1649850615;
+ bh=o2vJ0DnRy5ZEVYNOXmZBmFPGP50Ud7tKWsUfjrA5p3w=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=MVw1jAzHWNcdlnsPsMSJteexdrXXnj1FBzUfPK7zP651Fup2wgQy0Y+kDok0ES6ll
+ Aq21x16zWIQC+p5W9vr0mTDXXgIPBVwZoYD4ON8Bun69DobpLNMtHr9t5eUBR3ixNx
+ XGtjpddEb4PmBgR5WmyKkvUTJyp0ssBewnQTIl/yyjv3jn/qyJGqBhdNP0ftEh5eqP
+ uCAKPbT4LfwcvL3ZBUiC64JlBDpzzE9r165rmv+ojbXmcQRiCBl1ETe7yy4CccMzgY
+ cEXgSqm8XG7ElVEX/Zv2mGuALgx4hyDRhT9PLr++ZR4MJ+XlJ8isTpgjcjHJn6Cn5c
+ lTVA94GblVG7w==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v4 12/12] net: bridge: fdb: add support
-	for flush filtering based on ifindex and vlan
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164985061551.24768.3237766842921971085.git-patchwork-notify@kernel.org>
+Date: Wed, 13 Apr 2022 11:50:15 +0000
+References: <20220413105202.2616106-1-razor@blackwall.org>
+In-Reply-To: <20220413105202.2616106-1-razor@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next v4 00/12] net: bridge: add flush
+	filtering support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,92 +27,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <razor@blackwall.org>, dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-Add support for fdb flush filtering based on destination ifindex and
-vlan id. The ifindex must either match a port's device ifindex or the
-bridge's. The vlan support is trivial since it's already validated by
-rtnl_fdb_del, we just need to fill it in.
+Hello:
 
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
----
-v2: validate ifindex and fill in vlan id
-v3: NDFA -> NDA attributes
-v4: use port's ifindex if NTF_MASTER is used and NDA_IFINDEX is not
-    specified
+This series was applied to netdev/net-next.git (master)
+by David S. Miller <davem@davemloft.net>:
 
- net/bridge/br_fdb.c | 45 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 44 insertions(+), 1 deletion(-)
+On Wed, 13 Apr 2022 13:51:50 +0300 you wrote:
+> Hi,
+> This patch-set adds support to specify filtering conditions for a bulk
+> delete (flush) operation. This version uses a new nlmsghdr delete flag
+> called NLM_F_BULK in combination with a new ndo_fdb_del_bulk op which is
+> used to signal that the driver supports bulk deletes (that avoids
+> pushing common mac address checks to ndo_fdb_del implementations and
+> also has a different prototype and parsed attribute expectations, more
+> info in patch 03). The new delete flag can be used for any RTM_DEL*
+> type, implementations just need to be careful with older kernels which
+> are doing non-strict attribute parses. A new rtnl flag
+> (RTNL_FLAG_BULK_DEL_SUPPORTED) is used to show that the delete supports
+> NLM_F_BULK. A proper error is returned if bulk delete is not supported.
+> For old kernels I use the fact that mac address attribute (lladdr) is
+> mandatory in the classic fdb del case, but it's not allowed if bulk
+> deleting so older kernels will error out.
+> 
+> [...]
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 74d759d09f94..1a3d583fbc8e 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -622,12 +622,44 @@ static unsigned long __ndm_flags_to_fdb_flags(u8 ndm_flags)
- 	return flags;
- }
- 
-+static int __fdb_flush_validate_ifindex(const struct net_bridge *br,
-+					int ifindex,
-+					struct netlink_ext_ack *extack)
-+{
-+	const struct net_device *dev;
-+
-+	dev = __dev_get_by_index(dev_net(br->dev), ifindex);
-+	if (!dev) {
-+		NL_SET_ERR_MSG_MOD(extack, "Unknown flush device ifindex");
-+		return -ENODEV;
-+	}
-+	if (!netif_is_bridge_master(dev) && !netif_is_bridge_port(dev)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Flush device is not a bridge or bridge port");
-+		return -EINVAL;
-+	}
-+	if (netif_is_bridge_master(dev) && dev != br->dev) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Flush bridge device does not match target bridge device");
-+		return -EINVAL;
-+	}
-+	if (netif_is_bridge_port(dev)) {
-+		struct net_bridge_port *p = br_port_get_rtnl(dev);
-+
-+		if (p->br != br) {
-+			NL_SET_ERR_MSG_MOD(extack, "Port belongs to a different bridge device");
-+			return -EINVAL;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- int br_fdb_delete_bulk(struct ndmsg *ndm, struct nlattr *tb[],
- 		       struct net_device *dev, u16 vid,
- 		       struct netlink_ext_ack *extack)
- {
- 	u8 ndm_flags = ndm->ndm_flags & ~FDB_FLUSH_IGNORED_NDM_FLAGS;
--	struct net_bridge_fdb_flush_desc desc = {};
-+	struct net_bridge_fdb_flush_desc desc = { .vlan_id = vid };
- 	struct net_bridge_port *p = NULL;
- 	struct net_bridge *br;
- 
-@@ -663,6 +695,17 @@ int br_fdb_delete_bulk(struct ndmsg *ndm, struct nlattr *tb[],
- 
- 		desc.flags_mask |= __ndm_flags_to_fdb_flags(ndm_flags_mask);
- 	}
-+	if (tb[NDA_IFINDEX]) {
-+		int err, ifidx = nla_get_s32(tb[NDA_IFINDEX]);
-+
-+		err = __fdb_flush_validate_ifindex(br, ifidx, extack);
-+		if (err)
-+			return err;
-+		desc.port_ifindex = ifidx;
-+	} else if (p) {
-+		/* flush was invoked with port device and NTF_MASTER */
-+		desc.port_ifindex = p->dev->ifindex;
-+	}
- 
- 	br_debug(br, "flushing port ifindex: %d vlan id: %u flags: 0x%lx flags mask: 0x%lx\n",
- 		 desc.port_ifindex, desc.vlan_id, desc.flags, desc.flags_mask);
+Here is the summary with links:
+  - [net-next,v4,01/12] net: rtnetlink: add msg kind names
+    https://git.kernel.org/netdev/net-next/c/12dc5c2cb7b2
+  - [net-next,v4,02/12] net: rtnetlink: add helper to extract msg type's kind
+    https://git.kernel.org/netdev/net-next/c/2e9ea3e30f69
+  - [net-next,v4,03/12] net: rtnetlink: use BIT for flag values
+    https://git.kernel.org/netdev/net-next/c/0569e31f1bc2
+  - [net-next,v4,04/12] net: netlink: add NLM_F_BULK delete request modifier
+    https://git.kernel.org/netdev/net-next/c/545528d78855
+  - [net-next,v4,05/12] net: rtnetlink: add bulk delete support flag
+    https://git.kernel.org/netdev/net-next/c/a6cec0bcd342
+  - [net-next,v4,06/12] net: add ndo_fdb_del_bulk
+    https://git.kernel.org/netdev/net-next/c/1306d5362a59
+  - [net-next,v4,07/12] net: rtnetlink: add NLM_F_BULK support to rtnl_fdb_del
+    https://git.kernel.org/netdev/net-next/c/9e83425993f3
+  - [net-next,v4,08/12] net: bridge: fdb: add ndo_fdb_del_bulk
+    https://git.kernel.org/netdev/net-next/c/edaef1917224
+  - [net-next,v4,09/12] net: bridge: fdb: add support for fine-grained flushing
+    https://git.kernel.org/netdev/net-next/c/1f78ee14eeac
+  - [net-next,v4,10/12] net: rtnetlink: add ndm flags and state mask attributes
+    https://git.kernel.org/netdev/net-next/c/ea2c0f9e3fc2
+  - [net-next,v4,11/12] net: bridge: fdb: add support for flush filtering based on ndm flags and state
+    https://git.kernel.org/netdev/net-next/c/564445fb4f0f
+  - [net-next,v4,12/12] net: bridge: fdb: add support for flush filtering based on ifindex and vlan
+    https://git.kernel.org/netdev/net-next/c/0dbe886a4d8d
+
+You are awesome, thank you!
 -- 
-2.35.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
