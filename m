@@ -3,22 +3,22 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=uxkLq5gH+i4vAlh1Vc6ej6SKnG7KxPEsV60wyj5/uCw=;
- b=T5NMz1Yd4mlZIRTnVHf624fuYfaEnl6cQl/aMH24k2VF6dnBpt81fvJlExFVLlMl8d
- +/OEY6zE5JYI+sHDKQn+4aOg0zjFL0NUB4iQEBo1QM0R4Ib0jlou80pL1tWlYY0WRuOq
- JQA1xV3/WL8WihukQ3KLw0Ms2f/SxH2DwMc9ypDDf7l554oN2Fbkpxhawxd7xc/VKQnT
- g0pMfs+Ma/7i9Q8THBb64oMMeUCLQgO//IV09CuP6gz746nFMy2EscIMlgt2O1X6RPl9
- 5WR0ePw5bST8//9z5XIByVQh6lazDEm3UWfA2KnGq5zf7XuATjJVYk3VAjmlYSE1YwKn
- 1UcQ==
+ bh=ilT4zUFtGaXgHtp2GJK2mepDZI/75DcJ6DrFnHIKpBs=;
+ b=f5BuQoEEwTUVM51o3eEk6VO4Zk4tlK5Kw1wH/VgdHtzNTYnp1N/VYYymg6RiP+0A8N
+ +QXGv0bnK7xKQH/A1+fSaIsgRA7bwwZQkbvRLsz4okmWcDyRAZxBTs2HjVN3Ok1Tmk53
+ 8gE4DClTL+FNydXdcqRuB4Qg1q8y4cAzDFbLIBJf034e25gI05SJ9AAeHQ9iQW2MFjTg
+ A4aD48sU5ovlU1rX/Hc66q7JXx6wt9t1cqm5nO3wHTvbCnQ4zwoS1k+VLJ7BBfecegKR
+ QRa5N522QTcNmjFn1TN80h1R3ztjigBIFLLpmOYDTZK0JDeKIEpCKcjnc5jN2oEpUE2T
+ Fy7g==
 From: Nikolay Aleksandrov <razor@blackwall.org>
-Date: Wed, 13 Apr 2022 13:51:57 +0300
-Message-Id: <20220413105202.2616106-8-razor@blackwall.org>
+Date: Wed, 13 Apr 2022 13:51:59 +0300
+Message-Id: <20220413105202.2616106-10-razor@blackwall.org>
 In-Reply-To: <20220413105202.2616106-1-razor@blackwall.org>
 References: <20220413105202.2616106-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v4 07/12] net: rtnetlink: add NLM_F_BULK
-	support to rtnl_fdb_del
+Subject: [Bridge] [PATCH net-next v4 09/12] net: bridge: fdb: add support
+	for fine-grained flushing
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,152 +30,160 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: Nikolay Aleksandrov <razor@blackwall.org>, dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
 
-When NLM_F_BULK is specified in a fdb del message we need to handle it
-differently. First since this is a new call we can strictly validate the
-passed attributes, at first only ifindex and vlan are allowed as these
-will be the initially supported filter attributes, any other attribute
-is rejected. The mac address is no longer mandatory, but we use it
-to error out in older kernels because it cannot be specified with bulk
-request (the attribute is not allowed) and then we have to dispatch
-the call to ndo_fdb_del_bulk if the device supports it. The del bulk
-callback can do further validation of the attributes if necessary.
+Add the ability to specify exactly which fdbs to be flushed. They are
+described by a new structure - net_bridge_fdb_flush_desc. Currently it
+can match on port/bridge ifindex, vlan id and fdb flags. It is used to
+describe the existing dynamic fdb flush operation. Note that this flush
+operation doesn't treat permanent entries in a special way (fdb_delete vs
+fdb_delete_local), it will delete them regardless if any port is using
+them, so currently it can't directly replace deletes which need to handle
+that case, although we can extend it later for that too.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
-v4: mark PF_BRIDGE/RTM_DELNEIGH with RTNL_FLAG_BULK_DEL_SUPPORTED
+v2: changed the flush matches func for better readability (Ido)
 
- net/core/rtnetlink.c | 67 +++++++++++++++++++++++++++++++-------------
- 1 file changed, 48 insertions(+), 19 deletions(-)
+ net/bridge/br_fdb.c      | 41 ++++++++++++++++++++++++++++++++--------
+ net/bridge/br_netlink.c  |  9 +++++++--
+ net/bridge/br_private.h  | 10 +++++++++-
+ net/bridge/br_sysfs_br.c |  6 +++++-
+ 4 files changed, 54 insertions(+), 12 deletions(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 63c7df52a667..520d50fcaaea 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -4169,22 +4169,34 @@ int ndo_dflt_fdb_del(struct ndmsg *ndm,
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 363985f1a540..45d02f2264db 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -558,24 +558,49 @@ void br_fdb_cleanup(struct work_struct *work)
+ 	mod_delayed_work(system_long_wq, &br->gc_work, work_delay);
  }
- EXPORT_SYMBOL(ndo_dflt_fdb_del);
  
-+static const struct nla_policy fdb_del_bulk_policy[NDA_MAX + 1] = {
-+	[NDA_VLAN]	= { .type = NLA_U16 },
-+	[NDA_IFINDEX]	= NLA_POLICY_MIN(NLA_S32, 1),
+-/* Completely flush all dynamic entries in forwarding database.*/
+-void br_fdb_flush(struct net_bridge *br)
++static bool __fdb_flush_matches(const struct net_bridge *br,
++				const struct net_bridge_fdb_entry *f,
++				const struct net_bridge_fdb_flush_desc *desc)
++{
++	const struct net_bridge_port *dst = READ_ONCE(f->dst);
++	int port_ifidx = dst ? dst->dev->ifindex : br->dev->ifindex;
++
++	if (desc->vlan_id && desc->vlan_id != f->key.vlan_id)
++		return false;
++	if (desc->port_ifindex && desc->port_ifindex != port_ifidx)
++		return false;
++	if (desc->flags_mask && (f->flags & desc->flags_mask) != desc->flags)
++		return false;
++
++	return true;
++}
++
++/* Flush forwarding database entries matching the description */
++void br_fdb_flush(struct net_bridge *br,
++		  const struct net_bridge_fdb_flush_desc *desc)
+ {
+ 	struct net_bridge_fdb_entry *f;
+-	struct hlist_node *tmp;
+ 
+-	spin_lock_bh(&br->hash_lock);
+-	hlist_for_each_entry_safe(f, tmp, &br->fdb_list, fdb_node) {
+-		if (!test_bit(BR_FDB_STATIC, &f->flags))
++	rcu_read_lock();
++	hlist_for_each_entry_rcu(f, &br->fdb_list, fdb_node) {
++		if (!__fdb_flush_matches(br, f, desc))
++			continue;
++
++		spin_lock_bh(&br->hash_lock);
++		if (!hlist_unhashed(&f->fdb_node))
+ 			fdb_delete(br, f, true);
++		spin_unlock_bh(&br->hash_lock);
+ 	}
+-	spin_unlock_bh(&br->hash_lock);
++	rcu_read_unlock();
+ }
+ 
+ int br_fdb_delete_bulk(struct ndmsg *ndm, struct nlattr *tb[],
+ 		       struct net_device *dev, u16 vid,
+ 		       struct netlink_ext_ack *extack)
+ {
++	struct net_bridge_fdb_flush_desc desc = {
++		.flags_mask = BR_FDB_STATIC
++	};
+ 	struct net_bridge_port *p = NULL;
+ 	struct net_bridge *br;
+ 
+@@ -590,7 +615,7 @@ int br_fdb_delete_bulk(struct ndmsg *ndm, struct nlattr *tb[],
+ 		br = p->br;
+ 	}
+ 
+-	br_fdb_flush(br);
++	br_fdb_flush(br, &desc);
+ 
+ 	return 0;
+ }
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 200ad05b296f..bb01776d2d88 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1326,8 +1326,13 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 		br_recalculate_fwd_mask(br);
+ 	}
+ 
+-	if (data[IFLA_BR_FDB_FLUSH])
+-		br_fdb_flush(br);
++	if (data[IFLA_BR_FDB_FLUSH]) {
++		struct net_bridge_fdb_flush_desc desc = {
++			.flags_mask = BR_FDB_STATIC
++		};
++
++		br_fdb_flush(br, &desc);
++	}
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	if (data[IFLA_BR_MCAST_ROUTER]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index f37d49bf5637..4d2a809546fb 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -274,6 +274,13 @@ struct net_bridge_fdb_entry {
+ 	struct rcu_head			rcu;
+ };
+ 
++struct net_bridge_fdb_flush_desc {
++	unsigned long			flags;
++	unsigned long			flags_mask;
++	int				port_ifindex;
++	u16				vlan_id;
 +};
 +
- static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 			struct netlink_ext_ack *extack)
+ #define MDB_PG_FLAGS_PERMANENT	BIT(0)
+ #define MDB_PG_FLAGS_OFFLOAD	BIT(1)
+ #define MDB_PG_FLAGS_FAST_LEAVE	BIT(2)
+@@ -759,7 +766,8 @@ int br_fdb_init(void);
+ void br_fdb_fini(void);
+ int br_fdb_hash_init(struct net_bridge *br);
+ void br_fdb_hash_fini(struct net_bridge *br);
+-void br_fdb_flush(struct net_bridge *br);
++void br_fdb_flush(struct net_bridge *br,
++		  const struct net_bridge_fdb_flush_desc *desc);
+ void br_fdb_find_delete_local(struct net_bridge *br,
+ 			      const struct net_bridge_port *p,
+ 			      const unsigned char *addr, u16 vid);
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index 3f7ca88c2aa3..612e367fff20 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -344,7 +344,11 @@ static DEVICE_ATTR_RW(group_addr);
+ static int set_flush(struct net_bridge *br, unsigned long val,
+ 		     struct netlink_ext_ack *extack)
  {
-+	bool del_bulk = !!(nlh->nlmsg_flags & NLM_F_BULK);
- 	struct net *net = sock_net(skb->sk);
-+	const struct net_device_ops *ops;
- 	struct ndmsg *ndm;
- 	struct nlattr *tb[NDA_MAX+1];
- 	struct net_device *dev;
--	__u8 *addr;
-+	__u8 *addr = NULL;
- 	int err;
- 	u16 vid;
+-	br_fdb_flush(br);
++	struct net_bridge_fdb_flush_desc desc = {
++		.flags_mask = BR_FDB_STATIC
++	};
++
++	br_fdb_flush(br, &desc);
+ 	return 0;
+ }
  
- 	if (!netlink_capable(skb, CAP_NET_ADMIN))
- 		return -EPERM;
- 
--	err = nlmsg_parse_deprecated(nlh, sizeof(*ndm), tb, NDA_MAX, NULL,
--				     extack);
-+	if (!del_bulk) {
-+		err = nlmsg_parse_deprecated(nlh, sizeof(*ndm), tb, NDA_MAX,
-+					     NULL, extack);
-+	} else {
-+		err = nlmsg_parse(nlh, sizeof(*ndm), tb, NDA_MAX,
-+				  fdb_del_bulk_policy, extack);
-+	}
- 	if (err < 0)
- 		return err;
- 
-@@ -4200,9 +4212,12 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		return -ENODEV;
- 	}
- 
--	if (!tb[NDA_LLADDR] || nla_len(tb[NDA_LLADDR]) != ETH_ALEN) {
--		NL_SET_ERR_MSG(extack, "invalid address");
--		return -EINVAL;
-+	if (!del_bulk) {
-+		if (!tb[NDA_LLADDR] || nla_len(tb[NDA_LLADDR]) != ETH_ALEN) {
-+			NL_SET_ERR_MSG(extack, "invalid address");
-+			return -EINVAL;
-+		}
-+		addr = nla_data(tb[NDA_LLADDR]);
- 	}
- 
- 	if (dev->type != ARPHRD_ETHER) {
-@@ -4210,8 +4225,6 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		return -EINVAL;
- 	}
- 
--	addr = nla_data(tb[NDA_LLADDR]);
--
- 	err = fdb_vid_parse(tb[NDA_VLAN], &vid, extack);
- 	if (err)
- 		return err;
-@@ -4222,10 +4235,16 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if ((!ndm->ndm_flags || ndm->ndm_flags & NTF_MASTER) &&
- 	    netif_is_bridge_port(dev)) {
- 		struct net_device *br_dev = netdev_master_upper_dev_get(dev);
--		const struct net_device_ops *ops = br_dev->netdev_ops;
- 
--		if (ops->ndo_fdb_del)
--			err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
-+		ops = br_dev->netdev_ops;
-+		if (!del_bulk) {
-+			if (ops->ndo_fdb_del)
-+				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
-+		} else {
-+			if (ops->ndo_fdb_del_bulk)
-+				err = ops->ndo_fdb_del_bulk(ndm, tb, dev, vid,
-+							    extack);
-+		}
- 
- 		if (err)
- 			goto out;
-@@ -4235,15 +4254,24 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	/* Embedded bridge, macvlan, and any other device support */
- 	if (ndm->ndm_flags & NTF_SELF) {
--		if (dev->netdev_ops->ndo_fdb_del)
--			err = dev->netdev_ops->ndo_fdb_del(ndm, tb, dev, addr,
--							   vid);
--		else
--			err = ndo_dflt_fdb_del(ndm, tb, dev, addr, vid);
-+		ops = dev->netdev_ops;
-+		if (!del_bulk) {
-+			if (ops->ndo_fdb_del)
-+				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
-+			else
-+				err = ndo_dflt_fdb_del(ndm, tb, dev, addr, vid);
-+		} else {
-+			/* in case err was cleared by NTF_MASTER call */
-+			err = -EOPNOTSUPP;
-+			if (ops->ndo_fdb_del_bulk)
-+				err = ops->ndo_fdb_del_bulk(ndm, tb, dev, vid,
-+							    extack);
-+		}
- 
- 		if (!err) {
--			rtnl_fdb_notify(dev, addr, vid, RTM_DELNEIGH,
--					ndm->ndm_state);
-+			if (!del_bulk)
-+				rtnl_fdb_notify(dev, addr, vid, RTM_DELNEIGH,
-+						ndm->ndm_state);
- 			ndm->ndm_flags &= ~NTF_SELF;
- 		}
- 	}
-@@ -6145,7 +6173,8 @@ void __init rtnetlink_init(void)
- 	rtnl_register(PF_UNSPEC, RTM_DELLINKPROP, rtnl_dellinkprop, NULL, 0);
- 
- 	rtnl_register(PF_BRIDGE, RTM_NEWNEIGH, rtnl_fdb_add, NULL, 0);
--	rtnl_register(PF_BRIDGE, RTM_DELNEIGH, rtnl_fdb_del, NULL, 0);
-+	rtnl_register(PF_BRIDGE, RTM_DELNEIGH, rtnl_fdb_del, NULL,
-+		      RTNL_FLAG_BULK_DEL_SUPPORTED);
- 	rtnl_register(PF_BRIDGE, RTM_GETNEIGH, rtnl_fdb_get, rtnl_fdb_dump, 0);
- 
- 	rtnl_register(PF_BRIDGE, RTM_GETLINK, NULL, rtnl_bridge_getlink, 0);
 -- 
 2.35.1
 
