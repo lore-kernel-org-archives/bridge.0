@@ -1,27 +1,26 @@
-Return-Path: <dsahern@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1649896946;
- bh=8lYIYTMcMRpADQYVwwEbTQ7w7xq7gDAawhUe2eXrNFo=;
- h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
- b=V9J3P/MYXS5MyBbY7MTCPsrfE3nENIideBDr+z1NaP1bcBCdbI3rgl5AU0FWbmsLZ
- 62EnjksFq+LNx4NUgcKoemXlmZv8EmHHOxnTPP1I+62tLeAZw//HUYCtw8T9CFBHIe
- Xjzn4NWjVlQ4eY0G9WRzvMmR17iTAnF78k+Mwr1KzmT5JQIND3vvBajDHYMbRFLwmO
- lNodux6lTYtTYALdmZYoqdOA1g4qIOqgxJMAOLVNXYymjK3WSLJapuNHblHxwjOcR9
- ECdhgOhZnf68tHU/+aHapN3TtclDep2M8NkIjdAdN/7R/L6o7n4lRkO9p0kl1zHvE0
- ztYWtas8r600Q==
-Message-ID: <97774474-65a3-fa45-e0b9-8db6c748da28@kernel.org>
-Date: Wed, 13 Apr 2022 18:42:24 -0600
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=J8Pn8rUD1/67P2tIwIl9jn0IKf5NiUvBQMzixzEqf/Q=;
+ b=B+CHHscwnn2+GacbCaiG+xNaVwl86dTG9X33TRd5Haj/UzFu/OV15iRoZllAENs/fn
+ 5XstadFRJB3u1VfDeP+s3zylVwkFvGzVU3svaIoI/BMK831NIwb+J4/jvC2EnJgtYjuE
+ u3RJnmV6ZgpYlM3CDwblSTZnb31nQSo+Zc4t1lb7/h+mWIHZaaY7ICn8yJRS2PuiGcG4
+ tBjaxKYkOyhllGC+0Do+fYZuG0jXcZxdQQUuRl6hQvVKeNdY0rVejVCNvpW1PFpyrvuX
+ CNylqIrGqgLLsfAIdw4NI898sqFykbiuymAcEhsfEYtnf1AgsTVfSyQysnsa7tZhz4Bi
+ 4T3A==
+Message-ID: <c945ebff-02fe-f2d5-656f-6bdfc46416f1@blackwall.org>
+Date: Thu, 21 Apr 2022 13:17:51 +0300
 MIME-Version: 1.0
 Content-Language: en-US
-References: <20220413105202.2616106-1-razor@blackwall.org>
- <20220413105202.2616106-6-razor@blackwall.org> <Yla8wj7khYxpwxan@shredder>
- <e43b5033-d350-fc81-71be-de3e1053c72a@blackwall.org>
-From: David Ahern <dsahern@kernel.org>
-In-Reply-To: <e43b5033-d350-fc81-71be-de3e1053c72a@blackwall.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 05/12] net: rtnetlink: add bulk
- delete support flag
+References: <20220421101247.121896-1-clement.leger@bootlin.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20220421101247.121896-1-clement.leger@bootlin.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [PATCH net-next] net: bridge: switchdev: check
+ br_vlan_group() return value
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,36 +29,33 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@idosch.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com
+To: =?UTF-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Tobias Waldekranz <tobias@waldekranz.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 
-On 4/13/22 6:21 AM, Nikolay Aleksandrov wrote:
->> If a buggy user space application is sending messages with NLM_F_BULK
->> set (unintentionally), will it break on newer kernel? I couldn't find
->> where the kernel was validating that reserved flags are not used (I
->> suspect it doesn't).
+On 21/04/2022 13:12, Clément Léger wrote:
+> br_vlan_group() can return NULL and thus return value must be checked
+> to avoid dereferencing a NULL pointer.
 > 
-> Correct, it doesn't.
+> Fixes: 6284c723d9b9 ("net: bridge: mst: Notify switchdev drivers of VLAN MSTI migrations")
+> Signed-off-by: Clément Léger <clement.leger@bootlin.com>
+> ---
+>  net/bridge/br_switchdev.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
->>
->> Assuming the above is correct and of interest, maybe just emit a warning
->> via extack and drop the goto? Alternatively, we can see if anyone
->> complains which might never happen
->>
-> 
-> TBH I prefer to error out on an unsupported flag, but I get the problem. These
-> weren't validated before and we start checking now. The problem is that we'll
-> return an extack without an error, but the delete might also remove something.
-> Hrm.. perhaps we can rephrase the error in that case (since it becomes a warning
-> in iproute2 terms):
->  "NLM_F_BULK flag is set but bulk delete operation is not supported"
-> So it will warn the user it has an unsupported flag.
-> 
-> WDYT ?
-> 
-> IMO we should bite the bullet and keep the error though. :)
-> 
+> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+> index 81400e0b26ac..8f3d76c751dd 100644
+> --- a/net/bridge/br_switchdev.c
+> +++ b/net/bridge/br_switchdev.c
+> @@ -354,6 +354,8 @@ static int br_switchdev_vlan_attr_replay(struct net_device *br_dev,
+>  	attr.orig_dev = br_dev;
+>  
+>  	vg = br_vlan_group(br);
+> +	if (!vg)
+> +		return 0;
+>  
+>  	list_for_each_entry(v, &vg->vlan_list, vlist) {
+>  		if (v->msti) {
 
-I agree. The check across the board for BULK flag on any DELETE requests
-should tell us pretty quick if someone is setting that flag when it
-should not be.
+
+Good catch.
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
