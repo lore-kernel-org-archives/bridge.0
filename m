@@ -3,24 +3,26 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=message-id:date:mime-version:user-agent:subject:content-language:to
  :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=0EgzoIHWVkAfvNpSWOnmV5LtfT6ZJcYhH7++3XB+glE=;
- b=xQq3liiyVG1TK522MGl5jBLsfT/Uix5DJ3L1iQks/PUiduhaj0NF/URdGJsujPgbam
- hLbi8IT6w9lG9NEFjrvb1UR+ca1mCX4b1Qa0CVbMAeny61wANYKKF9H4J11T+QSnUlBA
- 2l8hLqraXLvGyde7o9+APzhMhr3bL33Y+fT0z2fCfZIWjS+jC+OmP1EfZpvczGWyq1Z7
- Q0c4u1b3TdLlzdFuNAllSb77AKFMOjv3sPo5qKywJgVDxQaMebwYqhmm8497vdHoGQfR
- mzs5YY8oyumj/q4pmo14yIiCU20R9SOZBaFVepZFNOAUC0i6Vz0LA50TSIWTJyCFrgON
- 8+WQ==
-Message-ID: <4bf69eef-7444-1238-0f4a-fb0fccda080c@blackwall.org>
-Date: Sun, 24 Apr 2022 22:55:11 +0300
+ bh=HtsX7xXS5KyrSdS4F8RNS0VhDr01GCN2iAGgDFc6qBs=;
+ b=Bk78u/NaLlBh/+udP1b42wGjGXL+P807SEn3bt4RGvsZ6lVNKA9vUhLUIDtJu4SHO9
+ T9/5Z7yK5+CdL++dKToG8H03+Ijpr644TnAzeuf9hCa+Ky3DfQxmNbQ5argOSQrrIU3U
+ GtLq73xG7eQILwhJGkUrnG9H1nHp9VbOLtGWDH+J8duVnfd4noatHsIok+vlhVQxcBwV
+ fU1Niw1hMc/3HNwc+i2lL1L6woChrXpSTZvUa1Z58wx1w8zInanQQoj7M88+ZRlDn2Dj
+ PAvZYWy4uvkiXgYhKbE7+XzaWRy0A+uRrdNZTwRRDs7joSr1nBCKZ/TZFLMqIaVXcRHo
+ le3Q==
+Message-ID: <0f1e1250-920a-c7d1-900c-98ef3e0456d8@blackwall.org>
+Date: Mon, 25 Apr 2022 00:52:39 +0300
 MIME-Version: 1.0
 Content-Language: en-US
 References: <cover.1650800975.git.eng.alaamohamedsoliman.am@gmail.com>
  <c3a882e4fb6f9228f704ebe3c1fcace14ee6cdf2.1650800975.git.eng.alaamohamedsoliman.am@gmail.com>
  <7c8367b6-95c7-ea39-fafe-72495f343625@blackwall.org>
  <d89eefc2-664f-8537-d10e-6fdfbb6823ed@gmail.com>
+ <4bf69eef-7444-1238-0f4a-fb0fccda080c@blackwall.org>
+ <3bcb2d3d-8b8b-8a8f-1285-7277394b4e6b@gmail.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <d89eefc2-664f-8537-d10e-6fdfbb6823ed@gmail.com>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <3bcb2d3d-8b8b-8a8f-1285-7277394b4e6b@gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Subject: Re: [Bridge] [PATCH net-next v3 1/2] rtnetlink: add extack support
  in fdb del handlers
@@ -35,188 +37,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>, netdev@vger.kernel.org
 Cc: shshaikh@marvell.com, jdenham@redhat.com, GR-Linux-NIC-Dev@marvell.com, manishc@marvell.com, alexandre.belloni@bootlin.com, outreachy@lists.linux.dev, vladimir.oltean@nxp.com, bridge@lists.linux-foundation.org, jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org, sbrivio@redhat.com, claudiu.manoil@nxp.com, anthony.l.nguyen@intel.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net, UNGLinuxDriver@microchip.com, intel-wired-lan@lists.osuosl.org
 
-On 24/04/2022 22:49, Alaa Mohamed wrote:
+On 4/25/22 00:09, Alaa Mohamed wrote:
 > 
-> On ٢٤‏/٤‏/٢٠٢٢ ٢١:٠٢, Nikolay Aleksandrov wrote:
->> On 24/04/2022 15:09, Alaa Mohamed wrote:
->>> Add extack support to .ndo_fdb_del in netdevice.h and
->>> all related methods.
+> On ٢٤‏/٤‏/٢٠٢٢ ٢١:٥٥, Nikolay Aleksandrov wrote:
+>> On 24/04/2022 22:49, Alaa Mohamed wrote:
+>>> On ٢٤‏/٤‏/٢٠٢٢ ٢١:٠٢, Nikolay Aleksandrov wrote:
+>>>> On 24/04/2022 15:09, Alaa Mohamed wrote:
+>>>>> Add extack support to .ndo_fdb_del in netdevice.h and
+>>>>> all related methods.
+>>>>>
+>>>>> Signed-off-by: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
+>>>>> ---
+>>>>> changes in V3:
+>>>>>           fix errors reported by checkpatch.pl
+>>>>> ---
+>>>>>    drivers/net/ethernet/intel/ice/ice_main.c        | 4 ++--
+>>>>>    drivers/net/ethernet/mscc/ocelot_net.c           | 4 ++--
+>>>>>    drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 2 +-
+>>>>>    drivers/net/macvlan.c                            | 2 +-
+>>>>>    drivers/net/vxlan/vxlan_core.c                   | 2 +-
+>>>>>    include/linux/netdevice.h                        | 2 +-
+>>>>>    net/bridge/br_fdb.c                              | 2 +-
+>>>>>    net/bridge/br_private.h                          | 2 +-
+>>>>>    net/core/rtnetlink.c                             | 4 ++--
+>>>>>    9 files changed, 12 insertions(+), 12 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/net/ethernet/intel/ice/ice_main.c 
+>>>>> b/drivers/net/ethernet/intel/ice/ice_main.c
+>>>>> index d768925785ca..7b55d8d94803 100644
+>>>>> --- a/drivers/net/ethernet/intel/ice/ice_main.c
+>>>>> +++ b/drivers/net/ethernet/intel/ice/ice_main.c
+>>>>> @@ -5678,10 +5678,10 @@ ice_fdb_add(struct ndmsg *ndm, struct 
+>>>>> nlattr __always_unused *tb[],
+>>>>>    static int
+>>>>>    ice_fdb_del(struct ndmsg *ndm, __always_unused struct nlattr *tb[],
+>>>>>            struct net_device *dev, const unsigned char *addr,
+>>>>> -        __always_unused u16 vid)
+>>>>> +        __always_unused u16 vid, struct netlink_ext_ack *extack)
+>>>>>    {
+>>>>>        int err;
+>>>>> -
+>>>>> +
+>>>> What's changed here?
+>>> In the previous version, I removed the blank line after "int err;" 
+>>> and you said I shouldn't so I added blank line.
 >>>
->>> Signed-off-by: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
->>> ---
->>> changes in V3:
->>>          fix errors reported by checkpatch.pl
->>> ---
->>>   drivers/net/ethernet/intel/ice/ice_main.c        | 4 ++--
->>>   drivers/net/ethernet/mscc/ocelot_net.c           | 4 ++--
->>>   drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 2 +-
->>>   drivers/net/macvlan.c                            | 2 +-
->>>   drivers/net/vxlan/vxlan_core.c                   | 2 +-
->>>   include/linux/netdevice.h                        | 2 +-
->>>   net/bridge/br_fdb.c                              | 2 +-
->>>   net/bridge/br_private.h                          | 2 +-
->>>   net/core/rtnetlink.c                             | 4 ++--
->>>   9 files changed, 12 insertions(+), 12 deletions(-)
->>>
->>> diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
->>> index d768925785ca..7b55d8d94803 100644
->>> --- a/drivers/net/ethernet/intel/ice/ice_main.c
->>> +++ b/drivers/net/ethernet/intel/ice/ice_main.c
->>> @@ -5678,10 +5678,10 @@ ice_fdb_add(struct ndmsg *ndm, struct nlattr __always_unused *tb[],
->>>   static int
->>>   ice_fdb_del(struct ndmsg *ndm, __always_unused struct nlattr *tb[],
->>>           struct net_device *dev, const unsigned char *addr,
->>> -        __always_unused u16 vid)
->>> +        __always_unused u16 vid, struct netlink_ext_ack *extack)
->>>   {
->>>       int err;
->>> -
->>> +
->> What's changed here?
-> 
-> In the previous version, I removed the blank line after "int err;" and you said I shouldn't so I added blank line.
-> 
-
-Yeah, my question is are you fixing a dos ending or something else?
-The blank line is already there, what's wrong with it?
-
-The point is it's not nice to mix style fixes and other changes, more so
-if nothing is mentioned in the commit message.
-
+>> Yeah, my question is are you fixing a dos ending or something else?
+>> The blank line is already there, what's wrong with it?
+> No, I didn't.
 >>
->>>       if (ndm->ndm_state & NUD_PERMANENT) {
->>>           netdev_err(dev, "FDB only supports static addresses\n");
->>>           return -EINVAL;
->>> diff --git a/drivers/net/ethernet/mscc/ocelot_net.c b/drivers/net/ethernet/mscc/ocelot_net.c
->>> index 247bc105bdd2..e07c64e3159c 100644
->>> --- a/drivers/net/ethernet/mscc/ocelot_net.c
->>> +++ b/drivers/net/ethernet/mscc/ocelot_net.c
->>> @@ -774,14 +774,14 @@ static int ocelot_port_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
->>>
->>>   static int ocelot_port_fdb_del(struct ndmsg *ndm, struct nlattr *tb[],
->>>                      struct net_device *dev,
->>> -                   const unsigned char *addr, u16 vid)
->>> +                   const unsigned char *addr, u16 vid, struct netlink_ext_ack *extack)
->>>   {
->>>       struct ocelot_port_private *priv = netdev_priv(dev);
->>>       struct ocelot_port *ocelot_port = &priv->port;
->>>       struct ocelot *ocelot = ocelot_port->ocelot;
->>>       int port = priv->chip_port;
->>>
->>> -    return ocelot_fdb_del(ocelot, port, addr, vid, ocelot_port->bridge);
->>> +    return ocelot_fdb_del(ocelot, port, addr, vid, ocelot_port->bridge, extack);
->>>   }
->>>
->>>   static int ocelot_port_fdb_dump(struct sk_buff *skb,
->>> diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
->>> index d320567b2cca..51fa23418f6a 100644
->>> --- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
->>> +++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
->>> @@ -368,7 +368,7 @@ static int qlcnic_set_mac(struct net_device *netdev, void *p)
->>>
->>>   static int qlcnic_fdb_del(struct ndmsg *ndm, struct nlattr *tb[],
->>>               struct net_device *netdev,
->>> -            const unsigned char *addr, u16 vid)
->>> +            const unsigned char *addr, u16 vid, struct netlink_ext_ack *extack)
->>>   {
->>>       struct qlcnic_adapter *adapter = netdev_priv(netdev);
->>>       int err = -EOPNOTSUPP;
->>> diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
->>> index 069e8824c264..ffd34d9f7049 100644
->>> --- a/drivers/net/macvlan.c
->>> +++ b/drivers/net/macvlan.c
->>> @@ -1017,7 +1017,7 @@ static int macvlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
->>>
->>>   static int macvlan_fdb_del(struct ndmsg *ndm, struct nlattr *tb[],
->>>                  struct net_device *dev,
->>> -               const unsigned char *addr, u16 vid)
->>> +               const unsigned char *addr, u16 vid, struct netlink_ext_ack *extack)
->>>   {
->>>       struct macvlan_dev *vlan = netdev_priv(dev);
->>>       int err = -EINVAL;
->>> diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
->>> index de97ff98d36e..cf2f60037340 100644
->>> --- a/drivers/net/vxlan/vxlan_core.c
->>> +++ b/drivers/net/vxlan/vxlan_core.c
->>> @@ -1280,7 +1280,7 @@ int __vxlan_fdb_delete(struct vxlan_dev *vxlan,
->>>   /* Delete entry (via netlink) */
->>>   static int vxlan_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
->>>                   struct net_device *dev,
->>> -                const unsigned char *addr, u16 vid)
->>> +                const unsigned char *addr, u16 vid, struct netlink_ext_ack *extack)
->>>   {
->>>       struct vxlan_dev *vxlan = netdev_priv(dev);
->>>       union vxlan_addr ip;
->>> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
->>> index 28ea4f8269d4..d0d2a8f33c73 100644
->>> --- a/include/linux/netdevice.h
->>> +++ b/include/linux/netdevice.h
->>> @@ -1509,7 +1509,7 @@ struct net_device_ops {
->>>                              struct nlattr *tb[],
->>>                              struct net_device *dev,
->>>                              const unsigned char *addr,
->>> -                           u16 vid);
->>> +                           u16 vid, struct netlink_ext_ack *extack);
->>>       int            (*ndo_fdb_dump)(struct sk_buff *skb,
->>>                           struct netlink_callback *cb,
->>>                           struct net_device *dev,
->>> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
->>> index 6ccda68bd473..5bfce2e9a553 100644
->>> --- a/net/bridge/br_fdb.c
->>> +++ b/net/bridge/br_fdb.c
->>> @@ -1110,7 +1110,7 @@ static int __br_fdb_delete(struct net_bridge *br,
->>>   /* Remove neighbor entry with RTM_DELNEIGH */
->>>   int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
->>>             struct net_device *dev,
->>> -          const unsigned char *addr, u16 vid)
->>> +          const unsigned char *addr, u16 vid, struct netlink_ext_ack *extack)
->>>   {
->>>       struct net_bridge_vlan_group *vg;
->>>       struct net_bridge_port *p = NULL;
->>> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
->>> index 18ccc3d5d296..95348c1c9ce5 100644
->>> --- a/net/bridge/br_private.h
->>> +++ b/net/bridge/br_private.h
->>> @@ -780,7 +780,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
->>>              const unsigned char *addr, u16 vid, unsigned long flags);
->>>
->>>   int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
->>> -          struct net_device *dev, const unsigned char *addr, u16 vid);
->>> +          struct net_device *dev, const unsigned char *addr, u16 vid, struct netlink_ext_ack *extack);
->> This is way too long (111 chars) and checkpatch should've complained about it.
->> WARNING: line length of 111 exceeds 100 columns
->> #234: FILE: net/bridge/br_private.h:782:
->> +          struct net_device *dev, const unsigned char *addr, u16 vid, struct netlink_ext_ack *extack);
-> 
-> I will fix it.
-> 
->>
->>>   int br_fdb_add(struct ndmsg *nlh, struct nlattr *tb[], struct net_device *dev,
->>>              const unsigned char *addr, u16 vid, u16 nlh_flags,
->>>              struct netlink_ext_ack *extack);
->>> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
->>> index 4041b3e2e8ec..99b30ae58a47 100644
->>> --- a/net/core/rtnetlink.c
->>> +++ b/net/core/rtnetlink.c
->>> @@ -4223,7 +4223,7 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
->>>           const struct net_device_ops *ops = br_dev->netdev_ops;
->>>
->>>           if (ops->ndo_fdb_del)
->>> -            err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
->>> +            err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid, extack);
->>>
->>>           if (err)
->>>               goto out;
->>> @@ -4235,7 +4235,7 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
->>>       if (ndm->ndm_flags & NTF_SELF) {
->>>           if (dev->netdev_ops->ndo_fdb_del)
->>>               err = dev->netdev_ops->ndo_fdb_del(ndm, tb, dev, addr,
->>> -                               vid);
->>> +                               vid, extack);
->>>           else
->>>               err = ndo_dflt_fdb_del(ndm, tb, dev, addr, vid);
->>>
->>> -- 
->>> 2.36.0
->>>
+>> The point is it's not nice to mix style fixes and other changes, more so
+>> if nothing is mentioned in the commit message.
+> Got it, So, what should I do to fix it?
 
+Don't change that line? I mean I'm even surprised this made it in the 
+patch. As I mentioned above, there is already a new line there so I'm 
+not sure how you're removing it and adding it again. :)
+
+Cheers,
+  Nik
