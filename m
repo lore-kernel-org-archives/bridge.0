@@ -1,24 +1,26 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1650901711;
- bh=/t9m4/CeRlKdtuZXaz3TIf1SxEIJdA7erFumgZsS0uw=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=eOh7UZUkEZo/3ZbQ3PFG7Sonks6El6PeCIN27QpESDKgQAErhvEaXm5KHbAphkzpI
- DbS3z0A806wbIW0q73FkzHUMYhjAKBeCDh22sXJeY2YzhqKHBIkrAOTHC9v2TOudcQ
- cnwD6Y+fV1mnE5tfBuHuBckGxp0n4CdDkY99FAwiw/YJLCMLdSsUKXPVdUb6YxF/MJ
- WtdvWJVvQhKG92F8KUwLIgbkDI6QRXTjwKXys/e3UTkxJ6wwqrn8LRrY7HQmI3at9V
- N4YKmmmQD26s3s3ouZxl4FixIONGLzDT6vjUa0tao1QuHX5QadQY8M9RZKdf+Qr63O
- 8rWNcE/MfKKyQ==
-Date: Mon, 25 Apr 2022 08:48:29 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20220425084829.4b446748@kernel.org>
-In-Reply-To: <cover.1650896000.git.eng.alaamohamedsoliman.am@gmail.com>
+Return-Path: <stephen@networkplumber.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=networkplumber-org.20210112.gappssmtp.com; s=20210112;
+ h=date:from:to:subject:message-id:in-reply-to:references:mime-version
+ :content-transfer-encoding;
+ bh=eSUUmvcNxUREKY9cfIXBqiFcqq7TWxDWmLrdLzNKTdU=;
+ b=EKZUOtERmjlzbXufW4645zt3AX8Dp81DRfEiYA6+kWUhMRR3qkn/JamkKu2b/Ny02G
+ dlBxN7CY3TxY4t8SdfHJjGd9T40h8MUEY0AImsXJSW8/ZkiqTEwuUGF5R2KbsXfWuSVf
+ kOosTDhAkaDOuvuD9E/k+TGdqPErzhC7wMl7JVDA7xOuTI4XUVawX8+S5ooCIZCa63yE
+ fEysmS1mtk4vLSpOJFLMcp+faGnMhiGs0OxF4NeFm+SnkOAxvb0MsBIbPoooIjtpYPhS
+ XRpiPiwHTdTuUQUChwjTg5iwy75JYVBxk+Z1aQvvZ/XAvJnezxMv1PVxk/uDfLz7Q0Ew
+ Q+VQ==
+Date: Mon, 25 Apr 2022 09:06:49 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20220425090649.1b99fade@hermes.local>
+In-Reply-To: <a99bfeb371857968a3fa734c00bd9b0e122719c1.1650896000.git.eng.alaamohamedsoliman.am@gmail.com>
 References: <cover.1650896000.git.eng.alaamohamedsoliman.am@gmail.com>
+ <a99bfeb371857968a3fa734c00bd9b0e122719c1.1650896000.git.eng.alaamohamedsoliman.am@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 0/2] propagate extack to
-	vxlan_fdb_delete
+Subject: Re: [Bridge] [PATCH net-next v4 2/2] net: vxlan: vxlan_core.c: Add
+ extack support to vxlan_fdb_delete
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,13 +29,26 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
-Cc: shshaikh@marvell.com, jdenham@redhat.com, GR-Linux-NIC-Dev@marvell.com, manishc@marvell.com, alexandre.belloni@bootlin.com, outreachy@lists.linux.dev, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org, vladimir.oltean@nxp.com, sbrivio@redhat.com, claudiu.manoil@nxp.com, anthony.l.nguyen@intel.com, roopa@nvidia.com, intel-wired-lan@lists.osuosl.org, pabeni@redhat.com, davem@davemloft.net, UNGLinuxDriver@microchip.com
+To: bridge@lists.linux-foundation.org
 
-On Mon, 25 Apr 2022 16:25:05 +0200 Alaa Mohamed wrote:
-> In order to propagate extack to vxlan_fdb_delete and vxlan_fdb_parse,
-> add extack to .ndo_fdb_del and edit all fdb del handelers
+On Mon, 25 Apr 2022 16:25:07 +0200
+Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com> wrote:
 
-Your patches do not apply cleanly to net-next/master. Please rebase and
-repost. Please wait 24h between postings to allow additional feedback
-to come in.
+>  static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
+>  			   union vxlan_addr *ip, __be16 *port, __be32 *src_vni,
+> -			   __be32 *vni, u32 *ifindex, u32 *nhid)
+> +			   __be32 *vni, u32 *ifindex, u32 *nhid, struct netlink_ext_ack *extack)
+>  {
+>  	struct net *net = dev_net(vxlan->dev);
+>  	int err;
+> 
+>  	if (tb[NDA_NH_ID] && (tb[NDA_DST] || tb[NDA_VNI] || tb[NDA_IFINDEX] ||
+> -	    tb[NDA_PORT]))
+> -		return -EINVAL;
+> +	    tb[NDA_PORT])) {
+> +			NL_SET_ERR_MSG(extack,
+> +						   "DST, VNI, ifindex and port are mutually exclusive with NH_ID");
+> +			return -EINVAL;
+> +		}
+
+The indentation is off here?
