@@ -2,22 +2,22 @@ Return-Path: <eng.alaamohamedsoliman.am@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=7vCfCTrM3jIFvejFvELhxlGa1tz3Em6AnJ35/rfJQzk=;
- b=BE4ebX/QI87V2ZtvJTUTfpOF/O4joNh3QYQ8+mDWDiCOC7dIYHBvvnqN94QUN4xQMD
- dT6m/4GSnYvnMml8aiW6nzwVTHYRWqYbzdSav4+Ce27Se1YJwPF4syMwaf2cDOrDgYbY
- AVPabinnZs5KwFTBrxP6BNxskARndHDahxE8CM5vyZufE67+6y/8chQDdwWlzFJd0s+c
- j4LUNCKihhZYX0Z6D3ln1LFv+VVPJebWywzVZJho6nbfrmOnAqEAw3Yl55pQzRQQjIUi
- yUbOW3P9uBV0JXte9zMWYIN/iwojWS9y+Dqu5SZp6+S9V2plvgvELQWdgEv7RBc4akFa
- iHIA==
+ bh=m2VDhVRQPjsV1IPycPT/Y4TlTx8jaZtNzcIfdQQLUOE=;
+ b=ecACeX4mEA86JpS0EXqxZYgqpdd/LkB5YAIuA0ZlDvIGigqsSq6u1HE5Fkm2nj/4no
+ XTvJc5g4hQCzMLN3bJsYak/3ygV7SkqvcmGozAMysaaQj34gblO9wOzUSGOqLyVMxCgq
+ 5U8GqBywfsp3IGvSDFHF/01j/6tEwuIdmQR/hx1zigTs9Xk9q8h7f1m8Ziq8Z+TYc0zP
+ S0le5HBcSYQI/59t/usSCR632rbPOBsY3eu8+iu2xiVmpUE8dn/ZyGq6gbJIInUCVMG/
+ gyhZJu9P1d9wi011YgbJEn3rUvLoIGwLNbdNeGgF1SgvtfrM1Vu6ZsHHnmqlIFstgVBn
+ vBwQ==
 From: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
-Date: Fri, 29 Apr 2022 14:49:06 +0200
-Message-Id: <26815b6deebef7f02e864ca41714533c7009e7b7.1651236082.git.eng.alaamohamedsoliman.am@gmail.com>
+Date: Fri, 29 Apr 2022 14:49:07 +0200
+Message-Id: <7abd2d1abb8abd3080356b8e031b1b100b80f1ed.1651236082.git.eng.alaamohamedsoliman.am@gmail.com>
 In-Reply-To: <cover.1651236081.git.eng.alaamohamedsoliman.am@gmail.com>
 References: <cover.1651236081.git.eng.alaamohamedsoliman.am@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v5 1/2] rtnetlink: add extack support in
-	fdb del handlers
+Subject: [Bridge] [PATCH net-next v5 2/2] net: vxlan: Add extack support to
+	vxlan_fdb_delete
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,163 +29,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: eng.alaamohamedsoliman.am@gmail.com, shshaikh@marvell.com, jdenham@redhat.com, GR-Linux-NIC-Dev@marvell.com, manishc@marvell.com, alexandre.belloni@bootlin.com, outreachy@lists.linux.dev, vladimir.oltean@nxp.com, razor@blackwall.org, bridge@lists.linux-foundation.org, jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org, sbrivio@redhat.com, claudiu.manoil@nxp.com, anthony.l.nguyen@intel.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net, UNGLinuxDriver@microchip.com, intel-wired-lan@lists.osuosl.org
 
-Add extack support to .ndo_fdb_del in netdevice.h and
-all related methods.
+This patch adds extack msg support to vxlan_fdb_delete and vxlan_fdb_parse.
+extack is used to propagate meaningful error msgs to the user of vxlan
+fdb netlink api
 
 Signed-off-by: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
+---
+changes in V2:
+        - fix spelling vxlan_fdb_delete
+        - add missing braces
+        - edit error message
 ---
 changes in V3:
         fix errors reported by checkpatch.pl
 ---
 changes in V4:
-        fix errors reported by checkpatch.pl
+        - fix errors reported by checkpatch.pl
+        - edit commit message.
 ---
 changes in V5:
-	resubmit after rebase.
+	- edit commit message
 ---
- drivers/net/ethernet/intel/ice/ice_main.c        | 2 +-
- drivers/net/ethernet/mscc/ocelot_net.c           | 3 ++-
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c | 3 ++-
- drivers/net/macvlan.c                            | 3 ++-
- drivers/net/vxlan/vxlan_core.c                   | 3 ++-
- include/linux/netdevice.h                        | 2 +-
- net/bridge/br_fdb.c                              | 3 ++-
- net/bridge/br_private.h                          | 3 ++-
- net/core/rtnetlink.c                             | 4 ++--
- 9 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/net/vxlan/vxlan_core.c | 38 ++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index fde839ef0613..3fccac358198 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5678,7 +5678,7 @@ ice_fdb_add(struct ndmsg *ndm, struct nlattr __always_unused *tb[],
- static int
- ice_fdb_del(struct ndmsg *ndm, __always_unused struct nlattr *tb[],
- 	    struct net_device *dev, const unsigned char *addr,
--	    __always_unused u16 vid)
-+	    __always_unused u16 vid, struct netlink_ext_ack *extack)
- {
- 	int err;
-
-diff --git a/drivers/net/ethernet/mscc/ocelot_net.c b/drivers/net/ethernet/mscc/ocelot_net.c
-index 247bc105bdd2..616d8127ef51 100644
---- a/drivers/net/ethernet/mscc/ocelot_net.c
-+++ b/drivers/net/ethernet/mscc/ocelot_net.c
-@@ -774,7 +774,8 @@ static int ocelot_port_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
-
- static int ocelot_port_fdb_del(struct ndmsg *ndm, struct nlattr *tb[],
- 			       struct net_device *dev,
--			       const unsigned char *addr, u16 vid)
-+			       const unsigned char *addr, u16 vid,
-+				   struct netlink_ext_ack *extack)
- {
- 	struct ocelot_port_private *priv = netdev_priv(dev);
- 	struct ocelot_port *ocelot_port = &priv->port;
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-index d320567b2cca..28476b982bab 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c
-@@ -368,7 +368,8 @@ static int qlcnic_set_mac(struct net_device *netdev, void *p)
-
- static int qlcnic_fdb_del(struct ndmsg *ndm, struct nlattr *tb[],
- 			struct net_device *netdev,
--			const unsigned char *addr, u16 vid)
-+			const unsigned char *addr, u16 vid,
-+			struct netlink_ext_ack *extack)
- {
- 	struct qlcnic_adapter *adapter = netdev_priv(netdev);
- 	int err = -EOPNOTSUPP;
-diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
-index b00bc8173abe..cb27631c3a4d 100644
---- a/drivers/net/macvlan.c
-+++ b/drivers/net/macvlan.c
-@@ -1021,7 +1021,8 @@ static int macvlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
-
- static int macvlan_fdb_del(struct ndmsg *ndm, struct nlattr *tb[],
- 			   struct net_device *dev,
--			   const unsigned char *addr, u16 vid)
-+			   const unsigned char *addr, u16 vid,
-+			   struct netlink_ext_ack *extack)
- {
- 	struct macvlan_dev *vlan = netdev_priv(dev);
- 	int err = -EINVAL;
 diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
-index 8a5e3a6d32d7..ad0f2150cfdb 100644
+index ad0f2150cfdb..429ce2168971 100644
 --- a/drivers/net/vxlan/vxlan_core.c
 +++ b/drivers/net/vxlan/vxlan_core.c
-@@ -1280,7 +1280,8 @@ int __vxlan_fdb_delete(struct vxlan_dev *vxlan,
- /* Delete entry (via netlink) */
- static int vxlan_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
- 			    struct net_device *dev,
--			    const unsigned char *addr, u16 vid)
-+			    const unsigned char *addr, u16 vid,
-+				struct netlink_ext_ack *extack)
- {
- 	struct vxlan_dev *vxlan = netdev_priv(dev);
- 	union vxlan_addr ip;
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 7dccbfd1bf56..23731804a4b0 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1513,7 +1513,7 @@ struct net_device_ops {
- 					       struct nlattr *tb[],
- 					       struct net_device *dev,
- 					       const unsigned char *addr,
--					       u16 vid);
-+					       u16 vid, struct netlink_ext_ack *extack);
- 	int			(*ndo_fdb_del_bulk)(struct ndmsg *ndm,
- 						    struct nlattr *tb[],
- 						    struct net_device *dev,
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 1a3d583fbc8e..e7f4fccb6adb 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -1253,7 +1253,8 @@ static int __br_fdb_delete(struct net_bridge *br,
- /* Remove neighbor entry with RTM_DELNEIGH */
- int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
- 		  struct net_device *dev,
--		  const unsigned char *addr, u16 vid)
-+		  const unsigned char *addr, u16 vid,
-+		  struct netlink_ext_ack *extack)
- {
- 	struct net_bridge_vlan_group *vg;
- 	struct net_bridge_port *p = NULL;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 6ae882cfae1c..06e5f6faa431 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -793,7 +793,8 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 		   const unsigned char *addr, u16 vid, unsigned long flags);
+@@ -1129,19 +1129,25 @@ static void vxlan_fdb_dst_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
 
- int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
--		  struct net_device *dev, const unsigned char *addr, u16 vid);
-+		  struct net_device *dev, const unsigned char *addr, u16 vid,
-+		  struct netlink_ext_ack *extack);
- int br_fdb_delete_bulk(struct ndmsg *ndm, struct nlattr *tb[],
- 		       struct net_device *dev, u16 vid,
- 		       struct netlink_ext_ack *extack);
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 73f2cbc440c9..3130df52b56a 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -4240,7 +4240,7 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		ops = br_dev->netdev_ops;
- 		if (!del_bulk) {
- 			if (ops->ndo_fdb_del)
--				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
-+				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid, extack);
- 		} else {
- 			if (ops->ndo_fdb_del_bulk)
- 				err = ops->ndo_fdb_del_bulk(ndm, tb, dev, vid,
-@@ -4258,7 +4258,7 @@ static int rtnl_fdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		ops = dev->netdev_ops;
- 		if (!del_bulk) {
- 			if (ops->ndo_fdb_del)
--				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid);
-+				err = ops->ndo_fdb_del(ndm, tb, dev, addr, vid, extack);
- 			else
- 				err = ndo_dflt_fdb_del(ndm, tb, dev, addr, vid);
- 		} else {
+ static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
+ 			   union vxlan_addr *ip, __be16 *port, __be32 *src_vni,
+-			   __be32 *vni, u32 *ifindex, u32 *nhid)
++			   __be32 *vni, u32 *ifindex, u32 *nhid,
++			   struct netlink_ext_ack *extack)
+ {
+ 	struct net *net = dev_net(vxlan->dev);
+ 	int err;
+
+ 	if (tb[NDA_NH_ID] && (tb[NDA_DST] || tb[NDA_VNI] || tb[NDA_IFINDEX] ||
+-	    tb[NDA_PORT]))
+-		return -EINVAL;
++	    tb[NDA_PORT])) {
++			NL_SET_ERR_MSG(extack,
++						  "DST, VNI, ifindex and port are mutually exclusive with NH_ID");
++			return -EINVAL;
++		}
+
+ 	if (tb[NDA_DST]) {
+ 		err = vxlan_nla_get_addr(ip, tb[NDA_DST]);
+-		if (err)
++		if (err) {
++			NL_SET_ERR_MSG(extack, "Unsupported address family");
+ 			return err;
++		}
+ 	} else {
+ 		union vxlan_addr *remote = &vxlan->default_dst.remote_ip;
+
+@@ -1157,24 +1163,30 @@ static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
+ 	}
+
+ 	if (tb[NDA_PORT]) {
+-		if (nla_len(tb[NDA_PORT]) != sizeof(__be16))
++		if (nla_len(tb[NDA_PORT]) != sizeof(__be16)) {
++			NL_SET_ERR_MSG(extack, "Invalid vxlan port");
+ 			return -EINVAL;
++		}
+ 		*port = nla_get_be16(tb[NDA_PORT]);
+ 	} else {
+ 		*port = vxlan->cfg.dst_port;
+ 	}
+
+ 	if (tb[NDA_VNI]) {
+-		if (nla_len(tb[NDA_VNI]) != sizeof(u32))
++		if (nla_len(tb[NDA_VNI]) != sizeof(u32)) {
++			NL_SET_ERR_MSG(extack, "Invalid vni");
+ 			return -EINVAL;
++		}
+ 		*vni = cpu_to_be32(nla_get_u32(tb[NDA_VNI]));
+ 	} else {
+ 		*vni = vxlan->default_dst.remote_vni;
+ 	}
+
+ 	if (tb[NDA_SRC_VNI]) {
+-		if (nla_len(tb[NDA_SRC_VNI]) != sizeof(u32))
++		if (nla_len(tb[NDA_SRC_VNI]) != sizeof(u32)) {
++			NL_SET_ERR_MSG(extack, "Invalid src vni");
+ 			return -EINVAL;
++		}
+ 		*src_vni = cpu_to_be32(nla_get_u32(tb[NDA_SRC_VNI]));
+ 	} else {
+ 		*src_vni = vxlan->default_dst.remote_vni;
+@@ -1183,12 +1195,16 @@ static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
+ 	if (tb[NDA_IFINDEX]) {
+ 		struct net_device *tdev;
+
+-		if (nla_len(tb[NDA_IFINDEX]) != sizeof(u32))
++		if (nla_len(tb[NDA_IFINDEX]) != sizeof(u32)) {
++			NL_SET_ERR_MSG(extack, "Invalid ifindex");
+ 			return -EINVAL;
++		}
+ 		*ifindex = nla_get_u32(tb[NDA_IFINDEX]);
+ 		tdev = __dev_get_by_index(net, *ifindex);
+-		if (!tdev)
++		if (!tdev) {
++			NL_SET_ERR_MSG(extack, "Device not found");
+ 			return -EADDRNOTAVAIL;
++		}
+ 	} else {
+ 		*ifindex = 0;
+ 	}
+@@ -1226,7 +1242,7 @@ static int vxlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 		return -EINVAL;
+
+ 	err = vxlan_fdb_parse(tb, vxlan, &ip, &port, &src_vni, &vni, &ifindex,
+-			      &nhid);
++			      &nhid, extack);
+ 	if (err)
+ 		return err;
+
+@@ -1292,7 +1308,7 @@ static int vxlan_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
+ 	int err;
+
+ 	err = vxlan_fdb_parse(tb, vxlan, &ip, &port, &src_vni, &vni, &ifindex,
+-			      &nhid);
++			      &nhid, extack);
+ 	if (err)
+ 		return err;
+
 --
 2.36.0
 
