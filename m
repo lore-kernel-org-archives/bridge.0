@@ -1,25 +1,13 @@
-Return-Path: <kuba@kernel.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1651283198;
- bh=8kP/MRpm1KKd3Rl9molXNCPZpQsRev4DC366b3abSJg=;
- h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
- b=FHOkqeeY341VJtIRkHZ/wFD9kpmdQmlxFxvjQmxtTGNiHWWFY2WQDyFuUj7xUn0QX
- aa/G+NaZUzfDfYHjIAs+OSETdfW/RThbzraDlNwj81q9LCVO+Ees3IArkGIUur/1Vc
- mVVFGhaTZovAp7DMr+7+DBRXjNhZzbZI03Lwx6rbZQEBl938YpGI9ajnlftd03djV/
- i1xar24F3qGUJk01ngzu37vgE7T28CzHWhJCXc4Imryd5zQEAgwhY7J5nr9T2W3BFd
- IO/XANqI4YZfboz5VJuZFqcrpo+s0KS+9P6Rr9g2E3e5ycbVZseLZz2zFMvwdustxP
- EBzhOSMg3KlpA==
-Date: Fri, 29 Apr 2022 18:46:36 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-Message-ID: <20220429184636.0b869ae7@kernel.org>
-In-Reply-To: <26815b6deebef7f02e864ca41714533c7009e7b7.1651236082.git.eng.alaamohamedsoliman.am@gmail.com>
-References: <cover.1651236081.git.eng.alaamohamedsoliman.am@gmail.com>
- <26815b6deebef7f02e864ca41714533c7009e7b7.1651236082.git.eng.alaamohamedsoliman.am@gmail.com>
+Return-Path: <linus.luessing@c0d3.blue>
+Date: Wed, 4 May 2022 12:06:00 +0200
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <YnJQCIKgriI3kjFc@sellars>
+References: <20220405235117.269511-1-kevmitch@arista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v5 1/2] rtnetlink: add extack support
- in fdb del handlers
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220405235117.269511-1-kevmitch@arista.com>
+Subject: Re: [Bridge] [PATCH v2 0/1] UDP traceroute packets with no checksum
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,19 +16,32 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
-Cc: shshaikh@marvell.com, jdenham@redhat.com, GR-Linux-NIC-Dev@marvell.com, manishc@marvell.com, alexandre.belloni@bootlin.com, outreachy@lists.linux.dev, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org, vladimir.oltean@nxp.com, sbrivio@redhat.com, claudiu.manoil@nxp.com, anthony.l.nguyen@intel.com, roopa@nvidia.com, intel-wired-lan@lists.osuosl.org, pabeni@redhat.com, davem@davemloft.net, UNGLinuxDriver@microchip.com
+To: Kevin Mitchell <kevmitch@arista.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, gal@nvidia.com, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Matthias Schiffer <mschiffer@universe-factory.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On Fri, 29 Apr 2022 14:49:06 +0200 Alaa Mohamed wrote:
-> diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-> index fde839ef0613..3fccac358198 100644
-> --- a/drivers/net/ethernet/intel/ice/ice_main.c
-> +++ b/drivers/net/ethernet/intel/ice/ice_main.c
-> @@ -5678,7 +5678,7 @@ ice_fdb_add(struct ndmsg *ndm, struct nlattr __always_unused *tb[],
->  static int
->  ice_fdb_del(struct ndmsg *ndm, __always_unused struct nlattr *tb[],
->  	    struct net_device *dev, const unsigned char *addr,
-> -	    __always_unused u16 vid)
-> +	    __always_unused u16 vid, struct netlink_ext_ack *extack)
+On Tue, Apr 05, 2022 at 04:51:15PM -0700, Kevin Mitchell via Bridge wrote:
+> This is v2 of https://lkml.org/lkml/2022/1/14/1060
+> 
+> That patch was discovered to cause problems with UDP tunnels as
+> described here:
+> 
+> https://lore.kernel.org/netdev/7eed8111-42d7-63e1-d289-346a596fc933@nvidia.com/
+> 
+> This version addresses the issue by instead explicitly handling zero UDP
+> checksum in the nf_reject_verify_csum() helper function.
+> 
+> Unlike the previous patch, this one only allows zero UDP checksum in
+> IPv4. I discovered that the non-netfilter IPv6 path would indeed drop
+> zero UDP checksum packets, so it's probably best to remain consistent.
 
-You need to update the kdoc on this one.
+Are you sure that a UDP zero checksum is not working for IPv6
+packets? We are using it here without any issues with VXLAN
+tunnels.
+
+Yes, the original RFC did not allow UDP zero checksums in IPv6
+packets, but I believe this has changed:
+
+https://www.rfc-editor.org/rfc/rfc6936
+(https://www.ietf.org/archive/id/draft-ietf-6man-udpzero-01.html)
+
+Regards, Linus
