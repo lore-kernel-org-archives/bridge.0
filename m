@@ -1,13 +1,21 @@
-Return-Path: <linus.luessing@c0d3.blue>
-Date: Wed, 4 May 2022 12:06:00 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <YnJQCIKgriI3kjFc@sellars>
-References: <20220405235117.269511-1-kevmitch@arista.com>
+Return-Path: <eng.alaamohamedsoliman.am@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=+/sF+rK/sk8Mcq8ZDKrTQ+5QhRG26LQDZuCE59tq5gg=;
+ b=WyanZJ4pfugP4UBrAHAI3jE+0AMPPz0h7gFUM9vNG+p5YrdeWWhgzma2gPVbbEw7nQ
+ zqyXYKcg6ZlClU+WsCyXFa9pOTdvmphmLTQBVM970g+nAyt6eS078/B7r+Yd2D4Muq6n
+ tAQ/j/L/oDKTLJ2BpBFlbUakTEiPv6kzIRg2ny56L8R9Zq1zQM0TXBtzngd0ygArbjI2
+ hkOt6i+dsXb84AMFlA6JORanoOhW8jKTQJmasSfefZ/stu/MnlyiD+jTUcuWdV+cgtuH
+ DUyIzIrpkgZJdZNH7TxCKR41L621Fs4c3vS28PpKOYcmjt5RTsDegQQyR3I10AjN2LwM
+ 20oA==
+From: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
+Date: Thu,  5 May 2022 17:09:56 +0200
+Message-Id: <cover.1651762829.git.eng.alaamohamedsoliman.am@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220405235117.269511-1-kevmitch@arista.com>
-Subject: Re: [Bridge] [PATCH v2 0/1] UDP traceroute packets with no checksum
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next v6 0/2] propagate extack to
+	vxlan_fdb_delete
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,32 +24,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Kevin Mitchell <kevmitch@arista.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, gal@nvidia.com, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Jozsef Kadlecsik <kadlec@netfilter.org>, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Matthias Schiffer <mschiffer@universe-factory.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Pablo Neira Ayuso <pablo@netfilter.org>
+To: netdev@vger.kernel.org
+Cc: eng.alaamohamedsoliman.am@gmail.com, shshaikh@marvell.com, jdenham@redhat.com, GR-Linux-NIC-Dev@marvell.com, manishc@marvell.com, alexandre.belloni@bootlin.com, outreachy@lists.linux.dev, vladimir.oltean@nxp.com, razor@blackwall.org, bridge@lists.linux-foundation.org, jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org, sbrivio@redhat.com, claudiu.manoil@nxp.com, anthony.l.nguyen@intel.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net, UNGLinuxDriver@microchip.com, intel-wired-lan@lists.osuosl.org
 
-On Tue, Apr 05, 2022 at 04:51:15PM -0700, Kevin Mitchell via Bridge wrote:
-> This is v2 of https://lkml.org/lkml/2022/1/14/1060
-> 
-> That patch was discovered to cause problems with UDP tunnels as
-> described here:
-> 
-> https://lore.kernel.org/netdev/7eed8111-42d7-63e1-d289-346a596fc933@nvidia.com/
-> 
-> This version addresses the issue by instead explicitly handling zero UDP
-> checksum in the nf_reject_verify_csum() helper function.
-> 
-> Unlike the previous patch, this one only allows zero UDP checksum in
-> IPv4. I discovered that the non-netfilter IPv6 path would indeed drop
-> zero UDP checksum packets, so it's probably best to remain consistent.
+In order to propagate extack to vxlan_fdb_delete and vxlan_fdb_parse,
+add extack to .ndo_fdb_del and edit all fdb del handelers.
 
-Are you sure that a UDP zero checksum is not working for IPv6
-packets? We are using it here without any issues with VXLAN
-tunnels.
+Alaa Mohamed (2):
+  rtnetlink: add extack support in fdb del handlers
+  net: vxlan: Add extack support to vxlan_fdb_delete
 
-Yes, the original RFC did not allow UDP zero checksums in IPv6
-packets, but I believe this has changed:
+ drivers/net/ethernet/intel/ice/ice_main.c     |  3 +-
+ drivers/net/ethernet/mscc/ocelot_net.c        |  3 +-
+ .../net/ethernet/qlogic/qlcnic/qlcnic_main.c  |  3 +-
+ drivers/net/macvlan.c                         |  3 +-
+ drivers/net/vxlan/vxlan_core.c                | 41 +++++++++++++------
+ include/linux/netdevice.h                     |  2 +-
+ net/bridge/br_fdb.c                           |  3 +-
+ net/bridge/br_private.h                       |  3 +-
+ net/core/rtnetlink.c                          |  4 +-
+ 9 files changed, 44 insertions(+), 21 deletions(-)
 
-https://www.rfc-editor.org/rfc/rfc6936
-(https://www.ietf.org/archive/id/draft-ietf-6man-udpzero-01.html)
+-- 
+2.36.0
 
-Regards, Linus
