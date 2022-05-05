@@ -1,23 +1,19 @@
-Return-Path: <eng.alaamohamedsoliman.am@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=m2VDhVRQPjsV1IPycPT/Y4TlTx8jaZtNzcIfdQQLUOE=;
- b=FFAziO4TJTHw3bMRuvzzhIrejv1YFi9kr+TvLjW7GH03D/Ms9GHVRb1qHk7xSkSRbh
- GvMrgZMhsdYjPOhZYy4728AKW1+YecbVpH26/5sPMvodoh8znUPVwIaI2wutBIoVS3id
- V3Q41qlgLA7wJ/1dKXp2jStShtULGJGPdIsH9P84DHXPzRSdX5kmeTdmbO9WPqM1ffop
- IyAnwBJwiXbCsYAGoORTH9/WeQHWkQqXtUWP0kWHWP9csb2E1yLcNsTDW2jlYDYEpICg
- qOYRXPsYrWAAkXYhyDF85cizqBuwsLLGTf+I/NervEbk5N0KYG0lmK2Ud1qeJE8t81t6
- 5HxA==
-From: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
-Date: Thu,  5 May 2022 17:09:58 +0200
-Message-Id: <ac4b6c650b6519cc56baa32ef20415460a5aa8ee.1651762830.git.eng.alaamohamedsoliman.am@gmail.com>
-In-Reply-To: <cover.1651762829.git.eng.alaamohamedsoliman.am@gmail.com>
-References: <cover.1651762829.git.eng.alaamohamedsoliman.am@gmail.com>
+Return-Path: <andrew@lunn.ch>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+ s=20171124; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
+ Cc:To:From:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:
+ Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
+ Content-Disposition:In-Reply-To:References;
+ bh=FpzBqVWWDArtZuTKofltIIY/sswU/N9lGcHNVU+L2vo=; b=6EJkiI0YbtkKkB852OCGfp3/Ah
+ 8QSMwiQ27FSRexwFaTN1HjiUI/mHGtpoKirEdHYUrRys2byqN9JFpL2dZF/UJLRKzyXd1RP6ZwcD0
+ MNSBtq0U/1eCJi7JDKWOAQXKCxN3Rx9SYMiKgpmGoXB4yGZ/2JwkniLnWUnslI3A//Mk=;
+From: Andrew Lunn <andrew@lunn.ch>
+Date: Fri,  6 May 2022 00:59:04 +0200
+Message-Id: <20220505225904.342388-1-andrew@lunn.ch>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v6 2/2] net: vxlan: Add extack support to
-	vxlan_fdb_delete
+Subject: [Bridge] [PATCH RFC] net: bridge: Clear offload_fwd_mark when
+	passing frame up bridge interface.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,138 +22,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: eng.alaamohamedsoliman.am@gmail.com, shshaikh@marvell.com, jdenham@redhat.com, GR-Linux-NIC-Dev@marvell.com, manishc@marvell.com, alexandre.belloni@bootlin.com, outreachy@lists.linux.dev, vladimir.oltean@nxp.com, razor@blackwall.org, bridge@lists.linux-foundation.org, jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org, sbrivio@redhat.com, claudiu.manoil@nxp.com, anthony.l.nguyen@intel.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net, UNGLinuxDriver@microchip.com, intel-wired-lan@lists.osuosl.org
+To: netdev <netdev@vger.kernel.org>
+Cc: Ido Schimmel <idosch@mellanox.com>, Vladimir Oltean <vladimir.oltean@nxp.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Andrew Lunn <andrew@lunn.ch>
 
-This patch adds extack msg support to vxlan_fdb_delete and vxlan_fdb_parse.
-extack is used to propagate meaningful error msgs to the user of vxlan
-fdb netlink api
+It is possible to stack bridges on top of each other. Consider the
+following which makes use of an Ethernet switch:
 
-Signed-off-by: Alaa Mohamed <eng.alaamohamedsoliman.am@gmail.com>
+       br1
+     /    \
+    /      \
+   /        \
+ br0.11    wlan0
+   |
+   br0
+ /  |  \
+p1  p2  p3
+
+br0 is offloaded to the switch. Above br0 is a vlan interface, for
+vlan 11. This vlan interface is then a slave of br1. br1 also has
+wireless interface as a slave. This setup trunks wireless lan traffic
+over the copper network inside a VLAN.
+
+A frame received on p1 which is passed up to the bridge has the
+skb->offload_fwd_mark flag set to true, indicating it that the switch
+has dealt with forwarding the frame out ports p2 and p3 as
+needed. This flag instructs the software bridge it does not need to
+pass the frame back down again. However, the flag is not getting reset
+when the frame is passed upwards. As a result br1 sees the flag,
+wrongly interprets it, and fails to forward the frame to wlan0.
+
+When passing a frame upwards, clear the flag.
+
+RFC because i don't know the bridge code well enough if this is the
+correct place to do this, and if there are any side effects, could the
+skb be a clone, etc.
+
+Fixes: f1c2eddf4cb6 ("bridge: switchdev: Use an helper to clear forward mark")
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
 ---
-changes in V2:
-        - fix spelling vxlan_fdb_delete
-        - add missing braces
-        - edit error message
----
-changes in V3:
-        fix errors reported by checkpatch.pl
----
-changes in V4:
-        - fix errors reported by checkpatch.pl
-        - edit commit message.
----
-changes in V5:
-	- edit commit message
----
- drivers/net/vxlan/vxlan_core.c | 38 ++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 11 deletions(-)
+ net/bridge/br_input.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
-index ad0f2150cfdb..429ce2168971 100644
---- a/drivers/net/vxlan/vxlan_core.c
-+++ b/drivers/net/vxlan/vxlan_core.c
-@@ -1129,19 +1129,25 @@ static void vxlan_fdb_dst_destroy(struct vxlan_dev *vxlan, struct vxlan_fdb *f,
-
- static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
- 			   union vxlan_addr *ip, __be16 *port, __be32 *src_vni,
--			   __be32 *vni, u32 *ifindex, u32 *nhid)
-+			   __be32 *vni, u32 *ifindex, u32 *nhid,
-+			   struct netlink_ext_ack *extack)
- {
- 	struct net *net = dev_net(vxlan->dev);
- 	int err;
-
- 	if (tb[NDA_NH_ID] && (tb[NDA_DST] || tb[NDA_VNI] || tb[NDA_IFINDEX] ||
--	    tb[NDA_PORT]))
--		return -EINVAL;
-+	    tb[NDA_PORT])) {
-+			NL_SET_ERR_MSG(extack,
-+						  "DST, VNI, ifindex and port are mutually exclusive with NH_ID");
-+			return -EINVAL;
-+		}
-
- 	if (tb[NDA_DST]) {
- 		err = vxlan_nla_get_addr(ip, tb[NDA_DST]);
--		if (err)
-+		if (err) {
-+			NL_SET_ERR_MSG(extack, "Unsupported address family");
- 			return err;
-+		}
- 	} else {
- 		union vxlan_addr *remote = &vxlan->default_dst.remote_ip;
-
-@@ -1157,24 +1163,30 @@ static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
- 	}
-
- 	if (tb[NDA_PORT]) {
--		if (nla_len(tb[NDA_PORT]) != sizeof(__be16))
-+		if (nla_len(tb[NDA_PORT]) != sizeof(__be16)) {
-+			NL_SET_ERR_MSG(extack, "Invalid vxlan port");
- 			return -EINVAL;
-+		}
- 		*port = nla_get_be16(tb[NDA_PORT]);
- 	} else {
- 		*port = vxlan->cfg.dst_port;
- 	}
-
- 	if (tb[NDA_VNI]) {
--		if (nla_len(tb[NDA_VNI]) != sizeof(u32))
-+		if (nla_len(tb[NDA_VNI]) != sizeof(u32)) {
-+			NL_SET_ERR_MSG(extack, "Invalid vni");
- 			return -EINVAL;
-+		}
- 		*vni = cpu_to_be32(nla_get_u32(tb[NDA_VNI]));
- 	} else {
- 		*vni = vxlan->default_dst.remote_vni;
- 	}
-
- 	if (tb[NDA_SRC_VNI]) {
--		if (nla_len(tb[NDA_SRC_VNI]) != sizeof(u32))
-+		if (nla_len(tb[NDA_SRC_VNI]) != sizeof(u32)) {
-+			NL_SET_ERR_MSG(extack, "Invalid src vni");
- 			return -EINVAL;
-+		}
- 		*src_vni = cpu_to_be32(nla_get_u32(tb[NDA_SRC_VNI]));
- 	} else {
- 		*src_vni = vxlan->default_dst.remote_vni;
-@@ -1183,12 +1195,16 @@ static int vxlan_fdb_parse(struct nlattr *tb[], struct vxlan_dev *vxlan,
- 	if (tb[NDA_IFINDEX]) {
- 		struct net_device *tdev;
-
--		if (nla_len(tb[NDA_IFINDEX]) != sizeof(u32))
-+		if (nla_len(tb[NDA_IFINDEX]) != sizeof(u32)) {
-+			NL_SET_ERR_MSG(extack, "Invalid ifindex");
- 			return -EINVAL;
-+		}
- 		*ifindex = nla_get_u32(tb[NDA_IFINDEX]);
- 		tdev = __dev_get_by_index(net, *ifindex);
--		if (!tdev)
-+		if (!tdev) {
-+			NL_SET_ERR_MSG(extack, "Device not found");
- 			return -EADDRNOTAVAIL;
-+		}
- 	} else {
- 		*ifindex = 0;
- 	}
-@@ -1226,7 +1242,7 @@ static int vxlan_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
- 		return -EINVAL;
-
- 	err = vxlan_fdb_parse(tb, vxlan, &ip, &port, &src_vni, &vni, &ifindex,
--			      &nhid);
-+			      &nhid, extack);
- 	if (err)
- 		return err;
-
-@@ -1292,7 +1308,7 @@ static int vxlan_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
- 	int err;
-
- 	err = vxlan_fdb_parse(tb, vxlan, &ip, &port, &src_vni, &vni, &ifindex,
--			      &nhid);
-+			      &nhid, extack);
- 	if (err)
- 		return err;
-
---
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 196417859c4a..9327a5fad1df 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -39,6 +39,13 @@ static int br_pass_frame_up(struct sk_buff *skb)
+ 	dev_sw_netstats_rx_add(brdev, skb->len);
+ 
+ 	vg = br_vlan_group_rcu(br);
++
++	/* Reset the offload_fwd_mark because there could be a stacked
++	 * bridge above, and it should not think this bridge it doing
++	 * that bridges work forward out its ports.
++	 */
++	br_switchdev_frame_unmark(skb);
++
+ 	/* Bridge is just like any other port.  Make sure the
+ 	 * packet is allowed except in promisc mode when someone
+ 	 * may be running packet capture.
+-- 
 2.36.0
 
