@@ -1,17 +1,24 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KpSb/21qjkovoW1tb8tzZzoiExteozu+k8+mwyWw6wo=;
- b=X6MDut2yFWxVz8/yDmCBmmyn8ODTH9bRwBmqoIGTa5TK0mzDqlvf4ufRlJwggE0moNdmaHO63NsD8m5dvat98QMhrONfhcH9G34klokF441m0D5H+DzAbBCifhXlbb6duI0OY5JRB/wU4c6a5Ki88Ly1Du8oSvkaIVxECMY1N0cIBGbTLAhQaOPRU3y6WW7fbr1LgF8tvmwD6u9rkY5e4MChhZ0dVoDrg+1yMKsPsnDc8eJrwPD/Bmd0cE7oVHW3eYBgt+l+nLLXLrxq2KFNZv4jawfZbwdRTBjyOOJTeOJ+7BLYnXkkPLQ2Bxs5R7s8wAH98OPGREEY5iivLmVahw==
-Date: Wed, 18 May 2022 10:08:59 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <YoSbi3EXYUwaBs1a@shredder>
-References: <20220518005840.771575-1-andrew@lunn.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220518005840.771575-1-andrew@lunn.ch>
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=+0u6Co0fQyRE3E7Gd5FQVT98igTbdpT+/KuuR/oOF0o=;
+ b=Lq8UN195SQC5IPnKOEO6l2YcI/XCWCeTBJOiTVUrQdQOxiP1flbaAf6YI7ybUg0SOA
+ dwWdS7QqjCMOmLJLxYO9qocWPkMdotKnjr6RgpNBqCZCnXClXC3jLNldc/IQA+E+3MUV
+ 2Jp3+81U9+l4tJimSqzZviLR8KKZnBDgM0376nX7/uC7oEaGV/Hn04khLJNVivyigVpH
+ iW8ubOhHKXxNL4H3rajYGJWeI0v97YfuINgV/bZ/7KBkZJWx53bJnbt6x94JjnHR90I5
+ oB7xrGGWksa6RaAYGX1M3n17tWudAnT3kuqPqhxmx67tDvpt5R4MbvUlR8yqnaQMyFrP
+ uPaQ==
+Message-ID: <b3a94a42-1333-1393-1946-e6412d6830d5@blackwall.org>
+Date: Thu, 19 May 2022 00:43:12 +0300
 MIME-Version: 1.0
+Content-Language: en-US
+References: <20220518005840.771575-1-andrew@lunn.ch>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20220518005840.771575-1-andrew@lunn.ch>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH v2 net] net: bridge: Clear offload_fwd_mark
  when passing frame up bridge interface.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -22,10 +29,10 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Ido Schimmel <idosch@mellanox.com>, netdev <netdev@vger.kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Vladimir Oltean <vladimir.oltean@nxp.com>
+To: Andrew Lunn <andrew@lunn.ch>, netdev <netdev@vger.kernel.org>
+Cc: Ido Schimmel <idosch@mellanox.com>, Vladimir Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux-foundation.org
 
-On Wed, May 18, 2022 at 02:58:40AM +0200, Andrew Lunn wrote:
+On 18/05/2022 03:58, Andrew Lunn wrote:
 > It is possible to stack bridges on top of each other. Consider the
 > following which makes use of an Ethernet switch:
 > 
@@ -57,6 +64,16 @@ On Wed, May 18, 2022 at 02:58:40AM +0200, Andrew Lunn wrote:
 > 
 > Fixes: f1c2eddf4cb6 ("bridge: switchdev: Use an helper to clear forward mark")
 > Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+> ---
+> 
+> v2:
+> Extended the commit message with Ido obsersation of the equivelance of
+> br_dev_xmit().
+> 
+> Fixed up the comment.
+> 
+> This code has passed Ido test setup.
+> 
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
