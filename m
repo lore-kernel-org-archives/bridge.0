@@ -1,23 +1,27 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:organization:content-transfer-encoding;
- bh=FgEZaD+qaBUQURDZcatdSAcmpukEK3yyWD1n5B1AlNE=;
- b=Dqj8l9wZWDZHC1yP3YJCdmoXSjz9VdQZ0nXh27JmdifHCAIdkhRbRZVQrIejbZ3WjQ
- Facd+POgcmZoA1cdq73VcsPdCaQaAaTKVp5LHtYw4L1/E/nOU22l7xsISjb2Rwn5mTYS
- B/K02m5GurI9+HcZsANOpX/kFRKW5mQsMTRHcVgCKPiJVvMYxxxks6npgJp87DTTWKCo
- 0zfjBUBu4SaIPElyMYzh2zUvhVknUjvzJ6sSEPM6AE3Lwg4DdaLTqZDWzfgdvPOLmSW1
- K7UQILzLUgJSIWLuPfcMrf+Kum4zLz5TvwBScXCaxb0/192mPsaw8vZoKo3dhGaOiHST
- a3lA==
-From: Hans Schultz <schultz.hans@gmail.com>
-Date: Tue, 24 May 2022 17:21:44 +0200
-Message-Id: <20220524152144.40527-5-schultz.hans+netdev@gmail.com>
-In-Reply-To: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
-References: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
+Return-Path: <razor@blackwall.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=h7r5aQ2w5OifNsIkpCoXMifoXPvuX3aY8xJJkG9EXtw=;
+ b=N8KrblnWf/1Gd8SH3jlgYJfY/xNV2wjof6Mna4pghYvc1UdsO31fVScY0vu9Ah65TX
+ angBNbUaT55stx0kDug7PuDc4Y8kQfIzfr2Pgya95z2eAHlAMgbAQuuiIi3mkBGNdRV4
+ lk2Y2Xwi5Dce4uJVhCRAMzVM9yk4i/pZ6WMA8Vy5yvZp3sYUybbkTwKPrn9d0MOhY6E7
+ yhygy3oLUNBEZ8Tk4f++J/+babcMzzMP/k+htNTxiYp1y/kyfoBI4Xe+M4mlr3QGU2OP
+ kfl83txIR5FOrW9ELEHpoG8QmtxDT3xifA/jb/+EdQqurvlISqH8Ey+Q0peJtNhNiTat
+ OVsg==
+Message-ID: <01e6e35c-f5c9-9776-1263-058f84014ed9@blackwall.org>
+Date: Tue, 24 May 2022 18:39:02 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH V3 net-next 4/4] selftests: forwarding: add test of
-	MAC-Auth Bypass to locked port tests
+Content-Language: en-US
+References: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
+ <20220524152144.40527-2-schultz.hans+netdev@gmail.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20220524152144.40527-2-schultz.hans+netdev@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH V3 net-next 1/4] net: bridge: add fdb flag to
+ extent locked port feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,109 +30,98 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: davem@davemloft.net, kuba@kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Ido Schimmel <idosch@nvidia.com>, linux-kernel@vger.kernel.org, Hans Schultz <schultz.hans+netdev@gmail.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Hans Schultz <schultz.hans@gmail.com>, davem@davemloft.net, kuba@kernel.org
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, linux-kernel@vger.kernel.org, Hans Schultz <schultz.hans+netdev@gmail.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
 
-Verify that the MAC-Auth mechanism works by adding a FDB entry with the
-locked flag set. denying access until the FDB entry is replaced with a
-FDB entry without the locked flag set.
+On 24/05/2022 18:21, Hans Schultz wrote:
+> Add an intermediate state for clients behind a locked port to allow for
+> possible opening of the port for said clients. This feature corresponds
+> to the Mac-Auth and MAC Authentication Bypass (MAB) named features. The
+> latter defined by Cisco.
+> Locked FDB entries will be limited in number, so as to prevent DOS
+> attacks by spamming the port with random entries. The limit will be
+> a per port limit as it is a port based feature and that the port flushes
+> all FDB entries on link down.
+> 
+> Only the kernel can set this FDB entry flag, while userspace can read
+> the flag and remove it by deleting the FDB entry.
+> 
+> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
+> ---
+>  include/uapi/linux/neighbour.h |  1 +
+>  net/bridge/br_fdb.c            | 11 +++++++++++
+>  net/bridge/br_if.c             |  1 +
+>  net/bridge/br_input.c          | 11 ++++++++++-
+>  net/bridge/br_private.h        |  7 ++++++-
+>  5 files changed, 29 insertions(+), 2 deletions(-)
+> 
 
-Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
----
- .../net/forwarding/bridge_locked_port.sh      | 42 ++++++++++++++++---
- 1 file changed, 36 insertions(+), 6 deletions(-)
+Hi Hans,
+So this approach has a fundamental problem, f->dst is changed without any synchronization
+you cannot rely on it and thus you cannot account for these entries properly. We must be very
+careful if we try to add any new synchronization not to affect performance as well.
+More below...
 
-diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-index 5b02b6b60ce7..50b9048d044a 100755
---- a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-@@ -1,7 +1,7 @@
- #!/bin/bash
- # SPDX-License-Identifier: GPL-2.0
- 
--ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan"
-+ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan locked_port_mab"
- NUM_NETIFS=4
- CHECK_TC="no"
- source lib.sh
-@@ -94,13 +94,13 @@ locked_port_ipv4()
- 	ping_do $h1 192.0.2.2
- 	check_fail $? "Ping worked after locking port, but before adding FDB entry"
- 
--	bridge fdb add `mac_get $h1` dev $swp1 master static
-+	bridge fdb replace `mac_get $h1` dev $swp1 master static
- 
- 	ping_do $h1 192.0.2.2
- 	check_err $? "Ping did not work after locking port and adding FDB entry"
- 
- 	bridge link set dev $swp1 locked off
--	bridge fdb del `mac_get $h1` dev $swp1 master static
-+	bridge fdb del `mac_get $h1` dev $swp1 master
- 
- 	ping_do $h1 192.0.2.2
- 	check_err $? "Ping did not work after unlocking port and removing FDB entry."
-@@ -124,13 +124,13 @@ locked_port_vlan()
- 	ping_do $h1.100 198.51.100.2
- 	check_fail $? "Ping through vlan worked after locking port, but before adding FDB entry"
- 
--	bridge fdb add `mac_get $h1` dev $swp1 vlan 100 master static
-+	bridge fdb replace `mac_get $h1` dev $swp1 master static
- 
- 	ping_do $h1.100 198.51.100.2
- 	check_err $? "Ping through vlan did not work after locking port and adding FDB entry"
- 
- 	bridge link set dev $swp1 locked off
--	bridge fdb del `mac_get $h1` dev $swp1 vlan 100 master static
-+	bridge fdb del `mac_get $h1` dev $swp1 vlan 100 master
- 
- 	ping_do $h1.100 198.51.100.2
- 	check_err $? "Ping through vlan did not work after unlocking port and removing FDB entry"
-@@ -153,7 +153,8 @@ locked_port_ipv6()
- 	ping6_do $h1 2001:db8:1::2
- 	check_fail $? "Ping6 worked after locking port, but before adding FDB entry"
- 
--	bridge fdb add `mac_get $h1` dev $swp1 master static
-+	bridge fdb replace `mac_get $h1` dev $swp1 master static
-+
- 	ping6_do $h1 2001:db8:1::2
- 	check_err $? "Ping6 did not work after locking port and adding FDB entry"
- 
-@@ -166,6 +167,35 @@ locked_port_ipv6()
- 	log_test "Locked port ipv6"
- }
- 
-+locked_port_mab()
-+{
-+	RET=0
-+	check_locked_port_support || return 0
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "MAB: Ping did not work before locking port"
-+
-+	bridge link set dev $swp1 locked on
-+	bridge link set dev $swp1 learning on
-+
-+	bridge fdb del `mac_get $h1` dev $swp1 master
-+
-+	ping_do $h1 192.0.2.2
-+	check_fail $? "MAB: Ping worked on locked port without FDB entry"
-+
-+	bridge fdb show | grep `mac_get $h1` | grep -q "locked"
-+	check_err $? "MAB: No locked fdb entry after ping on locked port"
-+
-+	bridge fdb replace `mac_get $h1` dev $swp1 master static
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "MAB: Ping did not work with fdb entry without locked flag"
-+
-+	bridge fdb del `mac_get $h1` dev $swp1 master
-+	bridge link set dev $swp1 locked off
-+
-+	log_test "Locked port MAB"
-+}
- trap cleanup EXIT
- 
- setup_prepare
--- 
-2.30.2
+> diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
+> index 39c565e460c7..76d65b481086 100644
+> --- a/include/uapi/linux/neighbour.h
+> +++ b/include/uapi/linux/neighbour.h
+> @@ -53,6 +53,7 @@ enum {
+>  #define NTF_ROUTER	(1 << 7)
+>  /* Extended flags under NDA_FLAGS_EXT: */
+>  #define NTF_EXT_MANAGED	(1 << 0)
+> +#define NTF_EXT_LOCKED	(1 << 1)
+>  
+>  /*
+>   *	Neighbor Cache Entry States.
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index e7f4fccb6adb..6b83e2d6435d 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -105,6 +105,7 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+>  	struct nda_cacheinfo ci;
+>  	struct nlmsghdr *nlh;
+>  	struct ndmsg *ndm;
+> +	u32 ext_flags = 0;
+>  
+>  	nlh = nlmsg_put(skb, portid, seq, type, sizeof(*ndm), flags);
+>  	if (nlh == NULL)
+> @@ -125,11 +126,16 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+>  		ndm->ndm_flags |= NTF_EXT_LEARNED;
+>  	if (test_bit(BR_FDB_STICKY, &fdb->flags))
+>  		ndm->ndm_flags |= NTF_STICKY;
+> +	if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags))
+> +		ext_flags |= NTF_EXT_LOCKED;
+>  
+>  	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->key.addr))
+>  		goto nla_put_failure;
+>  	if (nla_put_u32(skb, NDA_MASTER, br->dev->ifindex))
+>  		goto nla_put_failure;
+> +	if (nla_put_u32(skb, NDA_FLAGS_EXT, ext_flags))
+> +		goto nla_put_failure;
+> +
+>  	ci.ndm_used	 = jiffies_to_clock_t(now - fdb->used);
+>  	ci.ndm_confirmed = 0;
+>  	ci.ndm_updated	 = jiffies_to_clock_t(now - fdb->updated);
+> @@ -171,6 +177,7 @@ static inline size_t fdb_nlmsg_size(void)
+>  	return NLMSG_ALIGN(sizeof(struct ndmsg))
+>  		+ nla_total_size(ETH_ALEN) /* NDA_LLADDR */
+>  		+ nla_total_size(sizeof(u32)) /* NDA_MASTER */
+> +		+ nla_total_size(sizeof(u32)) /* NDA_FLAGS_EXT */
+>  		+ nla_total_size(sizeof(u16)) /* NDA_VLAN */
+>  		+ nla_total_size(sizeof(struct nda_cacheinfo))
+>  		+ nla_total_size(0) /* NDA_FDB_EXT_ATTRS */
+> @@ -319,6 +326,9 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
+>  	if (test_bit(BR_FDB_STATIC, &f->flags))
+>  		fdb_del_hw_addr(br, f->key.addr.addr);
+>  
+> +	if (test_bit(BR_FDB_ENTRY_LOCKED, &f->flags) && !test_bit(BR_FDB_OFFLOADED, &f->flags))
+> +		atomic_dec(&f->dst->locked_entry_cnt);
 
+Sorry but you cannot do this for multiple reasons:
+ - f->dst can be NULL
+ - f->dst changes without any synchronization
+ - there is no synchronization between fdb's flags and its ->dst
+
+Cheers,
+ Nik
