@@ -1,20 +1,20 @@
 Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=FYyqUIqX7o7uukxhOxpvy5c6jwFhAW9JG5e+iqj0ZAA=;
- b=c40RMye4tt3qCM6W7eagyel05d9f+ezi9QjwhaQUCVPrgeXySiIl9CgyIOCULFxZRD
- R6hBjevW71JnRlce8PS7Z25IqHWEruI0bmo1pEwvrEZrFMyulwV9euVsIFwx1faYR3pt
- IZOpC8zioCI8T2SnZoD3ZoSTFvlbhGEjtZ8ulllzeUUNb91lhIKU8erEgOQ+3jnIWFjx
- fiv+sihOx6bLRkA5OmLH/IMQpg6fnANudZqfBYeJtNmLbZiq+VIKRXePkKm+JBYSWSOK
- 2et3ghTg4DPaTlWwem54LXEFrT27VZvUKSFjYc7yQesvH60Ljkbai0rT9V3qfElTv5FM
- XxeQ==
+ :mime-version; bh=2/bDGPYXufJFzkVnBY8mqDgAglNZetlk8WJ7Djt/e2E=;
+ b=e6JB8CI6WFSU+Q/ABVHaxlfYhBRAsmmbmkIDuhn1m6DKPOXKF37gjB/m9GdsVi49dc
+ JNf43jPT5zw03LMoVZ8t3fuV30/a2V5p20h02AkSpplyqHBCbbU0BEhybKuk9LvBIU0v
+ yF5u5B3igHgLN7iRG8ZQrDAszFgPNI/I5CRCOoGPWgb0Tr5z/PCYQqsyZhaq45tfM2ue
+ TR82sVYgQfPiZLzURg9Q0Ng/5eocdGR5EPE8FxukEwr6LoxzCf3TXITUf9yHbYMLAfmG
+ vt/o3bafEdXjgzQsP4rsUwQGadPuBcmEHO5dtLS97SrWhTOdZeC4FS/jt5IR6+lcfUJ1
+ OuKg==
 From: Hans Schultz <schultz.hans@gmail.com>
 In-Reply-To: <01e6e35c-f5c9-9776-1263-058f84014ed9@blackwall.org>
 References: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
  <20220524152144.40527-2-schultz.hans+netdev@gmail.com>
  <01e6e35c-f5c9-9776-1263-058f84014ed9@blackwall.org>
-Date: Tue, 24 May 2022 18:08:08 +0200
-Message-ID: <8635gyvrpz.fsf@gmail.com>
+Date: Tue, 24 May 2022 18:21:02 +0200
+Message-ID: <86zgj6oqa9.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH V3 net-next 1/4] net: bridge: add fdb flag to
@@ -54,9 +54,10 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fain
 
 Hi Nik,
 
-I could check if f->dst is NULL, but in general this should be able to
-work on a per port basis, so do you have an idea of how to keep a per
-port counter of added locked fdb entries?
+if a port is decoupled from the bridge, the locked entries would of
+course be invalid, so maybe if adding and removing a port is accounted
+for wrt locked entries and the count of locked entries, would that not
+work?
 
 Best,
 Hans
