@@ -1,26 +1,23 @@
-Return-Path: <idosch@idosch.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
- messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
- :feedback-id:from:from:in-reply-to:in-reply-to:message-id
- :mime-version:references:reply-to:sender:subject:subject:to:to
- :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
- fm1; t=1653645515; x=1653731915; bh=EiD5ylETSiKx2sZ0AEuhqhGtVCfZ
- ZuZgoLENo4nmHjI=; b=nl1wqhKerxlTczMdRkjvSnPtwogU5s5fEPawnMJK9jUi
- +U9sQE+Xa1qD8B/YVmkLs+aD7AXrZF5/TcXXNqDyFR29gcywdBl6ohsY5JzqUoK4
- QjJ+Kr7VGpMSB0rSdfvt/gGkgIvHXdPIwpgtJEKihENGGJ9hHO0AcZMYWK0xF2zm
- +4UF50xRCHd0pMAppOt+J0yqGgj9uLz3FNZ02YlwodsgSlSILClZDP3Q19fBCZW0
- 5jWVH2/Xffs9D0+eMxydw3bJPskA6uDhP82oHM/FBeEnpb9+TLlJRU7wy6tsluic
- JPgN/u76HcWDZe7U+kxV+HPMfhAUJE8fuvPN7EYU3g==
-Date: Fri, 27 May 2022 12:58:30 +0300
-From: Ido Schimmel <idosch@idosch.org>
-Message-ID: <YpCgxtJf9Qe7fTFd@shredder>
+Return-Path: <schultz.hans@gmail.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=from:to:cc:subject:in-reply-to:references:date:message-id
+ :mime-version; bh=2phuWBtcTkzKGfEFPcHjL5qNni//IzOpMEfDTaY87Dg=;
+ b=a/6lEtQeNSwtgd+B0HQwGamPbSXYBak0YscNWlZH2/cUpwdbbAjCMlEDfXxPMCmOrv
+ C+4+F0Z4eYHmr3iiuXdmt5mZ63JjkJlfLjAAAaciLrMQQRSxV9AHtoP3rSCsNUJtqdHI
+ FlUW5jUaj6AUAs6lTwHCbeEbdjL+NbmODSkcWbukTJ6GMWwdAYtg5ZUaGIeoz8ADApXv
+ scpsabiUuF162UFICurltoKqm8/0kcfzUpxxe/6aYV3VdvJGbK3o+EwnMdMVkv5Eq7yM
+ TyFCOAZWRb4lDVyaDzF8Hhkfm70+iMyBVKw3U67S2GVj5jnyVIaeU++KAmPOT0wMrN0L
+ RJwA==
+From: Hans Schultz <schultz.hans@gmail.com>
+In-Reply-To: <YpCgxtJf9Qe7fTFd@shredder>
 References: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
  <20220524152144.40527-2-schultz.hans+netdev@gmail.com>
  <Yo+LAj1vnjq0p36q@shredder> <86sfov2w8k.fsf@gmail.com>
+ <YpCgxtJf9Qe7fTFd@shredder>
+Date: Fri, 27 May 2022 18:00:56 +0200
+Message-ID: <86a6b33qyv.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86sfov2w8k.fsf@gmail.com>
+Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH V3 net-next 1/4] net: bridge: add fdb flag to
  extent locked port feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -31,69 +28,35 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <schultz.hans@gmail.com>
+To: Ido Schimmel <idosch@idosch.org>, Hans Schultz <schultz.hans@gmail.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On Fri, May 27, 2022 at 10:52:27AM +0200, Hans Schultz wrote:
-> On tor, maj 26, 2022 at 17:13, Ido Schimmel <idosch@idosch.org> wrote:
-> > On Tue, May 24, 2022 at 05:21:41PM +0200, Hans Schultz wrote:
-> >> Add an intermediate state for clients behind a locked port to allow for
-> >> possible opening of the port for said clients. This feature corresponds
-> >> to the Mac-Auth and MAC Authentication Bypass (MAB) named features. The
-> >> latter defined by Cisco.
-> >> Locked FDB entries will be limited in number, so as to prevent DOS
-> >> attacks by spamming the port with random entries. The limit will be
-> >> a per port limit as it is a port based feature and that the port flushes
-> >> all FDB entries on link down.
-> >
-> > Why locked FDB entries need a special treatment compared to regular
-> > entries? A port that has learning enabled can be spammed with random
-> > source MACs just as well.
-> >
-> > The authorization daemon that is monitoring FDB notifications can have a
-> > policy to shut down a port if the rate / number of locked entries is
-> > above a given threshold.
-> >
-> > I don't think this kind of policy belongs in the kernel. If it resides
-> > in user space, then the threshold can be adjusted. Currently it's hard
-> > coded to 64 and I don't see how user space can change or monitor it.
-> 
-> In the Mac-Auth/MAB context, the locked port feature is really a form of
-> CPU based learning, and on mv88e6xxx switchcores, this is facilitated by
-> violation interrupts. Based on miss violation interrupts, the locked
-> entries are then added to a list with a timer to remove the entries
-> according to the bridge timeout.
-> As this is very CPU intensive compared to normal operation, the
-> assessment is that all this will jam up most devices if bombarded with
-> random entries at link speed, and my estimate is that any userspace 
-> daemon that listens to the ensuing fdb events will never get a chance
-> to stop this flood and eventually the device will lock down/reset. To
-> prevent this, the limit is introduced.
-> 
-> Ideally this limit could be adjustable from userspace, but in real
-> use-cases a cap like 64 should be more than enough, as that corresponds
-> to 64 possible devices behind a port that cannot authenticate by other
-> means (printers etc.) than having their mac addresses white-listed.
-> 
-> The software bridge behavior was then just set to correspond to the
-> offloaded behavior, but after correspondence with Nik, the software
-> bridge locked entries limit will be removed.
+>
+> As far as the bridge is concerned, locked entries are not really
+> different from regular learned entries in terms of processing and since
+> we don't have limits for regular entries I don't think we should have
+> limits for locked entries.
+>
+> I do understand the problem you have in mv88e6xxx and I think it would
+> be wise to hard code a reasonable limit there. It can be adjusted over
+> time based on feedback and possibly exposed to user space.
+>
+> Just to give you another data point about how this works in other
+> devices, I can say that at least in Spectrum this works a bit
+> differently. Packets that ingress via a locked port and incur an FDB
+> miss are trapped to the CPU where they should be injected into the Rx
+> path so that the bridge will create the 'locked' FDB entry and notify it
+> to user space. The packets are obviously rated limited as the CPU cannot
+> handle billions of packets per second, unlike the ASIC. The limit is not
+> per bridge port (or even per bridge), but instead global to the entire
+> device.
 
-As far as the bridge is concerned, locked entries are not really
-different from regular learned entries in terms of processing and since
-we don't have limits for regular entries I don't think we should have
-limits for locked entries.
-
-I do understand the problem you have in mv88e6xxx and I think it would
-be wise to hard code a reasonable limit there. It can be adjusted over
-time based on feedback and possibly exposed to user space.
-
-Just to give you another data point about how this works in other
-devices, I can say that at least in Spectrum this works a bit
-differently. Packets that ingress via a locked port and incur an FDB
-miss are trapped to the CPU where they should be injected into the Rx
-path so that the bridge will create the 'locked' FDB entry and notify it
-to user space. The packets are obviously rated limited as the CPU cannot
-handle billions of packets per second, unlike the ASIC. The limit is not
-per bridge port (or even per bridge), but instead global to the entire
-device.
+Ahh, I see. I think that the best is for those FDB entries to be created
+as dynamic entries, so that user-space does not have to keep track of
+unauthorized entries.
+Also the mv88e6xxx chipsets have a 'hold at one' feature, for authorized
+entries, so that if a device goes quiet after being authorized the
+driver can signal to the software bridge and further to userspace that
+an authorized device has gone quiet, and the entry can then be
+removed. This though requires user added dynamic entries in the ATU, or
+you can call it synthetically 'learned' entries.
