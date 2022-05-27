@@ -1,24 +1,28 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=QhJy8vAsWRk7rBxT10iDy/5PmoVr3qcRU2Dxdwypg2w=;
- b=BFYKpQ+8HJ031Pci0GGoXTHAK52LstG0U+QTzwaDWYuNKuqt6XQOmyKDhqE4LpIweq
- ddrtnQYze5cmPDF816qSS+xaUlDY24jUhRklTLRJHNb2kludEKx1hdd5wHhWDvb08gKa
- LevUQgwVi8mn9T5XFFOnNVtGY5dWJcNmqREqpjXCUPLR2x7Th55wEZ7xPmUQy6fu7u+S
- Z9eoeDMEgDTOLUUV3N+I0yEY9OH9OxbB4lxErfv89muikeeaq6/+/ETll0ovphhOM4S1
- p1BK0EiffcXwJjrp0h/wVqqXZkykAy0GzEo9y6Ws9EoOijhpHwJauuKDRNeNQL0lCu1j
- qYhA==
-From: Hans Schultz <schultz.hans@gmail.com>
-In-Reply-To: <Yo+OYN/rjdB7wfQu@shredder>
+Return-Path: <idosch@idosch.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+ :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+ :mime-version:references:reply-to:sender:subject:subject:to:to
+ :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+ fm1; t=1653645515; x=1653731915; bh=EiD5ylETSiKx2sZ0AEuhqhGtVCfZ
+ ZuZgoLENo4nmHjI=; b=nl1wqhKerxlTczMdRkjvSnPtwogU5s5fEPawnMJK9jUi
+ +U9sQE+Xa1qD8B/YVmkLs+aD7AXrZF5/TcXXNqDyFR29gcywdBl6ohsY5JzqUoK4
+ QjJ+Kr7VGpMSB0rSdfvt/gGkgIvHXdPIwpgtJEKihENGGJ9hHO0AcZMYWK0xF2zm
+ +4UF50xRCHd0pMAppOt+J0yqGgj9uLz3FNZ02YlwodsgSlSILClZDP3Q19fBCZW0
+ 5jWVH2/Xffs9D0+eMxydw3bJPskA6uDhP82oHM/FBeEnpb9+TLlJRU7wy6tsluic
+ JPgN/u76HcWDZe7U+kxV+HPMfhAUJE8fuvPN7EYU3g==
+Date: Fri, 27 May 2022 12:58:30 +0300
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <YpCgxtJf9Qe7fTFd@shredder>
 References: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
- <20220524152144.40527-5-schultz.hans+netdev@gmail.com>
- <Yo+OYN/rjdB7wfQu@shredder>
-Date: Fri, 27 May 2022 11:07:50 +0200
-Message-ID: <86pmjz2vix.fsf@gmail.com>
+ <20220524152144.40527-2-schultz.hans+netdev@gmail.com>
+ <Yo+LAj1vnjq0p36q@shredder> <86sfov2w8k.fsf@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH V3 net-next 4/4] selftests: forwarding: add
- test of MAC-Auth Bypass to locked port tests
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <86sfov2w8k.fsf@gmail.com>
+Subject: Re: [Bridge] [PATCH V3 net-next 1/4] net: bridge: add fdb flag to
+ extent locked port feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,135 +31,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@idosch.org>, Hans Schultz <schultz.hans@gmail.com>
+To: Hans Schultz <schultz.hans@gmail.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On tor, maj 26, 2022 at 17:27, Ido Schimmel <idosch@idosch.org> wrote:
-> On Tue, May 24, 2022 at 05:21:44PM +0200, Hans Schultz wrote:
->> Verify that the MAC-Auth mechanism works by adding a FDB entry with the
->> locked flag set. denying access until the FDB entry is replaced with a
->> FDB entry without the locked flag set.
->> 
->> Signed-off-by: Hans Schultz <schultz.hans+netdev@gmail.com>
->> ---
->>  .../net/forwarding/bridge_locked_port.sh      | 42 ++++++++++++++++---
->>  1 file changed, 36 insertions(+), 6 deletions(-)
->> 
->> diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
->> index 5b02b6b60ce7..50b9048d044a 100755
->> --- a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
->> +++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
->> @@ -1,7 +1,7 @@
->>  #!/bin/bash
->>  # SPDX-License-Identifier: GPL-2.0
->>  
->> -ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan"
->> +ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan locked_port_mab"
->>  NUM_NETIFS=4
->>  CHECK_TC="no"
->>  source lib.sh
->> @@ -94,13 +94,13 @@ locked_port_ipv4()
->>  	ping_do $h1 192.0.2.2
->>  	check_fail $? "Ping worked after locking port, but before adding FDB entry"
->>  
->> -	bridge fdb add `mac_get $h1` dev $swp1 master static
->> +	bridge fdb replace `mac_get $h1` dev $swp1 master static
->>  
->>  	ping_do $h1 192.0.2.2
->>  	check_err $? "Ping did not work after locking port and adding FDB entry"
->>  
->>  	bridge link set dev $swp1 locked off
->> -	bridge fdb del `mac_get $h1` dev $swp1 master static
->> +	bridge fdb del `mac_get $h1` dev $swp1 master
->>  
->>  	ping_do $h1 192.0.2.2
->>  	check_err $? "Ping did not work after unlocking port and removing FDB entry."
->> @@ -124,13 +124,13 @@ locked_port_vlan()
->>  	ping_do $h1.100 198.51.100.2
->>  	check_fail $? "Ping through vlan worked after locking port, but before adding FDB entry"
->>  
->> -	bridge fdb add `mac_get $h1` dev $swp1 vlan 100 master static
->> +	bridge fdb replace `mac_get $h1` dev $swp1 master static
->>  
->>  	ping_do $h1.100 198.51.100.2
->>  	check_err $? "Ping through vlan did not work after locking port and adding FDB entry"
->>  
->>  	bridge link set dev $swp1 locked off
->> -	bridge fdb del `mac_get $h1` dev $swp1 vlan 100 master static
->> +	bridge fdb del `mac_get $h1` dev $swp1 vlan 100 master
->>  
->>  	ping_do $h1.100 198.51.100.2
->>  	check_err $? "Ping through vlan did not work after unlocking port and removing FDB entry"
->> @@ -153,7 +153,8 @@ locked_port_ipv6()
->>  	ping6_do $h1 2001:db8:1::2
->>  	check_fail $? "Ping6 worked after locking port, but before adding FDB entry"
->>  
->> -	bridge fdb add `mac_get $h1` dev $swp1 master static
->> +	bridge fdb replace `mac_get $h1` dev $swp1 master static
->> +
->>  	ping6_do $h1 2001:db8:1::2
->>  	check_err $? "Ping6 did not work after locking port and adding FDB entry"
->>  
->> @@ -166,6 +167,35 @@ locked_port_ipv6()
->>  	log_test "Locked port ipv6"
->>  }
->
-> Why did you change s/add/replace/? Also, from the subject and commit
-> message I understand the patch is about adding a new test, not changing
-> existing ones.
->
+On Fri, May 27, 2022 at 10:52:27AM +0200, Hans Schultz wrote:
+> On tor, maj 26, 2022 at 17:13, Ido Schimmel <idosch@idosch.org> wrote:
+> > On Tue, May 24, 2022 at 05:21:41PM +0200, Hans Schultz wrote:
+> >> Add an intermediate state for clients behind a locked port to allow for
+> >> possible opening of the port for said clients. This feature corresponds
+> >> to the Mac-Auth and MAC Authentication Bypass (MAB) named features. The
+> >> latter defined by Cisco.
+> >> Locked FDB entries will be limited in number, so as to prevent DOS
+> >> attacks by spamming the port with random entries. The limit will be
+> >> a per port limit as it is a port based feature and that the port flushes
+> >> all FDB entries on link down.
+> >
+> > Why locked FDB entries need a special treatment compared to regular
+> > entries? A port that has learning enabled can be spammed with random
+> > source MACs just as well.
+> >
+> > The authorization daemon that is monitoring FDB notifications can have a
+> > policy to shut down a port if the rate / number of locked entries is
+> > above a given threshold.
+> >
+> > I don't think this kind of policy belongs in the kernel. If it resides
+> > in user space, then the threshold can be adjusted. Currently it's hard
+> > coded to 64 and I don't see how user space can change or monitor it.
+> 
+> In the Mac-Auth/MAB context, the locked port feature is really a form of
+> CPU based learning, and on mv88e6xxx switchcores, this is facilitated by
+> violation interrupts. Based on miss violation interrupts, the locked
+> entries are then added to a list with a timer to remove the entries
+> according to the bridge timeout.
+> As this is very CPU intensive compared to normal operation, the
+> assessment is that all this will jam up most devices if bombarded with
+> random entries at link speed, and my estimate is that any userspace 
+> daemon that listens to the ensuing fdb events will never get a chance
+> to stop this flood and eventually the device will lock down/reset. To
+> prevent this, the limit is introduced.
+> 
+> Ideally this limit could be adjustable from userspace, but in real
+> use-cases a cap like 64 should be more than enough, as that corresponds
+> to 64 possible devices behind a port that cannot authenticate by other
+> means (printers etc.) than having their mac addresses white-listed.
+> 
+> The software bridge behavior was then just set to correspond to the
+> offloaded behavior, but after correspondence with Nik, the software
+> bridge locked entries limit will be removed.
 
-Sorry, I might have lost a bit track of the kernel selftests, as for
-internal reasons there has been a pause in the work. I will remove the
-changes to the previous tests, and I hope it will be fine.
+As far as the bridge is concerned, locked entries are not really
+different from regular learned entries in terms of processing and since
+we don't have limits for regular entries I don't think we should have
+limits for locked entries.
 
->>  
->> +locked_port_mab()
->> +{
->> +	RET=0
->> +	check_locked_port_support || return 0
->> +
->> +	ping_do $h1 192.0.2.2
->> +	check_err $? "MAB: Ping did not work before locking port"
->> +
->> +	bridge link set dev $swp1 locked on
->> +	bridge link set dev $swp1 learning on
->> +
->> +	bridge fdb del `mac_get $h1` dev $swp1 master
->
-> Why the delete is needed? Aren't you getting errors on trying to delete
-> a non-existing entry? In previous test cases learning is disabled and it
-> seems the FDB entry is cleaned up.
->
+I do understand the problem you have in mv88e6xxx and I think it would
+be wise to hard code a reasonable limit there. It can be adjusted over
+time based on feedback and possibly exposed to user space.
 
-I guess you are right.
-
->> +
->> +	ping_do $h1 192.0.2.2
->> +	check_fail $? "MAB: Ping worked on locked port without FDB entry"
->> +
->> +	bridge fdb show | grep `mac_get $h1` | grep -q "locked"
->> +	check_err $? "MAB: No locked fdb entry after ping on locked port"
->> +
->> +	bridge fdb replace `mac_get $h1` dev $swp1 master static
->> +
->> +	ping_do $h1 192.0.2.2
->> +	check_err $? "MAB: Ping did not work with fdb entry without locked flag"
->> +
->> +	bridge fdb del `mac_get $h1` dev $swp1 master
->
-> bridge link set dev $swp1 learning off
->
-
-noted.
-
->> +	bridge link set dev $swp1 locked off
->> +
->> +	log_test "Locked port MAB"
->> +}
->>  trap cleanup EXIT
->>  
->>  setup_prepare
->> -- 
->> 2.30.2
->> 
+Just to give you another data point about how this works in other
+devices, I can say that at least in Spectrum this works a bit
+differently. Packets that ingress via a locked port and incur an FDB
+miss are trapped to the CPU where they should be injected into the Rx
+path so that the bridge will create the 'locked' FDB entry and notify it
+to user space. The packets are obviously rated limited as the CPU cannot
+handle billions of packets per second, unlike the ASIC. The limit is not
+per bridge port (or even per bridge), but instead global to the entire
+device.
