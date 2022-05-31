@@ -1,21 +1,21 @@
 Return-Path: <schultz.hans@gmail.com>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=from:to:cc:subject:in-reply-to:references:date:message-id
- :mime-version; bh=2phuWBtcTkzKGfEFPcHjL5qNni//IzOpMEfDTaY87Dg=;
- b=a/6lEtQeNSwtgd+B0HQwGamPbSXYBak0YscNWlZH2/cUpwdbbAjCMlEDfXxPMCmOrv
- C+4+F0Z4eYHmr3iiuXdmt5mZ63JjkJlfLjAAAaciLrMQQRSxV9AHtoP3rSCsNUJtqdHI
- FlUW5jUaj6AUAs6lTwHCbeEbdjL+NbmODSkcWbukTJ6GMWwdAYtg5ZUaGIeoz8ADApXv
- scpsabiUuF162UFICurltoKqm8/0kcfzUpxxe/6aYV3VdvJGbK3o+EwnMdMVkv5Eq7yM
- TyFCOAZWRb4lDVyaDzF8Hhkfm70+iMyBVKw3U67S2GVj5jnyVIaeU++KAmPOT0wMrN0L
- RJwA==
+ :mime-version; bh=gw2op1nbtK3mVTVBPWekT+bSJAQAjZ1vIS0T45KFcIQ=;
+ b=iXzsl86GOZS+imC0ArAHsoDuo4IhbRivbe1549gE+1CLhRDLVbYVAAnQEHbcFq81oV
+ x2a/pQ779e0xE79rsATIaTBWiEqi3l6fmQhBoHqaXerolirKxgx181e2vUrm6zNeKDd8
+ FByKn1yB4UJGpvD6/6WesdI7RvOmE7xR299sKuHbQr/mIc6lSaVxuq8lf7CKYpKt+Whi
+ IcAoU1G0kUR+IDBlnXPcUEmhXQ2p6IdPHJw2YhBaICZ5/tewHdA7QasPcMPvn5GEIQxC
+ CBAn0nAyc2OHRZfk/YBCtXJRqaQ4fABslZ7cFsN5C/0S94I9Mo6HAQ4hFlva1tif02BQ
+ yMQg==
 From: Hans Schultz <schultz.hans@gmail.com>
 In-Reply-To: <YpCgxtJf9Qe7fTFd@shredder>
 References: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
  <20220524152144.40527-2-schultz.hans+netdev@gmail.com>
  <Yo+LAj1vnjq0p36q@shredder> <86sfov2w8k.fsf@gmail.com>
  <YpCgxtJf9Qe7fTFd@shredder>
-Date: Fri, 27 May 2022 18:00:56 +0200
-Message-ID: <86a6b33qyv.fsf@gmail.com>
+Date: Tue, 31 May 2022 11:34:21 +0200
+Message-ID: <86sfoqgi5e.fsf@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH V3 net-next 1/4] net: bridge: add fdb flag to
@@ -31,16 +31,6 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Ido Schimmel <idosch@idosch.org>, Hans Schultz <schultz.hans@gmail.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
->
-> As far as the bridge is concerned, locked entries are not really
-> different from regular learned entries in terms of processing and since
-> we don't have limits for regular entries I don't think we should have
-> limits for locked entries.
->
-> I do understand the problem you have in mv88e6xxx and I think it would
-> be wise to hard code a reasonable limit there. It can be adjusted over
-> time based on feedback and possibly exposed to user space.
->
 > Just to give you another data point about how this works in other
 > devices, I can say that at least in Spectrum this works a bit
 > differently. Packets that ingress via a locked port and incur an FDB
@@ -51,12 +41,6 @@ Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fain
 > per bridge port (or even per bridge), but instead global to the entire
 > device.
 
-Ahh, I see. I think that the best is for those FDB entries to be created
-as dynamic entries, so that user-space does not have to keep track of
-unauthorized entries.
-Also the mv88e6xxx chipsets have a 'hold at one' feature, for authorized
-entries, so that if a device goes quiet after being authorized the
-driver can signal to the software bridge and further to userspace that
-an authorized device has gone quiet, and the entry can then be
-removed. This though requires user added dynamic entries in the ATU, or
-you can call it synthetically 'learned' entries.
+Btw, will the bridge not create a SWITCHDEV_FDB_ADD_TO_DEVICE event
+towards the switchcore in the scheme you mention and thus add an entry
+that opens up for the specified mac address?
