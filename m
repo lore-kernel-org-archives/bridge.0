@@ -1,29 +1,13 @@
-Return-Path: <schultz.hans@gmail.com>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=l8W+7tcFTmWgcZkmqtvEAURZZKd0U2SDl09JGSg/xJY=;
- b=EqF2c9DqGwXxEBxvnMScQ+ELXNccLj4Uv/g2mPawAj6APVYuwRlURI25YdBdFtNhb2
- hm5s4r8nxVxYtjk7B4r8ZAQ4vzbuC2C1ydfNdoH5WwtOfWly2jlVVtP9j8BfvaCSs1zY
- nqmTz20aaOy0p3CIvz4sk1WFXq5uP46hqsPKSW8g/jpwQ3zA1fVMgwKOmTVsQKYqRUoz
- R6xSU+xTqa6fVeRBfNS8XUZ1bYaAXHpbc8DlW9jiaEO+GeOPURDfDYYBl0TOUayMWdkn
- TdY+VKI1tfIWc9GfRq+WeG2qxLiGye2M4PXQ7ChXlB00w0wKbPA2c1U4iANB/s/HIAbj
- C0+Q==
+Return-Path: <nico@lodpp.net>
+Message-ID: <00be2217-40f4-c15b-409b-8b412ac411c8@lodpp.net>
+Date: Fri, 3 Jun 2022 17:50:57 +0200
 MIME-Version: 1.0
-References: <86sfov2w8k.fsf@gmail.com> <YpCgxtJf9Qe7fTFd@shredder>
- <86sfoqgi5e.fsf@gmail.com> <YpYk4EIeH6sdRl+1@shredder>
- <86y1yfzap3.fsf@gmail.com>
- <d88b6090-2ac8-0664-0e38-bb2860be7f6e@blackwall.org>
- <86sfonjroi.fsf@gmail.com>
- <3d93d46d-c484-da0a-c12c-80e83eba31c9@blackwall.org>
- <YpiTbOsh0HBMwiTE@shredder>
- <86mtevjmie.fsf@gmail.com> <YpiqlziXDCg/1FJH@shredder>
-In-Reply-To: <YpiqlziXDCg/1FJH@shredder>
-From: Hans S <schultz.hans@gmail.com>
-Date: Thu, 2 Jun 2022 15:27:19 +0200
-Message-ID: <CAKUejP5NiPYre8qAJKqJ0SOxQ_DtXHt6q6ze6gr=Xx6VGc8xsA@mail.gmail.com>
+Content-Language: en-US
+From: Nicolas Piatto <nico@lodpp.net>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [Bridge] [PATCH V3 net-next 1/4] net: bridge: add fdb flag to
- extent locked port feature
+Content-Transfer-Encoding: 7bit
+Subject: [Bridge] bridge issue with ARP and FDB update between 4.9.142 and
+	4.9.315
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,57 +16,121 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Ido Schimmel <idosch@idosch.org>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org
 
-Yes, that sounds much like the case. So the replace of course just
-modifies the SW fdb entry, and then it just uses port_fdb_add() to
-replace HW entry I assume, which then in my case triggers
-SWITCHDEV_FDB_DEL_TO_BRIDGE as the locked entry is removed.
-So I should not send the SWITCHDEV_FDB_DEL_TO_BRIDGE message when
-removing the locked entry from port_fdb_add() function...
-
-(note: having problems with smtp.gmail.com...)
+Hello,
 
 
-On Thu, Jun 2, 2022 at 2:18 PM Ido Schimmel <idosch@nvidia.com> wrote:
->
-> On Thu, Jun 02, 2022 at 02:08:41PM +0200, Hans Schultz wrote:
-> > >
-> > > I think Hans is testing with mv88e6xxx which dumps entries directly from
-> > > HW via ndo_fdb_dump(). See dsa_slave_port_fdb_do_dump() which sets
-> > > NTF_SELF.
-> > >
-> > > Hans, are you seeing the entry twice? Once with 'master' and once with
-> > > 'self'?
-> > >
-> >
-> > When replacing a locked entry it looks like this:
-> >
-> > # bridge fdb show dev eth6 | grep 4c
-> > 00:4c:4c:4c:4c:4c vlan 1 master br0 extern_learn offload locked
-> >
-> > # bridge fdb replace 00:4c:4c:4c:4c:4c dev eth6 vlan 1 master static ; bridge fdb show dev eth6 | grep 4c
-> > 00:4c:4c:4c:4c:4c vlan 1 self static
->
-> This output means that the FDB entry was deleted from the bridge driver
-> FDB.
->
-> >
-> > The problem is then that the function
-> > br_fdb_find_rcu(br,eth_hdr(skb)->h_source, vid);
-> > , where the h_source and vid is the entry above, does not find the entry.
-> > My hypothesis was then that this is because of the 'self' flag that I
-> > see.
->
-> br_fdb_find_rcu() does a lookup in the bridge driver FDB, but per the
-> output above, the entry isn't there for some reason. It's only in HW.
->
-> Can it be that you driver is deleting these entries from the bridge
-> driver FDB via SWITCHDEV_FDB_DEL_TO_BRIDGE for some reason?
->
-> >
-> > I am thinking that the function dsa_slave_port_fdb_do_dump() is only for
-> > debug, and thus does not really set any flags in the bridge modules FDB,
-> > but then I don't understand why the above find function does not find
-> > the entry?
+We have a strange behavior of the linux bridge regarding ARP and FDB update.
+
+We could see the change first between 4.9.142 and 5.15.11.
+Then we were able to replicate with 4.9.315 which is reducing the search
+field to a single kernel line (still huge work of digging)
+
+We have seen a huge amount of `unknown unicast flood` on nodes running
+the newer kernel version.
+
+So far we didn't found from which commit(s) is(are) responsible, that's
+why we try to get help here.
+
+Let me explain the context and network design first:
+
+We use 2 routers, SVIs and GLBP [1] as first-hop redundancy protocol on
+them. Those routers provide connectivity to VMs running on Linux nodes.
+
+The networking is fairly simple, the Linux node act as a simple bridge
+(actually one bridge per vlan) between the router and VMs.
+
+|--- Cisco hw devices --------|--- linux node -------------|
+
+                              +--------------------------+
++----+                        |   +--------+   +-----+   |
+| R1 |------------------------|---| bridge |---| VMx |   |
++----+                        |   |        |             |
++----+                        |   |        |   +-----+   |
+| R2 |------------------------|---|        |---| VMy |   |
++----+                        |   +--------+   +-----+   |
+                              |                          |
+                              +--------------------------+
+
+Assuming this:
+- The subnet configured on SVI is a /24
+- MAC addresses provided are for explanation only.
+- GLBP AVG: Active Virtual Gateway, one of the router is elected to
+reply to ARP
+  requests
+- GLBP AVF: Active Virtual Forwarder, each router is assigned a virtual
+MAC and is
+  responsible to forward/route traffic for that MAC.
+
+GLBP Virtual IP: .254 (default-gateway for VMs)
+
+R1 is AVG
+R1 SVI ip: .252
+R1 SVI mac: 00:00:00:00:11:11
+R1 AVF mac: 11:11:11:11:11:11
+
+R2 SVI ip: .253
+R2 SVI mac: 00:00:00:00:22:22
+R2 AVF mac: 22:22:22:22:22:22
+
+
+GLBP as a particular way of working with ARP (but it's in the
+protocol...). When the Active Virtual Gateway (AVG) replies to an ARP
+request from a VM, it does so by sourcing the ARP reply packet from the
+router's SVI MAC address, while it puts the AVF as Source inside the ARP
+packet payload.
+
+GLBP never sends packet nor it sends gratuitous ARP sourced from an AVF MAC.
+
+On 4.9.142, when a VM perform an ARP request for the GW, the AVG replies
+and the bridge updates the FDB with the
+AVF MAC (11:11:11:11:11:11 or 22:22:22:22:22:22) <-> interface.
+The VM gets also the ARP reply and updates its ARP cache based on the
+ARP payload (AVF MAC).
+
+-> Now when the VM can send traffic toward the GW MAC address, the
+bridge does the FDB lookup and forward accordingly.
+
+On 4.9.345, when a VM perform an ARP request for the GW, the AVG replies
+and the bridge updates the FDB with the
+SVI MAC (00:00:00:00:11:11) <-> interface (not the AVF MAC).
+The VM gets also the ARP reply and updates its ARP cache based on the
+ARP Payload (AVF MAC).
+
+Now the VM sends traffic toward the GW MAC address, the bridge does the
+FDB lookup for the AVF MAC - which fails - and flood the traffic everywhere.
+
+As a side note, the behavior on 4.9.12 is also what we see with HW
+switch, aka the CAM is updated as well with the AVF MAC <-> interface.
+
+To workaround this, we have moved from GLBP to HSRP.
+
+As we are not very familiar with C and the netdev codebase is huge, we
+could not find the packet path for unicast packet (ARP replies are
+unicast) within a pure L2 bridge to find a lead...
+
+Here is a capture of search ARP reply packet in our lab to reproduce
+(vms + l2vpn setup between them):
+Forged packet with scapi
+```
+sendp(Ether(dst='9a:d0:e7:09:8c:9e', src='22:8e:b6:cd:54:34') /
+ARP(op='is-at', hwsrc='00:07:b4:00:29:02', psrc='198.18.0.20',
+hwdst='9a:d0:e7:09:8c:9e', pdst=ipv4d), iface='l2tpeth0')
+```
+and the capture
+```
+15:37:21.567196 22:8e:b6:cd:54:34 (oui Unknown) > 9a:d0:e7:09:8c:9e (oui
+Unknown), ethertype ARP (0x0806), length 42: Reply 198.18.0.2 is-at
+00:07:b4:00:29:02 (oui Unknown), length 28
+```
+
+With 4.9.315, we can see that 00:07:b4:00:29:02 is not found in FDB, but
+22:8e:b6:cd:54:34 is.
+
+Any help is welcome and appreciated on how to work on this !
+
+Thanks and best regards,
+Nicolas
+
+[1] https://en.wikipedia.org/wiki/Gateway_Load_Balancing_Protocol
