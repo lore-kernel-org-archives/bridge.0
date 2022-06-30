@@ -1,13 +1,13 @@
 Return-Path: <hans@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 069AE4023B
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B374E4011F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 919D5404EE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B35B24023B
 From: Hans Schultz <hans@kapio-technology.com>
-Date: Thu, 30 Jun 2022 13:16:34 +0200
-Message-Id: <20220630111634.610320-1-hans@kapio-technology.com>
+Date: Thu, 30 Jun 2022 12:05:11 +0200
+Message-Id: <20220630100512.604364-1-hans@kapio-technology.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH net-next v1 1/1] net: bridge: ensure that
-	link-local traffic cannot unlock a locked port
+Subject: [Bridge] [PATCH net-next v1 0/1] enable locked port feature with
+	learning
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,35 +28,24 @@ which is enabled with the command:
 
 bridge link set dev DEV learning on
 
-Without this patch, link local traffic (01:80:c2) like EAPOL packets will
-create a fdb entry when ingressing on a locked port with learning turned
-on, thus unintentionally opening up the port for traffic for the said MAC.
+Without this patch, multicast packets like EAPOL packets will create a
+fdb entry when ingressing on a locked port with learning turned on, thus
+unintentionally opening up the port for traffic for the said MAC.
 
 Some switchcore features like Mac-Auth and refreshing of FDB entries,
 require learning enables on some switchcores, f.ex. the mv88e6xxx family.
 Other features may apply too.
 
 Since many switchcores trap or mirror various multicast packets to the
-CPU, link local traffic will unintentionally unlock the port for the
-SA mac in question unless prevented by this patch.
+CPU, they will unintentionally unlock the port for the SA mac in
+question unless prevented by this patch.
 
-Signed-off-by: Hans Schultz <hans@kapio-technology.com>
----
+Hans Schultz (1):
+  net: bridge: ensure that multicast packets cannot unlock a locked port
+
  net/bridge/br_input.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 68b3e850bcb9..a3ce0a151817 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -215,6 +215,7 @@ static void __br_handle_local_finish(struct sk_buff *skb)
- 	if ((p->flags & BR_LEARNING) &&
- 	    nbp_state_should_learn(p) &&
- 	    !br_opt_get(p->br, BROPT_NO_LL_LEARN) &&
-+	    !(p->flags & BR_PORT_LOCKED) &&
- 	    br_should_learn(p, skb, &vid))
- 		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, 0);
- }
 -- 
 2.30.2
 
