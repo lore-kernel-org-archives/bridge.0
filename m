@@ -1,26 +1,19 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E08AC60EFF
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DBC3D60A90
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=message-id:date:mime-version:user-agent:subject:content-language:to
- :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=xOuD0VayMLaVqMSm3qQEckL7M1TiFwHS72WWPKTLO58=;
- b=f2mg5NQcZInRzApmj3Hn1BwfNl1pudDvuPud+y6bW5QTphTs0bXap0Uu2pOmCLjt67
- 13Xcr7cbtXO40QwP5BGR3/Lv14ByQi77QfcKQJTj7qwsgFHLYMfioS2b8xPcxClm0exN
- 02p3T+AEeSkzysS7nxVSBskiMedr+oMz8YB+IB49n+wlv6Xw5o6bFyjETvnBcjFtmfNy
- WBv6ktj6+xlzz9y7+owgEUGG2ApUAOwv60wCPv8UVM8+o1cA2RPMvOR2txdT2PzZAaWo
- ijfpniC2e0HaioZ1VUHPbiJEFo37djO+X7EQpbklN41PWDjuWEwEMCoqLhxfyPvQhrkc
- 8SRA==
-Message-ID: <80d971ea-88b9-0d21-b6f4-93124ba6a678@blackwall.org>
-Date: Thu, 30 Jun 2022 14:17:43 +0300
-MIME-Version: 1.0
-Content-Language: en-US
+Return-Path: <idosch@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6C615607EC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0C6C1607AA
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DKujan2IbH/dDqQkS1tM31TozdGPb8fajbOCPRIL1q4=;
+ b=BiNzjnGL14vJE6QnbJ5LymQDSqNPZMIEwenj54sE2rgl8Z0H1w/7e4kMAR/bQ4oXq7cmeaDe3nkvDkOGjmUy80qHPJuknPKUKf+i2ci+w/6IbyGt0iYHi4CJ2Sm8Kg4GSj0zJ8PEv0VpLIKiwSl8ajH4RPhtHDoH8jbffesCgePzdaSgx1ovJD55W2HPcdaltHpwUGmbPhWl9VGHGuqM1PDp/jPUlFkrmutlGO9VMoz2Q4vkHJidZjjDk4LJV7vB8ujeiYfx/efTZww+phK0TFrq2T9zFoig+RKwxQ5+0iXUM3vxXPBusncg81bquthq/XTUiKVciau1+gMQ88NMWQ==
+Date: Thu, 30 Jun 2022 14:37:56 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+Message-ID: <Yr2LFI1dx6Oc7QBo@shredder>
 References: <20220630111634.610320-1-hans@kapio-technology.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20220630111634.610320-1-hans@kapio-technology.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
 Subject: Re: [Bridge] [PATCH net-next v1 1/1] net: bridge: ensure that
  link-local traffic cannot unlock a locked port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -31,10 +24,10 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <hans@kapio-technology.com>, davem@davemloft.net, kuba@kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Hans Schultz <schultz.hans+netdev@gmail.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
+To: Hans Schultz <hans@kapio-technology.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Hans Schultz <schultz.hans+netdev@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-On 30/06/2022 14:16, Hans Schultz wrote:
+On Thu, Jun 30, 2022 at 01:16:34PM +0200, Hans Schultz wrote:
 > This patch is related to the patch set
 > "Add support for locked bridge ports (for 802.1X)"
 > Link: https://lore.kernel.org/netdev/20220223101650.1212814-1-schultz.hans+netdev@gmail.com/
@@ -55,24 +48,9 @@ On 30/06/2022 14:16, Hans Schultz wrote:
 > Since many switchcores trap or mirror various multicast packets to the
 > CPU, link local traffic will unintentionally unlock the port for the
 > SA mac in question unless prevented by this patch.
-> 
-> Signed-off-by: Hans Schultz <hans@kapio-technology.com>
-> ---
->  net/bridge/br_input.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 68b3e850bcb9..a3ce0a151817 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -215,6 +215,7 @@ static void __br_handle_local_finish(struct sk_buff *skb)
->  	if ((p->flags & BR_LEARNING) &&
->  	    nbp_state_should_learn(p) &&
->  	    !br_opt_get(p->br, BROPT_NO_LL_LEARN) &&
-> +	    !(p->flags & BR_PORT_LOCKED) &&
->  	    br_should_learn(p, skb, &vid))
->  		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, 0);
->  }
 
-LGTM, thanks!
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Why not just teach hostapd to do:
+
+echo 1 > /sys/class/net/br0/bridge/no_linklocal_learn
+
+?
