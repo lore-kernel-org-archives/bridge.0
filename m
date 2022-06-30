@@ -1,29 +1,28 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D615A60AD0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C61C3605A6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E08AC60EFF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DBC3D60A90
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=message-id:date:mime-version:user-agent:subject:content-language:to
  :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=y5UsByWLMWEYobec0CN6KDFyOSWUvAwaZ8r1U9iYpCA=;
- b=GSP8LRnEUC3YB9em437uwIQRy41VuAuO8g4G5+rvlN9pk2hRaUTIC7RPWtP+4/iLfX
- NbsuWSaMTClElRWXyedG58ZqOOrY3YChazC5x54rw4O8k7egy1jc2YTFgWJa0c+1ttes
- WDniBrpGY8CGEvQSfn1HIIBiabI/klkG7e0t/6oshc86Mmf1IwxQVWtQIdNQz47n2Wxq
- Ue14QtxdR3M9VfCM5ucJ5Mlfr4QiWIiaFaUzmo4H9QDF7WWHx7EXyIYXWUM/c6ey2xDY
- JLckjeXOeuKccRqfKBHHRBOHdgNiEomFXjbyXjpOSC/DPYhETa51oG8U7CQViQueT1hO
- iA+Q==
-Message-ID: <47d8d747-54ef-df52-3b9c-acb9a77fa14a@blackwall.org>
-Date: Thu, 30 Jun 2022 13:22:37 +0300
+ bh=xOuD0VayMLaVqMSm3qQEckL7M1TiFwHS72WWPKTLO58=;
+ b=f2mg5NQcZInRzApmj3Hn1BwfNl1pudDvuPud+y6bW5QTphTs0bXap0Uu2pOmCLjt67
+ 13Xcr7cbtXO40QwP5BGR3/Lv14ByQi77QfcKQJTj7qwsgFHLYMfioS2b8xPcxClm0exN
+ 02p3T+AEeSkzysS7nxVSBskiMedr+oMz8YB+IB49n+wlv6Xw5o6bFyjETvnBcjFtmfNy
+ WBv6ktj6+xlzz9y7+owgEUGG2ApUAOwv60wCPv8UVM8+o1cA2RPMvOR2txdT2PzZAaWo
+ ijfpniC2e0HaioZ1VUHPbiJEFo37djO+X7EQpbklN41PWDjuWEwEMCoqLhxfyPvQhrkc
+ 8SRA==
+Message-ID: <80d971ea-88b9-0d21-b6f4-93124ba6a678@blackwall.org>
+Date: Thu, 30 Jun 2022 14:17:43 +0300
 MIME-Version: 1.0
 Content-Language: en-US
-References: <20220630100512.604364-1-hans@kapio-technology.com>
- <20220630100512.604364-2-hans@kapio-technology.com>
+References: <20220630111634.610320-1-hans@kapio-technology.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20220630100512.604364-2-hans@kapio-technology.com>
+In-Reply-To: <20220630111634.610320-1-hans@kapio-technology.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH net-next v1 1/1] net: bridge: ensure that
- multicast packets cannot unlock a locked port
+ link-local traffic cannot unlock a locked port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,9 +34,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Hans Schultz <hans@kapio-technology.com>, davem@davemloft.net, kuba@kernel.org
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Hans Schultz <schultz.hans+netdev@gmail.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, Vivien Didelot <vivien.didelot@gmail.com>
 
-On 30/06/2022 13:05, Hans Schultz wrote:
-> This makes it possible to use the locked port feature with learning
-> turned on which is needed for various driver features.
+On 30/06/2022 14:16, Hans Schultz wrote:
+> This patch is related to the patch set
+> "Add support for locked bridge ports (for 802.1X)"
+> Link: https://lore.kernel.org/netdev/20220223101650.1212814-1-schultz.hans+netdev@gmail.com/
+> 
+> This patch makes the locked port feature work with learning turned on,
+> which is enabled with the command:
+> 
+> bridge link set dev DEV learning on
+> 
+> Without this patch, link local traffic (01:80:c2) like EAPOL packets will
+> create a fdb entry when ingressing on a locked port with learning turned
+> on, thus unintentionally opening up the port for traffic for the said MAC.
+> 
+> Some switchcore features like Mac-Auth and refreshing of FDB entries,
+> require learning enables on some switchcores, f.ex. the mv88e6xxx family.
+> Other features may apply too.
+> 
+> Since many switchcores trap or mirror various multicast packets to the
+> CPU, link local traffic will unintentionally unlock the port for the
+> SA mac in question unless prevented by this patch.
 > 
 > Signed-off-by: Hans Schultz <hans@kapio-technology.com>
 > ---
@@ -57,15 +74,5 @@ On 30/06/2022 13:05, Hans Schultz wrote:
 >  		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, 0);
 >  }
 
-hmm this is called for link-local traffic (01:80:c2), the title is misleading
-please include the real traffic type because it doesn't concern mcast
-
-Also please include the long explanation from the 0 patch in this one
-and drop the cover letter, it's good to have the info.
-
-Thanks,
- Nik
-
-
-
-
+LGTM, thanks!
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
