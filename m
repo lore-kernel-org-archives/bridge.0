@@ -1,24 +1,24 @@
 Return-Path: <sashal@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B95940B4A
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 59D1A40B63
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4195283E74
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 547AC83E72
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1657121536;
+ s=k20201202; t=1657121582;
  bh=GqYSiyEiYN54B9KbL1CA43tpPPB30YDlNdA9ZXdKhCM=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=uPiuXQ1OciCptQAm8NurlZ6qSbq6OIbjM7n07vbeq6RAIb0WlmXf+Be8xuwXL5hx/
- jUUBtf/dJ6LErVGST4VNWuVfaaNecJRDe381ScXi2t0kcWLRi947IRjF0Junckyi4k
- 8Cs542HP9nXu617vNAG8HU8Q62iF7S9zi2p90HEesorfj8ArCJ60nf2WRUyfj/D0Rf
- NBsp3qTpr3cyBK846wks3WtAT0Kekw+fMFFtDwJHKiCioEcWC4uBht+G/n6cHrkMiY
- x93nUcs52V5l9ZYwgQbnU1gG3oFZQ9lFE3n3rHmD0spHycZgOva5V65t1phVz8rwB0
- Ewn8BAo/E1Mzw==
+ b=Dr1S0R8eaYjAjQTP7H2rcEpMqsm3H1CyuMiPgfE1X+hv5IhuE4eNgwQgMh/oc3LFc
+ oNLkJ2rj5YBU/ivazRKqR8oOuILT+EHRhPt8IKzfi1TkrL3DtTX0Z33KO2yceSDTp3
+ x+iH/Fc//tPf7bIIiPwOoj3jnk7F2c2b7AgPw6sS+BysEGcVXK1C7jpu6cuXt5HznG
+ GXDoC6J+jGJBGqy6+zzt7CQBFrafO4XYjxZyt3CcS7SaWZ1pJO70NU7g5eiSQrsy8C
+ bRdHqgacd//cWv7KaJZmHZDe3Pvz97QvjR4JIVxwWTd09+cl7IZzr70sXbi82/+DXc
+ F65+3jCcGNvEg==
 From: Sasha Levin <sashal@kernel.org>
-Date: Wed,  6 Jul 2022 11:31:42 -0400
-Message-Id: <20220706153153.1598076-7-sashal@kernel.org>
-In-Reply-To: <20220706153153.1598076-1-sashal@kernel.org>
-References: <20220706153153.1598076-1-sashal@kernel.org>
+Date: Wed,  6 Jul 2022 11:32:48 -0400
+Message-Id: <20220706153256.1598411-3-sashal@kernel.org>
+In-Reply-To: <20220706153256.1598411-1-sashal@kernel.org>
+References: <20220706153256.1598411-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.15 07/18] netfilter: br_netfilter: do not
+Subject: [Bridge] [PATCH AUTOSEL 5.10 03/11] netfilter: br_netfilter: do not
 	skip all hooks with 0 priority
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
