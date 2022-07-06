@@ -1,31 +1,25 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 14C2960FF7
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8903660AC3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=kphskzMlt6EGchsLTLJYN06q4RV+jKzSIlUUJ5f6N/s=;
- b=kiJAEhvyU8HYk7PpSgzHaFLYXTn/7OXVDlOBX47KDJDXj5MslRjw7rn8DBZiBCjLGs
- jcWYTy9wuVMq8e4m2df56ftn1WSNhNzYxL37mxsH9ylvQmoROjQUazszVpsI3wFvwUM2
- dapH4uQdlt9VqamvOhU1sKLiD13AP4iZh0UoHvV8A8CGJpIKfQEzJiKYRnmhI4lky3IJ
- aiyoPJJBOOyqgK6+1tn0iN6t0ci0SqDXIyN7l7AUUMXhWhc+j26o3mEHtWtOlksgpuFb
- qPb8OPa+t4YbgHaFC1Kcl6+iEgSAAz+46mfgF9NrwXkZIN3Y3JCE5oltktYKY/fG0X3K
- 7edA==
-Date: Wed, 6 Jul 2022 17:33:39 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220706143339.iuwi23ktk53ihhb6@skbuf>
-References: <20220524152144.40527-1-schultz.hans+netdev@gmail.com>
- <20220524152144.40527-4-schultz.hans+netdev@gmail.com>
- <20220627180557.xnxud7d6ol22lexb@skbuf>
- <CAKUejP7ugMB9d3MVX3m9Brw12_ocFoT+nuJJucYdQH70kzC7=w@mail.gmail.com>
- <20220706085559.oyvzijcikivemfkg@skbuf>
- <CAKUejP7gmULyrjqd3b3PiWwi7TJzF4HNuEbmAf25Cqh3w7a1mw@mail.gmail.com>
+Return-Path: <sashal@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 40E2560FF8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 34E1F60FF2
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1657121469;
+ bh=ZWyNL/PLV0KBvNJrAWbcNjFGF/dSsbZ4x/okfB1xgSk=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=EKR8OejCcF+4qjF7yC1r8uvZuBpI568iyRQKP3fcJcnksfQSTUO7ap52V6DnkS56a
+ rat1ijcttwnK0McpfGLmi3dCghxk61Vf6F2Be1gAmEJ4pKpl8K+Jhnj2JjX8/bPGZD
+ knurJdv3v6ZBFy3ZWTyee19XZNJ3XGl4PztrSwz7tQyjQ89m9ekhlNKehHxg5S5RSM
+ V83wB3yPshFmT0nxpXWktlsRsqLcAqzgZJsrqI31NANLu2k28x0QJHvMEtJUWuTK9a
+ CtEFa5yu910lciWuBultyvhD/uobXYisNB7PNbCFe4nVSC2c6+/fHYo4F9vrV7gnZz
+ MY7lj8HVV7yBw==
+From: Sasha Levin <sashal@kernel.org>
+Date: Wed,  6 Jul 2022 11:30:27 -0400
+Message-Id: <20220706153041.1597639-9-sashal@kernel.org>
+In-Reply-To: <20220706153041.1597639-1-sashal@kernel.org>
+References: <20220706153041.1597639-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKUejP7gmULyrjqd3b3PiWwi7TJzF4HNuEbmAf25Cqh3w7a1mw@mail.gmail.com>
-Subject: Re: [Bridge] [PATCH V3 net-next 3/4] net: dsa: mv88e6xxx:
- mac-auth/MAB implementation
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH AUTOSEL 5.18 09/22] netfilter: br_netfilter: do not
+	skip all hooks with 0 priority
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,215 +28,105 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans S <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, kadlec@netfilter.org, edumazet@google.com, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, Radim Hrazdil <rhrazdil@redhat.com>, pabeni@redhat.com, davem@davemloft.net, Pablo Neira Ayuso <pablo@netfilter.org>
 
-On Wed, Jul 06, 2022 at 12:12:01PM +0200, Hans S wrote:
-> On Wed, Jul 6, 2022 at 10:56 AM Vladimir Oltean <olteanv@gmail.com> wrote:
-> >
-> > On Tue, Jun 28, 2022 at 02:26:43PM +0200, Hans S wrote:
-> > > > Dumb question: if you only flush the locked entries at fast age if the
-> > > > port is locked, then what happens with the existing locked entries if
-> > > > the port becomes unlocked before an FDB flush takes place?
-> > > > Shouldn't mv88e6xxx_port_set_lock() call mv88e6xxx_atu_locked_entry_flush()
-> > > > too?
-> 
-> BTW:
-> >> @@ -919,6 +920,9 @@ static void mv88e6xxx_mac_link_down(struct dsa_switch *ds, int port,
-> >>       if (err)
-> >>               dev_err(chip->dev,
-> >>                       "p%d: failed to force MAC link down\n", port);
-> >> +     else
-> >> +             if (mv88e6xxx_port_is_locked(chip, port, true))
-> >> +                     mv88e6xxx_atu_locked_entry_flush(ds, port);
-> >
-> >This is superfluous, is it not? The bridge will transition a port whose
-> >link goes down to BR_STATE_DISABLED, which will make dsa_port_set_state()
-> >fast-age the dynamic FDB entries on the port, which you've already
-> >handled below.
-> 
-> I removed this code, but then on link down the locked entries were not
-> cleared out. Something not as thought?
+From: Florian Westphal <fw@strlen.de>
 
-What was the port's STP state before the link down event, and did it
-change after the link down?
+[ Upstream commit c2577862eeb0be94f151f2f1fff662b028061b00 ]
 
-The relevant code in DSA is:
+When br_netfilter module is loaded, skbs may be diverted to the
+ipv4/ipv6 hooks, just like as if we were routing.
 
-int dsa_port_set_state(struct dsa_port *dp, u8 state, bool do_fast_age)
-{
-	struct dsa_switch *ds = dp->ds;
-	int port = dp->index;
+Unfortunately, bridge filter hooks with priority 0 may be skipped
+in this case.
 
-	if (!ds->ops->port_stp_state_set)
-		return -EOPNOTSUPP;
+Example:
+1. an nftables bridge ruleset is loaded, with a prerouting
+   hook that has priority 0.
+2. interface is added to the bridge.
+3. no tcp packet is ever seen by the bridge prerouting hook.
+4. flush the ruleset
+5. load the bridge ruleset again.
+6. tcp packets are processed as expected.
 
-	ds->ops->port_stp_state_set(ds, port, state);
+After 1) the only registered hook is the bridge prerouting hook, but its
+not called yet because the bridge hasn't been brought up yet.
 
-	if (!dsa_port_can_configure_learning(dp) ||
-	    (do_fast_age && dp->learning)) {
-		/* Fast age FDB entries or flush appropriate forwarding database
-		 * for the given port, if we are moving it from Learning or
-		 * Forwarding state, to Disabled or Blocking or Listening state.
-		 * Ports that were standalone before the STP state change don't
-		 * need to fast age the FDB, since address learning is off in
-		 * standalone mode.
-		 */
+After 2), hook order is:
+   0 br_nf_pre_routing // br_netfilter internal hook
+   0 chain bridge f prerouting // nftables bridge ruleset
 
-		if ((dp->stp_state == BR_STATE_LEARNING ||
-		     dp->stp_state == BR_STATE_FORWARDING) &&
-		    (state == BR_STATE_DISABLED ||
-		     state == BR_STATE_BLOCKING ||
-		     state == BR_STATE_LISTENING))
-			dsa_port_fast_age(dp);
-	}
+The packet is diverted to br_nf_pre_routing.
+If call-iptables is off, the nftables bridge ruleset is called as expected.
 
-	dp->stp_state = state;
+But if its enabled, br_nf_hook_thresh() will skip it because it assumes
+that all 0-priority hooks had been called previously in bridge context.
 
-	return 0;
-}
+To avoid this, check for the br_nf_pre_routing hook itself, we need to
+resume directly after it, even if this hook has a priority of 0.
 
-If the STP state wasn't LEARNING or FORWARDING, there weren't supposed
-to be dynamic FDB entries on the port in the first place, so DSA says
-there's nothing to flush, and doesn't call dsa_port_fast_age().
-Are there dynamic FDB entries being installed on a port that isn't
-in a state that's supposed to learn? I guess the answer is yes.
-Is that what you want, or should the locked entries be recorded only in
-the LEARNING or FORWARDING states, otherwise discarded?
+Unfortunately, this still results in different packet flow.
+With this fix, the eval order after in 3) is:
+1. br_nf_pre_routing
+2. ip(6)tables (if enabled)
+3. nftables bridge
 
-> > > That was my first thought too, but the way the flags are handled with the mask etc, does so that
-> > > mv88e6xxx_port_set_lock() is called when other flags change. It could be done by the transition
-> > > from locked->unlocked by checking if the port is locked already.
-> >
-> > Why does mv88e6xxx_port_set_lock() get called when other flags change?
-> 
-> That is what seems to happen, but maybe I am wrong. Looking at the dsa
-> functions dsa_port_inherit_brport_flags() and
-> dsa_port_clear_brport_flags(), they set the mask for which underlying
-> function is called, and it looks to me that they call once for all the
-> flags: BR_LEARNING, BR_FLOOD, BR_MCAST_FLOOD, BR_BCAST_FLOOD,
-> BR_PORT_LOCKED?
+but after 5 its the much saner:
+1. nftables bridge
+2. br_nf_pre_routing
+3. ip(6)tables (if enabled)
 
-What you actually want to say is: "mv88e6xxx_port_set_lock() is also
-called when the DSA port joins a bridge, due to the switchdev attribute
-replay logic present in dsa_port_switchdev_sync_attrs()".
+Unfortunately I don't see a solution here:
+It would be possible to move br_nf_pre_routing to a higher priority
+so that it will be called later in the pipeline, but this also impacts
+ebtables evaluation order, and would still result in this very ordering
+problem for all nftables-bridge hooks with the same priority as the
+br_nf_pre_routing one.
 
-Which, by the way, is logic that you've added yourself, in commit
-b9e8b58fd2cb ("net: dsa: Include BR_PORT_LOCKED in the list of synced
-brport flags") ;)
+Searching back through the git history I don't think this has
+ever behaved in any other way, hence, no fixes-tag.
 
-You are free to return early from mv88e6xxx_port_set_lock() if nothing has
-changed. The DSA layer doesn't keep track of the locked state of the
-port so it cannot deduce whether propagating to the switch driver is
-necessary or not.
+Reported-by: Radim Hrazdil <rhrazdil@redhat.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/bridge/br_netfilter_hooks.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-> > > > From the discussion with Ido and Nikolay I get the impression that
-> > > > you're not doing the right thing here either, notifying a
-> > > > SWITCHDEV_FDB_DEL_TO_BRIDGE from what is effectively the
-> > > > SWITCHDEV_FDB_DEL_TO_DEVICE handler (port_fdb_del).
-> > >
-> > > Hmm, my experience tells me that much is opposite the normal
-> > > conventions when dealing with
-> > > locked ports, as there was never switchdev notifications from the
-> > > driver to the bridge before, but
-> > > that is needed to keep ATU and FDB entries in sync.
-> >
-> > On delete you mean? So the bridge signals switchdev a deletion of a
-> > locked FDB entry (as I pointed out, this function gets indirectly called
-> > from port_fdb_del), but it won't get deleted until switchdev signals it
-> > back, is what you're saying?
-> >
-> 
-> When added they are added with bridge FDB flags: extern_learn offload
-> locked, with a SWITCHDEV_FDB_ADD_TO_BRIDGE event. So they are owned by
-> the driver.
-> When the driver deletes the locked entry the bridge FDB entry is
-> removes by the SWITCHDEV_FDB_DEL_TO_BRIDGE event from the driver. That
-> seems quite fair?
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 4fd882686b04..ff4779036649 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -1012,9 +1012,24 @@ int br_nf_hook_thresh(unsigned int hook, struct net *net,
+ 		return okfn(net, sk, skb);
+ 
+ 	ops = nf_hook_entries_get_hook_ops(e);
+-	for (i = 0; i < e->num_hook_entries &&
+-	      ops[i]->priority <= NF_BR_PRI_BRNF; i++)
+-		;
++	for (i = 0; i < e->num_hook_entries; i++) {
++		/* These hooks have already been called */
++		if (ops[i]->priority < NF_BR_PRI_BRNF)
++			continue;
++
++		/* These hooks have not been called yet, run them. */
++		if (ops[i]->priority > NF_BR_PRI_BRNF)
++			break;
++
++		/* take a closer look at NF_BR_PRI_BRNF. */
++		if (ops[i]->hook == br_nf_pre_routing) {
++			/* This hook diverted the skb to this function,
++			 * hooks after this have not been run yet.
++			 */
++			i++;
++			break;
++		}
++	}
+ 
+ 	nf_hook_state_init(&state, hook, NFPROTO_BRIDGE, indev, outdev,
+ 			   sk, net, okfn);
+-- 
+2.35.1
 
-I'm just pointing out that you left other (probably unintended) code
-paths for which the SWITCHDEV_FDB_DEL_TO_BRIDGE notifier is quite
-useless. I haven't yet looked at your newest revision to see what
-changed there.
-
-> > > > Why is the rtnl_unlock() outside the switch statement but the rtnl_lock() inside?
-> > > > Not to mention, the dsa_port_to_bridge_port() call needs to be under rtnl_lock().
-> > >
-> > > Just a small optimization as I also have another case of the switch
-> > > (only one switch case if
-> > > you didn't notice) belonging to the next patch set regarding dynamic
-> > > ATU entries.
-> >
-> > What kind of optimization are you even talking about? Please get rid of
-> > coding patterns like this, sorry.
-> >
-> Right!
-
-Right what? I'm genuinely curious what optimization are you talking about.
-
-> > > > > +
-> > > > > +     if (mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_CTL0, &reg))
-> > > > > +             goto out;
-> > > >
-> > > > It would be good to actually propagate the error to the caller and
-> > > > "locked" via a pass-by-reference bool pointer argument, not just say
-> > > > that I/O errors mean that the port is unlocked.
-> > >
-> > > Again the wish to be able to call it from if statement checks,.
-> > >
-> > > > > +     reg &= MV88E6XXX_PORT_ASSOC_VECTOR_PAV_MASK;
-> > > > > +     if (locked) {
-> > > > > +             reg |= MV88E6XXX_PORT_ASSOC_VECTOR_IGNORE_WRONG |
-> > > > > +                     MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT |
-> > > > > +                     MV88E6XXX_PORT_ASSOC_VECTOR_INT_AGE_OUT |
-> > > > > +                     MV88E6XXX_PORT_ASSOC_VECTOR_HOLD_AT_1;
-> > > >
-> > > > I'd suggest aligning these macros vertically.
-> > >
-> > > They are according to the Linux kernel coding standard wrt indentation afaik.
-> >
-> > Compare:
-> >
-> >                 reg |= MV88E6XXX_PORT_ASSOC_VECTOR_IGNORE_WRONG |
-> >                         MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT |
-> >                         MV88E6XXX_PORT_ASSOC_VECTOR_INT_AGE_OUT |
-> >                         MV88E6XXX_PORT_ASSOC_VECTOR_HOLD_AT_1;
-> >
-> > with:
-> >
-> >                 reg |= MV88E6XXX_PORT_ASSOC_VECTOR_IGNORE_WRONG |
-> >                        MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT |
-> >                        MV88E6XXX_PORT_ASSOC_VECTOR_INT_AGE_OUT |
-> >                        MV88E6XXX_PORT_ASSOC_VECTOR_HOLD_AT_1;
-> 
-> I cannot see the difference here...?
-
-Just out of curiosity, are you even trying, are you looking at the
-difference using a monospace font?
-
-> Another issue...
-> 
-> I have removed the timers as they are superfluous and now just use the
-> worker and jiffies. But I have found that the whole ageing time seems
-> to be broken on the 5.17 kernel I am running. I don't know if it has
-> been fixed, but the ageing timeout is supposed to be given in seconds.
-> Here is the output from various functions after the command "ip link
-> set dev br0 type bridge ageing_time 1500" (that is nominally 1500
-> seconds according to man page!):
-> 
-> dsa_switch_ageing_time: ageing_time 10000, ageing_time_min 1000,
-> ageing_time_max 3825000
-> mv88e6xxx_set_ageing_time: set ageing time to 10000
-> br0: failed (err=-34) to set attribute (id=6)
-> dsa_switch_ageing_time: ageing_time 15000, ageing_time_min 1000,
-> ageing_time_max 3825000
-> mv88e6xxx_set_ageing_time: set ageing time to 15000
-> 
-> The 15000 set corresponds to 150 seconds! (I hardcoded the dsa
-> ageing_time_min to 1000)
-
-Are you talking about this known problem, that the ageing time values in
-seconds need to be scaled up by a factor of USER_HZ when passed to the
-kernel?
-https://www.spinics.net/lists/netdev/msg672070.html
-https://www.spinics.net/lists/netdev/msg567332.html
