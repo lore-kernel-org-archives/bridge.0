@@ -1,24 +1,24 @@
 Return-Path: <sashal@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4195283E74
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 547AC83E72
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F2B7F4182F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AEAEC40256
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1657121582;
- bh=GqYSiyEiYN54B9KbL1CA43tpPPB30YDlNdA9ZXdKhCM=;
+ s=k20201202; t=1657121602;
+ bh=/jIRbjIZlzMBfjSKlH+Nj5HVRQXc8VjtOUN1Kkhz//M=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Dr1S0R8eaYjAjQTP7H2rcEpMqsm3H1CyuMiPgfE1X+hv5IhuE4eNgwQgMh/oc3LFc
- oNLkJ2rj5YBU/ivazRKqR8oOuILT+EHRhPt8IKzfi1TkrL3DtTX0Z33KO2yceSDTp3
- x+iH/Fc//tPf7bIIiPwOoj3jnk7F2c2b7AgPw6sS+BysEGcVXK1C7jpu6cuXt5HznG
- GXDoC6J+jGJBGqy6+zzt7CQBFrafO4XYjxZyt3CcS7SaWZ1pJO70NU7g5eiSQrsy8C
- bRdHqgacd//cWv7KaJZmHZDe3Pvz97QvjR4JIVxwWTd09+cl7IZzr70sXbi82/+DXc
- F65+3jCcGNvEg==
+ b=HRw20P9I1N57zrEMcq53QYPGT+uvKumr5yGEREMEaIOgOEmdpmH22VAH+jYOt6cS3
+ oEJlqgIiZDPkX7fqMbgyUTXjyF3XAar8pH88WIgHJdTOU49YJTeE3zd6Xs64DHAU1P
+ GZtW3X1J/3EVruH9KESo7TEap6tCyCBOsgS/OkJE4sNXGLKMtA6bPXn9stBiJCVO+i
+ hs4ti6dtUuWmrKm9lW4rqythPMpFa/L9rElJzwKkNjSlinsTxcxQehTWnzYdtEYMzZ
+ 6qUG0y16SCGkVi3wYbH2nq+PmHmmeXGH9zqXefAQwODRs44WHmH86epQ/PWnU7hBq4
+ Pst708HvpCgVA==
 From: Sasha Levin <sashal@kernel.org>
-Date: Wed,  6 Jul 2022 11:32:48 -0400
-Message-Id: <20220706153256.1598411-3-sashal@kernel.org>
-In-Reply-To: <20220706153256.1598411-1-sashal@kernel.org>
-References: <20220706153256.1598411-1-sashal@kernel.org>
+Date: Wed,  6 Jul 2022 11:33:09 -0400
+Message-Id: <20220706153316.1598554-3-sashal@kernel.org>
+In-Reply-To: <20220706153316.1598554-1-sashal@kernel.org>
+References: <20220706153316.1598554-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.10 03/11] netfilter: br_netfilter: do not
+Subject: [Bridge] [PATCH AUTOSEL 5.4 3/9] netfilter: br_netfilter: do not
 	skip all hooks with 0 priority
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -96,7 +96,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 18 insertions(+), 3 deletions(-)
 
 diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 68c0d0f92890..10a2c7bca719 100644
+index 480e4111b24c..19726d81025d 100644
 --- a/net/bridge/br_netfilter_hooks.c
 +++ b/net/bridge/br_netfilter_hooks.c
 @@ -1012,9 +1012,24 @@ int br_nf_hook_thresh(unsigned int hook, struct net *net,
