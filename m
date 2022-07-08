@@ -1,18 +1,27 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D897415DA
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A8048402E3
+Return-Path: <olteanv@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3D4396135B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 79AE66134B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=9d07Y8B9hW/YK4FdVwqna0EC5kCeABlM1GESgsdV3qE=;
+ b=gHiNAIzwdN+JoHOkRq1S10c9X8e7xkFXbnXduv9//hQbLAE2ZUtsAVfggdlFAg4wUu
+ 6/CE6XPRQu1qfoMQJpFEUw6B1Gw1T2fmrzkr8Q47dVmmniPm21DvCE0uVqaXUhrVlms2
+ oGakDf2RW5pztTCtvTDSr5QeOYmASWFF0sHlK+xxTfO3EM6NcjrnlnaZwreqrvWJaFbm
+ 5+sm2eZr4BrNevPHorokPFNHQJLcFdq5cELRn8RBvnp8CulnRjCfinXbSd4cepmU6NkM
+ +tnVjqI42b5ZUHwYMIXnvz6hTg5ZNmJ8AnSU1hIbMAzd87LyWZR+gaEw/37RkDmLcpq7
+ 69zQ==
+Date: Fri, 8 Jul 2022 11:49:04 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20220708084904.33otb6x256huddps@skbuf>
+References: <20220707152930.1789437-1-netdev@kapio-technology.com>
+ <20220707152930.1789437-4-netdev@kapio-technology.com>
 MIME-Version: 1.0
-Date: Fri, 08 Jul 2022 09:12:46 +0200
-From: netdev@kapio-technology.com
-In-Reply-To: <20220707102836.u7ig6rr2664mcrlf@skbuf>
-References: <20220706122502.1521819-1-netdev@kapio-technology.com>
- <20220707102836.u7ig6rr2664mcrlf@skbuf>
-Message-ID: <f8a4f54a90efa545cac1ff2cdbde78c7@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 1/1] net: dsa: mv88e6xxx: allow
- reading FID when handling ATU violations
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220707152930.1789437-4-netdev@kapio-technology.com>
+Subject: Re: [Bridge] [PATCH v4 net-next 3/6] drivers: net: dsa: add locked
+ fdb entry flag to drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,62 +30,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
+To: Hans Schultz <netdev@kapio-technology.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On 2022-07-07 12:28, Vladimir Oltean wrote:
-> On Wed, Jul 06, 2022 at 02:25:02PM +0200, Hans Schultz wrote:
->> For convenience the function mv88e6xxx_g1_atu_op() has been used to 
->> read
->> ATU violations, but the function has other purposes and does not 
->> enable
->> the possibility to read the FID when reading ATU violations.
->> 
->> The FID is needed to get hold of which VID was involved in the 
->> violation,
->> thus the need for future purposes to be able to read the FID.
-> 
-> Make no mistake, the existing code doesn't disallow reading back the 
-> FID
-> during an ATU Get/Clear Violation operation, and your patch isn't
-> "allowing" something that wasn't disallowed.
+Hi Hans,
 
-It would only read 0 the way it worked. And I don't understand why
-mv88e6xxx_g1_atu_op() writes the FID?
-
+On Thu, Jul 07, 2022 at 05:29:27PM +0200, Hans Schultz wrote:
+> Ignore locked fdb entries coming in on all drivers.
 > 
-> The documentation for the ATU FID register says that its contents is
-> ignored before the operation starts, and it contains the returned ATU
-> entry's FID after the operation completes.
-> 
-> So the change simply says: don't bother to write the ATU FID register
-> with zero, it doesn't matter what this contains. This is probably true,
-> but the patch needs to do what's written on the box.
+> Signed-off-by: Hans Schultz <netdev@kapio-technology.com>
+> ---
 
-Writing 0 to the ATU fID register resulted in a read giving zero of 
-course.
+A good patch should have a reason for the change in the commit message.
+This has no reason because there is no reason.
 
-> 
-> Please note that this only even matters at all for switches with
-> mv88e6xxx_num_databases(chip) > 256, where MV88E6352_G1_ATU_FID is a
-> dedicated register which this patch avoids writing. For other switches,
-> the FID is embedded within MV88E6XXX_G1_ATU_CTL or MV88E6XXX_G1_ATU_OP.
-> So _practically_, for those switches, you are still emitting the
-> GET_CLR_VIOLATION ATU op with a FID of 0 whether you like it or not, 
-> and
-> this patch introduces a (most likely irrelevant) discrepancy between 
-> the
-> access methods for various switches.
-> 
-> Please note that this observation is relevant for your future changes 
-> to
-> read back the FID too. As I said here:
-> https://patchwork.kernel.org/project/netdevbpf/patch/20220524152144.40527-4-schultz.hans+netdev@gmail.com/#24912482
-> you can't just assume that the FID lies within the MV88E6352_G1_ATU_FID
-> register, just look at the way it is packed within 
-> mv88e6xxx_g1_atu_op().
-> You'll need to unpack it in the same way.
+Think about it, you've said it yourself in patch 1:
 
-So I need a new function to read the FID that mimics 
-mv88e6xxx_g1_atu_op()
-as far as I understand?
+| Only the kernel can set this FDB entry flag, while userspace can read
+| the flag and remove it by replacing or deleting the FDB entry.
+
+So if user space will never add locked FDB entries to the bridge,
+then FDB entries with is_locked=true are never transported using
+SWITCHDEV_FDB_ADD_TO_DEVICE to drivers, and so, there is no reason at
+all to pass is_locked to drivers, just for them to ignore something that
+won't appear.
+
+You just need this for SWITCHDEV_FDB_ADD_TO_BRIDGE, so please keep it
+only in those code paths, and remove it from net/dsa/slave.c as well.
+
+>  drivers/net/dsa/b53/b53_common.c       | 5 +++++
+>  drivers/net/dsa/b53/b53_priv.h         | 1 +
+>  drivers/net/dsa/hirschmann/hellcreek.c | 5 +++++
+>  drivers/net/dsa/lan9303-core.c         | 5 +++++
+>  drivers/net/dsa/lantiq_gswip.c         | 5 +++++
+>  drivers/net/dsa/microchip/ksz9477.c    | 5 +++++
+>  drivers/net/dsa/mt7530.c               | 5 +++++
+>  drivers/net/dsa/mv88e6xxx/chip.c       | 5 +++++
+>  drivers/net/dsa/ocelot/felix.c         | 5 +++++
+>  drivers/net/dsa/qca8k.c                | 5 +++++
+>  drivers/net/dsa/sja1105/sja1105_main.c | 5 +++++
+>  include/net/dsa.h                      | 1 +
+>  net/dsa/switch.c                       | 4 ++--
+>  13 files changed, 54 insertions(+), 2 deletions(-)
