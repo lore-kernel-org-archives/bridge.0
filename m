@@ -1,19 +1,29 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1677C610F1
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D683360B75
-MIME-Version: 1.0
-Date: Fri, 08 Jul 2022 11:50:33 +0200
-From: netdev@kapio-technology.com
-In-Reply-To: <20220708091550.2qcu3tyqkhgiudjg@skbuf>
+Return-Path: <olteanv@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CF490613CA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 77461613C6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=AG3Sm3NazJDBZSa/naVDAcI9egy0zTLjaKLWd6YOLPM=;
+ b=iT2z7eTBAPBciEDO1xjz6EbYuR7iyR313S/TVdseEVTHd2GQMu/GurcYn7z8vAJGbl
+ AueMvC/9KeZzWbXUQ/D7vnqLcpKUiuJsCPSVjs2WNiHnl4R//G/AKidZGjiKn3cb3rR6
+ Ryeg9E/uIX4Y2xkJ1Rwx9DrUMWBZds6IHw2HsRA/1muEkSN2KO5TQH+L9Gz8oq0MAl4j
+ jTKNmWAE4Nn66sOBYipmxMB2wPqr6mEv4NKyrxzAr7SDF7JazVXsa+0pqZ/LH3I18H6X
+ ZSi+5QXc/LEJekr8nQ0BTilUq8qoLoYBFd7ivJQrBlRXEHuL08l7gRwhlyz86tf16xZV
+ NBpw==
+Date: Fri, 8 Jul 2022 14:56:24 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20220708115624.rrjzjtidlhcqczjv@skbuf>
 References: <20220707152930.1789437-1-netdev@kapio-technology.com>
  <20220707152930.1789437-4-netdev@kapio-technology.com>
  <20220708084904.33otb6x256huddps@skbuf>
  <e6f418705e19df370c8d644993aa9a6f@kapio-technology.com>
  <20220708091550.2qcu3tyqkhgiudjg@skbuf>
-Message-ID: <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+ <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
 Subject: Re: [Bridge] [PATCH v4 net-next 3/6] drivers: net: dsa: add locked
  fdb entry flag to drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -24,19 +34,25 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
+To: netdev@kapio-technology.com
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On 2022-07-08 11:15, Vladimir Oltean wrote:
-> When the possibility for it to be true will exist, _all_ switchdev
-> drivers will need to be updated to ignore that (mlxsw, cpss, ocelot,
-> rocker, prestera, etc etc), not just DSA. And you don't need to
-> propagate the is_locked flag to all individual DSA sub-drivers when 
-> none
-> care about is_locked in the ADD_TO_DEVICE direction, you can just 
-> ignore
-> within DSA until needed otherwise.
+On Fri, Jul 08, 2022 at 11:50:33AM +0200, netdev@kapio-technology.com wrote:
+> On 2022-07-08 11:15, Vladimir Oltean wrote:
+> > When the possibility for it to be true will exist, _all_ switchdev
+> > drivers will need to be updated to ignore that (mlxsw, cpss, ocelot,
+> > rocker, prestera, etc etc), not just DSA. And you don't need to
+> > propagate the is_locked flag to all individual DSA sub-drivers when none
+> > care about is_locked in the ADD_TO_DEVICE direction, you can just ignore
+> > within DSA until needed otherwise.
+> > 
 > 
+> Maybe I have it wrong, but I think that Ido requested me to send it to all
+> the drivers, and have them ignore entries with is_locked=true ...
 
-Maybe I have it wrong, but I think that Ido requested me to send it to 
-all the drivers, and have them ignore entries with is_locked=true ...
+I don't think Ido requested you to ignore is_locked from all DSA
+drivers, but instead from all switchdev drivers maybe. Quite different.
+
+In any case I'm going to take a look at this patch set more closely and
+run the selftest on my Marvell switch, but I can't do this today
+unfortunately. I'll return with more comments.
