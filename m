@@ -1,22 +1,28 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1106341619
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6A65B4161A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D713784012
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5CAD984002
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6aOSOUd9RBEHqOP1XcSOPcC/VbZMbNhD9MrOCZg4pkA=;
- b=cYCXhwwFC+6mNEoVFRjlhKGEOUKSpAD6VIWtM1VoiCy0C57G6Uj6RMrW3N9BFCnnZO3F6PxS/TOHVweKZ0pYViulJd6WGMYW36xuD9hva/ykV/qSPCUL0TnsQ72rnaIcgmRvQUZlJcFV6Y+Sg27P5AaxwzjSBf8MByHVjdduJHr7ul71c+DjlYQOxtLPnQh1/Pv30ygmXWE9xqvusUv7bjKaOmbYD+I3KPBugezScCKQ0Jy9/lTS0C6SAPqVo1ZvBNDOWRgcHH0VzE0UORPDPGlQoZwibHFD00bMK/2hYeNPDt2BLZ1hJVu3lI1q/1xMTbAbd9Swc/Mbyz4OqDto1Q==
-Date: Sun, 10 Jul 2022 11:20:27 +0300
+ bh=UaG0H9YVd45cKQL3/FJQcUe93jcyrOYVfC41nfQax6c=;
+ b=I4m85fuTMSlf1WqWJ69yvcPuwZJorKgLyqA+dIhQgLM9YD5mEtFHW2fATZcuf4a7n8iky9xfIdfo82cVGmUUbkNAiCMboTSC3BEyC8yRMmDjCoh9KmvafU3cZqZJ19luRaxkWBNdejkyh25cnV7sIeDbAVhvGbUbsK+EGC+2bt/10EXBsOv8T+6WmdY3ifS4ZijqBrfi5fvcvg6kC7TgtnkmNjhx9krN3B44KtIvhEKRWU6AkqA6FVj3iN45d0rPrKUVKPq+d3mc9u4pekwTktasCYQL9xvjdxfWy/dfTUnzrJU/tDY705Xba+3Fhd+118+knZV88HiCFt95QGT3ew==
+Date: Sun, 10 Jul 2022 11:35:36 +0300
 From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <YsqLyxTRtUjzDj6D@shredder>
+Message-ID: <YsqPWK67U0+Iw2Ru@shredder>
 References: <20220707152930.1789437-1-netdev@kapio-technology.com>
- <20220707152930.1789437-2-netdev@kapio-technology.com>
+ <20220707152930.1789437-4-netdev@kapio-technology.com>
+ <20220708084904.33otb6x256huddps@skbuf>
+ <e6f418705e19df370c8d644993aa9a6f@kapio-technology.com>
+ <20220708091550.2qcu3tyqkhgiudjg@skbuf>
+ <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
+ <20220708115624.rrjzjtidlhcqczjv@skbuf>
+ <723e2995314b41ff323272536ef27341@kapio-technology.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220707152930.1789437-2-netdev@kapio-technology.com>
+In-Reply-To: <723e2995314b41ff323272536ef27341@kapio-technology.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH v4 net-next 1/6] net: bridge: add locked entry
- fdb flag to extend locked port feature
+Subject: Re: [Bridge] [PATCH v4 net-next 3/6] drivers: net: dsa: add locked
+ fdb entry flag to drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,152 +31,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <netdev@kapio-technology.com>
+To: netdev@kapio-technology.com
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On Thu, Jul 07, 2022 at 05:29:25PM +0200, Hans Schultz wrote:
-> Add an intermediate state for clients behind a locked port to allow for
-> possible opening of the port for said clients. The clients mac address
-> will be added with the locked flag set, denying access through the port
-> for the mac address, but also creating a new FDB add event giving
-> userspace daemons the ability to unlock the mac address. This feature
-> corresponds to the Mac-Auth and MAC Authentication Bypass (MAB) named
-> features. The latter defined by Cisco.
+On Fri, Jul 08, 2022 at 02:34:25PM +0200, netdev@kapio-technology.com wrote:
+> On 2022-07-08 13:56, Vladimir Oltean wrote:
+> > On Fri, Jul 08, 2022 at 11:50:33AM +0200, netdev@kapio-technology.com
+> > wrote:
+> > > On 2022-07-08 11:15, Vladimir Oltean wrote:
+> > > > When the possibility for it to be true will exist, _all_ switchdev
+> > > > drivers will need to be updated to ignore that (mlxsw, cpss, ocelot,
+> > > > rocker, prestera, etc etc), not just DSA. And you don't need to
+> > > > propagate the is_locked flag to all individual DSA sub-drivers when none
+> > > > care about is_locked in the ADD_TO_DEVICE direction, you can just ignore
+> > > > within DSA until needed otherwise.
+> > > >
+> > > 
+> > > Maybe I have it wrong, but I think that Ido requested me to send it
+> > > to all
+> > > the drivers, and have them ignore entries with is_locked=true ...
+> > 
+> > I don't think Ido requested you to ignore is_locked from all DSA
+> > drivers, but instead from all switchdev drivers maybe. Quite different.
 > 
-> Only the kernel can set this FDB entry flag, while userspace can read
-> the flag and remove it by replacing or deleting the FDB entry.
+> So without changing the signature on port_fdb_add(). If that is to avoid
+> changing that signature, which needs to be changed anyhow for any switchcore
+> driver to act on it, then my next patch set will change the signarure also
+> as it is needed for creating dynamic ATU entries from userspace, which is
+> needed to make the whole thing complete.
 > 
-> Signed-off-by: Hans Schultz <netdev@kapio-technology.com>
-> ---
->  include/uapi/linux/neighbour.h |  1 +
->  net/bridge/br_fdb.c            | 12 ++++++++++++
->  net/bridge/br_input.c          | 10 +++++++++-
->  net/bridge/br_private.h        |  3 ++-
->  4 files changed, 24 insertions(+), 2 deletions(-)
+> As it is already done (with the is_locked to the drivers) and needed for
+> future application, I would like Ido to comment on it before I take action.
+
+It's related to my reply here [1]. AFAICT, we have two classes of device
+drivers:
+
+1. Drivers like mv88e6xxx that report locked entries to the bridge
+driver via 'SWITCHDEV_FDB_ADD_TO_BRIDGE'.
+
+2. Drivers like mlxsw that trap packets that incurred an FDB miss to the
+bridge driver. These packets will cause the bridge driver to emit
+'SWITCHDEV_FDB_ADD_TO_DEVICE' notifications with the locked flag.
+
+If we can agree that locked entries are only meant to signal to user
+space that a certain MAC tried to gain authorization and that the bridge
+should ignore them while forwarding, then there is no point in
+generating the 'SWITCHDEV_FDB_ADD_TO_DEVICE' notifications. We should
+teach the bridge driver to suppress these so that there is no need to
+patch all the device drivers.
+
+[1] https://lore.kernel.org/netdev/YsqLyxTRtUjzDj6D@shredder/
+
 > 
-> diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
-> index 39c565e460c7..76d65b481086 100644
-> --- a/include/uapi/linux/neighbour.h
-> +++ b/include/uapi/linux/neighbour.h
-> @@ -53,6 +53,7 @@ enum {
->  #define NTF_ROUTER	(1 << 7)
->  /* Extended flags under NDA_FLAGS_EXT: */
->  #define NTF_EXT_MANAGED	(1 << 0)
-> +#define NTF_EXT_LOCKED	(1 << 1)
->  
->  /*
->   *	Neighbor Cache Entry States.
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index e7f4fccb6adb..ee9064a536ae 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -105,6 +105,7 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
->  	struct nda_cacheinfo ci;
->  	struct nlmsghdr *nlh;
->  	struct ndmsg *ndm;
-> +	u32 ext_flags = 0;
->  
->  	nlh = nlmsg_put(skb, portid, seq, type, sizeof(*ndm), flags);
->  	if (nlh == NULL)
-> @@ -125,11 +126,16 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
->  		ndm->ndm_flags |= NTF_EXT_LEARNED;
->  	if (test_bit(BR_FDB_STICKY, &fdb->flags))
->  		ndm->ndm_flags |= NTF_STICKY;
-> +	if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags))
-> +		ext_flags |= NTF_EXT_LOCKED;
->  
->  	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->key.addr))
->  		goto nla_put_failure;
->  	if (nla_put_u32(skb, NDA_MASTER, br->dev->ifindex))
->  		goto nla_put_failure;
-> +	if (nla_put_u32(skb, NDA_FLAGS_EXT, ext_flags))
-> +		goto nla_put_failure;
-> +
->  	ci.ndm_used	 = jiffies_to_clock_t(now - fdb->used);
->  	ci.ndm_confirmed = 0;
->  	ci.ndm_updated	 = jiffies_to_clock_t(now - fdb->updated);
-> @@ -171,6 +177,7 @@ static inline size_t fdb_nlmsg_size(void)
->  	return NLMSG_ALIGN(sizeof(struct ndmsg))
->  		+ nla_total_size(ETH_ALEN) /* NDA_LLADDR */
->  		+ nla_total_size(sizeof(u32)) /* NDA_MASTER */
-> +		+ nla_total_size(sizeof(u32)) /* NDA_FLAGS_EXT */
-
-Need to add validation that 'NTF_EXT_LOCKED' is not set in
-'NDA_FLAGS_EXT' in entries installed by user space.
-
->  		+ nla_total_size(sizeof(u16)) /* NDA_VLAN */
->  		+ nla_total_size(sizeof(struct nda_cacheinfo))
->  		+ nla_total_size(0) /* NDA_FDB_EXT_ATTRS */
-> @@ -1082,6 +1089,11 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
->  		modified = true;
->  	}
->  
-> +	if (test_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags)) {
-> +		clear_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags);
-> +		modified = true;
-> +	}
-> +
->  	if (fdb_handle_notify(fdb, notify))
->  		modified = true;
->  
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 68b3e850bcb9..3d15548cfda6 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -110,8 +110,16 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
->  			br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
->  
->  		if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
-> -		    test_bit(BR_FDB_LOCAL, &fdb_src->flags))
-> +		    test_bit(BR_FDB_LOCAL, &fdb_src->flags) ||
-> +		    test_bit(BR_FDB_ENTRY_LOCKED, &fdb_src->flags)) {
-> +			if (!fdb_src) {
-> +				unsigned long flags = 0;
-> +
-> +				__set_bit(BR_FDB_ENTRY_LOCKED, &flags);
-> +				br_fdb_update(br, p, eth_hdr(skb)->h_source, vid, flags);
-> +			}
-
-We need a better definition of what 'BR_FDB_ENTRY_LOCKED' means. An
-entry marked with this flag is not good enough to let traffic with this
-SA ingress from a locked port, but if traffic is received from a
-different port with this DA, the bridge will forward it as known
-unicast.
-
-If we are going to tell switchdev drivers to ignore locked entries,
-packets with this DA will be flooded as unknown unicast in hardware. For
-mv88e6xxx you write "The mac address triggering the ATU miss violation
-will be added to the ATU with a zero-DPV". What does it mean? Traffic
-with this DA will be blackholed?
-
-It would be good to agree on one consistent behavior for all hardware
-implementations and the bridge driver. Do you know what happens in other
-implementations (e.g., Cisco)?
-
-FWIW, to me it makes sense to have the bridge ignore locked entries and
-let traffic be flooded. If user space does not want traffic to egress a
-locked port, then it can turn off flooding on the port while it is
-locked.
-
->  			goto drop;
-> +		}
->  	}
->  
->  	nbp_switchdev_frame_mark(p, skb);
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 06e5f6faa431..47a3598d25c8 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -251,7 +251,8 @@ enum {
->  	BR_FDB_ADDED_BY_EXT_LEARN,
->  	BR_FDB_OFFLOADED,
->  	BR_FDB_NOTIFY,
-> -	BR_FDB_NOTIFY_INACTIVE
-> +	BR_FDB_NOTIFY_INACTIVE,
-> +	BR_FDB_ENTRY_LOCKED,
->  };
->  
->  struct net_bridge_fdb_key {
-> -- 
-> 2.30.2
+> > 
+> > In any case I'm going to take a look at this patch set more closely and
+> > run the selftest on my Marvell switch, but I can't do this today
+> > unfortunately. I'll return with more comments.
 > 
+> Yes :-)
