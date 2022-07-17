@@ -1,30 +1,27 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1AC7041B59
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E2FD541B42
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ORd5OE6IejCWSajkAb9baeZu3snvfbor2sPsyw37s7M=;
- b=LfNvPxKtRCCWWZopRfp4ep8hAmwxEA3+I8t9kHfFjUhNOuYi76FSBAilxuqt51+rQO82+Y1lVPdxvH0Jx1iA5T5r1cBPfI9dSFZeK/tLncuQMrDv68lYwphriLXbbCxmyNvAuvxsYkGTJcrXuof17sRvwFRakJBk8p994rPz4V59mg4Vu7CHDB0I4gyxECz6UMC6ZdIfA9xH0iHHoExw0wsW7fVHVYS1HjEEs7v5mMMILw0MCRdSpfo7urPkQPRUfdelyq5i4mHuOVm/0zRguPe38f7jPJHmtfNq7zYXHVsU/cXA5ykmGCjL/BwS3WejG6l0FxsrwkXhSJCTvAHH0g==
-Date: Wed, 13 Jul 2022 15:39:42 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <Ys69DiAwT0Md+6ai@shredder>
+Return-Path: <olteanv@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4F73D40134
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4189E4011D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=l7bhK+yH8qPDx9ouvwOKxIBbwCcGqm09mHsiooe+B/g=;
+ b=cgZNz5yEDoqf3BvIHwXAGTF3k51NWbEgAW1h4GCEGo/NB5UpfkNeWir8+Ngijr/Qcl
+ XiQpxltSWV14hn0AkFXJ/FLUYFcZrov7FNnlJON8o/sJaK63KH7CLrwl36m8IFMa9pca
+ 8DIFGPYUrHpYRoT8rP3ftrgdJU97VoINjOTK6RJAdS2B/I/YnDEkfa+1Ncq40Y1crKIP
+ vW4Fk0wR/hzLkpEVOsb3bL5e2vAq1VYHdd9LTSY/C/LeB58FUOFAX2DspwG95ExOZWx5
+ mNWRy9YV7Z6+1RS/hbIik7BbwR7A+rAbvJdYJggMIWwdaFTUXKKyUf++RbIInXZNKH2P
+ f+Fg==
+Date: Sun, 17 Jul 2022 03:47:25 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20220717004725.ngix64ou2mz566is@skbuf>
 References: <20220707152930.1789437-1-netdev@kapio-technology.com>
- <20220707152930.1789437-4-netdev@kapio-technology.com>
- <20220708084904.33otb6x256huddps@skbuf>
- <e6f418705e19df370c8d644993aa9a6f@kapio-technology.com>
- <20220708091550.2qcu3tyqkhgiudjg@skbuf>
- <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
- <20220708115624.rrjzjtidlhcqczjv@skbuf>
- <723e2995314b41ff323272536ef27341@kapio-technology.com>
- <YsqPWK67U0+Iw2Ru@shredder>
- <d3f674dc6b4f92f2fda3601685c78ced@kapio-technology.com>
+ <20220707152930.1789437-6-netdev@kapio-technology.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d3f674dc6b4f92f2fda3601685c78ced@kapio-technology.com>
-MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH v4 net-next 3/6] drivers: net: dsa: add locked
- fdb entry flag to drivers
+In-Reply-To: <20220707152930.1789437-6-netdev@kapio-technology.com>
+Subject: Re: [Bridge] [PATCH v4 net-next 5/6] net: dsa: mv88e6xxx:
+ mac-auth/MAB implementation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,111 +30,465 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@kapio-technology.com
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
+To: Hans Schultz <netdev@kapio-technology.com>
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On Wed, Jul 13, 2022 at 09:09:58AM +0200, netdev@kapio-technology.com wrote:
-> On 2022-07-10 10:35, Ido Schimmel wrote:
-> > On Fri, Jul 08, 2022 at 02:34:25PM +0200, netdev@kapio-technology.com
-> > wrote:
-> > > On 2022-07-08 13:56, Vladimir Oltean wrote:
-> > > > On Fri, Jul 08, 2022 at 11:50:33AM +0200, netdev@kapio-technology.com
-> > > > wrote:
-> > > > > On 2022-07-08 11:15, Vladimir Oltean wrote:
-> > > > > > When the possibility for it to be true will exist, _all_ switchdev
-> > > > > > drivers will need to be updated to ignore that (mlxsw, cpss, ocelot,
-> > > > > > rocker, prestera, etc etc), not just DSA. And you don't need to
-> > > > > > propagate the is_locked flag to all individual DSA sub-drivers when none
-> > > > > > care about is_locked in the ADD_TO_DEVICE direction, you can just ignore
-> > > > > > within DSA until needed otherwise.
-> > > > > >
-> > > > >
-> > > > > Maybe I have it wrong, but I think that Ido requested me to send it
-> > > > > to all
-> > > > > the drivers, and have them ignore entries with is_locked=true ...
-> > > >
-> > > > I don't think Ido requested you to ignore is_locked from all DSA
-> > > > drivers, but instead from all switchdev drivers maybe. Quite different.
-> > > 
-> > > So without changing the signature on port_fdb_add(). If that is to
-> > > avoid
-> > > changing that signature, which needs to be changed anyhow for any
-> > > switchcore
-> > > driver to act on it, then my next patch set will change the
-> > > signarure also
-> > > as it is needed for creating dynamic ATU entries from userspace,
-> > > which is
-> > > needed to make the whole thing complete.
-> > > 
-> > > As it is already done (with the is_locked to the drivers) and needed
-> > > for
-> > > future application, I would like Ido to comment on it before I take
-> > > action.
-> > 
-> > It's related to my reply here [1]. AFAICT, we have two classes of device
-> > drivers:
-> > 
-> > 1. Drivers like mv88e6xxx that report locked entries to the bridge
-> > driver via 'SWITCHDEV_FDB_ADD_TO_BRIDGE'.
-> > 
-> > 2. Drivers like mlxsw that trap packets that incurred an FDB miss to the
-> > bridge driver. These packets will cause the bridge driver to emit
-> > 'SWITCHDEV_FDB_ADD_TO_DEVICE' notifications with the locked flag.
-> > 
-> > If we can agree that locked entries are only meant to signal to user
-> > space that a certain MAC tried to gain authorization and that the bridge
-> > should ignore them while forwarding, then there is no point in
-> > generating the 'SWITCHDEV_FDB_ADD_TO_DEVICE' notifications. We should
-> > teach the bridge driver to suppress these so that there is no need to
-> > patch all the device drivers.
+On Thu, Jul 07, 2022 at 05:29:29PM +0200, Hans Schultz wrote:
+> This implementation for the Marvell mv88e6xxx chip series,
+> is based on handling ATU miss violations occurring when packets
+> ingress on a port that is locked. The mac address triggering
+> the ATU miss violation will be added to the ATU with a zero-DPV,
+> and is then communicated through switchdev to the bridge module,
+> which adds a fdb entry with the fdb locked flag set. The entry
+> is kept according to the bridges ageing time, thus simulating a
+> dynamic entry.
 > 
-> I do not know of all about what other switchcores there are and how they
-> work, but those that I have knowledge of, it has been prudent in connection
-> with the locked port feature to install Storm Prevention or zero-DPV
-> (Destination Port Vector) FDB entries.
-
-What are "Storm Prevention" and "zero-DPV" FDB entries?
-
-> I would think that that should be the case for other switchcores too.
-> Those entries cannot normally be installed from userspace (of course special
-> tools can do anything).
+> As this is essentially a form of CPU based learning, the amount
+> of locked entries will be limited by a hardcoded value for now,
+> so as to prevent DOS attacks.
 > 
-> But if the decision is to drop locked entries at the DSA layer, I can do
-> that. I just want to ensure that all considerations have been taken.
+> Signed-off-by: Hans Schultz <netdev@kapio-technology.com>
+> ---
+>  static void assert_reg_lock(struct mv88e6xxx_chip *chip)
+>  {
+> @@ -919,6 +920,13 @@ static void mv88e6xxx_mac_link_down(struct dsa_switch *ds, int port,
+>  	if (err)
+>  		dev_err(chip->dev,
+>  			"p%d: failed to force MAC link down\n", port);
+> +	else
+> +		if (mv88e6xxx_port_is_locked(chip, port)) {
+> +			err = mv88e6xxx_atu_locked_entry_flush(ds, port);
+> +			if (err)
+> +				dev_err(chip->dev,
+> +					"p%d: failed to clear locked entries\n", port);
+> +		}
+>  }
+>  
+>  static void mv88e6xxx_mac_link_up(struct dsa_switch *ds, int port,
+> @@ -1685,6 +1693,12 @@ static void mv88e6xxx_port_fast_age(struct dsa_switch *ds, int port)
+>  	struct mv88e6xxx_chip *chip = ds->priv;
+>  	int err;
+>  
+> +	if (mv88e6xxx_port_is_locked(chip, port))
+> +		err = mv88e6xxx_atu_locked_entry_flush(ds, port);
+> +	if (err)
 
-There is no decision that I'm aware of. I'm simply trying to understand
-how FDB entries that have 'BR_FDB_ENTRY_LOCKED' set are handled in
-mv88e6xxx and other devices in this class. We have at least three
-different implementations to consolidate:
+Kernel build robot pointed this out too, but it's worth repeating to
+make sure it doesn't get missed. If the port isn't locked, this function
+returns a junk integer from the stack which isn't zero, so it's treated
+as an error code.
 
-1. The bridge driver, pure software forwarding. The locked entry is
-dynamically created by the bridge. Packets received via the locked port
-with a SA corresponding to the locked entry will be dropped, but will
-refresh the entry. On the other hand, packets with a DA corresponding to
-the locked entry will be forwarded as known unicast through the locked
-port.
+> +		dev_err(chip->ds->dev, "p%d: failed to clear locked entries: %d\n",
+> +			port, err);
+> +
+>  	mv88e6xxx_reg_lock(chip);
+>  	err = mv88e6xxx_port_fast_age_fid(chip, port, 0);
+>  	mv88e6xxx_reg_unlock(chip);
+> @@ -1721,11 +1735,11 @@ static int mv88e6xxx_vtu_get(struct mv88e6xxx_chip *chip, u16 vid,
+>  	return err;
+>  }
+>  
+>  int mv88e6xxx_port_set_lock(struct mv88e6xxx_chip *chip, int port,
+>  			    bool locked)
+>  {
+> @@ -1257,13 +1270,18 @@ int mv88e6xxx_port_set_lock(struct mv88e6xxx_chip *chip, int port,
+>  	if (err)
+>  		return err;
+>  
+> -	err = mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_ASSOC_VECTOR, &reg);
+> -	if (err)
+> -		return err;
+> +	if (!locked) {
+> +		err = mv88e6xxx_atu_locked_entry_flush(chip->ds, port);
 
-2. Hardware implementations like Spectrum that can be programmed to trap
-packets that incurred an FDB miss. Like in the first case, the locked
-entry is dynamically created by the bridge driver and also aged by it.
-Unlike in the first case, since this entry is not present in hardware,
-packets with a DA corresponding to the locked entry will be flooded as
-unknown unicast.
+Did you re-run the selftest with v4? Because this deadlocks due to the
+double reg_lock illustrated below:
 
-3. Hardware implementations like mv88e6xxx that fire an interrupt upon
-FDB miss. Need your help to understand how the above works there and
-why. Specifically, how locked entries are represented in hardware (if at
-all) and what is the significance of not installing corresponding
-entries in hardware.
++ vrf_name=vlan1
++ ip vrf exec vlan1 ping 192.0.2.2 -c 10 -i 0.1 -w 5
++ check_err 1 'Ping did not work after locking port and adding FDB entry'
++ local err=1
++ local 'msg=Ping did not work after locking port and adding FDB entry'
++ [[ 0 -eq 0 ]]
++ [[ 1 -ne 0 ]]
++ RET=1
++ retmsg='Ping did not work after locking port and adding FDB entry'
++ bridge link set dev lan2 locked off
+[  733.273994]
+[  733.275515] ============================================
+[  733.280823] WARNING: possible recursive locking detected
+[  733.286133] 5.19.0-rc6-07010-ga9b9500ffaac-dirty #3293 Not tainted
+[  733.292311] --------------------------------------------
+[  733.297613] kworker/0:0/601 is trying to acquire lock:
+[  733.302751] ffff00000213c110 (&chip->reg_lock){+.+.}-{4:4}, at: mv88e6xxx_atu_locked_entry_purge+0x70/0x1a4
+[  733.312524]
+[  733.312524] but task is already holding lock:
+[  733.318351] ffff00000213c110 (&chip->reg_lock){+.+.}-{4:4}, at: mv88e6xxx_port_bridge_flags+0x48/0x234
+[  733.327674]
+[  733.327674] other info that might help us debug this:
+[  733.334198]  Possible unsafe locking scenario:
+[  733.334198]
+[  733.340109]        CPU0
+[  733.342549]        ----
+[  733.344990]   lock(&chip->reg_lock);
+[  733.348567]   lock(&chip->reg_lock);
+[  733.352149]
+[  733.352149]  *** DEADLOCK ***
+[  733.352149]
+[  733.358063]  May be due to missing lock nesting notation
+[  733.358063]
+[  733.364846] 6 locks held by kworker/0:0/601:
+[  733.369115]  #0: ffff00000000b748 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x1f4/0x6c4
+[  733.378541]  #1: ffff80000c43bdc8 (deferred_process_work){+.+.}-{0:0}, at: process_one_work+0x1f4/0x6c4
+[  733.387966]  #2: ffff80000b020cb0 (rtnl_mutex){+.+.}-{4:4}, at: rtnl_lock+0x1c/0x30
+[  733.395660]  #3: ffff80000b073370 ((switchdev_blocking_notif_chain).rwsem){++++}-{4:4}, at: blocking_notifier_call_chain+0x34/0xa0
+[  733.407432]  #4: ffff00000213c110 (&chip->reg_lock){+.+.}-{4:4}, at: mv88e6xxx_port_bridge_flags+0x48/0x234
+[  733.417202]  #5: ffff00000213e0f0 (&p->ale_list_lock){+.+.}-{4:4}, at: mv88e6xxx_atu_locked_entry_flush+0x4c/0xc0
+[  733.427495]
+[  733.427495] stack backtrace:
+[  733.431858] CPU: 0 PID: 601 Comm: kworker/0:0 Not tainted 5.19.0-rc6-07010-ga9b9500ffaac-dirty #3293
+[  733.440992] Hardware name: CZ.NIC Turris Mox Board (DT)
+[  733.446219] Workqueue: events switchdev_deferred_process_work
+[  733.451982] Call trace:
+[  733.454424]  dump_backtrace.part.0+0xcc/0xe0
+[  733.458702]  show_stack+0x18/0x6c
+[  733.462028]  dump_stack_lvl+0x8c/0xb8
+[  733.465703]  dump_stack+0x18/0x34
+[  733.469029]  __lock_acquire+0x1074/0x1fd0
+[  733.473052]  lock_acquire.part.0+0xe4/0x220
+[  733.477244]  lock_acquire+0x68/0x8c
+[  733.480744]  __mutex_lock+0x9c/0x460
+[  733.484332]  mutex_lock_nested+0x40/0x50
+[  733.488268]  mv88e6xxx_atu_locked_entry_purge+0x70/0x1a4
+[  733.493592]  mv88e6xxx_atu_locked_entry_flush+0x7c/0xc0
+[  733.498827]  mv88e6xxx_port_set_lock+0xfc/0x10c
+[  733.503374]  mv88e6xxx_port_bridge_flags+0x200/0x234
+[  733.508351]  dsa_port_bridge_flags+0x44/0xe0
+[  733.512635]  dsa_slave_port_attr_set+0x1ec/0x230
+[  733.517268]  __switchdev_handle_port_attr_set+0x58/0x100
+[  733.522594]  switchdev_handle_port_attr_set+0x10/0x24
+[  733.527659]  dsa_slave_switchdev_blocking_event+0x8c/0xd4
+[  733.533074]  blocking_notifier_call_chain+0x6c/0xa0
+[  733.537968]  switchdev_port_attr_notify.constprop.0+0x4c/0xb0
+[  733.543729]  switchdev_port_attr_set_deferred+0x24/0x80
+[  733.548967]  switchdev_deferred_process+0x90/0x164
+[  733.553774]  switchdev_deferred_process_work+0x14/0x2c
+[  733.558926]  process_one_work+0x28c/0x6c4
+[  733.562949]  worker_thread+0x74/0x450
+[  733.566623]  kthread+0x118/0x11c
+[  733.569860]  ret_from_fork+0x10/0x20
+++ mac_get lan1
+++ local if_name=lan1
+++ jq -r '.[]["address"]'
+++ ip -j link show dev lan1
 
-> 
-> > 
-> > [1] https://lore.kernel.org/netdev/YsqLyxTRtUjzDj6D@shredder/
-> > 
-> > > 
-> > > >
-> > > > In any case I'm going to take a look at this patch set more closely and
-> > > > run the selftest on my Marvell switch, but I can't do this today
-> > > > unfortunately. I'll return with more comments.
-> > > 
-> > > Yes :-)
+I've tentatively fixed this in my tree by taking the register lock more
+localized to the sub-functions of mv88e6xxx_port_bridge_flags(), and not
+taking it at caller side for mv88e6xxx_port_set_lock(), but rather
+letting the callee take it:
+
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 7b57ac121589..ec5954f32774 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -6557,41 +6557,47 @@ static int mv88e6xxx_port_bridge_flags(struct dsa_switch *ds, int port,
+ 	struct mv88e6xxx_chip *chip = ds->priv;
+ 	int err = -EOPNOTSUPP;
+ 
+-	mv88e6xxx_reg_lock(chip);
+-
+ 	if (flags.mask & BR_LEARNING) {
+ 		bool learning = !!(flags.val & BR_LEARNING);
+ 		u16 pav = learning ? (1 << port) : 0;
+ 
++		mv88e6xxx_reg_lock(chip);
+ 		err = mv88e6xxx_port_set_assoc_vector(chip, port, pav);
++		mv88e6xxx_reg_unlock(chip);
+ 		if (err)
+-			goto out;
++			return err;
+ 	}
+ 
+ 	if (flags.mask & BR_FLOOD) {
+ 		bool unicast = !!(flags.val & BR_FLOOD);
+ 
++		mv88e6xxx_reg_lock(chip);
+ 		err = chip->info->ops->port_set_ucast_flood(chip, port,
+ 							    unicast);
++		mv88e6xxx_reg_unlock(chip);
+ 		if (err)
+-			goto out;
++			return err;
+ 	}
+ 
+ 	if (flags.mask & BR_MCAST_FLOOD) {
+ 		bool multicast = !!(flags.val & BR_MCAST_FLOOD);
+ 
++		mv88e6xxx_reg_lock(chip);
+ 		err = chip->info->ops->port_set_mcast_flood(chip, port,
+ 							    multicast);
++		mv88e6xxx_reg_unlock(chip);
+ 		if (err)
+-			goto out;
++			return err;
+ 	}
+ 
+ 	if (flags.mask & BR_BCAST_FLOOD) {
+ 		bool broadcast = !!(flags.val & BR_BCAST_FLOOD);
+ 
++		mv88e6xxx_reg_lock(chip);
+ 		err = mv88e6xxx_port_broadcast_sync(chip, port, broadcast);
++		mv88e6xxx_reg_unlock(chip);
+ 		if (err)
+-			goto out;
++			return err;
+ 	}
+ 
+ 	if (flags.mask & BR_PORT_LOCKED) {
+@@ -6599,10 +6605,8 @@ static int mv88e6xxx_port_bridge_flags(struct dsa_switch *ds, int port,
+ 
+ 		err = mv88e6xxx_port_set_lock(chip, port, locked);
+ 		if (err)
+-			goto out;
++			return err;
+ 	}
+-out:
+-	mv88e6xxx_reg_unlock(chip);
+ 
+ 	return err;
+ }
+diff --git a/drivers/net/dsa/mv88e6xxx/port.c b/drivers/net/dsa/mv88e6xxx/port.c
+index 5e4d5e9265a4..2a60aded6fbe 100644
+--- a/drivers/net/dsa/mv88e6xxx/port.c
++++ b/drivers/net/dsa/mv88e6xxx/port.c
+@@ -1222,15 +1222,19 @@ int mv88e6xxx_port_set_lock(struct mv88e6xxx_chip *chip, int port,
+ 	u16 reg;
+ 	int err;
+ 
++	mv88e6xxx_reg_lock(chip);
+ 	err = mv88e6xxx_port_read(chip, port, MV88E6XXX_PORT_CTL0, &reg);
+-	if (err)
++	if (err) {
++		mv88e6xxx_reg_unlock(chip);
+ 		return err;
++	}
+ 
+ 	reg &= ~MV88E6XXX_PORT_CTL0_SA_FILT_MASK;
+ 	if (locked)
+ 		reg |= MV88E6XXX_PORT_CTL0_SA_FILT_DROP_ON_LOCK;
+ 
+ 	err = mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_CTL0, reg);
++	mv88e6xxx_reg_unlock(chip);
+ 	if (err)
+ 		return err;
+ 
+@@ -1247,7 +1251,11 @@ int mv88e6xxx_port_set_lock(struct mv88e6xxx_chip *chip, int port,
+ 			MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT;
+ 	}
+ 
+-	return mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_ASSOC_VECTOR, reg);
++	mv88e6xxx_reg_lock(chip);
++	err = mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_ASSOC_VECTOR, reg);
++	mv88e6xxx_reg_unlock(chip);
++
++	return err;
+ }
+ 
+ int mv88e6xxx_port_set_8021q_mode(struct mv88e6xxx_chip *chip, int port,
+
+> +		if (err)
+> +			return err;
+> +	}
+>  
+> -	reg &= ~MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT;
+> -	if (locked)
+> -		reg |= MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT;
+> +	reg = 0;
+> +	if (locked) {
+> +		reg = (1 << port);
+> +		reg |= MV88E6XXX_PORT_ASSOC_VECTOR_IGNORE_WRONG |
+> +			MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT;
+> +	}
+>  
+>  	return mv88e6xxx_port_write(chip, port, MV88E6XXX_PORT_ASSOC_VECTOR, reg);
+>  }
+> diff --git a/drivers/net/dsa/mv88e6xxx/port.h b/drivers/net/dsa/mv88e6xxx/port.h
+> index e0a705d82019..5c1d485e7442 100644
+> --- a/drivers/net/dsa/mv88e6xxx/port.h
+> +++ b/drivers/net/dsa/mv88e6xxx/port.h
+> @@ -231,6 +231,7 @@
+>  #define MV88E6XXX_PORT_ASSOC_VECTOR_LOCKED_PORT		0x2000
+>  #define MV88E6XXX_PORT_ASSOC_VECTOR_IGNORE_WRONG	0x1000
+>  #define MV88E6XXX_PORT_ASSOC_VECTOR_REFRESH_LOCKED	0x0800
+> +#define MV88E6XXX_PORT_ASSOC_VECTOR_PAV_MASK		0x07ff
+>  
+>  /* Offset 0x0C: Port ATU Control */
+>  #define MV88E6XXX_PORT_ATU_CTL		0x0c
+> @@ -374,6 +375,7 @@ int mv88e6xxx_port_set_fid(struct mv88e6xxx_chip *chip, int port, u16 fid);
+>  int mv88e6xxx_port_get_pvid(struct mv88e6xxx_chip *chip, int port, u16 *pvid);
+>  int mv88e6xxx_port_set_pvid(struct mv88e6xxx_chip *chip, int port, u16 pvid);
+>  
+> +bool mv88e6xxx_port_is_locked(struct mv88e6xxx_chip *chip, int port);
+>  int mv88e6xxx_port_set_lock(struct mv88e6xxx_chip *chip, int port,
+>  			    bool locked);
+>  
+
+Other than that, after going through some hoops and patching iproute2,
+the switch appears to do something, I do see locked FDB entries:
+
+[root@mox:~/.../drivers/net/dsa] # bridge fdb show dev lan2
+00:01:02:03:04:01 vlan 1 locked extern_learn offload master br0 
+00:01:02:03:04:02 vlan 1 master br0 permanent
+00:01:02:03:04:02 master br0 permanent
+
+however all selftests except for MAB appear to fail:
+
+[root@mox:~/.../drivers/net/dsa] # ./bridge_locked_port.sh lan1 lan2 lan3 lan4
+[ 2394.084584] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[ 2398.984189] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+RTNETLINK answers: File exists
+TEST: Locked port ipv4                                              [FAIL]
+        Ping did not work after locking port and adding FDB entry
+[ 2410.452638] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[ 2415.366824] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+RTNETLINK answers: File exists
+TEST: Locked port ipv6                                              [FAIL]
+        Ping6 did not work after locking port and adding FDB entry
+[ 2425.653013] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2425.663784] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2425.752771] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2425.853188] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2425.954193] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2426.054593] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2426.155646] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2426.256733] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2426.357159] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2426.457638] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2427.354018] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[ 2430.679471] mv88e6xxx_g1_vtu_prob_irq_thread_fn: 33 callbacks suppressed
+[ 2430.679502] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2430.723742] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2430.783752] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2430.887742] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2430.991738] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2431.095714] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2431.199505] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2431.303700] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2431.407707] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2431.511674] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+RTNETLINK answers: File exists
+[ 2435.683201] mv88e6xxx_g1_vtu_prob_irq_thread_fn: 28 callbacks suppressed
+[ 2435.683232] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2435.787060] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2435.891223] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2435.995249] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2436.099218] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2436.203215] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2436.307207] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2436.411175] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2436.515179] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2436.619220] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2440.712164] mv88e6xxx_g1_vtu_prob_irq_thread_fn: 26 callbacks suppressed
+[ 2440.712194] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2440.812777] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2440.913630] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2441.014523] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2441.114196] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[ 2441.214961] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+TEST: Locked port vlan                                              [FAIL]
+        Ping through vlan did not work after locking port and adding FDB entry
+[ 2443.945008] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[ 2448.131708] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+TEST: Locked port MAB                                               [ OK ]
+[ 2455.139841] mv88e6085 d0032004.mdio-mii:10 lan3: Link is Down
+[ 2455.158623] br0: port 2(lan3) entered disabled state
+[ 2455.288477] mv88e6085 d0032004.mdio-mii:10 lan2: Link is Down
+[ 2455.309996] br0: port 1(lan2) entered disabled state
+[ 2455.446341] device lan3 left promiscuous mode
+[ 2455.452208] br0: port 2(lan3) entered disabled state
+[ 2455.574232] device lan2 left promiscuous mode
+[ 2455.580378] br0: port 1(lan2) entered disabled state
+[ 2455.906058] mv88e6085 d0032004.mdio-mii:10 lan4: Link is Down
+[ 2456.069399] mv88e6085 d0032004.mdio-mii:10 lan1: Link is Down
+
+Compare this to the same selftest, run just before applying the
+mv88e6xxx MAB patch:
+
+TEST: Locked port ipv4                                              [ OK ]
+TEST: Locked port ipv6                                              [ OK ]
+[  119.080114] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.091009] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.180557] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.280916] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.381256] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.481618] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.581993] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.682416] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.782799] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  119.883177] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.100262] mv88e6xxx_g1_vtu_prob_irq_thread_fn: 33 callbacks suppressed
+[  124.100293] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.136182] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.204408] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.312440] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.416384] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.520361] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.624347] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.728344] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.832336] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  124.936341] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.014610] mv88e6xxx_g1_vtu_prob_irq_thread_fn: 20 callbacks suppressed
+[  130.014637] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.118292] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.219203] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.324289] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.335695] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.424680] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.525600] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.626466] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.728275] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+[  130.829422] mv88e6085 d0032004.mdio-mii:10: VTU member violation for vid 100, source port 9
+TEST: Locked port vlan                                              [ OK ]
+[  133.926477] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.028380] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.132571] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.244056] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.344703] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.448416] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.552692] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.656642] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.760786] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  134.864605] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  139.247209] mv88e6xxx_g1_atu_prob_irq_thread_fn: 41 callbacks suppressed
+[  139.247241] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+[  144.358773] mv88e6085 d0032004.mdio-mii:10: ATU miss violation for 00:01:02:03:04:01 portvec 4 spid 2
+TEST: Locked port MAB                                               [FAIL]
+        MAB: No locked fdb entry after ping on locked port
+
+In other words, this patch set makes MAB work and breaks everything else.
+I'm willing to investigate exactly what is it that breaks the other
+selftest, but not today. It may be related to the "RTNETLINK answers: File exists"
+messages, which themselves come from the commands
+| bridge fdb add 00:01:02:03:04:01 dev lan2 master static
+
+If I were to randomly guess at almost 4AM in the morning, it has to do with
+"bridge fdb add" rather than the "bridge fdb replace" that's used for
+the MAB selftest. The fact I pointed out a few revisions ago, that MAB
+needs to be opt-in, is now coming back to bite us. Since it's not
+opt-in, the mv88e6xxx driver always creates locked FDB entries, and when
+we try to "bridge fdb add", the kernel says "hey, the FDB entry is
+already there!". Is that it?
+
+As for how to opt into MAB. Hmm. MAB seems to be essentially CPU
+assisted learning, which creates locked FDB entries. I wonder whether we
+should reconsider the position that address learning makes no sense on
+locked ports, and say that "+locked -learning" means no MAB, and
+"+locked +learning" means MAB? This would make a bunch of things more
+natural to handle in the kernel, and would also give us the opt-in we need.
+
+
+
+Side note, the VTU and ATU member violation printks annoy me so badly.
+They aren't stating something super useful and they're a DoS attack
+vector in itself, even if they're rate limited. I wonder whether we
+could just turn the prints into a set of ethtool counters and call it a day?
