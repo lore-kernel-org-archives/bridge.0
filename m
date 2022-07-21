@@ -1,36 +1,31 @@
 Return-Path: <olteanv@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D73F861010
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E88F60FD3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A37DF40635
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DB41940135
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=Z0+wVeznGOhrF2PQZAZsTW98eQP0pfgcFl8bmcvRHk4=;
- b=jBQ3tHqiU5j8c9PUfH8HkZF0hFZ6L33OoB2KBuDZ3Wu49WOzt54VTcmDCjYkTO5hCU
- T65wKmm6bApDnSyDdsa8Fs6ks/4NNBGe+C7ZtioowfqwqVL1d4J69vy98i3EdknV+fM4
- UBTMhQGMAgDrpC2iWVTGvP+qNS6o+bWD3jTFA8Dh09jneWhaZHjsZdgLoPLeFnAwsYH1
- 9dPUju5cUfAn5ZtvIxpbWJw4laOv0MSk8GeWv+TRThzn1ZX2qp+PtmUgLS1LW9fJ5+mq
- F3UvE/gBF3SUgMoP8OqsQqZ9c1PSRvzAMrvN4Mg2BDAIHYbs6YGCCOD/7fUCpbn/+2x8
- QyyQ==
-Date: Thu, 21 Jul 2022 14:45:40 +0300
+ bh=GmDGNOSJLQLxHyqUbqdShMpk7Rg5vZOsES1osVYWvM8=;
+ b=OGZ65YDJOY1TZJZnVZ0xSIYu44FSqV/GtlogNPVbdgVP4qeyYrQHHb6ra08gEteLzV
+ Xza04ZqfmXuFmhOG2yubswI7rJYU6kah1KAk/PdYFcxZyIUiqrdeuYQK7JWkTWahv2Xx
+ H+xG3OpXRv+ZsZ9rhioXX7uv2G6nrzfmTw7N3N0qOk9X/x9PqACbHtBuZasvnja9gYYF
+ XGFgOoVVvydCpOFf0ll9jxiG+6G7lDcfGhK5m+DOx0uPlszpt/Sur2fiK2z/QmWdmkHp
+ l+f6Bq9/k/W8I3XbHk5jPjUEsVz3hHt6datdIR1dhSigpWSaon9VR/EFMeMQbgLyiwqu
+ SAzA==
+Date: Thu, 21 Jul 2022 14:51:16 +0300
 From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20220721114540.ovm22rtnwqs77nfb@skbuf>
-References: <Yr2LFI1dx6Oc7QBo@shredder>
- <CAKUejP6LTFuw7d_1C18VvxXDuYaboD-PvSkk_ANSFjjfhyDGkg@mail.gmail.com>
- <Yr778K/7L7Wqwws2@shredder>
- <CAKUejP5w0Dn8y9gyDryNYy7LOUytqZsG+qqqC8JhRcvyC13=hQ@mail.gmail.com>
- <20220717134610.k3nw6mam256yxj37@skbuf>
- <20220717140325.p5ox5mhqedbyyiz4@skbuf>
- <CAKUejP6g3HxS=Scj-2yhsQRJApxnq1e31Nkcc995s7gzfMJOew@mail.gmail.com>
- <20220717183852.oi6yg4tgc5vonorp@skbuf>
- <CAKUejP7WyL2r03EiZU4hA63u2e=Wz3KM4X=rDdji5pdZ0ptaZg@mail.gmail.com>
- <CAKUejP7WyL2r03EiZU4hA63u2e=Wz3KM4X=rDdji5pdZ0ptaZg@mail.gmail.com>
+Message-ID: <20220721115116.5avmhghbmbbprq23@skbuf>
+References: <20220707152930.1789437-1-netdev@kapio-technology.com>
+ <20220707152930.1789437-4-netdev@kapio-technology.com>
+ <20220708084904.33otb6x256huddps@skbuf>
+ <e6f418705e19df370c8d644993aa9a6f@kapio-technology.com>
+ <20220708091550.2qcu3tyqkhgiudjg@skbuf>
+ <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKUejP7WyL2r03EiZU4hA63u2e=Wz3KM4X=rDdji5pdZ0ptaZg@mail.gmail.com>
- <CAKUejP7WyL2r03EiZU4hA63u2e=Wz3KM4X=rDdji5pdZ0ptaZg@mail.gmail.com>
-Subject: Re: [Bridge] [PATCH net-next v1 1/1] net: bridge: ensure that
- link-local traffic cannot unlock a locked port
+In-Reply-To: <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
+Subject: Re: [Bridge] [PATCH v4 net-next 3/6] drivers: net: dsa: add locked
+ fdb entry flag to drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -39,50 +34,20 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans S <schultz.hans@gmail.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, Roopa Prabhu <roopa@nvidia.com>, Hans Schultz <schultz.hans+netdev@gmail.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+To: netdev@kapio-technology.com
+Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On Sun, Jul 17, 2022 at 09:20:57PM +0200, Hans S wrote:
-> On Sun, Jul 17, 2022 at 8:38 PM Vladimir Oltean <olteanv@gmail.com> wrote:
-> >
-> > On Sun, Jul 17, 2022 at 06:22:57PM +0200, Hans S wrote:
-> > > On Sun, Jul 17, 2022 at 4:03 PM Vladimir Oltean <olteanv@gmail.com> wrote:
-> > >
-> > > Yes, it creates an FDB entry in the bridge without the locked flag
-> > > set, and sends an ADD_TO_DEVICE notice with it.
-> > > And furthermore link-local packets include of course EAPOL packets, so
-> > > that's why +learning is a problem.
-> >
-> > So if we fix that, and make the dynamically learned FDB entry be locked
-> > because the port is locked (and offload them correctly in mv88e6xxx),
-> > what would be the problem, exactly? The +learning is what would allow
-> > these locked FDB entries to be created, and would allow the MAB to work.
-> > User space may still decide to not authorize this address, and it will
-> > remain locked.
+On Fri, Jul 08, 2022 at 11:50:33AM +0200, netdev@kapio-technology.com wrote:
+> On 2022-07-08 11:15, Vladimir Oltean wrote:
+> > When the possibility for it to be true will exist, _all_ switchdev
+> > drivers will need to be updated to ignore that (mlxsw, cpss, ocelot,
+> > rocker, prestera, etc etc), not just DSA. And you don't need to
+> > propagate the is_locked flag to all individual DSA sub-drivers when none
+> > care about is_locked in the ADD_TO_DEVICE direction, you can just ignore
+> > within DSA until needed otherwise.
+> > 
 > 
-> The alternative is to have -learning and let the driver only enable
-> the PAV to admit the interrupts, which is what this implementation
-> does.
-> The plus side of this is that having EAPOL packets triggering locked
-> entries from the bridge side is not really so nice IMHO. In a
-> situation with 802.1X and MAB on the same port, there will then not be
-> any triggering of MAB when initiating the 802.1X session, which I
-> think is the best option. It then also lessens the confusion between
-> hostapd and the daemon that handles MAB sessions.
+> Maybe I have it wrong, but I think that Ido requested me to send it to all
+> the drivers, and have them ignore entries with is_locked=true ...
 
-Why is it "not really so nice" to "trigger MAB" (in fact only to learn a
-locked entry on a locked port) when initiating the 802.1X session?
-You can disable link-local learning via the bridge option if you're
-really bothered by that. When you have MAB enabled on an 802.1X port,
-I think it's reasonable to expect that there will be some locked entries
-which user space won't ever unlock via MAB. If those entries happen to
-be created as a side effect of the normal EAPOL authentication process,
-I don't exactly see where is the functional problem. This shouldn't
-block EAPOL from proceeding any further, because this protocol uses
-link-local packets which are classified as control traffic, and that
-isn't subject to FDB lookups but rather always trapped to CPU, so locked
-or not, it should still be received.
-
-I'm only pointing out the obvious here, we need an opt in for MAB, and
-the implemented behavior I've seen here kind of points to mapping this
-to "+learning +locked", where the learning process creates locked FDB entries.
+Yes, but re-read my message about what "all the drivers" means.
