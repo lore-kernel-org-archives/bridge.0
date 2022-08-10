@@ -1,27 +1,23 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 780C140114
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 17729400E4
+Return-Path: <sevinj.aghayeva@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD2E4815AB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F038C8149D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc;
+ bh=Qsaks7TDshu/iK351NtgsaMj5QdevHA6XP1FxmCgHpM=;
+ b=prA8AdKyGpyxCd8Aos45URzvOY5yjVOK3DMwVJn4Uyj6A9PHRoPL8JiQJOeze0vVH1
+ IymCOhC3puc17K5WM58lCpsEP+oWXmVcoQRE9PrPlxaHxsNfRv2oW+sEYwuMHbcSzJvT
+ QICYi5m9/jfaan/f4/MNKyZ/LM9l29ejjs3YAuHaZ20kJTOrlwEcUe3hUKhBYG6PDaA7
+ FU1gIjwleabfvG//4FVXGxTvOPROTeeL/vDrYHuxPTq0fyJkeyruwg6zr6dnGtJdrGSj
+ c7dWFpmRGGF8pIYDr6i4nJ96ey9CCNsrhkBfsmBn+Rbqa27+5lPmy8DJ9juOPhhgogoa
+ 57og==
+From: Sevinj Aghayeva <sevinj.aghayeva@gmail.com>
+Date: Tue,  9 Aug 2022 23:11:18 -0400
+Message-Id: <cover.1660100506.git.sevinj.aghayeva@gmail.com>
 MIME-Version: 1.0
-Date: Tue, 09 Aug 2022 22:00:49 +0200
-From: netdev@kapio-technology.com
-In-Reply-To: <YvIm+OvXvxbH6POv@shredder>
-References: <20220708084904.33otb6x256huddps@skbuf>
- <e6f418705e19df370c8d644993aa9a6f@kapio-technology.com>
- <20220708091550.2qcu3tyqkhgiudjg@skbuf>
- <e3ea3c0d72c2417430e601a150c7f0dd@kapio-technology.com>
- <20220708115624.rrjzjtidlhcqczjv@skbuf>
- <723e2995314b41ff323272536ef27341@kapio-technology.com>
- <YsqPWK67U0+Iw2Ru@shredder>
- <d3f674dc6b4f92f2fda3601685c78ced@kapio-technology.com>
- <Ys69DiAwT0Md+6ai@shredder>
- <79683d9cf122e22b66b5da3bbbb0ee1f@kapio-technology.com>
- <YvIm+OvXvxbH6POv@shredder>
-Message-ID: <6c6fe135ce7b5b118289dc370135b0d3@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4 net-next 3/6] drivers: net: dsa: add locked
- fdb entry flag to drivers
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH RFC net-next 0/3] net: vlan: fix bridge binding
+	behavior and add selftests
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,89 +26,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: aroulin@nvidia.com, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, sbrivio@redhat.com, Eric Dumazet <edumazet@google.com>, Sevinj Aghayeva <sevinj.aghayeva@gmail.com>, roopa@nvidia.com, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-On 2022-08-09 11:20, Ido Schimmel wrote:
-> On Mon, Aug 01, 2022 at 05:33:49PM +0200, netdev@kapio-technology.com 
-> wrote:
->> On 2022-07-13 14:39, Ido Schimmel wrote:
->> 
->> >
->> > What are "Storm Prevention" and "zero-DPV" FDB entries?
->> >
->> 
->> For the zero-DPV entries, I can summarize:
->> 
->> Since a CPU can become saturated from constant SA Miss Violations from 
->> a
->> denied source, source MAC address are masked by loading a zero-DPV
->> (Destination Port Vector) entry in the ATU. As the address now appears 
->> in
->> the database it will not cause more Miss Violations. ANY port trying 
->> to send
->> a frame to this unauthorized address is discarded. Any locked port 
->> trying to
->> use this unauthorized address has its frames discarded too (as the 
->> ports SA
->> bit is not set in the ATU entry).
-> 
-> What happens to unlocked ports that have learning enabled and are 
-> trying
-> to use this address as SMAC? AFAICT, at least in the bridge driver, the
-> locked entry will roam, but will keep the "locked" flag, which is
-> probably not what we want. Let's see if we can agree on these semantics
-> for a "locked" entry:
+When bridge binding is enabled for a vlan interface, it is expected
+that the link state of the vlan interface will track the subset of the
+ports that are also members of the corresponding vlan, rather than
+that of all ports.
 
-The next version of this will block forwarding to locked entries in the 
-bridge, so they will behave like the zero-DPV entries.
+Currently, this feature works as expected when a vlan interface is
+created with bridge binding enabled:
 
-> 
-> 1. It discards packets with matching DMAC, regardless of ingress port. 
-> I
-> read the document [1] you linked to in a different reply and could not
-> find anything against this approach, so this might be fine or at least
-> not very significant.
-> 
-> Note that this means that "locked" entries need to be notified to 
-> device
-> drivers so that they will install a matching entry in the HW FDB.
+  ip link add link br name vlan10 type vlan id 10 protocol 802.1q \
+        bridge_binding on
 
-Okay, so as V4 does (just without the error noted).
+However, the feature does not work when a vlan interface is created
+with bridge binding disabled, and then enabled later:
 
-> 
-> 2. It is not refreshed and has ageing enabled. That is, after initial
-> installation it will be removed by the bridge driver after configured
-> ageing time unless converted to a regular (unlocked) entry.
-> 
-> I assume this allows you to remove the timer implementation from your
-> driver and let the bridge driver notify you about the removal of this
-> entry.
+  ip link add link br name vlan10 type vlan id 10 protocol 802.1q \
+        bridge_binding off
+  ip link set vlan10 type vlan bridge_binding on
 
-Okay, but only if the scheme is not so that the driver creates the 
-locked entries itself, unless you indicate that the driver notifies the 
-bridge, which then notifies back to the driver and installs the zero-DPV 
-entry? If not I think the current implementation for the mv88e6xxx is 
-fine.
+After these two commands, the link state of the vlan interface
+continues to track that of all ports, which is inconsistent and
+confusing to users. This series fixes this bug and introduces two
+tests for the valid behavior.
 
-> 
-> 3. With regards to roaming, the entry cannot roam between locked ports
-> (they need to have learning disabled anyway), but can roam to an
-> unlocked port, in which case it becomes a regular entry that can roam
-> and age.
-> 
-> If we agree on these semantics, then I can try to verify that at least
-> Spectrum can support them (it seems mv88e6xxx can).
+Sevinj Aghayeva (3):
+  net: core: export call_netdevice_notifiers_info
+  net: 8021q: fix bridge binding behavior for vlan interfaces
+  selftests: net: tests for bridge binding behavior
 
-The consensus here is that at least for the mv88e6xxx, learning should 
-be on and link local learning should be blocked by the userspace setting 
-you pointed to earlier.
+ include/linux/netdevice.h                     |   2 +
+ net/8021q/vlan.h                              |   2 +-
+ net/8021q/vlan_dev.c                          |  25 ++-
+ net/core/dev.c                                |   7 +-
+ tools/testing/selftests/net/Makefile          |   1 +
+ .../selftests/net/bridge_vlan_binding_test.sh | 143 ++++++++++++++++++
+ 6 files changed, 172 insertions(+), 8 deletions(-)
+ create mode 100755 tools/testing/selftests/net/bridge_vlan_binding_test.sh
 
-> 
-> P.S. Sorry for the delay, I'm busy with other tasks at the moment.
+-- 
+2.25.1
 
-I understand :-)
-
-> 
-> [1] 
-> https://www.cisco.com/c/en/us/td/docs/solutions/Enterprise/Security/TrustSec_1-99/MAB/MAB_Dep_Guide.html#wp392522
