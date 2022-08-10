@@ -1,25 +1,25 @@
 Return-Path: <sevinj.aghayeva@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 22EE360FA8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E261E60C2C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B179260FE2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D4A9D60FA8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:from:to:cc;
- bh=jHImZVkI//te5SMl1xxH/2vTsjBJiQGrltsOXeaVLiI=;
- b=qyr6zLW6SssRFEFqPcOIUy5mytX++/xNFFW8KTB/D8XOB26CCWcxROaVbSBwKd7SJY
- yNt4b3rzSSJ/6qpZgkMOy8AcvPRP/vHFIvVm9k7nLkfbkCqnkt/Y1rHeeDF3ePZUIpNK
- +D0rXnBDU94s7DlKNGF1AuejkuGRaCd1WNG10KY5gYmybHVgazQ08i3IwkBXrCa7QRwf
- 81ASdXIRNRYWQ/leISfXEf9wlqf29Z/9pQrLipXgMhesfhyLrNjHRIwLV/RJ0d0jOwwW
- kwi+UiSG3e/7gspP+UYg2v8H+IzEYjKHcJwrsyQliM1MO0JsHMgTh4FunrhPsJkTFwgS
- 7DBg==
+ bh=Hp8X0Fyr4/2vEhnQv+XptPZYetbjO6fR4naGTVRNFEM=;
+ b=cNpzzB1r3CIyeIFPMsN7JSnnntMkiuMtFWRzYVBFPnHuy082TYrzFn/KTQZipNcjgk
+ uZ1Mk/VwdQoMec9VWUtDqfcMKy47WBL32T7HHnz6i14X7ZAdZq37p1iaUBXsAXndQbxA
+ 1F3Jp4KoCltzWgv6n1TUfL0ry8MKU9RLs5XgcgAzheVqVsIeUUNfvcFBilIPFjgChHBs
+ Rv4KXtpSNmRbp9f5stWjX5Avc6XJbG06A55YMS8BxDViv1EllxR6ysbpA0BduKb6nM8V
+ XmskwtufmwpAtFuPT8xW3v1i5YH4wv9qErn+znOLnbISrtP9bDLhTRna3ghVntrBewwV
+ f43Q==
 From: Sevinj Aghayeva <sevinj.aghayeva@gmail.com>
-Date: Tue,  9 Aug 2022 23:11:19 -0400
-Message-Id: <b5f740fac8d95cd663a2a21e8ac2ab9ffd06d3c0.1660100506.git.sevinj.aghayeva@gmail.com>
+Date: Tue,  9 Aug 2022 23:11:20 -0400
+Message-Id: <3a01eea27e92133a3130e3d8d5f487d6900298db.1660100506.git.sevinj.aghayeva@gmail.com>
 In-Reply-To: <cover.1660100506.git.sevinj.aghayeva@gmail.com>
 References: <cover.1660100506.git.sevinj.aghayeva@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH RFC net-next 1/3] net: core: export
-	call_netdevice_notifiers_info
+Subject: [Bridge] [PATCH RFC net-next 2/3] net: 8021q: fix bridge binding
+	behavior for vlan interfaces
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,65 +31,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: aroulin@nvidia.com, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, sbrivio@redhat.com, Eric Dumazet <edumazet@google.com>, Sevinj Aghayeva <sevinj.aghayeva@gmail.com>, roopa@nvidia.com, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-When a bridge binding flag is changed for a vlan interface, the
-vlan_dev_change_flags function in the 8021q module is called. Currently, this
-function only sets the flag for the vlan interface and returns, which results in
-a buggy behavior; it also needs to let the bridge module module know that upper
-device for the bridge has changed by propagating NETDEV_CHANGEUPPER event. This
-event can be triggered using call_netdevice_notifiers_info function, so export
-this function.
+Currently, when one creates a vlan interface with the bridge binding flag
+disabled (using ip link add... command) and then enables the bridge binding flag
+afterwards (using ip link set... command), the second command has no effect. In
+other words, the vlan interface does not follow the status of the ports in its
+vlan.
+
+The root cause of this problem is as follows. The correct bridge binding
+behavior depends on two flags being set: a per vlan interface flag
+(VLAN_FLAG_BRIDGE_BINDING) and global per bridge flag
+(BROPT_VLAN_BRIDGE_BINDING); the ip link set command calls vlan_dev_change_flags
+function, which sets only the per vlan interface flag.
+
+The correct behavior is to set/unset per bridge flag as well, depending on
+whether there are other vlan interfaces with bridge binding flags set. The logic
+for this behavior is already captured in br_vlan_upper_change function, which is
+called whenever NETDEV_CHANGEUPPER event occurs. This patch fixes the bridge
+binding behavior by triggering the NETDEV_CHANGEUPPER event from the
+vlan_dev_change_flags function whenever the per interface flag is changed.
 
 Signed-off-by: Sevinj Aghayeva <sevinj.aghayeva@gmail.com>
 ---
- include/linux/netdevice.h | 2 ++
- net/core/dev.c            | 7 +++----
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ net/8021q/vlan.h     |  2 +-
+ net/8021q/vlan_dev.c | 25 ++++++++++++++++++++++---
+ 2 files changed, 23 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 2563d30736e9..d17ef56c8a06 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -2898,6 +2898,8 @@ netdev_notifier_info_to_extack(const struct netdev_notifier_info *info)
+diff --git a/net/8021q/vlan.h b/net/8021q/vlan.h
+index 5eaf38875554..71947cdcfaaa 100644
+--- a/net/8021q/vlan.h
++++ b/net/8021q/vlan.h
+@@ -130,7 +130,7 @@ void vlan_dev_set_ingress_priority(const struct net_device *dev,
+ int vlan_dev_set_egress_priority(const struct net_device *dev,
+ 				 u32 skb_prio, u16 vlan_prio);
+ void vlan_dev_free_egress_priority(const struct net_device *dev);
+-int vlan_dev_change_flags(const struct net_device *dev, u32 flag, u32 mask);
++int vlan_dev_change_flags(struct net_device *dev, u32 flag, u32 mask);
+ void vlan_dev_get_realdev_name(const struct net_device *dev, char *result,
+ 			       size_t size);
+ 
+diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
+index 839f2020b015..49cf4cceebef 100644
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -208,12 +208,19 @@ int vlan_dev_set_egress_priority(const struct net_device *dev,
+ 	return 0;
  }
  
- int call_netdevice_notifiers(unsigned long val, struct net_device *dev);
-+int call_netdevice_notifiers_info(unsigned long val,
-+				  struct netdev_notifier_info *info);
- 
- 
- extern rwlock_t				dev_base_lock;		/* Device list lock */
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 30a1603a7225..50e7483946e0 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -160,8 +160,6 @@ struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
- struct list_head ptype_all __read_mostly;	/* Taps */
- 
- static int netif_rx_internal(struct sk_buff *skb);
--static int call_netdevice_notifiers_info(unsigned long val,
--					 struct netdev_notifier_info *info);
- static int call_netdevice_notifiers_extack(unsigned long val,
- 					   struct net_device *dev,
- 					   struct netlink_ext_ack *extack);
-@@ -1927,8 +1925,8 @@ static void move_netdevice_notifiers_dev_net(struct net_device *dev,
-  *	are as for raw_notifier_call_chain().
++static inline bool netif_is_bridge(const struct net_device *dev)
++{
++	return dev->rtnl_link_ops &&
++	    !strcmp(dev->rtnl_link_ops->kind, "bridge");
++}
++
+ /* Flags are defined in the vlan_flags enum in
+  * include/uapi/linux/if_vlan.h file.
   */
- 
--static int call_netdevice_notifiers_info(unsigned long val,
--					 struct netdev_notifier_info *info)
-+int call_netdevice_notifiers_info(unsigned long val,
-+				  struct netdev_notifier_info *info)
+-int vlan_dev_change_flags(const struct net_device *dev, u32 flags, u32 mask)
++int vlan_dev_change_flags(struct net_device *dev, u32 flags, u32 mask)
  {
- 	struct net *net = dev_net(info->dev);
- 	int ret;
-@@ -1944,6 +1942,7 @@ static int call_netdevice_notifiers_info(unsigned long val,
- 		return ret;
- 	return raw_notifier_call_chain(&netdev_chain, val, info);
- }
-+EXPORT_SYMBOL(call_netdevice_notifiers_info);
+ 	struct vlan_dev_priv *vlan = vlan_dev_priv(dev);
++	struct netdev_notifier_changeupper_info info;
+ 	u32 old_flags = vlan->flags;
  
- /**
-  *	call_netdevice_notifiers_info_robust - call per-netns notifier blocks
+ 	if (mask & ~(VLAN_FLAG_REORDER_HDR | VLAN_FLAG_GVRP |
+@@ -223,19 +230,31 @@ int vlan_dev_change_flags(const struct net_device *dev, u32 flags, u32 mask)
+ 
+ 	vlan->flags = (old_flags & ~mask) | (flags & mask);
+ 
+-	if (netif_running(dev) && (vlan->flags ^ old_flags) & VLAN_FLAG_GVRP) {
++	if (!netif_running(dev))
++		return 0;
++
++	if ((vlan->flags ^ old_flags) & VLAN_FLAG_GVRP) {
+ 		if (vlan->flags & VLAN_FLAG_GVRP)
+ 			vlan_gvrp_request_join(dev);
+ 		else
+ 			vlan_gvrp_request_leave(dev);
+ 	}
+ 
+-	if (netif_running(dev) && (vlan->flags ^ old_flags) & VLAN_FLAG_MVRP) {
++	if ((vlan->flags ^ old_flags) & VLAN_FLAG_MVRP) {
+ 		if (vlan->flags & VLAN_FLAG_MVRP)
+ 			vlan_mvrp_request_join(dev);
+ 		else
+ 			vlan_mvrp_request_leave(dev);
+ 	}
++
++	if ((vlan->flags ^ old_flags) & VLAN_FLAG_BRIDGE_BINDING &&
++	    netif_is_bridge(vlan->real_dev)) {
++		info.info.dev = vlan->real_dev;
++		info.upper_dev = dev;
++		info.linking = !!(vlan->flags & VLAN_FLAG_BRIDGE_BINDING);
++		call_netdevice_notifiers_info(NETDEV_CHANGEUPPER, &info.info);
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
