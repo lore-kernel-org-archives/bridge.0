@@ -1,22 +1,15 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32A174055D
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD63740544
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8B7FB417C3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8332F417B8
 MIME-Version: 1.0
-Date: Wed, 24 Aug 2022 09:07:23 +0200
+Date: Wed, 24 Aug 2022 22:29:20 +0200
 From: netdev@kapio-technology.com
-In-Reply-To: <YwTJ5f5RzkC/DSdi@shredder>
-References: <YvkM7UJ0SX+jkts2@shredder>
+In-Reply-To: <YwHZ1J9DZW00aJDU@shredder>
+References: <5a4cfc6246f621d006af69d4d1f61ed1@kapio-technology.com>
+ <YvkM7UJ0SX+jkts2@shredder>
  <34dd1318a878494e7ab595f8727c7d7d@kapio-technology.com>
  <YwHZ1J9DZW00aJDU@shredder>
- <ce4266571b2b47ae8d56bd1f790cb82a@kapio-technology.com>
- <YwMW4iGccDu6jpaZ@shredder>
- <c2822d6dd66a1239ff8b7bfd06019008@kapio-technology.com>
- <YwR4MQ2xOMlvKocw@shredder>
- <9dcb4db4a77811308c56fe5b9b7c5257@kapio-technology.com>
- <YwSAtgS7fgHNLMEy@shredder>
- <553c573ad6a2ddfccfc47c7847cc5fb7@kapio-technology.com>
- <YwTJ5f5RzkC/DSdi@shredder>
-Message-ID: <5390cb1d1485db40a71bb3fbf674b67a@kapio-technology.com>
+Message-ID: <7016ed2ce9a30537e4278e37878900d8@kapio-technology.com>
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
@@ -33,31 +26,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Ido Schimmel <idosch@nvidia.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On 2022-08-23 14:36, Ido Schimmel wrote:
-> On Tue, Aug 23, 2022 at 09:37:54AM +0200, netdev@kapio-technology.com 
-> wrote:
+On 2022-08-21 09:08, Ido Schimmel wrote:
 > 
-> "learning on locked on" is really a misconfiguration, but it can also
-> happen today and entries do not roam with the "locked" flag for the
-> simple reason that it does not exist. I see two options:
+> I assume you want a hub to simulate multiple MACs behind the same port.
+> You don't need a hub for that. You can set the MAC using mausezahn. See
+> '-a' option:
 > 
-> 1. Do not clear / set "locked" flag during roaming. Given learning
-> should be disabled on locked ports, then the only half interesting case
-> is roaming to an unlocked port. Keeping the "locked" flag basically
-> means "if you were to lock the port, then the presence of this entry is
-> not enough to let traffic with the SA be forwarded by the bridge".
-> Unlikely that anyone will do that.
+> "
+>    -a <src-mac|keyword>
+>        Use specified source MAC address with hexadecimal notation such
+> as 00:00:aa:bb:cc:dd.  By default the interface MAC address will be
+> used. The  keywords  ''rand''
+>        and  ''own''  refer to a random MAC address (only unicast
+> addresses are created) and the own address, respectively. You can also
+> use the keywords mentioned below
+>        although broadcast-type source addresses are officially invalid.
+> "
 > 
-> 2. Always set "locked" flag for learned entries (new & roamed) on 
-> locked
-> ports and clear it for learned entries on unlocked ports.
-> 
-> Both options are consistent in how they treat the "locked" flag (either
-> always do nothing or always set/clear) and both do not impact the
-> integrity of the solution when configured correctly (disabling learning
-> on locked ports). I guess users will find option 2 easier to understand
-> / work with.
 
-Roaming to a locked port with an entry without the locked bit set would 
-open the port for said MAC without necessary authorization. Thus I think 
-that the only real option is the 2. case.
+
+Ido, I am not so known to the selftests, so I am wondering why I don't 
+see either check_err or check_fail fail, whichever I use, when I think 
+they should and then they are not really checking...
+
+
+         local mac=10:20:30:30:20:10
+
+
+         $MZ $h1 -t udp -a $mac -b rand
+         bridge fdb show dev $swp1 | grep -q "$mac vlan 1 master br0 
+locked"
+         check_err $? "MAB station move: no locked entry on first 
+injection"
+
+         $MZ $h2 -t udp -a $mac -b rand
+         bridge fdb show dev $swp1 | grep -q "$mac vlan 1 master br0 
+locked"
+         check_err $? "MAB station move: locked entry did not move"
+
+What is wrong here?
+
+For a mv88e6xxx test I guess I can make a check to verify that this 
+driver is in use?
