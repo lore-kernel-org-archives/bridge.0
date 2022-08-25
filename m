@@ -1,27 +1,20 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 248BC83417
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C19F583415
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=k+2vMc+urCwl2Sei7QYJVPkYEo3ePjTEdchVm0HaK4I=;
- b=eKVhMwqasjSbU4dzH8v4935OSht3uA/zDjIirDnN9StBCUnuZhUgLgg0F2zmKfdvn0Ih+QP98OX3y5kNU/xu7lrDt6Wz49INbm5+nqJCfEP2vx8C9dDJSW0ul8yMe3G4v78Gldq9fhJI3mtVeistCfZGhKEe+C2UrxBVDpTomBqaDdNshZCU02XL04erCz8o8RtPWv/k46QEu/+GBYd4gdCGP3hGxhBvRVrBVY84YnQEU+t4JcHCQIpazjjR//v4MYwMG2Nt6Atj9F72GaEyDNSIJJRjpbrOFEaQk41d+C7J/GCyWpAFql5RgEzbo7C/KnV2SagDtV2ZFcd9bETXDw==
-Date: Thu, 25 Aug 2022 12:36:34 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <YwdCovUbVpmHfl39@shredder>
+Return-Path: <netdev@kapio-technology.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CAEDA60E46
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B18C760C2C
+MIME-Version: 1.0
+Date: Thu, 25 Aug 2022 12:27:01 +0200
+From: netdev@kapio-technology.com
+In-Reply-To: <Ywc/qTNqVbS4E7zS@shredder>
 References: <5a4cfc6246f621d006af69d4d1f61ed1@kapio-technology.com>
  <YvkM7UJ0SX+jkts2@shredder>
  <34dd1318a878494e7ab595f8727c7d7d@kapio-technology.com>
  <YwHZ1J9DZW00aJDU@shredder>
- <ce4266571b2b47ae8d56bd1f790cb82a@kapio-technology.com>
- <YwMW4iGccDu6jpaZ@shredder>
- <c2822d6dd66a1239ff8b7bfd06019008@kapio-technology.com>
- <YwR4MQ2xOMlvKocw@shredder>
- <15407e4b247e91fd8326b1013d1a8640@kapio-technology.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15407e4b247e91fd8326b1013d1a8640@kapio-technology.com>
-MIME-Version: 1.0
+ <7016ed2ce9a30537e4278e37878900d8@kapio-technology.com>
+ <Ywc/qTNqVbS4E7zS@shredder>
+Message-ID: <7dfe15571370dfb5348a3d0e5478f62c@kapio-technology.com>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH v4 net-next 3/6] drivers: net: dsa: add locked
  fdb entry flag to drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -32,22 +25,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@kapio-technology.com
+To: Ido Schimmel <idosch@nvidia.com>
 Cc: Ivan Vecera <ivecera@redhat.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Jiri Pirko <jiri@resnulli.us>, Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, linux-kselftest@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Vladimir Oltean <olteanv@gmail.com>, Shuah Khan <shuah@kernel.org>, davem@davemloft.net
 
-On Tue, Aug 23, 2022 at 01:41:51PM +0200, netdev@kapio-technology.com wrote:
-> On 2022-08-23 08:48, Ido Schimmel wrote:
-> > 
-> > I'm not good at naming, but "blackhole" is at least consistent with what
-> > we already have for routes and nexthop objects.
-> > 
+On 2022-08-25 11:23, Ido Schimmel wrote:
+>> 
+>> 
+>> Ido, I am not so known to the selftests, so I am wondering why I don't 
+>> see
+>> either check_err or check_fail fail, whichever I use, when I think 
+>> they
+>> should and then they are not really checking...
+>> 
+>> 
+>>         local mac=10:20:30:30:20:10
+>> 
+>> 
+>>         $MZ $h1 -t udp -a $mac -b rand
+>>         bridge fdb show dev $swp1 | grep -q "$mac vlan 1 master br0 
+>> locked"
+>>         check_err $? "MAB station move: no locked entry on first 
+>> injection"
+>> 
+>>         $MZ $h2 -t udp -a $mac -b rand
+>>         bridge fdb show dev $swp1 | grep -q "$mac vlan 1 master br0 
+>> locked"
+>>         check_err $? "MAB station move: locked entry did not move"
+>> 
+>> What is wrong here?
 > 
-> I have changed it the name "masked", as that is also the term used in the
-> documentation for the zero-DPV entries, and I think that it will generally
-> be a more accepted term.
+> Did you try adding a sleep between mausezahn and the FDB dump? At least
+> that is what learning_test() is doing. It is possible that the packet 
+> is
+> not sent / processed fast enough for the bridge to learn it before the
+> dump.
+> 
 
-"blackhole" is an already accepted term and at least to me it is much
-more clear than "masked". Keep in mind that both L2 neighbours (FDB) and
-L3 neighbours share the same uAPI and eventually we might want to extend
-the use of this flag for L3 neighbours (at least Spectrum supports it),
-so it needs to make sense for both.
+I missed the call to log_test at the end of the test.
+
+>> 
+>> For a mv88e6xxx test I guess I can make a check to verify that this 
+>> driver
+>> is in use?
+> 
+> Not in a generic forwarding test. Maybe in
+> tools/testing/selftests/drivers/net/dsa/
+> 
+> My preference would be to get as much tests as possible in
+> tools/testing/selftests/net/forwarding/bridge_locked_port.sh.
+
+I now have a roaming test in 
+tools/testing/selftests/net/forwarding/bridge_locked_port.sh, but it 
+will not pass with mv88e6xxx as it is meant for the SW bridge.
+
+I can check if the sticky flag is set on the locked entry and then skip 
+the test if it is.
+
+The bridge_locked_port.sh test is linked in 
+tools/testing/selftests/drivers/net/dsa/, but if I cannot check if the 
+mv88e6xxx driver or other switchcores are in use, I cannot do more.
+
+> 
+> I'm not sure which tests you are planning for mv88e6xxx, but we can 
+> pass
+> / fail test cases based on the flags we observe in the FDB dump. For
+> example, if the entry has the "sticky" flag, then the expectation is
+> that the roaming test will fail. Otherwise, it should pass.
