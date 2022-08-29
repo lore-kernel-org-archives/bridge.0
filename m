@@ -1,14 +1,14 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E9A1640B03
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C712D408D2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5C34640BFB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9EA1640BE8
 MIME-Version: 1.0
-Date: Mon, 29 Aug 2022 13:01:28 +0200
+Date: Mon, 29 Aug 2022 13:09:12 +0200
 From: netdev@kapio-technology.com
-In-Reply-To: <Ywo16vHMqxxszWzX@shredder>
+In-Reply-To: <e9eb5b72-073a-f182-13b7-37fc53611d5f@blackwall.org>
 References: <20220826114538.705433-1-netdev@kapio-technology.com>
  <20220826114538.705433-2-netdev@kapio-technology.com>
- <Ywo16vHMqxxszWzX@shredder>
-Message-ID: <63c78aabe2683b9639717c1a74dbdacc@kapio-technology.com>
+ <e9eb5b72-073a-f182-13b7-37fc53611d5f@blackwall.org>
+Message-ID: <d90a67c5ca6035f7ae75b7bada430e03@kapio-technology.com>
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
@@ -22,48 +22,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, bridge@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-On 2022-08-27 17:19, Ido Schimmel wrote:
-> On Fri, Aug 26, 2022 at 01:45:33PM +0200, Hans Schultz wrote:
+> On 2022-08-27 13:30, Nikolay Aleksandrov wrote:
 
-How about this?
+>> @@ -879,6 +888,10 @@ void br_fdb_update(struct net_bridge *br, struct 
+>> net_bridge_port *source,
+>>  						      &fdb->flags)))
+>>  					clear_bit(BR_FDB_ADDED_BY_EXT_LEARN,
+>>  						  &fdb->flags);
+>> +				if (source->flags & BR_PORT_MAB)
+>> +					set_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags);
+>> +				else
+>> +					clear_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags);
+> Please add a test for that bit and only then change it.
+> 
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 1064a5b2d478..82bb50851716 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -103,8 +103,19 @@ int br_handle_frame_finish(struct net *net, struct 
-sock *sk, struct sk_buff *skb
-                         br_fdb_find_rcu(br, eth_hdr(skb)->h_source, 
-vid);
+Something like this?
 
-                 if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
--                   test_bit(BR_FDB_LOCAL, &fdb_src->flags))
-+                   test_bit(BR_FDB_LOCAL, &fdb_src->flags) ||
-+                   test_bit(BR_FDB_ENTRY_LOCKED, &fdb_src->flags)) {
-+                       if (!fdb_src || ((READ_ONCE(fdb_src->dst) != p) 
-&&
-+                                        
-(!unlikely(test_bit(BR_FDB_LOCAL, &fdb_src->flags))))) {
-+                               unsigned long flags = 0;
-+
-+                               if (p->flags & BR_PORT_MAB) {
-+                                       __set_bit(BR_FDB_ENTRY_LOCKED, 
-&flags);
-+                                       br_fdb_update(br, p, 
-eth_hdr(skb)->h_source, vid, flags);
-+                               }
-+                       }
-                         goto drop;
-+               }
-         }
+@@ -749,6 +756,12 @@ void br_fdb_update(struct net_bridge *br, struct 
+net_bridge_port *source,
+                                                       &fdb->flags)))
+                                         
+clear_bit(BR_FDB_ADDED_BY_EXT_LEARN,
+                                                   &fdb->flags);
++                               if 
+(unlikely(test_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags))) {
++                                       if (!(source->flags & 
+BR_PORT_MAB))
++                                               
+clear_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags);
++                               } else
++                                       if (source->flags & BR_PORT_MAB)
++                                               
+set_bit(BR_FDB_ENTRY_LOCKED, &fdb->flags);
+                         }
 
-         nbp_switchdev_frame_mark(p, skb);
+                         if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, 
+&flags)))
 
-It will allow roaming to a MAB enabled port (no roaming to a simply 
-locked port should be allowed of course), and it will not change a local 
-entry and not rely on 'learning on' on the locked port of course.
-Roaming to an unlocked port will also be allowed, and the locked flag 
-will be removed in this case according to code in br_fdb_update().
+
