@@ -1,13 +1,20 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9518E40167
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F51F400F2
-MIME-Version: 1.0
-Date: Thu, 08 Sep 2022 13:14:59 +0200
-From: netdev@kapio-technology.com
-In-Reply-To: <Yxmgs7Du62V1zyjK@shredder>
-References: <YwxtVhlPjq+M9QMY@shredder>
- <2967ccc234bb672f5440a4b175b73768@kapio-technology.com>
- <Ywyj1VF1wlYqlHb6@shredder>
+Return-Path: <olteanv@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C68C641B89
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD75141B86
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date;
+ bh=G8ZnoARtuecckP3hweHke5GOybQ4Tx8AFkQAdpOiTb4=;
+ b=o3CYbDyCbEVhWcKDUNyemWRpDB/jalwhB9aKwfAiQiAAIycxvO3x8vNjM2BbbmGETQ
+ qmYVGwNejRe0ZiGsWxi1PC8OdZqDIWoZb6HYHGpLUxXu7Om1xnQ034XpYv4zMiLlLX2h
+ sg4C2k2Xv+IX34PF6zos9eS3dY/zY+vCALN73udNDncKWjxals7NZRLSiXB42Q2fNGPw
+ co3sk3l0aMsDyc4fy+12gj1OOrSw+NB0qHRKLgqxrc3+6GvPnmIf7NdGZtkt+84PR2n1
+ pzz0uWK02TyFNkFyV46Dr3F5EA1HbcwnOnOGQ4r60egXvGebPdNn6mZrsBtgihpNyO8R
+ N1xg==
+Date: Thu, 8 Sep 2022 14:20:44 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20220908112044.czjh3xkzb4r27ohq@skbuf>
+References: <Ywyj1VF1wlYqlHb6@shredder>
  <9e1a9eb218bbaa0d36cb98ff5d4b97d7@kapio-technology.com>
  <YwzPJ2oCYJQHOsXD@shredder>
  <69db7606896c77924c11a6c175c4b1a6@kapio-technology.com>
@@ -16,10 +23,11 @@ References: <YwxtVhlPjq+M9QMY@shredder>
  <YxNo/0+/Sbg9svid@shredder>
  <5cee059b65f6f7671e099150f9da79c1@kapio-technology.com>
  <Yxmgs7Du62V1zyjK@shredder>
-Message-ID: <8dfc9b525f084fa5ad55019f4418a35e@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+ <8dfc9b525f084fa5ad55019f4418a35e@kapio-technology.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8dfc9b525f084fa5ad55019f4418a35e@kapio-technology.com>
 Subject: Re: [Bridge] [PATCH v5 net-next 6/6] selftests: forwarding: add
  test of MAC-Auth Bypass to locked port tests
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -30,24 +38,22 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, bridge@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
+To: netdev@kapio-technology.com
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, bridge@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Ido Schimmel <idosch@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Sean Wang <sean.wang@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Roopa Prabhu <roopa@nvidia.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, davem@davemloft.net
 
-On 2022-09-08 09:59, Ido Schimmel wrote:
-> On Wed, Sep 07, 2022 at 11:10:07PM +0200, netdev@kapio-technology.com 
-> wrote:
->> I am at the blackhole driver implementation now, as I suppose that the
->> iproute2 command should work with the mv88e6xxx driver when adding 
->> blackhole
->> entries (with a added selftest)?
->> I decided to add the blackhole feature as new ops for drivers with 
->> functions
->> blackhole_fdb_add() and blackhole_fdb_del(). Do you agree with that
->> approach?
+On Thu, Sep 08, 2022 at 01:14:59PM +0200, netdev@kapio-technology.com wrote:
+> On 2022-09-08 09:59, Ido Schimmel wrote:
+> > On Wed, Sep 07, 2022 at 11:10:07PM +0200, netdev@kapio-technology.com wrote:
+> > > I am at the blackhole driver implementation now, as I suppose that the
+> > > iproute2 command should work with the mv88e6xxx driver when adding blackhole
+> > > entries (with a added selftest)?
+> > > I decided to add the blackhole feature as new ops for drivers with functions
+> > > blackhole_fdb_add() and blackhole_fdb_del(). Do you agree with that approach?
+> > 
+> > I assume you are talking about extending 'dsa_switch_ops'?
 > 
-> I assume you are talking about extending 'dsa_switch_ops'?
+> Yes, that is the idea.
+> 
+> > If so, it's up to the DSA maintainers to decide.
 
-Yes, that is the idea.
-
-> If so, it's up to the DSA maintainers to decide.
-
+What will be the usefulness of adding a blackhole FDB entry from user space?
