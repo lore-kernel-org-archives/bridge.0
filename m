@@ -1,24 +1,25 @@
 Return-Path: <sevinj.aghayeva@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F7D84016B
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A37E840183
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 81C7260C29
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D17A460AF6
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date;
- bh=EnLNkzzS7uvp8qzIOHofbmM/lr6EdUZwCfdgBKsBFIA=;
- b=WnJNpsrV7HdjGnzo2nkpOIxfT2GxSQjATwHQe5v3dxoDnhipC0pkWqvbDRaaAkHUQl
- BjuI5IHPTPKLxcBGbBky4ToOKprKzwbMjyJdETPc++bA6kflYiSa0oVI5YALYKtStEuX
- s1AF/+zVhqgaqkyDkFWxaQAq6J2FxoK8ra3/X/7zVu9rmMsb+T//OX3VmA7rJq+gLfEe
- gOxjRTSUCB8XAqhqASuiItzDRhGM19ybGOKOn2CR581W61gTdJ96XBxuQCX63STtniZn
- E1DEGEdZCY7FTpS43bWkkxm1MTCoN7tiTtmtCzJmyvIzjeVwjJ6IEahZE+9GSiOCGeZT
- m3uA==
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
+ bh=rA1J3wNnURwjVaQRzDPJJFo52izXeQrMGO3evzyuiQ0=;
+ b=KxoD7xykKYyawuxkaTKHAsD+UHEKwbfX7XWCNBZe6i7Mgrw0YCsTjl+qKqObCTg6p0
+ Act4uRMpeCSYfygeT7s2GPeEMjBiZx2NKzesoXaO38hnh+dFLYZeuerbOgD0h7aQpNpA
+ BE4nMBe9E5K6ppuDhZupAYJkurPuEAOIjfUZ3+DIvrYkNz1HBb92lc8uK22slSLy1SkN
+ K4enAfXoM/6wWBxcp/GQlLS2x0PwMU9qyFLWxt9HMB5rFG9TCu0npvbhSMJ6bSsDJQbL
+ VAFQv4WIJnvs+PQX1jJ0r3ctc7FpQRnlvPxkuOLp2BkxE+s7ZRcARsOyU0XsW5DugsVW
+ drZg==
 From: Sevinj Aghayeva <sevinj.aghayeva@gmail.com>
-Date: Sat, 17 Sep 2022 16:17:56 -0400
-Message-Id: <cover.1663445339.git.sevinj.aghayeva@gmail.com>
+Date: Sat, 17 Sep 2022 16:17:57 -0400
+Message-Id: <d6eaa0453446118ead2912bea6ef7b25c136b01c.1663445339.git.sevinj.aghayeva@gmail.com>
+In-Reply-To: <cover.1663445339.git.sevinj.aghayeva@gmail.com>
+References: <cover.1663445339.git.sevinj.aghayeva@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH RFC net-next 0/5] net: vlan: fix bridge binding
-	behavior and add selftests
+Subject: [Bridge] [PATCH RFC net-next 1/5] net: core: export
+	call_netdevice_notifiers_info
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,51 +31,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org
 Cc: aroulin@nvidia.com, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, sbrivio@redhat.com, Eric Dumazet <edumazet@google.com>, Sevinj Aghayeva <sevinj.aghayeva@gmail.com>, roopa@nvidia.com, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-When bridge binding is enabled for a vlan interface, it is expected
-that the link state of the vlan interface will track the subset of the
-ports that are also members of the corresponding vlan, rather than
-that of all ports.
+The function call_netdevice_notifiers_info will be used by the vlan
+module for sending link-type-specific information to other modules.
 
-Currently, this feature works as expected when a vlan interface is
-created with bridge binding enabled:
+Signed-off-by: Sevinj Aghayeva <sevinj.aghayeva@gmail.com>
+---
+ include/linux/netdevice.h | 2 ++
+ net/core/dev.c            | 5 ++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-  ip link add link br name vlan10 type vlan id 10 protocol 802.1q \
-        bridge_binding on
-
-However, the feature does not work when a vlan interface is created
-with bridge binding disabled, and then enabled later:
-
-  ip link add link br name vlan10 type vlan id 10 protocol 802.1q \
-        bridge_binding off
-  ip link set vlan10 type vlan bridge_binding on
-
-After these two commands, the link state of the vlan interface
-continues to track that of all ports, which is inconsistent and
-confusing to users. This series fixes this bug and introduces two
-tests for the valid behavior.
-
-Sevinj Aghayeva (5):
-  net: core: export call_netdevice_notifiers_info
-  net: core: introduce a new notifier for link-type-specific changes
-  net: 8021q: notify bridge module of bridge-binding flag change
-  net: bridge: handle link-type-specific changes in the bridge module
-  selftests: net: tests for bridge binding behavior
-
- include/linux/if_vlan.h                       |   4 +
- include/linux/netdevice.h                     |   3 +
- include/linux/notifier_info.h                 |  21 +++
- net/8021q/vlan.h                              |   2 +-
- net/8021q/vlan_dev.c                          |  20 ++-
- net/bridge/br.c                               |   5 +
- net/bridge/br_private.h                       |   7 +
- net/bridge/br_vlan.c                          |  18 +++
- net/core/dev.c                                |   7 +-
- tools/testing/selftests/net/Makefile          |   1 +
- .../selftests/net/bridge_vlan_binding_test.sh | 143 ++++++++++++++++++
- 11 files changed, 223 insertions(+), 8 deletions(-)
- create mode 100644 include/linux/notifier_info.h
- create mode 100755 tools/testing/selftests/net/bridge_vlan_binding_test.sh
-
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index f0068c1ff1df..56b96b1e4c4c 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -2906,6 +2906,8 @@ netdev_notifier_info_to_extack(const struct netdev_notifier_info *info)
+ }
+ 
+ int call_netdevice_notifiers(unsigned long val, struct net_device *dev);
++int call_netdevice_notifiers_info(unsigned long val,
++				  struct netdev_notifier_info *info);
+ 
+ 
+ extern rwlock_t				dev_base_lock;		/* Device list lock */
+diff --git a/net/core/dev.c b/net/core/dev.c
+index d66c73c1c734..e233145d1452 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -160,8 +160,6 @@ struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
+ struct list_head ptype_all __read_mostly;	/* Taps */
+ 
+ static int netif_rx_internal(struct sk_buff *skb);
+-static int call_netdevice_notifiers_info(unsigned long val,
+-					 struct netdev_notifier_info *info);
+ static int call_netdevice_notifiers_extack(unsigned long val,
+ 					   struct net_device *dev,
+ 					   struct netlink_ext_ack *extack);
+@@ -1927,7 +1925,7 @@ static void move_netdevice_notifiers_dev_net(struct net_device *dev,
+  *	are as for raw_notifier_call_chain().
+  */
+ 
+-static int call_netdevice_notifiers_info(unsigned long val,
++int call_netdevice_notifiers_info(unsigned long val,
+ 					 struct netdev_notifier_info *info)
+ {
+ 	struct net *net = dev_net(info->dev);
+@@ -1944,6 +1942,7 @@ static int call_netdevice_notifiers_info(unsigned long val,
+ 		return ret;
+ 	return raw_notifier_call_chain(&netdev_chain, val, info);
+ }
++EXPORT_SYMBOL_GPL(call_netdevice_notifiers_info);
+ 
+ /**
+  *	call_netdevice_notifiers_info_robust - call per-netns notifier blocks
 -- 
 2.34.1
 
