@@ -1,30 +1,24 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3707040441
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F4914039D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8XjmlklY01QSensRJAISfplHO3/WppVzYUPXq+tuvdc=;
- b=PTaHAI/aJ8of8r4fYeWDoWYdqVok7/a3oVrJFBSpEjlkTawRM3ZvuH8G520II02rfcrXmaspc/+qUp38Zqe1J/t0KXpdMi32Ihg7GtfmM7NKfuXZYWtR07+y/5dZbXfzI3LYBlOgxXdZpPg5c+6lB2i05/WIcQvpNcp8EaZzWYQVcCb3V3N4kFMOxxp3tvPuSur9m/wF1PD9Q6n7SKDkAzSicpBRt0l+xzOdSrEt8sayN55RKLmNu6VGs5wDblP/L5Wde6izO/EIJjVoWgF2kZZiQrsswpDM75lhU/9Z4jNwaDxyX8VnIUaOzhKOQgwmBXz+NvgHipoLn/UaDPfGqA==
-Date: Mon, 12 Sep 2022 12:08:36 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <Yx73FOpN5uhPQhFl@shredder>
-References: <YwzjPcQjfLPk3q/k@shredder>
- <f1a17512266ac8b61444e7f0e568aca7@kapio-technology.com>
- <YxNo/0+/Sbg9svid@shredder>
- <5cee059b65f6f7671e099150f9da79c1@kapio-technology.com>
- <Yxmgs7Du62V1zyjK@shredder>
- <8dfc9b525f084fa5ad55019f4418a35e@kapio-technology.com>
- <20220908112044.czjh3xkzb4r27ohq@skbuf>
- <152c0ceadefbd742331c340bec2f50c0@kapio-technology.com>
- <20220911001346.qno33l47i6nvgiwy@skbuf>
- <15ee472a68beca4a151118179da5e663@kapio-technology.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15ee472a68beca4a151118179da5e663@kapio-technology.com>
+Return-Path: <sevinj.aghayeva@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F7D84016B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A37E840183
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date;
+ bh=EnLNkzzS7uvp8qzIOHofbmM/lr6EdUZwCfdgBKsBFIA=;
+ b=WnJNpsrV7HdjGnzo2nkpOIxfT2GxSQjATwHQe5v3dxoDnhipC0pkWqvbDRaaAkHUQl
+ BjuI5IHPTPKLxcBGbBky4ToOKprKzwbMjyJdETPc++bA6kflYiSa0oVI5YALYKtStEuX
+ s1AF/+zVhqgaqkyDkFWxaQAq6J2FxoK8ra3/X/7zVu9rmMsb+T//OX3VmA7rJq+gLfEe
+ gOxjRTSUCB8XAqhqASuiItzDRhGM19ybGOKOn2CR581W61gTdJ96XBxuQCX63STtniZn
+ E1DEGEdZCY7FTpS43bWkkxm1MTCoN7tiTtmtCzJmyvIzjeVwjJ6IEahZE+9GSiOCGeZT
+ m3uA==
+From: Sevinj Aghayeva <sevinj.aghayeva@gmail.com>
+Date: Sat, 17 Sep 2022 16:17:56 -0400
+Message-Id: <cover.1663445339.git.sevinj.aghayeva@gmail.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH v5 net-next 6/6] selftests: forwarding: add
- test of MAC-Auth Bypass to locked port tests
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH RFC net-next 0/5] net: vlan: fix bridge binding
+	behavior and add selftests
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,43 +27,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@kapio-technology.com
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, bridge@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: aroulin@nvidia.com, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, sbrivio@redhat.com, Eric Dumazet <edumazet@google.com>, Sevinj Aghayeva <sevinj.aghayeva@gmail.com>, roopa@nvidia.com, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-On Sun, Sep 11, 2022 at 11:23:55AM +0200, netdev@kapio-technology.com wrote:
-> On 2022-09-11 02:13, Vladimir Oltean wrote:
-> > On Fri, Sep 09, 2022 at 03:11:56PM +0200, netdev@kapio-technology.com
-> > wrote:
-> > > > > > On Wed, Sep 07, 2022 at 11:10:07PM +0200, netdev@kapio-technology.com wrote:
-> > > > > > > I am at the blackhole driver implementation now, as I suppose that the
-> > > > > > > iproute2 command should work with the mv88e6xxx driver when adding blackhole
-> > > > > > > entries (with a added selftest)?
-> > > > > > > I decided to add the blackhole feature as new ops for drivers with functions
-> > > > > > > blackhole_fdb_add() and blackhole_fdb_del(). Do you agree with that approach?
-> > > > > >
-> > > > > > I assume you are talking about extending 'dsa_switch_ops'?
-> > > > >
-> > > > > Yes, that is the idea.
-> > > > >
-> > > > > > If so, it's up to the DSA maintainers to decide.
-> > > >
-> > > > What will be the usefulness of adding a blackhole FDB entry from user
-> > > > space?
-> > > 
-> > > With the software bridge it could be used to signal a untrusted host
-> > > in
-> > > connection with a locked port entry attempt. I don't see so much use
-> > > other
-> > > that test purposes with the driver though.
-> > 
-> > Not a huge selling point, to be honest. Can't the blackhole flag remain
-> > settable only in the device -> bridge direction, with user space just
-> > reading it?
-> 
-> That is possible, but it would of course not make sense to have selftests of
-> the feature as that would not work unless there is a driver with this
-> capability (now just mv88e6xxx).
+When bridge binding is enabled for a vlan interface, it is expected
+that the link state of the vlan interface will track the subset of the
+ports that are also members of the corresponding vlan, rather than
+that of all ports.
 
-The new "blackhole" flag requires changes in the bridge driver and
-without allowing user space to add such entries, the only way to test
-these changes is with mv88e6xxx which many of us do not have...
+Currently, this feature works as expected when a vlan interface is
+created with bridge binding enabled:
+
+  ip link add link br name vlan10 type vlan id 10 protocol 802.1q \
+        bridge_binding on
+
+However, the feature does not work when a vlan interface is created
+with bridge binding disabled, and then enabled later:
+
+  ip link add link br name vlan10 type vlan id 10 protocol 802.1q \
+        bridge_binding off
+  ip link set vlan10 type vlan bridge_binding on
+
+After these two commands, the link state of the vlan interface
+continues to track that of all ports, which is inconsistent and
+confusing to users. This series fixes this bug and introduces two
+tests for the valid behavior.
+
+Sevinj Aghayeva (5):
+  net: core: export call_netdevice_notifiers_info
+  net: core: introduce a new notifier for link-type-specific changes
+  net: 8021q: notify bridge module of bridge-binding flag change
+  net: bridge: handle link-type-specific changes in the bridge module
+  selftests: net: tests for bridge binding behavior
+
+ include/linux/if_vlan.h                       |   4 +
+ include/linux/netdevice.h                     |   3 +
+ include/linux/notifier_info.h                 |  21 +++
+ net/8021q/vlan.h                              |   2 +-
+ net/8021q/vlan_dev.c                          |  20 ++-
+ net/bridge/br.c                               |   5 +
+ net/bridge/br_private.h                       |   7 +
+ net/bridge/br_vlan.c                          |  18 +++
+ net/core/dev.c                                |   7 +-
+ tools/testing/selftests/net/Makefile          |   1 +
+ .../selftests/net/bridge_vlan_binding_test.sh | 143 ++++++++++++++++++
+ 11 files changed, 223 insertions(+), 8 deletions(-)
+ create mode 100644 include/linux/notifier_info.h
+ create mode 100755 tools/testing/selftests/net/bridge_vlan_binding_test.sh
+
+-- 
+2.34.1
+
