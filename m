@@ -1,32 +1,30 @@
-Return-Path: <nicolas.dichtel@6wind.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D5B04607FF
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 61314606EC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=6wind.com; s=google;
- h=content-transfer-encoding:in-reply-to:organization:from:references
- :cc:to:content-language:subject:reply-to:user-agent:mime-version
- :date:message-id:from:to:cc:subject:date;
- bh=rUO6t6C3l9V7+NJRQvXy0uGhA6vMbQwppUZNMvDDpV8=;
- b=FXGNEyoJ6TsxJT/6jnwzdEYEYt1X515xt7/Jhk/45XOE+8eGOFiXA/Hpb+Uj5wjO4k
- dpvq2t2OrrobHCE3A1uLZq4sJ85dpbR/4O6LW73t0CVSUWoR3HtPjmHd4yiz/T65PQhb
- 1S08uTdvI2ZRtrJHrAYuz+UJS6QnnnaloiOMVuqhPvpAd+i7Q1WlihyBPbQdy2lcYTrs
- d/Bc7XNHJC1bBj7STOS6tkrZ/r/EUXbRRyNe/sBulywi/NzOD6r0ZoY6IHx4Abax1vVa
- wQOh1QX8K3zoEjUnYP3am1l0Fhjuqk2WLTMKUSiS/2bgq5cMXALRiKKzJLAHNdyCcGQM
- KhzQ==
-Message-ID: <99b9a532-5feb-fe00-3d4e-29d560d34dc0@6wind.com>
-Date: Wed, 21 Sep 2022 08:43:37 +0200
+Return-Path: <idosch@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 06E2982AF5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 48ECA82907
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lw6682kc/DZV9ZI9Esqa7vHuDGcKIwUBWoAk25d563U=;
+ b=NKyrNGGxT9N3Dnzr355DK6Ldr611OyyJ4mKMIlWAP+NKamVvhyp4vsaVk05bWPHblagfNTbAYtYsDzLfgplgTxI05uATQgOwipXBTXqACTKUkvPaqIHcgJoQt6JY+LrEGF4+AclVpyq2EpMun0ZFAeblcK14CUGDTYtk11rNroKOaYrkXWwvblPgxnh7HQFluXzbqP/+nnOK7QP76a45IbIy5kPoryiBTrLZK3igWEo7PksGod4nrZ4uYTDJYW93p6O3U3PehVx6a70b9GfCg1Ef0QSH1dddvUxtUn76Q8yJB28/upuSjaI3kFO7F8fOBHdVIkr8qtfO3qnw9ZUuCw==
+Date: Wed, 21 Sep 2022 10:15:18 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+Message-ID: <Yyq6BnUfctLeerqE@shredder>
+References: <YxNo/0+/Sbg9svid@shredder>
+ <5cee059b65f6f7671e099150f9da79c1@kapio-technology.com>
+ <Yxmgs7Du62V1zyjK@shredder>
+ <8dfc9b525f084fa5ad55019f4418a35e@kapio-technology.com>
+ <20220908112044.czjh3xkzb4r27ohq@skbuf>
+ <152c0ceadefbd742331c340bec2f50c0@kapio-technology.com>
+ <20220911001346.qno33l47i6nvgiwy@skbuf>
+ <15ee472a68beca4a151118179da5e663@kapio-technology.com>
+ <Yx73FOpN5uhPQhFl@shredder>
+ <086704ce7f323cc1b3cca78670b42095@kapio-technology.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <086704ce7f323cc1b3cca78670b42095@kapio-technology.com>
 MIME-Version: 1.0
-Reply-To: nicolas.dichtel@6wind.com
-Content-Language: en-US
-References: <20220413105202.2616106-1-razor@blackwall.org>
- <20220413105202.2616106-5-razor@blackwall.org>
- <0198618f-7b52-3023-5e9f-b38c49af1677@6wind.com>
- <f26fa81a-dc13-6a27-2e63-74b13359756e@blackwall.org>
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-In-Reply-To: <f26fa81a-dc13-6a27-2e63-74b13359756e@blackwall.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v4 04/12] net: netlink: add NLM_F_BULK
- delete request modifier
+Subject: Re: [Bridge] [PATCH v5 net-next 6/6] selftests: forwarding: add
+ test of MAC-Auth Bypass to locked port tests
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,68 +33,110 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
-Cc: dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@idosch.org, roopa@nvidia.com, kuba@kernel.org, davem@davemloft.net
+To: netdev@kapio-technology.com
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, bridge@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-
-Le 20/09/2022 à 11:05, Nikolay Aleksandrov a écrit :
-> On 20/09/2022 10:49, Nicolas Dichtel wrote:
->>
->> Le 13/04/2022 à 12:51, Nikolay Aleksandrov a écrit :
->>> Add a new delete request modifier called NLM_F_BULK which, when
->>> supported, would cause the request to delete multiple objects. The flag
->>> is a convenient way to signal that a multiple delete operation is
->>> requested which can be gradually added to different delete requests. In
->>> order to make sure older kernels will error out if the operation is not
->>> supported instead of doing something unintended we have to break a
->>> required condition when implementing support for this flag, f.e. for
->>> neighbors we will omit the mandatory mac address attribute.
->>> Initially it will be used to add flush with filtering support for bridge
->>> fdbs, but it also opens the door to add similar support to others.
->>>
->>> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
->>> ---
->>>  include/uapi/linux/netlink.h | 1 +
->>>  1 file changed, 1 insertion(+)
->>>
->>> diff --git a/include/uapi/linux/netlink.h b/include/uapi/linux/netlink.h
->>> index 4c0cde075c27..855dffb4c1c3 100644
->>> --- a/include/uapi/linux/netlink.h
->>> +++ b/include/uapi/linux/netlink.h
->>> @@ -72,6 +72,7 @@ struct nlmsghdr {
->>>  
->>>  /* Modifiers to DELETE request */
->>>  #define NLM_F_NONREC	0x100	/* Do not delete recursively	*/
->>> +#define NLM_F_BULK	0x200	/* Delete multiple objects	*/
->> Sorry to reply to an old patch, but FWIW, this patch broke the uAPI.
->> One of our applications was using NLM_F_EXCL with RTM_DELTFILTER. This is
->> conceptually wrong but it was working. After this patch, the kernel returns an
->> error (EOPNOTSUPP).
->>
->> Here is the patch series:
->> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/log/?h=92716869375b
->>
->> We probably can't do anything now, but to avoid this in the future, I see only
->> two options:
->>  - enforce flags validation depending on the operation (but this may break some
->>    existing apps)
->>  - stop adding new flags that overlap between NEW and DEL operations (by adding
->>    a comment or defining dummy flags).
->>
->> Any thoughts?
->>
+On Tue, Sep 20, 2022 at 11:29:12PM +0200, netdev@kapio-technology.com wrote:
+> I have made a blackhole selftest, which looks like this:
 > 
-> Personally I'd prefer to enforce validation so we don't lose the flags because of buggy user-space
-> applications, but we can break someone (who arguably should fix their app though). We already had
-> that discussion while the set was under review[1] and just to be a bit more confident I also
-Thanks for the link. Finally, someone has (almost) complained :D
+> test_blackhole_fdb()
+> {
+>         RET=0
+> 
+>         check_blackhole_fdb_support || return 0
+> 
+>         tcpdump_start $h2
+>         $MZ $h1 -q -t udp -a $h1 -b $h2
 
-> tried searching for open-source buggy users, but didn't find any.
-The trend seems to let someone else add another specific flag if needed. Thus,
-it seems that checking flags is the way to go.
-The pro is that if someone complains, the patch could be reverted, which is not
-the case for a new feature like this bulk for example.
+I don't think you can give an interface name to '-a' and '-b'?
 
+>         tcpdump_stop
+>         tcpdump_show | grep -q udp
+>         check_err $? "test_blackhole_fdb: No packet seen on initial"
+>         tcpdump_cleanup
+> 
+>         bridge fdb add `mac_get $h2` dev br0 blackhole
+>         bridge fdb show dev br0 | grep -q "blackhole"
 
-Regards,
-Nicolas
+Make this grep more specific so that we are sure it is the entry user
+space installed. Something like this:
+
+bridge fdb get `mac_get $h2` br br0 | grep -q blackhole
+
+>         check_err $? "test_blackhole_fdb: No blackhole FDB entry found"
+> 
+>         tcpdump_start $h2
+>         $MZ $h1 -q -t udp -a $h1 -b $h2
+>         tcpdump_stop
+>         tcpdump_show | grep -q udp
+>         check_fail $? "test_blackhole_fdb: packet seen with blackhole fdb
+> entry"
+>         tcpdump_cleanup
+
+The tcpdump filter is not specific enough. It can catch other UDP
+packets (e.g., multicast) being received by $h2. Anyway, to be sure the
+feature works as expected we need to make sure that the packets are not
+even egressing $swp2. Checking that they are not received by $h2 is not
+enough. See this (untested) suggestion [1] that uses a tc filter on the
+egress of $swp2.
+
+> 
+>         bridge fdb del `mac_get $h2` dev br0 blackhole
+>         bridge fdb show dev br0 | grep -q "blackhole"
+>         check_fail $? "test_blackhole_fdb: Blackhole FDB entry not deleted"
+> 
+>         tcpdump_start $h2
+>         $MZ $h1 -q -t udp -a $h1 -b $h2
+>         tcpdump_stop
+>         tcpdump_show | grep -q udp
+>         check_err $? "test_blackhole_fdb: No packet seen after removing
+> blackhole FDB entry"
+>         tcpdump_cleanup
+> 
+>         log_test "Blackhole FDB entry test"
+> }
+> 
+> the setup is simple and is the same as in bridge_sticky_fdb.sh.
+> 
+> Does the test look sound or is there obvious mistakes?
+
+[1]
+blackhole_fdb()
+{
+	RET=0
+
+	tc filter add dev $swp2 egress protocol ip pref 1 handle 1 flower \
+		dst_ip 192.0.2.2 ip_proto udp dst_port 12345 action pass
+
+	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
+		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
+
+	tc_check_packets "dev $swp2 egress" 1 1
+	check_err $? "Packet not seen on egress before adding blackhole entry"
+
+	bridge fdb add `mac_get $h2` dev br0 blackhole
+	bridge fdb get `mac_get $h2` br br0 | grep -q blackhole
+	check_err $? "Blackhole entry not found"
+
+	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
+		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
+
+	tc_check_packets "dev $swp2 egress" 1 1
+	check_err $? "Packet seen on egress after adding blackhole entry"
+
+	# Check blackhole entries can be replaced.
+	bridge fdb replace `mac_get $h2` dev $swp2 master static
+	bridge fdb get `mac_get $h2` br br0 | grep -q blackhole
+	check_fail $? "Blackhole entry found after replacement"
+
+	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
+		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
+
+	tc_check_packets "dev $swp2 egress" 1 2
+	check_err $? "Packet not seen on egress after replacing blackhole entry"
+
+	bridge fdb del `mac_get $h2` dev $swp2 master static
+	tc filter del dev $swp2 egress protocol ip pref 1 handle 1 flower
+
+	log_test "Blackhole FDB entry"
+}
