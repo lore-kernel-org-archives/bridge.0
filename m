@@ -1,8 +1,8 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C012B60DFF
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5358860B3F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8B25408D8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E58D440189
 MIME-Version: 1.0
-Date: Fri, 23 Sep 2022 13:34:15 +0200
+Date: Fri, 23 Sep 2022 14:01:43 +0200
 From: netdev@kapio-technology.com
 In-Reply-To: <Yyq6BnUfctLeerqE@shredder>
 References: <YxNo/0+/Sbg9svid@shredder>
@@ -16,7 +16,7 @@ References: <YxNo/0+/Sbg9svid@shredder>
  <Yx73FOpN5uhPQhFl@shredder>
  <086704ce7f323cc1b3cca78670b42095@kapio-technology.com>
  <Yyq6BnUfctLeerqE@shredder>
-Message-ID: <546f96aa592aec4d64bdfc45d4618c05@kapio-technology.com>
+Message-ID: <60d7733e1134dfeebf82306d44209f14@kapio-technology.com>
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
@@ -39,8 +39,11 @@ On 2022-09-21 09:15, Ido Schimmel wrote:
 > 	bridge fdb replace `mac_get $h2` dev $swp2 master static
 > 	bridge fdb get `mac_get $h2` br br0 | grep -q blackhole
 > 	check_fail $? "Blackhole entry found after replacement"
+> 
 
-There seems to be a problem with replacing blackhole fdb entries as 
-fdb_find_rcu() does not find the associated fdb entry (addr, vid) and I 
-don't know why that is the case?
-
+I am quite in doubt if the driver will be able to overwrite a blackhole 
+entry added by userspace as the replace action must be to delete and 
+then add the replacement afaics, but a NEWNEIGH event using 
+port_fdb_add() will not succeed with that using the ops I use now. 
+Otherwise it has be all with port_fb_add() with new lists keeping the 
+userspace added blackhole fdb entries.
