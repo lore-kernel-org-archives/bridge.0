@@ -1,11 +1,9 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1022A41843
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 81A65417B3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 303AD417B3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 74D274088D
 From: Hans Schultz <netdev@kapio-technology.com>
-Date: Wed, 28 Sep 2022 17:02:53 +0200
-Message-Id: <20220928150256.115248-7-netdev@kapio-technology.com>
-In-Reply-To: <20220928150256.115248-1-netdev@kapio-technology.com>
-References: <20220928150256.115248-1-netdev@kapio-technology.com>
+Date: Wed, 28 Sep 2022 19:48:08 +0200
+Message-Id: <20220928174808.117026-1-netdev@kapio-technology.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Subject: [Bridge] [PATCH v6 net-next 6/9] net: dsa: mv88e6xxx: allow reading
