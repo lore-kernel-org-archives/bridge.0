@@ -1,9 +1,11 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1579683227
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E158383224
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 10E13610AF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C43F76100A
 From: Hans Schultz <netdev@kapio-technology.com>
-Date: Wed, 28 Sep 2022 19:48:32 +0200
-Message-Id: <20220928174832.117065-1-netdev@kapio-technology.com>
+Date: Wed, 28 Sep 2022 17:02:54 +0200
+Message-Id: <20220928150256.115248-8-netdev@kapio-technology.com>
+In-Reply-To: <20220928150256.115248-1-netdev@kapio-technology.com>
+References: <20220928150256.115248-1-netdev@kapio-technology.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Subject: [Bridge] [PATCH v6 net-next 7/9] net: dsa: mv88e6xxx: mac-auth/MAB
