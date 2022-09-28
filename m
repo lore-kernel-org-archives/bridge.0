@@ -1,8 +1,8 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C21B740541
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D6B49404B2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0391740541
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 54801404B2
 MIME-Version: 1.0
-Date: Wed, 28 Sep 2022 12:16:21 +0200
+Date: Wed, 28 Sep 2022 12:19:45 +0200
 From: netdev@kapio-technology.com
 In-Reply-To: <YzQJ5MRSL/ShRSgP@shredder>
 References: <20220908112044.czjh3xkzb4r27ohq@skbuf>
@@ -16,7 +16,7 @@ References: <20220908112044.czjh3xkzb4r27ohq@skbuf>
  <YzPwwuCe0HkJpkQe@shredder>
  <0c6b93c828d9b52346ddb3d445446734@kapio-technology.com>
  <YzQJ5MRSL/ShRSgP@shredder>
-Message-ID: <7a1683c86e02305e90f7b1ceaaabdabe@kapio-technology.com>
+Message-ID: <cc0f4d54e8c24d6d496ea617e654b661@kapio-technology.com>
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
@@ -36,16 +36,12 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.c
 On 2022-09-28 10:46, Ido Schimmel wrote:
 > On Wed, Sep 28, 2022 at 09:47:42AM +0200, netdev@kapio-technology.com 
 > wrote:
+>> On 2022-09-28 08:59, Ido Schimmel wrote:
+>> 
 
-> It needs "master" keyword:
-> 
+BTW, I have added FDB flags in the DSA layer as a u16, so that now 
+port_fdb_add() is as:
 
-I must have forgotten it when I tested at some point...
-
-It seems to be working, only that I am at a loss to why port_fdb_add() 
-is called for each port after going through the DSA layer. I understand 
-that all slave devices are listening on events, but I think the ops 
-should only be called when the port matches?
-Also for some reason the blackhole (zero-DPV) ATU entry is not added on 
-my device in case of no vlan (vid = 0), but there is also some phy 
-problems that are unrelated to this patch set.
+         int     (*port_fdb_add)(struct dsa_switch *ds, int port,
+                                 const unsigned char *addr, u16 vid,
+                                 u16 fdb_flags, struct dsa_db db);
