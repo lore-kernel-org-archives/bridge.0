@@ -1,13 +1,15 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 303AD417B3
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 74D274088D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21B8183F9B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED3FD80F59
 From: Hans Schultz <netdev@kapio-technology.com>
-Date: Wed, 28 Sep 2022 19:48:08 +0200
-Message-Id: <20220928174808.117026-1-netdev@kapio-technology.com>
+Date: Thu, 29 Sep 2022 17:21:37 +0200
+Message-Id: <20220929152137.167626-2-netdev@kapio-technology.com>
+In-Reply-To: <20220929152137.167626-1-netdev@kapio-technology.com>
+References: <20220929152137.167626-1-netdev@kapio-technology.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v6 net-next 6/9] net: dsa: mv88e6xxx: allow reading
-	FID when handling ATU violations
+Subject: [Bridge] [PATCH iproute2-next 2/2] bridge: fdb: enable FDB
+	blackhole feature
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,118 +19,92 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: davem@davemloft.net, kuba@kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, "Hans J. Schultz" <netdev@kapio-technology.com>, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, Florent Fourcot <florent.fourcot@wifirst.fr>
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Hans Schultz <netdev@kapio-technology.com>, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, Florent Fourcot <florent.fourcot@wifirst.fr>
 
-From: "Hans J. Schultz" <netdev@kapio-technology.com>
+Block traffic to a specific host with the command:
+bridge fdb add <MAC> vlan <vid> dev br0 blackhole
 
-The FID is needed to get hold of which VID was involved in a violation,
-thus the need to be able to read the FID.
+The blackhole FDB entries can be added, deleted and replaced with
+ordinary FDB entries.
 
-For convenience the function mv88e6xxx_g1_atu_op() has been used to read
-ATU violations, but the function invalidates reading the fid, so to both
-read ATU violations without zeroing the fid, and read the fid, functions
-have been added to ensure both are done correctly.
-
-Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
+Signed-off-by: Hans Schultz <netdev@kapio-technology.com>
 ---
- drivers/net/dsa/mv88e6xxx/global1_atu.c | 60 ++++++++++++++++++++++---
- 1 file changed, 55 insertions(+), 5 deletions(-)
+ bridge/fdb.c                   | 7 ++++++-
+ include/uapi/linux/neighbour.h | 4 ++++
+ man/man8/bridge.8              | 6 ++++++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/global1_atu.c b/drivers/net/dsa/mv88e6xxx/global1_atu.c
-index 40bd67a5c8e9..d9dfa1159cde 100644
---- a/drivers/net/dsa/mv88e6xxx/global1_atu.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1_atu.c
-@@ -114,6 +114,19 @@ static int mv88e6xxx_g1_atu_op_wait(struct mv88e6xxx_chip *chip)
- 	return mv88e6xxx_g1_wait_bit(chip, MV88E6XXX_G1_ATU_OP, bit, 0);
- }
+diff --git a/bridge/fdb.c b/bridge/fdb.c
+index 0fbe9bd3..2160f1c2 100644
+--- a/bridge/fdb.c
++++ b/bridge/fdb.c
+@@ -38,7 +38,7 @@ static void usage(void)
+ 	fprintf(stderr,
+ 		"Usage: bridge fdb { add | append | del | replace } ADDR dev DEV\n"
+ 		"              [ self ] [ master ] [ use ] [ router ] [ extern_learn ]\n"
+-		"              [ sticky ] [ local | static | dynamic ] [ vlan VID ]\n"
++		"              [ sticky ] [ local | static | dynamic ] [blackhole] [ vlan VID ]\n"
+ 		"              { [ dst IPADDR ] [ port PORT] [ vni VNI ] | [ nhid NHID ] }\n"
+ 		"	       [ via DEV ] [ src_vni VNI ]\n"
+ 		"       bridge fdb [ show [ br BRDEV ] [ brport DEV ] [ vlan VID ]\n"
+@@ -116,6 +116,9 @@ static void fdb_print_flags(FILE *fp, unsigned int flags, __u8 ext_flags)
+ 	if (flags & NTF_STICKY)
+ 		print_string(PRINT_ANY, NULL, "%s ", "sticky");
  
-+static int mv88e6xxx_g1_read_atu_violation(struct mv88e6xxx_chip *chip)
-+{
-+	int err;
++	if (ext_flags & NTF_EXT_BLACKHOLE)
++		print_string(PRINT_ANY, NULL, "%s ", "blackhole");
 +
-+	err = mv88e6xxx_g1_write(chip, MV88E6XXX_G1_ATU_OP,
-+				 MV88E6XXX_G1_ATU_OP_BUSY |
-+				 MV88E6XXX_G1_ATU_OP_GET_CLR_VIOLATION);
-+	if (err)
-+		return err;
-+
-+	return mv88e6xxx_g1_atu_op_wait(chip);
-+}
-+
- static int mv88e6xxx_g1_atu_op(struct mv88e6xxx_chip *chip, u16 fid, u16 op)
- {
- 	u16 val;
-@@ -159,6 +172,41 @@ int mv88e6xxx_g1_atu_get_next(struct mv88e6xxx_chip *chip, u16 fid)
- 	return mv88e6xxx_g1_atu_op(chip, fid, MV88E6XXX_G1_ATU_OP_GET_NEXT_DB);
- }
+ 	if (ext_flags & NTF_EXT_LOCKED)
+ 		print_string(PRINT_ANY, NULL, "%s ", "locked");
  
-+static int mv88e6xxx_g1_atu_fid_read(struct mv88e6xxx_chip *chip, u16 *fid)
-+{
-+	u16 val = 0, upper = 0, op = 0;
-+	int err = -EOPNOTSUPP;
-+
-+	if (mv88e6xxx_num_databases(chip) > 256) {
-+		err = mv88e6xxx_g1_read(chip, MV88E6352_G1_ATU_FID, &val);
-+		val &= 0xfff;
-+		if (err)
-+			return err;
-+	} else {
-+		err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_ATU_OP, &op);
-+		if (err)
-+			return err;
-+		if (mv88e6xxx_num_databases(chip) > 64) {
-+			/* ATU DBNum[7:4] are located in ATU Control 15:12 */
-+			err = mv88e6xxx_g1_read(chip, MV88E6XXX_G1_ATU_CTL, &upper);
-+			if (err)
-+				return err;
-+
-+			upper = (upper >> 8) & 0x00f0;
-+		} else if (mv88e6xxx_num_databases(chip) > 16) {
-+			/* ATU DBNum[5:4] are located in ATU Operation 9:8 */
-+
-+			upper = (op >> 4) & 0x30;
-+		}
-+		/* ATU DBNum[3:0] are located in ATU Operation 3:0 */
-+
-+		val = (op & 0xf) | upper;
-+	}
-+	*fid = val;
-+
-+	return err;
-+}
-+
- /* Offset 0x0C: ATU Data Register */
+@@ -493,6 +496,8 @@ static int fdb_modify(int cmd, int flags, int argc, char **argv)
+ 			req.ndm.ndm_flags |= NTF_EXT_LEARNED;
+ 		} else if (matches(*argv, "sticky") == 0) {
+ 			req.ndm.ndm_flags |= NTF_STICKY;
++		} else if (matches(*argv, "blackhole") == 0) {
++			ext_flags |= NTF_EXT_BLACKHOLE;
+ 		} else {
+ 			if (strcmp(*argv, "to") == 0)
+ 				NEXT_ARG();
+diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
+index 4dda051b..cc7d540e 100644
+--- a/include/uapi/linux/neighbour.h
++++ b/include/uapi/linux/neighbour.h
+@@ -54,6 +54,7 @@ enum {
+ /* Extended flags under NDA_FLAGS_EXT: */
+ #define NTF_EXT_MANAGED		(1 << 0)
+ #define NTF_EXT_LOCKED		(1 << 1)
++#define NTF_EXT_BLACKHOLE	(1 << 2)
  
- static int mv88e6xxx_g1_atu_data_read(struct mv88e6xxx_chip *chip,
-@@ -353,14 +401,12 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
- {
- 	struct mv88e6xxx_chip *chip = dev_id;
- 	struct mv88e6xxx_atu_entry entry;
--	int spid;
--	int err;
--	u16 val;
-+	int err, spid;
-+	u16 val, fid;
+ /*
+  *	Neighbor Cache Entry States.
+@@ -91,6 +92,9 @@ enum {
+  * NTF_EXT_LOCKED flagged FDB entries are placeholder entries used with the
+  * locked port feature, that ensures that an entry exists while at the same
+  * time dropping packets on ingress with src MAC and VID matching the entry.
++ *
++ * NTF_EXT_BLACKHOLE flagged FDB entries ensure that no forwarding is allowed
++ * from any port to the destination MAC, VID pair associated with it.
+  */
  
- 	mv88e6xxx_reg_lock(chip);
+ struct nda_cacheinfo {
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index 40250477..af2e7db2 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -699,6 +699,12 @@ controller learnt dynamic entry. Kernel will not age such an entry.
+ - this entry will not change its port due to learning.
+ .sp
  
--	err = mv88e6xxx_g1_atu_op(chip, 0,
--				  MV88E6XXX_G1_ATU_OP_GET_CLR_VIOLATION);
-+	err = mv88e6xxx_g1_read_atu_violation(chip);
- 	if (err)
- 		goto out;
- 
-@@ -368,6 +414,10 @@ static irqreturn_t mv88e6xxx_g1_atu_prob_irq_thread_fn(int irq, void *dev_id)
- 	if (err)
- 		goto out;
- 
-+	err = mv88e6xxx_g1_atu_fid_read(chip, &fid);
-+	if (err)
-+		goto out;
++.B blackhole
++- this is an entry that denies all forwarding from any port to a destination
++matching the entry. It can be added by userspace, but the flag is mostly set
++from a hardware driver.
++.sp
 +
- 	err = mv88e6xxx_g1_atu_data_read(chip, &entry);
- 	if (err)
- 		goto out;
+ .in -8
+ The next command line parameters apply only
+ when the specified device
 -- 
 2.34.1
 
