@@ -1,26 +1,25 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BB80C842B8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B99BF842B1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1664538018;
- bh=IKQvAUjVVe1ZMOX9oFnDoAiO//gd9z/bUiOy6VuwVMI=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=Q4q2PYnk3qFvWGMO03ERrMA2N7PbBSOzQWTXSGGfXf0dNcY8321kG7c5Whw+tM5T+
- 0glNm18fb0CqmiF+MszPH3lQudGn3ZvDqbt4OQB5FHAsVh42kQrDYS4TdWpj2gcIau
- 0ENfhNFUI8pWUQDQJQ5taP0YN7LnWlr7flXZ7FYvyy/zzlopC0z1p0tFzqmn/H7kip
- lc8I2ShMw3TaENFA+MEVjLhW3FbPSYDgiak8Gah1MggHhfyo1LJSz67PKHtFEifUFH
- zI5unapzBJdxgjP3rW3Ie2tWu+XSKtwDOD8yJzNM+VotXUXA7mDagxKUDrUAOmN5mS
- VL8ryoDJptKwg==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <idosch@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6943C60D5D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DE1CA605E0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9lIYefaSOYiraQUJOth+slAJpWZICGu/4rJ81nJHNbs=;
+ b=Hkpq6F8KKI22CIYyl4Ef7W3sd5RqzqEmhp4acJ0k1zFf5CRVr+GGORuDoAH4u2UIA34oQwWePCezrK63W1+UAdHAGlM93154mPkehovAn8XGIW9UMQn/4N/w6huovPln5xhHZHRdMgpNifo4SFqi3o9h9qOLWQjS+16OdHcGrdoJlbMeSKJyOLcRYf6ARc0xJL7rVq+/oA3nP9y/kKi4Y8Itv8KBgkBC7IAkyyqFBm+ETXdVPPO8JT5JbzQkiPYnY4/IsXcvA7aV/DA+dbstYgJDV0qJ8WTDTryINxOIUrTDZPJ+LlMIqw+5e0BoyEKl5kTk4P5D+UBzDhV0pcmhWg==
+Date: Fri, 30 Sep 2022 17:05:20 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+Message-ID: <Yzb3oNGNtq4GCS3M@shredder>
+References: <20220928150256.115248-1-netdev@kapio-technology.com>
+ <20220929091036.3812327f@kernel.org>
+ <12587604af1ed79be4d3a1607987483a@kapio-technology.com>
+ <20220929112744.27cc969b@kernel.org>
+ <ab488e3d1b9d456ae96cfd84b724d939@kapio-technology.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ab488e3d1b9d456ae96cfd84b724d939@kapio-technology.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <166453801829.4225.8647161065788331137.git-patchwork-notify@kernel.org>
-Date: Fri, 30 Sep 2022 11:40:18 +0000
-References: <20220928175758.2106806-1-steven.hsieh@broadcom.com>
-In-Reply-To: <20220928175758.2106806-1-steven.hsieh@broadcom.com>
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: assign path_cost for
- 2.5G and 5G link speed
+Subject: Re: [Bridge] [PATCH v6 net-next 0/9] Extend locked port feature
+ with FDB locked flag (MAC-Auth/MAB)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,31 +28,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Steven Hsieh <steven.hsieh@broadcom.com>
-Cc: netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: netdev@kapio-technology.com
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Florent Fourcot <florent.fourcot@wifirst.fr>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-Hello:
+On Fri, Sep 30, 2022 at 07:42:37AM +0200, netdev@kapio-technology.com wrote:
+> Obviously my method of selecting all switchcore drivers with sub-options
+> under menuconfig was not sufficient, and I didn't know of the allmodconfig
+> option, otherwise I would have used it.
 
-This patch was applied to netdev/net-next.git (master)
-by David S. Miller <davem@davemloft.net>:
+You can see build issues on patchwork:
 
-On Wed, 28 Sep 2022 10:57:58 -0700 you wrote:
-> As 2.5G, 5G ethernet ports are more common and affordable,
-> these ports are being used in LAN bridge devices.
-> STP port_cost() is missing path_cost assignment for these link speeds,
-> causes highest cost 100 being used.
-> This result in lower speed port being picked
-> when there is loop between 5G and 1G ports.
-> 
-> [...]
+https://patchwork.kernel.org/project/netdevbpf/patch/20220928150256.115248-6-netdev@kapio-technology.com/
 
-Here is the summary with links:
-  - [net-next] net: bridge: assign path_cost for 2.5G and 5G link speed
-    https://git.kernel.org/netdev/net-next/c/bd1393815319
+Also:
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+https://docs.kernel.org/next/process/maintainer-netdev.html#what-level-of-testing-is-expected-before-i-submit-my-change
 
+https://docs.kernel.org/next/process/maintainer-netdev.html#can-i-reproduce-the-checks-from-patchwork-on-my-local-machine
 
+https://docs.kernel.org/next/process/maintainer-netdev.html#running-all-the-builds-and-checks-locally-is-a-pain-can-i-post-my-patches-and-have-the-patchwork-bot-validate-them
+
+> So the question is if I should repost the fixed patch-set or I need to make
+> a new version?
+
+A new fixed version (v7) is required, but wait for this version to be
+reviewed first.
+
+> Anyhow I hope that there will not be problems when running the selftests, as
+> I have not been able to do so with my system, so there can be more that
+> needs to be changed.
+
+It's not really acceptable to post tests that you haven't run... What
+exactly is the issue? You should be able to run the tests with veth
+pairs in a VM.
