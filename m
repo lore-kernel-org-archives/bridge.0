@@ -1,14 +1,14 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 78F0E418E8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 683934184E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5F78D82BC0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 637C782B1B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GtPFgGKxKZx2Ih8XPr6rK00BO17m4sAboKSqoMuysPc=;
- b=j3jO9JEPiWVG99AbG4RO3rB86jaqZFqH45qMPdCRE1Ma4jdDLh/yeGZhYcJ/kha13aU2LzIFoUwHohLY3wkQB2Onk1MVdgMnSCG897RssDvc43h0RrRoifapgobtBgOOZXgVKxVX+YBdUWQWb2GOSzmmvY0vWt7MxiWfGT/fCEy6qc3WH4Oc6ra3+i7d0T+tpau2FPuyj0iTBqT16GxtIZCi5JJxSdsMumMigIxSI8KJHzY7RqOwafJHeZPCz8s0v16Pu5nreCjEJ6KTHuGTHJZAMQIfgHeuDknNVQJaAb39RvDNmMONFOzAUAYNVcgdkSFTfqKMV9VkjhIvxXPxHA==
-Date: Thu, 13 Oct 2022 15:06:07 +0300
+ bh=jgDfEzaNmyHruhoccynN8yZwGtMgHcR59fqlAen+gP4=;
+ b=rQfpTnvBGwAzpPtoThM4SKADp0CosgJiwouIorhjJFHWUBmfVtkeAY7UWNW5iSavFS1iz6foJrFqiyp/8fBtjkHwmMIg7J+CgM6xvZJOYQiAE5O6bvio6nEw0k3Ex6HTWng/KNI9L/E9N5i9W2CCQrsKbWTrryMJdRrNLLkLwvRxfBkHw2JYCqiSbYv+MXmk2VdoP1F5NpWJsJIBOOIGylxRF5ZcqP1454ptYmeJlzQ76+uK781VAabD24cKfJ8Y1XF3nx55zk6YZ1bdAK/8HtlEyQIMmJZcEq1NOwnHfSGVwAZGuKNWfUchidrq9LiInLobeZ1RRvX8V4EMtnjNUQ==
+Date: Thu, 13 Oct 2022 15:16:32 +0300
 From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <Y0f/L9IT6dbwlZAg@shredder>
+Message-ID: <Y0gBoLRNHRQeI1PH@shredder>
 References: <20221009174052.1927483-1-netdev@kapio-technology.com>
  <20221009174052.1927483-10-netdev@kapio-technology.com>
 Content-Type: text/plain; charset=us-ascii
@@ -29,165 +29,192 @@ To: "Hans J. Schultz" <netdev@kapio-technology.com>
 Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Florent Fourcot <florent.fourcot@wifirst.fr>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
 On Sun, Oct 09, 2022 at 07:40:52PM +0200, Hans J. Schultz wrote:
-> +locked_port_mab()
+> +++ b/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh
+> @@ -0,0 +1,134 @@
+> +#!/bin/bash
+> +# SPDX-License-Identifier: GPL-2.0
+> +
+> +ALL_TESTS="blackhole_fdb"
+> +NUM_NETIFS=4
+> +source tc_common.sh
+> +source lib.sh
+> +
+> +h1_create()
 > +{
-> +	RET=0
-> +	check_port_mab_support || return 0
-> +
-> +	ping_do $h1 192.0.2.2
-> +	check_err $? "MAB: Ping did not work before locking port"
-> +
-> +	bridge link set dev $swp1 locked on mab on
-> +
-> +	ping_do $h1 192.0.2.2
-> +	check_fail $? "MAB: Ping worked on mab enabled port without FDB entry"
-> +
-> +	bridge fdb get `mac_get $h1` vlan 1 dev $swp1 | grep "dev $swp1 vlan 1" | grep -q "locked"
-> +	check_err $? "MAB: No locked FDB entry after ping on mab enabled port"
-> +
-> +	bridge fdb replace `mac_get $h1` dev $swp1 master static
-> +
-> +	ping_do $h1 192.0.2.2
-> +	check_err $? "MAB: Ping did not work with FDB entry without locked flag"
-> +
-> +	bridge fdb del `mac_get $h1` dev $swp1 master
-> +	bridge link set dev $swp1 locked off mab off
-> +
-> +	log_test "Locked port MAB"
+> +	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
+> +	vlan_create $h1 100 v$h1 198.51.100.1/24
 > +}
 > +
-> +# Check that entries cannot roam from an unlocked port to a locked port.
-> +locked_port_station_move()
+> +h1_destroy()
 > +{
-> +	local mac=a0:b0:c0:c0:b0:a0
-> +
-> +	RET=0
-> +	check_locked_port_support || return 0
-> +
-> +	bridge link set dev $swp1 locked on learning on
-> +
-> +	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
-> +	bridge fdb show dev $swp1 | grep -q $mac
-> +	check_fail $? "Locked port station move: FDB entry on first injection"
-> +
-> +	$MZ $h2 -q -c 5 -d 100msec -t udp -a $mac -b rand
-> +	bridge fdb get $mac vlan 1 dev $swp2 | grep "dev $swp2 vlan 1" | grep -q "master br0"
-> +	check_err $? "Locked port station move: Entry not found on unlocked port"
-> +
-> +	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
-> +	bridge fdb get $mac vlan 1 dev $swp1 | grep "dev $swp1 vlan 1" | grep -q "master br0"
-> +	check_fail $? "Locked port station move: entry roamed to locked port"
-> +
-> +	bridge fdb del $mac vlan 1 dev $swp2 master
-> +	bridge link set dev $swp1 locked off learning off
-> +
-> +	log_test "Locked port station move"
+> +	vlan_destroy $h1 100
+> +	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
 > +}
 > +
-> +# Roaming to and from a MAB enabled port should work if blackhole flag is not set
-> +locked_port_mab_station_move()
+> +h2_create()
 > +{
-> +	local mac=10:20:30:30:20:10
+> +	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
+> +	vlan_create $h2 100 v$h2 198.51.100.2/24
+> +}
 > +
-> +	RET=0
-> +	check_port_mab_support || return 0
-> +
-> +	bridge link set dev $swp1 locked on mab on
-> +
-> +	$MZ $h1 -q -c 5 -d 100 mesc -t udp -a $mac -b rand
-> +	if bridge fdb show dev $swp1 | grep "$mac vlan 1" | grep -q "blackhole"; then
-> +		echo "SKIP: Roaming not possible with blackhole flag, skipping test..."
-> +		bridge link set dev $swp1 locked off mab off
-> +		return $ksft_skip
-> +	fi
-> +
-> +	bridge fdb show dev $swp1 | grep "$mac vlan 1" | grep -q "locked"
-> +	check_err $? "MAB station move: no locked entry on first injection"
-> +
-> +	$MZ $h2 -q -c 5 -d 100msec -t udp -a $mac -b rand
-> +	bridge fdb get $mac vlan 1 dev $swp1 | grep "dev $swp1 vlan 1" | grep -q "locked"
-> +	check_fail $? "MAB station move: locked entry did not move"
-> +
-> +	bridge fdb get $mac vlan 1 dev $swp2 | grep "dev $swp2 vlan 1" | grep -q "locked"
-> +	check_fail $? "MAB station move: roamed entry to unlocked port had locked flag on"
-> +
-> +	bridge fdb get $mac vlan 1 dev $swp2 | grep "dev $swp2 vlan 1" | grep -q "master br0"
-> +	check_err $? "MAB station move: roamed entry not found"
-> +
-> +	bridge fdb del $mac vlan 1 dev $swp2 master
-> +	bridge link set dev $swp1 locked off mab off
-> +
-> +	log_test "Locked port MAB station move"
+> +h2_destroy()
+> +{
+> +	vlan_destroy $h2 100
+> +	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
 > +}
 
-Looks OK to me. I made some change to make sure we are using "bridge fdb
-get" in a consistent manner instead of relying on iproute2 dump output
-too much. Please consider including them in the next version.
+There is unnecessary configuration here. Can be simplified:
 
-FYI, I ran your version and mine with veth pairs and both are OK.
-
-diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-index fbe558f25e44..f0bc0bcbc246 100755
---- a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-@@ -187,7 +187,7 @@ locked_port_mab()
- 	ping_do $h1 192.0.2.2
- 	check_fail $? "MAB: Ping worked on mab enabled port without FDB entry"
+diff --git a/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh b/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh
+index 77d166180bc4..cc2145ea1968 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh
+@@ -8,26 +8,22 @@ source lib.sh
  
--	bridge fdb get `mac_get $h1` vlan 1 dev $swp1 | grep "dev $swp1 vlan 1" | grep -q "locked"
-+	bridge fdb get `mac_get $h1` br br0 vlan 1 | grep "dev $swp1" | grep -q "locked"
- 	check_err $? "MAB: No locked FDB entry after ping on mab enabled port"
- 
- 	bridge fdb replace `mac_get $h1` dev $swp1 master static
-@@ -212,15 +212,15 @@ locked_port_station_move()
- 	bridge link set dev $swp1 locked on learning on
- 
- 	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
--	bridge fdb show dev $swp1 | grep -q $mac
-+	bridge fdb get $mac br br0 vlan 1 &> /dev/null
- 	check_fail $? "Locked port station move: FDB entry on first injection"
- 
- 	$MZ $h2 -q -c 5 -d 100msec -t udp -a $mac -b rand
--	bridge fdb get $mac vlan 1 dev $swp2 | grep "dev $swp2 vlan 1" | grep -q "master br0"
-+	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp2"
- 	check_err $? "Locked port station move: Entry not found on unlocked port"
- 
- 	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
--	bridge fdb get $mac vlan 1 dev $swp1 | grep "dev $swp1 vlan 1" | grep -q "master br0"
-+	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp1"
- 	check_fail $? "Locked port station move: entry roamed to locked port"
- 
- 	bridge fdb del $mac vlan 1 dev $swp2 master
-@@ -229,7 +229,8 @@ locked_port_station_move()
- 	log_test "Locked port station move"
+ h1_create()
+ {
+-	simple_if_init $h1 192.0.2.1/24 2001:db8:1::1/64
+-	vlan_create $h1 100 v$h1 198.51.100.1/24
++	simple_if_init $h1 192.0.2.1/24
  }
  
--# Roaming to and from a MAB enabled port should work if blackhole flag is not set
-+# Check that entries can roam from a locked port if blackhole FDB flag is not
-+# set.
- locked_port_mab_station_move()
+ h1_destroy()
  {
- 	local mac=10:20:30:30:20:10
-@@ -246,19 +247,16 @@ locked_port_mab_station_move()
- 		return $ksft_skip
- 	fi
+-	vlan_destroy $h1 100
+-	simple_if_fini $h1 192.0.2.1/24 2001:db8:1::1/64
++	simple_if_fini $h1 192.0.2.1/24
+ }
  
--	bridge fdb show dev $swp1 | grep "$mac vlan 1" | grep -q "locked"
-+	bridge fdb get $mac br br0 vlan 1 | grep "dev $swp1" | grep -q "locked"
- 	check_err $? "MAB station move: no locked entry on first injection"
+ h2_create()
+ {
+-	simple_if_init $h2 192.0.2.2/24 2001:db8:1::2/64
+-	vlan_create $h2 100 v$h2 198.51.100.2/24
++	simple_if_init $h2 192.0.2.2/24
+ }
  
- 	$MZ $h2 -q -c 5 -d 100msec -t udp -a $mac -b rand
--	bridge fdb get $mac vlan 1 dev $swp1 | grep "dev $swp1 vlan 1" | grep -q "locked"
--	check_fail $? "MAB station move: locked entry did not move"
-+	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp2"
-+	check_err $? "MAB station move: roamed entry not found"
+ h2_destroy()
+ {
+-	vlan_destroy $h2 100
+-	simple_if_fini $h2 192.0.2.2/24 2001:db8:1::2/64
++	simple_if_fini $h2 192.0.2.2/24
+ }
  
--	bridge fdb get $mac vlan 1 dev $swp2 | grep "dev $swp2 vlan 1" | grep -q "locked"
-+	bridge fdb get $mac br br0 vlan 1 | grep -q "locked"
- 	check_fail $? "MAB station move: roamed entry to unlocked port had locked flag on"
- 
--	bridge fdb get $mac vlan 1 dev $swp2 | grep "dev $swp2 vlan 1" | grep -q "master br0"
--	check_err $? "MAB station move: roamed entry not found"
--
- 	bridge fdb del $mac vlan 1 dev $swp2 master
- 	bridge link set dev $swp1 locked off mab off
+ switch_create()
+
+> +
+> +switch_create()
+> +{
+> +	ip link add dev br0 type bridge vlan_filtering 1
+> +
+> +	ip link set dev $swp1 master br0
+> +	ip link set dev $swp2 master br0
+> +
+> +	ip link set dev br0 up
+> +	ip link set dev $swp1 up
+> +	ip link set dev $swp2 up
+> +
+> +	tc qdisc add dev $swp2 clsact
+> +}
+> +
+> +switch_destroy()
+> +{
+> +	tc qdisc del dev $swp2 clsact
+> +
+> +	ip link set dev $swp2 down
+> +	ip link set dev $swp1 down
+> +
+> +	ip link del dev br0
+> +}
+> +
+> +setup_prepare()
+> +{
+> +	h1=${NETIFS[p1]}
+> +	swp1=${NETIFS[p2]}
+> +	h2=${NETIFS[p3]}
+> +	swp2=${NETIFS[p4]}
+> +
+> +	vrf_prepare
+> +
+> +	h1_create
+> +	h2_create
+> +
+> +	switch_create
+> +}
+> +
+> +cleanup()
+> +{
+> +	pre_cleanup
+> +
+> +	switch_destroy
+> +
+> +	h2_destroy
+> +	h1_destroy
+> +
+> +	vrf_cleanup
+> +}
+> +
+> +# Check that there is no egress with blackhole entry and that blackhole entries can be replaced
+
+Wrap this to 80 columns:
+
+# Check that there is no egress with blackhole entry and that blackhole entries
+# can be replaced.
+
+> +blackhole_fdb()
+> +{
+> +	RET=0
+> +
+> +	check_blackhole_fdb_support || return 0
+> +
+> +	tc filter add dev $swp2 egress protocol ip pref 1 handle 1 flower \
+> +		dst_ip 192.0.2.2 ip_proto udp dst_port 12345 action pass
+> +
+> +	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
+> +		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
+> +
+> +	tc_check_packets "dev $swp2 egress" 1 1
+> +	check_err $? "Packet not seen on egress before adding blackhole entry"
+> +
+> +	bridge fdb replace `mac_get $h2` dev br0 blackhole
+
+vlan 1
+
+> +	bridge fdb get `mac_get $h2` br br0 | grep -q blackhole
+
+vlan 1
+
+> +	check_err $? "Blackhole entry not found"
+> +
+> +	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
+> +		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
+> +
+> +	tc_check_packets "dev $swp2 egress" 1 1
+> +	check_err $? "Packet seen on egress after adding blackhole entry"
+> +
+> +	# Check blackhole entries can be replaced.
+> +	bridge fdb replace `mac_get $h2` dev $swp2 master static
+
+vlan 1
+
+> +	bridge fdb get `mac_get $h2` br br0 | grep -q blackhole
+
+vlan 1
+
+> +	check_fail $? "Blackhole entry found after replacement"
+> +
+> +	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
+> +		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
+> +
+> +	tc_check_packets "dev $swp2 egress" 1 2
+> +	check_err $? "Packet not seen on egress after replacing blackhole entry"
+> +
+> +	bridge fdb del `mac_get $h2` dev $swp2 master static
+
+vlan 1
+
+> +	tc filter del dev $swp2 egress protocol ip pref 1 handle 1 flower
+> +
+> +	log_test "Blackhole FDB entry"
+> +}
+
+Tested with veth pairs. Looks OK to me.
