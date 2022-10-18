@@ -1,15 +1,15 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9301741C61
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 440A14022C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 328B7611E6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E82E7610F8
 From: "Hans J. Schultz" <netdev@kapio-technology.com>
-Date: Tue, 18 Oct 2022 18:56:15 +0200
-Message-Id: <20221018165619.134535-9-netdev@kapio-technology.com>
+Date: Tue, 18 Oct 2022 18:56:19 +0200
+Message-Id: <20221018165619.134535-13-netdev@kapio-technology.com>
 In-Reply-To: <20221018165619.134535-1-netdev@kapio-technology.com>
 References: <20221018165619.134535-1-netdev@kapio-technology.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH v8 net-next 08/12] drivers: net: dsa: add fdb entry
-	flags incoming to switchcore drivers
+Subject: [Bridge] [PATCH v8 net-next 12/12] selftests: forwarding: add MAB
+	tests to locked port tests
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,607 +21,331 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: davem@davemloft.net, kuba@kernel.org
 Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, "Hans J. Schultz" <netdev@kapio-technology.com>, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, Vladimir Oltean <olteanv@gmail.com>, Florent Fourcot <florent.fourcot@wifirst.fr>
 
-Ignore fdb entries with set flags coming in on all switchcore drivers.
+Verify that the MacAuth/MAB mechanism works by adding a FDB entry with
+the locked flag set, denying access until the FDB entry is replaced with
+a FDB entry without the locked flag set. Also verify that FDB entries
+cannot roam from an unlocked port to a locked port.
+
+Add test of blackhole fdb entries, verifying that there is no forwarding
+to a blackhole entry from any port, and that the blackhole entry can be
+replaced.
 
 Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
 ---
- drivers/net/dsa/b53/b53_common.c       | 12 ++++++++++--
- drivers/net/dsa/b53/b53_priv.h         |  4 ++--
- drivers/net/dsa/hirschmann/hellcreek.c | 12 ++++++++++--
- drivers/net/dsa/lan9303-core.c         | 12 ++++++++++--
- drivers/net/dsa/lantiq_gswip.c         | 12 ++++++++++--
- drivers/net/dsa/microchip/ksz9477.c    |  8 ++++----
- drivers/net/dsa/microchip/ksz9477.h    |  8 ++++----
- drivers/net/dsa/microchip/ksz_common.c | 14 +++++++++++---
- drivers/net/dsa/mt7530.c               | 12 ++++++++++--
- drivers/net/dsa/mv88e6xxx/chip.c       | 12 ++++++++++--
- drivers/net/dsa/ocelot/felix.c         | 12 ++++++++++--
- drivers/net/dsa/qca/qca8k-common.c     | 12 ++++++++++--
- drivers/net/dsa/qca/qca8k.h            |  4 ++--
- drivers/net/dsa/rzn1_a5psw.c           | 12 ++++++++++--
- drivers/net/dsa/sja1105/sja1105_main.c | 18 +++++++++++++-----
- include/net/dsa.h                      |  4 ++--
- net/dsa/switch.c                       |  8 ++++----
- 17 files changed, 132 insertions(+), 44 deletions(-)
+ .../selftests/drivers/net/dsa/Makefile        |   1 +
+ .../testing/selftests/net/forwarding/Makefile |   1 +
+ .../net/forwarding/bridge_blackhole_fdb.sh    | 131 ++++++++++++++++++
+ .../net/forwarding/bridge_locked_port.sh      |  99 ++++++++++++-
+ tools/testing/selftests/net/forwarding/lib.sh |  17 +++
+ 5 files changed, 248 insertions(+), 1 deletion(-)
+ create mode 100755 tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh
 
-diff --git a/drivers/net/dsa/b53/b53_common.c b/drivers/net/dsa/b53/b53_common.c
-index 59cdfc51ce06..cec60af6dfdc 100644
---- a/drivers/net/dsa/b53/b53_common.c
-+++ b/drivers/net/dsa/b53/b53_common.c
-@@ -1684,11 +1684,15 @@ static int b53_arl_op(struct b53_device *dev, int op, int port,
+diff --git a/tools/testing/selftests/drivers/net/dsa/Makefile b/tools/testing/selftests/drivers/net/dsa/Makefile
+index c393e7b73805..c0a75d869763 100644
+--- a/tools/testing/selftests/drivers/net/dsa/Makefile
++++ b/tools/testing/selftests/drivers/net/dsa/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0+ OR MIT
  
- int b53_fdb_add(struct dsa_switch *ds, int port,
- 		const unsigned char *addr, u16 vid,
--		struct dsa_db db)
-+		u16 fdb_flags, struct dsa_db db)
- {
- 	struct b53_device *priv = ds->priv;
- 	int ret;
+ TEST_PROGS = bridge_locked_port.sh \
++	bridge_blackhole_fdb.sh \
+ 	bridge_mdb.sh \
+ 	bridge_mld.sh \
+ 	bridge_vlan_aware.sh \
+diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
+index a9c5c1be5088..7d832020937f 100644
+--- a/tools/testing/selftests/net/forwarding/Makefile
++++ b/tools/testing/selftests/net/forwarding/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0+ OR MIT
  
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
+ TEST_PROGS = bridge_igmp.sh \
++	bridge_blackhole_fdb.sh \
+ 	bridge_locked_port.sh \
+ 	bridge_mdb.sh \
+ 	bridge_mdb_port_down.sh \
+diff --git a/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh b/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh
+new file mode 100755
+index 000000000000..42d9367f7339
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/bridge_blackhole_fdb.sh
+@@ -0,0 +1,131 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
 +
- 	/* 5325 and 5365 require some more massaging, but could
- 	 * be supported eventually
- 	 */
-@@ -1705,11 +1709,15 @@ EXPORT_SYMBOL(b53_fdb_add);
- 
- int b53_fdb_del(struct dsa_switch *ds, int port,
- 		const unsigned char *addr, u16 vid,
--		struct dsa_db db)
-+		u16 fdb_flags, struct dsa_db db)
- {
- 	struct b53_device *priv = ds->priv;
- 	int ret;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++ALL_TESTS="blackhole_fdb"
++NUM_NETIFS=4
++source tc_common.sh
++source lib.sh
 +
- 	mutex_lock(&priv->arl_mutex);
- 	ret = b53_arl_op(priv, 0, port, addr, vid, false);
- 	mutex_unlock(&priv->arl_mutex);
-diff --git a/drivers/net/dsa/b53/b53_priv.h b/drivers/net/dsa/b53/b53_priv.h
-index 795cbffd5c2b..7673c4e712bb 100644
---- a/drivers/net/dsa/b53/b53_priv.h
-+++ b/drivers/net/dsa/b53/b53_priv.h
-@@ -362,10 +362,10 @@ int b53_vlan_del(struct dsa_switch *ds, int port,
- 		 const struct switchdev_obj_port_vlan *vlan);
- int b53_fdb_add(struct dsa_switch *ds, int port,
- 		const unsigned char *addr, u16 vid,
--		struct dsa_db db);
-+		u16 fdb_flags, struct dsa_db db);
- int b53_fdb_del(struct dsa_switch *ds, int port,
- 		const unsigned char *addr, u16 vid,
--		struct dsa_db db);
-+		u16 fdb_flags, struct dsa_db db);
- int b53_fdb_dump(struct dsa_switch *ds, int port,
- 		 dsa_fdb_dump_cb_t *cb, void *data);
- int b53_mdb_add(struct dsa_switch *ds, int port,
-diff --git a/drivers/net/dsa/hirschmann/hellcreek.c b/drivers/net/dsa/hirschmann/hellcreek.c
-index 951f7935c872..374b90e79b9a 100644
---- a/drivers/net/dsa/hirschmann/hellcreek.c
-+++ b/drivers/net/dsa/hirschmann/hellcreek.c
-@@ -839,12 +839,16 @@ static int hellcreek_fdb_get(struct hellcreek *hellcreek,
- 
- static int hellcreek_fdb_add(struct dsa_switch *ds, int port,
- 			     const unsigned char *addr, u16 vid,
--			     struct dsa_db db)
-+			     u16 fdb_flags, struct dsa_db db)
- {
- 	struct hellcreek_fdb_entry entry = { 0 };
- 	struct hellcreek *hellcreek = ds->priv;
- 	int ret;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++h1_create()
++{
++	simple_if_init $h1 192.0.2.1/24
++}
 +
- 	dev_dbg(hellcreek->dev, "Add FDB entry for MAC=%pM\n", addr);
- 
- 	mutex_lock(&hellcreek->reg_lock);
-@@ -885,12 +889,16 @@ static int hellcreek_fdb_add(struct dsa_switch *ds, int port,
- 
- static int hellcreek_fdb_del(struct dsa_switch *ds, int port,
- 			     const unsigned char *addr, u16 vid,
--			     struct dsa_db db)
-+			     u16 fdb_flags, struct dsa_db db)
- {
- 	struct hellcreek_fdb_entry entry = { 0 };
- 	struct hellcreek *hellcreek = ds->priv;
- 	int ret;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++h1_destroy()
++{
++	simple_if_fini $h1 192.0.2.1/24
++}
 +
- 	dev_dbg(hellcreek->dev, "Delete FDB entry for MAC=%pM\n", addr);
- 
- 	mutex_lock(&hellcreek->reg_lock);
-diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
-index 438e46af03e9..36187705833f 100644
---- a/drivers/net/dsa/lan9303-core.c
-+++ b/drivers/net/dsa/lan9303-core.c
-@@ -1192,10 +1192,14 @@ static void lan9303_port_fast_age(struct dsa_switch *ds, int port)
- 
- static int lan9303_port_fdb_add(struct dsa_switch *ds, int port,
- 				const unsigned char *addr, u16 vid,
--				struct dsa_db db)
-+				u16 fdb_flags, struct dsa_db db)
- {
- 	struct lan9303 *chip = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++h2_create()
++{
++	simple_if_init $h2 192.0.2.2/24
++}
 +
- 	dev_dbg(chip->dev, "%s(%d, %pM, %d)\n", __func__, port, addr, vid);
- 	if (vid)
- 		return -EOPNOTSUPP;
-@@ -1205,10 +1209,14 @@ static int lan9303_port_fdb_add(struct dsa_switch *ds, int port,
- 
- static int lan9303_port_fdb_del(struct dsa_switch *ds, int port,
- 				const unsigned char *addr, u16 vid,
--				struct dsa_db db)
-+				u16 fdb_flags, struct dsa_db db)
- {
- 	struct lan9303 *chip = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++h2_destroy()
++{
++	simple_if_fini $h2 192.0.2.2/24
++}
 +
- 	dev_dbg(chip->dev, "%s(%d, %pM, %d)\n", __func__, port, addr, vid);
- 	if (vid)
- 		return -EOPNOTSUPP;
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 05ecaa007ab1..a945e8e62232 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -1399,15 +1399,23 @@ static int gswip_port_fdb(struct dsa_switch *ds, int port,
- 
- static int gswip_port_fdb_add(struct dsa_switch *ds, int port,
- 			      const unsigned char *addr, u16 vid,
--			      struct dsa_db db)
-+			      u16 fdb_flags, struct dsa_db db)
- {
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++switch_create()
++{
++	ip link add dev br0 type bridge vlan_filtering 1
 +
- 	return gswip_port_fdb(ds, port, addr, vid, true);
++	ip link set dev $swp1 master br0
++	ip link set dev $swp2 master br0
++
++	ip link set dev br0 up
++	ip link set dev $swp1 up
++	ip link set dev $swp2 up
++
++	tc qdisc add dev $swp2 clsact
++}
++
++switch_destroy()
++{
++	tc qdisc del dev $swp2 clsact
++
++	ip link set dev $swp2 down
++	ip link set dev $swp1 down
++
++	ip link del dev br0
++}
++
++setup_prepare()
++{
++	h1=${NETIFS[p1]}
++	swp1=${NETIFS[p2]}
++	h2=${NETIFS[p3]}
++	swp2=${NETIFS[p4]}
++
++	vrf_prepare
++
++	h1_create
++	h2_create
++
++	switch_create
++}
++
++cleanup()
++{
++	pre_cleanup
++
++	switch_destroy
++
++	h2_destroy
++	h1_destroy
++
++	vrf_cleanup
++}
++
++# Check that there is no egress with blackhole entry and that blackhole entries
++# can be replaced
++blackhole_fdb()
++{
++	RET=0
++
++	check_blackhole_fdb_support || return 0
++
++	tc filter add dev $swp2 egress protocol ip pref 1 handle 1 flower \
++		dst_ip 192.0.2.2 ip_proto udp dst_port 12345 action pass
++
++	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
++		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
++
++	tc_check_packets "dev $swp2 egress" 1 1
++	check_err $? "Packet not seen on egress before adding blackhole entry"
++
++	bridge fdb replace `mac_get $h2` dev br0 vlan 1 blackhole
++	bridge fdb get `mac_get $h2` br br0 vlan 1 | grep -q blackhole
++	check_err $? "Blackhole entry not found"
++
++	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
++		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
++
++	tc_check_packets "dev $swp2 egress" 1 1
++	check_err $? "Packet seen on egress after adding blackhole entry"
++
++	# Check blackhole entries can be replaced.
++	bridge fdb replace `mac_get $h2` dev $swp2 vlan 1 master static
++	bridge fdb get `mac_get $h2` br br0 vlan 1 | grep -q blackhole
++	check_fail $? "Blackhole entry found after replacement"
++
++	$MZ $h1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
++		-a own -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
++
++	tc_check_packets "dev $swp2 egress" 1 2
++	check_err $? "Packet not seen on egress after replacing blackhole entry"
++
++	bridge fdb del `mac_get $h2` dev $swp2 vlan 1 master static
++	tc filter del dev $swp2 egress protocol ip pref 1 handle 1 flower
++
++	log_test "Blackhole FDB entry"
++}
++
++trap cleanup EXIT
++
++setup_prepare
++setup_wait
++
++tests_run
++
++exit $EXIT_STATUS
+diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+index 5b02b6b60ce7..f0bc0bcbc246 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+@@ -1,7 +1,15 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan"
++ALL_TESTS="
++	locked_port_ipv4
++	locked_port_ipv6
++	locked_port_vlan
++	locked_port_mab
++	locked_port_station_move
++	locked_port_mab_station_move
++"
++
+ NUM_NETIFS=4
+ CHECK_TC="no"
+ source lib.sh
+@@ -166,6 +174,95 @@ locked_port_ipv6()
+ 	log_test "Locked port ipv6"
  }
  
- static int gswip_port_fdb_del(struct dsa_switch *ds, int port,
- 			      const unsigned char *addr, u16 vid,
--			      struct dsa_db db)
-+			      u16 fdb_flags, struct dsa_db db)
- {
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++locked_port_mab()
++{
++	RET=0
++	check_port_mab_support || return 0
 +
- 	return gswip_port_fdb(ds, port, addr, vid, false);
++	ping_do $h1 192.0.2.2
++	check_err $? "MAB: Ping did not work before locking port"
++
++	bridge link set dev $swp1 locked on mab on
++
++	ping_do $h1 192.0.2.2
++	check_fail $? "MAB: Ping worked on mab enabled port without FDB entry"
++
++	bridge fdb get `mac_get $h1` br br0 vlan 1 | grep "dev $swp1" | grep -q "locked"
++	check_err $? "MAB: No locked FDB entry after ping on mab enabled port"
++
++	bridge fdb replace `mac_get $h1` dev $swp1 master static
++
++	ping_do $h1 192.0.2.2
++	check_err $? "MAB: Ping did not work with FDB entry without locked flag"
++
++	bridge fdb del `mac_get $h1` dev $swp1 master
++	bridge link set dev $swp1 locked off mab off
++
++	log_test "Locked port MAB"
++}
++
++# Check that entries cannot roam from an unlocked port to a locked port.
++locked_port_station_move()
++{
++	local mac=a0:b0:c0:c0:b0:a0
++
++	RET=0
++	check_locked_port_support || return 0
++
++	bridge link set dev $swp1 locked on learning on
++
++	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
++	bridge fdb get $mac br br0 vlan 1 &> /dev/null
++	check_fail $? "Locked port station move: FDB entry on first injection"
++
++	$MZ $h2 -q -c 5 -d 100msec -t udp -a $mac -b rand
++	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp2"
++	check_err $? "Locked port station move: Entry not found on unlocked port"
++
++	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
++	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp1"
++	check_fail $? "Locked port station move: entry roamed to locked port"
++
++	bridge fdb del $mac vlan 1 dev $swp2 master
++	bridge link set dev $swp1 locked off learning off
++
++	log_test "Locked port station move"
++}
++
++# Check that entries can roam from a locked port if blackhole FDB flag is not
++# set.
++locked_port_mab_station_move()
++{
++	local mac=10:20:30:30:20:10
++
++	RET=0
++	check_port_mab_support || return 0
++
++	bridge link set dev $swp1 locked on mab on
++
++	$MZ $h1 -q -c 5 -d 100 mesc -t udp -a $mac -b rand
++	if bridge fdb show dev $swp1 | grep "$mac vlan 1" | grep -q "blackhole"; then
++		echo "SKIP: Roaming not possible with blackhole flag, skipping test..."
++		bridge link set dev $swp1 locked off mab off
++		return $ksft_skip
++	fi
++
++	bridge fdb get $mac br br0 vlan 1 | grep "dev $swp1" | grep -q "locked"
++	check_err $? "MAB station move: no locked entry on first injection"
++
++	$MZ $h2 -q -c 5 -d 100msec -t udp -a $mac -b rand
++	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp2"
++	check_err $? "MAB station move: roamed entry not found"
++
++	bridge fdb get $mac br br0 vlan 1 | grep -q "locked"
++	check_fail $? "MAB station move: roamed entry to unlocked port had locked flag on"
++
++	bridge fdb del $mac vlan 1 dev $swp2 master
++	bridge link set dev $swp1 locked off mab off
++
++	log_test "Locked port MAB station move"
++}
++
+ trap cleanup EXIT
+ 
+ setup_prepare
+diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+index 3ffb9d6c0950..d6abe873665c 100755
+--- a/tools/testing/selftests/net/forwarding/lib.sh
++++ b/tools/testing/selftests/net/forwarding/lib.sh
+@@ -137,6 +137,23 @@ check_locked_port_support()
+ 	fi
  }
  
-diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
-index a6a0321a8931..e65daabf9865 100644
---- a/drivers/net/dsa/microchip/ksz9477.c
-+++ b/drivers/net/dsa/microchip/ksz9477.c
-@@ -457,8 +457,8 @@ int ksz9477_port_vlan_del(struct ksz_device *dev, int port,
- 	return 0;
- }
- 
--int ksz9477_fdb_add(struct ksz_device *dev, int port,
--		    const unsigned char *addr, u16 vid, struct dsa_db db)
-+int ksz9477_fdb_add(struct ksz_device *dev, int port, const unsigned char *addr,
-+		    u16 vid, struct dsa_db db)
- {
- 	u32 alu_table[4];
- 	u32 data;
-@@ -513,8 +513,8 @@ int ksz9477_fdb_add(struct ksz_device *dev, int port,
- 	return ret;
- }
- 
--int ksz9477_fdb_del(struct ksz_device *dev, int port,
--		    const unsigned char *addr, u16 vid, struct dsa_db db)
-+int ksz9477_fdb_del(struct ksz_device *dev, int port, const unsigned char *addr,
-+		    u16 vid, struct dsa_db db)
- {
- 	u32 alu_table[4];
- 	u32 data;
-diff --git a/drivers/net/dsa/microchip/ksz9477.h b/drivers/net/dsa/microchip/ksz9477.h
-index 00862c4cfb7f..a9c64e166cca 100644
---- a/drivers/net/dsa/microchip/ksz9477.h
-+++ b/drivers/net/dsa/microchip/ksz9477.h
-@@ -41,10 +41,10 @@ void ksz9477_get_caps(struct ksz_device *dev, int port,
- 		      struct phylink_config *config);
- int ksz9477_fdb_dump(struct ksz_device *dev, int port,
- 		     dsa_fdb_dump_cb_t *cb, void *data);
--int ksz9477_fdb_add(struct ksz_device *dev, int port,
--		    const unsigned char *addr, u16 vid, struct dsa_db db);
--int ksz9477_fdb_del(struct ksz_device *dev, int port,
--		    const unsigned char *addr, u16 vid, struct dsa_db db);
-+int ksz9477_fdb_add(struct ksz_device *dev, int port, const unsigned char *addr,
-+		    u16 vid, struct dsa_db db);
-+int ksz9477_fdb_del(struct ksz_device *dev, int port, const unsigned char *addr,
-+		    u16 vid, struct dsa_db db);
- int ksz9477_mdb_add(struct ksz_device *dev, int port,
- 		    const struct switchdev_obj_port_mdb *mdb, struct dsa_db db);
- int ksz9477_mdb_del(struct ksz_device *dev, int port,
-diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
-index d612181b3226..cfcfc725fed9 100644
---- a/drivers/net/dsa/microchip/ksz_common.c
-+++ b/drivers/net/dsa/microchip/ksz_common.c
-@@ -2227,10 +2227,14 @@ static int ksz_set_ageing_time(struct dsa_switch *ds, unsigned int msecs)
- 
- static int ksz_port_fdb_add(struct dsa_switch *ds, int port,
- 			    const unsigned char *addr, u16 vid,
--			    struct dsa_db db)
-+			    u16 fdb_flags, struct dsa_db db)
- {
- 	struct ksz_device *dev = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++check_port_mab_support()
++{
++	if ! bridge -d link show | grep -q "mab"; then
++		echo "SKIP: iproute2 too old; MacAuth feature not supported."
++		return $ksft_skip
++	fi
++}
 +
- 	if (!dev->dev_ops->fdb_add)
- 		return -EOPNOTSUPP;
- 
-@@ -2238,11 +2242,15 @@ static int ksz_port_fdb_add(struct dsa_switch *ds, int port,
- }
- 
- static int ksz_port_fdb_del(struct dsa_switch *ds, int port,
--			    const unsigned char *addr,
--			    u16 vid, struct dsa_db db)
-+			    const unsigned char *addr, u16 vid,
-+			    u16 fdb_flags, struct dsa_db db)
- {
- 	struct ksz_device *dev = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
++check_blackhole_fdb_support()
++{
++	bridge fdb help 2>&1|grep blackhole &> /dev/null
++	if [[ $? -ne 0 ]]; then
++		echo "SKIP: Blackhole fdb feature not supported."
++		return $ksft_skip
++	fi
++}
 +
- 	if (!dev->dev_ops->fdb_del)
- 		return -EOPNOTSUPP;
- 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index e74c6b406172..fd75565b1782 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -1369,12 +1369,16 @@ mt7530_port_bridge_leave(struct dsa_switch *ds, int port,
- static int
- mt7530_port_fdb_add(struct dsa_switch *ds, int port,
- 		    const unsigned char *addr, u16 vid,
--		    struct dsa_db db)
-+		    u16 fdb_flags, struct dsa_db db)
- {
- 	struct mt7530_priv *priv = ds->priv;
- 	int ret;
- 	u8 port_mask = BIT(port);
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	mutex_lock(&priv->reg_mutex);
- 	mt7530_fdb_write(priv, vid, port_mask, addr, -1, STATIC_ENT);
- 	ret = mt7530_fdb_cmd(priv, MT7530_FDB_WRITE, NULL);
-@@ -1386,12 +1390,16 @@ mt7530_port_fdb_add(struct dsa_switch *ds, int port,
- static int
- mt7530_port_fdb_del(struct dsa_switch *ds, int port,
- 		    const unsigned char *addr, u16 vid,
--		    struct dsa_db db)
-+		    u16 fdb_flags, struct dsa_db db)
- {
- 	struct mt7530_priv *priv = ds->priv;
- 	int ret;
- 	u8 port_mask = BIT(port);
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	mutex_lock(&priv->reg_mutex);
- 	mt7530_fdb_write(priv, vid, port_mask, addr, -1, STATIC_EMP);
- 	ret = mt7530_fdb_cmd(priv, MT7530_FDB_WRITE, NULL);
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 2479be3a1e35..352121cce77e 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2722,11 +2722,15 @@ static int mv88e6xxx_vlan_msti_set(struct dsa_switch *ds,
- 
- static int mv88e6xxx_port_fdb_add(struct dsa_switch *ds, int port,
- 				  const unsigned char *addr, u16 vid,
--				  struct dsa_db db)
-+				  u16 fdb_flags, struct dsa_db db)
- {
- 	struct mv88e6xxx_chip *chip = ds->priv;
- 	int err;
- 
-+	/* Ignore entries with flags set */
-+	if (fdb_flags)
-+		return 0;
-+
- 	mv88e6xxx_reg_lock(chip);
- 	err = mv88e6xxx_port_db_load_purge(chip, port, addr, vid,
- 					   MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC);
-@@ -2737,11 +2741,15 @@ static int mv88e6xxx_port_fdb_add(struct dsa_switch *ds, int port,
- 
- static int mv88e6xxx_port_fdb_del(struct dsa_switch *ds, int port,
- 				  const unsigned char *addr, u16 vid,
--				  struct dsa_db db)
-+				  u16 fdb_flags, struct dsa_db db)
- {
- 	struct mv88e6xxx_chip *chip = ds->priv;
- 	int err;
- 
-+	/* Ignore entries with flags set */
-+	if (fdb_flags)
-+		return 0;
-+
- 	mv88e6xxx_reg_lock(chip);
- 	err = mv88e6xxx_port_db_load_purge(chip, port, addr, vid, 0);
- 	mv88e6xxx_reg_unlock(chip);
-diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
-index dd3a18cc89dd..b9acec77c820 100644
---- a/drivers/net/dsa/ocelot/felix.c
-+++ b/drivers/net/dsa/ocelot/felix.c
-@@ -782,12 +782,16 @@ static int felix_fdb_dump(struct dsa_switch *ds, int port,
- 
- static int felix_fdb_add(struct dsa_switch *ds, int port,
- 			 const unsigned char *addr, u16 vid,
--			 struct dsa_db db)
-+			 u16 fdb_flags, struct dsa_db db)
- {
- 	struct net_device *bridge_dev = felix_classify_db(db);
- 	struct dsa_port *dp = dsa_to_port(ds, port);
- 	struct ocelot *ocelot = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	if (IS_ERR(bridge_dev))
- 		return PTR_ERR(bridge_dev);
- 
-@@ -803,12 +807,16 @@ static int felix_fdb_add(struct dsa_switch *ds, int port,
- 
- static int felix_fdb_del(struct dsa_switch *ds, int port,
- 			 const unsigned char *addr, u16 vid,
--			 struct dsa_db db)
-+			 u16 fdb_flags, struct dsa_db db)
- {
- 	struct net_device *bridge_dev = felix_classify_db(db);
- 	struct dsa_port *dp = dsa_to_port(ds, port);
- 	struct ocelot *ocelot = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	if (IS_ERR(bridge_dev))
- 		return PTR_ERR(bridge_dev);
- 
-diff --git a/drivers/net/dsa/qca/qca8k-common.c b/drivers/net/dsa/qca/qca8k-common.c
-index fb45b598847b..e26a9a483955 100644
---- a/drivers/net/dsa/qca/qca8k-common.c
-+++ b/drivers/net/dsa/qca/qca8k-common.c
-@@ -795,21 +795,29 @@ int qca8k_port_fdb_insert(struct qca8k_priv *priv, const u8 *addr,
- 
- int qca8k_port_fdb_add(struct dsa_switch *ds, int port,
- 		       const unsigned char *addr, u16 vid,
--		       struct dsa_db db)
-+		       u16 fdb_flags, struct dsa_db db)
- {
- 	struct qca8k_priv *priv = (struct qca8k_priv *)ds->priv;
- 	u16 port_mask = BIT(port);
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	return qca8k_port_fdb_insert(priv, addr, port_mask, vid);
- }
- 
- int qca8k_port_fdb_del(struct dsa_switch *ds, int port,
- 		       const unsigned char *addr, u16 vid,
--		       struct dsa_db db)
-+		       u16 fdb_flags, struct dsa_db db)
- {
- 	struct qca8k_priv *priv = (struct qca8k_priv *)ds->priv;
- 	u16 port_mask = BIT(port);
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	if (!vid)
- 		vid = QCA8K_PORT_VID_DEF;
- 
-diff --git a/drivers/net/dsa/qca/qca8k.h b/drivers/net/dsa/qca/qca8k.h
-index 0b7a5cb12321..5d47e840ae1e 100644
---- a/drivers/net/dsa/qca/qca8k.h
-+++ b/drivers/net/dsa/qca/qca8k.h
-@@ -479,10 +479,10 @@ int qca8k_port_fdb_insert(struct qca8k_priv *priv, const u8 *addr,
- 			  u16 port_mask, u16 vid);
- int qca8k_port_fdb_add(struct dsa_switch *ds, int port,
- 		       const unsigned char *addr, u16 vid,
--		       struct dsa_db db);
-+		       u16 fdb_flags, struct dsa_db db);
- int qca8k_port_fdb_del(struct dsa_switch *ds, int port,
- 		       const unsigned char *addr, u16 vid,
--		       struct dsa_db db);
-+		       u16 fdb_flags, struct dsa_db db);
- int qca8k_port_fdb_dump(struct dsa_switch *ds, int port,
- 			dsa_fdb_dump_cb_t *cb, void *data);
- 
-diff --git a/drivers/net/dsa/rzn1_a5psw.c b/drivers/net/dsa/rzn1_a5psw.c
-index ed413d555bec..d70c21f22d4c 100644
---- a/drivers/net/dsa/rzn1_a5psw.c
-+++ b/drivers/net/dsa/rzn1_a5psw.c
-@@ -396,7 +396,7 @@ static int a5psw_lk_execute_lookup(struct a5psw *a5psw, union lk_data *lk_data,
- 
- static int a5psw_port_fdb_add(struct dsa_switch *ds, int port,
- 			      const unsigned char *addr, u16 vid,
--			      struct dsa_db db)
-+			      u16 fdb_flags, struct dsa_db db)
- {
- 	struct a5psw *a5psw = ds->priv;
- 	union lk_data lk_data = {0};
-@@ -405,6 +405,10 @@ static int a5psw_port_fdb_add(struct dsa_switch *ds, int port,
- 	u16 entry;
- 	u32 reg;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	ether_addr_copy(lk_data.entry.mac, addr);
- 	lk_data.entry.port_mask = BIT(port);
- 
-@@ -447,7 +451,7 @@ static int a5psw_port_fdb_add(struct dsa_switch *ds, int port,
- 
- static int a5psw_port_fdb_del(struct dsa_switch *ds, int port,
- 			      const unsigned char *addr, u16 vid,
--			      struct dsa_db db)
-+			      u16 fdb_flags, struct dsa_db db)
- {
- 	struct a5psw *a5psw = ds->priv;
- 	union lk_data lk_data = {0};
-@@ -456,6 +460,10 @@ static int a5psw_port_fdb_del(struct dsa_switch *ds, int port,
- 	u32 reg;
- 	int ret;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	ether_addr_copy(lk_data.entry.mac, addr);
- 
- 	mutex_lock(&a5psw->lk_lock);
-diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-index 412666111b0c..526177813d53 100644
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -1802,10 +1802,14 @@ int sja1105pqrs_fdb_del(struct dsa_switch *ds, int port,
- 
- static int sja1105_fdb_add(struct dsa_switch *ds, int port,
- 			   const unsigned char *addr, u16 vid,
--			   struct dsa_db db)
-+			   u16 fdb_flags, struct dsa_db db)
- {
- 	struct sja1105_private *priv = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	if (!vid) {
- 		switch (db.type) {
- 		case DSA_DB_PORT:
-@@ -1824,10 +1828,14 @@ static int sja1105_fdb_add(struct dsa_switch *ds, int port,
- 
- static int sja1105_fdb_del(struct dsa_switch *ds, int port,
- 			   const unsigned char *addr, u16 vid,
--			   struct dsa_db db)
-+			   u16 fdb_flags, struct dsa_db db)
- {
- 	struct sja1105_private *priv = ds->priv;
- 
-+	/* Ignore entries with set flags */
-+	if (fdb_flags)
-+		return 0;
-+
- 	if (!vid) {
- 		switch (db.type) {
- 		case DSA_DB_PORT:
-@@ -1930,7 +1938,7 @@ static void sja1105_fast_age(struct dsa_switch *ds, int port)
- 
- 		u64_to_ether_addr(l2_lookup.macaddr, macaddr);
- 
--		rc = sja1105_fdb_del(ds, port, macaddr, l2_lookup.vlanid, db);
-+		rc = sja1105_fdb_del(ds, port, macaddr, l2_lookup.vlanid, 0, db);
- 		if (rc) {
- 			dev_err(ds->dev,
- 				"Failed to delete FDB entry %pM vid %lld: %pe\n",
-@@ -1944,14 +1952,14 @@ static int sja1105_mdb_add(struct dsa_switch *ds, int port,
- 			   const struct switchdev_obj_port_mdb *mdb,
- 			   struct dsa_db db)
- {
--	return sja1105_fdb_add(ds, port, mdb->addr, mdb->vid, db);
-+	return sja1105_fdb_add(ds, port, mdb->addr, mdb->vid, 0, db);
- }
- 
- static int sja1105_mdb_del(struct dsa_switch *ds, int port,
- 			   const struct switchdev_obj_port_mdb *mdb,
- 			   struct dsa_db db)
- {
--	return sja1105_fdb_del(ds, port, mdb->addr, mdb->vid, db);
-+	return sja1105_fdb_del(ds, port, mdb->addr, mdb->vid, 0, db);
- }
- 
- /* Common function for unicast and broadcast flood configuration.
-diff --git a/include/net/dsa.h b/include/net/dsa.h
-index d5b2aef52d93..50ed82f16cda 100644
---- a/include/net/dsa.h
-+++ b/include/net/dsa.h
-@@ -1043,10 +1043,10 @@ struct dsa_switch_ops {
- 	 */
- 	int	(*port_fdb_add)(struct dsa_switch *ds, int port,
- 				const unsigned char *addr, u16 vid,
--				struct dsa_db db);
-+				u16 fdb_flags, struct dsa_db db);
- 	int	(*port_fdb_del)(struct dsa_switch *ds, int port,
- 				const unsigned char *addr, u16 vid,
--				struct dsa_db db);
-+				u16 fdb_flags, struct dsa_db db);
- 	int	(*port_fdb_dump)(struct dsa_switch *ds, int port,
- 				 dsa_fdb_dump_cb_t *cb, void *data);
- 	int	(*lag_fdb_add)(struct dsa_switch *ds, struct dsa_lag lag,
-diff --git a/net/dsa/switch.c b/net/dsa/switch.c
-index dd355556892e..6dacab9c1428 100644
---- a/net/dsa/switch.c
-+++ b/net/dsa/switch.c
-@@ -243,7 +243,7 @@ static int dsa_port_do_fdb_add(struct dsa_port *dp, const unsigned char *addr,
- 
- 	/* No need to bother with refcounting for user ports */
- 	if (!(dsa_port_is_cpu(dp) || dsa_port_is_dsa(dp)))
--		return ds->ops->port_fdb_add(ds, port, addr, vid, db);
-+		return ds->ops->port_fdb_add(ds, port, addr, vid, fdb_flags, db);
- 
- 	mutex_lock(&dp->addr_lists_lock);
- 
-@@ -259,7 +259,7 @@ static int dsa_port_do_fdb_add(struct dsa_port *dp, const unsigned char *addr,
- 		goto out;
- 	}
- 
--	err = ds->ops->port_fdb_add(ds, port, addr, vid, db);
-+	err = ds->ops->port_fdb_add(ds, port, addr, vid, fdb_flags, db);
- 	if (err) {
- 		kfree(a);
- 		goto out;
-@@ -287,7 +287,7 @@ static int dsa_port_do_fdb_del(struct dsa_port *dp, const unsigned char *addr,
- 
- 	/* No need to bother with refcounting for user ports */
- 	if (!(dsa_port_is_cpu(dp) || dsa_port_is_dsa(dp)))
--		return ds->ops->port_fdb_del(ds, port, addr, vid, db);
-+		return ds->ops->port_fdb_del(ds, port, addr, vid, fdb_flags, db);
- 
- 	mutex_lock(&dp->addr_lists_lock);
- 
-@@ -300,7 +300,7 @@ static int dsa_port_do_fdb_del(struct dsa_port *dp, const unsigned char *addr,
- 	if (!refcount_dec_and_test(&a->refcount))
- 		goto out;
- 
--	err = ds->ops->port_fdb_del(ds, port, addr, vid, db);
-+	err = ds->ops->port_fdb_del(ds, port, addr, vid, fdb_flags, db);
- 	if (err) {
- 		refcount_set(&a->refcount, 1);
- 		goto out;
+ if [[ "$(id -u)" -ne 0 ]]; then
+ 	echo "SKIP: need root privileges"
+ 	exit $ksft_skip
 -- 
 2.34.1
 
