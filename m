@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7C6A1833C6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 543F483396
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BDDAA6107E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AF1806108D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Mk166414OYTnh30cMgdsgifjVP5OsqPSiKYrTmvtCOo=;
- b=SBNc/9+708NFCvWCj2PgAKnu3TlWbSZkGBoQYLjseHrlcT2gcqtfvUrtwZvhECVn9/XMhYNqdKTsZYvnpbNCNDvACDhbs7ij91t2V5sPtoXIla4SR3mTP1lg69E5XpuvEHv8sq0TJBqX/l0k9zJuisw0TD1Fz6p/WdZQlvyU6ju7HJSMoN4MBx2IcKMi4NjuGKGTbFnqiu5lvMs/kjTAjvLFpGxk2tHhOVGxIMAjmPGJzd+741cbEMUB6uOzx8V+pIls0A6vnzvk8Sf2mPfSdSQ/g6vTVBAZ/cclZgfid8OnEVnj2SH6P70oXAnZS6fQqO1Da1m3KJFbw+u4T0H/OA==
+ bh=N+0kRmhHrM1J6k63vIojFeJUG2oueNNbuC1r0sNFJx4=;
+ b=e91SdAFIOzbH2Qaa5QW73kgBhZpcCuLZdifhrcHsedIejEp+8MPswlx/IK5XBdvFMYgn0qSfwsW40VeysRuFPXAM8dtCrklGMGuSANvWjENz1HHjP7aeozQX6P1l9zGhP8sp5q/2ZbO/8d2TBE+F8HYfr93hC2AnxVdqaEYvkRMUPd0q32kjURZ7HcswH7yKSxkS6IWBe4rZVH34gLmooPG04nNb03Isvhz4egbT6WUlDhulyUlduX/3ZG0QGck2D0x4UE4LkC6sPdQb6fuKz/anme6amq7j85KBymwgTbPH1uq5XSy0d6bhCIgh0inAAo0WLvCEQVYjUhPcCg31wQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 18 Oct 2022 15:04:17 +0300
-Message-Id: <20221018120420.561846-17-idosch@nvidia.com>
+Date: Tue, 18 Oct 2022 15:04:18 +0300
+Message-Id: <20221018120420.561846-18-idosch@nvidia.com>
 In-Reply-To: <20221018120420.561846-1-idosch@nvidia.com>
 References: <20221018120420.561846-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH net-next 16/19] bridge: mcast: Add support for
-	(*, G) with a source list and filter mode
+Subject: [Bridge] [RFC PATCH net-next 17/19] bridge: mcast: Allow user space
+	to add (*, G) with a source list and filter mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,238 +27,281 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-In preparation for allowing user space to add (*, G) entries with a
-source list and associated filter mode, add the necessary plumbing to
-handle such requests.
+Add new netlink attributes to the RTM_NEWMDB request that allow user
+space to add (*, G) with a source list and filter mode.
 
-Extend the MDB configuration structure with a currently empty source
-list and filter mode that is currently hard coded to EXCLUDE.
+The RTM_NEWMDB message can already dump such entries (created by the
+kernel) so there is no need to add dump support. However, the message
+contains a different set of attributes depending if it is a request or a
+response. The naming and structure of the new attributes try to follow
+the existing ones used in the response.
 
-Add the source entries and the corresponding (S, G) entries before
-making the new (*, G) port group entry visible to the data path.
+Request:
 
-Handle the creation of each source entry in a similar fashion to how it
-is created from the data path in response to received Membership
-Reports: Create the source entry, arm the source timer (if needed), add
-a corresponding (S, G) forwarding entry and finally mark the source
-entry as installed (by user space).
+[ struct nlmsghdr ]
+[ struct br_port_msg ]
+[ MDBA_SET_ENTRY ]
+	struct br_mdb_entry
+[ MDBA_SET_ENTRY_ATTRS ]
+	[ MDBE_ATTR_SOURCE ]
+		struct in_addr / struct in6_addr
+	[ MDBE_ATTR_SRC_LIST ]		// new
+		[ MDBE_SRC_LIST_ENTRY ]
+			[ MDBE_SRCATTR_ADDRESS ]
+				struct in_addr / struct in6_addr
+		[ ...]
+	[ MDBE_ATTR_GROUP_MODE ]	// new
+		u8
 
-Add the (S, G) entry by populating an MDB configuration structure and
-calling br_mdb_add_group_sg() as if a new entry is created by user
-space, with the sole difference that the 'src_entry' field is set to
-make sure that the group timer of such entries is never armed.
+Response:
 
-Note that it is not currently possible to add more than 32 source
-entries to a port group entry. If this proves to be a problem we can
-either increase 'PG_SRC_ENT_LIMIT' or avoid forcing a limit on entries
-created by user space. For example, by adding a new argument to
-br_multicast_new_group_src().
+[ struct nlmsghdr ]
+[ struct br_port_msg ]
+[ MDBA_MDB ]
+	[ MDBA_MDB_ENTRY ]
+		[ MDBA_MDB_ENTRY_INFO ]
+			struct br_mdb_entry
+		[ MDBA_MDB_EATTR_TIMER ]
+			u32
+		[ MDBA_MDB_EATTR_SOURCE ]
+			struct in_addr / struct in6_addr
+		[ MDBA_MDB_EATTR_RTPROT ]
+			u8
+		[ MDBA_MDB_EATTR_SRC_LIST ]
+			[ MDBA_MDB_SRCLIST_ENTRY ]
+				[ MDBA_MDB_SRCATTR_ADDRESS ]
+					struct in_addr / struct in6_addr
+				[ MDBA_MDB_SRCATTR_TIMER ]
+					u8
+			[...]
+		[ MDBA_MDB_EATTR_GROUP_MODE ]
+			u8
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_mdb.c     | 130 +++++++++++++++++++++++++++++++++++++++-
- net/bridge/br_private.h |   7 +++
- 2 files changed, 134 insertions(+), 3 deletions(-)
+ include/uapi/linux/if_bridge.h |  20 +++++
+ net/bridge/br_mdb.c            | 132 +++++++++++++++++++++++++++++++++
+ 2 files changed, 152 insertions(+)
 
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index a86a7e7b811f..0d9fe73fc48c 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -723,10 +723,30 @@ enum {
+ enum {
+ 	MDBE_ATTR_UNSPEC,
+ 	MDBE_ATTR_SOURCE,
++	MDBE_ATTR_SRC_LIST,
++	MDBE_ATTR_GROUP_MODE,
+ 	__MDBE_ATTR_MAX,
+ };
+ #define MDBE_ATTR_MAX (__MDBE_ATTR_MAX - 1)
+ 
++/* per mdb entry source */
++enum {
++	MDBE_SRC_LIST_UNSPEC,
++	MDBE_SRC_LIST_ENTRY,
++	__MDBE_SRC_LIST_MAX,
++};
++#define MDBE_SRC_LIST_MAX (__MDBE_SRC_LIST_MAX - 1)
++
++/* per mdb entry per source attributes
++ * these are embedded in MDBE_SRC_LIST_ENTRY
++ */
++enum {
++	MDBE_SRCATTR_UNSPEC,
++	MDBE_SRCATTR_ADDRESS,
++	__MDBE_SRCATTR_MAX,
++};
++#define MDBE_SRCATTR_MAX (__MDBE_SRCATTR_MAX - 1)
++
+ /* Embedded inside LINK_XSTATS_TYPE_BRIDGE */
+ enum {
+ 	BRIDGE_XSTATS_UNSPEC,
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 2804da7b0aa1..8fc8816a76bf 100644
+index 8fc8816a76bf..909b0fb49a0c 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -836,6 +836,115 @@ static int br_mdb_add_group_sg(struct br_mdb_config *cfg,
- 	return 0;
+@@ -663,10 +663,25 @@ void br_rtr_notify(struct net_device *dev, struct net_bridge_mcast_port *pmctx,
+ 	rtnl_set_sk_err(net, RTNLGRP_MDB, err);
  }
  
-+static int br_mdb_add_group_src_fwd(struct br_mdb_config *cfg,
-+				    struct br_ip *src_ip,
-+				    struct net_bridge_mcast *brmctx,
-+				    struct netlink_ext_ack *extack)
++static const struct nla_policy
++br_mdbe_src_list_entry_pol[MDBE_SRCATTR_MAX + 1] = {
++	[MDBE_SRCATTR_ADDRESS] = NLA_POLICY_RANGE(NLA_BINARY,
++						  sizeof(struct in_addr),
++						  sizeof(struct in6_addr)),
++};
++
++static const struct nla_policy
++br_mdbe_src_list_pol[MDBE_SRC_LIST_MAX + 1] = {
++	[MDBE_SRC_LIST_ENTRY] = NLA_POLICY_NESTED(br_mdbe_src_list_entry_pol),
++};
++
+ static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+ 	[MDBE_ATTR_SOURCE] = NLA_POLICY_RANGE(NLA_BINARY,
+ 					      sizeof(struct in_addr),
+ 					      sizeof(struct in6_addr)),
++	[MDBE_ATTR_GROUP_MODE] = NLA_POLICY_RANGE(NLA_U8, MCAST_EXCLUDE,
++						  MCAST_INCLUDE),
++	[MDBE_ATTR_SRC_LIST] = NLA_POLICY_NESTED(br_mdbe_src_list_pol),
+ };
+ 
+ static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
+@@ -1052,6 +1067,73 @@ static int __br_mdb_add(struct br_mdb_config *cfg,
+ 	return ret;
+ }
+ 
++static int br_mdb_config_src_entry_init(struct nlattr *src_entry,
++					struct br_mdb_config *cfg,
++					struct netlink_ext_ack *extack)
 +{
-+	struct net_bridge_mdb_entry *sgmp;
-+	struct br_mdb_config sg_cfg;
-+	struct br_ip sg_ip;
-+	u8 flags = 0;
-+
-+	sg_ip = cfg->group;
-+	sg_ip.src = src_ip->src;
-+	sgmp = br_multicast_new_group(cfg->br, &sg_ip);
-+	if (IS_ERR(sgmp)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Failed to add (S, G) MDB entry");
-+		return PTR_ERR(sgmp);
-+	}
-+
-+	if (cfg->entry->state == MDB_PERMANENT)
-+		flags |= MDB_PG_FLAGS_PERMANENT;
-+	if (cfg->filter_mode == MCAST_EXCLUDE)
-+		flags |= MDB_PG_FLAGS_BLOCKED;
-+
-+	memset(&sg_cfg, 0, sizeof(sg_cfg));
-+	INIT_LIST_HEAD(&sg_cfg.src_list);
-+	sg_cfg.br = cfg->br;
-+	sg_cfg.p = cfg->p;
-+	sg_cfg.entry = cfg->entry;
-+	sg_cfg.group = sg_ip;
-+	sg_cfg.src_entry = true;
-+	sg_cfg.filter_mode = MCAST_INCLUDE;
-+	return br_mdb_add_group_sg(&sg_cfg, sgmp, brmctx, flags, extack);
-+}
-+
-+static int br_mdb_add_group_src(struct br_mdb_config *cfg,
-+				struct net_bridge_port_group *pg,
-+				struct net_bridge_mcast *brmctx,
-+				struct br_mdb_src_entry *src,
-+				struct netlink_ext_ack *extack)
-+{
-+	struct net_bridge_group_src *ent;
-+	unsigned long now = jiffies;
-+	int err;
-+
-+	ent = br_multicast_find_group_src(pg, &src->addr);
-+	if (!ent) {
-+		ent = br_multicast_new_group_src(pg, &src->addr);
-+		if (!ent) {
-+			NL_SET_ERR_MSG_MOD(extack, "Failed to add new source entry");
-+			return -ENOSPC;
-+		}
-+	} else {
-+		NL_SET_ERR_MSG_MOD(extack, "Source entry already exists");
-+		return -EEXIST;
-+	}
-+
-+	if (cfg->filter_mode == MCAST_INCLUDE &&
-+	    cfg->entry->state == MDB_TEMPORARY)
-+		mod_timer(&ent->timer, now + br_multicast_gmi(brmctx));
-+	else
-+		del_timer(&ent->timer);
-+
-+	/* Install a (S, G) forwarding entry for the source. */
-+	err = br_mdb_add_group_src_fwd(cfg, &src->addr, brmctx, extack);
-+	if (err)
-+		goto err_del_sg;
-+
-+	ent->flags = BR_SGRP_F_INSTALLED | BR_SGRP_F_USER_ADDED;
-+
-+	return 0;
-+
-+err_del_sg:
-+	br_multicast_del_group_src(ent, false);
-+	return err;
-+}
-+
-+static void br_mdb_del_group_src(struct net_bridge_port_group *pg,
-+				 struct br_mdb_src_entry *src)
-+{
-+	struct net_bridge_group_src *ent;
-+
-+	ent = br_multicast_find_group_src(pg, &src->addr);
-+	if (WARN_ON_ONCE(!ent))
-+		return;
-+	br_multicast_del_group_src(ent, false);
-+}
-+
-+static int br_mdb_add_group_srcs(struct br_mdb_config *cfg,
-+				 struct net_bridge_port_group *pg,
-+				 struct net_bridge_mcast *brmctx,
-+				 struct netlink_ext_ack *extack)
-+{
++	struct nlattr *tb[MDBE_SRCATTR_MAX + 1];
 +	struct br_mdb_src_entry *src;
 +	int err;
 +
-+	list_for_each_entry(src, &cfg->src_list, list) {
-+		err = br_mdb_add_group_src(cfg, pg, brmctx, src, extack);
++	err = nla_parse_nested(tb, MDBE_SRCATTR_MAX, src_entry,
++			       br_mdbe_src_list_entry_pol, extack);
++	if (err)
++		return err;
++
++	if (NL_REQ_ATTR_CHECK(extack, src_entry, tb, MDBE_SRCATTR_ADDRESS))
++		return -EINVAL;
++
++	if (!is_valid_mdb_source(tb[MDBE_SRCATTR_ADDRESS],
++				 cfg->entry->addr.proto, extack))
++		return -EINVAL;
++
++	src = kzalloc(sizeof(*src), GFP_KERNEL);
++	if (!src)
++		return -ENOMEM;
++	src->addr.proto = cfg->entry->addr.proto;
++	nla_memcpy(&src->addr.src, tb[MDBE_SRCATTR_ADDRESS],
++		   nla_len(tb[MDBE_SRCATTR_ADDRESS]));
++	list_add_tail(&src->list, &cfg->src_list);
++
++	return 0;
++}
++
++static void br_mdb_config_src_entry_fini(struct br_mdb_src_entry *src)
++{
++	list_del(&src->list);
++	kfree(src);
++}
++
++static int br_mdb_config_src_list_init(struct nlattr *src_list,
++				       struct br_mdb_config *cfg,
++				       struct netlink_ext_ack *extack)
++{
++	struct br_mdb_src_entry *src, *tmp;
++	struct nlattr *src_entry;
++	int rem, err;
++
++	nla_for_each_nested(src_entry, src_list, rem) {
++		err = br_mdb_config_src_entry_init(src_entry, cfg, extack);
 +		if (err)
-+			goto err_del_group_srcs;
++			goto err_src_entry_init;
 +	}
 +
 +	return 0;
 +
-+err_del_group_srcs:
-+	list_for_each_entry_continue_reverse(src, &cfg->src_list, list)
-+		br_mdb_del_group_src(pg, src);
++err_src_entry_init:
++	list_for_each_entry_safe(src, tmp, &cfg->src_list, list)
++		br_mdb_config_src_entry_fini(src);
 +	return err;
 +}
 +
- static int br_mdb_add_group_star_g(struct br_mdb_config *cfg,
- 				   struct net_bridge_mdb_entry *mp,
- 				   struct net_bridge_mcast *brmctx,
-@@ -845,6 +954,7 @@ static int br_mdb_add_group_star_g(struct br_mdb_config *cfg,
- 	struct net_bridge_port_group __rcu **pp;
- 	struct net_bridge_port_group *p;
- 	unsigned long now = jiffies;
-+	int err;
- 
- 	for (pp = &mp->ports;
- 	     (p = mlock_dereference(*pp, cfg->br)) != NULL;
-@@ -858,23 +968,35 @@ static int br_mdb_add_group_star_g(struct br_mdb_config *cfg,
- 	}
- 
- 	p = br_multicast_new_port_group(cfg->p, &cfg->group, *pp, flags, NULL,
--					MCAST_EXCLUDE, RTPROT_STATIC);
-+					cfg->filter_mode, RTPROT_STATIC);
- 	if (unlikely(!p)) {
- 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new (*, G) port group");
- 		return -ENOMEM;
- 	}
++static void br_mdb_config_src_list_fini(struct br_mdb_config *cfg)
++{
++	struct br_mdb_src_entry *src, *tmp;
 +
-+	err = br_mdb_add_group_srcs(cfg, p, brmctx, extack);
-+	if (err)
-+		goto err_del_port_group;
++	list_for_each_entry_safe(src, tmp, &cfg->src_list, list)
++		br_mdb_config_src_entry_fini(src);
++}
 +
- 	rcu_assign_pointer(*pp, p);
--	if (!(flags & MDB_PG_FLAGS_PERMANENT))
-+	if (!(flags & MDB_PG_FLAGS_PERMANENT) &&
-+	    cfg->filter_mode == MCAST_EXCLUDE)
- 		mod_timer(&p->timer,
- 			  now + brmctx->multicast_membership_interval);
- 	br_mdb_notify(cfg->br->dev, mp, p, RTM_NEWMDB);
- 	/* If we are adding a new EXCLUDE port group (*, G), it needs to be
- 	 * also added to all (S, G) entries for proper replication.
- 	 */
--	if (br_multicast_should_handle_mode(brmctx, cfg->group.proto))
-+	if (br_multicast_should_handle_mode(brmctx, cfg->group.proto) &&
-+	    cfg->filter_mode == MCAST_EXCLUDE)
- 		br_multicast_star_g_handle_mode(p, MCAST_EXCLUDE);
+ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
+ 				    struct br_mdb_config *cfg,
+ 				    struct netlink_ext_ack *extack)
+@@ -1071,9 +1153,52 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
  
+ 	__mdb_entry_to_br_ip(cfg->entry, &cfg->group, mdb_attrs);
+ 
++	if (mdb_attrs[MDBE_ATTR_GROUP_MODE]) {
++		if (!cfg->p) {
++			NL_SET_ERR_MSG_MOD(extack, "Filter mode cannot be set for host groups");
++			return -EINVAL;
++		}
++		if (!br_multicast_is_star_g(&cfg->group)) {
++			NL_SET_ERR_MSG_MOD(extack, "Filter mode can only be set for (*, G) entries");
++			return -EINVAL;
++		}
++		cfg->filter_mode = nla_get_u8(mdb_attrs[MDBE_ATTR_GROUP_MODE]);
++	} else {
++		cfg->filter_mode = MCAST_EXCLUDE;
++	}
++
++	if (mdb_attrs[MDBE_ATTR_SRC_LIST]) {
++		if (!cfg->p) {
++			NL_SET_ERR_MSG_MOD(extack, "Source list cannot be set for host groups");
++			return -EINVAL;
++		}
++		if (!br_multicast_is_star_g(&cfg->group)) {
++			NL_SET_ERR_MSG_MOD(extack, "Source list can only be set for (*, G) entries");
++			return -EINVAL;
++		}
++		if (!mdb_attrs[MDBE_ATTR_GROUP_MODE]) {
++			NL_SET_ERR_MSG_MOD(extack, "Source list cannot be set without filter mode");
++			return -EINVAL;
++		}
++		err = br_mdb_config_src_list_init(mdb_attrs[MDBE_ATTR_SRC_LIST],
++						  cfg, extack);
++		if (err)
++			return err;
++	}
++
++	if (list_empty(&cfg->src_list) && cfg->filter_mode == MCAST_INCLUDE) {
++		NL_SET_ERR_MSG_MOD(extack, "Cannot add (*, G) INCLUDE with an empty source list");
++		return -EINVAL;
++	}
++
  	return 0;
-+
-+err_del_port_group:
-+	hlist_del_init(&p->mglist);
-+	kfree(p);
-+	return err;
  }
  
- static int br_mdb_add_group(struct br_mdb_config *cfg,
-@@ -967,6 +1089,8 @@ static int br_mdb_config_init(struct net *net, struct sk_buff *skb,
- 		return err;
- 
- 	memset(cfg, 0, sizeof(*cfg));
-+	cfg->filter_mode = MCAST_EXCLUDE;
-+	INIT_LIST_HEAD(&cfg->src_list);
- 
- 	bpm = nlmsg_data(nlh);
- 	if (!bpm->ifindex) {
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 1bd6eebad002..0189fce6f3b7 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -93,12 +93,19 @@ struct bridge_mcast_stats {
- 	struct u64_stats_sync syncp;
- };
- 
-+struct br_mdb_src_entry {
-+	struct list_head		list;
-+	struct br_ip			addr;
-+};
++static void br_mdb_config_attrs_fini(struct br_mdb_config *cfg)
++{
++	br_mdb_config_src_list_fini(cfg);
++}
 +
- struct br_mdb_config {
- 	struct net_bridge		*br;
- 	struct net_bridge_port		*p;
- 	struct br_mdb_entry		*entry;
- 	struct br_ip			group;
- 	bool				src_entry;
-+	u8				filter_mode;
-+	struct list_head		src_list;
- };
- #endif
+ static int br_mdb_config_init(struct net *net, struct sk_buff *skb,
+ 			      struct nlmsghdr *nlh, struct br_mdb_config *cfg,
+ 			      struct netlink_ext_ack *extack)
+@@ -1164,6 +1289,11 @@ static int br_mdb_config_init(struct net *net, struct sk_buff *skb,
+ 	return 0;
+ }
+ 
++static void br_mdb_config_fini(struct br_mdb_config *cfg)
++{
++	br_mdb_config_attrs_fini(cfg);
++}
++
+ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		      struct netlink_ext_ack *extack)
+ {
+@@ -1222,6 +1352,7 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	}
+ 
+ out:
++	br_mdb_config_fini(&cfg);
+ 	return err;
+ }
+ 
+@@ -1297,6 +1428,7 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		err = __br_mdb_del(&cfg);
+ 	}
+ 
++	br_mdb_config_fini(&cfg);
+ 	return err;
+ }
  
 -- 
 2.37.3
