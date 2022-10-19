@@ -1,29 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 621A240C96
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B362B40C7F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C6B9741B70
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3AD5741C7B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:content-language
- :references:cc:to:subject:user-agent:mime-version:date:message-id
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=akB4KpsqvQbKzruD6TooVR31GXWzLT+GK5PiB1pqO9A=;
- b=x6CXrSxmJac+3FENd8gLJUamvAD7D9evXXc5Ae4fIOord0iHp1cNjKKRmq2t0vMX0A
- xcbTJG6wKM53lzPkTcQ02Y/5YkU6zey7CB9dOMbm4gbpGE28XIjplHnYEsR5OinYaWGE
- LHfm1pSrCfq53MeuHvAfeEQsk/p7ELvBKlxsTrUVSGUZWV5NGg3t78ysGjCikWv4dY7M
- VQ99Xf+IWUKSsgsOm2cxvnQO4iaepEhUNchnRQW7zSl1ZVpAmYW43ZPMbJalrULzCaKF
- WZ7q/O1yBo4LhKawHtO4XMMordqWYfw34mW150MCweCaEnXt5Z6jGSLooBQfw8tLFxN4
- 2Jbg==
-Message-ID: <74433b12-78a9-1d7a-d169-a5fcdb4a5850@blackwall.org>
-Date: Wed, 19 Oct 2022 16:15:16 +0300
+ bh=C952zmI6PdlVJ+QxO/AKrIdSU78DLUHufUqVOtyAUsc=;
+ b=xfsh2Cq9cMDB/+IeA9ycufGOdUFDSZfHgdoAYTWQNiwhGKNLeI84rbaKmZpFuLikcA
+ WdPubJcGx2eu04zk7B4hSUn0rBD0MP/Vfmn7oxQ9CwBotMyUXcAuqomMLlAl6/Es7UQY
+ UE2BL67oxUtQezytGi2zQeq9cv0RhlrnceP3wVFr+IUyiKtJq08d/yjQA6NUmdE+aenW
+ T5HpU1uXEbEjntRmGMfd4SnayoNBLvZclXXCZBikYOWh90TnqUCGMDYEOGGPWbEcN1z4
+ S7V0DA06+K1rXf5XdPkxIIUpR2zl9HIoNzKYpWk+L7cWigvSrXXLr13u/6PIGsnIyGLU
+ 0uFg==
+Message-ID: <e3a74c46-0542-4f21-4975-5bd22bb62ab9@blackwall.org>
+Date: Wed, 19 Oct 2022 16:28:23 +0300
 MIME-Version: 1.0
-References: <20221018120420.561846-1-idosch@nvidia.com>
 Content-Language: en-US
+References: <20221018120420.561846-1-idosch@nvidia.com>
+ <20221018120420.561846-18-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20221018120420.561846-1-idosch@nvidia.com>
+In-Reply-To: <20221018120420.561846-18-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH net-next 00/19] bridge: mcast: Extensions
-	for EVPN
+Subject: Re: [Bridge] [RFC PATCH net-next 17/19] bridge: mcast: Allow user
+ space to add (*, G) with a source list and filter mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -36,102 +37,16 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 18/10/2022 15:04, Ido Schimmel wrote:
-> Posting as RFC to show the whole picture. Will split into smaller
-> submissions for v1 and add selftests.
+> Add new netlink attributes to the RTM_NEWMDB request that allow user
+> space to add (*, G) with a source list and filter mode.
 > 
-> tl;dr
-> =====
+> The RTM_NEWMDB message can already dump such entries (created by the
+> kernel) so there is no need to add dump support. However, the message
+> contains a different set of attributes depending if it is a request or a
+> response. The naming and structure of the new attributes try to follow
+> the existing ones used in the response.
 > 
-> This patchset creates feature parity between user space and the kernel
-> and allows the former to install and replace MDB port group entries with
-> a source list and associated filter mode. This is required for EVPN use
-> cases where multicast state is not derived from snooped IGMP/MLD
-> packets, but instead derived from EVPN routes exchanged by the control
-> plane in user space.
-> 
-> Background
-> ==========
-> 
-> IGMPv3 [1] and MLDv2 [2] differ from earlier versions of the protocols
-> in that they add support for source-specific multicast. That is, hosts
-> can advertise interest in listening to a particular multicast address
-> only from specific source addresses or from all sources except for
-> specific source addresses.
-> 
-> In kernel 5.10 [3][4], the bridge driver gained the ability to snoop
-> IGMPv3/MLDv2 packets and install corresponding MDB port group entries.
-> For example, a snooped IGMPv3 Membership Report that contains a single
-> MODE_IS_EXCLUDE record for group 239.10.10.10 with sources 192.0.2.1,
-> 192.0.2.2, 192.0.2.20 and 192.0.2.21 would trigger the creation of these
-> entries:
-> 
->  # bridge -d mdb show
->  dev br0 port veth1 grp 239.10.10.10 src 192.0.2.21 temp filter_mode include proto kernel  blocked
->  dev br0 port veth1 grp 239.10.10.10 src 192.0.2.20 temp filter_mode include proto kernel  blocked
->  dev br0 port veth1 grp 239.10.10.10 src 192.0.2.2 temp filter_mode include proto kernel  blocked
->  dev br0 port veth1 grp 239.10.10.10 src 192.0.2.1 temp filter_mode include proto kernel  blocked
->  dev br0 port veth1 grp 239.10.10.10 temp filter_mode exclude source_list 192.0.2.21/0.00,192.0.2.20/0.00,192.0.2.2/0.00,192.0.2.1/0.00 proto kernel
-> 
-> While the kernel can install and replace entries with a filter mode and
-> source list, user space cannot. It can only add EXCLUDE entries with an
-> empty source list, which is sufficient for IGMPv2/MLDv1, but not for
-> IGMPv3/MLDv2.
-> 
-> Use cases where the multicast state is not derived from snooped packets,
-> but instead derived from routes exchanged by the user space control
-> plane require feature parity between user space and the kernel in terms
-> of MDB configuration. Such a use case is detailed in the next section.
-> 
-> Motivation
-> ==========
-> 
-> RFC 7432 [5] defines a "MAC/IP Advertisement route" (type 2) [6] that
-> allows NVE switches in the EVPN network to advertise and learn
-> reachability information for unicast MAC addresses. Traffic destined to
-> a unicast MAC address can therefore be selectively forwarded to a single
-> NVE switch behind which the MAC is located.
-> 
-> The same is not true for IP multicast traffic. Such traffic is simply
-> flooded as BUM to all NVE switches in the broadcast domain (BD),
-> regardless if a switch has interested receivers for the multicast stream
-> or not. This is especially problematic for overlay networks that make
-> heavy use of multicast.
-> 
-> The issue is addressed by RFC 9251 [7] that defines a "Selective
-> Multicast Ethernet Tag Route" (type 6) [8] which allows NVE switches in
-> the EVPN network to advertise multicast streams that they are interested
-> in. This is done by having each switch suppress IGMP/MLD packets from
-> being transmitted to the NVE network and instead communicate the
-> information over BGP to other switches.
-> 
-> As far as the bridge driver is concerned, the above means that the
-> multicast state (i.e., {multicast address, group timer, filter-mode,
-> (source records)}) for the VXLAN bridge port is not populated by the
-> kernel from snooped IGMP/MLD packets (they are suppressed), but instead
-> by user space. Specifically, by the routing daemon that is exchanging
-> EVPN routes with other NVE switches.
-> 
-> Changes are obviously also required in the VXLAN driver, but they are
-> the subject of future patchsets. See the "Future work" section.
-> 
-> Implementation
-> ==============
-> 
-> The user interface is extended to allow user space to specify the filter
-> mode of the MDB port group entry and its source list. Replace support is
-> also added so that user space would not need to remove an entry and
-> re-add it only to edit its source list or filter mode, as that would
-> result in packet loss. Example usage:
-> 
->  # bridge mdb replace dev br0 port dummy10 grp 239.1.1.1 permanent \
-> 	source_list 192.0.2.1,192.0.2.3 filter_mode exclude proto zebra
->  # bridge -d -s mdb show
->  dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.3 permanent filter_mode include proto zebra  blocked    0.00
->  dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.1 permanent filter_mode include proto zebra  blocked    0.00
->  dev br0 port dummy10 grp 239.1.1.1 permanent filter_mode exclude source_list 192.0.2.3/0.00,192.0.2.1/0.00 proto zebra     0.00
-> 
-> The netlink interface is extended with a few new attributes in the
-> RTM_NEWMDB request message:
+> Request:
 > 
 > [ struct nlmsghdr ]
 > [ struct br_port_msg ]
@@ -147,136 +62,264 @@ On 18/10/2022 15:04, Ido Schimmel wrote:
 > 		[ ...]
 > 	[ MDBE_ATTR_GROUP_MODE ]	// new
 > 		u8
-> 	[ MDBE_ATTR_RTPORT ]		// new
-> 		u8
 > 
-> No changes are required in RTM_NEWMDB responses and notifications, as
-> all the information can already be dumped by the kernel today.
+> Response:
 > 
-> Testing
-> =======
+> [ struct nlmsghdr ]
+> [ struct br_port_msg ]
+> [ MDBA_MDB ]
+> 	[ MDBA_MDB_ENTRY ]
+> 		[ MDBA_MDB_ENTRY_INFO ]
+> 			struct br_mdb_entry
+> 		[ MDBA_MDB_EATTR_TIMER ]
+> 			u32
+> 		[ MDBA_MDB_EATTR_SOURCE ]
+> 			struct in_addr / struct in6_addr
+> 		[ MDBA_MDB_EATTR_RTPROT ]
+> 			u8
+> 		[ MDBA_MDB_EATTR_SRC_LIST ]
+> 			[ MDBA_MDB_SRCLIST_ENTRY ]
+> 				[ MDBA_MDB_SRCATTR_ADDRESS ]
+> 					struct in_addr / struct in6_addr
+> 				[ MDBA_MDB_SRCATTR_TIMER ]
+> 					u8
+> 			[...]
+> 		[ MDBA_MDB_EATTR_GROUP_MODE ]
+> 			u8
 > 
-> Tested with existing bridge multicast selftests: bridge_igmp.sh,
-> bridge_mdb_port_down.sh, bridge_mdb.sh, bridge_mld.sh,
-> bridge_vlan_mcast.sh.
+> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+>  include/uapi/linux/if_bridge.h |  20 +++++
+>  net/bridge/br_mdb.c            | 132 +++++++++++++++++++++++++++++++++
+>  2 files changed, 152 insertions(+)
 > 
-> Will add dedicated selftests in v1.
-> 
-> Patchset overview
-> =================
-> 
-> Patches #1-#8 are non-functional preparations aimed at making it easier
-> to add additional netlink attributes later on. They create an MDB
-> configuration structure into which netlink messages are parsed into.
-> The structure is then passed in the entry creation / deletion call chain
-> instead of passing the netlink attributes themselves. The same pattern
-> is used by other rtnetlink objects such as routes and nexthops.
-> 
-> I initially tried to extend the current code, but it proved to be too
-> difficult, which is why I decided to refactor it to the extensible and
-> familiar pattern used by other rtnetlink objects.
-> 
-> The plan is to submit these patches separately for v1.
-> 
-> Patches #9-#15 are an additional set of non-functional preparations for
-> the core changes in the last patches.
-> 
-> Patches #16-#17 allow user space to install (*, G) entries with a source
-> list and associated filter mode. Specifically, patch #16 adds the
-> necessary kernel plumbing and patch #17 exposes the new functionality to
-> user space via a few new attributes.
-> 
-> Patch #18 allows user space to specify the routing protocol of new MDB
-> port group entries so that a routing daemon could differentiate between
-> entries installed by it and those installed by an administrator.
-> 
-> Patch #19 allows user space to replace MDB port group entries. This is
-> useful, for example, when user space wants to add a new source to a
-> source list. Instead of deleting a (*, G) entry and re-adding it with an
-> extended source list (which would result in packet loss), user space can
-> simply replace the current entry.
-> 
-> Future work
-> ===========
-> 
-> The VXLAN driver will need to be extended with an MDB so that it could
-> selectively forward IP multicast traffic to NVE switches with interested
-> receivers instead of simply flooding it to all switches as BUM.
-> 
-> The idea is to reuse the existing MDB interface for the VXLAN driver in
-> a similar way to how the FDB interface is shared between the bridge and
-> VXLAN drivers.
-> 
-> From command line perspective, configuration will look as follows:
-> 
->  # bridge mdb add dev br0 port vxlan0 grp 239.1.1.1 permanent \
-> 	filter_mode exclude source_list 198.50.100.1,198.50.100.2
-> 
->  # bridge mdb add dev vxlan0 port vxlan0 grp 239.1.1.1 permanent \
-> 	filter_mode include source_list 198.50.100.3,198.50.100.4 \
-> 	dst 192.0.2.1 dst_port 4789 src_vni 2
-> 
->  # bridge mdb add dev vxlan0 port vxlan0 grp 239.1.1.1 permanent \
-> 	filter_mode exclude source_list 198.50.100.1,198.50.100.2 \
-> 	dst 192.0.2.2 dst_port 4789 src_vni 2
-> 
-> Where the first command is enabled by this set, but the next two will be
-> the subject of future work.
-> 
-> From netlink perspective, the existing PF_BRIDGE/RTM_*MDB messages will
-> be extended to the VXLAN driver. This means that a few new attributes
-> will be added (e.g., 'MDBE_ATTR_SRC_VNI') and that the handlers for
-> these messages will need to move to net/core/rtnetlink.c. The rtnetlink
-> code will call into the appropriate driver based on the ifindex
-> specified in the ancillary header.
-> 
-> iproute2 patches can be found here [9].
-> 
-> [1] https://datatracker.ietf.org/doc/html/rfc3376
-> [2] https://www.rfc-editor.org/rfc/rfc3810
-> [3] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6af52ae2ed14a6bc756d5606b29097dfd76740b8
-> [4] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=68d4fd30c83b1b208e08c954cd45e6474b148c87
-> [5] https://datatracker.ietf.org/doc/html/rfc7432
-> [6] https://datatracker.ietf.org/doc/html/rfc7432#section-7.2
-> [7] https://datatracker.ietf.org/doc/html/rfc9251
-> [8] https://datatracker.ietf.org/doc/html/rfc9251#section-9.1
-> [9] https://github.com/idosch/iproute2/commits/submit/mdb_rfc_v1
-> 
-> Ido Schimmel (19):
->   bridge: mcast: Centralize netlink attribute parsing
->   bridge: mcast: Remove redundant checks
->   bridge: mcast: Use MDB configuration structure where possible
->   bridge: mcast: Propagate MDB configuration structure further
->   bridge: mcast: Use MDB group key from configuration structure
->   bridge: mcast: Remove br_mdb_parse()
->   bridge: mcast: Move checks out of critical section
->   bridge: mcast: Remove redundant function arguments
->   bridge: mcast: Do not derive entry type from its filter mode
->   bridge: mcast: Split (*, G) and (S, G) addition into different
->     functions
->   bridge: mcast: Place netlink policy before validation functions
->   bridge: mcast: Add a centralized error path
->   bridge: mcast: Expose br_multicast_new_group_src()
->   bridge: mcast: Add a flag for user installed source entries
->   bridge: mcast: Avoid arming group timer when (S, G) corresponds to a
->     source
->   bridge: mcast: Add support for (*, G) with a source list and filter
->     mode
->   bridge: mcast: Allow user space to add (*, G) with a source list and
->     filter mode
->   bridge: mcast: Allow user space to specify MDB entry routing protocol
->   bridge: mcast: Support replacement of MDB port group entries
-> 
->  include/uapi/linux/if_bridge.h |  21 +
->  net/bridge/br_mdb.c            | 821 ++++++++++++++++++++++++---------
->  net/bridge/br_multicast.c      |   5 +-
->  net/bridge/br_private.h        |  21 +
->  4 files changed, 649 insertions(+), 219 deletions(-)
-> 
+> diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+> index a86a7e7b811f..0d9fe73fc48c 100644
+> --- a/include/uapi/linux/if_bridge.h
+> +++ b/include/uapi/linux/if_bridge.h
+> @@ -723,10 +723,30 @@ enum {
+>  enum {
+>  	MDBE_ATTR_UNSPEC,
+>  	MDBE_ATTR_SOURCE,
+> +	MDBE_ATTR_SRC_LIST,
+> +	MDBE_ATTR_GROUP_MODE,
+>  	__MDBE_ATTR_MAX,
+>  };
+>  #define MDBE_ATTR_MAX (__MDBE_ATTR_MAX - 1)
+>  
+> +/* per mdb entry source */
+> +enum {
+> +	MDBE_SRC_LIST_UNSPEC,
+> +	MDBE_SRC_LIST_ENTRY,
+> +	__MDBE_SRC_LIST_MAX,
+> +};
+> +#define MDBE_SRC_LIST_MAX (__MDBE_SRC_LIST_MAX - 1)
+> +
+> +/* per mdb entry per source attributes
+> + * these are embedded in MDBE_SRC_LIST_ENTRY
+> + */
+> +enum {
+> +	MDBE_SRCATTR_UNSPEC,
+> +	MDBE_SRCATTR_ADDRESS,
+> +	__MDBE_SRCATTR_MAX,
+> +};
+> +#define MDBE_SRCATTR_MAX (__MDBE_SRCATTR_MAX - 1)
+> +
+>  /* Embedded inside LINK_XSTATS_TYPE_BRIDGE */
+>  enum {
+>  	BRIDGE_XSTATS_UNSPEC,
+> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+> index 8fc8816a76bf..909b0fb49a0c 100644
+> --- a/net/bridge/br_mdb.c
+> +++ b/net/bridge/br_mdb.c
+> @@ -663,10 +663,25 @@ void br_rtr_notify(struct net_device *dev, struct net_bridge_mcast_port *pmctx,
+>  	rtnl_set_sk_err(net, RTNLGRP_MDB, err);
+>  }
+>  
+> +static const struct nla_policy
+> +br_mdbe_src_list_entry_pol[MDBE_SRCATTR_MAX + 1] = {
+> +	[MDBE_SRCATTR_ADDRESS] = NLA_POLICY_RANGE(NLA_BINARY,
+> +						  sizeof(struct in_addr),
+> +						  sizeof(struct in6_addr)),
+> +};
+> +
+> +static const struct nla_policy
+> +br_mdbe_src_list_pol[MDBE_SRC_LIST_MAX + 1] = {
+> +	[MDBE_SRC_LIST_ENTRY] = NLA_POLICY_NESTED(br_mdbe_src_list_entry_pol),
+> +};
+> +
+>  static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+>  	[MDBE_ATTR_SOURCE] = NLA_POLICY_RANGE(NLA_BINARY,
+>  					      sizeof(struct in_addr),
+>  					      sizeof(struct in6_addr)),
+> +	[MDBE_ATTR_GROUP_MODE] = NLA_POLICY_RANGE(NLA_U8, MCAST_EXCLUDE,
+> +						  MCAST_INCLUDE),
+> +	[MDBE_ATTR_SRC_LIST] = NLA_POLICY_NESTED(br_mdbe_src_list_pol),
+>  };
+>  
+>  static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
+> @@ -1052,6 +1067,73 @@ static int __br_mdb_add(struct br_mdb_config *cfg,
+>  	return ret;
+>  }
+>  
+> +static int br_mdb_config_src_entry_init(struct nlattr *src_entry,
+> +					struct br_mdb_config *cfg,
+> +					struct netlink_ext_ack *extack)
+> +{
+> +	struct nlattr *tb[MDBE_SRCATTR_MAX + 1];
+> +	struct br_mdb_src_entry *src;
+> +	int err;
+> +
+> +	err = nla_parse_nested(tb, MDBE_SRCATTR_MAX, src_entry,
+> +			       br_mdbe_src_list_entry_pol, extack);
+> +	if (err)
+> +		return err;
+> +
+> +	if (NL_REQ_ATTR_CHECK(extack, src_entry, tb, MDBE_SRCATTR_ADDRESS))
+> +		return -EINVAL;
+> +
+> +	if (!is_valid_mdb_source(tb[MDBE_SRCATTR_ADDRESS],
+> +				 cfg->entry->addr.proto, extack))
+> +		return -EINVAL;
+> +
+> +	src = kzalloc(sizeof(*src), GFP_KERNEL);
+> +	if (!src)
+> +		return -ENOMEM;
+> +	src->addr.proto = cfg->entry->addr.proto;
+> +	nla_memcpy(&src->addr.src, tb[MDBE_SRCATTR_ADDRESS],
+> +		   nla_len(tb[MDBE_SRCATTR_ADDRESS]));
+> +	list_add_tail(&src->list, &cfg->src_list);
+> +
+> +	return 0;
+> +}
+> +
+> +static void br_mdb_config_src_entry_fini(struct br_mdb_src_entry *src)
+> +{
+> +	list_del(&src->list);
+> +	kfree(src);
+> +}
+> +
+> +static int br_mdb_config_src_list_init(struct nlattr *src_list,
+> +				       struct br_mdb_config *cfg,
+> +				       struct netlink_ext_ack *extack)
+> +{
+> +	struct br_mdb_src_entry *src, *tmp;
+> +	struct nlattr *src_entry;
+> +	int rem, err;
+> +
+> +	nla_for_each_nested(src_entry, src_list, rem) {
+> +		err = br_mdb_config_src_entry_init(src_entry, cfg, extack);
 
-Good work, the set looks good to me. It's a natural extension to allow user-space to
-manipulate such mcast groups. As we discussed privately it's only missing the selftests. :)
+Hmm, since we know the exact number of these (due to attr embedding) can't we allocate
+all at once and drop the list? They should not be more than 32 (PG_SRC_ENT_LIMIT) IIRC,
+which makes it at most 1152 bytes. Might simplify the code a bit and reduce allocations.
 
-Cheers,
- Nik
+> +		if (err)
+> +			goto err_src_entry_init;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_src_entry_init:
+> +	list_for_each_entry_safe(src, tmp, &cfg->src_list, list)
+> +		br_mdb_config_src_entry_fini(src);
+> +	return err;
+> +}
+> +
+> +static void br_mdb_config_src_list_fini(struct br_mdb_config *cfg)
+> +{
+> +	struct br_mdb_src_entry *src, *tmp;
+> +
+> +	list_for_each_entry_safe(src, tmp, &cfg->src_list, list)
+> +		br_mdb_config_src_entry_fini(src);
+> +}
+> +
+>  static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
+>  				    struct br_mdb_config *cfg,
+>  				    struct netlink_ext_ack *extack)
+> @@ -1071,9 +1153,52 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
+>  
+>  	__mdb_entry_to_br_ip(cfg->entry, &cfg->group, mdb_attrs);
+>  
+> +	if (mdb_attrs[MDBE_ATTR_GROUP_MODE]) {
+> +		if (!cfg->p) {
+> +			NL_SET_ERR_MSG_MOD(extack, "Filter mode cannot be set for host groups");
+> +			return -EINVAL;
+> +		}
+> +		if (!br_multicast_is_star_g(&cfg->group)) {
+> +			NL_SET_ERR_MSG_MOD(extack, "Filter mode can only be set for (*, G) entries");
+> +			return -EINVAL;
+> +		}
+> +		cfg->filter_mode = nla_get_u8(mdb_attrs[MDBE_ATTR_GROUP_MODE]);
+> +	} else {
+> +		cfg->filter_mode = MCAST_EXCLUDE;
+> +	}
+> +
+> +	if (mdb_attrs[MDBE_ATTR_SRC_LIST]) {
+> +		if (!cfg->p) {
+> +			NL_SET_ERR_MSG_MOD(extack, "Source list cannot be set for host groups");
+> +			return -EINVAL;
+> +		}
+> +		if (!br_multicast_is_star_g(&cfg->group)) {
+> +			NL_SET_ERR_MSG_MOD(extack, "Source list can only be set for (*, G) entries");
+> +			return -EINVAL;
+> +		}
+> +		if (!mdb_attrs[MDBE_ATTR_GROUP_MODE]) {
+> +			NL_SET_ERR_MSG_MOD(extack, "Source list cannot be set without filter mode");
+> +			return -EINVAL;
+> +		}
+> +		err = br_mdb_config_src_list_init(mdb_attrs[MDBE_ATTR_SRC_LIST],
+> +						  cfg, extack);
+> +		if (err)
+> +			return err;
+> +	}
+> +
+> +	if (list_empty(&cfg->src_list) && cfg->filter_mode == MCAST_INCLUDE) {
+> +		NL_SET_ERR_MSG_MOD(extack, "Cannot add (*, G) INCLUDE with an empty source list");
+> +		return -EINVAL;
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> +static void br_mdb_config_attrs_fini(struct br_mdb_config *cfg)
+> +{
+> +	br_mdb_config_src_list_fini(cfg);
+> +}
+> +
+>  static int br_mdb_config_init(struct net *net, struct sk_buff *skb,
+>  			      struct nlmsghdr *nlh, struct br_mdb_config *cfg,
+>  			      struct netlink_ext_ack *extack)
+> @@ -1164,6 +1289,11 @@ static int br_mdb_config_init(struct net *net, struct sk_buff *skb,
+>  	return 0;
+>  }
+>  
+> +static void br_mdb_config_fini(struct br_mdb_config *cfg)
+> +{
+> +	br_mdb_config_attrs_fini(cfg);
+> +}
+> +
+
+Is there more coming to these two _fini helpers? If not, I think one would be enough, i.e.
+just call br_mdb_config_src_list_fini() from br_mdb_config_fini()
+
+>  static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+>  		      struct netlink_ext_ack *extack)
+>  {
+> @@ -1222,6 +1352,7 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+>  	}
+>  
+>  out:
+> +	br_mdb_config_fini(&cfg);
+>  	return err;
+>  }
+>  
+> @@ -1297,6 +1428,7 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+>  		err = __br_mdb_del(&cfg);
+>  	}
+>  
+> +	br_mdb_config_fini(&cfg);
+>  	return err;
+>  }
+>  
 
