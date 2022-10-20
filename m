@@ -1,24 +1,24 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 13EBA42257
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9335642264
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9EC5F82D07
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F3E37828E3
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rDjlAV2B5PLWaEiiAhnQ3gBii1XZvZttHzVQXmFo82I=;
- b=PiOk1hZV8RsHJgz/bSeNc/o22QGZtXNazdIr1EydeD43PCfiQtLzD9zjNPIOYtzl1jE5paIz7T5G2FNVlTzXwNimd96TiR3lUXj5/VYAV1BpwT3d962XAYwCew0w0EhjOZ2u4Xi9CdPHWEoGCjg4dQYmy/4e86h9c+89vKQbF11lf0i3K0qE1xfk9N3Op2pdvi2UOZvwEyvEvMM2J2FvhfeK3qU4XVmwv4svPJ1TRV+xGral1Fc8+mNzugJ93bNGYXAMZbCJjrnHR8IOMMYcA4s9ME1lK0F94W9Qwrq8XQYzmA1VKcBjI9on29auusEfCUFLw5YcSbNetMAJryRLgQ==
-Date: Thu, 20 Oct 2022 17:58:42 +0300
+ bh=T7W92ag0AKiJBJpoYACJvKkZWNE1ZGcagqI+HW9wDrU=;
+ b=GyHxvL1MbfwIm5XLS9+oicHdpeWtUXxDVkp45Ns9G5A/OPYGzZLc/Z4jzqlCu2IVR2Ud1oDYyt1a1zwZPE4gu0dmOkZbauID1CoRa46GYBLmz0janab13ARwjR5pRVD4Un5zQEKyNwKdoq38YgGTJQ2Hi5kAFjPhWowYm1C9XjFt06Xjtj0wTsShQa+Y38wEqOLUSnMzauWhe8v0pwSR6z4y9J5ELokizTBwBT/IcL/SR7uPPnqperoi09j3nCZjDE7LAcCHTck8GY0PZEVyAk5N7wgmA5dgXrZHJEBryGYFuu+afZhRyJlf/tj6oL7uf9HpLzTOFj9TX0hsXCPTLQ==
+Date: Thu, 20 Oct 2022 18:23:37 +0300
 From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <Y1FiImF3i4s0bLuD@shredder>
+Message-ID: <Y1Fn+TnbI/uMH0VR@shredder>
 References: <20221018165619.134535-1-netdev@kapio-technology.com>
  <20221018165619.134535-1-netdev@kapio-technology.com>
  <20221018165619.134535-6-netdev@kapio-technology.com>
  <20221018165619.134535-6-netdev@kapio-technology.com>
  <20221020130224.6ralzvteoxfdwseb@skbuf> <Y1FMAI9BzDRUPi5Y@shredder>
  <20221020133506.76wroc7owpwjzrkg@skbuf> <Y1FTzyPdTbAF+ODT@shredder>
- <20221020140400.h4czo4wwv7erncy7@skbuf>
+ <20221020141104.7h7kpau6cnpfqvh4@skbuf>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221020140400.h4czo4wwv7erncy7@skbuf>
+In-Reply-To: <20221020141104.7h7kpau6cnpfqvh4@skbuf>
 MIME-Version: 1.0
 Subject: Re: [Bridge] [PATCH v8 net-next 05/12] net: dsa: propagate the
  locked flag down through the DSA layer
@@ -33,101 +33,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: Vladimir Oltean <olteanv@gmail.com>
 Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, "Hans J. Schultz" <netdev@kapio-technology.com>, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Florent Fourcot <florent.fourcot@wifirst.fr>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, UNGLinuxDriver@microchip.com, davem@davemloft.net
 
-On Thu, Oct 20, 2022 at 05:04:00PM +0300, Vladimir Oltean wrote:
+On Thu, Oct 20, 2022 at 05:11:04PM +0300, Vladimir Oltean wrote:
 > On Thu, Oct 20, 2022 at 04:57:35PM +0300, Ido Schimmel wrote:
-> > On Thu, Oct 20, 2022 at 04:35:06PM +0300, Vladimir Oltean wrote:
-> > > On Thu, Oct 20, 2022 at 04:24:16PM +0300, Ido Schimmel wrote:
-> > > > On Thu, Oct 20, 2022 at 04:02:24PM +0300, Vladimir Oltean wrote:
-> > > > > On Tue, Oct 18, 2022 at 06:56:12PM +0200, Hans J. Schultz wrote:
-> > > > > > @@ -3315,6 +3316,7 @@ static int dsa_slave_fdb_event(struct net_device *dev,
-> > > > > >  	struct dsa_port *dp = dsa_slave_to_port(dev);
-> > > > > >  	bool host_addr = fdb_info->is_local;
-> > > > > >  	struct dsa_switch *ds = dp->ds;
-> > > > > > +	u16 fdb_flags = 0;
-> > > > > >  
-> > > > > >  	if (ctx && ctx != dp)
-> > > > > >  		return 0;
-> > > > > > @@ -3361,6 +3363,9 @@ static int dsa_slave_fdb_event(struct net_device *dev,
-> > > > > >  		   orig_dev->name, fdb_info->addr, fdb_info->vid,
-> > > > > >  		   host_addr ? " as host address" : "");
-> > > > > >  
-> > > > > > +	if (fdb_info->locked)
-> > > > > > +		fdb_flags |= DSA_FDB_FLAG_LOCKED;
-> > > > > 
-> > > > > This is the bridge->driver direction. In which of the changes up until
-> > > > > now/through which mechanism will the bridge emit a
-> > > > > SWITCHDEV_FDB_ADD_TO_DEVICE with fdb_info->locked = true?
-> > > > 
-> > > > I believe it can happen in the following call chain:
-> > > > 
-> > > > br_handle_frame_finish
-> > > >    br_fdb_update // p->flags & BR_PORT_MAB
-> > > >        fdb_notify
-> > > >            br_switchdev_fdb_notify
-> > > > 
-> > > > This can happen with Spectrum when a packet ingresses via a locked port
-> > > > and incurs an FDB miss in hardware. The packet will be trapped and
-> > > > injected to the Rx path where it should invoke the above call chain.
-> > > 
-> > > Ah, so this is the case which in mv88e6xxx would generate an ATU
-> > > violation interrupt; in the Spectrum case it generates a special packet.
-> > 
-> > Not sure what you mean by "special" :) It's simply the packet that
-> > incurred the FDB miss on the SMAC.
-> > 
 > > > Right now this packet isn't generated, right?
 > > 
 > > Right. We don't support BR_PORT_LOCKED so these checks are not currently
 > > enabled in hardware. To be clear, only packets received via locked ports
 > > are able to trigger the check.
-> > 
-> > > 
-> > > I think we have the same thing in ocelot, a port can be configured to
-> > > send "learn frames" to the CPU.
-> > > 
-> > > Should these packets be injected into the bridge RX path in the first
-> > > place? They reach the CPU because of an FDB miss, not because the CPU
-> > > was the intended destination.
-> > 
-> > The reason to inject them to the Rx path is so that they will trigger
-> > the creation of the "locked" entry in the bridge driver (when MAB is
-> > on), thereby notifying user space about the presence of a new MAC behind
-> > the locked port. We can try to parse them in the driver and notify the
-> > bridge driver via SWITCHDEV_FDB_ADD_TO_BRIDGE, but it's quite ugly...
 > 
-> "ugly" => your words, not mine... But abstracting things a bit, doing
-> what you just said (SWITCHDEV_FDB_ADD_TO_BRIDGE) for learn frames would
-> be exactly the same thing as what mv88e6xxx is doing (so your "ugly"
-> comment equally applies to Marvell).
+> You mean BR_PORT_MAB, not BR_PORT_LOCKED, right?
 
-My understanding is that mv88e6xxx only reads the SMAC and FID/VID from
-hardware and notifies them to the bridge driver. It does not need to
-parse them out of the Ethernet frame that triggered the "violation".
-This is the "ugly" part (in my opinion).
+I actually meant BR_PORT_LOCKED... The hardware has a single bit per
+port that can be used to enable security checks on the port. If security
+checks are enabled, then before L2 forwarding the hardware will perform
+an FDB lookup with the SMAC and FID (VID), which can have one of three
+results:
 
-> The learn frames are "special" in the sense that they don't belong to
-> the data path of the software bridge*, they are just hardware specific
-> information which the driver must deal with, using a channel that
-> happens to be Ethernet and not an IRQ/MDIO.
+1. Match. FDB entry found and it points to the ingress port. In this
+case the packet continues to the regular L2 pipeline.
 
-I think we misunderstand each other because I don't understand why you
-call them "special" nor "hardware specific information" :/ We don't
-inject to the software data path some hardware specific frames, but
-rather the original Ethernet frames that triggered the violation. The
-same thing happens with packets that encountered a neighbour miss during
-routing or whose TTL was decremented to zero. The hardware can't
-generate ARP or ICMP packets, so the original packet is injected to the
-Rx path so that the kernel will generate the necessary control packets
-in response.
+2. Mismatch. FDB entry found, but it points to a different port than
+ingress port. In this case we want to drop the packet like the software
+bridge.
 
-> *in other words, a bridge with proper RX filtering should not even
-> receive these frames, or would need special casing for BR_PORT_MAB to
-> not drop them in the first place.
-> 
-> I would incline towards an unified approach for CPU assisted learning,
-> regardless of this (minor, IMO) difference between Marvell and other
-> vendors.
+3. Miss. FDB entry not found. Here I was thinking to always tell the
+packet to go to the software data path so that it will trigger the
+creation of the "locked" entry if MAB is enabled. If MAB is not enabled,
+it will simply be dropped by the bridge. We can't control it per port in
+hardware, which is why the BR_PORT_MAB flag is not consulted.
 
-OK, understood. Assuming you don't like the above, I need to check if we
-can do something similar to what mv88e6xxx is doing (because I don't
-think mv88e6xxx can do anything else).
+> AFAIU, "locked" means drop unknown MAC SA, "mab" means "install
+> BR_FDB_LOCKED entry on port" (and also maybe still drop, if "locked"
+> is also set on port).
+
+Right, but you can't have "mab" without "locked" (from patch #1):
+
+```
+@@ -943,6 +946,13 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS, BR_NEIGH_SUPPRESS);
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_LOCKED, BR_PORT_LOCKED);
++	br_set_port_flag(p, tb, IFLA_BRPORT_MAB, BR_PORT_MAB);
++
++	if (!(p->flags & BR_PORT_LOCKED) && (p->flags & BR_PORT_MAB)) {
++		NL_SET_ERR_MSG(extack, "MAB cannot be enabled when port is unlocked");
++		p->flags = old_flags;
++		return -EINVAL;
++	}
+ 
+ 	changed_mask = old_flags ^ p->flags;
+```
+
+> Sad there isn't any good documentation about these flags in the patches
+> that Hans is proposing.
+
+Will try to comment with better commit messages for patches #1 and #2.
+Not sure I will have time today.
