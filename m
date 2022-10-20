@@ -1,21 +1,29 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F93441955
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9ABC941936
-MIME-Version: 1.0
-Date: Thu, 20 Oct 2022 23:09:40 +0200
-From: netdev@kapio-technology.com
-In-Reply-To: <20221020132538.reirrskemcjwih2m@skbuf>
+Return-Path: <olteanv@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 60F8740483
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 735C0400A6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=JglhUSuAsvyo/02iuoDdhbFLRdL0c14GOno7/e71c6I=;
+ b=UVFcLtLRlFJ23BO5nFdHnG4XQRcYTdnQfD3m/QakLfwgOixkkCd7UJlVA+CHErZDSK
+ yqcpu2eHqMGfmTPApN2EotBAlWuycXT2OjFAFM1+5hggxKMnxWXGuezOaAd4WEJlzw/E
+ QwfCAicGgtNoOd8NE+jP3QuxiLJQ5qMyH/pDBuCnlZYt4z3r6VCKUlsfCNk+YLZNLAOA
+ jZfpDE2kC2IhtsQcsYya9US9kOGVA9O8AzfTEwo/8FQZKplzXol7D+K0m8g9+ZJMdMlA
+ 7qnuH1rqNqLEFKQ+7QqHXn3BuFaESpqJ+j9E4Q1RUqqQor0Pmd9ogjMf6JpK5JbYc/PN
+ U2Rw==
+Date: Fri, 21 Oct 2022 01:43:34 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20221020224334.ksh4xciad7yro3cj@skbuf>
 References: <20221018165619.134535-1-netdev@kapio-technology.com>
- <20221018165619.134535-1-netdev@kapio-technology.com>
- <20221018165619.134535-11-netdev@kapio-technology.com>
- <20221018165619.134535-11-netdev@kapio-technology.com>
- <20221020132538.reirrskemcjwih2m@skbuf>
-Message-ID: <3e58594c1223f4591e56409cd5061de7@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v8 net-next 10/12] net: dsa: mv88e6xxx:
- mac-auth/MAB implementation
+ <20221018165619.134535-4-netdev@kapio-technology.com>
+ <20221020125549.v6kls2lk7etvay7c@skbuf>
+ <e1184c879642c35e4ff6f19e0fd5de46@kapio-technology.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e1184c879642c35e4ff6f19e0fd5de46@kapio-technology.com>
+Subject: Re: [Bridge] [PATCH v8 net-next 03/12] net: bridge: enable bridge
+ to install locked fdb entries from drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,77 +32,37 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
+To: netdev@kapio-technology.com
 Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Florent Fourcot <florent.fourcot@wifirst.fr>, UNGLinuxDriver@microchip.com, davem@davemloft.net
 
-On 2022-10-20 15:25, Vladimir Oltean wrote:
+On Thu, Oct 20, 2022 at 09:29:06PM +0200, netdev@kapio-technology.com wrote:
+> On 2022-10-20 14:55, Vladimir Oltean wrote:
+> > On Tue, Oct 18, 2022 at 06:56:10PM +0200, Hans J. Schultz wrote:
+> > > diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+> > > index 8f3d76c751dd..c6b938c01a74 100644
+> > > --- a/net/bridge/br_switchdev.c
+> > > +++ b/net/bridge/br_switchdev.c
+> > > @@ -136,6 +136,7 @@ static void br_switchdev_fdb_populate(struct
+> > > net_bridge *br,
+> > >  	item->added_by_user = test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+> > >  	item->offloaded = test_bit(BR_FDB_OFFLOADED, &fdb->flags);
+> > >  	item->is_local = test_bit(BR_FDB_LOCAL, &fdb->flags);
+> > > +	item->locked = test_bit(BR_FDB_LOCKED, &fdb->flags);
+> > 
+> > Shouldn't this be set to 0 here, since it is the bridge->driver
+> > direction?
 > 
-> This would not have been needed if dsa_port_set_state() would have
-> called dsa_port_fast_age().
-> 
-> Currently it only does that if dp->learning is true. From previous
-> conversations I get the idea that with MAB, port learning will be 
-> false.
-> But I don't understand why; isn't MAB CPU-assisted learning? I'm 
-> looking
-> at the ocelot hardware support for this and I think it could be
-> implemented using a similar mechanism, but I certainly don't want to 
-> add
-> more workarounds such as this in other drivers.
-> 
-> Are there any other ways to implement MAB other than through CPU
-> assisted learning?
-> 
-> We could add one more dp->mab flag which tracks the "mab" brport flag,
-> and extend dsa_port_set_state() to also call dsa_port_fast_age() in 
-> that
-> case, but I want to make sure there isn't something extremely obvious
-> I'm missing about the "learning" flag.
-> 
+> Wouldn't it be a good idea to allow drivers to add what corresponds to a blackhole
+> entry when using the bridge input chain to activate the MAB feature, or in general
+> to leave the decision of what to do to the driver implementation?
 
-As learning is off on locked ports, see other response, your dp->mab 
-flag
-idea might be a way to go, just need confirmation that this is needed.
+The patch doesn't propose that. It proposes:
 
+| net: bridge: enable bridge to install locked fdb entries from drivers
+| 
+| The bridge will be able to install locked entries when receiving
+| SWITCHDEV_FDB_ADD_TO_BRIDGE notifications from drivers.
 
->> @@ -6572,8 +6604,10 @@ static int mv88e6xxx_port_bridge_flags(struct 
->> dsa_switch *ds, int port,
->>  	if (flags.mask & BR_MCAST_FLOOD) {
->>  		bool multicast = !!(flags.val & BR_MCAST_FLOOD);
->> 
->> +		mv88e6xxx_reg_lock(chip);
->>  		err = chip->info->ops->port_set_mcast_flood(chip, port,
->>  							    multicast);
->> +		mv88e6xxx_reg_unlock(chip);
->>  		if (err)
->>  			goto out;
->>  	}
->> @@ -6581,20 +6615,34 @@ static int mv88e6xxx_port_bridge_flags(struct 
->> dsa_switch *ds, int port,
->>  	if (flags.mask & BR_BCAST_FLOOD) {
->>  		bool broadcast = !!(flags.val & BR_BCAST_FLOOD);
->> 
->> +		mv88e6xxx_reg_lock(chip);
->>  		err = mv88e6xxx_port_broadcast_sync(chip, port, broadcast);
->> +		mv88e6xxx_reg_unlock(chip);
->>  		if (err)
->>  			goto out;
->>  	}
->> 
->> +	if (flags.mask & BR_PORT_MAB) {
->> +		chip->ports[port].mab = !!(flags.val & BR_PORT_MAB);
->> +
->> +		if (!chip->ports[port].mab)
->> +			err = mv88e6xxx_atu_locked_entry_flush(ds, port);
->> +		else
->> +			err = 0;
-> 
-> Again, dsa_port_fast_age() is also called when dp->learning is turned
-> off in dsa_port_bridge_flags(). I don't want to see the mv88e6xxx 
-> driver
-> doing this manually.
-> 
-
-Maybe I am wrong, but I have only been able to trigger fast ageing by 
-setting
-the STP state of the port to blocked...
+Please write patches which make just one logical change, and explain the
+justification for that change and precisely that change in the commit
+message.
