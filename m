@@ -1,13 +1,20 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5D5CE418F8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 29E87418E6
-MIME-Version: 1.0
-Date: Fri, 21 Oct 2022 19:39:34 +0200
-From: netdev@kapio-technology.com
-In-Reply-To: <20221021173014.oit3qmpkrsjwzbgu@skbuf>
-References: <20221018165619.134535-11-netdev@kapio-technology.com>
- <20221018165619.134535-11-netdev@kapio-technology.com>
- <20221020132538.reirrskemcjwih2m@skbuf>
+Return-Path: <olteanv@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9205E83FC2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5010883FBC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=IWT32hn/5on9JQFLZ9CdZqyFkNpfjrGX5X1sBaET02U=;
+ b=P9hSCaa39i9JGj/5fhpGAGKqV0qNaEhqet8DmdqurbIDP+fWwaBweSZJ3/S6bAi2DE
+ p+eq7oKJ/RDCYh9wf+nabFJSnwsdceArXMizkG598uRi7agL1PsnxpKJR3QOGe9LGUsr
+ zmlp8/3/NqI+V1i2nDa+LoUbsVbsT7TecGgNHY9btlLCVLiBhuGwippKH5FV3uy6EKQf
+ py5P3IgoKNZRscRUy9euAQkfpmI26lMxdGlz6ZIjmzgrS22NPAK4YVPfYhIgDowxprq/
+ ViQgGv3cTTio2/IhXMiDB1cCyYpWLgr0OA+yXjiHyGL9TQD3FZitvAZZYL5w3Dv4WD/K
+ D/1g==
+Date: Fri, 21 Oct 2022 21:14:11 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+Message-ID: <20221021181411.sv52q4yxr5r7urab@skbuf>
+References: <20221020132538.reirrskemcjwih2m@skbuf>
  <2565c09bb95d69142522c3c3bcaa599e@kapio-technology.com>
  <20221020225719.l5iw6vndmm7gvjo3@skbuf>
  <82d23b100b8d2c9e4647b8a134d5cbbf@kapio-technology.com>
@@ -16,10 +23,11 @@ References: <20221018165619.134535-11-netdev@kapio-technology.com>
  <20221021163005.xljk2j3fkikr6uge@skbuf>
  <d1fb07de4b55d64f98425fe66156c4e4@kapio-technology.com>
  <20221021173014.oit3qmpkrsjwzbgu@skbuf>
-Message-ID: <b88e331e016ad3801f1bf1a0dec507f3@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+ <b88e331e016ad3801f1bf1a0dec507f3@kapio-technology.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b88e331e016ad3801f1bf1a0dec507f3@kapio-technology.com>
 Subject: Re: [Bridge] [PATCH v8 net-next 10/12] net: dsa: mv88e6xxx:
  mac-auth/MAB implementation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -30,57 +38,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Florent Fourcot <florent.fourcot@wifirst.fr>, UNGLinuxDriver@microchip.com, davem@davemloft.net
+To: netdev@kapio-technology.com
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, linux-kselftest@vger.kernel.org, Joachim Wiberg <troglobit@gmail.com>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, Vivien Didelot <vivien.didelot@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Amit Cohen <amcohen@nvidia.com>, Christian Marangi <ansuelsmth@gmail.com>, Hauke Mehrtens <hauke@hauke-m.de>, Hans Schultz <schultz.hans@gmail.com>, Sean Wang <sean.wang@mediatek.com>, Oleksandr Mazur <oleksandr.mazur@plvision.eu>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Yuwei Wang <wangyuweihx@gmail.com>, Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Florent Fourcot <florent.fourcot@wifirst.fr>, UNGLinuxDriver@microchip.com, davem@davemloft.net
 
-On 2022-10-21 19:30, Vladimir Oltean wrote:
-> On Fri, Oct 21, 2022 at 07:18:59PM +0200, netdev@kapio-technology.com 
-> wrote:
->> On 2022-10-21 18:30, Vladimir Oltean wrote:
->> > On Fri, Oct 21, 2022 at 03:16:21PM +0200, netdev@kapio-technology.com wrote:
->> > > As it is now in the bridge, the locked port part is handled before learning
->> > > in the ingress data path, so with BR_LEARNING and BR_PORT_LOCKED, I think it
->> > > will work as it does now except link local packages.
->> >
->> > If link-local learning is enabled on a locked port, I think those
->> > addresses should also be learned with the BR_FDB_LOCKED flag. The
->> > creation of those locked FDB entries can be further suppressed by the
->> > BROPT_NO_LL_LEARN flag.
->> >
->> > > If your suggestion of BR_LEARNING causing BR_FDB_LOCKED on a locked port, I
->> > > guess it would be implemented under br_fdb_update() and BR_LEARNING +
->> > > BR_PORT_LOCKED would go together, forcing BR_LEARNING in this case, thus also
->> > > for all drivers?
->> >
->> > Yes, basically where this is placed right now (in br_handle_frame_finish):
->> 
->> As I don't know what implications it would have for other drivers to 
->> have learning
->> forced enabled on locked ports, I cannot say if it is a good idea or 
->> not.
->> Right now learning is not forced either way as is, but the consensus 
->> is that learning
->> should be off with locked ports, which it would be either way in the 
->> common case I
->> think.
-> 
-> I don't think I fully understand what you mean by forcing BR_LEARNING.
-> A bridge port gets created with a default set of flags as can be seen
-> in new_nbp().
-> Those flags include BR_LEARNING but don't include BR_PORT_LOCKED.
-> 
-> The user can decide he wants to make the port use 802.1X without MAB, 
-> so
-> he enables BR_PORT_LOCKED and disables BR_LEARNING, all with the same
-> netlink command (ip link set swp0 type bridge_slave learning off locked 
-> on).
-> 
-> How was the driver forced into anything?
+On Fri, Oct 21, 2022 at 07:39:34PM +0200, netdev@kapio-technology.com wrote:
+> Well, with this change, to have MAB working, the bridge would need learning on
+> of course, but how things work with the bridge according to the flags, they
+> should also work in the offloaded case if you ask me. There should be no
+> difference between the two, thus MAB in drivers would have to be with
+> learning on.
 
-Well, with this change, to have MAB working, the bridge would need 
-learning on
-of course, but how things work with the bridge according to the flags, 
-they
-should also work in the offloaded case if you ask me. There should be no
-difference between the two, thus MAB in drivers would have to be with
-learning on.
+Am I proposing for things to work differently in the offload and
+software case, and not realizing it? :-/
+
+The essence of my proposal was to send a bug fix now which denies
+BR_LEARNING to be set together with BR_PORT_LOCKED. The fact that
+link-local traffic is learned by the software bridge is something
+unintended as far as I understand.
+
+You tried to fix it here, and as far as I could search in my inbox, that
+didn't go anywhere:
+https://lore.kernel.org/netdev/47d8d747-54ef-df52-3b9c-acb9a77fa14a@blackwall.org/T/#u
+
+I thought only mv88e6xxx offloads BR_PORT_LOCKED, but now, after
+searching, I also see prestera has support for it, so let me add
+Oleksandr Mazur to the discussion as well. I wonder how they deal with
+this? Has somebody come to rely on learning being enabled on a locked
+port?
+
+
+MAB in offloading drivers will have to be with learning on (same as in
+software). When BR_PORT_LOCKED | BR_LEARNING will be allowed together
+back in net-next (to denote the MAB configuration), offloading drivers
+(mv88e6xxx and prestera) will be patched to reject them. They will only
+accept the two together when they implement MAB support.
+
+Future drivers after this mess has been cleaned up will have to look at
+the BR_PORT_LOCKED and BR_LEARNING flag in combination, to see which
+kind of learning is desired on a port (secure, CPU based learning or
+autonomous learning).
+
+Am I not making sense?
