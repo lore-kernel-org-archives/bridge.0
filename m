@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 300FF60AF2
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C23D1605B0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6825C60B10
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2229605B0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=XwmRTbb7Z1iwYqyAXL7gKB2BP7kYpxso4h/Svsr1CMI=;
- b=csA4tV2W4ZPfUGsLZe9XIg6GPvBX0o6HttxaPDBrirhtOECbekGMAlDBM9lzWqmKwc
- VvLUe4zPT5C27KQ5VReqNEn/JzcranIVRM2aqTI5a0qoBhn1lBsCvpVl6dngfsH21ug1
- /j3HZXqMMiRSLTjWU7CLja/lLWLp0YhnCddQN2LR88Gk/kqI0YxcC9SWNXE9C8wIrvOn
- dNJnFVt9Rv5S4ldgQFqBMQFkfQxXX6nGQXugGQTNJMyqZbSI4+lMgDobYZuJ8zbTf2yM
- 8N2r79YY8ICkwGzHJ9ZaHoC3JkkCBZ7pT/Zz2aWFe1ojKQ2NWuXvq40+gLFhbAg+sfiJ
- PztQ==
-Message-ID: <9c0eb6c4-a52c-f2a9-b9be-c4b9805ac44f@blackwall.org>
-Date: Tue, 25 Oct 2022 14:00:34 +0300
+ bh=5EB9AVAb0CKe/bZtFL9Z2aSwLhDuu3g5m22iVMqNVNo=;
+ b=WspXucyOJ4shf+jlfrMxHZh0eLF1c4KqgCQaD1vpHLh0OCOyovmur/BcvV+48YVObS
+ DlPwI4XE05qi2pHaMUWqBDCFgxs3h8F0RAxShXj5gI6ebFmVEK529iVoi4lChcnw8VZ1
+ 8LWgRzZanwj15lXAPOFY/GnjkNluBysiFFKQ7DZXO1618jti3fOBv8SFcYENlVATUKwx
+ y7bILplB9+esl8cEf4rVdFcgz8ljniRBGwE8ZkQp0Z3mm0gDRbKoouPUkcqB5g268vef
+ ZlGfHjnW6u5vnLRG16EqZsInn7I545JJohzz3AfbeQ8sf79cVg9lB7d+lA54zu48ifM8
+ f3Ug==
+Message-ID: <9dc0592e-04a0-bc92-0ced-a7d43f8a0016@blackwall.org>
+Date: Tue, 25 Oct 2022 14:03:48 +0300
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20221025100024.1287157-1-idosch@nvidia.com>
- <20221025100024.1287157-2-idosch@nvidia.com>
+ <20221025100024.1287157-5-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20221025100024.1287157-2-idosch@nvidia.com>
+In-Reply-To: <20221025100024.1287157-5-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH net-next 01/16] bridge: Add MAC
- Authentication Bypass (MAB) support
+Subject: Re: [Bridge] [RFC PATCH net-next 04/16] bridge: switchdev: Allow
+ device drivers to install locked FDB entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -39,47 +39,29 @@ Cc: petrm@nvidia.com, ivecera@redhat.com, netdev@kapio-technology.com, roopa@nvi
 On 25/10/2022 13:00, Ido Schimmel wrote:
 > From: "Hans J. Schultz" <netdev@kapio-technology.com>
 > 
-> Hosts that support 802.1X authentication are able to authenticate
-> themselves by exchanging EAPOL frames with an authenticator (Ethernet
-> bridge, in this case) and an authentication server. Access to the
-> network is only granted by the authenticator to successfully
-> authenticated hosts.
+> When the bridge is offloaded to hardware, FDB entries are learned and
+> aged-out by the hardware. Some device drivers synchronize the hardware
+> and software FDBs by generating switchdev events towards the bridge.
 > 
-> The above is implemented in the bridge using the "locked" bridge port
-> option. When enabled, link-local frames (e.g., EAPOL) can be locally
-> received by the bridge, but all other frames are dropped unless the host
-> is authenticated. That is, unless the user space control plane installed
-> an FDB entry according to which the source address of the frame is
-> located behind the locked ingress port. The entry can be dynamic, in
-> which case learning needs to be enabled so that the entry will be
-> refreshed by incoming traffic.
+> When a port is locked, the hardware must not learn autonomously, as
+> otherwise any host will blindly gain authorization. Instead, the
+> hardware should generate events regarding hosts that are trying to gain
+> authorization and their MAC addresses should be notified by the device
+> driver as locked FDB entries towards the bridge driver.
 > 
-> There are deployments in which not all the devices connected to the
-> authenticator (the bridge) support 802.1X. Such devices can include
-> printers and cameras. One option to support such deployments is to
-> unlock the bridge ports connecting these devices, but a slightly more
-> secure option is to use MAB. When MAB is enabled, the MAC address of the
-> connected device is used as the user name and password for the
-> authentication.
+> Allow device drivers to notify the bridge driver about such entries by
+> extending the 'switchdev_notifier_fdb_info' structure with the 'locked'
+> bit. The bit can only be set by device drivers and not by the bridge
+> driver.
 > 
-> For MAB to work, the user space control plane needs to be notified about
-> MAC addresses that are trying to gain access so that they will be
-> compared against an allow list. This can be implemented via the regular
-> learning process with the following differences:
+> Prevent a locked entry from being installed if MAB is not enabled on the
+> bridge port. By placing this check in the bridge driver we avoid the
+> need to reflect the 'BR_PORT_MAB' flag to device drivers.
 > 
-> 1. Learned FDB entries are installed with a new "locked" flag indicating
->    that the entry cannot be used to authenticate the device. The flag
->    cannot be set by user space, but user space can clear the flag by
->    replacing the entry, thereby authenticating the device.
-> 
-> 2. FDB entries cannot roam to locked ports to prevent unauthenticated
->    devices from disrupting traffic destined to already authenticated
->    devices.
-> 
-> Enable this behavior using a new bridge port option called "mab". It can
-> only be enabled on a bridge port that is both locked and has learning
-> enabled. A new option is added because there are pure 802.1X deployments
-> that are not interested in notifications about "locked" FDB entries.
+> If an entry already exists in the bridge driver, reject the locked entry
+> if the current entry does not have the "locked" flag set or if it points
+> to a different port. The same semantics are implemented in the software
+> data path.
 > 
 > Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
@@ -89,23 +71,18 @@ On 25/10/2022 13:00, Ido Schimmel wrote:
 >     Changes made by me:
 >     
 >      * Reword commit message.
->      * Reword comment regarding 'NTF_EXT_LOCKED'.
->      * Use extack in br_fdb_add().
->      * Forbid MAB when learning is disabled.
+>      * Forbid locked entries when MAB is not enabled.
+>      * Forbid roaming of locked entries.
+>      * Avoid setting 'locked' bit towards device drivers.
 > 
->  include/linux/if_bridge.h      |  1 +
->  include/uapi/linux/if_link.h   |  1 +
->  include/uapi/linux/neighbour.h |  8 +++++++-
->  net/bridge/br_fdb.c            | 24 ++++++++++++++++++++++++
->  net/bridge/br_input.c          | 15 +++++++++++++--
->  net/bridge/br_netlink.c        | 13 ++++++++++++-
->  net/bridge/br_private.h        |  3 ++-
->  net/core/rtnetlink.c           |  5 +++++
->  8 files changed, 65 insertions(+), 5 deletions(-)
+>  include/net/switchdev.h   |  1 +
+>  net/bridge/br.c           |  3 ++-
+>  net/bridge/br_fdb.c       | 22 ++++++++++++++++++++--
+>  net/bridge/br_private.h   |  2 +-
+>  net/bridge/br_switchdev.c |  1 +
+>  5 files changed, 25 insertions(+), 4 deletions(-)
 > 
 
-Thanks for finalizing this, the patch looks good to me.
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-Thanks,
- Nik
+
