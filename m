@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D92BA40891
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A72D840880
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 654238132E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F5E181328
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bs5WF0VsyanM73k9HlbZ0mo3jYQFRi6r1iCry6cLibU=;
- b=HQL6vxejYTe5k1f3kqLaGatpihx3j+uRbdirSBhF/Za3LKEANqgDJEGNc5hy1cmuIgoYjMjiNMHxTuG69tC4oZ6rauXnVuVBNBG0KirLZ42tJEAo+iIUBqgMdQ33Y6aK42iTZa1rJtF/rkVt7k49zOcO3xKmmZlkQ3gw03IzEo5gsTLvyGCb/EkN1wbWP2HU0tInp2NZZLpDTklerHiNOCyH/S4ygtdfj6AjbNHsCkGXC/b9fnubB6seBacHE3DcUbxGEqgF4czafDTugcJ/jzb6BfFQe48gP/hdEgxWqvZLDn/rK+FlUrCoO2tdN/QISJPqt0VCoGavhOhQwZ902Q==
+ bh=0FXcWVwsBQdAaXI9PWsoFystsy/uPpRkTWQ7oaGegqA=;
+ b=ZJifQdPzdBx+HPO1lrgeMRhlbL7JVb0Cc1I8Xu2iGm+JkkA0dcAfuejmI1ilGKkOJAkO9XvutHvxbf5e1UWkCIouy+vY0nSO6yElHNemry2leJLVg2oIG8QaQQERCIfSGmcaIy44ts98UrsR3ORl5l8TyAKYgK5egzGPGxOdDz6jkX59ltmqp/N6DZKJpO6dazlGFHC/kw3nKzFLEvMqDsuo6AIoDmLAR3gkeFkmfK3biihK5RZONMROwlH0hdmlyA2DNcEmbUEjLb+Zis+MtAEbjmyGwb8k/txRFkfgVMWTKZCPNb439H6f0jTPqtmPuPfYSDo3sQWGzhWOxNnqvQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 25 Oct 2022 13:00:14 +0300
-Message-Id: <20221025100024.1287157-7-idosch@nvidia.com>
+Date: Tue, 25 Oct 2022 13:00:15 +0300
+Message-Id: <20221025100024.1287157-8-idosch@nvidia.com>
 In-Reply-To: <20221025100024.1287157-1-idosch@nvidia.com>
 References: <20221025100024.1287157-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH net-next 06/16] mlxsw: spectrum_trap: Register
-	802.1X packet traps with devlink
+Subject: [Bridge] [RFC PATCH net-next 07/16] mlxsw: reg: Add Switch Port FDB
+	Security Register
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,94 +27,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, ivecera@redhat.com, netdev@kapio-technology.com, razor@blackwall.org, roopa@nvidia.com, Ido Schimmel <idosch@nvidia.com>, vladimir.oltean@nxp.com, edumazet@google.com, mlxsw@nvidia.com, jiri@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Register the previously added packet traps with devlink. This allows
-user space to tune their policers and in the case of the locked port
-trap, user space can set its action to "trap" in order to gain
-visibility into packets that were discarded by the device due to the
-locked port check failure.
+Add the Switch Port FDB Security Register (SPFSR) that allows enabling
+and disabling security checks on a given local port. In Linux terms, it
+allows locking / unlocking a port.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/reg.h     |  1 +
- .../ethernet/mellanox/mlxsw/spectrum_trap.c   | 25 +++++++++++++++++++
- drivers/net/ethernet/mellanox/mlxsw/trap.h    |  2 ++
- 3 files changed, 28 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/reg.h | 34 +++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-index b74f30ec629a..7240af45ade5 100644
+index 7240af45ade5..f2d6f8654e04 100644
 --- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
 +++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-@@ -6316,6 +6316,7 @@ enum mlxsw_reg_htgt_trap_group {
- 	MLXSW_REG_HTGT_TRAP_GROUP_SP_TUNNEL_DISCARDS,
- 	MLXSW_REG_HTGT_TRAP_GROUP_SP_ACL_DISCARDS,
- 	MLXSW_REG_HTGT_TRAP_GROUP_SP_BUFFER_DISCARDS,
-+	MLXSW_REG_HTGT_TRAP_GROUP_SP_EAPOL,
+@@ -2046,6 +2046,39 @@ static inline void mlxsw_reg_spvmlr_pack(char *payload, u16 local_port,
+ 	}
+ }
  
- 	__MLXSW_REG_HTGT_TRAP_GROUP_MAX,
- 	MLXSW_REG_HTGT_TRAP_GROUP_MAX = __MLXSW_REG_HTGT_TRAP_GROUP_MAX - 1
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-index f4bfdb6dab9c..899c954e0e5f 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
-@@ -510,6 +510,9 @@ mlxsw_sp_trap_policer_items_arr[] = {
- 	{
- 		.policer = MLXSW_SP_TRAP_POLICER(20, 10240, 4096),
- 	},
-+	{
-+		.policer = MLXSW_SP_TRAP_POLICER(21, 128, 128),
-+	},
- };
- 
- static const struct mlxsw_sp_trap_group_item mlxsw_sp_trap_group_items_arr[] = {
-@@ -628,6 +631,11 @@ static const struct mlxsw_sp_trap_group_item mlxsw_sp_trap_group_items_arr[] = {
- 		.hw_group_id = MLXSW_REG_HTGT_TRAP_GROUP_SP_FLOW_LOGGING,
- 		.priority = 4,
- 	},
-+	{
-+		.group = DEVLINK_TRAP_GROUP_GENERIC(EAPOL, 21),
-+		.hw_group_id = MLXSW_REG_HTGT_TRAP_GROUP_SP_EAPOL,
-+		.priority = 5,
-+	},
- };
- 
- static const struct mlxsw_sp_trap_item mlxsw_sp_trap_items_arr[] = {
-@@ -1160,6 +1168,23 @@ static const struct mlxsw_sp_trap_item mlxsw_sp_trap_items_arr[] = {
- 			MLXSW_SP_RXL_DISCARD(ROUTER3, L3_DISCARDS),
- 		},
- 	},
-+	{
-+		.trap = MLXSW_SP_TRAP_CONTROL(EAPOL, EAPOL, TRAP),
-+		.listeners_arr = {
-+			MLXSW_SP_RXL_NO_MARK(EAPOL, EAPOL, TRAP_TO_CPU, true),
-+		},
-+	},
-+	{
-+		.trap = MLXSW_SP_TRAP_DROP(LOCKED_PORT, L2_DROPS),
-+		.listeners_arr = {
-+			MLXSW_RXL_DIS(mlxsw_sp_rx_drop_listener, FDB_MISS,
-+				      TRAP_EXCEPTION_TO_CPU, false,
-+				      SP_L2_DISCARDS, DISCARD, SP_L2_DISCARDS),
-+			MLXSW_RXL_DIS(mlxsw_sp_rx_drop_listener, FDB_MISMATCH,
-+				      TRAP_EXCEPTION_TO_CPU, false,
-+				      SP_L2_DISCARDS, DISCARD, SP_L2_DISCARDS),
-+		},
-+	},
- };
- 
- static struct mlxsw_sp_trap_policer_item *
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/trap.h b/drivers/net/ethernet/mellanox/mlxsw/trap.h
-index 8da169663bda..83477c8e6971 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/trap.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/trap.h
-@@ -25,6 +25,8 @@ enum {
- 	MLXSW_TRAP_ID_IGMP_V2_LEAVE = 0x33,
- 	MLXSW_TRAP_ID_IGMP_V3_REPORT = 0x34,
- 	MLXSW_TRAP_ID_PKT_SAMPLE = 0x38,
-+	MLXSW_TRAP_ID_FDB_MISS = 0x3A,
-+	MLXSW_TRAP_ID_FDB_MISMATCH = 0x3B,
- 	MLXSW_TRAP_ID_FID_MISS = 0x3D,
- 	MLXSW_TRAP_ID_DECAP_ECN0 = 0x40,
- 	MLXSW_TRAP_ID_MTUERROR = 0x52,
++/* SPFSR - Switch Port FDB Security Register
++ * -----------------------------------------
++ * Configures the security mode per port.
++ */
++#define MLXSW_REG_SPFSR_ID 0x2023
++#define MLXSW_REG_SPFSR_LEN 0x08
++
++MLXSW_REG_DEFINE(spfsr, MLXSW_REG_SPFSR_ID, MLXSW_REG_SPFSR_LEN);
++
++/* reg_spfsr_local_port
++ * Local port.
++ * Access: Index
++ *
++ * Note: not supported for CPU port.
++ */
++MLXSW_ITEM32_LP(reg, spfsr, 0x00, 16, 0x00, 12);
++
++/* reg_spfsr_security
++ * Security checks.
++ * 0: disabled (default)
++ * 1: enabled
++ * Access: RW
++ */
++MLXSW_ITEM32(reg, spfsr, security, 0x04, 31, 1);
++
++static inline void mlxsw_reg_spfsr_pack(char *payload, u16 local_port,
++					bool security)
++{
++	MLXSW_REG_ZERO(spfsr, payload);
++	mlxsw_reg_spfsr_local_port_set(payload, local_port);
++	mlxsw_reg_spfsr_security_set(payload, security);
++}
++
+ /* SPVC - Switch Port VLAN Classification Register
+  * -----------------------------------------------
+  * Configures the port to identify packets as untagged / single tagged /
+@@ -12762,6 +12795,7 @@ static const struct mlxsw_reg_info *mlxsw_reg_infos[] = {
+ 	MLXSW_REG(svpe),
+ 	MLXSW_REG(sfmr),
+ 	MLXSW_REG(spvmlr),
++	MLXSW_REG(spfsr),
+ 	MLXSW_REG(spvc),
+ 	MLXSW_REG(spevet),
+ 	MLXSW_REG(smpe),
 -- 
 2.37.3
 
