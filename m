@@ -1,19 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E80D812D1
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0BF2880E46
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 14DF940352
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ACE4C4025F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TMsqm4DkU7H9QVImeZAVmQ+Ff0bNqKwHMI9/LrUdPR4=;
- b=Iwf5SSWDW22ECk568HFofGKt/U/tO7FTlnllqMXDo+57LHmPrbDI7usH5AmcemVZYgKMUsJ30DR3LtMsmLcwlGqiNXhfHtsKzc1XQ1uXJTJ5dhTc7s+noZwuVug2EoEQqGrN3Oyp+Lo+Q9gy5tivD57CWxFSoLPh2dnoFcCKQVKRqk6xZHTpNjWsreSRm2EyRlsCoZJeUp+jE7z7AEIeGAVOPvYJ4VWilFUYQtN6oMNNWIsRqD2BkFKqOoSoOQ9lVskbDUMxW/sInFc2LCuupYLOAlXxLuIlZWsowkfaQcIVuvaM0HVu6EcpuAfiz/MqYQ+IRH0y8I7em/Ygk8yBEQ==
+ bh=VCxCKxjI0yYAncPB5mB/XoPRlCAhjX4Mbvpxq5EQdBM=;
+ b=cP+e+A/t2VEnnpoSX1Pha7n2BpqXUE8yT9hTHdiKC/ZKq9DL2YxyCkjQAT55akK+nqO74zopp1Km+qMIEOoCmKVasbU+TPdEGJfVazkQeotgE1MbuBGoTeHwsJH/4VCepbDaaNJwnJoK4eI28HptBQIL+noESsjQkzZO9QY1391TobCSTn3LaY07AtLxeIjGRdZkKWlXDLu1HJPnDkV0IgwwyXu4v7LuB5jw1j6HHb/S5elZD9JKR6d6zyRfztnTIb2VuMg/CvulerwI4IJFP6xvUCzZ+6puyKuXbZogUokbxwfl/beVNSTlRYeXArq018TKzSH+GL4P55jOaq62JA==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 25 Oct 2022 13:00:08 +0300
-Message-Id: <20221025100024.1287157-1-idosch@nvidia.com>
+Date: Tue, 25 Oct 2022 13:00:09 +0300
+Message-Id: <20221025100024.1287157-2-idosch@nvidia.com>
+In-Reply-To: <20221025100024.1287157-1-idosch@nvidia.com>
+References: <20221025100024.1287157-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH net-next 00/16] bridge: Add MAC Authentication
-	Bypass (MAB) support with offload
+Subject: [Bridge] [RFC PATCH net-next 01/16] bridge: Add MAC Authentication
+	Bypass (MAB) support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,118 +27,306 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, ivecera@redhat.com, netdev@kapio-technology.com, razor@blackwall.org, roopa@nvidia.com, Ido Schimmel <idosch@nvidia.com>, vladimir.oltean@nxp.com, edumazet@google.com, mlxsw@nvidia.com, jiri@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-This patchset is based on Hans' work from [1][2]. It adds MAB support in
-the bridge driver and 802.1X (with MAB) offload support in mlxsw.
+From: "Hans J. Schultz" <netdev@kapio-technology.com>
 
-Patchset overview
-=================
+Hosts that support 802.1X authentication are able to authenticate
+themselves by exchanging EAPOL frames with an authenticator (Ethernet
+bridge, in this case) and an authentication server. Access to the
+network is only granted by the authenticator to successfully
+authenticated hosts.
 
-Patch #1 adds MAB support in the bridge driver. See the commit message
-for motivation and design choices.
+The above is implemented in the bridge using the "locked" bridge port
+option. When enabled, link-local frames (e.g., EAPOL) can be locally
+received by the bridge, but all other frames are dropped unless the host
+is authenticated. That is, unless the user space control plane installed
+an FDB entry according to which the source address of the frame is
+located behind the locked ingress port. The entry can be dynamic, in
+which case learning needs to be enabled so that the entry will be
+refreshed by incoming traffic.
 
-Patch #2 adds a selftest.
+There are deployments in which not all the devices connected to the
+authenticator (the bridge) support 802.1X. Such devices can include
+printers and cameras. One option to support such deployments is to
+unlock the bridge ports connecting these devices, but a slightly more
+secure option is to use MAB. When MAB is enabled, the MAC address of the
+connected device is used as the user name and password for the
+authentication.
 
-Patches #3-#4 extend the switchdev interfaces to allow device drivers to
-install locked FDB entries in the bridge driver. Required for MAB
-offload support.
+For MAB to work, the user space control plane needs to be notified about
+MAC addresses that are trying to gain access so that they will be
+compared against an allow list. This can be implemented via the regular
+learning process with the following differences:
 
-The rest of the patches add 802.1X and MAB offload support in mlxsw.
-Specifically:
+1. Learned FDB entries are installed with a new "locked" flag indicating
+   that the entry cannot be used to authenticate the device. The flag
+   cannot be set by user space, but user space can clear the flag by
+   replacing the entry, thereby authenticating the device.
 
-Patches #5-#6 add the required packet traps for 802.1X.
+2. FDB entries cannot roam to locked ports to prevent unauthenticated
+   devices from disrupting traffic destined to already authenticated
+   devices.
 
-Patches #7-#11 are small preparations.
+Enable this behavior using a new bridge port option called "mab". It can
+only be enabled on a bridge port that is both locked and has learning
+enabled. A new option is added because there are pure 802.1X deployments
+that are not interested in notifications about "locked" FDB entries.
 
-Patch #12 adds locked bridge port support in mlxsw.
+Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+---
 
-Patches #13-#16 add mlxsw selftests.
+Notes:
+    Changes made by me:
+    
+     * Reword commit message.
+     * Reword comment regarding 'NTF_EXT_LOCKED'.
+     * Use extack in br_fdb_add().
+     * Forbid MAB when learning is disabled.
 
-Future work
-===========
+ include/linux/if_bridge.h      |  1 +
+ include/uapi/linux/if_link.h   |  1 +
+ include/uapi/linux/neighbour.h |  8 +++++++-
+ net/bridge/br_fdb.c            | 24 ++++++++++++++++++++++++
+ net/bridge/br_input.c          | 15 +++++++++++++--
+ net/bridge/br_netlink.c        | 13 ++++++++++++-
+ net/bridge/br_private.h        |  3 ++-
+ net/core/rtnetlink.c           |  5 +++++
+ 8 files changed, 65 insertions(+), 5 deletions(-)
 
-The hostapd fork by Westermo is using dynamic FDB entries to authorize
-hosts [3]. Changes are required in switchdev to allow such entries to be
-offloaded. Hans already indicated he is working on that [4]. It should
-not necessitate any uAPI changes so I do not view it as a blocker (Hans,
-please confirm).
-
-Merge plan
-==========
-
-We need to agree on a merge plan that allows us to start submitting
-patches for inclusion and finally conclude this work. In my experience,
-it is best to work in small batches. I therefore propose the following
-plan:
-
-* Add MAB support in the bridge driver. This corresponds to patches
-  #1-#2.
-
-* Switchdev extensions for MAB offload together with mlxsw
-  support. This corresponds to patches #3-#16. I can reduce the number
-  of patches by splitting out the selftests to a separate submission.
-
-* mv88e6xxx support. I believe the blackhole stuff is an optimization,
-  so I suggest getting initial MAB offload support without that. Support
-  for blackhole entries together with offload can be added in a separate
-  submission.
-
-* Switchdev extensions for dynamic FDB entries together with mv88e6xxx
-  support. I can follow up with mlxsw support afterwards.
-
-[1] https://lore.kernel.org/netdev/20221018165619.134535-1-netdev@kapio-technology.com/
-[2] https://lore.kernel.org/netdev/20221004152036.7848-1-netdev@kapio-technology.com/
-[3] https://github.com/westermo/hostapd/blob/bridge_driver/hostapd/hostapd_auth_deauth.sh#L11
-[4] https://lore.kernel.org/netdev/a11af0d07a79adbd2ac3d242b36dec7e@kapio-technology.com/
-
-Hans J. Schultz (3):
-  bridge: Add MAC Authentication Bypass (MAB) support
-  selftests: forwarding: Add MAC Authentication Bypass (MAB) test cases
-  bridge: switchdev: Allow device drivers to install locked FDB entries
-
-Ido Schimmel (13):
-  bridge: switchdev: Let device drivers determine FDB offload indication
-  devlink: Add packet traps for 802.1X operation
-  mlxsw: spectrum_trap: Register 802.1X packet traps with devlink
-  mlxsw: reg: Add Switch Port FDB Security Register
-  mlxsw: spectrum: Add an API to configure security checks
-  mlxsw: spectrum_switchdev: Prepare for locked FDB notifications
-  mlxsw: spectrum_switchdev: Add support for locked FDB notifications
-  mlxsw: spectrum_switchdev: Use extack in bridge port flag validation
-  mlxsw: spectrum_switchdev: Add locked bridge port support
-  selftests: devlink_lib: Split out helper
-  selftests: mlxsw: Add a test for EAPOL trap
-  selftests: mlxsw: Add a test for locked port trap
-  selftests: mlxsw: Add a test for invalid locked bridge port
-    configurations
-
- .../networking/devlink/devlink-trap.rst       |  13 +++
- drivers/net/ethernet/mellanox/mlxsw/reg.h     |  35 ++++++
- .../net/ethernet/mellanox/mlxsw/spectrum.c    |  22 ++++
- .../net/ethernet/mellanox/mlxsw/spectrum.h    |   5 +-
- .../mellanox/mlxsw/spectrum_switchdev.c       |  64 +++++++++--
- .../ethernet/mellanox/mlxsw/spectrum_trap.c   |  25 +++++
- drivers/net/ethernet/mellanox/mlxsw/trap.h    |   2 +
- include/linux/if_bridge.h                     |   1 +
- include/net/devlink.h                         |   9 ++
- include/net/switchdev.h                       |   1 +
- include/uapi/linux/if_link.h                  |   1 +
- include/uapi/linux/neighbour.h                |   8 +-
- net/bridge/br.c                               |   5 +-
- net/bridge/br_fdb.c                           |  46 +++++++-
- net/bridge/br_input.c                         |  15 ++-
- net/bridge/br_netlink.c                       |  13 ++-
- net/bridge/br_private.h                       |   5 +-
- net/bridge/br_switchdev.c                     |   1 +
- net/core/devlink.c                            |   3 +
- net/core/rtnetlink.c                          |   5 +
- .../drivers/net/mlxsw/devlink_trap_control.sh |  22 ++++
- .../net/mlxsw/devlink_trap_l2_drops.sh        | 105 ++++++++++++++++++
- .../selftests/drivers/net/mlxsw/rtnetlink.sh  |  31 ++++++
- .../net/forwarding/bridge_locked_port.sh      | 101 ++++++++++++++++-
- .../selftests/net/forwarding/devlink_lib.sh   |  19 ++--
- tools/testing/selftests/net/forwarding/lib.sh |   8 ++
- 26 files changed, 535 insertions(+), 30 deletions(-)
-
+diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+index d62ef428e3aa..1668ac4d7adc 100644
+--- a/include/linux/if_bridge.h
++++ b/include/linux/if_bridge.h
+@@ -59,6 +59,7 @@ struct br_ip_list {
+ #define BR_MRP_LOST_IN_CONT	BIT(19)
+ #define BR_TX_FWD_OFFLOAD	BIT(20)
+ #define BR_PORT_LOCKED		BIT(21)
++#define BR_PORT_MAB		BIT(22)
+ 
+ #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+ 
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index 5e7a1041df3a..d92b3f79eba3 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -561,6 +561,7 @@ enum {
+ 	IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
+ 	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
+ 	IFLA_BRPORT_LOCKED,
++	IFLA_BRPORT_MAB,
+ 	__IFLA_BRPORT_MAX
+ };
+ #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
+diff --git a/include/uapi/linux/neighbour.h b/include/uapi/linux/neighbour.h
+index a998bf761635..5e67a7eaf4a7 100644
+--- a/include/uapi/linux/neighbour.h
++++ b/include/uapi/linux/neighbour.h
+@@ -52,7 +52,8 @@ enum {
+ #define NTF_STICKY	(1 << 6)
+ #define NTF_ROUTER	(1 << 7)
+ /* Extended flags under NDA_FLAGS_EXT: */
+-#define NTF_EXT_MANAGED	(1 << 0)
++#define NTF_EXT_MANAGED		(1 << 0)
++#define NTF_EXT_LOCKED		(1 << 1)
+ 
+ /*
+  *	Neighbor Cache Entry States.
+@@ -86,6 +87,11 @@ enum {
+  * NTF_EXT_MANAGED flagged neigbor entries are managed by the kernel on behalf
+  * of a user space control plane, and automatically refreshed so that (if
+  * possible) they remain in NUD_REACHABLE state.
++ *
++ * NTF_EXT_LOCKED flagged bridge FDB entries are entries generated by the
++ * bridge in response to a host trying to communicate via a locked bridge port
++ * with MAB enabled. Their purpose is to notify user space that a host requires
++ * authentication.
+  */
+ 
+ struct nda_cacheinfo {
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index e7f4fccb6adb..3b83af4458b8 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -105,6 +105,7 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+ 	struct nda_cacheinfo ci;
+ 	struct nlmsghdr *nlh;
+ 	struct ndmsg *ndm;
++	u32 ext_flags = 0;
+ 
+ 	nlh = nlmsg_put(skb, portid, seq, type, sizeof(*ndm), flags);
+ 	if (nlh == NULL)
+@@ -125,11 +126,16 @@ static int fdb_fill_info(struct sk_buff *skb, const struct net_bridge *br,
+ 		ndm->ndm_flags |= NTF_EXT_LEARNED;
+ 	if (test_bit(BR_FDB_STICKY, &fdb->flags))
+ 		ndm->ndm_flags |= NTF_STICKY;
++	if (test_bit(BR_FDB_LOCKED, &fdb->flags))
++		ext_flags |= NTF_EXT_LOCKED;
+ 
+ 	if (nla_put(skb, NDA_LLADDR, ETH_ALEN, &fdb->key.addr))
+ 		goto nla_put_failure;
+ 	if (nla_put_u32(skb, NDA_MASTER, br->dev->ifindex))
+ 		goto nla_put_failure;
++	if (nla_put_u32(skb, NDA_FLAGS_EXT, ext_flags))
++		goto nla_put_failure;
++
+ 	ci.ndm_used	 = jiffies_to_clock_t(now - fdb->used);
+ 	ci.ndm_confirmed = 0;
+ 	ci.ndm_updated	 = jiffies_to_clock_t(now - fdb->updated);
+@@ -171,6 +177,7 @@ static inline size_t fdb_nlmsg_size(void)
+ 	return NLMSG_ALIGN(sizeof(struct ndmsg))
+ 		+ nla_total_size(ETH_ALEN) /* NDA_LLADDR */
+ 		+ nla_total_size(sizeof(u32)) /* NDA_MASTER */
++		+ nla_total_size(sizeof(u32)) /* NDA_FLAGS_EXT */
+ 		+ nla_total_size(sizeof(u16)) /* NDA_VLAN */
+ 		+ nla_total_size(sizeof(struct nda_cacheinfo))
+ 		+ nla_total_size(0) /* NDA_FDB_EXT_ATTRS */
+@@ -879,6 +886,11 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+ 						      &fdb->flags)))
+ 					clear_bit(BR_FDB_ADDED_BY_EXT_LEARN,
+ 						  &fdb->flags);
++				/* Clear locked flag when roaming to an
++				 * unlocked port.
++				 */
++				if (unlikely(test_bit(BR_FDB_LOCKED, &fdb->flags)))
++					clear_bit(BR_FDB_LOCKED, &fdb->flags);
+ 			}
+ 
+ 			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags)))
+@@ -1082,6 +1094,9 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
+ 		modified = true;
+ 	}
+ 
++	if (test_and_clear_bit(BR_FDB_LOCKED, &fdb->flags))
++		modified = true;
++
+ 	if (fdb_handle_notify(fdb, notify))
+ 		modified = true;
+ 
+@@ -1150,6 +1165,7 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 	struct net_bridge_port *p = NULL;
+ 	struct net_bridge_vlan *v;
+ 	struct net_bridge *br = NULL;
++	u32 ext_flags = 0;
+ 	int err = 0;
+ 
+ 	trace_br_fdb_add(ndm, dev, addr, vid, nlh_flags);
+@@ -1178,6 +1194,14 @@ int br_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
+ 		vg = nbp_vlan_group(p);
+ 	}
+ 
++	if (tb[NDA_FLAGS_EXT])
++		ext_flags = nla_get_u32(tb[NDA_FLAGS_EXT]);
++
++	if (ext_flags & NTF_EXT_LOCKED) {
++		NL_SET_ERR_MSG_MOD(extack, "Cannot add FDB entry with \"locked\" flag set");
++		return -EINVAL;
++	}
++
+ 	if (tb[NDA_FDB_EXT_ATTRS]) {
+ 		attr = tb[NDA_FDB_EXT_ATTRS];
+ 		err = nla_parse_nested(nfea_tb, NFEA_MAX, attr,
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 68b3e850bcb9..068fced7693c 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -109,9 +109,20 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 		struct net_bridge_fdb_entry *fdb_src =
+ 			br_fdb_find_rcu(br, eth_hdr(skb)->h_source, vid);
+ 
+-		if (!fdb_src || READ_ONCE(fdb_src->dst) != p ||
+-		    test_bit(BR_FDB_LOCAL, &fdb_src->flags))
++		if (!fdb_src) {
++			unsigned long flags = 0;
++
++			if (p->flags & BR_PORT_MAB) {
++				__set_bit(BR_FDB_LOCKED, &flags);
++				br_fdb_update(br, p, eth_hdr(skb)->h_source,
++					      vid, flags);
++			}
+ 			goto drop;
++		} else if (READ_ONCE(fdb_src->dst) != p ||
++			   test_bit(BR_FDB_LOCAL, &fdb_src->flags) ||
++			   test_bit(BR_FDB_LOCKED, &fdb_src->flags)) {
++			goto drop;
++		}
+ 	}
+ 
+ 	nbp_switchdev_frame_mark(p, skb);
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 5aeb3646e74c..bbc82c70b091 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -188,6 +188,7 @@ static inline size_t br_port_info_size(void)
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_NEIGH_SUPPRESS */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_ISOLATED */
+ 		+ nla_total_size(1)	/* IFLA_BRPORT_LOCKED */
++		+ nla_total_size(1)	/* IFLA_BRPORT_MAB */
+ 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_ROOT_ID */
+ 		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* IFLA_BRPORT_BRIDGE_ID */
+ 		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_DESIGNATED_PORT */
+@@ -274,7 +275,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+ 	    nla_put_u8(skb, IFLA_BRPORT_MRP_IN_OPEN,
+ 		       !!(p->flags & BR_MRP_LOST_IN_CONT)) ||
+ 	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)) ||
+-	    nla_put_u8(skb, IFLA_BRPORT_LOCKED, !!(p->flags & BR_PORT_LOCKED)))
++	    nla_put_u8(skb, IFLA_BRPORT_LOCKED, !!(p->flags & BR_PORT_LOCKED)) ||
++	    nla_put_u8(skb, IFLA_BRPORT_MAB, !!(p->flags & BR_PORT_MAB)))
+ 		return -EMSGSIZE;
+ 
+ 	timerval = br_timer_value(&p->message_age_timer);
+@@ -876,6 +878,7 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
+ 	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_ISOLATED]	= { .type = NLA_U8 },
+ 	[IFLA_BRPORT_LOCKED] = { .type = NLA_U8 },
++	[IFLA_BRPORT_MAB] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_BACKUP_PORT] = { .type = NLA_U32 },
+ 	[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT] = { .type = NLA_U32 },
+ };
+@@ -943,6 +946,14 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS, BR_NEIGH_SUPPRESS);
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
+ 	br_set_port_flag(p, tb, IFLA_BRPORT_LOCKED, BR_PORT_LOCKED);
++	br_set_port_flag(p, tb, IFLA_BRPORT_MAB, BR_PORT_MAB);
++
++	if ((p->flags & BR_PORT_MAB) &&
++	    (!(p->flags & BR_PORT_LOCKED) || !(p->flags & BR_LEARNING))) {
++		NL_SET_ERR_MSG(extack, "MAB can only be enabled on a locked port with learning enabled");
++		p->flags = old_flags;
++		return -EINVAL;
++	}
+ 
+ 	changed_mask = old_flags ^ p->flags;
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 06e5f6faa431..4ce8b8e5ae0b 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -251,7 +251,8 @@ enum {
+ 	BR_FDB_ADDED_BY_EXT_LEARN,
+ 	BR_FDB_OFFLOADED,
+ 	BR_FDB_NOTIFY,
+-	BR_FDB_NOTIFY_INACTIVE
++	BR_FDB_NOTIFY_INACTIVE,
++	BR_FDB_LOCKED,
+ };
+ 
+ struct net_bridge_fdb_key {
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 74864dc46a7e..d6e4d2854edb 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4045,6 +4045,11 @@ int ndo_dflt_fdb_add(struct ndmsg *ndm,
+ 		return err;
+ 	}
+ 
++	if (tb[NDA_FLAGS_EXT]) {
++		netdev_info(dev, "invalid flags given to default FDB implementation\n");
++		return err;
++	}
++
+ 	if (vid) {
+ 		netdev_info(dev, "vlans aren't supported yet for dev_uc|mc_add()\n");
+ 		return err;
 -- 
 2.37.3
 
