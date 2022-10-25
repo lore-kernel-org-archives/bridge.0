@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 76F0640432
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AC14940399
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C524160BB1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 03D5C60BA9
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bh8zoFLiQpl4kt2kIepqZ27r6waWEN2Vat6/G8zbY0g=;
- b=K0NH/Suut3kx9Yon5195iuyr2knC57NOtD3D6WDq7zxBKEfWMcx2ABxvWi9KPpyzHm9TBpJjk6ogDIC26W4IrHKYMRdLYIOONCAsJTaPQz82Om5Qw5sOPHb7h5qWYOFb52hhlo+/Wa0EhvseH7E97RyW6p1dhi+0rMq4ZGw49LOsukQyuEM0GxGrf4853UyzHXaJUa2A3BErTg135RbzUuU9T08/u9VMmzRXRLHwKa/gGL5zcY8AMKelJEjuzwWgvvaYOk0nIqMVSqx4vw0djHKavNW5QRhhIoDLokf9uPFs8Mfk253jcZsZOKZ0FFaI8BvB8WZUUBZtQ9oXOayZLA==
+ bh=5RCBGhZYnZU96Kob2gAKPBYvz3k+hQiEoMRcPAQAhmY=;
+ b=D11c5TkPChvkZRdkO67pgNYiZKiguQuGd4nLy6VxciwN/0HP/JKEMJiohIXgh1d6lZwb1dvmvM4emFKYa4iQqqTnIuJAteiOlqhS7AvDSgPEPweH8N4GuaZEjluSP037fy9a06P0FnXAHMuUP1yFmSJGPwtVY0XLZDARHvmN1CesNQbdXoD7f72KpTuqz9xtUJqrk561kYAnL40l0oTPhYrWVzTWWdXlykMkw4iO1+igf5k1YXY+YGSWAZQX8po5K7Ue/vvtROXydk0Yhe1OHkXmLKdB6qJoKU3J4n9/K9ufwmr7FDQIsmYhRlIeV8GgNCWi9h5o/eilsm0O5SognQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 25 Oct 2022 13:00:21 +0300
-Message-Id: <20221025100024.1287157-14-idosch@nvidia.com>
+Date: Tue, 25 Oct 2022 13:00:22 +0300
+Message-Id: <20221025100024.1287157-15-idosch@nvidia.com>
 In-Reply-To: <20221025100024.1287157-1-idosch@nvidia.com>
 References: <20221025100024.1287157-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH net-next 13/16] selftests: devlink_lib: Split
-	out helper
+Subject: [Bridge] [RFC PATCH net-next 14/16] selftests: mlxsw: Add a test
+	for EAPOL trap
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,57 +27,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, ivecera@redhat.com, netdev@kapio-technology.com, razor@blackwall.org, roopa@nvidia.com, Ido Schimmel <idosch@nvidia.com>, vladimir.oltean@nxp.com, edumazet@google.com, mlxsw@nvidia.com, jiri@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Merely checking whether a trap counter incremented or not without
-logging a test result is useful on its own. Split this functionality to
-a helper which will be used by subsequent patches.
+Test that packets with a destination MAC of 01:80:C2:00:00:03 trigger
+the "eapol" packet trap.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- .../selftests/net/forwarding/devlink_lib.sh   | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ .../drivers/net/mlxsw/devlink_trap_control.sh | 22 +++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/devlink_lib.sh b/tools/testing/selftests/net/forwarding/devlink_lib.sh
-index 601990c6881b..f1de525cfa55 100644
---- a/tools/testing/selftests/net/forwarding/devlink_lib.sh
-+++ b/tools/testing/selftests/net/forwarding/devlink_lib.sh
-@@ -503,25 +503,30 @@ devlink_trap_drop_cleanup()
- 	tc filter del dev $dev egress protocol $proto pref $pref handle $handle flower
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh
+index d3a891d421ab..64153bbf95df 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh
+@@ -83,6 +83,7 @@ ALL_TESTS="
+ 	ptp_general_test
+ 	flow_action_sample_test
+ 	flow_action_trap_test
++	eapol_test
+ "
+ NUM_NETIFS=4
+ source $lib_dir/lib.sh
+@@ -677,6 +678,27 @@ flow_action_trap_test()
+ 	tc qdisc del dev $rp1 clsact
  }
  
--devlink_trap_stats_test()
-+devlink_trap_stats_check()
- {
--	local test_name=$1; shift
- 	local trap_name=$1; shift
- 	local send_one="$@"
- 	local t0_packets
- 	local t1_packets
- 
--	RET=0
--
- 	t0_packets=$(devlink_trap_rx_packets_get $trap_name)
- 
- 	$send_one && sleep 1
- 
- 	t1_packets=$(devlink_trap_rx_packets_get $trap_name)
- 
--	if [[ $t1_packets -eq $t0_packets ]]; then
--		check_err 1 "Trap stats did not increase"
--	fi
-+	[[ $t1_packets -ne $t0_packets ]]
++eapol_payload_get()
++{
++	local source_mac=$1; shift
++	local p
++
++	p=$(:
++		)"01:80:C2:00:00:03:"$(       : ETH daddr
++		)"$source_mac:"$(             : ETH saddr
++		)"88:8E:"$(                   : ETH type
++		)
++	echo $p
 +}
 +
-+devlink_trap_stats_test()
++eapol_test()
 +{
-+	local test_name=$1; shift
++	local h1mac=$(mac_get $h1)
 +
-+	RET=0
++	devlink_trap_stats_test "EAPOL" "eapol" $MZ $h1 -c 1 \
++		$(eapol_payload_get $h1mac) -p 100 -q
++}
 +
-+	devlink_trap_stats_check "$@"
-+	check_err $? "Trap stats did not increase"
+ trap cleanup EXIT
  
- 	log_test "$test_name"
- }
+ setup_prepare
 -- 
 2.37.3
 
