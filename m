@@ -1,25 +1,18 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 74C2A4025F
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 763354013A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1D9cM9onAz54YzDsbRFfESljIIGyiSsd4tW9sP3DBXY=;
- b=LHefKPwydWT5hBUcQiN873swL2y+zEHqqv4s5P2FpZdj8/ywl3XGtr7VlSa/9o4fMrVKZYkrikmA2Pw0z6lAZJp0uQm/DeDLMbHamxSmaRqRQJRPHVe+o5sJ5iVkbC4prQB2tDMUUxuc5fZMgIStrTGkneQiNz8ynVukI7Y4stvuLfwxcyKoIXXhLOBgsA6gX+nk6RpETW8tZXPIY1UgujlLmKPd30g9krhBL7tDzgCngkZN8eSSazxtO/76p3mRQ/cEAvxcmsqExFx+ok3r8NiZgF4O/TPjUbzKAcUvIM6mRRfetAuT5+JMFLFWPOM/X9ANiRmwod5sSyROGJm4YA==
-Date: Sun, 30 Oct 2022 15:38:00 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <Y15+ODGOuyFYxO2B@shredder>
-References: <20221025100024.1287157-1-idosch@nvidia.com>
- <20221025100024.1287157-1-idosch@nvidia.com>
- <20221025100024.1287157-5-idosch@nvidia.com>
- <20221025100024.1287157-5-idosch@nvidia.com>
- <20221027232748.cpvpw53pcx7dx2mp@skbuf>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221027232748.cpvpw53pcx7dx2mp@skbuf>
+Return-Path: <netdev@kapio-technology.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD22381260
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BB70D81255
 MIME-Version: 1.0
-Subject: Re: [Bridge] [RFC PATCH net-next 04/16] bridge: switchdev: Allow
- device drivers to install locked FDB entries
+Date: Sun, 30 Oct 2022 23:09:31 +0100
+From: netdev@kapio-technology.com
+In-Reply-To: <20221025100024.1287157-2-idosch@nvidia.com>
+References: <20221025100024.1287157-1-idosch@nvidia.com>
+ <20221025100024.1287157-2-idosch@nvidia.com>
+Message-ID: <0b1655f30a383f9b12c0d0c9c11efa56@kapio-technology.com>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC PATCH net-next 01/16] bridge: Add MAC
+ Authentication Bypass (MAB) support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,106 +21,62 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: "petrm@nvidia.com" <petrm@nvidia.com>, "ivecera@redhat.com" <ivecera@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "razor@blackwall.org" <razor@blackwall.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "roopa@nvidia.com" <roopa@nvidia.com>, "netdev@kapio-technology.com" <netdev@kapio-technology.com>, "edumazet@google.com" <edumazet@google.com>, "mlxsw@nvidia.com" <mlxsw@nvidia.com>, "jiri@nvidia.com" <jiri@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: petrm@nvidia.com, ivecera@redhat.com, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, vladimir.oltean@nxp.com, edumazet@google.com, mlxsw@nvidia.com, jiri@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-On Thu, Oct 27, 2022 at 11:27:48PM +0000, Vladimir Oltean wrote:
-> On Tue, Oct 25, 2022 at 01:00:12PM +0300, Ido Schimmel wrote:
-> > From: "Hans J. Schultz" <netdev@kapio-technology.com>
-> > 
-> > When the bridge is offloaded to hardware, FDB entries are learned and
-> > aged-out by the hardware. Some device drivers synchronize the hardware
-> > and software FDBs by generating switchdev events towards the bridge.
-> > 
-> > When a port is locked, the hardware must not learn autonomously, as
-> > otherwise any host will blindly gain authorization. Instead, the
-> > hardware should generate events regarding hosts that are trying to gain
-> > authorization and their MAC addresses should be notified by the device
-> > driver as locked FDB entries towards the bridge driver.
-> > 
-> > Allow device drivers to notify the bridge driver about such entries by
-> > extending the 'switchdev_notifier_fdb_info' structure with the 'locked'
-> > bit. The bit can only be set by device drivers and not by the bridge
-> > driver.
+On 2022-10-25 12:00, Ido Schimmel wrote:
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 5aeb3646e74c..bbc82c70b091 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -188,6 +188,7 @@ static inline size_t br_port_info_size(void)
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_NEIGH_SUPPRESS */
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_ISOLATED */
+>  		+ nla_total_size(1)	/* IFLA_BRPORT_LOCKED */
+> +		+ nla_total_size(1)	/* IFLA_BRPORT_MAB */
+>  		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* 
+> IFLA_BRPORT_ROOT_ID */
+>  		+ nla_total_size(sizeof(struct ifla_bridge_id))	/* 
+> IFLA_BRPORT_BRIDGE_ID */
+>  		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_DESIGNATED_PORT */
+> @@ -274,7 +275,8 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+>  	    nla_put_u8(skb, IFLA_BRPORT_MRP_IN_OPEN,
+>  		       !!(p->flags & BR_MRP_LOST_IN_CONT)) ||
+>  	    nla_put_u8(skb, IFLA_BRPORT_ISOLATED, !!(p->flags & BR_ISOLATED)) 
+> ||
+> -	    nla_put_u8(skb, IFLA_BRPORT_LOCKED, !!(p->flags & 
+> BR_PORT_LOCKED)))
+> +	    nla_put_u8(skb, IFLA_BRPORT_LOCKED, !!(p->flags & 
+> BR_PORT_LOCKED)) ||
+> +	    nla_put_u8(skb, IFLA_BRPORT_MAB, !!(p->flags & BR_PORT_MAB)))
+>  		return -EMSGSIZE;
 > 
-> What prevents a BR_FDB_LOCKED entry learned by the software bridge in
-> br_handle_frame_finish() from being notified to switchdev (as non-BR_FDB_LOCKED,
-> since this is what br_switchdev_fdb_notify() currently hardcodes)?
-> 
-> I think it would be good to reinstate some of the checks in
-> br_switchdev_fdb_notify() like the one removed in commit 2c4eca3ef716
-> ("net: bridge: switchdev: include local flag in FDB notifications"):
-> 
-> 	if (test_bit(BR_FDB_LOCKED, &fdb->flags))
-> 		return;
-> 
-> at least until we need something more complex and somebody on the
-> switchdev chain wants to snoop these addresses for some incredibly odd
-> reason.
+>  	timerval = br_timer_value(&p->message_age_timer);
+> @@ -876,6 +878,7 @@ static const struct nla_policy
+> br_port_policy[IFLA_BRPORT_MAX + 1] = {
+>  	[IFLA_BRPORT_NEIGH_SUPPRESS] = { .type = NLA_U8 },
+>  	[IFLA_BRPORT_ISOLATED]	= { .type = NLA_U8 },
+>  	[IFLA_BRPORT_LOCKED] = { .type = NLA_U8 },
+> +	[IFLA_BRPORT_MAB] = { .type = NLA_U8 },
+>  	[IFLA_BRPORT_BACKUP_PORT] = { .type = NLA_U32 },
+>  	[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT] = { .type = NLA_U32 },
+>  };
+> @@ -943,6 +946,14 @@ static int br_setport(struct net_bridge_port *p,
+> struct nlattr *tb[],
+>  	br_set_port_flag(p, tb, IFLA_BRPORT_NEIGH_SUPPRESS, 
+> BR_NEIGH_SUPPRESS);
+>  	br_set_port_flag(p, tb, IFLA_BRPORT_ISOLATED, BR_ISOLATED);
+>  	br_set_port_flag(p, tb, IFLA_BRPORT_LOCKED, BR_PORT_LOCKED);
+> +	br_set_port_flag(p, tb, IFLA_BRPORT_MAB, BR_PORT_MAB);
+> +
+> +	if ((p->flags & BR_PORT_MAB) &&
+> +	    (!(p->flags & BR_PORT_LOCKED) || !(p->flags & BR_LEARNING))) {
+> +		NL_SET_ERR_MSG(extack, "MAB can only be enabled on a locked port
+> with learning enabled");
 
-Good idea, will add a check in br_switchdev_fdb_notify().
+It's a bit odd to get this message when turning off learning on a port 
+with MAB on, e.g....
 
-> 
-> > Prevent a locked entry from being installed if MAB is not enabled on the
-> > bridge port. By placing this check in the bridge driver we avoid the
-> > need to reflect the 'BR_PORT_MAB' flag to device drivers.
-> 
-> So how does the device driver know whether to emit the SWITCHDEV_FDB_ADD_TO_BRIDGE
-> or not, if we don't pass the BR_PORT_MAB bit to it?
+# bridge link set dev a2 learning off
+Error: MAB can only be enabled on a locked port with learning enabled.
 
-At least for Spectrum, no special configuration is required for MAB
-compared to a locked port with learning enabled. Learning notifications
-will always be generated by the device and the driver will report them
-as "locked" entries to the bridge driver, which will decide whether to
-install them or not based on the 'BR_PORT_MAB' flag.
-
-Once we have a driver that needs to differentiate between a locked port
-with learning enabled and a port with MAB enabled, we can start passing
-'BR_PORT_MAB' to drivers. Should be an easy change.
-
-> 
-> > If an entry already exists in the bridge driver, reject the locked entry
-> > if the current entry does not have the "locked" flag set or if it points
-> > to a different port. The same semantics are implemented in the software
-> > data path.
-> > 
-> > Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
-> > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-> > ---
-> > diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> > index 4ce8b8e5ae0b..4c4fda930068 100644
-> > --- a/net/bridge/br_private.h
-> > +++ b/net/bridge/br_private.h
-> > @@ -811,7 +811,7 @@ int br_fdb_sync_static(struct net_bridge *br, struct net_bridge_port *p);
-> >  void br_fdb_unsync_static(struct net_bridge *br, struct net_bridge_port *p);
-> >  int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
-> >  			      const unsigned char *addr, u16 vid,
-> > -			      bool swdev_notify);
-> > +			      bool locked, bool swdev_notify);
-> >  int br_fdb_external_learn_del(struct net_bridge *br, struct net_bridge_port *p,
-> >  			      const unsigned char *addr, u16 vid,
-> >  			      bool swdev_notify);
-> > diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> > index 8f3d76c751dd..6afd4f241474 100644
-> > --- a/net/bridge/br_switchdev.c
-> > +++ b/net/bridge/br_switchdev.c
-> > @@ -136,6 +136,7 @@ static void br_switchdev_fdb_populate(struct net_bridge *br,
-> >  	item->added_by_user = test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
-> >  	item->offloaded = test_bit(BR_FDB_OFFLOADED, &fdb->flags);
-> >  	item->is_local = test_bit(BR_FDB_LOCAL, &fdb->flags);
-> > +	item->locked = 0;
-> 
-> 0 or false? A matter of preference, I presume. Anyway, this will only be
-> correct with the extra check mentioned above. Otherwise, a LOCKED entry
-> may be presented as non-LOCKED to switchdev, with potentially unforeseen
-> consequences.
-
-Will change to false.
-
-> 
-> >  	item->info.dev = (!p || item->is_local) ? br->dev : p->dev;
-> >  	item->info.ctx = ctx;
-> >  }
-> > -- 
-> > 2.37.3
-> >
