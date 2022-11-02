@@ -1,21 +1,30 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 51DCF81490
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 437A781489
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=kGqCg6WWbuXmq2LtfCZfZ4D7a1wD9O9NjM1Bb8VepDg=;
- b=ge7TlqsgZuG3UJpH8JZsU94q6W4vThRjS1A2bIJDnlNpWeiGpMdFFUzMtA4slzDabhhr5JNSpC+Lf75DaoY47DwBSYo844hWfdcgfF/nvr/yYJO373+qOjYlwWRpo1+bqknIIvAADGSZFPp2O5R1JAH3h9YB3u6gVrwJxcDDj7uQjnPC47+fH+cqaiB5ei9I4oQS89bWKetyFN5omTnLHSMT14P6wXoQggMDiquKRp+Spda8jdAJyg41SX7SQDqFomT6/taJFsv0J2wMdvVtZfxga9gA3zrax9mcor8z8CjAmRb61YH3m0TMMoXbooYkJjr5C8X90FlfaoqP2HAkmg==
-From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue,  1 Nov 2022 21:39:22 +0200
-Message-Id: <20221101193922.2125323-3-idosch@nvidia.com>
-In-Reply-To: <20221101193922.2125323-1-idosch@nvidia.com>
-References: <20221101193922.2125323-1-idosch@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B9D69409D8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CEA3540168
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=L0plc7VTbxlANYhpRBuv1ctV0TdjHiSqfJ6g/74SBJk=;
+ b=Co9RGYZGKjU8rVmpuqVho98QclNwo0dnaNPCnN5tkRYlqskj6sWoKlaY8XBnMX0Do1
+ tiHteVDhFcix1rJdO7NG8/RZms+RYbGkRnrkPwnI5y7EwG5ied2KO3C1jiWu08dxA7Nh
+ 5iRF1CUAkvNzpZis6wrokRPKcJPqxJXLMuhZ/CXV/31bJT9zD7NuYiQfhXnH8emk39x2
+ fq6kK1C9Sh7eChaTfwopAdMhL5Q2eUQ/D081YtqRAV/POPuY/+TRth8PI3dyjmDi7TEp
+ LC5GL/RafG/tHvKxiZrqBp7bm7tU8khOtiWGtpu92+ZTH7Tv8mnDwgFUxynd9TuyKR/J
+ pz8A==
+Message-ID: <c2c74974-22f3-46b5-b821-2f2b98ebe9b4@blackwall.org>
+Date: Wed, 2 Nov 2022 15:16:54 +0200
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 2/2] selftests: forwarding: Add MAC
-	Authentication Bypass (MAB) test cases
+Content-Language: en-US
+References: <20221101193922.2125323-1-idosch@nvidia.com>
+ <20221101193922.2125323-2-idosch@nvidia.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20221101193922.2125323-2-idosch@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 1/2] bridge: Add MAC Authentication
+ Bypass (MAB) support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,238 +33,98 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: vladimir.oltean@nxp.com, razor@blackwall.org, netdev@kapio-technology.com, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, mlxsw@nvidia.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: vladimir.oltean@nxp.com, roopa@nvidia.com, edumazet@google.com, mlxsw@nvidia.com, netdev@kapio-technology.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-From: "Hans J. Schultz" <netdev@kapio-technology.com>
+On 01/11/2022 21:39, Ido Schimmel wrote:
+> From: "Hans J. Schultz" <netdev@kapio-technology.com>
+> 
+> Hosts that support 802.1X authentication are able to authenticate
+> themselves by exchanging EAPOL frames with an authenticator (Ethernet
+> bridge, in this case) and an authentication server. Access to the
+> network is only granted by the authenticator to successfully
+> authenticated hosts.
+> 
+> The above is implemented in the bridge using the "locked" bridge port
+> option. When enabled, link-local frames (e.g., EAPOL) can be locally
+> received by the bridge, but all other frames are dropped unless the host
+> is authenticated. That is, unless the user space control plane installed
+> an FDB entry according to which the source address of the frame is
+> located behind the locked ingress port. The entry can be dynamic, in
+> which case learning needs to be enabled so that the entry will be
+> refreshed by incoming traffic.
+> 
+> There are deployments in which not all the devices connected to the
+> authenticator (the bridge) support 802.1X. Such devices can include
+> printers and cameras. One option to support such deployments is to
+> unlock the bridge ports connecting these devices, but a slightly more
+> secure option is to use MAB. When MAB is enabled, the MAC address of the
+> connected device is used as the user name and password for the
+> authentication.
+> 
+> For MAB to work, the user space control plane needs to be notified about
+> MAC addresses that are trying to gain access so that they will be
+> compared against an allow list. This can be implemented via the regular
+> learning process with the sole difference that learned FDB entries are
+> installed with a new "locked" flag indicating that the entry cannot be
+> used to authenticate the device. The flag cannot be set by user space,
+> but user space can clear the flag by replacing the entry, thereby
+> authenticating the device.
+> 
+> Locked FDB entries implement the following semantics with regards to
+> roaming, aging and forwarding:
+> 
+> 1. Roaming: Locked FDB entries can roam to unlocked (authorized) ports,
+>    in which case the "locked" flag is cleared. FDB entries cannot roam
+>    to locked ports regardless of MAB being enabled or not. Therefore,
+>    locked FDB entries are only created if an FDB entry with the given {MAC,
+>    VID} does not already exist. This behavior prevents unauthenticated
+>    devices from disrupting traffic destined to already authenticated
+>    devices.
+> 
+> 2. Aging: Locked FDB entries age and refresh by incoming traffic like
+>    regular entries.
+> 
+> 3. Forwarding: Locked FDB entries forward traffic like regular entries.
+>    If user space detects an unauthorized MAC behind a locked port and
+>    wishes to prevent traffic with this MAC DA from reaching the host, it
+>    can do so using tc or a different mechanism.
+> 
+> Enable the above behavior using a new bridge port option called "mab".
+> It can only be enabled on a bridge port that is both locked and has
+> learning enabled. Locked FDB entries are flushed from the port once MAB
+> is disabled. A new option is added because there are pure 802.1X
+> deployments that are not interested in notifications about locked FDB
+> entries.
+> 
+> Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
+> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+> 
+> Notes:
+>     v1:
+>     * Extend commit message.
+>     * Adjust extack message.
+>     * Flush locked FDB entries when MAB is disabled.
+>     * Refresh locked FDB entries.
+>     * Add comments in br_handle_frame_finish().
+>     
+>     Changes made by me:
+>     * Reword commit message.
+>     * Reword comment regarding 'NTF_EXT_LOCKED'.
+>     * Use extack in br_fdb_add().
+>     * Forbid MAB when learning is disabled.
+> 
+>  include/linux/if_bridge.h      |  1 +
+>  include/uapi/linux/if_link.h   |  1 +
+>  include/uapi/linux/neighbour.h |  8 +++++++-
+>  net/bridge/br_fdb.c            | 24 ++++++++++++++++++++++++
+>  net/bridge/br_input.c          | 21 +++++++++++++++++++--
+>  net/bridge/br_netlink.c        | 21 ++++++++++++++++++++-
+>  net/bridge/br_private.h        |  3 ++-
+>  net/core/rtnetlink.c           |  5 +++++
+>  8 files changed, 79 insertions(+), 5 deletions(-)
+> 
 
-Add four test cases to verify MAB functionality:
-
-* Verify that a locked FDB entry can be generated by the bridge,
-  preventing a host from communicating via the bridge. Test that user
-  space can clear the "locked" flag by replacing the entry, thereby
-  authenticating the host and allowing it to communicate via the bridge.
-
-* Test that an entry cannot roam to a locked port, but that it can roam
-  to an unlocked port.
-
-* Test that MAB can only be enabled on a port that is both locked and
-  has learning enabled.
-
-* Test that locked FDB entries are flushed from a port when MAB is
-  disabled.
-
-Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
----
-
-Notes:
-    v1:
-    * Adjust commit message.
-    * Add FDB flushing test case.
-    
-    Changes made by me:
-    * Reword commit message.
-    * Remove blackhole tests as they are not relevant for this series.
-    * Add configuration test case.
-    * Add a few additional test cases.
-
- .../net/forwarding/bridge_locked_port.sh      | 155 +++++++++++++++++-
- tools/testing/selftests/net/forwarding/lib.sh |   8 +
- 2 files changed, 162 insertions(+), 1 deletion(-)
-
-diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-index 5b02b6b60ce7..dc92d32464f6 100755
---- a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
-@@ -1,7 +1,16 @@
- #!/bin/bash
- # SPDX-License-Identifier: GPL-2.0
- 
--ALL_TESTS="locked_port_ipv4 locked_port_ipv6 locked_port_vlan"
-+ALL_TESTS="
-+	locked_port_ipv4
-+	locked_port_ipv6
-+	locked_port_vlan
-+	locked_port_mab
-+	locked_port_mab_roam
-+	locked_port_mab_config
-+	locked_port_mab_flush
-+"
-+
- NUM_NETIFS=4
- CHECK_TC="no"
- source lib.sh
-@@ -166,6 +175,150 @@ locked_port_ipv6()
- 	log_test "Locked port ipv6"
- }
- 
-+locked_port_mab()
-+{
-+	RET=0
-+	check_port_mab_support || return 0
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "Ping did not work before locking port"
-+
-+	bridge link set dev $swp1 learning on locked on
-+
-+	ping_do $h1 192.0.2.2
-+	check_fail $? "Ping worked on a locked port without an FDB entry"
-+
-+	bridge fdb get `mac_get $h1` br br0 vlan 1 &> /dev/null
-+	check_fail $? "FDB entry created before enabling MAB"
-+
-+	bridge link set dev $swp1 learning on locked on mab on
-+
-+	ping_do $h1 192.0.2.2
-+	check_fail $? "Ping worked on MAB enabled port without an FDB entry"
-+
-+	bridge fdb get `mac_get $h1` br br0 vlan 1 | grep "dev $swp1" | grep -q "locked"
-+	check_err $? "Locked FDB entry not created"
-+
-+	bridge fdb replace `mac_get $h1` dev $swp1 master static
-+
-+	ping_do $h1 192.0.2.2
-+	check_err $? "Ping did not work after replacing FDB entry"
-+
-+	bridge fdb get `mac_get $h1` br br0 vlan 1 | grep "dev $swp1" | grep -q "locked"
-+	check_fail $? "FDB entry marked as locked after replacement"
-+
-+	bridge fdb del `mac_get $h1` dev $swp1 master
-+	bridge link set dev $swp1 learning off locked off mab off
-+
-+	log_test "Locked port MAB"
-+}
-+
-+# Check that entries cannot roam to a locked port, but that entries can roam
-+# to an unlocked port.
-+locked_port_mab_roam()
-+{
-+	local mac=a0:b0:c0:c0:b0:a0
-+
-+	RET=0
-+	check_port_mab_support || return 0
-+
-+	bridge link set dev $swp1 learning on locked on mab on
-+
-+	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
-+	bridge fdb get $mac br br0 vlan 1 | grep "dev $swp1" | grep -q "locked"
-+	check_err $? "No locked entry on first injection"
-+
-+	$MZ $h2 -q -c 5 -d 100msec -t udp -a $mac -b rand
-+	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp2"
-+	check_err $? "Entry did not roam to an unlocked port"
-+
-+	bridge fdb get $mac br br0 vlan 1 | grep -q "locked"
-+	check_fail $? "Entry roamed with locked flag on"
-+
-+	$MZ $h1 -q -c 5 -d 100msec -t udp -a $mac -b rand
-+	bridge fdb get $mac br br0 vlan 1 | grep -q "dev $swp1"
-+	check_fail $? "Entry roamed back to locked port"
-+
-+	bridge fdb del $mac vlan 1 dev $swp2 master
-+	bridge link set dev $swp1 learning off locked off mab off
-+
-+	log_test "Locked port MAB roam"
-+}
-+
-+# Check that MAB can only be enabled on a port that is both locked and has
-+# learning enabled.
-+locked_port_mab_config()
-+{
-+	RET=0
-+	check_port_mab_support || return 0
-+
-+	bridge link set dev $swp1 learning on locked off mab on &> /dev/null
-+	check_fail $? "MAB enabled while port is unlocked"
-+
-+	bridge link set dev $swp1 learning off locked on mab on &> /dev/null
-+	check_fail $? "MAB enabled while port has learning disabled"
-+
-+	bridge link set dev $swp1 learning on locked on mab on
-+	check_err $? "Failed to enable MAB when port is locked and has learning enabled"
-+
-+	bridge link set dev $swp1 learning off locked off mab off
-+
-+	log_test "Locked port MAB configuration"
-+}
-+
-+# Check that locked FDB entries are flushed from a port when MAB is disabled.
-+locked_port_mab_flush()
-+{
-+	local locked_mac1=00:01:02:03:04:05
-+	local unlocked_mac1=00:01:02:03:04:06
-+	local locked_mac2=00:01:02:03:04:07
-+	local unlocked_mac2=00:01:02:03:04:08
-+
-+	RET=0
-+	check_port_mab_support || return 0
-+
-+	bridge link set dev $swp1 learning on locked on mab on
-+	bridge link set dev $swp2 learning on locked on mab on
-+
-+	# Create regular and locked FDB entries on each port.
-+	bridge fdb add $unlocked_mac1 dev $swp1 vlan 1 master static
-+	bridge fdb add $unlocked_mac2 dev $swp2 vlan 1 master static
-+
-+	$MZ $h1 -q -c 5 -d 100msec -t udp -a $locked_mac1 -b rand
-+	bridge fdb get $locked_mac1 br br0 vlan 1 | grep "dev $swp1" | \
-+		grep -q "locked"
-+	check_err $? "Failed to create locked FDB entry on first port"
-+
-+	$MZ $h2 -q -c 5 -d 100msec -t udp -a $locked_mac2 -b rand
-+	bridge fdb get $locked_mac2 br br0 vlan 1 | grep "dev $swp2" | \
-+		grep -q "locked"
-+	check_err $? "Failed to create locked FDB entry on second port"
-+
-+	# Disable MAB on the first port and check that only the first locked
-+	# FDB entry was flushed.
-+	bridge link set dev $swp1 mab off
-+
-+	bridge fdb get $unlocked_mac1 br br0 vlan 1 &> /dev/null
-+	check_err $? "Regular FDB entry on first port was flushed after disabling MAB"
-+
-+	bridge fdb get $unlocked_mac2 br br0 vlan 1 &> /dev/null
-+	check_err $? "Regular FDB entry on second port was flushed after disabling MAB"
-+
-+	bridge fdb get $locked_mac1 br br0 vlan 1 &> /dev/null
-+	check_fail $? "Locked FDB entry on first port was not flushed after disabling MAB"
-+
-+	bridge fdb get $locked_mac2 br br0 vlan 1 &> /dev/null
-+	check_err $? "Locked FDB entry on second port was flushed after disabling MAB"
-+
-+	bridge fdb del $unlocked_mac2 dev $swp2 vlan 1 master static
-+	bridge fdb del $unlocked_mac1 dev $swp1 vlan 1 master static
-+
-+	bridge link set dev $swp2 learning on locked off mab off
-+	bridge link set dev $swp1 learning off locked off mab off
-+
-+	log_test "Locked port MAB FDB flush"
-+}
-+
- trap cleanup EXIT
- 
- setup_prepare
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 3ffb9d6c0950..1c4f866de7d7 100755
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -137,6 +137,14 @@ check_locked_port_support()
- 	fi
- }
- 
-+check_port_mab_support()
-+{
-+	if ! bridge -d link show | grep -q "mab"; then
-+		echo "SKIP: iproute2 too old; MacAuth feature not supported."
-+		return $ksft_skip
-+	fi
-+}
-+
- if [[ "$(id -u)" -ne 0 ]]; then
- 	echo "SKIP: need root privileges"
- 	exit $ksft_skip
--- 
-2.37.3
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
