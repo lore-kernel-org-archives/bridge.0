@@ -1,23 +1,26 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B7D8860797
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9954D60784
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4sNp7lxVoHrm2s1uAOfiWgASd+t4Thnsz5ago2CYC9k=;
- b=HZQGGUX5TI4Y5inNjJKludRfjdSYpooaaL4td6lQuGDml3gkxzP9a33yMKpT1wKxdkg23YfDi0LjAqF4F4diLm0pyki8yWqxlCbPFQOj+S/4W6fdQxAMynYAG+UeuyVPqJqdWCuqmZHMwl3gp2xZ2+DxanU6KoUuRPzkdcXYGexhl1NYJTbRd/809yXTfwg7ctxb7vw/t/1KrrZGIN2/TiQHQH4snYP3izoEoRjde/rA9gWmPprULRZEFQAbq62nSxPDxD9tv3ofuSbwH/5++8OWnEET3zBUA+kzB4SLsW3KIRtlOsAekWOclFZ19ZGbKsayLY97om2Uoa0rvDBS6w==
-Date: Thu, 3 Nov 2022 11:09:30 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <Y2OFSq7AZRARG9ov@shredder>
-References: <20221018120420.561846-1-idosch@nvidia.com>
- <20221018120420.561846-18-idosch@nvidia.com>
- <e3a74c46-0542-4f21-4975-5bd22bb62ab9@blackwall.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e3a74c46-0542-4f21-4975-5bd22bb62ab9@blackwall.org>
+Return-Path: <SRS0=7oGp=3D=goodmis.org=rostedt@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 162BD81E68
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EA6BE81E63
+Date: Thu, 3 Nov 2022 17:51:23 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+Message-ID: <20221103175123.744d0f37@rorschach.local.home>
+In-Reply-To: <27a6a587fee5e9172e41acd16ae1bc1f556fdbd7.camel@redhat.com>
+References: <20221027150525.753064657@goodmis.org>
+ <20221027150928.780676863@goodmis.org>
+ <20221027155513.60b211e2@gandalf.local.home>
+ <CAHk-=wjAjW2P5To82+CAM0Rx8RexQBHPTVZBWBPHyEPGm37oFA@mail.gmail.com>
+ <20221027163453.383bbf8e@gandalf.local.home>
+ <CAHk-=whoS+krLU7JNe=hMp2VOcwdcCdTXhdV8qqKoViwzzJWfA@mail.gmail.com>
+ <20221027170720.31497319@gandalf.local.home>
+ <20221027183511.66b058c4@gandalf.local.home>
+ <20221028183149.2882a29b@gandalf.local.home>
+ <20221028154617.3c63ba68@kernel.org>
+ <27a6a587fee5e9172e41acd16ae1bc1f556fdbd7.camel@redhat.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [RFC PATCH net-next 17/19] bridge: mcast: Allow user
- space to add (*, G) with a source list and filter mode
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [RFC][PATCH v2 19/31] timers: net: Use
+ del_timer_shutdown() before freeing timer
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,57 +29,78 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, edumazet@google.com, mlxsw@nvidia.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Alexei Starovoitov <ast@kernel.org>, Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, linux-afs@lists.infradead.org, Menglong Dong <imagedong@tencent.com>, bridge@lists.linux-foundation.org, Jesse Brandeburg <jesse.brandeburg@intel.com>, lvs-devel@vger.kernel.org, coreteam@netfilter.org, Jakub Kicinski <kuba@kernel.org>, Guenter Roeck <linux@roeck-us.net>, Martin KaFai Lau <martin.lau@kernel.org>, Kuniyuki Iwashima <kuniyu@amazon.com>, Thomas Gleixner <tglx@linutronix.de>, Mirko Lindner <mlindner@marvell.com>, linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, Stephen Boyd <sboyd@kernel.org>, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Pavel Begunkov <asml.silence@gmail.com>
 
-On Wed, Oct 19, 2022 at 04:28:23PM +0300, Nikolay Aleksandrov wrote:
-> On 18/10/2022 15:04, Ido Schimmel wrote:
-> > +static int br_mdb_config_src_list_init(struct nlattr *src_list,
-> > +				       struct br_mdb_config *cfg,
-> > +				       struct netlink_ext_ack *extack)
-> > +{
-> > +	struct br_mdb_src_entry *src, *tmp;
-> > +	struct nlattr *src_entry;
-> > +	int rem, err;
-> > +
-> > +	nla_for_each_nested(src_entry, src_list, rem) {
-> > +		err = br_mdb_config_src_entry_init(src_entry, cfg, extack);
-> 
-> Hmm, since we know the exact number of these (due to attr embedding) can't we allocate
-> all at once and drop the list? They should not be more than 32 (PG_SRC_ENT_LIMIT) IIRC,
-> which makes it at most 1152 bytes. Might simplify the code a bit and reduce allocations.
+On Sun, 30 Oct 2022 18:22:03 +0100
+Paolo Abeni <pabeni@redhat.com> wrote:
 
-I didn't see how I can reliably determine the exact number of source
-entries without going all the 'MDBE_SRC_LIST_ENTRY' attributes. I mean,
-the entries can have varying sizes in case user space provided mixed
-IPv4/IPv6 sources (which will be rejected later on) and in the future we
-might have more attributes per-source entry other than the address
-(e.g., source timer), which might be specified only for a subset of the
-entries.
+> On the positive side, I think converting the sk_stop_timer in 
+> inet_csk_clear_xmit_timers() should be safe and should cover the issue
+> reported by Guenter
 
-So, I did end up converting to an array like you suggested, but I'm
-going over the entries twice. Once to understand how large the array
-should be and again to initialize it. It's control path so it should be
-fine. The advantages are that the number of allocations are reduced and
-that I can reject a too long source list before doing any processing:
+Would something like this be OK? 
 
-if (cfg->num_src_entries >= PG_SRC_ENT_LIMIT) {
-	NL_SET_ERR_MSG_FMT_MOD(extack, "Exceeded maximum number of source entries (%u)",
-			       PG_SRC_ENT_LIMIT);
-	return -EINVAL;
-}
+[ Note, talking with Thomas Gleixner, we agreed that we are changing the
+  name to: time_shutdown_sync() and timer_shutdown() (no wait version).
+  I'll be posting new patches soon. ]
 
-[...]
+-- Steve
 
-> > +static void br_mdb_config_fini(struct br_mdb_config *cfg)
-> > +{
-> > +	br_mdb_config_attrs_fini(cfg);
-> > +}
-> > +
-> 
-> Is there more coming to these two _fini helpers? If not, I think one would be enough, i.e.
-> just call br_mdb_config_src_list_fini() from br_mdb_config_fini()
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 22f8bab583dd..0ef58697d4e5 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2439,6 +2439,8 @@ void sk_stop_timer(struct sock *sk, struct timer_list *timer);
+ 
+ void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer);
+ 
++void sk_shutdown_timer(struct sock *sk, struct timer_list *timer);
++
+ int __sk_queue_drop_skb(struct sock *sk, struct sk_buff_head *sk_queue,
+ 			struct sk_buff *skb, unsigned int flags,
+ 			void (*destructor)(struct sock *sk,
+diff --git a/net/core/sock.c b/net/core/sock.c
+index a3ba0358c77c..82124862b594 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -3357,6 +3357,13 @@ void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer)
+ }
+ EXPORT_SYMBOL(sk_stop_timer_sync);
+ 
++void sk_shutdown_timer(struct sock *sk, struct timer_list* timer)
++{
++	if (timer_shutdown(timer))
++		__sock_put(sk);
++}
++EXPORT_SYMBOL(sk_shutdown_timer);
++
+ void sock_init_data(struct socket *sock, struct sock *sk)
+ {
+ 	sk_init_common(sk);
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index 5e70228c5ae9..71f398f51958 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -722,15 +722,15 @@ void inet_csk_clear_xmit_timers(struct sock *sk)
+ 
+ 	icsk->icsk_pending = icsk->icsk_ack.pending = 0;
+ 
+-	sk_stop_timer(sk, &icsk->icsk_retransmit_timer);
+-	sk_stop_timer(sk, &icsk->icsk_delack_timer);
+-	sk_stop_timer(sk, &sk->sk_timer);
++	sk_shutdown_timer(sk, &icsk->icsk_retransmit_timer);
++	sk_shutdown_timer(sk, &icsk->icsk_delack_timer);
++	sk_shutdown_timer(sk, &sk->sk_timer);
+ }
+ EXPORT_SYMBOL(inet_csk_clear_xmit_timers);
+ 
+ void inet_csk_delete_keepalive_timer(struct sock *sk)
+ {
+-	sk_stop_timer(sk, &sk->sk_timer);
++	sk_shutdown_timer(sk, &sk->sk_timer);
+ }
+ EXPORT_SYMBOL(inet_csk_delete_keepalive_timer);
+ 
 
-Done.
 
-Thanks!
