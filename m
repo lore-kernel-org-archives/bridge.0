@@ -1,26 +1,27 @@
-Return-Path: <SRS0=7oGp=3D=goodmis.org=rostedt@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 162BD81E68
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EA6BE81E63
-Date: Thu, 3 Nov 2022 17:51:23 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-Message-ID: <20221103175123.744d0f37@rorschach.local.home>
-In-Reply-To: <27a6a587fee5e9172e41acd16ae1bc1f556fdbd7.camel@redhat.com>
-References: <20221027150525.753064657@goodmis.org>
- <20221027150928.780676863@goodmis.org>
- <20221027155513.60b211e2@gandalf.local.home>
- <CAHk-=wjAjW2P5To82+CAM0Rx8RexQBHPTVZBWBPHyEPGm37oFA@mail.gmail.com>
- <20221027163453.383bbf8e@gandalf.local.home>
- <CAHk-=whoS+krLU7JNe=hMp2VOcwdcCdTXhdV8qqKoViwzzJWfA@mail.gmail.com>
- <20221027170720.31497319@gandalf.local.home>
- <20221027183511.66b058c4@gandalf.local.home>
- <20221028183149.2882a29b@gandalf.local.home>
- <20221028154617.3c63ba68@kernel.org>
- <27a6a587fee5e9172e41acd16ae1bc1f556fdbd7.camel@redhat.com>
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1889761048
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 293E261027
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qYPVAx00pruXWCdYLN3zWIHZveGr8VlYBMy2AuGBMd0=;
+ b=FLCCbNDUO7vhfJJ6/DkiQrQjcyThY0NYOtdUnzV1UWpbJt0mUw/TX5/RFDdgGjCBbWX9D0SvAzjMtxNswXRKKJLRff77T5O0mN/B+wATbv5f6Y752zmWJ6i0e+MGMfelUwWKUzskjdDU0m5YJ/CxgbGf01atG7Map0qn7Bb1hlI=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Thu, 3 Nov 2022 22:31:52 +0000
+Message-ID: <20221103223151.cnmlvgnz3maj75iv@skbuf>
+References: <20221025100024.1287157-1-idosch@nvidia.com>
+ <20221025100024.1287157-1-idosch@nvidia.com>
+ <20221025100024.1287157-11-idosch@nvidia.com>
+ <20221025100024.1287157-11-idosch@nvidia.com>
+ <20221027233939.x5jtqwiic2kmwonk@skbuf> <Y140a2DqcCaT/5uL@shredder>
+ <20221031083210.fxitourrquc4bo6p@skbuf>
+In-Reply-To: <20221031083210.fxitourrquc4bo6p@skbuf>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <B6F645F835A7934F8F5F062CF56253DD@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC][PATCH v2 19/31] timers: net: Use
- del_timer_shutdown() before freeing timer
+Subject: Re: [Bridge] [RFC PATCH net-next 10/16] mlxsw: spectrum_switchdev:
+ Add support for locked FDB notifications
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,78 +30,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Alexei Starovoitov <ast@kernel.org>, Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, linux-afs@lists.infradead.org, Menglong Dong <imagedong@tencent.com>, bridge@lists.linux-foundation.org, Jesse Brandeburg <jesse.brandeburg@intel.com>, lvs-devel@vger.kernel.org, coreteam@netfilter.org, Jakub Kicinski <kuba@kernel.org>, Guenter Roeck <linux@roeck-us.net>, Martin KaFai Lau <martin.lau@kernel.org>, Kuniyuki Iwashima <kuniyu@amazon.com>, Thomas Gleixner <tglx@linutronix.de>, Mirko Lindner <mlindner@marvell.com>, linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, Stephen Boyd <sboyd@kernel.org>, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Pavel Begunkov <asml.silence@gmail.com>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: "petrm@nvidia.com" <petrm@nvidia.com>, "ivecera@redhat.com" <ivecera@redhat.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "razor@blackwall.org" <razor@blackwall.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "roopa@nvidia.com" <roopa@nvidia.com>, "netdev@kapio-technology.com" <netdev@kapio-technology.com>, "edumazet@google.com" <edumazet@google.com>, "mlxsw@nvidia.com" <mlxsw@nvidia.com>, "jiri@nvidia.com" <jiri@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-On Sun, 30 Oct 2022 18:22:03 +0100
-Paolo Abeni <pabeni@redhat.com> wrote:
+Hi Ido,
 
-> On the positive side, I think converting the sk_stop_timer in 
-> inet_csk_clear_xmit_timers() should be safe and should cover the issue
-> reported by Guenter
+On Mon, Oct 31, 2022 at 10:32:10AM +0200, Vladimir Oltean wrote:
+> On Sun, Oct 30, 2022 at 10:23:07AM +0200, Ido Schimmel wrote:
+> > Right. I'm quite reluctant to add the MAB flag to
+> > BR_PORT_FLAGS_HW_OFFLOAD as part of this patchset for the simple reason
+> > that it is not really needed. I'm not worried about someone adding it
+> > later when it is actually needed. We will probably catch the omission
+> > during code review. Worst case, we have a selftest that will break,
+> > notifying us that a bug fix is needed.
+>=20
+> For drivers which don't emit SWITCHDEV_FDB_ADD_TO_BRIDGE but do offload
+> BR_PORT_LOCKED (like mv88e6xxx), things will not work correctly on day 1
+> of BR_PORT_MAB because they are not told MAB is enabled, so they have no
+> way of rejecting it until things work properly with the offload in place.
+>=20
+> It's the same reason for which we have BR_HAIRPIN_MODE | BR_ISOLATED |
+> BR_MULTICAST_TO_UNICAST in BR_PORT_FLAGS_HW_OFFLOAD, even if nobody acts
+> upon them.
 
-Would something like this be OK? 
+Do you have any comment on this? You resent the BR_PORT_MAB patches
+without even an ack that yes, mv88e6xxx will not support MAB being
+enabled on a bridge port, and will not reject the configuration either,
+and that's ok/intended.
 
-[ Note, talking with Thomas Gleixner, we agreed that we are changing the
-  name to: time_shutdown_sync() and timer_shutdown() (no wait version).
-  I'll be posting new patches soon. ]
-
--- Steve
-
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 22f8bab583dd..0ef58697d4e5 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2439,6 +2439,8 @@ void sk_stop_timer(struct sock *sk, struct timer_list *timer);
- 
- void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer);
- 
-+void sk_shutdown_timer(struct sock *sk, struct timer_list *timer);
-+
- int __sk_queue_drop_skb(struct sock *sk, struct sk_buff_head *sk_queue,
- 			struct sk_buff *skb, unsigned int flags,
- 			void (*destructor)(struct sock *sk,
-diff --git a/net/core/sock.c b/net/core/sock.c
-index a3ba0358c77c..82124862b594 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3357,6 +3357,13 @@ void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer)
- }
- EXPORT_SYMBOL(sk_stop_timer_sync);
- 
-+void sk_shutdown_timer(struct sock *sk, struct timer_list* timer)
-+{
-+	if (timer_shutdown(timer))
-+		__sock_put(sk);
-+}
-+EXPORT_SYMBOL(sk_shutdown_timer);
-+
- void sock_init_data(struct socket *sock, struct sock *sk)
- {
- 	sk_init_common(sk);
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index 5e70228c5ae9..71f398f51958 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -722,15 +722,15 @@ void inet_csk_clear_xmit_timers(struct sock *sk)
- 
- 	icsk->icsk_pending = icsk->icsk_ack.pending = 0;
- 
--	sk_stop_timer(sk, &icsk->icsk_retransmit_timer);
--	sk_stop_timer(sk, &icsk->icsk_delack_timer);
--	sk_stop_timer(sk, &sk->sk_timer);
-+	sk_shutdown_timer(sk, &icsk->icsk_retransmit_timer);
-+	sk_shutdown_timer(sk, &icsk->icsk_delack_timer);
-+	sk_shutdown_timer(sk, &sk->sk_timer);
- }
- EXPORT_SYMBOL(inet_csk_clear_xmit_timers);
- 
- void inet_csk_delete_keepalive_timer(struct sock *sk)
- {
--	sk_stop_timer(sk, &sk->sk_timer);
-+	sk_shutdown_timer(sk, &sk->sk_timer);
- }
- EXPORT_SYMBOL(inet_csk_delete_keepalive_timer);
- 
-
-
+Do you think this is not true? Irrelevant? The "fix" (to implement offloadi=
+ng)
+might come in this development cycle, or it might not.=
