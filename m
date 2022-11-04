@@ -1,26 +1,36 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8B28A40BD8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8483C40BCE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ybf34Ai1eF54rD+9wrUA75b/u2ARhK3JRMm9zemXFZw=;
- b=KSu+v/weoBWGo/3WnZFO9YYq+naSajmkRYrPobPPfHSKzdBCBzEqzwZ0OtL3Bl5aRpSWCieV8a4srHmloS4q5ZkoknqLdpjBo8zJH59kGlZih/O2br0cWMRBawrpkx7SWzRWKflZ3sv137YqJqQ16tG0dwbHzr7Cx6jQ7UCi98E=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Thu, 3 Nov 2022 23:18:39 +0000
-Message-ID: <20221103231838.fp5nh5g3kv7cz2d2@skbuf>
-References: <20221101193922.2125323-1-idosch@nvidia.com>
- <20221101193922.2125323-1-idosch@nvidia.com>
- <20221101193922.2125323-2-idosch@nvidia.com>
- <20221101193922.2125323-2-idosch@nvidia.com>
-In-Reply-To: <20221101193922.2125323-2-idosch@nvidia.com>
- <20221101193922.2125323-2-idosch@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <C3B0EC894D80D647882DF483137FCEB8@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <edumazet@google.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 93B5240121
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7292F400D8
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=OIWN7urgPvg7gWQ/2jmCuNIcCwluarihUklEPGyHjcg=;
+ b=WfZQ7T5J19AGsPaNUJuOsP0Km5Ixqe3g2OjzWlZ48O9n++G6HOElr/NHRpLA9fDnwr
+ zjRaF+oN7J52K4Hkt1QfKpCQB5Wz5OV6RrsZAgAUs0tkU6h0aV7cYd6yEHz8xOWTUUaE
+ nTwx3sfZXExTHFKflgZ0kHbhOyWH5xYa/4o8baHcab29Hq9pAX7cOlT1SrWXDbt87QYk
+ qqJgjVZVqEHQO2qDmqBHDnF4n6wAmtRz5tmd/UsTP0SD10mD6uXXRAlwFdt5yYXaLs84
+ Q6NGteraqshFTYF08psP5WYnjWqJg/XADvug0NuClQLOveJFe7i203jnVfhv2iws1QsI
+ 5poA==
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 1/2] bridge: Add MAC Authentication
- Bypass (MAB) support
+References: <20221027150525.753064657@goodmis.org>
+ <20221027150928.780676863@goodmis.org>
+ <20221027155513.60b211e2@gandalf.local.home>
+ <CAHk-=wjAjW2P5To82+CAM0Rx8RexQBHPTVZBWBPHyEPGm37oFA@mail.gmail.com>
+ <20221027163453.383bbf8e@gandalf.local.home>
+ <CAHk-=whoS+krLU7JNe=hMp2VOcwdcCdTXhdV8qqKoViwzzJWfA@mail.gmail.com>
+ <20221027170720.31497319@gandalf.local.home>
+ <20221027183511.66b058c4@gandalf.local.home>
+ <20221028183149.2882a29b@gandalf.local.home>
+ <20221028154617.3c63ba68@kernel.org>
+ <27a6a587fee5e9172e41acd16ae1bc1f556fdbd7.camel@redhat.com>
+ <20221103175123.744d0f37@rorschach.local.home>
+In-Reply-To: <20221103175123.744d0f37@rorschach.local.home>
+From: Eric Dumazet <edumazet@google.com>
+Date: Thu, 3 Nov 2022 17:00:20 -0700
+Message-ID: <CANn89iLv9cak6_vXJG5t=Kq+eiMPdMxF8w4AAuAuFB5sOsy2zg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [RFC][PATCH v2 19/31] timers: net: Use
+ del_timer_shutdown() before freeing timer
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,77 +39,93 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: "netdev@kapio-technology.com" <netdev@kapio-technology.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "razor@blackwall.org" <razor@blackwall.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "edumazet@google.com" <edumazet@google.com>, "mlxsw@nvidia.com" <mlxsw@nvidia.com>, "roopa@nvidia.com" <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Alexei Starovoitov <ast@kernel.org>, Tony Nguyen <anthony.l.nguyen@intel.com>, linux-afs@lists.infradead.org, Menglong Dong <imagedong@tencent.com>, bridge@lists.linux-foundation.org, Jesse Brandeburg <jesse.brandeburg@intel.com>, lvs-devel@vger.kernel.org, coreteam@netfilter.org, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Guenter Roeck <linux@roeck-us.net>, Martin KaFai Lau <martin.lau@kernel.org>, Kuniyuki Iwashima <kuniyu@amazon.com>, Thomas Gleixner <tglx@linutronix.de>, Mirko Lindner <mlindner@marvell.com>, linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, Stephen Boyd <sboyd@kernel.org>, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Pavel Begunkov <asml.silence@gmail.com>
 
-On Tue, Nov 01, 2022 at 09:39:21PM +0200, Ido Schimmel wrote:
-> From: "Hans J. Schultz" <netdev@kapio-technology.com>
->=20
-> Hosts that support 802.1X authentication are able to authenticate
-> themselves by exchanging EAPOL frames with an authenticator (Ethernet
-> bridge, in this case) and an authentication server. Access to the
-> network is only granted by the authenticator to successfully
-> authenticated hosts.
->=20
-> The above is implemented in the bridge using the "locked" bridge port
-> option. When enabled, link-local frames (e.g., EAPOL) can be locally
-> received by the bridge, but all other frames are dropped unless the host
-> is authenticated. That is, unless the user space control plane installed
-> an FDB entry according to which the source address of the frame is
-> located behind the locked ingress port. The entry can be dynamic, in
-> which case learning needs to be enabled so that the entry will be
-> refreshed by incoming traffic.
->=20
-> There are deployments in which not all the devices connected to the
-> authenticator (the bridge) support 802.1X. Such devices can include
-> printers and cameras. One option to support such deployments is to
-> unlock the bridge ports connecting these devices, but a slightly more
-> secure option is to use MAB. When MAB is enabled, the MAC address of the
-> connected device is used as the user name and password for the
-> authentication.
->=20
-> For MAB to work, the user space control plane needs to be notified about
-> MAC addresses that are trying to gain access so that they will be
-> compared against an allow list. This can be implemented via the regular
-> learning process with the sole difference that learned FDB entries are
-> installed with a new "locked" flag indicating that the entry cannot be
-> used to authenticate the device. The flag cannot be set by user space,
-> but user space can clear the flag by replacing the entry, thereby
-> authenticating the device.
->=20
-> Locked FDB entries implement the following semantics with regards to
-> roaming, aging and forwarding:
->=20
-> 1. Roaming: Locked FDB entries can roam to unlocked (authorized) ports,
->    in which case the "locked" flag is cleared. FDB entries cannot roam
->    to locked ports regardless of MAB being enabled or not. Therefore,
->    locked FDB entries are only created if an FDB entry with the given {MA=
-C,
->    VID} does not already exist. This behavior prevents unauthenticated
->    devices from disrupting traffic destined to already authenticated
->    devices.
->=20
-> 2. Aging: Locked FDB entries age and refresh by incoming traffic like
->    regular entries.
->=20
-> 3. Forwarding: Locked FDB entries forward traffic like regular entries.
->    If user space detects an unauthorized MAC behind a locked port and
->    wishes to prevent traffic with this MAC DA from reaching the host, it
->    can do so using tc or a different mechanism.
+On Thu, Nov 3, 2022 at 2:51 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> On Sun, 30 Oct 2022 18:22:03 +0100
+> Paolo Abeni <pabeni@redhat.com> wrote:
+>
+> > On the positive side, I think converting the sk_stop_timer in
+> > inet_csk_clear_xmit_timers() should be safe and should cover the issue
+> > reported by Guenter
+>
+> Would something like this be OK?
+>
+> [ Note, talking with Thomas Gleixner, we agreed that we are changing the
+>   name to: time_shutdown_sync() and timer_shutdown() (no wait version).
+>   I'll be posting new patches soon. ]
+>
+> -- Steve
+>
+> diff --git a/include/net/sock.h b/include/net/sock.h
+> index 22f8bab583dd..0ef58697d4e5 100644
+> --- a/include/net/sock.h
+> +++ b/include/net/sock.h
+> @@ -2439,6 +2439,8 @@ void sk_stop_timer(struct sock *sk, struct timer_list *timer);
+>
+>  void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer);
+>
+> +void sk_shutdown_timer(struct sock *sk, struct timer_list *timer);
+> +
+>  int __sk_queue_drop_skb(struct sock *sk, struct sk_buff_head *sk_queue,
+>                         struct sk_buff *skb, unsigned int flags,
+>                         void (*destructor)(struct sock *sk,
+> diff --git a/net/core/sock.c b/net/core/sock.c
+> index a3ba0358c77c..82124862b594 100644
+> --- a/net/core/sock.c
+> +++ b/net/core/sock.c
+> @@ -3357,6 +3357,13 @@ void sk_stop_timer_sync(struct sock *sk, struct timer_list *timer)
+>  }
+>  EXPORT_SYMBOL(sk_stop_timer_sync);
+>
+> +void sk_shutdown_timer(struct sock *sk, struct timer_list* timer)
+> +{
+> +       if (timer_shutdown(timer))
+> +               __sock_put(sk);
+> +}
+> +EXPORT_SYMBOL(sk_shutdown_timer);
+> +
+>  void sock_init_data(struct socket *sock, struct sock *sk)
+>  {
+>         sk_init_common(sk);
+> diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+> index 5e70228c5ae9..71f398f51958 100644
+> --- a/net/ipv4/inet_connection_sock.c
+> +++ b/net/ipv4/inet_connection_sock.c
+> @@ -722,15 +722,15 @@ void inet_csk_clear_xmit_timers(struct sock *sk)
+>
+>         icsk->icsk_pending = icsk->icsk_ack.pending = 0;
+>
+> -       sk_stop_timer(sk, &icsk->icsk_retransmit_timer);
+> -       sk_stop_timer(sk, &icsk->icsk_delack_timer);
+> -       sk_stop_timer(sk, &sk->sk_timer);
+> +       sk_shutdown_timer(sk, &icsk->icsk_retransmit_timer);
+> +       sk_shutdown_timer(sk, &icsk->icsk_delack_timer);
+> +       sk_shutdown_timer(sk, &sk->sk_timer);
+>  }
+>  EXPORT_SYMBOL(inet_csk_clear_xmit_timers);
 
-In other words, a user space MAB daemon has a lot of extra work to do.
-I'm willing to bet it's going to cut 90% of those corners ;) anyway...
+ inet_csk_clear_xmit_timers() can be called multiple times during TCP
+socket lifetime.
 
->=20
-> Enable the above behavior using a new bridge port option called "mab".
-> It can only be enabled on a bridge port that is both locked and has
-> learning enabled. Locked FDB entries are flushed from the port once MAB
-> is disabled. A new option is added because there are pure 802.1X
-> deployments that are not interested in notifications about locked FDB
-> entries.
->=20
-> Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
-> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-> ---
+(See tcp_disconnect(), which can be followed by another connect() ... and loop)
 
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>=
+Maybe add a second parameter, or add a new
+inet_csk_shutdown_xmit_timers() only called from tcp_v4_destroy_sock() ?
+
+>
+>  void inet_csk_delete_keepalive_timer(struct sock *sk)
+>  {
+> -       sk_stop_timer(sk, &sk->sk_timer);
+> +       sk_shutdown_timer(sk, &sk->sk_timer);
+
+SO_KEEPALIVE can be called multiple times in a TCP socket lifetime,
+on/off/on/off/...
+
+I suggest leaving sk_stop_timer() here.
+
+Eventually  inet_csk_clear_xmit_timers( sk, destroy=true) (or
+inet_csk_shutdown_xmit_timers(())
+   will  be called before the socket is destroyed.
