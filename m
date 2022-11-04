@@ -1,36 +1,23 @@
-Return-Path: <groeck7@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E691E60AE8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 30BA5608D8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
- :reply-to; bh=vkBGgKFgg4QPXCpHtMi6j0J3ZcIgUdwyTJWClmiO8n8=;
- b=ZXT4b7xGHkwhtyRx7V1geQfUresoJ3Ad36AKxZcA+hYEkLlZTMmJdsg3FLF6RZb4Bm
- /Th2KOsiFM+wv4AFPnrljoJs2GpR7KNawydYt2C5cew9YFo+qW0UidzKrk4BDuG1u7w+
- m3w563eSaiPwL3l4sGKZaD+ak6hpgQhlR7eGCpJqdUtIM7CX7IVrS9HVCezWAA8wIfI4
- tbWxHgw8jm41jK3k3dRhGJKkPfEdX95COskXHfzG/e/VIoBDLovAFvOX7zEd4Utr1gQo
- 7jv8BY+ymXeC+5KaWJgeXULPlc8QwCY2a+1Wc4m/cSjP0OKV+9XQ8V5888RvdMmc7n4q
- obpw==
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date: Fri, 4 Nov 2022 09:14:45 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-Message-ID: <20221104161445.GA1866159@roeck-us.net>
-References: <20221027163453.383bbf8e@gandalf.local.home>
- <CAHk-=whoS+krLU7JNe=hMp2VOcwdcCdTXhdV8qqKoViwzzJWfA@mail.gmail.com>
- <20221027170720.31497319@gandalf.local.home>
- <20221027183511.66b058c4@gandalf.local.home>
- <20221028183149.2882a29b@gandalf.local.home>
- <20221028154617.3c63ba68@kernel.org>
- <27a6a587fee5e9172e41acd16ae1bc1f556fdbd7.camel@redhat.com>
- <20221103175123.744d0f37@rorschach.local.home>
- <CANn89iLv9cak6_vXJG5t=Kq+eiMPdMxF8w4AAuAuFB5sOsy2zg@mail.gmail.com>
- <20221104015139.58f17730@rorschach.local.home>
+Return-Path: <torvalds@linuxfoundation.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3BF8341817
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DA37A41813
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linux-foundation.org; s=google;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=/jNIi3NLp/0QE0eLEgGhnlZnXslRxZtVSsauwMnJ52A=;
+ b=TyCMiI4ARMPxd18RVlEv+qm2LWR7zC104Hlivn40qb5lZJslIeDFuCNMNvjneFE/Nj
+ LFwCX5vAwmEX/R8qjGO9x9K9/hgdwoRd2q59WUqMzWoiDvISQjer+tTT1jJ7UfSLA8Vn
+ fR3VeAjk206NeR5DC2lSXJH82ZME8JVM9jplc=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221104015139.58f17730@rorschach.local.home>
-Subject: Re: [Bridge] [RFC][PATCH v2 19/31] timers: net: Use
- del_timer_shutdown() before freeing timer
+References: <20221104054053.431922658@goodmis.org>
+In-Reply-To: <20221104054053.431922658@goodmis.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 4 Nov 2022 10:00:03 -0700
+Message-ID: <CAHk-=whKE5UL+AuCC2wK8oq8D_ueSO_T7-9Acx4POouqVi8ZHg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [Bridge] [RFC][PATCH v3 00/33] timers: Use timer_shutdown*()
+ before freeing timers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -40,52 +27,34 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Alexei Starovoitov <ast@kernel.org>, Eric Dumazet <edumazet@google.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, linux-afs@lists.infradead.org, Menglong Dong <imagedong@tencent.com>, bridge@lists.linux-foundation.org, Jesse Brandeburg <jesse.brandeburg@intel.com>, lvs-devel@vger.kernel.org, coreteam@netfilter.org, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Martin KaFai Lau <martin.lau@kernel.org>, Kuniyuki Iwashima <kuniyu@amazon.com>, Thomas Gleixner <tglx@linutronix.de>, Mirko Lindner <mlindner@marvell.com>, linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, Stephen Boyd <sboyd@kernel.org>, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Pavel Begunkov <asml.silence@gmail.com>
+Cc: alsa-devel@alsa-project.org, linux-staging@lists.linux.dev, linux-doc@vger.kernel.org, dri-devel@lists.freedesktop.org, Thomas Gleixner <tglx@linutronix.de>, linux-leds@vger.kernel.org, drbd-dev@lists.linbit.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, linux-sh@vger.kernel.org, linux-atm-general@lists.sourceforge.net, linux-afs@lists.infradead.org, lvs-devel@vger.kernel.org, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, linux-pm@vger.kernel.org, intel-gfx@lists.freedesktop.org, rcu@vger.kernel.org, cgroups@vger.kernel.org, openipmi-developer@lists.sourceforge.net, Anna-Maria Gleixner <anna-maria@linutronix.de>, linux-edac@vger.kernel.org, linux-block@vger.kernel.org, linux-nfs@vger.kernel.org, linux-parisc@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linaro-mm-sig@lists.linaro.org
 
-On Fri, Nov 04, 2022 at 01:51:39AM -0400, Steven Rostedt wrote:
-> On Thu, 3 Nov 2022 17:00:20 -0700
-> Eric Dumazet <edumazet@google.com> wrote:
-> 
-> >  inet_csk_clear_xmit_timers() can be called multiple times during TCP
-> > socket lifetime.
-> > 
-> > (See tcp_disconnect(), which can be followed by another connect() ... and loop)
-> > 
-> > Maybe add a second parameter, or add a new
-> > inet_csk_shutdown_xmit_timers() only called from tcp_v4_destroy_sock() ?
-> > 
-> 
-> I guess.
-> 
-> > >
-> > >  void inet_csk_delete_keepalive_timer(struct sock *sk)
-> > >  {
-> > > -       sk_stop_timer(sk, &sk->sk_timer);
-> > > +       sk_shutdown_timer(sk, &sk->sk_timer);  
-> > 
-> > SO_KEEPALIVE can be called multiple times in a TCP socket lifetime,
-> > on/off/on/off/...
-> > 
-> > I suggest leaving sk_stop_timer() here.
-> > 
-> > Eventually  inet_csk_clear_xmit_timers( sk, destroy=true) (or
-> > inet_csk_shutdown_xmit_timers(())
-> >    will  be called before the socket is destroyed.
-> 
-> OK. 
-> 
-> Guenter,
-> 
-> I posted a new series, but did not include this change. If you want to
-> test that other series, I would suggest to at least add the first part
-> of this patch, otherwise it will trigger. But we want to see if there's
-> other locations of issue that we should care about.
-> 
+On Thu, Nov 3, 2022 at 10:48 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Ideally, I would have the first patch go into this rc cycle, which is mostly
+> non functional as it will allow the other patches to come in via the respective
+> subsystems in the next merge window.
 
-I'll run a test on the other series without change first. We'll see what
-happens. If necessary I'll add [parts of] this patch and re-test, but
-before doing that I would like to get a sense for the status of your
-series as-is.
+Ack.
 
-Thanks,
-Guenter
+I also wonder if we could do the completely trivially correct
+conversions immediately.
+
+I'm talking about the scripted ones where it's currently a
+"del_timer_sync()", and the very next action is freeing whatever data
+structure the timer is in (possibly with something like free_irq() in
+between - my point is that there's an unconditional free that is very
+clear and unambiguous), so that there is absolutely no question about
+whether they should use "timer_shutdown_sync()" or not.
+
+IOW, things like patches 03, 17 and 31, and at least parts others in
+this series.
+
+This series clearly has several much more complex cases that need
+actual real code review, and I think it would help to have the
+completely unambiguous cases out of the way, just to get rid of noise.
+
+So I'd take that first patch, and a scripted set of "this cannot
+change any semantics" patches early.
+
+                Linus
