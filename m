@@ -1,19 +1,25 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6663D4036F
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 007084028D
-MIME-Version: 1.0
-Date: Fri, 04 Nov 2022 12:23:07 +0100
-From: netdev@kapio-technology.com
-In-Reply-To: <20221103231838.fp5nh5g3kv7cz2d2@skbuf>
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A6843418CF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0AC62418BB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2LT1/+dZKzYfztIxqlQ1kLxlfG7NwIKOnBvdUFXrDWo=;
+ b=hzX5/x9zGgJ6g1ddKyZG3VzAQSWAheTr3qtLViLKpauAzRh1rZDBiVTD4wrySUYg3BCuQQTu8p4VRZOOvS1RGH7J4IyXhhCLEHlDBKJiKY8a27jdLcftakuG8HOTq3Hj0lZ50l//BGy6YcC+Mq7V5TiLL7V8vheuXO+u/s4UsZA=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Fri, 4 Nov 2022 13:11:05 +0000
+Message-ID: <20221104131104.4qvnx5rarvsyrpe4@skbuf>
 References: <20221101193922.2125323-1-idosch@nvidia.com>
  <20221101193922.2125323-1-idosch@nvidia.com>
  <20221101193922.2125323-2-idosch@nvidia.com>
  <20221101193922.2125323-2-idosch@nvidia.com>
  <20221103231838.fp5nh5g3kv7cz2d2@skbuf>
-Message-ID: <ce9f4095b216187c1dd5c14cdf4ae9cc@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+ <ce9f4095b216187c1dd5c14cdf4ae9cc@kapio-technology.com>
+In-Reply-To: <ce9f4095b216187c1dd5c14cdf4ae9cc@kapio-technology.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <DEEEE89226DE2F4DB60A9CF020EB9A10@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Subject: Re: [Bridge] [PATCH net-next 1/2] bridge: Add MAC Authentication
  Bypass (MAB) support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -24,98 +30,53 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Ido Schimmel <idosch@nvidia.com>, razor@blackwall.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, edumazet@google.com, mlxsw@nvidia.com, netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: "netdev@kapio-technology.com" <netdev@kapio-technology.com>
+Cc: Ido Schimmel <idosch@nvidia.com>, "razor@blackwall.org" <razor@blackwall.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "roopa@nvidia.com" <roopa@nvidia.com>, "edumazet@google.com" <edumazet@google.com>, "mlxsw@nvidia.com" <mlxsw@nvidia.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-On 2022-11-04 00:18, Vladimir Oltean wrote:
-> On Tue, Nov 01, 2022 at 09:39:21PM +0200, Ido Schimmel wrote:
->> From: "Hans J. Schultz" <netdev@kapio-technology.com>
->> 
->> Hosts that support 802.1X authentication are able to authenticate
->> themselves by exchanging EAPOL frames with an authenticator (Ethernet
->> bridge, in this case) and an authentication server. Access to the
->> network is only granted by the authenticator to successfully
->> authenticated hosts.
->> 
->> The above is implemented in the bridge using the "locked" bridge port
->> option. When enabled, link-local frames (e.g., EAPOL) can be locally
->> received by the bridge, but all other frames are dropped unless the 
->> host
->> is authenticated. That is, unless the user space control plane 
->> installed
->> an FDB entry according to which the source address of the frame is
->> located behind the locked ingress port. The entry can be dynamic, in
->> which case learning needs to be enabled so that the entry will be
->> refreshed by incoming traffic.
->> 
->> There are deployments in which not all the devices connected to the
->> authenticator (the bridge) support 802.1X. Such devices can include
->> printers and cameras. One option to support such deployments is to
->> unlock the bridge ports connecting these devices, but a slightly more
->> secure option is to use MAB. When MAB is enabled, the MAC address of 
->> the
->> connected device is used as the user name and password for the
->> authentication.
->> 
->> For MAB to work, the user space control plane needs to be notified 
->> about
->> MAC addresses that are trying to gain access so that they will be
->> compared against an allow list. This can be implemented via the 
->> regular
->> learning process with the sole difference that learned FDB entries are
->> installed with a new "locked" flag indicating that the entry cannot be
->> used to authenticate the device. The flag cannot be set by user space,
->> but user space can clear the flag by replacing the entry, thereby
->> authenticating the device.
->> 
->> Locked FDB entries implement the following semantics with regards to
->> roaming, aging and forwarding:
->> 
->> 1. Roaming: Locked FDB entries can roam to unlocked (authorized) 
->> ports,
->>    in which case the "locked" flag is cleared. FDB entries cannot roam
->>    to locked ports regardless of MAB being enabled or not. Therefore,
->>    locked FDB entries are only created if an FDB entry with the given 
->> {MAC,
->>    VID} does not already exist. This behavior prevents unauthenticated
->>    devices from disrupting traffic destined to already authenticated
->>    devices.
->> 
->> 2. Aging: Locked FDB entries age and refresh by incoming traffic like
->>    regular entries.
->> 
->> 3. Forwarding: Locked FDB entries forward traffic like regular 
->> entries.
->>    If user space detects an unauthorized MAC behind a locked port and
->>    wishes to prevent traffic with this MAC DA from reaching the host, 
->> it
->>    can do so using tc or a different mechanism.
-> 
-> In other words, a user space MAB daemon has a lot of extra work to do.
-> I'm willing to bet it's going to cut 90% of those corners ;) anyway...
-> 
+On Fri, Nov 04, 2022 at 12:23:07PM +0100, netdev@kapio-technology.com wrote=
+:
+> On 2022-11-04 00:18, Vladimir Oltean wrote:
+> > > 3. Forwarding: Locked FDB entries forward traffic like regular entrie=
+s.
+> > >    If user space detects an unauthorized MAC behind a locked port and
+> > >    wishes to prevent traffic with this MAC DA from reaching the host,=
+ it
+> > >    can do so using tc or a different mechanism.
+> >=20
+> > In other words, a user space MAB daemon has a lot of extra work to do.
+> > I'm willing to bet it's going to cut 90% of those corners ;) anyway...
+>=20
+> I would like to know your (Vladimir) take on the approach of the
+> implementation for the mv88e6xxx that I have made and which will also be
+> the basis for how the WesterMo hostapd fork will be afaik...
+>=20
+> Is it in general a good idea to use TC filters for specific MACs instead
+> of having the driver installing blocking entries, which I know the Marvel=
+l
+> XCat switchcore will also have (switchcore installed blockig entries)?
 
-I would like to know your (Vladimir) take on the approach of the
-implementation for the mv88e6xxx that I have made and which will also be
-the basis for how the WesterMo hostapd fork will be afaik...
+Well, the mv88e6xxx driver does not offload tc filters in general, so
+let's keep that in mind.
 
-Is it in general a good idea to use TC filters for specific MACs instead
-of having the driver installing blocking entries, which I know the 
-Marvell
-XCat switchcore will also have (switchcore installed blockig entries)?
+Achieving the behavior of not forwarding traffic to a BR_FDB_LOCKED
+entry can be done in a variety of ways using tc. Simplest would be to
+put an "action drop" filter on the egress chain of the port where the
+BR_FDB_LOCKED entry is located. Although that's probably least amenable
+to offloading. I think "action drop" is more popular as an offload
+action on ingress chains, which means you'd either have to (a) put an
+"action drop" on the ingress chain of every other bridge port, or
+(b) create a shared tc block and put all bridge ports in that. The
+problem with (b) is that it doesn't play all that well with bridge ports
+belonging to different hardware blocks.
 
+All in all, I think the yet-to-be-introduced 'blackhole' FDB flag makes
+the most sense for this behavior. Its scope is the entire bridge
+forwarding domain by definition (no need to attach it as filter to the
+egress or ingress block of one/multiple bridge ports), and it's also
+easily offloadable.
 
->> 
->> Enable the above behavior using a new bridge port option called "mab".
->> It can only be enabled on a bridge port that is both locked and has
->> learning enabled. Locked FDB entries are flushed from the port once 
->> MAB
->> is disabled. A new option is added because there are pure 802.1X
->> deployments that are not interested in notifications about locked FDB
->> entries.
->> 
->> Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
->> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
->> ---
-> 
-> Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+I think it could make a lot of sense for the MAB daemon to do one of 2
+things: replace the BR_FDB_LOCKED entry with a static/dynamic FDB entry
+if it's going to authorize it, or with a blackhole entry on br0 if it's
+going to deny it. So you wouldn't have to manually add the blackhole
+entry from the mv88e6xxx driver; user space would do it.=
