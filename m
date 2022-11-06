@@ -1,20 +1,17 @@
-Return-Path: <SRS0=G+DL=3F=goodmis.org=rostedt@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DC081408CB
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 24418408BD
-Date: Sat, 5 Nov 2022 17:47:56 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-Message-ID: <20221105174756.38062fce@rorschach.local.home>
-In-Reply-To: <CAHk-=wjkkomrdcrAxxFijs-Lih6vHze+A2TgM+v7-Z7ZkXT+WA@mail.gmail.com>
-References: <20221105060024.598488967@goodmis.org>
- <CAHk-=wi95dGkg7DiuOZ27gGW+mxJipn9ykB6LHB-HrbbLG6OMQ@mail.gmail.com>
- <20221105123642.596371c7@rorschach.local.home>
- <Y2bPlllkHo5DUmLY@zx2c4.com>
- <CAHk-=wjkkomrdcrAxxFijs-Lih6vHze+A2TgM+v7-Z7ZkXT+WA@mail.gmail.com>
+Return-Path: <netdev@kapio-technology.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F48240591
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2A7374033D
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Sun, 06 Nov 2022 13:04:36 +0100
+From: netdev@kapio-technology.com
+In-Reply-To: <20221025100024.1287157-1-idosch@nvidia.com>
+References: <20221025100024.1287157-1-idosch@nvidia.com>
+Message-ID: <e6c4c3755e4aba80b3c7ebf31c8cdb58@kapio-technology.com>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH v4a 00/38] timers: Use timer_shutdown*() before
- freeing timers
+Subject: Re: [Bridge] [RFC PATCH net-next 00/16] bridge: Add MAC
+ Authentication Bypass (MAB) support with offload
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,27 +20,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, linux-staging@lists.linux.dev, linux-doc@vger.kernel.org, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, Thomas Gleixner <tglx@linutronix.de>, linux-leds@vger.kernel.org, drbd-dev@lists.linbit.com, linux-s390@vger.kernel.org, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, linux-sh@vger.kernel.org, linux-atm-general@lists.sourceforge.net, linux-afs@lists.infradead.org, lvs-devel@vger.kernel.org, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, linux-pm@vger.kernel.org, intel-gfx@lists.freedesktop.org, rcu@vger.kernel.org, cgroups@vger.kernel.org, openipmi-developer@lists.sourceforge.net, Anna-Maria Gleixner <anna-maria@linutronix.de>, linux-edac@vger.kernel.org, linux-block@vger.kernel.org, linux-nfs@vger.kernel.org, linux-parisc@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linaro-mm-sig@lists.linaro.org
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: petrm@nvidia.com, ivecera@redhat.com, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, vladimir.oltean@nxp.com, edumazet@google.com, mlxsw@nvidia.com, jiri@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-On Sat, 5 Nov 2022 14:13:14 -0700
-Linus Torvalds <torvalds@linux-foundation.org> wrote:
+On 2022-10-25 12:00, Ido Schimmel wrote:
+> Merge plan
+> ==========
+> 
+> We need to agree on a merge plan that allows us to start submitting
+> patches for inclusion and finally conclude this work. In my experience,
+> it is best to work in small batches. I therefore propose the following
+> plan:
+> 
+> * Add MAB support in the bridge driver. This corresponds to patches
+>   #1-#2.
+> 
+> * Switchdev extensions for MAB offload together with mlxsw
+>   support. This corresponds to patches #3-#16. I can reduce the number
+>   of patches by splitting out the selftests to a separate submission.
+> 
+> * mv88e6xxx support. I believe the blackhole stuff is an optimization,
+>   so I suggest getting initial MAB offload support without that. 
+> Support
+>   for blackhole entries together with offload can be added in a 
+> separate
+>   submission.
 
-> (Comparing output is also fun because the ordering of the patches is
-> random, so consecutive runs with the same rule will give different
-> patches. I assume that it's just because it's done in parallel, but it
-> doesn't help the "try to see what changes when you change the script"
-> ;)
+As I understand for the mv88e6xxx support, we will be sending 
+SWITCHDEV_FDB_ADD_TO_BRIDGE
+events from the driver to the bridge without installing entries in the 
+driver.
+Just to note, that will of course imply that the bridge FDB will be out 
+of sync with the
+FDB in the driver (ATU).
 
-What I do to compare is:
-
- patch -p1 < cocci1.patch
- git commit -a
- git show | patch -p1 -R
- patch -p1 < cocci2.patch
- git diff
-
-Then I see how things changed. This is how I was able to show you the
-tweaks I made.
-
--- Steve
+> 
+> * Switchdev extensions for dynamic FDB entries together with mv88e6xxx
+>   support. I can follow up with mlxsw support afterwards.
+> 
+> [1] 
+> https://lore.kernel.org/netdev/20221018165619.134535-1-netdev@kapio-technology.com/
+> [2] 
+> https://lore.kernel.org/netdev/20221004152036.7848-1-netdev@kapio-technology.com/
+> [3] 
+> https://github.com/westermo/hostapd/blob/bridge_driver/hostapd/hostapd_auth_deauth.sh#L11
+> [4] 
+> https://lore.kernel.org/netdev/a11af0d07a79adbd2ac3d242b36dec7e@kapio-technology.com/
