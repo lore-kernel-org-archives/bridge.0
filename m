@@ -1,22 +1,11 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 898C360AC6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E2B8360888
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UNMMKE0TtKx3v/Z85KrxgERvP1I9hgJEE5AmlDHoavw=;
- b=nviudDU7ogCBuPg3K3HxuATbvqN8FgfW443qX3yzbzjKKTQJfuAA7l7TIl0pNh/kL2trEZ2rP7qYvPpNs3f/t/B6KQ3AX0F5Lh4IyxM8RSnkqeNqKgGb1j1F+l88pqCdH16b0t19xKcKmD4g4qwSq12+kYhgmTCD0QkL3TNS930pEhY8y2+X94kajbQdAUs9eserK26nQ+wE7akihUXwYOfbl5QoG2x/+vI1XT3WO3p6dTmaKfgeiQGJieuz+fuYaYpja3v7TB2o8oWK50EuNp4z47HxCFvj5iqNUavqbBsvvSugh2O3nyYnXemlPPkzeJguQre2PY6zOgkp4ZqH3g==
-Date: Sun, 6 Nov 2022 15:21:16 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <Y2e0zHgzIClULTIB@shredder>
-References: <20221025100024.1287157-1-idosch@nvidia.com>
- <e6c4c3755e4aba80b3c7ebf31c8cdb58@kapio-technology.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e6c4c3755e4aba80b3c7ebf31c8cdb58@kapio-technology.com>
-MIME-Version: 1.0
-Subject: Re: [Bridge] [RFC PATCH net-next 00/16] bridge: Add MAC
- Authentication Bypass (MAB) support with offload
+Return-Path: <SRS0=fKmf=3G=goodmis.org=rostedt@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 61B2C81351
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1FE3E81348
+Message-ID: <20221106212427.739928660@goodmis.org>
+Date: Sun, 06 Nov 2022 16:24:27 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: [Bridge] [PATCH v6a 0/5] timers: Use timer_shutdown*() before
+	freeing timers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,46 +14,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@kapio-technology.com
-Cc: petrm@nvidia.com, ivecera@redhat.com, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, vladimir.oltean@nxp.com, edumazet@google.com, mlxsw@nvidia.com, jiri@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: linux-kernel@vger.kernel.org
+Cc: alsa-devel@alsa-project.org, linux-staging@lists.linux.dev, linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-afs@lists.infradead.org, linux-leds@vger.kernel.org, drbd-dev@lists.linbit.com, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, linux-atm-general@lists.sourceforge.net, lvs-devel@vger.kernel.org, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, intel-gfx@lists.freedesktop.org, linux-block@vger.kernel.org, cgroups@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Anna-Maria Gleixner <anna-maria@linutronix.de>, linux-nfs@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 
-On Sun, Nov 06, 2022 at 01:04:36PM +0100, netdev@kapio-technology.com wrote:
-> On 2022-10-25 12:00, Ido Schimmel wrote:
-> > Merge plan
-> > ==========
-> > 
-> > We need to agree on a merge plan that allows us to start submitting
-> > patches for inclusion and finally conclude this work. In my experience,
-> > it is best to work in small batches. I therefore propose the following
-> > plan:
-> > 
-> > * Add MAB support in the bridge driver. This corresponds to patches
-> >   #1-#2.
-> > 
-> > * Switchdev extensions for MAB offload together with mlxsw
-> >   support. This corresponds to patches #3-#16. I can reduce the number
-> >   of patches by splitting out the selftests to a separate submission.
-> > 
-> > * mv88e6xxx support. I believe the blackhole stuff is an optimization,
-> >   so I suggest getting initial MAB offload support without that. Support
-> >   for blackhole entries together with offload can be added in a separate
-> >   submission.
-> 
-> As I understand for the mv88e6xxx support, we will be sending
-> SWITCHDEV_FDB_ADD_TO_BRIDGE
-> events from the driver to the bridge without installing entries in the
-> driver.
-> Just to note, that will of course imply that the bridge FDB will be out of
-> sync with the
-> FDB in the driver (ATU).
+del_timer_sync() is often called before the object that owns the timer is
+freed. But sometimes there's a race that enables the timer again before it is
+freed and causes a use after free when that timer triggers. This patch set
+adds a new "shutdown" timer state, which is set on the new timer_shutdown()
+API. Once a timer is in this state, it can not be re-armed and if it is, it
+will warn.
 
-Stated explicitly here:
-https://lore.kernel.org/netdev/20221025100024.1287157-4-idosch@nvidia.com/
+The first three patches change existing timer_shutdown() functions used
+locally in ARM and some drivers to better namespace names.
 
-Don't see a way around it and it's not critical IMO. The entries will
-not appear with the "offload" flag so user space knows they are not in
-hardware. Once the "blackhole" flag is supported, user space can replace
-such entries and set the "blackhole" flag, which will result in the
-entries being programmed to hardware (assuming hardware/driver support).
+The fourth patch implements the new API.
 
-I plan to submit the offload patches later this week.
+The fifth patch is now a treewide patch that uses a coccinelle script to
+convert the trivial locations where a del_timer*() is called on a timer of an
+object that is freed immediately afterward (or at least in the same function).
+
+Changes since v5a: https://lore.kernel.org/all/20221106054535.709068702@goodmis.org/
+
+ - Updated the script to make ptr and slab into expressions instead of
+   using identifiers (Julia Lawall and Linus Torvalds)
+
+Steven Rostedt (Google) (5):
+      ARM: spear: Do not use timer namespace for timer_shutdown() function
+      clocksource/drivers/arm_arch_timer: Do not use timer namespace for timer_shutdown() function
+      clocksource/drivers/sp804: Do not use timer namespace for timer_shutdown() function
+      timers: Add timer_shutdown_sync() and timer_shutdown() to be called before freeing timers
+      treewide: Convert del_timer*() to timer_shutdown*()
+
+----
+ .../RCU/Design/Requirements/Requirements.rst       |  2 +-
+ Documentation/core-api/local_ops.rst               |  2 +-
+ Documentation/kernel-hacking/locking.rst           |  5 ++
+ arch/arm/mach-spear/time.c                         |  8 +--
+ arch/sh/drivers/push-switch.c                      |  2 +-
+ block/blk-iocost.c                                 |  2 +-
+ block/blk-iolatency.c                              |  2 +-
+ block/kyber-iosched.c                              |  2 +-
+ drivers/acpi/apei/ghes.c                           |  2 +-
+ drivers/atm/idt77252.c                             |  6 +-
+ drivers/block/drbd/drbd_main.c                     |  2 +-
+ drivers/block/loop.c                               |  2 +-
+ drivers/bluetooth/hci_bcsp.c                       |  2 +-
+ drivers/bluetooth/hci_qca.c                        |  4 +-
+ drivers/clocksource/arm_arch_timer.c               | 12 ++--
+ drivers/clocksource/timer-sp804.c                  |  6 +-
+ drivers/gpu/drm/i915/i915_sw_fence.c               |  2 +-
+ drivers/hid/hid-wiimote-core.c                     |  2 +-
+ drivers/input/keyboard/locomokbd.c                 |  2 +-
+ drivers/input/keyboard/omap-keypad.c               |  2 +-
+ drivers/input/mouse/alps.c                         |  2 +-
+ drivers/isdn/mISDN/l1oip_core.c                    |  4 +-
+ drivers/isdn/mISDN/timerdev.c                      |  4 +-
+ drivers/leds/trigger/ledtrig-activity.c            |  2 +-
+ drivers/leds/trigger/ledtrig-heartbeat.c           |  2 +-
+ drivers/leds/trigger/ledtrig-pattern.c             |  2 +-
+ drivers/leds/trigger/ledtrig-transient.c           |  2 +-
+ drivers/media/pci/ivtv/ivtv-driver.c               |  2 +-
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c            | 16 +++---
+ drivers/media/usb/s2255/s2255drv.c                 |  4 +-
+ drivers/net/ethernet/intel/i40e/i40e_main.c        |  6 +-
+ drivers/net/ethernet/marvell/sky2.c                |  2 +-
+ drivers/net/ethernet/sun/sunvnet.c                 |  2 +-
+ drivers/net/usb/sierra_net.c                       |  2 +-
+ .../wireless/broadcom/brcm80211/brcmfmac/btcoex.c  |  2 +-
+ drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c   |  2 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c       |  2 +-
+ drivers/net/wireless/intersil/hostap/hostap_ap.c   |  2 +-
+ drivers/net/wireless/marvell/mwifiex/main.c        |  2 +-
+ drivers/net/wireless/microchip/wilc1000/hif.c      |  6 +-
+ drivers/nfc/pn533/pn533.c                          |  2 +-
+ drivers/nfc/pn533/uart.c                           |  2 +-
+ drivers/pcmcia/bcm63xx_pcmcia.c                    |  2 +-
+ drivers/pcmcia/electra_cf.c                        |  2 +-
+ drivers/pcmcia/omap_cf.c                           |  2 +-
+ drivers/pcmcia/pd6729.c                            |  4 +-
+ drivers/pcmcia/yenta_socket.c                      |  4 +-
+ drivers/scsi/qla2xxx/qla_edif.c                    |  4 +-
+ drivers/staging/media/atomisp/i2c/atomisp-lm3554.c |  2 +-
+ drivers/tty/n_gsm.c                                |  2 +-
+ drivers/tty/sysrq.c                                |  2 +-
+ drivers/usb/gadget/udc/m66592-udc.c                |  2 +-
+ drivers/usb/serial/garmin_gps.c                    |  2 +-
+ drivers/usb/serial/mos7840.c                       |  4 +-
+ fs/ext4/super.c                                    |  2 +-
+ fs/nilfs2/segment.c                                |  2 +-
+ include/linux/timer.h                              | 62 +++++++++++++++++++--
+ kernel/time/timer.c                                | 64 ++++++++++++----------
+ net/802/garp.c                                     |  2 +-
+ net/802/mrp.c                                      |  4 +-
+ net/bridge/br_multicast.c                          |  8 +--
+ net/bridge/br_multicast_eht.c                      |  4 +-
+ net/core/gen_estimator.c                           |  2 +-
+ net/ipv4/ipmr.c                                    |  2 +-
+ net/ipv6/ip6mr.c                                   |  2 +-
+ net/mac80211/mesh_pathtbl.c                        |  2 +-
+ net/netfilter/ipset/ip_set_list_set.c              |  2 +-
+ net/netfilter/ipvs/ip_vs_lblc.c                    |  2 +-
+ net/netfilter/ipvs/ip_vs_lblcr.c                   |  2 +-
+ net/netfilter/xt_IDLETIMER.c                       |  4 +-
+ net/netfilter/xt_LED.c                             |  2 +-
+ net/rxrpc/conn_object.c                            |  2 +-
+ net/sched/cls_flow.c                               |  2 +-
+ net/sunrpc/svc.c                                   |  2 +-
+ net/tipc/discover.c                                |  2 +-
+ net/tipc/monitor.c                                 |  2 +-
+ sound/i2c/other/ak4117.c                           |  2 +-
+ sound/synth/emux/emux.c                            |  2 +-
+ 78 files changed, 207 insertions(+), 148 deletions(-)
