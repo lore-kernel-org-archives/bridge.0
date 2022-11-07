@@ -1,26 +1,34 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0B74660C14
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 212D060BAF
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1668517215;
- bh=VF4Q0WzM2CiusNuMpims9Ot44VyD7qu0aefy2AZtTrc=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=IOc4juoSaRS0kNtR75y9p6+leOkIdF5fXg8yWFZC0vOqlbdNhHQqKHWBGDC4mQopX
- w4mJcad/3OWFJw2qy7Pv63eZbXvnJZwDGbUEySZ/2gSEOMYeTwXpoN5i3TeEi60GSL
- U9kfF4QBSvmVkPuFT7dPZyJBnqmjzIqRveADH2+z5NhzzxzCPnE82Vydb1/+Ydm0dU
- 2gGb37WxNfhMCvIxnWJ7UAEszIdJ/JfW3MqXTpnypMy9N+mTP0bGNUWYUTt7v7leUg
- NpD9SMnEGcZimDthraXkrQ6mGhOt5Xp/yxs6lKiLpCUpf+vRFIrrf/Hs7RD3GIwOSM
- f49eHOE2Mjpew==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <tglx@linutronix.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DF3B2408D7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7565B4046D
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020; t=1667818024;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=qnhu/C4/dTNGh+9YxTAUPF0AHXOgpdZiA4TofS1TDao=;
+ b=m8gFAB2FYV5B4BIkkbSCrPl5kngI1vwmC89wOqBJ/q73+RRLDUvN8153YBd0ancpYaUudU
+ +fTzmJoLwRrrXw9ulhVtc41yRIMLNrOmB9kVLUOAn2xwOs861TQYPTmwfVqoXOpGOLsPn5
+ hNBacxD9XN6Mi6tXS/NIbwjqzso2C6oqm6/L/mt2cpmfqfHELnCL8o8Pn38Ir7+eD8OVqk
+ Lj3kRr5Ls1MIF7+wsJc3Ym/BQIZf8UhWrd8aE7FpoY/qhjIfIvELeoa8/ZXUqY5eKhjinO
+ ZF4FT08X0F8jeyihKYji9kBCreFY8X9nEznXEcECfWmIcYVRm4zXH9JmYOmiiQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020e; t=1667818024;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=qnhu/C4/dTNGh+9YxTAUPF0AHXOgpdZiA4TofS1TDao=;
+ b=bzVvnuX1mysTSSrkmkIGsLumN3FZV+biUwiIDeLZdScudMhEXojJ3c4U7ytkUdHNPdLCjD
+ NbhAMzPLE4OU4lBA==
+In-Reply-To: <20221106223256.4bbdb018@rorschach.local.home>
+References: <20221106223256.4bbdb018@rorschach.local.home>
+Date: Mon, 07 Nov 2022 11:47:04 +0100
+Message-ID: <87pmdzvy6v.ffs@tglx>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <166851721541.14988.2851505012033520291.git-patchwork-notify@kernel.org>
-Date: Tue, 15 Nov 2022 13:00:15 +0000
-References: <20221114084509.860831-1-idosch@nvidia.com>
-In-Reply-To: <20221114084509.860831-1-idosch@nvidia.com>
-Subject: Re: [Bridge] [PATCH net] bridge: switchdev: Fix memory leaks when
- changing VLAN protocol
+Content-Type: text/plain
+Subject: Re: [Bridge] [GIT PULL] treewide: timers: Use timer_shutdown*()
+ before freeing timers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,33 +37,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: petrm@nvidia.com, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, edumazet@google.com, mlxsw@nvidia.com, vladbu@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: alsa-devel@alsa-project.org, linux-staging@lists.linux.dev, linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-afs@lists.infradead.org, linux-leds@vger.kernel.org, drbd-dev@lists.linbit.com, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, linux-atm-general@lists.sourceforge.net, lvs-devel@vger.kernel.org, linux-acpi@vger.kernel.org, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, intel-gfx@lists.freedesktop.org, linux-block@vger.kernel.org, cgroups@vger.kernel.org, Anna-Maria Gleixner <anna-maria@linutronix.de>, linux-nfs@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 
-Hello:
+Linus,
 
-This patch was applied to netdev/net.git (master)
-by Paolo Abeni <pabeni@redhat.com>:
+On Sun, Nov 06 2022 at 22:32, Steven Rostedt wrote:
+> As discussed here:
+>
+>   https://lore.kernel.org/all/20221106212427.739928660@goodmis.org/
 
-On Mon, 14 Nov 2022 10:45:09 +0200 you wrote:
-> The bridge driver can offload VLANs to the underlying hardware either
-> via switchdev or the 8021q driver. When the former is used, the VLAN is
-> marked in the bridge driver with the 'BR_VLFLAG_ADDED_BY_SWITCHDEV'
-> private flag.
-> 
-> To avoid the memory leaks mentioned in the cited commit, the bridge
-> driver will try to delete a VLAN via the 8021q driver if the VLAN is not
-> marked with the previously mentioned flag.
-> 
-> [...]
+Please hold off. It's only nits, but tip has documented rules and random
+pull requests are not making them go away.
 
-Here is the summary with links:
-  - [net] bridge: switchdev: Fix memory leaks when changing VLAN protocol
-    https://git.kernel.org/netdev/net/c/9d45921ee4cb
+Thanks,
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+        tglx
