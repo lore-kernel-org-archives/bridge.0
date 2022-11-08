@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2776260D6D
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4E68160D5E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 38C8141496
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0467540919
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=opczsBhp0qt6+P5dGe1iYcEVrDktjV1EOsuHM54Wmhc=;
- b=k/D+H0h3/fJzGavrOJjFKUaKLwdC7WiELkuC2OJc7uv2R52WfENuyuotiuzG85PNjyU6lIRrAcCZsSFFSRY7/bh8YkylV+HYfiPpNgbIBTnRzlTZe5MEkO9dLdAKGEM4g/rFI9Pa+rpNQEKP2gN0xSQMd4T/C39tS/l/V2x4Ohe9KD9cNaJvm8ES8oD79wOySJu4pdFAgPZW3gF6JiW6eZ8mt9YGQ0YDlNH7Bn1Wd1dv2Oopl2AuF3/zfJK4BI58tvjHUoBH3XnT2lLwKligqAaly9t23XY7Loezakw8nwPJWA1JqpZEVlRwYHbasRovjUIIO6Z9E9exsvVPSYOCQg==
+ bh=ImYNLi97idUCs/uBfghoaHt9pd6pv5pnH77gQt8cqEQ=;
+ b=nU2jmSs4XTqhEuxtBjFXDb02Y8iDuaQ95ItnC5+AbHo3PqJYqaW8wnFD8qEJYT9Q4aE9KDym9IByC6Mwcrb6hCz2GkTRzY3Cjc8jSEgwI9Nq8//KDFThElg9mr0vbkEpE9kXoLrAEIniD4TwdqvV8oQoYh7V3jpNasLXr+7x15H8ZH8XzbQg5jLZJ4OJaFwBvo5t14ey5/nn5xh7hwRpH2QRltGzddoC+cYRjM4+wzo8kP0UlRFyFNl+MBFExDKOA6ltCcdP9rrL3RfICQTSBk2xLWohQ5hJNWZHXfA5Lad6qObJQ9bFJ3DhrH4bT6W2zLEOzclHHsOJtjFuzJHcIg==
 From: Petr Machata <petrm@nvidia.com>
-Date: Tue, 8 Nov 2022 11:47:19 +0100
-Message-ID: <389ee318ff1a799d1e94ba1a33ab2ff42bae50fc.1667902754.git.petrm@nvidia.com>
+Date: Tue, 8 Nov 2022 11:47:20 +0100
+Message-ID: <61b030c0932726657eff1ac545d1904a2ee930ea.1667902754.git.petrm@nvidia.com>
 In-Reply-To: <cover.1667902754.git.petrm@nvidia.com>
 References: <cover.1667902754.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 13/15] selftests: mlxsw: Add a test for
-	EAPOL trap
+Subject: [Bridge] [PATCH net-next 14/15] selftests: mlxsw: Add a test for
+	locked port trap
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,51 +29,135 @@ Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay A
 
 From: Ido Schimmel <idosch@nvidia.com>
 
-Test that packets with a destination MAC of 01:80:C2:00:00:03 trigger
-the "eapol" packet trap.
+Test that packets received via a locked bridge port whose {SMAC, VID}
+does not appear in the bridge's FDB or appears with a different port,
+trigger the "locked_port" packet trap.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
- .../drivers/net/mlxsw/devlink_trap_control.sh | 22 +++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ .../net/mlxsw/devlink_trap_l2_drops.sh        | 105 ++++++++++++++++++
+ 1 file changed, 105 insertions(+)
 
-diff --git a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh
-index d3a891d421ab..64153bbf95df 100755
---- a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh
-+++ b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_control.sh
-@@ -83,6 +83,7 @@ ALL_TESTS="
- 	ptp_general_test
- 	flow_action_sample_test
- 	flow_action_trap_test
-+	eapol_test
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh
+index a4c2812e9807..8d4b2c6265b3 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh
+@@ -14,6 +14,7 @@ ALL_TESTS="
+ 	ingress_stp_filter_test
+ 	port_list_is_empty_test
+ 	port_loopback_filter_test
++	locked_port_test
  "
  NUM_NETIFS=4
- source $lib_dir/lib.sh
-@@ -677,6 +678,27 @@ flow_action_trap_test()
- 	tc qdisc del dev $rp1 clsact
+ source $lib_dir/tc_common.sh
+@@ -420,6 +421,110 @@ port_loopback_filter_test()
+ 	port_loopback_filter_uc_test
  }
  
-+eapol_payload_get()
++locked_port_miss_test()
 +{
-+	local source_mac=$1; shift
-+	local p
++	local trap_name="locked_port"
++	local smac=00:11:22:33:44:55
 +
-+	p=$(:
-+		)"01:80:C2:00:00:03:"$(       : ETH daddr
-+		)"$source_mac:"$(             : ETH saddr
-+		)"88:8E:"$(                   : ETH type
-+		)
-+	echo $p
++	bridge link set dev $swp1 learning off
++	bridge link set dev $swp1 locked on
++
++	RET=0
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased before setting action to \"trap\""
++
++	devlink_trap_action_set $trap_name "trap"
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_err $? "Trap stats did not increase when should"
++
++	devlink_trap_action_set $trap_name "drop"
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased after setting action to \"drop\""
++
++	devlink_trap_action_set $trap_name "trap"
++
++	bridge fdb replace $smac dev $swp1 master static vlan 1
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased after adding an FDB entry"
++
++	bridge fdb del $smac dev $swp1 master static vlan 1
++	bridge link set dev $swp1 locked off
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased after unlocking port"
++
++	log_test "Locked port - FDB miss"
++
++	devlink_trap_action_set $trap_name "drop"
++	bridge link set dev $swp1 learning on
 +}
 +
-+eapol_test()
++locked_port_mismatch_test()
 +{
-+	local h1mac=$(mac_get $h1)
++	local trap_name="locked_port"
++	local smac=00:11:22:33:44:55
 +
-+	devlink_trap_stats_test "EAPOL" "eapol" $MZ $h1 -c 1 \
-+		$(eapol_payload_get $h1mac) -p 100 -q
++	bridge link set dev $swp1 learning off
++	bridge link set dev $swp1 locked on
++
++	RET=0
++
++	bridge fdb replace $smac dev $swp2 master static vlan 1
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased before setting action to \"trap\""
++
++	devlink_trap_action_set $trap_name "trap"
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_err $? "Trap stats did not increase when should"
++
++	devlink_trap_action_set $trap_name "drop"
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased after setting action to \"drop\""
++
++	devlink_trap_action_set $trap_name "trap"
++	bridge link set dev $swp1 locked off
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased after unlocking port"
++
++	bridge link set dev $swp1 locked on
++	bridge fdb replace $smac dev $swp1 master static vlan 1
++
++	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
++		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
++	check_fail $? "Trap stats increased after replacing an FDB entry"
++
++	bridge fdb del $smac dev $swp1 master static vlan 1
++	devlink_trap_action_set $trap_name "drop"
++
++	log_test "Locked port - FDB mismatch"
++
++	bridge link set dev $swp1 locked off
++	bridge link set dev $swp1 learning on
++}
++
++locked_port_test()
++{
++	locked_port_miss_test
++	locked_port_mismatch_test
 +}
 +
  trap cleanup EXIT
