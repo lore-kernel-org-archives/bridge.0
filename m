@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8C4AA40915
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32168409B3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BFD7240919
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B15D2410A0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+vXV0EscbKjPvtQz+Z5GoGH51yAqxSK2mKdAlmDf4A8=;
- b=g6wOCHPSRf4d10ZXr87/oRqmGIKx6lclk59YbYBq29xW5crEqk09VYGOdaWlMlRud1owY4fFuGvlEzpTlp8OJEBe6SjpH8ACwJAGm1ZntunIDnvqLd4cwvzI1LroqrXGRsVcRrepOvdyW8nI/Ef0f2yB2ytB+9VHPB7ighsTDgtlqO66VsKAGdTGHPHfG2XAHMlBK0cI5l54q+IomFScXTMaBghrTS0ssxnXMJpnI5f5q7674N5y+stir9wk/jFnQneQBg7k73SsosBq1ih42gttU0bTWxzGeonaKGxco5TPwZStg+UPDFcIlC2hsjCTOmWtdq+uGp2zp5lX54WimQ==
+ bh=kq5Oq8fcOFcPYTjwT1aMU/D8S+XTSuUQicYnQIZzCLM=;
+ b=Dt/WQJLsQ+YLhwVM37poPiMS2c0uuzOLo2dCUDxKSMTILKxmFO8sbhsABykuHF75U9wd9gaO4LxvNOtS/9F4ljRkbphpseQGKn9WFu1o01TW2Oz3tcYVxlmu86rdKM6LXfKMyHN/Iq0nqZZhOU0u/llAh/yCNKkGNGaxLSO0NJWXNw1x3AFILixxHIQ9AHHIoUw0xKnBmemGSbbgTUARXvD0dN7BxYOmxGs8BBPWSZs/IgQG7G3VyDn3VOCuzLQKvBOrgTI4mWdwT3b9A54zIB7SZYs9MD+oGfsGqB286Ugg3bRE2DpAm9LAKjp6awom9tEHd2MjraKWzZwJ6kU6ww==
 From: Petr Machata <petrm@nvidia.com>
-Date: Tue, 8 Nov 2022 11:47:13 +0100
-Message-ID: <69d965463badfb2f1d714869cb4a86fd252e2114.1667902754.git.petrm@nvidia.com>
+Date: Tue, 8 Nov 2022 11:47:12 +0100
+Message-ID: <acba123f510d401a7eda4536caa33218767b75d9.1667902754.git.petrm@nvidia.com>
 In-Reply-To: <cover.1667902754.git.petrm@nvidia.com>
 References: <cover.1667902754.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 07/15] mlxsw: spectrum: Add an API to
-	configure security checks
+Subject: [Bridge] [PATCH net-next 06/15] mlxsw: reg: Add Switch Port FDB
+	Security Register
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,69 +29,69 @@ Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay A
 
 From: Ido Schimmel <idosch@nvidia.com>
 
-Add an API to enable or disable security checks on a local port. It will
-be used by subsequent patches when the 'BR_PORT_LOCKED' flag is toggled.
+Add the Switch Port FDB Security Register (SPFSR) that allows enabling
+and disabling security checks on a given local port. In Linux terms, it
+allows locking / unlocking a port.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 18 ++++++++++++++++++
- drivers/net/ethernet/mellanox/mlxsw/spectrum.h |  5 ++++-
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/reg.h | 34 +++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 04dc79da6024..b34366521914 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -466,6 +466,24 @@ int mlxsw_sp_port_vid_learning_set(struct mlxsw_sp_port *mlxsw_sp_port, u16 vid,
- 	return err;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+index 7240af45ade5..f2d6f8654e04 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+@@ -2046,6 +2046,39 @@ static inline void mlxsw_reg_spvmlr_pack(char *payload, u16 local_port,
+ 	}
  }
  
-+int mlxsw_sp_port_security_set(struct mlxsw_sp_port *mlxsw_sp_port, bool enable)
++/* SPFSR - Switch Port FDB Security Register
++ * -----------------------------------------
++ * Configures the security mode per port.
++ */
++#define MLXSW_REG_SPFSR_ID 0x2023
++#define MLXSW_REG_SPFSR_LEN 0x08
++
++MLXSW_REG_DEFINE(spfsr, MLXSW_REG_SPFSR_ID, MLXSW_REG_SPFSR_LEN);
++
++/* reg_spfsr_local_port
++ * Local port.
++ * Access: Index
++ *
++ * Note: not supported for CPU port.
++ */
++MLXSW_ITEM32_LP(reg, spfsr, 0x00, 16, 0x00, 12);
++
++/* reg_spfsr_security
++ * Security checks.
++ * 0: disabled (default)
++ * 1: enabled
++ * Access: RW
++ */
++MLXSW_ITEM32(reg, spfsr, security, 0x04, 31, 1);
++
++static inline void mlxsw_reg_spfsr_pack(char *payload, u16 local_port,
++					bool security)
 +{
-+	struct mlxsw_sp *mlxsw_sp = mlxsw_sp_port->mlxsw_sp;
-+	char spfsr_pl[MLXSW_REG_SPFSR_LEN];
-+	int err;
-+
-+	if (mlxsw_sp_port->security == enable)
-+		return 0;
-+
-+	mlxsw_reg_spfsr_pack(spfsr_pl, mlxsw_sp_port->local_port, enable);
-+	err = mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(spfsr), spfsr_pl);
-+	if (err)
-+		return err;
-+
-+	mlxsw_sp_port->security = enable;
-+	return 0;
++	MLXSW_REG_ZERO(spfsr, payload);
++	mlxsw_reg_spfsr_local_port_set(payload, local_port);
++	mlxsw_reg_spfsr_security_set(payload, security);
 +}
 +
- int mlxsw_sp_ethtype_to_sver_type(u16 ethtype, u8 *p_sver_type)
- {
- 	switch (ethtype) {
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-index c8ff2a6d7e90..bbc73324451d 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
-@@ -321,7 +321,8 @@ struct mlxsw_sp_port {
- 	struct mlxsw_sp *mlxsw_sp;
- 	u16 local_port;
- 	u8 lagged:1,
--	   split:1;
-+	   split:1,
-+	   security:1;
- 	u16 pvid;
- 	u16 lag_id;
- 	struct {
-@@ -687,6 +688,8 @@ int mlxsw_sp_port_vid_stp_set(struct mlxsw_sp_port *mlxsw_sp_port, u16 vid,
- int mlxsw_sp_port_vp_mode_set(struct mlxsw_sp_port *mlxsw_sp_port, bool enable);
- int mlxsw_sp_port_vid_learning_set(struct mlxsw_sp_port *mlxsw_sp_port, u16 vid,
- 				   bool learn_enable);
-+int mlxsw_sp_port_security_set(struct mlxsw_sp_port *mlxsw_sp_port,
-+			       bool enable);
- int mlxsw_sp_ethtype_to_sver_type(u16 ethtype, u8 *p_sver_type);
- int mlxsw_sp_port_egress_ethtype_set(struct mlxsw_sp_port *mlxsw_sp_port,
- 				     u16 ethtype);
+ /* SPVC - Switch Port VLAN Classification Register
+  * -----------------------------------------------
+  * Configures the port to identify packets as untagged / single tagged /
+@@ -12762,6 +12795,7 @@ static const struct mlxsw_reg_info *mlxsw_reg_infos[] = {
+ 	MLXSW_REG(svpe),
+ 	MLXSW_REG(sfmr),
+ 	MLXSW_REG(spvmlr),
++	MLXSW_REG(spfsr),
+ 	MLXSW_REG(spvc),
+ 	MLXSW_REG(spevet),
+ 	MLXSW_REG(smpe),
 -- 
 2.35.3
 
