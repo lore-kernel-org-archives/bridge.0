@@ -1,19 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9C9868187F
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 66B8981854
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ECC0D40894
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED54E4032C
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JjSm/Gn6HoNmncxU1UAmoG6ogZjOGBFzR1j6mE7SU+s=;
- b=Dda8c19MjKTkm9ujhty8iPi+WZLoGyEr4YyNIeIiGMuR/2blnNavSeoedeBN6ruBiDTHDyTXruKY1if+YIPlbBz6weofFOE7Y1x3G7VNFMsCcm9V+aB22D5yTYYewyvlMKtAMCs7ffCYw7y+gt5jwA0MPxNcLWZBSJaVlH38nC9zgdOXtJ778CLrnjX3IyDGWzop7mDAVBSPKWcgZ5031hEsT/xtE91N8pkfHs2NODTzW4PLlAQcdtaf079rsUDytLeoMy8dAieIqh5z9VjNWNB+OMIjnBNBQg0BI/gaOyvuWD1VpzvFB5QDcHrRWEDTr8hAuZuUXOZ8XA0e75gwmQ==
+ bh=J5CjmYMVarafJWwlmM7fhyDRkbO5NPlFuYuaDKhHG/o=;
+ b=BaylwctLnhmFA6OXUK36TuvLJJ7gvnOk/7CW2W5dMfC9FrolPXtrfnGXxMoPthn7JoyKIqngTyu8QYEPovbwaV7j+h4Vd+I+fION03I8HdrF0UcfkLBMT7P+r01l2RlUgiNO96ZhuoGLssTElGiADcym41YLZSls9hdZqHNo/h4I3GnXrIdqZUegCtT21QK6yaHfLI6v6gIBGNetsmuibHO6KfuXlYv8wpEfMYeXbshoCD6cGrgNcB8ivPucxvF+3+BaWFr/K1YT1d100A5QTys3ZOvo0SheM4CKgaOc4kITjj9X9+gHqwQwm5ioZ3G8sEBm2Xfh68UkQDaKEudAAA==
 From: Petr Machata <petrm@nvidia.com>
-Date: Tue, 8 Nov 2022 11:47:06 +0100
-Message-ID: <cover.1667902754.git.petrm@nvidia.com>
+Date: Tue, 8 Nov 2022 11:47:07 +0100
+Message-ID: <b266dcf6d647684a10984d12f98549f93fd378ab.1667902754.git.petrm@nvidia.com>
+In-Reply-To: <cover.1667902754.git.petrm@nvidia.com>
+References: <cover.1667902754.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 00/15] mlxsw: Add 802.1X and MAB offload
-	support
+Subject: [Bridge] [PATCH net-next 01/15] bridge: switchdev: Let device
+	drivers determine FDB offload indication
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,64 +27,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Ivan Vecera <ivecera@redhat.com>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>, mlxsw@nvidia.com, Jiri Pirko <jiri@nvidia.com>, "Hans J . Schultz" <netdev@kapio-technology.com>
 
-Ido Schimmel <idosch@nvidia.com> writes:
+From: Ido Schimmel <idosch@nvidia.com>
 
-This patchset adds 802.1X [1] and MAB [2] offload support in mlxsw.
+Currently, FDB entries that are notified to the bridge via
+'SWITCHDEV_FDB_ADD_TO_BRIDGE' are always marked as offloaded. With MAB
+enabled, this will no longer be universally true. Device drivers will
+report locked FDB entries to the bridge to let it know that the
+corresponding hosts required authorization, but it does not mean that
+these entries are necessarily programmed in the underlying hardware.
 
-Patches #1-#3 add the required switchdev interfaces.
+Solve this by determining the offload indication based of the
+'offloaded' bit in the FDB notification.
 
-Patches #4-#5 add the required packet traps for 802.1X.
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+---
+ net/bridge/br.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Patches #6-#10 are small preparations in mlxsw.
-
-Patch #11 adds locked bridge port support in mlxsw.
-
-Patches #12-#15 add mlxsw selftests. The patchset was also tested with
-the generic forwarding selftest ('bridge_locked_port.sh').
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=a21d9a670d81103db7f788de1a4a4a6e4b891a0b
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=a35ec8e38cdd1766f29924ca391a01de20163931
-
-Hans J. Schultz (1):
-  bridge: switchdev: Allow device drivers to install locked FDB entries
-
-Ido Schimmel (14):
-  bridge: switchdev: Let device drivers determine FDB offload indication
-  bridge: switchdev: Reflect MAB bridge port flag to device drivers
-  devlink: Add packet traps for 802.1X operation
-  mlxsw: spectrum_trap: Register 802.1X packet traps with devlink
-  mlxsw: reg: Add Switch Port FDB Security Register
-  mlxsw: spectrum: Add an API to configure security checks
-  mlxsw: spectrum_switchdev: Prepare for locked FDB notifications
-  mlxsw: spectrum_switchdev: Add support for locked FDB notifications
-  mlxsw: spectrum_switchdev: Use extack in bridge port flag validation
-  mlxsw: spectrum_switchdev: Add locked bridge port support
-  selftests: devlink_lib: Split out helper
-  selftests: mlxsw: Add a test for EAPOL trap
-  selftests: mlxsw: Add a test for locked port trap
-  selftests: mlxsw: Add a test for invalid locked bridge port
-    configurations
-
- .../networking/devlink/devlink-trap.rst       |  13 +++
- drivers/net/ethernet/mellanox/mlxsw/reg.h     |  35 ++++++
- .../net/ethernet/mellanox/mlxsw/spectrum.c    |  22 ++++
- .../net/ethernet/mellanox/mlxsw/spectrum.h    |   5 +-
- .../mellanox/mlxsw/spectrum_switchdev.c       |  64 +++++++++--
- .../ethernet/mellanox/mlxsw/spectrum_trap.c   |  25 +++++
- drivers/net/ethernet/mellanox/mlxsw/trap.h    |   2 +
- include/net/devlink.h                         |   9 ++
- include/net/switchdev.h                       |   1 +
- net/bridge/br.c                               |   5 +-
- net/bridge/br_fdb.c                           |  22 +++-
- net/bridge/br_private.h                       |   2 +-
- net/bridge/br_switchdev.c                     |   6 +-
- net/core/devlink.c                            |   3 +
- .../drivers/net/mlxsw/devlink_trap_control.sh |  22 ++++
- .../net/mlxsw/devlink_trap_l2_drops.sh        | 105 ++++++++++++++++++
- .../selftests/drivers/net/mlxsw/rtnetlink.sh  |  31 ++++++
- .../selftests/net/forwarding/devlink_lib.sh   |  19 ++--
- 18 files changed, 366 insertions(+), 25 deletions(-)
-
+diff --git a/net/bridge/br.c b/net/bridge/br.c
+index 96e91d69a9a8..145999b8c355 100644
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -172,7 +172,7 @@ static int br_switchdev_event(struct notifier_block *unused,
+ 			break;
+ 		}
+ 		br_fdb_offloaded_set(br, p, fdb_info->addr,
+-				     fdb_info->vid, true);
++				     fdb_info->vid, fdb_info->offloaded);
+ 		break;
+ 	case SWITCHDEV_FDB_DEL_TO_BRIDGE:
+ 		fdb_info = ptr;
 -- 
 2.35.3
 
