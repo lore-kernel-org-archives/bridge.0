@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C8CC340919
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9882B40915
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DF99E60D4C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AEBFF60D5E
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ai2oauCroFY3HI0rg2Y//XDMlglyEEmP2GfZg1UJh5s=;
- b=IuMyU952YfUyi0KeaB/eD/3HiQsILevxacsSVQGbnYn9xuak7n4AD2rMEG83i7dYJU6QmeioTHLMX3JudcELHc3Eb+Psea9cHf1cTlBBD+NU/gbsgL5x/Alnax1gywJQzGuzfS/sD8VmyHsj2k24fF3Os/7RkxeYbOzF4MycBQgWU/P38mema87RFI2FRRhgjaHgkOCTWdQsVu1grOnUNOuOQCsiWnzGO1vQoeJKTwQ6XEO7SIz1ErMzsenrkVBpJxXWbUvG396eCJ3TQAvkWuShtyJLN7ar6N9s90wp8DdciprBm6AncZJjLZ3KXnCeRZwAGxsfGlVlusHjQg/Bpw==
+ bh=9YR5OG9WVlRhkHNDsa2MkQOEA60efe6gGDhHFLTgsQU=;
+ b=hJ7c0czasSouveSdeJdzdQuVsMcEprENPc4pKpqlkGXXkrLP2l0XRwaBocAoYbTAR5sFPlQwCwI46u1+yK8/azpnoEI30L8iTwyNVMRgBk7qscAdRWmEpGlSOq2cbB71BUzOJH/cWZS/cT8ybsFqTuAXYXXWwmKxZ9HMocgQxBp/yXFPNISKPFul1sQf407e4ILzh/5oAz58fPCFDoeDmuxUxCWMkl7u2WxZ1WWPysjWqeb98ICQX7a26doc85HfKj6jpshFo/IpfJcw+svq6z13s9l5YZ9mvh+CH2QQsmRsco42gF00QPAe8viXp30rGkEluuhKEoEEGNsT69Fuvw==
 From: Petr Machata <petrm@nvidia.com>
-Date: Tue, 8 Nov 2022 11:47:10 +0100
-Message-ID: <ec42c7bf37d9a5e05096c409dd96c1c582747b24.1667902754.git.petrm@nvidia.com>
+Date: Tue, 8 Nov 2022 11:47:11 +0100
+Message-ID: <861f29bb2764d19e9c8a60749c1ad3b187e948eb.1667902754.git.petrm@nvidia.com>
 In-Reply-To: <cover.1667902754.git.petrm@nvidia.com>
 References: <cover.1667902754.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 04/15] devlink: Add packet traps for
-	802.1X operation
+Subject: [Bridge] [PATCH net-next 05/15] mlxsw: spectrum_trap: Register
+	802.1X packet traps with devlink
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,114 +29,96 @@ Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay A
 
 From: Ido Schimmel <idosch@nvidia.com>
 
-Add packet traps for 802.1X operation. The "eapol" control trap is used
-to trap EAPOL packets and is required for the correct operation of the
-control plane. The "locked_port" drop trap can be enabled to gain
-visibility into packets that were dropped by the device due to the
-locked bridge port check.
+Register the previously added packet traps with devlink. This allows
+user space to tune their policers and in the case of the locked port
+trap, user space can set its action to "trap" in order to gain
+visibility into packets that were discarded by the device due to the
+locked port check failure.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
- Documentation/networking/devlink/devlink-trap.rst | 13 +++++++++++++
- include/net/devlink.h                             |  9 +++++++++
- net/core/devlink.c                                |  3 +++
- 3 files changed, 25 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/reg.h     |  1 +
+ .../ethernet/mellanox/mlxsw/spectrum_trap.c   | 25 +++++++++++++++++++
+ drivers/net/ethernet/mellanox/mlxsw/trap.h    |  2 ++
+ 3 files changed, 28 insertions(+)
 
-diff --git a/Documentation/networking/devlink/devlink-trap.rst b/Documentation/networking/devlink/devlink-trap.rst
-index 90d1381b88de..2c14dfe69b3a 100644
---- a/Documentation/networking/devlink/devlink-trap.rst
-+++ b/Documentation/networking/devlink/devlink-trap.rst
-@@ -485,6 +485,16 @@ be added to the following table:
-      - Traps incoming packets that the device decided to drop because
-        the destination MAC is not configured in the MAC table and
-        the interface is not in promiscuous mode
-+   * - ``eapol``
-+     - ``control``
-+     - Traps "Extensible Authentication Protocol over LAN" (EAPOL) packets
-+       specified in IEEE 802.1X
-+   * - ``locked_port``
-+     - ``drop``
-+     - Traps packets that the device decided to drop because they failed the
-+       locked bridge port check. That is, packets that were received via a
-+       locked port and whose {SMAC, VID} does not correspond to an FDB entry
-+       pointing to the port
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+index b74f30ec629a..7240af45ade5 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
+@@ -6316,6 +6316,7 @@ enum mlxsw_reg_htgt_trap_group {
+ 	MLXSW_REG_HTGT_TRAP_GROUP_SP_TUNNEL_DISCARDS,
+ 	MLXSW_REG_HTGT_TRAP_GROUP_SP_ACL_DISCARDS,
+ 	MLXSW_REG_HTGT_TRAP_GROUP_SP_BUFFER_DISCARDS,
++	MLXSW_REG_HTGT_TRAP_GROUP_SP_EAPOL,
  
- Driver-specific Packet Traps
- ============================
-@@ -589,6 +599,9 @@ narrow. The description of these groups must be added to the following table:
-    * - ``parser_error_drops``
-      - Contains packet traps for packets that were marked by the device during
-        parsing as erroneous
-+   * - ``eapol``
-+     - Contains packet traps for "Extensible Authentication Protocol over LAN"
-+       (EAPOL) packets specified in IEEE 802.1X
- 
- Packet Trap Policers
- ====================
-diff --git a/include/net/devlink.h b/include/net/devlink.h
-index fa6e936af1a5..611a23a3deb2 100644
---- a/include/net/devlink.h
-+++ b/include/net/devlink.h
-@@ -894,6 +894,8 @@ enum devlink_trap_generic_id {
- 	DEVLINK_TRAP_GENERIC_ID_ESP_PARSING,
- 	DEVLINK_TRAP_GENERIC_ID_BLACKHOLE_NEXTHOP,
- 	DEVLINK_TRAP_GENERIC_ID_DMAC_FILTER,
-+	DEVLINK_TRAP_GENERIC_ID_EAPOL,
-+	DEVLINK_TRAP_GENERIC_ID_LOCKED_PORT,
- 
- 	/* Add new generic trap IDs above */
- 	__DEVLINK_TRAP_GENERIC_ID_MAX,
-@@ -930,6 +932,7 @@ enum devlink_trap_group_generic_id {
- 	DEVLINK_TRAP_GROUP_GENERIC_ID_ACL_SAMPLE,
- 	DEVLINK_TRAP_GROUP_GENERIC_ID_ACL_TRAP,
- 	DEVLINK_TRAP_GROUP_GENERIC_ID_PARSER_ERROR_DROPS,
-+	DEVLINK_TRAP_GROUP_GENERIC_ID_EAPOL,
- 
- 	/* Add new generic trap group IDs above */
- 	__DEVLINK_TRAP_GROUP_GENERIC_ID_MAX,
-@@ -1121,6 +1124,10 @@ enum devlink_trap_group_generic_id {
- 	"blackhole_nexthop"
- #define DEVLINK_TRAP_GENERIC_NAME_DMAC_FILTER \
- 	"dmac_filter"
-+#define DEVLINK_TRAP_GENERIC_NAME_EAPOL \
-+	"eapol"
-+#define DEVLINK_TRAP_GENERIC_NAME_LOCKED_PORT \
-+	"locked_port"
- 
- #define DEVLINK_TRAP_GROUP_GENERIC_NAME_L2_DROPS \
- 	"l2_drops"
-@@ -1174,6 +1181,8 @@ enum devlink_trap_group_generic_id {
- 	"acl_trap"
- #define DEVLINK_TRAP_GROUP_GENERIC_NAME_PARSER_ERROR_DROPS \
- 	"parser_error_drops"
-+#define DEVLINK_TRAP_GROUP_GENERIC_NAME_EAPOL \
-+	"eapol"
- 
- #define DEVLINK_TRAP_GENERIC(_type, _init_action, _id, _group_id,	      \
- 			     _metadata_cap)				      \
-diff --git a/net/core/devlink.c b/net/core/devlink.c
-index 40fcdded57e6..1c2cb6fc29c3 100644
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -11731,6 +11731,8 @@ static const struct devlink_trap devlink_trap_generic[] = {
- 	DEVLINK_TRAP(ESP_PARSING, DROP),
- 	DEVLINK_TRAP(BLACKHOLE_NEXTHOP, DROP),
- 	DEVLINK_TRAP(DMAC_FILTER, DROP),
-+	DEVLINK_TRAP(EAPOL, CONTROL),
-+	DEVLINK_TRAP(LOCKED_PORT, DROP),
+ 	__MLXSW_REG_HTGT_TRAP_GROUP_MAX,
+ 	MLXSW_REG_HTGT_TRAP_GROUP_MAX = __MLXSW_REG_HTGT_TRAP_GROUP_MAX - 1
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
+index f4bfdb6dab9c..899c954e0e5f 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_trap.c
+@@ -510,6 +510,9 @@ mlxsw_sp_trap_policer_items_arr[] = {
+ 	{
+ 		.policer = MLXSW_SP_TRAP_POLICER(20, 10240, 4096),
+ 	},
++	{
++		.policer = MLXSW_SP_TRAP_POLICER(21, 128, 128),
++	},
  };
  
- #define DEVLINK_TRAP_GROUP(_id)						      \
-@@ -11766,6 +11768,7 @@ static const struct devlink_trap_group devlink_trap_group_generic[] = {
- 	DEVLINK_TRAP_GROUP(ACL_SAMPLE),
- 	DEVLINK_TRAP_GROUP(ACL_TRAP),
- 	DEVLINK_TRAP_GROUP(PARSER_ERROR_DROPS),
-+	DEVLINK_TRAP_GROUP(EAPOL),
+ static const struct mlxsw_sp_trap_group_item mlxsw_sp_trap_group_items_arr[] = {
+@@ -628,6 +631,11 @@ static const struct mlxsw_sp_trap_group_item mlxsw_sp_trap_group_items_arr[] = {
+ 		.hw_group_id = MLXSW_REG_HTGT_TRAP_GROUP_SP_FLOW_LOGGING,
+ 		.priority = 4,
+ 	},
++	{
++		.group = DEVLINK_TRAP_GROUP_GENERIC(EAPOL, 21),
++		.hw_group_id = MLXSW_REG_HTGT_TRAP_GROUP_SP_EAPOL,
++		.priority = 5,
++	},
  };
  
- static int devlink_trap_generic_verify(const struct devlink_trap *trap)
+ static const struct mlxsw_sp_trap_item mlxsw_sp_trap_items_arr[] = {
+@@ -1160,6 +1168,23 @@ static const struct mlxsw_sp_trap_item mlxsw_sp_trap_items_arr[] = {
+ 			MLXSW_SP_RXL_DISCARD(ROUTER3, L3_DISCARDS),
+ 		},
+ 	},
++	{
++		.trap = MLXSW_SP_TRAP_CONTROL(EAPOL, EAPOL, TRAP),
++		.listeners_arr = {
++			MLXSW_SP_RXL_NO_MARK(EAPOL, EAPOL, TRAP_TO_CPU, true),
++		},
++	},
++	{
++		.trap = MLXSW_SP_TRAP_DROP(LOCKED_PORT, L2_DROPS),
++		.listeners_arr = {
++			MLXSW_RXL_DIS(mlxsw_sp_rx_drop_listener, FDB_MISS,
++				      TRAP_EXCEPTION_TO_CPU, false,
++				      SP_L2_DISCARDS, DISCARD, SP_L2_DISCARDS),
++			MLXSW_RXL_DIS(mlxsw_sp_rx_drop_listener, FDB_MISMATCH,
++				      TRAP_EXCEPTION_TO_CPU, false,
++				      SP_L2_DISCARDS, DISCARD, SP_L2_DISCARDS),
++		},
++	},
+ };
+ 
+ static struct mlxsw_sp_trap_policer_item *
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/trap.h b/drivers/net/ethernet/mellanox/mlxsw/trap.h
+index 8da169663bda..83477c8e6971 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/trap.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/trap.h
+@@ -25,6 +25,8 @@ enum {
+ 	MLXSW_TRAP_ID_IGMP_V2_LEAVE = 0x33,
+ 	MLXSW_TRAP_ID_IGMP_V3_REPORT = 0x34,
+ 	MLXSW_TRAP_ID_PKT_SAMPLE = 0x38,
++	MLXSW_TRAP_ID_FDB_MISS = 0x3A,
++	MLXSW_TRAP_ID_FDB_MISMATCH = 0x3B,
+ 	MLXSW_TRAP_ID_FID_MISS = 0x3D,
+ 	MLXSW_TRAP_ID_DECAP_ECN0 = 0x40,
+ 	MLXSW_TRAP_ID_MTUERROR = 0x52,
 -- 
 2.35.3
 
