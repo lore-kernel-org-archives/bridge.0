@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 38C8141496
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0467540919
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 13E8F408E5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 50C07408D5
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ImYNLi97idUCs/uBfghoaHt9pd6pv5pnH77gQt8cqEQ=;
- b=nU2jmSs4XTqhEuxtBjFXDb02Y8iDuaQ95ItnC5+AbHo3PqJYqaW8wnFD8qEJYT9Q4aE9KDym9IByC6Mwcrb6hCz2GkTRzY3Cjc8jSEgwI9Nq8//KDFThElg9mr0vbkEpE9kXoLrAEIniD4TwdqvV8oQoYh7V3jpNasLXr+7x15H8ZH8XzbQg5jLZJ4OJaFwBvo5t14ey5/nn5xh7hwRpH2QRltGzddoC+cYRjM4+wzo8kP0UlRFyFNl+MBFExDKOA6ltCcdP9rrL3RfICQTSBk2xLWohQ5hJNWZHXfA5Lad6qObJQ9bFJ3DhrH4bT6W2zLEOzclHHsOJtjFuzJHcIg==
+ bh=g4Hrp23UtQD1B7K2NarNKAQiXcs8o/7u/87dkXWarc4=;
+ b=DFwVXOCfX+qICrhu+b2L2zPXnfpfgMF+0kuuCPiPoJkWXCOeYJXrgIIgM2zgzGpijDnwosCgcChfax6sSCXp5t9X7ikuJ2xBBuxt6vQUTjcYttZEJ1L+QsfFUkYKbGaWC4nYVuTkZjy3QrNSbR2QUIOV8KwGt9eJ2orcEGZdKPVM1G/lpMsQATltargPOhx4LbGGcu9AoD3MR734hwPsAjAsadfC+3+U209XvwslGAbJxX1M7y26hvQiCvLv95daJIdCKlqhjpQWMWdX/j3KhZPDkVhG5Bfl2L+w7gscBMBwqjj9ruKxwBd6uwWRjL51Zb7VQFiPoVqF0UQjTcr8HA==
 From: Petr Machata <petrm@nvidia.com>
-Date: Tue, 8 Nov 2022 11:47:20 +0100
-Message-ID: <61b030c0932726657eff1ac545d1904a2ee930ea.1667902754.git.petrm@nvidia.com>
+Date: Tue, 8 Nov 2022 11:47:21 +0100
+Message-ID: <9fb8b83ce2029c51c81c942f24ece789ae8fe1c1.1667902754.git.petrm@nvidia.com>
 In-Reply-To: <cover.1667902754.git.petrm@nvidia.com>
 References: <cover.1667902754.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 14/15] selftests: mlxsw: Add a test for
-	locked port trap
+Subject: [Bridge] [PATCH net-next 15/15] selftests: mlxsw: Add a test for
+	invalid locked bridge port configurations
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,140 +29,65 @@ Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay A
 
 From: Ido Schimmel <idosch@nvidia.com>
 
-Test that packets received via a locked bridge port whose {SMAC, VID}
-does not appear in the bridge's FDB or appears with a different port,
-trigger the "locked_port" packet trap.
+Test that locked bridge port configurations that are not supported by
+mlxsw are rejected.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
- .../net/mlxsw/devlink_trap_l2_drops.sh        | 105 ++++++++++++++++++
- 1 file changed, 105 insertions(+)
+ .../selftests/drivers/net/mlxsw/rtnetlink.sh  | 31 +++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-diff --git a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh
-index a4c2812e9807..8d4b2c6265b3 100755
---- a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh
-+++ b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l2_drops.sh
-@@ -14,6 +14,7 @@ ALL_TESTS="
- 	ingress_stp_filter_test
- 	port_list_is_empty_test
- 	port_loopback_filter_test
-+	locked_port_test
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/rtnetlink.sh b/tools/testing/selftests/drivers/net/mlxsw/rtnetlink.sh
+index 04f03ae9d8fb..5e89657857c7 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/rtnetlink.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/rtnetlink.sh
+@@ -34,6 +34,7 @@ ALL_TESTS="
+ 	nexthop_obj_bucket_offload_test
+ 	nexthop_obj_blackhole_offload_test
+ 	nexthop_obj_route_offload_test
++	bridge_locked_port_test
+ 	devlink_reload_test
  "
- NUM_NETIFS=4
- source $lib_dir/tc_common.sh
-@@ -420,6 +421,110 @@ port_loopback_filter_test()
- 	port_loopback_filter_uc_test
+ NUM_NETIFS=2
+@@ -917,6 +918,36 @@ nexthop_obj_route_offload_test()
+ 	simple_if_fini $swp1 192.0.2.1/24 2001:db8:1::1/64
  }
  
-+locked_port_miss_test()
++bridge_locked_port_test()
 +{
-+	local trap_name="locked_port"
-+	local smac=00:11:22:33:44:55
-+
-+	bridge link set dev $swp1 learning off
-+	bridge link set dev $swp1 locked on
-+
 +	RET=0
 +
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased before setting action to \"trap\""
++	ip link add name br1 up type bridge vlan_filtering 0
 +
-+	devlink_trap_action_set $trap_name "trap"
++	ip link add link $swp1 name $swp1.10 type vlan id 10
++	ip link set dev $swp1.10 master br1
 +
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_err $? "Trap stats did not increase when should"
++	bridge link set dev $swp1.10 locked on
++	check_fail $? "managed to set locked flag on a VLAN upper"
 +
-+	devlink_trap_action_set $trap_name "drop"
-+
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased after setting action to \"drop\""
-+
-+	devlink_trap_action_set $trap_name "trap"
-+
-+	bridge fdb replace $smac dev $swp1 master static vlan 1
-+
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased after adding an FDB entry"
-+
-+	bridge fdb del $smac dev $swp1 master static vlan 1
-+	bridge link set dev $swp1 locked off
-+
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased after unlocking port"
-+
-+	log_test "Locked port - FDB miss"
-+
-+	devlink_trap_action_set $trap_name "drop"
-+	bridge link set dev $swp1 learning on
-+}
-+
-+locked_port_mismatch_test()
-+{
-+	local trap_name="locked_port"
-+	local smac=00:11:22:33:44:55
-+
-+	bridge link set dev $swp1 learning off
-+	bridge link set dev $swp1 locked on
-+
-+	RET=0
-+
-+	bridge fdb replace $smac dev $swp2 master static vlan 1
-+
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased before setting action to \"trap\""
-+
-+	devlink_trap_action_set $trap_name "trap"
-+
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_err $? "Trap stats did not increase when should"
-+
-+	devlink_trap_action_set $trap_name "drop"
-+
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased after setting action to \"drop\""
-+
-+	devlink_trap_action_set $trap_name "trap"
-+	bridge link set dev $swp1 locked off
-+
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased after unlocking port"
++	ip link set dev $swp1.10 nomaster
++	ip link set dev $swp1 master br1
 +
 +	bridge link set dev $swp1 locked on
-+	bridge fdb replace $smac dev $swp1 master static vlan 1
++	check_fail $? "managed to set locked flag on a bridge port that has a VLAN upper"
 +
-+	devlink_trap_stats_check $trap_name $MZ $h1 -c 1 \
-+		-a $smac -b $(mac_get $h2) -A 192.0.2.1 -B 192.0.2.2 -p 100 -q
-+	check_fail $? "Trap stats increased after replacing an FDB entry"
++	ip link del dev $swp1.10
++	bridge link set dev $swp1 locked on
 +
-+	bridge fdb del $smac dev $swp1 master static vlan 1
-+	devlink_trap_action_set $trap_name "drop"
++	ip link add link $swp1 name $swp1.10 type vlan id 10
++	check_fail $? "managed to configure a VLAN upper on a locked port"
 +
-+	log_test "Locked port - FDB mismatch"
++	log_test "bridge locked port"
 +
-+	bridge link set dev $swp1 locked off
-+	bridge link set dev $swp1 learning on
++	ip link del dev $swp1.10 &> /dev/null
++	ip link del dev br1
 +}
 +
-+locked_port_test()
-+{
-+	locked_port_miss_test
-+	locked_port_mismatch_test
-+}
-+
- trap cleanup EXIT
- 
- setup_prepare
+ devlink_reload_test()
+ {
+ 	# Test that after executing all the above configuration tests, a
 -- 
 2.35.3
 
