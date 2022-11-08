@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4222281AF3
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6EC5781B01
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 99E9E408D1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D6893408CA
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FAeOIWKPYcVKdLVxbw6WJgCGUr6OR97IzMC+BcOKogY=;
- b=MRFYFMHYPD0jGba1STYD3jlEth6oiRj4J2wVv/1ZM9J+vtUmaApvogAnuU6Srjka/Hjz93rVWKSZDfUp7PVQcJw93Nbnyrezk1GlBSzOzcxvvIRKgMWRA4w7cm4tHV1tFCVWbUYm4s14wnjbUEv6HV6CgW9McxwaYWFadNo+z5D0EGHjhmVai3UPEqSFcB6fnkpVqidwMP4UII7l7x/gsifX/4ynPViM4f5IUtcQgId1J/PeU+5K7Irt8fZrQxJUAGP5h3W18Sm/GfyiQHx6G6secPDD8adOBvfr2MJ6W/h8hucWl4PpnnaWb+zltAAn1xiQCOuR6ZqN9VJhWqNpNg==
+ bh=doByyfOdod8TuwyZN+F0d5h/tzFJh1IY+wAhbsHXhV0=;
+ b=o0DUck36vGad1FRtEGrOaa/2U+Will2IwFTNijCD7g+Vs/rLMvhAJ3jCKyffyMPkeSjEsNZDGs8zuUrNYAB13knmzhnnfsepyQXP/U2HEyCi7cUONfU1EhV1NL9r5bpgYerV8IJXI8PAO4WubGpIxzoId5+k0Opi6gr1sTThxYnu2kHwH5f8bfFWOjLZAE+z9MiaT33xTmat7f+pKj2F17a2CYmppUHJwyEwqOvRuDsQBxyp34Wcb8HuFHxCSBOFXczwV5gPbSxmmrioEAoPy1AS/QSqrgyoDIPB4AX5m43jrvvMDl00AfWPy8It7ATy5xIgkYRzzYoIMmSAAyTYOA==
 From: Petr Machata <petrm@nvidia.com>
-Date: Tue, 8 Nov 2022 11:47:16 +0100
-Message-ID: <174cd8190436260fb1c4195ced83b8df72ff2679.1667902754.git.petrm@nvidia.com>
+Date: Tue, 8 Nov 2022 11:47:18 +0100
+Message-ID: <e2ce868a07056d7a06535aa5d8f5767c9a47100f.1667902754.git.petrm@nvidia.com>
 In-Reply-To: <cover.1667902754.git.petrm@nvidia.com>
 References: <cover.1667902754.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 10/15] mlxsw: spectrum_switchdev: Use
-	extack in bridge port flag validation
+Subject: [Bridge] [PATCH net-next 12/15] selftests: devlink_lib: Split out
+	helper
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,53 +29,59 @@ Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay A
 
 From: Ido Schimmel <idosch@nvidia.com>
 
-Propagate extack to mlxsw_sp_port_attr_br_pre_flags_set() in order to
-communicate error messages related to bridge port flag validation.
-
-Example:
-
- # bridge link set dev swp1 locked on
- Error: mlxsw_spectrum: Unsupported bridge port flag.
-
-More error messages will be added in subsequent patches.
+Merely checking whether a trap counter incremented or not without
+logging a test result is useful on its own. Split this functionality to
+a helper which will be used by subsequent patches.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
- .../net/ethernet/mellanox/mlxsw/spectrum_switchdev.c   | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ .../selftests/net/forwarding/devlink_lib.sh   | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index f336be77019f..db149af7c888 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -782,10 +782,13 @@ mlxsw_sp_bridge_port_learning_set(struct mlxsw_sp_port *mlxsw_sp_port,
- 
- static int
- mlxsw_sp_port_attr_br_pre_flags_set(struct mlxsw_sp_port *mlxsw_sp_port,
--				    struct switchdev_brport_flags flags)
-+				    struct switchdev_brport_flags flags,
-+				    struct netlink_ext_ack *extack)
- {
--	if (flags.mask & ~(BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD))
-+	if (flags.mask & ~(BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Unsupported bridge port flag");
- 		return -EINVAL;
-+	}
- 
- 	return 0;
+diff --git a/tools/testing/selftests/net/forwarding/devlink_lib.sh b/tools/testing/selftests/net/forwarding/devlink_lib.sh
+index 601990c6881b..f1de525cfa55 100644
+--- a/tools/testing/selftests/net/forwarding/devlink_lib.sh
++++ b/tools/testing/selftests/net/forwarding/devlink_lib.sh
+@@ -503,25 +503,30 @@ devlink_trap_drop_cleanup()
+ 	tc filter del dev $dev egress protocol $proto pref $pref handle $handle flower
  }
-@@ -1186,7 +1189,8 @@ static int mlxsw_sp_port_attr_set(struct net_device *dev, const void *ctx,
- 		break;
- 	case SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS:
- 		err = mlxsw_sp_port_attr_br_pre_flags_set(mlxsw_sp_port,
--							  attr->u.brport_flags);
-+							  attr->u.brport_flags,
-+							  extack);
- 		break;
- 	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
- 		err = mlxsw_sp_port_attr_br_flags_set(mlxsw_sp_port,
+ 
+-devlink_trap_stats_test()
++devlink_trap_stats_check()
+ {
+-	local test_name=$1; shift
+ 	local trap_name=$1; shift
+ 	local send_one="$@"
+ 	local t0_packets
+ 	local t1_packets
+ 
+-	RET=0
+-
+ 	t0_packets=$(devlink_trap_rx_packets_get $trap_name)
+ 
+ 	$send_one && sleep 1
+ 
+ 	t1_packets=$(devlink_trap_rx_packets_get $trap_name)
+ 
+-	if [[ $t1_packets -eq $t0_packets ]]; then
+-		check_err 1 "Trap stats did not increase"
+-	fi
++	[[ $t1_packets -ne $t0_packets ]]
++}
++
++devlink_trap_stats_test()
++{
++	local test_name=$1; shift
++
++	RET=0
++
++	devlink_trap_stats_check "$@"
++	check_err $? "Trap stats did not increase"
+ 
+ 	log_test "$test_name"
+ }
 -- 
 2.35.3
 
