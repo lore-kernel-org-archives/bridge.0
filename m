@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB62D410E8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9EF8B414C4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4222281AF3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6EC5781B01
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=AtE7u9MQDSIbAqLf032Zj0aue9ZFrFmS/MZfZeVQBBA=;
- b=pEtS0mq8blvFkk+9WPVzZRJGsYAd4QHwWTbS8r7Y9PZp0J68BRTE4jhYrQTcdyqN692RSnCXkRwl0UeG6l590PtX8l5VMvdliQVbSo2iKymuuTBDPOrioAhmhpe0KqzHWvIpcZS67x00Hi3In73XSZOZtQQymIPmWZlclC0HYjyyyG/DHDhnHtkaeJ1QX51YKQsyb1oYEoGA/P2PDbxH1XZTY8WrHEQ2UIx8gGZcg5GqFB2Zk/FnE4mqX3Y3AJIpIee8K0BK4DiStTAwNpwJcjnmFdubpFAJcT547qQuHkoaFz0DkIATt1w4f5emA4mhEkfwCvgs+4xBwQfcCpUA6g==
+ bh=FAeOIWKPYcVKdLVxbw6WJgCGUr6OR97IzMC+BcOKogY=;
+ b=MRFYFMHYPD0jGba1STYD3jlEth6oiRj4J2wVv/1ZM9J+vtUmaApvogAnuU6Srjka/Hjz93rVWKSZDfUp7PVQcJw93Nbnyrezk1GlBSzOzcxvvIRKgMWRA4w7cm4tHV1tFCVWbUYm4s14wnjbUEv6HV6CgW9McxwaYWFadNo+z5D0EGHjhmVai3UPEqSFcB6fnkpVqidwMP4UII7l7x/gsifX/4ynPViM4f5IUtcQgId1J/PeU+5K7Irt8fZrQxJUAGP5h3W18Sm/GfyiQHx6G6secPDD8adOBvfr2MJ6W/h8hucWl4PpnnaWb+zltAAn1xiQCOuR6ZqN9VJhWqNpNg==
 From: Petr Machata <petrm@nvidia.com>
-Date: Tue, 8 Nov 2022 11:47:14 +0100
-Message-ID: <41dd6cd6fd24a0a47e4085ccf534e5cdea8b33a4.1667902754.git.petrm@nvidia.com>
+Date: Tue, 8 Nov 2022 11:47:16 +0100
+Message-ID: <174cd8190436260fb1c4195ced83b8df72ff2679.1667902754.git.petrm@nvidia.com>
 In-Reply-To: <cover.1667902754.git.petrm@nvidia.com>
 References: <cover.1667902754.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 08/15] mlxsw: spectrum_switchdev: Prepare
-	for locked FDB notifications
+Subject: [Bridge] [PATCH net-next 10/15] mlxsw: spectrum_switchdev: Use
+	extack in bridge port flag validation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,105 +29,53 @@ Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay A
 
 From: Ido Schimmel <idosch@nvidia.com>
 
-Subsequent patches will need to report locked FDB entries to the bridge
-driver. Prepare for that by adding a 'locked' argument to
-mlxsw_sp_fdb_call_notifiers() according to which the 'locked' bit is set
-in the FDB notification info. For now, always pass 'false'.
+Propagate extack to mlxsw_sp_port_attr_br_pre_flags_set() in order to
+communicate error messages related to bridge port flag validation.
+
+Example:
+
+ # bridge link set dev swp1 locked on
+ Error: mlxsw_spectrum: Unsupported bridge port flag.
+
+More error messages will be added in subsequent patches.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
- .../mellanox/mlxsw/spectrum_switchdev.c       | 21 ++++++++++++-------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ .../net/ethernet/mellanox/mlxsw/spectrum_switchdev.c   | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index 4efccd942fb8..0fbefa43f9b1 100644
+index f336be77019f..db149af7c888 100644
 --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
 +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -2888,13 +2888,14 @@ static void mlxsw_sp_fdb_nve_call_notifiers(struct net_device *dev,
- static void
- mlxsw_sp_fdb_call_notifiers(enum switchdev_notifier_type type,
- 			    const char *mac, u16 vid,
--			    struct net_device *dev, bool offloaded)
-+			    struct net_device *dev, bool offloaded, bool locked)
+@@ -782,10 +782,13 @@ mlxsw_sp_bridge_port_learning_set(struct mlxsw_sp_port *mlxsw_sp_port,
+ 
+ static int
+ mlxsw_sp_port_attr_br_pre_flags_set(struct mlxsw_sp_port *mlxsw_sp_port,
+-				    struct switchdev_brport_flags flags)
++				    struct switchdev_brport_flags flags,
++				    struct netlink_ext_ack *extack)
  {
- 	struct switchdev_notifier_fdb_info info = {};
+-	if (flags.mask & ~(BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD))
++	if (flags.mask & ~(BR_LEARNING | BR_FLOOD | BR_MCAST_FLOOD)) {
++		NL_SET_ERR_MSG_MOD(extack, "Unsupported bridge port flag");
+ 		return -EINVAL;
++	}
  
- 	info.addr = mac;
- 	info.vid = vid;
- 	info.offloaded = offloaded;
-+	info.locked = locked;
- 	call_switchdev_notifiers(type, dev, &info.info, NULL);
+ 	return 0;
  }
- 
-@@ -2952,7 +2953,8 @@ static void mlxsw_sp_fdb_notify_mac_process(struct mlxsw_sp *mlxsw_sp,
- 	if (!do_notification)
- 		return;
- 	type = adding ? SWITCHDEV_FDB_ADD_TO_BRIDGE : SWITCHDEV_FDB_DEL_TO_BRIDGE;
--	mlxsw_sp_fdb_call_notifiers(type, mac, vid, bridge_port->dev, adding);
-+	mlxsw_sp_fdb_call_notifiers(type, mac, vid, bridge_port->dev, adding,
-+				    false);
- 
- 	return;
- 
-@@ -3015,7 +3017,8 @@ static void mlxsw_sp_fdb_notify_mac_lag_process(struct mlxsw_sp *mlxsw_sp,
- 	if (!do_notification)
- 		return;
- 	type = adding ? SWITCHDEV_FDB_ADD_TO_BRIDGE : SWITCHDEV_FDB_DEL_TO_BRIDGE;
--	mlxsw_sp_fdb_call_notifiers(type, mac, vid, bridge_port->dev, adding);
-+	mlxsw_sp_fdb_call_notifiers(type, mac, vid, bridge_port->dev, adding,
-+				    false);
- 
- 	return;
- 
-@@ -3122,7 +3125,7 @@ static void mlxsw_sp_fdb_notify_mac_uc_tunnel_process(struct mlxsw_sp *mlxsw_sp,
- 
- 	type = adding ? SWITCHDEV_FDB_ADD_TO_BRIDGE :
- 			SWITCHDEV_FDB_DEL_TO_BRIDGE;
--	mlxsw_sp_fdb_call_notifiers(type, mac, vid, nve_dev, adding);
-+	mlxsw_sp_fdb_call_notifiers(type, mac, vid, nve_dev, adding, false);
- 
- 	mlxsw_sp_fid_put(fid);
- 
-@@ -3264,7 +3267,7 @@ mlxsw_sp_switchdev_bridge_vxlan_fdb_event(struct mlxsw_sp *mlxsw_sp,
- 					 &vxlan_fdb_info.info, NULL);
- 		mlxsw_sp_fdb_call_notifiers(SWITCHDEV_FDB_OFFLOADED,
- 					    vxlan_fdb_info.eth_addr,
--					    fdb_info->vid, dev, true);
-+					    fdb_info->vid, dev, true, false);
+@@ -1186,7 +1189,8 @@ static int mlxsw_sp_port_attr_set(struct net_device *dev, const void *ctx,
  		break;
- 	case SWITCHDEV_FDB_DEL_TO_DEVICE:
- 		err = mlxsw_sp_port_fdb_tunnel_uc_op(mlxsw_sp,
-@@ -3359,7 +3362,7 @@ static void mlxsw_sp_switchdev_bridge_fdb_event_work(struct work_struct *work)
- 			break;
- 		mlxsw_sp_fdb_call_notifiers(SWITCHDEV_FDB_OFFLOADED,
- 					    fdb_info->addr,
--					    fdb_info->vid, dev, true);
-+					    fdb_info->vid, dev, true, false);
+ 	case SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS:
+ 		err = mlxsw_sp_port_attr_br_pre_flags_set(mlxsw_sp_port,
+-							  attr->u.brport_flags);
++							  attr->u.brport_flags,
++							  extack);
  		break;
- 	case SWITCHDEV_FDB_DEL_TO_DEVICE:
- 		fdb_info = &switchdev_work->fdb_info;
-@@ -3443,7 +3446,8 @@ mlxsw_sp_switchdev_vxlan_fdb_add(struct mlxsw_sp *mlxsw_sp,
- 	call_switchdev_notifiers(SWITCHDEV_VXLAN_FDB_OFFLOADED, dev,
- 				 &vxlan_fdb_info->info, NULL);
- 	mlxsw_sp_fdb_call_notifiers(SWITCHDEV_FDB_OFFLOADED,
--				    vxlan_fdb_info->eth_addr, vid, dev, true);
-+				    vxlan_fdb_info->eth_addr, vid, dev, true,
-+				    false);
- 
- 	mlxsw_sp_fid_put(fid);
- 
-@@ -3493,7 +3497,8 @@ mlxsw_sp_switchdev_vxlan_fdb_del(struct mlxsw_sp *mlxsw_sp,
- 				       false, false);
- 	vid = bridge_device->ops->fid_vid(bridge_device, fid);
- 	mlxsw_sp_fdb_call_notifiers(SWITCHDEV_FDB_OFFLOADED,
--				    vxlan_fdb_info->eth_addr, vid, dev, false);
-+				    vxlan_fdb_info->eth_addr, vid, dev, false,
-+				    false);
- 
- 	mlxsw_sp_fid_put(fid);
- }
+ 	case SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS:
+ 		err = mlxsw_sp_port_attr_br_flags_set(mlxsw_sp_port,
 -- 
 2.35.3
 
