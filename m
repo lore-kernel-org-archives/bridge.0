@@ -1,21 +1,21 @@
 Return-Path: <stephen@networkplumber.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C14D640B5E
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C51A840484
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B4D1F6066D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D7F3560625
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=networkplumber-org.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:subject:cc:to:from:date:from:to:cc:subject:date
  :message-id:reply-to;
- bh=XKiJZH6Es83//EagG3nQ5yRqJCt2B3oQ4QwF9MG3yus=;
- b=bbQKI/dphQ7+nWcC2OCJjIvpiM9iE/MKAli+jjkT/4RKZtCGEESeQ437b1HFbC2rue
- +gEFKhpAKgWoXVZhgwX9hlNLLczmyEPTrMGJytlcEtWMYMvRgB4V3nCBVkVnfw/tm7pz
- tPdAnF2unw7drYHKGXw4HEvSOcjCc/9TtHivLvVgOlw+1axHAhDua6wAkYm3kwvjrQmI
- BozHCgmfCtTOVuEMbiftAZkkUcENCJzaOkWr0C8gbNWBh2ykP4KZaztFVzakP50Voeg/
- FtoZ3+F5aeyEECv1yvne/poRjox8xi8K7Z6iEys6Jcv34B83qZcut4JZLI2UbW669jUy
- BKfg==
-Date: Wed, 9 Nov 2022 11:55:47 -0800
+ bh=KRa3zLSl7ee1yGVNAAzjY5vpjyV6wqckozbmKlHsMfQ=;
+ b=S0En1H5UJdZt5oSh6Ts0Qh4obRmUNA/FNjgSqzMXSV926VMcwoorELQn8nu8gxzRor
+ KPrKpDTTsV/bJjXke862cHchAB+yBAz4s+8xfxvO0szFRYal4AV91g648gBDCuxWN0XR
+ cPQywR7t75xcTLRvC+DyJVFharWFfssxBZNcA0jei/xhiZlYxjYk6M+HC+AdXAvqHdnX
+ DS9ibrxOruofjoNZxGvSPFj5FeDMem/MugJPfwW1TzdvAXs+67xVqPVtowImnl2F1KCJ
+ /CgcpxakOxaqJe+TebrnH4es6lwY1Xbh7PKnf0n1ubQy07JVAS9i3Fn+LSbq0qTebmKr
+ wyag==
+Date: Wed, 9 Nov 2022 12:08:58 -0800
 From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20221109115547.494d5006@hermes.local>
+Message-ID: <20221109120858.52e5a0aa@hermes.local>
 In-Reply-To: <pPm5jFjNYHBUzqlDouAIg2v7XTQZJnHIVSWXoYOaTijreJ22xAZOSAcwJXHJiTLN8jIAQCs-LeX7hp9hp-FaxW-HGjn69fc6-eG3Kv6lxc4=@protonmail.com>
 References: <nWfVbvdboX65r0xMXv0iZCj8TH7c8vStvilCD3Ilx5Y42yoHh34rJHJBMy8y4HhqXWXM0n3tLhLD870c863UjI20HBSxM8qwJlLMxuPjg0g=@protonmail.com>
  <20221109085109.6b0f87d3@hermes.local>
@@ -66,5 +66,10 @@ Ali Shirvani <alishirv@protonmail.com> wrote:
 > 
 > Thanks a lot for your guidance. I disabled the spanning tree on the bridge with `brctl stp br0 off` but the issue does not resolve. Would you please elaborate more about disabling flooding on tap devices, I don't know how I should disable flooding on tap devices.
 
-It is not a spanning tree issue, in fact STP can protect you from bad VM's.
-It is more about configuring the bridge ports after setup.
+Look at the documentation of the bridge command which describes per-port options:
+https://man7.org/linux/man-pages/man8/bridge.8.html
+
+You do want to leave flooding on for the downstream bridge port.
+
+You can also add some security by limiting where/when STP comes from and disable
+learning on the TAP devices so that if VM sends bogus packets, the bridge won't get DoS.
