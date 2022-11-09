@@ -1,28 +1,24 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 200C84019D
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3CAE640B03
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=7g0AbY5/adDRQsHrmygyhM6FzTVG4xjy6DBIzTAO0mk=;
- b=di4Uj0oh7+iqBZqbaRrqFsIeaBk5lzHnPlWP+70SlXufN7d7RjOJrIzWoluXMpU7ob
- PRLFUxAtPWw3qG8bDgGxHlGh+BzNRm+YAZOTaMxGLjjFivHe3gX0ienVyqFBtfEaBB0i
- qLTCxSSx22l7uzAhr3q12mbKTHX18eVdYS2yRx+JsL4XFzNS0m8azxRmG0gpn1+wnevN
- 0AW2RlLuAYmhmMnFUP7Dzg+CmaxknJd2sfymxW7NTi6qMQ4G7eTlRVCgWijlHru+iw4f
- F5cWmR2u3KnxtOL/m9O6NRwRVY0pr0wD25OUw/pDR3cm6AYQuNFMgX7ZyZSUGa6ZPAaM
- AbmQ==
-Date: Wed, 9 Nov 2022 11:21:07 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20221109092107.dzgogolaox7upnit@skbuf>
-References: <cover.1667902754.git.petrm@nvidia.com>
- <f433543efdb610ef5a6aba9ac52b4783ff137a13.1667902754.git.petrm@nvidia.com>
- <20221108145929.qmu2gvd5vvgvasyy@skbuf> <Y2tkNa7nnAdeD5Nc@shredder>
+Return-Path: <alishirv@protonmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 45EF340396
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4E0F2401B1
+Date: Wed, 09 Nov 2022 10:51:27 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+ s=protonmail3; t=1667991091; x=1668250291;
+ bh=MMMFvG98C32beywaTGUzTV0OQSC7D0EIWs74uWeeHVQ=;
+ h=Date:To:From:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+ Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+ b=wahOJGy5jOM8zc4/Z/oTWLKyOxmCIEuo2jrC4lCoMZjcFNfvj7guxyY245b6r6BJ+
+ 27TCtOBbqXnnQMmefiS6mNf89/sl1OqwA0GIbTCv6i7M5XEQEI/M328XGlIpzwk9lQ
+ IQmusu3izOlpLhz/i5Zb5M2DILY6+LRrcjez3bfa2FSbv7Rt2YivVAMBqdlcolCt9q
+ WA+X+uQZXXj4cQTb5WQLHCeqMq+4TDRNWtz9vNmSb3SI/jv3H7HNayMTQWc3vjgG/I
+ cIxf3nj8hkgjaJBJhQcbgfXghbWHc3WP2c+KYlhkqcaGRiFhw0/PQS49aXV8nifGWU
+ CnJ9I5g7xbIGw==
+From: Ali Shirvani <alishirv@protonmail.com>
+Message-ID: <nWfVbvdboX65r0xMXv0iZCj8TH7c8vStvilCD3Ilx5Y42yoHh34rJHJBMy8y4HhqXWXM0n3tLhLD870c863UjI20HBSxM8qwJlLMxuPjg0g=@protonmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y2tkNa7nnAdeD5Nc@shredder>
-Subject: Re: [Bridge] [PATCH net-next 11/15] mlxsw: spectrum_switchdev: Add
- locked bridge port support
+Content-Type: multipart/alternative;
+ boundary="b1_3fOWWc3ivzCQhEpyREMDmhEEOORZ89rEYi4mnMBcVw"
+Subject: [Bridge] How to connect more than 200 interfaces to a bridge
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -31,17 +27,61 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Petr Machata <petrm@nvidia.com>, Ivan Vecera <ivecera@redhat.com>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, Jiri Pirko <jiri@nvidia.com>, "Hans J . Schultz" <netdev@kapio-technology.com>, Eric Dumazet <edumazet@google.com>, mlxsw@nvidia.com, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
 
-On Wed, Nov 09, 2022 at 10:26:29AM +0200, Ido Schimmel wrote:
-> On Tue, Nov 08, 2022 at 04:59:29PM +0200, Vladimir Oltean wrote:
-> > Can't really figure out from the patch, sorry. Port security works with
-> > LAG offload?
-> 
-> Yes. It's just that port security needs to be enabled on each of the
-> member ports. FDB entries that point to a LAG are programmed with a
-> lag_id. When a packet is received from a LAG the hardware will compare
-> source_lag_id == lag_id instead of rx_local_port == tx_local_port.
+This is a multi-part message in MIME format.
 
-Okay, understood, the concepts are clear.
+--b1_3fOWWc3ivzCQhEpyREMDmhEEOORZ89rEYi4mnMBcVw
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
+
+SGVsbG8gZXZlcnlvbmUsCgpJdCBzZWVtcyB3ZSByZWFjaCB0aGUgTGludXggYnJpZGdlIGxpbWl0
+YXRpb24gb24gdGhlIG51bWJlciBvZiBpbnRlcmZhY2VzIGluIGEgc2luZ2xlIGJyaWRnZS4gQ3Vy
+cmVudGx5LCB3ZSBoYXZlIDIxMCB0YXAgaW50ZXJmYWNlIGluIGEgYnJpZGdlLCBhbmQgd2Ugc3Vm
+ZmVyIGZyb20gbW9yZSB0aGFuIDUwJSBwYWNrZXQgbG9zcyB3aGVuIHdlIHBpbmcgdGhlIElQIGFk
+ZHJlc3Mgb2YgdGhlIHZpcnR1YWwgbWFjaGluZSB0aGF0IHVzZXMgb25lIG9mIHRoZSB0YXAgaW50
+ZXJmYWNlcyBpbiB0aGUgYnJpZGdlLgpEbyB5b3Uga25vdyBob3cgd2UgY2FuIGNvbm5lY3QgbW9y
+ZSB0aGFuIDIwMCBWTXMgdmlydHVhbCBpbnRlcmZhY2VzIHRvIGEgYnJpZGdlPwoKQmVzdCByZWdh
+cmRzLApBbGkKClNlbnQgd2l0aCBbUHJvdG9uIE1haWxdKGh0dHBzOi8vcHJvdG9uLm1lLykgc2Vj
+dXJlIGVtYWlsLg==
+
+--b1_3fOWWc3ivzCQhEpyREMDmhEEOORZ89rEYi4mnMBcVw
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+
+PGRpdiBzdHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE0cHg7Ij48c3BhbiBz
+dHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiBu
+b3JtYWw7Ij5IZWxsbyBldmVyeW9uZSw8L3NwYW4+PC9kaXY+PGRpdiBzdHlsZT0iZm9udC1mYW1p
+bHk6IEFyaWFsOyBmb250LXNpemU6IDE0cHg7Ij48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IEFy
+aWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiBub3JtYWw7Ij48YnI+PC9zcGFuPjwv
+ZGl2PjxkaXYgc3R5bGU9ImZvbnQtZmFtaWx5OiBBcmlhbDsgZm9udC1zaXplOiAxNHB4OyI+PC9k
+aXY+PGRpdj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE0cHg7
+IGxpbmUtaGVpZ2h0OiBub3JtYWw7Ij5JdCBzZWVtcyB3ZSByZWFjaCB0aGUgTGludXggYnJpZGdl
+IGxpbWl0YXRpb24gb24gdGhlIG51bWJlciBvZiBpbnRlcmZhY2VzIGluIGEgc2luZ2xlIGJyaWRn
+ZS4gQ3VycmVudGx5LCB3ZSBoYXZlIDIxMCB0YXAgaW50ZXJmYWNlIGluIGEgYnJpZGdlLCBhbmQg
+d2Ugc3VmZmVyIGZyb20gbW9yZSB0aGFuIDUwJSBwYWNrZXQgbG9zcyB3aGVuIHdlIHBpbmcgdGhl
+IElQIGFkZHJlc3Mgb2YgdGhlIHZpcnR1YWwgbWFjaGluZSB0aGF0IHVzZXMgb25lIG9mIHRoZSB0
+YXAgaW50ZXJmYWNlcyBpbiB0aGUgYnJpZGdlLjwvc3Bhbj48L2Rpdj48ZGl2Pjxicj48L2Rpdj48
+c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVp
+Z2h0OiBub3JtYWw7Ij5EbyB5b3Uga25vdyBob3cgd2UgY2FuIGNvbm5lY3QgbW9yZSB0aGFuIDIw
+MCBWTXMgdmlydHVhbCBpbnRlcmZhY2VzIHRvIGEgYnJpZGdlPzwvc3Bhbj48ZGl2IHN0eWxlPSJm
+b250LWZhbWlseTogQXJpYWw7IGZvbnQtc2l6ZTogMTRweDsiPjwvZGl2PjxkaXYgc3R5bGU9ImZv
+bnQtZmFtaWx5OiBBcmlhbDsgZm9udC1zaXplOiAxNHB4OyI+PGJyPjwvZGl2PjxkaXYgc3R5bGU9
+ImZvbnQtZmFtaWx5OiBBcmlhbDsgZm9udC1zaXplOiAxNHB4OyI+PHNwYW4gc3R5bGU9ImZvbnQt
+ZmFtaWx5OiBBcmlhbDsgZm9udC1zaXplOiAxNHB4OyBsaW5lLWhlaWdodDogbm9ybWFsOyI+QmVz
+dCByZWdhcmRzLDwvc3Bhbj48L2Rpdj48ZGl2IHN0eWxlPSJmb250LWZhbWlseTogQXJpYWw7IGZv
+bnQtc2l6ZTogMTRweDsiPjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogQXJpYWw7IGZvbnQtc2l6
+ZTogMTRweDsgbGluZS1oZWlnaHQ6IG5vcm1hbDsiPkFsaTwvc3Bhbj48YnI+PC9kaXY+PGRpdiBz
+dHlsZT0iZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE0cHg7Ij48YnI+PC9kaXY+DQo8
+ZGl2IGNsYXNzPSJwcm90b25tYWlsX3NpZ25hdHVyZV9ibG9jayIgc3R5bGU9ImZvbnQtZmFtaWx5
+OiBBcmlhbDsgZm9udC1zaXplOiAxNHB4OyI+DQogICAgPGRpdiBjbGFzcz0icHJvdG9ubWFpbF9z
+aWduYXR1cmVfYmxvY2stdXNlciBwcm90b25tYWlsX3NpZ25hdHVyZV9ibG9jay1lbXB0eSI+DQog
+ICAgICAgIA0KICAgICAgICAgICAgPC9kaXY+DQogICAgDQogICAgICAgICAgICA8ZGl2IGNsYXNz
+PSJwcm90b25tYWlsX3NpZ25hdHVyZV9ibG9jay1wcm90b24iPg0KICAgICAgICBTZW50IHdpdGgg
+PGEgdGFyZ2V0PSJfYmxhbmsiIGhyZWY9Imh0dHBzOi8vcHJvdG9uLm1lLyIgcmVsPSJub29wZW5l
+ciBub3JlZmVycmVyIj5Qcm90b24gTWFpbDwvYT4gc2VjdXJlIGVtYWlsLg0KICAgIDwvZGl2Pg0K
+PC9kaXY+DQo=
+
+
+--b1_3fOWWc3ivzCQhEpyREMDmhEEOORZ89rEYi4mnMBcVw--
+
