@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2C4D14052E
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B164D4052C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B7AC4052E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 89E4F40522
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=3ck7nJMtJWfMXqJ5W4UKDMRT+n97feLu0BpQVT11JQQ=;
- b=lS/ObLnzVsgptiLXORTVWvMO3nrBM2AT6OkFfPPqf87rWVrtfvzCrbYETxTtU4bMQr
- sqObjWGqLJhO+5cq1gZllTYH3VpQRrhhPHQOQHpK22bXgoRDbpxLYuql91FRBeGZFcF4
- xqufuc3Q1cfFQIjwo3KcGlS92PTPq+NoxPJvgzEyjro7l4Z27qXNLZC/AsuumUE5aQNb
- V/rWtepKDqMCNLYgBqrpneI8YVBbWbs+4msacon5ZKGipn5pIHYKZgAZDGV9NVtGW8f5
- WidDsDvctGq05hQaxrmM+6IF6NJ9xhI8G74FyUXeiuaykl8PNjTLlJbo3v3zl4U+aOZW
- bsiA==
-Message-ID: <2d043351-0be2-67ea-5da2-1f29777c9fb7@blackwall.org>
-Date: Mon, 5 Dec 2022 13:40:05 +0200
+ bh=knyyPlNbBxcU+qJ0FVDjA2Jr+aOD9AGR8p2XI9iZKlA=;
+ b=sP0PT5QlxzUm2mdQs2yeqeVnGD/bCIXNEYE7DgEWFvImqA2UtrKcxkxcsz+kjVAlNB
+ xmDrQiUN30zBjZ3KcAbEiOEJym5cF/GxeFBV2d1sS5/dNIn7VyZ7yXDkNyV24XHHu9wE
+ l1F1+yspsGkw743BRWBxMuLl1lnfwBtAhGFtw9CdhlP5N6oiNvN6SjvsrwZNTl9Ea1yP
+ Ae+uWNI9EMRlDqwtqtMKDwrCqx7m0/xK22qjcCVc4uU/R2fPYBzxHugsO+VJh1LMnB6c
+ 5ToSgPUCQ82FQmuqb76W/GDzY5oVOBLlhGd/Ml07Ik8V89QwgTPfWrNa6EAuv0bGmRUl
+ RUkg==
+Message-ID: <729a8f5b-1a4e-1838-93e0-27ac814bb015@blackwall.org>
+Date: Mon, 5 Dec 2022 13:41:41 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20221205074251.4049275-1-idosch@nvidia.com>
- <20221205074251.4049275-5-idosch@nvidia.com>
+ <20221205074251.4049275-6-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20221205074251.4049275-5-idosch@nvidia.com>
+In-Reply-To: <20221205074251.4049275-6-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 4/8] bridge: mcast: Propagate MDB
- configuration structure further
+Subject: Re: [Bridge] [PATCH net-next 5/8] bridge: mcast: Use MDB group key
+ from configuration structure
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,17 +37,19 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 05/12/2022 09:42, Ido Schimmel wrote:
-> As an intermediate step towards only using the new MDB configuration
-> structure, pass it further in the control path instead of passing
-> individual attributes.
+> The MDB group key (i.e., {source, destination, protocol, VID}) is
+> currently determined under the multicast lock from the netlink
+> attributes. Instead, use the group key from the MDB configuration
+> structure that was prepared before acquiring the lock.
 > 
 > No functional changes intended.
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->  net/bridge/br_mdb.c | 24 +++++++++++-------------
->  1 file changed, 11 insertions(+), 13 deletions(-)
+>  net/bridge/br_mdb.c | 15 +++++++--------
+>  1 file changed, 7 insertions(+), 8 deletions(-)
 > 
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
 
