@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B5CA3812E4
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E387B812DE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E255F40914
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 24052408FF
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EdvVN5xzfy+1ZPDNmvOwrIBR5OfKCZgYHP84JMw8sEo=;
- b=fQNjHsRNrDkB4h5eyglESFSMBriw7V/dW40j/j2ezb1PKMgr1Z4P/wAWRbgXSGOSmwdyY0jqgwCVUe0+YCEQ9LE+bn80D5LpZKXT43azhg2gla+v2cVkk8pWFcxOeO4pD4w9rABE2ED6I3Ch/wbW2LLrukHo013tT++dAeDVZZ/TYmGmyLYnFyvpVLDrxbM5NqMSfIrR3DldUKMrUCBjqaWiiEm8Q5mURv1pZjCuU1gM97d3M9Uht2NQwdHAJC2SIfZrvEOlaXNvxlOtO9ZnJTsbPRJ43LBWHuChRrFrJaKF1GuDpYEiLEOEv1p426zTIakAXp5PcGDiQp2M57cglg==
+ bh=jxi5hqenPmGJZ3OiuNPNAdTZ04SsvqLcnKeAnCiatF0=;
+ b=EVNS6jGDBGmCgZi2DQzCSdEQB/+vzv3TTuGW1RazwoO3xNces5Z0WXjGXIvWFOfwTVztbLiB/+jvFlapbbN57kYIJGQat+RuDXkUdfvgBpCv9wx4ivrTBngMF7BsdhG6GHzBAVfpHl3+xCH5TnUdqgz9mEsKwEeHRk2NBVuVJRgxODmqwmgOpEr1prjSmMfR7BtoElo9NnV8lLT+/e6cEks1DCQyvhNhCqXIB/a2MmEb2gXIKl8lzZ6GftRAbheAr/DzmB1q+DIvYrSkf3Hk+lG1o+02HsQ03+oToFDFE0mi868NcP+zFGH8LZMVGspTifx4JNYWrLEMB8TZ6JohMg==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue,  6 Dec 2022 12:58:07 +0200
-Message-Id: <20221206105809.363767-8-idosch@nvidia.com>
+Date: Tue,  6 Dec 2022 12:58:08 +0200
+Message-Id: <20221206105809.363767-9-idosch@nvidia.com>
 In-Reply-To: <20221206105809.363767-1-idosch@nvidia.com>
 References: <20221206105809.363767-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 7/9] bridge: mcast: Move checks out of
-	critical section
+Subject: [Bridge] [PATCH net-next v2 8/9] bridge: mcast: Remove redundant
+	function arguments
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,73 +27,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-The checks only require information parsed from the RTM_NEWMDB netlink
-message and do not rely on any state stored in the bridge driver.
-Therefore, there is no need to perform the checks in the critical
-section under the multicast lock.
-
-Move the checks out of the critical section.
+Drop the first three arguments and instead extract them from the MDB
+configuration structure.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_mdb.c | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ net/bridge/br_mdb.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index d0e018628f5d..d954d8f7cb0a 100644
+index d954d8f7cb0a..ae7d93c08880 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -805,24 +805,6 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 	if (!brmctx)
- 		return -EINVAL;
+@@ -786,13 +786,14 @@ __br_mdb_choose_context(struct net_bridge *br,
+ 	return brmctx;
+ }
  
--	/* host join errors which can happen before creating the group */
--	if (!port && !br_group_is_l2(&group)) {
--		/* don't allow any flags for host-joined IP groups */
--		if (entry->state) {
--			NL_SET_ERR_MSG_MOD(extack, "Flags are not allowed for host groups");
--			return -EINVAL;
--		}
--		if (!br_multicast_is_star_g(&group)) {
--			NL_SET_ERR_MSG_MOD(extack, "Groups with sources cannot be manually host joined");
--			return -EINVAL;
--		}
--	}
--
--	if (br_group_is_l2(&group) && entry->state != MDB_PERMANENT) {
--		NL_SET_ERR_MSG_MOD(extack, "Only permanent L2 entries allowed");
--		return -EINVAL;
--	}
--
- 	mp = br_multicast_new_group(br, &group);
- 	if (IS_ERR(mp))
- 		return PTR_ERR(mp);
-@@ -1026,6 +1008,24 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if (err)
- 		return err;
+-static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+-			    struct br_mdb_entry *entry,
+-			    const struct br_mdb_config *cfg,
++static int br_mdb_add_group(const struct br_mdb_config *cfg,
+ 			    struct netlink_ext_ack *extack)
+ {
+ 	struct net_bridge_mdb_entry *mp, *star_mp;
+ 	struct net_bridge_port_group __rcu **pp;
++	struct br_mdb_entry *entry = cfg->entry;
++	struct net_bridge_port *port = cfg->p;
++	struct net_bridge *br = cfg->br;
+ 	struct net_bridge_port_group *p;
+ 	struct net_bridge_mcast *brmctx;
+ 	struct br_ip group = cfg->group;
+@@ -879,7 +880,7 @@ static int __br_mdb_add(const struct br_mdb_config *cfg,
+ 	int ret;
  
-+	/* host join errors which can happen before creating the group */
-+	if (!cfg.p && !br_group_is_l2(&cfg.group)) {
-+		/* don't allow any flags for host-joined IP groups */
-+		if (cfg.entry->state) {
-+			NL_SET_ERR_MSG_MOD(extack, "Flags are not allowed for host groups");
-+			return -EINVAL;
-+		}
-+		if (!br_multicast_is_star_g(&cfg.group)) {
-+			NL_SET_ERR_MSG_MOD(extack, "Groups with sources cannot be manually host joined");
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (br_group_is_l2(&cfg.group) && cfg.entry->state != MDB_PERMANENT) {
-+		NL_SET_ERR_MSG_MOD(extack, "Only permanent L2 entries allowed");
-+		return -EINVAL;
-+	}
-+
- 	if (cfg.p) {
- 		if (cfg.p->state == BR_STATE_DISABLED && cfg.entry->state != MDB_PERMANENT) {
- 			NL_SET_ERR_MSG_MOD(extack, "Port is in disabled state and entry is not permanent");
+ 	spin_lock_bh(&cfg->br->multicast_lock);
+-	ret = br_mdb_add_group(cfg->br, cfg->p, cfg->entry, cfg, extack);
++	ret = br_mdb_add_group(cfg, extack);
+ 	spin_unlock_bh(&cfg->br->multicast_lock);
+ 
+ 	return ret;
 -- 
 2.37.3
 
