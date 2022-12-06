@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2DA7C408F9
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 64BA2408F5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 04FE060FAC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0A38060FA2
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=m2UuOzLm+cUz3HNhxRPB+Jh5RI2DyHSGrhLikshtd8c=;
- b=tQ+f56NUmYJZ0viQdjupaatD1/nZswbEaRhH/swvOXfNj3VeAZlW3KHTOwaxZlGFtVficdlznWuMZT98iZ9QEAwurDrQGpf6Px6G4GDVxDWk2fR+JybMJxz3/g9lLZ8ge6vItxROAFrePb7krHvGh4seJi+1j7VoxsShMW8/M1yUHawyKX+7TAAJYKzk3l8oWn5S0PcN+dX5IXYvo+c9Nepf8yZv4R6V6XC2sBX266H2CwsRJdqcWe6T7UbmMwYExkcDNbyuZGQi8zDx1YQz/Vu5N/M4SBhB073c3VITmJm9Qd1bA4ZMZa2uVcs7O+UD7lErsIlVb6X2YBLL7BUhTw==
+ bh=uB8JxsTiF9rS8GVOnoXsC8O6XcScnXhYRzE64mek0nw=;
+ b=uR72CqeEADcziYqdsu2vn65wPzXWVkKwhpB9QsY1yVdPLkj/e1ku4Qg12xu/RqxS0cEKoXHhdzNLanipBTWueRKa65WShRBUL6Ut696y7MJyE61AWE+Wbj4qJaqISdNJwFYR4FYfIdPXYpbOJ++8hI0jl3KC9KWKhY4qPHfxAJePEi8PSqUHMFf9wLsQSfeQzONTFBwuu4mfBq/0JnlxgTlKoKGztNG3IuRm3inK3G/IcdroMrk/EWcVBPqqh7OoEVOFggBIDprAiw11dTwgCJxVBafO/1sUhlMy2lca+V02JBDp45I16V4sBFIZ6M0j2ncrTeJ6+tVHz8Khwo1ihw==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue,  6 Dec 2022 12:58:05 +0200
-Message-Id: <20221206105809.363767-6-idosch@nvidia.com>
+Date: Tue,  6 Dec 2022 12:58:06 +0200
+Message-Id: <20221206105809.363767-7-idosch@nvidia.com>
 In-Reply-To: <20221206105809.363767-1-idosch@nvidia.com>
 References: <20221206105809.363767-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 5/9] bridge: mcast: Use MDB group key
-	from configuration structure
+Subject: [Bridge] [PATCH net-next v2 6/9] bridge: mcast: Remove
+	br_mdb_parse()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,90 +27,188 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-The MDB group key (i.e., {source, destination, protocol, VID}) is
-currently determined under the multicast lock from the netlink
-attributes. Instead, use the group key from the MDB configuration
-structure that was prepared before acquiring the lock.
+The parsing of the netlink messages and the validity checks are now
+performed in br_mdb_config_init() so we can remove br_mdb_parse().
 
-No functional changes intended.
+This finally allows us to stop passing netlink attributes deep in the
+MDB control path and only use the MDB configuration structure.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
-
-Notes:
-    v2:
-    * Pass 'cfg' as 'const'.
-
- net/bridge/br_mdb.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ net/bridge/br_mdb.c | 93 +++------------------------------------------
+ 1 file changed, 5 insertions(+), 88 deletions(-)
 
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 6017bff8316a..b459886af675 100644
+index b459886af675..d0e018628f5d 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -855,20 +855,19 @@ __br_mdb_choose_context(struct net_bridge *br,
+@@ -754,73 +754,6 @@ static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+ 					      sizeof(struct in6_addr)),
+ };
  
- static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
- 			    struct br_mdb_entry *entry,
--			    struct nlattr **mdb_attrs,
-+			    const struct br_mdb_config *cfg,
- 			    struct netlink_ext_ack *extack)
- {
- 	struct net_bridge_mdb_entry *mp, *star_mp;
- 	struct net_bridge_port_group __rcu **pp;
- 	struct net_bridge_port_group *p;
- 	struct net_bridge_mcast *brmctx;
--	struct br_ip group, star_group;
-+	struct br_ip group = cfg->group;
- 	unsigned long now = jiffies;
- 	unsigned char flags = 0;
-+	struct br_ip star_group;
- 	u8 filter_mode;
- 
--	__mdb_entry_to_br_ip(entry, &group, mdb_attrs);
+-static int br_mdb_parse(struct sk_buff *skb, struct nlmsghdr *nlh,
+-			struct net_device **pdev, struct br_mdb_entry **pentry,
+-			struct nlattr **mdb_attrs, struct netlink_ext_ack *extack)
+-{
+-	struct net *net = sock_net(skb->sk);
+-	struct br_mdb_entry *entry;
+-	struct br_port_msg *bpm;
+-	struct nlattr *tb[MDBA_SET_ENTRY_MAX+1];
+-	struct net_device *dev;
+-	int err;
 -
- 	brmctx = __br_mdb_choose_context(br, entry, extack);
- 	if (!brmctx)
- 		return -EINVAL;
-@@ -966,7 +965,7 @@ static int __br_mdb_add(const struct br_mdb_config *cfg,
+-	err = nlmsg_parse_deprecated(nlh, sizeof(*bpm), tb,
+-				     MDBA_SET_ENTRY_MAX, NULL, NULL);
+-	if (err < 0)
+-		return err;
+-
+-	bpm = nlmsg_data(nlh);
+-	if (bpm->ifindex == 0) {
+-		NL_SET_ERR_MSG_MOD(extack, "Invalid bridge ifindex");
+-		return -EINVAL;
+-	}
+-
+-	dev = __dev_get_by_index(net, bpm->ifindex);
+-	if (dev == NULL) {
+-		NL_SET_ERR_MSG_MOD(extack, "Bridge device doesn't exist");
+-		return -ENODEV;
+-	}
+-
+-	if (!netif_is_bridge_master(dev)) {
+-		NL_SET_ERR_MSG_MOD(extack, "Device is not a bridge");
+-		return -EOPNOTSUPP;
+-	}
+-
+-	*pdev = dev;
+-
+-	if (!tb[MDBA_SET_ENTRY]) {
+-		NL_SET_ERR_MSG_MOD(extack, "Missing MDBA_SET_ENTRY attribute");
+-		return -EINVAL;
+-	}
+-	if (nla_len(tb[MDBA_SET_ENTRY]) != sizeof(struct br_mdb_entry)) {
+-		NL_SET_ERR_MSG_MOD(extack, "Invalid MDBA_SET_ENTRY attribute length");
+-		return -EINVAL;
+-	}
+-
+-	entry = nla_data(tb[MDBA_SET_ENTRY]);
+-	if (!is_valid_mdb_entry(entry, extack))
+-		return -EINVAL;
+-	*pentry = entry;
+-
+-	if (tb[MDBA_SET_ENTRY_ATTRS]) {
+-		err = nla_parse_nested(mdb_attrs, MDBE_ATTR_MAX,
+-				       tb[MDBA_SET_ENTRY_ATTRS],
+-				       br_mdbe_attrs_pol, extack);
+-		if (err)
+-			return err;
+-		if (mdb_attrs[MDBE_ATTR_SOURCE] &&
+-		    !is_valid_mdb_source(mdb_attrs[MDBE_ATTR_SOURCE],
+-					 entry->addr.proto, extack))
+-			return -EINVAL;
+-	} else {
+-		memset(mdb_attrs, 0,
+-		       sizeof(struct nlattr *) * (MDBE_ATTR_MAX + 1));
+-	}
+-
+-	return 0;
+-}
+-
+ static struct net_bridge_mcast *
+ __br_mdb_choose_context(struct net_bridge *br,
+ 			const struct br_mdb_entry *entry,
+@@ -959,7 +892,6 @@ static int br_mdb_add_group(struct net_bridge *br, struct net_bridge_port *port,
+ }
+ 
+ static int __br_mdb_add(const struct br_mdb_config *cfg,
+-			struct nlattr **mdb_attrs,
+ 			struct netlink_ext_ack *extack)
+ {
  	int ret;
+@@ -1084,23 +1016,16 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
+ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		      struct netlink_ext_ack *extack)
+ {
+-	struct nlattr *mdb_attrs[MDBE_ATTR_MAX + 1];
+ 	struct net *net = sock_net(skb->sk);
+ 	struct net_bridge_vlan_group *vg;
+-	struct br_mdb_entry *entry;
+ 	struct net_bridge_vlan *v;
+ 	struct br_mdb_config cfg;
+-	struct net_device *dev;
+ 	int err;
  
- 	spin_lock_bh(&cfg->br->multicast_lock);
--	ret = br_mdb_add_group(cfg->br, cfg->p, cfg->entry, mdb_attrs, extack);
-+	ret = br_mdb_add_group(cfg->br, cfg->p, cfg->entry, cfg, extack);
- 	spin_unlock_bh(&cfg->br->multicast_lock);
+ 	err = br_mdb_config_init(net, nlh, &cfg, extack);
+ 	if (err)
+ 		return err;
  
- 	return ret;
-@@ -1118,6 +1117,7 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if (br_vlan_enabled(cfg.br->dev) && vg && cfg.entry->vid == 0) {
+-	err = br_mdb_parse(skb, nlh, &dev, &entry, mdb_attrs, extack);
+-	if (err < 0)
+-		return err;
+-
+ 	if (cfg.p) {
+ 		if (cfg.p->state == BR_STATE_DISABLED && cfg.entry->state != MDB_PERMANENT) {
+ 			NL_SET_ERR_MSG_MOD(extack, "Port is in disabled state and entry is not permanent");
+@@ -1118,19 +1043,18 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
  		list_for_each_entry(v, &vg->vlan_list, vlist) {
  			cfg.entry->vid = v->vid;
-+			cfg.group.vid = v->vid;
- 			err = __br_mdb_add(&cfg, mdb_attrs, extack);
+ 			cfg.group.vid = v->vid;
+-			err = __br_mdb_add(&cfg, mdb_attrs, extack);
++			err = __br_mdb_add(&cfg, extack);
  			if (err)
  				break;
-@@ -1137,11 +1137,9 @@ static int __br_mdb_del(const struct br_mdb_config *cfg,
- 	struct net_bridge_mdb_entry *mp;
- 	struct net_bridge_port_group *p;
- 	struct net_bridge_port_group __rcu **pp;
--	struct br_ip ip;
-+	struct br_ip ip = cfg->group;
- 	int err = -EINVAL;
- 
--	__mdb_entry_to_br_ip(entry, &ip, mdb_attrs);
--
- 	spin_lock_bh(&br->multicast_lock);
- 	mp = br_mdb_ip_get(br, &ip);
- 	if (!mp)
-@@ -1204,6 +1202,7 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if (br_vlan_enabled(cfg.br->dev) && vg && cfg.entry->vid == 0) {
- 		list_for_each_entry(v, &vg->vlan_list, vlist) {
- 			cfg.entry->vid = v->vid;
-+			cfg.group.vid = v->vid;
- 			err = __br_mdb_del(&cfg, mdb_attrs);
  		}
  	} else {
+-		err = __br_mdb_add(&cfg, mdb_attrs, extack);
++		err = __br_mdb_add(&cfg, extack);
+ 	}
+ 
+ 	return err;
+ }
+ 
+-static int __br_mdb_del(const struct br_mdb_config *cfg,
+-			struct nlattr **mdb_attrs)
++static int __br_mdb_del(const struct br_mdb_config *cfg)
+ {
+ 	struct br_mdb_entry *entry = cfg->entry;
+ 	struct net_bridge *br = cfg->br;
+@@ -1174,23 +1098,16 @@ static int __br_mdb_del(const struct br_mdb_config *cfg,
+ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		      struct netlink_ext_ack *extack)
+ {
+-	struct nlattr *mdb_attrs[MDBE_ATTR_MAX + 1];
+ 	struct net *net = sock_net(skb->sk);
+ 	struct net_bridge_vlan_group *vg;
+-	struct br_mdb_entry *entry;
+ 	struct net_bridge_vlan *v;
+ 	struct br_mdb_config cfg;
+-	struct net_device *dev;
+ 	int err;
+ 
+ 	err = br_mdb_config_init(net, nlh, &cfg, extack);
+ 	if (err)
+ 		return err;
+ 
+-	err = br_mdb_parse(skb, nlh, &dev, &entry, mdb_attrs, extack);
+-	if (err < 0)
+-		return err;
+-
+ 	if (cfg.p)
+ 		vg = nbp_vlan_group(cfg.p);
+ 	else
+@@ -1203,10 +1120,10 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		list_for_each_entry(v, &vg->vlan_list, vlist) {
+ 			cfg.entry->vid = v->vid;
+ 			cfg.group.vid = v->vid;
+-			err = __br_mdb_del(&cfg, mdb_attrs);
++			err = __br_mdb_del(&cfg);
+ 		}
+ 	} else {
+-		err = __br_mdb_del(&cfg, mdb_attrs);
++		err = __br_mdb_del(&cfg);
+ 	}
+ 
+ 	return err;
 -- 
 2.37.3
 
