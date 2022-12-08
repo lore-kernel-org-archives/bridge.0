@@ -1,30 +1,26 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D17FB60FE6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1769560FE4
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=a9Apa3uOHTaWpyI4d5WsN/NOtmRrJfK1jH1TKEd9eDA=;
- b=YcdOdKovc+PQRGX9VMh5p9K6mbx4EHAfko7hOFYFKl6CslLrtwYEQ1pHihMNi3IJpe
- 2tNikG+7dxK2SPd/XzHhW2POiepzA7XTnqD5Dbp1W1DDtdQPIejXmCms+vJaoWrLznxF
- XCqEkT4DjUFXEbH9r6HqszNwWnIywAdhTyMnBjPlhYqnAcC4i/O3gdqoYEsNhYX79XWq
- 5OtJwfLe2AGRASttWlhAu78qy7mhfPcB+lpxg4qhqrTCfLaFOr87MoESEoBT0KZQykuF
- CJqiM+w17KaiYYSueA46iBSDoqbx3SYgvQOc2YhH95ftL5FVOGxE/iMRCJJv8cpNUrXX
- 2Q0g==
-Message-ID: <d7f8d88a-531b-4ccf-0310-9e3f78356fac@blackwall.org>
-Date: Tue, 6 Dec 2022 14:32:47 +0200
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3AC0081F5A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5808181F59
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1670472619;
+ bh=s4bA1inXYla9p7PtsuzzOXy6cf0Zl73yymnPyZJZj60=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=PiRCdQ8SYQ84tPVZCJxMAhcQNpFaVhZfeei7F6b75jF2L1c2doShvPSEKs1md0s8R
+ N1QQIf6O9/d5N5l/cex+RY8ZQXHA4zgS/K3dg2PeVuie+mUH7rLGshO4mM8sDf2jQq
+ CTLU/TKBVCSR5M9C620P978x4b7xsu7O4p0/4eNPN5gclLjitC8OjNfUtcvmEC/sOh
+ d0p9GHI3d7JIQ7Ehm85JwlJ2wLl7TsHYEnWV+bQkVmIAaP8Sm8aAEV3HEHvUYzJ5L8
+ fJLnXIfOZ43nRdBym2Mnp9zcxePMCC/kELi6CpHDbRAJ1T3FvHrRGL7IMt2Vjv+qMV
+ mCpRqAISPHRFA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <167047261955.18861.1757446402375104183.git-patchwork-notify@kernel.org>
+Date: Thu, 08 Dec 2022 04:10:19 +0000
 References: <20221206105809.363767-1-idosch@nvidia.com>
- <20221206105809.363767-10-idosch@nvidia.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20221206105809.363767-10-idosch@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 9/9] bridge: mcast: Constify
- 'group' argument in br_multicast_new_port_group()
+In-Reply-To: <20221206105809.363767-1-idosch@nvidia.com>
+Subject: Re: [Bridge] [PATCH net-next v2 0/9] bridge: mcast: Preparations
+ for EVPN extensions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,26 +29,50 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, edumazet@google.com, mlxsw@nvidia.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-On 06/12/2022 12:58, Ido Schimmel wrote:
-> The 'group' argument is not modified, so mark it as 'const'. It will
-> allow us to constify arguments of the callers of this function in future
-> patches.
-> 
-> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-> ---
-> 
-> Notes:
->     v2:
->     * New patch.
-> 
->  net/bridge/br_multicast.c | 2 +-
->  net/bridge/br_private.h   | 3 ++-
->  2 files changed, 3 insertions(+), 2 deletions(-)
-> 
+Hello:
 
-Nice, that's even less than I anticipated. :) 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+This series was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Tue,  6 Dec 2022 12:58:00 +0200 you wrote:
+> This patchset was split from [1] and includes non-functional changes
+> aimed at making it easier to add additional netlink attributes later on.
+> Future extensions are available here [2].
+> 
+> The idea behind these patches is to create an MDB configuration
+> structure into which netlink messages are parsed into. The structure is
+> then passed in the entry creation / deletion call chain instead of
+> passing the netlink attributes themselves. The same pattern is used by
+> other rtnetlink objects such as routes and nexthops.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v2,1/9] bridge: mcast: Centralize netlink attribute parsing
+    https://git.kernel.org/netdev/net-next/c/cb453926865e
+  - [net-next,v2,2/9] bridge: mcast: Remove redundant checks
+    https://git.kernel.org/netdev/net-next/c/386611681524
+  - [net-next,v2,3/9] bridge: mcast: Use MDB configuration structure where possible
+    https://git.kernel.org/netdev/net-next/c/f2b5aac68117
+  - [net-next,v2,4/9] bridge: mcast: Propagate MDB configuration structure further
+    https://git.kernel.org/netdev/net-next/c/8bd9c08e3241
+  - [net-next,v2,5/9] bridge: mcast: Use MDB group key from configuration structure
+    https://git.kernel.org/netdev/net-next/c/9f52a5142979
+  - [net-next,v2,6/9] bridge: mcast: Remove br_mdb_parse()
+    https://git.kernel.org/netdev/net-next/c/3ee5662345f2
+  - [net-next,v2,7/9] bridge: mcast: Move checks out of critical section
+    https://git.kernel.org/netdev/net-next/c/4c1ebc6c1f21
+  - [net-next,v2,8/9] bridge: mcast: Remove redundant function arguments
+    https://git.kernel.org/netdev/net-next/c/090149eaf391
+  - [net-next,v2,9/9] bridge: mcast: Constify 'group' argument in br_multicast_new_port_group()
+    https://git.kernel.org/netdev/net-next/c/f86c3e2c1b5e
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
