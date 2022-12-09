@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 45D1E60B46
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4A4AE60AAE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E78DD4014B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6ED104014A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=KSkxp9G2CF6S5rppPANiUey7SnfmSrWPD2ZRfSXSe9c=;
- b=wporLZhgoBS3JLFLF2lvV7ZmfJIVRMqul3s5HKG80kGORLsusrqamCFfWUi4gk//e7
- 6sAo17PByF0+HJALTxuNovlahMVA+t+gx8r76/bqrEuPYySgzz5+6x0ZLVuFOJwnQZS+
- 8Qejh6dBMku5x155Tx0Eosw3KFuIrnqjRcHX9LS62EZWDeM+8IU6q6plOSXvbtHJ+rIM
- UNmYQe87Nkz4Jn+LeUnB7vbjVb85ApvduXTFEpXWjifr+wxImEHBxVwLAQnVhv0ufpHS
- GpXBBcl6fu3s5B0D8W0ThrJH2hL3UZVtVwbJtqMuVKj2ukipe3nr9dyDqOIkbedwdL0t
- dfqw==
-Message-ID: <6f71f4e4-9224-efa0-dbe2-e1b35b5526e2@blackwall.org>
-Date: Fri, 9 Dec 2022 09:27:01 +0200
+ bh=I/NiR04BbzcUV//md2hUQO/dnN6Z7scyidQgiE5B2hg=;
+ b=VJTtQyFx7jDB5CrXOwLXWeqcAcBabtG5fa63nVOt4TWI9j7o3YzB+csFGOP/omIVBg
+ cYHSkr9dmk0R1su2IXweF0YNvv4WbGvLjIpNAHwEK6LSISOBPx7B1IRiLxl2zaMou9pC
+ G1pCmcnwlMl6zRzZsmCLbSUldc3x0POKJ86BjYHZ9X/+z46ngn3Jqm1NCRiM3ahlIrGZ
+ OsrovOfG9d7bA5qrlMCD7KqaTcYoyRAi0UDJl/faqN7JZe1ruoc5Cf2/xQZQ20SwSmL4
+ ix8t8192Bdkcoy2/BFKQtbTjlsGUs/ckoiPZd+9uaoiqEViqbKJJOQD6A04mJw4TT4Fk
+ 88wQ==
+Message-ID: <9246d282-2691-d1c4-c1cc-fe3f0461e330@blackwall.org>
+Date: Fri, 9 Dec 2022 09:29:53 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20221208152839.1016350-1-idosch@nvidia.com>
- <20221208152839.1016350-2-idosch@nvidia.com>
+ <20221208152839.1016350-3-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20221208152839.1016350-2-idosch@nvidia.com>
+In-Reply-To: <20221208152839.1016350-3-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 01/14] bridge: mcast: Do not derive
- entry type from its filter mode
+Subject: Re: [Bridge] [PATCH net-next 02/14] bridge: mcast: Split (*,
+ G) and (S, G) addition into different functions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,48 +37,28 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 08/12/2022 17:28, Ido Schimmel wrote:
-> Currently, the filter mode (i.e., INCLUDE / EXCLUDE) of MDB entries
-> cannot be set from user space. Instead, it is set by the kernel
-> according to the entry type: (*, G) entries are treated as EXCLUDE and
-> (S, G) entries are treated as INCLUDE. This allows the kernel to derive
-> the entry type from its filter mode.
+> When the bridge is using IGMP version 3 or MLD version 2, it handles the
+> addition of (*, G) and (S, G) entries differently.
 > 
-> Subsequent patches will allow user space to set the filter mode of (*,
-> G) entries, making the current assumption incorrect.
+> When a new (S, G) port group entry is added, all the (*, G) EXCLUDE
+> ports need to be added to the port group of the new entry. Similarly,
+> when a new (*, G) EXCLUDE port group entry is added, the port needs to
+> be added to the port group of all the matching (S, G) entries.
 > 
-> As a preparation, remove the current assumption and instead determine
-> the entry type from its key, which is a more direct way.
+> Subsequent patches will create more differences between both entry
+> types. Namely, filter mode and source list can only be specified for (*,
+> G) entries.
+> 
+> Given the current and future differences between both entry types,
+> handle the addition of each entry type in a different function, thereby
+> avoiding the creation of one complex function.
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->  net/bridge/br_mdb.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
+>  net/bridge/br_mdb.c | 145 +++++++++++++++++++++++++++++---------------
+>  1 file changed, 96 insertions(+), 49 deletions(-)
 > 
-> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-> index ae7d93c08880..2b6921dbdc02 100644
-> --- a/net/bridge/br_mdb.c
-> +++ b/net/bridge/br_mdb.c
-> @@ -857,17 +857,14 @@ static int br_mdb_add_group(const struct br_mdb_config *cfg,
->  	 * added to it for proper replication
->  	 */
->  	if (br_multicast_should_handle_mode(brmctx, group.proto)) {
-> -		switch (filter_mode) {
-> -		case MCAST_EXCLUDE:
-> -			br_multicast_star_g_handle_mode(p, MCAST_EXCLUDE);
-> -			break;
-> -		case MCAST_INCLUDE:
-> +		if (br_multicast_is_star_g(&group)) {
-> +			br_multicast_star_g_handle_mode(p, filter_mode);
-> +		} else {
->  			star_group = p->key.addr;
->  			memset(&star_group.src, 0, sizeof(star_group.src));
->  			star_mp = br_mdb_ip_get(br, &star_group);
->  			if (star_mp)
->  				br_multicast_sg_add_exclude_ports(star_mp, p);
-> -			break;
->  		}
->  	}
->  
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
 
