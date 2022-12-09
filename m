@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E78DD4014B
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6ED104014A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 025F440273
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2067C4014A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=I/NiR04BbzcUV//md2hUQO/dnN6Z7scyidQgiE5B2hg=;
- b=VJTtQyFx7jDB5CrXOwLXWeqcAcBabtG5fa63nVOt4TWI9j7o3YzB+csFGOP/omIVBg
- cYHSkr9dmk0R1su2IXweF0YNvv4WbGvLjIpNAHwEK6LSISOBPx7B1IRiLxl2zaMou9pC
- G1pCmcnwlMl6zRzZsmCLbSUldc3x0POKJ86BjYHZ9X/+z46ngn3Jqm1NCRiM3ahlIrGZ
- OsrovOfG9d7bA5qrlMCD7KqaTcYoyRAi0UDJl/faqN7JZe1ruoc5Cf2/xQZQ20SwSmL4
- ix8t8192Bdkcoy2/BFKQtbTjlsGUs/ckoiPZd+9uaoiqEViqbKJJOQD6A04mJw4TT4Fk
- 88wQ==
-Message-ID: <9246d282-2691-d1c4-c1cc-fe3f0461e330@blackwall.org>
-Date: Fri, 9 Dec 2022 09:29:53 +0200
+ bh=6QRPL8jVNR4wcNXjj50aKPMrExKMvKLBoy4ZEO7obgQ=;
+ b=DNXFEOJlNom33o3zlOv9nXCjJgm33+jGxiYg6uBYl+0oAIYPq+1z0VwLfipryb4Xg0
+ wbH6hAaEGvszxQ7sgqkz0QikMqIzFc+ZK6cE+tQZgUi2H6o05P6k/lORAuD6pwAZtEUH
+ jRCdQ10Kw9mxTUIMLbqCVaCUf8Kh1wIvcQzScIWFLZNq8WGK0xix2RTT0tSo+GGNXATC
+ 5XEhG9ePUTbh5+RJKxW/mA/RfrGZLw0l75kXnhyBH3BYZbiNWClDRy2GWFQ5E+xjqMNR
+ ga4Kkfhwtqr/FGS6pyzVYarvhBxM3W7m+LVqUDdvRGdlJADH7f3GRlmqwjoF4/bA7sJi
+ E4cA==
+Message-ID: <127afe2b-9bbb-57e3-6374-c1df0505ebfb@blackwall.org>
+Date: Fri, 9 Dec 2022 09:30:07 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20221208152839.1016350-1-idosch@nvidia.com>
- <20221208152839.1016350-3-idosch@nvidia.com>
+ <20221208152839.1016350-4-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20221208152839.1016350-3-idosch@nvidia.com>
+In-Reply-To: <20221208152839.1016350-4-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 02/14] bridge: mcast: Split (*,
- G) and (S, G) addition into different functions
+Subject: Re: [Bridge] [PATCH net-next 03/14] bridge: mcast: Place netlink
+ policy before validation functions
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,28 +37,47 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 08/12/2022 17:28, Ido Schimmel wrote:
-> When the bridge is using IGMP version 3 or MLD version 2, it handles the
-> addition of (*, G) and (S, G) entries differently.
+> Subsequent patches are going to add additional validation functions and
+> netlink policies. Some of these functions will need to perform parsing
+> using nla_parse_nested() and the new policies.
 > 
-> When a new (S, G) port group entry is added, all the (*, G) EXCLUDE
-> ports need to be added to the port group of the new entry. Similarly,
-> when a new (*, G) EXCLUDE port group entry is added, the port needs to
-> be added to the port group of all the matching (S, G) entries.
-> 
-> Subsequent patches will create more differences between both entry
-> types. Namely, filter mode and source list can only be specified for (*,
-> G) entries.
-> 
-> Given the current and future differences between both entry types,
-> handle the addition of each entry type in a different function, thereby
-> avoiding the creation of one complex function.
+> In order to keep all the policies next to each other, move the current
+> policy to before the validation functions.
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->  net/bridge/br_mdb.c | 145 +++++++++++++++++++++++++++++---------------
->  1 file changed, 96 insertions(+), 49 deletions(-)
+>  net/bridge/br_mdb.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
+> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+> index e3bd2122d559..fcdd464cf997 100644
+> --- a/net/bridge/br_mdb.c
+> +++ b/net/bridge/br_mdb.c
+> @@ -663,6 +663,12 @@ void br_rtr_notify(struct net_device *dev, struct net_bridge_mcast_port *pmctx,
+>  	rtnl_set_sk_err(net, RTNLGRP_MDB, err);
+>  }
+>  
+> +static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+> +	[MDBE_ATTR_SOURCE] = NLA_POLICY_RANGE(NLA_BINARY,
+> +					      sizeof(struct in_addr),
+> +					      sizeof(struct in6_addr)),
+> +};
+> +
+>  static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
+>  			       struct netlink_ext_ack *extack)
+>  {
+> @@ -748,12 +754,6 @@ static bool is_valid_mdb_source(struct nlattr *attr, __be16 proto,
+>  	return true;
+>  }
+>  
+> -static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+> -	[MDBE_ATTR_SOURCE] = NLA_POLICY_RANGE(NLA_BINARY,
+> -					      sizeof(struct in_addr),
+> -					      sizeof(struct in6_addr)),
+> -};
+> -
+>  static struct net_bridge_mcast *
+>  __br_mdb_choose_context(struct net_bridge *br,
+>  			const struct br_mdb_entry *entry,
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-
-
