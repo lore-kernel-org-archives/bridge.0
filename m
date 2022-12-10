@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A3D4B415A3
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 381704159F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4FC90415AB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADD8D4159F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Prt3U8OQ1/aCcOV92KzZD0IF4LtS8oQDmLJTpiae5qI=;
- b=DsJ3Z9tx4jEen5KtN8+aqtaLQ712+DSRZIhDCPJLzKJG8FTKUitnfiqrShIF2ivNMjR8EXt62WjLzTIWZt1rdDRHjV0Pmf2oTyYnd+fmCRnUugGoBdc0zJtcqr1ZdBfCqLT59qFwXS6cS504tWAEmnzUTo931Vme7VqTeL1ZEp43w5OxeGvbLREcewXLiCQuzN24Fd5BA5w8gAW+eKqZ9vKVXcIdOl7LNzUnSEyi+DZQ3ezedxXERP8ASQ8ZVyAatPu1dOz0mzoxZct/EzUDFgqaBapZDAM1H5vvckeIXGJZtsVQ0oQUeVQFzjBouxVfvKifLPBhxOTOY8/dx4OjGw==
+ bh=CmPkmYqU6S/w4DNuMfccOzmIVcRK9UkjmIMlqvpPd4g=;
+ b=tr2/k4gFpqqkLH70il1XYLhBqYENgQzbH9RAPgfdehgXCVq3sORC4lp7lJzKHUQJWyADyqaSoe9BHWTWTsSDOMKh9BqbyvLpK9byA4AydO85pwyj46QEhJNLs5MXg0Tz/cWQE7VvA+SwsHBSg8snBvhI8mLm6M3AjK0heossSGIOL+2u8KzAcHCjB+s+Xio95fN1zcDOcbxYmV3UOSsaPs4v9W8IP+QQeHCQ6hEvk3bNrCSAiTLEgOXXj9QsU3iB6xZ6p7ZQk+gbBLPq6IVwIezzXzKD8OzAwCPXb5uTnP0bReNwougSr3rvtEew0hfnJlsZhzJGxa24nlsO8UEenQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Sat, 10 Dec 2022 16:56:29 +0200
-Message-Id: <20221210145633.1328511-11-idosch@nvidia.com>
+Date: Sat, 10 Dec 2022 16:56:30 +0200
+Message-Id: <20221210145633.1328511-12-idosch@nvidia.com>
 In-Reply-To: <20221210145633.1328511-1-idosch@nvidia.com>
 References: <20221210145633.1328511-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 10/14] bridge: mcast: Allow user space
-	to add (*, G) with a source list and filter mode
+Subject: [Bridge] [PATCH net-next v2 11/14] bridge: mcast: Allow user space
+	to specify MDB entry routing protocol
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,55 +27,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Add new netlink attributes to the RTM_NEWMDB request that allow user
-space to add (*, G) with a source list and filter mode.
+Add the 'MDBE_ATTR_RTPORT' attribute to allow user space to specify the
+routing protocol of the MDB port group entry. Enforce a minimum value of
+'RTPROT_STATIC' to prevent user space from using protocol values that
+should only be set by the kernel (e.g., 'RTPROT_KERNEL'). Maintain
+backward compatibility by defaulting to 'RTPROT_STATIC'.
 
-The RTM_NEWMDB message can already dump such entries (created by the
-kernel) so there is no need to add dump support. However, the message
-contains a different set of attributes depending if it is a request or a
-response. The naming and structure of the new attributes try to follow
-the existing ones used in the response.
+The protocol is already visible to user space in RTM_NEWMDB responses
+and notifications via the 'MDBA_MDB_EATTR_RTPROT' attribute.
 
-Request:
+The routing protocol allows a routing daemon to distinguish between
+entries configured by it and those configured by the administrator. Once
+MDB flush is supported, the protocol can be used as a criterion
+according to which the flush is performed.
 
-[ struct nlmsghdr ]
-[ struct br_port_msg ]
-[ MDBA_SET_ENTRY ]
-	struct br_mdb_entry
-[ MDBA_SET_ENTRY_ATTRS ]
-	[ MDBE_ATTR_SOURCE ]
-		struct in_addr / struct in6_addr
-	[ MDBE_ATTR_SRC_LIST ]		// new
-		[ MDBE_SRC_LIST_ENTRY ]
-			[ MDBE_SRCATTR_ADDRESS ]
-				struct in_addr / struct in6_addr
-		[ ...]
-	[ MDBE_ATTR_GROUP_MODE ]	// new
-		u8
+Examples:
 
-Response:
+ # bridge mdb add dev br0 port dummy10 grp 239.1.1.1 permanent proto kernel
+ Error: integer out of range.
 
-[ struct nlmsghdr ]
-[ struct br_port_msg ]
-[ MDBA_MDB ]
-	[ MDBA_MDB_ENTRY ]
-		[ MDBA_MDB_ENTRY_INFO ]
-			struct br_mdb_entry
-		[ MDBA_MDB_EATTR_TIMER ]
-			u32
-		[ MDBA_MDB_EATTR_SOURCE ]
-			struct in_addr / struct in6_addr
-		[ MDBA_MDB_EATTR_RTPROT ]
-			u8
-		[ MDBA_MDB_EATTR_SRC_LIST ]
-			[ MDBA_MDB_SRCLIST_ENTRY ]
-				[ MDBA_MDB_SRCATTR_ADDRESS ]
-					struct in_addr / struct in6_addr
-				[ MDBA_MDB_SRCATTR_TIMER ]
-					u8
-			[...]
-		[ MDBA_MDB_EATTR_GROUP_MODE ]
-			u8
+ # bridge mdb add dev br0 port dummy10 grp 239.1.1.1 permanent proto static
+
+ # bridge mdb add dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.1 permanent proto zebra
+
+ # bridge mdb add dev br0 port dummy10 grp 239.1.1.2 permanent source_list 198.51.100.1,198.51.100.2 filter_mode include proto 250
+
+ # bridge -d mdb show
+ dev br0 port dummy10 grp 239.1.1.2 src 198.51.100.2 permanent filter_mode include proto 250
+ dev br0 port dummy10 grp 239.1.1.2 src 198.51.100.1 permanent filter_mode include proto 250
+ dev br0 port dummy10 grp 239.1.1.2 permanent filter_mode include source_list 198.51.100.2/0.00,198.51.100.1/0.00 proto 250
+ dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.1 permanent filter_mode include proto zebra
+ dev br0 port dummy10 grp 239.1.1.1 permanent filter_mode exclude proto static
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
@@ -83,227 +65,97 @@ Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
 Notes:
     v1:
-    * Use an array instead of list to store source entries.
-    * Drop br_mdb_config_attrs_fini().
+    * Reject protocol for host entries.
 
- include/uapi/linux/if_bridge.h |  20 +++++
- net/bridge/br_mdb.c            | 130 +++++++++++++++++++++++++++++++++
- 2 files changed, 150 insertions(+)
+ include/uapi/linux/if_bridge.h |  1 +
+ net/bridge/br_mdb.c            | 15 +++++++++++++--
+ net/bridge/br_private.h        |  1 +
+ 3 files changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index a86a7e7b811f..0d9fe73fc48c 100644
+index 0d9fe73fc48c..d9de241d90f9 100644
 --- a/include/uapi/linux/if_bridge.h
 +++ b/include/uapi/linux/if_bridge.h
-@@ -723,10 +723,30 @@ enum {
- enum {
- 	MDBE_ATTR_UNSPEC,
+@@ -725,6 +725,7 @@ enum {
  	MDBE_ATTR_SOURCE,
-+	MDBE_ATTR_SRC_LIST,
-+	MDBE_ATTR_GROUP_MODE,
+ 	MDBE_ATTR_SRC_LIST,
+ 	MDBE_ATTR_GROUP_MODE,
++	MDBE_ATTR_RTPROT,
  	__MDBE_ATTR_MAX,
  };
  #define MDBE_ATTR_MAX (__MDBE_ATTR_MAX - 1)
- 
-+/* per mdb entry source */
-+enum {
-+	MDBE_SRC_LIST_UNSPEC,
-+	MDBE_SRC_LIST_ENTRY,
-+	__MDBE_SRC_LIST_MAX,
-+};
-+#define MDBE_SRC_LIST_MAX (__MDBE_SRC_LIST_MAX - 1)
-+
-+/* per mdb entry per source attributes
-+ * these are embedded in MDBE_SRC_LIST_ENTRY
-+ */
-+enum {
-+	MDBE_SRCATTR_UNSPEC,
-+	MDBE_SRCATTR_ADDRESS,
-+	__MDBE_SRCATTR_MAX,
-+};
-+#define MDBE_SRCATTR_MAX (__MDBE_SRCATTR_MAX - 1)
-+
- /* Embedded inside LINK_XSTATS_TYPE_BRIDGE */
- enum {
- 	BRIDGE_XSTATS_UNSPEC,
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index e9a4b7e247e7..61d46b0a31b6 100644
+index 61d46b0a31b6..72d4e53193e5 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -663,10 +663,25 @@ void br_rtr_notify(struct net_device *dev, struct net_bridge_mcast_port *pmctx,
- 	rtnl_set_sk_err(net, RTNLGRP_MDB, err);
- }
- 
-+static const struct nla_policy
-+br_mdbe_src_list_entry_pol[MDBE_SRCATTR_MAX + 1] = {
-+	[MDBE_SRCATTR_ADDRESS] = NLA_POLICY_RANGE(NLA_BINARY,
-+						  sizeof(struct in_addr),
-+						  sizeof(struct in6_addr)),
-+};
-+
-+static const struct nla_policy
-+br_mdbe_src_list_pol[MDBE_SRC_LIST_MAX + 1] = {
-+	[MDBE_SRC_LIST_ENTRY] = NLA_POLICY_NESTED(br_mdbe_src_list_entry_pol),
-+};
-+
- static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
- 	[MDBE_ATTR_SOURCE] = NLA_POLICY_RANGE(NLA_BINARY,
- 					      sizeof(struct in_addr),
- 					      sizeof(struct in6_addr)),
-+	[MDBE_ATTR_GROUP_MODE] = NLA_POLICY_RANGE(NLA_U8, MCAST_EXCLUDE,
-+						  MCAST_INCLUDE),
-+	[MDBE_ATTR_SRC_LIST] = NLA_POLICY_NESTED(br_mdbe_src_list_pol),
+@@ -682,6 +682,7 @@ static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+ 	[MDBE_ATTR_GROUP_MODE] = NLA_POLICY_RANGE(NLA_U8, MCAST_EXCLUDE,
+ 						  MCAST_INCLUDE),
+ 	[MDBE_ATTR_SRC_LIST] = NLA_POLICY_NESTED(br_mdbe_src_list_pol),
++	[MDBE_ATTR_RTPROT] = NLA_POLICY_MIN(NLA_U8, RTPROT_STATIC),
  };
  
  static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
-@@ -1051,6 +1066,76 @@ static int __br_mdb_add(const struct br_mdb_config *cfg,
- 	return ret;
+@@ -823,7 +824,7 @@ static int br_mdb_add_group_sg(const struct br_mdb_config *cfg,
+ 	}
+ 
+ 	p = br_multicast_new_port_group(cfg->p, &cfg->group, *pp, flags, NULL,
+-					MCAST_INCLUDE, RTPROT_STATIC);
++					MCAST_INCLUDE, cfg->rt_protocol);
+ 	if (unlikely(!p)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new (S, G) port group");
+ 		return -ENOMEM;
+@@ -881,6 +882,7 @@ static int br_mdb_add_group_src_fwd(const struct br_mdb_config *cfg,
+ 	sg_cfg.group = sg_ip;
+ 	sg_cfg.src_entry = true;
+ 	sg_cfg.filter_mode = MCAST_INCLUDE;
++	sg_cfg.rt_protocol = cfg->rt_protocol;
+ 	return br_mdb_add_group_sg(&sg_cfg, sgmp, brmctx, flags, extack);
  }
  
-+static int br_mdb_config_src_entry_init(struct nlattr *src_entry,
-+					struct br_mdb_src_entry *src,
-+					__be16 proto,
-+					struct netlink_ext_ack *extack)
-+{
-+	struct nlattr *tb[MDBE_SRCATTR_MAX + 1];
-+	int err;
-+
-+	err = nla_parse_nested(tb, MDBE_SRCATTR_MAX, src_entry,
-+			       br_mdbe_src_list_entry_pol, extack);
-+	if (err)
-+		return err;
-+
-+	if (NL_REQ_ATTR_CHECK(extack, src_entry, tb, MDBE_SRCATTR_ADDRESS))
-+		return -EINVAL;
-+
-+	if (!is_valid_mdb_source(tb[MDBE_SRCATTR_ADDRESS], proto, extack))
-+		return -EINVAL;
-+
-+	src->addr.proto = proto;
-+	nla_memcpy(&src->addr.src, tb[MDBE_SRCATTR_ADDRESS],
-+		   nla_len(tb[MDBE_SRCATTR_ADDRESS]));
-+
-+	return 0;
-+}
-+
-+static int br_mdb_config_src_list_init(struct nlattr *src_list,
-+				       struct br_mdb_config *cfg,
-+				       struct netlink_ext_ack *extack)
-+{
-+	struct nlattr *src_entry;
-+	int rem, err;
-+	int i = 0;
-+
-+	nla_for_each_nested(src_entry, src_list, rem)
-+		cfg->num_src_entries++;
-+
-+	if (cfg->num_src_entries >= PG_SRC_ENT_LIMIT) {
-+		NL_SET_ERR_MSG_FMT_MOD(extack, "Exceeded maximum number of source entries (%u)",
-+				       PG_SRC_ENT_LIMIT - 1);
-+		return -EINVAL;
-+	}
-+
-+	cfg->src_entries = kcalloc(cfg->num_src_entries,
-+				   sizeof(struct br_mdb_src_entry), GFP_KERNEL);
-+	if (!cfg->src_entries)
-+		return -ENOMEM;
-+
-+	nla_for_each_nested(src_entry, src_list, rem) {
-+		err = br_mdb_config_src_entry_init(src_entry,
-+						   &cfg->src_entries[i],
-+						   cfg->entry->addr.proto,
-+						   extack);
-+		if (err)
-+			goto err_src_entry_init;
-+		i++;
-+	}
-+
-+	return 0;
-+
-+err_src_entry_init:
-+	kfree(cfg->src_entries);
-+	return err;
-+}
-+
-+static void br_mdb_config_src_list_fini(struct br_mdb_config *cfg)
-+{
-+	kfree(cfg->src_entries);
-+}
-+
- static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
- 				    struct br_mdb_config *cfg,
- 				    struct netlink_ext_ack *extack)
-@@ -1070,6 +1155,44 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
+@@ -982,7 +984,7 @@ static int br_mdb_add_group_star_g(const struct br_mdb_config *cfg,
+ 	}
  
- 	__mdb_entry_to_br_ip(cfg->entry, &cfg->group, mdb_attrs);
+ 	p = br_multicast_new_port_group(cfg->p, &cfg->group, *pp, flags, NULL,
+-					cfg->filter_mode, RTPROT_STATIC);
++					cfg->filter_mode, cfg->rt_protocol);
+ 	if (unlikely(!p)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new (*, G) port group");
+ 		return -ENOMEM;
+@@ -1193,6 +1195,14 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
+ 		return -EINVAL;
+ 	}
  
-+	if (mdb_attrs[MDBE_ATTR_GROUP_MODE]) {
++	if (mdb_attrs[MDBE_ATTR_RTPROT]) {
 +		if (!cfg->p) {
-+			NL_SET_ERR_MSG_MOD(extack, "Filter mode cannot be set for host groups");
++			NL_SET_ERR_MSG_MOD(extack, "Protocol cannot be set for host groups");
 +			return -EINVAL;
 +		}
-+		if (!br_multicast_is_star_g(&cfg->group)) {
-+			NL_SET_ERR_MSG_MOD(extack, "Filter mode can only be set for (*, G) entries");
-+			return -EINVAL;
-+		}
-+		cfg->filter_mode = nla_get_u8(mdb_attrs[MDBE_ATTR_GROUP_MODE]);
-+	} else {
-+		cfg->filter_mode = MCAST_EXCLUDE;
-+	}
-+
-+	if (mdb_attrs[MDBE_ATTR_SRC_LIST]) {
-+		if (!cfg->p) {
-+			NL_SET_ERR_MSG_MOD(extack, "Source list cannot be set for host groups");
-+			return -EINVAL;
-+		}
-+		if (!br_multicast_is_star_g(&cfg->group)) {
-+			NL_SET_ERR_MSG_MOD(extack, "Source list can only be set for (*, G) entries");
-+			return -EINVAL;
-+		}
-+		if (!mdb_attrs[MDBE_ATTR_GROUP_MODE]) {
-+			NL_SET_ERR_MSG_MOD(extack, "Source list cannot be set without filter mode");
-+			return -EINVAL;
-+		}
-+		err = br_mdb_config_src_list_init(mdb_attrs[MDBE_ATTR_SRC_LIST],
-+						  cfg, extack);
-+		if (err)
-+			return err;
-+	}
-+
-+	if (!cfg->num_src_entries && cfg->filter_mode == MCAST_INCLUDE) {
-+		NL_SET_ERR_MSG_MOD(extack, "Cannot add (*, G) INCLUDE with an empty source list");
-+		return -EINVAL;
++		cfg->rt_protocol = nla_get_u8(mdb_attrs[MDBE_ATTR_RTPROT]);
 +	}
 +
  	return 0;
  }
  
-@@ -1162,6 +1285,11 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
- 	return 0;
- }
+@@ -1212,6 +1222,7 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
  
-+static void br_mdb_config_fini(struct br_mdb_config *cfg)
-+{
-+	br_mdb_config_src_list_fini(cfg);
-+}
-+
- static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		      struct netlink_ext_ack *extack)
- {
-@@ -1220,6 +1348,7 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	}
+ 	memset(cfg, 0, sizeof(*cfg));
+ 	cfg->filter_mode = MCAST_EXCLUDE;
++	cfg->rt_protocol = RTPROT_STATIC;
  
- out:
-+	br_mdb_config_fini(&cfg);
- 	return err;
- }
- 
-@@ -1295,6 +1424,7 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		err = __br_mdb_del(&cfg);
- 	}
- 
-+	br_mdb_config_fini(&cfg);
- 	return err;
- }
+ 	bpm = nlmsg_data(nlh);
+ 	if (!bpm->ifindex) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 368f5f6fa42b..cdc9e040f1f6 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -106,6 +106,7 @@ struct br_mdb_config {
+ 	u8				filter_mode;
+ 	struct br_mdb_src_entry		*src_entries;
+ 	int				num_src_entries;
++	u8				rt_protocol;
+ };
+ #endif
  
 -- 
 2.37.3
