@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0AF2F41579
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DE44841571
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B769781BB0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DAEF2819C8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xY24savDE2tVnazL+AV43iwdxH6QPiA3//wQh4CZfWQ=;
- b=mAmG0zlj0y06MbOwfs5sOWAi071Rk6pBLnQnGXVtVx+oRrxS3qmyTQ7H/i8BxZ0bbe+azlS6cUB90z6an+UfjCDSZuWlCZD4MRPudMdHGwzebZsv78E6tCJNvHwgO0vcZAjmrxZgmntlcX8li58EeEnr/r6QIfjGDwXPuchdaXTU8dBONvgRpwXe79lThJIhGHIYyorHeGocAqbhBQ7hcGTEASVSEsJetjVC0opF3OntcI9UQQraBPCh1r0kBwLcryLKOVlgkwTlwMrwnTOkaOqBjtca7JIxrjKQ8KF7D0Mjoqq30MXcId5aaXcG1ivKB302lhl24sdP7c3LckgPkA==
+ bh=vhjkLzUUqq7AZtBVlw352mbVcqWLv7WZ5npg347BeyU=;
+ b=tjUfxB200Ontcj3QDY0DCZCigN8up8n1DkmnO5BC3ij6Sv4rYIhYtNq5fg1XCluVMhdc9OLn1C1o1cqnHifWmxTOndwsjn7ROGSuKk6us1TQNOQkqgSR5muBMfsqpoGH/uQkGJzyABoD7lLSuXkVVcn7eOd2zeXPXPgtU932ivaL0lEzHLqaouhaqIsC2I3RLx1eUpD+wpGeBR0+y/LQVZLe3GcgkcdA0hsgUmaXdtwyXgy6IgfrduL1HrMc4CJDA4deC+ohY2IwOqECWwzPbBhWXm11FAWigqCvN1VB0gZgoXN3widJjglF6zx+nQd3K959IAlkFWIm6uP0k3gHgw==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Sat, 10 Dec 2022 16:56:23 +0200
-Message-Id: <20221210145633.1328511-5-idosch@nvidia.com>
+Date: Sat, 10 Dec 2022 16:56:24 +0200
+Message-Id: <20221210145633.1328511-6-idosch@nvidia.com>
 In-Reply-To: <20221210145633.1328511-1-idosch@nvidia.com>
 References: <20221210145633.1328511-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 04/14] bridge: mcast: Add a centralized
-	error path
+Subject: [Bridge] [PATCH net-next v2 05/14] bridge: mcast: Expose
+	br_multicast_new_group_src()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,69 +27,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Subsequent patches will add memory allocations in br_mdb_config_init()
-as the MDB configuration structure will include a linked list of source
-entries. This memory will need to be freed regardless if br_mdb_add()
-succeeded or failed.
+Currently, new group source entries are only created in response to
+received Membership Reports. Subsequent patches are going to allow user
+space to install (*, G) entries with a source list.
 
-As a preparation for this change, add a centralized error path where the
-memory will be freed.
-
-Note that br_mdb_del() already has one error path and therefore does not
-require any changes.
+As a preparatory step, expose br_multicast_new_group_src() so that it
+could later be invoked from the MDB code (i.e., br_mdb.c) that handles
+RTM_NEWMDB messages.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_mdb.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/bridge/br_multicast.c | 2 +-
+ net/bridge/br_private.h   | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index fcdd464cf997..95780652cdbf 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -1053,28 +1053,29 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	if (err)
- 		return err;
- 
-+	err = -EINVAL;
- 	/* host join errors which can happen before creating the group */
- 	if (!cfg.p && !br_group_is_l2(&cfg.group)) {
- 		/* don't allow any flags for host-joined IP groups */
- 		if (cfg.entry->state) {
- 			NL_SET_ERR_MSG_MOD(extack, "Flags are not allowed for host groups");
--			return -EINVAL;
-+			goto out;
- 		}
- 		if (!br_multicast_is_star_g(&cfg.group)) {
- 			NL_SET_ERR_MSG_MOD(extack, "Groups with sources cannot be manually host joined");
--			return -EINVAL;
-+			goto out;
- 		}
- 	}
- 
- 	if (br_group_is_l2(&cfg.group) && cfg.entry->state != MDB_PERMANENT) {
- 		NL_SET_ERR_MSG_MOD(extack, "Only permanent L2 entries allowed");
--		return -EINVAL;
-+		goto out;
- 	}
- 
- 	if (cfg.p) {
- 		if (cfg.p->state == BR_STATE_DISABLED && cfg.entry->state != MDB_PERMANENT) {
- 			NL_SET_ERR_MSG_MOD(extack, "Port is in disabled state and entry is not permanent");
--			return -EINVAL;
-+			goto out;
- 		}
- 		vg = nbp_vlan_group(cfg.p);
- 	} else {
-@@ -1096,6 +1097,7 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		err = __br_mdb_add(&cfg, extack);
- 	}
- 
-+out:
- 	return err;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index db4c3900ae95..b2bc23fdcee5 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1232,7 +1232,7 @@ br_multicast_find_group_src(struct net_bridge_port_group *pg, struct br_ip *ip)
+ 	return NULL;
  }
  
+-static struct net_bridge_group_src *
++struct net_bridge_group_src *
+ br_multicast_new_group_src(struct net_bridge_port_group *pg, struct br_ip *src_ip)
+ {
+ 	struct net_bridge_group_src *grp_src;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 3997e16c15fc..183de6c57d72 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -974,6 +974,9 @@ void br_multicast_sg_add_exclude_ports(struct net_bridge_mdb_entry *star_mp,
+ 				       struct net_bridge_port_group *sg);
+ struct net_bridge_group_src *
+ br_multicast_find_group_src(struct net_bridge_port_group *pg, struct br_ip *ip);
++struct net_bridge_group_src *
++br_multicast_new_group_src(struct net_bridge_port_group *pg,
++			   struct br_ip *src_ip);
+ void br_multicast_del_group_src(struct net_bridge_group_src *src,
+ 				bool fastleave);
+ void br_multicast_ctx_init(struct net_bridge *br,
 -- 
 2.37.3
 
