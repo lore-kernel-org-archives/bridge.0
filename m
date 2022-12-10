@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4FC90415AB
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADD8D4159F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6313660B3C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 07191605A0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CmPkmYqU6S/w4DNuMfccOzmIVcRK9UkjmIMlqvpPd4g=;
- b=tr2/k4gFpqqkLH70il1XYLhBqYENgQzbH9RAPgfdehgXCVq3sORC4lp7lJzKHUQJWyADyqaSoe9BHWTWTsSDOMKh9BqbyvLpK9byA4AydO85pwyj46QEhJNLs5MXg0Tz/cWQE7VvA+SwsHBSg8snBvhI8mLm6M3AjK0heossSGIOL+2u8KzAcHCjB+s+Xio95fN1zcDOcbxYmV3UOSsaPs4v9W8IP+QQeHCQ6hEvk3bNrCSAiTLEgOXXj9QsU3iB6xZ6p7ZQk+gbBLPq6IVwIezzXzKD8OzAwCPXb5uTnP0bReNwougSr3rvtEew0hfnJlsZhzJGxa24nlsO8UEenQ==
+ bh=9MKmMm0AJpZBp3RQtjob1AbqKhdrwCzF1aqPGmhskSc=;
+ b=T8g0Kc5UIKfBVFo6WL6lcRqJUKPPXjGG3IMUskXMBGdLW5LzixSVqZ37JTTZJaK1sTU9pQMIkpbTxsb8olPqM4c4V9USWvX4dYy8ombRdk7v4oDm9EilGAynUwJova78arMM8yAFYhVxZt02GJcPFhiUYyP1xM9dinC+6omTeiofDWdqdGL0Q5wRUbO/IMMKcBTSeG6rt/mdUEl03gOEWE9g+bixFo4H3o3oi9S+0GxHwaGpYOXF0paEc53ToOjNfuKTLs+2jDP+FbySOf2DNO0bffBpQexaEo2Uap/aFuqvfquLhvYayHmnXWrlm7DsMrwvdWaw7bjGsxzOxe7Sog==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Sat, 10 Dec 2022 16:56:30 +0200
-Message-Id: <20221210145633.1328511-12-idosch@nvidia.com>
+Date: Sat, 10 Dec 2022 16:56:31 +0200
+Message-Id: <20221210145633.1328511-13-idosch@nvidia.com>
 In-Reply-To: <20221210145633.1328511-1-idosch@nvidia.com>
 References: <20221210145633.1328511-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 11/14] bridge: mcast: Allow user space
-	to specify MDB entry routing protocol
+Subject: [Bridge] [PATCH net-next v2 12/14] bridge: mcast: Support
+	replacement of MDB port group entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,136 +27,220 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Add the 'MDBE_ATTR_RTPORT' attribute to allow user space to specify the
-routing protocol of the MDB port group entry. Enforce a minimum value of
-'RTPROT_STATIC' to prevent user space from using protocol values that
-should only be set by the kernel (e.g., 'RTPROT_KERNEL'). Maintain
-backward compatibility by defaulting to 'RTPROT_STATIC'.
+Now that user space can specify additional attributes of port group
+entries such as filter mode and source list, it makes sense to allow
+user space to atomically modify these attributes by replacing entries
+instead of forcing user space to delete the entries and add them back.
 
-The protocol is already visible to user space in RTM_NEWMDB responses
-and notifications via the 'MDBA_MDB_EATTR_RTPROT' attribute.
+Replace MDB port group entries when the 'NLM_F_REPLACE' flag is
+specified in the netlink message header.
 
-The routing protocol allows a routing daemon to distinguish between
-entries configured by it and those configured by the administrator. Once
-MDB flush is supported, the protocol can be used as a criterion
-according to which the flush is performed.
+When a (*, G) entry is replaced, update the following attributes: Source
+list, state, filter mode, protocol and flags. If the entry is temporary
+and in EXCLUDE mode, reset the group timer to the group membership
+interval. If the entry is temporary and in INCLUDE mode, reset the
+source timers of associated sources to the group membership interval.
 
 Examples:
 
- # bridge mdb add dev br0 port dummy10 grp 239.1.1.1 permanent proto kernel
- Error: integer out of range.
+ # bridge mdb replace dev br0 port dummy10 grp 239.1.1.1 permanent source_list 192.0.2.1,192.0.2.2 filter_mode include
+ # bridge -d -s mdb show
+ dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.2 permanent filter_mode include proto static     0.00
+ dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.1 permanent filter_mode include proto static     0.00
+ dev br0 port dummy10 grp 239.1.1.1 permanent filter_mode include source_list 192.0.2.2/0.00,192.0.2.1/0.00 proto static     0.00
 
- # bridge mdb add dev br0 port dummy10 grp 239.1.1.1 permanent proto static
+ # bridge mdb replace dev br0 port dummy10 grp 239.1.1.1 permanent source_list 192.0.2.1,192.0.2.3 filter_mode exclude proto zebra
+ # bridge -d -s mdb show
+ dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.3 permanent filter_mode include proto zebra  blocked    0.00
+ dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.1 permanent filter_mode include proto zebra  blocked    0.00
+ dev br0 port dummy10 grp 239.1.1.1 permanent filter_mode exclude source_list 192.0.2.3/0.00,192.0.2.1/0.00 proto zebra     0.00
 
- # bridge mdb add dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.1 permanent proto zebra
-
- # bridge mdb add dev br0 port dummy10 grp 239.1.1.2 permanent source_list 198.51.100.1,198.51.100.2 filter_mode include proto 250
-
- # bridge -d mdb show
- dev br0 port dummy10 grp 239.1.1.2 src 198.51.100.2 permanent filter_mode include proto 250
- dev br0 port dummy10 grp 239.1.1.2 src 198.51.100.1 permanent filter_mode include proto 250
- dev br0 port dummy10 grp 239.1.1.2 permanent filter_mode include source_list 198.51.100.2/0.00,198.51.100.1/0.00 proto 250
- dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.1 permanent filter_mode include proto zebra
- dev br0 port dummy10 grp 239.1.1.1 permanent filter_mode exclude proto static
+ # bridge mdb replace dev br0 port dummy10 grp 239.1.1.1 temp source_list 192.0.2.4,192.0.2.3 filter_mode include proto bgp
+ # bridge -d -s mdb show
+ dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.4 temp filter_mode include proto bgp     0.00
+ dev br0 port dummy10 grp 239.1.1.1 src 192.0.2.3 temp filter_mode include proto bgp     0.00
+ dev br0 port dummy10 grp 239.1.1.1 temp filter_mode include source_list 192.0.2.4/259.44,192.0.2.3/259.44 proto bgp     0.00
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
 
 Notes:
-    v1:
-    * Reject protocol for host entries.
+    v2:
+    * Remove extack from br_mdb_replace_group_sg().
+    * Change 'nlflags' to u16 and move it after 'filter_mode' to pack the
+      structure.
 
- include/uapi/linux/if_bridge.h |  1 +
- net/bridge/br_mdb.c            | 15 +++++++++++++--
- net/bridge/br_private.h        |  1 +
- 3 files changed, 15 insertions(+), 2 deletions(-)
+ net/bridge/br_mdb.c     | 102 ++++++++++++++++++++++++++++++++++++++--
+ net/bridge/br_private.h |   1 +
+ 2 files changed, 98 insertions(+), 5 deletions(-)
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 0d9fe73fc48c..d9de241d90f9 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -725,6 +725,7 @@ enum {
- 	MDBE_ATTR_SOURCE,
- 	MDBE_ATTR_SRC_LIST,
- 	MDBE_ATTR_GROUP_MODE,
-+	MDBE_ATTR_RTPROT,
- 	__MDBE_ATTR_MAX,
- };
- #define MDBE_ATTR_MAX (__MDBE_ATTR_MAX - 1)
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 61d46b0a31b6..72d4e53193e5 100644
+index 72d4e53193e5..00e5743647b0 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -682,6 +682,7 @@ static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
- 	[MDBE_ATTR_GROUP_MODE] = NLA_POLICY_RANGE(NLA_U8, MCAST_EXCLUDE,
- 						  MCAST_INCLUDE),
- 	[MDBE_ATTR_SRC_LIST] = NLA_POLICY_NESTED(br_mdbe_src_list_pol),
-+	[MDBE_ATTR_RTPROT] = NLA_POLICY_MIN(NLA_U8, RTPROT_STATIC),
- };
+@@ -802,6 +802,27 @@ __br_mdb_choose_context(struct net_bridge *br,
+ 	return brmctx;
+ }
  
- static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
-@@ -823,7 +824,7 @@ static int br_mdb_add_group_sg(const struct br_mdb_config *cfg,
- 	}
- 
- 	p = br_multicast_new_port_group(cfg->p, &cfg->group, *pp, flags, NULL,
--					MCAST_INCLUDE, RTPROT_STATIC);
-+					MCAST_INCLUDE, cfg->rt_protocol);
- 	if (unlikely(!p)) {
- 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new (S, G) port group");
- 		return -ENOMEM;
-@@ -881,6 +882,7 @@ static int br_mdb_add_group_src_fwd(const struct br_mdb_config *cfg,
- 	sg_cfg.group = sg_ip;
++static int br_mdb_replace_group_sg(const struct br_mdb_config *cfg,
++				   struct net_bridge_mdb_entry *mp,
++				   struct net_bridge_port_group *pg,
++				   struct net_bridge_mcast *brmctx,
++				   unsigned char flags)
++{
++	unsigned long now = jiffies;
++
++	pg->flags = flags;
++	pg->rt_protocol = cfg->rt_protocol;
++	if (!(flags & MDB_PG_FLAGS_PERMANENT) && !cfg->src_entry)
++		mod_timer(&pg->timer,
++			  now + brmctx->multicast_membership_interval);
++	else
++		del_timer(&pg->timer);
++
++	br_mdb_notify(cfg->br->dev, mp, pg, RTM_NEWMDB);
++
++	return 0;
++}
++
+ static int br_mdb_add_group_sg(const struct br_mdb_config *cfg,
+ 			       struct net_bridge_mdb_entry *mp,
+ 			       struct net_bridge_mcast *brmctx,
+@@ -816,8 +837,12 @@ static int br_mdb_add_group_sg(const struct br_mdb_config *cfg,
+ 	     (p = mlock_dereference(*pp, cfg->br)) != NULL;
+ 	     pp = &p->next) {
+ 		if (p->key.port == cfg->p) {
+-			NL_SET_ERR_MSG_MOD(extack, "(S, G) group is already joined by port");
+-			return -EEXIST;
++			if (!(cfg->nlflags & NLM_F_REPLACE)) {
++				NL_SET_ERR_MSG_MOD(extack, "(S, G) group is already joined by port");
++				return -EEXIST;
++			}
++			return br_mdb_replace_group_sg(cfg, mp, p, brmctx,
++						       flags);
+ 		}
+ 		if ((unsigned long)p->key.port < (unsigned long)cfg->p)
+ 			break;
+@@ -883,6 +908,7 @@ static int br_mdb_add_group_src_fwd(const struct br_mdb_config *cfg,
  	sg_cfg.src_entry = true;
  	sg_cfg.filter_mode = MCAST_INCLUDE;
-+	sg_cfg.rt_protocol = cfg->rt_protocol;
+ 	sg_cfg.rt_protocol = cfg->rt_protocol;
++	sg_cfg.nlflags = cfg->nlflags;
  	return br_mdb_add_group_sg(&sg_cfg, sgmp, brmctx, flags, extack);
  }
  
-@@ -982,7 +984,7 @@ static int br_mdb_add_group_star_g(const struct br_mdb_config *cfg,
+@@ -903,7 +929,7 @@ static int br_mdb_add_group_src(const struct br_mdb_config *cfg,
+ 			NL_SET_ERR_MSG_MOD(extack, "Failed to add new source entry");
+ 			return -ENOSPC;
+ 		}
+-	} else {
++	} else if (!(cfg->nlflags & NLM_F_REPLACE)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "Source entry already exists");
+ 		return -EEXIST;
  	}
- 
- 	p = br_multicast_new_port_group(cfg->p, &cfg->group, *pp, flags, NULL,
--					cfg->filter_mode, RTPROT_STATIC);
-+					cfg->filter_mode, cfg->rt_protocol);
- 	if (unlikely(!p)) {
- 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new (*, G) port group");
- 		return -ENOMEM;
-@@ -1193,6 +1195,14 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
- 		return -EINVAL;
- 	}
- 
-+	if (mdb_attrs[MDBE_ATTR_RTPROT]) {
-+		if (!cfg->p) {
-+			NL_SET_ERR_MSG_MOD(extack, "Protocol cannot be set for host groups");
-+			return -EINVAL;
-+		}
-+		cfg->rt_protocol = nla_get_u8(mdb_attrs[MDBE_ATTR_RTPROT]);
-+	}
-+
- 	return 0;
+@@ -961,6 +987,67 @@ static int br_mdb_add_group_srcs(const struct br_mdb_config *cfg,
+ 	return err;
  }
  
-@@ -1212,6 +1222,7 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
- 
++static int br_mdb_replace_group_srcs(const struct br_mdb_config *cfg,
++				     struct net_bridge_port_group *pg,
++				     struct net_bridge_mcast *brmctx,
++				     struct netlink_ext_ack *extack)
++{
++	struct net_bridge_group_src *ent;
++	struct hlist_node *tmp;
++	int err;
++
++	hlist_for_each_entry(ent, &pg->src_list, node)
++		ent->flags |= BR_SGRP_F_DELETE;
++
++	err = br_mdb_add_group_srcs(cfg, pg, brmctx, extack);
++	if (err)
++		goto err_clear_delete;
++
++	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node) {
++		if (ent->flags & BR_SGRP_F_DELETE)
++			br_multicast_del_group_src(ent, false);
++	}
++
++	return 0;
++
++err_clear_delete:
++	hlist_for_each_entry(ent, &pg->src_list, node)
++		ent->flags &= ~BR_SGRP_F_DELETE;
++	return err;
++}
++
++static int br_mdb_replace_group_star_g(const struct br_mdb_config *cfg,
++				       struct net_bridge_mdb_entry *mp,
++				       struct net_bridge_port_group *pg,
++				       struct net_bridge_mcast *brmctx,
++				       unsigned char flags,
++				       struct netlink_ext_ack *extack)
++{
++	unsigned long now = jiffies;
++	int err;
++
++	err = br_mdb_replace_group_srcs(cfg, pg, brmctx, extack);
++	if (err)
++		return err;
++
++	pg->flags = flags;
++	pg->filter_mode = cfg->filter_mode;
++	pg->rt_protocol = cfg->rt_protocol;
++	if (!(flags & MDB_PG_FLAGS_PERMANENT) &&
++	    cfg->filter_mode == MCAST_EXCLUDE)
++		mod_timer(&pg->timer,
++			  now + brmctx->multicast_membership_interval);
++	else
++		del_timer(&pg->timer);
++
++	br_mdb_notify(cfg->br->dev, mp, pg, RTM_NEWMDB);
++
++	if (br_multicast_should_handle_mode(brmctx, cfg->group.proto))
++		br_multicast_star_g_handle_mode(pg, cfg->filter_mode);
++
++	return 0;
++}
++
+ static int br_mdb_add_group_star_g(const struct br_mdb_config *cfg,
+ 				   struct net_bridge_mdb_entry *mp,
+ 				   struct net_bridge_mcast *brmctx,
+@@ -976,8 +1063,12 @@ static int br_mdb_add_group_star_g(const struct br_mdb_config *cfg,
+ 	     (p = mlock_dereference(*pp, cfg->br)) != NULL;
+ 	     pp = &p->next) {
+ 		if (p->key.port == cfg->p) {
+-			NL_SET_ERR_MSG_MOD(extack, "(*, G) group is already joined by port");
+-			return -EEXIST;
++			if (!(cfg->nlflags & NLM_F_REPLACE)) {
++				NL_SET_ERR_MSG_MOD(extack, "(*, G) group is already joined by port");
++				return -EEXIST;
++			}
++			return br_mdb_replace_group_star_g(cfg, mp, p, brmctx,
++							   flags, extack);
+ 		}
+ 		if ((unsigned long)p->key.port < (unsigned long)cfg->p)
+ 			break;
+@@ -1223,6 +1314,7 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
  	memset(cfg, 0, sizeof(*cfg));
  	cfg->filter_mode = MCAST_EXCLUDE;
-+	cfg->rt_protocol = RTPROT_STATIC;
+ 	cfg->rt_protocol = RTPROT_STATIC;
++	cfg->nlflags = nlh->nlmsg_flags;
  
  	bpm = nlmsg_data(nlh);
  	if (!bpm->ifindex) {
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 368f5f6fa42b..cdc9e040f1f6 100644
+index cdc9e040f1f6..15ef7fd508ee 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -106,6 +106,7 @@ struct br_mdb_config {
+@@ -104,6 +104,7 @@ struct br_mdb_config {
+ 	struct br_ip			group;
+ 	bool				src_entry;
  	u8				filter_mode;
++	u16				nlflags;
  	struct br_mdb_src_entry		*src_entries;
  	int				num_src_entries;
-+	u8				rt_protocol;
- };
- #endif
- 
+ 	u8				rt_protocol;
 -- 
 2.37.3
 
