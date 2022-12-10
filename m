@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B769781BB0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DAEF2819C8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2D39881B9D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6163481BB0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vhjkLzUUqq7AZtBVlw352mbVcqWLv7WZ5npg347BeyU=;
- b=tjUfxB200Ontcj3QDY0DCZCigN8up8n1DkmnO5BC3ij6Sv4rYIhYtNq5fg1XCluVMhdc9OLn1C1o1cqnHifWmxTOndwsjn7ROGSuKk6us1TQNOQkqgSR5muBMfsqpoGH/uQkGJzyABoD7lLSuXkVVcn7eOd2zeXPXPgtU932ivaL0lEzHLqaouhaqIsC2I3RLx1eUpD+wpGeBR0+y/LQVZLe3GcgkcdA0hsgUmaXdtwyXgy6IgfrduL1HrMc4CJDA4deC+ohY2IwOqECWwzPbBhWXm11FAWigqCvN1VB0gZgoXN3widJjglF6zx+nQd3K959IAlkFWIm6uP0k3gHgw==
+ bh=dvCiINSgInnpIymRGCEhRqVBUTuaGlTHULAaBfYIF2M=;
+ b=e5/1XUw27ciuZ4Ef3a2cZfUd9B2XtpgMdJSYDsxPteWQDn28AcSYZX6wlKCRbBEjl+WXVgjhgI0xoETOWOZZPBcyrjWf864VCojN00VUmshR/NUbJswfa6muhi8vpVFzHJTkwef0p4xDnf5uIy/P6FktCCy22pCtl1GyPBCsCH4sp51vnV9GpkEZk+tGgK0LSXI2VVrcx4mHI8bTZgu6epUYBaAU0ulYHdLI0CYX7fE7TAlQe6uiBkQj7caUUe2bVrgubI8qsnQYn52+rmqGa4RTsvGpKPO82o0Daj4CNsx9H57t4ktoEMuaQfoLciHjMrCd4xdQVj5/U5WyTkZIxg==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Sat, 10 Dec 2022 16:56:24 +0200
-Message-Id: <20221210145633.1328511-6-idosch@nvidia.com>
+Date: Sat, 10 Dec 2022 16:56:25 +0200
+Message-Id: <20221210145633.1328511-7-idosch@nvidia.com>
 In-Reply-To: <20221210145633.1328511-1-idosch@nvidia.com>
 References: <20221210145633.1328511-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 05/14] bridge: mcast: Expose
-	br_multicast_new_group_src()
+Subject: [Bridge] [PATCH net-next v2 06/14] bridge: mcast: Expose
+	__br_multicast_del_group_src()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,45 +27,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Currently, new group source entries are only created in response to
-received Membership Reports. Subsequent patches are going to allow user
-space to install (*, G) entries with a source list.
+Expose __br_multicast_del_group_src() which is symmetric to
+br_multicast_new_group_src() and does not remove the installed {S, G}
+forwarding entry, unlike br_multicast_del_group_src().
 
-As a preparatory step, expose br_multicast_new_group_src() so that it
-could later be invoked from the MDB code (i.e., br_mdb.c) that handles
-RTM_NEWMDB messages.
+The function will be used in the error path when user space was able to
+add a new source entry, but failed to install a corresponding forwarding
+entry.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_multicast.c | 2 +-
- net/bridge/br_private.h   | 3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+
+Notes:
+    v1:
+    * New patch.
+
+ net/bridge/br_multicast.c | 11 ++++++++---
+ net/bridge/br_private.h   |  1 +
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index db4c3900ae95..b2bc23fdcee5 100644
+index b2bc23fdcee5..8432b4ea7f28 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -1232,7 +1232,7 @@ br_multicast_find_group_src(struct net_bridge_port_group *pg, struct br_ip *ip)
- 	return NULL;
+@@ -650,18 +650,23 @@ static void br_multicast_destroy_group_src(struct net_bridge_mcast_gc *gc)
+ 	kfree_rcu(src, rcu);
  }
  
--static struct net_bridge_group_src *
-+struct net_bridge_group_src *
- br_multicast_new_group_src(struct net_bridge_port_group *pg, struct br_ip *src_ip)
+-void br_multicast_del_group_src(struct net_bridge_group_src *src,
+-				bool fastleave)
++void __br_multicast_del_group_src(struct net_bridge_group_src *src)
  {
- 	struct net_bridge_group_src *grp_src;
+ 	struct net_bridge *br = src->pg->key.port->br;
+ 
+-	br_multicast_fwd_src_remove(src, fastleave);
+ 	hlist_del_init_rcu(&src->node);
+ 	src->pg->src_ents--;
+ 	hlist_add_head(&src->mcast_gc.gc_node, &br->mcast_gc_list);
+ 	queue_work(system_long_wq, &br->mcast_gc_work);
+ }
+ 
++void br_multicast_del_group_src(struct net_bridge_group_src *src,
++				bool fastleave)
++{
++	br_multicast_fwd_src_remove(src, fastleave);
++	__br_multicast_del_group_src(src);
++}
++
+ static void br_multicast_destroy_port_group(struct net_bridge_mcast_gc *gc)
+ {
+ 	struct net_bridge_port_group *pg;
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 3997e16c15fc..183de6c57d72 100644
+index 183de6c57d72..a3db99d79a3d 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -974,6 +974,9 @@ void br_multicast_sg_add_exclude_ports(struct net_bridge_mdb_entry *star_mp,
- 				       struct net_bridge_port_group *sg);
+@@ -977,6 +977,7 @@ br_multicast_find_group_src(struct net_bridge_port_group *pg, struct br_ip *ip);
  struct net_bridge_group_src *
- br_multicast_find_group_src(struct net_bridge_port_group *pg, struct br_ip *ip);
-+struct net_bridge_group_src *
-+br_multicast_new_group_src(struct net_bridge_port_group *pg,
-+			   struct br_ip *src_ip);
+ br_multicast_new_group_src(struct net_bridge_port_group *pg,
+ 			   struct br_ip *src_ip);
++void __br_multicast_del_group_src(struct net_bridge_group_src *src);
  void br_multicast_del_group_src(struct net_bridge_group_src *src,
  				bool fastleave);
  void br_multicast_ctx_init(struct net_bridge *br,
