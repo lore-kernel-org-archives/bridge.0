@@ -1,26 +1,24 @@
-Return-Path: <pabeni@redhat.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DBF6060AD4
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A83C960AB9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1671703333;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=o6jO/LCV2IF2UxvEuH5GPFWr6SJ3JZsJjPnFQmLY128=;
- b=GttMmIVM5bszutsP7AJGxWp3/ihsZgu7NkRdTAZiuCOhuCp2+TPNhO9iDk9fae46ikQ8+c
- NIRyzfUKo0bAUZIWGfoZoHfWnoaQV/uvQ5fCbRSRa2tcuVOOKPBLjD2WF8xOLDNgn0Rl3z
- t8kWM28UYIDNOkiPyiNrM/5rHiz8WWA=
-Message-ID: <8d91ab13f56e88af0f6133130808f9623b3adb2e.camel@redhat.com>
-From: Paolo Abeni <pabeni@redhat.com>
-Date: Thu, 22 Dec 2022 11:02:01 +0100
-In-Reply-To: <20221220134519.3dd1318b@gandalf.local.home>
-References: <20221220134519.3dd1318b@gandalf.local.home>
+Return-Path: <jgu@purestorage.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D80314011C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 043ED400EF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=purestorage.com; s=google2022;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=frWLw2ZkVObcc07j9dtQMFLxjnvLrXU3PwzZGX4Mo7w=;
+ b=eduU04r8hf3vvnHc0OMdNDtR057TK+Snzk8vQVcuXrsnOT88upRHhU9h+0XUMlna8a
+ gUf4xd7jISw24azRqDOgbn3C38HFfLvqW/W+MqKYRsbWzlfhFY4LCwsuWU86Ek02VpmP
+ lQCTtUQ128C8+W5PdwtcECwTcDBM42bnqb0RiKyV1qCgx6e7AMbgFw1RfGTtyWU7sTmD
+ ZCmhq6FggXO8KcVAt4QeON0+KXKfFCn2lVsKbntLz3MyFlb7UI1zCEMvzEagSmAV2x3o
+ x6UpeRgDSrU+4hJDnqANPAkpLGMoPKl0tNYn/TKlaS7lOG+0gxMpXZDY8S+iY7ujStgZ
+ fU0Q==
+From: Joy Gu <jgu@purestorage.com>
+Date: Mon, 19 Dec 2022 18:48:07 -0800
+Message-Id: <20221220024807.36502-1-jgu@purestorage.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] treewide: Convert del_timer*() to
-	timer_shutdown*()
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] net: bridge: mcast: read ngrec once in igmp3/mld2
+	report
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,93 +27,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
-Cc: alsa-devel@alsa-project.org, linux-staging@lists.linux.dev, linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org, drbd-dev@lists.linbit.com, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, linux-atm-general@lists.sourceforge.net, lvs-devel@vger.kernel.org, linux-acpi@vger.kernel.org, SHA-cyfmac-dev-list@infineon.com, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, intel-gfx@lists.freedesktop.org, linux-nfs@vger.kernel.org, linux-block@vger.kernel.org, cgroups@vger.kernel.org, Anna-Maria Gleixner <anna-maria@linutronix.de>, brcm80211-dev-list.pdl@broadcom.com, Stephen Boyd <sboyd@kernel.org>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+To: bridge@lists.linux-foundation.org
+Cc: Joy Gu <jgu@purestorage.com>, netdev@vger.kernel.org, razor@blackwall.org, linux-kernel@vger.kernel.org, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net, joern@purestorage.com
 
-On Tue, 2022-12-20 at 13:45 -0500, Steven Rostedt wrote:
-> [
->   Linus,
-> 
->     I ran the script against your latest master branch:
->     commit b6bb9676f2165d518b35ba3bea5f1fcfc0d969bf
-> 
->     As the timer_shutdown*() code is now in your tree, I figured
->     we can start doing the conversions. At least add the trivial ones
->     now as Thomas suggested that this gets applied at the end of the
->     merge window, to avoid conflicts with linux-next during the
->     development cycle. I can wait to Friday to run it again, and
->     resubmit.
-> 
->     What is the best way to handle this?
-> ]
-> 
-> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-> 
-> Due to several bugs caused by timers being re-armed after they are
-> shutdown and just before they are freed, a new state of timers was added
-> called "shutdown". After a timer is set to this state, then it can no
-> longer be re-armed.
-> 
-> The following script was run to find all the trivial locations where
-> del_timer() or del_timer_sync() is called in the same function that the
-> object holding the timer is freed. It also ignores any locations where the
-> timer->function is modified between the del_timer*() and the free(), as
-> that is not considered a "trivial" case.
-> 
-> This was created by using a coccinelle script and the following commands:
-> 
->  $ cat timer.cocci
-> @@
-> expression ptr, slab;
-> identifier timer, rfield;
-> @@
-> (
-> -       del_timer(&ptr->timer);
-> +       timer_shutdown(&ptr->timer);
-> > 
-> -       del_timer_sync(&ptr->timer);
-> +       timer_shutdown_sync(&ptr->timer);
-> )
->   ... when strict
->       when != ptr->timer
-> (
->         kfree_rcu(ptr, rfield);
-> > 
->         kmem_cache_free(slab, ptr);
-> > 
->         kfree(ptr);
-> )
-> 
->  $ spatch timer.cocci . > /tmp/t.patch
->  $ patch -p1 < /tmp/t.patch
-> 
-> Link: https://lore.kernel.org/lkml/20221123201306.823305113@linutronix.de/
-> 
-> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+In br_ip4_multicast_igmp3_report() and br_ip6_multicast_mld2_report(),
+"ih" or "mld2r" is a pointer into the skb header. It's dereferenced to
+get "num", which is used in the for-loop condition that follows.
 
-For the networking bits:
+Compilers are free to not spend a register on "num" and dereference that
+pointer every time "num" would be used, i.e. every loop iteration. Which
+would be a bug if pskb_may_pull() (called by ip_mc_may_pull() or
+ipv6_mc_may_pull() in the loop body) were to change pointers pointing
+into the skb header, e.g. by freeing "skb->head".
 
->  drivers/net/ethernet/intel/i40e/i40e_main.c      |  6 +++---
->  drivers/net/ethernet/marvell/sky2.c              |  2 +-
->  drivers/net/ethernet/sun/sunvnet.c               |  2 +-
->  drivers/net/usb/sierra_net.c                     |  2 +-
->  net/802/garp.c                                   |  2 +-
->  net/802/mrp.c                                    |  4 ++--
->  net/bridge/br_multicast.c                        |  8 ++++----
->  net/bridge/br_multicast_eht.c                    |  4 ++--
->  net/core/gen_estimator.c                         |  2 +-
->  net/ipv4/ipmr.c                                  |  2 +-
->  net/ipv6/ip6mr.c                                 |  2 +-
->  net/mac80211/mesh_pathtbl.c                      |  2 +-
->  net/netfilter/ipset/ip_set_list_set.c            |  2 +-
->  net/netfilter/ipvs/ip_vs_lblc.c                  |  2 +-
->  net/netfilter/ipvs/ip_vs_lblcr.c                 |  2 +-
->  net/netfilter/xt_IDLETIMER.c                     |  4 ++--
->  net/netfilter/xt_LED.c                           |  2 +-
->  net/sched/cls_flow.c                             |  2 +-
->  net/sunrpc/svc.c                                 |  2 +-
->  net/tipc/discover.c                              |  2 +-
->  net/tipc/monitor.c                               |  2 +-
+We can avoid this by using READ_ONCE().
 
-Acked-by: Paolo Abeni <pabeni@redhat.com>
+Suggested-by: Joern Engel <joern@purestorage.com>
+Signed-off-by: Joy Gu <jgu@purestorage.com>
+---
+ net/bridge/br_multicast.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 48170bd3785e..2ac4b099e00d 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -2624,11 +2624,11 @@ static int br_ip4_multicast_igmp3_report(struct net_bridge_mcast *brmctx,
+ 	bool changed = false;
+ 	int err = 0;
+ 	u16 nsrcs;
+ 
+ 	ih = igmpv3_report_hdr(skb);
+-	num = ntohs(ih->ngrec);
++	num = ntohs(READ_ONCE(ih->ngrec));
+ 	len = skb_transport_offset(skb) + sizeof(*ih);
+ 
+ 	for (i = 0; i < num; i++) {
+ 		len += sizeof(*grec);
+ 		if (!ip_mc_may_pull(skb, len))
+@@ -2750,11 +2750,11 @@ static int br_ip6_multicast_mld2_report(struct net_bridge_mcast *brmctx,
+ 
+ 	if (!ipv6_mc_may_pull(skb, sizeof(*mld2r)))
+ 		return -EINVAL;
+ 
+ 	mld2r = (struct mld2_report *)icmp6_hdr(skb);
+-	num = ntohs(mld2r->mld2r_ngrec);
++	num = ntohs(READ_ONCE(mld2r->mld2r_ngrec));
+ 	len = skb_transport_offset(skb) + sizeof(*mld2r);
+ 
+ 	for (i = 0; i < num; i++) {
+ 		__be16 *_nsrcs, __nsrcs;
+ 		u16 nsrcs;
+-- 
+2.39.0
 
