@@ -1,16 +1,13 @@
-Return-Path: <SRS0=6PJf=4V=goodmis.org=rostedt@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9630760BDB
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CABC460B57
-Date: Fri, 23 Dec 2022 10:41:13 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-Message-ID: <20221223104113.0bc8d37f@gandalf.local.home>
-In-Reply-To: <20221220134519.3dd1318b@gandalf.local.home>
-References: <20221220134519.3dd1318b@gandalf.local.home>
+Return-Path: <linus.luessing@c0d3.blue>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EEFF0608D8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B303460759
+Date: Wed, 28 Dec 2022 19:04:55 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Message-ID: <Y6yFR2zS/A57Zui2@sellars>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH] treewide: Convert del_timer*() to
-	timer_shutdown*()
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Subject: [Bridge] MLD proxying between bridge ports, recommendations?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,29 +16,49 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Linus Torvalds <torvalds@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>
-Cc: alsa-devel@alsa-project.org, linux-staging@lists.linux.dev, linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org, drbd-dev@lists.linbit.com, linux-nilfs@vger.kernel.org, linux-scsi@vger.kernel.org, linux-atm-general@lists.sourceforge.net, lvs-devel@vger.kernel.org, linux-acpi@vger.kernel.org, SHA-cyfmac-dev-list@infineon.com, coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org, tipc-discussion@lists.sourceforge.net, linux-ext4@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-media@vger.kernel.org, bridge@lists.linux-foundation.org, intel-gfx@lists.freedesktop.org, linux-nfs@vger.kernel.org, linux-block@vger.kernel.org, cgroups@vger.kernel.org, Anna-Maria Gleixner <anna-maria@linutronix.de>, brcm80211-dev-list.pdl@broadcom.com, Stephen Boyd <sboyd@kernel.org>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>, linux-bluetooth@vger.kernel.org, netfilter-devel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+To: bridge@lists.linux-foundation.org
 
-On Tue, 20 Dec 2022 13:45:19 -0500
-Steven Rostedt <rostedt@goodmis.org> wrote:
+Hi,
 
-> [
->   Linus,
-> 
->     I ran the script against your latest master branch:
->     commit b6bb9676f2165d518b35ba3bea5f1fcfc0d969bf
-> 
->     As the timer_shutdown*() code is now in your tree, I figured
->     we can start doing the conversions. At least add the trivial ones
->     now as Thomas suggested that this gets applied at the end of the
->     merge window, to avoid conflicts with linux-next during the
->     development cycle. I can wait to Friday to run it again, and
->     resubmit.
-> 
->     What is the best way to handle this?
-> ]
+I know that there are implementations for IGMP/MLD proxies between
+two interfaces to "pseudo bridge" IGMP/MLD and multicast data
+(both itnerfaces have distinct broadcast domains and are routing
+unicast packets on layer 3, the IGMP/MLD proxy carries IGMP/MLD
+and multicast data over). Like the igmpproxy [0] tool, which is
+supported in OpenWrt [1]. And maybe mcproxy [2] (I've never tried
+this one, but seems to be based on RFC4605 [3]?).
 
-Note, I just did a git remote update, checked out the latest, re-ran the
-script, and this patch hasn't changed.
+But I've been wondering, are there vendors who have implemented
+IGMP/MLD proxying on their bridges/switches between ports? What I
+would like to do with the Linux bridge in particular is:
 
--- Steve
+1) Use the built-in MLD querier towards downstream ports with a
+fast querier interval (20-30 seconds? to query mobile wifi clients).
+2) Have the bridge respond with one aggregated MLDv2 Report towards a
+dedicated upstream port, where an external querier would query
+with a slower than default interval.
+3) Be able to filter/blacklist/whitelist certain IP multicast ranges
+from the proxied report. (I'd have the weird use-case of filtering
+out link-local IPv6 multicast ranges and only allowing routable
+ones).
+
+Other interesting features / use-cases could be to contain
+IGMPv2/MLDv1 to specific ports, to keep the rest of the network on
+IGMPv3/MLDv2 and to convert report versions between them. Or to
+reduce the overhead of redundantly forwarded multicast groups
+you'd otherwise currently have with MLDv2 (no report suppression).
+
+Would it make sense to implement such an IGMP/MLD proxying
+mechanism in the Linux bridge?
+
+Other than proxying and tuning querier intervals, is anyone aware
+of any other mechanisms to reduce MLD overhead in large broadcast
+domains? (large would be about 1000 Linux hosts with bridges +
+2000 bridged-in, external hosts sharing a broadcast domain)
+
+Regards, Linus
+
+[0]: https://github.com/pali/igmpproxy
+[1]: https://openwrt.org/docs/guide-user/network/wan/udp_multicast
+[2]: https://github.com/mcproxy/mcproxy
+[3]: http://tools.ietf.org/html/rfc4605
