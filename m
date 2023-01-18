@@ -1,19 +1,19 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DC4B7610AB
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F7DD60F5D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2334A610AD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 48A7660E71
 MIME-Version: 1.0
-Date: Wed, 18 Jan 2023 23:14:00 +0100
+Date: Wed, 18 Jan 2023 23:35:08 +0100
 From: netdev@kapio-technology.com
-In-Reply-To: <20230117230806.ipwcbnq4jcc4qs7z@skbuf>
+In-Reply-To: <20230117231750.r5jr4hwvpadgopmf@skbuf>
 References: <20230117185714.3058453-1-netdev@kapio-technology.com>
- <20230117185714.3058453-2-netdev@kapio-technology.com>
- <20230117230806.ipwcbnq4jcc4qs7z@skbuf>
-Message-ID: <a3bba3eb856a00b5e5e0c1e2ffe8749a@kapio-technology.com>
+ <20230117185714.3058453-3-netdev@kapio-technology.com>
+ <20230117231750.r5jr4hwvpadgopmf@skbuf>
+Message-ID: <e4acb7edb300d41a9459890133b928b4@kapio-technology.com>
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH net-next 1/5] net: bridge: add dynamic flag
- to switchdev notifier
+Subject: Re: [Bridge] [RFC PATCH net-next 2/5] net: dsa: propagate flags
+ down towards drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,56 +28,87 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.c
  SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
  A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, davem@davemloft.net
 
-On 2023-01-18 00:08, Vladimir Oltean wrote:
-> On Tue, Jan 17, 2023 at 07:57:10PM +0100, Hans J. Schultz wrote:
->> To be able to add dynamic FDB entries to drivers from userspace, the
->> dynamic flag must be added when sending RTM_NEWNEIGH events down.
+On 2023-01-18 00:17, Vladimir Oltean wrote:
+> On Tue, Jan 17, 2023 at 07:57:11PM +0100, Hans J. Schultz wrote:
+>> Dynamic FDB flag needs to be propagated through the DSA layer to be
+>> added to drivers.
+>> Use a u16 for fdb flags for future use, so that other flags can also 
+>> be
+>> sent the same way without having to change function interfaces.
 >> 
 >> Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
 >> ---
->>  include/net/switchdev.h   | 1 +
->>  net/bridge/br_switchdev.c | 1 +
->>  2 files changed, 2 insertions(+)
+>> @@ -3364,6 +3368,7 @@ static int dsa_slave_fdb_event(struct net_device 
+>> *dev,
+>>  	struct dsa_port *dp = dsa_slave_to_port(dev);
+>>  	bool host_addr = fdb_info->is_local;
+>>  	struct dsa_switch *ds = dp->ds;
+>> +	u16 fdb_flags = 0;
 >> 
->> diff --git a/include/net/switchdev.h b/include/net/switchdev.h
->> index ca0312b78294..aaf918d4ba67 100644
->> --- a/include/net/switchdev.h
->> +++ b/include/net/switchdev.h
->> @@ -249,6 +249,7 @@ struct switchdev_notifier_fdb_info {
->>  	u8 added_by_user:1,
->>  	   is_local:1,
->>  	   locked:1,
->> +	   is_dyn:1,
->>  	   offloaded:1;
->>  };
+>>  	if (ctx && ctx != dp)
+>>  		return 0;
+>> @@ -3410,6 +3415,9 @@ static int dsa_slave_fdb_event(struct net_device 
+>> *dev,
+>>  		   orig_dev->name, fdb_info->addr, fdb_info->vid,
+>>  		   host_addr ? " as host address" : "");
 >> 
->> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
->> index 7eb6fd5bb917..60c05a00a1df 100644
->> --- a/net/bridge/br_switchdev.c
->> +++ b/net/bridge/br_switchdev.c
->> @@ -136,6 +136,7 @@ static void br_switchdev_fdb_populate(struct 
->> net_bridge *br,
->>  	item->added_by_user = test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
->>  	item->offloaded = test_bit(BR_FDB_OFFLOADED, &fdb->flags);
->>  	item->is_local = test_bit(BR_FDB_LOCAL, &fdb->flags);
->> +	item->is_dyn = !test_bit(BR_FDB_STATIC, &fdb->flags);
+>> +	if (fdb_info->is_dyn)
+>> +		fdb_flags |= DSA_FDB_FLAG_DYNAMIC;
+>> +
 > 
-> Why reverse logic? Why not just name this "is_static" and leave any
-> further interpretations up to the consumer?
+> Hmm, I don't think this is going to work with the 
+> assisted_learning_on_cpu_port
+> feature ("if (switchdev_fdb_is_dynamically_learned(fdb_info))"). The
+> reason being
+> that a "dynamically learned" FDB entry (defined as this):
 > 
+> static inline bool
+> switchdev_fdb_is_dynamically_learned(const struct
+> switchdev_notifier_fdb_info *fdb_info)
+> {
+> 	return !fdb_info->added_by_user && !fdb_info->is_local;
+> }
+> 
+> is also dynamic in the DSA_FDB_FLAG_DYNAMIC sense. But we install a
+> static FDB entry for it on the CPU port.
+> 
+> And in your follow-up patch 3/5, you make all drivers except mv88e6xxx
+> ignore all DSA_FDB_FLAG_DYNAMIC entries (including the ones snooped 
+> from
+> address learning on software interfaces). So this breaks those drivers
+> which don't implement DSA_FDB_FLAG_DYNAMIC but do set
+> ds->assisted_learning_on_cpu_port
+> to true.
 
-My reasoning for this is that the common case is to have static entries, 
-thus is_dyn=false, so whenever someone uses a 
-switchdev_notifier_fdb_info struct the common case does not need to be 
-entered.
-Otherwise it might also break something when someone uses this struct 
-and if it was 'is_static' and they forget to code is_static=true they 
-will get dynamic entries without wanting it and it can be hard to find 
-such an error.
+I am not sure I understand you entirely.
+ From my standpoint I see it as so: that until now any fdb entry coming 
+to port_fdb_add() (or port_fdb_del()) are seen as static entries. And 
+this changes nothing with respect to those static entries as how drivers 
+handle them.
+When the new dynamic flag is true, all drivers will ignore it in patch 
+#3, so basically nothing will change by that. Then in patch #5 the 
+dynamic flag is handled by the mv88e6xxx driver.
 
->>  	item->locked = false;
->>  	item->info.dev = (!p || item->is_local) ? br->dev : p->dev;
->>  	item->info.ctx = ctx;
->> --
->> 2.34.1
+I don't know the assisted_learning_on_cpu_port feature you mention, but 
+there has still not been anything but static entries going towards 
+port_fdb_add() yet...
+
+> 
+> I think you also want to look at the added_by_user flag to disambiguate
+> between a dynamic FDB entry added from learning (which it's ok to
+> offload as static, because software ageing will remove it) and one 
+> added
+> by the user.
+> 
+>>  	INIT_WORK(&switchdev_work->work, dsa_slave_switchdev_event_work);
+>>  	switchdev_work->event = event;
+>>  	switchdev_work->dev = dev;
+>> @@ -3418,6 +3426,7 @@ static int dsa_slave_fdb_event(struct net_device 
+>> *dev,
+>>  	ether_addr_copy(switchdev_work->addr, fdb_info->addr);
+>>  	switchdev_work->vid = fdb_info->vid;
+>>  	switchdev_work->host_addr = host_addr;
+>> +	switchdev_work->fdb_flags = fdb_flags;
+>> 
+>>  	dsa_schedule_work(&switchdev_work->work);
 >> 
