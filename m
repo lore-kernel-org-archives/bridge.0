@@ -1,17 +1,23 @@
-Return-Path: <SRS0=AJqJ=5X=goodmis.org=rostedt@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C408081916
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B9B9C818C9
-Date: Thu, 26 Jan 2023 12:53:44 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-Message-ID: <20230126125344.1b7b34e2@gandalf.local.home>
-In-Reply-To: <ed2e2e305dd49423745b62c0152a0b85bc84a767.1674752051.git.petrm@nvidia.com>
-References: <cover.1674752051.git.petrm@nvidia.com>
- <ed2e2e305dd49423745b62c0152a0b85bc84a767.1674752051.git.petrm@nvidia.com>
+Return-Path: <leon@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2D8B460B14
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 14D73607B0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1674760508;
+ bh=+5HLhRI8AkEOxcQiIJRwMRWzbDgjs1QJYrUcgCLqylU=;
+ h=From:To:Cc:Subject:Date:From;
+ b=eQxlDlSVKupDt+VyFWICDrzOgdDZlt27JVVxUJUFF6nEqFRQCkzrKjh8U57fCQFyw
+ cRXDi7BIhvV0xSR0z29JMUrWLs58JuRm1AFt/sj6HjXk/rYDoE92kBS4pWDPQ6GJzS
+ RsPnOVZwQEn/h/Wa51H+O+XnIJhfk0a8AyAM6/O+OTbR4UYVlpd8/fbjsMptQ9h6YN
+ i06SRdth8vWz8SwW7F4TusVTp7NJwnMktOW34CkxyBwU8pSB5uQxGHRJ6d7KrR1VBp
+ GXmwTjCvAIpAA5vTVBBANjLq+Vvw09I9fZTZ5jOUoDtH0SlVfabUWy1r8j4cUw6iSM
+ b6HEYZHrxkGLw==
+From: Leon Romanovsky <leon@kernel.org>
+Date: Thu, 26 Jan 2023 21:15:03 +0200
+Message-Id: <2919eb55e2e9b92265a3ba600afc8137a901ae5f.1674760340.git.leon@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 06/16] net: bridge: Add a tracepoint
- for MDB overflows
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next] netlink: provide an ability to set
+	default extack message
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,155 +26,109 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Petr Machata <petrm@nvidia.com>
-Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>, linux-trace-kernel@vger.kernel.org
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Vladimir Oltean <olteanv@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Leon Romanovsky <leonro@nvidia.com>
 
-On Thu, 26 Jan 2023 18:01:14 +0100
-Petr Machata <petrm@nvidia.com> wrote:
+From: Leon Romanovsky <leonro@nvidia.com>
 
-> The following patch will add two more maximum MDB allowances to the global
-> one, mcast_hash_max, that exists today. In all these cases, attempts to add
-> MDB entries above the configured maximums through netlink, fail noisily and
-> obviously. Such visibility is missing when adding entries through the
-> control plane traffic, by IGMP or MLD packets.
-> 
-> To improve visibility in those cases, add a trace point that reports the
-> violation, including the relevant netdevice (be it a slave or the bridge
-> itself), and the MDB entry parameters:
-> 
-> 	# perf record -e bridge:br_mdb_full &
-> 	# [...]
-> 	# perf script | cut -d: -f4-
-> 	 dev v2 af 2 src 192.0.2.1/:: grp 239.1.1.1/::/00:00:00:00:00:00 vid 0
-> 	 dev v2 af 10 src 0.0.0.0/2001:db8:1::1 grp 0.0.0.0/ff0e::1/00:00:00:00:00:00 vid 0
-> 	 dev v2 af 2 src 192.0.2.1/:: grp 239.1.1.1/::/00:00:00:00:00:00 vid 10
-> 	 dev v2 af 10 src 0.0.0.0/2001:db8:1::1 grp 0.0.0.0/ff0e::1/00:00:00:00:00:00 vid 10
-> 
-> CC: Steven Rostedt <rostedt@goodmis.org>
-> CC: linux-trace-kernel@vger.kernel.org
-> Signed-off-by: Petr Machata <petrm@nvidia.com>
-> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-> ---
->  include/trace/events/bridge.h | 67 +++++++++++++++++++++++++++++++++++
->  net/core/net-traces.c         |  1 +
->  2 files changed, 68 insertions(+)
-> 
-> diff --git a/include/trace/events/bridge.h b/include/trace/events/bridge.h
-> index 6b200059c2c5..00d5e2dcb3ad 100644
-> --- a/include/trace/events/bridge.h
-> +++ b/include/trace/events/bridge.h
-> @@ -122,6 +122,73 @@ TRACE_EVENT(br_fdb_update,
->  		  __entry->flags)
->  );
->  
-> +TRACE_EVENT(br_mdb_full,
-> +
-> +	TP_PROTO(const struct net_device *dev,
-> +		 const struct br_ip *group),
-> +
-> +	TP_ARGS(dev, group),
-> +
-> +	TP_STRUCT__entry(
-> +		__string(dev, dev->name)
-> +		__field(int, af)
-> +		__field(u16, vid)
-> +		__array(__u8, src4, 4)
-> +		__array(__u8, src6, 16)
-> +		__array(__u8, grp4, 4)
-> +		__array(__u8, grp6, 16)
-> +		__array(__u8, grpmac, ETH_ALEN) /* For af == 0. */
+In netdev common pattern, xxtack pointer is forwarded to the drivers
+to be filled with error message. However, the caller can easily
+overwrite the filled message.
 
-Instead of wasting ring buffer space, why not just have:
+Instead of adding multiple "if (!extack->_msg)" checks before any
+NL_SET_ERR_MSG() call, which appears after call to the driver, let's
+add this check to common code.
 
-		__array(__u8, src, 16)
-		__array(__u8, grp, 16)
+[1] https://lore.kernel.org/all/Y9Irgrgf3uxOjwUm@unreal
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+---
+ include/linux/netlink.h   |  4 ++--
+ net/bridge/br_switchdev.c | 10 ++++------
+ net/dsa/master.c          |  4 +---
+ net/dsa/slave.c           |  5 ++---
+ 4 files changed, 9 insertions(+), 14 deletions(-)
 
-
-> +	),
-> +
-> +	TP_fast_assign(
-> +		__assign_str(dev, dev->name);
-> +		__entry->vid = group->vid;
-> +
-> +		if (!group->proto) {
-> +			__entry->af = 0;
-> +
-> +			memset(__entry->src4, 0, sizeof(__entry->src4));
-> +			memset(__entry->src6, 0, sizeof(__entry->src6));
-> +			memset(__entry->grp4, 0, sizeof(__entry->grp4));
-> +			memset(__entry->grp6, 0, sizeof(__entry->grp6));
-> +			memcpy(__entry->grpmac, group->dst.mac_addr, ETH_ALEN);
-> +		} else if (group->proto == htons(ETH_P_IP)) {
-> +			__be32 *p32;
-> +
-> +			__entry->af = AF_INET;
-> +
-> +			p32 = (__be32 *) __entry->src4;
-> +			*p32 = group->src.ip4;
-> +
-> +			p32 = (__be32 *) __entry->grp4;
-> +			*p32 = group->dst.ip4;
-
-			struct in6_addr *in6;
-
-			in6 = (struct in6_addr *)__entry->src;
-			ipv6_addr_set_v4mapped(group->src.ip4, in6);
-
-			in6 = (struct in6_addr *)__entry->grp;
-			ipv6_addr_set_v4mapped(group->grp.ip4, in6);
-
-> +
-> +			memset(__entry->src6, 0, sizeof(__entry->src6));
-> +			memset(__entry->grp6, 0, sizeof(__entry->grp6));
-> +			memset(__entry->grpmac, 0, ETH_ALEN);
-> +#if IS_ENABLED(CONFIG_IPV6)
-> +		} else {
-> +			struct in6_addr *in6;
-> +
-> +			__entry->af = AF_INET6;
-> +
-> +			in6 = (struct in6_addr *)__entry->src6;
-> +			*in6 = group->src.ip6;
-> +
-> +			in6 = (struct in6_addr *)__entry->grp6;
-> +			*in6 = group->dst.ip6;
-> +
-> +			memset(__entry->src4, 0, sizeof(__entry->src4));
-> +			memset(__entry->grp4, 0, sizeof(__entry->grp4));
-> +			memset(__entry->grpmac, 0, ETH_ALEN);
-> +#endif
-> +		}
-> +	),
-> +
-> +	TP_printk("dev %s af %u src %pI4/%pI6c grp %pI4/%pI6c/%pM vid %u",
-> +		  __get_str(dev), __entry->af, __entry->src4, __entry->src6,
-> +		  __entry->grp4, __entry->grp6, __entry->grpmac, __entry->vid)
-
-And just have: 
-
-	TP_printk("dev %s af %u src %pI6c grp %pI6c/%pM vid %u",
-		  __get_str(dev), __entry->af, __entry->src, __entry->grp,
-		  __entry->grpmac, __entry->vid)
-
-As the %pI6c should detect that it's a ipv4 address and show that.
-
--- Steve
-
-
-> +);
->  
->  #endif /* _TRACE_BRIDGE_H */
->  
-> diff --git a/net/core/net-traces.c b/net/core/net-traces.c
-> index ee7006bbe49b..805b7385dd8d 100644
-> --- a/net/core/net-traces.c
-> +++ b/net/core/net-traces.c
-> @@ -41,6 +41,7 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(br_fdb_add);
->  EXPORT_TRACEPOINT_SYMBOL_GPL(br_fdb_external_learn_add);
->  EXPORT_TRACEPOINT_SYMBOL_GPL(fdb_delete);
->  EXPORT_TRACEPOINT_SYMBOL_GPL(br_fdb_update);
-> +EXPORT_TRACEPOINT_SYMBOL_GPL(br_mdb_full);
->  #endif
->  
->  #if IS_ENABLED(CONFIG_PAGE_POOL)
+diff --git a/include/linux/netlink.h b/include/linux/netlink.h
+index 38f6334f408c..87d2900cb448 100644
+--- a/include/linux/netlink.h
++++ b/include/linux/netlink.h
+@@ -101,7 +101,7 @@ struct netlink_ext_ack {
+ 							\
+ 	do_trace_netlink_extack(__msg);			\
+ 							\
+-	if (__extack)					\
++	if (__extack && !__extack->_msg)		\
+ 		__extack->_msg = __msg;			\
+ } while (0)
+ 
+@@ -111,7 +111,7 @@ struct netlink_ext_ack {
+ #define NL_SET_ERR_MSG_FMT(extack, fmt, args...) do {			       \
+ 	struct netlink_ext_ack *__extack = (extack);			       \
+ 									       \
+-	if (!__extack)							       \
++	if (!__extack || __extack->_msg)				       \
+ 		break;							       \
+ 	if (snprintf(__extack->_msg_buf, NETLINK_MAX_FMTMSG_LEN,	       \
+ 		     "%s" fmt "%s", "", ##args, "") >=			       \
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 7eb6fd5bb917..9f7ff63ef853 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -104,9 +104,8 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 		return 0;
+ 
+ 	if (err) {
+-		if (extack && !extack->_msg)
+-			NL_SET_ERR_MSG_MOD(extack,
+-					   "bridge flag offload is not supported");
++		NL_SET_ERR_MSG_MOD(extack,
++				   "bridge flag offload is not supported");
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+@@ -115,9 +114,8 @@ int br_switchdev_set_port_flag(struct net_bridge_port *p,
+ 
+ 	err = switchdev_port_attr_set(p->dev, &attr, extack);
+ 	if (err) {
+-		if (extack && !extack->_msg)
+-			NL_SET_ERR_MSG_MOD(extack,
+-					   "error setting offload flag on port");
++		NL_SET_ERR_MSG_MOD(extack,
++				   "error setting offload flag on port");
+ 		return err;
+ 	}
+ 
+diff --git a/net/dsa/master.c b/net/dsa/master.c
+index 26d90140d271..bcf39c524664 100644
+--- a/net/dsa/master.c
++++ b/net/dsa/master.c
+@@ -464,9 +464,7 @@ int dsa_master_lag_setup(struct net_device *lag_dev, struct dsa_port *cpu_dp,
+ 
+ 	err = dsa_port_lag_join(cpu_dp, lag_dev, uinfo, extack);
+ 	if (err) {
+-		if (extack && !extack->_msg)
+-			NL_SET_ERR_MSG_MOD(extack,
+-					   "CPU port failed to join LAG");
++		NL_SET_ERR_MSG_MOD(extack, "CPU port failed to join LAG");
+ 		goto out_master_teardown;
+ 	}
+ 
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 6014ac3aad34..c5527aa2c403 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -2692,9 +2692,8 @@ static int dsa_slave_changeupper(struct net_device *dev,
+ 			if (!err)
+ 				dsa_bridge_mtu_normalization(dp);
+ 			if (err == -EOPNOTSUPP) {
+-				if (extack && !extack->_msg)
+-					NL_SET_ERR_MSG_MOD(extack,
+-							   "Offloading not supported");
++				NL_SET_ERR_MSG_MOD(extack,
++						   "Offloading not supported");
+ 				err = 0;
+ 			}
+ 			err = notifier_from_errno(err);
+-- 
+2.39.1
 
