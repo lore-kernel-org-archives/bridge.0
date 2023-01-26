@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8ACB6416D9
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D4E3E416EB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7C26161025
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8A9FE60E16
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=o4fIsMoDJ/8PiWkfOg0x21X3UR76XvnVyTWkWf7ihLA=;
- b=oHNSseAkzUwAoTXUmhr+WnFrFp8cvbHMZWb7GTAASOcvFgudyuns6a7VkOKE7SJ2BKtdUGVqqEIHgtLy+M0+YsgHyjw6DGwB+X9DcOUwcLgUIs6BrJHTnz8oin6mhk8Cf/Mfpw1zS+TMmIrguBXlP54dVLnkxNBKL7ha32rEepSlgOqpP2ZDMldExDr3mWtlNIuWC++K0r+/24sDt7c8Dlng01iSsVVRLMmgvg8TCmPdZa3/WbkvrUPO0jBevlsaR0W/nVw+Fh4SctZF3dNgaxP8dTQrMk+ykUjzuh31lGvXhxcwyD7Z1naPCQEvLC8+BmCY9U4FOUKhRHJiv82nXQ==
+ bh=+vC12Kv3SPanRuHArnowX+WkNaI2Qb5ZPbGEQodn4mA=;
+ b=jm86lm83qe9i7AI5bLQD+As8zMzZaAAnU5cCbvYkfw1ApWt3FTPrI0s9/knsz59AP8bUnHKU8zGAelVX5rM+WepBpyDrByjE77gt8+P4RdFSljKsbqicjq6r2Odd/OVcH33yf/FBGu54Z+b4btUfYpNpsPnbfKLhl3pym/PxtGtQ6z2NGNT70kSjV10Ojp/jMPSUGmmSG4StqS2FYV983vrmjC/R86Nk/9vkJuMgVf9a4fpCk5j/jzyF0U0BzezQOi8MKms7H442hmDYTXOUZWRClfYxxk15OJWnTcrvJQAGfH2QrDSU+xshOK+ebNrXWObJ4LhYTBbZ7d8c3Xqxrg==
 From: Petr Machata <petrm@nvidia.com>
-Date: Thu, 26 Jan 2023 18:01:10 +0100
-Message-ID: <e22dda1dc7f1211428f6504c86ba2cedb8fdcca0.1674752051.git.petrm@nvidia.com>
+Date: Thu, 26 Jan 2023 18:01:12 +0100
+Message-ID: <982c17c28b513bd3e6dd670fa2db13ec76bc4460.1674752051.git.petrm@nvidia.com>
 In-Reply-To: <cover.1674752051.git.petrm@nvidia.com>
 References: <cover.1674752051.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 02/16] net: bridge: Add extack to
-	br_multicast_new_port_group()
+Subject: [Bridge] [PATCH net-next 04/16] net: bridge: Add
+	br_multicast_del_port_group()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,76 +27,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
-Make it possible to set an extack in br_multicast_new_port_group().
-Eventually, this function will check for per-port and per-port-vlan
-MDB maximums, and will use the extack to communicate the reason for
-the bounce.
+Since cleaning up the effects of br_multicast_new_port_group() just
+consists of delisting and freeing the memory, the function
+br_mdb_add_group_star_g() inlines the corresponding code. In the following
+patches, number of per-port and per-port-VLAN MDB entries is going to be
+maintained, and that counter will have to be updated. Because that logic
+is going to be hidden in the br_multicast module, introduce a new hook
+intended to again remove a newly-created group.
 
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_mdb.c       | 5 +++--
- net/bridge/br_multicast.c | 5 +++--
- net/bridge/br_private.h   | 3 ++-
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ net/bridge/br_mdb.c       |  3 +--
+ net/bridge/br_multicast.c | 11 +++++++++++
+ net/bridge/br_private.h   |  1 +
+ 3 files changed, 13 insertions(+), 2 deletions(-)
 
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 00e5743647b0..069061366541 100644
+index 139de8ac532c..9f22ebfdc518 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -849,7 +849,7 @@ static int br_mdb_add_group_sg(const struct br_mdb_config *cfg,
- 	}
+@@ -1099,8 +1099,7 @@ static int br_mdb_add_group_star_g(const struct br_mdb_config *cfg,
+ 	return 0;
  
- 	p = br_multicast_new_port_group(cfg->p, &cfg->group, *pp, flags, NULL,
--					MCAST_INCLUDE, cfg->rt_protocol);
-+					MCAST_INCLUDE, cfg->rt_protocol, extack);
- 	if (unlikely(!p)) {
- 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new (S, G) port group");
- 		return -ENOMEM;
-@@ -1075,7 +1075,8 @@ static int br_mdb_add_group_star_g(const struct br_mdb_config *cfg,
- 	}
+ err_del_port_group:
+-	hlist_del_init(&p->mglist);
+-	kfree(p);
++	br_multicast_del_port_group(p);
+ 	return err;
+ }
  
- 	p = br_multicast_new_port_group(cfg->p, &cfg->group, *pp, flags, NULL,
--					cfg->filter_mode, cfg->rt_protocol);
-+					cfg->filter_mode, cfg->rt_protocol,
-+					extack);
- 	if (unlikely(!p)) {
- 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new (*, G) port group");
- 		return -ENOMEM;
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index dea1ee1bd095..de67d176838f 100644
+index f9f4d54226fd..08da724ebfdd 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -1284,7 +1284,8 @@ struct net_bridge_port_group *br_multicast_new_port_group(
- 			unsigned char flags,
- 			const unsigned char *src,
- 			u8 filter_mode,
--			u8 rt_protocol)
-+			u8 rt_protocol,
-+			struct netlink_ext_ack *extack)
+@@ -1326,6 +1326,17 @@ struct net_bridge_port_group *br_multicast_new_port_group(
+ 	return p;
+ }
+ 
++void br_multicast_del_port_group(struct net_bridge_port_group *p)
++{
++	struct net_bridge_port *port = p->key.port;
++
++	hlist_del_init(&p->mglist);
++	if (!br_multicast_is_star_g(&p->key.addr))
++		rhashtable_remove_fast(&port->br->sg_port_tbl, &p->rhnode,
++				       br_sg_port_rht_params);
++	kfree(p);
++}
++
+ void br_multicast_host_join(const struct net_bridge_mcast *brmctx,
+ 			    struct net_bridge_mdb_entry *mp, bool notify)
  {
- 	struct net_bridge_port_group *p;
- 
-@@ -1387,7 +1388,7 @@ __br_multicast_add_group(struct net_bridge_mcast *brmctx,
- 	}
- 
- 	p = br_multicast_new_port_group(pmctx->port, group, *pp, 0, src,
--					filter_mode, RTPROT_KERNEL);
-+					filter_mode, RTPROT_KERNEL, NULL);
- 	if (unlikely(!p)) {
- 		p = ERR_PTR(-ENOMEM);
- 		goto out;
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 15ef7fd508ee..1805c468ae03 100644
+index 1805c468ae03..e4069e27b5c6 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -956,7 +956,8 @@ br_multicast_new_port_group(struct net_bridge_port *port,
- 			    const struct br_ip *group,
- 			    struct net_bridge_port_group __rcu *next,
+@@ -958,6 +958,7 @@ br_multicast_new_port_group(struct net_bridge_port *port,
  			    unsigned char flags, const unsigned char *src,
--			    u8 filter_mode, u8 rt_protocol);
-+			    u8 filter_mode, u8 rt_protocol,
-+			    struct netlink_ext_ack *extack);
+ 			    u8 filter_mode, u8 rt_protocol,
+ 			    struct netlink_ext_ack *extack);
++void br_multicast_del_port_group(struct net_bridge_port_group *p);
  int br_mdb_hash_init(struct net_bridge *br);
  void br_mdb_hash_fini(struct net_bridge *br);
  void br_mdb_notify(struct net_device *dev, struct net_bridge_mdb_entry *mp,
