@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5295B822E4
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5DB29822EB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 940FA41A50
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D8CCB41A63
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gIM+3otTgFugyx6C+vl7QLSRnv9AVtN6G5jeT39O2xs=;
- b=oNecpv/WnQVjxz06uR0AhaUf8TcW4KhRiJnJva3fYTptslJD30M3JKVbAAev1Uyf3f8R3PbBkbqQeaoXy+LMQ2a+mLcNr6/OkCTIVJd3PdE5Ew2i7jnuYpFeMlDbsPgzCTaqKcBIbO/sg89n9GRowAEYgipww1BmSZeIOPFLHfpf91BwNGOHidikgup+fg+N6zckYm9+la15D5hJoJECApZgbL+VagE2Kvdn0FiZTcbxNU01PWUppJ6lRGXxqptXmSVrTQyrnKXJRESePau0yEVptwy2QzQOm/00ByjD++O3Z+usIiQYOI08m0AZgMqgQaCP1AXmHWDb/Erg/RS2Kg==
+ bh=xPmMgbTNAa3suo47eUtpRBod/PKKZeaGlEKeZ3Lkeeg=;
+ b=RIUPqwjorFopGmlUrMQ66WwV5iC3gK9ofT+TmHl+z6/Jb+Z48K76ivxsIcOmmM7RmVKMy5gpCLZSLGjPQPOEimuLC8WqJozl052FjDvCD6qxyxp3cSBsDvtGh3tKqZr+924cohzzA9fl+bqITy7ybcIYhvBX8FuOT+v4E+x8Kpcsmy7Iw/ctxswAdVKfaBrGPKJemrxHvqr4UPDGkQpduMxV1jnTHKi/Je5flQc3ZwoFNWvMn0HM3Z74IQXn692GP+wfAWPlBCLHW6POAlBMtAzEfk7i2VTQeptftSJftIuRdU+rAhM008h9qceF0/YDdFCE64UbtK78az0SGbMEow==
 From: Petr Machata <petrm@nvidia.com>
-Date: Thu, 26 Jan 2023 18:01:20 +0100
-Message-ID: <3ca0fe4de1f701befbc874e4b672c90aee602199.1674752051.git.petrm@nvidia.com>
+Date: Thu, 26 Jan 2023 18:01:21 +0100
+Message-ID: <a2a17da9f91c3648fbcbc2890c961c9a9b70d61d.1674752051.git.petrm@nvidia.com>
 In-Reply-To: <cover.1674752051.git.petrm@nvidia.com>
 References: <cover.1674752051.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 12/16] selftests: forwarding: lib: Add
-	helpers for checksum handling
+Subject: [Bridge] [PATCH net-next 13/16] selftests: forwarding: lib:
+	Parameterize IGMPv3/MLDv2 generation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,99 +27,139 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
-In order to generate IGMPv3 and MLDv2 packets on the fly, we will need
-helpers to calculate the packet checksum.
+In order to generate IGMPv3 and MLDv2 packets on the fly, the
+functions that generate these packets need to be able to generate
+packets for different groups and different sources. Generating MLDv2
+packets further needs the source address of the packet for purposes of
+checksum calculation. Add the necessary parameters, and generate the
+payload accordingly by dispatching to helpers added in the previous
+patches.
 
-The approach presented in this patch revolves around payload templates
-for mausezahn. These are mausezahn-like payload strings (01:23:45:...)
-with possibly one 2-byte sequence replaced with the word PAYLOAD. The
-main function is payload_template_calc_checksum(), which calculates
-RFC 1071 checksum of the message. There are further helpers to then
-convert the checksum to the payload format, and to expand it.
-
-For IPv6, MLDv2 message checksum is computed using a pseudoheader that
-differs from the header used in the payload itself. The fact that the
-two messages are different means that the checksum needs to be
-returned as a separate quantity, instead of being expanded in-place in
-the payload itself. Furthermore, the pseudoheader includes a length of
-the message. Much like the checksum, this needs to be expanded in
-mausezahn format. And likewise for number of addresses for (S,G)
-entries. Thus we have several places where a computed quantity needs
-to be presented in the payload format. Add a helper u16_to_bytes(),
-which will be used in all these cases.
+Adjust the sole client, bridge_mdb.sh, as well.
 
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 56 +++++++++++++++++++
- 1 file changed, 56 insertions(+)
+ .../selftests/net/forwarding/bridge_mdb.sh    |  9 ++---
+ tools/testing/selftests/net/forwarding/lib.sh | 36 +++++++++++++------
+ 2 files changed, 31 insertions(+), 14 deletions(-)
 
+diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+index 4e16677f02ba..b48867d8cadf 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+@@ -1029,7 +1029,7 @@ ctrl_igmpv3_is_in_test()
+ 
+ 	# IS_IN ( 192.0.2.2 )
+ 	$MZ $h1.10 -c 1 -A 192.0.2.1 -B 239.1.1.1 \
+-		-t ip proto=2,p=$(igmpv3_is_in_get) -q
++		-t ip proto=2,p=$(igmpv3_is_in_get 239.1.1.1 192.0.2.2) -q
+ 
+ 	bridge -d mdb show dev br0 vid 10 | grep 239.1.1.1 | grep -q 192.0.2.2
+ 	check_fail $? "Permanent entry affected by IGMP packet"
+@@ -1042,7 +1042,7 @@ ctrl_igmpv3_is_in_test()
+ 
+ 	# IS_IN ( 192.0.2.2 )
+ 	$MZ $h1.10 -c 1 -A 192.0.2.1 -B 239.1.1.1 \
+-		-t ip proto=2,p=$(igmpv3_is_in_get) -q
++		-t ip proto=2,p=$(igmpv3_is_in_get 239.1.1.1 192.0.2.2) -q
+ 
+ 	bridge -d mdb show dev br0 vid 10 | grep 239.1.1.1 | grep -v "src" | \
+ 		grep -q 192.0.2.2
+@@ -1067,8 +1067,9 @@ ctrl_mldv2_is_in_test()
+ 		filter_mode include source_list 2001:db8:1::1
+ 
+ 	# IS_IN ( 2001:db8:1::2 )
++	local p=$(mldv2_is_in_get fe80::1 ff0e::1 2001:db8:1::2)
+ 	$MZ -6 $h1.10 -c 1 -A fe80::1 -B ff0e::1 \
+-		-t ip hop=1,next=0,p=$(mldv2_is_in_get) -q
++		-t ip hop=1,next=0,p="$p" -q
+ 
+ 	bridge -d mdb show dev br0 vid 10 | grep ff0e::1 | \
+ 		grep -q 2001:db8:1::2
+@@ -1082,7 +1083,7 @@ ctrl_mldv2_is_in_test()
+ 
+ 	# IS_IN ( 2001:db8:1::2 )
+ 	$MZ -6 $h1.10 -c 1 -A fe80::1 -B ff0e::1 \
+-		-t ip hop=1,next=0,p=$(mldv2_is_in_get) -q
++		-t ip hop=1,next=0,p="$p" -q
+ 
+ 	bridge -d mdb show dev br0 vid 10 | grep ff0e::1 | grep -v "src" | \
+ 		grep -q 2001:db8:1::2
 diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 8f7e2cc8b779..1c5ca7552881 100755
+index 1c5ca7552881..60d4408610b1 100755
 --- a/tools/testing/selftests/net/forwarding/lib.sh
 +++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1730,6 +1730,62 @@ ipv6_to_bytes()
- 	expand_ipv6 "$IP" :
- }
+@@ -1788,26 +1788,35 @@ payload_template_nbytes()
  
-+u16_to_bytes()
-+{
-+	local u16=$1; shift
-+
-+	printf "%04x" $u16 | sed 's/^/000/;s/^.*\(..\)\(..\)$/\1:\2/'
-+}
-+
-+# Given a mausezahn-formatted payload (colon-separated bytes given as %#02x),
-+# possibly with a keyword CHECKSUM stashed where a 16-bit checksum should be,
-+# calculate checksum as per RFC 1071, assuming the CHECKSUM field (if any)
-+# stands for 00:00.
-+payload_template_calc_checksum()
-+{
-+	local payload=$1; shift
-+
-+	(
-+	    # Set input radix.
-+	    echo "16i"
-+	    # Push zero for the initial checksum.
-+	    echo 0
-+
-+	    # Pad the payload with a terminating 00: in case we get an odd
-+	    # number of bytes.
-+	    echo "${payload%:}:00:" |
-+		sed 's/CHECKSUM/00:00/g' |
-+		tr '[:lower:]' '[:upper:]' |
-+		# Add the word to the checksum.
-+		sed 's/\(..\):\(..\):/\1\2+\n/g' |
-+		# Strip the extra odd byte we pushed if left unconverted.
-+		sed 's/\(..\):$//'
-+
-+	    echo "10000 ~ +"	# Calculate and add carry.
-+	    echo "FFFF r - p"	# Bit-flip and print.
-+	) |
-+	    dc |
-+	    tr '[:upper:]' '[:lower:]'
-+}
-+
-+payload_template_expand_checksum()
-+{
-+	local payload=$1; shift
-+	local checksum=$1; shift
-+
-+	local ckbytes=$(u16_to_bytes $checksum)
-+
-+	echo "$payload" | sed "s/CHECKSUM/$ckbytes/g"
-+}
-+
-+payload_template_nbytes()
-+{
-+	local payload=$1; shift
-+
-+	payload_template_expand_checksum "${payload%:}" 0 |
-+		sed 's/:/\n/g' | wc -l
-+}
-+
  igmpv3_is_in_get()
  {
++	local GRP=$1; shift
++	local IP=$1; shift
++
  	local igmpv3
+ 
++	# IS_IN ( $IP )
+ 	igmpv3=$(:
+ 		)"22:"$(			: Type - Membership Report
+ 		)"00:"$(			: Reserved
+-		)"2a:f8:"$(			: Checksum
++		)"CHECKSUM:"$(			: Checksum
+ 		)"00:00:"$(			: Reserved
+ 		)"00:01:"$(			: Number of Group Records
+ 		)"01:"$(			: Record Type - IS_IN
+ 		)"00:"$(			: Aux Data Len
+ 		)"00:01:"$(			: Number of Sources
+-		)"ef:01:01:01:"$(		: Multicast Address - 239.1.1.1
+-		)"c0:00:02:02"$(		: Source Address - 192.0.2.2
++		)"$(ipv4_to_bytes $GRP):"$(	: Multicast Address
++		)"$(ipv4_to_bytes $IP)"$(	: Source Address
+ 		)
++	local checksum=$(payload_template_calc_checksum "$igmpv3")
+ 
+-	echo $igmpv3
++	payload_template_expand_checksum "$igmpv3" $checksum
+ }
+ 
+ mldv2_is_in_get()
+ {
++	local SIP=$1; shift
++	local GRP=$1; shift
++	local IP=$1; shift
++
+ 	local hbh
+ 	local icmpv6
+ 
+@@ -1820,17 +1829,24 @@ mldv2_is_in_get()
+ 	icmpv6=$(:
+ 		)"8f:"$(			: Type - MLDv2 Report
+ 		)"00:"$(			: Code
+-		)"45:39:"$(			: Checksum
++		)"CHECKSUM:"$(			: Checksum
+ 		)"00:00:"$(			: Reserved
+ 		)"00:01:"$(			: Number of Group Records
+ 		)"01:"$(			: Record Type - IS_IN
+ 		)"00:"$(			: Aux Data Len
+ 		)"00:01:"$(			: Number of Sources
+-		)"ff:0e:00:00:00:00:00:00:"$(	: Multicast address - ff0e::1
+-		)"00:00:00:00:00:00:00:01:"$(	:
+-		)"20:01:0d:b8:00:01:00:00:"$(	: Source Address - 2001:db8:1::2
+-		)"00:00:00:00:00:00:00:02:"$(	:
++		)"$(ipv6_to_bytes $GRP):"$(	: Multicast address
++		)"$(ipv6_to_bytes $IP):"$(	: Source Address
+ 		)
+ 
+-	echo ${hbh}${icmpv6}
++	local len=$(u16_to_bytes $(payload_template_nbytes $icmpv6))
++	local sudohdr=$(:
++		)"$(ipv6_to_bytes $SIP):"$(	: SIP
++		)"$(ipv6_to_bytes $GRP):"$(	: DIP is multicast address
++	        )"${len}:"$(			: Upper-layer length
++	        )"00:3a:"$(			: Zero and next-header
++	        )
++	local checksum=$(payload_template_calc_checksum ${sudohdr}${icmpv6})
++
++	payload_template_expand_checksum "$hbh$icmpv6" $checksum
+ }
 -- 
 2.39.0
 
