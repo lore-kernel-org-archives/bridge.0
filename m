@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8623B41A59
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4D99B41A54
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 38980822DC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 54FEA822E4
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=h6Ub1IDHkp1vyCA8S1IJRVS4Vnw1XARvo/25RQk2MsU=;
- b=gddW4HTt8bpseDdEaeZmcyWZiW6EKXXXk2BLdZkplxOMg44JRXVbd4vT5iIa/OjWeL7C5rEecOt9VzXA+GEaXbJWo4XosiMHhRpkaP1y+G66JwUgmk8HinPispFjyu3i8+X/OVnakPSD3+FlM1QEWNQywRRleGWsvNa1jYf1DaQNgGIJTxLqCQtDyRVx35DQj3krwO/+YeMaIlwRD99GJgaNbebJoE/IXJFkHnt/yKYz4iNzRaDZyjEAEuJtLCVtBUF953kYssn0nW+X2IwGQWJ5DNt5nJaeXNLIW/026AYnt+vYDCiNTKAS7o5ZhAQAHPBSlODVqUiFzQhZN56bSg==
+ bh=unZIVLZjFEKbYFMIB3J78jjRpX+nGMx659EWcFNWJ/Q=;
+ b=dOL5EYiVj6vJ5DzQ8ZA34E4m+RkLkqYfY99Q1keIg3SCGJxLeozACCMqrjrxnEeVGBybAgpBkVpqv/u+pmXkHDATNM5SopAm8QpxqQ2sSQ6f53CUnCZF6Trz7PsUL6ygOKP9ZPb/knL2T87BlGguE+6Yy9CBhvtBI2KvrWr0JghZkd/SfNEo7sm9Ip0vRZLltbJjDTt8PPE7MLx2WPo6OiOvmOzgBr5hQCPpoz08gHKLvKD/iHGBmnaao53468iHrkkYdPlZnlxTQbpbaB1P2I2rPZbdA45clbmJhY54WHGshIbDXbxn9jFajvPDenjG1E0NBFTHC8Mgsi+Yc3ME6w==
 From: Petr Machata <petrm@nvidia.com>
-Date: Thu, 26 Jan 2023 18:01:17 +0100
-Message-ID: <c3f7ba006ca61292dba6d6389f30a38a70731a8e.1674752051.git.petrm@nvidia.com>
+Date: Thu, 26 Jan 2023 18:01:18 +0100
+Message-ID: <064ee17ac1c20603b3530a23e0ca533d57450cfc.1674752051.git.petrm@nvidia.com>
 In-Reply-To: <cover.1674752051.git.petrm@nvidia.com>
 References: <cover.1674752051.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 09/16] selftests: forwarding: Move IGMP-
-	and MLD-related functions to lib
+Subject: [Bridge] [PATCH net-next 10/16] selftests: forwarding: bridge_mdb:
+	Fix a typo
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,140 +27,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
-These functions will be helpful for other testsuites as well. Extract them
-to a common place.
+Add the letter missing from the word "INCLUDE".
 
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 ---
- .../selftests/net/forwarding/bridge_mdb.sh    | 49 -------------------
- tools/testing/selftests/net/forwarding/lib.sh | 49 +++++++++++++++++++
- 2 files changed, 49 insertions(+), 49 deletions(-)
+ tools/testing/selftests/net/forwarding/bridge_mdb.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-index 2fa5973c0c28..51f2b0d77067 100755
+index 51f2b0d77067..4e16677f02ba 100755
 --- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
 +++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-@@ -1018,26 +1018,6 @@ fwd_test()
- 	ip -6 address del fe80::1/64 dev br0
+@@ -1054,7 +1054,7 @@ ctrl_igmpv3_is_in_test()
+ 
+ 	bridge mdb del dev br0 port $swp1 grp 239.1.1.1 vid 10
+ 
+-	log_test "IGMPv3 MODE_IS_INCLUE tests"
++	log_test "IGMPv3 MODE_IS_INCLUDE tests"
  }
  
--igmpv3_is_in_get()
--{
--	local igmpv3
--
--	igmpv3=$(:
--		)"22:"$(			: Type - Membership Report
--		)"00:"$(			: Reserved
--		)"2a:f8:"$(			: Checksum
--		)"00:00:"$(			: Reserved
--		)"00:01:"$(			: Number of Group Records
--		)"01:"$(			: Record Type - IS_IN
--		)"00:"$(			: Aux Data Len
--		)"00:01:"$(			: Number of Sources
--		)"ef:01:01:01:"$(		: Multicast Address - 239.1.1.1
--		)"c0:00:02:02"$(		: Source Address - 192.0.2.2
--		)
--
--	echo $igmpv3
--}
--
- ctrl_igmpv3_is_in_test()
- {
- 	RET=0
-@@ -1077,35 +1057,6 @@ ctrl_igmpv3_is_in_test()
- 	log_test "IGMPv3 MODE_IS_INCLUE tests"
- }
- 
--mldv2_is_in_get()
--{
--	local hbh
--	local icmpv6
--
--	hbh=$(:
--		)"3a:"$(			: Next Header - ICMPv6
--		)"00:"$(			: Hdr Ext Len
--		)"00:00:00:00:00:00:"$(		: Options and Padding
--		)
--
--	icmpv6=$(:
--		)"8f:"$(			: Type - MLDv2 Report
--		)"00:"$(			: Code
--		)"45:39:"$(			: Checksum
--		)"00:00:"$(			: Reserved
--		)"00:01:"$(			: Number of Group Records
--		)"01:"$(			: Record Type - IS_IN
--		)"00:"$(			: Aux Data Len
--		)"00:01:"$(			: Number of Sources
--		)"ff:0e:00:00:00:00:00:00:"$(	: Multicast address - ff0e::1
--		)"00:00:00:00:00:00:00:01:"$(	:
--		)"20:01:0d:b8:00:01:00:00:"$(	: Source Address - 2001:db8:1::2
--		)"00:00:00:00:00:00:00:02:"$(	:
--		)
--
--	echo ${hbh}${icmpv6}
--}
--
  ctrl_mldv2_is_in_test()
- {
- 	RET=0
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 1c4f866de7d7..db2534f7e49b 100755
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1692,3 +1692,52 @@ hw_stats_monitor_test()
- 
- 	log_test "${type}_stats notifications"
- }
-+
-+igmpv3_is_in_get()
-+{
-+	local igmpv3
-+
-+	igmpv3=$(:
-+		)"22:"$(			: Type - Membership Report
-+		)"00:"$(			: Reserved
-+		)"2a:f8:"$(			: Checksum
-+		)"00:00:"$(			: Reserved
-+		)"00:01:"$(			: Number of Group Records
-+		)"01:"$(			: Record Type - IS_IN
-+		)"00:"$(			: Aux Data Len
-+		)"00:01:"$(			: Number of Sources
-+		)"ef:01:01:01:"$(		: Multicast Address - 239.1.1.1
-+		)"c0:00:02:02"$(		: Source Address - 192.0.2.2
-+		)
-+
-+	echo $igmpv3
-+}
-+
-+mldv2_is_in_get()
-+{
-+	local hbh
-+	local icmpv6
-+
-+	hbh=$(:
-+		)"3a:"$(			: Next Header - ICMPv6
-+		)"00:"$(			: Hdr Ext Len
-+		)"00:00:00:00:00:00:"$(		: Options and Padding
-+		)
-+
-+	icmpv6=$(:
-+		)"8f:"$(			: Type - MLDv2 Report
-+		)"00:"$(			: Code
-+		)"45:39:"$(			: Checksum
-+		)"00:00:"$(			: Reserved
-+		)"00:01:"$(			: Number of Group Records
-+		)"01:"$(			: Record Type - IS_IN
-+		)"00:"$(			: Aux Data Len
-+		)"00:01:"$(			: Number of Sources
-+		)"ff:0e:00:00:00:00:00:00:"$(	: Multicast address - ff0e::1
-+		)"00:00:00:00:00:00:00:01:"$(	:
-+		)"20:01:0d:b8:00:01:00:00:"$(	: Source Address - 2001:db8:1::2
-+		)"00:00:00:00:00:00:00:02:"$(	:
-+		)
-+
-+	echo ${hbh}${icmpv6}
-+}
 -- 
 2.39.0
 
