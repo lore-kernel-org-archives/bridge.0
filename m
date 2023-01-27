@@ -1,25 +1,26 @@
 Return-Path: <leon@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 659924176E
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 361C6402F2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F07A68264A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 213CA8261C
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1674796950;
- bh=m2iagu5CoxQcuS9/5fRga1nwz/j2ClImu0ojZzZlsAA=;
+ s=k20201202; t=1674797177;
+ bh=7cCRW7ZE/dmS2yOLiVK26bi2n3cjM6ODKzo2Y3b/bSA=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=u32G2mL+UTO8LhM9W2FwjlI1fdq+nDqO2EosoWBfnLNRlSjQIE9TpMqueVejLyFOY
- IQQmfvLU1druPVdO9xVfrOwbsE8Qi0jGaLJeOQCJ1ApNYwrc0ZrlrHTldn41SDIcof
- o54CTb765BJoZqi1liaozfGIIT8yhn1bsnUWdksGbML/y287YPddaqsVuT5vxVLjJc
- e9q42tNc260SY627J8h84Szkqtn+2ufbpU1VIMufaKq/0E/gFDkrSAeDp7lVxNQ3Q9
- GBoTAxAu5mcPtvar2u++uA3gPj9NM4/klmAXjIZKOJzwSIHnF2RY4/VDW2EMpR3iNB
- HY6YKPR5sP5GQ==
-Date: Fri, 27 Jan 2023 07:22:26 +0200
+ b=bSt9/0WoMT+bwdv0Z3z0dHWpEGJV2zcDmAVH2hUHsHcAnrFkLb1dfmXQtmCVU6K/b
+ 9SDa24o05vD4LofEN4xFK/lv7nQ8e5ld126hWJTajsqO/spGjZ4FDZZFn5XS7ThHtr
+ mVh1Jeb9pJrOjDPw2rAKH2p1m5cEqI2hnKSdDFnq3zhhKwBHKhEgvEGAAQ3lAAUQLH
+ 7V5b4QGHkHOiDYx0zNnay+skEfdarYyA7uxvbGIl4VaubixRBTXjAowQFXdIMF0+2m
+ sP8fn4t76BAvlDvh42LpURmfj0UginFuzKNUrvkezreHb1AWWnwOWoS0NsYjSPIHtB
+ Dg7VrY0WvquwA==
+Date: Fri, 27 Jan 2023 07:26:13 +0200
 From: Leon Romanovsky <leon@kernel.org>
-Message-ID: <Y9NfkgRbWAbrxQ1G@unreal>
+Message-ID: <Y9NgdXk3NLtjG3Mj@unreal>
 References: <2919eb55e2e9b92265a3ba600afc8137a901ae5f.1674760340.git.leon@kernel.org>
  <20230126223213.riq6i2gdztwuinwi@skbuf>
+ <20230126143723.7593ce0b@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230126223213.riq6i2gdztwuinwi@skbuf>
+In-Reply-To: <20230126143723.7593ce0b@kernel.org>
 Subject: Re: [Bridge] [PATCH net-next] netlink: provide an ability to set
  default extack message
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -30,81 +31,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S . Miller" <davem@davemloft.net>
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vladimir Oltean <olteanv@gmail.com>, "David S . Miller" <davem@davemloft.net>
 
-On Fri, Jan 27, 2023 at 12:32:13AM +0200, Vladimir Oltean wrote:
-> On Thu, Jan 26, 2023 at 09:15:03PM +0200, Leon Romanovsky wrote:
-> > From: Leon Romanovsky <leonro@nvidia.com>
+On Thu, Jan 26, 2023 at 02:37:23PM -0800, Jakub Kicinski wrote:
+> On Fri, 27 Jan 2023 00:32:13 +0200 Vladimir Oltean wrote:
+> > On Thu, Jan 26, 2023 at 09:15:03PM +0200, Leon Romanovsky wrote:
+> > > From: Leon Romanovsky <leonro@nvidia.com>
+> > > 
+> > > In netdev common pattern, xxtack pointer is forwarded to the drivers  
+> >                             ~~~~~~
+> >                             extack
 > > 
-> > In netdev common pattern, xxtack pointer is forwarded to the drivers
->                             ~~~~~~
->                             extack
-> 
-> > to be filled with error message. However, the caller can easily
-> > overwrite the filled message.
+> > > to be filled with error message. However, the caller can easily
+> > > overwrite the filled message.
+> > > 
+> > > Instead of adding multiple "if (!extack->_msg)" checks before any
+> > > NL_SET_ERR_MSG() call, which appears after call to the driver, let's
+> > > add this check to common code.
+> > > 
+> > > [1] https://lore.kernel.org/all/Y9Irgrgf3uxOjwUm@unreal
+> > > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> > > ---  
 > > 
-> > Instead of adding multiple "if (!extack->_msg)" checks before any
-> > NL_SET_ERR_MSG() call, which appears after call to the driver, let's
-> > add this check to common code.
-> > 
-> > [1] https://lore.kernel.org/all/Y9Irgrgf3uxOjwUm@unreal
-> > Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-> > ---
+> > I would somewhat prefer not doing this, and instead introducing a new
+> > NL_SET_ERR_MSG_WEAK() of sorts.
 > 
-> I would somewhat prefer not doing this, and instead introducing a new
-> NL_SET_ERR_MSG_WEAK() of sorts.
+> That'd be my preference too, FWIW. It's only the offload cases which
+> need this sort of fallback.
 
-It means changing ALL error unwind places where extack was forwarded
-before to subfunctions.
+Of course not, almost any error unwind path which sets extack will need it.
+See devlink as an example, but I'm confident that same issue exists in other
+places too.
 
-Places like this:
- ret = func(..., extack)
- if (ret) {
-   NL_SET_ERR_MSG_MOD...
-   return ret;
- }
+You are suggesting API which is very easy to do wrong.
 
-will need to be changed to something like this:
- ret = func(..., extack)
- if (ret) {
-   NL_SET_ERR_MSG_WEAK...
-   return ret;
- }
-
-> 
-> The reason has to do with the fact that an extack is sometimes also
-> used to convey warnings rather than hard errors, for example right here
-> in net/dsa/slave.c:
-> 
-> 	if (err == -EOPNOTSUPP) {
-> 		if (extack && !extack->_msg)
-> 			NL_SET_ERR_MSG_MOD(extack,
-> 					   "Offloading not supported");
-> 		NL_SET_ERR_MSG_MOD(extack,
-> 				   "Offloading not supported");
-> 		err = 0;
-> 	}
-> 
-> Imagine (not the case here) that below such a "warning extack" lies
-> something like this:
-> 
-> 	if (arg > range) {
-> 		NL_SET_ERR_MSG_MOD(extack, "Argument outside expected range");
-> 		return -ERANGE;
-> 	}
-> 
-> What you'll get is:
-> 
-> Error: Offloading not supported (error code -ERANGE).
-> 
-> whereas before, we relied on any NL_SET_ERR_MSG_MOD() call to overwrite
-> the "warning" extack, and that to only be shown on error code 0.
-
-Can we please discuss current code and not over-engineered case which
-doesn't exist in the reality?
-
-Even for your case, I would like to see NL_SET_ERR_MSG_FORCE() to
-explicitly say that message will be overwritten.
+So I prefer to stay with my proposal if it is possible.
 
 Thanks
