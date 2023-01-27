@@ -1,27 +1,22 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6DF8341CB5
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7707341CB3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=7q//eWD7kpKVjwkvP9sSwP1duHlI8w+YBBfIBpjcKsU=;
- b=XOWnbPeHK869eG5NgRyxRRIGBWXGJksAbHxR5YyTn4BIx6+j+VvSQiBjgC3IN9kLM6
- AIo37Y0Rc444kkJFPhPJ6euTVgyNThZCA2oJb2LzDS/1SVriuTTi8EvYecyC8eIdiBEA
- la8iyZFBSWntYG3t4RdeHYi2TDDpBZODccGCEEg9KztzkAhrwpRR4+oZ8vRrEH6hfG1I
- +R2LKV3N6AglJsS27FLGOe6VHMW4SFpYZRrG1BWdBlBxB0tdFUCbmlrjFalVdDQAPvUE
- UZjgytkW2zekKT3kN+TYRvzQJK4PsaCiyRzKlKREKYukuda1NuaZ59TM9s4yuM4laT8M
- VHYw==
-Date: Fri, 27 Jan 2023 11:22:42 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20230127092242.ajwlo3tivxsjsul7@skbuf>
-References: <2919eb55e2e9b92265a3ba600afc8137a901ae5f.1674760340.git.leon@kernel.org>
- <20230126223213.riq6i2gdztwuinwi@skbuf> <Y9NfkgRbWAbrxQ1G@unreal>
+Return-Path: <petrm@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4746D417CD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A1D4400D0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yIq/f+MlrXemkUn2KwP3Vd5EB4Af8Ean9vt4f2VAZjA=;
+ b=Ujivl0FQ02eWUptu2R8Pfho+ZCFpg2y/MCcseDN0hB8GWXcsB/iW9GwS6CmNP8BgOer7seRrzjoyPRvuNKmmFguauUP/BbJCKBaylztVYep9R/6Gy3HB+NnFYmY+1fdIDAh7og51XO0R4oaTD49rYoRXb351P6qfyXsRlexpYr6TBU7eQI1t1RWQ8JriOFemDUmx+yrq50d27M/09c+Hzupojeukh8GXGUeLHTH1Tj+a7omv9JKm1M3bkVbmDqcgcxZlh5WDljJE4vpGYOeHXx/CgWiYeCugb6nNj1cpILIUZlbTTLybKLvJ5jw6MgFvLSvgkc6RDVLKjfQojyrgSA==
+References: <cover.1674752051.git.petrm@nvidia.com>
+ <ed2e2e305dd49423745b62c0152a0b85bc84a767.1674752051.git.petrm@nvidia.com>
+ <20230126125344.1b7b34e2@gandalf.local.home>
+From: Petr Machata <petrm@nvidia.com>
+Date: Fri, 27 Jan 2023 15:29:19 +0100
+In-Reply-To: <20230126125344.1b7b34e2@gandalf.local.home>
+Message-ID: <87h6wc3um7.fsf@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y9NfkgRbWAbrxQ1G@unreal>
-Subject: Re: [Bridge] [PATCH net-next] netlink: provide an ability to set
- default extack message
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH net-next 06/16] net: bridge: Add a tracepoint
+ for MDB overflows
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,49 +25,112 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S . Miller" <davem@davemloft.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>, linux-trace-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2023 at 07:22:26AM +0200, Leon Romanovsky wrote:
-> It means changing ALL error unwind places where extack was forwarded
-> before to subfunctions.
-> 
-> Places like this:
->  ret = func(..., extack)
->  if (ret) {
->    NL_SET_ERR_MSG_MOD...
->    return ret;
->  }
-> 
-> will need to be changed to something like this:
->  ret = func(..., extack)
->  if (ret) {
->    NL_SET_ERR_MSG_WEAK...
->    return ret;
->  }
 
-Yeah, but my point is that you inspect the code that you plan to convert,
-rather than converting it in bulk and inspecting later...
+Steven Rostedt <rostedt@goodmis.org> writes:
 
-> Can we please discuss current code and not over-engineered case which
-> doesn't exist in the reality?
-> 
-> Even for your case, I would like to see NL_SET_ERR_MSG_FORCE() to
-> explicitly say that message will be overwritten.
+>> diff --git a/include/trace/events/bridge.h b/include/trace/events/bridge.h
+>> index 6b200059c2c5..00d5e2dcb3ad 100644
+>> --- a/include/trace/events/bridge.h
+>> +++ b/include/trace/events/bridge.h
+>> @@ -122,6 +122,73 @@ TRACE_EVENT(br_fdb_update,
+>>  		  __entry->flags)
+>>  );
+>>  
+>> +TRACE_EVENT(br_mdb_full,
+>> +
+>> +	TP_PROTO(const struct net_device *dev,
+>> +		 const struct br_ip *group),
+>> +
+>> +	TP_ARGS(dev, group),
+>> +
+>> +	TP_STRUCT__entry(
+>> +		__string(dev, dev->name)
+>> +		__field(int, af)
+>> +		__field(u16, vid)
+>> +		__array(__u8, src4, 4)
+>> +		__array(__u8, src6, 16)
+>> +		__array(__u8, grp4, 4)
+>> +		__array(__u8, grp6, 16)
+>> +		__array(__u8, grpmac, ETH_ALEN) /* For af == 0. */
+>
+> Instead of wasting ring buffer space, why not just have:
+>
+> 		__array(__u8, src, 16)
+> 		__array(__u8, grp, 16)
+>
+>> +	),
+>> +
+>> +	TP_fast_assign(
+>> +		__assign_str(dev, dev->name);
+>> +		__entry->vid = group->vid;
+>> +
+>> +		if (!group->proto) {
+>> +			__entry->af = 0;
+>> +
+>> +			memset(__entry->src4, 0, sizeof(__entry->src4));
+>> +			memset(__entry->src6, 0, sizeof(__entry->src6));
+>> +			memset(__entry->grp4, 0, sizeof(__entry->grp4));
+>> +			memset(__entry->grp6, 0, sizeof(__entry->grp6));
+>> +			memcpy(__entry->grpmac, group->dst.mac_addr, ETH_ALEN);
+>> +		} else if (group->proto == htons(ETH_P_IP)) {
+>> +			__be32 *p32;
+>> +
+>> +			__entry->af = AF_INET;
+>> +
+>> +			p32 = (__be32 *) __entry->src4;
+>> +			*p32 = group->src.ip4;
+>> +
+>> +			p32 = (__be32 *) __entry->grp4;
+>> +			*p32 = group->dst.ip4;
+>
+> 			struct in6_addr *in6;
+>
+> 			in6 = (struct in6_addr *)__entry->src;
+> 			ipv6_addr_set_v4mapped(group->src.ip4, in6);
+>
+> 			in6 = (struct in6_addr *)__entry->grp;
+> 			ipv6_addr_set_v4mapped(group->grp.ip4, in6);
+>
+>> +
+>> +			memset(__entry->src6, 0, sizeof(__entry->src6));
+>> +			memset(__entry->grp6, 0, sizeof(__entry->grp6));
+>> +			memset(__entry->grpmac, 0, ETH_ALEN);
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +		} else {
+>> +			struct in6_addr *in6;
+>> +
+>> +			__entry->af = AF_INET6;
+>> +
+>> +			in6 = (struct in6_addr *)__entry->src6;
+>> +			*in6 = group->src.ip6;
+>> +
+>> +			in6 = (struct in6_addr *)__entry->grp6;
+>> +			*in6 = group->dst.ip6;
+>> +
+>> +			memset(__entry->src4, 0, sizeof(__entry->src4));
+>> +			memset(__entry->grp4, 0, sizeof(__entry->grp4));
+>> +			memset(__entry->grpmac, 0, ETH_ALEN);
+>> +#endif
+>> +		}
+>> +	),
+>> +
+>> +	TP_printk("dev %s af %u src %pI4/%pI6c grp %pI4/%pI6c/%pM vid %u",
+>> +		  __get_str(dev), __entry->af, __entry->src4, __entry->src6,
+>> +		  __entry->grp4, __entry->grp6, __entry->grpmac, __entry->vid)
+>
+> And just have: 
+>
+> 	TP_printk("dev %s af %u src %pI6c grp %pI6c/%pM vid %u",
+> 		  __get_str(dev), __entry->af, __entry->src, __entry->grp,
+> 		  __entry->grpmac, __entry->vid)
+>
+> As the %pI6c should detect that it's a ipv4 address and show that.
 
-__nla_validate_parse()
+So the reason I split the fields was that %pI4, %pI6c, %pM do not seem
+to work with buffers of wrong size.
 
-	if (unlikely(rem > 0)) {
-		pr_warn_ratelimited("netlink: %d bytes leftover after parsing attributes in process `%s'.\n",
-				    rem, current->comm);
-		NL_SET_ERR_MSG(extack, "bytes leftover after parsing attributes");
-		if (validate & NL_VALIDATE_TRAILING)
-			return -EINVAL;
-	}
-
-	return 0;
-
-called by nla_validate_deprecated() with validate == NL_VALIDATE_LIBERAL
-
-followed by other extack setting in tunnel_key_copy_opts(), which will
-not overwrite the initial warning message.
+But I can consolidate 4/6 by changing the address to IPv6 like you
+propose. I'll do this for v2. Thanks!
