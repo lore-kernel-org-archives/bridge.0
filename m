@@ -1,30 +1,29 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2FA6E8146B
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F2418146A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=4573WNrB5FF9KwFCy2MksCXmBgaLnWObBAuKFtrdwIo=;
- b=3Rm/xLsmR+ZsqU2licFREtxpDXVf4RkBEpthTk0ryZYfOrooi4j/eSOMdZ+sfvvr3w
- rKTacinZoadKM1PSA6WWWU9GTe+5ckkpopkFhZmwdn0o2TO6Vd+lX9xQVHzSujzCqgpZ
- vLrhwtPqhTtM0BLS2fUAHx7F88LFQr1sxZasR0qNehko8VJ/au9lg7Yke5dFdhka6RBO
- nbE2VxjuMPd7/RUU2rljrBQJ+pSfMrDuNTrMdeaJCE05/9iGQg4JxZqHS0JxQplKLr5/
- WDcT+JTvJ+JaC+ltsJsDHTNqJRDz9C3q/VD4ddkxI3G6es12RkYaG2SSzp0NIJK5xmmV
- pPYQ==
-Message-ID: <e38b1c50-2e6a-b2b4-47d0-3ebc707b56a3@blackwall.org>
-Date: Sun, 29 Jan 2023 12:12:48 +0200
+Return-Path: <leon@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EA86C60BDB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4D1AB60BB9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1674992637;
+ bh=TDNIdzHxTsptTuCNlpFYNF7gjfmaOn0rB2AsJX19J5k=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=hOvSM4U1AJ7KK7hjfc/3LvNG/jlgHahNGjAbnGFqR6QKun/rCMcZr6mXMoXqgtEp1
+ mIYGz2skNQJ/bUDvrxqGJsGk8gOukVsHq52r9i3vOZJ2EJDQoCsaIcLieHxOUf8OcC
+ 1yLqrgt8gC98ZSNqxQUhp6WOeTQIFcMV9FEf3bWliBJo4yUij5k9kqiymP89vayMpV
+ 62MXB7TfSvuGBHZFijK+dMsQ4ZqwP/KOhXO3Q98lMRL/ZS3S+y7fE2UP9VHR/DI+4r
+ MujKSToQUXOktj9Qy+dEE7dEfbak6b7ltI1TLwxcr42tlREZiZyG4vkbTzRwKmFpl7
+ YikMf3b9QUg0w==
+Date: Sun, 29 Jan 2023 13:43:53 +0200
+From: Leon Romanovsky <leon@kernel.org>
+Message-ID: <Y9Zb+RU637gLIwgz@unreal>
+References: <2919eb55e2e9b92265a3ba600afc8137a901ae5f.1674760340.git.leon@kernel.org>
+ <20230126223213.riq6i2gdztwuinwi@skbuf>
+ <20230126143723.7593ce0b@kernel.org> <Y9NgdXk3NLtjG3Mj@unreal>
+ <20230126232615.1901128c@kernel.org>
 MIME-Version: 1.0
-Content-Language: en-US
-References: <cover.1674752051.git.petrm@nvidia.com>
- <b3e7988954d5db878b8e2c97638646b25ab0350c.1674752051.git.petrm@nvidia.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <b3e7988954d5db878b8e2c97638646b25ab0350c.1674752051.git.petrm@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 16/16] selftests: forwarding:
- bridge_mdb_max: Add a new selftest
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230126232615.1901128c@kernel.org>
+Subject: Re: [Bridge] [PATCH net-next] netlink: provide an ability to set
+ default extack message
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,20 +32,27 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, Vladimir Oltean <olteanv@gmail.com>, "David S . Miller" <davem@davemloft.net>
 
-On 26/01/2023 19:01, Petr Machata wrote:
-> Add a suite covering mcast_n_groups and mcast_max_groups bridge features.
+On Thu, Jan 26, 2023 at 11:26:15PM -0800, Jakub Kicinski wrote:
+> On Fri, 27 Jan 2023 07:26:13 +0200 Leon Romanovsky wrote:
+> > > That'd be my preference too, FWIW. It's only the offload cases which
+> > > need this sort of fallback.  
+> > 
+> > Of course not, almost any error unwind path which sets extack will need it.
 > 
-> Signed-off-by: Petr Machata <petrm@nvidia.com>
-> ---
->  .../testing/selftests/net/forwarding/Makefile |   1 +
->  .../net/forwarding/bridge_mdb_max.sh          | 970 ++++++++++++++++++
->  2 files changed, 971 insertions(+)
->  create mode 100755 tools/testing/selftests/net/forwarding/bridge_mdb_max.sh
+> I guess we can come up with scenarios where the new behavior would 
+> be useful. But the fact is - your patch changes 4 places...
+
+ok, I'll rename.
+
 > 
+> > See devlink as an example
+> 
+> I don't know what part of devlink you mean at a quick scroll.
 
-Nice test coverage!
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+I overlooked "return err" in the middle.
+You are right.
 
+Thanks
