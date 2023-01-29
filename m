@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9951A41706
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 68A0A41705
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C122781BC6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1BF4F81BBD
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:content-language
- :references:cc:to:subject:user-agent:mime-version:date:message-id
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=w/AZ/A/olYCP18HetNsEPN25VtnURtcy+kAXgeU7ycM=;
- b=fjrTGrhig1y4OqWIksdP6M4gdfwa71nXHU9U/H7D7xPlxVJ+zyBk2qqW5YfW0OAwX1
- PNkeIbHDkAKnRhhZV2G0GEknGvaUi82PvwJqeZ5jQJ/zh/I8fZuNI0uDKckoBfVI49AZ
- RMrG3mTEOjU1ZlJMbpxWVr9BKBsvaHodQfpGksB0+qnZ4hbJeWAJwgXitwJGyeyj7Q6x
- hgUXtqI7GCcUYj3Azk0GrGJTx5RdEKSGNl1QXzS+D2IHFfTFUmHSIAo0TunNi7eOZ7en
- abS5zii44GGB8pDiHYuMORB5OI7eyTzWqqAa7kp3XnP3jCVhkoun01+63SGyPH4zEf4d
- peug==
-Message-ID: <dbfe0af4-24f8-bdc9-38ea-c873936bdd7f@blackwall.org>
-Date: Sun, 29 Jan 2023 11:09:29 +0200
+ bh=ME2PdeGInkXM+3g9j7aQWR1xp7lA94fP3xofwv1Necc=;
+ b=77HUeHrM1uiM1r7VcC24466iV7eBJUjFbnVCZ43EG1qSi652M0YPNBGu51BMoN44G9
+ JQtFcEn55+C3rZD2DRq2TNQ+KkeMATbVoHXdP4PLvVSQxo3YTu94lXGPsTzYGV2WD0id
+ azJkBo4KxDAwQSsY+73bkhFey1xiiz+CnQgi95FVOfXujsh6hgP4J/kDTFNNUp+/ATM6
+ pUsZbG3vigaoxQJpV9ODQXi2ddxkzO3SEixGLvMlOK+eweGKJ2v+Iw2Ut4XvltldZo0u
+ L44UiNmjTL+44Rim7jOn85a3kw60Pij3uduhj3gSGtVrvi7Ad52nOkHyLLGuBj7p98SU
+ m3yg==
+Message-ID: <3430cc65-03f6-c2a7-fd6e-2611f084b434@blackwall.org>
+Date: Sun, 29 Jan 2023 11:09:45 +0200
 MIME-Version: 1.0
-References: <cover.1674752051.git.petrm@nvidia.com>
- <8886e11bde5874305a26c0b7dc397923a1d5a794.1674752051.git.petrm@nvidia.com>
 Content-Language: en-US
+References: <cover.1674752051.git.petrm@nvidia.com>
+ <e22dda1dc7f1211428f6504c86ba2cedb8fdcca0.1674752051.git.petrm@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <8886e11bde5874305a26c0b7dc397923a1d5a794.1674752051.git.petrm@nvidia.com>
+In-Reply-To: <e22dda1dc7f1211428f6504c86ba2cedb8fdcca0.1674752051.git.petrm@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 01/16] net: bridge: Set
- strict_start_type at two policies
+Subject: Re: [Bridge] [PATCH net-next 02/16] net: bridge: Add extack to
+ br_multicast_new_port_group()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,47 +37,19 @@ To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Er
 Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
 On 26/01/2023 19:01, Petr Machata wrote:
-> Make any attributes newly-added to br_port_policy or vlan_tunnel_policy
-> parsed strictly, to prevent userspace from passing garbage. Note that this
-> patchset only touches the former policy. The latter was adjusted for
-> completeness' sake. There do not appear to be other _deprecated calls
-> with non-NULL policies.
+> Make it possible to set an extack in br_multicast_new_port_group().
+> Eventually, this function will check for per-port and per-port-vlan
+> MDB maximums, and will use the extack to communicate the reason for
+> the bounce.
 > 
-> Suggested-by: Ido Schimmel <idosch@nvidia.com>
 > Signed-off-by: Petr Machata <petrm@nvidia.com>
 > Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->  net/bridge/br_netlink.c        | 2 ++
->  net/bridge/br_netlink_tunnel.c | 3 +++
->  2 files changed, 5 insertions(+)
+>  net/bridge/br_mdb.c       | 5 +++--
+>  net/bridge/br_multicast.c | 5 +++--
+>  net/bridge/br_private.h   | 3 ++-
+>  3 files changed, 8 insertions(+), 5 deletions(-)
 > 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 4316cc82ae17..a6133d469885 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -858,6 +858,8 @@ static int br_afspec(struct net_bridge *br,
->  }
->  
->  static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
-> +	[IFLA_BRPORT_UNSPEC]	= { .strict_start_type =
-> +					IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT + 1 },
->  	[IFLA_BRPORT_STATE]	= { .type = NLA_U8 },
->  	[IFLA_BRPORT_COST]	= { .type = NLA_U32 },
->  	[IFLA_BRPORT_PRIORITY]	= { .type = NLA_U16 },
-> diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
-> index 8914290c75d4..17abf092f7ca 100644
-> --- a/net/bridge/br_netlink_tunnel.c
-> +++ b/net/bridge/br_netlink_tunnel.c
-> @@ -188,6 +188,9 @@ int br_fill_vlan_tunnel_info(struct sk_buff *skb,
->  }
->  
->  static const struct nla_policy vlan_tunnel_policy[IFLA_BRIDGE_VLAN_TUNNEL_MAX + 1] = {
-> +	[IFLA_BRIDGE_VLAN_TUNNEL_UNSPEC] = {
-> +		.strict_start_type = IFLA_BRIDGE_VLAN_TUNNEL_FLAGS + 1
-> +	},
->  	[IFLA_BRIDGE_VLAN_TUNNEL_ID] = { .type = NLA_U32 },
->  	[IFLA_BRIDGE_VLAN_TUNNEL_VID] = { .type = NLA_U16 },
->  	[IFLA_BRIDGE_VLAN_TUNNEL_FLAGS] = { .type = NLA_U16 },
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
