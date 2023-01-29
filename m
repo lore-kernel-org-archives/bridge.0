@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 29926813EE
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 78DDD81374
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2FA6E8146B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F2418146A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=XSjzv9oX4nqKyAAaAAV6s7LVl26vtY1MqzcjjUEwoXU=;
- b=rpYLywZnaMlJmLu9mHyM5dMzeRkzlOGR3mtnEM2wXnEr2w/x7OFBE6vTHX5mq8mmjA
- Cz47b6rzEg1PM+w7yCLri9Q2sJkbq906NkgQGQlrR6TWgfdsnsfisP1309pfRM0Xmwx4
- uEYVhUP93/RQnfNzrm0Ole4HSMaPb3G5nIqMmNUpeYJJm3I9Hn3YdAMI1K8vAczrO1d2
- FgeL699BFqxbXR6maryA7gMtqSwfMSIfpF1iwQ9UaX30Bj7FYvtPca4DM6LZFuqh3jDj
- mxeGzBxK8+Sl2lHUGFpYPSwE7xC878YmG5QuN9hehgpjp/cjaUnTYTJ9tu8khtus/lFo
- Y/xA==
-Message-ID: <dc268a07-7b85-6483-da2b-edc5a8f5f3b8@blackwall.org>
-Date: Sun, 29 Jan 2023 12:11:49 +0200
+ bh=4573WNrB5FF9KwFCy2MksCXmBgaLnWObBAuKFtrdwIo=;
+ b=3Rm/xLsmR+ZsqU2licFREtxpDXVf4RkBEpthTk0ryZYfOrooi4j/eSOMdZ+sfvvr3w
+ rKTacinZoadKM1PSA6WWWU9GTe+5ckkpopkFhZmwdn0o2TO6Vd+lX9xQVHzSujzCqgpZ
+ vLrhwtPqhTtM0BLS2fUAHx7F88LFQr1sxZasR0qNehko8VJ/au9lg7Yke5dFdhka6RBO
+ nbE2VxjuMPd7/RUU2rljrBQJ+pSfMrDuNTrMdeaJCE05/9iGQg4JxZqHS0JxQplKLr5/
+ WDcT+JTvJ+JaC+ltsJsDHTNqJRDz9C3q/VD4ddkxI3G6es12RkYaG2SSzp0NIJK5xmmV
+ pPYQ==
+Message-ID: <e38b1c50-2e6a-b2b4-47d0-3ebc707b56a3@blackwall.org>
+Date: Sun, 29 Jan 2023 12:12:48 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <cover.1674752051.git.petrm@nvidia.com>
- <ade8275e8b812248effbfe5249d0116763340b3d.1674752051.git.petrm@nvidia.com>
+ <b3e7988954d5db878b8e2c97638646b25ab0350c.1674752051.git.petrm@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <ade8275e8b812248effbfe5249d0116763340b3d.1674752051.git.petrm@nvidia.com>
+In-Reply-To: <b3e7988954d5db878b8e2c97638646b25ab0350c.1674752051.git.petrm@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 15/16] selftests: forwarding: lib: Add
- helpers to build IGMP/MLD leave packets
+Subject: Re: [Bridge] [PATCH net-next 16/16] selftests: forwarding:
+ bridge_mdb_max: Add a new selftest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,16 +37,16 @@ To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Er
 Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
 On 26/01/2023 19:01, Petr Machata wrote:
-> The testsuite that checks for mcast_max_groups functionality will need to
-> wipe the added groups as well. Add helpers to build an IGMP or MLD packets
-> announcing that host is leaving a given group.
+> Add a suite covering mcast_n_groups and mcast_max_groups bridge features.
 > 
 > Signed-off-by: Petr Machata <petrm@nvidia.com>
 > ---
->  tools/testing/selftests/net/forwarding/lib.sh | 50 +++++++++++++++++++
->  1 file changed, 50 insertions(+)
+>  .../testing/selftests/net/forwarding/Makefile |   1 +
+>  .../net/forwarding/bridge_mdb_max.sh          | 970 ++++++++++++++++++
+>  2 files changed, 971 insertions(+)
+>  create mode 100755 tools/testing/selftests/net/forwarding/bridge_mdb_max.sh
 > 
 
+Nice test coverage!
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-
 
