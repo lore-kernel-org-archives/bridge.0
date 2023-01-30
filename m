@@ -1,22 +1,13 @@
-Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 035F141823
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 04C1441795
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XubIOGUXV39izAf99aI9nDczchTciAZ7WPlcFxA6S8U=;
- b=eSegMNTqTjF59Lx0ZGErrriFu+Oeg/Qd9JnmzYBvzCmKEfMmHppJYCgCEbzImGj4Dex7XGqpF3ibW3RNzXEyAw8y/ygdsB3vmU6vvqMGylWzk85sV9bC7k29n3vnPpuQ3z7P1BWPucM9wPrFCId2GqJGwJl+UeP1FZ7jfZLNXYVGbfVmcxVgNUJGxoyFERTIBZXVBaBcDjfUqm3/AAbHjyO8TADr3yoxQ1VsRqhz9Rt2DKMZ/s+OvBOVd6k2Hh9IjzT0cSnh0g92sSynLo7Xdoj5e7iTBqTjq274VZFYPMiAAFCF0WxOL+y5GmwhdQTGPEkGVKelEvv2yRMJ+MdE/g==
-References: <cover.1674752051.git.petrm@nvidia.com>
- <ed2e2e305dd49423745b62c0152a0b85bc84a767.1674752051.git.petrm@nvidia.com>
- <20230126125344.1b7b34e2@gandalf.local.home>
-From: Petr Machata <petrm@nvidia.com>
-Date: Mon, 30 Jan 2023 16:50:32 +0100
-In-Reply-To: <20230126125344.1b7b34e2@gandalf.local.home>
-Message-ID: <87ilgof20x.fsf@nvidia.com>
+Return-Path: <netdev@kapio-technology.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BC6FD60DDF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B824F60D76
+From: "Hans J. Schultz" <netdev@kapio-technology.com>
+Date: Mon, 30 Jan 2023 18:34:24 +0100
+Message-Id: <20230130173429.3577450-1-netdev@kapio-technology.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next 06/16] net: bridge: Add a tracepoint
- for MDB overflows
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next 0/5] ATU and FDB synchronization on locked
+	ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,35 +16,81 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>, linux-trace-kernel@vger.kernel.org
+To: davem@davemloft.net, kuba@kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, "Hans J. Schultz" <netdev@kapio-technology.com>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>, =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1 A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, Vladimir Oltean <olteanv@gmail.com>
 
+This patch set makes it possible to have synchronized dynamic ATU and FDB
+entries on locked ports. As locked ports are not able to automatically
+learn, they depend on userspace added entries, where userspace can add
+static or dynamic entries. The lifetime of static entries are completely
+dependent on userspace intervention, and thus not of interest here. We
+are only concerned with dynamic entries, which can be added with a
+command like:
 
-Steven Rostedt <rostedt@goodmis.org> writes:
+bridge fdb replace ADDR dev <DEV> master dynamic
 
-> On Thu, 26 Jan 2023 18:01:14 +0100
-> Petr Machata <petrm@nvidia.com> wrote:
->
->> +	TP_printk("dev %s af %u src %pI4/%pI6c grp %pI4/%pI6c/%pM vid %u",
->> +		  __get_str(dev), __entry->af, __entry->src4, __entry->src6,
->> +		  __entry->grp4, __entry->grp6, __entry->grpmac, __entry->vid)
->
-> And just have: 
->
-> 	TP_printk("dev %s af %u src %pI6c grp %pI6c/%pM vid %u",
-> 		  __get_str(dev), __entry->af, __entry->src, __entry->grp,
-> 		  __entry->grpmac, __entry->vid)
->
-> As the %pI6c should detect that it's a ipv4 address and show that.
+We choose only to support this feature on locked ports, as it involves
+utilizing the CPU to handle ATU related switchcore events (typically
+interrupts) and thus can result in significant performance loss if
+exposed to heavy traffic.
 
-This means the IP addresses will always be IPv6, even for an IPv4 MDB
-entries. One can still figure out the true protocol from the address
-family field, but it might not be obvious. Plus the IPv4-mapped IPv6
-addresses are not really formatted as IPv4, though yeah, IPv4 notation
-is embedded in that.
+On locked ports it is important for userspace to know when an authorized
+station has become silent, hence not breaking the communication of a
+station that has been authorized based on the MAC-Authentication Bypass
+(MAB) scheme. Thus if the station keeps being active after authorization,
+it will continue to have an open port as long as it is active. Only after
+a silent period will it have to be reauthorized. As the ageing process in
+the ATU is dependent on incoming traffic to the switchcore port, it is
+necessary for the ATU to signal that an entry has aged out, so that the
+FDB can be updated at the correct time.
 
-All the information is still there, but... scrambled? Not sure the
-reduction in clarity is worth the 8 bytes that we save. The tracepoint
-is unlikely to trigger often.
+This patch set includes a solution for the Marvell mv88e6xxx driver, where
+for this driver we use the Hold-At-One feature so that an age-out
+violation interrupt occurs when a station has been silent for the
+system-set age time. The age out violation interrupt allows the switchcore
+driver to remove both the ATU and the FDB entry at the same time.
 
-What say you?
+It is up to the maintainers of other switchcore drivers to implement the
+feature for their specific driver.
+
+Hans J. Schultz (5):
+  net: bridge: add dynamic flag to switchdev notifier
+  net: dsa: propagate flags down towards drivers
+  drivers: net: dsa: add fdb entry flags incoming to switchcore drivers
+  net: bridge: ensure FDB offloaded flag is handled as needed
+  net: dsa: mv88e6xxx: implementation of dynamic ATU entries
+
+ drivers/net/dsa/b53/b53_common.c        | 12 ++++-
+ drivers/net/dsa/b53/b53_priv.h          |  4 +-
+ drivers/net/dsa/hirschmann/hellcreek.c  | 12 ++++-
+ drivers/net/dsa/lan9303-core.c          | 12 ++++-
+ drivers/net/dsa/lantiq_gswip.c          | 12 ++++-
+ drivers/net/dsa/microchip/ksz9477.c     |  8 ++--
+ drivers/net/dsa/microchip/ksz9477.h     |  8 ++--
+ drivers/net/dsa/microchip/ksz_common.c  | 14 ++++--
+ drivers/net/dsa/mt7530.c                | 12 ++++-
+ drivers/net/dsa/mv88e6xxx/chip.c        | 24 ++++++++--
+ drivers/net/dsa/mv88e6xxx/global1_atu.c | 21 +++++++++
+ drivers/net/dsa/mv88e6xxx/port.c        |  6 ++-
+ drivers/net/dsa/mv88e6xxx/switchdev.c   | 61 +++++++++++++++++++++++++
+ drivers/net/dsa/mv88e6xxx/switchdev.h   |  5 ++
+ drivers/net/dsa/mv88e6xxx/trace.h       |  5 ++
+ drivers/net/dsa/ocelot/felix.c          | 12 ++++-
+ drivers/net/dsa/qca/qca8k-common.c      | 12 ++++-
+ drivers/net/dsa/qca/qca8k.h             |  4 +-
+ drivers/net/dsa/rzn1_a5psw.c            | 12 ++++-
+ drivers/net/dsa/sja1105/sja1105_main.c  | 19 ++++++--
+ include/net/dsa.h                       |  6 ++-
+ include/net/switchdev.h                 |  1 +
+ net/bridge/br_fdb.c                     |  5 +-
+ net/bridge/br_switchdev.c               |  2 +
+ net/dsa/port.c                          | 28 +++++++-----
+ net/dsa/port.h                          |  8 ++--
+ net/dsa/slave.c                         | 17 +++++--
+ net/dsa/switch.c                        | 30 ++++++++----
+ net/dsa/switch.h                        |  1 +
+ 29 files changed, 299 insertions(+), 74 deletions(-)
+
+-- 
+2.34.1
+
