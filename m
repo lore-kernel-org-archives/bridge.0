@@ -1,19 +1,26 @@
-Return-Path: <SRS0=sOnO=53=goodmis.org=rostedt@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A4A0942D18
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8386142D9B
-Date: Mon, 30 Jan 2023 18:23:16 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-Message-ID: <20230130182316.53d787ac@gandalf.local.home>
-In-Reply-To: <87ilgof20x.fsf@nvidia.com>
-References: <cover.1674752051.git.petrm@nvidia.com>
- <ed2e2e305dd49423745b62c0152a0b85bc84a767.1674752051.git.petrm@nvidia.com>
- <20230126125344.1b7b34e2@gandalf.local.home>
- <87ilgof20x.fsf@nvidia.com>
+Return-Path: <pabeni@redhat.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A9670404B6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 42FB14040B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1675165629;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=viqpHWhPo/KOVRQlm6/EPChg5qrOk8FiTFF1q6ZWvFs=;
+ b=Fo7vvvq4cpC5wiS0VrPOv8sP5i1DrF54KkajQJKGbiPyd7MGHZxrBN/rkdvrO790Ey1FKK
+ mwlY3bIksYIXnhj8QH7g0cEzkDsqkUzhoTU4B7Hrzg74AasLOoa1FFAa8e5axeHP6hykjz
+ re+5rbbz7s1tUBepjx9HEdSaW15mr88=
+Message-ID: <801a4a44f0fb6e37f79037eae9a3db50191cdb12.camel@redhat.com>
+From: Paolo Abeni <pabeni@redhat.com>
+Date: Tue, 31 Jan 2023 12:47:03 +0100
+In-Reply-To: <c1a88f471a8aa6d780dde690e76b73ba15618b6d.1675010984.git.leon@kernel.org>
+References: <c1a88f471a8aa6d780dde690e76b73ba15618b6d.1675010984.git.leon@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 06/16] net: bridge: Add a tracepoint
- for MDB overflows
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH net-next v2] netlink: provide an ability to set
+ default extack message
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,43 +29,28 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Petr Machata <petrm@nvidia.com>
-Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>, linux-trace-kernel@vger.kernel.org
+To: Leon Romanovsky <leon@kernel.org>, "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Vladimir Oltean <olteanv@gmail.com>
 
-On Mon, 30 Jan 2023 16:50:32 +0100
-Petr Machata <petrm@nvidia.com> wrote:
+Hello,
 
-> Steven Rostedt <rostedt@goodmis.org> writes:
-> 
-> > On Thu, 26 Jan 2023 18:01:14 +0100
-> > Petr Machata <petrm@nvidia.com> wrote:
-> >  
-> >> +	TP_printk("dev %s af %u src %pI4/%pI6c grp %pI4/%pI6c/%pM vid %u",
-> >> +		  __get_str(dev), __entry->af, __entry->src4, __entry->src6,
-> >> +		  __entry->grp4, __entry->grp6, __entry->grpmac, __entry->vid)  
-> >
-> > And just have: 
-> >
-> > 	TP_printk("dev %s af %u src %pI6c grp %pI6c/%pM vid %u",
-> > 		  __get_str(dev), __entry->af, __entry->src, __entry->grp,
-> > 		  __entry->grpmac, __entry->vid)
-> >
-> > As the %pI6c should detect that it's a ipv4 address and show that.  
-> 
-> This means the IP addresses will always be IPv6, even for an IPv4 MDB
-> entries. One can still figure out the true protocol from the address
-> family field, but it might not be obvious. Plus the IPv4-mapped IPv6
-> addresses are not really formatted as IPv4, though yeah, IPv4 notation
-> is embedded in that.
-> 
-> All the information is still there, but... scrambled? Not sure the
-> reduction in clarity is worth the 8 bytes that we save. The tracepoint
-> is unlikely to trigger often.
+On Sun, 2023-01-29 at 18:51 +0200, Leon Romanovsky wrote:
+> In netdev common pattern, extack pointer is forwarded to the drivers
+> to be filled with error message. However, the caller can easily
+> overwrite the filled message.
+>=20
+> Instead of adding multiple "if (!extack->_msg)" checks before any
+> NL_SET_ERR_MSG() call, which appears after call to the driver, let's
+> add new macro to common code.
+>=20
+> [1] https://lore.kernel.org/all/Y9Irgrgf3uxOjwUm@unreal
+> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 
-8 bytes per event, and yes, ring buffer real estate is expensive.
+I'm sorry for nit-picking, but checkpatch complains the author
+(leon@kernel.org) does not match the SoB tag. A v3 with a suitable
+From: tag should fix that.
 
-And if you use trace-cmd or perf, we can always add a plugin to
-libtraceevent that can format this much nicer based on the information that
-is there.
+Thanks,
 
--- Steve
+Paolo
+
