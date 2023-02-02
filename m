@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7BBEA81F2D
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7DD5881F31
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 77FF941D10
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3D98641D0D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xcDKbM/vxLaY/qHxu8fO8whiyjxP3cz/iCe2KzrkEEo=;
- b=hgl1j7QuReqVYCCePxgI0KBdpJwZCkGCUK3l3toYzl3Vxr7Q3hGePS0EURTg6L3H2sM+cTpcLj/NpmjWj+vVUvRgPGWX+bQnhIKlIHXsTlV4ZF5abjgaWO9gInSy1Wc1JMLa9RInmiggnVcPI1MgYWZ0Qa3YY35Nr89/0MgE9iwAfMmd4m6UoXAgP/DVdpyX4PAKlhCdEjZgQjMzB/kLmKf4P32AznOjPMMb0GFRtfZ5iwZpT6oNz1j9VP+noFp4mxGx4I/D9Mjj7xVx12Mvg9sP79Ftb3F6vEGQUwz3BrmCxY2zglHKHlw/WVlMSeWADo0mUYN/bdXNYI6nYosSAQ==
+ bh=KaO7FyK2OwQD4JbLKs6GXiMXyTVLodrTsmyEdNFE22g=;
+ b=GW1sOJTLe5zhFRfeqMiOpDjw3xyOuCHdxtWRbIIVRc82onluyYeK823V0tzQ3B9yq0A0DSK0Dq0VYIvmGv0WPzNmada9tCUynDeFCFyd/dgcBQHngAc0z60BLTy8s2spfdueurUNesSweYV7h4Me7W7uKJwh89PpVLP5NnfXG2484nyMfsedlSN4J1oWop7sfNTA2fETihWl26OC0Lqg1tzK8BsscjayWdyoSsqx+35BiF5g83ftP9UXIpyXLgCJ45KmlrsuzgLWxckYJvrfy3VsdaHht+TOh6GNZZNEsb1tcEYYwxRcCw9Ot2L1NuR6jCIXQ2kaqdJ6hwWopCy9gQ==
 From: Petr Machata <petrm@nvidia.com>
-Date: Thu, 2 Feb 2023 18:59:31 +0100
-Message-ID: <f97f1b25b7f98dd3671c42109c71493f36d16a55.1675359453.git.petrm@nvidia.com>
+Date: Thu, 2 Feb 2023 18:59:33 +0100
+Message-ID: <76cdd85502b18f3e1a2654ae0c91911db95cc795.1675359453.git.petrm@nvidia.com>
 In-Reply-To: <cover.1675359453.git.petrm@nvidia.com>
 References: <cover.1675359453.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 13/16] selftests: forwarding: lib:
-	Parameterize IGMPv3/MLDv2 generation
+Subject: [Bridge] [PATCH net-next v3 15/16] selftests: forwarding: lib: Add
+	helpers to build IGMP/MLD leave packets
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,129 +27,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
-In order to generate IGMPv3 and MLDv2 packets on the fly, the
-functions that generate these packets need to be able to generate
-packets for different groups and different sources. Generating MLDv2
-packets further needs the source address of the packet for purposes of
-checksum calculation. Add the necessary parameters, and generate the
-payload accordingly by dispatching to helpers added in the previous
-patches.
-
-Adjust the sole client, bridge_mdb.sh, as well.
+The testsuite that checks for mcast_max_groups functionality will need to
+wipe the added groups as well. Add helpers to build an IGMP or MLD packets
+announcing that host is leaving a given group.
 
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- .../selftests/net/forwarding/bridge_mdb.sh    |  9 ++---
- tools/testing/selftests/net/forwarding/lib.sh | 36 +++++++++++++------
- 2 files changed, 31 insertions(+), 14 deletions(-)
+ tools/testing/selftests/net/forwarding/lib.sh | 50 +++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-index 4e16677f02ba..b48867d8cadf 100755
---- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-@@ -1029,7 +1029,7 @@ ctrl_igmpv3_is_in_test()
- 
- 	# IS_IN ( 192.0.2.2 )
- 	$MZ $h1.10 -c 1 -A 192.0.2.1 -B 239.1.1.1 \
--		-t ip proto=2,p=$(igmpv3_is_in_get) -q
-+		-t ip proto=2,p=$(igmpv3_is_in_get 239.1.1.1 192.0.2.2) -q
- 
- 	bridge -d mdb show dev br0 vid 10 | grep 239.1.1.1 | grep -q 192.0.2.2
- 	check_fail $? "Permanent entry affected by IGMP packet"
-@@ -1042,7 +1042,7 @@ ctrl_igmpv3_is_in_test()
- 
- 	# IS_IN ( 192.0.2.2 )
- 	$MZ $h1.10 -c 1 -A 192.0.2.1 -B 239.1.1.1 \
--		-t ip proto=2,p=$(igmpv3_is_in_get) -q
-+		-t ip proto=2,p=$(igmpv3_is_in_get 239.1.1.1 192.0.2.2) -q
- 
- 	bridge -d mdb show dev br0 vid 10 | grep 239.1.1.1 | grep -v "src" | \
- 		grep -q 192.0.2.2
-@@ -1067,8 +1067,9 @@ ctrl_mldv2_is_in_test()
- 		filter_mode include source_list 2001:db8:1::1
- 
- 	# IS_IN ( 2001:db8:1::2 )
-+	local p=$(mldv2_is_in_get fe80::1 ff0e::1 2001:db8:1::2)
- 	$MZ -6 $h1.10 -c 1 -A fe80::1 -B ff0e::1 \
--		-t ip hop=1,next=0,p=$(mldv2_is_in_get) -q
-+		-t ip hop=1,next=0,p="$p" -q
- 
- 	bridge -d mdb show dev br0 vid 10 | grep ff0e::1 | \
- 		grep -q 2001:db8:1::2
-@@ -1082,7 +1083,7 @@ ctrl_mldv2_is_in_test()
- 
- 	# IS_IN ( 2001:db8:1::2 )
- 	$MZ -6 $h1.10 -c 1 -A fe80::1 -B ff0e::1 \
--		-t ip hop=1,next=0,p=$(mldv2_is_in_get) -q
-+		-t ip hop=1,next=0,p="$p" -q
- 
- 	bridge -d mdb show dev br0 vid 10 | grep ff0e::1 | grep -v "src" | \
- 		grep -q 2001:db8:1::2
 diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index b10c903d9abd..190e49e60508 100755
+index 12ef34ebcbbf..969e570f609e 100755
 --- a/tools/testing/selftests/net/forwarding/lib.sh
 +++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1788,26 +1788,35 @@ payload_template_nbytes()
- 
- igmpv3_is_in_get()
- {
-+	local GRP=$1; shift
-+	local IP=$1; shift
-+
- 	local igmpv3
- 
-+	# IS_IN ( $IP )
- 	igmpv3=$(:
- 		)"22:"$(			: Type - Membership Report
- 		)"00:"$(			: Reserved
--		)"2a:f8:"$(			: Checksum
-+		)"CHECKSUM:"$(			: Checksum
- 		)"00:00:"$(			: Reserved
- 		)"00:01:"$(			: Number of Group Records
- 		)"01:"$(			: Record Type - IS_IN
- 		)"00:"$(			: Aux Data Len
- 		)"00:01:"$(			: Number of Sources
--		)"ef:01:01:01:"$(		: Multicast Address - 239.1.1.1
--		)"c0:00:02:02"$(		: Source Address - 192.0.2.2
-+		)"$(ipv4_to_bytes $GRP):"$(	: Multicast Address
-+		)"$(ipv4_to_bytes $IP)"$(	: Source Address
- 		)
-+	local checksum=$(payload_template_calc_checksum "$igmpv3")
- 
--	echo $igmpv3
-+	payload_template_expand_checksum "$igmpv3" $checksum
+@@ -1815,6 +1815,21 @@ igmpv3_is_in_get()
+ 	payload_template_expand_checksum "$igmpv3" $checksum
  }
  
++igmpv2_leave_get()
++{
++	local GRP=$1; shift
++
++	local payload=$(:
++		)"17:"$(			: Type - Leave Group
++		)"00:"$(			: Max Resp Time - not meaningful
++		)"CHECKSUM:"$(			: Checksum
++		)"$(ipv4_to_bytes $GRP)"$(	: Group Address
++		)
++	local checksum=$(payload_template_calc_checksum "$payload")
++
++	payload_template_expand_checksum "$payload" $checksum
++}
++
  mldv2_is_in_get()
  {
+ 	local SIP=$1; shift
+@@ -1858,3 +1873,38 @@ mldv2_is_in_get()
+ 
+ 	payload_template_expand_checksum "$hbh$icmpv6" $checksum
+ }
++
++mldv1_done_get()
++{
 +	local SIP=$1; shift
 +	local GRP=$1; shift
-+	local IP=$1; shift
 +
- 	local hbh
- 	local icmpv6
- 
-@@ -1820,17 +1829,24 @@ mldv2_is_in_get()
- 	icmpv6=$(:
- 		)"8f:"$(			: Type - MLDv2 Report
- 		)"00:"$(			: Code
--		)"45:39:"$(			: Checksum
++	local hbh
++	local icmpv6
++
++	hbh=$(:
++		)"3a:"$(			: Next Header - ICMPv6
++		)"00:"$(			: Hdr Ext Len
++		)"00:00:00:00:00:00:"$(		: Options and Padding
++		)
++
++	icmpv6=$(:
++		)"84:"$(			: Type - MLDv1 Done
++		)"00:"$(			: Code
 +		)"CHECKSUM:"$(			: Checksum
- 		)"00:00:"$(			: Reserved
- 		)"00:01:"$(			: Number of Group Records
- 		)"01:"$(			: Record Type - IS_IN
- 		)"00:"$(			: Aux Data Len
- 		)"00:01:"$(			: Number of Sources
--		)"ff:0e:00:00:00:00:00:00:"$(	: Multicast address - ff0e::1
--		)"00:00:00:00:00:00:00:01:"$(	:
--		)"20:01:0d:b8:00:01:00:00:"$(	: Source Address - 2001:db8:1::2
--		)"00:00:00:00:00:00:00:02:"$(	:
++		)"00:00:"$(			: Max Resp Delay - not meaningful
++		)"00:00:"$(			: Reserved
 +		)"$(ipv6_to_bytes $GRP):"$(	: Multicast address
-+		)"$(ipv6_to_bytes $IP):"$(	: Source Address
- 		)
- 
--	echo ${hbh}${icmpv6}
++		)
++
 +	local len=$(u16_to_bytes $(payload_template_nbytes $icmpv6))
 +	local sudohdr=$(:
 +		)"$(ipv6_to_bytes $SIP):"$(	: SIP
@@ -160,7 +101,7 @@ index b10c903d9abd..190e49e60508 100755
 +	local checksum=$(payload_template_calc_checksum ${sudohdr}${icmpv6})
 +
 +	payload_template_expand_checksum "$hbh$icmpv6" $checksum
- }
++}
 -- 
 2.39.0
 
