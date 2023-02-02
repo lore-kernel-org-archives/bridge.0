@@ -1,19 +1,19 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 88677610A3
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 78AB960B95
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7891E408DB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C42C940220
 MIME-Version: 1.0
-Date: Thu, 02 Feb 2023 08:28:36 +0100
+Date: Thu, 02 Feb 2023 08:32:47 +0100
 From: netdev@kapio-technology.com
-In-Reply-To: <Y9qrAup9Xt/ZDEG0@shredder>
+In-Reply-To: <Y9qucziByvXsx5Q0@shredder>
 References: <20230130173429.3577450-1-netdev@kapio-technology.com>
- <20230130173429.3577450-2-netdev@kapio-technology.com>
- <Y9qrAup9Xt/ZDEG0@shredder>
-Message-ID: <f27dd18d9d0b7ff8b693af8a58ea8616@kapio-technology.com>
+ <20230130173429.3577450-5-netdev@kapio-technology.com>
+ <Y9qucziByvXsx5Q0@shredder>
+Message-ID: <d972e76bed896b229d9df4da81ad8eb4@kapio-technology.com>
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 1/5] net: bridge: add dynamic flag to
- switchdev notifier
+Subject: Re: [Bridge] [PATCH net-next 4/5] net: bridge: ensure FDB offloaded
+ flag is handled as needed
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,52 +27,19 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.c
  support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
  A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-On 2023-02-01 19:10, Ido Schimmel wrote:
-> On Mon, Jan 30, 2023 at 06:34:25PM +0100, Hans J. Schultz wrote:
->> To be able to add dynamic FDB entries to drivers from userspace, the
->> dynamic flag must be added when sending RTM_NEWNEIGH events down.
+On 2023-02-01 19:24, Ido Schimmel wrote:
+> 
+> This also looks correct, but the function name is not really accurate
+> anymore. I guess you can keep it as-is unless someone has a better name
+> 
+>>  		fdb_delete(br, fdb, swdev_notify);
+>>  	else
+>>  		err = -ENOENT;
+>> --
+>> 2.34.1
 >> 
->> Signed-off-by: Hans J. Schultz <netdev@kapio-technology.com>
->> ---
->>  include/net/switchdev.h   | 1 +
->>  net/bridge/br_switchdev.c | 2 ++
->>  2 files changed, 3 insertions(+)
->> 
->> diff --git a/include/net/switchdev.h b/include/net/switchdev.h
->> index ca0312b78294..aaf918d4ba67 100644
->> --- a/include/net/switchdev.h
->> +++ b/include/net/switchdev.h
->> @@ -249,6 +249,7 @@ struct switchdev_notifier_fdb_info {
->>  	u8 added_by_user:1,
->>  	   is_local:1,
->>  	   locked:1,
->> +	   is_dyn:1,
->>  	   offloaded:1;
->>  };
->> 
->> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
->> index 7eb6fd5bb917..4420fcbbfdb2 100644
->> --- a/net/bridge/br_switchdev.c
->> +++ b/net/bridge/br_switchdev.c
->> @@ -136,6 +136,8 @@ static void br_switchdev_fdb_populate(struct 
->> net_bridge *br,
->>  	item->added_by_user = test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
->>  	item->offloaded = test_bit(BR_FDB_OFFLOADED, &fdb->flags);
->>  	item->is_local = test_bit(BR_FDB_LOCAL, &fdb->flags);
->> +	item->is_dyn = !test_bit(BR_FDB_STATIC, &fdb->flags) &&
-> 
-> Why not 'is_static' and be consistent with the bridge flag like all the
-> other fields?
-> 
-> Regardless of how you name this field, it is irrelevant for
-> 'SWITCHDEV_FDB_ADD_TO_BRIDGE' notifications that all add FDB entries
-> with the 'BR_FDB_ADDED_BY_EXT_LEARN' flag set, which makes
-> 'BR_FDB_STATIC' irrelevant.
-> 
->> +		item->added_by_user;
-> 
-> Unclear why this is needed...
-> 
 
-The answer to those two questions lies in my earlier correspondences 
-(with Oltean) on the RFC version.
+I have been wondering if it makes sense to have both external_learn and 
+offloaded flags as they now work pretty much the same seen from the 
+bridge. But as I don't know other switches, I guess there is some good 
+reason to have the two?
