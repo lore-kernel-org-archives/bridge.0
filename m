@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 925F6611E6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7DE56611E5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A0C47611EF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6DCD8611E6
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=AeIm8VDbyr8KO7oICYdB7n8V03qSN2W5BVKef+oJ5OE=;
- b=qrol3hucCq7ZoA1ITVzWa2+Ij65qtniNi0+6PyP/Gwxp5pUsMpE6AfRBEQHaG6XlsNw4uUsjfVfg4wXpXdj2ZWpSJB7w14zJj6MmcEcknJ1+Jk6HaMFbGOXw/UVH5cQt1MEU4b0nwH/xa8G0Pvy5D6Nvttl1mXgENKzp1Hu+VrLD+y95vc2wxs0SAi7cJXpSSFMID63T6V2Ust7frqsanKWmKMARGei9ML+tPdb+X0kqPWE2yHPQFGRsv4MOebeceTB24sD26EcDY4lkfupqQmxw7euhfUouDBiQCTXbRwVUPAsOZcgMJ8vg7ihE6x/5lA7mZ0ZrOud0EnzmoTVmdA==
+ bh=LzU5L2f1g5Pc+95aJ6yIGgoSXVJnbHv9nAHTRS/gC8U=;
+ b=XYCfaVS/w5lvT4/WR9dICrFyRFkey/xfQmcJXglDHeEsfXNDIMdrEqCJxbLwYzbNuDV4BGBfMqQ5urCVFtnRMirRCuhchNi4tu/HKT6DEqEkRzIgrJQSMn+ZF5oJYnRVyP4A7jOyd4N/1cCPXPxoVDG/oSI39cjjL6UdUfU0hJSS7vdEKHvO4oYQy6OgfKuYpa7XZXY3lQNE1GoaOHID4Op8o+3nC3CFInwvLxYCsBLV/GandmslPVGvNaDfcPl/36GWMKktDgXktsWlP6Y9qX31ZmIhsYmiTowSk+6w3BBsOUwCwkACf78zbhe/LJnmC7Bj8iyjp90cUqgf0PxqCg==
 From: Petr Machata <petrm@nvidia.com>
-Date: Thu, 2 Feb 2023 18:59:25 +0100
-Message-ID: <8bd6e90beed928790059134471ecbb9c3d327894.1675359453.git.petrm@nvidia.com>
+Date: Thu, 2 Feb 2023 18:59:26 +0100
+Message-ID: <ad5b9a4a971f7a38951cb8475ca3c9a16057b0fd.1675359453.git.petrm@nvidia.com>
 In-Reply-To: <cover.1675359453.git.petrm@nvidia.com>
 References: <cover.1675359453.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 07/16] net: bridge: Maintain number of
-	MDB entries in net_bridge_mcast_port
+Subject: [Bridge] [PATCH net-next v3 08/16] net: bridge: Add netlink knobs
+	for number / maximum MDB entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,291 +27,331 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
-The MDB maintained by the bridge is limited. When the bridge is configured
-for IGMP / MLD snooping, a buggy or malicious client can easily exhaust its
-capacity. In SW datapath, the capacity is configurable through the
-IFLA_BR_MCAST_HASH_MAX parameter, but ultimately is finite. Obviously a
-similar limit exists in the HW datapath for purposes of offloading.
+The previous patch added accounting for number of MDB entries per port and
+per port-VLAN, and the logic to verify that these values stay within
+configured bounds. However it didn't provide means to actually configure
+those bounds or read the occupancy. This patch does that.
 
-In order to prevent the issue of unilateral exhaustion of MDB resources,
-introduce two parameters in each of two contexts:
+Two new netlink attributes are added for the MDB occupancy:
+IFLA_BRPORT_MCAST_N_GROUPS for the per-port occupancy and
+BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS for the per-port-VLAN occupancy.
+And another two for the maximum number of MDB entries:
+IFLA_BRPORT_MCAST_MAX_GROUPS for the per-port maximum, and
+BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS for the per-port-VLAN one.
 
-- Per-port and per-port-VLAN number of MDB entries that the port
-  is member in.
+Note that the two new IFLA_BRPORT_ attributes prompt bumping of
+RTNL_SLAVE_MAX_TYPE to size the slave attribute tables large enough.
 
-- Per-port and (when BROPT_MCAST_VLAN_SNOOPING_ENABLED is enabled)
-  per-port-VLAN maximum permitted number of MDB entries, or 0 for
-  no limit.
+The new attributes are used like this:
 
-The per-port multicast context is used for tracking of MDB entries for the
-port as a whole. This is available for all bridges.
+ # ip link add name br up type bridge vlan_filtering 1 mcast_snooping 1 \
+                                      mcast_vlan_snooping 1 mcast_querier 1
+ # ip link set dev v1 master br
+ # bridge vlan add dev v1 vid 2
 
-The per-port-VLAN multicast context is then only available on
-VLAN-filtering bridges on VLANs that have multicast snooping on.
+ # bridge vlan set dev v1 vid 1 mcast_max_groups 1
+ # bridge mdb add dev br port v1 grp 230.1.2.3 temp vid 1
+ # bridge mdb add dev br port v1 grp 230.1.2.4 temp vid 1
+ Error: bridge: Port-VLAN is already in 1 groups, and mcast_max_groups=1.
 
-With these changes in place, it will be possible to configure MDB limit for
-bridge as a whole, or any one port as a whole, or any single port-VLAN.
+ # bridge link set dev v1 mcast_max_groups 1
+ # bridge mdb add dev br port v1 grp 230.1.2.3 temp vid 2
+ Error: bridge: Port is already in 1 groups, and mcast_max_groups=1.
 
-Note that unlike the global limit, exhaustion of the per-port and
-per-port-VLAN maximums does not cause disablement of multicast snooping.
-It is also permitted to configure the local limit larger than hash_max,
-even though that is not useful.
+ # bridge -d link show
+ 5: v1@v2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master br [...]
+     [...] mcast_n_groups 1 mcast_max_groups 1
 
-In this patch, introduce only the accounting for number of entries, and the
-max field itself, but not the means to toggle the max. The next patch
-introduces the netlink APIs to toggle and read the values.
+ # bridge -d vlan show
+ port              vlan-id
+ br                1 PVID Egress Untagged
+                     state forwarding mcast_router 1
+ v1                1 PVID Egress Untagged
+                     [...] mcast_n_groups 1 mcast_max_groups 1
+                   2
+                     [...] mcast_n_groups 0 mcast_max_groups 0
 
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
 
 Notes:
     v3:
-    - Access mdb_max_/_n_entries through READ_/WRITE_ONCE
-    - Move extack setting to br_multicast_port_ngroups_inc_one().
-      Since we use NL_SET_ERR_MSG_FMT_MOD, the correct context
-      (port / port-vlan) can be passed through an argument.
-      This also removes the need for more READ/WRITE_ONCE's
-      at the extack-setting site.
+    - Move the br_multicast_port_ctx_vlan_disabled() check
+      out to the _vlan_ helpers callers. Thus these helpers
+      cannot fail, which makes them very similar to the
+      _port_ helpers. Have them take the MC context directly
+      and unify them.
     
     v2:
-    - In br_multicast_port_ngroups_inc_one(), bounce
-      if n>=max, not if n==max
-    - Adjust extack messages to mention ngroups, now that
-      the bounces appear when n>=max, not n==max
-    - In __br_multicast_enable_port_ctx(), do not reset
-      max to 0. Also do not count number of entries by
-      going through _inc, as that would end up incorrectly
-      bouncing the entries.
+    - Drop locks around accesses in
+      br_multicast_{port,vlan}_ngroups_{get,set_max}(),
+    - Drop bounces due to max<n in
+      br_multicast_{port,vlan}_ngroups_set_max().
 
- net/bridge/br_multicast.c | 136 +++++++++++++++++++++++++++++++++++++-
- net/bridge/br_private.h   |   2 +
- 2 files changed, 137 insertions(+), 1 deletion(-)
+ include/uapi/linux/if_bridge.h |  2 ++
+ include/uapi/linux/if_link.h   |  2 ++
+ net/bridge/br_multicast.c      | 15 +++++++++++++++
+ net/bridge/br_netlink.c        | 17 ++++++++++++++++-
+ net/bridge/br_private.h        |  6 +++++-
+ net/bridge/br_vlan.c           | 11 +++++++----
+ net/bridge/br_vlan_options.c   | 27 ++++++++++++++++++++++++++-
+ net/core/rtnetlink.c           |  2 +-
+ 8 files changed, 74 insertions(+), 8 deletions(-)
 
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index d9de241d90f9..d60c456710b3 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -523,6 +523,8 @@ enum {
+ 	BRIDGE_VLANDB_ENTRY_TUNNEL_INFO,
+ 	BRIDGE_VLANDB_ENTRY_STATS,
+ 	BRIDGE_VLANDB_ENTRY_MCAST_ROUTER,
++	BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS,
++	BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS,
+ 	__BRIDGE_VLANDB_ENTRY_MAX,
+ };
+ #define BRIDGE_VLANDB_ENTRY_MAX (__BRIDGE_VLANDB_ENTRY_MAX - 1)
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index 1021a7e47a86..1bed3a72939c 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -564,6 +564,8 @@ enum {
+ 	IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
+ 	IFLA_BRPORT_LOCKED,
+ 	IFLA_BRPORT_MAB,
++	IFLA_BRPORT_MCAST_N_GROUPS,
++	IFLA_BRPORT_MCAST_MAX_GROUPS,
+ 	__IFLA_BRPORT_MAX
+ };
+ #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 51b622afdb67..b6aa0bad5817 100644
+index b6aa0bad5817..96d1fc78dd39 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -31,6 +31,7 @@
- #include <net/ip6_checksum.h>
- #include <net/addrconf.h>
- #endif
-+#include <trace/events/bridge.h>
- 
- #include "br_private.h"
- #include "br_private_mcast_eht.h"
-@@ -234,6 +235,29 @@ br_multicast_pg_to_port_ctx(const struct net_bridge_port_group *pg)
- 	return pmctx;
+@@ -772,6 +772,21 @@ static void br_multicast_port_ngroups_dec(struct net_bridge_port *port, u16 vid)
+ 	br_multicast_port_ngroups_dec_one(&port->multicast_ctx);
  }
  
-+static struct net_bridge_mcast_port *
-+br_multicast_port_vid_to_port_ctx(struct net_bridge_port *port, u16 vid)
++u32 br_multicast_ngroups_get(const struct net_bridge_mcast_port *pmctx)
 +{
-+	struct net_bridge_mcast_port *pmctx = NULL;
-+	struct net_bridge_vlan *vlan;
-+
-+	lockdep_assert_held_once(&port->br->multicast_lock);
-+
-+	if (!br_opt_get(port->br, BROPT_MCAST_VLAN_SNOOPING_ENABLED))
-+		return NULL;
-+
-+	/* Take RCU to access the vlan. */
-+	rcu_read_lock();
-+
-+	vlan = br_vlan_find(nbp_vlan_group_rcu(port), vid);
-+	if (vlan && !br_multicast_port_ctx_vlan_disabled(&vlan->port_mcast_ctx))
-+		pmctx = &vlan->port_mcast_ctx;
-+
-+	rcu_read_unlock();
-+
-+	return pmctx;
++	return READ_ONCE(pmctx->mdb_n_entries);
 +}
 +
- /* when snooping we need to check if the contexts should be used
-  * in the following order:
-  * - if pmctx is non-NULL (port), check if it should be used
-@@ -668,6 +692,86 @@ void br_multicast_del_group_src(struct net_bridge_group_src *src,
- 	__br_multicast_del_group_src(src);
- }
- 
-+static int
-+br_multicast_port_ngroups_inc_one(struct net_bridge_mcast_port *pmctx,
-+				  struct netlink_ext_ack *extack,
-+				  const char *what)
++void br_multicast_ngroups_set_max(struct net_bridge_mcast_port *pmctx, u32 max)
 +{
-+	u32 max = READ_ONCE(pmctx->mdb_max_entries);
-+	u32 n = READ_ONCE(pmctx->mdb_n_entries);
-+
-+	if (max && n >= max) {
-+		NL_SET_ERR_MSG_FMT_MOD(extack, "%s is already in %u groups, and mcast_max_groups=%u",
-+				       what, n, max);
-+		return -E2BIG;
-+	}
-+
-+	WRITE_ONCE(pmctx->mdb_n_entries, n + 1);
-+	return 0;
++	WRITE_ONCE(pmctx->mdb_max_entries, max);
 +}
 +
-+static void br_multicast_port_ngroups_dec_one(struct net_bridge_mcast_port *pmctx)
++u32 br_multicast_ngroups_get_max(const struct net_bridge_mcast_port *pmctx)
 +{
-+	u32 n = READ_ONCE(pmctx->mdb_n_entries);
-+
-+	WARN_ON_ONCE(n == 0);
-+	WRITE_ONCE(pmctx->mdb_n_entries, n - 1);
-+}
-+
-+static int br_multicast_port_ngroups_inc(struct net_bridge_port *port,
-+					 const struct br_ip *group,
-+					 struct netlink_ext_ack *extack)
-+{
-+	struct net_bridge_mcast_port *pmctx;
-+	int err;
-+
-+	lockdep_assert_held_once(&port->br->multicast_lock);
-+
-+	/* Always count on the port context. */
-+	err = br_multicast_port_ngroups_inc_one(&port->multicast_ctx, extack,
-+						"Port");
-+	if (err) {
-+		trace_br_mdb_full(port->dev, group);
-+		return err;
-+	}
-+
-+	/* Only count on the VLAN context if VID is given, and if snooping on
-+	 * that VLAN is enabled.
-+	 */
-+	if (!group->vid)
-+		return 0;
-+
-+	pmctx = br_multicast_port_vid_to_port_ctx(port, group->vid);
-+	if (!pmctx)
-+		return 0;
-+
-+	err = br_multicast_port_ngroups_inc_one(pmctx, extack, "Port-VLAN");
-+	if (err) {
-+		trace_br_mdb_full(port->dev, group);
-+		goto dec_one_out;
-+	}
-+
-+	return 0;
-+
-+dec_one_out:
-+	br_multicast_port_ngroups_dec_one(&port->multicast_ctx);
-+	return err;
-+}
-+
-+static void br_multicast_port_ngroups_dec(struct net_bridge_port *port, u16 vid)
-+{
-+	struct net_bridge_mcast_port *pmctx;
-+
-+	lockdep_assert_held_once(&port->br->multicast_lock);
-+
-+	if (vid) {
-+		pmctx = br_multicast_port_vid_to_port_ctx(port, vid);
-+		if (pmctx)
-+			br_multicast_port_ngroups_dec_one(pmctx);
-+	}
-+	br_multicast_port_ngroups_dec_one(&port->multicast_ctx);
++	return READ_ONCE(pmctx->mdb_max_entries);
 +}
 +
  static void br_multicast_destroy_port_group(struct net_bridge_mcast_gc *gc)
  {
  	struct net_bridge_port_group *pg;
-@@ -702,6 +806,7 @@ void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
- 	} else {
- 		br_multicast_star_g_handle_mode(pg, MCAST_INCLUDE);
- 	}
-+	br_multicast_port_ngroups_dec(pg->key.port, pg->key.addr.vid);
- 	hlist_add_head(&pg->mcast_gc.gc_node, &br->mcast_gc_list);
- 	queue_work(system_long_wq, &br->mcast_gc_work);
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index a6133d469885..9173e52b89e2 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -202,6 +202,8 @@ static inline size_t br_port_info_size(void)
+ 		+ nla_total_size_64bit(sizeof(u64)) /* IFLA_BRPORT_HOLD_TIMER */
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MULTICAST_ROUTER */
++		+ nla_total_size(sizeof(u32))	/* IFLA_BRPORT_MCAST_N_GROUPS */
++		+ nla_total_size(sizeof(u32))	/* IFLA_BRPORT_MCAST_MAX_GROUPS */
+ #endif
+ 		+ nla_total_size(sizeof(u16))	/* IFLA_BRPORT_GROUP_FWD_MASK */
+ 		+ nla_total_size(sizeof(u8))	/* IFLA_BRPORT_MRP_RING_OPEN */
+@@ -298,7 +300,11 @@ static int br_port_fill_attrs(struct sk_buff *skb,
+ 	    nla_put_u32(skb, IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT,
+ 			p->multicast_eht_hosts_limit) ||
+ 	    nla_put_u32(skb, IFLA_BRPORT_MCAST_EHT_HOSTS_CNT,
+-			p->multicast_eht_hosts_cnt))
++			p->multicast_eht_hosts_cnt) ||
++	    nla_put_u32(skb, IFLA_BRPORT_MCAST_N_GROUPS,
++			br_multicast_ngroups_get(&p->multicast_ctx)) ||
++	    nla_put_u32(skb, IFLA_BRPORT_MCAST_MAX_GROUPS,
++			br_multicast_ngroups_get_max(&p->multicast_ctx)))
+ 		return -EMSGSIZE;
+ #endif
  
-@@ -1165,6 +1270,7 @@ struct net_bridge_mdb_entry *br_multicast_new_group(struct net_bridge *br,
- 		return mp;
- 
- 	if (atomic_read(&br->mdb_hash_tbl.nelems) >= br->hash_max) {
-+		trace_br_mdb_full(br->dev, group);
- 		br_mc_disabled_update(br->dev, false, NULL);
- 		br_opt_toggle(br, BROPT_MULTICAST_ENABLED, false);
- 		return ERR_PTR(-E2BIG);
-@@ -1288,11 +1394,16 @@ struct net_bridge_port_group *br_multicast_new_port_group(
- 			struct netlink_ext_ack *extack)
- {
- 	struct net_bridge_port_group *p;
-+	int err;
-+
-+	err = br_multicast_port_ngroups_inc(port, group, extack);
-+	if (err)
-+		return NULL;
- 
- 	p = kzalloc(sizeof(*p), GFP_ATOMIC);
- 	if (unlikely(!p)) {
- 		NL_SET_ERR_MSG_MOD(extack, "Couldn't allocate new port group");
--		return NULL;
-+		goto dec_out;
- 	}
- 
- 	p->key.addr = *group;
-@@ -1326,18 +1437,22 @@ struct net_bridge_port_group *br_multicast_new_port_group(
- 
- free_out:
- 	kfree(p);
-+dec_out:
-+	br_multicast_port_ngroups_dec(port, group->vid);
- 	return NULL;
- }
- 
- void br_multicast_del_port_group(struct net_bridge_port_group *p)
- {
- 	struct net_bridge_port *port = p->key.port;
-+	__u16 vid = p->key.addr.vid;
- 
- 	hlist_del_init(&p->mglist);
- 	if (!br_multicast_is_star_g(&p->key.addr))
- 		rhashtable_remove_fast(&port->br->sg_port_tbl, &p->rhnode,
- 				       br_sg_port_rht_params);
- 	kfree(p);
-+	br_multicast_port_ngroups_dec(port, vid);
- }
- 
- void br_multicast_host_join(const struct net_bridge_mcast *brmctx,
-@@ -1951,6 +2066,25 @@ static void __br_multicast_enable_port_ctx(struct net_bridge_mcast_port *pmctx)
- 		br_ip4_multicast_add_router(brmctx, pmctx);
- 		br_ip6_multicast_add_router(brmctx, pmctx);
- 	}
-+
-+	if (br_multicast_port_ctx_is_vlan(pmctx)) {
-+		struct net_bridge_port_group *pg;
-+		u32 n = 0;
-+
-+		/* The mcast_n_groups counter might be wrong. First,
-+		 * BR_VLFLAG_MCAST_ENABLED is toggled before temporary entries
-+		 * are flushed, thus mcast_n_groups after the toggle does not
-+		 * reflect the true values. And second, permanent entries added
-+		 * while BR_VLFLAG_MCAST_ENABLED was disabled, are not reflected
-+		 * either. Thus we have to refresh the counter.
-+		 */
-+
-+		hlist_for_each_entry(pg, &pmctx->port->mglist, mglist) {
-+			if (pg->key.addr.vid == pmctx->vlan->vid)
-+				n++;
-+		}
-+		WRITE_ONCE(pmctx->mdb_n_entries, n);
-+	}
- }
- 
- void br_multicast_enable_port(struct net_bridge_port *port)
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index e4069e27b5c6..49f411a0a1f1 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -126,6 +126,8 @@ struct net_bridge_mcast_port {
- 	struct hlist_node		ip6_rlist;
- #endif /* IS_ENABLED(CONFIG_IPV6) */
- 	unsigned char			multicast_router;
-+	u32				mdb_n_entries;
-+	u32				mdb_max_entries;
- #endif /* CONFIG_BRIDGE_IGMP_SNOOPING */
+@@ -883,6 +889,8 @@ static const struct nla_policy br_port_policy[IFLA_BRPORT_MAX + 1] = {
+ 	[IFLA_BRPORT_MAB] = { .type = NLA_U8 },
+ 	[IFLA_BRPORT_BACKUP_PORT] = { .type = NLA_U32 },
+ 	[IFLA_BRPORT_MCAST_EHT_HOSTS_LIMIT] = { .type = NLA_U32 },
++	[IFLA_BRPORT_MCAST_N_GROUPS] = { .type = NLA_REJECT },
++	[IFLA_BRPORT_MCAST_MAX_GROUPS] = { .type = NLA_U32 },
  };
  
+ /* Change the state of the port and notify spanning tree */
+@@ -1017,6 +1025,13 @@ static int br_setport(struct net_bridge_port *p, struct nlattr *tb[],
+ 		if (err)
+ 			return err;
+ 	}
++
++	if (tb[IFLA_BRPORT_MCAST_MAX_GROUPS]) {
++		u32 max_groups;
++
++		max_groups = nla_get_u32(tb[IFLA_BRPORT_MCAST_MAX_GROUPS]);
++		br_multicast_ngroups_set_max(&p->multicast_ctx, max_groups);
++	}
+ #endif
+ 
+ 	if (tb[IFLA_BRPORT_GROUP_FWD_MASK]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 49f411a0a1f1..cef5f6ea850c 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -978,6 +978,9 @@ void br_multicast_uninit_stats(struct net_bridge *br);
+ void br_multicast_get_stats(const struct net_bridge *br,
+ 			    const struct net_bridge_port *p,
+ 			    struct br_mcast_stats *dest);
++u32 br_multicast_ngroups_get(const struct net_bridge_mcast_port *pmctx);
++void br_multicast_ngroups_set_max(struct net_bridge_mcast_port *pmctx, u32 max);
++u32 br_multicast_ngroups_get_max(const struct net_bridge_mcast_port *pmctx);
+ void br_mdb_init(void);
+ void br_mdb_uninit(void);
+ void br_multicast_host_join(const struct net_bridge_mcast *brmctx,
+@@ -1761,7 +1764,8 @@ static inline u16 br_vlan_flags(const struct net_bridge_vlan *v, u16 pvid)
+ #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+ bool br_vlan_opts_eq_range(const struct net_bridge_vlan *v_curr,
+ 			   const struct net_bridge_vlan *range_end);
+-bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v);
++bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v,
++		       const struct net_bridge_port *p);
+ size_t br_vlan_opts_nl_size(void);
+ int br_vlan_process_options(const struct net_bridge *br,
+ 			    const struct net_bridge_port *p,
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index bc75fa1e4666..8a3dbc09ba38 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -1816,6 +1816,7 @@ static bool br_vlan_stats_fill(struct sk_buff *skb,
+ /* v_opts is used to dump the options which must be equal in the whole range */
+ static bool br_vlan_fill_vids(struct sk_buff *skb, u16 vid, u16 vid_range,
+ 			      const struct net_bridge_vlan *v_opts,
++			      const struct net_bridge_port *p,
+ 			      u16 flags,
+ 			      bool dump_stats)
+ {
+@@ -1842,7 +1843,7 @@ static bool br_vlan_fill_vids(struct sk_buff *skb, u16 vid, u16 vid_range,
+ 		goto out_err;
+ 
+ 	if (v_opts) {
+-		if (!br_vlan_opts_fill(skb, v_opts))
++		if (!br_vlan_opts_fill(skb, v_opts, p))
+ 			goto out_err;
+ 
+ 		if (dump_stats && !br_vlan_stats_fill(skb, v_opts))
+@@ -1925,7 +1926,7 @@ void br_vlan_notify(const struct net_bridge *br,
+ 		goto out_kfree;
+ 	}
+ 
+-	if (!br_vlan_fill_vids(skb, vid, vid_range, v, flags, false))
++	if (!br_vlan_fill_vids(skb, vid, vid_range, v, p, flags, false))
+ 		goto out_err;
+ 
+ 	nlmsg_end(skb, nlh);
+@@ -2030,7 +2031,7 @@ static int br_vlan_dump_dev(const struct net_device *dev,
+ 
+ 			if (!br_vlan_fill_vids(skb, range_start->vid,
+ 					       range_end->vid, range_start,
+-					       vlan_flags, dump_stats)) {
++					       p, vlan_flags, dump_stats)) {
+ 				err = -EMSGSIZE;
+ 				break;
+ 			}
+@@ -2056,7 +2057,7 @@ static int br_vlan_dump_dev(const struct net_device *dev,
+ 		else if (!dump_global &&
+ 			 !br_vlan_fill_vids(skb, range_start->vid,
+ 					    range_end->vid, range_start,
+-					    br_vlan_flags(range_start, pvid),
++					    p, br_vlan_flags(range_start, pvid),
+ 					    dump_stats))
+ 			err = -EMSGSIZE;
+ 	}
+@@ -2131,6 +2132,8 @@ static const struct nla_policy br_vlan_db_policy[BRIDGE_VLANDB_ENTRY_MAX + 1] =
+ 	[BRIDGE_VLANDB_ENTRY_STATE]	= { .type = NLA_U8 },
+ 	[BRIDGE_VLANDB_ENTRY_TUNNEL_INFO] = { .type = NLA_NESTED },
+ 	[BRIDGE_VLANDB_ENTRY_MCAST_ROUTER]	= { .type = NLA_U8 },
++	[BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS]	= { .type = NLA_REJECT },
++	[BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS]	= { .type = NLA_U32 },
+ };
+ 
+ static int br_vlan_rtm_process_one(struct net_device *dev,
+diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
+index a2724d03278c..e378c2f3a9e2 100644
+--- a/net/bridge/br_vlan_options.c
++++ b/net/bridge/br_vlan_options.c
+@@ -48,7 +48,8 @@ bool br_vlan_opts_eq_range(const struct net_bridge_vlan *v_curr,
+ 	       curr_mc_rtr == range_mc_rtr;
+ }
+ 
+-bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v)
++bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v,
++		       const struct net_bridge_port *p)
+ {
+ 	if (nla_put_u8(skb, BRIDGE_VLANDB_ENTRY_STATE, br_vlan_get_state(v)) ||
+ 	    !__vlan_tun_put(skb, v))
+@@ -58,6 +59,12 @@ bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v)
+ 	if (nla_put_u8(skb, BRIDGE_VLANDB_ENTRY_MCAST_ROUTER,
+ 		       br_vlan_multicast_router(v)))
+ 		return false;
++	if (p && !br_multicast_port_ctx_vlan_disabled(&v->port_mcast_ctx) &&
++	    (nla_put_u32(skb, BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS,
++			 br_multicast_ngroups_get(&v->port_mcast_ctx)) ||
++	     nla_put_u32(skb, BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS,
++			 br_multicast_ngroups_get_max(&v->port_mcast_ctx))))
++		return false;
+ #endif
+ 
+ 	return true;
+@@ -70,6 +77,8 @@ size_t br_vlan_opts_nl_size(void)
+ 	       + nla_total_size(sizeof(u32)) /* BRIDGE_VLANDB_TINFO_ID */
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	       + nla_total_size(sizeof(u8)) /* BRIDGE_VLANDB_ENTRY_MCAST_ROUTER */
++	       + nla_total_size(sizeof(u32)) /* BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS */
++	       + nla_total_size(sizeof(u32)) /* BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS */
+ #endif
+ 	       + 0;
+ }
+@@ -212,6 +221,22 @@ static int br_vlan_process_one_opts(const struct net_bridge *br,
+ 			return err;
+ 		*changed = true;
+ 	}
++	if (tb[BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS]) {
++		u32 val;
++
++		if (!p) {
++			NL_SET_ERR_MSG_MOD(extack, "Can't set mcast_max_groups for non-port vlans");
++			return -EINVAL;
++		}
++		if (br_multicast_port_ctx_vlan_disabled(&v->port_mcast_ctx)) {
++			NL_SET_ERR_MSG_MOD(extack, "Multicast snooping disabled on this VLAN");
++			return -EINVAL;
++		}
++
++		val = nla_get_u32(tb[BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS]);
++		br_multicast_ngroups_set_max(&v->port_mcast_ctx, val);
++		*changed = true;
++	}
+ #endif
+ 
+ 	return 0;
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 64289bc98887..e786255a8360 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -58,7 +58,7 @@
+ #include "dev.h"
+ 
+ #define RTNL_MAX_TYPE		50
+-#define RTNL_SLAVE_MAX_TYPE	40
++#define RTNL_SLAVE_MAX_TYPE	42
+ 
+ struct rtnl_link {
+ 	rtnl_doit_func		doit;
 -- 
 2.39.0
 
