@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0AB53813B6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 382568132F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F68541026
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5469D41025
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Wala80QlVvUe+kGD829okTyjeaN7hjQ1PvUoebul3c8=;
- b=mEh4ukTQfGcBxCAZEA4bQ1cR4LU5xWQ1jgPmcrK199CP2FY9HGCwiSbNfcmz0yewQVI7Nfa86bOy/crPUzr2+ojv6MXqRNoHIyLMp1QoMjVwciiih93bNI7FL2WMGGbMVlv2Dpw4NdPLVVZdv4Pui17kETg8kQ8JNNR0sMeguuicXarlhKd1PMXI6MrzjYBfB+mVw0zGQY0PtES4NV0X8YUQRSQrnGEh5BJRJBkZFCLvrzMJdPXxx8XIQ5rI3bJbCTGrAVJAARIy2CN1FDJwZ8HH1CLQepjlgBmIURwDwX7M8zSqJEJfZK6qcBiqyByIDF7mxj+HBg7CxWisx4SRXg==
+ bh=8QfwDjRcqFxkcs4B67gJfwkJ/lZDxYu654RNOFOi9rw=;
+ b=sZ3xncyqVF1XgrvVS+hMkWaw6Dng/cvaxEqPuoPeN5TOMcrWZdh2QreNCCEXo1ar4pT+1al5bn066ntCBqO9igU1MdnB4PbdnWx1LEzJMbAy7sYszpzfbG47QAs+mtBQWVAsrHbjNwuWe6is6D4jMaMvx5sLUbwDghiOo9hJNFilwGucCSeMPmvsqWoTt0s34uGpG7RkaCBVTKBFTpUJTIgdobYRp7o+SVUJ20+6zoOric7yI9U/5SH9bRf8O4a9pPV42y1RAtOrzLcm/+1+8v5GK/q6FzrOQQ6jcnJgo4vEXIcapC7oYj1NjdzNGC7x1SxCotFgDdz5AlqKG7IC+A==
 From: Petr Machata <petrm@nvidia.com>
-Date: Thu, 2 Feb 2023 18:59:29 +0100
-Message-ID: <b730b89ff698683c8ab176176b95c7d393f67511.1675359453.git.petrm@nvidia.com>
+Date: Thu, 2 Feb 2023 18:59:28 +0100
+Message-ID: <5fe3778e89161cc9dfa998ddec6ba0b20621995b.1675359453.git.petrm@nvidia.com>
 In-Reply-To: <cover.1675359453.git.petrm@nvidia.com>
 References: <cover.1675359453.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 11/16] selftests: forwarding: lib: Add
-	helpers for IP address handling
+Subject: [Bridge] [PATCH net-next v3 10/16] selftests: forwarding:
+	bridge_mdb: Fix a typo
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,64 +27,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
-In order to generate IGMPv3 and MLDv2 packets on the fly, we will need
-helpers to expand IPv4 and IPv6 addresses given as parameters in
-mausezahn payload notation. Add helpers that do it.
+Add the letter missing from the word "INCLUDE".
 
 Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 37 +++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ tools/testing/selftests/net/forwarding/bridge_mdb.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index 0cfa0b699803..409ff3799b55 100755
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -1693,6 +1693,43 @@ hw_stats_monitor_test()
- 	log_test "${type}_stats notifications"
+diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+index 51f2b0d77067..4e16677f02ba 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+@@ -1054,7 +1054,7 @@ ctrl_igmpv3_is_in_test()
+ 
+ 	bridge mdb del dev br0 port $swp1 grp 239.1.1.1 vid 10
+ 
+-	log_test "IGMPv3 MODE_IS_INCLUE tests"
++	log_test "IGMPv3 MODE_IS_INCLUDE tests"
  }
  
-+ipv4_to_bytes()
-+{
-+	local IP=$1; shift
-+
-+	printf '%02x:' ${IP//./ } |
-+	    sed 's/:$//'
-+}
-+
-+# Convert a given IPv6 address, `IP' such that the :: token, if present, is
-+# expanded, and each 16-bit group is padded with zeroes to be 4 hexadecimal
-+# digits. An optional `BYTESEP' parameter can be given to further separate
-+# individual bytes of each 16-bit group.
-+expand_ipv6()
-+{
-+	local IP=$1; shift
-+	local bytesep=$1; shift
-+
-+	local cvt_ip=${IP/::/_}
-+	local colons=${cvt_ip//[^:]/}
-+	local allcol=:::::::
-+	# IP where :: -> the appropriate number of colons:
-+	local allcol_ip=${cvt_ip/_/${allcol:${#colons}}}
-+
-+	echo $allcol_ip | tr : '\n' |
-+	    sed s/^/0000/ |
-+	    sed 's/.*\(..\)\(..\)/\1'"$bytesep"'\2/' |
-+	    tr '\n' : |
-+	    sed 's/:$//'
-+}
-+
-+ipv6_to_bytes()
-+{
-+	local IP=$1; shift
-+
-+	expand_ipv6 "$IP" :
-+}
-+
- igmpv3_is_in_get()
- {
- 	local igmpv3
+ ctrl_mldv2_is_in_test()
 -- 
 2.39.0
 
