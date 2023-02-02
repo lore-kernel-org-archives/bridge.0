@@ -1,19 +1,18 @@
 Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7891E408DB
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C42C940220
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F0B9408E2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7CA5B40220
 MIME-Version: 1.0
-Date: Thu, 02 Feb 2023 08:32:47 +0100
+Date: Thu, 02 Feb 2023 08:37:08 +0100
 From: netdev@kapio-technology.com
-In-Reply-To: <Y9qucziByvXsx5Q0@shredder>
+In-Reply-To: <Y9lrIWMnWLqGreZL@shredder>
 References: <20230130173429.3577450-1-netdev@kapio-technology.com>
- <20230130173429.3577450-5-netdev@kapio-technology.com>
- <Y9qucziByvXsx5Q0@shredder>
-Message-ID: <d972e76bed896b229d9df4da81ad8eb4@kapio-technology.com>
+ <Y9lrIWMnWLqGreZL@shredder>
+Message-ID: <e2535b002be9044958ab0003d8bd6966@kapio-technology.com>
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 4/5] net: bridge: ensure FDB offloaded
- flag is handled as needed
+Subject: Re: [Bridge] [PATCH net-next 0/5] ATU and FDB synchronization on
+	locked ports
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,19 +26,13 @@ Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.c
  support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
  A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-On 2023-02-01 19:24, Ido Schimmel wrote:
+On 2023-01-31 20:25, Ido Schimmel wrote:
 > 
-> This also looks correct, but the function name is not really accurate
-> anymore. I guess you can keep it as-is unless someone has a better name
-> 
->>  		fdb_delete(br, fdb, swdev_notify);
->>  	else
->>  		err = -ENOENT;
->> --
->> 2.34.1
->> 
+> Will try to review tomorrow, but it looks like this set is missing
+> selftests. What about extending bridge_locked_port.sh?
 
-I have been wondering if it makes sense to have both external_learn and 
-offloaded flags as they now work pretty much the same seen from the 
-bridge. But as I don't know other switches, I guess there is some good 
-reason to have the two?
+I knew you would take this up. :-)
+But I am not sure that it's so easy to have selftests here as it is 
+timing based and it would take the 5+ minutes just waiting to test in 
+the stadard case, and there is opnly support for mv88e6xxx driver with 
+this patch set.
