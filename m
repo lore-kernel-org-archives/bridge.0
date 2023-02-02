@@ -1,21 +1,21 @@
 Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B726741014
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0AE9D40C63
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BE896611E6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 120B9611EF
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=N+NJeWcOmij5psAkJAqdrH2P6nPDnqGi6LDk27x/pKI=;
- b=t5sAU/xZDCVQP/Ln1WMFb8IkKmstnvPapAozGBLofwS//PHQRqCLaf8+tvvWx3yQS2XIYGEOxBDfzxVAq52u6t1h36GcWg9ktIprfMb0x9C7bsrCHyeZrUzl3Lw/6k3RlWUguxhf6IgR2LWdnZdN6zw8GBzyXICTpCq5VIhmmP3jt2Zux+69OqDqI32GD8TGJv19eYSB5pWzIPIL0KgusVUTnSJ4iC/IFltIOLD7vTYINvUedMZL0+gyZsH7UXQOsCzBlDr4kqg4hC7mC8L2g7WvRT6/Ooopb+WslZXI1skRuzcgCRqkpiNKJ9uF/KuI1PvzwmwG0UAqzttVlvvUDA==
+ bh=e3Afw2Xez+FIQKEQo3lqKv+Eo0xyTlcJx0ejHMFjpoQ=;
+ b=AUwQVNjRJtYnZ1KV2IeRK7xzbJuvmKIGwToUz3VChJl6ZQ2+yPHyG52nl5TNpxExnekI6lo8z7KgVtTrRfwjFn9MyFKj5Ptcagm1f9ubS6lXJOZSM+7jtz0reGTVdyAQ7ooc2VEpU5IVKeUSBwY7RVu5K0esU5E2ZODDrgLEtJBUteyy2UCOLRZ26PC6+HUv+56ei4666UkrGhC1vQkMTzTXtlJTKtjlQOBG0iFcQZPJbVHX+or42cqt3LL1cjGbjllaLiq2Uj74RVYb+TQpUBuxX2a5mbPNRPuhaxpYiXjK8qLDI7jTdnPcvSM9wOBnSeRjeeujvoPeMTM1NU9wUQ==
 From: Petr Machata <petrm@nvidia.com>
-Date: Thu, 2 Feb 2023 18:59:22 +0100
-Message-ID: <29092300b63495d45cdee68f3c59f5477ca6be12.1675359453.git.petrm@nvidia.com>
+Date: Thu, 2 Feb 2023 18:59:23 +0100
+Message-ID: <519175434f6f015f62b29e5fc54b098fe6d5a989.1675359453.git.petrm@nvidia.com>
 In-Reply-To: <cover.1675359453.git.petrm@nvidia.com>
 References: <cover.1675359453.git.petrm@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v3 04/16] net: bridge: Add
-	br_multicast_del_port_group()
+Subject: [Bridge] [PATCH net-next v3 05/16] net: bridge: Change a cleanup in
+	br_multicast_new_port_group() to goto
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,71 +27,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
 Cc: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
-Since cleaning up the effects of br_multicast_new_port_group() just
-consists of delisting and freeing the memory, the function
-br_mdb_add_group_star_g() inlines the corresponding code. In the following
-patches, number of per-port and per-port-VLAN MDB entries is going to be
-maintained, and that counter will have to be updated. Because that logic
-is going to be hidden in the br_multicast module, introduce a new hook
-intended to again remove a newly-created group.
+This function is getting more to clean up in the following patches.
+Structuring the cleanups in one labeled block will allow reusing the same
+cleanup from several places.
 
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_mdb.c       |  3 +--
- net/bridge/br_multicast.c | 11 +++++++++++
- net/bridge/br_private.h   |  1 +
- 3 files changed, 13 insertions(+), 2 deletions(-)
+ net/bridge/br_multicast.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 139de8ac532c..9f22ebfdc518 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -1099,8 +1099,7 @@ static int br_mdb_add_group_star_g(const struct br_mdb_config *cfg,
- 	return 0;
- 
- err_del_port_group:
--	hlist_del_init(&p->mglist);
--	kfree(p);
-+	br_multicast_del_port_group(p);
- 	return err;
- }
- 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index f9f4d54226fd..08da724ebfdd 100644
+index 08da724ebfdd..51b622afdb67 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -1326,6 +1326,17 @@ struct net_bridge_port_group *br_multicast_new_port_group(
+@@ -1309,8 +1309,7 @@ struct net_bridge_port_group *br_multicast_new_port_group(
+ 	    rhashtable_lookup_insert_fast(&port->br->sg_port_tbl, &p->rhnode,
+ 					  br_sg_port_rht_params)) {
+ 		NL_SET_ERR_MSG_MOD(extack, "Couldn't insert new port group");
+-		kfree(p);
+-		return NULL;
++		goto free_out;
+ 	}
+ 
+ 	rcu_assign_pointer(p->next, next);
+@@ -1324,6 +1323,10 @@ struct net_bridge_port_group *br_multicast_new_port_group(
+ 		eth_broadcast_addr(p->eth_addr);
+ 
  	return p;
++
++free_out:
++	kfree(p);
++	return NULL;
  }
  
-+void br_multicast_del_port_group(struct net_bridge_port_group *p)
-+{
-+	struct net_bridge_port *port = p->key.port;
-+
-+	hlist_del_init(&p->mglist);
-+	if (!br_multicast_is_star_g(&p->key.addr))
-+		rhashtable_remove_fast(&port->br->sg_port_tbl, &p->rhnode,
-+				       br_sg_port_rht_params);
-+	kfree(p);
-+}
-+
- void br_multicast_host_join(const struct net_bridge_mcast *brmctx,
- 			    struct net_bridge_mdb_entry *mp, bool notify)
- {
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 1805c468ae03..e4069e27b5c6 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -958,6 +958,7 @@ br_multicast_new_port_group(struct net_bridge_port *port,
- 			    unsigned char flags, const unsigned char *src,
- 			    u8 filter_mode, u8 rt_protocol,
- 			    struct netlink_ext_ack *extack);
-+void br_multicast_del_port_group(struct net_bridge_port_group *p);
- int br_mdb_hash_init(struct net_bridge *br);
- void br_mdb_hash_fini(struct net_bridge *br);
- void br_mdb_notify(struct net_device *dev, struct net_bridge_mdb_entry *mp,
+ void br_multicast_del_port_group(struct net_bridge_port_group *p)
 -- 
 2.39.0
 
