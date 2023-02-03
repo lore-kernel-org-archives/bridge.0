@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7E48741058
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DC32D401D5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 80C03429CF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57BBF429CA
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=blackwall-org.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=1z40xBZl1s88AVKBaaMT4kPg0/IWGeDII88qOAQgOrM=;
- b=ugJ1ZUxXgqF6M2ADHF0b7CSoiPxc2idiHZ2fRCEKjinDPuJE2buPQtrAgjDPb3eklH
- yExCa7ATGFczL1g330HeaNsvJYxp3uMmFmpgZ5scL1Gv8BDXq+CM8vi+Yy6zCybrbEE1
- yvEnkc+NXR+ivXGx61+N8VusLuYKcwoRKlBJC2qLYRuGCA8ylN4rd7Dusa8F29f1tkss
- DATUANszgU8rquTfwekSlBTrURvimxxPLYMUDnzTjX3g9e5taFjOLQuY2fUcQVY5dnv2
- 8vAW/OmHtlY200qBn0iNM/CgVbxDZ8ErDa3qfQMqjybVpO87MwGol2ISPhewfHnDAgQO
- wz/Q==
-Message-ID: <6e50c1ac-9182-0d86-24fb-afcc2c63db85@blackwall.org>
-Date: Fri, 3 Feb 2023 10:58:12 +0200
+ bh=Ni5qRfYvZFsymzma6ZOjk3L3LwaxH0Q0qj+WSjXryNg=;
+ b=lzyKKlVfBtu4E19a5HXbvOlfH03T7LO7t0w24toNmp+P5tRXo/J1JTSr666Si1hjeu
+ QewnfPtAIwMewEUWV5YSdGUJ+xbY7n6PNYkU5VJW0zg2eO/LlqMREb1nYLOMZ6MIAakH
+ ETaHXxw+26Guc/nf1Ppv4PSsLXC464TCdE+OV74e3X/nLcBOX6MmmncTtPkhX2WqzwGP
+ 9PeJdp0+cptUGcZKEunPL7SZPKLafezyvnAWWmELGlmqCJvBXGRB05cAGK0DqifrfIOO
+ q2JH+p2td6gCBElGkavGzvMZJD7dxAQCyobfMqvL4KiYj74mYZXqh0zRHN9xjPUMx19U
+ a2+g==
+Message-ID: <fb2a9ee9-ff66-3590-9aa9-88f5b037d786@blackwall.org>
+Date: Fri, 3 Feb 2023 10:59:25 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <cover.1675359453.git.petrm@nvidia.com>
- <a01c188bcbbb0f5f53e333ed9175f938eb2736be.1675359453.git.petrm@nvidia.com>
+ <8bd6e90beed928790059134471ecbb9c3d327894.1675359453.git.petrm@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <a01c188bcbbb0f5f53e333ed9175f938eb2736be.1675359453.git.petrm@nvidia.com>
+In-Reply-To: <8bd6e90beed928790059134471ecbb9c3d327894.1675359453.git.petrm@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v3 06/16] net: bridge: Add a
- tracepoint for MDB overflows
+Subject: Re: [Bridge] [PATCH net-next v3 07/16] net: bridge: Maintain number
+ of MDB entries in net_bridge_mcast_port
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,43 +34,68 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Steven Rostedt <rostedt@goodmis.org>, linux-trace-kernel@vger.kernel.org
+Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 
 On 02/02/2023 19:59, Petr Machata wrote:
-> The following patch will add two more maximum MDB allowances to the global
-> one, mcast_hash_max, that exists today. In all these cases, attempts to add
-> MDB entries above the configured maximums through netlink, fail noisily and
-> obviously. Such visibility is missing when adding entries through the
-> control plane traffic, by IGMP or MLD packets.
+> The MDB maintained by the bridge is limited. When the bridge is configured
+> for IGMP / MLD snooping, a buggy or malicious client can easily exhaust its
+> capacity. In SW datapath, the capacity is configurable through the
+> IFLA_BR_MCAST_HASH_MAX parameter, but ultimately is finite. Obviously a
+> similar limit exists in the HW datapath for purposes of offloading.
 > 
-> To improve visibility in those cases, add a trace point that reports the
-> violation, including the relevant netdevice (be it a slave or the bridge
-> itself), and the MDB entry parameters:
+> In order to prevent the issue of unilateral exhaustion of MDB resources,
+> introduce two parameters in each of two contexts:
 > 
-> 	# perf record -e bridge:br_mdb_full &
-> 	# [...]
-> 	# perf script | cut -d: -f4-
-> 	 dev v2 af 2 src ::ffff:0.0.0.0 grp ::ffff:239.1.1.112/00:00:00:00:00:00 vid 0
-> 	 dev v2 af 10 src :: grp ff0e::112/00:00:00:00:00:00 vid 0
-> 	 dev v2 af 2 src ::ffff:0.0.0.0 grp ::ffff:239.1.1.112/00:00:00:00:00:00 vid 10
-> 	 dev v2 af 10 src 2001:db8:1::1 grp ff0e::1/00:00:00:00:00:00 vid 10
-> 	 dev v2 af 2 src ::ffff:192.0.2.1 grp ::ffff:239.1.1.1/00:00:00:00:00:00 vid 10
+> - Per-port and per-port-VLAN number of MDB entries that the port
+>   is member in.
 > 
-> CC: Steven Rostedt <rostedt@goodmis.org>
-> CC: linux-trace-kernel@vger.kernel.org
+> - Per-port and (when BROPT_MCAST_VLAN_SNOOPING_ENABLED is enabled)
+>   per-port-VLAN maximum permitted number of MDB entries, or 0 for
+>   no limit.
+> 
+> The per-port multicast context is used for tracking of MDB entries for the
+> port as a whole. This is available for all bridges.
+> 
+> The per-port-VLAN multicast context is then only available on
+> VLAN-filtering bridges on VLANs that have multicast snooping on.
+> 
+> With these changes in place, it will be possible to configure MDB limit for
+> bridge as a whole, or any one port as a whole, or any single port-VLAN.
+> 
+> Note that unlike the global limit, exhaustion of the per-port and
+> per-port-VLAN maximums does not cause disablement of multicast snooping.
+> It is also permitted to configure the local limit larger than hash_max,
+> even though that is not useful.
+> 
+> In this patch, introduce only the accounting for number of entries, and the
+> max field itself, but not the means to toggle the max. The next patch
+> introduces the netlink APIs to toggle and read the values.
+> 
 > Signed-off-by: Petr Machata <petrm@nvidia.com>
-> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 > ---
 > 
 > Notes:
+>     v3:
+>     - Access mdb_max_/_n_entries through READ_/WRITE_ONCE
+>     - Move extack setting to br_multicast_port_ngroups_inc_one().
+>       Since we use NL_SET_ERR_MSG_FMT_MOD, the correct context
+>       (port / port-vlan) can be passed through an argument.
+>       This also removes the need for more READ/WRITE_ONCE's
+>       at the extack-setting site.
+>     
 >     v2:
->     - Report IPv4 as an IPv6-mapped address through the IPv6 buffer
->       as well, to save ring buffer space.
+>     - In br_multicast_port_ngroups_inc_one(), bounce
+>       if n>=max, not if n==max
+>     - Adjust extack messages to mention ngroups, now that
+>       the bounces appear when n>=max, not n==max
+>     - In __br_multicast_enable_port_ctx(), do not reset
+>       max to 0. Also do not count number of entries by
+>       going through _inc, as that would end up incorrectly
+>       bouncing the entries.
 > 
->  include/trace/events/bridge.h | 58 +++++++++++++++++++++++++++++++++++
->  net/core/net-traces.c         |  1 +
->  2 files changed, 59 insertions(+)
-> 
+>  net/bridge/br_multicast.c | 136 +++++++++++++++++++++++++++++++++++++-
+>  net/bridge/br_private.h   |   2 +
+>  2 files changed, 137 insertions(+), 1 deletion(-)
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
