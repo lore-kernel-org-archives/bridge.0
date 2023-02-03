@@ -1,24 +1,24 @@
 Return-Path: <simon.horman@corigine.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22330429B1
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C729741C5F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 675C841058
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C1C33400CB
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mqGXl5Wv3G9fLahc+geuWHLtMDU+xGZqI0CTVLVftUI=;
- b=mJeB1OpnUjI7OWkrAwmikHMCogbxeVpoXsY8gRWSYvbvgjxD+0hWRn1do61XeJxw68FbV7JpRNB1Q34iXwisczewQ0ZnQ/bfU7j3zqOGOsJbsE6oRFXeOfHRW7kENz5T0ovFYDLzNJ8MuuHHjQJpK40EVBzRL9AThmoLe2Qzfp0=
-Date: Fri, 3 Feb 2023 09:17:06 +0100
+ bh=zi/ZoGN1SblsS/jhCzhzSMKV09ufYuVioFiWZkglVTc=;
+ b=JDaGpm+Ln2IYzhv4JR4GRXpx12NELGAuhAc2bHdmJIkkB3Vnr50MuLdccrI301kti3oT8KCiXa1WMq3/NAvpjgbuUY25p98I/+wHvwB5eOG3ov28Qw8VlhH/ot8J/2p6QkWkbm6nF5pauZpfay1PYtgGKzTseQxNBi5nY+SRxXQ=
+Date: Fri, 3 Feb 2023 09:20:22 +0100
 From: Simon Horman <simon.horman@corigine.com>
-Message-ID: <Y9zDApc6nDO2RzOb@corigine.com>
+Message-ID: <Y9zDxlwSn1EfCTba@corigine.com>
 References: <20230130173429.3577450-1-netdev@kapio-technology.com>
- <20230130173429.3577450-4-netdev@kapio-technology.com>
- <Y9lj7RJgyMJfjtGp@corigine.com>
- <0b021777dfc1825b6565c0d9dbd6dbef@kapio-technology.com>
+ <20230130173429.3577450-6-netdev@kapio-technology.com>
+ <Y9lkXlyXg1d1D0j3@corigine.com>
+ <9b12275969a204739ccfab972d90f20f@kapio-technology.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0b021777dfc1825b6565c0d9dbd6dbef@kapio-technology.com>
+In-Reply-To: <9b12275969a204739ccfab972d90f20f@kapio-technology.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 3/5] drivers: net: dsa: add fdb entry
- flags incoming to switchcore drivers
+Subject: Re: [Bridge] [PATCH net-next 5/5] net: dsa: mv88e6xxx:
+ implementation of dynamic ATU entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,44 +30,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@kapio-technology.com
 Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1 A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-On Thu, Feb 02, 2023 at 05:45:56PM +0100, netdev@kapio-technology.com wrote:
-> On 2023-01-31 19:54, Simon Horman wrote:
-> > > --- a/drivers/net/dsa/b53/b53_common.c
-> > > +++ b/drivers/net/dsa/b53/b53_common.c
-> > > @@ -1684,11 +1684,15 @@ static int b53_arl_op(struct b53_device
-> > > *dev, int op, int port,
+On Thu, Feb 02, 2023 at 06:00:00PM +0100, netdev@kapio-technology.com wrote:
+> On 2023-01-31 19:56, Simon Horman wrote:
+> > > --- a/drivers/net/dsa/mv88e6xxx/chip.c
+> > > +++ b/drivers/net/dsa/mv88e6xxx/chip.c
+> > > @@ -42,6 +42,7 @@
+> > >  #include "ptp.h"
+> > >  #include "serdes.h"
+> > >  #include "smi.h"
+> > > +#include "switchdev.h"
 > > > 
-> > >  int b53_fdb_add(struct dsa_switch *ds, int port,
-> > >  		const unsigned char *addr, u16 vid,
-> > > -		struct dsa_db db)
-> > > +		u16 fdb_flags, struct dsa_db db)
+> > >  static void assert_reg_lock(struct mv88e6xxx_chip *chip)
 > > >  {
-> > >  	struct b53_device *priv = ds->priv;
-> > >  	int ret;
+> > > @@ -2726,18 +2727,25 @@ static int mv88e6xxx_port_fdb_add(struct
+> > > dsa_switch *ds, int port,
+> > >  				  const unsigned char *addr, u16 vid,
+> > >  				  u16 fdb_flags, struct dsa_db db)
+> > >  {
+> > > +	bool is_dynamic = !!(fdb_flags & DSA_FDB_FLAG_DYNAMIC);
+> > >  	struct mv88e6xxx_chip *chip = ds->priv;
+> > > +	u8 state;
+> > >  	int err;
 > > > 
-> > > +	/* Ignore entries with set flags */
-> > > +	if (fdb_flags)
-> > > +		return 0;
+> > > -	/* Ignore entries with flags set */
+> > > -	if (fdb_flags)
+> > > -		return 0;
+> > > +	state = MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC;
+> > > +	if (is_dynamic)
+> > > +		state = MV88E6XXX_G1_ATU_DATA_STATE_UC_AGE_7_NEWEST;
 > > 
+> > What if flags other than DSA_FDB_FLAG_DYNAMIC are set (in future)?
+> 
+> They will have to be caught and handled here if there is support for it,
+> e.g. something like...
+> 
+> else if (someflag)
+>         dosomething();
+> 
+> For now only one flag will actually be set and they are mutually exclusive,
+> as they will not make sense together with the potential flags I know, but
+> that can change at some time of course.
+
+Yes, I see that is workable. I do feel that checking for other flags would
+be a bit more robust. But as you say, there are none. So whichever
+approach you prefer is fine by me.
+
 > > 
-> > 	Would returning -EOPNOTSUPP be more appropriate?
+> > > +	else
+> > > +		if (fdb_flags)
+> > 
+> > nit: else if (fdb_flags)
+> > 
+> > > +			return 0;
+> > > 
 > > 
 > > ...
-> 
-> I don't think that would be so good, as the command
-> 
-> bridge fdb replace ADDR dev <DEV> master dynamic
-> 
-> is a valid command and should not generate errors. When ignored by the
-> driver, it will just install a dynamic FDB entry in the bridge, and the
-> bridge will age it.
-
-Sure, I agree that it's not necessarily an error that needs
-to propagate to the user.
-
-My assumption, which I now see is likely false, is that drivers
-could return -EOPNOTSUPP, to indicate to higher layers that the operation
-is not supported. But the higher layers may not propagate that.
-
-But it seems that is not the case here. So I think return 0 is fine
-after all. Sorry for the noise.
