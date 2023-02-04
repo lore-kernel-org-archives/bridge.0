@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53D9082086
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0E2AA8206A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E169041B87
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE55841BAA
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Pm2ovCickvnFXCstWja+Dw+7KeSdnFnGAV1e0dRnnTk=;
- b=POhQMAWiOh6k1lQLLYeFgL0CAMcU6BCIPZpAHdJDEj2qym2CC+3CRyl5r83IKnX0OE5PSBTM2eXqYBKcLY0LPJEtEavR3N/A35FEBmhq4wkdGq444AqvKoV0TCAYVGra88DCyy30k6jDh58VLl2WKTM+QhmAc9MSAP2VuJ+nbKQL/iDusCrUol+VY327Ed/dNjqoQ+x2JY2IUQR09/NDJPnTzdmyameXMUnxWFM5sWI+9tMD2J1123cd1/300/M2pDOOM/Lenx8n/ns/hJtbH79B/yOpHq6ZZwksH9O5DDAnYo0RfFFZc6qpJfK4a4BfibRedMGM98ZcXe4f4dg42g==
+ bh=2sxMKfQrl1R9hAAzNNuoFio8mVq87qKkUi/x5UAzYHM=;
+ b=p+eCo8sOukCA+p9AlgxKamZzW4IsZDYMqhX5vX9al7f1HmMAOAC0KB12TLdqBJaL/U0nXWn2/O8oKi2YxLfBfATjgcNEEdYXVOEaz3l9IWwnd1cUhP2Sz8ZxRTcONGnZRB+ObHo4H8HMyHem3aQ8YdExVxYydXR3Lfv0efm4cXzcdW4uSAw+Dw3+EeWDChc9paS4/TvMrL2i63TOJ5oYkNheYf8gG2PEjzIJUOYQJhkTtITepWhKM0vZEd4moorBKbLWHN5NLY/a0JsxNkd4++Q0/hX5GkBrTVuwX+R/E0j7vceB+p5mMEDLZ0YwvNk3dscJ5I/bDFCW2VIeihPryg==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Sat,  4 Feb 2023 19:07:51 +0200
-Message-Id: <20230204170801.3897900-4-idosch@nvidia.com>
+Date: Sat,  4 Feb 2023 19:07:52 +0200
+Message-Id: <20230204170801.3897900-5-idosch@nvidia.com>
 In-Reply-To: <20230204170801.3897900-1-idosch@nvidia.com>
 References: <20230204170801.3897900-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH net-next 03/13] bridge: mcast: Move validation
-	to a policy
+Subject: [Bridge] [RFC PATCH net-next 04/13] net: Add MDB net device
+	operations
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,134 +27,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Subsequent patches are going to move parts of the bridge MDB code to the
-common rtnetlink code in preparation for VXLAN MDB support. To
-facilitate code sharing between both drivers, move the validation of the
-top level attributes in RTM_{NEW,DEL}MDB messages to a policy that will
-eventually be moved to the rtnetlink code.
-
-Use 'NLA_NESTED' for 'MDBA_SET_ENTRY_ATTRS' instead of
-NLA_POLICY_NESTED() as this attribute is going to be validated using
-different policies in the underlying drivers.
+Add MDB net device operations that will be invoked by rtnetlink code in
+response to received RTM_{NEW,DEL,GET}MDB messages. Subsequent patches
+will implement these operations in the bridge and VXLAN drivers.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_mdb.c | 45 +++++++++++++++++++++++++++------------------
- 1 file changed, 27 insertions(+), 18 deletions(-)
+ include/linux/netdevice.h | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index e40a4c275d63..b1ece209cfca 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -683,51 +683,58 @@ static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
- 	[MDBE_ATTR_RTPROT] = NLA_POLICY_MIN(NLA_U8, RTPROT_STATIC),
- };
- 
--static bool is_valid_mdb_entry(struct br_mdb_entry *entry,
--			       struct netlink_ext_ack *extack)
-+static int validate_mdb_entry(const struct nlattr *attr,
-+			      struct netlink_ext_ack *extack)
- {
-+	struct br_mdb_entry *entry = nla_data(attr);
-+
-+	if (nla_len(attr) != sizeof(struct br_mdb_entry)) {
-+		NL_SET_ERR_MSG_MOD(extack, "Invalid MDBA_SET_ENTRY attribute length");
-+		return -EINVAL;
-+	}
-+
- 	if (entry->ifindex == 0) {
- 		NL_SET_ERR_MSG_MOD(extack, "Zero entry ifindex is not allowed");
--		return false;
-+		return -EINVAL;
- 	}
- 
- 	if (entry->addr.proto == htons(ETH_P_IP)) {
- 		if (!ipv4_is_multicast(entry->addr.u.ip4)) {
- 			NL_SET_ERR_MSG_MOD(extack, "IPv4 entry group address is not multicast");
--			return false;
-+			return -EINVAL;
- 		}
- 		if (ipv4_is_local_multicast(entry->addr.u.ip4)) {
- 			NL_SET_ERR_MSG_MOD(extack, "IPv4 entry group address is local multicast");
--			return false;
-+			return -EINVAL;
- 		}
- #if IS_ENABLED(CONFIG_IPV6)
- 	} else if (entry->addr.proto == htons(ETH_P_IPV6)) {
- 		if (ipv6_addr_is_ll_all_nodes(&entry->addr.u.ip6)) {
- 			NL_SET_ERR_MSG_MOD(extack, "IPv6 entry group address is link-local all nodes");
--			return false;
-+			return -EINVAL;
- 		}
- #endif
- 	} else if (entry->addr.proto == 0) {
- 		/* L2 mdb */
- 		if (!is_multicast_ether_addr(entry->addr.u.mac_addr)) {
- 			NL_SET_ERR_MSG_MOD(extack, "L2 entry group is not multicast");
--			return false;
-+			return -EINVAL;
- 		}
- 	} else {
- 		NL_SET_ERR_MSG_MOD(extack, "Unknown entry protocol");
--		return false;
-+		return -EINVAL;
- 	}
- 
- 	if (entry->state != MDB_PERMANENT && entry->state != MDB_TEMPORARY) {
- 		NL_SET_ERR_MSG_MOD(extack, "Unknown entry state");
--		return false;
-+		return -EINVAL;
- 	}
- 	if (entry->vid >= VLAN_VID_MASK) {
- 		NL_SET_ERR_MSG_MOD(extack, "Invalid entry VLAN id");
--		return false;
-+		return -EINVAL;
- 	}
- 
--	return true;
-+	return 0;
- }
- 
- static bool is_valid_mdb_source(struct nlattr *attr, __be16 proto,
-@@ -1295,6 +1302,14 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
- 	return 0;
- }
- 
-+static const struct nla_policy mdba_policy[MDBA_SET_ENTRY_MAX + 1] = {
-+	[MDBA_SET_ENTRY_UNSPEC] = { .strict_start_type = MDBA_SET_ENTRY_ATTRS + 1 },
-+	[MDBA_SET_ENTRY] = NLA_POLICY_VALIDATE_FN(NLA_BINARY,
-+						  validate_mdb_entry,
-+						  sizeof(struct br_mdb_entry)),
-+	[MDBA_SET_ENTRY_ATTRS] = { .type = NLA_NESTED },
-+};
-+
- static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
- 			      struct br_mdb_config *cfg,
- 			      struct netlink_ext_ack *extack)
-@@ -1305,7 +1320,7 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
- 	int err;
- 
- 	err = nlmsg_parse_deprecated(nlh, sizeof(*bpm), tb,
--				     MDBA_SET_ENTRY_MAX, NULL, extack);
-+				     MDBA_SET_ENTRY_MAX, mdba_policy, extack);
- 	if (err)
- 		return err;
- 
-@@ -1347,14 +1362,8 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
- 		NL_SET_ERR_MSG_MOD(extack, "Missing MDBA_SET_ENTRY attribute");
- 		return -EINVAL;
- 	}
--	if (nla_len(tb[MDBA_SET_ENTRY]) != sizeof(struct br_mdb_entry)) {
--		NL_SET_ERR_MSG_MOD(extack, "Invalid MDBA_SET_ENTRY attribute length");
--		return -EINVAL;
--	}
- 
- 	cfg->entry = nla_data(tb[MDBA_SET_ENTRY]);
--	if (!is_valid_mdb_entry(cfg->entry, extack))
--		return -EINVAL;
- 
- 	if (cfg->entry->ifindex != cfg->br->dev->ifindex) {
- 		struct net_device *pdev;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index d5ef4c1fedd2..47e33c6d314e 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1305,6 +1305,17 @@ struct netdev_net_notifier {
+  *	Used to add FDB entries to dump requests. Implementers should add
+  *	entries to skb and update idx with the number of entries.
+  *
++ * int (*ndo_mdb_add)(struct net_device *dev, struct nlattr *tb[],
++ *		      u16 nlmsg_flags, struct netlink_ext_ack *extack);
++ *	Adds an MDB entry to dev.
++ * int (*ndo_mdb_del)(struct net_device *dev, struct nlattr *tb[],
++ *		      struct netlink_ext_ack *extack);
++ *	Deletes the MDB entry from dev.
++ * int (*ndo_mdb_dump)(struct net_device *dev, struct sk_buff *skb,
++ *		       struct netlink_callback *cb);
++ *	Dumps MDB entries from dev. The first argument (marker) in the netlink
++ *	callback is used by core rtnetlink code.
++ *
+  * int (*ndo_bridge_setlink)(struct net_device *dev, struct nlmsghdr *nlh,
+  *			     u16 flags, struct netlink_ext_ack *extack)
+  * int (*ndo_bridge_getlink)(struct sk_buff *skb, u32 pid, u32 seq,
+@@ -1567,6 +1578,16 @@ struct net_device_ops {
+ 					       const unsigned char *addr,
+ 					       u16 vid, u32 portid, u32 seq,
+ 					       struct netlink_ext_ack *extack);
++	int			(*ndo_mdb_add)(struct net_device *dev,
++					       struct nlattr *tb[],
++					       u16 nlmsg_flags,
++					       struct netlink_ext_ack *extack);
++	int			(*ndo_mdb_del)(struct net_device *dev,
++					       struct nlattr *tb[],
++					       struct netlink_ext_ack *extack);
++	int			(*ndo_mdb_dump)(struct net_device *dev,
++						struct sk_buff *skb,
++						struct netlink_callback *cb);
+ 	int			(*ndo_bridge_setlink)(struct net_device *dev,
+ 						      struct nlmsghdr *nlh,
+ 						      u16 flags,
 -- 
 2.37.3
 
