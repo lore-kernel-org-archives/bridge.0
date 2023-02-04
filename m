@@ -1,22 +1,18 @@
-Return-Path: <netdev@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 792E060D52
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5031260BAA
+Return-Path: <idosch@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B0477417C3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 21A6741780
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=GZ7DrZWPwBmIaIY/XfKy9ZyaInod7eu5cbALe6gc3PE=;
+ b=QeVWRmRNWMVIoiflLT2nnqr2VKf9YVljpmdQzd8FVyhyraoXjnVBGrO8esqcPZhm4aaV92UAh5cQk2G/clZ4WO19HB2Ly5I6cZ0RtdIXZKxfV+3la2tAtb1ejmxO8gXyWi0ZU0Q5Fmi7yl3KatV/0r4i6OBvn/TRKSLK98d24H6dpJOEfUJ8gWuXFTHSF22yYwaC9cNW3+ZjZY9xKxdBtWtAzM55MCPKCaE8qX3xv21dS/Oc+jFwVXSGCeBag3wnEdSobsP7PWlQC1kjvFhIiB26trPSza0QUjNyo9x3IkXjIRB4mgJYOhKP+3Uz6MOZ4Qrt6JrgE+9XFr/UChm7Dg==
+From: Ido Schimmel <idosch@nvidia.com>
+Date: Sat,  4 Feb 2023 19:07:48 +0200
+Message-Id: <20230204170801.3897900-1-idosch@nvidia.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-Date: Sat, 04 Feb 2023 09:48:24 +0100
-From: netdev@kapio-technology.com
-In-Reply-To: <Y94TebdRQRHMMj/c@corigine.com>
-References: <20230130173429.3577450-1-netdev@kapio-technology.com>
- <20230130173429.3577450-6-netdev@kapio-technology.com>
- <Y9lkXlyXg1d1D0j3@corigine.com>
- <9b12275969a204739ccfab972d90f20f@kapio-technology.com>
- <Y9zDxlwSn1EfCTba@corigine.com> <20230203204422.4wrhyathxfhj6hdt@skbuf>
- <Y94TebdRQRHMMj/c@corigine.com>
-Message-ID: <4abbe32d007240b9c3aea9c8ca936fa3@kapio-technology.com>
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 5/5] net: dsa: mv88e6xxx:
- implementation of dynamic ATU entries
+Subject: [Bridge] [RFC PATCH net-next 00/13] vxlan: Add MDB support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,46 +21,242 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Simon Horman <simon.horman@corigine.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?UTF-8?Q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC
- support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET
- SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
- A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
+To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-On 2023-02-04 09:12, Simon Horman wrote:
-> On Fri, Feb 03, 2023 at 10:44:22PM +0200, Vladimir Oltean wrote:
->> On Fri, Feb 03, 2023 at 09:20:22AM +0100, Simon Horman wrote:
->> > > else if (someflag)
->> > >         dosomething();
->> > >
->> > > For now only one flag will actually be set and they are mutually exclusive,
->> > > as they will not make sense together with the potential flags I know, but
->> > > that can change at some time of course.
->> >
->> > Yes, I see that is workable. I do feel that checking for other flags would
->> > be a bit more robust. But as you say, there are none. So whichever
->> > approach you prefer is fine by me.
->> 
->> The model we have for unsupported bits in the 
->> SWITCHDEV_ATTR_ID_PORT_PRE_BRIDGE_FLAGS
->> and SWITCHDEV_ATTR_ID_PORT_BRIDGE_FLAGS handlers is essentially this:
->> 
->> 	if (flags & ~(supported_flag_mask))
->> 		return -EOPNOTSUPP;
->> 
->> 	if (flags & supported_flag_1)
->> 		...
->> 
->> 	if (flags & supported_flag_2)
->> 		...
->> 
->> I suppose applying this model here would address Simon's extensibility 
->> concern.
-> 
-> Yes, that is the model I had in mind.
+tl;dr
+=====
 
-The only thing is that we actually need to return both 0 and -EOPNOTSUPP 
-for unsupported flags. The dynamic flag requires 0 when not supported 
-(and supported) AFAICS.
-Setting a mask as 'supported' for a feature that is not really supported 
-defeats the notion of 'supported' IMHO.
+This patchset implements MDB support in the VXLAN driver, allowing it to
+selectively forward IP multicast traffic to VTEPs with interested
+receivers instead of flooding it to all the VTEPs as BUM. The motivating
+use case is intra and inter subnet multicast forwarding using EVPN
+[1][2], which means that MDB entries are only installed by the user
+space control plane and no snooping is implemented, thereby avoiding a
+lot of unnecessary complexity in the kernel.
+
+Background
+==========
+
+Both the bridge and VXLAN drivers have an FDB that allows them to
+forward Ethernet frames based on their destination MAC addresses and
+VLAN/VNI. These FDBs are managed using the same PF_BRIDGE/RTM_*NEIGH
+netlink messages and bridge(8) utility.
+
+However, only the bridge driver has an MDB that allows it to selectively
+forward IP multicast packets to bridge ports with interested receivers
+behind them, based on (S, G) and (*, G) MDB entries. When these packets
+reach the VXLAN driver they are flooded using the "all-zeros" FDB entry
+(00:00:00:00:00:00). The entry either includes the list of all the VTEPs
+in the tenant domain (when ingress replication is used) or the multicast
+address of the BUM tunnel (when P2MP tunnels are used), to which all the
+VTEPs join.
+
+Networks that make heavy use of multicast in the overlay can benefit
+from a solution that allows them to selectively forward IP multicast
+traffic only to VTEPs with interested receivers. Such a solution is
+described in the next section.
+
+Motivation
+==========
+
+RFC 7432 [3] defines a "MAC/IP Advertisement route" (type 2) [4] that
+allows VTEPs in the EVPN network to advertise and learn reachability
+information for unicast MAC addresses. Traffic destined to a unicast MAC
+address can therefore be selectively forwarded to a single VTEP behind
+which the MAC is located.
+
+The same is not true for IP multicast traffic. Such traffic is simply
+flooded as BUM to all VTEPs in the broadcast domain (BD) / subnet,
+regardless if a VTEP has interested receivers for the multicast stream
+or not. This is especially problematic for overlay networks that make
+heavy use of multicast.
+
+The issue is addressed by RFC 9251 [1] that defines a "Selective
+Multicast Ethernet Tag Route" (type 6) [5] which allows VTEPs in the
+EVPN network to advertise multicast streams that they are interested in.
+This is done by having each VTEP suppress IGMP/MLD packets from being
+transmitted to the NVE network and instead communicate the information
+over BGP to other VTEPs.
+
+The draft in [2] further extends RFC 9251 with procedures to allow
+efficient forwarding of IP multicast traffic not only in a given subnet,
+but also between different subnets in a tenant domain.
+
+The required changes in the bridge driver to support the above were
+already merged in merge commit 8150f0cfb24f ("Merge branch
+'bridge-mcast-extensions-for-evpn'"). However, full support entails MDB
+support in the VXLAN driver so that it will be able to selectively
+forward IP multicast traffic only to VTEPs with interested receivers.
+The implementation of this MDB is described in the next section.
+
+Implementation
+==============
+
+The user interface is extended to allow user space to specify the
+destination VTEP(s) and related parameters. Example usage:
+
+ # bridge mdb add dev vxlan0 port vxlan0 grp 239.1.1.1 permanent dst 198.51.100.1
+ # bridge mdb add dev vxlan0 port vxlan0 grp 239.1.1.1 permanent dst 192.0.2.1
+
+ $ bridge -d -s mdb show
+ dev vxlan0 port vxlan0 grp 239.1.1.1 permanent filter_mode exclude proto static dst 192.0.2.1    0.00
+ dev vxlan0 port vxlan0 grp 239.1.1.1 permanent filter_mode exclude proto static dst 198.51.100.1    0.00
+
+Since the MDB is fully managed by user space and since snooping is not
+implemented, only permanent entries can be installed and temporary
+entries are rejected by the kernel.
+
+The netlink interface is extended with a few new attributes in the
+RTM_NEWMDB / RTM_DELMDB request messages:
+
+[ struct nlmsghdr ]
+[ struct br_port_msg ]
+[ MDBA_SET_ENTRY ]
+	struct br_mdb_entry
+[ MDBA_SET_ENTRY_ATTRS ]
+	[ MDBE_ATTR_SOURCE ]
+		struct in_addr / struct in6_addr
+	[ MDBE_ATTR_SRC_LIST ]
+		[ MDBE_SRC_LIST_ENTRY ]
+			[ MDBE_SRCATTR_ADDRESS ]
+				struct in_addr / struct in6_addr
+		[ ...]
+	[ MDBE_ATTR_GROUP_MODE ]
+		u8
+	[ MDBE_ATTR_RTPORT ]
+		u8
+	[ MDBE_ATTR_DST ]	// new
+		struct in_addr / struct in6_addr
+	[ MDBE_ATTR_DST_PORT ]	// new
+		u16
+	[ MDBE_ATTR_VNI ]	// new
+		u32
+	[ MDBE_ATTR_IFINDEX ]	// new
+		s32
+	[ MDBE_ATTR_SRC_VNI ]	// new
+		u32
+
+RTM_NEWMDB / RTM_DELMDB responses and notifications are extended with
+corresponding attributes.
+
+One MDB entry that can be installed in the VXLAN MDB, but not in the
+bridge MDB is the catchall entry (0.0.0.0 / ::). It is used to transmit
+unregistered multicast traffic that is not link-local and is especially
+useful when inter-subnet multicast forwarding is required. See patch #12
+for a detailed explanation and motivation. It is similar to the
+"all-zeros" FDB entry that can be installed in the VXLAN FDB, but not
+the bridge FDB.
+
+"added_by_star_ex" entries?
+---------------------------
+
+The bridge driver automatically installs (S, G) MDB port group entries
+marked as "added_by_star_ex" whenever it detects that an (S, G) entry
+can prevent traffic from being forwarded via a port associated with an
+EXCLUDE (*, G) entry. The bridge will add the port to the port group of
+the (S, G) entry, thereby creating a new port group entry. The
+complexity associated with these entries is not trivial, but it needs to
+reside in the bridge driver because it automatically installs MDB
+entries in response to snooped IGMP / MLD packets.
+
+The same in not true for the VXLAN MDB which is entirely managed by user
+space who is fully capable of forming the correct replication lists on
+its own. In addition, the complexity associated with the
+"added_by_star_ex" entries in the VXLAN driver is higher compared to the
+bridge: Whenever a remote VTEP is added to the catchall entry, it needs
+to be added to all the existing MDB entries, as such a remote requested
+all the multicast traffic to be forwarded to it. Similarly, whenever an
+(*, G) or (S, G) entry is added, all the remotes associated with the
+catchall entry need to be added to it.
+
+Given the above, this RFC does not implement support for such entries.
+One argument against this decision can be that in the future someone
+might want to populate the VXLAN MDB in response to decapsulated IGMP /
+MLD packets and not according to EVPN routes. Regardless of my doubts
+regarding this possibility, it is unclear to me why the snooping
+functionality cannot be implemented in user space by opening an
+AF_PACKET socket on the VXLAN device and sniffing IGMP / MLD packets.
+
+I believe that the decision to place snooping functionality in the
+bridge driver was made without appreciation for the complexity that
+IGMPv3 support would bring and that a more informed decision should be
+made for the VXLAN driver.
+
+Testing
+=======
+
+No regressions in existing VXLAN / MDB selftests. Will add dedicated
+selftests in v1.
+
+Patchset overview
+=================
+
+Patches #1-#3 are small preparations in the bridge driver. I plan to
+submit them separately together with an MDB dump test case.
+
+Patches #4-#6 are additional preparations centered around the extraction
+of the MDB netlink handlers from the bridge driver to the common
+rtnetlink code. This allows reusing the existing MDB netlink messages
+for the configuration of the VXLAN MDB.
+
+Patches #7-#9 include more small preparations in the common rtnetlink
+code and the VXLAN driver.
+
+Patch #10 implements the MDB control path in the VXLAN driver, which
+will allow user space to create, delete, replace and dump MDB entries.
+
+Patches #11-#12 implement the MDB data path in the VXLAN driver,
+allowing it to selectively forward IP multicast traffic according to the
+matched MDB entry.
+
+Patch #13 finally enables MDB support in the VXLAN driver.
+
+iproute2 patches can be found here [6].
+
+Note that in order to fully support the specifications in [1] and [2],
+additional functionality is required from the data path. However, it can
+be achieved using existing kernel interfaces which is why it is not
+described here.
+
+[1] https://datatracker.ietf.org/doc/html/rfc9251
+[2] https://datatracker.ietf.org/doc/html/draft-ietf-bess-evpn-irb-mcast
+[3] https://datatracker.ietf.org/doc/html/rfc7432
+[4] https://datatracker.ietf.org/doc/html/rfc7432#section-7.2
+[5] https://datatracker.ietf.org/doc/html/rfc9251#section-9.1
+[6] https://github.com/idosch/iproute2/commits/submit/mdb_vxlan_rfc_v1
+
+Ido Schimmel (13):
+  bridge: mcast: Use correct define in MDB dump
+  bridge: mcast: Remove pointless sequence generation counter assignment
+  bridge: mcast: Move validation to a policy
+  net: Add MDB net device operations
+  bridge: mcast: Implement MDB net device operations
+  rtnetlink: bridge: mcast: Move MDB handlers out of bridge driver
+  rtnetlink: bridge: mcast: Relax group address validation in common
+    code
+  vxlan: Move address helpers to private headers
+  vxlan: Expose vxlan_xmit_one()
+  vxlan: mdb: Add MDB control path support
+  vxlan: mdb: Add an internal flag to indicate MDB usage
+  vxlan: Add MDB data path support
+  vxlan: Enable MDB support
+
+ drivers/net/vxlan/Makefile        |    2 +-
+ drivers/net/vxlan/vxlan_core.c    |   78 +-
+ drivers/net/vxlan/vxlan_mdb.c     | 1484 +++++++++++++++++++++++++++++
+ drivers/net/vxlan/vxlan_private.h |   84 ++
+ include/linux/netdevice.h         |   21 +
+ include/net/vxlan.h               |    6 +
+ include/uapi/linux/if_bridge.h    |   10 +
+ net/bridge/br_device.c            |    3 +
+ net/bridge/br_mdb.c               |  214 +----
+ net/bridge/br_netlink.c           |    3 -
+ net/bridge/br_private.h           |   22 +-
+ net/core/rtnetlink.c              |  215 +++++
+ 12 files changed, 1907 insertions(+), 235 deletions(-)
+ create mode 100644 drivers/net/vxlan/vxlan_mdb.c
+
+-- 
+2.37.3
+
