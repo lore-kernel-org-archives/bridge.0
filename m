@@ -1,21 +1,30 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CC6A960D59
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 131C660D4D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ma0lMYhmkgsFbsPUuCcNQ33R7PVCiMwdt8Gw3JCvLBw=;
- b=MFLFd+7TpokBjGiqzXgb5kl0echq8+d5Bu55ymy29FUxCS2dkPN/QfdM16U8ptkEJImMXlOGOgRmE8cDrr/Wjy75XfVeQrfLvYnOmIEDp8H17deuuI9OsBxlhLO00cxvZNEn2pSWrccEqSeURKLF8P+sy+Os837mvFRjzlP5Za/jj34SzFb9j3GjPPNWs4Kv5MajLUoYcJeY7p9d7tChGxGFascRpoLJNK9Oi2XFsUNZg55KzMwwHgmeIU67Hkoci/hQXaqno/6tkniSPe/urDrE4ktAPXQ/uBswGJAMcJYpu5yoahdCW11rIIGoy/tTqxuX9Vl1MIW9qcQFhsNP0w==
-From: Ido Schimmel <idosch@nvidia.com>
-Date: Thu,  9 Feb 2023 09:18:52 +0200
-Message-Id: <20230209071852.613102-5-idosch@nvidia.com>
-In-Reply-To: <20230209071852.613102-1-idosch@nvidia.com>
-References: <20230209071852.613102-1-idosch@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 30D3660C16
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 539E160C06
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=IBa8E8PwdjPXkRzD62dAtTjcrA6uST3bjufU3dsZCM8=;
+ b=MTowCXDFtV7Xj5ue9879TT9Ap06V2DgRQCk6nXhSg7BXGP8l+/WIriZaVT/18QfdHS
+ rTarGG0ojyrm+D6hvNUcqiQCXhn+hj659/cNhvbAGfsqSdMpDP9Ko1mymtolpS+Mp1If
+ OJBKTYFg1B5enmxCb1kiHyxEBogWKsKxYaeV1tbGcVH4aMqCgZe3nwivuco7+vER6BK2
+ r0SoBcatNMVKT9q9+lNsijM+kAgF1drigZLr4FRaFDidI4YNyc92L0rieAo8cJ88hhCq
+ QqGZRFreCbCmDG+Auz9oV+IHq1z4+IvJmm0sBDHHjjGJXbhSLsUo8GpBpPJsUGI35DgR
+ wRew==
+Message-ID: <48be3497-7c8f-ac73-0760-a8b1125ab2ab@blackwall.org>
+Date: Thu, 9 Feb 2023 09:18:47 +0100
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 4/4] selftests: forwarding: Add MDB dump
-	test cases
+Content-Language: en-US
+References: <20230209071852.613102-1-idosch@nvidia.com>
+ <20230209071852.613102-2-idosch@nvidia.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20230209071852.613102-2-idosch@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 1/4] bridge: mcast: Use correct define
+ in MDB dump
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,156 +33,31 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: petrm@nvidia.com, mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-The kernel maintains three markers for the MDB dump:
+On 2/9/23 09:18, Ido Schimmel wrote:
+> 'MDB_PG_FLAGS_PERMANENT' and 'MDB_PERMANENT' happen to have the same
+> value, but the latter is uAPI and cannot change, so use it when dumping
+> an MDB entry.
+> 
+> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+>   net/bridge/br_mdb.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+> index 9f22ebfdc518..13076206e497 100644
+> --- a/net/bridge/br_mdb.c
+> +++ b/net/bridge/br_mdb.c
+> @@ -259,7 +259,7 @@ static int __mdb_fill_info(struct sk_buff *skb,
+>   #endif
+>   	} else {
+>   		ether_addr_copy(e.addr.u.mac_addr, mp->addr.dst.mac_addr);
+> -		e.state = MDB_PG_FLAGS_PERMANENT;
+> +		e.state = MDB_PERMANENT;
+>   	}
+>   	e.addr.proto = mp->addr.proto;
+>   	nest_ent = nla_nest_start_noflag(skb,
 
-1. The last bridge device from which the MDB was dumped.
-2. The last MDB entry from which the MDB was dumped.
-3. The last port-group entry that was dumped.
-
-Add test cases for large scale MDB dump to make sure that all the
-configured entries are dumped and that the markers are used correctly.
-
-Specifically, create 2 bridges with 32 ports and add 256 MDB entries in
-which all the ports are member of. Test that each bridge reports 8192
-(256 * 32) permanent entries. Do that with IPv4, IPv6 and L2 MDB
-entries.
-
-On my system, MDB dump of the above is contained in about 50 netlink
-messages.
-
-Example output:
-
- # ./bridge_mdb.sh
- [...]
- INFO: # Large scale dump tests
- TEST: IPv4 large scale dump tests                                   [ OK ]
- TEST: IPv6 large scale dump tests                                   [ OK ]
- TEST: L2 large scale dump tests                                     [ OK ]
- [...]
-
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
----
- .../selftests/net/forwarding/bridge_mdb.sh    | 99 +++++++++++++++++++
- 1 file changed, 99 insertions(+)
-
-diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-index b48867d8cadf..ae3f9462a2b6 100755
---- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-@@ -742,10 +742,109 @@ cfg_test_port()
- 	cfg_test_port_l2
- }
- 
-+ipv4_grps_get()
-+{
-+	local max_grps=$1; shift
-+	local i
-+
-+	for i in $(seq 0 $((max_grps - 1))); do
-+		echo "239.1.1.$i"
-+	done
-+}
-+
-+ipv6_grps_get()
-+{
-+	local max_grps=$1; shift
-+	local i
-+
-+	for i in $(seq 0 $((max_grps - 1))); do
-+		echo "ff0e::$(printf %x $i)"
-+	done
-+}
-+
-+l2_grps_get()
-+{
-+	local max_grps=$1; shift
-+	local i
-+
-+	for i in $(seq 0 $((max_grps - 1))); do
-+		echo "01:00:00:00:00:$(printf %02x $i)"
-+	done
-+}
-+
-+cfg_test_dump_common()
-+{
-+	local name=$1; shift
-+	local fn=$1; shift
-+	local max_bridges=2
-+	local max_grps=256
-+	local max_ports=32
-+	local num_entries
-+	local batch_file
-+	local grp
-+	local i j
-+
-+	RET=0
-+
-+	# Create net devices.
-+	for i in $(seq 1 $max_bridges); do
-+		ip link add name br-test${i} up type bridge vlan_filtering 1 \
-+			mcast_snooping 1
-+		for j in $(seq 1 $max_ports); do
-+			ip link add name br-test${i}-du${j} up \
-+				master br-test${i} type dummy
-+		done
-+	done
-+
-+	# Create batch file with MDB entries.
-+	batch_file=$(mktemp)
-+	for i in $(seq 1 $max_bridges); do
-+		for j in $(seq 1 $max_ports); do
-+			for grp in $($fn $max_grps); do
-+				echo "mdb add dev br-test${i} \
-+					port br-test${i}-du${j} grp $grp \
-+					permanent vid 1" >> $batch_file
-+			done
-+		done
-+	done
-+
-+	# Program the batch file and check for expected number of entries.
-+	bridge -b $batch_file
-+	for i in $(seq 1 $max_bridges); do
-+		num_entries=$(bridge mdb show dev br-test${i} | \
-+			grep "permanent" | wc -l)
-+		[[ $num_entries -eq $((max_grps * max_ports)) ]]
-+		check_err $? "Wrong number of entries in br-test${i}"
-+	done
-+
-+	# Cleanup.
-+	rm $batch_file
-+	for i in $(seq 1 $max_bridges); do
-+		ip link del dev br-test${i}
-+		for j in $(seq $max_ports); do
-+			ip link del dev br-test${i}-du${j}
-+		done
-+	done
-+
-+	log_test "$name large scale dump tests"
-+}
-+
-+# Check large scale dump.
-+cfg_test_dump()
-+{
-+	echo
-+	log_info "# Large scale dump tests"
-+
-+	cfg_test_dump_common "IPv4" ipv4_grps_get
-+	cfg_test_dump_common "IPv6" ipv6_grps_get
-+	cfg_test_dump_common "L2" l2_grps_get
-+}
-+
- cfg_test()
- {
- 	cfg_test_host
- 	cfg_test_port
-+	cfg_test_dump
- }
- 
- __fwd_test_host_ip()
--- 
-2.37.3
-
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
