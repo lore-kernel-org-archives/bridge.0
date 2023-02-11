@@ -1,29 +1,29 @@
 Return-Path: <linux@weissschuh.net>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B9DD241B50
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE35941A67
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B74158208B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 57C2482081
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
  s=mail; t=1676086359;
- bh=XNGLB3UhxdSqVyS81dpprAvvvxiF/US4JFBcP36WqyI=;
+ bh=Dnmm9EisyiwPWuqnhssGEUllu7crqwubee2hNSJAG8M=;
  h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
- b=TsVKORG2ywrtpfm4DmD/RciB0Q70iniNRqU3YZMfhUrPo8BlVGnjvQD1j18vz6f7C
- rg4yrkc2aBUmwmp7A+n52xbKwFTa+KYi05N8ajOAY7plh8T/UkEMHwKv0N+hMjoEPc
- AeRp6bR0fFjXBBtDCga1AjeMqkBWSRiG7AtnZP54=
-Date: Sat, 11 Feb 2023 03:32:30 +0000
+ b=UjNXQ4sAm7gTMcAakOeheIUjKxttHPo9C+4JiCsux7rS5UwNSceKBz3Shzghl6KKu
+ OQhOEHOSPTivXqHhxF63huaf28WpWD1y3OvnSm304qTiT/OrfydCE8paw+1zS9BtBi
+ tlcoz9c31vKJr0p+viUNWg9mSuXcmilCnhgVNVDo=
+Date: Sat, 11 Feb 2023 03:32:31 +0000
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20230211-kobj_type-net-v1-2-e3bdaa5d8a78@weissschuh.net>
+Message-Id: <20230211-kobj_type-net-v1-3-e3bdaa5d8a78@weissschuh.net>
 References: <20230211-kobj_type-net-v1-0-e3bdaa5d8a78@weissschuh.net>
 In-Reply-To: <20230211-kobj_type-net-v1-0-e3bdaa5d8a78@weissschuh.net>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1676086354; l=1293;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1676086354; l=1793;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=XNGLB3UhxdSqVyS81dpprAvvvxiF/US4JFBcP36WqyI=;
- b=O08tGpao+GixD5fwjmhZwJyZf4Ds2If3+D7Hs7g4BjKYhk9/FQE3HQxNJOzX6oHM6tg8tw42N
- gmlshEAXEk0DH6Ktt7IXEHJMNgtZwGFS6e0EpBp1Pa9JQLrpmu5a3Pf
+ bh=Dnmm9EisyiwPWuqnhssGEUllu7crqwubee2hNSJAG8M=;
+ b=onqdqhxHmXHKN3enPa0T1Gz+7MRmxgAzhxlzCohHIJ/hJg/Czxo1RYAbabMEPlV0N+RLZ5GqH
+ xsbzqvl8cG2Bd5xlzMTSFa68hl+5U9j2Z1xgWzALMttXy92f2Ixd6zp
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
-Subject: [Bridge] [PATCH 2/3] net-sysfs: make kobj_type structures constant
+Subject: [Bridge] [PATCH 3/3] SUNRPC: make kobj_type structures constant
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -43,31 +43,46 @@ modification at runtime.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- net/core/net-sysfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sunrpc/sysfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index ca55dd747d6c..a3771bba841a 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1040,7 +1040,7 @@ static void rx_queue_get_ownership(const struct kobject *kobj,
- 	net_ns_get_ownership(net, uid, gid);
+diff --git a/net/sunrpc/sysfs.c b/net/sunrpc/sysfs.c
+index 1e05a2d723f4..0d0db4e1064e 100644
+--- a/net/sunrpc/sysfs.c
++++ b/net/sunrpc/sysfs.c
+@@ -36,7 +36,7 @@ rpc_sysfs_object_child_ns_type(const struct kobject *kobj)
+ 	return &net_ns_type_operations;
  }
  
--static struct kobj_type rx_queue_ktype __ro_after_init = {
-+static const struct kobj_type rx_queue_ktype = {
- 	.sysfs_ops = &rx_queue_sysfs_ops,
- 	.release = rx_queue_release,
- 	.default_groups = rx_queue_default_groups,
-@@ -1643,7 +1643,7 @@ static void netdev_queue_get_ownership(const struct kobject *kobj,
- 	net_ns_get_ownership(net, uid, gid);
- }
+-static struct kobj_type rpc_sysfs_object_type = {
++static const struct kobj_type rpc_sysfs_object_type = {
+ 	.release = rpc_sysfs_object_release,
+ 	.sysfs_ops = &kobj_sysfs_ops,
+ 	.child_ns_type = rpc_sysfs_object_child_ns_type,
+@@ -427,20 +427,20 @@ static struct attribute *rpc_sysfs_xprt_switch_attrs[] = {
+ };
+ ATTRIBUTE_GROUPS(rpc_sysfs_xprt_switch);
  
--static struct kobj_type netdev_queue_ktype __ro_after_init = {
-+static const struct kobj_type netdev_queue_ktype = {
- 	.sysfs_ops = &netdev_queue_sysfs_ops,
- 	.release = netdev_queue_release,
- 	.default_groups = netdev_queue_default_groups,
+-static struct kobj_type rpc_sysfs_client_type = {
++static const struct kobj_type rpc_sysfs_client_type = {
+ 	.release = rpc_sysfs_client_release,
+ 	.sysfs_ops = &kobj_sysfs_ops,
+ 	.namespace = rpc_sysfs_client_namespace,
+ };
+ 
+-static struct kobj_type rpc_sysfs_xprt_switch_type = {
++static const struct kobj_type rpc_sysfs_xprt_switch_type = {
+ 	.release = rpc_sysfs_xprt_switch_release,
+ 	.default_groups = rpc_sysfs_xprt_switch_groups,
+ 	.sysfs_ops = &kobj_sysfs_ops,
+ 	.namespace = rpc_sysfs_xprt_switch_namespace,
+ };
+ 
+-static struct kobj_type rpc_sysfs_xprt_type = {
++static const struct kobj_type rpc_sysfs_xprt_type = {
+ 	.release = rpc_sysfs_xprt_release,
+ 	.default_groups = rpc_sysfs_xprt_groups,
+ 	.sysfs_ops = &kobj_sysfs_ops,
 
 -- 
 2.39.1
