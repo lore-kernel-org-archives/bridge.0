@@ -1,22 +1,26 @@
-Return-Path: <hans@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 54B7581394
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 11A5481295
-From: Hans Schultz <netdev@kapio-technology.com>
-In-Reply-To: <Y+EkiAyexZrPoCpP@corigine.com>
-References: <20230130173429.3577450-1-netdev@kapio-technology.com>
- <20230130173429.3577450-6-netdev@kapio-technology.com>
- <Y9lkXlyXg1d1D0j3@corigine.com>
- <9b12275969a204739ccfab972d90f20f@kapio-technology.com>
- <Y9zDxlwSn1EfCTba@corigine.com> <20230203204422.4wrhyathxfhj6hdt@skbuf>
- <Y94TebdRQRHMMj/c@corigine.com>
- <4abbe32d007240b9c3aea9c8ca936fa3@kapio-technology.com>
- <Y+EkiAyexZrPoCpP@corigine.com>
-Date: Tue, 14 Feb 2023 22:14:55 +0100
-Message-ID: <87fsb83q5s.fsf@kapio-technology.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AC9B4415DE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 64FAB40342
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1676436619;
+ bh=Hpm+5UfMmGIvwWNCzlutXjEPevQMb+5N7rtPRfIxSLc=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=TnvrtkLO0BE1u51lVpU6hMEeCdhI7sN66M3Cv4STcyGEo70f+bhG2gMugWs55IxfK
+ 1qn3jQsO2MigZo9eORhULLegtZDd1b5v7eM7wJcmEUsxUWGMBthhpwCOKskagAb01f
+ d9392bDEJhPmWXpwQBxNBsyTzDQdTuLVKjjkyTu0N2pPSPr9AubKUNwMuEOAY9fOeD
+ SPNoysqrf/tdkJMxc+irsKOd93ctDA7zrO7Zipdl/JxqJDF8OUrur4bwWuARPh3RPd
+ RoHq36MKzwUdOfLVUC8MPVUTkBNSl1w8kC+cgyQm3r3c91AxjBFHBoo15l3JDkH/J7
+ +ItFtDdiZ1R7Q==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH net-next 5/5] net: dsa: mv88e6xxx:
- implementation of dynamic ATU entries
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <167643661914.17897.15068039752678209859.git-patchwork-notify@kernel.org>
+Date: Wed, 15 Feb 2023 04:50:19 +0000
+References: <20230211-kobj_type-net-v2-0-013b59e59bf3@weissschuh.net>
+In-Reply-To: <20230211-kobj_type-net-v2-0-013b59e59bf3@weissschuh.net>
+Subject: Re: [Bridge] [PATCH net-next v2 0/2] net: make kobj_type structures
+	constant
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,47 +29,34 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Simon Horman <simon.horman@corigine.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?Q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC
- support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET
- SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
- A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
+To: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=3Clinux=40weissschuh=2Enet=3E?=@ci.codeaurora.org
+Cc: netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-On Mon, Feb 06, 2023 at 17:02, Simon Horman <simon.horman@corigine.com> wrote:
->
-> Just to clarify my suggestion one last time, it would be along the lines
-> of the following (completely untested!). I feel that it robustly covers
-> all cases for fdb_flags. And as a bonus doesn't need to be modified
-> if other (unsupported) flags are added in future.
->
-> 	if (fdb_flags & ~(DSA_FDB_FLAG_DYNAMIC))
-> 		return -EOPNOTSUPP;
->
-> 	is_dynamic = !!(fdb_flags & DSA_FDB_FLAG_DYNAMIC)
-> 	if (is_dynamic)
-> 		state = MV88E6XXX_G1_ATU_DATA_STATE_UC_AGE_7_NEWEST;
->
->
-> And perhaps for other drivers:
->
-> 	if (fdb_flags & ~(DSA_FDB_FLAG_DYNAMIC))
-> 		return -EOPNOTSUPP;
-> 	if (fdb_flags)
-> 		return 0;
->
-> Perhaps a helper would be warranted for the above.
+Hello:
 
-How would such a helper look? Inline function is not clean.
+This series was applied to netdev/net-next.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
->
-> But in writing this I think that, perhaps drivers could return -EOPNOTSUPP
-> for the DSA_FDB_FLAG_DYNAMIC case and the caller can handle, rather tha
-> propagate, -EOPNOTSUPP.
+On Tue, 14 Feb 2023 04:23:10 +0000 you wrote:
+> Since commit ee6d3dd4ed48 ("driver core: make kobj_type constant.")
+> the driver core allows the usage of const struct kobj_type.
+> 
+> Take advantage of this to constify the structure definitions to prevent
+> modification at runtime.
+> 
+> Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+> 
+> [...]
 
-I looked at that, but changing the caller is also a bit ugly.
+Here is the summary with links:
+  - [net-next,v2,1/2] net: bridge: make kobj_type structure constant
+    https://git.kernel.org/netdev/net-next/c/e8c6cbd7656e
+  - [net-next,v2,2/2] net-sysfs: make kobj_type structures constant
+    https://git.kernel.org/netdev/net-next/c/b2793517052d
 
->
-> Returning -EOPNOTSUPP is the normal way to drivers to respond to requests
-> for unsupported hardware offloads. Sticking to that may be clearner
-> in the long run. That said, I do agree your current patch is correct
-> given the flag that is defined (by your patchset).
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
