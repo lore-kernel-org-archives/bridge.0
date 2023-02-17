@@ -1,29 +1,13 @@
-Return-Path: <aleksander.lobakin@intel.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 46DDD4159D
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 444B841061
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1676641722; x=1708177722;
- h=message-id:date:subject:to:cc:references:from:
- in-reply-to:content-transfer-encoding:mime-version;
- bh=zhk0/abzQCEZFdUsDh+NPfhazJaX1xSqFI0JqkGJHiY=;
- b=mUw6Xn9dSJlDo/NxtaQAk4APVCXt8leb/THdBduAw50ydXupK0/0VXjo
- xTggIMa1kin38RK7NYWC9ePRDWwH9MMcluBov1bcqiF2lxr/QtyiZIPQj
- dYDkZNz2gO3HXqyiOL7fETDGonHOPs3s0XPbzEVs/2Tolv9jQzSUFnYPI
- T3+E2/k15nqhM7KIj3wSWnG+louPi+HsVl0XMPRy8ahxmqqWyNPYsVKBF
- rFp/MSApzKFPjXQjREu1lU5L9QMgZ22hCBcXNB+CSWc0XlSzTk/dDj9i/
- oQOxiL1A/L4QOdewFf0dVYSsne8a2lGAayVK8BeiQWs2d772Fo8Qd7n/t w==;
-Message-ID: <90adc80b-15d4-0938-e05c-a231991f5b77@intel.com>
-Date: Fri, 17 Feb 2023 14:46:56 +0100
-Content-Language: en-US
-References: <20230217131657.12649-1-alsp705@gmail.com>
-From: Alexander Lobakin <aleksander.lobakin@intel.com>
-In-Reply-To: <20230217131657.12649-1-alsp705@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Return-Path: <39brvYwkbAFAAGH2s33w9s770v.y66y3wCAw9u65Bw5B.u64@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF0A6410B2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F48B40547
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH] net-bridge: fix unsafe dereference of
- potential null ptr in __vlan_del()
+Date: Fri, 17 Feb 2023 09:35:49 -0800
+Message-ID: <000000000000866d0e05f4e8be87@google.com>
+From: syzbot <syzbot+f61594de72d6705aea03@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: [Bridge] [syzbot] [bridge?] [coreteam?] KASAN:
+	vmalloc-out-of-bounds Read in __ebt_unregister_table
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,63 +16,69 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Alexander Sapozhnikov <alsp705@gmail.com>
-Cc: lvc-project@linuxtesting.org, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: bridge@lists.linux-foundation.org, coreteam@netfilter.org, davem@davemloft.net, edumazet@google.com, fw@strlen.de, kadlec@netfilter.org, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pabeni@redhat.com, pablo@netfilter.org, razor@blackwall.org, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
 
-From: Alexander Sapozhnikov <alsp705@gmail.com>
-Date: Fri, 17 Feb 2023 16:16:57 +0300
+Hello,
 
-> [PATCH] net-bridge: fix unsafe dereference of potential null ptr in
-> __vlan_del()
+syzbot found the following issue on:
 
-Must be:
+HEAD commit:    3ac88fa4605e Merge tag 'net-6.2-final' of git://git.kernel..
+git tree:       upstream
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=12986e58c80000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=fe56f7d193926860
+dashboard link: https://syzkaller.appspot.com/bug?extid=f61594de72d6705aea03
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14123acf480000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=143058d7480000
 
-[PATCH net] net: bridge: fix unsafe dereference of potential null ptr in
-__vlan_del()
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/37b6278f1cdc/disk-3ac88fa4.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/0a0d5eb58ca1/vmlinux-3ac88fa4.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/6c92dbf4b7ab/bzImage-3ac88fa4.xz
 
-> After having been compared to NULL value at br_vlan.c:399,
-> pointer 'p' is passed as 1st parameter in call to function
-> 'nbp_vlan_set_vlan_dev_state' at br_vlan.c:420, 
-> where it is dereferenced at br_vlan.c:1722.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+f61594de72d6705aea03@syzkaller.appspotmail.com
 
-Do you have a reproducer for this or it's purely hypothetical? I'm not
-saying it's strongly required, at least I wouldn't require it, just
-curious. And sometimes without a stable repro you should target
-net-next, not net, but better ask the bridge maintainers re this.
+==================================================================
+BUG: KASAN: vmalloc-out-of-bounds in __ebt_unregister_table+0xc00/0xcd0 net/bridge/netfilter/ebtables.c:1168
+Read of size 4 at addr ffffc90005425000 by task kworker/u4:4/74
 
-> 
-> Found by Linux Verification Center (linuxtesting.org) with SVACE.
-> 
+CPU: 0 PID: 74 Comm: kworker/u4:4 Not tainted 6.2.0-rc8-syzkaller-00083-g3ac88fa4605e #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
+Workqueue: netns cleanup_net
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:306 [inline]
+ print_report+0x15e/0x45d mm/kasan/report.c:417
+ kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
+ __ebt_unregister_table+0xc00/0xcd0 net/bridge/netfilter/ebtables.c:1168
+ ebt_unregister_table+0x35/0x40 net/bridge/netfilter/ebtables.c:1372
+ ops_exit_list+0xb0/0x170 net/core/net_namespace.c:169
+ cleanup_net+0x4ee/0xb10 net/core/net_namespace.c:613
+ process_one_work+0x9bf/0x1710 kernel/workqueue.c:2289
+ worker_thread+0x669/0x1090 kernel/workqueue.c:2436
+ kthread+0x2e8/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
+ </TASK>
 
-Here you should have a "Fixes:" tag with a reference to the commit which
-introduced this nullptr-deref.
+Memory state around the buggy address:
+ ffffc90005424f00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ ffffc90005424f80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+>ffffc90005425000: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+                   ^
+ ffffc90005425080: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+ ffffc90005425100: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+==================================================================
 
-> Signed-off-by: Alexander Sapozhnikov <alsp705@gmail.com>
 
-You have 2 copies of this patch in the list. The first one lacks proper
-commit message, this one has it. But you didn't marked this resent as v2
-(it's v2 in fact).
-Please mark it accordingly next spin and don't forget always provide a
-changelog between versions.
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-> ---
->  net/bridge/br_vlan.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index bc75fa1e4666..87091e270adf 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -417,7 +417,8 @@ static int __vlan_del(struct net_bridge_vlan *v)
->  		rhashtable_remove_fast(&vg->vlan_hash, &v->vnode,
->  				       br_vlan_rht_params);
->  		__vlan_del_list(v);
-> -		nbp_vlan_set_vlan_dev_state(p, v->vid);
-> +		if (p)
-> +			nbp_vlan_set_vlan_dev_state(p, v->vid);
->  		br_multicast_toggle_one_vlan(v, false);
->  		br_multicast_port_ctx_deinit(&v->port_mcast_ctx);
->  		call_rcu(&v->rcu, nbp_vlan_rcu_free);
-
-Thanks,
-Olek
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this issue, for details see:
+https://goo.gl/tpsmEJ#testing-patches
