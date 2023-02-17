@@ -1,26 +1,29 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AC9B4415DE
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 64FAB40342
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1676436619;
- bh=Hpm+5UfMmGIvwWNCzlutXjEPevQMb+5N7rtPRfIxSLc=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=TnvrtkLO0BE1u51lVpU6hMEeCdhI7sN66M3Cv4STcyGEo70f+bhG2gMugWs55IxfK
- 1qn3jQsO2MigZo9eORhULLegtZDd1b5v7eM7wJcmEUsxUWGMBthhpwCOKskagAb01f
- d9392bDEJhPmWXpwQBxNBsyTzDQdTuLVKjjkyTu0N2pPSPr9AubKUNwMuEOAY9fOeD
- SPNoysqrf/tdkJMxc+irsKOd93ctDA7zrO7Zipdl/JxqJDF8OUrur4bwWuARPh3RPd
- RoHq36MKzwUdOfLVUC8MPVUTkBNSl1w8kC+cgyQm3r3c91AxjBFHBoo15l3JDkH/J7
- +ItFtDdiZ1R7Q==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D8EA060608
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6C1A960009
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=/QW0mj2OAwfXeURyYtHmXL5vROau39LeBC17qnk7LD0=;
+ b=bCo4B0Q5rTWvnptIaqqrFHU0ozKR8b6G2NtIoKP/rXOM5kYGhY/9MgG+9Dk5ob5X1x
+ uP8SxSMwBE9MEAa1nMLnlVfdVrkLMXfqvEa+hLxmkLNrUprgDi4i9V6TZhEM4uZcddVN
+ qmvutDpS3yBHWXzzom6bp6mo8zrhq1q65Zb9JQuTIYMeq6/3WKvsDG9VgVew99q+iAL3
+ aH3r9lG39mpvX2gL5x2UPttzDH3jP8pFTX61xxSWsFFfSNgjRjwfPsBDaayFh54Zam2Q
+ U3ArUvoMZKzdh1XqQMv1YnXa1vqrfVH4ddkWU/bUDMamoRg6xvRa+PqpfnppxqVnUMKc
+ xXpg==
+Message-ID: <a7cef78d-81fb-7de6-1f6e-a948cca1b46b@blackwall.org>
+Date: Fri, 17 Feb 2023 15:53:43 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <167643661914.17897.15068039752678209859.git-patchwork-notify@kernel.org>
-Date: Wed, 15 Feb 2023 04:50:19 +0000
-References: <20230211-kobj_type-net-v2-0-013b59e59bf3@weissschuh.net>
-In-Reply-To: <20230211-kobj_type-net-v2-0-013b59e59bf3@weissschuh.net>
-Subject: Re: [Bridge] [PATCH net-next v2 0/2] net: make kobj_type structures
-	constant
+Content-Language: en-US
+References: <20230217131657.12649-1-alsp705@gmail.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20230217131657.12649-1-alsp705@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net-bridge: fix unsafe dereference of
+ potential null ptr in __vlan_del()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,34 +32,41 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=3Clinux=40weissschuh=2Enet=3E?=@ci.codeaurora.org
-Cc: netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Alexander Sapozhnikov <alsp705@gmail.com>, Roopa Prabhu <roopa@nvidia.com>
+Cc: lvc-project@linuxtesting.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-Hello:
-
-This series was applied to netdev/net-next.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Tue, 14 Feb 2023 04:23:10 +0000 you wrote:
-> Since commit ee6d3dd4ed48 ("driver core: make kobj_type constant.")
-> the driver core allows the usage of const struct kobj_type.
+On 17/02/2023 15:16, Alexander Sapozhnikov wrote:
+> After having been compared to NULL value at br_vlan.c:399,
+> pointer 'p' is passed as 1st parameter in call to function
+> 'nbp_vlan_set_vlan_dev_state' at br_vlan.c:420, 
+> where it is dereferenced at br_vlan.c:1722.
 > 
-> Take advantage of this to constify the structure definitions to prevent
-> modification at runtime.
+> Found by Linux Verification Center (linuxtesting.org) with SVACE.
 > 
-> Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+> Signed-off-by: Alexander Sapozhnikov <alsp705@gmail.com>
+> ---
+>  net/bridge/br_vlan.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> [...]
+> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+> index bc75fa1e4666..87091e270adf 100644
+> --- a/net/bridge/br_vlan.c
+> +++ b/net/bridge/br_vlan.c
+> @@ -417,7 +417,8 @@ static int __vlan_del(struct net_bridge_vlan *v)
+>  		rhashtable_remove_fast(&vg->vlan_hash, &v->vnode,
+>  				       br_vlan_rht_params);
+>  		__vlan_del_list(v);
+> -		nbp_vlan_set_vlan_dev_state(p, v->vid);
+> +		if (p)
+> +			nbp_vlan_set_vlan_dev_state(p, v->vid);
+>  		br_multicast_toggle_one_vlan(v, false);
+>  		br_multicast_port_ctx_deinit(&v->port_mcast_ctx);
+>  		call_rcu(&v->rcu, nbp_vlan_rcu_free);
 
-Here is the summary with links:
-  - [net-next,v2,1/2] net: bridge: make kobj_type structure constant
-    https://git.kernel.org/netdev/net-next/c/e8c6cbd7656e
-  - [net-next,v2,2/2] net-sysfs: make kobj_type structures constant
-    https://git.kernel.org/netdev/net-next/c/b2793517052d
+This cannot happen, read the code more carefully.
+If you have a trace or have hit a bug, please provide the log.
+Thanks,
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
 
