@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4954D41730
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 70C6C416E5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3DBB481516
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C772481AD1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WihzsYigDcpMtb1CKap6aes47WV5s9a9F2Qas9EGhXA=;
- b=NRP9t1O+ukhU/+sMNCTFHk2/4yiFoWY+XWKWZa7PMBXaTwzSegZKxZawD1OIdA9sjKLTienn72ApABbZKLTfbWCJz+Z+7BH5/KR8eYcSxyZZ+du4Xplz0V+p7ffkDFXdX07ut6Qr0TCXqRWv5FMOzQiILyNV2x29QN0wdkBjkJ8yCMmBQ8mE1fNffDT+VWeT+0aX5KjBiZxh8TiI1nPD00BYncjF65+bkMBEgij72zlO6cueYfB7JlMf1f8WfXAnquxltz92UNbukPhTMd1eekd2xtJHIHRkg4S4+7d7dUdhjX75iSlDTSe1yJ9ZAcJDyhZqvWA3QQoKllDposXQyA==
+ bh=ZZ2tuVHYsnIHsQIeOMuZRW8Ls1KzYOp+5pDg9jsMl9c=;
+ b=cg+TELmevlQlJND0RFOuDeeH+7BxG1IjNPnYYsrYDATwhyZhhWfuNQHZGY8r/9mg+HBcFxQIhSXZ4BQkI/MOh1k2iB1NzEb0yvQY6LCEXpPGP5hx71p1vN16bXm7/YDf0g/2ftPE7RC8D4n/CLGbbgTF7gxOwMZho5uLjkqYXmzifUf/Elvv84PqVxkY9butQIOgfQeDT7kg3MTUU6/ACqofUojr24UwO5g5wAPpFtsbwqCEH3olWVCmM34dJ1gwyrxvmhrectQf28ZCeZIpvyFk3zSswTRDkLFWR1ujj2LD5y8t4ZR+qwh60z3LyJWGdnultKiMJWJJ69jPM7Ijdw==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Mon, 13 Mar 2023 16:53:40 +0200
-Message-Id: <20230313145349.3557231-3-idosch@nvidia.com>
+Date: Mon, 13 Mar 2023 16:53:41 +0200
+Message-Id: <20230313145349.3557231-4-idosch@nvidia.com>
 In-Reply-To: <20230313145349.3557231-1-idosch@nvidia.com>
 References: <20230313145349.3557231-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next 02/11] bridge: mcast: Implement MDB net
-	device operations
+Subject: [Bridge] [PATCH net-next 03/11] rtnetlink: bridge: mcast: Move MDB
+	handlers out of bridge driver
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,234 +27,761 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Implement the previously added MDB net device operations in the bridge
-driver so that they could be invoked by core rtnetlink code in the next
-patch.
+Currently, the bridge driver registers handlers for MDB netlink
+messages, making it impossible for other drivers to implement MDB
+support.
 
-The operations are identical to the existing br_mdb_{dump,add,del}
-functions. The '_new' suffix will be removed in the next patch. The
-functions are re-implemented in this patch to make the conversion in the
-next patch easier to review.
+As a preparation for VXLAN MDB support, move the MDB handlers out of the
+bridge driver to the core rtnetlink code. The rtnetlink code will call
+into individual drivers by invoking their previously added MDB net
+device operations.
 
-Add dummy implementations when 'CONFIG_BRIDGE_IGMP_SNOOPING' is
-disabled, so that an error will be returned to user space when it is
-trying to add or delete an MDB entry. This is consistent with existing
-behavior where the bridge driver does not even register rtnetlink
-handlers for RTM_{NEW,DEL,GET}MDB messages when this Kconfig option is
-disabled.
+Note that while the diffstat is large, the change is mechanical. It
+moves code out of the bridge driver to rtnetlink code. Also note that a
+similar change was made in 2012 with commit 77162022ab26 ("net: add
+generic PF_BRIDGE:RTM_ FDB hooks") that moved FDB handlers out of the
+bridge driver to the core rtnetlink code.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_device.c  |   3 +
- net/bridge/br_mdb.c     | 124 ++++++++++++++++++++++++++++++++++++++++
- net/bridge/br_private.h |  25 ++++++++
- 3 files changed, 152 insertions(+)
+
+Notes:
+    v1:
+    * Use NL_ASSERT_DUMP_CTX_FITS().
+    * memset the entire context when moving to the next device.
+    * Reset sequence counters when moving to the next device.
+    * Use NL_SET_ERR_MSG_ATTR() in rtnl_validate_mdb_entry().
+
+ net/bridge/br_device.c  |   6 +-
+ net/bridge/br_mdb.c     | 301 ++--------------------------------------
+ net/bridge/br_netlink.c |   3 -
+ net/bridge/br_private.h |  35 ++---
+ net/core/rtnetlink.c    | 217 +++++++++++++++++++++++++++++
+ 5 files changed, 244 insertions(+), 318 deletions(-)
 
 diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index b82906fc999a..85fa4d73bb53 100644
+index 85fa4d73bb53..df47c876230e 100644
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -468,6 +468,9 @@ static const struct net_device_ops br_netdev_ops = {
+@@ -468,9 +468,9 @@ static const struct net_device_ops br_netdev_ops = {
  	.ndo_fdb_del_bulk	 = br_fdb_delete_bulk,
  	.ndo_fdb_dump		 = br_fdb_dump,
  	.ndo_fdb_get		 = br_fdb_get,
-+	.ndo_mdb_add		 = br_mdb_add_new,
-+	.ndo_mdb_del		 = br_mdb_del_new,
-+	.ndo_mdb_dump		 = br_mdb_dump_new,
+-	.ndo_mdb_add		 = br_mdb_add_new,
+-	.ndo_mdb_del		 = br_mdb_del_new,
+-	.ndo_mdb_dump		 = br_mdb_dump_new,
++	.ndo_mdb_add		 = br_mdb_add,
++	.ndo_mdb_del		 = br_mdb_del,
++	.ndo_mdb_dump		 = br_mdb_dump,
  	.ndo_bridge_getlink	 = br_getlink,
  	.ndo_bridge_setlink	 = br_setlink,
  	.ndo_bridge_dellink	 = br_dellink,
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 25c48d81a597..cb8270a5480b 100644
+index cb8270a5480b..76636c61db21 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -458,6 +458,39 @@ static int br_mdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
- 	return skb->len;
- }
- 
-+int br_mdb_dump_new(struct net_device *dev, struct sk_buff *skb,
-+		    struct netlink_callback *cb)
-+{
-+	struct net_bridge *br = netdev_priv(dev);
-+	struct br_port_msg *bpm;
-+	struct nlmsghdr *nlh;
-+	int err;
-+
-+	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid,
-+			cb->nlh->nlmsg_seq, RTM_GETMDB, sizeof(*bpm),
-+			NLM_F_MULTI);
-+	if (!nlh)
-+		return -EMSGSIZE;
-+
-+	bpm = nlmsg_data(nlh);
-+	memset(bpm, 0, sizeof(*bpm));
-+	bpm->ifindex = dev->ifindex;
-+
-+	rcu_read_lock();
-+
-+	err = br_mdb_fill_info(skb, cb, dev);
-+	if (err)
-+		goto out;
-+	err = br_rports_fill_info(skb, &br->multicast_ctx);
-+	if (err)
-+		goto out;
-+
-+out:
-+	rcu_read_unlock();
-+	nlmsg_end(skb, nlh);
-+	return err;
-+}
-+
- static int nlmsg_populate_mdb_fill(struct sk_buff *skb,
- 				   struct net_device *dev,
- 				   struct net_bridge_mdb_entry *mp,
-@@ -1459,6 +1492,65 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -380,86 +380,8 @@ static int br_mdb_fill_info(struct sk_buff *skb, struct netlink_callback *cb,
  	return err;
  }
  
-+int br_mdb_add_new(struct net_device *dev, struct nlattr *tb[], u16 nlmsg_flags,
-+		   struct netlink_ext_ack *extack)
-+{
-+	struct net_bridge_vlan_group *vg;
-+	struct br_mdb_config cfg = {};
-+	struct net_bridge_vlan *v;
-+	int err;
-+
-+	/* Configuration structure will be initialized here. */
-+
-+	err = -EINVAL;
-+	/* host join errors which can happen before creating the group */
-+	if (!cfg.p && !br_group_is_l2(&cfg.group)) {
-+		/* don't allow any flags for host-joined IP groups */
-+		if (cfg.entry->state) {
-+			NL_SET_ERR_MSG_MOD(extack, "Flags are not allowed for host groups");
-+			goto out;
-+		}
-+		if (!br_multicast_is_star_g(&cfg.group)) {
-+			NL_SET_ERR_MSG_MOD(extack, "Groups with sources cannot be manually host joined");
-+			goto out;
-+		}
-+	}
-+
-+	if (br_group_is_l2(&cfg.group) && cfg.entry->state != MDB_PERMANENT) {
-+		NL_SET_ERR_MSG_MOD(extack, "Only permanent L2 entries allowed");
-+		goto out;
-+	}
-+
-+	if (cfg.p) {
-+		if (cfg.p->state == BR_STATE_DISABLED && cfg.entry->state != MDB_PERMANENT) {
-+			NL_SET_ERR_MSG_MOD(extack, "Port is in disabled state and entry is not permanent");
-+			goto out;
-+		}
-+		vg = nbp_vlan_group(cfg.p);
-+	} else {
-+		vg = br_vlan_group(cfg.br);
-+	}
-+
-+	/* If vlan filtering is enabled and VLAN is not specified
-+	 * install mdb entry on all vlans configured on the port.
-+	 */
-+	if (br_vlan_enabled(cfg.br->dev) && vg && cfg.entry->vid == 0) {
-+		list_for_each_entry(v, &vg->vlan_list, vlist) {
-+			cfg.entry->vid = v->vid;
-+			cfg.group.vid = v->vid;
-+			err = __br_mdb_add(&cfg, extack);
-+			if (err)
-+				break;
-+		}
-+	} else {
-+		err = __br_mdb_add(&cfg, extack);
-+	}
-+
-+out:
-+	br_mdb_config_fini(&cfg);
-+	return err;
-+}
-+
+-static int br_mdb_valid_dump_req(const struct nlmsghdr *nlh,
+-				 struct netlink_ext_ack *extack)
+-{
+-	struct br_port_msg *bpm;
+-
+-	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*bpm))) {
+-		NL_SET_ERR_MSG_MOD(extack, "Invalid header for mdb dump request");
+-		return -EINVAL;
+-	}
+-
+-	bpm = nlmsg_data(nlh);
+-	if (bpm->ifindex) {
+-		NL_SET_ERR_MSG_MOD(extack, "Filtering by device index is not supported for mdb dump request");
+-		return -EINVAL;
+-	}
+-	if (nlmsg_attrlen(nlh, sizeof(*bpm))) {
+-		NL_SET_ERR_MSG(extack, "Invalid data after header in mdb dump request");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-static int br_mdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
+-{
+-	struct net_device *dev;
+-	struct net *net = sock_net(skb->sk);
+-	struct nlmsghdr *nlh = NULL;
+-	int idx = 0, s_idx;
+-
+-	if (cb->strict_check) {
+-		int err = br_mdb_valid_dump_req(cb->nlh, cb->extack);
+-
+-		if (err < 0)
+-			return err;
+-	}
+-
+-	s_idx = cb->args[0];
+-
+-	rcu_read_lock();
+-
+-	for_each_netdev_rcu(net, dev) {
+-		if (netif_is_bridge_master(dev)) {
+-			struct net_bridge *br = netdev_priv(dev);
+-			struct br_port_msg *bpm;
+-
+-			if (idx < s_idx)
+-				goto skip;
+-
+-			nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid,
+-					cb->nlh->nlmsg_seq, RTM_GETMDB,
+-					sizeof(*bpm), NLM_F_MULTI);
+-			if (nlh == NULL)
+-				break;
+-
+-			bpm = nlmsg_data(nlh);
+-			memset(bpm, 0, sizeof(*bpm));
+-			bpm->ifindex = dev->ifindex;
+-			if (br_mdb_fill_info(skb, cb, dev) < 0)
+-				goto out;
+-			if (br_rports_fill_info(skb, &br->multicast_ctx) < 0)
+-				goto out;
+-
+-			cb->args[1] = 0;
+-			nlmsg_end(skb, nlh);
+-		skip:
+-			idx++;
+-		}
+-	}
+-
+-out:
+-	if (nlh)
+-		nlmsg_end(skb, nlh);
+-	rcu_read_unlock();
+-	cb->args[0] = idx;
+-	return skb->len;
+-}
+-
+-int br_mdb_dump_new(struct net_device *dev, struct sk_buff *skb,
+-		    struct netlink_callback *cb)
++int br_mdb_dump(struct net_device *dev, struct sk_buff *skb,
++		struct netlink_callback *cb)
+ {
+ 	struct net_bridge *br = netdev_priv(dev);
+ 	struct br_port_msg *bpm;
+@@ -716,60 +638,6 @@ static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+ 	[MDBE_ATTR_RTPROT] = NLA_POLICY_MIN(NLA_U8, RTPROT_STATIC),
+ };
+ 
+-static int validate_mdb_entry(const struct nlattr *attr,
+-			      struct netlink_ext_ack *extack)
+-{
+-	struct br_mdb_entry *entry = nla_data(attr);
+-
+-	if (nla_len(attr) != sizeof(struct br_mdb_entry)) {
+-		NL_SET_ERR_MSG_MOD(extack, "Invalid MDBA_SET_ENTRY attribute length");
+-		return -EINVAL;
+-	}
+-
+-	if (entry->ifindex == 0) {
+-		NL_SET_ERR_MSG_MOD(extack, "Zero entry ifindex is not allowed");
+-		return -EINVAL;
+-	}
+-
+-	if (entry->addr.proto == htons(ETH_P_IP)) {
+-		if (!ipv4_is_multicast(entry->addr.u.ip4)) {
+-			NL_SET_ERR_MSG_MOD(extack, "IPv4 entry group address is not multicast");
+-			return -EINVAL;
+-		}
+-		if (ipv4_is_local_multicast(entry->addr.u.ip4)) {
+-			NL_SET_ERR_MSG_MOD(extack, "IPv4 entry group address is local multicast");
+-			return -EINVAL;
+-		}
+-#if IS_ENABLED(CONFIG_IPV6)
+-	} else if (entry->addr.proto == htons(ETH_P_IPV6)) {
+-		if (ipv6_addr_is_ll_all_nodes(&entry->addr.u.ip6)) {
+-			NL_SET_ERR_MSG_MOD(extack, "IPv6 entry group address is link-local all nodes");
+-			return -EINVAL;
+-		}
+-#endif
+-	} else if (entry->addr.proto == 0) {
+-		/* L2 mdb */
+-		if (!is_multicast_ether_addr(entry->addr.u.mac_addr)) {
+-			NL_SET_ERR_MSG_MOD(extack, "L2 entry group is not multicast");
+-			return -EINVAL;
+-		}
+-	} else {
+-		NL_SET_ERR_MSG_MOD(extack, "Unknown entry protocol");
+-		return -EINVAL;
+-	}
+-
+-	if (entry->state != MDB_PERMANENT && entry->state != MDB_TEMPORARY) {
+-		NL_SET_ERR_MSG_MOD(extack, "Unknown entry state");
+-		return -EINVAL;
+-	}
+-	if (entry->vid >= VLAN_VID_MASK) {
+-		NL_SET_ERR_MSG_MOD(extack, "Invalid entry VLAN id");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ static bool is_valid_mdb_source(struct nlattr *attr, __be16 proto,
+ 				struct netlink_ext_ack *extack)
+ {
+@@ -1332,49 +1200,16 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
+ 	return 0;
+ }
+ 
+-static const struct nla_policy mdba_policy[MDBA_SET_ENTRY_MAX + 1] = {
+-	[MDBA_SET_ENTRY_UNSPEC] = { .strict_start_type = MDBA_SET_ENTRY_ATTRS + 1 },
+-	[MDBA_SET_ENTRY] = NLA_POLICY_VALIDATE_FN(NLA_BINARY,
+-						  validate_mdb_entry,
+-						  sizeof(struct br_mdb_entry)),
+-	[MDBA_SET_ENTRY_ATTRS] = { .type = NLA_NESTED },
+-};
+-
+-static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
+-			      struct br_mdb_config *cfg,
++static int br_mdb_config_init(struct br_mdb_config *cfg, struct net_device *dev,
++			      struct nlattr *tb[], u16 nlmsg_flags,
+ 			      struct netlink_ext_ack *extack)
+ {
+-	struct nlattr *tb[MDBA_SET_ENTRY_MAX + 1];
+-	struct br_port_msg *bpm;
+-	struct net_device *dev;
+-	int err;
+-
+-	err = nlmsg_parse_deprecated(nlh, sizeof(*bpm), tb,
+-				     MDBA_SET_ENTRY_MAX, mdba_policy, extack);
+-	if (err)
+-		return err;
++	struct net *net = dev_net(dev);
+ 
+ 	memset(cfg, 0, sizeof(*cfg));
+ 	cfg->filter_mode = MCAST_EXCLUDE;
+ 	cfg->rt_protocol = RTPROT_STATIC;
+-	cfg->nlflags = nlh->nlmsg_flags;
+-
+-	bpm = nlmsg_data(nlh);
+-	if (!bpm->ifindex) {
+-		NL_SET_ERR_MSG_MOD(extack, "Invalid bridge ifindex");
+-		return -EINVAL;
+-	}
+-
+-	dev = __dev_get_by_index(net, bpm->ifindex);
+-	if (!dev) {
+-		NL_SET_ERR_MSG_MOD(extack, "Bridge device doesn't exist");
+-		return -ENODEV;
+-	}
+-
+-	if (!netif_is_bridge_master(dev)) {
+-		NL_SET_ERR_MSG_MOD(extack, "Device is not a bridge");
+-		return -EOPNOTSUPP;
+-	}
++	cfg->nlflags = nlmsg_flags;
+ 
+ 	cfg->br = netdev_priv(dev);
+ 
+@@ -1388,11 +1223,6 @@ static int br_mdb_config_init(struct net *net, const struct nlmsghdr *nlh,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (NL_REQ_ATTR_CHECK(extack, NULL, tb, MDBA_SET_ENTRY)) {
+-		NL_SET_ERR_MSG_MOD(extack, "Missing MDBA_SET_ENTRY attribute");
+-		return -EINVAL;
+-	}
+-
+ 	cfg->entry = nla_data(tb[MDBA_SET_ENTRY]);
+ 
+ 	if (cfg->entry->ifindex != cfg->br->dev->ifindex) {
+@@ -1430,16 +1260,15 @@ static void br_mdb_config_fini(struct br_mdb_config *cfg)
+ 	br_mdb_config_src_list_fini(cfg);
+ }
+ 
+-static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+-		      struct netlink_ext_ack *extack)
++int br_mdb_add(struct net_device *dev, struct nlattr *tb[], u16 nlmsg_flags,
++	       struct netlink_ext_ack *extack)
+ {
+-	struct net *net = sock_net(skb->sk);
+ 	struct net_bridge_vlan_group *vg;
+ 	struct net_bridge_vlan *v;
+ 	struct br_mdb_config cfg;
+ 	int err;
+ 
+-	err = br_mdb_config_init(net, nlh, &cfg, extack);
++	err = br_mdb_config_init(&cfg, dev, tb, nlmsg_flags, extack);
+ 	if (err)
+ 		return err;
+ 
+@@ -1492,65 +1321,6 @@ static int br_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	return err;
+ }
+ 
+-int br_mdb_add_new(struct net_device *dev, struct nlattr *tb[], u16 nlmsg_flags,
+-		   struct netlink_ext_ack *extack)
+-{
+-	struct net_bridge_vlan_group *vg;
+-	struct br_mdb_config cfg = {};
+-	struct net_bridge_vlan *v;
+-	int err;
+-
+-	/* Configuration structure will be initialized here. */
+-
+-	err = -EINVAL;
+-	/* host join errors which can happen before creating the group */
+-	if (!cfg.p && !br_group_is_l2(&cfg.group)) {
+-		/* don't allow any flags for host-joined IP groups */
+-		if (cfg.entry->state) {
+-			NL_SET_ERR_MSG_MOD(extack, "Flags are not allowed for host groups");
+-			goto out;
+-		}
+-		if (!br_multicast_is_star_g(&cfg.group)) {
+-			NL_SET_ERR_MSG_MOD(extack, "Groups with sources cannot be manually host joined");
+-			goto out;
+-		}
+-	}
+-
+-	if (br_group_is_l2(&cfg.group) && cfg.entry->state != MDB_PERMANENT) {
+-		NL_SET_ERR_MSG_MOD(extack, "Only permanent L2 entries allowed");
+-		goto out;
+-	}
+-
+-	if (cfg.p) {
+-		if (cfg.p->state == BR_STATE_DISABLED && cfg.entry->state != MDB_PERMANENT) {
+-			NL_SET_ERR_MSG_MOD(extack, "Port is in disabled state and entry is not permanent");
+-			goto out;
+-		}
+-		vg = nbp_vlan_group(cfg.p);
+-	} else {
+-		vg = br_vlan_group(cfg.br);
+-	}
+-
+-	/* If vlan filtering is enabled and VLAN is not specified
+-	 * install mdb entry on all vlans configured on the port.
+-	 */
+-	if (br_vlan_enabled(cfg.br->dev) && vg && cfg.entry->vid == 0) {
+-		list_for_each_entry(v, &vg->vlan_list, vlist) {
+-			cfg.entry->vid = v->vid;
+-			cfg.group.vid = v->vid;
+-			err = __br_mdb_add(&cfg, extack);
+-			if (err)
+-				break;
+-		}
+-	} else {
+-		err = __br_mdb_add(&cfg, extack);
+-	}
+-
+-out:
+-	br_mdb_config_fini(&cfg);
+-	return err;
+-}
+-
  static int __br_mdb_del(const struct br_mdb_config *cfg)
  {
  	struct br_mdb_entry *entry = cfg->entry;
-@@ -1535,6 +1627,38 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -1592,16 +1362,15 @@ static int __br_mdb_del(const struct br_mdb_config *cfg)
  	return err;
  }
  
-+int br_mdb_del_new(struct net_device *dev, struct nlattr *tb[],
-+		   struct netlink_ext_ack *extack)
-+{
-+	struct net_bridge_vlan_group *vg;
-+	struct br_mdb_config cfg = {};
-+	struct net_bridge_vlan *v;
-+	int err = 0;
-+
-+	/* Configuration structure will be initialized here. */
-+
-+	if (cfg.p)
-+		vg = nbp_vlan_group(cfg.p);
-+	else
-+		vg = br_vlan_group(cfg.br);
-+
-+	/* If vlan filtering is enabled and VLAN is not specified
-+	 * delete mdb entry on all vlans configured on the port.
-+	 */
-+	if (br_vlan_enabled(cfg.br->dev) && vg && cfg.entry->vid == 0) {
-+		list_for_each_entry(v, &vg->vlan_list, vlist) {
-+			cfg.entry->vid = v->vid;
-+			cfg.group.vid = v->vid;
-+			err = __br_mdb_del(&cfg);
-+		}
-+	} else {
-+		err = __br_mdb_del(&cfg);
-+	}
-+
-+	br_mdb_config_fini(&cfg);
-+	return err;
-+}
-+
- void br_mdb_init(void)
+-static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+-		      struct netlink_ext_ack *extack)
++int br_mdb_del(struct net_device *dev, struct nlattr *tb[],
++	       struct netlink_ext_ack *extack)
  {
- 	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_GETMDB, NULL, br_mdb_dump, 0);
+-	struct net *net = sock_net(skb->sk);
+ 	struct net_bridge_vlan_group *vg;
+ 	struct net_bridge_vlan *v;
+ 	struct br_mdb_config cfg;
+ 	int err;
+ 
+-	err = br_mdb_config_init(net, nlh, &cfg, extack);
++	err = br_mdb_config_init(&cfg, dev, tb, 0, extack);
+ 	if (err)
+ 		return err;
+ 
+@@ -1626,49 +1395,3 @@ static int br_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	br_mdb_config_fini(&cfg);
+ 	return err;
+ }
+-
+-int br_mdb_del_new(struct net_device *dev, struct nlattr *tb[],
+-		   struct netlink_ext_ack *extack)
+-{
+-	struct net_bridge_vlan_group *vg;
+-	struct br_mdb_config cfg = {};
+-	struct net_bridge_vlan *v;
+-	int err = 0;
+-
+-	/* Configuration structure will be initialized here. */
+-
+-	if (cfg.p)
+-		vg = nbp_vlan_group(cfg.p);
+-	else
+-		vg = br_vlan_group(cfg.br);
+-
+-	/* If vlan filtering is enabled and VLAN is not specified
+-	 * delete mdb entry on all vlans configured on the port.
+-	 */
+-	if (br_vlan_enabled(cfg.br->dev) && vg && cfg.entry->vid == 0) {
+-		list_for_each_entry(v, &vg->vlan_list, vlist) {
+-			cfg.entry->vid = v->vid;
+-			cfg.group.vid = v->vid;
+-			err = __br_mdb_del(&cfg);
+-		}
+-	} else {
+-		err = __br_mdb_del(&cfg);
+-	}
+-
+-	br_mdb_config_fini(&cfg);
+-	return err;
+-}
+-
+-void br_mdb_init(void)
+-{
+-	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_GETMDB, NULL, br_mdb_dump, 0);
+-	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_NEWMDB, br_mdb_add, NULL, 0);
+-	rtnl_register_module(THIS_MODULE, PF_BRIDGE, RTM_DELMDB, br_mdb_del, NULL, 0);
+-}
+-
+-void br_mdb_uninit(void)
+-{
+-	rtnl_unregister(PF_BRIDGE, RTM_GETMDB);
+-	rtnl_unregister(PF_BRIDGE, RTM_NEWMDB);
+-	rtnl_unregister(PF_BRIDGE, RTM_DELMDB);
+-}
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 9173e52b89e2..fefb1c0e248b 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1886,7 +1886,6 @@ int __init br_netlink_init(void)
+ {
+ 	int err;
+ 
+-	br_mdb_init();
+ 	br_vlan_rtnl_init();
+ 	rtnl_af_register(&br_af_ops);
+ 
+@@ -1898,13 +1897,11 @@ int __init br_netlink_init(void)
+ 
+ out_af:
+ 	rtnl_af_unregister(&br_af_ops);
+-	br_mdb_uninit();
+ 	return err;
+ }
+ 
+ void br_netlink_fini(void)
+ {
+-	br_mdb_uninit();
+ 	br_vlan_rtnl_uninit();
+ 	rtnl_af_unregister(&br_af_ops);
+ 	rtnl_link_unregister(&br_link_ops);
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index cef5f6ea850c..a72847c1dc9f 100644
+index a72847c1dc9f..7264fd40f82f 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -981,6 +981,12 @@ void br_multicast_get_stats(const struct net_bridge *br,
+@@ -981,14 +981,12 @@ void br_multicast_get_stats(const struct net_bridge *br,
  u32 br_multicast_ngroups_get(const struct net_bridge_mcast_port *pmctx);
  void br_multicast_ngroups_set_max(struct net_bridge_mcast_port *pmctx, u32 max);
  u32 br_multicast_ngroups_get_max(const struct net_bridge_mcast_port *pmctx);
-+int br_mdb_add_new(struct net_device *dev, struct nlattr *tb[], u16 nlmsg_flags,
-+		   struct netlink_ext_ack *extack);
-+int br_mdb_del_new(struct net_device *dev, struct nlattr *tb[],
-+		   struct netlink_ext_ack *extack);
-+int br_mdb_dump_new(struct net_device *dev, struct sk_buff *skb,
-+		    struct netlink_callback *cb);
- void br_mdb_init(void);
- void br_mdb_uninit(void);
+-int br_mdb_add_new(struct net_device *dev, struct nlattr *tb[], u16 nlmsg_flags,
+-		   struct netlink_ext_ack *extack);
+-int br_mdb_del_new(struct net_device *dev, struct nlattr *tb[],
+-		   struct netlink_ext_ack *extack);
+-int br_mdb_dump_new(struct net_device *dev, struct sk_buff *skb,
+-		    struct netlink_callback *cb);
+-void br_mdb_init(void);
+-void br_mdb_uninit(void);
++int br_mdb_add(struct net_device *dev, struct nlattr *tb[], u16 nlmsg_flags,
++	       struct netlink_ext_ack *extack);
++int br_mdb_del(struct net_device *dev, struct nlattr *tb[],
++	       struct netlink_ext_ack *extack);
++int br_mdb_dump(struct net_device *dev, struct sk_buff *skb,
++		struct netlink_callback *cb);
  void br_multicast_host_join(const struct net_bridge_mcast *brmctx,
-@@ -1374,6 +1380,25 @@ static inline bool br_multicast_querier_exists(struct net_bridge_mcast *brmctx,
+ 			    struct net_bridge_mdb_entry *mp, bool notify);
+ void br_multicast_host_leave(struct net_bridge_mdb_entry *mp, bool notify);
+@@ -1380,33 +1378,24 @@ static inline bool br_multicast_querier_exists(struct net_bridge_mcast *brmctx,
  	return false;
  }
  
-+static inline int br_mdb_add_new(struct net_device *dev, struct nlattr *tb[],
-+				 u16 nlmsg_flags,
-+				 struct netlink_ext_ack *extack)
+-static inline int br_mdb_add_new(struct net_device *dev, struct nlattr *tb[],
+-				 u16 nlmsg_flags,
+-				 struct netlink_ext_ack *extack)
++static inline int br_mdb_add(struct net_device *dev, struct nlattr *tb[],
++			     u16 nlmsg_flags, struct netlink_ext_ack *extack)
+ {
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int br_mdb_del_new(struct net_device *dev, struct nlattr *tb[],
+-				 struct netlink_ext_ack *extack)
++static inline int br_mdb_del(struct net_device *dev, struct nlattr *tb[],
++			     struct netlink_ext_ack *extack)
+ {
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int br_mdb_dump_new(struct net_device *dev, struct sk_buff *skb,
+-				  struct netlink_callback *cb)
++static inline int br_mdb_dump(struct net_device *dev, struct sk_buff *skb,
++			      struct netlink_callback *cb)
+ {
+ 	return 0;
+ }
+ 
+-static inline void br_mdb_init(void)
+-{
+-}
+-
+-static inline void br_mdb_uninit(void)
+-{
+-}
+-
+ static inline int br_mdb_hash_init(struct net_bridge *br)
+ {
+ 	return 0;
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 5d8eb57867a9..f347d9fa78c7 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -54,6 +54,9 @@
+ #include <net/rtnetlink.h>
+ #include <net/net_namespace.h>
+ #include <net/devlink.h>
++#if IS_ENABLED(CONFIG_IPV6)
++#include <net/addrconf.h>
++#endif
+ 
+ #include "dev.h"
+ 
+@@ -6063,6 +6066,216 @@ static int rtnl_stats_set(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	return 0;
+ }
+ 
++static int rtnl_mdb_valid_dump_req(const struct nlmsghdr *nlh,
++				   struct netlink_ext_ack *extack)
 +{
-+	return -EOPNOTSUPP;
-+}
++	struct br_port_msg *bpm;
 +
-+static inline int br_mdb_del_new(struct net_device *dev, struct nlattr *tb[],
-+				 struct netlink_ext_ack *extack)
-+{
-+	return -EOPNOTSUPP;
-+}
++	if (nlh->nlmsg_len < nlmsg_msg_size(sizeof(*bpm))) {
++		NL_SET_ERR_MSG(extack, "Invalid header for mdb dump request");
++		return -EINVAL;
++	}
 +
-+static inline int br_mdb_dump_new(struct net_device *dev, struct sk_buff *skb,
-+				  struct netlink_callback *cb)
-+{
++	bpm = nlmsg_data(nlh);
++	if (bpm->ifindex) {
++		NL_SET_ERR_MSG(extack, "Filtering by device index is not supported for mdb dump request");
++		return -EINVAL;
++	}
++	if (nlmsg_attrlen(nlh, sizeof(*bpm))) {
++		NL_SET_ERR_MSG(extack, "Invalid data after header in mdb dump request");
++		return -EINVAL;
++	}
++
 +	return 0;
 +}
 +
- static inline void br_mdb_init(void)
- {
++struct rtnl_mdb_dump_ctx {
++	long idx;
++};
++
++static int rtnl_mdb_dump(struct sk_buff *skb, struct netlink_callback *cb)
++{
++	struct rtnl_mdb_dump_ctx *ctx = (void *)cb->ctx;
++	struct net *net = sock_net(skb->sk);
++	struct net_device *dev;
++	int idx, s_idx;
++	int err;
++
++	NL_ASSERT_DUMP_CTX_FITS(struct rtnl_mdb_dump_ctx);
++
++	if (cb->strict_check) {
++		err = rtnl_mdb_valid_dump_req(cb->nlh, cb->extack);
++		if (err)
++			return err;
++	}
++
++	s_idx = ctx->idx;
++	idx = 0;
++
++	for_each_netdev(net, dev) {
++		if (idx < s_idx)
++			goto skip;
++		if (!dev->netdev_ops->ndo_mdb_dump)
++			goto skip;
++
++		err = dev->netdev_ops->ndo_mdb_dump(dev, skb, cb);
++		if (err == -EMSGSIZE)
++			goto out;
++		/* Moving on to next device, reset markers and sequence
++		 * counters since they are all maintained per-device.
++		 */
++		memset(cb->ctx, 0, sizeof(cb->ctx));
++		cb->prev_seq = 0;
++		cb->seq = 0;
++skip:
++		idx++;
++	}
++
++out:
++	ctx->idx = idx;
++	return skb->len;
++}
++
++static int rtnl_validate_mdb_entry(const struct nlattr *attr,
++				   struct netlink_ext_ack *extack)
++{
++	struct br_mdb_entry *entry = nla_data(attr);
++
++	if (nla_len(attr) != sizeof(struct br_mdb_entry)) {
++		NL_SET_ERR_MSG_ATTR(extack, attr, "Invalid attribute length");
++		return -EINVAL;
++	}
++
++	if (entry->ifindex == 0) {
++		NL_SET_ERR_MSG(extack, "Zero entry ifindex is not allowed");
++		return -EINVAL;
++	}
++
++	if (entry->addr.proto == htons(ETH_P_IP)) {
++		if (!ipv4_is_multicast(entry->addr.u.ip4)) {
++			NL_SET_ERR_MSG(extack, "IPv4 entry group address is not multicast");
++			return -EINVAL;
++		}
++		if (ipv4_is_local_multicast(entry->addr.u.ip4)) {
++			NL_SET_ERR_MSG(extack, "IPv4 entry group address is local multicast");
++			return -EINVAL;
++		}
++#if IS_ENABLED(CONFIG_IPV6)
++	} else if (entry->addr.proto == htons(ETH_P_IPV6)) {
++		if (ipv6_addr_is_ll_all_nodes(&entry->addr.u.ip6)) {
++			NL_SET_ERR_MSG(extack, "IPv6 entry group address is link-local all nodes");
++			return -EINVAL;
++		}
++#endif
++	} else if (entry->addr.proto == 0) {
++		/* L2 mdb */
++		if (!is_multicast_ether_addr(entry->addr.u.mac_addr)) {
++			NL_SET_ERR_MSG(extack, "L2 entry group is not multicast");
++			return -EINVAL;
++		}
++	} else {
++		NL_SET_ERR_MSG(extack, "Unknown entry protocol");
++		return -EINVAL;
++	}
++
++	if (entry->state != MDB_PERMANENT && entry->state != MDB_TEMPORARY) {
++		NL_SET_ERR_MSG(extack, "Unknown entry state");
++		return -EINVAL;
++	}
++	if (entry->vid >= VLAN_VID_MASK) {
++		NL_SET_ERR_MSG(extack, "Invalid entry VLAN id");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static const struct nla_policy mdba_policy[MDBA_SET_ENTRY_MAX + 1] = {
++	[MDBA_SET_ENTRY_UNSPEC] = { .strict_start_type = MDBA_SET_ENTRY_ATTRS + 1 },
++	[MDBA_SET_ENTRY] = NLA_POLICY_VALIDATE_FN(NLA_BINARY,
++						  rtnl_validate_mdb_entry,
++						  sizeof(struct br_mdb_entry)),
++	[MDBA_SET_ENTRY_ATTRS] = { .type = NLA_NESTED },
++};
++
++static int rtnl_mdb_add(struct sk_buff *skb, struct nlmsghdr *nlh,
++			struct netlink_ext_ack *extack)
++{
++	struct nlattr *tb[MDBA_SET_ENTRY_MAX + 1];
++	struct net *net = sock_net(skb->sk);
++	struct br_port_msg *bpm;
++	struct net_device *dev;
++	int err;
++
++	err = nlmsg_parse_deprecated(nlh, sizeof(*bpm), tb,
++				     MDBA_SET_ENTRY_MAX, mdba_policy, extack);
++	if (err)
++		return err;
++
++	bpm = nlmsg_data(nlh);
++	if (!bpm->ifindex) {
++		NL_SET_ERR_MSG(extack, "Invalid ifindex");
++		return -EINVAL;
++	}
++
++	dev = __dev_get_by_index(net, bpm->ifindex);
++	if (!dev) {
++		NL_SET_ERR_MSG(extack, "Device doesn't exist");
++		return -ENODEV;
++	}
++
++	if (NL_REQ_ATTR_CHECK(extack, NULL, tb, MDBA_SET_ENTRY)) {
++		NL_SET_ERR_MSG(extack, "Missing MDBA_SET_ENTRY attribute");
++		return -EINVAL;
++	}
++
++	if (!dev->netdev_ops->ndo_mdb_add) {
++		NL_SET_ERR_MSG(extack, "Device does not support MDB operations");
++		return -EOPNOTSUPP;
++	}
++
++	return dev->netdev_ops->ndo_mdb_add(dev, tb, nlh->nlmsg_flags, extack);
++}
++
++static int rtnl_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
++			struct netlink_ext_ack *extack)
++{
++	struct nlattr *tb[MDBA_SET_ENTRY_MAX + 1];
++	struct net *net = sock_net(skb->sk);
++	struct br_port_msg *bpm;
++	struct net_device *dev;
++	int err;
++
++	err = nlmsg_parse_deprecated(nlh, sizeof(*bpm), tb,
++				     MDBA_SET_ENTRY_MAX, mdba_policy, extack);
++	if (err)
++		return err;
++
++	bpm = nlmsg_data(nlh);
++	if (!bpm->ifindex) {
++		NL_SET_ERR_MSG(extack, "Invalid ifindex");
++		return -EINVAL;
++	}
++
++	dev = __dev_get_by_index(net, bpm->ifindex);
++	if (!dev) {
++		NL_SET_ERR_MSG(extack, "Device doesn't exist");
++		return -ENODEV;
++	}
++
++	if (NL_REQ_ATTR_CHECK(extack, NULL, tb, MDBA_SET_ENTRY)) {
++		NL_SET_ERR_MSG(extack, "Missing MDBA_SET_ENTRY attribute");
++		return -EINVAL;
++	}
++
++	if (!dev->netdev_ops->ndo_mdb_del) {
++		NL_SET_ERR_MSG(extack, "Device does not support MDB operations");
++		return -EOPNOTSUPP;
++	}
++
++	return dev->netdev_ops->ndo_mdb_del(dev, tb, extack);
++}
++
+ /* Process one rtnetlink message. */
+ 
+ static int rtnetlink_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh,
+@@ -6297,4 +6510,8 @@ void __init rtnetlink_init(void)
+ 	rtnl_register(PF_UNSPEC, RTM_GETSTATS, rtnl_stats_get, rtnl_stats_dump,
+ 		      0);
+ 	rtnl_register(PF_UNSPEC, RTM_SETSTATS, rtnl_stats_set, NULL, 0);
++
++	rtnl_register(PF_BRIDGE, RTM_GETMDB, NULL, rtnl_mdb_dump, 0);
++	rtnl_register(PF_BRIDGE, RTM_NEWMDB, rtnl_mdb_add, NULL, 0);
++	rtnl_register(PF_BRIDGE, RTM_DELMDB, rtnl_mdb_del, NULL, 0);
  }
 -- 
 2.37.3
