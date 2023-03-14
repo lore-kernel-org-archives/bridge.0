@@ -1,29 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 87FA881E29
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DD37F81E24
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 70D506108A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BCA4660E2F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112; t=1678797330;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112; t=1678797355;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=p84TLvp+HdQDxexv0ZVgLjFCMe9ll2v7yG7+lC1ClDs=;
- b=Mld9CHmB4FHTzkBAeS0Rb14jtQAWfKlcWa1tq0b3sPZ80TE2e0u/zDdJr1uYgJsYu5
- m42BB9k5pGSnurOlsoN5ACj9DT+SZs4Gy7nlcAX0Bvfh/TIGqkkDKA+CW775OlHUF1BY
- 7E0+vEXZiVDJEs8ZuGxv9QwcwZCoYYoMo3UFmz8VSaiZgMfZbtgQ8+sHsY+Yy1fb5E0s
- M3Xo29UGyw1SSxVIH17lg4HsIbDef2pkRMkHD7EP+W++6Edj+ycq3mMIJ+mgCP1Ne86k
- yDrBDrkYVbocUKJfvKYD7vFZl4K4JgSb6vX/pupmNdSU0JHx0Fx+vAH0k2tF1HQ/3F0n
- 6vGA==
-Message-ID: <ce921c1d-2acf-6e67-8bf3-3d5a133c15b9@blackwall.org>
-Date: Tue, 14 Mar 2023 14:35:28 +0200
+ bh=IRDlS0P57tUZ82YucMyjb9yALmixnNO4XP3+ZIPkZpQ=;
+ b=yOVDg75vY/65TxnKwGr91dyQ6ubhO4dnzBkY6+pEAutKm7ZYJ1OSllF6vx44oWrNS0
+ Msr/B62sTki6UejCYczVpldvSqOt/lId7MUQupMMxW6SC3EnmhTNe2tP3QOqdSsmTyAh
+ ARs18LVjaCp3EKweHA7/rqzhlXm1QONtbaraL62RdVEMmZdt5+6d91P9thACNnGMJMCW
+ li0guYsHdeIwLzR8xDnyeZOMycuB+/dWS+I0gs9wumoWwK4FMT5RiJSiOMjzxzWx06tf
+ D9yL1QSYm+2l/DxHMjz9QeMkaN5IwLMar0gwWrAyXhkfAofM9RqXT4jUH5omoDF/vcqn
+ 84Aw==
+Message-ID: <4368c837-8474-858e-90ea-e409d08bf84c@blackwall.org>
+Date: Tue, 14 Mar 2023 14:35:53 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20230313145349.3557231-1-idosch@nvidia.com>
- <20230313145349.3557231-11-idosch@nvidia.com>
+ <20230313145349.3557231-12-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230313145349.3557231-11-idosch@nvidia.com>
+In-Reply-To: <20230313145349.3557231-12-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 10/11] vxlan: Enable MDB support
+Subject: Re: [Bridge] [PATCH net-next 11/11] selftests: net: Add VXLAN MDB
+	test
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -36,31 +37,31 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 13/03/2023 16:53, Ido Schimmel wrote:
-> Now that the VXLAN MDB control and data paths are in place we can expose
-> the VXLAN MDB functionality to user space.
+> Add test cases for VXLAN MDB, testing the control and data paths. Two
+> different sets of namespaces (i.e., ns{1,2}_v4 and ns{1,2}_v6) are used
+> in order to test VXLAN MDB with both IPv4 and IPv6 underlays,
+> respectively.
 > 
-> Set the VXLAN MDB net device operations to the appropriate functions,
-> thereby allowing the rtnetlink code to reach the VXLAN driver.
+> Example truncated output:
+> 
+>  # ./test_vxlan_mdb.sh
+>  [...]
+>  Tests passed: 620
+>  Tests failed:   0
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->  drivers/net/vxlan/vxlan_core.c | 3 +++
->  1 file changed, 3 insertions(+)
 > 
-> diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
-> index 1e55c5582e67..e473200b731f 100644
-> --- a/drivers/net/vxlan/vxlan_core.c
-> +++ b/drivers/net/vxlan/vxlan_core.c
-> @@ -3083,6 +3083,9 @@ static const struct net_device_ops vxlan_netdev_ether_ops = {
->  	.ndo_fdb_del		= vxlan_fdb_delete,
->  	.ndo_fdb_dump		= vxlan_fdb_dump,
->  	.ndo_fdb_get		= vxlan_fdb_get,
-> +	.ndo_mdb_add		= vxlan_mdb_add,
-> +	.ndo_mdb_del		= vxlan_mdb_del,
-> +	.ndo_mdb_dump		= vxlan_mdb_dump,
->  	.ndo_fill_metadata_dst	= vxlan_fill_metadata_dst,
->  };
->  
+> Notes:
+>     v1:
+>     * New patch.
+> 
+>  tools/testing/selftests/net/Makefile          |    1 +
+>  tools/testing/selftests/net/config            |    1 +
+>  tools/testing/selftests/net/test_vxlan_mdb.sh | 2318 +++++++++++++++++
+>  3 files changed, 2320 insertions(+)
+>  create mode 100755 tools/testing/selftests/net/test_vxlan_mdb.sh
+> 
 
+Wohoo, nice!
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
-
