@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7B8A2418BB
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DCFDC410C9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2A67D81E24
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D312A813E7
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112; t=1678794674;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112; t=1678794687;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=RDVVUR+sXeSTSSTr5N1GxIRd1v5VKh3gMAujp5AXOCw=;
- b=tytzsvmhA7PbupttINkYDa2kvVAiTmURa5SS/dWCfHmzmYutlP5ay9czU9bk6VD3FD
- RfUL7nNjFhVqAu8WIvVQpwT3UZpUPZu6b0hm3G7C1dPGoL8aaY38WRLzaf75Aie8k2Ux
- DJx26v8VzoBe3EOWU1Y2M7zT2Q+E2H2nw+QRARGGPKbQzl+Ez/QoVkle7ajCtgETIzMI
- mPET47b+z1hPmQSrVc95VGksAnQi9hlXHbCdqC37Ye3+isbaqtbpv+f2DFD0Vd2bE1oc
- 2CvQgIb8O8ayJyVe5oWvP45vxJkTpTxB12sAQm4/1J/lFlHZbBjQn0CyZSTBLWZ5+l61
- tErg==
-Message-ID: <dc4b2eb0-2478-7e26-4292-b8856494fae2@blackwall.org>
-Date: Tue, 14 Mar 2023 13:51:12 +0200
+ bh=JBWcdbOe/+QB4FuxPU4RpjFDIaFQvUM2MH5HEzHxacs=;
+ b=j6t8D8MbtXOx/FTacBigFqP8nBect5CBoz8gQ9AHu9y5dotazeSefudnML7HeGFjK7
+ +CrNlhO3J1OdG2BAGa6nuxw8DBgv76IMX7myjR1bfGfN08crlQ3w5JLeqO4FyEkLjoXB
+ Q0yXLPVA3QzUy7N6Ehne60ndATLwLG2kXlVLcdaHGK/9IpklyzB8fvv63sHMy8bxSHOt
+ cU3H3k8BfaEdko1dJJ7x3EnD7VsGtAPGVnwz3iX7ysj4VTJ7907/MQlt6tDB9RJukwcd
+ xtWFOIxCujuI4jUefo5ax6vQuOFyYkuFDDBxXu79caPBDwORFJOgu2vTCd8WXhjky30h
+ l9EQ==
+Message-ID: <4a3bfd11-491b-37bc-b843-b438db764aca@blackwall.org>
+Date: Tue, 14 Mar 2023 13:51:25 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20230313145349.3557231-1-idosch@nvidia.com>
- <20230313145349.3557231-4-idosch@nvidia.com>
+ <20230313145349.3557231-5-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230313145349.3557231-4-idosch@nvidia.com>
+In-Reply-To: <20230313145349.3557231-5-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 03/11] rtnetlink: bridge: mcast: Move
- MDB handlers out of bridge driver
+Subject: Re: [Bridge] [PATCH net-next 04/11] rtnetlink: bridge: mcast: Relax
+ group address validation in common code
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,38 +37,34 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 13/03/2023 16:53, Ido Schimmel wrote:
-> Currently, the bridge driver registers handlers for MDB netlink
-> messages, making it impossible for other drivers to implement MDB
-> support.
+> In the upcoming VXLAN MDB implementation, the 0.0.0.0 and :: MDB entries
+> will act as catchall entries for unregistered IP multicast traffic in a
+> similar fashion to the 00:00:00:00:00:00 VXLAN FDB entry that is used to
+> transmit BUM traffic.
 > 
-> As a preparation for VXLAN MDB support, move the MDB handlers out of the
-> bridge driver to the core rtnetlink code. The rtnetlink code will call
-> into individual drivers by invoking their previously added MDB net
-> device operations.
+> In deployments where inter-subnet multicast forwarding is used, not all
+> the VTEPs in a tenant domain are members in all the broadcast domains.
+> It is therefore advantageous to transmit BULL (broadcast, unknown
+> unicast and link-local multicast) and unregistered IP multicast traffic
+> on different tunnels. If the same tunnel was used, a VTEP only
+> interested in IP multicast traffic would also pull all the BULL traffic
+> and drop it as it is not a member in the originating broadcast domain
+> [1].
 > 
-> Note that while the diffstat is large, the change is mechanical. It
-> moves code out of the bridge driver to rtnetlink code. Also note that a
-> similar change was made in 2012 with commit 77162022ab26 ("net: add
-> generic PF_BRIDGE:RTM_ FDB hooks") that moved FDB handlers out of the
-> bridge driver to the core rtnetlink code.
+> Prepare for this change by allowing the 0.0.0.0 group address in the
+> common rtnetlink MDB code and forbid it in the bridge driver. A similar
+> change is not needed for IPv6 because the common code only validates
+> that the group address is not the all-nodes address.
+> 
+> [1] https://datatracker.ietf.org/doc/html/draft-ietf-bess-evpn-irb-mcast#section-2.6
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
-> 
-> Notes:
->     v1:
->     * Use NL_ASSERT_DUMP_CTX_FITS().
->     * memset the entire context when moving to the next device.
->     * Reset sequence counters when moving to the next device.
->     * Use NL_SET_ERR_MSG_ATTR() in rtnl_validate_mdb_entry().
-> 
->  net/bridge/br_device.c  |   6 +-
->  net/bridge/br_mdb.c     | 301 ++--------------------------------------
->  net/bridge/br_netlink.c |   3 -
->  net/bridge/br_private.h |  35 ++---
->  net/core/rtnetlink.c    | 217 +++++++++++++++++++++++++++++
->  5 files changed, 244 insertions(+), 318 deletions(-)
+>  net/bridge/br_mdb.c  | 6 ++++++
+>  net/core/rtnetlink.c | 5 +++--
+>  2 files changed, 9 insertions(+), 2 deletions(-)
 > 
 
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
+
 
