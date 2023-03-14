@@ -1,30 +1,29 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3283F8146A
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 94E9981468
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B6D0A410E0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D43294067F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20210112.gappssmtp.com; s=20210112; t=1678794731;
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112; t=1678794752;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=pmNZdygJnAQ23YxPeMcptEgBWA7szbpuBbBzvQMSVCo=;
- b=UHIeTIbhvVf49zjI8NtD5Z6zlDH3+WhDYKavKzAoMJFNFURrBBrVECTacuI1buZ3Ss
- lMryy8VP8NaUyzaPbmy/jBKC6VJuvhMGAdVwqw7agzj7gDv3COpSLtoCPfn6usL5Ql2W
- cPVlfrrd2f1MVNI/BQ2GMMRzVlBkVlueDb/mfXTzr/WstTqS+fLTRzusnZbbynv7/+Se
- 4o/SWQr3DznAC8AfU+lCAV2+6WSrjROYJD61mJf20mx70nRUP7PMMI1EdHF96BfKPQvY
- aCwyXJDK1eCtpvJ6146bTRVcha/ZA513ivMKsuh6RzF+DVcdpfoMWmxplJ6g/hQ8Z8l4
- 0MsQ==
-Message-ID: <8300e3cf-39d7-55bd-2614-db581fcfdc65@blackwall.org>
-Date: Tue, 14 Mar 2023 13:52:09 +0200
+ bh=Aedh/JywdEDddUhtE7uVGsi7gtYL/10VJ/CukUBA1H8=;
+ b=vvT+5UdeB8eGOFM81g4n+k4wQ9SVBSS11dhgcVOho/2SIHAyUa6SAVGc36AQmewtqr
+ ArHxEVjkZaVN2wVJgFRRnqptlu06+4lUeR9djPAcFSaeUQShiB5TM91waN7zIk0/G1JL
+ k+NuPV2LOt+uCiaFDzbsRzBlHmwIHUWB3aKbrASxbtXw62tPCe6JT5sTXTffDlw9Bb6w
+ GK+SKKefR7hNspP0KiFAIyKZb5FNTUvrM55zmajbOBbJjIAXJxGlLVPBaj4fYGsXx004
+ fE78b1lLSyX0BeqBvP2slTilJw+vOPJffC0UwFyBSQ/SEL2EeVaRAHL7La7CGkyZqlO4
+ /mHw==
+Message-ID: <2097d3df-050e-ad7a-66dd-93019365b19d@blackwall.org>
+Date: Tue, 14 Mar 2023 13:52:30 +0200
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20230313145349.3557231-1-idosch@nvidia.com>
- <20230313145349.3557231-6-idosch@nvidia.com>
+ <20230313145349.3557231-7-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230313145349.3557231-6-idosch@nvidia.com>
+In-Reply-To: <20230313145349.3557231-7-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 05/11] vxlan: Move address helpers to
- private headers
+Subject: Re: [Bridge] [PATCH net-next 06/11] vxlan: Expose vxlan_xmit_one()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,16 +36,21 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 13/03/2023 16:53, Ido Schimmel wrote:
-> Move the helpers out of the core C file to the private header so that
-> they could be used by the upcoming MDB code.
+> Given a packet and a remote destination, the function will take care of
+> encapsulating the packet and transmitting it to the destination.
 > 
-> While at it, constify the second argument of vxlan_nla_get_addr().
+> Expose it so that it could be used in subsequent patches by the MDB code
+> to transmit a packet to the remote destination(s) stored in the MDB
+> entry.
+> 
+> It will allow us to keep the MDB code self-contained, not exposing its
+> data structures to the rest of the VXLAN driver.
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->  drivers/net/vxlan/vxlan_core.c    | 47 -------------------------------
->  drivers/net/vxlan/vxlan_private.h | 45 +++++++++++++++++++++++++++++
->  2 files changed, 45 insertions(+), 47 deletions(-)
+>  drivers/net/vxlan/vxlan_core.c    | 5 ++---
+>  drivers/net/vxlan/vxlan_private.h | 2 ++
+>  2 files changed, 4 insertions(+), 3 deletions(-)
 > 
 
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
