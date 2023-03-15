@@ -1,21 +1,20 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3D0AC60E83
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4C39D60E30
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0ACA581E58
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A3B6E81E4F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=M8/xIsJQcK6FnzRGvR0iwZ17paaEg8VJtJjA1su2xHI=;
- b=TZaxjykQxadUOt2s7leF0sTa277pcwiw/Cw2klxY9liy3tZsD0ldQuay3EMXlviC27aisbuCneVZoi+xDg2laObEUg36yXiFYtx9D2NxZvmVCpGDbUh6JO42nZqFS5fHyS6P9kQVp3Fy8Lu3OFeoCV7h4g+VTMJkBea37icvmi9PEv92XCI/iwpbHOXqmw7tl31oMYYLVZ3KXVjr65/SkrZkMw0zgD9/TSLMueNXmwJG9HL2omwDcCxbSI8CQGp1l2xdnNjusQy1TvJ+PCHYbWeU95FmPRGgo0iclRT1CgDJh10oIQBLWMo/L/QO/C841iMBXlAuVR0c97XlgwMZQQ==
+ bh=54uDMNJxw7/OEW6wX+HNc0uXjIgo+T7OylfvyEfI/SA=;
+ b=rIWQUkEhI/efY3HSTnnFU19GFXWNpZlA0fqxABWMh6RQ2wtJP38voDdgY9qG9kjUbhGW2SQU1NH7uOD4YcPm7RRt2KYmsCb54VY2l2YVbQaoIF3fCanL2Hed3BVGRnP/g9K44StyVGh2DbdbepxYXNMo0XNUgSHWDkMrwFFzcODIvbAYiNAmNBWffHiJmeRhjw5oov8EqNBfL9tBfq6ZXoIqt1fYpZXXuH7zFNJ3f1oU/jAa6RmnfinsDV3NlXe7Ymo1LWPPR9bAohGbWiljS4LVAABAhjp3mf7KP8GmO3ddhM0ymCvQif8nkHRjtVHgIFemc7TT3rMluFtrc+EtQw==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Wed, 15 Mar 2023 15:11:52 +0200
-Message-Id: <20230315131155.4071175-9-idosch@nvidia.com>
+Date: Wed, 15 Mar 2023 15:11:53 +0200
+Message-Id: <20230315131155.4071175-10-idosch@nvidia.com>
 In-Reply-To: <20230315131155.4071175-1-idosch@nvidia.com>
 References: <20230315131155.4071175-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 08/11] vxlan: mdb: Add an internal flag
-	to indicate MDB usage
+Subject: [Bridge] [PATCH net-next v2 09/11] vxlan: Add MDB data path support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,68 +26,229 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Add an internal flag to indicate whether MDB entries are configured or
-not. Set the flag after installing the first MDB entry and clear it
-before deleting the last one.
+Integrate MDB support into the Tx path of the VXLAN driver, allowing it
+to selectively forward IP multicast traffic according to the matched MDB
+entry.
 
-The flag will be consulted by the data path which will only perform an
-MDB lookup if the flag is set, thereby keeping the MDB overhead to a
-minimum when the MDB is not used.
+If MDB entries are configured (i.e., 'VXLAN_F_MDB' is set) and the
+packet is an IP multicast packet, perform up to three different lookups
+according to the following priority:
 
-Another option would have been to use a static key, but it is global and
-not per-device, unlike the current approach.
+1. For an (S, G) entry, using {Source VNI, Source IP, Destination IP}.
+2. For a (*, G) entry, using {Source VNI, Destination IP}.
+3. For the catchall MDB entry (0.0.0.0 or ::), using the source VNI.
+
+The catchall MDB entry is similar to the catchall FDB entry
+(00:00:00:00:00:00) that is currently used to transmit BUM (broadcast,
+unknown unicast and multicast) traffic. However, unlike the catchall FDB
+entry, this entry is only used to transmit unregistered IP multicast
+traffic that is not link-local. Therefore, when configured, the catchall
+FDB entry will only transmit BULL (broadcast, unknown unicast,
+link-local multicast) traffic.
+
+The catchall MDB entry is useful in deployments where inter-subnet
+multicast forwarding is used and not all the VTEPs in a tenant domain
+are members in all the broadcast domains. In such deployments it is
+advantageous to transmit BULL (broadcast, unknown unicast and link-local
+multicast) and unregistered IP multicast traffic on different tunnels.
+If the same tunnel was used, a VTEP only interested in IP multicast
+traffic would also pull all the BULL traffic and drop it as it is not a
+member in the originating broadcast domain [1].
+
+If the packet did not match an MDB entry (or if the packet is not an IP
+multicast packet), return it to the Tx path, allowing it to be forwarded
+according to the FDB.
+
+If the packet did match an MDB entry, forward it to the associated
+remote VTEPs. However, if the entry is a (*, G) entry and the associated
+remote is in INCLUDE mode, then skip over it as the source IP is not in
+its source list (otherwise the packet would have matched on an (S, G)
+entry). Similarly, if the associated remote is marked as BLOCKED (can
+only be set on (S, G) entries), then skip over it as well as the remote
+is in EXCLUDE mode and the source IP is in its source list.
+
+[1] https://datatracker.ietf.org/doc/html/draft-ietf-bess-evpn-irb-mcast#section-2.6
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- drivers/net/vxlan/vxlan_mdb.c | 7 +++++++
- include/net/vxlan.h           | 1 +
- 2 files changed, 8 insertions(+)
 
+Notes:
+    v2:
+    * Use htons() in 'case' instead of ntohs() in 'switch'.
+
+ drivers/net/vxlan/vxlan_core.c    |  15 ++++
+ drivers/net/vxlan/vxlan_mdb.c     | 114 ++++++++++++++++++++++++++++++
+ drivers/net/vxlan/vxlan_private.h |   6 ++
+ 3 files changed, 135 insertions(+)
+
+diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
+index a8b26d4f76de..8450768d2300 100644
+--- a/drivers/net/vxlan/vxlan_core.c
++++ b/drivers/net/vxlan/vxlan_core.c
+@@ -2743,6 +2743,21 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
+ #endif
+ 	}
+ 
++	if (vxlan->cfg.flags & VXLAN_F_MDB) {
++		struct vxlan_mdb_entry *mdb_entry;
++
++		rcu_read_lock();
++		mdb_entry = vxlan_mdb_entry_skb_get(vxlan, skb, vni);
++		if (mdb_entry) {
++			netdev_tx_t ret;
++
++			ret = vxlan_mdb_xmit(vxlan, mdb_entry, skb);
++			rcu_read_unlock();
++			return ret;
++		}
++		rcu_read_unlock();
++	}
++
+ 	eth = eth_hdr(skb);
+ 	f = vxlan_find_mac(vxlan, eth->h_dest, vni);
+ 	did_rsc = false;
 diff --git a/drivers/net/vxlan/vxlan_mdb.c b/drivers/net/vxlan/vxlan_mdb.c
-index 129692b3663f..b32b1fb4a74a 100644
+index b32b1fb4a74a..5e041622261a 100644
 --- a/drivers/net/vxlan/vxlan_mdb.c
 +++ b/drivers/net/vxlan/vxlan_mdb.c
-@@ -1185,6 +1185,9 @@ vxlan_mdb_entry_get(struct vxlan_dev *vxlan,
- 	if (err)
- 		goto err_free_entry;
- 
-+	if (hlist_is_singular_node(&mdb_entry->mdb_node, &vxlan->mdb_list))
-+		vxlan->cfg.flags |= VXLAN_F_MDB;
-+
- 	return mdb_entry;
- 
- err_free_entry:
-@@ -1199,6 +1202,9 @@ static void vxlan_mdb_entry_put(struct vxlan_dev *vxlan,
- 	if (!list_empty(&mdb_entry->remotes))
- 		return;
- 
-+	if (hlist_is_singular_node(&mdb_entry->mdb_node, &vxlan->mdb_list))
-+		vxlan->cfg.flags &= ~VXLAN_F_MDB;
-+
- 	rhashtable_remove_fast(&vxlan->mdb_tbl, &mdb_entry->rhnode,
- 			       vxlan_mdb_rht_params);
- 	hlist_del(&mdb_entry->mdb_node);
-@@ -1336,6 +1342,7 @@ int vxlan_mdb_init(struct vxlan_dev *vxlan)
- void vxlan_mdb_fini(struct vxlan_dev *vxlan)
- {
- 	vxlan_mdb_entries_flush(vxlan);
-+	WARN_ON_ONCE(vxlan->cfg.flags & VXLAN_F_MDB);
- 	rhashtable_free_and_destroy(&vxlan->mdb_tbl, vxlan_mdb_check_empty,
- 				    NULL);
+@@ -1298,6 +1298,120 @@ int vxlan_mdb_del(struct net_device *dev, struct nlattr *tb[],
+ 	return err;
  }
-diff --git a/include/net/vxlan.h b/include/net/vxlan.h
-index 110b703d8978..b7b2e9abfb37 100644
---- a/include/net/vxlan.h
-+++ b/include/net/vxlan.h
-@@ -327,6 +327,7 @@ struct vxlan_dev {
- #define VXLAN_F_IPV6_LINKLOCAL		0x8000
- #define VXLAN_F_TTL_INHERIT		0x10000
- #define VXLAN_F_VNIFILTER               0x20000
-+#define VXLAN_F_MDB			0x40000
  
- /* Flags that are used in the receive path. These flags must match in
-  * order for a socket to be shareable
++struct vxlan_mdb_entry *vxlan_mdb_entry_skb_get(struct vxlan_dev *vxlan,
++						struct sk_buff *skb,
++						__be32 src_vni)
++{
++	struct vxlan_mdb_entry *mdb_entry;
++	struct vxlan_mdb_entry_key group;
++
++	if (!is_multicast_ether_addr(eth_hdr(skb)->h_dest) ||
++	    is_broadcast_ether_addr(eth_hdr(skb)->h_dest))
++		return NULL;
++
++	/* When not in collect metadata mode, 'src_vni' is zero, but MDB
++	 * entries are stored with the VNI of the VXLAN device.
++	 */
++	if (!(vxlan->cfg.flags & VXLAN_F_COLLECT_METADATA))
++		src_vni = vxlan->default_dst.remote_vni;
++
++	memset(&group, 0, sizeof(group));
++	group.vni = src_vni;
++
++	switch (skb->protocol) {
++	case htons(ETH_P_IP):
++		if (!pskb_may_pull(skb, sizeof(struct iphdr)))
++			return NULL;
++		group.dst.sa.sa_family = AF_INET;
++		group.dst.sin.sin_addr.s_addr = ip_hdr(skb)->daddr;
++		group.src.sa.sa_family = AF_INET;
++		group.src.sin.sin_addr.s_addr = ip_hdr(skb)->saddr;
++		break;
++#if IS_ENABLED(CONFIG_IPV6)
++	case htons(ETH_P_IPV6):
++		if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
++			return NULL;
++		group.dst.sa.sa_family = AF_INET6;
++		group.dst.sin6.sin6_addr = ipv6_hdr(skb)->daddr;
++		group.src.sa.sa_family = AF_INET6;
++		group.src.sin6.sin6_addr = ipv6_hdr(skb)->saddr;
++		break;
++#endif
++	default:
++		return NULL;
++	}
++
++	mdb_entry = vxlan_mdb_entry_lookup(vxlan, &group);
++	if (mdb_entry)
++		return mdb_entry;
++
++	memset(&group.src, 0, sizeof(group.src));
++	mdb_entry = vxlan_mdb_entry_lookup(vxlan, &group);
++	if (mdb_entry)
++		return mdb_entry;
++
++	/* No (S, G) or (*, G) found. Look up the all-zeros entry, but only if
++	 * the destination IP address is not link-local multicast since we want
++	 * to transmit such traffic together with broadcast and unknown unicast
++	 * traffic.
++	 */
++	switch (skb->protocol) {
++	case htons(ETH_P_IP):
++		if (ipv4_is_local_multicast(group.dst.sin.sin_addr.s_addr))
++			return NULL;
++		group.dst.sin.sin_addr.s_addr = 0;
++		break;
++#if IS_ENABLED(CONFIG_IPV6)
++	case htons(ETH_P_IPV6):
++		if (ipv6_addr_type(&group.dst.sin6.sin6_addr) &
++		    IPV6_ADDR_LINKLOCAL)
++			return NULL;
++		memset(&group.dst.sin6.sin6_addr, 0,
++		       sizeof(group.dst.sin6.sin6_addr));
++		break;
++#endif
++	default:
++		return NULL;
++	}
++
++	return vxlan_mdb_entry_lookup(vxlan, &group);
++}
++
++netdev_tx_t vxlan_mdb_xmit(struct vxlan_dev *vxlan,
++			   const struct vxlan_mdb_entry *mdb_entry,
++			   struct sk_buff *skb)
++{
++	struct vxlan_mdb_remote *remote, *fremote = NULL;
++	__be32 src_vni = mdb_entry->key.vni;
++
++	list_for_each_entry_rcu(remote, &mdb_entry->remotes, list) {
++		struct sk_buff *skb1;
++
++		if ((vxlan_mdb_is_star_g(&mdb_entry->key) &&
++		     READ_ONCE(remote->filter_mode) == MCAST_INCLUDE) ||
++		    (READ_ONCE(remote->flags) & VXLAN_MDB_REMOTE_F_BLOCKED))
++			continue;
++
++		if (!fremote) {
++			fremote = remote;
++			continue;
++		}
++
++		skb1 = skb_clone(skb, GFP_ATOMIC);
++		if (skb1)
++			vxlan_xmit_one(skb1, vxlan->dev, src_vni,
++				       rcu_dereference(remote->rd), false);
++	}
++
++	if (fremote)
++		vxlan_xmit_one(skb, vxlan->dev, src_vni,
++			       rcu_dereference(fremote->rd), false);
++	else
++		kfree_skb(skb);
++
++	return NETDEV_TX_OK;
++}
++
+ static void vxlan_mdb_check_empty(void *ptr, void *arg)
+ {
+ 	WARN_ON_ONCE(1);
+diff --git a/drivers/net/vxlan/vxlan_private.h b/drivers/net/vxlan/vxlan_private.h
+index 7bcc38faae27..817fa3075842 100644
+--- a/drivers/net/vxlan/vxlan_private.h
++++ b/drivers/net/vxlan/vxlan_private.h
+@@ -235,6 +235,12 @@ int vxlan_mdb_add(struct net_device *dev, struct nlattr *tb[], u16 nlmsg_flags,
+ 		  struct netlink_ext_ack *extack);
+ int vxlan_mdb_del(struct net_device *dev, struct nlattr *tb[],
+ 		  struct netlink_ext_ack *extack);
++struct vxlan_mdb_entry *vxlan_mdb_entry_skb_get(struct vxlan_dev *vxlan,
++						struct sk_buff *skb,
++						__be32 src_vni);
++netdev_tx_t vxlan_mdb_xmit(struct vxlan_dev *vxlan,
++			   const struct vxlan_mdb_entry *mdb_entry,
++			   struct sk_buff *skb);
+ int vxlan_mdb_init(struct vxlan_dev *vxlan);
+ void vxlan_mdb_fini(struct vxlan_dev *vxlan);
+ #endif
 -- 
 2.37.3
 
