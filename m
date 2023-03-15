@@ -1,21 +1,20 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2AB5B418A6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 125994187A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F2649418A6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 177234187A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2zd9WrrpJfrGPvUWRX9Vl4aXE9EocAqWSQ7KmKpQD3Q=;
- b=jqx9RPZigW0bNUQ+XrJtXRxaQhaZ8A/hKuA27RPhok7fnBYHG/NwckvcMc7SlS51SGkO+Wu3uenEGLzrFt2S5TX+FpHnuVo1tpKwrQIxX2h4NvaGeNExlUROYUd93oTYE8+OvaLfrOpgb/lobMkrUvxoJklAeoKQT9vP/c9Ia1iDSYBC+OZUTwxzjlUbkKS8PNquILzGfk6+c0gqyUV5ZWq82X1PNtGwGp1SCDcN+YUcVBxyXctLxs5aY5HTpG6Zs3ZRVp4oZqVSTaAWbB7V3sLsGjgZv7FPETO4jhCiJxNUlomEFf7P4cGJQi33ygC821rRkd+Ri9zjK/Gfh1bJEA==
+ bh=M8xQD6wIXI7G9nlFvyc28CRTCwLnUV1tYLqhNK96CV4=;
+ b=hz72DzRHHtHoVbX72g42rVRYpa1bhI9/vztycAm/n7I0tOvA0TTRpaS7KlnCk0O0+ytYWX0w3kMDzQGHPoeob6mvKqTT2QHK5fYuEV/qbLFosJsrCrgf2BSd1mYV/V51gs5F6yeLDGxc9WXyc4l6SJYj9ns97DCo0hSB8tESeyoJfAlHgsdJE1+uRirBoHiJ0r9SvzleOvg/XNDZKrIJ5vQX/B9MMvnb+dyHwobU6M0+Z9ZwgNyrHmarUhNyIDcFZxWcswO2j45HrRd/B9V5caXQ0OvEZlAfvRFtxFekQ5F5LymFD9khYnzL3Z7nVAl7zhC/aDlvtSet7GKAj5yaDA==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Wed, 15 Mar 2023 15:11:49 +0200
-Message-Id: <20230315131155.4071175-6-idosch@nvidia.com>
+Date: Wed, 15 Mar 2023 15:11:50 +0200
+Message-Id: <20230315131155.4071175-7-idosch@nvidia.com>
 In-Reply-To: <20230315131155.4071175-1-idosch@nvidia.com>
 References: <20230315131155.4071175-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 05/11] vxlan: Move address helpers to
-	private headers
+Subject: [Bridge] [PATCH net-next v2 06/11] vxlan: Expose vxlan_xmit_one()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,139 +26,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Move the helpers out of the core C file to the private header so that
-they could be used by the upcoming MDB code.
+Given a packet and a remote destination, the function will take care of
+encapsulating the packet and transmitting it to the destination.
 
-While at it, constify the second argument of vxlan_nla_get_addr().
+Expose it so that it could be used in subsequent patches by the MDB code
+to transmit a packet to the remote destination(s) stored in the MDB
+entry.
+
+It will allow us to keep the MDB code self-contained, not exposing its
+data structures to the rest of the VXLAN driver.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- drivers/net/vxlan/vxlan_core.c    | 47 -------------------------------
- drivers/net/vxlan/vxlan_private.h | 45 +++++++++++++++++++++++++++++
- 2 files changed, 45 insertions(+), 47 deletions(-)
+ drivers/net/vxlan/vxlan_core.c    | 5 ++---
+ drivers/net/vxlan/vxlan_private.h | 2 ++
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
-index f2c30214cae8..2c65cc5dd55d 100644
+index 2c65cc5dd55d..5de1a20497a6 100644
 --- a/drivers/net/vxlan/vxlan_core.c
 +++ b/drivers/net/vxlan/vxlan_core.c
-@@ -71,53 +71,6 @@ static inline bool vxlan_collect_metadata(struct vxlan_sock *vs)
- 	       ip_tunnel_collect_metadata();
+@@ -2395,9 +2395,8 @@ static int encap_bypass_if_local(struct sk_buff *skb, struct net_device *dev,
+ 	return 0;
  }
  
--#if IS_ENABLED(CONFIG_IPV6)
--static int vxlan_nla_get_addr(union vxlan_addr *ip, struct nlattr *nla)
--{
--	if (nla_len(nla) >= sizeof(struct in6_addr)) {
--		ip->sin6.sin6_addr = nla_get_in6_addr(nla);
--		ip->sa.sa_family = AF_INET6;
--		return 0;
--	} else if (nla_len(nla) >= sizeof(__be32)) {
--		ip->sin.sin_addr.s_addr = nla_get_in_addr(nla);
--		ip->sa.sa_family = AF_INET;
--		return 0;
--	} else {
--		return -EAFNOSUPPORT;
--	}
--}
--
--static int vxlan_nla_put_addr(struct sk_buff *skb, int attr,
--			      const union vxlan_addr *ip)
--{
--	if (ip->sa.sa_family == AF_INET6)
--		return nla_put_in6_addr(skb, attr, &ip->sin6.sin6_addr);
--	else
--		return nla_put_in_addr(skb, attr, ip->sin.sin_addr.s_addr);
--}
--
--#else /* !CONFIG_IPV6 */
--
--static int vxlan_nla_get_addr(union vxlan_addr *ip, struct nlattr *nla)
--{
--	if (nla_len(nla) >= sizeof(struct in6_addr)) {
--		return -EAFNOSUPPORT;
--	} else if (nla_len(nla) >= sizeof(__be32)) {
--		ip->sin.sin_addr.s_addr = nla_get_in_addr(nla);
--		ip->sa.sa_family = AF_INET;
--		return 0;
--	} else {
--		return -EAFNOSUPPORT;
--	}
--}
--
--static int vxlan_nla_put_addr(struct sk_buff *skb, int attr,
--			      const union vxlan_addr *ip)
--{
--	return nla_put_in_addr(skb, attr, ip->sin.sin_addr.s_addr);
--}
--#endif
--
- /* Find VXLAN socket based on network namespace, address family, UDP port,
-  * enabled unshareable flags and socket device binding (see l3mdev with
-  * non-default VRF).
+-static void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
+-			   __be32 default_vni, struct vxlan_rdst *rdst,
+-			   bool did_rsc)
++void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
++		    __be32 default_vni, struct vxlan_rdst *rdst, bool did_rsc)
+ {
+ 	struct dst_cache *dst_cache;
+ 	struct ip_tunnel_info *info;
 diff --git a/drivers/net/vxlan/vxlan_private.h b/drivers/net/vxlan/vxlan_private.h
-index 599c3b4fdd5e..038528f9684a 100644
+index 038528f9684a..f4977925cb8a 100644
 --- a/drivers/net/vxlan/vxlan_private.h
 +++ b/drivers/net/vxlan/vxlan_private.h
-@@ -85,6 +85,31 @@ bool vxlan_addr_equal(const union vxlan_addr *a, const union vxlan_addr *b)
- 		return a->sin.sin_addr.s_addr == b->sin.sin_addr.s_addr;
- }
+@@ -172,6 +172,8 @@ int vxlan_fdb_update(struct vxlan_dev *vxlan,
+ 		     __be16 port, __be32 src_vni, __be32 vni,
+ 		     __u32 ifindex, __u16 ndm_flags, u32 nhid,
+ 		     bool swdev_notify, struct netlink_ext_ack *extack);
++void vxlan_xmit_one(struct sk_buff *skb, struct net_device *dev,
++		    __be32 default_vni, struct vxlan_rdst *rdst, bool did_rsc);
+ int vxlan_vni_in_use(struct net *src_net, struct vxlan_dev *vxlan,
+ 		     struct vxlan_config *conf, __be32 vni);
  
-+static inline int vxlan_nla_get_addr(union vxlan_addr *ip,
-+				     const struct nlattr *nla)
-+{
-+	if (nla_len(nla) >= sizeof(struct in6_addr)) {
-+		ip->sin6.sin6_addr = nla_get_in6_addr(nla);
-+		ip->sa.sa_family = AF_INET6;
-+		return 0;
-+	} else if (nla_len(nla) >= sizeof(__be32)) {
-+		ip->sin.sin_addr.s_addr = nla_get_in_addr(nla);
-+		ip->sa.sa_family = AF_INET;
-+		return 0;
-+	} else {
-+		return -EAFNOSUPPORT;
-+	}
-+}
-+
-+static inline int vxlan_nla_put_addr(struct sk_buff *skb, int attr,
-+				     const union vxlan_addr *ip)
-+{
-+	if (ip->sa.sa_family == AF_INET6)
-+		return nla_put_in6_addr(skb, attr, &ip->sin6.sin6_addr);
-+	else
-+		return nla_put_in_addr(skb, attr, ip->sin.sin_addr.s_addr);
-+}
-+
- #else /* !CONFIG_IPV6 */
- 
- static inline
-@@ -93,6 +118,26 @@ bool vxlan_addr_equal(const union vxlan_addr *a, const union vxlan_addr *b)
- 	return a->sin.sin_addr.s_addr == b->sin.sin_addr.s_addr;
- }
- 
-+static inline int vxlan_nla_get_addr(union vxlan_addr *ip,
-+				     const struct nlattr *nla)
-+{
-+	if (nla_len(nla) >= sizeof(struct in6_addr)) {
-+		return -EAFNOSUPPORT;
-+	} else if (nla_len(nla) >= sizeof(__be32)) {
-+		ip->sin.sin_addr.s_addr = nla_get_in_addr(nla);
-+		ip->sa.sa_family = AF_INET;
-+		return 0;
-+	} else {
-+		return -EAFNOSUPPORT;
-+	}
-+}
-+
-+static inline int vxlan_nla_put_addr(struct sk_buff *skb, int attr,
-+				     const union vxlan_addr *ip)
-+{
-+	return nla_put_in_addr(skb, attr, ip->sin.sin_addr.s_addr);
-+}
-+
- #endif
- 
- static inline struct vxlan_vni_node *
 -- 
 2.37.3
 
