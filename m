@@ -1,23 +1,28 @@
-Return-Path: <royujjal@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B709C4156A
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 59A7F415DC
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 04ABC81990
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1085481975
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=gmail.com; s=20210112; t=1679312713;
- h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
- :date:message-id:reply-to;
- bh=2EdCdWaxl6aSDm2/QNnErzsl1SoS7RrMeG7Y44iKUtc=;
- b=C8obbCNO7LejGk5rUhOzu1LitH8G2CvYqXpW3dW3Oedqzodtr0rk41gi7CdYDAge5j
- oVRhkfHNTWVF07feFWtcK4fjvG1Cw8xPjJ/yb+jwE9eQmxViwPZfCvWGAuSHWMEnGQyh
- w2nkV8EndlS0GjJNT/xy16JZhB9KQE9tqA8EwY5UajOpBYbi8M6u3UCtR9BTu8sQR030
- v48qDfGg0zjHpIl1yLuMfT44LUxd8c/BOvTMkR7myfFgdhFt1oll9MAwbyP8j1s9Wv2+
- +ta6yfTTS9m0S57Yxsl5jpMXMUs+tzI3oQdq/xwBLpeDdbYvBcVY6KwZnC1nE9NrOi6m
- 3rew==
+ d=blackwall-org.20210112.gappssmtp.com; s=20210112; t=1679314103;
+ h=content-transfer-encoding:in-reply-to:from:content-language
+ :references:cc:to:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=0DX4qBiGcGPtOV8eO23GpfgYZaEoud4OZh0owe5T4Xc=;
+ b=ob0cCOvHCgx+sWCZcQWup1xlVWDWoiFVDCN3lJ5IhUATuzhYyZIUey29e8g18Js2WI
+ g41ZkxBkZni+Bdb+IrhCVneXhRxHfRPkXKCCFNB0DVSs6duRKr1ngXfmHVvIfzsXBG1L
+ 6VU/SrBQnPlHWS24n4AjmKzpUaky/lmrXXDkwQDJ5CT2Db8wZ/3utkVonf8uZWZofizx
+ pUNfNYcIeCZ/bwQx2NGnc/dWUqnl1sjZsTNSU3nPldjC45GW4uDUalitIiq4wK9hfS/E
+ M9XhTCFkT06Tzwi1eYzBNDe11812UszSD2W/mwlqxbJO0j8belRghMoYiAiDPCQW1wiD
+ pxUw==
+Message-ID: <a4ce2c34-eabe-a11f-682a-4cecf6c3462b@blackwall.org>
+Date: Mon, 20 Mar 2023 14:08:21 +0200
 MIME-Version: 1.0
-From: Ujjal Roy <royujjal@gmail.com>
-Date: Mon, 20 Mar 2023 17:15:00 +0530
-Message-ID: <CAE2MWkm=zvkF_Ge1MH7vn+dmMboNt+pOEEVSgSeNNPRY5VmroA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: [Bridge] Multicast: handling of STA disconnect
+References: <CAE2MWkm=zvkF_Ge1MH7vn+dmMboNt+pOEEVSgSeNNPRY5VmroA@mail.gmail.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <CAE2MWkm=zvkF_Ge1MH7vn+dmMboNt+pOEEVSgSeNNPRY5VmroA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] Multicast: handling of STA disconnect
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,24 +31,36 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: roopa@nvidia.com, razor@blackwall.org, nikolay@nvidia.com
+To: Ujjal Roy <royujjal@gmail.com>, roopa@nvidia.com, nikolay@nvidia.com
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Kernel <linux-kernel@vger.kernel.org>
 
-Hi Nikolay,
+On 20/03/2023 13:45, Ujjal Roy wrote:
+> Hi Nikolay,
+> 
+> I have some query on multicast. When streams running on an STA and STA
+> disconnected due to some reason. So, until the MDB is timed out the
+> stream will be forwarded to the port and in turn to the driver and
+> dropps there as no such STA.
+> 
+> So, is the multicast_eht handling this scenario to take any action
+> immediately? If not, can we do this to take quick action to reduce
+> overhead of memory and driver?
+> 
+> I have an idea on this. Can we mark this port group (MDB entry) as
+> INACTIVE from the WiFi disconnect event and skip forwarding the stream
+> to this port in br_multicast_flood by applying the check? I can share
+> the patch on this.
+> 
+> Thanks,
+> UjjaL Roy
 
-I have some query on multicast. When streams running on an STA and STA
-disconnected due to some reason. So, until the MDB is timed out the
-stream will be forwarded to the port and in turn to the driver and
-dropps there as no such STA.
+Hi,
+Fast leave and EHT (as that's v3's fast leave version) are about quickly converging when
+a leave is received (e.g. when there are no listeners to quickly remove the mdb). They
+don't deal with interface states (IIUC). Why don't you just flush the port's mdb entries
+on disconnect? That would stop fwding.
 
-So, is the multicast_eht handling this scenario to take any action
-immediately? If not, can we do this to take quick action to reduce
-overhead of memory and driver?
+Cheers,
+ Nik
 
-I have an idea on this. Can we mark this port group (MDB entry) as
-INACTIVE from the WiFi disconnect event and skip forwarding the stream
-to this port in br_multicast_flood by applying the check? I can share
-the patch on this.
 
-Thanks,
-UjjaL Roy
