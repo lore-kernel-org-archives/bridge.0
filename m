@@ -1,36 +1,18 @@
-Return-Path: <olteanv@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 426E6403A5
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 867864037E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=gmail.com; s=20210112; t=1680191092;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=lU9JCkTye6Fj+qGS5BcJ6TDCunaP0ev1Z3VOnL6O7u8=;
- b=ARXUEmqMaQiFvA623fC9h/1bTtbZu+9APT25M51Fyzal5QyyBhpNOKenjrxHC9tNvl
- S5qRlO9XoSCMeMsGUxdNgy5JziINi0lqiObnEMVskhrUlgY/Nx4DIG0QNEQsDohNNwVI
- ZjpV6n4C/vseZe/Yaal+huKNBxLZRFnxa87dsmJ+XNyIozRshatOv7uSBF+5zoQgGC9u
- APpkQ7cgiCA7P+a0ITBi0t+ePzbvRC6ZSQ8PNQFlEV5Nkz3BPNiKrW3feDlfatNMu8VV
- ylQbTLsNnGSA8P3WnQGfjLEZ3+xacpPhY8gzVJGbk7L8KERA9bNGO7XypeGYZuS4b7+c
- MaZw==
-Date: Thu, 30 Mar 2023 18:44:31 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-Message-ID: <20230330154431.vii5llyqgiymievp@skbuf>
-References: <20230327225933.plm5raegywbe7g2a@skbuf>
- <87ileljfwo.fsf@kapio-technology.com>
- <20230328114943.4mibmn2icutcio4m@skbuf>
- <87cz4slkx5.fsf@kapio-technology.com>
- <20230330124326.v5mqg7do25tz6izk@skbuf>
- <87wn2yxunb.fsf@kapio-technology.com>
- <20230330130936.hxme34qrqwolvpsh@skbuf>
- <875yaimgro.fsf@kapio-technology.com>
- <20230330150752.gdquw5kudtrqgzyz@skbuf>
- <877cuy6ynf.fsf@kapio-technology.com>
+Return-Path: <hans@kapio-technology.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6061B41EAE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 16B7B40298
+From: Hans Schultz <netdev@kapio-technology.com>
+In-Reply-To: <ZCMYbRqd+qZaiHfu@shredder>
+References: <20230318141010.513424-1-netdev@kapio-technology.com>
+ <20230318141010.513424-7-netdev@kapio-technology.com>
+ <ZBgdAo8mxwnl+pEE@shredder> <87a5zzh65p.fsf@kapio-technology.com>
+ <ZCMYbRqd+qZaiHfu@shredder>
+Date: Thu, 30 Mar 2023 21:07:53 +0200
+Message-ID: <874jq22h2u.fsf@kapio-technology.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877cuy6ynf.fsf@kapio-technology.com>
-Subject: Re: [Bridge] [PATCH v2 net-next 2/6] net: dsa: propagate flags down
- towards drivers
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH v2 net-next 6/6] selftests: forwarding: add
+ dynamic FDB test
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -39,32 +21,70 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Hans Schultz <netdev@kapio-technology.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?B?Q2zDqW1lbnQgTMOpZ2Vy?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1 A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, davem@davemloft.net
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, "moderated
+ list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?Q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC
+ support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
+ A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, Vladimir Oltean <olteanv@gmail.com>, davem@davemloft.net
 
-On Thu, Mar 30, 2023 at 05:34:44PM +0200, Hans Schultz wrote:
-> On Thu, Mar 30, 2023 at 18:07, Vladimir Oltean <olteanv@gmail.com> wrote:
-> >
-> > Then, make DSA decide whether to handle the "added_by_user && !is_static"
-> > combination or not, based on the presence of the DSA_FDB_FLAG_DYNAMIC
-> > flag, which will be set in ds->supported_fdb_flags only for the mv88e6xxx
-> > driver.
-> 
-> Okay, so this will require a new function in the DSA layer that sets
-> which flags are supported and that the driver will call on
-> initialization.
-> 
-> Where (in the DSA layer) should such a function be placed and what
-> should it be called?
+On Tue, Mar 28, 2023 at 19:40, Ido Schimmel <idosch@nvidia.com> wrote:
+> On Sun, Mar 26, 2023 at 05:41:06PM +0200, Hans Schultz wrote:
+>> On Mon, Mar 20, 2023 at 10:44, Ido Schimmel <idosch@nvidia.com> wrote:
+>> >> +	$MZ $swp1 -c 1 -p 128 -t udp "sp=54321,dp=12345" \
+>> >> +		-a $mac -b `mac_get $h2` -A 192.0.2.1 -B 192.0.2.2 -q
+>> >> +	tc_check_packets "dev $swp2 egress" 1 1
+>> >> +	check_fail $? "Dynamic FDB entry did not age out"
+>> >
+>> > Shouldn't this be check_err()? After the FDB entry was aged you want to
+>> > make sure that packets received via $swp1 with SMAC being $mac are no
+>> > longer forwarded by the bridge.
+>> 
+>> I was thinking that check_fail() will pass when tc_check_packets() does
+>> not see any packets, thus the test passing here when no packets are forwarded?
+>
+> What do you mean by "I was *thinking*"? How is it possible that you are
+> submitting a selftest that you didn't bother running?!
+>
+> I see you trimmed my earlier question: "Does this actually work?"
+>
+> I tried it and it passed:
+>
+> # ./bridge_locked_port.sh                         
+> TEST: Locked port ipv4                                              [ OK ]
+> TEST: Locked port ipv6                                              [ OK ]
+> TEST: Locked port vlan                                              [ OK ]            
+> TEST: Locked port MAB                                               [ OK ]            
+> TEST: Locked port MAB roam                                          [ OK ]
+> TEST: Locked port MAB configuration                                 [ OK ]
+> TEST: Locked port MAB FDB flush                                     [ OK ]
+>
+> And I couldn't understand how that's even possible. Then I realized that
+> the entire test is dead code because the patch is missing this
+> fundamental hunk:
+>
+> ```
+> diff --git a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+> index dbc7017fd45d..5bf6b2aa1098 100755
+> --- a/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+> +++ b/tools/testing/selftests/net/forwarding/bridge_locked_port.sh
+> @@ -9,6 +9,7 @@ ALL_TESTS="
+>         locked_port_mab_roam
+>         locked_port_mab_config
+>         locked_port_mab_flush
+> +       locked_port_dyn_fdb
+>  "
+>  
+>  NUM_NETIFS=4
+> ```
+>
+> Which tells me that you didn't even try running it once.
 
-Don't overthink it, no new function. It's okay to just set
-ds->supported_fdb_flags = DSA_FDB_FLAG_DYNAMIC in
-mv88e6xxx_register_switch(), near the place where it currently sets
-ds->num_lag_ids. Either before dsa_register_switch(), or within the
-ds->ops->setup(). Both are fine, since the user network interfaces
-haven't been allocated just yet by dsa_slave_create() and so, the
-switchdev code path is inaccessible.
+Not true, it reveals that I forgot to put it in the patch, that's all. As
+I cannot run several of these tests because of memory constraints I link
+the file to a copy in a rw area where I modify the list and just run one
+of the subtests at a time. If I try to run the whole it always fails
+after a couple of sub-tests with an error.
 
-Existing drivers will have ds->supported_fdb_flags = 0 by default, since
-they allocate the struct dsa_switch with kzalloc(), and DSA will have to
-do something sane with that.
+It seems to me that these scripts are quite memory consuming as they
+accumulate memory consuption in relation to what is loaded along the
+way. A major problem with my system.
