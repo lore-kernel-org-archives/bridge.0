@@ -1,6 +1,6 @@
 Return-Path: <hans@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F099844B6
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C4F67844B5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 877B541FB8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D7E6F41FAF
 From: Hans Schultz <netdev@kapio-technology.com>
 In-Reply-To: <20230330192714.oqosvifrftirshej@skbuf>
 References: <20230318141010.513424-1-netdev@kapio-technology.com>
@@ -8,8 +8,8 @@ References: <20230318141010.513424-1-netdev@kapio-technology.com>
  <ZBgdAo8mxwnl+pEE@shredder> <87a5zzh65p.fsf@kapio-technology.com>
  <ZCMYbRqd+qZaiHfu@shredder> <874jq22h2u.fsf@kapio-technology.com>
  <20230330192714.oqosvifrftirshej@skbuf>
-Date: Fri, 31 Mar 2023 09:43:34 +0200
-Message-ID: <874jq1mkm1.fsf@kapio-technology.com>
+Date: Fri, 31 Mar 2023 10:06:34 +0200
+Message-ID: <871ql5mjjp.fsf@kapio-technology.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [Bridge] [PATCH v2 net-next 6/6] selftests: forwarding: add
@@ -53,7 +53,9 @@ On Thu, Mar 30, 2023 at 22:27, Vladimir Oltean <olteanv@gmail.com> wrote:
 > (where it's easy to add missing packages to the rootfs) or with a more
 > embedded-oriented Buildroot.
 
-I am not entirely clear of your idea. You need somehow to boot into a
-system with the patched net-next kernel or you have a virtual machine
-boot into a virtual OS. I guess it is the last option you refer to using
-Debian?
+The memory problems are of course on the embedded target. In that case I
+think it would be a very good idea to do something to design the system
+better, so that it frees memory between the subtests.
+
+If all tests are always run on the bridge only, I think they don't make
+much sense as these patchsets are directed towards switchcores.
