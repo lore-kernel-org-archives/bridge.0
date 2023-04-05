@@ -1,21 +1,23 @@
-Return-Path: <hans@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CD09E42243
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D144742226
-From: Hans Schultz <netdev@kapio-technology.com>
-In-Reply-To: <20230331093732.s6loozkdhehewlm4@skbuf>
-References: <20230318141010.513424-1-netdev@kapio-technology.com>
- <20230318141010.513424-7-netdev@kapio-technology.com>
- <ZBgdAo8mxwnl+pEE@shredder> <87a5zzh65p.fsf@kapio-technology.com>
- <ZCMYbRqd+qZaiHfu@shredder> <874jq22h2u.fsf@kapio-technology.com>
- <20230330192714.oqosvifrftirshej@skbuf>
- <871ql5mjjp.fsf@kapio-technology.com>
- <20230331093732.s6loozkdhehewlm4@skbuf>
-Date: Fri, 31 Mar 2023 14:43:11 +0200
-Message-ID: <87tty1nlb4.fsf@kapio-technology.com>
+Return-Path: <dhamester@jusst.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E4A9681F47
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E04D581F29
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jusst.de; s=dkim;
+ t=1680697452; h=from:subject:date:message-id:to:mime-version:content-type:
+ content-transfer-encoding:content-language;
+ bh=INuSPqZWxJYEI4jKMV7zGzhUZ5jYXb1XWxD6oaynKVw=;
+ b=TX2cBFmbxN9/W7EAaELqbKj10880M39Gn/l58TDnmBnUa7lf/6sE84QbuidDDpnRYxnobC
+ BIpIFJ6agOVaspCp2CAOYbV95Xi2CkZ3vkn1Phj6h/xelSBwqqr5zLSxusQlrlBaDngNvE
+ DtDubxYFWOuhIXhUCG7GbYy/TdNv5sH2DQhwRyiVPFE/T6PlCG9BMO9YauNDPDk3Fr7zHW
+ mBvrw+tHZ57w12WCFhYj3QQasiLPbw1g7Y+ROA67HZ4nTkh7vdqbR1Nm/6yPo897k2VxrB
+ r7gM62c+NgpRJq2brM5o3hZL/IfLyVtlvx4I16Ql6YHiEQ7B1fJmRfRo122vcQ==
+Message-ID: <9faba0b5-b7e5-5779-4249-1e01419e51c5@jusst.de>
+Date: Wed, 5 Apr 2023 14:26:10 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH v2 net-next 6/6] selftests: forwarding: add
- dynamic FDB test
+Content-Language: en-US
+From: Dennis Hamester <dhamester@jusst.de>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] VLAN-aware multicast querier after if link up
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,39 +26,59 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, open list <linux-kernel@vger.kernel.org>, Eric Dumazet <edumazet@google.com>, "open
- list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, "moderated
- list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Ido Schimmel <idosch@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?Q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC
- support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
- A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, davem@davemloft.net
+To: Nikolay Aleksandrov <nikolay@nvidia.com>, bridge@lists.linux-foundation.org
 
-On Fri, Mar 31, 2023 at 12:37, Vladimir Oltean <olteanv@gmail.com> wrote:
->
-> So, by running the command I posted in the earlier email, you actually
-> run it on the physical DSA user port interfaces, and it should pass
-> there too.
+Hi Nikolay,
 
-Okay, that sounds like a good idea which I have not done before. I am
-seeing how I can install Debian in an Qemu or VMWare setup to be able to
-test that way.
+I'd like your input on an issue I'm running into at the moment.
 
-> This is based on the equivalency principle between the
-> software and the hardware data paths that I was talking about.
->
-> If you're actively and repeatedly making an effort to work with your eyes
-> closed, and then build strawmen around the fact that you don't see, then
-> you're not going to get very friendly reactions from people, me included,
-> who explain things to you that pertain to your due diligence. This is
-> because these people know the things that they're explaining to you out
-> of their own due diligence, and, as a result, are not easily fooled by
-> your childish excuses.
+I setup a bridge to do multicast querying for some vid. This then does 
+not work for ports that come up later. It works only for those ports 
+that were already up when I set the global vlan options.
 
-I am not coming with excuses here, and certainly not childish ones at
-that either. I am just pointing out that on my device the tests don't
-run well because of memory shortage and my reasoning why I think it is
-so.
-I will as long as the system is as it is with these selftests, just run
-single subtests at a time on target, but if I have new phy problems like
-the one you have seen I have had before, then testing on target becomes
-off limits.
+Debugging through the kernel I can see that the timers are simply never 
+started. Unless I disable and re-enable the querier for that particular vid.
+
+Admittedly, I'm working with 5.15 at the moment. But even on mainline, I 
+do not see any relevant changes that would make this work.
+
+I have a simple-ish patch, but I'm wondering whether I'm missing 
+something? Is maybe some action from userspace expected when a port 
+comes up?
+
+Best
+Dennis Hamester
+
+
+-- 
+Dennis Hamester
+Software Engineering Lead
+
+jusst.engineering
+Wrangelstraße 111
+D - 20253 Hamburg
+
+tel: +49 40 521 600 10
+fax: +49 40 1800 86 76
+mobil: +49 152 310 698 27
+mail: dhamester@jusst.de
+
+https://jusst.engineering/
+
+jusst technologies GmbH, Ohlstedter Straße 12, D - 22397 Hamburg
+Vertretungsberechtigte Geschäftsführer: Julian Scheel, Sebastian Scheel
+Registergericht: Amtsgericht Hamburg
+Registernummer: HRB 94300
+
+-
+
+Confidentiality notice:
+
+The content of this email is confidential.
+If you are not the intended addressee, or if the information provided in 
+this
+email or in its attachments is evidently not destined for you, please notify
+us immediately and delete the message received in error including all its
+attachments. Any unauthorized review, processing, distribution, copying,
+storage, printout or other use of this message or its attachments is 
+prohibited.
