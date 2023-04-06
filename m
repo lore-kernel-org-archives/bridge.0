@@ -1,25 +1,23 @@
 Return-Path: <hans@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9679761520
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CC8B46151F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 92D74843B3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E0DF0843AB
 From: Hans Schultz <netdev@kapio-technology.com>
-In-Reply-To: <20230406152159.zfg6kxuimulnpops@skbuf>
-References: <20230327225933.plm5raegywbe7g2a@skbuf>
- <87ileljfwo.fsf@kapio-technology.com>
- <20230328114943.4mibmn2icutcio4m@skbuf>
- <87cz4slkx5.fsf@kapio-technology.com>
- <20230330124326.v5mqg7do25tz6izk@skbuf>
- <87wn2yxunb.fsf@kapio-technology.com>
- <20230330130936.hxme34qrqwolvpsh@skbuf>
- <875yaimgro.fsf@kapio-technology.com>
- <20230330150752.gdquw5kudtrqgzyz@skbuf>
- <87o7o1ox9h.fsf@kapio-technology.com>
- <20230406152159.zfg6kxuimulnpops@skbuf>
-Date: Thu, 06 Apr 2023 18:20:05 +0200
-Message-ID: <87zg7lj83u.fsf@kapio-technology.com>
+In-Reply-To: <20230406152443.b3ps4x7e4kz4aes2@skbuf>
+References: <20230318141010.513424-1-netdev@kapio-technology.com>
+ <20230318141010.513424-7-netdev@kapio-technology.com>
+ <ZBgdAo8mxwnl+pEE@shredder> <87a5zzh65p.fsf@kapio-technology.com>
+ <ZCMYbRqd+qZaiHfu@shredder> <874jq22h2u.fsf@kapio-technology.com>
+ <20230330192714.oqosvifrftirshej@skbuf>
+ <871ql5mjjp.fsf@kapio-technology.com>
+ <20230331093732.s6loozkdhehewlm4@skbuf>
+ <87tty1nlb4.fsf@kapio-technology.com>
+ <20230406152443.b3ps4x7e4kz4aes2@skbuf>
+Date: Thu, 06 Apr 2023 18:26:58 +0200
+Message-ID: <87wn2pj7sd.fsf@kapio-technology.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH v2 net-next 2/6] net: dsa: propagate flags down
- towards drivers
+Subject: Re: [Bridge] [PATCH v2 net-next 6/6] selftests: forwarding: add
+ dynamic FDB test
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,24 +27,24 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?Q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC
- support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES
- ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, open list <linux-kernel@vger.kernel.org>, Eric Dumazet <edumazet@google.com>, "open
+ list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, "moderated
+ list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Ido Schimmel <idosch@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?Q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC
+ support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, netdev@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, "maintainer:MICROCHIP KSZ SERIES ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
  A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, davem@davemloft.net
 
-On Thu, Apr 06, 2023 at 18:21, Vladimir Oltean <olteanv@gmail.com> wrote:
-> On Thu, Apr 06, 2023 at 05:17:46PM +0200, Hans Schultz wrote:
->> On Thu, Mar 30, 2023 at 18:07, Vladimir Oltean <olteanv@gmail.com> wrote:
->> > As a bug fix, stop reporting to switchdev those FDB entries with
->> > BR_FDB_ADDED_BY_USER && !BR_FDB_STATIC. Then, after "net" is merged into
->> > "net-next" next Thursday (the ship has sailed for today), add "bool static"
->> 
->> It is probably too late today (now I have a Debian based VM that can do
->> the selftests), but with this bug fix I have 1) not submitted bug fixes
->> before and 2) it probably needs an appropriate explanation, where I
->> don't know the problem well enough for general switchcores to submit
->> with a suitable text.
+On Thu, Apr 06, 2023 at 18:24, Vladimir Oltean <olteanv@gmail.com> wrote:
+> On Fri, Mar 31, 2023 at 02:43:11PM +0200, Hans Schultz wrote:
+>> I will as long as the system is as it is with these selftests, just run
+>> single subtests at a time on target, but if I have new phy problems like
+>> the one you have seen I have had before, then testing on target becomes
+>> off limits.
 >
-> Do you want me to try to submit this change as a bug fix?
+> Please open a dedicated communication channel (separate email thread on
+> netdev@vger.kernel.org) with the appropriate maintainers for the PHY
+> code that is failing for you in To:, and you will get the help that you
+> need to resolve that and to be able to test on the target board.
 
-I think that would be fine as you would know the matter best.
+The errors from the phy I saw in February. Maybe something was fixed in
+the meantime as I did not see the same warning and exception last I
+tried to run the newest kernel on target a little over a week ago.
