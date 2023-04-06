@@ -1,23 +1,24 @@
-Return-Path: <dhamester@jusst.de>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E4A9681F47
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E04D581F29
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jusst.de; s=dkim;
- t=1680697452; h=from:subject:date:message-id:to:mime-version:content-type:
- content-transfer-encoding:content-language;
- bh=INuSPqZWxJYEI4jKMV7zGzhUZ5jYXb1XWxD6oaynKVw=;
- b=TX2cBFmbxN9/W7EAaELqbKj10880M39Gn/l58TDnmBnUa7lf/6sE84QbuidDDpnRYxnobC
- BIpIFJ6agOVaspCp2CAOYbV95Xi2CkZ3vkn1Phj6h/xelSBwqqr5zLSxusQlrlBaDngNvE
- DtDubxYFWOuhIXhUCG7GbYy/TdNv5sH2DQhwRyiVPFE/T6PlCG9BMO9YauNDPDk3Fr7zHW
- mBvrw+tHZ57w12WCFhYj3QQasiLPbw1g7Y+ROA67HZ4nTkh7vdqbR1Nm/6yPo897k2VxrB
- r7gM62c+NgpRJq2brM5o3hZL/IfLyVtlvx4I16Ql6YHiEQ7B1fJmRfRo122vcQ==
-Message-ID: <9faba0b5-b7e5-5779-4249-1e01419e51c5@jusst.de>
-Date: Wed, 5 Apr 2023 14:26:10 +0200
+Return-Path: <gsomlo@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6952C60F0D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 05D9F60E29
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=gmail.com; s=20210112; t=1680790662;
+ h=content-disposition:mime-version:message-id:subject:to:from:date
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=7vagdoWVLs74/YSjQDxpvM8aXKUgVP/cIPrMpvJRI3U=;
+ b=AEdRrM5sx5wSpH/Jo7wv8lWa6/vwAix2RC/BI6EHQ0zoLks9Xls9n/l3R7E5rJoF9a
+ fMmftNB7rQIK9dgkYMUSm1rg6v2oQhrSbdcNwwYQwM6CoLyNsZiKV9U2xiyUyQ+T8aKs
+ j5vYJM07vPNKsAmQFF4MggGWw0X+f2/TSHkhkcECSByJBTJJ39FCzg5Y4SaOr3Fq3sVS
+ jSPFhCcPNKgTeOGHVKnQdPhK7lvZOVylUuBEJzZtX/SgqdjhROVvj069Etzt7sjL3ncL
+ 4fAwz1Hhw/0TZJR8AHAW+ZYTde9vbvV6ssitGwh0UMxCtMPKfIoBoATgFcGD10d3JJaP
+ CBWg==
+Date: Thu, 6 Apr 2023 10:17:40 -0400
+From: "Gabriel L. Somlo" <gsomlo@gmail.com>
+Message-ID: <ZC7UhHW8+82OQ5oL@errol.ini.cmu.edu>
 MIME-Version: 1.0
-Content-Language: en-US
-From: Dennis Hamester <dhamester@jusst.de>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] VLAN-aware multicast querier after if link up
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] Option to forward *unconditionally* on a bridge?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,59 +27,67 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <nikolay@nvidia.com>, bridge@lists.linux-foundation.org
+To: bridge@lists.linux-foundation.org
 
-Hi Nikolay,
+TL;DR: Is there a way to force a bridge to forward anything and
+everything on all ports (except the ingress port) *regardles* of
+any permanent FDB entries (such as the MAC addresses of interfaces
+acting as bridge ports)?
 
-I'd like your input on an issue I'm running into at the moment.
+For context, I'm using a network-namespace (container) based simulator
+(think GNS3 or CORE), which allow me to run multiple FRR instances
+in their own dedicated netns, connected together by veth pairs and
+bridges.
 
-I setup a bridge to do multicast querying for some vid. This then does 
-not work for ports that come up later. It works only for those ports 
-that were already up when I set the global vlan options.
+To bridge this simulation outside the machine hosting it, the
+simulators allow host machine interfaces to be bridged to bridges
+and veth pairs that belong to the simulation, e.g.:
 
-Debugging through the kernel I can see that the timers are simply never 
-started. Unless I disable and re-enable the querier for that particular vid.
+ -----------------------------
+ VM running simulation       |
+                             |
+ sim. node,                  |
+ (container),                |
+ dflt gateway                |
+ -----------    - br0 -      |             -----------------
+           |   /       \     |  inter-VM   | External VM   |
+      eth0 + veth0    ens32  +-- vswitch --+ using in-sim  |
+   Sim.MAC |          VM.MAC |             | dflt. gateway |
+ -----------                 |             -----------------
+ -----------------------------
 
-Admittedly, I'm working with 5.15 at the moment. But even on mainline, I 
-do not see any relevant changes that would make this work.
+This requires the vswitch outside of the vm hosting the simulation to
+allow promiscuous mode (so that containers can send/receive Ethernet
+frames through the hosting VM's interface (e.g., ens32).
 
-I have a simple-ish patch, but I'm wondering whether I'm missing 
-something? Is maybe some action from userspace expected when a port 
-comes up?
+It turns out that at least on one "cloudy" hosted solution the guest
+VMs are forbidden from sending "spoofed" ethernet traffic, i.e. the
+ens32 "vm.mac" address is strictly enforced outside the VM (on the
+inter-vm vswitch).
 
-Best
-Dennis Hamester
+The obvious solution would be to assign ens32's VM.MAC as the mac
+address of eth0 inside the container, which would allow it to talk
+on the ethernet broadcast domain bridged via br0 and the inter-vm
+vswitch (assuming we only have *one* such container on the "inside").
 
+Trouble is, br0 won't forward frames *to* VM.MAC received from
+external sources, since that is a permanent FDB entry associated 
+with the "ingress interface".
 
--- 
-Dennis Hamester
-Software Engineering Lead
+I'm looking to turn br0 into a "dumb hub". Typically, the closest
+approximation to "hub behavior" is accomplished by disabling MAC
+learning on the bridge interface(s), which will force permanent
+flooding.
 
-jusst.engineering
-Wrangelstraße 111
-D - 20253 Hamburg
+Turns out, the exception to that is if a mac address associated with
+one of the bridge ports is involved -- no "hub" behavior in that case,
+because those FDB entries aren't learned, but rather permanently
+installed during bridge set-up.
 
-tel: +49 40 521 600 10
-fax: +49 40 1800 86 76
-mobil: +49 152 310 698 27
-mail: dhamester@jusst.de
+Any way to override that (and ignore permanent FDB) entries would save
+me a lot of effort to "hack" my way around this restriction using
+multiple bridges and ebtables NAT :)
 
-https://jusst.engineering/
+Thanks for any clue, pointers, or advice.
 
-jusst technologies GmbH, Ohlstedter Straße 12, D - 22397 Hamburg
-Vertretungsberechtigte Geschäftsführer: Julian Scheel, Sebastian Scheel
-Registergericht: Amtsgericht Hamburg
-Registernummer: HRB 94300
-
--
-
-Confidentiality notice:
-
-The content of this email is confidential.
-If you are not the intended addressee, or if the information provided in 
-this
-email or in its attachments is evidently not destined for you, please notify
-us immediately and delete the message received in error including all its
-attachments. Any unauthorized review, processing, distribution, copying,
-storage, printout or other use of this message or its attachments is 
-prohibited.
+--Gabriel
