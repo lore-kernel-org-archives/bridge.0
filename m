@@ -1,24 +1,25 @@
-Return-Path: <gsomlo@gmail.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6952C60F0D
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 05D9F60E29
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=gmail.com; s=20210112; t=1680790662;
- h=content-disposition:mime-version:message-id:subject:to:from:date
- :from:to:cc:subject:date:message-id:reply-to;
- bh=7vagdoWVLs74/YSjQDxpvM8aXKUgVP/cIPrMpvJRI3U=;
- b=AEdRrM5sx5wSpH/Jo7wv8lWa6/vwAix2RC/BI6EHQ0zoLks9Xls9n/l3R7E5rJoF9a
- fMmftNB7rQIK9dgkYMUSm1rg6v2oQhrSbdcNwwYQwM6CoLyNsZiKV9U2xiyUyQ+T8aKs
- j5vYJM07vPNKsAmQFF4MggGWw0X+f2/TSHkhkcECSByJBTJJ39FCzg5Y4SaOr3Fq3sVS
- jSPFhCcPNKgTeOGHVKnQdPhK7lvZOVylUuBEJzZtX/SgqdjhROVvj069Etzt7sjL3ncL
- 4fAwz1Hhw/0TZJR8AHAW+ZYTde9vbvV6ssitGwh0UMxCtMPKfIoBoATgFcGD10d3JJaP
- CBWg==
-Date: Thu, 6 Apr 2023 10:17:40 -0400
-From: "Gabriel L. Somlo" <gsomlo@gmail.com>
-Message-ID: <ZC7UhHW8+82OQ5oL@errol.ini.cmu.edu>
+Return-Path: <hans@kapio-technology.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DA192843BA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BFF60842B4
+From: Hans Schultz <netdev@kapio-technology.com>
+In-Reply-To: <20230330150752.gdquw5kudtrqgzyz@skbuf>
+References: <20230327160009.bdswnalizdv2u77z@skbuf>
+ <87pm8tooe1.fsf@kapio-technology.com>
+ <20230327225933.plm5raegywbe7g2a@skbuf>
+ <87ileljfwo.fsf@kapio-technology.com>
+ <20230328114943.4mibmn2icutcio4m@skbuf>
+ <87cz4slkx5.fsf@kapio-technology.com>
+ <20230330124326.v5mqg7do25tz6izk@skbuf>
+ <87wn2yxunb.fsf@kapio-technology.com>
+ <20230330130936.hxme34qrqwolvpsh@skbuf>
+ <875yaimgro.fsf@kapio-technology.com>
+ <20230330150752.gdquw5kudtrqgzyz@skbuf>
+Date: Thu, 06 Apr 2023 17:17:46 +0200
+Message-ID: <87o7o1ox9h.fsf@kapio-technology.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: [Bridge] Option to forward *unconditionally* on a bridge?
+Content-Type: text/plain
+Subject: Re: [Bridge] [PATCH v2 net-next 2/6] net: dsa: propagate flags down
+ towards drivers
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,67 +28,19 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Nikolay Aleksandrov <razor@blackwall.org>, Kurt Kanzenbach <kurt@linutronix.de>, Eric Dumazet <edumazet@google.com>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, Shuah Khan <shuah@kernel.org>, Ivan Vecera <ivecera@redhat.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, "moderated list:ETHERNET BRIDGE" <bridge@lists.linux-foundation.org>, Roopa Prabhu <roopa@nvidia.com>, kuba@kernel.org, Paolo Abeni <pabeni@redhat.com>, =?utf-8?Q?Cl=C3=A9ment_L=C3=A9ger?= <clement.leger@bootlin.com>, Christian Marangi <ansuelsmth@gmail.com>, Woojung Huh <woojung.huh@microchip.com>, Landen Chao <Landen.Chao@mediatek.com>, Jiri Pirko <jiri@resnulli.us>, Hauke Mehrtens <hauke@hauke-m.de>, Sean Wang <sean.wang@mediatek.com>, DENG Qingfang <dqfext@gmail.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, "moderated list:ARM/Mediatek SoC
+ support" <linux-mediatek@lists.infradead.org>, Matthias Brugger <matthias.bgg@gmail.com>, "moderated list:ARM/Mediatek SoC support" <linux-arm-kernel@lists.infradead.org>, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, netdev@vger.kernel.org, open list <linux-kernel@vger.kernel.org>, "maintainer:MICROCHIP KSZ SERIES
+ ETHERNET SWITCH DRIVER" <UNGLinuxDriver@microchip.com>, "open list:RENESAS RZ/N1
+ A5PSW SWITCH DRIVER" <linux-renesas-soc@vger.kernel.org>, davem@davemloft.net
 
-TL;DR: Is there a way to force a bridge to forward anything and
-everything on all ports (except the ingress port) *regardles* of
-any permanent FDB entries (such as the MAC addresses of interfaces
-acting as bridge ports)?
+On Thu, Mar 30, 2023 at 18:07, Vladimir Oltean <olteanv@gmail.com> wrote:
+> As a bug fix, stop reporting to switchdev those FDB entries with
+> BR_FDB_ADDED_BY_USER && !BR_FDB_STATIC. Then, after "net" is merged into
+> "net-next" next Thursday (the ship has sailed for today), add "bool static"
 
-For context, I'm using a network-namespace (container) based simulator
-(think GNS3 or CORE), which allow me to run multiple FRR instances
-in their own dedicated netns, connected together by veth pairs and
-bridges.
-
-To bridge this simulation outside the machine hosting it, the
-simulators allow host machine interfaces to be bridged to bridges
-and veth pairs that belong to the simulation, e.g.:
-
- -----------------------------
- VM running simulation       |
-                             |
- sim. node,                  |
- (container),                |
- dflt gateway                |
- -----------    - br0 -      |             -----------------
-           |   /       \     |  inter-VM   | External VM   |
-      eth0 + veth0    ens32  +-- vswitch --+ using in-sim  |
-   Sim.MAC |          VM.MAC |             | dflt. gateway |
- -----------                 |             -----------------
- -----------------------------
-
-This requires the vswitch outside of the vm hosting the simulation to
-allow promiscuous mode (so that containers can send/receive Ethernet
-frames through the hosting VM's interface (e.g., ens32).
-
-It turns out that at least on one "cloudy" hosted solution the guest
-VMs are forbidden from sending "spoofed" ethernet traffic, i.e. the
-ens32 "vm.mac" address is strictly enforced outside the VM (on the
-inter-vm vswitch).
-
-The obvious solution would be to assign ens32's VM.MAC as the mac
-address of eth0 inside the container, which would allow it to talk
-on the ethernet broadcast domain bridged via br0 and the inter-vm
-vswitch (assuming we only have *one* such container on the "inside").
-
-Trouble is, br0 won't forward frames *to* VM.MAC received from
-external sources, since that is a permanent FDB entry associated 
-with the "ingress interface".
-
-I'm looking to turn br0 into a "dumb hub". Typically, the closest
-approximation to "hub behavior" is accomplished by disabling MAC
-learning on the bridge interface(s), which will force permanent
-flooding.
-
-Turns out, the exception to that is if a mac address associated with
-one of the bridge ports is involved -- no "hub" behavior in that case,
-because those FDB entries aren't learned, but rather permanently
-installed during bridge set-up.
-
-Any way to override that (and ignore permanent FDB) entries would save
-me a lot of effort to "hack" my way around this restriction using
-multiple bridges and ebtables NAT :)
-
-Thanks for any clue, pointers, or advice.
-
---Gabriel
+It is probably too late today (now I have a Debian based VM that can do
+the selftests), but with this bug fix I have 1) not submitted bug fixes
+before and 2) it probably needs an appropriate explanation, where I
+don't know the problem well enough for general switchcores to submit
+with a suitable text.
