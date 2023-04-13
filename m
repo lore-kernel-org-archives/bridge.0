@@ -1,19 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C5A0E41F47
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0498241369
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5314A83EF3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A40BD83D04
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dXlAMXX7PsgaqpiH81XPYfgT7bIykepEEew2TSQ9Avg=;
- b=daYkTwF2csHYJDytDC4XuTJYReyX8Gg6FT9vvaDIXg1D2oxar1c1zGBEdL+SZrrKUQKC0ymzgzHulRZpPrzZ6TF+0l2G8OSRvjhZTox46fB5WR7WdQzwQQ2Fw25vMYg6LDt4VD7LqsmQ7gW5SJ0M4BeRAJdGt3cbU9lOKfeHQqbN/QYXhU3PiyvFzFJavMn0KKI7KQG7UTWLjn8nCZVyPzkuMAd69etkRPaqZ0txr5fP3uijKVlwi8j0PXVDaeRBm9NcdnBAmmR2paCcDuN1TbGj7gHoRDS1G8uhcVB8l3YR8mRrzuSgxeYVPLiCqRCajoleNU2ykz//xcMby8Kw5g==
+ bh=skXPRlKWkSk3ULoRmhja+VCV6ct38IRkmTkeVzeQtt8=;
+ b=R0yXcpkjnEReFt1dYor1NUAtw9ZLCs2ZgjoLqjAhpIPRCPoNje30yqY8MHLVdODnFJhjy6D+fhc+mQF70ZiH9sNFgi4LI2nK+X8ulfYEVU9soITkvLf7p8cqAq1C41ZdngPV6tOBILiC26VVPxBjXsBqcAoLfG8OJePcFxd/LaGB1ygVCyfamXXYBegy22/pjegjTrA+/acZYukX0KZMTtyf5nHyvRQtMogCxJ6q895NXEn56BTUir28OieZPxAKnTpFTQHDJCuaYC2tJK7HckjKemU8A22JjsR+MbLGnRDecWPJ2R02maYUuYgxw1Ol19eY4aAXMezisvXfd16+BA==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Thu, 13 Apr 2023 12:58:21 +0300
-Message-Id: <20230413095830.2182382-1-idosch@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
+Date: Thu, 13 Apr 2023 12:58:22 +0300
+Message-Id: <20230413095830.2182382-2-idosch@nvidia.com>
+In-Reply-To: <20230413095830.2182382-1-idosch@nvidia.com>
+References: <20230413095830.2182382-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH net-next 0/9] bridge: Add per-{Port,
-	VLAN} neighbor suppression
+Subject: [Bridge] [RFC PATCH net-next 1/9] bridge: Reorder neighbor
+	suppression check when flooding
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,107 +27,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Background
-==========
+The bridge does not flood ARP / NS packets for which a reply was sent to
+bridge ports that have neighbor suppression enabled.
 
-In order to minimize the flooding of ARP and ND messages in the VXLAN
-network, EVPN includes provisions [1] that allow participating VTEPs to
-suppress such messages in case they know the MAC-IP binding and can
-reply on behalf of the remote host. In Linux, the above is implemented
-in the bridge driver using a per-port option called "neigh_suppress"
-that was added in kernel version 4.15 [2].
+Subsequent patches are going to add per-{Port, VLAN} neighbor
+suppression, which is going to make it more expensive to check whether
+neighbor suppression is enabled since a VLAN lookup will be required.
 
-Motivation
-==========
+Therefore, instead of unnecessarily performing this lookup for every
+packet, only perform it for ARP / NS packets for which a reply was sent.
 
-Some applications use ARP messages as keepalives between the application
-nodes in the network. This works perfectly well when two nodes are
-connected to the same VTEP. When a node goes down it will stop
-responding to ARP requests and the other node will notice it
-immediately.
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+---
+ net/bridge/br_forward.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-However, when the two nodes are connected to different VTEPs and
-neighbor suppression is enabled, the local VTEP will reply to ARP
-requests even after the remote node went down, until certain timers
-expire and the EVPN control plane decides to withdraw the MAC/IP
-Advertisement route for the address. Therefore, some users would like to
-be able to disable neighbor suppression on VLANs where such applications
-reside and keep it enabled on the rest.
-
-Implementation
-==============
-
-The proposed solution is to allow user space to control neighbor
-suppression on a per-{Port, VLAN} basis, in a similar fashion to other
-per-port options that gained per-{Port, VLAN} counterparts such as
-"mcast_router". This allows users to benefit from the operational
-simplicity and scalability associated with shared VXLAN devices (i.e.,
-external / collect-metadata mode), while still allowing for per-VLAN/VNI
-neighbor suppression control.
-
-The user interface is extended with a new "neigh_vlan_suppress" bridge
-port option that allows user space to enable per-{Port, VLAN} neighbor
-suppression on the bridge port. When enabled, the existing
-"neigh_suppress" option has no effect and neighbor suppression is
-controlled using a new "neigh_suppress" VLAN option. Example usage:
-
- # bridge link set dev vxlan0 neigh_vlan_suppress on
- # bridge vlan add vid 10 dev vxlan0
- # bridge vlan set vid 10 dev vxlan0 neigh_suppress on
-
-Testing
-=======
-
-Tested using existing bridge selftests. Added a dedicated selftest in
-the last patch.
-
-Patchset overview
-=================
-
-Patches #1-#5 are preparations.
-
-Patch #6 adds per-{Port, VLAN} neighbor suppression support to the
-bridge's data path.
-
-Patches #7-#8 add the required netlink attributes to enable the feature.
-
-Patch #9 adds a selftest.
-
-iproute2 patches can be found here [3].
-
-[1] https://www.rfc-editor.org/rfc/rfc7432#section-10
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a42317785c898c0ed46db45a33b0cc71b671bf29
-[3] https://github.com/idosch/iproute2/tree/submit/neigh_suppress_v1
-
-Ido Schimmel (9):
-  bridge: Reorder neighbor suppression check when flooding
-  bridge: Pass VLAN ID to br_flood()
-  bridge: Add internal flags for per-{Port, VLAN} neighbor suppression
-  bridge: Take per-{Port, VLAN} neighbor suppression into account
-  bridge: Encapsulate data path neighbor suppression logic
-  bridge: Add per-{Port, VLAN} neighbor suppression data path support
-  bridge: vlan: Allow setting VLAN neighbor suppression state
-  bridge: Allow setting per-{Port, VLAN} neighbor suppression state
-  selftests: net: Add bridge neighbor suppression test
-
- include/linux/if_bridge.h                     |   1 +
- include/uapi/linux/if_bridge.h                |   1 +
- include/uapi/linux/if_link.h                  |   1 +
- net/bridge/br_arp_nd_proxy.c                  |  33 +-
- net/bridge/br_device.c                        |   8 +-
- net/bridge/br_forward.c                       |   8 +-
- net/bridge/br_if.c                            |   2 +-
- net/bridge/br_input.c                         |   2 +-
- net/bridge/br_netlink.c                       |   8 +-
- net/bridge/br_private.h                       |   5 +-
- net/bridge/br_vlan.c                          |   1 +
- net/bridge/br_vlan_options.c                  |  20 +-
- net/core/rtnetlink.c                          |   2 +-
- tools/testing/selftests/net/Makefile          |   1 +
- .../net/test_bridge_neigh_suppress.sh         | 862 ++++++++++++++++++
- 15 files changed, 936 insertions(+), 19 deletions(-)
- create mode 100755 tools/testing/selftests/net/test_bridge_neigh_suppress.sh
-
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 02bb620d3b8d..0fe133fa214c 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -224,8 +224,8 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
+ 		/* Do not flood to ports that enable proxy ARP */
+ 		if (p->flags & BR_PROXYARP)
+ 			continue;
+-		if ((p->flags & (BR_PROXYARP_WIFI | BR_NEIGH_SUPPRESS)) &&
+-		    BR_INPUT_SKB_CB(skb)->proxyarp_replied)
++		if (BR_INPUT_SKB_CB(skb)->proxyarp_replied &&
++		    (p->flags & (BR_PROXYARP_WIFI | BR_NEIGH_SUPPRESS)))
+ 			continue;
+ 
+ 		prev = maybe_deliver(prev, p, skb, local_orig);
 -- 
 2.37.3
 
