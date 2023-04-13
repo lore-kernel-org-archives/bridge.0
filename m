@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EBE1A615F5
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1D971615F7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 60B7741D1F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AC41341594
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Lj90Ut8XMA486m20mHdynKT2IGXrETfyB0ICpCEDQgs=;
- b=S+SbjFpFDAm/9468kA89irQBHOMWm3Ky9Gl+M+E0wdxI94r7iYKzzFGDYj/01xSodtzlwuWtS0aIj1oxdc31zH0fJTjRMnbyT5zdU1IK49409HrY/azsU/HrxgrUTFi0JsuUOqs1JD4cGLDCETjdhfN/VKmUX/Rq5NMaOcr3oCoXbvD419N2SeJE/F6kE5R+miQt/KYvNpsi6KJYPDMriXMhOS4m/2++opMG1LJuKmBAy3WTSjX9l/YW571kvo/mW31sXSQYs76JLE9492FvBclsfuUsFn+A7lGfuXy0/NYLL9rFgvm+X2BDPU0jb4SXXc7xlopxaME2M4TF+mDV6Q==
+ bh=EitCx+ml1dbx7pZX8cAfaMB6zKt4x68jbOWaxy+VYzA=;
+ b=Eh7c0/QymzjR+fPh1TVOPQiz0q0m8+yOYPbOKNlY5vzgg9zHYqjWcKATpg3KkmQKCiy0duhL36HIlYOmG65uUsF2sE7ifrKo1derynyEkXcqJZFS4Xjv0bNycYY4OByaGhAXHgoYq69/zJKqZEjUj1MNopd8RJe+E3SlarGYPCUisITr6Y2VjKahmQ3jfAv0yfka2/UlqZZBaXIHoRM2vCHxNvkzEWfS/V6ivM6kKTelE8YkjsfNaZuR5O/MtQvCT+xI3+HjpwLiphzbhY4adIm8hyzM4DuLDvh+Y7n8QgwG2Gqtf8Q6Zf0+QNmZd8F+nfC72DFNwH0UNVaDjMdWWQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Thu, 13 Apr 2023 12:58:26 +0300
-Message-Id: <20230413095830.2182382-6-idosch@nvidia.com>
+Date: Thu, 13 Apr 2023 12:58:27 +0300
+Message-Id: <20230413095830.2182382-7-idosch@nvidia.com>
 In-Reply-To: <20230413095830.2182382-1-idosch@nvidia.com>
 References: <20230413095830.2182382-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [RFC PATCH net-next 5/9] bridge: Encapsulate data path
-	neighbor suppression logic
+Subject: [Bridge] [RFC PATCH net-next 6/9] bridge: Add per-{Port,
+	VLAN} neighbor suppression data path support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,95 +27,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Currently, there are various places in the bridge data path that check
-whether neighbor suppression is enabled on a given bridge port.
+When the bridge is not VLAN-aware (i.e., VLAN ID is 0), determine if
+neighbor suppression is enabled on a given bridge port solely based on
+the existing 'BR_NEIGH_SUPPRESS' flag.
 
-As a preparation for per-{Port, VLAN} neighbor suppression, encapsulate
-this logic in a function and pass the VLAN ID of the packet as an
-argument.
+Otherwise, if the bridge is VLAN-aware, first check if per-{Port, VLAN}
+neighbor suppression is enabled on the given bridge port using the
+'BR_NEIGH_VLAN_SUPPRESS' flag. If so, look up the VLAN and check whether
+it has neighbor suppression enabled based on the per-VLAN
+'BR_VLFLAG_NEIGH_SUPPRESS_ENABLED' flag.
+
+If the bridge is VLAN-aware, but the bridge port does not have
+per-{Port, VLAN} neighbor suppression enabled, then fallback to
+determine neighbor suppression based on the 'BR_NEIGH_SUPPRESS' flag.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_arp_nd_proxy.c | 15 ++++++++++-----
- net/bridge/br_forward.c      |  3 ++-
- net/bridge/br_private.h      |  1 +
- 3 files changed, 13 insertions(+), 6 deletions(-)
+ net/bridge/br_arp_nd_proxy.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
 diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 016a25a9e444..16c3a1c5d0ae 100644
+index 16c3a1c5d0ae..c7869a286df4 100644
 --- a/net/bridge/br_arp_nd_proxy.c
 +++ b/net/bridge/br_arp_nd_proxy.c
-@@ -158,7 +158,7 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- 		return;
+@@ -486,5 +486,21 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
  
- 	if (br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED)) {
--		if (p && (p->flags & BR_NEIGH_SUPPRESS))
-+		if (br_is_neigh_suppress_enabled(p, vid))
- 			return;
- 		if (parp->ar_op != htons(ARPOP_RREQUEST) &&
- 		    parp->ar_op != htons(ARPOP_RREPLY) &&
-@@ -202,8 +202,8 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- 			bool replied = false;
- 
- 			if ((p && (p->flags & BR_PROXYARP)) ||
--			    (f->dst && (f->dst->flags & (BR_PROXYARP_WIFI |
--							 BR_NEIGH_SUPPRESS)))) {
-+			    (f->dst && (f->dst->flags & BR_PROXYARP_WIFI)) ||
-+			    br_is_neigh_suppress_enabled(f->dst, vid)) {
- 				if (!vid)
- 					br_arp_send(br, p, skb->dev, sip, tip,
- 						    sha, n->ha, sha, 0, 0);
-@@ -407,7 +407,7 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 
- 	BR_INPUT_SKB_CB(skb)->proxyarp_replied = 0;
- 
--	if (p && (p->flags & BR_NEIGH_SUPPRESS))
-+	if (br_is_neigh_suppress_enabled(p, vid))
- 		return;
- 
- 	if (msg->icmph.icmp6_type == NDISC_NEIGHBOUR_ADVERTISEMENT &&
-@@ -461,7 +461,7 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 		if (f) {
- 			bool replied = false;
- 
--			if (f->dst && (f->dst->flags & BR_NEIGH_SUPPRESS)) {
-+			if (br_is_neigh_suppress_enabled(f->dst, vid)) {
- 				if (vid != 0)
- 					br_nd_send(br, p, skb, n,
- 						   skb->vlan_proto,
-@@ -483,3 +483,8 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 	}
- }
- #endif
+ bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid)
+ {
+-	return p && (p->flags & BR_NEIGH_SUPPRESS);
++	if (!p)
++		return false;
 +
-+bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid)
-+{
-+	return p && (p->flags & BR_NEIGH_SUPPRESS);
-+}
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 94a8d757ae4e..57744704ff69 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -226,7 +226,8 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 		if (p->flags & BR_PROXYARP)
- 			continue;
- 		if (BR_INPUT_SKB_CB(skb)->proxyarp_replied &&
--		    (p->flags & (BR_PROXYARP_WIFI | BR_NEIGH_SUPPRESS)))
-+		    ((p->flags & BR_PROXYARP_WIFI) ||
-+		     br_is_neigh_suppress_enabled(p, vid)))
- 			continue;
- 
- 		prev = maybe_deliver(prev, p, skb, local_orig);
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index b17fc821ecc8..2119729ded2b 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -2220,4 +2220,5 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 		       u16 vid, struct net_bridge_port *p, struct nd_msg *msg);
- struct nd_msg *br_is_nd_neigh_msg(struct sk_buff *skb, struct nd_msg *m);
-+bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid);
- #endif
++	if (!vid)
++		return !!(p->flags & BR_NEIGH_SUPPRESS);
++
++	if (p->flags & BR_NEIGH_VLAN_SUPPRESS) {
++		struct net_bridge_vlan_group *vg = nbp_vlan_group_rcu(p);
++		struct net_bridge_vlan *v;
++
++		v = br_vlan_find(vg, vid);
++		if (!v)
++			return false;
++		return !!(v->priv_flags & BR_VLFLAG_NEIGH_SUPPRESS_ENABLED);
++	} else {
++		return !!(p->flags & BR_NEIGH_SUPPRESS);
++	}
+ }
 -- 
 2.37.3
 
