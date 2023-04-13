@@ -1,23 +1,19 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF3CA4044F
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1658840227
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+Return-Path: <idosch@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C5A0E41F47
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0498241369
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fJss1pujW8B+EqfyELKn/tjqPHKDdI33NPirliESpc8=;
- b=SO3qfNbLk+dN0CflObNaLiZm7yaZCUm4cj+sC7zAIIPA3vorNZACpti/T5315nmJyx2jbhX7+hQ9A4vimw97daYtZBPBD/haMKen0f1pq3j0KQpWZsalxsh/7DhhiLmYJsW5b5qFVrDH3wjSWm1+1GB68YPWpcwmBOvjXY7aCJU=
-Date: Wed, 12 Apr 2023 20:04:37 +0300
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Message-ID: <20230412170437.26nwldbxydm7lgxm@skbuf>
-References: <20230410204951.1359485-1-vladimir.oltean@nxp.com>
- <ZDa856x2rhzNrrXa@shredder> <20230412142733.6jhxt7kjf3nwqzsy@skbuf>
- <ZDbVgqV9JT7Ru96j@shredder> <20230412162407.xk3okeiedylv6sqp@skbuf>
- <ZDbhDUDs0RUWVZ4B@shredder>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZDbhDUDs0RUWVZ4B@shredder>
+ bh=dXlAMXX7PsgaqpiH81XPYfgT7bIykepEEew2TSQ9Avg=;
+ b=daYkTwF2csHYJDytDC4XuTJYReyX8Gg6FT9vvaDIXg1D2oxar1c1zGBEdL+SZrrKUQKC0ymzgzHulRZpPrzZ6TF+0l2G8OSRvjhZTox46fB5WR7WdQzwQQ2Fw25vMYg6LDt4VD7LqsmQ7gW5SJ0M4BeRAJdGt3cbU9lOKfeHQqbN/QYXhU3PiyvFzFJavMn0KKI7KQG7UTWLjn8nCZVyPzkuMAd69etkRPaqZ0txr5fP3uijKVlwi8j0PXVDaeRBm9NcdnBAmmR2paCcDuN1TbGj7gHoRDS1G8uhcVB8l3YR8mRrzuSgxeYVPLiCqRCajoleNU2ykz//xcMby8Kw5g==
+From: Ido Schimmel <idosch@nvidia.com>
+Date: Thu, 13 Apr 2023 12:58:21 +0300
+Message-Id: <20230413095830.2182382-1-idosch@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net] net: bridge: switchdev: don't notify FDB
- entries with "master dynamic"
+Subject: [Bridge] [RFC PATCH net-next 0/9] bridge: Add per-{Port,
+	VLAN} neighbor suppression
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,32 +22,110 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, bridge@lists.linux-foundation.org, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, Roopa Prabhu <roopa@nvidia.com>, Arkadi Sharshevsky <arkadis@mellanox.com>, linux-kernel@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>, Eric Dumazet <edumazet@google.com>, "Hans J. Schultz" <netdev@kapio-technology.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: petrm@nvidia.com, mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-On Wed, Apr 12, 2023 at 07:49:17PM +0300, Ido Schimmel wrote:
-> On Wed, Apr 12, 2023 at 07:24:07PM +0300, Vladimir Oltean wrote:
-> > I'll send v2 with BR_FDB_ADDED_BY_EXT_LEARN not prevented from being
-> > notified from switchdev.
-> > 
-> > Unless you have any objection, I won't send v2 like this:
-> > 
-> > 	if (test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags) &&
-> > 	    !test_bit(BR_FDB_STATIC, &fdb->flags) &&
-> > 	    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-> > 		return;
-> > 
-> > but like this:
-> > 
-> > 	/* Entries with just the BR_FDB_ADDED_BY_USER flag set were created
-> > 	 * using 'bridge fdb add ... master dynamic'
-> > 	 */
-> > 	if (fdb->flags == BIT(BR_FDB_ADDED_BY_USER))
-> > 		return;
-> 
-> LGTM. Please copy me on v2 and I will run it through regression. Will
-> try to report results before tomorrow's PR.
+Background
+==========
 
-Sorry, I won't send the v2 early; I need to think more about this and
-I don't want to rush things. It's likely that the zero-day bug fix will
-miss this week's PR.
+In order to minimize the flooding of ARP and ND messages in the VXLAN
+network, EVPN includes provisions [1] that allow participating VTEPs to
+suppress such messages in case they know the MAC-IP binding and can
+reply on behalf of the remote host. In Linux, the above is implemented
+in the bridge driver using a per-port option called "neigh_suppress"
+that was added in kernel version 4.15 [2].
+
+Motivation
+==========
+
+Some applications use ARP messages as keepalives between the application
+nodes in the network. This works perfectly well when two nodes are
+connected to the same VTEP. When a node goes down it will stop
+responding to ARP requests and the other node will notice it
+immediately.
+
+However, when the two nodes are connected to different VTEPs and
+neighbor suppression is enabled, the local VTEP will reply to ARP
+requests even after the remote node went down, until certain timers
+expire and the EVPN control plane decides to withdraw the MAC/IP
+Advertisement route for the address. Therefore, some users would like to
+be able to disable neighbor suppression on VLANs where such applications
+reside and keep it enabled on the rest.
+
+Implementation
+==============
+
+The proposed solution is to allow user space to control neighbor
+suppression on a per-{Port, VLAN} basis, in a similar fashion to other
+per-port options that gained per-{Port, VLAN} counterparts such as
+"mcast_router". This allows users to benefit from the operational
+simplicity and scalability associated with shared VXLAN devices (i.e.,
+external / collect-metadata mode), while still allowing for per-VLAN/VNI
+neighbor suppression control.
+
+The user interface is extended with a new "neigh_vlan_suppress" bridge
+port option that allows user space to enable per-{Port, VLAN} neighbor
+suppression on the bridge port. When enabled, the existing
+"neigh_suppress" option has no effect and neighbor suppression is
+controlled using a new "neigh_suppress" VLAN option. Example usage:
+
+ # bridge link set dev vxlan0 neigh_vlan_suppress on
+ # bridge vlan add vid 10 dev vxlan0
+ # bridge vlan set vid 10 dev vxlan0 neigh_suppress on
+
+Testing
+=======
+
+Tested using existing bridge selftests. Added a dedicated selftest in
+the last patch.
+
+Patchset overview
+=================
+
+Patches #1-#5 are preparations.
+
+Patch #6 adds per-{Port, VLAN} neighbor suppression support to the
+bridge's data path.
+
+Patches #7-#8 add the required netlink attributes to enable the feature.
+
+Patch #9 adds a selftest.
+
+iproute2 patches can be found here [3].
+
+[1] https://www.rfc-editor.org/rfc/rfc7432#section-10
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a42317785c898c0ed46db45a33b0cc71b671bf29
+[3] https://github.com/idosch/iproute2/tree/submit/neigh_suppress_v1
+
+Ido Schimmel (9):
+  bridge: Reorder neighbor suppression check when flooding
+  bridge: Pass VLAN ID to br_flood()
+  bridge: Add internal flags for per-{Port, VLAN} neighbor suppression
+  bridge: Take per-{Port, VLAN} neighbor suppression into account
+  bridge: Encapsulate data path neighbor suppression logic
+  bridge: Add per-{Port, VLAN} neighbor suppression data path support
+  bridge: vlan: Allow setting VLAN neighbor suppression state
+  bridge: Allow setting per-{Port, VLAN} neighbor suppression state
+  selftests: net: Add bridge neighbor suppression test
+
+ include/linux/if_bridge.h                     |   1 +
+ include/uapi/linux/if_bridge.h                |   1 +
+ include/uapi/linux/if_link.h                  |   1 +
+ net/bridge/br_arp_nd_proxy.c                  |  33 +-
+ net/bridge/br_device.c                        |   8 +-
+ net/bridge/br_forward.c                       |   8 +-
+ net/bridge/br_if.c                            |   2 +-
+ net/bridge/br_input.c                         |   2 +-
+ net/bridge/br_netlink.c                       |   8 +-
+ net/bridge/br_private.h                       |   5 +-
+ net/bridge/br_vlan.c                          |   1 +
+ net/bridge/br_vlan_options.c                  |  20 +-
+ net/core/rtnetlink.c                          |   2 +-
+ tools/testing/selftests/net/Makefile          |   1 +
+ .../net/test_bridge_neigh_suppress.sh         | 862 ++++++++++++++++++
+ 15 files changed, 936 insertions(+), 19 deletions(-)
+ create mode 100755 tools/testing/selftests/net/test_bridge_neigh_suppress.sh
+
+-- 
+2.37.3
+
