@@ -1,18 +1,29 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 24EA6409A4
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7FFAB40932
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VIE5MC3JDvBtov+GVA64V3kJKYZxPb0Umu2mK4UsGOI=;
- b=FI48v2y7CIgwe+Rk5rIwqGdBVy5oaG6SUsPRNy0jflsPYsjQklCLhVgsJioudE2qhynh9gFtHhE+dZEgBgRV14Cy9eWs1xe0f+dJINtn1ZwuyCnkRbJooqZEXA44C1DvFyCNn2DsTaoqXwgaCKX+xlZZfiDJrj0o8UaJzNVE+Os=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue, 18 Apr 2023 18:59:02 +0300
-Message-Id: <20230418155902.898627-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6233B41EED
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F34A841DDB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1681907411; x=1684499411;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=avqNslnB4KohY2YwvfuPOO2n1lMtgBQmzRxlc74gZbM=;
+ b=3yjuxArVmI5nyCoyJTDePB0cVEtEM++DI8nVuePKhdy1/WOQha+f+sFpnpHAgeA/cl
+ alU672tyBuIVWDO7VkC++qB4zQcNYvwDdotIHoPO7I7zJe4+VWrS1n5etxbjS9DjqEc/
+ q98DFJK2bD2GW+Rk8Kulf8uEU+prtBEnYhfcDe+zQ96RdhixRRwqbirj2rgpbAQ5tYsm
+ OIJGGtKi8pdD20iqJ1oP9Xw9GTsikAY1BOC79SCxoisBGGP4iVzrP9Kav7tX+4KcinfA
+ f70joN+3jGmdFemC3Ev2ZGfi1N5NjKUbQok6YGCIdiHMV5uxcf0WoV8BdMXib8uwBKKg
+ +Hgg==
+Message-ID: <95a773f6-5f88-712e-c494-9414d7090144@blackwall.org>
+Date: Wed, 19 Apr 2023 15:30:07 +0300
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH v2 net] net: bridge: switchdev: don't notify FDB
-	entries with "master dynamic"
+Content-Language: en-US
+References: <20230413095830.2182382-1-idosch@nvidia.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20230413095830.2182382-1-idosch@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [RFC PATCH net-next 0/9] bridge: Add per-{Port,
+ VLAN} neighbor suppression
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,99 +32,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, bridge@lists.linux-foundation.org, Jiri Pirko <jiri@resnulli.us>, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, Roopa Prabhu <roopa@nvidia.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, "Hans J. Schultz" <netdev@kapio-technology.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+Cc: petrm@nvidia.com, mlxsw@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-There is a structural problem in switchdev, where the flag bits in
-struct switchdev_notifier_fdb_info (added_by_user, is_local etc) only
-represent a simplified / denatured view of what's in struct
-net_bridge_fdb_entry :: flags (BR_FDB_ADDED_BY_USER, BR_FDB_LOCAL etc).
-Each time we want to pass more information about struct
-net_bridge_fdb_entry :: flags to struct switchdev_notifier_fdb_info
-(here, BR_FDB_STATIC), we find that FDB entries were already notified to
-switchdev with no regard to this flag, and thus, switchdev drivers had
-no indication whether the notified entries were static or not.
+On 13/04/2023 12:58, Ido Schimmel wrote:
+> Background
+> ==========
+> 
+> In order to minimize the flooding of ARP and ND messages in the VXLAN
+> network, EVPN includes provisions [1] that allow participating VTEPs to
+> suppress such messages in case they know the MAC-IP binding and can
+> reply on behalf of the remote host. In Linux, the above is implemented
+> in the bridge driver using a per-port option called "neigh_suppress"
+> that was added in kernel version 4.15 [2].
+> 
+> Motivation
+> ==========
+> 
+> Some applications use ARP messages as keepalives between the application
+> nodes in the network. This works perfectly well when two nodes are
+> connected to the same VTEP. When a node goes down it will stop
+> responding to ARP requests and the other node will notice it
+> immediately.
+> 
+> However, when the two nodes are connected to different VTEPs and
+> neighbor suppression is enabled, the local VTEP will reply to ARP
+> requests even after the remote node went down, until certain timers
+> expire and the EVPN control plane decides to withdraw the MAC/IP
+> Advertisement route for the address. Therefore, some users would like to
+> be able to disable neighbor suppression on VLANs where such applications
+> reside and keep it enabled on the rest.
+> 
+> Implementation
+> ==============
+> 
+> The proposed solution is to allow user space to control neighbor
+> suppression on a per-{Port, VLAN} basis, in a similar fashion to other
+> per-port options that gained per-{Port, VLAN} counterparts such as
+> "mcast_router". This allows users to benefit from the operational
+> simplicity and scalability associated with shared VXLAN devices (i.e.,
+> external / collect-metadata mode), while still allowing for per-VLAN/VNI
+> neighbor suppression control.
+> 
+> The user interface is extended with a new "neigh_vlan_suppress" bridge
+> port option that allows user space to enable per-{Port, VLAN} neighbor
+> suppression on the bridge port. When enabled, the existing
+> "neigh_suppress" option has no effect and neighbor suppression is
+> controlled using a new "neigh_suppress" VLAN option. Example usage:
+> 
+>  # bridge link set dev vxlan0 neigh_vlan_suppress on
+>  # bridge vlan add vid 10 dev vxlan0
+>  # bridge vlan set vid 10 dev vxlan0 neigh_suppress on
+> 
+> Testing
+> =======
+> 
+> Tested using existing bridge selftests. Added a dedicated selftest in
+> the last patch.
+> 
+> Patchset overview
+> =================
+> 
+> Patches #1-#5 are preparations.
+> 
+> Patch #6 adds per-{Port, VLAN} neighbor suppression support to the
+> bridge's data path.
+> 
+> Patches #7-#8 add the required netlink attributes to enable the feature.
+> 
+> Patch #9 adds a selftest.
+> 
+> iproute2 patches can be found here [3].
+> 
+> [1] https://www.rfc-editor.org/rfc/rfc7432#section-10
+> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a42317785c898c0ed46db45a33b0cc71b671bf29
+> [3] https://github.com/idosch/iproute2/tree/submit/neigh_suppress_v1
+> 
+> Ido Schimmel (9):
+>   bridge: Reorder neighbor suppression check when flooding
+>   bridge: Pass VLAN ID to br_flood()
+>   bridge: Add internal flags for per-{Port, VLAN} neighbor suppression
+>   bridge: Take per-{Port, VLAN} neighbor suppression into account
+>   bridge: Encapsulate data path neighbor suppression logic
+>   bridge: Add per-{Port, VLAN} neighbor suppression data path support
+>   bridge: vlan: Allow setting VLAN neighbor suppression state
+>   bridge: Allow setting per-{Port, VLAN} neighbor suppression state
+>   selftests: net: Add bridge neighbor suppression test
+> 
+>  include/linux/if_bridge.h                     |   1 +
+>  include/uapi/linux/if_bridge.h                |   1 +
+>  include/uapi/linux/if_link.h                  |   1 +
+>  net/bridge/br_arp_nd_proxy.c                  |  33 +-
+>  net/bridge/br_device.c                        |   8 +-
+>  net/bridge/br_forward.c                       |   8 +-
+>  net/bridge/br_if.c                            |   2 +-
+>  net/bridge/br_input.c                         |   2 +-
+>  net/bridge/br_netlink.c                       |   8 +-
+>  net/bridge/br_private.h                       |   5 +-
+>  net/bridge/br_vlan.c                          |   1 +
+>  net/bridge/br_vlan_options.c                  |  20 +-
+>  net/core/rtnetlink.c                          |   2 +-
+>  tools/testing/selftests/net/Makefile          |   1 +
+>  .../net/test_bridge_neigh_suppress.sh         | 862 ++++++++++++++++++
+>  15 files changed, 936 insertions(+), 19 deletions(-)
+>  create mode 100755 tools/testing/selftests/net/test_bridge_neigh_suppress.sh
+> 
 
-For example, this command:
+The set looks good to me, nicely split and pretty straight-forward.
+For the set:
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-ip link add br0 type bridge && ip link set swp0 master br0
-bridge fdb add dev swp0 00:01:02:03:04:05 master dynamic
-
-has never worked as intended with switchdev. It causes a struct
-net_bridge_fdb_entry to be passed to br_switchdev_fdb_notify() which has
-a single flag set: BR_FDB_ADDED_BY_USER.
-
-This is further passed to the switchdev notifier chain, where interested
-drivers have no choice but to assume this is a static (does not age) and
-sticky (does not migrate) FDB entry. So currently, all drivers offload
-it to hardware as such, as can be seen below ("offload" is set).
-
-bridge fdb get 00:01:02:03:04:05 dev swp0 master
-00:01:02:03:04:05 dev swp0 offload master br0
-
-The software FDB entry expires $ageing_time centiseconds after the
-kernel last sees a packet with this MAC SA, and the bridge notifies its
-deletion as well, so it eventually disappears from hardware too.
-
-This is a problem, because it is actually desirable to start offloading
-"master dynamic" FDB entries correctly - they should expire $ageing_time
-centiseconds after the *hardware* port last sees a packet with this
-MAC SA - and this is how the current incorrect behavior was discovered.
-With an offloaded data plane, it can be expected that software only sees
-exception path packets, so an otherwise active dynamic FDB entry would
-be aged out by software sooner than it should.
-
-With the change in place, these FDB entries are no longer offloaded:
-
-bridge fdb get 00:01:02:03:04:05 dev swp0 master
-00:01:02:03:04:05 dev swp0 master br0
-
-and this also constitutes a better way (assuming a backport to stable
-kernels) for user space to determine whether the kernel has the
-capability of doing something sane with these or not.
-
-As opposed to "master dynamic" FDB entries, on the current behavior of
-which no one currently depends on (which can be deduced from the lack of
-kselftests), Ido Schimmel explains that entries with the "extern_learn"
-flag (BR_FDB_ADDED_BY_EXT_LEARN) should still be notified to switchdev,
-since the spectrum driver listens to them (and this is kind of okay,
-because although they are treated identically to "static", they are
-expected to not age, and to roam).
-
-Fixes: 6b26b51b1d13 ("net: bridge: Add support for notifying devices about FDB add/del")
-Link: https://lore.kernel.org/netdev/20230327115206.jk5q5l753aoelwus@skbuf/
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
----
-v1->v2: let extern_learn entries still pass through to switchdev
-v1 at:
-https://lore.kernel.org/netdev/20230410204951.1359485-1-vladimir.oltean@nxp.com/
-
- net/bridge/br_switchdev.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index de18e9c1d7a7..ba95c4d74a60 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -148,6 +148,17 @@ br_switchdev_fdb_notify(struct net_bridge *br,
- 	if (test_bit(BR_FDB_LOCKED, &fdb->flags))
- 		return;
- 
-+	/* Entries with these flags were created using ndm_state == NUD_REACHABLE,
-+	 * ndm_flags == NTF_MASTER( | NTF_STICKY), ext_flags == 0 by something
-+	 * equivalent to 'bridge fdb add ... master dynamic (sticky)'.
-+	 * Drivers don't know how to deal with these, so don't notify them to
-+	 * avoid confusing them.
-+	 */
-+	if (test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags) &&
-+	    !test_bit(BR_FDB_STATIC, &fdb->flags) &&
-+	    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-+		return;
-+
- 	br_switchdev_fdb_populate(br, &item, fdb, NULL);
- 
- 	switch (type) {
--- 
-2.34.1
 
