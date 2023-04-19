@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 894EF8412F
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C9E2784107
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 584406169D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9A848616C5
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wUmFijYCPgEX04cPjZN0kCpLZm8abO4duay48UU4ewc=;
- b=hxAIK3wO9ESg8RSoyZ3XL9ggXJ8YR0H2US/ZviO6uJJD6GWcmZaj54avwzt6kvRLqWGvFQXiUe709CtHXX4jpq3sQy4ay9c+cVbvDVAtjyjcp1beCeOcSGThrPdfHfKBc6DAtOkvTBGpt88FswMP1KmAbErx++qaunem9zljp8t7PQDNpoDvrhBT6T9gXGmDgbmQSfIGAHPxPoiwDzEWqIiqYm+IdK53vqmRBYv8wLN3VTBqcrpaKch97sqRDh3sXeslizSSrwx7dC65VmwqA4p0kZolvBk6QWqnlx96E/vFCBjNRSWB/HOyxJlCjont4fMOIqenYaHGehRHPjXOAQ==
+ bh=NmUQ6d6kxYpKJ4DxH+0kxjZ7sAECfUUkXSJAlzBBjXQ=;
+ b=ppgFdrPEsMeCuIxNpQEQv406wZHIWnDhrsxxf6AgmQYz4Z1TOo5WGD1IYA12GgHb+DZChKkskdWLEIA4hBSFWCY07sFwn7Xqi5/KOhxWPxNymDpwkDf+SHBbtbZloNNTyk3jfsUm14NZZFG4DumIPQ+DJ2DaTAUAvWlkJPbtWmiCtwwqf5uaOr3F0FlMn6cp4nr2F8I418teCArY6I/jJAV45UBlLWXSa9puctsYeT0dcnXY0BwxjzWRihQ9f95fKy0P4E3o2L1QatDKCdKXwnTYkT0sP2NsFsuH7zXy7aEQHFfPpJSWUbVaO6+151/eG/GTyvohWEkhXbOP+96V7g==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Wed, 19 Apr 2023 18:34:57 +0300
-Message-Id: <20230419153500.2655036-7-idosch@nvidia.com>
+Date: Wed, 19 Apr 2023 18:34:58 +0300
+Message-Id: <20230419153500.2655036-8-idosch@nvidia.com>
 In-Reply-To: <20230419153500.2655036-1-idosch@nvidia.com>
 References: <20230419153500.2655036-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net-next v2 6/9] bridge: Add per-{Port,
-	VLAN} neighbor suppression data path support
+Subject: [Bridge] [PATCH net-next v2 7/9] bridge: vlan: Allow setting VLAN
+	neighbor suppression state
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,53 +27,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-When the bridge is not VLAN-aware (i.e., VLAN ID is 0), determine if
-neighbor suppression is enabled on a given bridge port solely based on
-the existing 'BR_NEIGH_SUPPRESS' flag.
+Add a new VLAN attribute that allows user space to set the neighbor
+suppression state of the port VLAN. Example:
 
-Otherwise, if the bridge is VLAN-aware, first check if per-{Port, VLAN}
-neighbor suppression is enabled on the given bridge port using the
-'BR_NEIGH_VLAN_SUPPRESS' flag. If so, look up the VLAN and check whether
-it has neighbor suppression enabled based on the per-VLAN
-'BR_VLFLAG_NEIGH_SUPPRESS_ENABLED' flag.
+ # bridge -d -j -p vlan show dev swp1 vid 10 | jq '.[]["vlans"][]["neigh_suppress"]'
+ false
+ # bridge vlan set vid 10 dev swp1 neigh_suppress on
+ # bridge -d -j -p vlan show dev swp1 vid 10 | jq '.[]["vlans"][]["neigh_suppress"]'
+ true
+ # bridge vlan set vid 10 dev swp1 neigh_suppress off
+ # bridge -d -j -p vlan show dev swp1 vid 10 | jq '.[]["vlans"][]["neigh_suppress"]'
+ false
 
-If the bridge is VLAN-aware, but the bridge port does not have
-per-{Port, VLAN} neighbor suppression enabled, then fallback to
-determine neighbor suppression based on the 'BR_NEIGH_SUPPRESS' flag.
+ # bridge vlan set vid 10 dev br0 neigh_suppress on
+ Error: bridge: Can't set neigh_suppress for non-port vlans.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_arp_nd_proxy.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ include/uapi/linux/if_bridge.h |  1 +
+ net/bridge/br_vlan.c           |  1 +
+ net/bridge/br_vlan_options.c   | 20 +++++++++++++++++++-
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 16c3a1c5d0ae..c7869a286df4 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -486,5 +486,21 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index c9d624f528c5..f95326fce6bb 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -525,6 +525,7 @@ enum {
+ 	BRIDGE_VLANDB_ENTRY_MCAST_ROUTER,
+ 	BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS,
+ 	BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS,
++	BRIDGE_VLANDB_ENTRY_NEIGH_SUPPRESS,
+ 	__BRIDGE_VLANDB_ENTRY_MAX,
+ };
+ #define BRIDGE_VLANDB_ENTRY_MAX (__BRIDGE_VLANDB_ENTRY_MAX - 1)
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 8a3dbc09ba38..15f44d026e75 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -2134,6 +2134,7 @@ static const struct nla_policy br_vlan_db_policy[BRIDGE_VLANDB_ENTRY_MAX + 1] =
+ 	[BRIDGE_VLANDB_ENTRY_MCAST_ROUTER]	= { .type = NLA_U8 },
+ 	[BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS]	= { .type = NLA_REJECT },
+ 	[BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS]	= { .type = NLA_U32 },
++	[BRIDGE_VLANDB_ENTRY_NEIGH_SUPPRESS]	= NLA_POLICY_MAX(NLA_U8, 1),
+ };
  
- bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid)
+ static int br_vlan_rtm_process_one(struct net_device *dev,
+diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
+index e378c2f3a9e2..8fa89b04ee94 100644
+--- a/net/bridge/br_vlan_options.c
++++ b/net/bridge/br_vlan_options.c
+@@ -52,7 +52,9 @@ bool br_vlan_opts_fill(struct sk_buff *skb, const struct net_bridge_vlan *v,
+ 		       const struct net_bridge_port *p)
  {
--	return p && (p->flags & BR_NEIGH_SUPPRESS);
-+	if (!p)
-+		return false;
-+
-+	if (!vid)
-+		return !!(p->flags & BR_NEIGH_SUPPRESS);
-+
-+	if (p->flags & BR_NEIGH_VLAN_SUPPRESS) {
-+		struct net_bridge_vlan_group *vg = nbp_vlan_group_rcu(p);
-+		struct net_bridge_vlan *v;
-+
-+		v = br_vlan_find(vg, vid);
-+		if (!v)
-+			return false;
-+		return !!(v->priv_flags & BR_VLFLAG_NEIGH_SUPPRESS_ENABLED);
-+	} else {
-+		return !!(p->flags & BR_NEIGH_SUPPRESS);
-+	}
+ 	if (nla_put_u8(skb, BRIDGE_VLANDB_ENTRY_STATE, br_vlan_get_state(v)) ||
+-	    !__vlan_tun_put(skb, v))
++	    !__vlan_tun_put(skb, v) ||
++	    nla_put_u8(skb, BRIDGE_VLANDB_ENTRY_NEIGH_SUPPRESS,
++		       !!(v->priv_flags & BR_VLFLAG_NEIGH_SUPPRESS_ENABLED)))
+ 		return false;
+ 
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+@@ -80,6 +82,7 @@ size_t br_vlan_opts_nl_size(void)
+ 	       + nla_total_size(sizeof(u32)) /* BRIDGE_VLANDB_ENTRY_MCAST_N_GROUPS */
+ 	       + nla_total_size(sizeof(u32)) /* BRIDGE_VLANDB_ENTRY_MCAST_MAX_GROUPS */
+ #endif
++	       + nla_total_size(sizeof(u8)) /* BRIDGE_VLANDB_ENTRY_NEIGH_SUPPRESS */
+ 	       + 0;
  }
+ 
+@@ -239,6 +242,21 @@ static int br_vlan_process_one_opts(const struct net_bridge *br,
+ 	}
+ #endif
+ 
++	if (tb[BRIDGE_VLANDB_ENTRY_NEIGH_SUPPRESS]) {
++		bool enabled = v->priv_flags & BR_VLFLAG_NEIGH_SUPPRESS_ENABLED;
++		bool val = nla_get_u8(tb[BRIDGE_VLANDB_ENTRY_NEIGH_SUPPRESS]);
++
++		if (!p) {
++			NL_SET_ERR_MSG_MOD(extack, "Can't set neigh_suppress for non-port vlans");
++			return -EINVAL;
++		}
++
++		if (val != enabled) {
++			v->priv_flags ^= BR_VLFLAG_NEIGH_SUPPRESS_ENABLED;
++			*changed = true;
++		}
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.37.3
 
