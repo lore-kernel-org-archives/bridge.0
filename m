@@ -1,19 +1,24 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DB95B4021C
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AE445400D1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IjBVh9FjHVYSSz8aul7WM9OpX6cO86Kmf8GjigMIvBg=;
- b=gdBxf9qVukuSHhACZ+V+XqErmKpmBHrbD7mca5722mRhcVW6b0l1TnOQ0uxfGqTI5BkAQDaaecV1+xVuv9KRPPlSneAswJRUJY2AgbpVoywrqQqP/rHJn7VafW/U+KWxAQpy8/qOsCAZKLKdbTQiHP/lb3wqQcHGN6VNzIwoiLnpadQlc1vW6+1MZ2/OX87A71MR/o7ehd2W+8KBH7XXuCOZjbzgoeL0rYZbrf1HQec8huwhA9kLwCmzfuZhhd6Ddm6s/8AqPUYB/z/jR1XoExyUpZLRHBJ0tOZ+LbnAGT1Z+S/Q993af1PZdxcyxE4LWr+wISKQYl9XPlwKIBaaeQ==
-Date: Thu, 20 Apr 2023 09:23:12 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <ZEDaUOBZL05fIFp8@shredder>
-References: <20230418155902.898627-1-vladimir.oltean@nxp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230418155902.898627-1-vladimir.oltean@nxp.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 50F4042718
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7784042722
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1681977018;
+ bh=Zex/PHqNKlzuqAb5IKI38cfJjF9+sZcpSyiYt2IgbdE=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=O6PaxSi2uEIQi8YDcQHElp+rn3lkbiN/7ej31a2vyTF/ZgCSzg98dqgK4f8btz+8z
+ id81Q/PYJ8nRHy96/kU9sCi0WJqwtGhYISQG8dqFXwMjKNq0DJ7jR4HyrsRqnoaBL3
+ ceDfwjPuEPUHQ5VLMThnRnWQrJWvqbkCRsw9Z47NdS7BaG+i9CQVIDjvdVBHeLJx9C
+ swN/8z/x1GH3TnizoSHIMMPob+veFvEO48/TtO4mpgsdhhA4hkdYwyNW2RRynQhUiZ
+ mC4pNNy9rbKxewJICmXaHQriI0Sp5WBbRg3BgNSz6nUX0+vNKIIWH/bxpokmNLNZMY
+ ZDXT/eZfMqb0g==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <168197701861.16164.10630611699563272591.git-patchwork-notify@kernel.org>
+Date: Thu, 20 Apr 2023 07:50:18 +0000
+References: <20230418155902.898627-1-vladimir.oltean@nxp.com>
+In-Reply-To: <20230418155902.898627-1-vladimir.oltean@nxp.com>
 Subject: Re: [Bridge] [PATCH v2 net] net: bridge: switchdev: don't notify
  FDB entries with "master dynamic"
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -25,9 +30,14 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Ivan Vecera <ivecera@redhat.com>, bridge@lists.linux-foundation.org, Jiri Pirko <jiri@resnulli.us>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, Roopa Prabhu <roopa@nvidia.com>, Jesse Brandeburg <jesse.brandeburg@intel.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, "Hans J. Schultz" <netdev@kapio-technology.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: ivecera@redhat.com, bridge@lists.linux-foundation.org, jiri@resnulli.us, netdev@vger.kernel.org, razor@blackwall.org, netdev@kapio-technology.com, roopa@nvidia.com, jesse.brandeburg@intel.com, edumazet@google.com, idosch@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net, linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2023 at 06:59:02PM +0300, Vladimir Oltean wrote:
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
+
+On Tue, 18 Apr 2023 18:59:02 +0300 you wrote:
 > There is a structural problem in switchdev, where the flag bits in
 > struct switchdev_notifier_fdb_info (added_by_user, is_local etc) only
 > represent a simplified / denatured view of what's in struct
@@ -37,13 +47,16 @@ On Tue, Apr 18, 2023 at 06:59:02PM +0300, Vladimir Oltean wrote:
 > (here, BR_FDB_STATIC), we find that FDB entries were already notified to
 > switchdev with no regard to this flag, and thus, switchdev drivers had
 > no indication whether the notified entries were static or not.
+> 
+> [...]
 
-[...]
+Here is the summary with links:
+  - [v2,net] net: bridge: switchdev: don't notify FDB entries with "master dynamic"
+    https://git.kernel.org/netdev/net/c/927cdea5d209
 
-> Fixes: 6b26b51b1d13 ("net: bridge: Add support for notifying devices about FDB add/del")
-> Link: https://lore.kernel.org/netdev/20230327115206.jk5q5l753aoelwus@skbuf/
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
+
