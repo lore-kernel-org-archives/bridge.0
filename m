@@ -1,15 +1,24 @@
-Return-Path: <hans@kapio-technology.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F1D7040BCB
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 00BAB403F8
-From: Hans Schultz <netdev@kapio-technology.com>
-In-Reply-To: <20230418155902.898627-1-vladimir.oltean@nxp.com>
-References: <20230418155902.898627-1-vladimir.oltean@nxp.com>
-Date: Sun, 23 Apr 2023 10:47:15 +0200
-Message-ID: <875y9nt27g.fsf@kapio-technology.com>
+Return-Path: <liuhangbin@gmail.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A846E40292
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A7BC640025
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=gmail.com; s=20221208; t=1682328314; x=1684920314;
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=35DRhB75q3wRkebp9DrJb+2dw6nrBa1EQoLcH9Em600=;
+ b=BNlwlnuVqgfas/so+5JH2OtAppwOpVA0nv/LhzX7waApxmjwkXkMMACaqFrsKr8PVt
+ SLuuW2laKLiaSz4ka3ixztRuwnK5TL+k7M3agtcAHQa0t6ZaVvcX82pfQUPQZQMj7avT
+ m7Inxi8adG3ZUVueGfkNz54K1k13bX1230IrX+itNmrOeHzFQAWzf9A19ESD14X3MM9w
+ s0JPHVLwHSagHe+ShaZxv7LDLYKZFjlrChKbTYHr+GIJhBnthxZxDJXmOjV4zq4tQcZi
+ 8TqG2AI2UTNke3z3TgbKer65jqecPvmN42yER8jBrI+c3/gnF9f+YTSIjf0cvD0GNEOz
+ wEvw==
+Date: Mon, 24 Apr 2023 17:25:08 +0800
+From: Hangbin Liu <liuhangbin@gmail.com>
+Message-ID: <ZEZK9AkChoOF3Lys@Laptop-X1>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH v2 net] net: bridge: switchdev: don't notify
- FDB entries with "master dynamic"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: [Bridge] [Question] Any plan to write/update the bridge doc?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,36 +27,24 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Vladimir Oltean <vladimir.oltean@nxp.com>, netdev@vger.kernel.org
-Cc: Ivan Vecera <ivecera@redhat.com>, Jiri Pirko <jiri@resnulli.us>, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Jesse Brandeburg <jesse.brandeburg@intel.com>, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: netdev@vger.kernel.org
+Cc: Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>
 
-On Tue, Apr 18, 2023 at 18:59, Vladimir Oltean <vladimir.oltean@nxp.com> wrote:
-> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index de18e9c1d7a7..ba95c4d74a60 100644
-> --- a/net/bridge/br_switchdev.c
-> +++ b/net/bridge/br_switchdev.c
-> @@ -148,6 +148,17 @@ br_switchdev_fdb_notify(struct net_bridge *br,
->  	if (test_bit(BR_FDB_LOCKED, &fdb->flags))
->  		return;
->  
-> +	/* Entries with these flags were created using ndm_state == NUD_REACHABLE,
-> +	 * ndm_flags == NTF_MASTER( | NTF_STICKY), ext_flags == 0 by something
-> +	 * equivalent to 'bridge fdb add ... master dynamic (sticky)'.
-> +	 * Drivers don't know how to deal with these, so don't notify them to
-> +	 * avoid confusing them.
-> +	 */
-> +	if (test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags) &&
-> +	    !test_bit(BR_FDB_STATIC, &fdb->flags) &&
-> +	    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-> +		return;
-> +
+Hi,
 
-I do not understand this patch. It seems to me that it basically blocks
-any future use of dynamic fdb entries from userspace towards drivers.
+Maybe someone already has asked. The only official Linux bridge document I
+got is a very ancient wiki page[1] or the ip link man page[2][3]. As there are
+many bridge stp/vlan/multicast paramegers. Should we add a detailed kernel
+document about each parameter? The parameter showed in ip link page seems
+a little brief.
 
-I would have expected that something would be done in the DSA layer,
-where (switchcore) drivers would be able to set some flags to indicate
-which features are supported by the driver, including non-static
-fdb entries. But as the placement here is earlier in the datapath from
-userspace towards drivers it's not possible to do any such thing in the
-DSA layer wrt non-static fdb entries.
+I'd like to help do this work. But apparently neither my English nor my
+understanding of the code is good enough. Anyway, if you want, I can help
+write a draft version first and you (bridge maintainers) keep working on this.
+
+[1] https://wiki.linuxfoundation.org/networking/bridge
+[2] https://man7.org/linux/man-pages/man8/bridge.8.html
+[3] https://man7.org/linux/man-pages/man8/ip-link.8.html
+
+Thanks
+Hangbin
