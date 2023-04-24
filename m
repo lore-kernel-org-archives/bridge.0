@@ -1,28 +1,24 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 93AFD409A2
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 31DE14098B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=networkplumber-org.20221208.gappssmtp.com; s=20221208; t=1682351999;
- x=1684943999; 
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:subject:cc:to:from:date:from:to:cc:subject:date
- :message-id:reply-to;
- bh=4kLDgafokn5x18GtTd+H6a14Z4DMxmnCa80D7PeLVP0=;
- b=uYkrKKyUtV1StUmdzNvBAn/Wjmql+OVygRxELaLbibhk0MBZtiaVnJeWhB87271I3+
- qY9m8UD87FWczYLHPvdmQbAyp1K88Mq1XrrxHRgjySCOmO3nCeV8G1DFbHXEEb9j7rg6
- hKcEh5ZXdyUAStZY7FFCGHvVfS48tDTpajhiWZR5QYoQrinybfucQmmfmGfu1gs+7x/i
- HVANjeACLCSHmEQ+D/T0a57DHZgge7NY4l8DFI9W0WjqyqgyBKPU5TENc4oCOfQs4mpx
- p2H5rj6lMIKdqRQ7Qahg879uj7wNWbj4immZh2CWDtZvlQ2JoRj1mu1PfvALlnCCxIEM
- ehfw==
-Date: Mon, 24 Apr 2023 08:59:49 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20230424085949.4bf52ac0@hermes.local>
-In-Reply-To: <ZEakbR71vNuLnEFp@shredder>
+Return-Path: <kuba@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A9FA0410E5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8DCA340973
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1682371681;
+ bh=TbcvORIahzTgLz3kHT93WfnWCDehULA/wN2t4cFpWu0=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=fKCN800jVi4eb9DDyPNBVyG1nVaxWg8SobzwUe9FY691TiFhtJm9hkMxHEOwlgTZU
+ 35O9gfDi7RRePr3N4hRuha7B/lmVQcNLeuptx760LJpoegnA5n6pK5fP1I4pCK2aBo
+ QNIxAZtIcbS3y+HLydEkj0I1KxVtezePqGZBStrLJMlN6BS1b0aXb84pfim3R5eiUO
+ +XElV9jbuHXzvV4LDKB7de7f23Cz5bGWIq3BhwbtEYfrfoFfyXPv31ex57QzA7RD+e
+ HNxFZ+iVjRRdY8iJ7yao0pi4NhQh1IbP/2X7jdCxhPw+LhhSzn3afLHGu1XXrHVU97
+ 5972nIC3ZEwdQ==
+Date: Mon, 24 Apr 2023 14:28:00 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+Message-ID: <20230424142800.3d519650@kernel.org>
+In-Reply-To: <ZEZK9AkChoOF3Lys@Laptop-X1>
 References: <ZEZK9AkChoOF3Lys@Laptop-X1>
-	<ZEakbR71vNuLnEFp@shredder>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [Question] Any plan to write/update the bridge doc?
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -32,52 +28,40 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Hangbin Liu <liuhangbin@gmail.com>, Roopa Prabhu <roopa@nvidia.com>
+To: Hangbin Liu <liuhangbin@gmail.com>
+Cc: bridge@lists.linux-foundation.org, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>
 
-On Mon, 24 Apr 2023 18:46:53 +0300
-Ido Schimmel <idosch@nvidia.com> wrote:
+On Mon, 24 Apr 2023 17:25:08 +0800 Hangbin Liu wrote:
+> Maybe someone already has asked. The only official Linux bridge document I
+> got is a very ancient wiki page[1] or the ip link man page[2][3]. As there are
+> many bridge stp/vlan/multicast paramegers. Should we add a detailed kernel
+> document about each parameter? The parameter showed in ip link page seems
+> a little brief.
+> 
+> I'd like to help do this work. But apparently neither my English nor my
+> understanding of the code is good enough. Anyway, if you want, I can help
+> write a draft version first and you (bridge maintainers) keep working on this.
+> 
+> [1] https://wiki.linuxfoundation.org/networking/bridge
+> [2] https://man7.org/linux/man-pages/man8/bridge.8.html
+> [3] https://man7.org/linux/man-pages/man8/ip-link.8.html
 
-> On Mon, Apr 24, 2023 at 05:25:08PM +0800, Hangbin Liu wrote:
-> > Hi,
-> >=20
-> > Maybe someone already has asked. The only official Linux bridge documen=
-t I
-> > got is a very ancient wiki page[1] or the ip link man page[2][3]. As th=
-ere are
-> > many bridge stp/vlan/multicast paramegers. Should we add a detailed ker=
-nel
-> > document about each parameter? The parameter showed in ip link page see=
-ms
-> > a little brief. =20
->=20
-> I suggest improving the man pages instead of adding kernel
-> documentation. The man pages are the most up to date resource and
-> therefore the one users probably refer to the most. Also, it's already
-> quite annoying to patch both "ip-link" and "bridge" man pages when
-> adding bridge port options. Adding a third document and making sure all
-> three resources are patched would be a nightmare...
->=20
-> >=20
-> > I'd like to help do this work. But apparently neither my English nor my
-> > understanding of the code is good enough. Anyway, if you want, I can he=
-lp
-> > write a draft version first and you (bridge maintainers) keep working o=
-n this. =20
->=20
-> I can help reviewing man page patches if you want. I'm going to send
-> some soon. Will copy you.
->=20
-> >=20
-> > [1] https://wiki.linuxfoundation.org/networking/bridge
-> > [2] https://man7.org/linux/man-pages/man8/bridge.8.html
-> > [3] https://man7.org/linux/man-pages/man8/ip-link.8.html
-> >=20
-> > Thanks
-> > Hangbin =20
+Sounds like we have 2 votes for the CLI man pages but I'd like to
+register a vote for in-kernel documentation.
 
-Yes, please update the iproute2 man pages.
-=46rom there, I can make the old wiki just be a reference to them.
-And Michael will pickup the man7.org versions from the current iproute2.
+I work at a large company so my perspective may differ but from what 
+I see:
 
-The iproute2 git tree is single source of current documentation please.
+ - users who want to call the kernel API should not have to look at 
+   the CLI's man
+ - man pages use archaic and arcane markup, I'd like to know how many
+   people actually know how it works and how many copy / paste / look;
+   ReST is prevalent, simple and commonly understood
+ - in-kernel docs are rendered on the web as soon as they hit linux-next
+ - we can make sure documentation is provided with the kernel changes,
+   in an ideal world it doesn't matter but in practice the CLI support
+   may never happen (no to mention that iproute does not hold all CLI)
+
+Obviously if Stephen and Ido prefer to document the bridge CLI that's
+perfectly fine, it's their call :) For new sections of uAPI, however,
+I personally find in-kernel docs superior.
