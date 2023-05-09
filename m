@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BEA61408EF
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B9744025D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 83B2A60E47
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E4A9614A9
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6TIjxJR5nEgrLBIjqCwCmj9E2f2IuflkzKuyuQwFg0g=;
- b=kMhsp4EB3ieEsu60uNmJVnNNkBQz/p1L4vGQmennogTAO/PN0MYTfuA80sGnrWRSOBuy+1NcbjgjdkZGI8adnscY+agV6f+GMZrgZJTOPfJ1M2uFzW46AIqbIvQSea+4wJeuLHgUyh6rmRGAeEiQIrcmjKPkamfYkGSqE2dwoVCkOReEwyQEBnAyYLoBUFTrWLLjt0xs++dixJrtHp6xPkcf6DngeW8ZD+yt8Cmxi+0XgQN3ySlPyT2FbF1LDpPd4nf2ZqDq0g/ymULnouuRYuYvejL2Qdn9JO+csz5ZNvgVWxL8HdK6nQygft9+URv+Z5e7zGILD2Cld07zSOmaXg==
+ bh=Z9S6RUlmO9Z/UshuanS11ere5EERT8XTAs7u4y0iWwc=;
+ b=dHZqPtwdYNjO2SUriDNwqsVFloFlueC1sa3+xBNChaF4itALjSRxvZndyaP9L584z94sKboHQC5ep2Df2pfEWz3aReX6kVI3zZQU27axgiGWAJxn0+CTxRvv2wvvxxcEbRjbIXf72tXvYaWWD3lhnNd2mHXOwhIAGde/ThmPeIVF4pl9Qaesg776WhmPCD4hdcaxlP1FRV7LJt1YMepww1yIx9l4+ihn9MJDO6OnUnhi3QCtVzIRDpWrByDgwgQvHAOF7gL479nw9+C6QVgpuYoqkz9rXVNuFOTLl1M/Ru6PDwW355M/e/kLtkJVW1MPtLHRBSnvdShOUiydr1g2Ew==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 9 May 2023 10:04:42 +0300
-Message-ID: <20230509070446.246088-2-idosch@nvidia.com>
+Date: Tue, 9 May 2023 10:04:44 +0300
+Message-ID: <20230509070446.246088-4-idosch@nvidia.com>
 In-Reply-To: <20230509070446.246088-1-idosch@nvidia.com>
 References: <20230509070446.246088-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [RFC PATCH net-next 1/5] skbuff: bridge: Add layer 2 miss
-	indication
+Subject: [Bridge] [RFC PATCH net-next 3/5] flow_offload: Reject matching on
+	layer 2 miss
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,112 +27,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, jiri@resnulli.us, taspelund@nvidia.com, xiyou.wangcong@gmail.com, Ido Schimmel <idosch@nvidia.com>, razor@blackwall.org, jhs@mojatatu.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Allow the bridge driver to mark packets that did not match a layer 2
-entry during forwarding by adding a 'l2_miss' bit to the skb.
+Adjust drivers that support the 'FLOW_DISSECTOR_KEY_META' key to reject
+filters that try to match on the newly added layer 2 miss option. Add an
+extack message to clearly communicate the failure reason to user space.
 
-Clear the bit whenever a packet enters the bridge (received from a
-bridge port or transmitted via the bridge) and set it if the packet did
-not match an FDB/MDB entry.
+Example:
 
-Subsequent patches will allow the flower classifier to match on this
-bit. The motivating use case in non-DF (Designated Forwarder) filtering
-where we would like to prevent decapsulated packets from being flooded
-to a multi-homed host.
-
-Do not allocate the bit if the kernel was not compiled with bridge
-support and place it after the two bit fields in accordance with commit
-4c60d04c2888 ("net: skbuff: push nf_trace down the bitfield"). The bit
-does not increase the size of the structure as it is placed at an
-existing hole. Layout with allmodconfig:
-
-struct sk_buff {
-[...]
-			__u8       csum_not_inet:1;      /*   132: 3  1 */
-			__u8       l2_miss:1;            /*   132: 4  1 */
-
-			/* XXX 3 bits hole, try to pack */
-			/* XXX 1 byte hole, try to pack */
-
-			__u16      tc_index;             /*   134     2 */
-			u16        alloc_cpu;            /*   136     2 */
-[...]
-} __attribute__((__aligned__(8)));
+ # tc filter add dev swp1 egress pref 1 proto all flower skip_sw l2_miss true action drop
+ Error: mlxsw_spectrum: Can't match on "l2_miss".
+ We have an error talking to the kernel
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- include/linux/skbuff.h  | 4 ++++
- net/bridge/br_device.c  | 1 +
- net/bridge/br_forward.c | 3 +++
- net/bridge/br_input.c   | 1 +
- 4 files changed, 9 insertions(+)
+ .../net/ethernet/marvell/prestera/prestera_flower.c    |  6 ++++++
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c        |  6 ++++++
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c  |  6 ++++++
+ drivers/net/ethernet/mscc/ocelot_flower.c              | 10 ++++++++++
+ 4 files changed, 28 insertions(+)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 738776ab8838..c7a84767ed48 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -801,6 +801,7 @@ typedef unsigned char *sk_buff_data_t;
-  *	@encap_hdr_csum: software checksum is needed
-  *	@csum_valid: checksum is already valid
-  *	@csum_not_inet: use CRC32c to resolve CHECKSUM_PARTIAL
-+ *	@l2_miss: Packet did not match an L2 entry during forwarding
-  *	@csum_complete_sw: checksum was completed by software
-  *	@csum_level: indicates the number of consecutive checksums found in
-  *		the packet minus one that have been verified as
-@@ -991,6 +992,9 @@ struct sk_buff {
- #if IS_ENABLED(CONFIG_IP_SCTP)
- 	__u8			csum_not_inet:1;
- #endif
-+#if IS_ENABLED(CONFIG_BRIDGE)
-+	__u8			l2_miss:1;
-+#endif
+diff --git a/drivers/net/ethernet/marvell/prestera/prestera_flower.c b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+index 91a478b75cbf..3e20e71b0f81 100644
+--- a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
++++ b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+@@ -148,6 +148,12 @@ static int prestera_flower_parse_meta(struct prestera_acl_rule *rule,
+ 	__be16 key, mask;
  
- #ifdef CONFIG_NET_SCHED
- 	__u16			tc_index;	/* traffic control index */
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 8eca8a5c80c6..91dbdae4afd4 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -39,6 +39,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 	u16 vid = 0;
- 
- 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
-+	skb->l2_miss = 0;
- 
- 	rcu_read_lock();
- 	nf_ops = rcu_dereference(nf_br_ops);
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 57744704ff69..5893648c4da2 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -203,6 +203,8 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 	struct net_bridge_port *prev = NULL;
- 	struct net_bridge_port *p;
- 
-+	skb->l2_miss = 1;
+ 	flow_rule_match_meta(f_rule, &match);
 +
- 	list_for_each_entry_rcu(p, &br->port_list, list) {
- 		/* Do not flood unicast traffic to ports that turn it off, nor
- 		 * other traffic if flood off, except for traffic we originate
-@@ -295,6 +297,7 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- 			allow_mode_include = false;
- 	} else {
- 		p = NULL;
-+		skb->l2_miss = 1;
++	if (match.mask->l2_miss) {
++		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on \"l2_miss\"");
++		return -EOPNOTSUPP;
++	}
++
+ 	if (match.mask->ingress_ifindex != 0xFFFFFFFF) {
+ 		NL_SET_ERR_MSG_MOD(f->common.extack,
+ 				   "Unsupported ingress ifindex mask");
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 728b82ce4031..516653568330 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -2586,6 +2586,12 @@ static int mlx5e_flower_parse_meta(struct net_device *filter_dev,
+ 		return 0;
+ 
+ 	flow_rule_match_meta(rule, &match);
++
++	if (match.mask->l2_miss) {
++		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on \"l2_miss\"");
++		return -EOPNOTSUPP;
++	}
++
+ 	if (!match.mask->ingress_ifindex)
+ 		return 0;
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
+index 594cdcb90b3d..6fec9223250b 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
+@@ -294,6 +294,12 @@ static int mlxsw_sp_flower_parse_meta(struct mlxsw_sp_acl_rule_info *rulei,
+ 		return 0;
+ 
+ 	flow_rule_match_meta(rule, &match);
++
++	if (match.mask->l2_miss) {
++		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on \"l2_miss\"");
++		return -EOPNOTSUPP;
++	}
++
+ 	if (match.mask->ingress_ifindex != 0xFFFFFFFF) {
+ 		NL_SET_ERR_MSG_MOD(f->common.extack, "Unsupported ingress ifindex mask");
+ 		return -EINVAL;
+diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
+index ee052404eb55..e0916afcddfb 100644
+--- a/drivers/net/ethernet/mscc/ocelot_flower.c
++++ b/drivers/net/ethernet/mscc/ocelot_flower.c
+@@ -592,6 +592,16 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int port, bool ingress,
+ 		return -EOPNOTSUPP;
  	}
  
- 	while (p || rp) {
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index fc17b9fd93e6..d8ab5890cbe6 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -334,6 +334,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 		return RX_HANDLER_CONSUMED;
- 
- 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
-+	skb->l2_miss = 0;
- 
- 	p = br_port_get_rcu(skb->dev);
- 	if (p->flags & BR_VLAN_TUNNEL)
++	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_META)) {
++		struct flow_match_meta match;
++
++		flow_rule_match_meta(rule, &match);
++		if (match.mask->l2_miss) {
++			NL_SET_ERR_MSG_MOD(extack, "Can't match on \"l2_miss\"");
++			return -EOPNOTSUPP;
++		}
++	}
++
+ 	/* For VCAP ES0 (egress rewriter) we can match on the ingress port */
+ 	if (!ingress) {
+ 		ret = ocelot_flower_parse_indev(ocelot, port, f, filter);
 -- 
 2.40.1
 
