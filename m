@@ -1,19 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 47E2941E92
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 88CB041E81
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BEA61408EF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B9744025D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=X/1kGQBm5yXcyy2NUlXsvpQI4tCXCFKQDYvnTMrpduk=;
- b=oMxcjW/x7a3IicoCSw7yeHnErOxqw7pDU/q6ss3AeVmlv/q6eHpC1zjhaw46k91c2iO2HEreTbomdW/9UTxqiu9o3GI6TzDIB/WXWYFR78toTi3/d3wEjEo3cHDpmO5vrdfhGB6WC2XQaFj/+uIWlYXZ6Qng/1k/x6cNMQCN0g9FRzC9RWXZhIALqOPsUE6EUK3bYuRFGjhSB/Gl/Bj93qh1wfmUMWvZ6XRfbJ5Z//MbTjeW4XkcAQyd0bZWFvHdYBvBRwjJBWJzAPeb0UPPABlMy1GpUKUMFad7DEx/bV2WRbV8tA94rgzNioJ3hdD5fn2oUfYH8BMfVQQ5n0+w9Q==
+ bh=6TIjxJR5nEgrLBIjqCwCmj9E2f2IuflkzKuyuQwFg0g=;
+ b=kMhsp4EB3ieEsu60uNmJVnNNkBQz/p1L4vGQmennogTAO/PN0MYTfuA80sGnrWRSOBuy+1NcbjgjdkZGI8adnscY+agV6f+GMZrgZJTOPfJ1M2uFzW46AIqbIvQSea+4wJeuLHgUyh6rmRGAeEiQIrcmjKPkamfYkGSqE2dwoVCkOReEwyQEBnAyYLoBUFTrWLLjt0xs++dixJrtHp6xPkcf6DngeW8ZD+yt8Cmxi+0XgQN3ySlPyT2FbF1LDpPd4nf2ZqDq0g/ymULnouuRYuYvejL2Qdn9JO+csz5ZNvgVWxL8HdK6nQygft9+URv+Z5e7zGILD2Cld07zSOmaXg==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 9 May 2023 10:04:41 +0300
-Message-ID: <20230509070446.246088-1-idosch@nvidia.com>
+Date: Tue, 9 May 2023 10:04:42 +0300
+Message-ID: <20230509070446.246088-2-idosch@nvidia.com>
+In-Reply-To: <20230509070446.246088-1-idosch@nvidia.com>
+References: <20230509070446.246088-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [RFC PATCH net-next 0/5] Add layer 2 miss indication and
-	filtering
+Subject: [Bridge] [RFC PATCH net-next 1/5] skbuff: bridge: Add layer 2 miss
+	indication
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -25,137 +27,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, jiri@resnulli.us, taspelund@nvidia.com, xiyou.wangcong@gmail.com, Ido Schimmel <idosch@nvidia.com>, razor@blackwall.org, jhs@mojatatu.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-tl;dr
-=====
+Allow the bridge driver to mark packets that did not match a layer 2
+entry during forwarding by adding a 'l2_miss' bit to the skb.
 
-This patchset adds a single bit to the skb to indicate that a packet
-encountered a layer 2 miss in the bridge and extends flower to match on
-this metadata. This is required for non-DF (Designated Forwarder)
-filtering in EVPN multi-homing which prevents decapsulated BUM packets
-from being forwarded multiple times to the same multi-homed host.
+Clear the bit whenever a packet enters the bridge (received from a
+bridge port or transmitted via the bridge) and set it if the packet did
+not match an FDB/MDB entry.
 
-Background
-==========
+Subsequent patches will allow the flower classifier to match on this
+bit. The motivating use case in non-DF (Designated Forwarder) filtering
+where we would like to prevent decapsulated packets from being flooded
+to a multi-homed host.
 
-In a typical EVPN multi-homing setup each host is multi-homed using a
-set of links called ES (Ethernet Segment, i.e., LAG) to multiple leaf
-switches in a rack. These switches act as VTEPs and are not directly
-connected (as opposed to MLAG), but can communicate with each other (as
-well as with VTEPs in remote racks) via spine switches over L3.
+Do not allocate the bit if the kernel was not compiled with bridge
+support and place it after the two bit fields in accordance with commit
+4c60d04c2888 ("net: skbuff: push nf_trace down the bitfield"). The bit
+does not increase the size of the structure as it is placed at an
+existing hole. Layout with allmodconfig:
 
-When a host sends a BUM packet over ES1 to VTEP1, the VTEP will flood it
-to other VTEPs in the network, including those connected to the host
-over ES1. The receiving VTEPs must drop the packet and not forward it
-back to the host. This is called "split-horizon filtering" (SPH) [1].
+struct sk_buff {
+[...]
+			__u8       csum_not_inet:1;      /*   132: 3  1 */
+			__u8       l2_miss:1;            /*   132: 4  1 */
 
-FRR configures SPH filtering using two tc filters. The first, an ingress
-filter that matches on packets received from VTEP1 and marks them using
-a fwmark (firewall mark). The second, an egress filter configured on the
-LAG interface connected to the host that matches on the fwmark and drops
-the packets. Example:
+			/* XXX 3 bits hole, try to pack */
+			/* XXX 1 byte hole, try to pack */
 
- # tc filter add dev vxlan0 ingress pref 1 proto all flower enc_src_ip $VTEP1_IP action skbedit mark 101
- # tc filter add dev bond0 egress pref 1 handle 101 fw action drop
+			__u16      tc_index;             /*   134     2 */
+			u16        alloc_cpu;            /*   136     2 */
+[...]
+} __attribute__((__aligned__(8)));
 
-Motivation
-==========
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+---
+ include/linux/skbuff.h  | 4 ++++
+ net/bridge/br_device.c  | 1 +
+ net/bridge/br_forward.c | 3 +++
+ net/bridge/br_input.c   | 1 +
+ 4 files changed, 9 insertions(+)
 
-For each ES, only one VTEP is elected by the control plane as the DF.
-The DF is responsible for forwarding decapsulated BUM traffic to the
-host over the ES. The non-DF VTEPs must drop such traffic as otherwise
-the host will receive multiple copies of BUM traffic. This is called
-"non-DF filtering" [2].
-
-Filtering of multicast and broadcast traffic can be achieved using the
-following flower filter:
-
- # tc filter add dev bond0 egress pref 1 proto all flower indev vxlan0 dst_mac 01:00:00:00:00:00/01:00:00:00:00:00 action drop
-
-Unlike broadcast and multicast traffic, it is not currently possible to
-filter unknown unicast traffic. The classification into unknown unicast
-is performed by the bridge driver, but is not visible to other layers.
-
-Implementation
-==============
-
-The proposed solution is to add a single bit to the skb that is set by
-the bridge for packets that encountered an FDB/MDB miss. The flower
-classifier is extended to be able to match on this new metadata bit in a
-similar fashion to existing metadata options such as 'indev'.
-
-A bit that is set for every flooded packet would also work, but it does
-not allow us to differentiate between registered and unregistered
-multicast traffic which might be useful in the future.
-
-A relatively generic name is chosen for this bit - 'l2_miss' - to allow
-its use to be extended to other layer 2 devices such as VXLAN, should a
-use case arise.
-
-With the above, the control plane can implement a non-DF filter using
-the following tc filters:
-
- # tc filter add dev bond0 egress pref 1 proto all flower indev vxlan0 dst_mac 01:00:00:00:00:00/01:00:00:00:00:00 action drop
- # tc filter add dev bond0 egress pref 2 proto all flower indev vxlan0 l2_miss true action drop
-
-The first drops broadcast and multicast traffic and the second drops
-unknown unicast traffic.
-
-Testing
-=======
-
-A test exercising the different permutations of the 'l2_miss' bit is
-added in patch #5.
-
-Patchset overview
-=================
-
-Patch #1 adds the new bit to the skb and sets it in the bridge driver
-for packets that encountered a miss. The new bit is added in an existing
-hole in the skb in order not to inflate this data structure.
-
-Patch #2 extends the flower classifier to be able to match on the new
-layer 2 miss metadata.
-
-Patch #3 rejects matching on the new metadata in drivers that already
-support the 'FLOW_DISSECTOR_KEY_META' key.
-
-Patch #4 extends mlxsw to be able to match on layer 2 miss.
-
-Patch #5 adds a selftest.
-
-iproute2 patches can be found here [3].
-
-[1] https://datatracker.ietf.org/doc/html/rfc7432#section-8.3
-[2] https://datatracker.ietf.org/doc/html/rfc7432#section-8.5
-[3] https://github.com/idosch/iproute2/tree/submit/non_df_filter_v1
-
-Ido Schimmel (5):
-  skbuff: bridge: Add layer 2 miss indication
-  net/sched: flower: Allow matching on layer 2 miss
-  flow_offload: Reject matching on layer 2 miss
-  mlxsw: spectrum_flower: Add ability to match on layer 2 miss
-  selftests: forwarding: Add layer 2 miss test cases
-
- .../marvell/prestera/prestera_flower.c        |   6 +
- .../net/ethernet/mellanox/mlx5/core/en_tc.c   |   6 +
- .../mellanox/mlxsw/core_acl_flex_keys.c       |   1 +
- .../mellanox/mlxsw/core_acl_flex_keys.h       |   3 +-
- .../mellanox/mlxsw/spectrum_acl_flex_keys.c   |   5 +
- .../ethernet/mellanox/mlxsw/spectrum_flower.c |  16 +
- drivers/net/ethernet/mscc/ocelot_flower.c     |  10 +
- include/linux/skbuff.h                        |   4 +
- include/net/flow_dissector.h                  |   2 +
- include/uapi/linux/pkt_cls.h                  |   2 +
- net/bridge/br_device.c                        |   1 +
- net/bridge/br_forward.c                       |   3 +
- net/bridge/br_input.c                         |   1 +
- net/core/flow_dissector.c                     |   3 +
- net/sched/cls_flower.c                        |  14 +-
- .../testing/selftests/net/forwarding/Makefile |   1 +
- .../net/forwarding/tc_flower_l2_miss.sh       | 343 ++++++++++++++++++
- 17 files changed, 418 insertions(+), 3 deletions(-)
- create mode 100755 tools/testing/selftests/net/forwarding/tc_flower_l2_miss.sh
-
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 738776ab8838..c7a84767ed48 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -801,6 +801,7 @@ typedef unsigned char *sk_buff_data_t;
+  *	@encap_hdr_csum: software checksum is needed
+  *	@csum_valid: checksum is already valid
+  *	@csum_not_inet: use CRC32c to resolve CHECKSUM_PARTIAL
++ *	@l2_miss: Packet did not match an L2 entry during forwarding
+  *	@csum_complete_sw: checksum was completed by software
+  *	@csum_level: indicates the number of consecutive checksums found in
+  *		the packet minus one that have been verified as
+@@ -991,6 +992,9 @@ struct sk_buff {
+ #if IS_ENABLED(CONFIG_IP_SCTP)
+ 	__u8			csum_not_inet:1;
+ #endif
++#if IS_ENABLED(CONFIG_BRIDGE)
++	__u8			l2_miss:1;
++#endif
+ 
+ #ifdef CONFIG_NET_SCHED
+ 	__u16			tc_index;	/* traffic control index */
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 8eca8a5c80c6..91dbdae4afd4 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -39,6 +39,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	u16 vid = 0;
+ 
+ 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
++	skb->l2_miss = 0;
+ 
+ 	rcu_read_lock();
+ 	nf_ops = rcu_dereference(nf_br_ops);
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 57744704ff69..5893648c4da2 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -203,6 +203,8 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
+ 	struct net_bridge_port *prev = NULL;
+ 	struct net_bridge_port *p;
+ 
++	skb->l2_miss = 1;
++
+ 	list_for_each_entry_rcu(p, &br->port_list, list) {
+ 		/* Do not flood unicast traffic to ports that turn it off, nor
+ 		 * other traffic if flood off, except for traffic we originate
+@@ -295,6 +297,7 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
+ 			allow_mode_include = false;
+ 	} else {
+ 		p = NULL;
++		skb->l2_miss = 1;
+ 	}
+ 
+ 	while (p || rp) {
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index fc17b9fd93e6..d8ab5890cbe6 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -334,6 +334,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
+ 		return RX_HANDLER_CONSUMED;
+ 
+ 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
++	skb->l2_miss = 0;
+ 
+ 	p = br_port_get_rcu(skb->dev);
+ 	if (p->flags & BR_VLAN_TUNNEL)
 -- 
 2.40.1
 
