@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 83B2A60E47
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E4A9614A9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CD4B44025D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0100F408EF
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Z9S6RUlmO9Z/UshuanS11ere5EERT8XTAs7u4y0iWwc=;
- b=dHZqPtwdYNjO2SUriDNwqsVFloFlueC1sa3+xBNChaF4itALjSRxvZndyaP9L584z94sKboHQC5ep2Df2pfEWz3aReX6kVI3zZQU27axgiGWAJxn0+CTxRvv2wvvxxcEbRjbIXf72tXvYaWWD3lhnNd2mHXOwhIAGde/ThmPeIVF4pl9Qaesg776WhmPCD4hdcaxlP1FRV7LJt1YMepww1yIx9l4+ihn9MJDO6OnUnhi3QCtVzIRDpWrByDgwgQvHAOF7gL479nw9+C6QVgpuYoqkz9rXVNuFOTLl1M/Ru6PDwW355M/e/kLtkJVW1MPtLHRBSnvdShOUiydr1g2Ew==
+ bh=+JC35ro7zE3aai5AM0voSy7JdBNhtLPukhKGob/b1U8=;
+ b=Xzz6k4KpR3vTW8H6Kezt8Zk6zNTiFJwH42z5yo4GUk3pbs4pLcDvwCsSi5eUp/WuQgz+kIDe+PhgA1h532JKPWK5Md9kcZoTgf3vjITjawNWOewP6EUWxiBk3UV9rRqpAuWaFFYw7zXbN5Tmhe8T7dXijqzryDbELs1HuV2PID7tDje0+KSYbFpTI72vmgmXzK5MV9FFXCdQBGph1b6ITtbCn+xS/+zt/NlA3q0e9XbyRUkkczJNx31LfX53RkMZbmdtlUzA3L1HDQP51a8pNe9TXRq/aZdNLTMVlbmih8o8iBjNhmcbycfLnv55tWk2hYl66ILh94diR/hurgUdCw==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 9 May 2023 10:04:44 +0300
-Message-ID: <20230509070446.246088-4-idosch@nvidia.com>
+Date: Tue, 9 May 2023 10:04:43 +0300
+Message-ID: <20230509070446.246088-3-idosch@nvidia.com>
 In-Reply-To: <20230509070446.246088-1-idosch@nvidia.com>
 References: <20230509070446.246088-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [RFC PATCH net-next 3/5] flow_offload: Reject matching on
-	layer 2 miss
+Subject: [Bridge] [RFC PATCH net-next 2/5] net/sched: flower: Allow matching
+	on layer 2 miss
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,96 +27,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, jiri@resnulli.us, taspelund@nvidia.com, xiyou.wangcong@gmail.com, Ido Schimmel <idosch@nvidia.com>, razor@blackwall.org, jhs@mojatatu.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Adjust drivers that support the 'FLOW_DISSECTOR_KEY_META' key to reject
-filters that try to match on the newly added layer 2 miss option. Add an
-extack message to clearly communicate the failure reason to user space.
-
-Example:
-
- # tc filter add dev swp1 egress pref 1 proto all flower skip_sw l2_miss true action drop
- Error: mlxsw_spectrum: Can't match on "l2_miss".
- We have an error talking to the kernel
+Add the 'TCA_FLOWER_L2_MISS' netlink attribute that allows user space to
+match on packets that encountered a layer 2 miss. The miss indication is
+set as metadata in the skb by the bridge driver upon FDB/MDB lookup
+miss.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- .../net/ethernet/marvell/prestera/prestera_flower.c    |  6 ++++++
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c        |  6 ++++++
- drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c  |  6 ++++++
- drivers/net/ethernet/mscc/ocelot_flower.c              | 10 ++++++++++
- 4 files changed, 28 insertions(+)
+ include/net/flow_dissector.h |  2 ++
+ include/uapi/linux/pkt_cls.h |  2 ++
+ net/core/flow_dissector.c    |  3 +++
+ net/sched/cls_flower.c       | 14 ++++++++++++--
+ 4 files changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_flower.c b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-index 91a478b75cbf..3e20e71b0f81 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-@@ -148,6 +148,12 @@ static int prestera_flower_parse_meta(struct prestera_acl_rule *rule,
- 	__be16 key, mask;
+diff --git a/include/net/flow_dissector.h b/include/net/flow_dissector.h
+index 85b2281576ed..8b41668c77fc 100644
+--- a/include/net/flow_dissector.h
++++ b/include/net/flow_dissector.h
+@@ -243,10 +243,12 @@ struct flow_dissector_key_ip {
+  * struct flow_dissector_key_meta:
+  * @ingress_ifindex: ingress ifindex
+  * @ingress_iftype: ingress interface type
++ * @l2_miss: packet did not match an L2 entry during forwarding
+  */
+ struct flow_dissector_key_meta {
+ 	int ingress_ifindex;
+ 	u16 ingress_iftype;
++	u8 l2_miss;
+ };
  
- 	flow_rule_match_meta(f_rule, &match);
-+
-+	if (match.mask->l2_miss) {
-+		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on \"l2_miss\"");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (match.mask->ingress_ifindex != 0xFFFFFFFF) {
- 		NL_SET_ERR_MSG_MOD(f->common.extack,
- 				   "Unsupported ingress ifindex mask");
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 728b82ce4031..516653568330 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -2586,6 +2586,12 @@ static int mlx5e_flower_parse_meta(struct net_device *filter_dev,
- 		return 0;
+ /**
+diff --git a/include/uapi/linux/pkt_cls.h b/include/uapi/linux/pkt_cls.h
+index 648a82f32666..00933dda7b10 100644
+--- a/include/uapi/linux/pkt_cls.h
++++ b/include/uapi/linux/pkt_cls.h
+@@ -594,6 +594,8 @@ enum {
  
- 	flow_rule_match_meta(rule, &match);
-+
-+	if (match.mask->l2_miss) {
-+		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on \"l2_miss\"");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (!match.mask->ingress_ifindex)
- 		return 0;
+ 	TCA_FLOWER_KEY_L2TPV3_SID,	/* be32 */
  
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-index 594cdcb90b3d..6fec9223250b 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-@@ -294,6 +294,12 @@ static int mlxsw_sp_flower_parse_meta(struct mlxsw_sp_acl_rule_info *rulei,
- 		return 0;
++	TCA_FLOWER_L2_MISS,		/* u8 */
++
+ 	__TCA_FLOWER_MAX,
+ };
  
- 	flow_rule_match_meta(rule, &match);
-+
-+	if (match.mask->l2_miss) {
-+		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on \"l2_miss\"");
-+		return -EOPNOTSUPP;
-+	}
-+
- 	if (match.mask->ingress_ifindex != 0xFFFFFFFF) {
- 		NL_SET_ERR_MSG_MOD(f->common.extack, "Unsupported ingress ifindex mask");
- 		return -EINVAL;
-diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
-index ee052404eb55..e0916afcddfb 100644
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -592,6 +592,16 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int port, bool ingress,
- 		return -EOPNOTSUPP;
+diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
+index 25fb0bbc310f..3776c7bdd228 100644
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -241,6 +241,9 @@ void skb_flow_dissect_meta(const struct sk_buff *skb,
+ 					 FLOW_DISSECTOR_KEY_META,
+ 					 target_container);
+ 	meta->ingress_ifindex = skb->skb_iif;
++#if IS_ENABLED(CONFIG_BRIDGE)
++	meta->l2_miss = skb->l2_miss;
++#endif
+ }
+ EXPORT_SYMBOL(skb_flow_dissect_meta);
+ 
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index 9dbc43388e57..4eb06c6367fc 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -615,7 +615,8 @@ static void *fl_get(struct tcf_proto *tp, u32 handle)
+ }
+ 
+ static const struct nla_policy fl_policy[TCA_FLOWER_MAX + 1] = {
+-	[TCA_FLOWER_UNSPEC]		= { .type = NLA_UNSPEC },
++	[TCA_FLOWER_UNSPEC]		= { .strict_start_type =
++						TCA_FLOWER_L2_MISS },
+ 	[TCA_FLOWER_CLASSID]		= { .type = NLA_U32 },
+ 	[TCA_FLOWER_INDEV]		= { .type = NLA_STRING,
+ 					    .len = IFNAMSIZ },
+@@ -720,7 +721,7 @@ static const struct nla_policy fl_policy[TCA_FLOWER_MAX + 1] = {
+ 	[TCA_FLOWER_KEY_PPPOE_SID]	= { .type = NLA_U16 },
+ 	[TCA_FLOWER_KEY_PPP_PROTO]	= { .type = NLA_U16 },
+ 	[TCA_FLOWER_KEY_L2TPV3_SID]	= { .type = NLA_U32 },
+-
++	[TCA_FLOWER_L2_MISS]		= NLA_POLICY_MAX(NLA_U8, 1),
+ };
+ 
+ static const struct nla_policy
+@@ -1668,6 +1669,10 @@ static int fl_set_key(struct net *net, struct nlattr **tb,
+ 		mask->meta.ingress_ifindex = 0xffffffff;
  	}
  
-+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_META)) {
-+		struct flow_match_meta match;
++	fl_set_key_val(tb, &key->meta.l2_miss, TCA_FLOWER_L2_MISS,
++		       &mask->meta.l2_miss, TCA_FLOWER_UNSPEC,
++		       sizeof(key->meta.l2_miss));
 +
-+		flow_rule_match_meta(rule, &match);
-+		if (match.mask->l2_miss) {
-+			NL_SET_ERR_MSG_MOD(extack, "Can't match on \"l2_miss\"");
-+			return -EOPNOTSUPP;
-+		}
-+	}
+ 	fl_set_key_val(tb, key->eth.dst, TCA_FLOWER_KEY_ETH_DST,
+ 		       mask->eth.dst, TCA_FLOWER_KEY_ETH_DST_MASK,
+ 		       sizeof(key->eth.dst));
+@@ -3074,6 +3079,11 @@ static int fl_dump_key(struct sk_buff *skb, struct net *net,
+ 			goto nla_put_failure;
+ 	}
+ 
++	if (fl_dump_key_val(skb, &key->meta.l2_miss,
++			    TCA_FLOWER_L2_MISS, &mask->meta.l2_miss,
++			    TCA_FLOWER_UNSPEC, sizeof(key->meta.l2_miss)))
++		goto nla_put_failure;
 +
- 	/* For VCAP ES0 (egress rewriter) we can match on the ingress port */
- 	if (!ingress) {
- 		ret = ocelot_flower_parse_indev(ocelot, port, f, filter);
+ 	if (fl_dump_key_val(skb, key->eth.dst, TCA_FLOWER_KEY_ETH_DST,
+ 			    mask->eth.dst, TCA_FLOWER_KEY_ETH_DST_MASK,
+ 			    sizeof(key->eth.dst)) ||
 -- 
 2.40.1
 
