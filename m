@@ -1,21 +1,23 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8E04F6FF4C
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5291961238
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
+Return-Path: <enachman@marvell.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 54D3D60B22
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4208860A88
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=marvell.onmicrosoft.com; s=selector1-marvell-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mKdTRS0ZIQEdAbs+I0FkXntaP1eXB6RVCBy0Hb4d49U=;
- b=tMfMvr/tPp/QLg7T2Fk3f9sTbO2nQ0GmalSTcqPFvOBiVCfcEbXIUVfG6k2/mG0/68Mr9bNv+JEKE2aEKvQYtiy51X4D1IhOoMPSnAu6IBUgwWzQBY0lLI3cuapUJNcuKnEKmTpqCYJ0AaiIntbVZV+SY/ek0k1nuAyg0qFzL042aB3AQ1W8OD6ikxWi9bUbXP6x5H7W6srXGxvHlU88xHlGpbPNzWPYyOvwG5A4/7Drj4lLEwFblICvJQuz7aWTMwa08ZKrcVM3+Xi71f6GhE2klcA8/Y8jmC0jBaCxpPvli6c+DdZBf40SmyaGXa1JqTu1nXXI7wIBrh9xKvjmpw==
-From: Ido Schimmel <idosch@nvidia.com>
-Date: Tue, 9 May 2023 10:04:46 +0300
-Message-ID: <20230509070446.246088-6-idosch@nvidia.com>
-In-Reply-To: <20230509070446.246088-1-idosch@nvidia.com>
+ bh=f6qnClrr04Cd26YVnIk3hbt5OaQVuPPK+HG8FIgWTwA=;
+ b=qPbEdLuhp7WJ8Sh89CMdORrG1z0E8w494r0s3HHtg+UW8LasQ5G0QsyrFB0AoHuGH0oLiwva+l+D0f/ccRr1lOGDfp/1SnxC7e9BDFN1NZSE+m0ajJiEPs+fnu98uwFY43l6797pcF/TObc7xHT11OU8k8csCic9KTiJvasQOx8=
+From: Elad Nachman <enachman@marvell.com>
+Date: Wed, 10 May 2023 09:57:36 +0000
+Message-ID: <BN9PR18MB42515532FEB4A498D39AB073DB779@BN9PR18MB4251.namprd18.prod.outlook.com>
 References: <20230509070446.246088-1-idosch@nvidia.com>
+ <20230509070446.246088-4-idosch@nvidia.com>
+In-Reply-To: <20230509070446.246088-4-idosch@nvidia.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [RFC PATCH net-next 5/5] selftests: forwarding: Add layer
-	2 miss test cases
+Subject: Re: [Bridge] [EXT] [RFC PATCH net-next 3/5] flow_offload: Reject
+ matching on layer 2 miss
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,391 +26,137 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: petrm@nvidia.com, jiri@resnulli.us, taspelund@nvidia.com, xiyou.wangcong@gmail.com, Ido Schimmel <idosch@nvidia.com>, razor@blackwall.org, jhs@mojatatu.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Ido Schimmel <idosch@nvidia.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
+Cc: "petrm@nvidia.com" <petrm@nvidia.com>, "jiri@resnulli.us" <jiri@resnulli.us>, "taspelund@nvidia.com" <taspelund@nvidia.com>, "xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, "razor@blackwall.org" <razor@blackwall.org>, "jhs@mojatatu.com" <jhs@mojatatu.com>, "edumazet@google.com" <edumazet@google.com>, "roopa@nvidia.com" <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>, "davem@davemloft.net" <davem@davemloft.net>
 
-Add test cases to verify that the bridge driver correctly marks layer 2
-misses only when it should and that the flower classifier can match on
-this metadata.
 
-Example output:
 
- # ./tc_flower_l2_miss.sh
- TEST: L2 miss - Unicast                                             [ OK ]
- TEST: L2 miss - Multicast (IPv4)                                    [ OK ]
- TEST: L2 miss - Multicast (IPv6)                                    [ OK ]
- TEST: L2 miss - Link-local multicast (IPv4)                         [ OK ]
- TEST: L2 miss - Link-local multicast (IPv6)                         [ OK ]
- TEST: L2 miss - Broadcast                                           [ OK ]
+> -----Original Message-----
+> From: Ido Schimmel <idosch@nvidia.com>
+> Sent: Tuesday, May 9, 2023 10:05 AM
+> To: netdev@vger.kernel.org; bridge@lists.linux-foundation.org
+> Cc: davem@davemloft.net; kuba@kernel.org; pabeni@redhat.com;
+> edumazet@google.com; razor@blackwall.org; roopa@nvidia.com;
+> jhs@mojatatu.com; xiyou.wangcong@gmail.com; jiri@resnulli.us;
+> petrm@nvidia.com; taspelund@nvidia.com; Ido Schimmel
+> <idosch@nvidia.com>
+> Subject: [EXT] [RFC PATCH net-next 3/5] flow_offload: Reject matching on
+> layer 2 miss
+>=20
+> External Email
+>=20
+> ----------------------------------------------------------------------
+> Adjust drivers that support the 'FLOW_DISSECTOR_KEY_META' key to reject
+> filters that try to match on the newly added layer 2 miss option. Add an
+> extack message to clearly communicate the failure reason to user space.
+>=20
+> Example:
+>=20
+>  # tc filter add dev swp1 egress pref 1 proto all flower skip_sw l2_miss =
+true
+> action drop
+>  Error: mlxsw_spectrum: Can't match on "l2_miss".
+>  We have an error talking to the kernel
+>=20
+> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+>  .../net/ethernet/marvell/prestera/prestera_flower.c    |  6 ++++++
+>  drivers/net/ethernet/mellanox/mlx5/core/en_tc.c        |  6 ++++++
+>  drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c  |  6 ++++++
+>  drivers/net/ethernet/mscc/ocelot_flower.c              | 10 ++++++++++
+>  4 files changed, 28 insertions(+)
+>=20
+> diff --git a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+> b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+> index 91a478b75cbf..3e20e71b0f81 100644
+> --- a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+> +++ b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
+> @@ -148,6 +148,12 @@ static int prestera_flower_parse_meta(struct
+> prestera_acl_rule *rule,
+>  	__be16 key, mask;
+>=20
+>  	flow_rule_match_meta(f_rule, &match);
+> +
+> +	if (match.mask->l2_miss) {
+> +		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on
+> \"l2_miss\"");
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+>  	if (match.mask->ingress_ifindex !=3D 0xFFFFFFFF) {
+>  		NL_SET_ERR_MSG_MOD(f->common.extack,
+>  				   "Unsupported ingress ifindex mask"); diff --
+> git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+> b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+> index 728b82ce4031..516653568330 100644
+> --- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+> +++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+> @@ -2586,6 +2586,12 @@ static int mlx5e_flower_parse_meta(struct
+> net_device *filter_dev,
+>  		return 0;
+>=20
+>  	flow_rule_match_meta(rule, &match);
+> +
+> +	if (match.mask->l2_miss) {
+> +		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on
+> \"l2_miss\"");
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+>  	if (!match.mask->ingress_ifindex)
+>  		return 0;
+>=20
+> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
+> b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
+> index 594cdcb90b3d..6fec9223250b 100644
+> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
+> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
+> @@ -294,6 +294,12 @@ static int mlxsw_sp_flower_parse_meta(struct
+> mlxsw_sp_acl_rule_info *rulei,
+>  		return 0;
+>=20
+>  	flow_rule_match_meta(rule, &match);
+> +
+> +	if (match.mask->l2_miss) {
+> +		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on
+> \"l2_miss\"");
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+>  	if (match.mask->ingress_ifindex !=3D 0xFFFFFFFF) {
+>  		NL_SET_ERR_MSG_MOD(f->common.extack, "Unsupported
+> ingress ifindex mask");
+>  		return -EINVAL;
+> diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c
+> b/drivers/net/ethernet/mscc/ocelot_flower.c
+> index ee052404eb55..e0916afcddfb 100644
+> --- a/drivers/net/ethernet/mscc/ocelot_flower.c
+> +++ b/drivers/net/ethernet/mscc/ocelot_flower.c
+> @@ -592,6 +592,16 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int
+> port, bool ingress,
+>  		return -EOPNOTSUPP;
+>  	}
+>=20
+> +	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_META)) {
+> +		struct flow_match_meta match;
+> +
+> +		flow_rule_match_meta(rule, &match);
+> +		if (match.mask->l2_miss) {
+> +			NL_SET_ERR_MSG_MOD(extack, "Can't match on
+> \"l2_miss\"");
+> +			return -EOPNOTSUPP;
+> +		}
+> +	}
+> +
+>  	/* For VCAP ES0 (egress rewriter) we can match on the ingress port
+> */
+>  	if (!ingress) {
+>  		ret =3D ocelot_flower_parse_indev(ocelot, port, f, filter);
+> --
+> 2.40.1
+>=20
 
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
----
- .../testing/selftests/net/forwarding/Makefile |   1 +
- .../net/forwarding/tc_flower_l2_miss.sh       | 343 ++++++++++++++++++
- 2 files changed, 344 insertions(+)
- create mode 100755 tools/testing/selftests/net/forwarding/tc_flower_l2_miss.sh
+I have reviewed the prestera part. Looks straightforward enough.
 
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index a474c60fe348..9d0062b542e5 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -83,6 +83,7 @@ TEST_PROGS = bridge_igmp.sh \
- 	tc_chains.sh \
- 	tc_flower_router.sh \
- 	tc_flower.sh \
-+	tc_flower_l2_miss.sh \
- 	tc_mpls_l2vpn.sh \
- 	tc_police.sh \
- 	tc_shblocks.sh \
-diff --git a/tools/testing/selftests/net/forwarding/tc_flower_l2_miss.sh b/tools/testing/selftests/net/forwarding/tc_flower_l2_miss.sh
-new file mode 100755
-index 000000000000..fbf0a960b2c8
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/tc_flower_l2_miss.sh
-@@ -0,0 +1,343 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+# +-----------------------+                             +----------------------+
-+# | H1 (vrf)              |                             | H2 (vrf)             |
-+# |    + $h1              |                             |              $h2 +   |
-+# |    | 192.0.2.1/28     |                             |     192.0.2.2/28 |   |
-+# |    | 2001:db8:1::1/64 |                             | 2001:db8:1::2/64 |   |
-+# +----|------------------+                             +------------------|---+
-+#      |                                                                   |
-+# +----|-------------------------------------------------------------------|---+
-+# | SW |                                                                   |   |
-+# |  +-|-------------------------------------------------------------------|-+ |
-+# |  | + $swp1                       BR                              $swp2 + | |
-+# |  +-----------------------------------------------------------------------+ |
-+# +----------------------------------------------------------------------------+
-+
-+ALL_TESTS="
-+	test_l2_miss_unicast
-+	test_l2_miss_multicast
-+	test_l2_miss_ll_multicast
-+	test_l2_miss_broadcast
-+"
-+
-+NUM_NETIFS=4
-+source lib.sh
-+source tc_common.sh
-+
-+h1_create()
-+{
-+	simple_if_init $h1 192.0.2.1/28 2001:db8:1::1/64
-+}
-+
-+h1_destroy()
-+{
-+	simple_if_fini $h1 192.0.2.1/28 2001:db8:1::1/64
-+}
-+
-+h2_create()
-+{
-+	simple_if_init $h2 192.0.2.2/28 2001:db8:1::2/64
-+}
-+
-+h2_destroy()
-+{
-+	simple_if_fini $h2 192.0.2.2/28 2001:db8:1::2/64
-+}
-+
-+switch_create()
-+{
-+	ip link add name br1 up type bridge
-+	ip link set dev $swp1 master br1
-+	ip link set dev $swp1 up
-+	ip link set dev $swp2 master br1
-+	ip link set dev $swp2 up
-+
-+	tc qdisc add dev $swp2 clsact
-+}
-+
-+switch_destroy()
-+{
-+	tc qdisc del dev $swp2 clsact
-+
-+	ip link set dev $swp2 down
-+	ip link set dev $swp2 nomaster
-+	ip link set dev $swp1 down
-+	ip link set dev $swp1 nomaster
-+	ip link del dev br1
-+}
-+
-+test_l2_miss_unicast()
-+{
-+	local dmac=00:01:02:03:04:05
-+	local dip=192.0.2.2
-+	local sip=192.0.2.1
-+
-+	RET=0
-+
-+	# Unknown unicast.
-+	tc filter add dev $swp2 egress protocol ipv4 handle 101 pref 1 \
-+	   flower indev $swp1 l2_miss true dst_mac $dmac src_ip $sip \
-+	   dst_ip $dip action pass
-+	# Known unicast.
-+	tc filter add dev $swp2 egress protocol ipv4 handle 102 pref 1 \
-+	   flower indev $swp1 l2_miss false dst_mac $dmac src_ip $sip \
-+	   dst_ip $dip action pass
-+
-+	# Before adding FDB entry.
-+	$MZ $h1 -a own -b $dmac -t ip -A $sip -B $dip -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 1
-+	check_err $? "Unknown unicast filter was not hit before adding FDB entry"
-+
-+	tc_check_packets "dev $swp2 egress" 102 0
-+	check_err $? "Known unicast filter was hit before adding FDB entry"
-+
-+	# Adding FDB entry.
-+	bridge fdb replace $dmac dev $swp2 master static
-+
-+	$MZ $h1 -a own -b $dmac -t ip -A $sip -B $dip -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 1
-+	check_err $? "Unknown unicast filter was hit after adding FDB entry"
-+
-+	tc_check_packets "dev $swp2 egress" 102 1
-+	check_err $? "Known unicast filter was not hit after adding FDB entry"
-+
-+	# Deleting FDB entry.
-+	bridge fdb del $dmac dev $swp2 master static
-+
-+	$MZ $h1 -a own -b $dmac -t ip -A $sip -B $dip -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 2
-+	check_err $? "Unknown unicast filter was not hit after deleting FDB entry"
-+
-+	tc_check_packets "dev $swp2 egress" 102 1
-+	check_err $? "Known unicast filter was hit after deleting FDB entry"
-+
-+	tc filter del dev $swp2 egress protocol ipv4 pref 1 handle 102 flower
-+	tc filter del dev $swp2 egress protocol ipv4 pref 1 handle 101 flower
-+
-+	log_test "L2 miss - Unicast"
-+}
-+
-+test_l2_miss_multicast_common()
-+{
-+	local proto=$1; shift
-+	local sip=$1; shift
-+	local dip=$1; shift
-+	local mode=$1; shift
-+	local name=$1; shift
-+
-+	RET=0
-+
-+	# Unregistered multicast.
-+	tc filter add dev $swp2 egress protocol $proto handle 101 pref 1 \
-+	   flower indev $swp1 l2_miss true src_ip $sip dst_ip $dip \
-+	   action pass
-+	# Registered multicast.
-+	tc filter add dev $swp2 egress protocol $proto handle 102 pref 1 \
-+	   flower indev $swp1 l2_miss false src_ip $sip dst_ip $dip \
-+	   action pass
-+
-+	# Before adding MDB entry.
-+	$MZ $mode $h1 -t ip -A $sip -B $dip -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 1
-+	check_err $? "Unregistered multicast filter was not hit before adding MDB entry"
-+
-+	tc_check_packets "dev $swp2 egress" 102 0
-+	check_err $? "Registered multicast filter was hit before adding MDB entry"
-+
-+	# Adding MDB entry.
-+	bridge mdb replace dev br1 port $swp2 grp $dip permanent
-+
-+	$MZ $mode $h1 -t ip -A $sip -B $dip -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 1
-+	check_err $? "Unregistered multicast filter was hit after adding MDB entry"
-+
-+	tc_check_packets "dev $swp2 egress" 102 1
-+	check_err $? "Registered multicast filter was not hit after adding MDB entry"
-+
-+	# Deleting MDB entry.
-+	bridge mdb del dev br1 port $swp2 grp $dip
-+
-+	$MZ $mode $h1 -t ip -A $sip -B $dip -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 2
-+	check_err $? "Unregistered multicast filter was not hit after deleting MDB entry"
-+
-+	tc_check_packets "dev $swp2 egress" 102 1
-+	check_err $? "Registered multicast filter was hit after deleting MDB entry"
-+
-+	tc filter del dev $swp2 egress protocol $proto pref 1 handle 102 flower
-+	tc filter del dev $swp2 egress protocol $proto pref 1 handle 101 flower
-+
-+	log_test "L2 miss - Multicast ($name)"
-+}
-+
-+test_l2_miss_multicast_ipv4()
-+{
-+	local proto="ipv4"
-+	local sip=192.0.2.1
-+	local dip=239.1.1.1
-+	local mode="-4"
-+	local name="IPv4"
-+
-+	test_l2_miss_multicast_common $proto $sip $dip $mode $name
-+}
-+
-+test_l2_miss_multicast_ipv6()
-+{
-+	local proto="ipv6"
-+	local sip=2001:db8:1::1
-+	local dip=ff0e::1
-+	local mode="-6"
-+	local name="IPv6"
-+
-+	test_l2_miss_multicast_common $proto $sip $dip $mode $name
-+}
-+
-+test_l2_miss_multicast()
-+{
-+	# Configure $swp2 as a multicast router port so that it will forward
-+	# both registered and unregistered multicast traffic.
-+	bridge link set dev $swp2 mcast_router 2
-+
-+	# Forwarding according to MDB entries only takes place when the bridge
-+	# detects that there is a valid querier in the network. Set the bridge
-+	# as the querier and assign it a valid IPv6 link-local address to be
-+	# used as the source address for MLD queries.
-+	ip link set dev br1 type bridge mcast_querier 1
-+	ip -6 address add fe80::1/64 nodad dev br1
-+	# Wait the default Query Response Interval (10 seconds) for the bridge
-+	# to determine that there are no other queriers in the network.
-+	sleep 10
-+
-+	test_l2_miss_multicast_ipv4
-+	test_l2_miss_multicast_ipv6
-+
-+	ip -6 address del fe80::1/64 dev br1
-+	ip link set dev br1 type bridge mcast_querier 0
-+	bridge link set dev $swp2 mcast_router 1
-+}
-+
-+test_l2_miss_multicast_common2()
-+{
-+	local name=$1; shift
-+	local dmac=$1; shift
-+	local dip=224.0.0.1
-+	local sip=192.0.2.1
-+
-+}
-+
-+test_l2_miss_ll_multicast_common()
-+{
-+	local proto=$1; shift
-+	local dmac=$1; shift
-+	local sip=$1; shift
-+	local dip=$1; shift
-+	local mode=$1; shift
-+	local name=$1; shift
-+
-+	RET=0
-+
-+	tc filter add dev $swp2 egress protocol $proto handle 101 pref 1 \
-+	   flower indev $swp1 l2_miss true dst_mac $dmac src_ip $sip \
-+	   dst_ip $dip action pass
-+
-+	$MZ $mode $h1 -a own -b $dmac -t ip -A $sip -B $dip -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 1
-+	check_err $? "Filter was not hit"
-+
-+	tc filter del dev $swp2 egress protocol $proto pref 1 handle 101 flower
-+
-+	log_test "L2 miss - Link-local multicast ($name)"
-+}
-+
-+test_l2_miss_ll_multicast_ipv4()
-+{
-+	local proto=ipv4
-+	local dmac=01:00:5e:00:00:01
-+	local sip=192.0.2.1
-+	local dip=224.0.0.1
-+	local mode="-4"
-+	local name="IPv4"
-+
-+	test_l2_miss_ll_multicast_common $proto $dmac $sip $dip $mode $name
-+}
-+
-+test_l2_miss_ll_multicast_ipv6()
-+{
-+	local proto=ipv6
-+	local dmac=33:33:00:00:00:01
-+	local sip=2001:db8:1::1
-+	local dip=ff02::1
-+	local mode="-6"
-+	local name="IPv6"
-+
-+	test_l2_miss_ll_multicast_common $proto $dmac $sip $dip $mode $name
-+}
-+
-+test_l2_miss_ll_multicast()
-+{
-+	test_l2_miss_ll_multicast_ipv4
-+	test_l2_miss_ll_multicast_ipv6
-+}
-+
-+test_l2_miss_broadcast()
-+{
-+	local dmac=ff:ff:ff:ff:ff:ff
-+	local smac=00:01:02:03:04:05
-+
-+	RET=0
-+
-+	tc filter add dev $swp2 egress protocol all handle 101 pref 1 \
-+	   flower indev $swp1 l2_miss true dst_mac $dmac src_mac $smac \
-+	   action pass
-+
-+	$MZ $h1 -a $smac -b $dmac -c 1 -p 100 -q
-+
-+	tc_check_packets "dev $swp2 egress" 101 1
-+	check_err $? "Filter was not hit"
-+
-+	tc filter del dev $swp2 egress protocol all pref 1 handle 101 flower
-+
-+	log_test "L2 miss - Broadcast"
-+}
-+
-+setup_prepare()
-+{
-+	h1=${NETIFS[p1]}
-+	swp1=${NETIFS[p2]}
-+
-+	swp2=${NETIFS[p3]}
-+	h2=${NETIFS[p4]}
-+
-+	vrf_prepare
-+	h1_create
-+	h2_create
-+	switch_create
-+}
-+
-+cleanup()
-+{
-+	pre_cleanup
-+
-+	switch_destroy
-+	h2_destroy
-+	h1_destroy
-+	vrf_cleanup
-+}
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+setup_wait
-+
-+tests_run
-+
-+exit $EXIT_STATUS
--- 
-2.40.1
+Acked-by: Elad Nachman <enachman@marvell.com>
 
