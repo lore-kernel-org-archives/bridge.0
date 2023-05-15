@@ -1,23 +1,28 @@
-Return-Path: <enachman@marvell.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 54D3D60B22
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4208860A88
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3989641C80
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E323441C73
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=marvell.onmicrosoft.com; s=selector1-marvell-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=f6qnClrr04Cd26YVnIk3hbt5OaQVuPPK+HG8FIgWTwA=;
- b=qPbEdLuhp7WJ8Sh89CMdORrG1z0E8w494r0s3HHtg+UW8LasQ5G0QsyrFB0AoHuGH0oLiwva+l+D0f/ccRr1lOGDfp/1SnxC7e9BDFN1NZSE+m0ajJiEPs+fnu98uwFY43l6797pcF/TObc7xHT11OU8k8csCic9KTiJvasQOx8=
-From: Elad Nachman <enachman@marvell.com>
-Date: Wed, 10 May 2023 09:57:36 +0000
-Message-ID: <BN9PR18MB42515532FEB4A498D39AB073DB779@BN9PR18MB4251.namprd18.prod.outlook.com>
-References: <20230509070446.246088-1-idosch@nvidia.com>
- <20230509070446.246088-4-idosch@nvidia.com>
-In-Reply-To: <20230509070446.246088-4-idosch@nvidia.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1684143306; x=1686735306;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=b6FHZG952yMeP5d9uy/Sr8OyCyw/Y1TfApSk7BaVv4s=;
+ b=HCWk+uwwmnNzMMeFpIcqFsZbLUsDRIeEHwo1VQDDLHp4Kxy+MKDbJs/9LEH/an1nHo
+ 52YfiUmhHZBk21K/ogwZ0iTfjHETHeHt/oyDQSoRUH0RMVPuwyf+ErqHPIPthVNI8MZs
+ NyhVAfV25jd3pdZZnkhSXLvcyoDnVpV0unslH4x8UMFVLDhwDHW1QH+ecJo5leo6GFd6
+ FPpjypqwOjuUuRwwYX4GBuh6/YLCe77FqMu77N4GDFRyF+8VH/aivB6dNyffMg421ypV
+ kyz4WOZNKDpRYVHUCI5ILNR8sIpp3hl+X2m+5EHqFD55Op50jGDstMgmM80KQQ+kkfgC
+ Q0lg==
+Message-ID: <e8d98be6-d540-59c6-79eb-353715625ea5@blackwall.org>
+Date: Mon, 15 May 2023 12:35:03 +0300
 MIME-Version: 1.0
-Subject: Re: [Bridge] [EXT] [RFC PATCH net-next 3/5] flow_offload: Reject
- matching on layer 2 miss
+Content-Language: en-US
+References: <20230515085046.4457-1-jnixdorf-oss@avm.de>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20230515085046.4457-1-jnixdorf-oss@avm.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Subject: Re: [Bridge] [PATCH net-next 1/2] bridge: Add a limit on FDB entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,137 +31,177 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ido Schimmel <idosch@nvidia.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>
-Cc: "petrm@nvidia.com" <petrm@nvidia.com>, "jiri@resnulli.us" <jiri@resnulli.us>, "taspelund@nvidia.com" <taspelund@nvidia.com>, "xiyou.wangcong@gmail.com" <xiyou.wangcong@gmail.com>, "razor@blackwall.org" <razor@blackwall.org>, "jhs@mojatatu.com" <jhs@mojatatu.com>, "edumazet@google.com" <edumazet@google.com>, "roopa@nvidia.com" <roopa@nvidia.com>, "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>, "davem@davemloft.net" <davem@davemloft.net>
+To: Johannes Nixdorf <jnixdorf-oss@avm.de>, netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-
-
-> -----Original Message-----
-> From: Ido Schimmel <idosch@nvidia.com>
-> Sent: Tuesday, May 9, 2023 10:05 AM
-> To: netdev@vger.kernel.org; bridge@lists.linux-foundation.org
-> Cc: davem@davemloft.net; kuba@kernel.org; pabeni@redhat.com;
-> edumazet@google.com; razor@blackwall.org; roopa@nvidia.com;
-> jhs@mojatatu.com; xiyou.wangcong@gmail.com; jiri@resnulli.us;
-> petrm@nvidia.com; taspelund@nvidia.com; Ido Schimmel
-> <idosch@nvidia.com>
-> Subject: [EXT] [RFC PATCH net-next 3/5] flow_offload: Reject matching on
-> layer 2 miss
->=20
-> External Email
->=20
-> ----------------------------------------------------------------------
-> Adjust drivers that support the 'FLOW_DISSECTOR_KEY_META' key to reject
-> filters that try to match on the newly added layer 2 miss option. Add an
-> extack message to clearly communicate the failure reason to user space.
->=20
-> Example:
->=20
->  # tc filter add dev swp1 egress pref 1 proto all flower skip_sw l2_miss =
-true
-> action drop
->  Error: mlxsw_spectrum: Can't match on "l2_miss".
->  We have an error talking to the kernel
->=20
-> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+On 15/05/2023 11:50, Johannes Nixdorf wrote:
+> A malicious actor behind one bridge port may spam the kernel with packets
+> with a random source MAC address, each of which will create an FDB entry,
+> each of which is a dynamic allocation in the kernel.
+> 
+> There are roughly 2^48 different MAC addresses, further limited by the
+> rhashtable they are stored in to 2^31. Each entry is of the type struct
+> net_bridge_fdb_entry, which is currently 128 bytes big. This means the
+> maximum amount of memory allocated for FDB entries is 2^31 * 128B =
+> 256GiB, which is too much for most computers.
+> 
+> Mitigate this by adding a bridge netlink setting IFLA_BR_FDB_MAX_ENTRIES,
+> which, if nonzero, limits the amount of entries to a user specified
+> maximum.
+> 
+> For backwards compatibility the default setting of 0 disables the limit.
+> 
+> All changes to fdb_n_entries are under br->hash_lock, which means we do
+> not need additional locking. The call paths are (✓ denotes that
+> br->hash_lock is taken around the next call):
+> 
+>  - fdb_delete <-+- fdb_delete_local <-+- br_fdb_changeaddr ✓
+>                 |                     +- br_fdb_change_mac_address ✓
+>                 |                     +- br_fdb_delete_by_port ✓
+>                 +- br_fdb_find_delete_local ✓
+>                 +- fdb_add_local <-+- br_fdb_changeaddr ✓
+>                 |                  +- br_fdb_change_mac_address ✓
+>                 |                  +- br_fdb_add_local ✓
+>                 +- br_fdb_cleanup ✓
+>                 +- br_fdb_flush ✓
+>                 +- br_fdb_delete_by_port ✓
+>                 +- fdb_delete_by_addr_and_port <--- __br_fdb_delete ✓
+>                 +- br_fdb_external_learn_del ✓
+>  - fdb_create <-+- fdb_add_local <-+- br_fdb_changeaddr ✓
+>                 |                  +- br_fdb_change_mac_address ✓
+>                 |                  +- br_fdb_add_local ✓
+>                 +- br_fdb_update ✓
+>                 +- fdb_add_entry <--- __br_fdb_add ✓
+>                 +- br_fdb_external_learn_add ✓
+> 
+> Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 > ---
->  .../net/ethernet/marvell/prestera/prestera_flower.c    |  6 ++++++
->  drivers/net/ethernet/mellanox/mlx5/core/en_tc.c        |  6 ++++++
->  drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c  |  6 ++++++
->  drivers/net/ethernet/mscc/ocelot_flower.c              | 10 ++++++++++
->  4 files changed, 28 insertions(+)
->=20
-> diff --git a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-> b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-> index 91a478b75cbf..3e20e71b0f81 100644
-> --- a/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-> +++ b/drivers/net/ethernet/marvell/prestera/prestera_flower.c
-> @@ -148,6 +148,12 @@ static int prestera_flower_parse_meta(struct
-> prestera_acl_rule *rule,
->  	__be16 key, mask;
->=20
->  	flow_rule_match_meta(f_rule, &match);
+>  include/uapi/linux/if_link.h | 1 +
+>  net/bridge/br_device.c       | 2 ++
+>  net/bridge/br_fdb.c          | 6 ++++++
+>  net/bridge/br_netlink.c      | 9 ++++++++-
+>  net/bridge/br_private.h      | 2 ++
+>  5 files changed, 19 insertions(+), 1 deletion(-)
+> 
+
+Hi,
+If you're sending a patch series please add a cover letter (--cover-letter) which
+explains what the series are trying to do and why.
+I've had a patch that implements this feature for a while but didn't get to upstreaming it. :)
+Anyway more comments below,
+
+> diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+> index 4ac1000b0ef2..27cf5f2d8790 100644
+> --- a/include/uapi/linux/if_link.h
+> +++ b/include/uapi/linux/if_link.h
+> @@ -510,6 +510,7 @@ enum {
+>  	IFLA_BR_VLAN_STATS_PER_PORT,
+>  	IFLA_BR_MULTI_BOOLOPT,
+>  	IFLA_BR_MCAST_QUERIER_STATE,
+> +	IFLA_BR_FDB_MAX_ENTRIES,
+>  	__IFLA_BR_MAX,
+>  };
+>  
+> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+> index 8eca8a5c80c6..d455a28df7c9 100644
+> --- a/net/bridge/br_device.c
+> +++ b/net/bridge/br_device.c
+> @@ -528,6 +528,8 @@ void br_dev_setup(struct net_device *dev)
+>  	br->bridge_hello_time = br->hello_time = 2 * HZ;
+>  	br->bridge_forward_delay = br->forward_delay = 15 * HZ;
+>  	br->bridge_ageing_time = br->ageing_time = BR_DEFAULT_AGEING_TIME;
+> +	br->fdb_n_entries = 0;
+> +	br->fdb_max_entries = 0;
+
+Unnecessary, the private area is already cleared.
+
+>  	dev->max_mtu = ETH_MAX_MTU;
+>  
+>  	br_netfilter_rtable_init(br);
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index e69a872bfc1d..8a833e6dee92 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -329,6 +329,8 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
+>  	hlist_del_init_rcu(&f->fdb_node);
+>  	rhashtable_remove_fast(&br->fdb_hash_tbl, &f->rhnode,
+>  			       br_fdb_rht_params);
+> +	if (!WARN_ON(!br->fdb_n_entries))
+> +		br->fdb_n_entries--;
+
+This is pointless, just put the WARN_ON(!br->fdb_n_entries) above decrementing, if we
+hit that we are already in trouble and not decrementing doesn't help us.
+
+>  	fdb_notify(br, f, RTM_DELNEIGH, swdev_notify);
+>  	call_rcu(&f->rcu, fdb_rcu_free);
+>  }
+> @@ -391,6 +393,9 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
+>  	struct net_bridge_fdb_entry *fdb;
+>  	int err;
+>  
+> +	if (unlikely(br->fdb_max_entries && br->fdb_n_entries >= br->fdb_max_entries))
+> +		return NULL;
 > +
-> +	if (match.mask->l2_miss) {
-> +		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on
-> \"l2_miss\"");
-> +		return -EOPNOTSUPP;
-> +	}
-> +
->  	if (match.mask->ingress_ifindex !=3D 0xFFFFFFFF) {
->  		NL_SET_ERR_MSG_MOD(f->common.extack,
->  				   "Unsupported ingress ifindex mask"); diff --
-> git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-> b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-> index 728b82ce4031..516653568330 100644
-> --- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-> +++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-> @@ -2586,6 +2586,12 @@ static int mlx5e_flower_parse_meta(struct
-> net_device *filter_dev,
->  		return 0;
->=20
->  	flow_rule_match_meta(rule, &match);
-> +
-> +	if (match.mask->l2_miss) {
-> +		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on
-> \"l2_miss\"");
-> +		return -EOPNOTSUPP;
-> +	}
-> +
->  	if (!match.mask->ingress_ifindex)
->  		return 0;
->=20
-> diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-> b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-> index 594cdcb90b3d..6fec9223250b 100644
-> --- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-> +++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-> @@ -294,6 +294,12 @@ static int mlxsw_sp_flower_parse_meta(struct
-> mlxsw_sp_acl_rule_info *rulei,
->  		return 0;
->=20
->  	flow_rule_match_meta(rule, &match);
-> +
-> +	if (match.mask->l2_miss) {
-> +		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on
-> \"l2_miss\"");
-> +		return -EOPNOTSUPP;
-> +	}
-> +
->  	if (match.mask->ingress_ifindex !=3D 0xFFFFFFFF) {
->  		NL_SET_ERR_MSG_MOD(f->common.extack, "Unsupported
-> ingress ifindex mask");
->  		return -EINVAL;
-> diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c
-> b/drivers/net/ethernet/mscc/ocelot_flower.c
-> index ee052404eb55..e0916afcddfb 100644
-> --- a/drivers/net/ethernet/mscc/ocelot_flower.c
-> +++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-> @@ -592,6 +592,16 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int
-> port, bool ingress,
->  		return -EOPNOTSUPP;
+
+This one needs more work, fdb_create() is also used when user-space is adding new
+entries, so it would be nice to return a proper error.
+
+>  	fdb = kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
+>  	if (!fdb)
+>  		return NULL;
+> @@ -408,6 +413,7 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
 >  	}
->=20
-> +	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_META)) {
-> +		struct flow_match_meta match;
+>  
+>  	hlist_add_head_rcu(&fdb->fdb_node, &br->fdb_list);
+> +	br->fdb_n_entries++;
+>  
+>  	return fdb;
+>  }
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 05c5863d2e20..e5b8d36a3291 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -1527,6 +1527,12 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+>  			return err;
+>  	}
+>  
+> +	if (data[IFLA_BR_FDB_MAX_ENTRIES]) {
+> +		u32 val = nla_get_u32(data[IFLA_BR_FDB_MAX_ENTRIES]);
 > +
-> +		flow_rule_match_meta(rule, &match);
-> +		if (match.mask->l2_miss) {
-> +			NL_SET_ERR_MSG_MOD(extack, "Can't match on
-> \"l2_miss\"");
-> +			return -EOPNOTSUPP;
-> +		}
+> +		br->fdb_max_entries = val;
 > +	}
 > +
->  	/* For VCAP ES0 (egress rewriter) we can match on the ingress port
-> */
->  	if (!ingress) {
->  		ret =3D ocelot_flower_parse_indev(ocelot, port, f, filter);
-> --
-> 2.40.1
->=20
+>  	return 0;
+>  }
+>  
+> @@ -1656,7 +1662,8 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+>  	    nla_put_u8(skb, IFLA_BR_TOPOLOGY_CHANGE_DETECTED,
+>  		       br->topology_change_detected) ||
+>  	    nla_put(skb, IFLA_BR_GROUP_ADDR, ETH_ALEN, br->group_addr) ||
+> -	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm))
+> +	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm) ||
+> +	    nla_put_u32(skb, IFLA_BR_FDB_MAX_ENTRIES, br->fdb_max_entries))
 
-I have reviewed the prestera part. Looks straightforward enough.
+You are not returning the current entry count, that is also needed.
 
-Acked-by: Elad Nachman <enachman@marvell.com>
+>  		return -EMSGSIZE;
+>  
+>  #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index 2119729ded2b..64fb359c6e3e 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -494,6 +494,8 @@ struct net_bridge {
+>  #endif
+>  
+>  	struct rhashtable		fdb_hash_tbl;
+> +	u32				fdb_n_entries;
+> +	u32				fdb_max_entries;
+
+These are not critical, so I'd use 4 byte holes in net_bridge and pack it better
+instead of making it larger.
+
+>  	struct list_head		port_list;
+>  #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+>  	union {
 
