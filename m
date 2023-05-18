@@ -1,21 +1,19 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 13219400B8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25A5D40022
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E1068813C2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 75F51813BA
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HzVsWpsxg8gzs1LvHZ7mKUQ5piBodmCsbCSwsQDlS6Y=;
- b=U4wXTE3h5yONVmdeqJFOLPThsze1TrirbUmCGMRcTt9NwU9pOhCX+27Ue1vr4cjGzR6Qy6hNESXaFq3+RoW/OyQ2Ml0PwQ+4QqjaO3/PCnhepvKb6nPqiFxr8OxLCpPUQ0Worc41QFu4SdRRzZNs6R0ewPAXGrRjBjfBId/YFsn3yvs0rx3CR+yGpakiTHzwabjSSENvUHwsjskZQ/g6FEAnY5nFzOQV3qckFRTSrMmqzb9kX9y1an1kxhwLcI2pnMnysO21BUTXTYS0QYryor6NnmZwrghtjPrZ+fe71BG/Qk56kitqVNl+noUvvmmdbUJXLrDfYdbCg6UX2m4HrQ==
+ bh=UHMleX3m93FznwDBF2y4gCuE6x/7s2Xg1JpdqLhsNtY=;
+ b=naST7rBPOuudt4ldSfoKx9yH36EQqP0FKhkd2JrOqxduIlDxJP7NC6NliiWmwqAw2h5fSw2W9cp/4jcR9epySXP9/iv4fic964V/E4VkmmLz/z85gKOPw1UtubuzIbmg/JvefXNI3LC3SN228kCDZCezcPmBsBIzgTz/S3F9ZCT8P1ReeWD1KGvxh5YEpRn0ZGqgdcHKRziS6je0mqZ6qWoyDOVd9rJmsBcKFr/WW2MYEqrkpQ9CeH/BNCP/sBxstRKV6JqFYlFmm8u8ExgqBOJXB/4Zed58OY1x7sWixxPgba3fR36sqSF7UDFsoNuRnCtUvpuiyHWwTQtHtZZpew==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Thu, 18 May 2023 14:33:27 +0300
-Message-ID: <20230518113328.1952135-5-idosch@nvidia.com>
-In-Reply-To: <20230518113328.1952135-1-idosch@nvidia.com>
-References: <20230518113328.1952135-1-idosch@nvidia.com>
+Date: Thu, 18 May 2023 14:33:23 +0300
+Message-ID: <20230518113328.1952135-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 4/5] mlxsw: spectrum_flower: Add ability
-	to match on layer 2 miss
+Subject: [Bridge] [PATCH net-next 0/5] Add layer 2 miss indication and
+	filtering
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,144 +25,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: taras.chornyi@plvision.eu, petrm@nvidia.com, alexandre.belloni@bootlin.com, jiri@resnulli.us, taspelund@nvidia.com, leon@kernel.org, vladimir.oltean@nxp.com, razor@blackwall.org, claudiu.manoil@nxp.com, Ido Schimmel <idosch@nvidia.com>, UNGLinuxDriver@microchip.com, xiyou.wangcong@gmail.com, edumazet@google.com, jhs@mojatatu.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, saeedm@nvidia.com, davem@davemloft.net
 
-Add the 'dmac_type' key element to supported key blocks and make use of
-it to match on layer 2 miss.
+tl;dr
+=====
 
-This is a two bits key in hardware with the following values:
-00b - Known multicast.
-01b - Broadcast.
-10b - Known unicast.
-11b - Unknown unicast or unregistered multicast.
+This patchset adds a single bit to the skb to indicate that a packet
+encountered a layer 2 miss in the bridge and extends flower to match on
+this metadata. This is required for non-DF (Designated Forwarder)
+filtering in EVPN multi-homing which prevents decapsulated BUM packets
+from being forwarded multiple times to the same multi-homed host.
 
-When 'l2_miss' is set we need to match on 01b or 11b. Therefore, only
-match on the LSB in order to differentiate between both cases of
-'l2_miss'.
+Background
+==========
 
-Tested on Spectrum-{1,2,3,4}.
+In a typical EVPN multi-homing setup each host is multi-homed using a
+set of links called ES (Ethernet Segment, i.e., LAG) to multiple leaf
+switches in a rack. These switches act as VTEPs and are not directly
+connected (as opposed to MLAG), but can communicate with each other (as
+well as with VTEPs in remote racks) via spine switches over L3.
 
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
----
- .../mellanox/mlxsw/core_acl_flex_keys.c       |  1 +
- .../mellanox/mlxsw/core_acl_flex_keys.h       |  3 ++-
- .../mellanox/mlxsw/spectrum_acl_flex_keys.c   |  5 +++++
- .../ethernet/mellanox/mlxsw/spectrum_flower.c | 20 ++++++++++++++-----
- 4 files changed, 23 insertions(+), 6 deletions(-)
+When a host sends a BUM packet over ES1 to VTEP1, the VTEP will flood it
+to other VTEPs in the network, including those connected to the host
+over ES1. The receiving VTEPs must drop the packet and not forward it
+back to the host. This is called "split-horizon filtering" (SPH) [1].
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.c b/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.c
-index bd1a51a0a540..81af0b9a4329 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.c
-@@ -42,6 +42,7 @@ static const struct mlxsw_afk_element_info mlxsw_afk_element_infos[] = {
- 	MLXSW_AFK_ELEMENT_INFO_BUF(DST_IP_64_95, 0x34, 4),
- 	MLXSW_AFK_ELEMENT_INFO_BUF(DST_IP_32_63, 0x38, 4),
- 	MLXSW_AFK_ELEMENT_INFO_BUF(DST_IP_0_31, 0x3C, 4),
-+	MLXSW_AFK_ELEMENT_INFO_U32(DMAC_TYPE, 0x40, 0, 2),
- };
- 
- struct mlxsw_afk {
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.h b/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.h
-index 3a037fe47211..6f1649cfa4cb 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_acl_flex_keys.h
-@@ -35,6 +35,7 @@ enum mlxsw_afk_element {
- 	MLXSW_AFK_ELEMENT_IP_DSCP,
- 	MLXSW_AFK_ELEMENT_VIRT_ROUTER_MSB,
- 	MLXSW_AFK_ELEMENT_VIRT_ROUTER_LSB,
-+	MLXSW_AFK_ELEMENT_DMAC_TYPE,
- 	MLXSW_AFK_ELEMENT_MAX,
- };
- 
-@@ -69,7 +70,7 @@ struct mlxsw_afk_element_info {
- 	MLXSW_AFK_ELEMENT_INFO(MLXSW_AFK_ELEMENT_TYPE_BUF,			\
- 			       _element, _offset, 0, _size)
- 
--#define MLXSW_AFK_ELEMENT_STORAGE_SIZE 0x40
-+#define MLXSW_AFK_ELEMENT_STORAGE_SIZE 0x44
- 
- struct mlxsw_afk_element_inst { /* element instance in actual block */
- 	enum mlxsw_afk_element element;
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_flex_keys.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_flex_keys.c
-index 00c32320f891..18a968cded36 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_flex_keys.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_flex_keys.c
-@@ -26,6 +26,7 @@ static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_l2_smac[] = {
- static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_l2_smac_ex[] = {
- 	MLXSW_AFK_ELEMENT_INST_BUF(SMAC_32_47, 0x02, 2),
- 	MLXSW_AFK_ELEMENT_INST_BUF(SMAC_0_31, 0x04, 4),
-+	MLXSW_AFK_ELEMENT_INST_U32(DMAC_TYPE, 0x08, 0, 2),
- 	MLXSW_AFK_ELEMENT_INST_U32(ETHERTYPE, 0x0C, 0, 16),
- };
- 
-@@ -50,6 +51,7 @@ static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_ipv4[] = {
- };
- 
- static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_ipv4_ex[] = {
-+	MLXSW_AFK_ELEMENT_INST_U32(DMAC_TYPE, 0x00, 24, 2),
- 	MLXSW_AFK_ELEMENT_INST_U32(VID, 0x00, 0, 12),
- 	MLXSW_AFK_ELEMENT_INST_U32(PCP, 0x08, 29, 3),
- 	MLXSW_AFK_ELEMENT_INST_U32(SRC_L4_PORT, 0x08, 0, 16),
-@@ -78,6 +80,7 @@ static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_ipv6_sip_ex[] = {
- };
- 
- static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_packet_type[] = {
-+	MLXSW_AFK_ELEMENT_INST_U32(DMAC_TYPE, 0x00, 30, 2),
- 	MLXSW_AFK_ELEMENT_INST_U32(ETHERTYPE, 0x00, 0, 16),
- };
- 
-@@ -123,6 +126,7 @@ const struct mlxsw_afk_ops mlxsw_sp1_afk_ops = {
- };
- 
- static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_mac_0[] = {
-+	MLXSW_AFK_ELEMENT_INST_U32(DMAC_TYPE, 0x00, 0, 2),
- 	MLXSW_AFK_ELEMENT_INST_BUF(DMAC_0_31, 0x04, 4),
- };
- 
-@@ -313,6 +317,7 @@ const struct mlxsw_afk_ops mlxsw_sp2_afk_ops = {
- };
- 
- static struct mlxsw_afk_element_inst mlxsw_sp_afk_element_info_mac_5b[] = {
-+	MLXSW_AFK_ELEMENT_INST_U32(DMAC_TYPE, 0x00, 2, 2),
- 	MLXSW_AFK_ELEMENT_INST_U32(VID, 0x04, 18, 12),
- 	MLXSW_AFK_ELEMENT_INST_EXT_U32(SRC_SYS_PORT, 0x04, 0, 9, -1, true), /* RX_ACL_SYSTEM_PORT */
- };
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-index 6fec9223250b..170a07f35897 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-@@ -295,11 +295,6 @@ static int mlxsw_sp_flower_parse_meta(struct mlxsw_sp_acl_rule_info *rulei,
- 
- 	flow_rule_match_meta(rule, &match);
- 
--	if (match.mask->l2_miss) {
--		NL_SET_ERR_MSG_MOD(f->common.extack, "Can't match on \"l2_miss\"");
--		return -EOPNOTSUPP;
--	}
--
- 	if (match.mask->ingress_ifindex != 0xFFFFFFFF) {
- 		NL_SET_ERR_MSG_MOD(f->common.extack, "Unsupported ingress ifindex mask");
- 		return -EINVAL;
-@@ -327,6 +322,21 @@ static int mlxsw_sp_flower_parse_meta(struct mlxsw_sp_acl_rule_info *rulei,
- 				       MLXSW_AFK_ELEMENT_SRC_SYS_PORT,
- 				       mlxsw_sp_port->local_port,
- 				       0xFFFFFFFF);
-+
-+	/* This is a two bits key in hardware with the following values:
-+	 * 00b - Known multicast.
-+	 * 01b - Broadcast.
-+	 * 10b - Known unicast.
-+	 * 11b - Unknown unicast or unregistered multicast.
-+	 *
-+	 * When 'l2_miss' is set we need to match on 01b or 11b. Therefore,
-+	 * only match on the LSB in order to differentiate between both cases
-+	 * of 'l2_miss'.
-+	 */
-+	mlxsw_sp_acl_rulei_keymask_u32(rulei, MLXSW_AFK_ELEMENT_DMAC_TYPE,
-+				       match.key->l2_miss,
-+				       match.mask->l2_miss & BIT(0));
-+
- 	return 0;
- }
- 
+FRR configures SPH filtering using two tc filters. The first, an ingress
+filter that matches on packets received from VTEP1 and marks them using
+a fwmark (firewall mark). The second, an egress filter configured on the
+LAG interface connected to the host that matches on the fwmark and drops
+the packets. Example:
+
+ # tc filter add dev vxlan0 ingress pref 1 proto all flower enc_src_ip $VTEP1_IP action skbedit mark 101
+ # tc filter add dev bond0 egress pref 1 handle 101 fw action drop
+
+Motivation
+==========
+
+For each ES, only one VTEP is elected by the control plane as the DF.
+The DF is responsible for forwarding decapsulated BUM traffic to the
+host over the ES. The non-DF VTEPs must drop such traffic as otherwise
+the host will receive multiple copies of BUM traffic. This is called
+"non-DF filtering" [2].
+
+Filtering of multicast and broadcast traffic can be achieved using the
+following flower filter:
+
+ # tc filter add dev bond0 egress pref 1 proto all flower indev vxlan0 dst_mac 01:00:00:00:00:00/01:00:00:00:00:00 action drop
+
+Unlike broadcast and multicast traffic, it is not currently possible to
+filter unknown unicast traffic. The classification into unknown unicast
+is performed by the bridge driver, but is not visible to other layers.
+
+Implementation
+==============
+
+The proposed solution is to add a single bit to the skb that is set by
+the bridge for packets that encountered an FDB/MDB miss. The flower
+classifier is extended to be able to match on this new metadata bit in a
+similar fashion to existing metadata options such as 'indev'.
+
+A bit that is set for every flooded packet would also work, but it does
+not allow us to differentiate between registered and unregistered
+multicast traffic which might be useful in the future.
+
+A relatively generic name is chosen for this bit - 'l2_miss' - to allow
+its use to be extended to other layer 2 devices such as VXLAN, should a
+use case arise.
+
+With the above, the control plane can implement a non-DF filter using
+the following tc filters:
+
+ # tc filter add dev bond0 egress pref 1 proto all flower indev vxlan0 dst_mac 01:00:00:00:00:00/01:00:00:00:00:00 action drop
+ # tc filter add dev bond0 egress pref 2 proto all flower indev vxlan0 l2_miss true action drop
+
+The first drops broadcast and multicast traffic and the second drops
+unknown unicast traffic.
+
+Testing
+=======
+
+A test exercising the different permutations of the 'l2_miss' bit is
+added in patch #5.
+
+Patchset overview
+=================
+
+Patch #1 adds the new bit to the skb and sets it in the bridge driver
+for packets that encountered a miss. The new bit is added in an existing
+hole in the skb in order not to inflate this data structure.
+
+Patch #2 extends the flower classifier to be able to match on the new
+layer 2 miss metadata.
+
+Patch #3 rejects matching on the new metadata in drivers that already
+support the 'FLOW_DISSECTOR_KEY_META' key.
+
+Patch #4 extends mlxsw to be able to match on layer 2 miss.
+
+Patch #5 adds a selftest.
+
+iproute2 patches can be found here [3].
+
+Changelog
+=========
+
+Since RFC [4]:
+
+No changes.
+
+[1] https://datatracker.ietf.org/doc/html/rfc7432#section-8.3
+[2] https://datatracker.ietf.org/doc/html/rfc7432#section-8.5
+[3] https://github.com/idosch/iproute2/tree/submit/non_df_filter_v1
+[4] https://lore.kernel.org/netdev/20230509070446.246088-1-idosch@nvidia.com/
+
+Ido Schimmel (5):
+  skbuff: bridge: Add layer 2 miss indication
+  net/sched: flower: Allow matching on layer 2 miss
+  flow_offload: Reject matching on layer 2 miss
+  mlxsw: spectrum_flower: Add ability to match on layer 2 miss
+  selftests: forwarding: Add layer 2 miss test cases
+
+ .../marvell/prestera/prestera_flower.c        |   6 +
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   |   6 +
+ .../mellanox/mlxsw/core_acl_flex_keys.c       |   1 +
+ .../mellanox/mlxsw/core_acl_flex_keys.h       |   3 +-
+ .../mellanox/mlxsw/spectrum_acl_flex_keys.c   |   5 +
+ .../ethernet/mellanox/mlxsw/spectrum_flower.c |  16 +
+ drivers/net/ethernet/mscc/ocelot_flower.c     |  10 +
+ include/linux/skbuff.h                        |   4 +
+ include/net/flow_dissector.h                  |   2 +
+ include/uapi/linux/pkt_cls.h                  |   2 +
+ net/bridge/br_device.c                        |   1 +
+ net/bridge/br_forward.c                       |   3 +
+ net/bridge/br_input.c                         |   1 +
+ net/core/flow_dissector.c                     |   3 +
+ net/sched/cls_flower.c                        |  14 +-
+ .../testing/selftests/net/forwarding/Makefile |   1 +
+ .../net/forwarding/tc_flower_l2_miss.sh       | 343 ++++++++++++++++++
+ 17 files changed, 418 insertions(+), 3 deletions(-)
+ create mode 100755 tools/testing/selftests/net/forwarding/tc_flower_l2_miss.sh
+
 -- 
 2.40.1
 
