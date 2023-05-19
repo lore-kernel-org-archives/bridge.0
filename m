@@ -1,23 +1,23 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A130783B3D
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E80D83B3B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CE55840382
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C21D940114
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LejE3WAnl9Y6W66fvDvFQkIFnGTgR2dh7xS9sL2n9N4=;
- b=KEMaKlIXUHu/9RKNdLPUTL65so9GWtu2T/ncG2N7pCPwCO4PbXhM1US5fD/7YKgsb+ZWbgKfVuU9l66mEYedFi7fqjt2ceOGErysCx1U0wKrKPlZOwsSLR8I5WfD4woQkoFaaUNqAOgZU4j7JRzjV4Nh4GCcweNyYexNyWCF007mmUI4tsaQe/i8IyLBXEY0uEWH3274I5FG42HVgX0AhTeIat633QQpWpNwdy7k6CDeqir2SKCCXaPCutezH2R6QGsaIvfUfZq2jNwH/tMx0Bs2EVbitFL2zTS8J34HcGnAZpMaiRQYZjnrOMbzN5u6QfLBZxEh873zjXyrZ7BpjA==
-Date: Fri, 19 May 2023 16:51:48 +0300
+ bh=Vq8M55z8aydnSsAX2Cifi63WqCfi3ou09nDZiaWuytk=;
+ b=TkSOcfBgf8dSzwUnHTAV1RQZzopeTbr50rirH+fu26OLVrKSYEXqEvhVd/q8wYfJXVo7a3rmvDGhjydiUdL8msii8WZAbP7l5326XNK61c2LXN85iJaOo0wMm6JF3uCZVQhBEhKfPGiBdz2jkU92O3w276YmxkgNI+kAL2Q5MAMhQHN+FiFi99Nhe4ZKLXxQbmS6tMF8DKQv/cspU0ge3EjB26aKllqLX6B7xn1L22eOB11NNimTsMLZjuXiksMjNKFpTmG8USzPrHH8vok/jgOnPnzm6sg4tDD7GoOZ6YUHPFrfB90kP4wKcS1SOX4DwMS5JAi8vw5xB8qTMuoJ2g==
+Date: Fri, 19 May 2023 17:10:58 +0300
 From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <ZGd+9CUBM+eWG5FR@shredder>
+Message-ID: <ZGeDcp2A7qrKZlLk@shredder>
 References: <20230518113328.1952135-1-idosch@nvidia.com>
- <20230518113328.1952135-2-idosch@nvidia.com>
- <1ed139d5-6cb9-90c7-323c-22cf916e96a0@blackwall.org>
+ <20230518113328.1952135-4-idosch@nvidia.com>
+ <ZGdebBM8mxGOTovV@corigine.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1ed139d5-6cb9-90c7-323c-22cf916e96a0@blackwall.org>
+In-Reply-To: <ZGdebBM8mxGOTovV@corigine.com>
 MIME-Version: 1.0
-Subject: Re: [Bridge] [PATCH net-next 1/5] skbuff: bridge: Add layer 2 miss
-	indication
+Subject: Re: [Bridge] [PATCH net-next 3/5] flow_offload: Reject matching on
+ layer 2 miss
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,99 +26,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: taras.chornyi@plvision.eu, petrm@nvidia.com, alexandre.belloni@bootlin.com, jiri@resnulli.us, taspelund@nvidia.com, leon@kernel.org, netdev@vger.kernel.org, xiyou.wangcong@gmail.com, bridge@lists.linux-foundation.org, claudiu.manoil@nxp.com, UNGLinuxDriver@microchip.com, vladimir.oltean@nxp.com, edumazet@google.com, jhs@mojatatu.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, saeedm@nvidia.com, davem@davemloft.net
+To: Simon Horman <simon.horman@corigine.com>, nbd@nbd.name
+Cc: taras.chornyi@plvision.eu, petrm@nvidia.com, alexandre.belloni@bootlin.com, jiri@resnulli.us, taspelund@nvidia.com, leon@kernel.org, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, claudiu.manoil@nxp.com, UNGLinuxDriver@microchip.com, vladimir.oltean@nxp.com, xiyou.wangcong@gmail.com, edumazet@google.com, jhs@mojatatu.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, saeedm@nvidia.com, davem@davemloft.net
 
-On Thu, May 18, 2023 at 07:08:47PM +0300, Nikolay Aleksandrov wrote:
-> On 18/05/2023 14:33, Ido Schimmel wrote:
-> > diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> > index fc17b9fd93e6..d8ab5890cbe6 100644
-> > --- a/net/bridge/br_input.c
-> > +++ b/net/bridge/br_input.c
-> > @@ -334,6 +334,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
-> >  		return RX_HANDLER_CONSUMED;
-> >  
-> >  	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
-> > +	skb->l2_miss = 0;
-> >  
-> >  	p = br_port_get_rcu(skb->dev);
-> >  	if (p->flags & BR_VLAN_TUNNEL)
+On Fri, May 19, 2023 at 01:33:00PM +0200, Simon Horman wrote:
+> On Thu, May 18, 2023 at 02:33:26PM +0300, Ido Schimmel wrote:
+> > Adjust drivers that support the 'FLOW_DISSECTOR_KEY_META' key to reject
+> > filters that try to match on the newly added layer 2 miss option. Add an
+> > extack message to clearly communicate the failure reason to user space.
 > 
-> Overall looks good, only this part is a bit worrisome and needs some additional
-> investigation because now we'll unconditionally dirty a cache line for every
-> packet that is forwarded. Could you please check the effect with perf?
+> Hi Ido,
+> 
+> FLOW_DISSECTOR_KEY_META is also used in the following.
+> Perhaps they don't need updating. But perhaps it is worth mentioning why.
 
-To eliminate it I tried the approach we discussed yesterday:
+Good point.
 
-First, add the miss indication to the bridge's control block which is
-zeroed for every skb entering the bridge:
+> 
+>  * drivers/net/ethernet/mediatek/mtk_ppe_offload.c
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 2119729ded2b..bd5c18286a40 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -581,6 +581,7 @@ struct br_input_skb_cb {
- #endif
-        u8 proxyarp_replied:1;
-        u8 src_port_isolated:1;
-+       u8 miss:1;      /* FDB or MDB lookup miss */
- #ifdef CONFIG_BRIDGE_VLAN_FILTERING
-        u8 vlan_filtered:1;
- #endif
+This driver does not seem to do anything with this key. TBH, I'm not
+sure what is the purpose of this hunk:
 
-And set this bit upon misses instead of skb->l2_miss:
+if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_META)) {
+	struct flow_match_meta match;
 
-@@ -203,6 +205,8 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
-        struct net_bridge_port *prev = NULL;
-        struct net_bridge_port *p;
- 
-+       BR_INPUT_SKB_CB(skb)->miss = 1;
-+
-        list_for_each_entry_rcu(p, &br->port_list, list) {
-                /* Do not flood unicast traffic to ports that turn it off, nor
-                 * other traffic if flood off, except for traffic we originate
-@@ -295,6 +299,7 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
-                        allow_mode_include = false;
-        } else {
-                p = NULL;
-+               BR_INPUT_SKB_CB(skb)->miss = 1;
-        }
- 
-        while (p || rp) {
+	flow_rule_match_meta(rule, &match);
+} else {
+	return -EOPNOTSUPP;
+}
 
-Then copy it to skb->l2_miss at the very end where the cache line
-containing this field is already written to:
+Felix, can you comment?
+Original patch:
+https://lore.kernel.org/netdev/20230518113328.1952135-4-idosch@nvidia.com/
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 84d6dd5e5b1a..89f65564e338 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -50,6 +50,8 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
- 
-        br_switchdev_frame_set_offload_fwd_mark(skb);
- 
-+       skb->l2_miss = BR_INPUT_SKB_CB(skb)->miss;
-+
-        dev_queue_xmit(skb);
- 
-        return 0;
+>  * drivers/net/ethernet/netronome/nfp/flower/conntrack.c
 
-Also for locally received packets:
+My understanding is that this code is for netfilter offload (not tc)
+which does not use the new bit. Adding a check would therefore be dead
+code. I don't mind adding a check or mentioning in the commit message
+why I didn't add one. Let me know what you prefer.
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index fc17b9fd93e6..274e55455b15 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -46,6 +46,8 @@ static int br_pass_frame_up(struct sk_buff *skb)
-         */
-        br_switchdev_frame_unmark(skb);
- 
-+       skb->l2_miss = BR_INPUT_SKB_CB(skb)->miss;
-+
-        /* Bridge is just like any other port.  Make sure the
-         * packet is allowed except in promisc mode when someone
-         * may be running packet capture.
-
-Ran these changes through the selftest and it seems to work.
-
-WDYT?
+Thanks
