@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5DDD960B23
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A6C0960D95
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 37ABB820F8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 77174820E0
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1685371729; x=1687963729;
+ d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1685371761; x=1687963761;
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=JKlNcGPxl9mlN8rwjzjxvcvFuvq/iuxFaFEW8rQumgw=;
- b=2+ehGTQDV5i5XJKBMKEJVAhpQenFILVf+B4gsexsUA5Um9FxW43qvQqvOrdqirhTEh
- ahCo3yiNK4qUcuNG84897QIHQEkj3azmE9Jt2axQJTuFpucPSFSppGjhSv2FApgi8B4G
- wzDVZs3vr4mRQTvehmPNDW26wmFKvq90rAEfWzFBkVFBSRcm8c+m+18OvDfUZmcIlO7J
- MM+CpI6DKSzIR8+Tgl9BT3UooNwsRct8Kn5tsgmmMdd55oYm3LIYDyKCgI8cQ9Fdadjk
- hU9HZz0lxCjl/ARgVd7UfC8N6Z+Z+f5N3XapYLTuzBHPbbiFh3akqI1glxSm0oMA6KjX
- UENw==
-Message-ID: <098121b7-7118-5605-e701-0c47c759ee6c@blackwall.org>
-Date: Mon, 29 May 2023 17:48:46 +0300
+ bh=7Rzi88jwPmtFMmjNwM6+2TYx8VpaCHshCTn+VpfHMLE=;
+ b=FAGhU7jW7A9tLI0VpW7atmg+20AaVVf4TyuPD/Y58xMx3EQzLKftc9ni7z1NaGkvju
+ OrHyWynmv15DprInEjxybJkyRmVr5KeTP7voRFevHss47G0WbdBmYD1+c5W0lT7e5xtm
+ AguMydpgy0f3C/X77K0c+raUC5DlZuUh93iSSaY6aSsvwUYv++TwqAwKCdUe2eoRL7gJ
+ 4oHnIY8HZdAANenhIgFkNl689NdEwJCxC0IslhM/lxl49E7V3srrCMIDbvNYjuDbaEFB
+ nWIWq4utExJM4Eq8J7IGTwYNnhUcmX6s4NPKiqUwsooQZtSgSxboaTN0737Em+FNkKNi
+ lEmg==
+Message-ID: <3582538e-944e-3de6-6415-5384c399e0f5@blackwall.org>
+Date: Mon, 29 May 2023 17:49:18 +0300
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20230529114835.372140-1-idosch@nvidia.com>
- <20230529114835.372140-9-idosch@nvidia.com>
+ <20230529114835.372140-6-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230529114835.372140-9-idosch@nvidia.com>
+In-Reply-To: <20230529114835.372140-6-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 8/8] selftests: forwarding: Add
- layer 2 miss test cases
+Subject: Re: [Bridge] [PATCH net-next v2 5/8] mlxsw: spectrum_flower: Split
+ iif parsing to a separate function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,31 +37,22 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: taras.chornyi@plvision.eu, petrm@nvidia.com, alexandre.belloni@bootlin.com, jiri@resnulli.us, leon@kernel.org, vladimir.oltean@nxp.com, roopa@nvidia.com, claudiu.manoil@nxp.com, UNGLinuxDriver@microchip.com, edumazet@google.com, jhs@mojatatu.com, xiyou.wangcong@gmail.com, simon.horman@corigine.com, kuba@kernel.org, pabeni@redhat.com, saeedm@nvidia.com, davem@davemloft.net
 
 On 29/05/2023 14:48, Ido Schimmel wrote:
-> Add test cases to verify that the bridge driver correctly marks layer 2
-> misses only when it should and that the flower classifier can match on
-> this metadata.
-> 
-> Example output:
-> 
->  # ./tc_flower_l2_miss.sh
->  TEST: L2 miss - Unicast                                             [ OK ]
->  TEST: L2 miss - Multicast (IPv4)                                    [ OK ]
->  TEST: L2 miss - Multicast (IPv6)                                    [ OK ]
->  TEST: L2 miss - Link-local multicast (IPv4)                         [ OK ]
->  TEST: L2 miss - Link-local multicast (IPv6)                         [ OK ]
->  TEST: L2 miss - Broadcast                                           [ OK ]
+> Currently, mlxsw only supports the 'ingress_ifindex' field in the
+> 'FLOW_DISSECTOR_KEY_META' key, but subsequent patches are going to add
+> support for the 'l2_miss' field as well. Split the parsing of the
+> 'ingress_ifindex' field to a separate function to avoid nesting. No
+> functional changes intended.
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
 > 
 > Notes:
 >     v2:
->     * Test that broadcast does not hit miss filter.
+>     * New patch.
 > 
->  .../testing/selftests/net/forwarding/Makefile |   1 +
->  .../net/forwarding/tc_flower_l2_miss.sh       | 350 ++++++++++++++++++
->  2 files changed, 351 insertions(+)
->  create mode 100755 tools/testing/selftests/net/forwarding/tc_flower_l2_miss.sh
+>  .../ethernet/mellanox/mlxsw/spectrum_flower.c | 54 +++++++++++--------
+>  1 file changed, 33 insertions(+), 21 deletions(-)
+> 
 
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 
