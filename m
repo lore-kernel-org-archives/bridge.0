@@ -1,30 +1,13 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC74684304
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 06D4C84303
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1685640332; x=1688232332;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=zQsLOYw2qsyNq/n+5eOaAgo493QBN57EdOSrWMISRRE=;
- b=BIQzhqi2lFWKFCf8MCcXrdp6Ls+Xl+DSWyM1IbjQ05PzaMPk/+jZkx5JcdIMPBey7X
- 6RiIiOmJfpU4vrjY8cUSm0+w4+o2BpfgKd6UZQPXxV84xd9M08PoMmQ1rttHclUHy72D
- 9VnfHl6hE5+U/3wiqmdyrHjmPXRdawFJgNXsVb5Hv0OhN5Ysg8gubJkg5H4mNJnDzc15
- CSoooUjd/9BOPZoPKmqAEbCso0kpZU++EKlCoNJXpALsPvbFep8y4BSmUycAH9qekLlq
- KwEjwUQ17zRtZV5OSjjIxq/T3nwTg49ZEupTLcEEozamE+83GlC+19pUnN2dZS0NvPn4
- +Mvg==
-Message-ID: <258b291e-4631-bb49-58e8-0dc5bf30ed3e@blackwall.org>
-Date: Thu, 1 Jun 2023 20:25:30 +0300
+Return-Path: <3QtODZAkbACMRXYJ9KKDQ9OOHC.FNNFKDTRDQBNMSDMS.BNL@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BDD854015E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6D20340154
 MIME-Version: 1.0
-Content-Language: en-US
-References: <20230601172145.51357-1-stephen@networkplumber.org>
- <20230601172145.51357-4-stephen@networkplumber.org>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230601172145.51357-4-stephen@networkplumber.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH iproute2 3/7] bridge: make print_vlan_info
-	static
+Date: Fri, 09 Jun 2023 18:34:58 -0700
+Message-ID: <00000000000051197705fdbc7e54@google.com>
+From: syzbot <syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: [Bridge] [syzbot] [net?] unregister_netdevice: waiting for DEV to
+	become free (8)
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,52 +16,81 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>, netdev@vger.kernel.org
-Cc: bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>
+To: arnd@arndb.de, bridge@lists.linux-foundation.org, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@nvidia.com, pabeni@redhat.com, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
 
-On 01/06/2023 20:21, Stephen Hemminger wrote:
-> Function defined and used in only one file.
-> 
-> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
-> ---
->  bridge/br_common.h | 1 -
->  bridge/vlan.c      | 3 ++-
->  2 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/bridge/br_common.h b/bridge/br_common.h
-> index 1bdee65844c1..704e76b0acb2 100644
-> --- a/bridge/br_common.h
-> +++ b/bridge/br_common.h
-> @@ -6,7 +6,6 @@
->  #define MDB_RTR_RTA(r) \
->  		((struct rtattr *)(((char *)(r)) + RTA_ALIGN(sizeof(__u32))))
->  
-> -void print_vlan_info(struct rtattr *tb, int ifindex);
->  int print_linkinfo(struct nlmsghdr *n, void *arg);
->  int print_mdb_mon(struct nlmsghdr *n, void *arg);
->  int print_fdb(struct nlmsghdr *n, void *arg);
-> diff --git a/bridge/vlan.c b/bridge/vlan.c
-> index 5b304ea94224..dfc62f83a5df 100644
-> --- a/bridge/vlan.c
-> +++ b/bridge/vlan.c
-> @@ -18,6 +18,7 @@
->  
->  static unsigned int filter_index, filter_vlan;
->  static int vlan_rtm_cur_ifidx = -1;
-> +static void print_vlan_info(struct rtattr *tb, int ifindex);
->  
->  enum vlan_show_subject {
->  	VLAN_SHOW_VLAN,
-> @@ -1309,7 +1310,7 @@ static int vlan_global_show(int argc, char **argv)
->  	return 0;
->  }
->  
-> -void print_vlan_info(struct rtattr *tb, int ifindex)
-> +static void print_vlan_info(struct rtattr *tb, int ifindex)
->  {
->  	struct rtattr *i, *list = tb;
->  	int rem = RTA_PAYLOAD(list);
+Hello,
 
-Thanks,
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+syzbot found the following issue on:
 
+HEAD commit:    67faabbde36b selftests/bpf: Add missing prototypes for sev..
+git tree:       bpf-next
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=1381363b280000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=5335204dcdecfda
+dashboard link: https://syzkaller.appspot.com/bug?extid=881d65229ca4f9ae8c84
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=132faf93280000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10532add280000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/751a0490d875/disk-67faabbd.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/2c5106cd9f1f/vmlinux-67faabbd.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/62c1154294e4/bzImage-67faabbd.xz
+
+The issue was bisected to:
+
+commit ad2f99aedf8fa77f3ae647153284fa63c43d3055
+Author: Arnd Bergmann <arnd@arndb.de>
+Date:   Tue Jul 27 13:45:16 2021 +0000
+
+    net: bridge: move bridge ioctls out of .ndo_do_ioctl
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=146de6f1280000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=166de6f1280000
+console output: https://syzkaller.appspot.com/x/log.txt?x=126de6f1280000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com
+Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
+
+unregister_netdevice: waiting for bridge0 to become free. Usage count = 2
+leaked reference.
+ __netdev_tracker_alloc include/linux/netdevice.h:4070 [inline]
+ netdev_hold include/linux/netdevice.h:4099 [inline]
+ dev_ifsioc+0xbc0/0xeb0 net/core/dev_ioctl.c:408
+ dev_ioctl+0x250/0x1090 net/core/dev_ioctl.c:605
+ sock_do_ioctl+0x15a/0x230 net/socket.c:1215
+ sock_ioctl+0x1f8/0x680 net/socket.c:1318
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:870 [inline]
+ __se_sys_ioctl fs/ioctl.c:856 [inline]
+ __x64_sys_ioctl+0x197/0x210 fs/ioctl.c:856
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+
+If the bug is already fixed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to change bug's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the bug is a duplicate of another bug, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
