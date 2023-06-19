@@ -1,13 +1,21 @@
-Return-Path: <3QtODZAkbACMRXYJ9KKDQ9OOHC.FNNFKDTRDQBNMSDMS.BNL@M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BDD854015E
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6D20340154
+Return-Path: <jnixdorf-oss@avm.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DBC6081BC6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 63DA481AAB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+ t=1687158915; bh=BNp1+DjjLSKZLoGkP0KT3SOsCB2azAY047syYb/kWxQ=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=R7jRjnsXhMjv1X2vrOSJOMJZ/V/dfuxQV5Tyg5kgXwC4Cmn8+TjQwZ1awcblvbRkQ
+ ZMDZzCSHODo3gnm2eNkcf3wI5AmDDf5HxkcjaJV47j/BYNB+qwZODDYUcPD+ZVuKzN
+ 1cyvbnXF70dM2l5PcRQ/1Zpro++e0ySRNCLykQgA=
+From: Johannes Nixdorf <jnixdorf-oss@avm.de>
+Date: Mon, 19 Jun 2023 09:14:41 +0200
+Message-Id: <20230619071444.14625-2-jnixdorf-oss@avm.de>
+In-Reply-To: <20230619071444.14625-1-jnixdorf-oss@avm.de>
+References: <20230619071444.14625-1-jnixdorf-oss@avm.de>
 MIME-Version: 1.0
-Date: Fri, 09 Jun 2023 18:34:58 -0700
-Message-ID: <00000000000051197705fdbc7e54@google.com>
-From: syzbot <syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: [Bridge] [syzbot] [net?] unregister_netdevice: waiting for DEV to
-	become free (8)
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH net-next v2 1/3] bridge: Set BR_FDB_ADDED_BY_USER
+	early in fdb_add_entry
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,81 +24,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: arnd@arndb.de, bridge@lists.linux-foundation.org, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, nikolay@nvidia.com, pabeni@redhat.com, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
+To: bridge@lists.linux-foundation.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Johannes Nixdorf <jnixdorf-oss@avm.de>, Vladimir Oltean <vladimir.oltean@nxp.com>, Nikolay Aleksandrov <razor@blackwall.org>, David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Ido Schimmel <idosch@nvidia.com>, Oleksij Rempel <linux@rempel-privat.de>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-Hello,
+This allows the called fdb_create to detect that the entry was added by
+the user early in the process. This is in preparation to adding limits
+in fdb_create that should not apply to user created fdb entries.
 
-syzbot found the following issue on:
-
-HEAD commit:    67faabbde36b selftests/bpf: Add missing prototypes for sev..
-git tree:       bpf-next
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=1381363b280000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=5335204dcdecfda
-dashboard link: https://syzkaller.appspot.com/bug?extid=881d65229ca4f9ae8c84
-compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=132faf93280000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10532add280000
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/751a0490d875/disk-67faabbd.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/2c5106cd9f1f/vmlinux-67faabbd.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/62c1154294e4/bzImage-67faabbd.xz
-
-The issue was bisected to:
-
-commit ad2f99aedf8fa77f3ae647153284fa63c43d3055
-Author: Arnd Bergmann <arnd@arndb.de>
-Date:   Tue Jul 27 13:45:16 2021 +0000
-
-    net: bridge: move bridge ioctls out of .ndo_do_ioctl
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=146de6f1280000
-final oops:     https://syzkaller.appspot.com/x/report.txt?x=166de6f1280000
-console output: https://syzkaller.appspot.com/x/log.txt?x=126de6f1280000
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com
-Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
-
-unregister_netdevice: waiting for bridge0 to become free. Usage count = 2
-leaked reference.
- __netdev_tracker_alloc include/linux/netdevice.h:4070 [inline]
- netdev_hold include/linux/netdevice.h:4099 [inline]
- dev_ifsioc+0xbc0/0xeb0 net/core/dev_ioctl.c:408
- dev_ioctl+0x250/0x1090 net/core/dev_ioctl.c:605
- sock_do_ioctl+0x15a/0x230 net/socket.c:1215
- sock_ioctl+0x1f8/0x680 net/socket.c:1318
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:870 [inline]
- __se_sys_ioctl fs/ioctl.c:856 [inline]
- __x64_sys_ioctl+0x197/0x210 fs/ioctl.c:856
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
+Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+Changes since v1:
+ - Added this change to ensure user added entries are not limited.
 
-If the bug is already fixed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+ net/bridge/br_fdb.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index e69a872bfc1d..ac1dc8723b9c 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -1056,7 +1056,7 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
+ 		if (!(flags & NLM_F_CREATE))
+ 			return -ENOENT;
+ 
+-		fdb = fdb_create(br, source, addr, vid, 0);
++		fdb = fdb_create(br, source, addr, vid, BR_FDB_ADDED_BY_USER);
+ 		if (!fdb)
+ 			return -ENOMEM;
+ 
+@@ -1069,6 +1069,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
+ 			WRITE_ONCE(fdb->dst, source);
+ 			modified = true;
+ 		}
++
++		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+ 	}
+ 
+ 	if (fdb_to_nud(br, fdb) != state) {
+@@ -1100,8 +1102,6 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
+ 	if (fdb_handle_notify(fdb, notify))
+ 		modified = true;
+ 
+-	set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+-
+ 	fdb->used = jiffies;
+ 	if (modified) {
+ 		if (refresh)
+-- 
+2.40.1
 
-If you want to change bug's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the bug is a duplicate of another bug, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
