@@ -1,30 +1,24 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7AAE3610C5
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9BD5560E24
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1687244168; x=1689836168;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=qURJBP/qdgAxM7ZVrKekMbXpVFwIY0w1rl0S98JqRrY=;
- b=pVTj1zp0/qrrmSSVqckn6CBxM+ggdMfq78nPOEWemBGEdrykXBI0XQ2kljMCagq+Vg
- RMvni/PxPuD77mR/DRMbO9fRTIVKirSfiVMekLPIVnnwr7XnyDHWokPxjnK+xs4VQURU
- FmX+jgJujhzW9VZb1h6oYENi7XasxDaHeICz7Emgf1EUbFcPpPP5HGeHzPAfssfx+dHy
- jreQhybyKOcFqVFQMIITHbBHTit45bw8tk/Xx2V7G/mU/3vTgzUXos68Mhl+kYwt/RZc
- DZFeV8EIClWcZzRaJ/gbgY6a/zyR+8uJNyeZ06zruiaIjtSpTBgJpxwcgkrqWbOKYn2M
- Kk4w==
-Message-ID: <3fdb4091-3dc9-e1f2-26a6-561c021c9fae@blackwall.org>
-Date: Tue, 20 Jun 2023 09:56:06 +0300
-MIME-Version: 1.0
-Content-Language: en-US
+Return-Path: <jnixdorf-oss@avm.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 27FAE8222A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8AB1F81393
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+ t=1687268140; bh=MrPcbeDrxr4HgoSu5jcB9aacR6fimi8U0dJzhnLFLjI=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=rTgv10FJqE2xoImwD8S1DoPammERUkajgGhkxUh+1hCIP7yRNC9OF3Z3IkHSnL8Zz
+ t/YiL38ZLRM1mWMJq1fwS1fcCt4ZLX7tRjYAGXnll9cX2vhE9lTkkEAHFva82hoLxz
+ yODGjEJyrrLBmkL3Xm/977lqFzMelkEr6wsnY2pw=
+Date: Tue, 20 Jun 2023 15:35:41 +0200
+From: Johannes Nixdorf <jnixdorf-oss@avm.de>
+Message-ID: <ZJGrLYsT7CcavLeR@u-jnixdorf.ads.avm.de>
 References: <20230619071444.14625-1-jnixdorf-oss@avm.de>
- <20230619071444.14625-4-jnixdorf-oss@avm.de>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230619071444.14625-4-jnixdorf-oss@avm.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2 3/3] net: bridge: Add a
- configurable default FDB learning limit
+ <20230619071444.14625-3-jnixdorf-oss@avm.de>
+ <aac18591-b06b-d48d-368a-99fc3ac50e24@blackwall.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aac18591-b06b-d48d-368a-99fc3ac50e24@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next v2 2/3] bridge: Add a limit on learned
+ FDB entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,65 +27,118 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Johannes Nixdorf <jnixdorf-oss@avm.de>, bridge@lists.linux-foundation.org
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean <vladimir.oltean@nxp.com>, Ido Schimmel <idosch@nvidia.com>, David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Oleksij Rempel <linux@rempel-privat.de>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Vladimir Oltean <vladimir.oltean@nxp.com>, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org, Roopa Prabhu <roopa@nvidia.com>, Oleksij Rempel <linux@rempel-privat.de>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, David Ahern <dsahern@gmail.com>
 
-On 6/19/23 10:14, Johannes Nixdorf wrote:
-> This adds a Kconfig option to configure a default FDB learning limit
-> system wide, so a distributor building a special purpose kernel can
-> limit all created bridges by default.
+On Tue, Jun 20, 2023 at 09:55:31AM +0300, Nikolay Aleksandrov wrote:
+> On 6/19/23 10:14, Johannes Nixdorf wrote:
+> > +/* Set a FDB flag that implies the entry was not learned, and account
+> > + * for changes in the learned status.
+> > + */
+> > +static void __fdb_set_flag_not_learned(struct net_bridge *br,
+> > +				       struct net_bridge_fdb_entry *fdb,
+> > +				       long nr)
+> > +{
+> > +	WARN_ON_ONCE(!(BIT(nr) & BR_FDB_NOT_LEARNED_MASK));
 > 
-> The limit is only a soft default setting and overridable per bridge
-> using netlink.
-> 
-> Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
-> 
-> ---
-> 
-> Changes since v1:
->   - Added a default limit in Kconfig. (deemed acceptable in review
->     comments)
-> 
->   net/bridge/Kconfig     | 13 +++++++++++++
->   net/bridge/br_device.c |  2 ++
->   2 files changed, 15 insertions(+)
-> 
-> diff --git a/net/bridge/Kconfig b/net/bridge/Kconfig
-> index 3c8ded7d3e84..c0d9c08088c4 100644
-> --- a/net/bridge/Kconfig
-> +++ b/net/bridge/Kconfig
-> @@ -84,3 +84,16 @@ config BRIDGE_CFM
->   	  Say N to exclude this support and reduce the binary size.
->   
->   	  If unsure, say N.
-> +
-> +config BRIDGE_DEFAULT_FDB_MAX_LEARNED
-> +	int "Default FDB learning limit"
-> +	default 0
-> +	depends on BRIDGE
-> +	help
-> +	  Sets a default limit on the number of learned FDB entries on
-> +	  new bridges. This limit can be overwritten via netlink on a
-> +	  per bridge basis.
-> +
-> +	  The default of 0 disables the limit.
-> +
-> +	  If unsure, say 0.
-> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-> index 8eca8a5c80c6..93f081ce8195 100644
-> --- a/net/bridge/br_device.c
-> +++ b/net/bridge/br_device.c
-> @@ -530,6 +530,8 @@ void br_dev_setup(struct net_device *dev)
->   	br->bridge_ageing_time = br->ageing_time = BR_DEFAULT_AGEING_TIME;
->   	dev->max_mtu = ETH_MAX_MTU;
->   
-> +	br->fdb_max_learned_entries = CONFIG_BRIDGE_DEFAULT_FDB_MAX_LEARNED;
-> +
->   	br_netfilter_rtable_init(br);
->   	br_stp_timer_init(br);
->   	br_multicast_init(br);
+> Please use *_bit
 
-IMO this is pointless, noone will set the kconfig option except very 
-specific users. I prefer if we leave it to the distribution to set a 
-maximum on bridge creation, i.e. make it a distro policy.
+Can you tell me which *_bit helper you had in mind? The shortest option I could
+come up with the ones I found seemed needlessly verbose and wasteful:
 
+  static const unsigned long br_fdb_not_learned_mask = BR_FDB_NOT_LEARNED_MASK;
+  ...
+  WARN_ON_ONCE(test_bit(nr, &br_fdb_not_learned_mask));
+
+> > +
+> > +	/* learned before, but we set a flag that implies it's manually added */
+> > +	if (!(fdb->flags & BR_FDB_NOT_LEARNED_MASK))
+> 
+> Please use *_bit
+
+This will be fixed by the redesign to get rid of my use of hash_lock
+(proposed later in this mail), as I'll only have to test one bit and can
+use test_and_clear_bit then.
+
+> > +		br->fdb_cur_learned_entries--;
+> > +	set_bit(nr, &fdb->flags);
+> > +}
+> 
+> Having a helper that conditionally decrements only is counterintuitive and
+> people can get confused. Either add 2 helpers for inc/dec and use
+> them where appropriate or don't use helpers at all.
+
+The *_set_bit helper can only cause the count to drop, as there
+is currently no flag that could turn a manually added entry back into
+a dynamically learned one.
+
+The analogous helper that increments the value would be *_clear_bit,
+which I did not add because it has no users.
+
+> > +	spin_unlock_bh(&br->hash_lock);
+> > +}
+> > +
+> >   /* When a static FDB entry is deleted, the HW address from that entry is
+> >    * also removed from the bridge private HW address list and updates all
+> >    * the ports with needed information.
+> > @@ -321,6 +353,8 @@ static void fdb_del_hw_addr(struct net_bridge *br, const unsigned char *addr)
+> >   static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
+> >   		       bool swdev_notify)
+> >   {
+> > +	bool learned = !(f->flags & BR_FDB_NOT_LEARNED_MASK);
+> 
+> *_bit
+
+I do not know a *_bit helper that would help me test the intersection
+of multiple bits on both sides. Do you have any in mind?
+
+> > +
+> >   	return fdb;
+> >   }
+> > @@ -894,7 +940,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+> >   			}
+> >   			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags)))
+> > -				set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+> > +				fdb_set_flag_not_learned(br, fdb, BR_FDB_ADDED_BY_USER);
+> 
+> Unacceptable to take hash_lock and block all learning here, eventual
+> consistency is ok or some other method that is much lighter and doesn't
+> block all learning or requires a lock.
+
+At the time of writing v2, this seemed difficult because we want to test
+multiple bits and increment a counter, but remembering that clear_bit
+is never called for the bits I care about I came up with the following
+approach:
+
+  a) Add a new flag BR_FDB_DYNAMIC_LEARNED, which is set to 1 iff
+     BR_FDB_ADDED_BY_USER or BR_FDB_LOCAL are set in br_create.
+     Every time BR_FDB_ADDED_BY_USER or BR_FDB_LOCAL is set, also clear
+     BR_FDB_DYNAMIC_LEARNED, and decrement the count if it was 1 before.
+     This solves the problem of testing two bits at once, and would not
+     have been possible if we had a code path that could clear both bits,
+     as it is not as easy to decide when to set BR_FDB_DYNAMIC_LEARNED
+     again in that case.
+  b) Replace the current count with an atomic_t.
+
+I'll change it this way for v3.
+
+> >   		return -EMSGSIZE;
+> >   #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+> > diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> > index 2119729ded2b..df079191479e 100644
+> > --- a/net/bridge/br_private.h
+> > +++ b/net/bridge/br_private.h
+> > @@ -275,6 +275,8 @@ enum {
+> >   	BR_FDB_LOCKED,
+> >   };
+> > +#define BR_FDB_NOT_LEARNED_MASK (BIT(BR_FDB_LOCAL) | BIT(BR_FDB_ADDED_BY_USER))
+> 
+> Not learned sounds confusing and doesn't accurately describe the entry.
+> BR_FDB_DYNAMIC_LEARNED perhaps or some other name, that doesn't cause
+> double negatives (not not learned).
+
+Your proposal would not have captured the mask, as it describes all the
+opposite cases, which were _not_ dynamically learned.
+
+But with the proposed new flag from the hash_lock comment we can trivially
+flip the meaning, so I went with your proposed name there.
