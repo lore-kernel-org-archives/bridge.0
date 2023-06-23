@@ -1,29 +1,30 @@
 Return-Path: <j.granados@samsung.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3885C60A82
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4AC6960A7D
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com
- 20230621134353euoutp018c6ff8dabdeed1eb9c37b5ba647c330d~qsHZ_CVub2580325803euoutp01E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9A60440467
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25A2840193
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com
+ 20230623142135euoutp02ae6a33511d52b0b0b504882654455cb1~rT65bzABM1867918679euoutp02f
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
- s=mail20170921; t=1687355033;
- bh=SetH/myydi6dk+ldkx72EVQztsegim0VSf5FSMMJW28=;
+ s=mail20170921; t=1687530095;
+ bh=EgzcpvZ110/Utd/BaTe+KyRVTbIhIRUuMj7pUOodDxE=;
  h=Date:From:To:CC:Subject:In-Reply-To:References:From;
- b=PTZBv1Kz5BEVObNa7leJ/yxGfQakTivesF5jb6tBj4a7mw0z2DwCV8KG/lz6Htp2A
- zjthU/P8T1sIWZ42nVHC5ArvGqiQK48scKj0Re/P/DwFQFC0M/FPQnfLTFYC/Ucswv
- L2oK3I/5AOGeZQ+wBCu+TIiCshDxA9TJNwfHFkfQ=
-Date: Wed, 21 Jun 2023 15:43:48 +0200
+ b=ETe9c3rm/p2XZgv3Ceh0yrmfAmcg2qlIz1sjDvOaYg8GlmoJPOMkGEfoeYhJjRehJ
+ HdcZbFb+T34Edu1rZVZ90DO5tLfjKLCB3+iwOBoLqpKKRFK1x9egjtJPLLeDDVrt4J
+ e0E+5F5x1q8IymLwOMsyBu8kCfmKCdwYu+Uu3BDc=
+Date: Fri, 23 Jun 2023 16:21:26 +0200
 From: Joel Granados <j.granados@samsung.com>
-Message-ID: <20230621134348.rcdzl7fi7yq2uj6h@localhost>
+Message-ID: <20230623142126.rgdabyokvuwshhmj@localhost>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg="pgp-sha512";
- protocol="application/pgp-signature"; boundary="nwcq3i6cyedok5cv"
+ protocol="application/pgp-signature"; boundary="swgbxx6ykpv57frf"
 Content-Disposition: inline
-In-Reply-To: <878rcd2by5.fsf@intel.com>
+In-Reply-To: <5aba7eee-7a6e-4f3b-9921-e4220d479346@kadam.mountain>
 References: <20230621091000.424843-1-j.granados@samsung.com>
- <CGME20230621094824eucas1p2b6adfbd3f15ff3665674917f419b25d3@eucas1p2.samsung.com>
- <20230621094817.433842-1-j.granados@samsung.com> <87o7l92hg8.fsf@intel.com>
- <20230621130614.s36w4u7dzmb5d5p3@localhost> <878rcd2by5.fsf@intel.com>
-Subject: Re: [Bridge] [PATCH 09/11] sysctl: Remove the end element in sysctl
- table arrays
+ <CGME20230621091022eucas1p1c097da50842b23e902e1a674e117e1aa@eucas1p1.samsung.com>
+ <20230621091000.424843-7-j.granados@samsung.com>
+ <dab06c20-f8b0-4e34-b885-f3537e442d54@kadam.mountain>
+ <5aba7eee-7a6e-4f3b-9921-e4220d479346@kadam.mountain>
+Subject: Re: [Bridge] [PATCH 06/11] sysctl: Add size to register_net_sysctl
+	function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -32,163 +33,207 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>, Miaohe Lin <linmiaohe@huawei.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, dri-devel@lists.freedesktop.org, Ben Segall <bsegall@google.com>, linux-sctp@vger.kernel.org, ocfs2-devel@oss.oracle.com, Miquel Raynal <miquel.raynal@bootlin.com>, Alexander Gordeev <agordeev@linux.ibm.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Wei Liu <wei.liu@kernel.org>, Vincent Guittot <vincent.guittot@linaro.org>, Michael Ellerman <mpe@ellerman.id.au>, bridge@lists.linux-foundation.org, James Morris <jmorris@namei.org>, Christophe Leroy <christophe.leroy@csgroup.eu>, Jozsef Kadlecsik <kadlec@netfilter.org>, Eric Biggers <ebiggers@kernel.org>, linux-cachefs@redhat.com, Mel Gorman <mgorman@suse.de>, "Darrick J.
- Wong" <djwong@kernel.org>, Waiman Long <longman@redhat.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Petr Mladek <pmladek@suse.com>, Martin Schiller <ms@dev.tdt.de>, Russ Weight <russell.h.weight@intel.com>, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Boqun Feng <boqun.feng@gmail.com>, Nicholas Piggin <npiggin@gmail.com>, John Ogness <john.ogness@linutronix.de>, Alexander Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Remi Denis-Courmont <courmisch@gmail.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, Trond Myklebust <trond.myklebust@hammerspace.com>, Anton Altaparmakov <anton@tuxera.com>, Christian Brauner <brauner@kernel.org>, Will Drewry <wad@chromium.org>, Neil Horman <nhorman@tuxdriver.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, mcgrof@kernel.org, Chuck Lever <chuck.lever@oracle.com>, netfilter-devel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, Jiri Olsa <jolsa@kernel.org>, linux-fsdevel@vger.kernel.org, Matthieu Baerts <matthieu.baerts@tessares.net>, Andrew Morton <akpm@linux-foundation.org>, linux-trace-kernel@vger.kernel.org, linux-wpan@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, linux-aio@kvack.org, "Jason A.
- Donenfeld" <Jason@zx2c4.com>, linux-ia64@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>, Dave Hansen <dave.hansen@linux.intel.com>, Clemens Ladisch <clemens@ladisch.de>, Phillip Potter <phil@philpotter.co.uk>, Song Liu <song@kernel.org>, Eric Dumazet <edumazet@google.com>, keyrings@vger.kernel.org, John Stultz <jstultz@google.com>, Stanislav Fomichev <sdf@google.com>, Jan Karcher <jaka@linux.ibm.com>, codalist@telemann.coda.cs.cmu.edu, linux-s390@vger.kernel.org, Valentin Schneider <vschneid@redhat.com>, Stefano Stabellini <sstabellini@kernel.org>, Corey Minyard <minyard@acm.org>, Leon Romanovsky <leon@kernel.org>, Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, Will Deacon <will@kernel.org>, John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, Mat Martineau <martineau@kernel.org>, Matthew Bobrowski <repnop@google.com>, Julian Anastasov <ja@ssi.bg>, coreteam@netfilter.org, Roopa Prabhu <roopa@nvidia.com>, Yonghong Song <yhs@fb.com>, Iurii Zaikin <yzaikin@google.com>, Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Mike Travis <mike.travis@hpe.com>, Wenjia Zhang <wenjia@linux.ibm.com>, Simon Horman <horms@verge.net.au>, Xin Long <lucien.xin@gmail.com>, linux-arm-kernel@lists.infradead.org, fsverity@lists.linux.dev, Hao Luo <haoluo@google.com>, Theodore Ts'o <tytso@mit.edu>, Stephen Boyd <sboyd@kernel.org>, Muchun Song <muchun.song@linux.dev>, Florian Westphal <fw@strlen.de>, Robin Holt <robinmholt@gmail.com>, "David S. Miller" <davem@davemloft.net>, Jon Maloy <jmaloy@redhat.com>, Jarkko Sakkinen <jarkko@kernel.org>, Eric Biederman <ebiederm@xmission.com>, Anna Schumaker <anna@kernel.org>, Daniel Bristot de Oliveira <bristot@redhat.com>, Mike Kravetz <mike.kravetz@oracle.com>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-hams@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Alexei Starovoitov <ast@kernel.org>, Marc Dionne <marc.dionne@auristor.com>, Jiri Slaby <jirislaby@kernel.org>, linux-afs@lists.infradead.org, Daniel Borkmann <daniel@iogearbox.net>, linux-rdma@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, lvs-devel@vger.kernel.org, coda@cs.cmu.edu, Doug Gilbert <dgilbert@interlog.com>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Paolo Abeni <pabeni@redhat.com>, Pablo Neira Ayuso <pablo@netfilter.org>, "Serge E. Hallyn" <serge@hallyn.com>, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, Haiyang Zhang <haiyangz@microsoft.com>, intel-gfx@lists.freedesktop.org, Steven Rostedt <rostedt@goodmis.org>, linux-crypto@vger.kernel.org, Borislav Petkov <bp@alien8.de>, Rodrigo Vivi <rodrigo.vivi@intel.com>, openipmi-developer@lists.sourceforge.net, mptcp@lists.linux.dev, Jan Harkes <jaharkes@cs.cmu.edu>, linux-nfs@vger.kernel.org, "Martin K. Petersen" <martin.petersen@oracle.com>, linux-mm@kvack.org, Jeff Layton <jlayton@kernel.org>, Andy Lutomirski <luto@amacapital.net>, linux-xfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net, netdev@vger.kernel.org, Ying Xue <ying.xue@windriver.com>, bpf@vger.kernel.org, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Alexander Aring <alex.aring@gmail.com>, Jan Kara <jack@suse.cz>, Steve Wahl <steve.wahl@hpe.com>, Peter Zijlstra <peterz@infradead.org>, Balbir Singh <bsingharora@gmail.com>, Amir Goldstein <amir73il@gmail.com>, KP Singh <kpsingh@kernel.org>, David Howells <dhowells@redhat.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "H. Peter
- Anvin" <hpa@zytor.com>, David Airlie <airlied@gmail.com>, Steffen Klassert <steffen.klassert@secunet.com>, rds-devel@oss.oracle.com, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, dccp@vger.kernel.org, Mark Fasheh <mark@fasheh.com>, x86@kernel.org, Russell King <linux@armlinux.org.uk>, Jason Gunthorpe <jgg@ziepe.ca>, Ingo Molnar <mingo@redhat.com>, Jakub Kicinski <kuba@kernel.org>, "James
- E.J. Bottomley" <jejb@linux.ibm.com>, Joerg Reuter <jreuter@yaina.de>, linux-hyperv@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Santosh Shilimkar <santosh.shilimkar@oracle.com>, apparmor@lists.ubuntu.com, linux-raid@vger.kernel.org, Paul Moore <paul@paul-moore.com>, Juergen Gross <jgross@suse.com>, John Johansen <john.johansen@canonical.com>, linux-x25@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, David Ahern <dsahern@kernel.org>, kexec@lists.infradead.org, linux-security-module@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>, tipc-discussion@lists.sourceforge.net, Daniel Vetter <daniel@ffwll.ch>, Martin KaFai Lau <martin.lau@linux.dev>, Karsten Graul <kgraul@linux.ibm.com>, Joel Becker <jlbec@evilplan.org>
+To: Dan Carpenter <dan.carpenter@linaro.org>
+Cc: linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, dccp@vger.kernel.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-sctp@vger.kernel.org, linux-kernel@vger.kernel.org, linux-afs@lists.infradead.org, lvs-devel@vger.kernel.org, mcgrof@kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-hams@vger.kernel.org, linux-wpan@vger.kernel.org, mptcp@lists.linux.dev
 
---nwcq3i6cyedok5cv
+--swgbxx6ykpv57frf
 Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 21, 2023 at 04:15:46PM +0300, Jani Nikula wrote:
-> On Wed, 21 Jun 2023, Joel Granados <j.granados@samsung.com> wrote:
-> > On Wed, Jun 21, 2023 at 02:16:55PM +0300, Jani Nikula wrote:
-> >> On Wed, 21 Jun 2023, Joel Granados <j.granados@samsung.com> wrote:
-> >> > Remove the empty end element from all the arrays that are passed to =
-the
-> >> > register sysctl calls. In some files this means reducing the explicit
-> >> > array size by one. Also make sure that we are using the size in
-> >> > ctl_table_header instead of evaluating the .procname element.
-> >>=20
-> >> Where's the harm in removing the end elements driver by driver? This is
-> >> an unwieldy patch to handle.
-> >
-> > I totally agree. Its a big one!!! but I'm concerned of breaking bisecti=
-bility:
-> > * I could for example separate all the removes into separate commits and
-> >   then have a final commit that removes the check for the empty element.
-> >   But this will leave the tree in a state where the for loop will have
-> >   undefined behavior when it looks for the empty end element. It might
-> >   or might not work (probably not :) until the final commit where I fix
-> >   that.
-> >
-> > * I could also change the logic that looks for the final element,
-> >   commit that first and then remove the empty element one commit per
-> >   driver after that. But then for all the arrays that still have an
-> >   empty element, there would again be undefined behavior as it would
-> >   think that the last element is valid (when it is really the sentinel).
-> >
-> > Any ideas on how to get around these?
->=20
-> First add size to the register calls, and allow the last one to be
-> sentinel but do not require the sentinel.
->=20
-> Start removing sentinels, adjusting the size passed in.
-This is a great idea! and I think I don't even have to adjust the size
-because if I change the logic to stop on the sentinel or the size; so when
-the sentinel is there, it will stop before the size. And when the
-sentinel is not there, it will stop on the correct size.
+Just answering to dan and the lists to avoid noise
 
-There might be issues with indirection calls. And there might also be
-lots of places where I need to adjust a for loop (as dan has pointed
-out) but its worth a try for V2.
+On Wed, Jun 21, 2023 at 01:23:52PM +0300, Dan Carpenter wrote:
+> On Wed, Jun 21, 2023 at 12:47:30PM +0300, Dan Carpenter wrote:
+> > The patchset doesn't include the actual interesting changes, just a
+> > bunch of mechanical prep work.
+> >=20
+> > On Wed, Jun 21, 2023 at 11:09:55AM +0200, Joel Granados wrote:
+> > > diff --git a/net/ieee802154/6lowpan/reassembly.c b/net/ieee802154/6lo=
+wpan/reassembly.c
+> > > index a91283d1e5bf..7b717434368c 100644
+> > > --- a/net/ieee802154/6lowpan/reassembly.c
+> > > +++ b/net/ieee802154/6lowpan/reassembly.c
+> > > @@ -379,7 +379,8 @@ static int __net_init lowpan_frags_ns_sysctl_regi=
+ster(struct net *net)
+> > >  	table[1].extra2	=3D &ieee802154_lowpan->fqdir->high_thresh;
+> > >  	table[2].data	=3D &ieee802154_lowpan->fqdir->timeout;
+> > > =20
+> > > -	hdr =3D register_net_sysctl(net, "net/ieee802154/6lowpan", table);
+> > > +	hdr =3D register_net_sysctl(net, "net/ieee802154/6lowpan", table,
+> > > +				  ARRAY_SIZE(lowpan_frags_ns_ctl_table));
+> >=20
+> > For example, in lowpan_frags_ns_sysctl_register() the sentinel is
+> > sometimes element zero if the user doesn't have enough permissions.  I
+> > would want to ensure that was handled correctly, but that's going to be
+> > done later in a completely different patchset.  I'm definitely not going
+> > to remember to check.
+>=20
+> On reflecting the patch is obviously wrong.  It should be pass zero as
+> table_size in that case.  See diff at the end.
+>=20
+> There is a similar bug in neigh_sysctl_register() where we use memset to
+> zero out the whole table.  And another in __ip_vs_lblc_init().  I used
+> the smatch cross function database
+> 	`smdb.py where ctl_table procname | grep '(null)' | grep min-max`
+> to make a list of functions which set procname to zero.
+>=20
+> Probably we should add a WARN_ON() if procname is zero in the new code
+> which doesn't use sentinels.
+>=20
+> regards,
+> dan carpenter
+>=20
+> drivers/char/random.c          | proc_do_uuid                   | (struct=
+ ctl_table)->procname | 0
+> fs/proc/proc_sysctl.c          | new_dir                        | (struct=
+ ctl_table)->procname | 48,3906148897379000352
+> fs/proc/proc_sysctl.c          | new_links                      | (struct=
+ ctl_table)->procname | 4096-ptr_max
+> arch/arm64/kernel/fpsimd.c     | vec_proc_do_default_vl         | (struct=
+ ctl_table)->procname | 0
+> arch/arm64/kernel/armv8_deprecated.c | register_insn_emulation        | (=
+struct ctl_table)->procname | 0-u64max
+> kernel/sysctl-test.c           | sysctl_test_api_dointvec_null_tbl_data |=
+ (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_maxlen_un=
+set | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_len_is_ze=
+ro | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_read_but_=
+position_set | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_dointvec_read_happy_single_p=
+ositive | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_dointvec_read_happy_single_n=
+egative | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_dointvec_write_happy_single_=
+positive | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_dointvec_write_happy_single_=
+negative | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_api_dointvec_write_single_le=
+ss_int_min | (struct ctl_table)->procname | 7612622206476333056
+> kernel/sysctl-test.c           | sysctl_test_api_dointvec_write_single_gr=
+eater_int_max | (struct ctl_table)->procname | 7612622206476333056
+> net/netfilter/nf_log.c         | netfilter_log_sysctl_init      | (struct=
+ ctl_table)->procname | 0-u64max
+^^^ : These are all false positives as non-sentinel procname gets
+set to a string on the register sysctl path.
+
+> kernel/sysctl.c                | proc_do_static_key             | (struct=
+ ctl_table)->procname | 0
+> kernel/kexec_core.c            | kexec_limit_handler            | (struct=
+ ctl_table)->procname | 0
+> kernel/bpf/syscall.c           | bpf_stats_handler              | (struct=
+ ctl_table)->procname | 0
+> net/core/sysctl_net_core.c     | rps_sock_flow_sysctl           | (struct=
+ ctl_table)->procname | 0
+> net/core/sysctl_net_core.c     | set_default_qdisc              | (struct=
+ ctl_table)->procname | 0
+> net/sctp/sysctl.c              | proc_sctp_do_hmac_alg          | (struct=
+ ctl_table)->procname | 0
+> net/sctp/sysctl.c              | proc_sctp_do_rto_min           | (struct=
+ ctl_table)->procname | 0
+> net/sctp/sysctl.c              | proc_sctp_do_rto_max           | (struct=
+ ctl_table)->procname | 0
+> net/sctp/sysctl.c              | proc_sctp_do_auth              | (struct=
+ ctl_table)->procname | 0
+> net/sctp/sysctl.c              | proc_sctp_do_udp_port          | (struct=
+ ctl_table)->procname | 0
+> net/sctp/sysctl.c              | proc_sctp_do_probe_interval    | (struct=
+ ctl_table)->procname | 0
+> net/ipv6/addrconf.c            | addrconf_sysctl_addr_gen_mode  | (struct=
+ ctl_table)->procname | 0
+> net/phonet/sysctl.c            | proc_local_port_range          | (struct=
+ ctl_table)->procname | 0
+> net/netfilter/ipvs/ip_vs_ctl.c | proc_do_defense_mode           | (struct=
+ ctl_table)->procname | 0
+> net/netfilter/ipvs/ip_vs_ctl.c | proc_do_sync_threshold         | (struct=
+ ctl_table)->procname | 0
+> net/netfilter/ipvs/ip_vs_ctl.c | proc_do_sync_ports             | (struct=
+ ctl_table)->procname | 0
+> net/netfilter/ipvs/ip_vs_ctl.c | ipvs_proc_est_nice             | (struct=
+ ctl_table)->procname | 0
+> net/netfilter/ipvs/ip_vs_ctl.c | ipvs_proc_run_estimation       | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | ipv4_local_port_range          | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | ipv4_privileged_ports          | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | ipv4_ping_group_range          | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_congestion_control    | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_available_congestion_control | =
+(struct ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | proc_allowed_congestion_control | (struc=
+t ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_fastopen_key          | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_available_ulp         | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_ehash_entries         | (struct=
+ ctl_table)->procname | 0
+> net/ipv4/sysctl_net_ipv4.c     | proc_udp_hash_entries          | (struct=
+ ctl_table)->procname | 0
+^^^ : procname gets set to NULL but is not used to register. just as a
+temp ctl_table. Can be ignored.
+
+> net/core/neighbour.c           | neigh_sysctl_register          | (struct=
+ ctl_table)->procname | 0
+^^^ : This is one is tricky. I had handled the case where the sentinel
+is cleared by setting procname to NULL.
+
+> net/netfilter/ipvs/ip_vs_lblc.c | __ip_vs_lblc_init              | (struc=
+t ctl_table)->procname | 0-u64max
+> net/netfilter/ipvs/ip_vs_lblcr.c | __ip_vs_lblcr_init             | (stru=
+ct ctl_table)->procname | 0-u64max
+^^^ : These two where caught by your check. THX!!!!!!
+
+> net/netfilter/ipvs/ip_vs_ctl.c | ip_vs_control_net_init_sysctl  | (struct=
+ ctl_table)->procname | 0-u64max
+^^^ : This one is another one that was caught.
+For this file I noticed that we setup the entire ctl_table for both privile=
+ged
+and unprivileged users. It seems that we could just skip all the setup
+needed for the unprivileged user. Please tell me and I can maybe come
+with a patch for that.
+
+> net/ipv6/route.c               | ipv6_route_sysctl_init         | (struct=
+ ctl_table)->procname | 0-u64max
+> net/ieee802154/6lowpan/reassembly.c | lowpan_frags_ns_sysctl_register | (=
+struct ctl_table)->procname | 0-u64max
+> net/xfrm/xfrm_sysctl.c         | xfrm_sysctl_init               | (struct=
+ ctl_table)->procname | 0-u64max
+> net/ipv4/route.c               | sysctl_route_net_init          | (struct=
+ ctl_table)->procname | 0-u64max
+^^^ : caught by your check!
+
+In total you caught 8 valid errors.
+
+Thx again.
 
 Best
->=20
-> Once enough sentinels have been removed, add warning if the final entry
-> is a sentinel.
->=20
-> Never really remove the check? (But surely you can rework the logic to
-> not count the number of elements up front, only while iterating.)
->=20
->=20
-> BR,
-> Jani.
->=20
-> >>=20
-> >> > diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915=
-/i915_perf.c
-> >> > index f43950219ffc..e4d7372afb10 100644
-> >> > --- a/drivers/gpu/drm/i915/i915_perf.c
-> >> > +++ b/drivers/gpu/drm/i915/i915_perf.c
-> >> > @@ -4884,24 +4884,23 @@ int i915_perf_remove_config_ioctl(struct drm=
-_device *dev, void *data,
-> >> > =20
-> >> >  static struct ctl_table oa_table[] =3D {
-> >> >  	{
-> >> > -	 .procname =3D "perf_stream_paranoid",
-> >> > -	 .data =3D &i915_perf_stream_paranoid,
-> >> > -	 .maxlen =3D sizeof(i915_perf_stream_paranoid),
-> >> > -	 .mode =3D 0644,
-> >> > -	 .proc_handler =3D proc_dointvec_minmax,
-> >> > -	 .extra1 =3D SYSCTL_ZERO,
-> >> > -	 .extra2 =3D SYSCTL_ONE,
-> >> > -	 },
-> >> > +		.procname =3D "perf_stream_paranoid",
-> >> > +		.data =3D &i915_perf_stream_paranoid,
-> >> > +		.maxlen =3D sizeof(i915_perf_stream_paranoid),
-> >> > +		.mode =3D 0644,
-> >> > +		.proc_handler =3D proc_dointvec_minmax,
-> >> > +		.extra1 =3D SYSCTL_ZERO,
-> >> > +		.extra2 =3D SYSCTL_ONE,
-> >> > +	},
-> >> >  	{
-> >> > -	 .procname =3D "oa_max_sample_rate",
-> >> > -	 .data =3D &i915_oa_max_sample_rate,
-> >> > -	 .maxlen =3D sizeof(i915_oa_max_sample_rate),
-> >> > -	 .mode =3D 0644,
-> >> > -	 .proc_handler =3D proc_dointvec_minmax,
-> >> > -	 .extra1 =3D SYSCTL_ZERO,
-> >> > -	 .extra2 =3D &oa_sample_rate_hard_limit,
-> >> > -	 },
-> >> > -	{}
-> >> > +		.procname =3D "oa_max_sample_rate",
-> >> > +		.data =3D &i915_oa_max_sample_rate,
-> >> > +		.maxlen =3D sizeof(i915_oa_max_sample_rate),
-> >> > +		.mode =3D 0644,
-> >> > +		.proc_handler =3D proc_dointvec_minmax,
-> >> > +		.extra1 =3D SYSCTL_ZERO,
-> >> > +		.extra2 =3D &oa_sample_rate_hard_limit,
-> >> > +	}
-> >> >  };
-> >>=20
-> >> The existing indentation is off, but fixing it doesn't really belong in
-> >> this patch.
-> >
-> > Agreed. But I actually was trying to fix something that checkpatch
-> > flagged. I'll change these back (which will cause this patch to be
-> > flagged).
-> >
-> > An alternative solution would be to fix the indentation as part of the
-> > preparation patches. Tell me what you think.
-> >
-> > Thx
-> >
-> >>=20
-> >> BR,
-> >> Jani.
-> >>=20
-> >>=20
-> >> --=20
-> >> Jani Nikula, Intel Open Source Graphics Center
->=20
-> --=20
-> Jani Nikula, Intel Open Source Graphics Center
 
 --=20
 
 Joel Granados
 
---nwcq3i6cyedok5cv
+--swgbxx6ykpv57frf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmSS/pIACgkQupfNUreW
-QU8FZgv+NJjIGObr29DU3w9gC84AcnW6dJTp9wHS00NxSXpo+c714JQ2xV0z8i/m
-wZbyBR21D/CkjJCTL0pwjCh1xi+PdMHmpB9mDlQSxEg6i+fJXBb7GvWvkOfNagP8
-Z2t/NzP/RPP+/BjBP3QOGNyQWgZ4Jl6lMvzlt0aJlHMx7/QD7PRgnNN3KYiFzB+I
-FTf5QLbTT85TSPPoGBQCzF6Ych5vKNmIzRZxD2o1zPJFftGIcYOfYOC7vX/1tuOa
-1l2+maHSi22uTAHFL3XKvcQBxuLeBCoAIgYOGeO0B+wApLgDVUdHb3PPMw74sOuD
-RtgKG6gEgO937g+zKo5xP6M5iLH8xYavJRYPNGH5FBfL7DDROXI6t9tjBpvpUbPS
-VQDducT3r8p7hbIhb+3MnRgJri1yF7SjRZF6iewJ9G3Rd7o8PlcLC3aTZLvilO9j
-4YYKID1bOqsI9tcLY5oeM6HROqdmLhzFQQlzZCCz4Y/1XVO7ZKpJHP97wqBETkbq
-DRVhBHDj
-=lxdq
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmSVqmMACgkQupfNUreW
+QU9g2wv/TmhtYGAUfhchEJ5DYrqk7RdbDAd+0qI8p6L0euVZ8FFDfVZODTOUVA9/
+mvmcT0HvLEy23U3mrCbC2e49Yn7EiKs87UMXHsQRXMwMSfRN8+i5Mnaz7Fd1AZmh
+e1EuAk+Y0K2AW8KaO/Av4yVqWc289VgEyPJABABeEh44pitZ9THyHjuuR8+/4yKN
+NvPpl5x3pbrQ1OMGD9yUiDtJZ1rYZ0Qpus7pXZcbFMOoZa1VNRzhorx1PuqlN5fA
+eusGeiqE32G6z4B1bEOMzJ0Vw4a5fyzOToVPCACfak78WfrnF4LNeClh02gEZVJh
+3Vc0OVySb4DD3v51KWvUFowmbL1OB7pnsIk147h9PqwRpmlCWGmx44QUejXBAkF/
+O6wMW1SxWEGFVCFc2OX/cTf2JLLEdqACpDw7vzi8OUMZ4TSv4MMXpmEztGByCjZy
+6e8Bh3SNVZVC7lUkxZFp1oWl2J2dfXh/J0LwJMz2m0Ev1sEFAgKVosISHUzq3+Aw
+YPXJThO2
+=HDho
 -----END PGP SIGNATURE-----
 
---nwcq3i6cyedok5cv--
+--swgbxx6ykpv57frf--
