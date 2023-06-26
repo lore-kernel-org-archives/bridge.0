@@ -1,30 +1,19 @@
-Return-Path: <j.granados@samsung.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9A60440467
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25A2840193
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com
- 20230623142135euoutp02ae6a33511d52b0b0b504882654455cb1~rT65bzABM1867918679euoutp02f
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
- s=mail20170921; t=1687530095;
- bh=EgzcpvZ110/Utd/BaTe+KyRVTbIhIRUuMj7pUOodDxE=;
- h=Date:From:To:CC:Subject:In-Reply-To:References:From;
- b=ETe9c3rm/p2XZgv3Ceh0yrmfAmcg2qlIz1sjDvOaYg8GlmoJPOMkGEfoeYhJjRehJ
- HdcZbFb+T34Edu1rZVZ90DO5tLfjKLCB3+iwOBoLqpKKRFK1x9egjtJPLLeDDVrt4J
- e0E+5F5x1q8IymLwOMsyBu8kCfmKCdwYu+Uu3BDc=
-Date: Fri, 23 Jun 2023 16:21:26 +0200
-From: Joel Granados <j.granados@samsung.com>
-Message-ID: <20230623142126.rgdabyokvuwshhmj@localhost>
+Return-Path: <astrajoan@yahoo.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D372160B99
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 77A6160B21
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
+ t=1687758624; bh=YSPfpiwOkBQ46XmUoyeSet/T0M+S11yQNJsZwzaMjfg=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To;
+ b=iSwh70zPOJBOQnKaziyB5LolyzqpikN5M1m9tMyTLVltyv3Cxt+lo3W2+wWpqzbj2bamHgx9gIjE1TLjQSeZpvPy9hbRVofxO0DRBTABPMfcCrwYHBz8QxvmHRPf49VRSAlm3ilnd/ESSvBg7Bsyj8ESKhpgk7nwvTG/12S0g2f7+lOy7+L8mip/vpi7myVihS/Wjp155/ClXDePzmLv+m80J/ikiOWI0RyGODnWx656kC6cbhp49js3Y/Ye4FV/7/TgcellX++wQlbeukXzAOjlhOancO5U2BM1ueOT6P1ZPybm2lNpXGFrx18vsL2pUPnzIZRtd9Y4dYabwoTAGg==
+From: Ziqi Zhao <astrajoan@yahoo.com>
+Date: Sun, 25 Jun 2023 22:50:04 -0700
+Message-Id: <20230626055004.29303-1-astrajoan@yahoo.com>
+In-Reply-To: <CAD-N9QXZFMFGp3Vw4449Bx1-ttDVSF3hiwSw=e6+D096UDNfvw@mail.gmail.com>
+References: <CAD-N9QXZFMFGp3Vw4449Bx1-ttDVSF3hiwSw=e6+D096UDNfvw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
- protocol="application/pgp-signature"; boundary="swgbxx6ykpv57frf"
-Content-Disposition: inline
-In-Reply-To: <5aba7eee-7a6e-4f3b-9921-e4220d479346@kadam.mountain>
-References: <20230621091000.424843-1-j.granados@samsung.com>
- <CGME20230621091022eucas1p1c097da50842b23e902e1a674e117e1aa@eucas1p1.samsung.com>
- <20230621091000.424843-7-j.granados@samsung.com>
- <dab06c20-f8b0-4e34-b885-f3537e442d54@kadam.mountain>
- <5aba7eee-7a6e-4f3b-9921-e4220d479346@kadam.mountain>
-Subject: Re: [Bridge] [PATCH 06/11] sysctl: Add size to register_net_sysctl
-	function
+Content-Transfer-Encoding: 8bit
+Subject: [Bridge] [PATCH] can: j1939: prevent deadlock by changing
+	j1939_socks_lock to rwlock
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,207 +22,159 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Dan Carpenter <dan.carpenter@linaro.org>
-Cc: linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, dccp@vger.kernel.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-sctp@vger.kernel.org, linux-kernel@vger.kernel.org, linux-afs@lists.infradead.org, lvs-devel@vger.kernel.org, mcgrof@kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, linux-hams@vger.kernel.org, linux-wpan@vger.kernel.org, mptcp@lists.linux.dev
+To: mudongliangabcd@gmail.com
+Cc: ivan.orlov0322@gmail.com, arnd@arndb.de, roopa@nvidia.com, astrajoan@yahoo.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, edumazet@google.com, nikolay@nvidia.com, netdev@vger.kernel.org, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com, kuba@kernel.org, skhan@linuxfoundation.org, pabeni@redhat.com, davem@davemloft.net
 
---swgbxx6ykpv57frf
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The following 3 locks would race against each other, causing the
+deadlock situation in the Syzbot bug report:
 
-Just answering to dan and the lists to avoid noise
+- j1939_socks_lock
+- active_session_list_lock
+- sk_session_queue_lock
 
-On Wed, Jun 21, 2023 at 01:23:52PM +0300, Dan Carpenter wrote:
-> On Wed, Jun 21, 2023 at 12:47:30PM +0300, Dan Carpenter wrote:
-> > The patchset doesn't include the actual interesting changes, just a
-> > bunch of mechanical prep work.
-> >=20
-> > On Wed, Jun 21, 2023 at 11:09:55AM +0200, Joel Granados wrote:
-> > > diff --git a/net/ieee802154/6lowpan/reassembly.c b/net/ieee802154/6lo=
-wpan/reassembly.c
-> > > index a91283d1e5bf..7b717434368c 100644
-> > > --- a/net/ieee802154/6lowpan/reassembly.c
-> > > +++ b/net/ieee802154/6lowpan/reassembly.c
-> > > @@ -379,7 +379,8 @@ static int __net_init lowpan_frags_ns_sysctl_regi=
-ster(struct net *net)
-> > >  	table[1].extra2	=3D &ieee802154_lowpan->fqdir->high_thresh;
-> > >  	table[2].data	=3D &ieee802154_lowpan->fqdir->timeout;
-> > > =20
-> > > -	hdr =3D register_net_sysctl(net, "net/ieee802154/6lowpan", table);
-> > > +	hdr =3D register_net_sysctl(net, "net/ieee802154/6lowpan", table,
-> > > +				  ARRAY_SIZE(lowpan_frags_ns_ctl_table));
-> >=20
-> > For example, in lowpan_frags_ns_sysctl_register() the sentinel is
-> > sometimes element zero if the user doesn't have enough permissions.  I
-> > would want to ensure that was handled correctly, but that's going to be
-> > done later in a completely different patchset.  I'm definitely not going
-> > to remember to check.
->=20
-> On reflecting the patch is obviously wrong.  It should be pass zero as
-> table_size in that case.  See diff at the end.
->=20
-> There is a similar bug in neigh_sysctl_register() where we use memset to
-> zero out the whole table.  And another in __ip_vs_lblc_init().  I used
-> the smatch cross function database
-> 	`smdb.py where ctl_table procname | grep '(null)' | grep min-max`
-> to make a list of functions which set procname to zero.
->=20
-> Probably we should add a WARN_ON() if procname is zero in the new code
-> which doesn't use sentinels.
->=20
-> regards,
-> dan carpenter
->=20
-> drivers/char/random.c          | proc_do_uuid                   | (struct=
- ctl_table)->procname | 0
-> fs/proc/proc_sysctl.c          | new_dir                        | (struct=
- ctl_table)->procname | 48,3906148897379000352
-> fs/proc/proc_sysctl.c          | new_links                      | (struct=
- ctl_table)->procname | 4096-ptr_max
-> arch/arm64/kernel/fpsimd.c     | vec_proc_do_default_vl         | (struct=
- ctl_table)->procname | 0
-> arch/arm64/kernel/armv8_deprecated.c | register_insn_emulation        | (=
-struct ctl_table)->procname | 0-u64max
-> kernel/sysctl-test.c           | sysctl_test_api_dointvec_null_tbl_data |=
- (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_maxlen_un=
-set | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_len_is_ze=
-ro | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_api_dointvec_table_read_but_=
-position_set | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_dointvec_read_happy_single_p=
-ositive | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_dointvec_read_happy_single_n=
-egative | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_dointvec_write_happy_single_=
-positive | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_dointvec_write_happy_single_=
-negative | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_api_dointvec_write_single_le=
-ss_int_min | (struct ctl_table)->procname | 7612622206476333056
-> kernel/sysctl-test.c           | sysctl_test_api_dointvec_write_single_gr=
-eater_int_max | (struct ctl_table)->procname | 7612622206476333056
-> net/netfilter/nf_log.c         | netfilter_log_sysctl_init      | (struct=
- ctl_table)->procname | 0-u64max
-^^^ : These are all false positives as non-sentinel procname gets
-set to a string on the register sysctl path.
+A reasonable fix is to change j1939_socks_lock to an rwlock, since in
+the rare situations where a write lock is required for the linked list
+that j1939_socks_lock is protecting, the code does not attempt to
+acquire any more locks. This would break the circular lock dependency,
+where, for example, the current thread already locks j1939_socks_lock
+and attempts to acquire sk_session_queue_lock, and at the same time,
+another thread attempts to acquire j1939_socks_lock while holding
+sk_session_queue_lock.
 
-> kernel/sysctl.c                | proc_do_static_key             | (struct=
- ctl_table)->procname | 0
-> kernel/kexec_core.c            | kexec_limit_handler            | (struct=
- ctl_table)->procname | 0
-> kernel/bpf/syscall.c           | bpf_stats_handler              | (struct=
- ctl_table)->procname | 0
-> net/core/sysctl_net_core.c     | rps_sock_flow_sysctl           | (struct=
- ctl_table)->procname | 0
-> net/core/sysctl_net_core.c     | set_default_qdisc              | (struct=
- ctl_table)->procname | 0
-> net/sctp/sysctl.c              | proc_sctp_do_hmac_alg          | (struct=
- ctl_table)->procname | 0
-> net/sctp/sysctl.c              | proc_sctp_do_rto_min           | (struct=
- ctl_table)->procname | 0
-> net/sctp/sysctl.c              | proc_sctp_do_rto_max           | (struct=
- ctl_table)->procname | 0
-> net/sctp/sysctl.c              | proc_sctp_do_auth              | (struct=
- ctl_table)->procname | 0
-> net/sctp/sysctl.c              | proc_sctp_do_udp_port          | (struct=
- ctl_table)->procname | 0
-> net/sctp/sysctl.c              | proc_sctp_do_probe_interval    | (struct=
- ctl_table)->procname | 0
-> net/ipv6/addrconf.c            | addrconf_sysctl_addr_gen_mode  | (struct=
- ctl_table)->procname | 0
-> net/phonet/sysctl.c            | proc_local_port_range          | (struct=
- ctl_table)->procname | 0
-> net/netfilter/ipvs/ip_vs_ctl.c | proc_do_defense_mode           | (struct=
- ctl_table)->procname | 0
-> net/netfilter/ipvs/ip_vs_ctl.c | proc_do_sync_threshold         | (struct=
- ctl_table)->procname | 0
-> net/netfilter/ipvs/ip_vs_ctl.c | proc_do_sync_ports             | (struct=
- ctl_table)->procname | 0
-> net/netfilter/ipvs/ip_vs_ctl.c | ipvs_proc_est_nice             | (struct=
- ctl_table)->procname | 0
-> net/netfilter/ipvs/ip_vs_ctl.c | ipvs_proc_run_estimation       | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | ipv4_local_port_range          | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | ipv4_privileged_ports          | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | ipv4_ping_group_range          | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_congestion_control    | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_available_congestion_control | =
-(struct ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | proc_allowed_congestion_control | (struc=
-t ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_fastopen_key          | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_available_ulp         | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | proc_tcp_ehash_entries         | (struct=
- ctl_table)->procname | 0
-> net/ipv4/sysctl_net_ipv4.c     | proc_udp_hash_entries          | (struct=
- ctl_table)->procname | 0
-^^^ : procname gets set to NULL but is not used to register. just as a
-temp ctl_table. Can be ignored.
+NOTE: This patch along does not fix the unregister_netdevice bug
+reported by Syzbot; instead, it solves a deadlock situation to prepare
+for one or more further patches to actually fix the Syzbot bug, which
+appears to be a reference counting problem within the j1939 codebase.
 
-> net/core/neighbour.c           | neigh_sysctl_register          | (struct=
- ctl_table)->procname | 0
-^^^ : This is one is tricky. I had handled the case where the sentinel
-is cleared by setting procname to NULL.
+Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
+---
+ net/can/j1939/j1939-priv.h |  2 +-
+ net/can/j1939/main.c       |  2 +-
+ net/can/j1939/socket.c     | 25 +++++++++++++------------
+ 3 files changed, 15 insertions(+), 14 deletions(-)
 
-> net/netfilter/ipvs/ip_vs_lblc.c | __ip_vs_lblc_init              | (struc=
-t ctl_table)->procname | 0-u64max
-> net/netfilter/ipvs/ip_vs_lblcr.c | __ip_vs_lblcr_init             | (stru=
-ct ctl_table)->procname | 0-u64max
-^^^ : These two where caught by your check. THX!!!!!!
+diff --git a/net/can/j1939/j1939-priv.h b/net/can/j1939/j1939-priv.h
+index 16af1a7f80f6..74f15592d170 100644
+--- a/net/can/j1939/j1939-priv.h
++++ b/net/can/j1939/j1939-priv.h
+@@ -86,7 +86,7 @@ struct j1939_priv {
+ 	unsigned int tp_max_packet_size;
+ 
+ 	/* lock for j1939_socks list */
+-	spinlock_t j1939_socks_lock;
++	rwlock_t j1939_socks_lock;
+ 	struct list_head j1939_socks;
+ 
+ 	struct kref rx_kref;
+diff --git a/net/can/j1939/main.c b/net/can/j1939/main.c
+index ecff1c947d68..a6fb89fa6278 100644
+--- a/net/can/j1939/main.c
++++ b/net/can/j1939/main.c
+@@ -274,7 +274,7 @@ struct j1939_priv *j1939_netdev_start(struct net_device *ndev)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	j1939_tp_init(priv);
+-	spin_lock_init(&priv->j1939_socks_lock);
++	rwlock_init(&priv->j1939_socks_lock);
+ 	INIT_LIST_HEAD(&priv->j1939_socks);
+ 
+ 	mutex_lock(&j1939_netdev_lock);
+diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
+index 35970c25496a..6dce9d645116 100644
+--- a/net/can/j1939/socket.c
++++ b/net/can/j1939/socket.c
+@@ -80,16 +80,16 @@ static void j1939_jsk_add(struct j1939_priv *priv, struct j1939_sock *jsk)
+ 	jsk->state |= J1939_SOCK_BOUND;
+ 	j1939_priv_get(priv);
+ 
+-	spin_lock_bh(&priv->j1939_socks_lock);
++	write_lock_bh(&priv->j1939_socks_lock);
+ 	list_add_tail(&jsk->list, &priv->j1939_socks);
+-	spin_unlock_bh(&priv->j1939_socks_lock);
++	write_unlock_bh(&priv->j1939_socks_lock);
+ }
+ 
+ static void j1939_jsk_del(struct j1939_priv *priv, struct j1939_sock *jsk)
+ {
+-	spin_lock_bh(&priv->j1939_socks_lock);
++	write_lock_bh(&priv->j1939_socks_lock);
+ 	list_del_init(&jsk->list);
+-	spin_unlock_bh(&priv->j1939_socks_lock);
++	write_unlock_bh(&priv->j1939_socks_lock);
+ 
+ 	j1939_priv_put(priv);
+ 	jsk->state &= ~J1939_SOCK_BOUND;
+@@ -329,13 +329,13 @@ bool j1939_sk_recv_match(struct j1939_priv *priv, struct j1939_sk_buff_cb *skcb)
+ 	struct j1939_sock *jsk;
+ 	bool match = false;
+ 
+-	spin_lock_bh(&priv->j1939_socks_lock);
++	read_lock_bh(&priv->j1939_socks_lock);
+ 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
+ 		match = j1939_sk_recv_match_one(jsk, skcb);
+ 		if (match)
+ 			break;
+ 	}
+-	spin_unlock_bh(&priv->j1939_socks_lock);
++	read_unlock_bh(&priv->j1939_socks_lock);
+ 
+ 	return match;
+ }
+@@ -344,11 +344,11 @@ void j1939_sk_recv(struct j1939_priv *priv, struct sk_buff *skb)
+ {
+ 	struct j1939_sock *jsk;
+ 
+-	spin_lock_bh(&priv->j1939_socks_lock);
++	read_lock_bh(&priv->j1939_socks_lock);
+ 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
+ 		j1939_sk_recv_one(jsk, skb);
+ 	}
+-	spin_unlock_bh(&priv->j1939_socks_lock);
++	read_unlock_bh(&priv->j1939_socks_lock);
+ }
+ 
+ static void j1939_sk_sock_destruct(struct sock *sk)
+@@ -484,6 +484,7 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 
+ 		priv = j1939_netdev_start(ndev);
+ 		dev_put(ndev);
++
+ 		if (IS_ERR(priv)) {
+ 			ret = PTR_ERR(priv);
+ 			goto out_release_sock;
+@@ -1078,12 +1079,12 @@ void j1939_sk_errqueue(struct j1939_session *session,
+ 	}
+ 
+ 	/* spread RX notifications to all sockets subscribed to this session */
+-	spin_lock_bh(&priv->j1939_socks_lock);
++	read_lock_bh(&priv->j1939_socks_lock);
+ 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
+ 		if (j1939_sk_recv_match_one(jsk, &session->skcb))
+ 			__j1939_sk_errqueue(session, &jsk->sk, type);
+ 	}
+-	spin_unlock_bh(&priv->j1939_socks_lock);
++	read_unlock_bh(&priv->j1939_socks_lock);
+ };
+ 
+ void j1939_sk_send_loop_abort(struct sock *sk, int err)
+@@ -1271,7 +1272,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
+ 	struct j1939_sock *jsk;
+ 	int error_code = ENETDOWN;
+ 
+-	spin_lock_bh(&priv->j1939_socks_lock);
++	read_lock_bh(&priv->j1939_socks_lock);
+ 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
+ 		jsk->sk.sk_err = error_code;
+ 		if (!sock_flag(&jsk->sk, SOCK_DEAD))
+@@ -1279,7 +1280,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
+ 
+ 		j1939_sk_queue_drop_all(priv, jsk, error_code);
+ 	}
+-	spin_unlock_bh(&priv->j1939_socks_lock);
++	read_unlock_bh(&priv->j1939_socks_lock);
+ }
+ 
+ static int j1939_sk_no_ioctlcmd(struct socket *sock, unsigned int cmd,
+-- 
+2.34.1
 
-> net/netfilter/ipvs/ip_vs_ctl.c | ip_vs_control_net_init_sysctl  | (struct=
- ctl_table)->procname | 0-u64max
-^^^ : This one is another one that was caught.
-For this file I noticed that we setup the entire ctl_table for both privile=
-ged
-and unprivileged users. It seems that we could just skip all the setup
-needed for the unprivileged user. Please tell me and I can maybe come
-with a patch for that.
-
-> net/ipv6/route.c               | ipv6_route_sysctl_init         | (struct=
- ctl_table)->procname | 0-u64max
-> net/ieee802154/6lowpan/reassembly.c | lowpan_frags_ns_sysctl_register | (=
-struct ctl_table)->procname | 0-u64max
-> net/xfrm/xfrm_sysctl.c         | xfrm_sysctl_init               | (struct=
- ctl_table)->procname | 0-u64max
-> net/ipv4/route.c               | sysctl_route_net_init          | (struct=
- ctl_table)->procname | 0-u64max
-^^^ : caught by your check!
-
-In total you caught 8 valid errors.
-
-Thx again.
-
-Best
-
---=20
-
-Joel Granados
-
---swgbxx6ykpv57frf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmSVqmMACgkQupfNUreW
-QU9g2wv/TmhtYGAUfhchEJ5DYrqk7RdbDAd+0qI8p6L0euVZ8FFDfVZODTOUVA9/
-mvmcT0HvLEy23U3mrCbC2e49Yn7EiKs87UMXHsQRXMwMSfRN8+i5Mnaz7Fd1AZmh
-e1EuAk+Y0K2AW8KaO/Av4yVqWc289VgEyPJABABeEh44pitZ9THyHjuuR8+/4yKN
-NvPpl5x3pbrQ1OMGD9yUiDtJZ1rYZ0Qpus7pXZcbFMOoZa1VNRzhorx1PuqlN5fA
-eusGeiqE32G6z4B1bEOMzJ0Vw4a5fyzOToVPCACfak78WfrnF4LNeClh02gEZVJh
-3Vc0OVySb4DD3v51KWvUFowmbL1OB7pnsIk147h9PqwRpmlCWGmx44QUejXBAkF/
-O6wMW1SxWEGFVCFc2OX/cTf2JLLEdqACpDw7vzi8OUMZ4TSv4MMXpmEztGByCjZy
-6e8Bh3SNVZVC7lUkxZFp1oWl2J2dfXh/J0LwJMz2m0Ev1sEFAgKVosISHUzq3+Aw
-YPXJThO2
-=HDho
------END PGP SIGNATURE-----
-
---swgbxx6ykpv57frf--
