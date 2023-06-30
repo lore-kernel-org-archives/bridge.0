@@ -1,19 +1,18 @@
-Return-Path: <astrajoan@yahoo.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D372160B99
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 77A6160B21
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
- t=1687758624; bh=YSPfpiwOkBQ46XmUoyeSet/T0M+S11yQNJsZwzaMjfg=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To;
- b=iSwh70zPOJBOQnKaziyB5LolyzqpikN5M1m9tMyTLVltyv3Cxt+lo3W2+wWpqzbj2bamHgx9gIjE1TLjQSeZpvPy9hbRVofxO0DRBTABPMfcCrwYHBz8QxvmHRPf49VRSAlm3ilnd/ESSvBg7Bsyj8ESKhpgk7nwvTG/12S0g2f7+lOy7+L8mip/vpi7myVihS/Wjp155/ClXDePzmLv+m80J/ikiOWI0RyGODnWx656kC6cbhp49js3Y/Ye4FV/7/TgcellX++wQlbeukXzAOjlhOancO5U2BM1ueOT6P1ZPybm2lNpXGFrx18vsL2pUPnzIZRtd9Y4dYabwoTAGg==
-From: Ziqi Zhao <astrajoan@yahoo.com>
-Date: Sun, 25 Jun 2023 22:50:04 -0700
-Message-Id: <20230626055004.29303-1-astrajoan@yahoo.com>
-In-Reply-To: <CAD-N9QXZFMFGp3Vw4449Bx1-ttDVSF3hiwSw=e6+D096UDNfvw@mail.gmail.com>
-References: <CAD-N9QXZFMFGp3Vw4449Bx1-ttDVSF3hiwSw=e6+D096UDNfvw@mail.gmail.com>
-MIME-Version: 1.0
+Return-Path: <vladimir.oltean@nxp.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 20CAC41FA9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57A81415FB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=PGI3Ph4oCibP0zHwVh/lsuMMAcY6BSA/FB8Xm+629wc=;
+ b=OKFHsfapCKBI5iOVhc3evBhZxYV2DITwSrbleyOC5BiFE/D4qs1KXwyuW9sX22shx0ljv7/1saUJknwnhPw5//5cAoMSEh75kDWBubRd1xaHtegy/uySrI8N3md6Qebntexr3FYl+YIJhQuZlfKGMTRuo3nCCGnIHpwrGShUrzQ=
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Fri, 30 Jun 2023 19:41:18 +0300
+Message-Id: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] can: j1939: prevent deadlock by changing
-	j1939_socks_lock to rwlock
+Content-Type: text/plain
+MIME-Version: 1.0
+Subject: [Bridge] [PATCH net] net: bridge: keep ports without
+	IFF_UNICAST_FLT in BR_PROMISC mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,159 +21,192 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: mudongliangabcd@gmail.com
-Cc: ivan.orlov0322@gmail.com, arnd@arndb.de, roopa@nvidia.com, astrajoan@yahoo.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, edumazet@google.com, nikolay@nvidia.com, netdev@vger.kernel.org, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com, kuba@kernel.org, skhan@linuxfoundation.org, pabeni@redhat.com, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: Vlad Yasevich <vyasevic@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-The following 3 locks would race against each other, causing the
-deadlock situation in the Syzbot bug report:
+According to the synchronization rules for .ndo_get_stats() as seen in
+Documentation/networking/netdevices.rst, acquiring a plain spin_lock()
+should not be illegal, but the bridge driver implementation makes it so.
 
-- j1939_socks_lock
-- active_session_list_lock
-- sk_session_queue_lock
+After running these commands, I am being faced with the following
+lockdep splat:
 
-A reasonable fix is to change j1939_socks_lock to an rwlock, since in
-the rare situations where a write lock is required for the linked list
-that j1939_socks_lock is protecting, the code does not attempt to
-acquire any more locks. This would break the circular lock dependency,
-where, for example, the current thread already locks j1939_socks_lock
-and attempts to acquire sk_session_queue_lock, and at the same time,
-another thread attempts to acquire j1939_socks_lock while holding
-sk_session_queue_lock.
+$ ip link add link swp0 name macsec0 type macsec encrypt on && ip link set swp0 up
+$ ip link add dev br0 type bridge vlan_filtering 1 && ip link set br0 up
+$ ip link set macsec0 master br0 && ip link set macsec0 up
 
-NOTE: This patch along does not fix the unregister_netdevice bug
-reported by Syzbot; instead, it solves a deadlock situation to prepare
-for one or more further patches to actually fix the Syzbot bug, which
-appears to be a reference counting problem within the j1939 codebase.
+  ========================================================
+  WARNING: possible irq lock inversion dependency detected
+  6.4.0-04295-g31b577b4bd4a #603 Not tainted
+  --------------------------------------------------------
+  swapper/1/0 just changed the state of lock:
+  ffff6bd348724cd8 (&br->lock){+.-.}-{3:3}, at: br_forward_delay_timer_expired+0x34/0x198
+  but this lock took another, SOFTIRQ-unsafe lock in the past:
+   (&ocelot->stats_lock){+.+.}-{3:3}
 
-Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
+  and interrupts could create inverse lock ordering between them.
+
+  other info that might help us debug this:
+  Chain exists of:
+    &br->lock --> &br->hash_lock --> &ocelot->stats_lock
+
+   Possible interrupt unsafe locking scenario:
+
+         CPU0                    CPU1
+         ----                    ----
+    lock(&ocelot->stats_lock);
+                                 local_irq_disable();
+                                 lock(&br->lock);
+                                 lock(&br->hash_lock);
+    <Interrupt>
+      lock(&br->lock);
+
+   *** DEADLOCK ***
+
+(details about the 3 locks skipped)
+
+swp0 is instantiated by drivers/net/dsa/ocelot/felix.c, and this
+only matters to the extent that its .ndo_get_stats64() method calls
+spin_lock(&ocelot->stats_lock).
+
+Documentation/locking/lockdep-design.rst says:
+
+| A lock is irq-safe means it was ever used in an irq context, while a lock
+| is irq-unsafe means it was ever acquired with irq enabled.
+
+(...)
+
+| Furthermore, the following usage based lock dependencies are not allowed
+| between any two lock-classes::
+|
+|    <hardirq-safe>   ->  <hardirq-unsafe>
+|    <softirq-safe>   ->  <softirq-unsafe>
+
+Lockdep marks br->hash_lock as softirq-safe, because it is sometimes
+taken in softirq context (for example br_fdb_update() which runs in
+NET_RX softirq), and when it's not in softirq context it blocks softirqs
+by using spin_lock_bh().
+
+Lockdep marks ocelot->stats_lock as softirq-unsafe, because it never
+blocks softirqs from running, and it is never taken from softirq
+context. So it can always be interrupted by softirqs.
+
+There is a call path through which a function that holds br->hash_lock:
+fdb_add_hw_addr() will call a function that acquires ocelot->stats_lock:
+ocelot_port_get_stats64(). This can be seen below:
+
+ocelot_port_get_stats64+0x3c/0x1e0
+felix_get_stats64+0x20/0x38
+dsa_slave_get_stats64+0x3c/0x60
+dev_get_stats+0x74/0x2c8
+rtnl_fill_stats+0x4c/0x150
+rtnl_fill_ifinfo+0x5cc/0x7b8
+rtmsg_ifinfo_build_skb+0xe4/0x150
+rtmsg_ifinfo+0x5c/0xb0
+__dev_notify_flags+0x58/0x200
+__dev_set_promiscuity+0xa0/0x1f8
+dev_set_promiscuity+0x30/0x70
+macsec_dev_change_rx_flags+0x68/0x88
+__dev_set_promiscuity+0x1a8/0x1f8
+__dev_set_rx_mode+0x74/0xa8
+dev_uc_add+0x74/0xa0
+fdb_add_hw_addr+0x68/0xd8
+fdb_add_local+0xc4/0x110
+br_fdb_add_local+0x54/0x88
+br_add_if+0x338/0x4a0
+br_add_slave+0x20/0x38
+do_setlink+0x3a4/0xcb8
+rtnl_newlink+0x758/0x9d0
+rtnetlink_rcv_msg+0x2f0/0x550
+netlink_rcv_skb+0x128/0x148
+rtnetlink_rcv+0x24/0x38
+
+the plain English explanation for it is:
+
+The macsec0 bridge port is created without p->flags & BR_PROMISC,
+because it is what br_manage_promisc() decides for a VLAN filtering
+bridge with a single auto port.
+
+As part of the br_add_if() procedure, br_fdb_add_local() is called for
+the MAC address of the device, and this results in a call to
+dev_uc_add() for macsec0 while the softirq-safe br->hash_lock is taken.
+
+Because macsec0 does not have IFF_UNICAST_FLT, dev_uc_add() ends up
+calling __dev_set_promiscuity() for macsec0, which is propagated by its
+implementation, macsec_dev_change_rx_flags(), to the lower device: swp0.
+This triggers the call path:
+
+dev_set_promiscuity(swp0)
+-> rtmsg_ifinfo()
+   -> dev_get_stats()
+      -> ocelot_port_get_stats64()
+
+with a calling context that lockdep doesn't like (br->hash_lock held).
+
+Normally we don't see this, because even though many drivers that can be
+bridge ports don't support IFF_UNICAST_FLT, we need a driver that
+
+(a) doesn't support IFF_UNICAST_FLT, *and*
+(b) it forwards the IFF_PROMISC flag to another driver, and
+(c) *that* driver implements ndo_get_stats64() using a softirq-unsafe
+    spinlock.
+
+Condition (b) is necessary because the first __dev_set_rx_mode() calls
+__dev_set_promiscuity() with "bool notify=false", and thus, the
+rtmsg_ifinfo() code path won't be entered.
+
+The same criteria also hold true for DSA switches which don't report
+IFF_UNICAST_FLT. When the DSA master uses a spin_lock() in its
+ndo_get_stats64() method, the same lockdep splat can be seen.
+
+I think the deadlock possibility is real, even though I didn't reproduce
+it, and I'm thinking of the following situation to support that claim:
+
+fdb_add_hw_addr() runs on a CPU A, in a context with softirqs locally
+disabled and br->hash_lock held, and may end up attempting to acquire
+ocelot->stats_lock.
+
+In parallel, ocelot->stats_lock is currently held by a thread B (say,
+ocelot_check_stats_work()), which is interrupted while holding it by a
+softirq which attempts to lock br->hash_lock.
+
+Thread B cannot make progress because br->hash_lock is held by A. Whereas
+thread A cannot make progress because ocelot->stats_lock is held by B.
+
+When taking the issue at face value, the bridge can avoid that problem
+by simply making the ports promiscuous from a code path with a saner
+calling context (br->hash_lock not held). A bridge port without
+IFF_UNICAST_FLT is going to become promiscuous as soon as we call
+dev_uc_add() on it (which we do unconditionally), so why not be
+preemptive and make it promiscuous right from the beginning, so as to
+not be taken by surprise.
+
+With this, we've broken the links between code that holds br->hash_lock
+or br->lock and code that calls into the ndo_change_rx_flags() or
+ndo_get_stats64() ops of the bridge port.
+
+Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- net/can/j1939/j1939-priv.h |  2 +-
- net/can/j1939/main.c       |  2 +-
- net/can/j1939/socket.c     | 25 +++++++++++++------------
- 3 files changed, 15 insertions(+), 14 deletions(-)
+ net/bridge/br_if.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/can/j1939/j1939-priv.h b/net/can/j1939/j1939-priv.h
-index 16af1a7f80f6..74f15592d170 100644
---- a/net/can/j1939/j1939-priv.h
-+++ b/net/can/j1939/j1939-priv.h
-@@ -86,7 +86,7 @@ struct j1939_priv {
- 	unsigned int tp_max_packet_size;
- 
- 	/* lock for j1939_socks list */
--	spinlock_t j1939_socks_lock;
-+	rwlock_t j1939_socks_lock;
- 	struct list_head j1939_socks;
- 
- 	struct kref rx_kref;
-diff --git a/net/can/j1939/main.c b/net/can/j1939/main.c
-index ecff1c947d68..a6fb89fa6278 100644
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -274,7 +274,7 @@ struct j1939_priv *j1939_netdev_start(struct net_device *ndev)
- 		return ERR_PTR(-ENOMEM);
- 
- 	j1939_tp_init(priv);
--	spin_lock_init(&priv->j1939_socks_lock);
-+	rwlock_init(&priv->j1939_socks_lock);
- 	INIT_LIST_HEAD(&priv->j1939_socks);
- 
- 	mutex_lock(&j1939_netdev_lock);
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index 35970c25496a..6dce9d645116 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -80,16 +80,16 @@ static void j1939_jsk_add(struct j1939_priv *priv, struct j1939_sock *jsk)
- 	jsk->state |= J1939_SOCK_BOUND;
- 	j1939_priv_get(priv);
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	write_lock_bh(&priv->j1939_socks_lock);
- 	list_add_tail(&jsk->list, &priv->j1939_socks);
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	write_unlock_bh(&priv->j1939_socks_lock);
- }
- 
- static void j1939_jsk_del(struct j1939_priv *priv, struct j1939_sock *jsk)
- {
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	write_lock_bh(&priv->j1939_socks_lock);
- 	list_del_init(&jsk->list);
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	write_unlock_bh(&priv->j1939_socks_lock);
- 
- 	j1939_priv_put(priv);
- 	jsk->state &= ~J1939_SOCK_BOUND;
-@@ -329,13 +329,13 @@ bool j1939_sk_recv_match(struct j1939_priv *priv, struct j1939_sk_buff_cb *skcb)
- 	struct j1939_sock *jsk;
- 	bool match = false;
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		match = j1939_sk_recv_match_one(jsk, skcb);
- 		if (match)
- 			break;
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- 
- 	return match;
- }
-@@ -344,11 +344,11 @@ void j1939_sk_recv(struct j1939_priv *priv, struct sk_buff *skb)
- {
- 	struct j1939_sock *jsk;
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		j1939_sk_recv_one(jsk, skb);
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- }
- 
- static void j1939_sk_sock_destruct(struct sock *sk)
-@@ -484,6 +484,7 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 
- 		priv = j1939_netdev_start(ndev);
- 		dev_put(ndev);
-+
- 		if (IS_ERR(priv)) {
- 			ret = PTR_ERR(priv);
- 			goto out_release_sock;
-@@ -1078,12 +1079,12 @@ void j1939_sk_errqueue(struct j1939_session *session,
- 	}
- 
- 	/* spread RX notifications to all sockets subscribed to this session */
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		if (j1939_sk_recv_match_one(jsk, &session->skcb))
- 			__j1939_sk_errqueue(session, &jsk->sk, type);
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- };
- 
- void j1939_sk_send_loop_abort(struct sock *sk, int err)
-@@ -1271,7 +1272,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
- 	struct j1939_sock *jsk;
- 	int error_code = ENETDOWN;
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		jsk->sk.sk_err = error_code;
- 		if (!sock_flag(&jsk->sk, SOCK_DEAD))
-@@ -1279,7 +1280,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
- 
- 		j1939_sk_queue_drop_all(priv, jsk, error_code);
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- }
- 
- static int j1939_sk_no_ioctlcmd(struct socket *sock, unsigned int cmd,
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 3f04b40f6056..2450690f98cf 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -166,8 +166,9 @@ void br_manage_promisc(struct net_bridge *br)
+ 			 * This lets us disable promiscuous mode and write
+ 			 * this config to hw.
+ 			 */
+-			if (br->auto_cnt == 0 ||
+-			    (br->auto_cnt == 1 && br_auto_port(p)))
++			if ((p->dev->priv_flags & IFF_UNICAST_FLT) &&
++			    (br->auto_cnt == 0 ||
++			     (br->auto_cnt == 1 && br_auto_port(p))))
+ 				br_port_clear_promisc(p);
+ 			else
+ 				br_port_set_promisc(p);
 -- 
 2.34.1
 
