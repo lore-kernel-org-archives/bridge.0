@@ -1,18 +1,21 @@
-Return-Path: <vladimir.oltean@nxp.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 20CAC41FA9
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57A81415FB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2; 
+Return-Path: <idosch@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2C8CC60B51
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E7B4560BF8
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PGI3Ph4oCibP0zHwVh/lsuMMAcY6BSA/FB8Xm+629wc=;
- b=OKFHsfapCKBI5iOVhc3evBhZxYV2DITwSrbleyOC5BiFE/D4qs1KXwyuW9sX22shx0ljv7/1saUJknwnhPw5//5cAoMSEh75kDWBubRd1xaHtegy/uySrI8N3md6Qebntexr3FYl+YIJhQuZlfKGMTRuo3nCCGnIHpwrGShUrzQ=
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Fri, 30 Jun 2023 19:41:18 +0300
-Message-Id: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+ bh=FzP8j7FqKxWCkjQov6LxVw8G6n34G9OH4AN7593wq1M=;
+ b=tTnqXIiU4bj4cKTcs6tkzF08W3KD+hgcEO8TGzkMO4b7634y/OtmPtj9vsMMrY4JuvDpRHZGzEgY4jap2C3XtLE184iGAWYl31hw8+8+q+abOuIBzFSQQzE3AjavrNTPHBjcYwDMF3Qk39tCDHe7qQaTF0OoLoy/R9AGvm4VvdoKW2a6Kl61mbZvPnB4ZHmVRs4nelboyN/TNFn+BG4nvYrHzLnrupjWAwfYAoNbpNRP65w38PhWDa9zK5aBgPuSywNGjaMp75EBV3JB9d9NbVb7bRcRkD5g64aNbTkfWgLeqtyfwg9FaEuz+Cd82h/43Ee8/TooHpBEn+UoMSgF0A==
+Date: Mon, 3 Jul 2023 11:00:14 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+Message-ID: <ZKKADtxlXyPmBvbr@shredder>
+References: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
 MIME-Version: 1.0
-Subject: [Bridge] [PATCH net] net: bridge: keep ports without
-	IFF_UNICAST_FLT in BR_PROMISC mode
+Subject: Re: [Bridge] [PATCH net] net: bridge: keep ports without
+ IFF_UNICAST_FLT in BR_PROMISC mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,192 +24,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Vlad Yasevich <vyasevic@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Vlad Yasevich <vyasevic@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-According to the synchronization rules for .ndo_get_stats() as seen in
-Documentation/networking/netdevices.rst, acquiring a plain spin_lock()
-should not be illegal, but the bridge driver implementation makes it so.
+On Fri, Jun 30, 2023 at 07:41:18PM +0300, Vladimir Oltean wrote:
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 3f04b40f6056..2450690f98cf 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -166,8 +166,9 @@ void br_manage_promisc(struct net_bridge *br)
+>  			 * This lets us disable promiscuous mode and write
+>  			 * this config to hw.
+>  			 */
+> -			if (br->auto_cnt == 0 ||
+> -			    (br->auto_cnt == 1 && br_auto_port(p)))
+> +			if ((p->dev->priv_flags & IFF_UNICAST_FLT) &&
+> +			    (br->auto_cnt == 0 ||
+> +			     (br->auto_cnt == 1 && br_auto_port(p))))
+>  				br_port_clear_promisc(p);
+>  			else
+>  				br_port_set_promisc(p);
 
-After running these commands, I am being faced with the following
-lockdep splat:
+IIUC, you are basically saying "If the port does not support unicast
+filtering, then set it to promiscuous mode right away instead of waiting
+for the addition of the first FDB entry to trigger it."
 
-$ ip link add link swp0 name macsec0 type macsec encrypt on && ip link set swp0 up
-$ ip link add dev br0 type bridge vlan_filtering 1 && ip link set br0 up
-$ ip link set macsec0 master br0 && ip link set macsec0 up
+If so, LGTM.
 
-  ========================================================
-  WARNING: possible irq lock inversion dependency detected
-  6.4.0-04295-g31b577b4bd4a #603 Not tainted
-  --------------------------------------------------------
-  swapper/1/0 just changed the state of lock:
-  ffff6bd348724cd8 (&br->lock){+.-.}-{3:3}, at: br_forward_delay_timer_expired+0x34/0x198
-  but this lock took another, SOFTIRQ-unsafe lock in the past:
-   (&ocelot->stats_lock){+.+.}-{3:3}
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 
-  and interrupts could create inverse lock ordering between them.
+Tested using [1].
 
-  other info that might help us debug this:
-  Chain exists of:
-    &br->lock --> &br->hash_lock --> &ocelot->stats_lock
+Before:
 
-   Possible interrupt unsafe locking scenario:
+# ~/tmp/promisc_repo.sh 
+0
 
-         CPU0                    CPU1
-         ----                    ----
-    lock(&ocelot->stats_lock);
-                                 local_irq_disable();
-                                 lock(&br->lock);
-                                 lock(&br->hash_lock);
-    <Interrupt>
-      lock(&br->lock);
+After:
 
-   *** DEADLOCK ***
+# ~/tmp/promisc_repo.sh 
+1
 
-(details about the 3 locks skipped)
+[1]
+#!/bin/bash
 
-swp0 is instantiated by drivers/net/dsa/ocelot/felix.c, and this
-only matters to the extent that its .ndo_get_stats64() method calls
-spin_lock(&ocelot->stats_lock).
-
-Documentation/locking/lockdep-design.rst says:
-
-| A lock is irq-safe means it was ever used in an irq context, while a lock
-| is irq-unsafe means it was ever acquired with irq enabled.
-
-(...)
-
-| Furthermore, the following usage based lock dependencies are not allowed
-| between any two lock-classes::
-|
-|    <hardirq-safe>   ->  <hardirq-unsafe>
-|    <softirq-safe>   ->  <softirq-unsafe>
-
-Lockdep marks br->hash_lock as softirq-safe, because it is sometimes
-taken in softirq context (for example br_fdb_update() which runs in
-NET_RX softirq), and when it's not in softirq context it blocks softirqs
-by using spin_lock_bh().
-
-Lockdep marks ocelot->stats_lock as softirq-unsafe, because it never
-blocks softirqs from running, and it is never taken from softirq
-context. So it can always be interrupted by softirqs.
-
-There is a call path through which a function that holds br->hash_lock:
-fdb_add_hw_addr() will call a function that acquires ocelot->stats_lock:
-ocelot_port_get_stats64(). This can be seen below:
-
-ocelot_port_get_stats64+0x3c/0x1e0
-felix_get_stats64+0x20/0x38
-dsa_slave_get_stats64+0x3c/0x60
-dev_get_stats+0x74/0x2c8
-rtnl_fill_stats+0x4c/0x150
-rtnl_fill_ifinfo+0x5cc/0x7b8
-rtmsg_ifinfo_build_skb+0xe4/0x150
-rtmsg_ifinfo+0x5c/0xb0
-__dev_notify_flags+0x58/0x200
-__dev_set_promiscuity+0xa0/0x1f8
-dev_set_promiscuity+0x30/0x70
-macsec_dev_change_rx_flags+0x68/0x88
-__dev_set_promiscuity+0x1a8/0x1f8
-__dev_set_rx_mode+0x74/0xa8
-dev_uc_add+0x74/0xa0
-fdb_add_hw_addr+0x68/0xd8
-fdb_add_local+0xc4/0x110
-br_fdb_add_local+0x54/0x88
-br_add_if+0x338/0x4a0
-br_add_slave+0x20/0x38
-do_setlink+0x3a4/0xcb8
-rtnl_newlink+0x758/0x9d0
-rtnetlink_rcv_msg+0x2f0/0x550
-netlink_rcv_skb+0x128/0x148
-rtnetlink_rcv+0x24/0x38
-
-the plain English explanation for it is:
-
-The macsec0 bridge port is created without p->flags & BR_PROMISC,
-because it is what br_manage_promisc() decides for a VLAN filtering
-bridge with a single auto port.
-
-As part of the br_add_if() procedure, br_fdb_add_local() is called for
-the MAC address of the device, and this results in a call to
-dev_uc_add() for macsec0 while the softirq-safe br->hash_lock is taken.
-
-Because macsec0 does not have IFF_UNICAST_FLT, dev_uc_add() ends up
-calling __dev_set_promiscuity() for macsec0, which is propagated by its
-implementation, macsec_dev_change_rx_flags(), to the lower device: swp0.
-This triggers the call path:
-
-dev_set_promiscuity(swp0)
--> rtmsg_ifinfo()
-   -> dev_get_stats()
-      -> ocelot_port_get_stats64()
-
-with a calling context that lockdep doesn't like (br->hash_lock held).
-
-Normally we don't see this, because even though many drivers that can be
-bridge ports don't support IFF_UNICAST_FLT, we need a driver that
-
-(a) doesn't support IFF_UNICAST_FLT, *and*
-(b) it forwards the IFF_PROMISC flag to another driver, and
-(c) *that* driver implements ndo_get_stats64() using a softirq-unsafe
-    spinlock.
-
-Condition (b) is necessary because the first __dev_set_rx_mode() calls
-__dev_set_promiscuity() with "bool notify=false", and thus, the
-rtmsg_ifinfo() code path won't be entered.
-
-The same criteria also hold true for DSA switches which don't report
-IFF_UNICAST_FLT. When the DSA master uses a spin_lock() in its
-ndo_get_stats64() method, the same lockdep splat can be seen.
-
-I think the deadlock possibility is real, even though I didn't reproduce
-it, and I'm thinking of the following situation to support that claim:
-
-fdb_add_hw_addr() runs on a CPU A, in a context with softirqs locally
-disabled and br->hash_lock held, and may end up attempting to acquire
-ocelot->stats_lock.
-
-In parallel, ocelot->stats_lock is currently held by a thread B (say,
-ocelot_check_stats_work()), which is interrupted while holding it by a
-softirq which attempts to lock br->hash_lock.
-
-Thread B cannot make progress because br->hash_lock is held by A. Whereas
-thread A cannot make progress because ocelot->stats_lock is held by B.
-
-When taking the issue at face value, the bridge can avoid that problem
-by simply making the ports promiscuous from a code path with a saner
-calling context (br->hash_lock not held). A bridge port without
-IFF_UNICAST_FLT is going to become promiscuous as soon as we call
-dev_uc_add() on it (which we do unconditionally), so why not be
-preemptive and make it promiscuous right from the beginning, so as to
-not be taken by surprise.
-
-With this, we've broken the links between code that holds br->hash_lock
-or br->lock and code that calls into the ndo_change_rx_flags() or
-ndo_get_stats64() ops of the bridge port.
-
-Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- net/bridge/br_if.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 3f04b40f6056..2450690f98cf 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -166,8 +166,9 @@ void br_manage_promisc(struct net_bridge *br)
- 			 * This lets us disable promiscuous mode and write
- 			 * this config to hw.
- 			 */
--			if (br->auto_cnt == 0 ||
--			    (br->auto_cnt == 1 && br_auto_port(p)))
-+			if ((p->dev->priv_flags & IFF_UNICAST_FLT) &&
-+			    (br->auto_cnt == 0 ||
-+			     (br->auto_cnt == 1 && br_auto_port(p))))
- 				br_port_clear_promisc(p);
- 			else
- 				br_port_set_promisc(p);
--- 
-2.34.1
-
+ip link add name swp1 type dummy
+ip link add name br1 type bridge vlan_filtering 1
+ip link set dev swp1 master br1
+ip -d -j -p link show dev swp1 | jq '.[]["promiscuity"]'
