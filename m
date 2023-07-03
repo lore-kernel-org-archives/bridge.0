@@ -1,19 +1,24 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2C8CC60B51
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E7B4560BF8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FzP8j7FqKxWCkjQov6LxVw8G6n34G9OH4AN7593wq1M=;
- b=tTnqXIiU4bj4cKTcs6tkzF08W3KD+hgcEO8TGzkMO4b7634y/OtmPtj9vsMMrY4JuvDpRHZGzEgY4jap2C3XtLE184iGAWYl31hw8+8+q+abOuIBzFSQQzE3AjavrNTPHBjcYwDMF3Qk39tCDHe7qQaTF0OoLoy/R9AGvm4VvdoKW2a6Kl61mbZvPnB4ZHmVRs4nelboyN/TNFn+BG4nvYrHzLnrupjWAwfYAoNbpNRP65w38PhWDa9zK5aBgPuSywNGjaMp75EBV3JB9d9NbVb7bRcRkD5g64aNbTkfWgLeqtyfwg9FaEuz+Cd82h/43Ee8/TooHpBEn+UoMSgF0A==
-Date: Mon, 3 Jul 2023 11:00:14 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-Message-ID: <ZKKADtxlXyPmBvbr@shredder>
-References: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 48AEA409FE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 174DE40935
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1688372422;
+ bh=GAdkZrdoKWD7YyzDP8ANymefO04wUe7jKXHOYI0JvAo=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=JOvpxdIGeaV0pdDRSr0O5u0avi/sD+ggbLk1bJO5icXqWRlhcCGWiUmErpMum5SN2
+ UmenbWL94IdusSUdkoxIcOmb8uFVJVDSvRrFWDFyvfuKGj4+UkEdb4O3cBOZ67sFOs
+ X4k0VsnwUdlE7L4UN+C8F0yolhb5FkqbVPq8VmNtHUDZ/4LiOlYT0BbrXwvjut4iM/
+ 4b8kECPQ41MhyrEat0zPWUnaBjOG4pdlfO5HN36CjEZqu2SFZVWKbS0mZOLsJjF1u+
+ N3qbafx/sjDRzdgsXrMPXwWN+uhFVVLMVKjGBV08nyDdUK55oh2E/ECNlxWn8+0PaN
+ V2s7G2bqmU4OA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <168837242257.9798.3078714826638477204.git-patchwork-notify@kernel.org>
+Date: Mon, 03 Jul 2023 08:20:22 +0000
+References: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
+In-Reply-To: <20230630164118.1526679-1-vladimir.oltean@nxp.com>
 Subject: Re: [Bridge] [PATCH net] net: bridge: keep ports without
  IFF_UNICAST_FLT in BR_PROMISC mode
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -25,50 +30,30 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Vlad Yasevich <vyasevic@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: vyasevic@redhat.com, mst@redhat.com, netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, idosch@nvidia.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-On Fri, Jun 30, 2023 at 07:41:18PM +0300, Vladimir Oltean wrote:
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 3f04b40f6056..2450690f98cf 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -166,8 +166,9 @@ void br_manage_promisc(struct net_bridge *br)
->  			 * This lets us disable promiscuous mode and write
->  			 * this config to hw.
->  			 */
-> -			if (br->auto_cnt == 0 ||
-> -			    (br->auto_cnt == 1 && br_auto_port(p)))
-> +			if ((p->dev->priv_flags & IFF_UNICAST_FLT) &&
-> +			    (br->auto_cnt == 0 ||
-> +			     (br->auto_cnt == 1 && br_auto_port(p))))
->  				br_port_clear_promisc(p);
->  			else
->  				br_port_set_promisc(p);
+Hello:
 
-IIUC, you are basically saying "If the port does not support unicast
-filtering, then set it to promiscuous mode right away instead of waiting
-for the addition of the first FDB entry to trigger it."
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-If so, LGTM.
+On Fri, 30 Jun 2023 19:41:18 +0300 you wrote:
+> According to the synchronization rules for .ndo_get_stats() as seen in
+> Documentation/networking/netdevices.rst, acquiring a plain spin_lock()
+> should not be illegal, but the bridge driver implementation makes it so.
+> 
+> After running these commands, I am being faced with the following
+> lockdep splat:
+> 
+> [...]
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Here is the summary with links:
+  - [net] net: bridge: keep ports without IFF_UNICAST_FLT in BR_PROMISC mode
+    https://git.kernel.org/netdev/net/c/6ca3c005d060
 
-Tested using [1].
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Before:
 
-# ~/tmp/promisc_repo.sh 
-0
-
-After:
-
-# ~/tmp/promisc_repo.sh 
-1
-
-[1]
-#!/bin/bash
-
-ip link add name swp1 type dummy
-ip link add name br1 type bridge vlan_filtering 1
-ip link set dev swp1 master br1
-ip -d -j -p link show dev swp1 | jq '.[]["promiscuity"]'
