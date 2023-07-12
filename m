@@ -1,23 +1,21 @@
-Return-Path: <prvs=549678ead=kuniyu@amazon.co.jp>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 33EC941E4A
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5BC2841E0E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
- t=1689119669; x=1720655669;
- h=from:to:cc:subject:date:message-id:mime-version:
- content-transfer-encoding;
- bh=S31tc4n4Ui6HS+LailK8v4AO1tjvB2dHTdcwzIgGBFk=;
- b=fsaCeF2b7BODBn9dkEYnt0kziFvuHCDiVjV0clIAnMGJmsoxSjCMBoH8
- CSwkfkWb2GXz3kL4abrqFs0BugDi6bBGUWWsWBQdMvBLFKaSGUgncdw9M
- R2MIxvdnJPoXLu7AGRJynRyg/X07EqAkndj3I9Bydy4csWnkC1vZ9c2CA M=;
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-Date: Tue, 11 Jul 2023 16:54:15 -0700
-Message-ID: <20230711235415.92166-1-kuniyu@amazon.com>
+Return-Path: <petrm@nvidia.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 61B6341E5C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 046FD41E69
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=xrgqyvCsDQ90YXqCp0MESUdrqOEqG/2gN1pMFaaJBUM=;
+ b=du+8bNNVmBsjJ0R4PxRIh8ztdAr1OIG6kIILgGSsAvmiRVZtWOUUFPmvRcBcHzU043QHe0yeuPqdvFSjcnAG5Bh/5MZeI8Znq3WIVqKO3TlK/p0/M6vDLSMlTEglfluO0uwdBlyBn3duEn263OLvnb2WnWTfLdg9yfbECaPjZwqJIEgOcKUJjaGCEW8fg9CHbcEeJB3moDUlzTncA6tvQXnulyB1PFXKd4yuRCHzzx4ZuJ6Rb2RXivQ9DwhH/oZBfTDCmGjcfTzkOBlqSrW4ReiVIcz8ZAjQp+fp147oYbjCw3fVmIfymtUSijjUCzaKKV7tcx9fyRsWKpN9z6uEuA==
+References: <9190b2ac-a3f7-d4f5-211a-ea860f09687a@quietfountain.com>
+ <20230711215132.77594-1-kuniyu@amazon.com>
+From: Petr Machata <petrm@nvidia.com>
+Date: Wed, 12 Jul 2023 11:44:12 +0200
+In-Reply-To: <20230711215132.77594-1-kuniyu@amazon.com>
+Message-ID: <87wmz5v4oz.fsf@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH v1 net] bridge: Return an error when enabling STP
-	in netns.
+Subject: Re: [Bridge] llc needs namespace awareness asap,
+ was Re: Patch fixing STP if bridge in non-default namespace.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -26,65 +24,114 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Kuniyuki Iwashima <kuniyu@amazon.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Harry Coin <hcoin@quietfountain.com>, Kuniyuki Iwashima <kuni1840@gmail.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: bridge@lists.linux-foundation.org, hcoin@quietfountain.com, netdev@vger.kernel.org, andrew@lunn.ch
 
-When we create an L2 loop on a bridge in netns, we will see packets storm
-even if STP is enabled.
+(CC'ing bridge maintainers.)
 
-  # unshare -n
-  # ip link add br0 type bridge
-  # ip link add veth0 type veth peer name veth1
-  # ip link set veth0 master br0 up
-  # ip link set veth1 master br0 up
-  # ip link set br0 type bridge stp_state 1
-  # ip link set br0 up
-  # sleep 30
-  # ip -s link show br0
-  2: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
-      link/ether b6:61:98:1c:1c:b5 brd ff:ff:ff:ff:ff:ff
-      RX: bytes  packets  errors  dropped missed  mcast
-      956553768  12861249 0       0       0       12861249  <-. Keep
-      TX: bytes  packets  errors  dropped carrier collsns     |  increasing
-      1027834    11951    0       0       0       0         <-'   rapidly
+Kuniyuki Iwashima <kuniyu@amazon.com> writes:
 
-This is because llc_rcv() drops all packets in non-root netns and BPDU
-is dropped.
-
-Let's show an error when enabling STP in netns.
-
-  # unshare -n
-  # ip link add br0 type bridge
-  # ip link set br0 type bridge stp_state 1
-  Error: bridge: STP can't be enabled in non-root netns.
-
-Note this commit will be reverted later when we namespacify the whole LLC
-infra.
-
-Fixes: e730c15519d0 ("[NET]: Make packet reception network namespace safe")
-Suggested-by: Harry Coin <hcoin@quietfountain.com>
-Link: https://lore.kernel.org/netdev/0f531295-e289-022d-5add-5ceffa0df9bc@quietfountain.com/
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
----
- net/bridge/br_stp_if.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 75204d36d7f9..a807996ac56b 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -201,6 +201,11 @@ int br_stp_set_enabled(struct net_bridge *br, unsigned long val,
- {
- 	ASSERT_RTNL();
- 
-+	if (!net_eq(dev_net(br->dev), &init_net)) {
-+		NL_SET_ERR_MSG_MOD(extack, "STP can't be enabled in non-root netns");
-+		return -EINVAL;
-+	}
-+
- 	if (br_mrp_enabled(br)) {
- 		NL_SET_ERR_MSG_MOD(extack,
- 				   "STP can't be enabled if MRP is already enabled");
--- 
-2.30.2
+> From: Harry Coin <hcoin@quietfountain.com>
+> Date: Tue, 11 Jul 2023 16:40:03 -0500
+>> On 7/11/23 15:44, Andrew Lunn wrote:
+>> >>>>>> The current llc_rcv.c around line 166 in net/llc/llc_input.c  has
+>> >>>>>>
+>> >>>>>>            if (!net_eq(dev_net(dev), &init_net))
+>> >>>>>>                    goto drop;
+>> >>>>>>
+>> >> Thank you!  When you offer your patches, and you hear worries about being
+>> >> 'invasive', it's worth asking 'compared to what' -- since the 'status quo'
+>> >> is every bridge with STP in a non default namespace with a loop in it
+>> >> somewhere will freeze every connected system more solid than ice in
+>> >> Antarctica.
+>> > https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+>> >
+>> > say:
+>> >
+>> > o It must be obviously correct and tested.
+>> > o It cannot be bigger than 100 lines, with context.
+>> > o It must fix only one thing.
+>> > o It must fix a real bug that bothers people (not a, "This could be a problem..." type thing).
+>> >
+>> > git blame shows:
+>> >
+>> > commit 721499e8931c5732202481ae24f2dfbf9910f129
+>> > Author: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+>> > Date:   Sat Jul 19 22:34:43 2008 -0700
+>> >
+>> >      netns: Use net_eq() to compare net-namespaces for optimization.
+>> >
+>> > diff --git a/net/llc/llc_input.c b/net/llc/llc_input.c
+>> > index 1c45f172991e..57ad974e4d94 100644
+>> > --- a/net/llc/llc_input.c
+>> > +++ b/net/llc/llc_input.c
+>> > @@ -150,7 +150,7 @@ int llc_rcv(struct sk_buff *skb, struct net_device *dev,
+>> >          int (*rcv)(struct sk_buff *, struct net_device *,
+>> >                     struct packet_type *, struct net_device *);
+>> >   
+>> > -       if (dev_net(dev) != &init_net)
+>> > +       if (!net_eq(dev_net(dev), &init_net))
+>> >                  goto drop;
+>> >   
+>> >          /*
+>> >
+>> > So this is just an optimization.
+>> >
+>> > The test itself was added in
+>> >
+>> > ommit e730c15519d09ea528b4d2f1103681fa5937c0e6
+>> > Author: Eric W. Biederman <ebiederm@xmission.com>
+>> > Date:   Mon Sep 17 11:53:39 2007 -0700
+>> >
+>> >      [NET]: Make packet reception network namespace safe
+>> >      
+>> >      This patch modifies every packet receive function
+>> >      registered with dev_add_pack() to drop packets if they
+>> >      are not from the initial network namespace.
+>> >      
+>> >      This should ensure that the various network stacks do
+>> >      not receive packets in a anything but the initial network
+>> >      namespace until the code has been converted and is ready
+>> >      for them.
+>> >      
+>> >      Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+>> >      Signed-off-by: David S. Miller <davem@davemloft.net>
+>> >
+>> > So that was over 15 years ago.
+>> >
+>> > It appears it has not bothered people for over 15 years.
+>> >
+>> > Lets wait until we get to see the actual fix. We can then decide how
+>> > simple/hard it is to back port to stable, if it fulfils the stable
+>> > rules or not.
+>> >
+>> >        Andrew
+>> 
+>> Andrew, fair enough.  In the time until it's fixed, the kernel folks 
+>> should publish an advisory and block any attempt to set bridge stp state 
+>> to other than 0 if in a non-default namespace. The alternative is a 
+>> packet flood at whatever the top line speed is should there be a loop 
+>> somewhere in even one connected link.
+>
+> Like this ?  Someone who didn't notice the issue might complain about
+> it as regression.
+>
+> ---8<---
+> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+> index 75204d36d7f9..a807996ac56b 100644
+> --- a/net/bridge/br_stp_if.c
+> +++ b/net/bridge/br_stp_if.c
+> @@ -201,6 +201,11 @@ int br_stp_set_enabled(struct net_bridge *br, unsigned long val,
+>  {
+>  	ASSERT_RTNL();
+>  
+> +	if (!net_eq(dev_net(br->dev), &init_net)) {
+> +		NL_SET_ERR_MSG_MOD(extack, "STP can't be enabled in non-root netns");
+> +		return -EINVAL;
+> +	}
+> +
+>  	if (br_mrp_enabled(br)) {
+>  		NL_SET_ERR_MSG_MOD(extack,
+>  				   "STP can't be enabled if MRP is already enabled");
+> ---8<---
 
