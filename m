@@ -1,27 +1,26 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2875760BE4
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BE4AE60AE2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1689176793; x=1691768793;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=/qsNwSJj66luchpZzX75OoZLSwHVbA5Pm9qid51Ei6Y=;
- b=PF6fmNqjZ/AYqva8v3NNTKu8eEoKH35QAaW5y9va6R7Ux8tb4vtt4fnEqofuxyvjZn
- a0qMZq/JAmWMPbOGYXnJcmQacubZOqKSeNKCmAbvSBNzJdQtuv4yS6Kk+rnWfmfClGBS
- cXP7+SuGhDwzNxvL+iujWDLk0SH2CMgt5PRsdZmx5C+WmX8GF34Se4puFXLXJd2HUjHo
- WUMkEMnuHq2blfogwHyG3OFdUk+EkXNWRaQON2Und7zDQ6c3MKwO483lZw1WfgJ4ShdM
- ga7iF5l42KYLzIqwup5geQ4ilZb0dKAHrextos3SS0y2+nKawPQyy4UD4jy1CfNyZRM5
- Jm0g==
-Message-ID: <28f857c9-2ee9-6a20-ecd2-b4e63307cd89@blackwall.org>
-Date: Wed, 12 Jul 2023 18:46:31 +0300
-MIME-Version: 1.0
-Content-Language: en-US
+Return-Path: <idosch@idosch.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F0656418BB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C7412417D0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:cc:content-type:content-type:date:date
+ :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+ :message-id:mime-version:references:reply-to:sender:subject
+ :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+ :x-sasl-enc; s=fm2; t=1689178491; x=1689264891; bh=65HYPJVnC3Dun
+ dRznANcrTpdyqqmDNHjpqvmQrnP+nU=; b=cWdEMFNEqC8Au0EfKRNw7JCCLNGo0
+ IvgSyrZ68knCNfzf5s0OnoYgH1jvBXnbDnjKaxA6sqqMeUu8WmngXq0qXixXAxyV
+ X/NVxydIWUYgLwQpJaIk1ReSJAvfEEnTClrSAz2lBw15tOgk3xe0dEQaPhQj2Pgs
+ C6fICBpUsh5Yjx1bOXiUVcxZKdGKM/I1cGZijtaRvBZGA3vT9XNBVy5FEXnZsKow
+ hM0DkO0xgIL+4fpyed6xXIohcyyRTnGECwA2+VS7NEAPxHvAHUSqnY8+s3WF5E8b
+ nCTjiDyue5KbagHo4iXnpuTTfJWxjU+luGOSZ+mkeEc2s9qpXGxtpBMhA==
+Date: Wed, 12 Jul 2023 19:14:46 +0300
+From: Ido Schimmel <idosch@idosch.org>
+Message-ID: <ZK7RdhQ6fBkOY/F+@shredder>
 References: <20230712154449.6093-1-kuniyu@amazon.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20230712154449.6093-1-kuniyu@amazon.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 Subject: Re: [Bridge] [PATCH v2 net] bridge: Add extack warning when
  enabling STP in netns.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
@@ -32,10 +31,10 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Kuniyuki Iwashima <kuniyu@amazon.com>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@idosch.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Harry Coin <hcoin@quietfountain.com>, Kuniyuki Iwashima <kuni1840@gmail.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Kuniyuki Iwashima <kuni1840@gmail.com>, Harry Coin <hcoin@quietfountain.com>, Eric Dumazet <edumazet@google.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-On 12/07/2023 18:44, Kuniyuki Iwashima wrote:
+On Wed, Jul 12, 2023 at 08:44:49AM -0700, Kuniyuki Iwashima wrote:
 > When we create an L2 loop on a bridge in netns, we will see packets storm
 > even if STP is enabled.
 > 
@@ -73,29 +72,5 @@ On 12/07/2023 18:44, Kuniyuki Iwashima wrote:
 > Link: https://lore.kernel.org/netdev/0f531295-e289-022d-5add-5ceffa0df9bc@quietfountain.com/
 > Suggested-by: Ido Schimmel <idosch@idosch.org>
 > Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-> ---
-> v2:
->   - Just add extack instead of returning error (Ido Schimmel)
-> 
-> v1: https://lore.kernel.org/netdev/20230711235415.92166-1-kuniyu@amazon.com/
-> ---
->  net/bridge/br_stp_if.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-> index 75204d36d7f9..b65962682771 100644
-> --- a/net/bridge/br_stp_if.c
-> +++ b/net/bridge/br_stp_if.c
-> @@ -201,6 +201,9 @@ int br_stp_set_enabled(struct net_bridge *br, unsigned long val,
->  {
->  	ASSERT_RTNL();
->  
-> +	if (!net_eq(dev_net(br->dev), &init_net))
-> +		NL_SET_ERR_MSG_MOD(extack, "STP does not work in non-root netns");
-> +
->  	if (br_mrp_enabled(br)) {
->  		NL_SET_ERR_MSG_MOD(extack,
->  				   "STP can't be enabled if MRP is already enabled");
 
-Thanks,
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
