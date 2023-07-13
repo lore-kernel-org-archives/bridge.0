@@ -1,19 +1,35 @@
-Return-Path: <astrajoan@yahoo.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B9DA0612D8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DB506608F5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
- t=1689956561; bh=8COXdqwHqW8IP794Sq9JAJB+e+BdIi/e3dcqMlkJ4oo=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To;
- b=d/0MFEOAYqUgREIYgKcWUfiuXpgh3fFr3hYI5AprjO0n1p6SGUiicwSSPdU9twNtQ5Tpj7fdOuSTWvwGlnVGtIc+KGQUPgoXTf+uVhUXF1U5igzACRbi9eOMpX/lzjcaYa2pEegweo9LfWk/PvT5Q0voYWPIlKwEiCFS6qFhKgfQvOdqy5fe5L4wwqPwCx724MNfgm21/A/beLnwdaQdM9XRAuYbZQoAMphTGcokB+W5rNWgFueGwqjPn1Gr/ecYZvi5SPaSSYegu6hAFZGSXbSMlnktRtwyMbjLqnMsnTTxiDb7VUOg/hhqd6jE9GgG8Pjel3CLfbgoxyiLndbB4g==
-From: Ziqi Zhao <astrajoan@yahoo.com>
-Date: Fri, 21 Jul 2023 09:22:26 -0700
-Message-Id: <20230721162226.8639-1-astrajoan@yahoo.com>
-In-Reply-To: <20230704064710.3189-1-astrajoan@yahoo.com>
-References: <20230704064710.3189-1-astrajoan@yahoo.com>
+Return-Path: <hcoin@quietfountain.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9EFC883CDF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB24B83CDB
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+ quietfountain.com; h=content-transfer-encoding:content-type
+ :in-reply-to:organization:from:references:to:content-language
+ :subject:user-agent:mime-version:date:message-id; s=dkim; t=
+ 1689256256; x=1691848257; bh=t3KoUQ576nwgQDgQyh6XtUiiZCI2C4INCDa
+ FAm36//8=; b=hE7jq7w8Eu2/m+JHQN56PpyfwdyTFGg5g/5SgHjxCUx/ge3V3wy
+ cgNchZrfHrZoAHcQg/Q2aNq115c9fFvJw6/sudEDkoDMb3Ri/WlDo71ck4D72OoX
+ gAcN537Cq+D194GtY2kqJliJfd/yfI8aHqiJY0x7SmH9SNY2gLyEIXo5cxsE/7KR
+ WkkZzEWWdQ0JX0fBeTDJ2+X8srcS17GdAnlbtjk24DMNAtn4yrBvJgPzKHv0zJX0
+ YS9BJpXFoW5YQ7rgXEyo5vwdxAEbo/otmLnSkYS40/G9CWQS7UTw2XrYS8FeJLKo
+ JmNP5HOmezY9mPs+YVF1uxtx/kV3ESoikHNQr4/cq1cfQQz/4eexYBrtRVJnuwO7
+ 7aJRnruuTL5JRLe1LqnR0dMsnL3Oja+v0mIFblY4ifoBTuudId0BXxVfz+Ik7obs
+ q9t3c6bE2BJT+mx0GIwGu31yaZUej8176Ir7ptD+j9tqQmmSFC1+N+emor0JJFlX
+ yO3bDiOERgWvioF+NKcvQOiXByFOEN3fQ5bAEcM7Pjflg1FdsaVS7l6Rn4gbLMpA
+ NAqcju3KWUHO93Nnyhbxr4TCk+yl3jooEktPjSDLFaqPfZ2SBqWX4O/nD9bSu+ce
+ SVoQI8nMWERcbG1rzE1Mq0dVdRi5OY28fdOvPpYZOz2tfdFFp+k32KgI=
+Message-ID: <f4f1b9b4-abc9-842a-205a-35588916115d@quietfountain.com>
+Date: Thu, 13 Jul 2023 08:50:44 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] can: j1939: prevent deadlock by changing
-	j1939_socks_lock to rwlock
+Content-Language: en-US
+References: <20230711235415.92166-1-kuniyu@amazon.com>
+ <ZK69NDM60+N0TTFh@shredder>
+ <caf5bc87-0b5f-cd44-3c1c-5842549c8c6e@blackwall.org>
+From: Harry Coin <hcoin@quietfountain.com>
+In-Reply-To: <caf5bc87-0b5f-cd44-3c1c-5842549c8c6e@blackwall.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Bridge] [PATCH v1 net] bridge: Return an error when enabling
+ STP in netns.
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,160 +38,116 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: astrajoan@yahoo.com, davem@davemloft.net, edumazet@google.com, ivan.orlov0322@gmail.com, kernel@pengutronix.de, kuba@kernel.org, linux@rempel-privat.de, linux-can@vger.kernel.org, mkl@pengutronix.de, pabeni@redhat.com, robin@protonic.nl, skhan@linuxfoundation.org, socketcan@hartkopp.net
-Cc: arnd@arndb.de, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, mudongliangabcd@gmail.com, nikolay@nvidia.com, syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com, roopa@nvidia.com, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com
+To: Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@idosch.org>, Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Kuniyuki Iwashima <kuni1840@gmail.com>, Eric Dumazet <edumazet@google.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 
-The following 3 locks would race against each other, causing the
-deadlock situation in the Syzbot bug report:
 
-- j1939_socks_lock
-- active_session_list_lock
-- sk_session_queue_lock
+On 7/12/23 09:52, Nikolay Aleksandrov wrote:
+> On 12/07/2023 17:48, Ido Schimmel wrote:
+>> On Tue, Jul 11, 2023 at 04:54:15PM -0700, Kuniyuki Iwashima wrote:
+>>> When we create an L2 loop on a bridge in netns, we will see packets s=
+torm
+>>> even if STP is enabled.
+>>>
+>>>    # unshare -n
+>>>    # ip link add br0 type bridge
+>>>    # ip link add veth0 type veth peer name veth1
+>>>    # ip link set veth0 master br0 up
+>>>    # ip link set veth1 master br0 up
+>>>    # ip link set br0 type bridge stp_state 1
+>>>    # ip link set br0 up
+>>>    # sleep 30
+>>>    # ip -s link show br0
+>>>    2: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue s=
+tate UP mode DEFAULT group default qlen 1000
+>>>        link/ether b6:61:98:1c:1c:b5 brd ff:ff:ff:ff:ff:ff
+>>>        RX: bytes  packets  errors  dropped missed  mcast
+>>>        956553768  12861249 0       0       0       12861249  <-. Keep
+>>>        TX: bytes  packets  errors  dropped carrier collsns     |  inc=
+reasing
+>>>        1027834    11951    0       0       0       0         <-'   ra=
+pidly
+>>>
+>>> This is because llc_rcv() drops all packets in non-root netns and BPD=
+U
+>>> is dropped.
+>>>
+>>> Let's show an error when enabling STP in netns.
+>>>
+>>>    # unshare -n
+>>>    # ip link add br0 type bridge
+>>>    # ip link set br0 type bridge stp_state 1
+>>>    Error: bridge: STP can't be enabled in non-root netns.
+>>>
+>>> Note this commit will be reverted later when we namespacify the whole=
+ LLC
+>>> infra.
+>>>
+>>> Fixes: e730c15519d0 ("[NET]: Make packet reception network namespace =
+safe")
+>>> Suggested-by: Harry Coin <hcoin@quietfountain.com>
+>> I'm not sure that's accurate. I read his response in the link below an=
+d
+>> he says "I'd rather be warned than blocked" and "But better warned and
+>> awaiting a fix than blocked", which I agree with. The patch has the
+>> potential to cause a lot of regressions, but without actually fixing t=
+he
+>> problem.
+>>
+>> How about simply removing the error [1]? Since iproute2 commit
+>> 844c37b42373 ("libnetlink: Handle extack messages for non-error case")=
+,
+>> it can print extack warnings and not only errors. With the diff below:
+>>
+>>   # unshare -n
+>>   # ip link add name br0 type bridge
+>>   # ip link set dev br0 type bridge stp_state 1
+>>   Warning: bridge: STP can't be enabled in non-root netns.
+>>   # echo $?
+>>   0
+>>
+>> [1]
+>> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+>> index a807996ac56b..b5143de37938 100644
+>> --- a/net/bridge/br_stp_if.c
+>> +++ b/net/bridge/br_stp_if.c
+>> @@ -201,10 +201,8 @@ int br_stp_set_enabled(struct net_bridge *br, uns=
+igned long val,
+>>   {
+>>          ASSERT_RTNL();
+>>  =20
+>> -       if (!net_eq(dev_net(br->dev), &init_net)) {
+>> +       if (!net_eq(dev_net(br->dev), &init_net))
+>>                  NL_SET_ERR_MSG_MOD(extack, "STP can't be enabled in n=
+on-root netns");
+>> -               return -EINVAL;
+>> -       }
+>>  =20
+>>          if (br_mrp_enabled(br)) {
+>>                  NL_SET_ERR_MSG_MOD(extack,
+>>
+> I'd prefer this approach to changing user-visible behaviour and potenti=
+al regressions.
+> Just change the warning message.
+>
+> Thanks,
+>   Nik
 
-A reasonable fix is to change j1939_socks_lock to an rwlock, since in
-the rare situations where a write lock is required for the linked list
-that j1939_socks_lock is protecting, the code does not attempt to
-acquire any more locks. This would break the circular lock dependency,
-where, for example, the current thread already locks j1939_socks_lock
-and attempts to acquire sk_session_queue_lock, and at the same time,
-another thread attempts to acquire j1939_socks_lock while holding
-sk_session_queue_lock.
+Remember, the only way it's honest to 'warn but not block' STP in netns=20
+is trust in the Kuniyuki's assertion that the llc will be=20
+'namespacified' in a near term frame.=C2=A0=C2=A0 As STP is not only=20
+non-functional in a netns, but will in fact bring down every connected=20
+system in a packet storm should a L2 loop exist the situation is much=20
+worse than a merely inaccessible extra feature. This as the only reason=20
+STP exists is to avoid crashing sites owing to packet storms arising=20
+from L2 loops.=C2=A0=C2=A0=C2=A0 I think as this bug is a potential 'site=
+ killer'=20
+(which in fact happened to me!) The Linux dev community has an=20
+obligation to either hard block this or commit to a fix time frame and=20
+merely warn.
 
-NOTE: This patch along does not fix the unregister_netdevice bug
-reported by Syzbot; instead, it solves a deadlock situation to prepare
-for one or more further patches to actually fix the Syzbot bug, which
-appears to be a reference counting problem within the j1939 codebase.
+Thanks
 
-Reported-by: syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com
-Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
----
- net/can/j1939/j1939-priv.h |  2 +-
- net/can/j1939/main.c       |  2 +-
- net/can/j1939/socket.c     | 25 +++++++++++++------------
- 3 files changed, 15 insertions(+), 14 deletions(-)
+Harry Coin
 
-diff --git a/net/can/j1939/j1939-priv.h b/net/can/j1939/j1939-priv.h
-index 16af1a7f80f6..74f15592d170 100644
---- a/net/can/j1939/j1939-priv.h
-+++ b/net/can/j1939/j1939-priv.h
-@@ -86,7 +86,7 @@ struct j1939_priv {
- 	unsigned int tp_max_packet_size;
- 
- 	/* lock for j1939_socks list */
--	spinlock_t j1939_socks_lock;
-+	rwlock_t j1939_socks_lock;
- 	struct list_head j1939_socks;
- 
- 	struct kref rx_kref;
-diff --git a/net/can/j1939/main.c b/net/can/j1939/main.c
-index ecff1c947d68..a6fb89fa6278 100644
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -274,7 +274,7 @@ struct j1939_priv *j1939_netdev_start(struct net_device *ndev)
- 		return ERR_PTR(-ENOMEM);
- 
- 	j1939_tp_init(priv);
--	spin_lock_init(&priv->j1939_socks_lock);
-+	rwlock_init(&priv->j1939_socks_lock);
- 	INIT_LIST_HEAD(&priv->j1939_socks);
- 
- 	mutex_lock(&j1939_netdev_lock);
-diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-index feaec4ad6d16..a8b981dc2065 100644
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -80,16 +80,16 @@ static void j1939_jsk_add(struct j1939_priv *priv, struct j1939_sock *jsk)
- 	jsk->state |= J1939_SOCK_BOUND;
- 	j1939_priv_get(priv);
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	write_lock_bh(&priv->j1939_socks_lock);
- 	list_add_tail(&jsk->list, &priv->j1939_socks);
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	write_unlock_bh(&priv->j1939_socks_lock);
- }
- 
- static void j1939_jsk_del(struct j1939_priv *priv, struct j1939_sock *jsk)
- {
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	write_lock_bh(&priv->j1939_socks_lock);
- 	list_del_init(&jsk->list);
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	write_unlock_bh(&priv->j1939_socks_lock);
- 
- 	j1939_priv_put(priv);
- 	jsk->state &= ~J1939_SOCK_BOUND;
-@@ -329,13 +329,13 @@ bool j1939_sk_recv_match(struct j1939_priv *priv, struct j1939_sk_buff_cb *skcb)
- 	struct j1939_sock *jsk;
- 	bool match = false;
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		match = j1939_sk_recv_match_one(jsk, skcb);
- 		if (match)
- 			break;
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- 
- 	return match;
- }
-@@ -344,11 +344,11 @@ void j1939_sk_recv(struct j1939_priv *priv, struct sk_buff *skb)
- {
- 	struct j1939_sock *jsk;
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		j1939_sk_recv_one(jsk, skb);
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- }
- 
- static void j1939_sk_sock_destruct(struct sock *sk)
-@@ -484,6 +484,7 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 
- 		priv = j1939_netdev_start(ndev);
- 		dev_put(ndev);
-+
- 		if (IS_ERR(priv)) {
- 			ret = PTR_ERR(priv);
- 			goto out_release_sock;
-@@ -1078,12 +1079,12 @@ void j1939_sk_errqueue(struct j1939_session *session,
- 	}
- 
- 	/* spread RX notifications to all sockets subscribed to this session */
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		if (j1939_sk_recv_match_one(jsk, &session->skcb))
- 			__j1939_sk_errqueue(session, &jsk->sk, type);
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- };
- 
- void j1939_sk_send_loop_abort(struct sock *sk, int err)
-@@ -1271,7 +1272,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
- 	struct j1939_sock *jsk;
- 	int error_code = ENETDOWN;
- 
--	spin_lock_bh(&priv->j1939_socks_lock);
-+	read_lock_bh(&priv->j1939_socks_lock);
- 	list_for_each_entry(jsk, &priv->j1939_socks, list) {
- 		jsk->sk.sk_err = error_code;
- 		if (!sock_flag(&jsk->sk, SOCK_DEAD))
-@@ -1279,7 +1280,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
- 
- 		j1939_sk_queue_drop_all(priv, jsk, error_code);
- 	}
--	spin_unlock_bh(&priv->j1939_socks_lock);
-+	read_unlock_bh(&priv->j1939_socks_lock);
- }
- 
- static int j1939_sk_no_ioctlcmd(struct socket *sock, unsigned int cmd,
--- 
-2.34.1
 
