@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ECF72813ED
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 03812813EB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E930260B33
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1186160A8A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1689240565; x=1691832565;
- h=content-transfer-encoding:in-reply-to:from:content-language
- :references:cc:to:subject:user-agent:mime-version:date:message-id
+ d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1689240610; x=1691832610;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=bsVmfGKx3JXZYIZAj2sAzKGn4PToD7TqBYHKEzg5nto=;
- b=I8bje+1DsdXED3Msu/ohJ8XAdIQufu8VtS9hLYTHg4kAo519quxxoLGdanAr2QyOfA
- eiaICWM9cx1qmz3vvVTlsoKxrKGdzjpeVChoU3Ly7VRZK8soYyRUi2ET0NPz8RmmJXKT
- U4lbbXJTEr9i/gQXGAl0v0n0kT8DaaMXBno8tOKXGDKhPvsgm7Z00eF6PdMYPRbH3QSe
- LRTnc5/YjBS5H16fTZNVBi77LXN6gvYGL8fAokrOUnObS6P1JQ8VTlM4IFm52nSnUdNi
- vl/N+U1sn0xzmAyL1qKv87eY7lLixri+SutfmoVeKVEnJZ1Jc6bIcDW9yQVxFc5V31pJ
- g1sw==
-Message-ID: <d003b6e7-6db1-f5e3-d356-237e4bf3a34c@blackwall.org>
-Date: Thu, 13 Jul 2023 12:29:22 +0300
+ bh=Bi1FlV5GLd9b5M5p2mDsMBKOhHCbBoFwfbfjXIV037U=;
+ b=fo/F5nS1tzrOazQWrA2k5bOZneI6jl2csoF40VKZqI9mpoLUVMslv2zRzN8nXpp+OG
+ 9wjZ01YPQ1TvxaO2rr09Sp3Dp38/3ZjREQPDskpSdbISny68o8CZatSNOSjhHIxwkrMi
+ KhfyiNQX+5s3DjsZauAK6n+EgTUq3P9eof/NcSvTHqKGGiqEiQBE+5kXE0gcQ23fUJTj
+ +fLJ6543CrgO2xV3aVTyCkI9bbEm94htRqKy24ROYNF/qBVgsgcR39uCQT/zglRPHQcH
+ UnIMALJ41yeQce8rJ35temr7dV4AaJLbtLPITqg7zY9XcXjiZOWLZVSSMMh47UgGQyDi
+ 5Rxw==
+Message-ID: <1bd20ab6-4792-7689-932a-a7b9ccf72402@blackwall.org>
+Date: Thu, 13 Jul 2023 12:30:07 +0300
 MIME-Version: 1.0
-References: <20230713070925.3955850-1-idosch@nvidia.com>
- <20230713070925.3955850-2-idosch@nvidia.com>
 Content-Language: en-US
+References: <20230713070925.3955850-1-idosch@nvidia.com>
+ <20230713070925.3955850-3-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230713070925.3955850-2-idosch@nvidia.com>
+In-Reply-To: <20230713070925.3955850-3-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [RFC PATCH net-next 1/4] ip_tunnels: Add nexthop ID
- field to ip_tunnel_key
+Subject: Re: [Bridge] [RFC PATCH net-next 2/4] vxlan: Add support for
+ nexthop ID metadata
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -37,30 +37,37 @@ To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, bridge@lists.linux
 Cc: petrm@nvidia.com, taspelund@nvidia.com, roopa@nvidia.com, edumazet@google.com, dsahern@gmail.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
 On 13/07/2023 10:09, Ido Schimmel wrote:
-> Extend the ip_tunnel_key structure with a field indicating the ID of the
-> nexthop object via which the skb should be routed.
+> VXLAN FDB entries can point to FDB nexthop objects. Each such object
+> includes the IP address(es) of remote VTEP(s) via which the target host
+> is accessible. Example:
 > 
-> The field is going to be populated in subsequent patches by the bridge
-> driver in order to indicate to the VXLAN driver which FDB nexthop object
-> to use in order to reach the target host.
+>   # ip nexthop add id 1 via 192.0.2.1 fdb
+>   # ip nexthop add id 2 via 192.0.2.17 fdb
+>   # ip nexthop add id 1000 group 1/2 fdb
+>   # bridge fdb add 00:11:22:33:44:55 dev vx0 self static nhid 1000 src_vni 10020
+> 
+> This is useful for EVPN multihoming where a single host can be connected
+> to multiple VTEPs. The source VTEP will calculate the flow hash of the
+> skb and forward it towards the IP address of one of the VTEPs member in
+> the nexthop group.
+> 
+> There are cases where an external entity (e.g., the bridge driver) can
+> provide not only the tunnel ID (i.e., VNI) of the skb, but also the ID
+> of the nexthop object via which the skb should be forwarded.
+> 
+> Therefore, in order to support such cases, when the VXLAN device is in
+> external / collect metadata mode and the tunnel info attached to the skb
+> is of bridge type, extract the nexthop ID from the tunnel info. If the
+> ID is valid (i.e., non-zero), forward the skb via the nexthop object
+> associated with the ID, as if the skb hit an FDB entry associated with
+> this ID.
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->   include/net/ip_tunnels.h | 1 +
->   1 file changed, 1 insertion(+)
+>   drivers/net/vxlan/vxlan_core.c | 44 ++++++++++++++++++++++++++++++++++
+>   1 file changed, 44 insertions(+)
 > 
-> diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
-> index ed4b6ad3fcac..e8750b4ef7e1 100644
-> --- a/include/net/ip_tunnels.h
-> +++ b/include/net/ip_tunnels.h
-> @@ -52,6 +52,7 @@ struct ip_tunnel_key {
->   	u8			tos;		/* TOS for IPv4, TC for IPv6 */
->   	u8			ttl;		/* TTL for IPv4, HL for IPv6 */
->   	__be32			label;		/* Flow Label for IPv6 */
-> +	u32			nhid;
->   	__be16			tp_src;
->   	__be16			tp_dst;
->   	__u8			flow_flags;
 
-Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
+LGTM
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
