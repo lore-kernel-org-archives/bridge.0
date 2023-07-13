@@ -1,18 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 043A381EEA
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B9AE881EE7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6755781EEA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A370883BA1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yhnOvr4tIltaRv9D/Dtp3wMF3c4zFuy5h5no/eP0Owo=;
- b=jnzsF4BqbVr1PuL9TKVN+GUeDZzujv3nx0ztUiIyJyIBb+PI7JVGOOfUkLbn++EP2jZyIuVL6j4BanAYtbNhgRiVFV+Zfsj0wJcOCAsXo/uTXacWZoREeZnKGLGYTfxyOdrYiG3r+W0jLkCzFz3ZC4Jk6oqjNXWMqjkouMtA/PMeAQ5mTrRiE5POTCBJBTRYBZhxDWRkOrdbQM5fb6lMP/QagsIq7q/RmcbCcbx/BTxZ/pYyoiunT9BOBu7/xSLgmk19qDwzZS+i4e+Wqj+eP9TmL23SdYEQTIPklB0kNjcd7/Y97UCCyOMpvgtONPZCyPAQSQ9uEqYahzglSNeZ3A==
+ bh=atm9CGpPjeRFLS/syFuSAHEqrZlKZkYjuFPtkoz3LPo=;
+ b=MqHn1VqPIZ8oDwFZfM4H36gxVEHGtNiWzTN05W2c+PIC3WW03MAZoWdj4eKHvfLDemC9HZNf09vcT6tLAsjnxrOXlrJG4mGGJQ0DDvrZ4cKKP1BPqb8TtKoEp6O0/pfOPDXZ5cHHKi8hZuPXF3EN2zQQA4PObG8KNTSf+f03g5NQvUfA8k6mB0wfYr7esUEBye57Rs8wbWbElAP1XhoKJpLtaQziXu5sSVA0O39k69GEG/jke821e/l6a76ry1KbxdjCdZd3dOHHmxmclW3nWSjOL3CyrpsMcKBb4VtgUo4UguUTVBgZrQrdAsMNvYHE3w8TIsFtSFhP2TITCoT5yQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Thu, 13 Jul 2023 10:09:21 +0300
-Message-ID: <20230713070925.3955850-1-idosch@nvidia.com>
+Date: Thu, 13 Jul 2023 10:09:23 +0300
+Message-ID: <20230713070925.3955850-3-idosch@nvidia.com>
+In-Reply-To: <20230713070925.3955850-1-idosch@nvidia.com>
+References: <20230713070925.3955850-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [RFC PATCH net-next 0/4] Add backup nexthop ID support
+Subject: [Bridge] [RFC PATCH net-next 2/4] vxlan: Add support for nexthop ID
+	metadata
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,147 +27,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: petrm@nvidia.com, taspelund@nvidia.com, Ido Schimmel <idosch@nvidia.com>, razor@blackwall.org, dsahern@gmail.com, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-tl;dr
-=====
+VXLAN FDB entries can point to FDB nexthop objects. Each such object
+includes the IP address(es) of remote VTEP(s) via which the target host
+is accessible. Example:
 
-This patchset adds a new bridge port attribute specifying the nexthop
-object ID to attach to a redirected skb as tunnel metadata. The ID is
-used by the VXLAN driver to choose the target VTEP for the skb. This is
-useful for EVPN multi-homing, where we want to redirect local
-(intra-rack) traffic upon carrier loss through one of the other VTEPs
-(ES peers) connected to the target host.
+ # ip nexthop add id 1 via 192.0.2.1 fdb
+ # ip nexthop add id 2 via 192.0.2.17 fdb
+ # ip nexthop add id 1000 group 1/2 fdb
+ # bridge fdb add 00:11:22:33:44:55 dev vx0 self static nhid 1000 src_vni 10020
 
-Background
-==========
+This is useful for EVPN multihoming where a single host can be connected
+to multiple VTEPs. The source VTEP will calculate the flow hash of the
+skb and forward it towards the IP address of one of the VTEPs member in
+the nexthop group.
 
-In a typical EVPN multi-homing setup each host is multi-homed using a
-set of links called ES (Ethernet Segment, i.e., LAG) to multiple leaf
-switches in a rack. These switches act as VTEPs and are not directly
-connected (as opposed to MLAG), but can communicate with each other (as
-well as with VTEPs in remote racks) via spine switches over L3.
+There are cases where an external entity (e.g., the bridge driver) can
+provide not only the tunnel ID (i.e., VNI) of the skb, but also the ID
+of the nexthop object via which the skb should be forwarded.
 
-The control plane uses Type 1 routes [1] to create a mapping between an
-ES and VTEPs where the ES has active links. In addition, the control
-plane uses Type 2 routes [2] to create a mapping between {MAC, VLAN} and
-an ES.
+Therefore, in order to support such cases, when the VXLAN device is in
+external / collect metadata mode and the tunnel info attached to the skb
+is of bridge type, extract the nexthop ID from the tunnel info. If the
+ID is valid (i.e., non-zero), forward the skb via the nexthop object
+associated with the ID, as if the skb hit an FDB entry associated with
+this ID.
 
-These tables are then used by the control plane to instruct VTEPs how to
-reach remote hosts. For example, assuming {MAC X, VLAN Y} is accessible
-via ES1 and this ES has active links to VTEP1 and VTEP2. The control
-plane will program the following entries to a remote VTEP:
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+---
+ drivers/net/vxlan/vxlan_core.c | 44 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
- # ip nexthop add id 1 via $VTEP1_IP fdb
- # ip nexthop add id 2 via $VTEP2_IP fdb
- # ip nexthop add id 10 group 1/2 fdb
- # bridge fdb add $MAC_X dev vx0 master extern_learn vlan $VLAN_Y
- # bridge fdb add $MAC_Y dev vx0 self extern_learn nhid 10 src_vni $VNI_Y
-
-Remote traffic towards the host will be load balanced between VTEP1 and
-VTEP2. If the control plane notices a carrier loss on the ES1 link
-connected to VTEP1, it will issue a Type 1 route withdraw, prompting
-remote VTEPs to remove the effected nexthop from the group:
-
- # ip nexthop replace id 10 group 2 fdb
-
-Motivation
-==========
-
-While remote traffic can be redirected to a VTEP with an active ES link
-by withdrawing a Type 1 route, the same is not true for local traffic. A
-host that is multi-homed to VTEP1 and VTEP2 via another ES (e.g., ES2)
-will send its traffic to {MAC X, VLAN Y} via one of these two switches,
-according to its LAG hash algorithm which is not under our control. If
-the traffic arrives at VTEP1 - which no longer has an active ES1 link -
-it will be dropped due to the carrier loss.
-
-In MLAG setups, the above problem is solved by redirecting the traffic
-through the peer link upon carrier loss. This is achieved by defining
-the peer link as the backup port of the host facing bond. For example:
-
- # bridge link set dev bond0 backup_port bond_peer
-
-Unlike MLAG, there is no peer link between the leaf switches in EVPN.
-Instead, upon carrier loss, local traffic should be redirected through
-one of the active ES peers. This can be achieved by defining the VXLAN
-port as the backup port of the host facing bonds. For example:
-
- # bridge link set dev es1_bond backup_port vx0
-
-However, the VXLAN driver is not programmed with FDB entries for locally
-attached hosts and therefore does not know to which VTEP to redirect the
-traffic to. This will result in the traffic being replicated to all the
-VTEPs (potentially hundreds) in the network and each VTEP dropping the
-traffic, except for the active ES peer.
-
-Avoiding the flooding by programming local FDB entries in the VXLAN
-driver is not a viable solution as it requires to significantly increase
-the number of programmed FDB entries.
-
-Implementation
-==============
-
-The proposed solution is to create an FDB nexthop group for each ES with
-the IP addresses of the active ES peers and set this ID as the backup
-nexthop ID (new bridge port attribute) of the ES link. For example, on
-VTEP1:
-
- # ip nexthop add id 1 via $VTEP2_IP fdb
- # ip nexthop add id 10 group 1 fdb
- # bridge link set dev es1_bond backup_nhid 10
- # bridge link set dev es1_bond backup_port vx0
-
-When the ES link loses its carrier, traffic will be redirected to the
-VXLAN port, but instead of only attaching the tunnel ID (i.e., VNI) as
-tunnel metadata to the skb, the backup nexthop ID will be attached as
-well. The VXLAN driver will then use this information to forward the skb
-via the nexthop object associated with the ID, as if the skb hit an FDB
-entry associated with this ID.
-
-Testing
-=======
-
-A test for both the existing backup port attribute as well as the new
-backup nexthop ID attribute is added in patch #4.
-
-Patchset overview
-=================
-
-Patch #1 extends the tunnel key structure with the new nexthop ID field.
-
-Patch #2 uses the new field in the VXLAN driver to forward packets via
-the specified nexthop ID.
-
-Patch #3 adds the new backup nexthop ID bridge port attribute and
-adjusts the bridge driver to attach the ID as tunnel metadata upon
-redirection.
-
-Patch #4 adds a selftest.
-
-iproute2 patches can be found here [3].
-
-[1] https://datatracker.ietf.org/doc/html/rfc7432#section-7.1
-[2] https://datatracker.ietf.org/doc/html/rfc7432#section-7.2
-[3] https://github.com/idosch/iproute2/tree/submit/backup_nhid_v1
-
-Ido Schimmel (4):
-  ip_tunnels: Add nexthop ID field to ip_tunnel_key
-  vxlan: Add support for nexthop ID metadata
-  bridge: Add backup nexthop ID support
-  selftests: net: Add bridge backup port and backup nexthop ID test
-
- drivers/net/vxlan/vxlan_core.c                |  44 +
- include/net/ip_tunnels.h                      |   1 +
- include/uapi/linux/if_link.h                  |   1 +
- net/bridge/br_forward.c                       |   1 +
- net/bridge/br_netlink.c                       |  12 +
- net/bridge/br_private.h                       |   3 +
- net/bridge/br_vlan_tunnel.c                   |  15 +
- net/core/rtnetlink.c                          |   2 +-
- tools/testing/selftests/net/Makefile          |   1 +
- .../selftests/net/test_bridge_backup_port.sh  | 759 ++++++++++++++++++
- 10 files changed, 838 insertions(+), 1 deletion(-)
- create mode 100755 tools/testing/selftests/net/test_bridge_backup_port.sh
-
+diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
+index 78744549c1b3..10a4dbd50710 100644
+--- a/drivers/net/vxlan/vxlan_core.c
++++ b/drivers/net/vxlan/vxlan_core.c
+@@ -2672,6 +2672,45 @@ static void vxlan_xmit_nh(struct sk_buff *skb, struct net_device *dev,
+ 	dev_kfree_skb(skb);
+ }
+ 
++static netdev_tx_t vxlan_xmit_nhid(struct sk_buff *skb, struct net_device *dev,
++				   u32 nhid, __be32 vni)
++{
++	struct vxlan_dev *vxlan = netdev_priv(dev);
++	struct vxlan_rdst nh_rdst;
++	struct nexthop *nh;
++	bool do_xmit;
++	u32 hash;
++
++	memset(&nh_rdst, 0, sizeof(struct vxlan_rdst));
++	hash = skb_get_hash(skb);
++
++	rcu_read_lock();
++	nh = nexthop_find_by_id(dev_net(dev), nhid);
++	if (unlikely(!nh || !nexthop_is_fdb(nh) || !nexthop_is_multipath(nh))) {
++		rcu_read_unlock();
++		goto drop;
++	}
++	do_xmit = vxlan_fdb_nh_path_select(nh, hash, &nh_rdst);
++	rcu_read_unlock();
++
++	if (vxlan->cfg.saddr.sa.sa_family != nh_rdst.remote_ip.sa.sa_family)
++		goto drop;
++
++	if (likely(do_xmit))
++		vxlan_xmit_one(skb, dev, vni, &nh_rdst, false);
++	else
++		goto drop;
++
++	return NETDEV_TX_OK;
++
++drop:
++	dev->stats.tx_dropped++;
++	vxlan_vnifilter_count(netdev_priv(dev), vni, NULL,
++			      VXLAN_VNI_STATS_TX_DROPS, 0);
++	dev_kfree_skb(skb);
++	return NETDEV_TX_OK;
++}
++
+ /* Transmit local packets over Vxlan
+  *
+  * Outer IP header inherits ECN and DF from inner header.
+@@ -2687,6 +2726,7 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	struct vxlan_fdb *f;
+ 	struct ethhdr *eth;
+ 	__be32 vni = 0;
++	u32 nhid = 0;
+ 
+ 	info = skb_tunnel_info(skb);
+ 
+@@ -2696,6 +2736,7 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (info && info->mode & IP_TUNNEL_INFO_BRIDGE &&
+ 		    info->mode & IP_TUNNEL_INFO_TX) {
+ 			vni = tunnel_id_to_key32(info->key.tun_id);
++			nhid = info->key.nhid;
+ 		} else {
+ 			if (info && info->mode & IP_TUNNEL_INFO_TX)
+ 				vxlan_xmit_one(skb, dev, vni, NULL, false);
+@@ -2723,6 +2764,9 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
+ #endif
+ 	}
+ 
++	if (nhid)
++		return vxlan_xmit_nhid(skb, dev, nhid, vni);
++
+ 	if (vxlan->cfg.flags & VXLAN_F_MDB) {
+ 		struct vxlan_mdb_entry *mdb_entry;
+ 
 -- 
 2.40.1
 
