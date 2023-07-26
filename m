@@ -1,35 +1,25 @@
-Return-Path: <hcoin@quietfountain.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9EFC883CDF
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB24B83CDB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
- quietfountain.com; h=content-transfer-encoding:content-type
- :in-reply-to:organization:from:references:to:content-language
- :subject:user-agent:mime-version:date:message-id; s=dkim; t=
- 1689256256; x=1691848257; bh=t3KoUQ576nwgQDgQyh6XtUiiZCI2C4INCDa
- FAm36//8=; b=hE7jq7w8Eu2/m+JHQN56PpyfwdyTFGg5g/5SgHjxCUx/ge3V3wy
- cgNchZrfHrZoAHcQg/Q2aNq115c9fFvJw6/sudEDkoDMb3Ri/WlDo71ck4D72OoX
- gAcN537Cq+D194GtY2kqJliJfd/yfI8aHqiJY0x7SmH9SNY2gLyEIXo5cxsE/7KR
- WkkZzEWWdQ0JX0fBeTDJ2+X8srcS17GdAnlbtjk24DMNAtn4yrBvJgPzKHv0zJX0
- YS9BJpXFoW5YQ7rgXEyo5vwdxAEbo/otmLnSkYS40/G9CWQS7UTw2XrYS8FeJLKo
- JmNP5HOmezY9mPs+YVF1uxtx/kV3ESoikHNQr4/cq1cfQQz/4eexYBrtRVJnuwO7
- 7aJRnruuTL5JRLe1LqnR0dMsnL3Oja+v0mIFblY4ifoBTuudId0BXxVfz+Ik7obs
- q9t3c6bE2BJT+mx0GIwGu31yaZUej8176Ir7ptD+j9tqQmmSFC1+N+emor0JJFlX
- yO3bDiOERgWvioF+NKcvQOiXByFOEN3fQ5bAEcM7Pjflg1FdsaVS7l6Rn4gbLMpA
- NAqcju3KWUHO93Nnyhbxr4TCk+yl3jooEktPjSDLFaqPfZ2SBqWX4O/nD9bSu+ce
- SVoQI8nMWERcbG1rzE1Mq0dVdRi5OY28fdOvPpYZOz2tfdFFp+k32KgI=
-Message-ID: <f4f1b9b4-abc9-842a-205a-35588916115d@quietfountain.com>
-Date: Thu, 13 Jul 2023 08:50:44 -0500
+Return-Path: <j.granados@samsung.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9FAA941748
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 882154176C
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com
+ 20230726140707euoutp02f924f8248e14232939a8523c7f0b541f~1cArXG9gQ1609016090euoutp02F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+ s=mail20170921; t=1690380427;
+ bh=N/tDn9xxgtPj3eeWaK+OzmB4bUzNii0EGpI6o50nYlo=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=pNaW5b8TJXaGTl1SEuaXc3ZPzT0d2nuEoslVgvOznQrgb+q/d3VchRseOWur1yssr
+ +H7P9gKV9QvqmRVOmPMZc8ggqAvdsuCPJ+7OtRJog09Io0I752iv2UyIRr3Ut0VhSW
+ UUxo/Kz5iL/QA6svZHhypp0DmctgIICynw76tBn0=
+From: Joel Granados <j.granados@samsung.com>
+Date: Wed, 26 Jul 2023 16:06:30 +0200
+Message-Id: <20230726140635.2059334-11-j.granados@samsung.com>
+In-Reply-To: <20230726140635.2059334-1-j.granados@samsung.com>
 MIME-Version: 1.0
-Content-Language: en-US
-References: <20230711235415.92166-1-kuniyu@amazon.com>
- <ZK69NDM60+N0TTFh@shredder>
- <caf5bc87-0b5f-cd44-3c1c-5842549c8c6e@blackwall.org>
-From: Harry Coin <hcoin@quietfountain.com>
-In-Reply-To: <caf5bc87-0b5f-cd44-3c1c-5842549c8c6e@blackwall.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [Bridge] [PATCH v1 net] bridge: Return an error when enabling
- STP in netns.
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+References: <20230726140635.2059334-1-j.granados@samsung.com>
+ <CGME20230726140706eucas1p1b11e5f0bd17f0de19af9608cbd8d17f3@eucas1p1.samsung.com>
+Subject: [Bridge] [PATCH 10/14] netfilter: Update to register_net_sysctl_sz
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -38,116 +28,190 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@idosch.org>, Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Kuniyuki Iwashima <kuni1840@gmail.com>, Eric Dumazet <edumazet@google.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: mcgrof@kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, "David
+ S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, David Ahern <dsahern@kernel.org>, Simon Horman <horms@verge.net.au>, Julian Anastasov <ja@ssi.bg>
+Cc: Joel Granados <j.granados@samsung.com>, keescook@chromium.org, netdev@vger.kernel.org, bridge@lists.linux-foundation.org, josh@joshtriplett.org, willy@infradead.org, linux-kernel@vger.kernel.org, lvs-devel@vger.kernel.org, coreteam@netfilter.org, netfilter-devel@vger.kernel.org
 
+This is part of the effort to remove the sentinel (last empty) element
+from the ctl_table arrays. We update to the new function and pass it the
+array size. Care is taken to mirror the NULL assignments with a size of
+zero (for the unprivileged users)
 
-On 7/12/23 09:52, Nikolay Aleksandrov wrote:
-> On 12/07/2023 17:48, Ido Schimmel wrote:
->> On Tue, Jul 11, 2023 at 04:54:15PM -0700, Kuniyuki Iwashima wrote:
->>> When we create an L2 loop on a bridge in netns, we will see packets s=
-torm
->>> even if STP is enabled.
->>>
->>>    # unshare -n
->>>    # ip link add br0 type bridge
->>>    # ip link add veth0 type veth peer name veth1
->>>    # ip link set veth0 master br0 up
->>>    # ip link set veth1 master br0 up
->>>    # ip link set br0 type bridge stp_state 1
->>>    # ip link set br0 up
->>>    # sleep 30
->>>    # ip -s link show br0
->>>    2: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue s=
-tate UP mode DEFAULT group default qlen 1000
->>>        link/ether b6:61:98:1c:1c:b5 brd ff:ff:ff:ff:ff:ff
->>>        RX: bytes  packets  errors  dropped missed  mcast
->>>        956553768  12861249 0       0       0       12861249  <-. Keep
->>>        TX: bytes  packets  errors  dropped carrier collsns     |  inc=
-reasing
->>>        1027834    11951    0       0       0       0         <-'   ra=
-pidly
->>>
->>> This is because llc_rcv() drops all packets in non-root netns and BPD=
-U
->>> is dropped.
->>>
->>> Let's show an error when enabling STP in netns.
->>>
->>>    # unshare -n
->>>    # ip link add br0 type bridge
->>>    # ip link set br0 type bridge stp_state 1
->>>    Error: bridge: STP can't be enabled in non-root netns.
->>>
->>> Note this commit will be reverted later when we namespacify the whole=
- LLC
->>> infra.
->>>
->>> Fixes: e730c15519d0 ("[NET]: Make packet reception network namespace =
-safe")
->>> Suggested-by: Harry Coin <hcoin@quietfountain.com>
->> I'm not sure that's accurate. I read his response in the link below an=
-d
->> he says "I'd rather be warned than blocked" and "But better warned and
->> awaiting a fix than blocked", which I agree with. The patch has the
->> potential to cause a lot of regressions, but without actually fixing t=
-he
->> problem.
->>
->> How about simply removing the error [1]? Since iproute2 commit
->> 844c37b42373 ("libnetlink: Handle extack messages for non-error case")=
-,
->> it can print extack warnings and not only errors. With the diff below:
->>
->>   # unshare -n
->>   # ip link add name br0 type bridge
->>   # ip link set dev br0 type bridge stp_state 1
->>   Warning: bridge: STP can't be enabled in non-root netns.
->>   # echo $?
->>   0
->>
->> [1]
->> diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
->> index a807996ac56b..b5143de37938 100644
->> --- a/net/bridge/br_stp_if.c
->> +++ b/net/bridge/br_stp_if.c
->> @@ -201,10 +201,8 @@ int br_stp_set_enabled(struct net_bridge *br, uns=
-igned long val,
->>   {
->>          ASSERT_RTNL();
->>  =20
->> -       if (!net_eq(dev_net(br->dev), &init_net)) {
->> +       if (!net_eq(dev_net(br->dev), &init_net))
->>                  NL_SET_ERR_MSG_MOD(extack, "STP can't be enabled in n=
-on-root netns");
->> -               return -EINVAL;
->> -       }
->>  =20
->>          if (br_mrp_enabled(br)) {
->>                  NL_SET_ERR_MSG_MOD(extack,
->>
-> I'd prefer this approach to changing user-visible behaviour and potenti=
-al regressions.
-> Just change the warning message.
->
-> Thanks,
->   Nik
+Signed-off-by: Joel Granados <j.granados@samsung.com>
+---
+ net/bridge/br_netfilter_hooks.c         |  3 ++-
+ net/ipv6/netfilter/nf_conntrack_reasm.c |  3 ++-
+ net/netfilter/ipvs/ip_vs_ctl.c          |  8 ++++++--
+ net/netfilter/ipvs/ip_vs_lblc.c         | 10 +++++++---
+ net/netfilter/ipvs/ip_vs_lblcr.c        | 10 +++++++---
+ net/netfilter/nf_conntrack_standalone.c |  4 +++-
+ net/netfilter/nf_log.c                  |  7 ++++---
+ 7 files changed, 31 insertions(+), 14 deletions(-)
 
-Remember, the only way it's honest to 'warn but not block' STP in netns=20
-is trust in the Kuniyuki's assertion that the llc will be=20
-'namespacified' in a near term frame.=C2=A0=C2=A0 As STP is not only=20
-non-functional in a netns, but will in fact bring down every connected=20
-system in a packet storm should a L2 loop exist the situation is much=20
-worse than a merely inaccessible extra feature. This as the only reason=20
-STP exists is to avoid crashing sites owing to packet storms arising=20
-from L2 loops.=C2=A0=C2=A0=C2=A0 I think as this bug is a potential 'site=
- killer'=20
-(which in fact happened to me!) The Linux dev community has an=20
-obligation to either hard block this or commit to a fix time frame and=20
-merely warn.
-
-Thanks
-
-Harry Coin
-
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 1a801fab9543..15186247b59a 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -1135,7 +1135,8 @@ static int br_netfilter_sysctl_init_net(struct net *net)
+ 
+ 	br_netfilter_sysctl_default(brnet);
+ 
+-	brnet->ctl_hdr = register_net_sysctl(net, "net/bridge", table);
++	brnet->ctl_hdr = register_net_sysctl_sz(net, "net/bridge", table,
++						ARRAY_SIZE(brnf_table));
+ 	if (!brnet->ctl_hdr) {
+ 		if (!net_eq(net, &init_net))
+ 			kfree(table);
+diff --git a/net/ipv6/netfilter/nf_conntrack_reasm.c b/net/ipv6/netfilter/nf_conntrack_reasm.c
+index d13240f13607..b2dd48911c8d 100644
+--- a/net/ipv6/netfilter/nf_conntrack_reasm.c
++++ b/net/ipv6/netfilter/nf_conntrack_reasm.c
+@@ -87,7 +87,8 @@ static int nf_ct_frag6_sysctl_register(struct net *net)
+ 	table[2].data	= &nf_frag->fqdir->high_thresh;
+ 	table[2].extra1	= &nf_frag->fqdir->low_thresh;
+ 
+-	hdr = register_net_sysctl(net, "net/netfilter", table);
++	hdr = register_net_sysctl_sz(net, "net/netfilter", table,
++				     ARRAY_SIZE(nf_ct_frag6_sysctl_table));
+ 	if (hdr == NULL)
+ 		goto err_reg;
+ 
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index 62606fb44d02..8d69e4c2d822 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -4266,6 +4266,7 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
+ 	struct net *net = ipvs->net;
+ 	struct ctl_table *tbl;
+ 	int idx, ret;
++	size_t ctl_table_size = ARRAY_SIZE(vs_vars);
+ 
+ 	atomic_set(&ipvs->dropentry, 0);
+ 	spin_lock_init(&ipvs->dropentry_lock);
+@@ -4282,8 +4283,10 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
+ 			return -ENOMEM;
+ 
+ 		/* Don't export sysctls to unprivileged users */
+-		if (net->user_ns != &init_user_ns)
++		if (net->user_ns != &init_user_ns) {
+ 			tbl[0].procname = NULL;
++			ctl_table_size = 0;
++		}
+ 	} else
+ 		tbl = vs_vars;
+ 	/* Initialize sysctl defaults */
+@@ -4353,7 +4356,8 @@ static int __net_init ip_vs_control_net_init_sysctl(struct netns_ipvs *ipvs)
+ #endif
+ 
+ 	ret = -ENOMEM;
+-	ipvs->sysctl_hdr = register_net_sysctl(net, "net/ipv4/vs", tbl);
++	ipvs->sysctl_hdr = register_net_sysctl_sz(net, "net/ipv4/vs", tbl,
++						  ctl_table_size);
+ 	if (!ipvs->sysctl_hdr)
+ 		goto err;
+ 	ipvs->sysctl_tbl = tbl;
+diff --git a/net/netfilter/ipvs/ip_vs_lblc.c b/net/netfilter/ipvs/ip_vs_lblc.c
+index 1b87214d385e..cf78ba4ce5ff 100644
+--- a/net/netfilter/ipvs/ip_vs_lblc.c
++++ b/net/netfilter/ipvs/ip_vs_lblc.c
+@@ -550,6 +550,7 @@ static struct ip_vs_scheduler ip_vs_lblc_scheduler = {
+ static int __net_init __ip_vs_lblc_init(struct net *net)
+ {
+ 	struct netns_ipvs *ipvs = net_ipvs(net);
++	size_t vars_table_size = ARRAY_SIZE(vs_vars_table);
+ 
+ 	if (!ipvs)
+ 		return -ENOENT;
+@@ -562,16 +563,19 @@ static int __net_init __ip_vs_lblc_init(struct net *net)
+ 			return -ENOMEM;
+ 
+ 		/* Don't export sysctls to unprivileged users */
+-		if (net->user_ns != &init_user_ns)
++		if (net->user_ns != &init_user_ns) {
+ 			ipvs->lblc_ctl_table[0].procname = NULL;
++			vars_table_size = 0;
++		}
+ 
+ 	} else
+ 		ipvs->lblc_ctl_table = vs_vars_table;
+ 	ipvs->sysctl_lblc_expiration = DEFAULT_EXPIRATION;
+ 	ipvs->lblc_ctl_table[0].data = &ipvs->sysctl_lblc_expiration;
+ 
+-	ipvs->lblc_ctl_header =
+-		register_net_sysctl(net, "net/ipv4/vs", ipvs->lblc_ctl_table);
++	ipvs->lblc_ctl_header = register_net_sysctl_sz(net, "net/ipv4/vs",
++						       ipvs->lblc_ctl_table,
++						       vars_table_size);
+ 	if (!ipvs->lblc_ctl_header) {
+ 		if (!net_eq(net, &init_net))
+ 			kfree(ipvs->lblc_ctl_table);
+diff --git a/net/netfilter/ipvs/ip_vs_lblcr.c b/net/netfilter/ipvs/ip_vs_lblcr.c
+index ad8f5fea6d3a..9eddf118b40e 100644
+--- a/net/netfilter/ipvs/ip_vs_lblcr.c
++++ b/net/netfilter/ipvs/ip_vs_lblcr.c
+@@ -736,6 +736,7 @@ static struct ip_vs_scheduler ip_vs_lblcr_scheduler =
+ static int __net_init __ip_vs_lblcr_init(struct net *net)
+ {
+ 	struct netns_ipvs *ipvs = net_ipvs(net);
++	size_t vars_table_size = ARRAY_SIZE(vs_vars_table);
+ 
+ 	if (!ipvs)
+ 		return -ENOENT;
+@@ -748,15 +749,18 @@ static int __net_init __ip_vs_lblcr_init(struct net *net)
+ 			return -ENOMEM;
+ 
+ 		/* Don't export sysctls to unprivileged users */
+-		if (net->user_ns != &init_user_ns)
++		if (net->user_ns != &init_user_ns) {
+ 			ipvs->lblcr_ctl_table[0].procname = NULL;
++			vars_table_size = 0;
++		}
+ 	} else
+ 		ipvs->lblcr_ctl_table = vs_vars_table;
+ 	ipvs->sysctl_lblcr_expiration = DEFAULT_EXPIRATION;
+ 	ipvs->lblcr_ctl_table[0].data = &ipvs->sysctl_lblcr_expiration;
+ 
+-	ipvs->lblcr_ctl_header =
+-		register_net_sysctl(net, "net/ipv4/vs", ipvs->lblcr_ctl_table);
++	ipvs->lblcr_ctl_header = register_net_sysctl_sz(net, "net/ipv4/vs",
++							ipvs->lblcr_ctl_table,
++							vars_table_size);
+ 	if (!ipvs->lblcr_ctl_header) {
+ 		if (!net_eq(net, &init_net))
+ 			kfree(ipvs->lblcr_ctl_table);
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 169e16fc2bce..0ee98ce5b816 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -1106,7 +1106,9 @@ static int nf_conntrack_standalone_init_sysctl(struct net *net)
+ 		table[NF_SYSCTL_CT_BUCKETS].mode = 0444;
+ 	}
+ 
+-	cnet->sysctl_header = register_net_sysctl(net, "net/netfilter", table);
++	cnet->sysctl_header = register_net_sysctl_sz(net, "net/netfilter",
++						     table,
++						     ARRAY_SIZE(nf_ct_sysctl_table));
+ 	if (!cnet->sysctl_header)
+ 		goto out_unregister_netfilter;
+ 
+diff --git a/net/netfilter/nf_log.c b/net/netfilter/nf_log.c
+index 8a29290149bd..8cc52d2bd31b 100644
+--- a/net/netfilter/nf_log.c
++++ b/net/netfilter/nf_log.c
+@@ -487,9 +487,10 @@ static int netfilter_log_sysctl_init(struct net *net)
+ 	for (i = NFPROTO_UNSPEC; i < NFPROTO_NUMPROTO; i++)
+ 		table[i].extra2 = net;
+ 
+-	net->nf.nf_log_dir_header = register_net_sysctl(net,
+-						"net/netfilter/nf_log",
+-						table);
++	net->nf.nf_log_dir_header = register_net_sysctl_sz(net,
++							   "net/netfilter/nf_log",
++							   table,
++							   ARRAY_SIZE(nf_log_sysctl_table));
+ 	if (!net->nf.nf_log_dir_header)
+ 		goto err_reg;
+ 
+-- 
+2.30.2
 
