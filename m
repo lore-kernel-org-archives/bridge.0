@@ -1,18 +1,25 @@
-Return-Path: <linus.luessing@c0d3.blue>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 42DB7401C7
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 88EE5401C1
-Date: Thu, 10 Aug 2023 04:07:17 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Message-ID: <ZNRGVfk0vAYYlfVU@sellars>
-References: <ZNGMVUNsZWWUd7so@sellars> <20230807182051.47d4d613@hermes.local>
- <ZNQZsl9YZXeCc7cf@sellars>
+Return-Path: <Samuel.J.Hasenbosch@boeing.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A88AF81443
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85A1681427
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=boeing.com;
+ s=boeing-s1912; t=1690947658;
+ bh=50Ll3XaXPT0vyhJOWSCNmNihoMoZX7WF3UOmYI6/TDM=;
+ h=From:To:CC:Subject:Date:From;
+ b=QcP2rmRIXPDH8xbfkMEHJrZEN5FWqQ0FffgJb6u59NvJlvh+45U79tgltiQCJKGib
+ ecukLSQXt2TPXCLdZOUrssA8tquA3a1qnw+UPFFQ4Lb5Tc1WYczoN4vqHotrU8KP9C
+ lZ9h+0O0jyzGBktRy52TkGuulSYANWhnkdA1jzt6Fhs8X+IpsJM/JEc47mG1sOiQNL
+ 4yqqRxrSbPPVf/v4RtyCpFzi+rtuS/MzO587XvM0m3sStvtujPlsmwL96gKDwXSna8
+ tZetNmGzBj6Pz5U4unZ9ipgr9D2GKx6/ACwxYIqP/uVyglLrYU2yjWFKgUTYZazGhJ
+ DDxqsL9HX5CpQ==
+From: "Hasenbosch, Samuel J" <Samuel.J.Hasenbosch@boeing.com>
+Date: Wed, 2 Aug 2023 03:40:33 +0000
+Message-ID: <b1b77fe134e64bfc85394050bd40dff6@boeing.com>
+Content-Language: en-US
+Content-Type: multipart/alternative;
+ boundary="_000_b1b77fe134e64bfc85394050bd40dff6boeingcom_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ZNQZsl9YZXeCc7cf@sellars>
-Subject: Re: [Bridge] Getting + maintaining a consistent MDB view in
- userspace?
+Subject: Re: [Bridge] [bridge]: STP: no port in blocking state despite a
+ loop when in a network namespace
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,95 +28,87 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: bridge@lists.linux-foundation.org
+To: "bugs.a.b@free.fr" <bugs.a.b@free.fr>
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "nikolay@nvidia.com" <nikolay@nvidia.com>, "roopa@nvidia.com" <roopa@nvidia.com>
 
-On Thu, Aug 10, 2023 at 12:56:50AM +0200, Linus Lüssing wrote:
-> [...]
-> When setting a bridge's "multicast_mld_version" to 2 it looks to me like
-> there is quite a bit of redundancy in both "bridge mdb show"
-> and "bridge monitor mdb" output. And addition and deletion notifications
-> don't look that symmetric to me then anymore. There doesn't
-> happen to exist some documentation about these (netlink specific)
-> additions that came with the IGMPv3/MLDv2 implementation, or does
-> it?
+--_000_b1b77fe134e64bfc85394050bd40dff6boeingcom_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-And just a few examples which confuse me a bit:
-
-1) ASM, single listener:
-
-$ ./mcjoin -d -i veth0 "[ff12::125]
-
-bridge monitor mdb:
-
-```
-dev br0 port veth1 grp ff12::125 temp filter_mode include proto kernel
-dev br0 port veth1 grp ff12::125 temp filter_mode exclude proto kernel
-```
-
--> first line seems to be superfluous / no-op?
-   Can I always ignore such an event with:
-   "n->nlmsg_type == RTM_NEWMDB && mode == MCAST_INCLUDE &&
-    !tb[MDBA_MDB_EATTR_SOURCE] && !tb[MDBA_MDB_EATTR_SRC_LIST]" ?
-
-Leave only creates one event:
-
-$ kill <mcjoin ...>
-
-```
-Deleted dev br0 port veth1 grp ff12::125 temp filter_mode include proto kernel
-```
-
-2) SSM, two listeners:
-
-$ ./mcjoin -d -i veth0 "[fe80::130],[ff12::130]"
-
-```
-dev br0 port veth1 grp ff12::130 temp filter_mode include proto kernel
-dev br0 port veth1 grp ff12::130 src fe80::130 temp filter_mode include proto kernel
-dev br0 port veth1 grp ff12::130 temp filter_mode include source_list fe80::130/260.00 proto kernel
-```
-
--> again first line superfluous / no-op?
-   and second + third line identical?
-
-Adding a second join:
-
-$ ./mcjoin -d -i veth0 "[fe80::131],[ff12::130]"
-
-```
-dev br0 port veth1 grp ff12::130 src fe80::131 temp filter_mode include proto kernel
-dev br0 port veth1 grp ff12::130 temp filter_mode include source_list fe80::131/260.00,fe80::130/247.86 proto kernel
-```
-
--> so looks like the source_list line is actually always a (superfluous /
-   redundant?) summary of all sources for this group+port?
-
-And deleting here creates three events:
-
-$ kill <mcjoin -d -i veth0 "[fe80::131],[ff12::130]">
-
-```
-Deleted dev br0 port veth1 grp ff12::130 src fe80::131 temp filter_mode include proto kernel
-```
-
-$ kill <mcjoin -d -i veth0 "[fe80::130],[ff12::130]">
-
-```
-Deleted dev br0 port veth1 grp ff12::130 src fe80::130 temp filter_mode include proto kernel
-Deleted dev br0 port veth1 grp ff12::130 temp filter_mode include proto kernel
-```
-
-And here the last line seems to be superfluous / redundant?
-And the behaviour seems to differ from 1) / ASM, where
-I would always only get one event when leaving?
+Forwarding related issue:
 
 
-----------
 
-So this currently confuses me a bit regarding which of these netlink
-notifications I might be able to ignore safely and which not. And
-how to interpret them, which ones are supposed to be a singular update
-I would need to add and which ones are supposed to be summaries
-that are supposed to potentially update/replace multiple entries.
+https://lore.kernel.org/netdev/20230711174934.3871fb61@kernel.org/T/#m4d530=
+64313393cdee86f12ef9313523aa734d681
 
-Regards, Linus
+
+--_000_b1b77fe134e64bfc85394050bd40dff6boeingcom_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-AU" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">Forwarding related issue:<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><a href=3D"https://lore.kernel.org/netdev/2023071117=
+4934.3871fb61@kernel.org/T/#m4d53064313393cdee86f12ef9313523aa734d681">http=
+s://lore.kernel.org/netdev/20230711174934.3871fb61@kernel.org/T/#m4d5306431=
+3393cdee86f12ef9313523aa734d681</a><o:p></o:p></p>
+</div>
+</body>
+</html>
+
+--_000_b1b77fe134e64bfc85394050bd40dff6boeingcom_--
+
