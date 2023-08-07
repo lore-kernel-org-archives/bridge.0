@@ -1,17 +1,28 @@
-Return-Path: <ore@pengutronix.de>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 960E240245
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 605D5409DB
-Date: Mon, 7 Aug 2023 06:46:34 +0200
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Message-ID: <20230807044634.GA5736@pengutronix.de>
-References: <20230704064710.3189-1-astrajoan@yahoo.com>
- <20230721162226.8639-1-astrajoan@yahoo.com>
+Return-Path: <mcgrof@infradead.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6123C4048E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D73040150
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
+ MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=g+VsSpIIvTZp+OYSzc71ePgWKvh9dbj0dOgrtfhVY08=; b=nv3YiaN+c2/xvyBTT2Scu3RVHn
+ Tj4b/HyzInNj8yGoInNGOYxe01yyjWs033Jma+vixDeIw5QdEW3/KFTOOcij/qjKWMuu5yJugNPak
+ 5bGUWL8QxbO2hds1oMmC1dHP1V6cQK2D4CaALau+vpGeX5XE9OvQJDFIO1Yi21zaO8HE2+pk34l2n
+ BVyUdtZzZvxBzsi1joxY+1qA9ciAyv62012YcPxmBErjy0ZIa5JCIYEpqbx+tuJU0O0v/7lnUWQPd
+ Rgxo3BYCj2n7RrlkjDHbuZtr8gKU8wmwOtvkewC4c71qhu+pMW57ycko0SZ5Zi0jULdqh4x1zPD/o
+ G0OdFzXQ==;
+Date: Mon, 7 Aug 2023 14:44:11 -0700
+From: Luis Chamberlain <mcgrof@kernel.org>
+Message-ID: <ZNFlqwwvE6w6HyHl@bombadil.infradead.org>
+References: <20230731071728.3493794-1-j.granados@samsung.com>
+ <ZMgpck0rjqHR74sl@bombadil.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230721162226.8639-1-astrajoan@yahoo.com>
-Subject: Re: [Bridge] [PATCH] can: j1939: prevent deadlock by changing
- j1939_socks_lock to rwlock
+In-Reply-To: <ZMgpck0rjqHR74sl@bombadil.infradead.org>
+Sender: Luis Chamberlain <mcgrof@infradead.org>
+Subject: Re: [Bridge] [PATCH v2 00/14] sysctl: Add a size argument to
+ register functions in sysctl
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,174 +31,29 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ziqi Zhao <astrajoan@yahoo.com>
-Cc: ivan.orlov0322@gmail.com, edumazet@google.com, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com, socketcan@hartkopp.net, bridge@lists.linux-foundation.org, nikolay@nvidia.com, syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, arnd@arndb.de, syzkaller-bugs@googlegroups.com, mudongliangabcd@gmail.com, linux-can@vger.kernel.org, mkl@pengutronix.de, skhan@linuxfoundation.org, robin@protonic.nl, linux-kernel@vger.kernel.org, linux@rempel-privat.de, kernel@pengutronix.de, netdev@vger.kernel.org, davem@davemloft.net
+To: Joel Granados <joel.granados@gmail.com>
+Cc: Joel Granados <j.granados@samsung.com>, Wen Gu <guwen@linux.alibaba.com>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Catalin Marinas <catalin.marinas@arm.com>, Nikolay Aleksandrov <razor@blackwall.org>, Alexander Aring <alex.aring@gmail.com>, linux-sctp@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>, Jan Karcher <jaka@linux.ibm.com>, Mat Martineau <martineau@kernel.org>, Will Deacon <will@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Steffen Klassert <steffen.klassert@secunet.com>, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Xin Long <lucien.xin@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-rdma@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>, bridge@lists.linux-foundation.org, willy@infradead.org, Jozsef Kadlecsik <kadlec@netfilter.org>, lvs-devel@vger.kernel.org, Julian Anastasov <ja@ssi.bg>, coreteam@netfilter.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Joerg Reuter <jreuter@yaina.de>, Christian Borntraeger <borntraeger@linux.ibm.com>, Kees Cook <keescook@chromium.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Santosh Shilimkar <santosh.shilimkar@oracle.com>, josh@joshtriplett.org, Wenjia Zhang <wenjia@linux.ibm.com>, Simon Horman <horms@verge.net.au>, linux-hams@vger.kernel.org, mptcp@lists.linux.dev, linux-arm-kernel@lists.infradead.org, Iurii Zaikin <yzaikin@google.com>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, David Ahern <dsahern@kernel.org>, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, "David S. Miller" <davem@davemloft.net>, netfilter-devel@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>, "D. Wythe" <alibuda@linux.alibaba.com>, linux-fsdevel@vger.kernel.org, Matthieu Baerts <matthieu.baerts@tessares.net>, linux-wpan@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>
 
-On Fri, Jul 21, 2023 at 09:22:26AM -0700, Ziqi Zhao wrote:
-> The following 3 locks would race against each other, causing the
-> deadlock situation in the Syzbot bug report:
+On Mon, Jul 31, 2023 at 02:36:50PM -0700, Luis Chamberlain wrote:
+> > Joel Granados (14):
+> >   sysctl: Prefer ctl_table_header in proc_sysctl
+> >   sysctl: Use ctl_table_header in list_for_each_table_entry
+> >   sysctl: Add ctl_table_size to ctl_table_header
+> >   sysctl: Add size argument to init_header
+> >   sysctl: Add a size arg to __register_sysctl_table
+> >   sysctl: Add size to register_sysctl
+> >   sysctl: Add size arg to __register_sysctl_init
 > 
-> - j1939_socks_lock
-> - active_session_list_lock
-> - sk_session_queue_lock
-> 
-> A reasonable fix is to change j1939_socks_lock to an rwlock, since in
-> the rare situations where a write lock is required for the linked list
-> that j1939_socks_lock is protecting, the code does not attempt to
-> acquire any more locks. This would break the circular lock dependency,
-> where, for example, the current thread already locks j1939_socks_lock
-> and attempts to acquire sk_session_queue_lock, and at the same time,
-> another thread attempts to acquire j1939_socks_lock while holding
-> sk_session_queue_lock.
-> 
-> NOTE: This patch along does not fix the unregister_netdevice bug
-> reported by Syzbot; instead, it solves a deadlock situation to prepare
-> for one or more further patches to actually fix the Syzbot bug, which
-> appears to be a reference counting problem within the j1939 codebase.
-> 
-> Reported-by: syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com
-> Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
+> This is looking great thanks, I've taken the first 7 patches above
+> to sysctl-next to get more exposure / testing and since we're already
+> on rc4.
 
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Ok I havent't heard much more feedback from networking folks, and
+since this is mostly sysctl love I've taken in the rest of these
+patches. Thanks to Jani Nikula for the reviews and to Greg KH for
+the suggestion on simplifying things.
 
-Thank you!
+Let's see what busts in linux-next, and if anything does I can reset
+my tree back to only the first 7 patches.
 
-> ---
->  net/can/j1939/j1939-priv.h |  2 +-
->  net/can/j1939/main.c       |  2 +-
->  net/can/j1939/socket.c     | 25 +++++++++++++------------
->  3 files changed, 15 insertions(+), 14 deletions(-)
-> 
-> diff --git a/net/can/j1939/j1939-priv.h b/net/can/j1939/j1939-priv.h
-> index 16af1a7f80f6..74f15592d170 100644
-> --- a/net/can/j1939/j1939-priv.h
-> +++ b/net/can/j1939/j1939-priv.h
-> @@ -86,7 +86,7 @@ struct j1939_priv {
->  	unsigned int tp_max_packet_size;
->  
->  	/* lock for j1939_socks list */
-> -	spinlock_t j1939_socks_lock;
-> +	rwlock_t j1939_socks_lock;
->  	struct list_head j1939_socks;
->  
->  	struct kref rx_kref;
-> diff --git a/net/can/j1939/main.c b/net/can/j1939/main.c
-> index ecff1c947d68..a6fb89fa6278 100644
-> --- a/net/can/j1939/main.c
-> +++ b/net/can/j1939/main.c
-> @@ -274,7 +274,7 @@ struct j1939_priv *j1939_netdev_start(struct net_device *ndev)
->  		return ERR_PTR(-ENOMEM);
->  
->  	j1939_tp_init(priv);
-> -	spin_lock_init(&priv->j1939_socks_lock);
-> +	rwlock_init(&priv->j1939_socks_lock);
->  	INIT_LIST_HEAD(&priv->j1939_socks);
->  
->  	mutex_lock(&j1939_netdev_lock);
-> diff --git a/net/can/j1939/socket.c b/net/can/j1939/socket.c
-> index feaec4ad6d16..a8b981dc2065 100644
-> --- a/net/can/j1939/socket.c
-> +++ b/net/can/j1939/socket.c
-> @@ -80,16 +80,16 @@ static void j1939_jsk_add(struct j1939_priv *priv, struct j1939_sock *jsk)
->  	jsk->state |= J1939_SOCK_BOUND;
->  	j1939_priv_get(priv);
->  
-> -	spin_lock_bh(&priv->j1939_socks_lock);
-> +	write_lock_bh(&priv->j1939_socks_lock);
->  	list_add_tail(&jsk->list, &priv->j1939_socks);
-> -	spin_unlock_bh(&priv->j1939_socks_lock);
-> +	write_unlock_bh(&priv->j1939_socks_lock);
->  }
->  
->  static void j1939_jsk_del(struct j1939_priv *priv, struct j1939_sock *jsk)
->  {
-> -	spin_lock_bh(&priv->j1939_socks_lock);
-> +	write_lock_bh(&priv->j1939_socks_lock);
->  	list_del_init(&jsk->list);
-> -	spin_unlock_bh(&priv->j1939_socks_lock);
-> +	write_unlock_bh(&priv->j1939_socks_lock);
->  
->  	j1939_priv_put(priv);
->  	jsk->state &= ~J1939_SOCK_BOUND;
-> @@ -329,13 +329,13 @@ bool j1939_sk_recv_match(struct j1939_priv *priv, struct j1939_sk_buff_cb *skcb)
->  	struct j1939_sock *jsk;
->  	bool match = false;
->  
-> -	spin_lock_bh(&priv->j1939_socks_lock);
-> +	read_lock_bh(&priv->j1939_socks_lock);
->  	list_for_each_entry(jsk, &priv->j1939_socks, list) {
->  		match = j1939_sk_recv_match_one(jsk, skcb);
->  		if (match)
->  			break;
->  	}
-> -	spin_unlock_bh(&priv->j1939_socks_lock);
-> +	read_unlock_bh(&priv->j1939_socks_lock);
->  
->  	return match;
->  }
-> @@ -344,11 +344,11 @@ void j1939_sk_recv(struct j1939_priv *priv, struct sk_buff *skb)
->  {
->  	struct j1939_sock *jsk;
->  
-> -	spin_lock_bh(&priv->j1939_socks_lock);
-> +	read_lock_bh(&priv->j1939_socks_lock);
->  	list_for_each_entry(jsk, &priv->j1939_socks, list) {
->  		j1939_sk_recv_one(jsk, skb);
->  	}
-> -	spin_unlock_bh(&priv->j1939_socks_lock);
-> +	read_unlock_bh(&priv->j1939_socks_lock);
->  }
->  
->  static void j1939_sk_sock_destruct(struct sock *sk)
-> @@ -484,6 +484,7 @@ static int j1939_sk_bind(struct socket *sock, struct sockaddr *uaddr, int len)
->  
->  		priv = j1939_netdev_start(ndev);
->  		dev_put(ndev);
-> +
->  		if (IS_ERR(priv)) {
->  			ret = PTR_ERR(priv);
->  			goto out_release_sock;
-> @@ -1078,12 +1079,12 @@ void j1939_sk_errqueue(struct j1939_session *session,
->  	}
->  
->  	/* spread RX notifications to all sockets subscribed to this session */
-> -	spin_lock_bh(&priv->j1939_socks_lock);
-> +	read_lock_bh(&priv->j1939_socks_lock);
->  	list_for_each_entry(jsk, &priv->j1939_socks, list) {
->  		if (j1939_sk_recv_match_one(jsk, &session->skcb))
->  			__j1939_sk_errqueue(session, &jsk->sk, type);
->  	}
-> -	spin_unlock_bh(&priv->j1939_socks_lock);
-> +	read_unlock_bh(&priv->j1939_socks_lock);
->  };
->  
->  void j1939_sk_send_loop_abort(struct sock *sk, int err)
-> @@ -1271,7 +1272,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
->  	struct j1939_sock *jsk;
->  	int error_code = ENETDOWN;
->  
-> -	spin_lock_bh(&priv->j1939_socks_lock);
-> +	read_lock_bh(&priv->j1939_socks_lock);
->  	list_for_each_entry(jsk, &priv->j1939_socks, list) {
->  		jsk->sk.sk_err = error_code;
->  		if (!sock_flag(&jsk->sk, SOCK_DEAD))
-> @@ -1279,7 +1280,7 @@ void j1939_sk_netdev_event_netdown(struct j1939_priv *priv)
->  
->  		j1939_sk_queue_drop_all(priv, jsk, error_code);
->  	}
-> -	spin_unlock_bh(&priv->j1939_socks_lock);
-> +	read_unlock_bh(&priv->j1939_socks_lock);
->  }
->  
->  static int j1939_sk_no_ioctlcmd(struct socket *sock, unsigned int cmd,
-> -- 
-> 2.34.1
-> 
-> 
-> 
-
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+  Luis
