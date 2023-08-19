@@ -1,28 +1,20 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A464A82C9C
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9D50F82BF4
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1692437117; x=1693041917;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=qp+p88acw4RYdUK5z2c5JXRcScXCLt4N2yRM056qyZI=;
- b=VRR5HDmZ87vfAsOdbfbSMy3DH2tEGsp2n37sFPGHgHf6WJE6uIG4yAWcDCPiimPf9Y
- g5xXFg7TPYdKcb5jl7DplAamSO61UWaTu/PSgQ4Oc2VdSKqhz5y2imgL1SGTUGce7DhW
- YkIld5h6JkxGQ4xBy1o2SvHqcy982wGk0ZNtngsGuIVTuMB1IhHThiyKJ8YI4Fw7NuxC
- fPhsJzKOHsmaIq+vUlkq7v+ZjfFG+h3uvMucYasHduWlSim2hBKkjMQ96TYQvhUFxhvK
- 8TzlZGlFBzKsohUfKrApwHBiQoo7Mh+s9wU2IPUg9P5FV8yqsBs/mPXujg2UV4whPYLv
- PgsA==
-Message-ID: <df28eac7-ee6e-431c-acee-36a1c29a4ae0@blackwall.org>
-Date: Sat, 19 Aug 2023 12:25:15 +0300
-MIME-Version: 1.0
-Content-Language: en-US
+Return-Path: <astrajoan@yahoo.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 82969405F0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8EE8A400B9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
+ t=1692485452; bh=1al6UIUGjAWijEREY0tN7kOCM87Jx8xq7dRizWUCdNQ=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject:Reply-To;
+ b=Dz3C3K7oZo6f+Bf+p/vqMbnB5kW9b7m9e1xfQ80R5vECGiMq0f5OIGbsTf2j9sFx7i6ix3Bu/RzRoYTsZ1274KzmxCnOQ/Laj8Nai+YvlG8sVtX6uUWq0FN3QVMzmyCEEeBurXoDfBuvEVbmTOFwVp9HuE3gjl5cCBkuJGwdYhSboNqC3HdQNDwPRte/gUBY2tlo6D9ZyxHftINAW/QYXHk5NLI6g2qJ1grXvv/jlj4ovbBxQOmLMGl2/lV2kGpUTd4ng15AzMeBllFJviFNdiIyc1fqJpuzO1KJWeROxUsN9W/cf71BchN3wEJFHPWjkA1F73TGza7GyZcLTVbIzw==
+Date: Sat, 19 Aug 2023 15:50:48 -0700
+From: Ziqi Zhao <astrajoan@yahoo.com>
+Message-ID: <20230819225048.dxxzv47fo64g24qx@Astras-Ubuntu>
 References: <00000000000051197705fdbc7e54@google.com>
  <20230819081057.330728-1-astrajoan@yahoo.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230819081057.330728-1-astrajoan@yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <df28eac7-ee6e-431c-acee-36a1c29a4ae0@blackwall.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <df28eac7-ee6e-431c-acee-36a1c29a4ae0@blackwall.org>
 Subject: Re: [Bridge] [PATCH] net: bridge: Fix refcnt issues in dev_ioctl
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -32,58 +24,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Ziqi Zhao <astrajoan@yahoo.com>, arnd@arndb.de, bridge@lists.linux-foundation.org, davem@davemloft.net, edumazet@google.com, f.fainelli@gmail.com, ivan.orlov0322@gmail.com, keescook@chromium.org, kuba@kernel.org, hkallweit1@gmail.com, mudongliangabcd@gmail.com, nikolay@nvidia.com, pabeni@redhat.com, roopa@nvidia.com, skhan@linuxfoundation.org, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com, vladimir.oltean@nxp.com
-Cc: netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: f.fainelli@gmail.com, ivan.orlov0322@gmail.com, keescook@chromium.org, arnd@arndb.de, vladimir.oltean@nxp.com, bridge@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, mudongliangabcd@gmail.com, linux-kernel@vger.kernel.org, edumazet@google.com, netdev@vger.kernel.org, nikolay@nvidia.com, roopa@nvidia.com, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com, kuba@kernel.org, skhan@linuxfoundation.org, pabeni@redhat.com, davem@davemloft.net, hkallweit1@gmail.com
 
-Hi Ziqi,
-On 8/19/23 11:10, Ziqi Zhao wrote:
-> In the bug reported by Syzbot, certain bridge devices would have a
-> leaked reference created by race conditions in dev_ioctl, specifically,
-> under SIOCBRADDIF or SIOCBRDELIF operations. The reference leak would
+On Sat, Aug 19, 2023 at 12:25:15PM +0300, Nikolay Aleksandrov wrote:
+Hi Nik,
 
-How would it leak a reference, could you elaborate?
-The reference is always taken and always released after the call.
+Thank you so much for reviewing the patch and getting back to me!
 
-> be shown in the periodic unregister_netdevice call, which throws a
-> warning and cause Syzbot to report a crash. Upon inspection of the
+> IIRC there was no bug, it was a false-positive. The reference is held a bit
+> longer but then released, so the device is deleted later.
 
-If you reproduced it, is the device later removed or is it really stuck?
+> If you reproduced it, is the device later removed or is it really stuck?
 
-> logic in dev_ioctl, it seems the reference was introduced to ensure
-> proper access to the bridge device after rtnl_unlock. and the latter
-> function is necessary to maintain the following lock order in any
-> bridge related ioctl calls:
-> 
-> 1) br_ioctl_mutex => 2) rtnl_lock
-> 
-> Conceptually, though, br_ioctl_mutex could be considered more specific
-> than rtnl_lock given their usages, hence swapping their order would be
-> a reasonable proposal. This patch changes all related call sites to
-> maintain the reversed order of the two locks:
-> 
-> 1) rtnl_lock => 2) br_ioctl_mutex
-> 
-> By doing so, the extra reference introduced in dev_ioctl is no longer
-> needed, and hence the reference leak bug is now resolved.
+I ran the reproducer again without the patch and it seems you are
+correct. It was trying to create a very short-lived bridge, then delete
+it immediately in the next call. The device in question "wpan4" never
+showed up when I polled with `ip link` in the VM, so I'd say it did not
+get stuck.
 
-IIRC there was no bug, it was a false-positive. The reference is held a 
-bit longer but then released, so the device is deleted later.
-I might be remembering wrong, but I think I briefly looked into this 
-when it was reported. If that's not the case I'd be interested to see
-a new report/trace because the bug might be somewhere else.
+> How would it leak a reference, could you elaborate?
+> The reference is always taken and always released after the call.
 
-> 
-> Reported-by: syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com
-> Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
-> Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
-> ---
->   net/bridge/br_ioctl.c | 4 ----
->   net/core/dev_ioctl.c  | 8 +-------
->   net/socket.c          | 2 ++
->   3 files changed, 3 insertions(+), 11 deletions(-)
-> 
+This was where I got a bit confused too. The system had a timeout of
+140 seconds for the unregister_netdevice check. If the bridge in
+question was created and deleted repeatedly, the warning would indeed
+not be an actual reference leak. But how could its reference show up
+after 140 seconds if the bridge's creation and deletion were all within
+a couple of milliseconds?
 
-Thanks,
-  Nik
+So I let the system run for a bit longer with the reproducer, and after
+~200 seconds, the kernel crashed and complained that some tasks had
+been waiting for too long (more than 143 seconds) trying to get hold of
+the br_ioctl_mutex. This was also quite strange to me, since on the
+surface it definitely looked like a deadlock, but the strict locking
+order as I described previously should prevent any deadlocks from
+happening.
 
+Anyways, I decided to test switching up the lock order, since both the
+refcnt warning and the task stall seemed closely related to the above
+mentioned locks. When I ran the reproducer again after the patch, both
+the warning and the stall issue went away. So I guess the patch is
+still relevant in preventing bugs in some extreme cases -- although the
+scenario created by the reproducer would probably never happen in real
+usages?
 
+Please let me know whether you have any thoughts on how the above
+issues were triggered, and what other information I could gather to
+further demystify this bug. Thank you again for your help!
+
+Best regards,
+Ziqi
