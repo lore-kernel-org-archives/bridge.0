@@ -1,18 +1,29 @@
-Return-Path: <astrajoan@yahoo.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CE63060D72
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 02C9560D67
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
- t=1692432663; bh=yZlxb67YxQ05+BNzviKsC0qXM3c0kTm174EVaqNUEZg=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To;
- b=VKAAhKpulkouLhZw744eXwSXec+lnLkU238lhZGIIzwuuiZJo/mkRCBp3q42tIyQdshVLHqeff9GvrppsRqCWKIApM70vFGIHrcW+619QxFQDQmXs8EEEmTR7OMfgdFzb0E4kY7NxZ1eiNUSHJVyubZelp6FRoRM3xUdXQQ1ZRxMeo9LG25/rGw/Ft7MGh60taVdsykD+BsBnDM5jPShoQA+zy8FmI5xbg5LPm+K7k3TJCNLLVuEr6wj//Omv3YrnbnTtC5PEGQmVsjOW1AXr57+dNioom3x40eoaznhLfQcy3jZ+D8SfaESO4YI/a9Z/05btkb/QHnZvH/KAGd4gQ==
-From: Ziqi Zhao <astrajoan@yahoo.com>
-Date: Sat, 19 Aug 2023 01:10:57 -0700
-Message-Id: <20230819081057.330728-1-astrajoan@yahoo.com>
-In-Reply-To: <00000000000051197705fdbc7e54@google.com>
-References: <00000000000051197705fdbc7e54@google.com>
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A464A82C9C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9D50F82BF4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20221208.gappssmtp.com; s=20221208; t=1692437117; x=1693041917;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=qp+p88acw4RYdUK5z2c5JXRcScXCLt4N2yRM056qyZI=;
+ b=VRR5HDmZ87vfAsOdbfbSMy3DH2tEGsp2n37sFPGHgHf6WJE6uIG4yAWcDCPiimPf9Y
+ g5xXFg7TPYdKcb5jl7DplAamSO61UWaTu/PSgQ4Oc2VdSKqhz5y2imgL1SGTUGce7DhW
+ YkIld5h6JkxGQ4xBy1o2SvHqcy982wGk0ZNtngsGuIVTuMB1IhHThiyKJ8YI4Fw7NuxC
+ fPhsJzKOHsmaIq+vUlkq7v+ZjfFG+h3uvMucYasHduWlSim2hBKkjMQ96TYQvhUFxhvK
+ 8TzlZGlFBzKsohUfKrApwHBiQoo7Mh+s9wU2IPUg9P5FV8yqsBs/mPXujg2UV4whPYLv
+ PgsA==
+Message-ID: <df28eac7-ee6e-431c-acee-36a1c29a4ae0@blackwall.org>
+Date: Sat, 19 Aug 2023 12:25:15 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH] net: bridge: Fix refcnt issues in dev_ioctl
+Content-Language: en-US
+References: <00000000000051197705fdbc7e54@google.com>
+ <20230819081057.330728-1-astrajoan@yahoo.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20230819081057.330728-1-astrajoan@yahoo.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] net: bridge: Fix refcnt issues in dev_ioctl
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,101 +32,58 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: arnd@arndb.de, bridge@lists.linux-foundation.org, davem@davemloft.net, edumazet@google.com, f.fainelli@gmail.com, ivan.orlov0322@gmail.com, keescook@chromium.org, kuba@kernel.org, hkallweit1@gmail.com, mudongliangabcd@gmail.com, nikolay@nvidia.com, pabeni@redhat.com, razor@blackwall.org, roopa@nvidia.com, skhan@linuxfoundation.org, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com, vladimir.oltean@nxp.com
-Cc: netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, Ziqi Zhao <astrajoan@yahoo.com>
+To: Ziqi Zhao <astrajoan@yahoo.com>, arnd@arndb.de, bridge@lists.linux-foundation.org, davem@davemloft.net, edumazet@google.com, f.fainelli@gmail.com, ivan.orlov0322@gmail.com, keescook@chromium.org, kuba@kernel.org, hkallweit1@gmail.com, mudongliangabcd@gmail.com, nikolay@nvidia.com, pabeni@redhat.com, roopa@nvidia.com, skhan@linuxfoundation.org, syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com, vladimir.oltean@nxp.com
+Cc: netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org
 
-In the bug reported by Syzbot, certain bridge devices would have a
-leaked reference created by race conditions in dev_ioctl, specifically,
-under SIOCBRADDIF or SIOCBRDELIF operations. The reference leak would
-be shown in the periodic unregister_netdevice call, which throws a
-warning and cause Syzbot to report a crash. Upon inspection of the
-logic in dev_ioctl, it seems the reference was introduced to ensure
-proper access to the bridge device after rtnl_unlock. and the latter
-function is necessary to maintain the following lock order in any
-bridge related ioctl calls:
+Hi Ziqi,
+On 8/19/23 11:10, Ziqi Zhao wrote:
+> In the bug reported by Syzbot, certain bridge devices would have a
+> leaked reference created by race conditions in dev_ioctl, specifically,
+> under SIOCBRADDIF or SIOCBRDELIF operations. The reference leak would
 
-1) br_ioctl_mutex => 2) rtnl_lock
+How would it leak a reference, could you elaborate?
+The reference is always taken and always released after the call.
 
-Conceptually, though, br_ioctl_mutex could be considered more specific
-than rtnl_lock given their usages, hence swapping their order would be
-a reasonable proposal. This patch changes all related call sites to
-maintain the reversed order of the two locks:
+> be shown in the periodic unregister_netdevice call, which throws a
+> warning and cause Syzbot to report a crash. Upon inspection of the
 
-1) rtnl_lock => 2) br_ioctl_mutex
+If you reproduced it, is the device later removed or is it really stuck?
 
-By doing so, the extra reference introduced in dev_ioctl is no longer
-needed, and hence the reference leak bug is now resolved.
+> logic in dev_ioctl, it seems the reference was introduced to ensure
+> proper access to the bridge device after rtnl_unlock. and the latter
+> function is necessary to maintain the following lock order in any
+> bridge related ioctl calls:
+> 
+> 1) br_ioctl_mutex => 2) rtnl_lock
+> 
+> Conceptually, though, br_ioctl_mutex could be considered more specific
+> than rtnl_lock given their usages, hence swapping their order would be
+> a reasonable proposal. This patch changes all related call sites to
+> maintain the reversed order of the two locks:
+> 
+> 1) rtnl_lock => 2) br_ioctl_mutex
+> 
+> By doing so, the extra reference introduced in dev_ioctl is no longer
+> needed, and hence the reference leak bug is now resolved.
 
-Reported-by: syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com
-Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
-Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
----
- net/bridge/br_ioctl.c | 4 ----
- net/core/dev_ioctl.c  | 8 +-------
- net/socket.c          | 2 ++
- 3 files changed, 3 insertions(+), 11 deletions(-)
+IIRC there was no bug, it was a false-positive. The reference is held a 
+bit longer but then released, so the device is deleted later.
+I might be remembering wrong, but I think I briefly looked into this 
+when it was reported. If that's not the case I'd be interested to see
+a new report/trace because the bug might be somewhere else.
 
-diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
-index f213ed108361..291dbc5d2a99 100644
---- a/net/bridge/br_ioctl.c
-+++ b/net/bridge/br_ioctl.c
-@@ -399,8 +399,6 @@ int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
- {
- 	int ret = -EOPNOTSUPP;
- 
--	rtnl_lock();
--
- 	switch (cmd) {
- 	case SIOCGIFBR:
- 	case SIOCSIFBR:
-@@ -434,7 +432,5 @@ int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
- 		break;
- 	}
- 
--	rtnl_unlock();
--
- 	return ret;
- }
-diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
-index 3730945ee294..17df956df8cb 100644
---- a/net/core/dev_ioctl.c
-+++ b/net/core/dev_ioctl.c
-@@ -336,7 +336,6 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
- 	int err;
- 	struct net_device *dev = __dev_get_by_name(net, ifr->ifr_name);
- 	const struct net_device_ops *ops;
--	netdevice_tracker dev_tracker;
- 
- 	if (!dev)
- 		return -ENODEV;
-@@ -405,12 +404,7 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
- 			return -ENODEV;
- 		if (!netif_is_bridge_master(dev))
- 			return -EOPNOTSUPP;
--		netdev_hold(dev, &dev_tracker, GFP_KERNEL);
--		rtnl_unlock();
--		err = br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
--		netdev_put(dev, &dev_tracker);
--		rtnl_lock();
--		return err;
-+		return br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
- 
- 	case SIOCDEVPRIVATE ... SIOCDEVPRIVATE + 15:
- 		return dev_siocdevprivate(dev, ifr, data, cmd);
-diff --git a/net/socket.c b/net/socket.c
-index 2b0e54b2405c..6b7a9df9a326 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1258,7 +1258,9 @@ static long sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 		case SIOCSIFBR:
- 		case SIOCBRADDBR:
- 		case SIOCBRDELBR:
-+			rtnl_lock();
- 			err = br_ioctl_call(net, NULL, cmd, NULL, argp);
-+			rtnl_unlock();
- 			break;
- 		case SIOCGIFVLAN:
- 		case SIOCSIFVLAN:
--- 
-2.34.1
+> 
+> Reported-by: syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com
+> Fixes: ad2f99aedf8f ("net: bridge: move bridge ioctls out of .ndo_do_ioctl")
+> Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
+> ---
+>   net/bridge/br_ioctl.c | 4 ----
+>   net/core/dev_ioctl.c  | 8 +-------
+>   net/socket.c          | 2 ++
+>   3 files changed, 3 insertions(+), 11 deletions(-)
+> 
+
+Thanks,
+  Nik
+
 
