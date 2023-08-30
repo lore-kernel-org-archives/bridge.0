@@ -1,17 +1,22 @@
-Return-Path: <gongruiqi1@huawei.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AB93A611A9
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DC43360A6B
-Message-ID: <e5624b47-52f1-e01c-6e5c-e8192132edf9@huawei.com>
-MIME-Version: 1.0
-Content-Language: en-US
-References: <20230816093443.1460204-1-gongruiqi@huaweicloud.com>
- <ZNywHiWhaL6pRZsd@vergenet.net>
-From: Gong Ruiqi <gongruiqi1@huawei.com>
-In-Reply-To: <ZNywHiWhaL6pRZsd@vergenet.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v2] netfilter: ebtables: replace
- zero-length array members
+Return-Path: <pr-tracker-bot@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1749B82154
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 564608148F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1693367887;
+ bh=mPKk2+swFtGFWy8pTYH1vfYUh7/3u0eFDl38x3vBbbc=;
+ h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+ b=ADgZbQkup9SM4uuEjVXPl0kZb5qU5cRxcBUYIV68ssaOHHCZrS2+ntwfLz0HT21Ih
+ e386cEZAZNnNJznyld2KJf/v8fe7MjFSYHeqn2jCi/au5X8+GFJAJs2UqaMkjl13Pt
+ tBWufYtEAuzWRPX8V1l2CtngKltT6f7/s0ANkfkNNyVfix0L9B91QYMTHLJdOVoFVq
+ IlamCyGNhuWsTR9+yFkPDS5wrnr9z9xFHderl/6D+AsGosodrxgWcJDG1GU30wgN9F
+ bxisMSAemfMVycuM7wn1I11u7D6rtj9+5B2G88KHjzTBzjQzbN1UyndsBWNsRv7wH+
+ v1R8ONmU6MaSg==
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <ZO5Yx5JFogGi/cBo@bombadil.infradead.org>
+References: <ZO5Yx5JFogGi/cBo@bombadil.infradead.org>
+Message-Id: <169336788741.6268.886734446514047714.pr-tracker-bot@kernel.org>
+Date: Wed, 30 Aug 2023 03:58:07 +0000
+Subject: Re: [Bridge] [GIT PULL] sysctl changes for v6.6-rc1
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,45 +25,18 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-Date: Wed, 16 Aug 2023 12:41:28 -0000
-To: Simon Horman <horms@kernel.org>, "GONG, Ruiqi" <gongruiqi@huaweicloud.com>
-Cc: coreteam@netfilter.org, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, Florian Westphal <fw@strlen.de>, "Gustavo A . R . Silva" <gustavoars@kernel.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "David S .
- Miller" <davem@davemloft.net>, Pablo Neira Ayuso <pablo@netfilter.org>
+To: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Joel Granados <j.granados@samsung.com>, Alexander Aring <alex.aring@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, coreteam@netfilte, Nikolay Aleksandrov <razor@blackwall.org>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, linux-sctp@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>, Jan Karcher <jaka@linux.ibm.com>, Mat Martineau <martineau@kernel.org>, Will Deacon <will@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Steffen Klassert <steffen.klassert@secunet.com>, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Xin Long <lucien.xin@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-rdma@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>, bridge@lists.linux-foundation.org, willy@infradead.org, Jozsef Kadlecsik <kadlec@netfilter.org>, lvs-devel@vger.kernel.org, Julian Anastasov <ja@ssi.bg>, Iurii Zaikin <yzaikin@google.com>, r.org@osuosl.org, Wen Gu <guwen@linux.alibaba.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Joerg Reuter <jreuter@yaina.de>, Sven Schnelle <svens@linux.ibm.com>, Joel Granados <joel.granados@gmail.com>, keescook@chromium.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Roopa Prabhu <roopa@nvidia.com>, josh@joshtriplett.org, Wenjia Zhang <wenjia@linux.ibm.com>, Simon Horman <horms@verge.net.au>, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, mptcp@lists.linux.dev, linux-arm-kernel@lists.infradead.org, Santosh Shilimkar <santosh.shilimkar@oracle.com>, Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>, Linus Torvalds <torvalds@linux-foundation.org>, David Ahern <dsahern@kernel.org>, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Karsten Graul <kgraul@linux.ibm.com>, mcgrof@kernel.org, netfilter-devel@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>, "D. Wythe" <alibuda@linux.alibaba.com>, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, Matthieu Baerts <matthieu.baerts@tessares.net>, linux-wpan@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
+The pull request you sent on Tue, 29 Aug 2023 13:44:55 -0700:
 
+> git://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux.git/ tags/sysctl-6.6-rc1
 
-On 2023/08/16 19:16, Simon Horman wrote:
-> On Wed, Aug 16, 2023 at 05:34:43PM +0800, GONG, Ruiqi wrote:
->> From: "GONG, Ruiqi" <gongruiqi1@huawei.com>
->>
->> As suggested by Kees[1], replace the old-style 0-element array members
->> of multiple structs in ebtables.h with modern C99 flexible array.
->>
->> [1]: https://lore.kernel.org/all/5E8E0F9C-EE3F-4B0D-B827-DC47397E2A4A@kernel.org/
->>
->> Link: https://github.com/KSPP/linux/issues/21
->> Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
->> Reviewed-by: Kees Cook <keescook@chromium.org>
->> ---
->>
->> v2: designate to net-next; cc more netdev maintainers
-> 
-> It's slightly unclear to me if this should be targeting
-> net-next or nf-next. But regardless, it doesn't seem
-> to apply cleanly to the main branch of either tree.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/adfd671676c922bada16477eb68b5eb5f065addc
 
-I find out that it's because this patch depends on a previous patch I've
-just sent:
+Thank you!
 
-[v4] netfilter: ebtables: fix fortify warnings in size_entry_mwt()
-
-Maybe I should make them two into a patch set? Otherwise if I adapt this
-patch to net-next, it won't be applied either if the above patch is
-applied ...
-
-> 
-> Please consider resolving that and posting again,
-> being sure to allow 24h before postings.
-> 
-> Link: https://www.kernel.org/doc/html/next/process/maintainer-netdev.html
->
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
