@@ -1,22 +1,22 @@
 Return-Path: <jnixdorf-oss@avm.de>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9E0DD4085C
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C2171404AF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9B5C860804
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AD24760A6D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
- t=1693914590; bh=9CzF9wwiQ2iiDMYvUIonfLdBdIiRKAnlIBWP9H0gNS0=;
+ t=1693914591; bh=kosZK5ws2xLosd0JTolym7WL9xE6UdyuEKk7TSJ0nDg=;
  h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
- b=w0g7TxUzuvW16z0e/fQ7D7kb18uJDzxO4+kNBeJBmBvXGsgCsLbnYkzLPCjEM3wUl
- LFnQQq/1LKMI9fy7LaG0EYxVthTtqA73awAqhb3ike696Q7G+7vSsLzHMlGlBFhFQy
- GqAo25J+kI2CLKl2DPMPlk9xii36Z079Oi6br7YA=
+ b=h5auX9XjUHuBNnLuRq3JaVBpo+OG07KL0XreDYKZ1UE9dQTGIj7dhmQdUwIzEZ632
+ I24EbXgOR2jzbFPOggL/jco52PrEJbY1HtcJVTme3HOcVHN8HmCsbqbqy1fBbkgj63
+ 5wWPJMYjmI+JMdMOswhL+ielvIIFGqUxbvBFXnb4=
 From: Johannes Nixdorf <jnixdorf-oss@avm.de>
-Date: Tue, 05 Sep 2023 13:47:20 +0200
+Date: Tue, 05 Sep 2023 13:47:23 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230905-fdb_limit-v3-3-7597cd500a82@avm.de>
+Message-Id: <20230905-fdb_limit-v3-6-7597cd500a82@avm.de>
 References: <20230905-fdb_limit-v3-0-7597cd500a82@avm.de>
 In-Reply-To: <20230905-fdb_limit-v3-0-7597cd500a82@avm.de>
-Subject: [Bridge] [PATCH net-next v3 3/6] net: bridge: Track and limit
- dynamically learned FDB entries
+Subject: [Bridge] [PATCH net-next v3 6/6] selftests: forwarding:
+ bridge_fdb_learning_limit: Add a new selftest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,152 +28,303 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Johannes Nixdorf <jnixdorf-oss@avm.de>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-A malicious actor behind one bridge port may spam the kernel with packets
-with a random source MAC address, each of which will create an FDB entry,
-each of which is a dynamic allocation in the kernel.
-
-There are roughly 2^48 different MAC addresses, further limited by the
-rhashtable they are stored in to 2^31. Each entry is of the type struct
-net_bridge_fdb_entry, which is currently 128 bytes big. This means the
-maximum amount of memory allocated for FDB entries is 2^31 * 128B =
-256GiB, which is too much for most computers.
-
-Mitigate this by maintaining a per bridge count of those automatically
-generated entries in fdb_n_learned_entries, and a limit in
-fdb_max_learned_entries. If the limit is hit new entries are not learned
-anymore.
-
-For backwards compatibility the default setting of 0 disables the limit.
-
-User-added entries by netlink or from bridge or bridge port addresses
-are never blocked and do not count towards that limit.
-
-Introduce a new fdb entry flag BR_FDB_DYNAMIC_LEARNED to keep track of
-whether an FDB entry is included in the count. The flag is enabled for
-dynamically learned entries, and disabled for all other entries. This
-should be equivalent to BR_FDB_ADDED_BY_USER and BR_FDB_LOCAL being unset,
-but contrary to the two flags it can be toggled atomically.
-
-Atomicity is required here, as there are multiple callers that modify the
-flags, but are not under a common lock (br_fdb_update is the exception
-for br->hash_lock, br_fdb_external_learn_add for RTNL).
+Add a suite covering the fdb_n_learned_entries and fdb_max_learned_entries
+bridge features, touching all special cases in accounting at least once.
 
 Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 ---
- net/bridge/br_fdb.c     | 34 ++++++++++++++++++++++++++++++++--
- net/bridge/br_private.h |  4 ++++
- 2 files changed, 36 insertions(+), 2 deletions(-)
+ .../net/forwarding/bridge_fdb_learning_limit.sh    | 283 +++++++++++++++++++++
+ 1 file changed, 283 insertions(+)
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 06e28ef8d9ff..f8a96ed9a338 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -329,11 +329,18 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
- 	hlist_del_init_rcu(&f->fdb_node);
- 	rhashtable_remove_fast(&br->fdb_hash_tbl, &f->rhnode,
- 			       br_fdb_rht_params);
-+	if (test_bit(BR_FDB_DYNAMIC_LEARNED, &f->flags))
-+		atomic_dec(&br->fdb_n_learned_entries);
- 	fdb_notify(br, f, RTM_DELNEIGH, swdev_notify);
- 	call_rcu(&f->rcu, fdb_rcu_free);
- }
- 
--/* Delete a local entry if no other port had the same address. */
-+/* Delete a local entry if no other port had the same address.
-+ *
-+ * This function should only be called on entries with BR_FDB_LOCAL set,
-+ * so even with BR_FDB_ADDED_BY_USER cleared we never need to increase
-+ * the accounting for dynamically learned entries again.
-+ */
- static void fdb_delete_local(struct net_bridge *br,
- 			     const struct net_bridge_port *p,
- 			     struct net_bridge_fdb_entry *f)
-@@ -388,9 +395,20 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
- 					       __u16 vid,
- 					       unsigned long flags)
- {
-+	bool learned = !test_bit(BR_FDB_ADDED_BY_USER, &flags) &&
-+		       !test_bit(BR_FDB_LOCAL, &flags);
-+	u32 max_learned = READ_ONCE(br->fdb_max_learned_entries);
- 	struct net_bridge_fdb_entry *fdb;
- 	int err;
- 
-+	if (likely(learned)) {
-+		int n_learned = atomic_read(&br->fdb_n_learned_entries);
+diff --git a/tools/testing/selftests/net/forwarding/bridge_fdb_learning_limit.sh b/tools/testing/selftests/net/forwarding/bridge_fdb_learning_limit.sh
+new file mode 100755
+index 000000000000..4da17ac65357
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/bridge_fdb_learning_limit.sh
+@@ -0,0 +1,283 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
 +
-+		if (unlikely(max_learned && n_learned >= max_learned))
-+			return NULL;
-+		__set_bit(BR_FDB_DYNAMIC_LEARNED, &flags);
-+	}
++# ShellCheck incorrectly believes that most of the code here is unreachable
++# because it's invoked by variable name following ALL_TESTS.
++#
++# shellcheck disable=SC2317
 +
- 	fdb = kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
- 	if (!fdb)
- 		return NULL;
-@@ -407,6 +425,9 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
- 		return NULL;
- 	}
- 
-+	if (likely(learned))
-+		atomic_inc(&br->fdb_n_learned_entries);
++ALL_TESTS="check_accounting check_limit"
++NUM_NETIFS=6
++source lib.sh
 +
- 	hlist_add_head_rcu(&fdb->fdb_node, &br->fdb_list);
- 
- 	return fdb;
-@@ -893,8 +914,11 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 					clear_bit(BR_FDB_LOCKED, &fdb->flags);
- 			}
- 
--			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags)))
-+			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
- 				set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
-+				if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
-+					atomic_dec(&br->fdb_n_learned_entries);
-+			}
- 			if (unlikely(fdb_modified)) {
- 				trace_br_fdb_update(br, source, addr, vid, flags);
- 				fdb_notify(br, fdb, RTM_NEWNEIGH, true);
-@@ -1071,6 +1095,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
- 		}
- 
- 		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
-+		if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
-+			atomic_dec(&br->fdb_n_learned_entries);
- 	}
- 
- 	if (fdb_to_nud(br, fdb) != state) {
-@@ -1445,6 +1471,10 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 		if (!p)
- 			set_bit(BR_FDB_LOCAL, &fdb->flags);
- 
-+		if ((swdev_notify || !p) &&
-+		    test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
-+			atomic_dec(&br->fdb_n_learned_entries);
++TEST_MAC_BASE=de:ad:be:ef:42:
 +
- 		if (modified)
- 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
- 	}
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index a63b32c1638e..675cc40ae1dc 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -274,6 +274,7 @@ enum {
- 	BR_FDB_NOTIFY,
- 	BR_FDB_NOTIFY_INACTIVE,
- 	BR_FDB_LOCKED,
-+	BR_FDB_DYNAMIC_LEARNED,
- };
- 
- struct net_bridge_fdb_key {
-@@ -554,6 +555,9 @@ struct net_bridge {
- 	struct kobject			*ifobj;
- 	u32				auto_cnt;
- 
-+	atomic_t			fdb_n_learned_entries;
-+	u32				fdb_max_learned_entries;
++NUM_PKTS=16
++FDB_LIMIT=8
 +
- #ifdef CONFIG_NET_SWITCHDEV
- 	/* Counter used to make sure that hardware domains get unique
- 	 * identifiers in case a bridge spans multiple switchdev instances.
++FDB_TYPES=(
++	# name		is counted?	overrides learned?
++	'learned	1		0'
++	'static		0		1'
++	'user		0		1'
++	'extern_learn	0		1'
++	'local		0		1'
++)
++
++mac()
++{
++	printf "${TEST_MAC_BASE}%02x" "$1"
++}
++
++H1_DEFAULT_MAC=$(mac 42)
++
++switch_create()
++{
++	ip link add dev br0 type bridge
++
++	ip link set dev "$swp1" master br0
++	ip link set dev "$swp2" master br0
++	# swp3 is used to add local MACs, so do not add it to the bridge yet.
++
++	# swp2 is only used for replying when learning on swp1, its MAC should not be learned.
++	ip link set dev "$swp2" type bridge_slave learning off
++
++	ip link set dev br0 up
++
++	ip link set dev "$swp1" up
++	ip link set dev "$swp2" up
++	ip link set dev "$swp3" up
++}
++
++switch_destroy()
++{
++	ip link set dev "$swp3" down
++	ip link set dev "$swp2" down
++	ip link set dev "$swp1" down
++
++	ip link del dev br0
++}
++
++h_create()
++{
++	ip link set "$h1" addr "$H1_DEFAULT_MAC"
++
++	simple_if_init "$h1" 192.0.2.1/24
++	simple_if_init "$h2" 192.0.2.2/24
++}
++
++h_destroy()
++{
++	simple_if_fini "$h1" 192.0.2.1/24
++	simple_if_fini "$h2" 192.0.2.2/24
++}
++
++setup_prepare()
++{
++	h1=${NETIFS[p1]}
++	swp1=${NETIFS[p2]}
++
++	h2=${NETIFS[p3]}
++	swp2=${NETIFS[p4]}
++
++	swp3=${NETIFS[p6]}
++
++	vrf_prepare
++
++	h_create
++
++	switch_create
++}
++
++cleanup()
++{
++	pre_cleanup
++
++	switch_destroy
++
++	h_destroy
++
++	vrf_cleanup
++}
++
++fdb_get_n_learned()
++{
++	ip -d -j link show dev br0 type bridge | \
++		jq '.[]["linkinfo"]["info_data"]["fdb_n_learned_entries"]'
++}
++
++fdb_get_n_mac()
++{
++	local mac=${1}
++
++	bridge -j fdb show br br0 | \
++		jq "map(select(.mac == \"${mac}\" and (has(\"vlan\") | not))) | length"
++}
++
++fdb_fill_learned()
++{
++	local i
++
++	for i in $(seq 1 "$NUM_PKTS"); do
++		fdb_add learned "$(mac "$i")"
++	done
++}
++
++fdb_reset()
++{
++	bridge fdb flush dev br0
++
++	# Keep the default MAC address of h1 in the table. We set it to a different one when
++	# testing dynamic learning.
++	bridge fdb add "$H1_DEFAULT_MAC" dev "$swp1" master static use
++}
++
++fdb_add()
++{
++	local type=$1 mac=$2
++
++	case "$type" in
++		learned)
++			ip link set "$h1" addr "$mac"
++			# Wait for a reply so we implicitly wait until after the forwarding
++			# code finished and the FDB entry was created.
++			PING_COUNT=1 ping_do "$h1" 192.0.2.2
++			check_err $? "Failed to ping another bridge port"
++			ip link set "$h1" addr "$H1_DEFAULT_MAC"
++			;;
++		local)
++			ip link set dev "$swp3" addr "$mac" && ip link set "$swp3" master br0
++			;;
++		static)
++			bridge fdb replace "$mac" dev "$swp1" master static
++			;;
++		user)
++			bridge fdb replace "$mac" dev "$swp1" master static use
++			;;
++		extern_learn)
++			bridge fdb replace "$mac" dev "$swp1" master extern_learn
++			;;
++	esac
++
++	check_err $? "Failed to add a FDB entry of type ${type}"
++}
++
++fdb_del()
++{
++	local type=$1 mac=$2
++
++	case "$type" in
++		local)
++			ip link set "$swp3" nomaster
++			;;
++		*)
++			bridge fdb del "$mac" dev "$swp1" master
++			;;
++	esac
++
++	check_err $? "Failed to remove a FDB entry of type ${type}"
++}
++
++check_accounting_one_type()
++{
++	local type=$1 is_counted=$2 overrides_learned=$3
++	shift 3
++	RET=0
++
++	fdb_reset
++	fdb_add "$type" "$(mac 0)"
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne "$is_counted" ]
++	check_fail $? "Inserted FDB type ${type}: Expected the count ${is_counted}, but got ${learned}"
++
++	fdb_del "$type" "$(mac 0)"
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne 0 ]
++	check_fail $? "Removed FDB type ${type}: Expected the count 0, but got ${learned}"
++
++	if [ "$overrides_learned" -eq 1 ]; then
++		fdb_reset
++		fdb_add learned "$(mac 0)"
++		fdb_add "$type" "$(mac 0)"
++		learned=$(fdb_get_n_learned)
++		[ "$learned" -ne "$is_counted" ]
++		check_fail $? "Set a learned entry to FDB type ${type}: Expected the count ${is_counted}, but got ${learned}"
++		fdb_del "$type" "$(mac 0)"
++	fi
++
++	log_test "FDB accounting interacting with FDB type ${type}"
++}
++
++check_accounting()
++{
++	local type_args learned
++	RET=0
++
++	fdb_reset
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne 0 ]
++	check_fail $? "Flushed the FDB table: Expected the count 0, but got ${learned}"
++
++	fdb_fill_learned
++	sleep 1
++
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne "$NUM_PKTS" ]
++	check_fail $? "Filled the FDB table: Expected the count ${NUM_PKTS}, but got ${learned}"
++
++	log_test "FDB accounting"
++
++	for type_args in "${FDB_TYPES[@]}"; do
++		# This is intentional use of word splitting.
++		# shellcheck disable=SC2086
++		check_accounting_one_type $type_args
++	done
++}
++
++check_limit_one_type()
++{
++	local type=$1 is_counted=$2
++	local n_mac expected=$((1 - is_counted))
++	RET=0
++
++	fdb_reset
++	fdb_fill_learned
++
++	fdb_add "$type" "$(mac 0)"
++	n_mac=$(fdb_get_n_mac "$(mac 0)")
++	[ "$n_mac" -ne "$expected" ]
++	check_fail $? "Inserted FDB type ${type} at limit: Expected the count ${expected}, but got ${n_mac}"
++
++	log_test "FDB limits interacting with FDB type ${type}"
++}
++
++check_limit()
++{
++	local learned
++	RET=0
++
++	ip link set br0 type bridge fdb_max_learned_entries "$FDB_LIMIT"
++
++	fdb_reset
++	fdb_fill_learned
++
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne "$FDB_LIMIT" ]
++	check_fail $? "Filled the limited FDB table: Expected the count ${FDB_LIMIT}, but got ${learned}"
++
++	log_test "FDB limits"
++
++	for type_args in "${FDB_TYPES[@]}"; do
++		# This is intentional use of word splitting.
++		# shellcheck disable=SC2086
++		check_limit_one_type $type_args
++	done
++}
++
++trap cleanup EXIT
++
++setup_prepare
++
++tests_run
++
++exit $EXIT_STATUS
 
 -- 
 2.42.0
