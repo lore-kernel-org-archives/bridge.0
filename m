@@ -1,20 +1,27 @@
-Return-Path: <petrm@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CE8608176B
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4770E813EF
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=F6h3CdCR32rD2K1EUffRq6loThkZ3P48GIGqQxAcE8I=;
- b=odCclGV8JYi3Hnt/Qw9engq9DD0UyAjDMplkqpTToBbyysdSH3vQJC4Ignx3cnbG09KWP/MuC8JHhcTNcEVR/N/EN5bLZa0Ov24I8vFzGcRun4RtqfFqDL9plvQins2bWxxJNn3rZ+ADc8h/EzvxkX9E8a5UUygvSyWhlikAzL5i1NOBRLDVirzYPse2Juw3cJIAN8L027fgwRRIFESP6zSESOhADBS7ZynEiPHxf09ySUiqRYcveUSD4UzUnQD5vJpdJO1Bui1LpHsc2uokh9Qtp5+O+YfvLaKap11YA3t4f99s+28vZR82ykQtX3HvxxCUNPwJdVVMwnsywMP4jg==
-References: <20230905-fdb_limit-v3-1-34bb124556d8@avm.de>
-From: Petr Machata <petrm@nvidia.com>
-Date: Wed, 6 Sep 2023 12:32:32 +0200
-In-Reply-To: <20230905-fdb_limit-v3-1-34bb124556d8@avm.de>
-Message-ID: <87msxzmv5q.fsf@nvidia.com>
+Return-Path: <j.granados@samsung.com>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1044E41B1B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 54D1C41B1A
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com
+ 20230906123525euoutp01aef263d18f43afc5e0f456b68b34412b~CT2m_4MNh1721017210euoutp01T
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+ s=mail20170921; t=1694003725;
+ bh=kSfDM2PxptQrTVQMPAG5rz9E3Gh0CgYjQq2vX1wh1u8=;
+ h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+ b=m+6wDQ82ef/d8/4nlWMYTE9kfnIAoWlhMhdqHBBfihfqWuP8iM3eVNlzJjRaHltMU
+ 2l4lDxXybgq/aUTbfAyOFFW1c/WG3S6g0Slu0hR8E1wgIfPIBWUX5aRY9fX8h2g49x
+ 0RiNloUw+2A+/56qP9XBwg7AqfowYcMjmZDUd1vg=
+Date: Wed, 6 Sep 2023 14:35:21 +0200
+From: Joel Granados <j.granados@samsung.com>
+Message-ID: <20230906123521.xrqcmr3ilpvp2ze6@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [Bridge] [PATCH iproute2-next v3] iplink: bridge: Add support
- for bridge FDB learning limits
+Content-Type: multipart/signed; micalg="pgp-sha512";
+ protocol="application/pgp-signature"; boundary="l5htxkzwtgg23zjg"
+Content-Disposition: inline
+In-Reply-To: <ZPhpedWW6RwTd9Hf@example.org>
+References: <ZO5Yx5JFogGi/cBo@bombadil.infradead.org>
+ <CGME20230906115909eucas1p2fcf08f26861b318571224dad6bf5e864@eucas1p2.samsung.com>
+ <ZPhpedWW6RwTd9Hf@example.org>
+Subject: Re: [Bridge] [GIT PULL] sysctl changes for v6.6-rc1
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,38 +30,194 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Johannes Nixdorf <jnixdorf-oss@avm.de>
-Cc: David Ahern <dsahern@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, netdev@vger.kernel.org, Roopa Prabhu <roopa@nvidia.com>
+To: Alexey Gladkov <legion@kernel.org>
+Cc: Alexander Aring <alex.aring@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Nikolay Aleksandrov <razor@blackwall.org>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, linux-sctp@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>, Jan Karcher <jaka@linux.ibm.com>, Mat Martineau <martineau@kernel.org>, Will Deacon <will@kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Steffen Klassert <steffen.klassert@secunet.com>, linux-s390@vger.kernel.org, rds-devel@oss.oracle.com, Xin Long <lucien.xin@gmail.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-rdma@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>, bridge@lists.linux-foundation.org, willy@infradead.org, Jozsef Kadlecsik <kadlec@netfilter.org>, lvs-devel@vger.kernel.org, Julian Anastasov <ja@ssi.bg>, coreteam@netfilter.org, Iurii Zaikin <yzaikin@google.com>, Roopa Prabhu <roopa@nvidia.com>, Wen Gu <guwen@linux.alibaba.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, Joerg Reuter <jreuter@yaina.de>, Sven Schnelle <svens@linux.ibm.com>, Joel Granados <joel.granados@gmail.com>, keescook@chromium.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Santosh Shilimkar <santosh.shilimkar@oracle.com>, josh@joshtriplett.org, Wenjia Zhang <wenjia@linux.ibm.com>, Simon Horman <horms@verge.net.au>, Jakub Kicinski <kuba@kernel.org>, linux-hams@vger.kernel.org, mptcp@lists.linux.dev, linux-arm-kernel@lists.infradead.org, Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>, Linus Torvalds <torvalds@linux-foundation.org>, David Ahern <dsahern@kernel.org>, Florian Westphal <fw@strlen.de>, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Karsten Graul <kgraul@linux.ibm.com>, Luis Chamberlain <mcgrof@kernel.org>, netfilter-devel@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>, "D.
+ Wythe" <alibuda@linux.alibaba.com>, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, Matthieu Baerts <matthieu.baerts@tessares.net>, linux-wpan@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 
-(I pruned the CC list, hopefully I didn't leave out anybody who cares.)
+--l5htxkzwtgg23zjg
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Johannes Nixdorf via Bridge <bridge@lists.linux-foundation.org> writes:
+On Wed, Sep 06, 2023 at 01:58:49PM +0200, Alexey Gladkov wrote:
+> On Tue, Aug 29, 2023 at 01:44:55PM -0700, Luis Chamberlain wrote:
+> > The following changes since commit 06c2afb862f9da8dc5efa4b6076a0e48c3fb=
+aaa5:
+> >=20
+> >   Linux 6.5-rc1 (2023-07-09 13:53:13 -0700)
+> >=20
+> > are available in the Git repository at:
+> >=20
+> >   git://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux.git/ tags/=
+sysctl-6.6-rc1
+> >=20
+> > for you to fetch changes up to 53f3811dfd5e39507ee3aaea1be09aabce8f9c98:
+> >=20
+> >   sysctl: Use ctl_table_size as stopping criteria for list macro (2023-=
+08-15 15:26:18 -0700)
+> >=20
+> > ----------------------------------------------------------------
+> > sysctl-6.6-rc1
+> >=20
+> > Long ago we set out to remove the kitchen sink on kernel/sysctl.c array=
+s and
+> > placings sysctls to their own sybsystem or file to help avoid merge con=
+flicts.
+> > Matthew Wilcox pointed out though that if we're going to do that we mig=
+ht as
+> > well also *save* space while at it and try to remove the extra last sys=
+ctl
+> > entry added at the end of each array, a sentintel, instead of bloating =
+the
+> > kernel by adding a new sentinel with each array moved.
+> >=20
+> > Doing that was not so trivial, and has required slowing down the moves =
+of
+> > kernel/sysctl.c arrays and measuring the impact on size by each new mov=
+e.
+> >=20
+> > The complex part of the effort to help reduce the size of each sysctl i=
+s being
+> > done by the patient work of el se=F1or Don Joel Granados. A lot of this=
+ is truly
+> > painful code refactoring and testing and then trying to measure the sav=
+ings of
+> > each move and removing the sentinels. Although Joel already has code wh=
+ich does
+> > most of this work, experience with sysctl moves in the past shows is we=
+ need to
+> > be careful due to the slew of odd build failures that are possible due =
+to the
+> > amount of random Kconfig options sysctls use.
+> >=20
+> > To that end Joel's work is split by first addressing the major housekee=
+ping
+> > needed to remove the sentinels, which is part of this merge request. Th=
+e rest
+> > of the work to actually remove the sentinels will be done later in futu=
+re
+> > kernel releases.
+>=20
+> This is very interesting for me. I'm also refactoring sysctl based on
+> discussion with Linus a while ago.
+>=20
+> Could you please add me to the Cc in the next patches?
+I just sent the next batch for this set for review. You can see it here
+https://lore.kernel.org/all/20230906-jag-sysctl_remove_empty_elem_arch-v1-0=
+-3935d4854248@samsung.com/
+Will add you for the next ones.
 
-> Support setting the FDB limit through ip link. The arguments is:
->  - fdb_max_learned_entries: A 32-bit unsigned integer specifying the
->                             maximum number of learned FDB entries, with 0
->                             disabling the limit.
+Best
 
-...
+>=20
+> > At first I was only going to send his first 7 patches of his patch seri=
+es,
+> > posted 1 month ago, but in retrospect due to the testing the changes ha=
+ve
+> > received in linux-next and the minor changes they make this goes with t=
+he
+> > entire set of patches Joel had planned: just sysctl house keeping. Ther=
+e are
+> > networking changes but these are part of the house keeping too.
+> >=20
+> > The preliminary math is showing this will all help reduce the overall b=
+uild
+> > time size of the kernel and run time memory consumed by the kernel by a=
+bout
+> > ~64 bytes per array where we are able to remove each sentinel in the fu=
+ture.
+> > That also means there is no more bloating the kernel with the extra ~64=
+ bytes
+> > per array moved as no new sentinels are created.
+> >=20
+> > Most of this has been in linux-next for about a month, the last 7 patch=
+es took
+> > a minor refresh 2 week ago based on feedback.
+> >=20
+> > ----------------------------------------------------------------
+> > Joel Granados (14):
+> >       sysctl: Prefer ctl_table_header in proc_sysctl
+> >       sysctl: Use ctl_table_header in list_for_each_table_entry
+> >       sysctl: Add ctl_table_size to ctl_table_header
+> >       sysctl: Add size argument to init_header
+> >       sysctl: Add a size arg to __register_sysctl_table
+> >       sysctl: Add size to register_sysctl
+> >       sysctl: Add size arg to __register_sysctl_init
+> >       sysctl: Add size to register_net_sysctl function
+> >       ax.25: Update to register_net_sysctl_sz
+> >       netfilter: Update to register_net_sysctl_sz
+> >       networking: Update to register_net_sysctl_sz
+> >       vrf: Update to register_net_sysctl_sz
+> >       sysctl: SIZE_MAX->ARRAY_SIZE in register_net_sysctl
+> >       sysctl: Use ctl_table_size as stopping criteria for list macro
+> >=20
+> >  arch/arm64/kernel/armv8_deprecated.c    |  2 +-
+> >  arch/s390/appldata/appldata_base.c      |  2 +-
+> >  drivers/net/vrf.c                       |  3 +-
+> >  fs/proc/proc_sysctl.c                   | 90 +++++++++++++++++--------=
+--------
+> >  include/linux/sysctl.h                  | 31 +++++++++---
+> >  include/net/ipv6.h                      |  2 +
+> >  include/net/net_namespace.h             | 10 ++--
+> >  ipc/ipc_sysctl.c                        |  4 +-
+> >  ipc/mq_sysctl.c                         |  4 +-
+> >  kernel/ucount.c                         |  5 +-
+> >  net/ax25/sysctl_net_ax25.c              |  3 +-
+> >  net/bridge/br_netfilter_hooks.c         |  3 +-
+> >  net/core/neighbour.c                    |  8 ++-
+> >  net/core/sysctl_net_core.c              |  3 +-
+> >  net/ieee802154/6lowpan/reassembly.c     |  8 ++-
+> >  net/ipv4/devinet.c                      |  3 +-
+> >  net/ipv4/ip_fragment.c                  |  3 +-
+> >  net/ipv4/route.c                        |  8 ++-
+> >  net/ipv4/sysctl_net_ipv4.c              |  3 +-
+> >  net/ipv4/xfrm4_policy.c                 |  3 +-
+> >  net/ipv6/addrconf.c                     |  3 +-
+> >  net/ipv6/icmp.c                         |  5 ++
+> >  net/ipv6/netfilter/nf_conntrack_reasm.c |  3 +-
+> >  net/ipv6/reassembly.c                   |  3 +-
+> >  net/ipv6/route.c                        |  9 ++++
+> >  net/ipv6/sysctl_net_ipv6.c              | 16 ++++--
+> >  net/ipv6/xfrm6_policy.c                 |  3 +-
+> >  net/mpls/af_mpls.c                      |  6 ++-
+> >  net/mptcp/ctrl.c                        |  3 +-
+> >  net/netfilter/ipvs/ip_vs_ctl.c          |  8 ++-
+> >  net/netfilter/ipvs/ip_vs_lblc.c         | 10 ++--
+> >  net/netfilter/ipvs/ip_vs_lblcr.c        | 10 ++--
+> >  net/netfilter/nf_conntrack_standalone.c |  4 +-
+> >  net/netfilter/nf_log.c                  |  7 +--
+> >  net/rds/tcp.c                           |  3 +-
+> >  net/sctp/sysctl.c                       |  4 +-
+> >  net/smc/smc_sysctl.c                    |  3 +-
+> >  net/sysctl_net.c                        | 26 +++++++---
+> >  net/unix/sysctl_net_unix.c              |  3 +-
+> >  net/xfrm/xfrm_sysctl.c                  |  8 ++-
+> >  40 files changed, 222 insertions(+), 113 deletions(-)
+>=20
+> --=20
+> Rgrds, legion
+>=20
 
-> Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
+--=20
 
-Code looks good to me. A couple points though:
+Joel Granados
 
-- The corresponding kernel changes have not yet been merged, have they?
-  This patch should obviously only be merged after that happens.
+--l5htxkzwtgg23zjg
+Content-Type: application/pgp-signature; name="signature.asc"
 
-- The UAPI changes should not be part of the patch, the maintainers will
-  update themselves.
+-----BEGIN PGP SIGNATURE-----
 
-- The names fdb_n_learned_entries, fdb_max_learned_entries... they are
-  somewhat unwieldy IMHO. Just for consideration, I don't feel strongly
-  about this:
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmT4cgkACgkQupfNUreW
+QU9+Cwv+PGlN6idIMQ5c8C0f+ZfC5w4Z+JE4kmlQCz1bP2MeE/pPTaPtyWYqpG8L
+fCfed2PJj3OndPFVZ8htgmNw43rVuzq+FLpoXoS6A+GQTwt+oFYhkmEHImix1EHY
+LgHQwS53MI/8uswyrLCgFK1wB3oWOl2iSsNmafe2N9DNQnjtNMHWA45X9zejzEu3
+yIroWgdeLsDjCje7bCASIxWYMQ0mLCcHYnHhLi9t3oLmtCxrfqz/YvUoAtuUGJId
+EsmlWY0oVOSbUnAv7/CUX6Vh0zXFxtT91spcvDNl8S1araoo1HlooVdK96Odh/Ly
+hiP9KFjySgIdD5HpsT1tSMbEgdx/r1Iv8z4HWJDcpoz4vXeBJRTrdu+H4XJcvXlB
+r9R97zixnSmMaNnAIsNh37llJAYe2pmy9I9/lXAB12U/Z/WQ47aMUZCzIHcuyX8F
+RTLOFn64GT9n7pWmFNOllKMnkTWbxeCJhzmDbbndW5RhtVt5XbxCBYL8RZ9ne9PD
+fMmoGngO
+=CaN7
+-----END PGP SIGNATURE-----
 
-  Your kconfig option is named BRIDGE_DEFAULT_FDB_MAX_LEARNED, and that
-  makes sense to me, because yeah, given the word "learned" in context
-  of FDB, "entries" is the obvious continuation, so why mention it
-  explicitly. Consider following suit with the other source artifacts --
-  the attribute names, struct fields, keywords in this patch.
-  "fdb_n_learned", "fdb_max_learned" is IMHO just as understandable and
-  will be easier to type.
+--l5htxkzwtgg23zjg--
