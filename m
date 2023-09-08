@@ -1,25 +1,25 @@
 Return-Path: <sashal@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5E15E82303
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A3BA0822F5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8FD1860A8B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8E91660A70
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1694196905;
+ s=k20201202; t=1694197036;
  bh=liMbP5RMQjvARMjT61+20zvhPE+McbXIwRmdFix/leU=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=cR1e03UwHfaGWs6YxtdZORwS5+JFhjqGHQJ694DDTGfvk3BFYtY6MxxwD/wELK1P2
- ofDonRqihP/z1+RHCR461O6jC8gBN7h9h01g7ZJVXssRsbiM96Ymd2OWagedKd8zYM
- PS64jtW9ciKW6YwREhhvF8ytISVTWDIrtqDUZz96AJHuC8hM3OqiDHupobwxVn8n1F
- WBIUb1WU5uXv3T2+HzJqRcc31OVKmmAJPs2lg1shxlHxgQyXrW9u8Iq5vOokFiU/UY
- iH7IjJ6bnvPrhFprsgDQJSDisShuNhcR0iqBKTVeaCtD/B1gsy+XuzBdjOYO9njKzY
- bQcFB3EmvV9zw==
+ b=KShTskjBSEmHNHrVnu90QULPrg5EIsel2UXzzyfZjMKSA5CA3XN661LFfPsUict/5
+ yis3u2+gekFo8iaoKCWnqhxxDMTYUmRz6YunVmKD6nIy/Pjy0EujYdyibBfZ8PUTU7
+ INCLaxBVzZFQXjbdLFYcxjEt1SSOysjlUiGZHENiTFZ/okAVhUenSRdGdS4iLWyHxu
+ 0d3aBC3yj//H6G/otagM7OjhXP85RJO2k7FNXhU8IAUIuIkiUiKSG2VVt7iO9C44X9
+ aak4P+WCNvngeKMzCSBAmYkmfP+eXmmQD+bNo2aQNhVNOf3XpzogasHildHJrRTF/h
+ nAM8hIrB9Bd5g==
 From: Sasha Levin <sashal@kernel.org>
-Date: Fri,  8 Sep 2023 14:13:14 -0400
-Message-Id: <20230908181327.3459042-33-sashal@kernel.org>
-In-Reply-To: <20230908181327.3459042-1-sashal@kernel.org>
-References: <20230908181327.3459042-1-sashal@kernel.org>
+Date: Fri,  8 Sep 2023 14:15:44 -0400
+Message-Id: <20230908181555.3459640-30-sashal@kernel.org>
+In-Reply-To: <20230908181555.3459640-1-sashal@kernel.org>
+References: <20230908181555.3459640-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 6.5 33/45] netfilter: ebtables: fix fortify
+Subject: [Bridge] [PATCH AUTOSEL 6.4 30/41] netfilter: ebtables: fix fortify
 	warnings in size_entry_mwt()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
