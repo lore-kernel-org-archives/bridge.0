@@ -1,25 +1,25 @@
 Return-Path: <sashal@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1F29B82F32
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E5F581FAF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 60D31607DE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3B202607B4
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1694197196;
- bh=X0jbyBkErnFvtcxeoHao+vqypF8h09Ocizozo+uSAzc=;
+ s=k20201202; t=1694197240;
+ bh=/H9l6lorHQfgkgSlQnFmbCyvnxmwEZQEYDSD2f3FJkw=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=RlFsnLGZnnZ6fXcfCM+YY2cFo3mmmmcLL6Sk0r1LMjLdP5itePkpDpq1zXRrqQFPI
- fnm14HX2r6xv0lvW2hhYPQ0TkX44x3loaZ7LydpRcyQoXl0QHRInbCxMgjmBn2i4sc
- I2sNLYhMm3JMlPd3/Msb4o2gSNFZrMuSQkvYW5XiL79ykK7Gl+qcmR1dq/O43EurVN
- eMRMFlpt04gOmJ21wWFiarUKJ8lu+3q1Z1yDPWJZfdpDJoWn0bnHp6F7fcl+nEhYeQ
- rMw7c0Ca9MDPwA05fJs3KdEjv+k4Q3ffx7koYu6vwx1EwIPsAv1G6sePvvC9pdAhrO
- 9vTmZQ9j/1cdw==
+ b=okrbgLvpCTlKGACMYUj2Hap7uBniVM2drANkWTp7LIYTjldJ7SK64x6u1Yhl8DAAt
+ yWrlw4Ddi9fCy/VzC87l3e6ewsOD7LFxC0arD7JnIXdNKWIAWnIBH63cQDTzqNFXLF
+ mM7s5ys0A8rpWSShwaKBMApfaH9q9utcUlTEUx4XrHCm6cT2KUmPGHGh6gH3aXqYso
+ Rg5WCOnj7Osop40lOBeUHlwzZUTwRRsGwSIqNjU5DgAZuVcu/rgpiuSJwZKSuSkBzd
+ Qe6YVdN4piErgxLblFozc0KwsV8R57UfG4wXwuAlhaaZXn58olWxfNpT/0I4314NWl
+ bOuJo8EnA37Bg==
 From: Sasha Levin <sashal@kernel.org>
-Date: Fri,  8 Sep 2023 14:19:15 -0400
-Message-Id: <20230908181920.3460520-12-sashal@kernel.org>
-In-Reply-To: <20230908181920.3460520-1-sashal@kernel.org>
-References: <20230908181920.3460520-1-sashal@kernel.org>
+Date: Fri,  8 Sep 2023 14:19:58 -0400
+Message-Id: <20230908182003.3460721-11-sashal@kernel.org>
+In-Reply-To: <20230908182003.3460721-1-sashal@kernel.org>
+References: <20230908182003.3460721-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 5.15 12/15] netfilter: ebtables: fix
+Subject: [Bridge] [PATCH AUTOSEL 5.10 11/14] netfilter: ebtables: fix
 	fortify warnings in size_entry_mwt()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -92,10 +92,10 @@ index a494cf43a7552..b0caad82b6937 100644
  };
  
 diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index a09b2fc11c80e..c0389199c0dcb 100644
+index 8335b7e4bcf6f..bab14186f9ad5 100644
 --- a/net/bridge/netfilter/ebtables.c
 +++ b/net/bridge/netfilter/ebtables.c
-@@ -2114,8 +2114,7 @@ static int size_entry_mwt(const struct ebt_entry *entry, const unsigned char *ba
+@@ -2001,8 +2001,7 @@ static int size_entry_mwt(const struct ebt_entry *entry, const unsigned char *ba
  		return ret;
  
  	offsets[0] = sizeof(struct ebt_entry); /* matches come first */
