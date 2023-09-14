@@ -1,26 +1,31 @@
-Return-Path: <sashal@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A19AC41E7A
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD300417AB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1694197305;
- bh=hq4liqqaZEbpt3nMeqc0u2X0V2l96a2XzBRqOQu/QUU=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Vxdn1sllmiugwNedZzRGP45sXaxGB9d0N14l1Yi+yEeyK+lmqg+4DIwdENv6U9GSr
- JnZcz7ysahNpZqvNUFvBPALyCapL8EhiBb/FO5jN9A2UeBWseVKB0X2yJ7TMkRqWz8
- rH6q8GCSJKFHpz7zzzNgx+MvFhAT3Jmo4na5UVbCGf+Ja5jbbYHZVWsdMz2yIdmVYg
- MvBYvw5YZwHh3RDPOkbgZw0dyP+FCRz4p8IoVhN6HDI7mNe1fgIGnRiWX9XZZYr0l/
- Y/0rEMI1Zcn14LBH/LIDiHUB6OBJW9ylOzfsoPB7wYR+FWGa35sIPldP6OVsyo9oPx
- Wj3a4UOY6gLZg==
-From: Sasha Levin <sashal@kernel.org>
-Date: Fri,  8 Sep 2023 14:21:25 -0400
-Message-Id: <20230908182127.3461199-6-sashal@kernel.org>
-In-Reply-To: <20230908182127.3461199-1-sashal@kernel.org>
-References: <20230908182127.3461199-1-sashal@kernel.org>
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 41A1660FD9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1021460FAD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1694704526; x=1695309326;
+ darn=lists.linux-foundation.org; 
+ h=content-transfer-encoding:in-reply-to:from:content-language
+ :references:cc:to:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=BrNzThEUI5fLlkgWOlz9qpDOnszAeALvT3xNb1ip2FY=;
+ b=qeekKOhXUk/4hFrq77ecY+9c5k7sAhE3v2BBdMpq3F4atfoGVbmeXBslfOfbdsseuE
+ 4wYZXqRdmJMQSBFE9ZEkizgWXxpRsAz4hKzq2QqnCGgX8NQBwPOtvD80lCMjniukYi8b
+ GCwEe4E/2F2RTAA/recYxHyQbcEDFS/K9fXs5Xt+Ru1ImvvbmOJL8cDqnedRNrYtOP00
+ CAQFhgDtYsZ03SIVD4AGsSH2jkTW8G8jCnK5u8Vkdeb07WbjLbb8lnkI3EXThm/ZE36x
+ cDWAzbCcBCyd0+pn8FuQhc02sneQz27vH9jGmZUIYAwsLNlMj3bQxjF9xYci0r54GshK
+ QAFg==
+Message-ID: <e0b3861a-18eb-80ad-1cf8-c563f97e2157@blackwall.org>
+Date: Thu, 14 Sep 2023 18:15:23 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH AUTOSEL 4.14 6/8] netfilter: ebtables: fix fortify
-	warnings in size_entry_mwt()
+References: <20230905-fdb_limit-v3-0-7597cd500a82@avm.de>
+ <20230905-fdb_limit-v3-3-7597cd500a82@avm.de>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20230905-fdb_limit-v3-3-7597cd500a82@avm.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next v3 3/6] net: bridge: Track and limit
+ dynamically learned FDB entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,82 +34,161 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, bridge@lists.linux-foundation.org, GONG@osuosl.org, netdev@vger.kernel.org, razor@blackwall.org, roopa@nvidia.com, Florian Westphal <fw@strlen.de>, "Gustavo A . R . Silva" <gustavoars@kernel.org>, kadlec@netfilter.org, edumazet@google.com, coreteam@netfilter.org, netfilter-devel@vger.kernel.org, "GONG, Ruiqi" <gongruiqi1@huawei.com>, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net, pablo@netfilter.org, Kees Cook <keescook@chromium.org>
+To: Johannes Nixdorf <jnixdorf-oss@avm.de>, "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-From: "GONG, Ruiqi" <gongruiqi1@huawei.com>
+On 9/5/23 14:47, Johannes Nixdorf wrote:
+> A malicious actor behind one bridge port may spam the kernel with packets
+> with a random source MAC address, each of which will create an FDB entry,
+> each of which is a dynamic allocation in the kernel.
+> 
+> There are roughly 2^48 different MAC addresses, further limited by the
+> rhashtable they are stored in to 2^31. Each entry is of the type struct
+> net_bridge_fdb_entry, which is currently 128 bytes big. This means the
+> maximum amount of memory allocated for FDB entries is 2^31 * 128B =
+> 256GiB, which is too much for most computers.
+> 
+> Mitigate this by maintaining a per bridge count of those automatically
+> generated entries in fdb_n_learned_entries, and a limit in
+> fdb_max_learned_entries. If the limit is hit new entries are not learned
+> anymore.
+> 
+> For backwards compatibility the default setting of 0 disables the limit.
+> 
+> User-added entries by netlink or from bridge or bridge port addresses
+> are never blocked and do not count towards that limit.
+> 
+> Introduce a new fdb entry flag BR_FDB_DYNAMIC_LEARNED to keep track of
+> whether an FDB entry is included in the count. The flag is enabled for
+> dynamically learned entries, and disabled for all other entries. This
+> should be equivalent to BR_FDB_ADDED_BY_USER and BR_FDB_LOCAL being unset,
+> but contrary to the two flags it can be toggled atomically.
+> 
+> Atomicity is required here, as there are multiple callers that modify the
+> flags, but are not under a common lock (br_fdb_update is the exception
+> for br->hash_lock, br_fdb_external_learn_add for RTNL).
+> 
+> Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
+> ---
+>   net/bridge/br_fdb.c     | 34 ++++++++++++++++++++++++++++++++--
+>   net/bridge/br_private.h |  4 ++++
+>   2 files changed, 36 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index 06e28ef8d9ff..f8a96ed9a338 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -329,11 +329,18 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
+>   	hlist_del_init_rcu(&f->fdb_node);
+>   	rhashtable_remove_fast(&br->fdb_hash_tbl, &f->rhnode,
+>   			       br_fdb_rht_params);
+> +	if (test_bit(BR_FDB_DYNAMIC_LEARNED, &f->flags))
 
-[ Upstream commit a7ed3465daa240bdf01a5420f64336fee879c09d ]
+this is racy with br_fdb_update(), the fdb entry is still visible 
+because a grace period hasn't passed, so in theory br_fdb_update() can
+unset the bit after this test and...
+> +		atomic_dec(&br->fdb_n_learned_entries);
+... this will decrease once more wrongly
 
-When compiling with gcc 13 and CONFIG_FORTIFY_SOURCE=y, the following
-warning appears:
-
-In function ‘fortify_memcpy_chk’,
-    inlined from ‘size_entry_mwt’ at net/bridge/netfilter/ebtables.c:2118:2:
-./include/linux/fortify-string.h:592:25: error: call to ‘__read_overflow2_field’
-declared with attribute warning: detected read beyond size of field (2nd parameter);
-maybe use struct_group()? [-Werror=attribute-warning]
-  592 |                         __read_overflow2_field(q_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The compiler is complaining:
-
-memcpy(&offsets[1], &entry->watchers_offset,
-                       sizeof(offsets) - sizeof(offsets[0]));
-
-where memcpy reads beyong &entry->watchers_offset to copy
-{watchers,target,next}_offset altogether into offsets[]. Silence the
-warning by wrapping these three up via struct_group().
-
-Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- include/uapi/linux/netfilter_bridge/ebtables.h | 14 ++++++++------
- net/bridge/netfilter/ebtables.c                |  3 +--
- 2 files changed, 9 insertions(+), 8 deletions(-)
-
-diff --git a/include/uapi/linux/netfilter_bridge/ebtables.h b/include/uapi/linux/netfilter_bridge/ebtables.h
-index 9ff57c0a01990..43db01c05c4d5 100644
---- a/include/uapi/linux/netfilter_bridge/ebtables.h
-+++ b/include/uapi/linux/netfilter_bridge/ebtables.h
-@@ -172,12 +172,14 @@ struct ebt_entry {
- 	unsigned char sourcemsk[ETH_ALEN];
- 	unsigned char destmac[ETH_ALEN];
- 	unsigned char destmsk[ETH_ALEN];
--	/* sizeof ebt_entry + matches */
--	unsigned int watchers_offset;
--	/* sizeof ebt_entry + matches + watchers */
--	unsigned int target_offset;
--	/* sizeof ebt_entry + matches + watchers + target */
--	unsigned int next_offset;
-+	__struct_group(/* no tag */, offsets, /* no attrs */,
-+		/* sizeof ebt_entry + matches */
-+		unsigned int watchers_offset;
-+		/* sizeof ebt_entry + matches + watchers */
-+		unsigned int target_offset;
-+		/* sizeof ebt_entry + matches + watchers + target */
-+		unsigned int next_offset;
-+	);
- 	unsigned char elems[0] __attribute__ ((aligned (__alignof__(struct ebt_replace))));
- };
- 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index 84d4b4a0b0536..b5fb880c8a093 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -2071,8 +2071,7 @@ static int size_entry_mwt(const struct ebt_entry *entry, const unsigned char *ba
- 		return ret;
- 
- 	offsets[0] = sizeof(struct ebt_entry); /* matches come first */
--	memcpy(&offsets[1], &entry->watchers_offset,
--			sizeof(offsets) - sizeof(offsets[0]));
-+	memcpy(&offsets[1], &entry->offsets, sizeof(entry->offsets));
- 
- 	if (state->buf_kern_start) {
- 		buf_start = state->buf_kern_start + state->buf_kern_offset;
--- 
-2.40.1
+>   	fdb_notify(br, f, RTM_DELNEIGH, swdev_notify);
+>   	call_rcu(&f->rcu, fdb_rcu_free);
+>   }
+>   
+> -/* Delete a local entry if no other port had the same address. */
+> +/* Delete a local entry if no other port had the same address.
+> + *
+> + * This function should only be called on entries with BR_FDB_LOCAL set,
+> + * so even with BR_FDB_ADDED_BY_USER cleared we never need to increase
+> + * the accounting for dynamically learned entries again.
+> + */
+>   static void fdb_delete_local(struct net_bridge *br,
+>   			     const struct net_bridge_port *p,
+>   			     struct net_bridge_fdb_entry *f)
+> @@ -388,9 +395,20 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
+>   					       __u16 vid,
+>   					       unsigned long flags)
+>   {
+> +	bool learned = !test_bit(BR_FDB_ADDED_BY_USER, &flags) &&
+> +		       !test_bit(BR_FDB_LOCAL, &flags);
+> +	u32 max_learned = READ_ONCE(br->fdb_max_learned_entries);
+>   	struct net_bridge_fdb_entry *fdb;
+>   	int err;
+>   
+> +	if (likely(learned)) {
+> +		int n_learned = atomic_read(&br->fdb_n_learned_entries);
+> +
+> +		if (unlikely(max_learned && n_learned >= max_learned))
+> +			return NULL;
+> +		__set_bit(BR_FDB_DYNAMIC_LEARNED, &flags);
+> +	}
+> +
+>   	fdb = kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
+>   	if (!fdb)
+>   		return NULL;
+> @@ -407,6 +425,9 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
+>   		return NULL;
+>   	}
+>   
+> +	if (likely(learned))
+> +		atomic_inc(&br->fdb_n_learned_entries);
+> +
+>   	hlist_add_head_rcu(&fdb->fdb_node, &br->fdb_list);
+>   
+>   	return fdb;
+> @@ -893,8 +914,11 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+>   					clear_bit(BR_FDB_LOCKED, &fdb->flags);
+>   			}
+>   
+> -			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags)))
+> +			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
+>   				set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+> +				if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
+> +					atomic_dec(&br->fdb_n_learned_entries);
+> +			}
+>   			if (unlikely(fdb_modified)) {
+>   				trace_br_fdb_update(br, source, addr, vid, flags);
+>   				fdb_notify(br, fdb, RTM_NEWNEIGH, true);
+> @@ -1071,6 +1095,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
+>   		}
+>   
+>   		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+> +		if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
+> +			atomic_dec(&br->fdb_n_learned_entries);
+>   	}
+>   
+>   	if (fdb_to_nud(br, fdb) != state) {
+> @@ -1445,6 +1471,10 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
+>   		if (!p)
+>   			set_bit(BR_FDB_LOCAL, &fdb->flags);
+>   
+> +		if ((swdev_notify || !p) &&
+> +		    test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
+> +			atomic_dec(&br->fdb_n_learned_entries);
+> +
+>   		if (modified)
+>   			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
+>   	}
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index a63b32c1638e..675cc40ae1dc 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -274,6 +274,7 @@ enum {
+>   	BR_FDB_NOTIFY,
+>   	BR_FDB_NOTIFY_INACTIVE,
+>   	BR_FDB_LOCKED,
+> +	BR_FDB_DYNAMIC_LEARNED,
+>   };
+>   
+>   struct net_bridge_fdb_key {
+> @@ -554,6 +555,9 @@ struct net_bridge {
+>   	struct kobject			*ifobj;
+>   	u32				auto_cnt;
+>   
+> +	atomic_t			fdb_n_learned_entries;
+> +	u32				fdb_max_learned_entries;
+> +
+>   #ifdef CONFIG_NET_SWITCHDEV
+>   	/* Counter used to make sure that hardware domains get unique
+>   	 * identifiers in case a bridge spans multiple switchdev instances.
+> 
 
