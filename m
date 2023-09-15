@@ -1,25 +1,27 @@
 Return-Path: <aclaudi@redhat.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D258E40159
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 16621400CF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F48C40207
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68BB24010D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1694627930;
+ s=mimecast20190719; t=1694807551;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=LEtiwNiM9PzpjRqi6jakAaaVv0eVpRImxmmfOJbw9+M=;
- b=E4nWVITvjdg6c9psb7qda+ghFKEQLGFyXAxc/06WTgsSGi5gC+uEvc2Dk6XyZRFZoU62NQ
- six6y1li9DU35Q9PuQd5J7rx4lOmi203n+UWo9o2hflcUGZZc8j0KHSIKUGwJ+liHqwcd5
- R97rIyFvvG/O9EQxZ444K+0vJPvZdbI=
+ bh=HNgfdJeO076tImx6jFh9hOiFdIPM4yz7+TlZmmONbfo=;
+ b=caYd3g/OTvPdRkqJGjSUOni9v8dLL1ubt/idcXL2Pgv5sQztmarzgqw9LAmU0ZRAl+T6WF
+ Kyw8+9gfA3zlTzVvsxV+2GiEwlrVYWO3PXB2ymx1b4MiCBqdg4Q6ErBA40DHGMFW7B16u1
+ fJw0WJ4y0JDmXv3lA2fRRZtau9WZDYM=
+Date: Fri, 15 Sep 2023 21:52:22 +0200
 From: Andrea Claudi <aclaudi@redhat.com>
-Date: Wed, 13 Sep 2023 19:58:26 +0200
-Message-ID: <ccc21b33a1a338bc943ac5d0fb40a5bb7ad5fa43.1694625043.git.aclaudi@redhat.com>
-In-Reply-To: <cover.1694625043.git.aclaudi@redhat.com>
+Message-ID: <ZQS19lwZlso1AMAR@renaissance-vector>
 References: <cover.1694625043.git.aclaudi@redhat.com>
+ <844947000ac7744a3b40b10f9cf971fd15572195.1694625043.git.aclaudi@redhat.com>
+ <20230915085912.78ffd25c@hermes.local>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH iproute2-next 2/2] treewide: use configured value
-	as the default color output
+In-Reply-To: <20230915085912.78ffd25c@hermes.local>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Subject: Re: [Bridge] [PATCH iproute2-next 1/2] configure: add the --color
+	option
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -28,77 +30,51 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>
 
-With Makefile providing -DCONF_COLOR, we can use its value as the
-default color output.
+On Fri, Sep 15, 2023 at 08:59:12AM -0700, Stephen Hemminger wrote:
+> On Wed, 13 Sep 2023 19:58:25 +0200
+> Andrea Claudi <aclaudi@redhat.com> wrote:
+> 
+> > This commit allows users/packagers to choose a default for the color
+> > output feature provided by some iproute2 tools.
+> > 
+> > The configure script option is documented in the script itself and it is
+> > pretty much self-explanatory. The default value is set to "never" to
+> > avoid changes to the current ip, tc, and bridge behaviour.
+> > 
+> > Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
+> > ---
+> 
+> More build time config is not the answer either.
+> Don't want complaints from distribution users about the change.
+> Needs to be an environment variable or config file.
+>
 
-This effectively allow users and packagers to define a default for the
-color output feature without using shell aliases, and with minimum code
-impact.
+Hi Stephen,
+This is not modifying the default behaviour; as David noted color output
+will be off as it is right now. If packagers want to make use of this,
+it's up to them to choose a sane default for their environment. After
+all, we are providing options such as '--prefix' and '--libdir', and
+there are endless possibilities to choose obviously wrong values for
+these vars. Packagers are gonna deal with their own choices.
 
-Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
----
- bridge/bridge.c | 3 ++-
- ip/ip.c         | 2 +-
- tc/tc.c         | 2 +-
- 3 files changed, 4 insertions(+), 3 deletions(-)
+I think I can improve this in two ways:
 
-diff --git a/bridge/bridge.c b/bridge/bridge.c
-index 704be50c..339101a8 100644
---- a/bridge/bridge.c
-+++ b/bridge/bridge.c
-@@ -23,7 +23,6 @@ int preferred_family = AF_UNSPEC;
- int oneline;
- int show_stats;
- int show_details;
--static int color;
- int compress_vlans;
- int json;
- int timestamp;
-@@ -103,6 +102,8 @@ static int batch(const char *name)
- int
- main(int argc, char **argv)
- {
-+	int color = CONF_COLOR;
-+
- 	while (argc > 1) {
- 		const char *opt = argv[1];
- 
-diff --git a/ip/ip.c b/ip/ip.c
-index 8c046ef1..860ff957 100644
---- a/ip/ip.c
-+++ b/ip/ip.c
-@@ -168,7 +168,7 @@ int main(int argc, char **argv)
- 	const char *libbpf_version;
- 	char *batch_file = NULL;
- 	char *basename;
--	int color = 0;
-+	int color = CONF_COLOR;
- 
- 	/* to run vrf exec without root, capabilities might be set, drop them
- 	 * if not needed as the first thing.
-diff --git a/tc/tc.c b/tc/tc.c
-index 25820500..082c6677 100644
---- a/tc/tc.c
-+++ b/tc/tc.c
-@@ -35,7 +35,6 @@ int use_iec;
- int force;
- bool use_names;
- int json;
--int color;
- int oneline;
- int brief;
- 
-@@ -254,6 +253,7 @@ int main(int argc, char **argv)
- {
- 	const char *libbpf_version;
- 	char *batch_file = NULL;
-+	int color = CONF_COLOR;
- 	int ret;
- 
- 	while (argc > 1) {
--- 
-2.41.0
+1. Exclude 'always' from the allowed color choices
+This is the setting with the highest chance to produce complaints, since
+it is enabling color output regardless of stdout state. 'auto' instead
+produces color output only on stdout that are terminals. Of course
+'always' will remain as a param choice for the command line.
+
+2. Add packaging guidelines to README (or README.packaging)
+iproute packaging is a bit tricky, since some packaging systems simply
+assume that configure comes from autotools. We even leverage this to our
+advantage, providing configure options that packaging systems use
+flawlessly as the autotools ones. I can provide some info about this,
+and add some recommendations about sane configure defaults, especially
+about the --color option.
+
+What do you think? Is this approach fine for you?
 
