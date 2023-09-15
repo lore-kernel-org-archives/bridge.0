@@ -1,26 +1,30 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8362960FAD
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 64F2560DA5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1694705426;
- bh=Q3w4ykEz2lEoSofN+SUjn3Lth1qicuxOdvzXmwjElDc=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=V7ZpHgLH0+pP0LQ20nb4Po9U5jDnLjpSoKh6Lz9Q+aE5oVg6Vu1mIJfsaS9u6S4SD
- wy0WFNXZQ23HUUZ+VXyPosavhhRxlzBUs5kVtLFBbqScHWC93u4puDUQ0uSVfIdtxG
- 4vp/1WhIcStzgokacvADnZxW6NA35CC74Ik7aSFB4Y8ZO67fMOnypWjMv86T2YhQ/J
- gBfJy8P63xcosxGKx08L3h5GTaBZGiJRWV7oH9Qi0D1r4XMsWgw/bJfA2EkYEkNNOB
- KX/vRGhYYA0zjMtYrn6fbYbE7a6OYbxFOVJu1hfzAetJAwVHvJfTLql0hHaNVCGLch
- a+1G1xEFHiTgg==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169470542671.22890.15589088948266236796.git-patchwork-notify@kernel.org>
-Date: Thu, 14 Sep 2023 15:30:26 +0000
+Return-Path: <stephen@networkplumber.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 829B64220E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 782ED4159C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1694793555;
+ x=1695398355; darn=lists.linux-foundation.org; 
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=625PTN5iP3Dr6oBoYQ7/1bjc8m/xWKXKVAqc5lWfFNw=;
+ b=UHH2QGaW1M0Uq580e7rcgmUjvBBoD98UvhLRSnvTY6F3uXVRywLO9gTvyFKyMn7Urv
+ OvKHIdSmGn8Z3W1WKNr7HGp5Gfg+4AjRZVbo2kAwthLgYQkP2TJ1EQ/1/NOkBw/u/i+P
+ PycAbOqPcXnjp6utal3hk8/+E2smFQ2KpXZSsQqIJU4QxmJoYyz6VW9uEP7pBRk6h8iq
+ 5XHJUchEl58OkdPRRgUA7OBt+yhcKlU4m3068/XtckJ32Xo6VTDjtkGiq/as5JAjvxq5
+ 49bsxlckCvFCO7B6/rAZifmchMLDgCFOCKr80uUI6E1wVGhGdS4pvvYZo3jtomZdZqZm
+ lzuA==
+Date: Fri, 15 Sep 2023 08:59:12 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+Message-ID: <20230915085912.78ffd25c@hermes.local>
+In-Reply-To: <844947000ac7744a3b40b10f9cf971fd15572195.1694625043.git.aclaudi@redhat.com>
 References: <cover.1694625043.git.aclaudi@redhat.com>
-In-Reply-To: <cover.1694625043.git.aclaudi@redhat.com>
-Subject: Re: [Bridge] [PATCH iproute2-next 0/2] configure: add support for
-	color
+ <844947000ac7744a3b40b10f9cf971fd15572195.1694625043.git.aclaudi@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH iproute2-next 1/2] configure: add the --color
+	option
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,36 +34,21 @@ List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
 To: Andrea Claudi <aclaudi@redhat.com>
-Cc: netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, dsahern@gmail.com
+Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>
 
-Hello:
+On Wed, 13 Sep 2023 19:58:25 +0200
+Andrea Claudi <aclaudi@redhat.com> wrote:
 
-This series was applied to iproute2/iproute2-next.git (main)
-by David Ahern <dsahern@kernel.org>:
-
-On Wed, 13 Sep 2023 19:58:24 +0200 you wrote:
-> This series add support for the color parameter in iproute2 configure
-> script. The idea is to make it possible for iproute2 users and packagers
-> to set a default value for the color option different from the current
-> one, COLOR_OPT_NEVER, while maintaining the current default behaviour.
+> This commit allows users/packagers to choose a default for the color
+> output feature provided by some iproute2 tools.
 > 
-> Patch 1 add the color option to the configure script. Users can set
-> three different values, never, auto and always, with the same meanings
-> they have for the -c / -color ip option. Default value is 'never', which
-> results in ip, tc and bridge to maintain their current output behaviour
-> (i.e. colorless output).
+> The configure script option is documented in the script itself and it is
+> pretty much self-explanatory. The default value is set to "never" to
+> avoid changes to the current ip, tc, and bridge behaviour.
 > 
-> [...]
+> Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
+> ---
 
-Here is the summary with links:
-  - [iproute2-next,1/2] configure: add the --color option
-    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=5e704f4b5ba2
-  - [iproute2-next,2/2] treewide: use configured value as the default color output
-    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=b5d0273fdbab
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+More build time config is not the answer either.
+Don't want complaints from distribution users about the change.
+Needs to be an environment variable or config file.
