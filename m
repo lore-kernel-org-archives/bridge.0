@@ -1,29 +1,28 @@
 Return-Path: <jnixdorf-oss@avm.de>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C35BF60F58
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 35B4760F1E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 19A7841DAF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 09A9F41DBC
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
- t=1695125794; bh=98I6K9g8d9UN6Mj6dcFBDTX8Omeq6aFBdEfYnJIQo8g=;
- h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
- b=acSKyeYx4V18C3VvK0tRaOEch2dY1e4YLmb8HLY5/y3LSwTeQd6fBMjgF6l2V3+mQ
- bxvZj1Ss0fZVsL8Hczg9YwKkWJpxxRjBFsObXvJ4mVAwdbLKL+H2MOqeqEBlz26ISp
- ePwmT2TkGyC/bu7i1aUqj1BpP2z8ndAr6ZnrS3cU=
+ t=1695125793; bh=jgojT0/qkebdX/NC1gyN3feF5ayFu9EmWsCehwSIYls=;
+ h=From:Date:Subject:To:Cc:From;
+ b=haFjko9n28nV72CXQgz81q6PwmeRhDS8I9cFSTA81OttFj+baVhE+vsARmXSz7QAe
+ bhgTCHfOvNxywxQdwpGVsS7FqtXzdOf9Oq7pqNgbwMk9QeEeZaxOHX+HuO9Ru54s93
+ uqujaj8wnO58x1wUf7H3tI6X3mL62u0znAZjVbSE=
 From: Johannes Nixdorf <jnixdorf-oss@avm.de>
-Date: Tue, 19 Sep 2023 10:12:51 +0200
+Date: Tue, 19 Sep 2023 10:08:13 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230919-fdb_limit-v4-4-39f0293807b8@avm.de>
-References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
-In-Reply-To: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1695111167; l=3675;
+Message-Id: <20230919-fdb_limit-v4-1-b4d2dc4df30f@avm.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1695110892;
+ 20230919-fdb_limit-v4-0-1a2a59694d67@avm.de; 
  i=jnixdorf-oss@avm.de; s=20230906; h=from:subject:message-id;
- bh=98I6K9g8d9UN6Mj6dcFBDTX8Omeq6aFBdEfYnJIQo8g=;
- b=+O/vG30P80aYeRD2NeTJD51vvX0AL1hjsD1wwhht5rPqD1HX/7YgV5QWmeQ4nEGjXQ53fo9cT
- 5NxEoDKzjB5CFOMrx4+/m0WyzKvecxDhMpxlQ+AYMUjjBYg9Iaej1Fi
+ bh=x8E7QgYAbZ3xfWXTk6mu0Nx+hGD/dY7CVIChh66zl7M=;
+ b=AaFY/zE3nQ6DpF2PqqmH4gHuw/8M41ZtXy/U9Q23gG+yh0+8wDsku9PtzLqfdERVvW92sDEBB
+ lu5YL52t7CYDDtR1qxAbiXtDqpkTBQIKpq7exbeQ8vzw7XR20230919-fdb_limit-v4-0-1a2a59694d67@avm.deL
 X-Developer-Key: i=jnixdorf-oss@avm.de; a=ed25519;
  pk=KMraV4q7ANHRrwjf9EVhvU346JsqGGNSbPKeNILOQfo=
-Subject: [Bridge] [PATCH net-next v4 4/6] net: bridge: Add netlink knobs for
- number / max learned FDB entries
+Subject: [Bridge] [RFC PATCH iproute2-next v4] iplink: bridge: Add
+ sup20230919-fdb_limit-v4-0-1a2a59694d67@avm.der bridge FDB learning limits
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,98 +34,159 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Johannes Nixdorf <jnixdorf-oss@avm.de>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-The previous patch added accounting and a limit for the number of
-dynamically learned FDB entries per bridge. However it did not provide
-means to actually configure those bounds or read back the count. This
-patch does that.
+Support setting the FDB limit through ip link. The arguments is:
+ - fdb_max_learned: A 32-bit unsigned integer specifying the maximum
+                    number of learned FDB entries, with 0 disabling
+                    the limit.
 
-Two new netlink attributes are added for the accounting and limit of
-dynamically learned FDB entries:
- - IFLA_BR_FDB_N_LEARNED (RO) for the number of entries accounted for
-   a single bridge.
- - IFLA_BR_FDB_MAX_LEARNED (RW) for the configured limit of entries for
-   the bridge.
+Also support reading back the current number of learned FDB entries in
+the bridge by this count. The returned value's name is:
+ - fdb_n_learned: A 32-bit unsigned integer specifying the current number
+                  of learned FDB entries.
 
-The new attributes are used like this:
+Example:
 
- # ip link add name br up type bridge fdb_max_learned 256
- # ip link add name v1 up master br type veth peer v2
- # ip link set up dev v2
- # mausezahn -a rand -c 1024 v2
- 0.01 seconds (90877 packets per second
- # bridge fdb | grep -v permanent | wc -l
- 256
- # ip -d link show dev br
- 13: br: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 [...]
-     [...] fdb_n_learned 256 fdb_max_learned 256
+ # ip -d -j -p link show br0
+[ {
+...
+        "linkinfo": {
+            "info_kind": "bridge",
+            "info_data": {
+...
+                "fdb_n_learned": 2,
+                "fdb_max_learned": 0,
+...
+            }
+        },
+...
+    } ]
+ # ip link set br0 type bridge fdb_max_learned 1024
+ # ip -d -j -p link show br0
+[ {
+...
+        "linkinfo": {
+            "info_kind": "bridge",
+            "info_data": {
+...
+                "fdb_n_learned": 2,
+                "fdb_max_learned": 1024,
+...
+            }
+        },
+...
+    } ]
 
 Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 ---
- include/uapi/linux/if_link.h |  2 ++
- net/bridge/br_netlink.c      | 15 ++++++++++++++-
- 2 files changed, 16 insertions(+), 1 deletion(-)
+I will resend this mail as non-rfc after the kernel UAPI changes landed.
 
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index ce3117df9cec..0486f314c176 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -510,6 +510,8 @@ enum {
- 	IFLA_BR_VLAN_STATS_PER_PORT,
- 	IFLA_BR_MULTI_BOOLOPT,
- 	IFLA_BR_MCAST_QUERIER_STATE,
-+	IFLA_BR_FDB_N_LEARNED,
-+	IFLA_BR_FDB_MAX_LEARNED,
- 	__IFLA_BR_MAX,
- };
- 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 505683ef9a26..f5d49a05e61b 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1267,6 +1267,8 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
- 	[IFLA_BR_VLAN_STATS_PER_PORT] = { .type = NLA_U8 },
- 	[IFLA_BR_MULTI_BOOLOPT] =
- 		NLA_POLICY_EXACT_LEN(sizeof(struct br_boolopt_multi)),
-+	[IFLA_BR_FDB_N_LEARNED] = { .type = NLA_U32 },
-+	[IFLA_BR_FDB_MAX_LEARNED] = { .type = NLA_U32 },
- };
- 
- static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
-@@ -1541,6 +1543,12 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 			return err;
- 	}
- 
-+	if (data[IFLA_BR_FDB_MAX_LEARNED]) {
-+		u32 val = nla_get_u32(data[IFLA_BR_FDB_MAX_LEARNED]);
-+
-+		WRITE_ONCE(br->fdb_max_learned, val);
-+	}
-+
- 	return 0;
- }
- 
-@@ -1595,6 +1603,8 @@ static size_t br_get_size(const struct net_device *brdev)
- 	       nla_total_size_64bit(sizeof(u64)) + /* IFLA_BR_TOPOLOGY_CHANGE_TIMER */
- 	       nla_total_size_64bit(sizeof(u64)) + /* IFLA_BR_GC_TIMER */
- 	       nla_total_size(ETH_ALEN) +       /* IFLA_BR_GROUP_ADDR */
-+	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_FDB_N_LEARNED */
-+	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_FDB_MAX_LEARNED */
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_ROUTER */
- 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_SNOOPING */
-@@ -1670,7 +1680,10 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
- 	    nla_put_u8(skb, IFLA_BR_TOPOLOGY_CHANGE_DETECTED,
- 		       br->topology_change_detected) ||
- 	    nla_put(skb, IFLA_BR_GROUP_ADDR, ETH_ALEN, br->group_addr) ||
--	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm))
-+	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm) ||
-+	    nla_put_u32(skb, IFLA_BR_FDB_N_LEARNED,
-+			atomic_read(&br->fdb_n_learned)) ||
-+	    nla_put_u32(skb, IFLA_BR_FDB_MAX_LEARNED, br->fdb_max_learned))
- 		return -EMSGSIZE;
- 
- #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+Link to the kernel changes: https://lore.kernel.org/netdev/20230919-fdb_limit-v4-0-39f0293807b8@avm.de/
+---
+Changes in v4:
+ - Removed _entries from the names. (from review)
+ - Removed the UAPI change, to be synced from linux separately by the
+   maintainer. (from review)
+   For local testing e.g. `make CCOPTS="-O2 -pipe
+   -I${path_to_dev_kernel_headers}"` works as a workaround.
+ - Downgraded to an RFC until the kernel changes land.
+ - Link to v3: https://lore.kernel.org/netdev/20230905-fdb_limit-v3-1-34bb124556d8@avm.de/
 
+Changes in v3:
+ - Properly split the net-next and iproute2-next threads. (from review)
+ - Changed to *_n_* instead of *_cur_*. (from review)
+ - Use strcmp() instead of matches(). (from review)
+ - Made names in code and documentation consistent. (from review)
+ - Various documentation fixes. (from review)
+ - Link to v2: https://lore.kernel.org/netdev/20230619071444.14625-1-jnixdorf-oss@avm.de/
+
+Changes in v2:
+ - Sent out the first corresponding iproute2 patches.
+ - Link to v1: https://lore.kernel.org/netdev/20230515085046.4457-1-jnixdorf-oss@avm.de/
+---
+ ip/iplink_bridge.c    | 21 +++++++++++++++++++++
+ man/man8/ip-link.8.in | 10 ++++++++++
+ 2 files changed, 31 insertions(+)
+
+diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
+index 462075295308..6b70ffbb6f5f 100644
+--- a/ip/iplink_bridge.c
++++ b/ip/iplink_bridge.c
+@@ -34,6 +34,7 @@ static void print_explain(FILE *f)
+ 		"		  [ group_fwd_mask MASK ]\n"
+ 		"		  [ group_address ADDRESS ]\n"
+ 		"		  [ no_linklocal_learn NO_LINKLOCAL_LEARN ]\n"
++		"		  [ fdb_max_learned FDB_MAX_LEARNED ]\n"
+ 		"		  [ vlan_filtering VLAN_FILTERING ]\n"
+ 		"		  [ vlan_protocol VLAN_PROTOCOL ]\n"
+ 		"		  [ vlan_default_pvid VLAN_DEFAULT_PVID ]\n"
+@@ -168,6 +169,14 @@ static int bridge_parse_opt(struct link_util *lu, int argc, char **argv,
+ 				bm.optval |= no_ll_learn_bit;
+ 			else
+ 				bm.optval &= ~no_ll_learn_bit;
++		} else if (strcmp(*argv, "fdb_max_learned") == 0) {
++			__u32 fdb_max_learned;
++
++			NEXT_ARG();
++			if (get_u32(&fdb_max_learned, *argv, 0))
++				invarg("invalid fdb_max_learned", *argv);
++
++			addattr32(n, 1024, IFLA_BR_FDB_MAX_LEARNED, fdb_max_learned);
+ 		} else if (matches(*argv, "fdb_flush") == 0) {
+ 			addattr(n, 1024, IFLA_BR_FDB_FLUSH);
+ 		} else if (matches(*argv, "vlan_default_pvid") == 0) {
+@@ -544,6 +553,18 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 	if (tb[IFLA_BR_GC_TIMER])
+ 		_bridge_print_timer(f, "gc_timer", tb[IFLA_BR_GC_TIMER]);
+ 
++	if (tb[IFLA_BR_FDB_N_LEARNED])
++		print_uint(PRINT_ANY,
++			   "fdb_n_learned",
++			   "fdb_n_learned %u ",
++			   rta_getattr_u32(tb[IFLA_BR_FDB_N_LEARNED]));
++
++	if (tb[IFLA_BR_FDB_MAX_LEARNED])
++		print_uint(PRINT_ANY,
++			   "fdb_max_learned",
++			   "fdb_max_learned %u ",
++			   rta_getattr_u32(tb[IFLA_BR_FDB_MAX_LEARNED]));
++
+ 	if (tb[IFLA_BR_VLAN_DEFAULT_PVID])
+ 		print_uint(PRINT_ANY,
+ 			   "vlan_default_pvid",
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 7365d0c6b14f..e82b2dbb0070 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -1630,6 +1630,8 @@ the following additional arguments are supported:
+ ] [
+ .BI no_linklocal_learn " NO_LINKLOCAL_LEARN "
+ ] [
++.BI fdb_max_learned " FDB_MAX_LEARNED "
++] [
+ .BI vlan_filtering " VLAN_FILTERING "
+ ] [
+ .BI vlan_protocol " VLAN_PROTOCOL "
+@@ -1741,6 +1743,14 @@ or off
+ When disabled, the bridge will not learn from link-local frames (default:
+ enabled).
+ 
++.BI fdb_max_learned " FDB_MAX_LEARNED "
++- set the maximum number of learned FDB entries. If
++.RI ( FDB_MAX_LEARNED " == 0) "
++the feature is disabled. Default is
++.BR 0 .
++.I FDB_MAX_LEARNED
++is a 32bit unsigned integer.
++
+ .BI vlan_filtering " VLAN_FILTERING "
+ - turn VLAN filtering on
+ .RI ( VLAN_FILTERING " > 0) "
+
+---
+base-commit: c31fd80a2268c0b1b77e1d65827003a2327315b8
+change-id: 20230905-fdb_limit-ace1467c6a84
+
+Best regards,
 -- 
-2.42.0
+Johannes Nixdorf <jnixdorf-oss@avm.de>
 
