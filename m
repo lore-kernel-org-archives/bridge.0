@@ -1,29 +1,27 @@
 Return-Path: <jnixdorf-oss@avm.de>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5782760608
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 47F8660F58
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A4C6241DBB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D6D4D41DAF
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
- t=1695125794; bh=k+rrFznUIee0caiDlv/mLorEbq85LaHQjOW6asmxOBU=;
- h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
- b=oV2dvaYqpWlPyfvKtqpAfB6XvY/69kLKNmpVQTmRWOMfrwa+lWcFGmfKFaXysyJL3
- 8drZwCc2GGoJuLEfv+KZyUfBjt6L4b8h4M/ddlBwRGk9XFDwjy7d26dquAay43Taox
- +QzAoPpPyLziX/gP5CbulKPaHG+1G69RfShM5uEI=
+ t=1695125794; bh=4wWW7PThUEy/0/1cw0DJ8Iedw0+ZXiRRLL2Wplmz8kc=;
+ h=From:Subject:Date:To:Cc:From;
+ b=uEhbfVov5qB6MXdjIKtZtKFpmnMg1/rdute8l4fk71bL3KL4RbIXnDIZt8spHkEfG
+ umwHve3uQsXC0rpCqSeW9xze62WmBD/s0r9SCv4zpLdD3xCa44K96+x3dgyMpp9wUU
+ Va1IzP4l3S4XIIyYguYk8CRZW4ogABtwbYDGJomI=
 From: Johannes Nixdorf <jnixdorf-oss@avm.de>
-Date: Tue, 19 Sep 2023 10:12:50 +0200
+Date: Tue, 19 Sep 2023 10:12:47 +0200
+Message-Id: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230919-fdb_limit-v4-3-39f0293807b8@avm.de>
-References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
-In-Reply-To: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1695111167; l=5624;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1695111167; l=4268;
  i=jnixdorf-oss@avm.de; s=20230906; h=from:subject:message-id;
- bh=k+rrFznUIee0caiDlv/mLorEbq85LaHQjOW6asmxOBU=;
- b=o/5oFb1s/rluqufmqcIs+jSpCPZZ1KACH7foPNzymcbgU8DbhKFUdmfnfanhVbZZWDF8bNe79
- PLOvfEdoqSbBSWwjzR03lhTXkwOHK9T2GXgUTrOZgLX+AKo1owATUZp
+ bh=JapsvU38KZCfbiZTIg1IrJQMTOijSxqXyV04LE6TqvE=;
+ b=LSlEhsCt1N4SZEhIdcd9TP66IqZACgNTfLJM+wis+YTtb90REsOeW17n3OtoFXL/TTuAWyNpq
+ zE/Z7+CT/jwCI1wQVO3cel7EtNciNaIOqaNjLxKSKFU11wlAT7BKy0y
 X-Developer-Key: i=jnixdorf-oss@avm.de; a=ed25519;
  pk=KMraV4q7ANHRrwjf9EVhvU346JsqGGNSbPKeNILOQfo=
-Subject: [Bridge] [PATCH net-next v4 3/6] net: bridge: Track and limit
- dynamically learned FDB entries
+Subject: [Bridge] [PATCH net-next v4 0/6] bridge: Add a limit on learned FDB
+	entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,153 +33,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Johannes Nixdorf <jnixdorf-oss@avm.de>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-A malicious actor behind one bridge port may spam the kernel with packets
-with a random source MAC address, each of which will create an FDB entry,
-each of which is a dynamic allocation in the kernel.
+Introduce a limit on the amount of learned FDB entries on a bridge,
+configured by netlink with a build time default on bridge creation in
+the kernel config.
 
-There are roughly 2^48 different MAC addresses, further limited by the
-rhashtable they are stored in to 2^31. Each entry is of the type struct
-net_bridge_fdb_entry, which is currently 128 bytes big. This means the
-maximum amount of memory allocated for FDB entries is 2^31 * 128B =
-256GiB, which is too much for most computers.
+For backwards compatibility the kernel config default is disabling the
+limit (0).
 
-Mitigate this by maintaining a per bridge count of those automatically
-generated entries in fdb_n_learned, and a limit in fdb_max_learned. If
-the limit is hit new entries are not learned anymore.
+Without any limit a malicious actor may OOM a kernel by spamming packets
+with changing MAC addresses on their bridge port, so allow the bridge
+creator to limit the number of entries.
 
-For backwards compatibility the default setting of 0 disables the limit.
+Currently the manual entries are identified by the bridge flags
+BR_FDB_LOCAL or BR_FDB_ADDED_BY_USER, atomically bundled under the new
+flag BR_FDB_DYNAMIC_LEARNED. This means the limit also applies to
+entries created with BR_FDB_ADDED_BY_EXT_LEARN but none of BR_FDB_LOCAL
+or BR_FDB_ADDED_BY_USER, e.g. ones added by SWITCHDEV_FDB_ADD_TO_BRIDGE.
 
-User-added entries by netlink or from bridge or bridge port addresses
-are never blocked and do not count towards that limit.
-
-Introduce a new fdb entry flag BR_FDB_DYNAMIC_LEARNED to keep track of
-whether an FDB entry is included in the count. The flag is enabled for
-dynamically learned entries, and disabled for all other entries. This
-should be equivalent to BR_FDB_ADDED_BY_USER and BR_FDB_LOCAL being unset,
-but contrary to the two flags it can be toggled atomically.
-
-Atomicity is required here, as there are multiple callers that modify the
-flags, but are not under a common lock (br_fdb_update is the exception
-for br->hash_lock, br_fdb_external_learn_add for RTNL).
+Link to the corresponding iproute2 changes: https://lore.kernel.org/netdev/20230919-fdb_limit-v4-1-b4d2dc4df30f@avm.de/
 
 Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 ---
- net/bridge/br_fdb.c     | 35 +++++++++++++++++++++++++++++++++--
- net/bridge/br_private.h |  4 ++++
- 2 files changed, 37 insertions(+), 2 deletions(-)
+Changes in v4:
+ - Added the new test to the Makefile. (from review)
+ - Removed _entries from the names. (from iproute2 review, in some places
+   only for consistency)
+ - Wrapped the lines at 80 chars, except when longer lines are consistent
+   with neighbouring code. (from review)
+ - Fixed a race in fdb_delete. (from review)
+ - Link to v3: https://lore.kernel.org/r/20230905-fdb_limit-v3-0-7597cd500a82@avm.de
 
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index f517ea92132c..cf77e71e026f 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -329,11 +329,18 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
- 	hlist_del_init_rcu(&f->fdb_node);
- 	rhashtable_remove_fast(&br->fdb_hash_tbl, &f->rhnode,
- 			       br_fdb_rht_params);
-+	if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &f->flags))
-+		atomic_dec(&br->fdb_n_learned);
- 	fdb_notify(br, f, RTM_DELNEIGH, swdev_notify);
- 	call_rcu(&f->rcu, fdb_rcu_free);
- }
- 
--/* Delete a local entry if no other port had the same address. */
-+/* Delete a local entry if no other port had the same address.
-+ *
-+ * This function should only be called on entries with BR_FDB_LOCAL set,
-+ * so even with BR_FDB_ADDED_BY_USER cleared we never need to increase
-+ * the accounting for dynamically learned entries again.
-+ */
- static void fdb_delete_local(struct net_bridge *br,
- 			     const struct net_bridge_port *p,
- 			     struct net_bridge_fdb_entry *f)
-@@ -388,9 +395,20 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
- 					       __u16 vid,
- 					       unsigned long flags)
- {
-+	bool learned = !test_bit(BR_FDB_ADDED_BY_USER, &flags) &&
-+		       !test_bit(BR_FDB_LOCAL, &flags);
-+	u32 max_learned = READ_ONCE(br->fdb_max_learned);
- 	struct net_bridge_fdb_entry *fdb;
- 	int err;
- 
-+	if (likely(learned)) {
-+		int n_learned = atomic_read(&br->fdb_n_learned);
-+
-+		if (unlikely(max_learned && n_learned >= max_learned))
-+			return NULL;
-+		__set_bit(BR_FDB_DYNAMIC_LEARNED, &flags);
-+	}
-+
- 	fdb = kmem_cache_alloc(br_fdb_cache, GFP_ATOMIC);
- 	if (!fdb)
- 		return NULL;
-@@ -407,6 +425,9 @@ static struct net_bridge_fdb_entry *fdb_create(struct net_bridge *br,
- 		return NULL;
- 	}
- 
-+	if (likely(learned))
-+		atomic_inc(&br->fdb_n_learned);
-+
- 	hlist_add_head_rcu(&fdb->fdb_node, &br->fdb_list);
- 
- 	return fdb;
-@@ -893,8 +914,12 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 					clear_bit(BR_FDB_LOCKED, &fdb->flags);
- 			}
- 
--			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags)))
-+			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
- 				set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
-+				if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED,
-+						       &fdb->flags))
-+					atomic_dec(&br->fdb_n_learned);
-+			}
- 			if (unlikely(fdb_modified)) {
- 				trace_br_fdb_update(br, source, addr, vid, flags);
- 				fdb_notify(br, fdb, RTM_NEWNEIGH, true);
-@@ -1072,6 +1097,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
- 		}
- 
- 		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
-+		if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
-+			atomic_dec(&br->fdb_n_learned);
- 	}
- 
- 	if (fdb_to_nud(br, fdb) != state) {
-@@ -1446,6 +1473,10 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
- 		if (!p)
- 			set_bit(BR_FDB_LOCAL, &fdb->flags);
- 
-+		if ((swdev_notify || !p) &&
-+		    test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
-+			atomic_dec(&br->fdb_n_learned);
-+
- 		if (modified)
- 			fdb_notify(br, fdb, RTM_NEWNEIGH, swdev_notify);
- 	}
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index a1f4acfa6994..8d2f9a3a3ecd 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -274,6 +274,7 @@ enum {
- 	BR_FDB_NOTIFY,
- 	BR_FDB_NOTIFY_INACTIVE,
- 	BR_FDB_LOCKED,
-+	BR_FDB_DYNAMIC_LEARNED,
- };
- 
- struct net_bridge_fdb_key {
-@@ -555,6 +556,9 @@ struct net_bridge {
- 	struct kobject			*ifobj;
- 	u32				auto_cnt;
- 
-+	atomic_t			fdb_n_learned;
-+	u32				fdb_max_learned;
-+
- #ifdef CONFIG_NET_SWITCHDEV
- 	/* Counter used to make sure that hardware domains get unique
- 	 * identifiers in case a bridge spans multiple switchdev instances.
+Changes in v3:
+ - Fixed the flags for fdb_create in fdb_add_entry to use
+   BIT(...). Previously we passed garbage. (from review)
+ - Set strict_start_type for br_policy. (from review)
+ - Split out the combined accounting and limit patch, and the netlink
+   patch from the combined patch in v2. (from review)
+ - Count atomically, remove the newly introduced lock. (from review)
+ - Added the new attributes to br_policy. (from review)
+ - Added a selftest for the new feature. (from review)
+ - Link to v2: https://lore.kernel.org/netdev/20230619071444.14625-1-jnixdorf-oss@avm.de/
 
+Changes in v2:
+ - Added BR_FDB_ADDED_BY_USER earlier in fdb_add_entry to ensure the
+   limit is not applied.
+ - Do not initialize fdb_*_entries to 0. (from review)
+ - Do not skip decrementing on 0. (from review)
+ - Moved the counters to a conditional hole in struct net_bridge to
+   avoid growing the struct. (from review, it still grows the struct as
+   there are 2 32-bit values)
+ - Add IFLA_BR_FDB_CUR_LEARNED_ENTRIES (from review)
+ - Fix br_get_size() with the added attributes.
+ - Only limit learned entries, rename to
+   *_(CUR|MAX)_LEARNED_ENTRIES. (from review)
+ - Added a default limit in Kconfig. (deemed acceptable in review
+   comments, helps with embedded use-cases where a special purpose kernel
+   is built anyways)
+ - Added an iproute2 patch for easier testing.
+ - Link to v1: https://lore.kernel.org/netdev/20230515085046.4457-1-jnixdorf-oss@avm.de/
+
+Obsolete v1 review comments:
+ - Return better errors to users: Due to limiting the limit to
+   automatically created entries, netlink fdb add requests and changing
+   bridge ports are never rejected, so they do not yet need a more
+   friendly error returned.
+
+---
+Johannes Nixdorf (6):
+      net: bridge: Set BR_FDB_ADDED_BY_USER early in fdb_add_entry
+      net: bridge: Set strict_start_type for br_policy
+      net: bridge: Track and limit dynamically learned FDB entries
+      net: bridge: Add netlink knobs for number / max learned FDB entries
+      net: bridge: Add a configurable default FDB learning limit
+      selftests: forwarding: bridge_fdb_learning_limit: Add a new selftest
+
+ include/uapi/linux/if_link.h                       |   2 +
+ net/bridge/Kconfig                                 |  13 +
+ net/bridge/br_device.c                             |   2 +
+ net/bridge/br_fdb.c                                |  42 ++-
+ net/bridge/br_netlink.c                            |  17 +-
+ net/bridge/br_private.h                            |   4 +
+ tools/testing/selftests/net/forwarding/Makefile    |   3 +-
+ .../net/forwarding/bridge_fdb_learning_limit.sh    | 283 +++++++++++++++++++++
+ 8 files changed, 359 insertions(+), 7 deletions(-)
+---
+base-commit: ce9ecca0238b140b88f43859b211c9fdfd8e5b70
+change-id: 20230904-fdb_limit-fae5bbf16c88
+
+Best regards,
 -- 
-2.42.0
+Johannes Nixdorf <jnixdorf-oss@avm.de>
 
