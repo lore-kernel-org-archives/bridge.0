@@ -1,27 +1,29 @@
-Return-Path: <aclaudi@redhat.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F48C40207
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68BB24010D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1694807551;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=HNgfdJeO076tImx6jFh9hOiFdIPM4yz7+TlZmmONbfo=;
- b=caYd3g/OTvPdRkqJGjSUOni9v8dLL1ubt/idcXL2Pgv5sQztmarzgqw9LAmU0ZRAl+T6WF
- Kyw8+9gfA3zlTzVvsxV+2GiEwlrVYWO3PXB2ymx1b4MiCBqdg4Q6ErBA40DHGMFW7B16u1
- fJw0WJ4y0JDmXv3lA2fRRZtau9WZDYM=
-Date: Fri, 15 Sep 2023 21:52:22 +0200
-From: Andrea Claudi <aclaudi@redhat.com>
-Message-ID: <ZQS19lwZlso1AMAR@renaissance-vector>
-References: <cover.1694625043.git.aclaudi@redhat.com>
- <844947000ac7744a3b40b10f9cf971fd15572195.1694625043.git.aclaudi@redhat.com>
- <20230915085912.78ffd25c@hermes.local>
+Return-Path: <jnixdorf-oss@avm.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2769E83403
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 37891833CE
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+ t=1695125794; bh=4WWlKNadMGkTnmL4PvXNuKsmDGQzVnZw8UxCfJCcdGo=;
+ h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+ b=AQhHrDYWb6C5/W81I+QHjRKyGz9lFv7uqkddFFFLGz4p7PDwnoRUFQBdFQcmaU3Vh
+ 4iGpkpELubYLVuPqKg5TGMUyr/xqsodyGqZMsQvIruePXSkTr77dL27BvlDEpNYRlO
+ pv+xymiJ+XycD3vfVZa6B5UuF/OdDZbEyezHt/v4=
+From: Johannes Nixdorf <jnixdorf-oss@avm.de>
+Date: Tue, 19 Sep 2023 10:12:52 +0200
 MIME-Version: 1.0
-In-Reply-To: <20230915085912.78ffd25c@hermes.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [Bridge] [PATCH iproute2-next 1/2] configure: add the --color
-	option
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230919-fdb_limit-v4-5-39f0293807b8@avm.de>
+References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
+In-Reply-To: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1695111167; l=1565;
+ i=jnixdorf-oss@avm.de; s=20230906; h=from:subject:message-id;
+ bh=4WWlKNadMGkTnmL4PvXNuKsmDGQzVnZw8UxCfJCcdGo=;
+ b=3HzsbfRG3KYhjoiwx/RBTjUfK2g+eK0Drdteo88S8c9J1zbRGXz4OWkMv4rEWPGO3oxFM69eM
+ rnRUxWTpRKnD1uWCZGXa6BZiqvjxwL7gW+l8doEF/Z1HfVuyzdAN4D1
+X-Developer-Key: i=jnixdorf-oss@avm.de; a=ed25519;
+ pk=KMraV4q7ANHRrwjf9EVhvU346JsqGGNSbPKeNILOQfo=
+Subject: [Bridge] [PATCH net-next v4 5/6] net: bridge: Add a configurable
+ default FDB learning limit
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -30,51 +32,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>
+To: "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Johannes Nixdorf <jnixdorf-oss@avm.de>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-On Fri, Sep 15, 2023 at 08:59:12AM -0700, Stephen Hemminger wrote:
-> On Wed, 13 Sep 2023 19:58:25 +0200
-> Andrea Claudi <aclaudi@redhat.com> wrote:
-> 
-> > This commit allows users/packagers to choose a default for the color
-> > output feature provided by some iproute2 tools.
-> > 
-> > The configure script option is documented in the script itself and it is
-> > pretty much self-explanatory. The default value is set to "never" to
-> > avoid changes to the current ip, tc, and bridge behaviour.
-> > 
-> > Signed-off-by: Andrea Claudi <aclaudi@redhat.com>
-> > ---
-> 
-> More build time config is not the answer either.
-> Don't want complaints from distribution users about the change.
-> Needs to be an environment variable or config file.
->
+Add a Kconfig option to configure a default FDB learning limit system
+wide, so a distributor building a special purpose kernel can limit all
+created bridges by default.
 
-Hi Stephen,
-This is not modifying the default behaviour; as David noted color output
-will be off as it is right now. If packagers want to make use of this,
-it's up to them to choose a sane default for their environment. After
-all, we are providing options such as '--prefix' and '--libdir', and
-there are endless possibilities to choose obviously wrong values for
-these vars. Packagers are gonna deal with their own choices.
+The limit is only a soft default setting and overrideable on a per bridge
+basis using netlink.
 
-I think I can improve this in two ways:
+Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
+---
+ net/bridge/Kconfig     | 13 +++++++++++++
+ net/bridge/br_device.c |  2 ++
+ 2 files changed, 15 insertions(+)
 
-1. Exclude 'always' from the allowed color choices
-This is the setting with the highest chance to produce complaints, since
-it is enabling color output regardless of stdout state. 'auto' instead
-produces color output only on stdout that are terminals. Of course
-'always' will remain as a param choice for the command line.
+diff --git a/net/bridge/Kconfig b/net/bridge/Kconfig
+index 3c8ded7d3e84..c0d9c08088c4 100644
+--- a/net/bridge/Kconfig
++++ b/net/bridge/Kconfig
+@@ -84,3 +84,16 @@ config BRIDGE_CFM
+ 	  Say N to exclude this support and reduce the binary size.
+ 
+ 	  If unsure, say N.
++
++config BRIDGE_DEFAULT_FDB_MAX_LEARNED
++	int "Default FDB learning limit"
++	default 0
++	depends on BRIDGE
++	help
++	  Sets a default limit on the number of learned FDB entries on
++	  new bridges. This limit can be overwritten via netlink on a
++	  per bridge basis.
++
++	  The default of 0 disables the limit.
++
++	  If unsure, say 0.
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 9a5ea06236bd..3214391c15a0 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -531,6 +531,8 @@ void br_dev_setup(struct net_device *dev)
+ 	br->bridge_ageing_time = br->ageing_time = BR_DEFAULT_AGEING_TIME;
+ 	dev->max_mtu = ETH_MAX_MTU;
+ 
++	br->fdb_max_learned = CONFIG_BRIDGE_DEFAULT_FDB_MAX_LEARNED;
++
+ 	br_netfilter_rtable_init(br);
+ 	br_stp_timer_init(br);
+ 	br_multicast_init(br);
 
-2. Add packaging guidelines to README (or README.packaging)
-iproute packaging is a bit tricky, since some packaging systems simply
-assume that configure comes from autotools. We even leverage this to our
-advantage, providing configure options that packaging systems use
-flawlessly as the autotools ones. I can provide some info about this,
-and add some recommendations about sane configure defaults, especially
-about the --color option.
-
-What do you think? Is this approach fine for you?
+-- 
+2.42.0
 
