@@ -1,31 +1,31 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 37DD08392C
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5915B83925
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C41D0822DD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B485822D5
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1695206658; x=1695811458;
+ d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1695206764; x=1695811564;
  darn=lists.linux-foundation.org; 
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=7O7mWyhJga1IYEYoLQcrmnzYFbmyVRQyHT7Q+TKsjdE=;
- b=pV8qwlB8fvU58k7cqNKv2CnlHhou84aQyWrR1rxqY4FJ5ZPXng5aQVU/FtJGJ2hhdJ
- ikzCskr5gDLYJwm1eMDDjc61VXim5CsQ10DR13OHAHx8fOFIIihu+svRNVNDyRmo9hoH
- SbHjAdX/hXXK6CK43nJAkgt2xYVJCiWomGTQ1qL0L09CjFdkO4OuVk/wVriIOgXokFG8
- fXl4v+Ey0tyyOLDsH6C59V4Z5VQIU50kq800PWR2jl5TQZk6FARDLhUNR1/p2vMoD/le
- Ld0z+qdBD21Gzxss9/IJgKDtEzjP+A2TLCGU2OQryXBSBALTp1AT1/TOxa6nCUiQNMh0
- +lFA==
-Message-ID: <a2a5ede9-c93e-915d-61be-c2c2fab18479@blackwall.org>
-Date: Wed, 20 Sep 2023 13:44:16 +0300
+ bh=1t+EHZZa+DoV/W1tEtqY5C53ytLGnx5U13L/26n+omc=;
+ b=1jQfdg/hP05ZCnFJI0/CwTExroXpkOgX2jvyytVPa7L1BncWdNp3SETQ1sTDMFLjjq
+ x5D4D8IBPbKfbLA+/xc9qdN/Wm39Ck33hHdfZV9/Jcicozp4JTPgvDhOGQUjDiNKbV2s
+ E0ZP3sFvM6s9Za5vSzEepe4mhsLkKVjQNtxB5ldqWGRPXdc2LVgRdLUyPhyr/m/RKVVM
+ zzP4AF1oSYWNDkwg5iFAcGOtRMI+6TbtWmfqtalrik0+6dRFbKUvX3Mz/EUoa7CKa07s
+ 1dgXyhE1Bx0LKAA1Rv3h79gGbV3bPMV7pHB+jVyjWR4XEEgVMN2ycYudSnK/kmMl64ua
+ 7LWw==
+Message-ID: <1c12b8f2-b28b-f326-b24f-f1ea602832d7@blackwall.org>
+Date: Wed, 20 Sep 2023 13:46:02 +0300
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
- <20230919-fdb_limit-v4-1-39f0293807b8@avm.de>
+ <20230919-fdb_limit-v4-2-39f0293807b8@avm.de>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230919-fdb_limit-v4-1-39f0293807b8@avm.de>
+In-Reply-To: <20230919-fdb_limit-v4-2-39f0293807b8@avm.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 1/6] net: bridge: Set
- BR_FDB_ADDED_BY_USER early in fdb_add_entry
+Subject: Re: [Bridge] [PATCH net-next v4 2/6] net: bridge: Set
+ strict_start_type for br_policy
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -38,48 +38,29 @@ To: Johannes Nixdorf <jnixdorf-oss@avm.de>, "David S. Miller" <davem@davemloft.n
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
 On 9/19/23 11:12, Johannes Nixdorf wrote:
-> In preparation of the following fdb limit for dynamically learned entries,
-> allow fdb_create to detect that the entry was added by the user. This
-> way it can skip applying the limit in this case.
+> Set any new attributes added to br_policy to be parsed strictly, to
+> prevent userspace from passing garbage.
 > 
 > Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 > ---
->   net/bridge/br_fdb.c | 7 ++++---
->   1 file changed, 4 insertions(+), 3 deletions(-)
+>   net/bridge/br_netlink.c | 2 ++
+>   1 file changed, 2 insertions(+)
 > 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index e69a872bfc1d..f517ea92132c 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -1056,7 +1056,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
->   		if (!(flags & NLM_F_CREATE))
->   			return -ENOENT;
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 10f0d33d8ccf..505683ef9a26 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -1229,6 +1229,8 @@ static size_t br_port_get_slave_size(const struct net_device *brdev,
+>   }
 >   
-> -		fdb = fdb_create(br, source, addr, vid, 0);
-> +		fdb = fdb_create(br, source, addr, vid,
-> +				 BIT(BR_FDB_ADDED_BY_USER));
->   		if (!fdb)
->   			return -ENOMEM;
->   
-> @@ -1069,6 +1070,8 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
->   			WRITE_ONCE(fdb->dst, source);
->   			modified = true;
->   		}
-> +
-> +		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
->   	}
->   
->   	if (fdb_to_nud(br, fdb) != state) {
-> @@ -1100,8 +1103,6 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_port *source,
->   	if (fdb_handle_notify(fdb, notify))
->   		modified = true;
->   
-> -	set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
-> -
->   	fdb->used = jiffies;
->   	if (modified) {
->   		if (refresh)
+>   static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
+> +	[IFLA_BR_UNSPEC]	= { .strict_start_type =
+> +				    IFLA_BR_MCAST_QUERIER_STATE + 1 },
+>   	[IFLA_BR_FORWARD_DELAY]	= { .type = NLA_U32 },
+>   	[IFLA_BR_HELLO_TIME]	= { .type = NLA_U32 },
+>   	[IFLA_BR_MAX_AGE]	= { .type = NLA_U32 },
 > 
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-
+instead of IFLA_BR_MCAST_QUERIER_STATE + 1, why not move around the 
+patch and just use the new attribute name?
+These are uapi, they won't change.
