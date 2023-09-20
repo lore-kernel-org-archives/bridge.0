@@ -1,31 +1,31 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7193540162
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8D1B140127
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BBE7C40162
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4AAA740127
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1695206943; x=1695811743;
+ d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1695207034; x=1695811834;
  darn=lists.linux-foundation.org; 
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=WfoVQLFTyBMz6qdJ4HQf6iMKbD5VVKNiCRlsodiIXlQ=;
- b=RpL1sBO5GMAbIbzRp/S2PGZZOLYIUbQQN5iOEMe4aq6VDghac/i+3BW7mACQqnyPPB
- JIvlQ0+8SQJCfpqr+iACjSgxaiLDIGDIKJcbnp8WVDfwLyVRMyt8H/7Zd4x198c6g4/g
- WA5jCRqbql/lYH1yk41aMmXEwNFSkRim1OUFYnPgvNN+X+7lDYGEBxZ5lmn9RgE50cSX
- I14zsS5rc07XJwsz2KugUCYIDZL54ocHbUFf6iKLakPI6WcgXoy/KuOcYenu5e5Ok/s6
- 4by8Qro/baR1ADbC5FxpavYJZXRHlBZvQPd/LXIYJ1NWYdCWTbnElmlKMS9g0GoUe3qs
- 45WQ==
-Message-ID: <5146e687-f5b8-86b2-e4e3-29871fe4fa5c@blackwall.org>
-Date: Wed, 20 Sep 2023 13:49:01 +0300
+ bh=WdySEJI2yS6LDSRHQg7SGzxRhw3iuitdUpfv1l3JcAY=;
+ b=HOvblEvfeQibFzu1u1azOAqHBWBz3p/XIdED26TLVPmUEHHoxdxVCLuMOPRfjR744/
+ /QqhTt5Gk8SUbFBTZLvRxIZ8Y+hXy9HDPQHxM6AwcIyYaDBvW91T7LlcT9zJW5JezMCD
+ WIwbNspIZ5w44tjTzK+yOcyWV1OpmtpIxvpKbdl+Gs8VdU/dzPb0+ZnY/Pfc93nuVZWX
+ AdCtr5GBD7UE/zRQn3E+jLg+TaJPfSbSEvEGTHI69RTwkQzTJIV9XC94f0QzsSGC7GaO
+ ZPrUcyQ9rFyWVCxsquEE9oQalpc6FXA0YzjsodN7vt9jnRfQvl/ujaoOokYxtulQ7qCd
+ scdA==
+Message-ID: <f5aca33e-693f-9d8d-c45a-41ada00a9f03@blackwall.org>
+Date: Wed, 20 Sep 2023 13:50:32 +0300
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
- <20230919-fdb_limit-v4-3-39f0293807b8@avm.de>
+ <20230919-fdb_limit-v4-4-39f0293807b8@avm.de>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230919-fdb_limit-v4-3-39f0293807b8@avm.de>
+In-Reply-To: <20230919-fdb_limit-v4-4-39f0293807b8@avm.de>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 3/6] net: bridge: Track and limit
- dynamically learned FDB entries
+Subject: Re: [Bridge] [PATCH net-next v4 4/6] net: bridge: Add netlink knobs
+ for number / max learned FDB entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -38,44 +38,99 @@ To: Johannes Nixdorf <jnixdorf-oss@avm.de>, "David S. Miller" <davem@davemloft.n
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
 On 9/19/23 11:12, Johannes Nixdorf wrote:
-> A malicious actor behind one bridge port may spam the kernel with packets
-> with a random source MAC address, each of which will create an FDB entry,
-> each of which is a dynamic allocation in the kernel.
+> The previous patch added accounting and a limit for the number of
+> dynamically learned FDB entries per bridge. However it did not provide
+> means to actually configure those bounds or read back the count. This
+> patch does that.
 > 
-> There are roughly 2^48 different MAC addresses, further limited by the
-> rhashtable they are stored in to 2^31. Each entry is of the type struct
-> net_bridge_fdb_entry, which is currently 128 bytes big. This means the
-> maximum amount of memory allocated for FDB entries is 2^31 * 128B =
-> 256GiB, which is too much for most computers.
+> Two new netlink attributes are added for the accounting and limit of
+> dynamically learned FDB entries:
+>   - IFLA_BR_FDB_N_LEARNED (RO) for the number of entries accounted for
+>     a single bridge.
+>   - IFLA_BR_FDB_MAX_LEARNED (RW) for the configured limit of entries for
+>     the bridge.
 > 
-> Mitigate this by maintaining a per bridge count of those automatically
-> generated entries in fdb_n_learned, and a limit in fdb_max_learned. If
-> the limit is hit new entries are not learned anymore.
+> The new attributes are used like this:
 > 
-> For backwards compatibility the default setting of 0 disables the limit.
-> 
-> User-added entries by netlink or from bridge or bridge port addresses
-> are never blocked and do not count towards that limit.
-> 
-> Introduce a new fdb entry flag BR_FDB_DYNAMIC_LEARNED to keep track of
-> whether an FDB entry is included in the count. The flag is enabled for
-> dynamically learned entries, and disabled for all other entries. This
-> should be equivalent to BR_FDB_ADDED_BY_USER and BR_FDB_LOCAL being unset,
-> but contrary to the two flags it can be toggled atomically.
-> 
-> Atomicity is required here, as there are multiple callers that modify the
-> flags, but are not under a common lock (br_fdb_update is the exception
-> for br->hash_lock, br_fdb_external_learn_add for RTNL).
+>   # ip link add name br up type bridge fdb_max_learned 256
+>   # ip link add name v1 up master br type veth peer v2
+>   # ip link set up dev v2
+>   # mausezahn -a rand -c 1024 v2
+>   0.01 seconds (90877 packets per second
+>   # bridge fdb | grep -v permanent | wc -l
+>   256
+>   # ip -d link show dev br
+>   13: br: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 [...]
+>       [...] fdb_n_learned 256 fdb_max_learned 256
 > 
 > Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 > ---
->   net/bridge/br_fdb.c     | 35 +++++++++++++++++++++++++++++++++--
->   net/bridge/br_private.h |  4 ++++
->   2 files changed, 37 insertions(+), 2 deletions(-)
+>   include/uapi/linux/if_link.h |  2 ++
+>   net/bridge/br_netlink.c      | 15 ++++++++++++++-
+>   2 files changed, 16 insertions(+), 1 deletion(-)
 > 
+> diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+> index ce3117df9cec..0486f314c176 100644
+> --- a/include/uapi/linux/if_link.h
+> +++ b/include/uapi/linux/if_link.h
+> @@ -510,6 +510,8 @@ enum {
+>   	IFLA_BR_VLAN_STATS_PER_PORT,
+>   	IFLA_BR_MULTI_BOOLOPT,
+>   	IFLA_BR_MCAST_QUERIER_STATE,
+> +	IFLA_BR_FDB_N_LEARNED,
+> +	IFLA_BR_FDB_MAX_LEARNED,
+>   	__IFLA_BR_MAX,
+>   };
+>   
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 505683ef9a26..f5d49a05e61b 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -1267,6 +1267,8 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
+>   	[IFLA_BR_VLAN_STATS_PER_PORT] = { .type = NLA_U8 },
+>   	[IFLA_BR_MULTI_BOOLOPT] =
+>   		NLA_POLICY_EXACT_LEN(sizeof(struct br_boolopt_multi)),
+> +	[IFLA_BR_FDB_N_LEARNED] = { .type = NLA_U32 },
 
-I think this is a good counting start. :) It'd be nice to get
-more eyes on this one.
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+hmm? I thought this one was RO.
 
+> +	[IFLA_BR_FDB_MAX_LEARNED] = { .type = NLA_U32 },
+>   };
+>   
+>   static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+> @@ -1541,6 +1543,12 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+>   			return err;
+>   	}
+>   
+> +	if (data[IFLA_BR_FDB_MAX_LEARNED]) {
+> +		u32 val = nla_get_u32(data[IFLA_BR_FDB_MAX_LEARNED]);
+> +
+> +		WRITE_ONCE(br->fdb_max_learned, val);
+> +	}
+> +
+>   	return 0;
+>   }
+>   
+> @@ -1595,6 +1603,8 @@ static size_t br_get_size(const struct net_device *brdev)
+>   	       nla_total_size_64bit(sizeof(u64)) + /* IFLA_BR_TOPOLOGY_CHANGE_TIMER */
+>   	       nla_total_size_64bit(sizeof(u64)) + /* IFLA_BR_GC_TIMER */
+>   	       nla_total_size(ETH_ALEN) +       /* IFLA_BR_GROUP_ADDR */
+> +	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_FDB_N_LEARNED */
+> +	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_FDB_MAX_LEARNED */
+>   #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+>   	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_ROUTER */
+>   	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_SNOOPING */
+> @@ -1670,7 +1680,10 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+>   	    nla_put_u8(skb, IFLA_BR_TOPOLOGY_CHANGE_DETECTED,
+>   		       br->topology_change_detected) ||
+>   	    nla_put(skb, IFLA_BR_GROUP_ADDR, ETH_ALEN, br->group_addr) ||
+> -	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm))
+> +	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm) ||
+> +	    nla_put_u32(skb, IFLA_BR_FDB_N_LEARNED,
+> +			atomic_read(&br->fdb_n_learned)) ||
+> +	    nla_put_u32(skb, IFLA_BR_FDB_MAX_LEARNED, br->fdb_max_learned))
+>   		return -EMSGSIZE;
+>   
+>   #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+> 
 
