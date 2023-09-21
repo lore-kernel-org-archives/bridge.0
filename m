@@ -1,31 +1,24 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7455A41DBD
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E67241BD6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1695207672; x=1695812472;
- darn=lists.linux-foundation.org; 
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=fFCnzCVFLsbuhvtZ9EHw9SNjPT4ld8559k/OSp8m+oI=;
- b=hSYhlYhJW38iCWXGL0adIs9wqFItoIU/7fJKfZ07yY6PsKZGrPfSl+ZwvmSjLv/R9H
- Nd1TwzqekEWvgq3m2O0EA3V+OyOIRxdt3IsUq3MU4+Sbs9Wx+wS/e0iJ09oxalu59YqL
- KFrs0AoC6RtJOJRNiN0ef3o9XJ3EGRAKJBEAw0qjsKnPMiSjXAn56GA/P7x9ofi0mWhM
- PL9jwanzXtuwA60BUEWh6ZG84IErxouAZlMH1/cDZlZD7FJcUbktkPZOau2MlxT5zZRE
- rJd6YkD2lsZzheG44zi0BEYROpsUrmRWjmaIfu6tE59Wn1uUo9lDOiSbiQMWrw9BZaJC
- Y3Tg==
-Message-ID: <e1c0f5ac-a0bc-dc2c-0638-c580498670e4@blackwall.org>
-Date: Wed, 20 Sep 2023 14:01:10 +0300
-MIME-Version: 1.0
-Content-Language: en-US
+Return-Path: <jnixdorf-oss@avm.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 926C383BD1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0E74783BB8
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+ t=1695281026; bh=MGHRpPfMK3dwPqFHNJENwclFJsK7s432jc0AWt8qpKo=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=lMv+D89SeUIroDzj3vpDvYr7y3M0PoPLmr9tkOthBnQGSLo+hcx1XT9UFQM0hgSlH
+ xHaAXKtsZeL6XEjJmPq0Q4wHjoS0ePKH/Wgj4XjyHyUqWm4LTZ6KyEeZ6ykYL7Hb2p
+ 9EHrhm5VgBl1R5uzbSvyn+aOT7kXqu9MTNT9n8oM=
+Date: Thu, 21 Sep 2023 09:23:46 +0200
+From: Johannes Nixdorf <jnixdorf-oss@avm.de>
+Message-ID: <ZQvvgiz4rE8u6vba@u-jnixdorf.ads.avm.de>
 References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
- <20230919-fdb_limit-v4-6-39f0293807b8@avm.de>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20230919-fdb_limit-v4-6-39f0293807b8@avm.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next v4 6/6] selftests: forwarding:
- bridge_fdb_learning_limit: Add a new selftest
+ <20230919-fdb_limit-v4-2-39f0293807b8@avm.de>
+ <1c12b8f2-b28b-f326-b24f-f1ea602832d7@blackwall.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1c12b8f2-b28b-f326-b24f-f1ea602832d7@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next v4 2/6] net: bridge: Set
+ strict_start_type for br_policy
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -34,21 +27,44 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Johannes Nixdorf <jnixdorf-oss@avm.de>, "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, linux-kernel@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>, Vladimir Oltean <vladimir.oltean@nxp.com>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, David Ahern <dsahern@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-On 9/19/23 11:12, Johannes Nixdorf wrote:
-> Add a suite covering the fdb_n_learned and fdb_max_learned bridge
-> features, touching all special cases in accounting at least once.
+On Wed, Sep 20, 2023 at 01:46:02PM +0300, Nikolay Aleksandrov wrote:
+> On 9/19/23 11:12, Johannes Nixdorf wrote:
+> > Set any new attributes added to br_policy to be parsed strictly, to
+> > prevent userspace from passing garbage.
+> > 
+> > Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
+> > ---
+> >   net/bridge/br_netlink.c | 2 ++
+> >   1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> > index 10f0d33d8ccf..505683ef9a26 100644
+> > --- a/net/bridge/br_netlink.c
+> > +++ b/net/bridge/br_netlink.c
+> > @@ -1229,6 +1229,8 @@ static size_t br_port_get_slave_size(const struct net_device *brdev,
+> >   }
+> >   static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
+> > +	[IFLA_BR_UNSPEC]	= { .strict_start_type =
+> > +				    IFLA_BR_MCAST_QUERIER_STATE + 1 },
+> >   	[IFLA_BR_FORWARD_DELAY]	= { .type = NLA_U32 },
+> >   	[IFLA_BR_HELLO_TIME]	= { .type = NLA_U32 },
+> >   	[IFLA_BR_MAX_AGE]	= { .type = NLA_U32 },
+> > 
 > 
-> Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
-> ---
->   tools/testing/selftests/net/forwarding/Makefile    |   3 +-
->   .../net/forwarding/bridge_fdb_learning_limit.sh    | 283 +++++++++++++++++++++
->   2 files changed, 285 insertions(+), 1 deletion(-)
-> 
+> instead of IFLA_BR_MCAST_QUERIER_STATE + 1, why not move around the patch
+> and just use the new attribute name?
+> These are uapi, they won't change.
 
-Always nice to see new tests. Thanks,
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+I wanted to avoid having a state between the two commits where the new
+attributes are already added, but not yet strictly verified. Otherwise
+they would present a slightly different UAPI at that one commit boundary
+than after this commit.
 
-
+This is also not the only place in the kernel where strict_start_type
+is specified that way. See e.g. commit c00041cf1cb8 ("net: bridge: Set
+strict_start_type at two policies"), even though that seems mostly be
+done to turn on strict_start_type preemtively, not in the same series
+that adds the new attribute.
