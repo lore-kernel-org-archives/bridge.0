@@ -1,32 +1,26 @@
-Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6137E409BD
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8B99C4002B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1695300707; x=1695905507;
- darn=lists.linux-foundation.org; 
- h=content-transfer-encoding:in-reply-to:references:cc:to:from
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=pywDHr26aMIdNlh92ssNp5yeq0EGO9N0Av0l9CJtRTM=;
- b=PKtHqhoXGn9nIQ9VkDzdQ9ZYuibtPM+5sBfvPjfnHGuxcNFLqg8UHQEasNJ2Udm4oA
- mOA5Byvsylgm0UIyUK8RyHfX9GZ3BwMsO0w3t7jCVP6pnbsFey0EGsdrR0nQd4jumJ6c
- g2iBMc7eP+UupKkd2OHyVLPMPjD2P0JKlRZNbPlba3LkGK/QS3LgQTdFYrV+zA5aySaK
- c87ekdu9FT12YrB0ZHJpxmgWv9FBDyn+NHxJL/5JJiQZnvDmoBcg4snlK+qeXnXlxiTV
- O09WYDdPDjj1u1MXAgxEuJ2xT2bdAlssLKaX+bNxpY+4ZNBHFGClvRRa80Gg60+Cg/bo
- Nwew==
-Message-ID: <6d06e629-3d6b-98dc-fecc-c5336c434d81@blackwall.org>
-Date: Thu, 21 Sep 2023 15:51:45 +0300
-MIME-Version: 1.0
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
+Return-Path: <jnixdorf-oss@avm.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2EA4840992
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 97710410E4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+ t=1695385116; bh=MB5t/v3/1POR6o/v9qEGKwe4oDvbnw1fKTLa0smSnIA=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=UgkpCoMm9gpKNSJoMOa4nsPLy54Kenxk7W7YPcWMVxYStCJi3GNg2nIbT64NRTGTs
+ kqpIJLNeQlVB1YFRVp3sBHEaWzbJ4DXffxixagYWCI7+OKjAl3zH6MEcLaInukRNIu
+ cUghr0zYKg7+jF6xmY2tfsGW2riOpKp+BuuKuHDs=
+Date: Fri, 22 Sep 2023 14:18:37 +0200
+From: Johannes Nixdorf <jnixdorf-oss@avm.de>
+Message-ID: <ZQ2GHS2r1W77iE50@u-jnixdorf.ads.avm.de>
 References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
- <20230919-fdb_limit-v4-4-39f0293807b8@avm.de>
- <0ae67e4d-0d51-5290-1255-1fe1b699ca14@blackwall.org>
-In-Reply-To: <0ae67e4d-0d51-5290-1255-1fe1b699ca14@blackwall.org>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Subject: Re: [Bridge] [PATCH net-next v4 4/6] net: bridge: Add netlink knobs
- for number / max learned FDB entries
+ <20230919-fdb_limit-v4-2-39f0293807b8@avm.de>
+ <1c12b8f2-b28b-f326-b24f-f1ea602832d7@blackwall.org>
+ <ZQvvgiz4rE8u6vba@u-jnixdorf.ads.avm.de>
+ <ab1130bb-38ce-1804-7981-6a4532d6ff7b@blackwall.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ab1130bb-38ce-1804-7981-6a4532d6ff7b@blackwall.org>
+Subject: Re: [Bridge] [PATCH net-next v4 2/6] net: bridge: Set
+ strict_start_type for br_policy
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,61 +29,54 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Johannes Nixdorf <jnixdorf-oss@avm.de>, "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, linux-kernel@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>, Vladimir Oltean <vladimir.oltean@nxp.com>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, David Ahern <dsahern@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>
 
-On 9/21/23 15:41, Nikolay Aleksandrov wrote:
-> On 9/19/23 11:12, Johannes Nixdorf wrote:
->> The previous patch added accounting and a limit for the number of
->> dynamically learned FDB entries per bridge. However it did not provide
->> means to actually configure those bounds or read back the count. This
->> patch does that.
->>
->> Two new netlink attributes are added for the accounting and limit of
->> dynamically learned FDB entries:
->>   - IFLA_BR_FDB_N_LEARNED (RO) for the number of entries accounted for
->>     a single bridge.
->>   - IFLA_BR_FDB_MAX_LEARNED (RW) for the configured limit of entries for
->>     the bridge.
->>
->> The new attributes are used like this:
->>
->>   # ip link add name br up type bridge fdb_max_learned 256
->>   # ip link add name v1 up master br type veth peer v2
->>   # ip link set up dev v2
->>   # mausezahn -a rand -c 1024 v2
->>   0.01 seconds (90877 packets per second
->>   # bridge fdb | grep -v permanent | wc -l
->>   256
->>   # ip -d link show dev br
->>   13: br: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 [...]
->>       [...] fdb_n_learned 256 fdb_max_learned 256
->>
->> Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
->> ---
->>   include/uapi/linux/if_link.h |  2 ++
->>   net/bridge/br_netlink.c      | 15 ++++++++++++++-
->>   2 files changed, 16 insertions(+), 1 deletion(-)
-[snip]
->> @@ -1670,7 +1680,10 @@ static int br_fill_info(struct sk_buff *skb, 
->> const struct net_device *brdev)
->>           nla_put_u8(skb, IFLA_BR_TOPOLOGY_CHANGE_DETECTED,
->>                  br->topology_change_detected) ||
->>           nla_put(skb, IFLA_BR_GROUP_ADDR, ETH_ALEN, br->group_addr) ||
->> -        nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm))
->> +        nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm) ||
->> +        nla_put_u32(skb, IFLA_BR_FDB_N_LEARNED,
->> +            atomic_read(&br->fdb_n_learned)) ||
->> +        nla_put_u32(skb, IFLA_BR_FDB_MAX_LEARNED, br->fdb_max_learned))
->>           return -EMSGSIZE;
->>   #ifdef CONFIG_BRIDGE_VLAN_FILTERING
->>
+On Thu, Sep 21, 2023 at 01:14:43PM +0300, Nikolay Aleksandrov wrote:
+> On 9/21/23 10:23, Johannes Nixdorf wrote:
+> > On Wed, Sep 20, 2023 at 01:46:02PM +0300, Nikolay Aleksandrov wrote:
+> > > On 9/19/23 11:12, Johannes Nixdorf wrote:
+> > > > Set any new attributes added to br_policy to be parsed strictly, to
+> > > > prevent userspace from passing garbage.
+> > > > 
+> > > > Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
+> > > > ---
+> > > >    net/bridge/br_netlink.c | 2 ++
+> > > >    1 file changed, 2 insertions(+)
+> > > > 
+> > > > diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> > > > index 10f0d33d8ccf..505683ef9a26 100644
+> > > > --- a/net/bridge/br_netlink.c
+> > > > +++ b/net/bridge/br_netlink.c
+> > > > @@ -1229,6 +1229,8 @@ static size_t br_port_get_slave_size(const struct net_device *brdev,
+> > > >    }
+> > > >    static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
+> > > > +	[IFLA_BR_UNSPEC]	= { .strict_start_type =
+> > > > +				    IFLA_BR_MCAST_QUERIER_STATE + 1 },
+> > > >    	[IFLA_BR_FORWARD_DELAY]	= { .type = NLA_U32 },
+> > > >    	[IFLA_BR_HELLO_TIME]	= { .type = NLA_U32 },
+> > > >    	[IFLA_BR_MAX_AGE]	= { .type = NLA_U32 },
+> > > > 
+> > > 
+> > > instead of IFLA_BR_MCAST_QUERIER_STATE + 1, why not move around the patch
+> > > and just use the new attribute name?
+> > > These are uapi, they won't change.
+> > 
+> > I wanted to avoid having a state between the two commits where the new
+> > attributes are already added, but not yet strictly verified. Otherwise
+> > they would present a slightly different UAPI at that one commit boundary
+> > than after this commit.
+> > 
 > 
-> Actually you're using atomic for counting, but using a u32 for the 
-> limit, you should cap it because the count can overflow. Or you should
-> use atomic64 for the counting.
+> That's not really a problem, the attribute is the same.
 > 
+> > This is also not the only place in the kernel where strict_start_type
+> > is specified that way. See e.g. commit c00041cf1cb8 ("net: bridge: Set
+> > strict_start_type at two policies"), even though that seems mostly be
+> > done to turn on strict_start_type preemtively, not in the same series
+> > that adds the new attribute.
+> 
+> Please, just use the new attribute to be more explicit where the strict
+> parsing starts.
 
-Scratch all that, I'm speaking nonsense. Need to refresh my mind. :)
-EVerything's alright. Sorry for the noise.
-
+Ok. I've changed it locally for v5.
