@@ -1,32 +1,30 @@
-Return-Path: <idosch@idosch.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE4DD8230F
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4BF6F82309
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
- messagingengine.com; h=cc:cc:content-type:content-type:date:date
- :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
- :message-id:mime-version:references:reply-to:sender:subject
- :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
- :x-sasl-enc; s=fm2; t=1695728583; x=1695814983; bh=rAbItrXU3DjBe
- WT6zjvCvCs+hZImWYb77PlbQjt+Gtk=; b=GoXutLAlWTYBq2WBbmt9rkR/5Ww66
- o8C17Gcf06+SBEzqQfA3ajzVDLeipwbokWndu6Rwg4GPzMr+nMG28FAOHL/JKpoV
- yjuh6TrHDn7OWEsItqBYSQU3ZzjfmB+aifDxy9Sfw3aBGB+ye58hIYuKlIkZILFi
- BFI0Hb+AJhowyZB8peVw5pmsu9tsR63yr3xQEpkbighP+KIVuhASXp/VyL6B+FH/
- PYe54U/Dyyt0dZu6NsOo3sZ4SXmsQ/NRgUzFprRosDDbEW5HSPmMIRZi/uaBJYdP
- Wrv2MhvhYAhWz3xDevbdmi9glU07EUJ1J66cLZYYkh0ritk8PZCqV9+vQ==
-Date: Tue, 26 Sep 2023 14:42:59 +0300
-From: Ido Schimmel <idosch@idosch.org>
-Message-ID: <ZRLDw45mpeU6tBaK@shredder>
-References: <20230919-fdb_limit-v4-0-39f0293807b8@avm.de>
- <20230919-fdb_limit-v4-5-39f0293807b8@avm.de>
- <cc14cd4a-f3bb-3d6f-5b38-ec73cad32570@blackwall.org>
- <ZQv5aNbgqxCuOKyr@u-jnixdorf.ads.avm.de>
- <50814314-55a3-6cff-2e9e-2abf93fa5f1b@blackwall.org>
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3F4DA40965
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A966C4095E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1695802252; x=1696407052;
+ darn=lists.linux-foundation.org; 
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=NBmOuCvdW9NVL1Xq7Sds9uqW+w+rqXLS8qDFF1herE8=;
+ b=26Ygd3M1Uzh6WVZGuPaGq32XU0TUF+S762qQ49QF8A+1QaMYUlPPBQjpREDcjVKRln
+ A8F+AF9Z2TPPVa5tKZ/xo9Y6ZOUEhxxEgbB8t9y/k1aoR1foA5GCnZ4GYDrbOhQwwFjp
+ F6MjT1llNHNOx3s21+Fvp1UUh4yoxtQYDwitHpSFJ/RqVdYK8f7V8LiUrfAJXxWu63cV
+ FdUGG9RI7ubKs8+FEzKq4aQZB9WozZBPFiQxZXgdL4XcY7zSu77y7rd00137n4Qz6jOq
+ +iDAJf6CPdr2HeGQIiCA6C5CECDvcmBLbyk3N47Y8PA6R5NbwkRsHlZW6JvCltzdSYsw
+ 7YGw==
+Message-ID: <3dccacd8-4249-87f8-690c-6083374dc9d1@blackwall.org>
+Date: Wed, 27 Sep 2023 11:10:50 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <50814314-55a3-6cff-2e9e-2abf93fa5f1b@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next v4 5/6] net: bridge: Add a
- configurable default FDB learning limit
+Content-Language: en-US
+References: <20230927075713.1253681-1-trent.lloyd@canonical.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20230927075713.1253681-1-trent.lloyd@canonical.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH] bridge: MTU auto tuning ignores IFLA_MTU on
+	NEWLINK
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -35,16 +33,46 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Johannes Nixdorf <jnixdorf-oss@avm.de>, bridge@lists.linux-foundation.org, Ido Schimmel <idosch@nvidia.com>, Roopa Prabhu <roopa@nvidia.com>, linux-kernel@vger.kernel.org, Oleksij Rempel <linux@rempel-privat.de>, Vladimir Oltean <vladimir.oltean@nxp.com>, Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, David Ahern <dsahern@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>, "David S. Miller" <davem@davemloft.net>
+To: Trent Lloyd <trent.lloyd@canonical.com>, Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-On Thu, Sep 21, 2023 at 01:19:44PM +0300, Nikolay Aleksandrov wrote:
-> I'm not strongly against, just IMO it is unnecessary. I won't block the set
-> because of this, but it would be nice to get input from others as
-> well. If you can recompile your kernel to set a limit, it should be easier
-> to change your app to set the same limit via netlink, but I'm not familiar
-> with your use case.
+On 9/27/23 10:57, Trent Lloyd wrote:
+> Commit 804b854d374e ("net: bridge: disable bridge MTU auto tuning if it
+> was set manually") disabled auto-tuning of the bridge MTU when the MTU
+> was explicitly set by the user, however that would only happen when the
+> MTU was set after creation. This commit ensures auto-tuning is also
+> disabled when the MTU is set during bridge creation.
+> 
+> Currently when the br_netdev_ops br_change_mtu function is called, the
+> flag BROPT_MTU_SET_BY_USER is set. However this function is only called
+> when the MTU is changed after interface creation and is not called if
+> the MTU is specified during creation with IFLA_MTU (br_dev_newlink).
+> 
+> br_change_mtu also does not get called if the MTU is set to the same
+> value it currently has, which makes it difficult to work around this
+> issue (especially for the default MTU of 1500) as you have to first
+> change the MTU to some other value and then back to the desired value.
+> 
 
-I agree with keeping it out. We don't have it for similar knobs (e.g.,
-MDB limits) and it would create a precedence for other bridge options
-instead of simply using netlink and improving user space applications.
+Yep, I think I also described this in the commit message of my patch.
+
+> Add new selftests to ensure the bridge MTU is handled correctly:
+>   - Bridge created with user-specified MTU (1500)
+>   - Bridge created with user-specified MTU (2000)
+>   - Bridge created without user-specified MTU
+>   - Bridge created with user-specified MTU set after creation (2000)
+> 
+> Regression risk: Any workload which erroneously specified an MTU during
+> creation but accidentally relied upon auto-tuning to a different value
+> may be broken by this change.
+> 
+
+Hmm, you're right. There's a risk of regression. Also it acts 
+differently when set to 1500 as you've mentioned. I think they should 
+act the same, also bridge's fake rtable RTAX_MTU is not set.
+
+> Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2034099
+> Fixes: 804b854d374e ("net: bridge: disable bridge MTU auto tuning if it was set manually")
+> Signed-off-by: Trent Lloyd <trent.lloyd@canonical.com>
+> ---
+
