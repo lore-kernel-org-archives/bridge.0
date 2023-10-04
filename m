@@ -1,21 +1,21 @@
 Return-Path: <gregkh@linuxfoundation.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 107F561479
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9943B6132D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3788404F7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D7F954016B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1696442646;
- bh=Xbjj30rsgR61X1ArDeh7+gS3wOBGatK8pgtYoGGMA50=;
+ s=korg; t=1696443205;
+ bh=/Y4qqHvTqWQMY3wudMHiiIUG/mFmCjdPzcCZb8PyLDc=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=YLBzcnf5PJ0+IYUw3KAwtljNMo/avABgqx96IDRt5S4PUYdC8Aruko+hLEyVY9PvR
- rEFgyau8QgTZXPVvXy8oiUIB4WdkBvgPex79r9ctWZYOSreosmUGuYYw9OuwxNDLrR
- ezhqz5Xd7mkB+rMM4GcR9owLnM64LiBhmwlMrrjc=
+ b=SAc83pbq7G2o9LddZEQxiKsAOZhfa1JPdapmXF9z3sZCKIp1QeQHn7VyQz7twbJF9
+ Hb6udQdZGeUwtrfPdJgqyPlcRh+N8OQKxT7Joq/JnDo2348vYFfbaUHUv+pMVAZxOV
+ xe/eNmJdrOR1e0xfVHjoU5kMj3r+NXVCVOF8/z1Y=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Wed,  4 Oct 2023 19:54:49 +0200
-Message-ID: <20231004175206.335671894@linuxfoundation.org>
-In-Reply-To: <20231004175203.943277832@linuxfoundation.org>
-References: <20231004175203.943277832@linuxfoundation.org>
+Date: Wed,  4 Oct 2023 19:54:07 +0200
+Message-ID: <20231004175220.784507505@linuxfoundation.org>
+In-Reply-To: <20231004175217.404851126@linuxfoundation.org>
+References: <20231004175217.404851126@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 5.15 058/183] net: bridge: use DEV_STATS_INC()
+Subject: [Bridge] [PATCH 6.1 074/259] net: bridge: use DEV_STATS_INC()
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,7 +27,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: stable@vger.kernel.org
 Cc: Sasha Levin <sashal@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>, syzbot <syzkaller@googlegroups.com>, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>
 
-5.15-stable review patch.  If anyone has any objections, please let me know.
+6.1-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -122,7 +122,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 3d69ad5463a9f..011bd3c59da19 100644
+index bd54f17e3c3d8..4e3394a7d7d45 100644
 --- a/net/bridge/br_forward.c
 +++ b/net/bridge/br_forward.c
 @@ -124,7 +124,7 @@ static int deliver_clone(const struct net_bridge_port *prev,
@@ -144,10 +144,10 @@ index 3d69ad5463a9f..011bd3c59da19 100644
  	}
  
 diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 6743c8a0fe8e1..54bfcdf692732 100644
+index 68b3e850bcb9d..6bb272894c960 100644
 --- a/net/bridge/br_input.c
 +++ b/net/bridge/br_input.c
-@@ -146,12 +146,12 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+@@ -164,12 +164,12 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
  			if ((mdst && mdst->host_joined) ||
  			    br_multicast_is_router(brmctx, skb)) {
  				local_rcv = true;
