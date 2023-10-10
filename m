@@ -1,21 +1,30 @@
-Return-Path: <gregkh@linuxfoundation.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF2B9408C8
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 41A6F4019E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1696859493;
- bh=APIMEqMiAeOIRiyQ/SQ00CplohIcuIfXHLjrPZIneWk=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=pjfzOyMLaJ6ljgQzu/kNLywteS2VWZ8Sc+SDppABBaOtnAADBYV8CtkP1XOlQapqM
- 5fTv7f2QpGD8uZemZ2WvCYdyLdrMcXmPJ+SCzkRLsy+x7Lf5JTVx23RPLcEJ55nA/n
- RCzi8Rst9q7qA9cnmd4z5hjwrq69LpIw/p59OwYg=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Mon,  9 Oct 2023 15:05:43 +0200
-Message-ID: <20231009130111.927090456@linuxfoundation.org>
-In-Reply-To: <20231009130111.518916887@linuxfoundation.org>
-References: <20231009130111.518916887@linuxfoundation.org>
+Return-Path: <razor@blackwall.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 43CF96144F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 376E261376
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1696963849; x=1697568649;
+ darn=lists.linux-foundation.org; 
+ h=content-transfer-encoding:in-reply-to:from:content-language
+ :references:cc:to:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=0gwxmekZJHXGMm97urkxFALVTBAcR9EJxHGti0iGF1E=;
+ b=eFcmCUPogmgIm62WVkS4WlBAZtqe9lSMv0IwIP/NQxEBmAscMBDpml3H/84B/me46e
+ QkvUBMSXeT4fpAukiyb/9asV9xanz/d8zEvwFin5pNqO1jvmYkY069Ed1Hcl8/cNXC6q
+ j5fmm3fK6XlL3NVJTG/OYlpbrdQasRqJRKktSzZFzMnBjV7PvFLxHLSOQXdomyoN+NrR
+ MW1bHs898PjQlcbH7FYT/2HUZ7zXvhEc3h6KlKHrKhSPQRDjUIlb4cq8RKZuzLz0jI8E
+ yVZC8FhFPOwNr3qmlP0LCjE0XnReBmDyxpL8Shz4eOtmgnvgmsDWQEeAKz0rH7gBLNx/
+ nGpA==
+Message-ID: <4bf848f2-94a6-d941-645b-42309def1900@blackwall.org>
+Date: Tue, 10 Oct 2023 21:50:42 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [Bridge] [PATCH 4.19 11/91] net: bridge: use DEV_STATS_INC()
+References: <20231009100618.2911374-1-amcohen@nvidia.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20231009100618.2911374-1-amcohen@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: Re: [Bridge] [PATCH net-next 00/11] Extend VXLAN driver to support
+ FDB flushing
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,146 +33,65 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org, patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>, syzbot <syzkaller@googlegroups.com>, Roopa Prabhu <roopa@nvidia.com>, Paolo Abeni <pabeni@redhat.com>
+To: Amit Cohen <amcohen@nvidia.com>, netdev@vger.kernel.org
+Cc: mlxsw@nvidia.com, dsahern@kernel.org, bridge@lists.linux-foundation.org, idosch@nvidia.com, linux-kselftest@vger.kernel.org, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, shuah@kernel.org, davem@davemloft.net
 
-4.19-stable review patch.  If anyone has any objections, please let me know.
+On 10/9/23 13:06, Amit Cohen wrote:
+> The merge commit 92716869375b ("Merge branch 'br-flush-filtering'") added
+> support for FDB flushing in bridge driver. Extend VXLAN driver to support
+> FDB flushing also. Add support for filtering by fields which are relevant
+> for VXLAN FDBs:
+> * Source VNI
+> * Nexthop ID
+> * 'router' flag
+> * Destination VNI
+> * Destination Port
+> * Destination IP
+> 
+> Without this set, flush for VXLAN device fails:
+> $ bridge fdb flush dev vx10
+> RTNETLINK answers: Operation not supported
+> 
+> With this set, such flush works with the relevant arguments, for example:
+> $ bridge fdb flush dev vx10 vni 5000 dst 193.2.2.1
+> < flush all vx10 entries with VNI 5000 and destination IP 193.2.2.1>
+> 
+> Some preparations are required, handle them before adding flushing support
+> in VXLAN driver. See more details in commit messages.
+> 
+> Patch set overview:
+> Patch #1 prepares flush policy to be used by VXLAN driver
+> Patches #2-#3 are preparations in VXLAN driver
+> Patch #4 adds an initial support for flushing in VXLAN driver
+> Patches #5-#9 add support for filtering by several attributes
+> Patch #10 adds a test for FDB flush with VXLAN
+> Patch #11 extends the test to check FDB flush with bridge
+> 
+> Amit Cohen (11):
+>    net: Handle bulk delete policy in bridge driver
+>    vxlan: vxlan_core: Make vxlan_flush() more generic for future use
+>    vxlan: vxlan_core: Do not skip default entry in vxlan_flush() by
+>      default
+>    vxlan: vxlan_core: Add support for FDB flush
+>    vxlan: vxlan_core: Support FDB flushing by source VNI
+>    vxlan: vxlan_core: Support FDB flushing by nexthop ID
+>    vxlan: vxlan_core: Support FDB flushing by destination VNI
+>    vxlan: vxlan_core: Support FDB flushing by destination port
+>    vxlan: vxlan_core: Support FDB flushing by destination IP
+>    selftests: Add test cases for FDB flush with VXLAN device
+>    selftests: fdb_flush: Add test cases for FDB flush with bridge device
+> 
+>   drivers/net/vxlan/vxlan_core.c           | 207 +++++-
+>   include/linux/netdevice.h                |   8 +-
+>   net/bridge/br_fdb.c                      |  29 +-
+>   net/bridge/br_private.h                  |   3 +-
+>   net/core/rtnetlink.c                     |  27 +-
+>   tools/testing/selftests/net/Makefile     |   1 +
+>   tools/testing/selftests/net/fdb_flush.sh | 812 +++++++++++++++++++++++
+>   7 files changed, 1049 insertions(+), 38 deletions(-)
+>   create mode 100755 tools/testing/selftests/net/fdb_flush.sh
+> 
 
-------------------
-
-From: Eric Dumazet <edumazet@google.com>
-
-[ Upstream commit 44bdb313da57322c9b3c108eb66981c6ec6509f4 ]
-
-syzbot/KCSAN reported data-races in br_handle_frame_finish() [1]
-This function can run from multiple cpus without mutual exclusion.
-
-Adopt SMP safe DEV_STATS_INC() to update dev->stats fields.
-
-Handles updates to dev->stats.tx_dropped while we are at it.
-
-[1]
-BUG: KCSAN: data-race in br_handle_frame_finish / br_handle_frame_finish
-
-read-write to 0xffff8881374b2178 of 8 bytes by interrupt on cpu 1:
-br_handle_frame_finish+0xd4f/0xef0 net/bridge/br_input.c:189
-br_nf_hook_thresh+0x1ed/0x220
-br_nf_pre_routing_finish_ipv6+0x50f/0x540
-NF_HOOK include/linux/netfilter.h:304 [inline]
-br_nf_pre_routing_ipv6+0x1e3/0x2a0 net/bridge/br_netfilter_ipv6.c:178
-br_nf_pre_routing+0x526/0xba0 net/bridge/br_netfilter_hooks.c:508
-nf_hook_entry_hookfn include/linux/netfilter.h:144 [inline]
-nf_hook_bridge_pre net/bridge/br_input.c:272 [inline]
-br_handle_frame+0x4c9/0x940 net/bridge/br_input.c:417
-__netif_receive_skb_core+0xa8a/0x21e0 net/core/dev.c:5417
-__netif_receive_skb_one_core net/core/dev.c:5521 [inline]
-__netif_receive_skb+0x57/0x1b0 net/core/dev.c:5637
-process_backlog+0x21f/0x380 net/core/dev.c:5965
-__napi_poll+0x60/0x3b0 net/core/dev.c:6527
-napi_poll net/core/dev.c:6594 [inline]
-net_rx_action+0x32b/0x750 net/core/dev.c:6727
-__do_softirq+0xc1/0x265 kernel/softirq.c:553
-run_ksoftirqd+0x17/0x20 kernel/softirq.c:921
-smpboot_thread_fn+0x30a/0x4a0 kernel/smpboot.c:164
-kthread+0x1d7/0x210 kernel/kthread.c:388
-ret_from_fork+0x48/0x60 arch/x86/kernel/process.c:147
-ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
-
-read-write to 0xffff8881374b2178 of 8 bytes by interrupt on cpu 0:
-br_handle_frame_finish+0xd4f/0xef0 net/bridge/br_input.c:189
-br_nf_hook_thresh+0x1ed/0x220
-br_nf_pre_routing_finish_ipv6+0x50f/0x540
-NF_HOOK include/linux/netfilter.h:304 [inline]
-br_nf_pre_routing_ipv6+0x1e3/0x2a0 net/bridge/br_netfilter_ipv6.c:178
-br_nf_pre_routing+0x526/0xba0 net/bridge/br_netfilter_hooks.c:508
-nf_hook_entry_hookfn include/linux/netfilter.h:144 [inline]
-nf_hook_bridge_pre net/bridge/br_input.c:272 [inline]
-br_handle_frame+0x4c9/0x940 net/bridge/br_input.c:417
-__netif_receive_skb_core+0xa8a/0x21e0 net/core/dev.c:5417
-__netif_receive_skb_one_core net/core/dev.c:5521 [inline]
-__netif_receive_skb+0x57/0x1b0 net/core/dev.c:5637
-process_backlog+0x21f/0x380 net/core/dev.c:5965
-__napi_poll+0x60/0x3b0 net/core/dev.c:6527
-napi_poll net/core/dev.c:6594 [inline]
-net_rx_action+0x32b/0x750 net/core/dev.c:6727
-__do_softirq+0xc1/0x265 kernel/softirq.c:553
-do_softirq+0x5e/0x90 kernel/softirq.c:454
-__local_bh_enable_ip+0x64/0x70 kernel/softirq.c:381
-__raw_spin_unlock_bh include/linux/spinlock_api_smp.h:167 [inline]
-_raw_spin_unlock_bh+0x36/0x40 kernel/locking/spinlock.c:210
-spin_unlock_bh include/linux/spinlock.h:396 [inline]
-batadv_tt_local_purge+0x1a8/0x1f0 net/batman-adv/translation-table.c:1356
-batadv_tt_purge+0x2b/0x630 net/batman-adv/translation-table.c:3560
-process_one_work kernel/workqueue.c:2630 [inline]
-process_scheduled_works+0x5b8/0xa30 kernel/workqueue.c:2703
-worker_thread+0x525/0x730 kernel/workqueue.c:2784
-kthread+0x1d7/0x210 kernel/kthread.c:388
-ret_from_fork+0x48/0x60 arch/x86/kernel/process.c:147
-ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
-
-value changed: 0x00000000000d7190 -> 0x00000000000d7191
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 14848 Comm: kworker/u4:11 Not tainted 6.6.0-rc1-syzkaller-00236-gad8a69f361b9 #0
-
-Fixes: 1c29fc4989bc ("[BRIDGE]: keep track of received multicast packets")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: bridge@lists.linux-foundation.org
+Nice use of the flush api. :)
+The set looks good to me. For the set:
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://lore.kernel.org/r/20230918091351.1356153-1-edumazet@google.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/bridge/br_forward.c | 4 ++--
- net/bridge/br_input.c   | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 48ddc60b4fbde..c07a47d65c398 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -122,7 +122,7 @@ static int deliver_clone(const struct net_bridge_port *prev,
- 
- 	skb = skb_clone(skb, GFP_ATOMIC);
- 	if (!skb) {
--		dev->stats.tx_dropped++;
-+		DEV_STATS_INC(dev, tx_dropped);
- 		return -ENOMEM;
- 	}
- 
-@@ -261,7 +261,7 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
- 
- 	skb = skb_copy(skb, GFP_ATOMIC);
- 	if (!skb) {
--		dev->stats.tx_dropped++;
-+		DEV_STATS_INC(dev, tx_dropped);
- 		return;
- 	}
- 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 14c2fdc268eac..f3938337ff874 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -146,12 +146,12 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 			if ((mdst && mdst->host_joined) ||
- 			    br_multicast_is_router(br)) {
- 				local_rcv = true;
--				br->dev->stats.multicast++;
-+				DEV_STATS_INC(br->dev, multicast);
- 			}
- 			mcast_hit = true;
- 		} else {
- 			local_rcv = true;
--			br->dev->stats.multicast++;
-+			DEV_STATS_INC(br->dev, multicast);
- 		}
- 		break;
- 	case BR_PKT_UNICAST:
--- 
-2.40.1
-
-
-
