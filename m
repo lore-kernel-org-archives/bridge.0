@@ -1,18 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 86CAD611E2
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B1D0F611B1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 500F5611B1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 54ACF611CC
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HG6S/YlM6B7fuZkFixTgTYjJvq49oyFb/MCWinGwDBk=;
- b=NdPkxITKt8NUWtUExG3b5oYT9ArpjhdBZSsL+Zp9jwZnRX2RkNmIrTGDs0uBOjCb5wdDZM7vcfd4dH658LmL7SOVWkMzND1Esl0rigizVEf/h3kixMtenQxwdQh3Nu4LBuK46lP/YT8ixdsAg0vFSgRssPSYGxuVsIW5JnZcSoodg07KMr6sOZQXfezrbAh0VibqThzNC6iw3kUY3vhn/bIhFgzGa52NrfTOsvDlg5hcadYX9bYBpl52RT9P4LDbuMlSUfNmFIuEPuBf8Ww8mQdX/7GEJquuOZ224Oxl9UT7dCtMWtJOIUvzfXEiizN2fWfId0mOEGlc0oN3TMk4Ug==
+ bh=C2lx4a/YsnaaU6/p/tzyWjrkHfRHP9a5+qb6DI6gwiY=;
+ b=B1NOxvt8BUgAcewDDgz752ksdrfk1t5hNLmAo1D/UCMqL9/2hHDy5yxwrgxGCpIwP+n6cta0APT9j/QT3Sqr6Bop2vUJxE8hg7mR7jlzndMyaLO8RRQVMLMM8lfFi2zUCbXQYuDxh8gUhBDrbaqxwN1lN8WmY7wuXxyaM0/qt1UNVNZTVswtbBHZtuLzicjlsb0u48TYPhW8K7AjEfAvi9+fssDcNJrKhyNMV7+jJdUD/ykQmQABFIKJ+Ohi3HyTifj4zIeFDror+yL30DYV5Gizn1LpUBl1dVs42auNpbDJAzSE3NSSbfjVH1BUHK8PVAU1fMLL0NmLvuumechAWA==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Mon, 16 Oct 2023 16:12:46 +0300
-Message-ID: <20231016131259.3302298-1-idosch@nvidia.com>
+Date: Mon, 16 Oct 2023 16:12:48 +0300
+Message-ID: <20231016131259.3302298-3-idosch@nvidia.com>
+In-Reply-To: <20231016131259.3302298-1-idosch@nvidia.com>
+References: <20231016131259.3302298-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 00/13] Add MDB get support
+Subject: [Bridge] [PATCH net-next 02/13] bridge: mcast: Account for missing
+	attributes
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,58 +27,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-This patchset adds MDB get support, allowing user space to request a
-single MDB entry to be retrieved instead of dumping the entire MDB.
-Support is added in both the bridge and VXLAN drivers.
+The 'MDBA_MDB' and 'MDBA_MDB_ENTRY' nest attributes are not accounted
+for when calculating the size of MDB notifications. Add them along with
+comments for existing attributes.
 
-Patches #1-#6 are small preparations in both drivers.
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+---
+ net/bridge/br_mdb.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-Patches #7-#8 add the required uAPI attributes for the new functionality
-and the MDB get net device operation (NDO), respectively.
-
-Patches #9-#10 implement the MDB get NDO in both drivers.
-
-Patch #11 registers a handler for RTM_GETMDB messages in rtnetlink core.
-The handler derives the net device from the ifindex specified in the
-ancillary header and invokes its MDB get NDO.
-
-Patches #12-#13 add selftests by converting tests that use MDB dump with
-grep to the new MDB get functionality.
-
-iproute2 changes can be found here [1].
-
-[1] https://github.com/idosch/iproute2/tree/submit/mdb_get_v1
-
-Ido Schimmel (13):
-  bridge: mcast: Dump MDB entries even when snooping is disabled
-  bridge: mcast: Account for missing attributes
-  bridge: mcast: Factor out a helper for PG entry size calculation
-  bridge: mcast: Rename MDB entry get function
-  vxlan: mdb: Adjust function arguments
-  vxlan: mdb: Factor out a helper for remote entry size calculation
-  bridge: add MDB get uAPI attributes
-  net: Add MDB get device operation
-  bridge: mcast: Add MDB get support
-  vxlan: mdb: Add MDB get support
-  rtnetlink: Add MDB get support
-  selftests: bridge_mdb: Use MDB get instead of dump
-  selftests: vxlan_mdb: Use MDB get instead of dump
-
- drivers/net/vxlan/vxlan_core.c                |   1 +
- drivers/net/vxlan/vxlan_mdb.c                 | 188 ++++++++++++++++--
- drivers/net/vxlan/vxlan_private.h             |   2 +
- include/linux/netdevice.h                     |   4 +
- include/uapi/linux/if_bridge.h                |   8 +
- net/bridge/br_device.c                        |   3 +-
- net/bridge/br_input.c                         |   2 +-
- net/bridge/br_mdb.c                           | 180 ++++++++++++++++-
- net/bridge/br_multicast.c                     |   5 +-
- net/bridge/br_private.h                       |  19 +-
- net/core/rtnetlink.c                          |  89 ++++++++-
- .../selftests/net/forwarding/bridge_mdb.sh    | 184 +++++++----------
- tools/testing/selftests/net/test_vxlan_mdb.sh | 108 +++++-----
- 13 files changed, 594 insertions(+), 199 deletions(-)
-
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index fb58bb1b60e8..08de94bffc12 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -452,11 +452,18 @@ static int nlmsg_populate_mdb_fill(struct sk_buff *skb,
+ 
+ static size_t rtnl_mdb_nlmsg_size(struct net_bridge_port_group *pg)
+ {
+-	size_t nlmsg_size = NLMSG_ALIGN(sizeof(struct br_port_msg)) +
+-			    nla_total_size(sizeof(struct br_mdb_entry)) +
+-			    nla_total_size(sizeof(u32));
+ 	struct net_bridge_group_src *ent;
+-	size_t addr_size = 0;
++	size_t nlmsg_size, addr_size = 0;
++
++	nlmsg_size = NLMSG_ALIGN(sizeof(struct br_port_msg)) +
++		     /* MDBA_MDB */
++		     nla_total_size(0) +
++		     /* MDBA_MDB_ENTRY */
++		     nla_total_size(0) +
++		     /* MDBA_MDB_ENTRY_INFO */
++		     nla_total_size(sizeof(struct br_mdb_entry)) +
++		     /* MDBA_MDB_EATTR_TIMER */
++		     nla_total_size(sizeof(u32));
+ 
+ 	if (!pg)
+ 		goto out;
 -- 
 2.40.1
 
