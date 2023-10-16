@@ -1,21 +1,29 @@
-Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3EC59611D3
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3E654611E2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WmxpLyIqP7Rsru/cXevrGDE3e/66SDRvoqRLeQk0CxI=;
- b=Y9m2CAiJe4LPMj1CZcFUfc4YEiNJKvtETOU5N0wUyli9GCutJLtOD/0mEMF9D3gv7tm2jnUqNjQNj8jDqvjBdiIEal1BZzbfCZSACSvInZkd4tCGWRl9hzI9z1AbUkZHi0qarnW8IGHl6jGnlccXsHuJRXNQ/FB+Zw4sfIXaP4kw8+YqMg4rXjVuAXbOOGui6EQZ5/rBrjxXRrIQPKt7IE/uLJPZNpwLoO4wcJV2xMf6o4MxfZQDWEvqPHnqlnpGCtG8vC8J9BR1i1j3JJPJPncbspiNOTMOZNE+nSquIjvwVqmumWsw04OvHuk2vO0OISG4VLlfJEpZiSmQCAh6eg==
-From: Ido Schimmel <idosch@nvidia.com>
-Date: Mon, 16 Oct 2023 16:12:59 +0300
-Message-ID: <20231016131259.3302298-14-idosch@nvidia.com>
-In-Reply-To: <20231016131259.3302298-1-idosch@nvidia.com>
-References: <20231016131259.3302298-1-idosch@nvidia.com>
+Return-Path: <jnixdorf-oss@avm.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 288E581E89
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A1C8581E7B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+ t=1697463931; bh=EPObz722Vs1eIc36kzRf0JZ++mCdUwdHHlHoaN/c4AI=;
+ h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+ b=T5WbMJYkpioGZNFYPZN8MWGcGIZTuYNARpLc8sz40pIWruBTOTMwTh3juHSRsFwBs
+ v7/RHAVBGs8JQpF3jKx6dqycAwH0KmshxX4W2Y4tG6jZONYDpo5EsoEXHtYwaPEikv
+ 0lJoicK7nGvUR3/SU/hwgzgxsdE7omSchYNnsR7U=
+From: Johannes Nixdorf <jnixdorf-oss@avm.de>
+Date: Mon, 16 Oct 2023 15:27:22 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 13/13] selftests: vxlan_mdb: Use MDB get
-	instead of dump
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20231016-fdb_limit-v5-3-32cddff87758@avm.de>
+References: <20231016-fdb_limit-v5-0-32cddff87758@avm.de>
+In-Reply-To: <20231016-fdb_limit-v5-0-32cddff87758@avm.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1697462840; l=3678;
+ i=jnixdorf-oss@avm.de; s=20230906; h=from:subject:message-id;
+ bh=EPObz722Vs1eIc36kzRf0JZ++mCdUwdHHlHoaN/c4AI=;
+ b=TeQovn3tgBHG/nrdzrgh/219G9pnG7RnGC7yRwAvA73HuUcYct6vowXq2mW9EuGPiqiwZ7wDZ
+ v4sY2Jg8FmcDaIvmIr1EtrWT8d0laDYkXAI2Je5MngH1G/dJWI2PW8v
+X-Developer-Key: i=jnixdorf-oss@avm.de; a=ed25519;
+ pk=KMraV4q7ANHRrwjf9EVhvU346JsqGGNSbPKeNILOQfo=
+Subject: [Bridge] [PATCH net-next v5 3/5] net: bridge: Add netlink knobs for
+ number / max learned FDB entries
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,284 +32,101 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
-Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Johannes Nixdorf <jnixdorf-oss@avm.de>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-Test the new MDB get functionality by converting dump and grep to MDB
-get.
+The previous patch added accounting and a limit for the number of
+dynamically learned FDB entries per bridge. However it did not provide
+means to actually configure those bounds or read back the count. This
+patch does that.
 
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Two new netlink attributes are added for the accounting and limit of
+dynamically learned FDB entries:
+ - IFLA_BR_FDB_N_LEARNED (RO) for the number of entries accounted for
+   a single bridge.
+ - IFLA_BR_FDB_MAX_LEARNED (RW) for the configured limit of entries for
+   the bridge.
+
+The new attributes are used like this:
+
+ # ip link add name br up type bridge fdb_max_learned 256
+ # ip link add name v1 up master br type veth peer v2
+ # ip link set up dev v2
+ # mausezahn -a rand -c 1024 v2
+ 0.01 seconds (90877 packets per second
+ # bridge fdb | grep -v permanent | wc -l
+ 256
+ # ip -d link show dev br
+ 13: br: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 [...]
+     [...] fdb_n_learned 256 fdb_max_learned 256
+
+Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 ---
- tools/testing/selftests/net/test_vxlan_mdb.sh | 108 +++++++++---------
- 1 file changed, 54 insertions(+), 54 deletions(-)
+ include/uapi/linux/if_link.h |  2 ++
+ net/bridge/br_netlink.c      | 15 ++++++++++++++-
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/test_vxlan_mdb.sh b/tools/testing/selftests/net/test_vxlan_mdb.sh
-index 31e5f0f8859d..6e996f8063cd 100755
---- a/tools/testing/selftests/net/test_vxlan_mdb.sh
-+++ b/tools/testing/selftests/net/test_vxlan_mdb.sh
-@@ -337,62 +337,62 @@ basic_common()
- 	# Basic add, replace and delete behavior.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 $grp_key permanent dst $vtep_ip src_vni 10010"
- 	log_test $? 0 "MDB entry addition"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010"
- 	log_test $? 0 "MDB entry presence after addition"
+diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
+index ce3117df9cec..0486f314c176 100644
+--- a/include/uapi/linux/if_link.h
++++ b/include/uapi/linux/if_link.h
+@@ -510,6 +510,8 @@ enum {
+ 	IFLA_BR_VLAN_STATS_PER_PORT,
+ 	IFLA_BR_MULTI_BOOLOPT,
+ 	IFLA_BR_MCAST_QUERIER_STATE,
++	IFLA_BR_FDB_N_LEARNED,
++	IFLA_BR_FDB_MAX_LEARNED,
+ 	__IFLA_BR_MAX,
+ };
  
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 $grp_key permanent dst $vtep_ip src_vni 10010"
- 	log_test $? 0 "MDB entry replacement"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010"
- 	log_test $? 0 "MDB entry presence after replacement"
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 10f0d33d8ccf..0c3cf6e6dea2 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1265,6 +1265,8 @@ static const struct nla_policy br_policy[IFLA_BR_MAX + 1] = {
+ 	[IFLA_BR_VLAN_STATS_PER_PORT] = { .type = NLA_U8 },
+ 	[IFLA_BR_MULTI_BOOLOPT] =
+ 		NLA_POLICY_EXACT_LEN(sizeof(struct br_boolopt_multi)),
++	[IFLA_BR_FDB_N_LEARNED] = { .type = NLA_REJECT },
++	[IFLA_BR_FDB_MAX_LEARNED] = { .type = NLA_U32 },
+ };
  
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 $grp_key dst $vtep_ip src_vni 10010"
- 	log_test $? 0 "MDB entry deletion"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\""
--	log_test $? 1 "MDB entry presence after deletion"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010"
-+	log_test $? 254 "MDB entry presence after deletion"
+ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+@@ -1539,6 +1541,12 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 			return err;
+ 	}
  
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 $grp_key dst $vtep_ip src_vni 10010"
- 	log_test $? 255 "Non-existent MDB entry deletion"
++	if (data[IFLA_BR_FDB_MAX_LEARNED]) {
++		u32 val = nla_get_u32(data[IFLA_BR_FDB_MAX_LEARNED]);
++
++		WRITE_ONCE(br->fdb_max_learned, val);
++	}
++
+ 	return 0;
+ }
  
- 	# Default protocol and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 $grp_key permanent dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \"proto static\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \"proto static\""
- 	log_test $? 0 "MDB entry default protocol"
+@@ -1593,6 +1601,8 @@ static size_t br_get_size(const struct net_device *brdev)
+ 	       nla_total_size_64bit(sizeof(u64)) + /* IFLA_BR_TOPOLOGY_CHANGE_TIMER */
+ 	       nla_total_size_64bit(sizeof(u64)) + /* IFLA_BR_GC_TIMER */
+ 	       nla_total_size(ETH_ALEN) +       /* IFLA_BR_GROUP_ADDR */
++	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_FDB_N_LEARNED */
++	       nla_total_size(sizeof(u32)) +    /* IFLA_BR_FDB_MAX_LEARNED */
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_ROUTER */
+ 	       nla_total_size(sizeof(u8)) +     /* IFLA_BR_MCAST_SNOOPING */
+@@ -1668,7 +1678,10 @@ static int br_fill_info(struct sk_buff *skb, const struct net_device *brdev)
+ 	    nla_put_u8(skb, IFLA_BR_TOPOLOGY_CHANGE_DETECTED,
+ 		       br->topology_change_detected) ||
+ 	    nla_put(skb, IFLA_BR_GROUP_ADDR, ETH_ALEN, br->group_addr) ||
+-	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm))
++	    nla_put(skb, IFLA_BR_MULTI_BOOLOPT, sizeof(bm), &bm) ||
++	    nla_put_u32(skb, IFLA_BR_FDB_N_LEARNED,
++			atomic_read(&br->fdb_n_learned)) ||
++	    nla_put_u32(skb, IFLA_BR_FDB_MAX_LEARNED, br->fdb_max_learned))
+ 		return -EMSGSIZE;
  
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 $grp_key permanent proto 123 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \"proto 123\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \"proto 123\""
- 	log_test $? 0 "MDB entry protocol replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 $grp_key dst $vtep_ip src_vni 10010"
- 
- 	# Default destination port and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 $grp_key permanent dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \" dst_port \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \" dst_port \""
- 	log_test $? 1 "MDB entry default destination port"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 $grp_key permanent dst $vtep_ip dst_port 1234 src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \"dst_port 1234\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \"dst_port 1234\""
- 	log_test $? 0 "MDB entry destination port replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 $grp_key dst $vtep_ip src_vni 10010"
- 
- 	# Default destination VNI and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 $grp_key permanent dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \" vni \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \" vni \""
- 	log_test $? 1 "MDB entry default destination VNI"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 $grp_key permanent dst $vtep_ip vni 1234 src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \"vni 1234\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \"vni 1234\""
- 	log_test $? 0 "MDB entry destination VNI replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 $grp_key dst $vtep_ip src_vni 10010"
- 
- 	# Default outgoing interface and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 $grp_key permanent dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \" via \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \" via \""
- 	log_test $? 1 "MDB entry default outgoing interface"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 $grp_key permanent dst $vtep_ip src_vni 10010 via veth0"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep \"$grp_key\" | grep \"via veth0\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 $grp_key src_vni 10010 | grep \"via veth0\""
- 	log_test $? 0 "MDB entry outgoing interface replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 $grp_key dst $vtep_ip src_vni 10010"
-@@ -550,127 +550,127 @@ star_g_common()
- 	# Basic add, replace and delete behavior.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010"
- 	log_test $? 0 "(*, G) MDB entry addition with source list"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010"
- 	log_test $? 0 "(*, G) MDB entry presence after addition"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry presence after addition"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010"
- 	log_test $? 0 "(*, G) MDB entry replacement with source list"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010"
- 	log_test $? 0 "(*, G) MDB entry presence after replacement"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry presence after replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp dst $vtep_ip src_vni 10010"
- 	log_test $? 0 "(*, G) MDB entry deletion"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \""
--	log_test $? 1 "(*, G) MDB entry presence after deletion"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\""
--	log_test $? 1 "(S, G) MDB entry presence after deletion"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010"
-+	log_test $? 254 "(*, G) MDB entry presence after deletion"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010"
-+	log_test $? 254 "(S, G) MDB entry presence after deletion"
- 
- 	# Default filter mode and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp permanent dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep exclude"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep exclude"
- 	log_test $? 0 "(*, G) MDB entry default filter mode"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode include source_list $src1 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep include"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep include"
- 	log_test $? 0 "(*, G) MDB entry after replacing filter mode to \"include\""
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry after replacing filter mode to \"include\""
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\" | grep blocked"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep blocked"
- 	log_test $? 1 "\"blocked\" flag after replacing filter mode to \"include\""
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep exclude"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep exclude"
- 	log_test $? 0 "(*, G) MDB entry after replacing filter mode to \"exclude\""
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grep grp $grp src $src1 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry after replacing filter mode to \"exclude\""
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\" | grep blocked"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep blocked"
- 	log_test $? 0 "\"blocked\" flag after replacing filter mode to \"exclude\""
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp dst $vtep_ip src_vni 10010"
- 
- 	# Default source list and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp permanent dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep source_list"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep source_list"
- 	log_test $? 1 "(*, G) MDB entry default source list"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1,$src2,$src3 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry of 1st source after replacing source list"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src2\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src2 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry of 2nd source after replacing source list"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src3\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src3 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry of 3rd source after replacing source list"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1,$src3 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src1\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry of 1st source after removing source"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src2\""
--	log_test $? 1 "(S, G) MDB entry of 2nd source after removing source"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \"src $src3\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src2 src_vni 10010"
-+	log_test $? 254 "(S, G) MDB entry of 2nd source after removing source"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src3 src_vni 10010"
- 	log_test $? 0 "(S, G) MDB entry of 3rd source after removing source"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp dst $vtep_ip src_vni 10010"
- 
- 	# Default protocol and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \"proto static\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \"proto static\""
- 	log_test $? 0 "(*, G) MDB entry default protocol"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \"proto static\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \"proto static\""
- 	log_test $? 0 "(S, G) MDB entry default protocol"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 proto bgp dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \"proto bgp\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \"proto bgp\""
- 	log_test $? 0 "(*, G) MDB entry protocol after replacement"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \"proto bgp\""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \"proto bgp\""
- 	log_test $? 0 "(S, G) MDB entry protocol after replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp dst $vtep_ip src_vni 10010"
- 
- 	# Default destination port and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \" dst_port \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \" dst_port \""
- 	log_test $? 1 "(*, G) MDB entry default destination port"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \" dst_port \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \" dst_port \""
- 	log_test $? 1 "(S, G) MDB entry default destination port"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip dst_port 1234 src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \" dst_port 1234 \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \" dst_port 1234 \""
- 	log_test $? 0 "(*, G) MDB entry destination port after replacement"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \" dst_port 1234 \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \" dst_port 1234 \""
- 	log_test $? 0 "(S, G) MDB entry destination port after replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp dst $vtep_ip src_vni 10010"
- 
- 	# Default destination VNI and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \" vni \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \" vni \""
- 	log_test $? 1 "(*, G) MDB entry default destination VNI"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \" vni \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \" vni \""
- 	log_test $? 1 "(S, G) MDB entry default destination VNI"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip vni 1234 src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \" vni 1234 \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \" vni 1234 \""
- 	log_test $? 0 "(*, G) MDB entry destination VNI after replacement"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \" vni 1234 \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \" vni 1234 \""
- 	log_test $? 0 "(S, G) MDB entry destination VNI after replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp dst $vtep_ip src_vni 10010"
- 
- 	# Default outgoing interface and replacement.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \" via \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \" via \""
- 	log_test $? 1 "(*, G) MDB entry default outgoing interface"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \" via \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \" via \""
- 	log_test $? 1 "(S, G) MDB entry default outgoing interface"
- 
- 	run_cmd "bridge -n $ns1 mdb replace dev vx0 port vx0 grp $grp permanent filter_mode exclude source_list $src1 dst $vtep_ip src_vni 10010 via veth0"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep -v \" src \" | grep \" via veth0 \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src_vni 10010 | grep \" via veth0 \""
- 	log_test $? 0 "(*, G) MDB entry outgoing interface after replacement"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep \" src \" | grep \" via veth0 \""
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src1 src_vni 10010 | grep \" via veth0 \""
- 	log_test $? 0 "(S, G) MDB entry outgoing interface after replacement"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp dst $vtep_ip src_vni 10010"
-@@ -772,7 +772,7 @@ sg_common()
- 
- 	# Default filter mode.
- 	run_cmd "bridge -n $ns1 mdb add dev vx0 port vx0 grp $grp src $src permanent dst $vtep_ip src_vni 10010"
--	run_cmd "bridge -n $ns1 -d -s mdb show dev vx0 | grep $grp | grep include"
-+	run_cmd "bridge -n $ns1 -d -s mdb get dev vx0 grp $grp src $src src_vni 10010 | grep include"
- 	log_test $? 0 "(S, G) MDB entry default filter mode"
- 
- 	run_cmd "bridge -n $ns1 mdb del dev vx0 port vx0 grp $grp src $src permanent dst $vtep_ip src_vni 10010"
-@@ -2296,9 +2296,9 @@ if [ ! -x "$(command -v jq)" ]; then
- 	exit $ksft_skip
- fi
- 
--bridge mdb help 2>&1 | grep -q "src_vni"
-+bridge mdb help 2>&1 | grep -q "get"
- if [ $? -ne 0 ]; then
--   echo "SKIP: iproute2 bridge too old, missing VXLAN MDB support"
-+   echo "SKIP: iproute2 bridge too old, missing VXLAN MDB get support"
-    exit $ksft_skip
- fi
- 
+ #ifdef CONFIG_BRIDGE_VLAN_FILTERING
+
 -- 
-2.40.1
+2.42.0
 
