@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 16FC740921
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F374B408EC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C1A9408EC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 924BE40965
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gfHz9A1EjkSmiPWIWHhNnY5h/JaToGDWRgl4zJ1e234=;
- b=Gbn4h+Wblh+75U0UG44iSoE8mXzNcJB0CjlCTVJrD3/uRwS9dH9od5756oYuveyoHOVm/5KE0BeqbKkMtTLFY2Pl3V/kK5tkKdxoXCinhYQ/eyrxPVVl+YHUllgzdWxpW4TzrxoaCWgpFozZzxVF7HihVDcm/hqhV0TaFu05P0SAxXs4jmTrvXGGXhZn8lVzkax5zsSJHHwH3FoyiwzOUsrBfPu/3Pm7fZFOJqGW0pAzhWDocKld5WvFDho/g/PNlhVZl6oXpFmaeFQe8Sj+FlevjJLLme6s3uAmHwJW/hpXKLDJxrVpN5kxoPvSEsKFCmwjP3uA5d8AIGNU6IfcgQ==
+ bh=Kvn98rfcbAc2Va2VU7W+Q2Eo0H1y6sr9aaANUCjT7Lk=;
+ b=Lnx3Fkk3g4vZ0D4x+lNHaSYDZULDPoeLcq56uXC2ztCM740zpB9chtlB7oukcKqhozAUThNml3ZSe9zRRwc3GRASyfxyp6RhlEfzfGvreqGs3pdGmjSQHwWYp3PIqtpwKmd+F61rscClXuPbvrEiN0XQ5XqIb2Pp0pw0RQK+/YCK7ICrT5XY0JnBAI0fNhkYoMTWhY8yHIxNNAKbKgcv7KYgbEx1+iDuo6J1ciOYMvSAzBasqTIkYZ4tCVjTGPOymGVfCyHoBYZjW6SvBx3BCKSN7gxn73jyukBk4S47+kAiB/sgxDQLfKUnbtq0LZPSgz+0wfUi65DSuzY9am3NuQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Mon, 16 Oct 2023 16:12:49 +0300
-Message-ID: <20231016131259.3302298-4-idosch@nvidia.com>
+Date: Mon, 16 Oct 2023 16:12:50 +0300
+Message-ID: <20231016131259.3302298-5-idosch@nvidia.com>
 In-Reply-To: <20231016131259.3302298-1-idosch@nvidia.com>
 References: <20231016131259.3302298-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 03/13] bridge: mcast: Factor out a helper
-	for PG entry size calculation
+Subject: [Bridge] [PATCH net-next 04/13] bridge: mcast: Rename MDB entry get
+	function
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,67 +27,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Currently, netlink notifications are sent for individual port group
-entries and not for the entire MDB entry itself.
+The current name is going to conflict with the upcoming net device
+operation for the MDB get operation.
 
-Subsequent patches are going to add MDB get support which will require
-the bridge driver to reply with an entire MDB entry.
-
-Therefore, as a preparation, factor out an helper to calculate the size
-of an individual port group entry. When determining the size of the
-reply this helper will be invoked for each port group entry in the MDB
-entry.
-
-No functional changes intended.
+Rename the function to br_mdb_entry_skb_get(). No functional changes
+intended.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_mdb.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ net/bridge/br_device.c    |  2 +-
+ net/bridge/br_input.c     |  2 +-
+ net/bridge/br_multicast.c |  5 +++--
+ net/bridge/br_private.h   | 10 ++++++----
+ 4 files changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 08de94bffc12..42983f6a0abd 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -450,18 +450,13 @@ static int nlmsg_populate_mdb_fill(struct sk_buff *skb,
- 	return -EMSGSIZE;
- }
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 9a5ea06236bd..d624710b384a 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -92,7 +92,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 			goto out;
+ 		}
  
--static size_t rtnl_mdb_nlmsg_size(struct net_bridge_port_group *pg)
-+static size_t rtnl_mdb_nlmsg_pg_size(const struct net_bridge_port_group *pg)
+-		mdst = br_mdb_get(brmctx, skb, vid);
++		mdst = br_mdb_entry_skb_get(brmctx, skb, vid);
+ 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+ 		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst))
+ 			br_multicast_flood(mdst, skb, brmctx, false, true);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index c729528b5e85..f21097e73482 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -175,7 +175,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 
+ 	switch (pkt_type) {
+ 	case BR_PKT_MULTICAST:
+-		mdst = br_mdb_get(brmctx, skb, vid);
++		mdst = br_mdb_entry_skb_get(brmctx, skb, vid);
+ 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+ 		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst)) {
+ 			if ((mdst && mdst->host_joined) ||
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 96d1fc78dd39..d7d021af1029 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -145,8 +145,9 @@ static struct net_bridge_mdb_entry *br_mdb_ip6_get(struct net_bridge *br,
+ }
+ #endif
+ 
+-struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge_mcast *brmctx,
+-					struct sk_buff *skb, u16 vid)
++struct net_bridge_mdb_entry *
++br_mdb_entry_skb_get(struct net_bridge_mcast *brmctx, struct sk_buff *skb,
++		     u16 vid)
  {
- 	struct net_bridge_group_src *ent;
- 	size_t nlmsg_size, addr_size = 0;
- 
--	nlmsg_size = NLMSG_ALIGN(sizeof(struct br_port_msg)) +
--		     /* MDBA_MDB */
--		     nla_total_size(0) +
--		     /* MDBA_MDB_ENTRY */
--		     nla_total_size(0) +
- 		     /* MDBA_MDB_ENTRY_INFO */
--		     nla_total_size(sizeof(struct br_mdb_entry)) +
-+	nlmsg_size = nla_total_size(sizeof(struct br_mdb_entry)) +
- 		     /* MDBA_MDB_EATTR_TIMER */
- 		     nla_total_size(sizeof(u32));
- 
-@@ -511,6 +506,17 @@ static size_t rtnl_mdb_nlmsg_size(struct net_bridge_port_group *pg)
- 	return nlmsg_size;
+ 	struct net_bridge *br = brmctx->br;
+ 	struct br_ip ip;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index cbbe35278459..3220898424ce 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -951,8 +951,9 @@ int br_multicast_rcv(struct net_bridge_mcast **brmctx,
+ 		     struct net_bridge_mcast_port **pmctx,
+ 		     struct net_bridge_vlan *vlan,
+ 		     struct sk_buff *skb, u16 vid);
+-struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge_mcast *brmctx,
+-					struct sk_buff *skb, u16 vid);
++struct net_bridge_mdb_entry *
++br_mdb_entry_skb_get(struct net_bridge_mcast *brmctx, struct sk_buff *skb,
++		     u16 vid);
+ int br_multicast_add_port(struct net_bridge_port *port);
+ void br_multicast_del_port(struct net_bridge_port *port);
+ void br_multicast_enable_port(struct net_bridge_port *port);
+@@ -1341,8 +1342,9 @@ static inline int br_multicast_rcv(struct net_bridge_mcast **brmctx,
+ 	return 0;
  }
  
-+static size_t rtnl_mdb_nlmsg_size(const struct net_bridge_port_group *pg)
-+{
-+	return NLMSG_ALIGN(sizeof(struct br_port_msg)) +
-+	       /* MDBA_MDB */
-+	       nla_total_size(0) +
-+	       /* MDBA_MDB_ENTRY */
-+	       nla_total_size(0) +
-+	       /* Port group entry */
-+	       rtnl_mdb_nlmsg_pg_size(pg);
-+}
-+
- void br_mdb_notify(struct net_device *dev,
- 		   struct net_bridge_mdb_entry *mp,
- 		   struct net_bridge_port_group *pg,
+-static inline struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge_mcast *brmctx,
+-						      struct sk_buff *skb, u16 vid)
++static inline struct net_bridge_mdb_entry *
++br_mdb_entry_skb_get(struct net_bridge_mcast *brmctx, struct sk_buff *skb,
++		     u16 vid)
+ {
+ 	return NULL;
+ }
 -- 
 2.40.1
 
