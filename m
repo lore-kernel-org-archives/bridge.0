@@ -1,27 +1,29 @@
 Return-Path: <jnixdorf-oss@avm.de>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3E33F40EC1
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 92FA940998
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D2AB040998
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A1708410AC
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
- t=1697463932; bh=08Dvz0QFTs4OyvvRDlnOtPaPl5qSnuRfuQVMRHMhHkA=;
- h=From:Subject:Date:To:Cc:From;
- b=McwRIq5qpwhMJaK+85p9Jw3VryqwG94fI4ulJEbNT24ZBCWsJZTB/X1Gpb2mXw4+W
- kSL2pMBmMg3DT9sALq22oRwOt9n0bqNlWGvDAJLAxXhalq5+j8QRfcoHJGO4Ul8XMw
- R1WpqO/juZZ5PbtmbsxeTC/KSnKNCyiEaszqCM8c=
+ t=1697463933; bh=izObkuWYieNPEzOpLEXnNiKd9Ga6Rekym0GPM8tGX2Q=;
+ h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+ b=FmHrLZiKk3d6UUmVQdFy+QqddN2VaJv0R4C2WygAbLT1TIEr5sE/m2hH/MKYNPPAc
+ Pxnx4hOQf3QT5+2Pu9OSfBHSN2Rg0xnAbyAkgOwaBifoUL64dkVMbkwkltdrJ/DrYF
+ 2PJzUeltsc8zA/NXK5qfU/p07GJ0ImSxhaDntJv4=
 From: Johannes Nixdorf <jnixdorf-oss@avm.de>
-Date: Mon, 16 Oct 2023 15:27:19 +0200
-Message-Id: <20231016-fdb_limit-v5-0-32cddff87758@avm.de>
+Date: Mon, 16 Oct 2023 15:27:24 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1697462840; l=4409;
+Message-Id: <20231016-fdb_limit-v5-5-32cddff87758@avm.de>
+References: <20231016-fdb_limit-v5-0-32cddff87758@avm.de>
+In-Reply-To: <20231016-fdb_limit-v5-0-32cddff87758@avm.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1697462840; l=7339;
  i=jnixdorf-oss@avm.de; s=20230906; h=from:subject:message-id;
- bh=jRXgK5ZH/w4lHTfrhCUHYB60Fh5G5zEcM7p6ySP/Z6I=;
- b=bp/r4y77usO54PIMIxMpSariTGgSj4kzB04SDFJzspTpMVOoW9G8orJeC5HwS6BQmlDI7mx3S
- JQkrHpcnQlXBKQM8wzCEkYBHvO5Ce35CI60QILs3F971HYRr0RQNTez
+ bh=izObkuWYieNPEzOpLEXnNiKd9Ga6Rekym0GPM8tGX2Q=;
+ b=J92g9W980J4VvlbuvBioz6YU5/+tYwVHJQ0IhRZQGe6GT/3YLYb6+gGkYmvFZ50q3O/YMVGRi
+ 6H5xTyTYYDECeStELimbjoFCVmMvjTSFnIa2EbFzppuklrImuIqxDCS
 X-Developer-Key: i=jnixdorf-oss@avm.de; a=ed25519;
  pk=KMraV4q7ANHRrwjf9EVhvU346JsqGGNSbPKeNILOQfo=
-Subject: [Bridge] [PATCH net-next v5 0/5] bridge: Add a limit on learned FDB
-	entries
+Subject: [Bridge] [PATCH net-next v5 5/5] selftests: forwarding:
+ bridge_fdb_learning_limit: Add a new selftest
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -33,99 +35,319 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: "David S. Miller" <davem@davemloft.net>, Andrew Lunn <andrew@lunn.ch>, David Ahern <dsahern@gmail.com>, Eric Dumazet <edumazet@google.com>, Florian Fainelli <f.fainelli@gmail.com>, Ido Schimmel <idosch@nvidia.com>, Jakub Kicinski <kuba@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Oleksij Rempel <linux@rempel-privat.de>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>, Shuah Khan <shuah@kernel.org>, Vladimir Oltean <vladimir.oltean@nxp.com>
 Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Johannes Nixdorf <jnixdorf-oss@avm.de>, linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
 
-Introduce a limit on the amount of learned FDB entries on a bridge,
-configured by netlink with a build time default on bridge creation in
-the kernel config.
+Add a suite covering the fdb_n_learned and fdb_max_learned bridge
+features, touching all special cases in accounting at least once.
 
-For backwards compatibility the kernel config default is disabling the
-limit (0).
-
-Without any limit a malicious actor may OOM a kernel by spamming packets
-with changing MAC addresses on their bridge port, so allow the bridge
-creator to limit the number of entries.
-
-Currently the manual entries are identified by the bridge flags
-BR_FDB_LOCAL or BR_FDB_ADDED_BY_USER, atomically bundled under the new
-flag BR_FDB_DYNAMIC_LEARNED. This means the limit also applies to
-entries created with BR_FDB_ADDED_BY_EXT_LEARN but none of BR_FDB_LOCAL
-or BR_FDB_ADDED_BY_USER, e.g. ones added by SWITCHDEV_FDB_ADD_TO_BRIDGE.
-
-Link to the corresponding iproute2 changes:
-https://lore.kernel.org/r/20230919-fdb_limit-v4-1-b4d2dc4df30f@avm.de
-
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
 ---
-Changes in v5:
- - Set IFLA_BR_FDB_N_LEARNED to NLA_REJECT (from review)
- - Moved the strict_start_type-commit after the netlink change, used
-   the new attribute. (from review)
- - Dropped the new build time config option. (from review)
- - Link to v4: https://lore.kernel.org/r/20230919-fdb_limit-v4-0-39f0293807b8@avm.de
-
-Changes in v4:
- - Added the new test to the Makefile. (from review)
- - Removed _entries from the names. (from iproute2 review, in some places
-   only for consistency)
- - Wrapped the lines at 80 chars, except when longer lines are consistent
-   with neighbouring code. (from review)
- - Fixed a race in fdb_delete. (from review)
- - Link to v3: https://lore.kernel.org/r/20230905-fdb_limit-v3-0-7597cd500a82@avm.de
-
-Changes in v3:
- - Fixed the flags for fdb_create in fdb_add_entry to use
-   BIT(...). Previously we passed garbage. (from review)
- - Set strict_start_type for br_policy. (from review)
- - Split out the combined accounting and limit patch, and the netlink
-   patch from the combined patch in v2. (from review)
- - Count atomically, remove the newly introduced lock. (from review)
- - Added the new attributes to br_policy. (from review)
- - Added a selftest for the new feature. (from review)
- - Link to v2: https://lore.kernel.org/netdev/20230619071444.14625-1-jnixdorf-oss@avm.de/
-
-Changes in v2:
- - Added BR_FDB_ADDED_BY_USER earlier in fdb_add_entry to ensure the
-   limit is not applied.
- - Do not initialize fdb_*_entries to 0. (from review)
- - Do not skip decrementing on 0. (from review)
- - Moved the counters to a conditional hole in struct net_bridge to
-   avoid growing the struct. (from review, it still grows the struct as
-   there are 2 32-bit values)
- - Add IFLA_BR_FDB_CUR_LEARNED_ENTRIES (from review)
- - Fix br_get_size() with the added attributes.
- - Only limit learned entries, rename to
-   *_(CUR|MAX)_LEARNED_ENTRIES. (from review)
- - Added a default limit in Kconfig. (deemed acceptable in review
-   comments, helps with embedded use-cases where a special purpose kernel
-   is built anyways)
- - Added an iproute2 patch for easier testing.
- - Link to v1: https://lore.kernel.org/netdev/20230515085046.4457-1-jnixdorf-oss@avm.de/
-
-Obsolete v1 review comments:
- - Return better errors to users: Due to limiting the limit to
-   automatically created entries, netlink fdb add requests and changing
-   bridge ports are never rejected, so they do not yet need a more
-   friendly error returned.
-
----
-Johannes Nixdorf (5):
-      net: bridge: Set BR_FDB_ADDED_BY_USER early in fdb_add_entry
-      net: bridge: Track and limit dynamically learned FDB entries
-      net: bridge: Add netlink knobs for number / max learned FDB entries
-      net: bridge: Set strict_start_type for br_policy
-      selftests: forwarding: bridge_fdb_learning_limit: Add a new selftest
-
- include/uapi/linux/if_link.h                       |   2 +
- net/bridge/br_fdb.c                                |  42 ++-
- net/bridge/br_netlink.c                            |  17 +-
- net/bridge/br_private.h                            |   4 +
  tools/testing/selftests/net/forwarding/Makefile    |   3 +-
  .../net/forwarding/bridge_fdb_learning_limit.sh    | 283 +++++++++++++++++++++
- 6 files changed, 344 insertions(+), 7 deletions(-)
----
-base-commit: 58720809f52779dc0f08e53e54b014209d13eebb
-change-id: 20230904-fdb_limit-fae5bbf16c88
+ 2 files changed, 285 insertions(+), 1 deletion(-)
 
-Best regards,
+diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
+index 74e754e266c3..df593b7b3e6b 100644
+--- a/tools/testing/selftests/net/forwarding/Makefile
++++ b/tools/testing/selftests/net/forwarding/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0+ OR MIT
+ 
+-TEST_PROGS = bridge_igmp.sh \
++TEST_PROGS = bridge_fdb_learning_limit.sh \
++	bridge_igmp.sh \
+ 	bridge_locked_port.sh \
+ 	bridge_mdb.sh \
+ 	bridge_mdb_host.sh \
+diff --git a/tools/testing/selftests/net/forwarding/bridge_fdb_learning_limit.sh b/tools/testing/selftests/net/forwarding/bridge_fdb_learning_limit.sh
+new file mode 100755
+index 000000000000..0760a34b7114
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/bridge_fdb_learning_limit.sh
+@@ -0,0 +1,283 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++
++# ShellCheck incorrectly believes that most of the code here is unreachable
++# because it's invoked by variable name following ALL_TESTS.
++#
++# shellcheck disable=SC2317
++
++ALL_TESTS="check_accounting check_limit"
++NUM_NETIFS=6
++source lib.sh
++
++TEST_MAC_BASE=de:ad:be:ef:42:
++
++NUM_PKTS=16
++FDB_LIMIT=8
++
++FDB_TYPES=(
++	# name		is counted?	overrides learned?
++	'learned	1		0'
++	'static		0		1'
++	'user		0		1'
++	'extern_learn	0		1'
++	'local		0		1'
++)
++
++mac()
++{
++	printf "${TEST_MAC_BASE}%02x" "$1"
++}
++
++H1_DEFAULT_MAC=$(mac 42)
++
++switch_create()
++{
++	ip link add dev br0 type bridge
++
++	ip link set dev "$swp1" master br0
++	ip link set dev "$swp2" master br0
++	# swp3 is used to add local MACs, so do not add it to the bridge yet.
++
++	# swp2 is only used for replying when learning on swp1, its MAC should not be learned.
++	ip link set dev "$swp2" type bridge_slave learning off
++
++	ip link set dev br0 up
++
++	ip link set dev "$swp1" up
++	ip link set dev "$swp2" up
++	ip link set dev "$swp3" up
++}
++
++switch_destroy()
++{
++	ip link set dev "$swp3" down
++	ip link set dev "$swp2" down
++	ip link set dev "$swp1" down
++
++	ip link del dev br0
++}
++
++h_create()
++{
++	ip link set "$h1" addr "$H1_DEFAULT_MAC"
++
++	simple_if_init "$h1" 192.0.2.1/24
++	simple_if_init "$h2" 192.0.2.2/24
++}
++
++h_destroy()
++{
++	simple_if_fini "$h1" 192.0.2.1/24
++	simple_if_fini "$h2" 192.0.2.2/24
++}
++
++setup_prepare()
++{
++	h1=${NETIFS[p1]}
++	swp1=${NETIFS[p2]}
++
++	h2=${NETIFS[p3]}
++	swp2=${NETIFS[p4]}
++
++	swp3=${NETIFS[p6]}
++
++	vrf_prepare
++
++	h_create
++
++	switch_create
++}
++
++cleanup()
++{
++	pre_cleanup
++
++	switch_destroy
++
++	h_destroy
++
++	vrf_cleanup
++}
++
++fdb_get_n_learned()
++{
++	ip -d -j link show dev br0 type bridge | \
++		jq '.[]["linkinfo"]["info_data"]["fdb_n_learned"]'
++}
++
++fdb_get_n_mac()
++{
++	local mac=${1}
++
++	bridge -j fdb show br br0 | \
++		jq "map(select(.mac == \"${mac}\" and (has(\"vlan\") | not))) | length"
++}
++
++fdb_fill_learned()
++{
++	local i
++
++	for i in $(seq 1 "$NUM_PKTS"); do
++		fdb_add learned "$(mac "$i")"
++	done
++}
++
++fdb_reset()
++{
++	bridge fdb flush dev br0
++
++	# Keep the default MAC address of h1 in the table. We set it to a different one when
++	# testing dynamic learning.
++	bridge fdb add "$H1_DEFAULT_MAC" dev "$swp1" master static use
++}
++
++fdb_add()
++{
++	local type=$1 mac=$2
++
++	case "$type" in
++		learned)
++			ip link set "$h1" addr "$mac"
++			# Wait for a reply so we implicitly wait until after the forwarding
++			# code finished and the FDB entry was created.
++			PING_COUNT=1 ping_do "$h1" 192.0.2.2
++			check_err $? "Failed to ping another bridge port"
++			ip link set "$h1" addr "$H1_DEFAULT_MAC"
++			;;
++		local)
++			ip link set dev "$swp3" addr "$mac" && ip link set "$swp3" master br0
++			;;
++		static)
++			bridge fdb replace "$mac" dev "$swp1" master static
++			;;
++		user)
++			bridge fdb replace "$mac" dev "$swp1" master static use
++			;;
++		extern_learn)
++			bridge fdb replace "$mac" dev "$swp1" master extern_learn
++			;;
++	esac
++
++	check_err $? "Failed to add a FDB entry of type ${type}"
++}
++
++fdb_del()
++{
++	local type=$1 mac=$2
++
++	case "$type" in
++		local)
++			ip link set "$swp3" nomaster
++			;;
++		*)
++			bridge fdb del "$mac" dev "$swp1" master
++			;;
++	esac
++
++	check_err $? "Failed to remove a FDB entry of type ${type}"
++}
++
++check_accounting_one_type()
++{
++	local type=$1 is_counted=$2 overrides_learned=$3
++	shift 3
++	RET=0
++
++	fdb_reset
++	fdb_add "$type" "$(mac 0)"
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne "$is_counted" ]
++	check_fail $? "Inserted FDB type ${type}: Expected the count ${is_counted}, but got ${learned}"
++
++	fdb_del "$type" "$(mac 0)"
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne 0 ]
++	check_fail $? "Removed FDB type ${type}: Expected the count 0, but got ${learned}"
++
++	if [ "$overrides_learned" -eq 1 ]; then
++		fdb_reset
++		fdb_add learned "$(mac 0)"
++		fdb_add "$type" "$(mac 0)"
++		learned=$(fdb_get_n_learned)
++		[ "$learned" -ne "$is_counted" ]
++		check_fail $? "Set a learned entry to FDB type ${type}: Expected the count ${is_counted}, but got ${learned}"
++		fdb_del "$type" "$(mac 0)"
++	fi
++
++	log_test "FDB accounting interacting with FDB type ${type}"
++}
++
++check_accounting()
++{
++	local type_args learned
++	RET=0
++
++	fdb_reset
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne 0 ]
++	check_fail $? "Flushed the FDB table: Expected the count 0, but got ${learned}"
++
++	fdb_fill_learned
++	sleep 1
++
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne "$NUM_PKTS" ]
++	check_fail $? "Filled the FDB table: Expected the count ${NUM_PKTS}, but got ${learned}"
++
++	log_test "FDB accounting"
++
++	for type_args in "${FDB_TYPES[@]}"; do
++		# This is intentional use of word splitting.
++		# shellcheck disable=SC2086
++		check_accounting_one_type $type_args
++	done
++}
++
++check_limit_one_type()
++{
++	local type=$1 is_counted=$2
++	local n_mac expected=$((1 - is_counted))
++	RET=0
++
++	fdb_reset
++	fdb_fill_learned
++
++	fdb_add "$type" "$(mac 0)"
++	n_mac=$(fdb_get_n_mac "$(mac 0)")
++	[ "$n_mac" -ne "$expected" ]
++	check_fail $? "Inserted FDB type ${type} at limit: Expected the count ${expected}, but got ${n_mac}"
++
++	log_test "FDB limits interacting with FDB type ${type}"
++}
++
++check_limit()
++{
++	local learned
++	RET=0
++
++	ip link set br0 type bridge fdb_max_learned "$FDB_LIMIT"
++
++	fdb_reset
++	fdb_fill_learned
++
++	learned=$(fdb_get_n_learned)
++	[ "$learned" -ne "$FDB_LIMIT" ]
++	check_fail $? "Filled the limited FDB table: Expected the count ${FDB_LIMIT}, but got ${learned}"
++
++	log_test "FDB limits"
++
++	for type_args in "${FDB_TYPES[@]}"; do
++		# This is intentional use of word splitting.
++		# shellcheck disable=SC2086
++		check_limit_one_type $type_args
++	done
++}
++
++trap cleanup EXIT
++
++setup_prepare
++
++tests_run
++
++exit $EXIT_STATUS
+
 -- 
-Johannes Nixdorf <jnixdorf-oss@avm.de>
+2.42.0
 
