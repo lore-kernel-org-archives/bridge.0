@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8BC7A611B1
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 71F82611D3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 16FC740921
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F374B408EC
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bscAPYujcdnifDVSY+NWRcPRixs9E7L/psZwgzJNN98=;
- b=Giqp2HTM/9Zb/JVGP6X0vbVxd707N9vCeShzfes6PD5mCz4IwcUufnp7Kl1SKEeRemwAb6rzDHJmqVNT/lQ7LMZTt6/EWM+70RLtlOmDlpmgolnBJ+krvQTdmdHfiv/uELoPfE+pzztLEtssZU+Yo9qVymtJvoYpOkA95p9jedGiscxnpAk0C1mVD8oH91cpZt74R/1+EiLwjLx+LhFeQTpVJgqhhTm5ZM12Afo1KISWJx/PmsmybLz8zGAC/WfJzx6yeD7tPqjOUxBpSrARxjjNUy40tKSBDn3GEOrPsbAGhL9VmJb+8VCvYM3UFL8ndCdwBCicdBo2V087M7iK0Q==
+ bh=gfHz9A1EjkSmiPWIWHhNnY5h/JaToGDWRgl4zJ1e234=;
+ b=Gbn4h+Wblh+75U0UG44iSoE8mXzNcJB0CjlCTVJrD3/uRwS9dH9od5756oYuveyoHOVm/5KE0BeqbKkMtTLFY2Pl3V/kK5tkKdxoXCinhYQ/eyrxPVVl+YHUllgzdWxpW4TzrxoaCWgpFozZzxVF7HihVDcm/hqhV0TaFu05P0SAxXs4jmTrvXGGXhZn8lVzkax5zsSJHHwH3FoyiwzOUsrBfPu/3Pm7fZFOJqGW0pAzhWDocKld5WvFDho/g/PNlhVZl6oXpFmaeFQe8Sj+FlevjJLLme6s3uAmHwJW/hpXKLDJxrVpN5kxoPvSEsKFCmwjP3uA5d8AIGNU6IfcgQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Mon, 16 Oct 2023 16:12:47 +0300
-Message-ID: <20231016131259.3302298-2-idosch@nvidia.com>
+Date: Mon, 16 Oct 2023 16:12:49 +0300
+Message-ID: <20231016131259.3302298-4-idosch@nvidia.com>
 In-Reply-To: <20231016131259.3302298-1-idosch@nvidia.com>
 References: <20231016131259.3302298-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 01/13] bridge: mcast: Dump MDB entries
-	even when snooping is disabled
+Subject: [Bridge] [PATCH net-next 03/13] bridge: mcast: Factor out a helper
+	for PG entry size calculation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,68 +27,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Currently, the bridge driver does not dump MDB entries when multicast
-snooping is disabled although the entries are present in the kernel:
+Currently, netlink notifications are sent for individual port group
+entries and not for the entire MDB entry itself.
 
- # bridge mdb add dev br0 port swp1 grp 239.1.1.1 permanent
- # bridge mdb show dev br0
- dev br0 port swp1 grp 239.1.1.1 permanent
- dev br0 port br0 grp ff02::6a temp
- dev br0 port br0 grp ff02::1:ff9d:e61b temp
- # ip link set dev br0 type bridge mcast_snooping 0
- # bridge mdb show dev br0
- # ip link set dev br0 type bridge mcast_snooping 1
- # bridge mdb show dev br0
- dev br0 port swp1 grp 239.1.1.1 permanent
- dev br0 port br0 grp ff02::6a temp
- dev br0 port br0 grp ff02::1:ff9d:e61b temp
+Subsequent patches are going to add MDB get support which will require
+the bridge driver to reply with an entire MDB entry.
 
-This behavior differs from other netlink dump interfaces that dump
-entries regardless if they are used or not. For example, VLANs are
-dumped even when VLAN filtering is disabled:
+Therefore, as a preparation, factor out an helper to calculate the size
+of an individual port group entry. When determining the size of the
+reply this helper will be invoked for each port group entry in the MDB
+entry.
 
- # ip link set dev br0 type bridge vlan_filtering 0
- # bridge vlan show dev swp1
- port              vlan-id
- swp1              1 PVID Egress Untagged
-
-Remove the check and always dump MDB entries:
-
- # bridge mdb add dev br0 port swp1 grp 239.1.1.1 permanent
- # bridge mdb show dev br0
- dev br0 port swp1 grp 239.1.1.1 permanent
- dev br0 port br0 grp ff02::6a temp
- dev br0 port br0 grp ff02::1:ffeb:1a4d temp
- # ip link set dev br0 type bridge mcast_snooping 0
- # bridge mdb show dev br0
- dev br0 port swp1 grp 239.1.1.1 permanent
- dev br0 port br0 grp ff02::6a temp
- dev br0 port br0 grp ff02::1:ffeb:1a4d temp
- # ip link set dev br0 type bridge mcast_snooping 1
- # bridge mdb show dev br0
- dev br0 port swp1 grp 239.1.1.1 permanent
- dev br0 port br0 grp ff02::6a temp
- dev br0 port br0 grp ff02::1:ffeb:1a4d temp
+No functional changes intended.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_mdb.c | 3 ---
- 1 file changed, 3 deletions(-)
+ net/bridge/br_mdb.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
 diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 7305f5f8215c..fb58bb1b60e8 100644
+index 08de94bffc12..42983f6a0abd 100644
 --- a/net/bridge/br_mdb.c
 +++ b/net/bridge/br_mdb.c
-@@ -323,9 +323,6 @@ static int br_mdb_fill_info(struct sk_buff *skb, struct netlink_callback *cb,
- 	struct net_bridge_mdb_entry *mp;
- 	struct nlattr *nest, *nest2;
+@@ -450,18 +450,13 @@ static int nlmsg_populate_mdb_fill(struct sk_buff *skb,
+ 	return -EMSGSIZE;
+ }
  
--	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
--		return 0;
--
- 	nest = nla_nest_start_noflag(skb, MDBA_MDB);
- 	if (nest == NULL)
- 		return -EMSGSIZE;
+-static size_t rtnl_mdb_nlmsg_size(struct net_bridge_port_group *pg)
++static size_t rtnl_mdb_nlmsg_pg_size(const struct net_bridge_port_group *pg)
+ {
+ 	struct net_bridge_group_src *ent;
+ 	size_t nlmsg_size, addr_size = 0;
+ 
+-	nlmsg_size = NLMSG_ALIGN(sizeof(struct br_port_msg)) +
+-		     /* MDBA_MDB */
+-		     nla_total_size(0) +
+-		     /* MDBA_MDB_ENTRY */
+-		     nla_total_size(0) +
+ 		     /* MDBA_MDB_ENTRY_INFO */
+-		     nla_total_size(sizeof(struct br_mdb_entry)) +
++	nlmsg_size = nla_total_size(sizeof(struct br_mdb_entry)) +
+ 		     /* MDBA_MDB_EATTR_TIMER */
+ 		     nla_total_size(sizeof(u32));
+ 
+@@ -511,6 +506,17 @@ static size_t rtnl_mdb_nlmsg_size(struct net_bridge_port_group *pg)
+ 	return nlmsg_size;
+ }
+ 
++static size_t rtnl_mdb_nlmsg_size(const struct net_bridge_port_group *pg)
++{
++	return NLMSG_ALIGN(sizeof(struct br_port_msg)) +
++	       /* MDBA_MDB */
++	       nla_total_size(0) +
++	       /* MDBA_MDB_ENTRY */
++	       nla_total_size(0) +
++	       /* Port group entry */
++	       rtnl_mdb_nlmsg_pg_size(pg);
++}
++
+ void br_mdb_notify(struct net_device *dev,
+ 		   struct net_bridge_mdb_entry *mp,
+ 		   struct net_bridge_port_group *pg,
 -- 
 2.40.1
 
