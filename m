@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C1A9408EC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 924BE40965
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 11FC582143
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 411DF820F7
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Kvn98rfcbAc2Va2VU7W+Q2Eo0H1y6sr9aaANUCjT7Lk=;
- b=Lnx3Fkk3g4vZ0D4x+lNHaSYDZULDPoeLcq56uXC2ztCM740zpB9chtlB7oukcKqhozAUThNml3ZSe9zRRwc3GRASyfxyp6RhlEfzfGvreqGs3pdGmjSQHwWYp3PIqtpwKmd+F61rscClXuPbvrEiN0XQ5XqIb2Pp0pw0RQK+/YCK7ICrT5XY0JnBAI0fNhkYoMTWhY8yHIxNNAKbKgcv7KYgbEx1+iDuo6J1ciOYMvSAzBasqTIkYZ4tCVjTGPOymGVfCyHoBYZjW6SvBx3BCKSN7gxn73jyukBk4S47+kAiB/sgxDQLfKUnbtq0LZPSgz+0wfUi65DSuzY9am3NuQ==
+ bh=0yjMJB5rcJ+8MrWeQsljB0+d7+3hGEcxUAz/vBZ1bvo=;
+ b=bazPTwSSHt+gkLbygiQjlEbhxeaxCwKg1Uan1roIIRyR0Ifgll6HCOZchtm2vf1Y2CtWCvkRBdk370Zvj99NFykUvUY4d4xbbG5Mt/bSTcyzOd45+1RRlC7girqrWcbkz9QS26CFMkEJFuJx7AVCmWGimiw2+8TznxsnZsUIe9QSVquL4J+rioK81lnL7F9rvTIw0Vd+QrmqOmOk80mj+1T41uErS2r6BKUmqeBu6sps1v5UT3HT5BshBTSKbP/l7jZH5mEYHQBAP6X6n2Gpgj9/BWH0E5okdhLZoJpKoQ8oz8gTClVOsm4/Vdqj/BGbUoTu94/PhWbV11RJXw0qbQ==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Mon, 16 Oct 2023 16:12:50 +0300
-Message-ID: <20231016131259.3302298-5-idosch@nvidia.com>
+Date: Mon, 16 Oct 2023 16:12:51 +0300
+Message-ID: <20231016131259.3302298-6-idosch@nvidia.com>
 In-Reply-To: <20231016131259.3302298-1-idosch@nvidia.com>
 References: <20231016131259.3302298-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next 04/13] bridge: mcast: Rename MDB entry get
-	function
+Subject: [Bridge] [PATCH net-next 05/13] vxlan: mdb: Adjust function
+	arguments
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,90 +27,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-The current name is going to conflict with the upcoming net device
-operation for the MDB get operation.
+Adjust the function's arguments and rename it to allow it to be reused
+by future call sites that only have access to 'struct
+vxlan_mdb_entry_key', but not to 'struct vxlan_mdb_config'.
 
-Rename the function to br_mdb_entry_skb_get(). No functional changes
-intended.
+No functional changes intended.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_device.c    |  2 +-
- net/bridge/br_input.c     |  2 +-
- net/bridge/br_multicast.c |  5 +++--
- net/bridge/br_private.h   | 10 ++++++----
- 4 files changed, 11 insertions(+), 8 deletions(-)
+ drivers/net/vxlan/vxlan_mdb.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 9a5ea06236bd..d624710b384a 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -92,7 +92,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 			goto out;
- 		}
- 
--		mdst = br_mdb_get(brmctx, skb, vid);
-+		mdst = br_mdb_entry_skb_get(brmctx, skb, vid);
- 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
- 		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst))
- 			br_multicast_flood(mdst, skb, brmctx, false, true);
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index c729528b5e85..f21097e73482 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -175,7 +175,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 
- 	switch (pkt_type) {
- 	case BR_PKT_MULTICAST:
--		mdst = br_mdb_get(brmctx, skb, vid);
-+		mdst = br_mdb_entry_skb_get(brmctx, skb, vid);
- 		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
- 		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst)) {
- 			if ((mdst && mdst->host_joined) ||
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 96d1fc78dd39..d7d021af1029 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -145,8 +145,9 @@ static struct net_bridge_mdb_entry *br_mdb_ip6_get(struct net_bridge *br,
+diff --git a/drivers/net/vxlan/vxlan_mdb.c b/drivers/net/vxlan/vxlan_mdb.c
+index 5e041622261a..0b6043e1473b 100644
+--- a/drivers/net/vxlan/vxlan_mdb.c
++++ b/drivers/net/vxlan/vxlan_mdb.c
+@@ -370,12 +370,10 @@ static bool vxlan_mdb_is_valid_source(const struct nlattr *attr, __be16 proto,
+ 	return true;
  }
- #endif
  
--struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge_mcast *brmctx,
--					struct sk_buff *skb, u16 vid)
-+struct net_bridge_mdb_entry *
-+br_mdb_entry_skb_get(struct net_bridge_mcast *brmctx, struct sk_buff *skb,
-+		     u16 vid)
+-static void vxlan_mdb_config_group_set(struct vxlan_mdb_config *cfg,
+-				       const struct br_mdb_entry *entry,
+-				       const struct nlattr *source_attr)
++static void vxlan_mdb_group_set(struct vxlan_mdb_entry_key *group,
++				const struct br_mdb_entry *entry,
++				const struct nlattr *source_attr)
  {
- 	struct net_bridge *br = brmctx->br;
- 	struct br_ip ip;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index cbbe35278459..3220898424ce 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -951,8 +951,9 @@ int br_multicast_rcv(struct net_bridge_mcast **brmctx,
- 		     struct net_bridge_mcast_port **pmctx,
- 		     struct net_bridge_vlan *vlan,
- 		     struct sk_buff *skb, u16 vid);
--struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge_mcast *brmctx,
--					struct sk_buff *skb, u16 vid);
-+struct net_bridge_mdb_entry *
-+br_mdb_entry_skb_get(struct net_bridge_mcast *brmctx, struct sk_buff *skb,
-+		     u16 vid);
- int br_multicast_add_port(struct net_bridge_port *port);
- void br_multicast_del_port(struct net_bridge_port *port);
- void br_multicast_enable_port(struct net_bridge_port *port);
-@@ -1341,8 +1342,9 @@ static inline int br_multicast_rcv(struct net_bridge_mcast **brmctx,
- 	return 0;
- }
+-	struct vxlan_mdb_entry_key *group = &cfg->group;
+-
+ 	switch (entry->addr.proto) {
+ 	case htons(ETH_P_IP):
+ 		group->dst.sa.sa_family = AF_INET;
+@@ -503,7 +501,7 @@ static int vxlan_mdb_config_attrs_init(struct vxlan_mdb_config *cfg,
+ 				       entry->addr.proto, extack))
+ 		return -EINVAL;
  
--static inline struct net_bridge_mdb_entry *br_mdb_get(struct net_bridge_mcast *brmctx,
--						      struct sk_buff *skb, u16 vid)
-+static inline struct net_bridge_mdb_entry *
-+br_mdb_entry_skb_get(struct net_bridge_mcast *brmctx, struct sk_buff *skb,
-+		     u16 vid)
- {
- 	return NULL;
- }
+-	vxlan_mdb_config_group_set(cfg, entry, mdbe_attrs[MDBE_ATTR_SOURCE]);
++	vxlan_mdb_group_set(&cfg->group, entry, mdbe_attrs[MDBE_ATTR_SOURCE]);
+ 
+ 	/* rtnetlink code only validates that IPv4 group address is
+ 	 * multicast.
 -- 
 2.40.1
 
