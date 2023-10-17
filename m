@@ -1,30 +1,30 @@
 Return-Path: <razor@blackwall.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3AECF40949
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3E65440438
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B0D354060F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 07FE740554
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1697534993; x=1698139793;
+ d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1697535010; x=1698139810;
  darn=lists.linux-foundation.org; 
  h=content-transfer-encoding:in-reply-to:from:references:cc:to
  :content-language:subject:user-agent:mime-version:date:message-id
  :from:to:cc:subject:date:message-id:reply-to;
- bh=7YMg9UDth1zyfm6+o4IfDJ/TtjJPGuDHzs8URdUI/W4=;
- b=GsYhVxYpby3Kuos/bkVwIlCyHvwlTr0eyK1TfW46oJzeP3wBfvh1wE5caZsWM0syaV
- ztdrwC8ifRHrA1azBXBuLN2YLGXXsJfEdEP5luoymPguAclASfNzN8a8/x6SPQ1+O5wT
- Que6G3FkCPp1gYzwTq9kqop0j2oqLEb3oFypOc31E3t5100MHvieTnkzVqVVXyRDORra
- BmkefhNfUr4hVIfS6RUZjf6B+N75QGDMhiQcrsMNiGTqfF8WfO4nJBymLPIowmLUxE+m
- YoxlvrE7VylF/5YoaiXLWoO9i7B8OSNR8FQFbnF9xY1xh/1SMfe7gTi4LtqmsKMCrLNB
- xwhA==
-Message-ID: <4427a9f5-551d-db41-025e-6854c89628aa@blackwall.org>
-Date: Tue, 17 Oct 2023 12:29:51 +0300
+ bh=eqrKYPUPhr46HriX5Pvcq+Sh5npTGfsVC23Gye75nLU=;
+ b=niuAUFEaO+qH5wsYeChnEpi+7dERwIqsRtRitHis0ed/V7qqwcy8FFXtHevj+TJ18d
+ MaR8pwQb8J47bmjkXiSnKDkg9mfF3TJiARgKq/F5o+WVbHUDYFku0xK13543EbmQgouM
+ 1xUGYRkb4q8vpRGHQCGTCe2OOGKsnJtV5NfWsAsrntYQ0tSGvKDLLI8/P3j08kpFbjHy
+ NNMHyWDLCgekcNG9zg3U/HeVfPs2+8/FzEQMc6kKTNaLw39ywxLowMTltVuPcBrukKRR
+ Z/xLx1E0CGjdO3Gyz5YF4u9I6GJBFGfpKeUYUiMTaV5xIHfl5h1GGUEK5raZeSHqT8C3
+ nXdg==
+Message-ID: <40dcbbde-3e3e-fd7e-a48c-0aa2ff3bf2db@blackwall.org>
+Date: Tue, 17 Oct 2023 12:30:08 +0300
 MIME-Version: 1.0
 Content-Language: en-US
 References: <20231016131259.3302298-1-idosch@nvidia.com>
- <20231016131259.3302298-13-idosch@nvidia.com>
+ <20231016131259.3302298-14-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20231016131259.3302298-13-idosch@nvidia.com>
+In-Reply-To: <20231016131259.3302298-14-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: Re: [Bridge] [PATCH net-next 12/13] selftests: bridge_mdb: Use MDB
+Subject: Re: [Bridge] [PATCH net-next 13/13] selftests: vxlan_mdb: Use MDB
  get instead of dump
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
@@ -43,8 +43,8 @@ On 10/16/23 16:12, Ido Schimmel wrote:
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->   .../selftests/net/forwarding/bridge_mdb.sh    | 184 +++++++-----------
->   1 file changed, 71 insertions(+), 113 deletions(-)
+>   tools/testing/selftests/net/test_vxlan_mdb.sh | 108 +++++++++---------
+>   1 file changed, 54 insertions(+), 54 deletions(-)
 > 
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
