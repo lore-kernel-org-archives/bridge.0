@@ -1,26 +1,27 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AC3C040278
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B22C7400CE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1697590830;
- bh=K2deq/2Shw6UljQTvW98Mv2vAHt3FhdhO48jhYtDOe0=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=ieSaQVIw+2LuuWrOLgLuT6P47pVmVQWtB8kbHsCga2zN1FQ/8Rl3JpJilDrPGIPqA
- 5NUO9MQ4dFBc5vNL2F6LMf75HlvClX9LqGCDaxVWOXtZKHZqonemfs7CKX3s55QLVw
- J6DOPhXgp83P39Jkzj3QQRt6ny65alLAjPSP7MdCBRXoYkhSGp1YzGfXLDi7AXkJTT
- /DVnVUXuAwJVL9gOwGF0wYqwUcwv3akELOxAum53WRBmSOA0Ndjc7mpSCCXAwbaXou
- du4HVJ+vF++TDFWu6730dICpFCQ2ja/IUnyl2baBWDn7DMbWXLdL8+yH0WC7/R+Rs7
- 8iCA+NUI/quxw==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <jnixdorf-oss@avm.de>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D327840463
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2866140165
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
+ t=1697612711; bh=7duyYS4uKMmrIiJWnBLeesAW+mofu1JAMbtCZUOvg80=;
+ h=From:Date:Subject:To:Cc:From;
+ b=ZOnGh8gou7ff4faNHPcPaZ1D16L+X1M0G9DSEGMgYsv5yHt9Ct5UXomH2UpkgPVWD
+ u2hwo0keqMABgOFowcHebKBA+oX+Hq3qGDEIPP/pcF4kkT2AWxqJgFAVGcQh8HIArr
+ 2JrHEJmi32i/LAfgNQOPjRBoEoqqizv/PC7tl2Fg=
+From: Johannes Nixdorf <jnixdorf-oss@avm.de>
+Date: Wed, 18 Oct 2023 09:04:43 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169759083043.18882.3734658950123094755.git-patchwork-notify@kernel.org>
-Date: Wed, 18 Oct 2023 01:00:30 +0000
-References: <20231016-fdb_limit-v5-0-32cddff87758@avm.de>
-In-Reply-To: <20231016-fdb_limit-v5-0-32cddff87758@avm.de>
-Subject: Re: [Bridge] [PATCH net-next v5 0/5] bridge: Add a limit on learned
-	FDB entries
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20231018-fdb_limit-v5-1-7ca3b3eb7c1f@avm.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1697612682; l=5381;
+ i=jnixdorf-oss@avm.de; s=20230906; h=from:subject:message-id;
+ bh=7duyYS4uKMmrIiJWnBLeesAW+mofu1JAMbtCZUOvg80=;
+ b=zv1GAGzIqwcXgxBPRXjOTzIz3Lc/894YncC79u++wRhb82LuxnQhc+ZKtIRnt7KFWGMX3WSso
+ 8HRZ/LSTZv+BSOixJ4x16pfBETF+eEzQSa6vZRO58fzks89qC6eW/ES
+X-Developer-Key: i=jnixdorf-oss@avm.de; a=ed25519;
+ pk=KMraV4q7ANHRrwjf9EVhvU346JsqGGNSbPKeNILOQfo=
+Subject: [Bridge] [PATCH iproute2-next v5] iplink: bridge: Add support for
+ bridge FDB learning limits
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,39 +30,166 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Johannes Nixdorf <jnixdorf-oss@avm.de>
-Cc: andrew@lunn.ch, f.fainelli@gmail.com, bridge@lists.linux-foundation.org, idosch@nvidia.com, razor@blackwall.org, roopa@nvidia.com, linux-kernel@vger.kernel.org, linux@rempel-privat.de, vladimir.oltean@nxp.com, edumazet@google.com, netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, dsahern@gmail.com, kuba@kernel.org, pabeni@redhat.com, shuah@kernel.org, davem@davemloft.net
+To: David Ahern <dsahern@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, Johannes Nixdorf <jnixdorf-oss@avm.de>
 
-Hello:
+Support setting the FDB limit through ip link. The arguments is:
+ - fdb_max_learned: A 32-bit unsigned integer specifying the maximum
+                    number of learned FDB entries, with 0 disabling
+                    the limit.
 
-This series was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Also support reading back the current number of learned FDB entries in
+the bridge by this count. The returned value's name is:
+ - fdb_n_learned: A 32-bit unsigned integer specifying the current number
+                  of learned FDB entries.
 
-On Mon, 16 Oct 2023 15:27:19 +0200 you wrote:
-> Introduce a limit on the amount of learned FDB entries on a bridge,
-> configured by netlink with a build time default on bridge creation in
-> the kernel config.
-> 
-> For backwards compatibility the kernel config default is disabling the
-> limit (0).
-> 
-> [...]
+Example:
 
-Here is the summary with links:
-  - [net-next,v5,1/5] net: bridge: Set BR_FDB_ADDED_BY_USER early in fdb_add_entry
-    https://git.kernel.org/netdev/net-next/c/cbf51acbc5d5
-  - [net-next,v5,2/5] net: bridge: Track and limit dynamically learned FDB entries
-    https://git.kernel.org/netdev/net-next/c/bdb4dfda3b41
-  - [net-next,v5,3/5] net: bridge: Add netlink knobs for number / max learned FDB entries
-    https://git.kernel.org/netdev/net-next/c/ddd1ad68826d
-  - [net-next,v5,4/5] net: bridge: Set strict_start_type for br_policy
-    https://git.kernel.org/netdev/net-next/c/19297c3ab23c
-  - [net-next,v5,5/5] selftests: forwarding: bridge_fdb_learning_limit: Add a new selftest
-    https://git.kernel.org/netdev/net-next/c/6f84090333bb
+ # ip -d -j -p link show br0
+[ {
+...
+        "linkinfo": {
+            "info_kind": "bridge",
+            "info_data": {
+...
+                "fdb_n_learned": 2,
+                "fdb_max_learned": 0,
+...
+            }
+        },
+...
+    } ]
+ # ip link set br0 type bridge fdb_max_learned 1024
+ # ip -d -j -p link show br0
+[ {
+...
+        "linkinfo": {
+            "info_kind": "bridge",
+            "info_data": {
+...
+                "fdb_n_learned": 2,
+                "fdb_max_learned": 1024,
+...
+            }
+        },
+...
+    } ]
 
-You are awesome, thank you!
+Signed-off-by: Johannes Nixdorf <jnixdorf-oss@avm.de>
+---
+The corresponding kernel changes are in net-next.git as commit
+ddd1ad68826d ("net: bridge: Add netlink knobs for number / max learned
+FDB entries").
+---
+Changes in v5:
+ - Removed the RFC status again, as the kernel changes landed.
+ - Link to v4: https://lore.kernel.org/r/20230919-fdb_limit-v4-1-b4d2dc4df30f@avm.de
+
+Changes in v4:
+ - Removed _entries from the names. (from review)
+ - Removed the UAPI change, to be synced from linux separately by the
+   maintainer. (from review)
+   For local testing e.g. `make CCOPTS="-O2 -pipe
+   -I${path_to_dev_kernel_headers}"` works as a workaround.
+ - Downgraded to an RFC until the kernel changes land.
+ - Link to v3: https://lore.kernel.org/netdev/20230905-fdb_limit-v3-1-34bb124556d8@avm.de/
+
+Changes in v3:
+ - Properly split the net-next and iproute2-next threads. (from review)
+ - Changed to *_n_* instead of *_cur_*. (from review)
+ - Use strcmp() instead of matches(). (from review)
+ - Made names in code and documentation consistent. (from review)
+ - Various documentation fixes. (from review)
+ - Link to v2: https://lore.kernel.org/netdev/20230619071444.14625-1-jnixdorf-oss@avm.de/
+
+Changes in v2:
+ - Sent out the first corresponding iproute2 patches.
+ - Link to v1: https://lore.kernel.org/netdev/20230515085046.4457-1-jnixdorf-oss@avm.de/
+---
+ ip/iplink_bridge.c    | 21 +++++++++++++++++++++
+ man/man8/ip-link.8.in | 10 ++++++++++
+ 2 files changed, 31 insertions(+)
+
+diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
+index 462075295308..6b70ffbb6f5f 100644
+--- a/ip/iplink_bridge.c
++++ b/ip/iplink_bridge.c
+@@ -34,6 +34,7 @@ static void print_explain(FILE *f)
+ 		"		  [ group_fwd_mask MASK ]\n"
+ 		"		  [ group_address ADDRESS ]\n"
+ 		"		  [ no_linklocal_learn NO_LINKLOCAL_LEARN ]\n"
++		"		  [ fdb_max_learned FDB_MAX_LEARNED ]\n"
+ 		"		  [ vlan_filtering VLAN_FILTERING ]\n"
+ 		"		  [ vlan_protocol VLAN_PROTOCOL ]\n"
+ 		"		  [ vlan_default_pvid VLAN_DEFAULT_PVID ]\n"
+@@ -168,6 +169,14 @@ static int bridge_parse_opt(struct link_util *lu, int argc, char **argv,
+ 				bm.optval |= no_ll_learn_bit;
+ 			else
+ 				bm.optval &= ~no_ll_learn_bit;
++		} else if (strcmp(*argv, "fdb_max_learned") == 0) {
++			__u32 fdb_max_learned;
++
++			NEXT_ARG();
++			if (get_u32(&fdb_max_learned, *argv, 0))
++				invarg("invalid fdb_max_learned", *argv);
++
++			addattr32(n, 1024, IFLA_BR_FDB_MAX_LEARNED, fdb_max_learned);
+ 		} else if (matches(*argv, "fdb_flush") == 0) {
+ 			addattr(n, 1024, IFLA_BR_FDB_FLUSH);
+ 		} else if (matches(*argv, "vlan_default_pvid") == 0) {
+@@ -544,6 +553,18 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
+ 	if (tb[IFLA_BR_GC_TIMER])
+ 		_bridge_print_timer(f, "gc_timer", tb[IFLA_BR_GC_TIMER]);
+ 
++	if (tb[IFLA_BR_FDB_N_LEARNED])
++		print_uint(PRINT_ANY,
++			   "fdb_n_learned",
++			   "fdb_n_learned %u ",
++			   rta_getattr_u32(tb[IFLA_BR_FDB_N_LEARNED]));
++
++	if (tb[IFLA_BR_FDB_MAX_LEARNED])
++		print_uint(PRINT_ANY,
++			   "fdb_max_learned",
++			   "fdb_max_learned %u ",
++			   rta_getattr_u32(tb[IFLA_BR_FDB_MAX_LEARNED]));
++
+ 	if (tb[IFLA_BR_VLAN_DEFAULT_PVID])
+ 		print_uint(PRINT_ANY,
+ 			   "vlan_default_pvid",
+diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
+index 7365d0c6b14f..e82b2dbb0070 100644
+--- a/man/man8/ip-link.8.in
++++ b/man/man8/ip-link.8.in
+@@ -1630,6 +1630,8 @@ the following additional arguments are supported:
+ ] [
+ .BI no_linklocal_learn " NO_LINKLOCAL_LEARN "
+ ] [
++.BI fdb_max_learned " FDB_MAX_LEARNED "
++] [
+ .BI vlan_filtering " VLAN_FILTERING "
+ ] [
+ .BI vlan_protocol " VLAN_PROTOCOL "
+@@ -1741,6 +1743,14 @@ or off
+ When disabled, the bridge will not learn from link-local frames (default:
+ enabled).
+ 
++.BI fdb_max_learned " FDB_MAX_LEARNED "
++- set the maximum number of learned FDB entries. If
++.RI ( FDB_MAX_LEARNED " == 0) "
++the feature is disabled. Default is
++.BR 0 .
++.I FDB_MAX_LEARNED
++is a 32bit unsigned integer.
++
+ .BI vlan_filtering " VLAN_FILTERING "
+ - turn VLAN filtering on
+ .RI ( VLAN_FILTERING " > 0) "
+
+---
+base-commit: 582453de1b65e9eada669d9aea4aca88509e7658
+change-id: 20230905-fdb_limit-ace1467c6a84
+
+Best regards,
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+Johannes Nixdorf <jnixdorf-oss@avm.de>
 
