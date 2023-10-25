@@ -1,21 +1,21 @@
 Return-Path: <idosch@nvidia.com>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A18FE4F3B7
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F12864F37D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A334C708A2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B678D70893
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NgAYaQzNS2YTUXSPafmhLLsXR7g31zwrW17O7KOHwfI=;
- b=mnkwiWLm2K4HDpixTEJ2rnPhydSRT0bZ5yYqJWcrqpB0POsHmL3sewI1I78jc7p/evxGe1is+s7rCRdI95gXDzkFQxtXxsWNZ19fn4XL3hV/wNOcVg1hNOqPkkbN7n/DpFxN1nV+AYmUOAZmFTvp1vDJP0PJLa3TrPMwwQX6cIGh3KMriyaRsL6HpCBkpN8alKo/udDp5B9Q3eSkcdcjK8itQKqM81GJR/ju7Bq/+ClFjFoYoUDGVkYq03Ot9wYWYtbTkuqVnboeMPHXoVRY4hTo83Y/FdG3Wppx2gElE8npRlQdQoPFv1TqriMoqQ9RXHzEwZnMxaEIyRfKNJnU1w==
+ bh=AsAJ0Pa5F/FZiYV8zm16gn6Wb3XmKGfj7pxlsgvFSBk=;
+ b=b3HTZoQeVv4BHx2gV6Sg28FVH1OjGEwVzSf4GyKr8HzrgErRx7ezB0Y2utHRv+0iDKpoFid7JpZr7p4wYHL3xwm8vQDu0ocRHJhekl6Rh+SzYQm9ztAJ6rwv75gcILMlyu53igV9T2nsVOlMgQzQSpW3GK/eN+NbvXQYGm1x2njuez5cwNc8Sw3YuzZg6UB/LakfZhhg0qmUC4wspkyiSiDWyDiAaoujWKs/UY9TgQeWGInzOYZDU2uxuLaJwnkuTO5om4U5Ocz6aN6XcmII1HK9doagrX0sff/RzeQeqHPd1T7nj+gzfKZrYhh8P6nQECNP/fBD8Qqtlid97b9hMA==
 From: Ido Schimmel <idosch@nvidia.com>
-Date: Wed, 25 Oct 2023 15:30:12 +0300
-Message-ID: <20231025123020.788710-6-idosch@nvidia.com>
+Date: Wed, 25 Oct 2023 15:30:13 +0300
+Message-ID: <20231025123020.788710-7-idosch@nvidia.com>
 In-Reply-To: <20231025123020.788710-1-idosch@nvidia.com>
 References: <20231025123020.788710-1-idosch@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-Subject: [Bridge] [PATCH net-next v2 05/13] vxlan: mdb: Adjust function
-	arguments
+Subject: [Bridge] [PATCH net-next v2 06/13] vxlan: mdb: Factor out a helper
+	for remote entry size calculation
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -27,47 +27,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
 To: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 Cc: mlxsw@nvidia.com, razor@blackwall.org, Ido Schimmel <idosch@nvidia.com>, edumazet@google.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-Adjust the function's arguments and rename it to allow it to be reused
-by future call sites that only have access to 'struct
-vxlan_mdb_entry_key', but not to 'struct vxlan_mdb_config'.
+Currently, netlink notifications are sent for individual remote entries
+and not for the entire MDB entry itself.
+
+Subsequent patches are going to add MDB get support which will require
+the VXLAN driver to reply with an entire MDB entry.
+
+Therefore, as a preparation, factor out a helper to calculate the size
+of an individual remote entry. When determining the size of the reply
+this helper will be invoked for each remote entry in the MDB entry.
 
 No functional changes intended.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- drivers/net/vxlan/vxlan_mdb.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/net/vxlan/vxlan_mdb.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/net/vxlan/vxlan_mdb.c b/drivers/net/vxlan/vxlan_mdb.c
-index 5e041622261a..0b6043e1473b 100644
+index 0b6043e1473b..19640f7e3a88 100644
 --- a/drivers/net/vxlan/vxlan_mdb.c
 +++ b/drivers/net/vxlan/vxlan_mdb.c
-@@ -370,12 +370,10 @@ static bool vxlan_mdb_is_valid_source(const struct nlattr *attr, __be16 proto,
- 	return true;
+@@ -925,23 +925,20 @@ vxlan_mdb_nlmsg_src_list_size(const struct vxlan_mdb_entry_key *group,
+ 	return nlmsg_size;
  }
  
--static void vxlan_mdb_config_group_set(struct vxlan_mdb_config *cfg,
--				       const struct br_mdb_entry *entry,
--				       const struct nlattr *source_attr)
-+static void vxlan_mdb_group_set(struct vxlan_mdb_entry_key *group,
-+				const struct br_mdb_entry *entry,
-+				const struct nlattr *source_attr)
+-static size_t vxlan_mdb_nlmsg_size(const struct vxlan_dev *vxlan,
+-				   const struct vxlan_mdb_entry *mdb_entry,
+-				   const struct vxlan_mdb_remote *remote)
++static size_t
++vxlan_mdb_nlmsg_remote_size(const struct vxlan_dev *vxlan,
++			    const struct vxlan_mdb_entry *mdb_entry,
++			    const struct vxlan_mdb_remote *remote)
  {
--	struct vxlan_mdb_entry_key *group = &cfg->group;
--
- 	switch (entry->addr.proto) {
- 	case htons(ETH_P_IP):
- 		group->dst.sa.sa_family = AF_INET;
-@@ -503,7 +501,7 @@ static int vxlan_mdb_config_attrs_init(struct vxlan_mdb_config *cfg,
- 				       entry->addr.proto, extack))
- 		return -EINVAL;
+ 	const struct vxlan_mdb_entry_key *group = &mdb_entry->key;
+ 	struct vxlan_rdst *rd = rtnl_dereference(remote->rd);
+ 	size_t nlmsg_size;
  
--	vxlan_mdb_config_group_set(cfg, entry, mdbe_attrs[MDBE_ATTR_SOURCE]);
-+	vxlan_mdb_group_set(&cfg->group, entry, mdbe_attrs[MDBE_ATTR_SOURCE]);
+-	nlmsg_size = NLMSG_ALIGN(sizeof(struct br_port_msg)) +
+-		     /* MDBA_MDB */
+-		     nla_total_size(0) +
+-		     /* MDBA_MDB_ENTRY */
+-		     nla_total_size(0) +
+ 		     /* MDBA_MDB_ENTRY_INFO */
+-		     nla_total_size(sizeof(struct br_mdb_entry)) +
++	nlmsg_size = nla_total_size(sizeof(struct br_mdb_entry)) +
+ 		     /* MDBA_MDB_EATTR_TIMER */
+ 		     nla_total_size(sizeof(u32));
++
+ 	/* MDBA_MDB_EATTR_SOURCE */
+ 	if (vxlan_mdb_is_sg(group))
+ 		nlmsg_size += nla_total_size(vxlan_addr_size(&group->dst));
+@@ -969,6 +966,19 @@ static size_t vxlan_mdb_nlmsg_size(const struct vxlan_dev *vxlan,
+ 	return nlmsg_size;
+ }
  
- 	/* rtnetlink code only validates that IPv4 group address is
- 	 * multicast.
++static size_t vxlan_mdb_nlmsg_size(const struct vxlan_dev *vxlan,
++				   const struct vxlan_mdb_entry *mdb_entry,
++				   const struct vxlan_mdb_remote *remote)
++{
++	return NLMSG_ALIGN(sizeof(struct br_port_msg)) +
++	       /* MDBA_MDB */
++	       nla_total_size(0) +
++	       /* MDBA_MDB_ENTRY */
++	       nla_total_size(0) +
++	       /* Remote entry */
++	       vxlan_mdb_nlmsg_remote_size(vxlan, mdb_entry, remote);
++}
++
+ static int vxlan_mdb_nlmsg_fill(const struct vxlan_dev *vxlan,
+ 				struct sk_buff *skb,
+ 				const struct vxlan_mdb_entry *mdb_entry,
 -- 
 2.40.1
 
