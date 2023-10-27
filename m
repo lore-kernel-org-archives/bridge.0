@@ -1,26 +1,25 @@
-Return-Path: <stephen@networkplumber.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 066DB42493
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25C20415D0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1698340891;
- x=1698945691; darn=lists.linux-foundation.org; 
- h=content-transfer-encoding:mime-version:message-id:subject:cc:to
- :from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=LiGuJE8jLMnIocTKaNAa+F2ri7OFuPjhrH8s+cGGXVM=;
- b=Cmc5Gz1bSyFmisuia0vNjZoRmUAvpUgmQE1AVmOnm723BsUj4Tz+bHwT2yZbH3Zq4T
- 5Elmr8WzykajtmaQB6yYAByKUn4XMek2X+Akz123PNZCLKGO+GtJgQfynxH6lyjB7mVP
- Bnk1w6Gv15R8RVUfpylsNpLOdrdJIvuTpvKUgKN+7KFRJJSMaJP77m8kM4FeHRB7W0GJ
- A2vuSAGeEHicTui6kEyyeCpmgme3K9dxw4q9s2exphjA67lFQWzG+MsE/Rh1DnW/3F0/
- nHgTUREZ4mqTBGxqk0aIrIAd++VKdLoqixVv+OPfJxESzJJ5pfIKDmGg+zGWY+6a52gZ
- l3iA==
-Date: Thu, 26 Oct 2023 10:21:29 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-Message-ID: <20231026102129.2c4e1976@hermes.local>
+Return-Path: <patchwork-bot+netdevbpf@kernel.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E64B782085
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 826A381EC9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1698400833;
+ bh=/WkRM2i922a3Ow+G7b6etkF/sP9cPHvui0KbyLXDWEU=;
+ h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+ b=AVZ/8YyO3A5t0hfO1Jna9jP2FbRvk1gcEV4M7pArJ94QmBXMgxgvBfeSHMAFf1mhF
+ an5J48HoTRGx0+VXlVleKPGg3A1g7Uh/aTUnsBGcCL3IKNrgl1FdljdnxoQ5barKYn
+ xd9cppL/tqOadw/xKgJL53Iz1ot9vtpM+6MqifQAeByqaOCLx2VsW9stUWUui8cC/O
+ JJ7eH+2ZcQ0FclBMF9EnsNGjSZXnaw1V/rEqsbpqKysPkbGKoCvrDeshSAQutDKZx+
+ bpvMVFsImTbsnskedgMLzo/Gjbj1bbEXDwvkRwuJshyL4WXrSJb2n8MRAm4+2u7BrQ
+ QSsmhT7JIs9iA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Subject: [Bridge] Fw: [Bug 218047] New: linux network bridge kernel set
- group_fwd_mask 65535
+Content-Transfer-Encoding: 8bit
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <169840083306.2931.12879417140055385524.git-patchwork-notify@kernel.org>
+Date: Fri, 27 Oct 2023 10:00:33 +0000
+References: <20231025123020.788710-1-idosch@nvidia.com>
+In-Reply-To: <20231025123020.788710-1-idosch@nvidia.com>
+Subject: Re: [Bridge] [PATCH net-next v2 00/13] Add MDB get support
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,121 +28,57 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: razor@blackwall.org, roopa@nvidia.com
-Cc: bridge@lists.linux-foundation.org
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org, razor@blackwall.org, bridge@lists.linux-foundation.org, edumazet@google.com, mlxsw@nvidia.com, roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 
-The kernel intentionally does not allow forwarding of IEEE pause frames.
-These need to be handled dropped in the bridge.
-Any mask without bit 1 set should work.
+Hello:
 
-Originally LACP, STP and MACPAUSE frames were always blocked and could not be
-changed. The restriction was relaxed for LACP and STP frames.
+This series was applied to netdev/net-next.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-Begin forwarded message:
+On Wed, 25 Oct 2023 15:30:07 +0300 you wrote:
+> This patchset adds MDB get support, allowing user space to request a
+> single MDB entry to be retrieved instead of dumping the entire MDB.
+> Support is added in both the bridge and VXLAN drivers.
+> 
+> Patches #1-#6 are small preparations in both drivers.
+> 
+> Patches #7-#8 add the required uAPI attributes for the new functionality
+> and the MDB get net device operation (NDO), respectively.
+> 
+> [...]
 
-Date: Thu, 26 Oct 2023 05:16:24 +0000
-From: bugzilla-daemon@kernel.org
-To: stephen@networkplumber.org
-Subject: [Bug 218047] New: linux network bridge kernel set group_fwd_mask 65535
+Here is the summary with links:
+  - [net-next,v2,01/13] bridge: mcast: Dump MDB entries even when snooping is disabled
+    https://git.kernel.org/netdev/net-next/c/b9109b5b77f0
+  - [net-next,v2,02/13] bridge: mcast: Account for missing attributes
+    https://git.kernel.org/netdev/net-next/c/1b6d993509c1
+  - [net-next,v2,03/13] bridge: mcast: Factor out a helper for PG entry size calculation
+    https://git.kernel.org/netdev/net-next/c/62ef9cba98a2
+  - [net-next,v2,04/13] bridge: mcast: Rename MDB entry get function
+    https://git.kernel.org/netdev/net-next/c/6d0259dd6c53
+  - [net-next,v2,05/13] vxlan: mdb: Adjust function arguments
+    https://git.kernel.org/netdev/net-next/c/ff97d2a956a1
+  - [net-next,v2,06/13] vxlan: mdb: Factor out a helper for remote entry size calculation
+    https://git.kernel.org/netdev/net-next/c/14c32a46d992
+  - [net-next,v2,07/13] bridge: add MDB get uAPI attributes
+    https://git.kernel.org/netdev/net-next/c/83c1bbeb864f
+  - [net-next,v2,08/13] net: Add MDB get device operation
+    https://git.kernel.org/netdev/net-next/c/62f47bf9e2c0
+  - [net-next,v2,09/13] bridge: mcast: Add MDB get support
+    https://git.kernel.org/netdev/net-next/c/68b380a395a7
+  - [net-next,v2,10/13] vxlan: mdb: Add MDB get support
+    https://git.kernel.org/netdev/net-next/c/32d9673e96dc
+  - [net-next,v2,11/13] rtnetlink: Add MDB get support
+    https://git.kernel.org/netdev/net-next/c/ddd17a54e692
+  - [net-next,v2,12/13] selftests: bridge_mdb: Use MDB get instead of dump
+    https://git.kernel.org/netdev/net-next/c/e8bba9e83c88
+  - [net-next,v2,13/13] selftests: vxlan_mdb: Use MDB get instead of dump
+    https://git.kernel.org/netdev/net-next/c/0514dd05939a
 
-
-https://bugzilla.kernel.org/show_bug.cgi?id=218047
-
-            Bug ID: 218047
-           Summary: linux network bridge kernel set group_fwd_mask 65535
-           Product: Networking
-           Version: 2.5
-          Hardware: All
-                OS: Linux
-            Status: NEW
-          Severity: normal
-          Priority: P3
-         Component: Other
-          Assignee: stephen@networkplumber.org
-          Reporter: ne-vlezay80@yandex.ru
-        Regression: No
-
-If trying set the parameter from network bridge? going error:
-
-[root@arch user]# ip link set bridge0  type bridge group_fwd_mask 65535
-RTNETLINK answers: Invalid argument
-
-setting this parameter is desirable if the switching is routed to a separate
-virtual machine on the hypervisor, and on the host it looks like this:
-
-ip link add dev ns-switch.0 up mtu 16384 master bridge0 type veth peer name
-host0 address $SWMAC  netns switch mtu 16384
-ip link add dev ns-host1.0 up mtu 16384 master bridge0 type veth peer name
-host0 netns host1 mtu 16384
-ip link add dev ns-host2.0 up mtu 16384 master bridge0 type veth peer name
-host0 netns host2 mtu 16384
-ip link add dev ns-host3.0 up mtu 16384 master bridge0 type veth peer name
-host0 netns host3 mtu 16384
-ip link add dev ns-host4.0 up mtu 16384 master bridge0 type veth peer name
-host0 netns host4 mtu 16384
-
-tc qdisc add dev ns-switch.0 handle ffff: ingress
-tc qdisc add dev ns-host1.0 handle ffff: ingress
-tc qdisc add dev ns-host2.0 handle ffff: ingress
-tc qdisc add dev ns-host3.0 handle ffff: ingress
-tc qdisc add dev ns-host4.0 handle ffff: ingress
-
-tc qdisc add dev gt-ll0 handle ffff: ingress
-tc qdisc add dev gt-ll0 handle 1: root htb default 10
-
-tc qdisc add dev ns-switch.0 handle 1: root htb default 10
-tc qdisc add dev ns-host1.0 handle 1: root htb default 10
-tc qdisc add dev ns-host2.0 handle 1: root htb default 10
-tc qdisc add dev ns-host3.0 handle 1: root htb default 10
-tc qdisc add dev ns-host4.0 handle 1: root htb default 10
-
-
-tc filter add dev ns-host1.0 parent ffff: prio 9 protocol all flower dst_mac
-01:00:00:00:00:00/8 action vlan push id 10 action mirred egress redirect dev
-gt-ll0
-tc filter add dev ns-host2.0 parent ffff: prio 9 protocol all flower dst_mac
-01:00:00:00:00:00/8 action vlan push id 11 action mirred egress redirect dev
-gt-ll0
-tc filter add dev ns-host3.0 parent ffff: prio 9 protocol all flower dst_mac
-01:00:00:00:00:00/8 action vlan push id 12 action mirred egress redirect dev
-gt-ll0
-tc filter add dev ns-host4.0 parent ffff: prio 9 protocol all flower dst_mac
-01:00:00:00:00:00/8 action vlan push id 13 action mirred egress redirect dev
-gt-ll0
-
-tc filter add dev ns-host1.0 parent ffff: prio 10 protocol all matchall action
-vlan push id 10 
-tc filter add dev ns-host2.0 parent ffff: prio 10 protocol all matchall action
-vlan push id 11
-tc filter add dev ns-host3.0 parent ffff: prio 10 protocol all matchall action
-vlan push id 12
-tc filter add dev ns-host4.0 parent ffff: prio 10 protocol all matchall action
-vlan push id 13
-
-tc filter add dev ns-host1.0 parent 1: prio 65535 protocol all matchall action
-drop
-tc filter add dev ns-host1.0 parent 1: prio 1 protocol 802.1Q flower vlan_id 10
-action vlan pop
-
-tc filter add dev ns-host2.0 parent 1: prio 65535 protocol all matchall action
-drop
-tc filter add dev ns-host2.0 parent 1: prio 1 protocol 802.1Q flower vlan_id 11
-action vlan pop
-
-tc filter add dev ns-host3.0 parent 1: prio 65535 protocol all matchall action
-drop
-tc filter add dev ns-host3.0 parent 1: prio 1 protocol 802.1Q flower vlan_id 12
-action vlan pop
-
-tc filter add dev ns-host4.0 parent 1: prio 65535 protocol all matchall action
-drop
-tc filter add dev ns-host4.0 parent 1: prio 1 protocol 802.1Q flower vlan_id 13
-action vlan pop 
-
-the config example from be network lab.
-
+You are awesome, thank you!
 -- 
-You may reply to this email to add a comment.
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-You are receiving this mail because:
-You are the assignee for the bug.
+
