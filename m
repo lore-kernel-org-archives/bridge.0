@@ -1,26 +1,20 @@
-Return-Path: <patchwork-bot+netdevbpf@kernel.org>
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BD18070655
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4BA1F70651
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1698402024;
- bh=T+3V1QPNWQUYBlU7Bsq22khHxGFNFrur7XQd590rXoM=;
- h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
- b=RVk3/sIiGmoj19UD63rK9A/Liipt6WZ7nQRvTYjjUPMlNONrHvLbOeh1ww0EvhqME
- fR44vLwFwb1b0dzcnCVvpJdL64T7tXkDSxghrsxb6GjdCqv483/9DBtHFQI84qLB4i
- itWWLS6LTni1sMBtNBoVxyEG9HKCZO0KCLzg3y0UE+WdtWJnXxaELw6aS77hRxCum6
- zul82YK/Nslnz5DFHsiHOeQIHjhbWw8fA+Ol/zJY+ANLboWavKBHSqg7ytbsgz3bqU
- EypIcRM2yU7DwTUtbg4W24Lxt2IQd2Wk1UZzwP3uqRDq7DLUfKoL5av1I+4WEVtcIa
- uqPummy4+KTNA==
-Content-Type: text/plain; charset="utf-8"
+Return-Path: <konstantin@linuxfoundation.org>
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3FB2C84CC9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3CC188494D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1698869458;
+ bh=qWq60dsjYKVO5hHhs5WPNbgi5lyED87df/YUqtTpgb8=;
+ h=Date:From:To:Subject:From;
+ b=yBcGlUHAIH4+DORbqzS0Ces0g4jwdZo1rmaYs/M0DGlcASToPqKqMsHfugv4Yjdnq
+ bVGBpN+/DztApGFk+Ne4Jq45zZyq7AhAXFpEyuwLLqvf4XSf7KdsjK+5VXw9aYeZJz
+ 74DAmfNNgWgU7atxpZtp7zJUThscdqf0MtX1D64w=
+Date: Wed, 1 Nov 2023 16:10:56 -0400
+From: Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Message-ID: <20231101-enormous-salmon-of-coffee-7ebb9a@nitro>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <169840202448.15376.8674341343569691359.git-patchwork-notify@kernel.org>
-Date: Fri, 27 Oct 2023 10:20:24 +0000
-References: <20231027100549.1695865-1-razor@blackwall.org>
-In-Reply-To: <20231027100549.1695865-1-razor@blackwall.org>
-Subject: Re: [Bridge] [PATCH net-next] net: bridge: fill in
-	MODULE_DESCRIPTION()
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Subject: [Bridge] PSA: the bridge list will be moving to lists.linux.dev
 List-Id: Linux Ethernet Bridging <bridge.lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/bridge>, 
  <mailto:bridge-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -29,30 +23,45 @@ List-Post: <mailto:bridge@lists.linux-foundation.org>
 List-Help: <mailto:bridge-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/bridge>,
  <mailto:bridge-request@lists.linux-foundation.org?subject=subscribe>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org, roopa@nvidia.com, kuba@kernel.org
+To: bridge@lists.linux-foundation.org
 
-Hello:
+Hello, all:
 
-This patch was applied to netdev/net-next.git (main)
-by David S. Miller <davem@davemloft.net>:
+The mailman-2 system running on lists.linux-foundation.org is being
+decommissioned, so all lists currently hosted there will be found new homes.
+*On November 7*, The bridge list will be migrated to live on lists.linux.dev,
+but the impact of this move should be minor:
 
-On Fri, 27 Oct 2023 13:05:49 +0300 you wrote:
-> Fill in bridge's module description.
-> 
-> Suggested-by: Jakub Kicinski <kuba@kernel.org>
-> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
-> ---
->  net/bridge/br.c | 1 +
->  1 file changed, 1 insertion(+)
+1. The new canonical list address will be bridge@lists.linux.dev.
 
-Here is the summary with links:
-  - [net-next] net: bridge: fill in MODULE_DESCRIPTION()
-    https://git.kernel.org/netdev/net-next/c/6808918343a8
+2. *The old address will continue to work* for the foreseeable future, so any
+   existing conversations can continue and any new messages sent to the old
+   list address will be properly delivered to all subscribers.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+3. All members will be automatically subscribed to the new list, so no action
+   is required on anyone's part to keep receiving list mail.
 
+4. The list will be archived on https://lore.kernel.org/bridge/ with all prior
+   archives automatically imported.
 
+5. The List-ID header will change, regardless to which address the message is
+   sent:
+
+   before: List-Id: <bridge.lists.linux-foundation.org>
+    after: List-Id: <bridge.lists.linux.dev>
+
+   You will need to update your filtering rules if you filter based on the
+   contents of that header (on or after November 7).
+
+6. The mailman footer will no longer be added to message bodies and the
+   subject will no longer be modified to insert [bridge] (because this
+   violates DMARC).
+
+7. Subscribing and unsubscribing will be done using the mlmmj supported
+   commands, documented at https://subspace.kernel.org/subscribing.html
+
+Please let me know if you have any questions or concerns. Otherwise, I will
+follow up on November 7 after the move has been completed.
+
+Best regards,
+-K
