@@ -1,87 +1,73 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ECE680C
-	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 03:54:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD4D97E
+	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:40:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=businessstrategist.pl header.i=@businessstrategist.pl header.b="U38Yl9Dx"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A36B641F5A
-	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 03:54:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A36B641F5A
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4A7A241F55
+	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:40:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4A7A241F55
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=businessstrategist.pl header.i=@businessstrategist.pl header.a=rsa-sha256 header.s=mail header.b=U38Yl9Dx
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: 0.856
+X-Spam-Score: -0.7
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WokrhK4Rgx1U for <bridge@lists.linux-foundation.org>;
-	Wed, 15 Nov 2023 03:54:06 +0000 (UTC)
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DAB0941F29
-	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 03:54:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DAB0941F29
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-5c1b9860846so1472175a12.2
-        for <bridge@lists.linux-foundation.org>; Tue, 14 Nov 2023 19:54:06 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700020446; x=1700625246;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=l61plfqF5nHarfz7jpK6i+deFeBGlZF1Gciyjaej1pU=;
-        b=VovlTyJhB+vnq+ayKbxpEt1ryxAy5RnCwQoio+5HIRfTaV37ToionBQKWGrbmSaaz/
-         XBRFrrRVssrOLfmNlH7NIoR7IHerEi5kuWP2KCYQSFBM1ULFi8U7DfBxYP1kWmrVo5Jt
-         I9olSrU+2xMS/ZBNaa7FE/AKxzpdnUrbppPly9VSTWIkLoN7n3GxnRWS6xBzC2AtjvFi
-         TKvwZETsQECQ0h5lsFpIlaE/tcnQmHnMrZsTTna7hAPsfHKGNfECKKuCekl7NmEd1bkX
-         VzYM2oAssWfeB0kkBxjiDq0rXbpDTikGxjvVYxEZYnHXM2P7aPPPzV02QnlF/oAYbzIr
-         Rssw==
-X-Gm-Message-State: AOJu0Yx3QcTh5ujeWx0RLmgo0KX3MY6SiHceAifCkbrF+4kAtGIGFOSL
-	Tph/aztdFDneGC/r1ZUgR4Jm8r7Iu9AonKaaUprozbEUIP8A
-X-Google-Smtp-Source: AGHT+IF7oCUwCwgZD8xczyFHrZBrkFObiOTryGSeBv2U1eTP1+U0YLkF1/pd5Ws0MaLMfr04sNagBgqsvJlTEqQVYDltsdAuSXeY
+	with ESMTP id F-2ys3_bzIUw for <bridge@lists.linux-foundation.org>;
+	Wed, 15 Nov 2023 08:40:41 +0000 (UTC)
+X-Greylist: delayed 586 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 15 Nov 2023 08:40:41 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 928F441F28
+Received: from mail.businessstrategist.pl (mail.businessstrategist.pl [195.231.61.86])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 928F441F28
+	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:40:41 +0000 (UTC)
+Received: by mail.businessstrategist.pl (Postfix, from userid 1003)
+	id 4752782C06; Wed, 15 Nov 2023 09:30:42 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+	d=businessstrategist.pl; s=mail; t=1700037052;
+	bh=I2N+X32ICnhj5JNiBOipsmyxepL/CdrBT3mDRa0lO2Q=;
+	h=Date:From:To:Subject:From;
+	b=U38Yl9Dxue2b1BaZlNptBysXfVQVljyBSbsWzfCCLh/hZA3Ok4Q66cIaBpCSgxZkh
+	 CKckOteNMGCNH81bP1xkYI5JJQF4qMLpW/cK4gDUhJTX9l/av8AZKVttceBxIkpwnE
+	 EWaseUYOdgt6YZlhCMK6jr44PubZnHvZqlWTA6LtPMZTZCv4iqxcjvWi1Mn30dieZA
+	 VocmZhBodUYmejaw8VrjNQu/wBfecuEUIcMncIhBRvk2wq9fEIHG/5B8Qv2/H6wwGk
+	 j/+z2ivMTmouJIAesEd6R1jrp5cdgT0+WVFXbGAHnyHEJRYuZL+ur36m8kWcSkh3A6
+	 slRi6jsrVyAuQ==
+Received: by mail.businessstrategist.pl for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:30:36 GMT
+Message-ID: <20231115084500-0.1.18.2w4y.0.7mn3cne67o@businessstrategist.pl>
+Date: Wed, 15 Nov 2023 08:30:36 GMT
+From: =?UTF-8?Q?"Mateusz_Iwa=C5=84ski"?= <mateusz.iwanski@businessstrategist.pl>
+To: <bridge@lists.linux-foundation.org>
+Subject: RE: Mecenas prosi o kontakt
+X-Mailer: mail.businessstrategist.pl
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a65:40c3:0:b0:5b9:63f2:e4cc with SMTP id
- u3-20020a6540c3000000b005b963f2e4ccmr1080000pgp.2.1700020446008; Tue, 14 Nov
- 2023 19:54:06 -0800 (PST)
-Date: Tue, 14 Nov 2023 19:54:05 -0800
-In-Reply-To: <0000000000008981d905ffa345de@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000cb9c3d060a28dad8@google.com>
-Subject: Re: [syzbot] [can?] possible deadlock in j1939_sk_errqueue (2)
-From: syzbot <syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com>
-To: arnd@arndb.de, astrajoan@yahoo.com, bridge@lists.linux-foundation.org, 
-	davem@davemloft.net, dvyukov@google.com, edumazet@google.com, 
-	hdanton@sina.com, ivan.orlov0322@gmail.com, kernel@pengutronix.de, 
-	kuba@kernel.org, linux-can@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux@rempel-privat.de, mkl@pengutronix.de, mudongliangabcd@gmail.com, 
-	netdev@vger.kernel.org, nikolay@nvidia.com, o.rempel@pengutronix.de, 
-	pabeni@redhat.com, robin@protonic.nl, roopa@nvidia.com, 
-	skhan@linuxfoundation.org, socketcan@hartkopp.net, stephen@networkplumber.org, 
-	syzkaller-bugs@googlegroups.com, syzkaller@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-syzbot has bisected this issue to:
+Dzie=C5=84 dobry,
 
-commit 2030043e616cab40f510299f09b636285e0a3678
-Author: Oleksij Rempel <o.rempel@pengutronix.de>
-Date:   Fri May 21 11:57:20 2021 +0000
+moja kancelaria pomaga podmiotom gospodarczym w rozwijaniu swojej pozycji=
+ na rynku dzi=C4=99ki umiej=C4=99tnemu wykorzystaniu rozwi=C4=85za=C5=84 =
+prawnych w dzia=C5=82alno=C5=9Bci.
 
-    can: j1939: fix Use-after-Free, hold skb ref while in use
+Dobieramy odpowiedni=C4=85 dla przedsi=C4=99biorc=C3=B3w form=C4=99 prawn=
+=C4=85 firmy, tworzymy dla naszych Klient=C3=B3w umowy i wszelk=C4=85 dok=
+umentacj=C4=99 oraz pisma, a tak=C5=BCe dbamy o interesy podczas kontakt=C3=
+=B3w z organami pa=C5=84stwowymi.
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1438c947680000
-start commit:   1b907d050735 Merge tag '6.7-rc-smb3-client-fixes-part2' of..
-git tree:       upstream
-final oops:     https://syzkaller.appspot.com/x/report.txt?x=1638c947680000
-console output: https://syzkaller.appspot.com/x/log.txt?x=1238c947680000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=88e7ba51eecd9cd6
-dashboard link: https://syzkaller.appspot.com/bug?extid=1591462f226d9cbf0564
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17fea8fb680000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1633dc70e80000
+Pomagamy zredukowa=C4=87 obci=C4=85=C5=BCenia finansowe i zachowa=C4=87 s=
+tabiln=C4=85 p=C5=82ynno=C5=9B=C4=87 =C5=9Brodk=C3=B3w.
 
-Reported-by: syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com
-Fixes: 2030043e616c ("can: j1939: fix Use-after-Free, hold skb ref while in use")
+Mo=C5=BCemy porozmawia=C4=87 o ewentualnej wsp=C3=B3=C5=82pracy?
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+
+Pozdrawiam
+Mateusz Iwa=C5=84ski
