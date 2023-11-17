@@ -1,73 +1,108 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD4D97E
-	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:40:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=businessstrategist.pl header.i=@businessstrategist.pl header.b="U38Yl9Dx"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E04B2D265
+	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:26:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4A7A241F55
-	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:40:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4A7A241F55
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=businessstrategist.pl header.i=@businessstrategist.pl header.a=rsa-sha256 header.s=mail header.b=U38Yl9Dx
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4A3FE83B20
+	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:26:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A3FE83B20
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.7
+X-Spam-Score: -4.2
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id F-2ys3_bzIUw for <bridge@lists.linux-foundation.org>;
-	Wed, 15 Nov 2023 08:40:41 +0000 (UTC)
-X-Greylist: delayed 586 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 15 Nov 2023 08:40:41 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 928F441F28
-Received: from mail.businessstrategist.pl (mail.businessstrategist.pl [195.231.61.86])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 928F441F28
-	for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:40:41 +0000 (UTC)
-Received: by mail.businessstrategist.pl (Postfix, from userid 1003)
-	id 4752782C06; Wed, 15 Nov 2023 09:30:42 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-	d=businessstrategist.pl; s=mail; t=1700037052;
-	bh=I2N+X32ICnhj5JNiBOipsmyxepL/CdrBT3mDRa0lO2Q=;
-	h=Date:From:To:Subject:From;
-	b=U38Yl9Dxue2b1BaZlNptBysXfVQVljyBSbsWzfCCLh/hZA3Ok4Q66cIaBpCSgxZkh
-	 CKckOteNMGCNH81bP1xkYI5JJQF4qMLpW/cK4gDUhJTX9l/av8AZKVttceBxIkpwnE
-	 EWaseUYOdgt6YZlhCMK6jr44PubZnHvZqlWTA6LtPMZTZCv4iqxcjvWi1Mn30dieZA
-	 VocmZhBodUYmejaw8VrjNQu/wBfecuEUIcMncIhBRvk2wq9fEIHG/5B8Qv2/H6wwGk
-	 j/+z2ivMTmouJIAesEd6R1jrp5cdgT0+WVFXbGAHnyHEJRYuZL+ur36m8kWcSkh3A6
-	 slRi6jsrVyAuQ==
-Received: by mail.businessstrategist.pl for <bridge@lists.linux-foundation.org>; Wed, 15 Nov 2023 08:30:36 GMT
-Message-ID: <20231115084500-0.1.18.2w4y.0.7mn3cne67o@businessstrategist.pl>
-Date: Wed, 15 Nov 2023 08:30:36 GMT
-From: =?UTF-8?Q?"Mateusz_Iwa=C5=84ski"?= <mateusz.iwanski@businessstrategist.pl>
-To: <bridge@lists.linux-foundation.org>
-Subject: RE: Mecenas prosi o kontakt
-X-Mailer: mail.businessstrategist.pl
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GmZHt5uvFsMB for <bridge@lists.linux-foundation.org>;
+	Fri, 17 Nov 2023 08:26:10 +0000 (UTC)
+X-Greylist: delayed 959 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 17 Nov 2023 08:26:09 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E1C5483A8D
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E1C5483A8D
+	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:26:09 +0000 (UTC)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <ore@pengutronix.de>)
+	id 1r3tvT-0005ZF-4D; Fri, 17 Nov 2023 09:10:07 +0100
+Received: from [2a0a:edc0:2:b01:1d::c0] (helo=ptx.whiteo.stw.pengutronix.de)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <ore@pengutronix.de>)
+	id 1r3tvO-009d5q-RY; Fri, 17 Nov 2023 09:10:02 +0100
+Received: from ore by ptx.whiteo.stw.pengutronix.de with local (Exim 4.92)
+	(envelope-from <ore@pengutronix.de>)
+	id 1r3tvO-002Tie-O0; Fri, 17 Nov 2023 09:10:02 +0100
+Date: Fri, 17 Nov 2023 09:10:02 +0100
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+To: Ziqi Zhao <astrajoan@yahoo.com>
+Cc: ivan.orlov0322@gmail.com, edumazet@google.com,
+	syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com,
+	socketcan@hartkopp.net, bridge@lists.linux-foundation.org,
+	nikolay@nvidia.com,
+	syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com,
+	roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, arnd@arndb.de,
+	syzkaller-bugs@googlegroups.com, mudongliangabcd@gmail.com,
+	linux-can@vger.kernel.org, mkl@pengutronix.de,
+	skhan@linuxfoundation.org, robin@protonic.nl,
+	linux-kernel@vger.kernel.org, linux@rempel-privat.de,
+	kernel@pengutronix.de, netdev@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH] can: j1939: prevent deadlock by changing
+ j1939_socks_lock to rwlock
+Message-ID: <20231117081002.GA590719@pengutronix.de>
+References: <20230704064710.3189-1-astrajoan@yahoo.com>
+ <20230721162226.8639-1-astrajoan@yahoo.com>
+ <20230807044634.GA5736@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230807044634.GA5736@pengutronix.de>
+X-Sent-From: Pengutronix Hildesheim
+X-URL: http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: bridge@lists.linux-foundation.org
 
-Dzie=C5=84 dobry,
+On Mon, Aug 07, 2023 at 06:46:34AM +0200, Oleksij Rempel wrote:
+> On Fri, Jul 21, 2023 at 09:22:26AM -0700, Ziqi Zhao wrote:
+> > The following 3 locks would race against each other, causing the
+> > deadlock situation in the Syzbot bug report:
+> > 
+> > - j1939_socks_lock
+> > - active_session_list_lock
+> > - sk_session_queue_lock
+> > 
+> > A reasonable fix is to change j1939_socks_lock to an rwlock, since in
+> > the rare situations where a write lock is required for the linked list
+> > that j1939_socks_lock is protecting, the code does not attempt to
+> > acquire any more locks. This would break the circular lock dependency,
+> > where, for example, the current thread already locks j1939_socks_lock
+> > and attempts to acquire sk_session_queue_lock, and at the same time,
+> > another thread attempts to acquire j1939_socks_lock while holding
+> > sk_session_queue_lock.
+> > 
+> > NOTE: This patch along does not fix the unregister_netdevice bug
+> > reported by Syzbot; instead, it solves a deadlock situation to prepare
+> > for one or more further patches to actually fix the Syzbot bug, which
+> > appears to be a reference counting problem within the j1939 codebase.
+> > 
+> > Reported-by: syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com
+> > Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
 
-moja kancelaria pomaga podmiotom gospodarczym w rozwijaniu swojej pozycji=
- na rynku dzi=C4=99ki umiej=C4=99tnemu wykorzystaniu rozwi=C4=85za=C5=84 =
-prawnych w dzia=C5=82alno=C5=9Bci.
+Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
 
-Dobieramy odpowiedni=C4=85 dla przedsi=C4=99biorc=C3=B3w form=C4=99 prawn=
-=C4=85 firmy, tworzymy dla naszych Klient=C3=B3w umowy i wszelk=C4=85 dok=
-umentacj=C4=99 oraz pisma, a tak=C5=BCe dbamy o interesy podczas kontakt=C3=
-=B3w z organami pa=C5=84stwowymi.
-
-Pomagamy zredukowa=C4=87 obci=C4=85=C5=BCenia finansowe i zachowa=C4=87 s=
-tabiln=C4=85 p=C5=82ynno=C5=9B=C4=87 =C5=9Brodk=C3=B3w.
-
-Mo=C5=BCemy porozmawia=C4=87 o ewentualnej wsp=C3=B3=C5=82pracy?
-
-
-Pozdrawiam
-Mateusz Iwa=C5=84ski
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
