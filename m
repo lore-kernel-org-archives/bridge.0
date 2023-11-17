@@ -1,108 +1,69 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E04B2D265
-	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A20E3C32
+	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 09:00:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=raportygospodarcze.pl header.i=@raportygospodarcze.pl header.b="HF1iFyCL"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4A3FE83B20
-	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:26:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A3FE83B20
+	by smtp4.osuosl.org (Postfix) with ESMTP id A74AD40964
+	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 09:00:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A74AD40964
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=raportygospodarcze.pl header.i=@raportygospodarcze.pl header.a=rsa-sha256 header.s=mail header.b=HF1iFyCL
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.2
+X-Spam-Score: -0.201
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GmZHt5uvFsMB for <bridge@lists.linux-foundation.org>;
-	Fri, 17 Nov 2023 08:26:10 +0000 (UTC)
-X-Greylist: delayed 959 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 17 Nov 2023 08:26:09 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E1C5483A8D
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E1C5483A8D
-	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:26:09 +0000 (UTC)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ore@pengutronix.de>)
-	id 1r3tvT-0005ZF-4D; Fri, 17 Nov 2023 09:10:07 +0100
-Received: from [2a0a:edc0:2:b01:1d::c0] (helo=ptx.whiteo.stw.pengutronix.de)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <ore@pengutronix.de>)
-	id 1r3tvO-009d5q-RY; Fri, 17 Nov 2023 09:10:02 +0100
-Received: from ore by ptx.whiteo.stw.pengutronix.de with local (Exim 4.92)
-	(envelope-from <ore@pengutronix.de>)
-	id 1r3tvO-002Tie-O0; Fri, 17 Nov 2023 09:10:02 +0100
-Date: Fri, 17 Nov 2023 09:10:02 +0100
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-To: Ziqi Zhao <astrajoan@yahoo.com>
-Cc: ivan.orlov0322@gmail.com, edumazet@google.com,
-	syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com,
-	socketcan@hartkopp.net, bridge@lists.linux-foundation.org,
-	nikolay@nvidia.com,
-	syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com,
-	roopa@nvidia.com, kuba@kernel.org, pabeni@redhat.com, arnd@arndb.de,
-	syzkaller-bugs@googlegroups.com, mudongliangabcd@gmail.com,
-	linux-can@vger.kernel.org, mkl@pengutronix.de,
-	skhan@linuxfoundation.org, robin@protonic.nl,
-	linux-kernel@vger.kernel.org, linux@rempel-privat.de,
-	kernel@pengutronix.de, netdev@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH] can: j1939: prevent deadlock by changing
- j1939_socks_lock to rwlock
-Message-ID: <20231117081002.GA590719@pengutronix.de>
-References: <20230704064710.3189-1-astrajoan@yahoo.com>
- <20230721162226.8639-1-astrajoan@yahoo.com>
- <20230807044634.GA5736@pengutronix.de>
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dsFTXnexTYOt for <bridge@lists.linux-foundation.org>;
+	Fri, 17 Nov 2023 09:00:09 +0000 (UTC)
+X-Greylist: delayed 517 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 17 Nov 2023 09:00:09 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2DEDC40931
+Received: from mail.raportygospodarcze.pl (mail.raportygospodarcze.pl [51.195.117.175])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2DEDC40931
+	for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 09:00:09 +0000 (UTC)
+Received: by mail.raportygospodarcze.pl (Postfix, from userid 1002)
+	id DA48EA354A; Fri, 17 Nov 2023 08:51:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+	d=raportygospodarcze.pl; s=mail; t=1700211089;
+	bh=Q787bUI8wqiKELAtyWRvCTxaBwNaZfpooGhkyk63cfU=;
+	h=Date:From:To:Subject:From;
+	b=HF1iFyCLjvP9WMOkEHdHpAy8B7SbEwzpRW8MUIP4una5pr5iWEvdELErgQ+VAvqDZ
+	 5o768h7NGHulAfBpi1k0chyNG4f/vUdkHxDuaeoPBExCBVU5EPhUuP5BgQtwc7JVWk
+	 GASjCcF9hBn1Dl0xkNuGr5ueR3n0wGDv+RBG0F3rTHQ1Te1dFGDDFc/H0Xtwb77evH
+	 MTVRZr575haKR7R71VWjVuCw8tdzq8LuBgBWfs9WOEztPbE7iHO1FzxH4z/Ww8IA3N
+	 7wzDERNbKe8+rNIywYOPcHAKc3/KUzvP5r0exSGOHvXgFs9+mQueuoVWdkCPWOs7xn
+	 FX1oLg4b0CHOA==
+Received: by mail.raportygospodarcze.pl for <bridge@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:50:57 GMT
+Message-ID: <20231117074500-0.1.bn.1i057.0.1rx52mf7il@raportygospodarcze.pl>
+Date: Fri, 17 Nov 2023 08:50:57 GMT
+From: "Maksymilian Ciszewski" <maksymilian.ciszewski@raportygospodarcze.pl>
+To: <bridge@lists.linux-foundation.org>
+Subject: =?UTF-8?Q?Prosz=C4=99_o_kontakt?=
+X-Mailer: mail.raportygospodarcze.pl
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20230807044634.GA5736@pengutronix.de>
-X-Sent-From: Pengutronix Hildesheim
-X-URL: http://www.pengutronix.de/
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: bridge@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 07, 2023 at 06:46:34AM +0200, Oleksij Rempel wrote:
-> On Fri, Jul 21, 2023 at 09:22:26AM -0700, Ziqi Zhao wrote:
-> > The following 3 locks would race against each other, causing the
-> > deadlock situation in the Syzbot bug report:
-> > 
-> > - j1939_socks_lock
-> > - active_session_list_lock
-> > - sk_session_queue_lock
-> > 
-> > A reasonable fix is to change j1939_socks_lock to an rwlock, since in
-> > the rare situations where a write lock is required for the linked list
-> > that j1939_socks_lock is protecting, the code does not attempt to
-> > acquire any more locks. This would break the circular lock dependency,
-> > where, for example, the current thread already locks j1939_socks_lock
-> > and attempts to acquire sk_session_queue_lock, and at the same time,
-> > another thread attempts to acquire j1939_socks_lock while holding
-> > sk_session_queue_lock.
-> > 
-> > NOTE: This patch along does not fix the unregister_netdevice bug
-> > reported by Syzbot; instead, it solves a deadlock situation to prepare
-> > for one or more further patches to actually fix the Syzbot bug, which
-> > appears to be a reference counting problem within the j1939 codebase.
-> > 
-> > Reported-by: syzbot+1591462f226d9cbf0564@syzkaller.appspotmail.com
-> > Signed-off-by: Ziqi Zhao <astrajoan@yahoo.com>
+Dzie=C5=84 dobry,
 
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Czy jest mo=C5=BCliwo=C5=9B=C4=87 nawi=C4=85zania wsp=C3=B3=C5=82pracy z =
+Pa=C5=84stwem?
 
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Z ch=C4=99ci=C4=85 porozmawiam z osob=C4=85 zajmuj=C4=85c=C4=85 si=C4=99 =
+dzia=C5=82aniami zwi=C4=85zanymi ze sprzeda=C5=BC=C4=85.
+
+Pomagamy skutecznie pozyskiwa=C4=87 nowych klient=C3=B3w.
+
+Zapraszam do kontaktu.
+
+
+Pozdrawiam
+Maksymilian Ciszewski
