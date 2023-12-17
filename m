@@ -1,35 +1,35 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6EE1FC1
-	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A373223B9
+	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="jGMynj4k"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YczvAJ7J"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5CF37820FF
-	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5CF37820FF
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1A1F881F10
+	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1A1F881F10
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=jGMynj4k
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=YczvAJ7J
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.103
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9_7pQcHQyPER for <bridge@lists.linux-foundation.org>;
-	Sun, 17 Dec 2023 08:33:33 +0000 (UTC)
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2416::600])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C6624820FA
-	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C6624820FA
+	with ESMTP id v1nlQQdUg3gf for <bridge@lists.linux-foundation.org>;
+	Sun, 17 Dec 2023 08:33:36 +0000 (UTC)
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20627.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe59::627])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BDAA2820FA
+	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BDAA2820FA
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=epNo9uL+JOsx/tsFzn1MMoDddmwjgndrcKvDN5rr8l5lJyn+FXpaPi3aGtWA1tJh7ugC4Hxj1fkm9SHsuubbTfBxlqaxXUwQx2ymsP1beXGZotdXpEtcv4UIoWVd410TLRCOru6/SE8FZW+nGXxsn202L13z4SpQ4ARO7BMVQNJsgPSsuYqFDZ1RYRHI8MXQdMpdaUl4GKWmuGqAbvhxBcqAZqQZ9OETZGc548q1cHzcMmYVnB8eMFoi73RgyYB66Z/41BDxYHnYuu3HzaaL4NHpnaff3cHADFHQ5t3VZBBo9jM0PYsp5sniJCWCu7yfdeH072aYlj7voaW6FmTcbw==
+ b=VprUjP4oIIYiUwcJE2C4A7Xox6mz/B8yvYjCk/tJXiz3uf8197X9mXb4bMdw43IqfqEYak2mZ/XKPgWDc82Tv2g3q4TH7tjPfCLALbI8ldFpu+o9yreNq7roKaxPq0ysMp7/3fXFJ8t6LjdLotfK2ng4NSWH7CZdtj2udGki2qT8lawpTeBo6K4wMOSTeemMKOm5REl5LLmFNUPJwSJG8/avSvKlLlhoZxM52EQdZUGxYQtooL32MAqg3kARmEhosKs/H7Kjd1LhQTFGguZcjgAwgrZFwhU7PR43ZassnL9pOC9vM2ve1QDPIF1mKf1w3hjItwJUI54flSRE2F4tsQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=QWMmYgRiye9sR2sz3THdXCaeNEc+9lS6Q3IhGB7cAYE=;
- b=Z4T82Z/XYM6lvUDnrFeb8/BF4nQlL7MAdLSO5mZMnWYv4XAfOEshB2htgC/460UcpANjcSRNgGS5CUxdT58PuS7ZFMR6qOsqO6vPJGv6ViVWlF3zYdLu2ULBUcDStqNx+PlqO0FO2IvBqU3L4yFULTH+aJdiMglxjNGerY40KdmXa+zGjbF/Ucza/DUzpoJEN++wLU4yPEpPvBuXd+0yZohyksmoq6mzaB1BrQ0FSKK+Bfa0hd5m/7XttPSdliH6q4n8koPraitMW38KwNc6LCbqt6/+wwN50ApG9uP58dHxz9L93QtodPMzMlWEu2hNraLRAUug4ozocNC0GjntBw==
+ bh=CycJQmkk13I716wOanrG6aFfWJEuI4+YbOGWpwh6Uvg=;
+ b=bofSpmbKrPnp2qhoL+2AQnKrWEFmOoA0KdNEw6VH2wEkG88Bju1hvtWaeZmgwt3lwCQEpmB2JfEiBSlc6XQ3K3X6/vizzoDJ2vks5gi/rYeWOVZL54gmuw8brxQ5tTBb1ttHOy8azfRMUy5hAtmKlU02tyNS7Sk/ay7EIbCT4PIUJS66YS66wtJwhfK6QYPT1Vb1LbvlNu7FLvc2GGnjr6m8FpQKybG2Iowj1qeW4PHH59TJryS4eYPEP6HXpndyT4U1UJZUDRVUBt7tgtogl8dgHjEZSwx4NvByKVYE1pLmN6dnPIpxt2QglNdb0K9jmaxStqFWKdJoW5Ecii0+QA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
@@ -37,18 +37,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QWMmYgRiye9sR2sz3THdXCaeNEc+9lS6Q3IhGB7cAYE=;
- b=jGMynj4k98rSfNda0NJmGoJzUW3SiWb6F9OzMjkNjExE82+zImIXX0HARxIU+bxszOOSi5yGyJ6dk+u5xnlb722vsXPQQe3Spd+aZYw9/bBOneV155QuSMetyZFjJ3DYRID+2OdaMoP+v+MmOQdXZBys45kL9ffo0Z2FKo+seXh51NWO8S1EMjF3QwHovUHABNhk4eBS295njW/SzvwWULOO5ijfwS9AH2qdvMm5P1ohyg3N60FakP4c8n3hTv9Qw1Pm+nWohF9kBcN0OigQaYFmxkTiJRIGbTNaHgV9oQBB7sWGRngAhdBRr1S3UCaJ8ss+0wUHb5PTD5i//BozCw==
-Received: from CH0PR03CA0055.namprd03.prod.outlook.com (2603:10b6:610:b3::30)
- by SA3PR12MB9178.namprd12.prod.outlook.com (2603:10b6:806:396::7) with
+ bh=CycJQmkk13I716wOanrG6aFfWJEuI4+YbOGWpwh6Uvg=;
+ b=YczvAJ7JkI/CmpQg/uOpLbxMrinWM0oklerjI+zcSeW/+o7JamRAIuWv2gYdMYqL2ra7Ccq9npPFLyE1fJqp7Waf3eSp3waY4rw/WvbK1ClURBsiTaEkERwPvNnhIWxbO0aqDSETsIsIN9RvnEqHGQW/yfIPavRV5lbYxAMHE2DmjzmeXJN6FZUqsop8y2TWP9KNs6oU8DXvd6acgAWH+kNsP2UUoEsQKIbBAXbKi3Wfe7b1xOJ6I8me3dzf4d1JvJw5Q8qTupqmK/vZXGk8a/27D1jP8SHrffgI91QAgBAua4/2kChqvq2aKT9+Sh3QD7ppBYPu3dKgAoM91UGZ0A==
+Received: from DS7PR03CA0058.namprd03.prod.outlook.com (2603:10b6:5:3b5::33)
+ by SA1PR12MB6773.namprd12.prod.outlook.com (2603:10b6:806:258::16) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.36; Sun, 17 Dec
- 2023 08:33:29 +0000
-Received: from DS3PEPF000099DF.namprd04.prod.outlook.com
- (2603:10b6:610:b3:cafe::a3) by CH0PR03CA0055.outlook.office365.com
- (2603:10b6:610:b3::30) with Microsoft SMTP Server (version=TLS1_2,
+ 2023 08:33:33 +0000
+Received: from DS3PEPF000099DE.namprd04.prod.outlook.com
+ (2603:10b6:5:3b5:cafe::d9) by DS7PR03CA0058.outlook.office365.com
+ (2603:10b6:5:3b5::33) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.36 via Frontend
- Transport; Sun, 17 Dec 2023 08:33:29 +0000
+ Transport; Sun, 17 Dec 2023 08:33:33 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
@@ -56,25 +56,25 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
  216.228.117.160 as permitted sender) receiver=protection.outlook.com;
  client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
 Received: from mail.nvidia.com (216.228.117.160) by
- DS3PEPF000099DF.mail.protection.outlook.com (10.167.17.202) with Microsoft
+ DS3PEPF000099DE.mail.protection.outlook.com (10.167.17.200) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7113.14 via Frontend Transport; Sun, 17 Dec 2023 08:33:28 +0000
+ 15.20.7113.14 via Frontend Transport; Sun, 17 Dec 2023 08:33:33 +0000
 Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
  (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sun, 17 Dec
- 2023 00:33:21 -0800
+ 2023 00:33:27 -0800
 Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.35) by
  rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.41; Sun, 17 Dec 2023 00:33:18 -0800
+ 15.2.986.41; Sun, 17 Dec 2023 00:33:24 -0800
 From: Ido Schimmel <idosch@nvidia.com>
 To: <netdev@vger.kernel.org>, <bridge@lists.linux-foundation.org>
 CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
 	<edumazet@google.com>, <roopa@nvidia.com>, <razor@blackwall.org>,
 	<petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>
-Subject: [PATCH net-next 1/9] bridge: add MDB state mask uAPI attribute
-Date: Sun, 17 Dec 2023 10:32:36 +0200
-Message-ID: <20231217083244.4076193-2-idosch@nvidia.com>
+Subject: [PATCH net-next 3/9] net: Add MDB bulk deletion device operation
+Date: Sun, 17 Dec 2023 10:32:38 +0200
+Message-ID: <20231217083244.4076193-4-idosch@nvidia.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231217083244.4076193-1-idosch@nvidia.com>
 References: <20231217083244.4076193-1-idosch@nvidia.com>
@@ -90,53 +90,62 @@ X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
  rnnvmail201.nvidia.com (10.129.68.8)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS3PEPF000099DF:EE_|SA3PR12MB9178:EE_
-X-MS-Office365-Filtering-Correlation-Id: fefe37ba-bfc5-403c-f42a-08dbfedad862
+X-MS-TrafficTypeDiagnostic: DS3PEPF000099DE:EE_|SA1PR12MB6773:EE_
+X-MS-Office365-Filtering-Correlation-Id: 22533f4d-1117-4179-a2a3-08dbfedadb05
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	GOWZvo5mG1VD+m9MjDpbpyNS1nDXF44B5QzIit3RwMbrfTEcCQcDam8IUSEr7QD9So0dFvuRVwgstuiFVEjyic4dCvxMJ4IAwF8CL3SyojlKcyu2TAAvsk1lny6341JgOx0iEvFDl8svJIQCnJAgv3psiJZevFYrzyaz1QRJlvJs+vr5UTOVSg+/+TL+kXfY+4oHPPl4yS2tUqSeMji8iyz/9p1PCxdPVWqVRrdV5PXnnPQMjyDb3DLKscHfeEhF7eH0qvYAN70ha1nZ7IrRF13CqZoMl+aeHhPwrcs2Hb8S0s0E+NtUm4dh6LHQqlJ4LulvlgEsFZoLIz2Llr6/RYKbVvSofA/PnxmvdaGOPnDtrYRQsJKDELPOyTAT7ohDT37sP1n/x0j6L7tZjv7Rr3fxGWj2M6WgmohoA7I0ReaiUHx/1huTkidAZ5rM47kBlOOq+dP8zo653QZOaiFnNmd4uc0uuHQmiuFoJipgOeXdGnXGzYgpQGbU5OQrOyQjIcYA0XEoay6jC8oZWmFWIMOvLsyhnemgMOiyyKwpE0mXJvd2nr1NxvMeEkxbuZ0IegWMvQsEr8xbLy9TUvwScZyLEoOmrXQqpLSjen/s3YhFk+ym99Flgavzqk/MDRtJ3+NXBN9lOU0RQSVhCBmpyEfHpwZeTh4jg9ua0NEBNTZPlCaDVi09vGPAaA3Y1fTC9pNZb4QGUOZZlt3DDHlYv8+12r/NHS+neQ3sLnXeC7/WUp2kV9gRnrQDZJ4pNoNr
+	wDF8NssXhe4zd6JZEAPVHlI/pnYFg+6zlLQyNvq5gU31QlcIM5YflkVmvU6rz5Hu2p91yRNuXnZ1LaBvq1FY0/wCrXcEGlYglQ636j2f7+Gr6BETAjYfRQyW02XA1H4XUEZmxdSba2uOGhOmtE63d1oy00YHAmkp3DjGxUi1Tph83RlyekM79YIIfjzCd4RCPyLDKZavTgpBkSi12oYok1dl1GWvZY96BEqGFx56aQc1jG/MUfqzCw10+o9CmQVXYw9+z1qGcKKS4uqmAqXcU+45Mi583vp8Oig6jM572HhlxeXVDKSTVsQMzCYszghmpN2kacpv5XK64to1GxEE5F1UOJQnnqNpfNLOdGY6dwE9SyYBw+dWBLZBibjuc8ItZr691NoNyn+nU1D64qf5iJypZyW/S11R/IE04NcrrO4jGU7jArJx8gMmXYfsovViZ6tE0K6YOUEimin0+dfQev/9HhGBN9bfT1bnEvREkLhP1OSAw139sUCkKMNrzLBABs4uWaVD+n2SQSdu/PcRhV2HuozxB40kfyAM0HFXYOba8nYp55Jfv1ohgMZIa3pqigSiSv9f3cU1Im6RiUNi5opEjkrRX+aw2DgXA1g5aeW1Zu6bqfEQRgcUXUrCXZ9Y6MrtlajCcQaoEeTIXDfsfuDM9t8bPTXTMxfGqXJX0+HeHPQsIFK7OXo57C+dVd1vSXfN25xp1Wt8QazKrddF8y8ZEzVyVoilWqfKMDBHI4462/WcQ2DI+zebu3QbinUS
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(376002)(39860400002)(136003)(346002)(396003)(230922051799003)(1800799012)(451199024)(82310400011)(64100799003)(186009)(46966006)(40470700004)(36840700001)(40480700001)(40460700003)(426003)(336012)(16526019)(26005)(2906002)(4744005)(107886003)(1076003)(6666004)(2616005)(70206006)(70586007)(4326008)(110136005)(82740400003)(316002)(36756003)(54906003)(5660300002)(83380400001)(36860700001)(41300700001)(8676002)(8936002)(478600001)(356005)(86362001)(47076005)(7636003);DIR:OUT;SFP:1101;
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(396003)(346002)(376002)(136003)(39860400002)(230922051799003)(82310400011)(186009)(64100799003)(451199024)(1800799012)(40470700004)(36840700001)(46966006)(40460700003)(82740400003)(36860700001)(83380400001)(478600001)(356005)(47076005)(7636003)(86362001)(41300700001)(8936002)(8676002)(4326008)(70206006)(2616005)(70586007)(110136005)(316002)(54906003)(36756003)(1076003)(336012)(426003)(5660300002)(26005)(16526019)(2906002)(107886003)(6666004)(40480700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2023 08:33:28.8340
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2023 08:33:33.2556
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: fefe37ba-bfc5-403c-f42a-08dbfedad862
+X-MS-Exchange-CrossTenant-Network-Message-Id: 22533f4d-1117-4179-a2a3-08dbfedadb05
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	DS3PEPF000099DF.namprd04.prod.outlook.com
+	DS3PEPF000099DE.namprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB9178
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6773
 
-Currently, the 'state' field in 'struct br_port_msg' can be set to 1 if
-the MDB entry is permanent or 0 if it is temporary. Additional states
-might be added in the future.
-
-In a similar fashion to 'NDA_NDM_STATE_MASK', add an MDB state mask uAPI
-attribute that will allow the upcoming bulk deletion API to bulk delete
-MDB entries with a certain state or any state.
+Add MDB net device operation that will be invoked by rtnetlink code in
+response to received 'RTM_DELMDB' messages with the 'NLM_F_BULK' flag
+set. Subsequent patches will implement the operation in the bridge and
+VXLAN drivers.
 
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 Reviewed-by: Petr Machata <petrm@nvidia.com>
 ---
- include/uapi/linux/if_bridge.h | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/netdevice.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 2e23f99dc0f1..a5b743a2f775 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -757,6 +757,7 @@ enum {
- 	MDBE_ATTR_VNI,
- 	MDBE_ATTR_IFINDEX,
- 	MDBE_ATTR_SRC_VNI,
-+	MDBE_ATTR_STATE_MASK,
- 	__MDBE_ATTR_MAX,
- };
- #define MDBE_ATTR_MAX (__MDBE_ATTR_MAX - 1)
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 1b935ee341b4..75c7725e5e4f 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1329,6 +1329,9 @@ struct netdev_net_notifier {
+  * int (*ndo_mdb_del)(struct net_device *dev, struct nlattr *tb[],
+  *		      struct netlink_ext_ack *extack);
+  *	Deletes the MDB entry from dev.
++ * int (*ndo_mdb_del_bulk)(struct net_device *dev, struct nlattr *tb[],
++ *			   struct netlink_ext_ack *extack);
++ *	Bulk deletes MDB entries from dev.
+  * int (*ndo_mdb_dump)(struct net_device *dev, struct sk_buff *skb,
+  *		       struct netlink_callback *cb);
+  *	Dumps MDB entries from dev. The first argument (marker) in the netlink
+@@ -1611,6 +1614,9 @@ struct net_device_ops {
+ 	int			(*ndo_mdb_del)(struct net_device *dev,
+ 					       struct nlattr *tb[],
+ 					       struct netlink_ext_ack *extack);
++	int			(*ndo_mdb_del_bulk)(struct net_device *dev,
++						    struct nlattr *tb[],
++						    struct netlink_ext_ack *extack);
+ 	int			(*ndo_mdb_dump)(struct net_device *dev,
+ 						struct sk_buff *skb,
+ 						struct netlink_callback *cb);
 -- 
 2.40.1
 
