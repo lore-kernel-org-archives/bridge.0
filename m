@@ -1,135 +1,142 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8241B3FE55
-	for <bridge@lists.linux.dev>; Fri, 15 Dec 2023 17:10:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C6EE1FC1
+	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="IVmUifsG";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="3VHfYBBQ"
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1702660234;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vARt+YL97Jryti27DqzXdO+MIl5JkGOA6gpxESYjlfg=;
-	b=IVmUifsGvdEZ8CGV0s9FwkZiqqSybt/c9A41u+Pwr3cbn4oYTXFnP8larPDHyX8kbJc6Vl
-	Gg23hGBj7HwUt1YqRKp3seWlUOrtSBRhDBpb6ydnZqKfgHKPeSgaA5e7W2mHQgFoji379V
-	gkcy1WQDrXWPmIkf6UuG9NtcQUgzkXvs0IRSrQgOR/NXJZ1yTaSGA4ZzDHIR8TShWlspMt
-	R/MdV/QNCSs2T968kCpx9S8uu4Hk07Hga8g7qgf+rAnm3LWDOK7B4aLC+rTELfJ2SoMe9Z
-	775i1xjsJgIcWEJqQu0Kg1c00ZvUOPTeT+o1usjaPUo/I4EH1M+kUmLD9n3RnQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1702660234;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vARt+YL97Jryti27DqzXdO+MIl5JkGOA6gpxESYjlfg=;
-	b=3VHfYBBQXPCHKXGBFrTfmgQ3OItM0LGx7LIE5jlsybnHdpT5t8UzWo4GBDlg4/BghTs8l+
-	owNIlXpgsVXnTGBA==
-To: linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Boqun Feng <boqun.feng@gmail.com>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Waiman Long <longman@redhat.com>,
-	Will Deacon <will@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Florian Westphal <fw@strlen.de>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	bridge@lists.linux.dev,
-	coreteam@netfilter.org,
-	netfilter-devel@vger.kernel.org
-Subject: [PATCH net-next 07/24] netfilter: br_netfilter: Use nested-BH locking for brnf_frag_data_storage.
-Date: Fri, 15 Dec 2023 18:07:26 +0100
-Message-ID: <20231215171020.687342-8-bigeasy@linutronix.de>
-In-Reply-To: <20231215171020.687342-1-bigeasy@linutronix.de>
-References: <20231215171020.687342-1-bigeasy@linutronix.de>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="jGMynj4k"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5CF37820FF
+	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5CF37820FF
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=jGMynj4k
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9_7pQcHQyPER for <bridge@lists.linux-foundation.org>;
+	Sun, 17 Dec 2023 08:33:33 +0000 (UTC)
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on20600.outbound.protection.outlook.com [IPv6:2a01:111:f403:2416::600])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C6624820FA
+	for <bridge@lists.linux-foundation.org>; Sun, 17 Dec 2023 08:33:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C6624820FA
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=epNo9uL+JOsx/tsFzn1MMoDddmwjgndrcKvDN5rr8l5lJyn+FXpaPi3aGtWA1tJh7ugC4Hxj1fkm9SHsuubbTfBxlqaxXUwQx2ymsP1beXGZotdXpEtcv4UIoWVd410TLRCOru6/SE8FZW+nGXxsn202L13z4SpQ4ARO7BMVQNJsgPSsuYqFDZ1RYRHI8MXQdMpdaUl4GKWmuGqAbvhxBcqAZqQZ9OETZGc548q1cHzcMmYVnB8eMFoi73RgyYB66Z/41BDxYHnYuu3HzaaL4NHpnaff3cHADFHQ5t3VZBBo9jM0PYsp5sniJCWCu7yfdeH072aYlj7voaW6FmTcbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QWMmYgRiye9sR2sz3THdXCaeNEc+9lS6Q3IhGB7cAYE=;
+ b=Z4T82Z/XYM6lvUDnrFeb8/BF4nQlL7MAdLSO5mZMnWYv4XAfOEshB2htgC/460UcpANjcSRNgGS5CUxdT58PuS7ZFMR6qOsqO6vPJGv6ViVWlF3zYdLu2ULBUcDStqNx+PlqO0FO2IvBqU3L4yFULTH+aJdiMglxjNGerY40KdmXa+zGjbF/Ucza/DUzpoJEN++wLU4yPEpPvBuXd+0yZohyksmoq6mzaB1BrQ0FSKK+Bfa0hd5m/7XttPSdliH6q4n8koPraitMW38KwNc6LCbqt6/+wwN50ApG9uP58dHxz9L93QtodPMzMlWEu2hNraLRAUug4ozocNC0GjntBw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QWMmYgRiye9sR2sz3THdXCaeNEc+9lS6Q3IhGB7cAYE=;
+ b=jGMynj4k98rSfNda0NJmGoJzUW3SiWb6F9OzMjkNjExE82+zImIXX0HARxIU+bxszOOSi5yGyJ6dk+u5xnlb722vsXPQQe3Spd+aZYw9/bBOneV155QuSMetyZFjJ3DYRID+2OdaMoP+v+MmOQdXZBys45kL9ffo0Z2FKo+seXh51NWO8S1EMjF3QwHovUHABNhk4eBS295njW/SzvwWULOO5ijfwS9AH2qdvMm5P1ohyg3N60FakP4c8n3hTv9Qw1Pm+nWohF9kBcN0OigQaYFmxkTiJRIGbTNaHgV9oQBB7sWGRngAhdBRr1S3UCaJ8ss+0wUHb5PTD5i//BozCw==
+Received: from CH0PR03CA0055.namprd03.prod.outlook.com (2603:10b6:610:b3::30)
+ by SA3PR12MB9178.namprd12.prod.outlook.com (2603:10b6:806:396::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.36; Sun, 17 Dec
+ 2023 08:33:29 +0000
+Received: from DS3PEPF000099DF.namprd04.prod.outlook.com
+ (2603:10b6:610:b3:cafe::a3) by CH0PR03CA0055.outlook.office365.com
+ (2603:10b6:610:b3::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7091.36 via Frontend
+ Transport; Sun, 17 Dec 2023 08:33:29 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ DS3PEPF000099DF.mail.protection.outlook.com (10.167.17.202) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7113.14 via Frontend Transport; Sun, 17 Dec 2023 08:33:28 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sun, 17 Dec
+ 2023 00:33:21 -0800
+Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.35) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.41; Sun, 17 Dec 2023 00:33:18 -0800
+From: Ido Schimmel <idosch@nvidia.com>
+To: <netdev@vger.kernel.org>, <bridge@lists.linux-foundation.org>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<edumazet@google.com>, <roopa@nvidia.com>, <razor@blackwall.org>,
+	<petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>
+Subject: [PATCH net-next 1/9] bridge: add MDB state mask uAPI attribute
+Date: Sun, 17 Dec 2023 10:32:36 +0200
+Message-ID: <20231217083244.4076193-2-idosch@nvidia.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20231217083244.4076193-1-idosch@nvidia.com>
+References: <20231217083244.4076193-1-idosch@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS3PEPF000099DF:EE_|SA3PR12MB9178:EE_
+X-MS-Office365-Filtering-Correlation-Id: fefe37ba-bfc5-403c-f42a-08dbfedad862
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	GOWZvo5mG1VD+m9MjDpbpyNS1nDXF44B5QzIit3RwMbrfTEcCQcDam8IUSEr7QD9So0dFvuRVwgstuiFVEjyic4dCvxMJ4IAwF8CL3SyojlKcyu2TAAvsk1lny6341JgOx0iEvFDl8svJIQCnJAgv3psiJZevFYrzyaz1QRJlvJs+vr5UTOVSg+/+TL+kXfY+4oHPPl4yS2tUqSeMji8iyz/9p1PCxdPVWqVRrdV5PXnnPQMjyDb3DLKscHfeEhF7eH0qvYAN70ha1nZ7IrRF13CqZoMl+aeHhPwrcs2Hb8S0s0E+NtUm4dh6LHQqlJ4LulvlgEsFZoLIz2Llr6/RYKbVvSofA/PnxmvdaGOPnDtrYRQsJKDELPOyTAT7ohDT37sP1n/x0j6L7tZjv7Rr3fxGWj2M6WgmohoA7I0ReaiUHx/1huTkidAZ5rM47kBlOOq+dP8zo653QZOaiFnNmd4uc0uuHQmiuFoJipgOeXdGnXGzYgpQGbU5OQrOyQjIcYA0XEoay6jC8oZWmFWIMOvLsyhnemgMOiyyKwpE0mXJvd2nr1NxvMeEkxbuZ0IegWMvQsEr8xbLy9TUvwScZyLEoOmrXQqpLSjen/s3YhFk+ym99Flgavzqk/MDRtJ3+NXBN9lOU0RQSVhCBmpyEfHpwZeTh4jg9ua0NEBNTZPlCaDVi09vGPAaA3Y1fTC9pNZb4QGUOZZlt3DDHlYv8+12r/NHS+neQ3sLnXeC7/WUp2kV9gRnrQDZJ4pNoNr
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(376002)(39860400002)(136003)(346002)(396003)(230922051799003)(1800799012)(451199024)(82310400011)(64100799003)(186009)(46966006)(40470700004)(36840700001)(40480700001)(40460700003)(426003)(336012)(16526019)(26005)(2906002)(4744005)(107886003)(1076003)(6666004)(2616005)(70206006)(70586007)(4326008)(110136005)(82740400003)(316002)(36756003)(54906003)(5660300002)(83380400001)(36860700001)(41300700001)(8676002)(8936002)(478600001)(356005)(86362001)(47076005)(7636003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2023 08:33:28.8340
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: fefe37ba-bfc5-403c-f42a-08dbfedad862
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS3PEPF000099DF.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB9178
 
-brnf_frag_data_storage is a per-CPU variable and relies on disabled BH
-for its locking. Without per-CPU locking in local_bh_disable() on
-PREEMPT_RT this data structure requires explicit locking.
+Currently, the 'state' field in 'struct br_port_msg' can be set to 1 if
+the MDB entry is permanent or 0 if it is temporary. Additional states
+might be added in the future.
 
-Add a local_lock_t to the data structure and use local_lock_nested_bh()
-for locking. This change adds only lockdep coverage and does not alter
-the functional behaviour for !PREEMPT_RT.
+In a similar fashion to 'NDA_NDM_STATE_MASK', add an MDB state mask uAPI
+attribute that will allow the upcoming bulk deletion API to bulk delete
+MDB entries with a certain state or any state.
 
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Jozsef Kadlecsik <kadlec@netfilter.org>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: bridge@lists.linux.dev
-Cc: coreteam@netfilter.org
-Cc: netfilter-devel@vger.kernel.org
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
 ---
- net/bridge/br_netfilter_hooks.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/uapi/linux/if_bridge.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hook=
-s.c
-index 6adcb45bca75d..c06f498c5f1b3 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -133,6 +133,7 @@ static inline bool is_pppoe_ipv6(const struct sk_buff *=
-skb,
- #define NF_BRIDGE_MAX_MAC_HEADER_LENGTH (PPPOE_SES_HLEN + ETH_HLEN)
-=20
- struct brnf_frag_data {
-+	local_lock_t bh_lock;
- 	char mac[NF_BRIDGE_MAX_MAC_HEADER_LENGTH];
- 	u8 encap_size;
- 	u8 size;
-@@ -140,7 +141,9 @@ struct brnf_frag_data {
- 	__be16 vlan_proto;
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 2e23f99dc0f1..a5b743a2f775 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -757,6 +757,7 @@ enum {
+ 	MDBE_ATTR_VNI,
+ 	MDBE_ATTR_IFINDEX,
+ 	MDBE_ATTR_SRC_VNI,
++	MDBE_ATTR_STATE_MASK,
+ 	__MDBE_ATTR_MAX,
  };
-=20
--static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage);
-+static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage) =3D {
-+	.bh_lock =3D INIT_LOCAL_LOCK(bh_lock),
-+};
-=20
- static void nf_bridge_info_free(struct sk_buff *skb)
- {
-@@ -768,6 +771,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
-=20
- 		IPCB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
-=20
-+		guard(local_lock_nested_bh)(&brnf_frag_data_storage.bh_lock);
- 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
-=20
- 		if (skb_vlan_tag_present(skb)) {
-@@ -795,6 +799,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
-=20
- 		IP6CB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
-=20
-+		guard(local_lock_nested_bh)(&brnf_frag_data_storage.bh_lock);
- 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
- 		data->encap_size =3D nf_bridge_encap_header_len(skb);
- 		data->size =3D ETH_HLEN + data->encap_size;
---=20
-2.43.0
+ #define MDBE_ATTR_MAX (__MDBE_ATTR_MAX - 1)
+-- 
+2.40.1
 
