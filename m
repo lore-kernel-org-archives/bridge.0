@@ -1,65 +1,65 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55FF912B97
-	for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 10:09:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 018BF13FFA
+	for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 10:12:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="kczHac4z"
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="VKB/qwIp"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E2091418AE
-	for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 10:09:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E2091418AE
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=kczHac4z
+	by smtp3.osuosl.org (Postfix) with ESMTP id 61F1B60ED4
+	for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 10:12:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 61F1B60ED4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=VKB/qwIp
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TBWbQYmUo0wC for <bridge@lists.linux-foundation.org>;
-	Mon, 18 Dec 2023 10:09:28 +0000 (UTC)
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 121BC418A1
-	for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 10:09:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 121BC418A1
-Received: by mail-wm1-x32c.google.com with SMTP id 5b1f17b1804b1-40c39e936b4so32004295e9.1
-        for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 02:09:27 -0800 (PST)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZIuwe1bXUgKL for <bridge@lists.linux-foundation.org>;
+	Mon, 18 Dec 2023 10:12:00 +0000 (UTC)
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 12A1560AEA
+	for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 10:11:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 12A1560AEA
+Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-50e3c6f1c10so456146e87.1
+        for <bridge@lists.linux-foundation.org>; Mon, 18 Dec 2023 02:11:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1702894166; x=1703498966; darn=lists.linux-foundation.org;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1702894318; x=1703499118; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=RkBeg4SFMd3zKgTAJBJhbgkME0fGFVwa3jyVxGZCBFc=;
-        b=kczHac4zo/Q9+hxRd5tze+AOancAHIZ5SEskMpPaV28YqHXaRcCQZNBjxhqJtItUiX
-         K/WhoYPKAebFa3exLNPxmwBUfjn5muexeaEGNMKEYNUMVJIVUrGFOq2Aqyb0dzOur6zp
-         fSNuWqy42+2j+INLTqJ2JSw7LRDO+ozZhakHd+hAquUVqz0zo51dyptiU608Bxn4nsfT
-         lTyaapTeiB/7T/LfgIyVPOnN/L/C+sXfAgNAy1qK7Tw1nqNcq0ct5P+TKxsPdTYKt4kA
-         GyHuHNESrMGx7qZ1mwPBF7RafqpjqUuqHus4gIcRNPOfYBXe4qNeoyn9YqO8hVB3ahbD
-         HvPQ==
+        bh=Wnw+qbk0VP/BP6lvQ4oZ3vUOazKKIyCaxjztZbrET5M=;
+        b=VKB/qwIpuF0PArXydQqY/SGmAcyOiGR7x5QrchROSV3pNXDg6K7LvHvaOsZETEVX33
+         F4wqcNpOBM7n21oQ1QUna30ZCCD1kduFSMzOlSL/GeCQGXwL6/O6j8Hb8fDRW86CPBW/
+         M0ovUty00lI6mmXUmv18oa0n+aXT68PsXt6rCzYx46z8dzgdXJfQlKyxeDvyi2xjJ5Bp
+         pZzzcXLUJZC26i2PPJh94ETsH7Qp1YVfmq8eBRgwb6Xk2iEHqSOw5jw+8azceDLF2rBe
+         0CYH4Ukm2LByfDCn4B+dORP1ilhX5DWTAy0N2985VDdhVOyVDGmYHF2Ua1iPT5kQ6Xoc
+         s8nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702894166; x=1703498966;
+        d=1e100.net; s=20230601; t=1702894318; x=1703499118;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RkBeg4SFMd3zKgTAJBJhbgkME0fGFVwa3jyVxGZCBFc=;
-        b=LwfBI1r1c30+odSYCUNkdJzVlZXkaxwqkBXcN9mLYzv2aOGvFLwz0RIs43U70NHcPE
-         kdbd1XLKZX6gX1joZhPxuNi7z5mWR7t/tsfiPO0RrvHILPS7VyVzZmjBbXEEGutUyWCQ
-         xBcDyM86D4+vAJC3KM0m9rYgD8jA8juZhEfO1Djk2kELclEWg+5q/E4i3HPc5tlw7wxe
-         AoP2Riokvqw/wpIwhtzFW/+B1b9lOF8jrLjy7b9MfblQE/rXQZu2cmEKuUWmxz5GjNt1
-         P3uba7uvsppLRqCVFBApww26wK1toV3bx1Y+vVZ7JtTQGF99XFITuOWCkvsE6LRJBuCH
-         7fAQ==
-X-Gm-Message-State: AOJu0YxtTRnn1F3vgqXR+r8+1zFrYm8064MrzX90McGfzDcFSeMjrx3+
-	6dc9aoy2SlXcL+vOat5LoP/Gyw==
-X-Google-Smtp-Source: AGHT+IG8RKtvGHhE2Dl+3x3GTo/6R/ZSuvZjlmQsWFozPBkaOqRCD3ltyiI3jR68Y+QLWYGwyd466w==
-X-Received: by 2002:a05:600c:35d3:b0:40d:18e2:898 with SMTP id r19-20020a05600c35d300b0040d18e20898mr411248wmq.196.1702894165956;
-        Mon, 18 Dec 2023 02:09:25 -0800 (PST)
+        bh=Wnw+qbk0VP/BP6lvQ4oZ3vUOazKKIyCaxjztZbrET5M=;
+        b=JSXwmZk8E1k2OdbVoO8qcokm5BSn1ojV6u9wOQFeVloOtca3BNftqU4+tm3fV9NBfb
+         P79l1qt2uwMKAl+JERMYf70R5sCCAENmg4HuuGlc2GEu7F1k7VY1ugUlXgqCHGVcob37
+         3LN5Ma20YXN944f5gObLjZfB2QnAj/UFsfpNHRvf/LHZuSwS8mUvnyv4zuPL48G359Ls
+         ZFdQlZAE4mCOQE+yqzKqAP35bfXO0Ep7Rh/oS+AgIVVLekkMJXE/4sVs1bQUCQBm1JPI
+         gahH8YLzonJGmCFK427ZEFLRL1J5yJTgb/H89fqWZcuoOckc+6197DeWF2i3Vg/TLiMV
+         SmAg==
+X-Gm-Message-State: AOJu0YzK44TTy7MUKEJhmJqvupmuBfYBsycUDvgT3ZU5tHrSILRC4J+S
+	mPrYkHIwF60jcB2mX/MN8qcTLw==
+X-Google-Smtp-Source: AGHT+IEOP30S4bcfVGOUNvJcKtWrnryg+mvVN3DzpEsX8J1CAg1+0/WqWVH8QvtR47BNvhMCBRj1Gw==
+X-Received: by 2002:ac2:538c:0:b0:50e:da7:d4f9 with SMTP id g12-20020ac2538c000000b0050e0da7d4f9mr2078466lfh.209.1702894317762;
+        Mon, 18 Dec 2023 02:11:57 -0800 (PST)
 Received: from [192.168.51.243] ([78.128.78.220])
-        by smtp.gmail.com with ESMTPSA id bi8-20020a05600c3d8800b0040c43be2e52sm33818365wmb.40.2023.12.18.02.09.24
+        by smtp.gmail.com with ESMTPSA id h7-20020adff187000000b003366d79edbfsm551862wro.67.2023.12.18.02.11.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 Dec 2023 02:09:25 -0800 (PST)
-Message-ID: <00305092-d095-4c8c-8971-a6eda9e7ee6d@blackwall.org>
-Date: Mon, 18 Dec 2023 12:09:24 +0200
+        Mon, 18 Dec 2023 02:11:57 -0800 (PST)
+Message-ID: <761761fe-d69c-4b38-ae3e-34e7d1854a1e@blackwall.org>
+Date: Mon, 18 Dec 2023 12:11:56 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -67,49 +67,34 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 4/9] rtnetlink: bridge: Invoke MDB bulk deletion
- when needed
+Subject: Re: [PATCH net-next 5/9] bridge: mdb: Add MDB bulk deletion support
 Content-Language: en-US
 To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
  bridge@lists.linux-foundation.org
 Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
  edumazet@google.com, roopa@nvidia.com, petrm@nvidia.com
 References: <20231217083244.4076193-1-idosch@nvidia.com>
- <20231217083244.4076193-5-idosch@nvidia.com>
+ <20231217083244.4076193-6-idosch@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20231217083244.4076193-5-idosch@nvidia.com>
+In-Reply-To: <20231217083244.4076193-6-idosch@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 17/12/2023 10:32, Ido Schimmel wrote:
-> Invoke the new MDB bulk deletion device operation when the 'NLM_F_BULK'
-> flag is set in the netlink message header.
+> Implement MDB bulk deletion support in the bridge driver, allowing MDB
+> entries to be deleted in bulk according to provided parameters.
 > 
 > Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 > Reviewed-by: Petr Machata <petrm@nvidia.com>
 > ---
->   net/core/rtnetlink.c | 8 ++++++++
->   1 file changed, 8 insertions(+)
+>   net/bridge/br_device.c  |   1 +
+>   net/bridge/br_mdb.c     | 133 ++++++++++++++++++++++++++++++++++++++++
+>   net/bridge/br_private.h |   8 +++
+>   3 files changed, 142 insertions(+)
 > 
-> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-> index 30f030a672f2..349255151ad0 100644
-> --- a/net/core/rtnetlink.c
-> +++ b/net/core/rtnetlink.c
-> @@ -6494,6 +6494,14 @@ static int rtnl_mdb_del(struct sk_buff *skb, struct nlmsghdr *nlh,
->   		return -EINVAL;
->   	}
->   
-> +	if (del_bulk) {
-> +		if (!dev->netdev_ops->ndo_mdb_del_bulk) {
-> +			NL_SET_ERR_MSG(extack, "Device does not support MDB bulk deletion");
-> +			return -EOPNOTSUPP;
-> +		}
-> +		return dev->netdev_ops->ndo_mdb_del_bulk(dev, tb, extack);
-> +	}
-> +
->   	if (!dev->netdev_ops->ndo_mdb_del) {
->   		NL_SET_ERR_MSG(extack, "Device does not support MDB operations");
->   		return -EOPNOTSUPP;
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
+
+
 
