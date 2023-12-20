@@ -1,80 +1,110 @@
-Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net (zg8tmja2lje4os4yms4ymjma.icoremail.net [206.189.21.223])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1787F1D525
-	for <bridge@lists.linux.dev>; Wed, 20 Dec 2023 08:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
-Received: from localhost.localdomain (unknown [125.119.246.50])
-	by mail-app3 (Coremail) with SMTP id cC_KCgB37XDXnoJlw9gwAQ--.15347S4;
-	Wed, 20 Dec 2023 15:59:20 +0800 (CST)
-From: Lin Ma <linma@zju.edu.cn>
-To: roopa@nvidia.com,
-	razor@blackwall.org,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horatiu.vultur@microchip.com,
-	henrik.bjoernlund@microchip.com,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Lin Ma <linma@zju.edu.cn>
-Subject: [PATCH v1] bridge: cfm: fix enum typo in br_cc_ccm_tx_parse
-Date: Wed, 20 Dec 2023 15:59:14 +0800
-Message-Id: <20231220075914.2426376-1-linma@zju.edu.cn>
-X-Mailer: git-send-email 2.17.1
-X-CM-TRANSID:cC_KCgB37XDXnoJlw9gwAQ--.15347S4
-X-Coremail-Antispam: 1UD129KBjvJXoW7Zr4DXry3WFykAF4DXw1UKFg_yoW8JFy5pF
-	4rKFykCFs0yryYvw1jvF4Ivry7CF4DW3y3C3yq9r1Syrn8WF13CrZ8Gry3ur1xAF4Dtw45
-	AF15WrW3Xa98AFUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvG14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4U
-	JVW0owA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628v
-	n2kIc2xKxwCY02Avz4vE14v_GF4l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr
-	0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY
-	17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcV
-	C0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY
-	6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa
-	73UjIFyTuYvjfUYMKZDUUUU
-X-CM-SenderInfo: qtrwiiyqvtljo62m3hxhgxhubq/
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34E30249E1
+	for <bridge@lists.linux-foundation.org>; Wed, 20 Dec 2023 11:30:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZO1Yb6H8"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id A6BAE60C11
+	for <bridge@lists.linux-foundation.org>; Wed, 20 Dec 2023 11:30:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A6BAE60C11
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=ZO1Yb6H8
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id i5QgSIS9Bvy7 for <bridge@lists.linux-foundation.org>;
+	Wed, 20 Dec 2023 11:30:30 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 86EFB60FD8
+	for <bridge@lists.linux-foundation.org>; Wed, 20 Dec 2023 11:30:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 86EFB60FD8
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 5AB03CE1C6E;
+	Wed, 20 Dec 2023 11:30:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9844CC433CA;
+	Wed, 20 Dec 2023 11:30:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1703071825;
+	bh=O/p1Qqq7yeCORWa0g71jiyTtq5zc+zT+tFTZi5RjVTA=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=ZO1Yb6H8/TecwKwYy1MdTtlmHYu5wbusjSaC9QYL21Sd7Z9RYbxyideU1c/qZiaE0
+	 M8chrfQZUwTlL4n5dEOsFAYLAYoJLnQiCj+kAUrXaE+QcJUvZywKl2vKjM7NionrUV
+	 j3YrtTushJc11+VKgVnpcdf6QrlJXN3blejt01EPTdTWrJafuMYkPSx/8/KGQm+VRj
+	 CKNCloqdbPA5CXV3nnu3QxK0/O3BKXxnMqLVWoY6kG/yHrsTowN7OgtIScklCGvete
+	 JwfWkOfZYMqmD87xw1jF+TnQPAM40R/OgW3iEGK0V1dsLdLME4nSmVoNvSIVrn5oPD
+	 vVXoVar+StZlg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 85005C561EE;
+	Wed, 20 Dec 2023 11:30:25 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next 0/9] Add MDB bulk deletion support
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170307182554.15860.11229847127578380886.git-patchwork-notify@kernel.org>
+Date: Wed, 20 Dec 2023 11:30:25 +0000
+References: <20231217083244.4076193-1-idosch@nvidia.com>
+In-Reply-To: <20231217083244.4076193-1-idosch@nvidia.com>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org,
+ davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, edumazet@google.com,
+ roopa@nvidia.com, razor@blackwall.org, petrm@nvidia.com
 
-It appears that there is a typo in the code where the nlattr array is
-being parsed with policy br_cfm_cc_ccm_tx_policy, but the instance is
-being accessed via IFLA_BRIDGE_CFM_CC_RDI_INSTANCE, which is associated
-with the policy br_cfm_cc_rdi_policy.
+Hello:
 
-Though it seems like a harmless typo since these two enum owns the exact
-same value (1 here), it is quite misleading hence fix it by using the
-correct enum IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE here.
+This series was applied to netdev/net-next.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-Fixes: 2be665c3940d ("bridge: cfm: Netlink SET configuration Interface.")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
----
- net/bridge/br_cfm_netlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sun, 17 Dec 2023 10:32:35 +0200 you wrote:
+> This patchset adds MDB bulk deletion support, allowing user space to
+> request the deletion of matching entries instead of dumping the entire
+> MDB and issuing a separate deletion request for each matching entry.
+> Support is added in both the bridge and VXLAN drivers in a similar
+> fashion to the existing FDB bulk deletion support.
+> 
+> The parameters according to which bulk deletion can be performed are
+> similar to the FDB ones, namely: Destination port, VLAN ID, state (e.g.,
+> "permanent"), routing protocol, source / destination VNI, destination IP
+> and UDP port. Flushing based on flags (e.g., "offload", "fast_leave",
+> "added_by_star_ex", "blocked") is not currently supported, but can be
+> added in the future, if a use case arises.
+> 
+> [...]
 
-diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
-index 5c4c369f8536..2faab44652e7 100644
---- a/net/bridge/br_cfm_netlink.c
-+++ b/net/bridge/br_cfm_netlink.c
-@@ -362,7 +362,7 @@ static int br_cc_ccm_tx_parse(struct net_bridge *br, struct nlattr *attr,
- 
- 	memset(&tx_info, 0, sizeof(tx_info));
- 
--	instance = nla_get_u32(tb[IFLA_BRIDGE_CFM_CC_RDI_INSTANCE]);
-+	instance = nla_get_u32(tb[IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE]);
- 	nla_memcpy(&tx_info.dmac.addr,
- 		   tb[IFLA_BRIDGE_CFM_CC_CCM_TX_DMAC],
- 		   sizeof(tx_info.dmac.addr));
+Here is the summary with links:
+  - [net-next,1/9] bridge: add MDB state mask uAPI attribute
+    https://git.kernel.org/netdev/net-next/c/e37a11fca418
+  - [net-next,2/9] rtnetlink: bridge: Use a different policy for MDB bulk delete
+    https://git.kernel.org/netdev/net-next/c/e0cd06f7fcb5
+  - [net-next,3/9] net: Add MDB bulk deletion device operation
+    https://git.kernel.org/netdev/net-next/c/1a36e0f50f96
+  - [net-next,4/9] rtnetlink: bridge: Invoke MDB bulk deletion when needed
+    https://git.kernel.org/netdev/net-next/c/d8e81f131178
+  - [net-next,5/9] bridge: mdb: Add MDB bulk deletion support
+    https://git.kernel.org/netdev/net-next/c/a6acb535afb2
+  - [net-next,6/9] vxlan: mdb: Add MDB bulk deletion support
+    https://git.kernel.org/netdev/net-next/c/4cde72fead4c
+  - [net-next,7/9] rtnetlink: bridge: Enable MDB bulk deletion
+    https://git.kernel.org/netdev/net-next/c/2601e9c4b117
+  - [net-next,8/9] selftests: bridge_mdb: Add MDB bulk deletion test
+    https://git.kernel.org/netdev/net-next/c/bd2dcb94c81e
+  - [net-next,9/9] selftests: vxlan_mdb: Add MDB bulk deletion test
+    https://git.kernel.org/netdev/net-next/c/c3e87a7fcd0b
+
+You are awesome, thank you!
 -- 
-2.17.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
