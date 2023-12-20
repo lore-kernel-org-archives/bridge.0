@@ -1,93 +1,58 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8B51482F2;
-	Wed, 20 Dec 2023 16:17:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="clU9cgF3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F732C433C9;
-	Wed, 20 Dec 2023 16:17:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1703089069;
-	bh=yiNywPcfnyASYER4gw7HzvtQFMt8fPzWYtnEf1VIzBc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=clU9cgF3ePrzVBDXkDLJ/Y2RvTmfJCYP5TiFw2k1l3+M/W+i5CRlaH67NhiSJK3Qn
-	 +oJa+vcpEIFqdcJ8HTb0RuDkib0CTGy5OC/yhL1p1UrVcnmSHnuAjzckBw9SRBwzTM
-	 TM7E2OS8hpzRZQRVKZhd57uRr8EuibcDSwmhBj/rwplZoqII7Haqi3KTwd6AEVB9hc
-	 +hNpKBEHvkLlwsZeeN8x68YH4LWAnk7UDcgJU2e/xjLjOTrT4PVhlx3AB+9jmK34QO
-	 /RR4VI/XsdxOoZysBYT156ljTHU0imSZef/Lqcgwf2yy6N0MOJXDHPm29wIzPBdhbk
-	 3piLOpPFztFnQ==
-Date: Wed, 20 Dec 2023 17:17:42 +0100
-From: Simon Horman <horms@kernel.org>
-To: Lin Ma <linma@zju.edu.cn>
-Cc: roopa@nvidia.com, razor@blackwall.org, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	horatiu.vultur@microchip.com, henrik.bjoernlund@microchip.com,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
+Received: from zju.edu.cn (spam.zju.edu.cn [61.164.42.155])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E6D003F8D6
+	for <bridge@lists.linux.dev>; Wed, 20 Dec 2023 16:29:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zju.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zju.edu.cn
+Received: from linma$zju.edu.cn ( [10.181.222.206] ) by
+ ajax-webmail-mail-app3 (Coremail) ; Thu, 21 Dec 2023 00:29:16 +0800
+ (GMT+08:00)
+Date: Thu, 21 Dec 2023 00:29:16 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From: "Lin Ma" <linma@zju.edu.cn>
+To: "Simon Horman" <horms@kernel.org>
+Cc: roopa@nvidia.com, razor@blackwall.org, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	horatiu.vultur@microchip.com, henrik.bjoernlund@microchip.com, 
+	bridge@lists.linux.dev, netdev@vger.kernel.org, 
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v1] bridge: cfm: fix enum typo in br_cc_ccm_tx_parse
-Message-ID: <20231220161742.GM882741@kernel.org>
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.2-cmXT5 build
+ 20230825(e13b6a3b) Copyright (c) 2002-2023 www.mailtech.cn
+ mispb-4df6dc2c-e274-4d1c-b502-72c5c3dfa9ce-zj.edu.cn
+In-Reply-To: <20231220161742.GM882741@kernel.org>
 References: <20231220075914.2426376-1-linma@zju.edu.cn>
+ <20231220161742.GM882741@kernel.org>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231220075914.2426376-1-linma@zju.edu.cn>
+Message-ID: <55cdc6e4.49734.18c880f5a2f.Coremail.linma@zju.edu.cn>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:cC_KCgAHD3NcFoNl+xI2AQ--.40161W
+X-CM-SenderInfo: qtrwiiyqvtljo62m3hxhgxhubq/1tbiAwQJEmV5gHkUowAasU
+X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWxJw
+	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
+	daVFxhVjvjDU=
 
-On Wed, Dec 20, 2023 at 03:59:14PM +0800, Lin Ma wrote:
-> It appears that there is a typo in the code where the nlattr array is
-> being parsed with policy br_cfm_cc_ccm_tx_policy, but the instance is
-> being accessed via IFLA_BRIDGE_CFM_CC_RDI_INSTANCE, which is associated
-> with the policy br_cfm_cc_rdi_policy.
-> 
-> Though it seems like a harmless typo since these two enum owns the exact
-> same value (1 here), it is quite misleading hence fix it by using the
-> correct enum IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE here.
-> 
-> Fixes: 2be665c3940d ("bridge: cfm: Netlink SET configuration Interface.")
-> Signed-off-by: Lin Ma <linma@zju.edu.cn>
+SGVsbG8gU2ltb24sCgo+IAo+IFRoYW5rcyBMaW4gTWEsCj4gCj4gSSBhZ3JlZSB3aXRoIHlvdXIg
+YW5hbHlzaXMsIHRoYXQgdGhlIHByb2JsZW0gd2FzIGludHJvZHVjZWQgaW4gdGhlCj4gY2l0ZWQg
+Y29tbWl0LCBhbmQgdGhhdCBpdCBpcyByZXNvbHZlZCBieSB5b3VyIHBhdGNoLgo+IAoKVGhhbmtz
+IGZvciB0aGUgZW5jb3VyYWdlbWVudC4KCj4gSG93ZXZlciwgYXMgdGhlcmUgaXMgbm8gdXNlci12
+aXNpYmxlIGJ1ZyBJIGRvbid0IGJlbGlldmUgdGhpcyByZWFjaGVzCj4gdGhlIGJhciBmb3IgYSAn
+Zml4JyBmb3IgTmV0d29ya2luZyBjb2RlLiBBY2NvcmRpbmdseSwgSSB0aGluayB0aGF0Cj4gdGhl
+IEZpeGVzIHRhZyBzaG91bGQgYmUgZHJvcHBlZC4gQW5kLCBpbnN0ZWFkIGNpdGVkIGNvbW1pdCBj
+YW4gYmUgbWVudGlvbmVkCj4gdXNpbmcgc29tZXRoaW5nIGxpa2UgIlRoaXMgcHJvYmxlbSB3YXMg
+aW50cm9kdWNlZCBieSBjb21taXQgLi4uIi4KPiAKPiBBbHNvLCBhcyBJIGRvbid0IHRoaW5rIGl0
+IGlzIGEgZml4IEkgdGhpbmsgaXQgc2hvdWxkIGJlIHRhcmdldGVkIGF0IHRoZQo+IG5ldC1uZXh0
+IHRyZWU6Cj4gCj4gCVN1YmplY3Q6IFtQQVRDSCBuZXQtbmV4dCB2WF0gLi4uCj4gCgpDb3B5IHRo
+YXQuIFllYWgsIG9uY2UgdGhlIGVudW0gSUZMQV9CUklER0VfQ0ZNX0NDX1JESV9JTlNUQU5DRSBh
+bmQgdGhlCklGTEFfQlJJREdFX0NGTV9DQ19DQ01fVFhfSU5TVEFOQ0Uga2VlcHMgdGhlIHZhbHVl
+IDEsIGV2ZXJ5dGhpbmcgc2hvdWxkIHdvcmsKYXMgdXN1YWwuIEkgd2lsbCByZXNlbmQgdGhlIHBh
+dGNoIGFzIHRvbGQuCgo+IFRoZSBhYm92ZSBuaXRzIG5vdHdpdGhzdGFuZGluZywKPiAKPiBSZXZp
+ZXdlZC1ieTogU2ltb24gSG9ybWFuIDxob3Jtc0BrZXJuZWwub3JnPgo+IAoKUmVnYXJkcwpMaW4=
 
-Thanks Lin Ma,
-
-I agree with your analysis, that the problem was introduced in the
-cited commit, and that it is resolved by your patch.
-
-However, as there is no user-visible bug I don't believe this reaches
-the bar for a 'fix' for Networking code. Accordingly, I think that
-the Fixes tag should be dropped. And, instead cited commit can be mentioned
-using something like "This problem was introduced by commit ...".
-
-Also, as I don't think it is a fix I think it should be targeted at the
-net-next tree:
-
-	Subject: [PATCH net-next vX] ...
-
-The above nits notwithstanding,
-
-Reviewed-by: Simon Horman <horms@kernel.org>
-
-> ---
->  net/bridge/br_cfm_netlink.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
-> index 5c4c369f8536..2faab44652e7 100644
-> --- a/net/bridge/br_cfm_netlink.c
-> +++ b/net/bridge/br_cfm_netlink.c
-> @@ -362,7 +362,7 @@ static int br_cc_ccm_tx_parse(struct net_bridge *br, struct nlattr *attr,
->  
->  	memset(&tx_info, 0, sizeof(tx_info));
->  
-> -	instance = nla_get_u32(tb[IFLA_BRIDGE_CFM_CC_RDI_INSTANCE]);
-> +	instance = nla_get_u32(tb[IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE]);
->  	nla_memcpy(&tx_info.dmac.addr,
->  		   tb[IFLA_BRIDGE_CFM_CC_CCM_TX_DMAC],
->  		   sizeof(tx_info.dmac.addr));
-> -- 
-> 2.17.1
-> 
-> 
