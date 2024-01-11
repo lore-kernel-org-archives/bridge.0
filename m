@@ -1,24 +1,45 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E20F4495CC;
-	Wed, 10 Jan 2024 13:48:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 302EF39C
+	for <bridge@lists.linux.dev>; Thu, 11 Jan 2024 00:46:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V1jPPPfb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14496C433C7;
-	Wed, 10 Jan 2024 13:48:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1704894507;
-	bh=Mpj9MmpWsZ0QXa3z+JG9y8iO9570kyRUme6G8UyY3ns=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=V1jPPPfbtZjWicjR/pXvV3fvfEd+WTpUYKesK1ver/unl0yUXsY4TkjQIutQjBRsP
-	 rP/Oz0q/0h14UEjOgFaxFG624+eWlJ/AO+ivv3TYC1sZnL+hL4/+Alo/46tP000hXg
-	 zplNZ64lLrfkj8J9hOzdzzP2smKm7MeEZ/IYISeNp94tvvX509RdtM1WHeyhjMm5jx
-	 6PVp6J9lR2f0adpYnosG4kNDW+C6yKAzSmFoUpH39oONuTUSb402zXo2PYbzqdDyDw
-	 8BKfIvBQaR2VfeSzJy9k28uur98lcaUtFQRjhOYk1Xziu9Q+q1jecwOjEuD67FrH9y
-	 AnuUlci6GEj1Q==
-Date: Wed, 10 Jan 2024 13:48:20 +0000
-From: Conor Dooley <conor@kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="kQj1RYRG"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-6daa822be30so2220177b3a.0
+        for <bridge@lists.linux.dev>; Wed, 10 Jan 2024 16:46:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1704933967; x=1705538767; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=gueNhZrbsNiJzCN2gb4yLrjECQBWf6cwwXnoTcfXIT4=;
+        b=kQj1RYRGm4Aa++ruvyTfFI19APFq/BW9lxuVS6Ln36ACb5Z3HGszxACIHVq7Jbcbiw
+         /gdXfRPorgAndp4BxTY1YwjfpdHLj9RtNk6k9FjEzutBWT5h86y9WNUIPQJ9SlNhZRse
+         pcgGrGW9/1I8+LPBAW895c3WLpDgCRKSIgWvg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704933967; x=1705538767;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gueNhZrbsNiJzCN2gb4yLrjECQBWf6cwwXnoTcfXIT4=;
+        b=tEvvADuKZF3D92vntWir0HACUmKh/dRytUiGrGa4FokwZUIy3pEWAyAppohwT8GIkN
+         85mH/RgwdZbgDAK9UEIPUCALgdp/H9PTi8+3cr7PUaOZykxzflpkuDGRKKI8/37bsNoF
+         kDvCm6e4IosC/wOrWUobOhJMOT6A+M/d8MqgLrs1gsFhOlDpbQlj8fcPFi3uSZ7S/1pu
+         dApFew9SJnLY/y2x7ETacIozoc3JF03nT5OC+aB3+oIezNdO3rQxkf0Z0+JdIsZFFm+6
+         wmLSTrp5DkyIsGLTArGRrHegtCMpRAdn2ncop+JE6kqejdPkv/Zr3P8mn/i7Q3Sl332W
+         KOyQ==
+X-Gm-Message-State: AOJu0YxlGNg0VpBigf/tByyrA2ob/GmUCWhPljc0K+kXuuJEN7COLSP1
+	iXvdnlIpucRZQv/akRphgi4jX3XElj+p
+X-Google-Smtp-Source: AGHT+IGkiZ1hknB2+0UC/gxIH8jrVZxWAA/1vUWxP929828CA6Qm4M9e8Oxn46aJ8qOxkFFVf4GTPg==
+X-Received: by 2002:aa7:90d3:0:b0:6d9:a64c:c5d1 with SMTP id k19-20020aa790d3000000b006d9a64cc5d1mr504196pfk.26.1704933967538;
+        Wed, 10 Jan 2024 16:46:07 -0800 (PST)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
+        by smtp.gmail.com with ESMTPSA id y2-20020a62b502000000b006dac91d6da5sm4071344pfe.68.2024.01.10.16.46.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jan 2024 16:46:06 -0800 (PST)
+Date: Wed, 10 Jan 2024 16:46:06 -0800
+From: Kees Cook <keescook@chromium.org>
 To: Nathan Chancellor <nathan@kernel.org>
 Cc: akpm@linux-foundation.org, llvm@lists.linux.dev,
 	patches@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
@@ -31,62 +52,79 @@ Cc: akpm@linux-foundation.org, llvm@lists.linux.dev,
 	linux-arch@vger.kernel.org, kasan-dev@googlegroups.com,
 	linux-mm@kvack.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
 	linux-security-module@vger.kernel.org,
-	linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH 2/3] arch and include: Update LLVM Phabricator links
-Message-ID: <20240110-apostle-trident-533d4c2c9c97@spud>
+	linux-kselftest@vger.kernel.org, ast@kernel.org,
+	daniel@iogearbox.net, andrii@kernel.org, mykolal@fb.com,
+	bpf@vger.kernel.org
+Subject: Re: [PATCH 0/3] Update LLVM Phabricator and Bugzilla links
+Message-ID: <202401101645.ED161519BA@keescook>
 References: <20240109-update-llvm-links-v1-0-eb09b59db071@kernel.org>
- <20240109-update-llvm-links-v1-2-eb09b59db071@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="p6SYI+U6gP5vpK1M"
-Content-Disposition: inline
-In-Reply-To: <20240109-update-llvm-links-v1-2-eb09b59db071@kernel.org>
-
-
---p6SYI+U6gP5vpK1M
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20240109-update-llvm-links-v1-0-eb09b59db071@kernel.org>
 
-On Tue, Jan 09, 2024 at 03:16:30PM -0700, Nathan Chancellor wrote:
-> reviews.llvm.org was LLVM's Phabricator instances for code review. It
-> has been abandoned in favor of GitHub pull requests. While the majority
-> of links in the kernel sources still work because of the work Fangrui
-> has done turning the dynamic Phabricator instance into a static archive,
-> there are some issues with that work, so preemptively convert all the
-> links in the kernel sources to point to the commit on GitHub.
->=20
-> Most of the commits have the corresponding differential review link in
-> the commit message itself so there should not be any loss of fidelity in
-> the relevant information.
->=20
-> Link: https://discourse.llvm.org/t/update-on-github-pull-requests/71540/1=
-72
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+On Tue, Jan 09, 2024 at 03:16:28PM -0700, Nathan Chancellor wrote:
+> This series updates all instances of LLVM Phabricator and Bugzilla links
+> to point to GitHub commits directly and LLVM's Bugzilla to GitHub issue
+> shortlinks respectively.
+> 
+> I split up the Phabricator patch into BPF selftests and the rest of the
+> kernel in case the BPF folks want to take it separately from the rest of
+> the series, there are obviously no dependency issues in that case. The
+> Bugzilla change was mechanical enough and should have no conflicts.
+> 
+> I am aiming this at Andrew and CC'ing other lists, in case maintainers
+> want to chime in, but I think this is pretty uncontroversial (famous
+> last words...).
+> 
 > ---
+> Nathan Chancellor (3):
+>       selftests/bpf: Update LLVM Phabricator links
+>       arch and include: Update LLVM Phabricator links
+>       treewide: Update LLVM Bugzilla links
+> 
+>  arch/arm64/Kconfig                                 |  4 +--
+>  arch/powerpc/Makefile                              |  4 +--
+>  arch/powerpc/kvm/book3s_hv_nested.c                |  2 +-
+>  arch/riscv/Kconfig                                 |  2 +-
+>  arch/riscv/include/asm/ftrace.h                    |  2 +-
+>  arch/s390/include/asm/ftrace.h                     |  2 +-
+>  arch/x86/power/Makefile                            |  2 +-
+>  crypto/blake2b_generic.c                           |  2 +-
+>  drivers/firmware/efi/libstub/Makefile              |  2 +-
+>  drivers/gpu/drm/amd/amdgpu/sdma_v4_4_2.c           |  2 +-
+>  drivers/media/test-drivers/vicodec/codec-fwht.c    |  2 +-
+>  drivers/regulator/Kconfig                          |  2 +-
+>  include/asm-generic/vmlinux.lds.h                  |  2 +-
+>  include/linux/compiler-clang.h                     |  2 +-
+>  lib/Kconfig.kasan                                  |  2 +-
+>  lib/raid6/Makefile                                 |  2 +-
+>  lib/stackinit_kunit.c                              |  2 +-
+>  mm/slab_common.c                                   |  2 +-
+>  net/bridge/br_multicast.c                          |  2 +-
+>  security/Kconfig                                   |  2 +-
+>  tools/testing/selftests/bpf/README.rst             | 32 +++++++++++-----------
+>  tools/testing/selftests/bpf/prog_tests/xdpwall.c   |  2 +-
+>  .../selftests/bpf/progs/test_core_reloc_type_id.c  |  2 +-
+>  23 files changed, 40 insertions(+), 40 deletions(-)
+> ---
+> base-commit: 0dd3ee31125508cd67f7e7172247f05b7fd1753a
+> change-id: 20240109-update-llvm-links-d03f9d649e1e
+> 
+> Best regards,
+> -- 
+> Nathan Chancellor <nathan@kernel.org>
+> 
 
->  arch/riscv/Kconfig              | 2 +-
->  arch/riscv/include/asm/ftrace.h | 2 +-
+Excellent! Thanks for doing this. I spot checked a handful I was
+familiar with and everything looks good to me.
 
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Cheers,
-Conor.
-
---p6SYI+U6gP5vpK1M
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZZ6gJAAKCRB4tDGHoIJi
-0mIlAQCj5ZP6QEhEswWYjX38obn/p3pF8mt+Ve+vlBnVEhAW8QD8ClRvKxDiajR5
-Zp8ES/FLDyH/QJ5QjGuYLP5PATLeFAY=
-=SqXc
------END PGP SIGNATURE-----
-
---p6SYI+U6gP5vpK1M--
+-- 
+Kees Cook
