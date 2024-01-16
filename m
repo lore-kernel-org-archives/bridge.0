@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF0BC1D551;
-	Tue, 16 Jan 2024 19:46:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4191F13DB8E;
+	Tue, 16 Jan 2024 19:53:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705434412; cv=none; b=hn7eYXn0NiKwvjhRpBynSADa4FGvUVYXXj8QPZfGhyhRw8FDUlJD2sQIbvxcgxMubhSKqDwLS8EBid8NTUMEaoE5T+JM5ISpOYTK/V3Tt9SIBcgDhXfKV3NAftayQSyCFHgj5tsDB/PVAhfzcAbT0p1wYZdWrJ7RWF0XbmrT5TA=
+	t=1705434830; cv=none; b=faHnIqXuuzkMznzChC28Zii2KgZTauAHcKEwB0n4AdYegvvVwHMYzhsiqPrrIqzYDxnvKLqQ2tPx9PIkLZxgzUcYBUEgggOGyMjscO5+Fk8Lal6mv8bvcimYNqaje7TCIbr2v+7VkvnINnS6nwiqC3mgk7XXIx7Ubj3WvukKG8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705434412; c=relaxed/simple;
+	s=arc-20240116; t=1705434830; c=relaxed/simple;
 	bh=Mon5scDBKET6/L7FX799ZvcaKqwGFd5fDZLd2md0Dmc=;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:X-stable:
-	 X-Patchwork-Hint:X-stable-base:Content-Transfer-Encoding; b=hm4FgAlfPiIYd8MVLwmkpVhxV66H1ujZHH6DpueejQ5cPSyF+t5v+QjANZSD0W+sTfUSQDgCih2Y3NBKWiiRjMAnfKEGVWLIR7bTs9jS7A0TocA+VoM38fXHSqW6xJKxff9/pxnKFd8zqTjS7Lfg/XJUl1+p0e8S6ocZ5hXmaKg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T7AIde1o; arc=none smtp.client-ip=10.30.226.201
+	 X-Patchwork-Hint:X-stable-base:Content-Transfer-Encoding; b=jJslXBsVm0OqblEASi5/VB4eDHkUq+BxRLIlfZiMtrgP6U4l6gsZ/eTmWa0ASZzgJd2lnMy32Ml7UDUct4zeB75J7kwjqsQI+0Rec7LD9WJ+paHM58Wdyv+Iu4jC2c2wpneWgKlV2afjoh+lEucorDAiOa/6SUBSGTpvGw6tgxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XsnWr9/7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T7AIde1o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41049C433F1;
-	Tue, 16 Jan 2024 19:46:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XsnWr9/7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB93C43399;
+	Tue, 16 Jan 2024 19:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705434411;
+	s=k20201202; t=1705434830;
 	bh=Mon5scDBKET6/L7FX799ZvcaKqwGFd5fDZLd2md0Dmc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=T7AIde1okNzBlAfcrkKyx3QvQvigBT+rS4EAApoMhknp/5lBqkFdesqWkNeDvKRYe
-	 Upcz1oh2aGauBd9S8acMI7xzJo99+2Jf6LbuCNGYdHcDjlh5FaPds38eAqlHFOtlDJ
-	 p+UwQJ/eUAj7c6Wa/I3ZyzkFwDGxI/A78NzZfECeqm++kFqlarlP7qPgiC/QA0HZ5y
-	 KzmecEWubNwKJgfhQPZ4fu8DCTUTu2AGkyuz98H6xURvb45aFrtztBJXF7s+EJv9sT
-	 1LZ4U+iFIW+soKERBJGZGql+sBhuIS147TEjDYunfUHMxf6qqja+Pmt1nMCpGBK92p
-	 ci7YciB9Z8a0A==
+	b=XsnWr9/7o/RjDf+fcE6H72pM7cIbK4cKJj71yr2L/IfUaSurs5HuIv8t1nx62v3RF
+	 NC93Mce1JTVbX00FhpB6koWxCTMlJiAvYNdkkoxjy+35940h0tuerfnq5M2GwL4TCR
+	 sAlw/vxPiywa2r+9oJx9HfNRrZ0bqxxQcPGfVQ56hvE32ZFUoZb2aPAduTgi01H3U5
+	 34ApxrzQGMv6jVd46tE0JzvMzpdQCWq24T84Y955B+twxcdYOa5nSkw1MZZbAaV8On
+	 D+of/+zOUIcF8yLiJ9qEUea6YqpQhU5uUCJ3/CPa5wGv/Gtbem59+BZmns+YpIADIx
+	 itrYLTin1ax+Q==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -41,12 +41,12 @@ Cc: Lin Ma <linma@zju.edu.cn>,
 	pabeni@redhat.com,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.7 101/108] bridge: cfm: fix enum typo in br_cc_ccm_tx_parse
-Date: Tue, 16 Jan 2024 14:40:07 -0500
-Message-ID: <20240116194225.250921-101-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.6 098/104] bridge: cfm: fix enum typo in br_cc_ccm_tx_parse
+Date: Tue, 16 Jan 2024 14:47:04 -0500
+Message-ID: <20240116194908.253437-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240116194225.250921-1-sashal@kernel.org>
-References: <20240116194225.250921-1-sashal@kernel.org>
+In-Reply-To: <20240116194908.253437-1-sashal@kernel.org>
+References: <20240116194908.253437-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -55,7 +55,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.7
+X-stable-base: Linux 6.6.12
 Content-Transfer-Encoding: 8bit
 
 From: Lin Ma <linma@zju.edu.cn>
