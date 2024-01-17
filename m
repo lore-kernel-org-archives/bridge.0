@@ -1,101 +1,70 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from ganesha.gnumonks.org (ganesha.gnumonks.org [213.95.27.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B28FC1586CE;
-	Tue, 16 Jan 2024 20:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2D8B1DFE6;
+	Wed, 17 Jan 2024 12:44:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.27.120
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705435207; cv=none; b=Zp9t2it7C26V4/WIF1Nj0S9en6YLy1hZsiVNd/Mb2/ICLbl3xSpBy+OOrF6womSSEClOMjibQxGPU03l26BkM8hfsOxgSUGnios/hMKLF9p6T+W0zcAH1eJl4QJyTIasn9+AWe9qhsWWrIkjmkIslvywOhUPtm69isHLxQatjjU=
+	t=1705495446; cv=none; b=I03z3ochrIAiUzd8ocqUcRbGGsFUL0BbrH0wUDzvbQFkf9b5Qx97ibwogW1FlrQwXkU/KwDthleqiKGl4o4wFGOAmx9EVkrWhNXibqRE7KIZPBmSLQfrm9MEiAMPxusFUk1LVszK9toH4abjmyLBT/qZhNmCNWxIZJou/k8Nc3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705435207; c=relaxed/simple;
-	bh=Mon5scDBKET6/L7FX799ZvcaKqwGFd5fDZLd2md0Dmc=;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:X-stable:
-	 X-Patchwork-Hint:X-stable-base:Content-Transfer-Encoding; b=Ae07f5joxO2d6FxBZyMLIuGhKAIuu97+ndN19m7zTHmycCWHgqxFq8g3Zywww760kILQZmFj279oPgO1j8PD/SlERBQ4CIipxK23rE8p8KSIK12/GgwGt5fsXkAsZMQxEtf2pA0yiLH7w5QhTwQa79WecsqPStkrlYHePWhU1Uk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Dn0T2p/n; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dn0T2p/n"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E4A2C433F1;
-	Tue, 16 Jan 2024 20:00:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705435207;
-	bh=Mon5scDBKET6/L7FX799ZvcaKqwGFd5fDZLd2md0Dmc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Dn0T2p/nbQCUmA15Xpt1+vp+oAEqkpNyCwa43TuPUvxNe0EbbRNwQ67Nl+ZnXDKvT
-	 r3Zfz2jekwMin0Zf1/IPsaYbN4FO71CfCbCrTd2+PoRytYwSpo0lMaLpmYuyd51rSh
-	 XiED5e2EOV1KfsaCo/zbaVjHuML6lA45ppcGDOC6FPGcqU7djWCG/xI7hpgcKgAzxs
-	 W3a+VlomjWszRICSCGia+gDogiado0ArjQjv3vnD5UZpxqxmUDIrdlPYzqJ2L2VacW
-	 ZL1eomqqOw0UrrphpnfH7p+DdyXPhHQR21cMpyPr/PhBKzKVE9KgCxS9AOLGAM55ht
-	 3TLD3KWn0Opsw==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Lin Ma <linma@zju.edu.cn>,
-	Simon Horman <horms@kernel.org>,
+	s=arc-20240116; t=1705495446; c=relaxed/simple;
+	bh=giAza7e6lB0scwLEi7BWSLsTb0Ii7ZIpXI4+tJX8w1o=;
+	h=Received:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
+	 X-Spam-Score; b=OR/MHIhr3ujF3esGy0kGO1rF5qDoPv5LaorJSrHGvjbX3FfAzl/9K4SOoZ6nKxU9hTn+xrS8IzH6Y70vJPHkBHK+eACAydxtYjlz2Oq/c0f3tMcsOPpd9Sr43v9J8zVcyH8mzacge5oJ5cGsBmbaloac5dPEjpUDDZEzloe9sTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org; spf=pass smtp.mailfrom=gnumonks.org; arc=none smtp.client-ip=213.95.27.120
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gnumonks.org
+Received: from [78.30.41.52] (port=34294 helo=gnumonks.org)
+	by ganesha.gnumonks.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <pablo@gnumonks.org>)
+	id 1rQ5Gn-00DsBF-Fq; Wed, 17 Jan 2024 13:43:51 +0100
+Date: Wed, 17 Jan 2024 13:43:48 +0100
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+To: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Florian Westphal <fw@strlen.de>, David Ahern <dsahern@kernel.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Kees Cook <keescook@chromium.org>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Sasha Levin <sashal@kernel.org>,
-	roopa@nvidia.com,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 45/47] bridge: cfm: fix enum typo in br_cc_ccm_tx_parse
-Date: Tue, 16 Jan 2024 14:57:48 -0500
-Message-ID: <20240116195834.257313-45-sashal@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240116195834.257313-1-sashal@kernel.org>
-References: <20240116195834.257313-1-sashal@kernel.org>
+	Roopa Prabhu <roopa@nvidia.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org, bridge@lists.linux.dev, kernel@openvz.org
+Subject: Re: [PATCH v3 0/4] netlink: bridge: fix nf_bridge->physindev use
+ after free
+Message-ID: <ZafLhL9U3f/i07BU@calendula>
+References: <20240111150645.85637-1-ptikhomirov@virtuozzo.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.147
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240111150645.85637-1-ptikhomirov@virtuozzo.com>
+X-Spam-Score: -1.9 (-)
 
-From: Lin Ma <linma@zju.edu.cn>
+On Thu, Jan 11, 2024 at 11:06:36PM +0800, Pavel Tikhomirov wrote:
+> Code processing skb from neigh->arp_queue can access its
+> nf_bridge->physindev, which can already be freed, leading to crash.
+> 
+> So, as Florian suggests, we can put physinif on nf_bridge and peek into
+> the original device with dev_get_by_index_rcu(), so that we can be sure
+> that device is not freed under us.
+> 
+> This is a second attempt to fix this issue, first attempt:
+> 
+> "neighbour: purge nf_bridged skb from foreign device neigh"
+> https://lore.kernel.org/netdev/20240108085232.95437-1-ptikhomirov@virtuozzo.com/
 
-[ Upstream commit c2b2ee36250d967c21890cb801e24af4b6a9eaa5 ]
+I have applied this series to nf.git
 
-It appears that there is a typo in the code where the nlattr array is
-being parsed with policy br_cfm_cc_ccm_tx_policy, but the instance is
-being accessed via IFLA_BRIDGE_CFM_CC_RDI_INSTANCE, which is associated
-with the policy br_cfm_cc_rdi_policy.
+I have added a Fixed: tag sufficiently old to the patch fix so it can
+reach -stable at some point.
 
-This problem was introduced by commit 2be665c3940d ("bridge: cfm: Netlink
-SET configuration Interface.").
-
-Though it seems like a harmless typo since these two enum owns the exact
-same value (1 here), it is quite misleading hence fix it by using the
-correct enum IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE here.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Reviewed-by: Simon Horman <horms@kernel.org>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- net/bridge/br_cfm_netlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
-index 5c4c369f8536..2faab44652e7 100644
---- a/net/bridge/br_cfm_netlink.c
-+++ b/net/bridge/br_cfm_netlink.c
-@@ -362,7 +362,7 @@ static int br_cc_ccm_tx_parse(struct net_bridge *br, struct nlattr *attr,
- 
- 	memset(&tx_info, 0, sizeof(tx_info));
- 
--	instance = nla_get_u32(tb[IFLA_BRIDGE_CFM_CC_RDI_INSTANCE]);
-+	instance = nla_get_u32(tb[IFLA_BRIDGE_CFM_CC_CCM_TX_INSTANCE]);
- 	nla_memcpy(&tx_info.dmac.addr,
- 		   tb[IFLA_BRIDGE_CFM_CC_CCM_TX_DMAC],
- 		   sizeof(tx_info.dmac.addr));
--- 
-2.43.0
-
+My understanding is that this problem has been always there for
+br_netfilter.
