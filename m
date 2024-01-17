@@ -1,29 +1,28 @@
-Received: from ganesha.gnumonks.org (ganesha.gnumonks.org [213.95.27.120])
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2D8B1DFE6;
-	Wed, 17 Jan 2024 12:44:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.95.27.120
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4385922EE3;
+	Wed, 17 Jan 2024 14:15:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705495446; cv=none; b=I03z3ochrIAiUzd8ocqUcRbGGsFUL0BbrH0wUDzvbQFkf9b5Qx97ibwogW1FlrQwXkU/KwDthleqiKGl4o4wFGOAmx9EVkrWhNXibqRE7KIZPBmSLQfrm9MEiAMPxusFUk1LVszK9toH4abjmyLBT/qZhNmCNWxIZJou/k8Nc3A=
+	t=1705500934; cv=none; b=BV3JRYZfpqOqjNe1qqgKxfAVfkvSIDMtGJ8q/g9mBGFopyYJhEHK747mNPzYBbztoU+hO3ebcHEZmaCS+7BbUIO6oANuS7rIzF15rKsWnrvMASyOWlROcpAYArKYyZakkg5sUJ2xGwY+uw+PB99JGdmScSpb1yf+nTCHc1zecaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705495446; c=relaxed/simple;
-	bh=giAza7e6lB0scwLEi7BWSLsTb0Ii7ZIpXI4+tJX8w1o=;
+	s=arc-20240116; t=1705500934; c=relaxed/simple;
+	bh=PFwU7OV8TL81BTaq5Hvr6NOTTBFHJNWQsEG/Y0TBme8=;
 	h=Received:Date:From:To:Cc:Subject:Message-ID:References:
 	 MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
-	 X-Spam-Score; b=OR/MHIhr3ujF3esGy0kGO1rF5qDoPv5LaorJSrHGvjbX3FfAzl/9K4SOoZ6nKxU9hTn+xrS8IzH6Y70vJPHkBHK+eACAydxtYjlz2Oq/c0f3tMcsOPpd9Sr43v9J8zVcyH8mzacge5oJ5cGsBmbaloac5dPEjpUDDZEzloe9sTQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org; spf=pass smtp.mailfrom=gnumonks.org; arc=none smtp.client-ip=213.95.27.120
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gnumonks.org
-Received: from [78.30.41.52] (port=34294 helo=gnumonks.org)
-	by ganesha.gnumonks.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <pablo@gnumonks.org>)
-	id 1rQ5Gn-00DsBF-Fq; Wed, 17 Jan 2024 13:43:51 +0100
-Date: Wed, 17 Jan 2024 13:43:48 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-To: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
+	 User-Agent; b=XanmWLNb/zQI3Zqp1evBGlcczGzJrmZkYXXwYdkX7ktN4OUfI4jfP6oHl0J010eQf2JdisjI8KPYohqp/Pz4nMFBUBMMKWPbYqyGI3FVS9NxiDp1CF3imnH0b9a/+8wRNhWuRPbaeSj+fAHehjbxfXUlFPuKrBbanCx6COiwyek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
+Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
+	(envelope-from <fw@strlen.de>)
+	id 1rQ6hL-00040S-HW; Wed, 17 Jan 2024 15:15:19 +0100
+Date: Wed, 17 Jan 2024 15:15:19 +0100
+From: Florian Westphal <fw@strlen.de>
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Florian Westphal <fw@strlen.de>, David Ahern <dsahern@kernel.org>,
@@ -35,36 +34,22 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	coreteam@netfilter.org, bridge@lists.linux.dev, kernel@openvz.org
 Subject: Re: [PATCH v3 0/4] netlink: bridge: fix nf_bridge->physindev use
  after free
-Message-ID: <ZafLhL9U3f/i07BU@calendula>
+Message-ID: <20240117141519.GB11468@breakpoint.cc>
 References: <20240111150645.85637-1-ptikhomirov@virtuozzo.com>
+ <ZafLhL9U3f/i07BU@calendula>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240111150645.85637-1-ptikhomirov@virtuozzo.com>
-X-Spam-Score: -1.9 (-)
+In-Reply-To: <ZafLhL9U3f/i07BU@calendula>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 
-On Thu, Jan 11, 2024 at 11:06:36PM +0800, Pavel Tikhomirov wrote:
-> Code processing skb from neigh->arp_queue can access its
-> nf_bridge->physindev, which can already be freed, leading to crash.
-> 
-> So, as Florian suggests, we can put physinif on nf_bridge and peek into
-> the original device with dev_get_by_index_rcu(), so that we can be sure
-> that device is not freed under us.
-> 
-> This is a second attempt to fix this issue, first attempt:
-> 
-> "neighbour: purge nf_bridged skb from foreign device neigh"
-> https://lore.kernel.org/netdev/20240108085232.95437-1-ptikhomirov@virtuozzo.com/
+Pablo Neira Ayuso <pablo@netfilter.org> wrote:
+> My understanding is that this problem has been always there for
+> br_netfilter.
 
-I have applied this series to nf.git
-
-I have added a Fixed: tag sufficiently old to the patch fix so it can
-reach -stable at some point.
-
-My understanding is that this problem has been always there for
-br_netfilter.
+Right.
