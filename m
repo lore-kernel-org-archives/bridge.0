@@ -1,116 +1,185 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
+Received: from mail.aperture-lab.de (mail.aperture-lab.de [116.203.183.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 339B812B99;
-	Fri, 26 Jan 2024 06:07:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.55.52.120
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 820C01CF8C
+	for <bridge@lists.linux.dev>; Fri, 26 Jan 2024 14:44:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=116.203.183.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706249261; cv=none; b=FSRP3V1mJoLOvQ3laMQ4IvBApX0x2mkkb/lW2L9IJb8UNhz+3G7HgTPk4BvcopqJ44/fZ8mBsNI6B26upTS4dPILZ2DeO7GyZrWmO1fAazgkWy0BF8gIW6mLmovISK0KIQEbLtGcMgtC+RGHZ4HlLZm3TOsUaVE4X1qmPPdNFck=
+	t=1706280301; cv=none; b=N3HhxdqFV88fuxOkPz4DSMoLiPfCuyEyNs1hdD+UilxZWrqfZscLCXSnctuBNuDPsnJgCBG/e4ijxEzQ1prqV53rkBG/Yg/3YZ/hKPuGbG2NUPTPpN1EnZbpOL0wDXNSi5H2Vviq3jmX2Ze9mYUs59APhuXMPCfHtuiheuoxxas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706249261; c=relaxed/simple;
-	bh=lCdbp+pHkoUM7vUgFWED1lJvOrbS+WRL3qXPvADIs9A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FF6AfeWQ6grHbK/3fgzbg9tlwosTgrTX6eT+GLVBqpzvrV6P183Zrs4LUDhMlPdqLMDFC7QggrGz8J5+VlUvNK15VCaoeyjlEIzLYw8oPel7cINjXh+tbVuLfhZ+dqw/xvJZhPzry87KIXc5KYXAArLpe/hWZvCqgStAyQuy6Dk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AkMIBN6I; arc=none smtp.client-ip=192.55.52.120
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AkMIBN6I"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1706249260; x=1737785260;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=lCdbp+pHkoUM7vUgFWED1lJvOrbS+WRL3qXPvADIs9A=;
-  b=AkMIBN6IlGsIp99Rh+ncA1MeJmGMB5YW/wejmTlK/psAiXyS+tsmQqKM
-   2WXI2H6fK5y+0mMYSaXPHba2xjEtDJ12SUeZrw4IuQZBRSg17nIE4nVUF
-   lyLJ9kSwtcz8uBb2xKpkJU9LnHdo0zAesqiDdYHzPu3TTVwmvPBh4DjK1
-   h9iYcejXpgWtn9bcnv4id0+3/efKXsjiLOtI4uxgWZZoFttGQed34SuS7
-   vEDMHuLiX24267CiHD+rzid3gPYILBkhdNZpqB8HFNwPIGvj0uG+CqHgW
-   FQZu0wj05DpNLU+xuT+xFHg0jk2UcZ/Sano4Djm5CZShCcGUg0r/luV6i
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10964"; a="401245641"
-X-IronPort-AV: E=Sophos;i="6.05,216,1701158400"; 
-   d="scan'208";a="401245641"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2024 22:07:37 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.05,216,1701158400"; 
-   d="scan'208";a="2519019"
-Received: from lkp-server01.sh.intel.com (HELO 370188f8dc87) ([10.239.97.150])
-  by orviesa003.jf.intel.com with ESMTP; 25 Jan 2024 22:07:34 -0800
-Received: from kbuild by 370188f8dc87 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1rTFND-0000kW-37;
-	Fri, 26 Jan 2024 06:07:31 +0000
-Date: Fri, 26 Jan 2024 14:07:27 +0800
-From: kernel test robot <lkp@intel.com>
-To: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net,
-	kuba@kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, jiri@resnulli.us,
-	ivecera@redhat.com, netdev@vger.kernel.org, roopa@nvidia.com,
-	razor@blackwall.org, bridge@lists.linux.dev, rostedt@goodmis.org,
-	mhiramat@kernel.org, linux-trace-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 3/5] net: switchdev: Relay all replay messages
- through a central function
-Message-ID: <202401261325.D8Hg7ign-lkp@intel.com>
-References: <20240123153707.550795-4-tobias@waldekranz.com>
+	s=arc-20240116; t=1706280301; c=relaxed/simple;
+	bh=uHtepOo8gbOXT2LRNekmrAe1Ci4v1SSIgleK9lZ3iak=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lRuka8Gy1+NFhBLYX1Piqnv/XXMCzQ+zeQ/yjn4+jCOeE0/oQDWFkPIGNoq3xI6yvZ9bfP/tyyUpp9B+YEK/gr03dXNfujrFEF+YG/OBfZ93ixDUuuXr9HnHGfxqxDLG3BWIzaA/LRH5JlU9gwi6d+T1aul8TqebrP6BHrYr1+A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue; spf=pass smtp.mailfrom=c0d3.blue; arc=none smtp.client-ip=116.203.183.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=c0d3.blue
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 25D5040B8F;
+	Fri, 26 Jan 2024 15:36:37 +0100 (CET)
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux.dev,
+	b.a.t.m.a.n@lists.open-mesh.org,
+	linux-kernel@vger.kernel.org,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	=?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Subject: [PATCH net] bridge: mcast: fix disabled snooping after long uptime
+Date: Fri, 26 Jan 2024 15:36:07 +0100
+Message-ID: <20240126143607.5649-1-linus.luessing@c0d3.blue>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240123153707.550795-4-tobias@waldekranz.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Tobias,
+The original idea of the delay_time check was to not apply multicast
+snooping too early when an MLD querier appears. And to instead wait at
+least for MLD reports to arrive before switching from flooding to group
+based, MLD snooped forwarding, to avoid temporary packet loss.
 
-kernel test robot noticed the following build warnings:
+However in a batman-adv mesh network it was noticed that after 248 days of
+uptime 32bit MIPS based devices would start to signal that they had
+stopped applying multicast snooping due to missing queriers - even though
+they were the elected querier and still sending MLD queries themselves.
 
-[auto build test WARNING on net-next/main]
+While time_is_before_jiffies() generally is safe against jiffies
+wrap-arounds, like the code comments in jiffies.h explain, it won't
+be able to track a difference larger than ULONG_MAX/2. With a 32bit
+large jiffies and one jiffies tick every 10ms (CONFIG_HZ=100) on these MIPS
+devices running OpenWrt this would result in a difference larger than
+ULONG_MAX/2 after 248 (= 2^32/100/60/60/24/2) days and
+time_is_before_jiffies() would then start to return false instead of
+true. Leading to multicast snooping not being applied to multicast
+packets anymore.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Tobias-Waldekranz/net-switchdev-Wrap-enums-in-mapper-macros/20240123-234801
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20240123153707.550795-4-tobias%40waldekranz.com
-patch subject: [PATCH net-next 3/5] net: switchdev: Relay all replay messages through a central function
-config: i386-buildonly-randconfig-003-20240126 (https://download.01.org/0day-ci/archive/20240126/202401261325.D8Hg7ign-lkp@intel.com/config)
-compiler: clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240126/202401261325.D8Hg7ign-lkp@intel.com/reproduce)
+Fix this issue by using a proper timer_list object which won't have this
+ULONG_MAX/2 difference limitation.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202401261325.D8Hg7ign-lkp@intel.com/
+Fixes: b00589af3b04 ("bridge: disable snooping if there is no querier")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ net/bridge/br_multicast.c | 20 +++++++++++++++-----
+ net/bridge/br_private.h   |  4 ++--
+ 2 files changed, 17 insertions(+), 7 deletions(-)
 
-All warnings (new ones prefixed by >>):
-
->> net/switchdev/switchdev.c:322: warning: Function parameter or struct member 'type' not described in 'switchdev_call_replay'
->> net/switchdev/switchdev.c:322: warning: expecting prototype for switchdev_replay(). Prototype was for switchdev_call_replay() instead
-
-
-vim +322 net/switchdev/switchdev.c
-
-   309	
-   310	/**
-   311	 *	switchdev_replay - Replay switchdev message to driver
-   312	 *	@nb: notifier block to send the message to
-   313	 *	@val: value passed unmodified to notifier function
-   314	 *	@info: notifier information data
-   315	 *
-   316	 *	Typically issued by the bridge, as a response to a replay
-   317	 *	request initiated by a port that is either attaching to, or
-   318	 *	detaching from, that bridge.
-   319	 */
-   320	int switchdev_call_replay(struct notifier_block *nb, unsigned long type,
-   321				  struct switchdev_notifier_info *info)
- > 322	{
-   323		return nb->notifier_call(nb, type, info);
-   324	}
-   325	EXPORT_SYMBOL_GPL(switchdev_call_replay);
-   326	
-
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index d7d021af1029..df14ee36ea20 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1762,6 +1762,10 @@ static void br_ip6_multicast_querier_expired(struct timer_list *t)
+ }
+ #endif
+ 
++static inline void br_multicast_query_delay_expired(struct timer_list *t)
++{
++}
++
+ static void br_multicast_select_own_querier(struct net_bridge_mcast *brmctx,
+ 					    struct br_ip *ip,
+ 					    struct sk_buff *skb)
+@@ -3198,7 +3202,7 @@ br_multicast_update_query_timer(struct net_bridge_mcast *brmctx,
+ 				unsigned long max_delay)
+ {
+ 	if (!timer_pending(&query->timer))
+-		query->delay_time = jiffies + max_delay;
++		mod_timer(&query->delay_timer, jiffies + max_delay);
+ 
+ 	mod_timer(&query->timer, jiffies + brmctx->multicast_querier_interval);
+ }
+@@ -4041,13 +4045,11 @@ void br_multicast_ctx_init(struct net_bridge *br,
+ 	brmctx->multicast_querier_interval = 255 * HZ;
+ 	brmctx->multicast_membership_interval = 260 * HZ;
+ 
+-	brmctx->ip4_other_query.delay_time = 0;
+ 	brmctx->ip4_querier.port_ifidx = 0;
+ 	seqcount_spinlock_init(&brmctx->ip4_querier.seq, &br->multicast_lock);
+ 	brmctx->multicast_igmp_version = 2;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	brmctx->multicast_mld_version = 1;
+-	brmctx->ip6_other_query.delay_time = 0;
+ 	brmctx->ip6_querier.port_ifidx = 0;
+ 	seqcount_spinlock_init(&brmctx->ip6_querier.seq, &br->multicast_lock);
+ #endif
+@@ -4056,6 +4058,8 @@ void br_multicast_ctx_init(struct net_bridge *br,
+ 		    br_ip4_multicast_local_router_expired, 0);
+ 	timer_setup(&brmctx->ip4_other_query.timer,
+ 		    br_ip4_multicast_querier_expired, 0);
++	timer_setup(&brmctx->ip4_other_query.delay_timer,
++		    br_multicast_query_delay_expired, 0);
+ 	timer_setup(&brmctx->ip4_own_query.timer,
+ 		    br_ip4_multicast_query_expired, 0);
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -4063,6 +4067,8 @@ void br_multicast_ctx_init(struct net_bridge *br,
+ 		    br_ip6_multicast_local_router_expired, 0);
+ 	timer_setup(&brmctx->ip6_other_query.timer,
+ 		    br_ip6_multicast_querier_expired, 0);
++	timer_setup(&brmctx->ip6_other_query.delay_timer,
++		    br_multicast_query_delay_expired, 0);
+ 	timer_setup(&brmctx->ip6_own_query.timer,
+ 		    br_ip6_multicast_query_expired, 0);
+ #endif
+@@ -4197,10 +4203,12 @@ static void __br_multicast_stop(struct net_bridge_mcast *brmctx)
+ {
+ 	del_timer_sync(&brmctx->ip4_mc_router_timer);
+ 	del_timer_sync(&brmctx->ip4_other_query.timer);
++	del_timer_sync(&brmctx->ip4_other_query.delay_timer);
+ 	del_timer_sync(&brmctx->ip4_own_query.timer);
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	del_timer_sync(&brmctx->ip6_mc_router_timer);
+ 	del_timer_sync(&brmctx->ip6_other_query.timer);
++	del_timer_sync(&brmctx->ip6_other_query.delay_timer);
+ 	del_timer_sync(&brmctx->ip6_own_query.timer);
+ #endif
+ }
+@@ -4643,13 +4651,15 @@ int br_multicast_set_querier(struct net_bridge_mcast *brmctx, unsigned long val)
+ 	max_delay = brmctx->multicast_query_response_interval;
+ 
+ 	if (!timer_pending(&brmctx->ip4_other_query.timer))
+-		brmctx->ip4_other_query.delay_time = jiffies + max_delay;
++		mod_timer(&brmctx->ip4_other_query.delay_timer,
++			  jiffies + max_delay);
+ 
+ 	br_multicast_start_querier(brmctx, &brmctx->ip4_own_query);
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	if (!timer_pending(&brmctx->ip6_other_query.timer))
+-		brmctx->ip6_other_query.delay_time = jiffies + max_delay;
++		mod_timer(&brmctx->ip6_other_query.delay_timer,
++			  jiffies + max_delay);
+ 
+ 	br_multicast_start_querier(brmctx, &brmctx->ip6_own_query);
+ #endif
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index b0a92c344722..86ea5e6689b5 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -78,7 +78,7 @@ struct bridge_mcast_own_query {
+ /* other querier */
+ struct bridge_mcast_other_query {
+ 	struct timer_list		timer;
+-	unsigned long			delay_time;
++	struct timer_list		delay_timer;
+ };
+ 
+ /* selected querier */
+@@ -1159,7 +1159,7 @@ __br_multicast_querier_exists(struct net_bridge_mcast *brmctx,
+ 		own_querier_enabled = false;
+ 	}
+ 
+-	return time_is_before_jiffies(querier->delay_time) &&
++	return !timer_pending(&querier->delay_timer) &&
+ 	       (own_querier_enabled || timer_pending(&querier->timer));
+ }
+ 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.43.0
+
