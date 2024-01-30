@@ -1,56 +1,56 @@
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1818762C8
-	for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 20:19:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FD47762DC
+	for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 20:19:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706645991; cv=none; b=ig5hbDfyNElh/dEDwJ4nN9Xx5vyGNZq46nNj7ieeH0HMj194rYXchw1vIPA8wi9qYo5hNy6mH2wkhN0XetPpILJeA5OWPcxzKj32YXsD/TReb9bpPU+bJUKjqWOxcXEiZHQsMGd6WNRUqm+5wLquvW0iknTSuoOtBJmqb7InpZA=
+	t=1706645993; cv=none; b=JZPzmAv/djPU7Zh0U8aIjIXF9vaAXBB4VCNpwdr4TGFrwUvXMXQoFQ9krbomMxLNSx0erHiJaYT7XehOYlIMrUhFLImEJT1OMF5RSTrl/JbWN6Td0t2cT6bhhnnyVF81q+NIO5QaaVxZLGJK80eRVDA8a55kq2pafN/OZT1ArGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706645991; c=relaxed/simple;
-	bh=dDP0qs8DhKtLjMFYjmLFo4VHMamdrl6xaZ2AkfXYAoA=;
+	s=arc-20240116; t=1706645993; c=relaxed/simple;
+	bh=BapIGbjTv4sPl9p+qsdrvQS42GSfWfLQDFaWd63oDPI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=hMlwgWrocofJlhZQRt1kNgaUcfcJoB3a/XGHwVnz05gDY05pY0HA1jIW5F/JPlZCp0tsDkSQheaVazLwu8juWSwGVxRK/unRHBrlpWPV8C4yAtcKApKQnMmjAubAOg5iLcDFQGEwJGzPt8XrVLpyKhASyNwRivEOn+CIAEkv93I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=wyRizWex; arc=none smtp.client-ip=209.85.167.47
+	 MIME-Version; b=tZz14zngCEDVWpCNsumbF2q/VbyG9ej4SdNRlowqtCH46vTUxeOimRTIYK8JfUebzE1LI369yamxmsnXzQpjG348AeblonC4HAvbmYDTCj07XV7ef1rYICmIuKLx543opwJERULed328F/nkDnLlIR/1YeIPnlE8cSiLwCdhqYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=HmbON7Ug; arc=none smtp.client-ip=209.85.167.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="wyRizWex"
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-51032058f17so3648663e87.3
-        for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 12:19:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="HmbON7Ug"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-51121637524so656702e87.1
+        for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 12:19:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1706645988; x=1707250788; darn=lists.linux.dev;
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1706645989; x=1707250789; darn=lists.linux.dev;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=AsxS6NRjh94C5E7qE0lZySKxuu+izJy1bIEhTVzYMDA=;
-        b=wyRizWexY1FBBH66A8UoECl2fK2Eu4lP+MHDSLvO9hd5rrBoxSxwuY/auh1TtZBIKs
-         sYf3IoA6B3qOA0o1Hn2CWkrJbFNoiufiwawx6Y2oCmA1ppNPYhiLJ0mS42UwSPY7nWX8
-         keW7PLbvvGn0mGcE2Zk9UEvrB4W+dyWdfHp4qHplAxRq8eZ8KybTqtSuAGIDEPM1rFHR
-         qyut31kWtRUT5toli899+98eGv2DDq8aYgA/YzTqXR3mlkXRLO00w2iin66spe6hIpyD
-         JLla8KH3gbblgATn+gyBfeOXB0OP4C+56t8eIfK4cWnZQhJP2eOn4bk8HyB5RH4bJtqs
-         /Gug==
+        bh=6IqLnC7Qt5c9O6JLoW4lXxD7qv4Fiq09H4uLYuiQRTQ=;
+        b=HmbON7UgPmxgXarV/W2uwk0z+zxosxVHH9gELumfOzoyWD3tqmTbyo+iKhjOgL475N
+         cnd9X0j1ojX5QwSsAgMCyWEwryach6wlRgg/Ou/lPKYcjW63qj/iyH9PH5p69+c9BCK5
+         jrTkr8TLeo4dAvZ8+KSwQyrhcS3ABeouNAW/KO1I1WF7yMBHsZRgBnC4pJ1EhmmpIMJ+
+         JVmqS4K2SH3OWqq9MM/XNbr8WcWhKElfm4zTHFpbq/RMW7M3VUYmJx+Od+EtZDR6pqa/
+         5xa2g/2k/ZZFn0ZE0CDDjXi2N/L8b1toUu3Y3M8YO5QClIwHlbfOkmVrFNHnq8UFpR5O
+         Escg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706645988; x=1707250788;
+        d=1e100.net; s=20230601; t=1706645989; x=1707250789;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=AsxS6NRjh94C5E7qE0lZySKxuu+izJy1bIEhTVzYMDA=;
-        b=oIxrIgUtJRsEFAi8hWeoK07phtG7WCN2JEigNCoYofSw2koA4UCthZau/i1gX/ZVH7
-         qx4WNNcAD+rGhBqtAhfXFdAzzsRCwjtjHuAOkZl6Alu8u1nhKuefw49WyChBbRN+f3IL
-         CRnnIF8v66fkpp6StTr/idczznkoPPneiy+R0re+414gVtYK/d6M+mPI+R8lPP3+WdIE
-         m9mREePRHAYZfhsXPmDK5xq60e3zrfA+Fu9Wrdv/ckxwl7QmAR2Hof3SVaUCIGGw9Z8R
-         diYcRPrEFni72jbJc2QnzLW2dY29V6rHumB0C5j5K1UIJo51WqzvVy9vS8ORQj8Z8756
-         6wtg==
-X-Gm-Message-State: AOJu0YzA5VIEKIG+74u4buDXBqGhrEqGpfj77hZIP++1Qkp0o70UR82D
-	sSOlktHL2iqCwnSoSemg/IJJ2y7Rhqek76WhOnEWkIOsS1Z9n0Ltu1lUjZ/Ape4=
-X-Google-Smtp-Source: AGHT+IF8GONpbLNPK+lC7Gr5bM7GG2hs5GaIlwvCk3P5ob0qBim2niYmBL22jido4U3k8fFb0UdVAw==
-X-Received: by 2002:a05:6512:11e2:b0:510:44d9:ccdb with SMTP id p2-20020a05651211e200b0051044d9ccdbmr294255lfs.59.1706645988125;
-        Tue, 30 Jan 2024 12:19:48 -0800 (PST)
+        bh=6IqLnC7Qt5c9O6JLoW4lXxD7qv4Fiq09H4uLYuiQRTQ=;
+        b=iBKWmc9UcwGEjVhroGDKIDUP3UCB+/6z7NPa70FylhxjuV+Zzs5CDMGSs+807xcFCE
+         53+5mLzFcC2VoziSKCxzacykEeBYvRnwuDG4sTIfYakqj/T0Q2cBYLUhn3Uz4jPCtey7
+         Gc2ZqnZE2NB7ypqSMsNKcpr8hg3Qqvi3qlQENzodv04d1Dx+dq4HyGRkehOO9r9EIxHK
+         uFs6sZB0rAabAtZs3nnx4EF0NI7UmiIcIZ3D9JiD3MvdRyDYLRoONhvA/JxEHiwcIMBf
+         5eUYsKDkGKR7K/LhpoGzAHRWyuCVx4xPdb5sPcK4vVILBvfJYdhtSOtmP67joq8+Lxoq
+         VfcA==
+X-Gm-Message-State: AOJu0YwNLtz/sOFS3Ru9EvK0rpmk1qsICIVpeUBDZ90kt0li7LeuLFol
+	45c6/NzEOvO+a+b9tiw5e7//wIJHOIRPmqaHGpJsbxfJE9XYYlj8RCJdkflLJzo=
+X-Google-Smtp-Source: AGHT+IG9xBVa3UbjflAWcqCxOCqVmwqzOVXMJ08I7VEJoBUQtKwgVTlomzljcxK9lFma3n16UnFzEw==
+X-Received: by 2002:ac2:47f2:0:b0:50e:7702:a189 with SMTP id b18-20020ac247f2000000b0050e7702a189mr7301248lfp.22.1706645989212;
+        Tue, 30 Jan 2024 12:19:49 -0800 (PST)
 Received: from wkz-x13.addiva.ad (h-158-174-187-194.NA.cust.bahnhof.se. [158.174.187.194])
-        by smtp.gmail.com with ESMTPSA id eo15-20020a056512480f00b0051011f64e1bsm1553239lfb.142.2024.01.30.12.19.46
+        by smtp.gmail.com with ESMTPSA id eo15-20020a056512480f00b0051011f64e1bsm1553239lfb.142.2024.01.30.12.19.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jan 2024 12:19:47 -0800 (PST)
+        Tue, 30 Jan 2024 12:19:48 -0800 (PST)
 From: Tobias Waldekranz <tobias@waldekranz.com>
 To: davem@davemloft.net,
 	kuba@kernel.org
@@ -63,9 +63,9 @@ Cc: jiri@resnulli.us,
 	rostedt@goodmis.org,
 	mhiramat@kernel.org,
 	linux-trace-kernel@vger.kernel.org
-Subject: [PATCH v2 net-next 3/5] net: switchdev: Relay all replay messages through a central function
-Date: Tue, 30 Jan 2024 21:19:35 +0100
-Message-Id: <20240130201937.1897766-4-tobias@waldekranz.com>
+Subject: [PATCH v2 net-next 4/5] net: switchdev: Prepare deferred notifications before enqueuing them
+Date: Tue, 30 Jan 2024 21:19:36 +0100
+Message-Id: <20240130201937.1897766-5-tobias@waldekranz.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240130201937.1897766-1-tobias@waldekranz.com>
 References: <20240130201937.1897766-1-tobias@waldekranz.com>
@@ -78,99 +78,416 @@ MIME-Version: 1.0
 Organization: Addiva Elektronik
 Content-Transfer-Encoding: 8bit
 
-This will make it easier to add a tracepoint for all replay messages
-later on.
+Instead of having a separate format for storing the canned objects and
+attributes going to the deferred queue, store it using the
+notification structures that will be needed once the item is dequeued
+and sent to the driver.
+
+This will be useful when we add switchdev tracepoints, as we can
+uniformly trace deferred and immediate calls.
 
 Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 ---
- include/net/switchdev.h   |  3 +++
- net/bridge/br_switchdev.c | 10 +++++-----
- net/switchdev/switchdev.c | 17 +++++++++++++++++
- 3 files changed, 25 insertions(+), 5 deletions(-)
+ net/switchdev/switchdev.c | 307 +++++++++++++++++++-------------------
+ 1 file changed, 156 insertions(+), 151 deletions(-)
 
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 250053748c08..974cd8467131 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -337,6 +337,9 @@ int switchdev_port_obj_add(struct net_device *dev,
- int switchdev_port_obj_del(struct net_device *dev,
- 			   const struct switchdev_obj *obj);
- 
-+int switchdev_call_replay(struct notifier_block *nb, unsigned long type,
-+			  struct switchdev_notifier_info *info);
-+
- int register_switchdev_notifier(struct notifier_block *nb);
- int unregister_switchdev_notifier(struct notifier_block *nb);
- int call_switchdev_notifiers(unsigned long val, struct net_device *dev,
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index ee84e783e1df..b9e69b522544 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -306,7 +306,7 @@ br_switchdev_fdb_replay_one(struct net_bridge *br, struct notifier_block *nb,
- 
- 	br_switchdev_fdb_populate(br, &item, fdb, ctx);
- 
--	err = nb->notifier_call(nb, action, &item);
-+	err = switchdev_call_replay(nb, action, &item.info);
- 	return notifier_to_errno(err);
- }
- 
-@@ -376,8 +376,8 @@ static int br_switchdev_vlan_attr_replay(struct net_device *br_dev,
- 			attr.u.vlan_msti.vid = v->vid;
- 			attr.u.vlan_msti.msti = v->msti;
- 
--			err = nb->notifier_call(nb, SWITCHDEV_PORT_ATTR_SET,
--						&attr_info);
-+			err = switchdev_call_replay(nb, SWITCHDEV_PORT_ATTR_SET,
-+						    &attr_info.info);
- 			err = notifier_to_errno(err);
- 			if (err)
- 				return err;
-@@ -404,7 +404,7 @@ br_switchdev_vlan_replay_one(struct notifier_block *nb,
- 	};
- 	int err;
- 
--	err = nb->notifier_call(nb, action, &obj_info);
-+	err = switchdev_call_replay(nb, action, &obj_info.info);
- 	return notifier_to_errno(err);
- }
- 
-@@ -590,7 +590,7 @@ br_switchdev_mdb_replay_one(struct notifier_block *nb, struct net_device *dev,
- 	};
- 	int err;
- 
--	err = nb->notifier_call(nb, action, &obj_info);
-+	err = switchdev_call_replay(nb, action, &obj_info.info);
- 	return notifier_to_errno(err);
- }
- 
 diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
-index 5b045284849e..e50863a03095 100644
+index e50863a03095..309e6d68b179 100644
 --- a/net/switchdev/switchdev.c
 +++ b/net/switchdev/switchdev.c
-@@ -307,6 +307,23 @@ int switchdev_port_obj_del(struct net_device *dev,
+@@ -22,17 +22,103 @@
+ static LIST_HEAD(deferred);
+ static DEFINE_SPINLOCK(deferred_lock);
+ 
+-typedef void switchdev_deferred_func_t(struct net_device *dev,
+-				       const void *data);
+-
+ struct switchdev_deferred_item {
+ 	struct list_head list;
+-	struct net_device *dev;
++
++	enum switchdev_notifier_type nt;
++	union {
++		/* Guaranteed to be first in all subtypes */
++		struct switchdev_notifier_info info;
++
++		struct {
++			struct switchdev_notifier_port_attr_info info;
++			struct switchdev_attr attr;
++		} attr;
++
++		struct {
++			struct switchdev_notifier_port_obj_info info;
++			union {
++				struct switchdev_obj_port_vlan vlan;
++				struct switchdev_obj_port_mdb mdb;
++			};
++		} obj;
++	};
+ 	netdevice_tracker dev_tracker;
+-	switchdev_deferred_func_t *func;
+-	unsigned long data[];
+ };
+ 
++static int switchdev_port_notify(struct net_device *dev,
++				 enum switchdev_notifier_type nt,
++				 struct switchdev_notifier_info *info,
++				 struct netlink_ext_ack *extack)
++{
++	const struct switchdev_notifier_port_attr_info *attri;
++	const struct switchdev_notifier_port_obj_info *obji;
++	int err;
++	int rc;
++
++	rc = call_switchdev_blocking_notifiers(nt, dev, info, extack);
++	err = notifier_to_errno(rc);
++
++	switch (nt) {
++	case SWITCHDEV_PORT_ATTR_SET:
++		attri = container_of(info, typeof(*attri), info);
++		if (err) {
++			WARN_ON(!attri->handled);
++			return err;
++		}
++		if (!attri->handled)
++			return -EOPNOTSUPP;
++		break;
++	case SWITCHDEV_PORT_OBJ_ADD:
++	case SWITCHDEV_PORT_OBJ_DEL:
++		obji = container_of(info, typeof(*obji), info);
++		if (err) {
++			WARN_ON(!obji->handled);
++			return err;
++		}
++		if (!obji->handled)
++			return -EOPNOTSUPP;
++		break;
++	default:
++		break;
++	}
++
++	return err;
++}
++
++static void switchdev_deferred_notify(struct switchdev_deferred_item *dfitem)
++{
++	const struct switchdev_attr *attr;
++	const struct switchdev_obj *obj;
++	char info_str[128];
++	int err;
++
++	err = switchdev_port_notify(dfitem->info.dev, dfitem->nt, &dfitem->info, NULL);
++	if (err && err != -EOPNOTSUPP) {
++		switchdev_notifier_str(dfitem->nt, &dfitem->info,
++				       info_str, sizeof(info_str));
++		netdev_err(dfitem->info.dev,
++			   "deferred switchdev call failed (err=%d): %s",
++			   err, info_str);
++	}
++
++	switch (dfitem->nt) {
++	case SWITCHDEV_PORT_ATTR_SET:
++		attr = &dfitem->attr.attr;
++		if (attr->complete)
++			attr->complete(dfitem->info.dev, err, attr->complete_priv);
++		break;
++	case SWITCHDEV_PORT_OBJ_ADD:
++	case SWITCHDEV_PORT_OBJ_DEL:
++		obj = dfitem->obj.info.obj;
++		if (obj->complete)
++			obj->complete(dfitem->info.dev, err, obj->complete_priv);
++		break;
++	default:
++		break;
++	}
++}
++
+ static struct switchdev_deferred_item *switchdev_deferred_dequeue(void)
+ {
+ 	struct switchdev_deferred_item *dfitem;
+@@ -63,8 +149,8 @@ void switchdev_deferred_process(void)
+ 	ASSERT_RTNL();
+ 
+ 	while ((dfitem = switchdev_deferred_dequeue())) {
+-		dfitem->func(dfitem->dev, dfitem->data);
+-		netdev_put(dfitem->dev, &dfitem->dev_tracker);
++		switchdev_deferred_notify(dfitem);
++		netdev_put(dfitem->info.dev, &dfitem->dev_tracker);
+ 		kfree(dfitem);
+ 	}
+ }
+@@ -79,19 +165,9 @@ static void switchdev_deferred_process_work(struct work_struct *work)
+ 
+ static DECLARE_WORK(deferred_process_work, switchdev_deferred_process_work);
+ 
+-static int switchdev_deferred_enqueue(struct net_device *dev,
+-				      const void *data, size_t data_len,
+-				      switchdev_deferred_func_t *func)
++static int switchdev_deferred_enqueue(struct switchdev_deferred_item *dfitem)
+ {
+-	struct switchdev_deferred_item *dfitem;
+-
+-	dfitem = kmalloc(struct_size(dfitem, data, data_len), GFP_ATOMIC);
+-	if (!dfitem)
+-		return -ENOMEM;
+-	dfitem->dev = dev;
+-	dfitem->func = func;
+-	memcpy(dfitem->data, data, data_len);
+-	netdev_hold(dev, &dfitem->dev_tracker, GFP_ATOMIC);
++	netdev_hold(dfitem->info.dev, &dfitem->dev_tracker, GFP_ATOMIC);
+ 	spin_lock_bh(&deferred_lock);
+ 	list_add_tail(&dfitem->list, &deferred);
+ 	spin_unlock_bh(&deferred_lock);
+@@ -99,62 +175,24 @@ static int switchdev_deferred_enqueue(struct net_device *dev,
+ 	return 0;
+ }
+ 
+-static int switchdev_port_attr_notify(enum switchdev_notifier_type nt,
+-				      struct net_device *dev,
+-				      const struct switchdev_attr *attr,
+-				      struct netlink_ext_ack *extack)
++static int switchdev_port_attr_defer(struct net_device *dev,
++				     const struct switchdev_attr *attr)
+ {
+-	int err;
+-	int rc;
+-
+-	struct switchdev_notifier_port_attr_info attr_info = {
+-		.attr = attr,
+-		.handled = false,
+-	};
+-
+-	rc = call_switchdev_blocking_notifiers(nt, dev,
+-					       &attr_info.info, extack);
+-	err = notifier_to_errno(rc);
+-	if (err) {
+-		WARN_ON(!attr_info.handled);
+-		return err;
+-	}
++	struct switchdev_deferred_item *dfitem;
+ 
+-	if (!attr_info.handled)
+-		return -EOPNOTSUPP;
++	dfitem = kzalloc(sizeof(*dfitem), GFP_ATOMIC);
++	if (!dfitem)
++		return -ENOMEM;
+ 
++	dfitem->nt = SWITCHDEV_PORT_ATTR_SET;
++	dfitem->info.dev = dev;
++	dfitem->attr.attr = *attr;
++	dfitem->attr.info.attr = &dfitem->attr.attr;
++	dfitem->attr.info.handled = false;
++	switchdev_deferred_enqueue(dfitem);
+ 	return 0;
+ }
+ 
+-static int switchdev_port_attr_set_now(struct net_device *dev,
+-				       const struct switchdev_attr *attr,
+-				       struct netlink_ext_ack *extack)
+-{
+-	return switchdev_port_attr_notify(SWITCHDEV_PORT_ATTR_SET, dev, attr,
+-					  extack);
+-}
+-
+-static void switchdev_port_attr_set_deferred(struct net_device *dev,
+-					     const void *data)
+-{
+-	const struct switchdev_attr *attr = data;
+-	int err;
+-
+-	err = switchdev_port_attr_set_now(dev, attr, NULL);
+-	if (err && err != -EOPNOTSUPP)
+-		netdev_err(dev, "failed (err=%d) to set attribute (id=%d)\n",
+-			   err, attr->id);
+-	if (attr->complete)
+-		attr->complete(dev, err, attr->complete_priv);
+-}
+-
+-static int switchdev_port_attr_set_defer(struct net_device *dev,
+-					 const struct switchdev_attr *attr)
+-{
+-	return switchdev_deferred_enqueue(dev, attr, sizeof(*attr),
+-					  switchdev_port_attr_set_deferred);
+-}
+-
+ /**
+  *	switchdev_port_attr_set - Set port attribute
+  *
+@@ -169,73 +207,75 @@ int switchdev_port_attr_set(struct net_device *dev,
+ 			    const struct switchdev_attr *attr,
+ 			    struct netlink_ext_ack *extack)
+ {
++	struct switchdev_notifier_port_attr_info attr_info = {
++		.attr = attr,
++		.handled = false,
++	};
++
+ 	if (attr->flags & SWITCHDEV_F_DEFER)
+-		return switchdev_port_attr_set_defer(dev, attr);
++		return switchdev_port_attr_defer(dev, attr);
++
+ 	ASSERT_RTNL();
+-	return switchdev_port_attr_set_now(dev, attr, extack);
++	return switchdev_port_notify(dev, SWITCHDEV_PORT_ATTR_SET,
++				     &attr_info.info, extack);
+ }
+ EXPORT_SYMBOL_GPL(switchdev_port_attr_set);
+ 
+-static size_t switchdev_obj_size(const struct switchdev_obj *obj)
++static int switchdev_port_obj_defer(struct net_device *dev,
++				    enum switchdev_notifier_type nt,
++				    const struct switchdev_obj *obj)
+ {
++	const struct switchdev_obj_port_vlan *vlan;
++	const struct switchdev_obj_port_mdb *mdb;
++	struct switchdev_deferred_item *dfitem;
++
++	dfitem = kzalloc(sizeof(*dfitem), GFP_ATOMIC);
++	if (!dfitem)
++		return -ENOMEM;
++
++	dfitem->nt = nt;
++	dfitem->info.dev = dev;
++	dfitem->obj.info.handled = false;
++
+ 	switch (obj->id) {
+ 	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+-		return sizeof(struct switchdev_obj_port_vlan);
++		vlan = SWITCHDEV_OBJ_PORT_VLAN(obj);
++		dfitem->obj.vlan = *vlan;
++		dfitem->obj.info.obj = &dfitem->obj.vlan.obj;
++		break;
+ 	case SWITCHDEV_OBJ_ID_PORT_MDB:
+-		return sizeof(struct switchdev_obj_port_mdb);
+ 	case SWITCHDEV_OBJ_ID_HOST_MDB:
+-		return sizeof(struct switchdev_obj_port_mdb);
++		mdb = SWITCHDEV_OBJ_PORT_MDB(obj);
++		dfitem->obj.mdb = *mdb;
++		dfitem->obj.info.obj = &dfitem->obj.mdb.obj;
++		break;
+ 	default:
+-		BUG();
++		goto err_free;
+ 	}
++
++	switchdev_deferred_enqueue(dfitem);
+ 	return 0;
++
++err_free:
++	kfree(dfitem);
++	return -EINVAL;
+ }
+ 
+-static int switchdev_port_obj_notify(enum switchdev_notifier_type nt,
+-				     struct net_device *dev,
+-				     const struct switchdev_obj *obj,
+-				     struct netlink_ext_ack *extack)
++static int switchdev_port_obj_op(struct net_device *dev,
++				 enum switchdev_notifier_type nt,
++				 const struct switchdev_obj *obj,
++				 struct netlink_ext_ack *extack)
+ {
+-	int rc;
+-	int err;
+-
+ 	struct switchdev_notifier_port_obj_info obj_info = {
+ 		.obj = obj,
+ 		.handled = false,
+ 	};
+ 
+-	rc = call_switchdev_blocking_notifiers(nt, dev, &obj_info.info, extack);
+-	err = notifier_to_errno(rc);
+-	if (err) {
+-		WARN_ON(!obj_info.handled);
+-		return err;
+-	}
+-	if (!obj_info.handled)
+-		return -EOPNOTSUPP;
+-	return 0;
+-}
+-
+-static void switchdev_port_obj_add_deferred(struct net_device *dev,
+-					    const void *data)
+-{
+-	const struct switchdev_obj *obj = data;
+-	int err;
++	if (obj->flags & SWITCHDEV_F_DEFER)
++		return switchdev_port_obj_defer(dev, nt, obj);
+ 
+ 	ASSERT_RTNL();
+-	err = switchdev_port_obj_notify(SWITCHDEV_PORT_OBJ_ADD,
+-					dev, obj, NULL);
+-	if (err && err != -EOPNOTSUPP)
+-		netdev_err(dev, "failed (err=%d) to add object (id=%d)\n",
+-			   err, obj->id);
+-	if (obj->complete)
+-		obj->complete(dev, err, obj->complete_priv);
+-}
+-
+-static int switchdev_port_obj_add_defer(struct net_device *dev,
+-					const struct switchdev_obj *obj)
+-{
+-	return switchdev_deferred_enqueue(dev, obj, switchdev_obj_size(obj),
+-					  switchdev_port_obj_add_deferred);
++	return switchdev_port_notify(dev, nt, &obj_info.info, extack);
+ }
+ 
+ /**
+@@ -252,42 +292,10 @@ int switchdev_port_obj_add(struct net_device *dev,
+ 			   const struct switchdev_obj *obj,
+ 			   struct netlink_ext_ack *extack)
+ {
+-	if (obj->flags & SWITCHDEV_F_DEFER)
+-		return switchdev_port_obj_add_defer(dev, obj);
+-	ASSERT_RTNL();
+-	return switchdev_port_obj_notify(SWITCHDEV_PORT_OBJ_ADD,
+-					 dev, obj, extack);
++	return switchdev_port_obj_op(dev, SWITCHDEV_PORT_OBJ_ADD, obj, extack);
+ }
+ EXPORT_SYMBOL_GPL(switchdev_port_obj_add);
+ 
+-static int switchdev_port_obj_del_now(struct net_device *dev,
+-				      const struct switchdev_obj *obj)
+-{
+-	return switchdev_port_obj_notify(SWITCHDEV_PORT_OBJ_DEL,
+-					 dev, obj, NULL);
+-}
+-
+-static void switchdev_port_obj_del_deferred(struct net_device *dev,
+-					    const void *data)
+-{
+-	const struct switchdev_obj *obj = data;
+-	int err;
+-
+-	err = switchdev_port_obj_del_now(dev, obj);
+-	if (err && err != -EOPNOTSUPP)
+-		netdev_err(dev, "failed (err=%d) to del object (id=%d)\n",
+-			   err, obj->id);
+-	if (obj->complete)
+-		obj->complete(dev, err, obj->complete_priv);
+-}
+-
+-static int switchdev_port_obj_del_defer(struct net_device *dev,
+-					const struct switchdev_obj *obj)
+-{
+-	return switchdev_deferred_enqueue(dev, obj, switchdev_obj_size(obj),
+-					  switchdev_port_obj_del_deferred);
+-}
+-
+ /**
+  *	switchdev_port_obj_del - Delete port object
+  *
+@@ -300,10 +308,7 @@ static int switchdev_port_obj_del_defer(struct net_device *dev,
+ int switchdev_port_obj_del(struct net_device *dev,
+ 			   const struct switchdev_obj *obj)
+ {
+-	if (obj->flags & SWITCHDEV_F_DEFER)
+-		return switchdev_port_obj_del_defer(dev, obj);
+-	ASSERT_RTNL();
+-	return switchdev_port_obj_del_now(dev, obj);
++	return switchdev_port_obj_op(dev, SWITCHDEV_PORT_OBJ_DEL, obj, NULL);
  }
  EXPORT_SYMBOL_GPL(switchdev_port_obj_del);
- 
-+/**
-+ *	switchdev_call_replay - Replay switchdev message to driver
-+ *	@nb: notifier block to send the message to
-+ *	@type: value passed unmodified to notifier function
-+ *	@info: notifier information data
-+ *
-+ *	Typically issued by the bridge, as a response to a replay
-+ *	request initiated by a port that is either attaching to, or
-+ *	detaching from, that bridge.
-+ */
-+int switchdev_call_replay(struct notifier_block *nb, unsigned long type,
-+			  struct switchdev_notifier_info *info)
-+{
-+	return nb->notifier_call(nb, type, info);
-+}
-+EXPORT_SYMBOL_GPL(switchdev_call_replay);
-+
- static ATOMIC_NOTIFIER_HEAD(switchdev_notif_chain);
- static BLOCKING_NOTIFIER_HEAD(switchdev_blocking_notif_chain);
  
 -- 
 2.34.1
