@@ -1,109 +1,122 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A7DC6087E
-	for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 10:06:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2012F71B46
+	for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 20:19:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706609173; cv=none; b=k09Af95fNC296QaP4yQPQteQ/6hnMl+vBjI++l/0rLFVILS+7rImZbkZcWrTM1/aBwls/Fu72IXpAe8pcMGw0s/ok+h88rQPGlAzchMSA25RtZH9rBtNb1RjyrS3US0On+kZY/JJMIifP8AJ8xKbUGYrpJSiEg3oWz8+X9Gb3f4=
+	t=1706645988; cv=none; b=tpmX5wz9k869ZmP40pcwIRQVOxDIMKdP8c6jmiW/efElEUjRO2r442EmBkoEXfeMtjPQcxyuac4GHe8qdjlpYZpT2Df5f9UFyUQsQdlTRJjTXYRWIdeM2bbYx/4QETuHpzYoyUmXD2XwR22KIJfinw7OS/JrXqHRPYUs49Nv+Qw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706609173; c=relaxed/simple;
-	bh=mN24du69dfpVsjxf9h64v6haXtXcEvje0y/RHCPRKdk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cKj1kVGyk0cYpgP95TkFpW+cuBli9lkKwJcwIpPOW7d0HogeB9/EMFDI2oUv+z3vJActjRweSz7YXSbCgo7fBBFxuI3SG9Pp8gE4sh/KytXtzl/Qv7uBDrvebUb4OGEkGmQsySqA2aat+nGhcrlgpGYnlaj+BNxze/xlGDDKoro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=mnkwWgAw; arc=none smtp.client-ip=209.85.208.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	s=arc-20240116; t=1706645988; c=relaxed/simple;
+	bh=8QkojfAZ4GyPX8FnHuYihDcrR8rZGuZI5LZ7LzNs6Hs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=gE77/RkLGT+ayZVZwRzUIlYWroN9exmzI6lzu2r6Mu4P4V9YBQejQ+DuAEM3yuTnemQJspdL0yTSEXDvg+LfzYlYBgYnrMugjbyF0xLCf/g9Ul2UxagufioRtbb7Fbn4qsQ8sZ+4k+g7GGZSwDb4MfV4VazAsKCKCyDlA2iGFOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=CF7WqIGy; arc=none smtp.client-ip=209.85.167.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="mnkwWgAw"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-55f2b0c5ae9so1398432a12.2
-        for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 02:06:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="CF7WqIGy"
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5111ef545bfso1535982e87.1
+        for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 12:19:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1706609168; x=1707213968; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=77QGicsthLBoZ1ghB2R2tu5urtPmZmFpryoMl9wbInE=;
-        b=mnkwWgAwR5k52gmzvUy7kMIJfChM6RUHuFlFY5NDrwq9x4rTunkhZk6pq+jWzWXUBO
-         bTVWTC9n9gbo03jAeeRP3syZuCRjLGAC2khX/5HMUsatSzCZdEjZ7S9RDlz04LxBWcWQ
-         ORENNG9Iu3gg64jkZuDSY5TDpWhtcyxvqoj/MnsNLj2D3YgV3WMAtdQXSiel/b8mySXa
-         5FR0Cwu3HH8s4/QHATAGskMzjnRyDnqPEnSXnNh0a6lLgTiEhDP2iikp1KC03TlFSmsI
-         9l43e+OtZXUJ4oO0KdsP8uigL1QSzvzDZkLtfHyRfMmvEDHvUBzAvwJxdW1N7p8m8NoT
-         Js9g==
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1706645984; x=1707250784; darn=lists.linux.dev;
+        h=content-transfer-encoding:organization:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=79DhbYEIitTatIm4/tAarmxf5MelJGreTkXGurDLY4Q=;
+        b=CF7WqIGyFZjpjtfkeaclcybMSSG9HFGWQ1nBuu2d5LC+4m/jZ2CZZhmF1D2DOCGbF4
+         BLMdQQD2tN9WDnUBIGRdd8Y5hfnQNEl2N4AesxmVaTZd8ylGi/cXgHx9Jiu5we1i0sSq
+         Itcn3OGvNBwBfno7pKKcv+vKR7df34uJklXms0Vog9N04787hAJEiwqC77cEdebz4EVr
+         /yK5hJP3YpXNhURxDrNj7O3omr2JgSBLHiekcg4dRxGl48NPS6C3bMoa8+h1Y+dBQEr2
+         Ot9hehU4Q8YF2MLCe4zzqE9g/Yc3PeYPgnxLpju4Zb5KmrVyPRRMnF5a+HLVFjCHqNSn
+         Go2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706609168; x=1707213968;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20230601; t=1706645984; x=1707250784;
+        h=content-transfer-encoding:organization:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=77QGicsthLBoZ1ghB2R2tu5urtPmZmFpryoMl9wbInE=;
-        b=QIsWT+qPwvqLPM+F3AyHr1onEhB7O7Y+zyPzdOBLKGtko/DJFJpIVZATvYEPTNreVy
-         EkoM9cPfsqArFLHGuAMb0hGy1YoSt5/XwhBx0aZCsF5nJoQzsMW3ykmbXGOht/Q6hRaY
-         B0YUVz+lSJm0b9pchDljN8g7KUU8BGr7wX7xDs9DFkJDbD3Hsb7tin/1yTUV41wcfjDp
-         F9vTYzMQzhkLT7D1kS06gxZkGQ+HzjInfuGoYlWyysd4r0va8UNxWHpO8w0B7cVt3fA1
-         BX5hZZGmxLOtgdFpUI1tRrV5874xDoKLpBauKmSY+bgII71PNpBtdKuvlhfN/ETLVvdD
-         ftyA==
-X-Gm-Message-State: AOJu0YywzSTRm1ivYZhWKUvXOtEoxtRJ7zn7fTjh6DubELH2fDikewly
-	xOTsbqWUhlB0D0QGfAtAnIRYSIQG0MvEBoj31/xuk9YA1gAMd3KnPrX/j20n7+Q=
-X-Google-Smtp-Source: AGHT+IEFGJwTV8iQxLqYycNi0re0c/Uh0a05u4IOgDhPC5KHMClkENdc+BnOMwOQQuUgVXt12gmVJg==
-X-Received: by 2002:a05:6402:281:b0:55f:3975:209c with SMTP id l1-20020a056402028100b0055f3975209cmr899981edv.18.1706609168242;
-        Tue, 30 Jan 2024 02:06:08 -0800 (PST)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id k11-20020a056402340b00b0055f11bd3564sm1523017edc.8.2024.01.30.02.06.06
+        bh=79DhbYEIitTatIm4/tAarmxf5MelJGreTkXGurDLY4Q=;
+        b=JODAjwBUJXQxNG1TZJ92OFaCHxSNFD6bNj+Tqpe2e/Tr9SDCZCrpVBNRH1ufY4uSFL
+         Dd7Z5U8OUiogX1Emk6WR7eBvz41SLqMr0NJvHMFDv2jqVLmt5kEjyKQYNHzrh2abjYBx
+         SfAupC9CXPgaSqsQnJLBWsfJ9LO6Vfg/yKPKkfxTx8Ihc5gHEWwsEfpUb2h3xfN9ybIs
+         aBNTJEPO6IEH9fPfta62TuIuSE+HBV0Px1v3c+kVIxZlrYERw5gL9LBjozS+atKFoy71
+         R+fPxC94ftH2PYatJhGb9nUipxd3Pm4z+4wJVOal4NPiF4qahNcIWNcZxWyXIL3kLT5F
+         wQbQ==
+X-Gm-Message-State: AOJu0YwqQmndtX+wXqQ6K3EIDj55NLDfyk8GFAyY0/Rq8p3zPZ4eTTK3
+	GM9i9HZVm/2gpqFhHdM+/6ktsMxJTmxiGSurv+2pIcSFhSoOPukx+0Jno5LZabE=
+X-Google-Smtp-Source: AGHT+IFcpy16WZn10cX85Jp9+Osxwf+seUK0vNsm3MW1ezb/i78gUe5mMGps8IPc9IDOA15iu0Esng==
+X-Received: by 2002:a05:6512:401c:b0:50e:7bc5:20d8 with SMTP id br28-20020a056512401c00b0050e7bc520d8mr8058352lfb.4.1706645983936;
+        Tue, 30 Jan 2024 12:19:43 -0800 (PST)
+Received: from wkz-x13.addiva.ad (h-158-174-187-194.NA.cust.bahnhof.se. [158.174.187.194])
+        by smtp.gmail.com with ESMTPSA id eo15-20020a056512480f00b0051011f64e1bsm1553239lfb.142.2024.01.30.12.19.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jan 2024 02:06:07 -0800 (PST)
-Date: Tue, 30 Jan 2024 11:06:04 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: Kunwu Chan <chentao@kylinos.cn>
-Cc: roopa@nvidia.com, razor@blackwall.org, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] net: bridge: Use KMEM_CACHE instead of
- kmem_cache_create
-Message-ID: <ZbjKDLtbiKXYpKew@nanopsycho>
-References: <20240130092536.73623-1-chentao@kylinos.cn>
+        Tue, 30 Jan 2024 12:19:43 -0800 (PST)
+From: Tobias Waldekranz <tobias@waldekranz.com>
+To: davem@davemloft.net,
+	kuba@kernel.org
+Cc: jiri@resnulli.us,
+	ivecera@redhat.com,
+	netdev@vger.kernel.org,
+	roopa@nvidia.com,
+	razor@blackwall.org,
+	bridge@lists.linux.dev,
+	rostedt@goodmis.org,
+	mhiramat@kernel.org,
+	linux-trace-kernel@vger.kernel.org
+Subject: [PATCH v2 net-next 0/5] net: switchdev: Tracepoints
+Date: Tue, 30 Jan 2024 21:19:32 +0100
+Message-Id: <20240130201937.1897766-1-tobias@waldekranz.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240130092536.73623-1-chentao@kylinos.cn>
+Organization: Addiva Elektronik
+Content-Transfer-Encoding: 8bit
 
-Tue, Jan 30, 2024 at 10:25:36AM CET, chentao@kylinos.cn wrote:
->commit 0a31bd5f2bbb ("KMEM_CACHE(): simplify slab cache creation")
->introduces a new macro.
->Use the new KMEM_CACHE() macro instead of direct kmem_cache_create
->to simplify the creation of SLAB caches.
->
->Signed-off-by: Kunwu Chan <chentao@kylinos.cn>
->---
-> net/bridge/br_fdb.c | 5 +----
-> 1 file changed, 1 insertion(+), 4 deletions(-)
->
->diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
->index c622de5eccd0..c77591e63841 100644
->--- a/net/bridge/br_fdb.c
->+++ b/net/bridge/br_fdb.c
->@@ -35,10 +35,7 @@ static struct kmem_cache *br_fdb_cache __read_mostly;
-> 
-> int __init br_fdb_init(void)
-> {
->-	br_fdb_cache = kmem_cache_create("bridge_fdb_cache",
->-					 sizeof(struct net_bridge_fdb_entry),
->-					 0,
->-					 SLAB_HWCACHE_ALIGN, NULL);
->+	br_fdb_cache = KMEM_CACHE(net_bridge_fdb_entry, SLAB_HWCACHE_ALIGN);
+This series starts off (1-2/5) by creating stringifiers for common
+switchdev objects. This will primarily be used by the tracepoints for
+decoding switchdev notifications, but drivers could also make use of
+them to provide richer debug/error messages.
 
-Same remark as to the previous patch, the name would change.
+Then follows two refactoring commits (3-4/5), with no (intended)
+functional changes:
 
+- 3/5: Wrap all replay callbacks in br_switchdev.c in a switchdev
+       function to make it easy to trace all of these.
 
+- 4/5: Instead of using a different format for deferred items, reuse
+       the existing notification structures when enqueuing. This lets
+       us share a bit more code, and it unifies the data presented by
+       the tracepoints.
 
-> 	if (!br_fdb_cache)
-> 		return -ENOMEM;
-> 
->-- 
->2.39.2
->
->
+Finally, add the tracepoints.
+
+v1 -> v2:
+
+- Fixup kernel-doc comment for switchdev_call_replay
+
+I know that there are still some warnings issued by checkpatch, but
+I'm not sure how to work around them, given the nature of the mapper
+macros. Please advise.
+
+Tobias Waldekranz (5):
+  net: switchdev: Wrap enums in mapper macros
+  net: switchdev: Add helpers to display switchdev objects as strings
+  net: switchdev: Relay all replay messages through a central function
+  net: switchdev: Prepare deferred notifications before enqueuing them
+  net: switchdev: Add tracepoints
+
+ include/net/switchdev.h          | 130 ++++++++----
+ include/trace/events/switchdev.h |  89 ++++++++
+ net/bridge/br_switchdev.c        |  10 +-
+ net/switchdev/Makefile           |   2 +-
+ net/switchdev/switchdev-str.c    | 278 +++++++++++++++++++++++++
+ net/switchdev/switchdev.c        | 346 +++++++++++++++++--------------
+ 6 files changed, 650 insertions(+), 205 deletions(-)
+ create mode 100644 include/trace/events/switchdev.h
+ create mode 100644 net/switchdev/switchdev-str.c
+
+-- 
+2.34.1
+
