@@ -1,94 +1,106 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63D1C59155
-	for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 09:25:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55D7E59161
+	for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 09:29:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706606756; cv=none; b=PDTr2kymRMx/cYTfDd1DNdQKZCghAZPlU2e0g48rnaOVmlJnngGmFV3ytZpCc4O4o6bcfCgqM0DHD/fS+WN1tjzsHFzts/BSVHFgt+vYzHRrPOlfwzCG0ZTVTpCGnErF/0fa/4GBGwhKk6bLrNZmOVeC0ffjEzVhB9lVJtOBBCk=
+	t=1706606957; cv=none; b=MJGIGWb7P5bN/L70QldrPAJ1pMPLt5LD4VtiMvDPImnZPOoCojXRIU7sjqxbS7vviZq4TxKSmw42r0fR2fG4AC5jIiZkxe3MZ+NLqMuZvrRJGMtsFLFle0fWDbehtbDG7PkD2zLmtZVgyq5Ncsl4eAOeBpDCprlccS6+Qpq7P38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706606756; c=relaxed/simple;
-	bh=Q1D2Qua3GXjBcUCsDMqOLa6GLF12L1EvbvlN/oSCpQ4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DuOO8SZUZLOxz6D9xOs0YUW+gY9IG1svwYadJiHcUqzIgQ4escgqrFQ9AEPfT7WznH6j7LrOsKEspm+RsAMv/tg1garf0Hzc/NglbPIi0xWipB74BDZ1Vh80IuP3BAKFwFgdSABRWsTheZUDl7Dw7Tn57zb7hA6pPfeBNVVW2C8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 0bf179d996444cc293d435d5babfbdee-20240130
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.35,REQID:d687b045-17cd-48e7-8110-96ada6d493ec,IP:20,
-	URL:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTI
-	ON:release,TS:5
-X-CID-INFO: VERSION:1.1.35,REQID:d687b045-17cd-48e7-8110-96ada6d493ec,IP:20,UR
-	L:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:5
-X-CID-META: VersionHash:5d391d7,CLOUDID:191bea7f-4f93-4875-95e7-8c66ea833d57,B
-	ulkID:240130172548ZPLOI4XG,BulkQuantity:0,Recheck:0,SF:66|38|24|17|19|44|1
-	02,TC:nil,Content:0,EDM:-3,IP:-2,URL:0,File:nil,Bulk:nil,QS:nil,BEC:nil,CO
-	L:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
-X-CID-BVR: 0,NGT
-X-CID-BAS: 0,NGT,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI
-X-UUID: 0bf179d996444cc293d435d5babfbdee-20240130
-Received: from mail.kylinos.cn [(39.156.73.10)] by mailgw
-	(envelope-from <chentao@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 1661973547; Tue, 30 Jan 2024 17:25:47 +0800
-Received: from mail.kylinos.cn (localhost [127.0.0.1])
-	by mail.kylinos.cn (NSMail) with SMTP id F413BE000EB9;
-	Tue, 30 Jan 2024 17:25:46 +0800 (CST)
-X-ns-mid: postfix-65B8C09A-7931421039
-Received: from kernel.. (unknown [172.20.15.213])
-	by mail.kylinos.cn (NSMail) with ESMTPA id 93986E000EB9;
-	Tue, 30 Jan 2024 17:25:43 +0800 (CST)
-From: Kunwu Chan <chentao@kylinos.cn>
-To: roopa@nvidia.com,
-	razor@blackwall.org,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Kunwu Chan <chentao@kylinos.cn>
-Subject: [PATCH net-next] net: bridge: Use KMEM_CACHE instead of kmem_cache_create
-Date: Tue, 30 Jan 2024 17:25:36 +0800
-Message-Id: <20240130092536.73623-1-chentao@kylinos.cn>
-X-Mailer: git-send-email 2.39.2
+	s=arc-20240116; t=1706606957; c=relaxed/simple;
+	bh=g7/Tw40iurYfKeZa/xZvbogA0Dz7AsysUvBEQywxNgM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Yw3sEOAE7Aa4SAWSfzV2rOeq2z3RNFaIMiAba9C504c9KOdn2Na0rrJpQXhHQyLhmzU3rjKa8UQT4rDLMEGVswpFHooLHFdReKHKsvrxpQkCWD0fV0MVYqikX81HEb53xp/mFWLByD4rpza/qE7kOzll8GmbOfG9S/U78XGOnWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=n+QXerXI; arc=none smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="n+QXerXI"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-2cf4fafa386so40179241fa.1
+        for <bridge@lists.linux.dev>; Tue, 30 Jan 2024 01:29:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1706606953; x=1707211753; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=CvgkqrVhgwAp9eomtc6oUrzhXKUHKI4dKXoGY8fDTwo=;
+        b=n+QXerXIX6zSa65FDHINq8gsW2P1QXwk5mV8cNeE+XmgsvSg0w6lKTxOfbvbYVf/aX
+         756IohvRSydlrhV4Nftyio0RWyRS5ZNxRFBkglrLlNX5Gq9h28dzX+NBHGmUD6JkCT3C
+         +HCJz22r7vQ9m2QA8rOLQjZzGs2xc86AqQ78Wn98t457qCdWAT4HEi36BKi6wQGYQiLJ
+         zkALQWdlImzQK5V2v/NeChXiEyCNOAPlLi7bN0rTSLNTsWPPnXWLcaECRF9/9dtW3cBb
+         UMqN3sc/tV0Ku1CUa2YNF/dnY60FtGaUdRnAPgfV0OxwxinTmH5PUaaIh+r56zBapeA5
+         xerA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706606953; x=1707211753;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CvgkqrVhgwAp9eomtc6oUrzhXKUHKI4dKXoGY8fDTwo=;
+        b=Fsdz325fEpfkZvXxxDGa+8EpLAkKR7K8OunyephW8d3Pn3FlGp8c7cBg7LPpOAfTQ9
+         Nwu2+JwAIJEG7jKpK3PPxHhTz2kyODZzvVf4I0Pf1PUfPeB35yVyGDY9+JPg7IOdYwTi
+         TpoyGc9zd9oQh23OxY5tBM+f6sdKhfBzqH+HSCaD1nu9uohR/C69fnJtqwwE+zEQZEGH
+         +tzOaSJ8bErz3Q0+PukQcWvrdldO7sqtsQQsuH8ux7er+hG1Wt4tMXFcNU/T6Kt5vHUw
+         hVQQU8mdAebeFTKnWtKCtVWkgJLAYUtnEBdh5Sm1D/RI8goRNIjWY7I+FgtXMKKGxW+V
+         EBFQ==
+X-Gm-Message-State: AOJu0YwntkhGoe1OgMRP420lIjs2JnaJPlASGbhQZIO7LbPi1zWmvorS
+	hrgBAMtlM9MP7tV3Lg+CW1EMFJQP2ig9hqarWNLOvBk5ugi7LV9TOfnocdLaguNBBkpMgdhcoA9
+	d
+X-Google-Smtp-Source: AGHT+IFKOierXNs5R8QtY/OftsfX1IkVkKVPMFcsF71RjOLl9Nbv1Fck3f+sLCr3SUy88diadJDN8Q==
+X-Received: by 2002:a05:6512:34d2:b0:50e:af9d:9b1 with SMTP id w18-20020a05651234d200b0050eaf9d09b1mr4522166lfr.14.1706606952959;
+        Tue, 30 Jan 2024 01:29:12 -0800 (PST)
+Received: from [192.168.0.161] ([62.73.69.208])
+        by smtp.gmail.com with ESMTPSA id u16-20020a05600c19d000b0040e4733aecbsm12370438wmq.15.2024.01.30.01.29.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Jan 2024 01:29:12 -0800 (PST)
+Message-ID: <4c073b12-c1b7-44fd-8f46-d901a4cd403c@blackwall.org>
+Date: Tue, 30 Jan 2024 11:29:11 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] net: bridge: Use KMEM_CACHE instead of
+ kmem_cache_create
+Content-Language: en-US
+To: Kunwu Chan <chentao@kylinos.cn>, roopa@nvidia.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20240130092536.73623-1-chentao@kylinos.cn>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20240130092536.73623-1-chentao@kylinos.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-commit 0a31bd5f2bbb ("KMEM_CACHE(): simplify slab cache creation")
-introduces a new macro.
-Use the new KMEM_CACHE() macro instead of direct kmem_cache_create
-to simplify the creation of SLAB caches.
+On 30/01/2024 11:25, Kunwu Chan wrote:
+> commit 0a31bd5f2bbb ("KMEM_CACHE(): simplify slab cache creation")
+> introduces a new macro.
+> Use the new KMEM_CACHE() macro instead of direct kmem_cache_create
+> to simplify the creation of SLAB caches.
+> 
+> Signed-off-by: Kunwu Chan <chentao@kylinos.cn>
+> ---
+>  net/bridge/br_fdb.c | 5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
+> 
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index c622de5eccd0..c77591e63841 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -35,10 +35,7 @@ static struct kmem_cache *br_fdb_cache __read_mostly;
+>  
+>  int __init br_fdb_init(void)
+>  {
+> -	br_fdb_cache = kmem_cache_create("bridge_fdb_cache",
+> -					 sizeof(struct net_bridge_fdb_entry),
+> -					 0,
+> -					 SLAB_HWCACHE_ALIGN, NULL);
+> +	br_fdb_cache = KMEM_CACHE(net_bridge_fdb_entry, SLAB_HWCACHE_ALIGN);
+>  	if (!br_fdb_cache)
+>  		return -ENOMEM;
+>  
 
-Signed-off-by: Kunwu Chan <chentao@kylinos.cn>
----
- net/bridge/br_fdb.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index c622de5eccd0..c77591e63841 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -35,10 +35,7 @@ static struct kmem_cache *br_fdb_cache __read_mostly;
-=20
- int __init br_fdb_init(void)
- {
--	br_fdb_cache =3D kmem_cache_create("bridge_fdb_cache",
--					 sizeof(struct net_bridge_fdb_entry),
--					 0,
--					 SLAB_HWCACHE_ALIGN, NULL);
-+	br_fdb_cache =3D KMEM_CACHE(net_bridge_fdb_entry, SLAB_HWCACHE_ALIGN);
- 	if (!br_fdb_cache)
- 		return -ENOMEM;
-=20
---=20
-2.39.2
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
