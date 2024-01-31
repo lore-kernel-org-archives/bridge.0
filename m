@@ -1,80 +1,75 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC52FE545;
-	Wed, 31 Jan 2024 02:40:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD26956763
+	for <bridge@lists.linux.dev>; Wed, 31 Jan 2024 08:08:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706668827; cv=none; b=UBgdt7mxlWMloboedqBbFQTPkHhEzRh3F/3GvQl3I6JuGcNqH2XlqirTh94NPFpKADKk9GA4st8L5nBvuA2atIyenCdmmvFKllMzK9uZ+i/r/WaEZFy3TT9JOLendNRrPvD/c/ivdFehlQ1VRj8NNuhAiil1MIWfiQLZtXP+Aa0=
+	t=1706688516; cv=none; b=uBoNBk4SUQoWm9ZTPmBTGx+svELnujWYV8klkxgJebVlPLHXxncak/yhxvMhHY8B+of8QiVddJVAKLrlICCOCww6bzXI9Qu5xjEde4I0w+FLyl3ZqOV7O2quDNmRRr73G/d2WA4kRFxrPZeN9k1HUeVtojIaX49qiwB6wx8tsVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706668827; c=relaxed/simple;
-	bh=ri+xtdqHDdAedu6sRg/n0UlatJBbNJKunWM840Atne4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=kW2M7u1l7SYNPaPvfT6/8M6cFZCQGP9b+PTY1Sfr+uS5yhuTjwt0b1H1jy3XwzWoCRtlUfIX9cYBGJ7sUudUvNeHQuywHrM6Y306cDA3EGkfRVq0qaDHbKRdxFBR/BwGhyNq0x4Fa3i31GLVgCzSeu/wtNh0Yovi+PPSJM40/gU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g6iY/pv9; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g6iY/pv9"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7E99AC43390;
-	Wed, 31 Jan 2024 02:40:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706668826;
-	bh=ri+xtdqHDdAedu6sRg/n0UlatJBbNJKunWM840Atne4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=g6iY/pv9E9iheFF3QaNJfoym3PlztBxYNWx1crzr5v6vk32yc9KKET2axhPJYpWOP
-	 4h4MYp0FlTHtGsgmkpTbxIYRnoVY+5gJ7kr9gdJoxke1MJdqlw1Roy5ev4ZWCriV3N
-	 P3+okxs7wbEmjbXIalOYHwCjkp3UER+pkll1gkfAsdSW2a0hgxjghlW7nyOzFQjhc2
-	 s/jHOmVaJqFOGdhlTFmxkhsJYHzmMKAZa8/p56Kke1VETRj7C0si6tUNniarNnVrUD
-	 W5p7mQaN96um2NhapXfN0Ki/9RABZuYylgPaOOExfgwMYmGA2NTX5qZN5h8mX6Lu+u
-	 BK4UsBS5WJT6w==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 62EC6E3237E;
-	Wed, 31 Jan 2024 02:40:26 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1706688516; c=relaxed/simple;
+	bh=G4dAeJ5kCvQzeN0A5w86Z0GzB46gXNMSBgm2ul8jzYU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ADiU0CUwxqRxFpV4+c38Z/9ZZEnhIXLUpc16HbNOSennGOSLi8vXV7pcCg9Bfzf1EUXoNL1kCz8q5b1kjKhYV18xvsl5RyjlgdOSepuNH2jiBw7GtWjLX/R7T6Z4fro7LpNEqW/gs9hmpuy56/+sXN0DUipb1owFNz6J85yCvEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: ed0d14b154d54eb1ae0b785bda2e0da9-20240131
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.35,REQID:377727a2-5796-43f2-8290-e051e0669773,IP:10,
+	URL:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+	ON:release,TS:-5
+X-CID-INFO: VERSION:1.1.35,REQID:377727a2-5796-43f2-8290-e051e0669773,IP:10,UR
+	L:0,TC:0,Content:0,EDM:0,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:-5
+X-CID-META: VersionHash:5d391d7,CLOUDID:d485f47f-4f93-4875-95e7-8c66ea833d57,B
+	ulkID:2401301729259Y99PEWY,BulkQuantity:12,Recheck:0,SF:66|24|17|19|44|102
+	,TC:nil,Content:0,EDM:-3,IP:-2,URL:1,File:nil,Bulk:40,QS:nil,BEC:nil,COL:0
+	,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
+X-CID-BVR: 0,NGT
+X-CID-BAS: 0,NGT,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI,
+	TF_CID_SPAM_OBB,TF_CID_SPAM_ULS
+X-UUID: ed0d14b154d54eb1ae0b785bda2e0da9-20240131
+Received: from mail.kylinos.cn [(39.156.73.10)] by mailgw
+	(envelope-from <chentao@kylinos.cn>)
+	(Generic MTA)
+	with ESMTP id 1820458699; Wed, 31 Jan 2024 16:08:26 +0800
+Received: from mail.kylinos.cn (localhost [127.0.0.1])
+	by mail.kylinos.cn (NSMail) with SMTP id 1C737E000EB9;
+	Wed, 31 Jan 2024 16:08:26 +0800 (CST)
+X-ns-mid: postfix-65B9FFFA-36836629
+Received: from [172.20.15.254] (unknown [172.20.15.254])
+	by mail.kylinos.cn (NSMail) with ESMTPA id AF57DE000EB9;
+	Wed, 31 Jan 2024 16:08:24 +0800 (CST)
+Message-ID: <42df0817-9d45-4bda-b5ec-51482df8d2be@kylinos.cn>
+Date: Wed, 31 Jan 2024 16:08:23 +0800
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] bridge: mcast: fix disabled snooping after long uptime
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <170666882640.24091.16393026544437992064.git-patchwork-notify@kernel.org>
-Date: Wed, 31 Jan 2024 02:40:26 +0000
-References: <20240127175033.9640-1-linus.luessing@c0d3.blue>
-In-Reply-To: <20240127175033.9640-1-linus.luessing@c0d3.blue>
-To: =?utf-8?q?Linus_L=C3=BCssing_=3Clinus=2Eluessing=40c0d3=2Eblue=3E?=@ci.codeaurora.org
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev,
- b.a.t.m.a.n@lists.open-mesh.org, linux-kernel@vger.kernel.org,
- roopa@nvidia.com, razor@blackwall.org, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] net: bridge: Use KMEM_CACHE instead of
+ kmem_cache_create
+Content-Language: en-US
+To: jiri@resnulli.us
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, roopa@nvidia.com, razor@blackwall.org,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com
+References: <20240130092536.73623-1-chentao@kylinos.cn>
+From: Kunwu Chan <chentao@kylinos.cn>
+In-Reply-To: <20240130092536.73623-1-chentao@kylinos.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello:
+Thanks again for your atttention.
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+The same reason as 
+https://lore.kernel.org/all/202e349f-a45a-46cb-ab8e-ff44c12b3628@kylinos.cn/
 
-On Sat, 27 Jan 2024 18:50:32 +0100 you wrote:
-> The original idea of the delay_time check was to not apply multicast
-> snooping too early when an MLD querier appears. And to instead wait at
-> least for MLD reports to arrive before switching from flooding to group
-> based, MLD snooped forwarding, to avoid temporary packet loss.
-> 
-> However in a batman-adv mesh network it was noticed that after 248 days of
-> uptime 32bit MIPS based devices would start to signal that they had
-> stopped applying multicast snooping due to missing queriers - even though
-> they were the elected querier and still sending MLD queries themselves.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,v2] bridge: mcast: fix disabled snooping after long uptime
-    https://git.kernel.org/netdev/net/c/f5c3eb4b7251
-
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+Thanks,
+   Kunwu
 
