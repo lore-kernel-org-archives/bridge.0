@@ -1,223 +1,233 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7627C80BEF
-	for <bridge@lists.linux.dev>; Wed, 31 Jan 2024 13:52:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63FAE84A27
+	for <bridge@lists.linux.dev>; Wed, 31 Jan 2024 14:48:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706709124; cv=none; b=Oph6dRDeU6IbWG+t+LogH0QCUH547iG5eOfMCh190rwF9LAnq7rN2rI/sf1+MzqyWj78xA8/X04uyPCGp3t+Uc3ppZqkkmzsHrzzW1CdSFEX6kPO6Vihe1HtKJhRU4iciuQBn4ETlU6z+pw1uui4a6/G/ng8k0A+uDcaaXl14Dg=
+	t=1706712491; cv=none; b=mJnMFnVz9wNeA1O45+gyyaAl48MM+OgkfzthFb2Q//1792a4hvy+jbgY7ZFPsaifLdwq23eNbf2/kRVP2f4Iz5TrECcy0NVX1aJL8LTchiyH0JIzy4CDAM6uVkOiP7nDrkfhp81pS/dk6TWi6DWUUGL4Q9X2ISsHxqjU5zNHf5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706709124; c=relaxed/simple;
-	bh=0HokHZ0TRmMkYTecp/fP9y2C6p+UeMfNsTWMaSR3aes=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EQ2Uiv+cZVn9E82di/673wiPteAGay8m0WnJPY2DT2vkwWehe640Q017spjgjjOUpTfA8uUpeDEcfrgzD04hKByJA97YjCwOnk6v0RKpMAjkjvQcrs8gZ2KCvar5jxTlXo7ozAFWaiDYCeaGV+6aCdIwq8YfxnsHmGcsoiFUPAs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JL/JG2s6; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1706712491; c=relaxed/simple;
+	bh=9ZSp1nKH6bd1QXmIctIR923WuNvNuOyYN2W9HmueKqw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=G8la3TolSOaZ/natKiVmqL3ZeLcyW1SSHlKwVeGi6T/EdEWqDM+WQh8e0dxqOXLO6c7dVI2MFY9SsT4Uv85x746khvwtz8KJWRSbDQXfOFi6H/AvLwnO2/D7e6hgvysv4Ms3Qc8bzzIxUD85VC8xdZViuIzLQtUs7LjSUxBtqg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=Cn/j1dMA; arc=none smtp.client-ip=209.85.167.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JL/JG2s6"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-40f02b8d176so15483025e9.1
-        for <bridge@lists.linux.dev>; Wed, 31 Jan 2024 05:52:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="Cn/j1dMA"
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-511206d1c89so2065158e87.1
+        for <bridge@lists.linux.dev>; Wed, 31 Jan 2024 06:48:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1706709120; x=1707313920; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=yPtmUHcYyyquby74IEXLFQhVf4lqT8uFnAIFJQJHn3o=;
-        b=JL/JG2s6DuBtGNYhloKT148M/wFVyDOIzkwkgl44Favkno9cHxF/0nzL4WqyVOikd8
-         BopV1bvqMR/vvNjtsZIZB5EltBXqGemBtsvgnks/SweqqNkSM2A9xl4FJ57aRtBAxLcA
-         64DVObd7BUFPO3mMhoHFSJ23i9CuwxNimo7gseK0feZ9Zwz/yurhHNBcHdzzKpcvHR0m
-         YSHk21s2HJJCCznA8reUL9Y0w03qI7gVBuNYE10sSo+eNhkvWfyr7UFhLWuEiRzSlpWI
-         qRNPDPWIb2S+e0shURRN5N/NgAoA9arIw8gVCqKyZ3fYHyRh/BWnlsviCWL7yVaoe4WL
-         pY0w==
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1706712487; x=1707317287; darn=lists.linux.dev;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=X8eTqDD2TC/DO+W2k0eOWEMg+bbbRfkbFFvB6iWeMD0=;
+        b=Cn/j1dMA0LRyqdwmEggHxBiQglzi2Cx9RuiV6JhZjgZQE7qTnOct/qHVJkdsR5WV+/
+         5BhyJq3xMsW29qBfa5w6VoUNHsXR4/B6BulTflliMa7j8lE1NWiwxrpprvQ8vy2BAof7
+         DHEOXpeEh9WgFQcNREMR7/XsR2JH3+XV+3M+2ifzjvECCGQs+TEEjCEboAxfO1zTxVVW
+         dBPuFjJZ3ibeUkcDWXvkQ8jQeR5NRzrVJ6XSNkAmcB8WjIgCfbtm7xHYGuqGkqCd7vyo
+         RVT5cWvv/XSe3EXN+LKZnD58//sFgofZJuojunoY/iJr5+SsbeC6kAj1UQFS+WpnJZV1
+         wOiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706709120; x=1707313920;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yPtmUHcYyyquby74IEXLFQhVf4lqT8uFnAIFJQJHn3o=;
-        b=G6gXqiYGiouBsHZSGLfwQ/7auyNB32wZSPtQ4WxCbnSeTXeyRltrFwqK6jkfCFh38Z
-         MI0yVSaJbWkhIgt5NGvmfqLfhjRLS/Mts8vOL5iRhmjFafj7XYx/N1eZzRWONTddnhfp
-         HUF8JHmNQxo2NCBchawmoA6FpHrIV+L1av1Jx7klhMpKNgKctalsFIdrQMkD9obWz8GC
-         hCgHAB5ThXYRFydDVTwEkFnMtTWzJJ/+7HWaOCtOlBOh4zTu1JV+dbPQ8L7bUph3P2Dq
-         fu3u+krhqOMt/cGOFhFZ3shGRilTBbfbX7gEQqYvGsO6IXVTqSN1R2HR5FUaCtgb0AAM
-         VBUQ==
-X-Gm-Message-State: AOJu0Yx7RQ0NuIwiRqbo+ar9Jx9rRt6tBNrXTsZF9scxYdyWhIifg1pC
-	wSfeSIm0NImil2kpuzU+T75i9mEVXd1AWe5vUIv/zA25V8K6MkvW
-X-Google-Smtp-Source: AGHT+IGU2n8HGY4cz1S6BH2UvGSySxcreh4eAhZs5yz6P+OEzgZoIAu09vHVOtECn1OZlbCL4w3uJA==
-X-Received: by 2002:a05:6000:11cd:b0:33a:f798:bfa with SMTP id i13-20020a05600011cd00b0033af7980bfamr1244734wrx.64.1706709120330;
-        Wed, 31 Jan 2024 05:52:00 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCVmo0ogGL0wQeekvGk2oVyRJcA07MqiYZoHb6csI8VAvZCV7kIUdGyYiw1D+gCsu0b8Fk2zwb24snfv4wJamRKvdescRkI3EWLBv8GsnwzwynWut8sDC/p25ddBgEw8nFuh7gJ2ijswUydbddlDc63ZX4INnaIoWI4ZagkJREeMuF4fzMngT7DygQdyuF1MBkXVJh2rpnQ+au7yGpHHL8GpMf6Tnjz04B3IDXpkwgw+EnOmhrYGlKzVpyNxmg==
-Received: from skbuf ([188.25.173.195])
-        by smtp.gmail.com with ESMTPSA id cw7-20020a056000090700b0033afcb5b5d2sm4074389wrb.80.2024.01.31.05.51.59
+        d=1e100.net; s=20230601; t=1706712487; x=1707317287;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=X8eTqDD2TC/DO+W2k0eOWEMg+bbbRfkbFFvB6iWeMD0=;
+        b=WyVpYQ/e2A3/Kd+6wKcqRIfgCMNsHNvdhhWf9kps/Clv8MsRbMX64h25DY4yW0bPAR
+         JQgTHUD46bJbBFi3OTLLIux2Qc7QLtXdQ/1gij+qePGyuYGeF9O2JztEnsk2kV4t4y/R
+         iHBDbRMX3Xh7gL0LC084sej5EAU1vgq3CNo+e1qC+niEdr6n7WrIy78ZPSsL8Jz0G+7y
+         EbClsbSox7KxWqjuLNEhmE4i2DyUi0mefJBeW5X7gJO0xrNAgsaeHolJ9Y3FGsNiRtdP
+         WdKeZlaWt5T/pBLGPSeJrqE0un8+G4FmeB2nRb4cQlQQIqiI1yVIYBmy3uPRlYmeaCXp
+         S43A==
+X-Gm-Message-State: AOJu0Yz8jgniK+IyiNPB8VtgE55yT9U3ksSlQJBfESDun6rmT1BdYRv8
+	ASEPvXDUhVTA3wy1w2PIPExVg5rkxm1YHsOVoqwyTPgI9V2owSmRUkmJAXM6yb0=
+X-Google-Smtp-Source: AGHT+IFEKZNJatfYIRUHIY8zbbZfzQrM5VnO87XKsXNWSHfLF5VbKuLq+4n2oGpZq94NSyN21FajHA==
+X-Received: by 2002:ac2:5df3:0:b0:511:f2d:367d with SMTP id z19-20020ac25df3000000b005110f2d367dmr1369110lfq.65.1706712486648;
+        Wed, 31 Jan 2024 06:48:06 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCU8HhA8z9YilwpUpmcGobXO2vdY8Pmm/SrHDIJJEq5A1Xepqg7wCCk+ZH+JPBaSUJtA6a81msKhKfHspoplaB0jcEMC1VoJ+vtnD+e6oyiJDklT52NjT4dRMNk357Lkg9pIxpCCOQBdGpvkGVIMTAM9hkfulLu0uvdqYSvA5ijsL+rnMQLqAPZTnpEYWh1EjqFM+8QGaGDKVxX7kJQLo8z2G/jRMRUMbFPEOEw31nmsuuhS496RcX7DGHZW6g==
+Received: from wkz-x13 (a124.broadband3.quicknet.se. [46.17.184.124])
+        by smtp.gmail.com with ESMTPSA id y27-20020ac255bb000000b0051011c5712bsm1844018lfg.262.2024.01.31.06.48.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Jan 2024 05:52:00 -0800 (PST)
-Date: Wed, 31 Jan 2024 15:51:57 +0200
-From: Vladimir Oltean <olteanv@gmail.com>
-To: Tobias Waldekranz <tobias@waldekranz.com>
+        Wed, 31 Jan 2024 06:48:06 -0800 (PST)
+From: Tobias Waldekranz <tobias@waldekranz.com>
+To: Vladimir Oltean <olteanv@gmail.com>
 Cc: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com,
-	razor@blackwall.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
-	jiri@resnulli.us, ivecera@redhat.com
-Subject: Re: [PATCH net 2/2] net: bridge: switchdev: Skip MDB replays of
- pending events
-Message-ID: <20240131135157.ddrtt4swvz5y3nbz@skbuf>
+ razor@blackwall.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
+ jiri@resnulli.us, ivecera@redhat.com
+Subject: Re: [PATCH net 1/2] net: switchdev: Add helper to check if an
+ object event is pending
+In-Reply-To: <20240131133406.v6zk33j43wy2j7fa@skbuf>
 References: <20240131123544.462597-1-tobias@waldekranz.com>
- <20240131123544.462597-1-tobias@waldekranz.com>
- <20240131123544.462597-3-tobias@waldekranz.com>
- <20240131123544.462597-3-tobias@waldekranz.com>
+ <20240131123544.462597-2-tobias@waldekranz.com>
+ <20240131133406.v6zk33j43wy2j7fa@skbuf>
+Date: Wed, 31 Jan 2024 15:48:05 +0100
+Message-ID: <87a5oltv8a.fsf@waldekranz.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240131123544.462597-3-tobias@waldekranz.com>
- <20240131123544.462597-3-tobias@waldekranz.com>
+Content-Type: text/plain
 
-On Wed, Jan 31, 2024 at 01:35:44PM +0100, Tobias Waldekranz wrote:
-> Generating the list of events MDB to replay races against the IGMP/MLD
-> snooping logic, which may concurrently enqueue events to the switchdev
-> deferred queue, leading to duplicate events being sent to drivers.
-> 
-> Avoid this by grabbing the write-side lock of the MDB, and make sure
-> that a deferred version of a replay event is not already enqueued to
-> the switchdev deferred queue before adding it to the replay list.
-> 
-> An easy way to reproduce this issue, on an mv88e6xxx system, was to
-> create a snooping bridge, and immediately add a port to it:
-> 
->     root@infix-06-0b-00:~$ ip link add dev br0 up type bridge mcast_snooping 1 && \
->     > ip link set dev x3 up master br0
->     root@infix-06-0b-00:~$ ip link del dev br0
->     root@infix-06-0b-00:~$ mvls atu
->     ADDRESS             FID  STATE      Q  F  0  1  2  3  4  5  6  7  8  9  a
->     DEV:0 Marvell 88E6393X
->     33:33:00:00:00:6a     1  static     -  -  0  .  .  .  .  .  .  .  .  .  .
->     33:33:ff:87:e4:3f     1  static     -  -  0  .  .  .  .  .  .  .  .  .  .
->     ff:ff:ff:ff:ff:ff     1  static     -  -  0  1  2  3  4  5  6  7  8  9  a
->     root@infix-06-0b-00:~$
-> 
-> The two IPv6 groups remain in the hardware database because the
-> port (x3) is notified of the host's membership twice: once in the
-> original event and once in a replay. Since DSA tracks host addresses
-> using reference counters, and only a single delete notification is
-> sent, the count remains at 1 when the bridge is destroyed.
-> 
+On ons, jan 31, 2024 at 15:34, Vladimir Oltean <olteanv@gmail.com> wrote:
+> On Wed, Jan 31, 2024 at 01:35:43PM +0100, Tobias Waldekranz wrote:
+>> When adding/removing a port to/from a bridge, the port must be brought
+>> up to speed with the current state of the bridge. This is done by
+>> replaying all relevant events, directly to the port in question.
+>> 
+>> In some situations, specifically when replaying the MDB, this process
+>> may race against new events that are generated concurrently.
+>> 
+>> So the bridge must ensure that the event is not already pending on the
+>> deferred queue. switchdev_port_obj_is_deferred answers this question.
+>> 
+>> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+>
+> I don't see great value in splitting this patch in (1) unused helpers
+> (2) actual fix that uses them. Especially since it creates confusion -
+> it is nowhere made clear in this commit message that it is just
+> preparatory work.
 
-It's not really my business as to how the network maintainers handle this,
-but if you intend this to go to 'net', you should provide a Fixes: tag.
+It was one commit until the last minute, I'll squash them back together.
 
-And to make a compelling case for a submission to 'net', you should
-start off by explaining what the user-visible impact of the bug is.
+>> ---
+>>  include/net/switchdev.h   |  3 ++
+>>  net/switchdev/switchdev.c | 61 +++++++++++++++++++++++++++++++++++++++
+>>  2 files changed, 64 insertions(+)
+>> 
+>> diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+>> index a43062d4c734..538851a93d9e 100644
+>> --- a/include/net/switchdev.h
+>> +++ b/include/net/switchdev.h
+>> @@ -308,6 +308,9 @@ void switchdev_deferred_process(void);
+>>  int switchdev_port_attr_set(struct net_device *dev,
+>>  			    const struct switchdev_attr *attr,
+>>  			    struct netlink_ext_ack *extack);
+>> +bool switchdev_port_obj_is_deferred(struct net_device *dev,
+>> +				    enum switchdev_notifier_type nt,
+>> +				    const struct switchdev_obj *obj);
+>
+> I think this is missing a shim definition for when CONFIG_NET_SWITCHDEV
+> is disabled.
 
-> Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-> ---
->  net/bridge/br_switchdev.c | 44 ++++++++++++++++++++++++---------------
->  1 file changed, 27 insertions(+), 17 deletions(-)
-> 
-> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index ee84e783e1df..a3481190d5e6 100644
-> --- a/net/bridge/br_switchdev.c
-> +++ b/net/bridge/br_switchdev.c
-> @@ -595,6 +595,8 @@ br_switchdev_mdb_replay_one(struct notifier_block *nb, struct net_device *dev,
->  }
->  
->  static int br_switchdev_mdb_queue_one(struct list_head *mdb_list,
-> +				      struct net_device *dev,
-> +				      unsigned long action,
->  				      enum switchdev_obj_id id,
->  				      const struct net_bridge_mdb_entry *mp,
->  				      struct net_device *orig_dev)
-> @@ -608,8 +610,17 @@ static int br_switchdev_mdb_queue_one(struct list_head *mdb_list,
->  	mdb->obj.id = id;
->  	mdb->obj.orig_dev = orig_dev;
->  	br_switchdev_mdb_populate(mdb, mp);
-> -	list_add_tail(&mdb->obj.list, mdb_list);
->  
-> +	if (switchdev_port_obj_is_deferred(dev, action, &mdb->obj)) {
-> +		/* This event is already in the deferred queue of
-> +		 * events, so this replay must be elided, lest the
-> +		 * driver receives duplicate events for it.
-> +		 */
-> +		kfree(mdb);
+Even though the only caller is br_switchdev.c, which is guarded behind
+CONFIG_NET_SWITCHDEV?
 
-Would it make sense to make "mdb" a local on-stack variable, and
-kmemdup() it only if it needs to be queued?
+>>  int switchdev_port_obj_add(struct net_device *dev,
+>>  			   const struct switchdev_obj *obj,
+>>  			   struct netlink_ext_ack *extack);
+>> diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
+>> index 5b045284849e..40bb17c7fdbf 100644
+>> --- a/net/switchdev/switchdev.c
+>> +++ b/net/switchdev/switchdev.c
+>> @@ -19,6 +19,35 @@
+>>  #include <linux/rtnetlink.h>
+>>  #include <net/switchdev.h>
+>>  
+>> +static bool switchdev_obj_eq(const struct switchdev_obj *a,
+>> +			     const struct switchdev_obj *b)
+>> +{
+>> +	const struct switchdev_obj_port_vlan *va, *vb;
+>> +	const struct switchdev_obj_port_mdb *ma, *mb;
+>> +
+>> +	if (a->id != b->id || a->orig_dev != b->orig_dev)
+>> +		return false;
+>> +
+>> +	switch (a->id) {
+>> +	case SWITCHDEV_OBJ_ID_PORT_VLAN:
+>> +		va = SWITCHDEV_OBJ_PORT_VLAN(a);
+>> +		vb = SWITCHDEV_OBJ_PORT_VLAN(b);
+>> +		return va->flags == vb->flags &&
+>> +			va->vid == vb->vid &&
+>> +			va->changed == vb->changed;
+>> +	case SWITCHDEV_OBJ_ID_PORT_MDB:
+>> +	case SWITCHDEV_OBJ_ID_HOST_MDB:
+>> +		ma = SWITCHDEV_OBJ_PORT_MDB(a);
+>> +		mb = SWITCHDEV_OBJ_PORT_MDB(b);
+>> +		return ma->vid == mb->vid &&
+>> +			!memcmp(ma->addr, mb->addr, sizeof(ma->addr));
+>
+> ether_addr_equal().
+>
+>> +	default:
+>> +		break;
+>
+> Does C allow you to not return anything here?
 
-> +		return 0;
-> +	}
-> +
-> +	list_add_tail(&mdb->obj.list, mdb_list);
->  	return 0;
->  }
->  
-> @@ -677,22 +688,26 @@ br_switchdev_mdb_replay(struct net_device *br_dev, struct net_device *dev,
->  	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
->  		return 0;
->  
-> -	/* We cannot walk over br->mdb_list protected just by the rtnl_mutex,
-> -	 * because the write-side protection is br->multicast_lock. But we
-> -	 * need to emulate the [ blocking ] calling context of a regular
-> -	 * switchdev event, so since both br->multicast_lock and RCU read side
-> -	 * critical sections are atomic, we have no choice but to pick the RCU
-> -	 * read side lock, queue up all our events, leave the critical section
-> -	 * and notify switchdev from blocking context.
-> +	if (adding)
-> +		action = SWITCHDEV_PORT_OBJ_ADD;
-> +	else
-> +		action = SWITCHDEV_PORT_OBJ_DEL;
-> +
-> +	/* br_switchdev_mdb_queue_one will take care to not queue a
+No warnings or errors are generated by my compiler (GCC 12.2.0).
 
-() after function names
+My guess is that the expansion of BUG() ends with
+__builtin_unreachable() or similar.
 
-> +	 * replay of an event that is already pending in the switchdev
-> +	 * deferred queue. In order to safely determine that, there
-> +	 * must be no new deferred MDB notifications enqueued for the
-> +	 * duration of the MDB scan. Therefore, grab the write-side
-> +	 * lock to avoid racing with any concurrent IGMP/MLD snooping.
->  	 */
-> -	rcu_read_lock();
-> +	spin_lock_bh(&br->multicast_lock);
->  
->  	hlist_for_each_entry_rcu(mp, &br->mdb_list, mdb_node) {
+>> +	}
+>> +
+>> +	BUG();
+>> +}
+>> +
+>>  static LIST_HEAD(deferred);
+>>  static DEFINE_SPINLOCK(deferred_lock);
+>>  
+>> @@ -307,6 +336,38 @@ int switchdev_port_obj_del(struct net_device *dev,
+>>  }
+>>  EXPORT_SYMBOL_GPL(switchdev_port_obj_del);
+>>  
+>> +bool switchdev_port_obj_is_deferred(struct net_device *dev,
+>> +				    enum switchdev_notifier_type nt,
+>> +				    const struct switchdev_obj *obj)
+>
+> A kernel-doc comment would be great. It looks like it's not returning
+> whether the port object is deferred, but whether the _action_ given by
+> @nt on the @obj is deferred. This further distinguishes between deferred
+> additions and deferred removals.
+>
 
-hlist_for_each_entry()
+Fair, so should the name change as well? I guess you'd want something
+like switchdev_port_obj_notification_is_deferred, but that sure is
+awfully long.
 
->  		struct net_bridge_port_group __rcu * const *pp;
->  		const struct net_bridge_port_group *p;
->  
->  		if (mp->host_joined) {
-> -			err = br_switchdev_mdb_queue_one(&mdb_list,
-> +			err = br_switchdev_mdb_queue_one(&mdb_list, dev, action,
->  							 SWITCHDEV_OBJ_ID_HOST_MDB,
->  							 mp, br_dev);
->  			if (err) {
-> @@ -706,7 +721,7 @@ br_switchdev_mdb_replay(struct net_device *br_dev, struct net_device *dev,
->  			if (p->key.port->dev != dev)
->  				continue;
->  
-> -			err = br_switchdev_mdb_queue_one(&mdb_list,
-> +			err = br_switchdev_mdb_queue_one(&mdb_list, dev, action,
->  							 SWITCHDEV_OBJ_ID_PORT_MDB,
->  							 mp, dev);
->  			if (err) {
-> @@ -716,12 +731,7 @@ br_switchdev_mdb_replay(struct net_device *br_dev, struct net_device *dev,
->  		}
->  	}
->  
-> -	rcu_read_unlock();
-> -
-> -	if (adding)
-> -		action = SWITCHDEV_PORT_OBJ_ADD;
-> -	else
-> -		action = SWITCHDEV_PORT_OBJ_DEL;
-> +	spin_unlock_bh(&br->multicast_lock);
->  
->  	list_for_each_entry(obj, &mdb_list, list) {
->  		err = br_switchdev_mdb_replay_one(nb, dev,
-> -- 
-> 2.34.1
-> 
+>> +{
+>> +	struct switchdev_deferred_item *dfitem;
+>> +	bool found = false;
+>> +
+>> +	ASSERT_RTNL();
+>
+> Why does rtnl_lock() have to be held? To fully allow switchdev_deferred_process()
+> to run to completion, aka its dfitem->func() as well?
 
+That is in effect what is does, yes. All we really would need is to
+ensure that any individual item that has been removed from the list has
+also executed its callback. But holding rtnl_lock was the most granular
+way I could see that would ensure that.
+
+>> +
+>> +	spin_lock_bh(&deferred_lock);
+>> +
+>> +	list_for_each_entry(dfitem, &deferred, list) {
+>> +		if (dfitem->dev != dev)
+>> +			continue;
+>> +
+>> +		if ((dfitem->func == switchdev_port_obj_add_deferred &&
+>> +		     nt == SWITCHDEV_PORT_OBJ_ADD) ||
+>> +		    (dfitem->func == switchdev_port_obj_del_deferred &&
+>> +		     nt == SWITCHDEV_PORT_OBJ_DEL)) {
+>> +			if (switchdev_obj_eq((const void *)dfitem->data, obj)) {
+>> +				found = true;
+>> +				break;
+>> +			}
+>> +		}
+>> +	}
+>> +
+>> +	spin_unlock_bh(&deferred_lock);
+>> +
+>> +	return found;
+>> +}
+>> +EXPORT_SYMBOL_GPL(switchdev_port_obj_is_deferred);
+>> +
+>>  static ATOMIC_NOTIFIER_HEAD(switchdev_notif_chain);
+>>  static BLOCKING_NOTIFIER_HEAD(switchdev_blocking_notif_chain);
+>>  
+>> -- 
+>> 2.34.1
+>> 
