@@ -1,69 +1,68 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4891A38
-	for <bridge@lists.linux.dev>; Thu,  1 Feb 2024 00:29:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 019431846
+	for <bridge@lists.linux.dev>; Thu,  1 Feb 2024 00:33:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706747354; cv=none; b=VpN64zjr3WOZBPv8xB0CARD2Fm6xkdqKugqfG26VwAHcvy4/iBBx9q+rcLxQXSgf9ccqNmdM9L+fBvyrSKI6lDQC9KoVup1AhtjDFv9BekPxb8qO/5V2WDeYNG5C1Ea3RRI7GXW2wusuWovz719LUVgc4Y4JSUCj3rqS5OMkOgQ=
+	t=1706747591; cv=none; b=otbFpLEZfaEt+9nLqahF43XxKHgXe1QQSjgX05XMLFw3LzJCcQ516dszpEE04MfnAvTJw4Lqj1FEPvpFr7Oqw3oBlPN2PQk0+Ly3VDD+7CNl9kFjm/vUjpQWEtevF8ytohCm6AQaENmt1KOdxhw/CN0DyBrFV3PpRri4lwXSXAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706747354; c=relaxed/simple;
-	bh=r98WeVKIjH3FW+EALOA3ng6LieuCPZs/iswet0NHsWg=;
+	s=arc-20240116; t=1706747591; c=relaxed/simple;
+	bh=DfK90FjFExrJjPMMCY/tsvVrtnVfs8jikyEr8u82fcw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UJW5soMdZyZg5p5DvSWQveH0+YtOfDKTFfSogL6j2pobDK5kmgLugzX7geYOysetLIQafdyDBvBrzGJ+dOyqDLbp+1jWWoK6qlOeIuOZ6m2WTIxBXb4WPxVYaM0n1OQndgqQhZfHIJe3uS1BSz/jmOPypyqArt+yfw8CTuyQXHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PwEa49iU; arc=none smtp.client-ip=209.85.167.45
+	 Content-Type:Content-Disposition:In-Reply-To; b=RUatnYaBFX9w/tliO+XuRzRnUI27Fndswa5F334NReXZmMIuBbI8LAzeau6hyfX6yx52cCVWQUw2cul/phmNuPPDj5wrvs6xxcMQRMKq6zzza/9AAjrLGoWVx/xHlbHjAdVh8NCGfG6RnSW2STfNjzSe3Pi+bctRo0S1p8yVM2Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ARc8AQJi; arc=none smtp.client-ip=209.85.218.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PwEa49iU"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-511207d62b6so544232e87.1
-        for <bridge@lists.linux.dev>; Wed, 31 Jan 2024 16:29:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ARc8AQJi"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a30e445602cso332121966b.0
+        for <bridge@lists.linux.dev>; Wed, 31 Jan 2024 16:33:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1706747351; x=1707352151; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1706747588; x=1707352388; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=44Ib+Vnnaqq8GOdjfv0UZJ3usenCsoa3lRg9+CYEi2Y=;
-        b=PwEa49iU/HYgqdO98t2QFXMP+fZ+OJkYKNyO9IHyGD2yhsgba9U/sgJp6WbYqR39oH
-         hRx5ntgZU/TRvPIbWS6RJhU574mOi3ttiX0JLQ1F/FuZVQoBDIlya1Dn7jeMR9KzKa92
-         9CT8jjW6DdTVGY6ZQhfYlXomjiqUPWue7SFLFtyFGq8SJwnayH1BhnUSuwMU0JdP0vv4
-         a9Jpf9gHFyhWyFjaheEyhFWI/WVqFEPxaAYeNXQISittbtHZjHBk/JpY9RnWlYhCMMjk
-         vVcAK0DErYuXK2z1saRO2T7rofK8bjpWzgIqKrtRdAHGBC2ZuhBrn5p+XhPolzVgUw/9
-         zoIg==
+        bh=sYc3IxBIqD76M0X/oe6yDzIKEZbPMAmuRtmpKU/+RyE=;
+        b=ARc8AQJiQk4lPWw2fDpJg4V0+NgpLDpQGyxIzBbUjFKRKZ4NQcZYKMrcSxFGqoKSjN
+         tQExdyl8R1tquDmTaRn5NLWCH4OLIUtSGqJYLlVQkEszOpxlGxm04PVOO0CCw+7y5ijv
+         y3qgYEGUvXTHaa4K+WUctD685iWN6CDccoHUqfn0hVJOFNkl19tPV2Nare0yNVv6qKPy
+         ZSNbBE8QrW0pSvQi/WQqESZSjCFsQgJME/voY3omptrh/mnBjcZ8PGAPDbkzRfyPotU4
+         cyS74Y5A+wPoRsNYMrPxDQemOkPlcuA6b2vomfQZxNMb0L04xLTOCa5j/yeIxoI3Xlnf
+         yxdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706747351; x=1707352151;
+        d=1e100.net; s=20230601; t=1706747588; x=1707352388;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=44Ib+Vnnaqq8GOdjfv0UZJ3usenCsoa3lRg9+CYEi2Y=;
-        b=l6f+ZhYfU70U5ZorcGVWzUiWAWZmSwZjQ71JmlU7GYrrTgwXGqZ0BKBa6XDEaYjUGV
-         OFoeCVhICn9dQX83pfIRu3dzlmqJWEJAlshQ7pGht90bdMPMIaO+d7x0oXu+HZAXwCP5
-         NmJ9iGiO8JKlqNrbIouRdgO0Yaqu/ZCIe5ojvXI3H1htEreAwF2EjQX5d9pOpzqIZa3S
-         wmIl28MT9UitE4fta/dtwdMGehK77hZCJXu4w8rjFPPRRk5WmGuds9kH1vvAsAz9A3J9
-         /lfpERbn+8GlW3xjurmftJk0v9wDdc4r98RRBt/RSSiQ9nAG/bi9P6fEFUjtuSQZ8ACJ
-         1/Sg==
-X-Gm-Message-State: AOJu0YzdizjqujeDt3Fehutax9rEc5ghCFJRHMw2h3aJRL0tJZPrlezo
-	rhUhkNQmLMKqQJIRK2zNcc9FjqmaOeH8EvnzkV+gcM6ITyYWjQu+
-X-Google-Smtp-Source: AGHT+IGjFb0fMAxw+lFvGcJ2rwTwwR0k/LlxjJh1dc1Kush+SVxids79yMzchkvuqx/dmAoCOu3jkA==
-X-Received: by 2002:a19:3814:0:b0:510:1879:c86d with SMTP id f20-20020a193814000000b005101879c86dmr481785lfa.16.1706747350214;
-        Wed, 31 Jan 2024 16:29:10 -0800 (PST)
-X-Forwarded-Encrypted: i=0; AJvYcCWIMiNPnBg7L12mdcb0hIWX3ULqMoDcJocJzbWM2e66Psv8KB6HTBBmgCiTM+t9Du//yKrjIYOB4chfvjyyQvruUCkNYMRbjirRlAkVCgzMBH591tibzVWXnETdBqwYWGOIjgkHWUa6YB/ktaCqNFU0fpnO/XoA8YObn/95N2pJG1cb3kCUe0uaAifoqRaVdYyczWq46NC1+KA03/9h/71RU/e3XXcCaOgmOW7/ox75UMVqnF8wDwmR58Se6Q==
+        bh=sYc3IxBIqD76M0X/oe6yDzIKEZbPMAmuRtmpKU/+RyE=;
+        b=TCG/aRxUbM7cB03MTCmQNy8XoEOoR3rZ2KYgG3bLrEM7UR+uMwpkCZUhtZrWGdj2N2
+         oqqy3JoicoS051TIiR0EyEQeSRV9B/gH0XZvWqRQvwTQr72+LBbTNVg/VBRAn/dXEqlD
+         NqHORCTnZfiNjh3QV6kZ1R0ywzOY29qzRCMsNEEpjvs70/YddUcgg2nf26Urc34E6uOv
+         OQ/h1VC3WWI5VCL9n/EofrSyA1LevCTVP1jB6yWDEzbi6VHOaHLCL/FuJFyXCKS6CDpR
+         relZNbJ0Wa2kXLpy53UUEr/rYkbkmFeRFkxGlBYv7YkcVqmEpa5qS+T/hflS//PBwHUb
+         62HA==
+X-Gm-Message-State: AOJu0YwXJ3OYocCh2ytb6e9EBSqlxviXzJ5xeJCVbJVsjuYaF8EFxtwq
+	cr5JtJEGRoksZqN5SDd7sr+nNEdl8OmvsqokQqelHZO4hdevjMNx
+X-Google-Smtp-Source: AGHT+IEv8ssH6QhCRod9XfGdUzEQZLHdO4Wt8EUNG5erRbBggiHIBdojxLF61LuKsWFNv2B3fcdZ2Q==
+X-Received: by 2002:a17:906:c795:b0:a36:39dd:3f93 with SMTP id cw21-20020a170906c79500b00a3639dd3f93mr3199570ejb.4.1706747587975;
+        Wed, 31 Jan 2024 16:33:07 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCVCXJrEtYNLYN0unC1ZswqY7VqW+7k40kVV2s0UBLdDcDgo4+eyUZyPDEgG3YTl3bJs9jV703oGkBxfo1HudUBaqDc/vQeKTIOM6uU5mkuh2SWhKOIelql8CZRlfJmifcdB2Dixrlqu2C5QwL3h7JnyN8KNjewZ+188RHFcD7fACU8OEu7ENxMkqhO95dIZK2BD4NcmoJ8UBE0DGYJoatdCClPT95QonxF0WcVxcTEf9h7hAEigdzErYdKFejSkJQ==
 Received: from skbuf ([188.25.173.195])
-        by smtp.gmail.com with ESMTPSA id hu21-20020a170907a09500b00a359e072fe0sm4361501ejc.145.2024.01.31.16.29.09
+        by smtp.gmail.com with ESMTPSA id qh20-20020a170906ecb400b00a28f6294233sm6630925ejb.76.2024.01.31.16.33.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Jan 2024 16:29:09 -0800 (PST)
-Date: Thu, 1 Feb 2024 02:29:07 +0200
+        Wed, 31 Jan 2024 16:33:07 -0800 (PST)
+Date: Thu, 1 Feb 2024 02:33:05 +0200
 From: Vladimir Oltean <olteanv@gmail.com>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: davem@davemloft.net, kuba@kernel.org, roopa@nvidia.com,
-	razor@blackwall.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
-	jiri@resnulli.us, ivecera@redhat.com
+To: Jiri Pirko <jiri@resnulli.us>
+Cc: Tobias Waldekranz <tobias@waldekranz.com>, davem@davemloft.net,
+	kuba@kernel.org, roopa@nvidia.com, razor@blackwall.org,
+	bridge@lists.linux.dev, netdev@vger.kernel.org, ivecera@redhat.com
 Subject: Re: [PATCH net 1/2] net: switchdev: Add helper to check if an object
  event is pending
-Message-ID: <20240201002907.qdalrmwg6arkeld2@skbuf>
+Message-ID: <20240201003305.thoj2y3bjyxq2hlj@skbuf>
 References: <20240131123544.462597-1-tobias@waldekranz.com>
  <20240131123544.462597-2-tobias@waldekranz.com>
- <20240131133406.v6zk33j43wy2j7fa@skbuf>
- <87a5oltv8a.fsf@waldekranz.com>
+ <ZbpCA3kgoCKsdQ4J@nanopsycho>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -72,98 +71,18 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87a5oltv8a.fsf@waldekranz.com>
+In-Reply-To: <ZbpCA3kgoCKsdQ4J@nanopsycho>
 
-On Wed, Jan 31, 2024 at 03:48:05PM +0100, Tobias Waldekranz wrote:
-> >> +bool switchdev_port_obj_is_deferred(struct net_device *dev,
-> >> +				    enum switchdev_notifier_type nt,
-> >> +				    const struct switchdev_obj *obj);
-> >
-> > I think this is missing a shim definition for when CONFIG_NET_SWITCHDEV
-> > is disabled.
+On Wed, Jan 31, 2024 at 01:50:11PM +0100, Jiri Pirko wrote:
+> Wed, Jan 31, 2024 at 01:35:43PM CET, tobias@waldekranz.com wrote:
+> >When adding/removing a port to/from a bridge, the port must be brought
+> >up to speed with the current state of the bridge. This is done by
+> >replaying all relevant events, directly to the port in question.
 > 
-> Even though the only caller is br_switchdev.c, which is guarded behind
-> CONFIG_NET_SWITCHDEV?
+> Could you please use the imperative mood in your patch descriptions?
+> That way, it is much easier to understand what is the current state of
+> things and what you are actually changing.
 
-My mistake, please disregard.
-
-> >>  int switchdev_port_obj_add(struct net_device *dev,
-> >>  			   const struct switchdev_obj *obj,
-> >>  			   struct netlink_ext_ack *extack);
-> >> diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
-> >> index 5b045284849e..40bb17c7fdbf 100644
-> >> --- a/net/switchdev/switchdev.c
-> >> +++ b/net/switchdev/switchdev.c
-> >> @@ -19,6 +19,35 @@
-> >>  #include <linux/rtnetlink.h>
-> >>  #include <net/switchdev.h>
-> >>  
-> >> +static bool switchdev_obj_eq(const struct switchdev_obj *a,
-> >> +			     const struct switchdev_obj *b)
-> >> +{
-> >> +	const struct switchdev_obj_port_vlan *va, *vb;
-> >> +	const struct switchdev_obj_port_mdb *ma, *mb;
-> >> +
-> >> +	if (a->id != b->id || a->orig_dev != b->orig_dev)
-> >> +		return false;
-> >> +
-> >> +	switch (a->id) {
-> >> +	case SWITCHDEV_OBJ_ID_PORT_VLAN:
-> >> +		va = SWITCHDEV_OBJ_PORT_VLAN(a);
-> >> +		vb = SWITCHDEV_OBJ_PORT_VLAN(b);
-> >> +		return va->flags == vb->flags &&
-> >> +			va->vid == vb->vid &&
-> >> +			va->changed == vb->changed;
-> >> +	case SWITCHDEV_OBJ_ID_PORT_MDB:
-> >> +	case SWITCHDEV_OBJ_ID_HOST_MDB:
-> >> +		ma = SWITCHDEV_OBJ_PORT_MDB(a);
-> >> +		mb = SWITCHDEV_OBJ_PORT_MDB(b);
-> >> +		return ma->vid == mb->vid &&
-> >> +			!memcmp(ma->addr, mb->addr, sizeof(ma->addr));
-> >
-> > ether_addr_equal().
-> >
-> >> +	default:
-> >> +		break;
-> >
-> > Does C allow you to not return anything here?
-> 
-> No warnings or errors are generated by my compiler (GCC 12.2.0).
-> 
-> My guess is that the expansion of BUG() ends with
-> __builtin_unreachable() or similar.
-
-Interesting, I didn't know that. Although checkpatch says: "WARNING: Do
-not crash the kernel unless it is absolutely unavoidable--use
-WARN_ON_ONCE() plus recovery code (if feasible) instead of BUG() or
-variants". So I'm conflicted about what I just learned and how it can be
-applied in a way that checkpatch doesn't dislike.
-
-> 
-> >> +	}
-> >> +
-> >> +	BUG();
-> >> +}
-> >> +
-> >>  static LIST_HEAD(deferred);
-> >>  static DEFINE_SPINLOCK(deferred_lock);
-> >>  
-> >> @@ -307,6 +336,38 @@ int switchdev_port_obj_del(struct net_device *dev,
-> >>  }
-> >>  EXPORT_SYMBOL_GPL(switchdev_port_obj_del);
-> >>  
-> >> +bool switchdev_port_obj_is_deferred(struct net_device *dev,
-> >> +				    enum switchdev_notifier_type nt,
-> >> +				    const struct switchdev_obj *obj)
-> >
-> > A kernel-doc comment would be great. It looks like it's not returning
-> > whether the port object is deferred, but whether the _action_ given by
-> > @nt on the @obj is deferred. This further distinguishes between deferred
-> > additions and deferred removals.
-> >
-> 
-> Fair, so should the name change as well? I guess you'd want something
-> like switchdev_port_obj_notification_is_deferred, but that sure is
-> awfully long.
-
-switchdev_port_obj_act_is_deferred() for action, maybe?
+FWIW, the paragraph you've concentrated upon does describe the current
+state of things, not what the patch does; thus it does not need to be in
+the imperative mood.
