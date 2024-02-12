@@ -1,126 +1,132 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 100DD3C088
-	for <bridge@lists.linux-foundation.org>; Mon, 12 Feb 2024 15:28:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41C2547A67
+	for <bridge@lists.linux.dev>; Mon, 12 Feb 2024 19:19:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707751737; cv=none; b=oV2/MOipoM5K3xIpIvaRh8/RJDnipQUsEwZdC0J6OqWZ+9fSZ3LfgM+FT5z3taOo/LBu+9Y6lMJbrrMEPz+F/3rPpBtJ/rAD3y5c/ewBtGuhBdkLUhcx6uBNFyRpVixtAVlv8UT0+yV0nl0v78UJS5yiMPz8POCNaKY3h70lGws=
+	t=1707765562; cv=none; b=EMs8lqkkP5hOjZcxE2RVkpllcr5pvQVBVdXwADC5156C4loKUqp51FXi6SLKhehQuEFW1GKixkrqMPJnLryfa8OqK8r828DoV7nG3h/T5q1Lx3aoKCz99+tMPbql/E0E1iuEb+eiTkAROYIoyLnUc/D0z7n+SjsB3jx1YmnFkiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707751737; c=relaxed/simple;
-	bh=UlNQdXdEu8GFaDckGHWpz0bCZpO+hsGs9qo4St9gRCc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XHAWr5RGxpCisAct8QWjUFIsrnvlKcdqBRAqVaVuJXntRUYB8IWatxxeM6VxLOuiu0ozhjudgQ24Zu+8915geLmcJ/wyrwaO+03E7sad/RIj1DolOG/5kMtot661i3uUoaVMpSOTqeEPm/Hi+Hh96kv18p5B8yD7y1LRUJhrVCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 95D4E83CED
-	for <bridge@lists.linux-foundation.org>; Mon, 12 Feb 2024 15:28:55 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id P_5juWEQzOVI for <bridge@lists.linux-foundation.org>;
-	Mon, 12 Feb 2024 15:28:54 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=194.107.17.39; helo=air.basealt.ru; envelope-from=oficerovas@altlinux.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 8118283CEC
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=altlinux.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8118283CEC
-Received: from air.basealt.ru (air.basealt.ru [194.107.17.39])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8118283CEC
-	for <bridge@lists.linux-foundation.org>; Mon, 12 Feb 2024 15:28:54 +0000 (UTC)
-Received: by air.basealt.ru (Postfix, from userid 490)
-	id 2601B2F20241; Mon, 12 Feb 2024 15:28:52 +0000 (UTC)
-Received: from shell.ipa.basealt.ru (unknown [176.12.98.74])
-	by air.basealt.ru (Postfix) with ESMTPSA id 7DF152F2023B;
-	Mon, 12 Feb 2024 15:28:49 +0000 (UTC)
-From: Alexander Ofitserov <oficerovas@altlinux.org>
-To: astrajoan@yahoo.com
-Cc: arnd@arndb.de,
-	bridge@lists.linux-foundation.org,
-	davem@davemloft.net,
-	edumazet@google.com,
-	f.fainelli@gmail.com,
-	hkallweit1@gmail.com,
-	ivan.orlov0322@gmail.com,
-	keescook@chromium.org,
-	kuba@kernel.org,
-	linux-kernel@vger.kernel.org,
-	mudongliangabcd@gmail.com,
-	netdev@vger.kernel.org,
-	nikolay@nvidia.com,
-	pabeni@redhat.com,
-	razor@blackwall.org,
+	s=arc-20240116; t=1707765562; c=relaxed/simple;
+	bh=z8oqdqEDhRCXk/yo/TAzsJzRFK9GPU2AFNlcqOKIRW8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=i9BuEt1+RdaejJV2wTfLz4QylB7/9EjdLu2hWz7yctipsCW6fuhQ7/LdD4zN33NWDlkAIgZ7TCOHKW0kk4bQ1pdVWpXmRr6Q0UQ7LdwbRgb89aJn+yt7DVelOnp3pcwTF2Etuy5VLGLnB0OD5VUZUPeRON+j82cIrxzQ6L1LhlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=uixqRBd0; arc=none smtp.client-ip=209.85.167.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="uixqRBd0"
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-50eac018059so4539510e87.0
+        for <bridge@lists.linux.dev>; Mon, 12 Feb 2024 11:19:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1707765557; x=1708370357; darn=lists.linux.dev;
+        h=content-transfer-encoding:organization:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=owO5+EtRA7OjN0hrV4Td8NGEMC2elnvfBXu3RlDCwnE=;
+        b=uixqRBd0UxNQiFrCWvuVCT4jFEmLqTUUC728eDkORBPD8yYekViKJeBHjAsmDMNyvI
+         PZaS9VzziQmriPwm4Noc1B8fmc7lKNhJ7ahN1m0dSEBoMEIPew55SGG60pzvwOdNRp57
+         3M0oGS0f0XKAiRjmpLZd+hKq58oofY77j+vd+fVvEeifQzyhfmGG1iEq+HDTo1hPUO/k
+         vVBKdhdrPTDu9pXpVS+TxEky1f/fpmFCXx/9sEWbomh9Osf5V4E0jEVKsfs/pL/0h7rR
+         +/l9HfyJr9CcSDo3RfcnfLdksZINlL9/5avVpTLr80QqqcSrFqps7byfwkGk/CPimFhi
+         ex6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707765557; x=1708370357;
+        h=content-transfer-encoding:organization:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=owO5+EtRA7OjN0hrV4Td8NGEMC2elnvfBXu3RlDCwnE=;
+        b=c5pXGl7nnF5ToYWzCIxXbPBeYiz54RICgTcr9ap2LWeUzfP3f8cVAtzojXwXjNrglY
+         HFvjgbwK8PosyVlnuspLpYmYBu+QDb/AZtlIzx4wPuTd9UAb5Fv+Jh4zSKodCalMTlfx
+         hwci8zbWkGxHfLpvo0NCoLyhfmysnRHHIP5npTXF1oZkC7RAODc12r9IkXUtjoi1ibyW
+         UY7U3t/WB6FSkJbf+jv7lhA7qZqKINF7kxC8KKuD2V8SAXFSbdItY9C9re0NR2b5zAKs
+         SL+QG8zmHaciu0PYmdCTbJYMNbPlL/ftQfiuejZAh5JFRbTQis5VBbhZs5y1HF/+Hctq
+         F81g==
+X-Forwarded-Encrypted: i=1; AJvYcCUtXxnxvDTXwXZWZ6PcmsRWhxnxq7A9zbJoD4VUmkYgWfDAOGSRrxX4GA0+gs6e3WwWGkFGkRNC2SkTLJVqE5F8uwcJoDFb
+X-Gm-Message-State: AOJu0YwwlphQiNGSloby2Plba4Cs6tCQYBnllyUofSfwmzA7QmElz4Oh
+	M0MsN7UZAZY3A1mSERJpUKUIXPglW4XK9hG5PHnKQJ0i7T7R7AAueARWJJ8i78U=
+X-Google-Smtp-Source: AGHT+IF/Lc0e5GGhvByl3h7ILfvksmYLQsBCRUOzv6y0e7AuRUvXvYkJTuUvcFB9zVgepzNpHxQKtg==
+X-Received: by 2002:ac2:5990:0:b0:511:7681:1853 with SMTP id w16-20020ac25990000000b0051176811853mr5041194lfn.16.1707765557066;
+        Mon, 12 Feb 2024 11:19:17 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXS0FWQv1bMUhtf7zrWpfkK1C9iLOEZbUPHxQn8ZQZzNk61uqLuB2OnvqiwR/XXkYOBMtJJyJJILVp2Hx7tlfNpLxLf/3oICdmAM25bX3xip6pfZ7PzxPfCK3Z5AzHN4/qa/Ymcc/7tp/04CmmAdiCBJ/S9d8fPA9agzLtEWzfrU78uS92cA6EJI63J3rZoZNpxgzLGn8myztIxzTYkfkJ+hGCkLlffPPuRFwzr0JZO1abPcfnTfQ1wnxTnc1z21Pnnn76Uko+m1fNu5iuitCMR
+Received: from wkz-x13.addiva.ad (h-158-174-187-194.NA.cust.bahnhof.se. [158.174.187.194])
+        by smtp.gmail.com with ESMTPSA id n9-20020ac24909000000b0051157349af3sm974647lfi.47.2024.02.12.11.19.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Feb 2024 11:19:16 -0800 (PST)
+From: Tobias Waldekranz <tobias@waldekranz.com>
+To: davem@davemloft.net,
+	kuba@kernel.org
+Cc: olteanv@gmail.com,
+	atenart@kernel.org,
 	roopa@nvidia.com,
-	skhan@linuxfoundation.org,
-	syzbot+881d65229ca4f9ae8c84@syzkaller.appspotmail.com,
-	syzkaller-bugs@googlegroups.com,
-	vladimir.oltean@nxp.com,
-	dutyrok@altlinux.org,
-	Alexander Ofitserov <oficerovas@altlinux.org>
-Subject: Re: [Bridge] [PATCH] net: bridge: Fix refcnt issues in dev_ioctl
-Date: Mon, 12 Feb 2024 18:28:28 +0300
-Message-ID: <20240212152828.4049756-2-oficerovas@altlinux.org>
-X-Mailer: git-send-email 2.42.1
-In-Reply-To: <20230823093846.7wzrhnqdk2wyqud2@Astras-Ubuntu>
-References: <20230823093846.7wzrhnqdk2wyqud2@Astras-Ubuntu>
+	razor@blackwall.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	jiri@resnulli.us,
+	ivecera@redhat.com
+Subject: [PATCH v4 net 0/2] net: bridge: switchdev: Ensure MDB events are delivered exactly once
+Date: Mon, 12 Feb 2024 20:18:42 +0100
+Message-Id: <20240212191844.1055186-1-tobias@waldekranz.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Organization: Addiva Elektronik
 Content-Transfer-Encoding: 8bit
 
-On Wed, Aug 23, 2023 at 00:38:46PM +0300, Ziqi Zhao wrote:
-> On Tue, Aug 22, 2023 at 01:40:45PM +0300, Nikolay Aleksandrov wrote:
-> > Thank you for testing, but we really need to understand what is going on
-> > and why the device isn't getting deleted for so long. Currently I don't
-> > have the time to debug it properly (I'll be able to next week at the
-> > earliest). We can't apply the patch based only on tests without
-> > understanding the underlying issue. I'd look into what
-> > the reproducer is doing exactly and also check the system state while the
-> > deadlock has happened. Also you can list the currently held locks (if
-> > CONFIG_LOCKDEP is enabled) via magic sysrq + d for example. See which
-> > process is holding them, what are their priorities and so on.
-> > Try to build some theory of how a deadlock might happen and then go
-> > about proving it. Does the 8021q module have the same problem? It uses
-> > similar code to set its hook.
->
-> Hi Nik,
->
-> Thank you so much for the instructions! I was able to obtain a decoded
-> stacktrace showing the reproducer behavior in my QEMU VM running kernel
-> 6.5-rc4, in case that would give us more context for pinpointing the
-> problem. Here's a link to the output:
->
-> https://pastecat.io/?p=IlKZlflN9j2Z2mspjKe7
->
-> Basically, after running the reproducer (line 1854) for about 180
-> seconnds or so, the unregister_netdevice warning was shown (line 1856),
-> and then after another 50 seconds, the kernel detected that some tasks
-> have been stalled for more than 143 seconds (line 1866), so it panicked
-> on the blocked tasks (line 2116). Before the panic, we did get to see
-> all the locks held in the system (line 2068), and it did show that many
-> processes created by the reproducer were contending the br_ioctl_mutex.
-> I'm now starting to wonder whether this is really a deadlock, or simply
-> some tasks not being able to grab the lock because so many processes
-> are trying to acquire it.
->
-> Let me know what you think about the situation shown in the above log,
-> and let's keep in touch for any future debugging. Thank you again for
-> guiding me through the problem!
->
-> Best regards,
-> Ziqi
+When a device is attached to a bridge, drivers will request a replay
+of objects that were created before the device joined the bridge, that
+are still of interest to the joining port. Typical examples include
+FDB entries and MDB memberships on other ports ("foreign interfaces")
+or on the bridge itself.
 
-Hello,
+Conversely when a device is detached, the bridge will synthesize
+deletion events for all those objects that are still live, but no
+longer applicable to the device in question.
 
-I've also encountered this bug while fuzzing. Is there any going work on this
-bug?
+This series eliminates two races related to the synching and
+unsynching phases of a bridge's MDB with a joining or leaving device,
+that would cause notifications of such objects to be either delivered
+twice (1/2), or not at all (2/2).
 
+A similar race to the one solved by 1/2 still remains for the
+FDB. This is much harder to solve, due to the lockless operation of
+the FDB's rhashtable, and is therefore knowingly left out of this
+series.
+
+v1 -> v2:
+- Squash the previously separate addition of
+  switchdev_port_obj_act_is_deferred into first consumer.
+- Use ether_addr_equal to compare MAC addresses.
+- Document switchdev_port_obj_act_is_deferred (renamed from
+  switchdev_port_obj_is_deferred in v1, to indicate that we also match
+  on the action).
+- Delay allocations of MDB objects until we know they're needed.
+- Use non-RCU version of the hash list iterator, now that the MDB is
+  not scanned while holding the RCU read lock.
+- Add Fixes tag to commit message
+
+v2 -> v3:
+- Fix unlocking in error paths
+- Access RCU protected port list via mlock_dereference, since MDB is
+  guaranteed to remain constant for the duration of the scan.
+
+v3 -> v4:
+- Limit the search for exiting deferred events in 1/2 to only apply to
+  additions, since the problem does not exist in the deletion case.
+- Add 2/2, to plug a related race when unoffloading an indirectly
+  associated device.
+
+Tobias Waldekranz (2):
+  net: bridge: switchdev: Skip MDB replays of deferred events on offload
+  net: bridge: switchdev: Ensure deferred event delivery on unoffload
+
+ include/net/switchdev.h   |  3 ++
+ net/bridge/br_switchdev.c | 84 ++++++++++++++++++++++++++-------------
+ net/switchdev/switchdev.c | 73 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 132 insertions(+), 28 deletions(-)
 
 -- 
-2.42.1
+2.34.1
 
