@@ -1,58 +1,58 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD84A13F019
-	for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 21:40:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB58213EFFB
+	for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 21:40:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707946815; cv=none; b=FpMgZbZRnCtiEoZ23O8pBDuH6Fof/G6tM+fVxDH2oY9YY6lsc9ExrsgN/kSIBp82kDpreuNc/BD5PGnWXAFJIoWICWzPQWhG1a3NpBdGkX2DK+Vsx5RLC6kOaslRJVP+netp+425rBIEMvEXvWZhQCC5G/CO2C/jdBWzWZSfsg0=
+	t=1707946817; cv=none; b=EkRBDMvLSCMzApWX/7eIfIDZpAiPPgcNPl2+3X3H2l21xjl1KqBniEbFZi/aMmAOU7ShEsnYAKHTvP7aS7B++7vCra/yxToUFvo09bAJDB59dzQFEQ14a7EMyC0Ftl2uloyUTfgLGaT2JumLlmBdPQl01i7CTIHs8x8W9KCU8WA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707946815; c=relaxed/simple;
-	bh=OmnJN9Q8u2zV8nqxhParOEeCdD1V2mFcmwrCl6IRG10=;
+	s=arc-20240116; t=1707946817; c=relaxed/simple;
+	bh=0lE9j1ezVkuT4SLPmX6hF5zte6Td9ri48xuwCChssKI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=qARGHvC2yWiMQ3i0Az0EFXJN6uUw9i8fk7ycR02dtN0iJ2PMvNCiuMKIZoJ+nNRiYQQbcZm4dxHZOXm+Pzw8JM0U4rgj1Ct2KF19EDsc18u7BQDyXRe6n0HhN6ELFhw8r9VMW5v9GAFrdF6Gqj4TAynBZgomEBl9klsBWQux+K0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=kbm/Npau; arc=none smtp.client-ip=209.85.167.49
+	 MIME-Version; b=IROAnRN+MHqhQ7r9Tjcn757XWVSBQj37aWnWe8d709Tf39lWxjjDPhJdELh9Uj6Fhjx47NfkdnqT29e4F5GoZGamdQuhJQLS7QtxANoTncYFKcSfv/TSecdLFlleNrK/9vYf2rJP6LEBOk5z0ePPXozzN0R24aUVbX8l2/pMbUU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=hD8GK+H3; arc=none smtp.client-ip=209.85.167.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="kbm/Npau"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-511acd26befso237935e87.1
-        for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 13:40:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="hD8GK+H3"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-511976c126dso237628e87.1
+        for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 13:40:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1707946812; x=1708551612; darn=lists.linux.dev;
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1707946810; x=1708551610; darn=lists.linux.dev;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=N/7Cz9+LJXOYNuaesM1/OfmeIXVklCAdfmfwFJERx+E=;
-        b=kbm/NpauiPJVaeHPpbwVGbjUCpUwJGjCKEKwPusFKNQxKvbA9BmHbOGXfECAwoYZmc
-         LDdmoQrxdVZvyTUiCMa96qBaarbtc/50lLxGex3xT4UfUigqAsAwCMJOrWV+5jCAaqox
-         +HREc2FfDtYFFJVw1sjPqaDF4v0sNL0jzmPVUo6Hhsm1074ksfrtAhxWt13QqFfijZb/
-         +Au+LlikBJJt+dSr1R+UM2JJCwSuV3tFDUu18H1XVnzG4N88nW4DeYmtb5hOr7cEJ0Kg
-         lO6oyqWihGVlv5hgcDpwZ135+fyIrRdiZnbj1VIfCqaq9Ub1Z4LqRkHjVf/vRsZOR4AF
-         2QOA==
+        bh=5hlgnEHvxImPoo/7bCds3nwjhRz8Nh9HPw6rFGkFIyg=;
+        b=hD8GK+H3qz3MAymzmGIlLeM4E2G9c8EQwhsIu2qRrZgQ3uB3AVwH7Zo14ROHDQLZJ+
+         RHsnRaAtnch1HmasSqqD4iPKnqFppL2lFLbgkN0MghOIHxxiMWQRc0d6Gp61gnL/TFVu
+         KY/VpbJTtXaKn7f+/sMbySV9/16PEPge3itdvhRsgzPOqahpGwNZY7Kag0cFMwPNYZTL
+         AJ8LpAneRuDCH6wZKDBwvXUcLBx/6moMt8sYN0TTrqq5Pyf2sVGVp9//j/TwL60VOTEb
+         Zy8Jz907LfF5lW9gQ82m0xaegaaA44dhiQdYjmBkF26R5QEe/zmP2+wHT3Btb9j0CFd2
+         NdBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707946812; x=1708551612;
+        d=1e100.net; s=20230601; t=1707946810; x=1708551610;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=N/7Cz9+LJXOYNuaesM1/OfmeIXVklCAdfmfwFJERx+E=;
-        b=uydnTf6Dt3+qFr9st7lIOvSBGhakCqF4Rm4Yj1A55VglDuj2Ex79ZD8pJn5Md3OW7z
-         GUCFmd7WdPx2RwD+x4Sb8YaxTcnVMpIh4I2kxI+J9KI9h57HMJIX+2E+Ta7JPb8cd14I
-         IPRxC1xEcyJWY8gl+Ub6JUBDP5azrwhQMMOjm9qcbQOvnAIZcPUH5Q67uA2Tmg3y2Rwi
-         U4bdi8HkAK9QwhFk/tBXlaTvnOwB6zNfozGf0lvzXrbV/C0qSAtDQjboHK9X7Qcy4PE1
-         wtVpNfuMMPXXAZ17fBgsaEq34+5rIuEO9luNMsuSXiy0EPybIcUVxDqCUTLmFPLz4TuW
-         gn8g==
-X-Forwarded-Encrypted: i=1; AJvYcCVcxTmz4YW29nkalziCeBF3OaX0SA6/xValNUxoTSy4lS9zQdC/JM5Izn8LFYzun/c6csUr3qVnHzN+WmmXu0qdwOiKhPEZ
-X-Gm-Message-State: AOJu0Yx4oFLHvMP/Lo9lcLKsuDa/l2HnBAJbh72rraXl1XCni6TzCkSi
-	wosmYMdaVAptp0V7iugoZ4/Vs8fpBcY/h5UgYECNunKM5AZDISE/EPOix3hCG9c=
-X-Google-Smtp-Source: AGHT+IHhBEayvfK+XLhESwHfsYqjjSCzIZtH3aCKlzT86KFy1OTOPs8rv4HSzTRWOYoHedtGqtAENQ==
-X-Received: by 2002:ac2:5b4a:0:b0:512:852d:dc3b with SMTP id i10-20020ac25b4a000000b00512852ddc3bmr42379lfp.4.1707946811711;
-        Wed, 14 Feb 2024 13:40:11 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXR1YXPWDmJGJqYpZaXbahCBi8YYAlK9vKKnlrOUrfqSVIIKm0RQk3ugb+eV4MipvGtqarCPFv7IoVUf3W5/twcPsMyg5uxXoQIImzS5MPO74UOmatT8OqS3cPDUaqTdfSdVhhZ41gnaAWg/ql/3QbN9/T3Ru0vDzTsB0AE/eH0fzHnzu8yjUrZDNtt4A7fsLYc8DCx6X7wwzaTE1bM1uoFEj05/JStGGDTBXYj2CtOO6mZGh3/ENftZQQD+zJvwugrHfmwxt4zDLzvFBsgLO86
+        bh=5hlgnEHvxImPoo/7bCds3nwjhRz8Nh9HPw6rFGkFIyg=;
+        b=mGyP/rte9WQjSUS/Hp1oFcZ1JV8LJ1UdBNzQ4IhxSiNRSvKOVunst69Cmm039R08IW
+         Gb6wHkSw7F6TEA00MkdrRztBXXfvTVE/eAfcrofJioG1JuDLzwoy/Qmeq6Wnzy+cGq/h
+         AAb6cTLWbZtWAGaZVWIofdj1u5IPLofNrdo/jpFiVrdYIKm8GXE5ZfrLv7YtBfIJ5gSn
+         DA5HjeOqrBdLErg/qLEE5UuTBRFPC1x8Tx7mbyzN5fFyNQce0FJalQUupQoKgrJzWj1k
+         GrmWfkJ7SjxJqkDYXpMz2NzFFWXPmsAc3fAznO0rfRN0lHAw5ShB4/ctj5F5vdqMeLCm
+         KjYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVnUdutBQeAWbAwlt6KcTb+5Vlj0p+ubPupjVoOzmovtkYy397Auv/EGSk/yu2euAcKAiVPFPpKb+waIdZaJwbNutjVYUaS
+X-Gm-Message-State: AOJu0YxvqlYkdej+D8ppe8RHXypvQI/JgII2b9qtaEBYai4ULx6kxf2o
+	ZR2rgM/70U0O/5NEoyNvLTAhyvlb3tVwCyKo942sTDIrLjvCrr0gmutRukg6Q2o=
+X-Google-Smtp-Source: AGHT+IEo6Lil7HqUTfMHMecNs4E3kCB07lTnhM+bWy64v17iss9WejGOnTPGPx1yX8pcBvc2K2QQJg==
+X-Received: by 2002:a19:4355:0:b0:511:4ee3:dc0f with SMTP id m21-20020a194355000000b005114ee3dc0fmr16741lfj.19.1707946809661;
+        Wed, 14 Feb 2024 13:40:09 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUnFAQmCgJBIScfv0oLfhfyHy+Zy5o8AeWw/EUuso8NaM6WLZ4aM82PgcIi987yo4CDiUZRW73IFyJwh8ktYISomrtbB4UYhdslIRGfFtz72Z2EL2oGLlqZfjSLIhiCvVgDoQvpE+6R2QlqojsouBEEyxq+gloLSRk0ZtRyiIZGkUXEdYYeqWQOjGO8/XCU9MzsBI7gLpm+P4ggK2+rQPmsMCedRvsfCQZG/3Wnrw2ZyZyA1KCxBXSALaaHjDhouSjhVCqQ+zM7fnVX+MghhGNn
 Received: from wkz-x13.addiva.ad (h-158-174-187-194.NA.cust.bahnhof.se. [158.174.187.194])
-        by smtp.gmail.com with ESMTPSA id h21-20020a197015000000b005118c6d6a2fsm1433290lfc.305.2024.02.14.13.40.09
+        by smtp.gmail.com with ESMTPSA id h21-20020a197015000000b005118c6d6a2fsm1433290lfc.305.2024.02.14.13.40.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Feb 2024 13:40:10 -0800 (PST)
+        Wed, 14 Feb 2024 13:40:08 -0800 (PST)
 From: Tobias Waldekranz <tobias@waldekranz.com>
 To: davem@davemloft.net,
 	kuba@kernel.org
@@ -64,9 +64,9 @@ Cc: olteanv@gmail.com,
 	netdev@vger.kernel.org,
 	jiri@resnulli.us,
 	ivecera@redhat.com
-Subject: [PATCH v5 net 2/2] net: bridge: switchdev: Ensure deferred event delivery on unoffload
-Date: Wed, 14 Feb 2024 22:40:04 +0100
-Message-Id: <20240214214005.4048469-3-tobias@waldekranz.com>
+Subject: [PATCH v5 net 1/2] net: bridge: switchdev: Skip MDB replays of deferred events on offload
+Date: Wed, 14 Feb 2024 22:40:03 +0100
+Message-Id: <20240214214005.4048469-2-tobias@waldekranz.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240214214005.4048469-1-tobias@waldekranz.com>
 References: <20240214214005.4048469-1-tobias@waldekranz.com>
@@ -79,66 +79,320 @@ MIME-Version: 1.0
 Organization: Addiva Elektronik
 Content-Transfer-Encoding: 8bit
 
-When unoffloading a device, it is important to ensure that all
-relevant deferred events are delivered to it before it disassociates
-itself from the bridge.
+Before this change, generation of the list of MDB events to replay
+would race against the creation of new group memberships, either from
+the IGMP/MLD snooping logic or from user configuration.
 
-Before this change, this was true for the normal case when a device
-maps 1:1 to a net_bridge_port, i.e.
+While new memberships are immediately visible to walkers of
+br->mdb_list, the notification of their existence to switchdev event
+subscribers is deferred until a later point in time. So if a replay
+list was generated during a time that overlapped with such a window,
+it would also contain a replay of the not-yet-delivered event.
 
-   br0
-   /
-swp0
+The driver would thus receive two copies of what the bridge internally
+considered to be one single event. On destruction of the bridge, only
+a single membership deletion event was therefore sent. As a
+consequence of this, drivers which reference count memberships (at
+least DSA), would be left with orphan groups in their hardware
+database when the bridge was destroyed.
 
-When swp0 leaves br0, the call to switchdev_deferred_process() in
-del_nbp() makes sure to process any outstanding events while the
-device is still associated with the bridge.
+This is only an issue when replaying additions. While deletion events
+may still be pending on the deferred queue, they will already have
+been removed from br->mdb_list, so no duplicates can be generated in
+that scenario.
 
-In the case when the association is indirect though, i.e. when the
-device is attached to the bridge via an intermediate device, like a
-LAG...
+To a user this meant that old group memberships, from a bridge in
+which a port was previously attached, could be reanimated (in
+hardware) when the port joined a new bridge, without the new bridge's
+knowledge.
 
-    br0
-    /
-  lag0
-  /
-swp0
+For example, on an mv88e6xxx system, create a snooping bridge and
+immediately add a port to it:
 
-...then detaching swp0 from lag0 does not cause any net_bridge_port to
-be deleted, so there was no guarantee that all events had been
-processed before the device disassociated itself from the bridge.
+    root@infix-06-0b-00:~$ ip link add dev br0 up type bridge mcast_snooping 1 && \
+    > ip link set dev x3 up master br0
 
-Fix this by always synchronously processing all deferred events before
-signaling completion of unoffloading back to the driver.
+And then destroy the bridge:
 
-Fixes: 4e51bf44a03a ("net: bridge: move the switchdev object replay helpers to "push" mode")
+    root@infix-06-0b-00:~$ ip link del dev br0
+    root@infix-06-0b-00:~$ mvls atu
+    ADDRESS             FID  STATE      Q  F  0  1  2  3  4  5  6  7  8  9  a
+    DEV:0 Marvell 88E6393X
+    33:33:00:00:00:6a     1  static     -  -  0  .  .  .  .  .  .  .  .  .  .
+    33:33:ff:87:e4:3f     1  static     -  -  0  .  .  .  .  .  .  .  .  .  .
+    ff:ff:ff:ff:ff:ff     1  static     -  -  0  1  2  3  4  5  6  7  8  9  a
+    root@infix-06-0b-00:~$
+
+The two IPv6 groups remain in the hardware database because the
+port (x3) is notified of the host's membership twice: once via the
+original event and once via a replay. Since only a single delete
+notification is sent, the count remains at 1 when the bridge is
+destroyed.
+
+Then add the same port (or another port belonging to the same hardware
+domain) to a new bridge, this time with snooping disabled:
+
+    root@infix-06-0b-00:~$ ip link add dev br1 up type bridge mcast_snooping 0 && \
+    > ip link set dev x3 up master br1
+
+All multicast, including the two IPv6 groups from br0, should now be
+flooded, according to the policy of br1. But instead the old
+memberships are still active in the hardware database, causing the
+switch to only forward traffic to those groups towards the CPU (port
+0).
+
+Eliminate the race in two steps:
+
+1. Grab the write-side lock of the MDB while generating the replay
+   list.
+
+This prevents new memberships from showing up while we are generating
+the replay list. But it leaves the scenario in which a deferred event
+was already generated, but not delivered, before we grabbed the
+lock. Therefore:
+
+2. Make sure that no deferred version of a replay event is already
+   enqueued to the switchdev deferred queue, before adding it to the
+   replay list, when replaying additions.
+
+Fixes: 4f2673b3a2b6 ("net: bridge: add helper to replay port and host-joined mdb entries")
 Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
 ---
- net/bridge/br_switchdev.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ include/net/switchdev.h   |  3 ++
+ net/bridge/br_switchdev.c | 74 ++++++++++++++++++++++++---------------
+ net/switchdev/switchdev.c | 73 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 122 insertions(+), 28 deletions(-)
 
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index a43062d4c734..8346b0d29542 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -308,6 +308,9 @@ void switchdev_deferred_process(void);
+ int switchdev_port_attr_set(struct net_device *dev,
+ 			    const struct switchdev_attr *attr,
+ 			    struct netlink_ext_ack *extack);
++bool switchdev_port_obj_act_is_deferred(struct net_device *dev,
++					enum switchdev_notifier_type nt,
++					const struct switchdev_obj *obj);
+ int switchdev_port_obj_add(struct net_device *dev,
+ 			   const struct switchdev_obj *obj,
+ 			   struct netlink_ext_ack *extack);
 diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 6a7cb01f121c..7b41ee8740cb 100644
+index ee84e783e1df..6a7cb01f121c 100644
 --- a/net/bridge/br_switchdev.c
 +++ b/net/bridge/br_switchdev.c
-@@ -804,6 +804,16 @@ static void nbp_switchdev_unsync_objs(struct net_bridge_port *p,
- 	br_switchdev_mdb_replay(br_dev, dev, ctx, false, blocking_nb, NULL);
- 
- 	br_switchdev_vlan_replay(br_dev, ctx, false, blocking_nb, NULL);
-+
-+	/* Make sure that the device leaving this bridge has seen all
-+	 * relevant events before it is disassociated. In the normal
-+	 * case, when the device is directly attached to the bridge,
-+	 * this is covered by del_nbp(). If the association was indirect
-+	 * however, e.g. via a team or bond, and the device is leaving
-+	 * that intermediate device, then the bridge port remains in
-+	 * place.
-+	 */
-+	switchdev_deferred_process();
+@@ -595,21 +595,40 @@ br_switchdev_mdb_replay_one(struct notifier_block *nb, struct net_device *dev,
  }
  
- /* Let the bridge know that this port is offloaded, so that it can assign a
+ static int br_switchdev_mdb_queue_one(struct list_head *mdb_list,
++				      struct net_device *dev,
++				      unsigned long action,
+ 				      enum switchdev_obj_id id,
+ 				      const struct net_bridge_mdb_entry *mp,
+ 				      struct net_device *orig_dev)
+ {
+-	struct switchdev_obj_port_mdb *mdb;
++	struct switchdev_obj_port_mdb mdb = {
++		.obj = {
++			.id = id,
++			.orig_dev = orig_dev,
++		},
++	};
++	struct switchdev_obj_port_mdb *pmdb;
+ 
+-	mdb = kzalloc(sizeof(*mdb), GFP_ATOMIC);
+-	if (!mdb)
+-		return -ENOMEM;
++	br_switchdev_mdb_populate(&mdb, mp);
+ 
+-	mdb->obj.id = id;
+-	mdb->obj.orig_dev = orig_dev;
+-	br_switchdev_mdb_populate(mdb, mp);
+-	list_add_tail(&mdb->obj.list, mdb_list);
++	if (action == SWITCHDEV_PORT_OBJ_ADD &&
++	    switchdev_port_obj_act_is_deferred(dev, action, &mdb.obj)) {
++		/* This event is already in the deferred queue of
++		 * events, so this replay must be elided, lest the
++		 * driver receives duplicate events for it. This can
++		 * only happen when replaying additions, since
++		 * modifications are always immediately visible in
++		 * br->mdb_list, whereas actual event delivery may be
++		 * delayed.
++		 */
++		return 0;
++	}
++
++	pmdb = kmemdup(&mdb, sizeof(mdb), GFP_ATOMIC);
++	if (!pmdb)
++		return -ENOMEM;
+ 
++	list_add_tail(&pmdb->obj.list, mdb_list);
+ 	return 0;
+ }
+ 
+@@ -677,51 +696,50 @@ br_switchdev_mdb_replay(struct net_device *br_dev, struct net_device *dev,
+ 	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED))
+ 		return 0;
+ 
+-	/* We cannot walk over br->mdb_list protected just by the rtnl_mutex,
+-	 * because the write-side protection is br->multicast_lock. But we
+-	 * need to emulate the [ blocking ] calling context of a regular
+-	 * switchdev event, so since both br->multicast_lock and RCU read side
+-	 * critical sections are atomic, we have no choice but to pick the RCU
+-	 * read side lock, queue up all our events, leave the critical section
+-	 * and notify switchdev from blocking context.
++	if (adding)
++		action = SWITCHDEV_PORT_OBJ_ADD;
++	else
++		action = SWITCHDEV_PORT_OBJ_DEL;
++
++	/* br_switchdev_mdb_queue_one() will take care to not queue a
++	 * replay of an event that is already pending in the switchdev
++	 * deferred queue. In order to safely determine that, there
++	 * must be no new deferred MDB notifications enqueued for the
++	 * duration of the MDB scan. Therefore, grab the write-side
++	 * lock to avoid racing with any concurrent IGMP/MLD snooping.
+ 	 */
+-	rcu_read_lock();
++	spin_lock_bh(&br->multicast_lock);
+ 
+-	hlist_for_each_entry_rcu(mp, &br->mdb_list, mdb_node) {
++	hlist_for_each_entry(mp, &br->mdb_list, mdb_node) {
+ 		struct net_bridge_port_group __rcu * const *pp;
+ 		const struct net_bridge_port_group *p;
+ 
+ 		if (mp->host_joined) {
+-			err = br_switchdev_mdb_queue_one(&mdb_list,
++			err = br_switchdev_mdb_queue_one(&mdb_list, dev, action,
+ 							 SWITCHDEV_OBJ_ID_HOST_MDB,
+ 							 mp, br_dev);
+ 			if (err) {
+-				rcu_read_unlock();
++				spin_unlock_bh(&br->multicast_lock);
+ 				goto out_free_mdb;
+ 			}
+ 		}
+ 
+-		for (pp = &mp->ports; (p = rcu_dereference(*pp)) != NULL;
++		for (pp = &mp->ports; (p = mlock_dereference(*pp, br)) != NULL;
+ 		     pp = &p->next) {
+ 			if (p->key.port->dev != dev)
+ 				continue;
+ 
+-			err = br_switchdev_mdb_queue_one(&mdb_list,
++			err = br_switchdev_mdb_queue_one(&mdb_list, dev, action,
+ 							 SWITCHDEV_OBJ_ID_PORT_MDB,
+ 							 mp, dev);
+ 			if (err) {
+-				rcu_read_unlock();
++				spin_unlock_bh(&br->multicast_lock);
+ 				goto out_free_mdb;
+ 			}
+ 		}
+ 	}
+ 
+-	rcu_read_unlock();
+-
+-	if (adding)
+-		action = SWITCHDEV_PORT_OBJ_ADD;
+-	else
+-		action = SWITCHDEV_PORT_OBJ_DEL;
++	spin_unlock_bh(&br->multicast_lock);
+ 
+ 	list_for_each_entry(obj, &mdb_list, list) {
+ 		err = br_switchdev_mdb_replay_one(nb, dev,
+diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
+index 5b045284849e..c9189a970eec 100644
+--- a/net/switchdev/switchdev.c
++++ b/net/switchdev/switchdev.c
+@@ -19,6 +19,35 @@
+ #include <linux/rtnetlink.h>
+ #include <net/switchdev.h>
+ 
++static bool switchdev_obj_eq(const struct switchdev_obj *a,
++			     const struct switchdev_obj *b)
++{
++	const struct switchdev_obj_port_vlan *va, *vb;
++	const struct switchdev_obj_port_mdb *ma, *mb;
++
++	if (a->id != b->id || a->orig_dev != b->orig_dev)
++		return false;
++
++	switch (a->id) {
++	case SWITCHDEV_OBJ_ID_PORT_VLAN:
++		va = SWITCHDEV_OBJ_PORT_VLAN(a);
++		vb = SWITCHDEV_OBJ_PORT_VLAN(b);
++		return va->flags == vb->flags &&
++			va->vid == vb->vid &&
++			va->changed == vb->changed;
++	case SWITCHDEV_OBJ_ID_PORT_MDB:
++	case SWITCHDEV_OBJ_ID_HOST_MDB:
++		ma = SWITCHDEV_OBJ_PORT_MDB(a);
++		mb = SWITCHDEV_OBJ_PORT_MDB(b);
++		return ma->vid == mb->vid &&
++			ether_addr_equal(ma->addr, mb->addr);
++	default:
++		break;
++	}
++
++	BUG();
++}
++
+ static LIST_HEAD(deferred);
+ static DEFINE_SPINLOCK(deferred_lock);
+ 
+@@ -307,6 +336,50 @@ int switchdev_port_obj_del(struct net_device *dev,
+ }
+ EXPORT_SYMBOL_GPL(switchdev_port_obj_del);
+ 
++/**
++ *	switchdev_port_obj_act_is_deferred - Is object action pending?
++ *
++ *	@dev: port device
++ *	@nt: type of action; add or delete
++ *	@obj: object to test
++ *
++ *	Returns true if a deferred item is pending, which is
++ *	equivalent to the action @nt on an object @obj.
++ *
++ *	rtnl_lock must be held.
++ */
++bool switchdev_port_obj_act_is_deferred(struct net_device *dev,
++					enum switchdev_notifier_type nt,
++					const struct switchdev_obj *obj)
++{
++	struct switchdev_deferred_item *dfitem;
++	bool found = false;
++
++	ASSERT_RTNL();
++
++	spin_lock_bh(&deferred_lock);
++
++	list_for_each_entry(dfitem, &deferred, list) {
++		if (dfitem->dev != dev)
++			continue;
++
++		if ((dfitem->func == switchdev_port_obj_add_deferred &&
++		     nt == SWITCHDEV_PORT_OBJ_ADD) ||
++		    (dfitem->func == switchdev_port_obj_del_deferred &&
++		     nt == SWITCHDEV_PORT_OBJ_DEL)) {
++			if (switchdev_obj_eq((const void *)dfitem->data, obj)) {
++				found = true;
++				break;
++			}
++		}
++	}
++
++	spin_unlock_bh(&deferred_lock);
++
++	return found;
++}
++EXPORT_SYMBOL_GPL(switchdev_port_obj_act_is_deferred);
++
+ static ATOMIC_NOTIFIER_HEAD(switchdev_notif_chain);
+ static BLOCKING_NOTIFIER_HEAD(switchdev_blocking_notif_chain);
+ 
 -- 
 2.34.1
 
