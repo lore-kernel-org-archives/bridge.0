@@ -1,57 +1,58 @@
-Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A39413EFFA
-	for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 21:40:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD84A13F019
+	for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 21:40:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707946814; cv=none; b=t1dXw85vfk3xYrk1ujq9Xl43cOWzVL1Jqd17ZjflHsXR9SO64s+qpB+VBwezIBbysTNV8Fg+5WVFEFMs8+jkBdSveVjXJ5DtY1/fS99R74HMHHSj9WgIUEqYIsnJMiNYRTU/rxLiwpLQNdA3Jp4bqwWqAuUCExHzB2Ep+qWvvuw=
+	t=1707946815; cv=none; b=FpMgZbZRnCtiEoZ23O8pBDuH6Fof/G6tM+fVxDH2oY9YY6lsc9ExrsgN/kSIBp82kDpreuNc/BD5PGnWXAFJIoWICWzPQWhG1a3NpBdGkX2DK+Vsx5RLC6kOaslRJVP+netp+425rBIEMvEXvWZhQCC5G/CO2C/jdBWzWZSfsg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707946814; c=relaxed/simple;
-	bh=zAM5FyBfdOj0AR3MA2fx8mTDfs9cuQydwsmc0KVFAgw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=qEVZYN0NvVPSVdKoGToIGPoDuIAtbJigc5yNfaUSZqgzCW5haa4VkI+ZUwttAiJzzHX8oKXc3zNMswph3ZFV2k5Wkem7UB+dLOJjVggXOIGwJnKQKzmVITrFPj//X+tJJgaa7aaJ2LQpYqMqhR0acr3IVpFKN/CONnfjBtgE2Dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=Aeb086lC; arc=none smtp.client-ip=209.85.208.178
+	s=arc-20240116; t=1707946815; c=relaxed/simple;
+	bh=OmnJN9Q8u2zV8nqxhParOEeCdD1V2mFcmwrCl6IRG10=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=qARGHvC2yWiMQ3i0Az0EFXJN6uUw9i8fk7ycR02dtN0iJ2PMvNCiuMKIZoJ+nNRiYQQbcZm4dxHZOXm+Pzw8JM0U4rgj1Ct2KF19EDsc18u7BQDyXRe6n0HhN6ELFhw8r9VMW5v9GAFrdF6Gqj4TAynBZgomEBl9klsBWQux+K0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=kbm/Npau; arc=none smtp.client-ip=209.85.167.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="Aeb086lC"
-Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-2d0e521de4eso2189081fa.2
-        for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 13:40:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="kbm/Npau"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-511acd26befso237935e87.1
+        for <bridge@lists.linux.dev>; Wed, 14 Feb 2024 13:40:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1707946808; x=1708551608; darn=lists.linux.dev;
-        h=content-transfer-encoding:organization:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=KMEBP0pvYWP1lqddz+rz0Za0zJfmlRQq157P1uo0DcI=;
-        b=Aeb086lC447X6ayKnbnnqOmHaJd8wjWtpjJgrm44cbcu8EuHSyVHH5FzqOrR1cUmGz
-         aPJnG6dPFA8ml+ANVN7sPRX5zwp+eBo2KsEYsqYEdIoOytFQxFWgv0qwjHVvtOgLgBag
-         yQAtIt3rPfaN8e6TqZGJi+Pq5TvSVWmCD8gXuv25sDPM119WrvCVE1YMElup3qpcLaSP
-         YTj2TCuTKgETsviJWgp+Li5uoUiPx1ISrH+W5/dgzZCWK2pV14oOzSUWmGxxl9fF4F8e
-         PHWURWHQ0O9KU+w2GUYYiktZwm3boIkRLlZ9pRX+lKgVwAPno11zL4fN0O/QmSgvSKYF
-         K56w==
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1707946812; x=1708551612; darn=lists.linux.dev;
+        h=content-transfer-encoding:organization:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=N/7Cz9+LJXOYNuaesM1/OfmeIXVklCAdfmfwFJERx+E=;
+        b=kbm/NpauiPJVaeHPpbwVGbjUCpUwJGjCKEKwPusFKNQxKvbA9BmHbOGXfECAwoYZmc
+         LDdmoQrxdVZvyTUiCMa96qBaarbtc/50lLxGex3xT4UfUigqAsAwCMJOrWV+5jCAaqox
+         +HREc2FfDtYFFJVw1sjPqaDF4v0sNL0jzmPVUo6Hhsm1074ksfrtAhxWt13QqFfijZb/
+         +Au+LlikBJJt+dSr1R+UM2JJCwSuV3tFDUu18H1XVnzG4N88nW4DeYmtb5hOr7cEJ0Kg
+         lO6oyqWihGVlv5hgcDpwZ135+fyIrRdiZnbj1VIfCqaq9Ub1Z4LqRkHjVf/vRsZOR4AF
+         2QOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707946808; x=1708551608;
-        h=content-transfer-encoding:organization:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KMEBP0pvYWP1lqddz+rz0Za0zJfmlRQq157P1uo0DcI=;
-        b=eWFHx9ThfD1Mf9dKNNgEyn1BLOpKW/eg58F+BGCL9eP7rSWcBSDpiVgg8Wb/NqfdUD
-         tBLfL0lYB1A3EV3RapqPkRXjR5Gpv3UIY2nDIDGRmemEnSsa+QgoTPIqjVed0t4SDS6T
-         Apv/P1mnamHDiAbhMwZdGreNT4q/kCcgK8FmL1tO62/XqsF4btaa/+ozSoz4dbJjODAy
-         E/ZwAzmWoTjdE/FF7n4Ra44ugOzZ5RXQxquwg7jIHhbrtZXm4xWqG2oPhoUuw6sydRuN
-         rVmkgeOzPmWFVzohythyWPRsz9w71rI9aOaGcozeo+96Y9+taf4TICZfL9DhgCiWpJdo
-         JZzg==
-X-Forwarded-Encrypted: i=1; AJvYcCWweiNABIngc7sQC0cinW8N2v3DaHVvH5wU8LAs8IDP0oEj54DJv/zfCezneihELWvUd9k7lGP/SwdOcuuAmq7ZdRBQb+Ed
-X-Gm-Message-State: AOJu0Yxa+W70Pr0+r1Bg6/YOeVWQkvQ26AyNpbF+DjZLVhJbFw+u1JUh
-	odqAytE1RvZkbR4ANhAdDPLLCZE6EKY71ThR9j2LkpcQtrQXXmFH5n7xnEMlfxKqFLkSVDhl0C1
-	A
-X-Google-Smtp-Source: AGHT+IGzaiU4dOC9mi7Fpjr5ZD2zzxeAIZ5jWdn90rtQHEA/W7QQAVeb9W7BGhkx3UN+OSTH6uA0XA==
-X-Received: by 2002:a19:910c:0:b0:511:ac56:2595 with SMTP id t12-20020a19910c000000b00511ac562595mr37990lfd.2.1707946807992;
-        Wed, 14 Feb 2024 13:40:07 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXIZ/E6DfYF53s2qxsiO8AqTSP4vmwqJMbiuLBH0b01MCoXdGN1LRR4MZXaLM+WeqU5iOKIOXCmLahBhc+hR0YxlJ4Ey5W/a4QLExLv3Qp8WumClZrjSGcdPjVO5mmiSKHEcDMlIKKLs++KFKOnUsZxqyw2uLhjPgNhkxxKDhhoWT4w6cSppz/cq4Db1VnRgLVhNXxDek41OpqjYWAU93ge8eBFUcN3vLnWDj89uOc0uC9tqGkhl1Z6kPihJMsg/NDP2P3AEFVxrBHJnVjO7ag6
+        d=1e100.net; s=20230601; t=1707946812; x=1708551612;
+        h=content-transfer-encoding:organization:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=N/7Cz9+LJXOYNuaesM1/OfmeIXVklCAdfmfwFJERx+E=;
+        b=uydnTf6Dt3+qFr9st7lIOvSBGhakCqF4Rm4Yj1A55VglDuj2Ex79ZD8pJn5Md3OW7z
+         GUCFmd7WdPx2RwD+x4Sb8YaxTcnVMpIh4I2kxI+J9KI9h57HMJIX+2E+Ta7JPb8cd14I
+         IPRxC1xEcyJWY8gl+Ub6JUBDP5azrwhQMMOjm9qcbQOvnAIZcPUH5Q67uA2Tmg3y2Rwi
+         U4bdi8HkAK9QwhFk/tBXlaTvnOwB6zNfozGf0lvzXrbV/C0qSAtDQjboHK9X7Qcy4PE1
+         wtVpNfuMMPXXAZ17fBgsaEq34+5rIuEO9luNMsuSXiy0EPybIcUVxDqCUTLmFPLz4TuW
+         gn8g==
+X-Forwarded-Encrypted: i=1; AJvYcCVcxTmz4YW29nkalziCeBF3OaX0SA6/xValNUxoTSy4lS9zQdC/JM5Izn8LFYzun/c6csUr3qVnHzN+WmmXu0qdwOiKhPEZ
+X-Gm-Message-State: AOJu0Yx4oFLHvMP/Lo9lcLKsuDa/l2HnBAJbh72rraXl1XCni6TzCkSi
+	wosmYMdaVAptp0V7iugoZ4/Vs8fpBcY/h5UgYECNunKM5AZDISE/EPOix3hCG9c=
+X-Google-Smtp-Source: AGHT+IHhBEayvfK+XLhESwHfsYqjjSCzIZtH3aCKlzT86KFy1OTOPs8rv4HSzTRWOYoHedtGqtAENQ==
+X-Received: by 2002:ac2:5b4a:0:b0:512:852d:dc3b with SMTP id i10-20020ac25b4a000000b00512852ddc3bmr42379lfp.4.1707946811711;
+        Wed, 14 Feb 2024 13:40:11 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXR1YXPWDmJGJqYpZaXbahCBi8YYAlK9vKKnlrOUrfqSVIIKm0RQk3ugb+eV4MipvGtqarCPFv7IoVUf3W5/twcPsMyg5uxXoQIImzS5MPO74UOmatT8OqS3cPDUaqTdfSdVhhZ41gnaAWg/ql/3QbN9/T3Ru0vDzTsB0AE/eH0fzHnzu8yjUrZDNtt4A7fsLYc8DCx6X7wwzaTE1bM1uoFEj05/JStGGDTBXYj2CtOO6mZGh3/ENftZQQD+zJvwugrHfmwxt4zDLzvFBsgLO86
 Received: from wkz-x13.addiva.ad (h-158-174-187-194.NA.cust.bahnhof.se. [158.174.187.194])
-        by smtp.gmail.com with ESMTPSA id h21-20020a197015000000b005118c6d6a2fsm1433290lfc.305.2024.02.14.13.40.06
+        by smtp.gmail.com with ESMTPSA id h21-20020a197015000000b005118c6d6a2fsm1433290lfc.305.2024.02.14.13.40.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Feb 2024 13:40:07 -0800 (PST)
+        Wed, 14 Feb 2024 13:40:10 -0800 (PST)
 From: Tobias Waldekranz <tobias@waldekranz.com>
 To: davem@davemloft.net,
 	kuba@kernel.org
@@ -63,10 +64,12 @@ Cc: olteanv@gmail.com,
 	netdev@vger.kernel.org,
 	jiri@resnulli.us,
 	ivecera@redhat.com
-Subject: [PATCH v5 net 0/2] net: bridge: switchdev: Ensure MDB events are delivered exactly once
-Date: Wed, 14 Feb 2024 22:40:02 +0100
-Message-Id: <20240214214005.4048469-1-tobias@waldekranz.com>
+Subject: [PATCH v5 net 2/2] net: bridge: switchdev: Ensure deferred event delivery on unoffload
+Date: Wed, 14 Feb 2024 22:40:04 +0100
+Message-Id: <20240214214005.4048469-3-tobias@waldekranz.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240214214005.4048469-1-tobias@waldekranz.com>
+References: <20240214214005.4048469-1-tobias@waldekranz.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -76,62 +79,66 @@ MIME-Version: 1.0
 Organization: Addiva Elektronik
 Content-Transfer-Encoding: 8bit
 
-When a device is attached to a bridge, drivers will request a replay
-of objects that were created before the device joined the bridge, that
-are still of interest to the joining port. Typical examples include
-FDB entries and MDB memberships on other ports ("foreign interfaces")
-or on the bridge itself.
+When unoffloading a device, it is important to ensure that all
+relevant deferred events are delivered to it before it disassociates
+itself from the bridge.
 
-Conversely when a device is detached, the bridge will synthesize
-deletion events for all those objects that are still live, but no
-longer applicable to the device in question.
+Before this change, this was true for the normal case when a device
+maps 1:1 to a net_bridge_port, i.e.
 
-This series eliminates two races related to the synching and
-unsynching phases of a bridge's MDB with a joining or leaving device,
-that would cause notifications of such objects to be either delivered
-twice (1/2), or not at all (2/2).
+   br0
+   /
+swp0
 
-A similar race to the one solved by 1/2 still remains for the
-FDB. This is much harder to solve, due to the lockless operation of
-the FDB's rhashtable, and is therefore knowingly left out of this
-series.
+When swp0 leaves br0, the call to switchdev_deferred_process() in
+del_nbp() makes sure to process any outstanding events while the
+device is still associated with the bridge.
 
-v1 -> v2:
-- Squash the previously separate addition of
-  switchdev_port_obj_act_is_deferred into first consumer.
-- Use ether_addr_equal to compare MAC addresses.
-- Document switchdev_port_obj_act_is_deferred (renamed from
-  switchdev_port_obj_is_deferred in v1, to indicate that we also match
-  on the action).
-- Delay allocations of MDB objects until we know they're needed.
-- Use non-RCU version of the hash list iterator, now that the MDB is
-  not scanned while holding the RCU read lock.
-- Add Fixes tag to commit message
+In the case when the association is indirect though, i.e. when the
+device is attached to the bridge via an intermediate device, like a
+LAG...
 
-v2 -> v3:
-- Fix unlocking in error paths
-- Access RCU protected port list via mlock_dereference, since MDB is
-  guaranteed to remain constant for the duration of the scan.
+    br0
+    /
+  lag0
+  /
+swp0
 
-v3 -> v4:
-- Limit the search for exiting deferred events in 1/2 to only apply to
-  additions, since the problem does not exist in the deletion case.
-- Add 2/2, to plug a related race when unoffloading an indirectly
-  associated device.
+...then detaching swp0 from lag0 does not cause any net_bridge_port to
+be deleted, so there was no guarantee that all events had been
+processed before the device disassociated itself from the bridge.
 
-v4 -> v5:
-- Fix grammatical errors in kerneldoc of
-  switchdev_port_obj_act_is_deferred
+Fix this by always synchronously processing all deferred events before
+signaling completion of unoffloading back to the driver.
 
-Tobias Waldekranz (2):
-  net: bridge: switchdev: Skip MDB replays of deferred events on offload
-  net: bridge: switchdev: Ensure deferred event delivery on unoffload
+Fixes: 4e51bf44a03a ("net: bridge: move the switchdev object replay helpers to "push" mode")
+Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+---
+ net/bridge/br_switchdev.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
- include/net/switchdev.h   |  3 ++
- net/bridge/br_switchdev.c | 84 ++++++++++++++++++++++++++-------------
- net/switchdev/switchdev.c | 73 ++++++++++++++++++++++++++++++++++
- 3 files changed, 132 insertions(+), 28 deletions(-)
-
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 6a7cb01f121c..7b41ee8740cb 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -804,6 +804,16 @@ static void nbp_switchdev_unsync_objs(struct net_bridge_port *p,
+ 	br_switchdev_mdb_replay(br_dev, dev, ctx, false, blocking_nb, NULL);
+ 
+ 	br_switchdev_vlan_replay(br_dev, ctx, false, blocking_nb, NULL);
++
++	/* Make sure that the device leaving this bridge has seen all
++	 * relevant events before it is disassociated. In the normal
++	 * case, when the device is directly attached to the bridge,
++	 * this is covered by del_nbp(). If the association was indirect
++	 * however, e.g. via a team or bond, and the device is leaving
++	 * that intermediate device, then the bridge port remains in
++	 * place.
++	 */
++	switchdev_deferred_process();
+ }
+ 
+ /* Let the bridge know that this port is offloaded, so that it can assign a
 -- 
 2.34.1
 
