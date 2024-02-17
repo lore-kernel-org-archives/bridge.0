@@ -1,62 +1,62 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E4777F7D3
-	for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 20:13:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD6B17FBA4
+	for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 20:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708200786; cv=none; b=QtsOhTAwyVJiifVXRnXnUsiBvc1QlW0WGOUq+23c8G3uo4zZ/DjX76vpGEAEZ0HP7eymYWEa7xzVFUBdLllIzCeBnbHF9m+jCamhF8Vg99zR1slcBge/kWzEO//r5IpXgqlTIirMs/oMmBltu5RVwdbl1R3CjpVud6b0HF4lWEY=
+	t=1708200790; cv=none; b=WTI7kpO1I0yZuLlEDxJ+BVv8VD+6HwM8KgOJpNX0bYyFjFza90v4E/0iWYoa9IWp/l9EEHO99JgfaoXYsgHhiBukjC5n0lgpGChEOtYr3YDO1/CR8Is1SP3RxPUcIrZ0uERmS0pzB0otdw3cFOUYDEstpUo0lCI/sKNzwOTBpjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708200786; c=relaxed/simple;
-	bh=yarIivvwEL0iBD1g1oHgz89LM3QZ0OUN7cz5OAdk7mI=;
+	s=arc-20240116; t=1708200790; c=relaxed/simple;
+	bh=xzeBB090fYVJMpjGXta60hiJrVnShFCfzUaEqJyH3oA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IHUrGscF1j490MKGQlkUPaYeQmw+yKK3wj/cnU0qPCPbYq2JMAWfZFF1EcVwLIKm9WgJIWT8jEWcS1deVtf3n36W/1rCZlt/XZAf8uFKKNWKi1oRYOCIDMoLJBS6iuW3Js+CIDTdsEQbfsKy7kk8Q7lv6RZ/xcZ9/2yOrC27oK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b=BVCJuvt6; arc=none smtp.client-ip=209.85.215.182
+	 In-Reply-To:To:Cc; b=sPWDaFRB7J4OipVQsxvWFQ0EsyrH/GE6l0m2cd23AU+5ImThSkfl+txpCq24pwx1PjAV6pchQJLgi6WnU+HNmTD6kv/v+jEYjdZmoFNaFL/21MlXsF4vgU3RZ9wJ3HUBzrcZZu+CBrjGNQrG1td/1JxznLLgTbotjHBnCtTGI18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b=dHqpsrS2; arc=none smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b="BVCJuvt6"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-5dbf7b74402so2496871a12.0
-        for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 12:13:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b="dHqpsrS2"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-1d73066880eso30528495ad.3
+        for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 12:13:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708200785; x=1708805585;
+        d=1e100.net; s=20230601; t=1708200788; x=1708805588;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:dkim-signature:from:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=n4lnVoJ8bQxR7w4vsZ3NULyq4tTkrXiB/TSkyItFgKI=;
-        b=rBh6xEGfs9PmiLv/2TFS7iBNmAfGkcRwXQvqUasHX78k34xURpGiym9Hk+mCebHq0c
-         2sFGNVwuSayLF9zH8YwaJlgm/gfcii37mrMiVJo1cF0zcEMVnZautdWam52Ldk4kIaPn
-         fJ8gbkyTiIIZCVYrcLiB3+AjZyqVOkop8j+uVny52JmAsL0GW369aAW6Pz+7SUWQQfxc
-         K8n88JtrJQ3/dB4LjU3qNOg0ARbRC34j45cEeVqP8rBTPpKIizqneZgYY5OSCk6VLiA0
-         ttMzLtbmsc3FtODylIcKvfADf0MMQEiTweOVMUrc8AiAGu/5ZpIXhy3CZSXK5Vv2/jHG
-         +k/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUXmvdnZI0qdQRmcg7eQ67pIKCBnUzVKSSJUXswJWZEFIpo/xdnEd3taY+ldjAqFfbto/OM1+LRK74Bh7Bjyx0yY6Uzrfct
-X-Gm-Message-State: AOJu0YzvnxQ+kujYJ9SHUmo5oG91bAGOxmSJUObCXJCXwiEjtLyZOQZo
-	b8Guf8DyuWRfQlQ9EISp6btNEXXotV5aC7JDSEytQPl6TgjkuIEu
-X-Google-Smtp-Source: AGHT+IGkC6VGVNk5gf/yLI5f/Rzq6GQZ0RQFSd4sKubWgHq3nKwxK2vKluwYiLMMsAeYxXPxVd61gQ==
-X-Received: by 2002:a05:6a20:2693:b0:19e:cd37:798c with SMTP id h19-20020a056a20269300b0019ecd37798cmr6260420pze.35.1708200784973;
-        Sat, 17 Feb 2024 12:13:04 -0800 (PST)
+        bh=VQ226lEYIpvgIaj27cS5McvwAJ47DAULYwegieELHbM=;
+        b=NDO1j/kbzSuOYf0kjz/JO4Stk1/kj8+2jMONni4FfNROlm+oiGbNt1T8zqOeSoyzb6
+         3hXoJx28SwdRMoybyI4l5z6ApsyZz+gmUih57bGHAv0EkYwDelwmOO/5mmtQB9+ojk48
+         gJs1l1U+IkewjthnEsst2MmAZSwFUBZYOgkzRTnhuIOGsdHU6vl0QeNvUlJnEdHKUfiW
+         pKTMU8wY1+UiO30RLQAT1W25nVGkCM+s76Q9jsv+yEAA0FLqxnIxKQ5BMH1p3JdXs5pM
+         Hh6ivNDdU1Cx54STTKr48FDMaq2i6qD3st//dz5WH62ROPejZPI3kUqpXdtlJmBhZOkJ
+         P6VQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUJ7n1ln0XGLSS8XrRSn86DG7arqhqvntfMKBIe6eDAuEMjBF181z+4LbXXowj6uEr0MdofS16vmcv6HAe7lzBT4hYB6JnX
+X-Gm-Message-State: AOJu0Yw1rtGoSPMIhWk8f3+B2BTv/KpFhLJQUsyDCcuX6TxYKjbmmYZ/
+	UUg5nN9aqJqXwajwHok9spe5ZWbYGE+VhLJIEPkz9E3OYL19PMEB
+X-Google-Smtp-Source: AGHT+IFLhZCt1Bomhbdge0s9l8Q1F+WHBmFVAFHmGgf/RHuS+y/UixBWyt/egZ+mcioU6D9SSKlr7g==
+X-Received: by 2002:a17:902:8a96:b0:1d8:d5b0:aadb with SMTP id p22-20020a1709028a9600b001d8d5b0aadbmr6707732plo.66.1708200788089;
+        Sat, 17 Feb 2024 12:13:08 -0800 (PST)
 Received: from mail.marliere.net ([24.199.118.162])
-        by smtp.gmail.com with ESMTPSA id nd4-20020a17090b4cc400b00298d2182f1asm2224009pjb.55.2024.02.17.12.13.04
+        by smtp.gmail.com with ESMTPSA id lf12-20020a170902fb4c00b001db6739d337sm1806259plb.163.2024.02.17.12.13.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Feb 2024 12:13:04 -0800 (PST)
+        Sat, 17 Feb 2024 12:13:07 -0800 (PST)
 From: "Ricardo B. Marliere" <ricardo@marliere.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
-	s=2024; t=1708200783;
+	s=2024; t=1708200786;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=n4lnVoJ8bQxR7w4vsZ3NULyq4tTkrXiB/TSkyItFgKI=;
-	b=BVCJuvt6vBgbxH0uFwQCn9nbLFXOoXBPbgUO4JSqLO/jTt81HjBtK1jdN135IbZqW/0RR9
-	nwOYq402GyjaxAfDV6uKb8z2UnvXKhzVPpr9+V+PD7PelUyFHvtyldkbtXJNDztgb03Ty8
-	5clTJ0WsGs8etCeuPYKtx3592tKIn5qMWoCxOm/hVQGP/jzgP7Q9doThvu3c+IH0rHihpY
-	+5VzrOyn6bLwcSgB2RdMqDoDvARfEBlpRt3PRU1zcNH6/AYhOcQP8NHVYF+sUgfLARu1/w
-	w6+G0alpXWVTVJtNxHHcZuHHdbMHoA6li8jJufC8iLzq2vSVXIKIN+RTUCXcrQ==
+	bh=VQ226lEYIpvgIaj27cS5McvwAJ47DAULYwegieELHbM=;
+	b=dHqpsrS2M0TRr374n753ucAGuFs0JUmJW/o10XLC7SUzjMp3Mi2LhWT0kndxVmTyj8pQfh
+	3QPj7yRkt2c2ZTwU8CSZvmpWODYzL4nsNAGyGKkVyR3Z0iDylKYaGwCCqDcmA2cWv9r6fk
+	A0gq+DMvWZDsp+cI8MqRIc1bM/wgZWpnvlUZIf+m+uDYRng2BXbMzKouybj4I6pIwnFlRP
+	IwSJXSq9eWijJnGBUTJ6tSDkyHFt7nT1nY7Cv0ki8wtQ5QatWcP8NugVYnvLl5nvEgxSZn
+	QI2rnqZwdNpXt/SAWEjqFn76IkWvIB8fxtOWGpPZg1H6n95+obqz6IJL22hZHA==
 Authentication-Results: ORIGINATING;
 	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
-Date: Sat, 17 Feb 2024 17:13:25 -0300
-Subject: [PATCH 03/12] net: bridge: constify the struct device_type usage
+Date: Sat, 17 Feb 2024 17:13:26 -0300
+Subject: [PATCH 04/12] net: vxlan: constify the struct device_type usage
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -65,7 +65,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240217-device_cleanup-net-v1-3-1eb31fb689f7@marliere.net>
+Message-Id: <20240217-device_cleanup-net-v1-4-1eb31fb689f7@marliere.net>
 References: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
 In-Reply-To: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
 To: Oliver Neukum <oneukum@suse.com>, 
@@ -81,45 +81,45 @@ Cc: netdev@vger.kernel.org, linux-usb@vger.kernel.org,
  linux-kernel@vger.kernel.org, bridge@lists.linux.dev, 
  linux-ppp@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
  "Ricardo B. Marliere" <ricardo@marliere.net>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=892; i=ricardo@marliere.net;
- h=from:subject:message-id; bh=yarIivvwEL0iBD1g1oHgz89LM3QZ0OUN7cz5OAdk7mI=;
- b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBl0RNsLeps0ymdOOTLpFtWqQ9G0MMgWi/AyXNVh
- u8lKIx8I56JAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZdETbAAKCRDJC4p8Y4ZY
- pvIcD/0QD0rQEfEJbu6CBq/BX5x9HIhqTgkJo61Y/K/wcXzdd+w3rK3or3FVbvPmqllbtPIXtTG
- sGirIaVmwmtK1LAXZaiMuO3026FFoz/9SlMc3ZPUTN6z0MRLzSqj01ts5CNCS16nkGQ0Cyv9CZk
- 13QvAS7BQSNHipHQPDMaPH9CXzm/+wW6FAmXkjAmIZZbnqF2HlZWcOWuok51y9i36Wojc9RcVNJ
- GEoZ1lmCD4LM8Etw0y25R/xcKwHK3vL4+pYHNKUmxMipc0VPrQj1Mb9ibeAYcTQ/wW8GJImxBoF
- /DKp0JYFuSGhD7+7igL0gdirB0kWXMb0goRKJwxriSJglJusvqcJ2IOOPCgSQ6JjV0xGjWLlf0s
- ZTRPbVO0KfycjpQPOIyLkep2MNLaGI22ogSdj+8OoOyJoYQ9UMA4fYt1p1nmSZO4ICGX3J5kElU
- Oabuedb6f9fE1Sh+GDabspCCmiSQUMRytt1CTm8iH9YxyBWfiZdw0dEN6h1+sjHImDWBuh0CjTv
- F7x3zTKLnRTYYhwpfw29Q8Eo8RV8gSemQhAOCn6+I/VpcCGZqIB3IGKnITqIz+36ZbV6is0OGpa
- 121AGI2Hd3rvJzAbXNJ0M73SiHzucPhrfy6DbAqxddlGdROk+5tHgNdR7skZTz98J579y4CHEgV
- nN/MjYA/fgm+GCA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=960; i=ricardo@marliere.net;
+ h=from:subject:message-id; bh=xzeBB090fYVJMpjGXta60hiJrVnShFCfzUaEqJyH3oA=;
+ b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBl0RNsMqQd7iSTS5J2gzedoypz/uKFs5aj5gxJK
+ 9QV6kc63FyJAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZdETbAAKCRDJC4p8Y4ZY
+ ptYID/4g5L979UugwQmNsNjt6XHDcY9Wp9n4UivzwKS0sHfJPjc4b4AJ9h7C8t0+c9RxcuYtqEc
+ 1DXm871SWIeaLCCb/JtpDDtBAr+0YLC8sSl9lwQXlncfD3d6SZSqyw5SON1rTqDCFhKXm+EvzFs
+ aExDJdRCYDMMAxRQNis6pRBkQMBiJtJJ8ZGm0IbjG/x7YuGr8uUi5GRvR2mSrXc35Q93v/U96Bv
+ EbMs/+AfM9OAA2sRQs5LB87nd7//8XI9MLbwXLU8KXKsLo9oHLoyQxjNwZ4gr1A7RzzCSlgrjTx
+ hkHBCYdmGqyWBmM/0ry6Dtx//tI4xFWYCXnjBqlbf0wFhAHERr0ROew0g1f/NQXPLYsMkf9pbNv
+ 5AwdFU61xtK4erbLWG6+bF0M9yGqGVp2MulG3QgL6AGXQiMUehUlwHSenCgt/1VF0g80j/U4tS5
+ NFkRhYFWEI1ivfBYl0SLHWCQvVa3DpUjrsJBhWMO6yUnSvp8TqgkF9NpXSP9NdNYRtceXYQyeqF
+ 2mNJAiRTyB0LczC/qoM8iqssntdh8c3DU1aIgAAN2ytPTtDuQScJf55t07lStqmKDGN+OmgOtuc
+ 3SvzelrMrzwSpPREisO1Cp+WkD6/zhN/JqNtIC/9o1C1q83ijidtmiF9rHvWrY7Kk4msMgqh5/M
+ KBYJbE0lzNTZfkw==
 X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
  fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
 
 Since commit aed65af1cc2f ("drivers: make device_type const"), the driver
-core can properly handle constant struct device_type. Move the br_type
+core can properly handle constant struct device_type. Move the vxlan_type
 variable to be a constant structure as well, placing it into read-only
 memory which can not be modified at runtime.
 
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
 ---
- net/bridge/br_device.c | 2 +-
+ drivers/net/vxlan/vxlan_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 717e9750614c..874cec75a818 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -474,7 +474,7 @@ static const struct net_device_ops br_netdev_ops = {
- 	.ndo_fill_forward_path	 = br_fill_forward_path,
+diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
+index 705a6fd6ab6c..386cbe4d3327 100644
+--- a/drivers/net/vxlan/vxlan_core.c
++++ b/drivers/net/vxlan/vxlan_core.c
+@@ -3254,7 +3254,7 @@ static const struct net_device_ops vxlan_netdev_raw_ops = {
  };
  
--static struct device_type br_type = {
-+static const struct device_type br_type = {
- 	.name	= "bridge",
+ /* Info for udev, that this is a virtual tunnel endpoint */
+-static struct device_type vxlan_type = {
++static const struct device_type vxlan_type = {
+ 	.name = "vxlan",
  };
  
 
