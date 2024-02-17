@@ -1,61 +1,62 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A35F57E10C
-	for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 20:12:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4794B7E767
+	for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 20:12:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708200778; cv=none; b=JZbpsIkTuqGf8tf6kkPoCEkDOke2Z6Lv1ZvMVNlVfiDZvJDv9AWM9NSt3JXZL1z6i0PseUT857Ll0l/cE5/SQ3u+E9SZmqeyhwVaM5RN9lMBENQ7ukBeO1lXM7f4hei2qJka9GInvXNAp99zVmFiBgQiukj7HBagxugOQLZrdgo=
+	t=1708200780; cv=none; b=DKX6DY800HhM2qY3nB3d3AGi9FN9JsbKFl7Hv3Deah+wyCO2Blze18q6DoA8AhhuvgBVkPuxpHtDCenQ+I8F322+XatjZkpS79pNNEvAYYN9bMNykW4tFMH2qfaPSsalGu/3RfezPsUKPhqnngDarQ++bggTLr0NDcIEb1zIVTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708200778; c=relaxed/simple;
-	bh=8IktCrsRC+hlS8Myl1fdnPGp6EP8hC9J1haMpC61SOg=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=WB5bJCtmHrcbIVBo1nvVwucBZAGGL+RB2ZJixg57zpiTr+weKedEOcTfmvFyX2ptLOKr7T1IMR3bpoYopnBtShCk8vnMn/kUviRzDgY+uKI6cwk0c1vAB2b4BxLlC65b8oa/P1J3EXs7Yo5qw5Wkn9b4/oa0T13pOgDalIjKgfI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b=PpgtROzV; arc=none smtp.client-ip=209.85.215.169
+	s=arc-20240116; t=1708200780; c=relaxed/simple;
+	bh=IyZ5Y2ln3RlvrkcZB5wxYoE9pnILf6gx+8QtBGCE55w=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=vAawgPFpctB9coQvEtbbHC9u4mSfob2TVmTwZUjEw2qCrk7chaFHKSx0CObi4kMi8Au52mZpsuFBBjZZM89KIKAEGkmxBfSfoFnjlVQ1Kmc/6bPgcik2WIac9OMhd9XiGWTcgeCQSIpvaAgUp4cQIjDtf9xGQ/uudfnv+a8+Cmk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b=S2YAL+kh; arc=none smtp.client-ip=209.85.215.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b="PpgtROzV"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-5dbcfa0eb5dso2846415a12.3
-        for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 12:12:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b="S2YAL+kh"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-5c229dabbb6so1857727a12.0
+        for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 12:12:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708200776; x=1708805576;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:dkim-signature:from:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=g/RyA0owvp8Vb/My3RmXXVsAxzzWZv+QMQ3rufBIEHU=;
-        b=e7iK2yswhFCrZlOit9pIEyNiWPmR42cIFqyO4u1Wb4VHmGtRZ+e3AcO2D1aLm35nYt
-         DUUSh3sVVO4OvURHP3YAIJvGoeE/qFUEXHuYhNg42zT99aqGKbAzt535t1FJM1evTCA8
-         W+k2WqtHiwb6ZkwY04FPPLqNUER4Pt1aRhMN3ltDyQKJYEdCfJSB10B7rOn5OguB4fSo
-         WXnrrheDkZXyY0m3voF191eUe70AJgv6QT7coSIjMhzgrvlXZKC87TkJ9Jnhp9xl7seg
-         LL3wBlfNjjTU94jP2Xz9gduOTmJH/m2O39TKai829/RQ+ghAgn18KdVkXSBA7Kfh0yKs
-         Wv4g==
-X-Forwarded-Encrypted: i=1; AJvYcCXoyJ/4RtRa9sOHD0OBf0zZI9RNuTKq5PRZ4y82HnX7J1SFlwYbPKVv0BI2XuXYXo5PFKjuNhrMQp9vDrWYygdVJnvCi4d9
-X-Gm-Message-State: AOJu0YxK67Pai3ObHYXhgMFfB/5bcUSUhjKZqfuO1wEK96I9zzdGnQlH
-	1CceTQfHLqzWfHAz2X+8Ub1g59Ah/XLRbT+44zJc3E3cJSQaGqyU
-X-Google-Smtp-Source: AGHT+IFFR+WvQ7e0onQtY4dZ6AcQhZ1Rlt02QSaKR9uAScQLp0C1KkbgTsK80QpcwvYKNme/Donw/A==
-X-Received: by 2002:a05:6a00:1822:b0:6e0:3939:60dc with SMTP id y34-20020a056a00182200b006e0393960dcmr10299722pfa.23.1708200775782;
-        Sat, 17 Feb 2024 12:12:55 -0800 (PST)
+        d=1e100.net; s=20230601; t=1708200779; x=1708805579;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:dkim-signature:from:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=56fgxRj3TpAnVefFQ6EA11ISjF6QjKkNNnHYVEnweY4=;
+        b=M4fVhTG9Ef+BNyPLIk36rjqj0jkxeDYq8V7rA9TfpvYKqY9ZcZMxXH61wnP4nKuxwB
+         kKyR8yp2qV0jAhUxT9KNv3Tlxk6BOmPKgF+wcswM42dp3+0ySypiClCEIhfBHExXB+rM
+         KhTcJOGcaScl1CrmvPD3QOw8ilgHOVvxewUuW6LZCkGpntCG6vXKd51UE+33/Ym3/HXT
+         tuZbHLoUwJeKVLtls+ZVkrNZyOc80gMH1ALEwK3uP8s2DEyyzZTE7VcVg/6By7SR5dYt
+         TCliLKj+h17vCHC1Sx3AovGZa1gQXNlKyZEnIRNtfAp2VyR/K8YqqZOrVXzHdg61Fcq1
+         Im5A==
+X-Forwarded-Encrypted: i=1; AJvYcCUU+IqZq53FazUoITk2hNG/W8DxIsiZaUb5i8tyHYuDD3qtjm0+cO0ABAFEA85N/CfuiWcooFDVP0Jav6JZ/nJU/kLZcAa4
+X-Gm-Message-State: AOJu0YwVLAwGWxZ2hirrMDby0v0nS+02UUXNrwKA5wq4bIPEghTMhq0N
+	T+FYL5Yw5t4xURzl+D7HausJWwlzPs5lUBtUqbVKM1hgqr2SG4jEBsOvTzVtCxBC5g==
+X-Google-Smtp-Source: AGHT+IFN0G4viv/q31g5wHX99KqakJNN37bIX87mIyybeLlZ/Sfgqj1rQ6hk9aP8wEZXTEX+ZVNd8A==
+X-Received: by 2002:a17:902:bd0a:b0:1d9:4ebd:b94d with SMTP id p10-20020a170902bd0a00b001d94ebdb94dmr8124665pls.55.1708200778637;
+        Sat, 17 Feb 2024 12:12:58 -0800 (PST)
 Received: from mail.marliere.net ([24.199.118.162])
-        by smtp.gmail.com with ESMTPSA id p4-20020aa78604000000b006e363ca24dcsm1281725pfn.67.2024.02.17.12.12.54
+        by smtp.gmail.com with ESMTPSA id c6-20020a170902c1c600b001d717e644e2sm1775479plc.247.2024.02.17.12.12.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Feb 2024 12:12:55 -0800 (PST)
+        Sat, 17 Feb 2024 12:12:58 -0800 (PST)
 From: "Ricardo B. Marliere" <ricardo@marliere.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
-	s=2024; t=1708200773;
+	s=2024; t=1708200777;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=g/RyA0owvp8Vb/My3RmXXVsAxzzWZv+QMQ3rufBIEHU=;
-	b=PpgtROzVu4fxgbA384MRbpgF+FeUxvP8j69pOojHuzqDCqIqQWZAAotSr6WCDaghpufBWq
-	CtcU/JmiMs83KsjNV+6Pc/65LIZYHZXMmu3coO35DMVT/Xfhn8/qAJ18pq1f7OS6J14WIy
-	RJj41euKpj9DjqAjPwn/iGhlI4c2ITpRFw3obJnCCAI5C1hxFMYVGFhZx2Lll2HsFiiffd
-	PIOYWf08hcY7hCciMc4vKtBzJPdq9TyrBZjCo54PbUwAKxiTLLURggX58EPJPO6eeByLzT
-	+WlALkmmx9l1mDlB/SxmRZto8d1GKF57eNnkfcU0QASkZ6I7u81GBsT8nNZheA==
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=56fgxRj3TpAnVefFQ6EA11ISjF6QjKkNNnHYVEnweY4=;
+	b=S2YAL+kh0Ndho84cJSPnOrpRjlxyb10n9jAW+DUbupNBUfDKzggwmjd/9WCaHSkR+46azL
+	2AK6aG04VRb1ndhiyShUpQ6j9nWDkXbHcjGG9s4n/rpJ2bQUUjIGFkK9MAji07zV7pmDzz
+	G613qt5cPe9zQQrvzu/2f5somHa/UHHhTwA0McZ7XmghcN2xCxwaG7iBYOnYhiuqeHf8j2
+	QieSU9bzCTL5OP34PkoO+XO22QVtSbt0gTim3r2TQYbAQbMWQR0CdeuMle49EHZh6Fe57V
+	l3Cnft1drmIStHNSBjZyDu1yfPgFgq1PbzJry/h1quTjvoWv1yjPDVHbQgK5kA==
 Authentication-Results: ORIGINATING;
 	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
-Subject: [PATCH 00/12] net: constify struct device_type usage
-Date: Sat, 17 Feb 2024 17:13:22 -0300
-Message-Id: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
+Date: Sat, 17 Feb 2024 17:13:23 -0300
+Subject: [PATCH 01/12] net: usbnet: constify the struct device_type usage
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -64,9 +65,9 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAGMT0WUC/x2MWwqAIBAAryL7naDSQ7tKRIhttRAWWhGId0/6H
- JiZBBEDYYSeJQj4UKTDF5AVA7dZvyKnuTAooWqhZMfnIjmc3I7W3yf3eHHdadMK00jTaijhGXC
- h958OY84fnVJAZGQAAAA=
+Message-Id: <20240217-device_cleanup-net-v1-1-1eb31fb689f7@marliere.net>
+References: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
+In-Reply-To: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
 To: Oliver Neukum <oneukum@suse.com>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -80,71 +81,53 @@ Cc: netdev@vger.kernel.org, linux-usb@vger.kernel.org,
  linux-kernel@vger.kernel.org, bridge@lists.linux.dev, 
  linux-ppp@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
  "Ricardo B. Marliere" <ricardo@marliere.net>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2050; i=ricardo@marliere.net;
- h=from:subject:message-id; bh=8IktCrsRC+hlS8Myl1fdnPGp6EP8hC9J1haMpC61SOg=;
- b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBl0RNrpk7BX+VmqEEeJxcyIwSF9ZeHvTQLW5p1V
- ealPQCKRLOJAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZdETawAKCRDJC4p8Y4ZY
- plYsD/wLcDBrNqH7PMKSjPkDtyu9739Mvkq+1uT348a8e82LOWBnOdKK6q+DkjgyUHodP2kqFyB
- q+OBZevG9xCq7m5Nbu5mjwu6pALcRTrny9S5Zk0cLWMSZAIXYTvexzFW5CLi4XUHeqR3Qwq8c+U
- GetCdNHd/HNgOyqW/L9kd5s1ivpxGffSeBzNg3WhrWajErwBAHboUc1HJ17FD8tPSTcPAvUwl97
- Wl0auf0nme1Niz+WyayZv9iRtZut21l+tVeMH+HqWYjh36SKvkrU/p2hPzR8syuDHLvk+j0T2q2
- IVg4PE18HskT1IoRQ5s+9D85b5zqVuU7e2k/eRrxkMJVG08tcmnxOYZ0eKzYEBQMrXECyqlS4ty
- It1ohBySWA58CT7b0XC4jduQ1APoExAel6JvYgMVP0U/IQ+1dRGVX7o6mRjpj9vdGlXisYNIya6
- RnkAPo4SFGuLWYUSta0O1rRUbVzh9ZkOs1A3usrujPywEvrT7ylTOwEpnlr2FL8RAZn9udVV08m
- MA99oSDSBPqtqIWk7/Z5cdlaOBZwEmytINyYUaX4CV5SHFWtO7K3wjojXMityKLq3iabpjm10z9
- ZdzdzWwgoD1HhvD8cAUC1WCU/j/owgoaFbXHZaDAaKrEhWTlTpKlw0t3s4AdKkMWmyU+iYreHuV
- MtNhqyvaf91HA/g==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1041; i=ricardo@marliere.net;
+ h=from:subject:message-id; bh=IyZ5Y2ln3RlvrkcZB5wxYoE9pnILf6gx+8QtBGCE55w=;
+ b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBl0RNr6Gp9GNDXZ/f9gFTZqt54W8bHuxa5WRwmT
+ +10IQuF+3yJAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZdETawAKCRDJC4p8Y4ZY
+ pnTGEACcHsdt6a9Y5FfAgBF8o79GsUsKvuWD6AwO8fxF1xsijq8IXzEgayakRi1jxuMExJQSpCS
+ ISM72jxPJfLkGTCGYLwaXQfwosqcvOl9wrPMzp12IATU+XnrR1yadpQZq/44LqgNEFXXYzn3Isd
+ Csle38sZO51Pe+qP1AAwL+Zq8zsC9WdHkI/ymiHlRrCdzFdGyaZwofjuZtf9/HkaY7cpzou55Q5
+ G8Z4Izv2JmWIQygfcJr5OQQcyzgsCsp2D9rLmE3BXKfU8RQZOl2uaMED/eW7z4m0YlvujrZEm2S
+ z/8hUyAu33WfQb6Rv/+229jp19oC9kERVHbd3SV6m+KoHuIKdICqy1ICwkVyPe2DpW2ZLr2bdy8
+ vvkZwAvTPPAotk843CsLHFOFXdQqpfQEysp5jXGozYuTl0/+iyzONeM+wC/od67xg6/7CuDH4NJ
+ N/tOYh2W6RMpiCLDJaLLg+xdZzsUgy4sToMzr6xcPSF+D0yyM7NiQQkXnWHNq/x1bbfibrQ+YFp
+ k96qCXv7Ngao3mDdPCinT5jeTmEcSJxfg6jYgeeEH2HjG1v6PZ04oCMRtOMooEIUC3gHF8CPRRJ
+ K6W76lFmenl8n55n3zGcQRsWYNVNYv/NCPRwNKg++h6YSR15tKMlUaCakay46OZpqtR8qNbapsp
+ Kt3+s3o0ks63iOQ==
 X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
  fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
 
-This is a simple and straight forward cleanup series that makes all device
-types in the net subsystem constants. This has been possible since 2011 [1]
-but not all occurrences were cleaned. I have been sweeping the tree to fix
-them all.
-
-I was not sure if I should send these squashed, but there are quite a few
-changes so I decided to send them separately. Please let me know if that is
-not desirable.
-
----
-[1] https://lore.kernel.org/all/1305850262-9575-5-git-send-email-gregkh@suse.de/
+Since commit aed65af1cc2f ("drivers: make device_type const"), the driver
+core can properly handle constant struct device_type. Move the wlan_type
+and wwan_type variables to be constant structures as well, placing it into
+read-only memory which can not be modified at runtime.
 
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
-
 ---
-Ricardo B. Marliere (12):
-      net: usbnet: constify the struct device_type usage
-      net: dsa: constify the struct device_type usage
-      net: bridge: constify the struct device_type usage
-      net: vxlan: constify the struct device_type usage
-      net: ppp: constify the struct device_type usage
-      net: geneve: constify the struct device_type usage
-      net: hsr: constify the struct device_type usage
-      net: l2tp: constify the struct device_type usage
-      net: vlan: constify the struct device_type usage
-      net: netdevsim: constify the struct device_type usage
-      net: wwan: core: constify the struct device_type usage
-      net: hso: constify the struct device_type usage
+ drivers/net/usb/usbnet.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- drivers/net/geneve.c           | 2 +-
- drivers/net/netdevsim/bus.c    | 2 +-
- drivers/net/ppp/ppp_generic.c  | 2 +-
- drivers/net/usb/hso.c          | 2 +-
- drivers/net/usb/usbnet.c       | 4 ++--
- drivers/net/vxlan/vxlan_core.c | 2 +-
- drivers/net/wwan/wwan_core.c   | 2 +-
- net/8021q/vlan_dev.c           | 2 +-
- net/bridge/br_device.c         | 2 +-
- net/dsa/user.c                 | 2 +-
- net/hsr/hsr_device.c           | 2 +-
- net/l2tp/l2tp_eth.c            | 2 +-
- 12 files changed, 13 insertions(+), 13 deletions(-)
----
-base-commit: a6e0cb150c514efba4aaba4069927de43d80bb59
-change-id: 20240217-device_cleanup-net-878960951968
+diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
+index 2d14b0d78541..b21ebe24057f 100644
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1654,11 +1654,11 @@ static const struct net_device_ops usbnet_netdev_ops = {
+ 
+ // precondition: never called in_interrupt
+ 
+-static struct device_type wlan_type = {
++static const struct device_type wlan_type = {
+ 	.name	= "wlan",
+ };
+ 
+-static struct device_type wwan_type = {
++static const struct device_type wwan_type = {
+ 	.name	= "wwan",
+ };
+ 
 
-Best regards,
 -- 
-Ricardo B. Marliere <ricardo@marliere.net>
+2.43.0
 
