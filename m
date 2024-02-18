@@ -1,128 +1,98 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66387823C9
-	for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 20:13:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 153EA65BC0
+	for <bridge@lists.linux.dev>; Sun, 18 Feb 2024 21:47:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708200815; cv=none; b=A1Yd17BBe4kR265FxMNtIPrGBZrs11kzM+8acbuuv24E142Esml/wlHL3RZBAwBzmuCXzUp1mEZCMtsOqOjIrACcoTT13NpDjDU2gdoDcgawRDopVTehwLEmc6mRXpoOCgXqE8gZk9I0/BKXPiSdkwqYIo5sd0bUbW4AmrUdzSc=
+	t=1708292844; cv=none; b=MKncGrFrZAr12B1gS8cvCoheIY1zNN/Co/OZ+/9OPDpFjP/dRlG27x3Wq5WXhD69kn7R8OvEYhQlvMn9rWTIhP+ecdJ5RMjMV6VwmM30cySLWHexNO+pzxLFhttkxoDqaLuaUTqk5vNUZq8IUrCygbgBhxJebaYINmhm+6iOToQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708200815; c=relaxed/simple;
-	bh=w71Wbcz7FmwZv+zc0blwnBWeOoYM4g6wH5JSNctbpo8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=rjWxOzkpUECAcdBbhciwFfhb83FjSJbIp6lxEZ8RyG/pawWjinjxvUDT4ef/DNWLVXw09FCw/gMaNwCZyONNvdo2perp1MALbmaW+EiuYKww1s589lizmcadqPV59yUUW8dZClDHnOaMc0iqHN0hbVPnWbTBOOEKvkrkMZs1PuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b=CoZRJa6w; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=marliere.net
+	s=arc-20240116; t=1708292844; c=relaxed/simple;
+	bh=He296CGuCmElTiY1KTWvPzuztsoIaHP2KjB4JkUw2Rs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ioi260F44trRg2u7kVIZM3fLOS9rnqNzSa+NSayuurIEjtvoty2BHSHmz2O+o7YIdCrwuMI1RMLL6wDKZUf/27T121F6NkMSgYTDFKJz7q+GPlTS1zA0KPrZtp4UaH0SCdE1F/WeUtVw36DK7A95VpjY3Z0KzCQHUWS1/00BQwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NJLhka24; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marliere.net header.i=@marliere.net header.b="CoZRJa6w"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-6e104196e6eso3254867b3a.0
-        for <bridge@lists.linux.dev>; Sat, 17 Feb 2024 12:13:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708200814; x=1708805614;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:dkim-signature:from:x-gm-message-state
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NJLhka24"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-5cdf76cde78so3080257a12.1
+        for <bridge@lists.linux.dev>; Sun, 18 Feb 2024 13:47:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1708292842; x=1708897642; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=eLlN75gM6cSLXL0namU4YIlalW5Vi0mlHQZ3MHBhLI4=;
-        b=LR4trMo+8LkJV+7sW0JE9c+fBKoB5I7r4jnaobkduXmDLceqYobASdpmOujTyAeTyD
-         Eik/Ud4YsiSapRfdWqb0J68RYKr+FTYUzS+j63XeUtKtrvX0oqf71y6KCg1DIFgyljv5
-         3dyw6x8GjwyYcdgeCUtpt2CU/HTVZqgYbKw/1mt29So1cTGNb10AeYF3TbIaPVi2q/vU
-         OvBGr1JONxwQ42+mtcJHPECcVo83QyETiCP0Fct4pigb3PzCSt1je7EOub+DQAh/joNP
-         9O6NtTNtcsSd25xWAziu4l2B5CsR4kKuTdKylB/aB7cQZl2K54o1ajQ1ICnZZ6+zIuA1
-         dcOA==
-X-Forwarded-Encrypted: i=1; AJvYcCWUdpISHKOFmDPQn13ezTyXg7Ldi3byIKFKdlie8XNxVYz92i0IKdhYs7Nt6zn0Vpr+cc73TznQzOB/JDVF5ChT95i9RvqH
-X-Gm-Message-State: AOJu0YwLAekYJ3VJ3o7roTVbAxX+YANXMTUrFN3UGxC6iYhyBvCk8Mom
-	SWUyWAIt3vxPSPn7ZWwEbxg7TgVYAIhCbGA/M1dxF2FFGVeUnuhY
-X-Google-Smtp-Source: AGHT+IETR8osEA01neyaUCatTxOdrg5wlbF2nxUD8OZZ8J5MVq8bPdspXda+OFm9Wsq/uoC1CkXsTQ==
-X-Received: by 2002:aa7:8703:0:b0:6e3:84cb:3d51 with SMTP id b3-20020aa78703000000b006e384cb3d51mr1500974pfo.33.1708200813620;
-        Sat, 17 Feb 2024 12:13:33 -0800 (PST)
-Received: from mail.marliere.net ([24.199.118.162])
-        by smtp.gmail.com with ESMTPSA id v9-20020aa78089000000b006e13a88d52esm2024077pff.61.2024.02.17.12.13.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Feb 2024 12:13:33 -0800 (PST)
-From: "Ricardo B. Marliere" <ricardo@marliere.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marliere.net;
-	s=2024; t=1708200812;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eLlN75gM6cSLXL0namU4YIlalW5Vi0mlHQZ3MHBhLI4=;
-	b=CoZRJa6wPSrOMvSIpcKXRjMZvP8gNtwSvdc0gg5MRcDWy68yiY2a+GaHOh4MbVa/8prsRc
-	2ywLRY5zMey7LTXsfG7Dfrg0PuY4+BGFZtil2N7S561byE0ZLUHLI5DwZS7/xxeTtVxG8e
-	OiG6kIi1hMAf2iPrjJ+zUgAXP78Fjtffq+8eVm4JZ6aTsW3bZXoO0FrguQxbX7mcOy7aSf
-	J5BSr7EK++BMpAI7rDwO3fsBkF4WjjAdN6hjdauBvJ8BOv0txhmCCbJlLlG64vBt5r42uG
-	Lmk/7rcUa/XRx1Tfs5WI4Us4LcZLxKdZb8JND0cFtwATOnHzlisxm/cB//LFEw==
-Authentication-Results: ORIGINATING;
-	auth=pass smtp.auth=ricardo@marliere.net smtp.mailfrom=ricardo@marliere.net
-Date: Sat, 17 Feb 2024 17:13:34 -0300
-Subject: [PATCH 12/12] net: hso: constify the struct device_type usage
+        bh=2h7w3PICpgc66DOd0GBlKCF5dayhoEba8xQNx0hBJWY=;
+        b=NJLhka244+pO46MinekIkwa5mgVjtAjUDGo2zn5GG6DjJab4X9IwIQkl2V48QIYPvs
+         XgpnnC0HGYTXxPrpT8TeN8kd6IQTMX4GrGiHN/THY/GCy4NAVWQY9oaTisQnWZ1fEa6x
+         px/rlyw2ZmDJwDUbuqVm72mYV5mZWf+QaClswFOL5B2DvJrn1TS4My5hsOHx9P1MLdFI
+         p/b1nwCYL8+XgmNLqx+u35HFBZ08yc7hsuvmRxIPtwn2s789/fPoAelBH0tqe6di07jT
+         Z/qtD6HbhD6/UhvqykB7XVQ9tSRCPG5YW7Qx1JnrVm1FhMNvMyv4iIc8RuOHOrvho99n
+         oPww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708292842; x=1708897642;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2h7w3PICpgc66DOd0GBlKCF5dayhoEba8xQNx0hBJWY=;
+        b=QA4PgtWgmmTLRKl0agaAV/n1fY+pZ192MalQxs4rMGxyu2S3CT+KSbHsUp9jTQKewi
+         JvVHILzwIgsid6SgOt7wIN+bx88aYK90aeYJ1g30UKNpcuIEPWepbki0/bu87WuIDwkt
+         VM96QRdT9A45VYOitBN92s773BvjVtdDCyGT/Og3EZ1Lqlbitt1RjYr0hTihNNxX+02D
+         YlyCUvVhwBJ2wgpjP1EbVgI3w9sAQzMqChm28/w6chVJAFdN/4wmz2zpKEKhyNEABpbC
+         XctYJbhtIKz0DWNSyh3p+11BEAmHgqfz2gVwfnPNpY5zx+ZQHpIWWBGW1QNF3/jB0lYz
+         Bl/g==
+X-Forwarded-Encrypted: i=1; AJvYcCWVGKjBxOhAZpOiE4ISl7YqSLa85GvH+I+Bpt3vQ+5YNRlszq6EKJhOSTYV2rIb3UfXr6iNkYftoaoQLCHoWl9Ygp3Frcwl
+X-Gm-Message-State: AOJu0YyyXdJLMFDjlsG0TITSrsB/Phv4FvdYCQU2mvIWfJgq++NTZ+iA
+	UnUrZsPURruUx0Jp21eTPgYbvymui74bBShu0OwQDKoNXRNo/qlT
+X-Google-Smtp-Source: AGHT+IHHsrNNaqhzpWEb7ZSZlMvmO/EGN3DdEK1PReUEdPvWQ75O4Nwi52lCklFmN/BpftZW2qDLAw==
+X-Received: by 2002:a17:902:76ca:b0:1d9:b739:a5aa with SMTP id j10-20020a17090276ca00b001d9b739a5aamr9080407plt.42.1708292842210;
+        Sun, 18 Feb 2024 13:47:22 -0800 (PST)
+Received: from ?IPV6:2600:8802:b00:ba1:b1a2:78a5:4a29:e334? ([2600:8802:b00:ba1:b1a2:78a5:4a29:e334])
+        by smtp.gmail.com with ESMTPSA id lb14-20020a170902fa4e00b001d9558689cfsm3107629plb.111.2024.02.18.13.46.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 18 Feb 2024 13:47:20 -0800 (PST)
+Message-ID: <ce36b9ac-6a32-4b97-98e5-dde72ef2b99b@gmail.com>
+Date: Sun, 18 Feb 2024 13:46:37 -0800
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240217-device_cleanup-net-v1-12-1eb31fb689f7@marliere.net>
-References: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
-In-Reply-To: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
-To: Oliver Neukum <oneukum@suse.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, 
- Vladimir Oltean <olteanv@gmail.com>, Roopa Prabhu <roopa@nvidia.com>, 
- Nikolay Aleksandrov <razor@blackwall.org>, 
- Loic Poulain <loic.poulain@linaro.org>, 
- Sergey Ryazanov <ryazanov.s.a@gmail.com>, 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 02/12] net: dsa: constify the struct device_type usage
+To: "Ricardo B. Marliere" <ricardo@marliere.net>,
+ Oliver Neukum <oneukum@suse.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Andrew Lunn <andrew@lunn.ch>,
+ Vladimir Oltean <olteanv@gmail.com>, Roopa Prabhu <roopa@nvidia.com>,
+ Nikolay Aleksandrov <razor@blackwall.org>,
+ Loic Poulain <loic.poulain@linaro.org>,
+ Sergey Ryazanov <ryazanov.s.a@gmail.com>,
  Johannes Berg <johannes@sipsolutions.net>
-Cc: netdev@vger.kernel.org, linux-usb@vger.kernel.org, 
- linux-kernel@vger.kernel.org, bridge@lists.linux.dev, 
- linux-ppp@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- "Ricardo B. Marliere" <ricardo@marliere.net>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=848; i=ricardo@marliere.net;
- h=from:subject:message-id; bh=w71Wbcz7FmwZv+zc0blwnBWeOoYM4g6wH5JSNctbpo8=;
- b=owEBbQKS/ZANAwAKAckLinxjhlimAcsmYgBl0RNuu2dyMd0Dn82mZJ0uYEioT0ekZ6c+ZBXf0
- tJ9Asq8mHeJAjMEAAEKAB0WIQQDCo6eQk7jwGVXh+HJC4p8Y4ZYpgUCZdETbgAKCRDJC4p8Y4ZY
- pkD4D/41UqCiVB/yP7feFrZ2WeO+O//tY1R6qezrJnX86aj43FGYbFyljHIpvyNHnnbMW2EX+wj
- dCy+bKz4luNffXMSQHX4ddVDqjpd6/VzlEC8O9/3PaijK5gbyjs6oM1bSSKD5TAA19f6k89+OA3
- mSFgkjwJRGSAH5tbn+zBjX0xRF/gaJn/rZ7+0ZTnW59ELApDiCdDBWxN1yG1RF9TB5E5uBykiok
- YmMvVC04WSuxJspHCWaZt1PZ4U2jFjg+Nw9+00ZmrnzYppqu7BCtmzB7PFeBThDK7lImtGB/8AQ
- OVjGXzCJXO3J/XRODHoAiEU0rhpx6InOgEG2o+o5OSt3TNDySGshVGqzMd8Yn7D4HWn/2KIlhwB
- bX3TFOKsD77AR5aexms8wG/Fs4sNE8JkDPrkVwx91DHFlDTefZAdmL5ck3XSlRWQE5H/DcpHWZw
- IWlocKvOMvNX3o8EZ0A+0YR44Eak9DcCrRhtjsmNEciBvAQAYW/8iB6ZJ7Pa1Yg/YgfkZVvqKE6
- +rPTvMSWmt4bZROlHkSWJdAH0xzHC4UBmz+8jSE0MxukTx8qXfEIaOInczSJ2+InLSYLNi5YfmN
- Yh4g4ZzIA4y7GI0LDHH948xVVCD2SI6se+4PCuTjPee2BCSR87K7JADdBMqmunFEnUCmZMfn+ZK
- BMODrTGSqLQ8R0A==
-X-Developer-Key: i=ricardo@marliere.net; a=openpgp;
- fpr=030A8E9E424EE3C0655787E1C90B8A7C638658A6
+Cc: netdev@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bridge@lists.linux.dev,
+ linux-ppp@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
+ <20240217-device_cleanup-net-v1-2-1eb31fb689f7@marliere.net>
+Content-Language: en-US
+From: Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20240217-device_cleanup-net-v1-2-1eb31fb689f7@marliere.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Since commit aed65af1cc2f ("drivers: make device_type const"), the driver
-core can properly handle constant struct device_type. Move the hso_type
-variable to be a constant structure as well, placing it into read-only
-memory which can not be modified at runtime.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
----
- drivers/net/usb/hso.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
-index f088ea2ba6f3..1aeb36119d3f 100644
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2465,7 +2465,7 @@ static void hso_create_rfkill(struct hso_device *hso_dev,
- 	}
- }
- 
--static struct device_type hso_type = {
-+static const struct device_type hso_type = {
- 	.name	= "wwan",
- };
- 
+On 2/17/2024 12:13 PM, Ricardo B. Marliere wrote:
+> Since commit aed65af1cc2f ("drivers: make device_type const"), the driver
+> core can properly handle constant struct device_type. Move the dsa_type
+> variable to be a constant structure as well, placing it into read-only
+> memory which can not be modified at runtime.
+> 
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
 
+Reviewed-by: Florian Fainelli <florian.fainelli@broadcom.com>
 -- 
-2.43.0
-
+Florian
