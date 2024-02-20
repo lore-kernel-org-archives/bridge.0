@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DB8C65BDD;
-	Tue, 20 Feb 2024 11:20:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C49D664BC;
+	Tue, 20 Feb 2024 11:20:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708428017; cv=none; b=lnFWalvrhc13kYIK+Qe2o/U5oBust0EFhCQ3qQ3ef2nifCA3gjaeuuVan5Cim3w77A2KaLjML/Xcrw+PMCu1PrW3lWtSTVMhOmxI7NsFux+Q0bQTkLeFP0BoTbSR0VpHy4DWKt+MybCBZjLtg8AiFoGv4kyXRfq+MhbjCiSDoqM=
+	t=1708428039; cv=none; b=RMFx/74XsfMpXCmtwnvzCY1HcVrdmg5tAeeqUahtrOVJc1oB/Ybqjx7Apz3rJlsKPrN+2A2p6qEI9bssPzqxLkpdSevii3CGgk6W5mBOfLWD+X3QpigN7zDl5C56A0DBEyl1z0FvEzuhwy0433Q6apmeup2vInGDl5T2hbEvDV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708428017; c=relaxed/simple;
-	bh=15Ob8WElWbdYfjZM/8HQ60IBg5bEDUI+MgS67in5L3s=;
+	s=arc-20240116; t=1708428039; c=relaxed/simple;
+	bh=nav7JNLAJsljQhBqRSxUScFf80l0X4KVVYdgjcPHv3I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YTq3X2+4gJG00hT1dD8amKXUOUvVDbtW0rOSFSJ7PCTkasq4pxAa6coUTIF5kRtKRs0fRrHnEEV8eSmeqKrjXU9IBQwA2KnnhigphpmDxxFyFjLtKjA5hHWfOX+CH4y136hwgphTDjSQQTZiqVKXVWMqyi66THAVaRPuvTubRVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F5qyo3iW; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=mVnVGY7vMYHQIonlrLk7AIuF5I6L9m38863CHRGXMhCu+f6z2LCNhOAtKud5G2aFqPGJeigEIkhzzHDsWnGBMpNn623g0J8JTA/MQd4bXs0dZ3Zh3g2LobqYVfzp+/8pdQt8fuerTHeT7+40nMzPZh5Vqb9pfIPBii+IZEi+xgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lmHoVCMA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F5qyo3iW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1415C433C7;
-	Tue, 20 Feb 2024 11:20:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lmHoVCMA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26F6C43390;
+	Tue, 20 Feb 2024 11:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708428016;
-	bh=15Ob8WElWbdYfjZM/8HQ60IBg5bEDUI+MgS67in5L3s=;
+	s=k20201202; t=1708428038;
+	bh=nav7JNLAJsljQhBqRSxUScFf80l0X4KVVYdgjcPHv3I=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=F5qyo3iWg8DD6ufVBIQbU8qFOTKR/yb1VcukV6VuQfHzD/JvMH58r3Z9R8oVu7uqh
-	 urg3/unVgmx3G3aPAZloAEAhMzzPur5axdH7RQmdKXXId4WCtFPJixEwPrkh+4d+iN
-	 CqYmBl3E6e0gV8xGfeS8/s5fblDHoxdrgdAU8kCP2kFlx/TVZ5PqlaQlWU09ISfssu
-	 paES2/e16bAvW4dNAKHArVFx5ALgbyZ+v/eKjWuXo5BFUmsaFRbya3GAm8/0Kzaz8J
-	 5GlcxBZPz/PKb07/HihNu1gkUNnWr3PcA6LMVABxRBALOAsDCRs48We6Z3gEwZwwjR
-	 2AYoI6XnTSCeQ==
-Date: Tue, 20 Feb 2024 11:18:16 +0000
+	b=lmHoVCMAjoLlr/csoW4DNN7PwGhpUrGBcZpQiXniD1BXMpERzwXV4lSI2DWbgg4co
+	 yuKo2fQowzqbb6BBOS1sNUQ7vSQE3W0vIRRCC8mZYq9stuews4IdwRSmZNc37eXBez
+	 oDvungYZJSq3koynq3gt3Wf0T99XruNdsAjWY3/khyidWjFdCkGs4o+RcnomlOfjiM
+	 X+CW7SqAoVSxIK7ZrQtJOB+zY+0wAm8Wd/oz2br+Dwkmbs8jS6PirMzy9kiRSbW9Fk
+	 8yiutcdEmzC2bR6cRqJQdxstpyVF12nutL+hhNQuouRQd6v3UtNnt4dWo0JpHi2G9C
+	 qxhUqLgf6+yOw==
+Date: Tue, 20 Feb 2024 11:20:32 +0000
 From: Simon Horman <horms@kernel.org>
 To: "Ricardo B. Marliere" <ricardo@marliere.net>
 Cc: Oliver Neukum <oneukum@suse.com>,
@@ -44,10 +44,10 @@ Cc: Oliver Neukum <oneukum@suse.com>,
 	linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
 	bridge@lists.linux.dev, linux-ppp@vger.kernel.org,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 01/12] net: usbnet: constify the struct device_type usage
-Message-ID: <20240220111816.GS40273@kernel.org>
+Subject: Re: [PATCH 03/12] net: bridge: constify the struct device_type usage
+Message-ID: <20240220112032.GT40273@kernel.org>
 References: <20240217-device_cleanup-net-v1-0-1eb31fb689f7@marliere.net>
- <20240217-device_cleanup-net-v1-1-1eb31fb689f7@marliere.net>
+ <20240217-device_cleanup-net-v1-3-1eb31fb689f7@marliere.net>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -56,13 +56,13 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240217-device_cleanup-net-v1-1-1eb31fb689f7@marliere.net>
+In-Reply-To: <20240217-device_cleanup-net-v1-3-1eb31fb689f7@marliere.net>
 
-On Sat, Feb 17, 2024 at 05:13:23PM -0300, Ricardo B. Marliere wrote:
+On Sat, Feb 17, 2024 at 05:13:25PM -0300, Ricardo B. Marliere wrote:
 > Since commit aed65af1cc2f ("drivers: make device_type const"), the driver
-> core can properly handle constant struct device_type. Move the wlan_type
-> and wwan_type variables to be constant structures as well, placing it into
-> read-only memory which can not be modified at runtime.
+> core can properly handle constant struct device_type. Move the br_type
+> variable to be a constant structure as well, placing it into read-only
+> memory which can not be modified at runtime.
 > 
 > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > Signed-off-by: Ricardo B. Marliere <ricardo@marliere.net>
