@@ -1,93 +1,96 @@
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A08394DA0C
-	for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 18:27:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D32C53D988
+	for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 19:02:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709058445; cv=none; b=koCV1iJmB6TAUSdZyNVR3I17Bjzr/i2HdIo9uGw0HqCaicKNLLrDoKlVzu1ZfIJpqwH9zTbMiF2JcmnoN2mLZ+vvkThQGsPghBaiqS2uvDcjQYi1AWCCKsCk3quAVZyTyh8h5/qFPuiSj+GDaOuMfWIDvOe/WfuOshLsPFuj+W8=
+	t=1709060527; cv=none; b=nfu66lKc6BH/b5bMj+BWQSwCfRr5eI1BjWFxUh6Q3Zj51fLs8+gnesazr3r/DMg9di1f6bxfw+sV2F3COvrLO1aO3GzUzJWxYtfQkRv2rpPFdbgPD87X8JEKa8mrF+j1whf7oQV1Irj4NWQcYB2/zpHvbh8iBJeb5PZYhm504eU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709058445; c=relaxed/simple;
-	bh=zVMdHabuMFecxpBMg1WrZBM+FcSm73K54oXaYAI4aUM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i9p84Q2LdMqcf7g/JaqN5iXXJN7BITr+twFPRWa2NKxiHDHljPg8G1epxDyYlMvYmCOu/ygKayV8We6QF2W9Fo8JWgOPajWXUxb23HCvCLQCYGgyhcCzeeA/IgQgvyduVDO1uOaA3CtPyy6o2RDbimQIes5sJl87w71swZxBTKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-565b434f90aso4023229a12.3
-        for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 10:27:23 -0800 (PST)
+	s=arc-20240116; t=1709060527; c=relaxed/simple;
+	bh=N5TI/RT7tSbHAzXpAE0y0CqGtG2+EVcPfWJWRQP7swc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TqGAI/K/NdzsPdWNLrmKN903cQIpGZTBb1v0+FNtI/XSNPhnVmODyhArjI567uwFMwrvj0tQiwGow2XeuT79u7Nr/db+Q1QMw4uRUIFNVkV8oqHm0HYENRwc9wDxooLR9J5g/USguWQYiO6x3bF9kqobC1d97tNaWNVzSa1/P5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=vYrxQSeI; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="vYrxQSeI"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a3122b70439so582545066b.3
+        for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 11:02:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1709060523; x=1709665323; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=m1q+1nHGeN9JstdRCnM0oUNgt0RBGVjhiHcZGWKHHuo=;
+        b=vYrxQSeIYM/ZDs2ErtbVWibd+dUlggkj7SlAiWwWSFBnl9NAjOuzbYdo8bmyqMELmb
+         ZKbw4zTsGl9jHX57WIOO/WQVoPoy4UHXChQOPzbIO5xE96DGAEsRPYzfTsbtFkSt9FTI
+         L3bRVoBo7jVukFdadgi9wnk+gXD0UApmJfQI71IHokOHsy8qmXcNpIEf7jw14dVsntIg
+         L8c7OceOZvxJJhwD0lcVTdlNWC/3DMWN6ObPdxwd+MgBaFdLPoSmbqa/YLzCwo+f42To
+         cNfhH2Ry0VzQlYdkKrHaWvguUX2V2jsHX8C7mD4B2+HfaFjHAl8j8PRvmRY/jynBJLBI
+         B5sg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709058442; x=1709663242;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+GeLmogx+cToEPykC0a7rvtGD8mgVekw3O/wzWzAUb0=;
-        b=PgChaBuFosq6Wi/xvClbDrsaYgm6yiBmCTGc7ZxyQz27/K+oh/gMM8dWBNaAwoYy4I
-         bahJHnmKWM3+kqW9BO/4a5+q4m/BLe1L5bO65GkF5/KdoE5TmNTDn0hF20l8ZgTjm28/
-         N/9sXOA0/PQU47v5nBWOBdIv+eWfVtfPjk0UVvNaIFMKcoqtbQhQYHJerSwHQ5pyaGOX
-         JKdN/a9aNpuzHS9wDsnLnZUjVjLLWgmr8MOqOolGOXkqUmlKZIAUFWkzvYnRF8rIuqU7
-         SXcUK0aXERIM1hJpUwtidvzt9K4cLcqSrRPlUvIKEOFPC3FpODAd0hwfhPfQ7FJSDrhN
-         Bbpw==
-X-Forwarded-Encrypted: i=1; AJvYcCW32gtHVd0NTU/2CAntyFZoQ3vdGpxVmqc/e5vJocFqe/lYNi7bERp67M+jC9IGlsyd4X7sq8Ymnkm78yOFFIFWOPTXaqgd
-X-Gm-Message-State: AOJu0Yw5MQIs6w2LAL5ICNk7cuSKQtTHsjgjfL+gl7hhWq9LVI19lI3H
-	+QFmgqmZOQyVpWffBJ98jgs+MF3lfTuyGapfe7Dhz/y0RRaBNlnf
-X-Google-Smtp-Source: AGHT+IG3+cBjRu18zHsitK0GU/ViOUBaX9yMmK4uLAz6mXML3LdPK2HpZLRz1e1fjky/bOVn+rBBfw==
-X-Received: by 2002:a17:906:fcc1:b0:a41:682:c3b9 with SMTP id qx1-20020a170906fcc100b00a410682c3b9mr6849976ejb.65.1709058441885;
-        Tue, 27 Feb 2024 10:27:21 -0800 (PST)
-Received: from localhost (fwdproxy-lla-119.fbsv.net. [2a03:2880:30ff:77::face:b00c])
-        by smtp.gmail.com with ESMTPSA id ef3-20020a17090697c300b00a4396ea6628sm1000810ejb.210.2024.02.27.10.27.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Feb 2024 10:27:21 -0800 (PST)
-From: Breno Leitao <leitao@debian.org>
-To: kuba@kernel.org,
-	davem@davemloft.net,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	horms@kernel.org,
-	bridge@lists.linux.dev (open list:ETHERNET BRIDGE)
-Subject: [PATCH net-next 2/2] net: bridge: Exit if multicast_init_stats fails
-Date: Tue, 27 Feb 2024 10:23:37 -0800
-Message-ID: <20240227182338.2739884-2-leitao@debian.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240227182338.2739884-1-leitao@debian.org>
-References: <20240227182338.2739884-1-leitao@debian.org>
+        d=1e100.net; s=20230601; t=1709060523; x=1709665323;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=m1q+1nHGeN9JstdRCnM0oUNgt0RBGVjhiHcZGWKHHuo=;
+        b=HQ3ARN4KrSjxU4Mue/RXOoro4yntXwcXX3fF7WxhIMFhADDgh4HcLjgbQaAdkfWNcn
+         cuyBVx0BEjt9T+VSkmEpIf2JkNPJt38hsC4mzAaGyNh9J3X7fWYUHzW/TLUMxtMXkSfn
+         82u9m0EhyVIEm9SInzM0CstrYmOKWNwWZ31gH4nQdlBiuSvXebk/fmvVvlJE8TiV2+0/
+         zvvH4k90WkYkzjohmHSjmaAG2V6efVlVARiD3TOKzrKZKnRgzMRCaJAPXGTIWQ8aLGkh
+         WRbn41oSDkP5uopXZcB6tjnHCHx6FGpBlZtPncDA08al0Ejdt8uIPuYz48huQVP5p+ij
+         8OCg==
+X-Forwarded-Encrypted: i=1; AJvYcCVCe7ttTfRAfrF7aNpxoAw1s3iFdsnZLwXHt7+QJ2w8nw0gI2U6MRUs05SzhzVToYExzJMepsWlW56RWP44vgjPFJWpiw/r
+X-Gm-Message-State: AOJu0YyosTfapT3li098/4wygmHawZXHBd12uhRu0xf7bGUTeHDot8Bn
+	pwISqq+Q7ogVL8ZdqyMEy3wjpgeQm1233djeFp1f/wDKmvC+sjFnlz2JJovHDx4=
+X-Google-Smtp-Source: AGHT+IE1XNkbUpSjMjOpcuNNOXVkGSXvQ7nVK4Av1jceNHUmxdsvrz5REIHtRQD4V8RvdGQwkhuNgQ==
+X-Received: by 2002:a17:906:a38b:b0:a3f:721f:a7ac with SMTP id k11-20020a170906a38b00b00a3f721fa7acmr7129987ejz.45.1709060523141;
+        Tue, 27 Feb 2024 11:02:03 -0800 (PST)
+Received: from [192.168.0.106] (176.111.183.96.kyiv.volia.net. [176.111.183.96])
+        by smtp.gmail.com with ESMTPSA id rf20-20020a1709076a1400b00a43e6c2e107sm91703ejc.189.2024.02.27.11.02.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 27 Feb 2024 11:02:02 -0800 (PST)
+Message-ID: <a7d6e651-998a-4996-9b03-40d95edc84b5@blackwall.org>
+Date: Tue, 27 Feb 2024 21:02:01 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 1/2] net: bridge: Do not allocate stats in the
+ driver
+Content-Language: en-US
+To: Breno Leitao <leitao@debian.org>, kuba@kernel.org, davem@davemloft.net,
+ pabeni@redhat.com, edumazet@google.com, Roopa Prabhu <roopa@nvidia.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, horms@kernel.org,
+ "open list:ETHERNET BRIDGE" <bridge@lists.linux.dev>
+References: <20240227182338.2739884-1-leitao@debian.org>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20240227182338.2739884-1-leitao@debian.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-If br_multicast_init_stats() fails, there is no need to set lockdep
-classes. Just return from the error path.
+On 2/27/24 20:23, Breno Leitao wrote:
+> With commit 34d21de99cea9 ("net: Move {l,t,d}stats allocation to core and
+> convert veth & vrf"), stats allocation could be done on net core
+> instead of this driver.
+> 
+> With this new approach, the driver doesn't have to bother with error
+> handling (allocation failure checking, making sure free happens in the
+> right spot, etc). This is core responsibility now.
+> 
+> Remove the allocation in the bridge driver and leverage the network
+> core allocation.
+> 
+> Signed-off-by: Breno Leitao <leitao@debian.org>
+> ---
+>   net/bridge/br_device.c | 13 ++-----------
+>   1 file changed, 2 insertions(+), 11 deletions(-)
+> 
 
-Signed-off-by: Breno Leitao <leitao@debian.org>
----
- net/bridge/br_device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 4f636f7b0555..c366ccc8b3db 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -135,10 +135,11 @@ static int br_dev_init(struct net_device *dev)
- 		br_vlan_flush(br);
- 		br_mdb_hash_fini(br);
- 		br_fdb_hash_fini(br);
-+		return err;
- 	}
- 
- 	netdev_lockdep_set_classes(dev);
--	return err;
-+	return 0;
- }
- 
- static void br_dev_uninit(struct net_device *dev)
--- 
-2.43.0
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
