@@ -1,42 +1,43 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 016E13D541
-	for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 18:27:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A08394DA0C
+	for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 18:27:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709058444; cv=none; b=MbC3bcv1C4C0q4rlHSFHwPLOAsTVta7do0cP+G0vwAwdFvylNRbp66fAVo//pK+geJ1mL4QM8lGDDXV86iW2+3IItHvjNAA67H3GG9y4Aq389SAPNn76B+ers5GLwKrWGTIhYW9YbQOrhIZPZno2h8ZlwtXYl9ce6Ma0Pi8YNQs=
+	t=1709058445; cv=none; b=koCV1iJmB6TAUSdZyNVR3I17Bjzr/i2HdIo9uGw0HqCaicKNLLrDoKlVzu1ZfIJpqwH9zTbMiF2JcmnoN2mLZ+vvkThQGsPghBaiqS2uvDcjQYi1AWCCKsCk3quAVZyTyh8h5/qFPuiSj+GDaOuMfWIDvOe/WfuOshLsPFuj+W8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709058444; c=relaxed/simple;
-	bh=uO+QAb9CNhOXbeAPWDtH2HJL7jsZQvvk4tKvYfP5lKI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nZ7xqlX4BIc4QusGXBU4+x110W9PTwgnxYB+auGFADnl7KuUGLfB84+SApzwRmBuMu+1EP5n7MpO0L4QPBdNcRsaaxoONKUtfzRrcFkweEw1HGWDjstoY62PHNlgvVtHk74i3loagjl3/UvW+oEs5SR91WS8XIQhhTF0JIl9qHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.44
+	s=arc-20240116; t=1709058445; c=relaxed/simple;
+	bh=zVMdHabuMFecxpBMg1WrZBM+FcSm73K54oXaYAI4aUM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=i9p84Q2LdMqcf7g/JaqN5iXXJN7BITr+twFPRWa2NKxiHDHljPg8G1epxDyYlMvYmCOu/ygKayV8We6QF2W9Fo8JWgOPajWXUxb23HCvCLQCYGgyhcCzeeA/IgQgvyduVDO1uOaA3CtPyy6o2RDbimQIes5sJl87w71swZxBTKw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5131316693cso1034644e87.0
-        for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 10:27:21 -0800 (PST)
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-565b434f90aso4023229a12.3
+        for <bridge@lists.linux.dev>; Tue, 27 Feb 2024 10:27:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709058440; x=1709663240;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=BYvzYko0Is+SAP/w3hqBwCLet2Nqsl8SFgKdmiGU1T4=;
-        b=AftloKB5KE+vJGlbZVDAfJ+l3GjGQySnx9cRyjZTT11DZ9f2oOSkNUFceO7RBmhay8
-         EYfBBZdDtBxy0UBqKULII0Elig4v+eQnnjC0MkqqafvZUuaw9OLLKvu97j9Q3+WrAi2z
-         L75heHGcvjQbq9j3DwlfzsER8P2TS4rYdGOwKXHAzOo8joqXWBIGNNQSuSKUS8lSxqe6
-         yWMy/C21s/cgnhu3vT8kMaE+R5pPSPiUjTGtFhUPl4O4U6v3GcY4CSC5eWKxZOqYCFkG
-         1cN+HQIxUe8UcW7Dh65uyIMxUAH5j4zVm63HA83pRCHMzSMgICbZPx+UEtAq+We1/AP2
-         osOg==
-X-Forwarded-Encrypted: i=1; AJvYcCXcyiAB7VhYHAx8NyPm8w4jbL6L78xDVoUEEtu4aAjNjw5CVXS2QaugCW6wYiuKBPE+9ruSHv+KeyvtDx+hMBQ5oHclj53q
-X-Gm-Message-State: AOJu0YyO9h4BVhpQ3pJXwOLgLzoGH1UxCx2oOmrxW6ihKW139YNnzHNH
-	P/YRTQBzwcpQ4JhQGsipmmo2F9mz+9YyEnBQll5rf1qkSlHjyLEo
-X-Google-Smtp-Source: AGHT+IEUwtTbXJECoVbN5asUL5J5WG/LHgYO68BFG1pCrUGnFaCZjVTJp4FqoJhJXBMYuqLO4LYYaA==
-X-Received: by 2002:a05:6512:33d5:b0:512:fe39:5d0e with SMTP id d21-20020a05651233d500b00512fe395d0emr5433262lfg.9.1709058439803;
-        Tue, 27 Feb 2024 10:27:19 -0800 (PST)
-Received: from localhost (fwdproxy-lla-000.fbsv.net. [2a03:2880:30ff::face:b00c])
-        by smtp.gmail.com with ESMTPSA id u11-20020aa7db8b000000b005653f390f77sm1001546edt.10.2024.02.27.10.27.19
+        d=1e100.net; s=20230601; t=1709058442; x=1709663242;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+GeLmogx+cToEPykC0a7rvtGD8mgVekw3O/wzWzAUb0=;
+        b=PgChaBuFosq6Wi/xvClbDrsaYgm6yiBmCTGc7ZxyQz27/K+oh/gMM8dWBNaAwoYy4I
+         bahJHnmKWM3+kqW9BO/4a5+q4m/BLe1L5bO65GkF5/KdoE5TmNTDn0hF20l8ZgTjm28/
+         N/9sXOA0/PQU47v5nBWOBdIv+eWfVtfPjk0UVvNaIFMKcoqtbQhQYHJerSwHQ5pyaGOX
+         JKdN/a9aNpuzHS9wDsnLnZUjVjLLWgmr8MOqOolGOXkqUmlKZIAUFWkzvYnRF8rIuqU7
+         SXcUK0aXERIM1hJpUwtidvzt9K4cLcqSrRPlUvIKEOFPC3FpODAd0hwfhPfQ7FJSDrhN
+         Bbpw==
+X-Forwarded-Encrypted: i=1; AJvYcCW32gtHVd0NTU/2CAntyFZoQ3vdGpxVmqc/e5vJocFqe/lYNi7bERp67M+jC9IGlsyd4X7sq8Ymnkm78yOFFIFWOPTXaqgd
+X-Gm-Message-State: AOJu0Yw5MQIs6w2LAL5ICNk7cuSKQtTHsjgjfL+gl7hhWq9LVI19lI3H
+	+QFmgqmZOQyVpWffBJ98jgs+MF3lfTuyGapfe7Dhz/y0RRaBNlnf
+X-Google-Smtp-Source: AGHT+IG3+cBjRu18zHsitK0GU/ViOUBaX9yMmK4uLAz6mXML3LdPK2HpZLRz1e1fjky/bOVn+rBBfw==
+X-Received: by 2002:a17:906:fcc1:b0:a41:682:c3b9 with SMTP id qx1-20020a170906fcc100b00a410682c3b9mr6849976ejb.65.1709058441885;
+        Tue, 27 Feb 2024 10:27:21 -0800 (PST)
+Received: from localhost (fwdproxy-lla-119.fbsv.net. [2a03:2880:30ff:77::face:b00c])
+        by smtp.gmail.com with ESMTPSA id ef3-20020a17090697c300b00a4396ea6628sm1000810ejb.210.2024.02.27.10.27.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Feb 2024 10:27:19 -0800 (PST)
+        Tue, 27 Feb 2024 10:27:21 -0800 (PST)
 From: Breno Leitao <leitao@debian.org>
 To: kuba@kernel.org,
 	davem@davemloft.net,
@@ -48,10 +49,12 @@ Cc: netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	horms@kernel.org,
 	bridge@lists.linux.dev (open list:ETHERNET BRIDGE)
-Subject: [PATCH net-next 1/2] net: bridge: Do not allocate stats in the driver
-Date: Tue, 27 Feb 2024 10:23:36 -0800
-Message-ID: <20240227182338.2739884-1-leitao@debian.org>
+Subject: [PATCH net-next 2/2] net: bridge: Exit if multicast_init_stats fails
+Date: Tue, 27 Feb 2024 10:23:37 -0800
+Message-ID: <20240227182338.2739884-2-leitao@debian.org>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240227182338.2739884-1-leitao@debian.org>
+References: <20240227182338.2739884-1-leitao@debian.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -60,78 +63,31 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-With commit 34d21de99cea9 ("net: Move {l,t,d}stats allocation to core and
-convert veth & vrf"), stats allocation could be done on net core
-instead of this driver.
-
-With this new approach, the driver doesn't have to bother with error
-handling (allocation failure checking, making sure free happens in the
-right spot, etc). This is core responsibility now.
-
-Remove the allocation in the bridge driver and leverage the network
-core allocation.
+If br_multicast_init_stats() fails, there is no need to set lockdep
+classes. Just return from the error path.
 
 Signed-off-by: Breno Leitao <leitao@debian.org>
 ---
- net/bridge/br_device.c | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ net/bridge/br_device.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 874cec75a818..4f636f7b0555 100644
+index 4f636f7b0555..c366ccc8b3db 100644
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -113,26 +113,18 @@ static int br_dev_init(struct net_device *dev)
- 	struct net_bridge *br = netdev_priv(dev);
- 	int err;
- 
--	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
--	if (!dev->tstats)
--		return -ENOMEM;
--
- 	err = br_fdb_hash_init(br);
--	if (err) {
--		free_percpu(dev->tstats);
-+	if (err)
- 		return err;
--	}
- 
- 	err = br_mdb_hash_init(br);
- 	if (err) {
--		free_percpu(dev->tstats);
- 		br_fdb_hash_fini(br);
- 		return err;
- 	}
- 
- 	err = br_vlan_init(br);
- 	if (err) {
--		free_percpu(dev->tstats);
- 		br_mdb_hash_fini(br);
- 		br_fdb_hash_fini(br);
- 		return err;
-@@ -140,7 +132,6 @@ static int br_dev_init(struct net_device *dev)
- 
- 	err = br_multicast_init_stats(br);
- 	if (err) {
--		free_percpu(dev->tstats);
+@@ -135,10 +135,11 @@ static int br_dev_init(struct net_device *dev)
  		br_vlan_flush(br);
  		br_mdb_hash_fini(br);
  		br_fdb_hash_fini(br);
-@@ -159,7 +150,6 @@ static void br_dev_uninit(struct net_device *dev)
- 	br_vlan_flush(br);
- 	br_mdb_hash_fini(br);
- 	br_fdb_hash_fini(br);
--	free_percpu(dev->tstats);
++		return err;
+ 	}
+ 
+ 	netdev_lockdep_set_classes(dev);
+-	return err;
++	return 0;
  }
  
- static int br_dev_open(struct net_device *dev)
-@@ -496,6 +486,7 @@ void br_dev_setup(struct net_device *dev)
- 	dev->hw_features = COMMON_FEATURES | NETIF_F_HW_VLAN_CTAG_TX |
- 			   NETIF_F_HW_VLAN_STAG_TX;
- 	dev->vlan_features = COMMON_FEATURES;
-+	dev->pcpu_stat_type = NETDEV_PCPU_STAT_TSTATS;
- 
- 	br->dev = dev;
- 	spin_lock_init(&br->lock);
+ static void br_dev_uninit(struct net_device *dev)
 -- 
 2.43.0
 
