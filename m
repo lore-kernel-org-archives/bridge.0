@@ -1,89 +1,69 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E8B8564F;
-	Tue,  5 Mar 2024 15:53:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0DF81339B1;
+	Wed,  6 Mar 2024 15:14:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709654012; cv=none; b=jPfel/zAOkwCgkYIu6iy3lFsL+bq572Y343xX44doN+F0z0mP34Yq/6+ZD1EXTdcIE13Alua1RJU+YLzbGeNJCumbUx4dbDddDZ/ApjNR55brqm4ij9n2GLqQO85FFuctlQJ87j5kT57NDaWyfQHysUUzWLYItoAwOM4HOU7Mpk=
+	t=1709738046; cv=none; b=dilePoKJBl7yqFKILokoVlAlA5uyvZ6c4B4DanbuSI4sZ3HeUsLsADsuahHUd3UBV5a8R1SdNYM9V0cRd9PDOTanGAD7lEQ/u9OYoZA5QUW/MAN8s3l7v64tG2uTpQGSTDdQcjLeRE/pxIu2JZQLR0OwcFaBft5/JnJWnKq1jTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709654012; c=relaxed/simple;
-	bh=rDlQjaD1UZ6PQYWdhuuIJijmsasCa9b3CU3BJCU2K+A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GXWLV+N3eqvCIer5SHtIuUh1iHl73DLMSeYEnsHAXB+gGkFPwM4+4jT4Bosy9ypTBqgSMKH3nsAZpxKI2YqLxidoFiHxccYQUqCq3yqycex7dbQIrYIIc5d0xWJIxEa1Zl9PHCLga7P+1V4RJCZLQuLL79+eL9Fknmk6GbH77Ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Khw749nU; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Khw749nU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A751C433C7;
-	Tue,  5 Mar 2024 15:53:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1709654011;
-	bh=rDlQjaD1UZ6PQYWdhuuIJijmsasCa9b3CU3BJCU2K+A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Khw749nUIl454K1QP9BrQMHBNpLZVFa1Xxny2jK/zRVxjfETcHcHoYVFgJydkZIJj
-	 wvh8iA0x2Os7kkoOZrvRg+1HKgz7brKpGNq3ScO70zmh9Sdj/0sWct8rfGMKGmhxKQ
-	 2VjM3l05dCWjUykNUA6M0sWLEG/Q8xGPj1vlqytIF32oJcspH9rAGyee6qI3DMx8C7
-	 Z86XNm019DDsCn19wd/wDU69KPdxque6+PoU9ZPbhrMWNkbzTR4WXPU9bNvbcDuJFC
-	 Vxf1XdHQm0lZ6YBPFEie3X54PNtR+YbE+I5O7YA+BKNKj6rW1lM2M6NH9COU8FiePz
-	 3zAwq/Y6rDXyw==
-Date: Tue, 5 Mar 2024 15:53:27 +0000
-From: Simon Horman <horms@kernel.org>
-To: Zixuan Tan <tanzixuan.me@gmail.com>
-Cc: Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Pablo Neira Ayuso <pablo@netfilter.org>, bridge@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
-	Masahiro Yamada <masahiroy@kernel.org>
-Subject: Re: [PATCH] net: bridge: Replace deprecated build flag
- HAVE_JUMP_LABEL with CONFIG_JUMP_LABEL
-Message-ID: <20240305155327.GA137768@kernel.org>
-References: <CABwm_eRuL9UXanmTaC7U820=8GLAHHwWuFP=REOpECsPR+pPvg@mail.gmail.com>
+	s=arc-20240116; t=1709738046; c=relaxed/simple;
+	bh=QPoRWBQwoZTSakOo7SWfWUWThzlvSWX6dzXYjN9HZ1o=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=rwofO3JT9LID3hIvL7sJLLsWyqDail+1F4mYZiN6dUST7VwZsfVxccsttBn79zHD8fJ26x/cAIZl0K0HoNEYGfylJhNxRaYutIVgfNDLJka7IYoy+eMqMhDmXtMRd96V9fBILaniJgzoTHf7TGn+G0sdLzaApPUhZPX9hJgWkmk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A0E1C433F1;
+	Wed,  6 Mar 2024 15:14:05 +0000 (UTC)
+Date: Wed, 6 Mar 2024 10:15:57 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, davem@davemloft.net, kuba@kernel.org,
+ roopa@nvidia.com, razor@blackwall.org, bridge@lists.linux.dev,
+ netdev@vger.kernel.org, jiri@resnulli.us, ivecera@redhat.com,
+ mhiramat@kernel.org, linux-trace-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 net-next 4/4] net: switchdev: Add tracepoints
+Message-ID: <20240306101557.2c56fbc6@gandalf.local.home>
+In-Reply-To: <877cihhb7y.fsf@waldekranz.com>
+References: <20240223114453.335809-1-tobias@waldekranz.com>
+	<20240223114453.335809-5-tobias@waldekranz.com>
+	<20240223103815.35fdf430@gandalf.local.home>
+	<4838ad92a359a10944487bbcb74690a51dd0a2f8.camel@redhat.com>
+	<87a5nkhnlv.fsf@waldekranz.com>
+	<20240228095648.646a6f1a@gandalf.local.home>
+	<877cihhb7y.fsf@waldekranz.com>
+X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABwm_eRuL9UXanmTaC7U820=8GLAHHwWuFP=REOpECsPR+pPvg@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-+ Masahiro Yamada <masahiroy@kernel.org>
+On Mon, 04 Mar 2024 23:40:49 +0100
+Tobias Waldekranz <tobias@waldekranz.com> wrote:
 
-On Tue, Mar 05, 2024 at 10:42:04PM +0800, Zixuan Tan wrote:
-> The build flag HAVE_JUMP_LABEL has been deprecated and removed in commit
->  e9666d10a567 ("jump_label: move 'asm goto' support test to Kconfig").
-> It is no longer defined or used. The correct flag to use is CONFIG_JUMP_LABEL.
+> On ons, feb 28, 2024 at 09:56, Steven Rostedt <rostedt@goodmis.org> wrote:
+> > On Wed, 28 Feb 2024 11:47:24 +0100
+> > Tobias Waldekranz <tobias@waldekranz.com> wrote:
+> >  
+> > The "trace_seq p" is a pointer to trace_seq descriptor that can build
+> > strings, and then you can use it to print a custom string in the trace
+> > output.  
 > 
-> Fixes: 971502d77faa ("bridge: netfilter: unroll NF_HOOK helper in
-> bridge input path")
-> Signed-off-by: Zixuan Tan <tanzixuan.me@gmail.com>
-
-This patch seems to be mangled somehow and doesn't apply.
-However, I believe that the change described by it is correct.
-
-Reviewed-by: Simon Horman <horms@kernel.org>
-
-> ---
->  net/bridge/br_input.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Yes I managed to decode the hidden variable :) I also found
+> trace_seq_acquire() (and its macro alter ego __get_buf()), which would
+> let me keep the generic stringer functions. So far, so good.
 > 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index f21097e73482..3700e47ff181 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -255,7 +255,7 @@ static int nf_hook_bridge_pre(struct sk_buff *skb,
-> struct sk_buff **pskb)
->     int ret;
-> 
->     net = dev_net(skb->dev);
-> -#ifdef HAVE_JUMP_LABEL
-> +#ifdef CONFIG_JUMP_LABEL
->     if (!static_key_false(&nf_hooks_needed[NFPROTO_BRIDGE][NF_BR_PRE_ROUTING]))
->         goto frame_finish;
->  #endif
-> -- 
-> 2.40.1
+> I think the foundational problem remains though: TP_printk() is not
+> executed until a user reads from the trace_pipe; at which point the
+> object referenced by __entry->info may already be dead and
+> buried. Right?
+
+Correct. You would need to load all the information into the event data
+itself, at the time of the event is triggered, that is needed to determine
+how to display it.
+
+-- Steve
+
