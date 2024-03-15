@@ -1,31 +1,32 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A5D91DA5E
-	for <bridge@lists.linux.dev>; Fri, 15 Mar 2024 20:48:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9765B41740
+	for <bridge@lists.linux.dev>; Fri, 15 Mar 2024 20:48:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710535706; cv=none; b=PXXYxxFxbATarxuO+jPNV5hMnPCl8HUylVwJNgI0VrZgPipdZmf9Hy8Rxt0fDCGR8cQAObPwxKxDi6JOAS+5NNf02x5zKvgJfNlAfo8/aKCxwxzeSTrjofe+7SnjXr/avTM72/XbEpsC2chVNrrmziUhmJQoDiQNzIm9uBHUQ/U=
+	t=1710535709; cv=none; b=ejnVNCHfGlyy2IXWgbJZCbsLn0iiEeaLUefy1V6tsth055/ynoChLMN5DNhp7Ck65EQtb4k/h1TkyPTbkCL62YPeu2826OGMpU1R8/xUnWRKoHxr5ykC9gelwbSFkLcgSu4xQJRTymLVTZrDYrr1ipItB8A8AcwHk4ZiWXe1enM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710535706; c=relaxed/simple;
-	bh=71R8uSwybXZePn/hRWXZmFtBWgxzbTZn7lLN/sI0ct8=;
+	s=arc-20240116; t=1710535709; c=relaxed/simple;
+	bh=N3YQ+74nNXsZKp7PEdJnsfg+4VEg1y14khiTCB8rEVY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=QStz815hn+qbjAcx6OCzO1Ww4s9Qu8Amkhs2GqhwDwGCSqNK6rqeM1bG/TTEM1XLCDt3nddox4t9RQsWKWg+HTrFRurOcgoYfgUkBs1667gP1z92255mkxX7lUwJdr5TDqhDbzed2HA9VbQoORR2kYuDzG2TdXHlc2W45vBtdgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=lRsv4Z9B; arc=none smtp.client-ip=159.69.126.157
+	 In-Reply-To:To:Cc; b=KYq0Tj9io6z+Lle9tx1z2MrJXWY+waECtccJVfGxY5UcMUaLBuU9Rr2iV4Pi6BYJQyuJNm4QvIqNJo1OqyNiuUtRhS2BAOHoTQHlGwIF8sK0XuBD72vXfJ5yRYcc2iwYiMKNSq2LA/cyUZRENVp2z5VkVq8k+1UF/Y4g3eVxclU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=RuyY3u5r; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="lRsv4Z9B"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="RuyY3u5r"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1710535697;
-	bh=71R8uSwybXZePn/hRWXZmFtBWgxzbTZn7lLN/sI0ct8=;
+	bh=N3YQ+74nNXsZKp7PEdJnsfg+4VEg1y14khiTCB8rEVY=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=lRsv4Z9BtABJwb/x/sr0jT/ffaHtgaGIJaQNhXPIFehxU22UrZeOhl+MNP/n5GNRt
-	 JlHEstB5S7l8QpLccU0DCIGlvx+fB4q+PCoWEY+g0enoRMOwtyoGLxzzxdCrwcjk3Y
-	 FfwUZt+Em+SjtxwU6ocSEC2pAq54FlCCLx2fanAY=
+	b=RuyY3u5rYBiguTrn2XInl4Ajsqpr9gged17slcRcyBJUHHxvliEq2D58U55ZU0L/2
+	 tDtmVWfSwncce6QhDGXdWdqZSGwnSc0Kzxfvkvrjor4H49NhkZZxu5MoEIzzUHk82w
+	 zNfqHOTG+OspUx4e92XQR4ruhqFKUsn1UDGgq48w=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Fri, 15 Mar 2024 21:48:00 +0100
-Subject: [PATCH 02/11] cgroup: bpf: constify ctl_table arguments and fields
+Date: Fri, 15 Mar 2024 21:48:02 +0100
+Subject: [PATCH 04/11] utsname: constify ctl_table arguments of utility
+ function
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -34,7 +35,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240315-sysctl-const-handler-v1-2-1322ac7cb03d@weissschuh.net>
+Message-Id: <20240315-sysctl-const-handler-v1-4-1322ac7cb03d@weissschuh.net>
 References: <20240315-sysctl-const-handler-v1-0-1322ac7cb03d@weissschuh.net>
 In-Reply-To: <20240315-sysctl-const-handler-v1-0-1322ac7cb03d@weissschuh.net>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
@@ -124,36 +125,36 @@ Cc: linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1710535695; l=686;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1710535695; l=696;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=71R8uSwybXZePn/hRWXZmFtBWgxzbTZn7lLN/sI0ct8=;
- b=1p7QVCfT76tMKe2lhkLAnq+rZy1Hhj119ioAiiSdaA/KcTCdEQiKcZfPuzjhQVMIgFHQpgyqi
- 8KV8JuqLJSRB3yPnZuNAH/QOQJporNVr2ZASPvZ5f6myZthtsTyJC9S
+ bh=N3YQ+74nNXsZKp7PEdJnsfg+4VEg1y14khiTCB8rEVY=;
+ b=xEm0d8CYQV6qN7oZA7EuQpgHjbZrMfPqjThMCUp02NAIP8Ff1lQTYCA5z6GSB4NPcFQzy/2jj
+ Y0NcUklMzOzC1as2M3524rbivhNsj1cwIIJnIozArSnSxvsTxxWEUrP
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-In a future commit the sysctl core will only use
-"const struct ctl_table". As a preparation for that adapt the cgroup-bpf
-code.
+In a future commit the proc_handlers themselves will change to
+"const struct ctl_table". As a preparation for that adapt the internal
+helper.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- include/linux/filter.h | 2 +-
+ kernel/utsname_sysctl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index c99bc3df2d28..3238dcff5703 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -1366,7 +1366,7 @@ struct bpf_sock_ops_kern {
+diff --git a/kernel/utsname_sysctl.c b/kernel/utsname_sysctl.c
+index 019e3a1566cf..46590d4addc8 100644
+--- a/kernel/utsname_sysctl.c
++++ b/kernel/utsname_sysctl.c
+@@ -15,7 +15,7 @@
  
- struct bpf_sysctl_kern {
- 	struct ctl_table_header *head;
--	struct ctl_table *table;
-+	const struct ctl_table *table;
- 	void *cur_val;
- 	size_t cur_len;
- 	void *new_val;
+ #ifdef CONFIG_PROC_SYSCTL
+ 
+-static void *get_uts(struct ctl_table *table)
++static void *get_uts(const struct ctl_table *table)
+ {
+ 	char *which = table->data;
+ 	struct uts_namespace *uts_ns;
 
 -- 
 2.44.0
