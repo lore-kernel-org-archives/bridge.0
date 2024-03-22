@@ -1,379 +1,177 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C50CF1C36
-	for <bridge@lists.linux.dev>; Sat, 16 Mar 2024 02:52:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710557576; cv=none; b=pCsxwlrdQ3xrQcYzI5++8ihcYGxwUTieD65jgNwri2HOw7pYFmWksGDP/JjfKwsTYQTvsFoZvLFzrYZyG5asVejyzMmYPEFfRmpQSneLKkLLkoGW3qH/ZVfsw0q5fG8WpnOliVzZginuj7Qva5nuwy+qr17A3H+UpuSbKYrR3YE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710557576; c=relaxed/simple;
-	bh=ONoYL4XYOrO/6V38FWRzOpd8quw8P9OYCw818URL5SI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g03Q3KkahoP8M51VG/bK5wOdz1Bfef8AthiUcL/97jQQzBsi9e8rPqLOaBja82KLzrslM3NqlF50nwfY5rgUGCl5JOOBJGhQzM74p490AoRC1NDMYtvTfekP204qEBZbUY+xVomO+AVK8YbLC3k1/HIGmcbA8Ekbx1QTD72kZXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com; spf=pass smtp.mailfrom=fromorbit.com; dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b=OKimg+LA; arc=none smtp.client-ip=209.85.215.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fromorbit.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C365A20309
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 08:56:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1711097810; cv=fail; b=srbpRpuDHZXEseXnU76rdIxAwG7QI0ZwDZIlMG7N0hiErraCRLCAl++RjuSfi/cnp90mp9JbuDoa0DKDwTgty/sAv2iuEB4LOWBvdheYnGW6FCHJk6RoJTwBXUDo5TYz97vRmzx2ArG2CwV0tfiplmY/ijgG3Yol+AgvYuH+cbo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1711097810; c=relaxed/simple;
+	bh=D6L7YE5R/Se1dZ1ZxJeco76hGUnXPNdoNgwxvLY7sLE=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=H5VezQiV3vnnXumrndzeYtcdmcb3lxMPvXvOdSD8bUR1LGhYpuBPGwVGag48gxudtTMbjRS86ZbZ0KhR3O4b2elxgcLWHDph/d1T02ca0oyuhAVYPX2bxe5AznqyRFDzvNqsGWyx+zJIktiwnO09ADA7S7mjHOwziMOTfcjXCDI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b=TNu8Cz/+; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="OKimg+LA"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-5cddc5455aeso2061127a12.1
-        for <bridge@lists.linux.dev>; Fri, 15 Mar 2024 19:52:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1710557573; x=1711162373; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=bBoX08MQ+GnGsn3Ys1XDLWs0vSpU6QZ104y6JQ1iJRA=;
-        b=OKimg+LAVoL1r/BglDLjzAaebo88aqGdv6mYdeHG7fYCdeKNnB5EyOPncEGHz0KfOy
-         UhTdCA0aPvEEmxkicuZ7k0JGj5FP+IbukhVVhHfOqtnmn+C1YF7OlrvFJFT7WCdDJQE0
-         VYR7dlgkEVU8aVQ7SV0OPHMdnkFHpQktyCDtjh8xO3l5AYNyV+al2wfZDAhrBO54T+i+
-         b1Nmz4W0hf7ce7cS4TEUSVh402+p7hml7mAS43wwccWO8epfgC+a6mkSHx0GpwnzasLB
-         gADfweD2BR9/4CMUID8zw6nmrMLjeopMVIyleCbES8fJXUPV5zWU/F+oMhxWZUJmk3+/
-         hJaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710557573; x=1711162373;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bBoX08MQ+GnGsn3Ys1XDLWs0vSpU6QZ104y6JQ1iJRA=;
-        b=Kg3fv2DBcnQxSsdj/htr+3wHKxJil46vcLDRK6KMH1wy1WtHFEf5vVbGP/epMeLmuK
-         aiv9dD0mryU0k2Iyp1XWaLIwCiFv8sXflPJ+Byfvoko3TIbcaUeA8DNsteVmQajgN84V
-         Z+yhi+D/hXNOHANVg3mce6bo0ctvvkI1spRA3qLV8ryD2IA7p1YM+TA3AlJG5KOi4aRX
-         25VVK+jW/cIJtS2vUWNgfpCUNvoxYwcLewNqu6Rd/LN5dkBO6BnZLdXIwMyhQEq76Hb4
-         SUlSxc62sGujIt/+2hFMGVfMcswG/t8p2KnX7/rsLGOCad6D1d8hXQqrE3GyIrz7Flgr
-         aHNg==
-X-Forwarded-Encrypted: i=1; AJvYcCUm0Og2iZSmBGYz82pCA3/CDhS07R30gMM558XMNNDHsPr+yNUyBLhROX3QxQnGAudvu5DURijXMwywXAofYhGdy56ZS++5
-X-Gm-Message-State: AOJu0YwB8aHjSMMmO3tY9bxiHmbOu4t3mVoWwXUWAlDxK4AgCzfW1I7K
-	3CZcrDwG1oAQmsWtQJKcdHh9rb7aH1xiQRFlLopfBM84UXoRX5WNj7VP4vNkZaA=
-X-Google-Smtp-Source: AGHT+IF+mhHYlAObRzpfXYn3IGnPDczeVjZaH7QVUqvtIq9UdyOULCBCqzY79zAwu/GemLxZ182Fng==
-X-Received: by 2002:a17:903:2446:b0:1dd:9cb3:8f96 with SMTP id l6-20020a170903244600b001dd9cb38f96mr6055795pls.42.1710557572964;
-        Fri, 15 Mar 2024 19:52:52 -0700 (PDT)
-Received: from dread.disaster.area (pa49-180-185-123.pa.nsw.optusnet.com.au. [49.180.185.123])
-        by smtp.gmail.com with ESMTPSA id f5-20020a170902684500b001dddbb58d5esm4736209pln.109.2024.03.15.19.52.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Mar 2024 19:52:52 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-	(envelope-from <david@fromorbit.com>)
-	id 1rlKAC-002Wnj-2F;
-	Sat, 16 Mar 2024 13:52:48 +1100
-Date: Sat, 16 Mar 2024 13:52:48 +1100
-From: Dave Chinner <david@fromorbit.com>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Kees Cook <keescook@chromium.org>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>,
-	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	Muchun Song <muchun.song@linux.dev>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	David Ahern <dsahern@kernel.org>, Simon Horman <horms@verge.net.au>,
-	Julian Anastasov <ja@ssi.bg>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Florian Westphal <fw@strlen.de>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Joel Granados <j.granados@samsung.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Phillip Potter <phil@philpotter.co.uk>,
-	Theodore Ts'o <tytso@mit.edu>,
-	"Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Atish Patra <atishp@atishpatra.org>,
-	Anup Patel <anup@brainfault.org>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	Eric Biederman <ebiederm@xmission.com>,
-	Chandan Babu R <chandan.babu@oracle.com>,
-	"Darrick J. Wong" <djwong@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Balbir Singh <bsingharora@gmail.com>,
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-	Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-	Petr Mladek <pmladek@suse.com>,
-	John Ogness <john.ogness@linutronix.de>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Daniel Bristot de Oliveira <bristot@redhat.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Andy Lutomirski <luto@amacapital.net>,
-	Will Drewry <wad@chromium.org>, John Stultz <jstultz@google.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Remi Denis-Courmont <courmisch@gmail.com>,
-	Allison Henderson <allison.henderson@oracle.com>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
-	Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
-	Tom Talpey <tom@talpey.com>,
-	Trond Myklebust <trond.myklebust@hammerspace.com>,
-	Anna Schumaker <anna@kernel.org>,
-	John Johansen <john.johansen@canonical.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Alexander Popov <alex.popov@linux.com>,
-	linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-	bpf@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org,
-	lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, linux-fsdevel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-	linux-xfs@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, kexec@lists.infradead.org,
-	bridge@lists.linux.dev, linux-rdma@vger.kernel.org,
-	rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
-	linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com,
-	linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 11/11] sysctl: treewide: constify the ctl_table argument
- of handlers
-Message-ID: <ZfUJgML8tk6RWqOC@dread.disaster.area>
-References: <20240315-sysctl-const-handler-v1-0-1322ac7cb03d@weissschuh.net>
- <20240315-sysctl-const-handler-v1-11-1322ac7cb03d@weissschuh.net>
+	dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b="TNu8Cz/+"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 77DFF8261C
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 08:56:48 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -0.977
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Jk3lvGSGA-gP for <bridge@lists.linux-foundation.org>;
+	Fri, 22 Mar 2024 08:56:48 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:281b::801; helo=ind01-max-obe.outbound.protection.outlook.com; envelope-from=tjjh89017@hotmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A33AD82605
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A33AD82605
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=TNu8Cz/+
+Received: from IND01-MAX-obe.outbound.protection.outlook.com (mail-maxind01olkn20801.outbound.protection.outlook.com [IPv6:2a01:111:f403:281b::801])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A33AD82605
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 08:56:47 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Ceg/A/ybkSSQ7blpW4tCb+tpPUje4Xj9ec/v+nvozi1/cMNwuCZY4Skb6QSGkAu7pdd1Y3sISuO0VzJjGVx5OwcnYFiy/87pLtYWzibfcjTKEJ/qbH+WzPFFtOA4JzkgTI9Y54gjKjJuiNWuWCoOpg6yUzL2evoT/SIGHXExGoILQ/QlXf7pWplLYDI+kgC+VAOLVwgN88rH003v2BUxsKaiJ7s0MLrfmRW7R+++SQhmQM4eWSIf2VEcJTexWNziL2X6CF6kbouf9psayXBDc40eReeh9QHfWOYIPkFUdTEKgKdPFfPZgFb8DEguiHjVAd5zHR/V6Gr2/JOwO9WZCA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5hQBG4K06so6sWkAREOiSgr8f4b1BzlNXuBRWpPb66c=;
+ b=Y5Fh2DpOR5XCFytDaKJcsTCaZIPguFiy6AwxTqVeUgDutFx4eAg9++OnHWW5MvkR+GcE8QJKRQtPcm7TH/Bmkmi8uYGCIKyVyB+mf6XwPlfhRUqPSfJH55yrPPsNmyYuZ+yNM5MoLpEeP4q1Uw5Bc459L5tyFNGO5xvefWQLFg4jJmdocyORz9DrrkuyTKji9SnsIIWzrOH+owlgon26xJGVxPFo+dK76X+IA8weSS5jxFSuNKovoA2Gcedk9Thz1SFIEwBuCqguMfE7EuDrs7Elb0UnpYSBBtAK1040/DdMVE4e1zEbSpCrQIogsq9Ci8sMATry3kaLvGqMGL1YUA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5hQBG4K06so6sWkAREOiSgr8f4b1BzlNXuBRWpPb66c=;
+ b=TNu8Cz/+9gHomD9ugOAOuCpH7+W0tjbxCaILTUxx9liWqVkcKUGLv9M053LJdOxOlnDVCPgLiep0qoSMf4S0fCxW2edazOMetIi6bhjBsMsHGrRpFbHCciH3S4SlvpGthwZllhaUsIw6n2PbCrIaqzNkMU/eNpOS9AFAzpbeYj+AC+73YKK2PV3tJzHcK3NqQEgzPpSpz5457SLx5t3XMCMbOvOglfYpMPS9eAk/XKPR/cu1KgToj9BxBiaPY8vN5Mm3ErUXVNzOXNGkJnm+aQBwsumgTZN9mNF0U+zT6wNcshigHeNi+MLWj5VBlU3yNAeB/ZfNijKDE/025Pe/+w==
+Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:d3::8) by
+ PN0P287MB1496.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:17d::5) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7409.24; Fri, 22 Mar 2024 08:56:41 +0000
+Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+ ([fe80::be9c:e08:2db4:9a60]) by MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+ ([fe80::be9c:e08:2db4:9a60%3]) with mapi id 15.20.7409.010; Fri, 22 Mar 2024
+ 08:56:41 +0000
+From: Date Huang <tjjh89017@hotmail.com>
+To: roopa@nvidia.com
+Cc: razor@blackwall.org,
+	netdev@vger.kernel.org,
+	bridge@lists.linux-foundation.org,
+	tjjh89017@hotmail.com
+Subject: [PATCH] bridge: vlan: fix compressvlans manpage and usage
+Date: Fri, 22 Mar 2024 16:56:29 +0800
+Message-ID:
+ <MAZP287MB0503CBCF2FB4C165F0460D70E4312@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [nfsjPZMRPjI7KDI+bZ7BSb7OB/pqwymnBlhOal85Fc2eP95+U8edFmgjVNCaZyxO]
+X-ClientProxiedBy: TYCP286CA0012.JPNP286.PROD.OUTLOOK.COM
+ (2603:1096:400:26c::16) To MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:a01:d3::8)
+X-Microsoft-Original-Message-ID:
+ <20240322085629.14438-1-tjjh89017@hotmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240315-sysctl-const-handler-v1-11-1322ac7cb03d@weissschuh.net>
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MAZP287MB0503:EE_|PN0P287MB1496:EE_
+X-MS-Office365-Filtering-Correlation-Id: 234dc357-7b7d-4369-5a92-08dc4a4dfda8
+X-MS-Exchange-SLBlob-MailProps:
+	WaIXnCbdHrNLYEJ5HghreUmTctoVX046DQ8BRCvO9zVZOx83lwvGHAgaih3sj2bcGhu57i+IVlCu64CV+m9+MMnUrFtw6m4DnI1P97y+kSJmPFFcS32mK4uTg2CjvhVSnQ34GUttiM79MHGUGyNHyUTt3EaYH9kyJVu9aoxNGcDMeY7P34lhyWyEs3WKNeOC6OULE+ZsITJoqEfVSWU67Sdc1rTQuPwSD/Azl0hpV4O5eQv76+rBNNrMc4LMLFJK26wv0QQQQHOpm5+HVQpvyoUTWXAieF7zGka5bcCvZ8ZTS0rgcKpufkCMB6Kqhg+YvHfpb2SdbiMzJ8uNn6fubcRJCQckVizvXYx6OJPkx33L68yjLXWux3EAQ1hyUcU7Z2iOa4mXqSeyXMzNCKBH55TSv0L1niv9w3+LVobmW3Wn+bGntQjoIoyhJt44HLGUo2oeMtdljFQO8MkUlwFBM1cK3PSqV+GEbbShpnmj18RpCND1oVslrNIQxSR9Ej0kD2iESSR6yYgEXwicHJmR+Hfkjvs1GQavw9LgWwmZ90n+ULF6bpEiegZaJ4IdwrQhEPZHC8XMv+Lz3PmLOBOmgJ3AsbysNCAcw4cSt7Aquwf7RP3/LCDZ5TkIO788jgDBXXQm0gnJFekPuQnLD+1gRuGAAnNsDxS//BMx7RAP9oLPZhh2gp7dB6enwCYWZnNlLGa0RoUDL+Vx8JaVuw+usbCYiinezCwD16mR0/GFS3V4xPSRp5S5AMpULBnTPK+I2yB98EkKQw4=
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	2yrero0PncIVh/6YPqtvqDEss/Ju9eu4phlP9Veqy0ie9rHQsbxAyOvnLg02RjwuRho+HGV5K8JwoTndwtCGvgSfpl6wEFgsAOVhEygu0v+mcVqkLy2gtSvagbe8T0/ekb2t1FfDWJZCotv4Fw+HedqWjEE++Zf4OIN9J+zEAHu1LG4ydUMFctKvlWmfjuJY4Z+MVUVdr6WF/u08IonS6GyWncPaKU4m0fuMdeUbVwYK8piMacUfFxWmh2FeAxRrFl33JEv9vrXe6qXXqG5+4bmRf8kxMQWI3w/Kc+AXt9kBRJLqPkQ2rrRCq4Bi+G5xSASaJK0EitEESirHykuRMsLOewIv2ZXjSFwrgyruyTwqx4IMED36L76wQmeEaMNmRMo0COXQiAaz0dDAI9II9l3Hd1Jmrynb9YgimLsk2/HYge5Zg2SvwqTz+s50Jqz2WSyMuOpSa3Gy8VFCX4+BLsU+mNDywhOCfZ/OIffTZ6oeG6TCqvOkz6Cf/r4nbZTGTE92MeliUbdpVpojmNIcHIoMOMWBzKJhNwjCztbymVUOOIoBI63bvZSnUl3si373S6+mWhrp5UHNJs+yroYni2BiRGI8WrSm2zUbxYLQsequowJeSZu04hKwqBLwgmkO
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?Fms98NDMFGLT74u5bvQJe8XGVBXeILeY2TukbcLbfd27OhnjbIec+TAhTwES?=
+ =?us-ascii?Q?UKPq/ndmBNL8LP26cppk6QjdGotqxd+TfQNcFRWnv2ffMxD8hcNy8m1p7RxR?=
+ =?us-ascii?Q?JkRBgl3ZgPCRGZ8h8XwGtSXxvA++eu1HtVYhe4PbmuJ7uPV8/L002E3a8vsG?=
+ =?us-ascii?Q?vvUoIFuqgSHOJsHVRJkdpSoUBiSvxiEDz0ZxjDka0DPkyssPTBDCE8TjXNXv?=
+ =?us-ascii?Q?A2asut83BLASX7FmE8BREWXTFlzvqKelWb7/Nf4LETP4z1y4JRJiePoG2ZX6?=
+ =?us-ascii?Q?TEOs0ofkqVlPMKye8hA+nM/Euh2gpHmrBD6uL/VVX0CmPsm80NzGv0yXJ1uz?=
+ =?us-ascii?Q?u/FBbs8a3mZ3gFR5KpNbTR9eqnUfyFGco5uCCzp9yCQpd+msce5+8jC8nEig?=
+ =?us-ascii?Q?+Vhny4QBSne64Lt5sQiUO3nvstO4x+qiX/0hzyd32fg46zTY0JqOvZehitRA?=
+ =?us-ascii?Q?bbtMz8e66wGL9jdHEx408Xis+Q65MzbKoPKudaZk4i1fG7LINQz7Wb790JJn?=
+ =?us-ascii?Q?llpaLLPiblkUal3Hph/mwqKQ9ii0FRrKvO/OUWraWPF5AcyW9I0ozhjdvJnl?=
+ =?us-ascii?Q?6ItflZQr9X1TglL29vxBopIIOiHMlvSHVgHHoNnFa4dMsL6XVnsuF7D09MDP?=
+ =?us-ascii?Q?YmLTUxPjeDrAzAWN/GODNNGu3BFsNXoE3V33LM2t49Lf56DC04xdlaMq6Drn?=
+ =?us-ascii?Q?5t8L79SloDz9ubt7eLtG5sT51fKX+o/NDBpbcASsqMSPWspIS1gChnm7TJxj?=
+ =?us-ascii?Q?XEgPom3D4mIPbIi7sh1EF1yy45xo4lDBKKp5LVLMwSvFWeVbtXVV1S3TMUa+?=
+ =?us-ascii?Q?obwxPBw1v0V3HZVoCDEmURqgQjS1vmdimbbZ7bnEkyhuNVyh9L9C5YPTpX+D?=
+ =?us-ascii?Q?9uGrc/2c7H6z+28DrOeJ63ndEFXHye0HNSbpTrf9dekB38SPN+7KHLFO19Uh?=
+ =?us-ascii?Q?N/p3CrgZXnXmDqK/d1XS/49Ny3kh+5NOzwCIThOYHJSMca+/+MyUdsvlAgyd?=
+ =?us-ascii?Q?l191EoVKyApdsDTrYcfyUod70c2m9Zx5Gd9klXXl9puyL5Me+WCuhe1przUe?=
+ =?us-ascii?Q?KgkBQY6T/eJgqRR36Nd/DmC/K6mJc9jIGDHWC4ZeZO5s8UnulVmlgwVkzvr8?=
+ =?us-ascii?Q?kfZYPp46GUFaKnwX72Ez5UFsWPNPPVt2q/gm+3tPMH+tnODWNHL6nYsSY+pB?=
+ =?us-ascii?Q?OpPOk4diDhre0QGGYVWnX30/KiNmYOecRBstxQ1YXQGbdB2OcggPjklgvc/z?=
+ =?us-ascii?Q?f53Ky6SxVh3C0sUEbPwjpAoRmPwhYp+NYxjjRnqNdnrciR/ny3niqc2cuEuc?=
+ =?us-ascii?Q?qNE=3D?=
+X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-bafef.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: 234dc357-7b7d-4369-5a92-08dc4a4dfda8
+X-MS-Exchange-CrossTenant-AuthSource: MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Mar 2024 08:56:41.1399
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN0P287MB1496
 
-On Fri, Mar 15, 2024 at 09:48:09PM +0100, Thomas Weißschuh wrote:
-> Adapt the proc_hander function signature to make it clear that handlers
-> are not supposed to modify their ctl_table argument.
-> 
-> This is a prerequisite to moving the static ctl_table structs into
-> .rodata.
-> By migrating all handlers at once a lengthy transition can be avoided.
-> 
-> The patch was mostly generated by coccinelle with the following script:
-> 
->     @@
->     identifier func, ctl, write, buffer, lenp, ppos;
->     @@
-> 
->     int func(
->     - struct ctl_table *ctl,
->     + const struct ctl_table *ctl,
->       int write, void *buffer, size_t *lenp, loff_t *ppos)
->     { ... }
+Add the missing 'compressvlans' to man page.
+Fix the incorrect short opt for compressvlans and color
+in usage.
 
-Which seems to have screwed up the formatting of the XFS code...
+Signed-off-by: Date Huang <tjjh89017@hotmail.com>
+---
+ bridge/bridge.c   | 2 +-
+ man/man8/bridge.8 | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-> diff --git a/fs/xfs/xfs_sysctl.c b/fs/xfs/xfs_sysctl.c
-> index a191f6560f98..a3ca192eca79 100644
-> --- a/fs/xfs/xfs_sysctl.c
-> +++ b/fs/xfs/xfs_sysctl.c
-> @@ -10,12 +10,11 @@ static struct ctl_table_header *xfs_table_header;
->  
->  #ifdef CONFIG_PROC_FS
->  STATIC int
-> -xfs_stats_clear_proc_handler(
-> -	struct ctl_table	*ctl,
-> -	int			write,
-> -	void			*buffer,
-> -	size_t			*lenp,
-> -	loff_t			*ppos)
-> +xfs_stats_clear_proc_handler(const struct ctl_table *ctl,
-> +			     int			write,
-> +			     void			*buffer,
-> +			     size_t			*lenp,
-> +			     loff_t			*ppos)
-
-... because this doesn't match any format I've ever seen in the
-kernel. The diff for this change shold be just:
-
-@@ -10,7 +10,7 @@ static struct ctl_table_header *xfs_table_header;
- #ifdef CONFIG_PROC_FS
- STATIC int
- xfs_stats_clear_proc_handler(
--	struct ctl_table	*ctl,
-+	const struct ctl_table	*ctl,
- 	int			write,
- 	void			*buffer,
- 	size_t			*lenp,
-
->  {
->  	int		ret, *valp = ctl->data;
->  
-> @@ -30,12 +29,11 @@ xfs_stats_clear_proc_handler(
->  }
->  
->  STATIC int
-> -xfs_panic_mask_proc_handler(
-> -	struct ctl_table	*ctl,
-> -	int			write,
-> -	void			*buffer,
-> -	size_t			*lenp,
-> -	loff_t			*ppos)
-> +xfs_panic_mask_proc_handler(const struct ctl_table *ctl,
-> +			    int			write,
-> +			    void			*buffer,
-> +			    size_t			*lenp,
-> +			    loff_t			*ppos)
->  {
->  	int		ret, *valp = ctl->data;
->  
-> @@ -51,12 +49,11 @@ xfs_panic_mask_proc_handler(
->  #endif /* CONFIG_PROC_FS */
->  
->  STATIC int
-> -xfs_deprecated_dointvec_minmax(
-> -	struct ctl_table	*ctl,
-> -	int			write,
-> -	void			*buffer,
-> -	size_t			*lenp,
-> -	loff_t			*ppos)
-> +xfs_deprecated_dointvec_minmax(const struct ctl_table *ctl,
-> +			       int			write,
-> +			       void			*buffer,
-> +			       size_t			*lenp,
-> +			       loff_t			*ppos)
->  {
->  	if (write) {
->  		printk_ratelimited(KERN_WARNING
-
-And these need fixing as well.
-
-A further quick glance at the patch reveals that there are other
-similar screwed up conversions as well.
-
-> diff --git a/kernel/delayacct.c b/kernel/delayacct.c
-> index 6f0c358e73d8..513791ef573d 100644
-> --- a/kernel/delayacct.c
-> +++ b/kernel/delayacct.c
-> @@ -44,8 +44,9 @@ void delayacct_init(void)
->  }
->  
->  #ifdef CONFIG_PROC_SYSCTL
-> -static int sysctl_delayacct(struct ctl_table *table, int write, void *buffer,
-> -		     size_t *lenp, loff_t *ppos)
-> +static int sysctl_delayacct(const struct ctl_table *table, int write,
-> +			    void *buffer,
-> +			    size_t *lenp, loff_t *ppos)
->  {
->  	int state = delayacct_on;
->  	struct ctl_table t;
-
-Like this.
-
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 724e6d7e128f..e2955e0d9f44 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -450,7 +450,8 @@ static void update_perf_cpu_limits(void)
->  
->  static bool perf_rotate_context(struct perf_cpu_pmu_context *cpc);
->  
-> -int perf_event_max_sample_rate_handler(struct ctl_table *table, int write,
-> +int perf_event_max_sample_rate_handler(const struct ctl_table *table,
-> +				       int write,
->  				       void *buffer, size_t *lenp, loff_t *ppos)
->  {
->  	int ret;
-
-And this.
-
-> @@ -474,8 +475,10 @@ int perf_event_max_sample_rate_handler(struct ctl_table *table, int write,
->  
->  int sysctl_perf_cpu_time_max_percent __read_mostly = DEFAULT_CPU_TIME_MAX_PERCENT;
->  
-> -int perf_cpu_time_max_percent_handler(struct ctl_table *table, int write,
-> -		void *buffer, size_t *lenp, loff_t *ppos)
-> +int perf_cpu_time_max_percent_handler(const struct ctl_table *table,
-> +				      int write,
-> +				      void *buffer, size_t *lenp,
-> +				      loff_t *ppos)
->  {
->  	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
->  
-
-And this.
-
-> diff --git a/kernel/hung_task.c b/kernel/hung_task.c
-> index b2fc2727d654..003f0f5cb111 100644
-> --- a/kernel/hung_task.c
-> +++ b/kernel/hung_task.c
-> @@ -239,9 +239,10 @@ static long hung_timeout_jiffies(unsigned long last_checked,
->  /*
->   * Process updating of timeout sysctl
->   */
-> -static int proc_dohung_task_timeout_secs(struct ctl_table *table, int write,
-> -				  void *buffer,
-> -				  size_t *lenp, loff_t *ppos)
-> +static int proc_dohung_task_timeout_secs(const struct ctl_table *table,
-> +					 int write,
-> +					 void *buffer,
-> +					 size_t *lenp, loff_t *ppos)
->  {
->  	int ret;
->  
-
-And this.
-
-> diff --git a/kernel/latencytop.c b/kernel/latencytop.c
-> index 781249098cb6..0a5c22b19821 100644
-> --- a/kernel/latencytop.c
-> +++ b/kernel/latencytop.c
-> @@ -65,8 +65,9 @@ static struct latency_record latency_record[MAXLR];
->  int latencytop_enabled;
->  
->  #ifdef CONFIG_SYSCTL
-> -static int sysctl_latencytop(struct ctl_table *table, int write, void *buffer,
-> -		size_t *lenp, loff_t *ppos)
-> +static int sysctl_latencytop(const struct ctl_table *table, int write,
-> +			     void *buffer,
-> +			     size_t *lenp, loff_t *ppos)
->  {
->  	int err;
->  
-
-And this.
-
-I could go on, but there are so many examples of this in the patch
-that I think that it needs to be toosed away and regenerated in a
-way that doesn't trash the existing function parameter formatting.
-
--Dave.
+diff --git a/bridge/bridge.c b/bridge/bridge.c
+index f4805092..345f5b5f 100644
+--- a/bridge/bridge.c
++++ b/bridge/bridge.c
+@@ -39,7 +39,7 @@ static void usage(void)
+ "where  OBJECT := { link | fdb | mdb | vlan | vni | monitor }\n"
+ "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] |\n"
+ "                    -o[neline] | -t[imestamp] | -n[etns] name |\n"
+-"                    -c[ompressvlans] -color -p[retty] -j[son] }\n");
++"                    -compressvlans -c[olor] -p[retty] -j[son] }\n");
+ 	exit(-1);
+ }
+ 
+diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+index eeea4073..9a023227 100644
+--- a/man/man8/bridge.8
++++ b/man/man8/bridge.8
+@@ -22,6 +22,7 @@ bridge \- show / manipulate bridge addresses and devices
+ \fB\-s\fR[\fItatistics\fR] |
+ \fB\-n\fR[\fIetns\fR] name |
+ \fB\-b\fR[\fIatch\fR] filename |
++\fB\-compressvlans |
+ \fB\-c\fR[\fIolor\fR] |
+ \fB\-p\fR[\fIretty\fR] |
+ \fB\-j\fR[\fIson\fR] |
+@@ -345,6 +346,10 @@ Don't terminate bridge command on errors in batch mode.
+ If there were any errors during execution of the commands, the application
+ return code will be non zero.
+ 
++.TP
++.BR \-compressvlans
++Show compressed vlan list
++
+ .TP
+ .BR \-c [ color ][ = { always | auto | never }
+ Configure color output. If parameter is omitted or
 -- 
-Dave Chinner
-david@fromorbit.com
+2.34.1
+
