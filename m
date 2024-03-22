@@ -1,82 +1,80 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DF43446B6
-	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:33:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C240744391
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:39:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711110803; cv=fail; b=EkeKDW4aCdQ/EwvEMHkj1RrSuW8skHFby+Jd7cVCjKKdbyBE9tQpBRRTPHcaxuAPnMuMAFtoN44aIWjoINw0QrzTPVOvnGiQTi37hVMCKhdauGZPY5ZH7H2UCdYmF3YPGE7fb4lDMnvpq+pbpnJousiuO21VvUxLQSKsHFgR7Ww=
+	t=1711111187; cv=fail; b=mjCn5oiPRpUhoT8abvjZv67wYxf3kHKqSrtfXniAwsu+kKvi4WAIkPziz9eiubFrUC0fiRVFvtsCON595BTy4ovS2exLmPqEMAo0D3hyEYkTR2Vh2vJ3agkJHfCo8j+gmP7CsthxA67asGCAWdYW1jsRKXnpBetusogf+Y10jLY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711110803; c=relaxed/simple;
-	bh=3tMZ3ONwoo06esxoMRau84kojByTUgxR83zU9F1G8HY=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=b96DuGJdQjjnDqIE4/GZqO5pjDMrSrFDwBw2kbYaTvLKcAK/peuy0HCSpz5IoFgANRGmu0Ay4IL0qmpK/VGdK82l9LVKo2dPEl0UKEUH+VmWJyEYJrC1bXxKPVCBRBJCoPJIPNlGelunVS/TLiEnjF4QHCpZIKhAlLhBOsQRjCM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b=ikRakqPA; arc=fail smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1711111187; c=relaxed/simple;
+	bh=jkMUh1Dy0/1NjRLgFK9JCIIunm52wrC3UzQlVAEOn/o=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=X3I5aTgRoqrEfQSmxBDpxoBdf2JAvX8eGq6SRdwqBIK/XBeV9t2VcRk39+qKY6Grih53v5HK91KCwCUoZmvwyveqDU0b0NU/gA7SFeQZf4pBekBqogd6nc++TS/nxGi/TQHZtc4Rp9Ombs2qYCT/xZXDRLpfjCQzakjHAftkgxE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b=qirMS+gC; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b="ikRakqPA"
+	dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b="qirMS+gC"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E9BA760685
-	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:33:21 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 49130417A3
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:39:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: 1.332
-X-Spam-Level: *
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Fz0Wj_XtlE-F for <bridge@lists.linux-foundation.org>;
-	Fri, 22 Mar 2024 12:33:21 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:281b::800; helo=ind01-max-obe.outbound.protection.outlook.com; envelope-from=tjjh89017@hotmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 0F1666069A
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F1666069A
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=ikRakqPA
-Received: from IND01-MAX-obe.outbound.protection.outlook.com (mail-maxind01olkn20800.outbound.protection.outlook.com [IPv6:2a01:111:f403:281b::800])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0F1666069A
-	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:33:20 +0000 (UTC)
+X-Spam-Score: -0.977
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id r7z-YLEM0pY2 for <bridge@lists.linux-foundation.org>;
+	Fri, 22 Mar 2024 12:39:44 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:281c::800; helo=ind01-bmx-obe.outbound.protection.outlook.com; envelope-from=tjjh89017@hotmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 411EC400F2
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 411EC400F2
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=qirMS+gC
+Received: from IND01-BMX-obe.outbound.protection.outlook.com (mail-bmxind01olkn20800.outbound.protection.outlook.com [IPv6:2a01:111:f403:281c::800])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 411EC400F2
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:39:44 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aRZlhR2hg6YP5+R2BGoRnPpNlC6upB0d7kPmioDLDuObl0WG+KbhalkFxyzbkQ5Dh3K8CAasNE+EsgR79khwK/bDykJb4TZR7Rx3xr5OCQmPVRUMIdbqUKGdjNtNLsnjmxeaPfwyL0Xr7Y+4iK5BZnlrY409pD6I3FfLnieyjemLRQxySlUyImwkPoJAotJ4SYe8w4IpjmjqC2U+BZ4erB5FX0hVc43T+6A39bhy2vK3pR9jlnX3LHIgN10PoYQURXyqnrlJ6LueK/DVbgP4aFJS1ViX9KAa2+QnpZOKuJRw+QGJLUOHHTRCjRf8/Wz7E7CcNg1hJGcrHl1nHSvZ6A==
+ b=CahnuP4g+x/IsXam9pENmuvID90w6cePncv7tDZ8xA8ZM9wW4GFo/K8RN3RT3UOUSf7bUDoAByCZ702uhdkUKCHzA6KvuIH49i1qutGMfKDc47x/ilUtLxIiFZZyj2Yl5EvNEMph+mTSL+H/TxHIEYgrBin7pXa/e9nvtyiNQhRHNxfh8ckXzjTF98SlKr75lADH+95b1LkL+fO0cqB1I1fd/GIrfoEMee8QMVGxc/fvz3MdTIAvWEVJ0bNzaE+VcJGaHPK6Nr0DKED528iFfv2TtXxk8cDq1bs1pLnk/5BSVhq+DSwT9OjWRipHXMQENhz6gf2gz3L+4VHrcl6Hmg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=QoEjGAg9RdyShnpJy5zbrEoyAKyhMisKUkxeF7cH2m4=;
- b=N0tc0QMSE5YegOXLv2ap3zjlbvRrxlBiUNG/L6nvTh5j5J2p8+xM9xps2ncdCpPlt1Em5MVF87hZQaiA1TBYp62y6SORzg7E+gHY4omFE4P5Dg+npEH6on57QRuS4jYve8oyv9grgBRgy0HI/6SVsN7SnLrRLY9oY9RO/LhY6cGfZSD+DUeVBbnlN+2OqmwaOTmSbzhxEcyeYhh7lsov3HW+bocsE0VhhHbXFQpTLLd+nDt4mpa+NW5LJHlw9B05eZTKkwJKWc+pbENp5OQXSSckXIdDqNwnSiTJ1cCC/6FfTmki77T/SJZcuSOLIsP3IE+UQx0M4tJdQy6wsNaugg==
+ bh=0/BAVpoSMpLahnHe00wgn/223rFc80cZlzj7nukVKI0=;
+ b=Yrcj87tZD9qzUwXn+PuDHPsFtdOFsfYTpg2aQdlLL6+cObTr30oa1YPXqkNNroiTwqXDFB/5iP56YZdJ60Y9I9pjGu02zfG9gltUNwVRyg6PR21z4aCQ/0b7QmBOWEvvkg3jZEzK2PiZ5T6Sx9toy4ifitlQjioI1srIag9j4VyvWIBkmBxU53yDnGMjs3jjLl3m+7ll1EjLARvTFcf0JxF/CtHfDcSG4buttnYtKFdvkFYM672I9xbrbykolT509jClu+r0Xh3d4N8cuR0ThWuzuZsB/fplYObbfsNBXFUdZ9MG2JSHMqA2mZoNeRZtPe4AwMi/3Tb9gYXPnzyLmw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QoEjGAg9RdyShnpJy5zbrEoyAKyhMisKUkxeF7cH2m4=;
- b=ikRakqPAOkc1iJqpCUzjjrkr3GRcIbODKtE7YSQCs/oAY57oMaSZ12XG40HJBOZBbsYA50YIirya6LWykYZel9c8J5s4fWFLf/z7wT59rKQ+SRdZ/qBo9glNydOJ1qupPKkaNxk4n6/e/zdhA9K1cDqqEaJRrgw2tuTYtr1pVZvkrQ0aFSVl+DrkTqvHRnC9+dKEhQEyJxoo844j2VRF7AxQ0JDQrPV6x/9UKgy59XloZ/yPx31Zf+QzT1vUjOhrYDFUK1BVXY5HcZOhgOEMogxobd32U9ODokjV9TfvTMtXei1cHId7AuUq/71iNiNw9txfIvt6Wpy1NzRtYQ9Njg==
+ bh=0/BAVpoSMpLahnHe00wgn/223rFc80cZlzj7nukVKI0=;
+ b=qirMS+gChpsJWlIn1Bf4FRhxVttzGZUBAe0P6EQ6e+9fhNuqFO+w0zc0xjiIRN1zl1S8iMmlPVdSgmCzO87vQJzLlEi/Bb23E9XxqJICJP84hlhTVHBFgqVGr7cdK2t94Y6V6GbbjO5/VGBGh251WyZRaDwRqq7nxFDwIritxrv1Oo41HRhO0U5bipJg/UZIPn0maSHeQrV9tJwckouk7cg6QcAWYOpawbHv9QqpGCyI/NqFpq+A9Foxcen5fjGSR+hJq6Z9opi+nDo7+oJLgd/yPz33DHLyApztiesbSIEyc1pKaXcCK4RCAObkAWU9FZCx/3oUec6+ODpjXIOlNw==
 Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:d3::8) by
- MA0P287MB2022.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:123::6) with Microsoft
+ MA0P287MB0832.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:e0::13) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7409.23; Fri, 22 Mar 2024 12:33:14 +0000
+ 15.20.7386.35; Fri, 22 Mar 2024 12:39:35 +0000
 Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
  ([fe80::be9c:e08:2db4:9a60]) by MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
  ([fe80::be9c:e08:2db4:9a60%3]) with mapi id 15.20.7409.010; Fri, 22 Mar 2024
- 12:33:08 +0000
-Message-ID:
- <MAZP287MB0503ED9A05F83485CABD2513E4312@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
-Date: Fri, 22 Mar 2024 20:33:06 +0800
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] bridge: vlan: fix compressvlans manpage and usage
-To: Jiri Pirko <jiri@resnulli.us>
-Cc: roopa@nvidia.com, razor@blackwall.org, netdev@vger.kernel.org,
- bridge@lists.linux-foundation.org
-References: <MAZP287MB0503CBCF2FB4C165F0460D70E4312@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
- <Zf1SH2ZVfBG6O2EE@nanopsycho>
-Content-Language: en-US
+ 12:39:35 +0000
 From: Date Huang <tjjh89017@hotmail.com>
-In-Reply-To: <Zf1SH2ZVfBG6O2EE@nanopsycho>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TMN:
- [5odL/J55DusfiHBo8r9N7yFBotHUmJ+na7epajx+9+56rTr4BAkfcrim6a8KafeIbJU2KxzA1Ec=]
-X-ClientProxiedBy: SGXP274CA0004.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:b8::16)
- To MAZP287MB0503.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:d3::8)
+To: roopa@nvidia.com,
+	razor@blackwall.org,
+	jiri@resnulli.us
+Cc: netdev@vger.kernel.org,
+	bridge@lists.linux-foundation.org,
+	tjjh89017@hotmail.com
+Subject: [PATCH iproute2-next v2 0/2] bridge: vlan: add compressvlans manpage
+Date: Fri, 22 Mar 2024 20:39:21 +0800
+Message-ID:
+ <MAZP287MB05039AA2ECF8022DD501D4BCE4312@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TMN: [0QMUb7vo1Jhrnd2dzmxJyFA80WrVwVlzWXGGIljBoIMCOr9mbeMUYpTXdx9Ncjol]
+X-ClientProxiedBy: TYCPR01CA0054.jpnprd01.prod.outlook.com
+ (2603:1096:405:2::18) To MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:a01:d3::8)
 X-Microsoft-Original-Message-ID:
- <57e4a3b7-1aa1-4674-a84e-3f88b64b63f4@hotmail.com>
+ <20240322123923.16346-1-tjjh89017@hotmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -85,127 +83,61 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MAZP287MB0503:EE_|MA0P287MB2022:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5c9975c8-d758-4f4e-711e-08dc4a6c3a9e
+X-MS-TrafficTypeDiagnostic: MAZP287MB0503:EE_|MA0P287MB0832:EE_
+X-MS-Office365-Filtering-Correlation-Id: dcbea739-9ac7-4f07-7876-08dc4a6d2154
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	s6ovRZVWG9N+VuhHoNPIoZDkcCAJ1KzekqdtVNUQmss+Q9R9VLu0QinKfVcK4084/Z8JGJdmNP3cblKbkUKBN1+X6dNiUdVB2CEOTUo23sacPKtqlij7F+MnXlIvMPc9btbpLkREzqaO+mkf/QhtM7NB5r5R7+a4EVXIE++L5lKffKx0TqTeKQ+j5Bl28X28OFrEXvnNlOvb0hF/9twk5kvPWCuEIXXAVhwJutJIBpikGmnPmrDWF6gZ7Fi+eOfiMkzc/AJI2zDEJALT+xw+zG+8StwgViMwxmRxNyrisH9Dn0Z0LxWMsACIxgzSwXPrnPalnQAyUDyV4zvNfgwYr4XOksCAaFjGZ8HFHqY2A6QbXj2a5MxqMcUnCEY4Ezwj5AS0W9Y+1Yoy6mj1wZpbZSSHd6+WqzKmzsXrHzNhI6iOFZ9xMirycsMKgv+V8LZ1YFsKbh90hIXYGHr7QKQejkDHeKFaF75AWiHomMzN2+QfczTOFgK+I/4HVtQsk85e0LlR4QI+v+pgzD1MhmHUodifrthJeeHxOf/yGNpKs/j65oOW/jOsZpSPn2Rua5qz
+	8ixzgVv3sGSKTKbbMDYpKQzCL7huSlwYoLjJXBzoTo034dn2ot4I7J8cTsZtZR5p4fvMu71D0tKLsgnsGoq2AR+xDiES0yTWmqlInYWyeyPBT0K5XxJFuRsVwyCBUVRdU6K69EMLAmJhtIwUNsDThuQ7KhTRkX/luoM24kliEeHOot5lYH9tuZt5SqtcRjgfTpYWieYWS/pqhkH0GP2+CixncIPN9K8m12ZTEaJgt9rKPqcA6syeDLn5ZzwBXff18JqzkGlp3iRPwMtwpmd/gQva3IM82Fk3NZNMDaMfTfcOEL59jazXFMm+jGHSP5cLRk5143lrxHaeQ2Fcr8ppj7DRWohVp5dmH3W2oAoQGxaqnzu++M+vdX0BX19raNEbr8dwzydlf8+ceuqJkcfAL5yUFdSn9MsQ/qrUCdN7SEJxfD4HNZaqmoHXC2QQpaVWaanjA2xtPz5atEEgpX9qCbelinNA5YyOtnZSnG351HQK2FtjOnm/S1iVG3yIbkRhA+lY9D/KBkV145is9Ntpx2bDyqQsrDnB1q5w4bKsSDG/IRZ/nNIgx14fzcGbdRDCdfkhL1Fmilhkup3Gl96mVVvVsgIp9m4iIAkCKHr/beZnEBgSIZzhA/aOSokRmBcn
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?OUw2U0g2WlF6RDBQUGRVUlBPcXd4S2VFbDQzOHZ3TzRlSVZXOVd4cUVNRW05?=
- =?utf-8?B?NUFkaXZFS0dPd0NrSDNnZyt3cUVVRk1FZ1NrWkZVL3NKMmNEbDZ5Z2E2WFJ2?=
- =?utf-8?B?TUw2OXYvbTVoeFpFUVIzajFQbDJYRWY4d214cGpyVWxlTEUxeXYySFhQWVkv?=
- =?utf-8?B?YytUOGVzLytmWVFGWG5CNmdJZWRGMGxESTJCaEJlMHUyNkRtSUNDeUd4cHFs?=
- =?utf-8?B?cEVSbkVZZmpldEhLU05HbHJFa25jWWR5MGJWYzBOWlJjQTlLNDZNS2VTOGEv?=
- =?utf-8?B?OWt3a1pDbXlYaVFXRHJmTVZLd2xUL2VLcUhOZC9rYUV2aFJDYUd4YWVZMW9h?=
- =?utf-8?B?YS9seXhFcEppZ2JMdG5VUUFab0I5L0UxcFRqdkZNVmJsSXVSblYzLzN2Ni9U?=
- =?utf-8?B?QUEreDlITU4yOUZWME0yVkc3V3dXc1pyQkVNY000ZHdpc2dWSkg5ZjNaZFBm?=
- =?utf-8?B?UExuNkx4bkE5SHlXQTlvWTVZU3dWOHdqSXpxajZQTlFVb3NTNlhwNlJjUzhr?=
- =?utf-8?B?Y1A1YTVzVkdUM05TVHpuSU9tV21mS3EvTTdWcjUzL3dDV3drL282VTNuaUY0?=
- =?utf-8?B?ZXBqM2E5YmgzN295VHJEQ2VLZDNCNFV0RkFqeTlyWFZBZm5XY05jUVR6S21G?=
- =?utf-8?B?QTZXU25DWDVHL042VXNVL0VUOWViTjJ6b1hYWllKdVRjTmlaRFlEa3lDTis5?=
- =?utf-8?B?bmxOVW1QTDhQVzdDb24ycTdPOUx3Y0g2Nk53Y25oM1FMc0VZNmowZy9KSVlT?=
- =?utf-8?B?N3lZby96WllGaUVUZ3hib25tRU5tcFBDQlBuV2o0bnkvTEVNRnIvcmlUOURt?=
- =?utf-8?B?MENtb1R1NEdvKzhnR29WVmNraUJQa0xJUnZ0eXJkR25Ed1RiMkNreGtTb1ox?=
- =?utf-8?B?NmJuNWl4VWtEcHo1ckY5Yk82bDNmR0Z2NUJ3eUwxaGtOTjNCZGVpS1o2TkND?=
- =?utf-8?B?NVRJVXJVK3NpdDhFTWNRK1o5SFRFY1lWdWRnY05sTklxLzJYL1RyU05rcmVk?=
- =?utf-8?B?TEovUGhhaWJwclM3TG43MEpoNUxXNkxpNVhjZHNSTWlxTFlwMjlHTDJYTWpF?=
- =?utf-8?B?Nkxuc1E1ajhPMG5jYmQxTFV3STN6c1lyK1pBT2hlZGVza1ZmazVvODFnMlFp?=
- =?utf-8?B?S3JuV1duWExRbE9SUWJ1SHFpS0M2L2MxQU0reVBEaWRnUno5SGdTdzhFMFRx?=
- =?utf-8?B?L0V5MGFVWjhJaWgrcTlPUDcwd2ZpR3NmYmwwMEwwU1l0ZzJRL0lqd20xaXRH?=
- =?utf-8?B?ZHgwSnZ3K0pScXQ2OVFpcG45WUlJbCtYYnQ4VWljS2w4bVRVejlZcTZKVXNw?=
- =?utf-8?B?N0Q4Y0VOTnNDZUJOZEllcmVmeENGTUNEaC9DSHFySHZGSTlWZXNXekl5ZEVy?=
- =?utf-8?B?V2FwRmZKak9INVhuVm56ZUJkZVNRTEh3WmRYcXZOaFN6YUhxNEZHTm9WdXp1?=
- =?utf-8?B?VGplQ20wc2lPQi9FMUY3S3RlT0VUQS85VU5OU3RzTldIUnlvN0FIZWk4NURU?=
- =?utf-8?B?U0FXTllDUUZJV05ESEVSdUFUNjJoc0tYOUxraWlaakVNbTQxd25IVjdXN1h5?=
- =?utf-8?B?Nk5HWlRtM0h5R2s0ekZOQ0FWMjVnQ2xjZ09oUjNTcHU2Ni9qYWsyVlFzdWhY?=
- =?utf-8?B?R09TZEUzOEdma2o3TnJVbHl0RDhrWVlNcmgrbUZ1SVRTWllIMjJmdnExZ0pp?=
- =?utf-8?B?RUYxdG84TlNJbWZtT1VxVGx3M2dCVDhROFFSdXZLNzB0YkhudjJkdldJbzNp?=
- =?utf-8?Q?FS2ksH2S5IhXQm0juYRvBZ+OU9OE7DdQtZYXIBp?=
+	=?us-ascii?Q?lwf4ybHbdSfjMHlar6RN/TyYeL3mA1jCPqgkUvaRyZ6+nP5/mpmQ++MMJdq2?=
+ =?us-ascii?Q?bgTkqcU/GXrF5vKuIq1bblDTErIAVDNMwFf2C5LUJTURkKg6WikIrXj0RF9E?=
+ =?us-ascii?Q?JbUGHxNQ0OvN0UrK5M6HcuG3R6rESK+cz6F+erWbUkDmBgyte5Z4yb/z19KZ?=
+ =?us-ascii?Q?+yJJQDcg44BDx+dIpE3sJioSTiaTTK5v1uOT6Khzgrb7gnT/3W9oKpXinTql?=
+ =?us-ascii?Q?6+hCe85a4+DJeibtNZa67egGW6+InOLQTywtB3t+SMa5K2tpms8UIHs4Pgbk?=
+ =?us-ascii?Q?40IpKulaxWeby81c2R6ApmK6yivOMOTzTfpeTMzh899kjekSdS8aDPtwd5Da?=
+ =?us-ascii?Q?4ZVx5DnVoOXiiWo2PN7mlEBFf72lLqQKT40w8mSUexcL2cgKxA183OCBhabi?=
+ =?us-ascii?Q?E33ACNuVO3fi+y6zqBULRb/WOtDY3Wbmz0pqTda1ktCYwOTE+6aHD6Rde9QG?=
+ =?us-ascii?Q?+iVaqT3r1nigUPIn4e+AGSvwNwAhovCxKV+ndUPajUj50IqOOAvw6pc3WL+F?=
+ =?us-ascii?Q?U7psMjs0/Qj8VSf3s3dFh/rmW+m3aHiuYTv9oDX1oU8ANe+vAXIjLlAp1Bbx?=
+ =?us-ascii?Q?O4FGyoMxB2cESkUVlrThZr+P78DQe3yd0MRQrj57V1sAQWUlrl4soX/8fGXg?=
+ =?us-ascii?Q?zHuR5D+iG9uOySV7eZY5MFvZ1iVyzGHNBohZ6zCCJ+64+46HPa7PVjS/V6U2?=
+ =?us-ascii?Q?STTv0yxo8lTb/F8qsrP16MOmPhY+aKd+5ZT6wGp0lJ4ce8FpIxXXZNxn6ui3?=
+ =?us-ascii?Q?uqkAXDL+9bZ/GZY0tXlbnmDA53um6XN5NvTzZTz5AoRCHnLj7GIX8t9N+F+4?=
+ =?us-ascii?Q?sWV34zmKd6j+Xy0a/gTsQzcIucZ3AOpmcGgWviBszI9UhiYUnzWwNkP5suV1?=
+ =?us-ascii?Q?QtExBYtMTZEVB2+KhVmklhecRqkZGDv921TjptALfFwb4NfqkPMRXTJ2MbZM?=
+ =?us-ascii?Q?mrFSwgQiO+I7llrU8S1WanHV6tzco7Mxke9tJoXLWvUG4MNPhoJxkvZsq/k0?=
+ =?us-ascii?Q?tesS9wF7dU2lW+dn6AA7Cs4T/PqJX4Do4kkUp1S2DvL7FOLiB6kXoHPFcNjS?=
+ =?us-ascii?Q?X88HywUJp4K7VHgY9MYxrDMlSXo3kU+Bv1nyW7IXQSxzhN0zqWpycgXfJw7T?=
+ =?us-ascii?Q?eRxXIh+CZ0JGnpQteyboKQonUarZDDwyuVkLdFNP7svW0X3IFcXPd/LJtFAr?=
+ =?us-ascii?Q?gbPZ1HhvaSeWS4uZ5eTq/W76hRl9a6MsaPnNqVLPxbWsJjnpgqglf7H0NHEc?=
+ =?us-ascii?Q?wAtRJBbPkOZm+pqaPbMETZpWUzZTdGJplOLkrqijehpLXr7SegJ/B+ssGpnT?=
+ =?us-ascii?Q?u1E=3D?=
 X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-bafef.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5c9975c8-d758-4f4e-711e-08dc4a6c3a9e
+X-MS-Exchange-CrossTenant-Network-Message-Id: dcbea739-9ac7-4f07-7876-08dc4a6d2154
 X-MS-Exchange-CrossTenant-AuthSource: MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Mar 2024 12:33:08.3107
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Mar 2024 12:39:35.4767
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
 	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA0P287MB2022
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA0P287MB0832
 
-Hi Jiri
+Hi maintainers
 
-On 3/22/2024 5:40 PM, Jiri Pirko wrote:
-> Fri, Mar 22, 2024 at 09:56:29AM CET, tjjh89017@hotmail.com wrote:
->> Add the missing 'compressvlans' to man page.
->> Fix the incorrect short opt for compressvlans and color
->> in usage.
-> 
-> Split to 2 patches please.
-> 
-> Please fix your prefix to be in format "[patch iproute2-next] xxx"
-> to properly indicate the target project and tree.
+I followed Nikolay and Jiri's comment and updated the patch to v2.
+Please check it.
 
-Thank you, I will update this in v2.
+Date Huang (2):
+  bridge: vlan: fix compressvlans usage
+  bridge: vlan: add compressvlans manpage
 
-> 
-> 
->>
->> Signed-off-by: Date Huang <tjjh89017@hotmail.com>
->> ---
->> bridge/bridge.c   | 2 +-
->> man/man8/bridge.8 | 5 +++++
->> 2 files changed, 6 insertions(+), 1 deletion(-)
->>
->> diff --git a/bridge/bridge.c b/bridge/bridge.c
->> index f4805092..345f5b5f 100644
->> --- a/bridge/bridge.c
->> +++ b/bridge/bridge.c
->> @@ -39,7 +39,7 @@ static void usage(void)
->> "where  OBJECT := { link | fdb | mdb | vlan | vni | monitor }\n"
->> "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] |\n"
->> "                    -o[neline] | -t[imestamp] | -n[etns] name |\n"
->> -"                    -c[ompressvlans] -color -p[retty] -j[son] }\n");
->> +"                    -compressvlans -c[olor] -p[retty] -j[son] }\n");
-> 
->  From how I read the code, shouldn't this be rather:
->    "                    -com[pressvlans] -c[olor] -p[retty] -j[son] }\n");
-> ?
+ bridge/bridge.c   | 2 +-
+ man/man8/bridge.8 | 6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-Agree with you, I will update it in v2.
+-- 
+2.34.1
 
-> 
->> 	exit(-1);
->> }
->>
->> diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
->> index eeea4073..9a023227 100644
->> --- a/man/man8/bridge.8
->> +++ b/man/man8/bridge.8
->> @@ -22,6 +22,7 @@ bridge \- show / manipulate bridge addresses and devices
->> \fB\-s\fR[\fItatistics\fR] |
->> \fB\-n\fR[\fIetns\fR] name |
->> \fB\-b\fR[\fIatch\fR] filename |
->> +\fB\-compressvlans |
->> \fB\-c\fR[\fIolor\fR] |
->> \fB\-p\fR[\fIretty\fR] |
->> \fB\-j\fR[\fIson\fR] |
->> @@ -345,6 +346,10 @@ Don't terminate bridge command on errors in batch mode.
->> If there were any errors during execution of the commands, the application
->> return code will be non zero.
->>
->> +.TP
->> +.BR \-compressvlans
->> +Show compressed vlan list
->> +
->> .TP
->> .BR \-c [ color ][ = { always | auto | never }
->> Configure color output. If parameter is omitted or
->> -- 
->> 2.34.1
->>
->>
-
-Thanks,
-Date
