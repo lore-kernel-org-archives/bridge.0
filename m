@@ -1,152 +1,208 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DDE2210F8
-	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 09:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711100459; cv=none; b=gepE6GRjzLo142NJTST0yZ7M5gV5+0Xihiw5ahC0JN9yYZI22zK7rC3yYvBS0dDTwzK9+M++Sh7AOHsSnG0wUwhuiT7AUi5bFKrcwS3g6epOu7Sldvo5QvWH4pho+C3LnuOJkaiktsgWUu4djCNji9QsJU3FcrvRuXZK+6/OKHw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711100459; c=relaxed/simple;
-	bh=wHl8vui89YbwiD1z9uvsu5ZySjOCx+53uqMcWz3icBc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sZLuBX++7SGyvgfKgw2cOs7fwwATgXn69o7xsG9AHrZaeMxtfkANF6UyriKTCZcoQcNmaeJv/eMU4cDF+9Gliwt5Op8teYcD7zGqgszOiYrnF8xRvuTJdHrQQ0KtmAh6QaOCejYhiuZ7q6gSv9lHvoXsLY9cNZEHNc0VQIE3JIw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=RSTPG8lp; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7B2F168D0
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:32:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1711110734; cv=fail; b=FhUwvxaSHV0vJcBMbPVz9BPxJ+4o/3eUc4BhgpkKmhgTmFZMNqVBwjAilGX3dGony061l/Bzvu20o/pqrqubWylfJxdc5wtpgk/C5l4Iyctr9LfatUPNhoVNS1PugA+BoOTbBGD1IEf4/+Qu9F7dZX2c7whodCPsWBkzKb2OXZ8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1711110734; c=relaxed/simple;
+	bh=WtFoH9f3rp2VG9zMZm1gnajWeEYWUsP1FhELYDMSEr0=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=sYn0dnhLPt5Y8fUQOou21iAY2AOyZzuIIPpXds1P52tGkLRpAZ6nK+KynYEMWJlyATa8IDCQQs8ujvLA3xkzgUz9SqJdKuPOjMIEFxBQh4n/2NFdAP/droYieblGijwUsRRHepWjU/Af+sT48nfQGJ079LJOw55pipuirDcHCxI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b=AJQO+iHn; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="RSTPG8lp"
+	dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b="AJQO+iHn"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1FFCB60EB6
-	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 09:40:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7204C4035D
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:32:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aEv_-y8bBLws for <bridge@lists.linux-foundation.org>;
-	Fri, 22 Mar 2024 09:40:55 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::329; helo=mail-wm1-x329.google.com; envelope-from=jiri@resnulli.us; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org B39ED606CC
-Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B39ED606CC
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=RSTPG8lp
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B39ED606CC
-	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 09:40:52 +0000 (UTC)
-Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-41468f6d584so14064945e9.0
-        for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 02:40:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1711100451; x=1711705251; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=kyKiO2Vj+ML9FOel7cGcYwp21WMR0LrM/tgUEPI6Y4E=;
-        b=RSTPG8lpFBlwfv8/dLM1M33M1xBy9ggUL4qQuOMBKUSaT1TzrX/oik9tb7uvxxxLXp
-         by4H+4s7Et0jL9MR4dt72IAp8hy1lVaqLXCiM4BxSda5t7s8GALJABcTPCSuFcwA+t47
-         eQXiPkC8dXXU6Dtmg4mNcXp2BmTTVCSgqGGT0OFvjfKGL1NwWagoQWZ4G0WiwfjB2kse
-         fH8836RVeSUVYX0USkD67X972mMmfPifPrESrjjA84uyzlogr5KyLp1SCTjzHwQMP26l
-         6NNXWFGddzMZYhfQMyWK3/yJGyMAxdXqwlX4QDDAZ93g6G37k0mAhI+eN1u0neIiO01q
-         s40w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711100451; x=1711705251;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kyKiO2Vj+ML9FOel7cGcYwp21WMR0LrM/tgUEPI6Y4E=;
-        b=WDWHoksoDBkZpHC9QKas3gYr1eON2+iZ1HdXF355+R3G9oS9JgQkAw3ipnialILdbl
-         IYdMcOFNqT0bIgX6LYWw+Oi+3y/SfnJWRMOEz/kHDwRvv/E8GgvjFL4PPN5jxVGlihYJ
-         RkOf0oigMP/OFQ2wvu7rf3Vqg8TFFvvzPQ1Hdy5tS2aonpG1SVef4aS3dQuPqEqIsvlv
-         2+mNd38JLkn9htl8dt34ufXwejqHGQWNYLevJWiGOoK+MP8WdvR/x917eRbDS0ltpzUi
-         SQqIDXBewqnxz8kd72AEMZCPG078g6vksAD3Z11TRsQ+k6CgC0wern0Htlzv8kOO0h1e
-         r9gw==
-X-Forwarded-Encrypted: i=1; AJvYcCWgQQd8QAjH3y6f5TzBW6TFvdrFnm0Dv+RcgWyBXTeUkg1V1c4fRXhBvf4vj4C1IhYo2iG5ILH75TH0vfwkhtKWWQXVOL6jtOE6ES4Zq/C+N7k=
-X-Gm-Message-State: AOJu0Yw2DqEUcgucp6mZxF2X/VlVnb4hRjVCtpudJM9hz3+HJ4+5ErGD
-	5ACoPW6ojta6T1iXKjKd8HB6AQGxF8rkiF+CO361CkeNFVOohC832x37AT3DAjE=
-X-Google-Smtp-Source: AGHT+IGqHip+JS2pa8/GSES8Ac7KwcNaaejk7Lf9W9r3Xv2znkC9L66RhStPkDXM5V/GQOd6VE/YSw==
-X-Received: by 2002:a05:600c:458c:b0:414:7431:6983 with SMTP id r12-20020a05600c458c00b0041474316983mr1072784wmo.25.1711100450943;
-        Fri, 22 Mar 2024 02:40:50 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id fl21-20020a05600c0b9500b00414674a1a40sm2522768wmb.45.2024.03.22.02.40.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Mar 2024 02:40:50 -0700 (PDT)
-Date: Fri, 22 Mar 2024 10:40:47 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: Date Huang <tjjh89017@hotmail.com>
-Cc: roopa@nvidia.com, razor@blackwall.org, netdev@vger.kernel.org,
-	bridge@lists.linux-foundation.org
+X-Spam-Score: 1.332
+X-Spam-Level: *
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Bu0k_ZUkGN_h for <bridge@lists.linux-foundation.org>;
+	Fri, 22 Mar 2024 12:32:11 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:281b::800; helo=ind01-max-obe.outbound.protection.outlook.com; envelope-from=tjjh89017@hotmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org A1C6040275
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A1C6040275
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=AJQO+iHn
+Received: from IND01-MAX-obe.outbound.protection.outlook.com (mail-maxind01olkn20800.outbound.protection.outlook.com [IPv6:2a01:111:f403:281b::800])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A1C6040275
+	for <bridge@lists.linux-foundation.org>; Fri, 22 Mar 2024 12:32:11 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=EBVM5goBYnDpa2CTQOl4DYpLatB6QN6HHuqNGNN0UCjImTKU4cxMijk6xbGCp+nxws2VgZ+INFA+FELnHm3J1D76DevngonVaokJuQ/ppBnRpXky2W2suohB4V5G9IlPQAC+gUAyAJvkEKxRYTMfc1LlYc5sdJrS3aR0agzvzBuXesQE1y2lmPrJSaFtnOxKCyR7ywNy3ET7/Nhpsf2g2nxHFpOEpDwDA4eaLUtrFihG600ErUX0ScV/LNWIdYuqrcS05HhuzP8hDRZaF8zqXegDSvGnqw+CIF9lAQMSbKXv2bInzilkOZrr1dAcTLQgYr42W0acfaPzu8ZUjPEdlg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PSfKJ7pXOZy7tFQ2ImoipFXLrORHAg+J3ilcnc00qdE=;
+ b=E6o8LcKM3ZTknNmfxK6asLS/eFiAnKhWCJHY8ON8mReMDfYYgsavS4taqytIwpbRdizwtamJxlY4UUUvl386mC4SNBlMKitE7UggPVFYzuquck0CeXpk7ILLP+soe0VXFEBo73D0LPZM8zIfWUFXswNRKnJmgpISbEjukoOTbbTxeY94lRq8vxjVXeFd8zcghPZBKmtF9kl4y/5KCOsMGYP2NsKpRyovM2sVgPHKAncL2t4gg5wuIo7LeYXsYfyJHy8tZAnukjJk0bwQMesOjYnYTzTDGo/VLH/HfOYV5nZFsjEnz7q3rsBgYDX3cCbfv+Gl9miv6wy3p2ykvACOGQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=PSfKJ7pXOZy7tFQ2ImoipFXLrORHAg+J3ilcnc00qdE=;
+ b=AJQO+iHnHmp/PfHENsqbG0UNpjEN5HEXnpYmtHHai4gYmQtQ/qgyfm0m3meMBm2ct4rnibbV96+8y1xm0SW8c6l7d9VvhsrGdjjNNSdfGeZtGZ8acwWqWcQxWVp3Lf5gZ48n7zJlZM6F6qg1lk70mswr4XyD79zgG0653Sx21c11K24HUwhCAhGjRbYZP6dGiBdpjJ/NYmWY2LRVY4BA3T1yVUozCkV73QDtkMT2Zqh89GXBdj8pdOaqD0fiPwwmlz8/zWGjNazGBTnpBDLc1DjXGrbpy0UDTWDedfcR+marHRJsyqnI42WujM3nweGxAb9twS3seoQ2cRxa9QYoEA==
+Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:d3::8) by
+ MA0P287MB2022.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:123::6) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7409.23; Fri, 22 Mar 2024 12:32:05 +0000
+Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+ ([fe80::be9c:e08:2db4:9a60]) by MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+ ([fe80::be9c:e08:2db4:9a60%3]) with mapi id 15.20.7409.010; Fri, 22 Mar 2024
+ 12:32:05 +0000
+Message-ID:
+ <MAZP287MB05036EF508C09397B4BE31CEE4312@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+Date: Fri, 22 Mar 2024 20:32:03 +0800
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] bridge: vlan: fix compressvlans manpage and usage
-Message-ID: <Zf1SH2ZVfBG6O2EE@nanopsycho>
+To: Nikolay Aleksandrov <razor@blackwall.org>, roopa@nvidia.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
 References: <MAZP287MB0503CBCF2FB4C165F0460D70E4312@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+ <d6ac805e-1bcd-4e06-b3eb-58fc2bb84461@blackwall.org>
+Content-Language: en-US
+From: Date Huang <tjjh89017@hotmail.com>
+In-Reply-To: <d6ac805e-1bcd-4e06-b3eb-58fc2bb84461@blackwall.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TMN:
+ [cD8BIeC/DZAjtwmQ61P6RBE834rdrY8pjevJvNaVK4VizkAa/droiT5crFXRi022LVg1JBiGHWk=]
+X-ClientProxiedBy: SGAP274CA0020.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:b6::32)
+ To MAZP287MB0503.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:d3::8)
+X-Microsoft-Original-Message-ID:
+ <9473db69-135b-439a-8301-83b98ee6ba8d@hotmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MAZP287MB0503CBCF2FB4C165F0460D70E4312@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MAZP287MB0503:EE_|MA0P287MB2022:EE_
+X-MS-Office365-Filtering-Correlation-Id: ea1ebb31-ed37-46a5-17fc-08dc4a6c1548
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	jxVtGN5MsFVSJUMsu/93HDjj70gct3Hs2A0hqEaO78k/E1MBblWmAKShHqDmJvXw7nLSoujaCANjITXmvLXPMEwete5z4wE0GaZivt+KIFtAvczUX0IfkBvr1Lge0irWx5hGk6/5wQFo9ucxmQ4lerdoofqwnUND/vAZCOY7YVqCPfdbl3W8X9VJNVCed3Gnwux8oWXCmySStULnqrD71uctIYqVKQKAI0No25wxQMoTlZauIxPIRdiPMkfVMxASTlg1MCCJFcx0GWbKPVUVZz7rvrQCl9ve1I65Xl/NLGv9aG05lex/xfBtrLL2dzs02RY94yjANYUHSOPKAi3uJX536P+gOaes+vnETgGxjarjfjSsjCLa0pcFOk+dF9I86Jg0dnNqNDDbOtY0zzvt6d0oW8uPGpeAQcVtLrc0nUZDaS4m/p/lnqsioh7SzxUvd29EYFRrhWU4U8Ux0tfOF9pVtkqMsaXxmi0umHlJtQdLUI4Mix6qOFb1w0uxHrfC8VHGe/VR0Rv9kDcQU5BKF1Pl7Ocz/ITS9fDF2n/+1VgBim2FNHDinTYeOjP9XkiU
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?SThqbEtJRnNYUFJSSyt4L0YwcUVQaUtoZ2lTNFExMGZlSzlGR2l2dTFsV3RH?=
+ =?utf-8?B?dXJEZXFRYUpSZjJrK3MyT3plUXpBdk43SGJJcXhmNGNHeDRJSmRuTG1GdElP?=
+ =?utf-8?B?ZTlYMGJTYXNhTVpnN2s1WXM4d21iQkE0MnR0eTdXeVdJMUQ2cHBjTzIvWXhr?=
+ =?utf-8?B?dTFLZ29zUVN4WmtPeXdSRFZzeFZCcTlvWDhvS3NreVNIa3VvR0RmZjFWS0Fl?=
+ =?utf-8?B?aHEwWnpSTzZISDBUZ21teWxXdVJ3bTZIUE9KdjdidmpsZnZMYytPbmVZSTVI?=
+ =?utf-8?B?SmpyY3hLZUdhSGRoRHlzaXM1c2xObWtSTFRQVitpNXVKallmVE03L0RJK0tX?=
+ =?utf-8?B?QnNSd1RyWDZoNGVtTmIzUDZUeEJpYlRUWnZYRWZDeGUrWjV4Znl2L28xV2VG?=
+ =?utf-8?B?SFhjQ3VvUVArUFNUL1d4UEFUd2RQRWk4anlxKzJhbmpxL2tWZWhkNFBwRVVs?=
+ =?utf-8?B?VzZKdkdCWlhjdmcvVzhnazNBUTNhaDd6eGk4eGdYclFLSDhJWUJyQjVxTXVm?=
+ =?utf-8?B?dXFBS2JJa21PdEoxUFpJVE9wTDRPbUxVaVJyQTVHcWVxOUlJd2JkMXY0NDY2?=
+ =?utf-8?B?QnpuMWFYd3E2RzNCLzFTUGFPZnBWMTYyMm9tNk5sQ29makxhNms4WTlDdmFC?=
+ =?utf-8?B?RXdRODlzUkdtdlNjOFpoVFQ1MktqTUhMTEhnQnh0R2I5TFJudGZoYUk1Mmh0?=
+ =?utf-8?B?eE9FRGcramtQYks3ZVg1Zk1WQnVVdERUd05NL05uY1dsSkRwWXpoZ29SUXlq?=
+ =?utf-8?B?Z3VVSU5MVDRqSThwcENTL0w3ZTBrTElqMzErUTdOVFhnMmdoWmZwRCtJc1ZG?=
+ =?utf-8?B?SU5DeXIrWlZBbURLeHJ0ZFJxRVZqaG1HVUxTVjQ5a3Z2bXZWUnhmbmt0ZDJE?=
+ =?utf-8?B?dmFUZXFUdkpqWmlCcjRobENWakVrZjdJK3Vpc3hCVVg5V1c5ODFLeHAwOXp0?=
+ =?utf-8?B?ZmxDRUptQldUTVlGK1ZyajdnMWJCTzBaaTg3aUt6dVkvRWtoN2RLSXYzSmhp?=
+ =?utf-8?B?bEpzTUkvOVBHa051cEZDOEVXcmtvcXVVZnhhNG9VM0pVMFFaSnRNK0ljcnR2?=
+ =?utf-8?B?ZnlsYmhMczVuWTlZZmFqZVZaZjhSeW5JTjJrWk5rdGVkT0kyYm1HbUZTTGUx?=
+ =?utf-8?B?TFlTbytMZFVKOERtbWl1Y2ZWVW1TN0ZhdFg1bVBDdjdzM0ZhQTAzaVNscHVa?=
+ =?utf-8?B?NU8xZzlGbFkrWUhHcEIybVAvdnpRYmZndWNiUms2TURSSGM0cURTOGNwR2hP?=
+ =?utf-8?B?cVZjaXhZbTQ0blh4ZHp3YnVXWlRhL2toMmw4SWxaRTVIK2xjWXNNWkpNcC9q?=
+ =?utf-8?B?blR6eXI4R2xuUERyMHBabmFMQU1FVTEwVnV4M283blBuQmJqcTZaL3JXY0NN?=
+ =?utf-8?B?SkYyeks4Mm5lZ2w1d1kvN0JITzdxZnk0YTY4SVJLTmFLMHp5dUdQc0VNQXg2?=
+ =?utf-8?B?VWxJY2d3V1hzOTBaQWs2YytwWHlVVzRDaForZUI3T2dxQldoYU04enpCTjU3?=
+ =?utf-8?B?RmsxTjc5eXVaQm51V1RkL1l6djh3eEtSNWlybU95THhFWFNxWVY3UzkrajNu?=
+ =?utf-8?B?TkJ4Rk5JRWRucVFvckdtT0x4aFQ2dWdkOXBteHRUdEE1djF6S1VXUTdCVG9t?=
+ =?utf-8?B?UzFLeUo1UkZ4Vno5c2U3YklaZnpKWVJDZ2lSc1BNNCtrRm10S3p0bnFPVlA1?=
+ =?utf-8?B?dFNyajVNcjY0Ui9rSVk2di94cGpWb05JZER4cFdzL3FFTkthaU1LTjJST0Zx?=
+ =?utf-8?Q?8nKOrydLoS1Ix6Sr6rSUu38v3zEK7mbS8WXlZya?=
+X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-bafef.templateTenant
+X-MS-Exchange-CrossTenant-Network-Message-Id: ea1ebb31-ed37-46a5-17fc-08dc4a6c1548
+X-MS-Exchange-CrossTenant-AuthSource: MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Mar 2024 12:32:05.6502
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
+	00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA0P287MB2022
 
-Fri, Mar 22, 2024 at 09:56:29AM CET, tjjh89017@hotmail.com wrote:
->Add the missing 'compressvlans' to man page.
->Fix the incorrect short opt for compressvlans and color
->in usage.
+Hi Nikolay
 
-Split to 2 patches please.
-
-Please fix your prefix to be in format "[patch iproute2-next] xxx"
-to properly indicate the target project and tree.
-
-
->
->Signed-off-by: Date Huang <tjjh89017@hotmail.com>
->---
-> bridge/bridge.c   | 2 +-
-> man/man8/bridge.8 | 5 +++++
-> 2 files changed, 6 insertions(+), 1 deletion(-)
->
->diff --git a/bridge/bridge.c b/bridge/bridge.c
->index f4805092..345f5b5f 100644
->--- a/bridge/bridge.c
->+++ b/bridge/bridge.c
->@@ -39,7 +39,7 @@ static void usage(void)
-> "where  OBJECT := { link | fdb | mdb | vlan | vni | monitor }\n"
-> "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] |\n"
-> "                    -o[neline] | -t[imestamp] | -n[etns] name |\n"
->-"                    -c[ompressvlans] -color -p[retty] -j[son] }\n");
->+"                    -compressvlans -c[olor] -p[retty] -j[son] }\n");
-
-From how I read the code, shouldn't this be rather:
-  "                    -com[pressvlans] -c[olor] -p[retty] -j[son] }\n");
-?
-
-> 	exit(-1);
-> }
+On 3/22/2024 5:25 PM, Nikolay Aleksandrov wrote:
+> On 3/22/24 10:56, Date Huang wrote:
+>> Add the missing 'compressvlans' to man page.
+>> Fix the incorrect short opt for compressvlans and color
+>> in usage.
+>>
+>> Signed-off-by: Date Huang <tjjh89017@hotmail.com>
+>> ---
 > 
->diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
->index eeea4073..9a023227 100644
->--- a/man/man8/bridge.8
->+++ b/man/man8/bridge.8
->@@ -22,6 +22,7 @@ bridge \- show / manipulate bridge addresses and devices
-> \fB\-s\fR[\fItatistics\fR] |
-> \fB\-n\fR[\fIetns\fR] name |
-> \fB\-b\fR[\fIatch\fR] filename |
->+\fB\-compressvlans |
-> \fB\-c\fR[\fIolor\fR] |
-> \fB\-p\fR[\fIretty\fR] |
-> \fB\-j\fR[\fIson\fR] |
->@@ -345,6 +346,10 @@ Don't terminate bridge command on errors in batch mode.
-> If there were any errors during execution of the commands, the application
-> return code will be non zero.
+> Hi,
+> This should be targeted at iproute2. Nit below,
+
+Thank you, I will update this in the latest patch.
+
 > 
->+.TP
->+.BR \-compressvlans
->+Show compressed vlan list
->+
-> .TP
-> .BR \-c [ color ][ = { always | auto | never }
-> Configure color output. If parameter is omitted or
->-- 
->2.34.1
->
->
+>>   bridge/bridge.c   | 2 +-
+>>   man/man8/bridge.8 | 5 +++++
+>>   2 files changed, 6 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/bridge/bridge.c b/bridge/bridge.c
+>> index f4805092..345f5b5f 100644
+>> --- a/bridge/bridge.c
+>> +++ b/bridge/bridge.c
+>> @@ -39,7 +39,7 @@ static void usage(void)
+>>   "where  OBJECT := { link | fdb | mdb | vlan | vni | monitor }\n"
+>>   "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] |\n"
+>>   "                    -o[neline] | -t[imestamp] | -n[etns] name |\n"
+>> -"                    -c[ompressvlans] -color -p[retty] -j[son] }\n");
+>> +"                    -compressvlans -c[olor] -p[retty] -j[son] }\n");
+>>       exit(-1);
+>>   }
+>> diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+>> index eeea4073..9a023227 100644
+>> --- a/man/man8/bridge.8
+>> +++ b/man/man8/bridge.8
+>> @@ -22,6 +22,7 @@ bridge \- show / manipulate bridge addresses and 
+>> devices
+>>   \fB\-s\fR[\fItatistics\fR] |
+>>   \fB\-n\fR[\fIetns\fR] name |
+>>   \fB\-b\fR[\fIatch\fR] filename |
+>> +\fB\-compressvlans |
+>>   \fB\-c\fR[\fIolor\fR] |
+>>   \fB\-p\fR[\fIretty\fR] |
+>>   \fB\-j\fR[\fIson\fR] |
+>> @@ -345,6 +346,10 @@ Don't terminate bridge command on errors in batch 
+>> mode.
+>>   If there were any errors during execution of the commands, the 
+>> application
+>>   return code will be non zero.
+>> +.TP
+>> +.BR \-compressvlans
+>> +Show compressed vlan list
+> 
+> s/vlan/VLAN/
+> also the explanation is lacking, please add a little bit of details and
+> what the default is
+
+Ok, I updated this in the latest patch v2.
+
+> 
+>> +
+>>   .TP
+>>   .BR \-c [ color ][ = { always | auto | never }
+>>   Configure color output. If parameter is omitted or
+> 
+> Thanks,
+>   Nik
+> 
+
+Thanks,
+Date
