@@ -1,155 +1,187 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11731487E8
-	for <bridge@lists.linux-foundation.org>; Mon, 25 Mar 2024 05:49:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711345780; cv=fail; b=mBHRJq2Dvzm9hw/vVTHr8CGh1Ii4fiGBkpciMSTlxFznmR7ArC1iCUh8T1u3hsd0hCPIDq6YIB43oOS0KJDXWGVAiPPLRoHDpv3h9yL7038EYQq2fRzTkYmf23Npb2onp6GMbG8NxgXwjQVv+BGMyIwCbuGjg/0dImA8eXlAEKI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711345780; c=relaxed/simple;
-	bh=rqVDVeVXwnt4m3SKsUtkQKCcSoTMJmjF523xVt4yRgQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=dry8xkvDwIPsOpdg9I2BLaEq1SI2QK2sL+YHgTgI8KTyKZUtxV2kTCblC65MJMkAj/mudMUKHzWsjPHPZ+zTqSDXltgi1o5z5ttcViuxsqi2DqUG3VxSgM6rXRfl0oZ9xa3Y78eIkYHv2GNhX1ajwSeFg+yJfpkPEo+m+dkiyi4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b=OAieKyps; arc=fail smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 045CC5D74C
+	for <bridge@lists.linux-foundation.org>; Mon, 25 Mar 2024 13:04:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1711371880; cv=none; b=lWpqKMCi2i52+cvdgeSbGSNB+rjUQdYUlC6M/YjLeKrKbZ6tH4R5UgOJKyGpmhdbceFX235De6oOZw7D0bWTsot0qQNCmYD1yV+37W5EuhX/MSKF7C/ry2yTAEEurAT5ZTAzYyEpXcFWP08K+g2ai9JzKyfVpfQf/y5Cmi8bLXw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1711371880; c=relaxed/simple;
+	bh=StXWaTBoyd9Tje91UaCId+bbkSFToXQL4cx0rhEEsfk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=e3Rvqf95BXumm/pnCnC1PIcfgzFKB0eyoK+0o3Nn5hNWax5/Gr23nyv262RP3hjmZmxM4Vk5TKG/9UnvQhcIRHTEvvPXC2brSaV32CTqGc/x+TpbcsbENO8kI5SE56zQuZy/Nbt5n+zY0uMPDoR0H8tmm3qsboeGZuBCNDepOco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=mSEKPYR5; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=j5iaYn/S; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=mSEKPYR5; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=j5iaYn/S; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=hotmail.com header.i=@hotmail.com header.b="OAieKyps"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="mSEKPYR5";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="j5iaYn/S";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="mSEKPYR5";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="j5iaYn/S"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 708EA818C9
-	for <bridge@lists.linux-foundation.org>; Mon, 25 Mar 2024 05:49:38 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 840DC40B85
+	for <bridge@lists.linux-foundation.org>; Mon, 25 Mar 2024 13:04:38 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.977
+X-Spam-Score: -4.4
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id IlUYh5QO3YCT for <bridge@lists.linux-foundation.org>;
- Mon, 25 Mar 2024 05:49:36 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:281c::800; helo=ind01-bmx-obe.outbound.protection.outlook.com; envelope-from=tjjh89017@hotmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org F0CFB814BB
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=hotmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F0CFB814BB
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=hotmail.com header.i=@hotmail.com header.a=rsa-sha256 header.s=selector1 header.b=OAieKyps
-Received: from IND01-BMX-obe.outbound.protection.outlook.com (mail-bmxind01olkn20800.outbound.protection.outlook.com [IPv6:2a01:111:f403:281c::800])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F0CFB814BB
-	for <bridge@lists.linux-foundation.org>; Mon, 25 Mar 2024 05:49:35 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=O7W801JpGhuXtu2awSUQ/XC1la3txrf+GBAROZAcedtbbBbxPBk/vVzkXpDafLkPq22Psw53UBSu/fYULzUv+G1p65Xb4AN6VFqi1KoxYcrlCNzoBccHpE1NdFnGLaZnpfx77bsOP8Bq8MwiMqHP8MTwOHT1G23XViq7uKn2Y13zefdahmK5yRkQtL7GSCqYi4ukGogxFwjG861teAGy1aqsq58HBEqmsSUb6r+wBv/UchUOpyLcO5DVBzdOpjhqTL2hu8Pg1Vi3PNGLXWhdECQAwfo9Cw8W3lHc+TITv9m7TTZ2jDZ0ncE3BpZ8N+3HT5e+Z9qg21qscncjaeeB2Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qD4wfgvCq6QhPkiX0yJxaYFYOKl1N2n5Qr3l9JsldPI=;
- b=GV4YsUKMre363bDZ6Tq/OTFhes9qiuI1k06m2d6RUb+ClWtxxWfInBog7Jc0NutHbkq+LuOI1K+vw5WbepplepXxqevrSFHjgQrm8kZ/aHuvjEaIq3cDjyaYql2tQBXLycLSZrSyuCy4Mwk3TJZU6Ctk4Uem/jXqDSNYcv32rfPjqrJdqBR6lE5i4Z4HwbdsTmbliES0hKbZsM9vHTlx2CRiN//o8ecW4U4Jb1QEQ/TcW0yAevfp9sfsc1b1As020UcgjUhzeO38bxRSLaEwvn2waDTavVL2xtDKyIoF7JCz1IdIM8E3+N07FUKN5VH+WGZ1iFG1mkfY1D+YLp1eEg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hotmail.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qD4wfgvCq6QhPkiX0yJxaYFYOKl1N2n5Qr3l9JsldPI=;
- b=OAieKyps2uCq36e70Ddg1gHS+3zAPQkEKl3/VwkESIlBInBFoEhwgx0y++fY8GDHDMv6JiRhwTqYP9mTCbHsR1MjCU8KsnSTggB8Rga+hcs+3pGLgiuH4hFb+68Zecs33QugBwQ04EMgiuzv4lP6aXsewpjdkw0KTx9k1PO+55sLdEM8TPed76bBH0SvkaNZt5TdtggoUunTWUIVwIls73nyXoYfzX3cMK8IKKlUycTfsK1blbXMuY7JslUIzM1xuIJP6rXHpgiGmi9w+YiDUhd/dVjZVLpyQcVgKquHA1QLdEIzSYDFN/4xvCMokwUoM4fH+V4eh1olRz/V3GWXzw==
-Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:d3::8) by
- PN2P287MB1744.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:1ac::7) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7409.31; Mon, 25 Mar 2024 05:49:29 +0000
-Received: from MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
- ([fe80::be9c:e08:2db4:9a60]) by MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
- ([fe80::be9c:e08:2db4:9a60%3]) with mapi id 15.20.7409.028; Mon, 25 Mar 2024
- 05:49:29 +0000
-From: Date Huang <tjjh89017@hotmail.com>
-To: roopa@nvidia.com,
-	razor@blackwall.org
-Cc: netdev@vger.kernel.org,
-	bridge@lists.linux-foundation.org,
-	tjjh89017@hotmail.com
-Subject: [PATCH iproute2-next v3 1/2] bridge: vlan: fix compressvlans usage
-Date: Mon, 25 Mar 2024 13:49:15 +0800
-Message-ID:
- <MAZP287MB05035FBFC9A954A55A67790BE4362@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240325054916.37470-1-tjjh89017@hotmail.com>
-References: <20240325054916.37470-1-tjjh89017@hotmail.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TMN: [Q1tAvA4drrePPfxYQ8Melxm3DaugXX2z5ApQWRhPIqQVdUEov3ju3fDfl7pIpGCE]
-X-ClientProxiedBy: TYAPR01CA0172.jpnprd01.prod.outlook.com
- (2603:1096:404:ba::16) To MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
- (2603:1096:a01:d3::8)
-X-Microsoft-Original-Message-ID:
- <20240325054916.37470-2-tjjh89017@hotmail.com>
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id SWaYQOBWAGA9 for <bridge@lists.linux-foundation.org>;
+ Mon, 25 Mar 2024 13:04:38 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a07:de40:b251:101:10:150:64:2; helo=smtp-out2.suse.de; envelope-from=dkirjanov@suse.de; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org B2C3040B7B
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=none dis=none) header.from=suse.de
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B2C3040B7B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=mSEKPYR5;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=j5iaYn/S;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=mSEKPYR5;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=j5iaYn/S
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2a07:de40:b251:101:10:150:64:2])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B2C3040B7B
+	for <bridge@lists.linux-foundation.org>; Mon, 25 Mar 2024 13:04:37 +0000 (UTC)
+Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 6BEA05C6E0;
+	Mon, 25 Mar 2024 13:04:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1711371874; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q+zT1+tu64VVL4YrYUd/902NqQlxbkUXi0Ke76WYDHo=;
+	b=mSEKPYR50oH/oPYE/X8NNkMY9E1I7WbJ88RKv6s33VYE1FaRjrl9CEeVMGe3Y8OIkVfhTc
+	cT/9X0VQnY2CZYDOc6MwJmfPdh6rXSiY9U6L0laBdGrTGet4rqaZ9+9+4wnxDwofmd+70U
+	u+c/w3vo5hOnGgOj06kQ+CWGdkem9SY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1711371874;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q+zT1+tu64VVL4YrYUd/902NqQlxbkUXi0Ke76WYDHo=;
+	b=j5iaYn/Sqh9XpXnd3nZGL++fXaaY7xt2UkDdID1q7HwQTmgwhxISfVdxUnwiqmSGdcdpZl
+	PCRx3PruUgiuH4AQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1711371874; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q+zT1+tu64VVL4YrYUd/902NqQlxbkUXi0Ke76WYDHo=;
+	b=mSEKPYR50oH/oPYE/X8NNkMY9E1I7WbJ88RKv6s33VYE1FaRjrl9CEeVMGe3Y8OIkVfhTc
+	cT/9X0VQnY2CZYDOc6MwJmfPdh6rXSiY9U6L0laBdGrTGet4rqaZ9+9+4wnxDwofmd+70U
+	u+c/w3vo5hOnGgOj06kQ+CWGdkem9SY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1711371874;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Q+zT1+tu64VVL4YrYUd/902NqQlxbkUXi0Ke76WYDHo=;
+	b=j5iaYn/Sqh9XpXnd3nZGL++fXaaY7xt2UkDdID1q7HwQTmgwhxISfVdxUnwiqmSGdcdpZl
+	PCRx3PruUgiuH4AQ==
+Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 0F5EE13A2E;
+	Mon, 25 Mar 2024 13:04:33 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap2.dmz-prg2.suse.org with ESMTPSA
+	id W7qQO2F2AWbGGQAAn2gu4w
+	(envelope-from <dkirjanov@suse.de>); Mon, 25 Mar 2024 13:04:33 +0000
+Message-ID: <455b0c17-e977-4647-8dc5-6c56530f7945@suse.de>
+Date: Mon, 25 Mar 2024 16:04:29 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MAZP287MB0503:EE_|PN2P287MB1744:EE_
-X-MS-Office365-Filtering-Correlation-Id: 219062c4-0ce9-4dc0-6581-08dc4c8f5633
-X-MS-Exchange-SLBlob-MailProps:
-	Cq7lScuPrnqkjmXb1vlddM5aSa/Epk3AjG5lqiwNHkFp3cf2RhGoYfQGW0jZulDR9DB/qyL6idhFwfCqn/zeDTTmlpdX19+ctrEZt758YzxcJMWmZ2idpFv3to2M72RTUBxrmBfe/fJLcoB4fcE/z9zj8BE+Q1ykxDrO7L95VUpVqUJ88ZFiwgVF+MKRnb5XE83TDUtkqZ+wnoGktG/NQQGyniWtbD/CquQHKElG2E2wvyAhb9f2asNQNN6puXhwrYhPgFl28dB1M1bKHepg8dW1erzYn1o8ZU1W2xdpfqdd1Fa/PZfd3V00rhzqIUC+v0K9JR8g7Yi5AtdItdq54PP8UWY/BjHr81R5KQ4M/W9F2dP3i/FLuyEpFrGHcmAZJbrOl37qHdGS+oEz5qQyeU600TkVAEAGuKemnELbnlHxgH52L8QnPA2FXF4i4TWAyumfeLJMpnVOOkJTDPD3B3FzrjeaE32rRbw3/vDUK3xiQ9XwG6HrpGEwv+oouB/x2K0oIZM2OEWMSqG8dNDLTn28xv8PjvZf5wgbImPnBuv/grpTOg+KdhtsTVNJ3Ua5UP2umITLpDVuHLfsclOh72Jpk0wnmVR1k+PRt6nz5+aqYk2bs07VO2oupTQGMRrczGUuBsWBswlIlWENPM5IJWDmhK3w7WhNKfpHHtkuGXLmri1lAqGC1dimE7LA5zcUefeejgxyDBpN4J+Ob/3F5TFC0hGPcwmqOPJV6rfVStDzbXIF4s38YcXMSPwUGbdZxlyaXapZIKk=
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	BYAndbaDgP9Y6gZjNHuOX+C4YL/OQ0U4U6k/iljloZ8IAFL/5O4WgGq0bPthrGxMZZlGsElCx0Q11q3f0AmwdAJS21+zqYthFcjgdnbT/6wUeygAK8LJMATFC15mAgDxjGjcXgCdrxhpa+W7qu2iezBuiRyvxhN/c34NuSkcFTbrDoHHdv3PJvVPI7C2kFg1dM6BK3uJsKx0oQZ/bQ9btUT3ng5ECsYtQXZI8Y1r13g09KvBboJaPNQ2VGXNUjP/LkctlZsnFVdOzle/O88ZD++gyZm4PUyNZ++nYidYzPcoBNbvSCTTfn45v9NfszHAI0b+G1uEPRybG5RqZu7u1VgzbM8TwSI+0l9pLd/WYKFCi6WWnSMhpJY6JfXkIH02hWDKD745tU1gorLlNh9MONWmku498xPySas0jEm+xNaIFK6cYeGk8+OrTRaMGGL2W/vf43xieYNcPnzYaRqI9MeeqWng69PYUs0tV58T3uS8Pdwgy5alZuDd8dYnzeX3SFBHEc5JzR8b3bA1dFIOfJsoM2fs270gqc0irdMsqx+W7nepQ4/5c2vxdexydIam6bAtET9pxdMH61ee/6Yi5XMRA3Hw8hAGidV65JYMwYHjmU42tjXiqVaAgAEKP9Fv
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?d7eaAxJyso59o5X/mFWK4Z5P1tzMZFPph4MjzmlLPt+qMtvl2dWOjIxvnCmn?=
- =?us-ascii?Q?TMqJM70R7toFBzuYM7u8mMzcvADNNcnwhYKx1h/H0AUtz+7kJY5xj0VmdgZh?=
- =?us-ascii?Q?mL9r9BZsxSxQLleYuEBfOfDX//UHXh/8ZCwkENKw8MyC6xAEO/aUkxD1nt55?=
- =?us-ascii?Q?tfLjiINjeX0Xdqk4Imfuncb2B5FOuXB9Vd4VMSJZr4LU7EbuqDm1YQR1xqBA?=
- =?us-ascii?Q?/Ksj0EVdd9P52vG0225d7IdwKmCZtrSKsdhJFTz+EJ/eKpXbFK53gxu9Av5i?=
- =?us-ascii?Q?nJlDdtob733kRoQOfGvWxn0e59yOZpLbLm51s/a8IUICdHpb2CYIDIYePFv0?=
- =?us-ascii?Q?rVg/00qiSBCQ3Y3JsgGfHN9ryQxMlcZVm9I/SA8cKOcBdObMpcx6SBjYb9GY?=
- =?us-ascii?Q?2FTJq1scN0HxDzD6w6W5P0xKghEsPSEOKS7ZOBBeuGhyGl0AKJbK2SBXwJYP?=
- =?us-ascii?Q?Jjma7djq6CSy2z97S06m1wbbyIgaM3/cvTW4qMlO46vPx0MNTYRDFDQ3Yxvs?=
- =?us-ascii?Q?C2SEGGXXhbWpmggDWu+GFAvM9dsLdJNP/BDypvqQDLFSD5ASUI+hLsSfrw/p?=
- =?us-ascii?Q?BoE1ZTP9S7JchWeXYrJ1X5YM/0cRiXRclxwAQjRBHq4/fHUwyUMN0lIKm2Ex?=
- =?us-ascii?Q?bHiCbBGFXBziekkXu2duyOoXSBoQD2BE7f/Ty9dOm2jDirTiGiYkCOXMK2GE?=
- =?us-ascii?Q?Bxcb9pkqhB7UeyXLoxsUmdietxSRsi089+C+/G9l+qVidu+e5vsQaE7J7eeZ?=
- =?us-ascii?Q?9bnPX1T7ok0BPnmXMQ7mmuoiTyxvN44Wvok0fI3pJUyQjbBRygP7fQPqqSZE?=
- =?us-ascii?Q?mdgPbITEi/SlVSKaQKFxUdMkjwUe8sWh651vxoqNYRqm9rePMGg+jiUXzycY?=
- =?us-ascii?Q?vfJSrvIZ4CIDpzT5ioK0/3X9jOgR/VJePQCS1xcFkRQNAXxfKc9XhHrtaPQ6?=
- =?us-ascii?Q?Yya5Xf8earFEgACE01kUTItD8nqp8RqEtXRVqKlq6nEhgn8PmFh5O06qicBt?=
- =?us-ascii?Q?9aqlVzIULyppBbyvYykSoahqdwt3hTK2Uk0j7sVOo3QhK0OUiRQhinuwonTD?=
- =?us-ascii?Q?Dh8KBXR4CMwPOspUUMMvd9GFW1EMjemkRbXnvAYmagUfy256htPlZqMwj44P?=
- =?us-ascii?Q?+y+hTvLnCa3hg5I+5/svKNqwmR5cN0QOPvWqR+8aCvK+SXHhF23b+SNHUcqM?=
- =?us-ascii?Q?8adVn6eJ0yDar000giAyTd1Ql4XU4fcljS1h2u/pmjIc19TwWBSQ12GJZznx?=
- =?us-ascii?Q?ZESK7zMxhnpFn1RdjAt5FekSfolr0oFn3e+pw19AOPWhxl+OWatpLHBlOaQr?=
- =?us-ascii?Q?Uiw=3D?=
-X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-bafef.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 219062c4-0ce9-4dc0-6581-08dc4c8f5633
-X-MS-Exchange-CrossTenant-AuthSource: MAZP287MB0503.INDP287.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Mar 2024 05:49:29.4335
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN2P287MB1744
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH iproute2-next v3 2/2] bridge: vlan: add compressvlans
+ manpage
+Content-Language: en-US
+To: Date Huang <tjjh89017@hotmail.com>, roopa@nvidia.com, razor@blackwall.org
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org
+References: <20240325054916.37470-1-tjjh89017@hotmail.com>
+ <MAZP287MB0503FE53735FD12BD753C328E4362@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+From: Denis Kirjanov <dkirjanov@suse.de>
+In-Reply-To: <MAZP287MB0503FE53735FD12BD753C328E4362@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=mSEKPYR5;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="j5iaYn/S"
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-1.50 / 50.00];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 XM_UA_NO_VERSION(0.01)[];
+	 TO_DN_SOME(0.00)[];
+	 RCPT_COUNT_FIVE(0.00)[5];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_TRACE(0.00)[suse.de:+];
+	 MX_GOOD(-0.01)[];
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
+	 FREEMAIL_TO(0.00)[hotmail.com,nvidia.com,blackwall.org];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 MID_RHS_MATCH_FROM(0.00)[];
+	 BAYES_HAM(-0.00)[38.37%];
+	 ARC_NA(0.00)[];
+	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 FROM_HAS_DN(0.00)[];
+	 FREEMAIL_ENVRCPT(0.00)[hotmail.com];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 MIME_GOOD(-0.10)[text/plain];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:98:from];
+	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 RCVD_TLS_ALL(0.00)[]
+X-Rspamd-Queue-Id: 6BEA05C6E0
 
-Fix the incorrect short opt for compressvlans and color
-in usage
 
-Signed-off-by: Date Huang <tjjh89017@hotmail.com>
----
- bridge/bridge.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/bridge/bridge.c b/bridge/bridge.c
-index f4805092..ef592815 100644
---- a/bridge/bridge.c
-+++ b/bridge/bridge.c
-@@ -39,7 +39,7 @@ static void usage(void)
- "where  OBJECT := { link | fdb | mdb | vlan | vni | monitor }\n"
- "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] |\n"
- "                    -o[neline] | -t[imestamp] | -n[etns] name |\n"
--"                    -c[ompressvlans] -color -p[retty] -j[son] }\n");
-+"                    -com[pressvlans] -c[olor] -p[retty] -j[son] }\n");
- 	exit(-1);
- }
- 
--- 
-2.34.1
+On 3/25/24 08:49, Date Huang wrote:
+> Add the missing 'compressvlans' to man page
+> 
+> Signed-off-by: Date Huang <tjjh89017@hotmail.com>
+> ---
+> v3: change man page desription
 
+s/desription/description/
+
+
+> 
+>  man/man8/bridge.8 | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
+> index eeea4073..e614a221 100644
+> --- a/man/man8/bridge.8
+> +++ b/man/man8/bridge.8
+> @@ -22,6 +22,7 @@ bridge \- show / manipulate bridge addresses and devices
+>  \fB\-s\fR[\fItatistics\fR] |
+>  \fB\-n\fR[\fIetns\fR] name |
+>  \fB\-b\fR[\fIatch\fR] filename |
+> +\fB\-com\fR[\fIpressvlans\fR] |
+>  \fB\-c\fR[\fIolor\fR] |
+>  \fB\-p\fR[\fIretty\fR] |
+>  \fB\-j\fR[\fIson\fR] |
+> @@ -345,6 +346,12 @@ Don't terminate bridge command on errors in batch mode.
+>  If there were any errors during execution of the commands, the application
+>  return code will be non zero.
+>  
+> +.TP
+> +.BR "\-com", " \-compressvlans"
+> +Show a compressed VLAN list of continuous VLAN IDs as ranges.
+> +All VLANs in a range have identical configuration.
+> +Default is off (show each VLAN separately).
+> +
+>  .TP
+>  .BR \-c [ color ][ = { always | auto | never }
+>  Configure color output. If parameter is omitted or
