@@ -1,145 +1,102 @@
-Received: from smtp-fw-2101.amazon.com (smtp-fw-2101.amazon.com [72.21.196.25])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E44F7EF00;
-	Thu, 28 Mar 2024 19:50:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=72.21.196.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 256DA13A890
+	for <bridge@lists.linux-foundation.org>; Thu, 28 Mar 2024 21:07:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711655405; cv=none; b=eQM1p0j4x+oQMRuiZi1Ha00ZO381by0/mANCvqeUxQqs25KAroC1UsIx6ODhAWJQuHcjtOm8FRHkQ5T3X1Tb2fcVTJnP/WyiAtpOyIOfEgJHRdDXsykiENlbErjxCGvW/1iw14MCdy+ewLkTgo6Wzs4e5zBLkngm0LpFzhkx6bk=
+	t=1711660070; cv=none; b=o5NW+g7iO8ESaAofeOmCXwczXmOHd/er6EI4A9TApUKI7CHcs+NSl6tGZCxjLsJPq5JuigsaV4JZxkAtYoWPY/tFu2gwEEsbdPIS233Ijfff+kmaWzn29DdzlXLJzdZDAPDH4A7nFPp7LIghYnzKPlluu+vkKtBAkTGXjR8a02w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711655405; c=relaxed/simple;
-	bh=jy7iDHuc6Ej+2jTP9CC2GUNMdvWMnjZbOjyyWldjqgM=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=n5las7b+3LRdoDG7V1xmzIjHPV5y4dvZHrNlQCKNFdsLpeJpLWA2XrJ2zDeIIdHiOqgCo8XyqoyK9FUqQYGUsmTlG/d5ZYm3pkD+OziapsOQf/djJcX1w1FTnFuWD09DG/td01dP3JhLFwOj1xUugNbrzF/oRQQMW1ELv7TFlzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=kSsq3Ssw; arc=none smtp.client-ip=72.21.196.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1711660070; c=relaxed/simple;
+	bh=TmkCS9jM7MpgxxtIOAWwrufoB48CaCg9AIUTLLa1ssc=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ndEE+X4RB+3/0Pgxd5ncyjFR9C9bsyt0gaIKVe4v8QZDIyMFTivguqeseE5ghn6Svaa9V5vaDhdDzFtNZui7rNsVjQ4ItYzT0oXFsmVEC0ytJXHm8u9ZnMXZYnDbm4J5gF9NXOy4V3da1IMf7KUOvbgH6rW1cYcsqWeThxR0QoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b=I9Y4jk2f; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="kSsq3Ssw"
+	dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b="I9Y4jk2f"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id B593F60E7B
+	for <bridge@lists.linux-foundation.org>; Thu, 28 Mar 2024 21:07:48 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.9
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id PzsorpR51-MN for <bridge@lists.linux-foundation.org>;
+ Thu, 28 Mar 2024 21:07:48 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::635; helo=mail-pl1-x635.google.com; envelope-from=stephen@networkplumber.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org B886C60E5E
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B886C60E5E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=I9Y4jk2f
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B886C60E5E
+	for <bridge@lists.linux-foundation.org>; Thu, 28 Mar 2024 21:07:47 +0000 (UTC)
+Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1e0b213efa3so13176205ad.0
+        for <bridge@lists.linux-foundation.org>; Thu, 28 Mar 2024 14:07:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1711655404; x=1743191404;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=nJnwU1+gGS+NGNA2zseGcZeJ5QG2IPGlkTTsQ5KCHlw=;
-  b=kSsq3SswdfM+s5M8UqDDX85q+IN/9e+Z567+yJm/QP1kNGJtNRgrVEbl
-   odpo0TI25iXqMG4FHEkylvhcNAI6R2yWFlh9tcBfJJxN+t0/yvVjL+97g
-   tZFDglExU6sH72SoJanz1znpLauXX5knwVJVaV+VuU3Cxnnl9Os8Q5cbG
-   c=;
-X-IronPort-AV: E=Sophos;i="6.07,162,1708387200"; 
-   d="scan'208";a="391312047"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
-  by smtp-border-fw-2101.iad2.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Mar 2024 19:49:56 +0000
-Received: from EX19MTAUWB001.ant.amazon.com [10.0.21.151:20037]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.47.83:2525] with esmtp (Farcaster)
- id 73cfa33f-945b-445c-ba15-2d07ca3a8590; Thu, 28 Mar 2024 19:49:56 +0000 (UTC)
-X-Farcaster-Flow-ID: 73cfa33f-945b-445c-ba15-2d07ca3a8590
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.28; Thu, 28 Mar 2024 19:49:56 +0000
-Received: from 88665a182662.ant.amazon.com.com (10.106.101.27) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.28;
- Thu, 28 Mar 2024 19:49:44 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <devnull+j.granados.samsung.com@kernel.org>
-CC: <Dai.Ngo@oracle.com>, <alex.aring@gmail.com>, <alibuda@linux.alibaba.com>,
-	<allison.henderson@oracle.com>, <anna@kernel.org>, <bridge@lists.linux.dev>,
-	<chuck.lever@oracle.com>, <coreteam@netfilter.org>, <courmisch@gmail.com>,
-	<davem@davemloft.net>, <dccp@vger.kernel.org>, <dhowells@redhat.com>,
-	<dsahern@kernel.org>, <edumazet@google.com>, <fw@strlen.de>,
-	<geliang@kernel.org>, <guwen@linux.alibaba.com>,
-	<herbert@gondor.apana.org.au>, <horms@verge.net.au>,
-	<j.granados@samsung.com>, <ja@ssi.bg>, <jaka@linux.ibm.com>,
-	<jlayton@kernel.org>, <jmaloy@redhat.com>, <jreuter@yaina.de>,
-	<kadlec@netfilter.org>, <keescook@chromium.org>, <kolga@netapp.com>,
-	<kuba@kernel.org>, <linux-afs@lists.infradead.org>,
-	<linux-hams@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-nfs@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <linux-sctp@vger.kernel.org>,
-	<linux-wpan@vger.kernel.org>, <linux-x25@vger.kernel.org>,
-	<lucien.xin@gmail.com>, <lvs-devel@vger.kernel.org>,
-	<marc.dionne@auristor.com>, <marcelo.leitner@gmail.com>,
-	<martineau@kernel.org>, <matttbe@kernel.org>, <mcgrof@kernel.org>,
-	<miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>, <ms@dev.tdt.de>,
-	<neilb@suse.de>, <netdev@vger.kernel.org>, <netfilter-devel@vger.kernel.org>,
-	<pabeni@redhat.com>, <pablo@netfilter.org>, <ralf@linux-mips.org>,
-	<razor@blackwall.org>, <rds-devel@oss.oracle.com>, <roopa@nvidia.com>,
-	<stefan@datenfreihafen.org>, <steffen.klassert@secunet.com>,
-	<tipc-discussion@lists.sourceforge.net>, <tom@talpey.com>,
-	<tonylu@linux.alibaba.com>, <trond.myklebust@hammerspace.com>,
-	<wenjia@linux.ibm.com>, <ying.xue@windriver.com>, <kuniyu@amazon.com>
-Subject: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel elements from ctl_table array
-Date: Thu, 28 Mar 2024 12:49:34 -0700
-Message-ID: <20240328194934.42278-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20240328-jag-sysctl_remset_net-v2-4-52c9fad9a1af@samsung.com>
-References: <20240328-jag-sysctl_remset_net-v2-4-52c9fad9a1af@samsung.com>
+        d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1711660067; x=1712264867; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aoe08oLfHPamqNE7SkYcG+AKQATabTcrNs03hfc/OQQ=;
+        b=I9Y4jk2fV4rAHg0X+HqU9O6TiTmy05GjzVzPwtAH24EydVpz485C3Vvg2Gafnf/32u
+         UNvOc9jIgBepgPj77NZROLNvAzfvbNWJId8nLr4tEM9MU5f0OfG435VMz9swaXAjbV4+
+         khMfrVWGa0pcOkFSRiWaaGmFFNejQ+IzgW8Jx420J5lY0FOYUOidwlRcII3iS5rud9Kf
+         NnRiXpaWJK9duYeFJR+sjbDf8Z0NBqTGGKLih0RHGURu2gMxWoWK+IlRVBC93OyLcOrp
+         ivyzQ4CvDFdbkXqEHhrqZbZs7xU2iFvYAF8Y4LLvs77P+YbKF/LvSXoPReBIvUMXUaCY
+         AJFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1711660067; x=1712264867;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aoe08oLfHPamqNE7SkYcG+AKQATabTcrNs03hfc/OQQ=;
+        b=tA2DnQu4ZDZgcrtpDiPUtH3AIA5qBuX1UnVwErHeNp2BcoqEmCViLbCLWcojhsOfcX
+         64TiuH84aip7Nwg5GGewyafXX9YqMRj8yyUYH5Lz0SX0DRCpN2vXrph1VNRhOuKzI4iq
+         Wo2yQVZ+pcoc1YkhkG5VP179OeaVqf9dfA7Wa0e/zbLBTNXJ7+8isEm+L9uoNjDIqPqW
+         OWh0dBVy74Kp30d4s1N/3WtE3I9HwVFlrG2xmOtl5lUypu1bX9qyHrZB3Z0IQKHSDp6k
+         dch6wTv0fyicuws94rKLxAcYN8YWQLu5eQw7WbgtHbZRvRDFJJs1xRKCLf5Ak0/FF6PS
+         qPmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXz4Qa2k+YR/N3HvTy0mYujnvADcC3kF2o2t9gfYZUAqHNRZItD3CHVBsTToFkH2PdNQzMD0xO2JEeyf4hhOAh9mVby3Ty5hHFDqSUtf0VD2Vk=
+X-Gm-Message-State: AOJu0YyHI05mWUpWIrY+0if9KWlxUymjsbQtdjtju/owTmzkq6/oAV0r
+	O+0+FPv8j5Vb4FViVq1VsUdCikKp8/XgGNqYsJZ6KQswQXhNXgD6LXAYn5v9+Ic=
+X-Google-Smtp-Source: AGHT+IE7z0/TK1fMFS0Yvk6NaGjSry7T5aLMZtluecZUF0Xx3MLIsDvGnwum9NiAtMXBaJMCr5R7Xg==
+X-Received: by 2002:a17:903:555:b0:1e2:577:f694 with SMTP id jo21-20020a170903055500b001e20577f694mr624724plb.61.1711660066861;
+        Thu, 28 Mar 2024 14:07:46 -0700 (PDT)
+Received: from hermes.local (204-195-123-203.wavecable.com. [204.195.123.203])
+        by smtp.gmail.com with ESMTPSA id lc13-20020a170902fa8d00b001e0c949124fsm2073287plb.309.2024.03.28.14.07.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Mar 2024 14:07:46 -0700 (PDT)
+Date: Thu, 28 Mar 2024 14:07:44 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+To: Date Huang <tjjh89017@hotmail.com>
+Cc: roopa@nvidia.com, razor@blackwall.org, netdev@vger.kernel.org,
+ bridge@lists.linux-foundation.org
+Subject: Re: [PATCH iproute2-next v3 2/2] bridge: vlan: add compressvlans
+ manpage
+Message-ID: <20240328140744.7c98fa7c@hermes.local>
+In-Reply-To: <MAZP287MB0503FE53735FD12BD753C328E4362@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
+References: <20240325054916.37470-1-tjjh89017@hotmail.com>
+	<MAZP287MB0503FE53735FD12BD753C328E4362@MAZP287MB0503.INDP287.PROD.OUTLOOK.COM>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D037UWC001.ant.amazon.com (10.13.139.197) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>
-Date: Thu, 28 Mar 2024 16:40:05 +0100
-> This commit comes at the tail end of a greater effort to remove the
-> empty elements at the end of the ctl_table arrays (sentinels) which will
-> reduce the overall build time size of the kernel and run time memory
-> bloat by ~64 bytes per sentinel (further information Link :
-> https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+On Mon, 25 Mar 2024 13:49:16 +0800
+Date Huang <tjjh89017@hotmail.com> wrote:
+
+> Add the missing 'compressvlans' to man page
 > 
-> When we remove the sentinel from ax25_param_table a buffer overflow
-> shows its ugly head. The sentinel's data element used to be changed when
-> CONFIG_AX25_DAMA_SLAVE was not defined.
-
-I think it's better to define the relation explicitly between the
-enum and sysctl table by BUILD_BUG_ON() in ax25_register_dev_sysctl()
-
-  BUILD_BUG_ON(AX25_MAX_VALUES != ARRAY_SIZE(ax25_param_table));
-
-and guard AX25_VALUES_DS_TIMEOUT with #ifdef CONFIG_AX25_DAMA_SLAVE
-as done for other enum.
-
-
-> This did not have any adverse
-> effects as we still stopped on the sentinel because of its null
-> procname. But now that we do not have the sentinel element, we are
-> careful to check ax25_param_table's size.
-> 
-> Signed-off-by: Joel Granados <j.granados@samsung.com>
+> Signed-off-by: Date Huang <tjjh89017@hotmail.com>
 > ---
->  net/ax25/sysctl_net_ax25.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
-> index db66e11e7fe8..e55be8817a1e 100644
-> --- a/net/ax25/sysctl_net_ax25.c
-> +++ b/net/ax25/sysctl_net_ax25.c
-> @@ -141,8 +141,6 @@ static const struct ctl_table ax25_param_table[] = {
->  		.extra2		= &max_ds_timeout
->  	},
->  #endif
-> -
-> -	{ }	/* that's all, folks! */
->  };
->  
->  int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
-> @@ -155,7 +153,7 @@ int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
->  	if (!table)
->  		return -ENOMEM;
->  
-> -	for (k = 0; k < AX25_MAX_VALUES; k++)
-> +	for (k = 0; k < AX25_MAX_VALUES && k < ARRAY_SIZE(ax25_param_table); k++)
->  		table[k].data = &ax25_dev->values[k];
->  
->  	snprintf(path, sizeof(path), "net/ax25/%s", ax25_dev->dev->name);
-> 
-> -- 
-> 2.43.0
+
+Marked this as superseded since your previous man page patch is already merged
+in iproute2 (not next). If you want to update that send another patch.
