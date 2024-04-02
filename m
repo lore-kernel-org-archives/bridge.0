@@ -1,252 +1,135 @@
-Received: from mx0a-000eb902.pphosted.com (mx0a-000eb902.pphosted.com [205.220.165.212])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E0252C80
-	for <bridge@lists.linux.dev>; Tue,  2 Apr 2024 01:10:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.212
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712020204; cv=fail; b=MizIVC0I33XhPA81AfhjR23C2qYPTgQDZzKDGrwXMmUXdJOfTFct9ePpheLZQAwvi8rdZ/mTs18SGSA5au69PFbnkzuioh2DIG95PayRNIiHvi55Ghz/DCYREs+YAT76/RGU8PspQwDukGdTAYn5LgW7c2xrRVX3bwQ7vB4OAfE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712020204; c=relaxed/simple;
-	bh=8wZf9G7hTWyo09J/RapitcvH7k6Akgj24a2GxCDygSs=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PyUVfXyZGdD4hwfmxe7iBxC2CKlNtvzoy0ZJ8jxENNxt/IQ2HRQqXu+WG2kpcXurcXH2MmFfKFr6uZXa1kIeGpmBwEq04Q+eSOoYUqvlRzX5V5eAoUs/utghRIvWSbUABFlqNi5ZFNLbfR7h4VDUCZe1YArHe3ikZzTzWDhsJkA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=garmin.com; spf=pass smtp.mailfrom=garmin.com; dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b=AapHN/x7; dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b=i9I4QpkD; arc=fail smtp.client-ip=205.220.165.212
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=garmin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=garmin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 326C31E525
+	for <bridge@lists.linux.dev>; Tue,  2 Apr 2024 09:28:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1712050124; cv=none; b=oA/i0wj+jrJg0zfI4AowpT4E65az8zCzIBE5PgG9tHtRAHGpF7zhegs7sMHJydZ9FvkJwlLisHDamJDyjfEhlAKmQ044e29hrokh/Vc8o/MxHF2zwd5SWe3Y+nuRUBQ7HXP4vzc9dAxuCmnpPv00wFotUvI7zFGP8essWwXSkVA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1712050124; c=relaxed/simple;
+	bh=SaHdWyZMielfHTNhw3NZ6AoIsZ4bpjd1xazWDgacU6s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XU+ZCTXUIh6bjblkUxEKAaXHuXKqey/IIVrErl5CIr1b28V0pDCCooKOQDgQFD4tW+q7nIjdBAX0SpoEOy906wXvtn4dM+/YRGCxeqSB7Yn/toQDs1i6bC3LWzW5gqoFVbC1c3WEyMPgBZ3bUK9xAcqve+s+CoME/DaWMXAbcqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=VLh4DNu+; arc=none smtp.client-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b="AapHN/x7";
-	dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b="i9I4QpkD"
-Received: from pps.filterd (m0220295.ppops.net [127.0.0.1])
-	by mx0a-000eb902.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 431J00Zq011380;
-	Mon, 1 Apr 2024 19:12:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com; h=
-	from:to:cc:subject:date:message-id:in-reply-to:references
-	:mime-version:content-transfer-encoding:content-type; s=pps1;
-	 bh=2FrUqD7C17W4jEYKn/TxgYjSvbgMFjeqVFsoOdy5czs=; b=AapHN/x7cGf9
-	IfGx1reezWmBBzXBW+RSJci3cD6aJf4HhzT7HYpv/QMQpWyVrf3Bz+HfnykVnqcZ
-	v7aj7fiMIw6dg9eWYhQTh3e9id0/Z5/p4z3FdWxV/1DMG8G9dYC99euQm54SwMFv
-	g0MBYEeadjaWto2Cp0i8Sb71IZKTM2J6rsKmG9gKPO/I3MmhE7qdh5I/4j1jQu9B
-	oO9RMyALZt6GLZ+8iOCZWL/lmNbZqD/40HiBoNLfghYLuQEPpU3efQZx41DGIq+L
-	7QhtKdiG3yS5lAez1HknmNsGq95Bu933O5rNhOJtP2rSjk9XvPjXa/oUmhooK6bg
-	d8KtJwAd/A==
-Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2168.outbound.protection.outlook.com [104.47.58.168])
-	by mx0a-000eb902.pphosted.com (PPS) with ESMTPS id 3x6d6tfyj4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 01 Apr 2024 19:12:31 -0500 (CDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=S6+P/GvoaLALMMEnb5wvxGpYpcLV92zKhYe6DyQWefmFbDabSpKdHFRpPNrFBfn4QUh74zyBPXtSOgOUf3IJCW/NUtFvLHcBaP28McJp6tXkQ9U0r7EYDSgwZVCa/N+/HhJO8qp+h3OoY4MzhH2YTdMJZdy6/MyeepBmKSo796SGNnbl5eDEzwQrr14jh2/S1BusXM1WT3Iwh7RJ21mPUaWodf9BqVQq//x2Y6PuaNkJ4nDpBTAl9c8NrAcE0c/7aTy1WaeFTEHnoaTeZGqzRzWNhCMNqpNazEhx0BFhqqYsKPVeADAg3rX/WAr3lQUDsi3wnYBolCC1HnmPIfHk3Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2FrUqD7C17W4jEYKn/TxgYjSvbgMFjeqVFsoOdy5czs=;
- b=jcPdgOSYm2MKk9H6hGKNl56YGetTSm9SGuNDnja2lTZenhYc5wTfLSgg5uLfPcTvIAkIu/1md3XTs/HvqOmlwv3dNhA9NQeMb1gzHU+EIfFvRER6xY0Nm1mmifQZfsjWESSj53ryskSLLyUHR35VGRI4JammKMYWgbsknUjFtL5QXqar1BJMM1caMg7qZCEMBpcUxVY0DRFUg4UbZgjVAKPGh7IWCtT28VgkK+qELdjmr64fj3Uz29d4pxzoak1ehk5Pua0HjvtCwB4RfzfDunlIxGcIZSsncCrk68keYHQ5+R/1X01E7JA19feQgJEPr853yXiYv6C0TlEhJ/mgqA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 204.77.163.244) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=garmin.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=garmin.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2FrUqD7C17W4jEYKn/TxgYjSvbgMFjeqVFsoOdy5czs=;
- b=i9I4QpkD05oXuLgR0qFIV14iowCrTwJ7AhcZiEFw5uPkIM+KR6AqTOtrptvwQvbvHCUeYglmVNAiyu3CDE7IOL1dBJ77ciS4uOiu9L588v+Vry4MimL8LPdBNKGjcgySRy1uQJDxd7H8pWBS8erw6qcXyzMjZNXrW2ep0g3q41uBzj3nVvKgtGgqZvNEeYjeRUvOjA/Xf7LLBTCpZGXrktRGn6vjW3nB+tgFWlxHmrfEteg3n6LOKe8ikIIu6O5pyMeVYwhGyeNeLDCLK8YHAfybCpX72lT/MYeXLdMXVt+pEFnE3jQ1klScO5hNOxzrWEJspvuuBPei1mXU7CKf8w==
-Received: from CH0P223CA0014.NAMP223.PROD.OUTLOOK.COM (2603:10b6:610:116::18)
- by BY5PR04MB7042.namprd04.prod.outlook.com (2603:10b6:a03:22f::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.46; Tue, 2 Apr
- 2024 00:12:25 +0000
-Received: from CH3PEPF00000014.namprd21.prod.outlook.com
- (2603:10b6:610:116:cafe::b2) by CH0P223CA0014.outlook.office365.com
- (2603:10b6:610:116::18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7409.46 via Frontend
- Transport; Tue, 2 Apr 2024 00:12:25 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 204.77.163.244)
- smtp.mailfrom=garmin.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=garmin.com;
-Received-SPF: Pass (protection.outlook.com: domain of garmin.com designates
- 204.77.163.244 as permitted sender) receiver=protection.outlook.com;
- client-ip=204.77.163.244; helo=edgetransport.garmin.com; pr=C
-Received: from edgetransport.garmin.com (204.77.163.244) by
- CH3PEPF00000014.mail.protection.outlook.com (10.167.244.119) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7472.0 via Frontend Transport; Tue, 2 Apr 2024 00:12:24 +0000
-Received: from cv1wpa-exmb3.ad.garmin.com (10.5.144.73) by
- olawpa-edge1.garmin.com (10.60.4.227) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.32; Mon, 1 Apr 2024 19:12:16 -0500
-Received: from cv1wpa-exmb5.ad.garmin.com (10.5.144.75) by
- cv1wpa-exmb3.ad.garmin.com (10.5.144.73) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.37; Mon, 1 Apr 2024 19:12:24 -0500
-Received: from kc3wpa-exmb3.ad.garmin.com (10.65.32.83) by
- cv1wpa-exmb5.ad.garmin.com (10.5.144.75) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.32; Mon, 1 Apr 2024 19:12:23 -0500
-Received: from CAR-4RCMR33.ad.garmin.com (10.5.209.17) by mail.garmin.com
- (10.65.32.83) with Microsoft SMTP Server id 15.2.1258.32 via Frontend
- Transport; Mon, 1 Apr 2024 19:12:23 -0500
-From: Joseph Huang <Joseph.Huang@garmin.com>
-To: <netdev@vger.kernel.org>
-CC: Joseph Huang <Joseph.Huang@garmin.com>, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, "Roopa
- Prabhu" <roopa@nvidia.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        <linux-kernel@vger.kernel.org>, <bridge@lists.linux.dev>
-Subject: [PATCH RFC net-next 04/10] net: dsa: mv88e6xxx: Add all hosts mc addr to ATU
-Date: Mon, 1 Apr 2024 20:11:03 -0400
-Message-ID: <20240402001137.2980589-5-Joseph.Huang@garmin.com>
-X-Mailer: git-send-email 2.43.2
-In-Reply-To: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
-References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="VLh4DNu+"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-3416df43cabso3481567f8f.3
+        for <bridge@lists.linux.dev>; Tue, 02 Apr 2024 02:28:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1712050120; x=1712654920; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xHNO1hVo3g5ZBLDGdpQZsS60/lEQyobzAsIONNu4tIs=;
+        b=VLh4DNu+oXLNalcmueEOwiEljlJ+1aA1fdUHtJPRDeP2mfqktqaBSCwvhWXNj9dtYW
+         8kURjqc+dbZJ6ehYauUinJZbvVcDZDPLvpM91A4Xpl4zCVjXCYT0vGlzvG1ur2jOyOAF
+         0BEbfQM3jt4ELTjgXuMTf39Qwq7xXQVorW0XqmHiEZeHwqjNuehkHIjnHfx8/3B8DEqo
+         Xgu7kJQvRAcSVQtut3YvsC+w0pohqT/illmc3vHQFUj2oVl+O+KFynsH00xLp89ve5pR
+         3Gs4HRV7aVRIBaY7Q/9LTNZ6QA4mOlBxSTLMEgNFLxd2MRhYSlMk+RuhTOdtoYlNOmFJ
+         Ebng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712050120; x=1712654920;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=xHNO1hVo3g5ZBLDGdpQZsS60/lEQyobzAsIONNu4tIs=;
+        b=WNWu0z7iGNQsy/9nbxqGSGMz7lNw4F5diBxTvFZHRd49PMjifz0wtqPt/ZK7HBOz/y
+         bOzwVdvaCCfpkr2C7vdI2Ej148jP5knfFjsjorAxUJQXSuvRrVv47yVaK/Y4tfcRKBX7
+         SCAEp8OfW1uUMZ+qdwaUtrv+/fpJnrvEXeVfCHak88TZWZkNZsHpGy/xBIUCLmBfGykD
+         PfR2VcIhbqiFgV9a3cv8wIfCEtaRXSo9FykurLMIZf12HUBsSRMf8g9sS5IQI2nxMhbj
+         7bkhzRyMgzELQF5C82wRY9uYj1qfJKfYz8Msd8ykKTqTg4qxQIamJgXEBnMCUdkmoArm
+         0N4g==
+X-Forwarded-Encrypted: i=1; AJvYcCVHwmhWfACeoY2tt+tjd4WMV0LQ6lCUBNDEttYQWAE7ryCEaijJRzTpLnBmtirEcGMl5KNklwhIc2qOm+nqZfHb60ZKX6mE
+X-Gm-Message-State: AOJu0YzAlUjdlIjVwBEe/1BgevezfQJm/uP4MEcbwKdIAlOvKjqk/9oJ
+	nGkHY7skRNzjsbQmRSXJR+LY3/sMTrs92OqQqH8UOca3pJaho5BZYVRBPs+uVsA=
+X-Google-Smtp-Source: AGHT+IEI24f1p1p1BLDEE6iJrpvuBCcj4zOyiUqGHCc+h7DoytXVrqcMxVKkFly4F3F5rVn71rvUOA==
+X-Received: by 2002:adf:e011:0:b0:33e:7896:a9d7 with SMTP id s17-20020adfe011000000b0033e7896a9d7mr8560010wrh.67.1712050120249;
+        Tue, 02 Apr 2024 02:28:40 -0700 (PDT)
+Received: from [192.168.0.106] (176.111.182.227.kyiv.volia.net. [176.111.182.227])
+        by smtp.gmail.com with ESMTPSA id en19-20020a056000421300b0034365152f2asm1170910wrb.97.2024.04.02.02.28.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 02 Apr 2024 02:28:39 -0700 (PDT)
+Message-ID: <7fc8264a-a383-4682-a144-8d91fe3971d9@blackwall.org>
+Date: Tue, 2 Apr 2024 12:28:38 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PEPF00000014:EE_|BY5PR04MB7042:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7baa287e-6dc6-482a-b1fd-08dc52a9931f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	ADWkrYeCe9/4zQwZToNkSqgwgNvnmldDfQx+FoVaFQLLD4mllbg2u2n/xHP552nJF6/p96goDqUZFkpBsdeQSlGVgUSapimwy8FH/SeqsyKivbgTdkAMzQXGW+caWrywY3Eiiw6V1EnALB+gfDVxf897HTjCzkP20obV8cc2Mm8PFUKIGD91jVVVZ5l/KoDQYyY2tc7KhVR7HM137te+ZLQpbI6EDNUeCVf/O6Rl7gpZeUwUJKPOMyG8xPWpMxU+jQT8sfjn1yvJn+4T2wwgd2RAYdPP42XgkHDShbn0UxajY/bPmcrjxEwgZuQMpQyJvGUeYIEodu1SLsbtNMECLWGOtjOKCNjEvOJPK/aBdfYF4Ux2FbeLS6FRYrqA4T8c+7gSC2NFcd0fAix46LiTeAY/f6VD0N7ZtzLL5wDd9jDLsvmvwEMb0ZzXros/A+hyxXPgTInuv6XBQZGIj5uFn/NSRHcnHPfDj93ztC056zhCP3Gp57KcOiugwxaDITu8LzjflIZOlQ4u/ZAaGSByrcexi3+RjDAlY7FbODw7bSQqCK6OguQW8wTEgzfTx+wLUJwODcpRqglKIKJy96mbu2wwvrNVLCq7GSgC4dNfA102xbRNi5nMGfmFhT/N3rGsR+2x5EaH6MM7LaILAuRpyUezimdEmMwtsyquEXp1OLnKIkxc+GLi4ACE+OpPSGhvNpePERmIHg9E9mUL6iBACzmyS8FTKNo6zycxwS+uXG9TIwRwvhEmBjWMf43/jKo9
-X-Forefront-Antispam-Report: 
-	CIP:204.77.163.244;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:edgetransport.garmin.com;PTR:extedge.garmin.com;CAT:NONE;SFS:(13230031)(36860700004)(82310400014)(7416005)(376005)(1800799015);DIR:OUT;SFP:1102;
-X-OriginatorOrg: garmin.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2024 00:12:24.9952
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7baa287e-6dc6-482a-b1fd-08dc52a9931f
-X-MS-Exchange-CrossTenant-Id: 38d0d425-ba52-4c0a-a03e-2a65c8e82e2d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=38d0d425-ba52-4c0a-a03e-2a65c8e82e2d;Ip=[204.77.163.244];Helo=[edgetransport.garmin.com]
-X-MS-Exchange-CrossTenant-AuthSource: 
-	CH3PEPF00000014.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR04MB7042
-X-Proofpoint-GUID: H7cVO4xao41MGbyUzl2U-wa9jR3bG28Y
-X-Proofpoint-ORIG-GUID: H7cVO4xao41MGbyUzl2U-wa9jR3bG28Y
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-04-01_17,2024-04-01_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- malwarescore=0 suspectscore=0 lowpriorityscore=0 adultscore=0 bulkscore=0
- mlxlogscore=999 impostorscore=0 spamscore=0 phishscore=0 clxscore=1015
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2403210001
- definitions=main-2404020000
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
+Content-Language: en-US
+To: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>,
+ Vladimir Oltean <olteanv@gmail.com>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Roopa Prabhu <roopa@nvidia.com>, =?UTF-8?Q?Linus_L=C3=BCssing?=
+ <linus.luessing@c0d3.blue>, linux-kernel@vger.kernel.org,
+ bridge@lists.linux.dev
+References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Add local network all hosts multicast address (224.0.0.1) and link-local
-all nodes multicast address (ff02::1) to the ATU so that IGMP/MLD
-Queries can be forwarded even when multicast flooding is disabled on a
-port.
+On 4/2/24 03:10, Joseph Huang wrote:
+> There is a use case where one would like to enable multicast snooping
+> on a bridge but disable multicast flooding on all bridge ports so that
+> registered multicast traffic will only reach the intended recipients and
+> unregistered multicast traffic will be dropped. However, with existing
+> bridge ports' mcast_flood flag implementation, it doesn't work as desired.
+> 
+> This patchset aims to make multicast snooping work even when multicast
+> flooding is disabled on the bridge ports, without changing the semantic of
+> the mcast_flood flag too much. Patches 1 to 4 attempt to address this issue.
+> 
+> Also, in a network where more than one multicast snooping capable bridges
+> are interconnected without multicast routers being present, multicast
+> snooping fails if:
+> 
+>    1. The source is not directly attached to the Querier
+>    2. The listener is beyond the mrouter port of the bridge where the
+>       source is directly attached
+>    3. A hardware offloading switch is involved
+> 
+> When all of the conditions are met, the listener will not receive any
+> multicast packets from the source. Patches 5 to 10 attempt to address this
+> issue. Specifically, patches 5 to 8 set up the infrastructure, patch 9
+> handles unregistered multicast packets forwarding, and patch 10 handles
+> registered multicast packets forwarding to the mrouter port.
+> 
+> The patches were developed against 5.15, and forward-ported to 6.8.
+> Tests were done on a Pi 4B + Marvell 6393X Eval board with a single
+> switch chip with no VLAN.
+> 
+> V1 -> V2:
+> - Moved the bulk of the change from the bridge to the mv88e6xxx driver.
+> - Added more patches (specifically 3 and 4) to workaround some more
+>    issues with multicast flooding being disabled.
+> 
+> v1 here:
+> https://patchwork.kernel.org/project/netdevbpf/cover/20210504182259.5042-1-Joseph.Huang@garmin.com/
+> 
 
-Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
----
- drivers/net/dsa/mv88e6xxx/Kconfig | 12 ++++++++
- drivers/net/dsa/mv88e6xxx/chip.c  | 47 +++++++++++++++++++++++++++++++
- 2 files changed, 59 insertions(+)
+For the bridge patches:
+Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-diff --git a/drivers/net/dsa/mv88e6xxx/Kconfig b/drivers/net/dsa/mv88e6xxx/Kconfig
-index e3181d5471df..ef7798bf50d7 100644
---- a/drivers/net/dsa/mv88e6xxx/Kconfig
-+++ b/drivers/net/dsa/mv88e6xxx/Kconfig
-@@ -17,3 +17,15 @@ config NET_DSA_MV88E6XXX_PTP
- 	help
- 	  Say Y to enable PTP hardware timestamping on Marvell 88E6xxx switch
- 	  chips that support it.
-+
-+config NET_DSA_MV88E6XXX_ALWAYS_FLOOD_LOCAL_ALL_HOSTS_ADDRESS
-+	bool "Always flood local all hosts multicast packets"
-+	depends on NET_DSA_MV88E6XXX
-+	help
-+	  When set to Y, always flood multicast packets destined for
-+	  224.0.0.1 (Local Network All Hosts multicast address) and
-+	  ff02::1 (Link-Local All Nodes multicast address), even when
-+	  multicast flooding is disabled for a port.  This is so that
-+	  multicast snooping can continue to function even when
-+	  multicast flooding is disabled.
-+	  If in doubt, say N.
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 9ed1821184ec..fddcb596c421 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2488,6 +2488,41 @@ static int mv88e6xxx_broadcast_setup(struct mv88e6xxx_chip *chip, u16 vid)
- 	return 0;
- }
- 
-+#if IS_ENABLED(CONFIG_NET_DSA_MV88E6XXX_ALWAYS_FLOOD_LOCAL_ALL_HOSTS_ADDRESS)
-+static int mv88e6xxx_port_add_multicast(struct mv88e6xxx_chip *chip, int port,
-+					u16 vid)
-+{
-+	u8 state = MV88E6XXX_G1_ATU_DATA_STATE_MC_STATIC;
-+	const char multicast[][ETH_ALEN] = {
-+		{ 0x01, 0x00, 0x5e, 0x00, 0x00, 0x01 },
-+		{ 0x33, 0x33, 0x00, 0x00, 0x00, 0x01 }
-+	};
-+	int i, err;
-+
-+	for (i = 0; i < ARRAY_SIZE(multicast); i++) {
-+		err = mv88e6xxx_port_db_load_purge(chip, port, multicast[i], vid, state);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int mv88e6xxx_multicast_setup(struct mv88e6xxx_chip *chip, u16 vid)
-+{
-+	int port;
-+	int err;
-+
-+	for (port = 0; port < mv88e6xxx_num_ports(chip); port++) {
-+		err = mv88e6xxx_port_add_multicast(chip, port, vid);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
- struct mv88e6xxx_port_broadcast_sync_ctx {
- 	int port;
- 	bool flood;
-@@ -2572,6 +2607,12 @@ static int mv88e6xxx_port_vlan_join(struct mv88e6xxx_chip *chip, int port,
- 		err = mv88e6xxx_broadcast_setup(chip, vlan.vid);
- 		if (err)
- 			return err;
-+
-+#if IS_ENABLED(CONFIG_NET_DSA_MV88E6XXX_ALWAYS_FLOOD_LOCAL_ALL_HOSTS_ADDRESS)
-+		err = mv88e6xxx_multicast_setup(chip, vlan.vid);
-+		if (err)
-+			return err;
-+#endif
- 	} else if (vlan.member[port] != member) {
- 		vlan.member[port] = member;
- 
-@@ -3930,6 +3971,12 @@ static int mv88e6xxx_setup(struct dsa_switch *ds)
- 	if (err)
- 		goto unlock;
- 
-+#if IS_ENABLED(CONFIG_NET_DSA_MV88E6XXX_ALWAYS_FLOOD_LOCAL_ALL_HOSTS_ADDRESS)
-+	err = mv88e6xxx_multicast_setup(chip, 0);
-+	if (err)
-+		goto unlock;
-+#endif
-+
- 	err = mv88e6xxx_pot_setup(chip);
- 	if (err)
- 		goto unlock;
--- 
-2.17.1
+You cannot break the multicast flood flag to add support for a custom
+use-case. This is unacceptable. The current bridge behaviour is correct
+your patch 02 doesn't fix anything, you should configure the bridge
+properly to avoid all those problems, not break protocols.
+
+Your special use case can easily be solved by a user-space helper or
+eBPF and nftables. You can set the mcast flood flag and bypass the
+bridge for these packets. I basically said the same in 2021, if this is
+going to be in the bridge it should be hidden behind an option that is
+default off. But in my opinion adding an option to solve such special
+cases is undesirable, they can be easily solved with what's currently
+available.
+
 
