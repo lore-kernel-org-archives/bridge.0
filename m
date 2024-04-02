@@ -1,73 +1,47 @@
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C854C7764E
-	for <bridge@lists.linux.dev>; Tue,  2 Apr 2024 12:23:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C84A383CAE;
+	Tue,  2 Apr 2024 12:43:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712060630; cv=none; b=CHIf2gHKeRxjxKYA2/GUNef3IJV5UpaKx+zBIqRUX84kpyjMXLPwFZeX93PkVKk/HJrZ09EiwCi//pvQWTGJSCa4q//77InDhjxXOSJ5msHlD38BqqxdqPAKxVsCyn21/rsymtRcBbuopAYha603GhfusW3l6UAXmsj0dQrpbT4=
+	t=1712061816; cv=none; b=kBypFGljyevGnu+XgKYBHAGWfudQdRGr9UXLO570eaW+hnfVx2U1NGYcqKeTGlyYA8L2hTzEIs57XGuqnCb2HpPSfKxZDbMO3C0j5A8DRV1JtMsTGDdzdUFbYrFs5rVyNiPgp6GU57D6gCG3i3xA30z0UuSSCDrdgEP+dbPBw+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712060630; c=relaxed/simple;
-	bh=4QZLZAns8p7vUq4xXyL7Kp528hkrlWGkPY4oiD0R4zY=;
+	s=arc-20240116; t=1712061816; c=relaxed/simple;
+	bh=VivqYiAwv696fYdSTkay9yA82RmxUJhfYOOKNR/4Gpo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dNjUywvj48vF6ef7MJx/De4Nxo7BZlOjuKlWPReGwTOpdCeci49Jf+OnGnS25NhTr03LrnEwY0lKx1OsmYWw6M+WHj+EaCnkDoV8fPrNmiv95adjjsAPYuw6+9WdfwEGL0EXwpfvEFf3Lusz7QgnjeBzIWa6XAVoeg9CERfhpac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NMra5lpO; arc=none smtp.client-ip=209.85.208.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=oFvngTrpqUbYTyhtNhcNjeoycnWap/imHVT7kEsBdW3VpZLLDXEoWfI0F4D1sMKVqW2ClmgBqWIT67dsrLiBmL197IksJ5H1x6GpqnYvTLs+1QJrqUKMmGqV1DbNTbtRAA9krH+6t2OyGt1FN95jGftipcwhZwXRgHNNm3AgYMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=OJdKj1HK; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NMra5lpO"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-56df54f9fc4so357088a12.2
-        for <bridge@lists.linux.dev>; Tue, 02 Apr 2024 05:23:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712060627; x=1712665427; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/unssVqP/tBj5M6lSsNX5+k+FjirzQl74biGWZLi7vY=;
-        b=NMra5lpOfEqgJJzQsRqfkjO8M/QQFxfSvnzyXmQxdWKRaAmQqg+NgTmK81cPZvUYHr
-         Suq9HRZgyUc/jI1N+tK7MsEWoAAiCHIbGK8AKoPLATBqH4nrZYoKe3/QRx4MdiVrYPSJ
-         BG+2+Qm3dA3Pt47rdWEHomTN/mohLTcaHS2rkyHn6kwTFx4N2jsj9rN1vGH9PzWyZqyL
-         bE+nOs4KKaoABRlp0JZpjZysBWEBbZAOkJNTGEHOk5st0AN55sDqe8/g9HQbe5pNnJT5
-         0rg9VV5NuRlqIfrFZSSyFsK7lke8zrV7MesBkLtruzDMplktU33uxgap6FHP+ycY2lCz
-         w6pA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712060627; x=1712665427;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/unssVqP/tBj5M6lSsNX5+k+FjirzQl74biGWZLi7vY=;
-        b=iDFQYRuzCPwUjDhWnVeY8+kZNsxE02Lpekn3pGcZOC888kauqYYGhH0jAOq/p8Ef/G
-         bGIrFfWUuRLgiRVowFPomcEQKOeqTjOq7gpq7RH4usdMew2pqH4XQK7KH9EGxR4tsgvN
-         3uqjdH/rsZVtJPg1h7/x/bhuDGjjRkEQjpGi5RC3/A7vSlkXZCwtBTvyKPdCh+uvsEDJ
-         pUdxZ9XbkuF0AR4FZGCTbHn6UKM1xMEm8rIHCHUpXSD8cBlR3dHTwrzF3ZLKj2QcdwgH
-         RBSFAPI/WFCP5mnYIK2Rxi9jRldiXs4tOIgR4zvtVgFwdCubRnLOhSFvkq8sfVgMhaJJ
-         Qjow==
-X-Forwarded-Encrypted: i=1; AJvYcCX2n27NZxJN6IqhnMAvDJ2sm6+FYhi0IZRkapfGm2awmHblQJHuLI26hzfTecHFxRHUrNhI3vHubkV9ykT2tZFcedXgGRC9
-X-Gm-Message-State: AOJu0Yxd5ASDhwBz5n78dUPns9XkB0hI7Btgnk7fUx5kKf/uurRHo2c3
-	tj9OTm5XCBN5F7GFGxwEsSZ7cBnIdDd464eBiF3tbRAuv9ZdLR2u
-X-Google-Smtp-Source: AGHT+IEamF/yD6pmqhtSfavUbe4xrWX+kXF6DzNjAP+lKX91t5p2IpXkzvujMeoIPm+Pgq1cmq9sqg==
-X-Received: by 2002:a17:906:52d1:b0:a44:51c1:733c with SMTP id w17-20020a17090652d100b00a4451c1733cmr9691934ejn.39.1712060626861;
-        Tue, 02 Apr 2024 05:23:46 -0700 (PDT)
-Received: from skbuf ([2a02:2f04:d700:2000::b2c])
-        by smtp.gmail.com with ESMTPSA id wr1-20020a170907700100b00a473a0f3384sm6516024ejb.16.2024.04.02.05.23.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Apr 2024 05:23:46 -0700 (PDT)
-Date: Tue, 2 Apr 2024 15:23:43 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="OJdKj1HK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=L4Tuu8ZWoWyYde4nc1r0Y5vT8GQqfazueKk7eTauMNw=; b=OJdKj1HK2b+4ih9vRCqOLZN9/j
+	gWWsJWKEDHg0zfAMlDQJLb7clmLVLoGKkBhq9CPauel69cSaAls5eLpquO7KdsaUxnTwu8NKM3A2c
+	+1fpdbMMWfxl4hV2pk70614bEmt2Cvj0pDd6ZqyylkYQ6Xm+OC9Jcon18MP8IESv2JNQ=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1rrdTy-00BwGD-LJ; Tue, 02 Apr 2024 14:43:18 +0200
+Date: Tue, 2 Apr 2024 14:43:18 +0200
+From: Andrew Lunn <andrew@lunn.ch>
 To: Joseph Huang <Joseph.Huang@garmin.com>
-Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-	Florian Fainelli <f.fainelli@gmail.com>,
+Cc: netdev@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Roopa Prabhu <roopa@nvidia.com>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
-	Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+	Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>,
 	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [PATCH RFC net-next 07/10] net: dsa: mv88e6xxx: Track bridge mdb
- objects
-Message-ID: <20240402122343.a7o5narxsctrkaoo@skbuf>
+Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
+Message-ID: <f5512e7b-b572-4444-9d56-1eed9bbcda6b@lunn.ch>
 References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
- <20240402001137.2980589-8-Joseph.Huang@garmin.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -76,27 +50,40 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240402001137.2980589-8-Joseph.Huang@garmin.com>
+In-Reply-To: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
 
-On Mon, Apr 01, 2024 at 08:11:06PM -0400, Joseph Huang wrote:
-> Keep track of bridge mdb objects in the driver.
+On Mon, Apr 01, 2024 at 08:10:59PM -0400, Joseph Huang wrote:
+> There is a use case where one would like to enable multicast snooping
+> on a bridge but disable multicast flooding on all bridge ports so that
+> registered multicast traffic will only reach the intended recipients and
+> unregistered multicast traffic will be dropped. However, with existing
+> bridge ports' mcast_flood flag implementation, it doesn't work as desired.
 > 
-> Similar to the previous patch, since the driver doesn't get explicit
-> notifications about mdb group creation or destruction, just create
-> the mdb group when the first port joins the group via
-> mv88e6xxx_port_mdb_add(), and destroys the group when the last port left
-> the group via mv88e6xxx_port_mdb_del().
+> This patchset aims to make multicast snooping work even when multicast
+> flooding is disabled on the bridge ports, without changing the semantic of
+> the mcast_flood flag too much. Patches 1 to 4 attempt to address this issue.
 > 
-> Use the group's L2 address together with the VLAN ID as the key to the list.
-> Port membership is again stored in a bitmask.
+> Also, in a network where more than one multicast snooping capable bridges
+> are interconnected without multicast routers being present, multicast
+> snooping fails if:
 > 
-> Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
-> ---
+>   1. The source is not directly attached to the Querier
+>   2. The listener is beyond the mrouter port of the bridge where the
+>      source is directly attached
+>   3. A hardware offloading switch is involved
 
-Can you comment on the feasibility/infeasibility of Tobias' proposal of:
-"The bridge could just provide some MDB iterator to save us from having
-to cache all the configured groups."?
-https://lore.kernel.org/netdev/87sg31n04a.fsf@waldekranz.com/
+I've not studied the details here, but that last point makes me think
+the offload driver is broken. There should not be any difference
+between software bridging and hardware bridging. The whole idea is
+that you take what Linux can do in software and accelerate it by
+offloading to hardware. Doing acceleration should not change the
+behaviour.
 
-What is done here will have to be scaled to many drivers - potentially
-all existing DSA ones, as far as I'm aware.
+> The patches were developed against 5.15, and forward-ported to 6.8.
+> Tests were done on a Pi 4B + Marvell 6393X Eval board with a single
+> switch chip with no VLAN.
+
+So what is the mv88e6xxx driver doing wrong?
+
+	Andrew
+
