@@ -1,140 +1,173 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99E2315B54A
-	for <bridge@lists.linux.dev>; Tue,  2 Apr 2024 18:50:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9AB615B542
+	for <bridge@lists.linux.dev>; Tue,  2 Apr 2024 20:46:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712083858; cv=none; b=CwZftNXpKctgc/YdtFqOqR2IAqGJXbeWYGH7ZiRofiBhQbAMLZeb7O142w6+66a7YujDtzu01IM/tEHBS04QFK8KN3rdRI3svvv9TEQizvIYJpIU9nrHEsAUfYoitfMidvK+Ko+uIdcB1wfiSbs8+j4sxhWqwCNuduLm0Zvei1E=
+	t=1712090767; cv=none; b=OeVqZPzrYmhL7/0Hl7Mz9vf4RrnJZgeNTp91TiAYu2KL4ECINMXk8y8gr3M6V9xiqAH95w9fEB2Rga/env6SDIh0tyH2sLoBpflN34E4kl/tQBTjqELof1OMkWnC3e9t+eEoNthqqAYs9OoKf5ufx/0vHSdWPTM7K58z9XALT9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712083858; c=relaxed/simple;
-	bh=vHE3t0v0uJDbSjef7CvRAdHduwYUH2/WlskUw+Mt/ME=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V+pb+0Yfm18/dMymSIKsLd8XYyY+HM9aRKWlmoOXpw7KHX/EEnpJtyHOJu4NxKXKkNk3s5w/PNArfCXqjz6/kccQ8zCNtvboWkWlFfM3tfBwLV5ycSVujeIJNfCDS5tjYW6tiX8v6pvQ2u8V1SrFYYuHpBdD8VxzsmN5dQNSqRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=YvAhSoni; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1712090767; c=relaxed/simple;
+	bh=5hHpzI6HyHcS+FulCNSl/epqWvWlTMhwAJLmlEdFBcE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RXXitDVbJSh2AmNBx7tPAFI2EtrmKsxcwWnTMwEj9qklI3j+4XNGHp1RFu0qJwXd7RZXn7dG/FcU9INfEaZoanARoBfGv5v8oVDOoqbTTxdSyM+YMzzXy5rHSECfkiKUitZk+4809qgShuWc2MEu0quKeNt7o9tEayVzc77qkx0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fg0S2jlE; arc=none smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="YvAhSoni"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4155baa696eso20653065e9.2
-        for <bridge@lists.linux.dev>; Tue, 02 Apr 2024 11:50:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fg0S2jlE"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a4e8904bd71so149421066b.1
+        for <bridge@lists.linux.dev>; Tue, 02 Apr 2024 13:46:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1712083854; x=1712688654; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=LIEcfz25WWX1hRcC//+GqxXzgFgNZ4EfTxo56dpiUx4=;
-        b=YvAhSoniM7V0PrnFy/Yc0A9BpsC4dZkH355kJiWc8HOpVaBLftd+Z8VD0uZ6d2Gg/O
-         bTCr1Z6ATgHcfR3BumbpZd43/Pg9xC+9hREzJdZ56HK2pO8R2scQpVyLw9GUk2BtO/gj
-         x0wEaZ7nssz7AsiLNXBq684FNowK/MF2fF2si3sO9fcAQTUgFa6GrDIhe1zJPaA7f30C
-         yGOoC1PR1xt5KHKFocY6fIa7O49DkicpwFQMpwDfuUOZQSfpM33+JIS3YYN9+Yh90iRL
-         QZk9YY1gOq/r1h4yu3w4le3AT/mt6HIy7k0j+2CirF8lA1raPfryW+dHPKvMOW25TN7M
-         yJeA==
+        d=gmail.com; s=20230601; t=1712090764; x=1712695564; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=MQiI7BxLmggkQQzq0/Zcf0rP2ERdhgPoF6NdWm8XFzU=;
+        b=fg0S2jlEbptMwTr5jlqqeBW+zMqY0VWPZ6IzWbotMBDYA7Osj9kggwGlZ0ilhi68oB
+         HLD3Fyx9kCusJwQqKfJDz7p0HviJ7n/gJr+KLV/vQE9h01Y4j2F6JhFadYhdb8XVXNXW
+         /5a3X8+pB8cba/AEPMxbuaowptt7DU7CW3vYVeu3W+UV2GWjaOgFuBUxAHuBRQgJX6Aa
+         TazfzhPaS6kRWh0CyGAo4NZbqQpeDCePpJ/sqIH1ytfv1kX3FARpU5VGmcK9RHsFGbE0
+         ygHjEtPWpIdAX9sgk3C5cSfvYPb7ynsGtInl1ef60QSFjNPcy0/COpUzN0aEHwYAp9kx
+         Mo1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712083854; x=1712688654;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LIEcfz25WWX1hRcC//+GqxXzgFgNZ4EfTxo56dpiUx4=;
-        b=hNF0L+BnrvMq9W131mC0owupNI/ggyEPENXwIok3ZMNv7XsiYUzCciBkA0gZAP1I7m
-         ylVGgDm0g60asRs8bQ4pmUMVKKwI+VcvJlD/CgZKf5FMz+qqKuL6bnL4Hn277ieKpldn
-         qTjR4N778XT+KAlwMd7VmhGHzlBDglClJbXHUlTu/NOv8btCw43brW6w9HzRdBWwntNh
-         KcGe0+t4Pe4/BmJBxV6SibopREqbFzhe/ixytbnalSC0+Z24fPpW2Levw7U7mIzn7g9o
-         fGfKi6dCzErmam5PWKJO8gD+Ewu5ZnBEdFj2mrYGsBGJ61l6gMda0DPH9i9dMPtnqZwr
-         f0Eg==
-X-Forwarded-Encrypted: i=1; AJvYcCUTzPpp153yQ6qK75AX2TBsYpk5l6FCIw5+hWybE1sAZk4PoB7UMswwhIzAERa42cD+mRD0YUxYezRKZnJcedg1lgsb9mld
-X-Gm-Message-State: AOJu0YwrhWfmQKNE9K6Yx+M4tFtS6/9FRMSNbKz2lqQ6ftLAe4si3QoB
-	igtvIRTKc8Kqing07wmj4F6Qxhwmp5d3YjCpB64DxmXck/fBZ5TpqT0u/l+LdFQ=
-X-Google-Smtp-Source: AGHT+IHG2reakJAyifG34eCuPd2NY3AzmwK7mxJCbjBZSYQSbzpq8u6Qjn1bt7FV9hXw5WZDvMX8ZQ==
-X-Received: by 2002:a05:600c:3393:b0:414:9463:d4c3 with SMTP id o19-20020a05600c339300b004149463d4c3mr504116wmp.0.1712083853740;
-        Tue, 02 Apr 2024 11:50:53 -0700 (PDT)
-Received: from [192.168.0.106] (176.111.182.227.kyiv.volia.net. [176.111.182.227])
-        by smtp.gmail.com with ESMTPSA id q18-20020a05600c46d200b0041488978873sm22171138wmo.44.2024.04.02.11.50.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Apr 2024 11:50:53 -0700 (PDT)
-Message-ID: <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
-Date: Tue, 2 Apr 2024 21:50:51 +0300
+        d=1e100.net; s=20230601; t=1712090764; x=1712695564;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MQiI7BxLmggkQQzq0/Zcf0rP2ERdhgPoF6NdWm8XFzU=;
+        b=WmxjH9/8qjZWKFJSTN7B3ajdRQFX5G4biI10G0+jffkVrepmb3T7iPAAltss7HjhYu
+         ey30x62Y7UEKJXt8/EwGUfMhyQPcY//iKE+7Vm0F5Fesbw6I9qH9z6O0bc1/yyXB+ABL
+         PD6hN3BexPWajJfraSHmCiwdj9q3+l9nadmnj4L5MX90/RqjS2N65KorYBOVuIBi0crw
+         qZSuDR3yFrD6ihiVjPm8o6AUKMTTQBuiCd4EuR46Wg5WYEa0Hb8Wg+tCzgye/YR0KDgq
+         lMYU75jyPgTqsaMMnsqEIj2rC029Jkbyizz6t23SqZSTX7po5rxqXpp9QSZHweZVR9nz
+         nFmQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVQBRKun2zlIJD0SN4XRDhdL6Kgj0KD9QzFKjwQXOuD45QHNbVQx/kE8wuSwljMdnVHwZ6CNGJNtgWt+7gpIguENkKXAs8e
+X-Gm-Message-State: AOJu0Yw2Z5SdgPo/fCI5tvOOT4u3UFb1apEdk/++xnsU8L9Ev/YCQnNQ
+	sjgSlMLlrx/15b4y7w+xQ1A1dDyUIDa3nwQS5dktd3JEzB4wldKU
+X-Google-Smtp-Source: AGHT+IFVmraJ2Ul4LRhcIdzwgvxmCNsrp6LyqCYKiZeHElLm1rMS/EmFJ0j2KzOaa05JxnSRknGnLA==
+X-Received: by 2002:a17:906:c42:b0:a47:3526:2e0f with SMTP id t2-20020a1709060c4200b00a4735262e0fmr8185538ejf.75.1712090763903;
+        Tue, 02 Apr 2024 13:46:03 -0700 (PDT)
+Received: from skbuf ([2a02:2f04:d700:2000::b2c])
+        by smtp.gmail.com with ESMTPSA id k5-20020a1709062a4500b00a4dacd6b8b3sm6967956eje.68.2024.04.02.13.46.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Apr 2024 13:46:03 -0700 (PDT)
+Date: Tue, 2 Apr 2024 23:46:00 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
+	Andrew Lunn <andrew@lunn.ch>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
+Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
+Message-ID: <20240402204600.5ep4xlzrhleqzw7k@skbuf>
+References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
+ <7fc8264a-a383-4682-a144-8d91fe3971d9@blackwall.org>
+ <20240402174348.wosc37adyub5o7xu@skbuf>
+ <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
-Content-Language: en-US
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
- Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Roopa Prabhu <roopa@nvidia.com>, =?UTF-8?Q?Linus_L=C3=BCssing?=
- <linus.luessing@c0d3.blue>, linux-kernel@vger.kernel.org,
- bridge@lists.linux.dev
-References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
- <7fc8264a-a383-4682-a144-8d91fe3971d9@blackwall.org>
- <20240402174348.wosc37adyub5o7xu@skbuf>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20240402174348.wosc37adyub5o7xu@skbuf>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
 
-On 4/2/24 20:43, Vladimir Oltean wrote:
-> Hi Nikolai,
+On Tue, Apr 02, 2024 at 09:50:51PM +0300, Nikolay Aleksandrov wrote:
+> On 4/2/24 20:43, Vladimir Oltean wrote:
+> > Hi Nikolai,
+> > 
+> > On Tue, Apr 02, 2024 at 12:28:38PM +0300, Nikolay Aleksandrov wrote:
+> > > For the bridge patches:
+> > > Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
+> > > 
+> > > You cannot break the multicast flood flag to add support for a custom
+> > > use-case. This is unacceptable. The current bridge behaviour is correct
+> > > your patch 02 doesn't fix anything, you should configure the bridge
+> > > properly to avoid all those problems, not break protocols.
+> > > 
+> > > Your special use case can easily be solved by a user-space helper or
+> > > eBPF and nftables. You can set the mcast flood flag and bypass the
+> > > bridge for these packets. I basically said the same in 2021, if this is
+> > > going to be in the bridge it should be hidden behind an option that is
+> > > default off. But in my opinion adding an option to solve such special
+> > > cases is undesirable, they can be easily solved with what's currently
+> > > available.
+> > 
+> > I appreciate your time is limited, but could you please translate your
+> > suggestion, and detail your proposed alternative a bit, for those of us
+> > who are not very familiar with IP multicast snooping?
+> > 
 > 
-> On Tue, Apr 02, 2024 at 12:28:38PM +0300, Nikolay Aleksandrov wrote:
->> For the bridge patches:
->> Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
->>
->> You cannot break the multicast flood flag to add support for a custom
->> use-case. This is unacceptable. The current bridge behaviour is correct
->> your patch 02 doesn't fix anything, you should configure the bridge
->> properly to avoid all those problems, not break protocols.
->>
->> Your special use case can easily be solved by a user-space helper or
->> eBPF and nftables. You can set the mcast flood flag and bypass the
->> bridge for these packets. I basically said the same in 2021, if this is
->> going to be in the bridge it should be hidden behind an option that is
->> default off. But in my opinion adding an option to solve such special
->> cases is undesirable, they can be easily solved with what's currently
->> available.
+> My suggestion is not related to snooping really, but to the goal of
+> patches 01-03. The bridge patches in this set are trying to forward
+> traffic that is not supposed to be forwarded with the proposed
+> configuration,
+
+Correct up to a point. Reinterpreting the given user space configuration
+and trying to make it do something else seems like a mistake, but in
+principle one could also look at alternative bridge configurations like
+the one I described here:
+https://lore.kernel.org/netdev/20240402180805.yhhwj2f52sdc4dl2@skbuf/
+
+> so that can be done by a user-space helper that installs
+> rules to bypass the bridge specifically for those packets while
+> monitoring the bridge state to implement a policy and manage these rules
+> in order to keep snooping working.
 > 
-> I appreciate your time is limited, but could you please translate your
-> suggestion, and detail your proposed alternative a bit, for those of us
-> who are not very familiar with IP multicast snooping?
+> > Bypass the bridge for which packets? General IGMP/MLD queries? Wouldn't
+> > that break snooping? And then do what with the packets, forward them in
+> > another software layer than the bridge?
+> > 
 > 
+> The ones that are not supposed to be forwarded in the proposed config
+> and are needed for this use case (control traffic and link-local). Obviously
+> to have proper snooping you'd need to manage these bypass
+> rules and use them only while needed.
 
-My suggestion is not related to snooping really, but to the goal of
-patches 01-03. The bridge patches in this set are trying to forward
-traffic that is not supposed to be forwarded with the proposed
-configuration, so that can be done by a user-space helper that installs
-rules to bypass the bridge specifically for those packets while
-monitoring the bridge state to implement a policy and manage these rules
-in order to keep snooping working.
+I think Joseph will end up in a situation where he needs IGMP control
+messages both in the bridge data path and outside of it :)
 
-> Bypass the bridge for which packets? General IGMP/MLD queries? Wouldn't
-> that break snooping? And then do what with the packets, forward them in
-> another software layer than the bridge?
+Also, your proposal eliminates the possibility of cooperating with a
+hardware accelerator which can forward the IGMP messages where they need
+to go.
+
+As far as I understand, I don't think Joseph has a very "special" use case.
+Disabling flooding of unregistered multicast in the data plane sounds
+reasonable. There seems to be a gap in the bridge API, in that this
+operation also affects the control plane, which he is trying to fix with
+this "force flooding", because of insufficiently fine grained control.
+
+> > I also don't quite understand the suggestion of turning on mcast flooding:
+> > isn't Joseph saying that he wants it off for the unregistered multicast
+> > data traffic?
 > 
+> Ah my bad, I meant to turn off flooding and bypass the bridge for those
+> packets and ports while necessary, under necessary can be any policy
+> that the user-space helper wants to implement.
+> 
+> In any case, if this is going to be yet another kernel solution then it
+> must be a new option that is default off, and doesn't break current mcast
+> flood flag behaviour.
 
-The ones that are not supposed to be forwarded in the proposed config
-and are needed for this use case (control traffic and link-local). 
-Obviously to have proper snooping you'd need to manage these bypass
-rules and use them only while needed.
+Yeah, maybe something like this, simple and with clear offload
+semantics, as seen in existing hardware (not Marvell though):
 
-> I also don't quite understand the suggestion of turning on mcast flooding:
-> isn't Joseph saying that he wants it off for the unregistered multicast
-> data traffic?
-
-Ah my bad, I meant to turn off flooding and bypass the bridge for those
-packets and ports while necessary, under necessary can be any policy
-that the user-space helper wants to implement.
-
-In any case, if this is going to be yet another kernel solution then it
-must be a new option that is default off, and doesn't break current 
-mcast flood flag behaviour.
-
-In general my opinion is that the whole snooping control must be in
-user-space and only have the dataplane in the kernel, but that is beyond
-the scope of this set.
-
+mcast_flood == off:
+- mcast_ipv4_ctrl_flood: don't care (maybe can force to "off")
+- mcast_ipv4_data_flood: don't care
+- mcast_ipv6_ctrl_flood: don't care
+- mcast_ipv6_data_flood: don't care
+- mcast_l2_flood: don't care
+mcast_flood == on:
+- Flood 224.0.0.x according to mcast_ipv4_ctrl_flood
+- Flood all other IPv4 multicast according to mcast_ipv4_data_flood
+- Flood ff02::/16 according to mcast_ipv6_ctrl_flood
+- Flood all other IPv6 multicast according to mcast_ipv6_data_flood
+- Flood L2 according to mcast_l2_flood
