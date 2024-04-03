@@ -1,203 +1,193 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B279515E5BA
-	for <bridge@lists.linux.dev>; Tue,  2 Apr 2024 21:59:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50A9C14A4C4;
+	Wed,  3 Apr 2024 15:49:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712095149; cv=none; b=OqQIP4Zz07Q6vYL2RqhXW/v4W4/MzQ/M06Ug1FfOkzGybUIX+Yxdhcdua4lLBRyyzDhfzIcjAE+DCL+ejp2qcI0ksNF2rWI/BKU+X37ZKo3dgUoUMKJApUbxq069HyTfKV6j0YvpPtEwTEHULGxreEFp/aGNGFMdz6Cm5tkekJE=
+	t=1712159366; cv=none; b=qFdGVQdI9kSmLF2Kjh++Jdz/Rb6Cuku0jUKvqmrA6/vn59JRCbINt3ls+FolCQ+1kcAt754r/ItSzhuxhyb0ETgPRuZqBAq7VO0kfkc4MROd+Zx+dzBSdCYBjACnc2kHtBMbQ848CoQddaizbCx8VQtB3TP6sKyNFptlvwDZXis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712095149; c=relaxed/simple;
-	bh=3HMuC3bRtsHpwo2gdK92KXOEH/vPfxmFImAuMKKMCGQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Y1KlHBIzrbk8z6h8YfpOk0fTV8KwrbjBRVfyy5/kWQFLfZY3KITuugvzytGJodjXjW0nwQ+JOhbDMnMdh5zYgBwxXDShtqZpU1ORaMU4Zi7fuaqYU5iRYA8n8qlqmkG+P4a8Iw+zo5bLOmfA4N0IoSYXFl9/CSIm7NBmRlEFUPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=Y7831Ipa; arc=none smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1712159366; c=relaxed/simple;
+	bh=k6dyOhfFQIf9vQIFCpUxUQulSUGcvn1uNJXKGOMIMvU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JHHKtQuljTjbhvI2HP7ur6xxR7/k4iYzq6uJZK8bhbD6OLLfDPVHtKaYyF1FppGZynkaj5rmIdqIbsZ6nK27UdBTa4VyE0sCH6FDE/MRpeFE0qtoseUaKbT1ARyxen4BuTLWOAKXfwHZoRiKiVlFVO6KDFoxUJdxwUJfUWcCn5M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hrBcFKXl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="Y7831Ipa"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-415a84ea9bbso14030175e9.2
-        for <bridge@lists.linux.dev>; Tue, 02 Apr 2024 14:59:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1712095145; x=1712699945; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=bz4CwkwJXdjQGGsT6Kr7wpt065JkKz8ijRcVPDcuGpo=;
-        b=Y7831IpaQzpxW80yQcoBKb/ZQ+YoVHysXVCsJVym4t8wchjjq6Jcf8Zxs8cU8JrBBw
-         dOnS7gPGSgQQ7kb88skreV5cRCAMNrE2twsuWIzC5ryfDaniBb24UwsuwjxQXhxiYzPR
-         c8uxvnFgB9RwGiOkKaqXV2w+5gvGuDClvGWMUMIddv4xLuogh658U5MeZFRtvHEr/7XZ
-         asAEzZ4sN37NSKiYnhv4i00VbzgPV2Ec9SFXavXV6cEmWbygu7QAFAXVMIYP2+E/FKa/
-         x21BCLZnV8AbH3o7PAnUrJUgjZw/AVyNC5OneaDmOpGm8YzGavS0PYB6VnydTBl9p6Ur
-         v5hA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712095145; x=1712699945;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bz4CwkwJXdjQGGsT6Kr7wpt065JkKz8ijRcVPDcuGpo=;
-        b=f/6dD4UiZUBXwXD+u3eGo5Ao8Ftcu3KMkv5h7ngpOcKygYoWOMWOHRAvRIPeHByNs9
-         gtQBF5Qt4nkJC/ZevDc20kds6dZZc2HVDQK7AB0VnYX/JGjjfbSySYPYYUyUUHpzhTqp
-         nFTyBp+22U+C8TEH+KmgoN6IPHqFViqfCkBQuOOqD1c4UbMeCfE/yqMdMj8bZKBGFXHN
-         FAnym6MPUqzc4iUOT5LLUGcrE4f4o4zW554rVFTz/dnwP5rOIrux/1GRGI4FfqeHvXJ0
-         8JDDZhNBqR6g5Q9/Q64HuyzEuFgCWOOR5idhrPZPC7VtbnvJMDUQfI8/+psg5uRFV9sw
-         AK/A==
-X-Forwarded-Encrypted: i=1; AJvYcCUXMqNmjmwdGTZJSH0l2MqtqQGjR1gwfuAKT2t0tRoIr+7zzUAZEDKBS2d71/DTaxS9wkT4oW9FzFqOpxbKW1HI+87Y7nn7
-X-Gm-Message-State: AOJu0YxjFg1IrggVQfBkHaAG6VVqmIjBUjrGha1iCBHxWLnY4b8kA4g0
-	OHKj7HMZ1i5wA9nsuRSWNZ9zJ73IKSyBmumpFwvTIrt9EZkByOCdqqItBDbYcIo=
-X-Google-Smtp-Source: AGHT+IEzWPque6zbwFpJujfIUQvfyL/QyFGSNetVbKefpR0Ye1/gaucb/Se1Rf4tT1hKJ+Irl4vpZA==
-X-Received: by 2002:a05:600c:3206:b0:413:feed:b309 with SMTP id r6-20020a05600c320600b00413feedb309mr2435174wmp.6.1712095144945;
-        Tue, 02 Apr 2024 14:59:04 -0700 (PDT)
-Received: from [192.168.0.106] (176.111.182.227.kyiv.volia.net. [176.111.182.227])
-        by smtp.gmail.com with ESMTPSA id u22-20020a05600c139600b004148d7b889asm22518328wmf.8.2024.04.02.14.59.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Apr 2024 14:59:04 -0700 (PDT)
-Message-ID: <065b803f-14a9-4013-8f11-712bb8d54848@blackwall.org>
-Date: Wed, 3 Apr 2024 00:59:03 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hrBcFKXl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77DC8C43390;
+	Wed,  3 Apr 2024 15:49:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1712159366;
+	bh=k6dyOhfFQIf9vQIFCpUxUQulSUGcvn1uNJXKGOMIMvU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hrBcFKXlV84WvwdXTJ1EywXpIa7TCT7pO8gOx7ssARAppf6BJDhk9Z8sOK7hS9kZr
+	 0ZuW/ZJBRc2RSTi6YMprbytvzjZr2bfZj2k6RpMbi1RgY0CvqLuhiBUlvP3kXoAitd
+	 CHOu1mU9LXMxEvBJoeAzXpWK1zYYnUfDYeMFvgXnDHWFhHUT4hcjCDwThkmlG89/g5
+	 oxJBYofJBMdMkil2p3ADRNxhWBahluV1wuhQnqt0pQAIv3F3Jzp3evB3oyhWOMPVX7
+	 oRLgYSr0FJyH7V7o5mr4nvMyAFdotIUfUpQUXMEtrzMJ47A2EJWRnU+g9QQWyXkjXK
+	 HgjnL2E/3Fsmg==
+Date: Wed, 3 Apr 2024 16:49:21 +0100
+From: Simon Horman <horms@kernel.org>
+To: Joseph Huang <Joseph.Huang@garmin.com>
+Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
+Subject: Re: [PATCH RFC net-next 09/10] net: dsa: mv88e6xxx: Enable mc flood
+ for mrouter port
+Message-ID: <20240403154921.GN26556@kernel.org>
+References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
+ <20240402001137.2980589-10-Joseph.Huang@garmin.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
-Content-Language: en-US
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
- Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Roopa Prabhu <roopa@nvidia.com>, =?UTF-8?Q?Linus_L=C3=BCssing?=
- <linus.luessing@c0d3.blue>, linux-kernel@vger.kernel.org,
- bridge@lists.linux.dev
-References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
- <7fc8264a-a383-4682-a144-8d91fe3971d9@blackwall.org>
- <20240402174348.wosc37adyub5o7xu@skbuf>
- <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
- <20240402204600.5ep4xlzrhleqzw7k@skbuf>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20240402204600.5ep4xlzrhleqzw7k@skbuf>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240402001137.2980589-10-Joseph.Huang@garmin.com>
 
-On 4/2/24 23:46, Vladimir Oltean wrote:
-> On Tue, Apr 02, 2024 at 09:50:51PM +0300, Nikolay Aleksandrov wrote:
->> On 4/2/24 20:43, Vladimir Oltean wrote:
->>> Hi Nikolai,
->>>
->>> On Tue, Apr 02, 2024 at 12:28:38PM +0300, Nikolay Aleksandrov wrote:
->>>> For the bridge patches:
->>>> Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
->>>>
->>>> You cannot break the multicast flood flag to add support for a custom
->>>> use-case. This is unacceptable. The current bridge behaviour is correct
->>>> your patch 02 doesn't fix anything, you should configure the bridge
->>>> properly to avoid all those problems, not break protocols.
->>>>
->>>> Your special use case can easily be solved by a user-space helper or
->>>> eBPF and nftables. You can set the mcast flood flag and bypass the
->>>> bridge for these packets. I basically said the same in 2021, if this is
->>>> going to be in the bridge it should be hidden behind an option that is
->>>> default off. But in my opinion adding an option to solve such special
->>>> cases is undesirable, they can be easily solved with what's currently
->>>> available.
->>>
->>> I appreciate your time is limited, but could you please translate your
->>> suggestion, and detail your proposed alternative a bit, for those of us
->>> who are not very familiar with IP multicast snooping?
->>>
->>
->> My suggestion is not related to snooping really, but to the goal of
->> patches 01-03. The bridge patches in this set are trying to forward
->> traffic that is not supposed to be forwarded with the proposed
->> configuration,
+On Mon, Apr 01, 2024 at 08:11:08PM -0400, Joseph Huang wrote:
+> When a port turns into an mrouter port, enable multicast flooding
+> on that port even if multicast flooding is disabled by user config. This
+> is necessary so that in a distributed system, the multicast packets
+> can be forwarded to the Querier when the multicast source is attached
+> to a Non-Querier bridge.
 > 
-> Correct up to a point. Reinterpreting the given user space configuration
-> and trying to make it do something else seems like a mistake, but in
-> principle one could also look at alternative bridge configurations like
-> the one I described here:
-> https://lore.kernel.org/netdev/20240402180805.yhhwj2f52sdc4dl2@skbuf/
+> Consider the following scenario:
 > 
->> so that can be done by a user-space helper that installs
->> rules to bypass the bridge specifically for those packets while
->> monitoring the bridge state to implement a policy and manage these rules
->> in order to keep snooping working.
->>
->>> Bypass the bridge for which packets? General IGMP/MLD queries? Wouldn't
->>> that break snooping? And then do what with the packets, forward them in
->>> another software layer than the bridge?
->>>
->>
->> The ones that are not supposed to be forwarded in the proposed config
->> and are needed for this use case (control traffic and link-local). Obviously
->> to have proper snooping you'd need to manage these bypass
->> rules and use them only while needed.
+>                  +--------------------+
+>                  |                    |
+>                  |      Snooping      |    +------------+
+>                  |      Bridge 1      |----| Listener 1 |
+>                  |     (Querier)      |    +------------+
+>                  |                    |
+>                  +--------------------+
+>                            |
+>                            |
+>                  +--------------------+
+>                  |    | mrouter |     |
+> +-----------+    |    +---------+     |
+> | MC Source |----|      Snooping      |
+> +-----------|    |      Bridge 2      |
+>                  |    (Non-Querier)   |
+>                  +--------------------+
 > 
-> I think Joseph will end up in a situation where he needs IGMP control
-> messages both in the bridge data path and outside of it :)
+> In this scenario, Listener 1 will never receive multicast traffic
+> from MC Source if multicast flooding is disabled on the mrouter port on
+> Snooping Bridge 2.
 > 
+> Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
 
-My solution does not exclude such scenario. With all unregistered mcast
-disabled it will be handled the same as with this proposed solution.
+...
 
-> Also, your proposal eliminates the possibility of cooperating with a
-> hardware accelerator which can forward the IGMP messages where they need
-> to go.
-> 
-> As far as I understand, I don't think Joseph has a very "special" use case.
-> Disabling flooding of unregistered multicast in the data plane sounds
-> reasonable. There seems to be a gap in the bridge API, in that this
+> @@ -6849,11 +6864,28 @@ static int mv88e6xxx_port_bridge_flags(struct dsa_switch *ds, int port,
+>  
+>  	if (flags.mask & BR_MCAST_FLOOD) {
+>  		bool multicast = !!(flags.val & BR_MCAST_FLOOD);
+> +		struct mv88e6xxx_bridge *mv_bridge;
+> +		struct mv88e6xxx_port *p;
+> +		bool mrouter;
+>  
+> -		err = chip->info->ops->port_set_mcast_flood(chip, port,
+> -							    multicast);
+> -		if (err)
+> -			goto out;
+> +		mv_bridge = mv88e6xxx_bridge_by_port(chip, port);
+> +		if (!mv_bridge)
+> +			return -EINVAL;
 
-This we already have, but..
+I think that mv88e6xxx_reg_unlock(chip) is needed here.
+So perhaps (completely untested!):
 
-> operation also affects the control plane, which he is trying to fix with
-> this "force flooding", because of insufficiently fine grained control.
-> 
+		if (!mv_bridge) {
+			err = -EINVAL;
+			goto out;
+		}
 
-Right, this is the part that is more special, I'm not saying it's
-unreasonable. The proposition to make it optional and break it down to
-type of traffic sounds good to me.
+Flagged by Smatch
 
->>> I also don't quite understand the suggestion of turning on mcast flooding:
->>> isn't Joseph saying that he wants it off for the unregistered multicast
->>> data traffic?
->>
->> Ah my bad, I meant to turn off flooding and bypass the bridge for those
->> packets and ports while necessary, under necessary can be any policy
->> that the user-space helper wants to implement.
->>
->> In any case, if this is going to be yet another kernel solution then it
->> must be a new option that is default off, and doesn't break current mcast
->> flood flag behaviour.
-> 
-> Yeah, maybe something like this, simple and with clear offload
-> semantics, as seen in existing hardware (not Marvell though):
-> 
-> mcast_flood == off:
-> - mcast_ipv4_ctrl_flood: don't care (maybe can force to "off")
-> - mcast_ipv4_data_flood: don't care
-> - mcast_ipv6_ctrl_flood: don't care
-> - mcast_ipv6_data_flood: don't care
-> - mcast_l2_flood: don't care
-> mcast_flood == on:
-> - Flood 224.0.0.x according to mcast_ipv4_ctrl_flood
-> - Flood all other IPv4 multicast according to mcast_ipv4_data_flood
-> - Flood ff02::/16 according to mcast_ipv6_ctrl_flood
-> - Flood all other IPv6 multicast according to mcast_ipv6_data_flood
-> - Flood L2 according to mcast_l2_flood
+> +
+> +		p = &chip->ports[port];
+> +		mrouter = !!(mv_bridge->mrouter_ports & BIT(port));
+> +
+> +		if (!mrouter) {
+> +			err = chip->info->ops->port_set_mcast_flood(chip, port,
+> +								    multicast);
+> +			if (err)
+> +				goto out;
+> +		}
+> +
+> +		if (multicast)
+> +			p->flags |= MV88E6XXX_PORT_FLAG_MC_FLOOD;
+> +		else
+> +			p->flags &= ~MV88E6XXX_PORT_FLAG_MC_FLOOD;
+>  	}
+>  
+>  	if (flags.mask & BR_BCAST_FLOOD) {
+> @@ -6883,6 +6915,51 @@ static int mv88e6xxx_port_bridge_flags(struct dsa_switch *ds, int port,
+>  	return err;
+>  }
+>  
+> +static int mv88e6xxx_port_mrouter(struct dsa_switch *ds, int port,
+> +				  bool mrouter,
+> +				  struct netlink_ext_ack *extack)
+> +{
+> +	struct mv88e6xxx_chip *chip = ds->priv;
+> +	struct mv88e6xxx_bridge *mv_bridge;
+> +	struct mv88e6xxx_port *p;
+> +	bool old_mrouter;
+> +	bool mc_flood;
+> +	int err;
+> +
+> +	if (!chip->info->ops->port_set_mcast_flood)
+> +		return -EOPNOTSUPP;
+> +
+> +	mv_bridge = mv88e6xxx_bridge_by_port(chip, port);
+> +	if (!mv_bridge)
+> +		return -EINVAL;
+> +
+> +	old_mrouter = !!(mv_bridge->mrouter_ports & BIT(port));
+> +	if (mrouter == old_mrouter)
+> +		return 0;
+> +
+> +	p = &chip->ports[port];
+> +	mc_flood = !!(p->flags & MV88E6XXX_PORT_FLAG_MC_FLOOD);
+> +
+> +	mv88e6xxx_reg_lock(chip);
+> +
+> +	if (!mc_flood) {
+> +		err = chip->info->ops->port_set_mcast_flood(chip, port,
+> +							    mrouter);
+> +		if (err)
+> +			goto out;
+> +	}
+> +
+> +	if (mrouter)
+> +		mv_bridge->mrouter_ports |= BIT(port);
+> +	else
+> +		mv_bridge->mrouter_ports &= ~BIT(port);
+> +
+> +out:
+> +	mv88e6xxx_reg_unlock(chip);
 
-Yep, sounds good to me. I was thinking about something in these lines
-as well if doing a kernel solution in order to make it simpler and more
-generic. The ctrl flood bits need to be handled more carefully to make
-sure they match only control traffic and not link-local data.
-I think the old option can be converted to use this fine-grained
-control, that is if anyone sets the old flood on/off then the flood
-mask gets set properly so we can do just 1 & in the fast path and avoid
-adding more tests. It will also make it symmetric - if it can override
-the on case, then it will be able to override the off case. And to be
-more explicit you can pass a mask variable to br_multicast_rcv() which
-will get populated and then you can pass it down to br_flood(). That
-will also avoid adding new bits to the skb's bridge CB.
+If mc_flood is true then err is uninitialised here.
 
+Flagged by clang-17 W=1 build, and Smatch.
 
+> +
+> +	return err;
+> +}
+> +
+>  static bool mv88e6xxx_lag_can_offload(struct dsa_switch *ds,
+>  				      struct dsa_lag lag,
+>  				      struct netdev_lag_upper_info *info,
+
+...
