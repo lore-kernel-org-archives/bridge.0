@@ -1,205 +1,248 @@
-Received: from mail-yw1-f196.google.com (mail-yw1-f196.google.com [209.85.128.196])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99D05548FE
-	for <bridge@lists.linux.dev>; Thu,  4 Apr 2024 22:40:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7536E1C6A3;
+	Fri,  5 Apr 2024 06:35:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712270423; cv=none; b=DuxKJTGIt3GtIcY8Wz8EBiUmmh8j+kTitctONv+HfSv/YnzWEaO07iBwN/CaMoc3rd/oRaCUbBk4Abz1SCQ85zVEUoi4sWmsFeq/+Eywz23iJec24KJgZjPZUhMBBYKHGlpRfcjdHdJsmjEF6Ftty01AXBe0VBUIV0Cb5KUrCwI=
+	t=1712298947; cv=none; b=W8gcWeR+1jWzQ8NaCca3qLXszNNVRXtMqZwtYM8xehH/jHSqp0Tj15l74CuKw5gcIydmLBLZWyUyaZyLWbZ1MlsXP20ps5Z5PvANPToVmXQQqZk+OjmvXNbV3nx0EXbyxMykkmEGrX/duNAyG3PoMwEvFkXaXo4luwet+B73QWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712270423; c=relaxed/simple;
-	bh=vLERf+QX8KSMy6XI9NM+WgxZKTUBvVsma1I4xDMcYG8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LHJv/BZqmKvnUX1UZhmXMbl5vgNmjlszGqUZzO+D+qwbSsXDc8IDgYvXG4Ua7grXDwBxF/ce/RgVYS1fdSZSML1QlvlD9W3Tw7vudG8S+P0BFkTUwQaRTWRe6MnWl6rT/3P2ugS49nAbQgYbOzOw6jCRxwIoPxjaPjfZxvisuFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TrGLfdqt; arc=none smtp.client-ip=209.85.128.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1712298947; c=relaxed/simple;
+	bh=ikYDLn4Ym4RSvRYw/MJO6iKHulOv0NjFGcOsdIQTkHk=;
+	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:References; b=VAjZmRBSkfxLWhDcGDc0NQCgMChXPKGQUtPRFx5fSueOa1CSQw5ZpFDauxlnopF8R3+qXUwdcB9JSJ6+dECYIpdoRihXAJBxQKK1KGstXVqTWK/zsuILjlUNN4uGCFVmeBOEN+L5gWi9YUktDpVB12MMvIKgTK3jrOX1u7ZGXXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=itp/SGTi; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TrGLfdqt"
-Received: by mail-yw1-f196.google.com with SMTP id 00721157ae682-6151e2d037dso18071547b3.3
-        for <bridge@lists.linux.dev>; Thu, 04 Apr 2024 15:40:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712270420; x=1712875220; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hnTW/weWTTG76gH50ECa2RV3vqrObly16JkLYAmVgOQ=;
-        b=TrGLfdqtRXgMwGSS3SEzJ3h9rcZXuqp9Yf8WwcrtgNYgEi2wz7xWA0WKGrkYfSNUi+
-         VHWL0eXTBj/HjTHlIIARWW7+hqwXcnsyzJVqxOXAz6LyQMV6AKGpeXtunqnPO+4Hal0X
-         W1gCNG4eT5JGq3cuXPCDbM1hPiAGwVl4auJhp7ui/YTPEmNXleGIoB10OIWLP9uDIdE9
-         QiVj4ceOTE8otAKZjLsWQ/V0oaFUpKVuu3sgyC+AyNMfYarJ5bVFdHWRVMLdG71OTcI8
-         R3n/GRhBeFXGF7M9lQPAd03hEc1BKHbstJB5ln+FRlvbR9BX5pQz6tqUxGYOqvYZW1EA
-         Atog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712270420; x=1712875220;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=hnTW/weWTTG76gH50ECa2RV3vqrObly16JkLYAmVgOQ=;
-        b=xAvaRSwfK4vsX3a9yE7B+G3mWKvMRwVRPzTqv/NVY83aHtPeA6YBqVSBFbSUchb1WI
-         kYGObfl3LJYTBC+C9rPj5hvjLoPXGaQoMzqNcSe4wIxd4hB7PXhoe+QQt9e2JC2nwcPR
-         UBjCMwj5Efom9Sya8qyTypUxVlv8gkvzN7ZKOB80pULiCAVsIvlJxQYq+4ydfQxkTzGV
-         dmmmGHtIH0sgBIgzGV2w5KBN4NiAknS8EvxNaV5BHhk/hKlMc8LzNIcqxX5zsyw0x9VY
-         4Uk6mr7i0grEekXm0EbSP7xf4KbxfZRacE+KcSsGrh67bn3IDAxmZ5D022W7fMMfjuYM
-         SWdQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWwiizduvpVK8FpRzk++/m278+XQYOupTDfYdAUgQsVtxS7WeJuhdTVKw3VrqxZMWXBG0hIEHpeKeF3QiL0JQjwM+ZO63lu
-X-Gm-Message-State: AOJu0YwXxOVEjMhauEXoVBsZm1ZCfGW89j5CFU8RGGOPze5uRpxNEiv/
-	0Snls0SZ7787AE9Jrc6yzEU0CBbI0DFBv6jUWIHbGZyyrns3BrdO
-X-Google-Smtp-Source: AGHT+IEjof9G6y/blJK7Ac3hvK4D8knpxecWVEsAJ9CXikvry9ZyxDVsK/tNVpl/erf/Jofapl2Kzw==
-X-Received: by 2002:a81:6055:0:b0:615:d7e:eb2 with SMTP id u82-20020a816055000000b006150d7e0eb2mr3721838ywb.16.1712270420524;
-        Thu, 04 Apr 2024 15:40:20 -0700 (PDT)
-Received: from [10.102.6.66] ([208.97.243.82])
-        by smtp.gmail.com with ESMTPSA id k34-20020a81ac22000000b006153f151dfdsm89704ywh.86.2024.04.04.15.40.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Apr 2024 15:40:19 -0700 (PDT)
-Message-ID: <2c3cddda-7ac6-4fc2-b1fa-775c048259e1@gmail.com>
-Date: Thu, 4 Apr 2024 18:40:19 -0400
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="itp/SGTi"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20240405063543euoutp017caa354157006bc1f61d80529ba50133~DTtEjAQed1754517545euoutp01J;
+	Fri,  5 Apr 2024 06:35:43 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20240405063543euoutp017caa354157006bc1f61d80529ba50133~DTtEjAQed1754517545euoutp01J
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1712298943;
+	bh=N7Xk/dqXP1U7JVC+aqhzvUwaPlnQWGEnhGrG4RTCnYM=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=itp/SGTi2KY3001kxEzNTe4JO1ixuRif/PHcEZopCR/ThlW+PCAwOppVIUIVs0r5g
+	 ys+4wUrSRboZ6xjZit8bH2bHUTBfLp7CMo6eJx+GjsI4bw0ya31JItGz/bVMttt4ur
+	 qxZQNdpPRMKMZ5NN9VH5cUark/R3Z1nPY3fy2l5U=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+	20240405063543eucas1p250905f5211a05d8b253a15262f3744d4~DTtETUjcs1221112211eucas1p2k;
+	Fri,  5 Apr 2024 06:35:43 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges3new.samsung.com (EUCPMTA) with SMTP id A2.85.09552.EBB9F066; Fri,  5
+	Apr 2024 07:35:43 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20240405063542eucas1p190ab901f5f6faa28cff00f183b9749bb~DTtDsmHF20623506235eucas1p14;
+	Fri,  5 Apr 2024 06:35:42 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+	20240405063542eusmtrp1b0b10e8e5ca74e71f569e868d048abf1~DTtDp-qN62498024980eusmtrp1z;
+	Fri,  5 Apr 2024 06:35:42 +0000 (GMT)
+X-AuditID: cbfec7f5-83dff70000002550-20-660f9bbe2cb8
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+	eusmgms2.samsung.com (EUCPMTA) with SMTP id 1C.B2.10702.EBB9F066; Fri,  5
+	Apr 2024 07:35:42 +0100 (BST)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20240405063542eusmtip16105856c5e39365274c85e3ba56c334c~DTtDTjI3S0803908039eusmtip1Q;
+	Fri,  5 Apr 2024 06:35:42 +0000 (GMT)
+Received: from localhost (106.210.248.50) by CAMSVWEXC02.scsc.local
+	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+	Fri, 5 Apr 2024 07:35:39 +0100
+Date: Wed, 3 Apr 2024 11:16:25 +0200
+From: Joel Granados <j.granados@samsung.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+CC: <devnull+j.granados.samsung.com@kernel.org>, <Dai.Ngo@oracle.com>,
+	<alex.aring@gmail.com>, <alibuda@linux.alibaba.com>,
+	<allison.henderson@oracle.com>, <anna@kernel.org>, <bridge@lists.linux.dev>,
+	<chuck.lever@oracle.com>, <coreteam@netfilter.org>, <courmisch@gmail.com>,
+	<davem@davemloft.net>, <dccp@vger.kernel.org>, <dhowells@redhat.com>,
+	<dsahern@kernel.org>, <edumazet@google.com>, <fw@strlen.de>,
+	<geliang@kernel.org>, <guwen@linux.alibaba.com>,
+	<herbert@gondor.apana.org.au>, <horms@verge.net.au>, <ja@ssi.bg>,
+	<jaka@linux.ibm.com>, <jlayton@kernel.org>, <jmaloy@redhat.com>,
+	<jreuter@yaina.de>, <kadlec@netfilter.org>, <keescook@chromium.org>,
+	<kolga@netapp.com>, <kuba@kernel.org>, <linux-afs@lists.infradead.org>,
+	<linux-hams@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<linux-nfs@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
+	<linux-s390@vger.kernel.org>, <linux-sctp@vger.kernel.org>,
+	<linux-wpan@vger.kernel.org>, <linux-x25@vger.kernel.org>,
+	<lucien.xin@gmail.com>, <lvs-devel@vger.kernel.org>,
+	<marc.dionne@auristor.com>, <marcelo.leitner@gmail.com>,
+	<martineau@kernel.org>, <matttbe@kernel.org>, <mcgrof@kernel.org>,
+	<miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>, <ms@dev.tdt.de>,
+	<neilb@suse.de>, <netdev@vger.kernel.org>,
+	<netfilter-devel@vger.kernel.org>, <pabeni@redhat.com>,
+	<pablo@netfilter.org>, <ralf@linux-mips.org>, <razor@blackwall.org>,
+	<rds-devel@oss.oracle.com>, <roopa@nvidia.com>, <stefan@datenfreihafen.org>,
+	<steffen.klassert@secunet.com>, <tipc-discussion@lists.sourceforge.net>,
+	<tom@talpey.com>, <tonylu@linux.alibaba.com>,
+	<trond.myklebust@hammerspace.com>, <wenjia@linux.ibm.com>,
+	<ying.xue@windriver.com>
+Subject: Re: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel
+ elements from ctl_table array
+Message-ID: <20240403091625.lk35wt2iqkvabrmr@joelS2.panther.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
- Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean
- <olteanv@gmail.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>,
- Nikolay Aleksandrov <razor@blackwall.org>,
- =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@c0d3.blue>,
- linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
- <f5512e7b-b572-4444-9d56-1eed9bbcda6b@lunn.ch>
- <4c28d59e-0c4f-462c-8a1c-d4bd72e25115@gmail.com>
- <630c37d6-b1c6-466b-8d00-fdc84585d5e7@lunn.ch>
-Content-Language: en-US
-From: Joseph Huang <joseph.huang.2024@gmail.com>
-In-Reply-To: <630c37d6-b1c6-466b-8d00-fdc84585d5e7@lunn.ch>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="u37e6yueaf43q4xz"
+Content-Disposition: inline
+In-Reply-To: <20240328194934.42278-1-kuniyu@amazon.com>
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTaVBTZxSG/e6WKzRyjVQ+xY6dVJ1CrftytBWV4nhHO1PHP7WOU0r1orYQ
+	nESqtVtIAJHNjLjUgCaiYgDBliUIuCAqSFBABUQmKMTEjAiIRERQoMSrrTP995z3Pe/5zvnx
+	saRsPzuR3arYLigVIWFyxoMyV/TXfnox1St01slbBJSrF0LbuXga1NGxBMQUD1NgPp5AwHCL
+	k4DB4t0kuNqcNBjS8xlIq42mYPBOAgO3j9gJ6NK8pCC3JIYAR4VNAuakbATZGisFRc4+BhLa
+	J4G2sBeBfa+NhvqMbgb6M7IkcL/XRkF/siccjtcScD0hHM622CmoMyfTkJGYw4DOMhsai1oI
+	uF2SxkBdWTUND8uTKNAd05LgMD6mwZqSQUHZeQMC25knBGgNPSRoXQ9IGDBV0lCTNEyCPjeL
+	hCadA8Hl3RdouH5GI4HnR6+RcN6gpqDCOB50uRYKnld3IDjU0UDCrXNTwPJsmICafBcNrrSP
+	IcVUQEDpnhcSKKj9ASwDFgIe9DkZGG5auiyQN9XF03yzrZfku2qqEH/09C98qvomxQ/0+/MF
+	mXcJPuFKO8kX61skvLlsKm/Mi+Rflf8t4fOy9jD81cwcgi9uW8Tr0svQGvl6j883CWFbfxKU
+	MwO+89hiGpq/Teu7s8nsQGpUPz4ejWYxNw8fKb1BxSMPVsaZEO57cR+JxTOEUwsPvnFcCLf1
+	9ZBvIyfimmjROIWw+sBB4t8u6/FLpFjkI2zUdBHuCMVNwXE5DsbNDDcd13ZYX4/y5vxwXG7i
+	61Ekly/FVXvu0G5jHBeKX9xzIDdLuWW4u7CKEHksrjpsp9xMcjtxhT1zhNkR9sWnhli3PJpb
+	iC8NXKPdMubkuC97lbj1b9hS0Px6UczdfA8ftl5FohGEHzbkESKPw+2VBRKRJ+HqlERKDKQg
+	fHGoWyIW2QhnRPW+SXyGo+vtbxLLcacrihFfHoObOseKe47B+8yHSFGW4rhYmdg9DWff66B0
+	6CP9O5fp37lM/99lojwdG0t7mP/Jn+CMY49JkZfg3NwnlBFJspCPEKkK3yyo5iqEHTNUIeGq
+	SMXmGRsjwvPQyGetHqrsPYtM7U9nlCOCReVoykjY9ld2HZpIKSIUgtxbmrBMGiqTbgr5eZeg
+	jAhWRoYJqnLky1JyH+nUTZMFGbc5ZLvwoyBsE5RvXYIdPVFNRC3Y0P9KYdixZE1hXBCxfsO6
+	jd/f9Ww8HWj5lZo2O6D9+B1N1qhZw2mLdd2xG+XI2hqu7V/s50x66a1pHHsjtiE0jSJYZ+Xg
+	ypLUWc2++8ty1nxh7vTSxduT596uNpz+M912IzjG7DDs3vcoOfPR01ZXoGpO/eX0tppxXyXL
+	nIlFFas/xOscfeF/5Pub0+st3/iQZc+7e4i1yzuWXs6b11oXJHuYZYzxTg9YmRMZvHj1B8FR
+	a2ey79f4eDUPms/P36XQr2IvqCJP+H494YzfhVq/Rb3OUUWe/p0rgrp6lLz+kH4Fe7F08hKv
+	wme2A6ceTdA0R5cELFhwKTjg92+/nHNSNdd0RU6ptoTM9ieVqpB/APXZk9wnBQAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTe0yTZxSH936XtrA0fgLiK5pl6UoycFaLXE4nMOeC+VjM5pjRZWzTqh8g
+	0mJacNPNpVIRBFEm6mZhgEwR6KiCUO6OVUFpDTDlJhMYCKLQiAhy6UQG1mUm++/J75znlzdv
+	cgSkUxHfTbBLGcOplPIoEc+Rsjy/3rXiSvqCsFUpeS5g0vhBb3USDZpDhwmIr5ilwPhLMgGz
+	XYMEzFQkkDDWO0hDVs5lHmQ0HaJgpj2ZB7d/7ifgUdzfFBgq4wkYqO/jgzFFj0Afd5eCssFJ
+	HiQPLQNt6VME/cf7aGjJfcyD6dwCPvQ87aNg+tjrcCZJS8DNZAWUd/VT0Gw8RkPu0UIepJql
+	0FbWRcDtygweNNdaaLhvSqEg9ayWhIHsYRrupuVSUFuThaDv4ggB2qwnJGjH7pFgy7tOQ2PK
+	LAk6QwEJHakDCK4mXKHh5sU4Pkxk3iChJktDQX22K6QazBRMWKwIfrS2knCrWgzm8VkCGi+P
+	0TCW8Tak5ZUQUHVkig8lTZFgtpkJuDc5yIPZjvfWrmPzmpNotrPvKck+amxAbOav37Lpmj8o
+	1jbtyZbk3yHY5GtDJFuh6+Kzxlp3Nrs4ln1mKuKzxQVHeGxdfiHBVvTK2NScWrRR9LnEXxUd
+	G8O9GRGtjgkQhUrBSyKVgcTLWyaRrvb78l0vH9HKQP+dXNSuvZxqZeA2ScSMrhPtObj0m5mc
+	XqRBt1yTkIMAM974XGIHnYQcBU7MeYRPXjlM2wfLcNF460t2xs/aknj2pVGE+yv/emlcRngs
+	vQvNb1GMGCcWDvDmmce8g5usd8l5dmE8cKLh6AuBZIqE2KpvejFwZsLwVPfAC1nIrMWPSxsI
+	e6sF4RuWYb59sBA3nOmn5plk9uIHOuucLJjjpfjCc8F87MD44d9tN+j5GDMiPKn/0P7qA3hs
+	5j5KRc66V4p0rxTp/iuyx5644/lD4n/xcpx7dpi0cwA2GEaobMQvQC5crFoRrlB7SdRyhTpW
+	GS7ZEa0oRnP3YqyfLilH+UOjEhMiBMiExHNm3yV9M3KjlNFKTuQiTF4rDHMS7pTv28+poreq
+	YqM4tQn5zP3iD6Tboh3Rc8enjNkq9V3lI/X2la3ykfmuFi0WBu9JlDsx4fIYbjfH7eFU/3qE
+	wMFNQ7i3f1w4lXji0oYGWOPpnni65k7Pd5mLJx+V705YLy6VxZ8c7xzuGT03Kqn49LTiYJ2z
+	wltzVWzhJrrl7VGW7KCIFmb5eFnz5rrtDiaVzaxblreC2x5QucRf+1Er/+CCevfzSzJdta9V
+	Bf+5qPrJcOAHbTIKl65pf39TwOL1gdQB4a4NCZ9Nzqw//aA16HjsQ32wVR+aJVD7bLGItlHG
+	Uz2d57/v+WJTdUjJVuKNfb6XrA9zfguJKfvkBLvFuXC/09fd4qojaZJWj43KKFttc0n+1FvF
+	1yZG9PGmSMd1HsEt/PAFOaeEcaGSgsjG7tyF5q9+sg1eqAvKjIjPWLhZHDLiEVoaJKLUEXKp
+	J6lSy/8BW/yY6MQEAAA=
+X-CMS-MailID: 20240405063542eucas1p190ab901f5f6faa28cff00f183b9749bb
+X-Msg-Generator: CA
+X-RootMTR: 20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a
+References: <20240328-jag-sysctl_remset_net-v2-4-52c9fad9a1af@samsung.com>
+	<CGME20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a@eucas1p2.samsung.com>
+	<20240328194934.42278-1-kuniyu@amazon.com>
 
-Hi Andrew,
+--u37e6yueaf43q4xz
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 4/4/2024 6:11 PM, Andrew Lunn wrote:
-> On Thu, Apr 04, 2024 at 05:35:41PM -0400, Joseph Huang wrote:
->> Hi Andrew,
->>
->> On 4/2/2024 8:43 AM, Andrew Lunn wrote:
->>> On Mon, Apr 01, 2024 at 08:10:59PM -0400, Joseph Huang wrote:
->>>> There is a use case where one would like to enable multicast snooping
->>>> on a bridge but disable multicast flooding on all bridge ports so that
->>>> registered multicast traffic will only reach the intended recipients and
->>>> unregistered multicast traffic will be dropped. However, with existing
->>>> bridge ports' mcast_flood flag implementation, it doesn't work as desired.
->>>>
->>>> This patchset aims to make multicast snooping work even when multicast
->>>> flooding is disabled on the bridge ports, without changing the semantic of
->>>> the mcast_flood flag too much. Patches 1 to 4 attempt to address this issue.
->>>>
->>>> Also, in a network where more than one multicast snooping capable bridges
->>>> are interconnected without multicast routers being present, multicast
->>>> snooping fails if:
->>>>
->>>>    1. The source is not directly attached to the Querier
->>>>    2. The listener is beyond the mrouter port of the bridge where the
->>>>       source is directly attached
->>>>    3. A hardware offloading switch is involved
->>>
->>> I've not studied the details here, but that last point makes me think
->>> the offload driver is broken. There should not be any difference
->>> between software bridging and hardware bridging. The whole idea is
->>> that you take what Linux can do in software and accelerate it by
->>> offloading to hardware. Doing acceleration should not change the
->>> behaviour.
->>>
->>
->> In patch 10 I gave a little more detail about the fix, but basically this is
->> what happened.
->>
->> Assuming we have a soft bridge like the following:
->>
->>              bp1 +------------+
->>    Querier <---- |   bridge   |
->>                  +------------+
->>                 bp2 |      | bp3
->>                     |      |
->>                     v      v
->>              MC Source    MC Listener
->>
->> Here bp1 is the mrouter port, bp2 is connected to the multicast source, and
->> bp3 is connected to the multicast listener who wishes to receive multicast
->> traffic for that group.
->>
->> After some Query/Report exchange, the snooping code in the bridge is going
->> to learn about the Listener from bp3, and is going to create an MDB group
->> which includes bp3 as the sole member. When the bridge receives a multicast
->> packet for that group from bp2, the bridge will do a look up to find the
->> members of that group (in this case, bp3) and forward the packet to every
->> single member in that group. At the same time, the bridge will also forward
->> the packet to every mrouter port so that listeners beyond mrouter ports can
->> receive that multicast packet as well.
->>
->> Now consider the same scenario, but with a hardware-offloaded switch:
->>
->>                  +------------+
->>                  |   bridge   |
->>                  +------------+
->>                        ^
->>                        |
->>                        | p6 (Host CPU port)
->>           p1/bp1 +------------+
->>    Querier <---- |     sw     |
->>                  +------------+
->>              p2/bp2 |      | p3/bp3
->>                     |      |
->>                     v      v
->>              MC Source    MC Listener
->>
->> Same Query/Report exchange, same MDB group, except that this time around the
->> MDB group will be offloaded to the switch as well. So in the switch's ATU we
->> will now have an entry for the multicast group and with p3 being the only
->> member of that ATU. When the multicast packet arrives at the switch from p2,
->> the switch will do an ATU lookup, and forward the packet to p3 only. This
->> means that the Host CPU (p6) will not get a copy of the packet, and so the
->> soft bridge will not have the opportunity to forward that packet to the
->> mrouter port. This is what patch 10 attempts to address.
->>
->> One possible solution of course is to add p6 to every MDB group, however
->> that's probably not very desirable. Besides, it will be more efficient if
->> the packet is forwarded to the mrouter port by the switch in hardware (i.e.,
->> offload mrouter forwarding), vs. being forwarded in the bridge by software.
-> 
-> Thanks for the explanation. So i think the key part which you said
-> above is:
-> 
->    At the same time, the bridge will also forward the packet to every
->    mrouter port so that listeners beyond mrouter ports can receive that
->    multicast packet as well.
-> 
-> How does the bridge know about the mrouter port? It seems like the
+On Thu, Mar 28, 2024 at 12:49:34PM -0700, Kuniyuki Iwashima wrote:
+> From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.o=
+rg>
+> Date: Thu, 28 Mar 2024 16:40:05 +0100
+> > This commit comes at the tail end of a greater effort to remove the
+> > empty elements at the end of the ctl_table arrays (sentinels) which will
+> > reduce the overall build time size of the kernel and run time memory
+> > bloat by ~64 bytes per sentinel (further information Link :
+> > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+> >=20
+> > When we remove the sentinel from ax25_param_table a buffer overflow
+> > shows its ugly head. The sentinel's data element used to be changed when
+> > CONFIG_AX25_DAMA_SLAVE was not defined.
+>=20
+> I think it's better to define the relation explicitly between the
+> enum and sysctl table by BUILD_BUG_ON() in ax25_register_dev_sysctl()
+>=20
+>   BUILD_BUG_ON(AX25_MAX_VALUES !=3D ARRAY_SIZE(ax25_param_table));
+>=20
+> and guard AX25_VALUES_DS_TIMEOUT with #ifdef CONFIG_AX25_DAMA_SLAVE
+> as done for other enum.
+This is a great idea. I'll also try to look and see where else I can add
+the explicit relation check.
 
-The bridge learns about the existence of the Querier by the reception of 
-Queries. The bridge will mark the port which it received Queries from as 
-the mrouter port.
+Thx for the review
 
-> bridge needs to pass that information down to the switch. Is the
+>=20
+>=20
+> > This did not have any adverse
+> > effects as we still stopped on the sentinel because of its null
+> > procname. But now that we do not have the sentinel element, we are
+> > careful to check ax25_param_table's size.
+> >=20
+> > Signed-off-by: Joel Granados <j.granados@samsung.com>
+> > ---
+> >  net/ax25/sysctl_net_ax25.c | 4 +---
+> >  1 file changed, 1 insertion(+), 3 deletions(-)
+> >=20
+> > diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
+> > index db66e11e7fe8..e55be8817a1e 100644
+> > --- a/net/ax25/sysctl_net_ax25.c
+> > +++ b/net/ax25/sysctl_net_ax25.c
+> > @@ -141,8 +141,6 @@ static const struct ctl_table ax25_param_table[] =
+=3D {
+> >  		.extra2		=3D &max_ds_timeout
+> >  	},
+> >  #endif
+> > -
+> > -	{ }	/* that's all, folks! */
+> >  };
+> > =20
+> >  int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
+> > @@ -155,7 +153,7 @@ int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
+> >  	if (!table)
+> >  		return -ENOMEM;
+> > =20
+> > -	for (k =3D 0; k < AX25_MAX_VALUES; k++)
+> > +	for (k =3D 0; k < AX25_MAX_VALUES && k < ARRAY_SIZE(ax25_param_table)=
+; k++)
+> >  		table[k].data =3D &ax25_dev->values[k];
+> > =20
+> >  	snprintf(path, sizeof(path), "net/ax25/%s", ax25_dev->dev->name);
+> >=20
+> > --=20
+> > 2.43.0
 
-The bridge does pass that information down to switchdev. Patch 5 adds 
-DSA handling of that event as well. Patches 9 and 10 adds the support in 
-the mv88e6xxx driver.
+--=20
 
-> mrouter itself performing a join on the group when it has members of
-> the group on the other side of it?
+Joel Granados
 
-You hit a key point here. The Querier does not send Report (not with 
-IGMPv2 anyway), so the bridge will never add the mrouter port to any MDB 
-group. That's why patch 10 is needed. Prestera driver does something 
-similar (which is what patches 6,7, and 10 are modeled after).
+--u37e6yueaf43q4xz
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> 
-> 	Andrew
+-----BEGIN PGP SIGNATURE-----
 
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmYNHmkACgkQupfNUreW
+QU9fpAv/V+3/izS8SFMirWyciVnKdoJrmVBsF8hQm+Rl2pYODrbHb98QR2VXqYAA
+obWYFUsHPBIRPhnwtWK4wOUpYjeavZUAa5M3pkVsCZvB1c1YT+HXKNmejNB0zZlh
+vKO3wNon0gXKjuFUDKptPcTQQN71Whfi0QD7jHGAU0jR8tBRLVSNiqN+FlyTT5ZY
+e058hfkPY19gTxx3Igp6rtxw5uxWPDXCbuZLhvRQ6TOyFBs7pxCpwSYnE8MjIxxu
+TpCF4wl12yNHFwySifpvqF1sxp6TIEbmkmYhKjxGu5JY7ZxrMHuqMDSeqcOT7aj1
+xzfrvk5iUpGheARqyK+1QEoyYiLHYCQo9a8F9KlTJQJOwqVfXtBUYTz21demWx1R
+WwcJfePp1yjkcvZPM6yZoKQk3FAS+OlbbtH7iZ4SfPnlhqpFdKvE/kCxDZ2wvOav
+HMjQx9a08CL5VcXF8rowUt+FYuLRUe4wkODIQOMLHZXCuq3giKeFYEX8cfFteHj1
+668CEtfJ
+=6gPd
+-----END PGP SIGNATURE-----
 
+--u37e6yueaf43q4xz--
