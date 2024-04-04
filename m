@@ -1,59 +1,59 @@
-Received: from mail-yb1-f195.google.com (mail-yb1-f195.google.com [209.85.219.195])
+Received: from mail-yw1-f196.google.com (mail-yw1-f196.google.com [209.85.128.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C01C13AD22
-	for <bridge@lists.linux.dev>; Thu,  4 Apr 2024 22:16:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99D05548FE
+	for <bridge@lists.linux.dev>; Thu,  4 Apr 2024 22:40:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712268976; cv=none; b=l3nkK0n28F1w7ACVEWZAaNmNmgzOzLjsgOWOE7zKI8FawdfEVdaqgbNDe+9FWsY4rsCWqaVxdIxKYVfyu6jLJVVnjCRHDWt3vN7WqmrhZFWzZuhQ+iQb99nzsQolv0hCJcPxxnUX3gHoxYFmr1scRg055d1q8sIevHS/sP55oCs=
+	t=1712270423; cv=none; b=DuxKJTGIt3GtIcY8Wz8EBiUmmh8j+kTitctONv+HfSv/YnzWEaO07iBwN/CaMoc3rd/oRaCUbBk4Abz1SCQ85zVEUoi4sWmsFeq/+Eywz23iJec24KJgZjPZUhMBBYKHGlpRfcjdHdJsmjEF6Ftty01AXBe0VBUIV0Cb5KUrCwI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712268976; c=relaxed/simple;
-	bh=2Cvr25ys3NxWXABEd1YLIynAE9R9lmW3IqaHQDk8wTY=;
+	s=arc-20240116; t=1712270423; c=relaxed/simple;
+	bh=vLERf+QX8KSMy6XI9NM+WgxZKTUBvVsma1I4xDMcYG8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FM41ZCDWmqup44B6TNANdfVFWyqpTfLaXNCe+pwwDr05DtbXY5iB0/u9YpkzIjhylD505/EGy4ubVEg27z7rQobeRjZYTndQOM/JWrRBqj2pEHmeuue1g6DsJWDz0vhrYF2YImtf6EylrGn7c7pXp6EgTZk8EWplcGqwOYX0IAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EZgVAoGE; arc=none smtp.client-ip=209.85.219.195
+	 In-Reply-To:Content-Type; b=LHJv/BZqmKvnUX1UZhmXMbl5vgNmjlszGqUZzO+D+qwbSsXDc8IDgYvXG4Ua7grXDwBxF/ce/RgVYS1fdSZSML1QlvlD9W3Tw7vudG8S+P0BFkTUwQaRTWRe6MnWl6rT/3P2ugS49nAbQgYbOzOw6jCRxwIoPxjaPjfZxvisuFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TrGLfdqt; arc=none smtp.client-ip=209.85.128.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EZgVAoGE"
-Received: by mail-yb1-f195.google.com with SMTP id 3f1490d57ef6-dd02fb9a31cso1519378276.3
-        for <bridge@lists.linux.dev>; Thu, 04 Apr 2024 15:16:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TrGLfdqt"
+Received: by mail-yw1-f196.google.com with SMTP id 00721157ae682-6151e2d037dso18071547b3.3
+        for <bridge@lists.linux.dev>; Thu, 04 Apr 2024 15:40:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712268973; x=1712873773; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1712270420; x=1712875220; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=tjWTLbDrbXfZQoCrQFPpaKELa9C28YtlZDvuHhfmfTs=;
-        b=EZgVAoGEoXQa1mCggS1CbxB4buMnocjDJbsK8s7sprwpSz7v5bzvdy96n2tDq5T/Cd
-         KmTmEgBU9OyOoRQ0F++fAflvkDhwsUFENUFwFrvkJ4AtIG62iMZWBmGRhRlDnld3US11
-         tI5TZ/KkIA2fdBh5qG+deNXoRfrmqfWcAxkoA3Le9Cf9GLedxLqtJJ0MnDYJ28GyVCQW
-         nH5qHKbNwsHubOkUCkWKeYh/LwHZzupSxbA75GBrXNDL70d7/vAGSa1zv7H9iJtmFckF
-         53YAyN9IqiQmBHCXftXog0RuZnQsC9++DRYnyiKyiO3hJNtWZoJykRxAbLLZnq6g5XP1
-         Yxjw==
+        bh=hnTW/weWTTG76gH50ECa2RV3vqrObly16JkLYAmVgOQ=;
+        b=TrGLfdqtRXgMwGSS3SEzJ3h9rcZXuqp9Yf8WwcrtgNYgEi2wz7xWA0WKGrkYfSNUi+
+         VHWL0eXTBj/HjTHlIIARWW7+hqwXcnsyzJVqxOXAz6LyQMV6AKGpeXtunqnPO+4Hal0X
+         W1gCNG4eT5JGq3cuXPCDbM1hPiAGwVl4auJhp7ui/YTPEmNXleGIoB10OIWLP9uDIdE9
+         QiVj4ceOTE8otAKZjLsWQ/V0oaFUpKVuu3sgyC+AyNMfYarJ5bVFdHWRVMLdG71OTcI8
+         R3n/GRhBeFXGF7M9lQPAd03hEc1BKHbstJB5ln+FRlvbR9BX5pQz6tqUxGYOqvYZW1EA
+         Atog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712268973; x=1712873773;
+        d=1e100.net; s=20230601; t=1712270420; x=1712875220;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=tjWTLbDrbXfZQoCrQFPpaKELa9C28YtlZDvuHhfmfTs=;
-        b=iL1+0zGr6d6qxW68AxLrIM9RE+eZ7jisN5+RBn17WWabYew+ZNQ4NU5rL2hzxvBs5+
-         0urvCxrvvIMaxzSbDr00VArQJFTjB2pbaiTXRbro/ZF8BzM1EZEjJxrfScIaoDbqiYiC
-         qQeLhdAX3ZKHfA3bfEsPZSOUY5zxl+K5mUQIcl5XI0yBu61NZY6UD9v17QVkDNzsUnJ3
-         3tA5sCUDXdQ1NpHdMTVqCH/uryjz4TXwifCR9wV+/Z10gK8FxciZw3agw3sK3izlqQRH
-         9FLuwOa1sEvTKd4Kf8oTLumVv6tNuWLuGETbtU5uP4pLYBSXAIc/kPVorlUJ/6SkkZjh
-         DTQg==
-X-Forwarded-Encrypted: i=1; AJvYcCV1zTAuzVBjbrjXNdfWz5mIwBban6zXSFh4bJVtR6556wFms9dnZsKBxJsvai5BMuR/ZSdjETDgxk8aK1kYJJcnT87KweAd
-X-Gm-Message-State: AOJu0YwByHuAvCVIEPIkiJ89EtNBpFBK2DnsjG8FSOaH96lzGM99PSHl
-	HIY6yA6Ere2W/qDhIW2+Zss+WYmQ1iBMJEiWmQe3acfGvTO8d/mS
-X-Google-Smtp-Source: AGHT+IH6ZdMEv89S2ceYWpApKG8b6wlIID0pRvEc4fuQzFd7XNrdq2Sa939KyWOCNWzgmK8OjT3wxA==
-X-Received: by 2002:a25:c901:0:b0:dcd:407d:52e5 with SMTP id z1-20020a25c901000000b00dcd407d52e5mr3739806ybf.29.1712268973408;
-        Thu, 04 Apr 2024 15:16:13 -0700 (PDT)
+        bh=hnTW/weWTTG76gH50ECa2RV3vqrObly16JkLYAmVgOQ=;
+        b=xAvaRSwfK4vsX3a9yE7B+G3mWKvMRwVRPzTqv/NVY83aHtPeA6YBqVSBFbSUchb1WI
+         kYGObfl3LJYTBC+C9rPj5hvjLoPXGaQoMzqNcSe4wIxd4hB7PXhoe+QQt9e2JC2nwcPR
+         UBjCMwj5Efom9Sya8qyTypUxVlv8gkvzN7ZKOB80pULiCAVsIvlJxQYq+4ydfQxkTzGV
+         dmmmGHtIH0sgBIgzGV2w5KBN4NiAknS8EvxNaV5BHhk/hKlMc8LzNIcqxX5zsyw0x9VY
+         4Uk6mr7i0grEekXm0EbSP7xf4KbxfZRacE+KcSsGrh67bn3IDAxmZ5D022W7fMMfjuYM
+         SWdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWwiizduvpVK8FpRzk++/m278+XQYOupTDfYdAUgQsVtxS7WeJuhdTVKw3VrqxZMWXBG0hIEHpeKeF3QiL0JQjwM+ZO63lu
+X-Gm-Message-State: AOJu0YwXxOVEjMhauEXoVBsZm1ZCfGW89j5CFU8RGGOPze5uRpxNEiv/
+	0Snls0SZ7787AE9Jrc6yzEU0CBbI0DFBv6jUWIHbGZyyrns3BrdO
+X-Google-Smtp-Source: AGHT+IEjof9G6y/blJK7Ac3hvK4D8knpxecWVEsAJ9CXikvry9ZyxDVsK/tNVpl/erf/Jofapl2Kzw==
+X-Received: by 2002:a81:6055:0:b0:615:d7e:eb2 with SMTP id u82-20020a816055000000b006150d7e0eb2mr3721838ywb.16.1712270420524;
+        Thu, 04 Apr 2024 15:40:20 -0700 (PDT)
 Received: from [10.102.6.66] ([208.97.243.82])
-        by smtp.gmail.com with ESMTPSA id d7-20020a259707000000b00dc62edd58dasm72507ybo.40.2024.04.04.15.16.12
+        by smtp.gmail.com with ESMTPSA id k34-20020a81ac22000000b006153f151dfdsm89704ywh.86.2024.04.04.15.40.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Apr 2024 15:16:12 -0700 (PDT)
-Message-ID: <804b7bf3-1b29-42c4-be42-4c23f1355aaf@gmail.com>
-Date: Thu, 4 Apr 2024 18:16:12 -0400
+        Thu, 04 Apr 2024 15:40:19 -0700 (PDT)
+Message-ID: <2c3cddda-7ac6-4fc2-b1fa-775c048259e1@gmail.com>
+Date: Thu, 4 Apr 2024 18:40:19 -0400
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -62,163 +62,144 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
-To: Nikolay Aleksandrov <razor@blackwall.org>,
- Vladimir Oltean <olteanv@gmail.com>
+To: Andrew Lunn <andrew@lunn.ch>
 Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
- Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Roopa Prabhu <roopa@nvidia.com>, =?UTF-8?Q?Linus_L=C3=BCssing?=
- <linus.luessing@c0d3.blue>, linux-kernel@vger.kernel.org,
- bridge@lists.linux.dev
+ Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean
+ <olteanv@gmail.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>,
+ Nikolay Aleksandrov <razor@blackwall.org>,
+ =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+ linux-kernel@vger.kernel.org, bridge@lists.linux.dev
 References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
- <7fc8264a-a383-4682-a144-8d91fe3971d9@blackwall.org>
- <20240402174348.wosc37adyub5o7xu@skbuf>
- <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
- <20240402204600.5ep4xlzrhleqzw7k@skbuf>
- <065b803f-14a9-4013-8f11-712bb8d54848@blackwall.org>
+ <f5512e7b-b572-4444-9d56-1eed9bbcda6b@lunn.ch>
+ <4c28d59e-0c4f-462c-8a1c-d4bd72e25115@gmail.com>
+ <630c37d6-b1c6-466b-8d00-fdc84585d5e7@lunn.ch>
 Content-Language: en-US
 From: Joseph Huang <joseph.huang.2024@gmail.com>
-In-Reply-To: <065b803f-14a9-4013-8f11-712bb8d54848@blackwall.org>
+In-Reply-To: <630c37d6-b1c6-466b-8d00-fdc84585d5e7@lunn.ch>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 4/2/2024 5:59 PM, Nikolay Aleksandrov wrote:
-> On 4/2/24 23:46, Vladimir Oltean wrote:
->> On Tue, Apr 02, 2024 at 09:50:51PM +0300, Nikolay Aleksandrov wrote:
->>> On 4/2/24 20:43, Vladimir Oltean wrote:
->>>> Hi Nikolai,
+Hi Andrew,
+
+On 4/4/2024 6:11 PM, Andrew Lunn wrote:
+> On Thu, Apr 04, 2024 at 05:35:41PM -0400, Joseph Huang wrote:
+>> Hi Andrew,
+>>
+>> On 4/2/2024 8:43 AM, Andrew Lunn wrote:
+>>> On Mon, Apr 01, 2024 at 08:10:59PM -0400, Joseph Huang wrote:
+>>>> There is a use case where one would like to enable multicast snooping
+>>>> on a bridge but disable multicast flooding on all bridge ports so that
+>>>> registered multicast traffic will only reach the intended recipients and
+>>>> unregistered multicast traffic will be dropped. However, with existing
+>>>> bridge ports' mcast_flood flag implementation, it doesn't work as desired.
 >>>>
->>>> On Tue, Apr 02, 2024 at 12:28:38PM +0300, Nikolay Aleksandrov wrote:
->>>>> For the bridge patches:
->>>>> Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
->>>>>
->>>>> You cannot break the multicast flood flag to add support for a custom
->>>>> use-case. This is unacceptable. The current bridge behaviour is correct
->>>>> your patch 02 doesn't fix anything, you should configure the bridge
->>>>> properly to avoid all those problems, not break protocols.
->>>>>
->>>>> Your special use case can easily be solved by a user-space helper or
->>>>> eBPF and nftables. You can set the mcast flood flag and bypass the
->>>>> bridge for these packets. I basically said the same in 2021, if this is
->>>>> going to be in the bridge it should be hidden behind an option that is
->>>>> default off. But in my opinion adding an option to solve such special
->>>>> cases is undesirable, they can be easily solved with what's currently
->>>>> available.
+>>>> This patchset aims to make multicast snooping work even when multicast
+>>>> flooding is disabled on the bridge ports, without changing the semantic of
+>>>> the mcast_flood flag too much. Patches 1 to 4 attempt to address this issue.
 >>>>
->>>> I appreciate your time is limited, but could you please translate your
->>>> suggestion, and detail your proposed alternative a bit, for those of us
->>>> who are not very familiar with IP multicast snooping?
+>>>> Also, in a network where more than one multicast snooping capable bridges
+>>>> are interconnected without multicast routers being present, multicast
+>>>> snooping fails if:
 >>>>
+>>>>    1. The source is not directly attached to the Querier
+>>>>    2. The listener is beyond the mrouter port of the bridge where the
+>>>>       source is directly attached
+>>>>    3. A hardware offloading switch is involved
 >>>
->>> My suggestion is not related to snooping really, but to the goal of
->>> patches 01-03. The bridge patches in this set are trying to forward
->>> traffic that is not supposed to be forwarded with the proposed
->>> configuration,
->> 
->> Correct up to a point. Reinterpreting the given user space configuration
->> and trying to make it do something else seems like a mistake, but in
->> principle one could also look at alternative bridge configurations like
->> the one I described here:
->> https://lore.kernel.org/netdev/20240402180805.yhhwj2f52sdc4dl2@skbuf/
->> 
->>> so that can be done by a user-space helper that installs
->>> rules to bypass the bridge specifically for those packets while
->>> monitoring the bridge state to implement a policy and manage these rules
->>> in order to keep snooping working.
+>>> I've not studied the details here, but that last point makes me think
+>>> the offload driver is broken. There should not be any difference
+>>> between software bridging and hardware bridging. The whole idea is
+>>> that you take what Linux can do in software and accelerate it by
+>>> offloading to hardware. Doing acceleration should not change the
+>>> behaviour.
 >>>
->>>> Bypass the bridge for which packets? General IGMP/MLD queries? Wouldn't
->>>> that break snooping? And then do what with the packets, forward them in
->>>> another software layer than the bridge?
->>>>
->>>
->>> The ones that are not supposed to be forwarded in the proposed config
->>> and are needed for this use case (control traffic and link-local). Obviously
->>> to have proper snooping you'd need to manage these bypass
->>> rules and use them only while needed.
->> 
->> I think Joseph will end up in a situation where he needs IGMP control
->> messages both in the bridge data path and outside of it :)
->> 
+>>
+>> In patch 10 I gave a little more detail about the fix, but basically this is
+>> what happened.
+>>
+>> Assuming we have a soft bridge like the following:
+>>
+>>              bp1 +------------+
+>>    Querier <---- |   bridge   |
+>>                  +------------+
+>>                 bp2 |      | bp3
+>>                     |      |
+>>                     v      v
+>>              MC Source    MC Listener
+>>
+>> Here bp1 is the mrouter port, bp2 is connected to the multicast source, and
+>> bp3 is connected to the multicast listener who wishes to receive multicast
+>> traffic for that group.
+>>
+>> After some Query/Report exchange, the snooping code in the bridge is going
+>> to learn about the Listener from bp3, and is going to create an MDB group
+>> which includes bp3 as the sole member. When the bridge receives a multicast
+>> packet for that group from bp2, the bridge will do a look up to find the
+>> members of that group (in this case, bp3) and forward the packet to every
+>> single member in that group. At the same time, the bridge will also forward
+>> the packet to every mrouter port so that listeners beyond mrouter ports can
+>> receive that multicast packet as well.
+>>
+>> Now consider the same scenario, but with a hardware-offloaded switch:
+>>
+>>                  +------------+
+>>                  |   bridge   |
+>>                  +------------+
+>>                        ^
+>>                        |
+>>                        | p6 (Host CPU port)
+>>           p1/bp1 +------------+
+>>    Querier <---- |     sw     |
+>>                  +------------+
+>>              p2/bp2 |      | p3/bp3
+>>                     |      |
+>>                     v      v
+>>              MC Source    MC Listener
+>>
+>> Same Query/Report exchange, same MDB group, except that this time around the
+>> MDB group will be offloaded to the switch as well. So in the switch's ATU we
+>> will now have an entry for the multicast group and with p3 being the only
+>> member of that ATU. When the multicast packet arrives at the switch from p2,
+>> the switch will do an ATU lookup, and forward the packet to p3 only. This
+>> means that the Host CPU (p6) will not get a copy of the packet, and so the
+>> soft bridge will not have the opportunity to forward that packet to the
+>> mrouter port. This is what patch 10 attempts to address.
+>>
+>> One possible solution of course is to add p6 to every MDB group, however
+>> that's probably not very desirable. Besides, it will be more efficient if
+>> the packet is forwarded to the mrouter port by the switch in hardware (i.e.,
+>> offload mrouter forwarding), vs. being forwarded in the bridge by software.
 > 
-> My solution does not exclude such scenario. With all unregistered mcast
-> disabled it will be handled the same as with this proposed solution.
+> Thanks for the explanation. So i think the key part which you said
+> above is:
 > 
->> Also, your proposal eliminates the possibility of cooperating with a
->> hardware accelerator which can forward the IGMP messages where they need
->> to go.
->> 
->> As far as I understand, I don't think Joseph has a very "special" use case.
->> Disabling flooding of unregistered multicast in the data plane sounds
->> reasonable. There seems to be a gap in the bridge API, in that this
+>    At the same time, the bridge will also forward the packet to every
+>    mrouter port so that listeners beyond mrouter ports can receive that
+>    multicast packet as well.
 > 
-> This we already have, but..
-> 
->> operation also affects the control plane, which he is trying to fix with
->> this "force flooding", because of insufficiently fine grained control.
->> 
-> 
-> Right, this is the part that is more special, I'm not saying it's
-> unreasonable. The proposition to make it optional and break it down to
-> type of traffic sounds good to me.
-> 
->>>> I also don't quite understand the suggestion of turning on mcast flooding:
->>>> isn't Joseph saying that he wants it off for the unregistered multicast
->>>> data traffic?
->>>
->>> Ah my bad, I meant to turn off flooding and bypass the bridge for those
->>> packets and ports while necessary, under necessary can be any policy
->>> that the user-space helper wants to implement.
->>>
->>> In any case, if this is going to be yet another kernel solution then it
->>> must be a new option that is default off, and doesn't break current mcast
->>> flood flag behaviour.
->> 
->> Yeah, maybe something like this, simple and with clear offload
->> semantics, as seen in existing hardware (not Marvell though):
->> 
->> mcast_flood == off:
->> - mcast_ipv4_ctrl_flood: don't care (maybe can force to "off")
->> - mcast_ipv4_data_flood: don't care
->> - mcast_ipv6_ctrl_flood: don't care
->> - mcast_ipv6_data_flood: don't care
->> - mcast_l2_flood: don't care
->> mcast_flood == on:
->> - Flood 224.0.0.x according to mcast_ipv4_ctrl_flood
->> - Flood all other IPv4 multicast according to mcast_ipv4_data_flood
->> - Flood ff02::/16 according to mcast_ipv6_ctrl_flood
->> - Flood all other IPv6 multicast according to mcast_ipv6_data_flood
->> - Flood L2 according to mcast_l2_flood
+> How does the bridge know about the mrouter port? It seems like the
 
-Did you mean
+The bridge learns about the existence of the Querier by the reception of 
+Queries. The bridge will mark the port which it received Queries from as 
+the mrouter port.
 
-if mcast_flood == on (meaning mcast_flood is ENABLED)
-- mcast_ipv4_ctrl_flood: don't care (since 224.0.0.x will be flooded anyway)
-...
+> bridge needs to pass that information down to the switch. Is the
 
-if mcast_flood == off (meaning mcast_flood is DISABLED)
-- Flood 224.0.0.x according to mcast_ipv4_ctrl_flood
-...
+The bridge does pass that information down to switchdev. Patch 5 adds 
+DSA handling of that event as well. Patches 9 and 10 adds the support in 
+the mv88e6xxx driver.
 
-? Otherwise the problem is still not solved when mcast_flood is disabled.
+> mrouter itself performing a join on the group when it has members of
+> the group on the other side of it?
+
+You hit a key point here. The Querier does not send Report (not with 
+IGMPv2 anyway), so the bridge will never add the mrouter port to any MDB 
+group. That's why patch 10 is needed. Prestera driver does something 
+similar (which is what patches 6,7, and 10 are modeled after).
 
 > 
-> Yep, sounds good to me. I was thinking about something in these lines
-> as well if doing a kernel solution in order to make it simpler and more
-> generic. The ctrl flood bits need to be handled more carefully to make
-> sure they match only control traffic and not link-local data.
+> 	Andrew
 
-Do we consider 224.0.0.251 (mDNS) to be control or data? What qualifies 
-as control I guess that's my question.
-
-> I think the old option can be converted to use this fine-grained
-> control, that is if anyone sets the old flood on/off then the flood
-> mask gets set properly so we can do just 1 & in the fast path and avoid
-> adding more tests. It will also make it symmetric - if it can override
-> the on case, then it will be able to override the off case. And to be
-> more explicit you can pass a mask variable to br_multicast_rcv() which
-> will get populated and then you can pass it down to br_flood(). That
-> will also avoid adding new bits to the skb's bridge CB.
-> 
-> 
 
