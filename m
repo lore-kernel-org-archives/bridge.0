@@ -1,128 +1,151 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-fw-9106.amazon.com (smtp-fw-9106.amazon.com [207.171.188.206])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10AAA17BAA
-	for <bridge@lists.linux.dev>; Fri,  5 Apr 2024 21:15:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82E0D17555F;
+	Fri,  5 Apr 2024 22:27:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.188.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712351709; cv=none; b=F3rW8WW5I0chj6qQ7YgIFgYoaeF2ZYO+NkeOZkZ9kx8ekkIMAp1M1pt84uMnIw2W+csfIKI4bYJcbTonqIgHqqbMWcyiXtHMnsUmM98ZWKNrKIm/gdp7kNTqausZWWhB6+x2/EdSLdzwZxwdDNkaLMRxQR6sMN1YqR611apGYQk=
+	t=1712356047; cv=none; b=u+xTbhwsmRezwWfNUAyD1JnRzYl/RJ/gI33aR37BWnetkFsDlfuOE49y0jw4NlmNvPl+IRzp3v9tKVfEynZUheaDyRaLRI7r5G6eGY6/33jNYzyHjj++ENwlF76h46xJp4yZrTbnCZTWPFcbF4NglQgipCGifrHbHr8YbrgMt50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712351709; c=relaxed/simple;
-	bh=HeNEhIGrzcGEZrocdkVTvsddhLnVgsVIbEn+zKxLMn8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=p/migCLxZDl/p0UBlJlVCKaawu5U87Dp101ANqzh1oGDeiho0TkIAGRdmNmbLazEIsGOcv6iMn/lLP55h0tqKwYBBQyIZhTGVHccFnBBwgbWrce9MpgRsmZQrZc+pPJqTw9FJjwvB43n8366em54Kq2I6O5j3r22sx/4OM3gFfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B/5Nr2nO; arc=none smtp.client-ip=209.85.208.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1712356047; c=relaxed/simple;
+	bh=qrrZBeX1vtGWgwK5O99qDlCfzTKu2CnGs6Zioe/+/30=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Z0aoUwsMtCAaySyGhoMv85FBhIAl7qXo9RqNcGHUA6nx0srvUfdJ0sUczzXtFonspXftrqI+tIQu3FI9Q5mPxzBi7tsHpXZLaZeA7USE3YTTRH9sj5p2/pxHsoCBKQygnR/hJPHMos+OzJ6ckIQP/hqFBl3Qp1ulx67fVGhsHKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=LMoCvuAv; arc=none smtp.client-ip=207.171.188.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B/5Nr2nO"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2d485886545so47026851fa.2
-        for <bridge@lists.linux.dev>; Fri, 05 Apr 2024 14:15:07 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="LMoCvuAv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712351706; x=1712956506; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=o2vV+ljPu+LnmovF94XbYF/3sqJWOm/WOolsuT6CmUg=;
-        b=B/5Nr2nOKH7XJMP0max6YINFIUeEyzPPQegMDP7p3Kcd/sJKUyMsry4MZ4jeXtlFOT
-         BSaqBgYNld33NPK8Y6+9jrFamSkScIs72ajOkVIhH3+SVmFFtTuGm1CxOkBRjSaX3xmn
-         u3nBq9lrO0x/RHDP1AJ4yC+m+WCcAKsqVOTYzWDtPIPYdTRPp5avbq7ep9jcat9ZnOOe
-         s1bdRAUShNqUda987ZDPsfXDpZTgbC5GIIg25zlUXNxoZnglH1H8atC4ZPjdnr+VOK++
-         4yIUpa/0pQITkAThUIj1/Mt5epxd+iI9re4tezwjtxqlD8RKemA/qrrvLh9DR/ZyV0ak
-         H4KA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712351706; x=1712956506;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=o2vV+ljPu+LnmovF94XbYF/3sqJWOm/WOolsuT6CmUg=;
-        b=VsumIWqlXC6fJRp5o7t6ghGN140zXGnwcgFUrVVLvHFPUuO2tz7T006ELgH0dbxbaX
-         UW/T7PfSawUgoPrsDZpAnLSnaZslFpg8qP/qtvG8xXkSWInwDbAL8szDsDv0hZfaaxpG
-         pGRWnUynLxdPuoHOoisG4VNFCS5CQDA1yvgRevnNabeh2x4eGLBt3mIcehpHAJIQDcYP
-         HY3Cee2b7JzseTz9oKmyEtVfJzlPCfKahkDHXxjA0rOsotRH8oyjVZrzybbn3Z+npu4Q
-         Cy4wcFSBFnp8OsiA/meiZQvJYUKbPv1lM/sAXEAZ0PuGTf+utqMczx0DUz3gvbGHz07B
-         XUXw==
-X-Forwarded-Encrypted: i=1; AJvYcCUGZu4zaUFBohGAqoimJ+/SzPRDZC+swMO2EEJIqrIj99fIWg7lZbZAuklhk5OblZabA47Y7wqqR2zrAuaXMaA7Wvk3bWox
-X-Gm-Message-State: AOJu0Yz76NUpOZRScWefWV5C+oza05+RU275tHKogqO8Qicn+xQX0wCG
-	HdbLqadDmuRM9FwbXaLxksClmyr9wi1huCltUJ5QfQ+tinv6VvRH
-X-Google-Smtp-Source: AGHT+IGvqldN6HhRWWnSY5+EnUP2pam16riYtoUm7Q1wDs8Ky3sSiGU3pUJdfw1lLyEvKoUGXAwYHA==
-X-Received: by 2002:a2e:8ed5:0:b0:2d8:6b3c:1eb8 with SMTP id e21-20020a2e8ed5000000b002d86b3c1eb8mr2430875ljl.4.1712351705883;
-        Fri, 05 Apr 2024 14:15:05 -0700 (PDT)
-Received: from skbuf ([2a02:2f04:d700:2000::b2c])
-        by smtp.gmail.com with ESMTPSA id de26-20020a056402309a00b0056c1cca33bfsm1169683edb.6.2024.04.05.14.15.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Apr 2024 14:15:05 -0700 (PDT)
-Date: Sat, 6 Apr 2024 00:15:02 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-To: Joseph Huang <joseph.huang.2024@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
-	Andrew Lunn <andrew@lunn.ch>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
-Message-ID: <20240405211502.q5gfwcwyhkm6w7xy@skbuf>
-References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
- <7fc8264a-a383-4682-a144-8d91fe3971d9@blackwall.org>
- <20240402174348.wosc37adyub5o7xu@skbuf>
- <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
- <20240402204600.5ep4xlzrhleqzw7k@skbuf>
- <065b803f-14a9-4013-8f11-712bb8d54848@blackwall.org>
- <804b7bf3-1b29-42c4-be42-4c23f1355aaf@gmail.com>
- <20240405102033.vjkkoc3wy2i3vdvg@skbuf>
- <935c18c1-7736-416c-b5c5-13ca42035b1f@blackwall.org>
- <651c87fc-1f21-4153-bade-2dad048eecbd@gmail.com>
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1712356045; x=1743892045;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=MZmfmRuTm98xxNT3u4GoRIvJJsGslBrgcovMMdqPwTw=;
+  b=LMoCvuAvAiKpauBjBvG9rZqvq6Adv0g22tVGZIEI0d5TB8C2HlDl1LHj
+   ASgigsE0s2Il2hca+iDoCM6AQH10YBXw8e5uCk/kWQjy44Sa3yPPKf9V2
+   ge0Y/ag/602Bo2vu9PmOTCQz5V4tyWdDcU0BFbPvDDGjaYJf/FMeOaHPI
+   Q=;
+X-IronPort-AV: E=Sophos;i="6.07,182,1708387200"; 
+   d="scan'208";a="716520780"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.210])
+  by smtp-border-fw-9106.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2024 22:27:19 +0000
+Received: from EX19MTAUWB002.ant.amazon.com [10.0.7.35:33431]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.50.222:2525] with esmtp (Farcaster)
+ id d323b31d-9f42-407f-b466-8125712ac6f4; Fri, 5 Apr 2024 22:27:18 +0000 (UTC)
+X-Farcaster-Flow-ID: d323b31d-9f42-407f-b466-8125712ac6f4
+Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.28; Fri, 5 Apr 2024 22:27:17 +0000
+Received: from 88665a182662.ant.amazon.com (10.106.101.45) by
+ EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.28;
+ Fri, 5 Apr 2024 22:27:06 +0000
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
+To: <j.granados@samsung.com>
+CC: <Dai.Ngo@oracle.com>, <alex.aring@gmail.com>, <alibuda@linux.alibaba.com>,
+	<allison.henderson@oracle.com>, <anna@kernel.org>, <bridge@lists.linux.dev>,
+	<chuck.lever@oracle.com>, <coreteam@netfilter.org>, <courmisch@gmail.com>,
+	<davem@davemloft.net>, <dccp@vger.kernel.org>,
+	<devnull+j.granados.samsung.com@kernel.org>, <dhowells@redhat.com>,
+	<dsahern@kernel.org>, <edumazet@google.com>, <fw@strlen.de>,
+	<geliang@kernel.org>, <guwen@linux.alibaba.com>,
+	<herbert@gondor.apana.org.au>, <horms@verge.net.au>, <ja@ssi.bg>,
+	<jaka@linux.ibm.com>, <jlayton@kernel.org>, <jmaloy@redhat.com>,
+	<jreuter@yaina.de>, <kadlec@netfilter.org>, <keescook@chromium.org>,
+	<kolga@netapp.com>, <kuba@kernel.org>, <kuniyu@amazon.com>,
+	<linux-afs@lists.infradead.org>, <linux-hams@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-nfs@vger.kernel.org>,
+	<linux-rdma@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+	<linux-sctp@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
+	<linux-x25@vger.kernel.org>, <lucien.xin@gmail.com>,
+	<lvs-devel@vger.kernel.org>, <marc.dionne@auristor.com>,
+	<marcelo.leitner@gmail.com>, <martineau@kernel.org>, <matttbe@kernel.org>,
+	<mcgrof@kernel.org>, <miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>,
+	<ms@dev.tdt.de>, <neilb@suse.de>, <netdev@vger.kernel.org>,
+	<netfilter-devel@vger.kernel.org>, <pabeni@redhat.com>,
+	<pablo@netfilter.org>, <ralf@linux-mips.org>, <razor@blackwall.org>,
+	<rds-devel@oss.oracle.com>, <roopa@nvidia.com>, <stefan@datenfreihafen.org>,
+	<steffen.klassert@secunet.com>, <tipc-discussion@lists.sourceforge.net>,
+	<tom@talpey.com>, <tonylu@linux.alibaba.com>,
+	<trond.myklebust@hammerspace.com>, <wenjia@linux.ibm.com>,
+	<ying.xue@windriver.com>
+Subject: Re: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel elements from ctl_table array
+Date: Fri, 5 Apr 2024 15:26:58 -0700
+Message-ID: <20240405222658.3615-1-kuniyu@amazon.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20240405071531.fv6smp55znlfnul2@joelS2.panther.com>
+References: <20240405071531.fv6smp55znlfnul2@joelS2.panther.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <651c87fc-1f21-4153-bade-2dad048eecbd@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: EX19D035UWB001.ant.amazon.com (10.13.138.33) To
+ EX19D004ANA001.ant.amazon.com (10.37.240.138)
 
-On Fri, Apr 05, 2024 at 04:22:43PM -0400, Joseph Huang wrote:
-> Like this?
+From: Joel Granados <j.granados@samsung.com>
+Date: Fri, 5 Apr 2024 09:15:31 +0200
+> On Thu, Mar 28, 2024 at 12:49:34PM -0700, Kuniyuki Iwashima wrote:
+> > From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>
+> > Date: Thu, 28 Mar 2024 16:40:05 +0100
+> > > This commit comes at the tail end of a greater effort to remove the
+> > > empty elements at the end of the ctl_table arrays (sentinels) which will
+> > > reduce the overall build time size of the kernel and run time memory
+> > > bloat by ~64 bytes per sentinel (further information Link :
+> > > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+> > > 
+> > > When we remove the sentinel from ax25_param_table a buffer overflow
+> > > shows its ugly head. The sentinel's data element used to be changed when
+> > > CONFIG_AX25_DAMA_SLAVE was not defined.
+> > 
+> > I think it's better to define the relation explicitly between the
+> > enum and sysctl table by BUILD_BUG_ON() in ax25_register_dev_sysctl()
+> > 
+> >   BUILD_BUG_ON(AX25_MAX_VALUES != ARRAY_SIZE(ax25_param_table));
+> > 
+> > and guard AX25_VALUES_DS_TIMEOUT with #ifdef CONFIG_AX25_DAMA_SLAVE
+> > as done for other enum.
 > 
-> bridge link set dev swp0 mcast_flood off
->   - all flooding disabled
+> When I remove AX25_VALUES_DS_TIMEOUT from the un-guarded build it
+> complains in net/ax25/ax25_ds_timer.c (ax25_ds_set_timer). Here is the
+> report https://lore.kernel.org/oe-kbuild-all/202404040301.qzKmVQGB-lkp@intel.com/.
 > 
-> bridge link set dev swp0 mcast_flood on
->   - all flooding enabled
-> 
-> bridge link set dev swp0 mcast_flood on mcast_ipv4_data_flood off
-> mcast_ipv6_data_flood off
->   - IPv4 data packets flooding disabled, IPv6 data packets flooding
-> disabled, everything else floods (that is to say, only allow IPv4 local
-> subnet and IPv6 link-local to flood)
-> 
-> ?
+> How best to address this? Should we just guard the whole function and do
+> nothing when not set? like this:
 
-Yeah.
+It seems fine to me.
 
-> The syntax seems to be counterintuitive.
+ax25_ds_timeout() checks !ax25_dev->dama.slave_timeout, but it's
+initialised by kzalloc() during dev setup, so it will be a noop.
+
+
 > 
-> Or like this?
+> ```
+> void ax25_ds_set_timer(ax25_dev *ax25_dev)
+> {
+> #ifdef COFNIG_AX25_DAMA_SLAVE
+>         if (ax25_dev == NULL)        ···/* paranoia */
+>                 return;
 > 
-> bridge link set dev swp0 mcast_flood on mcast_ipv4_ctrl_flood on
->   - only allow IPv4 local subnet to flood, everything else off
+>         ax25_dev->dama.slave_timeout =
+>                 msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) / 10;
+>         mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
+> #else
+>         return;
+> #endif
+> }
 > 
-> ?
+> ```
+> 
+> I'm not too familiar with this, so pointing me to the "correct" way to
+> handle this would be helpfull.
 
-Nope.
+Also, you will need to guard another use of AX25_VALUES_DS_TIMEOUT in
+ax25_dev_device_up().
 
-> So basically the question is, what should the behavior be when something is
-> omitted from the command line?
-
-The answer is always: "new options should default to behaving exactly
-like before". It's not just about the command line arguments, but also
-about the actual netlink attributes that iproute2 (and other tooling)
-creates when communicating with the kernel. Old user space has no idea
-about the existence of mcast_ipv4_ctrl_flood et. al. So, if netlink
-attributes specifying their value are not sent by user space, their
-value in the kernel must mimic the value of mcast_flood.
+Thanks!
