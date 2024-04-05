@@ -1,237 +1,167 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f195.google.com (mail-yw1-f195.google.com [209.85.128.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C24E16D9AC;
-	Fri,  5 Apr 2024 13:34:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 005C953398
+	for <bridge@lists.linux.dev>; Fri,  5 Apr 2024 18:58:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712324052; cv=none; b=W+QcWlksg8NbOP19gT1zfwpZYBe1loxKUUY3eov7T1nLF/IF+GCjsQrj7x2BaQtIIB+rru5ncuItdHQZh2fH6uxRhMf5f8kxUcVzhhPiLoDTqMjwEZh2f365UEMfvpa88+c9Q1FQD3I1NMR5eEzv7g6ADtQHtHTAZGHUaboe3Sw=
+	t=1712343495; cv=none; b=bbEKEXI+BNAYTGJ62NTJPE7ISXd63UEWbM8hrf104PSL3aezlyyCcnAo9lN99CLpYbcZodmHvigUgBbCsN5uRtRpVje50Ml0yAZ8xMSYyT+6iviSAdNykOIs2sr/ewOeH8PW1LfF1b2JmfGOD9rLIp5yiUbYF1TfCWrTKzVNg0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712324052; c=relaxed/simple;
-	bh=LJj/6K9S0mccLf8EzL0tHISHfup0kONjt4pdLG952wc=;
-	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:References; b=L+jkd/K7nSJIY7eKRSmcYMNDScK7m6nj3NiTEf5A5RqjpENk2u9NRpUgG91O2FZMkkMUeYH/5F450J6clGNFQJmF8aGNbifalj8uwU55Qs1V4eDCj6Lp9WG5J8kCA/lK3XNwlCq8DnIAnm4j9y2IHh9f4I6IzKrgmkKxZvSweoo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=YKhX3vsr; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1712343495; c=relaxed/simple;
+	bh=TqNsEWEXLQNb5wTUaOuCY4vPYv0zMydgUQmOxvROaZc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NowF5xAsZOotyJTlcwhNP5q9ht16nM9m3RkKxE0RoMRD6Hf5/JLXz6seb6saEcHpXZ/AgKv3niE25xj8yM67tyPiGSGzG1+d2rh1m5quJBuWCoO1a6NBML/ODPGWjILLFnWw6tK3kzbUK/zKR4zaXqX2yCxg7/+fThd+0yW9Odo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aBnWLVbS; arc=none smtp.client-ip=209.85.128.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="YKhX3vsr"
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20240405133401euoutp0130e9bdebb3e41d400edfa9e541a3840a~DZaS-L9et0180601806euoutp01z;
-	Fri,  5 Apr 2024 13:34:01 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20240405133401euoutp0130e9bdebb3e41d400edfa9e541a3840a~DZaS-L9et0180601806euoutp01z
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1712324041;
-	bh=i+a4M7yICQ2HnP92i8Uv6JJWR1edpPHj8jQXZpZYBH4=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=YKhX3vsrA71sZeueE+2+MgNpe71G3PLv4t4SN6kD8caKNpwMl0UBDtLeuO2mObwiD
-	 dwf35oPYrx7CMhrIrJ2KyMWZTpLXasIrnmh5Gj1fWMcyMHtpPj68JGhl01Ql4gy5i6
-	 gk/EctOtGYb6SPs3o1drGd49WVWPSiDlcygGXDoE=
-Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-	20240405133401eucas1p180bf7886e5501a175873e1fa6d28381b~DZaSwD5pi2523125231eucas1p1e;
-	Fri,  5 Apr 2024 13:34:01 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-	eusmges1new.samsung.com (EUCPMTA) with SMTP id D6.83.09539.9CDFF066; Fri,  5
-	Apr 2024 14:34:01 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20240405133400eucas1p17a657be41afd1be881bbb599e769968a~DZaSKzIvA2124621246eucas1p1f;
-	Fri,  5 Apr 2024 13:34:00 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20240405133400eusmtrp15f4b2e2b477b0577c76ad47d2a727a34~DZaSJSYyi1386013860eusmtrp1Y;
-	Fri,  5 Apr 2024 13:34:00 +0000 (GMT)
-X-AuditID: cbfec7f2-515ff70000002543-54-660ffdc93c52
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-	eusmgms1.samsung.com (EUCPMTA) with SMTP id 94.A3.09146.8CDFF066; Fri,  5
-	Apr 2024 14:34:00 +0100 (BST)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20240405133400eusmtip2bf1c1d03faee0a07935c7405979e5cff~DZaR2giF20852408524eusmtip2m;
-	Fri,  5 Apr 2024 13:34:00 +0000 (GMT)
-Received: from localhost (106.210.248.212) by CAMSVWEXC02.scsc.local
-	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-	Fri, 5 Apr 2024 14:33:59 +0100
-Date: Fri, 5 Apr 2024 09:15:31 +0200
-From: Joel Granados <j.granados@samsung.com>
-To: Kuniyuki Iwashima <kuniyu@amazon.com>
-CC: <devnull+j.granados.samsung.com@kernel.org>, <Dai.Ngo@oracle.com>,
-	<alex.aring@gmail.com>, <alibuda@linux.alibaba.com>,
-	<allison.henderson@oracle.com>, <anna@kernel.org>, <bridge@lists.linux.dev>,
-	<chuck.lever@oracle.com>, <coreteam@netfilter.org>, <courmisch@gmail.com>,
-	<davem@davemloft.net>, <dccp@vger.kernel.org>, <dhowells@redhat.com>,
-	<dsahern@kernel.org>, <edumazet@google.com>, <fw@strlen.de>,
-	<geliang@kernel.org>, <guwen@linux.alibaba.com>,
-	<herbert@gondor.apana.org.au>, <horms@verge.net.au>, <ja@ssi.bg>,
-	<jaka@linux.ibm.com>, <jlayton@kernel.org>, <jmaloy@redhat.com>,
-	<jreuter@yaina.de>, <kadlec@netfilter.org>, <keescook@chromium.org>,
-	<kolga@netapp.com>, <kuba@kernel.org>, <linux-afs@lists.infradead.org>,
-	<linux-hams@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-nfs@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <linux-sctp@vger.kernel.org>,
-	<linux-wpan@vger.kernel.org>, <linux-x25@vger.kernel.org>,
-	<lucien.xin@gmail.com>, <lvs-devel@vger.kernel.org>,
-	<marc.dionne@auristor.com>, <marcelo.leitner@gmail.com>,
-	<martineau@kernel.org>, <matttbe@kernel.org>, <mcgrof@kernel.org>,
-	<miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>, <ms@dev.tdt.de>,
-	<neilb@suse.de>, <netdev@vger.kernel.org>,
-	<netfilter-devel@vger.kernel.org>, <pabeni@redhat.com>,
-	<pablo@netfilter.org>, <ralf@linux-mips.org>, <razor@blackwall.org>,
-	<rds-devel@oss.oracle.com>, <roopa@nvidia.com>, <stefan@datenfreihafen.org>,
-	<steffen.klassert@secunet.com>, <tipc-discussion@lists.sourceforge.net>,
-	<tom@talpey.com>, <tonylu@linux.alibaba.com>,
-	<trond.myklebust@hammerspace.com>, <wenjia@linux.ibm.com>,
-	<ying.xue@windriver.com>
-Subject: Re: [PATCH v2 4/4] ax.25: Remove the now superfluous sentinel
- elements from ctl_table array
-Message-ID: <20240405071531.fv6smp55znlfnul2@joelS2.panther.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aBnWLVbS"
+Received: by mail-yw1-f195.google.com with SMTP id 00721157ae682-617ddc988f5so5405747b3.2
+        for <bridge@lists.linux.dev>; Fri, 05 Apr 2024 11:58:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1712343493; x=1712948293; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=A7kbTABmSB3WHGlFkXmQdklyP9Fynhg8P2k5hFgf9iM=;
+        b=aBnWLVbSAtDb6Jms9LaCV5cqpv570R5P2mLSXdFG83zk862e9Vad9MCZIeZjon+uqi
+         T8dMpApoRFXiHsWcNgNTnPPL05Mf++1Yie6CIfq3pWIrITE3GcMuCSo+HDHXe7DLUg+t
+         t1FRCLweCwa/vU0QAmYWGDrgFV7hm4IpC2hXZ1L9HA2Ry76w5S6HxDWUtrOzVs2DW1Sc
+         x/kIZodg96TY9rlv3vlFLmziKi65vlHlpWuc4LfU9iClacD4slBFkGEdvjtUvD/SUvYu
+         PnJPfD645OOl0wc2+EnhdOmt4wg9+4NoMI5vK2NZZWqHE7U8CDErCb7Gbxu9yUYVJ2gk
+         cRKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712343493; x=1712948293;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=A7kbTABmSB3WHGlFkXmQdklyP9Fynhg8P2k5hFgf9iM=;
+        b=ej1owX7x2pZoSwhSxakW7BFqm8QqA+RnCFDcjppoMGs/zZdqENi6CglPSbjIcrc2dy
+         8AbkHb2UQWj9fJgUI3kof77fB+O28yKSjc+jQoYGxpqhjq7Rij4EA22cJrvyNQ+4Hhj6
+         or25QVunIK/MCk/ncSu7I1L7D6FXg6YdBVruJOfyE/GxasJM/MZfvqe9TfqyCGGs4DGr
+         +hUzRFQtUK9gpvzcyRfy+gz1QENSqG/MPYPl+UC1VyJCIFXSTsu71EZMIfYHPDroy910
+         BQMD7QhY1V1d7BmVPsZXS3hVFZFXj6Vw2pryc+VIUGj4CbfWIgbw1wEFgEzxyAmSSs1f
+         BPzg==
+X-Forwarded-Encrypted: i=1; AJvYcCWlalSRbVpaasxWhruI6dpwZYB26+KArWIIy1CWhrFRgb/JryLKHC6MokfNqGQhJsksoFuSKVLXA3zPQxcSavN+259E17Iz
+X-Gm-Message-State: AOJu0YyGLfnSvzsRJ3Yr+AlzIM5FAWtwWkQKI+xQ5Njc1iwASxVhNkEt
+	9F/tDwHIbeMJoc5DP9Fpr0gYVnnM2TwwbX87DgkTKAmCqS+HQs1P
+X-Google-Smtp-Source: AGHT+IGAUd3Bg+ii71QK/C2dpvD0uH7oCwfe2q/A6gBLAJWnZ32PJMDhQPIIPbh3ZkqKASOQNvR80A==
+X-Received: by 2002:a25:a3c6:0:b0:dcc:aa1f:b418 with SMTP id e64-20020a25a3c6000000b00dccaa1fb418mr2088089ybi.1.1712343492813;
+        Fri, 05 Apr 2024 11:58:12 -0700 (PDT)
+Received: from [10.102.6.66] ([208.97.243.82])
+        by smtp.gmail.com with ESMTPSA id i128-20020a256d86000000b00dcdbe11c243sm433140ybc.1.2024.04.05.11.58.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Apr 2024 11:58:12 -0700 (PDT)
+Message-ID: <c4f5c444-832c-4376-845f-7c28e88e4436@gmail.com>
+Date: Fri, 5 Apr 2024 14:58:11 -0400
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="h65h3fnxnuqgv2vq"
-Content-Disposition: inline
-In-Reply-To: <20240328194934.42278-1-kuniyu@amazon.com>
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA2VTaVBTVxj1vi0BG/sExVt0uiA4rdpQHGf8aNVSu/BmOhbH6Q+rUys2T0Qg
-	KJG6UDuRRSQBZMQWiRAQbViiQCEN4FIRWUxAwKKFUlCJLIogaliESKjh2daZ/jvn3HPuPefH
-	FZMuqWJ3cbB8Nx8hDwz1YJwpY+1407umyVe3vfeXxRmqlCug64KKBmXsIQLiKqYoMJ5SEzDV
-	2UfAZEU8CdauPhqyckoZyGiKpWCyVc1AS2Y3AQ+jbRQUnosjoKfWIgJjkh6BPrqDgrK+MQbU
-	/Qsg5tcRBN1HLDTc0D1iYFxXIILbIxYKxpNnQroqhoAGdRiUd3ZT0GxMpkGXeJaBFLMP/FHW
-	SUDLuQwGmivraeitSqIg5WQMCT3ZD2joSNVRUHkxC4GlaIiAmKwnJMRY75IwkVdHQ2PSFAma
-	wgIS2lJ6EFyJ/42GhqJoEYxqr5JwMUtJQW22G6QUmikYrR9AkDZwk4TfL3iCeXiKgMZSKw3W
-	jLchNc9AwPmEpyIwNO0A84SZgLtjfQxMtX3ot4bLa1bRXLtlhOQeNpoQpz0TxZ1QXqe4ifHF
-	nCH/T4JTV/eTXIWmU8QZK7247JJI7lnVLyKupCCB4WryzxJcRZcvl5JTidZ5bHReKeNDg7/j
-	I7xXb3HenpRlInY+dNtrGotllCjHVYWcxJhdjq9eu4BUyFnswuYhPDqqfUGGET5qbmAEYkV4
-	vMFMq5B4OmK8EyLouQg3Dt5H/5rKDkYTAjEg3NtejByPUKwn1qa3TGOGXYqbBjpIB57DvoMP
-	FybSjgDJlkqwKaGVdhy4stvw01s90wEJ64ev3LxMCng2NqV3Uw5MsnvxTycNjKMSyc7HuXax
-	Q3ZiV+DLE1dfNF2IHxStFHYewGZD+3Q3zF57Bd8Z7iAEzyf4+OBGweOK++sMIgEvwPWpiZTg
-	T0X4kv2RSCB6hHUHRwjB9QGOvdH9IvERHrQeZIRLZ+G2wdlCzVn4qDGNFGQJPnzIRXAvwvpb
-	A1QKWqh5aZjmpWGa/4YJshS3/Xjs//ISrDv5gBTwKlxYOERlI1EBmsdHKsKCeIWPnN8jVQSG
-	KSLlQdJvw8NK0PO/Wm+ve1KOMvsfS6sQIUZVyPN52FKsb0bulDxcznvMkaj9JNtcJLLAffv5
-	iPBvIiJDeUUVmi+mPOZJvGRv8C5sUOBuPoTnd/IR/5wSYid3JTH3XrK0J/jr6vW2kXMxa8JP
-	H/c/Eaa3Sb12GDYHtLttjdd1bvBM2Fw5Kf7YL65r0zq9tzRf0hrVO7DB356hza1vOpaoeOux
-	XRTifcBW8ZpMvW7J+gDb6j2bZvhmBTyZ6T/zVLuxvDjc//aX93O+6nWupkprX5+x98YP9fsj
-	7YO7bJKoVa5vLpc1RLXKrGn93td3pJ5Z5f4Zu+XTn6X2zEdOh3WyZWO+z2ruVcbNqQs+v3C9
-	ZthkWfv92mpl36VivHGXZCihw3KnJ371ikixJWPLvRq6qKhh2HvJF76LLO9/HpBdoq2+NBdl
-	bGrW5S4VNZ/WrJka9twnXTw5FL5blb51WbW2RW31oBTbA30WkxGKwL8B0oUGfSYFAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WTe0yTZxTGfb9Lv4Jp/KSKn+AWUzHZQAtVLqeLMDTRfRqzuItb4txKI+Uy
-	LjUtJehmRkBEC2iNMYaKgM51QGdraQFRYAgOoVwH4i2UjVokQgNqQe4wsFlmsv9+73PO8+Sc
-	Nzlc3Osm5cONT06RKZKliQKOJ9G6cL9/a/P8qpigdudGaEgPg4EaNQnpJ09hkFW9SEDlzzkY
-	LNqGMJivzsbBNTBEQtE1MwcKOk8SMP8ohwM9VxwYjGbMEmC4nYXBYJOdgso8PQJ9Rh8BVUOT
-	HMgZ3gCZFRMIHOfsJDzQveTAtK6Mgr8m7ARMn10J+epMDNpykuCWzUFAV+VZEnS5NzigsYrg
-	YZUNg57bBRzoqm8l4XlDHgGaq5k4DBaPkNB3QUdAfW0RArtxDIPMotc4ZLqe4TBTcp+EjrxF
-	HLSGMhweawYRNGbXkdBmzKDgTWEzDrVF6QQ0FXuDxmAl4E2rE8ElZy8O3TV+YB1fxKDD7CLB
-	VfABXCixYHDnzBQFls7vwTpjxeDZ5BAHFh9/HLmLLelSk+xT+wTOjna0ILbwtx/Yy+l/EuzM
-	tD9rKX2CsTn3hnG2Wmuj2Mr6zWxxuYqdazBRbHnZGQ77R+kNjK0eELOaa/XogOCQcIdCrkqR
-	bYyTK1PCBd+IYJtQJAbhtmCxULQ97NuPtoUIAiN2RMsS41NlisCIKGFcj9ZMHHV6p+UZm6l0
-	VMxXIy6XoYOZyr8T1MiT60X/gpj+GjOlRh5L+gbGNN5LupnPzD1Uc9xNrxBTce4U5n5YEKPT
-	G992EbQfU5jfg5aZQ29hOp19+DKvoT9kThtyyWUDTpt4jFPf+bbAp2OYqf7BtwYeHck09t7F
-	3amtiGluHaHchdVMS76DWGacTmVsHU/I5blx2pf5dYG7LHvQYczdmWbSvc4mZsS4wz31CcY1
-	/xxpEF/7TpD2nSDtf0FueQtTXdHH+Z8cwOiujuBuDmcMhjGiGFFlaI1MpUyKTVKKhEppklKV
-	HCs8Ik8qR0vnUtk0bb6FCodfCRsQxkUNyG/Jab+p70I+RLI8WSZYw8uJ5MV48aKlx47LFHKJ
-	QpUoUzagkKVfPI/7rD0iX7q95BSJKDQoRBQcKg4KEYduF6zj7T16WupFx0pTZAky2VGZ4l8f
-	xvXwScdW54q7V3xCx2wNlkb47tvc2ysKj9e6Ht7BH3EDo8LKcwPfN+6J5Zu+POjTaZH46jcF
-	DHnu3//13cMV2kONA/YXPWPrAvhJT9OyS85JnZdgxXftLe/xHk2I7RfruxKuMD/yuUdqHgum
-	j2EoYmGmfXb0QZuJYAu/qnLNOrzF+etflBJ54VZV5tzE+i2afThluyepbynqCKBt/o7JE6mp
-	Duz1yGRjo393amSo12e75yjs89hVRtVxicgsnzuQldHktWvtzsUoiemnoZ3XLd1ZebVfNB2+
-	Hri9LcSSPfVSsqfG2lanTzO0rwzUjad+ahLX/W5OiK7oDw/wz927W375YNZ5AaGMk4r8cYVS
-	+g8887p5wwQAAA==
-X-CMS-MailID: 20240405133400eucas1p17a657be41afd1be881bbb599e769968a
-X-Msg-Generator: CA
-X-RootMTR: 20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a
-References: <20240328-jag-sysctl_remset_net-v2-4-52c9fad9a1af@samsung.com>
-	<CGME20240328195008eucas1p2fc32577c64a80424c10f30e4f69fc11a@eucas1p2.samsung.com>
-	<20240328194934.42278-1-kuniyu@amazon.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC net-next 07/10] net: dsa: mv88e6xxx: Track bridge mdb
+ objects
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
+ Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>,
+ =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+ linux-kernel@vger.kernel.org, bridge@lists.linux.dev
+References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
+ <20240402001137.2980589-8-Joseph.Huang@garmin.com>
+ <20240402122343.a7o5narxsctrkaoo@skbuf>
+ <b5f79571-b4a8-4f21-8dc8-e1aa11056a5d@gmail.com>
+ <20240405110745.si4gc567jt5gwpbr@skbuf>
+Content-Language: en-US
+From: Joseph Huang <joseph.huang.2024@gmail.com>
+In-Reply-To: <20240405110745.si4gc567jt5gwpbr@skbuf>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
---h65h3fnxnuqgv2vq
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Vladimir,
 
-On Thu, Mar 28, 2024 at 12:49:34PM -0700, Kuniyuki Iwashima wrote:
-> From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.o=
-rg>
-> Date: Thu, 28 Mar 2024 16:40:05 +0100
-> > This commit comes at the tail end of a greater effort to remove the
-> > empty elements at the end of the ctl_table arrays (sentinels) which will
-> > reduce the overall build time size of the kernel and run time memory
-> > bloat by ~64 bytes per sentinel (further information Link :
-> > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
-> >=20
-> > When we remove the sentinel from ax25_param_table a buffer overflow
-> > shows its ugly head. The sentinel's data element used to be changed when
-> > CONFIG_AX25_DAMA_SLAVE was not defined.
->=20
-> I think it's better to define the relation explicitly between the
-> enum and sysctl table by BUILD_BUG_ON() in ax25_register_dev_sysctl()
->=20
->   BUILD_BUG_ON(AX25_MAX_VALUES !=3D ARRAY_SIZE(ax25_param_table));
->=20
-> and guard AX25_VALUES_DS_TIMEOUT with #ifdef CONFIG_AX25_DAMA_SLAVE
-> as done for other enum.
+On 4/5/2024 7:07 AM, Vladimir Oltean wrote:
+> On Thu, Apr 04, 2024 at 04:43:38PM -0400, Joseph Huang wrote:
+>> Hi Vladimir,
+>>
+>> On 4/2/2024 8:23 AM, Vladimir Oltean wrote:
+>>> Can you comment on the feasibility/infeasibility of Tobias' proposal of:
+>>> "The bridge could just provide some MDB iterator to save us from having
+>>> to cache all the configured groups."?
+>>> https://lore.kernel.org/netdev/87sg31n04a.fsf@waldekranz.com/
+>>>
+>>> What is done here will have to be scaled to many drivers - potentially
+>>> all existing DSA ones, as far as I'm aware.
+>>>
+>>
+>> I thought about implementing an MDB iterator as suggested by Tobias, but I'm
+>> a bit concerned about the coherence of these MDB objects. In theory, when
+>> the device driver is trying to act on an event, the source of the trigger
+>> may have changed its state in the bridge already.
+> 
+> Yes, this is the result of SWITCHDEV_F_DEFER, used by both
+> SWITCHDEV_ATTR_ID_PORT_MROUTER and SWITCHDEV_OBJ_ID_PORT_MDB.
+> 
+>> If, upon receiving an event in the device driver, we iterate over what
+>> the bridge has at that instant, the differences between the worlds as
+>> seen by the bridge and the device driver might lead to some unexpected
+>> results.
+> 
+> Translated: iterating over bridge MDB objects needs to be serialized
+> with new switchdev events by acquiring rtnl_lock(). Then, once switchdev
+> events are temporarily blocked, the pending ones need to be flushed
+> using switchdev_deferred_process(), so resync the bridge state with the
+> driver state. Once the resync is done, the iteration is safe until
+> rtnl_unlock().
+> 
+> Applied to our case, the MDB iterator is needed in mv88e6xxx_port_mrouter().
+> This is already called with rtnl_lock() acquired. The resync procedure
+> will indirectly call mv88e6xxx_port_mdb_add()/mv88e6xxx_port_mdb_del()
+> through switchdev_deferred_process(), and then the walk is consistent
+> for the remainder of the mv88e6xxx_port_mrouter() function.
+> 
+> A helper which does this is what would be required - an iterator
+> function which calls an int (*cb)(struct net_device *brport, const struct switchdev_obj_port_mdb *mdb)
+> for each MDB entry. The DSA core could then offer some post-processing
+> services over this API, to recover the struct dsa_port associated with
+> the bridge port (in the LAG case they aren't the same) and the address
+> database associated with the bridge.
+> 
+> Do you think there would be unexpected results even if we did this?
+> br_switchdev_mdb_replay() needs to handle a similarly complicated
+> situation of synchronizing with deferred MDB events.
+>  >> However, if we cache the MDB objects in the device driver, at least
+>> the order in which the events took place will be coherent and at any
+>> give time the state of the MDB objects in the device driver can be
+>> guaranteed to be sane. This is also the approach the prestera device
+>> driver took.
+> 
+> Not contesting this, but I wouldn't like to see MDBs cached in each
+> device driver just for this. Switchdev is not very high on the list of
+> APIs which are easy to use, and making MDB caching a requirement
+> (for the common case that MDB entry destinations need software fixups
+> with the mrouter ports) isn't exactly going to make that any better.
+> Others' opinion may differ, but mine is that core offload APIs need to
+> consider what hardware is available in the real world, make the common
+> case easy, and the advanced cases possible. Rather than make every case
+> "advanced" :)
 
-When I remove AX25_VALUES_DS_TIMEOUT from the un-guarded build it
-complains in net/ax25/ax25_ds_timer.c (ax25_ds_set_timer). Here is the
-report https://lore.kernel.org/oe-kbuild-all/202404040301.qzKmVQGB-lkp@inte=
-l.com/.
+Just throwing some random ideas out there. Do you think it would make 
+more sense if this whole solution (rtnl_lock, iterator cb,...etc.) is 
+moved up to DSA so that other DSA drivers could benefit from it? I 
+thought about implement it (not the iterator, the current form) in DSA 
+at first, but I'm not sure how other drivers would behave, so I did it 
+with mv instead.
 
-How best to address this? Should we just guard the whole function and do
-nothing when not set? like this:
+I guess the question is, is the current limitation (mrouter not properly 
+offloaded) an issue specific to mv or is it a limitation of hardware 
+offloading in general? I tend to think it's the latter.
 
-```
-void ax25_ds_set_timer(ax25_dev *ax25_dev)
-{
-#ifdef COFNIG_AX25_DAMA_SLAVE
-        if (ax25_dev =3D=3D NULL)        =B7=B7=B7/* paranoia */
-                return;
-
-        ax25_dev->dama.slave_timeout =3D
-                msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) =
-/ 10;
-        mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
-#else
-        return;
-#endif
-}
-
-```
-
-I'm not too familiar with this, so pointing me to the "correct" way to
-handle this would be helpfull.
-
-Thx in advance.
-
-Best
-
---=20
-
-Joel Granados
-
---h65h3fnxnuqgv2vq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmYPpRMACgkQupfNUreW
-QU+GdwwAk+SQw0o7uu63t5QC8II75UQQXXzD86NcnboVLtTTKuPbn2y+rcWUY7tu
-RfnrQvG2ui15fSX0cYv66um6AIlYtvOAjlKfh5wBAA3YZQdmnSTGuHW8vcu5B6Iu
-WdjX4C12SNI/7Y8S7yLZurWvE5QrS/RHQ5sHtDfNm/HUmIoylsHmbuNvwxrOdzFH
-xxfDDdCrT5jxjVmr0Ctx3tJEmAHnkUD5voVBT1p6bJNNUOdYK986gsCYlgJpYuqE
-J3hSfJnhAnMGJcmtfnTXwoaje7XN5opqF9qaSinY7HaEoidu6pRGCA/M8a6N+PT7
-wBYhl0umuMOOBkqS7o0HtadAx6yv2fO7sOiZl4ZXvA9fRWam40n2CvKGZmF2koPs
-KRllZIQ+Uh+pbfhN9g6w0Mbjb10W9sFaZdN7CsEKKk6nxmkmgH/2PmmNhwYkdgXG
-7SLMAqeOLP/ZtTEypd2LzGdpLvjZq54jgAcB2c3cQI8jb4eogkqaMeazsf247+zt
-i5D8SOSY
-=Yv9S
------END PGP SIGNATURE-----
-
---h65h3fnxnuqgv2vq--
+But then again, if we move it to DSA, we would lose the benefit of the 
+optimization of consolidating multiple register writes into just one (as 
+done in patch 10 currently), unless we add a new switch op which takes a 
+portvec instead of a port when modifying mdb's.
