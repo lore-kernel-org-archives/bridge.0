@@ -1,197 +1,189 @@
-Received: from smtp-fw-52003.amazon.com (smtp-fw-52003.amazon.com [52.119.213.152])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02421156F35;
-	Mon, 15 Apr 2024 23:19:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.119.213.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 235F9127B72
+	for <bridge@lists.linux.dev>; Tue, 16 Apr 2024 08:18:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713223162; cv=none; b=R3cfgeHx07Y6wfZjWxoADt7dOTVyULp36Oz3PKC87Vz2L3kjsH4YJBqAQ3xlgWZbaSZ++H+Vj3TZYTMG5fBA3x2GVR40nmbtJR6lh9z+lQIuNQugb9R7G3PjTCJuzkNFV5W78pXXKYb5SRaCJms0uJDPTcJurjGftdjtyiqVhwk=
+	t=1713255532; cv=none; b=RZqBM36nNwdPjk25FjxX1dyCoo5PkrX7Fe+0kiw/BxStG1EdwfAykdKJZHVpWvyGqFziK5V/h1D8zP0hnbx5d1VEhRWrys9iMVMCaLMTHwQIBpg3DBl/zUCOtoZY6Ui0P/xIHiDQh8SAUigFq7o3vuzNshy4xes3fuKBBeW/RE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713223162; c=relaxed/simple;
-	bh=O7IS3oPlp5+sm72VRPb5jKxSHrI+jlf1vy1OB12Yer0=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IBHU1OFm7SvekPJK4PqjYvbnasguBseDxIRHJRV5BQF7m8WUfK3wpY0p1OSE34tD9UhYfeOnF6g4eoKbjcgbPws1Y4x8zMolfjZuE5dX9UNpi9xnDw4LFlA7Scc3CfFX5/Yd28toVLxGdmKbp05lCCtH7zINqLqGHQPMcXxnmiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=Bp98jKkX; arc=none smtp.client-ip=52.119.213.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1713255532; c=relaxed/simple;
+	bh=WSUcYTGfMiJPS6dBoWIy1OiuZHDqhA72PAGbwoqjEHc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=e+BwaFUGid+r5OnECy4NYNWKJL9TL8MChMSqzBBX0ycaA/rXwI3cnrGJlLkVLgQ2ZjpbTvELF+U4TPfZRCCjxIoAsg9l0zIir+EsgkLzr0QM+b+AEMyU88IBpVT2yzYFyJRjaSRSciMm2JF3jhnpIPiC0Y/1tPMFShtXjElSv1w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TByiiSen; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="Bp98jKkX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1713223161; x=1744759161;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=nNllzdqzyM5Bz0YxRI8syNc99amIrBzYYq2sTSmZBPw=;
-  b=Bp98jKkXt+DWgJMJk/VnC2koZBCdXF3S9UfLHaXWlu2lOD/jHEkaJPiX
-   NqB29FKb+Zd+SEVzJ6uzAsCvZ/OEQA8szmWpggCFPh+qW6LgLBlyAc+Hl
-   PTSqDmJ6Sxwh9DzQzTiDVil4QvwPFl/KKS1zGzrkCyJ8MPHfLJoPeu923
-   Y=;
-X-IronPort-AV: E=Sophos;i="6.07,204,1708387200"; 
-   d="scan'208";a="652012921"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
-  by smtp-border-fw-52003.iad7.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2024 23:19:15 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [10.0.21.151:43163]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.42.38:2525] with esmtp (Farcaster)
- id b612ba95-1060-4583-9bf4-c255c8a740ec; Mon, 15 Apr 2024 23:19:15 +0000 (UTC)
-X-Farcaster-Flow-ID: b612ba95-1060-4583-9bf4-c255c8a740ec
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.28; Mon, 15 Apr 2024 23:19:14 +0000
-Received: from 88665a182662.ant.amazon.com (10.106.101.23) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1258.28; Mon, 15 Apr 2024 23:19:03 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <devnull+j.granados.samsung.com@kernel.org>
-CC: <Dai.Ngo@oracle.com>, <alex.aring@gmail.com>, <alibuda@linux.alibaba.com>,
-	<allison.henderson@oracle.com>, <anna@kernel.org>, <bridge@lists.linux.dev>,
-	<chuck.lever@oracle.com>, <coreteam@netfilter.org>, <courmisch@gmail.com>,
-	<davem@davemloft.net>, <dccp@vger.kernel.org>, <dhowells@redhat.com>,
-	<dsahern@kernel.org>, <edumazet@google.com>, <fw@strlen.de>,
-	<geliang@kernel.org>, <guwen@linux.alibaba.com>,
-	<herbert@gondor.apana.org.au>, <horms@verge.net.au>,
-	<j.granados@samsung.com>, <ja@ssi.bg>, <jaka@linux.ibm.com>,
-	<jlayton@kernel.org>, <jmaloy@redhat.com>, <jreuter@yaina.de>,
-	<kadlec@netfilter.org>, <keescook@chromium.org>, <kolga@netapp.com>,
-	<kuba@kernel.org>, <linux-afs@lists.infradead.org>,
-	<linux-hams@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-nfs@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <linux-sctp@vger.kernel.org>,
-	<linux-wpan@vger.kernel.org>, <linux-x25@vger.kernel.org>,
-	<lucien.xin@gmail.com>, <lvs-devel@vger.kernel.org>,
-	<marc.dionne@auristor.com>, <marcelo.leitner@gmail.com>,
-	<martineau@kernel.org>, <matttbe@kernel.org>, <mcgrof@kernel.org>,
-	<miquel.raynal@bootlin.com>, <mptcp@lists.linux.dev>, <ms@dev.tdt.de>,
-	<neilb@suse.de>, <netdev@vger.kernel.org>, <netfilter-devel@vger.kernel.org>,
-	<pabeni@redhat.com>, <pablo@netfilter.org>, <ralf@linux-mips.org>,
-	<razor@blackwall.org>, <rds-devel@oss.oracle.com>, <roopa@nvidia.com>,
-	<stefan@datenfreihafen.org>, <steffen.klassert@secunet.com>,
-	<tipc-discussion@lists.sourceforge.net>, <tom@talpey.com>,
-	<tonylu@linux.alibaba.com>, <trond.myklebust@hammerspace.com>,
-	<wenjia@linux.ibm.com>, <ying.xue@windriver.com>, <kuniyu@amazon.com>
-Subject: Re: [PATCH v3 4/4] ax.25: Remove the now superfluous sentinel elements from ctl_table array
-Date: Mon, 15 Apr 2024 16:18:53 -0700
-Message-ID: <20240415231853.23060-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20240412-jag-sysctl_remset_net-v3-4-11187d13c211@samsung.com>
-References: <20240412-jag-sysctl_remset_net-v3-4-11187d13c211@samsung.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TByiiSen"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1713255529;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=sx9FIAo9TZjFdKuhika+AQetmZMIT9vu9nUh+3JKCOQ=;
+	b=TByiiSen8u4aSXJIcOd8ZEvHzJ1U8Izegjbg0vUe7+kU55q01CaBCCds/86hosbbmARQWZ
+	uFNPqUQIlAVqsVjxpRhoiT4PZyXfUqjAGHzVy2nIkE/wnPu51iHD057H8lfoyAwzq0zZbV
+	S/LoLmJ64E/oz1JfvlTyAQPDixFuCRQ=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-471-7yH48JAiP8y9mgRvbuNQmw-1; Tue, 16 Apr 2024 04:18:47 -0400
+X-MC-Unique: 7yH48JAiP8y9mgRvbuNQmw-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-a5198262239so99029466b.0
+        for <bridge@lists.linux.dev>; Tue, 16 Apr 2024 01:18:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713255526; x=1713860326;
+        h=mime-version:user-agent:content-transfer-encoding:autocrypt
+         :references:in-reply-to:date:cc:to:from:subject:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sx9FIAo9TZjFdKuhika+AQetmZMIT9vu9nUh+3JKCOQ=;
+        b=ROnfmiEbR+ETg6NuGnN/9yDRwVr1v0Loe91rpeiBtlxi6OChSvKyCZkUdIr/ce78du
+         neugdsKMHc7QVU9HvwZjw4wLVu/HIDk+Gw/QlvMiJ+2FovSFTdYZ62V0zexA1B9y2U9B
+         KOVNrRbO/zxxN1v8emezd4r3e4QVdxcb3qsYsSoDQW1grN/RyUQOTELuR5BpTz4uMEoE
+         zIeZwGhf5Aw0JJ6h+kSWIfZWtOGYaDs9iChX1sbgMCC2laLdlo/ZYH9UyLuj+MpULqs6
+         F4871ARpMF1R6p9CtgN+dOg9aStfyi+MEhUqGbmKq9YKr7yt6YCf0v+WbW5GQTB8e5s7
+         63oA==
+X-Forwarded-Encrypted: i=1; AJvYcCWIvn/v1nTqg3b5YNukR3RdABoeB8sxIsip8d2XcB91FhYZiAsMPEVkpAL6VX7bcqOzH9lVd5ev4rP+kT6xskzPTPbVuXEw
+X-Gm-Message-State: AOJu0Yw4P/NNHI+tMyhUAKwialhQ8WEZZdcj53opCUCD++/c9Lf6c/dZ
+	iI4BMo8VqtQUu8pXWkhCtL3huGcdfpp8kYCK/H+cIbp9D0LcR56p/ivl3BTI2gKJZ9hsphagHp8
+	6ooE2uOUlGFoVnYgupCRjwK0NSu+eCqHxMyw0hheu2rgVNuoZl3xkSQ==
+X-Received: by 2002:a17:906:4ecf:b0:a52:6535:d078 with SMTP id i15-20020a1709064ecf00b00a526535d078mr3213770ejv.7.1713255526667;
+        Tue, 16 Apr 2024 01:18:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEeWubKk9sfU5n4Eg4r0fgR17oDosoRykSHGnpq+PCrNmzGMeRZ2HKjVJzu/+KOc5EhcE24Ng==
+X-Received: by 2002:a17:906:4ecf:b0:a52:6535:d078 with SMTP id i15-20020a1709064ecf00b00a526535d078mr3213728ejv.7.1713255526227;
+        Tue, 16 Apr 2024 01:18:46 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-231-31.dyn.eolo.it. [146.241.231.31])
+        by smtp.gmail.com with ESMTPSA id gf14-20020a170906e20e00b00a51e6222200sm6539922ejb.156.2024.04.16.01.18.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Apr 2024 01:18:45 -0700 (PDT)
+Message-ID: <be056435353af60a564f457c79dacc16c6ea920e.camel@redhat.com>
+Subject: Re: [PATCH v3 1/4] networking: Remove the now superfluous sentinel
+ elements from ctl_table array
+From: Paolo Abeni <pabeni@redhat.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>, 
+	devnull+j.granados.samsung.com@kernel.org
+Cc: Dai.Ngo@oracle.com, alex.aring@gmail.com, alibuda@linux.alibaba.com, 
+ allison.henderson@oracle.com, anna@kernel.org, bridge@lists.linux.dev, 
+ chuck.lever@oracle.com, coreteam@netfilter.org, courmisch@gmail.com, 
+ davem@davemloft.net, dccp@vger.kernel.org, dhowells@redhat.com,
+ dsahern@kernel.org,  edumazet@google.com, fw@strlen.de, geliang@kernel.org,
+ guwen@linux.alibaba.com,  herbert@gondor.apana.org.au, horms@verge.net.au,
+ j.granados@samsung.com, ja@ssi.bg,  jaka@linux.ibm.com, jlayton@kernel.org,
+ jmaloy@redhat.com, jreuter@yaina.de,  kadlec@netfilter.org,
+ keescook@chromium.org, kolga@netapp.com, kuba@kernel.org, 
+ linux-afs@lists.infradead.org, linux-hams@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+ linux-sctp@vger.kernel.org, linux-wpan@vger.kernel.org, 
+ linux-x25@vger.kernel.org, lucien.xin@gmail.com, lvs-devel@vger.kernel.org,
+  marc.dionne@auristor.com, marcelo.leitner@gmail.com, martineau@kernel.org,
+  matttbe@kernel.org, mcgrof@kernel.org, miquel.raynal@bootlin.com, 
+ mptcp@lists.linux.dev, ms@dev.tdt.de, neilb@suse.de,
+ netdev@vger.kernel.org,  netfilter-devel@vger.kernel.org,
+ pablo@netfilter.org, ralf@linux-mips.org,  razor@blackwall.org,
+ rds-devel@oss.oracle.com, roopa@nvidia.com,  stefan@datenfreihafen.org,
+ steffen.klassert@secunet.com,  tipc-discussion@lists.sourceforge.net,
+ tom@talpey.com, tonylu@linux.alibaba.com,  trond.myklebust@hammerspace.com,
+ wenjia@linux.ibm.com, ying.xue@windriver.com
+Date: Tue, 16 Apr 2024 10:18:42 +0200
+In-Reply-To: <20240415231210.22785-1-kuniyu@amazon.com>
+References: <20240412-jag-sysctl_remset_net-v3-1-11187d13c211@samsung.com>
+	 <20240415231210.22785-1-kuniyu@amazon.com>
+Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D031UWC003.ant.amazon.com (10.13.139.252) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.org>
-Date: Fri, 12 Apr 2024 16:48:32 +0200
-> From: Joel Granados <j.granados@samsung.com>
-> 
-> This commit comes at the tail end of a greater effort to remove the
-> empty elements at the end of the ctl_table arrays (sentinels) which will
-> reduce the overall build time size of the kernel and run time memory
-> bloat by ~64 bytes per sentinel (further information Link :
-> https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
-> 
-> Avoid a buffer overflow when traversing the ctl_table by ensuring that
-> AX25_MAX_VALUES is the same as the size of ax25_param_table. This is
-> done with a BUILD_BUG_ON where ax25_param_table is defined and a
-> CONFIG_AX25_DAMA_SLAVE guard in the unnamed enum definition as well as
-> in the ax25_dev_device_up and ax25_ds_set_timer functions.
-> 
-> The overflow happened when the sentinel was removed from
-> ax25_param_table. The sentinel's data element was changed when
-> CONFIG_AX25_DAMA_SLAVE was undefined. This had no adverse effects as it
-> still stopped on the sentinel's null procname but needed to be addressed
-> once the sentinel was removed.
-> 
-> Signed-off-by: Joel Granados <j.granados@samsung.com>
+On Mon, 2024-04-15 at 16:12 -0700, Kuniyuki Iwashima wrote:
+> From: Joel Granados via B4 Relay <devnull+j.granados.samsung.com@kernel.o=
+rg>
+> Date: Fri, 12 Apr 2024 16:48:29 +0200
+> > From: Joel Granados <j.granados@samsung.com>
+> >=20
+> > This commit comes at the tail end of a greater effort to remove the
+> > empty elements at the end of the ctl_table arrays (sentinels) which
+> > will reduce the overall build time size of the kernel and run time
+> > memory bloat by ~64 bytes per sentinel (further information Link :
+> > https://lore.kernel.org/all/ZO5Yx5JFogGi%2FcBo@bombadil.infradead.org/)
+> >=20
+> > * Remove sentinel element from ctl_table structs.
+> > * Remove extra element in ctl_table arrays declarations
+> > * Remove instances where an array element is zeroed out to make it look
+> >   like a sentinel. This is not longer needed and is safe after commit
+> >   c899710fe7f9 ("networking: Update to register_net_sysctl_sz") added
+> >   the array size to the ctl_table registration
+> > * Replace the for loop stop condition that tests for procname =3D=3D NU=
+LL with
+> >   one that depends on array size
+> > * Removed the "-1" that adjusted for having an extra empty element when
+> >   looping over ctl_table arrays
+> > * Removing the unprivileged user check in ipv6_route_sysctl_init is
+> >   safe as it is replaced by calling ipv6_route_sysctl_table_size;
+> >   introduced in commit c899710fe7f9 ("networking: Update to
+> >   register_net_sysctl_sz")
+> > * Replace empty array registration with the register_net_sysctl_sz call=
+.
+> >=20
+> > Signed-off-by: Joel Granados <j.granados@samsung.com>
+> > ---
+> >  net/core/neighbour.c                | 5 +----
+> >  net/core/sysctl_net_core.c          | 9 ++++-----
+> >  net/dccp/sysctl.c                   | 2 --
+> >  net/ieee802154/6lowpan/reassembly.c | 6 +-----
+> >  net/ipv4/devinet.c                  | 5 ++---
+> >  net/ipv4/ip_fragment.c              | 2 --
+> >  net/ipv4/route.c                    | 8 ++------
+> >  net/ipv4/sysctl_net_ipv4.c          | 7 +++----
+> >  net/ipv4/xfrm4_policy.c             | 1 -
+> >  net/ipv6/addrconf.c                 | 5 +----
+> >  net/ipv6/icmp.c                     | 1 -
+> >  net/ipv6/reassembly.c               | 2 --
+> >  net/ipv6/route.c                    | 5 -----
+> >  net/ipv6/sysctl_net_ipv6.c          | 4 +---
+> >  net/ipv6/xfrm6_policy.c             | 1 -
+> >  net/llc/sysctl_net_llc.c            | 8 ++------
+> >  net/mpls/af_mpls.c                  | 3 +--
+> >  net/mptcp/ctrl.c                    | 1 -
+> >  net/netrom/sysctl_net_netrom.c      | 1 -
+> >  net/phonet/sysctl.c                 | 1 -
+> >  net/rds/ib_sysctl.c                 | 1 -
+> >  net/rds/sysctl.c                    | 1 -
+> >  net/rds/tcp.c                       | 1 -
+> >  net/rose/sysctl_net_rose.c          | 1 -
+> >  net/rxrpc/sysctl.c                  | 1 -
+> >  net/sctp/sysctl.c                   | 6 +-----
+> >  net/smc/smc_sysctl.c                | 1 -
+> >  net/sunrpc/sysctl.c                 | 1 -
+> >  net/sunrpc/xprtrdma/svc_rdma.c      | 1 -
+> >  net/sunrpc/xprtrdma/transport.c     | 1 -
+> >  net/sunrpc/xprtsock.c               | 1 -
+> >  net/tipc/sysctl.c                   | 1 -
+> >  net/unix/sysctl_net_unix.c          | 1 -
+> >  net/x25/sysctl_net_x25.c            | 1 -
+> >  net/xfrm/xfrm_sysctl.c              | 5 +----
+> >  35 files changed, 20 insertions(+), 81 deletions(-)
+>=20
+> You may want to split patch based on subsystem or the type of changes
+> to make review easier.
 
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+I agree with Kuniyuki. I think the x25 chunks can me moved in the last
+patch, and at least sunrpc and rds could go in separate patches,
+possibly even xfrm and smc.
 
+Thanks,
 
-> ---
->  include/net/ax25.h         | 2 ++
->  net/ax25/ax25_dev.c        | 3 +++
->  net/ax25/ax25_ds_timer.c   | 4 ++++
->  net/ax25/sysctl_net_ax25.c | 3 +--
->  4 files changed, 10 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/net/ax25.h b/include/net/ax25.h
-> index 0d939e5aee4e..eb9cee8252c8 100644
-> --- a/include/net/ax25.h
-> +++ b/include/net/ax25.h
-> @@ -139,7 +139,9 @@ enum {
->  	AX25_VALUES_N2,		/* Default N2 value */
->  	AX25_VALUES_PACLEN,	/* AX.25 MTU */
->  	AX25_VALUES_PROTOCOL,	/* Std AX.25, DAMA Slave, DAMA Master */
-> +#ifdef CONFIG_AX25_DAMA_SLAVE
->  	AX25_VALUES_DS_TIMEOUT,	/* DAMA Slave timeout */
-> +#endif
->  	AX25_MAX_VALUES		/* THIS MUST REMAIN THE LAST ENTRY OF THIS LIST */
->  };
->  
-> diff --git a/net/ax25/ax25_dev.c b/net/ax25/ax25_dev.c
-> index c5462486dbca..af547e185a94 100644
-> --- a/net/ax25/ax25_dev.c
-> +++ b/net/ax25/ax25_dev.c
-> @@ -78,7 +78,10 @@ void ax25_dev_device_up(struct net_device *dev)
->  	ax25_dev->values[AX25_VALUES_N2]        = AX25_DEF_N2;
->  	ax25_dev->values[AX25_VALUES_PACLEN]	= AX25_DEF_PACLEN;
->  	ax25_dev->values[AX25_VALUES_PROTOCOL]  = AX25_DEF_PROTOCOL;
-> +
-> +#ifdef CONFIG_AX25_DAMA_SLAVE
->  	ax25_dev->values[AX25_VALUES_DS_TIMEOUT]= AX25_DEF_DS_TIMEOUT;
-> +#endif
->  
->  #if defined(CONFIG_AX25_DAMA_SLAVE) || defined(CONFIG_AX25_DAMA_MASTER)
->  	ax25_ds_setup_timer(ax25_dev);
-> diff --git a/net/ax25/ax25_ds_timer.c b/net/ax25/ax25_ds_timer.c
-> index c4f8adbf8144..8f385d2a7628 100644
-> --- a/net/ax25/ax25_ds_timer.c
-> +++ b/net/ax25/ax25_ds_timer.c
-> @@ -49,12 +49,16 @@ void ax25_ds_del_timer(ax25_dev *ax25_dev)
->  
->  void ax25_ds_set_timer(ax25_dev *ax25_dev)
->  {
-> +#ifdef CONFIG_AX25_DAMA_SLAVE
->  	if (ax25_dev == NULL)		/* paranoia */
->  		return;
->  
->  	ax25_dev->dama.slave_timeout =
->  		msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) / 10;
->  	mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
-> +#else
-> +	return;
-> +#endif
->  }
->  
->  /*
-> diff --git a/net/ax25/sysctl_net_ax25.c b/net/ax25/sysctl_net_ax25.c
-> index db66e11e7fe8..fb9966926e90 100644
-> --- a/net/ax25/sysctl_net_ax25.c
-> +++ b/net/ax25/sysctl_net_ax25.c
-> @@ -141,8 +141,6 @@ static const struct ctl_table ax25_param_table[] = {
->  		.extra2		= &max_ds_timeout
->  	},
->  #endif
-> -
-> -	{ }	/* that's all, folks! */
->  };
->  
->  int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
-> @@ -155,6 +153,7 @@ int ax25_register_dev_sysctl(ax25_dev *ax25_dev)
->  	if (!table)
->  		return -ENOMEM;
->  
-> +	BUILD_BUG_ON(AX25_MAX_VALUES != ARRAY_SIZE(ax25_param_table));
->  	for (k = 0; k < AX25_MAX_VALUES; k++)
->  		table[k].data = &ax25_dev->values[k];
->  
-> 
-> -- 
-> 2.43.0
+Paolo
+
