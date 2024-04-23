@@ -1,32 +1,31 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4C5648788
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1934850279
 	for <bridge@lists.linux.dev>; Tue, 23 Apr 2024 08:03:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713859391; cv=none; b=r0h5YYDSOJ91RZJU/uZlXwildFW6yxuuq0+tsPauCqtrmw5AbGpORvZjfzcPIqDxelsqwXlanVtjOB6X9xuaNExxSuyjyF3eY6EEW/8x18bN6tumGWZuOP1SJAWnAb7WlWVIJQeWS53NBPis7bf3Naj90W1SGNHU1gQ1URHnS9w=
+	t=1713859391; cv=none; b=AEsKLSa4kL7/UdHsjzxYPg5UFW78gw26hlHTjGxQtWufEw2u+9tKtR22VcTabM/PmwpnDX6ca7awWSmONz8+9CyQWnps+L/ZKlY0a3tiBc5iJqYfqpNRb54QlWMSFRnBOJH+vLt+dYLoEW7Lf7Sh61Vt2cR3wAuF2+zALNWmHdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1713859391; c=relaxed/simple;
-	bh=rorPfneHsH4rUwSDhKhni5qatzGJBaNeOV3jbM8lXHw=;
+	bh=D/3OJwMoANYNDnHN43YEhKh/XOzsWgZJBxcvKVpFvHo=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=u3jhtC2sXfeKxUWrVFhE7Zzokrmr/K5jepxPvhhWnXvJuSlS5cRsuVBe9/gIwOU8wwjf7HBsjZ5663flOmvO7rPLgncoRPoUuzEOa8SNsU/2NnRmUB3UOHqIMso0TYhkAGF4Q2lH2UIa3We+COi6+4FsphK5DrOaDC5LOOdBtqE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=dzsiMjXG; arc=none smtp.client-ip=159.69.126.157
+	 In-Reply-To:To:Cc; b=Hci421TV6BqHHK8kb0XVSc2dxv3qO6Mfe9XyTuZTT88gn2REZ2EohRIVWmS0h997RLPDjquuxFoDKfpIXUANM3uj/YDiFVn4zW6lD4MMHOi04QgtalFy8y8Seu1M3TNV13l6z9BFDcrkYSWB/lW/HKD1WL7p85WJQpcLcGaP5JY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=Z4eTOEAy; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="dzsiMjXG"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="Z4eTOEAy"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1713858962;
-	bh=rorPfneHsH4rUwSDhKhni5qatzGJBaNeOV3jbM8lXHw=;
+	bh=D/3OJwMoANYNDnHN43YEhKh/XOzsWgZJBxcvKVpFvHo=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=dzsiMjXGUMnBeinztfZVIlnYV1FybTv3PVNga/7GNRmjq0tvokzKVmAqMxqZ4TZfu
-	 3Mm9Xa73ByvDCbl+zSGzluYBcTMsPar3kyGR78xthILGtEnmvJBhKWCBZI5pDCg6C/
-	 UHsAfQ2uBimCPXwCv8/f91yRU/qBVoZCnvSEXqbk=
+	b=Z4eTOEAyeZGZRhMLErDlHrOzyIn7K/DlkM60MPZgILl0NsHakg85D489lgcJ2pyps
+	 w8ZjrPHlpbLbeknooUuGV8AX44PHoyXa1MFbZ8JyqpCmrdU3drnEDl22/6rS7GAbFk
+	 mLBVLjPqI1ce59ORnQdEOqbJ1Zk5A8F74faI2Ijw=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Tue, 23 Apr 2024 09:54:38 +0200
-Subject: [PATCH v3 03/11] hugetlb: constify ctl_table arguments of utility
- functions
+Date: Tue, 23 Apr 2024 09:54:36 +0200
+Subject: [PATCH v3 01/11] stackleak: don't modify ctl_table argument
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -35,7 +34,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240423-sysctl-const-handler-v3-3-e0beccb836e2@weissschuh.net>
+Message-Id: <20240423-sysctl-const-handler-v3-1-e0beccb836e2@weissschuh.net>
 References: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
 In-Reply-To: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
 To: Luis Chamberlain <mcgrof@kernel.org>, 
@@ -55,45 +54,45 @@ Cc: Eric Dumazet <edumazet@google.com>, Dave Chinner <david@fromorbit.com>,
  linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=1138;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=1205;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=rorPfneHsH4rUwSDhKhni5qatzGJBaNeOV3jbM8lXHw=;
- b=uf+pHLZXXpo1yHHJ2Z13M1e5OT7jsu5lvkviloIZv10UAQiz7g1qEzlA2Tlm9z/kgvmk0wE7S
- t+OfiZGT2B0DcKcd55qz3Jc+6I9uA8iEvRoTSo4pFJmvocUaelGw1Ie
+ bh=D/3OJwMoANYNDnHN43YEhKh/XOzsWgZJBxcvKVpFvHo=;
+ b=1RhNomBbqj6XFaD6ZYOxEHBLV6bfBHp2WGUjkt4XBn/Ez17CpMDHBnau1hMCabUBp0fIJIUhv
+ lq3ewsWLz9gCbCEhY4DcLZnRRhb9Y2u6rar0aoKgOs7QrHrAJv1mc4Z
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-In a future commit the proc_handlers themselves will change to
-"const struct ctl_table". As a preparation for that adapt the internal
-helpers.
+In a future commit the proc_handlers will change to
+"const struct ctl_table".
+As a preparation for that adapt the logic to work with a temporary
+variable, similar to how it is done in other parts of the kernel.
 
+Fixes: 964c9dff0091 ("stackleak: Allow runtime disabling of kernel stack erasing")
+Acked-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- mm/hugetlb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/stackleak.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 3b7d5ddc32ad..8d12ce63a439 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4911,7 +4911,7 @@ static unsigned int allowed_mems_nr(struct hstate *h)
- }
+diff --git a/kernel/stackleak.c b/kernel/stackleak.c
+index d099f3affcf1..558b9d6d28d3 100644
+--- a/kernel/stackleak.c
++++ b/kernel/stackleak.c
+@@ -27,10 +27,11 @@ static int stack_erasing_sysctl(struct ctl_table *table, int write,
+ 	int ret = 0;
+ 	int state = !static_branch_unlikely(&stack_erasing_bypass);
+ 	int prev_state = state;
++	struct ctl_table tmp = *table;
  
- #ifdef CONFIG_SYSCTL
--static int proc_hugetlb_doulongvec_minmax(struct ctl_table *table, int write,
-+static int proc_hugetlb_doulongvec_minmax(const struct ctl_table *table, int write,
- 					  void *buffer, size_t *length,
- 					  loff_t *ppos, unsigned long *out)
- {
-@@ -4928,7 +4928,7 @@ static int proc_hugetlb_doulongvec_minmax(struct ctl_table *table, int write,
- }
- 
- static int hugetlb_sysctl_handler_common(bool obey_mempolicy,
--			 struct ctl_table *table, int write,
-+			 const struct ctl_table *table, int write,
- 			 void *buffer, size_t *length, loff_t *ppos)
- {
- 	struct hstate *h = &default_hstate;
+-	table->data = &state;
+-	table->maxlen = sizeof(int);
+-	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
++	tmp.data = &state;
++	tmp.maxlen = sizeof(int);
++	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
+ 	state = !!state;
+ 	if (ret || !write || state == prev_state)
+ 		return ret;
 
 -- 
 2.44.0
