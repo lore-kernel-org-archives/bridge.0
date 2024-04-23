@@ -1,32 +1,32 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA9A1E576
-	for <bridge@lists.linux.dev>; Tue, 23 Apr 2024 07:56:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F81C46447
+	for <bridge@lists.linux.dev>; Tue, 23 Apr 2024 07:56:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713858973; cv=none; b=nk386Fn/QoqTHqKhQTyeAz3PB4CzBz1Vz2+B624BzwHn8hXvaXZDOWlXyHd9AOPNrUJHkmAG083hWTfcISiUCLT3pTm+2JFUvQrnpbpSMj6vZGNtUo/rU9Q6Vf2EBT14C0VQaw14t9rYSX5aPuKfbaXiV2R5VxRbk7j2lblyG/Q=
+	t=1713858974; cv=none; b=ZbohQ7cCP/hcAKHYX9K8DbDqNTHUwYepWVkdRd6Lt7F1RuwaNxMDJxEdJUiJmmSdx+KEHrJgOfSpQ7H+46V5MnaeHKAZ9gDoXubt9LE+frXfGLvXjORK7iOEKCRDq14e9Vu80doh0qH+eI8mHDpcHVgU9HfRu5XTl+oZUdPlZQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713858973; c=relaxed/simple;
-	bh=C10U8w+9znaxkvj5EdGV6iNeFy+LKwoCMige5+WbmRk=;
+	s=arc-20240116; t=1713858974; c=relaxed/simple;
+	bh=Zi29e0eOxt3096ac9S5+YPXUBVokEDqe9aNQ4UAlgts=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Bi+Qz9dDt5ffQ7UEi/1oz1WzTxQR+OJpjRzZOmW81EPt0ZuX4qaEbvJdBKf2vnTOQPK7eFRXNNL3AmcdOZ7BJDbi1gx7I6MNLZFstEa2nCGxYljP8oukflWSoBIWVcZCrCiFqXSEJp8t1Po7GnQHsOOkjY3ilj+cbR2/Rj2aS4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=dtp2KrFT; arc=none smtp.client-ip=159.69.126.157
+	 In-Reply-To:To:Cc; b=X7e+5t1BMFbdvIMX7qC7GJIItiSNkFjxrUflDq5qp9VQlktpfSyVERi8rr0o3hRxePz9X1rpOx1jCGqWPtMNTuBA+zK/qN6vx8Ilai1ocdc2t19UOj8tCmT81njPOIMzQHXhrod9FcynhT/rsjcZObobAjW6xBaUdwozrti+y0I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=cZv9tYu8; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="dtp2KrFT"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="cZv9tYu8"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1713858962;
-	bh=C10U8w+9znaxkvj5EdGV6iNeFy+LKwoCMige5+WbmRk=;
+	bh=Zi29e0eOxt3096ac9S5+YPXUBVokEDqe9aNQ4UAlgts=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=dtp2KrFTs1ZPOV423X3Lj+ohYH+w1R0E/8kBpk9DMXXZtdIcFmbTu30wN5OkBGmMP
-	 FLzPXuqgfXj6gzjMKHmGAW69Xpdffu14WLEeO5qDjUe0ZwtkRmnV3IoKoevaneipoy
-	 3sjOVDTg0D0OU3K0YuEo6+K2obOUKB6HIC+G61H4=
+	b=cZv9tYu8jocP/CYyJINYfc6gNMFDkTBOvuAOKlCzFGjSQkkOQjo0JESha2IW51Tx2
+	 8ga7jXOZatRJA1l9JDz69bqpRG/VPockakDWzf5aZ3apozniKI/TMoukS3JUAF1jwf
+	 74sydQ3cQRwTNYzc5LQlBGGK7riDu1h8/tleJFis=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Tue, 23 Apr 2024 09:54:40 +0200
-Subject: [PATCH v3 05/11] neighbour: constify ctl_table arguments of
- utility function
+Date: Tue, 23 Apr 2024 09:54:42 +0200
+Subject: [PATCH v3 07/11] ipv6/addrconf: constify ctl_table arguments of
+ utility functions
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -35,7 +35,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240423-sysctl-const-handler-v3-5-e0beccb836e2@weissschuh.net>
+Message-Id: <20240423-sysctl-const-handler-v3-7-e0beccb836e2@weissschuh.net>
 References: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
 In-Reply-To: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
 To: Luis Chamberlain <mcgrof@kernel.org>, 
@@ -55,36 +55,63 @@ Cc: Eric Dumazet <edumazet@google.com>, Dave Chinner <david@fromorbit.com>,
  linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=808;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=1733;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=C10U8w+9znaxkvj5EdGV6iNeFy+LKwoCMige5+WbmRk=;
- b=EAoTey3kmtnh/z6T2K9kHOuOiGQPDvnlrHzdVg4MNSMG74MpVnrzaAzOlr8qG7tTA+0aGApZ5
- EfQ5uq8SVYaAWFetEV8qu3UzVUp6J12UzjZsoq4ZupsTosh3ACnOL89
+ bh=Zi29e0eOxt3096ac9S5+YPXUBVokEDqe9aNQ4UAlgts=;
+ b=Uw0D0YcV60peceqZ8qkDg47x1/65ErxkGJOFBWaWNhF23zLkktHPe16IBGyrNywDi8Y64Gmfl
+ c6GjQOH3NApB35AQteIr4jMklYZuzfOAKo/zEOjtr7qwLtB/qod7qRv
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
 In a future commit the proc_handlers themselves will change to
 "const struct ctl_table". As a preparation for that adapt the internal
-helper.
+helpers.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- net/core/neighbour.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/addrconf.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 0805c00c63d4..92a01664a723 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -3578,7 +3578,7 @@ static void neigh_copy_dflt_parms(struct net *net, struct neigh_parms *p,
- 	rcu_read_unlock();
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 9aa0900abfa1..96ab349e8ba4 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -863,7 +863,7 @@ static void addrconf_forward_change(struct net *net, __s32 newf)
+ 	}
  }
  
--static void neigh_proc_update(struct ctl_table *ctl, int write)
-+static void neigh_proc_update(const struct ctl_table *ctl, int write)
+-static int addrconf_fixup_forwarding(struct ctl_table *table, int *p, int newf)
++static int addrconf_fixup_forwarding(const struct ctl_table *table, int *p, int newf)
  {
- 	struct net_device *dev = ctl->extra1;
- 	struct neigh_parms *p = ctl->extra2;
+ 	struct net *net;
+ 	int old;
+@@ -931,7 +931,7 @@ static void addrconf_linkdown_change(struct net *net, __s32 newf)
+ 	}
+ }
+ 
+-static int addrconf_fixup_linkdown(struct ctl_table *table, int *p, int newf)
++static int addrconf_fixup_linkdown(const struct ctl_table *table, int *p, int newf)
+ {
+ 	struct net *net;
+ 	int old;
+@@ -6378,7 +6378,7 @@ static void addrconf_disable_change(struct net *net, __s32 newf)
+ 	}
+ }
+ 
+-static int addrconf_disable_ipv6(struct ctl_table *table, int *p, int newf)
++static int addrconf_disable_ipv6(const struct ctl_table *table, int *p, int newf)
+ {
+ 	struct net *net = (struct net *)table->extra2;
+ 	int old;
+@@ -6669,7 +6669,7 @@ void addrconf_disable_policy_idev(struct inet6_dev *idev, int val)
+ }
+ 
+ static
+-int addrconf_disable_policy(struct ctl_table *ctl, int *valp, int val)
++int addrconf_disable_policy(const struct ctl_table *ctl, int *valp, int val)
+ {
+ 	struct net *net = (struct net *)ctl->extra2;
+ 	struct inet6_dev *idev;
 
 -- 
 2.44.0
