@@ -1,76 +1,91 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA105145FF8;
-	Mon, 22 Apr 2024 11:00:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA9A1E576
+	for <bridge@lists.linux.dev>; Tue, 23 Apr 2024 07:56:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713783628; cv=none; b=h2t+Lo3GcNqo1llX/0VzViGBlFE2g1PQo/2sTDuTMgB6Ac9btKp2/xder1MVDJ+RYN89eNfeDAWE3hOA19lBUSf4hK7h3fVypIOecVSzDNGpY0glEcfrLjCVJsubsaHhZiiW8FLHQ7GcbcF5TX6fXK3qU/qWYmWVHKcvE9L0Nes=
+	t=1713858973; cv=none; b=nk386Fn/QoqTHqKhQTyeAz3PB4CzBz1Vz2+B624BzwHn8hXvaXZDOWlXyHd9AOPNrUJHkmAG083hWTfcISiUCLT3pTm+2JFUvQrnpbpSMj6vZGNtUo/rU9Q6Vf2EBT14C0VQaw14t9rYSX5aPuKfbaXiV2R5VxRbk7j2lblyG/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713783628; c=relaxed/simple;
-	bh=o6+qeBDP8mdmsxsc3ZCzjmKCgHbtcy2bVyZBI60hcj4=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=pCEyXH9Fc6+LojIN8Hu9BL02tEOVyrcQ4Cw9e4gwPkwZKOJ3S3EdsdP6pd9h33jNWex1FpyxrhF5m5jhSkV/ijXPeBRDdk3+VkHNd0D5I7BRGmQVMprqhzqvWgrCrZbGASoE0v9TgDWnI9JYNVPU0Z6R+PQYAH1zTdr4fUKTV6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cHLB3EOY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713858973; c=relaxed/simple;
+	bh=C10U8w+9znaxkvj5EdGV6iNeFy+LKwoCMige5+WbmRk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Bi+Qz9dDt5ffQ7UEi/1oz1WzTxQR+OJpjRzZOmW81EPt0ZuX4qaEbvJdBKf2vnTOQPK7eFRXNNL3AmcdOZ7BJDbi1gx7I6MNLZFstEa2nCGxYljP8oukflWSoBIWVcZCrCiFqXSEJp8t1Po7GnQHsOOkjY3ilj+cbR2/Rj2aS4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=dtp2KrFT; arc=none smtp.client-ip=159.69.126.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cHLB3EOY"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 5AA60C3277B;
-	Mon, 22 Apr 2024 11:00:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713783628;
-	bh=o6+qeBDP8mdmsxsc3ZCzjmKCgHbtcy2bVyZBI60hcj4=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=cHLB3EOY4JnrWwi5SfiUaAWVqv/STdE69966QVwd47cvX7sz1njHVx9m0oSOo8Jzd
-	 TpeZjK92yr39G7DC1hal/5HbL5RBuoOXU15CBr0EK+OXYLTL1L2/Ko4BzB1YbVixO9
-	 /2SRkyWhnCs8u0pZ3lv5LWTzXSa3YhuhQr8IuMz7ldEgMUKpSrQL8z8CRhrH5UYQgY
-	 okSo6J9WlwKdb1+JbdNC7DoyvPUcU4MfcPclZEXySwNETRoRlgyjOjxSFwsFWFvoxs
-	 rjd0u7gGH41BA8ZDH43AIOs3IwBfARXEeQL3NhYcvK0M7SAZ7pq/EWmC1cV2V95vO/
-	 Pa1V1r169qZ0A==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 4947CC4339F;
-	Mon, 22 Apr 2024 11:00:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="dtp2KrFT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
+	s=mail; t=1713858962;
+	bh=C10U8w+9znaxkvj5EdGV6iNeFy+LKwoCMige5+WbmRk=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=dtp2KrFTs1ZPOV423X3Lj+ohYH+w1R0E/8kBpk9DMXXZtdIcFmbTu30wN5OkBGmMP
+	 FLzPXuqgfXj6gzjMKHmGAW69Xpdffu14WLEeO5qDjUe0ZwtkRmnV3IoKoevaneipoy
+	 3sjOVDTg0D0OU3K0YuEo6+K2obOUKB6HIC+G61H4=
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Date: Tue, 23 Apr 2024 09:54:40 +0200
+Subject: [PATCH v3 05/11] neighbour: constify ctl_table arguments of
+ utility function
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] bridge/br_netlink.c: no need to return void function
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <171378362829.5313.17055800887175868999.git-patchwork-notify@kernel.org>
-Date: Mon, 22 Apr 2024 11:00:28 +0000
-References: <20240419080200.3531134-1-liuhangbin@gmail.com>
-In-Reply-To: <20240419080200.3531134-1-liuhangbin@gmail.com>
-To: Hangbin Liu <liuhangbin@gmail.com>
-Cc: netdev@vger.kernel.org, roopa@nvidia.com, razor@blackwall.org,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horatiu.vultur@microchip.com, henrik.bjoernlund@microchip.com,
- bridge@lists.linux.dev
+Message-Id: <20240423-sysctl-const-handler-v3-5-e0beccb836e2@weissschuh.net>
+References: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
+In-Reply-To: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
+To: Luis Chamberlain <mcgrof@kernel.org>, 
+ Joel Granados <j.granados@samsung.com>, Kees Cook <keescook@chromium.org>
+Cc: Eric Dumazet <edumazet@google.com>, Dave Chinner <david@fromorbit.com>, 
+ linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
+ bpf@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+ linux-xfs@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+ coreteam@netfilter.org, kexec@lists.infradead.org, 
+ linux-hardening@vger.kernel.org, bridge@lists.linux.dev, 
+ lvs-devel@vger.kernel.org, linux-rdma@vger.kernel.org, 
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org, 
+ linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=808;
+ i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
+ bh=C10U8w+9znaxkvj5EdGV6iNeFy+LKwoCMige5+WbmRk=;
+ b=EAoTey3kmtnh/z6T2K9kHOuOiGQPDvnlrHzdVg4MNSMG74MpVnrzaAzOlr8qG7tTA+0aGApZ5
+ EfQ5uq8SVYaAWFetEV8qu3UzVUp6J12UzjZsoq4ZupsTosh3ACnOL89
+X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
+ pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-Hello:
+In a future commit the proc_handlers themselves will change to
+"const struct ctl_table". As a preparation for that adapt the internal
+helper.
 
-This patch was applied to netdev/net.git (main)
-by David S. Miller <davem@davemloft.net>:
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+---
+ net/core/neighbour.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Fri, 19 Apr 2024 16:02:00 +0800 you wrote:
-> br_info_notify is a void function. There is no need to return.
-> 
-> Fixes: b6d0425b816e ("bridge: cfm: Netlink Notifications.")
-> Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-> ---
->  net/bridge/br_netlink.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 0805c00c63d4..92a01664a723 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -3578,7 +3578,7 @@ static void neigh_copy_dflt_parms(struct net *net, struct neigh_parms *p,
+ 	rcu_read_unlock();
+ }
+ 
+-static void neigh_proc_update(struct ctl_table *ctl, int write)
++static void neigh_proc_update(const struct ctl_table *ctl, int write)
+ {
+ 	struct net_device *dev = ctl->extra1;
+ 	struct neigh_parms *p = ctl->extra2;
 
-Here is the summary with links:
-  - [net] bridge/br_netlink.c: no need to return void function
-    https://git.kernel.org/netdev/net/c/4fd1edcdf13c
-
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.44.0
 
