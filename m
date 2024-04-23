@@ -1,99 +1,94 @@
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
+Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1934850279
-	for <bridge@lists.linux.dev>; Tue, 23 Apr 2024 08:03:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6283DDA3
+	for <bridge@lists.linux.dev>; Tue, 23 Apr 2024 10:58:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713859391; cv=none; b=AEsKLSa4kL7/UdHsjzxYPg5UFW78gw26hlHTjGxQtWufEw2u+9tKtR22VcTabM/PmwpnDX6ca7awWSmONz8+9CyQWnps+L/ZKlY0a3tiBc5iJqYfqpNRb54QlWMSFRnBOJH+vLt+dYLoEW7Lf7Sh61Vt2cR3wAuF2+zALNWmHdI=
+	t=1713869887; cv=none; b=QQ68nY+Xvcf7WFqBxDdSQJxOj0DZJN0ZSFdvdbfimojEkZkYrUVNaL+245V0Tz5dNNrn5uotaPsuQhVmQfCPlpDR1sXoh68oieLRe6VwsaoZKLc68W8Ikxv4i5drRGfQ2RZFC3/NPjUjl4iuTqLZDdg5NX1M0ww7wRvvlMQYofU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713859391; c=relaxed/simple;
-	bh=D/3OJwMoANYNDnHN43YEhKh/XOzsWgZJBxcvKVpFvHo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Hci421TV6BqHHK8kb0XVSc2dxv3qO6Mfe9XyTuZTT88gn2REZ2EohRIVWmS0h997RLPDjquuxFoDKfpIXUANM3uj/YDiFVn4zW6lD4MMHOi04QgtalFy8y8Seu1M3TNV13l6z9BFDcrkYSWB/lW/HKD1WL7p85WJQpcLcGaP5JY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=Z4eTOEAy; arc=none smtp.client-ip=159.69.126.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
+	s=arc-20240116; t=1713869887; c=relaxed/simple;
+	bh=LfagOb0pRvs+Yqv+NkD/D22iemaPJwNTcBbHuXvf4k8=;
+	h=Message-ID:From:To:Cc:Subject:Date:MIME-Version; b=lZg0Zs80LFQ+oa1/adye2QDHyKHsVsF/N3fs4r1y6hPe1K61OjHYkzjn1ociflgl2Q/XTQMC5MpbNVH7rhQZUcggPO4JoCDCXe4uG+5+2ImEalHIh2pkvmDldABCPY/Hu1Mwi9WxRzDhOQIKaC+9ucEeqUW7pW090f1Oc2UAVpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=tnY5hnci; arc=none smtp.client-ip=162.62.58.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="Z4eTOEAy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1713858962;
-	bh=D/3OJwMoANYNDnHN43YEhKh/XOzsWgZJBxcvKVpFvHo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=Z4eTOEAyeZGZRhMLErDlHrOzyIn7K/DlkM60MPZgILl0NsHakg85D489lgcJ2pyps
-	 w8ZjrPHlpbLbeknooUuGV8AX44PHoyXa1MFbZ8JyqpCmrdU3drnEDl22/6rS7GAbFk
-	 mLBVLjPqI1ce59ORnQdEOqbJ1Zk5A8F74faI2Ijw=
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Tue, 23 Apr 2024 09:54:36 +0200
-Subject: [PATCH v3 01/11] stackleak: don't modify ctl_table argument
+	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="tnY5hnci"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
+	t=1713869874; bh=/w5cKHDs6QXVwx078jjgBY94FORPbibvpuN7BzjxfHo=;
+	h=From:To:Cc:Subject:Date;
+	b=tnY5hncioWIzrVFvv4jZS+bQ9DBYjqbD9wxFWltSmbNuLjkubZZOp+U3KxgD6cV2O
+	 rtRfREvxGDxUByOnDZfUbRWAqYYePxg/k28Jsaxo2Fe54HJeTB63BexMw1+ITllhTy
+	 +NOuJDrSodT140u9b0kAia0UveQzAJTgHcwGUoCU=
+Received: from localhost.localdomain ([58.213.8.145])
+	by newxmesmtplogicsvrszb16-1.qq.com (NewEsmtp) with SMTP
+	id D5F99E4A; Tue, 23 Apr 2024 18:53:31 +0800
+X-QQ-mid: xmsmtpt1713869611tckeqekqp
+Message-ID: <tencent_616D84217798828E5D1021857C528B713406@qq.com>
+X-QQ-XMAILINFO: OZZSS56D9fAjxGKrQADUKsNLsZYDLsH2pHwDVVd/MVCsWEdnuuflZeC7gLw1qk
+	 bh1E8dear7oI7v3YY95BAz0ITzjU+ytVfSNrFpVo09c8KyR1wxu6L+00AK24qauoVnxdmC3SEphz
+	 ssYhtuW82bzVRyFy6Wkd/qkqeQJVXwx54roBdDIG1CxSVSMFnRmhdcxxeqYvOzBJD8WM65w5bEgx
+	 TfbkF72SjJsR/CQYhO8VHnGuch0c0WX3jyVFx5gVJR1Hlp1lBJJpsipJh+WFyFQNj6zilqU0LiAc
+	 Ya47AVX6l6B85is1Vu7A7Ga9WHoEh2D3XAJUGh3y7H6PdM1o1y9Ai1MdHwep9nV8+g5qKJzPWmUg
+	 KuGXepA2eXIydEHj5PuU0/Ify+yzGLfH/VKsWFmKL/FxgKHIS0nSTJVmjfXb1KNWHBSTdDB1UnCv
+	 8DtFwkGSdXG5WPnJCrjRho21RkeRyFuH7l9VddJDz+Ua41wjIXgKxmXHbkRK8h86bbWxTIz4sjlF
+	 1D+ig5Cs6lfNdMJmyWgqX/mI2gjtxr/XI0/7/dcnurW0ksOJuAocwdAO8avU7RQETk62EatJtsBX
+	 Y6uzQoaWa1fDWUaGvq4oZS8JMRMUsOy3gRkX1MtkNG5wK0zNibjznQkBRafeZW71UP1Hh9jZ6NBa
+	 CkVOLR5qgd0hqq038rSUof3IaItQHPmwN6pGqYkzUgPugER0+rx0LQPlLo2qt+6NCivU2F36ZtTO
+	 TyOjsud+Bpqqw9NT5mHcRubbU9sEP3yZD8x0psLXqJ1VI2JqGSIpM1GtNbLTcgPM9ZSCgQYViTa2
+	 vl1uKfccz13JKq1BxZX/cJ1gIRVTBq0/YgCTFglc9m6LY/EFfHZht7yH37VbpKmgcyO0p/fgLVGa
+	 PgSFmXNkcT3cQQ2JPMMgeWI5EgOwsDYnPbQuXBMV6KXAin2qjaDFsi/JCWCkNR49xP6KYKfaowzI
+	 kKo9rKmVkY6rBIber1gVOTpf48EmszZbeN2u6KXZSc0Q/6SeiVZgu0oYM/LO4lpLgA6SpNTPdrCt
+	 vc8GfBMg==
+X-QQ-XMRINFO: NS+P29fieYNw95Bth2bWPxk=
+From: linke li <lilinke99@qq.com>
+To: 
+Cc: xujianhao01@gmail.com,
+	linke li <lilinke99@qq.com>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] net: bridge: remove redundant check of f->dst
+Date: Tue, 23 Apr 2024 18:53:26 +0800
+X-OQ-MSGID: <20240423105327.77484-1-lilinke99@qq.com>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240423-sysctl-const-handler-v3-1-e0beccb836e2@weissschuh.net>
-References: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
-In-Reply-To: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
-To: Luis Chamberlain <mcgrof@kernel.org>, 
- Joel Granados <j.granados@samsung.com>, Kees Cook <keescook@chromium.org>
-Cc: Eric Dumazet <edumazet@google.com>, Dave Chinner <david@fromorbit.com>, 
- linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
- linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
- bpf@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
- linux-xfs@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
- linux-perf-users@vger.kernel.org, netfilter-devel@vger.kernel.org, 
- coreteam@netfilter.org, kexec@lists.infradead.org, 
- linux-hardening@vger.kernel.org, bridge@lists.linux.dev, 
- lvs-devel@vger.kernel.org, linux-rdma@vger.kernel.org, 
- rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org, 
- linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=1205;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=D/3OJwMoANYNDnHN43YEhKh/XOzsWgZJBxcvKVpFvHo=;
- b=1RhNomBbqj6XFaD6ZYOxEHBLV6bfBHp2WGUjkt4XBn/Ez17CpMDHBnau1hMCabUBp0fIJIUhv
- lq3ewsWLz9gCbCEhY4DcLZnRRhb9Y2u6rar0aoKgOs7QrHrAJv1mc4Z
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-In a future commit the proc_handlers will change to
-"const struct ctl_table".
-As a preparation for that adapt the logic to work with a temporary
-variable, similar to how it is done in other parts of the kernel.
+In br_fill_forward_path(), f->dst is checked not to be NULL, then
+immediately read using READ_ONCE and checked again. The first check is
+useless, so this patch aims to remove the redundant check of f->dst.
 
-Fixes: 964c9dff0091 ("stackleak: Allow runtime disabling of kernel stack erasing")
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: linke li <lilinke99@qq.com>
 ---
- kernel/stackleak.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/bridge/br_device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/stackleak.c b/kernel/stackleak.c
-index d099f3affcf1..558b9d6d28d3 100644
---- a/kernel/stackleak.c
-+++ b/kernel/stackleak.c
-@@ -27,10 +27,11 @@ static int stack_erasing_sysctl(struct ctl_table *table, int write,
- 	int ret = 0;
- 	int state = !static_branch_unlikely(&stack_erasing_bypass);
- 	int prev_state = state;
-+	struct ctl_table tmp = *table;
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 65cee0ad3c1b..ae33b30ff87c 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -405,7 +405,7 @@ static int br_fill_forward_path(struct net_device_path_ctx *ctx,
+ 	br_vlan_fill_forward_path_pvid(br, ctx, path);
  
--	table->data = &state;
--	table->maxlen = sizeof(int);
--	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
-+	tmp.data = &state;
-+	tmp.maxlen = sizeof(int);
-+	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
- 	state = !!state;
- 	if (ret || !write || state == prev_state)
- 		return ret;
-
+ 	f = br_fdb_find_rcu(br, ctx->daddr, path->bridge.vlan_id);
+-	if (!f || !f->dst)
++	if (!f)
+ 		return -1;
+ 
+ 	dst = READ_ONCE(f->dst);
 -- 
-2.44.0
+2.39.3 (Apple Git-146)
 
