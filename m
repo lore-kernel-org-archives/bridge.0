@@ -1,32 +1,32 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1BBE4C630
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C694D58E
 	for <bridge@lists.linux.dev>; Tue, 23 Apr 2024 08:03:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713859390; cv=none; b=ktuSYlapyzSWflQVlgjqrYLrw3DndgWrV63nxvKm/Q8N+BODLIhejYXEkTQvrbpgUvCeFiBAtSgL4w3Dbfq0vJndxCiC/OfxrlPSpQvFKv/R7z8aJnJ2oCx8OvOywZfZKqL0uoi6XUmwekz+UaW8siRzLXAlxQJmV3Fj62/DBbo=
+	t=1713859391; cv=none; b=esCFCyQfgP/Eo0nUh2I7mUdrEDys4aSVinrlNzHMglQ+Tn0U8FUyUFX/s5kKyBfLrdEzK+C6tKM31dr2bZq/vRrCWZ3Y6xLrHesl3aHnueULCRu9GU61Gv+1SrPx7eE1LI4ZKxNoNOPE7M/FtmABMlNiy6gboCWsD79utXBfSsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713859390; c=relaxed/simple;
-	bh=1pR6m5Wi5iIO9mWeE7uFEYPdE/xPU01dcPav6FtcGgk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IrwufG9wXw0JQ++t29ctk8i6BGhn9L5rpOzyzjM8eK/J0JwmA9Q6zVMxuFtDI/Bs+GC9V0H+ANvuNPeDaZC3l4aTO2d1vD9aUIVs6JWRuwOaGk61Yr1FdZXUoaECJaimBzl2i29+BLYUqnd8RV2naTrsMoIBz4ghk863tA1Nykk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=qrpXb4E7; arc=none smtp.client-ip=159.69.126.157
+	s=arc-20240116; t=1713859391; c=relaxed/simple;
+	bh=O54mll2lZcxHuSuV6IhzlmRJxXGkXc6uykp5lefHyQg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=GP9G6ZCqCYoPM6JdI/MDgWG1vtOjxeP8PlR8HxQ+nOavhBzfa6K98WMVSleE1Zj+kASkzRVy9NjMeKEgPjySerq5epZvWxLYgqWA0qgHUxObpSnjluPDnI/f/9hLSPgS2VAK0vvy0FMeW6JxI92e4MtWp7IJ3Er4YSZx1EnAPaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=XZeV3YWG; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="qrpXb4E7"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="XZeV3YWG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1713858962;
-	bh=1pR6m5Wi5iIO9mWeE7uFEYPdE/xPU01dcPav6FtcGgk=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=qrpXb4E7M7hSiZ8Cf2INubIQwovOxf8rtiST2nTdYG56P/i02vaGe83f+9bvQprvq
-	 VgpcOsvaoWCndC7LXwkbN21msJ81t9jqvLggR4K6+dWl6vt6tbFaQ5B1IFnTi+I3Mw
-	 H0IMGkDPx1RTLLHkm4qk51fTBM34bIyN02uPPn08=
+	bh=O54mll2lZcxHuSuV6IhzlmRJxXGkXc6uykp5lefHyQg=;
+	h=From:Subject:Date:To:Cc:From;
+	b=XZeV3YWGKdzXDyt2gGdiSBu+tAR9ehmxCo0/cgGTgNF4l9KeVxXCrFY2tRLq1+ykl
+	 c6TDhFBKGpJkh/D8HY03220W94T6e0r+dDxGxBkrr0k1umozRGS6gkzuySz0B7Xa/g
+	 8yXILGrDVWsr+D5Q4C7df89uD11g1JxsYDcXWzP0=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Tue, 23 Apr 2024 09:54:37 +0200
-Subject: [PATCH v3 02/11] cgroup: bpf: constify ctl_table arguments and
- fields
+Subject: [PATCH v3 00/11] sysctl: treewide: constify ctl_table argument of
+ sysctl handlers
+Date: Tue, 23 Apr 2024 09:54:35 +0200
+Message-Id: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -35,9 +35,10 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240423-sysctl-const-handler-v3-2-e0beccb836e2@weissschuh.net>
-References: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
-In-Reply-To: <20240423-sysctl-const-handler-v3-0-e0beccb836e2@weissschuh.net>
+X-B4-Tracking: v=1; b=H4sIADtpJ2YC/3XOwQ7CIAwG4FdZOIuB4oR48j2Mh411QrIwQxFdl
+ r27bCcT9fg3/b92ZoTRI7FTNbOI2ZMfQwlqVzHrmnBD7ruSGQhQEuDIaSKbBm7HQImXjW7AyI1
+ RbY1to9EIVqr3iL1/bezlWrLzlMY4bVeyXKcreBBK1r/BLLngUgE0VttWqO78RE9E1j3cPmBiq
+ 5rhQwL1R4IilbdaqU0vNegvaVmWN33FrUoHAQAA
 To: Luis Chamberlain <mcgrof@kernel.org>, 
  Joel Granados <j.granados@samsung.com>, Kees Cook <keescook@chromium.org>
 Cc: Eric Dumazet <edumazet@google.com>, Dave Chinner <david@fromorbit.com>, 
@@ -55,37 +56,158 @@ Cc: Eric Dumazet <edumazet@google.com>, Dave Chinner <david@fromorbit.com>,
  linux-nfs@vger.kernel.org, apparmor@lists.ubuntu.com, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=686;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1713858961; l=7199;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=1pR6m5Wi5iIO9mWeE7uFEYPdE/xPU01dcPav6FtcGgk=;
- b=pcm/jJjouDKJ7dKkXuplkCwgN4lakaTVY5yViah+TEyJb0kgB/5JxKSM28vhTdxT/a0KzPrgc
- T5MafpuEka/DMwunsovOVuekoxGTF4FJjqwg/mb6qFtEZR2YOr2vquk
+ bh=O54mll2lZcxHuSuV6IhzlmRJxXGkXc6uykp5lefHyQg=;
+ b=SEVrV4QL0aRQf4sZAyD6Lh+KIYjBicAEwKhtJ0PUAXQvKQVj+Lo8XxYFfez7YZFSvNW40HQoh
+ r7IOwglEOGsCcMSO1z8xH6fte/UGc8Ay9QjWTKXdmQpGpMwPGKciBsV
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-In a future commit the sysctl core will only use
-"const struct ctl_table". As a preparation for that adapt the cgroup-bpf
-code.
+* Patch 1 is a bugfix for the stack_erasing sysctl handler
+* Patches 2-10 change various helper functions throughout the kernel to
+  be able to handle 'const ctl_table'.
+* Patch 11 changes the signatures of all proc handlers through the tree.
+  Some other signatures are also adapted, for details see the commit
+  message.
+
+Only patch 1 changes any code at all.
+
+The series was compile-tested on top of next-20230423 for
+i386, x86_64, arm, arm64, riscv, loongarch, s390 and m68k.
+
+The series was split from my larger series sysctl-const series [0].
+It only focusses on the proc_handlers but is an important step to be
+able to move all static definitions of ctl_table into .rodata.
+
+[0] https://lore.kernel.org/lkml/20231204-const-sysctl-v2-0-7a5060b11447@weissschuh.net/
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- include/linux/filter.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes in v3:
+- Rebase on current -next
+- Cc affected mailing lists again to gather feedback
+- Link to v2: https://lore.kernel.org/r/20240323-sysctl-const-handler-v2-0-e80b178f1727@weissschuh.net
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 7a27f19bf44d..4eada55a2df8 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -1404,7 +1404,7 @@ struct bpf_sock_ops_kern {
- 
- struct bpf_sysctl_kern {
- 	struct ctl_table_header *head;
--	struct ctl_table *table;
-+	const struct ctl_table *table;
- 	void *cur_val;
- 	size_t cur_len;
- 	void *new_val;
+Changes in v2:
+- Reduce recipient list
+- Fix source formatting
+- Rebase onto next-20240322
+- Link to v1: https://lore.kernel.org/r/20240315-sysctl-const-handler-v1-0-1322ac7cb03d@weissschuh.net
 
+---
+Thomas Weißschuh (11):
+      stackleak: don't modify ctl_table argument
+      cgroup: bpf: constify ctl_table arguments and fields
+      hugetlb: constify ctl_table arguments of utility functions
+      utsname: constify ctl_table arguments of utility function
+      neighbour: constify ctl_table arguments of utility function
+      ipv4/sysctl: constify ctl_table arguments of utility functions
+      ipv6/addrconf: constify ctl_table arguments of utility functions
+      ipv6/ndisc: constify ctl_table arguments of utility function
+      ipvs: constify ctl_table arguments of utility functions
+      sysctl: constify ctl_table arguments of utility function
+      sysctl: treewide: constify the ctl_table argument of handlers
+
+ arch/arm64/kernel/armv8_deprecated.c      |  2 +-
+ arch/arm64/kernel/fpsimd.c                |  2 +-
+ arch/s390/appldata/appldata_base.c        | 10 ++--
+ arch/s390/kernel/debug.c                  |  2 +-
+ arch/s390/kernel/topology.c               |  2 +-
+ arch/s390/mm/cmm.c                        |  6 +--
+ arch/x86/kernel/itmt.c                    |  2 +-
+ drivers/cdrom/cdrom.c                     |  4 +-
+ drivers/char/random.c                     |  6 +--
+ drivers/macintosh/mac_hid.c               |  2 +-
+ drivers/net/vrf.c                         |  2 +-
+ drivers/parport/procfs.c                  | 12 ++---
+ drivers/perf/arm_pmuv3.c                  |  4 +-
+ drivers/perf/riscv_pmu_sbi.c              |  2 +-
+ fs/coredump.c                             |  2 +-
+ fs/dcache.c                               |  4 +-
+ fs/drop_caches.c                          |  2 +-
+ fs/exec.c                                 |  4 +-
+ fs/file_table.c                           |  4 +-
+ fs/fs-writeback.c                         |  2 +-
+ fs/inode.c                                |  4 +-
+ fs/pipe.c                                 |  2 +-
+ fs/quota/dquot.c                          |  2 +-
+ fs/xfs/xfs_sysctl.c                       |  6 +--
+ include/linux/filter.h                    |  2 +-
+ include/linux/ftrace.h                    |  4 +-
+ include/linux/mm.h                        |  8 +--
+ include/linux/perf_event.h                |  6 +--
+ include/linux/security.h                  |  2 +-
+ include/linux/sysctl.h                    | 36 ++++++-------
+ include/linux/vmstat.h                    |  6 +--
+ include/linux/writeback.h                 |  2 +-
+ include/net/ndisc.h                       |  2 +-
+ include/net/neighbour.h                   |  6 +--
+ include/net/netfilter/nf_hooks_lwtunnel.h |  2 +-
+ ipc/ipc_sysctl.c                          |  8 +--
+ kernel/bpf/syscall.c                      |  4 +-
+ kernel/delayacct.c                        |  4 +-
+ kernel/events/callchain.c                 |  2 +-
+ kernel/events/core.c                      |  4 +-
+ kernel/fork.c                             |  2 +-
+ kernel/hung_task.c                        |  6 +--
+ kernel/kexec_core.c                       |  2 +-
+ kernel/kprobes.c                          |  2 +-
+ kernel/latencytop.c                       |  4 +-
+ kernel/pid_namespace.c                    |  2 +-
+ kernel/pid_sysctl.h                       |  2 +-
+ kernel/printk/internal.h                  |  2 +-
+ kernel/printk/printk.c                    |  2 +-
+ kernel/printk/sysctl.c                    |  5 +-
+ kernel/sched/core.c                       |  8 +--
+ kernel/sched/rt.c                         | 16 +++---
+ kernel/sched/topology.c                   |  2 +-
+ kernel/seccomp.c                          | 10 ++--
+ kernel/stackleak.c                        |  9 ++--
+ kernel/sysctl.c                           | 89 ++++++++++++++++---------------
+ kernel/time/timer.c                       |  2 +-
+ kernel/trace/ftrace.c                     |  2 +-
+ kernel/trace/trace.c                      |  2 +-
+ kernel/trace/trace_events_user.c          |  2 +-
+ kernel/trace/trace_stack.c                |  2 +-
+ kernel/umh.c                              |  2 +-
+ kernel/utsname_sysctl.c                   |  4 +-
+ kernel/watchdog.c                         | 12 ++---
+ mm/compaction.c                           |  6 +--
+ mm/hugetlb.c                              | 12 ++---
+ mm/page-writeback.c                       | 18 +++----
+ mm/page_alloc.c                           | 14 ++---
+ mm/util.c                                 | 12 ++---
+ mm/vmstat.c                               |  4 +-
+ net/bridge/br_netfilter_hooks.c           |  2 +-
+ net/core/neighbour.c                      | 20 +++----
+ net/core/sysctl_net_core.c                | 20 +++----
+ net/ipv4/devinet.c                        |  6 +--
+ net/ipv4/route.c                          |  2 +-
+ net/ipv4/sysctl_net_ipv4.c                | 38 ++++++-------
+ net/ipv6/addrconf.c                       | 27 +++++-----
+ net/ipv6/ndisc.c                          |  4 +-
+ net/ipv6/route.c                          |  2 +-
+ net/ipv6/sysctl_net_ipv6.c                |  4 +-
+ net/mpls/af_mpls.c                        |  4 +-
+ net/netfilter/ipvs/ip_vs_ctl.c            | 19 +++----
+ net/netfilter/nf_conntrack_standalone.c   |  2 +-
+ net/netfilter/nf_hooks_lwtunnel.c         |  2 +-
+ net/netfilter/nf_log.c                    |  2 +-
+ net/phonet/sysctl.c                       |  2 +-
+ net/rds/tcp.c                             |  4 +-
+ net/sctp/sysctl.c                         | 32 +++++------
+ net/sunrpc/sysctl.c                       |  6 +--
+ net/sunrpc/xprtrdma/svc_rdma.c            |  2 +-
+ security/apparmor/lsm.c                   |  2 +-
+ security/min_addr.c                       |  2 +-
+ security/yama/yama_lsm.c                  |  2 +-
+ 93 files changed, 329 insertions(+), 322 deletions(-)
+---
+base-commit: a59668a9397e7245b26e9be85d23f242ff757ae8
+change-id: 20231226-sysctl-const-handler-883b5eba7e80
+
+Best regards,
 -- 
-2.44.0
+Thomas Weißschuh <linux@weissschuh.net>
 
