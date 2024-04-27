@@ -1,128 +1,81 @@
-Received: from us-smtp-delivery-44.mimecast.com (us-smtp-delivery-44.mimecast.com [205.139.111.44])
+Received: from nbd.name (nbd.name [46.4.11.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E31344C6B
-	for <bridge@lists.linux.dev>; Sat, 27 Apr 2024 08:14:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.139.111.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6205A14389A;
+	Sat, 27 Apr 2024 18:24:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.4.11.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714205700; cv=none; b=kbBGjmms8wfGXDPPRYSm830hiA5nWEr7SPf2f3TV7jMOhKaRMMFwHNlicbke0U5LQG3PunpnTPZHZ3zH4rgF7jJylfxIFEHK4ezrdFHw+6RkBWlK2NHzFUh8xEoi5nMKo9Wr5reCFGCXiarCjY9DPbF4SW4bwU2noocqYE8S06s=
+	t=1714242271; cv=none; b=AQyljcAym94BTaOPeev+1aBOzJomspYJz/u8qzzhJog3yrf/q8fdDeN+dt/sOmVHONTULFCPKJ8G78wngF+BJoKc+i5MW1CzQ6OKn9bfVMKvNACK1mehYQG22SiO1dT6Q796EfFeCfNnc62R4kiMG5WUsvj0WQzYrXp5nv4QWck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714205700; c=relaxed/simple;
-	bh=K4FhKO21xXG47yyaLeEyho2PAeJGcyowDKZJHUu0bco=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XJJGru7ng61wbVeuSxaQPB3EiDJ2Ak2sZjUMDqUVVa1beVpbAzumurn3nBHowVbsX3cou9HFg9kOOdM3bnNnJJ9LB0uSV4ySqifhiuPhKUIF+wlQqqcDGi8onf38tinXzorLf8XAjgd+6BtvF2NizkwDDXVQlBni6BivFeF/7Is=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=none smtp.mailfrom=queasysnail.net; arc=none smtp.client-ip=205.139.111.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=queasysnail.net
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-6-ocj-LliGOhexI8SbBxtMhA-1; Sat,
- 27 Apr 2024 04:14:48 -0400
-X-MC-Unique: ocj-LliGOhexI8SbBxtMhA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CB12E29AA388;
-	Sat, 27 Apr 2024 08:14:46 +0000 (UTC)
-Received: from hog (unknown [10.39.193.137])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id D2F3B202450F;
-	Sat, 27 Apr 2024 08:14:37 +0000 (UTC)
-Date: Sat, 27 Apr 2024 10:14:36 +0200
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Joel Granados <j.granados@samsung.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexander Aring <alex.aring@gmail.com>,
-	Stefan Schmidt <stefan@datenfreihafen.org>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	David Ahern <dsahern@kernel.org>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Matthieu Baerts <matttbe@kernel.org>,
-	Mat Martineau <martineau@kernel.org>,
-	Geliang Tang <geliang@kernel.org>,
-	Remi Denis-Courmont <courmisch@gmail.com>,
-	Allison Henderson <allison.henderson@oracle.com>,
-	David Howells <dhowells@redhat.com>,
-	Marc Dionne <marc.dionne@auristor.com>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Jan Karcher <jaka@linux.ibm.com>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Trond Myklebust <trond.myklebust@hammerspace.com>,
-	Anna Schumaker <anna@kernel.org>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	Jeff Layton <jlayton@kernel.org>, Neil Brown <neilb@suse.de>,
-	Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
-	Tom Talpey <tom@talpey.com>, Jon Maloy <jmaloy@redhat.com>,
-	Ying Xue <ying.xue@windriver.com>, Martin Schiller <ms@dev.tdt.de>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Florian Westphal <fw@strlen.de>, Roopa Prabhu <roopa@nvidia.com>,
+	s=arc-20240116; t=1714242271; c=relaxed/simple;
+	bh=G4qbu3HbZE/UnM3R1/lR8f8xJ+TyR3rhnFyLhZ55ENA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V4MmaQ9ZZijfyPnMwoNh4p4+jJw2WYt6BalesF16UJ96Fa/LyWism3PfurT9Dcdw5uQg+z8irJeexj+Pc9i2ZyWXIdHiEUdTiMJsx8zsi468Yrr0rzAdLQ7fWXWWTOb79VCE7Fduum0GJPC+XXNsN3wbSp9fNLf1g8mHTaFk33I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name; spf=none smtp.mailfrom=nbd.name; dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b=jvBjRyX6; arc=none smtp.client-ip=46.4.11.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=nbd.name
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b="jvBjRyX6"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+	s=20160729; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:
+	Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=mryOBMGyDjVCgxkOiJi6/7hI2yMziEkko+lbmm71JJA=; b=jvBjRyX6OALj+dpn3PoWl4Br3/
+	Ffm2f3e6sg5NlbhTriNJShgQBBaI4fcj/aq1GIcDNVNA0Kg4O3tZ0Esc5etXN8WSjPT52inVLQ38b
+	4QF00njGxHgFB5mKqickjtmKFZY8jnAIz92XRMOWr1+MB1PzEtXEFYMrfQ9D9cjM3jBY=;
+Received: from p54ae9c93.dip0.t-ipconnect.de ([84.174.156.147] helo=localhost.localdomain)
+	by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+	(Exim 4.96)
+	(envelope-from <nbd@nbd.name>)
+	id 1s0mik-008hL3-26;
+	Sat, 27 Apr 2024 20:24:22 +0200
+From: Felix Fietkau <nbd@nbd.name>
+To: netdev@vger.kernel.org,
+	Roopa Prabhu <roopa@nvidia.com>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
-	Simon Horman <horms@verge.net.au>, Julian Anastasov <ja@ssi.bg>,
-	Joerg Reuter <jreuter@yaina.de>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Kees Cook <keescook@chromium.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, dccp@vger.kernel.org,
-	linux-wpan@vger.kernel.org, mptcp@lists.linux.dev,
-	linux-hams@vger.kernel.org, linux-rdma@vger.kernel.org,
-	rds-devel@oss.oracle.com, linux-afs@lists.infradead.org,
-	linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
-	linux-x25@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	lvs-devel@vger.kernel.org
-Subject: Re: [PATCH v5 8/8] ax.25: x.25: Remove the now superfluous sentinel
- elements from ctl_table array
-Message-ID: <ZiyxJFnJimaRr9nK@hog>
-References: <20240426-jag-sysctl_remset_net-v5-0-e3b12f6111a6@samsung.com>
- <20240426-jag-sysctl_remset_net-v5-8-e3b12f6111a6@samsung.com>
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	=?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Cc: bridge@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net 1/2] net: bridge: fix multicast-to-unicast with fraglist GSO
+Date: Sat, 27 Apr 2024 20:24:18 +0200
+Message-ID: <20240427182420.24673-1-nbd@nbd.name>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240426-jag-sysctl_remset_net-v5-8-e3b12f6111a6@samsung.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
+Content-Transfer-Encoding: 8bit
 
-2024-04-26, 12:47:00 +0200, Joel Granados via B4 Relay wrote:
-> diff --git a/net/ax25/ax25_ds_timer.c b/net/ax25/ax25_ds_timer.c
-> index c4f8adbf8144..8f385d2a7628 100644
-> --- a/net/ax25/ax25_ds_timer.c
-> +++ b/net/ax25/ax25_ds_timer.c
-> @@ -49,12 +49,16 @@ void ax25_ds_del_timer(ax25_dev *ax25_dev)
->  
->  void ax25_ds_set_timer(ax25_dev *ax25_dev)
->  {
-> +#ifdef CONFIG_AX25_DAMA_SLAVE
+Calling skb_copy on a SKB_GSO_FRAGLIST skb is not valid, since it returns
+an invalid linearized skb. This code only needs to change the ethernet
+header, so pskb_copy is the right function to call here.
 
-Is this really needed? Looks like this file is only compiled when this
-config is set:
+Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+---
+ net/bridge/br_forward.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-grep ax25_ds_timer net/ax25/Makefile
-ax25-$(CONFIG_AX25_DAMA_SLAVE) += ax25_ds_in.o ax25_ds_subr.o ax25_ds_timer.o
-
-
->  	if (ax25_dev == NULL)		/* paranoia */
->  		return;
->  
->  	ax25_dev->dama.slave_timeout =
->  		msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) / 10;
->  	mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
-> +#else
-> +	return;
-> +#endif
->  }
-
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 7431f89e897b..d7c35f55bd69 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -266,7 +266,7 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
+ 	if (skb->dev == p->dev && ether_addr_equal(src, addr))
+ 		return;
+ 
+-	skb = skb_copy(skb, GFP_ATOMIC);
++	skb = pskb_copy(skb, GFP_ATOMIC);
+ 	if (!skb) {
+ 		DEV_STATS_INC(dev, tx_dropped);
+ 		return;
 -- 
-Sabrina
+2.44.0
 
