@@ -1,59 +1,59 @@
-Received: from mail-yw1-f193.google.com (mail-yw1-f193.google.com [209.85.128.193])
+Received: from mail-yb1-f195.google.com (mail-yb1-f195.google.com [209.85.219.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7096140E50
-	for <bridge@lists.linux.dev>; Mon, 29 Apr 2024 20:14:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45D9517798F
+	for <bridge@lists.linux.dev>; Mon, 29 Apr 2024 22:07:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714421647; cv=none; b=uEX9rrPYjR9S4dPIhoBs7JfSBcqug1feAJB5dBeCh/m8KGdFPLN6q1xEQMJ6zx1GOrsf4uQArWCqUksBc0Y0H1+I/H89SM13pbJUKINqgm8lix1TBanxIVNQ8fZGvZpJ61y+iPcm+JPAm+fefojOcDenfPp/ehHeogIhlFfaJys=
+	t=1714428448; cv=none; b=g3HY+Ssu5oHJBKJuAZwFLQAi8KMJT2ZOSk+Fk4M9PXySp7t+Gs0+brNpZjHFZkMIAaF3y7iRtV3xX4nIq9c6ZZIZDE/hVe6sqVIbi7VHjYosN6NiLmTDDMnN++YViqSx0eC7Y6m+19hBLEvjy6sEp198vOYqhr3mY8IfOpa+atE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714421647; c=relaxed/simple;
-	bh=0At8lX7yDVT99lf+2YRT4XjVI4sYgWI0I8ADNXSCQ7E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Rh0d4Xb0XfJfW/kH50rr745QRI8St47/zB0hfc1y+kUIlPVRZ+zvz++ozeTTx+53aaTXDGtYJx6CDeqO5sStBwZXvy9l9PEDd+IqE626/IrCl4nbR+v3lLXhvpQGSkW0aEZmanHivrfIOHcIIDdWTxEETdkzLY/enPK69NcYf+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NXRCKk8A; arc=none smtp.client-ip=209.85.128.193
+	s=arc-20240116; t=1714428448; c=relaxed/simple;
+	bh=7RZyMoqCetWeFs8/lvQs40Xf5QXXPfb8os+0zU2U8jA=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=rcBDrmDnQm7uDyVtyImdSZx8Vg9y7LzTGHy/xcIq2pF0i91rS9c1vqKLH5CRrUTijaihuLE7gZBoqkWQR433LHNRc1SWbELqWOVTiZITayTTyJttHDPERWQtwRWR9fi5OgTHQAJU7evZ2gsi9hiFriAp3aILJ/a1yDmWRYuoH+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Lg2gn69V; arc=none smtp.client-ip=209.85.219.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NXRCKk8A"
-Received: by mail-yw1-f193.google.com with SMTP id 00721157ae682-61ab6faf179so48336937b3.1
-        for <bridge@lists.linux.dev>; Mon, 29 Apr 2024 13:14:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Lg2gn69V"
+Received: by mail-yb1-f195.google.com with SMTP id 3f1490d57ef6-de610800da0so404114276.2
+        for <bridge@lists.linux.dev>; Mon, 29 Apr 2024 15:07:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714421645; x=1715026445; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ztn8VHREGAsyACExpYLYeMgJIaQby/N989yJJGpHZlE=;
-        b=NXRCKk8AZA5/bBz7mWjpmbY7A/JULCu0OU3FAQy3i+/afjgYdi6XK+x1N8ber3I/bS
-         ag3Uw0IvgWQJlV/844MDqbndi5olhpI+ggMXLZ6uHD4N+atYYz8Lht9ZVDU5Y+IRDcHY
-         zrW4+28nOlgQn/JvXkWx/1obSXIrkMN3w80XagyLP7kC/+F33GBqf8bNwgu01THRT599
-         h6l9Rw62seTO86WqRL4/cefvKAH5wV0SJIEdyduF6SVQfzMwealLeVPlJMuhE1vSSzSA
-         sXu4DhTNv5K/Czchk/q7BYoyTM3ti2HPn3H8jk2gigmM7ID4Iv472pAukSETsuTT+BaR
-         JtDQ==
+        d=gmail.com; s=20230601; t=1714428446; x=1715033246; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=WNPjDuIsCAGhmSwDM3zYsna6zJmWSMRuz5bKNz3RO5o=;
+        b=Lg2gn69Vnh7BruCSYvJTay6DGEvwoo6OvjSreE8O/muX6iLroYwkRThmhu4walEI2A
+         J/iB3St71CAJdtridb4G4BJT36Ivr44NOHreQH8XD/WLo10MOkQlnxe/JVb58vop+kBy
+         HOOJtSZAFtevZmapuZV1uivA5fIP2c+ojEWigvEjKGtNVo5uPAedGOW6bNkV/ymiPZxJ
+         QhSPYxGsZzthcntFZsNJvsgkuROzao6bSMTWVpfweRfNe4UAZEWfo89LtmR3BdROh+He
+         BG2RCNc33jqgPwMIj6bl71FrK+eIzYmOh4Bz8Rb/BI1j3K9qmcSTQ2EFt1jCOzC/gM3R
+         X+1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714421645; x=1715026445;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1714428446; x=1715033246;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ztn8VHREGAsyACExpYLYeMgJIaQby/N989yJJGpHZlE=;
-        b=eOpSOhZt0CWom4iGEoDkRKP5Rf64O6n6ZN7BNc2/Pp5whwlyPjUElchLxcahMaHYeH
-         sW8+V6WljTXwpmfFYpTM/MSFsFaaDHuURPgcAHjOeez3HYhdPE2wEv+tM591zwMoJIq+
-         FKDYswQg3qXzmmdg51UFDqbHkYInaPLRfrnlYUHsUdMbdIoeVB93ArWmQp8cvgTSQdhm
-         zgFlsT0g0AJ+W8qFJEdBiaiY39K7/hATQGXUFDs86gLR9TdDQ32aXqCXwp8aiIcMvXzV
-         ghnRbwOlNfUL27JNBJJHC5O59EsHPQep+3K2NDj3oopGcCMD2N9z3iYL1xraA7md0xjd
-         Qp/g==
-X-Forwarded-Encrypted: i=1; AJvYcCV7EHsY5RvHj9DhzYv1rVTfkwfhLTariBdz7CxNhejcrBaFuKeUsfUc/jxaS7ONPWGsLx6mJ7ned8FGIqKXk4wxXlv1Z+iE
-X-Gm-Message-State: AOJu0YzMhGhRl9Kpbteab4jJF4y8Ynlpw5I9r0wbbjakwJZL3PvNSYX4
-	/qKAddKoD9H/K+SlP7H/G7f5yIBNWlQS/qLpGduk2PjI/vaZux/o
-X-Google-Smtp-Source: AGHT+IHQoR1nSmOx/G+v5N8K3+cuxrNIBxvrRympbd3Mm+wPCW8AuTUjgOFvvBvYxSJ9xKs2J6P1lg==
-X-Received: by 2002:a05:690c:678a:b0:615:22ff:b57d with SMTP id ib10-20020a05690c678a00b0061522ffb57dmr13364123ywb.42.1714421644855;
-        Mon, 29 Apr 2024 13:14:04 -0700 (PDT)
+        bh=WNPjDuIsCAGhmSwDM3zYsna6zJmWSMRuz5bKNz3RO5o=;
+        b=ji0e5Kt5w9SeRIYkBDOQOXlYqDEpYwNSrspWIy8QlrlE+n/DWeDsfYS1HYW2hWas36
+         sPaVlTZQXfnhtnVUY9ycCqu9pqHDKeHl8iR8BQsOGewiAgP/3QVnmr2j3JjMovrbDGKV
+         Aln9mmtpd5W0lanaThEfE0G4xj2EGGQToPZBdR4erWI85V5too/AqMes2i30DokzGUKf
+         Vdh3Z2+qxXqGB5YqgYBmUlOqlR8nWPBwVKu0a0fBfMstezpd4iAIcmQydmrIy8Y3obF3
+         7+fPFECnHniMu78KN/Y+AnRz1YF2HaiPq1muAc9WvlTjqvsY3SZfKk30LEslgqpto2F/
+         nVwg==
+X-Forwarded-Encrypted: i=1; AJvYcCUU8ALRU0/gqyXanVE28WljNNfSiIxvWi1n74oi6PsvTVVQcg+7dF5mFNamFK479oXP0aZqAH2qZizzIw8NR/q6Uji0HBpg
+X-Gm-Message-State: AOJu0Yx/ESbpAkrD2u2xz7+/6N8ec3B7foJj9PoFcnkr/hiZ3LaEdavv
+	giVJHuUySLVyd6Q2V6p9EfUOTSBBOL5vvxxkhxM/dl1xKcW+wBee
+X-Google-Smtp-Source: AGHT+IGtYKzgxUyvtAKAkuiRkW/bVBzN0cAJj+xLZAhum8thFmdQgHzmotfBbOFN2fm0pk66fwcnSg==
+X-Received: by 2002:a05:6902:1004:b0:de4:6f1e:c9bb with SMTP id w4-20020a056902100400b00de46f1ec9bbmr14605702ybt.26.1714428446201;
+        Mon, 29 Apr 2024 15:07:26 -0700 (PDT)
 Received: from [10.102.6.66] ([208.97.243.82])
-        by smtp.gmail.com with ESMTPSA id k19-20020a81ac13000000b0061be678259bsm144572ywh.36.2024.04.29.13.14.03
+        by smtp.gmail.com with ESMTPSA id x3-20020a056902102300b00dcc0cbb0aeesm5745572ybt.27.2024.04.29.15.07.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Apr 2024 13:14:04 -0700 (PDT)
-Message-ID: <1f385946-84d0-499c-9bf6-90ef65918356@gmail.com>
-Date: Mon, 29 Apr 2024 16:14:03 -0400
+        Mon, 29 Apr 2024 15:07:25 -0700 (PDT)
+Message-ID: <d36e2b82-0353-4c9c-aa89-22383c3bda2b@gmail.com>
+Date: Mon, 29 Apr 2024 18:07:25 -0400
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -61,97 +61,140 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
+Subject: Re: [PATCH RFC net-next 07/10] net: dsa: mv88e6xxx: Track bridge mdb
+ objects
+From: Joseph Huang <joseph.huang.2024@gmail.com>
 To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
- Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
+Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
  Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>,
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Roopa Prabhu <roopa@nvidia.com>, =?UTF-8?Q?Linus_L=C3=BCssing?=
- <linus.luessing@c0d3.blue>, linux-kernel@vger.kernel.org,
- bridge@lists.linux.dev
+ Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>,
+ =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+ linux-kernel@vger.kernel.org, bridge@lists.linux.dev
 References: <20240402001137.2980589-1-Joseph.Huang@garmin.com>
- <7fc8264a-a383-4682-a144-8d91fe3971d9@blackwall.org>
- <20240402174348.wosc37adyub5o7xu@skbuf>
- <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
- <20240402204600.5ep4xlzrhleqzw7k@skbuf>
- <065b803f-14a9-4013-8f11-712bb8d54848@blackwall.org>
- <804b7bf3-1b29-42c4-be42-4c23f1355aaf@gmail.com>
- <20240405102033.vjkkoc3wy2i3vdvg@skbuf>
- <935c18c1-7736-416c-b5c5-13ca42035b1f@blackwall.org>
- <651c87fc-1f21-4153-bade-2dad048eecbd@gmail.com>
- <20240405211502.q5gfwcwyhkm6w7xy@skbuf>
+ <20240402001137.2980589-8-Joseph.Huang@garmin.com>
+ <20240402122343.a7o5narxsctrkaoo@skbuf>
+ <b5f79571-b4a8-4f21-8dc8-e1aa11056a5d@gmail.com>
+ <20240405110745.si4gc567jt5gwpbr@skbuf>
+ <c4f5c444-832c-4376-845f-7c28e88e4436@gmail.com>
 Content-Language: en-US
-From: Joseph Huang <joseph.huang.2024@gmail.com>
-In-Reply-To: <20240405211502.q5gfwcwyhkm6w7xy@skbuf>
+In-Reply-To: <c4f5c444-832c-4376-845f-7c28e88e4436@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 4/5/2024 5:15 PM, Vladimir Oltean wrote:
-> On Fri, Apr 05, 2024 at 04:22:43PM -0400, Joseph Huang wrote:
->> Like this?
->>
->> bridge link set dev swp0 mcast_flood off
->>    - all flooding disabled
->>
->> bridge link set dev swp0 mcast_flood on
->>    - all flooding enabled
->>
->> bridge link set dev swp0 mcast_flood on mcast_ipv4_data_flood off
->> mcast_ipv6_data_flood off
->>    - IPv4 data packets flooding disabled, IPv6 data packets flooding
->> disabled, everything else floods (that is to say, only allow IPv4 local
->> subnet and IPv6 link-local to flood)
->>
->> ?
+On 4/5/2024 2:58 PM, Joseph Huang wrote:
+> Hi Vladimir,
 > 
-> Yeah.
-> 
->> The syntax seems to be counterintuitive.
+> On 4/5/2024 7:07 AM, Vladimir Oltean wrote:
+>> On Thu, Apr 04, 2024 at 04:43:38PM -0400, Joseph Huang wrote:
+>>> Hi Vladimir,
+>>>
+>>> On 4/2/2024 8:23 AM, Vladimir Oltean wrote:
+>>>> Can you comment on the feasibility/infeasibility of Tobias' proposal 
+>>>> of:
+>>>> "The bridge could just provide some MDB iterator to save us from having
+>>>> to cache all the configured groups."?
+>>>> https://lore.kernel.org/netdev/87sg31n04a.fsf@waldekranz.com/
+>>>>
+>>>> What is done here will have to be scaled to many drivers - potentially
+>>>> all existing DSA ones, as far as I'm aware.
+>>>>
+>>>
+>>> I thought about implementing an MDB iterator as suggested by Tobias, 
+>>> but I'm
+>>> a bit concerned about the coherence of these MDB objects. In theory, 
+>>> when
+>>> the device driver is trying to act on an event, the source of the 
+>>> trigger
+>>> may have changed its state in the bridge already.
 >>
->> Or like this?
+>> Yes, this is the result of SWITCHDEV_F_DEFER, used by both
+>> SWITCHDEV_ATTR_ID_PORT_MROUTER and SWITCHDEV_OBJ_ID_PORT_MDB.
 >>
->> bridge link set dev swp0 mcast_flood on mcast_ipv4_ctrl_flood on
->>    - only allow IPv4 local subnet to flood, everything else off
+>>> If, upon receiving an event in the device driver, we iterate over what
+>>> the bridge has at that instant, the differences between the worlds as
+>>> seen by the bridge and the device driver might lead to some unexpected
+>>> results.
 >>
->> ?
-> 
-> Nope.
-> 
->> So basically the question is, what should the behavior be when something is
->> omitted from the command line?
-> 
-> The answer is always: "new options should default to behaving exactly
-> like before". It's not just about the command line arguments, but also
-> about the actual netlink attributes that iproute2 (and other tooling)
-> creates when communicating with the kernel. Old user space has no idea
-> about the existence of mcast_ipv4_ctrl_flood et. al. So, if netlink
-> attributes specifying their value are not sent by user space, their
-> value in the kernel must mimic the value of mcast_flood.
+>> Translated: iterating over bridge MDB objects needs to be serialized
+>> with new switchdev events by acquiring rtnl_lock(). Then, once switchdev
+>> events are temporarily blocked, the pending ones need to be flushed
+>> using switchdev_deferred_process(), so resync the bridge state with the
+>> driver state. Once the resync is done, the iteration is safe until
+>> rtnl_unlock().
+>>
+>> Applied to our case, the MDB iterator is needed in 
+>> mv88e6xxx_port_mrouter().
+>> This is already called with rtnl_lock() acquired. The resync procedure
+>> will indirectly call mv88e6xxx_port_mdb_add()/mv88e6xxx_port_mdb_del()
+>> through switchdev_deferred_process(), and then the walk is consistent
+>> for the remainder of the mv88e6xxx_port_mrouter() function.
+>>
+>> A helper which does this is what would be required - an iterator
+>> function which calls an int (*cb)(struct net_device *brport, const 
+>> struct switchdev_obj_port_mdb *mdb)
+>> for each MDB entry. The DSA core could then offer some post-processing
+>> services over this API, to recover the struct dsa_port associated with
+>> the bridge port (in the LAG case they aren't the same) and the address
+>> database associated with the bridge.
 
-How about the following syntax? I think it satisfies all the "not 
-breaking existing behavior" requirements (new option defaults to off, 
-and missing user space netlink attributes does not change the existing 
-behavior):
+Something like this (some layers omitted for brevity)?
 
-mcast_flood off
-   all off
-mcast_flood off mcast_flood_rfc4541 off
-   all off
-mcast_flood off mcast_flood_rfc4541 on
-   224.0.0.X and ff02::1 on, the rest off
-mcast_flood on
-   all on
-mcast_flood on mcast_flood_rfc4541 off
-   all on (mcast_flood on overrides mcast_flood_rfc4541)
-mcast_flood on mcast_flood_rfc4541 on
-   all on
-mcast_flood_rfc4541 off
-   invalid (mcast_flood_rfc4541 is only valid if mcast_flood [on | off] 
-is specified first)
-mcast_flood_rfc4541 on
-   invalid (mcast_flood_rfc4541 is only valid if mcast_flood [on | off] 
-is specified first)
+                                       +br_iterator
+                                       |  for each mdb
+                                       |    _br_switchdev_mdb_notify
+rtnl_lock                             |      without F_DEFER flag
+  |                                    |      |
+  +switchdev_port_attr_set_deferred    |      +switchdev_port_obj_notify
+    |                                  |        |
+    +dsa_port_mrouter                  |        +dsa_user_port_obj_a/d
+      |                                |          |
+      +mv88e6xxx_port_mrouter----------+          +mv88e6xxx_port_obj_a/d
+                                         |
+  +--------------------------------------+
+  |
+rtnl_unlock
 
-Think of mcast_flood_rfc4541 like a pet door if you will.
+Note that on the system I tested, each register read/write takes about 
+100us to complete. For 100's of mdb groups, this would mean that we will 
+be holding rtnl lock for 10's of ms. I don't know if it's considered too 
+long.
+
+
+>>
+>> Do you think there would be unexpected results even if we did this?
+>> br_switchdev_mdb_replay() needs to handle a similarly complicated
+>> situation of synchronizing with deferred MDB events.
+>>  >> However, if we cache the MDB objects in the device driver, at least
+>>> the order in which the events took place will be coherent and at any
+>>> give time the state of the MDB objects in the device driver can be
+>>> guaranteed to be sane. This is also the approach the prestera device
+>>> driver took.
+>>
+>> Not contesting this, but I wouldn't like to see MDBs cached in each
+>> device driver just for this. Switchdev is not very high on the list of
+>> APIs which are easy to use, and making MDB caching a requirement
+>> (for the common case that MDB entry destinations need software fixups
+>> with the mrouter ports) isn't exactly going to make that any better.
+>> Others' opinion may differ, but mine is that core offload APIs need to
+>> consider what hardware is available in the real world, make the common
+>> case easy, and the advanced cases possible. Rather than make every case
+>> "advanced" :)
+> 
+> Just throwing some random ideas out there. Do you think it would make 
+> more sense if this whole solution (rtnl_lock, iterator cb,...etc.) is 
+> moved up to DSA so that other DSA drivers could benefit from it? I 
+> thought about implement it (not the iterator, the current form) in DSA 
+> at first, but I'm not sure how other drivers would behave, so I did it 
+> with mv instead.
+> 
+> I guess the question is, is the current limitation (mrouter not properly 
+> offloaded) an issue specific to mv or is it a limitation of hardware 
+> offloading in general? I tend to think it's the latter.
+> 
+> But then again, if we move it to DSA, we would lose the benefit of the 
+> optimization of consolidating multiple register writes into just one (as 
+> done in patch 10 currently), unless we add a new switch op which takes a 
+> portvec instead of a port when modifying mdb's.
+
