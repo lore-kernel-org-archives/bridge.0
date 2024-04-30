@@ -1,133 +1,118 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E408B17F5
-	for <bridge@lists.linux.dev>; Tue, 30 Apr 2024 01:22:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 866E812D1F1
+	for <bridge@lists.linux.dev>; Tue, 30 Apr 2024 11:07:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714440126; cv=none; b=bICqDIcSMYKovThwB8ijE3UpbaQVV5PBlHZ9upAmXodFaRXI1Weu0YDMHSjlWuKaAA0xLRZH1HhXPo1rO1BNJlhxZt8b/6x+4Isue08E/Rt1r71icWmwBChM6/DjydVaczkzPw0VYayyCFjxmuhloyhI9qwTTNcHKURfOTMSWAs=
+	t=1714475249; cv=none; b=FfIk3K7CTjdKVUkvFJcMNBDjfcLvEA4J0dHp2c03aAJ2I9GTNCVIu/VEmIRcV+drC+LXs86i4HGSelZlK1/8PC4ps5vu8ftkITCe/SJGz6j3sIhkh9QslJj6Y05QddFDoBRmlLoYOk62K+Rif8f0MwjH/0rJnz1K/6uL8yPPrhA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714440126; c=relaxed/simple;
-	bh=UMqhj0rTdZLGeNTxC8kWhGYjzAOidG4Koh9u9oR661A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eg/Zz1gf7ZqGz337zzaoedFD+CwMrbb1BB8zPNm7DKrOwXRGoI33tPB47ybeNRrlfwsaf77XHdNl7WFVW5sN5m+PrPjQGMzrvbbAQ6i2LXMgu/UfAmF4lK9rYKP8OA6A+cVnRse2IGw6QWUdEbimqNdIjJEJ7WdmhMGE7PVkRFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QNR2vxUa; arc=none smtp.client-ip=209.85.218.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1714475249; c=relaxed/simple;
+	bh=QFCsOTDpzg39nwIUlSCksXGcY5+dw3cITznzyUd8J/A=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Bub1QWeCdkFS/pJz7ufbx1Etq4vVaawTDwHY/Jl9H6l5et3KQLdGP8RiHZHPqPYb8RCMrX3i8Etm7DL9IctQQefdWPXV2fs33+Uj3xHs+iuQgrLyMMy+IiTt94lJVld7jHFjjS6CxUZTE7WxQ5rvxF3ectzIajPMgRjgdXldXmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ta0vTRIQ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QNR2vxUa"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a5878caeb9eso632364266b.1
-        for <bridge@lists.linux.dev>; Mon, 29 Apr 2024 18:22:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714440123; x=1715044923; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=0mRqa2ovWjws7B2sIgD6E2HvQPUnrNYKW4I30w74FzA=;
-        b=QNR2vxUaZ/43w/mRLMvUAHN2q6sfW966AO2O33bdE0sWHlGP4V0sThWsaQvQ3FipL8
-         QoDg8cbQwtUQIZmSHhM20lXKUQNjy5EItCfdhm77adrw3QKzTbxO3KgbPfapbeqm+iYO
-         4FJhOqWe27kT+Kkz+JBX8Cuo94H045sCsajKUy2HSIOYxYVs3qmbqAFQceKKyP+ZOZVg
-         K7qiaEGyj4PwI3cIRaqhBihadBj5czs/FTazDMMJcy+QGquZ8OrSwYuE6NjvkgVK7Jan
-         vAcUQMsPw+S40jTKytXm12SMd+Hc5IsSNRwMnYwMolMCBSTdfBxGhpt8HMc9ydf7myGK
-         AwSw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ta0vTRIQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1714475246;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=NHoVQGTe4unORQhZtxKU3Odt8kskDSrZVOFJn4HUBrQ=;
+	b=Ta0vTRIQJXqaSDfoO12rr+TR8HAzdPE52mw6I2jUVfg97QRQdCnkI/uPTpzhXChrRZ7d9t
+	grhpmXVrNTuTGoe/wk03liV4OmIR6XSVctYBCTzbbVpHLsqN6hWrkvOUrFA/JmWRT6/4ZE
+	tBKw4qh30HWZOnu1SiIxuvWT65WLFTY=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-439-gLKTuhBwPbi6cOd_86Bd8A-1; Tue, 30 Apr 2024 07:07:24 -0400
+X-MC-Unique: gLKTuhBwPbi6cOd_86Bd8A-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4188cfbabf6so6669185e9.2
+        for <bridge@lists.linux.dev>; Tue, 30 Apr 2024 04:07:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714440123; x=1715044923;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0mRqa2ovWjws7B2sIgD6E2HvQPUnrNYKW4I30w74FzA=;
-        b=Ogp/0VwamH8tBGwjemN1fD+ZRfUvaa9VEtlnESwXkzjfVafLponsSDg3iN7yUH0TuW
-         9yNJZwPul6AEJkcBJNQX23ynr+ywxUUg2+3v/NFpDlN2+4Kj/l0y8DdyO5/Le2K19h4Q
-         btJtWay1FGRnLZvUdp90OfMbjUaC7KVV/8LipI4sClwzqCTffGyDUSJ/THpG+W+Bdmzg
-         8KaeLW8smWazJDLsbFjNybuBI65/uBw/6Fpdz8SdeYj7CAhd21idBc/W6g7gGe470d2V
-         pQT5kjrT4itq+B4MduLr3+1AiNgw0gFNQ1etMhVuxUMo8x+ZFRcJ137D85dJHd5CluhW
-         MOBQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXy6CitMAGc7HG9lrljcMTJsS109lEkrPxL7ynB8u2e/2bl0LJSj3L+KCh7M5kTfYLPe7qluW1MMluExxsCnX0LlN8/Mgar
-X-Gm-Message-State: AOJu0Yx5u0LMGXfwZ0GsUPq/NUweNX/EuvltUK67V9ipYPpFvWHvVh+d
-	Bx0a3cOrLrMptNAdKVng2OlIz0FSdELXlSfDykv+qNhtZ0aD/N6s
-X-Google-Smtp-Source: AGHT+IFsFi0wMgKpgdlzgdLNfkp5iSSMe8elCVig3meaXHcygogd/Vsp/vWvDxyBkmV3BaICI9gqfw==
-X-Received: by 2002:a17:906:c252:b0:a52:6fcb:564a with SMTP id bl18-20020a170906c25200b00a526fcb564amr788676ejb.9.1714440123077;
-        Mon, 29 Apr 2024 18:22:03 -0700 (PDT)
-Received: from skbuf ([2a02:2f04:d70a:9c00::b2c])
-        by smtp.gmail.com with ESMTPSA id z6-20020a170906434600b00a518c69c4e3sm14388210ejm.23.2024.04.29.18.22.01
+        d=1e100.net; s=20230601; t=1714475243; x=1715080043;
+        h=mime-version:user-agent:content-transfer-encoding:autocrypt
+         :references:in-reply-to:date:cc:to:from:subject:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=479+9n3x4cuBmKHOomGQFmMun7aOPyQx0HKnJJwE/uc=;
+        b=SKxNb2fgxQz60VCerHGl27VSBHRIMxJcnALttGMbsQmgXpf3C490Xq9I5Yf03DEs9/
+         Qy/rIum2QqKFpbmyW/Q2mURvo+AXxA644THrNZ1L/ng+n6X5YJoBAouM8qQbbA93vk/X
+         jP9+M9Oux3eqwHBowhLhROGJjdJ2EWRoTo24+2AotdHUGMsG/5tY+OFdMP+3YM4XnH1/
+         jiSBq4p9NF1li/QxDOWnHDqRsuSf5D8OrePE3MNf0BP/FuxhJ8VeFXldom+aQUMNrpEh
+         b2If8rMVSjBD088quFY0x/oxCG5U+ENAnyY9gGUt+klmfT5wcORiWxbeQCRfYoS4C0P6
+         GwoQ==
+X-Gm-Message-State: AOJu0YxzbRA1TUh2bLMOVFpdZHCWCGoLoeXqJVma0C9FP0We8Tsqe/iw
+	aFYkByaTKxiFkQwY/D3icNQrSRr/QCoDIteWUgWPa/w//2KwZ7w/Mgnifhrv2IDeEyD/r+3oJvA
+	GGh7e8fxtjv8/mshSxbFxL3m3wHrjm41b5mm5q0KP2OrFa/u8gs7r1g==
+X-Received: by 2002:a5d:5692:0:b0:34d:7d77:36fa with SMTP id f18-20020a5d5692000000b0034d7d7736famr1006343wrv.5.1714475243631;
+        Tue, 30 Apr 2024 04:07:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGcLNke56JnTbPaAydHL1JwA1e2Rs1ezSc6zl5FkWobFVmpOsDpeZkzrMYwNPY8bl/KnnrD2g==
+X-Received: by 2002:a5d:5692:0:b0:34d:7d77:36fa with SMTP id f18-20020a5d5692000000b0034d7d7736famr1006332wrv.5.1714475243219;
+        Tue, 30 Apr 2024 04:07:23 -0700 (PDT)
+Received: from gerbillo.redhat.com ([2a0d:3341:b0ae:6a10::f71])
+        by smtp.gmail.com with ESMTPSA id w5-20020a5d6805000000b0034c8b0354a6sm9179999wru.106.2024.04.30.04.07.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Apr 2024 18:22:02 -0700 (PDT)
-Date: Tue, 30 Apr 2024 04:21:59 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-To: Joseph Huang <joseph.huang.2024@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
-	Andrew Lunn <andrew@lunn.ch>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
-Message-ID: <20240430012159.rmllu5s5gcdepjnc@skbuf>
-References: <20240402174348.wosc37adyub5o7xu@skbuf>
- <a8968719-a63b-4969-a971-173c010d708f@blackwall.org>
- <20240402204600.5ep4xlzrhleqzw7k@skbuf>
- <065b803f-14a9-4013-8f11-712bb8d54848@blackwall.org>
- <804b7bf3-1b29-42c4-be42-4c23f1355aaf@gmail.com>
- <20240405102033.vjkkoc3wy2i3vdvg@skbuf>
- <935c18c1-7736-416c-b5c5-13ca42035b1f@blackwall.org>
- <651c87fc-1f21-4153-bade-2dad048eecbd@gmail.com>
- <20240405211502.q5gfwcwyhkm6w7xy@skbuf>
- <1f385946-84d0-499c-9bf6-90ef65918356@gmail.com>
+        Tue, 30 Apr 2024 04:07:22 -0700 (PDT)
+Message-ID: <b763c28aa7cb3276136eac39a9144a4242587438.camel@redhat.com>
+Subject: Re: [PATCH net 1/2] net: bridge: fix multicast-to-unicast with
+ fraglist GSO
+From: Paolo Abeni <pabeni@redhat.com>
+To: Felix Fietkau <nbd@nbd.name>, netdev@vger.kernel.org, Roopa Prabhu
+ <roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>,  Linus =?ISO-8859-1?Q?L=FCssing?=
+ <linus.luessing@c0d3.blue>
+Cc: bridge@lists.linux.dev, linux-kernel@vger.kernel.org
+Date: Tue, 30 Apr 2024 13:07:21 +0200
+In-Reply-To: <20240427182420.24673-1-nbd@nbd.name>
+References: <20240427182420.24673-1-nbd@nbd.name>
+Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1f385946-84d0-499c-9bf6-90ef65918356@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 29, 2024 at 04:14:03PM -0400, Joseph Huang wrote:
-> How about the following syntax? I think it satisfies all the "not breaking
-> existing behavior" requirements (new option defaults to off, and missing
-> user space netlink attributes does not change the existing behavior):
-> 
-> mcast_flood off
->   all off
-> mcast_flood off mcast_flood_rfc4541 off
->   all off
-> mcast_flood off mcast_flood_rfc4541 on
->   224.0.0.X and ff02::1 on, the rest off
-> mcast_flood on
->   all on
-> mcast_flood on mcast_flood_rfc4541 off
->   all on (mcast_flood on overrides mcast_flood_rfc4541)
-> mcast_flood on mcast_flood_rfc4541 on
->   all on
-> mcast_flood_rfc4541 off
->   invalid (mcast_flood_rfc4541 is only valid if mcast_flood [on | off] is
-> specified first)
-> mcast_flood_rfc4541 on
->   invalid (mcast_flood_rfc4541 is only valid if mcast_flood [on | off] is
-> specified first)
+On Sat, 2024-04-27 at 20:24 +0200, Felix Fietkau wrote:
+> Calling skb_copy on a SKB_GSO_FRAGLIST skb is not valid, since it returns
+> an invalid linearized skb. This code only needs to change the ethernet
+> header, so pskb_copy is the right function to call here.
+>=20
+> Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
+> Signed-off-by: Felix Fietkau <nbd@nbd.name>
+> ---
+>  net/bridge/br_forward.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+> index 7431f89e897b..d7c35f55bd69 100644
+> --- a/net/bridge/br_forward.c
+> +++ b/net/bridge/br_forward.c
+> @@ -266,7 +266,7 @@ static void maybe_deliver_addr(struct net_bridge_port=
+ *p, struct sk_buff *skb,
+>  =09if (skb->dev =3D=3D p->dev && ether_addr_equal(src, addr))
+>  =09=09return;
+> =20
+> -=09skb =3D skb_copy(skb, GFP_ATOMIC);
+> +=09skb =3D pskb_copy(skb, GFP_ATOMIC);
+>  =09if (!skb) {
+>  =09=09DEV_STATS_INC(dev, tx_dropped);
+>  =09=09return;
 
-A bridge port defaults to having BR_MCAST_FLOOD set - see new_nbp().
-Netlink attributes are only there to _change_ the state of properties in
-the kernel. They don't need to be specified by user space if there's
-nothing to be changed. "Only valid if another netlink attribute comes
-first" makes no sense. You can alter 2 bridge port flags as part of the
-same netlink message, or as part of different netlink messages (sent
-over sockets of other processes).
+LGTM, but let's wait a little more time for Nikolay
 
-> 
-> Think of mcast_flood_rfc4541 like a pet door if you will.
+Acked-by: Paolo Abeni <pabeni@redhat.com>
 
-Ultimately, as far as I see it, both the OR-based and the AND-based UAPI
-addition could be made to work in a way that's perhaps similarly backwards
-compatible. It needs to be worked out with the bridge maintainers. Given
-that I'm not doing great with my spare time, I will take a back seat on
-that.
-
-However, what I don't quite understand in your proposal is how many IPv4
-addresses lie beyond the "224.0.0.X" notation? 256? Explain why there is
-such a large discrepancy in the number of IPv4 addresses you are in
-control of (256), vs only 1 IPv6 address with the new rfc4541 flag?
