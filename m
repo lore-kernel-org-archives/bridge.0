@@ -1,144 +1,98 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from nbd.name (nbd.name [46.4.11.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 736C8158D74
-	for <bridge@lists.linux.dev>; Fri,  3 May 2024 18:30:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C28A225569;
+	Sun,  5 May 2024 18:42:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.4.11.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714761012; cv=none; b=RtR9LjGoanoaEye/dZKNByG2A53DW/MjyaDDwBVFpXNKcCKUNz5ZH9wKYRR7Sj9Ho6i/6NeRzESwp5Pr7zdIr+sgRhxFjPx80FvPEPp4MyE+J7rOmeXarz+eu8bD071aeLsOE/xz7KgI5UPiujdgpEUVujoX3Beii2vjum8m8yU=
+	t=1714934578; cv=none; b=rg37YGh0RZS6ewYRxc/FfSCnU+QC0FlxMSifZ6Mh6buL5s07/0wIcHP1VsXH60icLYdFD/t3fjt39RjG4BGGVm/+pfW793oHbAolCsTfzcVLQK1TRilXOVV1T2VcYd7kFhIxa+y4dad5o6oiWp4QyJr6xTipRUPShKWif+syAGI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714761012; c=relaxed/simple;
-	bh=sk4AU8OgknjRSmTeIM8d2vACmrBkH/YqK9W4PPXihlc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YDZcWvGg+tnmol+BtpZtDqevj2se+taRcVtiZ/F5ZZ4TlDEf0j8qPdR0C0+KIedLSOokNR5uZAbQ5nb6oL9L80jhbBpjC2xZGXBkdbq4YLg4wsmHghnvv19aeL3ANJYKt+qmwVzX88lN6IaOZIg+3SVVZYKWyWjbahHQKQC+W0w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=3N9uVA/r; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=d+bl86la; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1714934578; c=relaxed/simple;
+	bh=G5DPjNlDALLX+7ggljBcHdccInr82HLwhv0mrQTkjU8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WZGNYtT6VlIyh9UI1w4I2eTVcA7F5Zq88bByl6XezlfNTHGldCzFEza/QC1cTCEJCcDhfmwctWNLlPoz0GZ5VaLAuhi5h/fZ9SCU8R9VE+O5BXjMXQpSRN4hIDDRvnVumWUbZY75gauUzrhDLa7z3BUHi9G1jCQyE3Qr2kdmV2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name; spf=none smtp.mailfrom=nbd.name; dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b=iTpVhqVh; arc=none smtp.client-ip=46.4.11.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=nbd.name
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="3N9uVA/r";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="d+bl86la"
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1714761008;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H7YehgQsfcS62wHoW0lT0hKawzgXS3v0pYsqGden+Fw=;
-	b=3N9uVA/rSGGKnseYOg5jHK7lOkOnRpchV6uLIiU1Fg2aTTU9QiTO1Ov7OWI7xDZOMg9W63
-	hOInMkJK8RY8bUFyQACrzgRLeBXvvDUVvBYEoGl7go6XcTyKxBNSnLwEEjwaxd/MAcRszz
-	o6xoG1SmE21FxRLKK2K983zSNGuP6Nj/YKrGVesu5hP8rPl2T8upS5JZYKVyGLQ0Oy++o/
-	iaJmFrHYQAqXz7LIjrpkutVOSlqyrCH7mg/cdFHZmuB4gOq6JiIirHkCwSCXUcNyJAxqdw
-	VYhSP5JSZBYXzSJfI8IB5zb9JeocJnIUHQ/yWuNPC4vN4plH6jAdmQrTgWNW4Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1714761008;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H7YehgQsfcS62wHoW0lT0hKawzgXS3v0pYsqGden+Fw=;
-	b=d+bl86laZw1AIF8zVC0bWXExGb/Id1llWZZysFEGJZ4g6pXGAn9IwUByl+TPwKOWD3+Mrr
-	4vibp7BD7BGdxbCg==
-To: linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Boqun Feng <boqun.feng@gmail.com>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Waiman Long <longman@redhat.com>,
-	Will Deacon <will@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Florian Westphal <fw@strlen.de>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
+	dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b="iTpVhqVh"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
+	s=20160729; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:
+	Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=TxMEun4WM8Bf7pKsihOkB1y9YtAU4T5UBt+gopLdKEM=; b=iTpVhqVhUVT8ek+sNxcvaiUNL7
+	yNsO61wAYS3k1/h1DmckHZhWk06Lt/8el1NYSJQqB5nuD/IiACf8J2A8im6ZUv1XELAna2PUr0rpT
+	XEcsgaIc+YD9GWxM46tdz8zlIsgHQN6iB52ORQjVjBwGnfBWqNnWShoMUytWTkpIHym0=;
+Received: from p54ae9c93.dip0.t-ipconnect.de ([84.174.156.147] helo=localhost.localdomain)
+	by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+	(Exim 4.96)
+	(envelope-from <nbd@nbd.name>)
+	id 1s3goq-00DAxa-0D;
+	Sun, 05 May 2024 20:42:40 +0200
+From: Felix Fietkau <nbd@nbd.name>
+To: netdev@vger.kernel.org,
 	Roopa Prabhu <roopa@nvidia.com>,
-	bridge@lists.linux.dev,
-	coreteam@netfilter.org,
-	netfilter-devel@vger.kernel.org
-Subject: [PATCH net-next 07/15] netfilter: br_netfilter: Use nested-BH locking for brnf_frag_data_storage.
-Date: Fri,  3 May 2024 20:25:11 +0200
-Message-ID: <20240503182957.1042122-8-bigeasy@linutronix.de>
-In-Reply-To: <20240503182957.1042122-1-bigeasy@linutronix.de>
-References: <20240503182957.1042122-1-bigeasy@linutronix.de>
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: bridge@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] net: bridge: fix corrupted ethernet header on multicast-to-unicast
+Date: Sun,  5 May 2024 20:42:38 +0200
+Message-ID: <20240505184239.15002-1-nbd@nbd.name>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-brnf_frag_data_storage is a per-CPU variable and relies on disabled BH
-for its locking. Without per-CPU locking in local_bh_disable() on
-PREEMPT_RT this data structure requires explicit locking.
+The change from skb_copy to pskb_copy unfortunately changed the data
+copying to omit the ethernet header, since it was pulled before reaching
+this point. Fix this by calling __skb_push/pull around pskb_copy.
 
-Add a local_lock_t to the data structure and use local_lock_nested_bh()
-for locking. This change adds only lockdep coverage and does not alter
-the functional behaviour for !PREEMPT_RT.
-
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Jozsef Kadlecsik <kadlec@netfilter.org>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: bridge@lists.linux.dev
-Cc: coreteam@netfilter.org
-Cc: netfilter-devel@vger.kernel.org
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Fixes: 59c878cbcdd8 ("net: bridge: fix multicast-to-unicast with fraglist GSO")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 ---
- net/bridge/br_netfilter_hooks.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/bridge/br_forward.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hook=
-s.c
-index 7948a9e7542c4..baacd80716046 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -137,6 +137,7 @@ static inline bool is_pppoe_ipv6(const struct sk_buff *=
-skb,
- #define NF_BRIDGE_MAX_MAC_HEADER_LENGTH (PPPOE_SES_HLEN + ETH_HLEN)
-=20
- struct brnf_frag_data {
-+	local_lock_t bh_lock;
- 	char mac[NF_BRIDGE_MAX_MAC_HEADER_LENGTH];
- 	u8 encap_size;
- 	u8 size;
-@@ -144,7 +145,9 @@ struct brnf_frag_data {
- 	__be16 vlan_proto;
- };
-=20
--static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage);
-+static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage) =3D {
-+	.bh_lock =3D INIT_LOCAL_LOCK(bh_lock),
-+};
-=20
- static void nf_bridge_info_free(struct sk_buff *skb)
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index d7c35f55bd69..d97064d460dc 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -258,6 +258,7 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
  {
-@@ -882,6 +885,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
-=20
- 		IPCB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
-=20
-+		guard(local_lock_nested_bh)(&brnf_frag_data_storage.bh_lock);
- 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
-=20
- 		if (skb_vlan_tag_present(skb)) {
-@@ -909,6 +913,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
-=20
- 		IP6CB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
-=20
-+		guard(local_lock_nested_bh)(&brnf_frag_data_storage.bh_lock);
- 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
- 		data->encap_size =3D nf_bridge_encap_header_len(skb);
- 		data->size =3D ETH_HLEN + data->encap_size;
---=20
-2.43.0
+ 	struct net_device *dev = BR_INPUT_SKB_CB(skb)->brdev;
+ 	const unsigned char *src = eth_hdr(skb)->h_source;
++	struct sk_buff *nskb;
+ 
+ 	if (!should_deliver(p, skb))
+ 		return;
+@@ -266,12 +267,16 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
+ 	if (skb->dev == p->dev && ether_addr_equal(src, addr))
+ 		return;
+ 
+-	skb = pskb_copy(skb, GFP_ATOMIC);
+-	if (!skb) {
++	__skb_push(skb, ETH_HLEN);
++	nskb = pskb_copy(skb, GFP_ATOMIC);
++	__skb_pull(skb, ETH_HLEN);
++	if (!nskb) {
+ 		DEV_STATS_INC(dev, tx_dropped);
+ 		return;
+ 	}
+ 
++	skb = nskb;
++	__skb_pull(skb, ETH_HLEN);
+ 	if (!is_broadcast_ether_addr(addr))
+ 		memcpy(eth_hdr(skb)->h_dest, addr, ETH_ALEN);
+ 
+-- 
+2.44.0
 
