@@ -1,225 +1,124 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E9A413C81E;
-	Tue,  7 May 2024 08:02:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6221C73530
+	for <bridge@lists.linux.dev>; Tue,  7 May 2024 12:15:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715068951; cv=none; b=VUACohHxpPw9d+dzd62bYPaEp97NmqwX5vW5arWZ4c/JAelT6Xbnnaq6tY4JgtVJQEWSZoAC7pdaBjN+eD31IXNHZ/SMomwN0SWsc5+5gYlwEG44KFzSjOoz9VtkNQgwJ5ZVtZba8mmEGkTWfVuPjRxmTqneol+zU/y/r3MzPos=
+	t=1715084149; cv=none; b=k7Y/EW/Kat7+P0lBGYCnAMeV+YXplpYKi10t+eJedQxqcbAnunrX+FWfQah3N8eMuUsR7Uecl0bRealFjU0fs4fUme9HaQ3hVPydlksmd9JlTxk5/+T4MOcO0SNVk1/9eU7Cff6hOayuipCisd3UfDmGcWDcm+HX0FD5F8BOhbQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715068951; c=relaxed/simple;
-	bh=eVuJaWmf6K+6Q7+mij6ttOAXRmIGKtXLtFRjx9VCUhU=;
-	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:References; b=D9N21sdkfQlbttpaGG2w8Z4/T3yQn86E5RNB6hmEsxeKjiSp/qXH7Ec8siEkZesAyw43wwXNCA0IT57QoebdkY+YAVqxUyCdMLNnFWlxOV3gd8PGCXfV3MAeqTlikFGcxZ9XYCnDSASE6GeSpdJm9pTcxlVMDQtd7O9CNQF/tg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=OaCt/I82; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1715084149; c=relaxed/simple;
+	bh=dWYuhSmaw6zHw/xPyvKvmeoz7fmgJSbAFIN1ULigx1k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bnDscfUXQHUXEkkjVdU6DqKovHYo1Rs+Rpzhm75BUHHmI0pYD8kqdDsC3mGEx68OlQCJuW5fvTiOtihmZ8VlCKwc0mNlGtCdQc4SFUzhCy1YoujXRtvDpw5xW05Yf4hQd0V7Mn7UhV2Kvf27WXZfUEvl4ndRR7pmnfEZiJ10cIU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=ClHQqugI; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="OaCt/I82"
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20240507080226euoutp01ffb1c9ea68a4ba254d5e06cfea0a15ef~NJh6jrufP1475714757euoutp01N;
-	Tue,  7 May 2024 08:02:26 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20240507080226euoutp01ffb1c9ea68a4ba254d5e06cfea0a15ef~NJh6jrufP1475714757euoutp01N
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1715068946;
-	bh=bM6BO+kXomYK6wu5Oe2x75rmz5FGAnqZz6OZvwI6EI8=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=OaCt/I8263CIse6EAHirslaA+XjPx3S99X0Lnu+QkIer/c0VKj8SFlQ3zGajYKMOr
-	 LYHYoCwD/OM250G6eDa95qO5w5nzjQVjBgP5yR0c7DVdlluAmL+6rTNVU6/ftVtthh
-	 whD4dNzZqSg6CHoctLNTdfvbH/llcfrspgm6hywo=
-Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-	20240507080225eucas1p100839565bf9accbaa12bd4b6d3ce75ea~NJh6UAr6t1360813608eucas1p1P;
-	Tue,  7 May 2024 08:02:25 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-	eusmges2new.samsung.com (EUCPMTA) with SMTP id F5.3E.09875.110E9366; Tue,  7
-	May 2024 09:02:25 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20240507080225eucas1p2ecd684015a8497b39ba48a3cbf7ff117~NJh5t9EE63198231982eucas1p2j;
-	Tue,  7 May 2024 08:02:25 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20240507080225eusmtrp1c4d5b256ccf9962d4d861eb6994c583a~NJh5r3Gwh1695816958eusmtrp1e;
-	Tue,  7 May 2024 08:02:25 +0000 (GMT)
-X-AuditID: cbfec7f4-131ff70000002693-73-6639e011d550
-Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-	eusmgms2.samsung.com (EUCPMTA) with SMTP id 9F.32.09010.010E9366; Tue,  7
-	May 2024 09:02:24 +0100 (BST)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20240507080224eusmtip1557a07acc6af3e10765745c779036cca~NJh5VdlXv1570615706eusmtip19;
-	Tue,  7 May 2024 08:02:24 +0000 (GMT)
-Received: from localhost (106.110.32.44) by CAMSVWEXC02.scsc.local
-	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-	Tue, 7 May 2024 09:02:24 +0100
-Date: Tue, 7 May 2024 10:02:19 +0200
-From: Joel Granados <j.granados@samsung.com>
-To: Dan Carpenter <dan.carpenter@linaro.org>
-CC: Sabrina Dubroca <sd@queasysnail.net>, "David S. Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
-	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexander Aring
-	<alex.aring@gmail.com>, Stefan Schmidt <stefan@datenfreihafen.org>, Miquel
-	Raynal <miquel.raynal@bootlin.com>, David Ahern <dsahern@kernel.org>,
-	Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu
-	<herbert@gondor.apana.org.au>, Matthieu Baerts <matttbe@kernel.org>, Mat
-	Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>, Remi
-	Denis-Courmont <courmisch@gmail.com>, Allison Henderson
-	<allison.henderson@oracle.com>, David Howells <dhowells@redhat.com>, Marc
-	Dionne <marc.dionne@auristor.com>, Marcelo Ricardo Leitner
-	<marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Wenjia Zhang
-	<wenjia@linux.ibm.com>, Jan Karcher <jaka@linux.ibm.com>, "D. Wythe"
-	<alibuda@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, Wen Gu
-	<guwen@linux.alibaba.com>, Trond Myklebust
-	<trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>, Chuck
-	Lever <chuck.lever@oracle.com>, Jeff Layton <jlayton@kernel.org>, Neil Brown
-	<neilb@suse.de>, Olga Kornievskaia <kolga@netapp.com>, Dai Ngo
-	<Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Jon Maloy
-	<jmaloy@redhat.com>, Ying Xue <ying.xue@windriver.com>, Martin Schiller
-	<ms@dev.tdt.de>, Pablo Neira Ayuso <pablo@netfilter.org>, Jozsef Kadlecsik
-	<kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>, Roopa Prabhu
-	<roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, Simon Horman
-	<horms@verge.net.au>, Julian Anastasov <ja@ssi.bg>, Joerg Reuter
-	<jreuter@yaina.de>, Luis Chamberlain <mcgrof@kernel.org>, Kees Cook
-	<keescook@chromium.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <dccp@vger.kernel.org>,
-	<linux-wpan@vger.kernel.org>, <mptcp@lists.linux.dev>,
-	<linux-hams@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-	<rds-devel@oss.oracle.com>, <linux-afs@lists.infradead.org>,
-	<linux-sctp@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<linux-nfs@vger.kernel.org>, <tipc-discussion@lists.sourceforge.net>,
-	<linux-x25@vger.kernel.org>, <netfilter-devel@vger.kernel.org>,
-	<coreteam@netfilter.org>, <bridge@lists.linux.dev>,
-	<lvs-devel@vger.kernel.org>
-Subject: Re: [PATCH net-next v6 8/8] ax.25: x.25: Remove the now superfluous
- sentinel elements from ctl_table array
-Message-ID: <20240507080219.xp6m5lyx5mt655yg@joelS2.panther.com>
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="ClHQqugI"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a59b178b75bso522286366b.0
+        for <bridge@lists.linux.dev>; Tue, 07 May 2024 05:15:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1715084146; x=1715688946; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=IUKfXenJAG2N5WSgqguRSHR3qBfgjkNSXZ2oXGFiItU=;
+        b=ClHQqugIB1aISqYE6zKQlr++XIksuhtWiIAo/AsJpznU7SslDEAFJ13U8c+JpVRFmE
+         szUyqivbdtTWYLhfH5Z7s1EuCXCoZNmP3RRi0f/wwH8Wgd5VUwAeZb9W47VkZDct9fGW
+         ZnKa4tLuAJruMqFLr4QSvITJlnTTva6SPhLPSH5MSm3fLUs3mlrQELL51lPlvSdytZ9z
+         cMMjMsWKxBNh3n59QBhtWHhUZVnL7Eju7UPV3FzvjXzOiU+Jzy1Erswrb7K92xh5oP9q
+         Fcb8QlXL2XXlvNoVcbtWeXubzkuYIZD8pjxSeP8+CEvU6u0vlegeCIjwEQn8CyG/MYaB
+         xvmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715084146; x=1715688946;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=IUKfXenJAG2N5WSgqguRSHR3qBfgjkNSXZ2oXGFiItU=;
+        b=Uy4/cSSRe38ANzK9NNufOo8qKtfJTiSKco1Jkib6E6MPTdvyk/rUhD6w26trB4dmYM
+         +5j+fa1daui7OgGhqkl47RqZi6mYSWws3Xoz0+irxqnMc2XtcjjlElX9N4hkvISleUBr
+         Lh3mnKHV5/gFBrpiF45NWJl4xKOxi8qGnHyiM/HE912NmAzBWMBg1w0Tk4s6uYxktDhT
+         WZHuSaphQI4RFySgDsOLyXLfiSzzcvcCPJcNsKTRbTbwu51R5SPXKJ2U8Bhg5g9xBWqB
+         OFcAsNdaXzriCqpbTCbwk4Q1T9BrF1c1enOrB56TiH5ExEDPRfp7U6tU+yfCDU3qL31h
+         YA/Q==
+X-Gm-Message-State: AOJu0YyzxMwq8M5kYNmmA17j322cv0FbZCgaMAFnMDtTcCtayuywAh64
+	rbK4Nbiaa06yBMq5mSjdXg5kDqP0hBfT5YIo7Q3EbRpOjSl+ST5aj3fA2xH9NBo=
+X-Google-Smtp-Source: AGHT+IG9cak2fCNRkjLA6nMOklMc3wR0gPeYdLkCkvN53U7wFdtqN+DcTu8b6RKxXiaT5kYD3tNeag==
+X-Received: by 2002:a50:d4d3:0:b0:570:cd6:8ef with SMTP id e19-20020a50d4d3000000b005700cd608efmr9909187edj.29.1715084145631;
+        Tue, 07 May 2024 05:15:45 -0700 (PDT)
+Received: from [192.168.51.243] ([78.128.78.220])
+        by smtp.gmail.com with ESMTPSA id j8-20020a50ed08000000b0056e718795f8sm6289854eds.36.2024.05.07.05.15.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 May 2024 05:15:45 -0700 (PDT)
+Message-ID: <9a1825ff-3a55-4c2a-86bc-0709d4ff8153@blackwall.org>
+Date: Tue, 7 May 2024 15:15:43 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="3yuuqqhcvvnk6kqm"
-Content-Disposition: inline
-In-Reply-To: <21f76a94-1b35-4cf7-914d-e341848b0b9e@moroto.mountain>
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WTfUxTVxjGc+5HW5l1l0rmibow+XCGOZDNyGumDqdzN/vDmBjDhku0wysw
-	obAWlGHYqtCiINhZB5MRQFwAWykMoYAfjHQIWipgRAVSUCqFrIKiUL4EOup1mcn++z3v+zw5
-	5znJEZESrWi5KFqWwMll0hgfgQdlbJ5u/9Dz0caD69QNa8GkDIH+axk0KNPUBKjqXRQYL2QS
-	4OodImCuPp2Esf4hGgqLLwtgtEAlhPz2NArmHmQK4OnxlxQYrqgIsDfbhGDM0iPQH7dSUDs0
-	KYBMx0pIrXEiGDhto6GzZFQA0yU6ITx02iiYzn4LzmWkEmDJjIW63gEKOozZNGjMwXC/tpeA
-	u1fyBdDR2ErDoCmLAs35VBLsRU9osGpLKGi8XojAVvGMgNTCFySkjj0mYaashYa2LBcJeQYd
-	CV0aO4K/0htosFQcF8JEwU0SrhcqKWguegc0BjMFE63DCHKH75FgHncR0HZ5jIax/DXQ5V5q
-	y6oJuHpySgjV7d+BecZMwOPJIQG4uj6FYxajMHQr22NzkuzTtluILbh0lP1NeYdiZ6YD2OqL
-	3QSb2eQg2fq8XiFrbPRni6oS2VnTH0K2SndSwFrvXxOw9f0bWU1xI2Iv//7TLp9wj00HuJjo
-	w5w8aMt+j6ixM6fo+D5JUl6ak1Cik0wGEokwsx5XVa7JQB4iCVOGcJqqkeLFOMIWXRfKQIsW
-	xBjC15uxm92BDmUPzZtKEbaWVb5OLJg6KmpIXlQhfPFEsdAdoRg/PGfPJdwsYNbi9mEr6Wav
-	BZ6f075Kk8yvEqxuqHwVWMok4tIn6a9MYiYUG+c6Ec+e+Na5AcrNJJOE1UOFpLsEyazApfMi
-	Ny5ituHaRm/+pquw80IfxXMKNlf3EO6jMHN7MbbU3BXwi+34dP3Ua16KHS3VQp5X4lbtKYoP
-	aBH+c35UyAs9wiXHnATv+gSndQ68TmzFt62XEP+qS3DXiCd/zyX4jDGX5MdifEIt4d2rsb5v
-	mNIg37w3muW90Szvv2b8eC0uuvpC8L/xB7jk/BOS583YYHhGFSGhDi3jEhWxkZziIxl3JFAh
-	jVUkyiIDI+Jiq9DCX22dbxmvQ6WO54EmRIiQCfkthG2V+g60nJLFyTgfL/GN9JCDEvEB6Q/J
-	nDxunzwxhlOY0AoR5bNM7H/Am5MwkdIE7hDHxXPyf7eEaNFyJRFtarb4lE+rAjflhK1b7L83
-	e/GeI/cLftHcDDvq7bgxW3vP76X2q7aBVSObN6SnhOdHT20c16RIApqP1nXSE8nEZOjHTNbb
-	Tbq/40JinOej5+32nX2D3ttyRgpco+9t6XPc0YfdpXwnvNSf28qdG1RZ629Wdv/o+OLbU00z
-	DwMCuyVh4oioZNm+d59/86BhX35w+B5i74TfHO6ZHIioMNgyU2y7YncMzqo99lvjRx/t3lxV
-	m13XOh3hX786yVLT/f7PsxU54b7lLLfrs4czQQkh7NT6kaHRs9uTvXU76Ud3iO6zK2Xm4O8T
-	Arq+HG5J397/tdfu0PjYIP/nh8Tyw7fveR6qsfpQiihpcAApV0j/AfPhAtomBQAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA2WTe0yTZxTG836XtkjYPlvdvjAStUrGmKuU6+kiTIMun4FETZguGAeNFpFB
-	iy1lTiMrFERbL0WjjMsAwZWbKwpYBBWxOhyVAWbCmBQcBcQpE5CLgpautVlmsv9+eZ7zPO/J
-	mxwOzr3I9uTslaZI5FJxIp+1iLi7cKf/E+pPUZzfZNtaMKlCYPCahgRV5mEMshrtBBjLtBjY
-	+0cxsDVm4zA1OEpCcWkdCyaKsthQ2JlJgO13LQueZbwiwNCUhcFIq5UNxuPVCKozLAQ0jL5g
-	gfaJF6gvzyAYPmkl4b5+ggVz+io2PJyxEjB3wh3yNGoM2rVJcKV/mIAu4wkSdGYh9DT0Y/Bb
-	UyELulrukvDIdJwA3Tk1DiMlT0mwnNYT0HK9GIG1ZhwDdfFzHNRTQzjMV9whoeO4HYd8QxUO
-	vboRBLeym0lor8lgw2zRLzhcL1YR0FryHugMZgJm744hyB3rxsE8bcego26KhKlCH+h1mqcr
-	6jG4evQlG+o7E8A8b8Zg6MUoC+y9n0F6u5G9bj3zwDqDM8862hBTdOEgU6C6RzDzc75MfeUf
-	GKO9/QRnGvP72YyxxZspqVUyr02X2Ext1VEWY+m5xmIaB0WMrrQFMXXnv9vCjxaslcuUKZLl
-	8TJFSih/hxD8BUIRCPwDRQJhQMjOT/2D+GvC1u6WJO5NlcjXhMUK4sd708lkC3f/1K3vkQpl
-	UxrkxqGpQLpL9YDUoEUcLvUjoke7O9guw4u+NN1NuphHv+7RsFxDk4i+XaXBnAaXqkX0dQM4
-	maBW0baR3Dc6i1pNd45ZcCcvcfCC7TThDOPUWS59uSn9TSuPUtLlT7PfDHlQ62ij7T5yvfAY
-	o39NP4O5jMV0W94w4WScSqXHtEOO9TgO/oAuX+A40Y0KpxtalrkWXUHPlA0QLj5ET9keIR3i
-	5b9VlP9WUf5/RS7Zl+5d+Av7n/wxrT/3FHdxKG0wjBMliF2FlkiUiqQ9SQp/gUKcpFBK9wh2
-	yZJqkeNcjK1z9VdQ5ZNJgQlhHGRCqxxJ68XqLuRJSGVSCX+Jx8/ZIXFcj93ibw9I5LIYuTJR
-	ojChIMcv5uCeS3fJHLcnTYkRBvsFCQODRX5BouAA/vsem5KPiLnUHnGK5GuJJFki/zeHcdw8
-	VVhkSE91843glvTYF7LdvDXtKSEFpsEPbbc0oY/TloYpVpZ/nlDcwBdEugtg483MyLjHgZur
-	th9LU9hvxu64GV62/svQnQurovdHRjetDFN+EV6nS8sciDpjjzzYd+NqVEJfwaWjc+6pgZHh
-	MRnn9cf2Hdl1T7/lUMXWh8RwfE118/xXvMrGFX05PN7JjXu9/M7+VLrNEmzRbN4Q/oP3clNT
-	j89S2WTupmcbvlGfLD8RO+0dPPD3hc5li3n7uZyovEcRUq8yi8fsBImtrLxqSojAV2+NCChM
-	zOS/0/XuQXOa1bYtJ8D3QWU3P8/nQHeS1Kx/fnj75KvGl7J9fZxTH23QJidwvd35hCJeLPTF
-	5QrxP3FAyGDDBAAA
-X-CMS-MailID: 20240507080225eucas1p2ecd684015a8497b39ba48a3cbf7ff117
-X-Msg-Generator: CA
-X-RootMTR: 20240501131616eucas1p28a33eeb55f6c084a0751e5b7b7d91d78
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240501131616eucas1p28a33eeb55f6c084a0751e5b7b7d91d78
-References: <20240501-jag-sysctl_remset_net-v6-0-370b702b6b4a@samsung.com>
-	<20240501-jag-sysctl_remset_net-v6-8-370b702b6b4a@samsung.com>
-	<CGME20240501131616eucas1p28a33eeb55f6c084a0751e5b7b7d91d78@eucas1p2.samsung.com>
-	<ZjJAikcdWzzaIr1s@hog> <20240503121811.fsmriwsgugzm2o7i@joelS2.panther.com>
-	<21f76a94-1b35-4cf7-914d-e341848b0b9e@moroto.mountain>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net: bridge: fix corrupted ethernet header on
+ multicast-to-unicast
+To: Felix Fietkau <nbd@nbd.name>, netdev@vger.kernel.org,
+ Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>
+Cc: bridge@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20240505184239.15002-1-nbd@nbd.name>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20240505184239.15002-1-nbd@nbd.name>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
---3yuuqqhcvvnk6kqm
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 05/05/2024 21:42, Felix Fietkau wrote:
+> The change from skb_copy to pskb_copy unfortunately changed the data
+> copying to omit the ethernet header, since it was pulled before reaching
+> this point. Fix this by calling __skb_push/pull around pskb_copy.
+> 
+> Fixes: 59c878cbcdd8 ("net: bridge: fix multicast-to-unicast with fraglist GSO")
+> Signed-off-by: Felix Fietkau <nbd@nbd.name>
+> ---
+>   net/bridge/br_forward.c | 9 +++++++--
+>   1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+> index d7c35f55bd69..d97064d460dc 100644
+> --- a/net/bridge/br_forward.c
+> +++ b/net/bridge/br_forward.c
+> @@ -258,6 +258,7 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
+>   {
+>   	struct net_device *dev = BR_INPUT_SKB_CB(skb)->brdev;
+>   	const unsigned char *src = eth_hdr(skb)->h_source;
+> +	struct sk_buff *nskb;
+>   
+>   	if (!should_deliver(p, skb))
+>   		return;
+> @@ -266,12 +267,16 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
+>   	if (skb->dev == p->dev && ether_addr_equal(src, addr))
+>   		return;
+>   
+> -	skb = pskb_copy(skb, GFP_ATOMIC);
+> -	if (!skb) {
+> +	__skb_push(skb, ETH_HLEN);
+> +	nskb = pskb_copy(skb, GFP_ATOMIC);
+> +	__skb_pull(skb, ETH_HLEN);
+> +	if (!nskb) {
+>   		DEV_STATS_INC(dev, tx_dropped);
+>   		return;
+>   	}
+>   
+> +	skb = nskb;
+> +	__skb_pull(skb, ETH_HLEN);
+>   	if (!is_broadcast_ether_addr(addr))
+>   		memcpy(eth_hdr(skb)->h_dest, addr, ETH_ALEN);
+>   
 
-On Fri, May 03, 2024 at 06:23:14PM +0300, Dan Carpenter wrote:
-> On Fri, May 03, 2024 at 02:18:11PM +0200, Joel Granados wrote:
-> > On Wed, May 01, 2024 at 03:15:54PM +0200, Sabrina Dubroca wrote:
-> > > 2024-05-01, 11:29:32 +0200, Joel Granados via B4 Relay wrote:
-> > > > From: Joel Granados <j.granados@samsung.com>
-> > > > diff --git a/net/ax25/ax25_ds_timer.c b/net/ax25/ax25_ds_timer.c
-> > > > index c4f8adbf8144..c50a58d9e368 100644
-> > > > --- a/net/ax25/ax25_ds_timer.c
-> > > > +++ b/net/ax25/ax25_ds_timer.c
-> > > > @@ -55,6 +55,7 @@ void ax25_ds_set_timer(ax25_dev *ax25_dev)
-> > > >  	ax25_dev->dama.slave_timeout =3D
-> > > >  		msecs_to_jiffies(ax25_dev->values[AX25_VALUES_DS_TIMEOUT]) / 10;
-> > > >  	mod_timer(&ax25_dev->dama.slave_timer, jiffies + HZ);
-> > > > +	return;
-> > >=20
-> > > nit: return not needed here since we're already at the bottom of the
-> > > function, but probably not worth a repost of the series.
-> > >=20
-> > Thx. I will not repost, but I have changed them locally so they are
-> > there in case a V7 is required.
-> >=20
->=20
-> It's a checkpatch.pl -f warning so we probably will want to fix it
-> eventually.
+This dance is getting ugly, but better to have it correct.
+It'd be nice if you could add a selftest that exercises it.
 
-According to [1] the patchset has already been applied. So I'll just
-send another patch for it to be applied on top.
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-Thx for pointing this out.
-
-
-[1] https://patchwork.kernel.org/project/netdevbpf/patch/20240501-jag-sysct=
-l_remset_net-v6-1-370b702b6b4a@samsung.com/
---=20
-
-Joel Granados
-
---3yuuqqhcvvnk6kqm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmY54AoACgkQupfNUreW
-QU9Dbgv+Op/tVXQJ7NdTua64j7NUxRCzHsjHQRU3hdSkupwQI/OaUY7bGGoodczt
-iNNg2J0Y0JSmRdASM/aOD7s7SaOxFKiYEe+2VsUZz/BzFO2Y2v3NI2RiwnSQh4wi
-kEJJfiJnfq3F5Kmie/WyXxmzU/2oSKFykgNJ11RddJnduusi+dU5l6qCymKxRjZg
-SX5SB1waJpZkGTnuevMNqF/GWr9DK1kAAU6OBKZO/lUneHDGag6yX3qPbKZJslJZ
-s16Z/mlzepR8cxQH3beDzfirydf2IlOH8HZh4WVH76mloTq2lQknnkdcqi+18eP1
-PE8600acZK1jILUXHGxMpMkLM1PAWARbwV2NWpdv1eFt2t1BEap/sVfaSy03EJpx
-LluZY7QlJy2LQs4alGQmme51crtM0ej6zbEF/MjTgPC5rtdsaKYxm8AUqMUTpZXK
-9seDYkN4LcV0sAb8ckQgOEfnNnDEezQ2koX8si4S1g4d7SZaGkNTpC/56oH4zk6T
-wbHvE20c
-=sLD8
------END PGP SIGNATURE-----
-
---3yuuqqhcvvnk6kqm--
