@@ -1,124 +1,77 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6221C73530
-	for <bridge@lists.linux.dev>; Tue,  7 May 2024 12:15:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C66977581A;
+	Wed,  8 May 2024 09:40:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715084149; cv=none; b=k7Y/EW/Kat7+P0lBGYCnAMeV+YXplpYKi10t+eJedQxqcbAnunrX+FWfQah3N8eMuUsR7Uecl0bRealFjU0fs4fUme9HaQ3hVPydlksmd9JlTxk5/+T4MOcO0SNVk1/9eU7Cff6hOayuipCisd3UfDmGcWDcm+HX0FD5F8BOhbQ=
+	t=1715161229; cv=none; b=W9I5etdV9y8E+r+jz94gUhkS9154IU1ky1tA70OQ2YLgoz0GyUAGCQk5KU3lM7LaefJSaIdCSBQdIEWek5c1i6/MOin1pSLZszrMog9jjc8wG/OqMulwzovlBPO0DGhvrheeeGxAVCPW4ByzBL5J/XYks0dWZwUaKI5f+goxOK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715084149; c=relaxed/simple;
-	bh=dWYuhSmaw6zHw/xPyvKvmeoz7fmgJSbAFIN1ULigx1k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bnDscfUXQHUXEkkjVdU6DqKovHYo1Rs+Rpzhm75BUHHmI0pYD8kqdDsC3mGEx68OlQCJuW5fvTiOtihmZ8VlCKwc0mNlGtCdQc4SFUzhCy1YoujXRtvDpw5xW05Yf4hQd0V7Mn7UhV2Kvf27WXZfUEvl4ndRR7pmnfEZiJ10cIU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=ClHQqugI; arc=none smtp.client-ip=209.85.218.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1715161229; c=relaxed/simple;
+	bh=XyCutnzQ3i618e+75rtDEoLQys3pHpoSb4bsdFYd1IY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=Wa7rPeVJb0uGpm2ko1ng9EtO7FKfuWilQmbBT9Fh0gNT8E8fJ/CFkS1MBf/8esQFqPTPbRUhAfEGxb/gdeFfNdm6V+i8hjbMVZxCzTeLWNkHxpiES28lCoGdouGAc1gPqWzCAuI1a0G15cACEoT9WGKetHNfK6BhV/La/BOnc1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cTuwdHI0; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="ClHQqugI"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a59b178b75bso522286366b.0
-        for <bridge@lists.linux.dev>; Tue, 07 May 2024 05:15:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1715084146; x=1715688946; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IUKfXenJAG2N5WSgqguRSHR3qBfgjkNSXZ2oXGFiItU=;
-        b=ClHQqugIB1aISqYE6zKQlr++XIksuhtWiIAo/AsJpznU7SslDEAFJ13U8c+JpVRFmE
-         szUyqivbdtTWYLhfH5Z7s1EuCXCoZNmP3RRi0f/wwH8Wgd5VUwAeZb9W47VkZDct9fGW
-         ZnKa4tLuAJruMqFLr4QSvITJlnTTva6SPhLPSH5MSm3fLUs3mlrQELL51lPlvSdytZ9z
-         cMMjMsWKxBNh3n59QBhtWHhUZVnL7Eju7UPV3FzvjXzOiU+Jzy1Erswrb7K92xh5oP9q
-         Fcb8QlXL2XXlvNoVcbtWeXubzkuYIZD8pjxSeP8+CEvU6u0vlegeCIjwEQn8CyG/MYaB
-         xvmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715084146; x=1715688946;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IUKfXenJAG2N5WSgqguRSHR3qBfgjkNSXZ2oXGFiItU=;
-        b=Uy4/cSSRe38ANzK9NNufOo8qKtfJTiSKco1Jkib6E6MPTdvyk/rUhD6w26trB4dmYM
-         +5j+fa1daui7OgGhqkl47RqZi6mYSWws3Xoz0+irxqnMc2XtcjjlElX9N4hkvISleUBr
-         Lh3mnKHV5/gFBrpiF45NWJl4xKOxi8qGnHyiM/HE912NmAzBWMBg1w0Tk4s6uYxktDhT
-         WZHuSaphQI4RFySgDsOLyXLfiSzzcvcCPJcNsKTRbTbwu51R5SPXKJ2U8Bhg5g9xBWqB
-         OFcAsNdaXzriCqpbTCbwk4Q1T9BrF1c1enOrB56TiH5ExEDPRfp7U6tU+yfCDU3qL31h
-         YA/Q==
-X-Gm-Message-State: AOJu0YyzxMwq8M5kYNmmA17j322cv0FbZCgaMAFnMDtTcCtayuywAh64
-	rbK4Nbiaa06yBMq5mSjdXg5kDqP0hBfT5YIo7Q3EbRpOjSl+ST5aj3fA2xH9NBo=
-X-Google-Smtp-Source: AGHT+IG9cak2fCNRkjLA6nMOklMc3wR0gPeYdLkCkvN53U7wFdtqN+DcTu8b6RKxXiaT5kYD3tNeag==
-X-Received: by 2002:a50:d4d3:0:b0:570:cd6:8ef with SMTP id e19-20020a50d4d3000000b005700cd608efmr9909187edj.29.1715084145631;
-        Tue, 07 May 2024 05:15:45 -0700 (PDT)
-Received: from [192.168.51.243] ([78.128.78.220])
-        by smtp.gmail.com with ESMTPSA id j8-20020a50ed08000000b0056e718795f8sm6289854eds.36.2024.05.07.05.15.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 May 2024 05:15:45 -0700 (PDT)
-Message-ID: <9a1825ff-3a55-4c2a-86bc-0709d4ff8153@blackwall.org>
-Date: Tue, 7 May 2024 15:15:43 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cTuwdHI0"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4BA83C4AF18;
+	Wed,  8 May 2024 09:40:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1715161229;
+	bh=XyCutnzQ3i618e+75rtDEoLQys3pHpoSb4bsdFYd1IY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=cTuwdHI0s1XkVG28wfDeVuGEI/VsvYg1GkFjSFs7vr+II0ATg1x17ae98mEeStJw6
+	 srzkp3GqwkDctO7X1/TCKTKjFWEAwEb9r8155CZf4Kam3gdngjNm7dYBccxMbIocTp
+	 lhTt3UXSYsXLPOTQnyPj6KXAf2KHRDurrHvM2pH4RbDOwug4GK8T2WA+0jBx0nP2TJ
+	 3rdglA/GWbPpKArgcNk748lN7QdC4dVrsZA1pjpx8zwpIxWX2F1wPYVE9SauXayadB
+	 FU1CFtT+MXDXr3qRODti5k/fd286BOHkJbYoKcXRPuQLdbMpLtD7CPQQutFeVLnmRe
+	 rrVnCM1LVzg/w==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 3EF13C3275D;
+	Wed,  8 May 2024 09:40:29 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+Content-Transfer-Encoding: 8bit
 Subject: Re: [PATCH net] net: bridge: fix corrupted ethernet header on
  multicast-to-unicast
-To: Felix Fietkau <nbd@nbd.name>, netdev@vger.kernel.org,
- Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-Cc: bridge@lists.linux.dev, linux-kernel@vger.kernel.org
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <171516122925.8124.11827972831667240154.git-patchwork-notify@kernel.org>
+Date: Wed, 08 May 2024 09:40:29 +0000
 References: <20240505184239.15002-1-nbd@nbd.name>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
 In-Reply-To: <20240505184239.15002-1-nbd@nbd.name>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Felix Fietkau <nbd@nbd.name>
+Cc: netdev@vger.kernel.org, roopa@nvidia.com, razor@blackwall.org,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ bridge@lists.linux.dev, linux-kernel@vger.kernel.org
 
-On 05/05/2024 21:42, Felix Fietkau wrote:
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by David S. Miller <davem@davemloft.net>:
+
+On Sun,  5 May 2024 20:42:38 +0200 you wrote:
 > The change from skb_copy to pskb_copy unfortunately changed the data
 > copying to omit the ethernet header, since it was pulled before reaching
 > this point. Fix this by calling __skb_push/pull around pskb_copy.
 > 
 > Fixes: 59c878cbcdd8 ("net: bridge: fix multicast-to-unicast with fraglist GSO")
 > Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> ---
->   net/bridge/br_forward.c | 9 +++++++--
->   1 file changed, 7 insertions(+), 2 deletions(-)
 > 
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index d7c35f55bd69..d97064d460dc 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -258,6 +258,7 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
->   {
->   	struct net_device *dev = BR_INPUT_SKB_CB(skb)->brdev;
->   	const unsigned char *src = eth_hdr(skb)->h_source;
-> +	struct sk_buff *nskb;
->   
->   	if (!should_deliver(p, skb))
->   		return;
-> @@ -266,12 +267,16 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
->   	if (skb->dev == p->dev && ether_addr_equal(src, addr))
->   		return;
->   
-> -	skb = pskb_copy(skb, GFP_ATOMIC);
-> -	if (!skb) {
-> +	__skb_push(skb, ETH_HLEN);
-> +	nskb = pskb_copy(skb, GFP_ATOMIC);
-> +	__skb_pull(skb, ETH_HLEN);
-> +	if (!nskb) {
->   		DEV_STATS_INC(dev, tx_dropped);
->   		return;
->   	}
->   
-> +	skb = nskb;
-> +	__skb_pull(skb, ETH_HLEN);
->   	if (!is_broadcast_ether_addr(addr))
->   		memcpy(eth_hdr(skb)->h_dest, addr, ETH_ALEN);
->   
+> [...]
 
-This dance is getting ugly, but better to have it correct.
-It'd be nice if you could add a selftest that exercises it.
+Here is the summary with links:
+  - [net] net: bridge: fix corrupted ethernet header on multicast-to-unicast
+    https://git.kernel.org/netdev/net/c/86b29d830ad6
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
