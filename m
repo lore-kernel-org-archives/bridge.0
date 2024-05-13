@@ -1,74 +1,67 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 093871E863
-	for <bridge@lists.linux.dev>; Mon, 13 May 2024 10:35:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB305101A
+	for <bridge@lists.linux.dev>; Mon, 13 May 2024 10:54:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715596502; cv=none; b=HvnJBPO2iA3KkHelYf2CLAaq8mb2cRQX06sduS7Uht9FCWC7bxcJgQCTh3GTkf1tL9BBfI1hzjKcfWQNETTjhjAvUdO8ru3tDrjcDW5FeY1qLzO9mwpcOHiYd+vjBkFX1kl5mF4IjFdUcV3Mrs1ZPsJwKN9nAlEQT41tSP3+/Jg=
+	t=1715597657; cv=none; b=eHF2Exj8Fv0JR98a85ofjKXSq9E3ZrfTTY8cUBKzL70OsPAk8n8XLmEYwjlEJx7gx3iK4FUnO0m1EXQkDjMn/nJX6ec2YUFQrfIgbp0llUmlPCUCDpsCTgPmHa0mhRDnKviD+Tke7PvgpXddMWiTWp1vmQdd/LBS2eGtk/NISBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715596502; c=relaxed/simple;
-	bh=iCMDWFPKRtQ+gVx4a6GRTIbskiAp0YKEDhVSfmxdfms=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uARzOcacgX0N03PSs5LFwMO2Ec29ajFpXpDEJNIBHHzlr+8rd6XlY0EVuNnLdH0yEoAZLcmT33LIQov0dikCIHvGPCjSUuIPjMBh2rAXOUtnW/iEM4I8JRcmuSKKy9dbhpMnGaN6Ea9AUkjf/MiP1gyA4Fa1G9fkBYrPvEGtqew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=pLVQVIc9; arc=none smtp.client-ip=209.85.221.49
+	s=arc-20240116; t=1715597657; c=relaxed/simple;
+	bh=Szhqf8ooS3BEnxzlJQIEQprMys0NYgaUTf6nvTDM9gA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Wvgil2WBhr46hRANZcQj0p2c/J4iZDF+nmRiDCkFxy1OY17DilRgvjteCtkYOPreHPpRQNE2YkKVIYxrpynkShd9jUr/jn1sXWZo8/SkClrXZfuy4SYsFmMmBOjR+xwA93mUT96l4ncsBSOco6WcTuRKQFW4wKSKyAstebxalRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=aK041MGz; arc=none smtp.client-ip=209.85.221.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="pLVQVIc9"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-34d7d04808bso3218186f8f.0
-        for <bridge@lists.linux.dev>; Mon, 13 May 2024 03:35:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="aK041MGz"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-34eb52bfca3so3735474f8f.0
+        for <bridge@lists.linux.dev>; Mon, 13 May 2024 03:54:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1715596499; x=1716201299; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XJpZYur1p+9mHWIybbm1nY5msF6SUb/keLogygdo/fg=;
-        b=pLVQVIc9rAR1Jryr+5sAggQfvZFJVhpYbZ8zcgul4FYhaFgL1+YaM2c0/6GtXlNioS
-         H6fwY5vEc9uqaEy6DgwgM/uQoZJtNVIXumD5745S1wBKCx/SM1Z1mukN7dQSpSWsQAOP
-         iwS/5v/VxvOMbnk5fLdHgOzqGI5iKzHKQNyaB/91CTFWD4NQxZcU7GTgPyxCSKGaGrmc
-         YuLREHUPyOG0p52DylEnMe1HSCwUh5MpEjzka7Yjx1GlQZhunuw7rO1IFQTaBGrPqqlt
-         KOJVQzmX77GcoSi9jh/RQ3n3GsyS7qahEV9bDe3G8NQqGYnl/Q7xrtaTGbgFPPZZiIWy
-         a7lQ==
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1715597654; x=1716202454; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=QznyFO3rd2jTKjUKQdNYdAWkDeClk6MN0UCvUizPFTo=;
+        b=aK041MGzP8C1Msed6w7u0oJvUeLKgtezZrIehyWqXWAS0O8GClNKQPL69dWVpP0iAN
+         GdDk/WHDN17/Uzasxrb5EkHlIL87gdmFAzcjFMkCBPpHnTyEAEAmXdhVjaWcND5FtOYd
+         8UnAhIml8Eyw+BRZPgFxysWQXz0MGN1pJesvkCXxHADxSkAU0RuZ0G/mbq/x+uvi1Is7
+         2jzBK+nqCqH2YTzAR5WyaKGDHcHI+ZMCtho2SArOEwUJjQdHoCvlu82do5yzzBoWc0c4
+         80lxJJIUy3N07M7LYnbUdGEBREkzJk+r3IXu74vIC5d7d59XdsuXjiCSJ9OHOA4cHw1N
+         DOYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715596499; x=1716201299;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XJpZYur1p+9mHWIybbm1nY5msF6SUb/keLogygdo/fg=;
-        b=sgsOnC95JuIkul89GeDIN0H4dwkwRPh6PdIMYSihyhGJleun1bfCNQb5/qFSLS9+H1
-         +qodIjFlHxyZN3GNSHAtmwWQUAzhQV/JuVgvHAJrS5ig7hJIiAY1VqQRjcGmElyqbZXc
-         nbZAYfFuOSDwVFTPso+Nw9FbzvLX9Pywz0uAP/0Gz6bOxM/QX5aXbRqc2t5pl81C75wt
-         bJv0Hz7Nq1t7EE4auEYZ1WG6AeeZiCy2hRNNbCdw7k9gRUom2y++cwCSj9XkSqi8UIQG
-         mIbVeGHGjCOXa/z7nxCjKRLVZvHiATzXx98WEYwxV28NhXn0bXis1CQqxI/8FHBYLxDw
-         qkdQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUS0oiibRyauaJJiWT4KCqqDGQpXScFgwJXbiD7MuoECX01uXDLYYUgnB+x50TcP8hLpqXpKrU6/7u3rFwf2ZpIXI06P6Mh
-X-Gm-Message-State: AOJu0YxbOp9gqFn0kPhXyTij4K+EtNPNQQXYljdBXpiYCSqTiXzIv4UD
-	3a+OohthNtAk0MLUCDBAg3EovjOoGZUjLxWtC0tgRExlLAQW2sXMfeqJfRvjkY4=
-X-Google-Smtp-Source: AGHT+IE+dY+sdj7gbM+JjmYQ/ss0dGgWFUyv8QeWV15g9mYYd/tPpbQ+LwuVLLv6QGLJYoQrlnzoIw==
-X-Received: by 2002:a5d:5490:0:b0:34b:b50:3689 with SMTP id ffacd0b85a97d-3504a61d261mr8758653f8f.10.1715596499125;
-        Mon, 13 May 2024 03:34:59 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1715597654; x=1716202454;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QznyFO3rd2jTKjUKQdNYdAWkDeClk6MN0UCvUizPFTo=;
+        b=TJBEArNr4ylH93FvbbhVpKf0i5hY0CHPOipgFXt2vYmi9TYZNwylyHPhIm3px2g7pm
+         aD2stp8RvTnF0RentLs6AFd18zSnyWnmtEQJ7f02pKsgcvxDCH0+LILzC/tHZJRnjV/f
+         aX0JtycebkV6G17EB8lkCfBwCptVrdINRVKM0wg9qi5IAm1CBZJPT23SiNyBWOQq6yjw
+         KQxCC9NyG5xCT8OUwEpzvlVLQ5CDUUcC4yn8JRO0ZmtYcs2ZvhG0qiutCzafheixFvM8
+         t+OUhR9isEJYE3np34c5pqLlrXqcTHOKIj/BQ5WsmvyhAjuk9ZitMFWAGGVXTZ98XmXS
+         fFLg==
+X-Forwarded-Encrypted: i=1; AJvYcCW1iwuYIHw4bjYF+F9iAvXJ//GCvoJ1UbdLVCbZxY6MPANDnOpRsPm/Y7hdL22iBZa+nS2FTtMBO7HOo6+X/fEcc2Clxi0S
+X-Gm-Message-State: AOJu0YwEflxFCz8dDzx2RAkpzas1FdDtKbpFKsm1d+tWcBgDw2R72D2O
+	RRJVIwSy+YmS9nTpu4yQvWSfEPeBKbXAwiloqRrdND3MfgTl9Wrxeng0oRIUYTs=
+X-Google-Smtp-Source: AGHT+IEXbqs6Pb+37F0hG90tB6d+LlaxcFt6/mbYceVpmrr4At3DbXjN5EY536uv7vYGDcnRNjRAoQ==
+X-Received: by 2002:a05:6000:1042:b0:34c:54c8:3f2d with SMTP id ffacd0b85a97d-3504aa63858mr7314779f8f.69.1715597653869;
+        Mon, 13 May 2024 03:54:13 -0700 (PDT)
 Received: from debil.. ([62.73.69.208])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502b79bd7asm10714578f8f.17.2024.05.13.03.34.58
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3502baacfd3sm10873420f8f.84.2024.05.13.03.54.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 May 2024 03:34:58 -0700 (PDT)
+        Mon, 13 May 2024 03:54:13 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
-Cc: roopa@nvidia.com,
+Cc: kuba@kernel.org,
+	roopa@nvidia.com,
 	bridge@lists.linux.dev,
-	davem@davemloft.net,
-	kuba@kernel.org,
 	edumazet@google.com,
 	pabeni@redhat.com,
-	syzkaller-bugs@googlegroups.com,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	syzbot+a63a1f6a062033cf0f40@syzkaller.appspotmail.com
-Subject: [PATCH net] net: bridge: xmit: make sure we have at least eth header len bytes
-Date: Mon, 13 May 2024 13:34:19 +0300
-Message-ID: <20240513103419.768040-1-razor@blackwall.org>
+	Nikolay Aleksandrov <razor@blackwall.org>
+Subject: [PATCH net] selftests: net: bridge: increase IGMP/MLD exclude timeout membership interval
+Date: Mon, 13 May 2024 13:52:57 +0300
+Message-ID: <20240513105257.769303-1-razor@blackwall.org>
 X-Mailer: git-send-email 2.44.0
-In-Reply-To: <000000000000d4e70506183d374d@google.com>
-References: <000000000000d4e70506183d374d@google.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -77,82 +70,76 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-syzbot triggered an uninit value[1] error in bridge device's xmit path
-by sending a short (less than ETH_HLEN bytes) skb. To fix it check if
-we can actually pull that amount instead of assuming.
+When running the bridge IGMP/MLD selftests on debug kernels we can get
+spurious errors when setting up the IGMP/MLD exclude timeout tests
+because the membership interval is just 3 seconds and the setup has 2
+seconds of sleep plus various validations, the one second that is left
+is not enough. Increase the membership interval from 3 to 5 seconds to
+make room for the setup validation and 2 seconds of sleep.
 
-Tested with dropwatch:
- drop at: br_dev_xmit+0xb93/0x12d0 [bridge] (0xffffffffc06739b3)
- origin: software
- timestamp: Mon May 13 11:31:53 2024 778214037 nsec
- protocol: 0x88a8
- length: 2
- original length: 2
- drop reason: PKT_TOO_SMALL
-
-[1]
-BUG: KMSAN: uninit-value in br_dev_xmit+0x61d/0x1cb0 net/bridge/br_device.c:65
- br_dev_xmit+0x61d/0x1cb0 net/bridge/br_device.c:65
- __netdev_start_xmit include/linux/netdevice.h:4903 [inline]
- netdev_start_xmit include/linux/netdevice.h:4917 [inline]
- xmit_one net/core/dev.c:3531 [inline]
- dev_hard_start_xmit+0x247/0xa20 net/core/dev.c:3547
- __dev_queue_xmit+0x34db/0x5350 net/core/dev.c:4341
- dev_queue_xmit include/linux/netdevice.h:3091 [inline]
- __bpf_tx_skb net/core/filter.c:2136 [inline]
- __bpf_redirect_common net/core/filter.c:2180 [inline]
- __bpf_redirect+0x14a6/0x1620 net/core/filter.c:2187
- ____bpf_clone_redirect net/core/filter.c:2460 [inline]
- bpf_clone_redirect+0x328/0x470 net/core/filter.c:2432
- ___bpf_prog_run+0x13fe/0xe0f0 kernel/bpf/core.c:1997
- __bpf_prog_run512+0xb5/0xe0 kernel/bpf/core.c:2238
- bpf_dispatcher_nop_func include/linux/bpf.h:1234 [inline]
- __bpf_prog_run include/linux/filter.h:657 [inline]
- bpf_prog_run include/linux/filter.h:664 [inline]
- bpf_test_run+0x499/0xc30 net/bpf/test_run.c:425
- bpf_prog_test_run_skb+0x14ea/0x1f20 net/bpf/test_run.c:1058
- bpf_prog_test_run+0x6b7/0xad0 kernel/bpf/syscall.c:4269
- __sys_bpf+0x6aa/0xd90 kernel/bpf/syscall.c:5678
- __do_sys_bpf kernel/bpf/syscall.c:5767 [inline]
- __se_sys_bpf kernel/bpf/syscall.c:5765 [inline]
- __x64_sys_bpf+0xa0/0xe0 kernel/bpf/syscall.c:5765
- x64_sys_call+0x96b/0x3b50 arch/x86/include/generated/asm/syscalls_64.h:322
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xcf/0x1e0 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+a63a1f6a062033cf0f40@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=a63a1f6a062033cf0f40
+Fixes: 34d7ecb3d4f7 ("selftests: net: bridge: update IGMP/MLD membership interval value")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_device.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Could you please validate this fixes the flakes for the netdev CI?
+It fixed them for me with the CI's debug kernel config. :)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index c366ccc8b3db..ecac7886988b 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -27,6 +27,7 @@ EXPORT_SYMBOL_GPL(nf_br_ops);
- /* net device transmit always called with BH disabled */
- netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- {
-+	enum skb_drop_reason reason = pskb_may_pull_reason(skb, ETH_HLEN);
- 	struct net_bridge_mcast_port *pmctx_null = NULL;
- 	struct net_bridge *br = netdev_priv(dev);
- 	struct net_bridge_mcast *brmctx = &br->multicast_ctx;
-@@ -38,6 +39,11 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 	const unsigned char *dest;
- 	u16 vid = 0;
+ tools/testing/selftests/net/forwarding/bridge_igmp.sh | 6 +++---
+ tools/testing/selftests/net/forwarding/bridge_mld.sh  | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/tools/testing/selftests/net/forwarding/bridge_igmp.sh b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
+index 2aa66d2a1702..e6a3e04fd83f 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_igmp.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
+@@ -478,10 +478,10 @@ v3exc_timeout_test()
+ 	RET=0
+ 	local X=("192.0.2.20" "192.0.2.30")
  
-+	if (unlikely(reason != SKB_NOT_DROPPED_YET)) {
-+		kfree_skb_reason(skb, reason);
-+		return NETDEV_TX_OK;
-+	}
-+
- 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
- 	br_tc_skb_miss_set(skb, false);
+-	# GMI should be 3 seconds
++	# GMI should be 5 seconds
+ 	ip link set dev br0 type bridge mcast_query_interval 100 \
+ 					mcast_query_response_interval 100 \
+-					mcast_membership_interval 300
++					mcast_membership_interval 500
  
+ 	v3exclude_prepare $h1 $ALL_MAC $ALL_GROUP
+ 	ip link set dev br0 type bridge mcast_query_interval 500 \
+@@ -489,7 +489,7 @@ v3exc_timeout_test()
+ 					mcast_membership_interval 1500
+ 
+ 	$MZ $h1 -c 1 -b $ALL_MAC -B $ALL_GROUP -t ip "proto=2,p=$MZPKT_ALLOW2" -q
+-	sleep 3
++	sleep 5
+ 	bridge -j -d -s mdb show dev br0 \
+ 		| jq -e ".[].mdb[] | \
+ 			 select(.grp == \"$TEST_GROUP\" and \
+diff --git a/tools/testing/selftests/net/forwarding/bridge_mld.sh b/tools/testing/selftests/net/forwarding/bridge_mld.sh
+index e2b9ff773c6b..f84ab2e65754 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_mld.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_mld.sh
+@@ -478,10 +478,10 @@ mldv2exc_timeout_test()
+ 	RET=0
+ 	local X=("2001:db8:1::20" "2001:db8:1::30")
+ 
+-	# GMI should be 3 seconds
++	# GMI should be 5 seconds
+ 	ip link set dev br0 type bridge mcast_query_interval 100 \
+ 					mcast_query_response_interval 100 \
+-					mcast_membership_interval 300
++					mcast_membership_interval 500
+ 
+ 	mldv2exclude_prepare $h1
+ 	ip link set dev br0 type bridge mcast_query_interval 500 \
+@@ -489,7 +489,7 @@ mldv2exc_timeout_test()
+ 					mcast_membership_interval 1500
+ 
+ 	$MZ $h1 -c 1 $MZPKT_ALLOW2 -q
+-	sleep 3
++	sleep 5
+ 	bridge -j -d -s mdb show dev br0 \
+ 		| jq -e ".[].mdb[] | \
+ 			 select(.grp == \"$TEST_GROUP\" and \
 -- 
 2.44.0
 
