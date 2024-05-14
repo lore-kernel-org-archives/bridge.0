@@ -1,41 +1,67 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C808857CAE;
-	Tue, 14 May 2024 10:06:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C2B26AC5
+	for <bridge@lists.linux.dev>; Tue, 14 May 2024 12:19:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715681191; cv=none; b=CLn+yyGEfVSb7aoDtnpmF6Zo6THQAEqfOy/dHUx4nN/ZobPO3jldsaeZuHdJbo4v4TBlpsPfIo80t3QnFM8tdGfjqzj6lCUJeVuXySXMBN/jZPNXGKSZEjfubNd72GWBm1c0avRvK9iZEUPBAtbJlWFkRC9dLvGHSlb1VmwNZ50=
+	t=1715689144; cv=none; b=cc4OBy+/i9n1J3hH6o8IPOSZympLXwX6ZSMgflbGuolGU+hfXq5DQ3BtJ218ixL4pmIuHG3PDGfT3/RpSAhqtiEVeGuPga3jYMn0hfX+/XdL/+feVaWO5X22i3vA+SQZxPq2nhF6DuVWth/BpFF9+ro9eP0lxqMgvz3RtJrh4XU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715681191; c=relaxed/simple;
-	bh=+6wjo4kETnH0qhES9SSGdfmWsDXL3yIOXHhhvuxL9Kw=;
+	s=arc-20240116; t=1715689144; c=relaxed/simple;
+	bh=SOBTkwoiFDlqkTZRK8lPUxvTkg7sOoOa00MeqX29k1c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q5K5gBuKsbC/zXTpcCkFbrOm/AQIgBFhhYNb5SrnkJfkEW9A6OR/lXYqcGm61+ImnJdIZqA5N7THfhBpMrWFi6/kAJlS77yo9NpZqxwNpK9QVZPa5MvYgeS2aHUdfMZ13ysLELtAoWJh2T0SVhBrK1CLLJittjJWj4tm7XVe/Mc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ulKMXYyj; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=ABNxPPuwq24GpGV/mv2+3jp+ZN71s0DkXSpQ5NE9eiVtUbbXTJoMF0aH9ssjf5nm5X3XrSmeLqO4S1VhBKI7bjXtFdacOtEyByKfuPiZABBhGBfLWvT7ItpOhZXDrjZ8Ms7u2f3znulTNBL3CXKkyQ6prntMzpUuQmCFRTZL4ro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U7xjMiSO; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ulKMXYyj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54A62C2BD10;
-	Tue, 14 May 2024 10:05:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715681191;
-	bh=+6wjo4kETnH0qhES9SSGdfmWsDXL3yIOXHhhvuxL9Kw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ulKMXYyjXhEMqiyGy9Pvq0AKhi3gHswWijNW5YD+MqiYvQKB75V1RHmNaGC/MxbKi
-	 c2Dg7RMIZV25/Z9CY8CMxTWIKFBFuUHUob5oAU0JFc8a+tO+KXNiLtCiIZN31/tRrc
-	 gRrNjYWbV1UbuR5ZDjCaWBPTdWFY60rPOAhvqhhhokGZsD8/pNX3UOHlDmTs+bShcs
-	 PQRMfg5xu8PIvhN0/ZbuHoidmYnkXRzUFBUEzv8HlCVIQhXEAqnrOWP/oeRp6MZMqA
-	 dLx3pxPjXtg+CueOT2Wil5oazrRvyAqHHuVjTDZpkq4cZ8lL8/hQDeR19OlMdOildI
-	 CZNwWNWPVeqeg==
-Date: Tue, 14 May 2024 11:04:29 +0100
-From: Simon Horman <horms@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U7xjMiSO"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2b346712919so3899001a91.2
+        for <bridge@lists.linux.dev>; Tue, 14 May 2024 05:19:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1715689143; x=1716293943; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=C/M6RcHxLr7rqLfy5+3tJEltYq84WQeLwXWf97w/s/4=;
+        b=U7xjMiSONHlL49H4dYJNMN2v7cP0dLbYKiAY1fUCX5DCSjsnFpoz5Ez3fiK/a30wSp
+         Amur8qlgOiDsCugE1FRb4PkH4bANvkQ7X8LfoopJ3qY9L8Iyw7XndiMGH7hVbmZgQih5
+         TMA3eFCqNfI1RT8yllP34iYQ8Xt8VAK4eHKE77IGZGskRd0NtSSIBgA2dUYyTsPGZvuT
+         EiLEjDDY2gUOIz9HTx0KXLdgCEJ5FlpaUfK99slycB+GO+EtpFsB/q1/UZMwkG3YOlbk
+         E1pUJUD1L3kl9SFQ/u6JLzsqVsG+QEW2sIeLWrtqsOcePxNowUlw6KjtYmq0LnnPt6hX
+         uTPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715689143; x=1716293943;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C/M6RcHxLr7rqLfy5+3tJEltYq84WQeLwXWf97w/s/4=;
+        b=eFRcV0xANNy26Rf12Sjn1gc3DPLuxvE7Me0eEMavzPUDhAvW2DloCNPiVHyvs2dsZH
+         iUZqwL0+djm82vBQaLvb6Fcz7CBdup5tgI173xhPx0XUXl1SvsmF8XOMu6FnQxWaHFlq
+         cFPcmgIg+4hCUDZNIFS21M5Cbr/PBaiwFE7b2MzGrLiT543TlKCDOIp/38vh+1dMYwvg
+         QSEY+5Y9RQmmy1bVDxdRUSVVvVuUP0DCi/BX6/luWtApuCiH8l98TVzK8x/eyPbH6y9X
+         iBDuy/Id1vliC8T/2uAcASlt+/I7U1KvVxpn3Ojz0z+IWJXA+jEtauRlXUbsDGVSTPi5
+         d3mA==
+X-Forwarded-Encrypted: i=1; AJvYcCXV0axRinhQDoxi7YiS+2Mby9w+qOjQd6L3UP1kQJMptOUwG6iMNJdr7XJe4PQ6xKRK4A3K15jxFcGzOpYtorx5UdP+/5jl
+X-Gm-Message-State: AOJu0YwpYfuCxRQL+WGYWDk6AfIfcDaRMPz02Aj+PWBWY0+BlZzC8ss7
+	UGEHRdgurUsRohLsJbcPSCsiJ45PXt6FU6burBLc5ImMBtU3HKg3
+X-Google-Smtp-Source: AGHT+IFtqdhlT/FlzWhzWeejBHdaSlmdcrHWnWz+l+xcoHaLF9lHC52dvea04HREoO9qhPea5ZYmww==
+X-Received: by 2002:a17:90a:d18e:b0:2b4:36d7:b6b5 with SMTP id 98e67ed59e1d1-2b6ccd85bf8mr11254959a91.34.1715689142540;
+        Tue, 14 May 2024 05:19:02 -0700 (PDT)
+Received: from Laptop-X1 ([43.228.180.230])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2b5e02ba6dasm7288971a91.1.2024.05.14.05.19.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 May 2024 05:19:02 -0700 (PDT)
+Date: Tue, 14 May 2024 20:18:57 +0800
+From: Hangbin Liu <liuhangbin@gmail.com>
 To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, tobias@waldekranz.com, kuba@kernel.org,
-	roopa@nvidia.com, bridge@lists.linux.dev, edumazet@google.com,
-	pabeni@redhat.com,
-	syzbot+fa04eb8a56fd923fc5d8@syzkaller.appspotmail.com
-Subject: Re: [PATCH net] net: bridge: mst: fix vlan use-after-free
-Message-ID: <20240514100429.GB2787@kernel.org>
-References: <20240513110627.770389-1-razor@blackwall.org>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, roopa@nvidia.com,
+	bridge@lists.linux.dev, edumazet@google.com, pabeni@redhat.com
+Subject: Re: [PATCH net] selftests: net: bridge: increase IGMP/MLD exclude
+ timeout membership interval
+Message-ID: <ZkNWsR04SdTpjWRZ@Laptop-X1>
+References: <20240513105257.769303-1-razor@blackwall.org>
+ <ZkKzcJm5owdvdu6B@Laptop-X1>
+ <186278b5-b2d5-408e-8d89-8cdff6efe41a@blackwall.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -44,61 +70,32 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240513110627.770389-1-razor@blackwall.org>
+In-Reply-To: <186278b5-b2d5-408e-8d89-8cdff6efe41a@blackwall.org>
 
-On Mon, May 13, 2024 at 02:06:27PM +0300, Nikolay Aleksandrov wrote:
-> syzbot reported a suspicious rcu usage[1] in bridge's mst code. While
-> fixing it I noticed that nothing prevents a vlan to be freed while
-> walking the list from the same path (br forward delay timer). Fix the rcu
-> usage and also make sure we are not accessing freed memory by making
-> br_mst_vlan_set_state use rcu read lock.
+On Tue, May 14, 2024 at 10:46:15AM +0300, Nikolay Aleksandrov wrote:
+> >> diff --git a/tools/testing/selftests/net/forwarding/bridge_mld.sh b/tools/testing/selftests/net/forwarding/bridge_mld.sh
+> >> index e2b9ff773c6b..f84ab2e65754 100755
+> >> --- a/tools/testing/selftests/net/forwarding/bridge_mld.sh
+> >> +++ b/tools/testing/selftests/net/forwarding/bridge_mld.sh
+> >>  
+> >>  	$MZ $h1 -c 1 $MZPKT_ALLOW2 -q
+> >> -	sleep 3
+> >> +	sleep 5
+> >>  	bridge -j -d -s mdb show dev br0 \
+> >>  		| jq -e ".[].mdb[] | \
+> >>  			 select(.grp == \"$TEST_GROUP\" and \
+> > 
+> > Maybe use a slow_wait to check the result?
+> > 
+> > Thanks
+> > Hangbin
 > 
-> [1]
->  WARNING: suspicious RCU usage
->  6.9.0-rc6-syzkaller #0 Not tainted
->  -----------------------------
->  net/bridge/br_private.h:1599 suspicious rcu_dereference_protected() usage!
->  ...
->  stack backtrace:
->  CPU: 1 PID: 8017 Comm: syz-executor.1 Not tainted 6.9.0-rc6-syzkaller #0
->  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/27/2024
->  Call Trace:
->   <IRQ>
->   __dump_stack lib/dump_stack.c:88 [inline]
->   dump_stack_lvl+0x241/0x360 lib/dump_stack.c:114
->   lockdep_rcu_suspicious+0x221/0x340 kernel/locking/lockdep.c:6712
->   nbp_vlan_group net/bridge/br_private.h:1599 [inline]
->   br_mst_set_state+0x1ea/0x650 net/bridge/br_mst.c:105
->   br_set_state+0x28a/0x7b0 net/bridge/br_stp.c:47
->   br_forward_delay_timer_expired+0x176/0x440 net/bridge/br_stp_timer.c:88
->   call_timer_fn+0x18e/0x650 kernel/time/timer.c:1793
->   expire_timers kernel/time/timer.c:1844 [inline]
->   __run_timers kernel/time/timer.c:2418 [inline]
->   __run_timer_base+0x66a/0x8e0 kernel/time/timer.c:2429
->   run_timer_base kernel/time/timer.c:2438 [inline]
->   run_timer_softirq+0xb7/0x170 kernel/time/timer.c:2448
->   __do_softirq+0x2c6/0x980 kernel/softirq.c:554
->   invoke_softirq kernel/softirq.c:428 [inline]
->   __irq_exit_rcu+0xf2/0x1c0 kernel/softirq.c:633
->   irq_exit_rcu+0x9/0x30 kernel/softirq.c:645
->   instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1043 [inline]
->   sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1043
->   </IRQ>
->   <TASK>
->  asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:702
->  RIP: 0010:lock_acquire+0x264/0x550 kernel/locking/lockdep.c:5758
->  Code: 2b 00 74 08 4c 89 f7 e8 ba d1 84 00 f6 44 24 61 02 0f 85 85 01 00 00 41 f7 c7 00 02 00 00 74 01 fb 48 c7 44 24 40 0e 36 e0 45 <4b> c7 44 25 00 00 00 00 00 43 c7 44 25 09 00 00 00 00 43 c7 44 25
->  RSP: 0018:ffffc90013657100 EFLAGS: 00000206
->  RAX: 0000000000000001 RBX: 1ffff920026cae2c RCX: 0000000000000001
->  RDX: dffffc0000000000 RSI: ffffffff8bcaca00 RDI: ffffffff8c1eaa60
->  RBP: ffffc90013657260 R08: ffffffff92efe507 R09: 1ffffffff25dfca0
->  R10: dffffc0000000000 R11: fffffbfff25dfca1 R12: 1ffff920026cae28
->  R13: dffffc0000000000 R14: ffffc90013657160 R15: 0000000000000246
-> 
-> Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
-> Reported-by: syzbot+fa04eb8a56fd923fc5d8@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=fa04eb8a56fd923fc5d8
-> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+> What would it improve? The wait is exact, we know how many seconds
+> exactly so a plain sleep is enough and easier to backport if this
+> is applied to -net.
 
-Reviewed-by: Simon Horman <horms@kernel.org>
+I just afraid it fails on debug kernel with this exact time. If you think
+the time is enough. I'm OK with it.
 
+Thanks
+Hangbin
