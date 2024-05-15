@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 179FA5F876;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17A3F5FB87;
 	Wed, 15 May 2024 10:50:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715770230; cv=none; b=N3x0jodVXlBaV2cnmv0Q4gl3BCqkwJ32QRFJrrIgBvrauddbJQ6tmJBsh+P+jwXU6d1TBH/Ms7DeOyMaAy6RDN0v0AzwjlxwmCbmPTZGCpQ+2tSxB/wi8K/EdaipDwH5D1pVdfPmReHNjRGIOL9at48XK68XN+abCOnfzmlLJC0=
+	t=1715770230; cv=none; b=jelIK8OvphPIn2mXj/EkUpVI9l5kauFLArULYY3Suh6iqpn48AfiqmHRWSSVtxx8mMzyc6QLxp5a9IKcza1613t+bEdynuPksX35S5YmCvsppzcywJh1AeeWefTKDRCFWnpkRAErgCLpimYxzEq3pM8Y9wMH2ivSqdhr1Xs1teQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1715770230; c=relaxed/simple;
-	bh=HpHdRrwjGUKTtq1QqhmVI5uJcN5E47R88GhAOUE3SHo=;
+	bh=h8/sKbJq0L9KSMNi6aEnhEU/Z5pFEd/YN2L1lnRYszQ=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=bP5l9nunE0bYTFUuupl8BSema6+SHiabMtqrdRmIZiSZ5233YNrDeqr18fW1m/wwbXE+ftf+RLaJ75yzql+6aBoJ8p9QGKLzRynUC6ZJrt0M+ACXCc/KP5xZE1vCWXG68fjF2yL7ue71pB8rUWoZSH210xUZT4k63gV7G0NwSNg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OV7UbtJx; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=jnVp8EDWKQx26OAJoUnoK3J9NP/Wuewo3GLn8R7Dj69pBYh7pHE6Ahz7c5xn3OTeVEOlv5UW+BbXsGAOPdqDEegyABD73Kv57RhKzF2rSk8Q6Dld7kuuJsiMm+7fmPr03+lases/NDvxvf5i3cYzArG6iQp1TzT7uj45AKKCVVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nGvK9RTy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OV7UbtJx"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id AA77AC32782;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nGvK9RTy"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B3D5FC32786;
 	Wed, 15 May 2024 10:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1715770229;
-	bh=HpHdRrwjGUKTtq1QqhmVI5uJcN5E47R88GhAOUE3SHo=;
+	bh=h8/sKbJq0L9KSMNi6aEnhEU/Z5pFEd/YN2L1lnRYszQ=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=OV7UbtJxOuaUqR9zH3VRBPxCi7LPnchrgFDmYsbBy2P9rCczUcieyVhYDd3iLqi8V
-	 WEBmc95WyuIRD6lyCCnbQQWK2U1fm44Rolo1DR+z0OtTmBIlspBpjJsgkPJixQzz+v
-	 TAps5JDqx2fGDK+f+p6qt5kCODqtzQypLY/7My294iF3Jv7j5ZU4ktl29SA5xZ0/q4
-	 ydUKKG2T1a7vGuuuZYEaeL52k1FuXyDtnAMiYd+HS5KcloBu4ZowrHWE9RIbsTivjS
-	 28Jc7maU/ZxraNuW/HIg4NQvbd6zMgPvhBOS3468ddbRiQzp3Vsyc6SdQuyOmy0B+q
-	 IQMn3IK5nSVHw==
+	b=nGvK9RTybWOLMV9zbYVyVSEbU9xhUijPEsEG8T+jX4cAl3+HVNBMxZujWTcx5oZ4H
+	 z17k5MvFlFoVwZ5zVEQ6wtueb6LQbiFyB9rMdyyEJXdkUhdiMHITw9FJKPyUtnGb5H
+	 /ZKnAaw3FtzbWO4TG7Jlt7AmqtHCpeIQE67hME2OX4Y4NCJlgRZOijlL6B6V65zm+H
+	 NF6LamAH+kGDyxrwF0dq1SGgh87zIxu16IS+pvLpQODr200np9ccAqC4yjJCXLr1Wu
+	 SwcYiA8AVmnNHXNbfm2j/XolbputnJBf/NzG57O7JMVcrC9Zi0Zc5mAFldSFnPpGqg
+	 aeNh7NSu8eibw==
 Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 9F90DC54BB6;
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A7EFAC41620;
 	Wed, 15 May 2024 10:50:29 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
@@ -37,39 +37,36 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net: bridge: mst: fix vlan use-after-free
+Subject: Re: [PATCH net] selftests: net: bridge: increase IGMP/MLD exclude timeout
+ membership interval
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <171577022964.14646.1553082232866025544.git-patchwork-notify@kernel.org>
+ <171577022968.14646.2766126822531337987.git-patchwork-notify@kernel.org>
 Date: Wed, 15 May 2024 10:50:29 +0000
-References: <20240513110627.770389-1-razor@blackwall.org>
-In-Reply-To: <20240513110627.770389-1-razor@blackwall.org>
+References: <20240513105257.769303-1-razor@blackwall.org>
+In-Reply-To: <20240513105257.769303-1-razor@blackwall.org>
 To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, tobias@waldekranz.com, kuba@kernel.org,
- roopa@nvidia.com, bridge@lists.linux.dev, edumazet@google.com,
- pabeni@redhat.com, syzbot+fa04eb8a56fd923fc5d8@syzkaller.appspotmail.com
+Cc: netdev@vger.kernel.org, kuba@kernel.org, roopa@nvidia.com,
+ bridge@lists.linux.dev, edumazet@google.com, pabeni@redhat.com
 
 Hello:
 
 This patch was applied to netdev/net.git (main)
 by David S. Miller <davem@davemloft.net>:
 
-On Mon, 13 May 2024 14:06:27 +0300 you wrote:
-> syzbot reported a suspicious rcu usage[1] in bridge's mst code. While
-> fixing it I noticed that nothing prevents a vlan to be freed while
-> walking the list from the same path (br forward delay timer). Fix the rcu
-> usage and also make sure we are not accessing freed memory by making
-> br_mst_vlan_set_state use rcu read lock.
-> 
-> [1]
->  WARNING: suspicious RCU usage
->  6.9.0-rc6-syzkaller #0 Not tainted
+On Mon, 13 May 2024 13:52:57 +0300 you wrote:
+> When running the bridge IGMP/MLD selftests on debug kernels we can get
+> spurious errors when setting up the IGMP/MLD exclude timeout tests
+> because the membership interval is just 3 seconds and the setup has 2
+> seconds of sleep plus various validations, the one second that is left
+> is not enough. Increase the membership interval from 3 to 5 seconds to
+> make room for the setup validation and 2 seconds of sleep.
 > 
 > [...]
 
 Here is the summary with links:
-  - [net] net: bridge: mst: fix vlan use-after-free
-    https://git.kernel.org/netdev/net/c/3a7c1661ae13
+  - [net] selftests: net: bridge: increase IGMP/MLD exclude timeout membership interval
+    https://git.kernel.org/netdev/net/c/06080ea23095
 
 You are awesome, thank you!
 -- 
