@@ -1,109 +1,103 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 425903D0D1
-	for <bridge@lists.linux.dev>; Sun,  2 Jun 2024 13:50:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07CBCDDD8
+	for <bridge@lists.linux.dev>; Tue,  4 Jun 2024 13:57:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717336210; cv=none; b=VBr7DI5x0+Exie9j6NvxO7GcUpahWKiw1s+tZCDn0Xj8dn4k0Dp4nJnFOv77vdqQa0HZ/X0N0XAUoppT7gwo6U3rJIY1jb1N/KuuS2ilE78WocDszlP2r1hPKAcin+KBb54GbECR/oIFOfmZ1+NKUR1w1cD4T+kxH1UYxuWVBj0=
+	t=1717509440; cv=none; b=hkFPB/S02VtWJ50Ety4JjLcH2ZEmUrvSR0ZGO955Zt1rx0stK5NRw8v2WE6KBn+7ygQ4h4HInaK4CpYtMe9cAY55A8DwDYfRO2KAIfdaS9y88+9bvCLqXsizMUqhtSDbW6d3cbEbactO2pMr2s9lZaZC8yonZ2SrMBPyMfTpGhM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717336210; c=relaxed/simple;
-	bh=RRz9TLvLdNYU9kZYBkqdH96oTN/q+RzbkWenYQGTsXw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gEggGomJ+TQ6Bn8T7UJQ/b8GWfnXuCRbtCVvKgou6wWhpuIFhiesTODfxemrL+MmRkT4DjuN6Sn6XGsg+3QEI8Lhq5gtZPr6+GCWyj4rxxIPCD+azM2Xt+B/r9y9YRm666xIDxhiQbFdtXY6lykhRiPIr6o7qzvDiug7Xld5KJ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=vWgzE0ds; arc=none smtp.client-ip=209.85.167.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1717509440; c=relaxed/simple;
+	bh=1qm/BCR+Qvtszdvpn1sqEPdVPjX886CnUH7k4u5TrsU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=q2q6Tz6Rngfg6cx3A82ICOH2N0dEJ9afLm6aVK+fGVXc4LDgjJ1sbSrRGKTHvQ4efY08trcdMccWwNRWO3Si1BGoYCHjUqK3HZHEKTkKG6d83bXCFuZdh2Dei4iGEapS0aMUCNIm7C6laM7Bs3j8Gj4B19EC1L4XhYkJrWSpwaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bQ5JURWb; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="vWgzE0ds"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-52b9af7a01bso15437e87.0
-        for <bridge@lists.linux.dev>; Sun, 02 Jun 2024 06:50:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1717336206; x=1717941006; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WgucUj/3Ko+mub3oS+UVl4puHDskyniNFtly+3QQjXA=;
-        b=vWgzE0dsSkIXQfBNTXt2qzGFTDQa9clpmdGghZyvfkh+cLiBVaj0/YgbDdybNYRIiH
-         Q4EJ9qGPJNhnwIrEXfE31wBfyN2VTh1qeiQRMSWRmKXna8oAj1YI+FqFUxe8XGEuEyUN
-         SJTZUf9O7idE3HGcZVUnCokTSsdOAr2Sv1zRliKk8TCnYbKcX2n+lMVF5sZUdUSomVpY
-         Z94lqnX2A6E2ivh0VRCSPEDATIK44OhCQZ9c4s5KbQZDY6WHYVGQiVl4FCCFHVBAzJiR
-         YiF7SPpj3eL6NMjwOCDeMIBsotTvvSQ5aD83NzMeRklV25FNkD32aRrUYxNMnC/qD2rF
-         jVfQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bQ5JURWb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1717509438;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=1cXfg53P7dT43sIDCbaMdwSo7I7mqqKX6XBExl/w+u0=;
+	b=bQ5JURWbNjWH3jqi/V6dEGbhlW+4yDnXtp5U2jJ1rzwQ6q9LDQu4t/mPILFH+pbPOP02aN
+	mA31F34htVYLegvWM99qnuXKgOZ8blzPhYBF7kNXoiRKgTCDwOBnxSFrX8lOse7MvnRhXS
+	TuuGdJmWJpK2Ng6NMy00fd1nSXt/Y4k=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-193-5jQt6qLDOgqOR_8LnhhRgQ-1; Tue, 04 Jun 2024 09:57:16 -0400
+X-MC-Unique: 5jQt6qLDOgqOR_8LnhhRgQ-1
+Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2e957290c2cso8731391fa.1
+        for <bridge@lists.linux.dev>; Tue, 04 Jun 2024 06:57:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717336206; x=1717941006;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1717509435; x=1718114235;
+        h=mime-version:user-agent:content-transfer-encoding:autocrypt
+         :references:in-reply-to:date:cc:to:from:subject:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=WgucUj/3Ko+mub3oS+UVl4puHDskyniNFtly+3QQjXA=;
-        b=NMZM/uyX1arGFa4upeGE++W0a39TH0/9F79BMlg3bUaVEDe0TNZLb8S2YU5HJ91qsj
-         Vh7Fpl0Hze+YsRDxxe2yQ9eUzMGqZ5j4eXt0cIaFBJUbDfL7Rk8ANHY6HDogrbZVFGAS
-         7525f1d6MevkxOXlZO/JVBlmSCXp2X4LlCbUriuQ1zN65m0/jbdUL6SrPuAZOCdLq9IF
-         EqTdRweWMexfqZp9uekvPDNB9vkpBDIO/LhjMRBL92RgO/YAGUINt7zl4muc7ERnxdlf
-         8TfiZ41K34pI8+k7bkBhOurVfkXQLQgFGmnY7facnjXCZnGXmywVqL5kHkUSARyOMBEF
-         YfUQ==
-X-Gm-Message-State: AOJu0YxkDwfkVsp2Rn+6k4ubzSeUlqTfXjsg79WpjqD3CmrOj+j4tpUM
-	1kz17TfKymUQcjXtH4RCfbbQRaFGuZYgSdjfih+X61bccDOGWfp7g65y44JEKvM=
-X-Google-Smtp-Source: AGHT+IGGAzLz/AvRTfuiPc7HwIKoVr/r+Il2Nn/+u3zi39STxi1U10wu83q4W8KbUmYeBoHmwsP9Dw==
-X-Received: by 2002:ac2:4d92:0:b0:52b:3f91:fa62 with SMTP id 2adb3069b0e04-52b8958c003mr4856099e87.30.1717336206067;
-        Sun, 02 Jun 2024 06:50:06 -0700 (PDT)
-Received: from [192.168.1.128] ([62.205.150.185])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a68bc97be38sm194986766b.208.2024.06.02.06.50.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 02 Jun 2024 06:50:05 -0700 (PDT)
-Message-ID: <f12dfc61-2957-479f-9237-58c8374bf42f@blackwall.org>
-Date: Sun, 2 Jun 2024 16:50:04 +0300
+        bh=1cXfg53P7dT43sIDCbaMdwSo7I7mqqKX6XBExl/w+u0=;
+        b=MHQ0ys5ttMZVtWo7xsBxJ5JqQ04ulV9aOKi3PXxlTMWUMqgAZj3VFLPQIBkkwCKkgM
+         m1xZjkwrgGH9tXXMRb+AObQ5R7kFd9hs/2V4pJn+JD4XoOhyWgZiB70XWe6MYTpGu4a9
+         RzjFMy6JPdIF/CT1udfker6YcSiFO1P3WUDQvVLXpnxkLKVTzPbiwUeiz/8Y4K0x70dH
+         jK81FQrwrWo6+Q6teI1uihIFHgLD7dINh+kp1Zfust6m4eQHMycuyRHMwzjSKSRyZCl8
+         tb319BsEFZhzvoO2Ea49B/H1MKmIVGLfW+G69tg+4gBgPRfxYwv+DI1W9kSZlicinl6P
+         FMmQ==
+X-Gm-Message-State: AOJu0YwdMPFHqx1Iky7OJ7RLv6d3vusglVOrAf7OR3As3V25GFfrnyOI
+	a2x2S1sHqcwMDzu00t3V5Px7ECg1yelMaliN4aCiLYcSoSL7+60lSMN6jCKkrQ0xZq+NQPHNQfX
+	hyTIskAjmS0h6Yn2UVr15AvO9UOnx5Ojgdg161wPs1O1KOr02HxU7fg==
+X-Received: by 2002:a2e:b8cb:0:b0:2ea:7e4a:d85b with SMTP id 38308e7fff4ca-2eabc194109mr17440401fa.5.1717509435100;
+        Tue, 04 Jun 2024 06:57:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE0jDCWxTQSdU4lSLEJNaReVTjxMLSSnfOFA4yPcavW0+bqlAauS8d51/RC+sINs8HkdJY+HA==
+X-Received: by 2002:a2e:b8cb:0:b0:2ea:7e4a:d85b with SMTP id 38308e7fff4ca-2eabc194109mr17440181fa.5.1717509434696;
+        Tue, 04 Jun 2024 06:57:14 -0700 (PDT)
+Received: from gerbillo.redhat.com ([2a0d:3344:1b74:3a10::f71])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4214a4add5asm11759995e9.0.2024.06.04.06.57.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Jun 2024 06:57:14 -0700 (PDT)
+Message-ID: <179c9ada55ae686f8142f3fc78dacece2db4f407.camel@redhat.com>
+Subject: Re: [PATCH net-next] net: bridge: fix an inconsistent indentation
+From: Paolo Abeni <pabeni@redhat.com>
+To: Chen Hanxiao <chenhx.fnst@fujitsu.com>, Roopa Prabhu <roopa@nvidia.com>,
+  Nikolay Aleksandrov <razor@blackwall.org>, "David S . Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+ <kuba@kernel.org>
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org
+Date: Tue, 04 Jun 2024 15:57:12 +0200
+In-Reply-To: <20240531085402.1838-1-chenhx.fnst@fujitsu.com>
+References: <20240531085402.1838-1-chenhx.fnst@fujitsu.com>
+Autocrypt: addr=pabeni@redhat.com; prefer-encrypt=mutual; keydata=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
+User-Agent: Evolution 3.50.4 (3.50.4-1.fc39)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net: bridge: fix an inconsistent indentation
-To: Chen Hanxiao <chenhx.fnst@fujitsu.com>, Roopa Prabhu <roopa@nvidia.com>,
- "David S . Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org
-References: <20240531085402.1838-1-chenhx.fnst@fujitsu.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20240531085402.1838-1-chenhx.fnst@fujitsu.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 5/31/24 11:54, Chen Hanxiao wrote:
+On Fri, 2024-05-31 at 16:54 +0800, Chen Hanxiao wrote:
 > Smatch complains:
 > net/bridge/br_netlink_tunnel.c:
 >    318 br_process_vlan_tunnel_info() warn: inconsistent indenting
-> 
+>=20
 > Fix it with a proper indenting
-> 
+>=20
 > Signed-off-by: Chen Hanxiao <chenhx.fnst@fujitsu.com>
-> ---
-> v2:
->     add net-next tag
->     modify subject
-> 
->  net/bridge/br_netlink_tunnel.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
-> index 17abf092f7ca..71a12da30004 100644
-> --- a/net/bridge/br_netlink_tunnel.c
-> +++ b/net/bridge/br_netlink_tunnel.c
-> @@ -315,8 +315,8 @@ int br_process_vlan_tunnel_info(const struct net_bridge *br,
->  
->  			if (curr_change)
->  				*changed = curr_change;
-> -			 __vlan_tunnel_handle_range(p, &v_start, &v_end, v,
-> -						    curr_change);
-> +			__vlan_tunnel_handle_range(p, &v_start, &v_end, v,
-> +						   curr_change);
->  		}
->  		if (v_start && v_end)
->  			br_vlan_notify(br, p, v_start->vid, v_end->vid,
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+My take is that purely format changes should be part of
+larger/features-based change, to avoid any later stable fix harder for
+no real reason.
+
+Thanks,
+
+Paolo
 
