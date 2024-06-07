@@ -1,77 +1,182 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 788C718FC92;
-	Wed,  5 Jun 2024 09:10:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4789154441
+	for <bridge@lists.linux.dev>; Fri,  7 Jun 2024 07:04:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717578630; cv=none; b=dx1KkHbBdNHLyevRtgaSFbQQ6eM8MujU8oPjZpz1Ne7IbH92Hzbvlhvh95f+wRrML0fYWlE0Jf2n67jT3ZBNrHkOUUCZkMLR/xj/h4mmEbZ0SnjkotM1d24sR66oYhKO4+SWr8gG7qJj1Q83GayjzvBMapC5UcuT26b8ci8tFSo=
+	t=1717743877; cv=none; b=YAfl9vop4VfZhPWE4cBrKSvWgylTY5qra8u/zE3HCXoEkQ92TvPeN3Vcfyhfitl6Q0NiNOHXeHHwRsfh52LO53+ShAsTruSTm1ONzGpwbs8NtFPY1WNDYLDl5Pf9Ya1gsbd0Mc4eJzqsL9Y4E16Ag3Q8h3T9vvBOu8GoMl+se7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717578630; c=relaxed/simple;
-	bh=RPLabVS3C/7mEMiHt/tS8eJuahEqOCcV0aM85nPJOqs=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=mY9zUPphzpqXaSFP8RF7nd9tCS2ARc//bZpLPXLbCEy5+Gl5tfmjM0TarpxyoDdnRkDhYCB6EY7r1VUpbPHuQOB0FINWer91LNVJdG/e/7MBoJGXBgSxGWH2SVKq/r5GMs0h0TsZ4zn7oTHXRLySNA6+oA627zpn9DkE6z02Ed4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N3uE7tQd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1717743877; c=relaxed/simple;
+	bh=oi4DoqovsixUFRVfCzGtZa5ipaDq/Cpe3T13qBLJFIA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Xh3auNn84Gg1DM/ScwtirKN5FMHknXnOFhqw3ySx1cuaLKrQ1Nr7cbYMIBYTrerbMQrNJNOKMSPVz2WF1jhD4r2fFUCEWazY1QzLnNxkGBQL4qL0i6HXAcfbIsLBtEH/5W2CHXso8TUhDMhl1mok04vIiCWgwYYxyJUHUtArtFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=mrtkINOP; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=IDFVa7sI; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N3uE7tQd"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 0403FC32786;
-	Wed,  5 Jun 2024 09:10:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1717578630;
-	bh=RPLabVS3C/7mEMiHt/tS8eJuahEqOCcV0aM85nPJOqs=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=N3uE7tQdTjfanFZf33PnTRFQVLac1rWwQ984iZYlkUhxVMJmXdpCrhcuXO8Ab83b7
-	 4pfNHnJX+Shcid0tUn7OeL4zt7+8hwGngk5Sn+2mFG2sZ8LpizDYNmts+rVK1eE28v
-	 IP5uqy1zNUQpFzKw8yXCDRLpMj8MqN2Z5RGrodSSuqoKead8kI0p1lFvcuS65SMFj8
-	 cDjkEqMhcd27VpKK3PdecUq3kWxWo5xKsdss/qIu+QYAq+FPlRXTP9+U8EpcEQH+f5
-	 ioEqfLdjvphWCJMIP/o+koE3jmBIXTcws12iGH+kurUW/AXgjYzMFK3iUp0HCHiFPP
-	 2B0Qml+Dzr4pw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id EB398D3E996;
-	Wed,  5 Jun 2024 09:10:29 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="mrtkINOP";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="IDFVa7sI"
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1717743873;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ANCKiEga5l1DBuytNTefl4llHnehnchG20Prvletyy0=;
+	b=mrtkINOPc9CF6xHUwSClCHrhMbtel3ZXqAJ89OpPJcma+4INrjqOGdP0MNRAG/KHwJ3TuN
+	t1jarmJqSaoyDxswh35X6MJ41+CToLrstgBKbOYoDqEp+IqHjLKn2P7khVz4bgb0BEZ3hy
+	LFlTMEsgbKQ2PfqUraSlsHh0ALHjoOGQ5YVpncJgquWsxkJvfitrNFhorfR4KhhB5EcsaM
+	3QQIpV1krpIDqW16d7/yrH99rd7WDwtewo58JGKGHTL87VBV/+4e96e6AzaOA4tveh/jvC
+	XLyl1H8N/RCpSIxNc0W6BN+jnDnZ3YnxebeO2cUWzQQ9gn8zMsApNHg8QiFpow==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1717743873;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ANCKiEga5l1DBuytNTefl4llHnehnchG20Prvletyy0=;
+	b=IDFVa7sIQzoY7lorlb4H3oIk5b/Tt6glMN6zlC0E8In8VuqnKrTf6MiQG3UHxwpZljjkfz
+	j23AUKVXIEJtEXAg==
+To: linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Daniel Bristot de Oliveira <bristot@kernel.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Waiman Long <longman@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Florian Westphal <fw@strlen.de>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	bridge@lists.linux.dev,
+	coreteam@netfilter.org,
+	netfilter-devel@vger.kernel.org
+Subject: [PATCH v5 net-next 07/15] netfilter: br_netfilter: Use nested-BH locking for brnf_frag_data_storage.
+Date: Fri,  7 Jun 2024 08:53:10 +0200
+Message-ID: <20240607070427.1379327-8-bigeasy@linutronix.de>
+In-Reply-To: <20240607070427.1379327-1-bigeasy@linutronix.de>
+References: <20240607070427.1379327-1-bigeasy@linutronix.de>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] net: bridge: fix an inconsistent indentation
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <171757862996.24611.14667741399171136250.git-patchwork-notify@kernel.org>
-Date: Wed, 05 Jun 2024 09:10:29 +0000
-References: <20240531085402.1838-1-chenhx.fnst@fujitsu.com>
-In-Reply-To: <20240531085402.1838-1-chenhx.fnst@fujitsu.com>
-To: Chen Hanxiao <chenhx.fnst@fujitsu.com>
-Cc: roopa@nvidia.com, razor@blackwall.org, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- bridge@lists.linux.dev, netdev@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
 
-Hello:
+brnf_frag_data_storage is a per-CPU variable and relies on disabled BH
+for its locking. Without per-CPU locking in local_bh_disable() on
+PREEMPT_RT this data structure requires explicit locking.
 
-This patch was applied to netdev/net-next.git (main)
-by David S. Miller <davem@davemloft.net>:
+Add a local_lock_t to the data structure and use local_lock_nested_bh()
+for locking. This change adds only lockdep coverage and does not alter
+the functional behaviour for !PREEMPT_RT.
 
-On Fri, 31 May 2024 16:54:02 +0800 you wrote:
-> Smatch complains:
-> net/bridge/br_netlink_tunnel.c:
->    318 br_process_vlan_tunnel_info() warn: inconsistent indenting
-> 
-> Fix it with a proper indenting
-> 
-> Signed-off-by: Chen Hanxiao <chenhx.fnst@fujitsu.com>
-> 
-> [...]
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Jozsef Kadlecsik <kadlec@netfilter.org>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Cc: bridge@lists.linux.dev
+Cc: coreteam@netfilter.org
+Cc: netfilter-devel@vger.kernel.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ net/bridge/br_netfilter_hooks.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-Here is the summary with links:
-  - [net-next] net: bridge: fix an inconsistent indentation
-    https://git.kernel.org/netdev/net-next/c/cdbdb3c62af5
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hook=
+s.c
+index bf30c50b56895..3c9f6538990ea 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -137,6 +137,7 @@ static inline bool is_pppoe_ipv6(const struct sk_buff *=
+skb,
+ #define NF_BRIDGE_MAX_MAC_HEADER_LENGTH (PPPOE_SES_HLEN + ETH_HLEN)
+=20
+ struct brnf_frag_data {
++	local_lock_t bh_lock;
+ 	char mac[NF_BRIDGE_MAX_MAC_HEADER_LENGTH];
+ 	u8 encap_size;
+ 	u8 size;
+@@ -144,7 +145,9 @@ struct brnf_frag_data {
+ 	__be16 vlan_proto;
+ };
+=20
+-static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage);
++static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage) =3D {
++	.bh_lock =3D INIT_LOCAL_LOCK(bh_lock),
++};
+=20
+ static void nf_bridge_info_free(struct sk_buff *skb)
+ {
+@@ -850,6 +853,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+ {
+ 	struct nf_bridge_info *nf_bridge =3D nf_bridge_info_get(skb);
+ 	unsigned int mtu, mtu_reserved;
++	int ret;
+=20
+ 	mtu_reserved =3D nf_bridge_mtu_reduction(skb);
+ 	mtu =3D skb->dev->mtu;
+@@ -882,6 +886,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+=20
+ 		IPCB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
+=20
++		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
+ 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
+=20
+ 		if (skb_vlan_tag_present(skb)) {
+@@ -897,7 +902,9 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+ 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
+ 						 data->size);
+=20
+-		return br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
++		ret =3D br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
++		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
++		return ret;
+ 	}
+ 	if (IS_ENABLED(CONFIG_NF_DEFRAG_IPV6) &&
+ 	    skb->protocol =3D=3D htons(ETH_P_IPV6)) {
+@@ -909,6 +916,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+=20
+ 		IP6CB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
+=20
++		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
+ 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
+ 		data->encap_size =3D nf_bridge_encap_header_len(skb);
+ 		data->size =3D ETH_HLEN + data->encap_size;
+@@ -916,8 +924,12 @@ static int br_nf_dev_queue_xmit(struct net *net, struc=
+t sock *sk, struct sk_buff
+ 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
+ 						 data->size);
+=20
+-		if (v6ops)
+-			return v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
++		if (v6ops) {
++			ret =3D v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
++			local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
++			return ret;
++		}
++		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
+=20
+ 		kfree_skb(skb);
+ 		return -EMSGSIZE;
+--=20
+2.45.1
 
