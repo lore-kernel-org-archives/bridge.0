@@ -1,178 +1,101 @@
-Received: from mail2-relais-roc.national.inria.fr (mail2-relais-roc.national.inria.fr [192.134.164.83])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C601A29A
-	for <bridge@lists.linux.dev>; Sun,  9 Jun 2024 08:27:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.134.164.83
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6971C2032B
+	for <bridge@lists.linux.dev>; Sun,  9 Jun 2024 09:05:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717921682; cv=none; b=AxzViJbSuwESt5U1NdjhUa0qjh69FqS1LEi6K0As6JiVal8tSnlR7BMg9rlD8A3tX33WN/2KR8sadvEHRwJKur8iSlqgQY34uGqp2jufzS82+wgl5MCxKIbsMC1RnAnzlKmZniYXlZBz8zwc53sB/Cuup0LXT9op1omVIBAzv5s=
+	t=1717923902; cv=none; b=BYk/OMTIy/M8btM8kBfvXegx56hzov9EyQJKR/xpZTb9T2D7hjZMZJDezWxfPy9g3k3vKDqG0vXkrdmfIab1FAGGl4RLI5IdzsqhZXJ/cybrwzjM1G+6ooEUZYxViQjtODbzqI5pZvnb4EwKKTLWSIXwD4gxqeujR77Ifx08kIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717921682; c=relaxed/simple;
-	bh=irC8fbFwp7wQh8iZf7JFEGok5dZ8XencbVCgVtWTxS4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=pIooBB/SqTOfP7FOp6JSzFMMxQFbVO+/UccV5LAXfCVVvZjmT6wXYcXWN4txplSqp9rSdfkm11GQfSMPY+YNErF/q99Rt9KR0eQDzBZVZacKfp5yibe4IYJe2AWhJnyEACBd1Vq4WjUfYMHsGrx5PzmD3lCIpFpe1aDFhMcd8Ms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=inria.fr; spf=pass smtp.mailfrom=inria.fr; dkim=pass (1024-bit key) header.d=inria.fr header.i=@inria.fr header.b=fCRsvyXY; arc=none smtp.client-ip=192.134.164.83
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=inria.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=inria.fr
+	s=arc-20240116; t=1717923902; c=relaxed/simple;
+	bh=Si71bFQFrRd4fbeR2nUXGk/jsEUgyn+WHHa500mVRsg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=asyPxg0YRIaTFkFDlXKUAIzDWZJqtKJ5ltcro124tz4lCE2DYHGrmdfRHl4hVoOclJCRvbx5L3olDumtONQI+nuSW9u5iYSTgkU3H7Ck9KSBOlbBdc75Z9FgeXEJaMwn4raGLgaOR00hcSsg+UrxvJuaEq9Znd293eeWMwWCQso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=17nUzMIg; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=inria.fr header.i=@inria.fr header.b="fCRsvyXY"
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="17nUzMIg"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a6efae34c83so132377266b.0
+        for <bridge@lists.linux.dev>; Sun, 09 Jun 2024 02:05:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=inria.fr; s=dc;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=UkPBDoz0/T0BpEX6aT7kB9YfBRlH8trgIJDVH+Mo814=;
-  b=fCRsvyXYKWWrMrtyUOKC2r+mAOP1Mrr62JK1is8IDKXo5ovDWJdvl/nf
-   QIq+Nr4EWSjWRKc49yr+WQgBkgPta5K6/mM3TjllkKlJQdhFO1J/AuBI3
-   ZnLRlK7FLXCBkj/50gAAQpfu+Wdgx+7vb55zQNIgbIgPEjqQCWVlfDTkp
-   U=;
-Authentication-Results: mail2-relais-roc.national.inria.fr; dkim=none (message not signed) header.i=none; spf=SoftFail smtp.mailfrom=Julia.Lawall@inria.fr; dmarc=fail (p=none dis=none) d=inria.fr
-X-IronPort-AV: E=Sophos;i="6.08,225,1712613600"; 
-   d="scan'208";a="169696902"
-Received: from i80.paris.inria.fr (HELO i80.paris.inria.fr.) ([128.93.90.48])
-  by mail2-relais-roc.national.inria.fr with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2024 10:27:49 +0200
-From: Julia Lawall <Julia.Lawall@inria.fr>
-To: Roopa Prabhu <roopa@nvidia.com>
-Cc: kernel-janitors@vger.kernel.org,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Paul E . McKenney" <paulmck@kernel.org>,
-	Vlastimil Babka <vbabka@suse.cz>
-Subject: [PATCH 07/14] net: bridge: replace call_rcu by kfree_rcu for simple kmem_cache_free callback
-Date: Sun,  9 Jun 2024 10:27:19 +0200
-Message-Id: <20240609082726.32742-8-Julia.Lawall@inria.fr>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20240609082726.32742-1-Julia.Lawall@inria.fr>
-References: <20240609082726.32742-1-Julia.Lawall@inria.fr>
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1717923899; x=1718528699; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=CIh4lH8bQWGJqNihyQij8olrXP+SesotSW7Pq/JkSlw=;
+        b=17nUzMIg/bJns+vtaf+MLoQ5+gwB+COETZzrJ7jBoF0GPZvp4u95OQ/vWvsoe67Pqy
+         0kVDEb0vgEgHyLF3r+NaKsVAu3D5Qx9XiBwawmwBBmcIHNev3MYKdb4yY/xMWzUHApiX
+         C3InjrnJTocpA0gFCuBUIwzaZaQiFwz8gFPPj7EwD5xYbUhD9+Nk3l3p2Szx4+WyvoYL
+         rrPmSWVKbzDhV5EoSz/0gxYLpjoFHlqpIPeuAJ8qZ1Zz3ShRYnm8+QXpceM3yI/kSB0f
+         AMuFzOzgWi+/hEC/ZCnTNukokbbWyYynEKlgbFbEJAfBHxk3+kq2N6fuAm5h4L0u22lq
+         5MoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717923899; x=1718528699;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CIh4lH8bQWGJqNihyQij8olrXP+SesotSW7Pq/JkSlw=;
+        b=FpI3qyJBxl0nw49KKxLZ6Mz58QyYBOQqfVpF1mGTzXwYMZlouotRo+BeKeYyZY0Bpv
+         pmVM+ci8PEZtOPIeraqP/zhWS9EbcIGNsgOvNHf9MsmxWzz2c7Ep904AqaX2yQJZLf15
+         wyLuFE5Xx5dseU+RX/r4btfxsFKbD1nMfWRuLofmFgoCdGVKANilTywHzQcyhtEdTbA5
+         8J8icMgfxd401jbK3ktLdnZ1HCzePyxisT7CEoDJUZzOrdzclPAHbhLfP6YXryKeK56B
+         nJUbU7KiO7viluYS/+63XhqjmwulHpMny/v/bflhGMHL0Fl5mE3h/guSSvM89KG9APye
+         EmBw==
+X-Forwarded-Encrypted: i=1; AJvYcCUlkgJRFjnzpLYSb/KKZXFpb/z2DpJfaMBQwVqKJiSk3TmDpQqKbjF/tC28isi2ftG4GGrR8kdVkEW1eNuba8S4dIm8FyT3
+X-Gm-Message-State: AOJu0YznhHW+c26vOK9/n0/cP3N4Q0i/kizVIbWt2Rgxi0lxjLcaVw4V
+	hqw3/JUg/1oorp1HHs8Kq03jFN3Gxi3CFPKi/Vd2hWAHDQDFP2IzRHMBdsTQjgY=
+X-Google-Smtp-Source: AGHT+IFeE9HHbL43cW+IG9vH8TRTU8lt4FODOIbm9LfnJAHutw8/LXc+pVSYkTkSkQJY+mFvTLJ6lQ==
+X-Received: by 2002:a17:906:3285:b0:a68:2f99:a3da with SMTP id a640c23a62f3a-a6cd5612575mr431690766b.16.1717923898631;
+        Sun, 09 Jun 2024 02:04:58 -0700 (PDT)
+Received: from [192.168.1.128] ([62.205.150.185])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a6ef9100096sm247145366b.97.2024.06.09.02.04.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 09 Jun 2024 02:04:58 -0700 (PDT)
+Message-ID: <b2d17c74-86fd-4436-9156-271045ab1a45@blackwall.org>
+Date: Sun, 9 Jun 2024 12:04:53 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 07/14] net: bridge: replace call_rcu by kfree_rcu for
+ simple kmem_cache_free callback
+To: Julia Lawall <Julia.Lawall@inria.fr>, Roopa Prabhu <roopa@nvidia.com>
+Cc: kernel-janitors@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, bridge@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ "Paul E . McKenney" <paulmck@kernel.org>, Vlastimil Babka <vbabka@suse.cz>
+References: <20240609082726.32742-1-Julia.Lawall@inria.fr>
+ <20240609082726.32742-8-Julia.Lawall@inria.fr>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20240609082726.32742-8-Julia.Lawall@inria.fr>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Since SLOB was removed, it is not necessary to use call_rcu
-when the callback only performs kmem_cache_free. Use
-kfree_rcu() directly.
+On 6/9/24 11:27, Julia Lawall wrote:
+> Since SLOB was removed, it is not necessary to use call_rcu
+> when the callback only performs kmem_cache_free. Use
+> kfree_rcu() directly.
+> 
+> The changes were done using the following Coccinelle semantic patch.
+> This semantic patch is designed to ignore cases where the callback
+> function is used in another way.
+> 
+[snip]
+> 
+> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+> Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
+> Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+> 
+> ---
+>  net/bridge/br_fdb.c |    9 +--------
+>  1 file changed, 1 insertion(+), 8 deletions(-)
+> 
 
-The changes were done using the following Coccinelle semantic patch.
-This semantic patch is designed to ignore cases where the callback
-function is used in another way.
-
-// <smpl>
-@r@
-expression e;
-local idexpression e2;
-identifier cb,f;
-position p;
-@@
-
-(
-call_rcu(...,e2)
-|
-call_rcu(&e->f,cb@p)
-)
-
-@r1@
-type T;
-identifier x,r.cb;
-@@
-
- cb(...) {
-(
-   kmem_cache_free(...);
-|
-   T x = ...;
-   kmem_cache_free(...,x);
-|
-   T x;
-   x = ...;
-   kmem_cache_free(...,x);
-)
- }
-
-@s depends on r1@
-position p != r.p;
-identifier r.cb;
-@@
-
- cb@p
-
-@script:ocaml@
-cb << r.cb;
-p << s.p;
-@@
-
-Printf.eprintf "Other use of %s at %s:%d\n"
-   cb (List.hd p).file (List.hd p).line
-
-@depends on r1 && !s@
-expression e;
-identifier r.cb,f;
-position r.p;
-@@
-
-- call_rcu(&e->f,cb@p)
-+ kfree_rcu(e,f)
-
-@r1a depends on !s@
-type T;
-identifier x,r.cb;
-@@
-
-- cb(...) {
-(
--  kmem_cache_free(...);
-|
--  T x = ...;
--  kmem_cache_free(...,x);
-|
--  T x;
--  x = ...;
--  kmem_cache_free(...,x);
-)
-- }
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-
----
- net/bridge/br_fdb.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
-
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index c77591e63841..6d04b48f7e2c 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -73,13 +73,6 @@ static inline int has_expired(const struct net_bridge *br,
- 	       time_before_eq(fdb->updated + hold_time(br), jiffies);
- }
- 
--static void fdb_rcu_free(struct rcu_head *head)
--{
--	struct net_bridge_fdb_entry *ent
--		= container_of(head, struct net_bridge_fdb_entry, rcu);
--	kmem_cache_free(br_fdb_cache, ent);
--}
--
- static int fdb_to_nud(const struct net_bridge *br,
- 		      const struct net_bridge_fdb_entry *fdb)
- {
-@@ -329,7 +322,7 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
- 	if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &f->flags))
- 		atomic_dec(&br->fdb_n_learned);
- 	fdb_notify(br, f, RTM_DELNEIGH, swdev_notify);
--	call_rcu(&f->rcu, fdb_rcu_free);
-+	kfree_rcu(f, rcu);
- }
- 
- /* Delete a local entry if no other port had the same address.
-
+Thanks,
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
