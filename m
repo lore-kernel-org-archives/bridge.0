@@ -1,61 +1,37 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9F48194C6A
-	for <bridge@lists.linux.dev>; Mon, 17 Jun 2024 18:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EBAB16FF50;
+	Mon, 17 Jun 2024 18:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718649736; cv=none; b=pwssGEA5ahc+N6dxJwT5K3XWrrE73mKlD7tUXRHBKjtSEBX9hrUVxynAyrSkk8wWYT8Zmr9wXbKuQ2vSG5juK54fx04R0Jb2jY9OrNorbLwT9p21unzO/ft6vWLLHzYJCu3Xz+jVFUNzU087uw1nWfTZhGLpTkOonhXzqwBu6W4=
+	t=1718650480; cv=none; b=jAem7qyvALbZ55x6SUI4BEXI1Z7CTjdJDNWqhjNR9gMEnDk+VAWyprzverDQ/aBX0ugCMPWQMi6Kmf9yhZpUWtw/mC+ymQngXDQXfCOzBiwV79asr8gYL2OQ7LaHMd9Oi+AYaAEBqsL/RAxrYepQbjN2Y44h17Q3dPuBzw0njTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718649736; c=relaxed/simple;
-	bh=Flz2Pil2geTTJPxA2CBnOZsQd4N0qDIllekhZBSDWlc=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C3HPX2fyS78d7CFkJbjv3pvVSbLkc9v0zy07nUrrIG5ZJdFVohZKmQg3ppmlSj2G2TtXzL97/T5ZvwKwKUb7DCYIEcvI1YSi/z70u5ihmqkLp4YQ1Z4UCgoXLkRTQiBjA3dHX4y2jq1kNPwpV7saWPUFmw5KGA1uagE4nOb51EU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Qai7r2C4; arc=none smtp.client-ip=209.85.167.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1718650480; c=relaxed/simple;
+	bh=cmmYnDR5G/CPH+g8BcpN1MFkYmgodk2x412Uh4pRCDw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=I90bUi3XDky8FcwnqdwizbXqwgypHK8OJgn+NFW8c122GkZxlRxeURYwogNibFRmH76uRL6Bn/ghcQBq5IvUjB4zVT5OfY1/ETNybLyxNu3LRUfsP1NC3Ozw5KxD7tDqyluYfy7c/R1EzK5wALhaNwejuUiGQVpM9zOl1deYN3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=htDly1vi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qai7r2C4"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-52c82101407so7743612e87.3
-        for <bridge@lists.linux.dev>; Mon, 17 Jun 2024 11:42:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718649733; x=1719254533; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+jO2FlPNmcOLf+hC3upZKg3SDI4/5kwrnW8GkxW5YVg=;
-        b=Qai7r2C4tjIF3ueL0nFn52GexUh/jadP+PDR8UEgurEIwyge5Mx/+uyQNK2eG3zdKP
-         flWNLZT5JpKh60GISqr1XqJwxI31nglQ21nxheNnz0pQoEQs9k2lQQXkRbTQh+L9pW2l
-         4Z85r06cMHKB8SCVpz3EE3m3BMrwoSVmDXyYzERl9YvDmbiptOwBexnQwUJFkD6G4jtx
-         jM2d5T6bc4RoaHMMWwYYMfzzuzn+Zo1SQkW9IlTd+jOtoaeeCX2Ry7wFV5u0zRIA3beJ
-         6umHuIqLJ8TzyEWGpN9uK43AN8QlO7lSYi5FitWezhCuIMNirj8GYEcGk6RA4V4VUOSG
-         RlUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718649733; x=1719254533;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+jO2FlPNmcOLf+hC3upZKg3SDI4/5kwrnW8GkxW5YVg=;
-        b=WIqwknkjy/Mgm3kClBNtoJVedMUlX/dsXS6nIyUbMd8AXqJvr6S+L1Pv78KhYst+vP
-         8YACIJAG01jNByXqCUS/ESxN4XyUGGH2koboutLj7OEx6eTc0rNYhoWf2mx5cl5oyE5+
-         7jZadUC73KS+CU36C6yvsvK8FzSWRqEFZWAbpoBkPIwOCsPDQMsXjOLdLRqWbRFoJo63
-         zrUIZBo/afmWbCcLZqMc5YucDIzgN7rZtLSYiKfUEgxFTpCGTnkz+aVlRKO5xHz9L7vH
-         Td0KMmkyARlJpGnxuPYG6OLXuMM9MCobrJzGSB7bp+ORl6AsVD/umgPsHcDPWJ+Whu1R
-         kBNQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXfIqDxnf2ZuhHCkeQ0dQJBuyBu5YezXew7MB3rwPQ8YAi3+O9cnEY8nBHu4jKiVOwVhzVf8EHKpafknEvqD2T+/tH7HSAY
-X-Gm-Message-State: AOJu0Yznb21nt7hOLV6G6rz/e14hPmRX0S3ZJ4CGRzwWFj9aG1S1TPQs
-	jXW9pj5wkOxCIw81i01UR9jSae+EJbcLo33W0FmxxAcjerU5nBX1
-X-Google-Smtp-Source: AGHT+IG+He9esutTE4DcK6Uo+MkQ9CT1wI+N+kkdrm92KSfS1cK189MGjfkb18QFb85ZwtxeC6GLJw==
-X-Received: by 2002:a05:6512:549:b0:521:cc8a:46dd with SMTP id 2adb3069b0e04-52ca6e56e2dmr7855127e87.11.1718649732281;
-        Mon, 17 Jun 2024 11:42:12 -0700 (PDT)
-Received: from pc636 (host-185-121-47-193.sydskane.nu. [185.121.47.193])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a6f56db6182sm540019666b.51.2024.06.17.11.42.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Jun 2024 11:42:11 -0700 (PDT)
-From: Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@pc636>
-Date: Mon, 17 Jun 2024 20:42:09 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="htDly1vi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D7BC2BD10;
+	Mon, 17 Jun 2024 18:54:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1718650479;
+	bh=cmmYnDR5G/CPH+g8BcpN1MFkYmgodk2x412Uh4pRCDw=;
+	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+	b=htDly1viSXXYYDN2fKeKx2wmcWA279kRnzVgaC5yXX9rrUYI8hRNqQiZfGupG+pr8
+	 fyvcrTaan+ehboyUpbKcuvFKbNCjyCKyP/e4RExGTWrX4Ajy4h4DpwAHm8KwpKdG8f
+	 26DRExUZipco75yWMjxicdv9Nl2afaU5pTmkMQ49C4dWem15hPJGRkh37jNjcciSwu
+	 KdhAzh1W3DjA1v4yvoUAm8deglvz0XhATfntWZgp4lETgOpWqILAB065yj7IdLIRh4
+	 3ROzkDdsgzhVhI7mza08G5DAiCBpqSpMnSH5w5EUT/ZVIl1eNBKgWzLLeWzVvnHOI2
+	 s5ULjvLFAuy0g==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+	id 80EC9CE09DB; Mon, 17 Jun 2024 11:54:39 -0700 (PDT)
+Date: Mon, 17 Jun 2024 11:54:39 -0700
+From: "Paul E. McKenney" <paulmck@kernel.org>
 To: Vlastimil Babka <vbabka@suse.cz>
-Cc: paulmck@kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
 	"Uladzislau Rezki (Sony)" <urezki@gmail.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Julia Lawall <Julia.Lawall@inria.fr>, linux-block@vger.kernel.org,
@@ -75,7 +51,8 @@ Cc: paulmck@kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
 	kasan-dev <kasan-dev@googlegroups.com>
 Subject: Re: [PATCH 00/14] replace call_rcu by kfree_rcu for simple
  kmem_cache_free callback
-Message-ID: <ZnCDgdg1EH6V7w5d@pc636>
+Message-ID: <1755282b-e3f5-4d18-9eab-fc6a29ca5886@paulmck-laptop>
+Reply-To: paulmck@kernel.org
 References: <20240609082726.32742-1-Julia.Lawall@inria.fr>
  <20240612143305.451abf58@kernel.org>
  <baee4d58-17b4-4918-8e45-4d8068a23e8c@paulmck-laptop>
@@ -120,13 +97,27 @@ On Mon, Jun 17, 2024 at 07:23:36PM +0200, Vlastimil Babka wrote:
 > the implementation (marked to be replaced with the real thing) is really
 > insufficient. Note the test itself passes as this kind of error isn't wired
 > up properly.
-> 
+
+;-) ;-) ;-)
+
+Some might want confirmation that their cleanup efforts succeeded,
+but if so, I will let them make that known.
+
 > Another thing to resolve is the marked comment about kasan_shutdown() with
 > potential kfree_rcu()'s in flight.
-> 
+
+Could that simply move to the worker function?  (Hey, had to ask!)
+
 > Also you need CONFIG_SLUB_DEBUG enabled otherwise node_nr_slabs() is a no-op
 > and it might fail to notice the pending slabs. This will need to change.
-> 
+
+Agreed.
+
+Looks generally good.  A few questions below, to be taken with a
+grain of salt.
+
+							Thanx, Paul
+
 > ----8<----
 > diff --git a/lib/slub_kunit.c b/lib/slub_kunit.c
 > index e6667a28c014..e3e4d0ca40b7 100644
@@ -162,6 +153,9 @@ On Mon, Jun 17, 2024 at 07:23:36PM +0200, Vlastimil Babka wrote:
 > +	kasan_enable_current();
 > +	kfree_rcu(p, rcu);
 > +	kmem_cache_destroy(s);
+
+Looks like the type of test for this!
+
 > +}
 > +
 >  static int test_init(struct kunit *test)
@@ -250,12 +244,85 @@ On Mon, Jun 17, 2024 at 07:23:36PM +0200, Vlastimil Babka wrote:
 > +	s = container_of(work, struct kmem_cache, async_destroy_work);
 > +
 > +	// XXX use the real kmem_cache_free_barrier() or similar thing here
-It implies that we need to introduce kfree_rcu_barrier(), a new API, which i
-wanted to avoid initially. Since you do it asynchronous can we just repeat
-and wait until it a cache is furry freed?
+> +	rcu_barrier();
+> +
+> +	cpus_read_lock();
+> +	mutex_lock(&slab_mutex);
+> +
+> +	rcu_set = s->flags & SLAB_TYPESAFE_BY_RCU;
+> +
+> +	err = shutdown_cache(s, true);
 
-I am asking because inventing a new kfree_rcu_barrier() might not be so
-straight forward.
+This is currently the only call to shutdown_cache()?  So there is to be
+a way for the caller to have some influence over the value of that bool?
 
---
-Uladzislau Rezki
+> +	WARN(err, "kmem_cache_destroy %s: Slab cache still has objects",
+> +	     s->name);
+
+Don't we want to have some sort of delay here?  Or is this the
+21-second delay and/or kfree_rcu_barrier() mentioned before?
+
+> +	mutex_unlock(&slab_mutex);
+> +	cpus_read_unlock();
+> +	if (!err && !rcu_set)
+> +		kmem_cache_release(s);
+> +}
+> +
+>  void kmem_cache_destroy(struct kmem_cache *s)
+>  {
+>  	int err = -EBUSY;
+> @@ -494,9 +527,9 @@ void kmem_cache_destroy(struct kmem_cache *s)
+>  	if (s->refcount)
+>  		goto out_unlock;
+>  
+> -	err = shutdown_cache(s);
+> -	WARN(err, "%s %s: Slab cache still has objects when called from %pS",
+> -	     __func__, s->name, (void *)_RET_IP_);
+> +	err = shutdown_cache(s, false);
+> +	if (err)
+> +		schedule_work(&s->async_destroy_work);
+>  out_unlock:
+>  	mutex_unlock(&slab_mutex);
+>  	cpus_read_unlock();
+> diff --git a/mm/slub.c b/mm/slub.c
+> index 1617d8014ecd..4d435b3d2b5f 100644
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -5342,7 +5342,8 @@ static void list_slab_objects(struct kmem_cache *s, struct slab *slab,
+>   * This is called from __kmem_cache_shutdown(). We must take list_lock
+>   * because sysfs file might still access partial list after the shutdowning.
+>   */
+> -static void free_partial(struct kmem_cache *s, struct kmem_cache_node *n)
+> +static void free_partial(struct kmem_cache *s, struct kmem_cache_node *n,
+> +			 bool warn_inuse)
+>  {
+>  	LIST_HEAD(discard);
+>  	struct slab *slab, *h;
+> @@ -5353,7 +5354,7 @@ static void free_partial(struct kmem_cache *s, struct kmem_cache_node *n)
+>  		if (!slab->inuse) {
+>  			remove_partial(n, slab);
+>  			list_add(&slab->slab_list, &discard);
+> -		} else {
+> +		} else if (warn_inuse) {
+>  			list_slab_objects(s, slab,
+>  			  "Objects remaining in %s on __kmem_cache_shutdown()");
+>  		}
+> @@ -5378,7 +5379,7 @@ bool __kmem_cache_empty(struct kmem_cache *s)
+>  /*
+>   * Release all resources used by a slab cache.
+>   */
+> -int __kmem_cache_shutdown(struct kmem_cache *s)
+> +int __kmem_cache_shutdown(struct kmem_cache *s, bool warn_inuse)
+>  {
+>  	int node;
+>  	struct kmem_cache_node *n;
+> @@ -5386,7 +5387,7 @@ int __kmem_cache_shutdown(struct kmem_cache *s)
+>  	flush_all_cpus_locked(s);
+>  	/* Attempt to free all objects */
+>  	for_each_kmem_cache_node(s, node, n) {
+> -		free_partial(s, n);
+> +		free_partial(s, n, warn_inuse);
+>  		if (n->nr_partial || node_nr_slabs(n))
+>  			return 1;
+>  	}
+> 
