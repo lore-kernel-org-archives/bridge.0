@@ -1,182 +1,135 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C7611553AA
-	for <bridge@lists.linux.dev>; Tue, 18 Jun 2024 07:25:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45E0113B7AF
+	for <bridge@lists.linux.dev>; Tue, 18 Jun 2024 09:31:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718695537; cv=none; b=IX3Z7G2VypsvuiQro88hkipUiMbt5ERJfVcEOBXXxUbs3Ie1vGbzFjqqBBN/5TAkrMZMoJRyNelf8uUdZ8Xbee5HuqexR5f/jIpspk+NykcCq74YmoodJgdFQrPoA79bOAdZG2Lokx6JEb0gShxFPHujzc3znjoVeejPqdo42QA=
+	t=1718703068; cv=none; b=mdWW3Rt97LHDtNYUAP1wxGWJZUPcjZR3gB+/mmpm0nlOoeJ2NYuvtiOecZYlHyEDw851hnjsYjdeCwRK9hJBymhBKvx4hG+mqT6/NrdBS5alGmL7uS9Ejb6Cz8HkEFcwmCvYgyv0oZtSZ0DgPvTDmlhJZckzFXpWR78u4Q6GpF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718695537; c=relaxed/simple;
-	bh=hVYiIFL5HwJaYF05A9M5SqbFcZHu2+UJJv8+B5zsSCs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NHQ+oo41H+VJHCecTK4AKstWao0/ujVa15qyUgJPJ6emhJOkJ06syppgzaqI1RxTaFKaji0R0Q3V8Wt8OJ6x0ZjP0Pv+8BCgDgsF6Yy5magQierzRARxqzQbJs531Dt8G3HcCdTdOUh8kr6XP6dI7C1JjQlEgqYjANEK1VAT7uc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=zJ5XQ/ov; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=qOgBvmul; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1718703068; c=relaxed/simple;
+	bh=g0uSCj3d+UUUWfZz4wBc8kGDKF4ITFgP+uzc7Zk6jo4=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TIK+KAddUbFXtngqPgPobQSk8D0mAcwQCJ3qFEcBHh7G3ccCSlQeVJjYFu+IX0jdnIoycwjm1M488HMbqj3oz6Y/qSKWuIefD1wnTy/1SqTNX7XVz7pSIAfjF04wrTATl/ryFb4D9i78chqnnFE3r8tzROglqXr6biVs29/cKd4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O4ndeKs2; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="zJ5XQ/ov";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="qOgBvmul"
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1718695533;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7Fimo9A+L9/O8JEt6UHonD1Uw2oHXu2TNi4Wzvh1cs4=;
-	b=zJ5XQ/ovkAoYXup5T5gZtuUcWn8lOZuzC3jAcbyc0mohjvgUSSof/BZBh/fmfE5FausvOO
-	4wuKheKU6AIovjHbwcwqxfc69m1jvbr6bOA6uVEdlfF1cSiXHqD1enWHTd18MCMWTWujkH
-	gsns21J1VZSaxWb8W8YLA/HmaigVSgQnzJyNACBDfwoBJgGX4wzUulJUCzQ7GNsnc1pt7Z
-	qJhnzFuqJn73cEIcnlaLx39/TGYMM12N86JTdX8LLycCeZlEVtO57PHwV+iYUQLSANTlmv
-	6/hx6Gnqd8ncxVTy1EU3DRmTLaCsx9GBGRzNyXnz/DJP8W7mWKckKBsRccxnwA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1718695533;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7Fimo9A+L9/O8JEt6UHonD1Uw2oHXu2TNi4Wzvh1cs4=;
-	b=qOgBvmulC8q1a5rj1+5yWtlGj7bjn0kUkk0ewSXUtasma0o/fh+T83A2OLvSCaFImqeWk1
-	LRbgheMLr32HG4Cw==
-To: linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Daniel Bristot de Oliveira <bristot@kernel.org>,
-	Boqun Feng <boqun.feng@gmail.com>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O4ndeKs2"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-52c815e8e9eso5211853e87.0
+        for <bridge@lists.linux.dev>; Tue, 18 Jun 2024 02:31:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1718703065; x=1719307865; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Gd0sb+wrja9GmMiLQT0DMWUWixEF5baH+EtRGLOjO0I=;
+        b=O4ndeKs2js4hDFSVlpNol0wqZ/trbT/fycc88/54pqFth1w7dRng0uBkKkc3SfF0ey
+         A9VwK6vo9dCyNnlAInogit3PbmAxFwRQU7SU6ZotMmsYYtz4+YWdrLm9GC7+OWY8gjxC
+         jdbEuhF2a3cerPKNodzTriuvpah2lDnfOws648GzDwshGyS/ou6Bl77QZXAeTN30aYpg
+         5RMVqIPqDnfAYEqZ0rX04f0yJB+99O4ZP0PCStyIBcAm2yJxfpEiAU05W74U/t/GQQQO
+         aUcdaxl5ENm+ttr6VGVWPmWRwXOSn1zN4GlrUOyfox8uG3Gq28lLFtFAcIL3PnEf8XAp
+         1s2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718703065; x=1719307865;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Gd0sb+wrja9GmMiLQT0DMWUWixEF5baH+EtRGLOjO0I=;
+        b=dEtjYzu6N4onruun8ffRO8KN/6LdLojpbH082D1bkBAZLtFgPS46bAYn1lXIgwqHvh
+         4/Kr7dfbpAKns82urldk3ZYk1rKPw5K7n2yR0YjpQTh0+X5II6URBMHNT4odnEhu1OyB
+         1OBhWLop4ECOQeS8G/yhtdTjWpGUuAMPoVqJxhW1QHSBrmoAoYH07sprbKrvWuRK3x+p
+         OZinxmOEsX4gozXq1xw6wLpu1VbM8RQxCUxL4Hv6BGp7dNwyfJoXAOlXKZufN7RH4wTS
+         Kwf4XlfYxgrzT4nZmorVH7Bwel1gC7gFF6USquHF+J4dsh/XqfpSOMMto06s5RcL3qEk
+         BCPQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWfHM6GpD1et3i+VSbSUdkxjsqxALFvkOyCqZ23D5CL8I0tdxGQfBpC51CEHa9RS8hU4VCEbW/hz9Dqj8emC1d/p07aZ6XP
+X-Gm-Message-State: AOJu0YyznDXBEiGiRlWjQMyioH+UfDiQ91RMapf5Om4U3Tuzc2mgNRHN
+	mVp6hPpDk3/VNJCvJIKeHUIMq7AWu9vBfVLofOgwBqwApWPmS9CL
+X-Google-Smtp-Source: AGHT+IEirA7ZfcWMvk+A5QKOFGiN5irQ5RBB6sZAAJ03RtbeHM09p7vDGOoZf2DqBzAK5fdSSuz/pQ==
+X-Received: by 2002:a19:9141:0:b0:52c:81d5:cf96 with SMTP id 2adb3069b0e04-52ca6e659demr6468892e87.28.1718703065080;
+        Tue, 18 Jun 2024 02:31:05 -0700 (PDT)
+Received: from pc636 (host-90-233-216-238.mobileonline.telia.com. [90.233.216.238])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-52ca2825b38sm1445362e87.24.2024.06.18.02.31.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jun 2024 02:31:04 -0700 (PDT)
+From: Uladzislau Rezki <urezki@gmail.com>
+X-Google-Original-From: Uladzislau Rezki <urezki@pc636>
+Date: Tue, 18 Jun 2024 11:31:00 +0200
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Uladzislau Rezki <urezki@gmail.com>, paulmck@kernel.org,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
 	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Waiman Long <longman@redhat.com>,
-	Will Deacon <will@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Florian Westphal <fw@strlen.de>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	bridge@lists.linux.dev,
-	coreteam@netfilter.org,
-	netfilter-devel@vger.kernel.org
-Subject: [PATCH v7 net-next 07/15] netfilter: br_netfilter: Use nested-BH locking for brnf_frag_data_storage.
-Date: Tue, 18 Jun 2024 09:13:23 +0200
-Message-ID: <20240618072526.379909-8-bigeasy@linutronix.de>
-In-Reply-To: <20240618072526.379909-1-bigeasy@linutronix.de>
-References: <20240618072526.379909-1-bigeasy@linutronix.de>
+	Julia Lawall <Julia.Lawall@inria.fr>, linux-block@vger.kernel.org,
+	kernel-janitors@vger.kernel.org, bridge@lists.linux.dev,
+	linux-trace-kernel@vger.kernel.org,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	kvm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Nicholas Piggin <npiggin@gmail.com>, netdev@vger.kernel.org,
+	wireguard@lists.zx2c4.com, linux-kernel@vger.kernel.org,
+	ecryptfs@vger.kernel.org, Neil Brown <neilb@suse.de>,
+	Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
+	Tom Talpey <tom@talpey.com>, linux-nfs@vger.kernel.org,
+	linux-can@vger.kernel.org, Lai Jiangshan <jiangshanlai@gmail.com>,
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+	kasan-dev <kasan-dev@googlegroups.com>
+Subject: Re: [PATCH 00/14] replace call_rcu by kfree_rcu for simple
+ kmem_cache_free callback
+Message-ID: <ZnFT1Czb8oRb0SE7@pc636>
+References: <baee4d58-17b4-4918-8e45-4d8068a23e8c@paulmck-laptop>
+ <Zmov7ZaL-54T9GiM@zx2c4.com>
+ <Zmo9-YGraiCj5-MI@zx2c4.com>
+ <08ee7eb2-8d08-4f1f-9c46-495a544b8c0e@paulmck-laptop>
+ <Zmrkkel0Fo4_g75a@zx2c4.com>
+ <e926e3c6-05ce-4ba6-9e2e-e5f3b37bcc23@suse.cz>
+ <3b6fe525-626c-41fb-8625-3925ca820d8e@paulmck-laptop>
+ <6711935d-20b5-41c1-8864-db3fc7d7823d@suse.cz>
+ <ZnCDgdg1EH6V7w5d@pc636>
+ <36c60acd-543e-48c5-8bd2-6ed509972d28@suse.cz>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <36c60acd-543e-48c5-8bd2-6ed509972d28@suse.cz>
 
-brnf_frag_data_storage is a per-CPU variable and relies on disabled BH
-for its locking. Without per-CPU locking in local_bh_disable() on
-PREEMPT_RT this data structure requires explicit locking.
+> On 6/17/24 8:42 PM, Uladzislau Rezki wrote:
+> >> +
+> >> +	s = container_of(work, struct kmem_cache, async_destroy_work);
+> >> +
+> >> +	// XXX use the real kmem_cache_free_barrier() or similar thing here
+> > It implies that we need to introduce kfree_rcu_barrier(), a new API, which i
+> > wanted to avoid initially.
+> 
+> I wanted to avoid new API or flags for kfree_rcu() users and this would
+> be achieved. The barrier is used internally so I don't consider that an
+> API to avoid. How difficult is the implementation is another question,
+> depending on how the current batching works. Once (if) we have sheaves
+> proven to work and move kfree_rcu() fully into SLUB, the barrier might
+> also look different and hopefully easier. So maybe it's not worth to
+> invest too much into that barrier and just go for the potentially
+> longer, but easier to implement?
+> 
+Right. I agree here. If the cache is not empty, OK, we just defer the
+work, even we can use a big 21 seconds delay, after that we just "warn"
+if it is still not empty and leave it as it is, i.e. emit a warning and
+we are done.
 
-Add a local_lock_t to the data structure and use local_lock_nested_bh()
-for locking. This change adds only lockdep coverage and does not alter
-the functional behaviour for !PREEMPT_RT.
+Destroying the cache is not something that must happen right away. 
 
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Jozsef Kadlecsik <kadlec@netfilter.org>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: bridge@lists.linux.dev
-Cc: coreteam@netfilter.org
-Cc: netfilter-devel@vger.kernel.org
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- net/bridge/br_netfilter_hooks.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+> > Since you do it asynchronous can we just repeat
+> > and wait until it a cache is furry freed?
+> 
+> The problem is we want to detect the cases when it's not fully freed
+> because there was an actual read. So at some point we'd need to stop the
+> repeats because we know there can no longer be any kfree_rcu()'s in
+> flight since the kmem_cache_destroy() was called.
+> 
+Agree. As noted above, we can go with 21 seconds(as an example) interval
+and just perform destroy(without repeating).
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hook=
-s.c
-index bf30c50b56895..3c9f6538990ea 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -137,6 +137,7 @@ static inline bool is_pppoe_ipv6(const struct sk_buff *=
-skb,
- #define NF_BRIDGE_MAX_MAC_HEADER_LENGTH (PPPOE_SES_HLEN + ETH_HLEN)
-=20
- struct brnf_frag_data {
-+	local_lock_t bh_lock;
- 	char mac[NF_BRIDGE_MAX_MAC_HEADER_LENGTH];
- 	u8 encap_size;
- 	u8 size;
-@@ -144,7 +145,9 @@ struct brnf_frag_data {
- 	__be16 vlan_proto;
- };
-=20
--static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage);
-+static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage) =3D {
-+	.bh_lock =3D INIT_LOCAL_LOCK(bh_lock),
-+};
-=20
- static void nf_bridge_info_free(struct sk_buff *skb)
- {
-@@ -850,6 +853,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
- {
- 	struct nf_bridge_info *nf_bridge =3D nf_bridge_info_get(skb);
- 	unsigned int mtu, mtu_reserved;
-+	int ret;
-=20
- 	mtu_reserved =3D nf_bridge_mtu_reduction(skb);
- 	mtu =3D skb->dev->mtu;
-@@ -882,6 +886,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
-=20
- 		IPCB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
-=20
-+		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
- 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
-=20
- 		if (skb_vlan_tag_present(skb)) {
-@@ -897,7 +902,9 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
- 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
- 						 data->size);
-=20
--		return br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
-+		ret =3D br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
-+		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
-+		return ret;
- 	}
- 	if (IS_ENABLED(CONFIG_NF_DEFRAG_IPV6) &&
- 	    skb->protocol =3D=3D htons(ETH_P_IPV6)) {
-@@ -909,6 +916,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
- sock *sk, struct sk_buff
-=20
- 		IP6CB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
-=20
-+		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
- 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
- 		data->encap_size =3D nf_bridge_encap_header_len(skb);
- 		data->size =3D ETH_HLEN + data->encap_size;
-@@ -916,8 +924,12 @@ static int br_nf_dev_queue_xmit(struct net *net, struc=
-t sock *sk, struct sk_buff
- 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
- 						 data->size);
-=20
--		if (v6ops)
--			return v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
-+		if (v6ops) {
-+			ret =3D v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
-+			local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
-+			return ret;
-+		}
-+		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
-=20
- 		kfree_skb(skb);
- 		return -EMSGSIZE;
---=20
-2.45.2
-
+--
+Uladzislau Rezki
