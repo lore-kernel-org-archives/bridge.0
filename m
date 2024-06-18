@@ -1,313 +1,182 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76280163A97
-	for <bridge@lists.linux.dev>; Mon, 17 Jun 2024 21:33:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C7611553AA
+	for <bridge@lists.linux.dev>; Tue, 18 Jun 2024 07:25:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718659984; cv=none; b=Q0QqvDuxx1MEpmjQAZA5DzQhJoE6zSlcv+GnTPFp4v3ygcNKfhwRo/1XyB1CsbBkYAEDxzkcgXlX9v3D9Waig4342GPr5+LETC5x8Xyscm7FjUToKaRSHEsvMVZH/XQKmtTD6zpqJ9snALwnaVjR3ZXGTJB9SSeuNIjVxQvZtp8=
+	t=1718695537; cv=none; b=IX3Z7G2VypsvuiQro88hkipUiMbt5ERJfVcEOBXXxUbs3Ie1vGbzFjqqBBN/5TAkrMZMoJRyNelf8uUdZ8Xbee5HuqexR5f/jIpspk+NykcCq74YmoodJgdFQrPoA79bOAdZG2Lokx6JEb0gShxFPHujzc3znjoVeejPqdo42QA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718659984; c=relaxed/simple;
-	bh=sdaDMvLQCreBwTA57eVWyzB2b5NZ72cf2xJlc9gYc0s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UxHr5ag2ZScUqieFQHFR5dP+3q0acjzk/Y4SB1YA8CCqUFC1HwciNt2VlitbdZB2TO6I07xQ6+qYvBeBmG8DtlK8luQmccYSkFLQx8Es6MEQ4c8wfq0T4Fw+BcS9JMvFGuQELM4/9AYKNTQPXeftUi+/pj7jvqeU61qFVnDBgws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=jXLkls7G; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=awc7LiFL; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=jXLkls7G; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=awc7LiFL; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1718695537; c=relaxed/simple;
+	bh=hVYiIFL5HwJaYF05A9M5SqbFcZHu2+UJJv8+B5zsSCs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=NHQ+oo41H+VJHCecTK4AKstWao0/ujVa15qyUgJPJ6emhJOkJ06syppgzaqI1RxTaFKaji0R0Q3V8Wt8OJ6x0ZjP0Pv+8BCgDgsF6Yy5magQierzRARxqzQbJs531Dt8G3HcCdTdOUh8kr6XP6dI7C1JjQlEgqYjANEK1VAT7uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=zJ5XQ/ov; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=qOgBvmul; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="jXLkls7G";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="awc7LiFL";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="jXLkls7G";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="awc7LiFL"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 8F3A11F747;
-	Mon, 17 Jun 2024 21:33:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1718659980; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="zJ5XQ/ov";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="qOgBvmul"
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1718695533;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6ZIkcM2Jg5cQeoR/5GuAI6KY2sxiEb8XUmVreSeq1Lk=;
-	b=jXLkls7Gg36TdnuZn/Uovq+cvGYbKqMGUCVYKgxcsEUB9Jsne9spvnQSAHPGhwEwynFk9M
-	4LAEhLZj3/x60Gc7Vitf/UJp70UcNNd/hv6x9nXYiFm7a3P9oxE2PkrEmTGEydnUnddJQ2
-	x1NhhexsmnRLDq2lGyPP7ZxiWDUOhRA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1718659980;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
+	bh=7Fimo9A+L9/O8JEt6UHonD1Uw2oHXu2TNi4Wzvh1cs4=;
+	b=zJ5XQ/ovkAoYXup5T5gZtuUcWn8lOZuzC3jAcbyc0mohjvgUSSof/BZBh/fmfE5FausvOO
+	4wuKheKU6AIovjHbwcwqxfc69m1jvbr6bOA6uVEdlfF1cSiXHqD1enWHTd18MCMWTWujkH
+	gsns21J1VZSaxWb8W8YLA/HmaigVSgQnzJyNACBDfwoBJgGX4wzUulJUCzQ7GNsnc1pt7Z
+	qJhnzFuqJn73cEIcnlaLx39/TGYMM12N86JTdX8LLycCeZlEVtO57PHwV+iYUQLSANTlmv
+	6/hx6Gnqd8ncxVTy1EU3DRmTLaCsx9GBGRzNyXnz/DJP8W7mWKckKBsRccxnwA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1718695533;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6ZIkcM2Jg5cQeoR/5GuAI6KY2sxiEb8XUmVreSeq1Lk=;
-	b=awc7LiFLCbsytHw/yfYy1gWG7NzLvYeAvlEiGnXo//N6X5M7i0AWfkI3UmGQETKUOZc6Ch
-	f434vBWqXK7zccDw==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=jXLkls7G;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=awc7LiFL
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1718659980; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6ZIkcM2Jg5cQeoR/5GuAI6KY2sxiEb8XUmVreSeq1Lk=;
-	b=jXLkls7Gg36TdnuZn/Uovq+cvGYbKqMGUCVYKgxcsEUB9Jsne9spvnQSAHPGhwEwynFk9M
-	4LAEhLZj3/x60Gc7Vitf/UJp70UcNNd/hv6x9nXYiFm7a3P9oxE2PkrEmTGEydnUnddJQ2
-	x1NhhexsmnRLDq2lGyPP7ZxiWDUOhRA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1718659980;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6ZIkcM2Jg5cQeoR/5GuAI6KY2sxiEb8XUmVreSeq1Lk=;
-	b=awc7LiFLCbsytHw/yfYy1gWG7NzLvYeAvlEiGnXo//N6X5M7i0AWfkI3UmGQETKUOZc6Ch
-	f434vBWqXK7zccDw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 428F813AAA;
-	Mon, 17 Jun 2024 21:33:00 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id BpV7D4yrcGbuUQAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Mon, 17 Jun 2024 21:33:00 +0000
-Message-ID: <e7cbca4d-9b34-46f8-961a-9f8ddc92be21@suse.cz>
-Date: Mon, 17 Jun 2024 23:34:04 +0200
+	bh=7Fimo9A+L9/O8JEt6UHonD1Uw2oHXu2TNi4Wzvh1cs4=;
+	b=qOgBvmulC8q1a5rj1+5yWtlGj7bjn0kUkk0ewSXUtasma0o/fh+T83A2OLvSCaFImqeWk1
+	LRbgheMLr32HG4Cw==
+To: linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Daniel Bristot de Oliveira <bristot@kernel.org>,
+	Boqun Feng <boqun.feng@gmail.com>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Waiman Long <longman@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Florian Westphal <fw@strlen.de>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	bridge@lists.linux.dev,
+	coreteam@netfilter.org,
+	netfilter-devel@vger.kernel.org
+Subject: [PATCH v7 net-next 07/15] netfilter: br_netfilter: Use nested-BH locking for brnf_frag_data_storage.
+Date: Tue, 18 Jun 2024 09:13:23 +0200
+Message-ID: <20240618072526.379909-8-bigeasy@linutronix.de>
+In-Reply-To: <20240618072526.379909-1-bigeasy@linutronix.de>
+References: <20240618072526.379909-1-bigeasy@linutronix.de>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/14] replace call_rcu by kfree_rcu for simple
- kmem_cache_free callback
-To: paulmck@kernel.org
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
- Jakub Kicinski <kuba@kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>,
- linux-block@vger.kernel.org, kernel-janitors@vger.kernel.org,
- bridge@lists.linux.dev, linux-trace-kernel@vger.kernel.org,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, kvm@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Nicholas Piggin <npiggin@gmail.com>, netdev@vger.kernel.org,
- wireguard@lists.zx2c4.com, linux-kernel@vger.kernel.org,
- ecryptfs@vger.kernel.org, Neil Brown <neilb@suse.de>,
- Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
- Tom Talpey <tom@talpey.com>, linux-nfs@vger.kernel.org,
- linux-can@vger.kernel.org, Lai Jiangshan <jiangshanlai@gmail.com>,
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- kasan-dev <kasan-dev@googlegroups.com>
-References: <20240609082726.32742-1-Julia.Lawall@inria.fr>
- <20240612143305.451abf58@kernel.org>
- <baee4d58-17b4-4918-8e45-4d8068a23e8c@paulmck-laptop>
- <Zmov7ZaL-54T9GiM@zx2c4.com> <Zmo9-YGraiCj5-MI@zx2c4.com>
- <08ee7eb2-8d08-4f1f-9c46-495a544b8c0e@paulmck-laptop>
- <Zmrkkel0Fo4_g75a@zx2c4.com> <e926e3c6-05ce-4ba6-9e2e-e5f3b37bcc23@suse.cz>
- <3b6fe525-626c-41fb-8625-3925ca820d8e@paulmck-laptop>
- <6711935d-20b5-41c1-8864-db3fc7d7823d@suse.cz>
- <1755282b-e3f5-4d18-9eab-fc6a29ca5886@paulmck-laptop>
-From: Vlastimil Babka <vbabka@suse.cz>
-Content-Language: en-US
-In-Reply-To: <1755282b-e3f5-4d18-9eab-fc6a29ca5886@paulmck-laptop>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-4.50 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	XM_UA_NO_VERSION(0.01)[];
-	MX_GOOD(-0.01)[];
-	RCVD_TLS_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[29];
-	MIME_TRACE(0.00)[0:+];
-	MID_RHS_MATCH_FROM(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[zx2c4.com,gmail.com,kernel.org,inria.fr,vger.kernel.org,lists.linux.dev,efficios.com,lists.ozlabs.org,linux.ibm.com,csgroup.eu,lists.zx2c4.com,suse.de,netapp.com,oracle.com,talpey.com,netfilter.org,googlegroups.com];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DKIM_TRACE(0.00)[suse.cz:+]
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 8F3A11F747
-X-Spam-Flag: NO
-X-Spam-Score: -4.50
-X-Spam-Level: 
+Content-Transfer-Encoding: quoted-printable
 
-On 6/17/24 8:54 PM, Paul E. McKenney wrote:
-> On Mon, Jun 17, 2024 at 07:23:36PM +0200, Vlastimil Babka wrote:
->> On 6/17/24 6:12 PM, Paul E. McKenney wrote:
->>> On Mon, Jun 17, 2024 at 05:10:50PM +0200, Vlastimil Babka wrote:
->>>> On 6/13/24 2:22 PM, Jason A. Donenfeld wrote:
->>>>> On Wed, Jun 12, 2024 at 08:38:02PM -0700, Paul E. McKenney wrote:
->>>>>> o	Make the current kmem_cache_destroy() asynchronously wait for
->>>>>> 	all memory to be returned, then complete the destruction.
->>>>>> 	(This gets rid of a valuable debugging technique because
->>>>>> 	in normal use, it is a bug to attempt to destroy a kmem_cache
->>>>>> 	that has objects still allocated.)
->>>>
->>>> This seems like the best option to me. As Jason already said, the debugging
->>>> technique is not affected significantly, if the warning just occurs
->>>> asynchronously later. The module can be already unloaded at that point, as
->>>> the leak is never checked programatically anyway to control further
->>>> execution, it's just a splat in dmesg.
->>>
->>> Works for me!
->>
->> Great. So this is how a prototype could look like, hopefully? The kunit test
->> does generate the splat for me, which should be because the rcu_barrier() in
->> the implementation (marked to be replaced with the real thing) is really
->> insufficient. Note the test itself passes as this kind of error isn't wired
->> up properly.
-> 
-> ;-) ;-) ;-)
+brnf_frag_data_storage is a per-CPU variable and relies on disabled BH
+for its locking. Without per-CPU locking in local_bh_disable() on
+PREEMPT_RT this data structure requires explicit locking.
 
-Yeah yeah, I just used the kunit module as a convenient way add the code
-that should see if there's the splat :)
+Add a local_lock_t to the data structure and use local_lock_nested_bh()
+for locking. This change adds only lockdep coverage and does not alter
+the functional behaviour for !PREEMPT_RT.
 
-> Some might want confirmation that their cleanup efforts succeeded,
-> but if so, I will let them make that known.
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Jozsef Kadlecsik <kadlec@netfilter.org>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Cc: bridge@lists.linux.dev
+Cc: coreteam@netfilter.org
+Cc: netfilter-devel@vger.kernel.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ net/bridge/br_netfilter_hooks.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-It could be just the kunit test that could want that, but I don't see
-how it could wrap and inspect the result of the async handling and
-suppress the splats for intentionally triggered errors as many of the
-other tests do.
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hook=
+s.c
+index bf30c50b56895..3c9f6538990ea 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -137,6 +137,7 @@ static inline bool is_pppoe_ipv6(const struct sk_buff *=
+skb,
+ #define NF_BRIDGE_MAX_MAC_HEADER_LENGTH (PPPOE_SES_HLEN + ETH_HLEN)
+=20
+ struct brnf_frag_data {
++	local_lock_t bh_lock;
+ 	char mac[NF_BRIDGE_MAX_MAC_HEADER_LENGTH];
+ 	u8 encap_size;
+ 	u8 size;
+@@ -144,7 +145,9 @@ struct brnf_frag_data {
+ 	__be16 vlan_proto;
+ };
+=20
+-static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage);
++static DEFINE_PER_CPU(struct brnf_frag_data, brnf_frag_data_storage) =3D {
++	.bh_lock =3D INIT_LOCAL_LOCK(bh_lock),
++};
+=20
+ static void nf_bridge_info_free(struct sk_buff *skb)
+ {
+@@ -850,6 +853,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+ {
+ 	struct nf_bridge_info *nf_bridge =3D nf_bridge_info_get(skb);
+ 	unsigned int mtu, mtu_reserved;
++	int ret;
+=20
+ 	mtu_reserved =3D nf_bridge_mtu_reduction(skb);
+ 	mtu =3D skb->dev->mtu;
+@@ -882,6 +886,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+=20
+ 		IPCB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
+=20
++		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
+ 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
+=20
+ 		if (skb_vlan_tag_present(skb)) {
+@@ -897,7 +902,9 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+ 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
+ 						 data->size);
+=20
+-		return br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
++		ret =3D br_nf_ip_fragment(net, sk, skb, br_nf_push_frag_xmit);
++		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
++		return ret;
+ 	}
+ 	if (IS_ENABLED(CONFIG_NF_DEFRAG_IPV6) &&
+ 	    skb->protocol =3D=3D htons(ETH_P_IPV6)) {
+@@ -909,6 +916,7 @@ static int br_nf_dev_queue_xmit(struct net *net, struct=
+ sock *sk, struct sk_buff
+=20
+ 		IP6CB(skb)->frag_max_size =3D nf_bridge->frag_max_size;
+=20
++		local_lock_nested_bh(&brnf_frag_data_storage.bh_lock);
+ 		data =3D this_cpu_ptr(&brnf_frag_data_storage);
+ 		data->encap_size =3D nf_bridge_encap_header_len(skb);
+ 		data->size =3D ETH_HLEN + data->encap_size;
+@@ -916,8 +924,12 @@ static int br_nf_dev_queue_xmit(struct net *net, struc=
+t sock *sk, struct sk_buff
+ 		skb_copy_from_linear_data_offset(skb, -data->size, data->mac,
+ 						 data->size);
+=20
+-		if (v6ops)
+-			return v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
++		if (v6ops) {
++			ret =3D v6ops->fragment(net, sk, skb, br_nf_push_frag_xmit);
++			local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
++			return ret;
++		}
++		local_unlock_nested_bh(&brnf_frag_data_storage.bh_lock);
+=20
+ 		kfree_skb(skb);
+ 		return -EMSGSIZE;
+--=20
+2.45.2
 
->> Another thing to resolve is the marked comment about kasan_shutdown() with
->> potential kfree_rcu()'s in flight.
-> 
-> Could that simply move to the worker function?  (Hey, had to ask!)
-
-I think I had a reason why not, but I guess it could move. It would just
-mean that if any objects are quarantined, we'll go for the async freeing
-even though those could be flushed immediately. Guess that's not too bad.
-
->> Also you need CONFIG_SLUB_DEBUG enabled otherwise node_nr_slabs() is a no-op
->> and it might fail to notice the pending slabs. This will need to change.
-> 
-> Agreed.
-> 
-> Looks generally good.  A few questions below, to be taken with a
-> grain of salt.
-
-Thanks!
-
->> +static void kmem_cache_kfree_rcu_destroy_workfn(struct work_struct *work)
->> +{
->> +	struct kmem_cache *s;
->> +	int err = -EBUSY;
->> +	bool rcu_set;
->> +
->> +	s = container_of(work, struct kmem_cache, async_destroy_work);
->> +
->> +	// XXX use the real kmem_cache_free_barrier() or similar thing here
->> +	rcu_barrier();
-
-Note here's the barrier.
-
->> +	cpus_read_lock();
->> +	mutex_lock(&slab_mutex);
->> +
->> +	rcu_set = s->flags & SLAB_TYPESAFE_BY_RCU;
->> +
->> +	err = shutdown_cache(s, true);
-> 
-> This is currently the only call to shutdown_cache()?  So there is to be
-> a way for the caller to have some influence over the value of that bool?
-
-Not the only caller, there's still the initial attempt in
-kmem_cache_destroy() itself below.
-
-> 
->> +	WARN(err, "kmem_cache_destroy %s: Slab cache still has objects",
->> +	     s->name);
-> 
-> Don't we want to have some sort of delay here?  Or is this the
-> 21-second delay and/or kfree_rcu_barrier() mentioned before?
-
-Yes this is after the barrier. The first immediate attempt to shutdown
-doesn't warn.
-
->> +	mutex_unlock(&slab_mutex);
->> +	cpus_read_unlock();
->> +	if (!err && !rcu_set)
->> +		kmem_cache_release(s);
->> +}
->> +
->>  void kmem_cache_destroy(struct kmem_cache *s)
->>  {
->>  	int err = -EBUSY;
->> @@ -494,9 +527,9 @@ void kmem_cache_destroy(struct kmem_cache *s)
->>  	if (s->refcount)
->>  		goto out_unlock;
->>  
->> -	err = shutdown_cache(s);
->> -	WARN(err, "%s %s: Slab cache still has objects when called from %pS",
->> -	     __func__, s->name, (void *)_RET_IP_);
->> +	err = shutdown_cache(s, false);
->> +	if (err)
->> +		schedule_work(&s->async_destroy_work);
-
-And here's the initial attempt that used to warn but now doesn't and
-instead schedules the async one.
-
->>  out_unlock:
->>  	mutex_unlock(&slab_mutex);
->>  	cpus_read_unlock();
->> diff --git a/mm/slub.c b/mm/slub.c
->> index 1617d8014ecd..4d435b3d2b5f 100644
->> --- a/mm/slub.c
->> +++ b/mm/slub.c
->> @@ -5342,7 +5342,8 @@ static void list_slab_objects(struct kmem_cache *s, struct slab *slab,
->>   * This is called from __kmem_cache_shutdown(). We must take list_lock
->>   * because sysfs file might still access partial list after the shutdowning.
->>   */
->> -static void free_partial(struct kmem_cache *s, struct kmem_cache_node *n)
->> +static void free_partial(struct kmem_cache *s, struct kmem_cache_node *n,
->> +			 bool warn_inuse)
->>  {
->>  	LIST_HEAD(discard);
->>  	struct slab *slab, *h;
->> @@ -5353,7 +5354,7 @@ static void free_partial(struct kmem_cache *s, struct kmem_cache_node *n)
->>  		if (!slab->inuse) {
->>  			remove_partial(n, slab);
->>  			list_add(&slab->slab_list, &discard);
->> -		} else {
->> +		} else if (warn_inuse) {
->>  			list_slab_objects(s, slab,
->>  			  "Objects remaining in %s on __kmem_cache_shutdown()");
->>  		}
->> @@ -5378,7 +5379,7 @@ bool __kmem_cache_empty(struct kmem_cache *s)
->>  /*
->>   * Release all resources used by a slab cache.
->>   */
->> -int __kmem_cache_shutdown(struct kmem_cache *s)
->> +int __kmem_cache_shutdown(struct kmem_cache *s, bool warn_inuse)
->>  {
->>  	int node;
->>  	struct kmem_cache_node *n;
->> @@ -5386,7 +5387,7 @@ int __kmem_cache_shutdown(struct kmem_cache *s)
->>  	flush_all_cpus_locked(s);
->>  	/* Attempt to free all objects */
->>  	for_each_kmem_cache_node(s, node, n) {
->> -		free_partial(s, n);
->> +		free_partial(s, n, warn_inuse);
->>  		if (n->nr_partial || node_nr_slabs(n))
->>  			return 1;
->>  	}
->>
