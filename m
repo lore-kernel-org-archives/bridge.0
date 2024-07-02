@@ -1,57 +1,57 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8640E166317
-	for <bridge@lists.linux.dev>; Tue,  2 Jul 2024 12:08:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEF6A16B3B4
+	for <bridge@lists.linux.dev>; Tue,  2 Jul 2024 12:08:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719922117; cv=none; b=SG59X5pEc5NNkuqtW2IPhYdymSbt5I8OQlxCfYpFvpc16WoWFQO2jLtovGeGn/XOArjDTokhXhxmktr2Yvb7m7+6QFFnQrxuWM3Jg94fhtiuMMcDfR5VUEsmEz8ckzg9zqIHgqp8eoC/YLMfzZo2ZlWsFYTuV3qS3TvWvPnAxDw=
+	t=1719922118; cv=none; b=NUIZBTBGsYkhUuTg4GwbbaTzvYE5jUcY2KtIWZ+cjYQ7MP2fp1IQAPdicqQkSOU0rAMCdkPzNWNmnEBcV8Qh8pgcDOVtKiNSdj45WApOKGPPj1u9qAhuQcZ7OcSNHhEJv6c8KtKMRmLl6Ft7xUNtrg+wFUrxhJOhgFpXMBTuaGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719922117; c=relaxed/simple;
-	bh=L4iknHWv24LRJnoIT3fvpcqfrurIP2YwW3xU1mKpwnA=;
+	s=arc-20240116; t=1719922118; c=relaxed/simple;
+	bh=/5nuBLnx57EsEH5Fp51r8N+mP4r0+26G8FY2XbSSlHw=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=S4Qa+KVpXITmcrv2w1WOeEp0v87zcnJDneRvruAAPoAejTFbyNCW4/kWEaxCFj6DyjYj4rB8hzUY+TGVLdL9MGGmWDL2vaUzmYiqTeTvpqQMakGJRDmvnxh0yKVFqMgsgYRceLNs6443uE/8ZeOaUknLRHm9CoxDmTkeMGeGMWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=RfrWXn21; arc=none smtp.client-ip=209.85.167.49
+	 MIME-Version; b=JpJSwjFmN1YU54cDKciWr5PTfqHAm+YNC/Qr35/iPlost+/7FF4jjRmcZtqQPs2J0InZi7lc37AUqeIX+wStHWe/YoLlVcaVoM2oQJIrUYUcKhY8cbCxpuqa8sTuAb/goDC9gjHGo68/ji5pWV1JK/3lu4/oia2tR1ZxL54tc8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=2JfokxIC; arc=none smtp.client-ip=209.85.167.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="RfrWXn21"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-52cdf4bc083so6253806e87.2
-        for <bridge@lists.linux.dev>; Tue, 02 Jul 2024 05:08:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="2JfokxIC"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-52ce674da85so4429987e87.2
+        for <bridge@lists.linux.dev>; Tue, 02 Jul 2024 05:08:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1719922114; x=1720526914; darn=lists.linux.dev;
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1719922115; x=1720526915; darn=lists.linux.dev;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=FCahmSEYU6tX9FqLb0Uk9Z14eoHvtjROOSdSw1YJQpE=;
-        b=RfrWXn21zxPJBLCRruzurO8pxtNBX09LQx759NvNYMThagAmTHz4DJ1wiqKLQZpi5G
-         ZHDKplFo+keBcJRLBYMYf2W1qTk7g/YMp5B+xu96GXrZzFmqb/Ty82LF9dOqG6O8z39W
-         PFPo1StlIbE7bUAoB0ypoKA3rUzGcGL03zJoE2vE3XLz6IdJ2x3NT3hqjAWqP3dWHdmP
-         pRsU9SP72CFT724BcXDOQyTiXAEmI4xegg3Aw2ggaNBU2Er/46hP6cvcvCoCtx1uL5vf
-         Hx7FJiocchb3x709798QgBhQBqnsDY0RZ4GeRKZT40gE4ocuEb/iYwb0gMC3QG7QWQRA
-         2dNw==
+        bh=yFzCccGikLAGCgY4ieBgdKYyFg/aj/68UUIXY9SMuzs=;
+        b=2JfokxICnGEab4sEbfElk9H1lI7AKHKZkLMVV4XluFufW/F3jZ8tLZHWt+jWzX5CXy
+         dH+4zkR96PlJMV6WPXor3So2ZIVy57i/w4Fs4REa7f+SNnPJIZrZY6TD/AB8ZUvrwWWS
+         VwaEgnLDOXyMfm8FoBa9qTEO6xUECGI0YwbCSorQgiIgI3y6YWg9PqwHhRRB9iyY8G5M
+         FPX7eE5WArc7t64CPMB8iIxMvWor0LBHho2RIvDuKI1d/UgtkNCSNWWNrkks3FaQGCub
+         6zuQX5jp4SPbAYCiRSjMb/HXqF9Af//0ACc/Xo1+pA4uHwFRK1p8+uO//B5wwvi/7s3f
+         yjYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719922114; x=1720526914;
+        d=1e100.net; s=20230601; t=1719922115; x=1720526915;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=FCahmSEYU6tX9FqLb0Uk9Z14eoHvtjROOSdSw1YJQpE=;
-        b=c3AILYWAiRWah9hvwDdi3ASWeeX9VLPtyE1oZCK0gFN10jRIArqz8lyT2afBSz2YO5
-         V5NgBEACuma8X4rJBjxtzAYg6xiUiwygNgH3M2vF98C465hYgB4PL2RJqaoyR0I0eqDQ
-         kK70eUa6vdwlNG5sk3pqYzjYZeNloa1fXCCcwHzQC57oM67kSTqIdQz3rrXDq9Nc+EQv
-         6dEeSkawVS4jkTFE6VAIQDQ0fsqZTSZ94/xXn/Kqf1diUKwxWYmWIGUP2aThwhWdD6Ox
-         iiFkJ4zKe+t5fCOx/ZrwoNWyVo4BZelPncZxyk0DgDx8rgeuTIuql0HcybRUqZEMiU1v
-         o9xg==
-X-Forwarded-Encrypted: i=1; AJvYcCUOISQHszXHdm/ZQiES/si9w4N2IiMJsOQhEc4HJHLmbXeA6x3zkLlPe3bdiO69gNfu1ll4L1Zr9qND5Nxh1VoWIjA5rgoI
-X-Gm-Message-State: AOJu0YxMpARWJcwGDX9b9sNF+a9IQlJQfBr3i0Xn6ITBtmw8NYctjVMw
-	TZBKNKnnHOU/ytuN+OWNctX3tturInVasY7kMUe9UYrIQqqdpXAfiWUR+fj/U5o=
-X-Google-Smtp-Source: AGHT+IHa8FAMkx5Vj/lheTFRq2vnO8kcgH30G8QkbdtT9a7fNLM9xq68XDWCaFIdq1JAVFRY9tlAWw==
-X-Received: by 2002:a05:6512:3e28:b0:52c:a5cb:69e4 with SMTP id 2adb3069b0e04-52e826f12d1mr5949124e87.54.1719922113775;
-        Tue, 02 Jul 2024 05:08:33 -0700 (PDT)
+        bh=yFzCccGikLAGCgY4ieBgdKYyFg/aj/68UUIXY9SMuzs=;
+        b=Xgt+K2R3sERpDfITIbSGlL6cMPtu0EuCkoit3jbSzzQm+r8FYpwAp417c09TDt6XLc
+         fx7P4ukmKXgOUXX8WJSkfarJd4U88meQD68+dUDtybK9sL66nZbi/YRifa8G1D13nxqA
+         bb78Au7zrwKS0tclsZpqg8z4hGjesvydUZoaJRsOCb3Du1cWps4cdB11FH4WdoHkbnmM
+         +MPdM0HRFz9akukgpR4mbUIunL+kb9lynKE87m3c4Lsri3SIMYd2tZkjU2yYSKwlPCE1
+         3dCauwQpIqsm82MDlGyNJqqKXkFQvAXFihyK6aE/0lwSNfm3mGFRBi1PZWtYWZbGKVNE
+         vP1w==
+X-Forwarded-Encrypted: i=1; AJvYcCVY8uOW5qsYxKKl4ZRkZNY//1bDHGEymYr2zxs/3NHPtPuBJQGJbYt1AcoRenH1FrMwe63sO5iNdXme/cbsjVHbyshWoYiy
+X-Gm-Message-State: AOJu0YyavXuLvK/rG/jIRkRjN7SYGRwJ2VH8oyUxQ0zz5BoFtaM9FpY7
+	zjugSS0lhcwejbU3sjGoC3Q6Ln4sOEBcUSd90jStY/gQIWjg5c7/vZWM7mU2xkA=
+X-Google-Smtp-Source: AGHT+IH6NGdGFub5TNV2QR9171sllrmPpz4CWI4PH7V1ab+QjIstt5mBJdBeJ827KcuTOdcGJcE2Iw==
+X-Received: by 2002:a05:6512:2355:b0:52c:b09e:136d with SMTP id 2adb3069b0e04-52e8268b415mr7290375e87.32.1719922115072;
+        Tue, 02 Jul 2024 05:08:35 -0700 (PDT)
 Received: from wkz-x13.addiva.ad (h-176-10-146-181.NA.cust.bahnhof.se. [176.10.146.181])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-52e7ab1064asm1799414e87.103.2024.07.02.05.08.32
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-52e7ab1064asm1799414e87.103.2024.07.02.05.08.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jul 2024 05:08:32 -0700 (PDT)
+        Tue, 02 Jul 2024 05:08:34 -0700 (PDT)
 From: Tobias Waldekranz <tobias@waldekranz.com>
 To: stephen@networkplumber.org,
 	dsahern@kernel.org,
@@ -60,9 +60,9 @@ To: stephen@networkplumber.org,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org
 Cc: liuhangbin@gmail.com
-Subject: [PATCH v3 iproute2 3/4] bridge: vlan: Add support for setting a VLANs MSTI
-Date: Tue,  2 Jul 2024 14:08:04 +0200
-Message-Id: <20240702120805.2391594-4-tobias@waldekranz.com>
+Subject: [PATCH v3 iproute2 4/4] bridge: mst: Add get/set support for MST states
+Date: Tue,  2 Jul 2024 14:08:05 +0200
+Message-Id: <20240702120805.2391594-5-tobias@waldekranz.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240702120805.2391594-1-tobias@waldekranz.com>
 References: <20240702120805.2391594-1-tobias@waldekranz.com>
@@ -75,89 +75,402 @@ MIME-Version: 1.0
 Organization: Addiva Elektronik
 Content-Transfer-Encoding: 8bit
 
-Allow the user to associate one or more VLANs with a multiple spanning
-tree instance (MSTI), when MST is enabled on the bridge.
+Allow a port's spanning tree state to be modified on a per-MSTI basis,
+and support dumping the current MST states for every port and MSTI.
 
-Reviewed-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 ---
- bridge/vlan.c     | 13 +++++++++++++
- man/man8/bridge.8 |  9 ++++++++-
- 2 files changed, 21 insertions(+), 1 deletion(-)
+ bridge/Makefile    |   2 +-
+ bridge/br_common.h |   1 +
+ bridge/bridge.c    |   3 +-
+ bridge/mst.c       | 258 +++++++++++++++++++++++++++++++++++++++++++++
+ man/man8/bridge.8  |  57 ++++++++++
+ 5 files changed, 319 insertions(+), 2 deletions(-)
+ create mode 100644 bridge/mst.c
 
-diff --git a/bridge/vlan.c b/bridge/vlan.c
-index 70f01aff..ea4aff93 100644
---- a/bridge/vlan.c
-+++ b/bridge/vlan.c
-@@ -53,6 +53,7 @@ static void usage(void)
- 		"                      [ mcast_querier_interval QUERIER_INTERVAL ]\n"
- 		"                      [ mcast_query_interval QUERY_INTERVAL ]\n"
- 		"                      [ mcast_query_response_interval QUERY_RESPONSE_INTERVAL ]\n"
-+		"                      [ msti MSTI ]\n"
- 		"       bridge vlan global { show } [ dev DEV ] [ vid VLAN_ID ]\n");
- 	exit(-1);
- }
-@@ -403,6 +404,7 @@ static int vlan_global_option_set(int argc, char **argv)
- 	short vid = -1;
- 	__u64 val64;
- 	__u32 val32;
-+	__u16 val16;
- 	__u8 val8;
+diff --git a/bridge/Makefile b/bridge/Makefile
+index 01f8a455..4c57df43 100644
+--- a/bridge/Makefile
++++ b/bridge/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+-BROBJ = bridge.o fdb.o monitor.o link.o mdb.o vlan.o vni.o
++BROBJ = bridge.o fdb.o monitor.o link.o mdb.o mst.o vlan.o vni.o
  
- 	afspec = addattr_nest(&req.n, sizeof(req),
-@@ -533,6 +535,12 @@ static int vlan_global_option_set(int argc, char **argv)
- 			addattr64(&req.n, 1024,
- 				  BRIDGE_VLANDB_GOPTS_MCAST_STARTUP_QUERY_INTVL,
- 				  val64);
+ include ../config.mk
+ 
+diff --git a/bridge/br_common.h b/bridge/br_common.h
+index 704e76b0..3a0cf882 100644
+--- a/bridge/br_common.h
++++ b/bridge/br_common.h
+@@ -20,6 +20,7 @@ void print_headers(FILE *fp, const char *label);
+ int do_fdb(int argc, char **argv);
+ int do_mdb(int argc, char **argv);
+ int do_monitor(int argc, char **argv);
++int do_mst(int argc, char **argv);
+ int do_vlan(int argc, char **argv);
+ int do_link(int argc, char **argv);
+ int do_vni(int argc, char **argv);
+diff --git a/bridge/bridge.c b/bridge/bridge.c
+index ef592815..f8b5646a 100644
+--- a/bridge/bridge.c
++++ b/bridge/bridge.c
+@@ -36,7 +36,7 @@ static void usage(void)
+ 	fprintf(stderr,
+ "Usage: bridge [ OPTIONS ] OBJECT { COMMAND | help }\n"
+ "       bridge [ -force ] -batch filename\n"
+-"where  OBJECT := { link | fdb | mdb | vlan | vni | monitor }\n"
++"where  OBJECT := { link | fdb | mdb | mst | vlan | vni | monitor }\n"
+ "       OPTIONS := { -V[ersion] | -s[tatistics] | -d[etails] |\n"
+ "                    -o[neline] | -t[imestamp] | -n[etns] name |\n"
+ "                    -com[pressvlans] -c[olor] -p[retty] -j[son] }\n");
+@@ -56,6 +56,7 @@ static const struct cmd {
+ 	{ "link",	do_link },
+ 	{ "fdb",	do_fdb },
+ 	{ "mdb",	do_mdb },
++	{ "mst",	do_mst },
+ 	{ "vlan",	do_vlan },
+ 	{ "vni",	do_vni },
+ 	{ "monitor",	do_monitor },
+diff --git a/bridge/mst.c b/bridge/mst.c
+new file mode 100644
+index 00000000..f8447284
+--- /dev/null
++++ b/bridge/mst.c
+@@ -0,0 +1,258 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Get/set Multiple Spanning Tree (MST) states
++ */
++
++#include <stdio.h>
++#include <linux/if_bridge.h>
++#include <net/if.h>
++
++#include "libnetlink.h"
++#include "json_print.h"
++#include "utils.h"
++
++#include "br_common.h"
++
++#define MST_ID_LEN 9
++
++static unsigned int filter_index;
++
++static void usage(void)
++{
++	fprintf(stderr,
++		"Usage: bridge mst set dev DEV msti MSTI state STATE\n"
++		"       bridge mst {show} [ dev DEV ]\n");
++	exit(-1);
++}
++
++static void print_mst_entry(struct rtattr *a, FILE *fp)
++{
++	struct rtattr *tb[IFLA_BRIDGE_MST_ENTRY_MAX + 1];
++	__u16 msti = 0;
++	__u8 state = 0;
++
++	parse_rtattr_flags(tb, IFLA_BRIDGE_MST_ENTRY_MAX, RTA_DATA(a),
++			   RTA_PAYLOAD(a), NLA_F_NESTED);
++
++
++	if (!(tb[IFLA_BRIDGE_MST_ENTRY_MSTI] &&
++	      tb[IFLA_BRIDGE_MST_ENTRY_STATE])) {
++		fprintf(stderr, "BUG: broken MST entry");
++		return;
++	}
++
++	msti = rta_getattr_u16(tb[IFLA_BRIDGE_MST_ENTRY_MSTI]);
++	state = rta_getattr_u8(tb[IFLA_BRIDGE_MST_ENTRY_STATE]);
++
++	open_json_object(NULL);
++	print_uint(PRINT_ANY, "msti", "%u", msti);
++	print_nl();
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    ", "");
++	print_stp_state(state);
++	print_nl();
++	close_json_object();
++}
++
++static int print_msts(struct nlmsghdr *n, void *arg)
++{
++	struct ifinfomsg *ifi = NLMSG_DATA(n);
++	struct rtattr *af_spec, *mst, *a;
++	int rem = n->nlmsg_len;
++	bool opened = false;
++
++	rem -= NLMSG_LENGTH(sizeof(*ifi));
++	if (rem < 0) {
++		fprintf(stderr, "BUG: wrong nlmsg len %d\n", rem);
++		return -1;
++	}
++
++	af_spec = parse_rtattr_one(IFLA_AF_SPEC, IFLA_RTA(ifi), rem);
++	if (!af_spec)
++		return -1;
++
++	if (filter_index && filter_index != ifi->ifi_index)
++		return 0;
++
++	mst = parse_rtattr_one_nested(NLA_F_NESTED | IFLA_BRIDGE_MST, af_spec);
++	if (!mst)
++		return 0;
++
++	rem = RTA_PAYLOAD(mst);
++	for (a = RTA_DATA(mst); RTA_OK(a, rem); a = RTA_NEXT(a, rem)) {
++		unsigned short rta_type = a->rta_type & NLA_TYPE_MASK;
++
++		switch (rta_type) {
++		case IFLA_BRIDGE_MST_ENTRY:
++			if (!opened) {
++				open_json_object(NULL);
++				print_color_string(PRINT_ANY, COLOR_IFNAME,
++						   "ifname",
++						   "%-" textify(IFNAMSIZ) "s  ",
++						   ll_index_to_name(ifi->ifi_index));
++				open_json_array(PRINT_JSON, "mst");
++				opened = true;
++			} else {
++				print_string(PRINT_FP, NULL, "%-"
++					     textify(IFNAMSIZ) "s  ", "");
++			}
++
++			print_mst_entry(a, arg);
++			break;
++		default:
++			continue;
++		}
++	}
++
++	if (opened) {
++		close_json_array(PRINT_JSON, NULL);
++		close_json_object();
++	}
++
++	return 0;
++}
++
++static int mst_show(int argc, char **argv)
++{
++	char *filter_dev = NULL;
++
++	while (argc > 0) {
++		if (strcmp(*argv, "dev") == 0) {
++			NEXT_ARG();
++			if (filter_dev)
++				duparg("dev", *argv);
++			filter_dev = *argv;
++		}
++		argc--; argv++;
++	}
++
++	if (filter_dev) {
++		filter_index = ll_name_to_index(filter_dev);
++		if (!filter_index)
++			return nodev(filter_dev);
++	}
++
++	if (rtnl_linkdump_req_filter(&rth, PF_BRIDGE, RTEXT_FILTER_MST) < 0) {
++		perror("Cannon send dump request");
++		exit(1);
++	}
++
++	new_json_obj(json);
++
++	if (!is_json_context()) {
++		printf("%-" textify(IFNAMSIZ) "s  "
++		       "%-" textify(MST_ID_LEN) "s",
++		       "port", "msti");
++		printf("\n");
++	}
++
++	if (rtnl_dump_filter(&rth, print_msts, stdout) < 0) {
++		fprintf(stderr, "Dump terminated\n");
++		return -1;
++	}
++
++	delete_json_obj();
++	fflush(stdout);
++	return 0;
++}
++
++static int mst_set(int argc, char **argv)
++{
++	struct {
++		struct nlmsghdr		n;
++		struct ifinfomsg	ifi;
++		char			buf[512];
++	} req = {
++		.n.nlmsg_len = NLMSG_LENGTH(sizeof(struct ifinfomsg)),
++		.n.nlmsg_flags = NLM_F_REQUEST,
++		.n.nlmsg_type = RTM_SETLINK,
++		.ifi.ifi_family = PF_BRIDGE,
++	};
++	char *d = NULL, *m = NULL, *s = NULL, *endptr;
++	struct rtattr *af_spec, *mst, *entry;
++	__u16 msti;
++	__s8 state;
++
++	while (argc > 0) {
++		if (strcmp(*argv, "dev") == 0) {
++			NEXT_ARG();
++			d = *argv;
 +		} else if (strcmp(*argv, "msti") == 0) {
 +			NEXT_ARG();
-+			if (get_u16(&val16, *argv, 0))
-+				invarg("invalid msti", *argv);
-+			addattr16(&req.n, 1024,
-+				 BRIDGE_VLANDB_GOPTS_MSTI, val16);
- 		} else {
- 			if (strcmp(*argv, "help") == 0)
- 				NEXT_ARG();
-@@ -942,6 +950,11 @@ static void print_vlan_global_opts(struct rtattr *a, int ifindex)
- 			     "mcast_query_response_interval %llu ",
- 			     rta_getattr_u64(vattr));
- 	}
-+	if (vtb[BRIDGE_VLANDB_GOPTS_MSTI]) {
-+		vattr = vtb[BRIDGE_VLANDB_GOPTS_MSTI];
-+		print_uint(PRINT_ANY, "msti", "msti %u ",
-+			   rta_getattr_u16(vattr));
++			m = *argv;
++		} else if (strcmp(*argv, "state") == 0) {
++			NEXT_ARG();
++			s = *argv;
++		} else {
++			if (matches(*argv, "help") == 0)
++				usage();
++		}
++		argc--; argv++;
 +	}
- 	print_nl();
- 	if (vtb[BRIDGE_VLANDB_GOPTS_MCAST_ROUTER_PORTS]) {
- 		vattr = RTA_DATA(vtb[BRIDGE_VLANDB_GOPTS_MCAST_ROUTER_PORTS]);
++
++	if (d == NULL || m == NULL || s == NULL) {
++		fprintf(stderr, "Device, MSTI and state are required arguments.\n");
++		return -1;
++	}
++
++	req.ifi.ifi_index = ll_name_to_index(d);
++	if (!req.ifi.ifi_index)
++		return nodev(d);
++
++	msti = strtol(m, &endptr, 10);
++	if (!(*s != '\0' && *endptr == '\0')) {
++		fprintf(stderr,
++			"Error: invalid MSTI\n");
++		return -1;
++	}
++
++	state = strtol(s, &endptr, 10);
++	if (!(*s != '\0' && *endptr == '\0')) {
++		state = parse_stp_state(s);
++		if (state == -1) {
++			fprintf(stderr,
++				"Error: invalid STP port state\n");
++			return -1;
++		}
++	}
++
++	af_spec = addattr_nest(&req.n, sizeof(req), IFLA_AF_SPEC);
++	mst = addattr_nest(&req.n, sizeof(req), IFLA_BRIDGE_MST);
++
++	entry = addattr_nest(&req.n, sizeof(req), IFLA_BRIDGE_MST_ENTRY);
++	entry->rta_type |= NLA_F_NESTED;
++
++	addattr16(&req.n, sizeof(req), IFLA_BRIDGE_MST_ENTRY_MSTI, msti);
++	addattr8(&req.n, sizeof(req), IFLA_BRIDGE_MST_ENTRY_STATE, state);
++
++	addattr_nest_end(&req.n, entry);
++
++	addattr_nest_end(&req.n, mst);
++	addattr_nest_end(&req.n, af_spec);
++
++
++	if (rtnl_talk(&rth, &req.n, NULL) < 0)
++		return -1;
++
++	return 0;
++}
++
++int do_mst(int argc, char **argv)
++{
++	ll_init_map(&rth);
++
++	if (argc > 0) {
++		if (matches(*argv, "set") == 0)
++			return mst_set(argc-1, argv+1);
++
++		if (matches(*argv, "show") == 0 ||
++		    matches(*argv, "lst") == 0 ||
++		    matches(*argv, "list") == 0)
++			return mst_show(argc-1, argv+1);
++		if (matches(*argv, "help") == 0)
++			usage();
++	} else
++		return mst_show(0, NULL);
++
++	fprintf(stderr, "Command \"%s\" is unknown, try \"bridge mst help\".\n", *argv);
++	exit(-1);
++}
 diff --git a/man/man8/bridge.8 b/man/man8/bridge.8
-index bb02bd27..b4699801 100644
+index b4699801..08032e2f 100644
 --- a/man/man8/bridge.8
 +++ b/man/man8/bridge.8
-@@ -266,7 +266,9 @@ bridge \- show / manipulate bridge addresses and devices
- .B mcast_query_interval
- .IR QUERY_INTERVAL " ] [ "
- .B mcast_query_response_interval
--.IR QUERY_RESPONSE_INTERVAL " ]"
-+.IR QUERY_RESPONSE_INTERVAL " ] [ "
-+.B msti
-+.IR MSTI " ]"
+@@ -207,6 +207,15 @@ bridge \- show / manipulate bridge addresses and devices
+ .RB "[ " vni
+ .IR VNI " ]"
  
- .ti -8
- .BR "bridge vlan global" " [ " show " ] [ "
-@@ -1493,6 +1495,11 @@ startup phase.
- set the Max Response Time/Maximum Response Delay for IGMP/MLD
- queries sent by the bridge.
- 
-+.TP
-+.BI msti " MSTI "
-+associate the VLAN with the specified multiple spanning tree instance
-+(MSTI).
++.ti -8
++.B "bridge mst set"
++.IR dev " DEV " msti " MSTI " state " STP_STATE "
 +
- .SS bridge vlan global show - list global vlan options.
++.ti -8
++.BR "bridge mst" " [ [ " show " ] [ "
++.B dev
++.IR DEV " ] ]"
++
+ .ti -8
+ .BR "bridge vlan" " { " add " | " del " } "
+ .B dev
+@@ -1247,6 +1256,54 @@ endpoint. Match entries only with the specified destination port number.
+ the VXLAN VNI Network Identifier to use to connect to the remote VXLAN tunnel
+ endpoint. Match entries only with the specified destination VNI.
  
- This command displays the global VLAN options for each VLAN entry.
++.SH bridge mst - multiple spanning tree port states
++
++In the multiple spanning tree (MST) model, the active paths through a
++network can be different for different VLANs.  In other words, a
++bridge port can simultaneously forward one subset of VLANs, while
++blocking another.
++
++Provided that the
++.B mst_enable
++bridge option is enabled, a group of VLANs can be forwarded along the
++same spanning tree by associating them with the same instance (MSTI)
++using
++.BR "bridge vlan global set dev DEV vid VID msti MSTI" .
++
++.SS bridge mst set - set multiple spanning tree state
++
++Set the spanning tree state for
++.IR DEV ,
++in the multiple spanning tree instance
++.IR MSTI ,
++to
++.IR STP_STATE .
++
++.TP
++.BI dev " DEV"
++Interface name of the bridge port.
++
++.TP
++.BI msti " MSTI"
++The multiple spanning tree instance.
++
++.TP
++.BI state " STP_STATE"
++The spanning tree state, see the
++.B state
++option of
++.B "bridge link set"
++for supported states.
++
++.SS bridge mst show - list MST states
++
++List current MST port states in every MSTI.
++
++.TP
++.BI dev " DEV"
++If specified, only display states of the bridge port with this
++interface name.
++
+ .SH bridge vlan - VLAN filter list
+ 
+ .B vlan
 -- 
 2.34.1
 
