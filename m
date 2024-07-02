@@ -1,57 +1,57 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E958A15CD75
-	for <bridge@lists.linux.dev>; Tue,  2 Jul 2024 12:08:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43CD115B57B
+	for <bridge@lists.linux.dev>; Tue,  2 Jul 2024 12:08:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719922114; cv=none; b=TJPnGw7vZyyzy8R0XKnSVWrTZ9QNEeQhWWoK4TF17GKaAI0OZL98KniF9OBvngKgvuBzZFRvdr45CubloYYwv0d76cvMg0P0p5djQOFXysS/EZ8+dxWxVIqFI2Pv/tNc6PnnJbyizWXhP32SroaJ66r5Lk6vUZVCnwH47ulkJHI=
+	t=1719922116; cv=none; b=FqT/Y8TWIe8/THZQ+pS6+KjOuPXgG8A8X4lnt13PhV94pECCxApxnfwvgo5uor3oPTeirhEJGJZnMIfjc03YfEIEEb5NWHebzLZW6MgKrospPsRi3zf1I1JcTq701+ajCrT1Rpy1IcTga121kGiJhXszMTkGbwhYb1fCBXQtJP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719922114; c=relaxed/simple;
-	bh=9eIa7E2SX1m1tEX0xIgUzdbIr1Wl1VNa5TpYucuVwRc=;
+	s=arc-20240116; t=1719922116; c=relaxed/simple;
+	bh=hsftkSP2BDiz9TglzlG9ee1wDJWfkHJpC75tpg0xtkg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=i+36YhWEa8sZaWhrhPB+djzK9twU4BXaquBRCRQRcyJrF1xQVi+QPJCXbpexLr4lH3llg5A5LLr/sq2sy03iC/P5ng28NyeZ4yj0IXbqEyAIKbTfMoLiATC9btP0aDIeb9r19LeZqdqFO7BEcbe7LlXpEvqh+Nn3FNw7drDHivI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=nh8xylLN; arc=none smtp.client-ip=209.85.167.51
+	 MIME-Version; b=AOJIbBHl+FpmGB/ZYojtZKvTs3EiPugXxK1HqkXx0AoOm8DJm/hcgoEawRlHFQlkGeqLq47mO//4BF6JkM5YGkI5+4MF7mKleTlCT4+ZzT2VVMO8e11ZRucF8shb2yWxQ+Xw8d05jUhDjBoSfmdK52bgqi9C/2wb7hjrVAbz7Vk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=ewbBoQP/; arc=none smtp.client-ip=209.85.208.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="nh8xylLN"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-52cdc4d221eso4486630e87.3
-        for <bridge@lists.linux.dev>; Tue, 02 Jul 2024 05:08:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="ewbBoQP/"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-2ee4ab4076bso44251301fa.0
+        for <bridge@lists.linux.dev>; Tue, 02 Jul 2024 05:08:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1719922111; x=1720526911; darn=lists.linux.dev;
+        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1719922112; x=1720526912; darn=lists.linux.dev;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=xgQdQMdjhR92R38qSZNVEOOBIPnKqiUX7hdimYEwX3o=;
-        b=nh8xylLNJakq40EPI4pcP/+tlTlgl7/mK5RooBqjyI21SeMRaiFLPBDlkoio9oipeq
-         wu511R9/UGDmD/MuifT6zVBqwY133WNMJka2u4AeQJM8U1sUWgcA3v5/nS0mdlKSjsUX
-         5cguqVpIbRDn9qocvLOjI4Tc34jCqE8B5oGR2O1VXYzZwNdWZ1wD7/GsARWaPA4fzLBw
-         X/uOk3XFSf1iDKvkESBs8uNRxcV200Bx4+Jz4Zm0Tt6LLsaX6rpJ88kX12pls+26+H+a
-         9CiT+sjAa5Pz9284/IhlbBtAQld1R6NTGxA+JF/oT49PuxgnXArjn5dt6TEAK7MLioC9
-         t1IA==
+        bh=8j4YJnckxoKym+ZcM9ZDthFzWyUhM2Uf5fbtBbrDdx4=;
+        b=ewbBoQP/a3js7yXGibqY3O/5GQrXSfFeICFzyG63k5j/nGwX7njCiGx5ylWy+2XSMk
+         X3HjGQwnHC35WQMiuVFhLdaxbjy6ODnb9BMYtmh3Q1BS6Cs5X/F89sOaiySaeDUAhjB+
+         ZzoAZkwoe5UIHxunMABcUoLA+s9IUyx5qiXztbvF648HyqoFIuXllTQ+4dXXINZ2RyOJ
+         vdB8e3R3+PyyDdxwH4O1o6EVAtvpM1kQsUt69VRXizKACZDKy0V5klSW8feGmJdhmzGF
+         2cdXI2t1pbuukxHZlVZ1QE+6JXzFFaOw2jm+3OOnbUgZcKaKhR85Ygd/kTwOMLAjhOUz
+         NY0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719922111; x=1720526911;
+        d=1e100.net; s=20230601; t=1719922112; x=1720526912;
         h=content-transfer-encoding:organization:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=xgQdQMdjhR92R38qSZNVEOOBIPnKqiUX7hdimYEwX3o=;
-        b=Ql/jkC5BC1PB2VvIEhqTDv5Fv5mBCUFlecoINFSjbI26x/8iEwLY174uNlFD9lC9g2
-         7YbLWphejngqmZ9qpsy0pc5Yt18mjyIECMLJFbXb+3uX03OFlNYczhHLtFH76sMKUpxM
-         oRIU6E5ht5Xy+d2KPMhkyZBsEFw2mlmL2pGwYTnlO+cYWxp7AxxFLi6RIF6qFZXvMVy3
-         yQawga5fYuRUs99svj2+jcsMPId4MbSV4aVJ4J9b0gkuV67+rGt/KvCtQrBfnEGdRt/K
-         CVQvMGqkTPYIxk2j9fZ06MqMUH7EBpBkO0nLFjprjlBSVn/8GKiiTg2CcdVvMr4sgMM6
-         Zj2g==
-X-Forwarded-Encrypted: i=1; AJvYcCUtpuc7xCHQUUG3R0qpjNhMgJROW40rUweWveuKF1vj2YuMRd9gYjr5LgF2fxIzYr1iwFXICY+eooeESluDYg2RaIhGsSDo
-X-Gm-Message-State: AOJu0Yyp3K/cQaw+ea+Sko54MJkrVHypn9cINQG5U/dbUmvoYpLpHk17
-	JANcXArO1V8XnXk+cSNeERo4rgwuXE5HAi7+f5Z0Z1ZiwvEBlIy1WiGMiwaENgU=
-X-Google-Smtp-Source: AGHT+IF9a7ftKNDrAOgX8w4585WgK8NDzBb6lJXOWfgSlcymGaTYJe9zpCyUWmrbLNn+2S9C05uAVg==
-X-Received: by 2002:a05:6512:3e1c:b0:52c:dfa7:53a2 with SMTP id 2adb3069b0e04-52e826f7609mr5987406e87.50.1719922110452;
-        Tue, 02 Jul 2024 05:08:30 -0700 (PDT)
+        bh=8j4YJnckxoKym+ZcM9ZDthFzWyUhM2Uf5fbtBbrDdx4=;
+        b=kZvFo4L5he/cLvKL/fMFqFAzesAz2rh2FnjO2iErSs3DPpeBBHzUxbE5d0y+NxaI7l
+         5vO3pPep6obrutr70i5NhdgkA5ZZtTmhZkkYcWD/j9Z1K8l6vBMlkoEzHkf84jHV9YLS
+         ZgVexGumTn4pYsHlgkL9QE5+I3YTXK1NXBsA9+byiuqJb5B5X/+XOxLCNQeikc7XSaAa
+         1tIjy6F6pRIBX0RDxbq2KFOMF4vk5XJYRnvTtFEk88XGAOhRjZxIX/Dc82M3UmJPmYOm
+         /stOdaRl3HNRLZT8paZZJK6Bq24uK62UKUmvWUvaR6arUqFNIbCLbxurE8FWJun2WiWf
+         JIfA==
+X-Forwarded-Encrypted: i=1; AJvYcCWb3lZl/Z/x2WJzCE2IzDNB5uZFnII/Ct2IlGqm0luENXjh7HYi2eX5YLjQV1yqGZp3O1VDXlSek8fRJbhP7bLbRDyxPnDA
+X-Gm-Message-State: AOJu0YyF3UEvqWZINkYi3v19dFnUdo9NJn7cqqVLojq0TqBOZuBKg834
+	Ma8mm5aB1TH+JTMxCEwajXwzapVABDi/NdY1hw0isGYy2VR8rUDLg2i/3O9Dic0=
+X-Google-Smtp-Source: AGHT+IGr4wQPv5afUFDcinzrJ0DCOrcAewoDqVAFuxi9J7/AILw78OE4VOEWMCvm39t77WUoK8ZTEA==
+X-Received: by 2002:a05:6512:3e0c:b0:52c:ca8d:d1c with SMTP id 2adb3069b0e04-52e825976ecmr2619228e87.2.1719922112246;
+        Tue, 02 Jul 2024 05:08:32 -0700 (PDT)
 Received: from wkz-x13.addiva.ad (h-176-10-146-181.NA.cust.bahnhof.se. [176.10.146.181])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-52e7ab1064asm1799414e87.103.2024.07.02.05.08.29
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-52e7ab1064asm1799414e87.103.2024.07.02.05.08.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jul 2024 05:08:29 -0700 (PDT)
+        Tue, 02 Jul 2024 05:08:31 -0700 (PDT)
 From: Tobias Waldekranz <tobias@waldekranz.com>
 To: stephen@networkplumber.org,
 	dsahern@kernel.org,
@@ -60,9 +60,9 @@ To: stephen@networkplumber.org,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org
 Cc: liuhangbin@gmail.com
-Subject: [PATCH v3 iproute2 1/4] ip: bridge: add support for mst_enabled
-Date: Tue,  2 Jul 2024 14:08:02 +0200
-Message-Id: <20240702120805.2391594-2-tobias@waldekranz.com>
+Subject: [PATCH v3 iproute2 2/4] bridge: Remove duplicated textification macros
+Date: Tue,  2 Jul 2024 14:08:03 +0200
+Message-Id: <20240702120805.2391594-3-tobias@waldekranz.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240702120805.2391594-1-tobias@waldekranz.com>
 References: <20240702120805.2391594-1-tobias@waldekranz.com>
@@ -75,100 +75,231 @@ MIME-Version: 1.0
 Organization: Addiva Elektronik
 Content-Transfer-Encoding: 8bit
 
-When enabled, the bridge's legacy per-VLAN STP facility is replaced
-with the Multiple Spanning Tree Protocol (MSTP) compatible version.
+include/utils.h already provides textify(), which is functionally
+equivalent to __stringify().
 
-Reviewed-by: Hangbin Liu <liuhangbin@gmail.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
 ---
- ip/iplink_bridge.c    | 19 +++++++++++++++++++
- man/man8/ip-link.8.in | 14 ++++++++++++++
- 2 files changed, 33 insertions(+)
+ bridge/vlan.c | 41 +++++++++++++++++++----------------------
+ bridge/vni.c  | 15 ++++++---------
+ 2 files changed, 25 insertions(+), 31 deletions(-)
 
-diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
-index 6b70ffbb..f01ffe15 100644
---- a/ip/iplink_bridge.c
-+++ b/ip/iplink_bridge.c
-@@ -30,6 +30,7 @@ static void print_explain(FILE *f)
- 		"		  [ max_age MAX_AGE ]\n"
- 		"		  [ ageing_time AGEING_TIME ]\n"
- 		"		  [ stp_state STP_STATE ]\n"
-+		"		  [ mst_enabled MST_ENABLED ]\n"
- 		"		  [ priority PRIORITY ]\n"
- 		"		  [ group_fwd_mask MASK ]\n"
- 		"		  [ group_address ADDRESS ]\n"
-@@ -169,6 +170,18 @@ static int bridge_parse_opt(struct link_util *lu, int argc, char **argv,
- 				bm.optval |= no_ll_learn_bit;
- 			else
- 				bm.optval &= ~no_ll_learn_bit;
-+		} else if (strcmp(*argv, "mst_enabled") == 0) {
-+			__u32 mst_bit = 1 << BR_BOOLOPT_MST_ENABLE;
-+			__u8 mst_enabled;
-+
-+			NEXT_ARG();
-+			if (get_u8(&mst_enabled, *argv, 0))
-+				invarg("invalid mst_enabled", *argv);
-+			bm.optmask |= mst_bit;
-+			if (mst_enabled)
-+				bm.optval |= mst_bit;
-+			else
-+				bm.optval &= ~mst_bit;
- 		} else if (strcmp(*argv, "fdb_max_learned") == 0) {
- 			__u32 fdb_max_learned;
+diff --git a/bridge/vlan.c b/bridge/vlan.c
+index 0a7e6c45..70f01aff 100644
+--- a/bridge/vlan.c
++++ b/bridge/vlan.c
+@@ -28,9 +28,6 @@ enum vlan_show_subject {
  
-@@ -609,6 +622,7 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
- 	if (tb[IFLA_BR_MULTI_BOOLOPT]) {
- 		__u32 mcvl_bit = 1 << BR_BOOLOPT_MCAST_VLAN_SNOOPING;
- 		__u32 no_ll_learn_bit = 1 << BR_BOOLOPT_NO_LL_LEARN;
-+		__u32 mst_bit = 1 << BR_BOOLOPT_MST_ENABLE;
- 		struct br_boolopt_multi *bm;
+ #define VLAN_ID_LEN 9
  
- 		bm = RTA_DATA(tb[IFLA_BR_MULTI_BOOLOPT]);
-@@ -622,6 +636,11 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
- 				   "mcast_vlan_snooping",
- 				   "mcast_vlan_snooping %u ",
- 				    !!(bm->optval & mcvl_bit));
-+		if (bm->optmask & mst_bit)
-+			print_uint(PRINT_ANY,
-+				   "mst_enabled",
-+				   "mst_enabled %u ",
-+				   !!(bm->optval & mst_bit));
+-#define __stringify_1(x...) #x
+-#define __stringify(x...) __stringify_1(x)
+-
+ static void usage(void)
+ {
+ 	fprintf(stderr,
+@@ -579,7 +576,7 @@ static void open_vlan_port(int ifi_index, enum vlan_show_subject subject)
+ {
+ 	open_json_object(NULL);
+ 	print_color_string(PRINT_ANY, COLOR_IFNAME, "ifname",
+-			   "%-" __stringify(IFNAMSIZ) "s  ",
++			   "%-" textify(IFNAMSIZ) "s  ",
+ 			   ll_index_to_name(ifi_index));
+ 	open_json_array(PRINT_JSON,
+ 			subject == VLAN_SHOW_VLAN ? "vlans": "tunnels");
+@@ -643,7 +640,7 @@ static void print_vlan_tunnel_info(struct rtattr *tb, int ifindex)
+ 			opened = true;
+ 		} else {
+ 			print_string(PRINT_FP, NULL,
+-				     "%-" __stringify(IFNAMSIZ) "s  ", "");
++				     "%-" textify(IFNAMSIZ) "s  ", "");
+ 		}
+ 
+ 		open_json_object(NULL);
+@@ -716,13 +713,13 @@ static void print_vlan_flags(__u16 flags)
+ 
+ static void __print_one_vlan_stats(const struct bridge_vlan_xstats *vstats)
+ {
+-	print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s    ", "");
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    ", "");
+ 	print_lluint(PRINT_ANY, "rx_bytes", "RX: %llu bytes",
+ 		     vstats->rx_bytes);
+ 	print_lluint(PRINT_ANY, "rx_packets", " %llu packets\n",
+ 		     vstats->rx_packets);
+ 
+-	print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s    ", "");
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    ", "");
+ 	print_lluint(PRINT_ANY, "tx_bytes", "TX: %llu bytes",
+ 		     vstats->tx_bytes);
+ 	print_lluint(PRINT_ANY, "tx_packets", " %llu packets\n",
+@@ -776,7 +773,7 @@ static void print_vlan_stats_attr(struct rtattr *attr, int ifindex)
+ 			found_vlan = true;
+ 		} else {
+ 			print_string(PRINT_FP, NULL,
+-				     "%-" __stringify(IFNAMSIZ) "s  ", "");
++				     "%-" textify(IFNAMSIZ) "s  ", "");
+ 		}
+ 		print_one_vlan_stats(vstats);
+ 	}
+@@ -822,7 +819,7 @@ static void print_vlan_router_ports(struct rtattr *rattr)
+ 	int rem = RTA_PAYLOAD(rattr);
+ 	struct rtattr *i;
+ 
+-	print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s    ", "");
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    ", "");
+ 	open_json_array(PRINT_ANY, is_json_context() ? "router_ports" :
+ 						       "router ports: ");
+ 	for (i = RTA_DATA(rattr); RTA_OK(i, rem); i = RTA_NEXT(i, rem)) {
+@@ -834,7 +831,7 @@ static void print_vlan_router_ports(struct rtattr *rattr)
+ 			print_nl();
+ 			/* start: IFNAMSIZ + 4 + strlen("router ports: ") */
+ 			print_string(PRINT_FP, NULL,
+-				     "%-" __stringify(IFNAMSIZ) "s    "
++				     "%-" textify(IFNAMSIZ) "s    "
+ 				     "              ",
+ 				     "");
+ 		}
+@@ -872,11 +869,11 @@ static void print_vlan_global_opts(struct rtattr *a, int ifindex)
+ 		vlan_rtm_cur_ifidx = ifindex;
+ 	} else {
+ 		open_json_object(NULL);
+-		print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s  ", "");
++		print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s  ", "");
+ 	}
+ 	print_range("vlan", vid, vrange);
+ 	print_nl();
+-	print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s    ", "");
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    ", "");
+ 	if (vtb[BRIDGE_VLANDB_GOPTS_MCAST_SNOOPING]) {
+ 		vattr = vtb[BRIDGE_VLANDB_GOPTS_MCAST_SNOOPING];
+ 		print_uint(PRINT_ANY, "mcast_snooping", "mcast_snooping %u ",
+@@ -1012,12 +1009,12 @@ static void print_vlan_opts(struct rtattr *a, int ifindex)
+ 		vlan_rtm_cur_ifidx = ifindex;
+ 	} else {
+ 		open_json_object(NULL);
+-		print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s  ", "");
++		print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s  ", "");
+ 	}
+ 	print_range("vlan", vinfo->vid, vrange);
+ 	print_vlan_flags(vinfo->flags);
+ 	print_nl();
+-	print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s    ", "");
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    ", "");
+ 	print_stp_state(state);
+ 	if (vtb[BRIDGE_VLANDB_ENTRY_MCAST_ROUTER]) {
+ 		vattr = vtb[BRIDGE_VLANDB_ENTRY_MCAST_ROUTER];
+@@ -1155,8 +1152,8 @@ static int vlan_show(int argc, char **argv, int subject)
+ 		}
+ 
+ 		if (!is_json_context()) {
+-			printf("%-" __stringify(IFNAMSIZ) "s  %-"
+-			       __stringify(VLAN_ID_LEN) "s", "port",
++			printf("%-" textify(IFNAMSIZ) "s  %-"
++			       textify(VLAN_ID_LEN) "s", "port",
+ 			       "vlan-id");
+ 			printf("\n");
+ 		}
+@@ -1183,8 +1180,8 @@ static int vlan_show(int argc, char **argv, int subject)
+ 		}
+ 
+ 		if (!is_json_context()) {
+-			printf("%-" __stringify(IFNAMSIZ) "s  %-"
+-			       __stringify(VLAN_ID_LEN) "s", "port",
++			printf("%-" textify(IFNAMSIZ) "s  %-"
++			       textify(VLAN_ID_LEN) "s", "port",
+ 			       "vlan-id");
+ 			if (subject == VLAN_SHOW_TUNNELINFO)
+ 				printf("  tunnel-id");
+@@ -1207,7 +1204,7 @@ static int vlan_show(int argc, char **argv, int subject)
+ 		}
+ 
+ 		if (!is_json_context())
+-			printf("%-" __stringify(IFNAMSIZ) "s  vlan-id\n",
++			printf("%-" textify(IFNAMSIZ) "s  vlan-id\n",
+ 			       "port");
+ 
+ 		if (rtnl_dump_filter(&rth, print_vlan_stats, stdout) < 0) {
+@@ -1269,8 +1266,8 @@ static int vlan_global_show(int argc, char **argv)
  	}
  
- 	if (tb[IFLA_BR_MCAST_ROUTER])
-diff --git a/man/man8/ip-link.8.in b/man/man8/ip-link.8.in
-index c1984158..eabca490 100644
---- a/man/man8/ip-link.8.in
-+++ b/man/man8/ip-link.8.in
-@@ -1685,6 +1685,8 @@ the following additional arguments are supported:
- ] [
- .BI stp_state " STP_STATE "
- ] [
-+.BI mst_enabled " MST_ENABLED "
-+] [
- .BI priority " PRIORITY "
- ] [
- .BI no_linklocal_learn " NO_LINKLOCAL_LEARN "
-@@ -1788,6 +1790,18 @@ or off
- .RI ( STP_STATE " == 0). "
- for this bridge.
+ 	if (!is_json_context()) {
+-		printf("%-" __stringify(IFNAMSIZ) "s  %-"
+-		       __stringify(VLAN_ID_LEN) "s", "port",
++		printf("%-" textify(IFNAMSIZ) "s  %-"
++		       textify(VLAN_ID_LEN) "s", "port",
+ 		       "vlan-id");
+ 		printf("\n");
+ 	}
+@@ -1318,7 +1315,7 @@ static void print_vlan_info(struct rtattr *tb, int ifindex)
+ 			opened = true;
+ 		} else {
+ 			print_string(PRINT_FP, NULL, "%-"
+-				     __stringify(IFNAMSIZ) "s  ", "");
++				     textify(IFNAMSIZ) "s  ", "");
+ 		}
  
-+.BI mst_enabled " MST_ENABLED "
-+- turn multiple spanning tree (MST) support on
-+.RI ( MST_ENABLED " > 0) "
-+or off
-+.RI ( MST_ENABLED " == 0). "
-+When enabled, sets of VLANs can be associated with multiple spanning
-+tree instances (MSTIs), and STP states for each port can be controlled
-+on a per-MSTI basis. Note: no implementation of the MSTP protocol is
-+provided, only the primitives needed to implement it. To avoid
-+interfering with the legacy per-VLAN STP states, this setting can only
-+be changed when no bridge VLANs are configured.
-+
- .BI priority " PRIORITY "
- - set this bridge's spanning tree priority, used during STP root
- bridge election.
+ 		open_json_object(NULL);
+diff --git a/bridge/vni.c b/bridge/vni.c
+index e1f981fc..57b04c8c 100644
+--- a/bridge/vni.c
++++ b/bridge/vni.c
+@@ -27,9 +27,6 @@ static unsigned int filter_index;
+ /* max len of "<start>-<end>" */
+ #define VXLAN_ID_LEN 17
+ 
+-#define __stringify_1(x...) #x
+-#define __stringify(x...) __stringify_1(x)
+-
+ static void usage(void)
+ {
+ 	fprintf(stderr,
+@@ -153,7 +150,7 @@ static void open_vni_port(int ifi_index)
+ {
+ 	open_json_object(NULL);
+ 	print_color_string(PRINT_ANY, COLOR_IFNAME, "ifname",
+-			   "%-" __stringify(IFNAMSIZ) "s  ",
++			   "%-" textify(IFNAMSIZ) "s  ",
+ 			   ll_index_to_name(ifi_index));
+ 	open_json_array(PRINT_JSON, "vnis");
+ }
+@@ -174,7 +171,7 @@ static void print_vnifilter_entry_stats(struct rtattr *stats_attr)
+ 			   RTA_PAYLOAD(stats_attr), NLA_F_NESTED);
+ 
+ 	print_nl();
+-	print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s    RX: ",
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    RX: ",
+ 		     "");
+ 
+ 	if (stb[VNIFILTER_ENTRY_STATS_RX_BYTES]) {
+@@ -195,7 +192,7 @@ static void print_vnifilter_entry_stats(struct rtattr *stats_attr)
+ 	}
+ 
+ 	print_nl();
+-	print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s    TX: ",
++	print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s    TX: ",
+ 		     "");
+ 
+ 	if (stb[VNIFILTER_ENTRY_STATS_TX_BYTES]) {
+@@ -327,7 +324,7 @@ int print_vnifilter_rtm(struct nlmsghdr *n, void *arg)
+ 			open_vni_port(tmsg->ifindex);
+ 			opened = true;
+ 		} else {
+-			print_string(PRINT_FP, NULL, "%-" __stringify(IFNAMSIZ) "s  ", "");
++			print_string(PRINT_FP, NULL, "%-" textify(IFNAMSIZ) "s  ", "");
+ 		}
+ 
+ 		print_vni(t, tmsg->ifindex);
+@@ -373,8 +370,8 @@ static int vni_show(int argc, char **argv)
+ 	}
+ 
+ 	if (!is_json_context())
+-		printf("%-" __stringify(IFNAMSIZ) "s  %-"
+-		       __stringify(VXLAN_ID_LEN) "s  group/remote\n", "dev",
++		printf("%-" textify(IFNAMSIZ) "s  %-"
++		       textify(VXLAN_ID_LEN) "s  group/remote\n", "dev",
+ 		       "vni");
+ 
+ 	ret = rtnl_dump_filter(&rth, print_vnifilter_rtm, NULL);
 -- 
 2.34.1
 
