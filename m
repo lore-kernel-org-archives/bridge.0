@@ -1,123 +1,83 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF14313FD99
-	for <bridge@lists.linux.dev>; Fri,  5 Jul 2024 06:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2535DA955;
+	Fri,  5 Jul 2024 17:31:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720160366; cv=none; b=QBpgb14p0pZlvpC5LDWu2ivn7fgxAaAK6wsB1ZHUiLBYv8p+DCJZ6lK/CPTZKyyQn4PgoBzvE96Tnhf0DLoeLkxT41739YKxMZ6gZFICPLVgJmg8a35j8ag4Sre4kmexzO+T+yuwdKYapaG3ZTVssWLyICngxD8TOafe0feMshw=
+	t=1720200684; cv=none; b=WBKCWkGlFonONA7Uuw4U+33jikfDOCsO8XmV9Dm4x4FroYy4g7b8VtFjqckS9MAIz5GjlynxMd5pEz1EBL6Ab/liOt+lR1XnaYz5yENkYdWeR4XTVr9PY8fmojKlLQepLi2BlRE4HmyYG9z9mmwVaMyCN0SdwW/PQCRdS5Vv2EM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720160366; c=relaxed/simple;
-	bh=NuBcaZBXyaib8wjHT9yk4FJ5ZvdCAVX8JNjlI0ndxKA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BEsLdyf89//Hol6jzAMk9/E4w4aQWyE7KXvaruOdHUWzotoVxEBP8+Rs6yOmv+tfvXHXykMyo5ilu0euoS4yjXuCsn+GXONEmvGSy8ZYRufnJSV/jQyQK8B3czrIbeuNzfmCPbcELsjDgrB2HiucpghjK++f4AoUQ9zqQjrXw6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=0DBeF8B4; arc=none smtp.client-ip=209.85.218.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1720200684; c=relaxed/simple;
+	bh=lWso3CknD6ujVoU48OlVNceQpnURAJ6uiG/8MRDzDv4=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=nt+jc5qdzcAuNrsPmSMCtgRZyVWRZeCX0OnJIqEuN+2X8yEAfF/w9Bu+dIHrbBCpc7kt+jBIKvZ6RvbP9qSWXKmFKfD+nqhWuGianKvnoheDLxdSTsFPE1WopjTMS2gqDiRip1PyxW19dXtXOSTFOUD7htvcFSE28IVbCKqu4rE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RBdH3WuX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="0DBeF8B4"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-a77c4309fc8so90988766b.3
-        for <bridge@lists.linux.dev>; Thu, 04 Jul 2024 23:19:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1720160362; x=1720765162; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=mwsffRzyhXVoC3K5uOT5OFHBsBv3WDoaAysWJVFt7KU=;
-        b=0DBeF8B4TGnMknHGXncDG96/hH0wPPcYecqgMYyYZOywMJl6ZT7/2ZaHyW1Rlimdln
-         laK4Z655Mg0Q7TEVdnldef3Hf8Sr1G59LRPaZxDHlz2KGHyopbPllgPFHez9e9MihuLe
-         vtGKiiVnDTRmsqf7nJSHH8qejN6i0gcXEoE/QthbhgwFmqIrori2QQXTukJklpegswpc
-         MIYgz7vyzqRF1w0LDOuj5w/Lnwiikwz3j0UVA3EIOJ9hwVvqhW3fHidx2l8xLzLRKC6G
-         dS5+nAsgmbdyQwb1GJY/E+AvcZmihf2tm73mctfVzcwwuhJJqv5b8QADw1pXej+z2LqJ
-         7Z9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720160362; x=1720765162;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mwsffRzyhXVoC3K5uOT5OFHBsBv3WDoaAysWJVFt7KU=;
-        b=hcpgmZCwkDcvXYcTO53DVS2Y9xGHGaUyfp9jmeq/uytBGqfZ157+4jNeJyE/lB/zje
-         rP6Gz+UT2KeZFpbAYfDiHKT353zKjp+dRw1wnu8puCsba/Zgndlqky50TZCDDV0eUTGv
-         LDZERitcqOfZx4Be3ncYKTeAOUUli8HMuifuEjNeO8KWhYbMubkk4agHFsomhfY4GvlC
-         8ivl0eDUuxCr8ZEqQ2NBBDwEaDSVT/PBCJhBYJXD9J3YWbJHeNHieg9mym3CyZiVCdOB
-         Ki4TRMtpl8ebGj7BWKc/AFdPhGcSLEbRvCJdwbKJ/3AexCfBDroMzzEp27Zo0cudz11r
-         qchg==
-X-Forwarded-Encrypted: i=1; AJvYcCUBjpHjbVqA9RhEey8GMR//bQ1XKudPDVfDfop/X9QtzutQm3NmnAFK7LVpwgzISqOC1YyT29v+SlEvv94n1PXlbNfQBBe8
-X-Gm-Message-State: AOJu0Yxbvf34kEv3r1c4afR3HKjJDdIo4humfVGaPBL/j0GV/WPf8CIy
-	AvXUbGC4sRlVNDMM7n0+CaEcEXMaSUBeir4KjtwsAl99xxW2PJU5B7tYUGRqftA=
-X-Google-Smtp-Source: AGHT+IHYGWxgJcxU2JtXZe2SYuFdQkZAhNQBf2vwDFlVHIX1WeUVW/S7nDMmVDMT9pyEI4qfY0LaVw==
-X-Received: by 2002:a17:907:97c8:b0:a77:b410:b1ed with SMTP id a640c23a62f3a-a77ba48325cmr317201666b.36.1720160362091;
-        Thu, 04 Jul 2024 23:19:22 -0700 (PDT)
-Received: from [192.168.0.245] ([62.73.69.208])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a72aaf184fdsm653369866b.3.2024.07.04.23.19.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Jul 2024 23:19:21 -0700 (PDT)
-Message-ID: <8f3fe53c-0bee-44d9-9c23-6fdd3362ebe4@blackwall.org>
-Date: Fri, 5 Jul 2024 09:19:20 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RBdH3WuX"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 8EEAEC116B1;
+	Fri,  5 Jul 2024 17:31:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1720200683;
+	bh=lWso3CknD6ujVoU48OlVNceQpnURAJ6uiG/8MRDzDv4=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=RBdH3WuXDp4aK1rJpG1Q6Dd3BKLBfOX6O8g6R+6kdAJblTLV9L3muUNXWq+4t0YXP
+	 dtm3SjiXfLQ0fMZuw68vfEtBVvUw1eNb3cXachDShxH1qg6bswqPY40q5PZQ9Vpv/+
+	 gRDIPrM29gOrsGKNX3VMHvHEERjJNuAR5QdXbLkJaDtWRayw2OKs/Ji1MrIkDksIJm
+	 AqecoRviD+hgkfCTldW/HJ20XBss/EYAl4HWGfpy7LrnzmlzKb//855k/dZ1f/BS4A
+	 r+KEa+GisqrbN8i10Gm4dYmHoxLlW+LnGjlJb4dwNeSgY8wDIDMbIYEN9Y0Yqiwoeg
+	 3z3QEab9TvBXw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 82701C433A2;
+	Fri,  5 Jul 2024 17:31:23 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net: bridge: mst: Check vlan state for egress
- decision
-To: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>, davem@davemloft.net
-Cc: Roopa Prabhu <roopa@nvidia.com>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Tobias Waldekranz <tobias@waldekranz.com>, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20240705030041.1248472-1-elliot.ayrey@alliedtelesis.co.nz>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20240705030041.1248472-1-elliot.ayrey@alliedtelesis.co.nz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v3 iproute2 0/4] Multiple Spanning Tree (MST) Support
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <172020068352.8177.8028215256014256151.git-patchwork-notify@kernel.org>
+Date: Fri, 05 Jul 2024 17:31:23 +0000
+References: <20240702120805.2391594-1-tobias@waldekranz.com>
+In-Reply-To: <20240702120805.2391594-1-tobias@waldekranz.com>
+To: Tobias Waldekranz <tobias@waldekranz.com>
+Cc: stephen@networkplumber.org, dsahern@kernel.org, roopa@nvidia.com,
+ razor@blackwall.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
+ liuhangbin@gmail.com
 
-On 05/07/2024 06:00, Elliot Ayrey wrote:
-> If a port is blocking in the common instance but forwarding in an MST
-> instance, traffic egressing the bridge will be dropped because the
-> state of the common instance is overriding that of the MST instance.
+Hello:
+
+This series was applied to iproute2/iproute2.git (main)
+by Stephen Hemminger <stephen@networkplumber.org>:
+
+On Tue,  2 Jul 2024 14:08:01 +0200 you wrote:
+> This series adds support for:
 > 
-> Fix this by temporarily forcing the port state to forwarding when in
-> MST mode to allow checking the vlan state via br_allowed_egress().
-> This is similar to what happens in br_handle_frame_finish() when
-> checking ingress traffic, which was introduced in the change below.
+> - Enabling MST on a bridge:
 > 
-> Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
-> Signed-off-by: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
-> ---
->  net/bridge/br_forward.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
+>       ip link set dev <BR> type bridge mst_enable 1
 > 
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index d97064d460dc..911b37a38a32 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -22,10 +22,16 @@ static inline int should_deliver(const struct net_bridge_port *p,
->  				 const struct sk_buff *skb)
->  {
->  	struct net_bridge_vlan_group *vg;
-> +	u8 state;
+> - (Re)associating VLANs with an MSTI:
+> 
+> [...]
 
-state = p->state
-...
+Here is the summary with links:
+  - [v3,iproute2,1/4] ip: bridge: add support for mst_enabled
+    https://git.kernel.org/pub/scm/network/iproute2/iproute2.git/commit/?id=3018ea24f388
+  - [v3,iproute2,2/4] bridge: Remove duplicated textification macros
+    (no matching commit)
+  - [v3,iproute2,3/4] bridge: vlan: Add support for setting a VLANs MSTI
+    https://git.kernel.org/pub/scm/network/iproute2/iproute2.git/commit/?id=151db40f1d3d
+  - [v3,iproute2,4/4] bridge: mst: Add get/set support for MST states
+    (no matching commit)
 
-> +
-> +	if (br_mst_is_enabled(p->br))
-> +		state = BR_STATE_FORWARDING;
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-...
-and you can drop the else clause
 
-> +	else
-> +		state = p->state;
->  
->  	vg = nbp_vlan_group_rcu(p);
->  	return ((p->flags & BR_HAIRPIN_MODE) || skb->dev != p->dev) &&
-> -		p->state == BR_STATE_FORWARDING && br_allowed_egress(vg, skb) &&
-> +		state == BR_STATE_FORWARDING && br_allowed_egress(vg, skb) &&
->  		nbp_switchdev_allowed_egress(p, skb) &&
->  		!br_skb_isolated(p, skb);
->  }
