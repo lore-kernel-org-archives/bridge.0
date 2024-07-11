@@ -1,83 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A40C215252D;
-	Mon,  8 Jul 2024 22:40:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B0822904
+	for <bridge@lists.linux.dev>; Thu, 11 Jul 2024 05:00:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720478433; cv=none; b=qqBUpK1Ni9KTwo4Zi95+OqA6KIm2xf4Y2jXE/hPIsnDq76Ho6zmpnNcfO+e5KMQeBsSbN2AWN6SuagKSwV2DhMDSi7Z4q2T1GTz93layyw/7PD85wJGzY5GP3jyXMf0f6UVHmGPzW41mlfIs4YDLCj1EmYOhkU45dbaH50xzQ+Q=
+	t=1720674012; cv=none; b=EPxLhvPrwv7+Dj64r9wNMvbFXWjfG/bBELnbJr7wE4JdFl6mwKxUmLi1+VpZNVk3Es6KQ1ADR2+01SLUY9M64dv8Cp3g3+aVRhWfUkUMwSGInvT4NzTu2u2qQGucwZ0lbBuQMOSkoB43WrYe1J6xTIjBt0fyPOX5RHFrXiQQhFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720478433; c=relaxed/simple;
-	bh=VBxzRowcIDnhVklNyjz0A9QESGY5kLcwVvi7nLKzb4Q=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=JONq6BObSwaR8sDeMZF63yuheRLPaoaC298NmiB7yUdEQLnAK3xzulXMMxZBXVdpSWYzBbM5ow/UcJmqIb9B9Nj8ebU09WP7Ic7Rab1EdxWyjQOdFPIGy83ihjZ8hmw7XK64SBdvAVlxKhp1/+VOf/m/aRoolRD4ISOvMS9oFCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CHN5NIqg; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1720674012; c=relaxed/simple;
+	bh=0j1hQ2vmfDpFBABfK0ocm0liUHRX0hPyVO6arXnqsV0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RInvFDzFZJR163Zpp/Ac5sm9UXwHaxdTyAem6y99zUYcL/D+XTS385AB3ZO+cO3X43YzI9diniUly/ZflLAHTdAlnjNQ2u34kBe/Qad1E1LCby7DpgLnRgXxm9SOCZtdYtUYAkJ5abwl5cRk0P5giMo/cYWzjaERA5murFnYm7U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=VJfX1Awu; arc=none smtp.client-ip=202.36.163.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CHN5NIqg"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 0B4A7C4AF0D;
-	Mon,  8 Jul 2024 22:40:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720478432;
-	bh=VBxzRowcIDnhVklNyjz0A9QESGY5kLcwVvi7nLKzb4Q=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=CHN5NIqgBCp0qYGI3vm/PN0hBIn9hhG5WYWw95PK0j467ZTfKKOtp1k+QCcsx9LEl
-	 YM82QIHUTUv1e1PuM1xbJ4UQul3LDIBOkT6RsQOTpefRm3uNqvF+dByDQXJaLJufVT
-	 xzglOHfdDdrB5tXqxb7cjApK3X8o3qDkVmt62h+e5eXq1frHXnSzDQ/S5mHUwzdIHs
-	 4fH1QogNF9ajBf4fKOfC+tUl8VjKAJb9YMHj9TOE5IPeozUSbrt3GDIU8WENyNiNgD
-	 GFLZYNn36UZChpt+glLTINGquzb+gsGjCW+jDlfrOfX4dbVrue4+iHq2Wp2lyI+LuS
-	 lhlQ/wIswSbzQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id E07D4DF370E;
-	Mon,  8 Jul 2024 22:40:31 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="VJfX1Awu"
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id D8CA02C0372;
+	Thu, 11 Jul 2024 17:00:00 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+	s=mail181024; t=1720674000;
+	bh=pZveZXlJyMwauPW4aLQrWYnyZv6abHginb4De52CZ/Q=;
+	h=From:To:Cc:Subject:Date:From;
+	b=VJfX1Awuompbdv/eOapKYF8x9Z359AycC8DLthgA6GBqAYkij2gVRpUHTiX+3ACeD
+	 XTM26Aq8xrcAf4Sr4++zVtdSTxCQYVUYFzx1XiHV311UmDGKn4GLYky5G5Xe9oKVkJ
+	 mS/cTIsX8Vn1pTX1p74QUTXvkY6AMpchN1rwqCpxz5gBCnSNYyAjngIYAJwoMPSIll
+	 Gf51rjnEnTmopV3v8t7JDxkqm1keE2FkmHoM+CC7lGLe3WXjE/rM5/rzCu+ADd8XWU
+	 DCiyjZMDe3EI0WeiiAJHcNCDGFi8zTucMMl9VPxvTKjUyJGtEt2L6VMU3OSTbQ26Oj
+	 O9r67znmHxFYg==
+Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+	id <B668f66d00001>; Thu, 11 Jul 2024 17:00:00 +1200
+Received: from elliota2-dl.ws.atlnz.lc (elliota-dl.ws.atlnz.lc [10.33.23.28])
+	by pat.atlnz.lc (Postfix) with ESMTP id A2B0C13ED5A;
+	Thu, 11 Jul 2024 17:00:00 +1200 (NZST)
+Received: by elliota2-dl.ws.atlnz.lc (Postfix, from userid 1775)
+	id 9CB8A3C0681; Thu, 11 Jul 2024 17:00:00 +1200 (NZST)
+From: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
+To: davem@davemloft.net
+Cc: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Tobias Waldekranz <tobias@waldekranz.com>,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net v2] net: bridge: mst: Check vlan state for egress decision
+Date: Thu, 11 Jul 2024 16:59:25 +1200
+Message-ID: <20240711045926.756958-1-elliot.ayrey@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v3 iproute2 0/4] Multiple Spanning Tree (MST) Support
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <172047843191.22736.1376042190239326743.git-patchwork-notify@kernel.org>
-Date: Mon, 08 Jul 2024 22:40:31 +0000
-References: <20240702120805.2391594-1-tobias@waldekranz.com>
-In-Reply-To: <20240702120805.2391594-1-tobias@waldekranz.com>
-To: Tobias Waldekranz <tobias@waldekranz.com>
-Cc: stephen@networkplumber.org, dsahern@kernel.org, roopa@nvidia.com,
- razor@blackwall.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
- liuhangbin@gmail.com
+Content-Transfer-Encoding: quoted-printable
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=PIKs+uqC c=1 sm=1 tr=0 ts=668f66d0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=4kmOji7k6h8A:10 a=VwQbUJbxAAAA:8 a=kEPFZq6BU9ta2gAs10EA:9 a=3ZKOabzyN94A:10 a=AjGcO6oz07-iQ99wixmX:22
+X-SEG-SpamProfiler-Score: 0
+x-atlnz-ls: pat
 
-Hello:
+If a port is blocking in the common instance but forwarding in an MST
+instance, traffic egressing the bridge will be dropped because the
+state of the common instance is overriding that of the MST instance.
 
-This series was applied to iproute2/iproute2-next.git (main)
-by David Ahern <dsahern@kernel.org>:
+Fix this by skipping the port state check in MST mode to allow
+checking the vlan state via br_allowed_egress(). This is similar to
+what happens in br_handle_frame_finish() when checking ingress
+traffic, which was introduced in the change below.
 
-On Tue,  2 Jul 2024 14:08:01 +0200 you wrote:
-> This series adds support for:
-> 
-> - Enabling MST on a bridge:
-> 
->       ip link set dev <BR> type bridge mst_enable 1
-> 
-> - (Re)associating VLANs with an MSTI:
-> 
-> [...]
+Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode=
+")
+Signed-off-by: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
+---
 
-Here is the summary with links:
-  - [v3,iproute2,1/4] ip: bridge: add support for mst_enabled
-    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=60a95a8a2e45
-  - [v3,iproute2,2/4] bridge: Remove duplicated textification macros
-    (no matching commit)
-  - [v3,iproute2,3/4] bridge: vlan: Add support for setting a VLANs MSTI
-    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=ace3c9c1fefd
-  - [v3,iproute2,4/4] bridge: mst: Add get/set support for MST states
-    (no matching commit)
+v2:
+  - Restructure the MST mode check to make it read better
+v1: https://lore.kernel.org/all/20240705030041.1248472-1-elliot.ayrey@all=
+iedtelesis.co.nz/
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+ net/bridge/br_forward.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index d97064d460dc..e63d6f6308f8 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -25,8 +25,8 @@ static inline int should_deliver(const struct net_bridg=
+e_port *p,
+=20
+ 	vg =3D nbp_vlan_group_rcu(p);
+ 	return ((p->flags & BR_HAIRPIN_MODE) || skb->dev !=3D p->dev) &&
+-		p->state =3D=3D BR_STATE_FORWARDING && br_allowed_egress(vg, skb) &&
+-		nbp_switchdev_allowed_egress(p, skb) &&
++		(br_mst_is_enabled(p->br) || state =3D=3D BR_STATE_FORWARDING) &&
++		br_allowed_egress(vg, skb) && nbp_switchdev_allowed_egress(p, skb) &&
+ 		!br_skb_isolated(p, skb);
+ }
+=20
+--=20
+2.45.2
 
