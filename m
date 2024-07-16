@@ -1,210 +1,94 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2DC514006
-	for <bridge@lists.linux.dev>; Mon, 15 Jul 2024 20:39:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80229199EA5
+	for <bridge@lists.linux.dev>; Tue, 16 Jul 2024 13:30:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721075982; cv=none; b=RJtZTVvFGI2kARy2UF0JDyYoFFNpUbJS3ClJpdLCNtsH+kaf0u+HPz+KnUUnfLqx03VO3db+1GxA73hje54QoMVAXUjUV+ea5LYJ7F9gsQtUsmr/a5CiH8ZULJPxOXsSyOnFKJgHgIOiYAWr3/yT/zHqm2gefviIR13s8WrTITM=
+	t=1721136656; cv=none; b=Mu1DeE2h/9mEfGg+7M/gX41T1Zi7H22/lu+UVCCNgFMImvOKDYCN4xR/0MrnNl9gqGgRWgm4f9PApUjRsb3KsxcpgO7JvGgFlc5MmmEtB5O78fCiOnnN9m0EEffpHfzRwYqllNo2Im15+d05OqZcdt3nHciAKYOK+Ic3GjYGUCQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721075982; c=relaxed/simple;
-	bh=V9+/ko+zXoD5I2WF5JxJeceKIAQ9TGTSvmNI/rBGt7c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BYKpm2v5WQMp+BHJ2nN1f9SXW8bN+TFAF2+SLUr6JR/Ks1S4bJnCSKz6N9OjOLnCZN9ym+gYA9mQUAKXkb2RO+IpULgmc70FwAZrDBcRGxmSFAOhcbe2BlqLSWDx3PeqjgkG0Iz3M1JjaBKcj0DRhRDfd5D/3XnCKPR3NyGj1yM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=orGAZVa7; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=EO6Fc55G; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=orGAZVa7; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=EO6Fc55G; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1721136656; c=relaxed/simple;
+	bh=/crOubLp6udsD5zhjxldO7SEGmeDTBHhP0I0MWVD0zs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y1yGTe0JB+VXTBc4UCAxmsN4VaIC41B9ekciI950/IE2pJBry5g6mu3N/qFHKkAn8Bu91cTM6DGTWfSyZUloMc5D2B5DN5JAxDPTtT90lOcHLSTzZtXM+ArQ9xEcWHIXrs245IY4Gb3t9RVyfAL688C+tTZ5pcv6mUHVwJVOBC0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=cENWMD0T; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="orGAZVa7";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="EO6Fc55G";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="orGAZVa7";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="EO6Fc55G"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id A2D1C1F833;
-	Mon, 15 Jul 2024 20:39:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1721075978; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=13l4KWTF4acx+DoFosvJJOCp5skXW9ib/ek+T6Gj1BU=;
-	b=orGAZVa7aS8dwRz7zAaSJ5DJiGvjUzgF5byRuSW/xh5bX54ACMhuDxQkfq5CvQlpDzfm/f
-	7H3aOI+fyJhVNx5bbD4Da7e9RAJfuv0ndyxHiJjpa7Ge0olMyxuQG9l3WTPXJu6+k4V3zL
-	SP5Vu2G4xvhozdFB/d1UMLGaAWWMK04=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1721075978;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=13l4KWTF4acx+DoFosvJJOCp5skXW9ib/ek+T6Gj1BU=;
-	b=EO6Fc55GxbiJuyg2W5VpBFdcwuiQvmKGGmLix2LUIJPD2ddGxBU7Wq0S9CY3ZDHFFWeWrJ
-	OXCTUbUPdgEU3SDQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=orGAZVa7;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=EO6Fc55G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1721075978; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=13l4KWTF4acx+DoFosvJJOCp5skXW9ib/ek+T6Gj1BU=;
-	b=orGAZVa7aS8dwRz7zAaSJ5DJiGvjUzgF5byRuSW/xh5bX54ACMhuDxQkfq5CvQlpDzfm/f
-	7H3aOI+fyJhVNx5bbD4Da7e9RAJfuv0ndyxHiJjpa7Ge0olMyxuQG9l3WTPXJu6+k4V3zL
-	SP5Vu2G4xvhozdFB/d1UMLGaAWWMK04=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1721075978;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=13l4KWTF4acx+DoFosvJJOCp5skXW9ib/ek+T6Gj1BU=;
-	b=EO6Fc55GxbiJuyg2W5VpBFdcwuiQvmKGGmLix2LUIJPD2ddGxBU7Wq0S9CY3ZDHFFWeWrJ
-	OXCTUbUPdgEU3SDQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6827F137EB;
-	Mon, 15 Jul 2024 20:39:38 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id xIrMGAqJlWZ9VgAAD6G6ig
-	(envelope-from <vbabka@suse.cz>); Mon, 15 Jul 2024 20:39:38 +0000
-Message-ID: <df0716ac-c995-498c-83ee-b8c25302f9ed@suse.cz>
-Date: Mon, 15 Jul 2024 22:39:38 +0200
+	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="cENWMD0T"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4266182a9d7so35487145e9.0
+        for <bridge@lists.linux.dev>; Tue, 16 Jul 2024 06:30:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1721136653; x=1721741453; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=YcLBf72AGLqz53r/avJkjakt+ekctAYLnsPdlsvC3fU=;
+        b=cENWMD0T9qSdi2Icgj18Vmj9Pep3ukAeOhw26HFzYg7yVU2pQ+BjKSXs+n8gj1XVgN
+         YanZhj4NPVb0AGWh+K0HA4PE9PRmLz79y2ssnlZRHNHUWn9Bis9Fnd7litNmqJOycxGZ
+         oaQboHMpJ2aoRdH5wGFGJp214syHQiXSlDunvbYtUA93IxIGhni9c5qcGonPdp/OnrRO
+         KQxpvvMHyaBwWlYz6C5gTmALbcysRKD9W+acL2yb9m7WLOPNxSZKIIGel9jsA8M3rA+m
+         mgkrsS5kejZ6MtHRD6ZO2r/rgbGBWVgyQYQJ3jiK9528UTjc+PpnBR0wJ7t+o/cVMJ6n
+         3eew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721136653; x=1721741453;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YcLBf72AGLqz53r/avJkjakt+ekctAYLnsPdlsvC3fU=;
+        b=NVMv5JKKrfPISvwMs3U+6udHoVzvIrhzhPNBxGnXxH1f9P7qBpMnLAgQU1q0wC1P/i
+         yJ7i6wTgoZktOqHdlO9mgnRN3q2+TIkZPrEnIo8ioaZhXKyqxMMwYlVf+wBBrxNcrFgF
+         mJrv3p7I52izTiP8/zdvADZqyFXJOhKzryQ5AQnKDa3Z5EYSHKTYDKRTho77MiuAQv6t
+         y2juPe4bTrpJiynHLt0pWhiqfa1cdMg3p9dUe+ZiUmGuck4UtlPYzzE0zx4UL5bhyJaM
+         IeYGe0HKOwW5KKlPva/r60AoUHrVItu7HINH34M8Nz3PQBtDgxBLTL86/zzAUjEyQG1u
+         XWxw==
+X-Forwarded-Encrypted: i=1; AJvYcCX0cEhZKlzeq3o6hkxv4dXrjqeVKRxa9kOzE/EUl5JSp2SpIIwT2qd62x7scyMGsu0ia1Wr9cxrSIAVDvSWTlpNcJmp05Wj
+X-Gm-Message-State: AOJu0YwpbwVgqSXPb/0F+xjRQKLqGu2pZrJnP73mwBCrur29uiZUaKcu
+	uOFH7gWEbXZ/zfvLb+TJizEGP2/SEDc3bMU8av8/BOfH/AWTRcnB+C3Ll6sRAZk=
+X-Google-Smtp-Source: AGHT+IFKdR1AsGx4POLKWxsTeU6zlw8fAns+4xpz4w4ZoyIBkhXGrK+6JHZOeNFPpEg5EVVeMjtCnQ==
+X-Received: by 2002:a05:600c:524f:b0:426:5269:9838 with SMTP id 5b1f17b1804b1-427ba654c24mr15602675e9.4.1721136652680;
+        Tue, 16 Jul 2024 06:30:52 -0700 (PDT)
+Received: from localhost ([193.47.165.251])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4279f23981fsm164204555e9.4.2024.07.16.06.30.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jul 2024 06:30:52 -0700 (PDT)
+Date: Tue, 16 Jul 2024 15:30:48 +0200
+From: Jiri Pirko <jiri@resnulli.us>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Chen Ni <nichen@iscas.ac.cn>, roopa@nvidia.com, davem@davemloft.net,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net: bridge: remove unnecessary cast from netdev_priv()
+Message-ID: <ZpZ2CA5h8hsCu4Id@nanopsycho.orion>
+References: <20240715024457.3743560-1-nichen@iscas.ac.cn>
+ <7476d4f9-3a45-4586-99c5-9e878d4e02ac@blackwall.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/14] replace call_rcu by kfree_rcu for simple
- kmem_cache_free callback
-Content-Language: en-US
-To: Uladzislau Rezki <urezki@gmail.com>
-Cc: paulmck@kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Jakub Kicinski <kuba@kernel.org>, Julia Lawall <Julia.Lawall@inria.fr>,
- linux-block@vger.kernel.org, kernel-janitors@vger.kernel.org,
- bridge@lists.linux.dev, linux-trace-kernel@vger.kernel.org,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, kvm@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
- Christophe Leroy <christophe.leroy@csgroup.eu>,
- Nicholas Piggin <npiggin@gmail.com>, netdev@vger.kernel.org,
- wireguard@lists.zx2c4.com, linux-kernel@vger.kernel.org,
- ecryptfs@vger.kernel.org, Neil Brown <neilb@suse.de>,
- Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
- Tom Talpey <tom@talpey.com>, linux-nfs@vger.kernel.org,
- linux-can@vger.kernel.org, Lai Jiangshan <jiangshanlai@gmail.com>,
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- kasan-dev <kasan-dev@googlegroups.com>
-References: <e926e3c6-05ce-4ba6-9e2e-e5f3b37bcc23@suse.cz>
- <3b6fe525-626c-41fb-8625-3925ca820d8e@paulmck-laptop>
- <6711935d-20b5-41c1-8864-db3fc7d7823d@suse.cz> <ZnCDgdg1EH6V7w5d@pc636>
- <36c60acd-543e-48c5-8bd2-6ed509972d28@suse.cz> <ZnFT1Czb8oRb0SE7@pc636>
- <5c8b2883-962f-431f-b2d3-3632755de3b0@paulmck-laptop>
- <9967fdfa-e649-456d-a0cb-b4c4bf7f9d68@suse.cz>
- <6dad6e9f-e0ca-4446-be9c-1be25b2536dd@paulmck-laptop>
- <4cba4a48-902b-4fb6-895c-c8e6b64e0d5f@suse.cz> <ZnVInAV8BXhgAjP_@pc636>
-From: Vlastimil Babka <vbabka@suse.cz>
-Autocrypt: addr=vbabka@suse.cz; keydata=
- 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
- EP+ylKVEKb0Q2A==
-In-Reply-To: <ZnVInAV8BXhgAjP_@pc636>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spamd-Result: default: False [-4.50 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	XM_UA_NO_VERSION(0.01)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FREEMAIL_TO(0.00)[gmail.com];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_TWELVE(0.00)[29];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_CC(0.00)[kernel.org,zx2c4.com,inria.fr,vger.kernel.org,lists.linux.dev,efficios.com,lists.ozlabs.org,linux.ibm.com,csgroup.eu,gmail.com,lists.zx2c4.com,suse.de,netapp.com,oracle.com,talpey.com,netfilter.org,googlegroups.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	R_RATELIMIT(0.00)[to_ip_from(RLujeud1qp5x6qhm7ow61zc6bu)];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:dkim]
-X-Spam-Flag: NO
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -4.50
-X-Spam-Level: 
-X-Rspamd-Queue-Id: A2D1C1F833
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7476d4f9-3a45-4586-99c5-9e878d4e02ac@blackwall.org>
 
-On 6/21/24 11:32 AM, Uladzislau Rezki wrote:
-> On Wed, Jun 19, 2024 at 11:28:13AM +0200, Vlastimil Babka wrote:
-> One question. Maybe it is already late but it is better to ask rather than not.
-> 
-> What do you think if we have a small discussion about it on the LPC 2024 as a
-> topic? It might be it is already late or a schedule is set by now. Or we fix
-> it by a conference time.
-> 
-> Just a thought.
+Mon, Jul 15, 2024 at 10:04:26AM CEST, razor@blackwall.org wrote:
+>On 15/07/2024 05:44, Chen Ni wrote:
+>> Remove unnecessary cast of void * returned by netdev_priv().
+>> 
+>> Fixes: 928990631327 ("net: bridge: add notifications for the bridge dev on vlan change")
+>> Signed-off-by: Chen Ni <nichen@iscas.ac.cn>
+>> ---
+>>  net/bridge/br_netlink.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>> 
+>> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+>This is not a fix, the code isn't broken and it doesn't violate
+>anything.
 
-Sorry for the late reply. The MM MC turned out to be so packed I didn't even
-propose a slab topic. We could discuss in hallway track or a BOF, but
-hopefully if the current direction taken by my RFC brings no unexpected
-surprise, and the necessary RCU barrier side is also feasible, this will be
-settled by time of plumbers.
+Yeah, it's cosmetics, send it to net-next without "Fixes" tag.
 
-> --
-> Uladzislau Rezki
-
+>
+>Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
+>
+>
