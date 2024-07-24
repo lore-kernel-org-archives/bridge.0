@@ -1,67 +1,68 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80229199EA5
-	for <bridge@lists.linux.dev>; Tue, 16 Jul 2024 13:30:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D456E13E020;
+	Wed, 24 Jul 2024 13:53:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721136656; cv=none; b=Mu1DeE2h/9mEfGg+7M/gX41T1Zi7H22/lu+UVCCNgFMImvOKDYCN4xR/0MrnNl9gqGgRWgm4f9PApUjRsb3KsxcpgO7JvGgFlc5MmmEtB5O78fCiOnnN9m0EEffpHfzRwYqllNo2Im15+d05OqZcdt3nHciAKYOK+Ic3GjYGUCQ=
+	t=1721829216; cv=none; b=Rv0Kp+InsbzBKLBu2jjtRL8k1OcREHL4Ps0hGnqAqa8NN5Z2xdK1vWK/GbM09zJATconytTYWTr9uYL73vczPY5hh2XIGuLurfbXl9mTK1Yjhd4Nwf5YF+bSP2ndZNCn5sp1ZRe5Wc3xteO1r+V/dMDI7gxPhJAvHXN/WOiQyZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721136656; c=relaxed/simple;
-	bh=/crOubLp6udsD5zhjxldO7SEGmeDTBHhP0I0MWVD0zs=;
+	s=arc-20240116; t=1721829216; c=relaxed/simple;
+	bh=07Vzl6re9ZHoHnUQaqXa2n0Sm3JNDNE/aQbliYyNUPE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Y1yGTe0JB+VXTBc4UCAxmsN4VaIC41B9ekciI950/IE2pJBry5g6mu3N/qFHKkAn8Bu91cTM6DGTWfSyZUloMc5D2B5DN5JAxDPTtT90lOcHLSTzZtXM+ArQ9xEcWHIXrs245IY4Gb3t9RVyfAL688C+tTZ5pcv6mUHVwJVOBC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us; spf=none smtp.mailfrom=resnulli.us; dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b=cENWMD0T; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=resnulli.us
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=resnulli.us
+	 Content-Type:Content-Disposition:In-Reply-To; b=tSSzTIBDxdv0JLtBfh0RrFv+uy+NmG1dIcNFaej0eDwcxijtjKZINehLVWPm7sCdlSNsoSfv3hCj2pbUK1/QG83S9OeroYJ032d2MMwcqucsTlIq+EnuvPJ9v+IMC71o5ZXIxlDNbvlVTWO8y48uEycbC9LvRviM0O2ZagUqHrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WAP2//Vl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=resnulli-us.20230601.gappssmtp.com header.i=@resnulli-us.20230601.gappssmtp.com header.b="cENWMD0T"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4266182a9d7so35487145e9.0
-        for <bridge@lists.linux.dev>; Tue, 16 Jul 2024 06:30:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=resnulli-us.20230601.gappssmtp.com; s=20230601; t=1721136653; x=1721741453; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YcLBf72AGLqz53r/avJkjakt+ekctAYLnsPdlsvC3fU=;
-        b=cENWMD0T9qSdi2Icgj18Vmj9Pep3ukAeOhw26HFzYg7yVU2pQ+BjKSXs+n8gj1XVgN
-         YanZhj4NPVb0AGWh+K0HA4PE9PRmLz79y2ssnlZRHNHUWn9Bis9Fnd7litNmqJOycxGZ
-         oaQboHMpJ2aoRdH5wGFGJp214syHQiXSlDunvbYtUA93IxIGhni9c5qcGonPdp/OnrRO
-         KQxpvvMHyaBwWlYz6C5gTmALbcysRKD9W+acL2yb9m7WLOPNxSZKIIGel9jsA8M3rA+m
-         mgkrsS5kejZ6MtHRD6ZO2r/rgbGBWVgyQYQJ3jiK9528UTjc+PpnBR0wJ7t+o/cVMJ6n
-         3eew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721136653; x=1721741453;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YcLBf72AGLqz53r/avJkjakt+ekctAYLnsPdlsvC3fU=;
-        b=NVMv5JKKrfPISvwMs3U+6udHoVzvIrhzhPNBxGnXxH1f9P7qBpMnLAgQU1q0wC1P/i
-         yJ7i6wTgoZktOqHdlO9mgnRN3q2+TIkZPrEnIo8ioaZhXKyqxMMwYlVf+wBBrxNcrFgF
-         mJrv3p7I52izTiP8/zdvADZqyFXJOhKzryQ5AQnKDa3Z5EYSHKTYDKRTho77MiuAQv6t
-         y2juPe4bTrpJiynHLt0pWhiqfa1cdMg3p9dUe+ZiUmGuck4UtlPYzzE0zx4UL5bhyJaM
-         IeYGe0HKOwW5KKlPva/r60AoUHrVItu7HINH34M8Nz3PQBtDgxBLTL86/zzAUjEyQG1u
-         XWxw==
-X-Forwarded-Encrypted: i=1; AJvYcCX0cEhZKlzeq3o6hkxv4dXrjqeVKRxa9kOzE/EUl5JSp2SpIIwT2qd62x7scyMGsu0ia1Wr9cxrSIAVDvSWTlpNcJmp05Wj
-X-Gm-Message-State: AOJu0YwpbwVgqSXPb/0F+xjRQKLqGu2pZrJnP73mwBCrur29uiZUaKcu
-	uOFH7gWEbXZ/zfvLb+TJizEGP2/SEDc3bMU8av8/BOfH/AWTRcnB+C3Ll6sRAZk=
-X-Google-Smtp-Source: AGHT+IFKdR1AsGx4POLKWxsTeU6zlw8fAns+4xpz4w4ZoyIBkhXGrK+6JHZOeNFPpEg5EVVeMjtCnQ==
-X-Received: by 2002:a05:600c:524f:b0:426:5269:9838 with SMTP id 5b1f17b1804b1-427ba654c24mr15602675e9.4.1721136652680;
-        Tue, 16 Jul 2024 06:30:52 -0700 (PDT)
-Received: from localhost ([193.47.165.251])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4279f23981fsm164204555e9.4.2024.07.16.06.30.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jul 2024 06:30:52 -0700 (PDT)
-Date: Tue, 16 Jul 2024 15:30:48 +0200
-From: Jiri Pirko <jiri@resnulli.us>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Chen Ni <nichen@iscas.ac.cn>, roopa@nvidia.com, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net: bridge: remove unnecessary cast from netdev_priv()
-Message-ID: <ZpZ2CA5h8hsCu4Id@nanopsycho.orion>
-References: <20240715024457.3743560-1-nichen@iscas.ac.cn>
- <7476d4f9-3a45-4586-99c5-9e878d4e02ac@blackwall.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WAP2//Vl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B0F7C32781;
+	Wed, 24 Jul 2024 13:53:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1721829215;
+	bh=07Vzl6re9ZHoHnUQaqXa2n0Sm3JNDNE/aQbliYyNUPE=;
+	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+	b=WAP2//VlWUSM9jrjWrTnlUR5U9gfJcKWxfEehwSsgCifqJ1HhI5rmor2MgAYiE7Hj
+	 k3H3D8gUK01HrebDYiJ8EV56b+RO+InO4F1HL2zNXYqpPk0VVAstDY9HBgwUy8+jTo
+	 8Kp+cbZnfcsDTxUnkpS1wiQgO6T2KXSlCCZwyOB4EAFefvi0zRPKDPVqPNBGFqV5Kn
+	 m54HgAjJfy8we9Y9tl7LY7L4gaHz6KkuEz0NmtF8JUJfXUWPMHmL6c8XZgfCklah1Y
+	 U/SwoGTJa9N4jZ4SGcPsHczOthJTxHkGyBSbyg3+L/BrGVV8TCmbKAOKTgYYxrZSSF
+	 Ywifo4pkBnatw==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+	id A535FCE0A6E; Wed, 24 Jul 2024 06:53:34 -0700 (PDT)
+Date: Wed, 24 Jul 2024 06:53:34 -0700
+From: "Paul E. McKenney" <paulmck@kernel.org>
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Uladzislau Rezki <urezki@gmail.com>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Julia Lawall <Julia.Lawall@inria.fr>, linux-block@vger.kernel.org,
+	kernel-janitors@vger.kernel.org, bridge@lists.linux.dev,
+	linux-trace-kernel@vger.kernel.org,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	kvm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Nicholas Piggin <npiggin@gmail.com>, netdev@vger.kernel.org,
+	wireguard@lists.zx2c4.com, linux-kernel@vger.kernel.org,
+	ecryptfs@vger.kernel.org, Neil Brown <neilb@suse.de>,
+	Olga Kornievskaia <kolga@netapp.com>, Dai Ngo <Dai.Ngo@oracle.com>,
+	Tom Talpey <tom@talpey.com>, linux-nfs@vger.kernel.org,
+	linux-can@vger.kernel.org, Lai Jiangshan <jiangshanlai@gmail.com>,
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+	kasan-dev <kasan-dev@googlegroups.com>
+Subject: Re: [PATCH 00/14] replace call_rcu by kfree_rcu for simple
+ kmem_cache_free callback
+Message-ID: <b3d9710a-805e-4e37-8295-b5ec1133d15c@paulmck-laptop>
+Reply-To: paulmck@kernel.org
+References: <6711935d-20b5-41c1-8864-db3fc7d7823d@suse.cz>
+ <ZnCDgdg1EH6V7w5d@pc636>
+ <36c60acd-543e-48c5-8bd2-6ed509972d28@suse.cz>
+ <ZnFT1Czb8oRb0SE7@pc636>
+ <5c8b2883-962f-431f-b2d3-3632755de3b0@paulmck-laptop>
+ <9967fdfa-e649-456d-a0cb-b4c4bf7f9d68@suse.cz>
+ <6dad6e9f-e0ca-4446-be9c-1be25b2536dd@paulmck-laptop>
+ <4cba4a48-902b-4fb6-895c-c8e6b64e0d5f@suse.cz>
+ <ZnVInAV8BXhgAjP_@pc636>
+ <df0716ac-c995-498c-83ee-b8c25302f9ed@suse.cz>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -70,25 +71,25 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7476d4f9-3a45-4586-99c5-9e878d4e02ac@blackwall.org>
+In-Reply-To: <df0716ac-c995-498c-83ee-b8c25302f9ed@suse.cz>
 
-Mon, Jul 15, 2024 at 10:04:26AM CEST, razor@blackwall.org wrote:
->On 15/07/2024 05:44, Chen Ni wrote:
->> Remove unnecessary cast of void * returned by netdev_priv().
->> 
->> Fixes: 928990631327 ("net: bridge: add notifications for the bridge dev on vlan change")
->> Signed-off-by: Chen Ni <nichen@iscas.ac.cn>
->> ---
->>  net/bridge/br_netlink.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->> 
->> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
->This is not a fix, the code isn't broken and it doesn't violate
->anything.
+On Mon, Jul 15, 2024 at 10:39:38PM +0200, Vlastimil Babka wrote:
+> On 6/21/24 11:32 AM, Uladzislau Rezki wrote:
+> > On Wed, Jun 19, 2024 at 11:28:13AM +0200, Vlastimil Babka wrote:
+> > One question. Maybe it is already late but it is better to ask rather than not.
+> > 
+> > What do you think if we have a small discussion about it on the LPC 2024 as a
+> > topic? It might be it is already late or a schedule is set by now. Or we fix
+> > it by a conference time.
+> > 
+> > Just a thought.
+> 
+> Sorry for the late reply. The MM MC turned out to be so packed I didn't even
+> propose a slab topic. We could discuss in hallway track or a BOF, but
+> hopefully if the current direction taken by my RFC brings no unexpected
+> surprise, and the necessary RCU barrier side is also feasible, this will be
+> settled by time of plumbers.
 
-Yeah, it's cosmetics, send it to net-next without "Fixes" tag.
+That would be even better!
 
->
->Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
->
->
+							Thanx, Paul
