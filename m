@@ -1,29 +1,29 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E37D156864
-	for <bridge@lists.linux.dev>; Wed, 28 Aug 2024 07:02:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A7D5156C4B
+	for <bridge@lists.linux.dev>; Wed, 28 Aug 2024 07:02:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724828538; cv=none; b=sMMijp1KJO3SoVKLVsPJdz23PVZIr4Bn8WYi48Eqc+7Uq8cbVOK4Z5fnw+2Zf6YLdLB7xewWj2hoRZn1NzT4fRCi8WNji6zFHOFTi3qdPXDTXyJfSzT5XVJf0OsocTofbCahI4vtY7xQ0PejhucYcQbqYCu1HyaxeMC0J7r19T0=
+	t=1724828538; cv=none; b=ftqHbqAkKNQfmuPLYRrm/bjaWy5NFyRLLo+QLIzPY5E9IeCT4tCnBSilXbl7YICdHRvERRZNg4kWOUaVMAKM9Rvxr7VCD2DUeMuLSYI74wGRYV2HDarlqpmlGLz21/QdfdHOUGL1swhvubKhIggucIu8DY0oCl4t+LXTa4eoPY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1724828538; c=relaxed/simple;
-	bh=rYQw2GvYk4flPgoa97He4EIDk++8BnrTx7hCVEVW6bM=;
+	bh=K6r6lzcghPAsZtTUPZXavYqG1W7fOtNQiqHEKMLSYgA=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BKNorqHft/IKHc0LOg8B9nk7MZaFU0+vYNJrNVnnUlirrQtA83ceizW0PmaH3Edxo9knJlqHJ8CXVfIL4AeGLztKxKJRpBXyeYlcMkjZwbkSDAjGzkK4T4BklI+T6XZUQjCfbR/6P/JUq1jzMPMa8guhl32meQ/MLMtm+bxvfVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+	 MIME-Version:Content-Type; b=UELn2sc3eRzhEuv9jvKjVnMU6e+ysNS8h5hds1LV2QMw5XXzTDBLhMf9F5wj00zHpkB9T22s4vmNadR/NhQZyTq2lCUG5SwYG4rfnoq8f7lXyqT4aYOPSGHKwDXSVqocborzE0WAK5PCMvYejmqXGzMZbZjGMu0bFiweI9uthog=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.252])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WtwKW3C99zpTvt;
-	Wed, 28 Aug 2024 15:00:31 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.162.254])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4WtwLw1m0KzyR4b;
+	Wed, 28 Aug 2024 15:01:44 +0800 (CST)
 Received: from kwepemh500013.china.huawei.com (unknown [7.202.181.146])
-	by mail.maildlp.com (Postfix) with ESMTPS id 37DDD180AE6;
-	Wed, 28 Aug 2024 15:02:13 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 6459F180106;
+	Wed, 28 Aug 2024 15:02:14 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemh500013.china.huawei.com
  (7.202.181.146) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Wed, 28 Aug
- 2024 15:02:12 +0800
+ 2024 15:02:13 +0800
 From: Jinjie Ruan <ruanjinjie@huawei.com>
 To: <pablo@netfilter.org>, <kadlec@netfilter.org>, <roopa@nvidia.com>,
 	<razor@blackwall.org>, <davem@davemloft.net>, <edumazet@google.com>,
@@ -32,9 +32,9 @@ To: <pablo@netfilter.org>, <kadlec@netfilter.org>, <roopa@nvidia.com>,
 	<coreteam@netfilter.org>, <bridge@lists.linux.dev>, <netdev@vger.kernel.org>,
 	<linux-kernel@vger.kernel.org>
 CC: <ruanjinjie@huawei.com>
-Subject: [PATCH -next 3/5] netfilter: arptables: Use kmemdup_array() instead of kmemdup() for multiple allocation
-Date: Wed, 28 Aug 2024 15:10:02 +0800
-Message-ID: <20240828071004.1245213-4-ruanjinjie@huawei.com>
+Subject: [PATCH -next 5/5] netfilter: nf_nat: Use kmemdup_array() instead of kmemdup() for multiple allocation
+Date: Wed, 28 Aug 2024 15:10:04 +0800
+Message-ID: <20240828071004.1245213-6-ruanjinjie@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240828071004.1245213-1-ruanjinjie@huawei.com>
 References: <20240828071004.1245213-1-ruanjinjie@huawei.com>
@@ -54,22 +54,22 @@ overflows.
 
 Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
 ---
- net/ipv4/netfilter/arp_tables.c | 2 +-
+ net/netfilter/nf_nat_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index 14365b20f1c5..4493a785c1ea 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -1547,7 +1547,7 @@ int arpt_register_table(struct net *net,
- 		goto out_free;
- 	}
+diff --git a/net/netfilter/nf_nat_core.c b/net/netfilter/nf_nat_core.c
+index 016c816d91cb..6d8da6dddf99 100644
+--- a/net/netfilter/nf_nat_core.c
++++ b/net/netfilter/nf_nat_core.c
+@@ -1104,7 +1104,7 @@ int nf_nat_register_fn(struct net *net, u8 pf, const struct nf_hook_ops *ops,
+ 	if (!nat_proto_net->nat_hook_ops) {
+ 		WARN_ON(nat_proto_net->users != 0);
  
--	ops = kmemdup(template_ops, sizeof(*ops) * num_ops, GFP_KERNEL);
-+	ops = kmemdup_array(template_ops, num_ops, sizeof(*ops), GFP_KERNEL);
- 	if (!ops) {
- 		ret = -ENOMEM;
- 		goto out_free;
+-		nat_ops = kmemdup(orig_nat_ops, sizeof(*orig_nat_ops) * ops_count, GFP_KERNEL);
++		nat_ops = kmemdup_array(orig_nat_ops, ops_count, sizeof(*orig_nat_ops), GFP_KERNEL);
+ 		if (!nat_ops) {
+ 			mutex_unlock(&nf_nat_proto_mutex);
+ 			return -ENOMEM;
 -- 
 2.34.1
 
