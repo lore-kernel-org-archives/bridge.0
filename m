@@ -1,81 +1,148 @@
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2072.outbound.protection.outlook.com [40.107.92.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64FFF1C768D
-	for <bridge@lists.linux.dev>; Tue,  3 Sep 2024 08:52:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725353532; cv=none; b=Qu/0yOY8925o3C3JG2loloc9h6Va7qSToUl4XIhx85cuOdByF1PlodBElPWVfgOdURXeeaOTauNZxmwDogbnfk6C8citFpTB2Imem7+vpLHhmT7HUQxuUv3LWqEmT2vzviQ9bgquara2evcocfkKRj3osZpLbMiFXLX/C8hsE9E=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725353532; c=relaxed/simple;
-	bh=6kk5VlDisA56DTM4hfMpwZ8VjhenCqrjla/XVC0EZ5c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fyASdYAUscR660kCU5yDUIA/6Ne+bh0mabCtYKjebtewUjQBiwYGFlQRuH0U9oZYnWdBuyZr79zqXg3iYgWLmS8PGlRcL9OpWLpA0NOg63U2bB2Ub+O+ZYD/Ia3WZQvYsuk3WEs73Bmz8apPYO9SsLODX2DnYAAc5/IXd7s/eyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=JcuO0zd2; arc=none smtp.client-ip=209.85.218.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 443D123D7
+	for <bridge@lists.linux.dev>; Tue,  3 Sep 2024 13:56:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.72
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1725371821; cv=fail; b=IKFRlRfenOJKq0CAY66hyWmAGrJl4F9aH58J1yOdK/1n/6Hcn/20YPw3hc7jC9kNkPXkD7oe5XLVZpqaL9T5qoUosC+NOG4DXBSzkFbpg56LyfaNvGfAresg5CFqOvVjSOiY/qkcJPNhDnX4pSrVdARfyzCrb77nRXqAsRJx3jU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1725371821; c=relaxed/simple;
+	bh=r0FkMhZ/RfGhZ2M7jxrjv1QouvSO48zJpO2oKPw2dL4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=O1qLZrqzwUeTQGvn4T+xd6htKJ12WTBxaAZ2zsLSRJXuju8ymPMyl3bWE1pXAdvMWI10QxbjTyJ/zBI5umGVzdvfLLOFsIcc58VcCspiQwHeVJhysnARGus2P8WNla5uMBz8Hm61iHCvVm25RkFWspPZ9MUw27x+KpURHpnMiS4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qAJ5vzrU; arc=fail smtp.client-ip=40.107.92.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="JcuO0zd2"
-Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-a8692bbec79so563957666b.3
-        for <bridge@lists.linux.dev>; Tue, 03 Sep 2024 01:52:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1725353528; x=1725958328; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=iHMd3CmyF+UqSFpXp3YC4GWm8WtabyKorKiJxYaO3+A=;
-        b=JcuO0zd2RTgFG+WsUkyN3wGJL80ITUAIajqgbhEbaJcoQA/f76FmD8Iw1pjNC7vXpT
-         OnBH/fi72Wlr5B9XqEe9s/7Cf3Hv9jc9mwfZQmpO0ztnRG9Nv7tsXdugpZTW7sLwg49w
-         E3+Vs6dGsb3+n1mbaUx02ce8o5lWrUHdlsruc1n8EWJEerG5jEbM7ZFR981LHL3DYm3e
-         waZrLzu3pLc8LLoIpdSYgaWikGfoU3Nc6lOt6DNpWLRvNmupb7H79p7P77Y+dYIxwIji
-         jFJVlkwiQwlwFBsk04ranyHSz99jsXcysHdG61OHsFtS5YIfcTt+LHeDRV6bLctUDXOv
-         VfSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725353528; x=1725958328;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=iHMd3CmyF+UqSFpXp3YC4GWm8WtabyKorKiJxYaO3+A=;
-        b=EqWqNhUw63u77mOMP3Mdac0QjpMEE73uDeLhDdQ+de7H3N+hioWTKU0+gNMmYPz4QU
-         yoFgDo79Amw9hVTgmmB+O6DrlmKzcoTe22rj2pdaCnTYdTwtgcydn+6IYvTTFO9+3I8r
-         FfEQfMzuPnXCV5HVPCE8McHP0nXHK5mW2YltA7I1xQyguccppWojlmXPFMM8LRLmwTmy
-         SVY4eBENWU0EO/wkz6D94LrowEhqBf/8DrpyMugt1NOaSG7UvDS7u4BwBRZykx1DsAAy
-         zhp0/iFYR8LeKwNS08ugrc6z+UNhVCpSkxlBaaBRNTkCyXAQ7d8V4BYJNIrNt8J44PP2
-         /zxg==
-X-Gm-Message-State: AOJu0YyTbbY/KrJsOxWc3s0Hv0aLNcVRVW76V0bOJORgg4sQHG+Xu9z4
-	1xmlnLBM1s8bEVeP++RwpEGCxomOzpUECGHxQr7pEU0kjOMooCaoDpITMJSfqkA=
-X-Google-Smtp-Source: AGHT+IFkGNoCxh3jtKQW1b/cJ+gceEuYXUIU4qroSCyryYhzcTuRXG2ufP1+eQ3YqWuMZ/KD+8npyA==
-X-Received: by 2002:a17:907:9407:b0:a86:96b3:86be with SMTP id a640c23a62f3a-a89a3826268mr783881966b.63.1725353527069;
-        Tue, 03 Sep 2024 01:52:07 -0700 (PDT)
-Received: from [192.168.0.105] (bras-109-160-30-236.comnet.bg. [109.160.30.236])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a898900f6b9sm653684866b.76.2024.09.03.01.52.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Sep 2024 01:52:06 -0700 (PDT)
-Message-ID: <56ef0a03-500a-4f0d-a231-25b1f7d58758@blackwall.org>
-Date: Tue, 3 Sep 2024 11:52:05 +0300
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qAJ5vzrU"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=pdLLbAw1ygU2RxpP9IZwewEirSVYlOB2V9799LDScZ9FKJyRiVHYH3s6PslvhZxQeHLZ/hjwWEtVhpHm3UfITxcnBk+m+o8GzQPbc7winODFr35elaCnOfdLTbJ5xGcO7VinGGM6964Pl/5Td0iPw2LFxVEGeenBZembZMjE1QW2/fGkSVo0Mb19P2fazJIn0R/81PcQjViWB4jMF/tjJiUWYF+/tMnDeNSD9uW4TAHf2sdQk3VsatCYhGZKtEeJisMDKfSU6Zcci+xo4tcx6TfH6cjsycahi2SSrCfOcOT4RIOuAYVXMwKLO+3vKUjRtWQusp7sI9KnK2I5rZCRtQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CU+qi9rYVgI6cvHo70YKe+C6Io2nlcn+NvFmhIRyOVE=;
+ b=tfnayYk5ZkCLzXN97+uw0d9AhxIk/WQCIjvAMRgZMtrYQ+kaI5Eq9ywV+RU+2XAZg1X4cgiLhrwPg7O/Wzcu/CodEnWpMQVbs5PEuKSCgIGRkU85Yt17qITNCnoK+Fl5eKqswcTqFZK+cSgSwVOJOlkXDs7dlQAnrksrjuK1dRmvw17ylwGbCHn93DSTjIPtB90yp8acMGuzflYReQa+Bi8ub23JkxGGIV4kqgNbQ1vxqcjVSXGZ4haqce6+yGdrX/d/2UqXRkPFbXAJ/fMrhUtur9Bq7b2ltYGIP3Q2jVtVXSrUcNqx+DjjfR6qqZH8A+EEXvzovYgSOnYKH0GYYQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CU+qi9rYVgI6cvHo70YKe+C6Io2nlcn+NvFmhIRyOVE=;
+ b=qAJ5vzrU6Zl3OEKcKT05GximPUAEGy/CFbA+Au/Gld0sG9rAYFDD3qqYltDgY9eqnfpiEND6/l0oviRsDwMTp6BxNPdpOUsxkr1/aROB3Z+jeO20P2nb7+YVRGCX8W062eKgkT+OmW9zxKcz8ynHZN9sWi0L1exxJKoRtw/oIH0ioFcsTpI6NyNxt/C4uRnFxRXWluNgfrcWTQRImbxPkNJfbqoGsOgFfmtdHeTpEt+p2o2CFpaKSIRIlwB7RL7uEYK/367SxJjj0UGorQ8goaOisrsapr1lpBP4+y58r4AZuXqRN0VUYNrKdWbMLddZ6/zae2DdPzHQpFGMDpog+A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SN6PR12MB2719.namprd12.prod.outlook.com (2603:10b6:805:6c::12)
+ by LV8PR12MB9154.namprd12.prod.outlook.com (2603:10b6:408:190::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7918.25; Tue, 3 Sep
+ 2024 13:56:54 +0000
+Received: from SN6PR12MB2719.namprd12.prod.outlook.com
+ ([fe80::1ab4:107a:ae30:2f95]) by SN6PR12MB2719.namprd12.prod.outlook.com
+ ([fe80::1ab4:107a:ae30:2f95%7]) with mapi id 15.20.7918.024; Tue, 3 Sep 2024
+ 13:56:54 +0000
+Date: Tue, 3 Sep 2024 16:56:42 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Jonas Gorski <jonas.gorski@bisdn.de>
+Cc: Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Ido Schimmel <idosch@mellanox.com>,
+	Petr Machata <petrm@mellanox.com>, bridge@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net V2] net: bridge: br_fdb_external_learn_add(): always
+ set EXT_LEARN
+Message-ID: <ZtcVmsqk0m1S-XuQ@shredder.mtl.com>
+References: <20240903081958.29951-1-jonas.gorski@bisdn.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240903081958.29951-1-jonas.gorski@bisdn.de>
+X-ClientProxiedBy: LO4P123CA0632.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:294::22) To BYAPR12MB2710.namprd12.prod.outlook.com
+ (2603:10b6:a03:68::11)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net V2] net: bridge: br_fdb_external_learn_add(): always
- set EXT_LEARN
-To: Jonas Gorski <jonas.gorski@bisdn.de>, Roopa Prabhu <roopa@nvidia.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Ido Schimmel <idosch@mellanox.com>, Petr Machata <petrm@mellanox.com>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240903081958.29951-1-jonas.gorski@bisdn.de>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20240903081958.29951-1-jonas.gorski@bisdn.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN6PR12MB2719:EE_|LV8PR12MB9154:EE_
+X-MS-Office365-Filtering-Correlation-Id: 29954798-84b8-4c20-dd58-08dccc20442d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|1800799024|366016;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?yZzGZi/xzuBakQ0j+uE8+fJG9HtzxPXUKre7uZNyt10uOYRpgaMtOZEzoNSH?=
+ =?us-ascii?Q?tAazdMioDBALt4h/lzEdlHv0crLEBr3J+VngZSAhLizXvfnJor+q+vcSWUz5?=
+ =?us-ascii?Q?EikDNibzA4oYS8vLPW9zmu9qqIR4R0PyInJcklDbinm0sPOcSUt0psLFRSAH?=
+ =?us-ascii?Q?XKR77bkl24FQTSl+VTyd2lSmWMicea5gu8hrLUgqsInINge7wjlJKCo3Y+Tl?=
+ =?us-ascii?Q?TQVMeyjAImJiolL3QhR3zmDIa2afYN5dTEkwD4+K9eHTitjMfUE6gHsQp20I?=
+ =?us-ascii?Q?VDVmogyEdPN7CLsoAIj/PQYmyVnk3oGwrvMX8P/sh+bimcuwVOIuddBfDTpT?=
+ =?us-ascii?Q?1GKFNl3tc1f325vSgtdn3er8WISCe0DX9R45K5PZs50xeLD/7ofHl085thtn?=
+ =?us-ascii?Q?EA+kRL2e4aHnAjdchvzMhMkSU2HCq1R71pACGyH+OEXnOnjhzb8Uo5cNH4KQ?=
+ =?us-ascii?Q?XB60y5BlqyVGqsK83TAT3jbEA+eSSj3p5adXkIu46JhBwNQFI+N328MZ9CpV?=
+ =?us-ascii?Q?YaZiRMwRsSACO4INvrCeXQSe1qH/EvoAE6JLw4xBFrtXB/ZpqPCblZSyEtDi?=
+ =?us-ascii?Q?C1vkMHuRA1k1hB5wlxJTAyVJQHBraBixGEtODSFXlV/j7q8CVATloJiPuh7t?=
+ =?us-ascii?Q?9sQo5s0CQQVOgAUarFI1REBScoQkoXoCQ7jsNeqfsEm4Um1l778AOjix9t26?=
+ =?us-ascii?Q?+Fd8NXWlqCBZE67zr8uKImeanU0Hm2yibAfYqDJiZh2GCYZv0z/Q00oDNlzi?=
+ =?us-ascii?Q?P/zO2bF1p5EBIIFZLIyFnYdiSp+Nadoq7L9tHBXxvu9cs47yRe0fRQgeC7WQ?=
+ =?us-ascii?Q?cG0FBW54LTMbXAxAWAE2ANMstfsykoY9F1NTr1jSZrFlTckdBEcQzyaZCj4+?=
+ =?us-ascii?Q?HkTtXLlv6VCt18fIYXW3dhn4dTzebmwyiuX+/b1s1l9b94cpO3x6opho68x4?=
+ =?us-ascii?Q?eZWh451IVNgi1nV721Itw8hIJeC2FdnHbOdn0299yN07h0wqS6x+rZbLZwF/?=
+ =?us-ascii?Q?RqEQQkm/U/rglMFG5XoXbdAUnhxsR4zhB34s6Ga1goD3iqeHxts7KDn4moBE?=
+ =?us-ascii?Q?bzaOObgf+evUVTb60AePCCdzzfDJjxCmK7IQyTFfnDTTiC3APYHIWV9LmSbf?=
+ =?us-ascii?Q?wA0sK7B2LzUeb0QJ4RRISKzZGIBOhdgMOfz3xcnTlPwrAwllPDMtNraWz9Cx?=
+ =?us-ascii?Q?8Ezs+yG+iRSDbNB7DxwTaQZCsnZWOgC0mm01NX/+UlyRYTjppxQdxOZel5hT?=
+ =?us-ascii?Q?2ulNBiM8hRiGcoGuqusuAbeSAAKFtWlYmqZ/tnO/rig+nchWak1MMUq7844a?=
+ =?us-ascii?Q?4AMlMlzd8tUHdnN4XypjbstbKPLF7nGPp/t1Qw1ap2UV8g=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR12MB2719.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?U4/hNiom0j8GQ1+JpIUDnj8ihYqjcjCn7ntfFhpD5Klajj85uE2xsAt1q0WG?=
+ =?us-ascii?Q?5X1rUOhCaelZKTc8uCUpFkuF9vQjJCrmQAyfpw0ogYWmZQha7CVh/r2ldBf6?=
+ =?us-ascii?Q?0509L73TlkzfshSI9iO0XQ2mqM5mAdi/tR5fs0NjOiKbD7c3NXJj4mi09Lwt?=
+ =?us-ascii?Q?7ZESnSdDO0ObhmaeyFL6PDgi9GWbfoAUOTPjQ40ZE7zWvo0TO05igwVv3lL3?=
+ =?us-ascii?Q?5C3scLj6I9rsismK+WoTx+Z4lnRHDvhq9natVIbctciBqVJC0asfzOxjQYoA?=
+ =?us-ascii?Q?oIOdI33jsvpraijeSNJN8iRu3aF5S+uRRu76kFXVTNEpQBaYOdKI5JkInMnc?=
+ =?us-ascii?Q?/rmxVvzHVvWlJb2G6HlGgouc1d943De9Zm4bY5ybjDcYDN56xXTAm7azcV3v?=
+ =?us-ascii?Q?+vAYO4uYA3NOcTg40sgsAfy1m3cImJiM5Nljg6CKHKcdT4Uj1pbgRmhvvZuu?=
+ =?us-ascii?Q?ceU28dpG6AvbVR4uCH6qTAUz1cbdo36uK3v3kvyx+XjAz8FUROcESNgDUaRm?=
+ =?us-ascii?Q?Sfn+EAndHX2uDnYUtKS+NV101dt2s6GPf/mUJFFC+zFoiFfwmXUs0HIjjdqj?=
+ =?us-ascii?Q?x7H0SFRWU+fOHIskNCJ+B4l1o3/2Elq7SmlwloO6Qdm7NBIXi2Miy87v8oaS?=
+ =?us-ascii?Q?EqFV7cHfFtIOYx71IK3ukvSiMbhDRmX+4L8RlmXJHzRue7ZO9SHTKJC7sYUy?=
+ =?us-ascii?Q?I+tnnwOA/G8WknLFUhQYJc76WrBCLk0bG+HapMAPT39ObNF9f9lMoi3FcISM?=
+ =?us-ascii?Q?fE3ieRa9vq+SUqC7bsBxVCVo9QKLXWG23lE0W3r0A04APvXMTubiUsZuWU/y?=
+ =?us-ascii?Q?UyqJMOnz0Ab3OXCo1uqgQAyX6vXtn64W47CH+42OThEeo58MPvd6HbccNQkD?=
+ =?us-ascii?Q?7g7AEXkILmeggfUGIUM/EynDgyMDQymcRTq2NrNw0tMMIGIBf1122aT6BWfF?=
+ =?us-ascii?Q?pWYKwXrmVmxq3j5S9cdd7oT5ka0Lmo2woUoi1kHAz05eQqc0vI0C+K292jFT?=
+ =?us-ascii?Q?91KvQB//7HQhMgfMyU1hZVL7KRNlah7KEHspLFGXKXmJD0vDH4rCIApWud07?=
+ =?us-ascii?Q?Sub012DyB0eUKL11fNKQIDKU1aB0HZXURZ80Izws57Vz4HG1pYPOWwmTdJ9S?=
+ =?us-ascii?Q?uaoRFsvvVT42GG9JkRKwbdzbgn0rInb4783cFEka4PzUpY75mZvcs+EG8TRF?=
+ =?us-ascii?Q?zXi5uawZGsC9TeI/CqXpBzD+YPY6rkWGkVRTXrWTCV+fYFRgtsm+RBcIBpxh?=
+ =?us-ascii?Q?rcwgn+s+iVfskc2SPjFbujONBa9Q6hu1IAZzMnEX0XasSYPH32T/hF3c97qp?=
+ =?us-ascii?Q?zkF+ut6R0IghW79qr9Y5rZB9kn9SA7G0Dx1hjxHaNBhGPyqqsMJkgzLsPC8G?=
+ =?us-ascii?Q?8GTovAum4sBbFjzluJ7wQhDZiXxInGzvpNcVrp7wL/ePHQIo6V8MYdpr8rLu?=
+ =?us-ascii?Q?6Zof+hsw1Bc3wWgEgt1phwX6Mmy+RyX8RmNYB/S1K2AHhqD2s3JbgB+XXbUj?=
+ =?us-ascii?Q?dxFU8st0xFW2qZu7CwNilPSVj6r9abUhXJ9h9IIDsdIWajGv3omnGCUfRwR4?=
+ =?us-ascii?Q?pnpc7UWAfzQufKrzvKDvA7UbYEVS7eteuhBxn7Ve?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 29954798-84b8-4c20-dd58-08dccc20442d
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB2710.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2024 13:56:54.4868
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: DkNR7LGMVH/4w38O/pGaTy9pR+FIo9bIx4ncKVvwtYk/tHX1RxTUJcAWAOdYaJX+GcbdXxLvAQaMmvfwvPIMmQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9154
 
-On 9/3/24 11:19, Jonas Gorski wrote:
+On Tue, Sep 03, 2024 at 10:19:57AM +0200, Jonas Gorski wrote:
 > When userspace wants to take over a fdb entry by setting it as
 > EXTERN_LEARNED, we set both flags BR_FDB_ADDED_BY_EXT_LEARN and
 > BR_FDB_ADDED_BY_USER in br_fdb_external_learn_add().
@@ -94,38 +161,5 @@ On 9/3/24 11:19, Jonas Gorski wrote:
 > 
 > Fixes: 710ae7287737 ("net: bridge: Mark FDB entries that were added by user as such")
 > Signed-off-by: Jonas Gorski <jonas.gorski@bisdn.de>
-> ---
-> Changelog:
-> V2:
->  * always allow setting EXT_LEARN regardless if user entry
->  * reworded the commit message a bit to match the new behavior
->  * dropped the redundant code excerpt from the commit message as it's
->    already in the context
-> 
->  net/bridge/br_fdb.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index c77591e63841..ad7a42b505ef 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -1469,12 +1469,10 @@ int br_fdb_external_learn_add(struct net_bridge *br, struct net_bridge_port *p,
->  			modified = true;
->  		}
->  
-> -		if (test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags)) {
-> +		if (test_and_set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags)) {
->  			/* Refresh entry */
->  			fdb->used = jiffies;
-> -		} else if (!test_bit(BR_FDB_ADDED_BY_USER, &fdb->flags)) {
-> -			/* Take over SW learned entry */
-> -			set_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags);
-> +		} else {
->  			modified = true;
->  		}
->  
 
-Although the curly braces aren't needed, I don't mind in this case.
-
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
