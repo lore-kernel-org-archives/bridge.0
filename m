@@ -1,63 +1,63 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B0061CBE8D
-	for <bridge@lists.linux.dev>; Fri,  6 Sep 2024 11:59:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48C891CBE81
+	for <bridge@lists.linux.dev>; Fri,  6 Sep 2024 12:03:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725623962; cv=none; b=hCclqJxzptbSs/Bl9iiw1F0HPA0WtsVqbl1Ddn1cylg1YmsIbwFz8pbHCCqq36q7MmmPuNsHTVBVm7wWPyUxHxVw4yVpFERIWbDvScFEntt3bQVHW+BCPOlCyaUJWGc3gUqhy+P55xKVBwfLOVWrcoY95qjw+WuwuzXO6w/HORI=
+	t=1725624184; cv=none; b=harg4c4nNXRalN6CMReyoD9f1PGPATjwaubEDBrrhSR+PT+6TX5Pto/+Nnkg0P8b93W6c3Bg8q3UJELVMeygx6iNmaTwvRbAdA8npcunvK1HtZC7GueqsGyBAI+j9zrj4QkDLxROc+EwbJYHsQznnlN04C2U8WI8coT5rcWtRMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725623962; c=relaxed/simple;
-	bh=0G0nIhs1bi5zMGUov/GDdwukKR4YYpCSt5fRVl7zUl8=;
+	s=arc-20240116; t=1725624184; c=relaxed/simple;
+	bh=SzxUx97+S6KIAnLwmxguKmEFLZ9yAdCsp/nWhUUS7FE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=L9ywFS5iZzLUJa53bGvugQumKTkHlYzrhae05Zsp0gT+ckQsXmws20bR64Y5Z7scHO3JbfvJSc99+QGRtya7pwubeLET3zqnvqqBo3R9CjNhAbFRrDJFjiaLHoM4DmqUG/E+d4pv9YerIE0PzCi8xlcWonyFbzJYGh4oMR7J250=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SBsrkHWs; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=qU6qYdVCo0eqIGqDVL+lc3OiY/jUWCfs7n2QvsFlwYrDWNTdKDZPmP6zPkvFaZHU6Jz4DKETnVzQMyOlwAiBBeYBpgM/S/dZdRSYrLNO/3K6G3uOV6ZE0D5el/zzJ7E7KjrzHwinaLOelJKnzHxEj3wMaZqknT8un937dh862ig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cCbbTZ4Y; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SBsrkHWs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cCbbTZ4Y"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1725623959;
+	s=mimecast20190719; t=1725624180;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=0G0nIhs1bi5zMGUov/GDdwukKR4YYpCSt5fRVl7zUl8=;
-	b=SBsrkHWsCOGQlxVhPyMHDXDGZ8kiTK+eG9zgYRAZXXz0bCx4IrEeFsvhKczPqYMgucRjZ2
-	EhX8ElLzOdBVo81C/+uHUHtwe7I0gEiSZ2gxA1vLeopYlvKOtX2Wnpdv/hQWlNV1fl3bIu
-	r2THp5EqKARhUDSNvqMFJURm1cr1E9k=
+	bh=SzxUx97+S6KIAnLwmxguKmEFLZ9yAdCsp/nWhUUS7FE=;
+	b=cCbbTZ4Ypxqo5mGp+SjgEHdXAov3on4FYCa67PLCOq8NNDQLZYEPWrYjWOrtaIiP4VvtZy
+	CXyRurLUNibPRU8z7erevNXQ1MdGNo9cX/JwF15MpqGtSRxWSEmhvfQGRJaG+riUmx/+D6
+	FBKhjmRp7LU/XMAhYd5qn+9uP2VNqVI=
 Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
  [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-225-p38aw-_jNMeoQ-vcHgdvPQ-1; Fri, 06 Sep 2024 07:59:18 -0400
-X-MC-Unique: p38aw-_jNMeoQ-vcHgdvPQ-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42bb2899d57so15594055e9.3
-        for <bridge@lists.linux.dev>; Fri, 06 Sep 2024 04:59:18 -0700 (PDT)
+ us-mta-641--X34vPufNvOXXBHArBUufQ-1; Fri, 06 Sep 2024 08:02:59 -0400
+X-MC-Unique: -X34vPufNvOXXBHArBUufQ-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-42c7936e4ebso15848865e9.3
+        for <bridge@lists.linux.dev>; Fri, 06 Sep 2024 05:02:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725623957; x=1726228757;
+        d=1e100.net; s=20230601; t=1725624178; x=1726228978;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0G0nIhs1bi5zMGUov/GDdwukKR4YYpCSt5fRVl7zUl8=;
-        b=EV7/5y86CivW7gPGLFfAd0wSWI9l5slsKFNK7R+yhKNmz4uwzi9WvUswIeeig2DOqw
-         oIROKpaegZy5JWkVg+eiToruM85YsqdnHp/jlK/25n8nT6DTWVHlFlaEWQhdGJuwJg7g
-         oesah8PDlXyt1lG7dk/LUBYG+DVQvzmt7qoYTl19KI/JoqyjslV/PECXhMV87Gl3MlqY
-         SoQaVvAzKzfX1kQdTggiZzLTkl644M2TLVoBpR8M7wXim8dYmDK14WnSVMfY3ZPVwbnq
-         9PyZjvLsHVR0mR5JmMd2dBB5wx8e+L4h3byWfX0TWzrCz89GWPv+Cp4USmcwwAFVK00t
-         7SwQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW+HOZoyBtqwexPuTytl7W9H0gIQXSmE26KMvWcO2E4/TJ5FozAe4o0Lkb7sisiZqpYT2zOT70=@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywg+zKva0fqaa5GUKzAdBdKUkBUSxoK1wSt0BefB3m5P/IjMGcj
-	tTBx3ZOCdx2ajsGFJs0bi9iNcJEWEcPMjjUIw+PQ0o7I0tJ34vq3VQ3ufi+R1NQyw8cBQtuxiPB
-	hQG3YPqkz9cFOuwGlaM/o3Rf5sPLsxKiZidvaF5zALCIAj+GpgjROtw==
-X-Received: by 2002:a05:600c:3c88:b0:428:eb6:2e73 with SMTP id 5b1f17b1804b1-42c9f9e0d14mr18589765e9.29.1725623957340;
-        Fri, 06 Sep 2024 04:59:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHYA3WJyXIhIIDEVufGNxXIOM6KJ1IZ7nsonG5drAh9teOtbcCOcgYplQPKS/qfufalrdR4OA==
-X-Received: by 2002:a05:600c:3c88:b0:428:eb6:2e73 with SMTP id 5b1f17b1804b1-42c9f9e0d14mr18589465e9.29.1725623956763;
-        Fri, 06 Sep 2024 04:59:16 -0700 (PDT)
+        bh=SzxUx97+S6KIAnLwmxguKmEFLZ9yAdCsp/nWhUUS7FE=;
+        b=QACjx4bPnE4XmgPyOfLphdBpQV7wy1rv3GlPmJDq1wZU85TCM4T0X3xS4Uadw8Z1jH
+         BgbSumHsdLfGIS0qluKq16Un649lRK48GW16OPt8aovy+37pm/bGGjxaGa9Q1bvaqGKu
+         C8TkS5tGl3d/8Rck1eMtcBwvkwNlzdqjL0edJJ+4T7/066bQyyMbN33Va4tU2hxrUoVo
+         ofczyN86sIBlNfaXSBOnHgevBYhoEcepfnwgh8M6hT7994acQo/NsPjahQ8b8BC6fU8K
+         rCs2/R7OZ1jL9WypgVBfFUjLOP8zRQXDZpr92PbSrki60rMXGgxAYq24qVtU5YxvzC+O
+         Ym3g==
+X-Forwarded-Encrypted: i=1; AJvYcCUZipazJHu2LkJmqN94BcIkVs2jC0cs3GE3466A1NSrfapNYZ0slc0b8+PYdK4lLSpGRc9aXZM=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzOaknl9Yz2q+mogwKccCdVwXjyrTn1yBs2dZic7e7V1ACJbBax
+	zf8O/RQC25Qo172VI37e6S0gb+VBoJPHul56sQuMlNj/49Qn3+4o7EYAeQAREEZY6WsFbEBuCzp
+	gtS3CizDkclJEtmA6PjO5lsqL3EIVHWqyunkeSbGD4dQ1C3Bf5VoHjw==
+X-Received: by 2002:a05:600c:4e8c:b0:426:6921:e3e5 with SMTP id 5b1f17b1804b1-42c9f9d6a97mr14855405e9.24.1725624177993;
+        Fri, 06 Sep 2024 05:02:57 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEoI0DxPX/u6R3aYPAJ18qh/X+91B4iTbd+r7c0r2GHaqUyL4q8mSemuf8LpPqF1l3DBpiAhg==
+X-Received: by 2002:a05:600c:4e8c:b0:426:6921:e3e5 with SMTP id 5b1f17b1804b1-42c9f9d6a97mr14855095e9.24.1725624177430;
+        Fri, 06 Sep 2024 05:02:57 -0700 (PDT)
 Received: from debian (2a01cb058d23d6009996916de7ed7c62.ipv6.abo.wanadoo.fr. [2a01:cb05:8d23:d600:9996:916d:e7ed:7c62])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-42ca05d351bsm18481815e9.30.2024.09.06.04.59.15
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3788dea8eabsm1004604f8f.114.2024.09.06.05.02.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Sep 2024 04:59:16 -0700 (PDT)
-Date: Fri, 6 Sep 2024 13:59:14 +0200
+        Fri, 06 Sep 2024 05:02:57 -0700 (PDT)
+Date: Fri, 6 Sep 2024 14:02:55 +0200
 From: Guillaume Nault <gnault@redhat.com>
 To: Ido Schimmel <idosch@nvidia.com>
 Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
@@ -67,24 +67,24 @@ Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
 	bridge@lists.linux.dev, netfilter-devel@vger.kernel.org,
 	coreteam@netfilter.org, linux-sctp@vger.kernel.org,
 	bpf@vger.kernel.org
-Subject: Re: [PATCH net-next 10/12] netfilter: nf_dup4: Unmask upper DSCP
- bits in nf_dup_ipv4_route()
-Message-ID: <ZtruknlefVpreVRQ@debian>
+Subject: Re: [PATCH net-next 11/12] ipv4: udp_tunnel: Unmask upper DSCP bits
+ in udp_tunnel_dst_lookup()
+Message-ID: <Ztrvbx3qzXI2VCN8@debian>
 References: <20240905165140.3105140-1-idosch@nvidia.com>
- <20240905165140.3105140-11-idosch@nvidia.com>
+ <20240905165140.3105140-12-idosch@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20240905165140.3105140-11-idosch@nvidia.com>
+In-Reply-To: <20240905165140.3105140-12-idosch@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Sep 05, 2024 at 07:51:38PM +0300, Ido Schimmel wrote:
+On Thu, Sep 05, 2024 at 07:51:39PM +0300, Ido Schimmel wrote:
 > Unmask the upper DSCP bits when calling ip_route_output_key() so that in
 > the future it could perform the FIB lookup according to the full DSCP
 > value.
