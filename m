@@ -1,379 +1,201 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from EUR05-DB8-obe.outbound.protection.outlook.com (mail-db8eur05on2079.outbound.protection.outlook.com [40.107.20.79])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E31D51A38C4
-	for <bridge@lists.linux.dev>; Tue, 10 Sep 2024 17:40:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725990049; cv=none; b=TlQABGcOeJXOg5sBm+vy0XgCpoCxp/R8JOhgbPqogPIDeoCbI44rfualkpqRhmbmqBb/K9/fTh8rqnE1O58TjU3IMWenlNu/7qRY8FhhNKqLLZAhbIeRIIg8/Z857CSXUBLhkAXwSTnFEWXWX8BoP6xn+IP5/JyBNDJb0Izl5v4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725990049; c=relaxed/simple;
-	bh=gm6pkDPNqL8B1rD4PuIfY7C8eqdXdRGMw+p++Kt8Amc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=upUkc3Fmpy9+yvX99jEiClA49MR1n1GrxV5IfXrjNKBkqlWH1II9TN1TlLRDMJLzQ3/La46VCm8c8AjCqMV64PPm5uyzPQB2jNtH/yU7qCbRCyezap48hRwo91Kx/CVw79ZSGthMrIxQMS6v+vudD7otq6nMJCtKzAClhqbIFD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=ETVTBNhe; arc=none smtp.client-ip=209.85.219.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B81C197A6B
+	for <bridge@lists.linux.dev>; Tue, 10 Sep 2024 20:40:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.20.79
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1726000831; cv=fail; b=JtFr8YOpRfEf3TIXpuzz/m+dCLjGqoHGz7jN3pbQfOxp2m5Viy4NSZ4Srgxxvaxwi9ppmGHe471iYhG+sITctI2K2R2p3TKcNne3JIUAGqfYH9qyqTpib913GI5CMFQdr66Ap/I+6hAxFm1T2uUcpzIjEPz9gYEz+rcHVJGrh6k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1726000831; c=relaxed/simple;
+	bh=97vxCdXLwuFduqUhtXr004SNCY2o21oib/qXwi4Ht/g=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=uX9bKmVERQspdH0Bx2WViqdsWvGDTtleUv1g93qwKl2E6+BrVp1YGNPptzMMatXzrPLDSg0fdKwKZzKhhzT41dhkxX5dgp3OsA54/m0Pj57h87wRkAn0o6/I1HkIlp69sec0LM9tiC/mdisAFswEHK2PL1nfOu8/q7lW6GU6RIw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=@siemens.com header.b=QUSrTBB/; arc=fail smtp.client-ip=40.107.20.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="ETVTBNhe"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-6c159150ff4so35190756d6.2
-        for <bridge@lists.linux.dev>; Tue, 10 Sep 2024 10:40:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1725990046; x=1726594846; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=KWiNzFgnhVTIr2U5XjVoFFKWQp70DaD9UbVVHcdtg9s=;
-        b=ETVTBNheNCMoP2rC+MddclC53eiWRYo9fvbQ102v2Sr6gbyYZx6xaTblexDwDkhOD4
-         Y2rKVaoSRtjjpEscYUJGW8exRxEyxQ2ACTwdlGkHvb0kGce+LxBlWdeDNANouOyhZE8H
-         FIC3P2FGO5/ChnRv3Bx+TRKPnJ/dUyrrWgjH8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725990046; x=1726594846;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KWiNzFgnhVTIr2U5XjVoFFKWQp70DaD9UbVVHcdtg9s=;
-        b=ZE5ez9w61b4Ab/NCyXqoTrGdeaDdHaatOe568IVA8rP561XDYaBmYkusXQiF8P8AUt
-         CwVjfRIB4A0CUu1CGGe/tIxqj5Pu65/b+i6SpZiJdQq7V1IVQOANtrpNNo29p+J6qK17
-         VhKJKnoOVWbgRJA53S/S+vOXvoaG259oEzH3dikkboftjgjGj+PwHwCLm3DFB9ZXLm/M
-         sepJ5v2G9sXunxe1D2WoNmbGZ5yr+2G5/7A9wIZyP8VgquOrelqJ+ZS4T7uht1ptUHkg
-         WIgtENx8zTQxbClUVlpX41BpYvlGdg43JA1IA7UMeb2MvUNv9xjlMw5xI1slSHeE7WuS
-         RiCw==
-X-Forwarded-Encrypted: i=1; AJvYcCUXKX3/3YDR+fXIl9Xiy90iHkR/tdAYNMa0mVzYHVRH8l45jo+BIawunaJvkNOMUx6f4nASmvQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzIUXMsq60g5R5wbVpFleYbw1E2Gs6cCl7vNwSVIP7uIGECV/3H
-	kEX7vj3NKB2cKVHpi+Zs2IjZ9v235CxYSHBlJ35tNMipRt8Vj2VsqZQ5wdpaxg==
-X-Google-Smtp-Source: AGHT+IGz2GsDK4EAX2RRXqgrurkXiUEF+O3nF/sGJkyNvVVDZ7mgEWRLVZAnLKq/fgLp0Ujnay4gnA==
-X-Received: by 2002:a05:6214:440c:b0:6c3:58b7:d703 with SMTP id 6a1803df08f44-6c5284fff35mr166317166d6.22.1725990045599;
-        Tue, 10 Sep 2024 10:40:45 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c53474f79fsm31885006d6.80.2024.09.10.10.40.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Sep 2024 10:40:44 -0700 (PDT)
-Message-ID: <b6604e07-9add-4e93-ad6b-f1efc336e3bf@broadcom.com>
-Date: Tue, 10 Sep 2024 10:40:40 -0700
+	dkim=pass (2048-bit key) header.d=siemens.com header.i=@siemens.com header.b="QUSrTBB/"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=j/XeDoGWpR7GKiVYZke5hx2CkxvAbk2dLjnkUoQ0Lw9pvFtT4ra7DQSn7f8/E2/5fpW7Z1oukrttUtre1voMVLtTC/djOmE37kmMc7arBtHbaJUc9qd0ciYSRjzyh8SkCiPb9RCUCQsikocj6GMYrprT+F29O3H1hMT1ftuKHFiEahrKBBa+KNmF5dHNujE+/iqLlVNc8tuIsMp/cMY9cgS8K9MciuZ/Xc86sApTcfkA1AHh6whsZfqnGQBF6Ivurii6cAqfpFKo7kaIA2W21+TOLYlh2frVB4GtfQ6khCTPPM7wqHlJ28oOjPNqU/Grk0d6ysBwXKIpbDjFNwpl6Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=97vxCdXLwuFduqUhtXr004SNCY2o21oib/qXwi4Ht/g=;
+ b=QAlY9095kGWwxdMA31tlZ772Xxsc5VY1VcVGqjyS9u/llsfPPbxzmewr3y+GWX3dDWz1pb3q8JQgJyMr7Jga99pN0Puc7r10TFFOiKI/x7SsAzp4GChrucB4g1Su7sOeOEBOK0rTEiSS/A88PA8pkRhgRh0NP407tiZOQWt9fXjpC90NAO2yt1IbtjGvvxqh5kzwv0MZEI4XwGT7FlN2BNbpsEdgp6Va/szBr17uvjfNX+8vB8AValG1pJaIKGgEFMmjWOmft5Qn7g/HlWAVfsoRqXw0yXbcoYBNMiS0UMx8lLxI9na0py7XZutM8h77Z9kCpBnfw0gPbEVZxUxfTA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=siemens.com; dmarc=pass action=none header.from=siemens.com;
+ dkim=pass header.d=siemens.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=siemens.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=97vxCdXLwuFduqUhtXr004SNCY2o21oib/qXwi4Ht/g=;
+ b=QUSrTBB/iFQBf3tgH7eYk5oWP5BqmJXDNazuItd9pejZn0/I0yD39HQSbrkQjiP28zkyi80XineUSIbik0PnFwgELWaQjUXHd21R6G81akFWSOf+tN2xDAGi+IB+4KT11CdGVAzvtrarsTdNp1of4YMZ35OyXYXQPif/ddNbMZWJJ+Z2h+xbIC7MpFcSo4g6MbbaegMRimSyMYQiO8ukIvViYJ4mxuxCZyMDS3qgqMzyO9XTZ/JHlhMO/NfAcUGaSnlyvmhILjlnUe2nSyIG1VOCzclUGErNNRW/ObMXusWMv9jLvFdX/NcjeCfCFqs04q4wU7tL3mfZ9VpUGnj7AQ==
+Received: from AS8PR10MB6867.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:5b6::22)
+ by DB8PR10MB3644.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:10:141::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7939.24; Tue, 10 Sep
+ 2024 20:40:26 +0000
+Received: from AS8PR10MB6867.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::baa6:3ada:fbe6:98f4]) by AS8PR10MB6867.EURPRD10.PROD.OUTLOOK.COM
+ ([fe80::baa6:3ada:fbe6:98f4%3]) with mapi id 15.20.7939.022; Tue, 10 Sep 2024
+ 20:40:26 +0000
+From: "Sverdlin, Alexander" <alexander.sverdlin@siemens.com>
+To: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"florian.fainelli@broadcom.com" <florian.fainelli@broadcom.com>
+CC: "andrew@lunn.ch" <andrew@lunn.ch>, "olteanv@gmail.com"
+	<olteanv@gmail.com>, "bridge@lists.linux.dev" <bridge@lists.linux.dev>,
+	"claudiu.manoil@nxp.com" <claudiu.manoil@nxp.com>, "dqfext@gmail.com"
+	<dqfext@gmail.com>, "nbd@nbd.name" <nbd@nbd.name>, "davem@davemloft.net"
+	<davem@davemloft.net>, "stable@vger.kernel.org" <stable@vger.kernel.org>,
+	"angelogioacchino.delregno@collabora.com"
+	<angelogioacchino.delregno@collabora.com>, "Mark-MC.Lee@mediatek.com"
+	<Mark-MC.Lee@mediatek.com>, "UNGLinuxDriver@microchip.com"
+	<UNGLinuxDriver@microchip.com>, "pabeni@redhat.com" <pabeni@redhat.com>,
+	"arinc.unal@arinc9.com" <arinc.unal@arinc9.com>,
+	"alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
+	"edumazet@google.com" <edumazet@google.com>,
+	"bcm-kernel-feedback-list@broadcom.com"
+	<bcm-kernel-feedback-list@broadcom.com>, "linux-mediatek@lists.infradead.org"
+	<linux-mediatek@lists.infradead.org>, "daniel@makrotopia.org"
+	<daniel@makrotopia.org>, "razor@blackwall.org" <razor@blackwall.org>,
+	"kuba@kernel.org" <kuba@kernel.org>, "sean.wang@mediatek.com"
+	<sean.wang@mediatek.com>, "roopa@nvidia.com" <roopa@nvidia.com>,
+	"matthias.bgg@gmail.com" <matthias.bgg@gmail.com>, "f.fainelli@gmail.com"
+	<f.fainelli@gmail.com>, "lorenzo@kernel.org" <lorenzo@kernel.org>
+Subject: Re: [PATCH 1/2] net: dsa: RCU-protect dsa_ptr in struct net_device
+Thread-Topic: [PATCH 1/2] net: dsa: RCU-protect dsa_ptr in struct net_device
+Thread-Index: AQHbA4Hagboir6ZjOEqxQ/L/+DWWZ7JRShcAgAAyOIA=
+Date: Tue, 10 Sep 2024 20:40:26 +0000
+Message-ID: <a89dfb1524d9592a5077d2a7a34dceed579e7d3d.camel@siemens.com>
+References: <20240910130321.337154-1-alexander.sverdlin@siemens.com>
+	 <20240910130321.337154-2-alexander.sverdlin@siemens.com>
+	 <b6604e07-9add-4e93-ad6b-f1efc336e3bf@broadcom.com>
+In-Reply-To: <b6604e07-9add-4e93-ad6b-f1efc336e3bf@broadcom.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=siemens.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AS8PR10MB6867:EE_|DB8PR10MB3644:EE_
+x-ms-office365-filtering-correlation-id: 2413772b-8326-4fe9-c6a9-08dcd1d8ccfb
+x-ms-exchange-atpmessageproperties: SA
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|7416014|376014|1800799024|366016|38070700018;
+x-microsoft-antispam-message-info:
+ =?utf-8?B?NWlBWDJ5UWc0RVNpUUd1MkJBVzVzY3lmNWoza0IzMVhXSmpFNFBLNHZKUldk?=
+ =?utf-8?B?cnI1bEZFa1NSNkhkYzNOcUs0U1doaEJ2Y3Y5Z3RTaWthMFQ1KzRzQkZFbVd1?=
+ =?utf-8?B?cU01UG1RbHB1azNJNlhKN2Qxa3RKNHVOb0k5QzJsRmJIWG5iU2JnUWhwVW8w?=
+ =?utf-8?B?OVg5NVBoK2IwVUt3ZDBPSFppdzFQWnlMSDI4dTRUaXNUdVlkM2VkNVlVdFVN?=
+ =?utf-8?B?RXB0dnVYWTd0emR4aVpEdEs4dnFsaXNUeTFjRVM5SFY2VEFCN1BiK1hXMTl6?=
+ =?utf-8?B?MW5TSEZ0bk01RXhMRzZxQkhCWGZyUEhJbGFwR1RhZysycVh3eCt4aVhvRTJu?=
+ =?utf-8?B?V1dVVndmZ3BjaDYxV3d1QXprejJYaUNQTEFIeDdzR3A2U3lCOWxoRnJuQmdL?=
+ =?utf-8?B?Tjd4c3JZS01USDQ3eS9mK29KMytwUXF2d3RhWjUxMHh5alBrYnlpZVpmblBZ?=
+ =?utf-8?B?UzFTUXBOWmtpazJCU0kvcTFXL0RoOTc2bkJSS1BpRTc1SzFkT1BoMmFPOVFC?=
+ =?utf-8?B?WlhjS0RmS2JxSkVaVVQvekpFZGJWZmN5L0lqamJRYUNjMlB1c2VBcndIOXhU?=
+ =?utf-8?B?Yk1zWkIrSiswWG53RTlSaVA1b1dlQ25TTzU1SlJ2TjZNV2Y0Mk5SZGluMnR2?=
+ =?utf-8?B?ZGhQdHZQMnk5Ykw0VVNqSEtmZHBUeGZSQnl4b1hXRlNJN1A3eG1FcUIzRldB?=
+ =?utf-8?B?eEJlZ2V3b3FxU1pIYzZWQjBoeWU4WGp6TmhETHU0ZE5QZzNyNFBoQkRwc0lp?=
+ =?utf-8?B?dEYxa2VxbzFlWTZ2WDlSczRCM3EvS0hCVkNhYmRHdHM1OTFUODk2UVE4WXJM?=
+ =?utf-8?B?bGdpbDJVUGdaNzh4anRWYWF2QTBTTFpwd251dWpqSTkrSFRmNHd4eGFQOEsr?=
+ =?utf-8?B?OUhjTDM1SGg4elhuOVFXd3VDM0xVZmxjYlhHRy9CdHlmT3dyeXVGM2VUVmNX?=
+ =?utf-8?B?T0pPUGtNWVYvdVpwdE5FSXFQUUw4YzBOVjVlc1o0Tlp3dXVYZFlMTGNYdjZT?=
+ =?utf-8?B?SkVlZ1JqZWRYVUJRQ2ZLTVltSGc5SEhRY0haQStyNnV6MWwzREJEZGlvc3RB?=
+ =?utf-8?B?VjZ0cm1JWjFGRVFQMFhIT2F0bWdLZTNZQktqNWJmdC9kWVMzSktWdjVLOWxt?=
+ =?utf-8?B?WThVYmRmMkpJcXd5bVRGZUhwbi9LODZ5UkJqMy9sbXcwWGs5Z1RWbitoWE9q?=
+ =?utf-8?B?OHZORUdaUThiMDJEYzNMR0krRjNudUttc0NHSjFhWEpSRzhFVWJqaDJOc0NE?=
+ =?utf-8?B?MWJiakZJbUVwVEpUZTkyc1NNTmFMSmVHWW84bGM5N1lKMHFtV0tGbEFYOTNS?=
+ =?utf-8?B?N1FRMmlQL3ZxalJyZjliNkNhNzRyeGpvRGdTbytJVFcrZURXbytTa0VkL3Vv?=
+ =?utf-8?B?eWpRZXp0VHMvUmtoblhkbEVRNzN1cTBpbUVuaVVDWWVXUTNEYVk3K2U5c2JO?=
+ =?utf-8?B?Snl4M2cvczF2N2owYlRYMUM1NVVyN2lUNXUxQXR0cGg4NVM3cDhOMEUwRDEy?=
+ =?utf-8?B?cmV0ZWtaQ3BwK2YxNmhLZm0wT2JoNjNJdWZuNU1OT2luUG1rTHRBWGxjemNk?=
+ =?utf-8?B?dlVyVkxBTHlMN0lTeHhEdHIwV00zNG5MV2tOZCsvL2lvMzg0Zmh3V0VsVGlI?=
+ =?utf-8?B?K2R3ZWFSLy91VjN6eEczOGRNMnBXYW56YU9TMlNIRjlHM29yQzhuVVFYQ293?=
+ =?utf-8?B?NVlGM2ZMc2g5dVlmWHdMVEIwbnMzUm04VHNHYi9FcjhLVjVQTVdINXhsMzFv?=
+ =?utf-8?B?bnlQeGJtM2xpR29VcDVSWFBlczVhQmUzMkRHRWZKaEJPOXpKNy94M1RKaGxz?=
+ =?utf-8?Q?4+EmaZlGJ44m93B38u4K3QxQTXMCDpPbanrjw=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR10MB6867.EURPRD10.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?SWtLM2M2UHpTSyt2K1hrT1lycVk3dUxGekxkNUQwb2hCR1ZnUWpLaGh5SlVU?=
+ =?utf-8?B?SG1ZYk9hbHpPU00yZ0VTTXhFS1NmOFFwOGgwT1BHbit1TUFYU0NIS0d2bUND?=
+ =?utf-8?B?RGVIZUlwZk5GZGFqUjJKRDNGRkVyNWtaOVpzVzdySmRsVmZXUmFpRHkxVFFD?=
+ =?utf-8?B?cEZJdXQyNm4vRG1nT0p1Mi9JTDVIZzdtMXh0cW0rOTJmNVh1dkVMRGZleXhT?=
+ =?utf-8?B?NmNHZjl5OWFzbEFmQTJ2eit4ZDM5Q2xITkJBWlUrVWllNTd6enFJQzVtUnFD?=
+ =?utf-8?B?bExlQkJRdkZKUGNTOEFIVzBvTzJqeXJJMWROUDZsQWp2Z3IzMEtscGU0dTE1?=
+ =?utf-8?B?Q1dia3pkMlBhMDhCWjJiSlVmMHpsOGJGZWFBWVQ0Um1COGNva2J3T2UzNUdK?=
+ =?utf-8?B?YnpJUmszLy83K0N2eHpocHdDaWMyR09FOUVMOXM4V0JlS0lJUUFUQjZpaWtH?=
+ =?utf-8?B?d1FVdld3Z20zVGlPUHVHMWFEWGtDRGdYRGZYZXlRK0pJbjdxejdMbjdpYXh6?=
+ =?utf-8?B?RVFvbVJ4aGF3Mk5XTkxpZDlmdUpkV0JQSDFSRW1ReGs0ZEZFSU5DRU51Rklh?=
+ =?utf-8?B?ODd4SWs2YnVwU09sYlRhQ1prSUZ6WUV0bEpGWUs0TCt0YmpiQ3pyZTUrbXJw?=
+ =?utf-8?B?RlVMcktUNjRoTnZzNi9hbTRFZlFENmRwc3pwUjRYbktMcFN0SkRvOWx1MGJa?=
+ =?utf-8?B?cG0rTGpnVzRNZTNNdlJIRWh3MndTakUwZm94Q1Z4UWdkN0E2MnZuTEY3TU1B?=
+ =?utf-8?B?T0ZpM1p5Tk9FbnJpOFBiY0dYZng2QUZxUis1TnJ3Lytva1dyVUVYS2RKeElS?=
+ =?utf-8?B?YW1BUkkyMk1GMXI5UXJOa1RFUXZ2dmdudTlJRy9ZcVg2WGpIbmthVXBYQ1hv?=
+ =?utf-8?B?ZC9xNTIwL0RoSUJOVmwxcDU1cXIwWWw1N2VQdXRSSFdjN2cxSXFIS1YzODFO?=
+ =?utf-8?B?NHBqQjh5dm5CMm10K2IxTFgxbkNiSnlpMnpUaCsxc1E1S0RiT3V3T0szQjB3?=
+ =?utf-8?B?RTQ2bnhBNEhkRWhTMUdkWUJZczZCdEhMVm5QaW95U0JRL21oUGRIUFNwWnhR?=
+ =?utf-8?B?RW50UzlSdkhyNkF5a2dSR3F3aDVLckFEa3lMNWovdEg2TnZsdVZrRk9URFN2?=
+ =?utf-8?B?MDNXRXc1WjNsN2tTQVM3QjJqK2VGL0I0WmxjbStIY0h5akxoZkVUL3oySTlC?=
+ =?utf-8?B?ZFpsZUh5RFFMYUlNWTV2NGovVHdWdXZ3bGlFUmo5a0pvMVlzSldKd3p2eUhj?=
+ =?utf-8?B?WlpWSWY5aWl1NEM1N21oQWZGdUc0Q042QXp1aDVtQWZoN0p6c1dnN2lWeHZF?=
+ =?utf-8?B?S2V2d0VteGZZbXBNRCtQM0l3cWEybVdpMlh5amViUExHWndQdzQrazdBQUJD?=
+ =?utf-8?B?MnRNcWRqSGt1dmpvRFFZb0cyMlVsaWhRYnltUnFJVnBLNkVZUjZQT1Nmaitq?=
+ =?utf-8?B?QTlVUTZMY3hVRlNqblV1SDZlN0hKNGdJZlFhaE1CMGxHV28xdmMxNlNLNksv?=
+ =?utf-8?B?RVNjS0lsWTBqakp2dmRUcVRYV2llMDk0TEJPNVBKQlNCaXFvajhVbW5JYXFu?=
+ =?utf-8?B?bC9EOTVUdGphSHBwbmlmMGlsZmowQ3JmY3lpdFJOY2J1T1hVSEt5RkhRdmpl?=
+ =?utf-8?B?dGlwci9seXgrQU94Nkt2dUJ3TjRzcjA2ZjA1ZUxrNi9aV1pxZW85Q1B1Nk5U?=
+ =?utf-8?B?Vjh3TGdsbko1djlTbGdNaVZOS3JlRlkxb2tZQzFUTDBzVzhER1Q2K0xTV2J2?=
+ =?utf-8?B?T2JXSjladXRqRkVhWWREakN1SkliL1VDdDJva2JpOHBpUllkcGRPWTJWd2ho?=
+ =?utf-8?B?MkNkVjRwaGpCdDdEZmlUbndPcmJXQVdpWFNoTVlPMU5LczhVNm1mTlRLcnlu?=
+ =?utf-8?B?S3MxRmNnSFFrVXM4VW5HMjVOOGxNZ3dHM3BpTFc0L1g2MnRrYVdKQmNtVjJZ?=
+ =?utf-8?B?YWY5SGNqK1luWHVOa1VHeGxsa1pKVmpra29sVEtQbzZkdWx1d0JWWURDS1Fs?=
+ =?utf-8?B?MFJqNFREYk0xK1grb0hibjNlUU8zclJhQlQvM29Wa2JtS3NCOU83QzBiUFFI?=
+ =?utf-8?B?RHFsQnNreERrY3VnTW5ibnZPMHhkSWpFR2Y4aFp6UTBPWUQzeStzZ3JWYmxH?=
+ =?utf-8?B?c2kxWmJHdTVDb0l1R2J4QTBkNlQ1WEZ3QjJXNzBVZmtNcGJOSkF1anJOT05h?=
+ =?utf-8?Q?LqvL+Siyz91ZgDv5m9rj+oY=3D?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <42AA87166BB4B1448644FE8ABF440EC1@EURPRD10.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] net: dsa: RCU-protect dsa_ptr in struct net_device
-To: "A. Sverdlin" <alexander.sverdlin@siemens.com>, netdev@vger.kernel.org
-Cc: =?UTF-8?B?QXIxbsOnIMOcTkFM?= <arinc.unal@arinc9.com>,
- Daniel Golle <daniel@makrotopia.org>, DENG Qingfang <dqfext@gmail.com>,
- Sean Wang <sean.wang@mediatek.com>, Andrew Lunn <andrew@lunn.ch>,
- Florian Fainelli <f.fainelli@gmail.com>, Vladimir Oltean
- <olteanv@gmail.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Claudiu Manoil <claudiu.manoil@nxp.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- UNGLinuxDriver@microchip.com,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
- Lorenzo Bianconi <lorenzo@kernel.org>, Felix Fietkau <nbd@nbd.name>,
- Mark Lee <Mark-MC.Lee@mediatek.com>, Roopa Prabhu <roopa@nvidia.com>,
- Nikolay Aleksandrov <razor@blackwall.org>,
- linux-mediatek@lists.infradead.org, bridge@lists.linux.dev,
- stable@vger.kernel.org
-References: <20240910130321.337154-1-alexander.sverdlin@siemens.com>
- <20240910130321.337154-2-alexander.sverdlin@siemens.com>
-Content-Language: en-US
-From: Florian Fainelli <florian.fainelli@broadcom.com>
-Autocrypt: addr=florian.fainelli@broadcom.com; keydata=
- xsBNBFPAG8ABCAC3EO02urEwipgbUNJ1r6oI2Vr/+uE389lSEShN2PmL3MVnzhViSAtrYxeT
- M0Txqn1tOWoIc4QUl6Ggqf5KP6FoRkCrgMMTnUAINsINYXK+3OLe7HjP10h2jDRX4Ajs4Ghs
- JrZOBru6rH0YrgAhr6O5gG7NE1jhly+EsOa2MpwOiXO4DE/YKZGuVe6Bh87WqmILs9KvnNrQ
- PcycQnYKTVpqE95d4M824M5cuRB6D1GrYovCsjA9uxo22kPdOoQRAu5gBBn3AdtALFyQj9DQ
- KQuc39/i/Kt6XLZ/RsBc6qLs+p+JnEuPJngTSfWvzGjpx0nkwCMi4yBb+xk7Hki4kEslABEB
- AAHNMEZsb3JpYW4gRmFpbmVsbGkgPGZsb3JpYW4uZmFpbmVsbGlAYnJvYWRjb20uY29tPsLB
- IQQQAQgAywUCZWl41AUJI+Jo+hcKAAG/SMv+fS3xUQWa0NryPuoRGjsA3SAUAAAAAAAWAAFr
- ZXktdXNhZ2UtbWFza0BwZ3AuY29tjDAUgAAAAAAgAAdwcmVmZXJyZWQtZW1haWwtZW5jb2Rp
- bmdAcGdwLmNvbXBncG1pbWUICwkIBwMCAQoFF4AAAAAZGGxkYXA6Ly9rZXlzLmJyb2FkY29t
- Lm5ldAUbAwAAAAMWAgEFHgEAAAAEFQgJChYhBNXZKpfnkVze1+R8aIExtcQpvGagAAoJEIEx
- tcQpvGagWPEH/2l0DNr9QkTwJUxOoP9wgHfmVhqc0ZlDsBFv91I3BbhGKI5UATbipKNqG13Z
- TsBrJHcrnCqnTRS+8n9/myOF0ng2A4YT0EJnayzHugXm+hrkO5O9UEPJ8a+0553VqyoFhHqA
- zjxj8fUu1px5cbb4R9G4UAySqyeLLeqnYLCKb4+GklGSBGsLMYvLmIDNYlkhMdnnzsSUAS61
- WJYW6jjnzMwuKJ0ZHv7xZvSHyhIsFRiYiEs44kiYjbUUMcXor/uLEuTIazGrE3MahuGdjpT2
- IOjoMiTsbMc0yfhHp6G/2E769oDXMVxCCbMVpA+LUtVIQEA+8Zr6mX0Yk4nDS7OiBlvOwE0E
- U8AbwQEIAKxr71oqe+0+MYCc7WafWEcpQHFUwvYLcdBoOnmJPxDwDRpvU5LhqSPvk/yJdh9k
- 4xUDQu3rm1qIW2I9Puk5n/Jz/lZsqGw8T13DKyu8eMcvaA/irm9lX9El27DPHy/0qsxmxVmU
- pu9y9S+BmaMb2CM9IuyxMWEl9ruWFS2jAWh/R8CrdnL6+zLk60R7XGzmSJqF09vYNlJ6Bdbs
- MWDXkYWWP5Ub1ZJGNJQ4qT7g8IN0qXxzLQsmz6tbgLMEHYBGx80bBF8AkdThd6SLhreCN7Uh
- IR/5NXGqotAZao2xlDpJLuOMQtoH9WVNuuxQQZHVd8if+yp6yRJ5DAmIUt5CCPcAEQEAAcLB
- gQQYAQIBKwUCU8AbwgUbDAAAAMBdIAQZAQgABgUCU8AbwQAKCRCTYAaomC8PVQ0VCACWk3n+
- obFABEp5Rg6Qvspi9kWXcwCcfZV41OIYWhXMoc57ssjCand5noZi8bKg0bxw4qsg+9cNgZ3P
- N/DFWcNKcAT3Z2/4fTnJqdJS//YcEhlr8uGs+ZWFcqAPbteFCM4dGDRruo69IrHfyyQGx16s
- CcFlrN8vD066RKevFepb/ml7eYEdN5SRALyEdQMKeCSf3mectdoECEqdF/MWpfWIYQ1hEfdm
- C2Kztm+h3Nkt9ZQLqc3wsPJZmbD9T0c9Rphfypgw/SfTf2/CHoYVkKqwUIzI59itl5Lze+R5
- wDByhWHx2Ud2R7SudmT9XK1e0x7W7a5z11Q6vrzuED5nQvkhAAoJEIExtcQpvGagugcIAJd5
- EYe6KM6Y6RvI6TvHp+QgbU5dxvjqSiSvam0Ms3QrLidCtantcGT2Wz/2PlbZqkoJxMQc40rb
- fXa4xQSvJYj0GWpadrDJUvUu3LEsunDCxdWrmbmwGRKqZraV2oG7YEddmDqOe0Xm/NxeSobc
- MIlnaE6V0U8f5zNHB7Y46yJjjYT/Ds1TJo3pvwevDWPvv6rdBeV07D9s43frUS6xYd1uFxHC
- 7dZYWJjZmyUf5evr1W1gCgwLXG0PEi9n3qmz1lelQ8lSocmvxBKtMbX/OKhAfuP/iIwnTsww
- 95A2SaPiQZA51NywV8OFgsN0ITl2PlZ4Tp9hHERDe6nQCsNI/Us=
-In-Reply-To: <20240910130321.337154-2-alexander.sverdlin@siemens.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-OriginatorOrg: siemens.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AS8PR10MB6867.EURPRD10.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2413772b-8326-4fe9-c6a9-08dcd1d8ccfb
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Sep 2024 20:40:26.1391
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 38ae3bcd-9579-4fd4-adda-b42e1495d55a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: xzaiXCbzrBoRNxSh2vbvzDC8VxMxzcHaQ3tmf/hM8dZoHVchL6DvJftw6L9F8FlTWZpOQZnhU4yhTScPY42eRsHAnFoTlQiUWUEDaSuGvLM=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR10MB3644
 
-On 9/10/24 06:03, 'A. Sverdlin' via BCM-KERNEL-FEEDBACK-LIST,PDL wrote:
-> From: Alexander Sverdlin <alexander.sverdlin@siemens.com>
-> 
-> There are multiple races of zeroing dsa_ptr in struct net_device (on
-> shutdown/remove) against asynchronous dereferences all over the net
-> code. Widespread pattern is as follows:
-> 
-> CPU0					CPU1
-> if (netdev_uses_dsa())
-> 					dev->dsa_ptr = NULL;
->          dev->dsa_ptr->...
-> 
-> One of the possible crashes:
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-> CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G O 6.1.99+ #1
-> pc : lan9303_rcv
-> lr : lan9303_rcv
-> Call trace:
->   lan9303_rcv
->   dsa_switch_rcv
->   __netif_receive_skb_list_core
->   netif_receive_skb_list_internal
->   napi_gro_receive
->   fec_enet_rx_napi
->   __napi_poll
->   net_rx_action
-> ...
-> 
-> RCU-protect dsa_ptr and use rcu_dereference() or rtnl_dereference()
-> depending on the calling context.
-> 
-> Rename netdev_uses_dsa() into __netdev_uses_dsa_currently()
-> (assumes ether RCU or RTNL lock held) and netdev_uses_dsa_currently()
-> variants which better reflect the uselessness of the function's
-> return value, which becomes outdated right after the call.
-> 
-> Fixes: ee534378f005 ("net: dsa: fix panic when DSA master device unbinds on shutdown")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@siemens.com>
-
-Thanks for doing this work, just a few nits below. This is likely to be 
-difficult to backport to stable trees.
-
-> ---
->   drivers/net/dsa/mt7530.c                    |   3 +-
->   drivers/net/dsa/ocelot/felix.c              |   3 +-
->   drivers/net/dsa/qca/qca8k-8xxx.c            |   3 +-
->   drivers/net/ethernet/broadcom/bcmsysport.c  |   8 +-
->   drivers/net/ethernet/mediatek/airoha_eth.c  |   2 +-
->   drivers/net/ethernet/mediatek/mtk_eth_soc.c |  22 +++--
->   drivers/net/ethernet/mediatek/mtk_ppe.c     |  15 ++-
->   include/linux/netdevice.h                   |   2 +-
->   include/net/dsa.h                           |  36 +++++--
->   include/net/dsa_stubs.h                     |   6 +-
->   net/bridge/br_input.c                       |   2 +-
->   net/core/dev.c                              |   3 +-
->   net/core/flow_dissector.c                   |  19 ++--
->   net/dsa/conduit.c                           |  66 ++++++++-----
->   net/dsa/dsa.c                               |  19 ++--
->   net/dsa/port.c                              |   3 +-
->   net/dsa/tag.c                               |   3 +-
->   net/dsa/tag.h                               |  19 ++--
->   net/dsa/tag_8021q.c                         |  10 +-
->   net/dsa/tag_brcm.c                          |   2 +-
->   net/dsa/tag_dsa.c                           |   8 +-
->   net/dsa/tag_qca.c                           |  10 +-
->   net/dsa/tag_sja1105.c                       |  22 +++--
->   net/dsa/user.c                              | 104 +++++++++++---------
->   net/ethernet/eth.c                          |   2 +-
->   25 files changed, 240 insertions(+), 152 deletions(-)
-> 
-> diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-> index ec18e68bf3a8..82d3f1786156 100644
-> --- a/drivers/net/dsa/mt7530.c
-> +++ b/drivers/net/dsa/mt7530.c
-> @@ -20,6 +20,7 @@
->   #include <linux/reset.h>
->   #include <linux/gpio/consumer.h>
->   #include <linux/gpio/driver.h>
-> +#include <linux/rtnetlink.h>
->   #include <net/dsa.h>
->   
->   #include "mt7530.h"
-> @@ -3092,7 +3093,7 @@ mt753x_conduit_state_change(struct dsa_switch *ds,
->   			    const struct net_device *conduit,
->   			    bool operational)
->   {
-> -	struct dsa_port *cpu_dp = conduit->dsa_ptr;
-> +	struct dsa_port *cpu_dp = rtnl_dereference(conduit->dsa_ptr);
-
-Out of curiosity, only sparse will likely be able to recognize the __rcu 
-annotation of net_device::dsa_ptr so there is still unfortunately room 
-for programmers to forget about using rtnl_dereference(), this should 
-hopefully be caught by CI when patches are submitted.
-
->   	struct mt7530_priv *priv = ds->priv;
->   	int val = 0;
->   	u8 mask;
-> diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
-> index 4a705f7333f4..f6bc0ff0c116 100644
-> --- a/drivers/net/dsa/ocelot/felix.c
-> +++ b/drivers/net/dsa/ocelot/felix.c
-> @@ -21,6 +21,7 @@
->   #include <linux/of_net.h>
->   #include <linux/pci.h>
->   #include <linux/of.h>
-> +#include <linux/rtnetlink.h>
->   #include <net/pkt_sched.h>
->   #include <net/dsa.h>
->   #include "felix.h"
-> @@ -57,7 +58,7 @@ static int felix_cpu_port_for_conduit(struct dsa_switch *ds,
->   		return lag;
->   	}
->   
-> -	cpu_dp = conduit->dsa_ptr;
-> +	cpu_dp = rtnl_dereference(conduit->dsa_ptr);
->   	return cpu_dp->index;
->   }
->   
-> diff --git a/drivers/net/dsa/qca/qca8k-8xxx.c b/drivers/net/dsa/qca/qca8k-8xxx.c
-> index f8d8c70642c4..10b4d7e9be2f 100644
-> --- a/drivers/net/dsa/qca/qca8k-8xxx.c
-> +++ b/drivers/net/dsa/qca/qca8k-8xxx.c
-> @@ -20,6 +20,7 @@
->   #include <linux/gpio/consumer.h>
->   #include <linux/etherdevice.h>
->   #include <linux/dsa/tag_qca.h>
-> +#include <linux/rtnetlink.h>
->   
->   #include "qca8k.h"
->   #include "qca8k_leds.h"
-> @@ -1754,7 +1755,7 @@ static void
->   qca8k_conduit_change(struct dsa_switch *ds, const struct net_device *conduit,
->   		     bool operational)
->   {
-> -	struct dsa_port *dp = conduit->dsa_ptr;
-> +	struct dsa_port *dp = rtnl_dereference(conduit->dsa_ptr);
->   	struct qca8k_priv *priv = ds->priv;
->   
->   	/* Ethernet MIB/MDIO is only supported for CPU port 0 */
-> diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-> index c9faa8540859..bd9bc081346d 100644
-> --- a/drivers/net/ethernet/broadcom/bcmsysport.c
-> +++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-> @@ -145,7 +145,7 @@ static void bcm_sysport_set_rx_csum(struct net_device *dev,
->   	 * sure we tell the RXCHK hardware to expect a 4-bytes Broadcom
->   	 * tag after the Ethernet MAC Source Address.
->   	 */
-> -	if (netdev_uses_dsa(dev))
-> +	if (__netdev_uses_dsa_currently(dev))
-
-I appreciate the thought given into the function name, though I am not 
-sure it is warranted to suffix with _currently().
-
->   		reg |= RXCHK_BRCM_TAG_EN;
->   	else
->   		reg &= ~RXCHK_BRCM_TAG_EN;
-> @@ -173,7 +173,7 @@ static void bcm_sysport_set_tx_csum(struct net_device *dev,
->   	 * checksum to be computed correctly when using VLAN HW acceleration,
->   	 * else it has no effect, so it can always be turned on.
->   	 */
-> -	if (netdev_uses_dsa(dev))
-> +	if (__netdev_uses_dsa_currently(dev))
->   		reg |= tdma_control_bit(priv, SW_BRCM_TAG);
->   	else
->   		reg &= ~tdma_control_bit(priv, SW_BRCM_TAG);
-> @@ -1950,7 +1950,7 @@ static inline void gib_set_pad_extension(struct bcm_sysport_priv *priv)
->   
->   	reg = gib_readl(priv, GIB_CONTROL);
->   	/* Include Broadcom tag in pad extension and fix up IPG_LENGTH */
-> -	if (netdev_uses_dsa(priv->netdev)) {
-> +	if (__netdev_uses_dsa_currently(priv->netdev)) {
->   		reg &= ~(GIB_PAD_EXTENSION_MASK << GIB_PAD_EXTENSION_SHIFT);
->   		reg |= ENET_BRCM_TAG_LEN << GIB_PAD_EXTENSION_SHIFT;
->   	}
-> @@ -2299,7 +2299,7 @@ static u16 bcm_sysport_select_queue(struct net_device *dev, struct sk_buff *skb,
->   	struct bcm_sysport_tx_ring *tx_ring;
->   	unsigned int q, port;
->   
-> -	if (!netdev_uses_dsa(dev))
-> +	if (!__netdev_uses_dsa_currently(dev))
->   		return netdev_pick_tx(dev, skb, NULL);
->   
->   	/* DSA tagging layer will have configured the correct queue */
-> diff --git a/drivers/net/ethernet/mediatek/airoha_eth.c b/drivers/net/ethernet/mediatek/airoha_eth.c
-> index 1c5b85a86df1..f7425d393b22 100644
-> --- a/drivers/net/ethernet/mediatek/airoha_eth.c
-> +++ b/drivers/net/ethernet/mediatek/airoha_eth.c
-> @@ -2255,7 +2255,7 @@ static int airoha_dev_open(struct net_device *dev)
->   	if (err)
->   		return err;
->   
-> -	if (netdev_uses_dsa(dev))
-> +	if (__netdev_uses_dsa_currently(dev))
->   		airoha_fe_set(eth, REG_GDM_INGRESS_CFG(port->id),
->   			      GDM_STAG_EN_MASK);
->   	else
-> diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-> index 16ca427cf4c3..82a828349323 100644
-> --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-> +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-> @@ -24,6 +24,7 @@
->   #include <linux/pcs/pcs-mtk-lynxi.h>
->   #include <linux/jhash.h>
->   #include <linux/bitfield.h>
-> +#include <linux/rcupdate.h>
->   #include <net/dsa.h>
->   #include <net/dst_metadata.h>
->   #include <net/page_pool/helpers.h>
-> @@ -1375,7 +1376,8 @@ static void mtk_tx_set_dma_desc_v2(struct net_device *dev, void *txd,
->   		/* tx checksum offload */
->   		if (info->csum)
->   			data |= TX_DMA_CHKSUM_V2;
-> -		if (mtk_is_netsys_v3_or_greater(eth) && netdev_uses_dsa(dev))
-> +		if (mtk_is_netsys_v3_or_greater(eth) &&
-> +		    __netdev_uses_dsa_currently(dev))
->   			data |= TX_DMA_SPTAG_V3;
->   	}
->   	WRITE_ONCE(desc->txd5, data);
-> @@ -2183,7 +2185,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
->   		 * hardware treats the MTK special tag as a VLAN and untags it.
->   		 */
->   		if (mtk_is_netsys_v1(eth) && (trxd.rxd2 & RX_DMA_VTAG) &&
-> -		    netdev_uses_dsa(netdev)) {
-> +		    __netdev_uses_dsa_currently(netdev)) {
->   			unsigned int port = RX_DMA_VPID(trxd.rxd3) & GENMASK(2, 0);
->   
->   			if (port < ARRAY_SIZE(eth->dsa_meta) &&
-> @@ -3304,7 +3306,7 @@ static void mtk_gdm_config(struct mtk_eth *eth, u32 id, u32 config)
->   
->   	val |= config;
->   
-> -	if (eth->netdev[id] && netdev_uses_dsa(eth->netdev[id]))
-> +	if (eth->netdev[id] && __netdev_uses_dsa_currently(eth->netdev[id]))
->   		val |= MTK_GDMA_SPECIAL_TAG;
->   
->   	mtk_w32(eth, val, MTK_GDMA_FWD_CFG(id));
-> @@ -3313,12 +3315,16 @@ static void mtk_gdm_config(struct mtk_eth *eth, u32 id, u32 config)
->   
->   static bool mtk_uses_dsa(struct net_device *dev)
->   {
-> +	bool ret = false;
->   #if IS_ENABLED(CONFIG_NET_DSA)
-> -	return netdev_uses_dsa(dev) &&
-> -	       dev->dsa_ptr->tag_ops->proto == DSA_TAG_PROTO_MTK;
-> -#else
-> -	return false;
-> +	struct dsa_port *dp;
-> +
-> +	rcu_read_lock();
-> +	dp = rcu_dereference(dev->dsa_ptr);
-> +	ret = dp && dp->tag_ops->proto == DSA_TAG_PROTO_MTK;
-> +	rcu_read_unlock();
-
-This pattern repeats in mtk_ppe.c, a possible factoring for later.
--- 
-Florian
+SGkgRmxvcmlhbiENCg0KT24gVHVlLCAyMDI0LTA5LTEwIGF0IDEwOjQwIC0wNzAwLCBGbG9yaWFu
+IEZhaW5lbGxpIHdyb3RlOg0KPiA+IFJDVS1wcm90ZWN0IGRzYV9wdHIgYW5kIHVzZSByY3VfZGVy
+ZWZlcmVuY2UoKSBvciBydG5sX2RlcmVmZXJlbmNlKCkNCj4gPiBkZXBlbmRpbmcgb24gdGhlIGNh
+bGxpbmcgY29udGV4dC4NCj4gPiANCj4gPiBSZW5hbWUgbmV0ZGV2X3VzZXNfZHNhKCkgaW50byBf
+X25ldGRldl91c2VzX2RzYV9jdXJyZW50bHkoKQ0KPiA+IChhc3N1bWVzIGV0aGVyIFJDVSBvciBS
+VE5MIGxvY2sgaGVsZCkgYW5kIG5ldGRldl91c2VzX2RzYV9jdXJyZW50bHkoKQ0KPiA+IHZhcmlh
+bnRzIHdoaWNoIGJldHRlciByZWZsZWN0IHRoZSB1c2VsZXNzbmVzcyBvZiB0aGUgZnVuY3Rpb24n
+cw0KPiA+IHJldHVybiB2YWx1ZSwgd2hpY2ggYmVjb21lcyBvdXRkYXRlZCByaWdodCBhZnRlciB0
+aGUgY2FsbC4NCj4gPiANCj4gPiBGaXhlczogZWU1MzQzNzhmMDA1ICgibmV0OiBkc2E6IGZpeCBw
+YW5pYyB3aGVuIERTQSBtYXN0ZXIgZGV2aWNlIHVuYmluZHMgb24gc2h1dGRvd24iKQ0KPiA+IENj
+OiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+ID4gU2lnbmVkLW9mZi1ieTogQWxleGFuZGVyIFN2
+ZXJkbGluIDxhbGV4YW5kZXIuc3ZlcmRsaW5Ac2llbWVucy5jb20+DQo+IA0KPiBUaGFua3MgZm9y
+IGRvaW5nIHRoaXMgd29yaywganVzdCBhIGZldyBuaXRzIGJlbG93LiBUaGlzIGlzIGxpa2VseSB0
+byBiZSANCj4gZGlmZmljdWx0IHRvIGJhY2twb3J0IHRvIHN0YWJsZSB0cmVlcy4NCg0KVGhhbmtz
+IGZvciB0aGUgcXVpY2sgZmVlZGJhY2shDQpBcyBJJ3ZlIG1lbnRpb25lZCBpbiB0aGUgY292ZXIg
+bGV0dGVyLCBJJ3ZlIHY2LjEgYmFja3BvcnQgYWxyZWFkeSBhdmFpbGFibGUNCmFuZCBJJ20gcmVh
+ZHkgdG8gYmFja3BvcnQgdG8gdjYuOCBhcyBzb29uIGFzIHdlIGFncmVlIG9uIHRoZSBmaW5hbCBm
+b3JtIGZvcg0KdjYuMTEuDQoNCi0tIA0KQWxleGFuZGVyIFN2ZXJkbGluDQpTaWVtZW5zIEFHDQp3
+d3cuc2llbWVucy5jb20NCg==
