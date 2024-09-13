@@ -1,101 +1,83 @@
-Received: from mail.avm.de (mail.avm.de [212.42.244.119])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35B5C224CF
-	for <bridge@lists.linux.dev>; Thu, 12 Sep 2024 11:33:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.42.244.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AB56187849;
+	Fri, 13 Sep 2024 11:17:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726140825; cv=none; b=aywKes6Z1FWvYuhMXxtjDhLcXVbUetlEtAug6he5Qtqg2F9j5M05y4zAxFDQxskAr6hK5jr15vy/ydLrEJCaCe+ZMRyJ5M6iFUfkbVBfJRDKg+3W5Pd5MA/TCB37en7rjeORHv/XfoKewESY/FvH0eBc3HJNEOVTN1kqphe1nek=
+	t=1726226257; cv=none; b=dh+41aGd94teP+KrbuY22ODLuj+9WNcHZqqSejS+i2G76pQi1/DrJ8y+UpunryCM3FZnDggQW+Qynjx3mgT14FWTkOmP4cu9oZV3oePwXBKgn0Dknnlne0TJA7IS87yz4tgFdMUGfMpjdngEP1zfqzHNkkpA2hMsU4k+fw1VLVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726140825; c=relaxed/simple;
-	bh=0qyj5L1lY3J+eSYHvtfw7NpUKHPg++eN0xabTIOhBAc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=g2h/Kvyosfzn3MCaC2GPrNzU1Bp8D18J6pbxSbatMkSttz8/6NmLKuyWMX/bJGrYTRRuZ3b2BKooRw1ZKfMkDa9BsCiyXhl6H5qt4WS0dNf6Fl/QV2/4h2VFn5wkAdN19TFQEMdQK9Mv56yk1cF4b6guL4kU6eNj+eYLqaz5xXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de; spf=pass smtp.mailfrom=avm.de; dkim=pass (1024-bit key) header.d=avm.de header.i=@avm.de header.b=a+bSlcPc; arc=none smtp.client-ip=212.42.244.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=avm.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=avm.de
+	s=arc-20240116; t=1726226257; c=relaxed/simple;
+	bh=68sScwS5SIib1G11p6Hu/7v3V+LPBdR0qoLi2atvoIk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XF8GjSYQJd6huP5QRv3HPVixeYTMJCDABfhhSSNYAvB1tQWHMprG3TZIkk4P/irDv9Mai1L5yW+HCTZM0GglvkthbsdszAX9v1LGP30xde4HUZryMGWIGyZdzHH6uf7j2dF4ikmgyAXAB/nHfp4lgYgZDUrixQ7eKwaF3/pN1FM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=amSm8OHH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=avm.de header.i=@avm.de header.b="a+bSlcPc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-	t=1726140820; bh=0qyj5L1lY3J+eSYHvtfw7NpUKHPg++eN0xabTIOhBAc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=a+bSlcPcvguA1OteUakBVxlz5axiVCjjAWURY36WTof4YAA5nk84R4tZqAY+8ZsK4
-	 epgZL0saapGxzjaKhtmZO46IliYFqfBanmL0RsyvqfZoFZIxfOfkQU/aYfmeLTekYn
-	 HtNRSm7rIV2fnqGwAMxZHcXeiF8WkEOKBVKVDXwg=
-Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
-	by mail.avm.de (Postfix) with ESMTPS;
-	Thu, 12 Sep 2024 13:33:40 +0200 (CEST)
-Message-ID: <9b245c1e-997a-4224-a819-3a3f1aee8b3f@avm.de>
-Date: Thu, 12 Sep 2024 13:33:39 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="amSm8OHH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B20DC4CEC0;
+	Fri, 13 Sep 2024 11:17:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1726226257;
+	bh=68sScwS5SIib1G11p6Hu/7v3V+LPBdR0qoLi2atvoIk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=amSm8OHHk+ZZCy+kx4/gf8t7jUfsLnkxhQlFtLTDaCKn+QzykUnNG+XJB9rBtuZds
+	 X8bSX10FjTrLNrsbwqvjo7co4kImG/ZuMW+Di4dxeywgBZhPeU19cDCp6R7ikPSVX7
+	 apgaBHrguVmIbc7fu4VB4L4kElXaYwav9vknxzAOMMT7rUQ82cBT+mIqhGROeTK2kx
+	 k7WXCdd7nDv3NTTrlGAh5YoJ4qWY+TXVfwMPqDX0K7x0WNx5jNQ1XHbcCIz/S6v1c3
+	 AHFWXFnKoeENM6P4pEh6/bckzbJT2otXItn+RUPyvMphWwUlKCe+Sa2MMsrjgA50y5
+	 bAAWqNThLGWuQ==
+Date: Fri, 13 Sep 2024 12:17:32 +0100
+From: Simon Horman <horms@kernel.org>
+To: Justin Stitt <justinstitt@google.com>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org,
+	Kees Cook <kees@kernel.org>
+Subject: Re: [PATCH] netfilter: nf_tables: replace deprecated strncpy with
+ strscpy_pad
+Message-ID: <20240913111732.GV572255@kernel.org>
+References: <20240909-strncpy-net-bridge-netfilter-nft_meta_bridge-c-v1-1-946180aa7909@google.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH RFC] net: bridge: drop packets with a local source
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov
- <razor@blackwall.org>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, jnixdorf-oss@avm.de,
- bridge@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20240911125820.471469-1-tmartitz-oss@avm.de>
- <210e3e45-21b3-4cbe-9372-297f32cf6967@lunn.ch>
-Content-Language: de-DE, en-US
-From: tmartitz-oss <tmartitz-oss@avm.de>
-In-Reply-To: <210e3e45-21b3-4cbe-9372-297f32cf6967@lunn.ch>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-purgate-ID: 149429::1726140820-E259D885-C8B33756/0/0
-X-purgate-type: clean
-X-purgate-size: 1746
-X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
-X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
-X-purgate: clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240909-strncpy-net-bridge-netfilter-nft_meta_bridge-c-v1-1-946180aa7909@google.com>
 
-Hello Andrew,
+On Mon, Sep 09, 2024 at 03:48:39PM -0700, Justin Stitt wrote:
+> strncpy() is deprecated for use on NUL-terminated destination strings [1] and
+> as such we should prefer more robust and less ambiguous string interfaces.
+> 
+> In this particular instance, the usage of strncpy() is fine and works as
+> expected. However, towards the goal of [2], we should consider replacing
+> it with an alternative as many instances of strncpy() are bug-prone. Its
+> removal from the kernel promotes better long term health for the
+> codebase.
+> 
+> The current usage of strncpy() likely just wants the NUL-padding
+> behavior offered by strncpy() and doesn't care about the
+> NUL-termination. Since the compiler doesn't know the size of @dest, we
+> can't use strtomem_pad(). Instead, use strscpy_pad() which behaves
+> functionally the same as strncpy() in this context -- as we expect
+> br_dev->name to be NUL-terminated itself.
+> 
+> Link: https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings [1]
+> Link: https://github.com/KSPP/linux/issues/90 [2]
+> Link: https://manpages.debian.org/testing/linux-manual-4.8/strscpy.9.en.html
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: linux-hardening@vger.kernel.org
+> Signed-off-by: Justin Stitt <justinstitt@google.com>
+> ---
+> Note: build-tested only.
 
-Am 11.09.24 um 18:33 schrieb Andrew Lunn:
-> On Wed, Sep 11, 2024 at 02:58:17PM +0200, Thomas Martitz wrote:
->> Currently, there is only a warning if a packet enters the bridge
->> that has the bridge's or one port's MAC address as source.
->>
->> Clearly this indicates a network loop (or even spoofing) so we
->> generally do not want to process the packet. Therefore, move the check
->> already done for 802.1x scenarios up and do it unconditionally.
-> Does 802.1d say anything about this?
->
-> Quoting the standard gives you a strong case for getting the patch
-> merged.
-
-I have 802.1q, the successor to 802.1d, at hand. It's a large document 
-and I haven't read
-all the details yet. From a coarse reading I get the impression that a 
-bridge entity could
-chose to filter such frames (based on "Filter Database" information 
-which translates to our
-BR_FDB_LOCAL flag), or forward to potential ports.
-
-If we say we still want to forward these frames, that would probably be 
-OK. The main
-purpose of the patch is to avoid local processing of IGMP and other 
-stuff. So at a minimum
-we must avoid passing the frame up the stack and IGMP/MLD snooping code 
-in addition
-to the current handling (which is limited to avoiding to update the FDB).
-
-However, I have a hard time to imagine legitimate cases of forwarding a 
-frame again
-that we obviously send out earlier. This is not helpful to our overall 
-goal to stop storms when
-customers manage to make loops in their networks (remember that we build 
-routers
-for end-user homes and loops are a constant source of problem reports).
-
-Dropping on ingress is, in my opinion, also the better response to MAC 
-spoofers on the network.
-
-Best regards.
-
-
+Reviewed-by: Simon Horman <horms@kernel.org>
