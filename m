@@ -1,335 +1,372 @@
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com [209.85.208.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51881198A05
-	for <bridge@lists.linux.dev>; Mon, 23 Sep 2024 13:03:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5C32C13C
+	for <bridge@lists.linux.dev>; Tue, 24 Sep 2024 02:25:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.204.34.129
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727096612; cv=none; b=SZ46LPXN9jaTa0KaSYvUVtS0v6OnzNJV5nvBNUv8+2UyDq8pTB8dKjzYqzpqjVuxkwrVW+x/iM2rHqrf8lI6kuLJp20tRLaH3+fHRjFud7QNyXYnFPZUDp5ugXKcKBCEfEtkFsmzuBOOFJFuusjj0TN/zt43VGOBpqKiwsUKUVw=
+	t=1727144729; cv=none; b=Tj1+twfPV60rfLu76pejTjZojB9wlZz6GYvEzFjepEHEZzLGUUsXcpv42kVrcrExyvGvd0lcDDbEow71yzzucG1KfHFXORCqNv892lyCk/0MsZGdQSPUcilujAnT2LsTbUoVixYA5SdjWkPIQhSfvA1m/eozlATuTLHr7m2Qx8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727096612; c=relaxed/simple;
-	bh=Ove3L3BSfoCTMLs6EgReDh0zoAt3oF6Ly4/dt67jBSA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WsZQYyszrmdMaMW0JbsXKw+Gz6dqxikPGrISIQPY6rvOPRI7OY6TKeou0NMVt9ztmGYNPa3vvp6vsw+MTpUKewzNwWpa9wT+ypWBkx6wcPZ4HbaxI3x7c4VArnZl1n8jeTOb+gUOmNTjAuzEKal+rbsfMz4Shw1ii/kQ1n5t2Ns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=pOhNLjSP; arc=none smtp.client-ip=209.85.208.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1727144729; c=relaxed/simple;
+	bh=ZeD2dxHt4glNwYGeQd3QpH4sDCyqQq8WnnHbXARjZvU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SjBZsRjz5m6KhrntX1xb2XfQmSi9D3f7VkslMZERqkWHGHzkv+Q7KP3cnu92PvCqdHIVPsdpyYvVO/rMSMBqt1nAwJoEUMUDxpLVFnzzcOQlBl4YoMaZRO+uBJk2aWf0Ifv5MD+hwVA1G7eFkiNiztYNwuXSLbFnMB/xICPKq+0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=EkF6N/8M; arc=none smtp.client-ip=54.204.34.129
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="pOhNLjSP"
-Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-2f758f84dfbso33255261fa.0
-        for <bridge@lists.linux.dev>; Mon, 23 Sep 2024 06:03:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1727096607; x=1727701407; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CVcx1KWj97AoUyMrh8lgNL2QRY1e59cxTG7tBGdTdos=;
-        b=pOhNLjSPDP2b4W/YXHYIo48qZ7xyIFA23IQ7jLsCPIOqrHQFK1fCoPFimeVMIR0JgY
-         Lr2/iMiL7bzocVkSt9cOO7hkclWvrGyl3nIKaQfiX3nF4CxuKyKiZaktiEuJfsh9cy2y
-         ctdI7aqxHq82taI/HIDKidgfD2nR9Gm50iLihEszieeCqksHD5P/FLBps7R/ZXau6gu0
-         o/lkVZeSEFGJgqYuf9x8tNiUZuX4FoJ8frfviAEZe9RFAYE2xzut8gofZ5gvqCav5Jio
-         TNxU3BB0Th9AOWbD5ZfPqiQ0D3H9L8nbYEOXTEX+Ci3VVlpV7QUs0UXFH3HAF72fg0QT
-         BOvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727096607; x=1727701407;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CVcx1KWj97AoUyMrh8lgNL2QRY1e59cxTG7tBGdTdos=;
-        b=Le0EKGUivCcrqfSYHG1Y+LEmhszjIZb3yaafhjIL2vmHlplTZOhOacIsfvwbwP3mF/
-         TC4/tLhm5kX9a4raRiqwS9WjVZiQTIaySug9iacGBIPk9r4gy7pAlzDUHq5kyd+IbGVM
-         gKwpdZcePV4z1fFdTCFkor9GTjJuvH2cbFp+TXzbpWoxx9/3KgUn9DSnx1onv0ZEs0YJ
-         tax6Wt3hgPqzfPGbdPX0VMmoW/JXG7iKFrgC1WxmxHfUVaYYS1ZAoMEyDNcTEJylka/8
-         I3CsnbUgKKLflYQlQCDIDLLEIA8deE7M73Wvtd3rLcQVHhbxgpVQMSyN9KotEG+L/FG+
-         iw9g==
-X-Forwarded-Encrypted: i=1; AJvYcCWjBJPH/Y8OvHN2nOwbUEcaexwhRjT2Y7ZW8KBsJGCXbHGAVZi24bv4jte2aMDyVR8Gn+fOP0c=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyJ8s1rTg5OThSvLOaJOVjPUQvMHdnVprjIe7pId8pjrZnmH/ux
-	PXTBjuzZn24G+Yic/aga1hrlRQ1Z38i4mND6Eng0dbBbvWZ63rS2/fTnk4kQ8Ec=
-X-Google-Smtp-Source: AGHT+IHFl1ARzxSegLxQgrCowJEOWjJLRn1KdPZcEGzeQRjWkg0xnr9cgnFcUjTOHOny/7W+xCSIpw==
-X-Received: by 2002:a05:6512:6d1:b0:52e:74d5:89ae with SMTP id 2adb3069b0e04-536ac32e458mr5810813e87.39.1727096607129;
-        Mon, 23 Sep 2024 06:03:27 -0700 (PDT)
-Received: from [192.168.1.18] (176.111.185.181.kyiv.nat.volia.net. [176.111.185.181])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-536870a4777sm3257216e87.210.2024.09.23.06.03.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Sep 2024 06:03:26 -0700 (PDT)
-Message-ID: <f6d3b34c-49d5-4d20-9e76-6c5158e56acd@blackwall.org>
-Date: Mon, 23 Sep 2024 16:03:25 +0300
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="EkF6N/8M"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1727144684;
+	bh=/tLBDCK7pbckkG3+mplCpjgt4khIOUVDy/lEAnn6+fk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=EkF6N/8Mf96dAz5oa7uqFFtGbzTGDWMbHs3if5095Z0NKGyIMIRRlO4tazuFxHWan
+	 37c6wjfhp/YUUNXjAsWKJChfPBs8UIsuUPvOcCQbL1NyxuezIdUu4lQzgvRwJ3qBGf
+	 owmEWVZTlIU38BxGafq7JZSXRWL6HPUk6P+NAchQ=
+X-QQ-mid: bizesmtp88t1727144681trzskiwd
+X-QQ-Originating-IP: JBqxVDiVgZHmutUkV4/9rq+sIJ1hsVnj8BqRUusNbg0=
+Received: from fish-NBLK-WAX9X.. ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Tue, 24 Sep 2024 10:24:39 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 1965234270321233155
+From: yushengjin <yushengjin@uniontech.com>
+To: pablo@netfilter.org
+Cc: kadlec@netfilter.org,
+	roopa@nvidia.com,
+	razor@blackwall.org,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	yushengjin <yushengjin@uniontech.com>
+Subject: [PATCH v2] net/bridge: Optimizing read-write locks in ebtables.c
+Date: Tue, 24 Sep 2024 10:24:37 +0800
+Message-ID: <2860814445452DE8+20240924022437.119730-1-yushengjin@uniontech.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH net-next] net: bridge: drop packets with a local
- source
-To: Thomas Martitz <tmartitz-oss@avm.de>, Roopa Prabhu <roopa@nvidia.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
-Cc: Johannes Nixdorf <jnixdorf-oss@avm.de>, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20240919085803.105430-1-tmartitz-oss@avm.de>
- <934bf1f6-3f1c-4de4-be91-ba1913d1cb0e@blackwall.org>
- <7aa4c66e-d0dc-452f-aebd-eb02a1b15a44@avm.de>
- <34a42cfa-9f72-4a66-be63-e6179e04f86e@blackwall.org>
- <74baea7a-318c-482b-9e27-4a9b057b58f3@avm.de>
- <298aa961-5827-4fa9-bfdc-66267d08198c@blackwall.org>
- <6372b85a-216c-472b-82de-2b4d2ca22008@avm.de>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <6372b85a-216c-472b-82de-2b4d2ca22008@avm.de>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:uniontech.com:qybglogicsvrsz:qybglogicsvrsz4a-0
 
-On 9/23/24 10:26, Thomas Martitz wrote:
-> Am 22.09.24 um 20:22 schrieb Nikolay Aleksandrov:
->> On 9/20/24 16:28, Thomas Martitz wrote:
->>> Am 20.09.24 um 08:42 schrieb Nikolay Aleksandrov:
->>>> On 19/09/2024 14:13, Thomas Martitz wrote:
->>>>> Am 19.09.24 um 12:33 schrieb Nikolay Aleksandrov:
->>>>>> On 19/09/2024 11:58, Thomas Martitz wrote:
->>>>>>> Currently, there is only a warning if a packet enters the bridge
->>>>>>> that has the bridge's or one port's MAC address as source.
->>>>>>>
->>>>>>> Clearly this indicates a network loop (or even spoofing) so we
->>>>>>> generally do not want to process the packet. Therefore, move the check
->>>>>>> already done for 802.1x scenarios up and do it unconditionally.
->>>>>>>
->>>>>>> For example, a common scenario we see in the field:
->>>>>>> In a accidental network loop scenario, if an IGMP join
->>>>>>> loops back to us, it would cause mdb entries to stay indefinitely
->>>>>>> even if there's no actual join from the outside. Therefore
->>>>>>> this change can effectively prevent multicast storms, at least
->>>>>>> for simple loops.
->>>>>>>
->>>>>>> Signed-off-by: Thomas Martitz <tmartitz-oss@avm.de>
->>>>>>> ---
->>>>>>>    net/bridge/br_fdb.c   |  4 +---
->>>>>>>    net/bridge/br_input.c | 17 ++++++++++-------
->>>>>>>    2 files changed, 11 insertions(+), 10 deletions(-)
->>>>>>>
->>>>>>
->>>>>> Absolutely not, I'm sorry but we're not all going to take a performance hit
->>>>>> of an additional lookup because you want to filter src address. You can filter
->>>>>> it in many ways that won't affect others and don't require kernel changes
->>>>>> (ebpf, netfilter etc). To a lesser extent there is also the issue where we might
->>>>>> break some (admittedly weird) setup.
->>>>>>
->>>>>
->>>>> Hello Nikolay,
->>>>>
->>>>> thanks for taking a look at the patch. I expected concerns, therefore the RFC state.
->>>>>
->>>>> So I understand that performance is your main concern. Some users might
->>>>> be willing to pay for that cost, however, in exchange for increased
->>>>> system robustness. May I suggest per-bridge or even per-port flags to
->>>>> opt-in to this behavior? We'd set this from our userspace. This would
->>>>> also address the concern to not break weird, existing setups.
->>>>>
->>>>
->>>> That is the usual way these things are added, as opt-in. A flag sounds good
->>>> to me, if you're going to make it per-bridge take a look at the bridge bool
->>>> opts, they were added for such cases.
->>>>
->>>
->>> Alright. I'll approach this. It may take a little while because the LPC
->>> talks are so amazing that I don't want to miss anything.
->>>
->>> I'm currently considering a per-bridge flag because that's fits our use
->>> case. A per-port flag would also work, though, and may fit the code
->>> there better because it's already checking for other port flags
->>> (BR_PORT_LOCKED, BR_LEARNING). Do you have a preference?
->>>
->>
->> Hi,
->> Sorry for the delayed response, but I was traveling over the weekend
->> and I got some more time to think about this. There is a more subtle
->> problem with this change - you're introducing packet filtering based on
->> fdb flags in the bridge, but it's not the bridge's job to filter
->> packets. We have filtering subsystems - netfilter, tc or ebpf, if they
->> lack some functionality you need to achieve this, then extend them.
->> Just because it's easy to hard-code this packet filter in the bridge
->> doesn't make it right, use the right subsystem if you want to filter.
->> For example you can extend nft's bridge matching capabilities.
->> More below.
-> 
-> Hi,
-> 
-> Alright, I understand that you basically object to the whole idea of
-> filtering in the bridge code directly (based on fdb flags). While that
-> makes some sense, I found that basically the same filter that I already
-> exists for mac802.11 use cases:
-> 
->                 } else if (READ_ONCE(fdb_src->dst) != p ||
->                            test_bit(BR_FDB_LOCAL, &fdb_src->flags)) { <-- drop if local source on ingress
->                         /* FDB mismatch. Drop the packet without roaming. */
->                         goto drop;
-> 
-> In fact, this very code motivated me because I'm just adding one more
-> condition to an existing drop mechanism after all. In this area there
-> are also further drops based on fdb flags. 
-> 
+When conducting WRK testing, the CPU usage rate of the testing machine was
+100%. forwarding through a bridge, if the network load is too high, it may
+cause abnormal load on the ebt_do_table of the kernel ebtable module, leading
+to excessive soft interrupts and sometimes even directly causing CPU soft
+deadlocks.
 
-I was expecting you'd bring this code up :) but you've also taken it out
-of context. It is a part of a larger feature which also creates locked
-fdbs, and enforces certain policies which give user-space a chance to
-authenticate user macs, i.e. MAC Authentication Bypass. Creating and
-managing such fdbs can only be done from the bridge but also with the
-help of user-space.
+After analysis, it was found that the code of ebtables had not been optimized
+for a long time, and the read-write locks inside still existed. However, other
+arp/ip/ip6 tables had already been optimized a lot, and performance bottlenecks
+in read-write locks had been discovered a long time ago.
 
-> Anyway, dropping isn't actually my main intent, although it's a welcome
-> side effect because it immediately stops loops. What I'm after most is
-> avoiding local proccessing, both in the IGMP/MLD snooping code and up in
-> the stack. In my opinion, it would be good if the bridge code can be more
-> resilient against loops (and spoofers) by not processing its own packets
-> as if it came from somebody else. My main issue is: the IGMP/MLD snooping
-> code becomes convinced that there are subscribers on the network even if
-> here aren't, just by processing IGMP/MLD joins that were send out a moment
-> ago. That said, we could still decide to forward these packets and not
-> filter them completely.
-> 
-> And I still think that should also be the default, especially if we block
-> only local processing but not forwarding. You don't feel this robustness
-> is not necessary (or consider the performance impact too high) then I
-> accept that and withdraw my proposal. I just thought it would be a useful
-> addition to the bridge's out-of-the-box stability.
-> 
+Ref link: https://lore.kernel.org/lkml/20090428092411.5331c4a1@nehalam/
 
-You can decide to filter, I don't mind, but do it within the filtering
-subsystems and not in the bridge. This is better for everyone -
-interested parties would take the performance hit, but also you get more
-flexibility and matching opportunities, tomorrow you might decide to
-have more complex criteria.
+So I referred to arp/ip/ip6 modification methods to optimize the read-write
+lock in ebtables.c.
 
-> All that said, I'll explore a netfilter solution (see below) to avoid
-> maintaing out-of-tree patches.
-> 
-> 
->>
->>
->>> Although that would risk breaking existing weird set-ups. So unless you
->>> signal preference for this I will not persue that any further.
->>>
->>>
->>>>> This would be analogous to the check added for MAB in 2022
->>>>> (commit a35ec8e38cdd "bridge: Add MAC Authentication Bypass (MAB) support").
->>>>>
->>>>> While there are maybe other methods, only in the bridge code I may
->>>>> access the resulting FDB to test for the BR_FDB_LOCAL flag. There's
->>>>> typically not only a single MAC adress to check for, but such a local
->>>>> FDB is maintained for the enslaved port's MACs as well. Replicating
->>>>> the check outside of the bridge receive code would be orders more
->>>>> complex. For example, you need to update the filter each time a port is
->>>>> added or removed from the bridge.
->>>>>
->>>>
->>>> That is not entirely true, you can make a solution that dynamically compares
->>>> the mac addresses of net devices with src mac of incoming frames, you may need
->>>> to keep a list of the ports themselves or use ebpf though. It isn't complicated
->>>> at all, you just need to keep that list updated when adding/removing ports
->>>> you can even do it with a simple ip monitor and a bash script as a poc, there's nothing
->>>> complicated about it and we won't have to maintain another bridge option forever.
->>>
->>> I'm really trying to be open-minded about other possible ways, but I'm struggling.
->>>
->>> For one, you know we're making a firmware for our home routers. We control all the
->>> code, from boot-loader to kernel to user space, so it's often both easier and more 
->>> reliable to make small modifications to the kernel than to come up with complex
->>> user space. In other words, we don't have any eBPF tooling in place currently and
->>> that would be a major disruption to our workflow. We don't even use LLVM, just GCC
->>> everywhere. I'd have to justify introducing all the eBPF tooling and processes (in
->>> order to avoid having a small patch to kernel) to my colleagues and my manager. I
->>> don't think that'd work out well. I'm pretty sure other companies in our field are
->>> in the same situation.
->>
->> That really is your problem, it doesn't change the fact it can be solved
->> using eBPF or netfilter. I'm sorry but this is not an argument for this
->> mailing list or for accepting a patch. It really is a pretty simple
->> solution - take ipmonitor (from iproute2/ip), strip all and just look
->> for NEWLINK then act on master changes: on new master add port/mac to
->> table and vice-versa. What's so complex? You can also do it with
->> netfilter and nftables, just update a matching nft table on master
->> changes. Moreover these events are not usually many. In fact since you
->> control user-space entirely I'd add it to the enslave/release pieces in
->> whatever network management tools you're using, so when an interface is
->> enslaved its mac is added to that filter and removed when it's released,
->> then you won't need to have a constantly running process to monitor,
->> even simpler.
->>
->> Actually it took me about 15 minutes to get a working solution to this
->> problem just by reusing the ipmonitor and iproute2 netlink code with a
->> nft table hooked on port's ingress. It is that simple, but I'd prefer to
->> do it in the network manager on port add/del and avoid monitoring
->> altogether.
-> 
-> 
-> Impressive!
-> 
-> 
->>
->>>
->>> Furthermore, from what I understand, an eBPF filter would not perform as good
->>> (performance also matters for us!) because there is no hook at this point. I'd need
->>> to hook earlier, perhaps using XDP (?), and that might have to process many more
->>> packets than those that enter the bridge. On the user space side, I'd need to have
->>> a daemon that update bpf maps or something like that to keep the list updated. I'm
->>> new to eBPF, so sorry if it seems more complex to me than it is.
->>
->> It will process the same amount of packets that the bridge would.
-> 
-> 
-> If we add vlan devices the tagged packets that don't enter the bridge would still be
-> processed by eBPF.
-> 
+test method:
+1) Test machine creates bridge :
+``` bash
+brctl addbr br-a
+brctl addbr br-b
+brctl addif br-a enp1s0f0 enp1s0f1
+brctl addif br-b enp130s0f0 enp130s0f1
+ifconfig br-a up
+ifconfig br-b up
+```
+2) Testing with another machine:
+``` bash
+ulimit -n 2048
+./wrk -t48 -c2000 -d6000 -R10000 -s request.lua http://4.4.4.2:80/4k.html &
+./wrk -t48 -c2000 -d6000 -R10000 -s request.lua http://5.5.5.2:80/4k.html &
+```
 
-This processing could come down to a simple conditional statement
-depending on how much vlan filtering you need. You wouldn't notice
-its impact if implemented properly.
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: yushengjin <yushengjin@uniontech.com>
+Link: https://lore.kernel.org/all/CANn89iJCBRCM3aHDy-7gxWu_+agXC9M1R=hwFuh2G9RSLu_6bg@mail.gmail.com/
+---
+ include/linux/netfilter_bridge/ebtables.h |   1 -
+ net/bridge/netfilter/ebtables.c           | 124 ++++++++++++++++------
+ 2 files changed, 91 insertions(+), 34 deletions(-)
 
-> On top, we have also a custom hook that may consume packets for other reasons before
-> they enter the bridge. But that's not your problem.
-> 
-> 
->>
->>>
->>> For netfilter, I looked into that also, but the NF_BR_LOCAL_IN hook is too late. One
->>> of the biggest problems we try to solve is that looping IGMP packets enter the bridge
->>> and acually refresh MDBs that should normally timeout (we send JOINs for the addresses
->>> out but the MDB should only refresh when JOINs from other systems are received). Then,
->>> even if the filter location would fit, I'd effectively just re-implement the bridge's
->>> FDB lookup which rings bells that it's not an effective approach.
->>>
->>> So both alternatives you projected are not a good fit to the actual problem and may
->>> require vastly more complex user space.
->>
->> Is that all the research? You read 2 minutes of webpages and diagonally
->> scanned some source code, did you see the other bridge netfilter
->> hooks? You can extend netfilter and match in any of them if you insist
->> on having a kernel solution. For example match in NF_BR_PRE_ROUTING.
->> You can extend nft's bridge support and match anything you need.
-> 
-> 
-> Thank you very much for this! I literally looked for NF_HOOK in br_input.c
-> to find suitable entry points and the NF_BR_PRE_ROUTING hook didn't occur
-> to me (it's handled differently). I really should have looked more carefully
-> over the entire file.
-> 
-> Also, I should have known it anyway, I'm working with the bridge code for
-> quite a long time already and considered myself experienced in this area
-> (have to reconsider this now...).
-> 
-> So sorry for my incomplete research, NF_BR_PRE_ROUTING seems like a nice
-> fit actually. I'll explore this further, and assuming this works, we can
-> drop my proposal altogether. From a first look it should work, altough we
-> wouldn't be able to just block out local processing (can just have drop or
-> not) if need arises and we have to re-implement MAC lookup.
-> 
-> I have to apologize for wasting your time but at least I have lerned a lesson.
-> 
-> Best regards.
+diff --git a/include/linux/netfilter_bridge/ebtables.h b/include/linux/netfilter_bridge/ebtables.h
+index fd533552a062..15aad1e479d7 100644
+--- a/include/linux/netfilter_bridge/ebtables.h
++++ b/include/linux/netfilter_bridge/ebtables.h
+@@ -93,7 +93,6 @@ struct ebt_table {
+ 	char name[EBT_TABLE_MAXNAMELEN];
+ 	struct ebt_replace_kernel *table;
+ 	unsigned int valid_hooks;
+-	rwlock_t lock;
+ 	/* the data used by the kernel */
+ 	struct ebt_table_info *private;
+ 	struct nf_hook_ops *ops;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 3e67d4aff419..d7db7380fcbb 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -204,11 +204,14 @@ unsigned int ebt_do_table(void *priv, struct sk_buff *skb,
+ 	const char *base;
+ 	const struct ebt_table_info *private;
+ 	struct xt_action_param acpar;
++	unsigned int addend;
+ 
+ 	acpar.state   = state;
+ 	acpar.hotdrop = false;
+ 
+-	read_lock_bh(&table->lock);
++	local_bh_disable();
++	addend = xt_write_recseq_begin();
++
+ 	private = table->private;
+ 	cb_base = COUNTER_BASE(private->counters, private->nentries,
+ 	   smp_processor_id());
+@@ -229,10 +232,8 @@ unsigned int ebt_do_table(void *priv, struct sk_buff *skb,
+ 
+ 		if (EBT_MATCH_ITERATE(point, ebt_do_match, skb, &acpar) != 0)
+ 			goto letscontinue;
+-		if (acpar.hotdrop) {
+-			read_unlock_bh(&table->lock);
+-			return NF_DROP;
+-		}
++		if (acpar.hotdrop)
++			goto drop_out;
+ 
+ 		ADD_COUNTER(*(counter_base + i), skb->len, 1);
+ 
+@@ -251,13 +252,13 @@ unsigned int ebt_do_table(void *priv, struct sk_buff *skb,
+ 			verdict = t->u.target->target(skb, &acpar);
+ 		}
+ 		if (verdict == EBT_ACCEPT) {
+-			read_unlock_bh(&table->lock);
++			xt_write_recseq_end(addend);
++			local_bh_enable();
+ 			return NF_ACCEPT;
+ 		}
+-		if (verdict == EBT_DROP) {
+-			read_unlock_bh(&table->lock);
+-			return NF_DROP;
+-		}
++		if (verdict == EBT_DROP)
++			goto drop_out;
++
+ 		if (verdict == EBT_RETURN) {
+ letsreturn:
+ 			if (WARN(sp == 0, "RETURN on base chain")) {
+@@ -278,10 +279,8 @@ unsigned int ebt_do_table(void *priv, struct sk_buff *skb,
+ 		if (verdict == EBT_CONTINUE)
+ 			goto letscontinue;
+ 
+-		if (WARN(verdict < 0, "bogus standard verdict\n")) {
+-			read_unlock_bh(&table->lock);
+-			return NF_DROP;
+-		}
++		if (WARN(verdict < 0, "bogus standard verdict\n"))
++			goto drop_out;
+ 
+ 		/* jump to a udc */
+ 		cs[sp].n = i + 1;
+@@ -290,10 +289,8 @@ unsigned int ebt_do_table(void *priv, struct sk_buff *skb,
+ 		i = 0;
+ 		chaininfo = (struct ebt_entries *) (base + verdict);
+ 
+-		if (WARN(chaininfo->distinguisher, "jump to non-chain\n")) {
+-			read_unlock_bh(&table->lock);
+-			return NF_DROP;
+-		}
++		if (WARN(chaininfo->distinguisher, "jump to non-chain\n"))
++			goto drop_out;
+ 
+ 		nentries = chaininfo->nentries;
+ 		point = (struct ebt_entry *)chaininfo->data;
+@@ -309,10 +306,15 @@ unsigned int ebt_do_table(void *priv, struct sk_buff *skb,
+ 	if (chaininfo->policy == EBT_RETURN)
+ 		goto letsreturn;
+ 	if (chaininfo->policy == EBT_ACCEPT) {
+-		read_unlock_bh(&table->lock);
++		xt_write_recseq_end(addend);
++		local_bh_enable();
+ 		return NF_ACCEPT;
+ 	}
+-	read_unlock_bh(&table->lock);
++
++drop_out:
++	xt_write_recseq_end(addend);
++	local_bh_enable();
++
+ 	return NF_DROP;
+ }
+ 
+@@ -983,12 +985,48 @@ static int translate_table(struct net *net, const char *name,
+ 	return ret;
+ }
+ 
+-/* called under write_lock */
++
+ static void get_counters(const struct ebt_counter *oldcounters,
+ 			 struct ebt_counter *counters, unsigned int nentries)
+ {
+ 	int i, cpu;
+ 	struct ebt_counter *counter_base;
++	seqcount_t *s;
++
++	/* counters of cpu 0 */
++	memcpy(counters, oldcounters,
++	       sizeof(struct ebt_counter) * nentries);
++
++	/* add other counters to those of cpu 0 */
++	for_each_possible_cpu(cpu) {
++
++		if (cpu == 0)
++			continue;
++
++		s = &per_cpu(ebt_recseq, cpu);
++		counter_base = COUNTER_BASE(oldcounters, nentries, cpu);
++		for (i = 0; i < nentries; i++) {
++			u64 bcnt, pcnt;
++			unsigned int start;
++
++			do {
++				start = read_seqcount_begin(s);
++				bcnt = counter_base[i].bcnt;
++				pcnt = counter_base[i].pcnt;
++			} while (read_seqcount_retry(s, start));
++
++			ADD_COUNTER(counters[i], bcnt, pcnt);
++			cond_resched();
++		}
++	}
++}
++
++
++static void get_old_counters(const struct ebt_counter *oldcounters,
++			 struct ebt_counter *counters, unsigned int nentries)
++{
++	int i, cpu;
++	struct ebt_counter *counter_base;
+ 
+ 	/* counters of cpu 0 */
+ 	memcpy(counters, oldcounters,
+@@ -1013,6 +1051,7 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 	/* used to be able to unlock earlier */
+ 	struct ebt_table_info *table;
+ 	struct ebt_table *t;
++	unsigned int cpu;
+ 
+ 	/* the user wants counters back
+ 	 * the check on the size is done later, when we have the lock
+@@ -1050,6 +1089,8 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 		goto free_unlock;
+ 	}
+ 
++	local_bh_disable();
++
+ 	/* we have the mutex lock, so no danger in reading this pointer */
+ 	table = t->private;
+ 	/* make sure the table can only be rmmod'ed if it contains no rules */
+@@ -1058,15 +1099,31 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 		goto free_unlock;
+ 	} else if (table->nentries && !newinfo->nentries)
+ 		module_put(t->me);
+-	/* we need an atomic snapshot of the counters */
+-	write_lock_bh(&t->lock);
+-	if (repl->num_counters)
+-		get_counters(t->private->counters, counterstmp,
+-		   t->private->nentries);
+ 
++	smp_wmb();
+ 	t->private = newinfo;
+-	write_unlock_bh(&t->lock);
++	smp_mb();
++
++	local_bh_enable();
++
++	// wait for even ebt_recseq on all cpus
++	for_each_possible_cpu(cpu) {
++		seqcount_t *s = &per_cpu(ebt_recseq, cpu);
++		u32 seq = raw_read_seqcount(s);
++
++		if (seq & 1) {
++			do {
++				cond_resched();
++				cpu_relax();
++			} while (seq == raw_read_seqcount(s));
++		}
++	}
++
+ 	mutex_unlock(&ebt_mutex);
++
++	if (repl->num_counters)
++	    get_old_counters(table->counters, counterstmp, table->nentries);
++
+ 	/* so, a user can change the chains while having messed up her counter
+ 	 * allocation. Only reason why this is done is because this way the lock
+ 	 * is held only once, while this doesn't bring the kernel into a
+@@ -1093,6 +1150,7 @@ static int do_replace_finish(struct net *net, struct ebt_replace *repl,
+ 	return 0;
+ 
+ free_unlock:
++	local_bh_enable();
+ 	mutex_unlock(&ebt_mutex);
+ free_iterate:
+ 	EBT_ENTRY_ITERATE(newinfo->entries, newinfo->entries_size,
+@@ -1235,7 +1293,6 @@ int ebt_register_table(struct net *net, const struct ebt_table *input_table,
+ 		goto free_chainstack;
+ 
+ 	table->private = newinfo;
+-	rwlock_init(&table->lock);
+ 	mutex_lock(&ebt_mutex);
+ 	list_for_each_entry(t, &ebt_net->tables, list) {
+ 		if (strcmp(t->name, table->name) == 0) {
+@@ -1382,6 +1439,7 @@ static int do_update_counters(struct net *net, const char *name,
+ 	int i, ret;
+ 	struct ebt_counter *tmp;
+ 	struct ebt_table *t;
++	unsigned int addend;
+ 
+ 	if (num_counters == 0)
+ 		return -EINVAL;
+@@ -1405,14 +1463,16 @@ static int do_update_counters(struct net *net, const char *name,
+ 		goto unlock_mutex;
+ 	}
+ 
+-	/* we want an atomic add of the counters */
+-	write_lock_bh(&t->lock);
++	local_bh_disable();
++	addend = xt_write_recseq_begin();
+ 
+ 	/* we add to the counters of the first cpu */
+ 	for (i = 0; i < num_counters; i++)
+ 		ADD_COUNTER(t->private->counters[i], tmp[i].bcnt, tmp[i].pcnt);
+ 
+-	write_unlock_bh(&t->lock);
++	xt_write_recseq_end(addend);
++	local_bh_enable();
++
+ 	ret = 0;
+ unlock_mutex:
+ 	mutex_unlock(&ebt_mutex);
+@@ -1530,9 +1590,7 @@ static int copy_counters_to_user(struct ebt_table *t,
+ 	if (!counterstmp)
+ 		return -ENOMEM;
+ 
+-	write_lock_bh(&t->lock);
+ 	get_counters(oldcounters, counterstmp, nentries);
+-	write_unlock_bh(&t->lock);
+ 
+ 	if (copy_to_user(user, counterstmp,
+ 	    array_size(nentries, sizeof(struct ebt_counter))))
+-- 
+2.43.0
 
-No need to apologize, it's good to have these discussions and to make
-things clearer.
-
-Cheers,
- Nik
