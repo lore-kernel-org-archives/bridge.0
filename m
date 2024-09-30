@@ -1,74 +1,63 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2047.outbound.protection.outlook.com [40.107.236.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A309178CCA
-	for <bridge@lists.linux.dev>; Sun, 29 Sep 2024 12:37:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727613444; cv=fail; b=bgvFcZZnjAEtxcE3D6njlZI3QIK/hNDbKN/yFZLoLrGy5o7Cwls3owfmPKKyd8ajx6LVk2mWLCxoHqf10GIweuf4Kx4CmEBvcPEQpoA9Fw2kBN4zHcBjPcHkLaor94PYXknJuRQtHwwIehx8gWRscPvIWrq7i6CQD2tYiSWIAf8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727613444; c=relaxed/simple;
-	bh=xozYNy1KOnOoYNTGcitbSOTfARDzOyfo94hlMMiiq/s=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=hbdbG5VVRJiTrIjOfC9mEcIOTiBmxdRlKaLqheoRUxW+GEZ6Q3kTvUfsrTq/jTKd2wMo26oYkAgLfjj2N+AQP+YHyQnzQbiDzTdxcp7DYpjzLJ53pRSTmasWZAiAjWvA3iuAnzk9C9d7rWsoN6ZCUmCOCJT8pmRlDZ7ogPGZlAY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=s8q59sSZ; arc=fail smtp.client-ip=40.107.236.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="s8q59sSZ"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=twZGJmRQr3/XcB1lOfD90k2pm7W6jQ4dvkk+zuCJztmIefh6VpRClh8Vb8udiymF3qiXcFJhfAQoH7mZeiWMwcidsJjml1zgYk7z66bP/KggHxf/qLLp9f0eLmYNg/2OFoN3RR9X/eGyxQPszFErhPtq8gNJLosakMSSRQWr5jJ8DogjHjbwNsvaKwAWAGlCP7sQFRIEuCeZWEEiXPTwESUjn0YFNe6yoSrHfpkwebaUNGVnrtJaQLQAR3GNq75y1UylVGBZnxONnmpRrNqf2RhLTyKvqd8XDxZs7kq0k2aMKP982uCoRd0iERuQWWzB6wn6yJkiNtfL0ExW7ET5sQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=atfclzYkj5kpQWMqle75FcavfPVhXUKVByhgk4AqosA=;
- b=qUZKRaed1ChNtiJezpa5t5GB97MT96kR6KCIcKhCYRap2wdUiF5N58+gSUMfcBNU5BiWOnEK8jrg4c6EBmiqiNoB5NiAgH0ECYA09u7EFtse7L9rwGkFxPVJTfkcBP73S3U/UZPwL510xSaw+MP84/2bxBGFhVNpZ3KA3NZ0TOQZ18wYpDrSSqNJp9rxW8OujeUyBdFKUt8E5gphdsl+ax75Nh7+1s4hen5M424ezYwuWZkXB4Nzf98UusZ/Mc81IVrVEIyhlL4YYb6jHkHXbwvxamtE5BNWwnfzbFhEq8/41mBOqtnIzBR+w7WMwgqAZy0qWI7KmL15UQRge1fCHw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=atfclzYkj5kpQWMqle75FcavfPVhXUKVByhgk4AqosA=;
- b=s8q59sSZLLX/tDVhOy95DQO6j7soSZ5jmdWYMCmhXbT07ytQviWtqYgN+tT1Dvk5QnGs/oNe81f/hpWtD7ynnvN4SFg9sWW24/oDkPJW7jn0ITaMDPC3PI/MaIsYf5MAWicx4gwiirFh8FtavCNm6dCkAyKr2mADZWhOicIXZAVQgPJ9ibPsCtGrdOfVRbpYKKZeVKgONrvAYnqBWI93Yg8SBOVgp55zTNglfibdDU7M7Q0Mjc+X2nR2DMBXgj/4HieOC7dqAOCROqBgH/JyfstexyB9E6QBGi1WfiQkmSLPtP+MUltzL6FxWpzNxB7KQxqjxyOC41KAJAKAEW6dfw==
-Received: from CH0PR04CA0083.namprd04.prod.outlook.com (2603:10b6:610:74::28)
- by SA3PR12MB7923.namprd12.prod.outlook.com (2603:10b6:806:317::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7982.28; Sun, 29 Sep
- 2024 12:37:18 +0000
-Received: from CH3PEPF00000012.namprd21.prod.outlook.com
- (2603:10b6:610:74:cafe::ee) by CH0PR04CA0083.outlook.office365.com
- (2603:10b6:610:74::28) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8005.26 via Frontend
- Transport; Sun, 29 Sep 2024 12:37:18 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- CH3PEPF00000012.mail.protection.outlook.com (10.167.244.117) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8048.1 via Frontend Transport; Sun, 29 Sep 2024 12:37:18 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Sun, 29 Sep
- 2024 05:37:08 -0700
-Received: from shredder.nvidia.com (10.126.231.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Sun, 29 Sep
- 2024 05:37:05 -0700
-From: Ido Schimmel <idosch@nvidia.com>
-To: <netdev@vger.kernel.org>
-CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<edumazet@google.com>, <razor@blackwall.org>, <roopa@nvidia.com>,
-	<bridge@lists.linux.dev>, <jamie.bainbridge@gmail.com>, Ido Schimmel
-	<idosch@nvidia.com>
-Subject: [PATCH net] bridge: mcast: Fail MDB get request on empty entry
-Date: Sun, 29 Sep 2024 15:36:40 +0300
-Message-ID: <20240929123640.558525-1-idosch@nvidia.com>
-X-Mailer: git-send-email 2.46.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA1E418BBAE
+	for <bridge@lists.linux.dev>; Mon, 30 Sep 2024 09:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1727690349; cv=none; b=s99O6Bi+kwZxY6H19afxGpovk+4qtbOg9eUj1VzngOF1Lu68W7Fdy6BMHN6OVxZF6Dlg6RfQNmH/0K0hc7lM45fCriewDyacKbADjXG2BCVyOhhbhDm78boFtn0VhzCEmUGL8GLrUttZjqMlA12CG2NHflCqZ1y6slxAx0RQf3g=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1727690349; c=relaxed/simple;
+	bh=RuOIFrHPmb6/uwq0jCfQWQUmMMFqbmacpWJpXv+x21Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V+xudpzsQxxIxWedNjtniVV9CuFPE35RrFvN28L/7paRc02WQVNJxCfCZ3hHg5r2/ThDdTP2G0HTxNgWUsiRVtoct4zi0SfObZC0QiCN4TiivXIIt6uQaxzg2h/YJFNHwDGT/39N++dI4kmNLrg6uITgMc4Cux51cw2wRWTTwt8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-5c42f406e29so5826189a12.2
+        for <bridge@lists.linux.dev>; Mon, 30 Sep 2024 02:59:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727690346; x=1728295146;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qO+df0OBVgMIgNoBlXyBeG6a4YtOqRyUfk78PqMYEmw=;
+        b=IxxE9KmkQHepaBis7si+4u6BVJjCPhKjydEMqxBwH3fJQkJ2f495CYW60EnMNcI+/f
+         DYWfeDOrkrf/idCeK2lwDyK8Aik7EmQLvh/TIi5G13r1TcFzMJoWJm8So358EpBAw9Nf
+         ZckImnX57CAfFXaga4IUGIzY0BQbldnJcXYD1nfb3dvsfHwP/HH2JVNZoju5l85+4eRC
+         s7/jMkjtVNhiHNcWKSHDpOpnV9iEEAwyX9vW9wgV3UAB6rYUnIN5ychMbRY90IRO1HrU
+         HsOWfmqz0q0uFgl4j5n5PaFm//L5tlZkBuBDp6uB88w1FmKeE7ru5a+QzZep3rlrobPu
+         S6eA==
+X-Forwarded-Encrypted: i=1; AJvYcCWpS9kqBfjpHN0ckhkbaECl+LkXKj4lhjPVN/Q/ZLELukxxo3OWlMQEfaPKz2lIYQgscGGV9Xs=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxFIKq1kyt5VMh9+pC45cWi5p9IZpfbTviLbsSIQH7XpUXdXJss
+	Lr9AMCICe/usiEK/dspS2tO8uM71PnQFzYGyPhBGSWna3n6feV4A
+X-Google-Smtp-Source: AGHT+IEyjhn+UsZ3JO+xfeIX3mmofoVPVMzwXKjd++w7dxcu51gwytlrH85yheivpcOz2zKjnZPt5A==
+X-Received: by 2002:a17:907:6d15:b0:a91:158c:8057 with SMTP id a640c23a62f3a-a93c4aeb8bbmr1264431866b.54.1727690345759;
+        Mon, 30 Sep 2024 02:59:05 -0700 (PDT)
+Received: from localhost (fwdproxy-lla-113.fbsv.net. [2a03:2880:30ff:71::face:b00c])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a93c2996631sm501298966b.200.2024.09.30.02.59.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Sep 2024 02:59:05 -0700 (PDT)
+From: Breno Leitao <leitao@debian.org>
+To: fw@strlen.de,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	pablo@netfilter.org,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	David Ahern <dsahern@kernel.org>
+Cc: rbc@meta.com,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org (open list:NETFILTER),
+	bridge@lists.linux.dev (open list:ETHERNET BRIDGE)
+Subject: [PATCH nf-next v6] netfilter: Make legacy configs user selectable
+Date: Mon, 30 Sep 2024 02:58:54 -0700
+Message-ID: <20240930095855.453342-1-leitao@debian.org>
+X-Mailer: git-send-email 2.43.5
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -76,92 +65,124 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PEPF00000012:EE_|SA3PR12MB7923:EE_
-X-MS-Office365-Filtering-Correlation-Id: 98f872b1-862f-4333-baa4-08dce08374af
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700013|82310400026|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?kS2Lvj7EiP+l77wEJBoTmfjvAMuqWIuZ8tddpBgdrCXBMdE5XbH6IA1tgrhv?=
- =?us-ascii?Q?LXNbmP3x67Pqs+Ner6xYkpD6zL3c2ZVcXxB5tFrp+tDVFrLay8dG9GL5bZxD?=
- =?us-ascii?Q?c4v94mMXpKCikzXx9jh38PzAWwTxkLmNXo2sR4mMED+GKjcTcHg6UO9mnX39?=
- =?us-ascii?Q?beRPHLo46j1UgQHCUpJhhDAkaplRC2RQTkcgrMbsE4NmdqGTjYO6smzBeAxP?=
- =?us-ascii?Q?c/HO3uvzaFG/2Q+x0men8jJWb7z6Ea7sOo+DcDb9aYRegNZeR6ti94TAbkiJ?=
- =?us-ascii?Q?uygIy58D5Ozko5vcUjjB+obvtpu/TPgOP/YndLUeTJiHx7zs5DiwdrTll22a?=
- =?us-ascii?Q?xHOcCmPw7UhsTdlrxbpEQE9GW2r0MvJKjW9o5tPp1JKGsLcvQ0Gsw8xu0Zw2?=
- =?us-ascii?Q?jdjBLYGndcS2zxISo1YIkVZVukbQ1EAoHEqRtuzfA3Nh3DOJ5JXIXoUFoGXn?=
- =?us-ascii?Q?9oHeiPm0uEaW9IdUkXtPzgxeVz6WhTObDdp085zoBRO5sGGv0bZheFNYvc8O?=
- =?us-ascii?Q?phLfbpIkhfRKlvKl7iUXIGF9S+skbd+sxPBHTnxzjL81PDKEeaMva+uxE+hb?=
- =?us-ascii?Q?8CcSyKnS3lnRQVYhHZ62m1dqxai0mekExtHhQMOXxVAvykhpskoV64QhlQtn?=
- =?us-ascii?Q?eVKx4g8bJX6zDRuBoGTORmVod+pAG9cHfWhQcK60mzfJjBbNiZxAmoPYY+Pp?=
- =?us-ascii?Q?dDrD5f+DzaTLIwGRKaDlxhM4sYNrSAGenxIWmpqNVFgwnEJft+JPx16bYT/O?=
- =?us-ascii?Q?CxBEJbXPF6jkjN/8BTT77pwKqskUvAN1+DZ2c89/arybByXWJqX9oFWTSMBx?=
- =?us-ascii?Q?NrwmFii/8erDG/vQdKP3EOeEemrrD0LbQD1RUlQr7KfVw9nvF+8ebL9Hx0VJ?=
- =?us-ascii?Q?X+S7GXwK4TWTkmHS2mMGQDtkucfh6Z3OVD9BKrRsg9M/B08ot2ws+bx/YSkK?=
- =?us-ascii?Q?u2pr5cXN7tU+pjCGRTRwYmX10u0hSZbogxpqabaNYtC5sWD3s3DVXlQILWYE?=
- =?us-ascii?Q?I4tUdw6wxwENTFcEnvCGfe775hgyub9jYx7+uqTscoVYaKmKWM328LknS5Nt?=
- =?us-ascii?Q?fnmPre+oSoCSOuDpK4Q/eihWBDvZK1M6wJrBw0YR8OfGLH+vGsnKAUJ7rfsA?=
- =?us-ascii?Q?v5YSoNJwLoe00Xp7IjfyyJH2fk3kADvJf+V30KcUoFC2GcP86fLMvTL5iT1R?=
- =?us-ascii?Q?ai2zcFRshbdLbRw73M4di3tNb9lqyFK+u5ZxKmHoo9ZDg8NG1WVWOWt5LP0v?=
- =?us-ascii?Q?wwqf1vug95Tz/RRUVS+ITQsyazl6M0DQGjQBvkzicH+oLTTDH++//mc/HG5o?=
- =?us-ascii?Q?J/QQ3ldbXju74v0o5PPhQG467GZ62rXIDa/Y7fxi4WqU/oLJPS2TmFP7Ox58?=
- =?us-ascii?Q?7EW/Uvri3eC0Y3I1acDdPhi65Y+X?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2024 12:37:18.0121
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 98f872b1-862f-4333-baa4-08dce08374af
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH3PEPF00000012.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7923
 
-When user space deletes a port from an MDB entry, the port is removed
-synchronously. If this was the last port in the entry and the entry is
-not joined by the host itself, then the entry is scheduled for deletion
-via a timer.
+This option makes legacy Netfilter Kconfig user selectable, giving users
+the option to configure iptables without enabling any other config.
 
-The above means that it is possible for the MDB get netlink request to
-retrieve an empty entry which is scheduled for deletion. This is
-problematic as after deleting the last port in an entry, user space
-cannot rely on a non-zero return code from the MDB get request as an
-indication that the port was successfully removed.
+Make the following KConfig entries user selectable:
+ * BRIDGE_NF_EBTABLES_LEGACY
+ * IP_NF_ARPTABLES
+ * IP_NF_IPTABLES_LEGACY
+ * IP6_NF_IPTABLES_LEGACY
 
-Fix by returning an error when the entry's port list is empty and the
-entry is not joined by the host.
-
-Fixes: 68b380a395a7 ("bridge: mcast: Add MDB get support")
-Reported-by: Jamie Bainbridge <jamie.bainbridge@gmail.com>
-Closes: https://lore.kernel.org/netdev/c92569919307749f879b9482b0f3e125b7d9d2e3.1726480066.git.jamie.bainbridge@gmail.com/
-Tested-by: Jamie Bainbridge <jamie.bainbridge@gmail.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Breno Leitao <leitao@debian.org>
 ---
- net/bridge/br_mdb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changelog:
+v6:
+ * Expand it for BRIDGE_NF_EBTABLES_LEGACY and IP_NF_ARPTABLES (Pablo)
+ * Merge all changes in a single patch (Pablo)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index bc37e47ad829..1a52a0bca086 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -1674,7 +1674,7 @@ int br_mdb_get(struct net_device *dev, struct nlattr *tb[], u32 portid, u32 seq,
- 	spin_lock_bh(&br->multicast_lock);
+v5:
+ * Change the description of the legacy Kconfig (Pablo)
+ * https://lore.kernel.org/all/20240909084620.3155679-2-leitao@debian.org/
+
+v4:
+ * Remove the "depends on" part, which may come later in a separate
+   change, given its intrusive on how to configure selftests
+ * https://lore.kernel.org/all/20240829161656.832208-1-leitao@debian.org/
+
+v3:
+ * Make sure that the generate from  tools/testing/selftests/net/config
+   look the same before and after. (Jakub)
+ * https://lore.kernel.org/all/20240827145242.3094777-1-leitao@debian.org/
+
+v2:
+ * Added the new configuration in the selftest configs (Jakub)
+ * Added this simple cover letter
+ * https://lore.kernel.org/all/20240823174855.3052334-1-leitao@debian.org/
+
+v1:
+ * https://lore.kernel.org/all/20240822175537.3626036-1-leitao@debian.org/
+
+
+ net/bridge/netfilter/Kconfig |  8 +++++++-
+ net/ipv4/netfilter/Kconfig   | 16 ++++++++++++++--
+ net/ipv6/netfilter/Kconfig   |  9 ++++++++-
+ 3 files changed, 29 insertions(+), 4 deletions(-)
+
+diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
+index 104c0125e32e..f16bbbbb9481 100644
+--- a/net/bridge/netfilter/Kconfig
++++ b/net/bridge/netfilter/Kconfig
+@@ -41,7 +41,13 @@ config NF_CONNTRACK_BRIDGE
  
- 	mp = br_mdb_ip_get(br, &group);
--	if (!mp) {
-+	if (!mp || (!mp->ports && !mp->host_joined)) {
- 		NL_SET_ERR_MSG_MOD(extack, "MDB entry not found");
- 		err = -ENOENT;
- 		goto unlock;
+ # old sockopt interface and eval loop
+ config BRIDGE_NF_EBTABLES_LEGACY
+-	tristate
++	tristate "Legacy EBTABLES support"
++	depends on BRIDGE && NETFILTER_XTABLES
++	default n
++	help
++	 Legacy ebtables packet/frame classifier.
++	 This is not needed if you are using ebtables over nftables
++	 (iptables-nft).
+ 
+ menuconfig BRIDGE_NF_EBTABLES
+ 	tristate "Ethernet Bridge tables (ebtables) support"
+diff --git a/net/ipv4/netfilter/Kconfig b/net/ipv4/netfilter/Kconfig
+index 1b991b889506..ef8009281da5 100644
+--- a/net/ipv4/netfilter/Kconfig
++++ b/net/ipv4/netfilter/Kconfig
+@@ -12,7 +12,13 @@ config NF_DEFRAG_IPV4
+ 
+ # old sockopt interface and eval loop
+ config IP_NF_IPTABLES_LEGACY
+-	tristate
++	tristate "Legacy IP tables support"
++	default	n
++	select NETFILTER_XTABLES
++	help
++	  iptables is a legacy packet classifier.
++	  This is not needed if you are using iptables over nftables
++	  (iptables-nft).
+ 
+ config NF_SOCKET_IPV4
+ 	tristate "IPv4 socket lookup support"
+@@ -318,7 +324,13 @@ endif # IP_NF_IPTABLES
+ 
+ # ARP tables
+ config IP_NF_ARPTABLES
+-	tristate
++	tristate "Legacy ARPTABLES support"
++	depends on NETFILTER_XTABLES
++	default n
++	help
++	  arptables is a legacy packet classifier.
++	  This is not needed if you are using arptables over nftables
++	  (iptables-nft).
+ 
+ config NFT_COMPAT_ARP
+ 	tristate
+diff --git a/net/ipv6/netfilter/Kconfig b/net/ipv6/netfilter/Kconfig
+index f3c8e2d918e1..e087a8e97ba7 100644
+--- a/net/ipv6/netfilter/Kconfig
++++ b/net/ipv6/netfilter/Kconfig
+@@ -8,7 +8,14 @@ menu "IPv6: Netfilter Configuration"
+ 
+ # old sockopt interface and eval loop
+ config IP6_NF_IPTABLES_LEGACY
+-	tristate
++	tristate "Legacy IP6 tables support"
++	depends on INET && IPV6
++	select NETFILTER_XTABLES
++	default n
++	help
++	  ip6tables is a legacy packet classifier.
++	  This is not needed if you are using iptables over nftables
++	  (iptables-nft).
+ 
+ config NF_SOCKET_IPV6
+ 	tristate "IPv6 socket lookup support"
 -- 
-2.46.1
+2.43.5
 
