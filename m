@@ -1,60 +1,80 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8393617579;
-	Thu,  3 Oct 2024 00:17:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9D36DDAB;
+	Thu,  3 Oct 2024 00:40:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727914630; cv=none; b=mRQAVNu8U+HjrYPsMPDTYnxPx7iyzz89Xl4F1aJIvkfwdRNBGhk49wbO8hC5N9VdAIaoZCs5rqkrE8PrBVEolcHwd6bMtQcO1AR0fFBc9jQEhqHTdYM+hgB0EyvQLoy1Y+YVUr40QzySpPqOpVGzhQtUfz6a02B8ulTtSaGhgaI=
+	t=1727916030; cv=none; b=F0xLP725EzCdf+tC1KJTddFryLu0J0TFFF1dl4eu7tr0479zEdE6AelRQR0Tp3h4ASgfNNh36hhWD4U1uBMMnsps6Q5iUOsJZraJxnp5dDEcJSkAPlxDHOaGZRI7S9K+zde4Waha/NULqFfEdNBGz10syEqd3qA9vVQiqXoDPpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727914630; c=relaxed/simple;
-	bh=tWyRm8Lfa+rKaFfoZA2cLzbpCCMrkqGI33lmc8D7c20=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SVv8MNizbeUIjzpBfu0CzFt5U/A9Y8Ori3v8yb5Z8UC2W/3y7/E8SGQ48lv5w5rJUtONkFBMBtyW1NC1XLq3AKSbymnRXOOTBu4nZgi0+Ux1rN6+cFO3o1ez2AiMkGCBPub+CSvQOsBSLE4VvVMuaemU00efK0+UPQJalI0imgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I4upehMH; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1727916030; c=relaxed/simple;
+	bh=EYeYGpDRsjq+X6huno7OQTTtfXAmWoEKx69F4clRmu0=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=PX/LVkt3o67OE+awQmg6jl2MSQfgCh1d1cvxEjjvYjfqYb9KsaPI/My2G06nyh8fz+KFkSLWArdk9a7O35dq/MjpcLZbqIKZSPeSsGAwuVbC+5wKxYTWtOO5XyCYOPIGtxrF+4dbj0Irmt/kTYR1dNQeE61d4zR4/6XKw0qJtcM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TFA/eJI5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I4upehMH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 963C2C4CEC2;
-	Thu,  3 Oct 2024 00:17:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TFA/eJI5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A7DC4CEC2;
+	Thu,  3 Oct 2024 00:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1727914630;
-	bh=tWyRm8Lfa+rKaFfoZA2cLzbpCCMrkqGI33lmc8D7c20=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=I4upehMHvwfyxCLST9zMsz/vsgtgezf2qmeud5SfMeBoRUG5sW6Rnwzg+5P8SUtdn
-	 xDwQCtITBL4j/mbeQHJe83llLZjMLtr/Re2hpUtCAFQ1/c+dRR35iydsC7NPo0q6gT
-	 ZT+Zo16akYVqLboeQgTFpaL3Hvg+nZ63U+4Eeao7ZSK0851Rl6Z8R8b165GCTZFbCt
-	 n2RT/yVUQBgwab7X0pSqnax19o5GXxebnswYbA193yLXFiqazhF+n/JoVk9HfLbLr0
-	 pnGeOxIZ2X5HkrSMr5P9Xs2PX27uWoiYd38H6OVL56wQA5KBTvVuXlMcVri9ARk1TN
-	 my8fhzgcoAPFg==
-Date: Wed, 2 Oct 2024 17:17:08 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: yushengjin <yushengjin@uniontech.com>
-Cc: pablo@netfilter.org, kadlec@netfilter.org, roopa@nvidia.com,
- razor@blackwall.org, davem@davemloft.net, edumazet@google.com,
- pabeni@redhat.com, netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- bridge@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, gouhao@uniontech.com
-Subject: Re: [PATCH v4] net/bridge: Optimizing read-write locks in
- ebtables.c
-Message-ID: <20241002171708.05f46286@kernel.org>
-In-Reply-To: <A872628EC4B98B9E+20240925083745.179397-1-yushengjin@uniontech.com>
-References: <A872628EC4B98B9E+20240925083745.179397-1-yushengjin@uniontech.com>
+	s=k20201202; t=1727916029;
+	bh=EYeYGpDRsjq+X6huno7OQTTtfXAmWoEKx69F4clRmu0=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=TFA/eJI5+1MnSKorZguMJfeGR5HPcSf7zve7MA36ZvT2OOVn+5X+5PQ0TTlWzll1c
+	 XF4wpRhudB/9PYKnKLUF9gPLIpbfL++hZor1C+/4fAiG1IZElqQHoVgGEa8AXpS+3Y
+	 y+Rs6BZf266WPzBZuqsW7YWXixgTOGOb1ZJNpDeLx8Z2s2UQ/L5JJNqqycavlRO6we
+	 2ULATU1Zsm60MmPshSOIlqjkg/9LoUOtoiBh5WTNhqHTRkSxLyUV0t5tfG7lNIj+JM
+	 AiDh3Mva1Dg6z234t48Uh+zei40aEFs3X7W8FdytdwhuB/Rw4gkv5QTBpYG6hLsFzd
+	 Tsmp04cPDEEVQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAFFB380DBD1;
+	Thu,  3 Oct 2024 00:40:33 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] bridge: mcast: Fail MDB get request on empty entry
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <172791603279.1387504.8070946238603199950.git-patchwork-notify@kernel.org>
+Date: Thu, 03 Oct 2024 00:40:32 +0000
+References: <20240929123640.558525-1-idosch@nvidia.com>
+In-Reply-To: <20240929123640.558525-1-idosch@nvidia.com>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+ pabeni@redhat.com, edumazet@google.com, razor@blackwall.org,
+ roopa@nvidia.com, bridge@lists.linux.dev, jamie.bainbridge@gmail.com
 
-On Wed, 25 Sep 2024 16:37:45 +0800 yushengjin wrote:
-> When conducting WRK testing, the softirq of the system will be very high.
-> forwarding through a bridge, if the network load is too high, it may
-> cause abnormal load on the ebt_do_table of the kernel ebtable module, leading
-> to excessive soft interrupts and sometimes even directly causing CPU soft
-> lockup.
+Hello:
 
-FTR I'm leaving this one to netfliter folks.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Sun, 29 Sep 2024 15:36:40 +0300 you wrote:
+> When user space deletes a port from an MDB entry, the port is removed
+> synchronously. If this was the last port in the entry and the entry is
+> not joined by the host itself, then the entry is scheduled for deletion
+> via a timer.
+> 
+> The above means that it is possible for the MDB get netlink request to
+> retrieve an empty entry which is scheduled for deletion. This is
+> problematic as after deleting the last port in an entry, user space
+> cannot rely on a non-zero return code from the MDB get request as an
+> indication that the port was successfully removed.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] bridge: mcast: Fail MDB get request on empty entry
+    https://git.kernel.org/netdev/net/c/555f45d24ba7
+
+You are awesome, thank you!
 -- 
-pw-bot: au
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
