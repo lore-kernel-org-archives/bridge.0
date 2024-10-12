@@ -1,184 +1,218 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 178D51F4FC2
-	for <bridge@lists.linux.dev>; Fri, 11 Oct 2024 06:46:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0714131E38
+	for <bridge@lists.linux.dev>; Sat, 12 Oct 2024 07:17:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728629183; cv=none; b=o58m4b26mtc4fwmhhmC3CENFQzshbxKvDkRH8KhEAeqm2jm/tE126bgpbykzSmtGAW+tUSI/rqcC6g5uFF5XkbWTw/K/CTFqv3J9TKwYqHey8B/pjJAZ0D0+FLaURLMfAAG8w/brpFcm9TY2KEgqRd1ZRBJsa8/AiA34UAM/m/I=
+	t=1728717455; cv=none; b=NqWnmnOFYUvU5WVJX0YGpUwHRzz6NqdFZB4EMrckxPC3TjEXVewiiHEiO992DC15Dp5Uhqcw11BFiF1Is3DK9ktnCkqYAWuBxcwKSXg6JRNZOkbP2e0m8uaZW2W+8tNlgP3AOTelfFDSoanjwk6M1CVAeg2m4+ALLGrMXrd1G/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728629183; c=relaxed/simple;
-	bh=AEJZCH5SmAg2ybzZzH0bZgBAbTh2RrGU19StDW8noJA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NRfgjwUKj0zYw6g1gAgHxFJJhCIT8dI0fs43TDsjpTEw4aInTszdMLVQVhO7IONbLzVYGe0Y2ul6iO/wP+cwPyUtUFgbO1tr9XkW9XY5KDxrHKPwg7edKdraomkwRibdYzlbwT2uQsd6J9mMkYh3Z4bySJzYMJYXOjJl5dKJGY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=pUGtBBrX; arc=none smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="pUGtBBrX"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a995f56ea2dso269711166b.1
-        for <bridge@lists.linux.dev>; Thu, 10 Oct 2024 23:46:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1728629179; x=1729233979; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=6GOWm4Ez93j7w3ubgDJn8cAypKzj1qTyE1Gp4WKBx7g=;
-        b=pUGtBBrXSiBXVXSAWqaZZnWLsQ3Q5m+mkSAHny+lySi/D6YXd27bRK3IRH8keL4DxD
-         iQun1KbVp/vgk9+drhiXzrfvYuuyOIrjLZg7j/Hk68txHT97EFlu4QCYxxqi2i54TH3H
-         WedPk5IEy0qlUMbvKuXwRlV2YBXj20eROy07VDKr8A/Pidrehs6bF4pfASBc6ZTLFHrb
-         4UP/N8/j/bW0Kugzru5PzyLBi259KIvshCSSaHdEyliQEtJ4Eb52aXW9MGk3eOIrUbSI
-         Nu4+yyaswGy+avaSfC5lUYaK5+p5axwb0PZC79vigOGxVU1eAfY0nZuLPeg2CfYMM7XV
-         epwg==
+	s=arc-20240116; t=1728717455; c=relaxed/simple;
+	bh=TtXHe36EBMtczZIOhAyOxIMyX0X8nZTLsEu0NrQ4Rp0=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=jmXEuUhv8CMqoepgqWbTQ9+Ei5GelqspIVRs6e53ayQMnasHkTlymRafGSmaLmoFRLpaFJVKtE8d6qEQQhOY4ZddBKG3pPzX/6Jctw3d5xypyDfJeb3rj4JprWZWXezvbCgvok8stUoSPqjU5TJm0OJ5sGrjhjwvgaiQVNNz694=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-3a3a6afd01eso21411475ab.3
+        for <bridge@lists.linux.dev>; Sat, 12 Oct 2024 00:17:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728629179; x=1729233979;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6GOWm4Ez93j7w3ubgDJn8cAypKzj1qTyE1Gp4WKBx7g=;
-        b=PhCtwFU5brTc8WDYhnhqqodY0H+IVTyTFqc+oNQg9XuvlS9RHmweTec6fnW3/0vYqs
-         T4Xt3j7TBjxtirtSv/K9CTzfZe4Ti7JAqdThKeBj5Rfu6bsy/7L9aKAzoBFKZQv7DxkM
-         Vo13ixNA6jTa9o/vt4/k3/ucO170O8Zc/9P8FDbP82nIKCeHauVRvwEplhJi/wyUNRqD
-         PfJ1nm/dPNCZOjoyWDCPTDgnFaSonijiv7feE8i05asfz6JkeuRL8tAMstg9ThN3ANxW
-         2gkVT7DEy0PnVO15SJSqF2q/V9bQR0JWWGsyqNidffIL3cZoMEW80iZZqyGq6NInNwc3
-         5exw==
-X-Forwarded-Encrypted: i=1; AJvYcCWlhGY6byNPPHpqlfmoxgnK7hioVCyYM/akT+v2i1fGMt7zmBOlzcYmlJbUgIYDxx2hDRliEjo=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzcH9hNXYSQoMNVugYAqz1Bw9dgPnuYAjmQCAzDiqNTxMEGLJ8/
-	4RGureBWQpNLDCbCs4/fLrl4raD+b6zxJgicb5KaP6CjnfHQIJk0QfJ7qAeehuA=
-X-Google-Smtp-Source: AGHT+IEzuJ8la1znR5wLTnUyCcTrPupabLqIjUuyNTVH+msXYchYUvqgyfXMo/4f3fgzmWTAWOExYQ==
-X-Received: by 2002:a17:907:d599:b0:a99:5773:3612 with SMTP id a640c23a62f3a-a99b93d4235mr119056166b.36.1728629179096;
-        Thu, 10 Oct 2024 23:46:19 -0700 (PDT)
-Received: from [192.168.0.245] ([62.73.69.208])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a99a7edde0fsm176951666b.40.2024.10.10.23.46.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Oct 2024 23:46:18 -0700 (PDT)
-Message-ID: <de96919b-c4c2-4ee3-b114-a575fe61701b@blackwall.org>
-Date: Fri, 11 Oct 2024 09:46:17 +0300
+        d=1e100.net; s=20230601; t=1728717453; x=1729322253;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=rYnpbRxiIHqjokjg/LOm8GPBmJhp5qj5PMQSXr29vhE=;
+        b=Eh62pbZaWhMMKozj/gCEffPxNkmiKvDTkgZiBwylviYC/BF2dllDO9bL/1ohnNuw+a
+         q0cCm6IP20I+FXkIROeHUFTOX6+bV/z+Siv2wLpo61DExvCX4nHIA4P30VMex9yZBofH
+         9R9ObsrgHKxw8SbNWC3x+ZIVQGzA4R13FX4/ib+O2LvkKfZ/59yL1XHjYeeKCkqoyYOf
+         h7Vga6MJD+ZLjPOlMksthxyn+ABtAyOxzboZBLqOwwsTtZ+MVCfONJPeLAVMUJxAHnjn
+         VUJRolgbeMz7w6KEh6nI7KRZf9zE/LxUJZ4ubUisFkNPtdw7dgUrtrWoje3K6IBect7y
+         /ptg==
+X-Gm-Message-State: AOJu0YzJcqb7H/JjfpJxVIQC7WZ5MWHgOWSqYXVPtUvHCRnPZQT61B8R
+	OeA9Z9d0XQecpM4HIN67B5xb1sqz8d8ye0Mz/ogy5VeGVYlOAYWsjKy6Bsq6AgCWRJJli9XfEEO
+	ivGB1DW2+t8pfk7FzgX0ACmRhWCmoIIfit3/mY75MdepPc2Lz8w6pb2E=
+X-Google-Smtp-Source: AGHT+IG6YFCVvG72B3C66uba1lq+gd5R8LdyFvxAVL2OOx3eahXrGYslhjQaVGaLJd7+elA+/1HplXMelysNr/5C2w1ILkGMlxvW
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] bridge: use promisc arg instead of skb flags
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Amedeo Baragiola <ingamedeo@gmail.com>, Roopa Prabhu <roopa@nvidia.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- bridge@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20241005014514.1541240-1-ingamedeo@gmail.com>
- <c06d9227-dcac-4131-9c2d-83dace086a5d@blackwall.org>
- <ZwVCC3DYWw0aiOcJ@calendula>
- <8f285237-757b-4637-a76d-a35f27e4e748@blackwall.org>
- <ZwVTUt_ie0sMsjbk@calendula>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <ZwVTUt_ie0sMsjbk@calendula>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6e02:1d10:b0:3a3:b4ec:b3f1 with SMTP id
+ e9e14a558f8ab-3a3b5fb0325mr27757775ab.17.1728717452942; Sat, 12 Oct 2024
+ 00:17:32 -0700 (PDT)
+Date: Sat, 12 Oct 2024 00:17:32 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <670a228c.050a0220.3e960.0020.GAE@google.com>
+Subject: [syzbot] [bridge?] INFO: rcu detected stall in br_handle_frame (5)
+From: syzbot <syzbot+c596faae21a68bf7afd0@syzkaller.appspotmail.com>
+To: bridge@lists.linux.dev, coreteam@netfilter.org, davem@davemloft.net, 
+	edumazet@google.com, kadlec@netfilter.org, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	netfilter-devel@vger.kernel.org, pabeni@redhat.com, pablo@netfilter.org, 
+	razor@blackwall.org, roopa@nvidia.com, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 08/10/2024 18:44, Pablo Neira Ayuso wrote:
-> On Tue, Oct 08, 2024 at 05:45:44PM +0300, Nikolay Aleksandrov wrote:
->> On 08/10/2024 17:30, Pablo Neira Ayuso wrote:
->>> Hi Nikolay,
->>>
->>> On Sat, Oct 05, 2024 at 05:06:56PM +0300, Nikolay Aleksandrov wrote:
->>>> On 05/10/2024 04:44, Amedeo Baragiola wrote:
->>>>> Since commit 751de2012eaf ("netfilter: br_netfilter: skip conntrack input hook for promisc packets")
->>>>> a second argument (promisc) has been added to br_pass_frame_up which
->>>>> represents whether the interface is in promiscuous mode. However,
->>>>> internally - in one remaining case - br_pass_frame_up checks the device
->>>>> flags derived from skb instead of the argument being passed in.
->>>>> This one-line changes addresses this inconsistency.
->>>>>
->>>>> Signed-off-by: Amedeo Baragiola <ingamedeo@gmail.com>
->>>>> ---
->>>>>  net/bridge/br_input.c | 3 +--
->>>>>  1 file changed, 1 insertion(+), 2 deletions(-)
->>>>>
->>>>> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
->>>>> index ceaa5a89b947..156c18f42fa3 100644
->>>>> --- a/net/bridge/br_input.c
->>>>> +++ b/net/bridge/br_input.c
->>>>> @@ -50,8 +50,7 @@ static int br_pass_frame_up(struct sk_buff *skb, bool promisc)
->>>>>  	 * packet is allowed except in promisc mode when someone
->>>>>  	 * may be running packet capture.
->>>>>  	 */
->>>>> -	if (!(brdev->flags & IFF_PROMISC) &&
->>>>> -	    !br_allowed_egress(vg, skb)) {
->>>>> +	if (!promisc && !br_allowed_egress(vg, skb)) {
->>>>>  		kfree_skb(skb);
->>>>>  		return NET_RX_DROP;
->>>>>  	}
->>>>
->>>> This is subtle, but it does change behaviour when a BR_FDB_LOCAL dst
->>>> is found it will always drop the traffic after this patch (w/ promisc) if it
->>>> doesn't pass br_allowed_egress(). It would've been allowed before, but current
->>>> situation does make the patch promisc bit inconsistent, i.e. we get
->>>> there because of BR_FDB_LOCAL regardless of the promisc flag.
->>>>
->>>> Because we can have a BR_FDB_LOCAL dst and still pass up such skb because of
->>>> the flag instead of local_rcv (see br_br_handle_frame_finish()).
->>>>
->>>> CCing also Pablo for a second pair of eyes and as the original patch
->>>> author. :)
->>>>
->>>> Pablo WDYT?
->>>>
->>>> Just FYI we definitely want to see all traffic if promisc is set, so
->>>> this patch is a no-go.
->>>
->>> promisc is always _false_ for BR_FDB_LOCAL dst:
->>>
->>>         if (dst) {
->>>                 unsigned long now = jiffies;
->>>
->>>                 if (test_bit(BR_FDB_LOCAL, &dst->flags))
->>>                         return br_pass_frame_up(skb, false);
->>>
->>>                 ...
->>>         }
->>>
->>>         if (local_rcv)
->>>                 return br_pass_frame_up(skb, promisc);
->>>
->>>>> -	if (!(brdev->flags & IFF_PROMISC) &&
->>>>> -	    !br_allowed_egress(vg, skb)) {
->>>>> +	if (!promisc && !br_allowed_egress(vg, skb)) {
->>>
->>> Then, this is not equivalent.
->>>
->>> But, why is br_allowed_egress() skipped depending on brdev->flags & IFF_PROMISC?
->>>
->>> I mean, how does this combination work?
->>>
->>> BR_FDB_LOCAL dst AND (brdev->flags & IFF_PROMISC) AND BR_INPUT_SKB_CB(skb)->vlan_filtered
->>
->> The bridge should see all packets come up if promisc flag is set, regardless if the
->> vlan exists or not, so br_allowed_egress() is skipped entirely.
-> 
-> I see, but does this defeat the purpose of the vlan bridge filtering
-> for BR_FDB_LOCAL dst while IFF_PROMISC is on?
-> 
+Hello,
 
-Yes, it does, but it is expected behaviour with promisc on.
+syzbot found the following issue on:
 
->> As I commented separately the patch changes that behaviour and
->> suddenly these packets (BR_FDB_LOCAL fdb + promisc bit set on the
->> bridge dev) won't be sent up to the bridge.
-> 
-> I agree this proposed patch does not improve the situation.
-> 
->> I think the current code should stay as-is, but wanted to get your
->> opinion if we can still hit the warning that was fixed because we
->> can still hit that code with a BR_FDB_LOCAL dst with promisc flag
->> set and the promisc flag will be == false in that case.
-> 
-> Packets with BR_FDB_LOCAL dst are unicast packets but
-> skb->pkt_type != PACKET_HOST?
+HEAD commit:    1405981bbba0 lib: packing: catch kunit_kzalloc() failure i..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=1489bb80580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=f95955e3f7b5790c
+dashboard link: https://syzkaller.appspot.com/bug?extid=c596faae21a68bf7afd0
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17808f9f980000
 
-BR_FDB_LOCAL just marks the skb to be passed up the stack (terminated
-locally) with the bridge device set in skb->dev, it may or may not be PACKET_HOST.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/34f62132d43f/disk-1405981b.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/872fb3b1af67/vmlinux-1405981b.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/493188519750/bzImage-1405981b.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+c596faae21a68bf7afd0@syzkaller.appspotmail.com
+
+bridge0: received packet on veth0_to_bridge with own address as source address (addr:6e:a5:51:5e:bc:50, vlan:0)
+rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+rcu: 	(detected by 1, t=10502 jiffies, g=8089, q=1074 ncpus=2)
+rcu: All QSes seen, last rcu_preempt kthread activity 8424 (4294972116-4294963692), jiffies_till_next_fqs=1, root ->qsmask 0x0
+rcu: rcu_preempt kthread starved for 8425 jiffies! g8089 f0x2 RCU_GP_WAIT_FQS(5) ->state=0x0 ->cpu=0
+rcu: 	Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+rcu: RCU grace-period kthread stack dump:
+task:rcu_preempt     state:R  running task     stack:25952 pid:17    tgid:17    ppid:2      flags:0x00004000
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5315 [inline]
+ __schedule+0x1895/0x4b30 kernel/sched/core.c:6675
+ __schedule_loop kernel/sched/core.c:6752 [inline]
+ schedule+0x14b/0x320 kernel/sched/core.c:6767
+ schedule_timeout+0x1be/0x310 kernel/time/timer.c:2615
+ rcu_gp_fqs_loop+0x2df/0x1330 kernel/rcu/tree.c:2045
+ rcu_gp_kthread+0xa7/0x3b0 kernel/rcu/tree.c:2247
+ kthread+0x2f0/0x390 kernel/kthread.c:389
+ ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
+ </TASK>
+rcu: Stack dump where RCU GP kthread last ran:
+Sending NMI from CPU 1 to CPUs 0:
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 5350 Comm: kworker/0:3 Not tainted 6.12.0-rc1-syzkaller-00242-g1405981bbba0 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/13/2024
+Workqueue: events nsim_dev_trap_report_work
+RIP: 0010:task_tick_fair+0x282/0x7c0 kernel/sched/fair.c:13046
+Code: 89 e7 e8 01 d3 96 00 4d 39 34 24 75 60 48 81 c3 78 01 00 00 48 89 d8 48 c1 e8 03 42 80 3c 28 00 74 08 48 89 df e8 de d2 96 00 <48> 8b 3b 83 7c 24 08 00 74 07 e8 9f 6f fb ff eb 0c 48 81 c7 40 0d
+RSP: 0018:ffffc900000067c8 EFLAGS: 00000046
+RAX: 1ffff110170c7d97 RBX: ffff8880b863ecb8 RCX: 000000000008c5a2
+RDX: 000000000008c5a2 RSI: dffffc0000000000 RDI: ffff8880b863eb54
+RBP: ffff888071fc5b28 R08: ffffffff901ce76f R09: 1ffffffff2039ced
+R10: dffffc0000000000 R11: ffffffff8167b790 R12: ffff888071fc5a80
+R13: dffffc0000000000 R14: 0000000000000000 R15: dffffc0000000000
+FS:  0000000000000000(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f8e57107ab8 CR3: 0000000077f18000 CR4: 00000000003526f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <NMI>
+ </NMI>
+ <IRQ>
+ sched_tick+0x219/0x610 kernel/sched/core.c:5593
+ update_process_times+0x202/0x230 kernel/time/timer.c:2524
+ tick_sched_handle kernel/time/tick-sched.c:276 [inline]
+ tick_nohz_handler+0x37c/0x500 kernel/time/tick-sched.c:297
+ __run_hrtimer kernel/time/hrtimer.c:1691 [inline]
+ __hrtimer_run_queues+0x551/0xd50 kernel/time/hrtimer.c:1755
+ hrtimer_interrupt+0x396/0x990 kernel/time/hrtimer.c:1817
+ local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1026 [inline]
+ __sysvec_apic_timer_interrupt+0x110/0x3f0 arch/x86/kernel/apic/apic.c:1043
+ instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1037 [inline]
+ sysvec_apic_timer_interrupt+0x52/0xc0 arch/x86/kernel/apic/apic.c:1037
+ asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:702
+RIP: 0010:trace_kmem_cache_alloc+0x18/0xc0 include/trace/events/kmem.h:12
+Code: 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 66 90 65 8b 05 f3 54 11 7e 83 f8 08 73 23 89 c0 48 0f a3 05 80 64 2a 0e <73> 12 e8 21 41 88 ff 84 c0 75 09 f6 05 0a 22 14 0e 01 74 0b c3 cc
+RSP: 0018:ffffc90000006c80 EFLAGS: 00000293
+RAX: 0000000000000000 RBX: ffff8881a6f96d00 RCX: 0000000000000820
+RDX: ffff888141ae13c0 RSI: ffff8881a6f96d00 RDI: ffffffff898d7336
+RBP: 0000000000000000 R08: 00000000ffffffff R09: 0000000000000000
+R10: ffff8881a6f96d00 R11: ffffffff81808f50 R12: 00000000000000b8
+R13: ffff888141ae13c0 R14: 0000000000000820 R15: ffffffff898d7336
+ kmem_cache_alloc_noprof+0x185/0x2a0 mm/slub.c:4145
+ skb_ext_maybe_cow net/core/skbuff.c:6942 [inline]
+ skb_ext_add+0x1d6/0x910 net/core/skbuff.c:7016
+ nf_bridge_unshare net/bridge/br_netfilter_hooks.c:168 [inline]
+ br_nf_forward_ip+0xd8/0x7b0 net/bridge/br_netfilter_hooks.c:710
+ nf_hook_entry_hookfn include/linux/netfilter.h:154 [inline]
+ nf_hook_slow+0xc3/0x220 net/netfilter/core.c:626
+ nf_hook include/linux/netfilter.h:269 [inline]
+ NF_HOOK+0x2a7/0x460 include/linux/netfilter.h:312
+ __br_forward+0x489/0x660 net/bridge/br_forward.c:115
+ deliver_clone net/bridge/br_forward.c:131 [inline]
+ maybe_deliver+0xb3/0x150 net/bridge/br_forward.c:190
+ br_flood+0x2e4/0x660 net/bridge/br_forward.c:236
+ br_handle_frame_finish+0x18ba/0x1fe0 net/bridge/br_input.c:215
+ br_nf_hook_thresh+0x472/0x590
+ br_nf_pre_routing_finish_ipv6+0xaa0/0xdd0
+ NF_HOOK include/linux/netfilter.h:314 [inline]
+ br_nf_pre_routing_ipv6+0x379/0x770 net/bridge/br_netfilter_ipv6.c:184
+ nf_hook_entry_hookfn include/linux/netfilter.h:154 [inline]
+ nf_hook_bridge_pre net/bridge/br_input.c:277 [inline]
+ br_handle_frame+0x9fd/0x1530 net/bridge/br_input.c:424
+ __netif_receive_skb_core+0x13e8/0x4570 net/core/dev.c:5560
+ __netif_receive_skb_one_core net/core/dev.c:5664 [inline]
+ __netif_receive_skb+0x12f/0x650 net/core/dev.c:5779
+ process_backlog+0x662/0x15b0 net/core/dev.c:6111
+ __napi_poll+0xcb/0x490 net/core/dev.c:6775
+ napi_poll net/core/dev.c:6844 [inline]
+ net_rx_action+0x89b/0x1240 net/core/dev.c:6966
+ handle_softirqs+0x2c5/0x980 kernel/softirq.c:554
+ do_softirq+0x11b/0x1e0 kernel/softirq.c:455
+ </IRQ>
+ <TASK>
+ __local_bh_enable_ip+0x1bb/0x200 kernel/softirq.c:382
+ spin_unlock_bh include/linux/spinlock.h:396 [inline]
+ nsim_dev_trap_report drivers/net/netdevsim/dev.c:820 [inline]
+ nsim_dev_trap_report_work+0x75d/0xaa0 drivers/net/netdevsim/dev.c:850
+ process_one_work kernel/workqueue.c:3229 [inline]
+ process_scheduled_works+0xa63/0x1850 kernel/workqueue.c:3310
+ worker_thread+0x870/0xd30 kernel/workqueue.c:3391
+ kthread+0x2f0/0x390 kernel/kthread.c:389
+ ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
+ </TASK>
+net_ratelimit: 22358 callbacks suppressed
+bridge0: received packet on bridge_slave_0 with own address as source address (addr:aa:aa:aa:aa:aa:0c, vlan:0)
+bridge0: received packet on bridge_slave_0 with own address as source address (addr:aa:aa:aa:aa:aa:1b, vlan:0)
+bridge0: received packet on veth0_to_bridge with own address as source address (addr:aa:aa:aa:aa:aa:0c, vlan:0)
+bridge0: received packet on veth0_to_bridge with own address as source address (addr:6e:a5:51:5e:bc:50, vlan:0)
+bridge0: received packet on bridge_slave_0 with own address as source address (addr:aa:aa:aa:aa:aa:1b, vlan:0)
+bridge0: received packet on bridge_slave_0 with own address as source address (addr:aa:aa:aa:aa:aa:0c, vlan:0)
+bridge0: received packet on bridge_slave_0 with own address as source address (addr:aa:aa:aa:aa:aa:1b, vlan:0)
+bridge0: received packet on bridge_slave_0 with own address as source address (addr:aa:aa:aa:aa:aa:0c, vlan:0)
+bridge0: received packet on veth0_to_bridge with own address as source address (addr:ca:e3:c2:99:e2:22, vlan:0)
+bridge0: received packet on bridge_slave_0 with own address as source address (addr:aa:aa:aa:aa:aa:0c, vlan:0)
 
 
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
