@@ -1,38 +1,59 @@
-Received: from nbd.name (nbd.name [46.4.11.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC77F1EBA14;
-	Tue, 15 Oct 2024 12:17:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.4.11.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CB51FC7C2
+	for <bridge@lists.linux.dev>; Tue, 15 Oct 2024 13:32:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728994631; cv=none; b=MbQmkzhyYdwVSalqS4xB9qFRFmWRaHHYMgrXiI/8igOhn5hvw76gEgqXNNhG+u4W1ks4NVp/tBUIj+/eNh1KyCOU40UlTr3fFFN2Fg6CO1zpyp3nHqkrFE/EWN8E5HCkha2W3GdiyCERMV/HwCjsQNc+57sViiftRHik8err1sc=
+	t=1728999137; cv=none; b=LutP5oByjpM2e3QfCoOT+IMVgYAq5ei9MfPc8Yc4ErwBKjTJZpSGrEpRh6MU3q3M4loqb9tw+5gxEjkpE6s38JyHvAwlrcPMrBtD4aUDZeobC2pXlVRiFk4bk51OmEcgzVhH5um1yF6Qtv45sy9DmNieAH0+J7X4dgd603tOWb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728994631; c=relaxed/simple;
-	bh=Gy1dAILNeinuYTGKjcudXMKHv5g2Rwn6XKTzJ9Yw9Ng=;
+	s=arc-20240116; t=1728999137; c=relaxed/simple;
+	bh=XGgtJDDDYxzb48QuctikU+Vt9hxTUybzOHi+IPF+7QE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RB5PAHFl/TrCY2AM6hk2U/DR7GG89eEvzhbXNamObneXUXFfWgEiR/D5I2h7xoElFb74ScQ9cKcQxPSNoWObfjDNYk5NlLjvC13Z6KNJsbKCSh+GWAQm9t7qAhM9CRmyQ4zSnPr42roiLoJAAKPHWHHMlrlr1+kmvznJNRJl+h0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name; spf=none smtp.mailfrom=nbd.name; dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b=LQRJxS3d; arc=none smtp.client-ip=46.4.11.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=nbd.name
+	 In-Reply-To:Content-Type; b=MXfmZnQ/XUXSrra/7npDwA0XU1mNa6g2MOJ87KB84tToB4hXKu5DnmdAbBoa5yiUg8vnHTvLP1ZfavBsoVIeTDmxzuEwxEDwmIRcYqLIdHM80NfE7xY/rUE5Vt4QkalRsbqEB31hAoAPBAFB+p6IcZvvn/V6M79tWnGI4ucyPZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZjvjUGRU; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b="LQRJxS3d"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
-	s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=XieAo9HL5vyNwm1c3ghYumY3Fx+xJStWHjWEsuxERvg=; b=LQRJxS3d8EEzk5CygKZkzSHCTs
-	lXK+k6n8WMjYXlQyvTMXFODG+6BILFSq1lndW23xP5oHk3beQYvFwW136ysQoPwnWVT/NUGA6a4FN
-	5J+hbozH7mJddHnpR+bbd6Wg0z8AA1u/ONYUNC1pLVaqilwRs112O1yfMCeA2Xm6Wc5E=;
-Received: from p54ae9bfc.dip0.t-ipconnect.de ([84.174.155.252] helo=nf.local)
-	by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.96)
-	(envelope-from <nbd@nbd.name>)
-	id 1t0gTm-0098D2-11;
-	Tue, 15 Oct 2024 14:16:46 +0200
-Message-ID: <0b0a92f2-2e80-429c-8fcd-d4dc162e6e1f@nbd.name>
-Date: Tue, 15 Oct 2024 14:16:45 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZjvjUGRU"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a99ebb390a5so547787666b.1
+        for <bridge@lists.linux.dev>; Tue, 15 Oct 2024 06:32:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1728999134; x=1729603934; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Wgxlf8j6C6WxbcSqLlRz/GSOnVwKwwZyR7OiY8684pQ=;
+        b=ZjvjUGRUie9BLuO1rma5MpPiKM/L6CM9miG5mWmTspeX8zXV2aeLzYyIxHzLGtvZ7S
+         Tp7EmGodvHaw9/G+m7y+Z5fC3bsegugWHxQl2shir/e7F8LRs0AjjTaEq/RaS97w2zUJ
+         crDZmBT/2nXAVHABQ4UQGAzOdf33F/SaJGwIcHbuT/n1/Oo64vAWrF8I2YoUmN5JbIJF
+         jYo/znZK4gH09Tx196H85/HMpxl9UgSBZ0KGvK/32+YkifNDna0cOOKdCMcVLkL63W9W
+         q2ePaIEXZWlJn9WnFQe2leP8kjxBo7fVxRfV8CsT4BBeiHee9dSUS9dQ+wlbLkw6Js5M
+         My5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728999134; x=1729603934;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Wgxlf8j6C6WxbcSqLlRz/GSOnVwKwwZyR7OiY8684pQ=;
+        b=tE6ru+Spnh/JW3GpjsUT1u5iZ9k3DZnmOU2cmgPA5ILVRvvHFWc3zcRRVmv+Ak4MDV
+         584YQr4EDl/SVMrvzhLpabW85qhyMIlfyCPkAIfjH39Dl9chb7cZYJjQuLpupfuVqhF+
+         jpbukQwqX7Wb6IYxrYL4WjdN1ZoNJspIBc4G99huALyWQVDezH4l1zq06HU/ezU3NB4V
+         o6DfFBZqsgXYQCR8eoEufGsnE4SJRM60O+/xM93wpkU430L7nsWX9bCxQHqRVOQBoyy8
+         N1dr9NL15RdyZXIz2ncFyhnke0yu5hSB2Zzujb2aQuRkITtQAz89/Eox+/7mgm0FC671
+         iW5A==
+X-Forwarded-Encrypted: i=1; AJvYcCVndNr1tdtHo49kK4IBF7wM1aYk902O5JNTa3IXkc7vaa25gWK+FCuKBhfRiYxwUvBy8422GtU=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx5NSMRkSGXn0iXl04xiGHJ9doPauf8taWGk0skbCTzVyDlAD2X
+	CHfUxduFX0IqXPt54tcZSbIZOwWfwl9AC7lGSnYHqNhvUdBdURdL
+X-Google-Smtp-Source: AGHT+IHead+svkj8BMnd2AtLtotz8v11llLgziR4JZ6WubowTfOWTXfJTTlJA3fxQTd68GmzjhaI0A==
+X-Received: by 2002:a17:906:7955:b0:a9a:f19:8c2a with SMTP id a640c23a62f3a-a9a335726dfmr74735966b.6.1728999133316;
+        Tue, 15 Oct 2024 06:32:13 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a2974960esm72107366b.62.2024.10.15.06.32.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Oct 2024 06:32:12 -0700 (PDT)
+Message-ID: <137aa23a-db21-43c2-8fb0-608cfe221356@gmail.com>
+Date: Tue, 15 Oct 2024 15:32:11 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -42,8 +63,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH RFC v1 net-next 00/12] bridge-fastpath and related
  improvements
-To: Eric Woudstra <ericwouds@gmail.com>,
- Nikolay Aleksandrov <razor@blackwall.org>,
+To: Felix Fietkau <nbd@nbd.name>, Nikolay Aleksandrov <razor@blackwall.org>,
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  Pablo Neira Ayuso <pablo@netfilter.org>,
@@ -62,62 +82,54 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 References: <20241013185509.4430-1-ericwouds@gmail.com>
  <9f9f3cf0-7a78-40f1-b8d5-f06a2d428210@blackwall.org>
  <a07cadd3-a8ff-4d1c-9dca-27a5dba907c3@gmail.com>
-From: Felix Fietkau <nbd@nbd.name>
+ <0b0a92f2-2e80-429c-8fcd-d4dc162e6e1f@nbd.name>
+From: Eric Woudstra <ericwouds@gmail.com>
 Content-Language: en-US
-Autocrypt: addr=nbd@nbd.name; keydata=
- xsDiBEah5CcRBADIY7pu4LIv3jBlyQ/2u87iIZGe6f0f8pyB4UjzfJNXhJb8JylYYRzIOSxh
- ExKsdLCnJqsG1PY1mqTtoG8sONpwsHr2oJ4itjcGHfn5NJSUGTbtbbxLro13tHkGFCoCr4Z5
- Pv+XRgiANSpYlIigiMbOkide6wbggQK32tC20QxUIwCg4k6dtV/4kwEeiOUfErq00TVqIiEE
- AKcUi4taOuh/PQWx/Ujjl/P1LfJXqLKRPa8PwD4j2yjoc9l+7LptSxJThL9KSu6gtXQjcoR2
- vCK0OeYJhgO4kYMI78h1TSaxmtImEAnjFPYJYVsxrhay92jisYc7z5R/76AaELfF6RCjjGeP
- wdalulG+erWju710Bif7E1yjYVWeA/9Wd1lsOmx6uwwYgNqoFtcAunDaMKi9xVQW18FsUusM
- TdRvTZLBpoUAy+MajAL+R73TwLq3LnKpIcCwftyQXK5pEDKq57OhxJVv1Q8XkA9Dn1SBOjNB
- l25vJDFAT9ntp9THeDD2fv15yk4EKpWhu4H00/YX8KkhFsrtUs69+vZQwc0cRmVsaXggRmll
- dGthdSA8bmJkQG5iZC5uYW1lPsJgBBMRAgAgBQJGoeQnAhsjBgsJCAcDAgQVAggDBBYCAwEC
- HgECF4AACgkQ130UHQKnbvXsvgCgjsAIIOsY7xZ8VcSm7NABpi91yTMAniMMmH7FRenEAYMa
- VrwYTIThkTlQzsFNBEah5FQQCACMIep/hTzgPZ9HbCTKm9xN4bZX0JjrqjFem1Nxf3MBM5vN
- CYGBn8F4sGIzPmLhl4xFeq3k5irVg/YvxSDbQN6NJv8o+tP6zsMeWX2JjtV0P4aDIN1pK2/w
- VxcicArw0VYdv2ZCarccFBgH2a6GjswqlCqVM3gNIMI8ikzenKcso8YErGGiKYeMEZLwHaxE
- Y7mTPuOTrWL8uWWRL5mVjhZEVvDez6em/OYvzBwbkhImrryF29e3Po2cfY2n7EKjjr3/141K
- DHBBdgXlPNfDwROnA5ugjjEBjwkwBQqPpDA7AYPvpHh5vLbZnVGu5CwG7NAsrb2isRmjYoqk
- wu++3117AAMFB/9S0Sj7qFFQcD4laADVsabTpNNpaV4wAgVTRHKV/kC9luItzwDnUcsZUPdQ
- f3MueRJ3jIHU0UmRBG3uQftqbZJj3ikhnfvyLmkCNe+/hXhPu9sGvXyi2D4vszICvc1KL4RD
- aLSrOsROx22eZ26KqcW4ny7+va2FnvjsZgI8h4sDmaLzKczVRIiLITiMpLFEU/VoSv0m1F4B
- FtRgoiyjFzigWG0MsTdAN6FJzGh4mWWGIlE7o5JraNhnTd+yTUIPtw3ym6l8P+gbvfoZida0
- TspgwBWLnXQvP5EDvlZnNaKa/3oBes6z0QdaSOwZCRA3QSLHBwtgUsrT6RxRSweLrcabwkkE
- GBECAAkFAkah5FQCGwwACgkQ130UHQKnbvW2GgCeMncXpbbWNT2AtoAYICrKyX5R3iMAoMhw
- cL98efvrjdstUfTCP2pfetyN
-In-Reply-To: <a07cadd3-a8ff-4d1c-9dca-27a5dba907c3@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <0b0a92f2-2e80-429c-8fcd-d4dc162e6e1f@nbd.name>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-Hi Eric,
 
-On 14.10.24 20:29, Eric Woudstra wrote:
-> It would be no problem for me to change the subject and body, if you
-> think that is better.
+
+On 10/15/24 2:16 PM, Felix Fietkau wrote:
+> Hi Eric,
 > 
-> The thing is, these patches actually make it possible to set up a fully
-> functional software fastpath between bridged interfaces. Only after the
-> software fastpath is set up and functional, it can be offloaded, which
-> happens to by my personal motivation to write this patch-set.
+> On 14.10.24 20:29, Eric Woudstra wrote:
+>> It would be no problem for me to change the subject and body, if you
+>> think that is better.
+>>
+>> The thing is, these patches actually make it possible to set up a fully
+>> functional software fastpath between bridged interfaces. Only after the
+>> software fastpath is set up and functional, it can be offloaded, which
+>> happens to by my personal motivation to write this patch-set.
+>>
+>> If the offload flag is set in the flowtable, the software fastpath will
+>> be offloaded. But in this patch-set, there is nothing that changes
+>> anything there, the existing code is used unchanged.
 > 
-> If the offload flag is set in the flowtable, the software fastpath will
-> be offloaded. But in this patch-set, there is nothing that changes
-> anything there, the existing code is used unchanged.
+> FWIW, a while back, I also wanted to add a software fast path for the
+> bridge layer to the kernel, also with the intention of using it for
+> hardware offload. It wasn't accepted back then, because (if I remember
+> correctly) people didn't want any extra complexity in the network stack
+> to make the bridge layer faster.
 
-FWIW, a while back, I also wanted to add a software fast path for the 
-bridge layer to the kernel, also with the intention of using it for 
-hardware offload. It wasn't accepted back then, because (if I remember 
-correctly) people didn't want any extra complexity in the network stack 
-to make the bridge layer faster.
+Hello Felix,
 
-Because of that, I created this piece of software:
-https://github.com/nbd168/bridger
+I think this patch-set is a clear showcase it is not very complex at
+all. The core of making it possible only consists a few patches. Half of
+this patch-set involves improvements that also apply to the
+forward-fastpath.
 
-It uses an eBPF TC classifier for discovering flows and handling the 
-software fast path, and also creates hardware offload rules for flows.
-With that, hardware offloading for bridged LAN->WLAN flows is fully 
-supported on MediaTek hardware with upstream kernels.
+> Because of that, I created this piece of software:
+> https://github.com/nbd168/bridger
+> 
+> It uses an eBPF TC classifier for discovering flows and handling the
+> software fast path, and also creates hardware offload rules for flows.
+> With that, hardware offloading for bridged LAN->WLAN flows is fully
+> supported on MediaTek hardware with upstream kernels.
+> 
+> - Felix
 
-- Felix
+Thanks, I've seen that already. Nice piece of software, but I'm not
+running openwrt. I would like to see a solution implemented in the
+kernel, so any operating system can use it.
