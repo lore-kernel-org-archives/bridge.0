@@ -1,59 +1,59 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9FE81C9B7C
-	for <bridge@lists.linux.dev>; Mon, 14 Oct 2024 18:34:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D1AD1E2031
+	for <bridge@lists.linux.dev>; Tue, 15 Oct 2024 10:26:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728930852; cv=none; b=QVCyzr/9S39p2h5at/Yyd2WUKVBbiuR8D5dGpwA3ah/ytgG3UH+QBKBWOVFHH3vu7hEr+Gp1+wxoTMig3OWyqqQ9AGfPbi1pQcMRJ3+SpvHOhVK2C6ncjs4VIijp+gn+HzcNe2NMtQzQrK7bRmC1oL8VsZUNrWsgn7+Q3M1ZiTM=
+	t=1728987992; cv=none; b=ZGabWtr38QwqPKnIfgggSXG61+ZXn9gUf9+530s/EpcJRbcRXXqnzmZNq+1QzeB5JCFIk10p67yH5ltX6W8utaOdfd4FHAMu1jG3bVTj+OIw3nC6nGkIwX3sJzqOYK/OhgcwIEVwV8rlQoTvYvk3NTLG5A2Bnf3/U0yXVshxUoE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728930852; c=relaxed/simple;
-	bh=UO2Bad4J5y0XW53XxtAm0h5XmWXUfxO04tiAMyE160U=;
+	s=arc-20240116; t=1728987992; c=relaxed/simple;
+	bh=ReAIk4ZKygT7WqBsCGUp5VNvyTZbveGy2NaHPBHqn6I=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FAhZDu3wIKEf5QvzBlGUHNROXDz3TW+8+YFFckl7eZTGRA2TFvcGvfQwM3So/EMLF89CTPxiKZ+YHPPgmeYgii3jbVAogLVM7GJVqNpO1yMzf7AboegvCNWP5z90TJvzFK+vi+qsnrYNUafNtk9Q0siw0Om5fWsO4vwwrYGjk4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IKTgiQDa; arc=none smtp.client-ip=209.85.218.44
+	 In-Reply-To:Content-Type; b=IimS70zzvZnWGgl+LnROtpR2Kqh1E0DfUyznEvRm2qWd9X37GwGODXefkXmBmyDWpYOn8jx3/wedAbSbBHiCXvCK2fYBaIrP3AYYwNf8dXphvZO9zd9VXvIqgElykzGJWQ5nEejSUCeDaiqnTKRuJRyNZqI21KHbkQAZeMOV+6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BJEqLRcg; arc=none smtp.client-ip=209.85.208.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IKTgiQDa"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a99f1fd20c4so354662566b.0
-        for <bridge@lists.linux.dev>; Mon, 14 Oct 2024 11:34:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BJEqLRcg"
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2f7657f9f62so50281901fa.3
+        for <bridge@lists.linux.dev>; Tue, 15 Oct 2024 03:26:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1728930849; x=1729535649; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1728987989; x=1729592789; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:content-language:from
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=VlOnxyLsKzjPmX7mgEUAeOELC286PF6R2i4tL7ZkhEQ=;
-        b=IKTgiQDa8Ua+5CQbimFgoxtG3t0M+O1hvxz5M9qb18CstE8wcZtCG9xjbhFRgdIFwh
-         hqj5HXHK5+qF6f5FVEjG1FG8aJLSQGeg/cSQxR2Datzo/aliYbLO6LA7/tMdg04SjA77
-         u9RgnoZV7frJIUGiQ2nEkYCVqD/LKJ5nPYokiatLnSXmE5SjStVKCzIjJHmhWwOTVU0O
-         QnSWsx1UZr3vCYNgn8HI9SpuqU9+Yi8XZ7Jrlu78Qc9nB2GmXs09ACwzzublbPUDDXHW
-         8QFZ8jTL9Zn2gF3TEpjRC6I319fz2aiMxDfm5n2j8CCeuSLrkpNgWVFqlZSeI3nBOJbM
-         CKzg==
+        bh=2OEZSManMbDy+6XUNveh1qOkExWxjzK6ls7MTgzx6HM=;
+        b=BJEqLRcgE8pVmO/zMhJHtB423mjrFAKV+/re3Awa307V2MpDOEVvOxvjy7qUIcL3pj
+         +sropO5/Rqw+rT11T0Z+0eUgmLyCQCSRUoCja4xIIp9KXD6O5UAslA5YkSOimGD0S7Og
+         nXe4INK8emiSh7hrWHLBXjN7AjRUaUIyH5nVVZeVQDMxYNXddwmQtUoEWZmgScJ9/oeE
+         4WU3rqEO0BUVVLmBV0N0M0mHforHHD9o5twh/U1oPDa55BtLpHiqlnCfj96FgwhAgZuI
+         NleoeKy96Z7lGNCgmSfvMxwbEobvxXae4RaOJpdEouAHcuNPvjm73CnnDHz25MWNFHMr
+         ne3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728930849; x=1729535649;
+        d=1e100.net; s=20230601; t=1728987989; x=1729592789;
         h=content-transfer-encoding:in-reply-to:content-language:from
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=VlOnxyLsKzjPmX7mgEUAeOELC286PF6R2i4tL7ZkhEQ=;
-        b=fFXnf9Co8HnPU6EVb6C32capSjoS0MGqv1AWRQqItmw74Sk02KNIcZIP7h9202KE1L
-         Bm2c4v5ZBJGGcEhjFZn5Ndr8OUM+KFLiusghS6D9Q45MhukYopJlMrR+D2N4xcyO6kqk
-         bo2eWi9RYuPqWSVC3kZQE1vg/iDzUWP8l2DsCZS/LtBrUcoxHq8LjA7ZOgwZszd9yylI
-         bdmLjk/RBT1cRxm7Z0m+WTHVaLL4HA2SBIZfdyfh15/mc9KJx9NisoD3qMMzqB15rxaf
-         Kv5HtPV8eOXtefpkwMo+sOP6/QH60HG43ePsI2K2iCGGO07SqKmq1d/znzG/Kq48rF9n
-         ussQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWOBB2haFEKPjIYKwWriLCH2BhsNqH229zrc3Ih9Qc6K4OsJN1SKsmn/i0830U930FklqmwAkw=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwE+ZNsfxa+u32H6kn0wRR9FaJ49HE7RGjRkFEsB526ikA9gJRs
-	69HQR302n3lV76qAJOqjygbyM+Ck1uLeFSv1dIwp7dAB2IgdoF0f
-X-Google-Smtp-Source: AGHT+IHKZO+fC56r4LaVpTKQzX/+/pa5l07qojFohlY7OCNXpmf0sPt3hbXHuNvHiBIPoGLRAmVB1g==
-X-Received: by 2002:a17:907:97cd:b0:a99:dfb3:dcb4 with SMTP id a640c23a62f3a-a99dfb3df63mr790057066b.39.1728930848857;
-        Mon, 14 Oct 2024 11:34:08 -0700 (PDT)
+        bh=2OEZSManMbDy+6XUNveh1qOkExWxjzK6ls7MTgzx6HM=;
+        b=SpR191ox0u0yg2DuWwAgPAFiFPSJrQH5ME5cUBh4aoYva0pPzxGvxu1ygfNEt4PoKc
+         spnhnlLlgqTdbPjoXHKEDKJOAvJ8c4sl9ZyR85zRc7n07SlnFUwkflb16A6R/Uhi1f0b
+         UJ2cSJqdN/NQBGJlm5Dl6iF8G3GA96vlNBtN25Z+02ydYNXjueFSDTDhsAOMfTvALlvE
+         RcKwkBDlVdz6eei8WqpmMYBzzAxF9kknv9oYewvVH+5aXN6sqBce1BgYWv+GDMZhdHWW
+         Lxzrqxb+M5T5dFOvODfYsI6Sq/o6pDF8AxgnNFrVlNQVWUhPAMxNS3DXkQPxSVs8R0nP
+         JpRw==
+X-Forwarded-Encrypted: i=1; AJvYcCWZ6QZLG69D9M5yD1qqzOuvB5Zm8CGoqgz00L3H5Vy8snhL+Dkk8pNTsSHDVnEt2HoYCAv8ntw=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxo4ws6fzY7Sv9A2IPKxAqPtLeTP88IigH0rISrjC6mIXk5d7Y6
+	ceMR9MZdnG59tuM0zvRDFvIW32UcSR6bWId/MhXH84QMd17XQk2f
+X-Google-Smtp-Source: AGHT+IG0LiZB9HnhbCpZVWzqC6TRdvuR7h3XUUllI7Bu0NEUbFWH+GXR3fi/dRhYBz6E26VF5ntuQA==
+X-Received: by 2002:a2e:4e11:0:b0:2fb:5060:7037 with SMTP id 38308e7fff4ca-2fb506070e0mr27373511fa.41.1728987988831;
+        Tue, 15 Oct 2024 03:26:28 -0700 (PDT)
 Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a04223e3csm261266766b.52.2024.10.14.11.34.07
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c98d77996asm529535a12.74.2024.10.15.03.26.26
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Oct 2024 11:34:08 -0700 (PDT)
-Message-ID: <a0db4efa-2328-4935-9eb6-3344fcbc4b07@gmail.com>
-Date: Mon, 14 Oct 2024 20:34:07 +0200
+        Tue, 15 Oct 2024 03:26:28 -0700 (PDT)
+Message-ID: <b919a6b1-1c07-4fc9-b3dc-a7ac2f3645bf@gmail.com>
+Date: Tue, 15 Oct 2024 12:26:25 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -61,9 +61,10 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v1 net-next 06/12] net: core: dev: Add
- dev_fill_bridge_path()
-To: Nikolay Aleksandrov <razor@blackwall.org>,
+Subject: Re: [PATCH RFC v1 net-next 11/12] bridge:
+ br_vlan_fill_forward_path_mode no _UNTAG_HW for dsa
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  Pablo Neira Ayuso <pablo@netfilter.org>,
@@ -74,176 +75,213 @@ To: Nikolay Aleksandrov <razor@blackwall.org>,
  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
  Lorenzo Bianconi <lorenzo@kernel.org>,
  Frank Wunderlich <frank-w@public-files.de>,
- Daniel Golle <daniel@makrotopia.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- bridge@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- linux-mediatek@lists.infradead.org
+ Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
+ Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>
 References: <20241013185509.4430-1-ericwouds@gmail.com>
- <20241013185509.4430-7-ericwouds@gmail.com>
- <c3678626-7f5c-4446-9b4d-2650ddf5d5a6@blackwall.org>
+ <20241013185509.4430-12-ericwouds@gmail.com>
+ <281cce27-c832-41c8-87d0-fbac05b8e802@blackwall.org>
+ <6209405e-7100-43f9-b415-3be8fbcc6352@blackwall.org>
+ <20241014144613.mkc62dvfzp3vr7rj@skbuf>
 From: Eric Woudstra <ericwouds@gmail.com>
 Content-Language: en-US
-In-Reply-To: <c3678626-7f5c-4446-9b4d-2650ddf5d5a6@blackwall.org>
+In-Reply-To: <20241014144613.mkc62dvfzp3vr7rj@skbuf>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 
 
-On 10/14/24 8:59 AM, Nikolay Aleksandrov wrote:
-> On 13/10/2024 21:55, Eric Woudstra wrote:
->> New function dev_fill_bridge_path(), similar to dev_fill_forward_path().
->> It handles starting from a bridge port instead of the bridge master.
->> The structures ctx and nft_forward_info need to be already filled in with
->> the (vlan) encaps.
->>
->> Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
->> ---
->>  include/linux/netdevice.h |  2 +
->>  net/core/dev.c            | 77 ++++++++++++++++++++++++++++++++-------
->>  2 files changed, 66 insertions(+), 13 deletions(-)
->>
->> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
->> index e87b5e488325..9d80f650345e 100644
->> --- a/include/linux/netdevice.h
->> +++ b/include/linux/netdevice.h
->> @@ -3069,6 +3069,8 @@ void dev_remove_offload(struct packet_offload *po);
->>  
->>  int dev_get_iflink(const struct net_device *dev);
->>  int dev_fill_metadata_dst(struct net_device *dev, struct sk_buff *skb);
->> +int dev_fill_bridge_path(struct net_device_path_ctx *ctx,
->> +			 struct net_device_path_stack *stack);
->>  int dev_fill_forward_path(const struct net_device *dev, const u8 *daddr,
->>  			  struct net_device_path_stack *stack);
->>  struct net_device *__dev_get_by_flags(struct net *net, unsigned short flags,
->> diff --git a/net/core/dev.c b/net/core/dev.c
->> index cd479f5f22f6..49959c4904fc 100644
->> --- a/net/core/dev.c
->> +++ b/net/core/dev.c
->> @@ -713,44 +713,95 @@ static struct net_device_path *dev_fwd_path(struct net_device_path_stack *stack)
->>  	return &stack->path[k];
->>  }
->>  
->> -int dev_fill_forward_path(const struct net_device *dev, const u8 *daddr,
->> -			  struct net_device_path_stack *stack)
->> +static int dev_fill_forward_path_common(struct net_device_path_ctx *ctx,
->> +					struct net_device_path_stack *stack)
->>  {
->>  	const struct net_device *last_dev;
->> -	struct net_device_path_ctx ctx = {
->> -		.dev	= dev,
->> -	};
->>  	struct net_device_path *path;
->>  	int ret = 0;
->>  
->> -	memcpy(ctx.daddr, daddr, sizeof(ctx.daddr));
->> -	stack->num_paths = 0;
->> -	while (ctx.dev && ctx.dev->netdev_ops->ndo_fill_forward_path) {
->> -		last_dev = ctx.dev;
->> +	while (ctx->dev && ctx->dev->netdev_ops->ndo_fill_forward_path) {
->> +		last_dev = ctx->dev;
->>  		path = dev_fwd_path(stack);
->>  		if (!path)
->>  			return -1;
->>  
->>  		memset(path, 0, sizeof(struct net_device_path));
->> -		ret = ctx.dev->netdev_ops->ndo_fill_forward_path(&ctx, path);
->> +		ret = ctx->dev->netdev_ops->ndo_fill_forward_path(ctx, path);
->>  		if (ret < 0)
->>  			return -1;
->>  
->> -		if (WARN_ON_ONCE(last_dev == ctx.dev))
->> +		if (WARN_ON_ONCE(last_dev == ctx->dev))
->>  			return -1;
->>  	}
->>  
->> -	if (!ctx.dev)
->> +	if (!ctx->dev)
->>  		return ret;
->>  
->>  	path = dev_fwd_path(stack);
->>  	if (!path)
->>  		return -1;
->>  	path->type = DEV_PATH_ETHERNET;
->> -	path->dev = ctx.dev;
->> +	path->dev = ctx->dev;
->> +
->> +	return ret;
->> +}
->> +
->> +int dev_fill_bridge_path(struct net_device_path_ctx *ctx,
->> +			 struct net_device_path_stack *stack)
->> +{
->> +	const struct net_device *last_dev, *br_dev;
->> +	struct net_device_path *path;
->> +	int ret = 0;
->> +
->> +	stack->num_paths = 0;
->> +
->> +	if (!ctx->dev || !netif_is_bridge_port(ctx->dev))
->> +		return -1;
->> +
->> +	br_dev = netdev_master_upper_dev_get_rcu((struct net_device *)ctx->dev);
->> +	if (!br_dev || !br_dev->netdev_ops->ndo_fill_forward_path)
->> +		return -1;
->> +
->> +	last_dev = ctx->dev;
->> +	path = dev_fwd_path(stack);
->> +	if (!path)
->> +		return -1;
->> +
->> +	memset(path, 0, sizeof(struct net_device_path));
->> +	ret = br_dev->netdev_ops->ndo_fill_forward_path(ctx, path);
->> +	if (ret < 0)
->> +		return -1;
->> +
->> +	if (!ctx->dev || WARN_ON_ONCE(last_dev == ctx->dev))
->> +		return -1;
->> +
->> +	if (!netif_is_bridge_master(ctx->dev))
+On 10/14/24 4:46 PM, Vladimir Oltean wrote:
+> Keeping the full email body untrimmed for extra context for the newly
+> added people.
 > 
-> hmm, do we expect ctx->dev to be a bridge master? Looking at
-> br_fill_forward_path, it seems to be == fdb->dst->dev which
-> should be the target port
-
-It would indeed be very unlikely. It was a left-over from code I wrote,
-thinking that here I could handle cascaded bridges (via vlan-device). I
-dropped that, since conntrack does not follow this flow.
-
-So would it be better to only make sure that ctx->dev is not a bridge
-master?
-
-	if (netif_is_bridge_master(ctx->dev))
-		return -1;
-
-	return dev_fill_forward_path_common(ctx, stack);
-
->> +		return dev_fill_forward_path_common(ctx, stack);
->> +
->> +	path = dev_fwd_path(stack);
->> +	if (!path)
->> +		return -1;
->> +	path->type = DEV_PATH_ETHERNET;
->> +	path->dev = ctx->dev;
->>  
->>  	return ret;
->>  }
->> +EXPORT_SYMBOL_GPL(dev_fill_bridge_path);
->> +
->> +int dev_fill_forward_path(const struct net_device *dev, const u8 *daddr,
->> +			  struct net_device_path_stack *stack)
->> +{
->> +	struct net_device_path_ctx ctx = {
->> +		.dev	= dev,
->> +	};
->> +
->> +	memcpy(ctx.daddr, daddr, sizeof(ctx.daddr));
->> +
->> +	stack->num_paths = 0;
->> +
->> +	return dev_fill_forward_path_common(&ctx, stack);
->> +}
->>  EXPORT_SYMBOL_GPL(dev_fill_forward_path);
->>  
->>  /**
+> On Mon, Oct 14, 2024 at 09:22:07AM +0300, Nikolay Aleksandrov wrote:
+>> On 14/10/2024 09:18, Nikolay Aleksandrov wrote:
+>>> On 13/10/2024 21:55, Eric Woudstra wrote:
+>>>> In network setup as below:
+>>>>
+>>>>              fastpath bypass
+>>>>  .----------------------------------------.
+>>>> /                                          \
+>>>> |                        IP - forwarding    |
+>>>> |                       /                \  v
+>>>> |                      /                  wan ...
+>>>> |                     /
+>>>> |                     |
+>>>> |                     |
+>>>> |                   brlan.1
+>>>> |                     |
+>>>> |    +-------------------------------+
+>>>> |    |           vlan 1              |
+>>>> |    |                               |
+>>>> |    |     brlan (vlan-filtering)    |
+>>>> |    |               +---------------+
+>>>> |    |               |  DSA-SWITCH   |
+>>>> |    |    vlan 1     |               |
+>>>> |    |      to       |               |
+>>>> |    |   untagged    1     vlan 1    |
+>>>> |    +---------------+---------------+
+>>>> .         /                   \
+>>>>  ----->wlan1                 lan0
+>>>>        .                       .
+>>>>        .                       ^
+>>>>        ^                     vlan 1 tagged packets
+>>>>      untagged packets
+>>>>
+>>>> Now that DEV_PATH_MTK_WDMA is added to nft_dev_path_info() the forward
+>>>> path is filled also when ending with the mediatek wlan1, info.indev not
+>>>> NULL now in nft_dev_forward_path(). This results in a direct transmit
+>>>> instead of a neighbor transmit. This is how it should be, But this fails.
+>>>>
+>>>> br_vlan_fill_forward_path_mode() sets DEV_PATH_BR_VLAN_UNTAG_HW when
+>>>> filling in from brlan.1 towards wlan1. But it should be set to
+>>>> DEV_PATH_BR_VLAN_UNTAG in this case. Using BR_VLFLAG_ADDED_BY_SWITCHDEV
+>>>> is not correct. The dsa switchdev adds it as a foreign port.
+>>>>
+>>>> Use BR_VLFLAG_TAGGING_BY_SWITCHDEV to make sure DEV_PATH_BR_VLAN_UNTAG is
+>>>> set when there is a dsa-switch inside the bridge.
+>>>>
+>>>> Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
+>>>> ---
+>>>>  net/bridge/br_private.h |  1 +
+>>>>  net/bridge/br_vlan.c    | 18 +++++++++++++++++-
+>>>>  2 files changed, 18 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+>>>> index 8da7798f9368..7d427214cc7c 100644
+>>>> --- a/net/bridge/br_private.h
+>>>> +++ b/net/bridge/br_private.h
+>>>> @@ -180,6 +180,7 @@ enum {
+>>>>  	BR_VLFLAG_MCAST_ENABLED = BIT(2),
+>>>>  	BR_VLFLAG_GLOBAL_MCAST_ENABLED = BIT(3),
+>>>>  	BR_VLFLAG_NEIGH_SUPPRESS_ENABLED = BIT(4),
+>>>> +	BR_VLFLAG_TAGGING_BY_SWITCHDEV = BIT(5),
+>>>>  };
+>>>>  
+>>>>  /**
+>>>> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+>>>> index 1830d7d617cd..b7877724b969 100644
+>>>> --- a/net/bridge/br_vlan.c
+>>>> +++ b/net/bridge/br_vlan.c
+>>>> @@ -3,6 +3,7 @@
+>>>>  #include <linux/netdevice.h>
+>>>>  #include <linux/rtnetlink.h>
+>>>>  #include <linux/slab.h>
+>>>> +#include <net/dsa.h>
+>>>>  #include <net/switchdev.h>
+>>>>  
+>>>>  #include "br_private.h"
+>>>> @@ -100,6 +101,19 @@ static void __vlan_flags_commit(struct net_bridge_vlan *v, u16 flags)
+>>>>  	__vlan_flags_update(v, flags, true);
+>>>>  }
+>>>>  
+>>>> +static inline bool br_vlan_tagging_by_switchdev(struct net_bridge *br)
+>>>
+>>> no inline in .c files and also constify br
+>>>
+>>>> +{
+>>>> +#if IS_ENABLED(CONFIG_NET_DSA)
+>>>> +	struct net_bridge_port *p;
+>>>> +
+>>>> +	list_for_each_entry(p, &br->port_list, list) {
+>>>> +		if (dsa_user_dev_check(p->dev))
+>>>
+>>> I don't think this can change at runtime, so please keep a counter in
+>>> the bridge and don't walk the port list on every vlan add.
+>>>
+>>
+>> you can use an internal bridge opt (check br_private.h) with a private opt
+>> that's set when such device is added as a port, no need for a full counter
+>> obviously
 > 
+> To continue on Nikolay's line of thought...
+> 
+> Can you abstractly describe which functional behavior do you need the
+> bridge port to perform, rather than "it needs to be a DSA user port"?
+
+Hello Vladimir,
+
+This has to do with the sequence of events, when dealing with vlan
+tagging in a bridge. When looking at the ingress of untaggged packets,
+that will be tagged by a certain port of that bridge, it depends when
+this tagging happens, in respect to the netfilter hook. This describes
+the existing code:
+
+Because we are using dev_fill_forward_path(), we know in all cases that
+untagged packets arive and are tagged by the bridge.
+
+In the case (#1) off a switchdev, the tagging is done before the packet
+reaches the netfilter hook. Then the software fastpath code needs to
+handle the packet, as if it is incoming tagged, remembering that this
+tag was tagged at ingress (tuple->in_vlan_ingress). We need to remember
+this, because dealing with hardware offloaded fastpath we then need to
+skip this vlan tag in the hardware offloaded fastpath in
+nf_flow_rule_match() and nf_flow_rule_route_common().
+
+In all other cases (#2), 'normal' ports (ports without switchdev and
+dsa-user-ports) the tagging is done after packet reaches the
+netfilter-hook. Then the software fastpath code needs to handle the
+packet, as incoming untagged.
+
+(Of course the dsa-user-port is more complicated, but it all handled by
+the dsa architecture so that it can be used as a 'normal' port.)
+
+In both cases #1 and #2 also the other direction is taken into account.
+
+To decide which case to apply, the code looks at
+BR_VLFLAG_ADDED_BY_SWITCHDEV, which was actually used for something
+else, but it is easily available in the code at that point and seemed to
+work, so far...
+
+But as it turns out, this flag is also set for foreign ports added to
+the dsa-switchdev. This means that case #1 is applied to the foreign dsa
+port. This breaks the software fastpath and, with packets not reaching
+their destination, also the hardware offloaded fastpath does not start.
+We need to apply case #2.
+
+So actually we need to know, inside br_vlan_fill_forward_path_mode(),
+whether or not net_bridge_port *dst is a foreign port added to the dsa
+switchdev. Or perhaps there is another way to find out we have to apply
+case #2.
+
+> switchdev_bridge_port_offload() has a mechanism to inform the bridge
+> core of extra abilities (like tx_fwd_offload). Perhaps you could modify
+> the DSA drivers you need to set a similar bit to inform the bridge of
+> their presence and ability. That would also work when the bridge port is
+> a LAG over a DSA user port.
+> 
+> Also, please also CC DSA maintainers when you use DSA API outside
+> net/dsa/ and drivers/net/dsa/. I am in the process of revamping the
+> public DSA API and would like to be in touch with changes as they are
+> made.
+> 
+>>>> +			return false;
+>>>> +	}
+>>>> +#endif
+>>>> +	return true;
+>>>> +}
+>>>> +
+>>>>  static int __vlan_vid_add(struct net_device *dev, struct net_bridge *br,
+>>>>  			  struct net_bridge_vlan *v, u16 flags,
+>>>>  			  struct netlink_ext_ack *extack)
+>>>> @@ -113,6 +127,8 @@ static int __vlan_vid_add(struct net_device *dev, struct net_bridge *br,
+>>>>  	if (err == -EOPNOTSUPP)
+>>>>  		return vlan_vid_add(dev, br->vlan_proto, v->vid);
+>>>>  	v->priv_flags |= BR_VLFLAG_ADDED_BY_SWITCHDEV;
+>>>> +	if (br_vlan_tagging_by_switchdev(br))
+>>>> +		v->priv_flags |= BR_VLFLAG_TAGGING_BY_SWITCHDEV;
+>>>>  	return err;
+>>>>  }
+>>>>  
+>>>> @@ -1491,7 +1507,7 @@ int br_vlan_fill_forward_path_mode(struct net_bridge *br,
+>>>>  
+>>>>  	if (path->bridge.vlan_mode == DEV_PATH_BR_VLAN_TAG)
+>>>>  		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_KEEP;
+>>>> -	else if (v->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
+>>>> +	else if (v->priv_flags & BR_VLFLAG_TAGGING_BY_SWITCHDEV)
+>>>>  		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_UNTAG_HW;
+>>>>  	else
+>>>>  		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_UNTAG;
+>>>
