@@ -1,127 +1,100 @@
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+Received: from mail-il1-f176.google.com (mail-il1-f176.google.com [209.85.166.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DF0F206E82
-	for <bridge@lists.linux.dev>; Wed, 16 Oct 2024 11:08:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C0AC20F5C9
+	for <bridge@lists.linux.dev>; Wed, 16 Oct 2024 15:19:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729076886; cv=none; b=usDgWiGP7T8rLGzXvLeDZb4eQVPgOu9XxvdxctlVwFhiXi4k2hKtgoMduMm/9GKLyrlOo26hBy07CQevJjVZc/C5KONq2CKgCfnxN6NGCuq8EG7QLWqw76ermRfac3egFWpxt5qs8udiDFWJOnT8YZaQ2MnSOwzX+I3b2EU2arc=
+	t=1729091981; cv=none; b=Yfu5cIeC7C5EpeZ+uRg8GWCbmPAy9ic3X6UGLkhVW3wivYKx0n1CzqQzuNcf7DkMaP7FTBFaMgdPBRm6B7qPmOs+GhBUT3aiHqtL9fc64kIWDxJ5L0B5K6S6cdF2jBNEBk4D7DQmqneGLODoXMWyqgLsaQn2NbDhvnM45SbsBew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729076886; c=relaxed/simple;
-	bh=GxKG4+Zaa8Exeey8AdpBwGfCynvajyhPcr9selFKhGE=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UPVXG/C2FfVhmvKZh/ly62m0wYjHHOC8azX8qdbLrMvKyz2jCuB73KvzO6Z0VKiVQ3PLKAAbTIn0b35+No+2KqlxBXzwQ9+oyNVZjExqi/vjN0bjg8gFZBd3M/sjX3na2ccksvxEdHVVPrXCzj0xmXgSAgk45ywfuxKrrpp9uWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JEd28Ind; arc=none smtp.client-ip=209.85.208.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1729091981; c=relaxed/simple;
+	bh=cXG4LhHB9kVWsQNAFibwspRnoB1deG7zrFUiwm+xwpA=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=SRek1WGd68xYdm3tvB8exU74vOV3XGvG/DIKslfMvDWFAmiu6CWv8LcGipOjErUbp5Vf+zXoD2xvwuDZ39xeuZZB6qMyQFHAPFtvBAkA3xEKkIIIqehlD2htIpy8+LYnKZnWanWsg5fUTFKho9esdFxrGVM1not4w+qaHzuJRcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org; spf=pass smtp.mailfrom=networkplumber.org; dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b=uUUG2EAY; arc=none smtp.client-ip=209.85.166.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=networkplumber.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JEd28Ind"
-Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-2fb584a8f81so31590101fa.3
-        for <bridge@lists.linux.dev>; Wed, 16 Oct 2024 04:08:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b="uUUG2EAY"
+Received: by mail-il1-f176.google.com with SMTP id e9e14a558f8ab-3a3b7442db5so15021025ab.2
+        for <bridge@lists.linux.dev>; Wed, 16 Oct 2024 08:19:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729076883; x=1729681683; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=jPuPFBsmpS6kyoRLa40oYeelH6usyUcNmM0E4LHOWqA=;
-        b=JEd28Ind9C9hniF72IS3aryqt09MGZhpdOqtyOPyeBThhxAGPS5PNZZPtrunx4sqrz
-         wVicQBSEbeqx0ShEcK/xL745mIsPe9Mf2D2ZBtOJm8BpGPqM0nht/URzLQBBdHRLsYq/
-         i3mjjSPFB/6h+QeM2dnXLGMPSXeQo34g/U87A9hjajNmWGrfA2bQo4u5w0TDZWn9HT14
-         n3rprlvT+5yNetAnnQWPU0V7aRbYescGnnhL0FBkL5Dv7uelC7iyWdtozB/qHqvpQkDJ
-         rZ4Rb0qwUZ2qV2edhIP9fB/B7o6lYrRNfUluX2soekFxHJYOvK6T7TM2kQ6Q6ramVVrX
-         qbZA==
+        d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1729091978; x=1729696778; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:subject:cc:to
+         :from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=xleXnHN4FKfm49u3Y57oNxLsJQFyA18gEpPRQSSO7uY=;
+        b=uUUG2EAY+Yo4PF88nz5rcYSjIXg0YwZBfPnItLfLMLma7DxqjTt79c9bzfMQdkFoNR
+         bTeTb7tRVfG/4DdOCLHUx6vLiAaNIqgW1JAvgGvyqJTbGjPbZTWfQQE/fCF1W9GGTgOw
+         cFlaoPESjd3xmflaBeqoJFf7sktUWsLOH/HJ21xU8yEvpjizvImk+f1+SrUZIqxPzYjI
+         9+TlYcIzSBVMoUE14Wq2qfhpB9WGLlIOAdFZEeEUbX3GHy3/O+5RCH2ZS1DYcOKMA6mT
+         GJgfSEshsasy+BU13J5TvtqFG8aonmF7b1LwfMAeedjwQq9K60EpFivKQ9iejNHl0plu
+         jNRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729076883; x=1729681683;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jPuPFBsmpS6kyoRLa40oYeelH6usyUcNmM0E4LHOWqA=;
-        b=JhfMV6fFkf1x1O6iDzljG6oxJsuWPlVm2kqJBTev3wgX2M8XELVMj5uibNRJxXP/02
-         N1X8kKksJJoGAq9RfzgM89TnMfOwf8Ih3em2LKvXIPKki7VRT5FkcVh6v6yN9ZvR0X82
-         oIsnRRFtoKsE42ybcsrK1PoOmfaCICLlARFZ2zT26Mov6dqYPIAKN78QEjP+369B3XKi
-         wWvzSZmUH4KZT2AS3m7M0tO36PRmA/Qjs8yxSB3xjyWM57QU+RiuHmHib2JSuAoqJoPI
-         0FA1VzX8SO4mxZYTOhpM9mpAn59MlFIGbQP/XhzSVCtrmOCRd42vuOBh5zGQfMO6iZiI
-         sVPQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU3hmGOQOHJCBllPboPDi6b4alYO4PUP3CDixGNXw9Ac61G3bpSfIb+m1eXBtWVf/zlJSyGDrI=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwqcC4/G8waN0Vtu2VOmcDw/VONDwFM8VngXsXyYnmxL/WxEX8T
-	2Bf7aiXidSQ4rLglmPtCq8S57AwmYyHxbQ7mi7Z2jzKeJdA6hw7I
-X-Google-Smtp-Source: AGHT+IEHessqDzBZmmSlW84vsn2IkViAv/IV58tYEB2Akc/jcICFPjSzRBjgIngWFJgycMKdtw7HXw==
-X-Received: by 2002:a2e:b88b:0:b0:2fb:57b7:5cc with SMTP id 38308e7fff4ca-2fb61bb6a8emr23201981fa.36.1729076882416;
-        Wed, 16 Oct 2024 04:08:02 -0700 (PDT)
-Received: from pc636 (host-95-203-1-67.mobileonline.telia.com. [95.203.1.67])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-2fb5d0fdde5sm3912151fa.21.2024.10.16.04.08.00
+        d=1e100.net; s=20230601; t=1729091978; x=1729696778;
+        h=content-transfer-encoding:mime-version:message-id:subject:cc:to
+         :from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xleXnHN4FKfm49u3Y57oNxLsJQFyA18gEpPRQSSO7uY=;
+        b=DRUSHzHcjmcFZZvrbJPFX0EAxiV9KZQMYa0drS0oVHgx9tqiDaNLvHFMiuKAZe2H8j
+         lNFDp5C4IezwhNQGQxIajw++FqRz6j+oUKEvbcmZ5ArYsdOmH7e8vFG2yOIoMoDQjv6v
+         OXm/vHhEJFOWZr6GvB38aaZlOJfkg6adbVBCKtTXr7lmUZwDovYCB6EWryKuJvxd5oWt
+         0rFFHhPGFnys5+W7pqBgnl0TAAVcySbMpMoUHf1Jipxj/RGHgmbqAfXtXWFXsfLDdZVu
+         SZrBWgUuKHvt1NTvrSwvo8GJs9PY7Ui0KLjEqU8/wkhklwFPFB14XIej6ysHvnWEBeu3
+         lzyw==
+X-Gm-Message-State: AOJu0YyDb6xPbARfoZup3N24cI00UtK1/vPBxZtMKlA9JnSU4/S2Zh9J
+	XrL934/RV5l9BWT8GOXC7J0tNJrpveXs7/7YVYUAEpV9WViEGtvzuVNpWMj8LrmvoM6UmTx0MZ8
+	k
+X-Google-Smtp-Source: AGHT+IEySPGvmbrPdn+FgF+BYHEdBpTr2iCmlLbDbNe9GGqTL4iWKqlGcfLNcb3EnmwmNhb8LcPrSg==
+X-Received: by 2002:a05:6e02:1561:b0:3a3:a7bf:7f85 with SMTP id e9e14a558f8ab-3a3dc49c453mr46996075ab.5.1729091978100;
+        Wed, 16 Oct 2024 08:19:38 -0700 (PDT)
+Received: from hermes.local (204-195-96-226.wavecable.com. [204.195.96.226])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-7ea9c7068d1sm3406999a12.75.2024.10.16.08.19.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Oct 2024 04:08:01 -0700 (PDT)
-From: Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@pc636>
-Date: Wed, 16 Oct 2024 13:07:58 +0200
-To: Julia Lawall <Julia.Lawall@inria.fr>, Roopa Prabhu <roopa@nvidia.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>, kernel-janitors@vger.kernel.org,
-	vbabka@suse.cz, paulmck@kernel.org,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 08/17] net: bridge: replace call_rcu by kfree_rcu for
- simple kmem_cache_free callback
-Message-ID: <Zw-ejnmxwVkiVPNM@pc636>
-References: <20241013201704.49576-1-Julia.Lawall@inria.fr>
- <20241013201704.49576-9-Julia.Lawall@inria.fr>
+        Wed, 16 Oct 2024 08:19:37 -0700 (PDT)
+Date: Wed, 16 Oct 2024 08:19:36 -0700
+From: Stephen Hemminger <stephen@networkplumber.org>
+To: Roopa Prabhu <roopa@nvidia.com>, razor@blackwall.org
+Cc: bridge@lists.linux.dev
+Subject: Fw: [Bug 198297] Unable to add ethX to bridge if ethX.<VLAN_ID> is
+ already present in this bridge
+Message-ID: <20241016081936.736e0db7@hermes.local>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241013201704.49576-9-Julia.Lawall@inria.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sun, Oct 13, 2024 at 10:16:55PM +0200, Julia Lawall wrote:
-> Since SLOB was removed and since
-> commit 6c6c47b063b5 ("mm, slab: call kvfree_rcu_barrier() from kmem_cache_destroy()"),
-> it is not necessary to use call_rcu when the callback only performs
-> kmem_cache_free. Use kfree_rcu() directly.
-> 
-> The changes were made using Coccinelle.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-> 
-> ---
->  net/bridge/br_fdb.c |    9 +--------
->  1 file changed, 1 insertion(+), 8 deletions(-)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 642b8ccaae8e..1cd7bade9b3b 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -73,13 +73,6 @@ static inline int has_expired(const struct net_bridge *br,
->  	       time_before_eq(fdb->updated + hold_time(br), jiffies);
->  }
->  
-> -static void fdb_rcu_free(struct rcu_head *head)
-> -{
-> -	struct net_bridge_fdb_entry *ent
-> -		= container_of(head, struct net_bridge_fdb_entry, rcu);
-> -	kmem_cache_free(br_fdb_cache, ent);
-> -}
-> -
->  static int fdb_to_nud(const struct net_bridge *br,
->  		      const struct net_bridge_fdb_entry *fdb)
->  {
-> @@ -329,7 +322,7 @@ static void fdb_delete(struct net_bridge *br, struct net_bridge_fdb_entry *f,
->  	if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &f->flags))
->  		atomic_dec(&br->fdb_n_learned);
->  	fdb_notify(br, f, RTM_DELNEIGH, swdev_notify);
-> -	call_rcu(&f->rcu, fdb_rcu_free);
-> +	kfree_rcu(f, rcu);
->  }
->  
->  /* Delete a local entry if no other port had the same address.
-> 
-> 
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+Kernel bugzilla new report forwarding to bridge maintainers
 
---
-Uladzislau Rezki
+Begin forwarded message:
+
+Date: Wed, 16 Oct 2024 06:44:35 +0000
+From: bugzilla-daemon@kernel.org
+To: stephen@networkplumber.org
+Subject: [Bug 198297] Unable to add ethX to bridge if ethX.<VLAN_ID> is already present in this bridge
+
+
+https://bugzilla.kernel.org/show_bug.cgi?id=198297
+
+AntonioBDaniels (annawhuggins@hotmail.com) changed:
+
+           What    |Removed                     |Added
+----------------------------------------------------------------------------
+                 CC|                            |annawhuggins@hotmail.com
+
+--- Comment #5 from AntonioBDaniels (annawhuggins@hotmail.com) ---
+The bug report on Kernel.org is an issue where adding a physical Ethernet
+interface (ethX) to a bridge will fail if a VLAN interface (ethX.<VLAN_ID>) is
+already present on that bridge. This issue poses a challenge for users trying
+to configure a network
+http://www.ralinktech.com/ralink/Home/Backing/Linux.html
+https://geometrydash-scratch.com bridge with a VLAN because it conflicts with
+the intended network
+
+-- 
+You may reply to this email to add a comment.
+
+You are receiving this mail because:
+You are the assignee for the bug.
