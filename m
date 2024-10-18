@@ -1,158 +1,168 @@
-Received: from nbd.name (nbd.name [46.4.11.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 315451FBC89;
-	Thu, 17 Oct 2024 18:39:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.4.11.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B33DF1F5EA
+	for <bridge@lists.linux.dev>; Fri, 18 Oct 2024 13:17:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729190376; cv=none; b=VvNvuRyfa53aaWGWuFJoZNAP7o0QPCgsj50YzPsrRssF8dJyvP4+kdDgGP9QRiAmOGf6g5eW2zKk3zOtqAcQYI2wUKP5+Vtgnjjqhlk81zQUAijadWMdKHZ5B3GTvXNv98/cCtWFeV8iBTJvWzOT6fiz7587T58A72mNyxtHCPA=
+	t=1729257481; cv=none; b=PNGoUZZGQnDqvESGk2rg2wHE/M8XtQ8IYIt1jqz6A/HyFIBUU23eNU3Ofr17+0gpK97fozJghU+P31rCy0Rb9H/u0f0STl/8r5Qz+BpTQBYbjJPcAPrDugJ/ChfnyI3iNyCqT4ASLxFKbv/0INTxMK1rr0F9P2pTACfA+fSylY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729190376; c=relaxed/simple;
-	bh=FxmywgkNUlS99u+UKR5DQby5kzi44L1odyhv89Zm1SU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aemz0/NQCOEMW16h2YaGaJfkv4o6JgP6ffaJOE5O7B7mZsGOs7QdOLXavJm2nGfXDFC+LiMcRPFGr3su81UErRSo8adnyd35pBwN9/5V7mX8cOgdQRj+1YXTUdP3z2QCAG6y8d/tos8/ZPdqh1hDgF1qFh0uK8Um8DGCxNSArqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name; spf=none smtp.mailfrom=nbd.name; dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b=N5VrXGkg; arc=none smtp.client-ip=46.4.11.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nbd.name
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=nbd.name
+	s=arc-20240116; t=1729257481; c=relaxed/simple;
+	bh=HPXtxo5Vvpr2Etua6TwUK33NA6Be2AnfOMNRunrFSgA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gFuXnnF/OZes5n9X2ZBP0K/9gW7v7nlkxEiuXh2mfNqL/TdrtBnaVJb8SkmjFwOlBsM+rzv2dZwiZZKV2qjVF/XiqIUhrNCaAz5Bxv6URx+WvIn/n5gZ3TuyzheCNu+ltNI6p1xcMzYpY/+Jt4eEM4vaN15MRtzaDuSudqGHSx0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ko3xVWhZ; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=nbd.name header.i=@nbd.name header.b="N5VrXGkg"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
-	s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=pXm+8IBFvz1ujYC5/BdUieoeB4O8UBo9KmKYceLh5ts=; b=N5VrXGkgAWFovrbKgWzKyOBDom
-	d46SQYNLOSfMSOWuHmaIHAObkvJwCWdni6bSN1N8KpOLojafzKd21+7Ys++FKchnkzKicr/jZeVOE
-	AB5cuhC6sIIQGfik6tREtlG4yFK3VUEAilMGd9OUAz7A0au20F+kOiUsxFf7OBUtPyU4=;
-Received: from p4ff13b65.dip0.t-ipconnect.de ([79.241.59.101] helo=nf.local)
-	by ds12 with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.96)
-	(envelope-from <nbd@nbd.name>)
-	id 1t1VP4-00AwP2-1f;
-	Thu, 17 Oct 2024 20:39:18 +0200
-Message-ID: <b78b8659-d89d-4fd4-b922-f3c24b705deb@nbd.name>
-Date: Thu, 17 Oct 2024 20:39:17 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ko3xVWhZ"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4315dfa3e0bso2081335e9.0
+        for <bridge@lists.linux.dev>; Fri, 18 Oct 2024 06:17:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1729257478; x=1729862278; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=HYTC1KKmj1Tx4GZAlIt/vCaAXRaBVXXUSQJlK1KgVeE=;
+        b=ko3xVWhZLkBJTEvP/zbqbPG+m/JK6gHZ2CtFKI/NAakEWYrle+5M/YhFLDKCIlSxvp
+         7LZp5oJbqPUsvD87uMvlc++jDXQKzSFoH44D5B1qzHE0vXAZJL88LA63Tr7boJZHvKK5
+         psRm8KWSsB+W/A3RaNzo1P3gEz6xbVDEbihh5W9yVOjHXY/eYre+4o91x9iSG6uX78e0
+         jazQlQXH0xjRQYjZ7X2mcpAOQ52WqUuV63D7cUU2V7i6HlY0I1PDNaoEwFEpsM0FzJFj
+         p6h/b3y+3khazBMQM2a8UYKH9NNE3UCtEnrIDWTYzZ01PG3C1Uo7OAgWGZ+Mp9B3khm1
+         mfPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729257478; x=1729862278;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HYTC1KKmj1Tx4GZAlIt/vCaAXRaBVXXUSQJlK1KgVeE=;
+        b=OpU9RwbK4kDOZ8bvuYPFucf2aX9Fc6JSQquYbXDe4B0Sf/TyRdqQTsDutBhYugYOB1
+         MKC4kIOFcS6Gh/vWRIwa6yXwxpyDN7wfGRRJ+gwiVAb59bqr667xde1rVcLWe7M+bVRm
+         KX83zsHwtlrajdHqmzSyVgEuvGjJ93LhzXiI5U99/SH9IX3A3ZZKAwvdrpDMx8BzgL47
+         n6uZ5Tb5+IOQwVL21nyrRtBtYqMhrYlDPZnjFfGY4aY7sy8XA1u3IrKWxEidOFPWemS0
+         R9UcrrgkUA2dicuyjdpOPq+FIlKaKTMkwnNu3uaGvmM4ajEZ/8LOj1M8ZG3PZJ8iNUj4
+         LQ9Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUbtYo3750M2TerZJfEQgrT6NRZYGNeEcj0kmWdGKCgmc/F7mpN04WoItsMhLZ2G7a2rAdSink=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy4GwxlInUwOYxkkQKtCjt6E3S3h5KdHlN3S0paafw+CRSXoJRl
+	jtDi1bt50TrBRhS84OcR0izx2bKcKZlBBPnJi8Lv0BN3uCLvknOw
+X-Google-Smtp-Source: AGHT+IEq019Hq1TIXR/qIFJskJJDma7tgLtYd48CED4u+gZEDmakAyaK8oGFTjQd2kcXyOKjRJnT+g==
+X-Received: by 2002:a05:600c:1c08:b0:42c:aeee:e603 with SMTP id 5b1f17b1804b1-4316168f7f2mr8301575e9.7.1729257477692;
+        Fri, 18 Oct 2024 06:17:57 -0700 (PDT)
+Received: from skbuf ([188.25.134.29])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43160695d8fsm27244935e9.27.2024.10.18.06.17.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Oct 2024 06:17:57 -0700 (PDT)
+Date: Fri, 18 Oct 2024 16:17:54 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+To: Eric Woudstra <ericwouds@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Lorenzo Bianconi <lorenzo@kernel.org>,
+	Frank Wunderlich <frank-w@public-files.de>,
+	Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org, bridge@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH RFC v1 net-next 02/12] netfilter: bridge: Add conntrack
+ double vlan and pppoe
+Message-ID: <20241018131754.ikrrnsspjsu5ppfz@skbuf>
+References: <20241013185509.4430-1-ericwouds@gmail.com>
+ <20241013185509.4430-3-ericwouds@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v1 net-next 00/12] bridge-fastpath and related
- improvements
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Eric Woudstra <ericwouds@gmail.com>,
- Nikolay Aleksandrov <razor@blackwall.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Jozsef Kadlecsik <kadlec@netfilter.org>, Roopa Prabhu <roopa@nvidia.com>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Jiri Pirko <jiri@resnulli.us>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Lorenzo Bianconi <lorenzo@kernel.org>,
- Frank Wunderlich <frank-w@public-files.de>,
- Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
-References: <20241013185509.4430-1-ericwouds@gmail.com>
- <9f9f3cf0-7a78-40f1-b8d5-f06a2d428210@blackwall.org>
- <a07cadd3-a8ff-4d1c-9dca-27a5dba907c3@gmail.com>
- <0b0a92f2-2e80-429c-8fcd-d4dc162e6e1f@nbd.name>
- <137aa23a-db21-43c2-8fb0-608cfe221356@gmail.com>
- <a7ab80d5-ff49-4277-ba73-db46547a8a8e@nbd.name>
- <d7d48102-4c52-4161-a21c-4d5b42539fbb@gmail.com>
- <b5739f78-9cd5-4fd0-ae63-d80a5a37aaf0@nbd.name> <ZxEFdX1uoBYSFhBF@calendula>
- <eb9006ae-4ded-4249-ad0e-cf5b3d97a4cb@nbd.name> <ZxFS7XBgFXsqUlkO@calendula>
-From: Felix Fietkau <nbd@nbd.name>
-Content-Language: en-US
-Autocrypt: addr=nbd@nbd.name; keydata=
- xsDiBEah5CcRBADIY7pu4LIv3jBlyQ/2u87iIZGe6f0f8pyB4UjzfJNXhJb8JylYYRzIOSxh
- ExKsdLCnJqsG1PY1mqTtoG8sONpwsHr2oJ4itjcGHfn5NJSUGTbtbbxLro13tHkGFCoCr4Z5
- Pv+XRgiANSpYlIigiMbOkide6wbggQK32tC20QxUIwCg4k6dtV/4kwEeiOUfErq00TVqIiEE
- AKcUi4taOuh/PQWx/Ujjl/P1LfJXqLKRPa8PwD4j2yjoc9l+7LptSxJThL9KSu6gtXQjcoR2
- vCK0OeYJhgO4kYMI78h1TSaxmtImEAnjFPYJYVsxrhay92jisYc7z5R/76AaELfF6RCjjGeP
- wdalulG+erWju710Bif7E1yjYVWeA/9Wd1lsOmx6uwwYgNqoFtcAunDaMKi9xVQW18FsUusM
- TdRvTZLBpoUAy+MajAL+R73TwLq3LnKpIcCwftyQXK5pEDKq57OhxJVv1Q8XkA9Dn1SBOjNB
- l25vJDFAT9ntp9THeDD2fv15yk4EKpWhu4H00/YX8KkhFsrtUs69+vZQwc0cRmVsaXggRmll
- dGthdSA8bmJkQG5iZC5uYW1lPsJgBBMRAgAgBQJGoeQnAhsjBgsJCAcDAgQVAggDBBYCAwEC
- HgECF4AACgkQ130UHQKnbvXsvgCgjsAIIOsY7xZ8VcSm7NABpi91yTMAniMMmH7FRenEAYMa
- VrwYTIThkTlQzsFNBEah5FQQCACMIep/hTzgPZ9HbCTKm9xN4bZX0JjrqjFem1Nxf3MBM5vN
- CYGBn8F4sGIzPmLhl4xFeq3k5irVg/YvxSDbQN6NJv8o+tP6zsMeWX2JjtV0P4aDIN1pK2/w
- VxcicArw0VYdv2ZCarccFBgH2a6GjswqlCqVM3gNIMI8ikzenKcso8YErGGiKYeMEZLwHaxE
- Y7mTPuOTrWL8uWWRL5mVjhZEVvDez6em/OYvzBwbkhImrryF29e3Po2cfY2n7EKjjr3/141K
- DHBBdgXlPNfDwROnA5ugjjEBjwkwBQqPpDA7AYPvpHh5vLbZnVGu5CwG7NAsrb2isRmjYoqk
- wu++3117AAMFB/9S0Sj7qFFQcD4laADVsabTpNNpaV4wAgVTRHKV/kC9luItzwDnUcsZUPdQ
- f3MueRJ3jIHU0UmRBG3uQftqbZJj3ikhnfvyLmkCNe+/hXhPu9sGvXyi2D4vszICvc1KL4RD
- aLSrOsROx22eZ26KqcW4ny7+va2FnvjsZgI8h4sDmaLzKczVRIiLITiMpLFEU/VoSv0m1F4B
- FtRgoiyjFzigWG0MsTdAN6FJzGh4mWWGIlE7o5JraNhnTd+yTUIPtw3ym6l8P+gbvfoZida0
- TspgwBWLnXQvP5EDvlZnNaKa/3oBes6z0QdaSOwZCRA3QSLHBwtgUsrT6RxRSweLrcabwkkE
- GBECAAkFAkah5FQCGwwACgkQ130UHQKnbvW2GgCeMncXpbbWNT2AtoAYICrKyX5R3iMAoMhw
- cL98efvrjdstUfTCP2pfetyN
-In-Reply-To: <ZxFS7XBgFXsqUlkO@calendula>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241013185509.4430-3-ericwouds@gmail.com>
 
-On 17.10.24 20:09, Pablo Neira Ayuso wrote:
-> On Thu, Oct 17, 2024 at 07:06:51PM +0200, Felix Fietkau wrote:
->> On 17.10.24 14:39, Pablo Neira Ayuso wrote:
->> > On Thu, Oct 17, 2024 at 11:17:09AM +0200, Felix Fietkau wrote:
->> > [...]
->> > > By the way, based on some reports that I received, I do believe that the
->> > > existing forwarding fastpath also doesn't handle roaming properly.
->> > > I just didn't have the time to properly look into that yet.
->> > 
->> > I think it should work for the existing forwarding fastpath.
->> > 
->> > - If computer roams from different port, packets follow classic path,
->> >    then new flow entry is created. The flow old entry expires after 30
->> >    seconds.
->> > - If route is stale, flow entry is also removed.
->> > 
->> > Maybe I am missing another possible scenario?
->> 
->> I'm mainly talking about the scenario where a computer moves to a different
->> switch port on L2 only, so all routes remain the same.
->> 
->> I haven't fully analyzed the issue, but I did find a few potential issues
->> with what you're describing.
->> 
->> 1. Since one direction remains the same when a computer roams, a new flow
->> entry would probably fail to be added because of an existing entry in the
->> flow hash table.
+On Sun, Oct 13, 2024 at 08:54:58PM +0200, Eric Woudstra wrote:
+> This adds the capability to conntrack 802.1ad, QinQ, PPPoE and PPPoE-in-Q
+> packets that are passing a bridge.
 > 
-> I don't think so, hash includes iifidx.
+> Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
+> ---
 
-I'm talking about the side where the input ifindex remains the same, but 
-the output interface doesn't.
+Whatever you choose to do forward with these patches, please squash this
+build fix here (you can drop my authorship info and commit message):
 
->> 2. Even with that out of the way, the MTK hardware offload currently does
->> not support matching the incoming switch/ethernet port.
->> So even if we manage to add an updated entry, the old entry could still be
->> kept alive by the hardware.
-> 
-> OK, that means probably driver needs to address the lack of iifidx in
-> the matching by dealling with more than one single flow entry to point
-> to one single hardware entry (refcounting?).
+From e73315196c3143de2af2fe39e3b0e95391849d6c Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Fri, 18 Oct 2024 13:59:27 +0300
+Subject: [PATCH] netfilter: bridge: fix build failures in nf_ct_bridge_pre()
 
-If we have multiple colliding entries, I think a more reasonable 
-behavior would be allowing the newer flow to override the older one.
+clang-16 fails to build, stating:
 
->> The issues I found probably wouldn't cause connection hangs in pure L3
->> software flow offload, since it will use the bridge device for xmit instead
->> of its members. But since hardware offload needs to redirect traffic to
->> individual bridge ports, it could cause connection hangs with stale flow
->> entries.
-> 
-> I would not expect a hang, packets will just flow over classic path
-> for a little while for the computer that is roaming until the new flow
-> entry is added.
+net/bridge/netfilter/nf_conntrack_bridge.c:257:3: error: expected expression
+                struct ppp_hdr {
+                ^
+net/bridge/netfilter/nf_conntrack_bridge.c:262:20: error: use of undeclared identifier 'ph'
+                data_len = ntohs(ph->hdr.length) - 2;
+                                 ^
+net/bridge/netfilter/nf_conntrack_bridge.c:262:20: error: use of undeclared identifier 'ph'
+net/bridge/netfilter/nf_conntrack_bridge.c:262:20: error: use of undeclared identifier 'ph'
+net/bridge/netfilter/nf_conntrack_bridge.c:262:20: error: use of undeclared identifier 'ph'
+net/bridge/netfilter/nf_conntrack_bridge.c:265:11: error: use of undeclared identifier 'ph'
+                switch (ph->proto) {
+                        ^
 
-If the hardware still handles traffic, but redirects it to the wrong 
-destination port, the connection will hang.
+net/bridge/netfilter/nf_conntrack_bridge.c:278:3: error: expected expression
+                struct vlan_hdr *vhdr = (struct vlan_hdr *)(skb->data);
+                ^
+net/bridge/netfilter/nf_conntrack_bridge.c:283:17: error: use of undeclared identifier 'vhdr'
+                inner_proto = vhdr->h_vlan_encapsulated_proto;
+                              ^
 
-- Felix
+One cannot have variable declarations placed this way in a switch/case
+statement, a new scope must be opened.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ net/bridge/netfilter/nf_conntrack_bridge.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
+index fb2f79396aa0..31e2bcd71735 100644
+--- a/net/bridge/netfilter/nf_conntrack_bridge.c
++++ b/net/bridge/netfilter/nf_conntrack_bridge.c
+@@ -253,7 +253,7 @@ static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
+ 		return NF_ACCEPT;
+ 
+ 	switch (skb->protocol) {
+-	case htons(ETH_P_PPP_SES):
++	case htons(ETH_P_PPP_SES): {
+ 		struct ppp_hdr {
+ 			struct pppoe_hdr hdr;
+ 			__be16 proto;
+@@ -273,7 +273,8 @@ static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
+ 			return NF_ACCEPT;
+ 		}
+ 		break;
+-	case htons(ETH_P_8021Q):
++	}
++	case htons(ETH_P_8021Q): {
+ 		struct vlan_hdr *vhdr = (struct vlan_hdr *)(skb->data);
+ 
+ 		data_len = 0xffffffff;
+@@ -281,6 +282,7 @@ static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
+ 		outer_proto = skb->protocol;
+ 		inner_proto = vhdr->h_vlan_encapsulated_proto;
+ 		break;
++	}
+ 	default:
+ 		data_len = 0xffffffff;
+ 		break;
+-- 
+2.43.0
 
