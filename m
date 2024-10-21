@@ -1,118 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DD201E47CE
-	for <bridge@lists.linux.dev>; Mon, 21 Oct 2024 10:52:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02CAF1D1F4D
+	for <bridge@lists.linux.dev>; Mon, 21 Oct 2024 13:47:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729507976; cv=none; b=fDO3QRbfKumPhCjIB0eRb9Jftx7O/Ny4rlixJZhNRwYHC/f9plCm9Sxx2Hv9t9bd1cxsCs5K/EAa9+urDy0TsmjL6DmCCvmP9vIxdeVFEjAbfkMvrjlwN/icopWG/B9scNXDsytKBuJ/KYekfsz3VMmeAP1HGqHSy1rladnuRio=
+	t=1729518454; cv=none; b=tkDtyddcpJ9YCjJwrsUM33NiX4sijEFj+WDU7LQMF1A9SxLtsOGTQG67ubd2pD2nwglnHUo/GT/4SXjPhjniZBfOl2ndmOowCzxTiGsJDhy3eYSwfBVELBxGMYpBxzobPBn1opLB1SoeQg8AMXWKdStHONAHFhMFHPK48h0iSuQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729507976; c=relaxed/simple;
-	bh=XV1S6Zw+g3mH55uWg3ccT7dNJYp0UXWhsGtCGN4+4GQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=K3QWCEsFqE8ML6yf2AyXLr0IskG0M4FOHb4k6HP64uc+CzSu2Rm5RaWE03XUhtPfeWgeej/QQn4nxyvne3008jb3N4rsvxdN/ccg97VKcYjV+p0wOIilatGvz2SJBPGTvD8Ai9zH9G8L6mEo/8Op9E8VaES32KsuZzKPZEj04Sw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HJ3bezE2; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729518454; c=relaxed/simple;
+	bh=pZC3YbqyBViAPdxBqxiw35UgPV0nDZR5cXq4uA20i5g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bB4c6OykYfcOBEf47DuZAduFs+qMdHQnABNFdDwA+po7ufjCw5bYwW0bwkTVrLrEVVvbnBQMPOu++xKr+g2RQLCS0tg0i5noroTczhq++lt9MEJOwyMFJ4HM52CrDX+AysjSs2wRtc/MxNAE6AEymsYsKkvHMnS/9eIpoFfpeJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jPZgAYWd; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HJ3bezE2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729507974;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Io9Wjovsf8+IWCVdGDtutv8zva9MNZWk0eG1/vRQng0=;
-	b=HJ3bezE2qJhLpENxlwvDobDODtHgQWFjLM/FW5w5YT+H9JINy31H70wO6wC3TejSN7K8BN
-	DcMd1Fn43QSK4znLgdsh7I/hoYof660S2u2sc/B5itHYG0qFqo174CQzoBE0LwMjgW2aXw
-	gfXFcL6MGVYLGJgrtY2zy/VYDDcdUvA=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-213-bw5ZGAShNh2cA5JPelq8VA-1; Mon, 21 Oct 2024 06:52:51 -0400
-X-MC-Unique: bw5ZGAShNh2cA5JPelq8VA-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-37d5ca192b8so2290527f8f.1
-        for <bridge@lists.linux.dev>; Mon, 21 Oct 2024 03:52:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jPZgAYWd"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a9a1be34cc9so49947566b.1
+        for <bridge@lists.linux.dev>; Mon, 21 Oct 2024 06:47:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1729518450; x=1730123250; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=L0PguM/y3AdR81087UZxaCc/iTHakbzKnJWRYI0kM+s=;
+        b=jPZgAYWdwY03MUPjcxKPJoM7E4/tNlTGYxOO6g4sGT5xR7zAMIXLLUcWrJtJyPfG4n
+         DcROVJWk3J7qe2eSA7HQ9dWO2J12NbMzPxBlH+Qnw1tDv31+7vAVurvuuqrd6PtfeKe7
+         Os6wK5f1QmOGF0VzlrQNQNI5hn2Wj8hJznbbi1p+IvdEt49M3WAq7UvKwhFRRXcNX0Ju
+         rOX/q8OKYkOY4s+hoSn0RLM5qOrc4ABxD4Uy2CRq8XADqFxfHLM4svHg8w7YF3C0O+Pd
+         bLTErwTfIJwsmWQnAMGy9MN36uZku5pGDk7Df43yypU0y06fFxQiM1Gdea5RyOqvQLCu
+         nEPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729507970; x=1730112770;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Io9Wjovsf8+IWCVdGDtutv8zva9MNZWk0eG1/vRQng0=;
-        b=N7WLtMSKtoIwuUYFmhUIRUpUKXDFVq++78bksk9JC2QE0GfOKJ7c9p+qIeIyg0Utpa
-         v2R2mXeNP4s6C1gPgoSpwEbdq7JngKTRxaik9FRWxEODNtxoeqnfDsc5/Vuqr8gDZotD
-         uIWHMlRHUqwhmoIZehiNPBebk4Rpj4PVrxglvKDAMtgZLEGiLduv8w/BBRyb1p5gzZlz
-         iQEaT8kms73UT8vbNt0hIJawLzgK/ynvgQwDRhBpVao0cGpxLfdF44KA8b8yRy1ecfq5
-         TLKoSPGqvsBUM5MhMr0+jpuAqOZZXB9+mj7kjNsYMguidyP+sw4xcP7h3ZV3ohlk1bIp
-         4cTA==
-X-Forwarded-Encrypted: i=1; AJvYcCWdyAjhPC1yMrxH8azkVCMKQkfeH1mtq8mHsRGFc+TYI7TJm+VIN+G5Gxd8768Y4mvGo7DWg98=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwbA6pfthIfBm9JxgMpTFO2W4nB+qAUSQkKZbxX2ndDqPpvOnX1
-	6dmlLKLsV7AWHpVp0XseRUg7hcEzioF/etETqI0ot6n/TadDX6ko9j7uVqbgibTao/Unfan05qg
-	FCAQUpZuhw0v/dhPbslSDb8E2pZqXDHpNOb9KM0pdFMmyvk8vzSNcGg==
-X-Received: by 2002:a05:6000:183:b0:376:dbb5:10c2 with SMTP id ffacd0b85a97d-37ecf08650fmr7003023f8f.29.1729507969837;
-        Mon, 21 Oct 2024 03:52:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEdA0NxQjeMM/mp9d3cx0ocUBlXzwmAevgDKmJdOzzdQKq8l1oOAE/WjVMpBUAWAdDgbNEdlQ==
-X-Received: by 2002:a05:6000:183:b0:376:dbb5:10c2 with SMTP id ffacd0b85a97d-37ecf08650fmr7003008f8f.29.1729507969505;
-        Mon, 21 Oct 2024 03:52:49 -0700 (PDT)
-Received: from ?IPV6:2a0d:3344:1b73:a910::f71? ([2a0d:3344:1b73:a910::f71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37ee0a37b07sm4065797f8f.1.2024.10.21.03.52.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Oct 2024 03:52:49 -0700 (PDT)
-Message-ID: <20d9ed5f-abde-43ee-854f-48a9f69e9c04@redhat.com>
-Date: Mon, 21 Oct 2024 12:52:47 +0200
+        d=1e100.net; s=20230601; t=1729518450; x=1730123250;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=L0PguM/y3AdR81087UZxaCc/iTHakbzKnJWRYI0kM+s=;
+        b=mU4xHK9r3gdjSeG8+LBKz1E7m+lI/X7ncyGFqB8Ifm/zW51kCrVs2Bn3Rv/oXK/S1m
+         hpRReD+cwU7ks4OOdbrspJJuEhiOlwL8SNHaLGVVOGnBTMOd88ZKI2wj6gCTiVyx6AaD
+         fNVD/9jDcWht2h9kYcRCxcWCV5mEuBTuqR5C7gCcA+x3ng4f/T1U1fDTvhGdkkTbbsRA
+         p4SWTGn6zRW+7t8taZl2Ap4A/xBjcjVcn2Wrju/KgzniRrpKm8G9huDb91wwtKxQOS2v
+         IcfgpdlZUEjWMxUmYaecnRT7af19IrNaF/MHPU0URCYqvZGaIQFdB1PRPJCZjY9JRiaS
+         yVkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUWqk3nCkFiG4Zb235lWpFjOmXpjFmWNgCqJpND7r+Br42nU2faKGjnIydi4gYH/svvjiGIzyM=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwVVuF8cTvW6DekPmcd8dRT3KuML0Z6XJp1iTFiAVYt0B3bAmkV
+	ALxlLL59/eBNwvC2Ma5zB7ZIm/RYuvZmDpH/IoXBjbPJ9g/BwyQU
+X-Google-Smtp-Source: AGHT+IHllwIsaig8SX4FhN+AvinTZ5nJRChFYQ0yBVkHaCSnwF1lUgDNNoWUZkrrdij66hbn5eP8Xg==
+X-Received: by 2002:a17:906:6a26:b0:a9a:5b78:cee5 with SMTP id a640c23a62f3a-a9a69c685d4mr437986966b.9.1729518449909;
+        Mon, 21 Oct 2024 06:47:29 -0700 (PDT)
+Received: from skbuf ([188.25.134.29])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a91370e54sm204503966b.102.2024.10.21.06.47.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Oct 2024 06:47:29 -0700 (PDT)
+Date: Mon, 21 Oct 2024 16:47:26 +0300
+From: Vladimir Oltean <olteanv@gmail.com>
+To: Eric Woudstra <ericwouds@gmail.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Lorenzo Bianconi <lorenzo@kernel.org>,
+	Frank Wunderlich <frank-w@public-files.de>,
+	Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org, bridge@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
+	Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH RFC v1 net-next 11/12] bridge:
+ br_vlan_fill_forward_path_mode no _UNTAG_HW for dsa
+Message-ID: <20241021134726.dzfz5uu2peyin3kk@skbuf>
+References: <20241013185509.4430-1-ericwouds@gmail.com>
+ <20241013185509.4430-12-ericwouds@gmail.com>
+ <281cce27-c832-41c8-87d0-fbac05b8e802@blackwall.org>
+ <6209405e-7100-43f9-b415-3be8fbcc6352@blackwall.org>
+ <20241014144613.mkc62dvfzp3vr7rj@skbuf>
+ <b919a6b1-1c07-4fc9-b3dc-a7ac2f3645bf@gmail.com>
+ <785f6b7a-1de1-46fe-aa6f-9b20feee5973@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3 05/10] net: ip: make ip_route_input_slow()
- return drop reasons
-To: Menglong Dong <menglong8.dong@gmail.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- dsahern@kernel.org, pablo@netfilter.org, kadlec@netfilter.org,
- roopa@nvidia.com, razor@blackwall.org, gnault@redhat.com,
- bigeasy@linutronix.de, idosch@nvidia.com, ast@kernel.org,
- dongml2@chinatelecom.cn, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev, bpf@vger.kernel.org
-References: <20241015140800.159466-1-dongml2@chinatelecom.cn>
- <20241015140800.159466-6-dongml2@chinatelecom.cn>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20241015140800.159466-6-dongml2@chinatelecom.cn>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <785f6b7a-1de1-46fe-aa6f-9b20feee5973@gmail.com>
 
-On 10/15/24 16:07, Menglong Dong wrote:
-> @@ -2316,19 +2327,25 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
->  		err = -EHOSTUNREACH;
->  		goto no_route;
->  	}
-> -	if (res->type != RTN_UNICAST)
-> +	if (res->type != RTN_UNICAST) {
-> +		reason = SKB_DROP_REASON_IP_INVALID_DEST;
->  		goto martian_destination;
-> +	}
->  
->  make_route:
->  	err = ip_mkroute_input(skb, res, in_dev, daddr, saddr, dscp, flkeys);
-> -out:	return err;
-> +	if (!err)
-> +		reason = SKB_NOT_DROPPED_YET;
-> +
-> +out:	return reason;
+On Sun, Oct 20, 2024 at 11:23:18AM +0200, Eric Woudstra wrote:
+> So after doing some more reading, at creation of the code using
+> BR_VLFLAG_ADDED_BY_SWITCHDEV would have been without problems.
+> 
+> After the switchdev was altered so that objects from foreign devices can
+> be added, it is problematic in br_vlan_fill_forward_path_mode(). I have
+> tested and indeed any foreign device does have this problem.
+> 
+> So we need a way to distinguish in br_vlan_fill_forward_path_mode()
+> whether or not we are dealing with a (dsa) foreign device on the switchdev.
+> 
+> I have come up with something, but this is most likely to crude to be
+> accepted, but for the sake of 'rfc' discussing it may lead to a proper
+> solution. So what does work is the following patch, so that
+> netif_has_dsa_foreign_vlan() can be used inside
+> br_vlan_fill_forward_path_mode().
+> 
+> Any suggestions on how this could be implemented properly would be
+> greatly appreciated.
 
-Since you are touching this line, please rewrite the code with a more
-natural indentation:
+I don't know nearly enough about the netfilter flowtable to even
+understand exactly the problem you're describing and are trying to solve.
+I've started to read up on things, but plenty of concepts are new and
+I'm mixing this with plenty of other activities. If you could share some
+commands to build a test setup so I could form my own independent
+opinion of what is going on, it would be great as it would speed up that
+process.
 
-out:
-	return reason;
-
-Thanks,
-
-Paolo
-
+With respect to the patch you've posted, it doesn't look exactly great.
+One would need to make a thorough analysis of the bridge's use of
+BR_VLFLAG_ADDED_BY_SWITCHDEV, of whether it still makes sense in today's
+world where br_switchdev_vlan_replay() is a thing (a VLAN that used to
+not be "added by switchdev" can become "added by switchdev" after a
+replay, but this flag will remain incorrectly unset), of whether VLANs on
+foreign DSA interfaces should even have this flag set, and on whether
+your flowtable forwarding path patches are conceptually using it correctly.
+There's a lot to think about, and if somebody doesn't have the big picture,
+I'm worried that a wrong decision will be taken.
