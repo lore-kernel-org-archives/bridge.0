@@ -1,81 +1,85 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02CAF1D1F4D
-	for <bridge@lists.linux.dev>; Mon, 21 Oct 2024 13:47:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0ABF14A60A
+	for <bridge@lists.linux.dev>; Tue, 22 Oct 2024 07:25:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729518454; cv=none; b=tkDtyddcpJ9YCjJwrsUM33NiX4sijEFj+WDU7LQMF1A9SxLtsOGTQG67ubd2pD2nwglnHUo/GT/4SXjPhjniZBfOl2ndmOowCzxTiGsJDhy3eYSwfBVELBxGMYpBxzobPBn1opLB1SoeQg8AMXWKdStHONAHFhMFHPK48h0iSuQ=
+	t=1729581944; cv=none; b=pWolLD0XRhpL+y7sENjA4VfBC3KJYYd2smgC6hioN7pkS1JM6tAycImAe+Kdhugdi8JwJ3M1F8PrgxHTsx6A6OGHFywamYYGVyURZstFv/bzW/5axuOmTcZODf4+HTAYFSLLGN5cF5F4/mty9wDaPiH4j4spMPKaiolERn3pcKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729518454; c=relaxed/simple;
-	bh=pZC3YbqyBViAPdxBqxiw35UgPV0nDZR5cXq4uA20i5g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bB4c6OykYfcOBEf47DuZAduFs+qMdHQnABNFdDwA+po7ufjCw5bYwW0bwkTVrLrEVVvbnBQMPOu++xKr+g2RQLCS0tg0i5noroTczhq++lt9MEJOwyMFJ4HM52CrDX+AysjSs2wRtc/MxNAE6AEymsYsKkvHMnS/9eIpoFfpeJA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jPZgAYWd; arc=none smtp.client-ip=209.85.218.53
+	s=arc-20240116; t=1729581944; c=relaxed/simple;
+	bh=RPBvFd0csLQUXJSE14s/so+mpDpWxuoXRgoonDdlEEs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=i4gTd4QZFwuzzE41us3pkfs5pf8UhP0LQgE7kaVaqPviDxuwinO5lPVT4OlaKGErZS+tKI+7QSwts5Su6d3WVfIOGFecn8Mm9cHEnqqFaOYvqu0FxeQmEYCH4dTG9pfX8NZXDHDzT6l1G0moLJGV/GHg2HJiaA0NylTW3qHhW/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TGcUDrEn; arc=none smtp.client-ip=209.85.218.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jPZgAYWd"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a9a1be34cc9so49947566b.1
-        for <bridge@lists.linux.dev>; Mon, 21 Oct 2024 06:47:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TGcUDrEn"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a9a0cee600aso668843466b.1
+        for <bridge@lists.linux.dev>; Tue, 22 Oct 2024 00:25:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729518450; x=1730123250; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=L0PguM/y3AdR81087UZxaCc/iTHakbzKnJWRYI0kM+s=;
-        b=jPZgAYWdwY03MUPjcxKPJoM7E4/tNlTGYxOO6g4sGT5xR7zAMIXLLUcWrJtJyPfG4n
-         DcROVJWk3J7qe2eSA7HQ9dWO2J12NbMzPxBlH+Qnw1tDv31+7vAVurvuuqrd6PtfeKe7
-         Os6wK5f1QmOGF0VzlrQNQNI5hn2Wj8hJznbbi1p+IvdEt49M3WAq7UvKwhFRRXcNX0Ju
-         rOX/q8OKYkOY4s+hoSn0RLM5qOrc4ABxD4Uy2CRq8XADqFxfHLM4svHg8w7YF3C0O+Pd
-         bLTErwTfIJwsmWQnAMGy9MN36uZku5pGDk7Df43yypU0y06fFxQiM1Gdea5RyOqvQLCu
-         nEPA==
+        d=gmail.com; s=20230601; t=1729581941; x=1730186741; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=RPBvFd0csLQUXJSE14s/so+mpDpWxuoXRgoonDdlEEs=;
+        b=TGcUDrEnjvmx/a+tu6ZIO3z8JG9pBySgniZP10gjATmoqUxnWQnO8j8bYCHp6BXzix
+         jMKi7XvyQSG+F4xgmznuknheB1YHgAhvIqLUrmWu9UByD32yvxfmjjiA3zXaIWY8U6eJ
+         l4MTq0BfKb+G4foh444HhRe0jWzM9wzOOdgeSLKZJw53DVOSUrQS28zp7nS9Qb1Lqk4j
+         qVRJGbv8u7UQijtazZspXa7lLZVVeOYyp/ddkh2ZRCimc8Tgm892hW9k9OBd/21gCm/1
+         F+r547HK8bQ5HYUrdLnESbDsvwZbj+S2VT1VxP6UGEFCNiVgolhmmeteUXSukpCJpImC
+         v1EA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729518450; x=1730123250;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=L0PguM/y3AdR81087UZxaCc/iTHakbzKnJWRYI0kM+s=;
-        b=mU4xHK9r3gdjSeG8+LBKz1E7m+lI/X7ncyGFqB8Ifm/zW51kCrVs2Bn3Rv/oXK/S1m
-         hpRReD+cwU7ks4OOdbrspJJuEhiOlwL8SNHaLGVVOGnBTMOd88ZKI2wj6gCTiVyx6AaD
-         fNVD/9jDcWht2h9kYcRCxcWCV5mEuBTuqR5C7gCcA+x3ng4f/T1U1fDTvhGdkkTbbsRA
-         p4SWTGn6zRW+7t8taZl2Ap4A/xBjcjVcn2Wrju/KgzniRrpKm8G9huDb91wwtKxQOS2v
-         IcfgpdlZUEjWMxUmYaecnRT7af19IrNaF/MHPU0URCYqvZGaIQFdB1PRPJCZjY9JRiaS
-         yVkQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUWqk3nCkFiG4Zb235lWpFjOmXpjFmWNgCqJpND7r+Br42nU2faKGjnIydi4gYH/svvjiGIzyM=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwVVuF8cTvW6DekPmcd8dRT3KuML0Z6XJp1iTFiAVYt0B3bAmkV
-	ALxlLL59/eBNwvC2Ma5zB7ZIm/RYuvZmDpH/IoXBjbPJ9g/BwyQU
-X-Google-Smtp-Source: AGHT+IHllwIsaig8SX4FhN+AvinTZ5nJRChFYQ0yBVkHaCSnwF1lUgDNNoWUZkrrdij66hbn5eP8Xg==
-X-Received: by 2002:a17:906:6a26:b0:a9a:5b78:cee5 with SMTP id a640c23a62f3a-a9a69c685d4mr437986966b.9.1729518449909;
-        Mon, 21 Oct 2024 06:47:29 -0700 (PDT)
-Received: from skbuf ([188.25.134.29])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a91370e54sm204503966b.102.2024.10.21.06.47.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Oct 2024 06:47:29 -0700 (PDT)
-Date: Mon, 21 Oct 2024 16:47:26 +0300
-From: Vladimir Oltean <olteanv@gmail.com>
-To: Eric Woudstra <ericwouds@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Lorenzo Bianconi <lorenzo@kernel.org>,
-	Frank Wunderlich <frank-w@public-files.de>,
-	Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
-	Florian Fainelli <f.fainelli@gmail.com>
+        d=1e100.net; s=20230601; t=1729581941; x=1730186741;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RPBvFd0csLQUXJSE14s/so+mpDpWxuoXRgoonDdlEEs=;
+        b=BOohvNSqmw1VC2Y5PUcLt2WJXoz7l6D8wZkN0tu6nE7Kvy4jxG9/hkO8euXJqnsoDM
+         sCXtkx8szkCbBahKWh3mZEE3OYGsAScBkEih2mUYq6c6GKentReuCt7uZvPOnNirFMAU
+         tZOiDpHADcYYWX3NZoWsYQeV3mjifvDiHm5EYltXQcpRvu7ZM1gnAQrv14f1UebmzIgt
+         /JZYhzVhNtp2201aLbo6puTslfh57nz7yWV6zVyBZhLnruTCqb8gfgMvyFdRLfBDN67a
+         jVetYHXODeX/Bigr3VQNR8STO3VmVpZsAlFoF32rnNDfY7dphP9vFvBg4OwYEKxUEy9y
+         PSSA==
+X-Forwarded-Encrypted: i=1; AJvYcCU7JBc8YyQ5yxRDWeoqp9XOJO0imIIYtJqB6XJTTYPd2CHhAexZJZuMoxqfvybGTvFu4Cnt/q4=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyB7G9MrrfCAvk5gKPu9PbCg+ERV07c3GgZJw4OkbGVcggBnkZw
+	lBc8Qp9FJs/vJ9ydiON9Rckmr2C8ZVSlwj5Dp6k4USBAY3l/URuC
+X-Google-Smtp-Source: AGHT+IFgOViCVHZGVqc02ueX63hUlO23JFELymqv7xnRaAD5bkA+z0a7m5o4etcnJkf9oA9PvbTbqg==
+X-Received: by 2002:a17:906:730d:b0:a99:e850:deb3 with SMTP id a640c23a62f3a-a9aace512d4mr147614666b.18.1729581940590;
+        Tue, 22 Oct 2024 00:25:40 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a91572575sm299075866b.156.2024.10.22.00.25.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Oct 2024 00:25:40 -0700 (PDT)
+Message-ID: <540a623c-3e7c-40a7-ae77-6833e81fa11e@gmail.com>
+Date: Tue, 22 Oct 2024 09:25:38 +0200
+Precedence: bulk
+X-Mailing-List: bridge@lists.linux.dev
+List-Id: <bridge.lists.linux.dev>
+List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH RFC v1 net-next 11/12] bridge:
  br_vlan_fill_forward_path_mode no _UNTAG_HW for dsa
-Message-ID: <20241021134726.dzfz5uu2peyin3kk@skbuf>
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Pablo Neira Ayuso <pablo@netfilter.org>,
+ Jozsef Kadlecsik <kadlec@netfilter.org>, Roopa Prabhu <roopa@nvidia.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Lorenzo Bianconi <lorenzo@kernel.org>,
+ Frank Wunderlich <frank-w@public-files.de>,
+ Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
+ Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>
 References: <20241013185509.4430-1-ericwouds@gmail.com>
  <20241013185509.4430-12-ericwouds@gmail.com>
  <281cce27-c832-41c8-87d0-fbac05b8e802@blackwall.org>
@@ -83,51 +87,93 @@ References: <20241013185509.4430-1-ericwouds@gmail.com>
  <20241014144613.mkc62dvfzp3vr7rj@skbuf>
  <b919a6b1-1c07-4fc9-b3dc-a7ac2f3645bf@gmail.com>
  <785f6b7a-1de1-46fe-aa6f-9b20feee5973@gmail.com>
-Precedence: bulk
-X-Mailing-List: bridge@lists.linux.dev
-List-Id: <bridge.lists.linux.dev>
-List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <785f6b7a-1de1-46fe-aa6f-9b20feee5973@gmail.com>
+ <20241021134726.dzfz5uu2peyin3kk@skbuf>
+From: Eric Woudstra <ericwouds@gmail.com>
+Content-Language: en-US
+In-Reply-To: <20241021134726.dzfz5uu2peyin3kk@skbuf>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sun, Oct 20, 2024 at 11:23:18AM +0200, Eric Woudstra wrote:
-> So after doing some more reading, at creation of the code using
-> BR_VLFLAG_ADDED_BY_SWITCHDEV would have been without problems.
-> 
-> After the switchdev was altered so that objects from foreign devices can
-> be added, it is problematic in br_vlan_fill_forward_path_mode(). I have
-> tested and indeed any foreign device does have this problem.
-> 
-> So we need a way to distinguish in br_vlan_fill_forward_path_mode()
-> whether or not we are dealing with a (dsa) foreign device on the switchdev.
-> 
-> I have come up with something, but this is most likely to crude to be
-> accepted, but for the sake of 'rfc' discussing it may lead to a proper
-> solution. So what does work is the following patch, so that
-> netif_has_dsa_foreign_vlan() can be used inside
-> br_vlan_fill_forward_path_mode().
-> 
-> Any suggestions on how this could be implemented properly would be
-> greatly appreciated.
 
-I don't know nearly enough about the netfilter flowtable to even
-understand exactly the problem you're describing and are trying to solve.
-I've started to read up on things, but plenty of concepts are new and
-I'm mixing this with plenty of other activities. If you could share some
-commands to build a test setup so I could form my own independent
-opinion of what is going on, it would be great as it would speed up that
-process.
 
-With respect to the patch you've posted, it doesn't look exactly great.
-One would need to make a thorough analysis of the bridge's use of
-BR_VLFLAG_ADDED_BY_SWITCHDEV, of whether it still makes sense in today's
-world where br_switchdev_vlan_replay() is a thing (a VLAN that used to
-not be "added by switchdev" can become "added by switchdev" after a
-replay, but this flag will remain incorrectly unset), of whether VLANs on
-foreign DSA interfaces should even have this flag set, and on whether
-your flowtable forwarding path patches are conceptually using it correctly.
-There's a lot to think about, and if somebody doesn't have the big picture,
-I'm worried that a wrong decision will be taken.
+On 10/21/24 3:47 PM, Vladimir Oltean wrote:
+> On Sun, Oct 20, 2024 at 11:23:18AM +0200, Eric Woudstra wrote:
+>> So after doing some more reading, at creation of the code using
+>> BR_VLFLAG_ADDED_BY_SWITCHDEV would have been without problems.
+>>
+>> After the switchdev was altered so that objects from foreign devices can
+>> be added, it is problematic in br_vlan_fill_forward_path_mode(). I have
+>> tested and indeed any foreign device does have this problem.
+>>
+>> So we need a way to distinguish in br_vlan_fill_forward_path_mode()
+>> whether or not we are dealing with a (dsa) foreign device on the switchdev.
+>>
+>> I have come up with something, but this is most likely to crude to be
+>> accepted, but for the sake of 'rfc' discussing it may lead to a proper
+>> solution. So what does work is the following patch, so that
+>> netif_has_dsa_foreign_vlan() can be used inside
+>> br_vlan_fill_forward_path_mode().
+>>
+>> Any suggestions on how this could be implemented properly would be
+>> greatly appreciated.
+
+
+> I don't know nearly enough about the netfilter flowtable to even
+> understand exactly the problem you're describing and are trying to solve.
+> I've started to read up on things, but plenty of concepts are new and
+
+Another way of shortly describing it, considering the software fastpath,
+only there it is a problem:
+
+Same case #1:
+When looking at the ingress hook of the fastpath for a bridged
+switchdev-port (non-dsa) with PVID set, the existing code is written so
+that the flowtuple needs to match the packet INcluding the PVID.
+
+Same case #2:
+When considering the ingress hook of the fastpath of a bridged device
+that is not part of a switchdev at all and there is no dsa on the bridge
+(so it is not a foreign device), the existing code is written so that
+the flowtuple needs to match the packet EXcluding the PVID.
+
+When looking at the diagram of this patch, wlan1 would stand for any
+foreign device. Because of the use of BR_VLFLAG_ADDED_BY_SWITCHDEV, case
+#1 is applied, instead of case #2.
+
+> I'm mixing this with plenty of other activities. If you could share some
+> commands to build a test setup so I could form my own independent
+> opinion of what is going on, it would be great as it would speed up that
+> process.
+
+I've only setup the bridged part with systemd-networkd. When trying to
+re-create, it will only happen if the total action of the bridge,
+towards the foreign port, is:
+
+ingress + egress = untagging
+
+So in the forward-fastpath, tagging in the forward path is done by a
+vlan-device and untagging is done in the forward path of the bridge.
+
+> With respect to the patch you've posted, it doesn't look exactly great.
+
+Agreed. I was experimenting now with having br_switchdev_port_vlan_add()
+first to try it only for non-foreign ports. If not successful, then try
+it with foreign ports. This way the calling function will know if the
+port is a foreign port. Therefore, no need for the switchdev driver to
+communicate back to upper layers.
+
+> One would need to make a thorough analysis of the bridge's use of
+> BR_VLFLAG_ADDED_BY_SWITCHDEV, of whether it still makes sense in today's
+> world where br_switchdev_vlan_replay() is a thing (a VLAN that used to
+> not be "added by switchdev" can become "added by switchdev" after a
+> replay, but this flag will remain incorrectly unset), of whether VLANs on
+> foreign DSA interfaces should even have this flag set, and on whether
+> your flowtable forwarding path patches are conceptually using it correctly.
+> There's a lot to think about, and if somebody doesn't have the big picture,
+> I'm worried that a wrong decision will be taken.
+
+The entire usage BR_VLFLAG_ADDED_BY_SWITCHDEV does need a careful review.
+
+I also realize my patch-set needs to do more with the switchdev and vlan
+combination, then it does now. So for now I will leave it as RFC, as it
+will not work properly with switchdevs other the dsa.
