@@ -1,55 +1,55 @@
-Received: from mail-yw1-f193.google.com (mail-yw1-f193.google.com [209.85.128.193])
+Received: from mail-yw1-f194.google.com (mail-yw1-f194.google.com [209.85.128.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2317E2BB09
-	for <bridge@lists.linux.dev>; Tue, 22 Oct 2024 08:46:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D41A5156231
+	for <bridge@lists.linux.dev>; Tue, 22 Oct 2024 08:48:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729586817; cv=none; b=S6AF5Vxc0TJGkYpCaPDHJT4eNErRZcTVGwgCzQGEeh2AhoJrAft3pMJgEhq9QJif+WyCDJiac+0DysJW1Z038uaf/FVRdfaL9zUL1L3cv09J3iCx5TKKmb3PCyvkOti5njmcqi0XSwL072SLiaQyh/Bt4GKxZAR/dtZMoTA7sGs=
+	t=1729586934; cv=none; b=kfiPmHXAnTDkxYIVf0XwDcrUe1qzlzhfCRYnm9chTJNMfJLu/ojscQ0Lo65nyltscuKDLh6baoj02jP5QAMD01VNnrbnH55yR9qqdRNufxLsGmGP3iAg8maaOP93oSzWZpHmiEZdawitT/B2YYPrUF/RUMnW5Jq+tt9XPwy/isM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729586817; c=relaxed/simple;
-	bh=KoxzzeJo6etocqx2b/o+OlOXOv6uNN7rqTozMtP8LX4=;
+	s=arc-20240116; t=1729586934; c=relaxed/simple;
+	bh=BrXgG3mZIvjp5VteprPhQXe2uhCHZoadbc1SbaYA3JE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZEd5JBzbFyduy/ee3uvUW0eH+8AuEuZdONDvsCB2D2sR0LeBwD1UihB1CaUqmWRqHiMKTOE9SD2gF+JTyJKLDzN2FPgMm7iQchtEACxMwu9V3ZJZqLrgrkSZDrc++oAI3ANIgHLFoSxFPjuxx6auN4VPA5DumJkbSrD8wMm49Hc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XSRGt1i0; arc=none smtp.client-ip=209.85.128.193
+	 To:Cc:Content-Type; b=j5PxKQXMrBwvrEM2ppwNbsLsD0dUx4Sz/UxGpmPODIlaA3SOOmrDvXARORSIuoqshlyVmXO0gkltZg5YjnAy67f3YvpKOOMnGxjILipuN1LwOU84oa6pa6pcypT/dAmSxyv8IRKlvfVLPY62uNmD4qAuSYo7OC1bsP7W3JqWjXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MUUxKvMd; arc=none smtp.client-ip=209.85.128.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XSRGt1i0"
-Received: by mail-yw1-f193.google.com with SMTP id 00721157ae682-6e3d7e6f832so51499407b3.0
-        for <bridge@lists.linux.dev>; Tue, 22 Oct 2024 01:46:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MUUxKvMd"
+Received: by mail-yw1-f194.google.com with SMTP id 00721157ae682-6e2e508bd28so40751397b3.2
+        for <bridge@lists.linux.dev>; Tue, 22 Oct 2024 01:48:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729586815; x=1730191615; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1729586932; x=1730191732; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UUFrYT1eNOid4dqFuQyZap0oTpnRGPS1wGDonRnbV+Y=;
-        b=XSRGt1i03s3lkXlTti6R5WJAv4Jqnn2BryV0vznGS9kNUE6jtiEZqhgxvA7PH5CvTj
-         3kas0+i6dnhyBZDUoAGn0FM/HY4tAjy4TjWcSQpmUPsqLECLeskgVdQhllJIVVyiJTeo
-         c++rLF8PZs7K4NgOxor+/EFh+bLIaCty9dxKkRU6cPPW0RsmCcIfSU8Xf3Ae3+AUoWIN
-         tUbxLMv2nI0q56G7WbGahNsFyy+gYcKojIu7u3C/0nHbl1mCNKgFmQnx7lU00xmOtk7U
-         aNHHI0rN//aTEJqK+NgqlL2iIPqCOfEeSR5OcBJG8KQSTK4J2vqEsx+uWDc9gRYF+5Fy
-         QG8A==
+        bh=Rdf6iyxgoydO05+DI1ZE9WtsllUDQOZhnJERRHa/4XU=;
+        b=MUUxKvMd1cBi4721WqiBCOi/8IYtQI+0jiE4paxR18LVYylw5Uy5zPYbKhbgos8hWz
+         +KEVwTFTuQt9ZxN9ChAxPt0eqOZwklGSlRxZXTiPzuaYhKudc5ylL6PXwgbA6jgrkc5D
+         Judac1j1vcxFXDQRC29Pd3VsV5oIduCO1G8PWPNedU1Ayj82IFM1kfsRIDWJC46zGCOE
+         U5bI39Eb+Z1NC1L2l2tcL5woyyPuPOUzH8dg3S5g8iDg6pABwp7G1cCyXy3QOitLX2M5
+         eexr1GbI4rlQY7arfjoq1fGCrhWXt6y+z5H7JJzbK50snC6xpXj6ganAVRQYRvY7iEtL
+         lcMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729586815; x=1730191615;
+        d=1e100.net; s=20230601; t=1729586932; x=1730191732;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UUFrYT1eNOid4dqFuQyZap0oTpnRGPS1wGDonRnbV+Y=;
-        b=avMQ63YEQ+m7TED0O+M+nWEtZkie1NzzZ+tU3CARYiLYC2531z5ku6V3YdHfBCRYMB
-         W3H1soMlE6M6j5mW+vTf0b6mc96hWPXR+zeDUQ+V7pEM6aMJzg1IFCGL1+i9p7oEDZmY
-         4wEw/7n8JZb1XWwGoL8WSBwBbIBoVN2zh39D13n8vF9xTaH6PuAzSBGrUaFoYMTGTLIu
-         55MUIN1VbTxmUIoR6LcWWpitH4RWM9Hu6P4SZnZxflggfQeSWNfxydP+pBg993iqQB4C
-         0CRYr7ud6lnpeN6uPVa5kYgCmX8j65yRUQWl67+SCoPxdxeXHr/a0MWafa2w3oinAC3z
-         btQA==
-X-Forwarded-Encrypted: i=1; AJvYcCWhHSiDxw0ZUKhyRyp378nmUyXj4lXGj0y/BJgb2goORhTI/WrUwAFvcpLF9GXTp1I0CF03e/c=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzDl9V1N00LZZ7uAgbzfG9MQXFt6qYXJL9fFO53UaNSJZhmLh45
-	Dl9qAVfhP2trdzkUdqhd6PaaVlSZh2snxlDN7ytq7sYQp3/55AdBiwWdZhX2UhrpoCXxLaKQ6XK
-	dp4TwbzuC9YlBnO+6BqNX/+dMuItLOcktnlo=
-X-Google-Smtp-Source: AGHT+IGa70DbIzj17jnQMKvxrqZzKAIwpBsupiT5kH056AnnXaak0bg1EodNANRT8iYvRLR4hMiz9fU4XeAZxEwSSaU=
-X-Received: by 2002:a05:690c:f8f:b0:6d3:f9a6:e29c with SMTP id
- 00721157ae682-6e5bf9a0846mr134520257b3.12.1729586814908; Tue, 22 Oct 2024
- 01:46:54 -0700 (PDT)
+        bh=Rdf6iyxgoydO05+DI1ZE9WtsllUDQOZhnJERRHa/4XU=;
+        b=SCUCmEysCZEPEjLzi1qOQU//qalRuvqj3qb0taoVoAVze1g/8dUewL4hjDRPDTcE6p
+         n83+CTwQM+TC5U5h+ASOGfmeG8U9U2YSL6lD+uFK08LMIN05t/+TW3uKvtxLa/ZRV7Oh
+         5P5Oo7ngT3zdD9w12dlJtCj/SMt7vawJ1SlePvkynyK2O+OOYt9WqC1VFk00GjMil7ee
+         sHTDSzzZFStMq2TPRAFO+b76xLdMWrI+pBwutI3xR6eTR/LY6sLWeN6VvIhffs7yA0KU
+         xLd5JQTpAI/m/pH+qOqHtOR34QYvxNDmXydE9Izp8saADRrlIXmLsFX5/2cqqAbhCeV2
+         H3tw==
+X-Forwarded-Encrypted: i=1; AJvYcCUj/V6Zk9H3HA3txqjb8bCacncIIewRt/v+hh7tJbe78RU8thtSFH/OE82srUyt9+HInsuaYZI=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwkDB6UYKWVI1yT4binOro4/rbOdK78zO3MJcwHr1z152hJdf3S
+	9zbDO/j7UIVlity07N6ng3RdIhUWWqNAChorwVUYGB6KZHTgl14rEAq2LIzTlA+vBFy9h9+BOgZ
+	osmtQwiw20zG6Y3iYMMhbeMlTKM4=
+X-Google-Smtp-Source: AGHT+IHPESBrda0KhCPYYllg4/MfLv0BjYbIDe6VspItnYGPEClLzmjPWeiQXptBhW3wuVXNgYoCrmc2BBLEkUbKEUE=
+X-Received: by 2002:a05:690c:f91:b0:6de:c0e:20ef with SMTP id
+ 00721157ae682-6e5bfbdbe14mr128141717b3.7.1729586931792; Tue, 22 Oct 2024
+ 01:48:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -57,13 +57,14 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 References: <20241015140800.159466-1-dongml2@chinatelecom.cn>
- <20241015140800.159466-3-dongml2@chinatelecom.cn> <71a20e24-10e8-42a8-8509-7e704aff9c5c@redhat.com>
-In-Reply-To: <71a20e24-10e8-42a8-8509-7e704aff9c5c@redhat.com>
+ <20241015140800.159466-8-dongml2@chinatelecom.cn> <c6e8f053-32bb-4ebd-871b-af416d0b0531@redhat.com>
+ <f792a828-8a61-4a14-bef8-ff318b5a4ac3@redhat.com>
+In-Reply-To: <f792a828-8a61-4a14-bef8-ff318b5a4ac3@redhat.com>
 From: Menglong Dong <menglong8.dong@gmail.com>
-Date: Tue, 22 Oct 2024 16:47:50 +0800
-Message-ID: <CADxym3b6gat7Xs20oN12xsYNSGM3zaJkGirzGv57jA-+Kyr7+A@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 02/10] net: ip: make fib_validate_source()
- return drop reason
+Date: Tue, 22 Oct 2024 16:49:47 +0800
+Message-ID: <CADxym3b7r-YJ5x==A0wLO1Yuz1dp4E7uMjEzB5EbqfN+eoR3+A@mail.gmail.com>
+Subject: Re: [PATCH net-next v3 07/10] net: ip: make ip_route_input_noref()
+ return drop reasons
 To: Paolo Abeni <pabeni@redhat.com>
 Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
 	dsahern@kernel.org, pablo@netfilter.org, kadlec@netfilter.org, 
@@ -75,69 +76,40 @@ Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 21, 2024 at 6:20=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wro=
+On Mon, Oct 21, 2024 at 6:49=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wro=
 te:
 >
-> On 10/15/24 16:07, Menglong Dong wrote:
-> > diff --git a/include/net/ip_fib.h b/include/net/ip_fib.h
-> > index 90ff815f212b..b3f7a1562140 100644
-> > --- a/include/net/ip_fib.h
-> > +++ b/include/net/ip_fib.h
-> > @@ -452,13 +452,16 @@ int __fib_validate_source(struct sk_buff *skb, __=
-be32 src, __be32 dst,
-> >                         dscp_t dscp, int oif, struct net_device *dev,
-> >                         struct in_device *idev, u32 *itag);
-> >
-> > -static inline int
-> > +static inline enum skb_drop_reason
-> >  fib_validate_source(struct sk_buff *skb, __be32 src, __be32 dst,
-> >                   dscp_t dscp, int oif, struct net_device *dev,
-> >                   struct in_device *idev, u32 *itag)
-> >  {
-> > -     return __fib_validate_source(skb, src, dst, dscp, oif, dev, idev,
-> > -                                  itag);
-> > +     int err =3D __fib_validate_source(skb, src, dst, dscp, oif, dev, =
-idev,
-> > +                                     itag);
-> > +     if (err < 0)
-> > +             return -err;
-> > +     return SKB_NOT_DROPPED_YET;
-> >  }
 >
-> It looks like the code churn in patch 1 is not needed??? You could just
-> define here a fib_validate_source_reason() helper doing the above, and
-> replace fib_validate_source with the the new helper as needed. Would
-> that work?
+>
+> On 10/21/24 12:44, Paolo Abeni wrote:
+> > On 10/15/24 16:07, Menglong Dong wrote:
+> >> diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
+> >> index e0ca24a58810..a4652f2a103a 100644
+> >> --- a/net/core/lwt_bpf.c
+> >> +++ b/net/core/lwt_bpf.c
+> >> @@ -98,6 +98,7 @@ static int bpf_lwt_input_reroute(struct sk_buff *skb=
+)
+> >>              skb_dst_drop(skb);
+> >>              err =3D ip_route_input_noref(skb, iph->daddr, iph->saddr,
+> >>                                         ip4h_dscp(iph), dev);
+> >> +            err =3D err ? -EINVAL : 0;
+> >
+> > Please introduce and use a drop_reason variable here instead of 'err',
+> > to make it clear the type conversion.
+>
+> Or even better, collapse the 2 statements:
+>
+>                 err =3D ip_route_input_noref(skb, iph->daddr, iph->saddr,
+>                                    ip4h_dscp(iph), dev) ? -EINVAL : 0;
+>
+> There are other places which could use a similar changes.
 >
 
-Of course, that works fine. I'm just trying to find a graceful way
-for this part. Defining a fib_validate_source_reason() here looks
-nice too, and we can ignore the 1st patch. I'll do it this way in
-the next version.
+Yeah, it makes things much more clear.
 
 Thanks!
 Menglong Dong
 
-> > @@ -1785,9 +1785,10 @@ static int __mkroute_input(struct sk_buff *skb, =
-const struct fib_result *res,
-> >               return -EINVAL;
-> >       }
-> >
-> > -     err =3D fib_validate_source(skb, saddr, daddr, dscp, FIB_RES_OIF(=
-*res),
-> > -                               in_dev->dev, in_dev, &itag);
-> > +     err =3D __fib_validate_source(skb, saddr, daddr, dscp, FIB_RES_OI=
-F(*res),
-> > +                                 in_dev->dev, in_dev, &itag);
-> >       if (err < 0) {
-> > +             err =3D -EINVAL;
-> >               ip_handle_martian_source(in_dev->dev, in_dev, skb, daddr,
-> >                                        saddr);
->
-> I'm sorry for not noticing this issue before, but must preserve (at
-> least) the -EXDEV error code from the unpatched version or RP Filter MIB
-> accounting in ip_rcv_finish_core() will be fooled.
->
 > Thanks,
 >
 > Paolo
