@@ -1,85 +1,63 @@
-Received: from mail-pf1-f196.google.com (mail-pf1-f196.google.com [209.85.210.196])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54FA11B394E
-	for <bridge@lists.linux.dev>; Thu, 24 Oct 2024 09:35:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25857208992
+	for <bridge@lists.linux-foundation.org>; Tue, 29 Oct 2024 21:54:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729762533; cv=none; b=U1FdEIFYDF0NDWHFlqnNuNuqw737kvlfCPVhMUlvBsrnRK1n6fEwnqJZzpZlsEnRRcKLKDgxyNk8L3wVtIpFj7ekgdhUYrr5WpehMvyxpetw4Y9K+Mqn+C91nZoO/5Md5nnvs2Qc2aq4xUDqrIrGui4Mi+QWkjWm0W66riHZJ88=
+	t=1730238897; cv=none; b=oGmSC/awwYxGzuVYuJAmqPq5/WpnWOKUbvfNTR7tOr7ccSs+sTIl3n+3xTwEThEVVKINJwJuRykH+qXKzeYYYO7yLFHea5G60g7qEvy8egGG7vWe3L5GCWj8zFSHenAkavzD0nfjusWpTb75mdFH+xE6haK0lt58UZEUGL95OfY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729762533; c=relaxed/simple;
-	bh=JOjiHl0o7arpbaGI4fKyn60i1TcmeSt2tbS6VcLQj6I=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=E5Qmn+HASnsWV89DM9GP1w3fvu/NQV9VYVXe6JpOPfxWb/md8fiB6l/L0yroDVH+WHZJwEBfvwcpsJwiTjGaVBwG4Gmab8wd3oSGRWDHKYTksld78g4NSuT3LodAyVFVHoGqVJncpd6dQrXHZ7HVrGFldBoILKURMnIvRAfoDl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b5KNZr5r; arc=none smtp.client-ip=209.85.210.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b5KNZr5r"
-Received: by mail-pf1-f196.google.com with SMTP id d2e1a72fcca58-71f5208217dso441798b3a.2
-        for <bridge@lists.linux.dev>; Thu, 24 Oct 2024 02:35:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729762531; x=1730367331; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=stvt/ug7FcaGbWi1ypKLhLB7lISmAXSv7hL3d+pTSLw=;
-        b=b5KNZr5rd/4ublPBTKkZ0n99srFQgZDR9D2efQhbEcfEyLkSxeGbVjWKAFv+sU1EGY
-         yPjeb2Ntnu4PabFbyJZBweuVG5dnQi367vzYa2RS36G9pczp0cFbHwt9syuHulEMKXqb
-         R+Qs5AvgZD1iW0MVWkBdeCYByilslwSz0wVKsyDYpVVddvFX12WV2SBolZAabslrPcDb
-         tEPj1JfwRTTGv9AcuRyZw2mJeyeuLljaoun3dMcQCp1sJbVC7wgIT09RnNoyODxfOE61
-         hPt6O8UBBnOrXXV8p5miWh3rBHbSuVm0gE0v9i9LQmDMCBDStrnIpmrU//c9O6HYmocx
-         pn8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729762531; x=1730367331;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=stvt/ug7FcaGbWi1ypKLhLB7lISmAXSv7hL3d+pTSLw=;
-        b=blcCSFnQh/BxB8PikBaQ08z5T9l8tiiD6AAA4UiAHn5y1L7E8HG+8G/CnzBqeorevE
-         tgngWskIOoK8w3UPc74HihznjWPL24bvuLixscwyOKvlNay8MRBNcNWswhEsnItwzbJW
-         XiTCjtX4kKB23Q3QNx4cRvnb5erMCpfxa0fLgcPZFRRsBs/qjTllK7+fnRiouXWL5UBj
-         82QYIS4GS0RbDyX21W9riS4pC/DIvuNaWRw6sG2Uv8okPivOg3YYEktx7Gfe/XTZYRKa
-         G/YPNd1Qj9yDj7IR7ynw0lcX7AxPO0SFPJxk4aQyutlJ5PFeopTN3ABMqVMVwhBBcBJ7
-         AfmA==
-X-Forwarded-Encrypted: i=1; AJvYcCWgJbyBw6ujRlnGx6Gbs/jFIV3p1DaiKT28SF7laL0As9qxbR3nov0EnVuQjI3IoposwpOsrNM=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxe9zURl3btjyEsCVgMhokKUeAgrkfRR/XDR9+2YtKu2WvJgX3b
-	O34GcWk0qFPCaPARD7Ra+wWTfrbiAQlhhbUW063Spju9h9905bPW
-X-Google-Smtp-Source: AGHT+IEI2KbIxBuhuDZXrMTT1Lpj9/l1Jy9coAQRCILORelpf8QIpMfgUp97aC8o2zTFfXjHv6SKWQ==
-X-Received: by 2002:a05:6a00:8d4:b0:71e:617:63c1 with SMTP id d2e1a72fcca58-72045fe2578mr1263741b3a.27.1729762530766;
-        Thu, 24 Oct 2024 02:35:30 -0700 (PDT)
-Received: from localhost.localdomain ([43.129.25.208])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71ec1415071sm7600287b3a.217.2024.10.24.02.35.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2024 02:35:30 -0700 (PDT)
-From: Menglong Dong <menglong8.dong@gmail.com>
-X-Google-Original-From: Menglong Dong <dongml2@chinatelecom.cn>
-To: pabeni@redhat.com
-Cc: davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	dsahern@kernel.org,
-	pablo@netfilter.org,
-	kadlec@netfilter.org,
-	roopa@nvidia.com,
-	razor@blackwall.org,
-	gnault@redhat.com,
-	bigeasy@linutronix.de,
-	idosch@nvidia.com,
-	ast@kernel.org,
-	dongml2@chinatelecom.cn,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org,
-	bridge@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH bpf-next v4 9/9] net: ip: make ip_route_use_hint() return drop reasons
-Date: Thu, 24 Oct 2024 17:33:48 +0800
-Message-Id: <20241024093348.353245-10-dongml2@chinatelecom.cn>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20241024093348.353245-1-dongml2@chinatelecom.cn>
-References: <20241024093348.353245-1-dongml2@chinatelecom.cn>
+	s=arc-20240116; t=1730238897; c=relaxed/simple;
+	bh=0Hmfu0Dmd+ONojT8fbkDPeqhboxJBVmLmMSWyx58uPM=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cQw9NWBh82UQkqOfapBCzVaRH3ac0Lcx+0bOS0my1nKNb7bMSrOFajz5tzzr6P1SLJ23/o1hXGOjkA3M64kkQrAAOpZZbZJ2dh4ycy5YAKKwNzmjo3DSDor8CwLc9Fogddq+jHyXfhXJrlgJtupM4KFx4Ll6iOT0POCRQjDwhGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id AD2B7605B1
+	for <bridge@lists.linux-foundation.org>; Tue, 29 Oct 2024 21:54:55 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -6.289
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id mTlsGOPuskyZ for <bridge@lists.linux-foundation.org>;
+ Tue, 29 Oct 2024 21:54:54 +0000 (UTC)
+X-Greylist: delayed 2412 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 29 Oct 2024 21:54:54 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 66F3360728
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=windriver.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 66F3360728
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.178.238; helo=mx0b-0064b401.pphosted.com; envelope-from=prvs=10322c57c5=randy.macleod@windriver.com; receiver=<UNKNOWN> 
+Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 66F3360728
+	for <bridge@lists.linux-foundation.org>; Tue, 29 Oct 2024 21:54:54 +0000 (UTC)
+Received: from pps.filterd (m0250812.ppops.net [127.0.0.1])
+	by mx0a-0064b401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49THNuUr024976;
+	Tue, 29 Oct 2024 21:14:29 GMT
+Received: from ala-exchng02.corp.ad.wrs.com (ala-exchng02.wrs.com [147.11.82.254])
+	by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 42gqd8m43p-2
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Tue, 29 Oct 2024 21:14:29 +0000 (GMT)
+Received: from ala-exchng01.corp.ad.wrs.com (147.11.82.252) by
+ ALA-EXCHNG02.corp.ad.wrs.com (147.11.82.254) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Tue, 29 Oct 2024 14:14:28 -0700
+Received: from pop-os.wrs.com (172.25.44.6) by ala-exchng01.corp.ad.wrs.com
+ (147.11.82.252) with Microsoft SMTP Server id 15.1.2507.39 via Frontend
+ Transport; Tue, 29 Oct 2024 14:14:27 -0700
+From: <Randy.MacLeod@windriver.com>
+To: <sherry.yang@oracle.com>
+CC: <bridge@lists.linux-foundation.org>, <davem@davemloft.net>,
+        <gregkh@linuxfoundation.org>, <kuba@kernel.org>,
+        <netdev@vger.kernel.org>, <nikolay@nvidia.com>, <roopa@nvidia.com>,
+        <sashal@kernel.org>, <stable@vger.kernel.org>,
+        <randy.macleod@windriver.com>
+Subject: [PATCH 5.15.y] net: bridge: xmit: make sure we have at least eth header len bytes
+Date: Tue, 29 Oct 2024 17:14:26 -0400
+Message-ID: <20241029211426.3046219-1-Randy.MacLeod@windriver.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20241004170328.10819-3-sherry.yang@oracle.com>
+References: <20241004170328.10819-3-sherry.yang@oracle.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -87,117 +65,55 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: I5g67KRVeGwd-XnB4L0ZUcMFU6Y4VrpW
+X-Authority-Analysis: v=2.4 cv=dKj0m/Zb c=1 sm=1 tr=0 ts=67215035 cx=c_pps a=K4BcnWQioVPsTJd46EJO2w==:117 a=K4BcnWQioVPsTJd46EJO2w==:17 a=eMPNgDwjIQXpT8XC:21 a=DAUX931o1VcA:10 a=t7CeM3EgAAAA:8 a=hSkVLCK3AAAA:8 a=edf1wS77AAAA:8 a=IJ2IFIBGmV0-FWXsoRQA:9
+ a=FdTzh2GWekK77mhwV6Dw:22 a=cQPPKAXgyycSBL8etih5:22 a=DcSpbTIhAlouE1Uv7lRv:22
+X-Proofpoint-GUID: I5g67KRVeGwd-XnB4L0ZUcMFU6Y4VrpW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-10-29_16,2024-10-29_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 mlxlogscore=999
+ adultscore=0 impostorscore=0 malwarescore=0 bulkscore=0 clxscore=1011
+ spamscore=0 mlxscore=0 classifier=spam authscore=0 adjust=0 reason=mlx
+ scancount=1 engine=8.21.0-2409260000 definitions=main-2410290159
 
-In this commit, we make ip_route_use_hint() return drop reasons. The
-drop reasons that we return are similar to what we do in
-ip_route_input_slow(), and no drop reasons are added in this commit.
+From: Randy MacLeod <Randy.MacLeod@windriver.com>
 
-Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
+[ Upstream commit 8bd67ebb50c0145fd2ca8681ab65eb7e8cde1afc ]
+
+Based on above commit but simplified since pskb_may_pull_reason()
+does not exist until 6.1.
+
+syzbot triggered an uninit value[1] error in bridge device's xmit path
+by sending a short (less than ETH_HLEN bytes) skb. To fix it check if
+we can actually pull that amount instead of assuming.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+a63a1f6a062033cf0f40@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=a63a1f6a062033cf0f40
+Signed-off-by: Randy MacLeod <Randy.MacLeod@windriver.com>
 ---
- include/net/route.h |  7 ++++---
- net/ipv4/ip_input.c |  9 ++++-----
- net/ipv4/route.c    | 26 ++++++++++++++++----------
- 3 files changed, 24 insertions(+), 18 deletions(-)
+ net/bridge/br_device.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/include/net/route.h b/include/net/route.h
-index f4ab5412c9c9..4debc335d276 100644
---- a/include/net/route.h
-+++ b/include/net/route.h
-@@ -206,9 +206,10 @@ ip_mc_validate_source(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- enum skb_drop_reason
- ip_route_input_noref(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 		     dscp_t dscp, struct net_device *dev);
--int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
--		      dscp_t dscp, struct net_device *dev,
--		      const struct sk_buff *hint);
-+enum skb_drop_reason
-+ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
-+		  dscp_t dscp, struct net_device *dev,
-+		  const struct sk_buff *hint);
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 8d6bab244c4a..b2fa4ca28102 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -38,6 +38,11 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	const unsigned char *dest;
+ 	u16 vid = 0;
  
- static inline enum skb_drop_reason
- ip_route_input(struct sk_buff *skb, __be32 dst, __be32 src, dscp_t dscp,
-diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
-index 513eb0c6435a..f0a4dda246ab 100644
---- a/net/ipv4/ip_input.c
-+++ b/net/ipv4/ip_input.c
-@@ -322,15 +322,14 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
- 	int err, drop_reason;
- 	struct rtable *rt;
- 
--	drop_reason = SKB_DROP_REASON_NOT_SPECIFIED;
--
- 	if (ip_can_use_hint(skb, iph, hint)) {
--		err = ip_route_use_hint(skb, iph->daddr, iph->saddr,
--					ip4h_dscp(iph), dev, hint);
--		if (unlikely(err))
-+		drop_reason = ip_route_use_hint(skb, iph->daddr, iph->saddr,
-+						ip4h_dscp(iph), dev, hint);
-+		if (unlikely(drop_reason))
- 			goto drop_error;
- 	}
- 
-+	drop_reason = SKB_DROP_REASON_NOT_SPECIFIED;
- 	if (READ_ONCE(net->ipv4.sysctl_ip_early_demux) &&
- 	    !skb_dst(skb) &&
- 	    !skb->sk &&
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index d47d7ae9fc61..7a064e3a2d49 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2142,28 +2142,34 @@ ip_mkroute_input(struct sk_buff *skb, struct fib_result *res,
-  * assuming daddr is valid and the destination is not a local broadcast one.
-  * Uses the provided hint instead of performing a route lookup.
-  */
--int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
--		      dscp_t dscp, struct net_device *dev,
--		      const struct sk_buff *hint)
-+enum skb_drop_reason
-+ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
-+		  dscp_t dscp, struct net_device *dev,
-+		  const struct sk_buff *hint)
- {
-+	enum skb_drop_reason reason = SKB_DROP_REASON_NOT_SPECIFIED;
- 	struct in_device *in_dev = __in_dev_get_rcu(dev);
- 	struct rtable *rt = skb_rtable(hint);
- 	struct net *net = dev_net(dev);
--	enum skb_drop_reason reason;
--	int err = -EINVAL;
- 	u32 tag = 0;
- 
- 	if (!in_dev)
--		return -EINVAL;
-+		return reason;
- 
--	if (ipv4_is_multicast(saddr) || ipv4_is_lbcast(saddr))
-+	if (ipv4_is_multicast(saddr) || ipv4_is_lbcast(saddr)) {
-+		reason = SKB_DROP_REASON_IP_INVALID_SOURCE;
- 		goto martian_source;
++	if (unlikely(!pskb_may_pull(skb, ETH_HLEN))) {
++		kfree_skb(skb);
++		return NETDEV_TX_OK;
 +	}
++
+ 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
  
--	if (ipv4_is_zeronet(saddr))
-+	if (ipv4_is_zeronet(saddr)) {
-+		reason = SKB_DROP_REASON_IP_INVALID_SOURCE;
- 		goto martian_source;
-+	}
- 
--	if (ipv4_is_loopback(saddr) && !IN_DEV_NET_ROUTE_LOCALNET(in_dev, net))
-+	if (ipv4_is_loopback(saddr) && !IN_DEV_NET_ROUTE_LOCALNET(in_dev, net)) {
-+		reason = SKB_DROP_REASON_IP_LOCALNET;
- 		goto martian_source;
-+	}
- 
- 	if (rt->rt_type != RTN_LOCAL)
- 		goto skip_validate_source;
-@@ -2179,7 +2185,7 @@ int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 
- martian_source:
- 	ip_handle_martian_source(dev, in_dev, skb, daddr, saddr);
--	return err;
-+	return reason;
- }
- 
- /* get device for dst_alloc with local routes */
+ 	rcu_read_lock();
 -- 
-2.39.5
+2.34.1
 
