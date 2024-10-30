@@ -1,57 +1,57 @@
-Received: from mail-oa1-f66.google.com (mail-oa1-f66.google.com [209.85.160.66])
+Received: from mail-pg1-f196.google.com (mail-pg1-f196.google.com [209.85.215.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B11821C9EDA
-	for <bridge@lists.linux.dev>; Wed, 30 Oct 2024 01:43:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9CBF1CCB29
+	for <bridge@lists.linux.dev>; Wed, 30 Oct 2024 01:43:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730252613; cv=none; b=Adg/geVVaf03VmrTV558jqiSMx4B13UDYTTWvsdgg13K3r18/Q4nO6vdtv336WNpNbglPwQ3bZEAittO7Qcwsqin9wamEakY3FAT3i06S2zotp2/OATEHz6+1WMJcospfumHq0fUKJNJjcco4fq5OAf+mdefi/Fjejsq9rjzMqY=
+	t=1730252618; cv=none; b=dhvt4Ulfg4HKDnWzRMDIK0G9eH+a6F6xLhhoQAiI5/2/0T6RYQADm+az/zgkH+9sTzv9nzspXOHVaKZpUUpf6IEnpMdVyt70Mm5Qrik+WKmKbHbG6UMdo+yLHalV9jSpFf4JnTOGEXUWWcE3pO+WBzJuysi3EIqkEpxg44wj/Ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730252613; c=relaxed/simple;
-	bh=Scqf0jV7tVnl422Zyw+rn0UJrjxy9FoVtlwHN5lUbik=;
+	s=arc-20240116; t=1730252618; c=relaxed/simple;
+	bh=Dxf+YjSfF9s66wnRYYKzNGRdTBF+f3o1p3CcPZ9IKMU=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Pa2/EMXfGMkELnBRaFNnxGHxrYMmGQk3Eka0vzkCique6dNabzioPXMEPD07qB/fu0pMJcEW72Q0eHcktr34/5NE0jgvs1Sa5IHFnA0aoBy8Xi/fN+SLkiFbm1dXg7tpomXuwfd/ElcC+kcsnloR/ROyhqsQKhMWq0r9ucYu/3I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UV5nVO1I; arc=none smtp.client-ip=209.85.160.66
+	 MIME-Version; b=ifiV+r7DWf05/zL6gzQFZZTfHDXbeHpdpyknGl3xnVXOSNbIRDcZn+l0doweyDSqUp8Q7Xb2OXUYQZ87MDbx+l00ipTKK25+SlAQyMAzDtAFOts6/o3n4Ty+zdxY9ww2rJJSbeSE/Yb65ER9rckl10HLvbm4m8lEZZNOW2WbEX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RYPfZ6Me; arc=none smtp.client-ip=209.85.215.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UV5nVO1I"
-Received: by mail-oa1-f66.google.com with SMTP id 586e51a60fabf-28854674160so2719416fac.2
-        for <bridge@lists.linux.dev>; Tue, 29 Oct 2024 18:43:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RYPfZ6Me"
+Received: by mail-pg1-f196.google.com with SMTP id 41be03b00d2f7-7e6d04f74faso315646a12.1
+        for <bridge@lists.linux.dev>; Tue, 29 Oct 2024 18:43:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1730252610; x=1730857410; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1730252615; x=1730857415; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fplqt3hHi98v9bYNP9CGpDhBaJTQ+L4T3dia3Fq4odk=;
-        b=UV5nVO1INyb2+jR5EJR4tlXUkDx2KG8SE75mIkXuFY2lSVf2nXGk92obxo6VJYHE4x
-         y0Q0+4vt3KLJo49NZ8mah1BxoUu+B4j9W4jUnLgQkZod1gXNHOaErXjtiIvs4WeYVlJB
-         e2s0XpPSftOt192cKOgpWhTy6RuIUwsbxMvch0J/Db91dW9GAsMReVS90BhlojZ4zqeT
-         AAoXKruZsKD1Ck0HvwSY6PRi243u775fkPQUwsExL88LgM2RJ8LoUB/Hqu5GXs3+9KR1
-         Zldl86wfCnlA3oF6uz/RTC2fQy2e4hcQjb8/Yn1wZr8jNdkOS6bqy8hJAgxG36su0y68
-         LgCw==
+        bh=nHha3jxrqpGXunHNpntG6RFQwcyCzV6dVXG5YPCOYY8=;
+        b=RYPfZ6MeQ/MhjUSopHt2aGmBxldjfjsuQdvQQbDg7S+xP34/kejZoSPKYCJCzz0xKj
+         CbS3FEB/uIgk6Q9mxgsCYqtVigB3jsP5xIkP7CfbeJIKa7jDtm1fosbsuZ26CZh7dR5a
+         BrQfyyNq6JH7fkNs7D9b61x+2jukIohM1ekuX6ygbuAWKa6mYy2XsF6FcJToM1ZK4evo
+         K1y6TtIbFoX5Esr0s/f3iMSAZ2t1P7g1rCIXPccQoN0rQvyVsTIdYkZX87dLXcx18bg6
+         DfcEcYVywPRbJq0bAsqFF9YX0OW4noG9m8iwe6gkYhhRvojgqvNpMxPnV52YOL2RWC2z
+         HGLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730252610; x=1730857410;
+        d=1e100.net; s=20230601; t=1730252615; x=1730857415;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fplqt3hHi98v9bYNP9CGpDhBaJTQ+L4T3dia3Fq4odk=;
-        b=TCQUp6WdoltebWLc4Xy4Wj6J/JJHq6EjRnIAOxzy2d4bs12JgnV469QzZmuYORw/vJ
-         DwSioEior/wH3XCbPcyB/I/cZ8xLEzRzmgzUIASjHlAae0vfygHvroXUIGIpXDZSbJpz
-         FQvgeQJXJMed2Yd54gTHYaLRdB06JbqZaUZloAPPth5imkehrod7cW95/lLiE8SB/DQZ
-         lrV6ZHzxfiI8Mmcj2G9JXG83Mey5pV+KPvU7zbNAmM6N3blQm7PV4UQGFfNNXJ3s1qiX
-         02jdPfhXWVtZ7dAaYjMlxDuCTaHa1Fu8cH4TDJ/d2MXiLjsdqhd6VvOrxXrMdDf26TUq
-         Ae7w==
-X-Forwarded-Encrypted: i=1; AJvYcCXflyGD2OAhuGzxfPgZTrm7HgkzRa80xWULc9F3hgUOkN43tqGDwCJPmios0HekhLL/aBBouas=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyYHSzq9mtArJl4nMCzPCcCo16W3vCyZtxNILCHmAydIY6KW1FF
-	Nca+++d70IXFSl8EEB2sgQakKN7YLUUb+Gw1Lts5Qzn1LxAG4fd3
-X-Google-Smtp-Source: AGHT+IGsZoEVW0JcVbBUSmiB8lr4N5b/WoG/+LUc4OuJ/6mStCSPFyUGuDfoAu61vAO/Z5Zy76b54Q==
-X-Received: by 2002:a05:6870:15d5:b0:278:978:9e9 with SMTP id 586e51a60fabf-29051e0360bmr13656946fac.44.1730252609677;
-        Tue, 29 Oct 2024 18:43:29 -0700 (PDT)
+        bh=nHha3jxrqpGXunHNpntG6RFQwcyCzV6dVXG5YPCOYY8=;
+        b=RXqTy6BlnZfPY5w/GOIQQ/cYvzfZPUJWOjDPkS+BGg+p1fLWk0+m9UdAQ1kkh5h4UF
+         oT1I70azZDSQ5dgoGZTTy+Dv+9BfafXAjoZ9P7AvxyRSl0Xmjm2iMxo/HE+CRHi/DS5K
+         QkGzqYd5KFUVqz4OzjhNBqFjWFrWU5WDcXmvr04yJDzsWbovr+ZxVGhVhKDpxJ9/66JX
+         T7Ck2bfZCJCy60fYJ8cBeJ46cHEqCeUlrbsRGRyM/ayPZePJLxchW8T1hAbAsYer6tHz
+         F/Gjf3rQXqv4Oo+UujqRCowte240ta5hVA+H5wtZIL207Os+sdjjJm/g59mJIzNEIeoQ
+         eQ6g==
+X-Forwarded-Encrypted: i=1; AJvYcCWuMvVmJwV+vfHnCSA5R+bhzIey/gBYkSfqiPT9ehllm/T2hmzYOS1yFb35eGPUr7YLu/nDTh4=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyBdl/lJWa+p0wFkrOpC1INOmsQP4X3Wzm5vT78+MEngGlAgy1n
+	BwF3rVoi12ELJdpkI/s536hujj+tw/lP0ZTEDGFKsTjiXsK6po4R
+X-Google-Smtp-Source: AGHT+IFJJUSCB//39VAXd17haAZ2/OpwKzfzvKZ8vtIdhSrK7HsIGTHuQWmpfO3gxw0dkEqo9pfwwg==
+X-Received: by 2002:a05:6a21:33a4:b0:1d9:e5af:a600 with SMTP id adf61e73a8af0-1db7fe09c92mr1060617637.10.1730252615119;
+        Tue, 29 Oct 2024 18:43:35 -0700 (PDT)
 Received: from localhost.localdomain ([43.129.25.208])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-7edc866906dsm8138407a12.10.2024.10.29.18.43.24
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-7edc866906dsm8138407a12.10.2024.10.29.18.43.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Oct 2024 18:43:29 -0700 (PDT)
+        Tue, 29 Oct 2024 18:43:34 -0700 (PDT)
 From: Menglong Dong <menglong8.dong@gmail.com>
 X-Google-Original-From: Menglong Dong <dongml2@chinatelecom.cn>
 To: pabeni@redhat.com
@@ -75,9 +75,9 @@ Cc: davem@davemloft.net,
 	coreteam@netfilter.org,
 	bridge@lists.linux.dev,
 	bpf@vger.kernel.org
-Subject: [PATCH RESEND net-next v4 6/9] net: ip: make ip_route_input_noref() return drop reasons
-Date: Wed, 30 Oct 2024 09:41:42 +0800
-Message-Id: <20241030014145.1409628-7-dongml2@chinatelecom.cn>
+Subject: [PATCH RESEND net-next v4 7/9] net: ip: make ip_route_input() return drop reasons
+Date: Wed, 30 Oct 2024 09:41:43 +0800
+Message-Id: <20241030014145.1409628-8-dongml2@chinatelecom.cn>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20241030014145.1409628-1-dongml2@chinatelecom.cn>
 References: <20241030014145.1409628-1-dongml2@chinatelecom.cn>
@@ -89,181 +89,162 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In this commit, we make ip_route_input_noref() return drop reasons, which
-come from ip_route_input_rcu().
+In this commit, we make ip_route_input() return skb drop reasons that come
+from ip_route_input_noref().
 
-We need adjust the callers of ip_route_input_noref() to make sure the
-return value of ip_route_input_noref() is used properly.
-
-The errno that ip_route_input_noref() returns comes from ip_route_input
-and bpf_lwt_input_reroute in the origin logic, and we make them return
--EINVAL on error instead. In the following patch, we will make
-ip_route_input() returns drop reasons too.
+Meanwhile, adjust all the call to it.
 
 Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
 ---
 v4:
-- introduce the variable "reason" in bpf_lwt_input_reroute() to make
-  things clear
+- replace the variable "err" with "reason" for the return value of
+  ip_route_input()
 ---
- include/net/route.h    | 15 ++++++++-------
- net/core/lwt_bpf.c     |  6 ++++--
- net/ipv4/ip_fragment.c | 12 +++++++-----
- net/ipv4/ip_input.c    |  7 ++++---
- net/ipv4/route.c       |  7 ++++---
- 5 files changed, 27 insertions(+), 20 deletions(-)
+ include/net/route.h             |  7 ++++---
+ net/bridge/br_netfilter_hooks.c | 11 ++++++-----
+ net/ipv4/icmp.c                 |  2 +-
+ net/ipv4/ip_options.c           |  2 +-
+ net/ipv6/seg6_local.c           | 14 +++++++-------
+ 5 files changed, 19 insertions(+), 17 deletions(-)
 
 diff --git a/include/net/route.h b/include/net/route.h
-index a828a17a6313..11674f7c6be6 100644
+index 11674f7c6be6..f4ab5412c9c9 100644
 --- a/include/net/route.h
 +++ b/include/net/route.h
-@@ -203,8 +203,9 @@ enum skb_drop_reason
- ip_mc_validate_source(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 		      dscp_t dscp, struct net_device *dev,
- 		      struct in_device *in_dev, u32 *itag);
--int ip_route_input_noref(struct sk_buff *skb, __be32 daddr, __be32 saddr,
--			 dscp_t dscp, struct net_device *dev);
-+enum skb_drop_reason
-+ip_route_input_noref(struct sk_buff *skb, __be32 daddr, __be32 saddr,
-+		     dscp_t dscp, struct net_device *dev);
- int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+@@ -210,8 +210,9 @@ int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
  		      dscp_t dscp, struct net_device *dev,
  		      const struct sk_buff *hint);
-@@ -212,18 +213,18 @@ int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- static inline int ip_route_input(struct sk_buff *skb, __be32 dst, __be32 src,
- 				 dscp_t dscp, struct net_device *devin)
- {
--	int err;
-+	enum skb_drop_reason reason;
  
- 	rcu_read_lock();
--	err = ip_route_input_noref(skb, dst, src, dscp, devin);
--	if (!err) {
-+	reason = ip_route_input_noref(skb, dst, src, dscp, devin);
-+	if (!reason) {
- 		skb_dst_force(skb);
- 		if (!skb_dst(skb))
--			err = -EINVAL;
-+			reason = SKB_DROP_REASON_NOT_SPECIFIED;
- 	}
- 	rcu_read_unlock();
- 
--	return err;
-+	return reason ? -EINVAL : 0;
- }
- 
- void ipv4_update_pmtu(struct sk_buff *skb, struct net *net, u32 mtu, int oif,
-diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
-index e0ca24a58810..8a78bff53b2c 100644
---- a/net/core/lwt_bpf.c
-+++ b/net/core/lwt_bpf.c
-@@ -88,6 +88,7 @@ static int run_lwt_bpf(struct sk_buff *skb, struct bpf_lwt_prog *lwt,
- 
- static int bpf_lwt_input_reroute(struct sk_buff *skb)
- {
-+	enum skb_drop_reason reason;
- 	int err = -EINVAL;
- 
- 	if (skb->protocol == htons(ETH_P_IP)) {
-@@ -96,8 +97,9 @@ static int bpf_lwt_input_reroute(struct sk_buff *skb)
- 
- 		dev_hold(dev);
- 		skb_dst_drop(skb);
--		err = ip_route_input_noref(skb, iph->daddr, iph->saddr,
--					   ip4h_dscp(iph), dev);
-+		reason = ip_route_input_noref(skb, iph->daddr, iph->saddr,
-+					      ip4h_dscp(iph), dev);
-+		err = reason ? -EINVAL : 0;
- 		dev_put(dev);
- 	} else if (skb->protocol == htons(ETH_P_IPV6)) {
- 		skb_dst_drop(skb);
-diff --git a/net/ipv4/ip_fragment.c b/net/ipv4/ip_fragment.c
-index 48e2810f1f27..52b991e976ba 100644
---- a/net/ipv4/ip_fragment.c
-+++ b/net/ipv4/ip_fragment.c
-@@ -132,12 +132,12 @@ static bool frag_expire_skip_icmp(u32 user)
-  */
- static void ip_expire(struct timer_list *t)
- {
-+	enum skb_drop_reason reason = SKB_DROP_REASON_FRAG_REASM_TIMEOUT;
- 	struct inet_frag_queue *frag = from_timer(frag, t, timer);
- 	const struct iphdr *iph;
- 	struct sk_buff *head = NULL;
- 	struct net *net;
- 	struct ipq *qp;
--	int err;
- 
- 	qp = container_of(frag, struct ipq, q);
- 	net = qp->q.fqdir->net;
-@@ -175,10 +175,12 @@ static void ip_expire(struct timer_list *t)
- 
- 	/* skb has no dst, perform route lookup again */
- 	iph = ip_hdr(head);
--	err = ip_route_input_noref(head, iph->daddr, iph->saddr, ip4h_dscp(iph),
--				   head->dev);
--	if (err)
-+	reason = ip_route_input_noref(head, iph->daddr, iph->saddr,
-+				      ip4h_dscp(iph), head->dev);
-+	if (reason)
- 		goto out;
-+	else
-+		reason = SKB_DROP_REASON_FRAG_REASM_TIMEOUT;
- 
- 	/* Only an end host needs to send an ICMP
- 	 * "Fragment Reassembly Timeout" message, per RFC792.
-@@ -195,7 +197,7 @@ static void ip_expire(struct timer_list *t)
- 	spin_unlock(&qp->q.lock);
- out_rcu_unlock:
- 	rcu_read_unlock();
--	kfree_skb_reason(head, SKB_DROP_REASON_FRAG_REASM_TIMEOUT);
-+	kfree_skb_reason(head, reason);
- 	ipq_put(qp);
- }
- 
-diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
-index c40a26972884..513eb0c6435a 100644
---- a/net/ipv4/ip_input.c
-+++ b/net/ipv4/ip_input.c
-@@ -362,10 +362,11 @@ static int ip_rcv_finish_core(struct net *net, struct sock *sk,
- 	 *	how the packet travels inside Linux networking.
- 	 */
- 	if (!skb_valid_dst(skb)) {
--		err = ip_route_input_noref(skb, iph->daddr, iph->saddr,
--					   ip4h_dscp(iph), dev);
--		if (unlikely(err))
-+		drop_reason = ip_route_input_noref(skb, iph->daddr, iph->saddr,
-+						   ip4h_dscp(iph), dev);
-+		if (unlikely(drop_reason))
- 			goto drop_error;
-+		drop_reason = SKB_DROP_REASON_NOT_SPECIFIED;
- 	} else {
- 		struct in_device *in_dev = __in_dev_get_rcu(dev);
- 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 1926a8a1a83a..ce1201dbf464 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2487,8 +2487,9 @@ ip_route_input_rcu(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 	return ip_route_input_slow(skb, daddr, saddr, dscp, dev, res);
- }
- 
--int ip_route_input_noref(struct sk_buff *skb, __be32 daddr, __be32 saddr,
--			 dscp_t dscp, struct net_device *dev)
-+enum skb_drop_reason ip_route_input_noref(struct sk_buff *skb, __be32 daddr,
-+					  __be32 saddr, dscp_t dscp,
-+					  struct net_device *dev)
+-static inline int ip_route_input(struct sk_buff *skb, __be32 dst, __be32 src,
+-				 dscp_t dscp, struct net_device *devin)
++static inline enum skb_drop_reason
++ip_route_input(struct sk_buff *skb, __be32 dst, __be32 src, dscp_t dscp,
++	       struct net_device *devin)
  {
  	enum skb_drop_reason reason;
- 	struct fib_result res;
-@@ -2497,7 +2498,7 @@ int ip_route_input_noref(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 	reason = ip_route_input_rcu(skb, daddr, saddr, dscp, dev, &res);
+ 
+@@ -224,7 +225,7 @@ static inline int ip_route_input(struct sk_buff *skb, __be32 dst, __be32 src,
+ 	}
  	rcu_read_unlock();
  
 -	return reason ? -EINVAL : 0;
 +	return reason;
  }
- EXPORT_SYMBOL(ip_route_input_noref);
  
+ void ipv4_update_pmtu(struct sk_buff *skb, struct net *net, u32 mtu, int oif,
+diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
+index 17a5f5923d61..110cffc24a1d 100644
+--- a/net/bridge/br_netfilter_hooks.c
++++ b/net/bridge/br_netfilter_hooks.c
+@@ -373,8 +373,8 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 	struct nf_bridge_info *nf_bridge = nf_bridge_info_get(skb);
+ 	struct net_device *dev = skb->dev, *br_indev;
+ 	const struct iphdr *iph = ip_hdr(skb);
++	enum skb_drop_reason reason;
+ 	struct rtable *rt;
+-	int err;
+ 
+ 	br_indev = nf_bridge_get_physindev(skb, net);
+ 	if (!br_indev) {
+@@ -390,9 +390,9 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 	}
+ 	nf_bridge->in_prerouting = 0;
+ 	if (br_nf_ipv4_daddr_was_changed(skb, nf_bridge)) {
+-		err = ip_route_input(skb, iph->daddr, iph->saddr,
+-				     ip4h_dscp(iph), dev);
+-		if (err) {
++		reason = ip_route_input(skb, iph->daddr, iph->saddr,
++					ip4h_dscp(iph), dev);
++		if (reason) {
+ 			struct in_device *in_dev = __in_dev_get_rcu(dev);
+ 
+ 			/* If err equals -EHOSTUNREACH the error is due to a
+@@ -402,7 +402,8 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
+ 			 * martian destinations: loopback destinations and destination
+ 			 * 0.0.0.0. In both cases the packet will be dropped because the
+ 			 * destination is the loopback device and not the bridge. */
+-			if (err != -EHOSTUNREACH || !in_dev || IN_DEV_FORWARD(in_dev))
++			if (reason != SKB_DROP_REASON_IP_INADDRERRORS || !in_dev ||
++			    IN_DEV_FORWARD(in_dev))
+ 				goto free_skb;
+ 
+ 			rt = ip_route_output(net, iph->daddr, 0,
+diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
+index 33eec844a5a0..4f088fa1c2f2 100644
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -545,7 +545,7 @@ static struct rtable *icmp_route_lookup(struct net *net, struct flowi4 *fl4,
+ 		orefdst = skb_in->_skb_refdst; /* save old refdst */
+ 		skb_dst_set(skb_in, NULL);
+ 		err = ip_route_input(skb_in, fl4_dec.daddr, fl4_dec.saddr,
+-				     dscp, rt2->dst.dev);
++				     dscp, rt2->dst.dev) ? -EINVAL : 0;
+ 
+ 		dst_release(&rt2->dst);
+ 		rt2 = skb_rtable(skb_in);
+diff --git a/net/ipv4/ip_options.c b/net/ipv4/ip_options.c
+index 81e86e5defee..e3321932bec0 100644
+--- a/net/ipv4/ip_options.c
++++ b/net/ipv4/ip_options.c
+@@ -618,7 +618,7 @@ int ip_options_rcv_srr(struct sk_buff *skb, struct net_device *dev)
+ 		orefdst = skb->_skb_refdst;
+ 		skb_dst_set(skb, NULL);
+ 		err = ip_route_input(skb, nexthop, iph->saddr, ip4h_dscp(iph),
+-				     dev);
++				     dev) ? -EINVAL : 0;
+ 		rt2 = skb_rtable(skb);
+ 		if (err || (rt2->rt_type != RTN_UNICAST && rt2->rt_type != RTN_LOCAL)) {
+ 			skb_dst_drop(skb);
+diff --git a/net/ipv6/seg6_local.c b/net/ipv6/seg6_local.c
+index c74705ead984..ac1dbd492c22 100644
+--- a/net/ipv6/seg6_local.c
++++ b/net/ipv6/seg6_local.c
+@@ -954,10 +954,10 @@ static int input_action_end_dx4_finish(struct net *net, struct sock *sk,
+ 				       struct sk_buff *skb)
+ {
+ 	struct dst_entry *orig_dst = skb_dst(skb);
++	enum skb_drop_reason reason;
+ 	struct seg6_local_lwt *slwt;
+ 	struct iphdr *iph;
+ 	__be32 nhaddr;
+-	int err;
+ 
+ 	slwt = seg6_local_lwtunnel(orig_dst->lwtstate);
+ 
+@@ -967,9 +967,9 @@ static int input_action_end_dx4_finish(struct net *net, struct sock *sk,
+ 
+ 	skb_dst_drop(skb);
+ 
+-	err = ip_route_input(skb, nhaddr, iph->saddr, 0, skb->dev);
+-	if (err) {
+-		kfree_skb(skb);
++	reason = ip_route_input(skb, nhaddr, iph->saddr, 0, skb->dev);
++	if (reason) {
++		kfree_skb_reason(skb, reason);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -1174,8 +1174,8 @@ static struct sk_buff *end_dt_vrf_core(struct sk_buff *skb,
+ static int input_action_end_dt4(struct sk_buff *skb,
+ 				struct seg6_local_lwt *slwt)
+ {
++	enum skb_drop_reason reason;
+ 	struct iphdr *iph;
+-	int err;
+ 
+ 	if (!decap_and_validate(skb, IPPROTO_IPIP))
+ 		goto drop;
+@@ -1193,8 +1193,8 @@ static int input_action_end_dt4(struct sk_buff *skb,
+ 
+ 	iph = ip_hdr(skb);
+ 
+-	err = ip_route_input(skb, iph->daddr, iph->saddr, 0, skb->dev);
+-	if (unlikely(err))
++	reason = ip_route_input(skb, iph->daddr, iph->saddr, 0, skb->dev);
++	if (unlikely(reason))
+ 		goto drop;
+ 
+ 	return dst_input(skb);
 -- 
 2.39.5
 
