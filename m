@@ -1,62 +1,59 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93DFF15820C
-	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 11:53:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B7812AAE2
+	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 15:08:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730462010; cv=none; b=cm3N1zlhx3xXLnl0FDZwPy+uqG+poxlXDSgSZhiOWsloPROKHDnxrflhgDhag4hN4ojDbmGDVKT+LzAYJj4tO4CaofB233ZjE0mdVK+EFD5cx9xbemtXiz6K9331k1Krs5D9sfellFQUZhhY+zMTpBu34kxkW1w2V+N5KVFfIKc=
+	t=1730473685; cv=none; b=aNysiHhNony14VqQdq6EyhhULjqdN2XJm2umzUAdA4tuBCjIC2SUlKiCDGKoRYAbf9rPCkdYeAIcH7WMGu7z6D/3iLixCR/QUu/y0MRJs3EHmQsoVJDHu4MuK02rMB6bAvSyxoEQWko5+B2UB0p08tp3NRLUZB0Gxfqa13820aY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730462010; c=relaxed/simple;
-	bh=5WpOuEix74X7yKM6WtxCZXsnuVlB/PdCVvCIoID6/jY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=qdp7ZnLfIOgDgYv1FYIokgBwitoKVYPwx8IJsFWxxEdbA3/Hz2J6SLeFeb2IBZmiWh0WYRpUBXlWsFt0cwqtmLDb0AWV3r3w6dhW8at/e5IwMOU9SwhyWNiU6gtzKfPGEs4x/lQLf2AA2i/nilcJ+SLIlcsvNGef7ITFavEeaVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1730473685; c=relaxed/simple;
+	bh=Z6Dr2PgbqzIdIWSiIp258pot0TuM6/5gHcxvt7FOJpY=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Tael8TtXBN1olZphJCKmjTtApjjawdKGFmjL1sN9wZRSc/HCVoiCCsriDBeAS1USTP13xNCoaWwhGBM6iLcBcnJL9/M+KScg9eXZjkqickx6cCpETlU8SrAqrCxRG7eKBVfr3wFc2Du5n+ePii8Vv3L7DiSVdpjM/wj+/PTRxdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0C41B40286
-	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 11:53:27 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 61C5A81926
+	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 15:08:03 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.2
+X-Spam-Score: -6.292
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id KtAxHUEXYpso for <bridge@lists.linux-foundation.org>;
- Fri,  1 Nov 2024 11:53:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a0a:edc0:2:b01:1d::104; helo=metis.whiteo.stw.pengutronix.de; envelope-from=fpf@pengutronix.de; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 4F5C240173
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4F5C240173
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4F5C240173
-	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 11:53:23 +0000 (UTC)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <fpf@pengutronix.de>)
-	id 1t6qDO-0006Ep-ED; Fri, 01 Nov 2024 12:53:18 +0100
-Received: from dude05.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::54])
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <fpf@pengutronix.de>)
-	id 1t6qDM-001VL6-1p;
-	Fri, 01 Nov 2024 12:53:16 +0100
-Received: from fpf by dude05.red.stw.pengutronix.de with local (Exim 4.96)
-	(envelope-from <fpf@pengutronix.de>)
-	id 1t6qDM-00AveW-1e;
-	Fri, 01 Nov 2024 12:53:16 +0100
-From: Fabian Pfitzner <f.pfitzner@pengutronix.de>
-To: netdev@vger.kernel.org
-Cc: dsahern@gmail.com,
-	entwicklung@pengutronix.de,
-	roopa@nvidia.com,
-	razor@blackwall.org,
-	bridge@lists.linux-foundation.org,
-	stephen@networkplumber.org,
-	Fabian Pfitzner <f.pfitzner@pengutronix.de>
-Subject: [PATCH v3 iproute] bridge: dump mcast querier state
-Date: Fri,  1 Nov 2024 12:50:40 +0100
-Message-Id: <20241101115039.2604631-1-f.pfitzner@pengutronix.de>
-X-Mailer: git-send-email 2.39.5
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id w4i-zvNRxBQf for <bridge@lists.linux-foundation.org>;
+ Fri,  1 Nov 2024 15:08:02 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.178.238; helo=mx0b-0064b401.pphosted.com; envelope-from=prvs=1035e1bbb5=randy.macleod@windriver.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 46F9781F52
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=windriver.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 46F9781F52
+Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 46F9781F52
+	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 15:08:00 +0000 (UTC)
+Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
+	by mx0a-0064b401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A18jBJp023074;
+	Fri, 1 Nov 2024 15:07:49 GMT
+Received: from ala-exchng01.corp.ad.wrs.com (ala-exchng01.wrs.com [147.11.82.252])
+	by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 42mf2e934y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Fri, 01 Nov 2024 15:07:48 +0000 (GMT)
+Received: from ala-exchng01.corp.ad.wrs.com (147.11.82.252) by
+ ala-exchng01.corp.ad.wrs.com (147.11.82.252) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.39; Fri, 1 Nov 2024 08:07:47 -0700
+Received: from pop-os.wrs.com (172.25.44.6) by ala-exchng01.corp.ad.wrs.com
+ (147.11.82.252) with Microsoft SMTP Server id 15.1.2507.39 via Frontend
+ Transport; Fri, 1 Nov 2024 08:07:46 -0700
+From: <Randy.MacLeod@windriver.com>
+To: <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
+        <sashal@kernel.org>
+CC: <sherry.yang@oracle.com>, <bridge@lists.linux-foundation.org>,
+        <davem@davemloft.net>, <kuba@kernel.org>, <netdev@vger.kernel.org>,
+        <nikolay@nvidia.com>, <roopa@nvidia.com>,
+        <linux-kernel@vger.kernel.org>, <randy.macleod@windriver.com>
+Subject: [PATCH 0/1: 5.10/5.15] net: bridge: xmit: make sure we have at least eth header len bytes
+Date: Fri, 1 Nov 2024 11:07:44 -0400
+Message-ID: <20241101150745.3671416-1-Randy.MacLeod@windriver.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -64,112 +61,51 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: fpf@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: bridge@lists.linux-foundation.org
+Content-Type: text/plain
+X-Authority-Analysis: v=2.4 cv=K4dwHDWI c=1 sm=1 tr=0 ts=6724eec4 cx=c_pps a=/ZJR302f846pc/tyiSlYyQ==:117 a=/ZJR302f846pc/tyiSlYyQ==:17 a=eMPNgDwjIQXpT8XC:21 a=VlfZXiiP6vEA:10 a=t7CeM3EgAAAA:8 a=VwQbUJbxAAAA:8 a=ag1SF4gXAAAA:8 a=owxRARuu7T3lYmZcKXwA:9
+ a=FdTzh2GWekK77mhwV6Dw:22 a=Yupwre4RP9_Eg_Bd0iYG:22
+X-Proofpoint-GUID: BE-Q3zTQ4R7TRNS4izKP4odOP0PX-KoJ
+X-Proofpoint-ORIG-GUID: BE-Q3zTQ4R7TRNS4izKP4odOP0PX-KoJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
+ definitions=2024-11-01_09,2024-11-01_01,2024-09-30_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 bulkscore=0
+ spamscore=0 suspectscore=0 clxscore=1011 impostorscore=0 malwarescore=0
+ priorityscore=1501 mlxscore=0 phishscore=0 lowpriorityscore=0
+ mlxlogscore=993 classifier=spam authscore=0 adjust=0 reason=mlx
+ scancount=1 engine=8.21.0-2409260000 definitions=main-2411010109
 
-Kernel support for dumping the multicast querier state was added in this
-commit [1]. As some people might be interested to get this information
-from userspace, this commit implements the necessary changes to show it
-via
+From: Randy MacLeod <Randy.MacLeod@windriver.com>
 
-ip -d link show [dev]
+This is my first commit to -stable so I'm going to carefully explain what I've done.
+I work on the Yocto Project and I have done some work on the Linux network
+stack a long time ago so I'm not quite a complete newbie.
 
-The querier state shows the following information for IPv4 and IPv6
-respectively:
+I took the commit found here:
+   https://lore.kernel.org/stable/20240527185645.658299380@linuxfoundation.org/
 
-1) The ip address of the current querier in the network. This could be
-   ourselves or an external querier.
-2) The port on which the querier was seen
-3) Querier timeout in seconds
+and backported as per my commit log:
+   Based on above commit but simplified since pskb_may_pull_reason()
+   does not exist until 6.1.
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c7fa1d9b1fb179375e889ff076a1566ecc997bfc
+I also trimmed the original commit log of the "Tested by dropwatch" section
+as well as the full stack trace since that may have changed in 5.10/5.15 and
+It compiles fine for 5.10 and 5.15 but I have not tested with dropwatch since
+the patch is just dropping short xmit packets for bridging.
 
-Signed-off-by: Fabian Pfitzner <f.pfitzner@pengutronix.de>
----
+Finally, since the patch is much simpler than the original, I've removed the
+original patch author's SOB line.
 
-v1->v2
-	- refactor code
-	- link to v1: https://lore.kernel.org/netdev/20241025142836.19946-1-f.pfitzner@pengutronix.de/
-v2->v3
-	- use print_color_string for addresses
-	- link to v2: https://lore.kernel.org/netdev/20241030222136.3395120-1-f.pfitzner@pengutronix.de/
+Please let me know if any of this is not what y'all'd like to see.
 
- ip/iplink_bridge.c | 60 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
+Randy MacLeod (1):
+  net: bridge: xmit: make sure we have at least eth header len bytes
 
-diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
-index f01ffe15..9c01154b 100644
---- a/ip/iplink_bridge.c
-+++ b/ip/iplink_bridge.c
-@@ -661,6 +661,66 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
- 			   "mcast_querier %u ",
- 			   rta_getattr_u8(tb[IFLA_BR_MCAST_QUERIER]));
- 
-+	if (tb[IFLA_BR_MCAST_QUERIER_STATE]) {
-+		struct rtattr *bqtb[BRIDGE_QUERIER_MAX + 1];
-+
-+		SPRINT_BUF(other_time);
-+
-+		parse_rtattr_nested(bqtb, BRIDGE_QUERIER_MAX, tb[IFLA_BR_MCAST_QUERIER_STATE]);
-+		memset(other_time, 0, sizeof(other_time));
-+
-+		open_json_object("mcast_querier_state_ipv4");
-+		if (bqtb[BRIDGE_QUERIER_IP_ADDRESS]) {
-+			print_string(PRINT_FP,
-+				NULL,
-+				"%s ",
-+				"mcast_querier_ipv4_addr");
-+			print_color_string(PRINT_ANY,
-+				COLOR_INET,
-+				"mcast_querier_ipv4_addr",
-+				"%s ",
-+				format_host_rta(AF_INET, bqtb[BRIDGE_QUERIER_IP_ADDRESS]));
-+		}
-+		if (bqtb[BRIDGE_QUERIER_IP_PORT])
-+			print_uint(PRINT_ANY,
-+				"mcast_querier_ipv4_port",
-+				"mcast_querier_ipv4_port %u ",
-+				rta_getattr_u32(bqtb[BRIDGE_QUERIER_IP_PORT]));
-+		if (bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER])
-+			print_string(PRINT_ANY,
-+				"mcast_querier_ipv4_other_timer",
-+				"mcast_querier_ipv4_other_timer %s ",
-+				sprint_time64(
-+					rta_getattr_u64(bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER]),
-+									other_time));
-+		close_json_object();
-+		open_json_object("mcast_querier_state_ipv6");
-+		if (bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]) {
-+			print_string(PRINT_FP,
-+				NULL,
-+				"%s ",
-+				"mcast_querier_ipv6_addr");
-+			print_color_string(PRINT_ANY,
-+				COLOR_INET6,
-+				"mcast_querier_ipv6_addr",
-+				"%s ",
-+				format_host_rta(AF_INET6, bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]));
-+		}
-+		if (bqtb[BRIDGE_QUERIER_IPV6_PORT])
-+			print_uint(PRINT_ANY,
-+				"mcast_querier_ipv6_port",
-+				"mcast_querier_ipv6_port %u ",
-+				rta_getattr_u32(bqtb[BRIDGE_QUERIER_IPV6_PORT]));
-+		if (bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER])
-+			print_string(PRINT_ANY,
-+				"mcast_querier_ipv6_other_timer",
-+				"mcast_querier_ipv6_other_timer %s ",
-+				sprint_time64(
-+					rta_getattr_u64(bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER]),
-+									other_time));
-+		close_json_object();
-+	}
-+
- 	if (tb[IFLA_BR_MCAST_HASH_ELASTICITY])
- 		print_uint(PRINT_ANY,
- 			   "mcast_hash_elasticity",
+ net/bridge/br_device.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+
+base-commit: 5a8fa04b2a4de1d52be4a04690dcb52ac7998943
 -- 
-2.39.5
+2.34.1
 
