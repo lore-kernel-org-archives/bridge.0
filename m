@@ -1,153 +1,290 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5AC1D4339
-	for <bridge@lists.linux.dev>; Tue,  5 Nov 2024 11:28:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730806130; cv=none; b=APkPunwoqt8wIGt8EMuwILo+ttWWGI8X7A1PuhT8/RpzQ8LiyX5aiTJyVPpZ9cfTNyvWp9QSog9MS411Wafl/oQeG6xZmY6iM/k4NvATCsjdJ5beh0E/NU3CdjV2pF6+2ZZ9BNEkiyNZBWHeoVWgrgv/jHr0sak/rDPfZxCLzK8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730806130; c=relaxed/simple;
-	bh=V4Fx4ZCsZ/W2CFev1srbqlkLsaSDBUC/Uyf8xKL5iIc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LhBv211I+d4wc2xoIDNW12aUlgJtF1RkuL0u29ZfJvEkiEenGmrJV2pT8QU61CRRz/MvCzUhMgQKk6MtiPcazoMtGJnUUFUMNAArziCMqqGCMXjGnQ5Vb9hBd/GCkYnIY5b84EJnSb7nxe+8HpFjuVX9gbHSNFsmfI1lnlQ0PcQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XmEDuwC5; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16BF81D63FC
+	for <bridge@lists.linux-foundation.org>; Tue,  5 Nov 2024 13:41:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.138
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1730814093; cv=fail; b=t8mCks3mEblKVcAg/OfCtTwEjPe677fifWg+YgzMtsO++iqPWQ/jKSDj/OTmE1N+XCBD+jFPqpxpEj2CBW6IApg3+4vul1NV6uECqVz1ffRtKQR6s2LPUDeFPvdRSF3JdmFoqn9C2bv8sbUcbBX2wVD1fBT9idzPnSA3qWhO3To=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1730814093; c=relaxed/simple;
+	bh=zAwkrG/n1aOCwaDvs3B7Yj0PtRZnBZmGRSyVJKE0NFM=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Cg8HlfERM+1XBcrHNPaDOvXJeecdstgsTwEzUGOivedPUYhihU3b1Mh0k9ixfIJMDwW8OAXjncnhZBYcRnc9vIA15VuDFHmQit2fCXi2bu6hNvH16FBGfCOx4u49iRHKus4BI6buy3nbs4lq1KH2bfIv6HEg8M8Z0p348+CGzzI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CCKZS5Cj; arc=fail smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XmEDuwC5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1730806127;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YRw+ZI+EHriAqyQtRKFNEP9Ziutm6hGWEIK6wHEDZ+0=;
-	b=XmEDuwC5hT6Gn74FTFCaZWuBluZXQ/ZXczCAJU4i+mAZUWwX/XLbVDu7FlYxOQI5rtiCIE
-	tasxUbf7UUI15xgPqb3qhItABrOWSb6p+HXdm907edT6SpraWWjte1OUbXscMeGTMjOnuc
-	zb/RiUSnBDRvARp0ICt7OWgDZafviDI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-682-xa-xSWWCMvu5JanFpmLXFQ-1; Tue, 05 Nov 2024 06:28:45 -0500
-X-MC-Unique: xa-xSWWCMvu5JanFpmLXFQ-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-431ad45828aso35826515e9.3
-        for <bridge@lists.linux.dev>; Tue, 05 Nov 2024 03:28:45 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730806124; x=1731410924;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=YRw+ZI+EHriAqyQtRKFNEP9Ziutm6hGWEIK6wHEDZ+0=;
-        b=ZYlHo6l+L3frELiSjDTLR20vnkkauez1ECjk/Y9wm3hvB6Ej3PCWx6JPJHJVKv2EVn
-         rEArEjt5aXwFB3EOofZRYNxsZhY/+q2HlfbXqSbdHNP821b/X14nl0SJ+sV7GoRbBxvm
-         VDVteme7y77w5bjTzn7gZLOyyrWRpXdHFkfn/X/nBRUUykb50fXv7ssvLo0/0Tapf3aE
-         k5Hz92sgUxa12uHodMvzjFZ5lGMfcncgAegJXEGguw7eG+a6dCOWZ52QQ9HFoUKFDBH/
-         LQgsx8wW03Z214Zm6J8eFi0xWhrMO4y9RqIR4orYp87w3N/x+uBR4ey0glC1ENIf1wlW
-         4wjQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXstfZYJ5EwaVp61vKZpVMtXxywvTnt/yoHvHKzT6WCJ5nL4g0uK51QI8oKwDQMF9MxA0WCbfM=@lists.linux.dev
-X-Gm-Message-State: AOJu0YySQYiGimdCQvpskkRQNoTUoM/tx0cmVvpGqTp5wJSHpHuCIjVA
-	BCd6vr6vnwXF0APpFja+lU98z3ET4Qgioa7KwBuhatRgO1Qz9qQZ4pCeaPYI3jm+SxjlowqaQ6h
-	wIMesD3IfXInGf9ru/0XC3AmZxCv2gsGfrWCPkhUOR0xSG8oMcSTVZA==
-X-Received: by 2002:a05:600c:511b:b0:42c:b1ee:4b04 with SMTP id 5b1f17b1804b1-4319ad2a786mr285264985e9.28.1730806124609;
-        Tue, 05 Nov 2024 03:28:44 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHEq0nB0FHycAeDiC2A5BD6S2GD2q8CvrjAwmkeMdjkaet9mg4xQ5NJoly7MhpdN9Xt3xtfwQ==
-X-Received: by 2002:a05:600c:511b:b0:42c:b1ee:4b04 with SMTP id 5b1f17b1804b1-4319ad2a786mr285264515e9.28.1730806124002;
-        Tue, 05 Nov 2024 03:28:44 -0800 (PST)
-Received: from [192.168.88.24] (146-241-44-112.dyn.eolo.it. [146.241.44.112])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c10b7d2bsm15879593f8f.16.2024.11.05.03.28.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Nov 2024 03:28:43 -0800 (PST)
-Message-ID: <8f83725e-1ea9-438f-8ab1-ff528ca761fb@redhat.com>
-Date: Tue, 5 Nov 2024 12:28:41 +0100
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CCKZS5Cj"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id A2C8C80C97
+	for <bridge@lists.linux-foundation.org>; Tue,  5 Nov 2024 13:41:31 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id C3nTYLznhViH for <bridge@lists.linux-foundation.org>;
+ Tue,  5 Nov 2024 13:41:30 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:200a::61c; helo=nam12-mw2-obe.outbound.protection.outlook.com; envelope-from=idosch@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 9646580CA5
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9646580CA5
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=CCKZS5Cj
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2061c.outbound.protection.outlook.com [IPv6:2a01:111:f403:200a::61c])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9646580CA5
+	for <bridge@lists.linux-foundation.org>; Tue,  5 Nov 2024 13:41:30 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oou307H5WrbXCiSX0DmZWc9VHwQLXc8sj1a7A4v+xCYYgT+0RMVdoST3XxhJeCB21hEhNfrTlrtUnF6In7ts9WVmdVdygFoBuwp9dCds97ML1WIyXLXZdSwesuGzyAo82uK8XjM9SWc5CdjtS30HSyXD1byfiyyN6kTizO3E2LQh9U8PW/PvNwrqBWW3d2cRrx9YqtmXOQsD9ESmaPvbLUWrmNSnhpRTatqDN0Z1bFVecLHuOsof5EOz17cABll7u9Tdo0XVAIoV55ij7ubmkhxoRN3tXO1ymKnIpF2t2K9R/untYyKO5/ep2xJa4AMyH/yyBr2c9zcBAtehgoyfaA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=yvZo0jLiRBX/cnS6N37wof/eFhQFWfKjGMfWyLF+2eU=;
+ b=pYeLubZvyv4rEd6iN5yPj3947HrrJscE1t4fhWSgJQHw6TyF/qgUjX+HOXNQ4iOdkuQ2rxX57Hq6YBl2TsV8KP2ohEW2uYhI8rw49noFW9TJV5MeKGKAuELLmKx79SydJLNuEsiEmJmnyq3FuWqyaaksR7NRsICKucSpbxvBbVefcsHKpMBZLjx8/Gv6pxBXBlIvy6jGf0lHg5Ojg2MbtX88OwuXk76ihy/boevAQl2ONcWjhgCA97gvizxKKXwT4epAFgREbNiqlBWXMNAqiGlRygn0EsYPFrWgLwRFx3woha2sWP2EWAJOId93EJ4gv3KxW03PZChpRenLfn6OQQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yvZo0jLiRBX/cnS6N37wof/eFhQFWfKjGMfWyLF+2eU=;
+ b=CCKZS5CjyJAMcubaIaM9/UyVdk7krt2ZNSUbb5KN+WusX94G3p4GyPd0yI2J9hJlVNPMLQXyMwW/C/P/tbFru/D8grtQ/qL1Yf9LgBz6FufTtc8NmEpcLRq3e5FtAdqqEw5GQ91N8jLmYHuTE+Gi3lblN2RCqbfbKeu+wlwWP94UpK0ZCn+ZSjYboNZkzozyT8LdLIVXeS4d0j1Nh/xord23HYKf3lv0ecdqUEEvbsNUMPVz8RuhnVo6NROilE4MA9ACZB1HnGMzXlqJ0GTRTSwTWo746itVJq0vRSXE7p5FVcfMukspK7lHoW9Ua8Kicde8m7Naj2boX270qu3ONA==
+Received: from BL1P222CA0013.NAMP222.PROD.OUTLOOK.COM (2603:10b6:208:2c7::18)
+ by SJ0PR12MB8140.namprd12.prod.outlook.com (2603:10b6:a03:4e3::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.30; Tue, 5 Nov
+ 2024 13:41:24 +0000
+Received: from BN2PEPF000055DE.namprd21.prod.outlook.com
+ (2603:10b6:208:2c7:cafe::d8) by BL1P222CA0013.outlook.office365.com
+ (2603:10b6:208:2c7::18) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8114.31 via Frontend
+ Transport; Tue, 5 Nov 2024 13:41:24 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BN2PEPF000055DE.mail.protection.outlook.com (10.167.245.8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8158.0 via Frontend Transport; Tue, 5 Nov 2024 13:41:23 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 5 Nov 2024
+ 05:41:11 -0800
+Received: from shredder.mtl.com (10.126.230.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 5 Nov 2024
+ 05:41:06 -0800
+From: Ido Schimmel <idosch@nvidia.com>
+To: <netdev@vger.kernel.org>, <bridge@lists.linux-foundation.org>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<edumazet@google.com>, <razor@blackwall.org>, <roopa@nvidia.com>,
+	<horms@kernel.org>, <petrm@nvidia.com>, <aroulin@nvidia.com>, Ido Schimmel
+	<idosch@nvidia.com>
+Subject: [PATCH net-next] bridge: Allow deleting FDB entries with non-existent VLAN
+Date: Tue, 5 Nov 2024 15:39:54 +0200
+Message-ID: <20241105133954.350479-1-idosch@nvidia.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND net-next v4 9/9] net: ip: make ip_route_use_hint()
- return drop reasons
-To: Menglong Dong <menglong8.dong@gmail.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- horms@kernel.org, dsahern@kernel.org, pablo@netfilter.org,
- kadlec@netfilter.org, roopa@nvidia.com, razor@blackwall.org,
- gnault@redhat.com, bigeasy@linutronix.de, hawk@kernel.org,
- idosch@nvidia.com, dongml2@chinatelecom.cn, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev, bpf@vger.kernel.org
-References: <20241030014145.1409628-1-dongml2@chinatelecom.cn>
- <20241030014145.1409628-10-dongml2@chinatelecom.cn>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20241030014145.1409628-10-dongml2@chinatelecom.cn>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN2PEPF000055DE:EE_|SJ0PR12MB8140:EE_
+X-MS-Office365-Filtering-Correlation-Id: e3acb4c8-b146-43d9-7794-08dcfd9f8a51
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|36860700013|376014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?c+CpS5Gm2CzqPQawwEJCE151YHNBlEnKPNaTY6zX5d0rCmpEqLAiMJP7rrfQ?=
+ =?us-ascii?Q?21qoAhw5ft8DXbu09iKQyJWrtuzOWb+vt6fot4nMtxkmx38R/i4iaRJnonY/?=
+ =?us-ascii?Q?bsxDpB+zelFw3bk+XrRlOZN+nzFKczDCDZMhLY8be7Cv7V88HIOZZyAMCRTr?=
+ =?us-ascii?Q?iKRgst6CeYB2Ed5P7T4+7+ldC2r3lmaRgaz5OER2nae7/zHkuTG1A+3T4uBL?=
+ =?us-ascii?Q?ChNYiBjSlOoioVRFN16teDxQQNwtq79TUFJyKpwus/W4MkJrNm+jqPgLy7tE?=
+ =?us-ascii?Q?YaXB+FzLbQ76pCkcDZ3t/K0YabXt8dHz6ZOkoOWHvmK+dtZC50Qtw6WI9ns8?=
+ =?us-ascii?Q?GvL9ovW9z8sXnC5hgsKNh9/gjmQBX1xpS+b/NfXdLYx9WDrfSuXjTyo1KNDM?=
+ =?us-ascii?Q?nTHIJeElTpSmufRH3dYDuUn8fps4NIKf7+51dp5e8a69XSSUMiYDX1A4iiLI?=
+ =?us-ascii?Q?29OupGqEFxLriwYOM60tf0zO7QfmOiKaS5+p6hAU3gjGdfkbfpII+doWg9wX?=
+ =?us-ascii?Q?9pJt/yXs1Jeb8mbFBj0S/6VFiR/LGRrypzPAn21DD+6FkxXWPKeG2H1V0kux?=
+ =?us-ascii?Q?ZMe8262X23W6QDDktEGnKd5A6OJ7B4wbG2Rp2qcz+glSJnXoTot9IpBiT/hm?=
+ =?us-ascii?Q?L1Ma63Y0vg7MazZi4RbdsDTVSKZ0CZxoEa60RUycT+ibPFCdqhF3H4GUqhFk?=
+ =?us-ascii?Q?GVFRJRUfsLx7/DaDs3fCUQzE1wGa6bsVZeSZxfSZzzY3keZheNXL72Lqx/S9?=
+ =?us-ascii?Q?Eo4vRFFIwbRyLeNbQMIJm1nR5viahpB0c5w4O+FnTVL8H887Vvlonm9ntbNM?=
+ =?us-ascii?Q?UOLFwrn/dO3bwjDjFkE0XBk5FrUmk+9BPdjf6dHpHhf08HRVMUI7oSF5rot5?=
+ =?us-ascii?Q?wZsrQLzEwIfrQ+evi1Kk37Uu+yKJrLD2gwrArcG+Ho+7gJ11GeRkrfLYZSgn?=
+ =?us-ascii?Q?jRxHVuf/ZELurbKJGT2qqBJh+BEt8JBcSZDtiDOqUPzW8uCUPdmacae5h/Sd?=
+ =?us-ascii?Q?WcoVYoujPxRZd7iWtdEZMlMXLXMDmaz6urdSOQ68JiUcvfHU6cXZ5u0j0CbK?=
+ =?us-ascii?Q?mKc9mlQ6ueSNDw1lk5qRGnNC8oq2EmHyk5clO+PI53Ux7CiAinMuQSnH4MT+?=
+ =?us-ascii?Q?f+PmpPfC6jzkMyk5a8JJke1UHKVsYDTfVlpOSXGCDLboJ2nIVJdgZ0AUk/hI?=
+ =?us-ascii?Q?Kz09elIdF1ga8wG0vO+qCHus2ytfOIYGLQCidblOorimz9EDL6uge04JOWdk?=
+ =?us-ascii?Q?a6GAsK6OtYCglFftdrvin78SzN1qezBocGbJCXcc7pNXFHrSIMCY22qLLoqh?=
+ =?us-ascii?Q?iWtKKGA4tw3yEMEzmvNxzfC1mYzBNoWZ3frq+Vb0EjGgJCIz4hej2n8iwQ3d?=
+ =?us-ascii?Q?dZwTfCC+6+XsygCIxGOFsm/e/9DZjB/x+JLorVQGpi8hJRuY6A=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(36860700013)(376014)(1800799024);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Nov 2024 13:41:23.9958
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e3acb4c8-b146-43d9-7794-08dcfd9f8a51
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN2PEPF000055DE.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB8140
 
-On 10/30/24 02:41, Menglong Dong wrote:
-> diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-> index e248e5577d0e..7f969c865c81 100644
-> --- a/net/ipv4/route.c
-> +++ b/net/ipv4/route.c
-> @@ -2142,28 +2142,34 @@ ip_mkroute_input(struct sk_buff *skb, struct fib_result *res,
->   * assuming daddr is valid and the destination is not a local broadcast one.
->   * Uses the provided hint instead of performing a route lookup.
->   */
-> -int ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
-> -		      dscp_t dscp, struct net_device *dev,
-> -		      const struct sk_buff *hint)
-> +enum skb_drop_reason
-> +ip_route_use_hint(struct sk_buff *skb, __be32 daddr, __be32 saddr,
-> +		  dscp_t dscp, struct net_device *dev,
-> +		  const struct sk_buff *hint)
->  {
-> +	enum skb_drop_reason reason = SKB_DROP_REASON_NOT_SPECIFIED;
->  	struct in_device *in_dev = __in_dev_get_rcu(dev);
->  	struct rtable *rt = skb_rtable(hint);
->  	struct net *net = dev_net(dev);
-> -	enum skb_drop_reason reason;
-> -	int err = -EINVAL;
->  	u32 tag = 0;
->  
->  	if (!in_dev)
-> -		return -EINVAL;
-> +		return reason;
->  
-> -	if (ipv4_is_multicast(saddr) || ipv4_is_lbcast(saddr))
-> +	if (ipv4_is_multicast(saddr) || ipv4_is_lbcast(saddr)) {
-> +		reason = SKB_DROP_REASON_IP_INVALID_SOURCE;
->  		goto martian_source;
-> +	}
->  
-> -	if (ipv4_is_zeronet(saddr))
-> +	if (ipv4_is_zeronet(saddr)) {
-> +		reason = SKB_DROP_REASON_IP_INVALID_SOURCE;
->  		goto martian_source;
-> +	}
->  
-> -	if (ipv4_is_loopback(saddr) && !IN_DEV_NET_ROUTE_LOCALNET(in_dev, net))
-> +	if (ipv4_is_loopback(saddr) && !IN_DEV_NET_ROUTE_LOCALNET(in_dev, net)) {
-> +		reason = IP_LOCALNET;
->  		goto martian_source;
-> +	}
->  
->  	if (rt->rt_type != RTN_LOCAL)
->  		goto skip_validate_source;
+It is currently impossible to delete individual FDB entries (as opposed
+to flushing) that were added with a VLAN that no longer exists:
 
-Please explicitly replace also the
+ # ip link add name dummy1 up type dummy
+ # ip link add name br1 up type bridge vlan_filtering 1
+ # ip link set dev dummy1 master br1
+ # bridge fdb add 00:11:22:33:44:55 dev dummy1 master static vlan 1
+ # bridge vlan del vid 1 dev dummy1
+ # bridge fdb get 00:11:22:33:44:55 br br1 vlan 1
+ 00:11:22:33:44:55 dev dummy1 vlan 1 master br1 static
+ # bridge fdb del 00:11:22:33:44:55 dev dummy1 master vlan 1
+ RTNETLINK answers: Invalid argument
+ # bridge fdb get 00:11:22:33:44:55 br br1 vlan 1
+ 00:11:22:33:44:55 dev dummy1 vlan 1 master br1 static
 
-	return 0;
+This is in contrast to MDB entries that can be deleted after the VLAN
+was deleted:
 
-with
+ # bridge vlan add vid 10 dev dummy1
+ # bridge mdb add dev br1 port dummy1 grp 239.1.1.1 permanent vid 10
+ # bridge vlan del vid 10 dev dummy1
+ # bridge mdb get dev br1 grp 239.1.1.1 vid 10
+ dev br1 port dummy1 grp 239.1.1.1 permanent vid 10
+ # bridge mdb del dev br1 port dummy1 grp 239.1.1.1 permanent vid 10
+ # bridge mdb get dev br1 grp 239.1.1.1 vid 10
+ Error: bridge: MDB entry not found.
 
-	return SKB_NOT_DROPPED_YET;
+Align the two interfaces and allow user space to delete FDB entries that
+were added with a VLAN that no longer exists:
 
-So that is clear the drop reason is always specified.
+ # ip link add name dummy1 up type dummy
+ # ip link add name br1 up type bridge vlan_filtering 1
+ # ip link set dev dummy1 master br1
+ # bridge fdb add 00:11:22:33:44:55 dev dummy1 master static vlan 1
+ # bridge vlan del vid 1 dev dummy1
+ # bridge fdb get 00:11:22:33:44:55 br br1 vlan 1
+ 00:11:22:33:44:55 dev dummy1 vlan 1 master br1 static
+ # bridge fdb del 00:11:22:33:44:55 dev dummy1 master vlan 1
+ # bridge fdb get 00:11:22:33:44:55 br br1 vlan 1
+ Error: Fdb entry not found.
 
-Thanks,
+Add a selftest to make sure this behavior does not regress:
 
-Paolo
+ # ./rtnetlink.sh -t kci_test_fdb_del
+ PASS: bridge fdb del
+
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Andy Roulin <aroulin@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+---
+ net/bridge/br_fdb.c                      |  9 ++----
+ tools/testing/selftests/net/rtnetlink.sh | 40 ++++++++++++++++++++++++
+ 2 files changed, 42 insertions(+), 7 deletions(-)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 1cd7bade9b3b..77f110035df1 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -1319,7 +1319,6 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
+ {
+ 	struct net_bridge_vlan_group *vg;
+ 	struct net_bridge_port *p = NULL;
+-	struct net_bridge_vlan *v;
+ 	struct net_bridge *br;
+ 	int err;
+ 
+@@ -1338,14 +1337,10 @@ int br_fdb_delete(struct ndmsg *ndm, struct nlattr *tb[],
+ 	}
+ 
+ 	if (vid) {
+-		v = br_vlan_find(vg, vid);
+-		if (!v) {
+-			pr_info("bridge: RTM_DELNEIGH with unconfigured vlan %d on %s\n", vid, dev->name);
+-			return -EINVAL;
+-		}
+-
+ 		err = __br_fdb_delete(br, p, addr, vid);
+ 	} else {
++		struct net_bridge_vlan *v;
++
+ 		err = -ENOENT;
+ 		err &= __br_fdb_delete(br, p, addr, 0);
+ 		if (!vg || !vg->num_vlans)
+diff --git a/tools/testing/selftests/net/rtnetlink.sh b/tools/testing/selftests/net/rtnetlink.sh
+index 87dce3efe31e..6e216d7a8e2f 100755
+--- a/tools/testing/selftests/net/rtnetlink.sh
++++ b/tools/testing/selftests/net/rtnetlink.sh
+@@ -25,6 +25,7 @@ ALL_TESTS="
+ 	kci_test_ipsec
+ 	kci_test_ipsec_offload
+ 	kci_test_fdb_get
++	kci_test_fdb_del
+ 	kci_test_neigh_get
+ 	kci_test_bridge_parent_id
+ 	kci_test_address_proto
+@@ -1065,6 +1066,45 @@ kci_test_fdb_get()
+ 	end_test "PASS: bridge fdb get"
+ }
+ 
++kci_test_fdb_del()
++{
++	local test_mac=de:ad:be:ef:13:37
++	local dummydev="dummy1"
++	local brdev="test-br0"
++	local ret=0
++
++	run_cmd_grep 'bridge fdb get' bridge fdb help
++	if [ $? -ne 0 ]; then
++		end_test "SKIP: fdb del tests: iproute2 too old"
++		return $ksft_skip
++	fi
++
++	setup_ns testns
++	if [ $? -ne 0 ]; then
++		end_test "SKIP fdb del tests: cannot add net namespace $testns"
++		return $ksft_skip
++	fi
++	IP="ip -netns $testns"
++	BRIDGE="bridge -netns $testns"
++	run_cmd $IP link add $dummydev type dummy
++	run_cmd $IP link add name $brdev type bridge vlan_filtering 1
++	run_cmd $IP link set dev $dummydev master $brdev
++	run_cmd $BRIDGE fdb add $test_mac dev $dummydev master static vlan 1
++	run_cmd $BRIDGE vlan del vid 1 dev $dummydev
++	run_cmd $BRIDGE fdb get $test_mac br $brdev vlan 1
++	run_cmd $BRIDGE fdb del $test_mac dev $dummydev master vlan 1
++	run_cmd_fail $BRIDGE fdb get $test_mac br $brdev vlan 1
++
++	ip netns del $testns &>/dev/null
++
++	if [ $ret -ne 0 ]; then
++		end_test "FAIL: bridge fdb del"
++		return 1
++	fi
++
++	end_test "PASS: bridge fdb del"
++}
++
+ kci_test_neigh_get()
+ {
+ 	dstmac=de:ad:be:ef:13:37
+-- 
+2.47.0
 
