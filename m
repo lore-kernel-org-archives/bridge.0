@@ -1,119 +1,115 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13C3A14265F
-	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 16:26:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E8A81D3629
+	for <bridge@lists.linux.dev>; Tue,  5 Nov 2024 11:22:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730478389; cv=none; b=d2Du9gLYZbevS825d8MbBFDuB+PEz0zoe+WVSoE0mPB3TUzl331joF63jCZo75c7vtATxNr/8+rpSIqwHh/el91e3rOjMA0UwpLJitR0RgYkk0yQYqBCCHfj1seA8uK9G3PFoR9FEX4PZcy4PsXb6LxnMUOCQvRsmf36KJfI68Y=
+	t=1730805765; cv=none; b=Gjvv50LWNQb5QPci7BCkEr9Bp6INNIEXftHrmqcqT3VycuMc+ZLSxRe/f75yR/9H2Avjz3DlGbGJQgyVp8tjKHkUh5X5TxndMLdnC3knyzhjONlw3u7TQsw8/5UmhoFXhN1TjRsA5KnCftyFA7Da05X8F1w3Z51SrOTxm0LFYbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730478389; c=relaxed/simple;
-	bh=6a1dZSp9HvKtLL61oi/0+jzB9aOQa/17P7GLTEW2QBg=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qmcYPSawOcFYBmFBKDg+PJa8YfRj88XTXYqah+5T5zu6ujnDTVedoI17TJoLTp5wl5PgRYWhAlZwOMnUeexc1nBApniPCI8VACG9YviE7TCgZ3iXD2FjB1NlkAITdNWy3QkC8QmvrtJvGIXqNyfxEtsGyQTzlz19/ZJH8A4SIWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 868BB40BBF
-	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 16:26:26 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -6.289
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id VdYywJSU2r1d for <bridge@lists.linux-foundation.org>;
- Fri,  1 Nov 2024 16:26:25 +0000 (UTC)
-X-Greylist: delayed 4702 seconds by postgrey-1.37 at util1.osuosl.org; Fri, 01 Nov 2024 16:26:24 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 66EA040B53
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=windriver.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 66EA040B53
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=205.220.166.238; helo=mx0a-0064b401.pphosted.com; envelope-from=prvs=1035e1bbb5=randy.macleod@windriver.com; receiver=<UNKNOWN> 
-Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 66EA040B53
-	for <bridge@lists.linux-foundation.org>; Fri,  1 Nov 2024 16:26:24 +0000 (UTC)
-Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
-	by mx0a-0064b401.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A18rZut032555;
-	Fri, 1 Nov 2024 08:07:49 -0700
-Received: from ala-exchng01.corp.ad.wrs.com (ala-exchng01.wrs.com [147.11.82.252])
-	by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 42mew213k8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Fri, 01 Nov 2024 08:07:49 -0700 (PDT)
-Received: from ala-exchng01.corp.ad.wrs.com (147.11.82.252) by
- ala-exchng01.corp.ad.wrs.com (147.11.82.252) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Fri, 1 Nov 2024 08:07:48 -0700
-Received: from pop-os.wrs.com (172.25.44.6) by ala-exchng01.corp.ad.wrs.com
- (147.11.82.252) with Microsoft SMTP Server id 15.1.2507.39 via Frontend
- Transport; Fri, 1 Nov 2024 08:07:47 -0700
-From: <Randy.MacLeod@windriver.com>
-To: <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
-        <sashal@kernel.org>
-CC: <sherry.yang@oracle.com>, <bridge@lists.linux-foundation.org>,
-        <davem@davemloft.net>, <kuba@kernel.org>, <netdev@vger.kernel.org>,
-        <nikolay@nvidia.com>, <roopa@nvidia.com>,
-        <linux-kernel@vger.kernel.org>, <randy.macleod@windriver.com>
-Subject: [PATCH 1/1: 5.10/5.15] net: bridge: xmit: make sure we have at least eth header len bytes
-Date: Fri, 1 Nov 2024 11:07:45 -0400
-Message-ID: <20241101150745.3671416-2-Randy.MacLeod@windriver.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20241101150745.3671416-1-Randy.MacLeod@windriver.com>
-References: <20241101150745.3671416-1-Randy.MacLeod@windriver.com>
+	s=arc-20240116; t=1730805765; c=relaxed/simple;
+	bh=DREiJ3+9uPmoBRjO+WZh8yLPw0vGXk6MYVHENj4AzFs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uDg3DDyybxpwc+b7xGfnCAgNJOvMHfFD+xYFLbGuB5fmJzfvyx3O3UfJQ5Jpt1VP4ULPeVIsG2QVMnbpFky1WpOEfV7F+wJ3dpp+hApKpPkgZtwoE4JsFrLqtHfWwSJigN5RDMbbeuJjwrxJoh97/tvIhfQP5LrDHeyZSVci6u8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UxC3rNLZ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UxC3rNLZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1730805761;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0w4cqL75qypebxW4II7sYIZNVtJj6dqkjoh3JctPnZs=;
+	b=UxC3rNLZRLKbE/zRFbUlPXagAo0Fbzr+6/miF+wk/OowqzrCtsGKhBi4fZyo1KjwVmudot
+	ImObGztQpt/R/fretnrjSPwm2V8+ehJLIOIlAxiP1VuHxyOrjkwVOaqtncEJOiJGZOXOl6
+	jXJqMs0iWd5W2UY06pEVF5ikUBBXWDw=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-464-7zSF55-0PGu-yQlXourHhA-1; Tue, 05 Nov 2024 06:22:40 -0500
+X-MC-Unique: 7zSF55-0PGu-yQlXourHhA-1
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-539eb3416cdso5582401e87.1
+        for <bridge@lists.linux.dev>; Tue, 05 Nov 2024 03:22:40 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730805759; x=1731410559;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=0w4cqL75qypebxW4II7sYIZNVtJj6dqkjoh3JctPnZs=;
+        b=BzOxwtGpmoJ3qeYOPrsL77XXBVeTOdOFT/nStGK4lapYI5fDw2F9j+Di8iVuPRPsba
+         FHmhzHxFdu90hievWQmLwmU/+Z7Wpa6qEHOW58iOcmOgilSWLnJrBbdrtSpdhN4Ddoix
+         LN4HldGKpb58CcpAYqXHeOlOB92ZT2x/rVvmzsKBzVZO+akVoRhnGZIyCrUKlBbjmioi
+         BAtF/P8s58Vm8nrU3d6v+XnPJtcC1eQBbL0ftqB2zUB6iPSmwqTh8uCoXQWzUcmnMXSn
+         LNeEhktpqbkpbsclAdBVKkdFTsKarqtdDPV/x4Wxi/6HTl7ey/TsjDJftCx+G8k+cgzi
+         jD3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWwy3tyulG12JCV0Cbjwlc6/PshauZ6WbIkLNp2K6BzOf9npdGj1k4WJVPWDa4DSxEJMkg5drM=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxLIyMDWEC3HUQgxTvxb8TLdDKmkFuWdPMxJhLY4hdUq1knk9BG
+	SVHl2rFbyT29kqZA9GfzydCrwBlDBoGQ4p3L6VxqwMLCAOaIwmwauEL68N5Ng1EIk3gM2OVjfhJ
+	E0Jc6UgzvgXbEai0APCgxHRjc4w2Et0rLLeUN3Un5yojIlHND9dxaDw==
+X-Received: by 2002:a05:6512:1107:b0:539:f7ba:c982 with SMTP id 2adb3069b0e04-53b348ee5c3mr17252881e87.33.1730805758673;
+        Tue, 05 Nov 2024 03:22:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHkZhLSHmVvI05Xa7tNeYy4VrWo47n8S+oU5OPC7haYZemC98IoPNLINInGw/qiJ6rXUQ23dg==
+X-Received: by 2002:a05:6512:1107:b0:539:f7ba:c982 with SMTP id 2adb3069b0e04-53b348ee5c3mr17252853e87.33.1730805758231;
+        Tue, 05 Nov 2024 03:22:38 -0800 (PST)
+Received: from [192.168.88.24] (146-241-44-112.dyn.eolo.it. [146.241.44.112])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-381c10e7365sm15705047f8f.54.2024.11.05.03.22.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 05 Nov 2024 03:22:37 -0800 (PST)
+Message-ID: <62773e8f-884c-4bfe-b412-97ad976f9cb8@redhat.com>
+Date: Tue, 5 Nov 2024 12:22:35 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-GUID: 6_PsvydZLq400R8lmhL0uJb2o0wSTisC
-X-Authority-Analysis: v=2.4 cv=dLb0m/Zb c=1 sm=1 tr=0 ts=6724eec5 cx=c_pps a=/ZJR302f846pc/tyiSlYyQ==:117 a=/ZJR302f846pc/tyiSlYyQ==:17 a=eMPNgDwjIQXpT8XC:21 a=VlfZXiiP6vEA:10 a=t7CeM3EgAAAA:8 a=hSkVLCK3AAAA:8 a=edf1wS77AAAA:8 a=IJ2IFIBGmV0-FWXsoRQA:9
- a=FdTzh2GWekK77mhwV6Dw:22 a=cQPPKAXgyycSBL8etih5:22 a=DcSpbTIhAlouE1Uv7lRv:22
-X-Proofpoint-ORIG-GUID: 6_PsvydZLq400R8lmhL0uJb2o0wSTisC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-11-01_09,2024-11-01_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- impostorscore=0 lowpriorityscore=0 spamscore=0 bulkscore=0 adultscore=0
- clxscore=1015 priorityscore=1501 mlxscore=0 mlxlogscore=999 suspectscore=0
- phishscore=0 classifier=spam authscore=0 adjust=0 reason=mlx scancount=1
- engine=8.21.0-2409260000 definitions=main-2411010109
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND net-next v4 6/9] net: ip: make
+ ip_route_input_noref() return drop reasons
+To: Menglong Dong <menglong8.dong@gmail.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ horms@kernel.org, dsahern@kernel.org, pablo@netfilter.org,
+ kadlec@netfilter.org, roopa@nvidia.com, razor@blackwall.org,
+ gnault@redhat.com, bigeasy@linutronix.de, hawk@kernel.org,
+ idosch@nvidia.com, dongml2@chinatelecom.cn, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev, bpf@vger.kernel.org
+References: <20241030014145.1409628-1-dongml2@chinatelecom.cn>
+ <20241030014145.1409628-7-dongml2@chinatelecom.cn>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20241030014145.1409628-7-dongml2@chinatelecom.cn>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Randy MacLeod <Randy.MacLeod@windriver.com>
+Hi,
 
-[ Upstream commit 8bd67ebb50c0145fd2ca8681ab65eb7e8cde1afc ]
+On 10/30/24 02:41, Menglong Dong wrote:
+> @@ -175,10 +175,12 @@ static void ip_expire(struct timer_list *t)
+>  
+>  	/* skb has no dst, perform route lookup again */
+>  	iph = ip_hdr(head);
+> -	err = ip_route_input_noref(head, iph->daddr, iph->saddr, ip4h_dscp(iph),
+> -				   head->dev);
+> -	if (err)
+> +	reason = ip_route_input_noref(head, iph->daddr, iph->saddr,
+> +				      ip4h_dscp(iph), head->dev);
+> +	if (reason)
+>  		goto out;
+> +	else
+> +		reason = SKB_DROP_REASON_FRAG_REASM_TIMEOUT;
 
-Based on above commit but simplified since pskb_may_pull_reason()
-does not exist until 6.1.
+I think the else branch above is confusing - and unneeded.
 
-syzbot triggered an uninit value[1] error in bridge device's xmit path
-by sending a short (less than ETH_HLEN bytes) skb. To fix it check if
-we can actually pull that amount instead of assuming.
+Please move the assignment after the comment below, so it's clear why we
+get a TIMEOUT drop reason.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: syzbot+a63a1f6a062033cf0f40@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=a63a1f6a062033cf0f40
-Signed-off-by: Randy MacLeod <Randy.MacLeod@windriver.com>
----
- net/bridge/br_device.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Thanks,
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index d3ea9d0779fb..84e37108c6b5 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -36,6 +36,11 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 	const unsigned char *dest;
- 	u16 vid = 0;
- 
-+	if (unlikely(!pskb_may_pull(skb, ETH_HLEN))) {
-+		kfree_skb(skb);
-+		return NETDEV_TX_OK;
-+	}
-+
- 	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
- 
- 	rcu_read_lock();
--- 
-2.34.1
+Paolo
 
