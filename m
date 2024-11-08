@@ -1,171 +1,79 @@
-Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA9031C68A3
-	for <bridge@lists.linux.dev>; Fri,  8 Nov 2024 03:55:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEF231C6F4E;
+	Fri,  8 Nov 2024 04:50:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731038156; cv=none; b=CKXEzLTKIB6DM81EZjTzn4KsBhR1TesvvD//Dj0u2eMPdJtTF+W22MC8cxeWDpof66p5CpFCtBJFA+/7OSqffTkTi+vYH06sAexjN633IgVRr81JW4Hg5I2HdcUJU53A6LRm/Fo2+QL4QA8Et3Uqufrc/lskzMJXYR8vRZ2kFGI=
+	t=1731041428; cv=none; b=dEyhZCS9C1HThLuY3QGhzGCJPg9VErUzbU1Owhzu368JIzGBtiJsfmV5N4ZITNUfRKg5MYr67fSndhUiExXbn/eJnNA5XxTcRXWA70mrWw4xT/hKwIGFYqtxbycmh2K3IEZg7AirsAaHV/1NS7647TZ7Drpmw34xRx/S37UR/lA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731038156; c=relaxed/simple;
-	bh=rrlpa2EfaD1v4W4s1kcW7rUHx6iyeY+PqPoCCEoIstg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hzvU/zm5HWdDMOaslP2Arq7/g6iLl1r9UQkccYui1AM0FV67TU5ehjwAKDqPiouizxm6DjxV0Io744fqcL9fwHr5bsU5iM1X32/HTYQTk+hlHBHmyhgelVOJjhtxiXHEcvMfAGk9JZ+RDgSJbq5mR5C6I0aLPPNt9n8yh1ofq9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=0AiOdWf9; arc=none smtp.client-ip=202.36.163.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
+	s=arc-20240116; t=1731041428; c=relaxed/simple;
+	bh=GVyTqZObE5wST54uI/4DlNaxxzSOO3n/k0M2+eetc7A=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=Ku9KB5fTfMJtGQfyOqG59m61gHmCA0CJWfwafuFJUbdXdluaBVD6Tk01PSqp+auhMnQ8QHXjjhHfRnbJldqqEMSjeCTZ6L5sf1GTFGQRs7VNQt5fH2LGTyMzq7BDFZupXEMFhrpR0uQSUV6t7w6GyzFbQ+3hO80j0WtyfAQmGBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OCdrgELx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="0AiOdWf9"
-Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 8B14D2C0613;
-	Fri,  8 Nov 2024 16:55:51 +1300 (NZDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-	s=mail181024; t=1731038151;
-	bh=KUc7PnPF5kFIMD0pZLX6wkw6c4UzwDmWHga1YlzKITM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=0AiOdWf9dNiLaoaX0+uAqYBbO6kIEWjQTIoZwNh+foHdb1gO0xRrSwj0UIgkQZVqP
-	 7waU5N5vofdhRDTClIV2rn/LEB2DGm0qw+JLsFzKhMmqKO/cr3UM4Y9gWmyKr/zxV1
-	 x0LJ39mWvHr9lLeg+1cuTrc0YLzXY0kzMI5Zq9nyWCOBzJkycKFXjldfUkSb2dv0Vz
-	 gQYbb7iGG9qGRLdnAJ0FmX51+JHgDf8QicHl58O2Is5BV3vLknNgoqkTMdybBDGyBq
-	 xIU4b9kOZxk3sbiTxynZxm3DPcwZoDRR9Q2R7DIhcWUPrhfMDTWFW3tq3/5oC22IhW
-	 ega5P+ysEJBuA==
-Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B672d8bc70000>; Fri, 08 Nov 2024 16:55:51 +1300
-Received: from elliota2-dl.ws.atlnz.lc (elliota-dl.ws.atlnz.lc [10.33.23.28])
-	by pat.atlnz.lc (Postfix) with ESMTP id 5CC9713ECD2;
-	Fri,  8 Nov 2024 16:55:51 +1300 (NZDT)
-Received: by elliota2-dl.ws.atlnz.lc (Postfix, from userid 1775)
-	id 5A4553C0263; Fri,  8 Nov 2024 16:55:51 +1300 (NZDT)
-From: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
-To: "David S . Miller" <davem@davemloft.net>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Florian Fainelli <f.fainelli@gmail.com>,
-	Vladimir Oltean <olteanv@gmail.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Simon Horman <horms@kernel.org>
-Cc: netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	bridge@lists.linux.dev,
-	Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
-Subject: [RFC net-next (resend) 4/4] net: dsa: mv88e6xxx: cache fid-to-vid association
-Date: Fri,  8 Nov 2024 16:55:46 +1300
-Message-ID: <20241108035546.2055996-5-elliot.ayrey@alliedtelesis.co.nz>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
-References: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OCdrgELx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62845C4CECF;
+	Fri,  8 Nov 2024 04:50:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1731041427;
+	bh=GVyTqZObE5wST54uI/4DlNaxxzSOO3n/k0M2+eetc7A=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=OCdrgELxI0C6cSan1ywiGAUJlZEYK5BjoXE1+OCmG5S4CWNHS+8vNut9QsBz0P783
+	 T236Ub7cpwCI5/T7pHMKfJ8xWFCh6i0RAW8yxQlMuyms/4abfB4mFM8PRCGdKsC2fy
+	 qtyPmhl8WAogWUR3rDmL+eEX2DCGkKXrKJ1THHvchG1UVWS/veHovbPLadd0oY6PAe
+	 FuY4LcepSuOTvpnglNuB+s8l7npgC5cpoUXHDPPv2Ww+g2FI8+gWsuIAfnirbhXIEX
+	 xBFsg/VycM4f2Yv2aoC0AOJrCgXhqBhXUf7XDxikgewPl0Yz0cuQkc7N8F3EAKzdAK
+	 SNuWCly8QKaaQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB9F23809A80;
+	Fri,  8 Nov 2024 04:50:37 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.4 cv=ca1xrWDM c=1 sm=1 tr=0 ts=672d8bc7 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=VlfZXiiP6vEA:10 a=cYZQHHvv430f9PQrUU0A:9 a=3ZKOabzyN94A:10
-X-SEG-SpamProfiler-Score: 0
-x-atlnz-ls: pat
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next] ipv4: Prepare ip_route_output() to future
+ .flowi4_tos conversion.
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173104143650.2196790.14566394622027660463.git-patchwork-notify@kernel.org>
+Date: Fri, 08 Nov 2024 04:50:36 +0000
+References: <0f10d031dd44c70aae9bc6e19391cb30d5c2fe71.1730928699.git.gnault@redhat.com>
+In-Reply-To: <0f10d031dd44c70aae9bc6e19391cb30d5c2fe71.1730928699.git.gnault@redhat.com>
+To: Guillaume Nault <gnault@redhat.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, netdev@vger.kernel.org, horms@kernel.org,
+ dsahern@kernel.org, pablo@netfilter.org, kadlec@netfilter.org,
+ roopa@nvidia.com, razor@blackwall.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev, idosch@nvidia.com
 
-When servicing ATU violations we need to walk the VTU to find the vlan
-id for the ATU's FID which is inefficient.
+Hello:
 
-Add a cache for this association and replace the VTU walk so we don't
-have to do this costly operation all the time.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Signed-off-by: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
----
- drivers/net/dsa/mv88e6xxx/chip.h        |  2 ++
- drivers/net/dsa/mv88e6xxx/global1_vtu.c |  6 ++++-
- drivers/net/dsa/mv88e6xxx/switchdev.c   | 35 ++-----------------------
- 3 files changed, 9 insertions(+), 34 deletions(-)
+On Wed, 6 Nov 2024 22:37:32 +0100 you wrote:
+> Convert the "tos" parameter of ip_route_output() to dscp_t. This way
+> we'll have a dscp_t value directly available when .flowi4_tos will
+> eventually be converted to dscp_t.
+> 
+> All ip_route_output() callers but one set this "tos" parameter to 0 and
+> therefore don't need to be adapted to the new prototype.
+> 
+> [...]
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.h b/drivers/net/dsa/mv88e6xxx=
-/chip.h
-index 48399ab5355a..91c3e4b304cf 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.h
-+++ b/drivers/net/dsa/mv88e6xxx/chip.h
-@@ -445,6 +445,8 @@ struct mv88e6xxx_chip {
-=20
- 	/* FID map */
- 	DECLARE_BITMAP(fid_bitmap, MV88E6XXX_N_FID);
-+
-+	u16 vid_cache[MV88E6XXX_N_FID];
- };
-=20
- struct mv88e6xxx_bus_ops {
-diff --git a/drivers/net/dsa/mv88e6xxx/global1_vtu.c b/drivers/net/dsa/mv=
-88e6xxx/global1_vtu.c
-index b524f27a2f0d..af1c40480303 100644
---- a/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-@@ -464,7 +464,11 @@ int mv88e6390_g1_vtu_loadpurge(struct mv88e6xxx_chip=
- *chip,
- 	}
-=20
- 	/* Load/Purge VTU entry */
--	return mv88e6xxx_g1_vtu_op(chip, MV88E6XXX_G1_VTU_OP_VTU_LOAD_PURGE);
-+	err =3D mv88e6xxx_g1_vtu_op(chip, MV88E6XXX_G1_VTU_OP_VTU_LOAD_PURGE);
-+	if (err =3D=3D 0)
-+		chip->vid_cache[entry->fid] =3D entry->valid ? entry->vid : 0;
-+
-+	return err;
- }
-=20
- int mv88e6xxx_g1_vtu_flush(struct mv88e6xxx_chip *chip)
-diff --git a/drivers/net/dsa/mv88e6xxx/switchdev.c b/drivers/net/dsa/mv88=
-e6xxx/switchdev.c
-index 88761677ff10..e96daa2dcaf4 100644
---- a/drivers/net/dsa/mv88e6xxx/switchdev.c
-+++ b/drivers/net/dsa/mv88e6xxx/switchdev.c
-@@ -12,42 +12,11 @@
- #include "global1.h"
- #include "switchdev.h"
-=20
--struct mv88e6xxx_fid_search_ctx {
--	u16 fid_search;
--	u16 vid_found;
--};
--
--static int __mv88e6xxx_find_vid(struct mv88e6xxx_chip *chip,
--				const struct mv88e6xxx_vtu_entry *entry,
--				void *priv)
--{
--	struct mv88e6xxx_fid_search_ctx *ctx =3D priv;
--
--	if (ctx->fid_search =3D=3D entry->fid) {
--		ctx->vid_found =3D entry->vid;
--		return 1;
--	}
--
--	return 0;
--}
--
- static int mv88e6xxx_find_vid(struct mv88e6xxx_chip *chip, u16 fid, u16 =
-*vid)
- {
--	struct mv88e6xxx_fid_search_ctx ctx;
--	int err;
--
--	ctx.fid_search =3D fid;
--	mv88e6xxx_reg_lock(chip);
--	err =3D mv88e6xxx_vtu_walk(chip, __mv88e6xxx_find_vid, &ctx);
--	mv88e6xxx_reg_unlock(chip);
--	if (err < 0)
--		return err;
--	if (err =3D=3D 1)
--		*vid =3D ctx.vid_found;
--	else
--		return -ENOENT;
-+	*vid =3D chip->vid_cache[fid];
-=20
--	return 0;
-+	return *vid ? 0 : -ENOENT;
- }
-=20
- int mv88e6xxx_handle_miss_violation(struct mv88e6xxx_chip *chip, int por=
-t,
+Here is the summary with links:
+  - [net-next] ipv4: Prepare ip_route_output() to future .flowi4_tos conversion.
+    https://git.kernel.org/netdev/net-next/c/48171c65f611
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
