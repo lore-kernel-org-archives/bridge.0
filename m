@@ -1,79 +1,77 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEF231C6F4E;
-	Fri,  8 Nov 2024 04:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC58137E;
+	Fri,  8 Nov 2024 13:42:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731041428; cv=none; b=dEyhZCS9C1HThLuY3QGhzGCJPg9VErUzbU1Owhzu368JIzGBtiJsfmV5N4ZITNUfRKg5MYr67fSndhUiExXbn/eJnNA5XxTcRXWA70mrWw4xT/hKwIGFYqtxbycmh2K3IEZg7AirsAaHV/1NS7647TZ7Drpmw34xRx/S37UR/lA=
+	t=1731073354; cv=none; b=iEW0UZIWNvEu6g6vZMbUux4PZdL2AA/8/QpAAz0Ed7XakFAQxXG5N6a7evVY/cB7uxuecQb7W+X8kGY+CTRsW7lltWPXKyAncjShKOGmu5AhdVjB1rUYqiBxzE+pwfdowVFeyTe9/2Sk16KYUZag6TlIGQqbuemg1yGuj7Z3O0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731041428; c=relaxed/simple;
-	bh=GVyTqZObE5wST54uI/4DlNaxxzSOO3n/k0M2+eetc7A=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Ku9KB5fTfMJtGQfyOqG59m61gHmCA0CJWfwafuFJUbdXdluaBVD6Tk01PSqp+auhMnQ8QHXjjhHfRnbJldqqEMSjeCTZ6L5sf1GTFGQRs7VNQt5fH2LGTyMzq7BDFZupXEMFhrpR0uQSUV6t7w6GyzFbQ+3hO80j0WtyfAQmGBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OCdrgELx; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1731073354; c=relaxed/simple;
+	bh=sPl0xH/rU5MR87CzD0UWeh48pO+XSsnrBK1DNGW4z80=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ba2AFD/+0XMuMkME8qTwYBwHCLdhpnebmsvoW4maNclb8Hw4CMRmWQFmiFbC9sy7X2Hm2LetYOAmxHJ69yLQjvB9V2Wg2kMulrliAGyzN3pil16dgteX3vlb5d0j+mTGtkLiZV8Hi3B5rhL2fNYVbmq/jMZc0C0k3Kpa/wL1L/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=rP0lj+JO; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OCdrgELx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62845C4CECF;
-	Fri,  8 Nov 2024 04:50:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1731041427;
-	bh=GVyTqZObE5wST54uI/4DlNaxxzSOO3n/k0M2+eetc7A=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=OCdrgELxI0C6cSan1ywiGAUJlZEYK5BjoXE1+OCmG5S4CWNHS+8vNut9QsBz0P783
-	 T236Ub7cpwCI5/T7pHMKfJ8xWFCh6i0RAW8yxQlMuyms/4abfB4mFM8PRCGdKsC2fy
-	 qtyPmhl8WAogWUR3rDmL+eEX2DCGkKXrKJ1THHvchG1UVWS/veHovbPLadd0oY6PAe
-	 FuY4LcepSuOTvpnglNuB+s8l7npgC5cpoUXHDPPv2Ww+g2FI8+gWsuIAfnirbhXIEX
-	 xBFsg/VycM4f2Yv2aoC0AOJrCgXhqBhXUf7XDxikgewPl0Yz0cuQkc7N8F3EAKzdAK
-	 SNuWCly8QKaaQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB9F23809A80;
-	Fri,  8 Nov 2024 04:50:37 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="rP0lj+JO"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=2PsP6fH5txDMvDlc3c+WMtD2cJ/wi0SKqkHs3W/eFdE=; b=rP0lj+JOMDGwwHCIind6kgu2cS
+	AY3N7HyzPwY4bkVUhKzCuvNGjHaSFts3QbWZHVwAe4ekgbKG+vJwrG9bd4+ob6Sba8hBPNKi4Vf8s
+	bYCVmGtQO8GsCW6STmX0PYgMggGtz9Qe8gWTxum/IiGybTKkAV93OJIZ9a7gEcmFQEaM=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1t9PFi-00CbHF-Cg; Fri, 08 Nov 2024 14:42:18 +0100
+Date: Fri, 8 Nov 2024 14:42:18 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
+Cc: "David S . Miller" <davem@davemloft.net>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Simon Horman <horms@kernel.org>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
+Subject: Re: [RFC net-next (resend) 2/4] net: bridge: send notification for
+ roaming hosts
+Message-ID: <93e02466-b4a0-48fd-beb0-c93b1008ff08@lunn.ch>
+References: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
+ <20241108035546.2055996-3-elliot.ayrey@alliedtelesis.co.nz>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] ipv4: Prepare ip_route_output() to future
- .flowi4_tos conversion.
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <173104143650.2196790.14566394622027660463.git-patchwork-notify@kernel.org>
-Date: Fri, 08 Nov 2024 04:50:36 +0000
-References: <0f10d031dd44c70aae9bc6e19391cb30d5c2fe71.1730928699.git.gnault@redhat.com>
-In-Reply-To: <0f10d031dd44c70aae9bc6e19391cb30d5c2fe71.1730928699.git.gnault@redhat.com>
-To: Guillaume Nault <gnault@redhat.com>
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, netdev@vger.kernel.org, horms@kernel.org,
- dsahern@kernel.org, pablo@netfilter.org, kadlec@netfilter.org,
- roopa@nvidia.com, razor@blackwall.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev, idosch@nvidia.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241108035546.2055996-3-elliot.ayrey@alliedtelesis.co.nz>
 
-Hello:
+> This is achieved by temporarily updating the fdb entry with the new
+> port, setting a new notify roaming bit, firing off a notification, and
+> restoring the original port immediately afterwards. The port remains
+> unchanged, respecting the sticky flag, but userspace is now notified
+> of the new port the host was seen on.
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+This sounds a bit hacky. Could you add a new optional attribute to the
+netlink message indicating the roam destination, so there is no need
+to play games with the actual port?
 
-On Wed, 6 Nov 2024 22:37:32 +0100 you wrote:
-> Convert the "tos" parameter of ip_route_output() to dscp_t. This way
-> we'll have a dscp_t value directly available when .flowi4_tos will
-> eventually be converted to dscp_t.
-> 
-> All ip_route_output() callers but one set this "tos" parameter to 0 and
-> therefore don't need to be adapted to the new prototype.
-> 
-> [...]
+I'm not too deep into how these all works, but i also wounder about
+backwards compatibility. Old code which does not look for
+FDB_NOTIFY_ROAMING_BIT is going to think it really has moved, with
+your code. By using a new attribute, and not changing the port, old
+code just sees a notification it is on the port it always was on,
+which is less likely to cause issues?
 
-Here is the summary with links:
-  - [net-next] ipv4: Prepare ip_route_output() to future .flowi4_tos conversion.
-    https://git.kernel.org/netdev/net-next/c/48171c65f611
+And do we want to differentiate between it wants to roam, but the
+sticky bit has stopped that, and it really has roamed?
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+	Andrew
