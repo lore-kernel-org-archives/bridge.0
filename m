@@ -1,62 +1,65 @@
 Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56D3680054
-	for <bridge@lists.linux.dev>; Fri,  8 Nov 2024 03:24:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4391C460A
+	for <bridge@lists.linux.dev>; Fri,  8 Nov 2024 03:55:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731036287; cv=none; b=mF1Z3Y9zkrH/jk4RpxBBvv7MzfPEWFfpflbKCGygumAv4DaswbOUnfnlWjs12CX/vH6/QDku1DOowSoTEKJFCscX9KyZfwHT+O9dL1g6l9pScNgMnsy6zej9OO+LTlN6ipimwu8eLp48cP9qmkiQInYkF/DUejhUVkXNoZZN63I=
+	t=1731038153; cv=none; b=puCWAaO+sLA0z41xuFNfIK5Y1ryu1PCRilcmK/GHNjvfabqLsefOy5WHLtkaoUUd/ZlTswIv7LQPuNKgdOG/dOnUVdA3wO5yXE+7AhncgtH77s4JVd+xh5FvG5V9bEbJ/QNYafmua/w8KjqxtLKHUQA4AMmflVEV7c0QZzbl64g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731036287; c=relaxed/simple;
-	bh=rbqdFotREDfEBhyAZgmy6TN4n/PMKHOQvslonALnvfE=;
+	s=arc-20240116; t=1731038153; c=relaxed/simple;
+	bh=fwrL9i6y7tbJXDT4Q60GiN4MGgABbYp5ffDU4K+K1mc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Pz4RZVwxGK2op1w4duW94h8z7WU+cL4G9lqRryLKKuu212My4Tesz/4574O/OfgNICV1hC/IoB2znUem2Sj84gt49MnUMWlM04ezV3HmRet/aNwbjG7hAEvtF9j31gT99h9YOzSJzJ7a0UIUU4hIZEN4AMocOXPZ2Md/qsmfpBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=GGpqly9N; arc=none smtp.client-ip=202.36.163.20
+	 MIME-Version; b=tzW2HcsjJjKDrIBEyy6W4JjzgxCgtMhmtCHrpidOOvFGaE9pRJGUBTRE077tFZF/diSxVyJ7MJtH1jMCeznMohOfbPaAlV5zQGE6qI3RfpLXjDEppQFFoDDVbD3jhFcZs4A62nF1gnyx0U0LnPupocf6Hrwuo6Zs6gbMDtshaf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=sk+JB1Lq; arc=none smtp.client-ip=202.36.163.20
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="GGpqly9N"
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="sk+JB1Lq"
 Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id BF1F62C0540;
-	Fri,  8 Nov 2024 16:24:37 +1300 (NZDT)
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 83AAB2C054A;
+	Fri,  8 Nov 2024 16:55:50 +1300 (NZDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-	s=mail181024; t=1731036277;
-	bh=6cWa61liB2w2TV338VOIAV95E585BXObvb8p5aUjLG8=;
+	s=mail181024; t=1731038150;
+	bh=1KWk7RhIKxIwfET7U7uihQrVugHdtjn1meod+rrQ2Vc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=GGpqly9NjeBSo4XN6NmOIyWPHcuYOQdvZHkaQB2unPElK0fMZgzT09Af9f6ApmNC6
-	 r5xrWL6AHfujnz5MMaXjJ1RM3+478e2vdd7heDtvzLmofwzfRbHoQMSU0eaC8ARhqh
-	 88p29tJnFu8B0bKStC6xQNVf/D0ugN2sU759koeuHinf/tk7lh4wWgaWnVMjz9mB4H
-	 KlvcoZOiEOa0pMw5myYexY55mCIiwFCzkz8goHGhar3isTaILxcHLwUQB4FRI6AclE
-	 J2Cp8dbZ5MbLOhW1n9/GdOIRU2xOCg+8+9zGX+LSAI16rXoJWTCLDqzYzBtWpVCx04
-	 +6TQMjVGhFJug==
+	b=sk+JB1LqoUzJoB8zlhqwLRmts816PhnsXJb2ZQsFqUsT35Rr/LFGQQcdBjzt6i8iD
+	 EEpAxzUaHCYjZsBkxOvhwF/WBudqLyDdFOuP16Y5mGY1p4C5w1o4sjkhxlelTm5nsH
+	 MzdgizOErUdbo0Lky+fNk+n0jk8HZ/3nol/dAKPQ35PBRrmQtLu1vjHlUnRkz9eVaP
+	 3Gaa9nl0gt8x9DZZcBY/yKvzwz0vwxdXh4cJcHsjfrMKIaTqkYD+2b7RMFzmQ1nuBh
+	 BbeUGEnwfNA77bsz5rr7e5+3CdBm3XRkZGzAJVQHCKqve/8v6P6ENYTK5aHVhBOLxA
+	 i2Goxyf2eMTZw==
 Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B672d84750000>; Fri, 08 Nov 2024 16:24:37 +1300
+	id <B672d8bc60000>; Fri, 08 Nov 2024 16:55:50 +1300
 Received: from elliota2-dl.ws.atlnz.lc (elliota-dl.ws.atlnz.lc [10.33.23.28])
-	by pat.atlnz.lc (Postfix) with ESMTP id 90FC913ECD2;
-	Fri,  8 Nov 2024 16:24:37 +1300 (NZDT)
+	by pat.atlnz.lc (Postfix) with ESMTP id 5015A13ECD2;
+	Fri,  8 Nov 2024 16:55:50 +1300 (NZDT)
 Received: by elliota2-dl.ws.atlnz.lc (Postfix, from userid 1775)
-	id 8F1C13C0261; Fri,  8 Nov 2024 16:24:37 +1300 (NZDT)
+	id 4C6173C0263; Fri,  8 Nov 2024 16:55:50 +1300 (NZDT)
 From: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
-To: davem@davemloft.net
-Cc: Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
+To: "David S . Miller" <davem@davemloft.net>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Florian Fainelli <f.fainelli@gmail.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Simon Horman <horms@kernel.org>
+Cc: netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	bridge@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [RFC net-next 2/4] net: bridge: send notification for roaming hosts
-Date: Fri,  8 Nov 2024 16:24:19 +1300
-Message-ID: <20241108032422.2011802-3-elliot.ayrey@alliedtelesis.co.nz>
+	Elliot Ayrey <elliot.ayrey@alliedtelesis.co.nz>
+Subject: [RFC net-next (resend) 2/4] net: bridge: send notification for roaming hosts
+Date: Fri,  8 Nov 2024 16:55:44 +1300
+Message-ID: <20241108035546.2055996-3-elliot.ayrey@alliedtelesis.co.nz>
 X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20241108032422.2011802-1-elliot.ayrey@alliedtelesis.co.nz>
-References: <20241108032422.2011802-1-elliot.ayrey@alliedtelesis.co.nz>
+In-Reply-To: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
+References: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -64,7 +67,7 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.4 cv=ca1xrWDM c=1 sm=1 tr=0 ts=672d8475 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=VlfZXiiP6vEA:10 a=LYxsSh6Jf1NNSQcWqj0A:9 a=3ZKOabzyN94A:10
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=ca1xrWDM c=1 sm=1 tr=0 ts=672d8bc6 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=VlfZXiiP6vEA:10 a=LYxsSh6Jf1NNSQcWqj0A:9 a=3ZKOabzyN94A:10
 X-SEG-SpamProfiler-Score: 0
 x-atlnz-ls: pat
 
@@ -113,7 +116,7 @@ ications
 =20
  /* embedded into NDA_FDB_EXT_ATTRS:
 diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index d0eeedc03390..a8b841e74e15 100644
+index 72663ca824d3..a8b841e74e15 100644
 --- a/net/bridge/br_fdb.c
 +++ b/net/bridge/br_fdb.c
 @@ -145,6 +145,8 @@ static int fdb_fill_info(struct sk_buff *skb, const s=
@@ -217,7 +220,7 @@ br, struct net_bridge_port *p,
  		fdb->updated =3D jiffies;
 =20
 -		if (READ_ONCE(fdb->dst) !=3D p &&
--		    !test_bit(BR_FDB_STICK, &fdb->flags)) {
+-		    !test_bit(BR_FDB_STICKY, &fdb->flags)) {
 -			WRITE_ONCE(fdb->dst, p);
 -			modified =3D true;
 +		if (READ_ONCE(fdb->dst) !=3D p) {
