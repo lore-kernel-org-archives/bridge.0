@@ -1,57 +1,57 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 892C91DFE00
-	for <bridge@lists.linux.dev>; Wed, 13 Nov 2024 12:57:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A97E120265A
+	for <bridge@lists.linux.dev>; Wed, 13 Nov 2024 12:57:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731502667; cv=none; b=LNv61pgjvRELjhj7PgJ39ZOLNwIDhoKP/xfPEKe9U/CzzUG1WIFj7jxQn7WBNT9RXRXbG2hm1Z8wTzHJkUIVcMExvugd/XXhkq7Xln38HXrvbEuIO8UygBqgaje3PIZbRZ42G7L13bEcd/bk5Pu09eanFyhgEaHRXlJGXpwztkM=
+	t=1731502675; cv=none; b=R8FzLm5kg1XLN/VqhmUz74KyIeAs3zb7cCzFu55cX4RiXBTZ1YffHpm+lEbSTKAWIXnBBkzD69X3UyfenA4/bhuvokuStDa0Sv3sjnWVDYobbpvRSyhvjDlpaowgoxsGh8tUVmZdCzyYQl7tgKkMPmNl1OHSY6GIYiRTT8qIdns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731502667; c=relaxed/simple;
-	bh=Z9LWtAm1B8O3T0XTKvOdS5SDy0kIbhN/IsSC65Nbxck=;
+	s=arc-20240116; t=1731502675; c=relaxed/simple;
+	bh=R2okbkGGv03EaZoNX3EjievQR0H31mw0HCvCROIPr9g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DgufzkDUhGSjjHSYj/mbO96yDLoksKX1bzBk8rr26pESpxXkZ1ZjBQGmwhaVFJ3jQ8Cd9zY08V0VeSi5uOIUmlgCJowAYTd+idDp/nCD0IWrVMjE/u6kUDtwjFb15EVHl+V6BdkzPxFQTMokPvVeEhBns/fv/1x0dtydOrNmXE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N5u9QC1M; arc=none smtp.client-ip=209.85.216.43
+	 MIME-Version; b=GNtjLcfjmWDL46ysosqXQ2t52swqiVdyT5op5UtbmhiMpWXwmhQl6MmeGcierpyZ74rDsWUf1dPlkEK9iGkKVS/P2ug779URGlRgKwEW2vHXnyScloVQbElUgk6HpQPTpyMfhXHyZnuuFfEZPe381tQ9iqCgHvoVP+P0RUa0WiQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lPyAA6A+; arc=none smtp.client-ip=209.85.210.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N5u9QC1M"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2e31af47681so5514816a91.2
-        for <bridge@lists.linux.dev>; Wed, 13 Nov 2024 04:57:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lPyAA6A+"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-724455f40a0so1943477b3a.0
+        for <bridge@lists.linux.dev>; Wed, 13 Nov 2024 04:57:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1731502665; x=1732107465; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1731502673; x=1732107473; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9sIZI/WV8nhbNfyJEUDND2yz+m6sbgKmtk/cQXv5cxc=;
-        b=N5u9QC1M00I0CluNxTMDUp7qjzftwMBJ9NEIpXcjQvFO7wRBTtZKXtYqH2FYHA76N8
-         C7wSfu74nfRndbFvH9ZPXYrforj+4T0CHBchkJMWu+r7Dt4hmUEKirKdhpx2SzDWdJRd
-         H3lzOLFzgbA6isKXlgHoOseaw576B8/0EbkkUu3PuBndP3tOVLr1NoP+YY/6NyuTGf3p
-         jkmehlFlOC7dITjAnN5pDzIX+Vj/ukIa4LDodj7sfJpttEIACMFi60HjwPibW4hhp6TW
-         6X97+jcqU+bNBsDiYHd5pQ/IRfYc21oW27FBbr7OzTouG4glMorOVbN9DjfxfAMoN6HT
-         eCYw==
+        bh=IrCaarQptqoPnVIGF6Rw6t9hI+Rf9ZxQVNSlbFD1HYQ=;
+        b=lPyAA6A+rDYVML/PSnQrL+YujMqklhNYzjbG4qo/y/uwwzWL+GT7Pq1xvKRsKzuomY
+         kToREpGbDgq6L4Q07hXZBUdY6Ksh94FvSfQZ59JkLvVUsvti8u1JmgkkXNMa/Ljib9up
+         b+CI7Z7wySvnY+QzzGRnmAz3uXkRHQHRExlsF6R9NZ8WSAPTq/wKnF9qYsSoRXvc93AN
+         DXv9wJvPVB1jLeSYrjdgiKF+yFXYqv4Ofs8A2UcKsi/jN0LIJd4DDKQTKuucs96DHKV0
+         /UUFpTuqDFVorIw401J7KIj3t3ZXe4Q3rgH5cbyjU6yOmH5JdRC6ffRKh09/xLTUo17O
+         r3YA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731502665; x=1732107465;
+        d=1e100.net; s=20230601; t=1731502673; x=1732107473;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9sIZI/WV8nhbNfyJEUDND2yz+m6sbgKmtk/cQXv5cxc=;
-        b=lEWbgQr6MGnbMsgTpEKXnTFTgdw3BZCm43NJeHVmjFcjolYT/hgTQgp/zY4cyHCL0m
-         73wuYuczLvIPmqtG6vGkQnsqCloHVpIwTDcsYiFWMrrFWPIvnv3GspjLwNMkbT3tQlUK
-         cF25oWDBKa4oz6MQhTYDgmubeI4JCDkXi/+U9iGCgKKsW5jCHSGFT6TYdXxpMIhu0ylQ
-         15xlgBD9pVW9by6/4Wj4puBdkX4fM5+UndShb+Y3e0OlKc/cvKNuu6b9QPqdgNr80BQl
-         /DXV/JTDT3dZe2GsXs3EgnARVWDnzQ3TIHPk0Nxd8p/aVhXNbhi+LrbOqO5qniAWTk5i
-         1Fpw==
-X-Forwarded-Encrypted: i=1; AJvYcCVO+g6Rxa3ZXJN4hLVfMA5SNMoefGOWnYkhVyzEj+XyOa7b7lV7+bF55uaGZHzz+o0MItaZjQU=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz3b5QksqGYc6BYoISA8e3Bu0AuvCBlTF0n1wOxDuvKy1gscpYl
-	3RhODiYD7RddcobHfrjfI4RkBipikNLQndU9FKZaPEvySCvbEHdU
-X-Google-Smtp-Source: AGHT+IFBBLW/otzoU3VQWNkQ98rdfNz5WHNkXJFNuYVXzuqAWCzWf4F656wLCdVO3Ph+9deaw1I3JA==
-X-Received: by 2002:a17:90b:48c8:b0:2e2:c40c:6e8a with SMTP id 98e67ed59e1d1-2e9f2d5da7amr2684315a91.26.1731502664731;
-        Wed, 13 Nov 2024 04:57:44 -0800 (PST)
+        bh=IrCaarQptqoPnVIGF6Rw6t9hI+Rf9ZxQVNSlbFD1HYQ=;
+        b=qhz8oKzljH1VCgQWoOeVT+hIY/E3lvKjXrTHQOhDXKzArJlZmz+GfnGv1P5ykN0DOe
+         qLoJhnGo9TGwmhPMEJChmvsgqiA4QtqvK4eukGbFWalYwzOXtC7OtPaJsFZhnFRzTILf
+         u36Lwm7cZG2vSRSJ4y+dibMfob6lGu61cQXvLBbIt4iMgFzf4UgyjZQqswRDUk2OxGbe
+         AsPGqbZa4OKIWtYbwgeZ7fM/81g6Lc6i62onRtdQcD3ngQOyib67fg3zfqcnfyfmjSym
+         XDU8jb8z7ju6nRN+DALjfCbtpTojzSdOu2CSs3cBmyDVmWOHz6dUuOUZzt8cQGcosuuI
+         RcLw==
+X-Forwarded-Encrypted: i=1; AJvYcCUPfNPrvYm1+ebR8lrqBJN6W038Dn4zAMSpIIHtsRM0K9oH/c87VSDuiKQ/80WMVzT2xIH/lEo=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx87F++SIEEEvcAxN7i7A4fnPkjvlzy/sUkDopdZY+WRhbig/js
+	7gwbyhmGI98vdo0ChTNYcd8vhYusq7S9pVZHfVhfc6kAja5h9xyH
+X-Google-Smtp-Source: AGHT+IGJi6Tp37K+i8d+pRtqcGbSCXzQQJQiHEkYvBXRMyT+Ytmcy1PnetStqWOPaDWwW+msVvcvjQ==
+X-Received: by 2002:a17:90b:38c4:b0:2e2:c6a6:84da with SMTP id 98e67ed59e1d1-2e9b1799123mr24937176a91.34.1731502673070;
+        Wed, 13 Nov 2024 04:57:53 -0800 (PST)
 Received: from nova-ws.. ([103.167.140.11])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e9f3f8ed0esm1398632a91.40.2024.11.13.04.57.36
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2e9f3f8ed0esm1398632a91.40.2024.11.13.04.57.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Nov 2024 04:57:44 -0800 (PST)
+        Wed, 13 Nov 2024 04:57:52 -0800 (PST)
 From: Xiao Liang <shaw.leon@gmail.com>
 To: netdev@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
@@ -79,9 +79,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	linux-wpan@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v3 1/6] Revert "tools/net/ynl: improve async notification handling"
-Date: Wed, 13 Nov 2024 20:57:10 +0800
-Message-ID: <20241113125715.150201-2-shaw.leon@gmail.com>
+Subject: [PATCH net-next v3 2/6] net: ip_tunnel: Build flow in underlay net namespace
+Date: Wed, 13 Nov 2024 20:57:11 +0800
+Message-ID: <20241113125715.150201-3-shaw.leon@gmail.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20241113125715.150201-1-shaw.leon@gmail.com>
 References: <20241113125715.150201-1-shaw.leon@gmail.com>
@@ -93,143 +93,45 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Donald Hunter <donald.hunter@gmail.com>
+Build IPv4 flow in underlay net namespace, where encapsulated packets
+are routed.
 
-This reverts commit 1bf70e6c3a5346966c25e0a1ff492945b25d3f80.
-
-This modification to check_ntf() is being reverted so that its behaviour
-remains equivalent to ynl_ntf_check() in the C YNL. Instead a new
-poll_ntf() will be added in a separate patch.
-
-Signed-off-by: Donald Hunter <donald.hunter@gmail.com>
+Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
 ---
- tools/net/ynl/cli.py     | 10 +++-----
- tools/net/ynl/lib/ynl.py | 49 ++++++++++++++++------------------------
- 2 files changed, 23 insertions(+), 36 deletions(-)
+ net/ipv4/ip_tunnel.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/net/ynl/cli.py b/tools/net/ynl/cli.py
-index 9e95016b85b3..b8481f401376 100755
---- a/tools/net/ynl/cli.py
-+++ b/tools/net/ynl/cli.py
-@@ -5,7 +5,6 @@ import argparse
- import json
- import pprint
- import time
--import signal
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index 25505f9b724c..09b73acf037a 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -294,7 +294,7 @@ static int ip_tunnel_bind_dev(struct net_device *dev)
  
- from lib import YnlFamily, Netlink, NlError
+ 		ip_tunnel_init_flow(&fl4, iph->protocol, iph->daddr,
+ 				    iph->saddr, tunnel->parms.o_key,
+-				    iph->tos & INET_DSCP_MASK, dev_net(dev),
++				    iph->tos & INET_DSCP_MASK, tunnel->net,
+ 				    tunnel->parms.link, tunnel->fwmark, 0, 0);
+ 		rt = ip_route_output_key(tunnel->net, &fl4);
  
-@@ -18,8 +17,6 @@ class YnlEncoder(json.JSONEncoder):
-             return list(obj)
-         return json.JSONEncoder.default(self, obj)
+@@ -611,7 +611,7 @@ void ip_md_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	}
+ 	ip_tunnel_init_flow(&fl4, proto, key->u.ipv4.dst, key->u.ipv4.src,
+ 			    tunnel_id_to_key32(key->tun_id),
+-			    tos & INET_DSCP_MASK, dev_net(dev), 0, skb->mark,
++			    tos & INET_DSCP_MASK, tunnel->net, 0, skb->mark,
+ 			    skb_get_hash(skb), key->flow_flags);
  
--def handle_timeout(sig, frame):
--    exit(0)
+ 	if (!tunnel_hlen)
+@@ -774,7 +774,7 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
  
- def main():
-     description = """
-@@ -84,8 +81,7 @@ def main():
-         ynl.ntf_subscribe(args.ntf)
+ 	ip_tunnel_init_flow(&fl4, protocol, dst, tnl_params->saddr,
+ 			    tunnel->parms.o_key, tos & INET_DSCP_MASK,
+-			    dev_net(dev), READ_ONCE(tunnel->parms.link),
++			    tunnel->net, READ_ONCE(tunnel->parms.link),
+ 			    tunnel->fwmark, skb_get_hash(skb), 0);
  
-     if args.sleep:
--        signal.signal(signal.SIGALRM, handle_timeout)
--        signal.alarm(args.sleep)
-+        time.sleep(args.sleep)
- 
-     if args.list_ops:
-         for op_name, op in ynl.ops.items():
-@@ -110,8 +106,8 @@ def main():
-         exit(1)
- 
-     if args.ntf:
--        for msg in ynl.check_ntf():
--            output(msg)
-+        ynl.check_ntf()
-+        output(ynl.async_msg_queue)
- 
- 
- if __name__ == "__main__":
-diff --git a/tools/net/ynl/lib/ynl.py b/tools/net/ynl/lib/ynl.py
-index 92f85698c50e..c22c22bf2cb7 100644
---- a/tools/net/ynl/lib/ynl.py
-+++ b/tools/net/ynl/lib/ynl.py
-@@ -12,8 +12,6 @@ import sys
- import yaml
- import ipaddress
- import uuid
--import queue
--import time
- 
- from .nlspec import SpecFamily
- 
-@@ -491,7 +489,7 @@ class YnlFamily(SpecFamily):
-         self.sock.setsockopt(Netlink.SOL_NETLINK, Netlink.NETLINK_GET_STRICT_CHK, 1)
- 
-         self.async_msg_ids = set()
--        self.async_msg_queue = queue.Queue()
-+        self.async_msg_queue = []
- 
-         for msg in self.msgs.values():
-             if msg.is_async:
-@@ -905,39 +903,32 @@ class YnlFamily(SpecFamily):
- 
-         msg['name'] = op['name']
-         msg['msg'] = attrs
--        self.async_msg_queue.put(msg)
-+        self.async_msg_queue.append(msg)
- 
--    def check_ntf(self, interval=0.1):
-+    def check_ntf(self):
-         while True:
-             try:
-                 reply = self.sock.recv(self._recv_size, socket.MSG_DONTWAIT)
--                nms = NlMsgs(reply)
--                self._recv_dbg_print(reply, nms)
--                for nl_msg in nms:
--                    if nl_msg.error:
--                        print("Netlink error in ntf!?", os.strerror(-nl_msg.error))
--                        print(nl_msg)
--                        continue
--                    if nl_msg.done:
--                        print("Netlink done while checking for ntf!?")
--                        continue
-+            except BlockingIOError:
-+                return
- 
--                    decoded = self.nlproto.decode(self, nl_msg, None)
--                    if decoded.cmd() not in self.async_msg_ids:
--                        print("Unexpected msg id while checking for ntf", decoded)
--                        continue
-+            nms = NlMsgs(reply)
-+            self._recv_dbg_print(reply, nms)
-+            for nl_msg in nms:
-+                if nl_msg.error:
-+                    print("Netlink error in ntf!?", os.strerror(-nl_msg.error))
-+                    print(nl_msg)
-+                    continue
-+                if nl_msg.done:
-+                    print("Netlink done while checking for ntf!?")
-+                    continue
- 
--                    self.handle_ntf(decoded)
--            except BlockingIOError:
--                pass
-+                decoded = self.nlproto.decode(self, nl_msg, None)
-+                if decoded.cmd() not in self.async_msg_ids:
-+                    print("Unexpected msg id done while checking for ntf", decoded)
-+                    continue
- 
--            try:
--                yield self.async_msg_queue.get_nowait()
--            except queue.Empty:
--                try:
--                    time.sleep(interval)
--                except KeyboardInterrupt:
--                    return
-+                self.handle_ntf(decoded)
- 
-     def operation_do_attributes(self, name):
-       """
+ 	if (ip_tunnel_encap(skb, &tunnel->encap, &protocol, &fl4) < 0)
 -- 
 2.47.0
 
