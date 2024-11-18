@@ -1,57 +1,57 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A165C19644B
-	for <bridge@lists.linux.dev>; Mon, 18 Nov 2024 14:33:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 258671A9B3F
+	for <bridge@lists.linux.dev>; Mon, 18 Nov 2024 14:33:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731940404; cv=none; b=MiJNsDonnHv6D6NFq9/q9JDHeyNwV0kXRzky6ahCgbZbNlW7rMhuCBSBX7MyKHZxV7eE/iLvpsKpCrwRiXdyj7uUjiPK3CP9xX6W67Lo0CnN1AEy5PgVSnqoKuGQ62xOvojgqwzi2aEZPRqH2NXfYiHHM7+Ij6RX9g77ZF/Rd7U=
+	t=1731940412; cv=none; b=aUHeAYnFWZR9Ed2iYQKd/2AB6k6/nEojMl2dooPc0LmDxNqTolp/ZTtyaZM+XBsDHniRNIvc5RdUvMOAytRRQR01sRxRqANZ1Pdt2y4w0YfmmuTkmyvmDKKILyK+rz3WAJCodlhyZ1BHyasGLWGP+Ruun/DcvhoYqsbkZOqZ4VQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731940404; c=relaxed/simple;
-	bh=R2okbkGGv03EaZoNX3EjievQR0H31mw0HCvCROIPr9g=;
+	s=arc-20240116; t=1731940412; c=relaxed/simple;
+	bh=nxdsqBvo0hyUQybkrGt/3BQTttdYFRelexxuCroUuOo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ihd0Rfmhv50v+v1zLyUTgrhpHeRXoH9CdH7grAaXV2FtOlCPj8/84Oz+WMCQuF3HxGAhIkFVY8sZ1eK5hedNg9DupovfTfwR38/ENvMFSdKsL9lmXC7IOAcYg0jNfnyTDUyL1mqFPkyy23K0Ts/UfVxWBoC+uv1E/6DYCAC9viY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dhJadzxh; arc=none smtp.client-ip=209.85.210.176
+	 MIME-Version; b=bAc0Xzi0cwnxVvKNcSu6v5JAPMj8pQ+vj7hzN1XvzW6L8OmEjSZFS5lvfDR+ol1FWgOeOWpMpLLZ7N8eV3SrEsEhBuBbP40YJ+CrSabSDLkCkoMaQIZ9VPpXt1d+0dOI4qWdd0FuMt58ihfdI4Qvg2owTd3j2ljoQOFw8ajlG40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TMDjPf52; arc=none smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dhJadzxh"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-72467c35ddeso3021423b3a.0
-        for <bridge@lists.linux.dev>; Mon, 18 Nov 2024 06:33:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TMDjPf52"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-720b2d8bcd3so3066505b3a.2
+        for <bridge@lists.linux.dev>; Mon, 18 Nov 2024 06:33:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1731940402; x=1732545202; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1731940410; x=1732545210; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IrCaarQptqoPnVIGF6Rw6t9hI+Rf9ZxQVNSlbFD1HYQ=;
-        b=dhJadzxhukstHmjlXkUmR18uEauVgtCabeY16h2JmDEe90ZLb1wJmM/qVncbG4E/Xx
-         Olhs5cnMH9gI3XQArQTvu1z6xS54FguL/8IQoIf4fMT58MjhD0eEoYBOvyUMLSjmpskC
-         xfMf6cBfZFcn+kKVjaPKJDe3XS64Rd9vk2kFKnn0YRDMxyKdl160xNygkXoH/9BAi40/
-         jKVw/4xVxxlJZRt7da3AiJ36NXq6hiRID3u01B6V/1X+PR+iF3wDJdrXVKyjS8+2ZRcK
-         yDuvvmhOqfUjF6Kmmljk/iqjp7EfIAn4QoQE3C3+aSVucyFsuvRF+/4gc655PT/zul3o
-         tlaA==
+        bh=XYvUg1T5qt/avqeB8QMtp6GEfshi9DuIrKXfHc0mOQw=;
+        b=TMDjPf52QIe3n38r7mff8qr0QVaZXi2ll1plpqiTK7vZy2BBg5Ue8N1rHRQflWrjgY
+         IPe4ae2PgnJAHT5hUzb6jExfidyIMqDDmOifTZgb1FKZI1K4rKuUIajLL+tSzubVq/ac
+         iqrSDsHlfOav4hORYRzPYkl4AS0myQOQ47HaEgdl+gYrXHsyxjZycZAHsLw4Pmpmakh3
+         NzNRKQ2Ylg1TF+AJeH1pLgW8ZnDzHBWHLVhFEUv/IPHxk0baBazwaCf5ZdpjEYBb5B5X
+         uFiQN7FS+iBJM6meuGPgpHkqDk6jEuKS9IvzYgFfHg3p86qaE+zY21i4UcJpGXBSVyW6
+         1Hqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731940402; x=1732545202;
+        d=1e100.net; s=20230601; t=1731940410; x=1732545210;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IrCaarQptqoPnVIGF6Rw6t9hI+Rf9ZxQVNSlbFD1HYQ=;
-        b=Gs2lfiEa8Ysam34Zz2AMitkl3XS8eMOjF6o0tkt3to3RkvgG6Arud06WqPsJLun69V
-         OwG8kjStKjfiRQR1440/635egNcZHNz2XlWfvVhjHH0h8Vrly0Vv47+7IlSzg4J7JcHr
-         3TbaNK+HIU6ODn332ZJsVPOcaTafJhTFNerKCeT/N3Rpfgp8P4wmcl9GN/Qgr/FiBNQN
-         UWnyR140l1wNjSKlN5Sjs19qmCtlzj0OHMz8/dpUFrwGljcgUj0Y0iMiFHjxL+EaYjSs
-         4m+nIHhS6UoOESBVpq1rwd424cg3ZFZtuJ1j0GxvLdFhcfZcODg2EagBRyE+1L8qgBB+
-         NU1g==
-X-Forwarded-Encrypted: i=1; AJvYcCXcUkMaJiQYwo44J5yVNKmSmPAKRRHVst7h89jNh0EpjRfPV+Ud7g++JZdwErk03iJAnz5iFpc=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwlH/BZaX7Ra/YhV4I1eezCLXEHEjdZ/cOhQJMgDEQ/gEIeeI/V
-	Yp60sUJXlTqiJtNrd6eTqNeJVHCF0bWb5wS3S+oP+BabljQXePKG
-X-Google-Smtp-Source: AGHT+IGzbRz7s9CT801paPWPDasO606/jlaO2UpnfJMF7tMlUetZpF6RTCqXaMFrG8I7wghYj9+EFA==
-X-Received: by 2002:a17:90b:3c4e:b0:2ea:9ccb:d206 with SMTP id 98e67ed59e1d1-2ea9ccbd33amr1559048a91.8.1731940401993;
-        Mon, 18 Nov 2024 06:33:21 -0800 (PST)
+        bh=XYvUg1T5qt/avqeB8QMtp6GEfshi9DuIrKXfHc0mOQw=;
+        b=Xz4WrWVOMT+pMmZ9/UEyDr+iW+G34lRYeq6oMqxVQ9TE3EmN5QdHYJ4UZ3jdqCicdB
+         4+T77aqnk5DA2487axoS0xRMoT8xSBPe+m8seAoSP4tQIeYyVPeHblLCxGm8I5wT1qK2
+         JVsfx99w5jRV/9yfhTGl860ob1PZl5X/kdJ1looVQh8/zWbiTzB8qhQRU4WTZCuIGSY/
+         doKDeqzrpkZ5rUp/DFg1PwZEcA3F1U0Nsy3j61asYt58OeCNiy9i47B8AnGQTTGsfj0m
+         vCF2/l+CQqC/6hFfGEEkOx+Yjwo5fYjTy+QR1g1BJE2NgsnCrhgNeR7TgYqLShXIKJUk
+         EcAg==
+X-Forwarded-Encrypted: i=1; AJvYcCWSiz5/hGkHQCY4KAoIW5U8r+kqLd8ZjDGAArEha9bLf70g8SzDbTyntB5uDkBWyXbGikBksVk=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwXGzX1siA9LBji3Wf08cxXKPTNKlK3j4815slQ57ByL9uvmoH9
+	wOIbKmbk1fv+rtyFhvzRUq9mBnMw7waBCMxRDmVwyRfqoVMciYlf
+X-Google-Smtp-Source: AGHT+IHPKnavfiiQCNCjr1NezmwMnBacyheV8zyl63QTPg6m3L868R+a4UJrSv5jLV5RsxhfHcRfpA==
+X-Received: by 2002:a17:90b:2687:b0:2ea:3f34:f1a0 with SMTP id 98e67ed59e1d1-2ea3f34f38amr9406817a91.30.1731940410205;
+        Mon, 18 Nov 2024 06:33:30 -0800 (PST)
 Received: from nova-ws.. ([103.167.140.11])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2ea81b0e2fasm1616926a91.52.2024.11.18.06.33.14
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2ea81b0e2fasm1616926a91.52.2024.11.18.06.33.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Nov 2024 06:33:21 -0800 (PST)
+        Mon, 18 Nov 2024 06:33:29 -0800 (PST)
 From: Xiao Liang <shaw.leon@gmail.com>
 To: netdev@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
@@ -79,9 +79,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	linux-wpan@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v4 1/5] net: ip_tunnel: Build flow in underlay net namespace
-Date: Mon, 18 Nov 2024 22:32:40 +0800
-Message-ID: <20241118143244.1773-2-shaw.leon@gmail.com>
+Subject: [PATCH net-next v4 2/5] rtnetlink: Lookup device in target netns when creating link
+Date: Mon, 18 Nov 2024 22:32:41 +0800
+Message-ID: <20241118143244.1773-3-shaw.leon@gmail.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20241118143244.1773-1-shaw.leon@gmail.com>
 References: <20241118143244.1773-1-shaw.leon@gmail.com>
@@ -93,45 +93,53 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Build IPv4 flow in underlay net namespace, where encapsulated packets
-are routed.
+When creating link, lookup for existing device in target net namespace
+instead of current one.
+For example, two links created by:
+
+  # ip link add dummy1 type dummy
+  # ip link add netns ns1 dummy1 type dummy
+
+should have no conflict since they are in different namespaces.
 
 Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
 ---
- net/ipv4/ip_tunnel.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/core/rtnetlink.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index 25505f9b724c..09b73acf037a 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -294,7 +294,7 @@ static int ip_tunnel_bind_dev(struct net_device *dev)
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index dd142f444659..bc9d0ecd3a1e 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3846,20 +3846,26 @@ static int __rtnl_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
+ {
+ 	struct nlattr ** const tb = tbs->tb;
+ 	struct net *net = sock_net(skb->sk);
++	struct net *device_net;
+ 	struct net_device *dev;
+ 	struct ifinfomsg *ifm;
+ 	bool link_specified;
  
- 		ip_tunnel_init_flow(&fl4, iph->protocol, iph->daddr,
- 				    iph->saddr, tunnel->parms.o_key,
--				    iph->tos & INET_DSCP_MASK, dev_net(dev),
-+				    iph->tos & INET_DSCP_MASK, tunnel->net,
- 				    tunnel->parms.link, tunnel->fwmark, 0, 0);
- 		rt = ip_route_output_key(tunnel->net, &fl4);
- 
-@@ -611,7 +611,7 @@ void ip_md_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
- 	}
- 	ip_tunnel_init_flow(&fl4, proto, key->u.ipv4.dst, key->u.ipv4.src,
- 			    tunnel_id_to_key32(key->tun_id),
--			    tos & INET_DSCP_MASK, dev_net(dev), 0, skb->mark,
-+			    tos & INET_DSCP_MASK, tunnel->net, 0, skb->mark,
- 			    skb_get_hash(skb), key->flow_flags);
- 
- 	if (!tunnel_hlen)
-@@ -774,7 +774,7 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
- 
- 	ip_tunnel_init_flow(&fl4, protocol, dst, tnl_params->saddr,
- 			    tunnel->parms.o_key, tos & INET_DSCP_MASK,
--			    dev_net(dev), READ_ONCE(tunnel->parms.link),
-+			    tunnel->net, READ_ONCE(tunnel->parms.link),
- 			    tunnel->fwmark, skb_get_hash(skb), 0);
- 
- 	if (ip_tunnel_encap(skb, &tunnel->encap, &protocol, &fl4) < 0)
++	/* When creating, lookup for existing device in target net namespace */
++	device_net = (nlh->nlmsg_flags & NLM_F_CREATE) &&
++		     (nlh->nlmsg_flags & NLM_F_EXCL) ?
++		     tgt_net : net;
++
+ 	ifm = nlmsg_data(nlh);
+ 	if (ifm->ifi_index > 0) {
+ 		link_specified = true;
+-		dev = __dev_get_by_index(net, ifm->ifi_index);
++		dev = __dev_get_by_index(device_net, ifm->ifi_index);
+ 	} else if (ifm->ifi_index < 0) {
+ 		NL_SET_ERR_MSG(extack, "ifindex can't be negative");
+ 		return -EINVAL;
+ 	} else if (tb[IFLA_IFNAME] || tb[IFLA_ALT_IFNAME]) {
+ 		link_specified = true;
+-		dev = rtnl_dev_get(net, tb);
++		dev = rtnl_dev_get(device_net, tb);
+ 	} else {
+ 		link_specified = false;
+ 		dev = NULL;
 -- 
 2.47.0
 
