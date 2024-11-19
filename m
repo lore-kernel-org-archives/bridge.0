@@ -1,57 +1,57 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A2301C1AD1
-	for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 10:19:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6851C3F01
+	for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 10:19:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732011564; cv=none; b=ABmukgk+UbRaJPRtvzXOZNCdTPbk//JfeV5euWP659vkpQFdyINc8MmYAaPo4R0Jqpgf69cCeD+VM4iR3AxtenzJ0vVCt67G4p5K5r6ecZV9J2JkqCBTkyvbV0pjvCfcrmGDJGSY4Gvl5tgXZCWrlSvILRPm3vW+6klsVJT3GPA=
+	t=1732011566; cv=none; b=GTQUk2nBhoG6dZhurSIS4O97NR/pyUr9Qj1RP5Wzt7TZBwBoY1l6p+a5+IEZ2q9vJK42HlFcuC3dCVw2hwdxMsusOP6SwqE5oQ56e6H15HvUpFsOp+KqH+UCYrQvzLr/Oqe39Gx7FllR6E7nCnbVxukYkSyoUkC+bH2WVrU80Q4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732011564; c=relaxed/simple;
-	bh=9z7HmZ9CNEJAudwjNyb1ZSYmkdB/Xiw+2DDVHpucNKc=;
+	s=arc-20240116; t=1732011566; c=relaxed/simple;
+	bh=poTP47yQdf4khdC+9ijtITarQAaptxBJXapnWT/Y6lA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oJaSfNM2F5w9hOkjB+BJplq9SDd+ITBFBvz28lM63fQaLtqCiGTFEF3JQjiE8nTe7MadGJ95/+VMB6fUI1JDS7nqwOuies4QaoZhJ7YsaY2R07noxgBhnEROYZJH49r5T+7XanrU75KlJkKj+jjXmV0TmL8bUXtsNg9htXkKuCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LEP8i+9B; arc=none smtp.client-ip=209.85.208.175
+	 MIME-Version; b=dscHgIAfBgr3ufql3gvMvVl8abUXh2EV79uk1ywJOw2ofpjL1BFE/Mlfciu/6hwDtEo1eg+RFmiFRazfRvZaScmAsin9tjG7HqfmbhS0o0vLqd20MNa05ya2ZHMr34sKVdrhyFWbKOhYIGY6Ne90FhJ+YP2l9tUR2ka7ghJJD8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SnLpdzXu; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LEP8i+9B"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2fb5fa911aaso41637961fa.2
-        for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 02:19:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SnLpdzXu"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a9a0ec0a94fso112719466b.1
+        for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 02:19:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1732011560; x=1732616360; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1732011563; x=1732616363; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=s2v4wvRWn+02yrqYzk8I6pei4Ps2LL08kCWalGaFo8k=;
-        b=LEP8i+9Bxi7915io53WcE/G3yvhnmwnDvaWlitDfgA21A7UMTJHwiOjDwItTyFzOza
-         CCkmGsWlYi5bSVTBTfcNaX/tKaTn1rIuTmsYgBi8cSUnv3DufRSsEmsu969DpujQ3sIY
-         QDm1VU3ZFpxGEgyu1Yq8rcOclEuud11AHKQFYS0aGrusjBV53DotAbWu2SVyq5koJCI+
-         lfmrVhlv7QAAORTT1GMfKz0wFRSenLLH4pbATkGFrvBYnCGK5gDcqIzgYclceJFF2tl5
-         Kc3vUQhX93/5dJ6Ti5dinHgDYPeb3OWbd+7Al+cAE9QN9X4ZPkhurTEdEz416raePdew
-         qckQ==
+        bh=Qi0AlNa47OjnLX+zdNkH8pnYspHiUC9rPn7VlkLtCao=;
+        b=SnLpdzXuYuRi0YpiUswJjtL6IP7PO0hq54ASEG/FcTkaPHZ1v7lGyF+3FmogK6ifmB
+         7Go4J54Re3Zntl1wdliOczJRavhWN8kSTDG6gk3VhMAJ1SytkWlkuTdG1q2/XwFZ6xcz
+         v6g5ABNJtEJ7rjnmMhk+vSAFRYZTOERdt1QRDuZ/2d7EoDtnkD3olSBVdXap5dpoKmDq
+         hzzemrcoZfCa2qZJkYQQj7olQnCiEnLB/hv5l8PLZL98kjLtkJuTy1IADwF72rfhslGa
+         zpP0jnaRJgrOddA3eCe+2hUAE+7FLzIeeWdiZKZHWAqLsM5Oj34RdJ457rMk1u6PbuTZ
+         eh9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732011560; x=1732616360;
+        d=1e100.net; s=20230601; t=1732011563; x=1732616363;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=s2v4wvRWn+02yrqYzk8I6pei4Ps2LL08kCWalGaFo8k=;
-        b=jbe7Qk8TQuFljaE98/HWU7EYi/QCl34025cEoOAAhk9cv1lia2eW+kp/Mg/z5Vogkf
-         QIJZidAVp8MFNx0On2aaHoU75lo5pq1wkFRGzQEyRIC63aMNOLGMqJ6Bmb85BtWHV5xm
-         TO2Z7Ciw4TqE20t+47NMAePWBLdmAnQkF9B+hFky9Uq8PBgoIPBBxiZnRHr6EoFNr7OH
-         2OCruzjbjrlBW9ioeE9IavNyIapm41cdiW7Xxi7KYbIT7hnk7BfBtckshZJ51/arlRKT
-         sHFNEFXnYqkEfvkBFAlDD4C+80RxEzc2AKe7ccCdJqwTLEOwiCPzir5aJuPYHIPOGg15
-         ZFUw==
-X-Forwarded-Encrypted: i=1; AJvYcCUADaaPzwH92ytpo6M0ZTwDH5zpGYnoQW+uh+N8Ylghv7Hpt+of5Kj3ZZk4GUmxms8cuY64B+k=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxnApJUlGS6iYMSr16V0gDstQ2F3rg1x5ejBeX6N9tBDLeJJCYP
-	E+DjgcrPQFU2lPoh509LbQMe2xQ8nZGi1tGnySGVSEGqZKfj8Or/
-X-Google-Smtp-Source: AGHT+IGcc52t0JYl62z5La9vrUnqdLe/7x1g/27aiQFVRTEFc3y9IAb/0I8BdS4CAvP5pPR+qlUj7A==
-X-Received: by 2002:a2e:a592:0:b0:2fb:4f8e:efd with SMTP id 38308e7fff4ca-2ff606db22emr127527371fa.32.1732011559809;
-        Tue, 19 Nov 2024 02:19:19 -0800 (PST)
+        bh=Qi0AlNa47OjnLX+zdNkH8pnYspHiUC9rPn7VlkLtCao=;
+        b=v4bQEef5f+7gFh9pDhFKLoLEmE2JxH78D/NWMIeBSDpJuffmzaDF8jVK0tuESk9cDk
+         5K37AtAgJGpMdBYGwol94I10PUA4IsP7bFlfgbsQtUyp6qwTv6YtwdInc3U3PP7DhOrN
+         tIv2j497cwIQGT/u0tue3puXky7CU1HLMsyFaZ6DPoNOxQCH3DoUUIHeb3pwC7Q2m+ce
+         XXRJHL38e0QqBlIj0s4hN4dlS00hLRRwmyi4WIBMVcSNxus8JHy/SU74mQL1AZMc17Ys
+         c2t1H4iBXDDLHR/vMHEtHtMbJE33AQBAddxFq/Jc8bJAHBLtvHvkSFekiTK6IsCeWkNN
+         i3Qw==
+X-Forwarded-Encrypted: i=1; AJvYcCXoY9Nhk38DLlkeYcMRaMIdqm9jHgWnB9hFuORb3ee8D+FsPNaDCQW2m1If9PqKAwCDII7oLCs=@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywd88lhRHCb7WHlONqaC8wCUBtAa68SBWXCHvzk3iGnS6k6qjIx
+	+Z/n8viXk0dV2YeK9RmV3QfJIJ4b96M3PSFyDsSCh0Ii26HsLVWw
+X-Google-Smtp-Source: AGHT+IFgtvvx9QxVfYb+i/eHHWDw6v24GqRwyxuBvltZN8tRLFnZjBJN+NHnVp7SFNVLDR7NZlEVpg==
+X-Received: by 2002:a17:907:96ab:b0:a99:ec3c:15cd with SMTP id a640c23a62f3a-aa483552e2amr1511647266b.54.1732011562657;
+        Tue, 19 Nov 2024 02:19:22 -0800 (PST)
 Received: from corebook.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa20e081574sm634875566b.179.2024.11.19.02.19.18
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa20e081574sm634875566b.179.2024.11.19.02.19.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Nov 2024 02:19:19 -0800 (PST)
+        Tue, 19 Nov 2024 02:19:22 -0800 (PST)
 From: Eric Woudstra <ericwouds@gmail.com>
 To: "David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
@@ -83,9 +83,9 @@ Cc: netdev@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-mediatek@lists.infradead.org,
 	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH RFC v2 net-next 01/14] netfilter: nf_flow_table_offload: Add nf_flow_encap_push() for xmit direct
-Date: Tue, 19 Nov 2024 11:18:53 +0100
-Message-ID: <20241119101906.862680-2-ericwouds@gmail.com>
+Subject: [PATCH RFC v2 net-next 03/14] netfilter: nft_chain_filter: Add bridge double vlan and pppoe
+Date: Tue, 19 Nov 2024 11:18:55 +0100
+Message-ID: <20241119101906.862680-4-ericwouds@gmail.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20241119101906.862680-1-ericwouds@gmail.com>
 References: <20241119101906.862680-1-ericwouds@gmail.com>
@@ -97,198 +97,55 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Loosely based on wenxu's patches:
-
-"nf_flow_table_offload: offload the vlan/PPPoE encap in the flowtable".
-
-Fixed double vlan and pppoe packets, almost entirely rewriting the patch.
-
-After this patch, it is possible to transmit packets in the fastpath with
-outgoing encaps, without using vlan- and/or pppoe-devices.
-
-This makes it possible to use more different kinds of network setups.
-For example, when bridge tagging is used to egress vlan tagged
-packets using the forward fastpath. Another example is passing 802.1q
-tagged packets through a bridge using the bridge fastpath.
-
-This also makes the software fastpath process more similar to the
-hardware offloaded fastpath process, where encaps are also pushed.
-
-After applying this patch, always info->outdev = info->hw_outdev,
-so the netfilter code can be further cleaned up by removing:
- * hw_outdev from struct nft_forward_info
- * out.hw_ifindex from struct nf_flow_route
- * out.hw_ifidx from struct flow_offload_tuple
+This adds the capability to evaluate 802.1ad, QinQ, PPPoE and PPPoE-in-Q
+packets in the bridge filter chain.
 
 Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
 ---
- net/netfilter/nf_flow_table_ip.c | 96 +++++++++++++++++++++++++++++++-
- net/netfilter/nft_flow_offload.c |  6 +-
- 2 files changed, 96 insertions(+), 6 deletions(-)
+ net/netfilter/nft_chain_filter.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_flow_table_ip.c b/net/netfilter/nf_flow_table_ip.c
-index 98edcaa37b38..290d8e10d85b 100644
---- a/net/netfilter/nf_flow_table_ip.c
-+++ b/net/netfilter/nf_flow_table_ip.c
-@@ -302,6 +302,92 @@ static bool nf_flow_skb_encap_protocol(struct sk_buff *skb, __be16 proto,
- 	return false;
- }
+diff --git a/net/netfilter/nft_chain_filter.c b/net/netfilter/nft_chain_filter.c
+index 7010541fcca6..91aa3fa43d31 100644
+--- a/net/netfilter/nft_chain_filter.c
++++ b/net/netfilter/nft_chain_filter.c
+@@ -232,11 +232,27 @@ nft_do_chain_bridge(void *priv,
+ 		    struct sk_buff *skb,
+ 		    const struct nf_hook_state *state)
+ {
++	struct ethhdr *ethh = eth_hdr(skb);
+ 	struct nft_pktinfo pkt;
++	int thoff;
  
-+static int nf_flow_vlan_inner_push(struct sk_buff *skb, __be16 proto, u16 id)
-+{
-+	struct vlan_hdr *vhdr;
-+
-+	if (skb_cow_head(skb, VLAN_HLEN))
-+		return -1;
-+
-+	__skb_push(skb, VLAN_HLEN);
-+	skb_reset_network_header(skb);
-+
-+	vhdr = (struct vlan_hdr *)(skb->data);
-+	vhdr->h_vlan_TCI = htons(id);
-+	vhdr->h_vlan_encapsulated_proto = skb->protocol;
-+	skb->protocol = proto;
-+
-+	return 0;
-+}
-+
-+static int nf_flow_ppoe_push(struct sk_buff *skb, u16 id)
-+{
-+	struct ppp_hdr {
-+		struct pppoe_hdr hdr;
-+		__be16 proto;
-+	} *ph;
-+	int data_len = skb->len + 2;
-+	__be16 proto;
-+
-+	if (skb_cow_head(skb, PPPOE_SES_HLEN))
-+		return -1;
-+
-+	if (skb->protocol == htons(ETH_P_IP))
-+		proto = htons(PPP_IP);
-+	else if (skb->protocol == htons(ETH_P_IPV6))
-+		proto = htons(PPP_IPV6);
-+	else
-+		return -1;
-+
-+	__skb_push(skb, PPPOE_SES_HLEN);
-+	skb_reset_network_header(skb);
-+
-+	ph = (struct ppp_hdr *)(skb->data);
-+	ph->hdr.ver  = 1;
-+	ph->hdr.type = 1;
-+	ph->hdr.code = 0;
-+	ph->hdr.sid  = htons(id);
-+	ph->hdr.length = htons(data_len);
-+	ph->proto = proto;
-+	skb->protocol = htons(ETH_P_PPP_SES);
-+
-+	return 0;
-+}
-+
-+static int nf_flow_encap_push(struct sk_buff *skb,
-+			      struct flow_offload_tuple_rhash *tuplehash,
-+			      unsigned short *type)
-+{
-+	int i = 0, ret = 0;
-+
-+	if (!tuplehash->tuple.encap_num)
-+		return 0;
-+
-+	if (tuplehash->tuple.encap[i].proto == htons(ETH_P_8021Q) ||
-+	    tuplehash->tuple.encap[i].proto == htons(ETH_P_8021AD)) {
-+		__vlan_hwaccel_put_tag(skb, tuplehash->tuple.encap[i].proto,
-+				       tuplehash->tuple.encap[i].id);
-+		i++;
-+		if (i >= tuplehash->tuple.encap_num)
-+			return 0;
-+	}
-+
-+	switch (tuplehash->tuple.encap[i].proto) {
-+	case htons(ETH_P_8021Q):
-+		*type = ETH_P_8021Q;
-+		ret = nf_flow_vlan_inner_push(skb,
-+					      tuplehash->tuple.encap[i].proto,
-+					      tuplehash->tuple.encap[i].id);
-+		break;
+ 	nft_set_pktinfo(&pkt, skb, state);
+ 
+-	switch (eth_hdr(skb)->h_proto) {
++	switch (ethh->h_proto) {
 +	case htons(ETH_P_PPP_SES):
-+		*type = ETH_P_PPP_SES;
-+		ret = nf_flow_ppoe_push(skb,
-+					tuplehash->tuple.encap[i].id);
++		thoff = PPPOE_SES_HLEN;
++		ethh += thoff;
++		break;
++	case htons(ETH_P_8021Q):
++		thoff = VLAN_HLEN;
++		ethh += thoff;
++		break;
++	default:
++		thoff = 0;
 +		break;
 +	}
-+	return ret;
-+}
 +
- static void nf_flow_encap_pop(struct sk_buff *skb,
- 			      struct flow_offload_tuple_rhash *tuplehash)
- {
-@@ -331,6 +417,7 @@ static void nf_flow_encap_pop(struct sk_buff *skb,
- 
- static unsigned int nf_flow_queue_xmit(struct net *net, struct sk_buff *skb,
- 				       const struct flow_offload_tuple_rhash *tuplehash,
-+				       struct flow_offload_tuple_rhash *other_tuplehash,
- 				       unsigned short type)
- {
- 	struct net_device *outdev;
-@@ -339,6 +426,9 @@ static unsigned int nf_flow_queue_xmit(struct net *net, struct sk_buff *skb,
- 	if (!outdev)
- 		return NF_DROP;
- 
-+	if (nf_flow_encap_push(skb, other_tuplehash, &type) < 0)
-+		return NF_DROP;
-+
- 	skb->dev = outdev;
- 	dev_hard_header(skb, skb->dev, type, tuplehash->tuple.out.h_dest,
- 			tuplehash->tuple.out.h_source, skb->len);
-@@ -458,7 +548,8 @@ nf_flow_offload_ip_hook(void *priv, struct sk_buff *skb,
- 		ret = NF_STOLEN;
++	switch (ethh->h_proto) {
+ 	case htons(ETH_P_IP):
+ 		nft_set_pktinfo_ipv4_validate(&pkt);
  		break;
- 	case FLOW_OFFLOAD_XMIT_DIRECT:
--		ret = nf_flow_queue_xmit(state->net, skb, tuplehash, ETH_P_IP);
-+		ret = nf_flow_queue_xmit(state->net, skb, tuplehash,
-+					 &flow->tuplehash[!dir], ETH_P_IP);
- 		if (ret == NF_DROP)
- 			flow_offload_teardown(flow);
+@@ -248,6 +264,8 @@ nft_do_chain_bridge(void *priv,
  		break;
-@@ -753,7 +844,8 @@ nf_flow_offload_ipv6_hook(void *priv, struct sk_buff *skb,
- 		ret = NF_STOLEN;
- 		break;
- 	case FLOW_OFFLOAD_XMIT_DIRECT:
--		ret = nf_flow_queue_xmit(state->net, skb, tuplehash, ETH_P_IPV6);
-+		ret = nf_flow_queue_xmit(state->net, skb, tuplehash,
-+					 &flow->tuplehash[!dir], ETH_P_IPV6);
- 		if (ret == NF_DROP)
- 			flow_offload_teardown(flow);
- 		break;
-diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-index 7b84d8d3469c..cdf1771906b8 100644
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -124,13 +124,12 @@ static void nft_dev_path_info(const struct net_device_path_stack *stack,
- 				info->indev = NULL;
- 				break;
- 			}
--			if (!info->outdev)
--				info->outdev = path->dev;
- 			info->encap[info->num_encaps].id = path->encap.id;
- 			info->encap[info->num_encaps].proto = path->encap.proto;
- 			info->num_encaps++;
- 			if (path->type == DEV_PATH_PPPOE)
- 				memcpy(info->h_dest, path->encap.h_dest, ETH_ALEN);
-+			info->xmit_type = FLOW_OFFLOAD_XMIT_DIRECT;
- 			break;
- 		case DEV_PATH_BRIDGE:
- 			if (is_zero_ether_addr(info->h_source))
-@@ -158,8 +157,7 @@ static void nft_dev_path_info(const struct net_device_path_stack *stack,
- 			break;
- 		}
  	}
--	if (!info->outdev)
--		info->outdev = info->indev;
-+	info->outdev = info->indev;
  
- 	info->hw_outdev = info->indev;
++	pkt.thoff += thoff;
++
+ 	return nft_do_chain(&pkt, priv);
+ }
  
 -- 
 2.45.2
