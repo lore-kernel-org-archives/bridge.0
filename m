@@ -1,57 +1,57 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F0191C4A1B
-	for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 10:19:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C631C6882
+	for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 10:19:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732011568; cv=none; b=QWAZoeSegA3PpA4FtfKdct7U7peSg3ceYtu9h92H03Hiv+X7EdXWKdTm+9wGrDq8h/BvL3sH+gmMCXg6MVR5Pnup69etJKPncZMvyErq+imrbwPjkNLoZzQF6aJ2PW4Q2IHhWu5g3zt7SG4YCC3VU6vlpDUUAZobG6PuOQRC5cs=
+	t=1732011569; cv=none; b=fHMw3+xrjFD/kn4cCTnv9CwNI+ruXEBGjYTxWpT55v6iU/7jXgqZMa7OhmP+gEONRGgpx5ekDKM5BN+YLqS94u7gtdP9deg0Nzw46CQASr7jKU/QuTKPREwK5mk9dpECI7MoySGg9Vcb3otOtO11BVeQ812llcSvVADQrHkj98E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732011568; c=relaxed/simple;
-	bh=A+ii9hUcM8wU9eVI2sIlc9PYLGj/teoItXOMkBbxNzg=;
+	s=arc-20240116; t=1732011569; c=relaxed/simple;
+	bh=KS/BSXKwODiNlM345SD1MVSJzHQruZ4MhHPY3AhQs7o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=m1BPkSpo8t5na3p+kZz8oApV2JqWus+/xNEehXcJnKyazOg4BvrKim9w1CuQjU9CAk0JWuyfrb/qMZZpT/PPih9BN8OnVIoHb2z8Vm+lW6yWVYHplqRuuSXgzuGnUs4ysMZwt2uPXwD2+tBYGJ2ERMJvmE0JcdBH33fOXZGPavw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kGLglJh/; arc=none smtp.client-ip=209.85.208.169
+	 MIME-Version; b=kh2U4ZkkDj7OxO1lYI95/aHpULGeDdoZ4wFNgQQn0YUnyJWC9CImzr2QBOczBunhmISJsvApeICgR3YlMRzz/Xa4itgKu2/xIwuhbdOrKoFgOciHDfPD2YFUBnE9rgrdNy7tP/sxgk2VlxxLPgiB7BUwVDPiEJq5EOEBUwOR0Ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OIBfAaje; arc=none smtp.client-ip=209.85.208.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kGLglJh/"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-2fb4af0b6beso42481331fa.3
-        for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 02:19:25 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OIBfAaje"
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2feeb1e8edfso39290681fa.1
+        for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 02:19:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1732011564; x=1732616364; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1732011565; x=1732616365; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=oNtMqpfiZ8j9VP8YeMgt8jDUBPMHbCQx5OGfeubdb70=;
-        b=kGLglJh/q+kURr0l3fp3XjZ6Nhqf8ORplLgcPYPEFS4cdk3FTSdOGt94zkDkTaP6jo
-         +IkK84HbZ5fIPD7sEvrF4U5ZbIIFbyWCiwyJQ1uQVpOqKSYWTXWRCSbG47MznPubzBxv
-         /ieUxWPxGRRajC8+BYiPmeP0Sbtqrg9gPrRaFbrYIHw/nlvG6FcCRQSy6MpOyVAI/Nck
-         h5I4dDkd5W5rYP93pYDd1AG11X4QdJ99D24uAvMEA3/tXKNHoFbFfZ0LLGBnB11fVubN
-         IpKbufAfVnWI21XeJXR1NbdK9ZLttCK/RMGWia2pF9jVOF1uhT4lvtRDWVl+k1m1W3AP
-         BG9A==
+        bh=3IFIJoTYk6YKRTRNHwxftMTYmZfYo4cB7iVfLaoFmHE=;
+        b=OIBfAajeBatC68AovSig3MlhoLJKqHBO4w+dx008k3levuIculoZ/Qp0X37uQQLVvu
+         CLhTDPYKCdl4IVFe/8HBn9RG/ob1A281Km6lIV4uKNfOgYF6ada53kuEL5VcXVyN65jU
+         BFEZC0/SL9Qti/XnNRVI9YiMYHzJQTJCLgIxJgJ5o/3meDhoGRJhakMJ3Mqm/Tu0yRlF
+         fMf0FyGVoQT8FKHSrokZ/y7tzkqgcI9Z5p0sypbYXZ93Hx6z5dTPW+sN5kbZI+85z+6H
+         fU3AeoA/YUuAEvdH5pGqiRnJycyGRWkKdfF1D3X+SUYvWG+rnDUUeffS3VJIfK3Tim+p
+         3eyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732011564; x=1732616364;
+        d=1e100.net; s=20230601; t=1732011565; x=1732616365;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=oNtMqpfiZ8j9VP8YeMgt8jDUBPMHbCQx5OGfeubdb70=;
-        b=iXpUlC8lQDUDs3af26gdm2y/kY80JxQkGRhTtbl+Tbmp/NdleC86unfhoOMx2jNHA2
-         HBWWlP37YofRhcM6KEj9EvXWNQpWpveqZ1XywpYcT53q4z/WrA9mdLslRsrSEXjy3wGo
-         GqRnUR3v97B1SLdY3K5hdVFV6Pu6bpBFENcsFIMTVu54wWoddVQC148N4bwghMp5EN0D
-         0gVIG7TmNEgkLtvI7gXkvHVQBcYFZp/KpVyuP9uzw7rARQJOZktfznBVUeWIPYgGHcF8
-         qVpyxUCMr5m25sb3/v49/Ob0OEWegsHUSWmt+f12BejH0DNu6Vln+k8YCtwxDkbvpFC1
-         nFYA==
-X-Forwarded-Encrypted: i=1; AJvYcCUOOIMUtOKcHcACO2F6Bb6jb4QwZXdpODNkcuj/DlUqTYius/FBu5ntlituHvgbbLPUH8ZgErk=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyZNzRGWPQjvcPsGQxaJ/xwyX75Tv2gIgx0RXgj5f7XIeZfANY5
-	3puktoJRGgK6AxQegwJ15PMf0UyWyi7urrvfgEFyWPWV4EADzFwj
-X-Google-Smtp-Source: AGHT+IHPphanLQvn1smAWqmqpsVVY1N5Pj6CCsoY8pRu0n0GdFTRRvOQ87pUfg0ubCpmZuXrqQ7tJQ==
-X-Received: by 2002:a2e:a9a9:0:b0:2fa:c0c2:d311 with SMTP id 38308e7fff4ca-2ff60610642mr89237351fa.5.1732011563899;
-        Tue, 19 Nov 2024 02:19:23 -0800 (PST)
+        bh=3IFIJoTYk6YKRTRNHwxftMTYmZfYo4cB7iVfLaoFmHE=;
+        b=Sh41LGQmqmn4oYWGFGTPh0hDiop6O68iULYRJ8sRkDVkJHRvMU9JQA+e67M/WuyzLq
+         3FAac5pRUoKqWr654Le02b0fVuX0P83h4CJ1FybzIqKx0S5MLLpMgJysKxhlgJPk8OgM
+         YCYOcGXGvLDL0GvxKrGTNWFhIHSm4yodTIs/93QKL0EzyHe70dEqCXbXcadXUJ2qzaR5
+         kpouU+LMCQAMwlVVWn4WwiA/IJ5yX0bdA/IaTsWV7URtlvzG2CokjU4dCDAE01wn9BaL
+         o1u2mbmHtMdFHE7sI/y/IzfQ8uFCVUZkFI8ErZ5YxleNHG6ivD0yXA6pRspOLDbk/IHY
+         3V4w==
+X-Forwarded-Encrypted: i=1; AJvYcCU+wVpkwEiuo0WwUYpE9FNTuIMCI8xwEqLQC3gBkad4dTUlQY4hh6EgeAkKhdhyiMpMVmcnY9w=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxG6EtbDb3chV1LLwJG8JxWGT2uwY5iq7k032g9ZQjEl3u7WMeI
+	eRA12YmR5v0jfmwQdugn5IlSt/V5WV4NXkf5juqMe6WNJrCYTdfl
+X-Google-Smtp-Source: AGHT+IHnkAmZBG6E9wO/q7BJvCC5UomYmpRer3uAt1HmEjIcUorcDjARLDEPuztshHFwg7HC5D+dGA==
+X-Received: by 2002:a05:6512:32c9:b0:52e:fa5f:b6a7 with SMTP id 2adb3069b0e04-53dab29e907mr9290473e87.13.1732011565255;
+        Tue, 19 Nov 2024 02:19:25 -0800 (PST)
 Received: from corebook.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa20e081574sm634875566b.179.2024.11.19.02.19.22
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa20e081574sm634875566b.179.2024.11.19.02.19.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Nov 2024 02:19:23 -0800 (PST)
+        Tue, 19 Nov 2024 02:19:24 -0800 (PST)
 From: Eric Woudstra <ericwouds@gmail.com>
 To: "David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
@@ -83,9 +83,9 @@ Cc: netdev@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org,
 	linux-mediatek@lists.infradead.org,
 	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH RFC v2 net-next 04/14] bridge: br_vlan_fill_forward_path_pvid: Add port to port
-Date: Tue, 19 Nov 2024 11:18:56 +0100
-Message-ID: <20241119101906.862680-5-ericwouds@gmail.com>
+Subject: [PATCH RFC v2 net-next 05/14] bridge: br_fill_forward_path add port to port
+Date: Tue, 19 Nov 2024 11:18:57 +0100
+Message-ID: <20241119101906.862680-6-ericwouds@gmail.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20241119101906.862680-1-ericwouds@gmail.com>
 References: <20241119101906.862680-1-ericwouds@gmail.com>
@@ -97,58 +97,48 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Lookup vlan group from bridge port, if it is passed as argument.
+If handed a bridge port, use the bridge master to fill the forward path.
 
 Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
 ---
- net/bridge/br_private.h | 2 ++
- net/bridge/br_vlan.c    | 6 +++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ net/bridge/br_device.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 9853cfbb9d14..046d7b04771f 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1581,6 +1581,7 @@ bool br_vlan_can_enter_range(const struct net_bridge_vlan *v_curr,
- 			     const struct net_bridge_vlan *range_end);
- 
- void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
-+				    struct net_bridge_port *p,
- 				    struct net_device_path_ctx *ctx,
- 				    struct net_device_path *path);
- int br_vlan_fill_forward_path_mode(struct net_bridge *br,
-@@ -1750,6 +1751,7 @@ static inline int nbp_get_num_vlan_infos(struct net_bridge_port *p,
- }
- 
- static inline void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
-+						  struct net_bridge_port *p,
- 						  struct net_device_path_ctx *ctx,
- 						  struct net_device_path *path)
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 0ab4613aa07a..c7646afc8b96 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -383,16 +383,25 @@ static int br_del_slave(struct net_device *dev, struct net_device *slave_dev)
+ static int br_fill_forward_path(struct net_device_path_ctx *ctx,
+ 				struct net_device_path *path)
  {
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 89f51ea4cabe..2ea1e2ff4676 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -1441,6 +1441,7 @@ int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
- EXPORT_SYMBOL_GPL(br_vlan_get_pvid_rcu);
++	struct net_bridge_port *src, *dst;
+ 	struct net_bridge_fdb_entry *f;
+-	struct net_bridge_port *dst;
+ 	struct net_bridge *br;
  
- void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
-+				    struct net_bridge_port *p,
- 				    struct net_device_path_ctx *ctx,
- 				    struct net_device_path *path)
- {
-@@ -1453,7 +1454,10 @@ void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
- 	if (!br_opt_get(br, BROPT_VLAN_ENABLED))
- 		return;
+-	if (netif_is_bridge_port(ctx->dev))
+-		return -1;
++	if (netif_is_bridge_port(ctx->dev)) {
++		struct net_device *br_dev;
++
++		br_dev = netdev_master_upper_dev_get_rcu((struct net_device *)ctx->dev);
++		if (!br_dev)
++			return -1;
  
--	vg = br_vlan_group(br);
-+	if (p)
-+		vg = nbp_vlan_group(p);
-+	else
-+		vg = br_vlan_group(br);
+-	br = netdev_priv(ctx->dev);
++		src = br_port_get_rcu(ctx->dev);
++		br = netdev_priv(br_dev);
++	} else {
++		src = NULL;
++		br = netdev_priv(ctx->dev);
++	}
  
- 	if (idx >= 0 &&
- 	    ctx->vlan[idx].proto == br->vlan_proto) {
+-	br_vlan_fill_forward_path_pvid(br, ctx, path);
++	br_vlan_fill_forward_path_pvid(br, src, ctx, path);
+ 
+ 	f = br_fdb_find_rcu(br, ctx->daddr, path->bridge.vlan_id);
+ 	if (!f)
 -- 
 2.45.2
 
