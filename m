@@ -1,294 +1,147 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 595B21CBE9B
-	for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 10:19:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A31B1DC054;
+	Thu, 21 Nov 2024 21:45:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732011580; cv=none; b=GNq+YskGkKXFnawNKGAWB4zzkZLl+trT9VVO7z4/pNg5QiiMeNwQEg3uCnuKR/UJOMpRh7VWr4nXjwt0senSzRxWm7WuZXQHrqF19TAImOkH6ePMFm8Cd55WLkPsjyCNnslpoD9eKCXjSbClATyuAHjqBrrTWEKJdEGyMhoSdLA=
+	t=1732225505; cv=none; b=p5erGkcL+cuSTj/BUivDFbZ7mUnqDCy8wIlKGz+8H2qn0FuJ0ydFfq5E1s9twLjzDNo8o8VFAURH6y/lNjTcPPTP1TWcCCsFjDADl69/oxxIS2dwIdPi0E1H/XX7EyeUFnnyNcmBbgqKIfIhn3N/vlDcovPBONMjWOqbgjfEMQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732011580; c=relaxed/simple;
-	bh=h2EDobtYGuZ0p694lv+rpbiRRIT5cXJ238jQIT1Juig=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i7B2uhN3BL2NZLoe7kv81fN2B9A0i3wln8CI7usMsIgbdenl346PBQalyaUsAjDClcStmX1ExZb4oFmvgueY2SWI7iq5U6UXCAnlqgk0OGfvWo4ouvdXdVqimrDi2jic1P4CJqCXIzrTtzEybbv6s8ia5BAN1jPOLRlNQfYfmzU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c9Ja1v0z; arc=none smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1732225505; c=relaxed/simple;
+	bh=NIUcN6+T+wki60rCRnwepyQ8KRF0PBbMkb47VLXLqKM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dVjNpgzoCzoV3P1SY4M70VTAZDlaKb1VAwsEM1ItD1jSqnZ8oEk4WbA4Yunuk6z/XrGBwY98cbCOG6yyN8Y5LUwzUJUxn2ke5vVrTyBL2hpXx5sUPfyED/Yex9E+kuvhjlDku0JhfrIeEnH7gxMJTIFYcRdTDLF3XzpUc0yYB/A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ammfg0yn; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c9Ja1v0z"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a9a6acac4c3so124380766b.0
-        for <bridge@lists.linux.dev>; Tue, 19 Nov 2024 02:19:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1732011577; x=1732616377; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=93tHMoq61etCefqeI7/L8ZHaQMS3jaPhjtyND24xOo0=;
-        b=c9Ja1v0zd+M1dk6qCwqtX6lr28bY9wG4GlGeJePo774zUZ+fccfEbbRwsPIMfl9zrX
-         McKauJbW8nkAdRSTXgvBbqZg7TbSIVB4k2tKo3AU/qetG+DgWJbk/gqf7xn3KLmE7GdG
-         JzSAC8uiqwt7FBbc5mzpZ8UXQzm6GBuc1N6IiEVc66d6rjtM0HMi+DtT+r/i0D9UB1eb
-         lD9fgmZ/iXMWZn0lzGW0qS+CfL5J2JuqjSPXbvme9S1IQrU9rdrvtVD+X0o8A9u628V+
-         yEDhOViY2u1MdVvr4N7PiEBRfx6+1MPlnun+1Yjuc5iJaz19Ka7LWWVhXPyY+ChOpWbd
-         NEYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732011577; x=1732616377;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=93tHMoq61etCefqeI7/L8ZHaQMS3jaPhjtyND24xOo0=;
-        b=uCa0Xr89iaUt0gy/XzrJNGZ61xx8Iu3hnVf+Ndwt29pyWdzuE3Cy73Fcr0Mdx3kiAn
-         qAb1Oo0U2d28kmba1jLD1SFGXbpSav740VTT39ynbayB+Nvq8AFhk4VQbTrm05YLQsJZ
-         QnqeqcQmU6fB4OtT9PCv33z6I4GGYPWMRiDZK1LTTQdkvTWOOuID7Q/D6euuFM1qIl7k
-         gBYtC3Ef6a+7prEL66u1ikH3kPEM83rTTQMl1if5T61DYxQH8dKWvHUH5Qctc4BTsxPY
-         hlPivk/7fp13A4GJhzohnWtjuSomn6+AbIEjyGgKwseUE2UybLdjbzicM+HRj7NpxLc7
-         4kJw==
-X-Forwarded-Encrypted: i=1; AJvYcCWs7wPihw/eFCxh+F1xQrhpINT9mpsOSbwKv/RmPEWvDMpbzrs7L0gDRsM413UkEen3tDab+UI=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwPlou3L43K3n0bHmHMGBFTEcny6NN01DI1bPNPIuG7tjcgNUju
-	AW76qnw8yA6RePHd/I6PSY/XuAM2RY+Ar+2mIZwcAWEw4z/E9LBl
-X-Google-Smtp-Source: AGHT+IHFjm7z288du+sLPkPh9NWZ67RgYD8wK05AuA3EyPac75+11d1DSFwwXFLi3Yq64iVpPPRciw==
-X-Received: by 2002:a17:907:a4e:b0:a99:c9a4:a4d5 with SMTP id a640c23a62f3a-aa483482762mr1446252966b.29.1732011576580;
-        Tue, 19 Nov 2024 02:19:36 -0800 (PST)
-Received: from corebook.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa20e081574sm634875566b.179.2024.11.19.02.19.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Nov 2024 02:19:36 -0800 (PST)
-From: Eric Woudstra <ericwouds@gmail.com>
-To: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ammfg0yn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1732225503; x=1763761503;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=NIUcN6+T+wki60rCRnwepyQ8KRF0PBbMkb47VLXLqKM=;
+  b=ammfg0ynJgRWRWQk47QUPfT6ChebBozDFsVhcLCrrrEgJdFn7JTKL8r3
+   oRU3QxzIYeR0OMJ5lUXD5ohYpUB+eBGbHNx5hlrdki0gOIv6peoKVOPGu
+   7mbFfVkFb1VignFjLdUZxuUpb3z5bpTJDsyE4YMk+6JkcZZkJsupaTJuD
+   GhvrN945ZruWyhUzHRYQIMVgBaLArxNdNvAQ84NZyts/gXuObUHTNYVRx
+   McK9ALPXJJRGGUWLiUGlGsdBMwDcccQtj12HM8Vybm0BGM0pkwp92OEdD
+   MeSLBuT49OIpI0W/yg4ZSlFf2erOtbEb2bYdj0UTYLl/2B7ya6uS4j9M+
+   g==;
+X-CSE-ConnectionGUID: PuixZka2Sr+LPI5Bd0Inqw==
+X-CSE-MsgGUID: Ej3t9bTlStmJMp2Q7sAOhQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11263"; a="32514203"
+X-IronPort-AV: E=Sophos;i="6.12,173,1728975600"; 
+   d="scan'208";a="32514203"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2024 13:45:01 -0800
+X-CSE-ConnectionGUID: xdpPO1RmQrC72kpFCsgzmg==
+X-CSE-MsgGUID: zhZedUIBSeupQFYJAgkZ8A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,173,1728975600"; 
+   d="scan'208";a="90753178"
+Received: from lkp-server01.sh.intel.com (HELO 8122d2fc1967) ([10.239.97.150])
+  by fmviesa010.fm.intel.com with ESMTP; 21 Nov 2024 13:44:56 -0800
+Received: from kbuild by 8122d2fc1967 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tEEyr-0003O1-1A;
+	Thu, 21 Nov 2024 21:44:53 +0000
+Date: Fri, 22 Nov 2024 05:43:56 +0800
+From: kernel test robot <lkp@intel.com>
+To: Xiao Liang <shaw.leon@gmail.com>, netdev@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
 	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
+	Donald Hunter <donald.hunter@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev, David Ahern <dsahern@kernel.org>,
+	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+	Ido Schimmel <idosch@nvidia.com>,
 	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Ivan Vecera <ivecera@redhat.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	David Ahern <dsahern@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Lorenzo Bianconi <lorenzo@kernel.org>,
-	Joe Damato <jdamato@fastly.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Vladimir Oltean <olteanv@gmail.com>,
-	"Frank Wunderlich" <frank-w@public-files.de>,
-	Daniel Golle <daniel@makrotopia.org>
-Cc: netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org,
-	bridge@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH RFC v2 net-next 14/14] netfilter: nft_flow_offload: Add bridgeflow to nft_flow_offload_eval()
-Date: Tue, 19 Nov 2024 11:19:06 +0100
-Message-ID: <20241119101906.862680-15-ericwouds@gmail.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20241119101906.862680-1-ericwouds@gmail.com>
-References: <20241119101906.862680-1-ericwouds@gmail.com>
+	Simon Horman <horms@kernel.org>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Jiri Pirko <jiri@resnulli.us>, Hangbin Liu <liuhangbin@gmail.com>,
+	linux-rdma@vger.kernel.org, linux-can@vger.kernel.org,
+	osmocom-net-gprs@lists.osmocom.org, bpf@vger.kernel.org,
+	linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com,
+	linux-wireless@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org,
+	bridge@lists.linux.dev, linux-wpan@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v4 3/5] rtnetlink: Decouple net namespaces in
+ rtnl_newlink_create()
+Message-ID: <202411220516.rokej98E-lkp@intel.com>
+References: <20241118143244.1773-4-shaw.leon@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241118143244.1773-4-shaw.leon@gmail.com>
 
-Edit nft_flow_offload_eval() to make it possible to handle a flowtable of
-the nft bridge family.
+Hi Xiao,
 
-Use nft_flow_offload_bridge_init() to fill the flow tuples. It uses
-nft_dev_fill_bridge_path() in each direction.
+kernel test robot noticed the following build warnings:
 
-Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
----
- net/netfilter/nft_flow_offload.c | 144 +++++++++++++++++++++++++++++--
- 1 file changed, 139 insertions(+), 5 deletions(-)
+[auto build test WARNING on net-next/main]
 
-diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-index ed0e9b499971..b17a3ef79852 100644
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -196,6 +196,131 @@ static bool nft_flowtable_find_dev(const struct net_device *dev,
- 	return found;
- }
- 
-+static int nft_dev_fill_bridge_path(struct flow_offload *flow,
-+				    struct nft_flowtable *ft,
-+				    const struct nft_pktinfo *pkt,
-+				    enum ip_conntrack_dir dir,
-+				    const struct net_device *src_dev,
-+				    const struct net_device *dst_dev,
-+				    unsigned char *src_ha,
-+				    unsigned char *dst_ha)
-+{
-+	struct flow_offload_tuple_rhash *th = flow->tuplehash;
-+	struct net_device_path_stack stack;
-+	struct net_device_path_ctx ctx = {};
-+	struct nft_forward_info info = {};
-+	int i, j = 0;
-+
-+	for (i = th[dir].tuple.encap_num - 1; i >= 0 ; i--) {
-+		if (info.num_encaps >= NF_FLOW_TABLE_ENCAP_MAX)
-+			return -1;
-+
-+		if (th[dir].tuple.in_vlan_ingress & BIT(i))
-+			continue;
-+
-+		info.encap[info.num_encaps].id = th[dir].tuple.encap[i].id;
-+		info.encap[info.num_encaps].proto = th[dir].tuple.encap[i].proto;
-+		info.num_encaps++;
-+
-+		if (th[dir].tuple.encap[i].proto == htons(ETH_P_PPP_SES))
-+			continue;
-+
-+		if (ctx.num_vlans >= NET_DEVICE_PATH_VLAN_MAX)
-+			return -1;
-+		ctx.vlan[ctx.num_vlans].id = th[dir].tuple.encap[i].id;
-+		ctx.vlan[ctx.num_vlans].proto = th[dir].tuple.encap[i].proto;
-+		ctx.num_vlans++;
-+	}
-+	ctx.dev = src_dev;
-+	ether_addr_copy(ctx.daddr, dst_ha);
-+
-+	if (dev_fill_bridge_path(&ctx, &stack) < 0)
-+		return -1;
-+
-+	nft_dev_path_info(&stack, &info, dst_ha, &ft->data);
-+
-+	if (!info.indev || info.indev != dst_dev)
-+		return -1;
-+
-+	th[!dir].tuple.iifidx = info.indev->ifindex;
-+	for (i = info.num_encaps - 1; i >= 0; i--) {
-+		th[!dir].tuple.encap[j].id = info.encap[i].id;
-+		th[!dir].tuple.encap[j].proto = info.encap[i].proto;
-+		if (info.ingress_vlans & BIT(i))
-+			th[!dir].tuple.in_vlan_ingress |= BIT(j);
-+		j++;
-+	}
-+	th[!dir].tuple.encap_num = info.num_encaps;
-+
-+	th[dir].tuple.mtu = dst_dev->mtu;
-+	ether_addr_copy(th[dir].tuple.out.h_source, src_ha);
-+	ether_addr_copy(th[dir].tuple.out.h_dest, dst_ha);
-+	th[dir].tuple.out.ifidx = info.outdev->ifindex;
-+	th[dir].tuple.out.hw_ifidx = info.hw_outdev->ifindex;
-+	th[dir].tuple.xmit_type = FLOW_OFFLOAD_XMIT_DIRECT;
-+
-+	return 0;
-+}
-+
-+static int nft_flow_offload_bridge_init(struct flow_offload *flow,
-+					const struct nft_pktinfo *pkt,
-+					enum ip_conntrack_dir dir,
-+					struct nft_flowtable *ft)
-+{
-+	struct ethhdr *eth = eth_hdr(pkt->skb);
-+	struct flow_offload_tuple *tuple;
-+	const struct net_device *out_dev;
-+	const struct net_device *in_dev;
-+	struct pppoe_hdr *phdr;
-+	struct vlan_hdr *vhdr;
-+	int err, i = 0;
-+
-+	in_dev = nft_in(pkt);
-+	if (!in_dev || !nft_flowtable_find_dev(in_dev, ft))
-+		return -1;
-+
-+	out_dev = nft_out(pkt);
-+	if (!out_dev || !nft_flowtable_find_dev(out_dev, ft))
-+		return -1;
-+
-+	tuple =  &flow->tuplehash[!dir].tuple;
-+
-+	if (skb_vlan_tag_present(pkt->skb)) {
-+		tuple->encap[i].id = skb_vlan_tag_get(pkt->skb);
-+		tuple->encap[i].proto = pkt->skb->vlan_proto;
-+		i++;
-+	}
-+	switch (pkt->skb->protocol) {
-+	case htons(ETH_P_8021Q):
-+		vhdr = (struct vlan_hdr *)skb_network_header(pkt->skb);
-+		tuple->encap[i].id = ntohs(vhdr->h_vlan_TCI);
-+		tuple->encap[i].proto = pkt->skb->protocol;
-+		i++;
-+		break;
-+	case htons(ETH_P_PPP_SES):
-+		phdr = (struct pppoe_hdr *)skb_network_header(pkt->skb);
-+		tuple->encap[i].id = ntohs(phdr->sid);
-+		tuple->encap[i].proto = pkt->skb->protocol;
-+		i++;
-+		break;
-+	}
-+	tuple->encap_num = i;
-+
-+	err = nft_dev_fill_bridge_path(flow, ft, pkt, !dir, out_dev, in_dev,
-+				       eth->h_dest, eth->h_source);
-+	if (err < 0)
-+		return err;
-+
-+	memset(tuple->encap, 0, sizeof(tuple->encap));
-+
-+	err = nft_dev_fill_bridge_path(flow, ft, pkt, dir, in_dev, out_dev,
-+				       eth->h_source, eth->h_dest);
-+	if (err < 0)
-+		return err;
-+
-+	return 0;
-+}
-+
- static void nft_dev_forward_path(struct nf_flow_route *route,
- 				 const struct nf_conn *ct,
- 				 enum ip_conntrack_dir dir,
-@@ -306,6 +431,7 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- {
- 	struct nft_flow_offload *priv = nft_expr_priv(expr);
- 	struct nf_flowtable *flowtable = &priv->flowtable->data;
-+	bool routing = (flowtable->type->family != NFPROTO_BRIDGE);
- 	struct tcphdr _tcph, *tcph = NULL;
- 	struct nf_flow_route route = {};
- 	enum ip_conntrack_info ctinfo;
-@@ -359,14 +485,20 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- 		goto out;
- 
- 	dir = CTINFO2DIR(ctinfo);
--	if (nft_flow_route(pkt, ct, &route, dir, priv->flowtable) < 0)
--		goto err_flow_route;
-+	if (routing) {
-+		if (nft_flow_route(pkt, ct, &route, dir, priv->flowtable) < 0)
-+			goto err_flow_route;
-+	}
- 
- 	flow = flow_offload_alloc(ct);
- 	if (!flow)
- 		goto err_flow_alloc;
- 
--	flow_offload_route_init(flow, &route);
-+	if (routing)
-+		flow_offload_route_init(flow, &route);
-+	else
-+		if (nft_flow_offload_bridge_init(flow, pkt, dir, priv->flowtable) < 0)
-+			goto err_flow_route;
- 
- 	if (tcph) {
- 		ct->proto.tcp.seen[0].flags |= IP_CT_TCP_FLAG_BE_LIBERAL;
-@@ -419,8 +551,10 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- err_flow_add:
- 	flow_offload_free(flow);
- err_flow_alloc:
--	dst_release(route.tuple[dir].dst);
--	dst_release(route.tuple[!dir].dst);
-+	if (routing) {
-+		dst_release(route.tuple[dir].dst);
-+		dst_release(route.tuple[!dir].dst);
-+	}
- err_flow_route:
- 	clear_bit(IPS_OFFLOAD_BIT, &ct->status);
- out:
+url:    https://github.com/intel-lab-lkp/linux/commits/Xiao-Liang/net-ip_tunnel-Build-flow-in-underlay-net-namespace/20241121-112705
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20241118143244.1773-4-shaw.leon%40gmail.com
+patch subject: [PATCH net-next v4 3/5] rtnetlink: Decouple net namespaces in rtnl_newlink_create()
+config: arc-randconfig-002-20241122 (https://download.01.org/0day-ci/archive/20241122/202411220516.rokej98E-lkp@intel.com/config)
+compiler: arceb-elf-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241122/202411220516.rokej98E-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202411220516.rokej98E-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> net/batman-adv/soft-interface.c:1075: warning: Function parameter or struct member 'params' not described in 'batadv_softif_newlink'
+>> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'nets' description in 'batadv_softif_newlink'
+>> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'dev' description in 'batadv_softif_newlink'
+>> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'tb' description in 'batadv_softif_newlink'
+>> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'data' description in 'batadv_softif_newlink'
+>> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'extack' description in 'batadv_softif_newlink'
+
+
+vim +1075 net/batman-adv/soft-interface.c
+
+128254ceea6ffe Sven Eckelmann 2020-10-11  1063  
+128254ceea6ffe Sven Eckelmann 2020-10-11  1064  /**
+128254ceea6ffe Sven Eckelmann 2020-10-11  1065   * batadv_softif_newlink() - pre-initialize and register new batadv link
+c19808cb1d05d1 Xiao Liang     2024-11-18  1066   * @nets: the applicable net namespaces
+128254ceea6ffe Sven Eckelmann 2020-10-11  1067   * @dev: network device to register
+128254ceea6ffe Sven Eckelmann 2020-10-11  1068   * @tb: IFLA_INFO_DATA netlink attributes
+128254ceea6ffe Sven Eckelmann 2020-10-11  1069   * @data: enum batadv_ifla_attrs attributes
+128254ceea6ffe Sven Eckelmann 2020-10-11  1070   * @extack: extended ACK report struct
+128254ceea6ffe Sven Eckelmann 2020-10-11  1071   *
+128254ceea6ffe Sven Eckelmann 2020-10-11  1072   * Return: 0 if successful or error otherwise.
+128254ceea6ffe Sven Eckelmann 2020-10-11  1073   */
+c19808cb1d05d1 Xiao Liang     2024-11-18  1074  static int batadv_softif_newlink(struct rtnl_newlink_params *params)
+128254ceea6ffe Sven Eckelmann 2020-10-11 @1075  {
+c19808cb1d05d1 Xiao Liang     2024-11-18  1076  	struct net_device *dev = params->dev;
+c19808cb1d05d1 Xiao Liang     2024-11-18  1077  	struct nlattr **data = params->data;
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1078  	struct batadv_priv *bat_priv = netdev_priv(dev);
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1079  	const char *algo_name;
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1080  	int err;
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1081  
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1082  	if (data && data[IFLA_BATADV_ALGO_NAME]) {
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1083  		algo_name = nla_data(data[IFLA_BATADV_ALGO_NAME]);
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1084  		err = batadv_algo_select(bat_priv, algo_name);
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1085  		if (err)
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1086  			return -EINVAL;
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1087  	}
+a5ad457eea41ef Sven Eckelmann 2020-10-11  1088  
+128254ceea6ffe Sven Eckelmann 2020-10-11  1089  	return register_netdevice(dev);
+128254ceea6ffe Sven Eckelmann 2020-10-11  1090  }
+128254ceea6ffe Sven Eckelmann 2020-10-11  1091  
+
 -- 
-2.45.2
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
