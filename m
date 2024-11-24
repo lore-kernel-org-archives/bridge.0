@@ -1,147 +1,88 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A31B1DC054;
-	Thu, 21 Nov 2024 21:45:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF6FD2500A0
+	for <bridge@lists.linux.dev>; Sun, 24 Nov 2024 21:01:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732225505; cv=none; b=p5erGkcL+cuSTj/BUivDFbZ7mUnqDCy8wIlKGz+8H2qn0FuJ0ydFfq5E1s9twLjzDNo8o8VFAURH6y/lNjTcPPTP1TWcCCsFjDADl69/oxxIS2dwIdPi0E1H/XX7EyeUFnnyNcmBbgqKIfIhn3N/vlDcovPBONMjWOqbgjfEMQs=
+	t=1732482119; cv=none; b=O50NFN8DZqvHxaaYQ0ew2ZsCBgBpzk/oZ+CBMY5zKH9J2FoADryzBgynuDbxewAhMKcBx7qnO3WA5AXQBMxDlB3r/CuG1oIBDY61wTSwC8/PQ79kuE8TP7+iMzusG1CR2Hk+pUWswaFX/bx6xIBOoOR5zZuIW4uJDKKQV72YZjY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732225505; c=relaxed/simple;
-	bh=NIUcN6+T+wki60rCRnwepyQ8KRF0PBbMkb47VLXLqKM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dVjNpgzoCzoV3P1SY4M70VTAZDlaKb1VAwsEM1ItD1jSqnZ8oEk4WbA4Yunuk6z/XrGBwY98cbCOG6yyN8Y5LUwzUJUxn2ke5vVrTyBL2hpXx5sUPfyED/Yex9E+kuvhjlDku0JhfrIeEnH7gxMJTIFYcRdTDLF3XzpUc0yYB/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ammfg0yn; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1732482119; c=relaxed/simple;
+	bh=M5bPiZeOmBrChTqvSHaOiMEbBYpudFThZKygFWy/+sk=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=tl+7v5kjo9vDXvrBXALivmdjzBFEQhOJc6FWjRtxTi+QFgsA2aMh8cxglWVviOZhLgYMrr8ApoQsjtFCgLkz71bws9GM44LC5xcEWVVDDYAXsTc/5ToFtraZxxMIuccHrmDR/j42nMSwD6wHIWbgHJEs+C5lG5csKY1yONFCD3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=kAV3pBeW; arc=none smtp.client-ip=202.36.163.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ammfg0yn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1732225503; x=1763761503;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=NIUcN6+T+wki60rCRnwepyQ8KRF0PBbMkb47VLXLqKM=;
-  b=ammfg0ynJgRWRWQk47QUPfT6ChebBozDFsVhcLCrrrEgJdFn7JTKL8r3
-   oRU3QxzIYeR0OMJ5lUXD5ohYpUB+eBGbHNx5hlrdki0gOIv6peoKVOPGu
-   7mbFfVkFb1VignFjLdUZxuUpb3z5bpTJDsyE4YMk+6JkcZZkJsupaTJuD
-   GhvrN945ZruWyhUzHRYQIMVgBaLArxNdNvAQ84NZyts/gXuObUHTNYVRx
-   McK9ALPXJJRGGUWLiUGlGsdBMwDcccQtj12HM8Vybm0BGM0pkwp92OEdD
-   MeSLBuT49OIpI0W/yg4ZSlFf2erOtbEb2bYdj0UTYLl/2B7ya6uS4j9M+
-   g==;
-X-CSE-ConnectionGUID: PuixZka2Sr+LPI5Bd0Inqw==
-X-CSE-MsgGUID: Ej3t9bTlStmJMp2Q7sAOhQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11263"; a="32514203"
-X-IronPort-AV: E=Sophos;i="6.12,173,1728975600"; 
-   d="scan'208";a="32514203"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2024 13:45:01 -0800
-X-CSE-ConnectionGUID: xdpPO1RmQrC72kpFCsgzmg==
-X-CSE-MsgGUID: zhZedUIBSeupQFYJAgkZ8A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,173,1728975600"; 
-   d="scan'208";a="90753178"
-Received: from lkp-server01.sh.intel.com (HELO 8122d2fc1967) ([10.239.97.150])
-  by fmviesa010.fm.intel.com with ESMTP; 21 Nov 2024 13:44:56 -0800
-Received: from kbuild by 8122d2fc1967 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tEEyr-0003O1-1A;
-	Thu, 21 Nov 2024 21:44:53 +0000
-Date: Fri, 22 Nov 2024 05:43:56 +0800
-From: kernel test robot <lkp@intel.com>
-To: Xiao Liang <shaw.leon@gmail.com>, netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	Kuniyuki Iwashima <kuniyu@amazon.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Donald Hunter <donald.hunter@gmail.com>
-Cc: oe-kbuild-all@lists.linux.dev, David Ahern <dsahern@kernel.org>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Simon Horman <horms@kernel.org>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Jiri Pirko <jiri@resnulli.us>, Hangbin Liu <liuhangbin@gmail.com>,
-	linux-rdma@vger.kernel.org, linux-can@vger.kernel.org,
-	osmocom-net-gprs@lists.osmocom.org, bpf@vger.kernel.org,
-	linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com,
-	linux-wireless@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org,
-	bridge@lists.linux.dev, linux-wpan@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v4 3/5] rtnetlink: Decouple net namespaces in
- rtnl_newlink_create()
-Message-ID: <202411220516.rokej98E-lkp@intel.com>
-References: <20241118143244.1773-4-shaw.leon@gmail.com>
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="kAV3pBeW"
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id BED8D2C02AE;
+	Mon, 25 Nov 2024 10:01:54 +1300 (NZDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+	s=mail181024; t=1732482114;
+	bh=M5bPiZeOmBrChTqvSHaOiMEbBYpudFThZKygFWy/+sk=;
+	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+	b=kAV3pBeWLWUHWn/q1gPuXly75Ja5LcZxYe48jz3QqRfJd0vEDexLThR7N9genwlu8
+	 7ivYugmG4Go66OQHtwNAsgHTzTVoNSiJZaMt5O+ZCn4uIJbHHWmtvkMkMw81pz9I6e
+	 bG/DNGQBngW3n5tAuT+T12Jgqq8x3hQ8TVfTR12tHnWDaNKEAdHz6+nXbttxg2diZ1
+	 FzEVAtmYwtpVnTJQJQ6rxPOl1sdbA8D9LrYxYG9E+UKUm4/QIvPEbbLhlIM5mB6hn3
+	 St0RfEc+Ql0q1Vc/wLaxRAzMDClf58vI65XLybow6JFHvY6kg/FO5D3gjybkNnA6pG
+	 5TIXkJap97zbw==
+Received: from svr-chch-ex2.atlnz.lc (Not Verified[2001:df5:b000:bc8::76]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+	id <B674394420001>; Mon, 25 Nov 2024 10:01:54 +1300
+Received: from svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8::76) by
+ svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8::76) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 25 Nov 2024 10:01:54 +1300
+Received: from svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567]) by
+ svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567%15]) with mapi id
+ 15.02.1544.011; Mon, 25 Nov 2024 10:01:46 +1300
+From: Elliot Ayrey <Elliot.Ayrey@alliedtelesis.co.nz>
+To: "andrew@lunn.ch" <andrew@lunn.ch>, "olteanv@gmail.com"
+	<olteanv@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>,
+	"razor@blackwall.org" <razor@blackwall.org>, "pabeni@redhat.com"
+	<pabeni@redhat.com>, "roopa@nvidia.com" <roopa@nvidia.com>,
+	"edumazet@google.com" <edumazet@google.com>, "f.fainelli@gmail.com"
+	<f.fainelli@gmail.com>, "horms@kernel.org" <horms@kernel.org>,
+	"kuba@kernel.org" <kuba@kernel.org>
+CC: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"bridge@lists.linux.dev" <bridge@lists.linux.dev>
+Subject: Re: [RFC net-next (resend) 1/4] net: bridge: respect sticky flag on
+ external learn
+Thread-Topic: [RFC net-next (resend) 1/4] net: bridge: respect sticky flag on
+ external learn
+Thread-Index: AQHbMZIgNpj0gGtP+ECOfxmdRflJ/rLGKxGA
+Date: Sun, 24 Nov 2024 21:01:46 +0000
+Message-ID: <f2ac33e7b8ec0fefa48fe7cd3b1004abab67dcb1.camel@alliedtelesis.co.nz>
+References: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
+	 <20241108035546.2055996-2-elliot.ayrey@alliedtelesis.co.nz>
+In-Reply-To: <20241108035546.2055996-2-elliot.ayrey@alliedtelesis.co.nz>
+Accept-Language: en-US, en-NZ
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <AC2C1C6F51691843A76849C4B3840E84@atlnz.lc>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20241118143244.1773-4-shaw.leon@gmail.com>
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=Gam0nhXL c=1 sm=1 tr=0 ts=67439442 a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=nyesw9g_oEEA:10 a=IkcTkHD0fZMA:10 a=VlfZXiiP6vEA:10 a=iWpVzneqSnGDNxmlfzsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=ZXulRonScM0A:10
+X-SEG-SpamProfiler-Score: 0
 
-Hi Xiao,
-
-kernel test robot noticed the following build warnings:
-
-[auto build test WARNING on net-next/main]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Xiao-Liang/net-ip_tunnel-Build-flow-in-underlay-net-namespace/20241121-112705
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20241118143244.1773-4-shaw.leon%40gmail.com
-patch subject: [PATCH net-next v4 3/5] rtnetlink: Decouple net namespaces in rtnl_newlink_create()
-config: arc-randconfig-002-20241122 (https://download.01.org/0day-ci/archive/20241122/202411220516.rokej98E-lkp@intel.com/config)
-compiler: arceb-elf-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241122/202411220516.rokej98E-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202411220516.rokej98E-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> net/batman-adv/soft-interface.c:1075: warning: Function parameter or struct member 'params' not described in 'batadv_softif_newlink'
->> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'nets' description in 'batadv_softif_newlink'
->> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'dev' description in 'batadv_softif_newlink'
->> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'tb' description in 'batadv_softif_newlink'
->> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'data' description in 'batadv_softif_newlink'
->> net/batman-adv/soft-interface.c:1075: warning: Excess function parameter 'extack' description in 'batadv_softif_newlink'
-
-
-vim +1075 net/batman-adv/soft-interface.c
-
-128254ceea6ffe Sven Eckelmann 2020-10-11  1063  
-128254ceea6ffe Sven Eckelmann 2020-10-11  1064  /**
-128254ceea6ffe Sven Eckelmann 2020-10-11  1065   * batadv_softif_newlink() - pre-initialize and register new batadv link
-c19808cb1d05d1 Xiao Liang     2024-11-18  1066   * @nets: the applicable net namespaces
-128254ceea6ffe Sven Eckelmann 2020-10-11  1067   * @dev: network device to register
-128254ceea6ffe Sven Eckelmann 2020-10-11  1068   * @tb: IFLA_INFO_DATA netlink attributes
-128254ceea6ffe Sven Eckelmann 2020-10-11  1069   * @data: enum batadv_ifla_attrs attributes
-128254ceea6ffe Sven Eckelmann 2020-10-11  1070   * @extack: extended ACK report struct
-128254ceea6ffe Sven Eckelmann 2020-10-11  1071   *
-128254ceea6ffe Sven Eckelmann 2020-10-11  1072   * Return: 0 if successful or error otherwise.
-128254ceea6ffe Sven Eckelmann 2020-10-11  1073   */
-c19808cb1d05d1 Xiao Liang     2024-11-18  1074  static int batadv_softif_newlink(struct rtnl_newlink_params *params)
-128254ceea6ffe Sven Eckelmann 2020-10-11 @1075  {
-c19808cb1d05d1 Xiao Liang     2024-11-18  1076  	struct net_device *dev = params->dev;
-c19808cb1d05d1 Xiao Liang     2024-11-18  1077  	struct nlattr **data = params->data;
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1078  	struct batadv_priv *bat_priv = netdev_priv(dev);
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1079  	const char *algo_name;
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1080  	int err;
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1081  
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1082  	if (data && data[IFLA_BATADV_ALGO_NAME]) {
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1083  		algo_name = nla_data(data[IFLA_BATADV_ALGO_NAME]);
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1084  		err = batadv_algo_select(bat_priv, algo_name);
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1085  		if (err)
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1086  			return -EINVAL;
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1087  	}
-a5ad457eea41ef Sven Eckelmann 2020-10-11  1088  
-128254ceea6ffe Sven Eckelmann 2020-10-11  1089  	return register_netdevice(dev);
-128254ceea6ffe Sven Eckelmann 2020-10-11  1090  }
-128254ceea6ffe Sven Eckelmann 2020-10-11  1091  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+T24gU2F0LCAyMDI0LTExLTA5IGF0IDE1OjMyICswMjAwLCBOaWtvbGF5IEFsZWtzYW5kcm92IHdy
+b3RlOg0KPiBTbyB5b3UgaGF2ZSBhIHN0aWNreSBmZGIgZW50cnkgYWRkZWQsIGJ1dCBpdCBpcyBz
+dGlsbCBhbGxvd2VkIHRvIHJvYW0NCj4gaW4gSFc/DQoNCk5vIHRoZSBoYXJkd2FyZSBoYXMgaW5m
+b3JtZWQgdXMgYSBob3N0IGhhcyBfdHJpZWRfIHRvIHJvYW0uDQoNCkFzIEkgdGhpbmsgYWJvdXQg
+dGhpcyBtb3JlLCB1c2luZyB0aGUgc3RpY2t5IGJpdCBhbG9uZSBwcm9iYWJseSBpc24ndA0KdGhl
+IGJlc3QgaWRlYSBhbmQgaXQgbWlnaHQgYmUgYmV0dGVyIGlmIHRoaXMgbWVjaGFuaXNtIHdlcmUg
+cmVsYXRlZCB0bw0KYSBwb3J0IGJlaW5nIGxvY2tlZD8gQWZ0ZXIgYWxsIHRoZSBwb3J0IGJlaW5n
+IGxvY2tlZCBpbiBoYXJkd2FyZSBpcw0Kd2hhdCBnZW5lcmF0ZXMgdGhpcyBldmVudC4NCg==
