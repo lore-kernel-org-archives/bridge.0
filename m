@@ -1,63 +1,63 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33B5F156C7B
-	for <bridge@lists.linux.dev>; Sun, 24 Nov 2024 21:57:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0C29148300
+	for <bridge@lists.linux.dev>; Sun, 24 Nov 2024 22:01:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732485442; cv=none; b=A93Km6qYg6NQ0dHEBhPT78YBGaK7tvIukGUaF8nbesVkSN3Wb4aoOuBF8ROln6OC8puzlMxUDiMCR1ANvfrnmsg1t+Pf2D7aMDU8mW46BXk/xz4NezNmFC/dc6lTpW5yoPbXV1+X71KhmB3e61eaEZRrW+8i4oQ1E5Sepft9mzg=
+	t=1732485676; cv=none; b=m/CJI0YRqgPYCWEs5q2dqjqGVzj0yjHWYuTMYM+K/Hxna2KzQyEkDYx65DEhpR28QY3JgkozTIp35bGHKq5X4S/QcRzQtuKBX0Kw4n7KdvaIrLhhy0SaW+pnCz1K81nAnKlwg97/XGCGZ+N+EqvJLYnBptmp9DgIPn16AM0Emdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732485442; c=relaxed/simple;
-	bh=NpHCbf62av9/PPK7BaTpxt0lk/75DwEWPCY/Tnu2xKE=;
+	s=arc-20240116; t=1732485676; c=relaxed/simple;
+	bh=B6ZExtlrWDpdVkh4NrErlj5TWXl10njXAk3D3IVXvjY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dWMkyE4LGUmnNlbwx8G8cxniW1CoimWOecVt0F0LGh4Dl/A6R3Y+IOkggrv9eE5RSfim2KCmr1RR08JX2V2jiPUdoupo4JIEVtri+JP+MnEzPSUg5Dc4X2K/9UP9izdsD9O6c9KegVxo5tt6YBWZbVDl3pSNubnCj5CTpqDTcb8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=NuKbW7oo; arc=none smtp.client-ip=209.85.221.46
+	 In-Reply-To:Content-Type; b=DFu8mUtoMYSqmD7EpvvlzQW0zBdyq5LnlA6cBLnRiM0xHNKla9QzUhTHFM4pCXjbC2vBW+rEUMXH67f0GDnajTJu9kRdJahyAUix5EkAocJFirf5cnOvKnPJV7X3bS6V1r7aNjmFVUmUhImLq44Gfp0d6jbv+RldZd7fIrBCihM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=2zUAWzy9; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="NuKbW7oo"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-382411ea5eeso2090857f8f.0
-        for <bridge@lists.linux.dev>; Sun, 24 Nov 2024 13:57:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="2zUAWzy9"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-431695fa98bso32269985e9.3
+        for <bridge@lists.linux.dev>; Sun, 24 Nov 2024 14:01:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1732485439; x=1733090239; darn=lists.linux.dev;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1732485673; x=1733090473; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=Y5yrXMRtai5EAywu8wJpj+bkyRvZoed7ZFVKBNaw1x8=;
-        b=NuKbW7ooQA+t5G3CEcniXrolyJ8lrL7r7ChxkhRHGFGbYnJf+SuuV6SKoPD7x554c1
-         5y+iN2yAd7DeSVRwPgMEB+qeUtAeppJx5IIjvICnfnbx7GdpHMKjnHI7xlq0rP5bHIfM
-         vVUK/zZBAJzAMmH+bofgvvkSejxfV3K75pUcwxSsqxuLxcLUgeX1DP6JXq+yekmUFEQw
-         F8VjD2VDClEBjF9lj8Kko99J0HF31zg/lSva688rjWtRpTPmKsZhs/RNf9Kq8GCXH7Hj
-         RLIvv9hS9kWZvYygLfQG2Duo7nYvN86QLQAqUNH9mFxom+tXTjx3LFWZkKjEi/ypzCgf
-         Pn6w==
+        bh=WO0cvhOCCYEcMHo4t/kUcC7+MddOiWfvg8yPqnsazn4=;
+        b=2zUAWzy9/aMOIo2eGKxjZDAb/znSRcvRmdnx0anOW9Yr6H9kM089j3HSOnK24ZOhsz
+         v8VgC05cP9IF+bl71uTx9mv8OFK7V/rg8Tq+v1lIAF7eFEEvppp1GdleHICKCRi6JZmd
+         PfGjSYOXYhjuMnk+Lsj/5ImYfk3NBcLIJF5VbT3z7LMRGurccwqL3lTF+Fnhi1X+MJaR
+         gbTy+QtACYRslPX9fO7N14+hppjJ6crUUnVbP5KG91ChKnZWqkGAGxGQ3NSduqCvDtln
+         GU9nROJaphwB7/tl3EiaWrlp4SG02s9V7H6Js5DkDUbKLAsBsH4GlOVOP6K9jdqApt88
+         NTAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732485439; x=1733090239;
+        d=1e100.net; s=20230601; t=1732485673; x=1733090473;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y5yrXMRtai5EAywu8wJpj+bkyRvZoed7ZFVKBNaw1x8=;
-        b=FfGFW1AKydtPcTLl65QefBV0PW9QF3inw8/XZAJInXcO8Z2gqiNro540LEEGiYySVd
-         FhO5NarkpJasv1JTVGgBhKebwCiWeqVa1g4BJC/1R3+ZeIwqn5ZaTf8tyJLDa1PhKlbh
-         +K4u1YP9TUwLOZJjjznwxl/yJ6heAR0i8cZaVrkvm42A0eOZTO9lIKC4Ybbp9C1Hxuld
-         OJ7QWJPJK6f0K8V+4aBMinpgIyFYMiO6bNdxQTjlMRJlS+02BTEE9O24gGyAnGhrXs8O
-         AslKH5Ryv9PTFvFOslGF04h9sUBeNw8/7Z+esErtONHHB5F4B321nI0OFaGZ5D37sJVk
-         G5FQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUa2XVfAzzQ/LLTO1+eGJ+/nq/KP5ISVlaxvnED3lmX2iTLzrrAXSOmgbJDyx2cWTpk0Fzgslw=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzCec7SqG8PfTmGSC/JE+23gugS+4uakIRGU7OLV7oSn6fz+LP
-	IkA276ym+ySD8M5yPuA07g+JjMBjHbzlZrkft5YFm/mlJhIx17LBt3/bnFDyii8=
-X-Gm-Gg: ASbGncswy0D49awwCBNPklM552tUY6JreSjpBAPUeojA70Ti/boVOqWtRjJ1/SpHNuf
-	zDzGl658T1tyWEofktBEOm89qsM0zsjXfpwbuiO0XR5SHRoGztyY05BiyIClDHnwnGhNIGEpaES
-	UFjZSpGu8X/1jg3w8zISWC/AETODhjHRMSUhnyubkwgdfd3Nr4MptovcbAzVqjounwhg/KqDcJw
-	jigIvs2D761T5XEByf10d71zVIxqQI+jYCbGsFkYP3ngW4nxUkA
-X-Google-Smtp-Source: AGHT+IGMAOqJMIhmfSxPxSLsMr48gcoyUhLJuaGrSWiRPA3cEqIM0EpifqKQyZ89S0Tan5CyBkK6Tw==
-X-Received: by 2002:a5d:6f1d:0:b0:382:49c0:131a with SMTP id ffacd0b85a97d-38259cb7f74mr12568969f8f.1.1732485439448;
-        Sun, 24 Nov 2024 13:57:19 -0800 (PST)
+        bh=WO0cvhOCCYEcMHo4t/kUcC7+MddOiWfvg8yPqnsazn4=;
+        b=ZMEdt1nRviOfm2OzFbChrrMbKe1JM8swutlTXh5wz7Ro9sWaj+2jIZbbFBQNaxQTjR
+         JvZm+1LSw9stv0ypKpymgt+l7ihHqAlWjRlC+rlQMnlEG4ZvKjei84marlamxeIbQ1DQ
+         0M+geV1dET+BuEEZy/feph0+QU8ZMp1m4W9l3zxcd7TziP/fjNiyMnhVfWFJkgs6zS7c
+         3vAN+FQrFMNa3a1sXxgTQfDiJuHIjQmg3d8ylsqvd8u0P5RpRibcFRGhdhkq6+mLxAPV
+         Nc9ZlqgjUclgs91UHCQ8lLl6R1KzlLy+v8RDPYq48884N6gFuFyIY1Ta6qAzxxEImuSA
+         BbDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU1bXRGErqlLTUwPgKGp0TLtztnM3tRIXOnYpCA5oQ5iz9VLxgfmtu9HqpZ6AEYfgv3daZb7gA=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyL4/0eiiZwrKUae10d3O7bzxlT0wCUEoTOwZJotTkPRepbm6sc
+	//wxJkm1BCZY0bB9ikfjkizjGAhVmi7k0kLFikwX+tQjNbZlnoNo/zei1nygBzU=
+X-Gm-Gg: ASbGncsawHtrS663Vsf0eoiKZUqroZbM34nEF+YTYbbj0GyAuObiZagoBcXGwXketAc
+	ZgnnzFUwzf1e5pVVJsjsPBSth3/hbuDGDbCy7WBQDOe1sm/XmAeuzqAVeIWOU8Wb30PXnj5KQGH
+	2mt3dEUIvYFYjtpst14OvNIb8qx3W+wDo1QVTVXNJOf6PSCCQt8ko+VIAUOUaNI5tokHcgD4/mG
+	GpcXRCEvfp3Nmn47s0Zg1CKz/fQzDXQhRiZFYAmQxehHJHjYEtS
+X-Google-Smtp-Source: AGHT+IEUmJWNVT/yCHIU4DpWfoBtu4D/gDbWjN7B8ekkI1xXmQ3BxXPpdtKlYrC7+KrVS7KrV9+AEw==
+X-Received: by 2002:a5d:64a1:0:b0:382:5aae:87c7 with SMTP id ffacd0b85a97d-38260b89369mr8791101f8f.31.1732485673204;
+        Sun, 24 Nov 2024 14:01:13 -0800 (PST)
 Received: from [192.168.0.245] ([62.73.69.208])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3825fad5fa2sm8876697f8f.1.2024.11.24.13.57.18
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-433cde0db3csm105665385e9.10.2024.11.24.14.01.12
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 24 Nov 2024 13:57:18 -0800 (PST)
-Message-ID: <c09bb2f0-2aff-4dc4-bf9b-53f97fd2d878@blackwall.org>
-Date: Sun, 24 Nov 2024 23:57:17 +0200
+        Sun, 24 Nov 2024 14:01:12 -0800 (PST)
+Message-ID: <87d8a49c-41e3-4b18-9ada-cb64fa66fe9b@blackwall.org>
+Date: Mon, 25 Nov 2024 00:01:11 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -65,8 +65,8 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC net-next (resend) 2/4] net: bridge: send notification for
- roaming hosts
+Subject: Re: [RFC net-next (resend) 1/4] net: bridge: respect sticky flag on
+ external learn
 To: Elliot Ayrey <Elliot.Ayrey@alliedtelesis.co.nz>,
  "andrew@lunn.ch" <andrew@lunn.ch>, "olteanv@gmail.com" <olteanv@gmail.com>,
  "davem@davemloft.net" <davem@davemloft.net>,
@@ -78,43 +78,31 @@ Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  "bridge@lists.linux.dev" <bridge@lists.linux.dev>
 References: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
- <20241108035546.2055996-3-elliot.ayrey@alliedtelesis.co.nz>
- <e562704277f5d64a37ea67789b8e7d13d2cb12a4.camel@alliedtelesis.co.nz>
+ <20241108035546.2055996-2-elliot.ayrey@alliedtelesis.co.nz>
+ <f2ac33e7b8ec0fefa48fe7cd3b1004abab67dcb1.camel@alliedtelesis.co.nz>
 Content-Language: en-US
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <e562704277f5d64a37ea67789b8e7d13d2cb12a4.camel@alliedtelesis.co.nz>
+In-Reply-To: <f2ac33e7b8ec0fefa48fe7cd3b1004abab67dcb1.camel@alliedtelesis.co.nz>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 24/11/2024 23:23, Elliot Ayrey wrote:
-> On Sat, 2024-11-09 at 15:40 +0200, Nikolay Aleksandrov wrote:
->> No way, this is ridiculous. Changing the port like that for a notification is not
->> ok at all. It is also not the bridge's job to notify user-space for sticky fdbs
->> that are trying to roam, you already have some user-space app and you can catch
->> such fdbs by other means (sniffing, ebpf hooks, netfilter matching etc). Such
->> change can also lead to DDoS attacks with many notifications.
+On 24/11/2024 23:01, Elliot Ayrey wrote:
+> On Sat, 2024-11-09 at 15:32 +0200, Nikolay Aleksandrov wrote:
+>> So you have a sticky fdb entry added, but it is still allowed to roam
+>> in HW?
 > 
-> Unfortunately in this case the only indication we get from the hardware of this
-> event happening is a switchdev notification to the bridge. All traffic is dropped
-> in hardware when the port is in this mode so the methods you suggest will not work.
+> No the hardware has informed us a host has _tried_ to roam.
 > 
+> As I think about this more, using the sticky bit alone probably isn't
+> the best idea and it might be better if this mechanism were related to
+> a port being locked? After all the port being locked in hardware is
+> what generates this event.
 
-I see
-
-> I have changed my implementation to use Andrew's suggestion of using a new attribute
-> rather than messing with the port. But would this also be more appropriate if the
-> notification was only triggered when receiving the event from hardware? If not
-> then do you have any suggestions for getting these kinds of events from hardware
-> to userspace without going through the bridge?
-> 
-> 
-
-We want to have the same behaviour (or as close as possible) between sw and hw.
-Since this can cause many notifications to be sent up for current setups, maybe
-make it optional so we'll get notifications for roam attempts only when we
-explicitly enable them, with default off. You can look into bridge's bool options
-for this (e.g. link-local fdb learning option).
-
+That does sound better, but we should have the same functionality
+in software as well. Perhaps optional to avoid potential flood of
+current users with unexpected notifications, see my response to
+the other mail for more info.
 
 Cheers,
  Nik
+
