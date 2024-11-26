@@ -1,108 +1,107 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0C29148300
-	for <bridge@lists.linux.dev>; Sun, 24 Nov 2024 22:01:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A169138C
+	for <bridge@lists.linux-foundation.org>; Tue, 26 Nov 2024 02:24:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732485676; cv=none; b=m/CJI0YRqgPYCWEs5q2dqjqGVzj0yjHWYuTMYM+K/Hxna2KzQyEkDYx65DEhpR28QY3JgkozTIp35bGHKq5X4S/QcRzQtuKBX0Kw4n7KdvaIrLhhy0SaW+pnCz1K81nAnKlwg97/XGCGZ+N+EqvJLYnBptmp9DgIPn16AM0Emdk=
+	t=1732587857; cv=none; b=D1XLmYa/NqgAwE1CqhgQoPsNvekRQoDsxbKacg6pIRfVNQC4O517OcHVLSz/S0Eypo1VsO7tpImryTJDpr9ls6juGf5xXR2jyOpODv61HQ5ElEkJ8c6uwbuONo6OZ9lML232Ee0ATK7gXtv0C/5bKRCxOW30RP5NN+fI5qiOSdg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732485676; c=relaxed/simple;
-	bh=B6ZExtlrWDpdVkh4NrErlj5TWXl10njXAk3D3IVXvjY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DFu8mUtoMYSqmD7EpvvlzQW0zBdyq5LnlA6cBLnRiM0xHNKla9QzUhTHFM4pCXjbC2vBW+rEUMXH67f0GDnajTJu9kRdJahyAUix5EkAocJFirf5cnOvKnPJV7X3bS6V1r7aNjmFVUmUhImLq44Gfp0d6jbv+RldZd7fIrBCihM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=2zUAWzy9; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="2zUAWzy9"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-431695fa98bso32269985e9.3
-        for <bridge@lists.linux.dev>; Sun, 24 Nov 2024 14:01:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1732485673; x=1733090473; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WO0cvhOCCYEcMHo4t/kUcC7+MddOiWfvg8yPqnsazn4=;
-        b=2zUAWzy9/aMOIo2eGKxjZDAb/znSRcvRmdnx0anOW9Yr6H9kM089j3HSOnK24ZOhsz
-         v8VgC05cP9IF+bl71uTx9mv8OFK7V/rg8Tq+v1lIAF7eFEEvppp1GdleHICKCRi6JZmd
-         PfGjSYOXYhjuMnk+Lsj/5ImYfk3NBcLIJF5VbT3z7LMRGurccwqL3lTF+Fnhi1X+MJaR
-         gbTy+QtACYRslPX9fO7N14+hppjJ6crUUnVbP5KG91ChKnZWqkGAGxGQ3NSduqCvDtln
-         GU9nROJaphwB7/tl3EiaWrlp4SG02s9V7H6Js5DkDUbKLAsBsH4GlOVOP6K9jdqApt88
-         NTAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732485673; x=1733090473;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=WO0cvhOCCYEcMHo4t/kUcC7+MddOiWfvg8yPqnsazn4=;
-        b=ZMEdt1nRviOfm2OzFbChrrMbKe1JM8swutlTXh5wz7Ro9sWaj+2jIZbbFBQNaxQTjR
-         JvZm+1LSw9stv0ypKpymgt+l7ihHqAlWjRlC+rlQMnlEG4ZvKjei84marlamxeIbQ1DQ
-         0M+geV1dET+BuEEZy/feph0+QU8ZMp1m4W9l3zxcd7TziP/fjNiyMnhVfWFJkgs6zS7c
-         3vAN+FQrFMNa3a1sXxgTQfDiJuHIjQmg3d8ylsqvd8u0P5RpRibcFRGhdhkq6+mLxAPV
-         Nc9ZlqgjUclgs91UHCQ8lLl6R1KzlLy+v8RDPYq48884N6gFuFyIY1Ta6qAzxxEImuSA
-         BbDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU1bXRGErqlLTUwPgKGp0TLtztnM3tRIXOnYpCA5oQ5iz9VLxgfmtu9HqpZ6AEYfgv3daZb7gA=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyL4/0eiiZwrKUae10d3O7bzxlT0wCUEoTOwZJotTkPRepbm6sc
-	//wxJkm1BCZY0bB9ikfjkizjGAhVmi7k0kLFikwX+tQjNbZlnoNo/zei1nygBzU=
-X-Gm-Gg: ASbGncsawHtrS663Vsf0eoiKZUqroZbM34nEF+YTYbbj0GyAuObiZagoBcXGwXketAc
-	ZgnnzFUwzf1e5pVVJsjsPBSth3/hbuDGDbCy7WBQDOe1sm/XmAeuzqAVeIWOU8Wb30PXnj5KQGH
-	2mt3dEUIvYFYjtpst14OvNIb8qx3W+wDo1QVTVXNJOf6PSCCQt8ko+VIAUOUaNI5tokHcgD4/mG
-	GpcXRCEvfp3Nmn47s0Zg1CKz/fQzDXQhRiZFYAmQxehHJHjYEtS
-X-Google-Smtp-Source: AGHT+IEUmJWNVT/yCHIU4DpWfoBtu4D/gDbWjN7B8ekkI1xXmQ3BxXPpdtKlYrC7+KrVS7KrV9+AEw==
-X-Received: by 2002:a5d:64a1:0:b0:382:5aae:87c7 with SMTP id ffacd0b85a97d-38260b89369mr8791101f8f.31.1732485673204;
-        Sun, 24 Nov 2024 14:01:13 -0800 (PST)
-Received: from [192.168.0.245] ([62.73.69.208])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-433cde0db3csm105665385e9.10.2024.11.24.14.01.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 24 Nov 2024 14:01:12 -0800 (PST)
-Message-ID: <87d8a49c-41e3-4b18-9ada-cb64fa66fe9b@blackwall.org>
-Date: Mon, 25 Nov 2024 00:01:11 +0200
+	s=arc-20240116; t=1732587857; c=relaxed/simple;
+	bh=dqn+22mLMBFKN19NER36d/kkeWRSefiSGaWLiUbesh8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=gOzdFFcEvTZLp6lTHBVtVPLLvLfbbLVeHh8nk2TEg7KqNd0LipehEYiRhk25St4GhnzmUvv44YhyPtZxGWgFEmmhGA3VyF5ZFkjKZPUtopLe9CuHbBzC/KUjvTth6czTJ/3vlYSMlE6ratlHyEG2ICLys0OffO6FG5LtiC4IBEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id EB69485058
+	for <bridge@lists.linux-foundation.org>; Tue, 26 Nov 2024 02:24:13 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.19
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ZH4VP7mcuOZV for <bridge@lists.linux-foundation.org>;
+ Tue, 26 Nov 2024 02:24:13 +0000 (UTC)
+X-Greylist: delayed 306 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 26 Nov 2024 02:24:11 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org CAF1A85050
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CAF1A85050
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=124.126.103.232; helo=mailgw.kylinos.cn; envelope-from=heminhong@kylinos.cn; receiver=<UNKNOWN> 
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CAF1A85050
+	for <bridge@lists.linux-foundation.org>; Tue, 26 Nov 2024 02:24:11 +0000 (UTC)
+X-UUID: c808083eab9c11efa216b1d71e6e1362-20241126
+X-CTIC-Tags:
+	HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NO_NAME, HR_CTE_8B, HR_CTT_MISS
+	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_DIGIT_LEN
+	HR_SJ_LANG, HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE
+	HR_SJ_PHRASE_LEN, HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NO_NAME
+	IP_TRUSTED, SRC_TRUSTED, DN_TRUSTED, SA_UNTRUSTED, SA_LOWREP
+	SA_EXISTED, SN_UNTRUSTED, SN_LOWREP, SN_EXISTED, SPF_NOPASS
+	DKIM_NOPASS, DMARC_NOPASS, CIE_BAD, CIE_GOOD_SPF, GTI_FG_BS
+	GTI_RG_INFO, GTI_C_BU, AMN_GOOD, ABX_MISS_RDNS
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.38,REQID:d5ae44ce-c823-48a7-af27-e769f57a09f7,IP:10,
+	URL:0,TC:0,Content:-5,EDM:25,RT:0,SF:3,FILE:0,BULK:0,RULE:Release_Ham,ACTI
+	ON:release,TS:33
+X-CID-INFO: VERSION:1.1.38,REQID:d5ae44ce-c823-48a7-af27-e769f57a09f7,IP:10,UR
+	L:0,TC:0,Content:-5,EDM:25,RT:0,SF:3,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:33
+X-CID-META: VersionHash:82c5f88,CLOUDID:d4c66fa315b9db6f1c8ddd0e86fb86ed,BulkI
+	D:2411261018554LEOE9NK,BulkQuantity:0,Recheck:0,SF:19|25|43|66|72|74|81|82
+	|100|101|102,TC:nil,Content:0,EDM:5,IP:-2,URL:0,File:nil,RT:nil,Bulk:nil,Q
+	S:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
+X-CID-BVR: 0,NGT
+X-CID-BAS: 0,NGT,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI
+X-UUID: c808083eab9c11efa216b1d71e6e1362-20241126
+X-User: heminhong@kylinos.cn
+Received: from localhost.localdomain [(116.128.244.169)] by mailgw.kylinos.cn
+	(envelope-from <heminhong@kylinos.cn>)
+	(Generic MTA)
+	with ESMTP id 1881880197; Tue, 26 Nov 2024 10:18:53 +0800
+From: Minhong He <heminhong@kylinos.cn>
+To: razor@blackwall.org
+Cc: heminhong@kylinos.cn,
+	netdev@vger.kernel.org,
+	stephen@networkplumber.org,
+	roopa@nvidia.com,
+	bridge@lists.linux-foundation.org
+Subject: [PATCH iproute2 v2] bridge: fix memory leak in error path
+Date: Tue, 26 Nov 2024 10:18:19 +0800
+Message-Id: <20241126021819.18663-1-heminhong@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <385b4ead-8d43-4845-ac66-4218b285be32@blackwall.org>
+References: <385b4ead-8d43-4845-ac66-4218b285be32@blackwall.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC net-next (resend) 1/4] net: bridge: respect sticky flag on
- external learn
-To: Elliot Ayrey <Elliot.Ayrey@alliedtelesis.co.nz>,
- "andrew@lunn.ch" <andrew@lunn.ch>, "olteanv@gmail.com" <olteanv@gmail.com>,
- "davem@davemloft.net" <davem@davemloft.net>,
- "pabeni@redhat.com" <pabeni@redhat.com>, "roopa@nvidia.com"
- <roopa@nvidia.com>, "edumazet@google.com" <edumazet@google.com>,
- "f.fainelli@gmail.com" <f.fainelli@gmail.com>,
- "horms@kernel.org" <horms@kernel.org>, "kuba@kernel.org" <kuba@kernel.org>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "bridge@lists.linux.dev" <bridge@lists.linux.dev>
-References: <20241108035546.2055996-1-elliot.ayrey@alliedtelesis.co.nz>
- <20241108035546.2055996-2-elliot.ayrey@alliedtelesis.co.nz>
- <f2ac33e7b8ec0fefa48fe7cd3b1004abab67dcb1.camel@alliedtelesis.co.nz>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <f2ac33e7b8ec0fefa48fe7cd3b1004abab67dcb1.camel@alliedtelesis.co.nz>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 24/11/2024 23:01, Elliot Ayrey wrote:
-> On Sat, 2024-11-09 at 15:32 +0200, Nikolay Aleksandrov wrote:
->> So you have a sticky fdb entry added, but it is still allowed to roam
->> in HW?
-> 
-> No the hardware has informed us a host has _tried_ to roam.
-> 
-> As I think about this more, using the sticky bit alone probably isn't
-> the best idea and it might be better if this mechanism were related to
-> a port being locked? After all the port being locked in hardware is
-> what generates this event.
+The 'json' object doesn't free when 'rtnl_dump_filter()' fails to process,
+fix it.
 
-That does sound better, but we should have the same functionality
-in software as well. Perhaps optional to avoid potential flood of
-current users with unexpected notifications, see my response to
-the other mail for more info.
+Signed-off-by: Minhong He <heminhong@kylinos.cn>
+---
+ bridge/mst.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Cheers,
- Nik
+diff --git a/bridge/mst.c b/bridge/mst.c
+index 32f64aba..37362c45 100644
+--- a/bridge/mst.c
++++ b/bridge/mst.c
+@@ -153,6 +153,7 @@ static int mst_show(int argc, char **argv)
+ 
+ 	if (rtnl_dump_filter(&rth, print_msts, stdout) < 0) {
+ 		fprintf(stderr, "Dump terminated\n");
++		delete_json_obj();
+ 		return -1;
+ 	}
+ 
+-- 
+2.25.1
 
