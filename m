@@ -1,56 +1,64 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669A02F2E;
-	Sat, 30 Nov 2024 05:48:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 020F64436E
+	for <bridge@lists.linux.dev>; Sat, 30 Nov 2024 16:04:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732945714; cv=none; b=ZT6e1xDVSigdNfAmTlxxmxrX50G4D2x1P7wx7dhu/TDLkaxRi+LMWKIoc2w/UrtFeB5KZYEpfqA44uzL/hNY3Qi4ROJ8odTLvLC10zY1FGZ8BWBjUU8v4A4D/yXmIH1kR2CJ/2bFyRPBL75b4qWxNPSeDD6vLGRXRHDYKytDFWM=
+	t=1732982697; cv=none; b=NhDQ7D1t3ciQDsX0TVnqixtUsELIFhGPSE5KdQYA7vH8EziStziHZjyJSmAILCOYUEttnYk1S+F/fjTwiJmREMCZOi7yTBUZJo8c7/TkNLJ9fUiqu2uYE1zmtorSGV8dTfKBM02nCEexw2yDsnupXDczIFTLta6tsxNkRzLvhig=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732945714; c=relaxed/simple;
-	bh=drGWNSrEydr7H0DEuuYjrcKDU4y0qKHm3EoNDN1Dzqw=;
+	s=arc-20240116; t=1732982697; c=relaxed/simple;
+	bh=Ib0eMIHq4Tud5T3QYMT+FKlg8p3RZjvIuyuFfrCD4Yg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a6ewGMwTdRAetodVUQPaXq3dCY5L+z0D1ggx3iXU7xzhuGNS0Y+owIc2B/KCmGJg5UuGzw/6e21tHvBB65ss0JnbuWOCUYhZd5Pl0P9SzhVVhjz+7KafzEatHo7NMJl8Surp9eijEOfUo988aZdqvaGQorzP+MUHEOIXT8FtUuo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HvoZvbZC; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=eGL+5LF5f/1Afc2PuB+1F6Kx8dv88EXdSvBapmgt8ZNwKOZWsXiA2ZuwSD9a/TgvRa87a0dnl+gl97QlZj8RnYsyCRudsDw+dqZGmyKxivi6E4ofXGDLa5STBhenHRUqWtkfVGmxEwMOsmzzxetQyK8epPTjr6JNVIcIlr+W/K4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=mMhdEdHj; arc=none smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HvoZvbZC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1732945713; x=1764481713;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=drGWNSrEydr7H0DEuuYjrcKDU4y0qKHm3EoNDN1Dzqw=;
-  b=HvoZvbZCl8s4qDos2os+HS6EQMOEhYfTpuxSY2VrDhj/7Yvi3vrP8hgZ
-   9GyxHqM7jaOPwytP1imEy3swN0TUTkF0r1BWcmLO3kBCbk+lRJh2EXiZt
-   hJi4JlV36zQK7g7xt0PfWf1Ck/DG/ZL/HlZ0ncThiQx5rw4pc+frscpTj
-   YYg4RnEYNIbhFCWZzAg05ALxbifcTR6gbHAI9x6Gi9jbOgtCiqTHK1Cdx
-   BFRaO4oheViuEzMy+LvhvsKlTXHQGji7r+ush427+RCzbjDVI5GUX5WAQ
-   ftcmmYKCLo+OrmO4/QHPZsJCRCk/oQLT1WVlYjlS+sWcH9VA9IYED35Ce
-   A==;
-X-CSE-ConnectionGUID: lKjcFH7LRcCvgY9ONwgHXA==
-X-CSE-MsgGUID: A3RZ/0FDSbaFcCj3RYupYA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11271"; a="33299901"
-X-IronPort-AV: E=Sophos;i="6.12,197,1728975600"; 
-   d="scan'208";a="33299901"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2024 21:48:32 -0800
-X-CSE-ConnectionGUID: FXvhDrQBTAu3VqVCqlvLPw==
-X-CSE-MsgGUID: B/pukYGWRnKC5J2rNJpL+Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,197,1728975600"; 
-   d="scan'208";a="92804226"
-Received: from lkp-server02.sh.intel.com (HELO 36a1563c48ff) ([10.239.97.151])
-  by fmviesa008.fm.intel.com with ESMTP; 29 Nov 2024 21:48:26 -0800
-Received: from kbuild by 36a1563c48ff with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tHGL9-00007T-1A;
-	Sat, 30 Nov 2024 05:48:23 +0000
-Date: Sat, 30 Nov 2024 13:47:38 +0800
-From: kernel test robot <lkp@intel.com>
-To: Andy Strohman <andrew@andrewstrohman.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="mMhdEdHj"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-53df1d1b726so3262046e87.0
+        for <bridge@lists.linux.dev>; Sat, 30 Nov 2024 08:04:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1732982694; x=1733587494; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=CU8Ha8lvwzrUL3wklZxNnby9TbqM0AQPddb/sVDz+Hg=;
+        b=mMhdEdHjID0sLq7ZB4foVQwZgc+61JyMn8QfYmX1GvuYFWhouvKHPl/SA8u0gnW+Iw
+         JVTXPe1+oClikgyXVOSFnKWpXIG0le1WYFpPxp5SpDG6edGp5oI5F6nnTRyJ3+k4vMYF
+         LhTFij5kFgGNtH8gjIvJb7In9G3gkFLy38HcTLGqg91zksPuUbgoPYCCn5G05azZTGoN
+         Idyjnlr58+kj9yp6wZEG6kv+GrA1egSOSrzxkadK/cY5g5TN8jqwEWMir1jlEsWzlua+
+         c7KX6efU6xvEVh1UPt3XHBMN6Hev6U/D/FPGqLVqJijt0wciCztkq55pVImcr73MzbcF
+         imZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1732982694; x=1733587494;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CU8Ha8lvwzrUL3wklZxNnby9TbqM0AQPddb/sVDz+Hg=;
+        b=Q9DV4p+l9eHaYxPPQHkLSVe9ebCpmFkBF+kX/9LpiyqwW/+UUZG0VVf6shLIUfsthe
+         tQTRLx20+5tLZihQSWQSJl8tLr5320rk2cjph990IAG7A/g0vQhkHisC9IkMLopygkRN
+         dI7mGhHhlqqEw+rBi1wmmO2xVEC9GCS2b9g6f1Whpxc3HanVFBSpVO8P+9G8Mo/FFLEa
+         8I137K2hDbeFzoacnIpLwQlKLo+VUMk2I60fZcT+1mb7jtbwrVfzc8q+MG0FV0eNfZXd
+         L9ETp7p2F8Q/LZ3oKyutCqu4IahhnmWoyNxcszDXuyynxyv6XlslipYzqk8Nbn975YvY
+         fLqA==
+X-Forwarded-Encrypted: i=1; AJvYcCWDCz4g66dkTF7t/9bM7OhxeBNorLb/M4AnakdztjBJQNFFJ6MuQxXJQ3/n0f/9nnW1kZakbJA=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFp2EuU0MZHw73DjrjpwuA+BrDWRoNgDK1epbd5y4LComU1Rdk
+	Et4wC2l+WdGT8/fBl+tjKYccSPBFmBhlI4QLoQZndrlOaysDzt/UqpKEcPuh8nk=
+X-Gm-Gg: ASbGncuBfnK2T+rkNngvXuYL/QwM8vQcIYtV/fJwH82LgTfg+gbcfoArl/rSizbHNAp
+	y2O0/AkkQD621FDk9v+n+AOaFwp/MRkJEY7amneaut0PfIoy2pf5StI7QMH7wmTIl4HYKRXoPjP
+	2ShaQpNFf7Ypr0LO/rpVrgjyoQ8JkZgI7XkpBYGCsXJMXzmQ52OUTbOZoHeGWf/8y9jOdckuTYX
+	mYdUzyZ2dsbFHbECTxg6JbcqsC49n1/Dc8gGB8BvFstF4o=
+X-Google-Smtp-Source: AGHT+IHL4oeMU03kLmQ2L0BR3qVJKTiAVIsSPE3HICpdb/3DuaV9c9TIe/hHbGxSndbZ9+FTqZL6rQ==
+X-Received: by 2002:a05:6512:3990:b0:53d:eefc:2b48 with SMTP id 2adb3069b0e04-53df00dc9bamr8384254e87.33.1732982694015;
+        Sat, 30 Nov 2024 08:04:54 -0800 (PST)
+Received: from localhost ([217.199.122.82])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-53df646f2adsm808857e87.114.2024.11.30.08.04.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 30 Nov 2024 08:04:53 -0800 (PST)
+Date: Sat, 30 Nov 2024 18:04:52 +0200
+From: Nikolay Aleksandrov <razor@blackwall.org>
+To: Andy Strohman <andrew@andrewstrohman.com>
+Cc: Tony Nguyen <anthony.l.nguyen@intel.com>,
 	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
 	Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
@@ -66,15 +74,12 @@ To: Andy Strohman <andrew@andrewstrohman.com>,
 	Steven Rostedt <rostedt@goodmis.org>,
 	Masami Hiramatsu <mhiramat@kernel.org>,
 	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>
-Cc: oe-kbuild-all@lists.linux.dev, netdev@vger.kernel.org,
-	Andy Strohman <andrew@andrewstrohman.com>,
-	intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org,
+	Roopa Prabhu <roopa@nvidia.com>, intel-wired-lan@lists.osuosl.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-trace-kernel@vger.kernel.org, bridge@lists.linux.dev
 Subject: Re: [PATCH net-next] bridge: Make the FDB consider inner tag for
  Q-in-Q
-Message-ID: <202411301325.5uGYbi6q-lkp@intel.com>
+Message-ID: <Z0s3pDGGE0zXq0UE@penguin>
 References: <20241130000802.2822146-1-andrew@andrewstrohman.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -86,88 +91,118 @@ Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20241130000802.2822146-1-andrew@andrewstrohman.com>
 
-Hi Andy,
+On Sat, Nov 30, 2024 at 12:07:57AM +0000, Andy Strohman wrote:
+> 802.1q networks with IVL (independent VLAN learning) can
+> tolerate duplicate MACs as long as the duplicates
+> reside in different VLANs. Similarly, IVL networks
+> allow for L2 hairpining where different VLANs are
+> used for each side of the hairpin in order to not
+> confuse the intermediate bridge's FDBs.
+> 
+> When these types of networks are inter-connected
+> using 802.1ad or Q-in-Q, only the outer VLAN tag is
+> considered by the 802.1ad bridge during FDB lookup.
+> 
+> While traffic segregation by inner and outer VID works as
+> expected, the inner VLAN's independent VLAN learning can
+> be defeated.
+> 
+> The following example describes the issue in terms of
+> duplicate MACS in different VLANs. But, the same concept
+> described in this example also applies L2 hairpining via
+> different VLANs.
+> 
+>                  _______________________
+>                 |  .1ad bridge          |
+> 	        |_______________________|
+>            PVID3|      PVID3|      PVID3|
+>                 |           |           |
+> TAGGED:        7|          8|          8|
+>             ____|____  _____|___   _____|___
+>            | .1q br 1| |.1q br 2|  |.1q br 3|
+>            |_________| |________|  |________|
+>          PVID7 |      PVID8 |      PVID8|
+>              HOST A       HOST B      HOST C
+> 
+> The above diagram depicts a .1ad bridge that has "pvid 3
+> untagged" configured for every member port. These member ports are
+> connected to .1q bridges, named 1, 2 and 3. .1q br 1 allows VID 7 tagged
+> on its port facing the .1ad bridge. .1q bridge 2 and 3 allow
+> VID 8 tagged on their ports that face the .1ad bridge. Host A
+> is connected to .1q br 1 via a port that is configured as "pvid 7
+> untagged". Host B and C are connected to bridges via ports
+> configured as "pvid 8 untagged".
+> 
+> Prior to this change, if host A has the same (duplicate) MAC
+> address as host B, this can disrupt communication between
+> host B and host C. This happens because the .1ad bridge
+> will see the duplicate MAC behind two of its ports
+> within the same VID (3). It's not examining the inner VLAN to
+> know that the hosts are actually reside within in different
+> L2 segments.
+> 
+> With this change, the .1ad bridge uses both the inner and outer VID
+> when looking up the FDB. With this technique, host B and C are
+> able to communicate without disruptions due to the duplicate MAC
+> assigned to host A.
+> 
+> Here is an example FDB dump on a .1ad bridge that is configured like
+> the above diagram:
+> 
+> root@OpenWrt:~# bridge fdb show dynamic
+> f4:a4:54:80:93:2f dev lan3 vlan 3 inner vlan 8 master br-lan
+> f4:a4:54:81:7a:90 dev lan1 vlan 3 inner vlan 7 master br-lan
+> f4:a4:54:81:7a:90 dev lan2 vlan 3 inner vlan 8 master br-lan
+> 
+> Note how duplicate MAC f4:a4:54:81:7a:90 is behind both lan1 and
+> lan2. This FDB dump shows two entries with the same MAC and
+> the same 802.1ad VLAN, 3. Prior to this change, only one fdb entry
+> per MAC/VID would be possible. As such, the bridge would have
+> issues forwarding. After this change, these entries are understood
+> to be distinct as they pertain to different inner vlans, and
+> therefore separate L2 segments.
+> 
+> Signed-off-by: Andy Strohman <andrew@andrewstrohman.com>
+> ---
+>  drivers/net/ethernet/intel/i40e/i40e_main.c   |   4 +-
+>  drivers/net/ethernet/intel/ice/ice_main.c     |   6 +-
+>  drivers/net/ethernet/intel/igb/igb_main.c     |   4 +-
+>  drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |   4 +-
+>  .../ethernet/mellanox/mlxsw/spectrum_router.c |   4 +-
+>  .../ethernet/mellanox/mlxsw/spectrum_span.c   |   4 +-
+>  .../mellanox/mlxsw/spectrum_switchdev.c       |   2 +-
+>  drivers/net/ethernet/mscc/ocelot_net.c        |   4 +-
+>  .../net/ethernet/qlogic/qlcnic/qlcnic_main.c  |   8 +-
+>  drivers/net/macvlan.c                         |   4 +-
+>  drivers/net/vxlan/vxlan_core.c                |   6 +-
+>  include/linux/if_bridge.h                     |   4 +-
+>  include/linux/netdevice.h                     |   6 +-
+>  include/linux/rtnetlink.h                     |   4 +-
+>  include/trace/events/bridge.h                 |  20 ++--
+>  include/uapi/linux/if_link.h                  |   1 +
+>  include/uapi/linux/neighbour.h                |   1 +
+>  net/bridge/br_arp_nd_proxy.c                  |   8 +-
+>  net/bridge/br_device.c                        |  11 +-
+>  net/bridge/br_fdb.c                           | 107 ++++++++++--------
+>  net/bridge/br_input.c                         |  22 ++--
+>  net/bridge/br_netlink.c                       |  18 ++-
+>  net/bridge/br_private.h                       |  25 ++--
+>  net/bridge/br_vlan.c                          |  34 +++++-
+>  net/core/neighbour.c                          |   1 +
+>  net/core/rtnetlink.c                          |  58 ++++++----
+>  26 files changed, 227 insertions(+), 143 deletions(-)
+> 
 
-kernel test robot noticed the following build warnings:
+Hi,
+This patch makes fdb lookups slower for everybody, ruins the nice key alignment,
+increases the key memory usage and adds more complexity for a corner case, especially
+having 2 different hosts with identical macs sounds weird. Fdb matching on both tags
+isn't a feature I've heard of, I don't know if there are switches that support it.
+Could you point to anywhere in the specs that such support is mentioned?
+Also could you please give more details about the use case? Maybe we can help you solve
+your problem without impacting everyone. Perhaps we can mix vlan-aware bridge and tc
+to solve it. As it stands I'm against adding such matching, but I'd love to hear what
+other people think.
 
-[auto build test WARNING on net-next/main]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Andy-Strohman/bridge-Make-the-FDB-consider-inner-tag-for-Q-in-Q/20241130-080335
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20241130000802.2822146-1-andrew%40andrewstrohman.com
-patch subject: [PATCH net-next] bridge: Make the FDB consider inner tag for Q-in-Q
-config: alpha-allyesconfig (https://download.01.org/0day-ci/archive/20241130/202411301325.5uGYbi6q-lkp@intel.com/config)
-compiler: alpha-linux-gcc (GCC) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20241130/202411301325.5uGYbi6q-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202411301325.5uGYbi6q-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/net/ethernet/intel/i40e/i40e_main.c:13106: warning: Function parameter or struct member 'inner_vid' not described in 'i40e_ndo_fdb_add'
---
->> drivers/net/ethernet/intel/ice/ice_main.c:6167: warning: Function parameter or struct member 'inner_vid' not described in 'ice_fdb_add'
->> drivers/net/ethernet/intel/ice/ice_main.c:6208: warning: Function parameter or struct member 'inner_vid' not described in 'ice_fdb_del'
-
-
-vim +13106 drivers/net/ethernet/intel/i40e/i40e_main.c
-
-1f224ad2f76028 Neerav Parikh    2014-02-12  13089  
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13090  /**
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13091   * i40e_ndo_fdb_add - add an entry to the hardware database
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13092   * @ndm: the input from the stack
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13093   * @tb: pointer to array of nladdr (unused)
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13094   * @dev: the net device pointer
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13095   * @addr: the MAC address entry being added
-f5254429e1756a Jacob Keller     2018-04-20  13096   * @vid: VLAN ID
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13097   * @flags: instructions from stack about fdb operation
-4b42fbc6bd8f73 Petr Machata     2024-11-14  13098   * @notified: whether notification was emitted
-b50f7bca5e83d9 Jesse Brandeburg 2020-09-25  13099   * @extack: netlink extended ack, unused currently
-2f90ade661b3bd Jesse Brandeburg 2014-11-20  13100   */
-4ba0dea5b17369 Greg Rose        2014-03-06  13101  static int i40e_ndo_fdb_add(struct ndmsg *ndm, struct nlattr *tb[],
-4ba0dea5b17369 Greg Rose        2014-03-06  13102  			    struct net_device *dev,
-eae5d6a6f80427 Andy Strohman    2024-11-30  13103  			    const unsigned char *addr, u16 vid, u16 inner_vid,
-4b42fbc6bd8f73 Petr Machata     2024-11-14  13104  			    u16 flags, bool *notified,
-87b0984ebfabaf Petr Machata     2019-01-16  13105  			    struct netlink_ext_ack *extack)
-4ba0dea5b17369 Greg Rose        2014-03-06 @13106  {
-4ba0dea5b17369 Greg Rose        2014-03-06  13107  	struct i40e_netdev_priv *np = netdev_priv(dev);
-4ba0dea5b17369 Greg Rose        2014-03-06  13108  	struct i40e_pf *pf = np->vsi->back;
-4ba0dea5b17369 Greg Rose        2014-03-06  13109  	int err = 0;
-4ba0dea5b17369 Greg Rose        2014-03-06  13110  
-70756d0a4727fe Ivan Vecera      2023-11-13  13111  	if (!test_bit(I40E_FLAG_SRIOV_ENA, pf->flags))
-4ba0dea5b17369 Greg Rose        2014-03-06  13112  		return -EOPNOTSUPP;
-4ba0dea5b17369 Greg Rose        2014-03-06  13113  
-eae5d6a6f80427 Andy Strohman    2024-11-30  13114  	if (vid || inner_vid) {
-65891feac27e26 Or Gerlitz       2014-12-14  13115  		pr_info("%s: vlans aren't supported yet for dev_uc|mc_add()\n", dev->name);
-65891feac27e26 Or Gerlitz       2014-12-14  13116  		return -EINVAL;
-65891feac27e26 Or Gerlitz       2014-12-14  13117  	}
-65891feac27e26 Or Gerlitz       2014-12-14  13118  
-4ba0dea5b17369 Greg Rose        2014-03-06  13119  	/* Hardware does not support aging addresses so if a
-4ba0dea5b17369 Greg Rose        2014-03-06  13120  	 * ndm_state is given only allow permanent addresses
-4ba0dea5b17369 Greg Rose        2014-03-06  13121  	 */
-4ba0dea5b17369 Greg Rose        2014-03-06  13122  	if (ndm->ndm_state && !(ndm->ndm_state & NUD_PERMANENT)) {
-4ba0dea5b17369 Greg Rose        2014-03-06  13123  		netdev_info(dev, "FDB only supports static addresses\n");
-4ba0dea5b17369 Greg Rose        2014-03-06  13124  		return -EINVAL;
-4ba0dea5b17369 Greg Rose        2014-03-06  13125  	}
-4ba0dea5b17369 Greg Rose        2014-03-06  13126  
-4ba0dea5b17369 Greg Rose        2014-03-06  13127  	if (is_unicast_ether_addr(addr) || is_link_local_ether_addr(addr))
-4ba0dea5b17369 Greg Rose        2014-03-06  13128  		err = dev_uc_add_excl(dev, addr);
-4ba0dea5b17369 Greg Rose        2014-03-06  13129  	else if (is_multicast_ether_addr(addr))
-4ba0dea5b17369 Greg Rose        2014-03-06  13130  		err = dev_mc_add_excl(dev, addr);
-4ba0dea5b17369 Greg Rose        2014-03-06  13131  	else
-4ba0dea5b17369 Greg Rose        2014-03-06  13132  		err = -EINVAL;
-4ba0dea5b17369 Greg Rose        2014-03-06  13133  
-4ba0dea5b17369 Greg Rose        2014-03-06  13134  	/* Only return duplicate errors if NLM_F_EXCL is set */
-4ba0dea5b17369 Greg Rose        2014-03-06  13135  	if (err == -EEXIST && !(flags & NLM_F_EXCL))
-4ba0dea5b17369 Greg Rose        2014-03-06  13136  		err = 0;
-4ba0dea5b17369 Greg Rose        2014-03-06  13137  
-4ba0dea5b17369 Greg Rose        2014-03-06  13138  	return err;
-4ba0dea5b17369 Greg Rose        2014-03-06  13139  }
-4ba0dea5b17369 Greg Rose        2014-03-06  13140  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Cheers,
+ Nik
