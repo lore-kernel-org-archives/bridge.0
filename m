@@ -1,112 +1,193 @@
-Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from DUZPR83CU001.outbound.protection.outlook.com (mail-northeuropeazon11013030.outbound.protection.outlook.com [52.101.67.30])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18FE91AA78A
-	for <bridge@lists.linux.dev>; Sat, 30 Nov 2024 23:03:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733007816; cv=none; b=EOLw7InlfkrVxYNy3FIEXBKXhyh+1CvYdmwAAXCCO7WlThKRLHWUllw8p0i0Eo5eqi51o+qCXvI8LfwCaKBcCjlibgaEfIfFlV6JvS5HEkzmyh6z8slzs3s1L37O2NZzU0lvmNWrpDdZutDDm5NZ6V6IYJZL0UnVSHvL/B5ZFpk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733007816; c=relaxed/simple;
-	bh=Oj23kvXML5YxbzImIPjLr7bu4A1f9m4DYN95To+LWn4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eez+xYfYUpOIfDlpJm38m5/Lxumds87wNXPmjwbfoc3MMFiQxIXbvO3TNgM4Pmpms6JsbaEF4vvdS1Nud2q6/yE66gzdswMWnXupYR46Qpg6msA7bBs6BSw9Ug3pta+MiBK/ebiuC+g6uw1d8OxKf7V0XE49UR+PKr8dTIAw1WA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=andrewstrohman.com; spf=none smtp.mailfrom=andrewstrohman.com; dkim=pass (2048-bit key) header.d=andrewstrohman-com.20230601.gappssmtp.com header.i=@andrewstrohman-com.20230601.gappssmtp.com header.b=bn4lj9E4; arc=none smtp.client-ip=209.85.219.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=andrewstrohman.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=andrewstrohman.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F0B31FAC52
+	for <bridge@lists.linux.dev>; Mon,  2 Dec 2024 10:06:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.67.30
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733134006; cv=fail; b=DHA7EEZOMwC2lcnS8VI2ErGo0wLDR0rBM1re8DkFWYXJYh/cU4t0TnT7SBtgcdEnVOaR4NnB+adOAfriOzcd835JYGC59jp8vQibBVq2yKiI0RmccyuhdDw0L0ZtBJaAGGO40NY44LoEinAFkU8Ip3VYzSoDeHGa8UHF2Hy95YI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733134006; c=relaxed/simple;
+	bh=qQyrxbPlCzNkq479kIgOBKWmMz8++2RHjkK7nJEgMz0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=ZezzPGo+TYtVvwOZA7WIlAJBH12X532QxPSbEROthPH4C9PrteGKnKMtLQxxncT2pJODYgKJhTN63anZz8we+HLDnvlvxrwgI11fvLjzUgVcQNEK7zRVkTX7cJGvfkUhaMYCZa/q0YqPYd1+mV32hT2U6Zfnsr4O4LB6wFMOIPs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=k9jur4wj; arc=fail smtp.client-ip=52.101.67.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=andrewstrohman-com.20230601.gappssmtp.com header.i=@andrewstrohman-com.20230601.gappssmtp.com header.b="bn4lj9E4"
-Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e3970ac2dddso2348979276.2
-        for <bridge@lists.linux.dev>; Sat, 30 Nov 2024 15:03:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=andrewstrohman-com.20230601.gappssmtp.com; s=20230601; t=1733007814; x=1733612614; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=+lZDk59n4UHv5yZ4bNmxMnAKZtUzjiM3soOA0zJRIR8=;
-        b=bn4lj9E4dYyaBxaytvu2gB+mCfTI+kOI52i8zM1yS8Es5WxubEMiAjVTWPE1rRHMQA
-         YtVqOOVEYDIi5zgKd5CCs4S8hjI9QJFGn2dRHfLXwmUx2uv/kRGaFJx42X2Ux/bboDtK
-         LbDm1c52gFLHX0OxRBMbea/KMZq3J9FLu8Zyuje1MOBMkfT26MGV3rSKmZfiOfCwojVN
-         AL+RnOoLb91b/N15gnsbojMNroLAsybTIn2z7uq+HNKAa5hyAwMvT+lWkRXgVkGs0dfE
-         hQEKmxD/vgleZT4zEN0dCda4XgYDb4kXKk/q9OtFmhQL2xlobw3e8TRFstNP/3HDVQRT
-         feig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733007814; x=1733612614;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+lZDk59n4UHv5yZ4bNmxMnAKZtUzjiM3soOA0zJRIR8=;
-        b=k9LXw228GP+jgMiZCOFmkcWnviULWr7YPq0fo1/AJNlt5b4WELYcuk5KX7H2BIjxQq
-         bS5CzLaX2/12urHeBed6eqW8cGJfNd4XcaNhBPtBzveBjCnTt1lWsRvlFeIev0EJGGmJ
-         K7GS+zLXG6a+x4Z+FouCXxmo2co7ypjNfDOZXFoFaYve36EcPT4YNlGzCmpkvWaPcG8y
-         NklOCFgbGRxqC8lCxMWFonppRG2PxL7PSYIKhtbjSWhszNRSvoL1u5eNSiStJUliCANK
-         DzRuUPfPHlaUb7/ytr8GoqXOQVyVtmGr97UTANdigbIh5m8o8lzt5UGWTP3judkG9A4D
-         bdlw==
-X-Forwarded-Encrypted: i=1; AJvYcCVWncvIIHvIgjlR9/Ig0ITmFLpkn60/JzKQDuC5QEnLhs15CEvDeoxlqX4ysFwIna+1Fn7dIUo=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyk7oMfAtJT4DnJQ2uwgaHujiuQYohPBt4ra+vbDe+8klhH8jZ1
-	H46mCu4fyw8QyHvKRzLKCweUmCbmaO4zlZwMQ06mU9yQN262PWdrVMuQpJmY6KXEFG1vrzSGIaE
-	98IchkNooQikYcIYcLVK4uDav2SZSj1Qr3NAm6Q==
-X-Gm-Gg: ASbGncsIfLjbNb5W/k3JrLNeNs8TXIOJrPnIB29cSOKq1tLNQqdbFQV9MeHzN5cTlwG
-	00we/S2w8axC6KGAZkpD6QLUHdkhS6sg=
-X-Google-Smtp-Source: AGHT+IH81R4XFg2CPj0gwX0HCIBF9TK4lO6eQU9i9Eh6UvUy1XLoSg/49272JtHDhspwSlHmAL7DhLTLqjgun/Hp2yM=
-X-Received: by 2002:a05:6902:1549:b0:e38:c692:14a4 with SMTP id
- 3f1490d57ef6-e395b93b17dmr15727852276.36.1733007813990; Sat, 30 Nov 2024
- 15:03:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="k9jur4wj"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=RDDrnEMar6+VkIc805+0iLzKtbxmbg6nAk0mV+oZKWNDDyzREtM+ajc0kXEgu5Y28TG8qvCZ0q7ZcwuAqQvtI80WB7de8o/KTCZZS6uwEWSqWx00Fe47urqUY+ZBnvw+Xs05YmiufPcNtC6Dg6afyvjls8FfkGUBcBCNitBGDV+m8rv/E3MdQMNF47/bIYNTLoYCYWIlVXKRn4/EfFW24eA8Q68hFboKjI16sXMg1vvY3p01UPfGXuPIWPh1DgJvcEjNM6IiUFSuKs1Cu2sZPrQkF6+aLqOPt76sKNT+KU2N+JLmdWBcXjArd/g/Avv9pabX7a+e0u9CNGVMZseIMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XerKtsjpv3BUWp8nrtkgV8pD8cTS2vNxa7jomy2zy7I=;
+ b=rXefeSCBONNxCjJfOIuT2IjDhmla0c6YkLHluEVlNeFYcRCYB3rcqh33bKIH/EF1eacXEXCJtrmxhOjALaYfrbGF1iApU+QUW5lwEs8AH5rBiwRmBXxJLDSDDT6oa4Q8r6fHtMwIb4QtiQGn4rvpfvaP5vIQwkf8a1fh6+jn7nC4VhAnODaEZjCxsZF3Gx715/P0e+eX0spwgwEXfN7tHQr6ssLybIewhmqxw+Nsqkl+gYBD9BZgpVaJJHfPEjO3mg5cdKullBw16aq6NAthXBKS6mK4WtkpaJmxq29pEqnN6DYbXuZ1UKIVlYY94qfE2urYwSDfxYHD+ArPwggjwQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XerKtsjpv3BUWp8nrtkgV8pD8cTS2vNxa7jomy2zy7I=;
+ b=k9jur4wjtSBGzxlEcqW1DJQK54gZB38hbQ3NoLVwMjanCg51OlbOogxlSZi1WdKKuHHdpmIsR03nGBgRPkXCmygnT5r21BK7EcoxRM4n4sw4mar8zkPRX3mw7jkPAoRSYOLh3w54zDQe8qJuyDEv625VqogGoXdzlOiNMphqoak8W2R0+3tCrmdcEm5BhNgTclb2eUiaNRZlKpbCv4b+8vwPIMuVOaZQLqsoB0pXecfW5oJiaNw4c1MrRLFBWrFjbCK0TjOWtsZztT0L9cqPXv2NJaqDrNGDaQZ3l4WoljBFQsWDir22+dWZvCGp8eepm23UPfQvDkG3ADYdnT9YMw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+Received: from AM8PR04MB7779.eurprd04.prod.outlook.com (2603:10a6:20b:24b::14)
+ by PR3PR04MB7402.eurprd04.prod.outlook.com (2603:10a6:102:89::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8207.19; Mon, 2 Dec
+ 2024 10:06:39 +0000
+Received: from AM8PR04MB7779.eurprd04.prod.outlook.com
+ ([fe80::7417:d17f:8d97:44d2]) by AM8PR04MB7779.eurprd04.prod.outlook.com
+ ([fe80::7417:d17f:8d97:44d2%6]) with mapi id 15.20.8207.017; Mon, 2 Dec 2024
+ 10:06:39 +0000
+Date: Mon, 2 Dec 2024 12:06:35 +0200
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+To: Andrew Strohman <andrew@andrewstrohman.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
+	Claudiu Manoil <claudiu.manoil@nxp.com>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	UNGLinuxDriver@microchip.com, Shahed Shaikh <shshaikh@marvell.com>,
+	Manish Chopra <manishc@marvell.com>, GR-Linux-NIC-Dev@marvell.com,
+	Simon Horman <horms@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Roopa Prabhu <roopa@nvidia.com>, intel-wired-lan@lists.osuosl.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, bridge@lists.linux.dev
+Subject: Re: [PATCH net-next] bridge: Make the FDB consider inner tag for
+ Q-in-Q
+Message-ID: <20241202100635.hkowskequgsrqqkf@skbuf>
+References: <20241130000802.2822146-1-andrew@andrewstrohman.com>
+ <Z0s3pDGGE0zXq0UE@penguin>
+ <CAA8ajJmn-jWTweDMO48y7Dtk3XPEhnH0QbFj5J5RH4KgXog4ZQ@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAA8ajJmn-jWTweDMO48y7Dtk3XPEhnH0QbFj5J5RH4KgXog4ZQ@mail.gmail.com>
+X-ClientProxiedBy: VI1PR02CA0043.eurprd02.prod.outlook.com
+ (2603:10a6:802:14::14) To AM8PR04MB7779.eurprd04.prod.outlook.com
+ (2603:10a6:20b:24b::14)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241130000802.2822146-1-andrew@andrewstrohman.com>
- <Z0s3pDGGE0zXq0UE@penguin> <20241130160815.4n5hnr44v6ea3m44@skbuf>
-In-Reply-To: <20241130160815.4n5hnr44v6ea3m44@skbuf>
-From: Andrew Strohman <andrew@andrewstrohman.com>
-Date: Sat, 30 Nov 2024 15:03:23 -0800
-Message-ID: <CAA8ajJ=Grm47nKZ+Yp-TEXAFfyoDOkJ9Kbc+NnUOx6ehg0o=vg@mail.gmail.com>
-Subject: Re: [PATCH net-next] bridge: Make the FDB consider inner tag for Q-in-Q
-To: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Ido Schimmel <idosch@nvidia.com>, 
-	Petr Machata <petrm@nvidia.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, UNGLinuxDriver@microchip.com, 
-	Shahed Shaikh <shshaikh@marvell.com>, Manish Chopra <manishc@marvell.com>, GR-Linux-NIC-Dev@marvell.com, 
-	Simon Horman <horms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
-	Roopa Prabhu <roopa@nvidia.com>, intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	bridge@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM8PR04MB7779:EE_|PR3PR04MB7402:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9ff05c0b-fdd9-4852-442c-08dd12b9039b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?RIOXEroDTsZyN23B0cQv2bhqIfOy2Sf6VhGLYUY6UdAbERML/FmW4+aZciih?=
+ =?us-ascii?Q?fb/ZWs2QHC7tSiSgEjMcqshHHLviGPzAMRuU59ki6LtN8jHyh+U0rjUJtv4s?=
+ =?us-ascii?Q?KD4wmZuoc65m+EorY6Tds/+ZHgBmkBtKue2s/tsFcHQt2edTe9V1PaMjKbsL?=
+ =?us-ascii?Q?aw621Zh4VF/AOyR1VrWk9ROv03V15aKoS8Si8KLt3K+1oU2dOBTpEAIBRGdt?=
+ =?us-ascii?Q?eKEQVNg5MtXWBg3uQfkS+bAnM+bW3eCr7p4i45/EoSrCmz6TPpeGFkgxpera?=
+ =?us-ascii?Q?QQmPOgfB0EsEQ2kulBmlwRQy5T1dqqyaPgn5qk+l21LLSErqOdcht2RlLsZ3?=
+ =?us-ascii?Q?Nze/rey4k4p8wPp3LiLnUcuIZsKVX16wPidnoCm4Uby9N1VZGjiwxuFUUBql?=
+ =?us-ascii?Q?zq2jGhqIa9LfJ/jWiwzwYjFn6cp6fixaSeLWeORuCkhqsGIRAJ7JmXflqLXJ?=
+ =?us-ascii?Q?XG4yJd9Ie99ZSXEu/aGiqBCYqe28kDdVLmewMfLezsncAjPQAJmcZdf5yNAm?=
+ =?us-ascii?Q?pc2kw20EDeqpI87hoQVi0y4WZNeMUkxoJ6E5GFlq3TgJzi92jmWqcNaFaP3q?=
+ =?us-ascii?Q?LwCNuD1GXU5X074RzHoYN7gLXvJeNTs3rKNwU6tGaoo6jFFYFr+a7Zx4jCbI?=
+ =?us-ascii?Q?2oaqsP1VU8drmWFEI5Jw4TXU8NEQRKKHlVM2HPe0qDHYc41fC6U3En2Fhp5c?=
+ =?us-ascii?Q?puOf9fLAX7VDXyXtyUKuXmtCJsRNZGJcYCpaSQoZ1W03QnKaXdjaTzNpNFg6?=
+ =?us-ascii?Q?N04kYRqfxvjLVRMGK3odVqawb3qWRfII1wamH/i+H2zZwRwahI/nc9V6jcGI?=
+ =?us-ascii?Q?wjCcIPgMrynnFEJDQv5k1p6n2WgoqRvuq35+MUMzKJJ7lLKlCXyzoABy9/Eh?=
+ =?us-ascii?Q?Nv0VN+uxS7xbsMszS1tzVTlaJl3c+MS8j+p57eq3i5HWVi/saEsydYQw/Kiu?=
+ =?us-ascii?Q?Mp4JmzunaTzb94gICZI3X9LqA7sLOwpTi2Po4pxPNgPuMK4XDCfoc/7kQ08D?=
+ =?us-ascii?Q?m1EboVC/E+llM0xl0ymSghxsokJWK9kIh3j19JTuSvNPyUpaUk3blOBhMKdm?=
+ =?us-ascii?Q?kQeuGUh72ep35uSa13kOn8tt+djbLvPcO40bnjlKii5+NCGc41faQTyIrK0s?=
+ =?us-ascii?Q?t9Gz4RzrvIwRESk/mxnZ4kwJ1uSQLO8ecP9cNFwtcFsBgUo4Qjcnqa9V716m?=
+ =?us-ascii?Q?Io9/WyvdWl0+K088micWc0HkXsRETMvYxdNmD5cptXqK/9+JY03vdG/GdHSS?=
+ =?us-ascii?Q?tX+6c0ork1MUMcU1B6vsYT0+FcGtbPTnT/5naKAO2ca//lgljXGifbFXJJz3?=
+ =?us-ascii?Q?1Tk=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR04MB7779.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?4LxuaHrEq8bjJpbRCOEgquyJ0rB7eCjLXP1z0J7JVJPzHlbVLN1wP7qHGME2?=
+ =?us-ascii?Q?F/pP1w2I0g4BjQ/oGDSzfWeS4qyaAzkRtosFumOIiSugIVUV5We/9y8+YqRG?=
+ =?us-ascii?Q?8me5Rpe9FjcEDqVb6j/OgKScUx2xt0wgGHsAOtjbYxXkDxImUGrLGOhOwm4v?=
+ =?us-ascii?Q?ykO421FF+ZspiIGLMZzUP+cZtsnLKNWKg4lovRFrWf5BbAUGFyyBdtFHINjU?=
+ =?us-ascii?Q?3zFfJ65WfKCDiK+z2gH6Ou9jl0R0Ihu5VPXnDTTlx4R39me2U8U2d+Fzti7F?=
+ =?us-ascii?Q?RxU9Lq6m4qKQEpJTBREt+E3Gpzuba3tWbLLliANIxRFZu8579Dm5UoBEQKGf?=
+ =?us-ascii?Q?/+OY/JcRb0AoeZG1HN+Q0qGqaMLv2hBIuBMCUwE4muPMQZcE47DwysweFgoD?=
+ =?us-ascii?Q?XsOz9xTqDZxIbSPPDkUm0XdQrTLbMVgsfx26eMZ97ruyrPCRi1UWUxZfhFC0?=
+ =?us-ascii?Q?5yyOnq44tyaog8S+t8ygUko/HWFGtAsB707mhOREXrFLfhwkc2z/AqfCHgDv?=
+ =?us-ascii?Q?Q/h8QOKTc57P/y/S4xA5i9ukDoKNT+aHOycDeICi5rScD1X0/K7a0WuCqhgq?=
+ =?us-ascii?Q?lfZhDXP/2bhEd9D12qDeiQqmCsBPpXIjJC251PjnizJrvxMW5UT77Uk0B75y?=
+ =?us-ascii?Q?8Klsy97dr8o/9FxR5dJQSev/fa5ZA4ClJwri/UZl7VkUhq8xAgYqQt6wWo9v?=
+ =?us-ascii?Q?p7cum6+jF7jNVpr0/6Skf6LiZlpcwNQ5xYo1dfqHa6nYdP5ETx/7wBY7S1VX?=
+ =?us-ascii?Q?Co1UivBBZI3wFPDgyzeMGCsK9vGQkC0fZnPk09/il9XV+hnCUN5pQhSlqYye?=
+ =?us-ascii?Q?uFROb2AZO+I0xRpQDyYJXhegGAjn+u1R61/u5EhUha9isy4uk67FPeT5Db5k?=
+ =?us-ascii?Q?XXJV+q0jECqt5lysaBVFBS9uV+lIHksWChqLj0DU3oaGXm5HFH5pWvL/fUbY?=
+ =?us-ascii?Q?iLDpMVRVm0RS7Z/FlhnHvVEmOydna4LALc2Xu6oWKfy0QUfJ/85YzUEaV8OX?=
+ =?us-ascii?Q?VK0PckHu6xZpcJgoS20B3f3/O9DQph4iKHSabYvJtQprbf9fIQY8mbYDFcg/?=
+ =?us-ascii?Q?kcL5JBZEji/lZJx5xkyixdtjRkYyt72+YmmImOeTis8OEwG65eEsCSXz3MFy?=
+ =?us-ascii?Q?9bP/XUuYGm3g4MxNfXqHRx2qZGZu0wj2E6wFndjR9mbl8oHHuysZbWlXhnvh?=
+ =?us-ascii?Q?YjPcmSXuqolYk0IcOZQ+okXvMfyPQrWOWZs/TVdrARZ760k4Qz04xNCirpfV?=
+ =?us-ascii?Q?h5qldm3HgBlhoceLHK8/T+/CHOLPnF0tTpkHxTzcKUdrWhjCw8U1LLiNYQxy?=
+ =?us-ascii?Q?kDn+PBHL+5P/+4wXcs4cOZuya26DUfjGyaIeJdmD+IKxr1zE72AgwenMdWYf?=
+ =?us-ascii?Q?mb5ihl/UOkLTlO4UL+hIzhA8/fgoVKOiDhSTqUfhs2sBBuwR8wDldiesZXJn?=
+ =?us-ascii?Q?aduOCzzVHurgmsFvaKHRxkA0ZA/4xzvW0nZpo7bzOvSepGH4PW4ANYQ2jX+P?=
+ =?us-ascii?Q?tE6cPg2rVu/LdwvfP9OppIvg7Nd6vyXPbyj+joXU1IkwYv5UicSEslSlLaGj?=
+ =?us-ascii?Q?hKSdGKCtl0jncI3Qi707EIZFYvCdFQzDOdE4cPiNhB+TPbdddo8+HA6AvaWZ?=
+ =?us-ascii?Q?Pg=3D=3D?=
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9ff05c0b-fdd9-4852-442c-08dd12b9039b
+X-MS-Exchange-CrossTenant-AuthSource: AM8PR04MB7779.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Dec 2024 10:06:39.7141
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: VZnn7qyaMDSdXpOEs8ty2qPaftd6Nz2LjoVBEK6VUesk4utYJPpXk1ZxnLl36wKucqdEbctpY+PXcaHBi48wjA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR04MB7402
 
-Hi Vladimir,
+On Sat, Nov 30, 2024 at 02:28:34PM -0800, Andrew Strohman wrote:
+> My personal use case is about simulating ethernet connections and VLAN aware
+> bridges, so that I can test networking equipment that provides VLAN
+> functionality with IVL.
+> https://github.com/andrewstrohman/topology-sim/raw/refs/heads/main/docs/Topology%20Simulation%20for%20Mesh%20Testing.pdf?download=
+> describes it, if you're interested in more information about it.
+> 
+> https://docs.google.com/drawings/d/1FybJP3UyCPxVQRGxAqGztO4Qc5mgXclV4m-QEyfUFQ8
+> is a diagram that shows what I'm thinking about. This case is not about
+> duplicate macs, but rather a frame being bridged in a way, such that it passes
+> through the same bridge twice via different ports depending on the inner
+> VLAN. In the commit message, this is what I meant by the poorly worded:
+> "L2 hairpining where different VLANs are used for each side of the hairpin".
+> 
+> The diagram depicts a network where a layer 2 segment is partitioned by a
+> L2 (bridging) firewall. I admit that this is contrived and not a typical
+> way of constructing networks.
+> 
+> In this case, my testing system would use a 802.1ad bridge to simulate a
+> VLAN aware bridge between .1q #1 and .1q #2. The problem is that the .1ad
+> bridge would get confused about which ports hosts A and B are behind.
+> The bridge would see them behind different ports depending on whether the
+> packet was heading to, or returning from the bridge mode firewall.
+> 
+> If these nodes were connected with an IVL .1q bridge instead of the .1ad
+> bridge, this topology would work. So it's a scenario where connectivity
+> failure would be due to my testing system (topology-sim) instead of the
+> networking equipment being tested.
 
- Thanks for the review.
+What stops you from changing the 802.1ad bridge port pvids to unique
+values, like 3, 4, 5... instead of 3, 3, 3, and making each other
+j != i bridge port be a non-pvid member of port i's pvid?
 
-> I was also going to plan asking Andy what is his plan on making
-> switchdev digest this.
-
-Since switchdev switches don't seem to support this, I wasn't planning on
-making switchdev digest this. I was thinking that it should just
-be disabled for those hardware switches.
-
-
->The switch ASICs I'm most familiar with can learn
-> on inner VID or outer VID, but not both.
-
-I don't know of a switch ASIC that supports this.
-
-Is that a problem? I thought that it would be OK to add features to
-a software bridge that don't exist in any hardware bridge.
-
-I've tried to see if anyone else was facing this same problem.
-All I found were concerns about the fact that the provider bridge
-needed to learn all the customer's MACs.  As a result, it looks
-like 802.1Qay was created.
-
-It seems that 802.1Qay is primarily addressing a concern about TCAM
-limitations, and decoupling the provider and customer networks.
-I think it's possible that 802.1Qay has inadvertently
-fixed this issue for provider backbone bridges. But for my use case,
-I'm not concerned about TCAM usage. I just want isolation between
-the inner vlans.
+That would keep the MAC address isolation per 802.1ad bridge port, and
+would offer the same level of communication using 100% standard and
+available tools.
