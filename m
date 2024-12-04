@@ -1,198 +1,147 @@
-Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02on2049.outbound.protection.outlook.com [40.107.247.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 006D4194C77
-	for <bridge@lists.linux.dev>; Wed,  4 Dec 2024 08:48:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.247.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733302107; cv=fail; b=IhpMgmCpHhPwyFM5Pab2IWWlD/Yz0tfHwNpiCZOpTTy/W7AF5D9cOfpA25QCzj74DJ17iU5N7LEzsCCuS8ZY2TvrL8Jt973aw3xmVUHQLismfvTW/Xqqo/RRDNS7asL80RkKSzZHaz5gk1PvcthuvZEtGw1ccS3myMhtkFZaBaw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733302107; c=relaxed/simple;
-	bh=Zfz2x1a2ASOpIszweGbWpGrxy+KejD2jjA9XdXvqzJA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=CXChjlDoTtOc2AFnOEWo3FEkZMto9gbkqDG+9XqtO7qn/80FxMp9srD5HeBpZM7IKdk4A8mslbM3dU5dZjGK0L+XJWV9ZjCrvAWe5KCAQRN1iSUAaAW+UsToXJxQ4/Qw6IHwxC9vMDabUBE7eqbIZkbNBAp8YL4v+JwJJCawerQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=PQ/R3Oqb; arc=fail smtp.client-ip=40.107.247.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 907041AAE0B
+	for <bridge@lists.linux.dev>; Wed,  4 Dec 2024 10:12:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733307152; cv=none; b=up4E5krYQIrP+bzwSLJOomWSacz0zftoDK57w0lTjYdtnqW+yQp3J/sjGEWUjAKRo2hChUmlvXAHi6BJBofIHotG8fiddYFNfEqoxa3WgB4+WaU3aGn/5eu+YS5eEQ18VIn/qY7lO/gBQ21Kwkuw4Bpz56fwRK2wIENEtxyzYJs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733307152; c=relaxed/simple;
+	bh=bDcBWgVILMB12NHWB4fcs1W4araBsBKWumSB2kQnUP8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=d1LsZEdk6xvHxJB9nuAdo727z2hpZCfFNsPp55J1o9YjMsZ9gLhm8TihT75JyZgDDxSiF7RZHGuLzL208rfXOzDUQsdShSAvMdbG1t+FlmEXMcYqvHhRo73K3dVWCprM/0d23aZHyogdZBv/kEtEd1kZD+UERH5Rmh1jKDuc4eo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=andrewstrohman.com; spf=none smtp.mailfrom=andrewstrohman.com; dkim=pass (2048-bit key) header.d=andrewstrohman-com.20230601.gappssmtp.com header.i=@andrewstrohman-com.20230601.gappssmtp.com header.b=N0UuxX4W; arc=none smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=andrewstrohman.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=andrewstrohman.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="PQ/R3Oqb"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=wThfMfQ/pxBYIn7SR6e9Lbt8zf5ArJhMj6C4vgeQUubIMc40Xw4VOYyGcDcDjnrqfi07hGNIyo0imyMX4q6WswY8e51YD43MtaeJNrWFNGYp6PMNQKPmrMgES2a/MNKS6u5dwS2a2L+zY92w+FwM4QgI7v9b7eypQGeQzInY9MXq5fJIHr/n20A/I+JKMaUZDMsNkgOszGuW9cdQVdOLi4mjHBTpI7FcxmfVYu37QBBY/rxKepRaHyvYXuy4LTqvLZYVGGT2aDS5y/825zhU7gN10UlX6CJP/xlOtIigh8LJRMVidbOsM2idlgKK+zUnCyGdKnBlpHK7+bhQZuXS9A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Wv9xwrMSp2zJCc+4PsdKblT2BDJGmHwFSBqUz/pHkEg=;
- b=PRB3clwHf481YLf1iM0l3Cvs2pJN68zH5lktNjbWoWGcojZ5pyjrC422Uvx30KmQdffrC/WIDlz4Xe+i4m1VjI7lWjxX//ljZlOc7Dm7kk2dcDq92I3/SLUEbERsWuJFi3AZLy7cCQogjnwD0dkbSmChmaqYEckhrQuSiwBHhrpk9mnacd2D3j8uXr/4nRLUzef86FqfFvYnDa8szzs4ZPqorAnJ5Ka4BqZ9HBRlXl9qb66BTt3240kh4q0IGV+3BpkFmSdEH+NZkqWPMJcKzxbct3UWYKF6+xUeNb5Z/Lm114F6VxO88j3XyOOx1yR+/aKPE565+Gv+UrYvfdoHbg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Wv9xwrMSp2zJCc+4PsdKblT2BDJGmHwFSBqUz/pHkEg=;
- b=PQ/R3OqbOMQyp1CgtIr474mxMAuzNwde0tuTh4Abpu27FJIuCjUW5H8W2v7LE7tyXcPPop0lpAcSsyjYY673KNwyw03rvTHkhV0qS0tsjebXEUhp4+kEG+FbK1k87eY+mT4PEN3ZavC3x0U3V8lYtJ6aDZTdo6VtuH7zfSqb3PBQphJWZwsl8txMS6K/ktH27eHlZ/gt04S7E3sHnGlqSZNKDo/ckNBNqbf6Oa3ZngQbXd4qPZIjh00PyKh82a897RiD3zlKBNheBaVZXyUCRb7E55yiE2XcTcSN7NBJpSHmkaYqDZ0BrwcNZKVzsGCNmoc8ZDn/3BDTwOKdKCYtfg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-Received: from AM8PR04MB7779.eurprd04.prod.outlook.com (2603:10a6:20b:24b::14)
- by DU0PR04MB9671.eurprd04.prod.outlook.com (2603:10a6:10:317::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8230.11; Wed, 4 Dec
- 2024 08:48:21 +0000
-Received: from AM8PR04MB7779.eurprd04.prod.outlook.com
- ([fe80::7417:d17f:8d97:44d2]) by AM8PR04MB7779.eurprd04.prod.outlook.com
- ([fe80::7417:d17f:8d97:44d2%6]) with mapi id 15.20.8207.017; Wed, 4 Dec 2024
- 08:48:21 +0000
-Date: Wed, 4 Dec 2024 10:48:17 +0200
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-To: Andrew Strohman <andrew@andrewstrohman.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
-	Claudiu Manoil <claudiu.manoil@nxp.com>,
-	Alexandre Belloni <alexandre.belloni@bootlin.com>,
-	UNGLinuxDriver@microchip.com, Shahed Shaikh <shshaikh@marvell.com>,
-	Manish Chopra <manishc@marvell.com>, GR-Linux-NIC-Dev@marvell.com,
-	Simon Horman <horms@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Roopa Prabhu <roopa@nvidia.com>, intel-wired-lan@lists.osuosl.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [PATCH net-next] bridge: Make the FDB consider inner tag for
- Q-in-Q
-Message-ID: <20241204084817.g7tort3v3gwdzeic@skbuf>
-References: <20241130000802.2822146-1-andrew@andrewstrohman.com>
- <Z0s3pDGGE0zXq0UE@penguin>
- <CAA8ajJmn-jWTweDMO48y7Dtk3XPEhnH0QbFj5J5RH4KgXog4ZQ@mail.gmail.com>
- <20241202100635.hkowskequgsrqqkf@skbuf>
- <CAA8ajJkPzpGRXO6tX5CkgX7DjGwR6bPyT4AXjZ0z8kXBk8Vr_g@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAA8ajJkPzpGRXO6tX5CkgX7DjGwR6bPyT4AXjZ0z8kXBk8Vr_g@mail.gmail.com>
-X-ClientProxiedBy: VI1PR07CA0282.eurprd07.prod.outlook.com
- (2603:10a6:803:b4::49) To AM8PR04MB7779.eurprd04.prod.outlook.com
- (2603:10a6:20b:24b::14)
+	dkim=pass (2048-bit key) header.d=andrewstrohman-com.20230601.gappssmtp.com header.i=@andrewstrohman-com.20230601.gappssmtp.com header.b="N0UuxX4W"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-6ef81222be7so41786237b3.3
+        for <bridge@lists.linux.dev>; Wed, 04 Dec 2024 02:12:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=andrewstrohman-com.20230601.gappssmtp.com; s=20230601; t=1733307149; x=1733911949; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=r8yJtp0VtRWCyGUDMUPSKyYrOKeXIERy5/6YkYGZGIw=;
+        b=N0UuxX4WXrgIqXycLAlVhNf1RTqtHBe8s5nXwIgDKjgAB95r1XKbY9oJlteLaCkWMw
+         iS0GuCLn6BKTKFwhPulS9srDNRilx/aT0Bb8cXOmA5Pn3h8uystQdPjDkiqzQl6DZVVG
+         hCxrmKHW+sRhUVImEtbRU4P2jVw3zhBgbKFyp5ji8zj8UDnxKj1FLOKnjz5u75oVAVTI
+         z2nWdSbWJIEbezda2a52kFlQEAumyh2M+HhzTc62/ZUfXzd3ORCCTCxt/XxY70vs/TEH
+         ktNjiqeTgD5tKBUJCQ9hPTAO0f8wt6LebM8K4QbATZe/ILu/n8ZT89BUZZUshYWM+/51
+         YyWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733307149; x=1733911949;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=r8yJtp0VtRWCyGUDMUPSKyYrOKeXIERy5/6YkYGZGIw=;
+        b=qMaIFmS89+teFpjqzBNqmejwfLquu+yfPUO/k5fVPkbITobfNYyH2UsNEXfG7kLmaY
+         emKyNbGiVjChHstSVFWgN8b2UuZ62bPTZAO47Tmi5p1I89TwcC2PjAQIzDONmZfoW/rP
+         eTa4mU3DMHi2cZQLmEedZHbUlewANBP2zGcLZ9WI+s8+ssgPQrtSZPzXf2ilOzy5skFa
+         35OZQnFDJPITUpVz4iOxnXoUTGoyJ21Ap4yeOpxM57Qp4sMkqYoZKb5wMlmLaaC7pmfN
+         dvqqX6jQLVZQMbOomMeUoUktBvDRwB28N4wba8XFzg5eUV/ZoI1rxvl64KYU3Vz5oO5k
+         nPaw==
+X-Forwarded-Encrypted: i=1; AJvYcCUzwEG3mBxad62vUpG97Uh1AwjXNB427qJxwytWaq+2Vt2PKONhNxpFKlIrJJtbp9XMLd8pD/I=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxEvsIgtffSH1l0OAaZ3yLKIN2Fiav4eTeLKSpszQY9CxiWD7J7
+	n5UZJYssyflU0NOKPjGT4E2+NoGqX1DgkT/WpmaRqhnF1nDzcVzsMU/ciK0plP+f579xlIdDB8x
+	0y6KRMbYWGS27ItOFwE2KEKxP5FaEfQ4Hhq71DQ==
+X-Gm-Gg: ASbGncv/eyRHSnJUHcTbftppxIRSYt/3YJ3MrsH5bdOhp4YuLGNQLhwCtAdp77aPATd
+	7qWjEGTvLODVnxXy2j8XCBcGy6qfKGPc=
+X-Google-Smtp-Source: AGHT+IFiZwav0lkXcdEoC0k0swq2tYz4RZsKxcJnENpHGhhnbUCXatljeleEVM5PesTsKopimNNDdHD+hwBm2MoI2HY=
+X-Received: by 2002:a05:690c:46c7:b0:6ef:69b2:eac with SMTP id
+ 00721157ae682-6eface0164dmr68389077b3.4.1733307149315; Wed, 04 Dec 2024
+ 02:12:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM8PR04MB7779:EE_|DU0PR04MB9671:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5c27b0c4-0511-4e31-dcf3-08dd144067f6
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|7416014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?m3w3IeyjiMd6gu4QkUJPaPBYcumQnjzbL8XmNZCTVjYIGIDSexsYyXYtY6Ku?=
- =?us-ascii?Q?yrjszyEgamO7SUzoCYXZzkNZh5U4kbmY+j+RdC70WGbl2si1HHkSOg2IQA8A?=
- =?us-ascii?Q?WKC2YYqY1RPc13AMDloaF7Ich3DWcu2C7Q6n/Ni3GLbD0RQRArIYc4f7NjAq?=
- =?us-ascii?Q?zZDmUX5RHnvwUFdgIIW5JPYuR4vFYaYrtSxPwH4Qi4ep67Pair510q5Go6g8?=
- =?us-ascii?Q?gHf0pGZPIDiQrKe4BPM/aG/XSBtyXrpQyEAU3H19AvCdzaoHmE6eYHK01krl?=
- =?us-ascii?Q?DCfFpztWk6rD25D4YycwzqnFz3Sk8r/o9b69hSJ+NVlAe8Ie1e67S3S6MgIX?=
- =?us-ascii?Q?D5KbI6cLydukT/7algj2Ina6g6az1zE/AlpkunMD5fXohvTbfwT7kxs9XT+X?=
- =?us-ascii?Q?b55KnF2XncjVfdPDIAwygHYTmTjgY3JhQHXaKDZ1TXyYcbIxH0xBKMQNM6Z+?=
- =?us-ascii?Q?6++gFRelsYvx+eO9N22E6EBGyjirYshCCsrh4YU7V0cVuP8zY8UVd5vD/SfF?=
- =?us-ascii?Q?ti3YLZqEbXg1H5PhJSx5njyNUqknwkRtOjcS3D11Vet0GQRDw1umOdjKgtg5?=
- =?us-ascii?Q?YW+FqIADigClYTFFH1VYSeFqRe+1UJhd3nSufJBePaqJf1FoPrAidq4ObQ54?=
- =?us-ascii?Q?wB6qXgYkbsd158NNIl+LJMdNaHGn4L7pkC6eXXyYG31eokTkBohs6RZGI+PZ?=
- =?us-ascii?Q?wMMUmmnAIHR3/dygn8mugwmngx1SGECyAED++xk+7pDxwhWfmw0bEY14d7Kj?=
- =?us-ascii?Q?P3YojGC8rPvxLFCClLM7mB6tDXUbTdBEqhkDb62IAyxEsNLRYPa0OYybGA56?=
- =?us-ascii?Q?SElrCzICMZCoJ2d6x7/G9+UelP0bQ3ZSoW8d397FJglP5xHsmHdGt7cncWKY?=
- =?us-ascii?Q?VYjlh6BeUAtDK/JkxZDkjTlngi7gqccRWg9tE9EpdSIj5nmzhdtCEBoALzdX?=
- =?us-ascii?Q?JapZvPA6tuwIehCzTK1aT8JXKDqI3+f2hb/17heWnnknRBxl5k0IN/YAeIUR?=
- =?us-ascii?Q?rGEWCIR5tq+2SJJSNbvA7C9qK0/Y0NBSsIgIC97Gt12mCMiJOQCeF/BDKBm/?=
- =?us-ascii?Q?pkpDpPcZ8aKrPUDwoX00iY4X8NI70j50WaRJAEdr4lw3JXk6yGONvPSgZVQW?=
- =?us-ascii?Q?hjUQgs4FXFF66OmVYfQnCT2OMGBKF8GMDRr4DfPSK3UAtLze0bVgdJljTGe1?=
- =?us-ascii?Q?DWA0iEPegxNHmM9Q/KHrhbeb8VDfg6BDVUAV5rbUAzCs0dLvCrq8GSxcMDeA?=
- =?us-ascii?Q?9CuNHmde3JsHu5rtRwryCOp+kLajRbWKgx+33fGa6h9uCnez31i2zgjcw+5s?=
- =?us-ascii?Q?bjk=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR04MB7779.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?n/2yzBt1YksQlisAjzeGgovE0AGGlP4osZUaASmAHvdveaA8nB1sc4KXhqUW?=
- =?us-ascii?Q?ulkTdOCZiMeIr8hYiDDEDD0yMdvlWJUBSjaAgkEsE65UiOKXAV9c0HHQ05lQ?=
- =?us-ascii?Q?dfSADA3BQjFmCBiHDYw7DxwVH3J9q9eHpmHLQdfv/uRkkJFqwrPOkgqF30xl?=
- =?us-ascii?Q?OBcZMrDxaULkiC+ll3kTXE3TWLa8zmysWw4iLhvbQrygj5y5QvoQaj2zLtvS?=
- =?us-ascii?Q?EAIEGGSFSoQ1w2mX0AYm4AoUWCVNINQSZeSIcs54Zk3rctrd5gNSRcKt8ikz?=
- =?us-ascii?Q?ko0DvBbdH7U+4WMtCcEd2Aj9sBvq+2CvJAOfSFML34EYvHkkJNdwoNB8adEv?=
- =?us-ascii?Q?qjmA7yU1M/ByUJrM7zUmQjVUMCqnLWKHCHrbzgOuXVsvK//20Rx+PljDVmal?=
- =?us-ascii?Q?ygUJptIA2liA99nWb8Udw1bIl/uKkXBw/bCaJ9HAOl6HPhWLrWOgrP4viAjl?=
- =?us-ascii?Q?Of56w97/abgsWFfp/vocoEMhsMsr5sYajL4bZAnJOroevsD3s4EEoZk5pS6G?=
- =?us-ascii?Q?I3/EGhZIxdpC1F+ChJKeBIWsZk+WDbMivyLZYHAyfD9AHMCpNy4LoWQD11Ad?=
- =?us-ascii?Q?7kXjA4OhZUOkQB66xKipF7LIvTzL54XFycwvq605DKnbwjnhhWkLzWYECas1?=
- =?us-ascii?Q?3D4z58I/UimWkUq1L07pKWWS9Nr4zfj6CzUuafnecXUbm+bI5t7OwlY9V0xN?=
- =?us-ascii?Q?DE2ZDrPV7roB1/OSMHmz7G7xesVYQvvDvfdH+HEEXZlv1WBD9dj6j0FfQjlv?=
- =?us-ascii?Q?MM8wvx4fLgWoSI8toZEgF4DQKHEYsTdK/msD0o774KGlsx7H2/XEwkx7yjlu?=
- =?us-ascii?Q?cTk/MT/teWiFUADATGvVub04cweOgScrCJ7FUXJxeswpIacR7dVTBnOV/U6E?=
- =?us-ascii?Q?CeFHDsZUzrrXpdK1jqy4soNMAV5JvSojxgPqfJdCTvSCAbaAyib61em2psYt?=
- =?us-ascii?Q?tbcs7qVLbRyBQstFBva2huHLGpXi4UtCDlLOKXy5qKyyHRLLKYu8r6YD4oJ1?=
- =?us-ascii?Q?Vu9nosMUSDQKvfhZMCn2J68j4kzZK27lDMfysB82IJ9EYHYzhxtANiRTznex?=
- =?us-ascii?Q?gYNTRD6EW/ABtkkY+0riLH+pq4/+0vwnZwuAtXSmQ8OgsyMaqqRWmuEBZ/KU?=
- =?us-ascii?Q?gaVE2YaA0kdfhyDI2lTinmlEk21+gVk4nSl0KjSUudZOIzSzWtNJcPh4Sq/S?=
- =?us-ascii?Q?DnuZXMrKgXFSWSFJF8LFHwNkYBYuNEoz9F3z7Z8OmhgN1d9IdqL0FHZjd3gn?=
- =?us-ascii?Q?4Q18svnrwB4Rqk/vhAs07lxNxxZigvwq/SF1JZoZJ8RpUTgGyapecTaj6TNM?=
- =?us-ascii?Q?dendIVCBStoCvnlNfLWtGuse3WvbIJNHoA6+PHuv1sRwIQlTyHkVuRat6gNe?=
- =?us-ascii?Q?wsaXYw3aie1r2oFVCk/bDWl92Iazeyvf7UHdTMZp4IUvju0HX/fLi12M816A?=
- =?us-ascii?Q?REHdPMFdbhz4mXfhGZs3nYNO+h5XkGs4HUXYlvWlT9HcNcoBcTVpnD2p29cH?=
- =?us-ascii?Q?mhyH0Kd3ixs6fcF3Uzgx6LmnzCGWvis22DCIqUE72HBswpC1M2Sn5SDethl7?=
- =?us-ascii?Q?JUOWzFLSNGndtkElz8Fl+pQP3umpaQM7E7vovGSCgjDwYiShcHg7Zdo/YGbu?=
- =?us-ascii?Q?7Q=3D=3D?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5c27b0c4-0511-4e31-dcf3-08dd144067f6
-X-MS-Exchange-CrossTenant-AuthSource: AM8PR04MB7779.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Dec 2024 08:48:21.2680
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0/DsUsnn9qOj+rrkYzZTtAxXU77ded0tch+UfuDNpxLLVZKs1GoYuY8SxL0FwnWBBvA/9P1j5GS9qN1xAs1KFw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR04MB9671
+References: <20241130000802.2822146-1-andrew@andrewstrohman.com>
+ <Z0s3pDGGE0zXq0UE@penguin> <CAA8ajJmn-jWTweDMO48y7Dtk3XPEhnH0QbFj5J5RH4KgXog4ZQ@mail.gmail.com>
+ <20241202100635.hkowskequgsrqqkf@skbuf> <CAA8ajJkPzpGRXO6tX5CkgX7DjGwR6bPyT4AXjZ0z8kXBk8Vr_g@mail.gmail.com>
+ <20241204084817.g7tort3v3gwdzeic@skbuf>
+In-Reply-To: <20241204084817.g7tort3v3gwdzeic@skbuf>
+From: Andrew Strohman <andrew@andrewstrohman.com>
+Date: Wed, 4 Dec 2024 02:12:18 -0800
+Message-ID: <CAA8ajJnRPB=KRcDpQiAJww3Apv6ZGqWaAg5stSjOE99BOmkCjg@mail.gmail.com>
+Subject: Re: [PATCH net-next] bridge: Make the FDB consider inner tag for Q-in-Q
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Ido Schimmel <idosch@nvidia.com>, 
+	Petr Machata <petrm@nvidia.com>, Claudiu Manoil <claudiu.manoil@nxp.com>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, UNGLinuxDriver@microchip.com, 
+	Shahed Shaikh <shshaikh@marvell.com>, Manish Chopra <manishc@marvell.com>, GR-Linux-NIC-Dev@marvell.com, 
+	Simon Horman <horms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Roopa Prabhu <roopa@nvidia.com>, intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	bridge@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Dec 04, 2024 at 12:37:24AM -0800, Andrew Strohman wrote:
-> > What stops you from changing the 802.1ad bridge port pvids to unique
-> > values, like 3, 4, 5... instead of 3, 3, 3, and making each other
-> > j != i bridge port be a non-pvid member of port i's pvid?
-> 
-> I'm not sure if I understand this suggestion.
-> 
-> I tried to draw out what you described here:
-> https://docs.google.com/drawings/d/1UcOpENFgr-s6p8Ypwo-l4yTvtUZFM6vSLxLiX2FOMLU
-> 
-> I'm not sure how host A can communicate with B with this configuration.
-> 
-> Consider host A transmitting towards host B. When the frame leaves
-> ".1q bridge 3",
-> it will be tagged with .1q tag vid 7. When the frame leaves the .1ad bridge
-> heading toward ".1q bridge 2", it will be tagged again with an outer
-> .1ad tag vid 3.
-> 
-> So ".1q bridge 2" will see the frame as having an outer tag of .1ad vid 3 and
-> inner tag of .1q vid 7.
-> 
-> Is that what you are thinking, or something else?
+> I didn't say "tagged". I just said "not PVID". There are 2 independent
+> bridge VLAN attributes: "pvid" and [egress-]"untagged". I am suggesting
+> that packets in VID 3, 4, 5 all exit the 802.1ad bridge untagged, but
+> every bridge port has a unique PVID from this range.
+>
+> bridge vlan add dev port1 vid 3 pvid untagged
+> bridge vlan add dev port1 vid 4 untagged
+> bridge vlan add dev port1 vid 5 untagged
+>
+> bridge vlan add dev port1 vid 3 untagged
+> bridge vlan add dev port1 vid 4 pvid untagged
+> bridge vlan add dev port1 vid 5 untagged
+>
+> bridge vlan add dev port1 vid 3 untagged
+> bridge vlan add dev port1 vid 4 untagged
+> bridge vlan add dev port1 vid 5 pvid untagged
 
-I didn't say "tagged". I just said "not PVID". There are 2 independent
-bridge VLAN attributes: "pvid" and [egress-]"untagged". I am suggesting
-that packets in VID 3, 4, 5 all exit the 802.1ad bridge untagged, but
-every bridge port has a unique PVID from this range.
+Thanks for the clarification. I think you meant to have the second
+set of three commands affect port2 and the third set of three
+commands affect port3. Please let me know if I'm wrong
+about this.
 
-bridge vlan add dev port1 vid 3 pvid untagged
-bridge vlan add dev port1 vid 4 untagged
-bridge vlan add dev port1 vid 5 untagged
+I gave this a try:
 
-bridge vlan add dev port1 vid 3 untagged
-bridge vlan add dev port1 vid 4 pvid untagged
-bridge vlan add dev port1 vid 5 untagged
+root@OpenWrt:~# bridge vlan show
+port              vlan-id
+lan1              3 PVID Egress Untagged
+                  4 Egress Untagged
+                  5 Egress Untagged
+lan2              3 Egress Untagged
+                  4 PVID Egress Untagged
+                  5 Egress Untagged
+lan3              3 Egress Untagged
+                  4 Egress Untagged
+                  5 PVID Egress Untagged
+root@OpenWrt:~# bridge fdb show dynamic
+f4:a4:54:80:93:2f dev lan1 vlan 3 master br-lan
+e0:3f:49:47:9a:38 dev lan2 vlan 4 master br-lan
+f4:a4:54:81:7a:90 dev lan3 vlan 5 master br-lan
 
-bridge vlan add dev port1 vid 3 untagged
-bridge vlan add dev port1 vid 4 untagged
-bridge vlan add dev port1 vid 5 pvid untagged
+Like you said, this has a FDB per port. But I think
+I need to have a FDB per inner/outer VLAN combination.
+
+Connectiving works as expected in the above example,
+but only because of unknown-unicast flood, which of course,
+is suboptimal. The switch is acting like a hub.
+
+For example, ever time the host behind lan1 sends a frame
+to the host behind lan2, the bridge is not able to find an FDB
+entry for the VID corresponding to PVID of lan1 and the MAC
+of the host behind lan2. The only FDB entry for the MAC
+corresponding to the host behind lan2 is associated with
+the VID corresponding to the PVID of lan2 (which is a
+different VID than what the packet arrived on).
+Hence, there is constant unicast flood.
+
+I also don't think that this solves the issue for
+https://docs.google.com/drawings/d/1FybJP3UyCPxVQRGxAqGztO4Qc5mgXclV4m-QEyfUFQ8
+. If you like, I'm happy to explain why. But before I do, I want to
+make sure we are on the same page before going further.
+
+Thanks,
+
+Andy
