@@ -1,286 +1,255 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A6763594F
-	for <bridge@lists.linux.dev>; Tue, 10 Dec 2024 09:18:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B31278F23
+	for <bridge@lists.linux.dev>; Tue, 10 Dec 2024 09:46:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733822291; cv=none; b=mf4cootwFXLsK0XxzV002UEAKS2fcvSvEyxytTlJafNVWtqctGxUGHyNH4RlQfpjRsohncSGfBSTKD/DaqUaEXCGY2Yu3kHjJ+j0qyXTqGpfRRLV+V4B2Clbn5Bn/Ah/HoFEw4I5OYjWphEXTelC2bUEDcTICm92nGzf8s21cdI=
+	t=1733823976; cv=none; b=uvX12EfIfD1ukAuzkYEwgVtIn524nK8sSejFNJ3wH2ZOPFSkWLb1tFasw4W41s4UMN18gm1kwzr/GHqkFEc3AUlJWzHqJ19WDXBSBHyVv6pA36pD3n3vGlTGIlsu8x8O5hEz949wnBKLV0dJx+5Zuw+qRZZbb0bBWxtMLh05FRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733822291; c=relaxed/simple;
-	bh=BHIwuyVRVDTramqPxGogCek36o5nJEkzLna4vKGthYc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZGs/8eSs/nSsdVnfM7lGSUZCDwe17jzdGYqPR3brzf+5ugvBiIYlpzaKWvIvMljGbuN0m98xWBnRFBQexkjY4dJqqvbkjKLFCcN80y40MGDbeVf95aiZQky5iuY97d0Ge4M35c3x63SCZUTg+3fOJk0n9NV8rk1Q/iitLq8gvjE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=zgl/w5DX; arc=none smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1733823976; c=relaxed/simple;
+	bh=KeM3nCVomxM9bMY0OfFkkMpPTEaLh8sz1NtNJzSH1Tk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NnnGQhiggoi6dkZliB8gNwmrQyRTmW+EFmdb3GVazlJ1lCZ4L6pBTIkvv+cmVEVDYn10UjeZnDCOMvCs3i0RxuEPyupFhabQ5V8zUeUsVA/yMityLxCYO0YlZcqcbATmYGwOO3i0IBeuk8laMuQIEv6uzeVTUjHan1SY7Emhdq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NzpUWkD2; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="zgl/w5DX"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-aa692211331so284399366b.1
-        for <bridge@lists.linux.dev>; Tue, 10 Dec 2024 01:18:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NzpUWkD2"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-5d3bbb0f09dso5496686a12.2
+        for <bridge@lists.linux.dev>; Tue, 10 Dec 2024 01:46:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1733822288; x=1734427088; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ynIeX8CMo+FB5eBdTlxaT5BUGhWdIHXwoHgPtyiP0u4=;
-        b=zgl/w5DXHiTD4o0YwfDycaVA3Vf7qlLB83ERiZWwKIJ8crKoeeW5K66TvpDuz8laq9
-         qJ6tz2D34qcdvZ76MOuHJnaIyAGF44d2ytVxKSe4KUnGmNQlzd8qIJOnjXEOHcb9liCX
-         y/e8EXsyDrvHOAMoP+bdzWIi00kzzeBCYcTXOQXkKMQcKtXIDtKludCMNlujXrb9SFRF
-         h6ajX4TlXiEf11u6vTfJACepDmOSz5kPre8rnQZpLuxo+apUmxgHwTAPTPeO9gCGDwmp
-         coIrVeGSbsEH6K4n7/46Hq4odMYwIwJ1OTrOI8FmEp9byEeoiLq3CZ3GsrF5TeCiB0s0
-         IUIg==
+        d=gmail.com; s=20230601; t=1733823972; x=1734428772; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=UocVRl+s36yfKdOwyD9w/O24SaGw6oRqRxZTrP2zIsQ=;
+        b=NzpUWkD2lUAlPm9W7jv+j/3sr2JuFWT841UE/pzS3lPQc4iYRkdTprbn4wFHt1lIBK
+         +WdDemNWU0sT0Q8v7cIQ/NAuiKz1E2RqUNUnphcX4blD6/RuP1wGIfVVSfRNSsqilKZx
+         A3+AAm2g4NLTFoAzdnxgaXaMvGqInj35FIVwmituLcXc18HkMYtPt5fmNPuCiM8iTUnI
+         o2ZiDNZ0OSG41mdVTtn9Ov/LEdj+9fvcMvlY71ghmsQnVhEgM1LHkfGWssgK3UCmyzdB
+         3xOCAQG93iprnFSsLkJnUdszuIl0/l9OHd5u89wGNVCTUe9h0gNqm2T3vq1l+vNWLmI6
+         j7EQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733822288; x=1734427088;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ynIeX8CMo+FB5eBdTlxaT5BUGhWdIHXwoHgPtyiP0u4=;
-        b=FQfHqTNPXBe34W1ae9tSYX7f63Gms8u95fLfw6TjOlWzqOMID24j78CqaFmXqO20DY
-         my4tOFKAOHb+3R0XpFqmKmwPrPYdssAvCkgQAKuemaUsSipLbtSxjJ6O1byvI6aY44Nu
-         Jtl62KoktgiyyG0GMcznapIdunGBunqJ06gUlxamIO3uWnZ6Xz8KiLdmUHBj4U/X0bRN
-         E99ELdMQdS9BXEBdfheHVY1MLa5soKqjkRI8jf11dmEPFl2ePCoqDbRy5CueZOaoMMSk
-         mRhLhCI/SK1bmFV/U/LANLamdpCp7PDcSal27PKoMDhCXYRCviGEgq3NhK4jGTHEeD9/
-         SUYw==
-X-Gm-Message-State: AOJu0YyJ0e0OX4IYvDX8yJkVWw0vYCe/lCI8YB2vly64l3Gxx0XWPv0L
-	MxlNbDgOkGgBBWw1LWe6d5Eo/Y7GQFUWgGCOZjWOvNzpouncp+2w5PolruIfn40=
-X-Gm-Gg: ASbGncv57ONgd/1miI9XVGwj95FEU8LQfITE9CFcOfycmQ6bEr3ggJmuFwXKmwEaI8k
-	eVBlfhilG27NCgEXpLoIV1GpHrhow6k6N6yogF887lDNdPTzII0D3BmNgOd0HMn/t9RnL+bZs18
-	mZxyQG60gA+Y5zz8yOxuhMecb5dkoSOi82yv/PT/WSNNAl6GBwTgJbd7eczOaksCRNqYomq4aVD
-	U4Js12kDsikFxJS2UuBagm3ySQm1bpFO6fXXZdjk/c49MzLa6r5Bn5j
-X-Google-Smtp-Source: AGHT+IHt+ztASsOAIEt43c3x+zcLdVr12T5oX+eMBT4pTUFNWrnSCeXg29EJFBXBd9jNq3Mfw6VbKA==
-X-Received: by 2002:a17:906:3089:b0:aa6:7c36:3428 with SMTP id a640c23a62f3a-aa69fe12147mr278318366b.0.1733822288267;
-        Tue, 10 Dec 2024 01:18:08 -0800 (PST)
-Received: from [192.168.0.123] ([62.73.69.208])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aa67d6fcd3dsm352670366b.80.2024.12.10.01.18.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Dec 2024 01:18:07 -0800 (PST)
-Message-ID: <2283799b-e1fe-42c2-aecc-50c4ae1f9afa@blackwall.org>
-Date: Tue, 10 Dec 2024 11:18:06 +0200
+        d=1e100.net; s=20230601; t=1733823972; x=1734428772;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=UocVRl+s36yfKdOwyD9w/O24SaGw6oRqRxZTrP2zIsQ=;
+        b=ezN/8OXtbrvs0SIo+RHNc8Ebb40WXRZWLkq/l6l0sLRq/Yrpl0Btptgt74k6RX2gHu
+         ivfD6I30+wJS3VYR9tw77IzXLRvA7sJosfE/nzTLC4QFOAadfNfR97EVWnLjrF8arUXU
+         vDXKC/MHqCGcSNWaDxDSOU9biTv+12KQRafxO99QJOwStYt8jNJexCBWUwGzLo2QhNjj
+         cHb/UIKSZyIJZ4RZ0QPwNyUUBY0KVViNAU9p1nNJ0yQYu+266IWMV/6Fpkok+zCOKsGe
+         nMadqzTHnc4k9aRdvI6/F1B6b4bM0T0R+rzx9zMO1BRHResriBqzFFZ6A8G0bplwgON5
+         cvdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWqAiHtDqp0s9f62UFRNdSDwKZYZOImkn6BCzpca7BcVCCddhAX64kfeGS2GKu8JzbXgl0ZQNs=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyyVJnWp3PpCg3SZN6FAz0N/lZNPg9S7LwALB7NXNJDCYFDzbdY
+	IRgCMQcwDBOmdpWOTCSWOfwzJn2X3Floht0k2DeWfzfOVpBb0oxO/TZH8gXY
+X-Gm-Gg: ASbGncuvlANQd1krxxOeQb/x2jNHFfIwA+T7Kk1HmKLkb8OEy9M4hEK5bzYrxlGXiPe
+	rLF0QSPLZ4oDgYQdaUg8Lq5T+nbwWfgWyLfkmo8/TAyCYT+grrbhESLMTojP0WvgmVLaLSZUvdz
+	/xjopk9nqPQElS2pRshse5ntu0eGWgH+B7eQXZkZK98//ObdaecgQ21O0G2K6JX9hYIXhHR7zTz
+	IemAunG7F7Z3LMw92QsnMHgpUr2cnlgtK4AbfM7YlmIRAbAawWp1xlhhAeAWafqYcIyahJOmKro
+	QLX6rAWdLMglPloxT6N/n5D/FU4kgnSQe4nLYzcySHtL12olkpFT/+qk2UhLZKVpsaEDro4=
+X-Google-Smtp-Source: AGHT+IFCrrW6RNVZquoW/mErh5cCOuR46lfhdmTnJoE8ueHEeCps74gS5DZ/AuLUpkGnYzNZigdJOQ==
+X-Received: by 2002:a05:6402:320d:b0:5d0:d91d:c195 with SMTP id 4fb4d7f45d1cf-5d3be73fd12mr15089760a12.32.1733823971640;
+        Tue, 10 Dec 2024 01:46:11 -0800 (PST)
+Received: from corebook.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5d14b609e56sm7313936a12.40.2024.12.10.01.46.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2024 01:46:11 -0800 (PST)
+From: Eric Woudstra <ericwouds@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Ivan Vecera <ivecera@redhat.com>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	David Ahern <dsahern@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Lorenzo Bianconi <lorenzo@kernel.org>,
+	Joe Damato <jdamato@fastly.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	"Frank Wunderlich" <frank-w@public-files.de>,
+	Daniel Golle <daniel@makrotopia.org>
+Cc: netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org,
+	Eric Woudstra <ericwouds@gmail.com>
+Subject: [PATCH RFC v3 net-next 00/13] bridge-fastpath and related improvements
+Date: Tue, 10 Dec 2024 10:44:48 +0100
+Message-ID: <20241210094501.3069-1-ericwouds@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] net/bridge: Add skb drop reasons to the most
- common drop points
-To: Radu Rendec <rrendec@redhat.com>, Roopa Prabhu <roopa@nvidia.com>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
- Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
- "David S. Miller" <davem@davemloft.net>
-References: <20241208221805.1543107-1-rrendec@redhat.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20241208221805.1543107-1-rrendec@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 12/9/24 00:18, Radu Rendec wrote:
-> The bridge input code may drop frames for various reasons and at various
-> points in the ingress handling logic. Currently kfree_skb() is used
-> everywhere, and therefore no drop reason is specified. Add drop reasons
-> to the most common drop points.
-> 
-> The purpose of this patch is to address the most common drop points on
-> the bridge ingress path. It does not exhaustively add drop reasons to
-> the entire bridge code. The intention here is to incrementally add drop
-> reasons to the rest of the bridge code in follow up patches.
-> 
-> Most of the skb drop points that are addressed in this patch can be
-> easily tested by sending crafted packets. The diagram below shows a
-> simple test configuration, and some examples using `packit`(*) are
-> also included. The bridge is set up with STP disabled.
-> (*) https://github.com/resurrecting-open-source-projects/packit
-> 
-> The following changes were *not* tested:
-> * SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT in br_multicast_flood(). I could
->   not find an easy way to make a crafted packet get there.
-> * SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD in br_handle_frame_finish()
->   when the port state is BR_STATE_DISABLED, because in that case the
->   frame is already dropped in the switch/case block at the end of
->   br_handle_frame().
-> 
->     +---+---+
->     |  br0  |
->     +---+---+
->         |
->     +---+---+  veth pair  +-------+
->     | veth0 +-------------+ xeth0 |
->     +-------+             +-------+
-> 
-> SKB_DROP_REASON_MAC_INVALID_SOURCE - br_handle_frame()
-> packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
->   -e 01:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
->   -p '0x de ad be ef' -i xeth0
-> 
-> SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL - br_handle_frame()
-> packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
->   -e 02:22:33:44:55:66 -E 01:80:c2:00:00:01 -c 1 \
->   -p '0x de ad be ef' -i xeth0
-> 
-> SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD - br_handle_frame()
-> bridge link set dev veth0 state 0 # disabled
-> packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
->   -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
->   -p '0x de ad be ef' -i xeth0
-> 
-> SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD - br_handle_frame_finish()
-> bridge link set dev veth0 state 2 # learning
-> packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
->   -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
->   -p '0x de ad be ef' -i xeth0
-> 
-> SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT - br_flood()
-> packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
->   -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
->   -p '0x de ad be ef' -i xeth0
-> 
-> Signed-off-by: Radu Rendec <rrendec@redhat.com>
-> ---
->  include/net/dropreason-core.h | 18 ++++++++++++++++++
->  net/bridge/br_forward.c       |  4 ++--
->  net/bridge/br_input.c         | 24 +++++++++++++++---------
->  3 files changed, 35 insertions(+), 11 deletions(-)
-> 
+This patchset makes it possible to set up a software fastpath between
+bridged interfaces. This also creates the possibility to have a hardware
+offloaded fastpath between bridged interfaces.
 
-Hi,
-Thanks for working on this, a few comments below.
+To set up the fastpath with offloading, add this extra flowtable:
 
-> diff --git a/include/net/dropreason-core.h b/include/net/dropreason-core.h
-> index c29282fabae6..1f2ae5b387c1 100644
-> --- a/include/net/dropreason-core.h
-> +++ b/include/net/dropreason-core.h
-> @@ -108,6 +108,9 @@
->  	FN(TUNNEL_TXINFO)		\
->  	FN(LOCAL_MAC)			\
->  	FN(ARP_PVLAN_DISABLE)		\
-> +	FN(MAC_IEEE_MAC_CONTROL)	\
-> +	FN(BRIDGE_INGRESS_PORT_NFWD)	\
-> +	FN(BRIDGE_NO_EGRESS_PORT)	\
->  	FNe(MAX)
->  
->  /**
-> @@ -502,6 +505,21 @@ enum skb_drop_reason {
->  	 * enabled.
->  	 */
->  	SKB_DROP_REASON_ARP_PVLAN_DISABLE,
-> +	/**
-> +	 * @SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL: the destination MAC address
-> +	 * is an IEEE MAC Control address.
-> +	 */
-> +	SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL,
-> +	/**
-> +	 * @SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD: the STP state of the
-> +	 * ingress bridge port does not allow frames to be forwarded.
-> +	 */
-> +	SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD,
+table bridge filter {
+        flowtable fb {
+                hook ingress priority filter
+                devices = { lan0, lan1, lan2, lan3, lan4, wlan0, wlan1 }
+                flags offload
+        }
+        chain forward {
+                type filter hook forward priority filter; policy accept;
+		ct state established flow add @fb
+        }
+}
 
-Since this is used only when the port state causes the packet to drop, why not
-rename it to something that suggests it was the state?
+Creating a separate fastpath for bridges.
 
-> +	/**
-> +	 * SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT: no eligible egress port was
-> +	 * found while attempting to flood the frame.
-> +	 */
-> +	SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT,
->  	/**
->  	 * @SKB_DROP_REASON_MAX: the maximum of core drop reasons, which
->  	 * shouldn't be used as a real 'reason' - only for tracing code gen
-> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> index e19b583ff2c6..e33e2f4fc3d9 100644
-> --- a/net/bridge/br_forward.c
-> +++ b/net/bridge/br_forward.c
-> @@ -249,7 +249,7 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
->  
->  out:
->  	if (!local_rcv)
-> -		kfree_skb(skb);
-> +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT);
+         forward fastpath bypass
+ .----------------------------------------.
+/                                          \
+|                        IP - forwarding    |
+|                       /                \  v
+|                      /                  wan ...
+|                     /
+|                     |
+|                     |
+|                   brlan.1
+|                     |
+|    +-------------------------------+
+|    |           vlan 1              |
+|    |                               |
+|    |     brlan (vlan-filtering)    |
+|    +---------------+               |
+|    |  DSA-SWITCH   |               |
+|    |               |    vlan 1     |
+|    |               |      to       |
+|    |   vlan 1      |   untagged    |
+|    +---------------+---------------+
+.         /                   \
+ ------>lan0                 wlan1
+        .  ^                 ^
+        .  |                 |
+        .  \_________________/
+        .  bridge fastpath bypass
+        .
+        ^
+     vlan 1 tagged packets
 
-This is not entirely correct, we can get here if we had an error forwarding
-the packet to some port, but it may already have been forwarded to others.
-The reason should distinguish between those two cases.
+While testing direct transmit in the software forward-fastpath, it is
+useful to enslave the wan interface to another bridge, brwan. This will
+make sure both directions of the software forward-fastpath use direct
+transmit.
 
->  }
->  
->  #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
-> @@ -349,6 +349,6 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
->  
->  out:
->  	if (!local_rcv)
-> -		kfree_skb(skb);
-> +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT);
+To have the ability to handle xmit direct with outgoing encaps in the
+bridge fastpass bypass, we need to be able to handle them without going
+through vlan/pppoe devices. So I've applied, amended and squashed wenxu's
+patchset. This patch also makes it possible to egress from vlan-filtering
+brlan to lan0 with vlan tagged packets, if the bridge master port is doing
+the vlan tagging, instead of the vlan-device. Without this patch, this is
+not possible in the bridge-fastpath and also not in the forward-fastpath,
+as seen in the figure above.
 
-Same comment as above (br_flood).
+There are also some more fixes for filling in the forward path. These
+fixes also apply to for the forward-fastpath. They include handling
+DEV_PATH_MTK_WDMA in nft_dev_path_info(). There are now 2 patches for
+avoiding ingress_vlans bit set for bridged dsa user ports and foreign
+(dsa) ports.
 
->  }
->  #endif
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index ceaa5a89b947..fc00e172e1e1 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -96,8 +96,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
->  	if (br_mst_is_enabled(br)) {
->  		state = BR_STATE_FORWARDING;
->  	} else {
-> -		if (p->state == BR_STATE_DISABLED)
-> -			goto drop;
-> +		if (p->state == BR_STATE_DISABLED) {
-> +			kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD);
-> +			return 0;
-> +		}
->  
->  		state = p->state;
->  	}
-> @@ -155,8 +157,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
->  		}
->  	}
->  
-> -	if (state == BR_STATE_LEARNING)
-> -		goto drop;
-> +	if (state == BR_STATE_LEARNING) {
-> +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD);
-> +		return 0;
-> +	}>  
->  	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
->  	BR_INPUT_SKB_CB(skb)->src_port_isolated = !!(p->flags & BR_ISOLATED);
-> @@ -331,8 +335,10 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->  	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
->  		return RX_HANDLER_PASS;
->  
-> -	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
-> -		goto drop;
-> +	if (!is_valid_ether_addr(eth_hdr(skb)->h_source)) {
-> +		kfree_skb_reason(skb, SKB_DROP_REASON_MAC_INVALID_SOURCE);
-> +		return RX_HANDLER_CONSUMED;
-> +	}
->  
->  	skb = skb_share_check(skb, GFP_ATOMIC);
->  	if (!skb)
-> @@ -374,7 +380,8 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->  			return RX_HANDLER_PASS;
->  
->  		case 0x01:	/* IEEE MAC (Pause) */
-> -			goto drop;
-> +			kfree_skb_reason(skb, SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL);
-> +			return RX_HANDLER_CONSUMED;
->  
->  		case 0x0E:	/* 802.1AB LLDP */
->  			fwd_mask |= p->br->group_fwd_mask;
-> @@ -423,8 +430,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
->  
->  		return nf_hook_bridge_pre(skb, pskb);
->  	default:
-> -drop:
-> -		kfree_skb(skb);
-> +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD);
->  	}
->  	return RX_HANDLER_CONSUMED;
->  }
+Another patch introduces DEV_PATH_BR_VLAN_KEEP_HW, needed for the
+bridge-fastpath only.
 
-Cheers,
- Nik
+Conntrack bridge only tracks untagged and 802.1q. To make the bridge
+fastpath experience more similar to the forward fastpath experience,
+I've added double vlan, pppoe and pppoe-in-q tagged packets to bridge
+conntrack and to bridge filter chain.
+
+Note: While testing direct transmit in the software forward-fastpath,
+without the capability of setting the offload flag, it is sometimes useful
+to enslave the wan interface to another bridge, brwan. This will make
+sure both directions of the software forward-fastpath use direct transmit,
+which also happens when the offload flag is set.
+
+I have send RFC v2 as I previously only owned a dsa device. I now have
+obtained a switchdev supporting SWITCHDEV_OBJ_ID_PORT_VLAN, and found
+there was more to do to handle the ingress_vlans bit and corresponding
+vlan encap.
+
+I am now sending RFC v3 as the previous RFC did not get any comment.
+
+Changes in v3:
+- Squashed the two 'port to port' patches to avoid build errors when only
+   one of the two commits is applied.
+
+Changes in v2:
+- Introduce DEV_PATH_BR_VLAN_KEEP_HW for use in the bridge-fastpath only.
+   It is needed for switchdevs supporting SWITCHDEV_OBJ_ID_PORT_VLAN.
+- Different approach for handling BR_VLFLAG_ADDED_BY_SWITCHDEV in
+   br_vlan_fill_forward_path_mode() for foreign devices. Introduce
+   SWITCHDEV_F_NO_FOREIGN, BR_VLFLAG_TAGGING_BY_SWITCHDEV and
+   br_switchdev_port_vlan_no_foreign_add(). The latter function can be
+   used to make sure the vlan was added to a switchdev native device.
+   When that fails, adding the vlan with br_switchdev_port_vlan_add()
+   means it was added to a switchdev foreign device.
+- Clear ingress_vlans bit and corresponding encap for dsa user ports.
+- Add check for ingress_vlans bit to nft_dev_fill_bridge_path().
+- Adapted cover letter description to make clear the patches apply
+   to software fastpath, making hardware-offloaded fastpath possible.
+- Fixed clang error for vlan_hdr * and struct ppp_hdr * by adding block.
+- Updated !CONFIG_BRIDGE_VLAN_FILTERING version of
+   br_vlan_fill_forward_path_pvid().
+- Removed erroneous check netif_is_bridge_master(ctx->dev) from
+   dev_fill_bridge_path().
+- Cosmetic changes.
+
+Eric Woudstra (13):
+  netfilter: nf_flow_table_offload: Add nf_flow_encap_push() for xmit
+    direct
+  netfilter: bridge: Add conntrack double vlan and pppoe
+  netfilter: nft_chain_filter: Add bridge double vlan and pppoe
+  bridge: Add filling forward path from port to port
+  net: core: dev: Add dev_fill_bridge_path()
+  netfilter :nf_flow_table_offload: Add nf_flow_rule_bridge()
+  netfilter: nf_flow_table_inet: Add nf_flowtable_type flowtable_bridge
+  netfilter: nft_flow_offload: Add NFPROTO_BRIDGE to validate
+  netfilter: nft_flow_offload: Add DEV_PATH_MTK_WDMA to
+    nft_dev_path_info()
+  netfilter: nft_flow_offload: No ingress_vlan forward info for dsa user
+    port
+  bridge: No DEV_PATH_BR_VLAN_UNTAG_HW for dsa foreign
+  bridge: Introduce DEV_PATH_BR_VLAN_KEEP_HW for bridge-fastpath
+  netfilter: nft_flow_offload: Add bridgeflow to nft_flow_offload_eval()
+
+ include/linux/netdevice.h                  |   3 +
+ include/net/netfilter/nf_flow_table.h      |   3 +
+ include/net/switchdev.h                    |   1 +
+ net/bridge/br_device.c                     |  23 ++-
+ net/bridge/br_private.h                    |   5 +
+ net/bridge/br_switchdev.c                  |  15 ++
+ net/bridge/br_vlan.c                       |  29 +++-
+ net/bridge/netfilter/nf_conntrack_bridge.c |  88 +++++++++--
+ net/core/dev.c                             |  66 ++++++--
+ net/netfilter/nf_flow_table_inet.c         |  13 ++
+ net/netfilter/nf_flow_table_ip.c           |  96 +++++++++++-
+ net/netfilter/nf_flow_table_offload.c      |  13 ++
+ net/netfilter/nft_chain_filter.c           |  20 ++-
+ net/netfilter/nft_flow_offload.c           | 166 +++++++++++++++++++--
+ net/switchdev/switchdev.c                  |   2 +-
+ 15 files changed, 490 insertions(+), 53 deletions(-)
+
+-- 
+2.47.1
 
