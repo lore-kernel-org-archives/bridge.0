@@ -1,175 +1,167 @@
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2080.outbound.protection.outlook.com [40.107.244.80])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 819CE8489
-	for <bridge@lists.linux.dev>; Wed, 11 Dec 2024 08:42:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.80
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733906561; cv=fail; b=rGdhD5aixIRUESo2G+P6LaqP1j5BtSoWnDvARfvobpWwjdnhUfzhyByczGy6fCibUwEtQcKNWATxay1MZaoh9t1BGbTg78X4gLdBwUcYITLxvhZ355IKtJDsEt0zujSkzpxcvxQjj8LWZ8WFPreIT1+h8xT1gB6Ll3bY6b++kd0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733906561; c=relaxed/simple;
-	bh=wCly5q9CWyII76+fGIYE0MRkbPVb2WbAozIFuu8OczI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=WUNbC3e5cbmFrdBSy5XDHJ+eEjD+l3i60uwzWUISZkZMsBevq3+1VtHbji+lbCB/zOypUJC99OSvb6/hsXcN4PF/A49X7m4+3SInfKv6mYJex5O5WBLP11CzgCmMip+wWYDqRmzmf/5LZo5T+NBe7uqIdDNqsrMbQO7I/DJfg9U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=NClAGj4z; arc=fail smtp.client-ip=40.107.244.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 794B3236F89
+	for <bridge@lists.linux.dev>; Wed, 11 Dec 2024 10:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1733913177; cv=none; b=GMJad5rvMIh20b4flelpsdE4XIhZ2oJR+BMY5wY1wjt6VmCXSJ9AC/MheCpMz3F7a2pOSFE5zDA/V8Am9ffm9/8cIQSgupq+CXAPRluNAESV/XU/5/jIBVbvc43pJMcPRI75XM4Lm68mErRolqR9HfU5IPEj3a7vxybiRyIuR0U=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1733913177; c=relaxed/simple;
+	bh=/4lgquGLeg6Y4KgAZdiT6uaqnNN3JttgqH2+HKIMPHA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aOf554hrRGcy52nzQfgVnolbIfklGAMBZlzVeG67aayt9yCSG1H4FbVA68BGTVzvMU1RNTdUBVxA5OgfG/my27W1Db8HveGCkqo4Qy/Ajd5imDZXlWCAUBBSSTOJ0BNvmjpnWCp24N36Tp0YGqsfpytbSXK+EFf989NFIbtB9a8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bisdn.de; spf=none smtp.mailfrom=bisdn.de; dkim=pass (2048-bit key) header.d=bisdn-de.20230601.gappssmtp.com header.i=@bisdn-de.20230601.gappssmtp.com header.b=ksg2f4UM; arc=none smtp.client-ip=209.85.160.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bisdn.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bisdn.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="NClAGj4z"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=xwjhsc3PUoZ2cmgeKZV1bq029haavL/ZoYRoGEGLFmvDghvDIJh8/CazeT/+DU0pw9Fw20pb8jaPuN8LVID9F+urs/ONpv9KXIRIIchdkirCjnysnoCe0pkpFC61ePcUyYHO2yc6/gBnRih1SvXA3Wb0rSzybVsSW79sBSYw47/hz+0HyodWRKz/LCbUqeiK/Q9rF6fLtSFMcDxl4WcU92ZG1xuK9QOWaKG6mRCKH01dDoIuN9+PdXJers96X0Dh24nTXepuKvl/vFtRbmN8IL2cuu/dfwLYpKbcpYPRCgdvDrzSnJuAX3DMybtKooGyEQEr5z+j0PLE9aP1UuIstQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wCly5q9CWyII76+fGIYE0MRkbPVb2WbAozIFuu8OczI=;
- b=FEImvGYY+dMATebvxoCfq+nv6/ufSfXJyjZmj0FXcDLQmS0e0mR2GTlt8E3hdlb/n/fYwqg38lYiogDSZaxboN43quYk4X7JbGWeOZmL5MQacYbyEP69qVqptik3Aly0kMHJ9D+TYKJXtfZEwDQDyId4cI/HtJQgRuVNmkQgdvFW6KUoF0E9BBxc4tjdFsaSTVxbOXXBzF32e67dnCvgKZzp4VeucFVaKGMLLR2aI+DwO1EXTUYT1pY2IGkOyxfPdHIBoN3a1nmP/HD0qsBRKPLBBEZDVHDDAxaBO+RHPoLlCnxf4m3+H4yaSpMUBqv8Tax470i8Tnyq3U9mAoiEYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wCly5q9CWyII76+fGIYE0MRkbPVb2WbAozIFuu8OczI=;
- b=NClAGj4zg6sUGa3QZKcJf4VSWaY9L+qRSaDEoeflQVGkfGjLHs3R6Q4l2M3BN/mMzwAEsEw9ekFixPoCRbrXRwE3C0LJwr/gnVSVJrQKNVF6YZ7z7gM44GCkua0va5oQ9RDivTnPQYVxq9X28qoRxardWUOxYYLPIL4kzMWmnzY4hDH0P+UhTliBtqZFkJLRrwvNubIsUQVIWTEXWMUt2J8Q5PLSURq658VQQQFZPQrXfMCqbFjGFg6wAGsayKoUfayXLYxk1s8Q9cHhqQ1uSXV/UXY3D8L6OgVb4oeyMQTrIpczXdQhEwOHML7CJ22wQnGk+tkox9zrrp3PujtOgQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by SA1PR12MB6972.namprd12.prod.outlook.com (2603:10b6:806:24f::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8251.15; Wed, 11 Dec
- 2024 08:42:33 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8%4]) with mapi id 15.20.8251.008; Wed, 11 Dec 2024
- 08:42:33 +0000
-Date: Wed, 11 Dec 2024 10:42:22 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Jonas Gorski <jonas.gorski@bisdn.de>
-Cc: Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Hans Schultz <schultz.hans@gmail.com>,
-	"Hans J. Schultz" <netdev@kapio-technology.com>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] net: bridge: handle ports in locked mode for ll
- learning
-Message-ID: <Z1lQblzlqCZ-3lHM@shredder>
-References: <20241210140654.108998-1-jonas.gorski@bisdn.de>
- <20241210143438.sw4bytcsk46cwqlf@skbuf>
- <CAJpXRYTGbrM1rK8WVkLERf5B_zdt20Zf+MB67O5M0BT0iJ+piw@mail.gmail.com>
- <20241210145524.nnj43m23qe5sbski@skbuf>
- <CAJpXRYS3Wbug0CADi_fnaLXdZng1LSicXRTxci3mwQjZmejsdQ@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJpXRYS3Wbug0CADi_fnaLXdZng1LSicXRTxci3mwQjZmejsdQ@mail.gmail.com>
-X-ClientProxiedBy: TL2P290CA0030.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:3::16) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (2048-bit key) header.d=bisdn-de.20230601.gappssmtp.com header.i=@bisdn-de.20230601.gappssmtp.com header.b="ksg2f4UM"
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-4675c7a0af2so5149251cf.3
+        for <bridge@lists.linux.dev>; Wed, 11 Dec 2024 02:32:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bisdn-de.20230601.gappssmtp.com; s=20230601; t=1733913174; x=1734517974; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/4lgquGLeg6Y4KgAZdiT6uaqnNN3JttgqH2+HKIMPHA=;
+        b=ksg2f4UM68doZYlhzlUNCT5FkZIXflS3uoMW0hyOw+igeORZomPb/TZ1XQ0lWD223P
+         CigCOCcEXHyMasm6VJSnoWbgR1rfS5UYdXxDCXd1CL/vgQv9+frUhn+0hApBX74A4f1S
+         Arsfmig+HTADP5DlzHFxTBsEYjWr4STGE0cur35XxyycBA0mqHpWaWVvftrqwr139mV3
+         lgIM33ZfIptYpQek2ADyl3i8c+A5kAic/m1YShyyp0ROW0NtBMgS+WlwqBH8C153VKaL
+         pKXJkWg6NsUjx6v44tMSNJM7ERr9dXdpEkhXEYCjPxZevJwDM7g6+oTGLg/Dk0lUBghG
+         mdbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733913174; x=1734517974;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/4lgquGLeg6Y4KgAZdiT6uaqnNN3JttgqH2+HKIMPHA=;
+        b=CrPBClQtip8jGUwCJcz/QXU88to2DS7D20e44HSWT71YTVvPBHfZ7qp9lgDfS/WUPn
+         ON1xfpZ2gtIUo7Gn0KltgJLLDuFVqJrOUwoWKjiXRihFwLzicKFjVkKV3xmm9CxuyDz8
+         wqd+p/F2r5lC7JHVWoMzaYMujoYTb70hp4iqJihCoeU/2baJZCl7U0BYQHYp8PGwoukb
+         F+Loh1kVt9Rh/Fbi7rQf36QSVPi7sAYx/QrbNaRYg4KFvicjEyw1s3cfa8kQ/Mb0SIzh
+         Hchb0uoaunGEBfHKFSBSYYnCNEwAp0eoCPhs5fPRwlz/HzGqvC0+a/0lCNM2DwHGWqZm
+         hF4g==
+X-Forwarded-Encrypted: i=1; AJvYcCX9NkNyvu6BLgP2jCAu/OGZb9fId4dC02fKfYWMr+au9sPnpLe/nyQQylsAKELN2VxG7UsDA9o=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwNCzIgBzS0ihYr61XU9Ch5GXdvnT+S5P2Dmx0zyCnQSSmq1ngn
+	6X+CVLEJox2tWku31c5bl4vTM51mmAPqIKnYq8p49cihw7N6dCdjeHvBxaQUB6FVklvMO5D89sD
+	JSoOqPFmgPsNk7uTJqCz3LQ4OOLKjeMpEzCMmAt0dMGDErnT9pOQONuyzHHLayZO2PXbqJe7qGQ
+	E4EeiNvGh9Np5C1pQxJebC1w==
+X-Gm-Gg: ASbGncutLOiyL9gzVb5wYEkmzga0wjk8/bwUxDcIXZSW8V4Ri5TjGmoTZHC1KDHP8/1
+	cshdzB1j7rL98rEcCx4H8uBBa9eg2I8MG
+X-Google-Smtp-Source: AGHT+IE4ssE6QMrH4sTZK9NYcTlGv+R/lgImZyD+f8sZECYEQ4HgAjCYi6Iw0wNpgfp9u2elAVoyr/9zpSS/d8PeOJQ=
+X-Received: by 2002:a05:622a:5a86:b0:467:742e:f07e with SMTP id
+ d75a77b69052e-467892def4emr16884741cf.7.1733913174320; Wed, 11 Dec 2024
+ 02:32:54 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|SA1PR12MB6972:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6a94a8b0-bd40-47e5-d873-08dd19bfc15a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?KShO0vAw4cvK5nkR+zuEC9XNUo96vIrbCxK1AgAID/SVe+oSVVizLNww1xuL?=
- =?us-ascii?Q?rV5B8ZNIANHevQ7QT3S0oSkodFsayaa35qJfeCpp5aRI70XetS13k1HzSjXR?=
- =?us-ascii?Q?TnTNRkEfsatpdtG76JfC2hFN9NaXWRmCnirvDWQf/qsMZu5nLFzTxwk2tXHd?=
- =?us-ascii?Q?ZY20nJciR5FHS2AkYg0Lb4ZzQrnZO/VgfG/KX/fCXwMsTAqX0J/4hD8wNEBm?=
- =?us-ascii?Q?I4ANx3l9lfFKssjPmCTfjfOxgVcRxdU5V5za/UexfqVMN7vUyXyK33idGIe+?=
- =?us-ascii?Q?WduRM3EDmlilMqoIgLGYM02Vdsg4l1EDlJ0/8CLfxUPletyvIGq0fjmmzD01?=
- =?us-ascii?Q?yfMkBXmMAFs3NMiTm1LsfExz3Ie5NXAs+qZTsILT/zLwFryUZE3cJZ8AR8b0?=
- =?us-ascii?Q?sc3MwE13xH5/hv3rxXrFrtsZMHpen2nNY270a99CEPswVBDkofeP2Py7uIoa?=
- =?us-ascii?Q?mpECudO4h4+4N+XgNv//dZWEVr+XL72nbHd/3PU6zjRF4HWetCBH9uTKdbKv?=
- =?us-ascii?Q?kojju8lEcbWnfibwnUsCk9GY4bb2BIMUdcuc2pb1dMMvdwXqYuEaS0u+IPMe?=
- =?us-ascii?Q?typVq1+P2MW+NtNZQPbezxA0TwGU52akCCOiez0ouSIVKMiI/zSK9JyPLvjp?=
- =?us-ascii?Q?fkPvg+wqc7PISN9PCChAxuBjvnF3AOFfpQMYQ27ogO1SrAE9x4CI3Goo11tK?=
- =?us-ascii?Q?SUlEI/8x4wYzE+Pxmfx6UieNBdvWMJf9xkBs2Xt1q/GBnfqepdeMzOPV5nmU?=
- =?us-ascii?Q?Gfe0pHjl3dHDBFqFI2tKI3ncd/1wsU8eG5s7HeMGS523HvnayG+B1Fox9jXW?=
- =?us-ascii?Q?JTCjKvcRwBBhgn1xNXDZY1p1muI9j9djMnVYVLfAxMtHkm2xDii1f13u9bS8?=
- =?us-ascii?Q?L1ZA9SS5SIhu97rQYnSkHEIM6sdWkS1q7j6aP9LzjJkTUF5wJLKhUEJERGCk?=
- =?us-ascii?Q?lHaQM+Z1BgrvXM8Wy4gpfAhYavyrcTc2TCfXNI2u4Is7q2XjD3/bOxLh4yh9?=
- =?us-ascii?Q?q/n2DzHKgMjPHs0BCBxXj/oajllD/bGJRraEN7h54+Sefdj7bgQRQXJbgLJa?=
- =?us-ascii?Q?sXKgPtafvoZzJVe+wu1xJCoUD+bLxA4AM/GVsp6stp549PJzLs6N1UFsYJ2b?=
- =?us-ascii?Q?wXUch236/Kq4WaIKO/3Kc/KnOpxInvGFdEINasvsPEQf54OgJBnkMSgu9l7m?=
- =?us-ascii?Q?TJ2t2mqYpDF95VclJzWBvqtw/MwGx+jtWeuVxDTg9k8uxtUBqUacaEUPLXQB?=
- =?us-ascii?Q?fe91dTx5g7zyoImhc2ZfhEitXuqv8o5wo4gpAS2HUH934xDaW0VKtCK+Rpjj?=
- =?us-ascii?Q?Cy6FVKRJxGOhVIpgp8rCwitxbp1WLIaP3YY94YU2XbPSTQ=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?5hqH8nkyc9qOKUNINajCLzqTB2z6/uoQRcAASXVTQbPJ7yVAG7/YU7YFN+AV?=
- =?us-ascii?Q?v5UMt+BQpwyVrt03vLeWADJOJtn4lk0S4/71npZ6St6q8Fs38fscFNDthKTI?=
- =?us-ascii?Q?0B93Wqrtplls2gZ7vc0r9TOPTKJS0uzT1e/8MXT5SEQOf3IlzfVWBWoZ4yFK?=
- =?us-ascii?Q?HznwpAK7zgVsr8EX6gMHah+JQ6E1Np4zyH7eXEvR3cW8ig7Z2/JrDaFYPXF/?=
- =?us-ascii?Q?WiVE7GCCZ5OO4msREGyg8whjXzo2QbVS653HiYdR8mPM+MuW5CFhhCQdcpRg?=
- =?us-ascii?Q?FRyYLa1s8g4lf0bH230SM+4CI8Q7H/DNBNIvcO7GoiiiaErZnXU6AqKC8qot?=
- =?us-ascii?Q?U4cnplLntmVSuiS58ZjoJXwC00l0SE57hDfsxazsJC02h/TtlBOqNRCoyDgn?=
- =?us-ascii?Q?7cudyBwnuaZcu7Su5G85f35oKnjthi/7lpxTINPIF+Dnl+kdPmKOuuaWWKfo?=
- =?us-ascii?Q?KsZl1cj2KfzsFPKplyc6MOqLNdB5gkjc+dcwUMU1yfpbhaJJ1ean3NMWZ9p/?=
- =?us-ascii?Q?vEOGL7UL5y8XdgjlZZCg6nBSQiqEsuUg7YNNJph3V9RI6onmCeEJ1pFKgpn5?=
- =?us-ascii?Q?R01sJaeLVBmWBwu2mXnOVUrKzjYu5C0Hw9k3bsYqIynzvKuZTuec290y8+m2?=
- =?us-ascii?Q?b2Um8HC5m60twwAnaWtvy9J66xK1/P/pRDAx+1ZbpgTMzN4nkHRPpR3sa0q3?=
- =?us-ascii?Q?oUT6DW/OsTtzqM0Eiv1j9TTOFsdDlkX2IlRwfedFN1LoHzNYMkPVP+mM/FTh?=
- =?us-ascii?Q?1XJo/8JOiOKkfFT5OzfooL29wiyvnlLXxOo6zDL8MAFNJb8KB1GzyQ5aZfOq?=
- =?us-ascii?Q?HRNZUCOu13QbQHmHndLBY+jWsGMfPWiUQFip5iiNlfpkipiM7xi583uOuUOX?=
- =?us-ascii?Q?CMtSWx/1EVdW+SP1QUutGp2D68I961fD7xQzQ1ZeNfCy7qTxoGxYyjowzboM?=
- =?us-ascii?Q?FW2apoD6eK2BJbbfa4Of3ho75hVLgGDO0Ho1fAZCZXLtmDqRqtySkdkH9/IF?=
- =?us-ascii?Q?cSN+PZ0fZxpewlvsNEQfSBemnNuTma42cPYZ98MVWY2VvAwSK10gsNESvNa9?=
- =?us-ascii?Q?f/NqNBamBpOOVhtwDDCzF4Us7/1X3Cgok6en/vXmukK7HCh6klfjPRI8ecNH?=
- =?us-ascii?Q?ATOpVe6LxJMQY6DSdrroSlr5emQTRfNyyy5awyiZycB3M7oIFXzvXayj02LC?=
- =?us-ascii?Q?FVU86WNtqbJnMzOm1Uc9wD/mzEuGqpcyXmOPilUjp+kc+0ajSmUdr9DOPi7x?=
- =?us-ascii?Q?Pd15ViDs3GQtnlb+7DHTem/bBk8w5+OFKO81oURVNvjAXHKukbgrT7dQwMnm?=
- =?us-ascii?Q?QO4QDZ5s6OiT/0ulvAM+64Sb4GDG/V0vLDtAoIvnmsj111KZIsI44MafKzyb?=
- =?us-ascii?Q?QOeA+7eUgMuBNlNnVtGWevzTh0GgvYcdwTrITCydjNd5kqlVpgeaSu4fkDSy?=
- =?us-ascii?Q?semixAvaMPesO4TJHvPz/0wN1vJC/qnagIhk+BCtINJ5ke/zMlcAGB5a992K?=
- =?us-ascii?Q?PtawEDYFdFQWN8ANP4UjYm5DRCCsXAavUu3EZRdbCrIgtVFqq/EUw4sZ9NyB?=
- =?us-ascii?Q?FU2knnV+PRj58FTqeVTyv0UaJN8XzGy0BljFkAtY?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6a94a8b0-bd40-47e5-d873-08dd19bfc15a
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Dec 2024 08:42:33.1279
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vsb8dAiiSItmqLyPLe0oe51MfmxB0+9dDU+kemFNSUMoIq2pdkFPTuLmpsqinlxBXWmFtGcTmpencClGGQOTLw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6972
+References: <20241210140654.108998-1-jonas.gorski@bisdn.de>
+ <20241210143438.sw4bytcsk46cwqlf@skbuf> <CAJpXRYTGbrM1rK8WVkLERf5B_zdt20Zf+MB67O5M0BT0iJ+piw@mail.gmail.com>
+ <20241210145524.nnj43m23qe5sbski@skbuf> <CAJpXRYS3Wbug0CADi_fnaLXdZng1LSicXRTxci3mwQjZmejsdQ@mail.gmail.com>
+ <Z1lQblzlqCZ-3lHM@shredder>
+In-Reply-To: <Z1lQblzlqCZ-3lHM@shredder>
+From: Jonas Gorski <jonas.gorski@bisdn.de>
+Date: Wed, 11 Dec 2024 11:32:38 +0100
+Message-ID: <CAJpXRYRsJB1JC+6F8TA-0pYPpqTja5xqmDZzSM06PSudxVVZ6A@mail.gmail.com>
+Subject: Re: [PATCH RFC] net: bridge: handle ports in locked mode for ll learning
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: Vladimir Oltean <vladimir.oltean@nxp.com>, Roopa Prabhu <roopa@nvidia.com>, 
+	Nikolay Aleksandrov <razor@blackwall.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Hans Schultz <schultz.hans@gmail.com>, 
+	"Hans J. Schultz" <netdev@kapio-technology.com>, bridge@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 10, 2024 at 04:28:54PM +0100, Jonas Gorski wrote:
-> Thanks for the pointer. Reading the discussion, it seems this was
-> before the explicit BR_PORT_MAB option and locked learning support, so
-> there was some ambiguity around whether learning on locked ports is
-> desired or not, and this was needed(?) for the out-of-tree(?) MAB
-> implementation.
+Am Mi., 11. Dez. 2024 um 09:42 Uhr schrieb Ido Schimmel <idosch@nvidia.com>=
+:
+>
+> On Tue, Dec 10, 2024 at 04:28:54PM +0100, Jonas Gorski wrote:
+> > Thanks for the pointer. Reading the discussion, it seems this was
+> > before the explicit BR_PORT_MAB option and locked learning support, so
+> > there was some ambiguity around whether learning on locked ports is
+> > desired or not, and this was needed(?) for the out-of-tree(?) MAB
+> > implementation.
+>
+> There is a use case for learning on a locked port even without MAB. If
+> user space is granting access via dynamic FDB entires, then you need
+> learning enabled to refresh these entries.
 
-There is a use case for learning on a locked port even without MAB. If
-user space is granting access via dynamic FDB entires, then you need
-learning enabled to refresh these entries.
+AFAICT this would still work with my patch, as long learning is
+enabled for the port. The difference would be that new dynamic entries
+won't be created anymore from link local learning, so userspace would
+now have to add them themselves. But any existing dynamic entries will
+be refreshed via the normal input paths.
 
-> But now that we do have an explicit flag for MAB, maybe this should be
-> revisited? Especially since with BR_PORT_MAB enabled, entries are
-> supposed to be learned as locked. But link local learned entries are
-> still learned unlocked. So no_linklocal_learn still needs to be
-> enabled for +locked, +learning, +mab.
+Though I see that this would break offloading these, since USER
+dynamic entries are ignored in br_switchdev_fdb_notify() since
+927cdea5d209 ("net: bridge: switchdev: don't notify FDB entries with
+"master dynamic""). Side note, br_switchdev_fdb_replay() seems to
+still pass them on. Do I miss something or shouldn't replay also need
+to ignore/skip them?
 
-I mentioned this in the man page and added "no_linklocal_learn" to
-iproute2, but looks like it is not enough. You can try reposting the
-original patch (skip learning from link-local frames on a locked port)
-with a Fixes tag and see how it goes. I think it is unfortunate to
-change the behavior when there is already a dedicated knob for what you
-want to achieve, but I suspect the change will not introduce regressions
-so maybe people will find it acceptable.
+> > But now that we do have an explicit flag for MAB, maybe this should be
+> > revisited? Especially since with BR_PORT_MAB enabled, entries are
+> > supposed to be learned as locked. But link local learned entries are
+> > still learned unlocked. So no_linklocal_learn still needs to be
+> > enabled for +locked, +learning, +mab.
+>
+> I mentioned this in the man page and added "no_linklocal_learn" to
+> iproute2, but looks like it is not enough. You can try reposting the
+> original patch (skip learning from link-local frames on a locked port)
+> with a Fixes tag and see how it goes. I think it is unfortunate to
+> change the behavior when there is already a dedicated knob for what you
+> want to achieve, but I suspect the change will not introduce regressions
+> so maybe people will find it acceptable.
+
+Absolutely not your fault; my reference was the original cover letters
+for BR_PORT_LOCKED and BR_PORT_MAB and reading br_input.c where the
+flags are handled (not even looking at if_link.h's doc comments). And
+there the constraint/side effect isn't mentioned anywhere, so I
+assumed it was unintentional. And I never looked at any man pages,
+just used bridge link help to find out what the arguments are to
+(un)set those port flags. So I looked everywhere except where this
+constraint is pointed out.
+
+Anyway, I understand your concern about already having a knob to avoid
+the issue, my concern here is that the knob isn't quite obvious, and
+that you do need an additional knob to have a "secure" default. So
+IMHO it's easy to miss as an inexperienced user. Though at least in
+the !MAB case, disabling learning on the port is also enough to avoid
+that (and keeps learning via link local enabled for unlocked ports).
+
+At least in the case of having enabled BR_PORT_MAB, I would consider
+it a bug that the entries learned via link local traffic aren't marked
+as BR_FDB_LOCKED. If you agree, I can send in a reduced patch for
+that, so that the entries are initially locked regardless the source
+of learning.
+
+Best Regards,
+Jonas
+
+--=20
+BISDN GmbH
+K=C3=B6rnerstra=C3=9Fe 7-10
+10785 Berlin
+Germany
+
+
+Phone:=20
++49-30-6108-1-6100
+
+
+Managing Directors:=C2=A0
+Dr.-Ing. Hagen Woesner, Andreas=20
+K=C3=B6psel
+
+
+Commercial register:=C2=A0
+Amtsgericht Berlin-Charlottenburg HRB 141569=20
+B
+VAT ID No:=C2=A0DE283257294
+
