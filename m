@@ -1,238 +1,196 @@
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2045.outbound.protection.outlook.com [40.107.92.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B03B7212FBB
-	for <bridge@lists.linux.dev>; Thu, 12 Dec 2024 12:25:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734006358; cv=fail; b=kQ9dbHsm6OXAQtpyVguCrp6r+IHtwJMuCqWh6CkBKS0QEk70oSjw6D8+lpa102ebfnHCEJYhAFF+2PcEqYgxPkgL5EhEcme/sZnpF24OyldqId5wjBubRRTYCsvykiKqvsqj010gpqiDq40i9qCwy35sgJS4tFBp8N5cLuOe1dQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734006358; c=relaxed/simple;
-	bh=c7IzWoFhFjPrSPpNpRT7CWoxio+fCbIuLbqiji8BE4Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=M5ESbEd2L3xN4B8Lgr/xVlcDSrgwJ6rzFTTp9wqGMTYkUgWIfvGYmq4BYCSHaYAxrnvuyzAeX1XrsHXzlMne1I9kttZvZJRfWt+FChd3f+efvbHRmw7RsA08ggvUA38SnTziJPvqXB+uU+1tDmfqcdy8pTd0R0n03W84Mf6+Jho=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=RQWbNaVw reason="signature verification failed"; arc=fail smtp.client-ip=40.107.92.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 377D5213247
+	for <bridge@lists.linux.dev>; Thu, 12 Dec 2024 12:41:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1734007307; cv=none; b=neTuPauLB0pk+QoxGjbF1ryRuAmRfhPUe8gnk6Bb+4BSLyUhW6HE++kzk5bXg/j5cHU4e7XapQ7l+Cy5COx5PxuduaQ5WRVe3ZyrB1pihGyMMrmHUANxjkq3AKL8Klx/nhjlmJrjk9Pq8MQ3cyoAG8xW24PBUZEAvieftVYEVZE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1734007307; c=relaxed/simple;
+	bh=jo2gukOfLEvouFNhtdX1Kl6/D7IkbXWRkgRk3E64PLw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iRa8uGyxizZveQWF+8FoGjgTUxIErxcudlV7T2ajHb+N6qFHRBvSM4ZTZVm4hGGVFqHVgycC+DWFea6KwIDvaevIclyJGhbD3aE4P7/SYhlkLO8W34IEDOB5h4eryoOCysRrVUzKXMtK8ATlDeXYq0NBu+0l754xfjc67azAhbM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YxNtb9nX; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="RQWbNaVw"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Y4M8rRMQ6JUwHG29y7ZUn59kSplEE9oZwgBHCVGE2NmqbuaVkDupB+PJbdR++LIaB0EcF/U9g3zP+vABueOFAorR9FxXDAve94zlByZldW/D9Y8vF9r81JRKJ0TfpznYST7UPMAxT6qxrchXWBB2tDuMqVM5MnBlt57I8FoMoeXyeYoozzCi2xjvxlXLyWMpKS5hxIk2cdm96SeN5zT4t0pHcEJVP8uw0cGluiqCqvqn2CdVO9k4R72it/z1ajTnW8E0gYNXC0JBYcUe6Hcmh05VgCWPHrhbSA414LZzaZV0z33gADKoWjHimjx8M9735syrTRt4rOtZoTB5qrZZmQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Nc9eeSUX+ry8w+PAVWydnasL/Zg2h0QqkCLAht+Cxv4=;
- b=e72agvjHTAxRezRnA1GnvYKdnLfyVu88vTwVcyrF3TeJg+J2dH+Kfx/inom0RfaayX2pxbFv35eyK/nWYPlOO0ntmbB8DXAtuXazxAnDm9KzGCgp8dtR6c1aVF5nfdSG3TvSaAh4CQOWE610KjO7gIWZqo8A0i1YSMUkNE+iQOMRtIXklBSfRaOZGy9o9ktVNa1nWfB+FMvnrjApTcW9FNXFI/sw2lzynTtw5+KMpLlkKGmcSR8paOrAAn0pJ2QV4q28oa2laV0JxZGJ3H5lckdQ6NiZ2smTkBE4yZrfvxETtT7VBVxRKpxpfEy3G5r81b9HOdWyZdFmDHX1d9W6aQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Nc9eeSUX+ry8w+PAVWydnasL/Zg2h0QqkCLAht+Cxv4=;
- b=RQWbNaVwHOV02VePz8Rd3+AbVLjcwkHAJcBqsxE0rzq/8qL3dEZ6azAyRUKPSj/HpKAS7twHdV/nbNdaAROG5yGPKv0iVBX/AGvDBzoEzOYVKd8VdqKX0YIMZaRNqjjaEI7yvZ6mcRvY8kLjw4tjSKy09cCXU5fy6dYGjbEx7kzSduGFr39pOPkRuWXIZRedRPOUDMrKm1HJoikldxNn1PQ8XdE34GoRO1j2QIs8r/pUL3pykFSmb0wFPg613/qV06FYFb2dAF3wP4LOTn6jeEoDJVnOCeLO+8mOvoLA002mv/ekw5VG0DBP40JWW7p4teHS3uv9xHJeCjl1WDO2Rg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by SN7PR12MB6715.namprd12.prod.outlook.com (2603:10b6:806:271::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8251.16; Thu, 12 Dec
- 2024 12:25:52 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8%4]) with mapi id 15.20.8251.008; Thu, 12 Dec 2024
- 12:25:52 +0000
-Date: Thu, 12 Dec 2024 14:25:42 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Jonas Gorski <jonas.gorski@bisdn.de>
-Cc: Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Hans Schultz <schultz.hans@gmail.com>,
-	"Hans J. Schultz" <netdev@kapio-technology.com>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] net: bridge: handle ports in locked mode for ll
- learning
-Message-ID: <Z1rWRorUo7ivWJdO@shredder>
-References: <20241210140654.108998-1-jonas.gorski@bisdn.de>
- <20241210143438.sw4bytcsk46cwqlf@skbuf>
- <CAJpXRYTGbrM1rK8WVkLERf5B_zdt20Zf+MB67O5M0BT0iJ+piw@mail.gmail.com>
- <20241210145524.nnj43m23qe5sbski@skbuf>
- <CAJpXRYS3Wbug0CADi_fnaLXdZng1LSicXRTxci3mwQjZmejsdQ@mail.gmail.com>
- <Z1lQblzlqCZ-3lHM@shredder>
- <CAJpXRYRsJB1JC+6F8TA-0pYPpqTja5xqmDZzSM06PSudxVVZ6A@mail.gmail.com>
- <Z1mmnIPjYCyBWYLG@shredder>
- <fb085904-e1c2-4bbf-b826-b6ba67d283b5@bisdn.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <fb085904-e1c2-4bbf-b826-b6ba67d283b5@bisdn.de>
-X-ClientProxiedBy: TLZP290CA0012.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:9::10) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YxNtb9nX"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4361f664af5so6070655e9.1
+        for <bridge@lists.linux.dev>; Thu, 12 Dec 2024 04:41:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1734007303; x=1734612103; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UdqXBrFz+MhhB28jjWBHlFWKaOr9dT3/Vp6X30ps4DU=;
+        b=YxNtb9nXJ1W0gjI8LtK2VPnPqYnUR6mnLE+Ev5ja3PZ8P+WJz7+4O5SsiZDEnFszXW
+         BG7kkOy4hVKh302Wi4OrSjEk3SuzI+sU67MDcbKUJtb5Dgo8MVTgeKcN8ASe+h+VliMR
+         eD1bF7bBXw/nLhzhtbUAO1jmEUAIAmgBYMRmFUWhxuommOgQ8kQjp0bcD1kXxuKUEFJX
+         5U7rrBvcDAqYzji9eeWT2QQKLJ6YiCs7z+S72nEcb+/mhboGKQWaJ4mLqZZQVHBa/GGQ
+         ShTDhFtroI7+qq4Zgr8S6+dOUWlqBdockZYROTPKMwfIDEfWM3vcMdVQbaUxnHT/VPVL
+         k/tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734007303; x=1734612103;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UdqXBrFz+MhhB28jjWBHlFWKaOr9dT3/Vp6X30ps4DU=;
+        b=bJA/6SjChgRU1N+GlPqxF1eRY41tG2gWY5TR3FdUbLgWTuYdLbro+qgeVEwpY5C9be
+         0WJe48CH3Ti4tvGGeShJeMn9jBJMkju9FzYfDXXQxesccvYbDsqgRauV2WnoNH97FGuO
+         pK9jEV8tJoX3srStjkw98YNMdIzqBhE0pKpAWt7Dzt7hPthdlpj77SnG8VSuF57W/ZKn
+         GAcFOIY+MLfpKqRM+hdpHl6XN2yJvX9q28eFkHYWtJfc8Xm+oPZQRdGwaUlG23DkJLrL
+         paHTWbm30VJ/AookDc27zRNura9hfEQSYMpmeKigQ/mZWPFtdCqWCJ78i2Z8WrQrDTw0
+         m6Jw==
+X-Forwarded-Encrypted: i=1; AJvYcCVCdbV20zcBeyb4DHAXtoLKDMIi5R0Bt/fpk3YMWGFDi/xW0Szsp9S7aP6geLGsvICw7J8RcRM=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwvU0jSQMuZ9kxvtFsSbj9EZb3V9CGfcnBdeGCxrAG3CySu9dnQ
+	p3t8iouHwo/0rX2m64NVv+cLuaNybCOhM9NiI03NNCyrvZ/UithJE1UASXdDjeEjPxwElyQBZt2
+	9tA0u4GYXOHz2p00S5jeMFNUBB/4=
+X-Gm-Gg: ASbGncsoUy4E9bgtx4CGe+iL3APpXvyUyO7+WsIrJOjwtEjWngU0ov8/gMHAc4Ui9Ue
+	dXU5F+tBLb7a0Pd74bIvrLYTVyqP3+g8yceUE
+X-Google-Smtp-Source: AGHT+IFqFk9dpKGWg1iKfKEea53yF0KmGIqYqHw17PI/mHu0HdGMd6qhUvlxmt/ZCzWy1qtAEPF2qQKT7Apiv7Ssc/8=
+X-Received: by 2002:a05:6000:a0b:b0:385:f44a:a68 with SMTP id
+ ffacd0b85a97d-3878769805bmr3014357f8f.35.1734007303234; Thu, 12 Dec 2024
+ 04:41:43 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|SN7PR12MB6715:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7da1be0d-2921-4fc5-d008-08dd1aa81e79
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?iso-8859-1?Q?CGJQsrs6ZW8FXbGXKaCWpiX0tMMM/bn5j2HxUQ8wNwMgCpUU3jBKJ40lv7?=
- =?iso-8859-1?Q?NElmZnB8AwgZXTc7SKHXbJqeAUtOKvf+i28tuXIvNcIL7kHPaHZnbLAHGG?=
- =?iso-8859-1?Q?16GoWFHXtO6bZT59aSQYYa9xQ8+lk+o/zitDEfhFA5Hgx9XCtC9KGECX6w?=
- =?iso-8859-1?Q?rQpHgGgnXEu/VlclAWAMKwnkCbga5EJCsG2A9YDSx9rkJA04kEnkPeCeJS?=
- =?iso-8859-1?Q?HKkHFJnqV8FJFhdRzBM/Md0oXTFp43GRCbBHOAOpevXKDz8P2y6q/9yFx2?=
- =?iso-8859-1?Q?4UO972yjfoteR89pU23nN1L20VdiLgr/eOabKnr/ig9TtF5LSHSXo4gXpr?=
- =?iso-8859-1?Q?RmaKA43oBOsm3RgsK2CWmEcy1gjLlQvQNF5uKrkGVFJmpGMk3y7uyu008p?=
- =?iso-8859-1?Q?hhYsmDGW+SuiTnxQGtNnEXTa0QaQTuMjfuBo/hHeyvO0sQJlfQtglHoMnm?=
- =?iso-8859-1?Q?i+Pswxsc3I49ybICIEjxGrT67QZFrl13XtkEx7d1yYOQ72tQnolqoXzLJm?=
- =?iso-8859-1?Q?tQkAD9ybcMvWh+5B5G2tztvEFQ5mTcBeTCq2fDUFSCnDY43TkMQGvYnYTF?=
- =?iso-8859-1?Q?HJkzheoyKcFruw4tZy9IKPA14wkgxQ1qjgbyFdjxJqnSJ5uUih39KvXPt+?=
- =?iso-8859-1?Q?pA1PwUM/CQJB07jrlk0JuLltB6VTHykxo+FZRbsWjW8aGTY1xL9ixFlq2L?=
- =?iso-8859-1?Q?r+tM4swcyB//n8aSS5+d2PrvGYQg96Nie8Qu/ImitjvUrWEL34wmnpOpdi?=
- =?iso-8859-1?Q?v5Gnhmjj+5vBeitp72fOO6Cf4Y373KrQYw2l2ndHYJeLdypb1mlg1rDapF?=
- =?iso-8859-1?Q?fMGrPanuCPXyD/taK/12T7TUPy1grg+FaHmOGVCocAJjSlRTo2162YH+YD?=
- =?iso-8859-1?Q?oZRqOTHH4yHVRgVfUHXAzQ5OdFs8YmNIk/BfPmLqJsEiYKR2rvlpYjoHGo?=
- =?iso-8859-1?Q?zhuudPaP1k60HrWYHMfSy02ITcmO0u3iE370QL7OaYLF+QLCT+DQr1Cq1s?=
- =?iso-8859-1?Q?iZuXZB93n6mecieUD64/qnEMjfX6g0vCAIcnLUfb1E9Xc0eN446UKgTEsk?=
- =?iso-8859-1?Q?2nqlt/uWAMc7ErQW4Mq8DueG0lLHRhdDjmOPs61T4NAhv/usQor9EMUmEv?=
- =?iso-8859-1?Q?LcVi0X5+8dR3MW4B/Yx980yyzdfOVFDX0PC7zN2lijsWeCJof19uerpxvX?=
- =?iso-8859-1?Q?lbME3bXLRrdXatuqnRI91QPSHbG9tMZj5DDBZ6Q/1MN/pxNIYXnTF974Uw?=
- =?iso-8859-1?Q?SVjQ9d0slNiYiqfPHlgvn361IxnQEbeA42MKyGjM4d8lD9muZpbObUzXeF?=
- =?iso-8859-1?Q?E2mXclWe7Yo+5HyG1eKYjdb30hv1NtOOll4is6L5zcMA5dENU6v/hdYx34?=
- =?iso-8859-1?Q?ErozpWIniZcezAzVVjlA8WWNPxAyQA8A=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?iso-8859-1?Q?AN1RcK6zreCr/1Fb/+Cr8fLW+TdRfYbgk01xsnjXfCM5aYrxyTnR370yuP?=
- =?iso-8859-1?Q?FqBbZd/G6aYJB9J+sbf1gr1efTPWSQuGudOK9ukxqhFlZh+PnELjTAht8P?=
- =?iso-8859-1?Q?JYJmp3r8cnJTyOPzTN7yOIXQLVRA1CY1xFoYzvMK2KuIajoV8WAUbTXaH0?=
- =?iso-8859-1?Q?/jYXJUNiz8gLppfBjYQarvoVc5nyOWpmZAmBNoxXEJWlgg7ok627V4Yyvv?=
- =?iso-8859-1?Q?MNs2DDQGAJpYxaUggnVgTwJ/5AxX848SwBmHZdE/+2ldyPhhpn0Pkot8Ta?=
- =?iso-8859-1?Q?naUKBbsKS8M8i0/syVn5Wl6WhVvMtVYNGIw21yjjUCrIsWDJQjPXvOPNBG?=
- =?iso-8859-1?Q?NjEph8caW27rK4+cCQc5rt5R/iF9VunkvqSecFU+Fh4YJKoWQnhdtntDUk?=
- =?iso-8859-1?Q?9NQLIPKkq5ABNnXDjLqq8RfEZtYwodrdB5lclepBoypEIW/BfFToTD71Zl?=
- =?iso-8859-1?Q?S8mk2KJTWd/nxfFK4ostWnjWVev4JtRW+kAI/MghOyFsGv+CuvDLr7KthR?=
- =?iso-8859-1?Q?GtiisS7y5sLYMDWgvsZP/PPnV7MZ+km3lV3ZPP9eGgo/DvkMmMK0MvLwdu?=
- =?iso-8859-1?Q?1N1So4afwx4WQDxhyeRqWLVEk5CQ/4cxB5E3bkrU1puWFy32N6pHqcWEgq?=
- =?iso-8859-1?Q?ObJBxQD1FL2l5HSZwHwOhQUEe4TO7j72TGGS2UvMxFDBBRxuwIbG1jl46p?=
- =?iso-8859-1?Q?zmxeM0XNIguHm15SESI0G4FxX+6Wlz9YATj0loIpYUe82sP5yHqzZSb8L6?=
- =?iso-8859-1?Q?mssbAac81sPexeiwd3EmXC0IdznxrWwDx6QB7C0QKNnkdiIRL/pTCJO1/z?=
- =?iso-8859-1?Q?bvCSpGO5U2eatyB2XOiYhv/JWpX+831yWJ5X/k+fR/DGqN3F4cK01Hzfox?=
- =?iso-8859-1?Q?KLRFuAPpmNAxEYBD/oaigyx/55BiQSPYO/gAaPA89lk2ewUCQ4MwoS0XIg?=
- =?iso-8859-1?Q?wNIRbCmunf4zo0OVuFswgamJgMZTaI6fol+tJG8Qr/WJhrg6cq50kaU0ui?=
- =?iso-8859-1?Q?zpYw5BduU/KCswfE6HGkaoQl8RVwkrqPMxKK10HLRMWfggQaEYuHcJ62mP?=
- =?iso-8859-1?Q?A6Fh3ACpvBKKaHXEDgTHkgZLeM041ED9mrrQ+xCwiXPujeRc/HhrxqfQXo?=
- =?iso-8859-1?Q?f6U38x0ImUqKjbkqOtBS49QgYUv1oMFhCKkxSclxco4uNhuBSuFxb9E0Gr?=
- =?iso-8859-1?Q?PXwa389N6TWaenn4ysvpfuDkIWKVVBnJdC0CGEkaqfvKpACZor+4uPKG+o?=
- =?iso-8859-1?Q?vxKr0LsDb5pvSOqmp1XkgjoJM+RwGlYLTy8/E0QoZqn309mdhuUpLT9jde?=
- =?iso-8859-1?Q?xcsAxiZUk9Q55Spdx1XCNoifgK3H/N8lceg3tn2bgoyKTHVQ53wkk23HfF?=
- =?iso-8859-1?Q?L4R5t7mA7TF/8t5NjwycWAk0pJdRGMf7a6uk29zjBuyJV06yOkgA2Hdeo5?=
- =?iso-8859-1?Q?X+ZsV3O8CvulpL/pJxs5ChUX+racwVgahv8fw7tmag8PbMf/OmMxkKp4Ht?=
- =?iso-8859-1?Q?3YIPdIZqv6qYOvdnvxmP3ImDEPvWod1TbeJngNqZeTFTV17DXMFBXtoQaF?=
- =?iso-8859-1?Q?AIlKJBQSIT+FxaDCCwCA5NNaHazidCVT/5F2nseux34XhnZftPn6Emu2gt?=
- =?iso-8859-1?Q?isN/ETHvpKAVJ/kRTcZEuIx81jo650DXdP?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7da1be0d-2921-4fc5-d008-08dd1aa81e79
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Dec 2024 12:25:52.7468
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 27PkTg1KDIdZKtBn4OlxA40s7jF57hn5A53THAftacNbgp3U8VeZn9NcZe/tYSyadRL9/JvjBo2SXhWGRYBFDg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6715
+References: <20241209140151.231257-1-shaw.leon@gmail.com> <20241209140151.231257-4-shaw.leon@gmail.com>
+ <2b89667d-ccd6-40b7-b355-1c71e159d14f@redhat.com>
+In-Reply-To: <2b89667d-ccd6-40b7-b355-1c71e159d14f@redhat.com>
+From: Xiao Liang <shaw.leon@gmail.com>
+Date: Thu, 12 Dec 2024 20:41:06 +0800
+Message-ID: <CABAhCOTv1tDOXBEE56CL1-S_J6ADZTcvso5GHtkarzJMqOC4xQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v5 3/5] rtnetlink: Decouple net namespaces in rtnl_newlink_create()
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	Kuniyuki Iwashima <kuniyu@amazon.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Donald Hunter <donald.hunter@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+	David Ahern <dsahern@kernel.org>, Eric Dumazet <edumazet@google.com>, 
+	Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	Simon Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>, Jiri Pirko <jiri@resnulli.us>, 
+	Hangbin Liu <liuhangbin@gmail.com>, linux-rdma@vger.kernel.org, 
+	linux-can@vger.kernel.org, osmocom-net-gprs@lists.osmocom.org, 
+	bpf@vger.kernel.org, linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com, 
+	linux-wireless@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, 
+	bridge@lists.linux.dev, linux-wpan@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 12, 2024 at 10:50:10AM +0100, Jonas Gorski wrote:
-> The original patch (just disabling LL learning if port is locked) has
-> the same issue as mine, it will indirectly break switchdev offloading
-> for case 2 when not using MAB (the kernel feature).
-> 
-> Once we disable creating dynamic entries in the kernel, userspace needs
-> to create them,
+On Thu, Dec 12, 2024 at 5:27=E2=80=AFPM Paolo Abeni <pabeni@redhat.com> wro=
+te:
+>
+> On 12/9/24 15:01, Xiao Liang wrote:
+> > There are 4 net namespaces involved when creating links:
+> >
+> >  - source netns - where the netlink socket resides,
+> >  - target netns - where to put the device being created,
+> >  - link netns - netns associated with the device (backend),
+> >  - peer netns - netns of peer device.
+> >
+> > Currently, two nets are passed to newlink() callback - "src_net"
+> > parameter and "dev_net" (implicitly in net_device). They are set as
+> > follows, depending on netlink attributes.
+> >
+> >  +------------+-------------------+---------+---------+
+> >  | peer netns | IFLA_LINK_NETNSID | src_net | dev_net |
+> >  +------------+-------------------+---------+---------+
+> >  |            | absent            | source  | target  |
+> >  | absent     +-------------------+---------+---------+
+> >  |            | present           | link    | link    |
+> >  +------------+-------------------+---------+---------+
+> >  |            | absent            | peer    | target  |
+> >  | present    +-------------------+---------+---------+
+> >  |            | present           | peer    | link    |
+> >  +------------+-------------------+---------+---------+
+> >
+> > When IFLA_LINK_NETNSID is present, the device is created in link netns
+> > first. This has some side effects, including extra ifindex allocation,
+> > ifname validation and link notifications. There's also an extra step to
+> > move the device to target netns. These could be avoided if we create it
+> > in target netns at the beginning.
+> >
+> > On the other hand, the meaning of src_net is ambiguous. It varies
+> > depending on how parameters are passed. It is the effective link or pee=
+r
+> > netns by design, but some drivers ignore it and use dev_net instead.
+> >
+> > This patch refactors netns handling by packing newlink() parameters int=
+o
+> > a struct, and passing source, link and peer netns as is through this
+> > struct. Fallback logic is implemented in helper functions -
+> > rtnl_newlink_link_net() and rtnl_newlink_peer_net(). If is not set, pee=
+r
+> > netns falls back to link netns, and link netns falls back to source net=
+ns.
+> > rtnl_newlink_create() now creates devices in target netns directly,
+> > so dev_net is always target netns.
+> >
+> > For drivers that use dev_net as fallback of link_netns, current behavio=
+r
+> > is kept for compatibility.
+> >
+> > Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
+>
+> I must admit this patch is way too huge for me to allow any reasonable
+> review except that this has the potential of breaking a lot of things.
+>
+> I think you should be splitted to make it more palatable; i.e.
+> - a patch just add the params struct with no semantic changes.
+> - a patch making the dev_change_net_namespace() conditional on net !=3D
+> tge_net[1]
+> - many per-device patches creating directly the device in the target
+> namespace.
+> - a patch reverting [1]
+>
+> Other may have different opinions, I'd love to hear them.
 
-But the whole point of the "locked" feature is to defer the installation
-of FDB entries to user space so that the control plane will be able to
-decide which hosts can communicate through the bridge. Having the kernel
-auto-populate the FDB based on incoming packets defeats this purpose,
-which is why the man page mentions the "no_linklocal_learn" option and
-why I think there is a very low risk of regressions from the original
-patch.
+Thanks. I understand your concern. Since the device is created in common
+code, how about splitting the patch this way:
 
-> and userspace dynamic entries have the user bit set, which makes them
-> get ignored by switchdev.
+ 1) make the params struct contain both current src_net and other netns:
+        struct rtnl_newlink_params {
+                struct net *net;        // renamed from current src_net
+                struct net *src_net;    // real src_net
+                struct net *link_net;
+                ...
+        };
+ 2) convert each driver to use the accurate netns,
+ 3) remove "net", which is not used now, from params struct,
+ 4) change rtnl_newlink_create() to create device in target netns
+    directly.
 
-The second use case never worked correctly in the offload case. It is
-not a regression.
+So 1) will be a big one but has no semantic changes.
+And I will send Patch 1 in this series to the net tree instead.
 
-> 
-> Ofc enabling MAB and then unlocking the locked entries hosts that
-> successfully authenticated should still work for 2, as long as the host
-> sent something other than link local traffic to create a (locked)
-> dynamic entry AFAIU.
-> 
-> FWIW, my proposed change/fix would be:
-> 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index ceaa5a89b947..41b69ea300bf 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -238,7 +238,8 @@ static void __br_handle_local_finish(struct sk_buff *skb)
->  	    nbp_state_should_learn(p) &&
->  	    !br_opt_get(p->br, BROPT_NO_LL_LEARN) &&
->  	    br_should_learn(p, skb, &vid))
-> -		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid, 0);
-> +		br_fdb_update(p->br, p, eth_hdr(skb)->h_source, vid,
-> +			      p->flags & BR_PORT_MAB ? BIT(BR_FDB_LOCKED) : 0);
+>
+> > diff --git a/drivers/net/amt.c b/drivers/net/amt.c
+> > index 98c6205ed19f..2f7bf50e05d2 100644
+> > --- a/drivers/net/amt.c
+> > +++ b/drivers/net/amt.c
+> > @@ -3161,14 +3161,17 @@ static int amt_validate(struct nlattr *tb[], st=
+ruct nlattr *data[],
+> >       return 0;
+> >  }
+> >
+> > -static int amt_newlink(struct net *net, struct net_device *dev,
+> > -                    struct nlattr *tb[], struct nlattr *data[],
+> > -                    struct netlink_ext_ack *extack)
+> > +static int amt_newlink(struct rtnl_newlink_params *params)
+> >  {
+> > +     struct net_device *dev =3D params->dev;
+> > +     struct nlattr **tb =3D params->tb;
+> > +     struct nlattr **data =3D params->data;
+> > +     struct netlink_ext_ack *extack =3D params->extack;
+> > +     struct net *link_net =3D rtnl_newlink_link_net(params);
+> >       struct amt_dev *amt =3D netdev_priv(dev);
+> >       int err =3D -EINVAL;
+>
+> Minor nit: here and and many other places, please respect the reverse
+> xmas tree order.
 
-IIUC, this will potentially roam FDB entries to unauthorized ports,
-unlike the implementation in br_handle_frame_finish(). I documented it
-in commit a35ec8e38cdd ("bridge: Add MAC Authentication Bypass (MAB)
-support") in "1. Roaming".
-
->  }
->  
->  /* note: already called with rcu_read_lock */
-> 
-> which just makes sure that when MAB is enabled, link local learned
-> entries are also locked. This relies on br_fdb_update() ignoring most
-> flags for existing entries, not sure if this is a good idea though.
-> 
-> 
-> Best Regards,
-> Jonas
-> 
-> -- 
-> BISDN GmbH
-> Körnerstraße 7-10
-> 10785 Berlin
-> Germany
-> 
-> 
-> Phone: 
-> +49-30-6108-1-6100
-> 
-> 
-> Managing Directors: 
-> Dr.-Ing. Hagen Woesner, Andreas 
-> Köpsel
-> 
-> 
-> Commercial register: 
-> Amtsgericht Berlin-Charlottenburg HRB 141569 
-> B
-> VAT ID No: DE283257294
-> 
+Will fix this.
