@@ -1,199 +1,71 @@
-Received: from fhigh-a2-smtp.messagingengine.com (fhigh-a2-smtp.messagingengine.com [103.168.172.153])
+Received: from arara2.ipen.br (arara2.ipen.br [200.136.52.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D19F0226545
-	for <bridge@lists.linux.dev>; Thu, 12 Dec 2024 16:52:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42B6E18FDAB
+	for <bridge@lists.linux.dev>; Fri, 13 Dec 2024 07:31:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=200.136.52.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734022328; cv=none; b=AMAjp116T9BhVwT+LL+Nvg3o97JopfccBv3gLOFZkvUgutNzrAkFsDbSi7X/B1n1LbAW22K/H4C3UJZ9SEtc0amsCkJDSLjuOLsahTt0C0BUR/qDEJjQ7UIPU4g41ZeimWHYfH5MAEMpH94lPUO7yve+AKxxOK8uCKvljuPJPIQ=
+	t=1734075083; cv=none; b=u16iZ5z34B1PDRctiQfPd/OfiKUe3e6YuD4zmVsdTrIWQbJsjK7XwNca44ff+xCzZNbqhEim15MuLLPdAj2pyxUZSF64YGx0NP9nwRmaeM8zy1i6rRGbtqsQkFIu1QHAAon8VQLlvnLskfI4++jtQ4Qaxxx91LFbo/ciAbLKjoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734022328; c=relaxed/simple;
-	bh=7qYvNSeXoWkdvA5eZJ8O8ibDKaD+r5FO0pBlFK/OHUs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z/qNwWNY7uK2xwAudz+uZl8Ct41MQOitqxJY/tLMMuqaiNtM5yCCMSWuAreCZxJr3FGi5F8vJNe7/CMyfPBPRipSXjLC5Nttvqs/hVmnCUWMrICOheMIXhB1gT8JRGe/Rm0L8VO+R36i0py5IQNIEYYB5LZhTo5GrKTZlK++2Vg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org; spf=none smtp.mailfrom=idosch.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=hMrHWH9A; arc=none smtp.client-ip=103.168.172.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=idosch.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="hMrHWH9A"
-Received: from phl-compute-02.internal (phl-compute-02.phl.internal [10.202.2.42])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id E5D1E1140113;
-	Thu, 12 Dec 2024 11:52:05 -0500 (EST)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-02.internal (MEProxy); Thu, 12 Dec 2024 11:52:05 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1734022325; x=1734108725; bh=GeXD2sSmBBV8R1v1RtzrEUtehrOoDSHPWlO
-	D+g/SP4Y=; b=hMrHWH9A2cIrYMmo7jCGDpwb+kp06K/thiw/oDuAhP9n6fgfRnH
-	plw5R60cqc9zo30OSYB7t5gg/9OtJjekJAJkuY1pPfqnKlz6uOH7ZUhmgZlqP5LR
-	GjLjt0SJ81p2Ilqqyuf0KJba+hLU+RIcDRZSHgBWvlIJYYknQvV9pnlq9mJOlENn
-	MbrEeho5OLatr1N6aAWyGMnuNu/w8mbxC6q9scrrEdWOCkQa1B/nWiwZFQhslpJC
-	zJFvM+fqA04VaJq+bBH8YMec7DDSINnU7lUJe4uazpKSaCx/M+KlbwU1fsxot1fU
-	lqLImhDrgWDco0ImhT1SEKK0+pBvbCZ/Sjw==
-X-ME-Sender: <xms:tRRbZ4yX9-0OrBxmr4T7jTWFi4Lek__bCpgnPpVon9KopSuyYFktCQ>
-    <xme:tRRbZ8RqmSk3LHNk4JIm-pxhOVpGvdLDlWN-Ry2Ma3DexWLB1mvbaeA4AvTFcZp2y
-    KnzWsW1rhhQJKg>
-X-ME-Received: <xmr:tRRbZ6XlTuhA7cx7FYvmarecn-_h1gi4_eRtyPVyjHe2skXsk8tYckhps-JhYDk58E-tLmBP3UCv4dFl7YXuQItkbgQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefuddrkeehgdeludcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdpuffr
-    tefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnth
-    hsucdlqddutddtmdenucfjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecu
-    hfhrohhmpefkughoucfutghhihhmmhgvlhcuoehiughoshgthhesihguohhstghhrdhorh
-    hgqeenucggtffrrghtthgvrhhnpedvudefveekheeugeeftddvveefgfduieefudeifefg
-    leekheegleegjeejgeeghfenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehiughoshgthhesihguohhstghhrdhorhhgpdhnsggprhgtphhtthho
-    pedutddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheprhgriihorhessghlrggtkh
-    ifrghllhdrohhrghdprhgtphhtthhopehrrhgvnhguvggtsehrvgguhhgrthdrtghomhdp
-    rhgtphhtthhopehrohhophgrsehnvhhiughirgdrtghomhdprhgtphhtthhopegsrhhiug
-    hgvgeslhhishhtshdrlhhinhhugidruggvvhdprhgtphhtthhopehnvghtuggvvhesvhhg
-    vghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehhohhrmhhssehkvghrnhgvlhdroh
-    hrghdprhgtphhtthhopehprggsvghnihesrhgvughhrghtrdgtohhmpdhrtghpthhtohep
-    khhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegvughumhgriigvthesghhooh
-    hglhgvrdgtohhm
-X-ME-Proxy: <xmx:tRRbZ2hx6doe9veCPR_nmu4XyDQpVCp3rDH7yX9WX8pAB-mRr50LAw>
-    <xmx:tRRbZ6B9bOnzgp-IdL1BUQU2Hmvq5nv_pN5uviAUTonAhr1aD5SwAg>
-    <xmx:tRRbZ3LZdexVebspHzeCVhxuyWHabY5fgvyZO0nfRldrzlzQcH-48A>
-    <xmx:tRRbZxCTP1Ncnl552Is2Q0V0nX5zkgXBpkRBj-xx4fjiQRuGUfyvew>
-    <xmx:tRRbZyu8Xei8Z79IDJy2d_NVYN9l-hOw-m1jnHnTM03byK8HvRi8i_mf>
-Feedback-ID: i494840e7:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 12 Dec 2024 11:52:04 -0500 (EST)
-Date: Thu, 12 Dec 2024 18:52:01 +0200
-From: Ido Schimmel <idosch@idosch.org>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Radu Rendec <rrendec@redhat.com>, Roopa Prabhu <roopa@nvidia.com>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH net-next] net/bridge: Add skb drop reasons to the most
- common drop points
-Message-ID: <Z1sUsSFfBC9GoiIA@shredder>
-References: <20241208221805.1543107-1-rrendec@redhat.com>
- <2283799b-e1fe-42c2-aecc-50c4ae1f9afa@blackwall.org>
+	s=arc-20240116; t=1734075083; c=relaxed/simple;
+	bh=Cgr97JBiSX1QIcd2ZZZsKVChGTY1ZlWJ/4AhaVFA7Wc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NsmNOVQj9zoSQMx7cx6uZrCiMe8AV2juff1OkYL5OAfyGE14H024Nbea5DAvhy4GOS05/GmOpkW+lPmUerlmxTl39o4WzET1sTaXb69UkBEIFdFClLgjk1/MxrUmMMwg47nlFAQuLThPsFLZd/ic5U9AqwUB2z3Sp+Axd4jXJ18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ipen.br; spf=pass smtp.mailfrom=ipen.br; arc=none smtp.client-ip=200.136.52.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ipen.br
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ipen.br
+X-ASG-Debug-ID: 1734075046-055fc729ec1492d70005-QtG2zz
+Received: from arara.ipen.br (webmail.ipen.br [10.0.10.11]) by arara2.ipen.br with ESMTP id WlBCscarGkaL35GA for <bridge@lists.linux.dev>; Fri, 13 Dec 2024 04:31:13 -0300 (BRT)
+X-Barracuda-Envelope-From: TCWM179191@ipen.br
+X-Barracuda-RBL-Trusted-Forwarder: 10.0.10.11
+Received: from ipen.br (unknown [102.129.145.191])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by arara.ipen.br (Postfix) with ESMTPSA id 777D0FBE550
+	for <bridge@lists.linux.dev>; Fri, 13 Dec 2024 01:25:18 -0300 (-03)
+Reply-To: t.mazowieckie@mazowieckie.org
+X-Barracuda-Effective-Source-IP: UNKNOWN[102.129.145.191]
+X-Barracuda-Apparent-Source-IP: 102.129.145.191
+X-Barracuda-RBL-IP: 102.129.145.191
+From: <TCWM179191@ipen.br>
+To: bridge@lists.linux.dev
+Subject:  I urge you to understand my viewpoint accurately.
+Date: 13 Dec 2024 12:25:17 +0800
+X-ASG-Orig-Subj: I urge you to understand my viewpoint accurately.
+Message-ID: <20241213122517.5244F172AAB4A05A@ipen.br>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2283799b-e1fe-42c2-aecc-50c4ae1f9afa@blackwall.org>
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Barracuda-Connect: webmail.ipen.br[10.0.10.11]
+X-Barracuda-Start-Time: 1734075073
+X-Barracuda-URL: https://10.40.40.18:443/cgi-mod/mark.cgi
+X-Barracuda-Scan-Msg-Size: 512
+X-Barracuda-BRTS-Status: 1
+X-Barracuda-BRTS-Evidence: 34fbb5788938ad5710ad28835fd12206-499-txt
+X-Virus-Scanned: by bsmtpd at ipen.br
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=1000.0 tests=NO_REAL_NAME
+X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.45577
+	Rule breakdown below
+	 pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.00 NO_REAL_NAME           From: does not include a real name
 
-On Tue, Dec 10, 2024 at 11:18:06AM +0200, Nikolay Aleksandrov wrote:
-> On 12/9/24 00:18, Radu Rendec wrote:
-> > +	/**
-> > +	 * SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT: no eligible egress port was
-> > +	 * found while attempting to flood the frame.
-> > +	 */
-> > +	SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT,
-> >  	/**
-> >  	 * @SKB_DROP_REASON_MAX: the maximum of core drop reasons, which
-> >  	 * shouldn't be used as a real 'reason' - only for tracing code gen
-> > diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-> > index e19b583ff2c6..e33e2f4fc3d9 100644
-> > --- a/net/bridge/br_forward.c
-> > +++ b/net/bridge/br_forward.c
-> > @@ -249,7 +249,7 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
-> >  
-> >  out:
-> >  	if (!local_rcv)
-> > -		kfree_skb(skb);
-> > +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT);
-> 
-> This is not entirely correct, we can get here if we had an error forwarding
-> the packet to some port, but it may already have been forwarded to others.
-> The reason should distinguish between those two cases.
+I am Tomasz Chmielewski, a Portfolio Manager and Chartered=20
+Financial Analyst affiliated with Iwoca Poland Sp. Z OO in=20
+Poland. I have the privilege of working with distinguished=20
+investors who are eager to support your company's current=20
+initiatives, thereby broadening their investment portfolios. If=20
+this proposal aligns with your interests, I invite you to=20
+respond, and I will gladly share more information to assist you.
 
-Regarding 'SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT', there is a similar
-reason in VXLAN called 'SKB_DROP_REASON_VXLAN_NO_REMOTE' which basically
-means the same thing. Maybe we can rename it to
-'SKB_DROP_REASON_NO_TX_TARGET' (or something similar) and reuse it here?
-
-> 
-> >  }
-> >  
-> >  #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
-> > @@ -349,6 +349,6 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
-> >  
-> >  out:
-> >  	if (!local_rcv)
-> > -		kfree_skb(skb);
-> > +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT);
-> 
-> Same comment as above (br_flood).
-> 
-> >  }
-> >  #endif
-> > diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> > index ceaa5a89b947..fc00e172e1e1 100644
-> > --- a/net/bridge/br_input.c
-> > +++ b/net/bridge/br_input.c
-> > @@ -96,8 +96,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
-> >  	if (br_mst_is_enabled(br)) {
-> >  		state = BR_STATE_FORWARDING;
-> >  	} else {
-> > -		if (p->state == BR_STATE_DISABLED)
-> > -			goto drop;
-> > +		if (p->state == BR_STATE_DISABLED) {
-> > +			kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD);
-> > +			return 0;
-> > +		}
-> >  
-> >  		state = p->state;
-> >  	}
-> > @@ -155,8 +157,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
-> >  		}
-> >  	}
-> >  
-> > -	if (state == BR_STATE_LEARNING)
-> > -		goto drop;
-> > +	if (state == BR_STATE_LEARNING) {
-> > +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD);
-> > +		return 0;
-> > +	}>  
-> >  	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
-> >  	BR_INPUT_SKB_CB(skb)->src_port_isolated = !!(p->flags & BR_ISOLATED);
-> > @@ -331,8 +335,10 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
-> >  	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
-> >  		return RX_HANDLER_PASS;
-> >  
-> > -	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
-> > -		goto drop;
-> > +	if (!is_valid_ether_addr(eth_hdr(skb)->h_source)) {
-> > +		kfree_skb_reason(skb, SKB_DROP_REASON_MAC_INVALID_SOURCE);
-> > +		return RX_HANDLER_CONSUMED;
-> > +	}
-> >  
-> >  	skb = skb_share_check(skb, GFP_ATOMIC);
-> >  	if (!skb)
-> > @@ -374,7 +380,8 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
-> >  			return RX_HANDLER_PASS;
-> >  
-> >  		case 0x01:	/* IEEE MAC (Pause) */
-> > -			goto drop;
-> > +			kfree_skb_reason(skb, SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL);
-> > +			return RX_HANDLER_CONSUMED;
-> >  
-> >  		case 0x0E:	/* 802.1AB LLDP */
-> >  			fwd_mask |= p->br->group_fwd_mask;
-> > @@ -423,8 +430,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
-> >  
-> >  		return nf_hook_bridge_pre(skb, pskb);
-> >  	default:
-> > -drop:
-> > -		kfree_skb(skb);
-> > +		kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD);
-> >  	}
-> >  	return RX_HANDLER_CONSUMED;
-> >  }
-> 
-> Cheers,
->  Nik
-> 
-> 
+=20
+Yours sincerely,=20
+Tomasz Chmielewski Warsaw, Mazowieckie,
+=20
+Poland.
