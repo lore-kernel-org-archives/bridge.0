@@ -1,82 +1,83 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE4E1175AB
-	for <bridge@lists.linux.dev>; Fri, 13 Dec 2024 20:33:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B96541922DC
+	for <bridge@lists.linux.dev>; Fri, 13 Dec 2024 20:44:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734122031; cv=none; b=dgEbJgIbS8OHUny0zqpNE2kY3jUGdzVoCZZx5O7dAaVq/RYOsd2ex2HgqgJTFdMSoqczPWLxzHjdJ+9inuToc+DEVWcn2enH3BmLsSMZC8MU3muSWRka/5EkguoswNtRze8QqNSC0TqtZ7hmzW2Roz/7PpLHY10i7qVgex04Iik=
+	t=1734122698; cv=none; b=KGApaR47VrK3wjJ3/YLrbSxHl+PcxQ4Neh2cad37sXJc52ZDyq0UABTnZ+mtsiudZ0IioqIAvuu1shbbdIAcVHzSKLz52vfPRwF9rfTtf9JzhFGr/niM/cpNZDg9lfepo6NWI46IReppINuMZFUwSKg/pnKRe/wqGryYKHqg84U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734122031; c=relaxed/simple;
-	bh=myrCv2j9O0q/qyxKQCHxIAJI/52gpIPUg37wl/XMjzA=;
+	s=arc-20240116; t=1734122698; c=relaxed/simple;
+	bh=X/3P83wnRDNLzeKB7ymIk3Q6qM2FT9qEWx8/WNlQlW4=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SJOze7PA7K/vI50oUn+Wh2aGcXEIUOEk4BH75nDAl/AFgQpj8G3tnzPc8OzdBMGQGV3j0HYtIwnO35l1Q/rH4Maj9a9BbML7cijOzM0vHER39pSBMY+6FnUbaFaDandXuGtjDAxLT/Y0M9Y+CsjPfLiKNLUoXwqdfP6/Nqdw96g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QcGc/POn; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=MKOPDqAFO9SNg7qVYGglIFoI18Cv4jr2/VFN1XFHraQ6A/p850F8iP+1M84LnI2gUtHgQ1mdnShxRsUJaxQ3F84mqyaqC+FsslST1dan28kV3BUVQVzJ/Be145xh5O1V59aFXEgDAcyxD575wdCfj/FGQB4y80ghQf/VZvjGKWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VYQelDJP; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QcGc/POn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VYQelDJP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734122028;
+	s=mimecast20190719; t=1734122693;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=myrCv2j9O0q/qyxKQCHxIAJI/52gpIPUg37wl/XMjzA=;
-	b=QcGc/POnqdATDjbJQ3thAXOCzIYKjh2IcmYKdEU3pxF5SF0Igm6KUpACrREi9hUpvAnRDC
-	ZqmIJ+OFYzaGHkY+qxUkvFaEhakWijhR7/zSFBdIErCMM8bTKT6kyfpIWCC9mHe6chgPgD
-	pRNFRH/EOt1b937sNz8jlM18VN+z7WU=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=X/3P83wnRDNLzeKB7ymIk3Q6qM2FT9qEWx8/WNlQlW4=;
+	b=VYQelDJPwwJLscS7wfLQ8spjXaMiKT+8Wnw1CigIPbdyw8wPmIy0VPpqxfgEvbSUz0KRIH
+	zx0u+P1ioCup140nY9DGoDD1by3QBh95We+hu7rQNk43huaFgXLOkn84qPZMLxMThhGUP3
+	hqqz59B3NOk1MF9ifQVVUwYF0dMxEZk=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-634-Z524DAkyOyi99jLQwpLixw-1; Fri, 13 Dec 2024 15:33:47 -0500
-X-MC-Unique: Z524DAkyOyi99jLQwpLixw-1
-X-Mimecast-MFC-AGG-ID: Z524DAkyOyi99jLQwpLixw
-Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-6d8844560e9so44846926d6.3
-        for <bridge@lists.linux.dev>; Fri, 13 Dec 2024 12:33:47 -0800 (PST)
+ us-mta-3-8xVAgWT1M3O85UJyk7If_Q-1; Fri, 13 Dec 2024 15:44:52 -0500
+X-MC-Unique: 8xVAgWT1M3O85UJyk7If_Q-1
+X-Mimecast-MFC-AGG-ID: 8xVAgWT1M3O85UJyk7If_Q
+Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-7b6e23e2b8fso192911985a.2
+        for <bridge@lists.linux.dev>; Fri, 13 Dec 2024 12:44:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734122027; x=1734726827;
+        d=1e100.net; s=20230601; t=1734122691; x=1734727491;
         h=mime-version:user-agent:content-transfer-encoding:references
          :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=Aba5BsXsQ7FqAiNGIDyNoYncM/5KyydK70Yz1i+dzmA=;
-        b=XQ1EcGuHcCpGhBxym9ukW+8MBbgK+4wUlvBm5BA/mj3NXginBb+GtejIgpW4sBoCV3
-         ioyfvvp8VQjfqypB2ujAUq3YHsiaGFcprCkcca5EYvhOt/28aoEEW1/6vvuTJJE1IfYg
-         YbQ+mgq1VWVVkqwS2hYBQS9ym7WeEcnc/E0DDAyN3Nl/PtT+VzesDdJP/7h1qVvo+bhR
-         jFkYo2jjnaxuaz1cH/afNUpN3LANv9g4OlFb6/7RQ/jYO3goOMaRPHCdi3vNeyN9pBDS
-         +pTM682urlPoEczrto3vaYcyRIEqmZA3aqUCTLrqYgzmAdfWr7Py2SEavX1Xv8kNsNfP
-         5xLA==
-X-Gm-Message-State: AOJu0Yw7IVOwum4XaLnZYx7ZcYgZqg2vg/DCP+4O1gioNZuZ9AaXHJ5i
-	dfs203Fa1L9aju+VKVyGe1BIDjS3Hapxwsjy8csUH5Bd6AUPBCtggPsokfQsDU+ZM6ItAhV0e14
-	MZF3Fq08M6W3ZtNnJG6yqCs7irFflJSv2vnHUOfzvjB90F9fX31aOQ01vViGdHvoW
-X-Gm-Gg: ASbGncuQ2GMXQaoOhKWiKUzBktRX6qHv17aBnIHlQoKLRB7tnaUaRI/LiRPGVUqjeOk
-	9U/ONsfTRjzmIlwmoid0DkgBMfIHFnJRhveFjH/XUjNpYnMMr1p+4zQVYjZeGivSISu3KJyaeBE
-	jWZr8kFQQA9TAz0blemv25LgnQt+m+J29ruAPF9iHzi3rugdFWQ451oP7hsgLBYg1lBkekz9CPM
-	s+PkTPQvU+7Q1fOf5KD9YauqUoXMeXb8Y2viQg5BmvY+6c3sa3CD+nDAfPmAGwCa+anFFhv1wIG
-	ilop/PEkeA6r9FbBukVJcpjm6UZSOhlK9i6hNTobOOI+VW0W
-X-Received: by 2002:a05:6214:2388:b0:6d8:8f14:2f5d with SMTP id 6a1803df08f44-6dc8ca84f7fmr77246076d6.28.1734122026834;
-        Fri, 13 Dec 2024 12:33:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGI59cbLihxqo6dRtJ9/I263Qa7r2Dauau6XnHrvUGdnT2sw703rf6gpaHmUVH/f2YnaGfNEQ==
-X-Received: by 2002:a05:6214:2388:b0:6d8:8f14:2f5d with SMTP id 6a1803df08f44-6dc8ca84f7fmr77245636d6.28.1734122026416;
-        Fri, 13 Dec 2024 12:33:46 -0800 (PST)
+        bh=oTF1gVQdFWBwy6Q3LPxWOLONRVmdA/eRNrvwR4+gyAY=;
+        b=kBHbc2NO9SD2BN+DhxXQRAGYXqbsksHM3Bk66ROMzrR+h98UgovsFEmhSkGkwMmCDz
+         jtG+X/L1GKul5xXERjIghWbLi1NPOyexgwIV9uGbdzC3cH3t1DHZtq7UQU++W2TuGzvs
+         vqcIas4gK15oExcT/9XUdotefZ2eAU3pUnF1oje/fiHiQ407Xt48neupi1PHPPi43O7q
+         ga09Wzpr2mMQemq0lc7WnBxPJbqr0UCeRLq75j3xAxc+K4ARSFWEDhmCcl2RCme0RAzb
+         f0GsQA13TR+yqpgcj5VhhOZ4rikIetnVmQIxPPLilqm9Smx9hHZSIkJtr8X/yZRCVqsB
+         IKLQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXMBgpPQ5QeOyet4fkoa9grFCg3BrXn6D0hzqfYY9sc7Q/9oq2MWmyBVSWxTvxuTPFsIRVVQt4=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx1IyVFoI1ZARp0K9ZmGV2u3PfZcGo0Mkx3FI171z0pMD6fNdvB
+	lo1pS63foYOAXrNyDpT2pYo+XmTrl0IFk4r8NQR7iysz1col/ncheB3VeQzme17ADMYhEvd1IQt
+	oFcA/367AjAaQp0LddJV9FAUTAhLetfIU+8oBonDLbaMDCfXbE5wkzA==
+X-Gm-Gg: ASbGnct/4Cye0q4dO29YGWK2dE0v62QypeRE9lUH+q/A5XTKzGbEGfxmZo8hrrtSNjv
+	dGcyzoqe2ShdhMKVGlPHl2mAdOaG+/U1Ez4hqkA92thGmJs3OzH18dgopiGMuWGfw5nqZGd0wUy
+	KTWNdlq19cMjxADWWmEd1UxlZLzIYXUQ2r+rF/9uPobkmqqnQXSK5fcnrmQxFRv7PBk3dZvFR/2
+	tpaqxM2fyeEGLrbh7ziIvHkudtB8KrnnQLmGz6p3ikG1DTKziYpxy9lWf54EQkNHynNpufEgd9L
+	9DlH0jIB6XQvKdmCx1qB2j3r8Z+LIxOfOA3QhiEJOSijkYlq
+X-Received: by 2002:a05:620a:4882:b0:7b6:d5b2:e6d with SMTP id af79cd13be357-7b6fbf17b58mr595602985a.35.1734122691514;
+        Fri, 13 Dec 2024 12:44:51 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG0uolEOXymN5WV0ZUnXHMN+TRmyOizKeSVecI47gbXLuJww4t78opCPP3mIhmQWs+Ptl3PyQ==
+X-Received: by 2002:a05:620a:4882:b0:7b6:d5b2:e6d with SMTP id af79cd13be357-7b6fbf17b58mr595599385a.35.1734122691162;
+        Fri, 13 Dec 2024 12:44:51 -0800 (PST)
 Received: from thinkpad-p1.localdomain (pool-174-112-193-187.cpe.net.cable.rogers.com. [174.112.193.187])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6dccd363142sm845396d6.81.2024.12.13.12.33.45
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-467b2e81810sm1337551cf.55.2024.12.13.12.44.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Dec 2024 12:33:45 -0800 (PST)
-Message-ID: <c8ab80bb8e3735d301104f29d7f04275ad054214.camel@redhat.com>
+        Fri, 13 Dec 2024 12:44:50 -0800 (PST)
+Message-ID: <84e3d3e998f1a02dd742727c2e18b7c364c36389.camel@redhat.com>
 Subject: Re: [PATCH net-next] net/bridge: Add skb drop reasons to the most
  common drop points
 From: Radu Rendec <rrendec@redhat.com>
-To: Nikolay Aleksandrov <razor@blackwall.org>, Roopa Prabhu
- <roopa@nvidia.com>,  Ido Schimmel <idosch@idosch.org>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org, Simon Horman
-	 <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski
-	 <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller"
-	 <davem@davemloft.net>
-Date: Fri, 13 Dec 2024 15:33:44 -0500
-In-Reply-To: <2283799b-e1fe-42c2-aecc-50c4ae1f9afa@blackwall.org>
+To: Ido Schimmel <idosch@idosch.org>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>, Roopa Prabhu
+ <roopa@nvidia.com>,  bridge@lists.linux.dev, netdev@vger.kernel.org, Simon
+ Horman <horms@kernel.org>,  Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski
+ <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,  "David S. Miller"
+ <davem@davemloft.net>
+Date: Fri, 13 Dec 2024 15:44:49 -0500
+In-Reply-To: <Z1sLyqZQCjbcCOde@shredder>
 References: <20241208221805.1543107-1-rrendec@redhat.com>
-	 <2283799b-e1fe-42c2-aecc-50c4ae1f9afa@blackwall.org>
+	 <Z1sLyqZQCjbcCOde@shredder>
 User-Agent: Evolution 3.52.4 (3.52.4-2.fc40)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -85,13 +86,13 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0WCmNzdzYejT68FIIqVzBRJ7sZRy3PVEx2pgPo4KiaY_1734122027
+X-Mimecast-MFC-PROC-ID: zsR92_DBgySn3kA0m2vP3c0oRhp5iDQs8ql_rG8WMls_1734122691
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2024-12-10 at 11:18 +0200, Nikolay Aleksandrov wrote:
-> On 12/9/24 00:18, Radu Rendec wrote:
+On Thu, 2024-12-12 at 18:14 +0200, Ido Schimmel wrote:
+> On Sun, Dec 08, 2024 at 05:18:05PM -0500, Radu Rendec wrote:
 > > The bridge input code may drop frames for various reasons and at variou=
 s
 > > points in the ingress handling logic. Currently kfree_skb() is used
@@ -164,12 +165,6 @@ he
 =C2=A0 | 24 +++++++++++++++---------
 > > =C2=A03 files changed, 35 insertions(+), 11 deletions(-)
 > >=20
->=20
-> Hi,
-> Thanks for working on this, a few comments below.
-
-Sure, thanks for reviewing! Please see my comments below.
-
 > > diff --git a/include/net/dropreason-core.h b/include/net/dropreason-cor=
 e.h
 > > index c29282fabae6..1f2ae5b387c1 100644
@@ -194,6 +189,23 @@ e.h
 ss
 > > +=09 * is an IEEE MAC Control address.
 > > +=09 */
+>=20
+> IMO, dropping pause frames is not among "the most common drop points".
+> Are you planning on reusing this reason in other modules? If not, then I
+> prefer removing it. My understanding is that we should not try to
+> document every obscure drop with these reasons.
+
+Fair enough. I don't have an immediate plan to reuse this reason, and
+to be honest, I'm not that familiar with the networking stack to be
+able to tell off hand if it's likely to be useful elsewhere.
+
+Would you prefer to stick to not specifying a drop reason at all at
+that particular drop point, or to reuse an existing reason? Two
+existing reasons that could be used (although they are not entirely
+accurate) are:
+SKB_DROP_REASON_UNHANDLED_PROTO
+SKB_DROP_REASON_MAC_INVALID_SOURCE
+
 > > +=09SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL,
 > > +=09/**
 > > +=09 * @SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD: the STP state of the
@@ -201,13 +213,13 @@ ss
 > > +=09 */
 > > +=09SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD,
 >=20
-> Since this is used only when the port state causes the packet to drop, wh=
-y not
-> rename it to something that suggests it was the state?
+> Are you intending on reusing this for other ingress drops (e.g., VLAN,
+> locked port) or is this specific to ingress STP filtering? I think it
+> will be useful to distinguish between the different cases, so I suggest
+> renaming this reason to make it clear it is about ingress STP.
 
-Yes, Ido had a similar suggestion [1], so it's clear that it must be
-renamed. I will go with SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE in the
-next version, unless you have a better idea.
+No, it's specific to ingress STP filtering. I will rename it to
+SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE as I said in the other thread.
 
 > > +=09/**
 > > +=09 * SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT: no eligible egress port w=
@@ -231,24 +243,6 @@ e gen
 > > =C2=A0=09if (!local_rcv)
 > > -=09=09kfree_skb(skb);
 > > +=09=09kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT);
->=20
-> This is not entirely correct, we can get here if we had an error forwardi=
-ng
-> the packet to some port, but it may already have been forwarded to others=
-.
-> The reason should distinguish between those two cases.
-
-I will follow Ido's suggestion [2] and rename SKB_DROP_REASON_VXLAN_NO_REMO=
-TE
-to SKB_DROP_REASON_NO_TX_TARGET, and then use that.
-
-But it will only cover the case when there are no errors, so I still
-need a different reason for the error case. I looked, and I couldn't
-find an existing one that's close enough, so I think I should create a
-new one. How about SKB_DROP_REASON_TX_ERROR? I would not use "BRIDGE"
-in the name because I'm thinking it may be reused elsewhere, outside
-the bridge module.
-
 > > =C2=A0}
 > > =C2=A0
 > > =C2=A0#ifdef CONFIG_BRIDGE_IGMP_SNOOPING
@@ -259,9 +253,6 @@ the bridge module.
 > > =C2=A0=09if (!local_rcv)
 > > -=09=09kfree_skb(skb);
 > > +=09=09kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT);
->=20
-> Same comment as above (br_flood).
->=20
 > > =C2=A0}
 > > =C2=A0#endif
 > > diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
@@ -293,7 +284,8 @@ D);
 > > +=09if (state =3D=3D BR_STATE_LEARNING) {
 > > +=09=09kfree_skb_reason(skb, SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD);
 > > +=09=09return 0;
-> > +=09}>=C2=A0=20
+> > +=09}
+> > =C2=A0
 > > =C2=A0=09BR_INPUT_SKB_CB(skb)->brdev =3D br->dev;
 > > =C2=A0=09BR_INPUT_SKB_CB(skb)->src_port_isolated =3D !!(p->flags & BR_I=
 SOLATED);
@@ -333,11 +325,13 @@ k_buff **pskb)
 > > =C2=A0=09}
 > > =C2=A0=09return RX_HANDLER_CONSUMED;
 > > =C2=A0}
+> > --=20
+> > 2.47.1
+>=20
 
-[1] https://lore.kernel.org/bridge/Z1sLyqZQCjbcCOde@shredder/
-[2] https://lore.kernel.org/bridge/Z1sUsSFfBC9GoiIA@shredder/
+Thanks for reviewing!
 
---
+--=20
 Best regards,
 Radu
 
