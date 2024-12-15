@@ -1,179 +1,202 @@
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2086.outbound.protection.outlook.com [40.107.220.86])
+Received: from fhigh-b6-smtp.messagingengine.com (fhigh-b6-smtp.messagingengine.com [202.12.124.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CD8E13BAE4
-	for <bridge@lists.linux.dev>; Sun, 15 Dec 2024 09:35:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.86
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734255326; cv=fail; b=UusX1AXT4rymbmFWoTuFlI8utfhusfGwVuK+vazhJL41sG0cjgIR/8mKFjCATOPNEJB7R9zLmrWa6+W/U4qyPRwd9iVSY/Bql41a0M0fx00D8HbFMe84UOJj4XgGirUMydcHF/AlFsNw7JEvmKK6f810Fgl0yF2f5pjek38oVLA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734255326; c=relaxed/simple;
-	bh=g2On3w8lBHo/L2GXdjtsT+/wfYTOofPt4Yr8iP8O2fA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=F4M515jno9Y7Mak1mpI4tx09Ob+E/HCoB65/kcKR+Ac+D71I3fjA43e0rex4o1Y29J75aqsCrNR3NmIix+MMHQ7vNIbbHiBrCLFC4/pLTYQxMo0yODnVYcKJgbY0CT+c53oxxG/CD+p0fqTVnwNbFdUtEmGNx2x3/UdfPE7UxVo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=lgVmlWFI; arc=fail smtp.client-ip=40.107.220.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A42215B0F2
+	for <bridge@lists.linux.dev>; Sun, 15 Dec 2024 12:33:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.157
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1734266028; cv=none; b=uCLZxh/h+GL7XksJezKkEEpdoMJO4ztnmkJVRMMljr6qKboyHHRHLAqaeSvF4sUHDQoBrzRNhaBAmET/pYVBuZLGk1R96zSGu9J9KLnk/v9HJYhte8L10qOjeVdbO4CsXztJCdC/yWnFiGfaexviikHpxFBLs6vSTzgZwXd3Xag=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1734266028; c=relaxed/simple;
+	bh=zlNIAH1vOoF5TgVyc/IxBA+tuFz9FIjxEualz/XzgWY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gzMJPN7HEZZqJaC2VupbdtT1ydbm1DbIVrKqeclFsToGRDtp5e+Qwdosq/qgYipKaDFjFx9IJfIO+XzEx4+EYlhLhPk5L3vzPa/ofYuak9HVSg7cb2cigrtnuGjy3RDyGFx4kpdHfM+PEMxW1eBZLf1/Ru9VNEL0zX+6zML7Ifo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org; spf=none smtp.mailfrom=idosch.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=act5TLKY; arc=none smtp.client-ip=202.12.124.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=idosch.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="lgVmlWFI"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=qWUfEq5dj6XGpjhl+7xnOTC3hej+69WiV/YpGrdju1nXk+SG3sbX9HT2eM85Lj+kMEiKWnCoK4idN0sPZ9Fu2FgLjlWGHzMiYhKsnHRQ06YzFbgkE9mRoMbHif2cwFJWVgfPCgFuEZdrRMjIFz7clGbpmjccvZbjEjmzwJYKJx5opdV4TKSsLixyPFegaqWd1vYJMxae+qRNd05NrBji6gQ1srTWjn6p4sUybAf4Huio2DLslLvUVceAL5YiJkK7Hcbyw8PhMK1xyYjp5Qut6wRoQL9RB5krh3hKm1ychzhX4KtjpGIR9JwysYqSSGsXW4A5coK9f6CwCkjuCISyJg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=g2On3w8lBHo/L2GXdjtsT+/wfYTOofPt4Yr8iP8O2fA=;
- b=EQWD+YBNUrpzCLV7iVOBGUhVwvnEKFTb2v1+3A0/nSbA9lnWPNqTLUrmeM3Vx+19H9ZfXJCJZwspvoaCF5tICgwXZ/TZPcqU6oy2+/gQGkK82C4eyekSrHAm78sfO0xEU6352K/cWajJg0dov4Z7Kqm8tLZx8Njbuvw7EuuEqnKwSGdQ2YsNOQ0UuAbHSmKIItQ8ILAwiXZ6ZNhSZuRwbg5+cIEoZ4c6RllhCWyFiF4ngkktLKf5G0qSNtazocCopzrbZKSKGn688k9W8z9zpyHxBDmB1rHNhpnt6BM/MxxQ6Ru18iwM9eWIR8JN2dtjQn7KfHfR8EOQ9A302M32NQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=g2On3w8lBHo/L2GXdjtsT+/wfYTOofPt4Yr8iP8O2fA=;
- b=lgVmlWFIb/AASyutPztN2rBCAwr1QsvcSYfKviHYMwkKlZh13ySs1TUTZOa/SOjPFTJMq07c9nIBT4KWyQRur0UT7bmWyYP5PKnD2FjCMHh7LIUNXHzUnnH8BeMyKbVV1bZpqQypqioakmK7sAB7BwVyRGjPEP2phaEAZOPCw/sOwcijnO0RKLynxAveq84D/fR3XzjfT2sHULv50nxNUykFlern0p7xr4km3jCiE88z0+SWSvXBLFVKVeTbpp+WOZzZMY/hlhmOczMIGdZ0SQQgzQwfqSMwnBYd3IwhdHp/Q/wsLX7Z/BkgYv1CBH20Gp4xh1kIONYflbk8g3OiLg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by IA1PR12MB8237.namprd12.prod.outlook.com (2603:10b6:208:3f3::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8251.19; Sun, 15 Dec
- 2024 09:35:21 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8%4]) with mapi id 15.20.8251.015; Sun, 15 Dec 2024
- 09:35:21 +0000
-Date: Sun, 15 Dec 2024 11:35:12 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Jonas Gorski <jonas.gorski@bisdn.de>
-Cc: Vladimir Oltean <vladimir.oltean@nxp.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="act5TLKY"
+Received: from phl-compute-07.internal (phl-compute-07.phl.internal [10.202.2.47])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 545AD2540073;
+	Sun, 15 Dec 2024 07:33:44 -0500 (EST)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-07.internal (MEProxy); Sun, 15 Dec 2024 07:33:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1734266024; x=
+	1734352424; bh=Jl0v0XhcapACQOaaZSTntj4zbNZ+NcuJ80tAfZHkifk=; b=a
+	ct5TLKY54kU0KCY2YdyZVMCPKa173yfCUvfWQWAdisncNlnFxre1rQTXZ/ph8jgm
+	8+yaW+Ad+SGQLgWgdS5ZsVKTX/1BtGdj3BF6QrP6aOVsjL1HmL5MUO4llNoDP4Kp
+	HVYwChbZ4L+HBzRm2sH+5URSKp7S9Au/8B7FkBKS1m57BV1zmLBdxItvvucSu9Q5
+	8vvhv639lSUuJq6blHmofvCX4iz6BTud8WMwiisZgbuVT6GUmSUT5xLleNSg0QgZ
+	tDbe04QnADaTzrzPxVi8BKTZ1PE5YCyLi/XHxwIZuU0EQcLy4VeN4+UOYxProYAI
+	aycezt/Yyt5LJDF81HCOg==
+X-ME-Sender: <xms:p8xeZ5lEZuCfrSSQ_nOOViezZADjdpMa5SLloL4Y5XEdwLRuUj37vA>
+    <xme:p8xeZ03HLqDZxLXDNsuPCFR8SUeyXz7TyMy7D1gDe2_jsbyeiRoS2TIRF1-c2lOEI
+    AQ1MgMNwJssXNs>
+X-ME-Received: <xmr:p8xeZ_phVrNEn3vpHHXypuJss7hjbM3EqRgzkDOwSkZ5dXjwgZKZK-iobfIv>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefuddrledugdegtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdpuffr
+    tefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnth
+    hsucdlqddutddtmdenucfjughrpeffhffvvefukfhfgggtugfgjgesthekredttddtuden
+    ucfhrhhomhepkfguohcuufgthhhimhhmvghluceoihguohhstghhsehiughoshgthhdroh
+    hrgheqnecuggftrfgrthhtvghrnhepleetgeeggeeivdegjeelffdufeegjeeugeduudei
+    vdevueefieefteeufeelvdeknecuffhomhgrihhnpehgihhthhhusgdrtghomhenucevlh
+    hushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehiughoshgthhes
+    ihguohhstghhrdhorhhgpdhnsggprhgtphhtthhopedutddpmhhouggvpehsmhhtphhouh
+    htpdhrtghpthhtoheprhhrvghnuggvtgesrhgvughhrghtrdgtohhmpdhrtghpthhtohep
+    rhgriihorhessghlrggtkhifrghllhdrohhrghdprhgtphhtthhopehrohhophgrsehnvh
+    hiughirgdrtghomhdprhgtphhtthhopegsrhhiughgvgeslhhishhtshdrlhhinhhugidr
+    uggvvhdprhgtphhtthhopehnvghtuggvvhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprh
+    gtphhtthhopehhohhrmhhssehkvghrnhgvlhdrohhrghdprhgtphhtthhopehprggsvghn
+    ihesrhgvughhrghtrdgtohhmpdhrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrgh
+    dprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhm
+X-ME-Proxy: <xmx:p8xeZ5m_KVsgrFVRVoHvAxLSkdeg0FoyGGcfw1gn15o4kDbsdDAZbg>
+    <xmx:p8xeZ33OOd4a4AlA8rI4lH9btDHMb0AOViQuHcgzxOFuBR1HgUNpzw>
+    <xmx:p8xeZ4vVQ9DDR0yaC1L4coR7yrKU2YPH8BBGocqB68mawnlcqkT0Yg>
+    <xmx:p8xeZ7VffnctL-MpftU-6O3UPtJjS8zYhutDXYPzWBtOMmmSRgj-rg>
+    <xmx:qMxeZ5z4gcew3Fqdv0I6bd2vhubvAjwdnnzYAHA-Xp4LywUFgDfz3nDA>
+Feedback-ID: i494840e7:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 15 Dec 2024 07:33:42 -0500 (EST)
+Date: Sun, 15 Dec 2024 14:33:40 +0200
+From: Ido Schimmel <idosch@idosch.org>
+To: Radu Rendec <rrendec@redhat.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+	Roopa Prabhu <roopa@nvidia.com>, bridge@lists.linux.dev,
+	netdev@vger.kernel.org, Simon Horman <horms@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Hans Schultz <schultz.hans@gmail.com>,
-	"Hans J. Schultz" <netdev@kapio-technology.com>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] net: bridge: handle ports in locked mode for ll
- learning
-Message-ID: <Z16i0MArCT_46dKa@shredder>
-References: <20241210143438.sw4bytcsk46cwqlf@skbuf>
- <CAJpXRYTGbrM1rK8WVkLERf5B_zdt20Zf+MB67O5M0BT0iJ+piw@mail.gmail.com>
- <20241210145524.nnj43m23qe5sbski@skbuf>
- <CAJpXRYS3Wbug0CADi_fnaLXdZng1LSicXRTxci3mwQjZmejsdQ@mail.gmail.com>
- <Z1lQblzlqCZ-3lHM@shredder>
- <CAJpXRYRsJB1JC+6F8TA-0pYPpqTja5xqmDZzSM06PSudxVVZ6A@mail.gmail.com>
- <Z1mmnIPjYCyBWYLG@shredder>
- <fb085904-e1c2-4bbf-b826-b6ba67d283b5@bisdn.de>
- <Z1rWRorUo7ivWJdO@shredder>
- <3bdc6e3c-49d4-46ec-9c36-85e324e5e2b4@bisdn.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3bdc6e3c-49d4-46ec-9c36-85e324e5e2b4@bisdn.de>
-X-ClientProxiedBy: FR4P281CA0116.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:bb::16) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	"David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH net-next] net/bridge: Add skb drop reasons to the most
+ common drop points
+Message-ID: <Z17MpOdRsUjBt4Hi@shredder>
+References: <20241208221805.1543107-1-rrendec@redhat.com>
+ <Z1sLyqZQCjbcCOde@shredder>
+ <84e3d3e998f1a02dd742727c2e18b7c364c36389.camel@redhat.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|IA1PR12MB8237:EE_
-X-MS-Office365-Filtering-Correlation-Id: bffac5a5-16b6-4591-8242-08dd1cebcb6b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?3gN07Z+x7r9v/EvDiQhJkg7Nf4BWA9WOLTCiSvDZufPVEKvkz0CoZ5r1FhiF?=
- =?us-ascii?Q?KdJbibLlz954ZW2snOXF5zy2evf8dmFvzvrKTvyURXaRBbRiElg1Q3S2BcUs?=
- =?us-ascii?Q?4XznZxxsQ3AqkusUc8FiX97Lel8g1tR4CB3ALPeZdAaX26tUCTsgNZadppQg?=
- =?us-ascii?Q?CfU91/qAqr1zv34hyuhHEj+Q7Hk+GgIK9d/4xOMBztMLdGnlt/aWO0AyEW7S?=
- =?us-ascii?Q?mQhzWKY5da9PDofCDSscYJwal3fyhzxfjL3L36S1Yzw3JNMR2/NBkitwxIRY?=
- =?us-ascii?Q?6gLYKUqH0Wt7mlQEbsASBce54KtAMwh02t8qOvdKtwu8sX8hGsaWxp5qTEND?=
- =?us-ascii?Q?Yy6tUg7T8qO9t2Z5pPjeUrlu5my4Vrqgw7BUFku2aXdAGeyCGF+oxZZbEPqT?=
- =?us-ascii?Q?75tWc1HHDr0p2eSL96vDYYriCNGGChh2Z5oKfh+nt0LYT+TX9UjwgNztRm5i?=
- =?us-ascii?Q?v0YuZ3C8pPTs4p3I5Li+OiVjv2Y5h2vU7noSa4PJ8CqHrrb+uSJstblUB9S+?=
- =?us-ascii?Q?tBo0iYxUJSX6xWxc6bH5zg4SK4pAxeSC9NcBBKvSg6zLeGJiX7gbU9LzUH3x?=
- =?us-ascii?Q?rbfx5F80aWNGJMjCF0VaAuiBSm/T6Ekc0AR/sP8+TeXrC7xctRCFDJ8NZLag?=
- =?us-ascii?Q?zqNzrtmpWqUlJBRXKJBVHulCy609hxWoSBKnOO3sFaVlXMu1s5TRt0Zg5cUB?=
- =?us-ascii?Q?FDdnvjnlCc8F0Bav9MaE81RTIsbcpSsiSH4iQdMQt6wncxfIPfOSeVU0RKpm?=
- =?us-ascii?Q?QSVUz86uPjgT70i60JR7w4hiW+8nTFRpxEFOHXZ0qMl1LpSpdpAbyb2YrZKw?=
- =?us-ascii?Q?QLoMRxQEZaG7wWaZ+1NLoMaZSDE90gLjG6Brpu56nKpRAdyWDIVp/SiwKFej?=
- =?us-ascii?Q?c6H2ZIjAGdk1+ST7/xSN4e0Qu+YbpNiVy+9Xy8PqHyPyZ0KQx7ODyLYxWxgV?=
- =?us-ascii?Q?t6EGdrqCcZpQ3Em54RTxjH7xFXgh3UrNUu6qZC2IHMaRTWZidYtwK57aLABA?=
- =?us-ascii?Q?OzDuRUA1qaju7edqIMMifF5QJf/L7Kog/vIBpBx8GqDQ777ZpTHnAwTK1231?=
- =?us-ascii?Q?kBQJX4MGCG8X4GtrkFJZTiXaocK9RoZ4ZlA6Oz4NK1FCae336EYJrGmSUZaz?=
- =?us-ascii?Q?s1UT/bIgaHN0U85AdH5JYfcGgCY9GL7x+bTaHy4H0K4jCDbA4Zpl6G5QxESf?=
- =?us-ascii?Q?OgAekbgxMwqILyom9hxeHox+Pa7HhayCJi37zWMIepvdDbtOXrzKuMNJAdwF?=
- =?us-ascii?Q?TlwvcmejDLmU+Q2S29Dk4fzS8nXv3/AtmDxShzgk05jjKUIhnlbgrl3EwvFa?=
- =?us-ascii?Q?Nbt1x1sGkSlLswA9B9BT1lcmWez4MR6ks5YrnpQpgvcfaw=3D=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?P/7vBCw7PB+QlACBqw4rFDqrp/Pyq8IRqqdbQtQ72ad6G7ju1gIWJbZFwoaV?=
- =?us-ascii?Q?FmHsgWaQW51JZYUK2TouYP7s407N0EtVzPdWYEjD/q4iad8XlgFuU22A/G+u?=
- =?us-ascii?Q?t3esqJW6d+wF9w7knQRTR7MvN2S6SyI9CHMQD2anNVOXa6JNKgQYLtDBMU2V?=
- =?us-ascii?Q?jO6an1oiVOlNpxQcLI1jo045aLhwHf/WMmGP+9QjW96RXM5qaglG6dyKDo7q?=
- =?us-ascii?Q?Ul2IOzGpDL9WqP3jmRfiuqkkHzezAHVb5hEDssFq87ehnD4flfwq3bcUjuRX?=
- =?us-ascii?Q?E7rxUBcm0qq1Rg4FjqKmsU5ql/dOi/A5obVaIeurmrgCoXB8SXpvHEXDUo+b?=
- =?us-ascii?Q?xXZ1Lr44FdEJY+GT0TvmFMRLcyfo+6U9NnGGc2lgaxxz1elzUH2fIte4i80o?=
- =?us-ascii?Q?ItbsWPEAJhPzigaEAYob79TEvkn2QO8LHHJmJMHz8TDcVyHPrp4IjSPgU/zF?=
- =?us-ascii?Q?zM3r0kMxTMSaL3tQYaxcaRY9YKAfkOKlvJ9ymPNaczy5z0wwDrDFcKuZDuFH?=
- =?us-ascii?Q?dsauXCqQj82qtGPuAHBffiyNfL6SXpSdy+IUYn0v0HFLehDpSKF5Pn2Qmahe?=
- =?us-ascii?Q?vjxqVKXceqDeMbEVNeG7y3xAJ7lsVXeNiKZkXbZ29ahSQ16g6M8mdMa9DOEU?=
- =?us-ascii?Q?HbhEd1TtlCFRkS6RaOPpgypNkfoFB46Tlsw1dQCO/pvphugxjsIRrghsCtq7?=
- =?us-ascii?Q?vr+3ZlYYocb3nacOV5Z7mSQOplKveBBi7AB72MjZ8Lk2pMHsm/5zZ/TswxiU?=
- =?us-ascii?Q?MMvpbp5c4ZvJ3f0DJuDyi/T1aCcuvqbux9qwHL32lGl/JfaG3I+H6wbcDhWU?=
- =?us-ascii?Q?aqJF/MYgrNyvC5H2tVlleZ7i/YWHCa7PfJztsJrxuvc8LnDTq/eoI3qDQbQ0?=
- =?us-ascii?Q?j7ML4j+lw1zFmkSZeZNDy7PORxvezg1AL65e8scqDGVdsN50fHotv1DzzSvn?=
- =?us-ascii?Q?83mI+tGakJPY9UkD6cgZDC/S8ZIJkh7oz5XjcHTCjmtiI8VGpcmg7y8m47rj?=
- =?us-ascii?Q?qepbIGGbiVZwA7lWvR2FrF02rXGoLAJoluOx0QwfGZT7O+vVjGWUfbd3DzlO?=
- =?us-ascii?Q?BXFpjVoUkD5JXg+PM/wO50HrVFYwDLD4DUXFTL/CT5mMO0AJsk8g5IuPU6sB?=
- =?us-ascii?Q?ZtdYqQPBbHs2QD/AzgMf3B/dskDtZMiqCsknsiCpKAa1mrn1lfdbYv5pWtTl?=
- =?us-ascii?Q?ORSyCLrJ90bR42SsFGD38+R6EfWD9EAIiEw3Q/jUn09Y2xro0w3w0NNQg68e?=
- =?us-ascii?Q?XN8u9ha5lGuWN4PM4c7j+VAq2O+gyGELDIJsNHaw3FngzyIv7fHItuoOH45i?=
- =?us-ascii?Q?7tI1VW/OEaGIOtLCgQ5EQBYS9CdP3OqAw1dD+AxFDsa2rBOV2YztT+7LTuHl?=
- =?us-ascii?Q?vzqrSC0jglTJNGE+oAAFTptJHF25+Wtzx0NBSvlC3oeget6El9ow+DrRTGV2?=
- =?us-ascii?Q?NccVPzCAvKNSVHLDw4SURcS37/0u3Qh4VieAnnccC0MP+MLPU8iFcWKEGjVF?=
- =?us-ascii?Q?DGIzSQLjRc2FAOu8EdaQGyz4OR/RqEuAAIodjcJm3mKOAwItKJFuteNzr2eU?=
- =?us-ascii?Q?CNZYEwxZnDt5k77QOYMHRo66Em6cWKEyhQtOvtHY?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bffac5a5-16b6-4591-8242-08dd1cebcb6b
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Dec 2024 09:35:21.4887
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: mCb+VtiGX2tkclzzUOKBZAoeotjG11daDtI40mtydQCAsU5O0QnI2ULtPTiVHhJqdhmLL5n12gF+vHkHRU5z9g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB8237
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <84e3d3e998f1a02dd742727c2e18b7c364c36389.camel@redhat.com>
 
-On Fri, Dec 13, 2024 at 12:25:20PM +0100, Jonas Gorski wrote:
-> So in conclusion, I agree with the original patch. Shall I resend it? Should
-> I extend the commit message?
+On Fri, Dec 13, 2024 at 03:44:49PM -0500, Radu Rendec wrote:
+> On Thu, 2024-12-12 at 18:14 +0200, Ido Schimmel wrote:
+> > On Sun, Dec 08, 2024 at 05:18:05PM -0500, Radu Rendec wrote:
+> > > The bridge input code may drop frames for various reasons and at various
+> > > points in the ingress handling logic. Currently kfree_skb() is used
+> > > everywhere, and therefore no drop reason is specified. Add drop reasons
+> > > to the most common drop points.
+> > > 
+> > > The purpose of this patch is to address the most common drop points on
+> > > the bridge ingress path. It does not exhaustively add drop reasons to
+> > > the entire bridge code. The intention here is to incrementally add drop
+> > > reasons to the rest of the bridge code in follow up patches.
+> > > 
+> > > Most of the skb drop points that are addressed in this patch can be
+> > > easily tested by sending crafted packets. The diagram below shows a
+> > > simple test configuration, and some examples using `packit`(*) are
+> > > also included. The bridge is set up with STP disabled.
+> > > (*) https://github.com/resurrecting-open-source-projects/packit
+> > > 
+> > > The following changes were *not* tested:
+> > > * SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT in br_multicast_flood(). I could
+> > >   not find an easy way to make a crafted packet get there.
+> > > * SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD in br_handle_frame_finish()
+> > >   when the port state is BR_STATE_DISABLED, because in that case the
+> > >   frame is already dropped in the switch/case block at the end of
+> > >   br_handle_frame().
+> > > 
+> > >     +---+---+
+> > >     |  br0  |
+> > >     +---+---+
+> > >         |
+> > >     +---+---+  veth pair  +-------+
+> > >     | veth0 +-------------+ xeth0 |
+> > >     +-------+             +-------+
+> > > 
+> > > SKB_DROP_REASON_MAC_INVALID_SOURCE - br_handle_frame()
+> > > packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+> > >   -e 01:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+> > >   -p '0x de ad be ef' -i xeth0
+> > > 
+> > > SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL - br_handle_frame()
+> > > packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+> > >   -e 02:22:33:44:55:66 -E 01:80:c2:00:00:01 -c 1 \
+> > >   -p '0x de ad be ef' -i xeth0
+> > > 
+> > > SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD - br_handle_frame()
+> > > bridge link set dev veth0 state 0 # disabled
+> > > packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+> > >   -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+> > >   -p '0x de ad be ef' -i xeth0
+> > > 
+> > > SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD - br_handle_frame_finish()
+> > > bridge link set dev veth0 state 2 # learning
+> > > packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+> > >   -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+> > >   -p '0x de ad be ef' -i xeth0
+> > > 
+> > > SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT - br_flood()
+> > > packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+> > >   -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+> > >   -p '0x de ad be ef' -i xeth0
+> > > 
+> > > Signed-off-by: Radu Rendec <rrendec@redhat.com>
+> > > ---
+> > >  include/net/dropreason-core.h | 18 ++++++++++++++++++
+> > >  net/bridge/br_forward.c       |  4 ++--
+> > >  net/bridge/br_input.c         | 24 +++++++++++++++---------
+> > >  3 files changed, 35 insertions(+), 11 deletions(-)
+> > > 
+> > > diff --git a/include/net/dropreason-core.h b/include/net/dropreason-core.h
+> > > index c29282fabae6..1f2ae5b387c1 100644
+> > > --- a/include/net/dropreason-core.h
+> > > +++ b/include/net/dropreason-core.h
+> > > @@ -108,6 +108,9 @@
+> > >  	FN(TUNNEL_TXINFO)		\
+> > >  	FN(LOCAL_MAC)			\
+> > >  	FN(ARP_PVLAN_DISABLE)		\
+> > > +	FN(MAC_IEEE_MAC_CONTROL)	\
+> > > +	FN(BRIDGE_INGRESS_PORT_NFWD)	\
+> > > +	FN(BRIDGE_NO_EGRESS_PORT)	\
+> > >  	FNe(MAX)
+> > >  
+> > >  /**
+> > > @@ -502,6 +505,21 @@ enum skb_drop_reason {
+> > >  	 * enabled.
+> > >  	 */
+> > >  	SKB_DROP_REASON_ARP_PVLAN_DISABLE,
+> > > +	/**
+> > > +	 * @SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL: the destination MAC address
+> > > +	 * is an IEEE MAC Control address.
+> > > +	 */
+> > 
+> > IMO, dropping pause frames is not among "the most common drop points".
+> > Are you planning on reusing this reason in other modules? If not, then I
+> > prefer removing it. My understanding is that we should not try to
+> > document every obscure drop with these reasons.
+> 
+> Fair enough. I don't have an immediate plan to reuse this reason, and
+> to be honest, I'm not that familiar with the networking stack to be
+> able to tell off hand if it's likely to be useful elsewhere.
+> 
+> Would you prefer to stick to not specifying a drop reason at all at
+> that particular drop point, or to reuse an existing reason? Two
+> existing reasons that could be used (although they are not entirely
+> accurate) are:
+> SKB_DROP_REASON_UNHANDLED_PROTO
+> SKB_DROP_REASON_MAC_INVALID_SOURCE
 
-Yes. I would use something like:
-
-"
-There are legitimate use cases for enabling learning on a locked bridge
-port such as MAC Authentication Bypass (MAB) or when user space
-authorizes hosts using dynamic FDB entries.
-
-Currently, by default, the bridge will autonomously populate its FDB
-with addresses learned from link-local frames. This is true even when a
-port is locked which defeats the purpose of the "locked" bridge port
-option. The behavior can be controlled by the "no_linklocal_learn"
-bridge option, but it is easy to miss which leads to insecure
-configurations.
-
-Fix this by skipping learning from link-local frames when a port is
-locked.
-
-Fixes: a21d9a670d81 ("net: bridge: Add support for bridge port in locked mode")
-"
+Both aren't really applicable in this case and I doubt users are hitting
+this drop point in practice, but I feel like I don't have a good
+argument against adding 'SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL', so maybe
+just keep it ^o^
