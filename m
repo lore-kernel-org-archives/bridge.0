@@ -1,31 +1,31 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ABA4204591
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79C70204588
 	for <bridge@lists.linux.dev>; Mon, 16 Dec 2024 11:30:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734348613; cv=none; b=E8L5XWrYonLGdBDlFkObxVuW+MJwgaOA1bTCluaym/f3WwT8K5S5NFH+YweQwTrKd+7D9p6EOPf3jrjHBOrsKB7rTVaqHDKYlnQqCwX4OlA3nE9/N61qEt/DcMNlC+tLL73+m8oa2awHw7YZcAV4LgNKk9Rx4jKcZ+TaEg+dwLI=
+	t=1734348613; cv=none; b=uH3HDU47yf414kmZA9it4g5sVYxCByHLNMMw7axByWoPQCjZ/9CxQY2OS9c4Lvo/Go1a8V+ykhXvZ0DgM7n9Xalk1IV3S+HXmJaVUfCBmOVS/a8HiFgbhhCzoA2Lo+GQgV2zBmMY7w36cW5vcInYtYtgSulby9C4LUq9WDpuDzo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1734348613; c=relaxed/simple;
-	bh=afmiFWmGtDwSvWCLz/Awnrz8rUrbWbV1R/aSyG8z9fk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IOqYXTHnPX5TBBnmFO8XBGLl2c+LygK/+2W9oB82KH/vq3V2aoIYqDc3BYrUWCJ22+Zo4nfW7OnSqzcd4fxA7wzrolOyNkMsEt1pvEHAbnVw5twgHErLt7/AdbYhm7uMahwkuRF52ULAhhOjhTrWNUte8z/5+nXkNVmBLKJyGQk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=I/JxaftG; arc=none smtp.client-ip=159.69.126.157
+	bh=JUvh5Dx2l/+Mrwzrx/iMp7KZDIeHbhdYYiSmxE4g8fA=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=VkygKE8R10kQI24msqiHcJKx/bPN7ZfgdJvfvOBgRYJIzqgoMihaYsgUqlThFVGjXrhZwOpjA1TqIkoO7PUq7gl+mJZJ+6TIk9YYSwnmgDgRu2k2jjFNr5Ah4zt65mUuidKR6CT1TUXG1hMhZNJSNnRU6Sxt+ylXbweTbdIyFss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=VHI0wlCD; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="I/JxaftG"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="VHI0wlCD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1734348609;
-	bh=afmiFWmGtDwSvWCLz/Awnrz8rUrbWbV1R/aSyG8z9fk=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=I/JxaftGswFaQLoUCFKkScDmP2dU8N5jdG1tM+4wpCxbSF4pAashONomOrki33B5G
-	 z81jo73OWmnLozhgGg/FgVfHOOfh2xmcN4OEqTW7uYcZvRIdIVep2ua8ovk+d87J/W
-	 YTLddRNqVNH4JJpACDSRNltZYESXmYL6p6jNL3ww=
+	bh=JUvh5Dx2l/+Mrwzrx/iMp7KZDIeHbhdYYiSmxE4g8fA=;
+	h=From:Subject:Date:To:Cc:From;
+	b=VHI0wlCDyW/jP9DialLz+I7jJmwLuU0INHcOgoxx/dquSdJPNqqYpC1osbUbCCf1k
+	 YuI0B8ZeNmbPpXscQLlKZWW9RnhcH26QxgrZrUnA4FT8skHUQueYWiuPOEjc6jAPqD
+	 DuwJtIByFlMi0O3ohQMQSzdAt0ZM71JGl8XjVmDk=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Mon, 16 Dec 2024 12:30:08 +0100
-Subject: [PATCH net-next 1/5] net: bridge: constify 'struct bin_attribute'
+Subject: [PATCH net-next 0/5] net: constify 'struct bin_attribute'
+Date: Mon, 16 Dec 2024 12:30:07 +0100
+Message-Id: <20241216-sysfs-const-bin_attr-net-v1-0-ec460b91f274@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -34,9 +34,10 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20241216-sysfs-const-bin_attr-net-v1-1-ec460b91f274@weissschuh.net>
-References: <20241216-sysfs-const-bin_attr-net-v1-0-ec460b91f274@weissschuh.net>
-In-Reply-To: <20241216-sysfs-const-bin_attr-net-v1-0-ec460b91f274@weissschuh.net>
+X-B4-Tracking: v=1; b=H4sIAD8PYGcC/x2MQQqEMAwAvyI5G2hLFfEri4jWuJtLXJogivh3u
+ 3scmJkLlDKTQl9dkGln5U0K+LqC9JnkTchLYQguRB98g3rqqpg2UcOZZZzMMgoZxqVLzlHTti5
+ Cyb+ZVj7+6xf8BKHDYLjvB7d7I5d0AAAA
+X-Change-ID: 20241215-sysfs-const-bin_attr-net-4d8c00e56604
 To: Roopa Prabhu <roopa@nvidia.com>, 
  Nikolay Aleksandrov <razor@blackwall.org>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
@@ -51,11 +52,11 @@ Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1734348609; l=1310;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1734348609; l=1098;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=afmiFWmGtDwSvWCLz/Awnrz8rUrbWbV1R/aSyG8z9fk=;
- b=ZPFLEa3BA+fgVFucJJfAvGs4rNA9IdX6Lu/1cW1OkDiGlB5Fcz9l6EXJSQZQgAyYSkvzP1IcI
- ag0++1bPcO6Cbl8qEcUuCGP/18U/tR/xtp6zInMwvzfx6N0yIiUI2eU
+ bh=JUvh5Dx2l/+Mrwzrx/iMp7KZDIeHbhdYYiSmxE4g8fA=;
+ b=VkfVs0bcajaHYCJYMGf9Uh3Fo9j3++fEj5L1Y8PZ5nJx3J6SLn5P/kvsiUQiSg6m4AB/JybSr
+ uF0lPdTef1YC912T6IhcTwpm5L3RkuTWFt7FxFX53/W7qemshagi0Ls
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
@@ -65,36 +66,24 @@ accidental or malicious modifications.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- net/bridge/br_sysfs_br.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Thomas Weißschuh (5):
+      net: bridge: constify 'struct bin_attribute'
+      net: phy: ks8995: constify 'struct bin_attribute'
+      wlcore: sysfs: constify 'struct bin_attribute'
+      netxen_nic: constify 'struct bin_attribute'
+      qlcnic: constify 'struct bin_attribute'
 
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index ea733542244c7e7feeffef3c993404529ba88559..c1176a5e02c43ce32cb3dc152e9aa08eb535a419 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -1002,7 +1002,7 @@ static const struct attribute_group bridge_group = {
-  * Returns the number of bytes read.
-  */
- static ssize_t brforward_read(struct file *filp, struct kobject *kobj,
--			      struct bin_attribute *bin_attr,
-+			      const struct bin_attribute *bin_attr,
- 			      char *buf, loff_t off, size_t count)
- {
- 	struct device *dev = kobj_to_dev(kobj);
-@@ -1023,10 +1023,10 @@ static ssize_t brforward_read(struct file *filp, struct kobject *kobj,
- 	return n;
- }
- 
--static struct bin_attribute bridge_forward = {
-+static const struct bin_attribute bridge_forward = {
- 	.attr = { .name = SYSFS_BRIDGE_FDB,
- 		  .mode = 0444, },
--	.read = brforward_read,
-+	.read_new = brforward_read,
- };
- 
- /*
+ .../net/ethernet/qlogic/netxen/netxen_nic_main.c   | 20 +++----
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_sysfs.c  | 70 +++++++++++-----------
+ drivers/net/phy/spi_ks8995.c                       |  8 +--
+ drivers/net/wireless/ti/wlcore/sysfs.c             |  4 +-
+ net/bridge/br_sysfs_br.c                           |  6 +-
+ 5 files changed, 54 insertions(+), 54 deletions(-)
+---
+base-commit: 2d8308bf5b67dff50262d8a9260a50113b3628c6
+change-id: 20241215-sysfs-const-bin_attr-net-4d8c00e56604
 
+Best regards,
 -- 
-2.47.1
+Thomas Weißschuh <linux@weissschuh.net>
 
