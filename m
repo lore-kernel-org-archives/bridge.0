@@ -1,42 +1,40 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A68F61487E5;
-	Mon, 16 Dec 2024 15:40:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D1B21DBB35;
+	Tue, 17 Dec 2024 10:27:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734363656; cv=none; b=MSJcZJpsugnn2EmeGyiQXaeiuhCiuEeAfMDUoZk0j+Fje8X5JwxkRyb3TNlRvASrHHp9Ga6RnKfIEVJl5gIvXaRxsxJ1lBzgQseB9+U65SU5DfCfSzzMHdHqALOsIb4rOmRxVHkMbXkjmds2rMo56B7H30tT0kR67xatt38bpj4=
+	t=1734431246; cv=none; b=qlYBR2cT5lyzCT9i2f2/F2HPp1urdvvq3Q2xYgnniqmxNBFKSzHZDMRtFI6Hwg2HvNQnXPyaxjiQ+yXk8hHjScDZnAIUrBUcqvQLDQY1Re2s2du/9kIpZxPgBkCxoEHZ/WOluvaBcYFPhn/7OuXJO0eFhdrYQN5cHktSY7lib8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734363656; c=relaxed/simple;
-	bh=nBlfpGHZLN/tSmadhAaGKOZKCuSup5dAG2EvrJLNhm8=;
+	s=arc-20240116; t=1734431246; c=relaxed/simple;
+	bh=e8NR2Mm3nxNykFMqs/2JJJHBv4LxQ7vBHBypvF16BLw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BGcg0iG8kykgSTAKWyZEnMtGxIhIpUpJVG02dENRlSORiew7G/ZXzuoFFHxHbxdirrZdwvHuzWqZXmiD6UwFCKMsPFNV6oU9QoZ3IszK8EOF9RS7bCg9KsufWaNhIhIjMVl+FNIduvzT9eXnzpzUoL0Udl7uhKfKbGMukDSYSEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=fP87Upys; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	 Content-Type:Content-Disposition:In-Reply-To; b=nQ6VxerL/8SSgUP4jEp+swaDxFUd+Cp0QVel8Bxp6/fqbwxlct0t9DqdHcz8m9KCj0hqUnTkBCSrYlm+ZKPSqor8hDuun10x5w+IR+9dKgf+4AEK8Rk1llpCJMvOmZcInbAfRh3/XBzwL3HAu5Q0VxUPeVNKfnFFl6sDqxNKcM8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GvSBwO1a; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="fP87Upys"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Transfer-Encoding:Content-Disposition:
-	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:From:
-	Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Content-Disposition:
-	In-Reply-To:References; bh=lgibr6KIaF4osjRJKvvTMTfF1EZjS2bKGRpJ4Y47g5E=; b=fP
-	87UpysOTTMwnIYBto8w3o7YSyba+R0lAQodCnE9xM3nL7ER8J2lPIg0yPQgHTmGnm3fxOWtaCrHXd
-	cC/jdRnYpClxaknx45QCZpgGni/UZTINa9D0tdO069/pycivefBA5cRGOHkB4mfGzsRZqZOVksPKu
-	eieCfUot1B6JxdM=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1tNDD1-000f9s-Dg; Mon, 16 Dec 2024 16:40:35 +0100
-Date: Mon, 16 Dec 2024 16:40:35 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GvSBwO1a"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C899C4CED3;
+	Tue, 17 Dec 2024 10:27:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1734431245;
+	bh=e8NR2Mm3nxNykFMqs/2JJJHBv4LxQ7vBHBypvF16BLw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=GvSBwO1a+tce/b0G/K8JPaSonNn6+CS1OkG2kzamKF5Y2Ij5m4sdm84ByGfKJaI33
+	 Crd1jYrj59DrcvVKMHVBe9kZ0QkFIUnxKe/gkuKT0Lrzrb7sWAIRhIfMpyYA9NF376
+	 IiNq6IUoE4F+fYbrqgnSqJ2zt8yjq3cNoGbZxQ3tnU0x5d4rj30Q9rO9Xq9e5vqxyo
+	 v7X0S0pJ26NeHY2YTf7TGYFIGgb35+u8aAYpEWolmc1c4RfYtcl35USded6Oyyv6Zb
+	 8hyGzBHXuG8rqegwW8SrFyiqvMLXBDWp9iL1vNJA5tT6tZrdgwa+xFCEtJ1l9pUKYW
+	 qBmzUxuOMa+Fg==
+Date: Tue, 17 Dec 2024 10:27:19 +0000
+From: Simon Horman <horms@kernel.org>
+To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
 Cc: Roopa Prabhu <roopa@nvidia.com>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
+	Andrew Lunn <andrew@lunn.ch>,
 	Heiner Kallweit <hkallweit1@gmail.com>,
 	Russell King <linux@armlinux.org.uk>, Kalle Valo <kvalo@kernel.org>,
 	Manish Chopra <manishc@marvell.com>,
@@ -45,29 +43,27 @@ Cc: Roopa Prabhu <roopa@nvidia.com>,
 	Shahed Shaikh <shshaikh@marvell.com>, bridge@lists.linux.dev,
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 	linux-wireless@vger.kernel.org
-Subject: Re: [PATCH net-next 2/5] net: phy: ks8995: constify 'struct
- bin_attribute'
-Message-ID: <1f30c688-64fa-456d-a4c5-94fb7d6eac71@lunn.ch>
+Subject: Re: [PATCH net-next 1/5] net: bridge: constify 'struct bin_attribute'
+Message-ID: <20241217102719.GL780307@kernel.org>
 References: <20241216-sysfs-const-bin_attr-net-v1-0-ec460b91f274@weissschuh.net>
- <20241216-sysfs-const-bin_attr-net-v1-2-ec460b91f274@weissschuh.net>
+ <20241216-sysfs-const-bin_attr-net-v1-1-ec460b91f274@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20241216-sysfs-const-bin_attr-net-v1-2-ec460b91f274@weissschuh.net>
+In-Reply-To: <20241216-sysfs-const-bin_attr-net-v1-1-ec460b91f274@weissschuh.net>
 
-On Mon, Dec 16, 2024 at 12:30:09PM +0100, Thomas Weiﬂschuh wrote:
+On Mon, Dec 16, 2024 at 12:30:08PM +0100, Thomas Wei√üschuh wrote:
 > The sysfs core now allows instances of 'struct bin_attribute' to be
 > moved into read-only memory. Make use of that to protect them against
 > accidental or malicious modifications.
 > 
-> Signed-off-by: Thomas Weiﬂschuh <linux@weissschuh.net>
+> Signed-off-by: Thomas Wei√üschuh <linux@weissschuh.net>
 
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Simon Horman <horms@kernel.org>
 
-    Andrew
