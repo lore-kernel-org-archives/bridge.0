@@ -1,61 +1,61 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1020A1B0406
-	for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 13:10:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A0F71AA1D1
+	for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 13:10:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734527424; cv=none; b=fKqmF7eqQKn3OqLEW5QdJzq2q0CYzmnKc9EJ5YhtKZuAApZhyWNgXIQkieDrXdznew9v7MMcqSIQgbdfO7X2nlwEaVRQC+lnWTX46AuQm0cgu/sS4RPc9/P6Gwx/qFQY788IgR5HTzK9n/PkK7c2Qbdm1+aw7HMcX8OxPVK6Ino=
+	t=1734527432; cv=none; b=SfsJdo6Q5YLVKODBKK4MIbQiNPepN5imVdpY2jHWKZX+Kk1SyZrz7Crw0wZaHfSiG1ko5AWzdQBdr1E9stWL1Q72cj4R+F9fXgVmEBCzgUEjR0lRCyToHxBIkFrhwnnH67LXQTWhsEXuOaWFV0rN8qJjowlFFeTytKM4GtR2R4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734527424; c=relaxed/simple;
-	bh=FrNFlIgaLGZInVfg7c+Ua7z0X9F1i2NtBJYO15VwRj4=;
+	s=arc-20240116; t=1734527432; c=relaxed/simple;
+	bh=7cGPxfnNq5yiQ2uUz1I87Ai/9MiFtraEfBlwrKXtY4c=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Pw4b+iPIiz4WQNPImdj8XgSzz+gPmXxSe9gNJ5N4VRZC/swLz504pnIRfjtUY0gJm+eR1mICaBAgqw5f72sLcc0s2bVL7ron55L1Gkep41OiKv7qN+34Oe+QBuYcjzWcqvbrz80uD5pNWNRuli46V87AAbpLLZ4A58jFD3Zn+G0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kb1Q4RQD; arc=none smtp.client-ip=209.85.210.172
+	 MIME-Version; b=sOBQlUaBDWu8LK4OWaQ1S1IZKrBmKgbTqtaaYrwXL69vJiL+aFEwDS3KaV7leg/cUai0xf/X7P9QikvlGEwR/7Qw/FXIfsRL+l3VY0YzATUKdNL6e/6hMp8IkVqOPSr1y9EVrKfg2KlRWDEn35ICXYzok+mnxpZxv3kUniMKcPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MKmnbpSJ; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kb1Q4RQD"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-725ce7b82cbso7449326b3a.0
-        for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 05:10:22 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MKmnbpSJ"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2161eb94cceso43801045ad.2
+        for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 05:10:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1734527422; x=1735132222; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1734527430; x=1735132230; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bXH8tUP/h7NPxTwhkU8DrmHX10k3nPXxIbmClQOEn5A=;
-        b=kb1Q4RQDQ1KNDYwNARW4PbtzD63dnkJ6xeowaxAEEs9bgEzti4Klpj7TvuKSBNAl5J
-         McvaOfwHVEiUlaofdwruuWsMyqjiqCgpoAFR2MS82BUnEnXVPaihBaglnIa0LFA0KNl3
-         D3FwSGh0gc6zd2gOPxhuk0+46COUycGTrnzrxvDGNieody8MlEWEmBZ/xvDUqMo9VC6V
-         2sX5sdLgXpvWjT2DAyJ1TITuJ12nUwYNwapdNEXx4erZ2a/Bdrk/wAcs8r2HaFx2HU5k
-         vUbNoByxzAUaCFsLCrHfdZfnhO/l1O788dKhacgzZLnuXcxZynDkW5uZ2KS73Ltacl0l
-         wrGw==
+        bh=vKRdbuSYL7hnJpCbxB6/aqEJFoCo8iX729XZZAsUkqw=;
+        b=MKmnbpSJorh7zxaPz2pW7SO3wYxjQOotIUkqWEVd8pKMBPvLnzbpO/eRlkwVAkEFjf
+         gBsKPJLZLhiVgOTJp4E3YO7Sb9tpoILEGGRyGFgxQhu+mHeqTvE5CYR9poC+r6VDdXaA
+         AP2UZfl612VeI2E9plqQltm98adJQ1XhW9fF+hBb6pjZD7pdULTqb79Ick6FXlsxMR69
+         lCgGsfUIJIZLVzPKi933tazLeFrpNW1TdrpulDIR0jY8DEsv/gnln0dQSz9HGJD0Tfc/
+         UbD4yrl4grdIqf8VJtku0q+2A2EawVcipuAtWbHVE/nQLjvBgPYXNA1hy/ztxqjEB3gQ
+         HKtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734527422; x=1735132222;
+        d=1e100.net; s=20230601; t=1734527430; x=1735132230;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=bXH8tUP/h7NPxTwhkU8DrmHX10k3nPXxIbmClQOEn5A=;
-        b=lni/TnnntV7SWcPGH3sZj1suEseV4lVRsVaQqBQM1IC5T7Cg1EbuxfU2ND9dmlT2cn
-         LqoJxCAumdMlzPWdYLZEnL3QqgOpLFZ56dZmUnClguYSteFZ8QKPwZZFEs3v3br/iYzG
-         soaGp2Ak9nQm3TnQ+Ns0Pgls/5Yy2nyRjnlv2AWbvmXWsYTAUOwF6/cB+4u7BHF+n3Iv
-         nxDuPrhq+LzI91/JGmr4xWNYolJgxjqP35r4fXi0zYHiiRE2PEVnWcMX+KJRVoBP1Ik/
-         jA8To/j/tPJQvTy/kDc6h88Hq86T/UPLjoyANk4eey+QsRfWb6vcJyyYw0mM9K/yvecX
-         Z8uQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU8GBQusd8+4OeVhRyv3B4F1OMyk70uwHGyJ2ixSdQGXQW3qW37B5yJmUL2jfrkPdzOeKWwNRM=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzfzkRXECls/XyyCAo1EILF7J9pm0reNMYlKK7CS0pjgxAS/uHn
-	tg6YyjdNVUGcfGJ6GWML+Cxlzvh0Br8AlABcpigYGJiFhdnshn5J
-X-Gm-Gg: ASbGncukCNZPiyRoG7hV/1LNlBZsP9jniZ+iwy/89dnbc93mkdFnheggqBF6ltErHpC
-	3NaNJ12UVUnTzAASoICFdZrntlyT+o5zOohTeTXNEVeT8nn+zG1EeFAsUeB6R8napGiVFayERN9
-	CtGX0s20XHlm9UMqSCaMNqnwWC9A8C+r81lF4Mdu4XTxXjUV/CApgJ4sBF6WIwAWK7u3m/We+Xd
-	rhZsh6f7VzxUR7AiMaXkO4+huDpTIK4llIjYQ9VIZUM7Sg=
-X-Google-Smtp-Source: AGHT+IGLrMJpewCg9a6Mvczs3iBMMwjIWUW57/cgClFku2ou3JPxqZ6yK8d+Q9sS8i4XncDR+dfRig==
-X-Received: by 2002:a05:6a20:12c6:b0:1e1:bee3:50ea with SMTP id adf61e73a8af0-1e5b47f94bcmr5116348637.11.1734527422239;
-        Wed, 18 Dec 2024 05:10:22 -0800 (PST)
+        bh=vKRdbuSYL7hnJpCbxB6/aqEJFoCo8iX729XZZAsUkqw=;
+        b=dQpviaZZOofOxVaDEYk6ResCc6BVuLzLz+GAKKb6Wc8md9OO3wL9gdo+pnTTF78Lne
+         YtwD2pQqO80UhbVmAzd0h/bR4OtHxLRAKeoijKKzp/ZRTN71muZMfDGYS1IkZSZVSHNO
+         7nDlNwI2GO81bQbu1C1YgMPS1R790QLsgq0uLDezcmb+6zld/NoIS2S63kpZBRh2sOfM
+         FHmjCBDu+xMl/6MuCNWXQl8Wlj3ndJhqpKrvp4ptexb1zMldNtA9XmCIgZKZ969v+WjP
+         sBW3bvOlj2zoGl4QsNkOYKudyq6+YUVZf/jF5fvvpWLLxQWx3ze3CKAl68QY695dn8Cc
+         y2WA==
+X-Forwarded-Encrypted: i=1; AJvYcCW0Uzs+nZWD3j+kV6SUoUVl/X+x0CNSWGaZujRQJJdm/jFQO1I33A7VO/ZDxeveZvkX0RoJW7w=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFTE5m84LhqOpCQIbT4588O7/dlK67kIc+OK4Lxgd62tNcLdhl
+	VCZzZFBsOMlsWd/Q1+ZDNt+CsAqq+RwHToOpGMF/Pvd8XaI5BF1l
+X-Gm-Gg: ASbGncvn373rXOk35QSEnpXitHs+9XnYqC2HtR/Kc8EKhRz9oTRuRCKtGjgXc9BSofj
+	BMJNZnD2dyAe0B0EHCOACyZRUExnauSgzGobtexaIQ0MTSik4toS+GBgdQc++z5F6LwoCFnIeeH
+	QtuEnzo/ATHJ9riqydg7sX512OdhXQRbBlMhA7LdvLmCEA4ye3FX5BqxYkk3wqT14/VJ2fYsRHD
+	oiQZotszo9JQ1Whx4C5GdFK3q1AcGoNMAiL1rLfqBARPUc=
+X-Google-Smtp-Source: AGHT+IG5uNon7/+5tavnAU1+6ODsDyulZAAiwNo5sldF4FHk8kNssZ4/V0oQpI2qOsRTRp3qJQ4m2Q==
+X-Received: by 2002:a17:902:db01:b0:216:5867:976a with SMTP id d9443c01a7336-218d725b7aamr38087595ad.45.1734527430302;
+        Wed, 18 Dec 2024 05:10:30 -0800 (PST)
 Received: from ws.. ([103.167.140.11])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-801d5c0f59asm7434754a12.67.2024.12.18.05.10.14
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-801d5c0f59asm7434754a12.67.2024.12.18.05.10.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Dec 2024 05:10:21 -0800 (PST)
+        Wed, 18 Dec 2024 05:10:29 -0800 (PST)
 From: Xiao Liang <shaw.leon@gmail.com>
 To: netdev@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
@@ -83,9 +83,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	linux-wpan@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v6 07/11] net: xfrm: Use link netns in newlink() of rtnl_link_ops
-Date: Wed, 18 Dec 2024 21:09:05 +0800
-Message-ID: <20241218130909.2173-8-shaw.leon@gmail.com>
+Subject: [PATCH net-next v6 08/11] rtnetlink: Remove "net" from newlink params
+Date: Wed, 18 Dec 2024 21:09:06 +0800
+Message-ID: <20241218130909.2173-9-shaw.leon@gmail.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20241218130909.2173-1-shaw.leon@gmail.com>
 References: <20241218130909.2173-1-shaw.leon@gmail.com>
@@ -97,54 +97,59 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When link_net is set, use it as link netns instead of dev_net(). This
-prepares for rtnetlink core to create device in target netns directly,
-in which case the two namespaces may be different.
+Now that devices have been converted to use the specific netns instead
+of ambiguous "net", let's remove it from newlink parameters.
 
 Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
 ---
- net/xfrm/xfrm_interface_core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ include/net/rtnetlink.h | 2 --
+ net/core/rtnetlink.c    | 6 ------
+ 2 files changed, 8 deletions(-)
 
-diff --git a/net/xfrm/xfrm_interface_core.c b/net/xfrm/xfrm_interface_core.c
-index 77d50d4af4a1..d1198c63dd23 100644
---- a/net/xfrm/xfrm_interface_core.c
-+++ b/net/xfrm/xfrm_interface_core.c
-@@ -242,10 +242,9 @@ static void xfrmi_dev_free(struct net_device *dev)
- 	gro_cells_destroy(&xi->gro_cells);
- }
- 
--static int xfrmi_create(struct net_device *dev)
-+static int xfrmi_create(struct net *net, struct net_device *dev)
- {
- 	struct xfrm_if *xi = netdev_priv(dev);
--	struct net *net = dev_net(dev);
- 	struct xfrmi_net *xfrmn = net_generic(net, xfrmi_net_id);
+diff --git a/include/net/rtnetlink.h b/include/net/rtnetlink.h
+index ed970b4568d1..04fc0e91af42 100644
+--- a/include/net/rtnetlink.h
++++ b/include/net/rtnetlink.h
+@@ -72,7 +72,6 @@ static inline int rtnl_msg_family(const struct nlmsghdr *nlh)
+ /**
+  *	struct rtnl_newlink_params - parameters of rtnl_link_ops::newlink()
+  *
+- *	@net: Netns of interest
+  *	@src_net: Source netns of rtnetlink socket
+  *	@link_net: Link netns by IFLA_LINK_NETNSID, NULL if not specified
+  *	@peer_net: Peer netns
+@@ -82,7 +81,6 @@ static inline int rtnl_msg_family(const struct nlmsghdr *nlh)
+  *	@extack: Netlink extended ACK
+  */
+ struct rtnl_newlink_params {
+-	struct net *net;
+ 	struct net *src_net;
+ 	struct net *link_net;
+ 	struct net *peer_net;
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index f7c176a2f1a0..e33ef8a0a6d6 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3758,7 +3758,6 @@ static int rtnl_newlink_create(struct sk_buff *skb, struct ifinfomsg *ifm,
+ 	char ifname[IFNAMSIZ];
  	int err;
+ 	struct rtnl_newlink_params params = {
+-		.net = net,
+ 		.src_net = net,
+ 		.link_net = link_net,
+ 		.peer_net = peer_net,
+@@ -3787,11 +3786,6 @@ static int rtnl_newlink_create(struct sk_buff *skb, struct ifinfomsg *ifm,
+ 	dev->ifindex = ifm->ifi_index;
+ 	params.dev = dev;
  
-@@ -819,11 +818,12 @@ static int xfrmi_newlink(struct rtnl_newlink_params *params)
- 	struct netlink_ext_ack *extack = params->extack;
- 	struct net_device *dev = params->dev;
- 	struct nlattr **data = params->data;
--	struct net *net = dev_net(dev);
- 	struct xfrm_if_parms p = {};
- 	struct xfrm_if *xi;
-+	struct net *net;
- 	int err;
- 
-+	net = params->link_net ? : dev_net(dev);
- 	xfrmi_netlink_parms(data, &p);
- 	if (p.collect_md) {
- 		struct xfrmi_net *xfrmn = net_generic(net, xfrmi_net_id);
-@@ -852,7 +852,7 @@ static int xfrmi_newlink(struct rtnl_newlink_params *params)
- 	xi->net = net;
- 	xi->dev = dev;
- 
--	err = xfrmi_create(dev);
-+	err = xfrmi_create(net, dev);
- 	return err;
- }
- 
+-	if (link_net)
+-		params.net = link_net;
+-	if (peer_net)
+-		params.net = peer_net;
+-
+ 	if (ops->newlink)
+ 		err = ops->newlink(&params);
+ 	else
 -- 
 2.47.1
 
