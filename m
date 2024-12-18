@@ -1,61 +1,61 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 144651B4239
-	for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 13:10:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1117F19CC17
+	for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 13:10:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734527440; cv=none; b=mOypQ0DDGNU1AuuBI1dQ2ColAgrmZfeF2uWUXHLxtlaAEHS9+rvQoekSNoiAUFsEjKA0nosWfB2aWux15n9cUPyLIPpsyczq9AaMzT+K+PrKvw2sL+cYxVEBj99Alqv6NoUO67P5YNpHR9TYX+V5fqciLUqMdlzKiu7XnxVU6m8=
+	t=1734527448; cv=none; b=H5l7MSiCn5O3mUszBWnTy0Hy9Kcl6tb53ziBgYShcNvZlkL2nQe0AaIni3CRiA7mjaPfl4tORT4fj5DezdoX7L7qxkB+Dk8lBsvGxWiU3+MIuBI/r3j1NA43UwWEYs7bZtY9LKpQqTTRuNDnGlprd4C6riNicRBRbTh463glqnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734527440; c=relaxed/simple;
-	bh=v/XyDBj1rv0kMGLFRo/fVc4C1+xJWpbKQllsecdMufM=;
+	s=arc-20240116; t=1734527448; c=relaxed/simple;
+	bh=PdyhCxIiCvxYyD0kNCUPOuthJbFGoqxPJVmAtqTiJvU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iNZKSxshn4RlXp7JvP9BML4k8icLgzBmzbjcY5Zc/4V4xKbcycSKQEJgkZqsmHDpffjvMHcMsM7USDXPMkIg7xOyhorqmFpiK/s9bHIrASbImSnZn1+ece5c9WpcgbvoE5t6u/3KG2jLq+JHpfwriYSwnvio/QRDFvtKGkOCark=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GT/5F7xT; arc=none smtp.client-ip=209.85.216.52
+	 MIME-Version; b=hcySzSGvCmQ+dVvz3RhsWtn310jkFKzC67QlCvAm1A97cM0SQDkp1VTIlpECaM8t6BI8u4pM2Ci1ehFZEa+lQS/78v5a58jo4F5FETHgXJGl7T/Y/ZSvqMv35Q3DPbTO+Res6ME5RxTslyHFfnr5US+r+VLT4tCtz3HuaAA7Rmg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RbTselxw; arc=none smtp.client-ip=209.85.210.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GT/5F7xT"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2efded08c79so4486265a91.0
-        for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 05:10:38 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RbTselxw"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-725d9f57d90so4834040b3a.1
+        for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 05:10:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1734527438; x=1735132238; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1734527446; x=1735132246; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VEdGbFyA09FJ7+QqmmCxpz6A7u+HUg5+S5fgAXCQeJc=;
-        b=GT/5F7xT+iBlq8m+YwcYJhWu+DPiHUBHQrtyTZYUemm+9hMaHusfgJI6DEs5F5rZNG
-         UEjO5NOC7G/57J5OV0rs7nnMcdTbYMBL8EAKQ+NGcKCaIxNJav23atb5qiuXc0j3mLhR
-         IpC3ExoukMGNqAda2niQ8HR1K2YvbHUPPlvsSxi4vlSMlltIFU8R2VcvLwRhQ+LXwnU+
-         csH33eyJ/1K3a6zZGSMUoJRgXh73lCftodr1PZ6T5KI7uEAwbDY+2SESCF+R2pfYe9uy
-         Q8XOr237nx3Yv0dR5GnlOZCh9+UZBtFke05swCVuW7utINkPBJdt+SB8bj0Ec+2OBdlX
-         R/dw==
+        bh=f/aVoxIsj2NaHZxO0wthneclpZNQFTaEi7bz2gcdad0=;
+        b=RbTselxwkIj3OL9GUyFBqT/ya/V7e6NfUEVxsb0XWpbsSH0GcBd5fMhub+I1XZQngJ
+         R89J8uUdhS6pjL2FGyD4aVmYtHjY7hwzBVnHC4VVaxA5QkW0nbEIuUIB2h/9GG0BEN0o
+         4qj/gIRItDxR9vfxNZkJXEAlT/jTsOZ/K8Z7OCikbkjNOyp5HzHiww3wfyYGSe6x3P6i
+         OxTK7BlxkI8oqVB2a3n48kOZgrBE6bYkoTtFRtfQ69D5PV2G5Pc669VWVNCOdkyRHLJH
+         AKkkRD4FWVZSmTfD07+PY7Rdsn4TBoUGcwEN3csEquFsp7sL8TWrZLAdXv9dq8CZLAh+
+         Mzuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734527438; x=1735132238;
+        d=1e100.net; s=20230601; t=1734527446; x=1735132246;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VEdGbFyA09FJ7+QqmmCxpz6A7u+HUg5+S5fgAXCQeJc=;
-        b=fx4k7y48/Y4jrLQ7+2EWqRozdgmLfEb6IMb4nUykyKSQn21T3TER6X6wJxn+3yuIA0
-         v/Zcq/KzvB/uRjncbX4CeZs1/swE+HSvEc0q+ciLInzvgm+Bu+F4/ZxlH19wzF3C4nu9
-         9pq9IqaBbhRrk4JzwHHQ2qYjMPcanLf/ztfLL2iZjcyOpwNLst2SH76xEklk06Sa/dDf
-         SCyV4iDajKo2TxHgfViqfE5lL1BBntRz3Ud2eU1777XVnZnD4cVsthqLbiI1cr7T3zcb
-         7SEof6mV1CbuEP2FXP79B4THBI5smCMoXaa7wy6iKVNy08jKgrbUFmzKsVUZBmXEHacS
-         TvDA==
-X-Forwarded-Encrypted: i=1; AJvYcCX2DlKVytHgVgW9vbVwzTi4UBJCFgb6RM/N6M/Afcm2x3/5nB1mKr9fgdPKWbyFDel+00rOVM4=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyUkseiz1YIUy0Uh18UQt/5HoaaDpvtkn1NuekzAx5DUQEfkI8G
-	UPuzc+v4skWXwHPqLYnDhhg8AQJ63Jo/YcZBSPg3O6gCo1N+SKQN
-X-Gm-Gg: ASbGncsbygI/l18+gPSED7kEk1JZejulCAjQUWCiTCwhzBEFH5Vxd5tnN5RpVgVJhKW
-	QB+hkRVg7jxN6n+zBl5OkL9M1NkNp17cHq/kzZEe1KmUENbzNZAKzMt8cEibrM4X+NXwEjMwjQ2
-	4AXPlJvCvwSXhVN6J0GE62DakxNLh47JxUVPgAMf5yLkvdFxLCgyzKEJAGz/uoZE0z+r/pXH9/F
-	OXv7T062f07c8Ri4I3kptXl824oihavnOnXNCGeE5ZZ8UI=
-X-Google-Smtp-Source: AGHT+IH6m2w3HOgAGhkzn76085OHsWsSUyL1uFaSoqu4LH4xby0CPd4muKbobH9sGAmWFqgh4Hldug==
-X-Received: by 2002:a17:90b:53cc:b0:2ee:fd53:2b17 with SMTP id 98e67ed59e1d1-2f2e934616amr4153078a91.29.1734527438446;
-        Wed, 18 Dec 2024 05:10:38 -0800 (PST)
+        bh=f/aVoxIsj2NaHZxO0wthneclpZNQFTaEi7bz2gcdad0=;
+        b=olxS8JnhGCmez4CjfjiiZXjgr9SouMJtFPvXzH532ACMcogV8PWiz3JKsf2lxu1Zqy
+         TLBwY5+HHkQjcNP/C6jgVXOO1aNMA4Ef+gj9ltyhOoM57SVmQFKfJm9tSlkXehv5C+Wp
+         Garjq4qhTY+UmlLV/0o8qD5LYEOCvD62NKCX6YvJp2NNR35umIGkMz6fT+AVSbwNi5E1
+         XgyRY7yzUPZOEt8Ljf8MiWGhaP2MteDBga9H6YgMSL/UgBxHJ1hOg05mtmnQ6gVUMhLT
+         8r5OqkMmrDSkG4t7YKgxmjbFj+5NbkdY0Ks+ONBvd4mo30hoKTsJcFUzfOALdYmGLjcf
+         axXw==
+X-Forwarded-Encrypted: i=1; AJvYcCXEnLiiSpo2aElRuZYWW9vDMlnxXVS+vPzzb2E9O4ejwljuZT3lCf318BQxTBPV1KXfC98WyH0=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzkgDbFd3vs9ecEkBGOGvZa+HPZfDBiEWyQnzAvcil3Fk6fTe4D
+	gX5CEkTyDa9ZyaFZxYrKBdM0aHKVjlUDnoqkWI7/RMv5zey9gtd0
+X-Gm-Gg: ASbGncuXeJEKr4xxXr2Muttlx+nTxP79s4ecw70opb9lp4uW+0JBVtA052OBeKSHnzi
+	esSufei4pZtZ+xjdoURcJ/6Ru8pPyRiy7bvZe8NZIlNUAVjBKJufMjy+qE0G0kQmS0ES2hT6klX
+	IvY9Qmc8ZzPHDHY/Kqth5Bt4sD927Q68KxGn8JlI7Bzq/gPfrV3j416Tdux78EFg2qQaE5NQrjP
+	fSOXRzUAjgoju+0aeplf8VNAWxf5OsvQKEwvhx7zmAmDqQ=
+X-Google-Smtp-Source: AGHT+IFJSba0hMYoxDtWWfQo3+fMH+6cNLxoIt5yunX4KkQHyaeVCZq9fnVPYHJO8DT42j8sEsCrNg==
+X-Received: by 2002:a05:6a21:6f02:b0:1e0:dcc5:164d with SMTP id adf61e73a8af0-1e5b47f3b12mr5217374637.8.1734527446438;
+        Wed, 18 Dec 2024 05:10:46 -0800 (PST)
 Received: from ws.. ([103.167.140.11])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-801d5c0f59asm7434754a12.67.2024.12.18.05.10.30
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-801d5c0f59asm7434754a12.67.2024.12.18.05.10.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Dec 2024 05:10:37 -0800 (PST)
+        Wed, 18 Dec 2024 05:10:45 -0800 (PST)
 From: Xiao Liang <shaw.leon@gmail.com>
 To: netdev@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
@@ -83,9 +83,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	linux-wpan@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v6 09/11] rtnetlink: Create link directly in target net namespace
-Date: Wed, 18 Dec 2024 21:09:07 +0800
-Message-ID: <20241218130909.2173-10-shaw.leon@gmail.com>
+Subject: [PATCH net-next v6 10/11] selftests: net: Add python context manager for netns entering
+Date: Wed, 18 Dec 2024 21:09:08 +0800
+Message-ID: <20241218130909.2173-11-shaw.leon@gmail.com>
 X-Mailer: git-send-email 2.47.1
 In-Reply-To: <20241218130909.2173-1-shaw.leon@gmail.com>
 References: <20241218130909.2173-1-shaw.leon@gmail.com>
@@ -97,45 +97,69 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Make rtnl_newlink_create() create device in target namespace directly.
-Avoid extra netns change when link netns is provided.
+Change netns of current thread and switch back on context exit.
+For example:
 
-Device drivers has been converted to be aware of link netns, that is not
-assuming device netns is and link netns is the same when ops->newlink()
-is called.
+    with NetNSEnter("ns1"):
+        ip("link add dummy0 type dummy")
+
+The command be executed in netns "ns1".
 
 Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
 ---
- net/core/rtnetlink.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ tools/testing/selftests/net/lib/py/__init__.py |  2 +-
+ tools/testing/selftests/net/lib/py/netns.py    | 18 ++++++++++++++++++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index e33ef8a0a6d6..ce5bea096bac 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -3776,8 +3776,8 @@ static int rtnl_newlink_create(struct sk_buff *skb, struct ifinfomsg *ifm,
- 		name_assign_type = NET_NAME_ENUM;
- 	}
+diff --git a/tools/testing/selftests/net/lib/py/__init__.py b/tools/testing/selftests/net/lib/py/__init__.py
+index 54d8f5eba810..e2d6c7b63019 100644
+--- a/tools/testing/selftests/net/lib/py/__init__.py
++++ b/tools/testing/selftests/net/lib/py/__init__.py
+@@ -2,7 +2,7 @@
  
--	dev = rtnl_create_link(link_net ? : tgt_net, ifname,
--			       name_assign_type, ops, tb, extack);
-+	dev = rtnl_create_link(tgt_net, ifname, name_assign_type, ops, tb,
-+			       extack);
- 	if (IS_ERR(dev)) {
- 		err = PTR_ERR(dev);
- 		goto out;
-@@ -3798,11 +3798,6 @@ static int rtnl_newlink_create(struct sk_buff *skb, struct ifinfomsg *ifm,
- 	err = rtnl_configure_link(dev, ifm, portid, nlh);
- 	if (err < 0)
- 		goto out_unregister;
--	if (link_net) {
--		err = dev_change_net_namespace(dev, tgt_net, ifname);
--		if (err < 0)
--			goto out_unregister;
--	}
- 	if (tb[IFLA_MASTER]) {
- 		err = do_set_master(dev, nla_get_u32(tb[IFLA_MASTER]), extack);
- 		if (err)
+ from .consts import KSRC
+ from .ksft import *
+-from .netns import NetNS
++from .netns import NetNS, NetNSEnter
+ from .nsim import *
+ from .utils import *
+ from .ynl import NlError, YnlFamily, EthtoolFamily, NetdevFamily, RtnlFamily
+diff --git a/tools/testing/selftests/net/lib/py/netns.py b/tools/testing/selftests/net/lib/py/netns.py
+index ecff85f9074f..8e9317044eef 100644
+--- a/tools/testing/selftests/net/lib/py/netns.py
++++ b/tools/testing/selftests/net/lib/py/netns.py
+@@ -1,9 +1,12 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+ from .utils import ip
++import ctypes
+ import random
+ import string
+ 
++libc = ctypes.cdll.LoadLibrary('libc.so.6')
++
+ 
+ class NetNS:
+     def __init__(self, name=None):
+@@ -29,3 +32,18 @@ class NetNS:
+ 
+     def __repr__(self):
+         return f"NetNS({self.name})"
++
++
++class NetNSEnter:
++    def __init__(self, ns_name):
++        self.ns_path = f"/run/netns/{ns_name}"
++
++    def __enter__(self):
++        self.saved = open("/proc/thread-self/ns/net")
++        with open(self.ns_path) as ns_file:
++            libc.setns(ns_file.fileno(), 0)
++        return self
++
++    def __exit__(self, exc_type, exc_value, traceback):
++        libc.setns(self.saved.fileno(), 0)
++        self.saved.close()
 -- 
 2.47.1
 
