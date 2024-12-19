@@ -1,110 +1,157 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5872C2163BC
-	for <bridge@lists.linux.dev>; Thu, 19 Dec 2024 05:54:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC05B17836B
+	for <bridge@lists.linux.dev>; Thu, 19 Dec 2024 16:36:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734587685; cv=none; b=VgDNhM0s+PsxZqLCOj/tF4gI9vCicMICCzFDW9waZL/xeLfT3NU2y0i3pzdWHq14bCaGeqINlkRlba39kxTUFdgIb1w1KuLR93Jb2q9l6KgQ76Y8NfqnFCANrxKhjobDC5l9l6OnR3+41gNb6A+j5dx6yogJEdgn3rgp9LGnTac=
+	t=1734626182; cv=none; b=p9/QWE2JZBJ7yhQAgxraELML78E/Wk41Hkj5DEB93ftSYzLD55s7nUmeDGVHlA0OPswG8QnsnGKzRWR5UmKTDAMDUN+B0WygohJgoSg0Td/pSQR9mEkmFMWzOpcMIG4mNHSfLRAM1Cn65NpVQlfxCdFC0M0yMFkobManlXwcvjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734587685; c=relaxed/simple;
-	bh=VsNY71lG5lYULBvFXVp0KhrDlqgduRP+ORPVKzySpuo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=a4TG8q2+fM+C1GGV8wDPlnogH8WkLThbfP4//vTctqqkUP/XcGXbDjb0KMptYl3zCV1EeKuncOboS1JwqfNFcVKrngKDNHO3voZ6AP0e0ji4qUR2bfuSIQR4CL4n8oeJyMNTmaR/7gvyKamgkA+jDvPgWsKVY23t1gGot2D32Pk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VwVwvmbA; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1734626182; c=relaxed/simple;
+	bh=ZNQIE+krTV9MH9Ngy5qFgSz4pB24tAflC36G+yYs6PM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Qky3vl6Dz5uiSRHLcJmCwasgDGu04cXEoaxh84wlwBgdK8Og7VNzOFjIueKDK4oS0owiwFfMcfyC0fVLnpiDjyxWXRXEOtm55ll4uajoTd8dUPimIn/jC6TFW40KCP/5Vn7JGzf+DjD0yGaak5WF8++XLTGgbx7crZbk9mXNt9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dVFj+F3m; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VwVwvmbA"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-436202dd7f6so4487335e9.0
-        for <bridge@lists.linux.dev>; Wed, 18 Dec 2024 21:54:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1734587681; x=1735192481; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZfCpfOoSh8ogvEFAzzK5Sh/fDzaPC/IoHjTWRLgy2Xc=;
-        b=VwVwvmbAS4W81S7rOaC2n71lL0Y/6I5VeF6EqMpP+29XZyDXvIzNZPp9RyOe3ukiZX
-         udYEeVONLsJ33H9v3kRejr4gqTDPNH44N19LJizHXxKKZWghg2/rqz5QXLDH7iG8xrit
-         hLqJy4oQrNb7qL3UlAgnm6wPVhpB57Rlqt2v5ZTTqXlBpXvXHm2jLvdx/J8UHYjs89vn
-         U6PQ2eEacwWcSILZnDhYAc4KZOQQQ+NhZ78Qj1isTC/VGBae9SE1Sujabt1S6nS+jX6w
-         b7fCEPjF6cNjncBV4651H7AdYhMWJQC3O6AbfudtD9ZRScS3yfqX+Z8H6GTNIpzs+thT
-         4SCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734587681; x=1735192481;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZfCpfOoSh8ogvEFAzzK5Sh/fDzaPC/IoHjTWRLgy2Xc=;
-        b=GNogfTRcSiC3HHneUF44e7XHX928BJvGNy7/p/OmWCL0f9xOvQDatd3KmFl1toS530
-         4qiAq+WHKUWQFd1WQLmHPNrNw4gCa+pKoCsNTq5Zr90M4+1GbU121hM6F7UBwLx9o8yd
-         Wq0U1ABmWdBY+J0F3sNdjb7oZLZv0VHlc0gtbtQffxJpsfhs6fw527yxeGkhqMfGyjsx
-         IfKnMHiNIlaqp4qvQHVCtzWLXsr1pscIGJqKgthTlffoGw7CRlBTeoFdSioNHkb5b7WG
-         ga6x3sUxvZSEDW4n9ZXHU2OClBR7rsnugtIZBnR6tqkHqdhtsuBsGMkNfDtGwojGJHw3
-         BZZA==
-X-Forwarded-Encrypted: i=1; AJvYcCVotKLmeN/tSYIU/bJFfQZrknr/x/5SPAD3LZ1zPrFVZrAUXoG2cWWcz0hCVtHPjnUciFW8ui8=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw0HLHthM2Yhmpv2SXlYMknhj7Kg13LaohRzQcU2jOVdBDB23og
-	+K/jE0ZwbokEQnxS/cXMkTiTI3+DE1quiNjzcaiDNjYD2P7qCCo5mdS5tCCBnN/rCK3gtjxDgtC
-	9flpSJMy1RiUD1fylZc8lSW+Pcxg=
-X-Gm-Gg: ASbGncuxCQT6HHGdU0PawGyxM8+pOjg7riFfSfXCWRfdS3T5/JKhvLD3fHLz5FxLaaw
-	GBz7IsFz1Ub5OI4q7nK/fOWPCZQdwPWEYISEW
-X-Google-Smtp-Source: AGHT+IFXswhNY3wf74HiVRQ6mWtI+LQ0dYPzH2WDbrTkg0k3vCjw9PHsmFSj9uux2yKPzKWzDIYRJF3gX8R2i5iXHRM=
-X-Received: by 2002:a05:600c:4ed2:b0:434:f7ea:fb44 with SMTP id
- 5b1f17b1804b1-4365535c6a3mr52447275e9.14.1734587681279; Wed, 18 Dec 2024
- 21:54:41 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dVFj+F3m"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1734626179;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=i1OnVpyPx1+KI2UG1wOwvTzwNitObp5Vh/G2hC41IKo=;
+	b=dVFj+F3mYvtTuupwE65OLXUVwqMPsFCPVAsYoCAeOw9sU4pzdOrOUk0bYBZVyDIU0FLZnN
+	Ot6ePtxPxHesRMsRarhgaMYTi5Qf3YaFtf/aUeBK11XO0aBT96rujd9bNKx431eA4rnsnl
+	cR+aUkEiY/WRHrLYu/mZlyVnSbWs/0M=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-435-Fu8r_77zMsu-t0tfUE8Kew-1; Thu,
+ 19 Dec 2024 11:36:18 -0500
+X-MC-Unique: Fu8r_77zMsu-t0tfUE8Kew-1
+X-Mimecast-MFC-AGG-ID: Fu8r_77zMsu-t0tfUE8Kew
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 55B9E19560BD;
+	Thu, 19 Dec 2024 16:36:16 +0000 (UTC)
+Received: from thinkpad-p1.localdomain.com (unknown [10.22.81.102])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E7DC319560AD;
+	Thu, 19 Dec 2024 16:36:13 +0000 (UTC)
+From: Radu Rendec <rrendec@redhat.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@idosch.org>,
+	Roopa Prabhu <roopa@nvidia.com>
+Cc: bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Simon Horman <horms@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S. Miller" <davem@davemloft.net>
+Subject: [PATCH net-next v3 0/2] net/bridge: Add skb drop reasons to the most common drop points
+Date: Thu, 19 Dec 2024 11:36:04 -0500
+Message-ID: <20241219163606.717758-1-rrendec@redhat.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20241218130909.2173-1-shaw.leon@gmail.com> <20241218130909.2173-12-shaw.leon@gmail.com>
- <20241218153759.672b7014@kernel.org>
-In-Reply-To: <20241218153759.672b7014@kernel.org>
-From: Xiao Liang <shaw.leon@gmail.com>
-Date: Thu, 19 Dec 2024 13:54:03 +0800
-Message-ID: <CABAhCORszq9ao3OCVW-1EBsxsnLxbQ096eV+cbs12Es2HvCgUA@mail.gmail.com>
-Subject: Re: [PATCH net-next v6 11/11] selftests: net: Add test cases for link
- and peer netns
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>, Donald Hunter <donald.hunter@gmail.com>, 
-	Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	David Ahern <dsahern@kernel.org>, Eric Dumazet <edumazet@google.com>, 
-	Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	Simon Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>, Jiri Pirko <jiri@resnulli.us>, 
-	Hangbin Liu <liuhangbin@gmail.com>, linux-rdma@vger.kernel.org, 
-	linux-can@vger.kernel.org, osmocom-net-gprs@lists.osmocom.org, 
-	bpf@vger.kernel.org, linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com, 
-	linux-wireless@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org, 
-	bridge@lists.linux.dev, linux-wpan@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-On Thu, Dec 19, 2024 at 7:38=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> wr=
-ote:
->
-> On Wed, 18 Dec 2024 21:09:09 +0800 Xiao Liang wrote:
-> >  - Add test for creating link in another netns when a link of the same
-> >    name and ifindex exists in current netns.
-> >  - Add test to verify that link is created in target netns directly -
-> >    no link new/del events should be generated in link netns or current
-> >    netns.
-> >  - Add test cases to verify that link-netns is set as expected for
-> >    various drivers and combination of namespace-related parameters.
->
-> Nice work!
->
-> You need to make sure all the drivers the test is using are enabled by
-> the selftest kernel config: tools/testing/selftests/net/config
->
-> This may be helpful:
-> https://github.com/linux-netdev/nipa/wiki/How-to-run-netdev-selftests-CI-=
-style#how-to-build
+The bridge input code may drop frames for various reasons and at various
+points in the ingress handling logic. Currently kfree_skb() is used
+everywhere, and therefore no drop reason is specified. Add drop reasons
+to the most common drop points.
 
-Thanks for pointing it out. And vng is really cool. I will add
-the missing config in the next version.
+The purpose of this series is to address the most common drop points on
+the bridge ingress path. It does not exhaustively add drop reasons to
+the entire bridge code. The intention here is to incrementally add drop
+reasons to the rest of the bridge code in follow up patches.
 
-> --
-> pw-bot: cr
+Most of the skb drop points that are addressed in this series can be
+easily tested by sending crafted packets. The diagram below shows a
+simple test configuration, and some examples using `packit`(*) are
+also included. The bridge is set up with STP disabled.
+(*) https://github.com/resurrecting-open-source-projects/packit
+
+The following changes were *not* tested:
+* SKB_DROP_REASON_NOMEM in br_flood(). It's not easy to trigger an OOM
+  condition for testing purposes, while everything else works correctly.
+* All drop reasons in br_multicast_flood(). I could not find an easy way
+  to make a crafted packet get there.
+* SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE in br_handle_frame_finish()
+  when the port state is BR_STATE_DISABLED, because in that case the
+  frame is already dropped in the switch/case block at the end of
+  br_handle_frame().
+
+    +-------+
+    |  br0  |
+    +---+---+
+        |
+    +---+---+  veth pair  +-------+
+    | veth0 +-------------+ xeth0 |
+    +-------+             +-------+
+
+SKB_DROP_REASON_MAC_INVALID_SOURCE - br_handle_frame()
+packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+  -e 01:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+  -p '0x de ad be ef' -i xeth0
+
+SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL - br_handle_frame()
+packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+  -e 02:22:33:44:55:66 -E 01:80:c2:00:00:01 -c 1 \
+  -p '0x de ad be ef' -i xeth0
+
+SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE - br_handle_frame()
+bridge link set dev veth0 state 0 # disabled
+packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+  -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+  -p '0x de ad be ef' -i xeth0
+
+SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE - br_handle_frame_finish()
+bridge link set dev veth0 state 2 # learning
+packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+  -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+  -p '0x de ad be ef' -i xeth0
+
+SKB_DROP_REASON_NO_TX_TARGET - br_flood()
+packit -t UDP -s 192.168.0.1 -d 192.168.0.2 -S 8000 -D 8000 \
+  -e 02:22:33:44:55:66 -E aa:bb:cc:dd:ee:ff -c 1 \
+  -p '0x de ad be ef' -i xeth0
+
+Changes since v2:
+- Minor update to the description of SKB_DROP_REASON_NO_TX_TARGET.
+- Do not trigger a warning in br_flood() and br_multicast_flood() if
+  maybe_deliver() returns a different error than -ENOMEM.
+- Keep the error path consolidated in br_handle_frame_finish() and
+  br_handle_frame(), and use a `reason` variable.
+
+Changes since v1:
+- Add patch #1, which makes it possible to reuse the existing
+  SKB_DROP_REASON_VXLAN_NO_REMOTE drop reason from vxlan in the bridge
+  module, where a similar drop case exists.
+- Don't add SKB_DROP_REASON_BRIDGE_NO_EGRESS_PORT. Instead, use either
+  SKB_DROP_REASON_NO_TX_TARGET or SKB_DROP_REASON_NOMEM, depending on
+  the case.
+- For better clarity, rename SKB_DROP_REASON_BRIDGE_INGRESS_PORT_NFWD to
+  SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE.
+
+Radu Rendec (2):
+  net: vxlan: rename SKB_DROP_REASON_VXLAN_NO_REMOTE
+  net: bridge: add skb drop reasons to the most common drop points
+
+ drivers/net/vxlan/vxlan_core.c |  4 ++--
+ drivers/net/vxlan/vxlan_mdb.c  |  2 +-
+ include/net/dropreason-core.h  | 18 +++++++++++++++---
+ net/bridge/br_forward.c        | 16 ++++++++++++----
+ net/bridge/br_input.c          | 20 +++++++++++++++-----
+ 5 files changed, 45 insertions(+), 15 deletions(-)
+
+-- 
+2.47.1
+
