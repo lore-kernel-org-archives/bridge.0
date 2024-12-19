@@ -1,47 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21727227B97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E8C9228394
 	for <bridge@lists.linux.dev>; Thu, 19 Dec 2024 16:36:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734626197; cv=none; b=jVOvp26w9Di6LkaxenDy4ETfq7MrVav8CI8g0HJ85B2B09ZgeAeRkUfE+IlGg0tCfv1c22NEhDWjRewFaYJRsre/rKfbRXWEal9taOAbLuNQHYC8JJUvubWuYxJWkkfegNOftu5AV2W5UDqqqzyY/N84Wyez58K2jrbuEkhySRc=
+	t=1734626198; cv=none; b=Z+tBFbzMKyD6FpSHNU1cjscczNe35RgDhjNvpszlrVNAS6B3vDAS+QcHWJt0HT8OD4AzkG6+Y6k25MrETxhuAsUSEoHRAFobBzLXOcuNt6efi0/X4qW2H3BTo4rTZ2aGgwTQNnLtjw0y1mKMKqFpIVxXUb908tXcW7gCrJQR+Hg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734626197; c=relaxed/simple;
-	bh=BHMiRLnr0eBj2HA84QWRvKBp2FfmBeV0kplqwMt34U4=;
+	s=arc-20240116; t=1734626198; c=relaxed/simple;
+	bh=ARciHR9w73NncNjosuJjJlSv3wEKajijBWgVail7p4M=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GeDktOUN45psc9jKPvJPh0C4xw0uh6ARu/LvAiIzC08LS+WHwN79XdJHnzyM8r1r1eyt1Qhw/wEq8Si11aB0a6r4qcxutkIzkiSj4Iqp35NaWkEudODpQc1fvaYP6P/68IDl1CboHDU0c1y154plr7C/Vo4tLuxlVN3fk+C//yI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g++8F0zi; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version; b=phzbHFvCAG6NQC3be3Mv+cbxYSrOJPuqa/BhIIwgZilBHK8Vh0atfU2nvinNbHuZoRJfig71gHtrlDflJvnYMQEL0EFrvTcGu5+W8KkEk4UCoW6w4pMYZdinVg2H9G8N0MoUPOmeMqScu2wYFNJm6QJ/Eb+srHg0NaNkIj9iiB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GOSAJOHd; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g++8F0zi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GOSAJOHd"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734626195;
+	s=mimecast20190719; t=1734626196;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zO4bunjUqueplCUpTWfQRk6/1LAiOsYuAdF+rE7PHYo=;
-	b=g++8F0ziAhcIrxgm+ZcJ7SyxCNKWffi8ny2bjRvJoelAcgca1DYELeeHMFMrC+WWiIi5FM
-	Y2/UpxYOLgZfYbnLFDhqPGzIME6hvXWpwTFQq6bnCylFlPi2G0m6idUpYUOATDTHi+BpzJ
-	gVAzGIJ6wWM6z9BQ2ljl8JdIXa2rxBM=
+	bh=idmZoCTLn7OzY6WY/y1BudxirsfM0U1hq26FcbVU7Co=;
+	b=GOSAJOHdCkFF0dgekRlz37pJ6UCWxu3mXVUPkLvanbplHNzwvQjAwfzFJSwrEUQqdXtwBg
+	TwkEesR8O5nj8dGYjgi5bPG6PxMzm5/116wze1HyxUBHJk0NF8ud84HitQuGDIY6dIrCaU
+	qVktc7mSVhtO/nDpAKgsz2dPXNtbg94=
 Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-460-BEagXdH9M0GUkHqnJE1Ijw-1; Thu,
- 19 Dec 2024 11:36:33 -0500
-X-MC-Unique: BEagXdH9M0GUkHqnJE1Ijw-1
-X-Mimecast-MFC-AGG-ID: BEagXdH9M0GUkHqnJE1Ijw
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-448-YsRBPGmzNQa4J2geLfnRQw-1; Thu,
+ 19 Dec 2024 11:36:30 -0500
+X-MC-Unique: YsRBPGmzNQa4J2geLfnRQw-1
+X-Mimecast-MFC-AGG-ID: YsRBPGmzNQa4J2geLfnRQw
 Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B27241956048;
-	Thu, 19 Dec 2024 16:36:31 +0000 (UTC)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6DD0819560A3;
+	Thu, 19 Dec 2024 16:36:27 +0000 (UTC)
 Received: from thinkpad-p1.localdomain.com (unknown [10.22.81.102])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 558A519560AD;
-	Thu, 19 Dec 2024 16:36:29 +0000 (UTC)
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E3C50195605F;
+	Thu, 19 Dec 2024 16:36:24 +0000 (UTC)
 From: Radu Rendec <rrendec@redhat.com>
 To: Nikolay Aleksandrov <razor@blackwall.org>,
 	Ido Schimmel <idosch@idosch.org>,
@@ -53,9 +53,9 @@ Cc: bridge@lists.linux.dev,
 	Jakub Kicinski <kuba@kernel.org>,
 	Eric Dumazet <edumazet@google.com>,
 	"David S. Miller" <davem@davemloft.net>
-Subject: [PATCH net-next v3 2/2] net: bridge: add skb drop reasons to the most common drop points
-Date: Thu, 19 Dec 2024 11:36:06 -0500
-Message-ID: <20241219163606.717758-3-rrendec@redhat.com>
+Subject: [PATCH net-next v3 1/2] net: vxlan: rename SKB_DROP_REASON_VXLAN_NO_REMOTE
+Date: Thu, 19 Dec 2024 11:36:05 -0500
+Message-ID: <20241219163606.717758-2-rrendec@redhat.com>
 In-Reply-To: <20241219163606.717758-1-rrendec@redhat.com>
 References: <20241219163606.717758-1-rrendec@redhat.com>
 Precedence: bulk
@@ -67,199 +67,82 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-The bridge input code may drop frames for various reasons and at various
-points in the ingress handling logic. Currently kfree_skb() is used
-everywhere, and therefore no drop reason is specified. Add drop reasons
-to the most common drop points.
+The SKB_DROP_REASON_VXLAN_NO_REMOTE skb drop reason was introduced in
+the specific context of vxlan. As it turns out, there are similar cases
+when a packet needs to be dropped in other parts of the network stack,
+such as the bridge module.
 
-Drop reasons are not added exhaustively to the entire bridge code. The
-intention is to incrementally add drop reasons to the rest of the bridge
-code in follow up patches.
+Rename SKB_DROP_REASON_VXLAN_NO_REMOTE and give it a more generic name,
+so that it can be used in other parts of the network stack. This is not
+a functional change, and the numeric value of the drop reason even
+remains unchanged.
 
 Signed-off-by: Radu Rendec <rrendec@redhat.com>
 ---
- include/net/dropreason-core.h | 12 ++++++++++++
- net/bridge/br_forward.c       | 16 ++++++++++++----
- net/bridge/br_input.c         | 20 +++++++++++++++-----
- 3 files changed, 39 insertions(+), 9 deletions(-)
+ drivers/net/vxlan/vxlan_core.c | 4 ++--
+ drivers/net/vxlan/vxlan_mdb.c  | 2 +-
+ include/net/dropreason-core.h  | 6 +++---
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
+index 0c356e0a61ef0..05c10acb2a57e 100644
+--- a/drivers/net/vxlan/vxlan_core.c
++++ b/drivers/net/vxlan/vxlan_core.c
+@@ -2798,7 +2798,7 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
+ 			dev_dstats_tx_dropped(dev);
+ 			vxlan_vnifilter_count(vxlan, vni, NULL,
+ 					      VXLAN_VNI_STATS_TX_DROPS, 0);
+-			kfree_skb_reason(skb, SKB_DROP_REASON_VXLAN_NO_REMOTE);
++			kfree_skb_reason(skb, SKB_DROP_REASON_NO_TX_TARGET);
+ 			return NETDEV_TX_OK;
+ 		}
+ 	}
+@@ -2821,7 +2821,7 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (fdst)
+ 			vxlan_xmit_one(skb, dev, vni, fdst, did_rsc);
+ 		else
+-			kfree_skb_reason(skb, SKB_DROP_REASON_VXLAN_NO_REMOTE);
++			kfree_skb_reason(skb, SKB_DROP_REASON_NO_TX_TARGET);
+ 	}
+ 
+ 	return NETDEV_TX_OK;
+diff --git a/drivers/net/vxlan/vxlan_mdb.c b/drivers/net/vxlan/vxlan_mdb.c
+index 8735891ee1286..816ab1aa05262 100644
+--- a/drivers/net/vxlan/vxlan_mdb.c
++++ b/drivers/net/vxlan/vxlan_mdb.c
+@@ -1712,7 +1712,7 @@ netdev_tx_t vxlan_mdb_xmit(struct vxlan_dev *vxlan,
+ 		vxlan_xmit_one(skb, vxlan->dev, src_vni,
+ 			       rcu_dereference(fremote->rd), false);
+ 	else
+-		kfree_skb_reason(skb, SKB_DROP_REASON_VXLAN_NO_REMOTE);
++		kfree_skb_reason(skb, SKB_DROP_REASON_NO_TX_TARGET);
+ 
+ 	return NETDEV_TX_OK;
+ }
 diff --git a/include/net/dropreason-core.h b/include/net/dropreason-core.h
-index 6e32106d72294..3a6602f379783 100644
+index ead4170a1d0a9..6e32106d72294 100644
 --- a/include/net/dropreason-core.h
 +++ b/include/net/dropreason-core.h
-@@ -111,6 +111,8 @@
+@@ -106,7 +106,7 @@
+ 	FN(VXLAN_VNI_NOT_FOUND)		\
+ 	FN(MAC_INVALID_SOURCE)		\
+ 	FN(VXLAN_ENTRY_EXISTS)		\
+-	FN(VXLAN_NO_REMOTE)		\
++	FN(NO_TX_TARGET)		\
+ 	FN(IP_TUNNEL_ECN)		\
  	FN(TUNNEL_TXINFO)		\
  	FN(LOCAL_MAC)			\
- 	FN(ARP_PVLAN_DISABLE)		\
-+	FN(MAC_IEEE_MAC_CONTROL)	\
-+	FN(BRIDGE_INGRESS_STP_STATE)	\
- 	FNe(MAX)
- 
- /**
-@@ -520,6 +522,16 @@ enum skb_drop_reason {
- 	 * enabled.
+@@ -497,8 +497,8 @@ enum skb_drop_reason {
+ 	 * entry or an entry pointing to a nexthop.
  	 */
- 	SKB_DROP_REASON_ARP_PVLAN_DISABLE,
-+	/**
-+	 * @SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL: the destination MAC address
-+	 * is an IEEE MAC Control address.
-+	 */
-+	SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL,
-+	/**
-+	 * @SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE: the STP state of the
-+	 * ingress bridge port does not allow frames to be forwarded.
-+	 */
-+	SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE,
+ 	SKB_DROP_REASON_VXLAN_ENTRY_EXISTS,
+-	/** @SKB_DROP_REASON_VXLAN_NO_REMOTE: no remote found for xmit */
+-	SKB_DROP_REASON_VXLAN_NO_REMOTE,
++	/** @SKB_DROP_REASON_NO_TX_TARGET: no target found for xmit */
++	SKB_DROP_REASON_NO_TX_TARGET,
  	/**
- 	 * @SKB_DROP_REASON_MAX: the maximum of core drop reasons, which
- 	 * shouldn't be used as a real 'reason' - only for tracing code gen
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index e19b583ff2c6d..29097e984b4f7 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -201,6 +201,7 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 	      enum br_pkt_type pkt_type, bool local_rcv, bool local_orig,
- 	      u16 vid)
- {
-+	enum skb_drop_reason reason = SKB_DROP_REASON_NO_TX_TARGET;
- 	struct net_bridge_port *prev = NULL;
- 	struct net_bridge_port *p;
- 
-@@ -234,8 +235,11 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 			continue;
- 
- 		prev = maybe_deliver(prev, p, skb, local_orig);
--		if (IS_ERR(prev))
-+		if (IS_ERR(prev)) {
-+			reason = PTR_ERR(prev) == -ENOMEM ? SKB_DROP_REASON_NOMEM :
-+				 SKB_DROP_REASON_NOT_SPECIFIED;
- 			goto out;
-+		}
- 	}
- 
- 	if (!prev)
-@@ -249,7 +253,7 @@ void br_flood(struct net_bridge *br, struct sk_buff *skb,
- 
- out:
- 	if (!local_rcv)
--		kfree_skb(skb);
-+		kfree_skb_reason(skb, reason);
- }
- 
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
-@@ -289,6 +293,7 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- 			struct net_bridge_mcast *brmctx,
- 			bool local_rcv, bool local_orig)
- {
-+	enum skb_drop_reason reason = SKB_DROP_REASON_NO_TX_TARGET;
- 	struct net_bridge_port *prev = NULL;
- 	struct net_bridge_port_group *p;
- 	bool allow_mode_include = true;
-@@ -329,8 +334,11 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- 		}
- 
- 		prev = maybe_deliver(prev, port, skb, local_orig);
--		if (IS_ERR(prev))
-+		if (IS_ERR(prev)) {
-+			reason = PTR_ERR(prev) == -ENOMEM ? SKB_DROP_REASON_NOMEM :
-+				 SKB_DROP_REASON_NOT_SPECIFIED;
- 			goto out;
-+		}
- delivered:
- 		if ((unsigned long)lport >= (unsigned long)port)
- 			p = rcu_dereference(p->next);
-@@ -349,6 +357,6 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- 
- out:
- 	if (!local_rcv)
--		kfree_skb(skb);
-+		kfree_skb_reason(skb, reason);
- }
- #endif
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index ceaa5a89b947f..232133a0fd21c 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -75,6 +75,7 @@ static int br_pass_frame_up(struct sk_buff *skb, bool promisc)
- /* note: already called with rcu_read_lock */
- int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
- {
-+	enum skb_drop_reason reason = SKB_DROP_REASON_NOT_SPECIFIED;
- 	struct net_bridge_port *p = br_port_get_rcu(skb->dev);
- 	enum br_pkt_type pkt_type = BR_PKT_UNICAST;
- 	struct net_bridge_fdb_entry *dst = NULL;
-@@ -96,8 +97,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 	if (br_mst_is_enabled(br)) {
- 		state = BR_STATE_FORWARDING;
- 	} else {
--		if (p->state == BR_STATE_DISABLED)
-+		if (p->state == BR_STATE_DISABLED) {
-+			reason = SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE;
- 			goto drop;
-+		}
- 
- 		state = p->state;
- 	}
-@@ -155,8 +158,10 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 		}
- 	}
- 
--	if (state == BR_STATE_LEARNING)
-+	if (state == BR_STATE_LEARNING) {
-+		reason = SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE;
- 		goto drop;
-+	}
- 
- 	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
- 	BR_INPUT_SKB_CB(skb)->src_port_isolated = !!(p->flags & BR_ISOLATED);
-@@ -223,7 +228,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- out:
- 	return 0;
- drop:
--	kfree_skb(skb);
-+	kfree_skb_reason(skb, reason);
- 	goto out;
- }
- EXPORT_SYMBOL_GPL(br_handle_frame_finish);
-@@ -324,6 +329,7 @@ static int br_process_frame_type(struct net_bridge_port *p,
-  */
- static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- {
-+	enum skb_drop_reason reason = SKB_DROP_REASON_NOT_SPECIFIED;
- 	struct net_bridge_port *p;
- 	struct sk_buff *skb = *pskb;
- 	const unsigned char *dest = eth_hdr(skb)->h_dest;
-@@ -331,8 +337,10 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
- 		return RX_HANDLER_PASS;
- 
--	if (!is_valid_ether_addr(eth_hdr(skb)->h_source))
-+	if (!is_valid_ether_addr(eth_hdr(skb)->h_source)) {
-+		reason = SKB_DROP_REASON_MAC_INVALID_SOURCE;
- 		goto drop;
-+	}
- 
- 	skb = skb_share_check(skb, GFP_ATOMIC);
- 	if (!skb)
-@@ -374,6 +382,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 			return RX_HANDLER_PASS;
- 
- 		case 0x01:	/* IEEE MAC (Pause) */
-+			reason = SKB_DROP_REASON_MAC_IEEE_MAC_CONTROL;
- 			goto drop;
- 
- 		case 0x0E:	/* 802.1AB LLDP */
-@@ -423,8 +432,9 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 
- 		return nf_hook_bridge_pre(skb, pskb);
- 	default:
-+		reason = SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE;
- drop:
--		kfree_skb(skb);
-+		kfree_skb_reason(skb, reason);
- 	}
- 	return RX_HANDLER_CONSUMED;
- }
+ 	 * @SKB_DROP_REASON_IP_TUNNEL_ECN: skb is dropped according to
+ 	 * RFC 6040 4.2, see __INET_ECN_decapsulate() for detail.
 -- 
 2.47.1
 
