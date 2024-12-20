@@ -1,148 +1,137 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E8C9228394
-	for <bridge@lists.linux.dev>; Thu, 19 Dec 2024 16:36:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 512BE13C914
+	for <bridge@lists.linux.dev>; Fri, 20 Dec 2024 12:27:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734626198; cv=none; b=Z+tBFbzMKyD6FpSHNU1cjscczNe35RgDhjNvpszlrVNAS6B3vDAS+QcHWJt0HT8OD4AzkG6+Y6k25MrETxhuAsUSEoHRAFobBzLXOcuNt6efi0/X4qW2H3BTo4rTZ2aGgwTQNnLtjw0y1mKMKqFpIVxXUb908tXcW7gCrJQR+Hg=
+	t=1734697657; cv=none; b=Jr+0HBbs3xekbdUALVBGtU9NKZA+POxABht03zuDnbys1HY8gbJMgDd4eNKKtSwIbMfWRt4dOl0nkBFxGDLWvY8MxiHyMbdADDR5XPRZVDOhd3t3RLwksy4wgXjeDXZo4ijSY/u0uGeDe8tW9vUwrzttSMfbP0E1NUHVrVZC7I8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734626198; c=relaxed/simple;
-	bh=ARciHR9w73NncNjosuJjJlSv3wEKajijBWgVail7p4M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=phzbHFvCAG6NQC3be3Mv+cbxYSrOJPuqa/BhIIwgZilBHK8Vh0atfU2nvinNbHuZoRJfig71gHtrlDflJvnYMQEL0EFrvTcGu5+W8KkEk4UCoW6w4pMYZdinVg2H9G8N0MoUPOmeMqScu2wYFNJm6QJ/Eb+srHg0NaNkIj9iiB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GOSAJOHd; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1734697657; c=relaxed/simple;
+	bh=zA7a4bZu48ACitHBhxc9qodT4PaQ4DeroceLOgXAYH8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=oL1vQQdPp9H027eOeAcSKBPCFggCk6GlaHgV94NmT6/rfPcul2SKlmlfqIyksPbF7ZMEAsAd3kqwgYLGT7Ph7aPTwo5GLmBM0iqO4Kf8Ve+HFz+B4dlUcS/pijrHOPgcePMogKfwULRATHPIrGHuL1ajWsQZissD41a+69gbfkM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=jLsHhcUj; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GOSAJOHd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734626196;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=idmZoCTLn7OzY6WY/y1BudxirsfM0U1hq26FcbVU7Co=;
-	b=GOSAJOHdCkFF0dgekRlz37pJ6UCWxu3mXVUPkLvanbplHNzwvQjAwfzFJSwrEUQqdXtwBg
-	TwkEesR8O5nj8dGYjgi5bPG6PxMzm5/116wze1HyxUBHJk0NF8ud84HitQuGDIY6dIrCaU
-	qVktc7mSVhtO/nDpAKgsz2dPXNtbg94=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-448-YsRBPGmzNQa4J2geLfnRQw-1; Thu,
- 19 Dec 2024 11:36:30 -0500
-X-MC-Unique: YsRBPGmzNQa4J2geLfnRQw-1
-X-Mimecast-MFC-AGG-ID: YsRBPGmzNQa4J2geLfnRQw
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 6DD0819560A3;
-	Thu, 19 Dec 2024 16:36:27 +0000 (UTC)
-Received: from thinkpad-p1.localdomain.com (unknown [10.22.81.102])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id E3C50195605F;
-	Thu, 19 Dec 2024 16:36:24 +0000 (UTC)
-From: Radu Rendec <rrendec@redhat.com>
-To: Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@idosch.org>,
-	Roopa Prabhu <roopa@nvidia.com>
-Cc: bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	Simon Horman <horms@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>
-Subject: [PATCH net-next v3 1/2] net: vxlan: rename SKB_DROP_REASON_VXLAN_NO_REMOTE
-Date: Thu, 19 Dec 2024 11:36:05 -0500
-Message-ID: <20241219163606.717758-2-rrendec@redhat.com>
-In-Reply-To: <20241219163606.717758-1-rrendec@redhat.com>
-References: <20241219163606.717758-1-rrendec@redhat.com>
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="jLsHhcUj"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-43618283dedso17767065e9.3
+        for <bridge@lists.linux.dev>; Fri, 20 Dec 2024 04:27:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1734697652; x=1735302452; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6yxLq8x+6aHmMAIO4raWWraNl83b7b09sXoVthd5fIM=;
+        b=jLsHhcUj4BhZK+Wh0upy83q/dJflsOuh7DvWorQaG7P/uxcLUnusc/prgJGyOcLTki
+         gooBbMKVxk7vAorwv9SUYD8aS4/Ef4vua9Lv11DpNk0bffkfe3sIxcdd98AhwWud2Ta3
+         GVGs2wALei+8WDkKqXTbQGCJyyLtvLUTTxZ/hucVtFevaxWQQ0xq8H3MaVHrODoLW1nj
+         TMmPaxJ6F5KOH/Je0/cApnuc/sjnArCPAV3XO148ssCNn3Djk2WJq/joG4iTVipIj0QE
+         wpdUAPuFWTA3uisW08QjKxUcFDnEo7GCJuOxNE2GI3CQj6G/JBe4ppUZClQ6I9Y7dtip
+         AoFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734697652; x=1735302452;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=6yxLq8x+6aHmMAIO4raWWraNl83b7b09sXoVthd5fIM=;
+        b=j1FSJPNf/2CExrCbhhNiranlTuu7dAL9f6lC+8rvviAPXy4Yw+9fLUe+BOtsfC2UYK
+         bkCwajedx44LCkiJuwqBJCbybk0mNTqQRirM+g7RD+hqPTjn7jq/ObauW9KcKPJXSYzp
+         yyX20fXd3J68OuPivSnLXtjtSpXigE8BifV5tAacjpXM9aBjFwq8lXdU9SAwdSRN07CJ
+         I+0TkMM+6w5JYH93i1nFsxjTOhPALi/Pb/oujPBS0G3Ys0KYSseSwmafx69ifpV/J7EC
+         w7IK3I3sNAg0G/W8WKsVr+GNmLeFv1sfB+rmF9x0Kc2uX4CayRHUdZgTqe0ZPZXGdq7X
+         +g6Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXa5xZIdk3g0ioXuw1cLIBRpUS4MpT25sXMc9aBbaugm02Gq4jwVeXTfZ5k2hqL198lADgrm6A=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw3HOsUeXt5AUiT0iR8LbO55xTLapwfaDX/WRUSkg4NcZXibV5Q
+	VASJMAbPvGygS+ObhSaoYQH0eX8q/crvf/zelB4PS4TUfjyNpDziUM2WBARzUcU=
+X-Gm-Gg: ASbGncuNAxs83FtxUZWZeddmW4Fz3blX7GPR3KPO8l48XO4sgQHy/30HP7D3r0MTO3O
+	oyIwCQu6e8gHcoo4W0Xr8pClIutR88IxbdXUvpk1hCYNrtABaaGijonQLOCBEgbcklcyByXHvw1
+	7/G0eLhWJWe3Z2G80sh3fYRgwoaTAsqWItX2kEovOg5IqDXE2y4qUZJSLRnKTTbpjglKaZZGm9N
+	WhUWS18OQOergrIeJAJ/TswAKfz9LTrVYyuGDzGR5V4zKh35OCq5YNCI+x939jbuO1w/OwYSgoD
+	q/M13ND5DJNV
+X-Google-Smtp-Source: AGHT+IF0nXfFMV2mR1adR3X1lrTPlRuKqMQUEP6YuFL1k1v8N1A4WExmKhshpLKhwZ4tokJIrcSxnQ==
+X-Received: by 2002:a05:600c:358d:b0:435:fa90:f19f with SMTP id 5b1f17b1804b1-436686425eamr24106235e9.12.1734697652460;
+        Fri, 20 Dec 2024 04:27:32 -0800 (PST)
+Received: from [192.168.0.123] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c8a8d32sm3964112f8f.99.2024.12.20.04.27.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 20 Dec 2024 04:27:31 -0800 (PST)
+Message-ID: <d23db9cd-d9ec-4697-a851-3b395c6afae9@blackwall.org>
+Date: Fri, 20 Dec 2024 14:27:30 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 1/4] net: bridge: Extract a helper to handle
+ bridge_binding toggles
+To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+Cc: Simon Horman <horms@kernel.org>, Roopa Prabhu <roopa@nvidia.com>,
+ bridge@lists.linux.dev, Ido Schimmel <idosch@nvidia.com>, mlxsw@nvidia.com
+References: <cover.1734540770.git.petrm@nvidia.com>
+ <a7455f6fe1dfa7b13126ed8a7fb33d3b611eecb8.1734540770.git.petrm@nvidia.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <a7455f6fe1dfa7b13126ed8a7fb33d3b611eecb8.1734540770.git.petrm@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The SKB_DROP_REASON_VXLAN_NO_REMOTE skb drop reason was introduced in
-the specific context of vxlan. As it turns out, there are similar cases
-when a packet needs to be dropped in other parts of the network stack,
-such as the bridge module.
+On 12/18/24 19:15, Petr Machata wrote:
+> Currently, the BROPT_VLAN_BRIDGE_BINDING bridge option is only toggled when
+> VLAN devices are added on top of a bridge or removed from it. Extract the
+> toggling of the option to a function so that it could be invoked by a
+> subsequent patch when the state of an upper VLAN device changes.
+> 
+> Signed-off-by: Petr Machata <petrm@nvidia.com>
+> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+>  net/bridge/br_vlan.c | 20 ++++++++++++++------
+>  1 file changed, 14 insertions(+), 6 deletions(-)
+> 
+> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+> index 89f51ea4cabe..b728b71e693f 100644
+> --- a/net/bridge/br_vlan.c
+> +++ b/net/bridge/br_vlan.c
+> @@ -1664,6 +1664,18 @@ static void br_vlan_set_all_vlan_dev_state(struct net_bridge_port *p)
+>  	}
+>  }
+>  
+> +static void br_vlan_toggle_bridge_binding(struct net_device *br_dev,
+> +					  bool enable)
+> +{
+> +	struct net_bridge *br = netdev_priv(br_dev);
+> +
+> +	if (enable)
+> +		br_opt_toggle(br, BROPT_VLAN_BRIDGE_BINDING, true);
+> +	else
+> +		br_opt_toggle(br, BROPT_VLAN_BRIDGE_BINDING,
+> +			      br_vlan_has_upper_bind_vlan_dev(br_dev));
+> +}
+> +
+>  static void br_vlan_upper_change(struct net_device *dev,
+>  				 struct net_device *upper_dev,
+>  				 bool linking)
+> @@ -1673,13 +1685,9 @@ static void br_vlan_upper_change(struct net_device *dev,
+>  	if (!br_vlan_is_bind_vlan_dev(upper_dev))
+>  		return;
+>  
+> -	if (linking) {
+> +	br_vlan_toggle_bridge_binding(dev, linking);
+> +	if (linking)
+>  		br_vlan_set_vlan_dev_state(br, upper_dev);
+> -		br_opt_toggle(br, BROPT_VLAN_BRIDGE_BINDING, true);
+> -	} else {
+> -		br_opt_toggle(br, BROPT_VLAN_BRIDGE_BINDING,
+> -			      br_vlan_has_upper_bind_vlan_dev(dev));
+> -	}
+>  }
+>  
+>  struct br_vlan_link_state_walk_data {
 
-Rename SKB_DROP_REASON_VXLAN_NO_REMOTE and give it a more generic name,
-so that it can be used in other parts of the network stack. This is not
-a functional change, and the numeric value of the drop reason even
-remains unchanged.
-
-Signed-off-by: Radu Rendec <rrendec@redhat.com>
----
- drivers/net/vxlan/vxlan_core.c | 4 ++--
- drivers/net/vxlan/vxlan_mdb.c  | 2 +-
- include/net/dropreason-core.h  | 6 +++---
- 3 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
-index 0c356e0a61ef0..05c10acb2a57e 100644
---- a/drivers/net/vxlan/vxlan_core.c
-+++ b/drivers/net/vxlan/vxlan_core.c
-@@ -2798,7 +2798,7 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
- 			dev_dstats_tx_dropped(dev);
- 			vxlan_vnifilter_count(vxlan, vni, NULL,
- 					      VXLAN_VNI_STATS_TX_DROPS, 0);
--			kfree_skb_reason(skb, SKB_DROP_REASON_VXLAN_NO_REMOTE);
-+			kfree_skb_reason(skb, SKB_DROP_REASON_NO_TX_TARGET);
- 			return NETDEV_TX_OK;
- 		}
- 	}
-@@ -2821,7 +2821,7 @@ static netdev_tx_t vxlan_xmit(struct sk_buff *skb, struct net_device *dev)
- 		if (fdst)
- 			vxlan_xmit_one(skb, dev, vni, fdst, did_rsc);
- 		else
--			kfree_skb_reason(skb, SKB_DROP_REASON_VXLAN_NO_REMOTE);
-+			kfree_skb_reason(skb, SKB_DROP_REASON_NO_TX_TARGET);
- 	}
- 
- 	return NETDEV_TX_OK;
-diff --git a/drivers/net/vxlan/vxlan_mdb.c b/drivers/net/vxlan/vxlan_mdb.c
-index 8735891ee1286..816ab1aa05262 100644
---- a/drivers/net/vxlan/vxlan_mdb.c
-+++ b/drivers/net/vxlan/vxlan_mdb.c
-@@ -1712,7 +1712,7 @@ netdev_tx_t vxlan_mdb_xmit(struct vxlan_dev *vxlan,
- 		vxlan_xmit_one(skb, vxlan->dev, src_vni,
- 			       rcu_dereference(fremote->rd), false);
- 	else
--		kfree_skb_reason(skb, SKB_DROP_REASON_VXLAN_NO_REMOTE);
-+		kfree_skb_reason(skb, SKB_DROP_REASON_NO_TX_TARGET);
- 
- 	return NETDEV_TX_OK;
- }
-diff --git a/include/net/dropreason-core.h b/include/net/dropreason-core.h
-index ead4170a1d0a9..6e32106d72294 100644
---- a/include/net/dropreason-core.h
-+++ b/include/net/dropreason-core.h
-@@ -106,7 +106,7 @@
- 	FN(VXLAN_VNI_NOT_FOUND)		\
- 	FN(MAC_INVALID_SOURCE)		\
- 	FN(VXLAN_ENTRY_EXISTS)		\
--	FN(VXLAN_NO_REMOTE)		\
-+	FN(NO_TX_TARGET)		\
- 	FN(IP_TUNNEL_ECN)		\
- 	FN(TUNNEL_TXINFO)		\
- 	FN(LOCAL_MAC)			\
-@@ -497,8 +497,8 @@ enum skb_drop_reason {
- 	 * entry or an entry pointing to a nexthop.
- 	 */
- 	SKB_DROP_REASON_VXLAN_ENTRY_EXISTS,
--	/** @SKB_DROP_REASON_VXLAN_NO_REMOTE: no remote found for xmit */
--	SKB_DROP_REASON_VXLAN_NO_REMOTE,
-+	/** @SKB_DROP_REASON_NO_TX_TARGET: no target found for xmit */
-+	SKB_DROP_REASON_NO_TX_TARGET,
- 	/**
- 	 * @SKB_DROP_REASON_IP_TUNNEL_ECN: skb is dropped according to
- 	 * RFC 6040 4.2, see __INET_ECN_decapsulate() for detail.
--- 
-2.47.1
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
