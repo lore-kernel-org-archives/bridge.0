@@ -1,102 +1,82 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C96517C21E
-	for <bridge@lists.linux.dev>; Sun, 22 Dec 2024 09:46:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74B761C3BF2;
+	Mon, 23 Dec 2024 18:40:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734860799; cv=none; b=uaBLD6M5N8QSOnbgAum/Rs54Kw7FWZwC2qXmpuMkshU4CYqvr0fXxa1a5rqLcR+nWNKkqeESusMfComCgo3zLiyvlDXbALUAcMFgrk8bDIihpkPMxohqky0wHODIlQ1OE22M8zbVb8A1i2e7IRRDh8yiY0LhaXiOfO8Vs8obOyE=
+	t=1734979228; cv=none; b=itcup0tYpebWrB+f7V355sQ/da2k3wRMUuBTVOj+GhO5V7f4A9jY3ZzhsVJFzOfQRAYZt8nspJgsT+cBw4bzXPLM2Qkt2GZg/j7hP6wj1nTxaGXwV3+6QtGTxECdkbnh09od9LIyB6M6XIZX/snS9Niz1V91FNkETuKRzD1GU0M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734860799; c=relaxed/simple;
-	bh=QWAl/PSCX1/7bs2eWj1O5Ous7TH+5LjUcrtPjfqJolE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=L5iQ+8WQEytAio/WkqXy8Uz7CU+haZr2C1jwcY2gF/CJe8P3OK8gu8gdbdcXsnIr5JBPrB8QDSVZmgZ1ltmXMZO+MOaHHsq2s4u8oJeq+8MHNnFLiqSK78dQQ5LAaEiur0h5vjJK9LkG0NpTctMkRduSvKHTPztzUvQSu8c7ctE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=1dMvjBHV; arc=none smtp.client-ip=209.85.221.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1734979228; c=relaxed/simple;
+	bh=zc18PitYyNFj25E/Fh2M4NoFqTRafxGESx8OzhpScvY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=cl5lig8CkjvZD1ks0mkzv5yIh1p5G+Hd7bI1xb/zzXrE9u+bhnEBMNB4XZ/iv3CecHExPQY/BBCWnSC3sFPvC+ZpWS84Qn5EeTzoGTZfsE85lwSTGEWvRouXl3bFsgKSUS+rqnKzugmjBxNtFTzTNEuEEWeUwyHAUTd7r+YfJeQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YH34cGi7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="1dMvjBHV"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-3862df95f92so1550991f8f.2
-        for <bridge@lists.linux.dev>; Sun, 22 Dec 2024 01:46:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1734860796; x=1735465596; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=r01Rf7AD6Pn5yErJlGrv2YF9sGspDReRgMmzJT8V6OU=;
-        b=1dMvjBHVLlelAs0ZErzWEA9ofDAjmvem02vR6x+fqTi4/q4EWQ+4Mqj5SSIM64ki+7
-         GRqGgFdROIx1mYKtxnhEWidu0rZxesVI18ThZMbBtob0D9fGsEcFkPCScnA2y87ftIaE
-         2aYoNPPux4o+5IkYN9Q7566ht6kLaXxLeuZjS1Xu1OMwkZy6GQFCFHO3w6c7Nsjsjv7V
-         JN/oVYN2/WfcVx3sjW4I9nopHSBK0hIhbSwl7ateCvVOGmuSuEsnWJ/PRfPRRaO8rE1v
-         QGoE3dFUtCS5NJ+V5GslNc2+XCXvZRZWSshV0miUMdOgJlw8xNft4PWEzu4HMPPT2MOt
-         0TRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734860796; x=1735465596;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=r01Rf7AD6Pn5yErJlGrv2YF9sGspDReRgMmzJT8V6OU=;
-        b=p1CZUL7NfZG3JNDXGfnGkFskoQwHo0NBEWt/dDyCf/JXw3ACyMHNwExKbcpJABcusD
-         c8Y4GcRCytaF43pE98Gl38+hmfS4i03/wad5zkSG3N54kCpM5oGdkmZapqeSPSP/ZlSE
-         m0Tbd/c495i+DoCnlAXsaXO1ulO4kXh53YYiRAsByjVOLxwYiUr+Q2g/mPO7Tk/fXMwK
-         dUDV201D/WM953exqnIHvfbvAwcFzJiFI2qu31BWLK8Ki47XVARhMkl5PBRaTqf8ZWlt
-         GJmgOfj1eE6d2XLBg8ZifCLvuOjcQdGAEoVsdMJbFUVJXeBub/yq68DaY75LZ4wdpK78
-         pC8g==
-X-Gm-Message-State: AOJu0YwzmXvlg3/JlS9mfozCIdMsrrrH6XPQdWfmtLgbjA29QVxjJOC3
-	XOvmm2RFe5fjtVzBKYn2i6VkLdTiGDsk/BEEekXzIxgx6hdoKICjGVSYizNM52c=
-X-Gm-Gg: ASbGncvtuPfrwuxWtkQ/PkQ8WjCLu8o2EdGq0ugES8d4Up3i7lqC1fCP33xM2b/sNFz
-	RSX2YzGkYsQubWRBfrQBhGnzgn6M9AWbjYjFnR+I0ES2pGyFTWN3btw3TGsWCNkKGR2XesUW6JB
-	1hED4R1yflcK5dCk6A7EOnxY9w9ZFUEr/XXcUAbILB58sFnEa2CUgQi6SH8ngQ/qIXZjksFxiyG
-	EzkGHKc1rpoQ8rT4sL+c5U71Z4isLR9Tq7y0rh6c4RClv1AVDfUqL7F9TgCMQ==
-X-Google-Smtp-Source: AGHT+IGmgUPUPDdF82PD4GL38Dn/wmNBTo6smgxNBXy3wwBvd7zwwc/UKBn2jlcLMMIzLiNArbxJxg==
-X-Received: by 2002:a5d:5e09:0:b0:385:faec:d94d with SMTP id ffacd0b85a97d-38a223fd75amr8805141f8f.51.1734860795847;
-        Sun, 22 Dec 2024 01:46:35 -0800 (PST)
-Received: from [192.168.0.105] ([109.160.72.197])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436611ea3e0sm100043945e9.7.2024.12.22.01.46.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 22 Dec 2024 01:46:35 -0800 (PST)
-Message-ID: <f42d495f-abd3-4f8a-b647-ddebe2e6249d@blackwall.org>
-Date: Sun, 22 Dec 2024 11:46:34 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YH34cGi7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06500C4CED3;
+	Mon, 23 Dec 2024 18:40:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1734979228;
+	bh=zc18PitYyNFj25E/Fh2M4NoFqTRafxGESx8OzhpScvY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=YH34cGi7LluNH7RL1ET1gG6aJslaiQaLAte1+UiW2Y2J4kIL+RO6w37n7FKfDGdbc
+	 szOh/7jxN0fzTU0VeHMuYckNGf4Z3TaPFxXXyPaDjocQ1YJ7aAjMQeS0roqmNgR/tA
+	 Qztuh6jOCuKeg17dK09oS3TmhCuHpNbx+1Ff/F7IFwiYOjFsQzeU+urMZJBqHIBA0u
+	 pMOf2+DHwyPTYHMbiSYoAO08VSVdSm5+oX5JkFouu+CBlM/bvQv47ssUwMxXcFzAM1
+	 Gp7riDhP2rltRgfZeWHrteVzzRE6GaAyZo60SmFBJcd4y/RWaNZDm/fDP0/PzuMgvP
+	 HcBZj2552G3Zw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADE533805DB2;
+	Mon, 23 Dec 2024 18:40:47 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3 2/2] net: bridge: add skb drop reasons to the
- most common drop points
-To: Radu Rendec <rrendec@redhat.com>, Ido Schimmel <idosch@idosch.org>,
- Roopa Prabhu <roopa@nvidia.com>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
- Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
- "David S. Miller" <davem@davemloft.net>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v3 0/2] net/bridge: Add skb drop reasons to the most
+ common drop points
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173497924627.3927205.16787669909128619677.git-patchwork-notify@kernel.org>
+Date: Mon, 23 Dec 2024 18:40:46 +0000
 References: <20241219163606.717758-1-rrendec@redhat.com>
- <20241219163606.717758-3-rrendec@redhat.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20241219163606.717758-3-rrendec@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20241219163606.717758-1-rrendec@redhat.com>
+To: Radu Rendec <rrendec@redhat.com>
+Cc: razor@blackwall.org, idosch@idosch.org, roopa@nvidia.com,
+ bridge@lists.linux.dev, netdev@vger.kernel.org, horms@kernel.org,
+ pabeni@redhat.com, kuba@kernel.org, edumazet@google.com, davem@davemloft.net
 
-On 12/19/24 18:36, Radu Rendec wrote:
+Hello:
+
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu, 19 Dec 2024 11:36:04 -0500 you wrote:
 > The bridge input code may drop frames for various reasons and at various
 > points in the ingress handling logic. Currently kfree_skb() is used
 > everywhere, and therefore no drop reason is specified. Add drop reasons
 > to the most common drop points.
 > 
-> Drop reasons are not added exhaustively to the entire bridge code. The
-> intention is to incrementally add drop reasons to the rest of the bridge
-> code in follow up patches.
+> The purpose of this series is to address the most common drop points on
+> the bridge ingress path. It does not exhaustively add drop reasons to
+> the entire bridge code. The intention here is to incrementally add drop
+> reasons to the rest of the bridge code in follow up patches.
 > 
-> Signed-off-by: Radu Rendec <rrendec@redhat.com>
-> ---
->  include/net/dropreason-core.h | 12 ++++++++++++
->  net/bridge/br_forward.c       | 16 ++++++++++++----
->  net/bridge/br_input.c         | 20 +++++++++++++++-----
->  3 files changed, 39 insertions(+), 9 deletions(-)
-> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v3,1/2] net: vxlan: rename SKB_DROP_REASON_VXLAN_NO_REMOTE
+    https://git.kernel.org/netdev/net-next/c/46e0ccfb88f0
+  - [net-next,v3,2/2] net: bridge: add skb drop reasons to the most common drop points
+    https://git.kernel.org/netdev/net-next/c/623e43c2f502
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
