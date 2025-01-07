@@ -1,229 +1,94 @@
-Received: from smtp-fw-52002.amazon.com (smtp-fw-52002.amazon.com [52.119.213.150])
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [78.32.30.218])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 869CB1F190E
-	for <bridge@lists.linux.dev>; Tue,  7 Jan 2025 14:47:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.119.213.150
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC53E80BFF
+	for <bridge@lists.linux.dev>; Tue,  7 Jan 2025 14:59:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.32.30.218
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736261262; cv=none; b=rc7X8KjcyCcWwTjHmgfL03pJhuSvbrnfHq0rTnQdX6lVFXp409ESk3w2lil+G5/DHiUqJN4ijHDzGvdagXR4IELALhO8dftN42+2lbwLDzsd92gjYRBdwmwozXD37p3r/mb2gt+H51xC6QpZyfjnKMAEDigKO6RAtc0BKILXwaE=
+	t=1736261980; cv=none; b=OnuK1w8+NNqnUCCo5eT9Z4c2bYhBoWKYRD0rN2n7DiAipBEoYguGpsQWK/DyQr8KKqdMLPvhZoaW8WIgFmCH98yEQXhh62fAJWdnQ/mnV+5CpZrH1Zyi8Xbd0V0MbxAFh1D1BKAzntZkS9HEm5SO0Hzij9H4zZM6kAg+2FHgR44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736261262; c=relaxed/simple;
-	bh=z9AcZKXBTCewxT8SPTS20nArEMQztrWlt8OFGIyL2io=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IYlnjIW7o4aNmRmVeS0JaJ5Uh6EujVNUGkJ9Ygn04NB2/390iCUiYARKA7P/Uu2Jr4DtsG6lOS4B4weDtUUMpIyfX1fam4kfZw+po38N7cBMuWVLAyLAirv5cMnVf0seWDibaH+POxuZL1YV35uRUrQWqkSJ/5bNbgqZ9am+f7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=dYOd+MZj; arc=none smtp.client-ip=52.119.213.150
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1736261980; c=relaxed/simple;
+	bh=6AfXFF1Cv3J/f7dW7sRs1gXrCasbCYC2JdzcosUF/xw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SxO2UwxqZjJ5AIeG0U+PPxK0VcDhjc0PySGmK3n5IzaHXOGNYRRcuaJhSW6aHjal1P9fjJU0B3gkJsOf1Xjrlj/5USmpf93+SDu0KFK7eEsT25vHhEQQ8v5ZMcIZ4fWtt5iykAcVr7kz58MNYJdbRJtvFxhAkrh6SQI+dtIc/Yg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; spf=none smtp.mailfrom=armlinux.org.uk; dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b=kALKCcA3; arc=none smtp.client-ip=78.32.30.218
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=armlinux.org.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="dYOd+MZj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1736261259; x=1767797259;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=kzqP3KWquCSCvitwLtozsomdOR3PJTWU3++JR+6rcS0=;
-  b=dYOd+MZjKu2+9LZVFYz3LVbfl0TqpAOw6a2rS3IlW4zcpZ9NiXpYv8mX
-   q9Y5tGyp77L/nTeEQcBbdLxgdwCNijiMXLXMqqwzk4QyAka3wfuivcZ9D
-   get+F9QT9eLNQ+aMVCOup82RMmtvPdZy7qVfvJ4j2ztvfmVvjP8zhnDnz
-   M=;
-X-IronPort-AV: E=Sophos;i="6.12,295,1728950400"; 
-   d="scan'208";a="687495332"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
-  by smtp-border-fw-52002.iad7.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jan 2025 14:47:34 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [10.0.21.151:43223]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.51.48:2525] with esmtp (Farcaster)
- id 9b48386a-8619-40f1-8b35-660ddef4cf53; Tue, 7 Jan 2025 14:47:33 +0000 (UTC)
-X-Farcaster-Flow-ID: 9b48386a-8619-40f1-8b35-660ddef4cf53
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.39;
- Tue, 7 Jan 2025 14:47:33 +0000
-Received: from 6c7e67c6786f.amazon.com (10.118.249.113) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.39;
- Tue, 7 Jan 2025 14:47:24 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <shaw.leon@gmail.com>
-CC: <andrew+netdev@lunn.ch>, <b.a.t.m.a.n@lists.open-mesh.org>,
-	<bpf@vger.kernel.org>, <bridge@lists.linux.dev>, <davem@davemloft.net>,
-	<donald.hunter@gmail.com>, <dsahern@kernel.org>, <edumazet@google.com>,
-	<horms@kernel.org>, <idosch@nvidia.com>, <jiri@resnulli.us>,
-	<kuba@kernel.org>, <kuniyu@amazon.com>, <linux-can@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
-	<linux-ppp@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
-	<linux-wireless@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
-	<liuhangbin@gmail.com>, <netdev@vger.kernel.org>,
-	<osmocom-net-gprs@lists.osmocom.org>, <pabeni@redhat.com>,
-	<shuah@kernel.org>, <wireguard@lists.zx2c4.com>
-Subject: Re: [PATCH net-next v7 00/11] net: Improve netns handling in rtnetlink
-Date: Tue, 7 Jan 2025 23:47:14 +0900
-Message-ID: <20250107144714.74446-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
-In-Reply-To: <CABAhCOQdBL6h9M2C+kd+bGivRJ9Q72JUxW+-gur0nub_=PmFPA@mail.gmail.com>
-References: <CABAhCOQdBL6h9M2C+kd+bGivRJ9Q72JUxW+-gur0nub_=PmFPA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="kALKCcA3"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=4ZoD+gvKfB/ed9HjsLTaCjOZ9SwK5xZrjHcan7418rw=; b=kALKCcA3IFaOOLmMdjti7LK+bD
+	RcS7EGoLurmty1XbnbAoumDhcat2e6Xkd5KfAYFAnroHw/sNowJQJKckvkepCZqMCwBtWDyNyNQ+2
+	DOAfVtc1YqsdZq3jHxs/3e4lXv3UpHFsTzgSTQmyd1EFuAf1+D0+MYI0gkKWOSWEdoPUTdJs+qzlk
+	jqC82QEDE6jYDOSQR0AspwlRUwRAbU9GBlynBp9V+CL7/6U+2sRXRk1SfyUlKfalpHN82Udk4FisO
+	ZNxX2Ak6PrBeh7xEXQUfbTYTm3mA7d4Hm5aBUfhxzfqEU3Bld+KRinkR7pYoBO8Pud7AV6v7YQzlJ
+	lwznVA3Q==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:58096)
+	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <linux@armlinux.org.uk>)
+	id 1tVB3B-0007ct-0c;
+	Tue, 07 Jan 2025 14:59:21 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.96)
+	(envelope-from <linux@shell.armlinux.org.uk>)
+	id 1tVB36-0005Mv-25;
+	Tue, 07 Jan 2025 14:59:16 +0000
+Date: Tue, 7 Jan 2025 14:59:16 +0000
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
+To: Daniel Golle <daniel@makrotopia.org>
+Cc: Eric Woudstra <ericwouds@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Frank Wunderlich <frank-w@public-files.de>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org, bridge@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH RFC net-next] net: phylink: always config mac for
+ (delayed) phy
+Message-ID: <Z31BRMay2QgcjX2R@shell.armlinux.org.uk>
+References: <20250107123615.161095-1-ericwouds@gmail.com>
+ <Z30iUj6DE9-fRp0n@shell.armlinux.org.uk>
+ <Z30pMSxDn-R3Cy5S@makrotopia.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: EX19D045UWC004.ant.amazon.com (10.13.139.203) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z30pMSxDn-R3Cy5S@makrotopia.org>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 
-From: Xiao Liang <shaw.leon@gmail.com>
-Date: Tue, 7 Jan 2025 20:53:19 +0800
-> On Tue, Jan 7, 2025 at 4:57 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
-> [...]
-> >
-> > We can fix this by linking the dev to the socket's netns and
-> > clean them up in __net_exit hook as done in bareudp and geneve.
-> >
-> > ---8<---
-> > diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-> > index 89a996ad8cd0..77638a815873 100644
-> > --- a/drivers/net/gtp.c
-> > +++ b/drivers/net/gtp.c
-> > @@ -70,6 +70,7 @@ struct pdp_ctx {
-> >  /* One instance of the GTP device. */
-> >  struct gtp_dev {
-> >         struct list_head        list;
-> > +       struct list_head        sock_list;
-> >
-> >         struct sock             *sk0;
-> >         struct sock             *sk1u;
-> > @@ -102,6 +103,7 @@ static unsigned int gtp_net_id __read_mostly;
-> >
-> >  struct gtp_net {
-> >         struct list_head gtp_dev_list;
-> > +       struct list_head gtp_sock_list;
+On Tue, Jan 07, 2025 at 01:16:33PM +0000, Daniel Golle wrote:
+> On Tue, Jan 07, 2025 at 12:47:14PM +0000, Russell King (Oracle) wrote:
+> > ... but we don't see link-up reported by the PCS after the PHY comes
+> > up. Why is that - I think that needs investigation before we proceed
+> > to patch the issue, because that suggests the PCS isn't seeing
+> > valid 2500base-X from the PHY.
 > 
-> After a closer look at the GTP driver, I'm confused about
-> the gtp_dev_list here. GTP device is linked to this list at
-> creation time, but netns can be changed afterwards.
-> The list is used in gtp_net_exit_batch_rtnl(), but to my
-> understanding net devices can already be deleted in
-> default_device_exit_batch() by default.
-> And I wonder if the use in gtp_genl_dump_pdp() can be
-> replaced by something like for_each_netdev_rcu().
+> The PCS doesn't support in-band status in 2500Base-X mode, or at least
+> the implementation isn't compatible with those RealTek PHYs.
 
-Right, it should be, or we need to set netns_local.
-Will include this diff in the fix series.
+There is in-band for base-X, which involves 16-bit control words to
+report the capabilities of either end (basically half/full duplex,
+pause modes). Unlike SGMII, it doesn't contain any status bits for
+link up, because that is irrelevant.
 
----8<---
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index 2460a2c13c32..f9186eda36f0 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -2278,6 +2278,7 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
- 	struct gtp_dev *last_gtp = (struct gtp_dev *)cb->args[2], *gtp;
- 	int i, j, bucket = cb->args[0], skip = cb->args[1];
- 	struct net *net = sock_net(skb->sk);
-+	struct net_device *dev;
- 	struct pdp_ctx *pctx;
- 	struct gtp_net *gn;
- 
-@@ -2287,7 +2288,10 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
- 		return 0;
- 
- 	rcu_read_lock();
--	list_for_each_entry_rcu(gtp, &gn->gtp_dev_list, list) {
-+	for_each_netdev_rcu(net, dev) {
-+		if (dev->rtnl_link_ops != &gtp_link_ops)
-+			continue;
-+
- 		if (last_gtp && last_gtp != gtp)
- 			continue;
- 		else
----8<---
+Link-up state in base-X modes comes from the PCS itself, whether the
+PCS is in sync with the media, and whether it has valid format. This
+has *nothing* to do with in-band.
 
-Otherwise, we need to move it manually like this, which is
-apparently overkill and unnecessary :p
-
----8<---
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index 2460a2c13c32..90b410b73c89 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -2501,6 +2501,46 @@ static struct pernet_operations gtp_net_ops = {
- 	.size	= sizeof(struct gtp_net),
- };
- 
-+static int gtp_device_event(struct notifier_block *nb,
-+			    unsigned long event, void *ptr)
-+{
-+	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
-+	struct gtp_dev *gtp;
-+	struct gtp_net *gn;
-+
-+	if (dev->rtnl_link_ops != &gtp_link_ops)
-+		goto out;
-+
-+	gtp = netdev_priv(dev);
-+
-+	switch (event) {
-+	case NETDEV_UNREGISTER:
-+		if (dev->reg_state != NETREG_REGISTERED)
-+			goto out;
-+
-+		/* dev_net(dev) is changed, see __dev_change_net_namespace().
-+		 * rcu_barrier() after NETDEV_UNREGISTER guarantees that no
-+		 * one traversing a list in the old netns jumps to another
-+		 * list in the new netns.
-+		 */
-+		list_del_rcu(&gtp->list);
-+		break;
-+	case NETDEV_REGISTER:
-+		if (gtp->list.prev != LIST_POISON2)
-+			goto out;
-+
-+		/* complete netns change. */
-+		gn = net_generic(dev_net(dev), gtp_net_id);
-+		list_add_rcu(&gtp->list, &gn->gtp_dev_list);
-+	}
-+out:
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block gtp_notifier_block = {
-+	.notifier_call = gtp_device_event,
-+};
-+
- static int __init gtp_init(void)
- {
- 	int err;
-@@ -2511,10 +2551,14 @@ static int __init gtp_init(void)
- 	if (err < 0)
- 		goto error_out;
- 
--	err = rtnl_link_register(&gtp_link_ops);
-+	err = register_netdevice_notifier(&gtp_notifier_block);
- 	if (err < 0)
- 		goto unreg_pernet_subsys;
- 
-+	err = rtnl_link_register(&gtp_link_ops);
-+	if (err < 0)
-+		goto unreg_netdev_notifier;
-+
- 	err = genl_register_family(&gtp_genl_family);
- 	if (err < 0)
- 		goto unreg_rtnl_link;
-@@ -2525,6 +2569,8 @@ static int __init gtp_init(void)
- 
- unreg_rtnl_link:
- 	rtnl_link_unregister(&gtp_link_ops);
-+unreg_netdev_notifier:
-+	register_netdevice_notifier(&gtp_notifier_block);
- unreg_pernet_subsys:
- 	unregister_pernet_subsys(&gtp_net_ops);
- error_out:
-@@ -2537,6 +2583,7 @@ static void __exit gtp_fini(void)
- {
- 	genl_unregister_family(&gtp_genl_family);
- 	rtnl_link_unregister(&gtp_link_ops);
-+	register_netdevice_notifier(&gtp_notifier_block);
- 	unregister_pernet_subsys(&gtp_net_ops);
- 
- 	pr_info("GTP module unloaded\n");
----8<---
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
