@@ -1,131 +1,229 @@
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-fw-52002.amazon.com (smtp-fw-52002.amazon.com [52.119.213.150])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C36A1EE03B
-	for <bridge@lists.linux.dev>; Tue,  7 Jan 2025 14:23:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 869CB1F190E
+	for <bridge@lists.linux.dev>; Tue,  7 Jan 2025 14:47:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.119.213.150
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736259803; cv=none; b=JIvj3nlim3t0djwQK25kpC0+13MxUKyX/SiFVrQLup9medoVEMVDlEH3QvtrAjcJrXb+qo8I56ZHx6n1GeR/T8RSsRyq4sGCcwZNM41txfTtQVeHM37lhZmwnie9L8eHWiF8Ucc75OS941BUnekXcz9cywZuHiGRcUMrxXn6koY=
+	t=1736261262; cv=none; b=rc7X8KjcyCcWwTjHmgfL03pJhuSvbrnfHq0rTnQdX6lVFXp409ESk3w2lil+G5/DHiUqJN4ijHDzGvdagXR4IELALhO8dftN42+2lbwLDzsd92gjYRBdwmwozXD37p3r/mb2gt+H51xC6QpZyfjnKMAEDigKO6RAtc0BKILXwaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736259803; c=relaxed/simple;
-	bh=Bm1DtQK3Zmv8psZJ+NOjFV66PEzHEkw6lMPzpKko7Jk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iWBF/rwoqAcJnCU918w4XeG89fno6AK2PQUCWIQdoHbw2D7mTkefcJhx6ehsI8N+M/h2bRMJlahA9NMyefmI/p+uCgTUiFtULF6j6Yzz4Umyl61VjI2rio3i9di6mpb5mumup6FhgwEpcp1sB2KjxN3CZAZ1uiTkod1px1xB+2o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=l8FawEFs; arc=none smtp.client-ip=209.85.218.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1736261262; c=relaxed/simple;
+	bh=z9AcZKXBTCewxT8SPTS20nArEMQztrWlt8OFGIyL2io=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=IYlnjIW7o4aNmRmVeS0JaJ5Uh6EujVNUGkJ9Ygn04NB2/390iCUiYARKA7P/Uu2Jr4DtsG6lOS4B4weDtUUMpIyfX1fam4kfZw+po38N7cBMuWVLAyLAirv5cMnVf0seWDibaH+POxuZL1YV35uRUrQWqkSJ/5bNbgqZ9am+f7k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=dYOd+MZj; arc=none smtp.client-ip=52.119.213.150
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l8FawEFs"
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-aafc9d75f8bso255124266b.2
-        for <bridge@lists.linux.dev>; Tue, 07 Jan 2025 06:23:21 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="dYOd+MZj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736259800; x=1736864600; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=XE2LBycvBfRVASiRxD8GRnH5rQbRkw6izbBARG4PHOM=;
-        b=l8FawEFs0be7xJHQaicPR1iiRtJQY1rTOi9FDeGOGH7MFnOm82Y3p0BIgG5KHjpooX
-         p3DAlHdlMgxG/R8TOSGunodn6Q/4w3yZW0VNMZxpEKqsEEo/UsBoX+EDSnKvCHcf+3Q8
-         fwzRIBTS3q1cdytFmdfHblj4ZJYNWjsSZMBC79Q4agnE6V5tPyUniqdJBpWbVYw7ilIp
-         TxNPh0KlTPPvaB/W3+JSRSrG2M2COWtzrKyeF4piuV7KEYz6o22iiv0yn0ju/a8U+YC1
-         f9TXJ3SDLC4xvBsOTAoelwy85/8ia8Px6xeveLcm5cZrD5O8d8w1xQ/yD1RLq8SMqL84
-         ducQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736259800; x=1736864600;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=XE2LBycvBfRVASiRxD8GRnH5rQbRkw6izbBARG4PHOM=;
-        b=MXnT5aOqeihnUYk4hJnn7rFqn1yiMsd2xdBEwq4LgdGOxqU9OXnS4G0mEQHb2+QZoW
-         ml7R2D+vkV5b/OkhSzfH1+f5Sv97GgLE9dqU5hACCvyTP/sFJNzEwI64SJWD+xB2xkdF
-         ZVLfbii81C4KqwBtx94a9nIAgtaUSCRsOGMhY0BILjOuFsMTHZh7SvSqUaDlAGse7+EZ
-         dVVpqSbbBMo/yDVl9+d8rKWnaN1SwjezWi48ryXwDejo32kEpf7W2EuPAIlfummF9P0e
-         O4jOzHRCaOqyeGFVOf+nuJ+C9SRXuiomdUkaJm/HX9oFGry+CtZSagbjEPDgWzvUMKjy
-         vsKA==
-X-Forwarded-Encrypted: i=1; AJvYcCUxANBX1E6g1tAjmmaZ932a2n9SRn4mY7impjEYCKEncrP7cOtZCZCSSrBpADjZDxh95b2b2lA=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxr7zlmCET9aoecnSOe04SYPRDiLaKKSdk/YhuD65xjboDf8j2i
-	F6TZeLafA03CqOo3tXPNL2P8Emp5s8+sqVb4YXFLM/rz0+SUaGiv
-X-Gm-Gg: ASbGncsl8F5lGxAs8IdkgpCHPDOYzfyZSJ3ABPAvYySVNDGXRD1uC/Fm7JAsq/vBcF3
-	+exuCVhBe5jdbB4SHCG2UAdyYTk3S0EJOlFhUfdXKXGN7U/SlWlMBGL9X5R+vgjS5GTeSC6wMEd
-	U+meqnDVpe8um6yuDn2tLrtfnRa6vNJS0ijJKLFE8prUxo5KoIcP8WrFzvQYRI+Yl5XZoIZGFIY
-	ovPDBQrd/2Uvb6p754Oo2lCTF+YfMF/85fi8xUiXLl6v6ImY13iBi3vNe90fYhU6bj0d1MvAiwL
-	GiAnE1rXCMIdiMtAf+3K1CtnJGI4+3Lx63O+Guq9TYO62qpyljTVjGSTJHf0aaRYHKZWQPfqa2B
-	EnJk5tIrjr0M4W7s4WSqR/rGFQ4jjgRA=
-X-Google-Smtp-Source: AGHT+IFTKXq+cflhxmBLnsZ30k5zI/b1GmBG/qIWiM0wUuk9AhpVGKtgpK8+7CvsgQoYKL8T/INBNA==
-X-Received: by 2002:a17:907:d87:b0:aab:71fc:47a3 with SMTP id a640c23a62f3a-aac3379034dmr5727225766b.60.1736259800081;
-        Tue, 07 Jan 2025 06:23:20 -0800 (PST)
-Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5d806fede4csm25126108a12.63.2025.01.07.06.23.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jan 2025 06:23:19 -0800 (PST)
-Message-ID: <b7705a4e-5559-4fe3-a302-4c60d7224e49@gmail.com>
-Date: Tue, 7 Jan 2025 15:23:18 +0100
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1736261259; x=1767797259;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=kzqP3KWquCSCvitwLtozsomdOR3PJTWU3++JR+6rcS0=;
+  b=dYOd+MZjKu2+9LZVFYz3LVbfl0TqpAOw6a2rS3IlW4zcpZ9NiXpYv8mX
+   q9Y5tGyp77L/nTeEQcBbdLxgdwCNijiMXLXMqqwzk4QyAka3wfuivcZ9D
+   get+F9QT9eLNQ+aMVCOup82RMmtvPdZy7qVfvJ4j2ztvfmVvjP8zhnDnz
+   M=;
+X-IronPort-AV: E=Sophos;i="6.12,295,1728950400"; 
+   d="scan'208";a="687495332"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
+  by smtp-border-fw-52002.iad7.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Jan 2025 14:47:34 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [10.0.21.151:43223]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.51.48:2525] with esmtp (Farcaster)
+ id 9b48386a-8619-40f1-8b35-660ddef4cf53; Tue, 7 Jan 2025 14:47:33 +0000 (UTC)
+X-Farcaster-Flow-ID: 9b48386a-8619-40f1-8b35-660ddef4cf53
+Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.39;
+ Tue, 7 Jan 2025 14:47:33 +0000
+Received: from 6c7e67c6786f.amazon.com (10.118.249.113) by
+ EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.39;
+ Tue, 7 Jan 2025 14:47:24 +0000
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
+To: <shaw.leon@gmail.com>
+CC: <andrew+netdev@lunn.ch>, <b.a.t.m.a.n@lists.open-mesh.org>,
+	<bpf@vger.kernel.org>, <bridge@lists.linux.dev>, <davem@davemloft.net>,
+	<donald.hunter@gmail.com>, <dsahern@kernel.org>, <edumazet@google.com>,
+	<horms@kernel.org>, <idosch@nvidia.com>, <jiri@resnulli.us>,
+	<kuba@kernel.org>, <kuniyu@amazon.com>, <linux-can@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>,
+	<linux-ppp@vger.kernel.org>, <linux-rdma@vger.kernel.org>,
+	<linux-wireless@vger.kernel.org>, <linux-wpan@vger.kernel.org>,
+	<liuhangbin@gmail.com>, <netdev@vger.kernel.org>,
+	<osmocom-net-gprs@lists.osmocom.org>, <pabeni@redhat.com>,
+	<shuah@kernel.org>, <wireguard@lists.zx2c4.com>
+Subject: Re: [PATCH net-next v7 00/11] net: Improve netns handling in rtnetlink
+Date: Tue, 7 Jan 2025 23:47:14 +0900
+Message-ID: <20250107144714.74446-1-kuniyu@amazon.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+In-Reply-To: <CABAhCOQdBL6h9M2C+kd+bGivRJ9Q72JUxW+-gur0nub_=PmFPA@mail.gmail.com>
+References: <CABAhCOQdBL6h9M2C+kd+bGivRJ9Q72JUxW+-gur0nub_=PmFPA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next] net: phylink: always config mac for
- (delayed) phy
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: "Russell King (Oracle)" <linux@armlinux.org.uk>,
- Heiner Kallweit <hkallweit1@gmail.com>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Frank Wunderlich <frank-w@public-files.de>,
- Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
-References: <20250107123615.161095-1-ericwouds@gmail.com>
- <Z30iUj6DE9-fRp0n@shell.armlinux.org.uk>
- <4b9b2a9a-061b-43ad-b402-a49aee317f41@gmail.com>
- <ed29e632-332b-4af1-bf7f-97498297e731@lunn.ch>
-From: Eric Woudstra <ericwouds@gmail.com>
-Content-Language: en-US
-In-Reply-To: <ed29e632-332b-4af1-bf7f-97498297e731@lunn.ch>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: EX19D045UWC004.ant.amazon.com (10.13.139.203) To
+ EX19D004ANA001.ant.amazon.com (10.37.240.138)
 
-
-
-On 1/7/25 2:20 PM, Andrew Lunn wrote:
->> I think it is because pl->act_link_an_mode stays at MLO_AN_INBAND, but
->> it needs to be set to MLO_AN_PHY, so that only the phy determines the
->> link state:
->>
->> phylink_resolve() {
->>     ...
->> 	} else if (pl->act_link_an_mode == MLO_AN_PHY) {
->> 		link_state = pl->phy_state;
->>     ...
->> }
+From: Xiao Liang <shaw.leon@gmail.com>
+Date: Tue, 7 Jan 2025 20:53:19 +0800
+> On Tue, Jan 7, 2025 at 4:57 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
+> [...]
+> >
+> > We can fix this by linking the dev to the socket's netns and
+> > clean them up in __net_exit hook as done in bareudp and geneve.
+> >
+> > ---8<---
+> > diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+> > index 89a996ad8cd0..77638a815873 100644
+> > --- a/drivers/net/gtp.c
+> > +++ b/drivers/net/gtp.c
+> > @@ -70,6 +70,7 @@ struct pdp_ctx {
+> >  /* One instance of the GTP device. */
+> >  struct gtp_dev {
+> >         struct list_head        list;
+> > +       struct list_head        sock_list;
+> >
+> >         struct sock             *sk0;
+> >         struct sock             *sk1u;
+> > @@ -102,6 +103,7 @@ static unsigned int gtp_net_id __read_mostly;
+> >
+> >  struct gtp_net {
+> >         struct list_head gtp_dev_list;
+> > +       struct list_head gtp_sock_list;
 > 
-> phylink tries to determine the whole chain is up. As Russell says, it
-> could be the PCS has not got sync with the PHY for some reason. So
-> even if you ignore the PCS state, it might not work. This is actually
-> a useful pieces of information. Does the link actually work end to end
-> if you only look at the media state? If it does, that would indicate
-> the PCS is maybe missing an interrupt, or needs polling for change in
-> state.
-> 
-> 	Andrew
+> After a closer look at the GTP driver, I'm confused about
+> the gtp_dev_list here. GTP device is linked to this list at
+> creation time, but netns can be changed afterwards.
+> The list is used in gtp_net_exit_batch_rtnl(), but to my
+> understanding net devices can already be deleted in
+> default_device_exit_batch() by default.
+> And I wonder if the use in gtp_genl_dump_pdp() can be
+> replaced by something like for_each_netdev_rcu().
 
-After phylink_mac_initial_config() is re-triggered with the phy
-attached, either by the patch, or even with:
+Right, it should be, or we need to set netns_local.
+Will include this diff in the fix series.
 
-ethtool -s eth1 advertise 0x28
-(switches to sgmii)
-ethtool -s eth1 advertise 0x800000000028
-(switches mac back to 2500base-x)
+---8<---
+diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+index 2460a2c13c32..f9186eda36f0 100644
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -2278,6 +2278,7 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
+ 	struct gtp_dev *last_gtp = (struct gtp_dev *)cb->args[2], *gtp;
+ 	int i, j, bucket = cb->args[0], skip = cb->args[1];
+ 	struct net *net = sock_net(skb->sk);
++	struct net_device *dev;
+ 	struct pdp_ctx *pctx;
+ 	struct gtp_net *gn;
+ 
+@@ -2287,7 +2288,10 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
+ 		return 0;
+ 
+ 	rcu_read_lock();
+-	list_for_each_entry_rcu(gtp, &gn->gtp_dev_list, list) {
++	for_each_netdev_rcu(net, dev) {
++		if (dev->rtnl_link_ops != &gtp_link_ops)
++			continue;
++
+ 		if (last_gtp && last_gtp != gtp)
+ 			continue;
+ 		else
+---8<---
 
-mode is set to MLO_AN_PHY in phylink_pcs_neg_mode() and the link works
-end to end.
+Otherwise, we need to move it manually like this, which is
+apparently overkill and unnecessary :p
 
-So the an-mode can be 2 different values, one after link up and another
-after these ethtool commands.
-
+---8<---
+diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+index 2460a2c13c32..90b410b73c89 100644
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -2501,6 +2501,46 @@ static struct pernet_operations gtp_net_ops = {
+ 	.size	= sizeof(struct gtp_net),
+ };
+ 
++static int gtp_device_event(struct notifier_block *nb,
++			    unsigned long event, void *ptr)
++{
++	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
++	struct gtp_dev *gtp;
++	struct gtp_net *gn;
++
++	if (dev->rtnl_link_ops != &gtp_link_ops)
++		goto out;
++
++	gtp = netdev_priv(dev);
++
++	switch (event) {
++	case NETDEV_UNREGISTER:
++		if (dev->reg_state != NETREG_REGISTERED)
++			goto out;
++
++		/* dev_net(dev) is changed, see __dev_change_net_namespace().
++		 * rcu_barrier() after NETDEV_UNREGISTER guarantees that no
++		 * one traversing a list in the old netns jumps to another
++		 * list in the new netns.
++		 */
++		list_del_rcu(&gtp->list);
++		break;
++	case NETDEV_REGISTER:
++		if (gtp->list.prev != LIST_POISON2)
++			goto out;
++
++		/* complete netns change. */
++		gn = net_generic(dev_net(dev), gtp_net_id);
++		list_add_rcu(&gtp->list, &gn->gtp_dev_list);
++	}
++out:
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block gtp_notifier_block = {
++	.notifier_call = gtp_device_event,
++};
++
+ static int __init gtp_init(void)
+ {
+ 	int err;
+@@ -2511,10 +2551,14 @@ static int __init gtp_init(void)
+ 	if (err < 0)
+ 		goto error_out;
+ 
+-	err = rtnl_link_register(&gtp_link_ops);
++	err = register_netdevice_notifier(&gtp_notifier_block);
+ 	if (err < 0)
+ 		goto unreg_pernet_subsys;
+ 
++	err = rtnl_link_register(&gtp_link_ops);
++	if (err < 0)
++		goto unreg_netdev_notifier;
++
+ 	err = genl_register_family(&gtp_genl_family);
+ 	if (err < 0)
+ 		goto unreg_rtnl_link;
+@@ -2525,6 +2569,8 @@ static int __init gtp_init(void)
+ 
+ unreg_rtnl_link:
+ 	rtnl_link_unregister(&gtp_link_ops);
++unreg_netdev_notifier:
++	register_netdevice_notifier(&gtp_notifier_block);
+ unreg_pernet_subsys:
+ 	unregister_pernet_subsys(&gtp_net_ops);
+ error_out:
+@@ -2537,6 +2583,7 @@ static void __exit gtp_fini(void)
+ {
+ 	genl_unregister_family(&gtp_genl_family);
+ 	rtnl_link_unregister(&gtp_link_ops);
++	register_netdevice_notifier(&gtp_notifier_block);
+ 	unregister_pernet_subsys(&gtp_net_ops);
+ 
+ 	pr_info("GTP module unloaded\n");
+---8<---
