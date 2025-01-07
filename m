@@ -1,168 +1,151 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7EA01EBA1E
-	for <bridge@lists.linux.dev>; Tue,  7 Jan 2025 12:53:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6305D1E0DE5
+	for <bridge@lists.linux.dev>; Tue,  7 Jan 2025 13:14:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736254440; cv=none; b=mWu2aKX8hg3ANTLaImb57hwVKE+tqs0oCGnpyzPUmRe8PXur1QVe9KLIAnQC92j79F0+CbwFQt/4sKhkt93jWLwQppYZ6S1hSX167If7O3FLUViZAV7EfOU/liIzX+v5E4rM2VlIroAld2ER5PxxZHyvBR/w4N/uguy/TnAXUxQ=
+	t=1736255649; cv=none; b=sf26YPBhxZqgdRC1LM5yMaG+GRxp8WulBBgjZkWW048zYB1u0iOPEIXS8wCMok4ck408Y18cK66FTp726Zqxd59NanKVcqQ0Pcm7vyM+5N/N9fQJZGB9meqhKLetDmtRtjrJn5yrgCBy/mva7y/2GieTu133VpDzvwbHpVmDOVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736254440; c=relaxed/simple;
-	bh=inq18haWLx2b6yOB0em2RillkH2hQMFoTDPjGmfyXlM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Np1nWXoiIYYydbRvvx1bySUGoR4D3tQRPNIqDnKcoEnt4+o4vrDwjssrSvsK4xb6MvNpmqND002eOQhi2FUkBXTVgAGp2tdTaW3Py/WRaMEdNHhdx4v3nWaeGuXf0z9RV4l/OOHsyX1ba6qfEndooZ0VRG4Psg8bPPLbJX9nVr0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vb5qbrre; arc=none smtp.client-ip=209.85.221.54
+	s=arc-20240116; t=1736255649; c=relaxed/simple;
+	bh=dEXv7Cj+BC57a/C4F+5/2Rm0FhmxI6RRXkVRjhyCXkY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=d+InHA7ia1noUitcidRoVrwHNQ8yWdfduTxkyjcSqSI8XVnlrMjXbjPKP3hkYsfPhVhNvKkh2HRIWK1062SJf0siimvunSXmY0o+FDD5fHuCRgazfkepb9Q6nf/7rntiV7ZL2mr53yCMQ3vfQN6hlvDYllV1LKcEZ5Y/64MxWEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LsUDUino; arc=none smtp.client-ip=209.85.208.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vb5qbrre"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-3862df95f92so6821153f8f.2
-        for <bridge@lists.linux.dev>; Tue, 07 Jan 2025 04:53:58 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LsUDUino"
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-5d0d32cd31aso23126422a12.0
+        for <bridge@lists.linux.dev>; Tue, 07 Jan 2025 05:14:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736254437; x=1736859237; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F66Eu0GAg36EcgkwSAQsoLttohjhJJSzBhrgfuDrfa8=;
-        b=Vb5qbrrexEOIGU91vM2yhvihRiUWwxKWrXz5f1ilgv8HXvdqY/8BndsEXTKDHlOUdv
-         B0Hl2NAx4IBNK6rA9nYhWyKHdg/PF5k1Af62nOFt3/W18gYFb50Y9r0MCBrdZLONTPFq
-         GKTx5FywF9t+iumiKrL+WQh23sppF8PItBpb4yrM6PPJwA+LBI6MXm5lW7Pdq4uUsUwA
-         vyv9JFfHxw/Nw/+Z/OrVW26vOyIS0gQtAQk9XK5m3QS1cADi5GJ3siE6l/5JjIfyKGJk
-         dOGeA0wjXIvvxTlq24GEYU3leLFqAiaREcjlDBJ8r+y/IIV4w4Y/8BVoRyHB5KNb3UlO
-         CAtQ==
+        d=gmail.com; s=20230601; t=1736255646; x=1736860446; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=TaKbNQkeyDwSjQGIQ+m5SGuLh75ZMMIa7nlAuxNwI4s=;
+        b=LsUDUino5yzPBEvnqZ1fxi3aknI9uelJ243xcNH3wq/w5GtbQxiIR4yloV1JqvcR4E
+         ex9AoFMs0yHj6G35gEY/1OkiI3YIbABj1AoMAt80ryBv7eCHDsVOcs970SWCfU04MPmw
+         0elNh5H8xcYWXovuJ8ZZoM5ho4BbyfcsrEYmMxDG+vsfdFPQNKclP9x+Voi0UgBQLGuu
+         3d5xo2maghpqtJ2+0zgNpEuxWv7qpzW+W6gF/ePTg702TuhMWMzI+eR87D1ixpD7Azf3
+         ldODUpAIYNGNoUZXFV7noVeTiDMi8jRBbsgiqoienWOnOUFRtSQyPZUtoZDJodqLOw5X
+         76cg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736254437; x=1736859237;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=F66Eu0GAg36EcgkwSAQsoLttohjhJJSzBhrgfuDrfa8=;
-        b=lfnpevUlCQxdsVDHylSZ9zNPForiViZexsLKu1rLTc52zYvyVcG/MEU7noGzTFgy+Y
-         EIresEckQFbMHZM7bgLRA0bWvzRIGMyg7S4x7nBm0B65kLXjjqMItqZUTy7fMRVyfZVZ
-         9rNoLEfISpBjIqDRQN9cp17a0oNxHVtAFheBnzY1YzVMXAbvkRXRcL0Tb0Cm7A6M1QbS
-         k4n/7AxfGuMWkX8lLxINYGJ9aSkFaGxm2B7zuqv+S+9EoJblpJhM58JYWJrQicW948Hr
-         cHz5vDqmYhyaINB0L37YR4T13SDgBp1TODItpYiLh2P5wlMl0iPWGS7g7c0mpdW2YMPE
-         QQZg==
-X-Forwarded-Encrypted: i=1; AJvYcCUOilNe0utpocl9IDcWM6TZQKhZFmwpwqmu4FKCsUfyEaHP0DaFz82jFrUrT60htTDoUR9/M1I=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxDEI00CgJoGS9ch0XeSF6QDu0DGA+gzyQC0hwfnVj3I5CD4Qxm
-	NMDIuAWxH3YG2KZhIn7dB+fvyLzHSJDCxFCMBJS6HQSatciwlzWMpFRiYJDZVT7a7P8+SOgwdYr
-	ZgFEOpZRW6lMMxP0vVs4Q1i06yTg=
-X-Gm-Gg: ASbGncu5/jnXXDr55c5hmq9uj51C/WSbHixVSGucnb0K+L/rviA0Vb8q8D3RzsGfNYM
-	dyVzaGeplcNS7V6pfChCvCJruPgLkDi6EpP1I
-X-Google-Smtp-Source: AGHT+IHLmQYT6Nfe/TxqetejkNmjRWULhNkXti9Y+FoSO0oNz6JKWmwppacRVdUE20hj8uvdZwuWTQu822tlGBPGUFc=
-X-Received: by 2002:adf:a15d:0:b0:38a:615c:8222 with SMTP id
- ffacd0b85a97d-38a615c828emr14509037f8f.4.1736254436561; Tue, 07 Jan 2025
- 04:53:56 -0800 (PST)
+        d=1e100.net; s=20230601; t=1736255646; x=1736860446;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=TaKbNQkeyDwSjQGIQ+m5SGuLh75ZMMIa7nlAuxNwI4s=;
+        b=rQCra5Gc+e4B82a5s5hhsQ1tHWhvROyDcmiMeXeU05v9eRzNEicjUd0f6rgiKUxbkd
+         leckRkhmazSY35Ny8q+YguFcXfqZyX7SLMczpE0gp29vb07R1MH46JUdI4uGMg70L7FF
+         dHqZrGsY4H9dGmgubpdiPmBTJDhjqTAK3hRIPLwzISiSjw4k/xpZaC/KXZ4MGlk0UMLH
+         JJcEg0/c30HGajcuWCWzi3/l4uSO+3J2qikdWKbin9gBsen25183zavRIJsjBSVjbGRP
+         8IlRq0kXZQBqOpdz00sJxXCPCXsAIrca7KjCIHcSP4gh7L30/SsAWAuwLcQcuzkoMjut
+         W7Iw==
+X-Forwarded-Encrypted: i=1; AJvYcCW6Di38wQqCWKqe1J9xIsUXRQbZQ6CsP0niVelmiGPIPPUGpto3tilRMLOChYCWYThJip3vyLU=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz74EvHE74Mi+9Xe4snQswoNMnw5KinQ3pzKkeE8xRtwJInn8Ng
+	LPc7yyWhOargc3RgbCmmfdQLqXvgRnwWI1CELs4IM37s3w1ztQ36
+X-Gm-Gg: ASbGncv+WMrBer0KruQIz71kFMfNXT2+YEQzlqtDuEnnGmK68zArf5uQIHZuOFb6syj
+	ExJzT0gKpzexYKf+b8tvf3H6J1saXtF4/Fi8ficP1U8iaNz0T8SiwFjOre7vjgfypRINob/CX7s
+	bAyHPMHsTRypxJsIr7DfRySJQn+6+HXb8VUBktkMABK9IqkKo66O4aIJdhqUPikDHb3WtCV7s3P
+	zyiot5vHINIKaj9JLpUH+6/21A8TwJ+VYBnJBMN1E4aWlA3P9A3/OAVyBm7MUPWIv+30lcxr7cV
+	hFA1IetShFBb+LNnKnuxZWDFbW4c+73d8u1vvJBmtHC6bP64BbZYjWhfqfet0dfUku86aJ3h9i0
+	j8BX/B6bWjGsL/nMvigcd6QCbneFnXS8=
+X-Google-Smtp-Source: AGHT+IG685u/TuxRo4gOyPFhExD9aC7tMDskOonBEuq2S9e6D8OwVVwO7wNmsSRZ+5auRMu6yPKriA==
+X-Received: by 2002:a05:6402:35c2:b0:5d0:ea4f:972f with SMTP id 4fb4d7f45d1cf-5d81dd9af30mr134224547a12.8.1736255645405;
+        Tue, 07 Jan 2025 05:14:05 -0800 (PST)
+Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aac0f015b1asm2383448366b.148.2025.01.07.05.14.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jan 2025 05:14:05 -0800 (PST)
+Message-ID: <4b9b2a9a-061b-43ad-b402-a49aee317f41@gmail.com>
+Date: Tue, 7 Jan 2025 14:14:03 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250104125732.17335-1-shaw.leon@gmail.com> <20250107085646.42302-1-kuniyu@amazon.com>
-In-Reply-To: <20250107085646.42302-1-kuniyu@amazon.com>
-From: Xiao Liang <shaw.leon@gmail.com>
-Date: Tue, 7 Jan 2025 20:53:19 +0800
-Message-ID: <CABAhCOQdBL6h9M2C+kd+bGivRJ9Q72JUxW+-gur0nub_=PmFPA@mail.gmail.com>
-Subject: Re: [PATCH net-next v7 00/11] net: Improve netns handling in rtnetlink
-To: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: andrew+netdev@lunn.ch, b.a.t.m.a.n@lists.open-mesh.org, 
-	bpf@vger.kernel.org, bridge@lists.linux.dev, davem@davemloft.net, 
-	donald.hunter@gmail.com, dsahern@kernel.org, edumazet@google.com, 
-	horms@kernel.org, idosch@nvidia.com, jiri@resnulli.us, kuba@kernel.org, 
-	linux-can@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-ppp@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, linux-wireless@vger.kernel.org, 
-	linux-wpan@vger.kernel.org, liuhangbin@gmail.com, netdev@vger.kernel.org, 
-	osmocom-net-gprs@lists.osmocom.org, pabeni@redhat.com, shuah@kernel.org, 
-	wireguard@lists.zx2c4.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jan 7, 2025 at 4:57=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.com=
-> wrote:
-[...]
->
-> We can fix this by linking the dev to the socket's netns and
-> clean them up in __net_exit hook as done in bareudp and geneve.
->
-> ---8<---
-> diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-> index 89a996ad8cd0..77638a815873 100644
-> --- a/drivers/net/gtp.c
-> +++ b/drivers/net/gtp.c
-> @@ -70,6 +70,7 @@ struct pdp_ctx {
->  /* One instance of the GTP device. */
->  struct gtp_dev {
->         struct list_head        list;
-> +       struct list_head        sock_list;
->
->         struct sock             *sk0;
->         struct sock             *sk1u;
-> @@ -102,6 +103,7 @@ static unsigned int gtp_net_id __read_mostly;
->
->  struct gtp_net {
->         struct list_head gtp_dev_list;
-> +       struct list_head gtp_sock_list;
-
-After a closer look at the GTP driver, I'm confused about
-the gtp_dev_list here. GTP device is linked to this list at
-creation time, but netns can be changed afterwards.
-The list is used in gtp_net_exit_batch_rtnl(), but to my
-understanding net devices can already be deleted in
-default_device_exit_batch() by default.
-And I wonder if the use in gtp_genl_dump_pdp() can be
-replaced by something like for_each_netdev_rcu().
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC net-next] net: phylink: always config mac for
+ (delayed) phy
+To: "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc: Andrew Lunn <andrew@lunn.ch>, Heiner Kallweit <hkallweit1@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Frank Wunderlich <frank-w@public-files.de>,
+ Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+References: <20250107123615.161095-1-ericwouds@gmail.com>
+ <Z30iUj6DE9-fRp0n@shell.armlinux.org.uk>
+From: Eric Woudstra <ericwouds@gmail.com>
+Content-Language: en-US
+In-Reply-To: <Z30iUj6DE9-fRp0n@shell.armlinux.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 
->  };
->
->  static u32 gtp_h_initval;
-> @@ -1526,6 +1528,10 @@ static int gtp_newlink(struct net *src_net, struct=
- net_device *dev,
->
->         gn =3D net_generic(dev_net(dev), gtp_net_id);
->         list_add_rcu(&gtp->list, &gn->gtp_dev_list);
-> +
-> +       gn =3D net_generic(src_net, gtp_net_id);
-> +       list_add(&gtp->sock_list, &gn->gtp_sock_list);
-> +
->         dev->priv_destructor =3D gtp_destructor;
->
->         netdev_dbg(dev, "registered new GTP interface\n");
-> @@ -1552,6 +1558,7 @@ static void gtp_dellink(struct net_device *dev, str=
-uct list_head *head)
->                         pdp_context_delete(pctx);
->
->         list_del_rcu(&gtp->list);
-> +       list_del(&gtp->sock_list);
->         unregister_netdevice_queue(dev, head);
->  }
->
-> @@ -2465,6 +2472,8 @@ static int __net_init gtp_net_init(struct net *net)
->         struct gtp_net *gn =3D net_generic(net, gtp_net_id);
->
->         INIT_LIST_HEAD(&gn->gtp_dev_list);
-> +       INIT_LIST_HEAD(&gn->gtp_sock_list);
-> +
->         return 0;
->  }
->
-> @@ -2475,9 +2484,12 @@ static void __net_exit gtp_net_exit_batch_rtnl(str=
-uct list_head *net_list,
->
->         list_for_each_entry(net, net_list, exit_list) {
->                 struct gtp_net *gn =3D net_generic(net, gtp_net_id);
-> -               struct gtp_dev *gtp;
-> +               struct gtp_dev *gtp, *next;
-> +
-> +               list_for_each_entry_safe(gtp, next, &gn->gtp_dev_list, li=
-st)
-> +                       gtp_dellink(gtp->dev, dev_to_kill);
->
-> -               list_for_each_entry(gtp, &gn->gtp_dev_list, list)
-> +               list_for_each_entry_safe(gtp, next, &gn->gtp_sock_list, s=
-ock_list)
->                         gtp_dellink(gtp->dev, dev_to_kill);
->         }
->  }
-> ---8<---
+
+On 1/7/25 1:47 PM, Russell King (Oracle) wrote:
+> Going through the log...
+> 
+> On Tue, Jan 07, 2025 at 01:36:15PM +0100, Eric Woudstra wrote:
+>> Log before this patch is applied:
+>> [root@bpir3 ~]# dmesg | grep eth1
+>> [    2.515179] mtk_soc_eth 15100000.ethernet eth1: mediatek frame engine at 0xffff800082380000, irq 123
+>> [   38.271431] mtk_soc_eth 15100000.ethernet eth1: configuring for inband/2500base-x link mode
+>> [   38.279828] mtk_soc_eth 15100000.ethernet eth1: major config, requested inband/2500base-x
+>> [   38.288009] mtk_soc_eth 15100000.ethernet eth1: interface 2500base-x inband modes: pcs=01 phy=00
+>> [   38.296800] mtk_soc_eth 15100000.ethernet eth1: major config, active inband/inband,an-disabled/2500base-x
+> 
+> This is indeed without the PHY. We're using inband, although the PCS
+> mode is PHYLINK_PCS_NEG_INBAND_DISABLED, meaning inband won't be
+> used. As there is no PHY, we can't switch to MLO_AN_PHY.
+> 
+>> [   38.306362] mtk_soc_eth 15100000.ethernet eth1: phylink_mac_config: mode=inband/2500base-x/none adv=00,00000000,00008000,0000e240 pause=04
+>> [   39.220149] mtk_soc_eth 15100000.ethernet eth1:  interface 2 (mii) rate match none supports 0-3,6-7,13-14
+>> [   39.229758] mtk_soc_eth 15100000.ethernet eth1:  interface 3 (gmii) rate match none supports 0-3,5-7,13-14
+>> [   39.239420] mtk_soc_eth 15100000.ethernet eth1:  interface 4 (sgmii) rate match none supports 0-3,5-7,13-14
+>> [   39.249173] mtk_soc_eth 15100000.ethernet eth1:  interface 22 (1000base-x) rate match none supports 5-7,13-14
+>> [   39.259080] mtk_soc_eth 15100000.ethernet eth1:  interface 23 (2500base-x) rate match none supports 6-7,13-14,47
+>> [   39.594676] mtk_soc_eth 15100000.ethernet eth1: PHY i2c:sfp-1:11 uses interfaces 4,23, validating 4,23
+> 
+> The PHY comes along...
+> 
+>> [   39.603992] mtk_soc_eth 15100000.ethernet eth1:  interface 4 (sgmii) rate match none supports 0-3,5-7,13-14
+>> [   39.650080] mtk_soc_eth 15100000.ethernet eth1:  interface 23 (2500base-x) rate match none supports 6-7,13-14,47
+>> [   39.660266] mtk_soc_eth 15100000.ethernet eth1: PHY [i2c:sfp-1:11] driver [RTL8221B-VB-CG 2.5Gbps PHY (C45)] (irq=POLL)
+>> [   39.671037] mtk_soc_eth 15100000.ethernet eth1: phy: 2500base-x setting supported 00,00000000,00008000,000060ef advertising 00,00000000,00008000,000060ef
+>> [   39.684761] mtk_soc_eth 15100000.ethernet eth1: requesting link mode inband/2500base-x with support 00,00000000,00008000,000060ef
+> 
+> We decide to use MLO_AN_INBAND and 2500base-X, which we're already using.
+> 
+>> [   40.380076] mtk_soc_eth 15100000.ethernet eth1: phy link down 2500base-x/Unknown/Unknown/none/off
+>> [   40.397090] brlan: port 5(eth1) entered blocking state
+>> [   40.402223] brlan: port 5(eth1) entered disabled state
+>> [   40.407437] mtk_soc_eth 15100000.ethernet eth1: entered allmulticast mode
+>> [   40.414400] mtk_soc_eth 15100000.ethernet eth1: entered promiscuous mode
+>> [   44.500077] mtk_soc_eth 15100000.ethernet eth1: phy link up 2500base-x/2.5Gbps/Full/none/off
+>> [   44.508528] mtk_soc_eth 15100000.ethernet eth1: No phy led trigger registered for speed(2500)
+> 
+> ... but we don't see link-up reported by the PCS after the PHY comes
+> up. Why is that - I think that needs investigation before we proceed
+> to patch the issue, because that suggests the PCS isn't seeing
+> valid 2500base-X from the PHY.
+> 
+
+I think it is because pl->act_link_an_mode stays at MLO_AN_INBAND, but
+it needs to be set to MLO_AN_PHY, so that only the phy determines the
+link state:
+
+phylink_resolve() {
+    ...
+	} else if (pl->act_link_an_mode == MLO_AN_PHY) {
+		link_state = pl->phy_state;
+    ...
+}
+
