@@ -1,149 +1,75 @@
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [78.32.30.218])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5781012E7F
-	for <bridge@lists.linux.dev>; Tue,  7 Jan 2025 15:03:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.32.30.218
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE70F1F63E7;
+	Tue,  7 Jan 2025 20:38:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736262195; cv=none; b=OQ8/Gdb9bPbhh0AiSIJJxONBvwpze2QrXr45ZWeMy7rur2Lk2+CMacIbVatl/zJgIuUafE0hffAmhfMf2ne17B+TL0aiKZsPG3VS0nd1DXvfd8T4fIwQxLspFbeXH+6m+1KXfkASRXzuobNY6kGBvVhyc0t9Sf+0AL0KQ20XV3o=
+	t=1736282288; cv=none; b=VAFZVz54otiSFrvgspvOsHRhhdSKY6YGtyZEz+ilrB7VAhWOqQveKL9u6DCR1DM5OhXNDxxexIj1JIYjEWELOGnVISnUqDHvyieOccG2KfQI7jLz/sOna87UprnzMxvxwMO4DhsWUksL+fJFY7WYfyf6s7mclZ+Wm9/hbzDxVFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736262195; c=relaxed/simple;
-	bh=lfwi3MsnV/3M5xQCwEyFjw4njBGNFDYF8Kj7JmIr2Pg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qWGXnKK9MmSDHM9yMzP3XaTD5jP7MASzNgmpf6rbhJDAVY9Tv66Hl14vnWpaJfnknC+exefW0xnr0ah4PfSixLeOz9RwNclWziMYTZKfayslhRFla5vu6XnidfZV7FM3Uarpd6XLzXgayrfHydsVap5gxcjMUlLcd81MKCKHSyY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; spf=none smtp.mailfrom=armlinux.org.uk; dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b=NXyUhvLH; arc=none smtp.client-ip=78.32.30.218
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=armlinux.org.uk
+	s=arc-20240116; t=1736282288; c=relaxed/simple;
+	bh=xVENo9muNO/TQ5xVqUKOs/5Q4+G96PW1sKSnQr73q9Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=U14vuusbfwKnu2pH69MbVBc1eKEdkMX/chwVTNtajetkhO6xwi7m74cLY/k8ac5c+MX0RrI206b704qlUqOaXdM+aV6iQbzq5lSl28FpER3LUPzbZkMsV6KrnqF5mB4CstaLafwPTymWoZzNYnWuqkUx3PnksWlv/MrGPfzQJ4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IincHyk5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="NXyUhvLH"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=QQNGyoGTk3gphP9Ejtpl8Wnab+mwXMUr4VlhvKse5UU=; b=NXyUhvLHFpRiKWcor7q8IVmcol
-	2sVdmZ6mbRrpJZJnwzs7s+9cdGot9ImqJUvY101g0DFw8pwlW7NuzKGf6nAA6R25qrbV/4jpi1Fqa
-	0LPALkcvERzOrcTWj0BKGTfNgk1o9kNEG/ckwDKFv51/ZqkvbkTdSUMZZWd9zh255i2pIxBHV6Pfp
-	IC7HB9gHrsYAwvlG7SHYOQozRDK2Kb6wPK1+IGa9mrHBIOWGw0HHCQaGjhJO6Oh3ukbCAZUGEktKI
-	hdtl05BmaN9SU2vMJFj7eTo5yMtrh4s/dj+vGigUlyY32Ge8bEwF7lAdBLcHbAdWmYfutsDDyekNU
-	OBbOWK3w==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:58372)
-	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <linux@armlinux.org.uk>)
-	id 1tVB6l-0007db-1R;
-	Tue, 07 Jan 2025 15:03:03 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.96)
-	(envelope-from <linux@shell.armlinux.org.uk>)
-	id 1tVB6k-0005N7-0P;
-	Tue, 07 Jan 2025 15:03:02 +0000
-Date: Tue, 7 Jan 2025 15:03:01 +0000
-From: "Russell King (Oracle)" <linux@armlinux.org.uk>
-To: Eric Woudstra <ericwouds@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Heiner Kallweit <hkallweit1@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Frank Wunderlich <frank-w@public-files.de>,
-	Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH RFC net-next] net: phylink: always config mac for
- (delayed) phy
-Message-ID: <Z31CJS1YUvPGiEXs@shell.armlinux.org.uk>
-References: <20250107123615.161095-1-ericwouds@gmail.com>
- <Z30iUj6DE9-fRp0n@shell.armlinux.org.uk>
- <4b9b2a9a-061b-43ad-b402-a49aee317f41@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IincHyk5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 582D5C4CED6;
+	Tue,  7 Jan 2025 20:38:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736282287;
+	bh=xVENo9muNO/TQ5xVqUKOs/5Q4+G96PW1sKSnQr73q9Q=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=IincHyk5dnHSj14WBxB3nZ8H+ad7Wv7JCDFqB3ioz1CyxVIL28f/wayA5OfnPboFy
+	 w4bYeV8oyIpNsDF2th/1YTvksDeeiWBKLOGweUN5unnHCsYuY6UO9/ov33L1S7sVm+
+	 1K3BnLtTw6iZPtOBVnjoMMzolL2SbZULRRKu+YNbYACOMPPIofT1Am+zEPd/PAx/vs
+	 ld0p/Rkjj2unh6Png65S7WHaBoyC3nNe0ZjG8UBnxGV+bt8cBPNwF55J92ceGMmf0M
+	 9p3XnJzVS37fvnQRlLFc7Do5qJjEPxgQYy5375IiG9MyjZthi5D9QPQCuQtvR2QVYT
+	 LbPjcwrrJqcnA==
+Date: Tue, 7 Jan 2025 12:38:05 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Xiao Liang <shaw.leon@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kselftest@vger.kernel.org, Kuniyuki
+ Iwashima <kuniyu@amazon.com>, Donald Hunter <donald.hunter@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, David Ahern <dsahern@kernel.org>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Ido
+ Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, Simon
+ Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>, Jiri Pirko
+ <jiri@resnulli.us>, Hangbin Liu <liuhangbin@gmail.com>,
+ linux-rdma@vger.kernel.org, linux-can@vger.kernel.org,
+ osmocom-net-gprs@lists.osmocom.org, bpf@vger.kernel.org,
+ linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com,
+ linux-wireless@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org,
+ bridge@lists.linux.dev, linux-wpan@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v7 02/11] rtnetlink: Pack newlink() params into
+ struct
+Message-ID: <20250107123805.748080ab@kernel.org>
+In-Reply-To: <20250104125732.17335-3-shaw.leon@gmail.com>
+References: <20250104125732.17335-1-shaw.leon@gmail.com>
+	<20250104125732.17335-3-shaw.leon@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4b9b2a9a-061b-43ad-b402-a49aee317f41@gmail.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jan 07, 2025 at 02:14:03PM +0100, Eric Woudstra wrote:
-> 
-> 
-> On 1/7/25 1:47 PM, Russell King (Oracle) wrote:
-> > Going through the log...
-> > 
-> > On Tue, Jan 07, 2025 at 01:36:15PM +0100, Eric Woudstra wrote:
-> >> Log before this patch is applied:
-> >> [root@bpir3 ~]# dmesg | grep eth1
-> >> [    2.515179] mtk_soc_eth 15100000.ethernet eth1: mediatek frame engine at 0xffff800082380000, irq 123
-> >> [   38.271431] mtk_soc_eth 15100000.ethernet eth1: configuring for inband/2500base-x link mode
-> >> [   38.279828] mtk_soc_eth 15100000.ethernet eth1: major config, requested inband/2500base-x
-> >> [   38.288009] mtk_soc_eth 15100000.ethernet eth1: interface 2500base-x inband modes: pcs=01 phy=00
-> >> [   38.296800] mtk_soc_eth 15100000.ethernet eth1: major config, active inband/inband,an-disabled/2500base-x
-> > 
-> > This is indeed without the PHY. We're using inband, although the PCS
-> > mode is PHYLINK_PCS_NEG_INBAND_DISABLED, meaning inband won't be
-> > used. As there is no PHY, we can't switch to MLO_AN_PHY.
-> > 
-> >> [   38.306362] mtk_soc_eth 15100000.ethernet eth1: phylink_mac_config: mode=inband/2500base-x/none adv=00,00000000,00008000,0000e240 pause=04
-> >> [   39.220149] mtk_soc_eth 15100000.ethernet eth1:  interface 2 (mii) rate match none supports 0-3,6-7,13-14
-> >> [   39.229758] mtk_soc_eth 15100000.ethernet eth1:  interface 3 (gmii) rate match none supports 0-3,5-7,13-14
-> >> [   39.239420] mtk_soc_eth 15100000.ethernet eth1:  interface 4 (sgmii) rate match none supports 0-3,5-7,13-14
-> >> [   39.249173] mtk_soc_eth 15100000.ethernet eth1:  interface 22 (1000base-x) rate match none supports 5-7,13-14
-> >> [   39.259080] mtk_soc_eth 15100000.ethernet eth1:  interface 23 (2500base-x) rate match none supports 6-7,13-14,47
-> >> [   39.594676] mtk_soc_eth 15100000.ethernet eth1: PHY i2c:sfp-1:11 uses interfaces 4,23, validating 4,23
-> > 
-> > The PHY comes along...
-> > 
-> >> [   39.603992] mtk_soc_eth 15100000.ethernet eth1:  interface 4 (sgmii) rate match none supports 0-3,5-7,13-14
-> >> [   39.650080] mtk_soc_eth 15100000.ethernet eth1:  interface 23 (2500base-x) rate match none supports 6-7,13-14,47
-> >> [   39.660266] mtk_soc_eth 15100000.ethernet eth1: PHY [i2c:sfp-1:11] driver [RTL8221B-VB-CG 2.5Gbps PHY (C45)] (irq=POLL)
-> >> [   39.671037] mtk_soc_eth 15100000.ethernet eth1: phy: 2500base-x setting supported 00,00000000,00008000,000060ef advertising 00,00000000,00008000,000060ef
-> >> [   39.684761] mtk_soc_eth 15100000.ethernet eth1: requesting link mode inband/2500base-x with support 00,00000000,00008000,000060ef
-> > 
-> > We decide to use MLO_AN_INBAND and 2500base-X, which we're already using.
-> > 
-> >> [   40.380076] mtk_soc_eth 15100000.ethernet eth1: phy link down 2500base-x/Unknown/Unknown/none/off
-> >> [   40.397090] brlan: port 5(eth1) entered blocking state
-> >> [   40.402223] brlan: port 5(eth1) entered disabled state
-> >> [   40.407437] mtk_soc_eth 15100000.ethernet eth1: entered allmulticast mode
-> >> [   40.414400] mtk_soc_eth 15100000.ethernet eth1: entered promiscuous mode
-> >> [   44.500077] mtk_soc_eth 15100000.ethernet eth1: phy link up 2500base-x/2.5Gbps/Full/none/off
-> >> [   44.508528] mtk_soc_eth 15100000.ethernet eth1: No phy led trigger registered for speed(2500)
-> > 
-> > ... but we don't see link-up reported by the PCS after the PHY comes
-> > up. Why is that - I think that needs investigation before we proceed
-> > to patch the issue, because that suggests the PCS isn't seeing
-> > valid 2500base-X from the PHY.
-> > 
-> 
-> I think it is because pl->act_link_an_mode stays at MLO_AN_INBAND, but
-> it needs to be set to MLO_AN_PHY, so that only the phy determines the
-> link state:
-> 
-> phylink_resolve() {
->     ...
-> 	} else if (pl->act_link_an_mode == MLO_AN_PHY) {
-> 		link_state = pl->phy_state;
->     ...
-> }
+On Sat,  4 Jan 2025 20:57:23 +0800 Xiao Liang wrote:
+> -static int amt_newlink(struct net *net, struct net_device *dev,
+> -		       struct nlattr *tb[], struct nlattr *data[],
+> -		       struct netlink_ext_ack *extack)
+> +static int amt_newlink(struct rtnl_newlink_params *params)
+>  {
+> -	struct amt_dev *amt = netdev_priv(dev);
+> +	struct netlink_ext_ack *extack = params->extack;
+> +	struct net_device *dev = params->dev;
+> +	struct nlattr **data = params->data;
+> +	struct nlattr **tb = params->tb;
+> +	struct net *net = params->net;
+> +	struct amt_dev *amt;
 
-Please see my reply to Daniel. The PCS should still be capable of
-reporting whether its link is up or down irrespective of whether
-in-band status is being used or not.
-
-While it is correct that PHY mode needs to be used here, your report
-has pointed out that the driver is not reporting the PCS link state
-correctly when in-band is disabled.
-
-Given that the current state of affairs has revealed this other bug,
-I would like that addressed first while there is a trivial test case
-here.
-
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
+IMHO you packed a little too much into the struct.
+Could you take the dev and the extack back out?
