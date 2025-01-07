@@ -1,71 +1,79 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C0B19CC0E;
-	Tue,  7 Jan 2025 13:26:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6AFE1F191D;
+	Tue,  7 Jan 2025 14:20:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736256405; cv=none; b=Fq2vJHQNvtLHtc/iEqWiaeWXmUdj3CpdSUtO0AQ5Weggkxy9rfeW44pd3OnCCeetZlAb8IJUsIKM2VBvKo+MmQzdm2SY+whbpuFXPsyPowWwc2Ot9aQdFxbEhObZ7XOa9YcMAtTsar0gTBK/CWDhuY5MMpPdZGLoKhUm2i64VgM=
+	t=1736259611; cv=none; b=Xj2IL+fcWLt/Jif7zZkdNjo1XiRIFt/SxPXBpCNaDLpfZn+1d/Yv/3BMLjzM17djwjbN3svSF8fWfssegi0DQ2fzF7I2S4HjXInAuT95gaz9fMlUlvIR7bdJHHKGdURs6M6UBV1R/3cXNYuvB5I2w+LPdeC8ahcL8S0+olYFQco=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736256405; c=relaxed/simple;
-	bh=/m5ZT/WjZM4M4Tl41pBuRBotgmqPd6yqRyqz6qGuWjA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hpgsKSO9ZxQMWI6ae8Y95hDh4CfU3H9Z8zlNJ8szHTwe8DdWwEPZ3+mAa/s2DnDZR/D0NaE6MxMbtS0jUm0WfAOp/ncdR4QC51K9jctzBu5o47J2NDYLizD74FcdVqYuz4jFHNJe0RufiA4iqUgpI59iV0o85vmjlqQJ38ijt9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=EDja036Z; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	s=arc-20240116; t=1736259611; c=relaxed/simple;
+	bh=tZAnqmiCWOiltU5tuzyMfBofmsQaf6IJVpmbjzzEMCY=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=LcVTf0Zv25kJ91l5l/N5nvHb04+KkDi1WcS01FNTwrZufuG/HyrJPlnolI3wBYF3LoGAU72Jf5C+I9ng3syN05yLrq59x8DCJXZwLYOeFvOvb7toreDMXWgDzvKWVF0ex5xKa0+QSuJQrVPOJdgTpS9qKjp9EuqZVbimPxg23Uo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hBEjv7xw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="EDja036Z"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=I3Vv9Ii4oAyb2xBXKP796hUiYRnbIlEgJVRU6r0oeJ4=; b=EDja036ZoNSxV1Bflk1hEMKrwv
-	l0MQhjpbFvH4DGCtNaEnCqBfs6+ja+sdJ1+3MFUfHdGSYEMEM7+COya16k8YkTYHFpea2P28anFtG
-	g4Lm82NEcjog3dGCM5Mq1W8AwefLmTkWSOhDaxRexOJgqBfG0zlG2lox8z8tCa4GCMVc=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1tV9bM-002Est-OJ; Tue, 07 Jan 2025 14:26:32 +0100
-Date: Tue, 7 Jan 2025 14:26:32 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Daniel Golle <daniel@makrotopia.org>
-Cc: "Russell King (Oracle)" <linux@armlinux.org.uk>,
-	Eric Woudstra <ericwouds@gmail.com>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Frank Wunderlich <frank-w@public-files.de>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH RFC net-next] net: phylink: always config mac for
- (delayed) phy
-Message-ID: <a5beb529-5769-4310-b6a4-0ddccd85caf1@lunn.ch>
-References: <20250107123615.161095-1-ericwouds@gmail.com>
- <Z30iUj6DE9-fRp0n@shell.armlinux.org.uk>
- <Z30pMSxDn-R3Cy5S@makrotopia.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hBEjv7xw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B8F5C4CED6;
+	Tue,  7 Jan 2025 14:20:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736259610;
+	bh=tZAnqmiCWOiltU5tuzyMfBofmsQaf6IJVpmbjzzEMCY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=hBEjv7xwrzZX9yZGWLYhf71reNG+d8NMZJkQTFYnPn5qsxMjNZ3QxlgWc54KZ+Swy
+	 2aAoKWs1QcrJTkRp9jphfU19Rd8vC+k7720LA0WnSCf7eAHjqz8zTMHGF5NPkHxvLm
+	 jQ4CVaFh61M2/6FbggdhIWNtrYnkRKHF/yftLYiQrDOwatvIzjWHpJnq9QmQnHYsdC
+	 0Mv1mIvX25+RmQXlNXzIv/qUKep5KwjplOwxDjXN9w3IFN5cRBc2Cl1tKStGPjSQFy
+	 xWGZ5TpM+YZ3xHto/tRc4YagqNi1WyG0PVLrGGEriskYZ27kWAjDM9TnEPucCuJORf
+	 OUNSz+JmrISTg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAF2E380A97E;
+	Tue,  7 Jan 2025 14:20:32 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Z30pMSxDn-R3Cy5S@makrotopia.org>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v2] bridge: Make br_is_nd_neigh_msg() accept pointer
+ to "const struct sk_buff"
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <173625963175.4170472.16906690078040133844.git-patchwork-notify@kernel.org>
+Date: Tue, 07 Jan 2025 14:20:31 +0000
+References: <20250104083846.71612-1-znscnchen@gmail.com>
+In-Reply-To: <20250104083846.71612-1-znscnchen@gmail.com>
+To: Ted Chen <znscnchen@gmail.com>
+Cc: roopa@nvidia.com, razor@blackwall.org, bridge@lists.linux.dev,
+ netdev@vger.kernel.org
 
-> The PCS doesn't support in-band status in 2500Base-X mode, or at least
-> the implementation isn't compatible with those RealTek PHYs.
+Hello:
 
-Is one or the other not actually 2500Base-X, but SGMII over clocked?
+This patch was applied to netdev/net-next.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
 
-Overclocked SGMII cannot do in-band signalling. It could well be the
-PCS is 2500BaseX, but the PHY is over clocked SGMII, and so the PCS is
-not seeing the in-band signalling it expects, so never reports link.
+On Sat,  4 Jan 2025 16:38:46 +0800 you wrote:
+> The skb_buff struct in br_is_nd_neigh_msg() is never modified. Mark it as
+> const.
+> 
+> Signed-off-by: Ted Chen <znscnchen@gmail.com>
+> ---
+> v2:
+> - Rebased to net-next (Nicolay)
+> - Wrapped commit message lines to be within 75 characters. (Nicolay)
+> - Added net-next to patch subject. (Nicolay)
+> 
+> [...]
 
-	Andrew
+Here is the summary with links:
+  - [net-next,v2] bridge: Make br_is_nd_neigh_msg() accept pointer to "const struct sk_buff"
+    https://git.kernel.org/netdev/net-next/c/a1942da8a387
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
