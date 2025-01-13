@@ -1,98 +1,284 @@
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [78.32.30.218])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9264C214A97
-	for <bridge@lists.linux.dev>; Thu,  9 Jan 2025 09:16:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.32.30.218
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDB131CAA6A
+	for <bridge@lists.linux.dev>; Mon, 13 Jan 2025 14:37:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736414180; cv=none; b=uVWUcpXDqVZa+5D6ouGYMJbItEYaX2D2YIGcltaxHDGNCCShIReaSRUHP+FMFou0p7iMkAmqvRnNT5vrWdMu6zH/WI23S3KvsbC5pU2/0S61phdhvLtCwIm6Gs8BnOcOTo0ZOwALJQQKyWkjPC7kYsQOev+Pb1aGwV0D9i52l/Q=
+	t=1736779060; cv=none; b=XVXrDA4Gha3Uf2wHHnOeaSsNKev8TDRRMpBdR8b/Rq8ay8DJOJzMuxHscXQNVyfWER1NJCbSk/yTS+GXYD90XXh/O9fhh9yU4wTxjR+Hz4K22dMi1zI2WikF+JfSatp3L5AwFAqknPFMfyL4Q/jYppjHxZUIhHNjFkfo2VeFzMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736414180; c=relaxed/simple;
-	bh=kSjWcYtkqH8R+JRDGnB2aLYV7zkmXfylg3X6xMRY4vA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wxyf1yoGmlTY+zB8mq68gs1EXMp8oa0TtN6gnBDkN6Mm5C+b8ng06F8rYwMTQTCcg8SJ7OhPI9i5Bwcll9MC95Vr0mvU1X4kkad6oLGC7Zqzgepxwsp39QyV+DjT/DYvyTQvGHEye65Wu7mOl9HFgEz5oIagHe1M4U22MN3IABQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk; spf=none smtp.mailfrom=armlinux.org.uk; dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b=L4ZB8MDV; arc=none smtp.client-ip=78.32.30.218
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=armlinux.org.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=armlinux.org.uk
+	s=arc-20240116; t=1736779060; c=relaxed/simple;
+	bh=16kL3RVzuXIueY/K9e2GktTYeQobat2MyiA31sOZcIo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FUDEjFF3y8eJnpG97cB6gvW9PllaIOu6TVp3B6RJHZ5En5jRjOu7Ax+VMDSej8Y2FQ6QNaQmv+8ArtXy8afLRB+IcDkNdIOeG1J2CA5L7pMfhlkZylcN/GijkmKpELhhhrRy+dzfj3FeLg2oAADx15mAyfCPX/yp4OF7T4Y9xwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UZH7J4gU; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="L4ZB8MDV"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=R2z1ESVuVcDzbxcpb3sc64PCr4c05BAv4LDC9oyfa7s=; b=L4ZB8MDV1RBG7G8NSURC7qZQ3A
-	qvL8HWzbo7iVXe/7oTalE7eJwQfWrWgFE3pE8tn9nD8hHXKq5fkEatoELVfIPL8sh0NwED/hInbgw
-	RCTSNRNKdl9vOn70vjC/Xj8o2afinyk+LuedUBhugETfYryDTX+TJ1OOvQVccDr1qYrTKWCLwCN4X
-	T0Ylh6f72ij58CSbUyfgRJTppxnCwun62Ofytl/7+bU09/16MnSdS7rw/iFdDhJ0YNSvhIYFE280t
-	e1qWDcLPZ3g6/eLHdl0uk218eEKmVH+Q+HrnFRP8yh/TMHd0OwM4nME37G0yKiJ4L16sqxhaOXzmU
-	4kgH/NWw==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:46832)
-	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <linux@armlinux.org.uk>)
-	id 1tVoe3-0001oO-2e;
-	Thu, 09 Jan 2025 09:16:03 +0000
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.96)
-	(envelope-from <linux@shell.armlinux.org.uk>)
-	id 1tVodz-0007Cf-0c;
-	Thu, 09 Jan 2025 09:15:59 +0000
-Date: Thu, 9 Jan 2025 09:15:59 +0000
-From: "Russell King (Oracle)" <linux@armlinux.org.uk>
-To: Eric Woudstra <ericwouds@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Heiner Kallweit <hkallweit1@gmail.com>,
-	"David S. Miller" <davem@davemloft.net>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UZH7J4gU"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-21628b3fe7dso73442855ad.3
+        for <bridge@lists.linux.dev>; Mon, 13 Jan 2025 06:37:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1736779058; x=1737383858; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1beorUTBDb9d2ovAB2s5mK/OAF8szMbbImDZC22QQM8=;
+        b=UZH7J4gU5ytsBjgAbQvfqq0q7mOAiUJN3i411MH3TKbFEGAcq3LGbBQ81NzF98F3Lx
+         a+E1kfBBMoMHPXZYPTFGBvwxoC0LlSP1FVCGMDmRqq8OzjlkArfDT0MIsRlvPeozmtfX
+         HKrGOPJWybpqBGIC3WUcLy4CsxLbRaMh7YEO7LOmG1vl7a6v9tNWbE8Zi4VQG2X7nyVV
+         GDPmfzjXu8L0BEqLn4RXw2M0Yomu8dm0E9PU4h4G04lYRnvXipW62Fzm7MDwHhAW8tiO
+         VZKyjK/lmqp3DUAmUlo9VrUUGoh+5akq5xt23HY/qTBXhFafeT/SxWoin8mdeU61Wxa6
+         02DA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736779058; x=1737383858;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1beorUTBDb9d2ovAB2s5mK/OAF8szMbbImDZC22QQM8=;
+        b=oBY5E9/btEFDCGDZkow0rykFYnIq1HZkg+dSw4RAryOVJKfXebefKJjlOtO5qUxZpP
+         RHCrE0bXLKicQVzGQuHaOinD8lmzHgKbpKPU12El86CbkB2ddKCYqZhcqVEwWlvzgJKQ
+         Efb3Igf7LLQVvJ/wdUpMALvQNSTe13EFRMey9Mwg0/HisbfGQujsNE3m44qUGBHrZA0M
+         BJJQT92I5vZP6UVYOr78zuq2PGxhhVdznWhHNzAMISL5tqn2p6F/UAOcikgOHiRoHLv/
+         vwwiHgHhGIKDodElcOkjsiI6RrQCOfGeIg9PVynhMGKBQINa8UBA0InpmbgxkPe9fluO
+         kYBw==
+X-Forwarded-Encrypted: i=1; AJvYcCXQkW+Sq2CvdPQtKk4TI9yEpWAC3i4hiot19DMZ80Jx6hvYEz5tL0K2Ij6XGrRUcBCOuNMoobQ=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxIxuwIRmCVFiF6+iqIIWWReQNHk3aGHm1FaGy+GG+c6niWC408
+	DKWDsCMcsvRcoLoqRh0t7w+0RKYz0nKnDK21KME3IDpsRD/ZjJa5
+X-Gm-Gg: ASbGnctmW4aQD+9oPb6y0aQH40TXDxCnJnGC5LkxI/1ilmsBU3GfUpMQiLrjic4gI7/
+	qk6f9IYgHkEMjurtdUQhHQTqo5P2f+wH6qgwEjJQ9SJIIB7OthVL54hegS9MsA3aj6hRvl2k0uf
+	XFkRvcvYeW2DKxHNpKJtlkikfILor0/GXQ73/c1Ky9/AhwtSMIslDPOxnoBEPhN31AWm4MpHAkm
+	TrSc3eFkEwelBumOKLNeNejWLHI36jjqdmRRXbTuYbakoM=
+X-Google-Smtp-Source: AGHT+IF50iamtynxwVleVNAyS8mxO44RNkBtHV9bN/5WAHxvooRDGqm4UnZoDFbT5fV4mFafHkIg+Q==
+X-Received: by 2002:a17:903:1206:b0:216:59ed:1ab0 with SMTP id d9443c01a7336-21a83f5d8c3mr269255565ad.27.1736779057926;
+        Mon, 13 Jan 2025 06:37:37 -0800 (PST)
+Received: from ws.. ([103.167.140.11])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21a9f155e00sm54328715ad.103.2025.01.13.06.37.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Jan 2025 06:37:37 -0800 (PST)
+From: Xiao Liang <shaw.leon@gmail.com>
+To: netdev@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Jakub Kicinski <kuba@kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	David Ahern <dsahern@kernel.org>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Frank Wunderlich <frank-w@public-files.de>,
-	Daniel Golle <daniel@makrotopia.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org
-Subject: Re: [PATCH RFC net-next] net: phylink: always config mac for
- (delayed) phy
-Message-ID: <Z3-Tz5WdLCat91vm@shell.armlinux.org.uk>
-References: <20250107123615.161095-1-ericwouds@gmail.com>
- <Z30iUj6DE9-fRp0n@shell.armlinux.org.uk>
- <4b9b2a9a-061b-43ad-b402-a49aee317f41@gmail.com>
- <Z31CJS1YUvPGiEXs@shell.armlinux.org.uk>
- <98234080-946e-4b36-832f-113b185e7bca@gmail.com>
+	Paolo Abeni <pabeni@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Simon Horman <horms@kernel.org>,
+	Shuah Khan <shuah@kernel.org>,
+	Donald Hunter <donald.hunter@gmail.com>,
+	Alexander Aring <alex.aring@gmail.com>,
+	Stefan Schmidt <stefan@datenfreihafen.org>,
+	Miquel Raynal <miquel.raynal@bootlin.com>,
+	Steffen Klassert <steffen.klassert@secunet.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-rdma@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	osmocom-net-gprs@lists.osmocom.org,
+	bpf@vger.kernel.org,
+	linux-ppp@vger.kernel.org,
+	wireguard@lists.zx2c4.com,
+	linux-wireless@vger.kernel.org,
+	b.a.t.m.a.n@lists.open-mesh.org,
+	bridge@lists.linux.dev,
+	linux-wpan@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net-next v8 00/11] net: Improve netns handling in rtnetlink
+Date: Mon, 13 Jan 2025 22:37:08 +0800
+Message-ID: <20250113143719.7948-1-shaw.leon@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98234080-946e-4b36-832f-113b185e7bca@gmail.com>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 09, 2025 at 09:56:17AM +0100, Eric Woudstra wrote:
-> So I've narrowed down the problem a bit:
-> 
-> At first state->link is set to true, while looking at the bmsr.
-> 
-> But because linkmode_test_bit(fd_bit, state->advertising) and
-> linkmode_test_bit(fd_bit, state->lp_advertising) are both false,
-> state->link is set to false after looking at the bmsr.
+This patch series includes some netns-related improvements and fixes for
+rtnetlink, to make link creation more intuitive:
 
-We shouldn't be getting that far if aneg isn't being used. The problem
-is this is no longer sufficient:
+ 1) Creating link in another net namespace doesn't conflict with link
+    names in current one.
+ 2) Refector rtnetlink link creation. Create link in target namespace
+    directly.
 
-        if (!state->link || !linkmode_test_bit(ETHTOOL_LINK_MODE_Autoneg_BIT,
-                                               state->advertising))
-                return;
+So that
 
-since whether we use aneg or not now depends on state other than just
-the Autoneg bit. It isn't going to be a simple fix, because we need
-the PCS neg_mode here, but we don't have it as an argument to the
-.pcs_get_state() method. I'll look at what we can do for this today.
+  # ip link add netns ns1 link-netns ns2 tun0 type gre ...
+
+will create tun0 in ns1, rather than create it in ns2 and move to ns1.
+And don't conflict with another interface named "tun0" in current netns.
+
+Patch 01 serves for 1) to avoids link name conflict in different netns.
+
+To achieve 2), there're mainly 3 steps:
+
+ - Patch 02 packs newlink() parameters into a struct, including
+   the original "src_net" along with more netns context. No semantic
+   changes are introduced.
+ - Patch 03 ~ 07 converts device drivers to use the explicit netns
+   extracted from params.
+ - Patch 08 ~ 09 removes the old netns parameter, and converts
+   rtnetlink to create device in target netns directly.
+
+Patch 10 ~ 11 adds some tests for link name and link netns.
+
+
+BTW please note there're some issues found in current code:
+
+- In amt_newlink() drivers/net/amt.c:
+
+    amt->net = net;
+    ...
+    amt->stream_dev = dev_get_by_index(net, ...
+
+  Uses net, but amt_lookup_upper_dev() only searches in dev_net.
+  So the AMT device may not be properly deleted if it's in a different
+  netns from lower dev.
+
+- In gtp_newlink() in drivers/net/gtp.c:
+
+    gtp->net = src_net;
+    ...
+    gn = net_generic(dev_net(dev), gtp_net_id);
+    list_add_rcu(&gtp->list, &gn->gtp_dev_list);
+
+  Uses src_net, but priv is linked to list in dev_net. So it may not be
+  properly deleted on removal of link netns.
+
+- In pfcp_newlink() in drivers/net/pfcp.c:
+
+    pfcp->net = net;
+    ...
+    pn = net_generic(dev_net(dev), pfcp_net_id);
+    list_add_rcu(&pfcp->list, &pn->pfcp_dev_list);
+
+  Same as above.
+
+- In lowpan_newlink() in net/ieee802154/6lowpan/core.c:
+
+    wdev = dev_get_by_index(dev_net(ldev), nla_get_u32(tb[IFLA_LINK]));
+
+  Looks for IFLA_LINK in dev_net, but in theory the ifindex is defined
+  in link netns.
+
+
+Kuniyuki has a patchset to address the issues of gtp and pfcp:
+https://lore.kernel.org/netdev/20250110014754.33847-1-kuniyu@amazon.com/
+
+---
+
+v8:
+ - Move dev and ext_ack out from param struct.
+ - Validate link_net and dev_net are identical for 6lowpan.
+
+v7:
+ link: https://lore.kernel.org/all/20250104125732.17335-1-shaw.leon@gmail.com/
+ - Add selftest kconfig.
+ - Remove a duplicated test of ip6gre.
+
+v6:
+ link: https://lore.kernel.org/all/20241218130909.2173-1-shaw.leon@gmail.com/
+ - Split prototype, driver and rtnetlink changes.
+ - Add more tests for link netns.
+ - Fix IPv6 tunnel net overwriten in ndo_init().
+ - Reorder variable declarations.
+ - Exclude a ip_tunnel-specific patch.
+
+v5:
+ link: https://lore.kernel.org/all/20241209140151.231257-1-shaw.leon@gmail.com/
+ - Fix function doc in batman-adv.
+ - Include peer_net in rtnl newlink parameters.
+
+v4:
+ link: https://lore.kernel.org/all/20241118143244.1773-1-shaw.leon@gmail.com/
+ - Pack newlink() parameters to a single struct.
+ - Use ynl async_msg_queue.empty() in selftest.
+
+v3:
+ link: https://lore.kernel.org/all/20241113125715.150201-1-shaw.leon@gmail.com/
+ - Drop "netns_atomic" flag and module parameter. Add netns parameter to
+   newlink() instead, and convert drivers accordingly.
+ - Move python NetNSEnter helper to net selftest lib.
+
+v2:
+ link: https://lore.kernel.org/all/20241107133004.7469-1-shaw.leon@gmail.com/
+ - Check NLM_F_EXCL to ensure only link creation is affected.
+ - Add self tests for link name/ifindex conflict and notifications
+   in different netns.
+ - Changes in dummy driver and ynl in order to add the test case.
+
+v1:
+ link: https://lore.kernel.org/all/20241023023146.372653-1-shaw.leon@gmail.com/
+
+
+
+Xiao Liang (11):
+  rtnetlink: Lookup device in target netns when creating link
+  rtnetlink: Pack newlink() params into struct
+  net: Use link netns in newlink() of rtnl_link_ops
+  ieee802154: 6lowpan: Validate link netns in newlink() of rtnl_link_ops
+  net: ip_tunnel: Use link netns in newlink() of rtnl_link_ops
+  net: ipv6: Use link netns in newlink() of rtnl_link_ops
+  net: xfrm: Use link netns in newlink() of rtnl_link_ops
+  rtnetlink: Remove "net" from newlink params
+  rtnetlink: Create link directly in target net namespace
+  selftests: net: Add python context manager for netns entering
+  selftests: net: Add test cases for link and peer netns
+
+ drivers/infiniband/ulp/ipoib/ipoib_netlink.c  |   9 +-
+ drivers/net/amt.c                             |  11 +-
+ drivers/net/bareudp.c                         |   9 +-
+ drivers/net/bonding/bond_netlink.c            |   6 +-
+ drivers/net/can/dev/netlink.c                 |   4 +-
+ drivers/net/can/vxcan.c                       |   7 +-
+ .../ethernet/qualcomm/rmnet/rmnet_config.c    |   9 +-
+ drivers/net/geneve.c                          |   9 +-
+ drivers/net/gtp.c                             |   8 +-
+ drivers/net/ipvlan/ipvlan.h                   |   3 +-
+ drivers/net/ipvlan/ipvlan_main.c              |   8 +-
+ drivers/net/ipvlan/ipvtap.c                   |   6 +-
+ drivers/net/macsec.c                          |   9 +-
+ drivers/net/macvlan.c                         |   7 +-
+ drivers/net/macvtap.c                         |   7 +-
+ drivers/net/netkit.c                          |   7 +-
+ drivers/net/pfcp.c                            |   7 +-
+ drivers/net/ppp/ppp_generic.c                 |   9 +-
+ drivers/net/team/team_core.c                  |   6 +-
+ drivers/net/veth.c                            |   7 +-
+ drivers/net/vrf.c                             |   5 +-
+ drivers/net/vxlan/vxlan_core.c                |   9 +-
+ drivers/net/wireguard/device.c                |   7 +-
+ drivers/net/wireless/virtual/virt_wifi.c      |   8 +-
+ drivers/net/wwan/wwan_core.c                  |  16 +-
+ include/net/ip_tunnels.h                      |   5 +-
+ include/net/rtnetlink.h                       |  40 ++++-
+ net/8021q/vlan_netlink.c                      |   9 +-
+ net/batman-adv/soft-interface.c               |   9 +-
+ net/bridge/br_netlink.c                       |   6 +-
+ net/caif/chnl_net.c                           |   5 +-
+ net/core/rtnetlink.c                          |  33 ++--
+ net/hsr/hsr_netlink.c                         |  12 +-
+ net/ieee802154/6lowpan/core.c                 |   7 +-
+ net/ipv4/ip_gre.c                             |  24 ++-
+ net/ipv4/ip_tunnel.c                          |  10 +-
+ net/ipv4/ip_vti.c                             |   9 +-
+ net/ipv4/ipip.c                               |   9 +-
+ net/ipv6/ip6_gre.c                            |  30 ++--
+ net/ipv6/ip6_tunnel.c                         |  19 ++-
+ net/ipv6/ip6_vti.c                            |  15 +-
+ net/ipv6/sit.c                                |  17 ++-
+ net/xfrm/xfrm_interface_core.c                |  15 +-
+ tools/testing/selftests/net/Makefile          |   1 +
+ tools/testing/selftests/net/config            |   5 +
+ .../testing/selftests/net/lib/py/__init__.py  |   2 +-
+ tools/testing/selftests/net/lib/py/netns.py   |  18 +++
+ tools/testing/selftests/net/link_netns.py     | 141 ++++++++++++++++++
+ tools/testing/selftests/net/netns-name.sh     |  10 ++
+ 49 files changed, 479 insertions(+), 165 deletions(-)
+ create mode 100755 tools/testing/selftests/net/link_netns.py
 
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
+2.47.1
+
