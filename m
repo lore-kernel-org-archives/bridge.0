@@ -1,60 +1,62 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3085C1C5D66
-	for <bridge@lists.linux.dev>; Mon, 10 Feb 2025 13:30:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2CEA158875
+	for <bridge@lists.linux.dev>; Mon, 10 Feb 2025 13:30:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739194219; cv=none; b=JK8L9cKAp/aNmScS3MoYAB2rPLQHqitZAXGD06vrfXV3z9CcCm70G7kcJ4I8jNyrt6FUNnKMB0hTxhlxukWK613DHXAfm8W5LdManqKqSR78XJzfERt0TtB0xK4bQV4kGd4Sb7zYvdsMHRhECmny+8MgNgH7zEzDYLnquQuqlWU=
+	t=1739194228; cv=none; b=nvufuqOpFxsYeLuRVvC/UVyElBT1E/dDPsvhzpeDLyov6rsmYIh8BvL8OX2Oa1XFiIwpHJGL+gN916qmrqKJsGAIJbMcws00oOdzuD5wv6t4U6Ts1+bLIynRnLFSGAEUj463SAfLT1/LYLPHhD1b0D0Q7HDZa2JjpNRHw85ja0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739194219; c=relaxed/simple;
-	bh=JWT9jVfwqIPjzXgKMkQZPpiZ8wjCF2EonWQINvODLL4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HVd8+RlFtrPeMVIseaGS6Y8uzssSqo46ohfwMhgXtEkmx6DLNULWVPB8pOo8KjT7+Nd7A2AXcN0YlxtTYfe73dVd7iikRZaghsO8DJm7bwjk3EMXiuG0+MtuGK07Mto2b3IiZw20ezN80Mwy9CUno8PnPt493+GdNl01aiOOTxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PRMyzHtJ; arc=none smtp.client-ip=209.85.214.175
+	s=arc-20240116; t=1739194228; c=relaxed/simple;
+	bh=GjfoXCki/WJvjmnx4S+xzsgMh0oaUaBRvXwm00gIc9Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bbWboGAKTm32NyAdgrzwDkZqBupbAWBILZiApFkRbiPdwER/o/whP/37wXVALu1bkvZWzJl8gY8rY8VZMEQcBh6xyF0dfOp0a5wsFRNrQX/4Ga5XN43DcNfCRyE/YBFrAL0dhjWu3myLNYJAKFHiB0Pdk/CJLNFOZw1I96TIog0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q9egOxtN; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PRMyzHtJ"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-21f6d264221so21855445ad.1
-        for <bridge@lists.linux.dev>; Mon, 10 Feb 2025 05:30:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q9egOxtN"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-21f3c119fe6so95782205ad.0
+        for <bridge@lists.linux.dev>; Mon, 10 Feb 2025 05:30:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739194217; x=1739799017; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y0kuY/qnmLWcTpq+Gs4oe5wYG4aWX3Vy2rs59JLm5Zc=;
-        b=PRMyzHtJuXHG8F7uyh4AlPNJaYUOj0b+dNWxl3ERSwlG7VrAAE6UAo9qhQ2nL2FulL
-         ml9Uo4GbEtMW+08xji1toJyiAXsMZ7yBgAYuZjlqOTo+1RHobr+IQlEDEcXijTydDIre
-         +gqFIsqjmbQIukRU1Rl20ekgKTh1crTCWvvWx5mUAc3j6DsGLwvoz5dd1TLjirf/Djt3
-         OdNIIxltwi0K5biLwgSb4DHvRwm9rxlTJui2eYGj2g1f5c6XMAI4nW2y6uVnl7/HAYzG
-         tXDp0WMZCMejBVYxCKwLTVGQLWwWpb8On6Rl8gUyhHdA4ShUde/H/Y773xqNzReQDuAp
-         DOIA==
+        d=gmail.com; s=20230601; t=1739194226; x=1739799026; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1pf9SNTQbR6dSoBCEAV6dPuN8Gz1/YecnHQoz2AJqpo=;
+        b=Q9egOxtN98uY2n8OdVIYfvObTLiaMWUwifIte8U6ozd5Hha13KrpRUyswmir3zhMfM
+         EtOQBxRCnUhjYf9UWTu57E8izgwEbwR16EeW7MAFJLxJ+gsDPOcBMzcE5/i0BqZera5C
+         X2jdougJ0uNy28F7mhe+q088sDkH2DbikrSOmrvqlcfXmtofnvXLQnzPMskXqUKhdcIF
+         wg7wTqZuSFxupb5gXzuRTgfqSkQMkVnw4TJXEgRrB55TWscATjWBK8P42JYoEMQKAFRg
+         PYSdizxkno/96H8kLApYGUHSmJ1WoNZ265cbfXQZxcngMXDnGbkLl3Iw1wV/T+cgTpOI
+         V/og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739194217; x=1739799017;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Y0kuY/qnmLWcTpq+Gs4oe5wYG4aWX3Vy2rs59JLm5Zc=;
-        b=Fr+HjzVqeqTHpSW1rQA8KlsJEhIm6Af5R+L+W5G9Lxb6g23XqEKhHIUjK5jLUDLz+T
-         5ZmyXxlp/TRCJLgmWvE3yebY5dk2YEGIIqpuD+dZhJgvuRSvXHyljEPlkkPSpNDIjrZB
-         kSnHpr4DPaz9Ao6U2ey3nBwkY9/hpLd28Gtit+8ykaBnEQqqWjoWJQwn5xxjgoPC/7tq
-         PTR0CK3yuwr0onkcnCu9/GmvtzPgzF4/ahgtXtbOFSrNQmbqN+buP5JIfrhk1bxuw7nc
-         BSVB+pRu8dAY2U7yMnsonhVNwmKngBblVmdaZB5oEcrM5bM49hvmYowMdl3SyBZc31MW
-         1aIw==
-X-Forwarded-Encrypted: i=1; AJvYcCXhZPHRN6NHQxiTXQwmEtv0ySIhz/zw8VYuT7f5KaKOIhdYwLn5eIcf1GJrI/5kCmtRELIilHM=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzshDlegif9u6Wvxe0MZPqiuQIx88PYvsik5SG7nEtVOvLsIlR
-	3J8xhUULvVCW/E23HTZa5R1SQtZqxVUStQtcpj6RCrMSzFYjyYRq
-X-Gm-Gg: ASbGncugJCojYBmcokPv6RAhFpSk84Wet9ZcogP9/NJU0sFnWsrplVbbZJoAhFzNymF
-	8N5MNNOPxXLuQ0cBFUhFygCM5DiMGFW5fkngQU8S1OMPV938UxCnl1rNjzldW6zBWlDZVwrrQqB
-	Qj6iXu0RW48G5qoaODBN0jPZ4fmT4ZfPUErKSVMsb8BFHsYEwiKXd0/qH943wXGHr33ENVfZm7e
-	34uZsz/tDnE2Dupw+dtifMr/WOEuPtIwk/q7VSXgQ7YOFb87QBaqawgt4g6VXOx9GFDotwf+dnV
-	Wwz5RA==
-X-Google-Smtp-Source: AGHT+IEH5QCCl4lI0axSO2k1baOf7QV120615EUg7vMmek14klRWGmTSu58W64P2a3hO1mcauSS1MQ==
-X-Received: by 2002:a17:903:2309:b0:215:a04a:89d5 with SMTP id d9443c01a7336-21f4e1cf038mr233204165ad.2.1739194216829;
-        Mon, 10 Feb 2025 05:30:16 -0800 (PST)
+        d=1e100.net; s=20230601; t=1739194226; x=1739799026;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1pf9SNTQbR6dSoBCEAV6dPuN8Gz1/YecnHQoz2AJqpo=;
+        b=SuqICpFgsmq3kPm3dF6GgtNz/5ff1iAQYB5/WN+VIxqueJfCiJNKyIO0JmnRH60fHI
+         KxHCPGK+pxz5BsBAV5QlpsJFngqIw00vEKIG6zZObT8hCqia6emMcccZE1bAQs/Uwh7U
+         1OHIbVKYpfXVmJWhLsEqszUOxtP+qCXpv+b66QrLw9OtcBpSg0mktsTnUyaXJMQ9yOm3
+         ZAZfsoNWOrLl9xk4kwNibTb2oYejt5AENaDYFiZ9QIuO9485KRBb7g7e9EllVof+IFTl
+         qNtad4ayGvdJl+Q0gH2FL/QEBpDuccV1NP8VhEHAv19AXFe+8YTzu1UQNwZ+g+oQnYcu
+         NKog==
+X-Forwarded-Encrypted: i=1; AJvYcCXBP3NI5UAPCnBNOeFizWld5vMMllFQnMbw4DEXW9o7Vp2PFGexq1HVFL6MoCtEpqrzOrz2pPk=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxbbZKLXzm4IzRpD/pmm5+XGMU7aqysHHtT7CHI+8kQbol1DYGI
+	aSbhhM9saNrMwDXoqV5Ua8frBUsi43sCa/4A2Ry72KpfrdsVgjkO
+X-Gm-Gg: ASbGncvOpPVBVKSri2JEnQ5eB4YtYljmkmQWhgGNNym3L+sqyLe7qOMnxVEHYomTEDA
+	X3AIfm0oYEhHFoniEXaWYqEOINLCiqAERcT+PpZSHdmlG7UtTm2sW1pVvcYnWqVrv+uDEdcY7m9
+	ZPiGdxtjmQFEkKGA+nV4TT2+tiRSAv0MQS7+1RaSNu8+JINdm89+yambj7T5h0cV1S8ZnYPglQk
+	4oolxOChnCdy41IkevlLB0D+qlhMUASPOq+kni0Wkhc/AOWKy7op+9+uUgbEYcXlfy4OcT/K4To
+	tN7bpw==
+X-Google-Smtp-Source: AGHT+IHnIbIec9duqjv7lrtmGReNVQPeBtoczKplB0CDd7UUW+fM90Yj1MwAFqvvYB9Zquhv6onO5g==
+X-Received: by 2002:a17:903:240f:b0:216:7cde:523 with SMTP id d9443c01a7336-21f4e739f99mr242405235ad.32.1739194225944;
+        Mon, 10 Feb 2025 05:30:25 -0800 (PST)
 Received: from ws.. ([103.167.140.11])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21f3653af3bsm78799445ad.57.2025.02.10.05.30.08
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-21f3653af3bsm78799445ad.57.2025.02.10.05.30.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Feb 2025 05:30:16 -0800 (PST)
+        Mon, 10 Feb 2025 05:30:25 -0800 (PST)
 From: Xiao Liang <shaw.leon@gmail.com>
 To: netdev@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
@@ -84,10 +86,12 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	linux-wpan@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v9 00/11] net: Improve netns handling in rtnetlink
-Date: Mon, 10 Feb 2025 21:29:51 +0800
-Message-ID: <20250210133002.883422-1-shaw.leon@gmail.com>
+Subject: [PATCH net-next v9 01/11] rtnetlink: Lookup device in target netns when creating link
+Date: Mon, 10 Feb 2025 21:29:52 +0800
+Message-ID: <20250210133002.883422-2-shaw.leon@gmail.com>
 X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250210133002.883422-1-shaw.leon@gmail.com>
+References: <20250210133002.883422-1-shaw.leon@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -96,175 +100,54 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch series includes some netns-related improvements and fixes for
-rtnetlink, to make link creation more intuitive:
+When creating link, lookup for existing device in target net namespace
+instead of current one.
+For example, two links created by:
 
- 1) Creating link in another net namespace doesn't conflict with link
-    names in current one.
- 2) Refector rtnetlink link creation. Create link in target namespace
-    directly.
+  # ip link add dummy1 type dummy
+  # ip link add netns ns1 dummy1 type dummy
 
-So that
+should have no conflict since they are in different namespaces.
 
-  # ip link add netns ns1 link-netns ns2 tun0 type gre ...
-
-will create tun0 in ns1, rather than create it in ns2 and move to ns1.
-And don't conflict with another interface named "tun0" in current netns.
-
-Patch 01 avoids link name conflict in different netns.
-
-To achieve 2), there're mainly 3 steps:
-
- - Patch 02 packs newlink() parameters into a struct, including
-   the original "src_net" along with more netns context. No semantic
-   changes are introduced.
- - Patch 03 ~ 07 converts device drivers to use the explicit netns
-   extracted from params.
- - Patch 08 ~ 09 removes the old netns parameter, and converts
-   rtnetlink to create device in target netns directly.
-
-Patch 10 ~ 11 adds some tests for link name and link netns.
-
-
-BTW please note there're some issues found in current code:
-
-- In amt_newlink() drivers/net/amt.c:
-
-    amt->net = net;
-    ...
-    amt->stream_dev = dev_get_by_index(net, ...
-
-  Uses net, but amt_lookup_upper_dev() only searches in dev_net.
-  So the AMT device may not be properly deleted if it's in a different
-  netns from lower dev.
-
-- In lowpan_newlink() in net/ieee802154/6lowpan/core.c:
-
-    wdev = dev_get_by_index(dev_net(ldev), nla_get_u32(tb[IFLA_LINK]));
-
-  Looks for IFLA_LINK in dev_net, but in theory the ifindex is defined
-  in link netns.
-
-And thanks to Kuniyuki for fixing related issues in gtp and pfcp:
-https://lore.kernel.org/netdev/20250110014754.33847-1-kuniyu@amazon.com/
-
+Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 ---
+ net/core/rtnetlink.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-v9:
- - Change the prototype of macvlan_common_newlink().
- - Minor fixes of coding style and local variables.
-
-v8:
- link: https://lore.kernel.org/all/20250113143719.7948-1-shaw.leon@gmail.com/
- - Move dev and ext_ack out from param struct.
- - Validate link_net and dev_net are identical for 6lowpan.
-
-v7:
- link: https://lore.kernel.org/all/20250104125732.17335-1-shaw.leon@gmail.com/
- - Add selftest kconfig.
- - Remove a duplicated test of ip6gre.
-
-v6:
- link: https://lore.kernel.org/all/20241218130909.2173-1-shaw.leon@gmail.com/
- - Split prototype, driver and rtnetlink changes.
- - Add more tests for link netns.
- - Fix IPv6 tunnel net overwriten in ndo_init().
- - Reorder variable declarations.
- - Exclude a ip_tunnel-specific patch.
-
-v5:
- link: https://lore.kernel.org/all/20241209140151.231257-1-shaw.leon@gmail.com/
- - Fix function doc in batman-adv.
- - Include peer_net in rtnl newlink parameters.
-
-v4:
- link: https://lore.kernel.org/all/20241118143244.1773-1-shaw.leon@gmail.com/
- - Pack newlink() parameters to a single struct.
- - Use ynl async_msg_queue.empty() in selftest.
-
-v3:
- link: https://lore.kernel.org/all/20241113125715.150201-1-shaw.leon@gmail.com/
- - Drop "netns_atomic" flag and module parameter. Add netns parameter to
-   newlink() instead, and convert drivers accordingly.
- - Move python NetNSEnter helper to net selftest lib.
-
-v2:
- link: https://lore.kernel.org/all/20241107133004.7469-1-shaw.leon@gmail.com/
- - Check NLM_F_EXCL to ensure only link creation is affected.
- - Add self tests for link name/ifindex conflict and notifications
-   in different netns.
- - Changes in dummy driver and ynl in order to add the test case.
-
-v1:
- link: https://lore.kernel.org/all/20241023023146.372653-1-shaw.leon@gmail.com/
-
-
-Xiao Liang (11):
-  rtnetlink: Lookup device in target netns when creating link
-  rtnetlink: Pack newlink() params into struct
-  net: Use link netns in newlink() of rtnl_link_ops
-  ieee802154: 6lowpan: Validate link netns in newlink() of rtnl_link_ops
-  net: ip_tunnel: Use link netns in newlink() of rtnl_link_ops
-  net: ipv6: Use link netns in newlink() of rtnl_link_ops
-  net: xfrm: Use link netns in newlink() of rtnl_link_ops
-  rtnetlink: Remove "net" from newlink params
-  rtnetlink: Create link directly in target net namespace
-  selftests: net: Add python context manager for netns entering
-  selftests: net: Add test cases for link and peer netns
-
- drivers/infiniband/ulp/ipoib/ipoib_netlink.c  |   9 +-
- drivers/net/amt.c                             |  11 +-
- drivers/net/bareudp.c                         |   9 +-
- drivers/net/bonding/bond_netlink.c            |   6 +-
- drivers/net/can/dev/netlink.c                 |   4 +-
- drivers/net/can/vxcan.c                       |   7 +-
- .../ethernet/qualcomm/rmnet/rmnet_config.c    |   9 +-
- drivers/net/geneve.c                          |   9 +-
- drivers/net/gtp.c                             |  10 +-
- drivers/net/ipvlan/ipvlan.h                   |   3 +-
- drivers/net/ipvlan/ipvlan_main.c              |   8 +-
- drivers/net/ipvlan/ipvtap.c                   |   6 +-
- drivers/net/macsec.c                          |   9 +-
- drivers/net/macvlan.c                         |  21 +--
- drivers/net/macvtap.c                         |   6 +-
- drivers/net/netkit.c                          |  14 +-
- drivers/net/pfcp.c                            |   9 +-
- drivers/net/ppp/ppp_generic.c                 |   9 +-
- drivers/net/team/team_core.c                  |   6 +-
- drivers/net/veth.c                            |   7 +-
- drivers/net/vrf.c                             |   5 +-
- drivers/net/vxlan/vxlan_core.c                |   9 +-
- drivers/net/wireguard/device.c                |   7 +-
- drivers/net/wireless/virtual/virt_wifi.c      |   8 +-
- drivers/net/wwan/wwan_core.c                  |  16 +-
- include/linux/if_macvlan.h                    |   6 +-
- include/net/ip_tunnels.h                      |   5 +-
- include/net/rtnetlink.h                       |  40 ++++-
- net/8021q/vlan_netlink.c                      |   9 +-
- net/batman-adv/soft-interface.c               |   9 +-
- net/bridge/br_netlink.c                       |   6 +-
- net/caif/chnl_net.c                           |   5 +-
- net/core/rtnetlink.c                          |  34 +++--
- net/hsr/hsr_netlink.c                         |  12 +-
- net/ieee802154/6lowpan/core.c                 |   7 +-
- net/ipv4/ip_gre.c                             |  22 ++-
- net/ipv4/ip_tunnel.c                          |  10 +-
- net/ipv4/ip_vti.c                             |   9 +-
- net/ipv4/ipip.c                               |   9 +-
- net/ipv6/ip6_gre.c                            |  30 ++--
- net/ipv6/ip6_tunnel.c                         |  19 ++-
- net/ipv6/ip6_vti.c                            |  15 +-
- net/ipv6/sit.c                                |  17 ++-
- net/xfrm/xfrm_interface_core.c                |  15 +-
- tools/testing/selftests/net/Makefile          |   1 +
- tools/testing/selftests/net/config            |   5 +
- .../testing/selftests/net/lib/py/__init__.py  |   2 +-
- tools/testing/selftests/net/lib/py/netns.py   |  18 +++
- tools/testing/selftests/net/link_netns.py     | 141 ++++++++++++++++++
- tools/testing/selftests/net/netns-name.sh     |  10 ++
- 50 files changed, 494 insertions(+), 179 deletions(-)
- create mode 100755 tools/testing/selftests/net/link_netns.py
-
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index cb7fad8d1f95..3b3398283a8f 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3866,20 +3866,26 @@ static int __rtnl_newlink(struct sk_buff *skb, struct nlmsghdr *nlh,
+ {
+ 	struct nlattr ** const tb = tbs->tb;
+ 	struct net *net = sock_net(skb->sk);
++	struct net *device_net;
+ 	struct net_device *dev;
+ 	struct ifinfomsg *ifm;
+ 	bool link_specified;
+ 
++	/* When creating, lookup for existing device in target net namespace */
++	device_net = (nlh->nlmsg_flags & NLM_F_CREATE) &&
++		     (nlh->nlmsg_flags & NLM_F_EXCL) ?
++		     tgt_net : net;
++
+ 	ifm = nlmsg_data(nlh);
+ 	if (ifm->ifi_index > 0) {
+ 		link_specified = true;
+-		dev = __dev_get_by_index(net, ifm->ifi_index);
++		dev = __dev_get_by_index(device_net, ifm->ifi_index);
+ 	} else if (ifm->ifi_index < 0) {
+ 		NL_SET_ERR_MSG(extack, "ifindex can't be negative");
+ 		return -EINVAL;
+ 	} else if (tb[IFLA_IFNAME] || tb[IFLA_ALT_IFNAME]) {
+ 		link_specified = true;
+-		dev = rtnl_dev_get(net, tb);
++		dev = rtnl_dev_get(device_net, tb);
+ 	} else {
+ 		link_specified = false;
+ 		dev = NULL;
 -- 
 2.48.1
 
