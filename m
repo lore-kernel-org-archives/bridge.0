@@ -1,113 +1,168 @@
-Received: from smtp-fw-6001.amazon.com (smtp-fw-6001.amazon.com [52.95.48.154])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FF4D205ACF
-	for <bridge@lists.linux.dev>; Thu, 13 Feb 2025 07:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.95.48.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3343520B209
+	for <bridge@lists.linux.dev>; Thu, 13 Feb 2025 08:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739430358; cv=none; b=scZ5fzCoR0rrTJ2svLxZYsBQOKD1ka3TF1npBlaTiS9SPWevyCf8aIEZ3tSvNKnVftUdHUyKIi/KSZIpy2kkZpZaw6np+wA6b5r3ddMxOu+3gSBrKjBTc0fzz1Fb9HqYntRac7J1hZ/GsQVrWW0lEHV8K/+SIjt7stcVMBBJgo0=
+	t=1739435281; cv=none; b=a6HwnK7Kh9KwsNwt+64cL7o5SbjLahuymQFZYY35YgzUV3iuZQ+sp65UVBRaINaDOvWbAj58aqBocPCIPmzu9+UF2J/AziyKUS3MLsDVaI+QclR86wHsYE/YipYV0X/CfDE8oAadxYSCRXsmWEYTABp7TidsrSmig677gdyGopg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739430358; c=relaxed/simple;
-	bh=kmgtqvckZ0e6iFNH8XDXdMK5sQI2GFWf7IJ95MBADfA=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=K5gWreDSseocFp+5sW6swJWeKNKPHwe+tp2E7y4Ef59dfBikrDYmZzKPoJTvv5Y4A7lJ2C6/luZTV0J4Z2jlSuDgaf9D5D67oAhubxb+nN0W/cxfA7UwQeBmlfSLkgj1UAqfFHKWc89YkWCKXditO9czA0CailBD7mF+LixWabY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=Wwmobb+O; arc=none smtp.client-ip=52.95.48.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1739435281; c=relaxed/simple;
+	bh=SyjaIWe3i0tkwC2EB8hBIa5rxw02yA5yYTi3aTzBhxo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nFJ9PxK9Ocrl2InyN32M57ftpwC5DqcePItvU3hPL+AZUvpE3GXkurpWEVJJGwazzmq8bqKzil/6zvl7X6N8gA2NPmunkOaBW7gtG1fK6wtjmqYgGSjqnIL1H3MG6V0NuQ0Opar/+PtTnUBfM6HX1LQnWey3obHjpYLpp1f8YfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=la9sxyeU; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="Wwmobb+O"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="la9sxyeU"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-436ce2ab251so3704355e9.1
+        for <bridge@lists.linux.dev>; Thu, 13 Feb 2025 00:27:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1739430356; x=1770966356;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=HIz1Atlqpi5tnoN7n4BPu3eHETPxx2TUlMkVpEwhuEo=;
-  b=Wwmobb+OeJaUnwvzC8qyWguE4ENhgecbc1e8iz9L0n9C76h5kFvEpdDH
-   SYd0Ywi2qVj5dKxFaku3Mx0qCjUjYYsBJ81ObmFxRbl54rX7HByfjZsAB
-   ePZmQ/KkI3OLtwLPTLi4elv/4AKdfU6d79ymo3OIODW7C3mIcqeXnDD0D
-   k=;
-X-IronPort-AV: E=Sophos;i="6.13,282,1732579200"; 
-   d="scan'208";a="462133403"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.2])
-  by smtp-border-fw-6001.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2025 07:05:51 +0000
-Received: from EX19MTAUWC001.ant.amazon.com [10.0.7.35:18133]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.32.208:2525] with esmtp (Farcaster)
- id 044845a0-eb50-4d20-a33f-ef53eec55ed0; Thu, 13 Feb 2025 07:05:50 +0000 (UTC)
-X-Farcaster-Flow-ID: 044845a0-eb50-4d20-a33f-ef53eec55ed0
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.39;
- Thu, 13 Feb 2025 07:05:50 +0000
-Received: from 6c7e67bfbae3.amazon.com (10.37.244.7) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Thu, 13 Feb 2025 07:05:42 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <shaw.leon@gmail.com>
-CC: <alex.aring@gmail.com>, <andrew+netdev@lunn.ch>,
-	<b.a.t.m.a.n@lists.open-mesh.org>, <bpf@vger.kernel.org>,
-	<bridge@lists.linux.dev>, <davem@davemloft.net>, <donald.hunter@gmail.com>,
-	<dsahern@kernel.org>, <edumazet@google.com>, <herbert@gondor.apana.org.au>,
-	<horms@kernel.org>, <kuba@kernel.org>, <kuniyu@amazon.com>,
-	<linux-can@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-kselftest@vger.kernel.org>, <linux-ppp@vger.kernel.org>,
-	<linux-rdma@vger.kernel.org>, <linux-wireless@vger.kernel.org>,
-	<linux-wpan@vger.kernel.org>, <miquel.raynal@bootlin.com>,
-	<netdev@vger.kernel.org>, <osmocom-net-gprs@lists.osmocom.org>,
-	<pabeni@redhat.com>, <shuah@kernel.org>, <stefan@datenfreihafen.org>,
-	<steffen.klassert@secunet.com>, <wireguard@lists.zx2c4.com>
-Subject: Re: [PATCH net-next v9 06/11] net: ipv6: Use link netns in newlink() of rtnl_link_ops
-Date: Thu, 13 Feb 2025 16:05:33 +0900
-Message-ID: <20250213070533.9926-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
-In-Reply-To: <20250210133002.883422-7-shaw.leon@gmail.com>
-References: <20250210133002.883422-7-shaw.leon@gmail.com>
+        d=gmail.com; s=20230601; t=1739435278; x=1740040078; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CYDCewrdvYreNRJlqbHeSMs4C/POtyIRcHlnfcP0ZCY=;
+        b=la9sxyeUOILQG726mIjwDeT0+xmer8uO2JxZQ/y/3VhWHa6F9f7rn+GOFJ/9nFdG6i
+         xsbKhdiliiXqpnwhJkdpb+b/SpBFPnB2IyscLO85cO+vpilpcoAHSopt+z+/jYnM3Nm+
+         Oyjow54j99Nx9V9YaVVKk9WAB1X3ZYrUVTrclMd4HwmTGtcmDVkdogUe0BhkWOmcIULY
+         XfRGE3NK1WkuJ9yLHa/AkekQkOxZyv9p1kg3ThlfzXqUI5vg0mwMZRTBlcZGFy6wC6SP
+         W3gC/eeMu4GMkjzsxrkfZarSEraCrG8M3aeLR9sZ1ls6CHebF9Js7tA08t9Ffwkcc1Hq
+         CJbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739435278; x=1740040078;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CYDCewrdvYreNRJlqbHeSMs4C/POtyIRcHlnfcP0ZCY=;
+        b=rGo4oKe3M8pMFwEFEKMFF01+X5Npc2xWt7Y8G95ztPRVPCVb0bPEDiRStiagwXU06s
+         03N55lmZ+HFkmIB4xUeriOhO+/dNGMCdFs6cg02bamTTTgnEtty1ff66Ux1j1aTWolps
+         X6b5Jmzf3QOXozsNE4fo1V7KptMag+7GPgp3sMgCMp+pfh6Yxun6I23EyThZV6tycZNJ
+         ROI5cXXzvjq7CuDM3ONIz79kYavujKGOdWxMcYWZSmqNHyzzdM9C1en9a5XsiebOu+12
+         2SHUzQMxCbwtxUW5ppjqABXaB6WQjQcjv5TjQSR/ehUuUyufFUdQVmVTyopXoQQ+hg7Q
+         SS4Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXVMcv5WwgYJXmeIYjz8cok6h+koNmNuV3xlGyqCaPKUJM6iOuKPSgGiv5FoIxuHgY7Pt1bIvM=@lists.linux.dev
+X-Gm-Message-State: AOJu0YykxfcuEP9+6Y/hPxsCms1mKo1ros+6w03YBUZcCrV1bl0ewMTx
+	0LLecyNTggz0QuVN4rE3q2lrzQPJf0l/ksE/vqbTgBLBhgFCXfyYoEHLxqrcnoAAm3EdjqIcCnm
+	NltvJL+7tVQUoAFv0hELT8/ZMkA8=
+X-Gm-Gg: ASbGncstxUIh4CFar8UwTPmIIpPPWDw8qd+ODlkqgVt35O89MPh03i+XUwzOE57Ma19
+	vV6x54iqXjR2APR9GVP52qcdQFLRUc2mn8QKpq8UTknuOxa45+5kYUWuuDbXGlX5wNXewPH8=
+X-Google-Smtp-Source: AGHT+IGZE6zJIuhM6pmlASWXo0USdC2hFnASTias2WRNOVzNleb2xd7k0p6fviBFvki3FKkZ15YNMXus/cLozeOxCp8=
+X-Received: by 2002:a5d:598e:0:b0:38f:21ce:aa28 with SMTP id
+ ffacd0b85a97d-38f21ceb0famr3670345f8f.36.1739435278200; Thu, 13 Feb 2025
+ 00:27:58 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D035UWA002.ant.amazon.com (10.13.139.60) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
-
+References: <20250210133002.883422-6-shaw.leon@gmail.com> <20250213062031.4547-1-kuniyu@amazon.com>
+In-Reply-To: <20250213062031.4547-1-kuniyu@amazon.com>
 From: Xiao Liang <shaw.leon@gmail.com>
-Date: Mon, 10 Feb 2025 21:29:57 +0800
-> When link_net is set, use it as link netns instead of dev_net(). This
-> prepares for rtnetlink core to create device in target netns directly,
-> in which case the two namespaces may be different.
-> 
-> Set correct netns in priv before registering device, and avoid
-> overwriting it in ndo_init() path.
-> 
-> Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
-> ---
->  net/ipv6/ip6_gre.c    | 20 ++++++++++----------
->  net/ipv6/ip6_tunnel.c | 13 ++++++++-----
->  net/ipv6/ip6_vti.c    | 10 ++++++----
->  net/ipv6/sit.c        | 11 +++++++----
->  4 files changed, 31 insertions(+), 23 deletions(-)
-> 
-> diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-> index 863852abe8ea..108600dc716f 100644
-> --- a/net/ipv6/ip6_gre.c
-> +++ b/net/ipv6/ip6_gre.c
-> @@ -1498,7 +1498,8 @@ static int ip6gre_tunnel_init_common(struct net_device *dev)
->  	tunnel = netdev_priv(dev);
->  
->  	tunnel->dev = dev;
-> -	tunnel->net = dev_net(dev);
-> +	if (!tunnel->net)
-> +		tunnel->net = dev_net(dev);
+Date: Thu, 13 Feb 2025 16:27:21 +0800
+X-Gm-Features: AWEUYZkYMDLgFWGQwQihDPwSk4qrLNJu_sLyRJOyUa3GWsERW-M3HJO2WaC6w5g
+Message-ID: <CABAhCOSqruMoMTg_=6Apo=gvnfe1j2fptADzoi=Gb8cdJqhgVw@mail.gmail.com>
+Subject: Re: [PATCH net-next v9 05/11] net: ip_tunnel: Use link netns in
+ newlink() of rtnl_link_ops
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: alex.aring@gmail.com, andrew+netdev@lunn.ch, 
+	b.a.t.m.a.n@lists.open-mesh.org, bpf@vger.kernel.org, bridge@lists.linux.dev, 
+	davem@davemloft.net, donald.hunter@gmail.com, dsahern@kernel.org, 
+	edumazet@google.com, herbert@gondor.apana.org.au, horms@kernel.org, 
+	kuba@kernel.org, linux-can@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-ppp@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-wireless@vger.kernel.org, 
+	linux-wpan@vger.kernel.org, miquel.raynal@bootlin.com, netdev@vger.kernel.org, 
+	osmocom-net-gprs@lists.osmocom.org, pabeni@redhat.com, shuah@kernel.org, 
+	stefan@datenfreihafen.org, steffen.klassert@secunet.com, 
+	wireguard@lists.zx2c4.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Same question as patch 5 for here and other parts.
-Do we need this check and assignment ?
+On Thu, Feb 13, 2025 at 2:20=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.co=
+m> wrote:
+>
+> From: Xiao Liang <shaw.leon@gmail.com>
+> Date: Mon, 10 Feb 2025 21:29:56 +0800
+> > When link_net is set, use it as link netns instead of dev_net(). This
+> > prepares for rtnetlink core to create device in target netns directly,
+> > in which case the two namespaces may be different.
+> >
+> > Convert common ip_tunnel_newlink() to accept an extra link netns
+> > argument. Don't overwrite ip_tunnel.net in ip_tunnel_init().
+>
+> Why... ?  see a comment below.
+>
+>
+> [...]
+> > diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+> > index 1fe9b13d351c..26d15f907551 100644
+> > --- a/net/ipv4/ip_gre.c
+> > +++ b/net/ipv4/ip_gre.c
+> > @@ -1413,7 +1413,8 @@ static int ipgre_newlink(struct net_device *dev,
+> >       err =3D ipgre_netlink_parms(dev, data, tb, &p, &fwmark);
+> >       if (err < 0)
+> >               return err;
+> > -     return ip_tunnel_newlink(dev, tb, &p, fwmark);
+> > +     return ip_tunnel_newlink(params->link_net ? : dev_net(dev), dev, =
+tb, &p,
+>
+> This is duplicate at all call sites, let's move it into
+> ip_tunnel_newlink() by passing params.
+>
 
-ip6gre_newlink_common
--> nt->net = dev_net(dev)
--> register_netdevice
-  -> ndo_init / ip6gre_tunnel_init()
-    -> ip6gre_tunnel_init_common
-      -> tunnel->net = dev_net(dev)
+Existing tunnels use `params->link_net ? : dev_net(dev)` for
+backward compatibility. But I think we can leave the choice of netns
+to future tunnel drivers because rtnl_newlink_link_net() is preferred
+in general.
+
+>
+> > +                              fwmark);
+> >  }
+> >
+> >  static int erspan_newlink(struct net_device *dev,
+> >
+> >
+> > diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+> > index 09b73acf037a..618a50d5c0c2 100644
+> > --- a/net/ipv4/ip_tunnel.c
+> > +++ b/net/ipv4/ip_tunnel.c
+> > @@ -1213,11 +1213,11 @@ void ip_tunnel_delete_nets(struct list_head *ne=
+t_list, unsigned int id,
+> >  }
+> >  EXPORT_SYMBOL_GPL(ip_tunnel_delete_nets);
+> >
+> > -int ip_tunnel_newlink(struct net_device *dev, struct nlattr *tb[],
+> > -                   struct ip_tunnel_parm_kern *p, __u32 fwmark)
+> > +int ip_tunnel_newlink(struct net *net, struct net_device *dev,
+> > +                   struct nlattr *tb[], struct ip_tunnel_parm_kern *p,
+> > +                   __u32 fwmark)
+> >  {
+> >       struct ip_tunnel *nt;
+> > -     struct net *net =3D dev_net(dev);
+> >       struct ip_tunnel_net *itn;
+> >       int mtu;
+> >       int err;
+> > @@ -1326,7 +1326,9 @@ int ip_tunnel_init(struct net_device *dev)
+> >       }
+> >
+> >       tunnel->dev =3D dev;
+> > -     tunnel->net =3D dev_net(dev);
+> > +     if (!tunnel->net)
+> > +             tunnel->net =3D dev_net(dev);
+>
+> Isn't tunnel->net always non-NULL ?
+>
+> ip_tunnel_newlink
+> -> netdev_priv(dev)->net =3D net
+> -> register_netdevice(dev)
+>   -> dev->netdev_ops->ndo_init(dev)
+>     -> ip_tunnel_init(dev)
+>       -> netdev_priv(dev)->net =3D dev_net(dev)
+
+Didn't find a path that can leave tunnel->net to NULL either.
+I think we can remove this.
+
+Thanks.
