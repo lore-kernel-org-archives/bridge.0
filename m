@@ -1,148 +1,127 @@
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1392C15198D
-	for <bridge@lists.linux.dev>; Fri, 14 Feb 2025 10:52:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.184.29
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FCEC21883E
+	for <bridge@lists.linux.dev>; Mon, 17 Feb 2025 11:54:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739530341; cv=none; b=H/4jaBehW6HTbglIcIg9lRVypUQkniqcqwJgIcKw+IYCPEAF4kMocIbyXeFF4ydeaLevJfuwE/xli4T9dV8sFp1mR525xL2gRLl1vRmSC+NBAoOIC6P4Vkv9Q+6vEHd3ZluPu8EOsucYU7NbvS0mGpMB0cMv7cKlfk+j9lLkLVg=
+	t=1739793283; cv=none; b=WGHjwAGSqCqjFYi59TSON9y+sGZLLShNMIGoN+z3Bm/KzZ2TyQO4hmWA4UHi4jB3RuD+kGgQCVD/tIeeoE4J8EY+7wd+mAibDfGOK6fFur6XAyabQVycJCvkwMR40lMk8rtXnoSMv6sMjBd6mdfP/H20gYFB1O98N83pNyogV7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739530341; c=relaxed/simple;
-	bh=mDVjtyGUVb1KOH6XFAgZg0raVWfx3ObaCsvs+QX6YF0=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ispBiUXHtJEb6yXGvv7f9uX3TZaP/kjEmbIo/wflkeIIMVVUgwZqw2cOIfFfFM0JFtDtdduLB8IgwhMcqRUbHqN+rW+9chDb6ohwk94oAzkmgShxgPUML6KlySzsOyfVPPRYnTPSu5u4ayp4tGoFxHNoQzS643rFQpxtZJNQdac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=MNfAtpwx; arc=none smtp.client-ip=207.171.184.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1739793283; c=relaxed/simple;
+	bh=CNZT+25ePdrVoRVjO98eXznFTfieoFVKs8XN57JBj0g=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=M7VB/Xnd1SwcbvrwmcXBnGK79FulTWNTWM2Lmmps219jgWadnUMZ1YCV9zu+Lzlw3Ac06Sgrfcp6PFVAV9T3VAOtoqOE7z8GaJJ7vHuv7JJAhCQuwb28sv5XbuUHcHAZhcM6UOuJY3vZgtVTnLTcAjLhf3fv2eYfKI9tQBI8lko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=V7VzAqEa; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="MNfAtpwx"
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="V7VzAqEa"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-abb86beea8cso266399266b.1
+        for <bridge@lists.linux.dev>; Mon, 17 Feb 2025 03:54:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1739530340; x=1771066340;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=X45XUOzd/bOUyeGuamt7kL+bHzoQ+bKhEEl7QpzEQY8=;
-  b=MNfAtpwxQumG2P41iJonYF5wLi1RA8BwpfWObzF3yqoNvstn79cywCCB
-   jYnOGgzNl4OHygjKREetMT+AjGRXH1GGjc9XIgI1e598HF6INwm+TgF95
-   dpyCyeP3JtvkF13POp3Hou/eRO5WTV4Z7EXfdeuNxQ8GGJrFPQ6RWTcW+
-   g=;
-X-IronPort-AV: E=Sophos;i="6.13,285,1732579200"; 
-   d="scan'208";a="493875980"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2025 10:52:13 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [10.0.7.35:41133]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.61.181:2525] with esmtp (Farcaster)
- id 014291f4-deb9-4469-b9db-a2315c599e77; Fri, 14 Feb 2025 10:52:12 +0000 (UTC)
-X-Farcaster-Flow-ID: 014291f4-deb9-4469-b9db-a2315c599e77
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1258.39;
- Fri, 14 Feb 2025 10:52:08 +0000
-Received: from 6c7e67bfbae3.amazon.com (10.118.254.117) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Fri, 14 Feb 2025 10:51:59 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <shaw.leon@gmail.com>
-CC: <alex.aring@gmail.com>, <andrew+netdev@lunn.ch>,
-	<b.a.t.m.a.n@lists.open-mesh.org>, <bpf@vger.kernel.org>,
-	<bridge@lists.linux.dev>, <davem@davemloft.net>, <donald.hunter@gmail.com>,
-	<dsahern@kernel.org>, <edumazet@google.com>, <herbert@gondor.apana.org.au>,
-	<horms@kernel.org>, <kuba@kernel.org>, <kuniyu@amazon.com>,
-	<linux-can@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-kselftest@vger.kernel.org>, <linux-ppp@vger.kernel.org>,
-	<linux-rdma@vger.kernel.org>, <linux-wireless@vger.kernel.org>,
-	<linux-wpan@vger.kernel.org>, <miquel.raynal@bootlin.com>,
-	<netdev@vger.kernel.org>, <osmocom-net-gprs@lists.osmocom.org>,
-	<pabeni@redhat.com>, <shuah@kernel.org>, <stefan@datenfreihafen.org>,
-	<steffen.klassert@secunet.com>, <wireguard@lists.zx2c4.com>
-Subject: Re: [PATCH net-next v9 06/11] net: ipv6: Use link netns in newlink() of rtnl_link_ops
-Date: Fri, 14 Feb 2025 19:51:48 +0900
-Message-ID: <20250214105148.1920-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
-In-Reply-To: <CABAhCOSsZqzrsqct+c613TVhGJdubv+_wTDxmjH8z6-PL1Mu2A@mail.gmail.com>
-References: <CABAhCOSsZqzrsqct+c613TVhGJdubv+_wTDxmjH8z6-PL1Mu2A@mail.gmail.com>
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1739793280; x=1740398080; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ODoUNIzhz8wbS9RlnqshxBZqUZSt9lnSSqoVHSSyPbo=;
+        b=V7VzAqEa3dNkgo3N/n4en/q5xUPG/caBQHfBeEa97rEC6UslK1YlxKS0cgnjaQ4Lve
+         iuPztiFvoHMQc/KAjRHPl6mIpVDaDPLQfBXIW1iefwr89vn188UKpqx/04bsnBi5RqHd
+         Q3oyjlrBCNNZyXoWKs0fstnT86nidnQlJdafXHIkpk6LFtvBuOVst4wK8Z3KO0Z7meAE
+         6f8UB1Y+XjJ0K2MtFuh6PXX69tmRRMmJ6108I4dytP75WBmdDndA7Nn8p4hbwHtTne1A
+         XloQ1UV0S0oDQUj/1jb+x94PCR19FHehUtbq8Xj8h0a2nUpKfVXAo+VX89VKynqic8ob
+         HS4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739793280; x=1740398080;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ODoUNIzhz8wbS9RlnqshxBZqUZSt9lnSSqoVHSSyPbo=;
+        b=R4I13yv7DVzOq+3tQzi6C3huPt+ZadPD1yaKKCdvmoJtcr9Ae8Q/eSwWukeR5Iedkd
+         SZ2d+6OqHpYyhTqL4hFIfPJz3DObLVvaBAud8hrFQtaawYew0NqAFsBw7HqKg2I0hUwM
+         KNLQkxk+wgOtEq1kYyl9H7RVGQvmRAth1JOGDZsgbn/cgi4aPRqCu7fUwdrn7pfjHGaE
+         DK5OyHtLbTQSb71mLqzDCFaKOsM/3m0TCHuuxisIbNRuP5lcfJdCDL1c8C5n6RGGL3ao
+         sN3e6MsOankwVhQaCKKyW1sgvr+lD4QPkLu9ULAVe60lPA3DIEKwAVjm35MQDIR4w4iZ
+         4vjA==
+X-Gm-Message-State: AOJu0Yx1qJrDOPPackafi/9ZaAFLN/qZSZIPAgFfwl5bAbGO7tli3Dcr
+	ghqO5rmAV03kk1Gmt/wIu9SQ0QIU3k6r57AU96jT1j8+rbyFXOdr4lpJ1pT5dTE=
+X-Gm-Gg: ASbGnctttX/jXW9i+G0zafWrOzQt/cX1DIClhiGJT7Ik4t1dTPRU0SPpL0O3gi5SIIU
+	a4i6HNj6KlY+7GEz7/9DbJBx7LVYLbL7xbi9IYbLTRYtLSTGe7kOVVASlPwd7+P2VAej9fl6E3p
+	psOc9nW++wd6h3T1j1kIgFeGcUTH2sOhRIWOU24Fxf2PNlGS1rYZ/6w8iccuFPlXjQK9olo9iHP
+	1YqZcP99TiZZyKqJgz6QKRSFZG0aZDMD9zXSXwxRtZIssnkb3mtI/Ps/qD9ocyBNtuP6NFld4W3
+	yLJoZV40Eacu9fIY8xpeuhx5T0AIS+txlDUYSK8EbW3pBtk=
+X-Google-Smtp-Source: AGHT+IH5LYB6p/HXb8BGQs5I7Qwcm3npFyWcKGxO91RFb9WWl38/bVbziniG96GtqAkw2iimohL1RQ==
+X-Received: by 2002:a17:907:72c8:b0:ab7:be66:792f with SMTP id a640c23a62f3a-abb7112e046mr1020984366b.49.1739793279612;
+        Mon, 17 Feb 2025 03:54:39 -0800 (PST)
+Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-abba9bd6e22sm71743666b.121.2025.02.17.03.54.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Feb 2025 03:54:39 -0800 (PST)
+Message-ID: <37bf04ee-954e-461f-9e37-210a8c5a790a@blackwall.org>
+Date: Mon, 17 Feb 2025 13:54:38 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: EX19D041UWB004.ant.amazon.com (10.13.139.143) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net: bridge: locally receive all multicast packets if
+ IFF_ALLMULTI is set
+To: Felix Fietkau <nbd@nbd.name>, netdev@vger.kernel.org,
+ Roopa Prabhu <roopa@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
+Cc: bridge@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20250217112621.66916-1-nbd@nbd.name>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20250217112621.66916-1-nbd@nbd.name>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Xiao Liang <shaw.leon@gmail.com>
-Date: Fri, 14 Feb 2025 17:22:28 +0800
-> On Thu, Feb 13, 2025 at 7:00 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
-> >
-> > From: Xiao Liang <shaw.leon@gmail.com>
-> > Date: Thu, 13 Feb 2025 17:55:32 +0800
-> > > On Thu, Feb 13, 2025 at 4:37 PM Xiao Liang <shaw.leon@gmail.com> wrote:
-> > > >
-> > > > On Thu, Feb 13, 2025 at 3:05 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
-> > > > >
-> > > > [...]
-> > > > > > diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-> > > > > > index 863852abe8ea..108600dc716f 100644
-> > > > > > --- a/net/ipv6/ip6_gre.c
-> > > > > > +++ b/net/ipv6/ip6_gre.c
-> > > > > > @@ -1498,7 +1498,8 @@ static int ip6gre_tunnel_init_common(struct net_device *dev)
-> > > > > >       tunnel = netdev_priv(dev);
-> > > > > >
-> > > > > >       tunnel->dev = dev;
-> > > > > > -     tunnel->net = dev_net(dev);
-> > > > > > +     if (!tunnel->net)
-> > > > > > +             tunnel->net = dev_net(dev);
-> > > > >
-> > > > > Same question as patch 5 for here and other parts.
-> > > > > Do we need this check and assignment ?
-> > > > >
-> > > > > ip6gre_newlink_common
-> > > > > -> nt->net = dev_net(dev)
-> > > > > -> register_netdevice
-> > > > >   -> ndo_init / ip6gre_tunnel_init()
-> > > > >     -> ip6gre_tunnel_init_common
-> > > > >       -> tunnel->net = dev_net(dev)
-> > > >
-> > > > Will remove this line.
-> > >
-> > > However, fb tunnel of ip6_tunnel, ip6_vti and sit can have
-> > > tunnel->net == NULL here. Take ip6_tunnel for example:
-> > >
-> > > ip6_tnl_init_net()
-> > >     -> ip6_fb_tnl_dev_init()
-> > >     -> register_netdev()
-> > >         -> register_netdevice()
-> > >             -> ip6_tnl_dev_init()
-> > >
-> > > This code path (including ip6_fb_tnl_dev_init()) doesn't set
-> > > tunnel->net. But for ip6_gre, ip6gre_fb_tunnel_init() does.
-> >
-> > Ah, okay.  Then, let's set net in a single place, which would
-> > be better than spreading net assignment and adding null check
-> > in ->ndo_init(), and maybe apply the same to IPv4 tunnels ?
+On 2/17/25 13:26, Felix Fietkau wrote:
+> If multicast snooping is enabled, multicast packets may not always end up on
+> the local bridge interface, if the host is not a member of the multicast
+> group. Similar to how IFF_PROMISC allows all packets to be received locally,
+> let IFF_ALLMULTI allow all multicast packets to be received.
 > 
-> Tunnels are created in three ways: a) rtnetlink newlink,
-> b) ioctl SIOCADDTUNNEL and c) during per netns init (fb).
-> The code paths don't have much in common, and refactoring
-> to set net in a single place is somewhat beyond the scope
-> of this series. But for now I think we could put a general rule:
-> net should be set prior to register_netdevice().
+> Signed-off-by: Felix Fietkau <nbd@nbd.name>
+> ---
+>  net/bridge/br_input.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> For IPv4 tunnels, tunnel->net of a) is set in ip_tunnel_newlink().
-> b) and c) are set in __ip_tunnel_create():
-> ip_tunnel_init_net() -> __ip_tunnel_create()
-> ip_tunnel_ctl() -> ip_tunnel_create() -> __ip_tunnel_create()
-> So net has already been initialized when register_netdevice()
-> is called.
-> 
-> But it varies for IPv6 tunnels. Some set net for a) or c) while
-> some don't. This patch has "fixed" for a). As for c) we can
-> adopt the way of ip6_gre - setting net in *_fb_tunnel_init(),
-> then remove the check in ndo_init().
-> 
-> Is it reasonable?
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index 232133a0fd21..7fa2da6985b5 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -155,6 +155,8 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  			pkt_type = BR_PKT_MULTICAST;
+>  			if (br_multicast_rcv(&brmctx, &pmctx, vlan, skb, vid))
+>  				goto drop;
+> +			if (br->dev->flags & IFF_ALLMULTI)
+> +				local_rcv = true;
+>  		}
+>  	}
+>  
 
-Yes, fair enough.
+This doesn't look like a bug fix, IMO it should be for net-next.
+
+Also you might miss a mcast stat increase, see the multicast code
+below, the only case that this would cover is the missing "else"
+branch of:
+                       if ((mdst && mdst->host_joined) ||
+                            br_multicast_is_router(brmctx, skb)) {
+                                local_rcv = true;
+                                DEV_STATS_INC(br->dev, multicast);
+                        }
+
+So I'd suggest to augment the condition and include this ALLMULTI check there,
+maybe with a comment to mention that all other cases are covered by the current
+code so people are not surprised.
+
+By the way what is the motivation for supporting this flag? I mean you can
+make the bridge mcast router and it will receive all mcast anyway.
+
+Thanks,
+ Nik
+
