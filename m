@@ -1,62 +1,62 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D95811E8328
-	for <bridge@lists.linux.dev>; Wed, 19 Feb 2025 12:51:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC1F61E8348
+	for <bridge@lists.linux.dev>; Wed, 19 Feb 2025 12:52:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739969519; cv=none; b=WefsOrYDyUpRSfB/pgnuGXnschrfs5dl7MUCxCb73OJ852NdkJnjgxDCBR18O6us9an+YjjEOxLOwJbAAJA740bsTg05zrurAzrJXb/y1yo0dxX2Pa1A+4t7HAWxKfCDPTz+U3Q7KPV6+GRin0G9F2vgHf0WNnlGdE+wkPjTzYM=
+	t=1739969528; cv=none; b=Kaxj94F1nHgV/fQFJBIqKcIcRC/JRLUcgYskjEZEmgZG2OjBjqm7tJEQ4XldJf1ilcyS4IhrNCQRV6p5BZCR8N45hYWlcssutFDoG9RHt7fmwWr9Cbt6mhpi9S27h5QNo21ycbauRS49mVqgtCxI5Qsi98eUpliFZycGt2oz5AE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739969519; c=relaxed/simple;
-	bh=VA66gTa0Qj/pMCkEuKNn0qYWFCRGp3U7y68sKrY8e1c=;
+	s=arc-20240116; t=1739969528; c=relaxed/simple;
+	bh=WnqzfYihIgH7CnlxbfGoXmbwDyB/yLwFF1VQRuUd9SY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FHdin1WUg6O/6b7gSmsbkX7J+CuFHfghnn0VzAShbko7ZckKQZkMwUV9ud1ffJ89UIktfRMhdQVZoP2OKEg3GX1wsBr9iQY3qTfTdkJAcOcMvtu0uZldSCGZGu42VkKyPjYZdmd78EnwmRZllWhvwyrQ54eNjNZkvRgCk+Sp2DA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EL7kutpm; arc=none smtp.client-ip=209.85.214.182
+	 MIME-Version; b=LXn6ro6hBVPn6ahI/dQh41vyPWDfJGjtVyzZOI8K9sm/NXdXoQmxRwDjuXqrtinZmb+0FUtzrYueTNe2n52resCoUeTDbzd7Okhu+dgrF1SFxpyHT3k1E0mtbZSSd/nrrtY92tFBm9tLQO+mbUsFBY4Nq74OobmU8fSQbUi+HE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kyarUT3c; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EL7kutpm"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2211acda7f6so77947185ad.3
-        for <bridge@lists.linux.dev>; Wed, 19 Feb 2025 04:51:57 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kyarUT3c"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-220c8eb195aso135167855ad.0
+        for <bridge@lists.linux.dev>; Wed, 19 Feb 2025 04:52:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739969517; x=1740574317; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1739969526; x=1740574326; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B6bozwwxLUJNxVW5ZYXuCA298+o6a+m5Om77EOnyIyg=;
-        b=EL7kutpmmvxOTl4UbQaGagSDL/wQYCNW49RI7mPNJNPzHDkZuKPXXPmAYNKsO3GLvQ
-         I6zMzbnyoqGm5cccAq4hBkCWpalw9WFXOQtJyFiE4MyxpDeBE9FPO3RWBcnksJn/8tOR
-         TlPrs9oOGcxLRIbUZ6viUG465nzRZQ6ssKXdmDntcJ2UW0TfOT+NetUlEt/ohoiRMC9r
-         EA8y1HQaxHrMvqQWP9TaLBRqi8PK8s2FLpYC5r15Gi6IRvnNRJHKvx23TEW1sgucUTzV
-         WiAuWEhi0NNr7zzwAIOP8sK7rOJeg8n2PqrSnqSSICvF+/kaYXWpeLTu8LG9DtaeXj5Y
-         uOPw==
+        bh=rsYd7KiB2vQaWNh0ASWhN8pl6PDFq3SaA7EkmHtk6YM=;
+        b=kyarUT3cRfzyms8fBAzTPqucrJVezEbLC61iR5ufOjbDqyWvqI1WQ8B/mdaFmZjrEl
+         /ineyXUzAUhHTOsoCUmJkIyCnfVEQFOJeeIe6VZrQX445t/zpUxwwe+hxAB9PQ8eEZqL
+         uf3a8dlHeIi/YBwlH0CKCaet53dimgcKx3BguP+fSwFI3+awZO4Q9so5WoFl/l0pYExj
+         o1GddYgzKX2Rt/hE75VYAU3c7MBrbQbKALTY1SoyTQ3EbHwcslsZceIvc7o0aSYwK2ZO
+         CY+OtQJpCCeE+YyXfb06bs5FjcSZ6Q8XlhHe6F1oKuTv/QRHdN99bxiTTk0HghxnH2c7
+         2BDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739969517; x=1740574317;
+        d=1e100.net; s=20230601; t=1739969526; x=1740574326;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=B6bozwwxLUJNxVW5ZYXuCA298+o6a+m5Om77EOnyIyg=;
-        b=wEc/w8e7kiICg2nzxjsPcPqDGtDHTUe2UkujJKC4Ma3rtaB0uNEX3FV18ORoHcjdTQ
-         qwFc2XsP7SvMqUwSBQpw0Dw+o1PI2ngM4BPz14sOOFaZfN5cK/Giyg1eAb5NDFECUUwc
-         /1Qgsn3n8sPyaDaaR1UHPIwZTJwIy2J9dL7XULyggMQcLxmfIP5Grm1XYq5Pjamtxwpj
-         8BiVRUQWRH8KrXaFZeEzvl1fjvTdAky2JIHjMnAo12WD4mKOnT22b0ZoU/wX5DWNIzjZ
-         2Dr09sWwdC5B4nyyDf1idYrhit+D8Oz/vshvUagCBIuJNjbYRcz/6f3dtuLEZ68FD0fw
-         XQfw==
-X-Forwarded-Encrypted: i=1; AJvYcCVRa58wbjcLwvJD7fd6W2DSti8ZjZcN/IchPNVB9M9IunNswZNebBqxx92Kcfo6DSxPgZuuYLQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx9lPUeUphwgdlGRCzF31Czmt5sOT2TJd/bNmbPao0oc7Emr2QJ
-	C8Ys1p292FYkHnDcbIb8a1ebsCXSMBSJGxikm+gKaZhay9Vo4j0+
-X-Gm-Gg: ASbGnctaLURQDm/iz2VctvEL/hEWoGbQkPTkneX1AUUMaX67ilLgggWaCcn03lr98GK
-	DnUMuNceFIFyhZW//hQObRssfZECesn590qNL3RdyCHclBFlaQSi1QYvpYjLXqrQ7sZ06u9Lg/J
-	J/USWv6NacHesWpdLuA/XPrXGprhuzagEO1zwtLJpNTEKoH+O0sLqpoCnE63ZHFVSLgoHsa2B1L
-	ktp8XlZ9ky0DFf2MzlfupH2dwZSam8gx5tfdbXvkaCXqwIqnQVR0Hr5c49VkLDXBhfH2ebpa6FD
-	DErbrg==
-X-Google-Smtp-Source: AGHT+IGKxW3/SlkXIFQ/R+7OZM2jJGBrIehyvby3inig7425vAO11UDlInuUnZBsT6heGdokKuXecQ==
-X-Received: by 2002:a17:903:2305:b0:220:fce7:d3b8 with SMTP id d9443c01a7336-221709654admr66486875ad.12.1739969517203;
-        Wed, 19 Feb 2025 04:51:57 -0800 (PST)
+        bh=rsYd7KiB2vQaWNh0ASWhN8pl6PDFq3SaA7EkmHtk6YM=;
+        b=GC4Wah7aLGpr0TX0bfBhg8i157xINdqKjFjaWYLZ+/DtI2qc+31wm/apH43TlhyC8c
+         BATFYcqNHqUXZimnShh/0AOya5w+oN+Q3PdNINMVDjEfNdjjFiD4K6PxUvstloJ48SmF
+         teCTGQ/PFe2rDnMK0v5RdeyNn5fnXsuAcmdy2GYhl7KYd2JXw0DtSrvzORNnP7s1qGf6
+         G9ikL1SXDsT1E7SAWC5ahTP4DDRPbo2uMiFevBBezrZ/lDj7tPG3IQ9XAzOoLUAmdlik
+         IrpCdcroxIdviddKXHRt7vlKIlrBQ9HqheyXQlQAr4nF7i3WJgu8lqzkRjC7gE5jk4kv
+         zSvQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWP6tpwIaatg4t1VKfH933ifGzh6sqxtO7rvIr01nkTk2XSZLK9PLK+3g/L7fbkKyxIYqJ76Mo=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzjbpdaAc1sNNVyTJbSj7HFqd0hfzkv4H0aittQhYlMRvAD6MfY
+	/X/OZKV55CHnBnit+XD+RqiWe9Wi9EhF4tV0fl37lgEXmtEKMnfC
+X-Gm-Gg: ASbGncv2+POZ8uJlKD9Q2ZYek58wD+v7vXMw7SGgBEldcg6LLP3EdQ+xMeXhUuNiK1B
+	zGJI4c7/UL/9ONs1sYlax+Y3wvQ802PINc3nzUyP5u0LEoFk2Wnsh/ykSn4HNbHb8dM0G5xj698
+	NfUMB3qPXHMmtLhICmpozqL86FFGN898l19iR4yl7n/4LYDQKduZ1okaL5Ax7uOT5U++h2CJbSq
+	IEYxo52U5q/VgzcDKuSOw4YhGicCEzpQvRvd3aJP5MJZTWuCTtWXCFWRq1aJ9pYY4D8QwETxd/o
+	tmaeNw==
+X-Google-Smtp-Source: AGHT+IEmzyu5IbJEeeDhw+tXRaZzlcx6HaVQuXOtrNDJjpviTChMhHRF4glLxd0ys0/eE/gPyp4KqQ==
+X-Received: by 2002:a17:902:db0a:b0:21f:8677:5961 with SMTP id d9443c01a7336-2217119d382mr58688885ad.34.1739969526138;
+        Wed, 19 Feb 2025 04:52:06 -0800 (PST)
 Received: from ws.. ([103.167.140.11])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-220d536436fsm103427175ad.64.2025.02.19.04.51.48
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-220d536436fsm103427175ad.64.2025.02.19.04.51.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Feb 2025 04:51:56 -0800 (PST)
+        Wed, 19 Feb 2025 04:52:05 -0800 (PST)
 From: Xiao Liang <shaw.leon@gmail.com>
 To: netdev@vger.kernel.org,
 	linux-kselftest@vger.kernel.org,
@@ -86,9 +86,9 @@ Cc: "David S. Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	linux-wpan@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v10 07/13] net: ipv6: Init tunnel link-netns before registering dev
-Date: Wed, 19 Feb 2025 20:50:33 +0800
-Message-ID: <20250219125039.18024-8-shaw.leon@gmail.com>
+Subject: [PATCH net-next v10 08/13] net: ipv6: Use link netns in newlink() of rtnl_link_ops
+Date: Wed, 19 Feb 2025 20:50:34 +0800
+Message-ID: <20250219125039.18024-9-shaw.leon@gmail.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250219125039.18024-1-shaw.leon@gmail.com>
 References: <20250219125039.18024-1-shaw.leon@gmail.com>
@@ -100,146 +100,171 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Currently some IPv6 tunnel drivers set tnl->net to dev_net(dev) in
-ndo_init(), which is called in register_netdevice(). However, it lacks
-the context of link-netns when we enable cross-net tunnels at device
-registration time.
-
-Let's move the init of tunnel link-netns before register_netdevice().
-
-ip6_gre has already initialized netns, so just remove the redundant
-assignment.
+When link_net is set, use it as link netns instead of dev_net(). This
+prepares for rtnetlink core to create device in target netns directly,
+in which case the two namespaces may be different.
 
 Signed-off-by: Xiao Liang <shaw.leon@gmail.com>
 ---
- net/ipv6/ip6_gre.c    | 2 --
- net/ipv6/ip6_tunnel.c | 3 ++-
- net/ipv6/ip6_vti.c    | 3 ++-
- net/ipv6/sit.c        | 8 +++++---
- 4 files changed, 9 insertions(+), 7 deletions(-)
+ net/ipv6/ip6_gre.c    | 14 ++++++--------
+ net/ipv6/ip6_tunnel.c |  9 +++++----
+ net/ipv6/ip6_vti.c    |  6 +++---
+ net/ipv6/sit.c        |  6 +++---
+ 4 files changed, 17 insertions(+), 18 deletions(-)
 
 diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 863852abe8ea..d9e6b1fd9917 100644
+index d9e6b1fd9917..d31a4ce3b19f 100644
 --- a/net/ipv6/ip6_gre.c
 +++ b/net/ipv6/ip6_gre.c
-@@ -1498,7 +1498,6 @@ static int ip6gre_tunnel_init_common(struct net_device *dev)
- 	tunnel = netdev_priv(dev);
+@@ -1969,7 +1969,7 @@ static bool ip6gre_netlink_encap_parms(struct nlattr *data[],
+ 	return ret;
+ }
  
- 	tunnel->dev = dev;
--	tunnel->net = dev_net(dev);
- 	strcpy(tunnel->parms.name, dev->name);
+-static int ip6gre_newlink_common(struct net *src_net, struct net_device *dev,
++static int ip6gre_newlink_common(struct net *link_net, struct net_device *dev,
+ 				 struct nlattr *tb[], struct nlattr *data[],
+ 				 struct netlink_ext_ack *extack)
+ {
+@@ -1990,7 +1990,7 @@ static int ip6gre_newlink_common(struct net *src_net, struct net_device *dev,
+ 		eth_hw_addr_random(dev);
  
- 	ret = dst_cache_init(&tunnel->dst_cache, GFP_KERNEL);
-@@ -1882,7 +1881,6 @@ static int ip6erspan_tap_init(struct net_device *dev)
- 	tunnel = netdev_priv(dev);
+ 	nt->dev = dev;
+-	nt->net = dev_net(dev);
++	nt->net = link_net;
  
- 	tunnel->dev = dev;
--	tunnel->net = dev_net(dev);
- 	strcpy(tunnel->parms.name, dev->name);
+ 	err = register_netdevice(dev);
+ 	if (err)
+@@ -2007,11 +2007,10 @@ static int ip6gre_newlink(struct net_device *dev,
+ 			  struct rtnl_newlink_params *params,
+ 			  struct netlink_ext_ack *extack)
+ {
++	struct net *net = params->link_net ? : dev_net(dev);
+ 	struct ip6_tnl *nt = netdev_priv(dev);
+ 	struct nlattr **data = params->data;
+-	struct net *src_net = params->net;
+ 	struct nlattr **tb = params->tb;
+-	struct net *net = dev_net(dev);
+ 	struct ip6gre_net *ign;
+ 	int err;
  
- 	ret = dst_cache_init(&tunnel->dst_cache, GFP_KERNEL);
+@@ -2026,7 +2025,7 @@ static int ip6gre_newlink(struct net_device *dev,
+ 			return -EEXIST;
+ 	}
+ 
+-	err = ip6gre_newlink_common(src_net, dev, tb, data, extack);
++	err = ip6gre_newlink_common(net, dev, tb, data, extack);
+ 	if (!err) {
+ 		ip6gre_tnl_link_config(nt, !tb[IFLA_MTU]);
+ 		ip6gre_tunnel_link_md(ign, nt);
+@@ -2246,11 +2245,10 @@ static int ip6erspan_newlink(struct net_device *dev,
+ 			     struct rtnl_newlink_params *params,
+ 			     struct netlink_ext_ack *extack)
+ {
++	struct net *net = params->link_net ? : dev_net(dev);
+ 	struct ip6_tnl *nt = netdev_priv(dev);
+ 	struct nlattr **data = params->data;
+-	struct net *src_net = params->net;
+ 	struct nlattr **tb = params->tb;
+-	struct net *net = dev_net(dev);
+ 	struct ip6gre_net *ign;
+ 	int err;
+ 
+@@ -2266,7 +2264,7 @@ static int ip6erspan_newlink(struct net_device *dev,
+ 			return -EEXIST;
+ 	}
+ 
+-	err = ip6gre_newlink_common(src_net, dev, tb, data, extack);
++	err = ip6gre_newlink_common(net, dev, tb, data, extack);
+ 	if (!err) {
+ 		ip6erspan_tnl_link_config(nt, !tb[IFLA_MTU]);
+ 		ip6erspan_tunnel_link_md(ign, nt);
 diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
-index 54b843d20870..111a8777c2f7 100644
+index 111a8777c2f7..89d206731af0 100644
 --- a/net/ipv6/ip6_tunnel.c
 +++ b/net/ipv6/ip6_tunnel.c
-@@ -1878,7 +1878,6 @@ ip6_tnl_dev_init_gen(struct net_device *dev)
- 	int t_hlen;
- 
- 	t->dev = dev;
--	t->net = dev_net(dev);
- 
- 	ret = dst_cache_init(&t->dst_cache, GFP_KERNEL);
- 	if (ret)
-@@ -1940,6 +1939,7 @@ static int __net_init ip6_fb_tnl_dev_init(struct net_device *dev)
- 	struct net *net = dev_net(dev);
- 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
- 
-+	t->net = net;
- 	t->parms.proto = IPPROTO_IPV6;
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
-@@ -2015,6 +2015,7 @@ static int ip6_tnl_newlink(struct net_device *dev,
+@@ -253,8 +253,7 @@ static void ip6_dev_free(struct net_device *dev)
+ static int ip6_tnl_create2(struct net_device *dev)
+ {
+ 	struct ip6_tnl *t = netdev_priv(dev);
+-	struct net *net = dev_net(dev);
+-	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
++	struct ip6_tnl_net *ip6n = net_generic(t->net, ip6_tnl_net_id);
  	int err;
  
- 	nt = netdev_priv(dev);
-+	nt->net = net;
+ 	dev->rtnl_link_ops = &ip6_link_ops;
+@@ -2008,12 +2007,14 @@ static int ip6_tnl_newlink(struct net_device *dev,
+ {
+ 	struct nlattr **data = params->data;
+ 	struct nlattr **tb = params->tb;
+-	struct net *net = dev_net(dev);
+-	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
+ 	struct ip_tunnel_encap ipencap;
++	struct ip6_tnl_net *ip6n;
+ 	struct ip6_tnl *nt, *t;
++	struct net *net;
+ 	int err;
  
- 	if (ip_tunnel_netlink_encap_parms(data, &ipencap)) {
- 		err = ip6_tnl_encap_setup(nt, &ipencap);
++	net = params->link_net ? : dev_net(dev);
++	ip6n = net_generic(net, ip6_tnl_net_id);
+ 	nt = netdev_priv(dev);
+ 	nt->net = net;
+ 
 diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
-index 993f85aeb882..16e0d74f99dd 100644
+index 16e0d74f99dd..83c055996fbb 100644
 --- a/net/ipv6/ip6_vti.c
 +++ b/net/ipv6/ip6_vti.c
-@@ -925,7 +925,6 @@ static inline int vti6_dev_init_gen(struct net_device *dev)
+@@ -177,8 +177,7 @@ vti6_tnl_unlink(struct vti6_net *ip6n, struct ip6_tnl *t)
+ static int vti6_tnl_create2(struct net_device *dev)
+ {
  	struct ip6_tnl *t = netdev_priv(dev);
+-	struct net *net = dev_net(dev);
+-	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
++	struct vti6_net *ip6n = net_generic(t->net, vti6_net_id);
+ 	int err;
  
- 	t->dev = dev;
--	t->net = dev_net(dev);
- 	netdev_hold(dev, &t->dev_tracker, GFP_KERNEL);
- 	netdev_lockdep_set_classes(dev);
- 	return 0;
-@@ -958,6 +957,7 @@ static int __net_init vti6_fb_tnl_dev_init(struct net_device *dev)
- 	struct net *net = dev_net(dev);
- 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
+ 	dev->rtnl_link_ops = &vti6_link_ops;
+@@ -1002,9 +1001,10 @@ static int vti6_newlink(struct net_device *dev,
+ 			struct netlink_ext_ack *extack)
+ {
+ 	struct nlattr **data = params->data;
+-	struct net *net = dev_net(dev);
+ 	struct ip6_tnl *nt;
++	struct net *net;
  
-+	t->net = net;
- 	t->parms.proto = IPPROTO_IPV6;
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
-@@ -1009,6 +1009,7 @@ static int vti6_newlink(struct net_device *dev,
++	net = params->link_net ? : dev_net(dev);
+ 	nt = netdev_priv(dev);
  	vti6_netlink_parms(data, &nt->parms);
  
- 	nt->parms.proto = IPPROTO_IPV6;
-+	nt->net = net;
- 
- 	if (vti6_locate(net, &nt->parms, 0))
- 		return -EEXIST;
 diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index e2bd52cabdee..20453671ac50 100644
+index 20453671ac50..f7b59bc957d3 100644
 --- a/net/ipv6/sit.c
 +++ b/net/ipv6/sit.c
-@@ -269,6 +269,7 @@ static struct ip_tunnel *ipip6_tunnel_locate(struct net *net,
- 
- 	nt = netdev_priv(dev);
- 
-+	nt->net = net;
- 	nt->parms = *parms;
- 	if (ipip6_tunnel_create(dev) < 0)
- 		goto failed_free;
-@@ -1449,7 +1450,6 @@ static int ipip6_tunnel_init(struct net_device *dev)
+@@ -201,8 +201,7 @@ static void ipip6_tunnel_clone_6rd(struct net_device *dev, struct sit_net *sitn)
+ static int ipip6_tunnel_create(struct net_device *dev)
+ {
+ 	struct ip_tunnel *t = netdev_priv(dev);
+-	struct net *net = dev_net(dev);
+-	struct sit_net *sitn = net_generic(net, sit_net_id);
++	struct sit_net *sitn = net_generic(t->net, sit_net_id);
  	int err;
  
- 	tunnel->dev = dev;
--	tunnel->net = dev_net(dev);
- 	strcpy(tunnel->parms.name, dev->name);
- 
- 	ipip6_tunnel_bind_dev(dev);
-@@ -1565,6 +1565,7 @@ static int ipip6_newlink(struct net_device *dev,
+ 	__dev_addr_set(dev, &t->parms.iph.saddr, 4);
+@@ -1556,14 +1555,15 @@ static int ipip6_newlink(struct net_device *dev,
+ {
+ 	struct nlattr **data = params->data;
+ 	struct nlattr **tb = params->tb;
+-	struct net *net = dev_net(dev);
+ 	struct ip_tunnel *nt;
+ 	struct ip_tunnel_encap ipencap;
+ #ifdef CONFIG_IPV6_SIT_6RD
+ 	struct ip_tunnel_6rd ip6rd;
+ #endif
++	struct net *net;
  	int err;
  
++	net = params->link_net ? : dev_net(dev);
  	nt = netdev_priv(dev);
-+	nt->net = net;
- 
- 	if (ip_tunnel_netlink_encap_parms(data, &ipencap)) {
- 		err = ip_tunnel_encap_setup(nt, &ipencap);
-@@ -1860,6 +1861,9 @@ static int __net_init sit_init_net(struct net *net)
- 	 */
- 	sitn->fb_tunnel_dev->netns_local = true;
- 
-+	t = netdev_priv(sitn->fb_tunnel_dev);
-+	t->net = net;
-+
- 	err = register_netdev(sitn->fb_tunnel_dev);
- 	if (err)
- 		goto err_reg_dev;
-@@ -1867,8 +1871,6 @@ static int __net_init sit_init_net(struct net *net)
- 	ipip6_tunnel_clone_6rd(sitn->fb_tunnel_dev, sitn);
- 	ipip6_fb_tunnel_init(sitn->fb_tunnel_dev);
- 
--	t = netdev_priv(sitn->fb_tunnel_dev);
--
- 	strcpy(t->parms.name, sitn->fb_tunnel_dev->name);
- 	return 0;
+ 	nt->net = net;
  
 -- 
 2.48.1
