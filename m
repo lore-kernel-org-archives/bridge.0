@@ -1,297 +1,172 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+Received: from mail.aperture-lab.de (mail.aperture-lab.de [116.203.183.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A031F21B9E1
-	for <bridge@lists.linux.dev>; Tue, 25 Feb 2025 20:16:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D1412755EE
+	for <bridge@lists.linux.dev>; Wed, 26 Feb 2025 20:29:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=116.203.183.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740514605; cv=none; b=ghWMAYF9B9sdt/N98hcrjV31yspdSQuKVo3nUg96OcusdrnhqK9FiMMNanTJBFjtw+mwk52GEUsPQVD73wFYGL5eQcnFe/5bTlqvTi9lTnXc26Mtffuy5yteKz545/fRGzcItDUdkTW3cYTwztYB8twvqL1ztLSKD+Px2Yk7oA8=
+	t=1740601782; cv=none; b=RUhRcbcRy0zb/mtZrm/6lpk+8zxk+OA03j8dCNxPsIZA/vIpb3kal0ZOTpqoueb2bPKoYrT70QKYQXBFc1gSwJpVQT776L1L8TwKBxya0rrlHI+QKw/Uwd5STz6+c0bUvrVCClS7ZV5Yf+bWqyBPIxyGw+LNrBSsVshnTyNdT90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740514605; c=relaxed/simple;
-	bh=ao9814Zv6bDQnM5yUC6g/RI939BnwcO/605XslPLDVA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OSQ0tftQils7Na3FjN5L1l6ySpFClbFrTCSL3FK6p+EBIdo7adn03ba0rroYH3+lAWOGLOygqn9QL3nWbVmjHwGOE+rcLe3SprWgHELhGMy1JdULyqh1IavbI3yQpRO8JVhX7g3E59serTBShR22Uoj7rVZAbP7x09SnNi0WG1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UwM26jCP; arc=none smtp.client-ip=209.85.208.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UwM26jCP"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-5dee1626093so315975a12.1
-        for <bridge@lists.linux.dev>; Tue, 25 Feb 2025 12:16:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740514602; x=1741119402; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=E8P5h61gnv0DfF0R+vjh2CpjgGHUfjM4UjNVV+Pbc34=;
-        b=UwM26jCPa8oxnJaM3zOBcAGonqSZZS7tYO8xqTpwoTDUvHmI7opPjLZoHAOQy9W9xD
-         UOVCW/+l6Wmja2wg1Vp/hWXhJ15SmjVnX2x3XBiPnnRFh8NSn08svWJ78HJol8qUn7ga
-         vecJMPAeUjFrXooeHDTHo2l1nxb0qP1vQiM+H4i1LZPYMr5/TJobnnVP+7N9Xcy0gOuH
-         +sUNMg5WpBABn8HHiwfF8B6ScRJ5KYWVykHXHt84DxFetmv/8/VTDr70eFtSwKTXM22S
-         wodzVG7jb7gjCoXw9hO1SJ/oAqJU5dr58mTsDE3KEhhko/lOT/SFHf3V0pVWyXzcZIEH
-         3s/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740514602; x=1741119402;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=E8P5h61gnv0DfF0R+vjh2CpjgGHUfjM4UjNVV+Pbc34=;
-        b=AcAEe5nJdh2xyBmDaHASDiltdo7UnbO2BeRPZtBfNOHtj0EuoD2AdWi6Ou65NEJYip
-         CLQhkmeIfVgF8XxHRmDoZPKdY+L1lnAjroRKh1+E721q+I5XQBAJPqXrWvDTScuZrObS
-         ySOd6Qt7eBjyfhVnCJfU+lmxJaAiTAVkjt1Pv8uS+ix4ejWjnoBopDoEmvGNfNxoCirD
-         Icw8NQFT4AM/LXASFINptVRHQlc5YZRqSABTVSP5rCPmrFSxBXleIR7A00Dgl2Ug8XL+
-         OsaCrHZFjcfmeU56adowE/zxN6bvjG8NV8UvhLszmfk2EG4GKhG9E/lSgfSD9HpvgC0X
-         5WKw==
-X-Forwarded-Encrypted: i=1; AJvYcCWlk6vT+RufqnFMsRLRNJl7tDJHuRaTMicaFNomqSgOzkvXPo/WagSbyc4zvCXx2i/dpw+xFU4=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwzEkNYZrezlVra1Xw227KXuRZGKtsuF5/Z9NAHtch4MoJgLtNw
-	M19a5PFDF3mFEzmJ6oRIE3RBhNwUvf0/jae1ttan1lDzI71kADck
-X-Gm-Gg: ASbGncuOXJZtQH7YG9gvi+kMNQZLBTwkk0rGnO2YVLbXPCpU9/Z4yS4l8sq+sexGFZ/
-	cFfNaj99r8Iu7QtGRJ0KNIl4LcdF2jDPWUFh8yJ2awegbLTA5LH/cb+jLy4CHjY0aTRjpmfyOZe
-	V+CNIfBYP9KCXsyXLEFPiTKmGzCw3ANEOz40XQHF0rnENsfgtnZGTuRyCRWpQ/jeDl37yAU5H0j
-	/RoBTU9tCk2LoM4BcRE8ZvbhCgg02A0LXYym4cBuMVjSYqYIeY9WgEUedktSHTomDm5yAuRJsJo
-	pw19o//y+tyfdeP88Y9EDbfqgXe+s/grcMC3mn1eupQ9PydvJT8OUrb32mGve6QbG8pfk4iEvWH
-	1HHdiHEOh0NaNyR1t6goyICLiaSEz1Ohy5uLr4KWbPOI=
-X-Google-Smtp-Source: AGHT+IErCNHvUEetSRKi2Fz/dRzAsZ4C8dWcnPsAPVqwFDmd0GWTebWBy4vbvP5wLftQ4Gc/RXx2yA==
-X-Received: by 2002:a17:907:7fa4:b0:aba:e1eb:1a90 with SMTP id a640c23a62f3a-abc0abb3bb2mr2093020566b.0.1740514601742;
-        Tue, 25 Feb 2025 12:16:41 -0800 (PST)
-Received: from corebook.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-abed201218fsm194319666b.104.2025.02.25.12.16.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2025 12:16:41 -0800 (PST)
-From: Eric Woudstra <ericwouds@gmail.com>
-To: Andrew Lunn <andrew+netdev@lunn.ch>,
+	s=arc-20240116; t=1740601782; c=relaxed/simple;
+	bh=yxQtZhATw7YZMwx8d0sQeR7D3tNH7pkKxlGCc/f7ick=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Lg8ToDZvfWbCyxUiQ2WvETQ4sbR8yjqgf5VM+RiiDGlaF4uFFHpb0M6PQR+NTg/iaToZwr/QXMLr3UcD61IUQS0Hc6NDwHO3n3tAqsQnP/rtFsPqFRAEAJtEuO3u+P677lC4iZ2CyyG+G4Yrs+PDaUPsJ3RBDNlK8RBRmNTru2M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue; spf=pass smtp.mailfrom=c0d3.blue; arc=none smtp.client-ip=116.203.183.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=c0d3.blue
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 29B8D54145B;
+	Wed, 26 Feb 2025 21:21:00 +0100 (CET)
+Date: Wed, 26 Feb 2025 21:20:58 +0100
+From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: Joseph Huang <joseph.huang.2024@gmail.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
+	Andrew Lunn <andrew@lunn.ch>,
+	Florian Fainelli <f.fainelli@gmail.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Ivan Vecera <ivecera@redhat.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Kuniyuki Iwashima <kuniyu@amazon.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Joe Damato <jdamato@fastly.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Vladimir Oltean <olteanv@gmail.com>,
-	"Frank Wunderlich" <frank-w@public-files.de>,
-	Daniel Golle <daniel@makrotopia.org>
-Cc: netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org,
-	bridge@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH v7 net-next 14/14] netfilter: nft_flow_offload: Add bridgeflow to nft_flow_offload_eval()
-Date: Tue, 25 Feb 2025 21:16:16 +0100
-Message-ID: <20250225201616.21114-15-ericwouds@gmail.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20250225201616.21114-1-ericwouds@gmail.com>
-References: <20250225201616.21114-1-ericwouds@gmail.com>
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Roopa Prabhu <roopa@nvidia.com>, linux-kernel@vger.kernel.org,
+	bridge@lists.linux.dev, Jan Hoffmann <jan@3e8.eu>,
+	Birger Koblitz <git@birger-koblitz.de>,
+	Sebastian Gottschall <s.gottschall@dd-wrt.com>
+Subject: Re: [PATCH RFC net-next 00/10] MC Flood disable and snooping
+Message-ID: <Z793qqMMvxKuFxbM@sellars>
+References: <065b803f-14a9-4013-8f11-712bb8d54848@blackwall.org>
+ <804b7bf3-1b29-42c4-be42-4c23f1355aaf@gmail.com>
+ <20240405102033.vjkkoc3wy2i3vdvg@skbuf>
+ <935c18c1-7736-416c-b5c5-13ca42035b1f@blackwall.org>
+ <651c87fc-1f21-4153-bade-2dad048eecbd@gmail.com>
+ <20240405211502.q5gfwcwyhkm6w7xy@skbuf>
+ <1f385946-84d0-499c-9bf6-90ef65918356@gmail.com>
+ <20240430012159.rmllu5s5gcdepjnc@skbuf>
+ <b90caf5f-fa1e-41e6-a7c2-5af042b0828e@gmail.com>
+ <431e1af1-6043-4e3e-bc3b-5998ec366de7@blackwall.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <431e1af1-6043-4e3e-bc3b-5998ec366de7@blackwall.org>
+X-Last-TLS-Session-Version: TLSv1.3
 
-Edit nft_flow_offload_eval() to make it possible to handle a flowtable of
-the nft bridge family.
+Sorry for chiming in so late in this conversation, missed it due
+to the mailing list address change and how my procmail sorts
+things...
 
-Use nft_flow_offload_bridge_init() to fill the flow tuples. It uses
-nft_dev_fill_bridge_path() in each direction.
+First of all, many thanks Joseph for looking into this! I think I
+agree with you that there is an actual RFC4541 compatiblity
+issue for multicast offloading switches which (try to) use
+the kernel space Linux bridge IGMP/MLD snooping code. For both
+routable and non-routable multicast traffic.
 
-Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
----
- net/netfilter/nft_flow_offload.c | 142 +++++++++++++++++++++++++++++--
- 1 file changed, 137 insertions(+), 5 deletions(-)
 
-diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-index c0c310c569cd..03a0b5f7e8d2 100644
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -193,6 +193,128 @@ static bool nft_flowtable_find_dev(const struct net_device *dev,
- 	return found;
- }
- 
-+static int nft_dev_fill_bridge_path(struct flow_offload *flow,
-+				    struct nft_flowtable *ft,
-+				    enum ip_conntrack_dir dir,
-+				    const struct net_device *src_dev,
-+				    const struct net_device *dst_dev,
-+				    unsigned char *src_ha,
-+				    unsigned char *dst_ha)
-+{
-+	struct flow_offload_tuple_rhash *th = flow->tuplehash;
-+	struct net_device_path_ctx ctx = {};
-+	struct net_device_path_stack stack;
-+	struct nft_forward_info info = {};
-+	int i, j = 0;
-+
-+	for (i = th[dir].tuple.encap_num - 1; i >= 0 ; i--) {
-+		if (info.num_encaps >= NF_FLOW_TABLE_ENCAP_MAX)
-+			return -1;
-+
-+		if (th[dir].tuple.in_vlan_ingress & BIT(i))
-+			continue;
-+
-+		info.encap[info.num_encaps].id = th[dir].tuple.encap[i].id;
-+		info.encap[info.num_encaps].proto = th[dir].tuple.encap[i].proto;
-+		info.num_encaps++;
-+
-+		if (th[dir].tuple.encap[i].proto == htons(ETH_P_PPP_SES))
-+			continue;
-+
-+		if (ctx.num_vlans >= NET_DEVICE_PATH_VLAN_MAX)
-+			return -1;
-+		ctx.vlan[ctx.num_vlans].id = th[dir].tuple.encap[i].id;
-+		ctx.vlan[ctx.num_vlans].proto = th[dir].tuple.encap[i].proto;
-+		ctx.num_vlans++;
-+	}
-+	ctx.dev = src_dev;
-+	ether_addr_copy(ctx.daddr, dst_ha);
-+
-+	if (dev_fill_bridge_path(&ctx, &stack) < 0)
-+		return -1;
-+
-+	nft_dev_path_info(&stack, &info, dst_ha, &ft->data);
-+
-+	if (!info.indev || info.indev != dst_dev)
-+		return -1;
-+
-+	th[!dir].tuple.iifidx = info.indev->ifindex;
-+	for (i = info.num_encaps - 1; i >= 0; i--) {
-+		th[!dir].tuple.encap[j].id = info.encap[i].id;
-+		th[!dir].tuple.encap[j].proto = info.encap[i].proto;
-+		if (info.ingress_vlans & BIT(i))
-+			th[!dir].tuple.in_vlan_ingress |= BIT(j);
-+		j++;
-+	}
-+	th[!dir].tuple.encap_num = info.num_encaps;
-+
-+	th[dir].tuple.mtu = dst_dev->mtu;
-+	ether_addr_copy(th[dir].tuple.out.h_source, src_ha);
-+	ether_addr_copy(th[dir].tuple.out.h_dest, dst_ha);
-+	th[dir].tuple.out.ifidx = info.outdev->ifindex;
-+	th[dir].tuple.xmit_type = FLOW_OFFLOAD_XMIT_DIRECT;
-+
-+	return 0;
-+}
-+
-+static int nft_flow_offload_bridge_init(struct flow_offload *flow,
-+					const struct nft_pktinfo *pkt,
-+					enum ip_conntrack_dir dir,
-+					struct nft_flowtable *ft)
-+{
-+	const struct net_device *in_dev, *out_dev;
-+	struct ethhdr *eth = eth_hdr(pkt->skb);
-+	struct flow_offload_tuple *tuple;
-+	struct pppoe_hdr *phdr;
-+	struct vlan_hdr *vhdr;
-+	int err, i = 0;
-+
-+	in_dev = nft_in(pkt);
-+	if (!in_dev || !nft_flowtable_find_dev(in_dev, ft))
-+		return -1;
-+
-+	out_dev = nft_out(pkt);
-+	if (!out_dev || !nft_flowtable_find_dev(out_dev, ft))
-+		return -1;
-+
-+	tuple =  &flow->tuplehash[!dir].tuple;
-+
-+	if (skb_vlan_tag_present(pkt->skb)) {
-+		tuple->encap[i].id = skb_vlan_tag_get(pkt->skb);
-+		tuple->encap[i].proto = pkt->skb->vlan_proto;
-+		i++;
-+	}
-+	switch (pkt->skb->protocol) {
-+	case htons(ETH_P_8021Q):
-+		vhdr = (struct vlan_hdr *)skb_network_header(pkt->skb);
-+		tuple->encap[i].id = ntohs(vhdr->h_vlan_TCI);
-+		tuple->encap[i].proto = pkt->skb->protocol;
-+		i++;
-+		break;
-+	case htons(ETH_P_PPP_SES):
-+		phdr = (struct pppoe_hdr *)skb_network_header(pkt->skb);
-+		tuple->encap[i].id = ntohs(phdr->sid);
-+		tuple->encap[i].proto = pkt->skb->protocol;
-+		i++;
-+		break;
-+	}
-+	tuple->encap_num = i;
-+
-+	err = nft_dev_fill_bridge_path(flow, ft, !dir, out_dev, in_dev,
-+				       eth->h_dest, eth->h_source);
-+	if (err < 0)
-+		return err;
-+
-+	memset(tuple->encap, 0, sizeof(tuple->encap));
-+
-+	err = nft_dev_fill_bridge_path(flow, ft, dir, in_dev, out_dev,
-+				       eth->h_source, eth->h_dest);
-+	if (err < 0)
-+		return err;
-+
-+	return 0;
-+}
-+
- static void nft_dev_forward_path(struct nf_flow_route *route,
- 				 const struct nf_conn *ct,
- 				 enum ip_conntrack_dir dir,
-@@ -311,6 +433,7 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- {
- 	struct nft_flow_offload *priv = nft_expr_priv(expr);
- 	struct nf_flowtable *flowtable = &priv->flowtable->data;
-+	bool routing = flowtable->type->family != NFPROTO_BRIDGE;
- 	struct tcphdr _tcph, *tcph = NULL;
- 	struct nf_flow_route route = {};
- 	enum ip_conntrack_info ctinfo;
-@@ -364,14 +487,21 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- 		goto out;
- 
- 	dir = CTINFO2DIR(ctinfo);
--	if (nft_flow_route(pkt, ct, &route, dir, priv->flowtable) < 0)
--		goto err_flow_route;
-+	if (routing) {
-+		if (nft_flow_route(pkt, ct, &route, dir, priv->flowtable) < 0)
-+			goto err_flow_route;
-+	}
- 
- 	flow = flow_offload_alloc(ct);
- 	if (!flow)
- 		goto err_flow_alloc;
- 
--	flow_offload_route_init(flow, &route);
-+	if (routing)
-+		flow_offload_route_init(flow, &route);
-+	else
-+		if (nft_flow_offload_bridge_init(flow, pkt, dir, priv->flowtable) < 0)
-+			goto err_flow_add;
-+
- 	if (tcph)
- 		flow_offload_ct_tcp(ct);
- 
-@@ -419,8 +549,10 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- err_flow_add:
- 	flow_offload_free(flow);
- err_flow_alloc:
--	dst_release(route.tuple[dir].dst);
--	dst_release(route.tuple[!dir].dst);
-+	if (routing) {
-+		dst_release(route.tuple[dir].dst);
-+		dst_release(route.tuple[!dir].dst);
-+	}
- err_flow_route:
- 	clear_bit(IPS_OFFLOAD_BIT, &ct->status);
- out:
--- 
-2.47.1
+I see a lot of confusion and misunderstandings in this thread. And
+initially got very confused by the cover letter, too, and needed to
+recheck the MCAST_FLOOD flag behaviour in the code and in practice :-).
 
+> There is a use case where one would like to enable multicast snooping
+> on a bridge but disable multicast flooding on all bridge ports so that
+> registered multicast traffic will only reach the intended recipients and
+> unregistered multicast traffic will be dropped.
+
+To clarify for others: This is exactly what the Linux bridge does
+right now. With bridge multicast snooping enabled and active
+(a querier is present) any snoopable, unregistered (no MDB entry)
+IP multicast payload traffic will only be forwarded to ports which
+were either manually set to a multicast router port or where a
+multicast router was detected via IGMP/MLD query, MRD or PIM
+snooping. And if no such port exists, will be dropped.
+
+The current per port MCAST_FLOOD flag implementation does not change this
+behaviour. Its current (unfortunately not very well documented)
+behaviour is basically, mainly to decide on what to do with packets
+which the bridge multicast snooping code *can not* deal with / can
+not learn about. Which can be because multicast snooping is
+disabled, because there is no IGMP/MLD querier, because they are
+IGMPv1/v2/MLDv1 packets, because they are not in the RFC4541
+defined snoopable address ranges - or because it is a multicast
+packet which is not an IP packet after all. The last case should
+make it clear why the MCAST_FLOOD is 1/enabled by default. Which
+might be a bit confusing/counterintuitive initially when
+coming and thinking from the other, the IP snooping direction.
+
+> bridge ports' mcast_flood flag implementation, it doesn't work as desired.
+
+The important context to the "it doesn't work as desired"
+can be found some lines later:
+"3. A hardware offloading switch is involved".
+
+The main issue seems that the learned or manually set multicast
+router ports in the Linux bridge are not propagated down to the
+actual multicast offloading switches. And therefore these switches
+won't be able to follow RFC4541, which will potentially lead to
+packet loss for multicast packets, both routable ones - as
+multicast routers are not detected - but also for non-routable ones
+due to potential IGMPv1/v2/MLDv1 report suppression.
+This is the main issue this patchset tries to tackle, making
+multicast offloading switches with kernelspace IGMP/MLD snooping
+RFC4541 compliant, I believe?
+
+-----
+
+> [PATCH RFC net-next 03/10] net: bridge: Always flood local subnet mc packets
+> ...
+> If multicast flooding is disabled on a bridge port, local subnet multicast
+> packets from the bridge will not be forwarded out of that port, even if
+> IGMP snooping is running and the hosts beyond the bridge port are sending
+> Reports to join these groups (e.g., 224.0.0.251)
+
+This is a fix for a regression which patch 01/10 introduced in the first place
+
+> [PATCH RFC net-next 02/10] net: bridge: Always multicast_flood Reports
+> ...
+> Fixes: b00589af3b04 ("bridge: disable snooping if there is no querier")
+
+This is a regression of patch 01/10, the "Fixes" line is
+incorrect.
+
+
+> [PATCH RFC net-next 09/10] net: dsa: mv88e6xxx: Enable mc flood for mrouter port
+
+So this is what the idea of repurposing/redefining of MCAST_FLOOD
+ultimately comes down to, I guess?
+
+I'm wondering, shouldn't the information you're looking for already
+be available inside the Linux bridge as is? As it
+right now correctly knows when to flood on a port?
+Hm, would it maybe alternatively be possible to somehow call the
+new dsa_switch_ops.port_mrouter you're adding - which
+seems to be a missing, key part to fix this in the DSA API -
+from for instance br_port_mc_router_state_change() instead?
+Without needing any new or redefined state or knob in the
+Linux bridge?
+
+I'm also not quite sure yet what effect your proposed changes to
+the MCAST_FLOOD knob would have to non-IP multicast packets -
+could it break them?
+
+-----
+
+For the discussion regarding more knobs for a more fine-grained
+control for flooding various types of packets: I agree that would
+be nice to have. But I don't think it's necessary to fix the
+original issue which Joseph tries to address.
+
+Also I think they maybe should be added afterwards, after fixing
+the issue with offloading switches? As already as is the port
+MCAST_FLOOD and BR_INPUT_SKB_CB(skb)->mrouters_only flags
+interactions are quite hard to follow and confusing in the
+Linux bridge code (qed.?).
+
+Regards, Linus
+
+
+PS: Also adding Jan Hoffmann, Birger Koblitz and
+Sebastian Gottschall to CC, as they seem to have been working on
+getting such a feature running in OpenWrt/DD-Wrt for rtl83xx
+DSA switches, too.
