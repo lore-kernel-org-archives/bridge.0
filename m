@@ -1,94 +1,118 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.netfilter.org (mail.netfilter.org [217.70.190.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F042F4A
-	for <bridge@lists.linux.dev>; Fri, 14 Mar 2025 10:38:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AC121FDA8A
+	for <bridge@lists.linux.dev>; Fri, 14 Mar 2025 12:37:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.190.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741948714; cv=none; b=aheOE1N0uMnMVXm15URhAP9oAMr0Q3qm4JxagEVqa9DyOTLEGcUiSqLFRJnmtk960B47pXoTb9rT74rFzRsAwNkFwMp9WLNTT2qJcn5ivPwThSwqW+CP+kbT3YTEyA8Vp+mRwNNlpfxWweshZM05pzgu5GGU9sCHx6OQVAR8iQw=
+	t=1741955884; cv=none; b=tRk9ZdkUs8ZP9AymJ4UZnUhROJoO2+d/orZN42J4tTUQh3ktyN/Okke3InEbDLfJnbFD3konWpjZwdkk3wFfGTyW0mMJPYdElOFI8WYd95HYJV6M/wbA6xZkwQMAoIh/Z02Kb21QfvF2uRfMpmtrkimLgc+yrsA9RawNJSSo6hA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741948714; c=relaxed/simple;
-	bh=k/sk7VJfX+xc/DR6Xfyqsjt/6QLxyzLhgdh8tAXS6UA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OsSQnKdLWv2OXY9gYkk+YmHcxBYpHFjqSWJMrVK5TEcqFMZdQyEp5aP611alyv8KyZjflmhibLbsj1lx/xvjeklbi2Xy2DdbC2pTruYmpayTK26hI7mFOfLp6oxIDcYUh+oyEn4x1EKiNuEqLcS7AKtM/O4k1w+7D35ZKMV6aPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=KhyMGVX8; arc=none smtp.client-ip=209.85.208.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1741955884; c=relaxed/simple;
+	bh=p9mM05uTuuSxp/itWQ1aYr7D/Kek2qjOInkizONDbWo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=u52w0K0bU9nNGhXJ5x98HF27bc1vwWLeAaoQ2skI/P21DZTnbGJx+JIwX4aQuolgVT6w470g+PmdgCtLY6whIsvGAgLQfySbqOHLyKz9TzjVY7qoK2TBmE8uxzVKhgEGNaBplIu3/d9jXzNOjTi/UicOvoTWBTFqdhG/8Oxc01o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org; spf=pass smtp.mailfrom=netfilter.org; dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b=PBHMHtuj; dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b=GSRWPm72; arc=none smtp.client-ip=217.70.190.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=netfilter.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="KhyMGVX8"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-5e5cded3e2eso3013758a12.0
-        for <bridge@lists.linux.dev>; Fri, 14 Mar 2025 03:38:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1741948711; x=1742553511; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xQa/B6nt3kgsdbkom5ifeTDrO/y61K0MNXroRuAN/O0=;
-        b=KhyMGVX8U64+rf8ywfKt879Ud62Ym0TGSPm2xV0HMVU6XDFxPBvBJYfnkJg2o0Q1HF
-         7CRML/Uoz7c0RW5aBkIh2Vsa1jlOpHgTA7bGAmt82HWpAKuRSWSSnJRSXjSu/F9Fybs/
-         rmo0xT31KSHJ0FWHfwIciYCpta/9J7aVOt/fKNNIa/EgldSFkUX7HkF0w71JDx3+++nA
-         ebl0lEksr8LlSWRe636d6PH/3EFV9lm7zZep+S8pZkvwwm4TcBZ81o2OfFoiBadVnZIk
-         IjXwOHFrHlmT3ROS1DxZm7WlkUiYGHvhDIH6sWgqisE0V4ymrM0Kp+g7FTC6KyfaLDL6
-         UanQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741948711; x=1742553511;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xQa/B6nt3kgsdbkom5ifeTDrO/y61K0MNXroRuAN/O0=;
-        b=wuVn4nGO1kUhZXQbbcv4BIjNfR7OzV2wxZa473YIB5aZTf6gaJ+o9SznCGxNDJa4Zg
-         G699Ja1n0cc5058OcMhhtK4lFIbKbDN+9gu/nn4mM/9cNTWevXeSGW1DHLQg1/91Ipp3
-         HHlgYqTVXYGYrOgRlCfjGfev21WsFrhhcjCVWsMNpnhRm/6Hncqy3uhQTCHvCX6ozXGx
-         sbg/J/ddOwEm80alSrT1JgSx1GUiwpeANbby8NJ1ByLKtx4/udoB8EOWne1LOorGE8WN
-         TFi/nC2MH0n1Jx2CgOjEQIXYqF3kGmCBaZuQDsn4/bz1CNJxZdheODEK7x/YEae4AkCI
-         HnCA==
-X-Forwarded-Encrypted: i=1; AJvYcCXDqrLg5HyfwRqzrqjZqhymyb0TK01UrfZOHw1/zdqDgAqxqb7+J1XQwpZXtkmWQlE47rxepk0=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxd6/y5xECKu2iRlJfkBNHqc6P/boVwufV11wD8Xx02ITTh3iqN
-	rLjAi1ytc46212TtfebCvMcmIaVaOOPo7c17a3DU7O5c6KnwOVsPgs7zW7dx6HQ=
-X-Gm-Gg: ASbGncsQ93HLrcdXYmBWSWLtyiUVwWJG2FefadZK0k/RclVYQKVwdOC/Srr0OY0zYad
-	1iW1C6hvNppI/Hrvk6Ps+nF691eiNyU6oiPkLPNmAqqF3D4aBHImyPITU4PMsPKd6Si4Nufho3V
-	cYKdvz+cT149SJnC6xRbH2kSx4/NPfh7bM9DrHbd57747QWdIIMHhCBrGJnyO/BBInM3Ya8MjT2
-	VEbkq/KYU//0hh5elosFZn18IkJifSOuS8ZB4dKiEgCHUvhnvGx5sviUNSECLiXVWyuQ8jNYN6P
-	xR101GxDsmrxF67DebDt7Qk+R1jrj98QZnNuFxQ+ouBGCiLo9y++w7js
-X-Google-Smtp-Source: AGHT+IFU1yLu9tpv1nnF+kpniJQogZiPcfQZOJlEwm6IcPq3xU0Mz61gTDHjYh2+NgVH8czlWjjktQ==
-X-Received: by 2002:a05:6402:26d1:b0:5de:dfd0:9d20 with SMTP id 4fb4d7f45d1cf-5e8a0c1450fmr1961696a12.24.1741948710739;
-        Fri, 14 Mar 2025 03:38:30 -0700 (PDT)
-Received: from [10.20.7.108] ([195.29.209.20])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5e816968ce3sm1818193a12.21.2025.03.14.03.38.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Mar 2025 03:38:30 -0700 (PDT)
-Message-ID: <22026405-bccc-4b65-a5e1-f565b1257fa9@blackwall.org>
-Date: Fri, 14 Mar 2025 12:38:29 +0200
+	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b="PBHMHtuj";
+	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b="GSRWPm72"
+Received: by mail.netfilter.org (Postfix, from userid 109)
+	id 2DD7560549; Fri, 14 Mar 2025 13:37:50 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
+	s=2025; t=1741955870;
+	bh=rPmJhpBheVqSUhPhE5IrqXg0aOCdmG4JQWmir+xGcw0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=PBHMHtujaSgPuonQ9Nfap6d49Jr1/lX6UPgjBSh7qs06s3WhvdUzR2jz9jCdYDoVX
+	 Wbu6w/o09Ra0lB9/wX4MfRNOD1s8qZK+QhG3NIyEldhrn5+yF/FZ5+J8dh15Z1QPKg
+	 emuXeW2nqpnKt8wPDK5ohvjhwegbbvSeOW+cSH11oc6eLGYcHkFN9991BBocw6S9ns
+	 jXCo1+4oA/3EXqnKbFwcGoLlp6i8djv9Whj0u28PfJM+cMjca3C6RnGNE7cgDJyoov
+	 dDTmbiu0WjfPH3Kp0CQbhZyG8nAx4ciXVQhIqwwd1avczjHzGKG+oE6u9J9ivnjb4B
+	 CwuXiOS07JhIA==
+X-Spam-Level: 
+Received: from netfilter.org (mail-agni [217.70.190.124])
+	by mail.netfilter.org (Postfix) with ESMTPSA id 94C35603BE;
+	Fri, 14 Mar 2025 13:37:46 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
+	s=2025; t=1741955866;
+	bh=rPmJhpBheVqSUhPhE5IrqXg0aOCdmG4JQWmir+xGcw0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=GSRWPm72uFyqXTyUIJzzcpsMAUkh40VOnAyEcDD7VyG9eADghYPABLGJQdrSQUmwp
+	 ADzLKsqM/OgNyItHC69MGJkQMY9vFkOIUWclF/hPBeKglTj3RXqIqewOnLmq+PRo5T
+	 wjdPi1wutXLVs+jy6NHGkOQEk4SHS/ftJBZporkZBy527X5e0XMXYM6LO/tD+9fKvu
+	 F8vQ+5giSRhYXullElHg/Tqy98titObJDDwX9UcKwlJBqw8xzb4xomAVpVz7rskQ7K
+	 C+YlaTlzzdrM+cysMJNyirwtjrLw3dDIGKi0pAraMhKV0pHJ70SUuYzFCESM0rIWNj
+	 MBwY2wueKzqNQ==
+Date: Fri, 14 Mar 2025 13:37:43 +0100
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+To: Eric Woudstra <ericwouds@gmail.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Roopa Prabhu <roopa@nvidia.com>, Ivan Vecera <ivecera@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org, bridge@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, linux-hardening@vger.kernel.org,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Frank Wunderlich <frank-w@public-files.de>,
+	Daniel Golle <daniel@makrotopia.org>
+Subject: Re: [PATCH v9 nf 00/15] bridge-fastpath and related improvements
+Message-ID: <Z9QjF5LhavodVA4Y@calendula>
+References: <20250305102949.16370-1-ericwouds@gmail.com>
+ <897ade0e-a4d0-47d0-8bf7-e5888ef45a61@gmail.com>
+ <Z9DKxOnxr1fSv0On@calendula>
+ <58cbe875-80e7-4a44-950b-b836b97f3259@gmail.com>
+ <Z9IUrL0IHTKQMUvC@calendula>
+ <02b97708-1214-4fa4-a011-70388cff8f79@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] MAINTAINERS: update bridge entry
-To: netdev@vger.kernel.org
-Cc: idosch@nvidia.com, idosch@idosch.org, pabeni@redhat.com, kuba@kernel.org,
- bridge@lists.linux.dev, davem@davemloft.net, Roopa Prabhu <roopa@nvidia.com>
-References: <20250314100631.40999-1-razor@blackwall.org>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20250314100631.40999-1-razor@blackwall.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <02b97708-1214-4fa4-a011-70388cff8f79@gmail.com>
 
-+CC Roopa (sorry, my bad)
+On Thu, Mar 13, 2025 at 07:01:38PM +0100, Eric Woudstra wrote:
+> 
+> 
+> On 3/13/25 12:11 AM, Pablo Neira Ayuso wrote:
+> 
+> >> What do you suggest?
+> > 
+> > Probably I can collect 4/15 and 5/15 from this series to be included
+> > in the next pull request, let me take a look. But it would be good to
+> > have tests for these two patches.
+> > 
+> 
+> These are not most important to bridge-fastpath, but it gives extra
+> possibilities. How about concentrating first on patch 2/15 (with 1/15
+> removing a warning and 3/15 cleaning up), adding nf_flow_encap_push()
+> for xmit direct? It is a vital patch for the bridge-fastpath.
 
-On 3/14/25 12:06 PM, Nikolay Aleksandrov wrote:
-> Roopa has decided to withdraw as a bridge maintainer and Ido has agreed to
-> step up and co-maintain the bridge with me. He has been very helpful in
-> bridge patch reviews and has contributed a lot to the bridge over the
-> years. Add an entry for Roopa to CREDITS and also add bridge's headers
-> to its MAINTAINERS entry.
-> 
-> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
-> ---
->  CREDITS     | 4 ++++
->  MAINTAINERS | 4 +++-
->  2 files changed, 7 insertions(+), 1 deletion(-)
-> 
+I see cleanup patch 3/15 is a consequence of 2/15, let me take a look.
+
+> Anyway, I will look into writing selftests for conntrack-bridge setup,
+> including various vlan setups. This will take me some time, which I
+> do not have in abundance, so for that I do not know if I get it done
+> before the merge window.
+
+There is tools/testing/selftests/net/netfilter/nft_flowtable.sh that
+can possibly be extended to improve coverage.
+
+Thanks.
