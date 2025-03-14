@@ -1,59 +1,72 @@
-Received: from smtp-fw-9102.amazon.com (smtp-fw-9102.amazon.com [207.171.184.29])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f68.google.com (mail-ed1-f68.google.com [209.85.208.68])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF9EF2E339C
-	for <bridge@lists.linux.dev>; Fri, 14 Mar 2025 01:05:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.184.29
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CEDD1EF09A
+	for <bridge@lists.linux.dev>; Fri, 14 Mar 2025 10:07:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.68
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741914341; cv=none; b=uXzKx8lLZzgPaqu+mPyFK+mqqV0b6T6qOL478xzwGBfmCLQpMEPN8RtWdQQcf8+QwFAjDuPhKnMdKid55kKkNP7CDV90H83sVR4TA0mXIfgo/WDrqrTRlTaYxxN1sGrH3gwkZaipd/hq+ru3DmbzQ1VTHRAJKT7JybNoD48CFpc=
+	t=1741946865; cv=none; b=UgLOudhP0IIbbQccuw6YSVl02Movs+6kt7aHx6LK7u7FdPBTEn0A+DoJDEFqtH1aM/jApTn1sck4hy8inr+Y7EPGeLMWNAKlcyjF6taNFqsanXbpTRbmmawiKwLmQk6eMt3z8QPdkh8JDg8lzzgozUpebQEkGNVB2J12m6sprVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741914341; c=relaxed/simple;
-	bh=RWfHM04CRLSVakc/+Q7Ea9TmMuqzgXdCgeyNQqe4/7c=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=E01fWdez/aEldAlC9w99YOMcc1Ot6bhiKizMgFXMpccHG8Ppii138iUv+R/tMft03hp3CMzHCrZlaH4bjLsSx9hBNPvEDnUJwd//+sv1MRq11VPCVpq0palGkCCjE9jpiALWHk5KkWKLxMdSUaSyQqGlzASde1LD/Darg0nZLYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=r13rmM/s; arc=none smtp.client-ip=207.171.184.29
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1741946865; c=relaxed/simple;
+	bh=8HKls/vyB5Nb7yFTUbMYOUr3j4jvqnSvKpBCWy4txP4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fVPeUNVEY2ObiLLC68se19myw0nYhhK4P/dsllnjlfywDc1yIprFHIe0hgWpIB/CIQdEENKkdOA79V1rbX33DfMqr2BX3/Ao/uibqVFt1G8eCWXbG5Kaa4/jQrP6l774XZtO5Ur5Mz1pOVYRFjedQ0ItjqyfmIrk8G6N2nvm2AA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=ivXDaplO; arc=none smtp.client-ip=209.85.208.68
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="r13rmM/s"
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="ivXDaplO"
+Received: by mail-ed1-f68.google.com with SMTP id 4fb4d7f45d1cf-5e56b229d60so5585226a12.0
+        for <bridge@lists.linux.dev>; Fri, 14 Mar 2025 03:07:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1741914340; x=1773450340;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=zoKpsU0KNMd6h7/WS3eBCRSJwEeXuhfFAALWP5WKWhQ=;
-  b=r13rmM/s2HjrNqPMexArDaZauUjsy3TS4XYWaWd5IU8D0xCP7Vym1Tgn
-   EXjsTotHWfiDTxSM8ZayCpboOnnt6LfgS34uqNNsusBjCF54KIunSAFPP
-   AYOM48cJ6TaZkOBi0ilFFE6jl0CPHb1e5OM7IWbBR7UQA2G0V4dJ3IQhu
-   k=;
-X-IronPort-AV: E=Sophos;i="6.14,246,1736812800"; 
-   d="scan'208";a="502696723"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.214])
-  by smtp-border-fw-9102.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2025 01:05:20 +0000
-Received: from EX19MTAUWC001.ant.amazon.com [10.0.21.151:48358]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.40.40:2525] with esmtp (Farcaster)
- id 9bde055f-52eb-4aea-8944-756e683eff67; Fri, 14 Mar 2025 01:05:19 +0000 (UTC)
-X-Farcaster-Flow-ID: 9bde055f-52eb-4aea-8944-756e683eff67
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWC001.ant.amazon.com (10.250.64.174) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Fri, 14 Mar 2025 01:05:19 +0000
-Received: from 6c7e67bfbae3.amazon.com (10.142.242.222) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Fri, 14 Mar 2025 01:05:15 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
-	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu
-	<roopa@nvidia.com>, Nikolay Aleksandrov <razor@blackwall.org>, "Willem de
- Bruijn" <willemb@google.com>, Simon Horman <horms@kernel.org>
-CC: Kuniyuki Iwashima <kuniyu@amazon.com>, Kuniyuki Iwashima
-	<kuni1840@gmail.com>, <netdev@vger.kernel.org>, <bridge@lists.linux.dev>,
-	syzkaller <syzkaller@googlegroups.com>, yan kang <kangyan91@outlook.com>,
-	"yue sun" <samsun1006219@gmail.com>
-Subject: [PATCH v1 net] net: Remove RTNL dance for SIOCBRADDIF and SIOCBRDELIF.
-Date: Thu, 13 Mar 2025 17:59:55 -0700
-Message-ID: <20250314010501.75798-1-kuniyu@amazon.com>
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1741946861; x=1742551661; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=cfffNHYI49Xl5zPC144OdkSFN9wBx2U8lL7yj9iYGbU=;
+        b=ivXDaplOLkbsF7tIpfXxDEVnzhU3pmeZADob2vVdGbx1D+yQiLdIB9s9JoSXSZzfPT
+         8MYHi2kGMMJrFQvKBHEiPPo6Hc/Pqmv1+D6V1oYdg4C4ou64H55wTwBxbQN+3g5a63sH
+         dkZgTTVkxAaid5wtNyUJPr7ADTOsZS/2E8GjBUVtVm9UU4WChYLo7HbmPM3EqyF88EBw
+         NySR/zxWoRVcjTudyVqiwNnJZ8uYuUVPUCH+lf20eujU7tKxI3j8kWTuIfJRhXl/CY/B
+         Wf77/3eHmYyj4vgPph2ygBfbO9OtRZTC/ckK0XEpFsDfddUooVgA0fafcLJJ2vsIsQKT
+         6q9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741946861; x=1742551661;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=cfffNHYI49Xl5zPC144OdkSFN9wBx2U8lL7yj9iYGbU=;
+        b=qmJX2AxOfsaDIKkKWKb+uJifwfIQZyllhdlvzmuCTI83/Y91FOZdnS1iepQ6m56s9D
+         r6RnPHALMVYMwZnrtsTGja3A6Uadr7k4cbEYj4SkJfBVXjyrFpA3s/Py7qGefN23Y5Pe
+         qaAv913+oJ5eqTpc3jopCObKo4+NDwkGRyfJPEYstQst5uL92lFbBMOJkiXlWwb5hOBg
+         iJTWNqlO87SE0wuqwxeJ4/wuI6LOYKIFqeHJj/SzSe7do27m5L2Rm+Xpdq0I/rFT9RX2
+         oJHyzanAfAD28HMds4hkFdDzmup0Qdo9MzP7KxyaHb78BS3+0kqpBj4VY3B9Xz1AKwMx
+         mDdQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXTtNzaeqrGvECQgVoTSKNbVlOoKCgwO5OMH5Vx0OD+8x6FUNCMA3rFCAfHCGQ6dbnftcTI5wI=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxJ8TDs/GXhoBmT26VZjJh7zcxS6l/hBNfxW6WggngyYaVkJq+U
+	0wFnGfKFAoiA4rrTWfZ657q+J4Jr5GyxdMTUJ1m8NQoHCoqgBacNxGsjMiEMHOY=
+X-Gm-Gg: ASbGncvbman4haDLX1K//Mv0Sokt4A56mEx4o1+K63LL1+4EwtgMCBvLFDiZlhC9L9a
+	KLBFq7feXgpyjnYbcvkbG/CbSnD8ryiYtezSqsrH9vn1t4qkIYCwOPk1ZHXqjMLgkc+s44Wm1Aa
+	caUlVs+jnOrbSj3A4YsCkOFMl+kvsO9ALYo+WGDph3aH8md2+GNovOXohRdx2hFq7X8wyVUF1ni
+	XmXC5vcv6FMjwass4T4NBkTVyNyygga/PFPv022oYZGKHFMgoCgMmmSYp3or+fYsY7AtYOtj8Cb
+	0L33/qjjEtHgI9uyOjM8XdJmq69uoCXdTrU=
+X-Google-Smtp-Source: AGHT+IGwUZoSMFSvs6YN2fIDJa6ZdB6rTlqmRL2w5zcN20nZYYMiUFmpXajVLtXPMDz24Mri2X0QDw==
+X-Received: by 2002:a05:6402:1ecc:b0:5e0:6e6c:e2b5 with SMTP id 4fb4d7f45d1cf-5e814dedc7dmr6711949a12.9.1741946860969;
+        Fri, 14 Mar 2025 03:07:40 -0700 (PDT)
+Received: from dev.. ([195.29.209.28])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5e816afe26bsm1770804a12.72.2025.03.14.03.07.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Mar 2025 03:07:40 -0700 (PDT)
+From: Nikolay Aleksandrov <razor@blackwall.org>
+To: netdev@vger.kernel.org
+Cc: idosch@nvidia.com,
+	idosch@idosch.org,
+	pabeni@redhat.com,
+	kuba@kernel.org,
+	bridge@lists.linux.dev,
+	davem@davemloft.net,
+	Nikolay Aleksandrov <razor@blackwall.org>
+Subject: [PATCH net-next] MAINTAINERS: update bridge entry
+Date: Fri, 14 Mar 2025 12:06:31 +0200
+Message-ID: <20250314100631.40999-1-razor@blackwall.org>
 X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -62,308 +75,54 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D043UWC003.ant.amazon.com (10.13.139.240) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
 
-SIOCBRDELIF is passed to dev_ioctl() first and later forwarded to
-br_ioctl_call(), which causes unnecessary RTNL dance and the splat
-below [0] under RTNL pressure.
+Roopa has decided to withdraw as a bridge maintainer and Ido has agreed to
+step up and co-maintain the bridge with me. He has been very helpful in
+bridge patch reviews and has contributed a lot to the bridge over the
+years. Add an entry for Roopa to CREDITS and also add bridge's headers
+to its MAINTAINERS entry.
 
-Let's say Thread A is trying to detach a device from a bridge and
-Thread B is trying to remove the bridge.
-
-In dev_ioctl(), Thread A bumps the bridge device's refcnt by
-netdev_hold() and releases RTNL because the following br_ioctl_call()
-also re-acquires RTNL.
-
-In the race window, Thread B could acquire RTNL and try to remove
-the bridge device.  Then, rtnl_unlock() by Thread B will release RTNL
-and wait for netdev_put() by Thread A.
-
-Thread A, however, must hold RTNL twice after the unlock in dev_ifsioc(),
-which may take long under RTNL pressure, resulting in the splat by
-Thread B.
-
-  Thread A (SIOCBRDELIF)           Thread B (SIOCBRDELBR)
-  ----------------------           ----------------------
-  sock_ioctl                       sock_ioctl
-  `- sock_do_ioctl                 `- br_ioctl_call
-     `- dev_ioctl                     `- br_ioctl_stub
-        |- rtnl_lock                     |
-        |- dev_ifsioc                    '
-        '  |- dev = __dev_get_by_name(...)
-           |- netdev_hold(dev, ...)      .
-       /   |- rtnl_unlock  ------.       |
-       |   |- br_ioctl_call       `--->  |- rtnl_lock
-  Race |   |  `- br_ioctl_stub           |- br_del_bridge
-  Window   |     |                       |  |- dev = __dev_get_by_name(...)
-       |   |     |  May take long        |  `- br_dev_delete(dev, ...)
-       |   |     |  under RTNL pressure  |     `- unregister_netdevice_queue(dev, ...)
-       |   |     |                |      `- rtnl_unlock
-       |   |     |- rtnl_lock  <--|         `- netdev_run_todo
-       |   |     |- ...           |            `- netdev_run_todo
-       |   |     `- rtnl_unlock   |               |- __rtnl_unlock
-       |   |                      |               |- netdev_wait_allrefs_any
-       \   |- rtnl_lock  <--------'                  |
-           |- netdev_put(dev, ...)  <----------------'  Wait refcnt decrement
-                                                        and log splat below
-
-To avoid blocking SIOCBRDELBR unnecessarily, let's not call
-dev_ioctl() for SIOCBRADDIF and SIOCBRDELIF.
-
-In the dev_ioctl() path, we do the following:
-
-  1. Copy struct ifreq by get_user_ifreq in sock_do_ioctl()
-  2. Check CAP_NET_ADMIN in dev_ioctl()
-  3. Call dev_load() in dev_ioctl()
-  4. Fetch the master dev from ifr.ifr_name in dev_ifsioc()
-
-3. can be done by request_module() in br_ioctl_call(), so we move
-1., 2., and 4. to br_ioctl_stub().
-
-Note that 2. is also checked later in add_del_if(), but it's better
-performed before RTNL.
-
-SIOCBRADDIF and SIOCBRDELIF have been processed in dev_ioctl() since
-the pre-git era, and there seems to be no specific reason to process
-them there.
-
-[0]:
-unregister_netdevice: waiting for wpan3 to become free. Usage count = 2
-ref_tracker: wpan3@ffff8880662d8608 has 1/1 users at
-     __netdev_tracker_alloc include/linux/netdevice.h:4282 [inline]
-     netdev_hold include/linux/netdevice.h:4311 [inline]
-     dev_ifsioc+0xc6a/0x1160 net/core/dev_ioctl.c:624
-     dev_ioctl+0x255/0x10c0 net/core/dev_ioctl.c:826
-     sock_do_ioctl+0x1ca/0x260 net/socket.c:1213
-     sock_ioctl+0x23a/0x6c0 net/socket.c:1318
-     vfs_ioctl fs/ioctl.c:51 [inline]
-     __do_sys_ioctl fs/ioctl.c:906 [inline]
-     __se_sys_ioctl fs/ioctl.c:892 [inline]
-     __x64_sys_ioctl+0x1a4/0x210 fs/ioctl.c:892
-     do_syscall_x64 arch/x86/entry/common.c:52 [inline]
-     do_syscall_64+0xcb/0x250 arch/x86/entry/common.c:83
-     entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-Fixes: 893b19587534 ("net: bridge: fix ioctl locking")
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Reported-by: yan kang <kangyan91@outlook.com>
-Reported-by: yue sun <samsun1006219@gmail.com>
-Closes: https://lore.kernel.org/netdev/SY8P300MB0421225D54EB92762AE8F0F2A1D32@SY8P300MB0421.AUSP300.PROD.OUTLOOK.COM/
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- include/linux/if_bridge.h |  6 ++----
- net/bridge/br_ioctl.c     | 39 ++++++++++++++++++++++++++++++++++++---
- net/bridge/br_private.h   |  3 +--
- net/core/dev_ioctl.c      | 19 -------------------
- net/socket.c              | 19 +++++++++----------
- 5 files changed, 48 insertions(+), 38 deletions(-)
+ CREDITS     | 4 ++++
+ MAINTAINERS | 4 +++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 3ff96ae31bf6..c5fe3b2a53e8 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -65,11 +65,9 @@ struct br_ip_list {
- #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+diff --git a/CREDITS b/CREDITS
+index 53d11a46fd69..d71d42c30044 100644
+--- a/CREDITS
++++ b/CREDITS
+@@ -3233,6 +3233,10 @@ N: Rui Prior
+ E: rprior@inescn.pt
+ D: ATM device driver for NICStAR based cards
  
- struct net_bridge;
--void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
--			     unsigned int cmd, struct ifreq *ifr,
-+void brioctl_set(int (*hook)(struct net *net, unsigned int cmd,
- 			     void __user *uarg));
--int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
--		  struct ifreq *ifr, void __user *uarg);
-+int br_ioctl_call(struct net *net, unsigned int cmd, void __user *uarg);
- 
- #if IS_ENABLED(CONFIG_BRIDGE) && IS_ENABLED(CONFIG_BRIDGE_IGMP_SNOOPING)
- int br_multicast_list_adjacent(struct net_device *dev,
-diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
-index f213ed108361..b5a607f6da4e 100644
---- a/net/bridge/br_ioctl.c
-+++ b/net/bridge/br_ioctl.c
-@@ -394,10 +394,29 @@ static int old_deviceless(struct net *net, void __user *data)
- 	return -EOPNOTSUPP;
- }
- 
--int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
--		  struct ifreq *ifr, void __user *uarg)
-+int br_ioctl_stub(struct net *net, unsigned int cmd, void __user *uarg)
- {
- 	int ret = -EOPNOTSUPP;
-+	struct ifreq ifr;
++N: Roopa Prabhu
++E: roopa@nvidia.com
++D: Bridge co-maintainer, vxlan and networking contributor
 +
-+	switch (cmd) {
-+	case SIOCBRADDIF:
-+	case SIOCBRDELIF: {
-+		void __user *data;
-+		char *colon;
-+
-+		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
-+			return -EPERM;
-+
-+		if (get_user_ifreq(&ifr, &data, uarg))
-+			return -EFAULT;
-+
-+		ifr.ifr_name[IFNAMSIZ - 1] = 0;
-+		colon = strchr(ifr.ifr_name, ':');
-+		if (colon)
-+			*colon = 0;
-+	}
-+	}
+ N: Stefan Probst
+ E: sp@caldera.de
+ D: The Linux Support Team Erlangen, 1993-97
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 241ca9e260a2..3169b1e3f006 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8590,12 +8590,14 @@ F:	Documentation/networking/devlink/etas_es58x.rst
+ F:	drivers/net/can/usb/etas_es58x/
  
- 	rtnl_lock();
+ ETHERNET BRIDGE
+-M:	Roopa Prabhu <roopa@nvidia.com>
+ M:	Nikolay Aleksandrov <razor@blackwall.org>
++M:	Ido Schimmel <idosch@nvidia.com>
+ L:	bridge@lists.linux.dev
+ L:	netdev@vger.kernel.org
+ S:	Maintained
+ W:	http://www.linuxfoundation.org/en/Net:Bridge
++F:	include/linux/if_bridge.h
++F:	include/uapi/linux/if_bridge.h
+ F:	include/linux/netfilter_bridge/
+ F:	net/bridge/
  
-@@ -430,9 +449,23 @@ int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
- 		break;
- 	case SIOCBRADDIF:
- 	case SIOCBRDELIF:
--		ret = add_del_if(br, ifr->ifr_ifindex, cmd == SIOCBRADDIF);
-+	{
-+		struct net_device *dev;
-+
-+		dev = __dev_get_by_name(net, ifr.ifr_name);
-+		if (!dev || !netif_device_present(dev)) {
-+			ret = -ENODEV;
-+			break;
-+		}
-+		if (!netif_is_bridge_master(dev)) {
-+			ret = -EOPNOTSUPP;
-+			break;
-+		}
-+
-+		ret = add_del_if(netdev_priv(dev), ifr.ifr_ifindex, cmd == SIOCBRADDIF);
- 		break;
- 	}
-+	}
- 
- 	rtnl_unlock();
- 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 1054b8a88edc..d5b3c5936a79 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -949,8 +949,7 @@ br_port_get_check_rtnl(const struct net_device *dev)
- /* br_ioctl.c */
- int br_dev_siocdevprivate(struct net_device *dev, struct ifreq *rq,
- 			  void __user *data, int cmd);
--int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
--		  struct ifreq *ifr, void __user *uarg);
-+int br_ioctl_stub(struct net *net, unsigned int cmd, void __user *uarg);
- 
- /* br_multicast.c */
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
-diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
-index 4c2098ac9d72..57f79f8e8466 100644
---- a/net/core/dev_ioctl.c
-+++ b/net/core/dev_ioctl.c
-@@ -551,7 +551,6 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
- 	int err;
- 	struct net_device *dev = __dev_get_by_name(net, ifr->ifr_name);
- 	const struct net_device_ops *ops;
--	netdevice_tracker dev_tracker;
- 
- 	if (!dev)
- 		return -ENODEV;
-@@ -614,22 +613,6 @@ static int dev_ifsioc(struct net *net, struct ifreq *ifr, void __user *data,
- 	case SIOCWANDEV:
- 		return dev_siocwandev(dev, &ifr->ifr_settings);
- 
--	case SIOCBRADDIF:
--	case SIOCBRDELIF:
--		if (!netif_device_present(dev))
--			return -ENODEV;
--		if (!netif_is_bridge_master(dev))
--			return -EOPNOTSUPP;
--
--		netdev_hold(dev, &dev_tracker, GFP_KERNEL);
--		rtnl_net_unlock(net);
--
--		err = br_ioctl_call(net, netdev_priv(dev), cmd, ifr, NULL);
--
--		netdev_put(dev, &dev_tracker);
--		rtnl_net_lock(net);
--		return err;
--
- 	case SIOCDEVPRIVATE ... SIOCDEVPRIVATE + 15:
- 		return dev_siocdevprivate(dev, ifr, data, cmd);
- 
-@@ -812,8 +795,6 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
- 	case SIOCBONDRELEASE:
- 	case SIOCBONDSETHWADDR:
- 	case SIOCBONDCHANGEACTIVE:
--	case SIOCBRADDIF:
--	case SIOCBRDELIF:
- 	case SIOCSHWTSTAMP:
- 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
- 			return -EPERM;
-diff --git a/net/socket.c b/net/socket.c
-index 28bae5a94234..38227d00d198 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1145,12 +1145,10 @@ static ssize_t sock_write_iter(struct kiocb *iocb, struct iov_iter *from)
-  */
- 
- static DEFINE_MUTEX(br_ioctl_mutex);
--static int (*br_ioctl_hook)(struct net *net, struct net_bridge *br,
--			    unsigned int cmd, struct ifreq *ifr,
-+static int (*br_ioctl_hook)(struct net *net, unsigned int cmd,
- 			    void __user *uarg);
- 
--void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
--			     unsigned int cmd, struct ifreq *ifr,
-+void brioctl_set(int (*hook)(struct net *net, unsigned int cmd,
- 			     void __user *uarg))
- {
- 	mutex_lock(&br_ioctl_mutex);
-@@ -1159,8 +1157,7 @@ void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
- }
- EXPORT_SYMBOL(brioctl_set);
- 
--int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
--		  struct ifreq *ifr, void __user *uarg)
-+int br_ioctl_call(struct net *net, unsigned int cmd, void __user *uarg)
- {
- 	int err = -ENOPKG;
- 
-@@ -1169,7 +1166,7 @@ int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
- 
- 	mutex_lock(&br_ioctl_mutex);
- 	if (br_ioctl_hook)
--		err = br_ioctl_hook(net, br, cmd, ifr, uarg);
-+		err = br_ioctl_hook(net, cmd, uarg);
- 	mutex_unlock(&br_ioctl_mutex);
- 
- 	return err;
-@@ -1269,7 +1266,9 @@ static long sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 		case SIOCSIFBR:
- 		case SIOCBRADDBR:
- 		case SIOCBRDELBR:
--			err = br_ioctl_call(net, NULL, cmd, NULL, argp);
-+		case SIOCBRADDIF:
-+		case SIOCBRDELIF:
-+			err = br_ioctl_call(net, cmd, argp);
- 			break;
- 		case SIOCGIFVLAN:
- 		case SIOCSIFVLAN:
-@@ -3429,6 +3428,8 @@ static int compat_sock_ioctl_trans(struct file *file, struct socket *sock,
- 	case SIOCGPGRP:
- 	case SIOCBRADDBR:
- 	case SIOCBRDELBR:
-+	case SIOCBRADDIF:
-+	case SIOCBRDELIF:
- 	case SIOCGIFVLAN:
- 	case SIOCSIFVLAN:
- 	case SIOCGSKNS:
-@@ -3468,8 +3469,6 @@ static int compat_sock_ioctl_trans(struct file *file, struct socket *sock,
- 	case SIOCGIFPFLAGS:
- 	case SIOCGIFTXQLEN:
- 	case SIOCSIFTXQLEN:
--	case SIOCBRADDIF:
--	case SIOCBRDELIF:
- 	case SIOCGIFNAME:
- 	case SIOCSIFNAME:
- 	case SIOCGMIIPHY:
 -- 
 2.48.1
 
