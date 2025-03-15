@@ -1,118 +1,109 @@
-Received: from mail.netfilter.org (mail.netfilter.org [217.70.190.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AC121FDA8A
-	for <bridge@lists.linux.dev>; Fri, 14 Mar 2025 12:37:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.190.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB1461993B2
+	for <bridge@lists.linux.dev>; Sat, 15 Mar 2025 20:00:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741955884; cv=none; b=tRk9ZdkUs8ZP9AymJ4UZnUhROJoO2+d/orZN42J4tTUQh3ktyN/Okke3InEbDLfJnbFD3konWpjZwdkk3wFfGTyW0mMJPYdElOFI8WYd95HYJV6M/wbA6xZkwQMAoIh/Z02Kb21QfvF2uRfMpmtrkimLgc+yrsA9RawNJSSo6hA=
+	t=1742068859; cv=none; b=X/c/3PCQFltV6cHa3GLoe2nnvmthR6zOcuQRKYNaIh4oG3/Y8QTNKgJIPiFg+MXeFU13MfTdLWC5yBEr3Z7lwBWZEIMIFPD50sfp1zy3f1ER6ZFNpEB5E98a8/W8CCqaS217e4kz7r/FYg4OILJLdR/MIIsTaUKIWgxHzmKjZ6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741955884; c=relaxed/simple;
-	bh=p9mM05uTuuSxp/itWQ1aYr7D/Kek2qjOInkizONDbWo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=u52w0K0bU9nNGhXJ5x98HF27bc1vwWLeAaoQ2skI/P21DZTnbGJx+JIwX4aQuolgVT6w470g+PmdgCtLY6whIsvGAgLQfySbqOHLyKz9TzjVY7qoK2TBmE8uxzVKhgEGNaBplIu3/d9jXzNOjTi/UicOvoTWBTFqdhG/8Oxc01o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org; spf=pass smtp.mailfrom=netfilter.org; dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b=PBHMHtuj; dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b=GSRWPm72; arc=none smtp.client-ip=217.70.190.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=netfilter.org
+	s=arc-20240116; t=1742068859; c=relaxed/simple;
+	bh=G/yRi1RkWD5UbSObIL3zoX8Hp7Dk5qAFsA6XXdFr9Go=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DFoDV2dchlzrpQeg0sLlJOjGaKY8EJD1nheXHDWWcaGA/bKbiGatIcQuSfaXAqUmNb3Tn5m29uYO7mvFAADp+m/M7F/kLBx463aU826RsyWuW3eZEeRO1IEBTpYkDWSghqCu+Q+nEGyDG4h2s5+fRZiK1SybGhOJPOzhXpn4gw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XfE+s1OD; arc=none smtp.client-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b="PBHMHtuj";
-	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b="GSRWPm72"
-Received: by mail.netfilter.org (Postfix, from userid 109)
-	id 2DD7560549; Fri, 14 Mar 2025 13:37:50 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
-	s=2025; t=1741955870;
-	bh=rPmJhpBheVqSUhPhE5IrqXg0aOCdmG4JQWmir+xGcw0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=PBHMHtujaSgPuonQ9Nfap6d49Jr1/lX6UPgjBSh7qs06s3WhvdUzR2jz9jCdYDoVX
-	 Wbu6w/o09Ra0lB9/wX4MfRNOD1s8qZK+QhG3NIyEldhrn5+yF/FZ5+J8dh15Z1QPKg
-	 emuXeW2nqpnKt8wPDK5ohvjhwegbbvSeOW+cSH11oc6eLGYcHkFN9991BBocw6S9ns
-	 jXCo1+4oA/3EXqnKbFwcGoLlp6i8djv9Whj0u28PfJM+cMjca3C6RnGNE7cgDJyoov
-	 dDTmbiu0WjfPH3Kp0CQbhZyG8nAx4ciXVQhIqwwd1avczjHzGKG+oE6u9J9ivnjb4B
-	 CwuXiOS07JhIA==
-X-Spam-Level: 
-Received: from netfilter.org (mail-agni [217.70.190.124])
-	by mail.netfilter.org (Postfix) with ESMTPSA id 94C35603BE;
-	Fri, 14 Mar 2025 13:37:46 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
-	s=2025; t=1741955866;
-	bh=rPmJhpBheVqSUhPhE5IrqXg0aOCdmG4JQWmir+xGcw0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=GSRWPm72uFyqXTyUIJzzcpsMAUkh40VOnAyEcDD7VyG9eADghYPABLGJQdrSQUmwp
-	 ADzLKsqM/OgNyItHC69MGJkQMY9vFkOIUWclF/hPBeKglTj3RXqIqewOnLmq+PRo5T
-	 wjdPi1wutXLVs+jy6NHGkOQEk4SHS/ftJBZporkZBy527X5e0XMXYM6LO/tD+9fKvu
-	 F8vQ+5giSRhYXullElHg/Tqy98titObJDDwX9UcKwlJBqw8xzb4xomAVpVz7rskQ7K
-	 C+YlaTlzzdrM+cysMJNyirwtjrLw3dDIGKi0pAraMhKV0pHJ70SUuYzFCESM0rIWNj
-	 MBwY2wueKzqNQ==
-Date: Fri, 14 Mar 2025 13:37:43 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-To: Eric Woudstra <ericwouds@gmail.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Kuniyuki Iwashima <kuniyu@amazon.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Roopa Prabhu <roopa@nvidia.com>, Ivan Vecera <ivecera@redhat.com>,
-	Jiri Pirko <jiri@resnulli.us>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XfE+s1OD"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-ac2963dc379so545922966b.2
+        for <bridge@lists.linux.dev>; Sat, 15 Mar 2025 13:00:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1742068855; x=1742673655; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=QaoeBv3gJPJ5tKrPKZcOsUFoglZ8+F/KcBx8mhaIssk=;
+        b=XfE+s1ODFWY6ZKo7TAmzUV4EGjAYI7QfwLm4z4ZLATN1MURrGQHNUOXnHqrsjmmmJc
+         m9MtDeY4CeGke8i0gkxjQMbU2wjgUlDeiD6K96YR6zZ6Z6RUy8ACmj1BLVxBJ9geMFY3
+         eIkZrR/MP9rjTliNi7A1U8Vix7Khh3bDuMI4xcapa1yMFcrpaCQ83fgJrcD/b1bgs1R7
+         ZtmRYn1NlRyuDgWb6CKetzRiKpH73Yz5Zq74ukFOCQyamAhs8a7tPWSix5E+WmhOVQfi
+         ihg1/XuHtIWHhUMH5uR6LPAZ8O/B0+pPP5lNSfne5GeNcmP2i3c76keBYqqWJbmR5mZF
+         qVhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742068855; x=1742673655;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QaoeBv3gJPJ5tKrPKZcOsUFoglZ8+F/KcBx8mhaIssk=;
+        b=RG+85ao41HMwOLHZ1bj2ixDKDaZ0A4pYAVACoTiy2vQdyXfdEs3DQC1hrFQ9QDxp70
+         GeMQMCgJWo66P2r/8KYT13jxAW6DspujqqBSDss1zJgE/0Vyub4cViNSiIq0+THtsUpz
+         ygsmnGhDhLWDPdXr4X/0fenSRjjyYRU5VrbC2fhsbibm1HWMn4f/UhUCTh4sJlVvOdcU
+         ptaFTi6tfrY0EV7DugX/rmPXJ8J8TeI3fLird27Meq5yL+c5m9uRCMPIQhpcoFQpiTt2
+         f+RLvsK3EN21AWSeSN55DVkunth0rpQj766Mv5SL/sdu9dmjnF2FJBjH0LB24+cc+pZr
+         V9XQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX74qDJW2PQjRUYeQCL34LMrYl3YKXaKfptdNVemtIKzjLLDXf1HFixDbUkgiBV09D0VPrEdQg=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxFqAz9y2gJlK/90HFAXGUQx9+2L6QEGKVmaKzVG9mOo7TG/ndl
+	kqTfbqhR45lx5qHGGyClj3WrTee9Hj4Qqla6A/RqwiYrZlS3gxjL
+X-Gm-Gg: ASbGncsiQdFyvBvnRZn1rYpvGhwaQmXSAMsZny8gu6madhqGVbIIQeZp9viKhlJ+pwv
+	2xePgWFB/jyGQhTqGHUWiHWb1hfIdYs+BNWwxdxlWoLkJ4ZzS3dMOGgIUdwHcjd/I+1MyllnC1J
+	xqHgWlU3HnlmaLeCam74aWbGiriEn+tzAlMCZLfgenAKP+bC1cjrnR30c9AOkuF2CkUpV1pJBwp
+	xJ/ygcuK6rlr5PzbMqSRbOvsJRZBfPN32pHVHZb6gENTMHxHloeyUmrywUJkAeqMEjIgQBvA8yG
+	A6Qo3IQHtNMAM60EHsRme6xwPgVCidJpbBqbmCZDztnaQiHVel2Odc5vwmJvpSyotsTlaFb4iVI
+	6S/QzxRs7MVrxIMJT4vcXGVjzv5ivLK3HLQ3AvgGDFIK0kWRch3zl7/S8oxq8JJo=
+X-Google-Smtp-Source: AGHT+IHSU/jC6C/A2Lsm5jvq7xx0lXG5oat5da9YJ9l08h0SXcXFfdHAQaMZTXQ+xKscKf6OKW+jMg==
+X-Received: by 2002:a17:907:9725:b0:ac1:e332:b1e7 with SMTP id a640c23a62f3a-ac3301e23aamr733726266b.4.1742068854769;
+        Sat, 15 Mar 2025 13:00:54 -0700 (PDT)
+Received: from localhost.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac3147e9bc6sm405908066b.49.2025.03.15.13.00.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 15 Mar 2025 13:00:53 -0700 (PDT)
+From: Eric Woudstra <ericwouds@gmail.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
 	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
+	Roopa Prabhu <roopa@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
 	"David S. Miller" <davem@davemloft.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-hardening@vger.kernel.org,
-	Kees Cook <kees@kernel.org>,
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Vladimir Oltean <olteanv@gmail.com>,
-	Frank Wunderlich <frank-w@public-files.de>,
-	Daniel Golle <daniel@makrotopia.org>
-Subject: Re: [PATCH v9 nf 00/15] bridge-fastpath and related improvements
-Message-ID: <Z9QjF5LhavodVA4Y@calendula>
-References: <20250305102949.16370-1-ericwouds@gmail.com>
- <897ade0e-a4d0-47d0-8bf7-e5888ef45a61@gmail.com>
- <Z9DKxOnxr1fSv0On@calendula>
- <58cbe875-80e7-4a44-950b-b836b97f3259@gmail.com>
- <Z9IUrL0IHTKQMUvC@calendula>
- <02b97708-1214-4fa4-a011-70388cff8f79@gmail.com>
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Shuah Khan <shuah@kernel.org>
+Cc: netfilter-devel@vger.kernel.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	Eric Woudstra <ericwouds@gmail.com>
+Subject: [PATCH v10 nf-next 0/3] conntrack: bridge: add double vlan, pppoe and pppoe-in-q
+Date: Sat, 15 Mar 2025 21:00:30 +0100
+Message-ID: <20250315200033.17820-1-ericwouds@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <02b97708-1214-4fa4-a011-70388cff8f79@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Mar 13, 2025 at 07:01:38PM +0100, Eric Woudstra wrote:
-> 
-> 
-> On 3/13/25 12:11 AM, Pablo Neira Ayuso wrote:
-> 
-> >> What do you suggest?
-> > 
-> > Probably I can collect 4/15 and 5/15 from this series to be included
-> > in the next pull request, let me take a look. But it would be good to
-> > have tests for these two patches.
-> > 
-> 
-> These are not most important to bridge-fastpath, but it gives extra
-> possibilities. How about concentrating first on patch 2/15 (with 1/15
-> removing a warning and 3/15 cleaning up), adding nf_flow_encap_push()
-> for xmit direct? It is a vital patch for the bridge-fastpath.
+Conntrack bridge only tracks untagged and 802.1q.
 
-I see cleanup patch 3/15 is a consequence of 2/15, let me take a look.
+To make the bridge-fastpath experience more similar to the
+forward-fastpath experience, add double vlan, pppoe and pppoe-in-q
+tagged packets to bridge conntrack and to bridge filter chain.
 
-> Anyway, I will look into writing selftests for conntrack-bridge setup,
-> including various vlan setups. This will take me some time, which I
-> do not have in abundance, so for that I do not know if I get it done
-> before the merge window.
+Split from patch-set: bridge-fastpath and related improvements v9
 
-There is tools/testing/selftests/net/netfilter/nft_flowtable.sh that
-can possibly be extended to improve coverage.
+Eric Woudstra (3):
+  netfilter: bridge: Add conntrack double vlan and pppoe
+  netfilter: nft_chain_filter: Add bridge double vlan and pppoe
+  selftests: netfilter: Add conntrack_bridge.sh
 
-Thanks.
+ net/bridge/netfilter/nf_conntrack_bridge.c    |  83 +++++++--
+ net/netfilter/nft_chain_filter.c              |  20 +-
+ .../testing/selftests/net/netfilter/Makefile  |   1 +
+ .../net/netfilter/conntrack_bridge.sh         | 176 ++++++++++++++++++
+ 4 files changed, 267 insertions(+), 13 deletions(-)
+ create mode 100755 tools/testing/selftests/net/netfilter/conntrack_bridge.sh
+
+-- 
+2.47.1
+
