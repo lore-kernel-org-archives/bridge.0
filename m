@@ -1,96 +1,91 @@
-Received: from fhigh-b8-smtp.messagingengine.com (fhigh-b8-smtp.messagingengine.com [202.12.124.159])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A69C9C2E0
-	for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 20:09:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.159
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13E8B42069
+	for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 20:35:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742155753; cv=none; b=tiy1cJt0l8U8+W3/Qgkx3duyMsL7uPku93KnEpmSsVpJfwiyt9BRKJFhka9/U0nSFrwgLG0ZTVSIMtYBTou/mcU1ocM9/hqR/30sHXuMvO/XvRPwH8K0UQeNpieTiMHM0UAVG14vKOpYE8KYL3MpeJX6W9t73nn1qW+MiDAPDRM=
+	t=1742157312; cv=none; b=hfnQRI5fDmeCWIvEvFOkdoiEHCh1wYV/mtjI4m3binXZoZuFPaCjb6jwqe6xY77VuVJ7f0BirnSqZoo1/6p2od2mkjJqkZUsT6Y7irglVY45LXdo01khMlqM2h9dP+USG62vG+enDfP3tRQ+PHwm1WqzKom++beGfj50k0Uv0S8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742155753; c=relaxed/simple;
-	bh=QyYE8MC+awhmnBBrOcT/c8PGT67jgrnjcBFJjPby+8A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gGbJMtF42tFgiwiohvPvrDgsi6T9oqeJ57qJhMeQLKth3hd0Mt7+80fITIr/MYTzH4bETqxdOs7h/6TNB2R5Qwcqw7vkgm2EdyTzbNinjOMKctoWxBFZif724+diI5cTVItSS1Er1OplKqBIxDk7F15NP0iFkJsS4r5hfColdt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org; spf=none smtp.mailfrom=idosch.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=GQohJsO1; arc=none smtp.client-ip=202.12.124.159
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=idosch.org
+	s=arc-20240116; t=1742157312; c=relaxed/simple;
+	bh=dKC6oKfJqlJWfKuMIbGGKu7ODihXEYGoPHTMMfdAuiE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kULM5BcEFx9HjGuCqdOChe9r4fVuFeypg7WiZAJvm4awPJqekW/OLqW9uJeJyzERv6OFoTdeG3Iyau8BM26R5tkxzXflKk9AP9Hq0gshPmuAmZ/t7Hr6ufMwT/hwNDJZt5ZXKRznY9MUBfcU1UGLi2Eb0G2xU9N1nthUHLza9D8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=2lBRi8nB; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="GQohJsO1"
-Received: from phl-compute-12.internal (phl-compute-12.phl.internal [10.202.2.52])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 558BF25400B1;
-	Sun, 16 Mar 2025 16:09:10 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-12.internal (MEProxy); Sun, 16 Mar 2025 16:09:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1742155750; x=1742242150; bh=BIoNVnMM8sikv9aIRRLD96b8AYmUpy9St9o
-	KK0m5ixM=; b=GQohJsO1d03mXt9sh2Itd1ep13D4Ohoei9pwnzNtfh/RUSYEK9U
-	suskxlfSuhBHzGQdrKX9OJocQdDceMUKkHIGHAnnLO0XsGF65p8g/A5VeD2X6Wno
-	7/f1fMZn1BBbgmDYUHj8oe99ZvY7Lg/LMKEUIpLHih3BSIhduj1p7jW+uaRxflEc
-	V1qYXuy0p6pEmbhr+T51lvQLRFNEkcLMb7WHjLt5ntwALfN31tPwCLAq6CEz+Mpj
-	c9MBNjPbNO7zaLPk0QAwNnZGU3nX56dL3soKZqwuAA2/5zHNsbdxjlz7F5Gca16O
-	qIlE2kJapnhk2EyG7P1YZUvxZOeD2o60V4A==
-X-ME-Sender: <xms:5S_XZ4k7Z4koVnSkCvSsYndAzP3LdNqar80XnM-e8d-f8NDJeMWwRw>
-    <xme:5S_XZ32Lszj7HULLusuVz5meJ2P7fBEcHPZhYBOg_IHXuwpkKAaC19Z80P043F5KT
-    fzvvOLGrc0u7Pk>
-X-ME-Received: <xmr:5S_XZ2oKYWg9d6jlgg9hWoTz6fOSohxXv3haevzqugqL8CKmtaP5UtDXdTN2k6LhM4TV_NiIrsnpwLoirMozUvXwxmF4Ow>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddufeejheefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
-    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
-    gvnhhtshculddquddttddmnecujfgurhepfffhvfevuffkfhggtggujgesthdtredttddt
-    vdenucfhrhhomhepkfguohcuufgthhhimhhmvghluceoihguohhstghhsehiughoshgthh
-    drohhrgheqnecuggftrfgrthhtvghrnhephefhtdejvdeiffefudduvdffgeetieeigeeu
-    gfduffdvffdtfeehieejtdfhjeeknecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenuc
-    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehiughoshgt
-    hhesihguohhstghhrdhorhhgpdhnsggprhgtphhtthhopedujedpmhhouggvpehsmhhtph
-    houhhtpdhrtghpthhtohepkhhunhhihihusegrmhgriihonhdrtghomhdprhgtphhtthho
-    pegrnhgurhgvfidonhgvthguvghvsehluhhnnhdrtghhpdhrtghpthhtohepuggrvhgvmh
-    esuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopegvughumhgriigvthesghhoohhg
-    lhgvrdgtohhmpdhrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtth
-    hopehprggsvghnihesrhgvughhrghtrdgtohhmpdhrtghpthhtoheprhhoohhprgesnhhv
-    ihguihgrrdgtohhmpdhrtghpthhtoheprhgriihorhessghlrggtkhifrghllhdrohhrgh
-    dprhgtphhtthhopeifihhllhgvmhgssehgohhoghhlvgdrtghomh
-X-ME-Proxy: <xmx:5S_XZ0kXSGt_-HdouXS-pPnD2ipExYIdTufTSa8aHrksbyELKK5LIQ>
-    <xmx:5S_XZ21ELXSOAJMaMdKk_nqk0LrH3LqW69RT84Ynlo-4lM-76pb85w>
-    <xmx:5S_XZ7usIj4Rmtu1-L41vmIncgHu8kCI5g6vIDrUSWyfwRDkGHsmzg>
-    <xmx:5S_XZyUf9XQ_56iOGUhKRXbCYdg31JSM4aGHz05tKcfQrt-h89x6ZA>
-    <xmx:5i_XZ_HHAbM112yAaHywgtfB7ZMO0u6Bo18Hfr6Muolu8dLon8KD6pGJ>
-Feedback-ID: i494840e7:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 16 Mar 2025 16:09:08 -0400 (EDT)
-Date: Sun, 16 Mar 2025 22:09:05 +0200
-From: Ido Schimmel <idosch@idosch.org>
-To: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Willem de Bruijn <willemb@google.com>,
-	Simon Horman <horms@kernel.org>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org,
-	bridge@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-	yan kang <kangyan91@outlook.com>, yue sun <samsun1006219@gmail.com>
-Subject: Re: [PATCH v2 net] net: Remove RTNL dance for SIOCBRADDIF and
- SIOCBRDELIF.
-Message-ID: <Z9cv4XXz3pzL4qrp@shredder>
-References: <20250316192851.19781-1-kuniyu@amazon.com>
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="2lBRi8nB"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-43cef035a3bso9774555e9.1
+        for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 13:35:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1742157308; x=1742762108; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=e/qniutptUO6aG/4w6T50Q5l+k6GgQyiuG2YW9LxAFI=;
+        b=2lBRi8nBl1XQKj/lE7GbTjLhBYlXJ402iCYAKn0/Vu3/AW6FTWN73sDeqPyX78g3Tl
+         hvP7m7XpydKw7TRTz5VnKhmxDoZK5Ee0RDwSOupFzHzSohdxZIRiKu8LAB6npSoOHeJb
+         Dyv0IPJTV05tTZLzZIy7SHTCjv9xlGag5TgW94aPFkkaXitw3Iivo8NTNjYk6ua71qIz
+         4/dp5CN8kdOFKaZK68Lrup0xs6do5QbJzICUdnbUqAdqRMQwzUrL0CLRcUp7qgm4yWxX
+         XAF8uZ2RkraOybbuZ7YmUrjPHcWeYl/0Wlt9hfPq8mZAZrX1ROrYXE4OWCaDVlUsbKzQ
+         ieVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742157308; x=1742762108;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=e/qniutptUO6aG/4w6T50Q5l+k6GgQyiuG2YW9LxAFI=;
+        b=YY25I/uLV4s5jHMNSTCbItekMQs3n9x1iEK1LNjRAVZpzGFdQI2gyplS9mdOXAw6F1
+         AtR2Q06yyN35MSULx//y7i5a2/5XKKZ9FCzC9nHngyJnyYp1eh+bK1sLADLtrPWvo57N
+         3Jy7oL+nTfOa7YBGyPRG86GjvrQ+JoeGrDJN+Msk3WpR+q5EB2X9Qior4lUPpv/wxvLT
+         7jFeQ8VSLBRsjL09NGOrHkOUVaeTV8yzXXB2KiDLMKTBbVxVXzOFRuKvE7V53lZcExsl
+         ZPObzmWXhnPdc/PkRPJoxdAbgGooy6/THvtshmmf4Z83T5ilwQcn8KvL+2J56AZ0xQiQ
+         mNXQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUMBfuYAySX5XM4RVHmGdsY0PTwlY/LaWTcyy2gWJblfJhUkSS+9LN/z5P6ROA5/8MB1RrhobE=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz45pRnpy9qVPeixMa01fCQXJXHLZnfn3AauBxZHnKeEQyygsa8
+	AzwnyBHvHrTRpBKxhaIE6oU/7v+n57vZ36M6gjxpVMIu2N4mhRNkXtSot8SxHks=
+X-Gm-Gg: ASbGncu9hDJBgCNNAuO7ZZlPxIsKgwma6q6NzY8SXIS8eXZ32/YcDZPGX6vnd821rZO
+	FLpjutVWWn1W/8nRwQRBYWOkbQ+WGpmCu4/iIR5tE1ISA2FwB+ekbaNEJonT956cPif2jmNq+kB
+	O1BnnrFV3eSkFtK0I0aAQmGYG4uQWka/mQkj5oZRItEn8RH4/i3T06uzZ6yUVTP6k0YF0VDTtUP
+	o3yGnGmD93ZM7ctY/cquU9UWeg+N5FQvY9PVzqBw6xvQs+0WLUymENaHm5lycKEjl3WS2/uYJgs
+	cffDnZffPqTaOYN7CSzJ56ZJrd66ykluo2Bu2fw2lFXp2+Rm70xUgbg847Un2TzB1xIN5qukmZh
+	c
+X-Google-Smtp-Source: AGHT+IEX4MsZy7CIHnz5nS7qR417zJFGnB5h/cnEE6O40fjH90DJYPmv+beoRj6eBarLH4rYx2UMvg==
+X-Received: by 2002:a05:6000:1545:b0:391:2e6a:30de with SMTP id ffacd0b85a97d-3971e971991mr13080918f8f.19.1742157307990;
+        Sun, 16 Mar 2025 13:35:07 -0700 (PDT)
+Received: from [192.168.0.160] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-395c888117csm12690480f8f.44.2025.03.16.13.35.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 16 Mar 2025 13:35:07 -0700 (PDT)
+Message-ID: <d539500a-7fca-40c8-ba38-4e334a97f810@blackwall.org>
+Date: Sun, 16 Mar 2025 22:35:05 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 net] net: Remove RTNL dance for SIOCBRADDIF and
+ SIOCBRDELIF.
+To: Kuniyuki Iwashima <kuniyu@amazon.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Roopa Prabhu <roopa@nvidia.com>,
+ Willem de Bruijn <willemb@google.com>, Simon Horman <horms@kernel.org>
+Cc: Ido Schimmel <idosch@idosch.org>, Stanislav Fomichev <sdf@fomichev.me>,
+ Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org,
+ bridge@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+ yan kang <kangyan91@outlook.com>, yue sun <samsun1006219@gmail.com>
+References: <20250316192851.19781-1-kuniyu@amazon.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
 In-Reply-To: <20250316192851.19781-1-kuniyu@amazon.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sun, Mar 16, 2025 at 12:28:37PM -0700, Kuniyuki Iwashima wrote:
+On 3/16/25 9:28 PM, Kuniyuki Iwashima wrote:
 > SIOCBRDELIF is passed to dev_ioctl() first and later forwarded to
 > br_ioctl_call(), which causes unnecessary RTNL dance and the splat
 > below [0] under RTNL pressure.
@@ -178,5 +173,21 @@ On Sun, Mar 16, 2025 at 12:28:37PM -0700, Kuniyuki Iwashima wrote:
 > Closes: https://lore.kernel.org/netdev/SY8P300MB0421225D54EB92762AE8F0F2A1D32@SY8P300MB0421.AUSP300.PROD.OUTLOOK.COM/
 > Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 > Acked-by: Stanislav Fomichev <sdf@fomichev.me>
+> ---
+> v2:
+>   * Use if in br_ioctl_stub()
+>   * Update diagram in commit message
+> 
+> v1: https://lore.kernel.org/netdev/20250314010501.75798-1-kuniyu@amazon.com/
+> ---
+>  include/linux/if_bridge.h |  6 ++----
+>  net/bridge/br_ioctl.c     | 36 +++++++++++++++++++++++++++++++++---
+>  net/bridge/br_private.h   |  3 +--
+>  net/core/dev_ioctl.c      | 19 -------------------
+>  net/socket.c              | 19 +++++++++----------
+>  5 files changed, 45 insertions(+), 38 deletions(-)
+> 
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Thanks,
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
