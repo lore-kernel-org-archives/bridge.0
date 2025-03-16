@@ -1,237 +1,148 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2069.outbound.protection.outlook.com [40.107.220.69])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 255581993B1
-	for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 16:41:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742143319; cv=none; b=TbMmwtNBdztxE1dMjr+7jE8b4pN5sx7JWJxG99+HYtSXgWmVCvAG6jLLYOzvtQCzu/GnSSjNGEZAQcqPKlcAOLvCyvhSifFAaZYExXSqvCKrdinUjGfyA781OnBd1T1JcyLHM6tcuHfaDzJcxgnrTz2KTrwbpeyo7fPoRrEGTTw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742143319; c=relaxed/simple;
-	bh=BA2PaE3NYW+aVBBLWMmVbiWA/xSnqlWWpzhT5hvQzg4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=p/y/FAqt5L/XBpHy02C7y4GxVt+Iz13h9faim0D9SVdOiWx4CtRcZtn2d1/KfqiTMvj8pWFwIw9kDlcBC7Yy4OcOJ2OTKdeTfhP79NXHBgANlNSJFFxr03DvpwYTuZaR8mrdhNk97AjYC8hF/R3jgC8KRPeRjTr2Q5JYiDT7Z+o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hJ8pfWIB; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9674116DEB1
+	for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 18:34:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.69
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1742150090; cv=fail; b=kJJ5AJAFoGBoLBTeNnmNl1/BK7sLd2gamkRmh50HuGGEkOlUIc7Ufpp/owPFGJCsqKancpRX9AYeWJpkKFQmmH2x+HOkYdK7qnw72xyxHyjBFRelhQ+oIPpIrHc+G4Y88RAGTz5V77opaeLdwd+Ic/wElWcoxcJwHTTUuRktHRs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1742150090; c=relaxed/simple;
+	bh=DvhU2U4rGIG501R4FJm1z9XCFs+ZyZrk7f8qzWjNWSQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=k/e9zwsB0eiUHSORnidWBwf6RZbW9alpGg7Y4/tYezoKRZ1o2fnDO6EXSLyRnAViQ5HRIjn40Qz4Wu2whTAFVR8+aQTfHEmR5z5jUIHBepz3hSAySnIE32CscFL3c6R1ZGgbBp+0XCWdbbry6c3Tc5JVklZIurtr3PK5Cxx7bcQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rFOj6rPd; arc=fail smtp.client-ip=40.107.220.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hJ8pfWIB"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-22359001f1aso13221825ad.3
-        for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 09:41:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742143317; x=1742748117; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=1t7i2k+qpddSOT6lrsF95vAec+0YDsSW3ORX2scnraI=;
-        b=hJ8pfWIB7yZyT4l+LvQQLWYxSWbnGOKIPZIQGFijV4Y3lst3nP5xlUVyOrLW3mMI7f
-         bM7ihpez8o4WK3b0JKkb59mOXFvvouNxEiUQrtrEp9HicPr+hoRdui8mCU6tfB9FgQff
-         aRXC3J1htr4wH4uXYVe0WiNw8oBHiPpqlBisPI0HORcScMDrBOfBdVoiZ49oaLeWOFHA
-         CgoOt8LoEAWSvblrbHotxxxcxWBr3oFZSDauNAz6M36esXIgq26mpf6LwgDU8SIRK7Yy
-         UcCdSbCmZK5FnMQhy/v4E6jbFU1/QQ9jTEclp6tCUT46Nn2ylNPhXjvLBauuCi5WbtHr
-         L6JQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742143317; x=1742748117;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1t7i2k+qpddSOT6lrsF95vAec+0YDsSW3ORX2scnraI=;
-        b=NA857cBPPM8Axnhm2hrQ3slPT3OcCQrEwR3pxuf1FND84DsSFHPjRm7hJaEjrwGFa2
-         ECkM5D2Hgbuh44Rihtm5URuhuhlxjtcP1Z1szFgrexB6M1QVt0b1afKlmXKcq7iIhGjN
-         SYgsqUN2IQDp8HXNjcifUz3HjCQt/jv7jLufR65CU1+5Zoz5F8yXqeh0dlzTNMDpAl+s
-         RxJWOG3ptkkj2xwjZJcFKqYlZluPM79oehf5u74thWJfT5hpP/QdexyGq3p9/tS7noh3
-         1i30dPOYGG/eZ4zSACK6rVHFhQEwxEWwrRuz2il31T49sg3dJTIXhMGLXLmAOZwYXXsF
-         zLpg==
-X-Forwarded-Encrypted: i=1; AJvYcCWCASG7OtFDiQgP7ihuLC3n/gYR9R0941WX85edvWZLtzh+6t29vtuAdy2Zd3fjWkscYUJSpkw=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxE7WHDpUwFdcVMrykQkkKW4jXiwJusl4m+/Pi/sPfBJ0nTzUOr
-	m9Uy40Eko9SaAg2Oc4LbIbsQXwH0Uh7DMnYmtwmgZMO5rnZl8NjyU+MDuGhxIQ==
-X-Gm-Gg: ASbGncu11MPgYtZXC6p4Y1XQUTJQ+AccPVV3zV88nzKVOZWIBRZRwx1TnOq13KCymAH
-	pM0L38b94aynmHcx+loBj3cDnx+I+y605Ons2Yton7pRmhvcLmOxUunWcCLSf6lbHkPTURogs25
-	SeRnYiObkV48ZGBzdXcNTs7tgQJPU5GQXIJ4LARy7pq7LK87wvIlPhbNrcdCWuyh/q3U/mpOz1T
-	0mPom+AOWOYITzj4SZErvqaDJOXijyBG1ufjnXZPUesn0jzgETN0ISfteIPDmb6He0KZaVo0z7B
-	w2JJvu8Q7K8BkjNLn0qFzkkYthvg9/dzJyMPV/nTGg5Q
-X-Google-Smtp-Source: AGHT+IH+gC5/AF7fQ/nODds+CLzi/mSoDdhCQD4zxfJmTqOpndJJjUsBKADkQTXD988rSMfcIE5Qxg==
-X-Received: by 2002:a17:902:f686:b0:223:397f:46be with SMTP id d9443c01a7336-225e0aff8abmr118629555ad.47.1742143317261;
-        Sun, 16 Mar 2025 09:41:57 -0700 (PDT)
-Received: from localhost ([2601:646:9e00:f56e:2844:3d8f:bf3e:12cc])
-        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-225c688841fsm59623795ad.26.2025.03.16.09.41.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Mar 2025 09:41:56 -0700 (PDT)
-Date: Sun, 16 Mar 2025 09:41:56 -0700
-From: Stanislav Fomichev <stfomichev@gmail.com>
-To: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Roopa Prabhu <roopa@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Willem de Bruijn <willemb@google.com>,
-	Simon Horman <horms@kernel.org>,
-	Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org,
-	bridge@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-	yan kang <kangyan91@outlook.com>, yue sun <samsun1006219@gmail.com>
-Subject: Re: [PATCH v1 net] net: Remove RTNL dance for SIOCBRADDIF and
- SIOCBRDELIF.
-Message-ID: <Z9b_VP-F_3iAKvCw@mini-arch>
-References: <20250314010501.75798-1-kuniyu@amazon.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rFOj6rPd"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=nwgov3zoqHoszY5F8NVhPeyYsaD/PHJIEj7yjwCh9dyWaqd6U39D0/F53UExWh0N+bfkESmKrsCDp1BYLjgFJ/Vf1ngUiaY6EZvZXOlta875Buq1X8uqyXak/81EZE2dKJ+35b8DGICVjp2eRoZX/XUexPsL9G2BsZpJRIbr+5Mels5tJYkeKVRfiwD5hQucEK4085XlIn98SImKU0t7LvnXuQ/xmXWko7KLG6YfBpnmapwJKvCByo9DgFbWsdV3MG+LWhWBfJqzdkWxalkaAZhP6M0Wq7FiuU1clD4yNUDIiAC3NTUSbkUcp7GHUSfJYnB0OPdpOjIHREJ3t6HncA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=vQ7pZBd0a1DwlEvYXGryw7H2Sq+RjYgToNstEYAu3CE=;
+ b=bm3o8UVeRdJE/gZJs6HmZkgl4TR+g+vnMIzT5eomXb8k60cynGgJYhB/JTn7JMDanR72O/GJpM079t3bB1SWPTsRZ2oFprzOTv62zUe92Y1UpOusdcWNlmE1B0ORg/p5g1qFOjusjLzV+QBP3XMSHs/MsBNE3WGQOROtryv/AmbTTU152w1mje/rxwVkqZ13J2Rg3lCGOc7tOWtfvEvVTQpImP+GLoWguOLp2dRrsWg6EpFbVh2gq4V81wWxNl7ZByWRICF72dIJipO5v9P0HIzVGgNFO0UzEbwSULSbFAvjiF3HdVw6xKMclb+xjVDgdaojnjBBVU4XW2pH14gTnA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=vQ7pZBd0a1DwlEvYXGryw7H2Sq+RjYgToNstEYAu3CE=;
+ b=rFOj6rPdgi2rxn5t5irY27To2jbQCYQOgawW5xWq1kI/aJpbToNKCvlB9l7H/xl/xscJXUv2hrC0OxjYnvp/4qAlT6ZGE5wNxbOVzTzj/yEw0Slaee3JabvCitj35HnjCwnVwRHN18BAtP+E3r5BtlAaG9NGyqRro9IfGddbuF4cPfdTHG+1JOPtpxhKYSrDJAGEZWk0nhXCctVX8ng6Pz/agggyXsT7PwUT29UbpFeAU+aQs2upPACiirnRh04BMD1GI6T+UGp1wpemr7EoZnw1xh8BgiVkZEwSWyhvMQkdoDYWZFuB4wz3yaxxAFV3f6yfs0xwEMbQY1t2S9dD6g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by IA0PR12MB8896.namprd12.prod.outlook.com (2603:10b6:208:493::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.33; Sun, 16 Mar
+ 2025 18:34:41 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::66fc:f8a2:1bfb:6de8%7]) with mapi id 15.20.8534.031; Sun, 16 Mar 2025
+ 18:34:41 +0000
+Date: Sun, 16 Mar 2025 20:34:31 +0200
+From: Ido Schimmel <idosch@nvidia.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, idosch@idosch.org, pabeni@redhat.com,
+	kuba@kernel.org, bridge@lists.linux.dev, davem@davemloft.net
+Subject: Re: [PATCH net-next] MAINTAINERS: update bridge entry
+Message-ID: <Z9cZt_OtSD4ltNyd@shredder>
+References: <20250314100631.40999-1-razor@blackwall.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250314100631.40999-1-razor@blackwall.org>
+X-ClientProxiedBy: FR0P281CA0134.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:97::18) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250314010501.75798-1-kuniyu@amazon.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|IA0PR12MB8896:EE_
+X-MS-Office365-Filtering-Correlation-Id: 72c7b0cd-9ab6-4ec9-1164-08dd64b93701
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?jrhp/XTHEbmrHzR54+G2gYFk0+RJ0azJkb1eENknFiIr2cm1u4nF5a7hgPx8?=
+ =?us-ascii?Q?Z8dMOSTzvsXtVtlHW7qcfNUF1gPnADlmODbeyg6CPLnRCdTaHX+8WpqQRrA9?=
+ =?us-ascii?Q?uksAOWj8n3+yfxbYAdefv7bSZ7GA5qnBnoRulRXAp5hVSdbKoDj1nohqr5TX?=
+ =?us-ascii?Q?eFqoz26rIxPrOBZocDMBjVqOPaB+WCOG4kqBoer62eV3Ajqa875eRUx1ZRkH?=
+ =?us-ascii?Q?E/A3Hy2PEcbjH75l8Hhby5smUkKVKK9O1qiwZfPYQT6mb4B0+oSeMsIaL1gj?=
+ =?us-ascii?Q?9gzZzu3ioWgIcm6EpiI4htapOmON8ZHwxw0fymBNn9QU/3IBSWzPIA0QwBue?=
+ =?us-ascii?Q?SPUboqhiui3ilkLDOm1uUboKcm6VVhYp1D790itFxH77b7xcQ9gXQ3lbAhWY?=
+ =?us-ascii?Q?lNCZxgTVp8yulwZZCQTg0vWICYOp9M1SbFWIdfya3Nv1UlE5tMo0jT20jxog?=
+ =?us-ascii?Q?lLuwW4kWkubMaXsJuDBMefE0yx0vq+GONZH0xAwmEWpIMV+mDSdYOWodL9DG?=
+ =?us-ascii?Q?igDmM3O+qBrVqj6wWNOcW/j1qGAhvtCVV9Jo8pvLe4x7sgtfkyX+jK7Q8RXI?=
+ =?us-ascii?Q?fHdUgGfqRtFrTL4yzqhjHaO9WF55A/ey2E2P1swMUYoVdpAsDQKMAJxp42xa?=
+ =?us-ascii?Q?DrB4rcInprwFXaBi63/jxMayu/cYM41y1RU09/6QhiyUOV1Zx+hgSNntWYmp?=
+ =?us-ascii?Q?vL2oKM7fbAsI+9j5oIojDN+c3OTrP0rBU/AUUmJ2by0BLDtJ1Xg4YHxOgeos?=
+ =?us-ascii?Q?EUn0amn8E+BpYyYPpJHVmWBI+S6+D3oyV+YubRcaIpwPR6l27q4oK5uMYF5F?=
+ =?us-ascii?Q?N/Uh8JET2gBSF2s+R54ttBkknGaY3A5gyryJfVQpc93DC0ZtGm4uFUclODFg?=
+ =?us-ascii?Q?5FQcYd79+A2xn/CR/sVlgZ0iMdF39A0qMvQKf9+9Bhgj4uchylhzqQVI9WoA?=
+ =?us-ascii?Q?zlk2TcfcMKhCpfU1645CCtCGRrfTTKwbe2lI0mDTVjInV4vda+zVv74hQDB4?=
+ =?us-ascii?Q?tbpwkLtIjFV0g+4VLlXHaqIMt5jaR4w4105cakOxc25gCdULJJQq8ywdtkSj?=
+ =?us-ascii?Q?CHJyZuMqyIkJKZYsjJymdmd7YBLpc1AtuG5hNfz5/kkKjbR9i8G/mS/pokuU?=
+ =?us-ascii?Q?v0h45CobbrDmNjYqv/L4e++h17n5ie5b58UjO12xTWahSN2l4FIZAHhsbO2R?=
+ =?us-ascii?Q?Ic5bDKRdSWSRPje556wVqKel8jd75KC9sBuVPpVZRb4X+watVg3tFTTQ/DWO?=
+ =?us-ascii?Q?36c1+9ikD13U+wiBKWLqUPSMVEV9oAlMzkytVno8o960q8VnqmZ7jnuCmddw?=
+ =?us-ascii?Q?bVgTSF9aFryVszLaHaqlr/hD+fIWEElanwM16Xx6vBhzU9D18n+aM4lqfyWV?=
+ =?us-ascii?Q?uJfFjbxY0FgvFeXQO9nQCxrXLvwa?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?wRRuudLVnnyJ0qfY4qa1uyykKUMnTP0Oe+/Y36+/zDXQfGSOCJWfAoZk1vfm?=
+ =?us-ascii?Q?tWpvFv/9Ar5XE0pkI6z6V/3Ut90H71smkWwPLPhyttFyd4/4qYbQFiGG8qV7?=
+ =?us-ascii?Q?ohahoTKjSd4GpVPvoI/beP+LWoq/z/b6jGb8ZlL/HwddyxiEBza0UNXP2/MY?=
+ =?us-ascii?Q?Tx3+6bgTO14EwsbmurSNU6Uil5SuenXy5qdbzvafo5hKPwViXQBP6e2MsPYv?=
+ =?us-ascii?Q?1hoe5itPjbfeWRX79iv4FvW7nNnkCbfTKWxFU5ivYJcAdOsIUjoYLoPsyjxg?=
+ =?us-ascii?Q?lAQJh9cs0hO6avnnKXXaQ+OylQc+7hrMF/LWn9MLcmbApvak0qCNoh3VsIGv?=
+ =?us-ascii?Q?xqYzmcHjfiQ8Ow22Z5cHM35kKZS7ekLmPw7WPrn6oaJqnLYzKdyYYYfLFTIk?=
+ =?us-ascii?Q?wOHU8gbRuMw27pYI95MGGYfK2QfGEW9kNX1vFw7TzgHJqnK0gv5Jn3EvWA/N?=
+ =?us-ascii?Q?6B3kP+rezfpQ12IuFq756yCIJ+iI1bzpSjeQaAw2DHoby16EFPpgjngIPpSB?=
+ =?us-ascii?Q?2fJZ0NpAEnavNnZ9k6x2BnUzDN92z1g6CzL3x2yLjsUw2s4VCcfDNP7ZwvTs?=
+ =?us-ascii?Q?mRGDbY8YcxZdanoATPyEioBHQl5VFtRkUuMSzWqLqPpRt4w4Xz8ZddrIlQtw?=
+ =?us-ascii?Q?NKyqFm5MUyLdYgJ5d4pjjlROQZW+SUDp39uSU7wDIFv9NpxLMvaHcnNF1dXy?=
+ =?us-ascii?Q?iN7Rq0UHh/P5LRjuLmHZjbBd5QfQNzEdxlh8FwlQ+kkhwo/KCwnvZf5F+Ja9?=
+ =?us-ascii?Q?bD62IeuAxcDWJWSgX++nnRDclNAYkzsg6cwtcgUI1xeucroUXi0RzPDnjU1+?=
+ =?us-ascii?Q?1jvT4nEon4FpupoX8YhVWENL5eoVjJfGYD0ThMk05/CGLvzpZmiN1Q1PALFS?=
+ =?us-ascii?Q?iE18Ksg0Kuxa5+253Ld4sQHFycFnxkB8Vlf3TJwYHkzL6pvMoto/oOYK72Tk?=
+ =?us-ascii?Q?yLaLONIAMYOB0jHDhajYXScDB7VoDJVdLnsGi85SB8g6IXPNN+CO+iNwVrXb?=
+ =?us-ascii?Q?QbxeQ9iYMp0/HsZp+Py5uROLC/TypP/1WlFUPcynWvk3plEZHY9kVsY3zaj7?=
+ =?us-ascii?Q?aUimBOibHKhjp1MyVF8T9vbDMG9ZzNhmTY7a6yephSjekirM3Eprhmu/Lews?=
+ =?us-ascii?Q?TFPQkwYy1uIiKpb62svHXOafPr68Az5pQldDdd5E2sSve8Vi0U3zdXQTHjaS?=
+ =?us-ascii?Q?Z/wwm2MkXoKZ0++95KzMywIEExW2KxVwUGNa9FwDufBf8wLOH/YAwbOy7Wj9?=
+ =?us-ascii?Q?ndhfyCc2mK6/MXjRZ2Vqr3ifeo+Zf/UPkG8Dqa2voFzWK5oFMlBaYDtanFPy?=
+ =?us-ascii?Q?dsNo+qwaoVBNYBwVe3teMFJZF9zLe4hiL1/D9ChqN65goMQS3cVDqhcdc6/3?=
+ =?us-ascii?Q?ONJrGgzDRParwHT5bgX2QNxMT/IeGIveazFr1KUm+3/y3girI76530vL7ky2?=
+ =?us-ascii?Q?pQ28psl7QEvhDs7eGlBrVIPbL5BlTgjpqfcjoI/SFBhSRyagDvLohbAI0SoE?=
+ =?us-ascii?Q?FIOeICC6ZH00wKAeMk5c5jox7BoWU3hQHkWie0i4WQ4HkYlSzhVLAACZrpOf?=
+ =?us-ascii?Q?70z0S/Bo1E4SUgF0NfHR8ibdlsc1hxsH7gNqPjgT?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 72c7b0cd-9ab6-4ec9-1164-08dd64b93701
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Mar 2025 18:34:41.3187
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Vb11/rrv/d37+JEs5CYrhPWg36uoGx2Eisp+JKsZc2c+65MUMOrxSikbgpdQDrld8DU0SfUaz1Z/vfYJQu2SHw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB8896
 
-On 03/13, Kuniyuki Iwashima wrote:
-> SIOCBRDELIF is passed to dev_ioctl() first and later forwarded to
-> br_ioctl_call(), which causes unnecessary RTNL dance and the splat
-> below [0] under RTNL pressure.
+On Fri, Mar 14, 2025 at 12:06:31PM +0200, Nikolay Aleksandrov wrote:
+> Roopa has decided to withdraw as a bridge maintainer and Ido has agreed to
+> step up and co-maintain the bridge with me. He has been very helpful in
+> bridge patch reviews and has contributed a lot to the bridge over the
+> years. Add an entry for Roopa to CREDITS and also add bridge's headers
+> to its MAINTAINERS entry.
 > 
-> Let's say Thread A is trying to detach a device from a bridge and
-> Thread B is trying to remove the bridge.
-> 
-> In dev_ioctl(), Thread A bumps the bridge device's refcnt by
-> netdev_hold() and releases RTNL because the following br_ioctl_call()
-> also re-acquires RTNL.
-> 
-> In the race window, Thread B could acquire RTNL and try to remove
-> the bridge device.  Then, rtnl_unlock() by Thread B will release RTNL
-> and wait for netdev_put() by Thread A.
-> 
-> Thread A, however, must hold RTNL twice after the unlock in dev_ifsioc(),
-> which may take long under RTNL pressure, resulting in the splat by
-> Thread B.
-> 
->   Thread A (SIOCBRDELIF)           Thread B (SIOCBRDELBR)
->   ----------------------           ----------------------
->   sock_ioctl                       sock_ioctl
->   `- sock_do_ioctl                 `- br_ioctl_call
->      `- dev_ioctl                     `- br_ioctl_stub
->         |- rtnl_lock                     |
->         |- dev_ifsioc                    '
->         '  |- dev = __dev_get_by_name(...)
->            |- netdev_hold(dev, ...)      .
->        /   |- rtnl_unlock  ------.       |
->        |   |- br_ioctl_call       `--->  |- rtnl_lock
->   Race |   |  `- br_ioctl_stub           |- br_del_bridge
->   Window   |     |                       |  |- dev = __dev_get_by_name(...)
->        |   |     |  May take long        |  `- br_dev_delete(dev, ...)
->        |   |     |  under RTNL pressure  |     `- unregister_netdevice_queue(dev, ...)
->        |   |     |                |      `- rtnl_unlock
->        |   |     |- rtnl_lock  <--|         `- netdev_run_todo
->        |   |     |- ...           |            `- netdev_run_todo
->        |   |     `- rtnl_unlock   |               |- __rtnl_unlock
->        |   |                      |               |- netdev_wait_allrefs_any
->        \   |- rtnl_lock  <--------'                  |
->            |- netdev_put(dev, ...)  <----------------'  Wait refcnt decrement
->                                                         and log splat below
-> 
-> To avoid blocking SIOCBRDELBR unnecessarily, let's not call
-> dev_ioctl() for SIOCBRADDIF and SIOCBRDELIF.
-> 
-> In the dev_ioctl() path, we do the following:
-> 
->   1. Copy struct ifreq by get_user_ifreq in sock_do_ioctl()
->   2. Check CAP_NET_ADMIN in dev_ioctl()
->   3. Call dev_load() in dev_ioctl()
->   4. Fetch the master dev from ifr.ifr_name in dev_ifsioc()
-> 
-> 3. can be done by request_module() in br_ioctl_call(), so we move
-> 1., 2., and 4. to br_ioctl_stub().
-> 
-> Note that 2. is also checked later in add_del_if(), but it's better
-> performed before RTNL.
-> 
-> SIOCBRADDIF and SIOCBRDELIF have been processed in dev_ioctl() since
-> the pre-git era, and there seems to be no specific reason to process
-> them there.
-> 
-> [0]:
-> unregister_netdevice: waiting for wpan3 to become free. Usage count = 2
-> ref_tracker: wpan3@ffff8880662d8608 has 1/1 users at
->      __netdev_tracker_alloc include/linux/netdevice.h:4282 [inline]
->      netdev_hold include/linux/netdevice.h:4311 [inline]
->      dev_ifsioc+0xc6a/0x1160 net/core/dev_ioctl.c:624
->      dev_ioctl+0x255/0x10c0 net/core/dev_ioctl.c:826
->      sock_do_ioctl+0x1ca/0x260 net/socket.c:1213
->      sock_ioctl+0x23a/0x6c0 net/socket.c:1318
->      vfs_ioctl fs/ioctl.c:51 [inline]
->      __do_sys_ioctl fs/ioctl.c:906 [inline]
->      __se_sys_ioctl fs/ioctl.c:892 [inline]
->      __x64_sys_ioctl+0x1a4/0x210 fs/ioctl.c:892
->      do_syscall_x64 arch/x86/entry/common.c:52 [inline]
->      do_syscall_64+0xcb/0x250 arch/x86/entry/common.c:83
->      entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> 
-> Fixes: 893b19587534 ("net: bridge: fix ioctl locking")
-> Reported-by: syzkaller <syzkaller@googlegroups.com>
-> Reported-by: yan kang <kangyan91@outlook.com>
-> Reported-by: yue sun <samsun1006219@gmail.com>
-> Closes: https://lore.kernel.org/netdev/SY8P300MB0421225D54EB92762AE8F0F2A1D32@SY8P300MB0421.AUSP300.PROD.OUTLOOK.COM/
-> Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-> ---
->  include/linux/if_bridge.h |  6 ++----
->  net/bridge/br_ioctl.c     | 39 ++++++++++++++++++++++++++++++++++++---
->  net/bridge/br_private.h   |  3 +--
->  net/core/dev_ioctl.c      | 19 -------------------
->  net/socket.c              | 19 +++++++++----------
->  5 files changed, 48 insertions(+), 38 deletions(-)
-> 
-> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-> index 3ff96ae31bf6..c5fe3b2a53e8 100644
-> --- a/include/linux/if_bridge.h
-> +++ b/include/linux/if_bridge.h
-> @@ -65,11 +65,9 @@ struct br_ip_list {
->  #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
->  
->  struct net_bridge;
-> -void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
-> -			     unsigned int cmd, struct ifreq *ifr,
-> +void brioctl_set(int (*hook)(struct net *net, unsigned int cmd,
->  			     void __user *uarg));
-> -int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
-> -		  struct ifreq *ifr, void __user *uarg);
-> +int br_ioctl_call(struct net *net, unsigned int cmd, void __user *uarg);
->  
->  #if IS_ENABLED(CONFIG_BRIDGE) && IS_ENABLED(CONFIG_BRIDGE_IGMP_SNOOPING)
->  int br_multicast_list_adjacent(struct net_device *dev,
-> diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
-> index f213ed108361..b5a607f6da4e 100644
-> --- a/net/bridge/br_ioctl.c
-> +++ b/net/bridge/br_ioctl.c
-> @@ -394,10 +394,29 @@ static int old_deviceless(struct net *net, void __user *data)
->  	return -EOPNOTSUPP;
->  }
->  
-> -int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
-> -		  struct ifreq *ifr, void __user *uarg)
-> +int br_ioctl_stub(struct net *net, unsigned int cmd, void __user *uarg)
->  {
->  	int ret = -EOPNOTSUPP;
-> +	struct ifreq ifr;
-> +
-> +	switch (cmd) {
-> +	case SIOCBRADDIF:
-> +	case SIOCBRDELIF: {
-> +		void __user *data;
-> +		char *colon;
-> +
-> +		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
-> +			return -EPERM;
-> +
-> +		if (get_user_ifreq(&ifr, &data, uarg))
-> +			return -EFAULT;
-> +
-> +		ifr.ifr_name[IFNAMSIZ - 1] = 0;
-> +		colon = strchr(ifr.ifr_name, ':');
-> +		if (colon)
-> +			*colon = 0;
-> +	}
-> +	}
+> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-Acked-by: Stanislav Fomichev <sdf@fomichev.me>
-
-Although these double } } look funky. Maybe properly declare variables
-at the top instead?
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
