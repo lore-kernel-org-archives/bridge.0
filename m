@@ -1,260 +1,256 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-b6-smtp.messagingengine.com (fhigh-b6-smtp.messagingengine.com [202.12.124.157])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF44E1A2392
-	for <bridge@lists.linux.dev>; Sat, 15 Mar 2025 20:02:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7950786344
+	for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 16:16:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742068930; cv=none; b=poN5ENYR3l1/vHJu+5XwK1c/qgfO5e/YUG2gSVfCMChsByiLHcGG9dMaFPn0OPZEtEpyHF+xMZXgJoA4ZQHao3lScxTkPm0O595+s0nW1BOuuB5ktDl5udlISpnSyO60VwbMLpLjTd8BvSFCyNxswEipkTMRS3/M1eYVZwfc9II=
+	t=1742141768; cv=none; b=DTRs2tm0ax60aP9H5vjVLoGRyFXyQvRniG8xctSKmRmKxFiyqKDagcsyzc7v3MWlmww58rvtp0Bul+bVoXTsfL6aQiKMUBCevJlqrAuJJxIBajphMxK4d4KwrDUDZ+5xGeUGDjJ6PWvlj1lOvcuMSUG/T94XMEEhaTFejyne3Jo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742068930; c=relaxed/simple;
-	bh=GybLpAybbUmOfhk9Lf/pKIo5aScLdrW9YfE6FqksJxo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=o9odo1h4d45ZOC7Dr12zar+dxd+QXUlUYN7yg9QUAhD6oMipE4ISLHWstgRco3MWZweLH38GJfpQfLbiuZk9hvP12bGRYGI6FnLRNFhevagA9jy9HRowJl6NaEvXerlCvVuCSfmY5WSHvc3e9dtKuleLjksW3KVGSuIG17ehGuY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VvOpjS42; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742141768; c=relaxed/simple;
+	bh=B2Mv0u9Xy1iTuTe7gJvsFVcD8O3qXeh510ZdDDO51aY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hppFWemYwNhD4ui60FjKsxTEEsAeDKvMoLh2r0LV5YxQDySUEi6mHk4VPmN8L8wD4Q3lDV6xgRvEGUh5FUneW0/LmtG6hzZVZEr5rwSgvOECvXIFErbx0bYkD1BxG8VTY6iWXIo04tCXxpWniSWXDqlcTz5z+MHooto/vuz/+hs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org; spf=none smtp.mailfrom=idosch.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=C5kA1jXe; arc=none smtp.client-ip=202.12.124.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=idosch.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VvOpjS42"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-5e8be1c6ff8so2160361a12.1
-        for <bridge@lists.linux.dev>; Sat, 15 Mar 2025 13:02:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742068927; x=1742673727; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pkA4UZVIpwTz+MfKCQjyLNbONPOyz+LdYLZQ/1FoX0k=;
-        b=VvOpjS42Qiirlgc9e/cGWfqgImoSYf7Y8HLLM1tfNLyoe78dlX5AML+xtTvbl4b/FR
-         gSePE1WcJO9449lxXbiqgb4aRtC9NCfwoQ0TehUqKjFZ5zi5Z9Ga8fl5KtwGi1UsFiVZ
-         gUQsmhaxhT9u5677NxC+zHVo5zxyK/8+UkkxEM5gRRWOnDByoLj47xABq9Lng8FHAFjc
-         L2LgtM1V4BGota+TqBnWcw8CwUBhmEjszoNHw28rqsLljUCYIKJeYeHlzz5I6ihugWRL
-         CrAk1mk2WG2z9rLEsvpLCHENDhMuqH7xPhDKz9C4IXwp71QMgu50bP4bAu7oQuQ7+zKB
-         htIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742068927; x=1742673727;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pkA4UZVIpwTz+MfKCQjyLNbONPOyz+LdYLZQ/1FoX0k=;
-        b=k/8JGip1RIuGR0pmsYiLs9gZsC2GEdFgerkWMaNkWohCSswbXJrj/RTQzGmIKog5SZ
-         5IMcGuedCSvRgiyI+d03R12y/mLsHuRSaUVuGJ8TCXXT5drySQVpnh8hVfnjlhCMi4DQ
-         cI4GyRgFFaG7UmV//DzxUAi+LdM2igldZ1nuXj8aMwXoZQgMacfQu2sLCYhYxGIj3/6e
-         DS8AOPlT+9+OVqTDo7DjyDbzeNu9KKzC0giSxN6l36v+fgDOgWf4sIOqFiHzh/Cv6UpU
-         HK/xd7md/2wbUzPmZrU0snlkTBzWUGzxytLSsyAFWajIMvHjuuAq2hHLpb7CCXJlzoJM
-         4xhA==
-X-Forwarded-Encrypted: i=1; AJvYcCXo/RUeVlsP5WbpTnHr40K0dcmDnT+Wl+6QKco/nv8B/Sk9+zwFX9NajrztjZkgwtR+h8zmzh0=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxBajjxqHfnM7HQEOi6/uBpH6EmC96DfVn1f9o2yQjri+XoJOwa
-	ruxpbRQ6SEjwX/tFDshF6bb0RS946TRF/YhllyU1MQUn3xBypJM+
-X-Gm-Gg: ASbGncutKuPSvghUCvJTvz/x3JcPJZwJX4XqIvSwR1auO0/mKfUs3KE8LppoL2iXWAK
-	4zjPpcNUQj92PJlZrkdbCkfpLJxaAglxRd3VYtzKlcJ/qO+TMqGeK3pyhnPc7a3jreGCZmm/Pxg
-	4sapcDImObnXpZ02fka2se7T6TPvOSWQaEUECbPX9QlLD1hwwFntBUbH5vViQX6V+0Df4a2Hf13
-	tmn9erE9BNrySbbAZbdj+xdE/aOIvzcWrPpLHoags75UzLa7p3lbvjyL0P3p7mWRRkoefCAasjt
-	BlbePXKHjw3nOWxd+9z3o1ZykZjGBYC2jny9IRJRoPd3cKX7IOV2qrVoswsYp0b1EPlnSJtPo8o
-	CDRVmjFwCjkwo3KMRAz8GugPt7nO+1YnMKmcnLgu1uk6P8YC1rMhv4sC3966g0Fw=
-X-Google-Smtp-Source: AGHT+IGZrLPyzUFrsmUJ6bjiHKaOKcN6z3XUtUDmp1EbfQa4TkA4lIxe1N3KZXeS7nHJqoz8wrbu6w==
-X-Received: by 2002:a17:906:4795:b0:ac1:fa6f:4941 with SMTP id a640c23a62f3a-ac330253720mr766195566b.13.1742068927072;
-        Sat, 15 Mar 2025 13:02:07 -0700 (PDT)
-Received: from localhost.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac314a489c9sm411456766b.152.2025.03.15.13.02.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Mar 2025 13:02:06 -0700 (PDT)
-From: Eric Woudstra <ericwouds@gmail.com>
-To: Jiri Pirko <jiri@resnulli.us>,
-	Ivan Vecera <ivecera@redhat.com>,
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="C5kA1jXe"
+Received: from phl-compute-09.internal (phl-compute-09.phl.internal [10.202.2.49])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 0F83E2540127;
+	Sun, 16 Mar 2025 12:16:04 -0400 (EDT)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-09.internal (MEProxy); Sun, 16 Mar 2025 12:16:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1742141763; x=1742228163; bh=ESzR6vbQtgUfCVVzOfajXcGVGwL9jiVw/a7
+	2XfUMx5U=; b=C5kA1jXe4Dn9Q+mjpOwJxdz6sghWw9W166mI8n38iX6rEFGc04H
+	0i0r7Togb85aAGAR1izH7dW7HfahpsU40Td7W+sVy15Kn8aUHxjhaBBQAPni81dh
+	Nr3XhUTzDw186On32t9X0tZj4PdFiiob7i64ptU9TZfQjBtD8AdPhr85Rgn50I3i
+	uXXovB/IrImmDoRCUe0AsWSR7iOhqFxa8n7ZwOkRo4Qo5lA+rGYrq+/3qZJ918lm
+	X6NxWLpMDTZJGg3L/xZtzDqmN2XmiabpacSJwiNIbmS7z1ILccpeoWFV6DnVZLwr
+	NUMyHmKLmZlu1g6V6wWXgrV9/lWml3JrMLA==
+X-ME-Sender: <xms:Q_nWZz8NNqA3Kxrw1xC0r5AWzkHLISDhan1eNhY444BHMO1v2MQ65A>
+    <xme:Q_nWZ_tZ9OYdjzphthoV054mxowOS6Pho5aZV-zEpyBhisCxE5qwEkwW9itR3b9dw
+    SOD1cPiIaQxn7I>
+X-ME-Received: <xmr:Q_nWZxAqpnPn0CB47o3ZmUg_7N59-gNjF38GW6O5wcX5cvVKI620l5Hm37-F>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddufeejtdeiucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
+    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
+    gvnhhtshculddquddttddmnecujfgurhepfffhvfevuffkfhggtggujgesthdtredttddt
+    vdenucfhrhhomhepkfguohcuufgthhhimhhmvghluceoihguohhstghhsehiughoshgthh
+    drohhrgheqnecuggftrfgrthhtvghrnhephefhtdejvdeiffefudduvdffgeetieeigeeu
+    gfduffdvffdtfeehieejtdfhjeeknecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenuc
+    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehiughoshgt
+    hhesihguohhstghhrdhorhhgpdhnsggprhgtphhtthhopeduiedpmhhouggvpehsmhhtph
+    houhhtpdhrtghpthhtohepkhhunhhihihusegrmhgriihonhdrtghomhdprhgtphhtthho
+    pegrnhgurhgvfidonhgvthguvghvsehluhhnnhdrtghhpdhrtghpthhtohepuggrvhgvmh
+    esuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopegvughumhgriigvthesghhoohhg
+    lhgvrdgtohhmpdhrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtth
+    hopehprggsvghnihesrhgvughhrghtrdgtohhmpdhrtghpthhtoheprhhoohhprgesnhhv
+    ihguihgrrdgtohhmpdhrtghpthhtoheprhgriihorhessghlrggtkhifrghllhdrohhrgh
+    dprhgtphhtthhopeifihhllhgvmhgssehgohhoghhlvgdrtghomh
+X-ME-Proxy: <xmx:Q_nWZ_e0LXPwtDf03Drt74sCSrcz0Sm4R2LcLPgLpWyLHXe1HqNA_A>
+    <xmx:Q_nWZ4O7A10LgzFLQbpEHLYKZM__PAYnkC6-Q0uyoNgYhmsKjbw58w>
+    <xmx:Q_nWZxkluexEs0Tm8mJTFTxwTOI08LfDYg1dwT4eEUVvision5IVzQ>
+    <xmx:Q_nWZyvT0nX-jkXxztJriRS7TZvs4k7d9dapLKQUyWKeVP8nB3LcoQ>
+    <xmx:Q_nWZ9vsQSHKBhZOt4oX9ZUNDw4u7BvAyvJohboRZJms9RB_q2-Nz4Fk>
+Feedback-ID: i494840e7:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 16 Mar 2025 12:16:02 -0400 (EDT)
+Date: Sun, 16 Mar 2025 18:16:00 +0200
+From: Ido Schimmel <idosch@idosch.org>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Roopa Prabhu <roopa@nvidia.com>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: netdev@vger.kernel.org,
-	bridge@lists.linux.dev,
-	netfilter-devel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH v10 nf-next 3/3] bridge: No DEV_PATH_BR_VLAN_UNTAG_HW for dsa foreign
-Date: Sat, 15 Mar 2025 21:01:47 +0100
-Message-ID: <20250315200147.18016-4-ericwouds@gmail.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20250315200147.18016-1-ericwouds@gmail.com>
-References: <20250315200147.18016-1-ericwouds@gmail.com>
+	Willem de Bruijn <willemb@google.com>,
+	Simon Horman <horms@kernel.org>,
+	Kuniyuki Iwashima <kuni1840@gmail.com>, netdev@vger.kernel.org,
+	bridge@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+	yan kang <kangyan91@outlook.com>, yue sun <samsun1006219@gmail.com>
+Subject: Re: [PATCH v1 net] net: Remove RTNL dance for SIOCBRADDIF and
+ SIOCBRDELIF.
+Message-ID: <Z9b5QAKtTSCv3DVZ@shredder>
+References: <20250314010501.75798-1-kuniyu@amazon.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250314010501.75798-1-kuniyu@amazon.com>
 
-In network setup as below:
+On Thu, Mar 13, 2025 at 05:59:55PM -0700, Kuniyuki Iwashima wrote:
+> SIOCBRDELIF is passed to dev_ioctl() first and later forwarded to
+> br_ioctl_call(), which causes unnecessary RTNL dance and the splat
+> below [0] under RTNL pressure.
+> 
+> Let's say Thread A is trying to detach a device from a bridge and
+> Thread B is trying to remove the bridge.
+> 
+> In dev_ioctl(), Thread A bumps the bridge device's refcnt by
+> netdev_hold() and releases RTNL because the following br_ioctl_call()
+> also re-acquires RTNL.
+> 
+> In the race window, Thread B could acquire RTNL and try to remove
+> the bridge device.  Then, rtnl_unlock() by Thread B will release RTNL
+> and wait for netdev_put() by Thread A.
+> 
+> Thread A, however, must hold RTNL twice after the unlock in dev_ifsioc(),
+> which may take long under RTNL pressure, resulting in the splat by
+> Thread B.
+> 
+>   Thread A (SIOCBRDELIF)           Thread B (SIOCBRDELBR)
+>   ----------------------           ----------------------
+>   sock_ioctl                       sock_ioctl
+>   `- sock_do_ioctl                 `- br_ioctl_call
+>      `- dev_ioctl                     `- br_ioctl_stub
+>         |- rtnl_lock                     |
+>         |- dev_ifsioc                    '
+>         '  |- dev = __dev_get_by_name(...)
+>            |- netdev_hold(dev, ...)      .
+>        /   |- rtnl_unlock  ------.       |
+>        |   |- br_ioctl_call       `--->  |- rtnl_lock
+>   Race |   |  `- br_ioctl_stub           |- br_del_bridge
+>   Window   |     |                       |  |- dev = __dev_get_by_name(...)
+>        |   |     |  May take long        |  `- br_dev_delete(dev, ...)
+>        |   |     |  under RTNL pressure  |     `- unregister_netdevice_queue(dev, ...)
+>        |   |     |                |      `- rtnl_unlock
+>        |   |     |- rtnl_lock  <--|         `- netdev_run_todo
+>        |   |     |- ...           |            `- netdev_run_todo
+>        |   |     `- rtnl_unlock   |               |- __rtnl_unlock
+>        |   |                      |               |- netdev_wait_allrefs_any
+>        \   |- rtnl_lock  <--------'                  |
+>            |- netdev_put(dev, ...)  <----------------'  Wait refcnt decrement
+>                                                         and log splat below
 
-             fastpath bypass
- .----------------------------------------.
-/                                          \
-|                        IP - forwarding    |
-|                       /                \  v
-|                      /                  wan ...
-|                     /
-|                     |
-|                     |
-|                   brlan.1
-|                     |
-|    +-------------------------------+
-|    |           vlan 1              |
-|    |                               |
-|    |     brlan (vlan-filtering)    |
-|    |               +---------------+
-|    |               |  DSA-SWITCH   |
-|    |    vlan 1     |               |
-|    |      to       |               |
-|    |   untagged    1     vlan 1    |
-|    +---------------+---------------+
-.         /                   \
- ----->wlan1                 lan0
-       .                       .
-       .                       ^
-       ^                     vlan 1 tagged packets
-     untagged packets
+Isn't the race window a bit smaller? dev_ifsioc() does netdev_put()
+before rtnl_lock().
 
-br_vlan_fill_forward_path_mode() sets DEV_PATH_BR_VLAN_UNTAG_HW when
-filling in from brlan.1 towards wlan1. But it should be set to
-DEV_PATH_BR_VLAN_UNTAG in this case. Using BR_VLFLAG_ADDED_BY_SWITCHDEV
-is not correct. The dsa switchdev adds it as a foreign port.
+> 
+> To avoid blocking SIOCBRDELBR unnecessarily, let's not call
+> dev_ioctl() for SIOCBRADDIF and SIOCBRDELIF.
+> 
+> In the dev_ioctl() path, we do the following:
+> 
+>   1. Copy struct ifreq by get_user_ifreq in sock_do_ioctl()
+>   2. Check CAP_NET_ADMIN in dev_ioctl()
+>   3. Call dev_load() in dev_ioctl()
+>   4. Fetch the master dev from ifr.ifr_name in dev_ifsioc()
+> 
+> 3. can be done by request_module() in br_ioctl_call(), so we move
+> 1., 2., and 4. to br_ioctl_stub().
+> 
+> Note that 2. is also checked later in add_del_if(), but it's better
+> performed before RTNL.
+> 
+> SIOCBRADDIF and SIOCBRDELIF have been processed in dev_ioctl() since
+> the pre-git era, and there seems to be no specific reason to process
+> them there.
 
-The same problem for all foreignly added dsa vlans on the bridge.
+I couldn't find an explanation as well.
 
-First add the vlan, trying only native devices.
-If this fails, we know this may be a vlan from a foreign device.
+Doesn't seem like we have any tests for the IOCTL path, but FWIW I
+verified that basic operations using brctl still work after this patch.
 
-Use BR_VLFLAG_TAGGING_BY_SWITCHDEV to make sure DEV_PATH_BR_VLAN_UNTAG_HW
-is set only when there if no foreign device involved.
+> 
+> [0]:
+> unregister_netdevice: waiting for wpan3 to become free. Usage count = 2
+> ref_tracker: wpan3@ffff8880662d8608 has 1/1 users at
+>      __netdev_tracker_alloc include/linux/netdevice.h:4282 [inline]
+>      netdev_hold include/linux/netdevice.h:4311 [inline]
+>      dev_ifsioc+0xc6a/0x1160 net/core/dev_ioctl.c:624
+>      dev_ioctl+0x255/0x10c0 net/core/dev_ioctl.c:826
+>      sock_do_ioctl+0x1ca/0x260 net/socket.c:1213
+>      sock_ioctl+0x23a/0x6c0 net/socket.c:1318
+>      vfs_ioctl fs/ioctl.c:51 [inline]
+>      __do_sys_ioctl fs/ioctl.c:906 [inline]
+>      __se_sys_ioctl fs/ioctl.c:892 [inline]
+>      __x64_sys_ioctl+0x1a4/0x210 fs/ioctl.c:892
+>      do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+>      do_syscall_64+0xcb/0x250 arch/x86/entry/common.c:83
+>      entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> 
+> Fixes: 893b19587534 ("net: bridge: fix ioctl locking")
+> Reported-by: syzkaller <syzkaller@googlegroups.com>
+> Reported-by: yan kang <kangyan91@outlook.com>
+> Reported-by: yue sun <samsun1006219@gmail.com>
+> Closes: https://lore.kernel.org/netdev/SY8P300MB0421225D54EB92762AE8F0F2A1D32@SY8P300MB0421.AUSP300.PROD.OUTLOOK.COM/
+> Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
----
- include/net/switchdev.h   |  1 +
- net/bridge/br_private.h   | 10 ++++++++++
- net/bridge/br_switchdev.c | 15 +++++++++++++++
- net/bridge/br_vlan.c      |  7 ++++++-
- net/switchdev/switchdev.c |  2 +-
- 5 files changed, 33 insertions(+), 2 deletions(-)
+Thanks for the fix and the detailed commit message. One nit below.
 
-diff --git a/include/net/switchdev.h b/include/net/switchdev.h
-index 8346b0d29542..ee500706496b 100644
---- a/include/net/switchdev.h
-+++ b/include/net/switchdev.h
-@@ -15,6 +15,7 @@
- #define SWITCHDEV_F_NO_RECURSE		BIT(0)
- #define SWITCHDEV_F_SKIP_EOPNOTSUPP	BIT(1)
- #define SWITCHDEV_F_DEFER		BIT(2)
-+#define SWITCHDEV_F_NO_FOREIGN		BIT(3)
- 
- enum switchdev_attr_id {
- 	SWITCHDEV_ATTR_ID_UNDEFINED,
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 1054b8a88edc..43f04bd69d73 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -180,6 +180,7 @@ enum {
- 	BR_VLFLAG_MCAST_ENABLED = BIT(2),
- 	BR_VLFLAG_GLOBAL_MCAST_ENABLED = BIT(3),
- 	BR_VLFLAG_NEIGH_SUPPRESS_ENABLED = BIT(4),
-+	BR_VLFLAG_TAGGING_BY_SWITCHDEV = BIT(5),
- };
- 
- /**
-@@ -2182,6 +2183,8 @@ void br_switchdev_mdb_notify(struct net_device *dev,
- 			     int type);
- int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags,
- 			       bool changed, struct netlink_ext_ack *extack);
-+int br_switchdev_port_vlan_no_foreign_add(struct net_device *dev, u16 vid, u16 flags,
-+					  bool changed, struct netlink_ext_ack *extack);
- int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid);
- void br_switchdev_init(struct net_bridge *br);
- 
-@@ -2265,6 +2268,13 @@ static inline int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid,
- 	return -EOPNOTSUPP;
- }
- 
-+static inline int br_switchdev_port_vlan_no_foreign_add(struct net_device *dev, u16 vid,
-+							u16 flags, bool changed,
-+							struct netlink_ext_ack *extack)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
- {
- 	return -EOPNOTSUPP;
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 7b41ee8740cb..efa7a055b8f9 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -187,6 +187,21 @@ int br_switchdev_port_vlan_add(struct net_device *dev, u16 vid, u16 flags,
- 	return switchdev_port_obj_add(dev, &v.obj, extack);
- }
- 
-+int br_switchdev_port_vlan_no_foreign_add(struct net_device *dev, u16 vid, u16 flags,
-+					  bool changed, struct netlink_ext_ack *extack)
-+{
-+	struct switchdev_obj_port_vlan v = {
-+		.obj.orig_dev = dev,
-+		.obj.id = SWITCHDEV_OBJ_ID_PORT_VLAN,
-+		.obj.flags = SWITCHDEV_F_NO_FOREIGN,
-+		.flags = flags,
-+		.vid = vid,
-+		.changed = changed,
-+	};
-+
-+	return switchdev_port_obj_add(dev, &v.obj, extack);
-+}
-+
- int br_switchdev_port_vlan_del(struct net_device *dev, u16 vid)
- {
- 	struct switchdev_obj_port_vlan v = {
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index d9a69ec9affe..6bfc7da10865 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -109,6 +109,11 @@ static int __vlan_vid_add(struct net_device *dev, struct net_bridge *br,
- 	/* Try switchdev op first. In case it is not supported, fallback to
- 	 * 8021q add.
- 	 */
-+	err = br_switchdev_port_vlan_no_foreign_add(dev, v->vid, flags, false, extack);
-+	if (err != -EOPNOTSUPP) {
-+		v->priv_flags |= BR_VLFLAG_ADDED_BY_SWITCHDEV | BR_VLFLAG_TAGGING_BY_SWITCHDEV;
-+		return err;
-+	}
- 	err = br_switchdev_port_vlan_add(dev, v->vid, flags, false, extack);
- 	if (err == -EOPNOTSUPP)
- 		return vlan_vid_add(dev, br->vlan_proto, v->vid);
-@@ -1487,7 +1492,7 @@ int br_vlan_fill_forward_path_mode(struct net_bridge *br,
- 
- 	if (path->bridge.vlan_mode == DEV_PATH_BR_VLAN_TAG)
- 		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_KEEP;
--	else if (v->priv_flags & BR_VLFLAG_ADDED_BY_SWITCHDEV)
-+	else if (v->priv_flags & BR_VLFLAG_TAGGING_BY_SWITCHDEV)
- 		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_UNTAG_HW;
- 	else
- 		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_UNTAG;
-diff --git a/net/switchdev/switchdev.c b/net/switchdev/switchdev.c
-index 6488ead9e464..c48f66643e99 100644
---- a/net/switchdev/switchdev.c
-+++ b/net/switchdev/switchdev.c
-@@ -749,7 +749,7 @@ static int __switchdev_handle_port_obj_add(struct net_device *dev,
- 	/* Event is neither on a bridge nor a LAG. Check whether it is on an
- 	 * interface that is in a bridge with us.
- 	 */
--	if (!foreign_dev_check_cb)
-+	if (!foreign_dev_check_cb || port_obj_info->obj->flags & SWITCHDEV_F_NO_FOREIGN)
- 		return err;
- 
- 	br = netdev_master_upper_dev_get(dev);
--- 
-2.47.1
+> ---
+>  include/linux/if_bridge.h |  6 ++----
+>  net/bridge/br_ioctl.c     | 39 ++++++++++++++++++++++++++++++++++++---
+>  net/bridge/br_private.h   |  3 +--
+>  net/core/dev_ioctl.c      | 19 -------------------
+>  net/socket.c              | 19 +++++++++----------
+>  5 files changed, 48 insertions(+), 38 deletions(-)
+> 
+> diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
+> index 3ff96ae31bf6..c5fe3b2a53e8 100644
+> --- a/include/linux/if_bridge.h
+> +++ b/include/linux/if_bridge.h
+> @@ -65,11 +65,9 @@ struct br_ip_list {
+>  #define BR_DEFAULT_AGEING_TIME	(300 * HZ)
+>  
+>  struct net_bridge;
+> -void brioctl_set(int (*hook)(struct net *net, struct net_bridge *br,
+> -			     unsigned int cmd, struct ifreq *ifr,
+> +void brioctl_set(int (*hook)(struct net *net, unsigned int cmd,
+>  			     void __user *uarg));
+> -int br_ioctl_call(struct net *net, struct net_bridge *br, unsigned int cmd,
+> -		  struct ifreq *ifr, void __user *uarg);
+> +int br_ioctl_call(struct net *net, unsigned int cmd, void __user *uarg);
+>  
+>  #if IS_ENABLED(CONFIG_BRIDGE) && IS_ENABLED(CONFIG_BRIDGE_IGMP_SNOOPING)
+>  int br_multicast_list_adjacent(struct net_device *dev,
+> diff --git a/net/bridge/br_ioctl.c b/net/bridge/br_ioctl.c
+> index f213ed108361..b5a607f6da4e 100644
+> --- a/net/bridge/br_ioctl.c
+> +++ b/net/bridge/br_ioctl.c
+> @@ -394,10 +394,29 @@ static int old_deviceless(struct net *net, void __user *data)
+>  	return -EOPNOTSUPP;
+>  }
+>  
+> -int br_ioctl_stub(struct net *net, struct net_bridge *br, unsigned int cmd,
+> -		  struct ifreq *ifr, void __user *uarg)
+> +int br_ioctl_stub(struct net *net, unsigned int cmd, void __user *uarg)
+>  {
+>  	int ret = -EOPNOTSUPP;
+> +	struct ifreq ifr;
+> +
+> +	switch (cmd) {
+> +	case SIOCBRADDIF:
+> +	case SIOCBRDELIF: {
 
+Why not a simple if statement? Unlikely that we will add more commands
+to this switch statement.
+
+> +		void __user *data;
+> +		char *colon;
+> +
+> +		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
+> +			return -EPERM;
+> +
+> +		if (get_user_ifreq(&ifr, &data, uarg))
+> +			return -EFAULT;
+> +
+> +		ifr.ifr_name[IFNAMSIZ - 1] = 0;
+> +		colon = strchr(ifr.ifr_name, ':');
+> +		if (colon)
+> +			*colon = 0;
+> +	}
+> +	}
+>  
+>  	rtnl_lock();
