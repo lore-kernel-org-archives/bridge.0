@@ -1,68 +1,63 @@
-Received: from fhigh-b6-smtp.messagingengine.com (fhigh-b6-smtp.messagingengine.com [202.12.124.157])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7950786344
-	for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 16:16:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 255581993B1
+	for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 16:41:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742141768; cv=none; b=DTRs2tm0ax60aP9H5vjVLoGRyFXyQvRniG8xctSKmRmKxFiyqKDagcsyzc7v3MWlmww58rvtp0Bul+bVoXTsfL6aQiKMUBCevJlqrAuJJxIBajphMxK4d4KwrDUDZ+5xGeUGDjJ6PWvlj1lOvcuMSUG/T94XMEEhaTFejyne3Jo=
+	t=1742143319; cv=none; b=TbMmwtNBdztxE1dMjr+7jE8b4pN5sx7JWJxG99+HYtSXgWmVCvAG6jLLYOzvtQCzu/GnSSjNGEZAQcqPKlcAOLvCyvhSifFAaZYExXSqvCKrdinUjGfyA781OnBd1T1JcyLHM6tcuHfaDzJcxgnrTz2KTrwbpeyo7fPoRrEGTTw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742141768; c=relaxed/simple;
-	bh=B2Mv0u9Xy1iTuTe7gJvsFVcD8O3qXeh510ZdDDO51aY=;
+	s=arc-20240116; t=1742143319; c=relaxed/simple;
+	bh=BA2PaE3NYW+aVBBLWMmVbiWA/xSnqlWWpzhT5hvQzg4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hppFWemYwNhD4ui60FjKsxTEEsAeDKvMoLh2r0LV5YxQDySUEi6mHk4VPmN8L8wD4Q3lDV6xgRvEGUh5FUneW0/LmtG6hzZVZEr5rwSgvOECvXIFErbx0bYkD1BxG8VTY6iWXIo04tCXxpWniSWXDqlcTz5z+MHooto/vuz/+hs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org; spf=none smtp.mailfrom=idosch.org; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=C5kA1jXe; arc=none smtp.client-ip=202.12.124.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=idosch.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=idosch.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=p/y/FAqt5L/XBpHy02C7y4GxVt+Iz13h9faim0D9SVdOiWx4CtRcZtn2d1/KfqiTMvj8pWFwIw9kDlcBC7Yy4OcOJ2OTKdeTfhP79NXHBgANlNSJFFxr03DvpwYTuZaR8mrdhNk97AjYC8hF/R3jgC8KRPeRjTr2Q5JYiDT7Z+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hJ8pfWIB; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="C5kA1jXe"
-Received: from phl-compute-09.internal (phl-compute-09.phl.internal [10.202.2.49])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 0F83E2540127;
-	Sun, 16 Mar 2025 12:16:04 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-09.internal (MEProxy); Sun, 16 Mar 2025 12:16:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1742141763; x=1742228163; bh=ESzR6vbQtgUfCVVzOfajXcGVGwL9jiVw/a7
-	2XfUMx5U=; b=C5kA1jXe4Dn9Q+mjpOwJxdz6sghWw9W166mI8n38iX6rEFGc04H
-	0i0r7Togb85aAGAR1izH7dW7HfahpsU40Td7W+sVy15Kn8aUHxjhaBBQAPni81dh
-	Nr3XhUTzDw186On32t9X0tZj4PdFiiob7i64ptU9TZfQjBtD8AdPhr85Rgn50I3i
-	uXXovB/IrImmDoRCUe0AsWSR7iOhqFxa8n7ZwOkRo4Qo5lA+rGYrq+/3qZJ918lm
-	X6NxWLpMDTZJGg3L/xZtzDqmN2XmiabpacSJwiNIbmS7z1ILccpeoWFV6DnVZLwr
-	NUMyHmKLmZlu1g6V6wWXgrV9/lWml3JrMLA==
-X-ME-Sender: <xms:Q_nWZz8NNqA3Kxrw1xC0r5AWzkHLISDhan1eNhY444BHMO1v2MQ65A>
-    <xme:Q_nWZ_tZ9OYdjzphthoV054mxowOS6Pho5aZV-zEpyBhisCxE5qwEkwW9itR3b9dw
-    SOD1cPiIaQxn7I>
-X-ME-Received: <xmr:Q_nWZxAqpnPn0CB47o3ZmUg_7N59-gNjF38GW6O5wcX5cvVKI620l5Hm37-F>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddufeejtdeiucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
-    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
-    gvnhhtshculddquddttddmnecujfgurhepfffhvfevuffkfhggtggujgesthdtredttddt
-    vdenucfhrhhomhepkfguohcuufgthhhimhhmvghluceoihguohhstghhsehiughoshgthh
-    drohhrgheqnecuggftrfgrthhtvghrnhephefhtdejvdeiffefudduvdffgeetieeigeeu
-    gfduffdvffdtfeehieejtdfhjeeknecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenuc
-    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehiughoshgt
-    hhesihguohhstghhrdhorhhgpdhnsggprhgtphhtthhopeduiedpmhhouggvpehsmhhtph
-    houhhtpdhrtghpthhtohepkhhunhhihihusegrmhgriihonhdrtghomhdprhgtphhtthho
-    pegrnhgurhgvfidonhgvthguvghvsehluhhnnhdrtghhpdhrtghpthhtohepuggrvhgvmh
-    esuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopegvughumhgriigvthesghhoohhg
-    lhgvrdgtohhmpdhrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtth
-    hopehprggsvghnihesrhgvughhrghtrdgtohhmpdhrtghpthhtoheprhhoohhprgesnhhv
-    ihguihgrrdgtohhmpdhrtghpthhtoheprhgriihorhessghlrggtkhifrghllhdrohhrgh
-    dprhgtphhtthhopeifihhllhgvmhgssehgohhoghhlvgdrtghomh
-X-ME-Proxy: <xmx:Q_nWZ_e0LXPwtDf03Drt74sCSrcz0Sm4R2LcLPgLpWyLHXe1HqNA_A>
-    <xmx:Q_nWZ4O7A10LgzFLQbpEHLYKZM__PAYnkC6-Q0uyoNgYhmsKjbw58w>
-    <xmx:Q_nWZxkluexEs0Tm8mJTFTxwTOI08LfDYg1dwT4eEUVvision5IVzQ>
-    <xmx:Q_nWZyvT0nX-jkXxztJriRS7TZvs4k7d9dapLKQUyWKeVP8nB3LcoQ>
-    <xmx:Q_nWZ9vsQSHKBhZOt4oX9ZUNDw4u7BvAyvJohboRZJms9RB_q2-Nz4Fk>
-Feedback-ID: i494840e7:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 16 Mar 2025 12:16:02 -0400 (EDT)
-Date: Sun, 16 Mar 2025 18:16:00 +0200
-From: Ido Schimmel <idosch@idosch.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hJ8pfWIB"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-22359001f1aso13221825ad.3
+        for <bridge@lists.linux.dev>; Sun, 16 Mar 2025 09:41:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1742143317; x=1742748117; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=1t7i2k+qpddSOT6lrsF95vAec+0YDsSW3ORX2scnraI=;
+        b=hJ8pfWIB7yZyT4l+LvQQLWYxSWbnGOKIPZIQGFijV4Y3lst3nP5xlUVyOrLW3mMI7f
+         bM7ihpez8o4WK3b0JKkb59mOXFvvouNxEiUQrtrEp9HicPr+hoRdui8mCU6tfB9FgQff
+         aRXC3J1htr4wH4uXYVe0WiNw8oBHiPpqlBisPI0HORcScMDrBOfBdVoiZ49oaLeWOFHA
+         CgoOt8LoEAWSvblrbHotxxxcxWBr3oFZSDauNAz6M36esXIgq26mpf6LwgDU8SIRK7Yy
+         UcCdSbCmZK5FnMQhy/v4E6jbFU1/QQ9jTEclp6tCUT46Nn2ylNPhXjvLBauuCi5WbtHr
+         L6JQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742143317; x=1742748117;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1t7i2k+qpddSOT6lrsF95vAec+0YDsSW3ORX2scnraI=;
+        b=NA857cBPPM8Axnhm2hrQ3slPT3OcCQrEwR3pxuf1FND84DsSFHPjRm7hJaEjrwGFa2
+         ECkM5D2Hgbuh44Rihtm5URuhuhlxjtcP1Z1szFgrexB6M1QVt0b1afKlmXKcq7iIhGjN
+         SYgsqUN2IQDp8HXNjcifUz3HjCQt/jv7jLufR65CU1+5Zoz5F8yXqeh0dlzTNMDpAl+s
+         RxJWOG3ptkkj2xwjZJcFKqYlZluPM79oehf5u74thWJfT5hpP/QdexyGq3p9/tS7noh3
+         1i30dPOYGG/eZ4zSACK6rVHFhQEwxEWwrRuz2il31T49sg3dJTIXhMGLXLmAOZwYXXsF
+         zLpg==
+X-Forwarded-Encrypted: i=1; AJvYcCWCASG7OtFDiQgP7ihuLC3n/gYR9R0941WX85edvWZLtzh+6t29vtuAdy2Zd3fjWkscYUJSpkw=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxE7WHDpUwFdcVMrykQkkKW4jXiwJusl4m+/Pi/sPfBJ0nTzUOr
+	m9Uy40Eko9SaAg2Oc4LbIbsQXwH0Uh7DMnYmtwmgZMO5rnZl8NjyU+MDuGhxIQ==
+X-Gm-Gg: ASbGncu11MPgYtZXC6p4Y1XQUTJQ+AccPVV3zV88nzKVOZWIBRZRwx1TnOq13KCymAH
+	pM0L38b94aynmHcx+loBj3cDnx+I+y605Ons2Yton7pRmhvcLmOxUunWcCLSf6lbHkPTURogs25
+	SeRnYiObkV48ZGBzdXcNTs7tgQJPU5GQXIJ4LARy7pq7LK87wvIlPhbNrcdCWuyh/q3U/mpOz1T
+	0mPom+AOWOYITzj4SZErvqaDJOXijyBG1ufjnXZPUesn0jzgETN0ISfteIPDmb6He0KZaVo0z7B
+	w2JJvu8Q7K8BkjNLn0qFzkkYthvg9/dzJyMPV/nTGg5Q
+X-Google-Smtp-Source: AGHT+IH+gC5/AF7fQ/nODds+CLzi/mSoDdhCQD4zxfJmTqOpndJJjUsBKADkQTXD988rSMfcIE5Qxg==
+X-Received: by 2002:a17:902:f686:b0:223:397f:46be with SMTP id d9443c01a7336-225e0aff8abmr118629555ad.47.1742143317261;
+        Sun, 16 Mar 2025 09:41:57 -0700 (PDT)
+Received: from localhost ([2601:646:9e00:f56e:2844:3d8f:bf3e:12cc])
+        by smtp.gmail.com with UTF8SMTPSA id d9443c01a7336-225c688841fsm59623795ad.26.2025.03.16.09.41.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 16 Mar 2025 09:41:56 -0700 (PDT)
+Date: Sun, 16 Mar 2025 09:41:56 -0700
+From: Stanislav Fomichev <stfomichev@gmail.com>
 To: Kuniyuki Iwashima <kuniyu@amazon.com>
 Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
@@ -77,7 +72,7 @@ Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
 	yan kang <kangyan91@outlook.com>, yue sun <samsun1006219@gmail.com>
 Subject: Re: [PATCH v1 net] net: Remove RTNL dance for SIOCBRADDIF and
  SIOCBRDELIF.
-Message-ID: <Z9b5QAKtTSCv3DVZ@shredder>
+Message-ID: <Z9b_VP-F_3iAKvCw@mini-arch>
 References: <20250314010501.75798-1-kuniyu@amazon.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -85,11 +80,11 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 In-Reply-To: <20250314010501.75798-1-kuniyu@amazon.com>
 
-On Thu, Mar 13, 2025 at 05:59:55PM -0700, Kuniyuki Iwashima wrote:
+On 03/13, Kuniyuki Iwashima wrote:
 > SIOCBRDELIF is passed to dev_ioctl() first and later forwarded to
 > br_ioctl_call(), which causes unnecessary RTNL dance and the splat
 > below [0] under RTNL pressure.
@@ -132,10 +127,6 @@ On Thu, Mar 13, 2025 at 05:59:55PM -0700, Kuniyuki Iwashima wrote:
 >        \   |- rtnl_lock  <--------'                  |
 >            |- netdev_put(dev, ...)  <----------------'  Wait refcnt decrement
 >                                                         and log splat below
-
-Isn't the race window a bit smaller? dev_ifsioc() does netdev_put()
-before rtnl_lock().
-
 > 
 > To avoid blocking SIOCBRDELBR unnecessarily, let's not call
 > dev_ioctl() for SIOCBRADDIF and SIOCBRDELIF.
@@ -156,12 +147,6 @@ before rtnl_lock().
 > SIOCBRADDIF and SIOCBRDELIF have been processed in dev_ioctl() since
 > the pre-git era, and there seems to be no specific reason to process
 > them there.
-
-I couldn't find an explanation as well.
-
-Doesn't seem like we have any tests for the IOCTL path, but FWIW I
-verified that basic operations using brctl still work after this patch.
-
 > 
 > [0]:
 > unregister_netdevice: waiting for wpan3 to become free. Usage count = 2
@@ -186,9 +171,6 @@ verified that basic operations using brctl still work after this patch.
 > Reported-by: yue sun <samsun1006219@gmail.com>
 > Closes: https://lore.kernel.org/netdev/SY8P300MB0421225D54EB92762AE8F0F2A1D32@SY8P300MB0421.AUSP300.PROD.OUTLOOK.COM/
 > Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-
-Thanks for the fix and the detailed commit message. One nit below.
-
 > ---
 >  include/linux/if_bridge.h |  6 ++----
 >  net/bridge/br_ioctl.c     | 39 ++++++++++++++++++++++++++++++++++++---
@@ -233,10 +215,6 @@ Thanks for the fix and the detailed commit message. One nit below.
 > +	switch (cmd) {
 > +	case SIOCBRADDIF:
 > +	case SIOCBRDELIF: {
-
-Why not a simple if statement? Unlikely that we will add more commands
-to this switch statement.
-
 > +		void __user *data;
 > +		char *colon;
 > +
@@ -252,5 +230,8 @@ to this switch statement.
 > +			*colon = 0;
 > +	}
 > +	}
->  
->  	rtnl_lock();
+
+Acked-by: Stanislav Fomichev <sdf@fomichev.me>
+
+Although these double } } look funky. Maybe properly declare variables
+at the top instead?
