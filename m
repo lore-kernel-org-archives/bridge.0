@@ -1,66 +1,65 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+Received: from mail-wm1-f66.google.com (mail-wm1-f66.google.com [209.85.128.66])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83F2720F070
-	for <bridge@lists.linux.dev>; Wed, 19 Mar 2025 19:30:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E835779C4
+	for <bridge@lists.linux.dev>; Thu, 20 Mar 2025 06:17:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742412629; cv=none; b=YKdDXgcQsVAmp0R3/c7SBdlgmH0XTYREtxoDen+tBGiojKOVxRluPUOt5q1mRrVJ15unwhIcx9+lxcNHFQSKZLU1ZJYfyXBCPcFBpQ4TyoC2EMhMbRHgL/Q2CGp5MquZrUmGuzfytv0VWfMr1xydSz+08rLRI0XpztMMLwO8nWk=
+	t=1742451448; cv=none; b=UxPpBhfoo+vlSFqp/FMFuL0LFN3vRaQF7c3hUG/VBGWwdSk6ypbJ1qPMRHyZXY7qzi4KVb1ZOPUZaQCHRa7NJ2OIILNWOsxVHxO7czv2wDEetNsQ0/8YUBhVDX7yf/Wy3VBozll35u/2Ey+SzBvTKfAdQ7sLhrC00g1ayb+KE0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742412629; c=relaxed/simple;
-	bh=Rz7Yp1I80hzWgHGkG+CgxdDTBoc6y2B4a7XLDwScsJ0=;
+	s=arc-20240116; t=1742451448; c=relaxed/simple;
+	bh=u0U9bVg2lTqsZtEo43vyK265DyxWNPo+6MP9a1qN1ek=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=op3aGA2jMTYIN/EjnLmSOmNHNUAEMF8MY82BEoNbDrXOM1Rj7v6Tql6enU08Eb+VwlV/i2XtryiLGEji/Qc2OLQoQyN1RWSW/SzquyhgLkIqGZUP8sne7UofcuTb+rm04R78WKBVBjXJd1dMcdVjTNZaTMtHJhoR4PyLhkedAQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BgiPpikt; arc=none smtp.client-ip=209.85.218.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type; b=eOEHYqailCZFi6NB/YHQIu6o/8QUnESKDU+x+bD62L1l4aifPPEtO94LuOqOqILs2OPNwdneBMvKeW8Nu1sifHrXsxQUJBEHoZL6IkpqilI+jNsMDgkBVyCCC/cs01S6lsS9E3JGqcKDSdFe2f7cg2Vrl2EI7qoh0f0pAjY2+j8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=YGZ6yWZK; arc=none smtp.client-ip=209.85.128.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BgiPpikt"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-ac3b12e8518so14536566b.0
-        for <bridge@lists.linux.dev>; Wed, 19 Mar 2025 12:30:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="YGZ6yWZK"
+Received: by mail-wm1-f66.google.com with SMTP id 5b1f17b1804b1-4394a0c65fcso3084525e9.1
+        for <bridge@lists.linux.dev>; Wed, 19 Mar 2025 23:17:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742412626; x=1743017426; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:from
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1742451444; x=1743056244; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=JcRJhKVbE8LiKn0WB81Ry6++/HhaRWmyYNiRtC8fff8=;
-        b=BgiPpikt20xo0tzcT5OM0c21lOBs5sb2tgasJIno4tYrDrCVOoDnvUucB2su0x6TGx
-         KNTGVaAkIJmBUQLmsMB6yajvvABw4MTScGReoYw/4hba0Ps0WmCFFuOY1VvlF1T+fHUg
-         oAQaOLSXGsQVxRCSoPMdxSGQWh3i8az9E8Mx9sF5X3JM9p1KJtlFFcgnf4/jzSkhykHJ
-         w33qhislsUtgxfZ55jOb6hU72Zg0HKoQmdc082x1THPU4K9iBsQyV0WHVucbGQEr8e0k
-         EJU3LrNdfv3qEDoQPNdLZdFalFAKtWIyf4UKEcsSl57/5COWwtCEMdL8yUwNk8F+rsmI
-         jb7g==
+        bh=3Df7/nJm6vBgqBIBBRK3eHSwVNX23gpqGbDFzSsS2AQ=;
+        b=YGZ6yWZK2u1MU6IqZEd2lcmAus8TrhZ9AnJXYwnXCCXpwOV+6RGF3jP3c1zXJi/4vj
+         TsB9M6qY5p9uSRtqXXek1u2ymUY0qc0q8g3SlK9Lsvj8Hh5Gs137VjzwZqojil+dcSKG
+         XgC9bqbo5XlR8nQv3R3LezzdZw+CbZrx8dPxEEr6RIptq6uAOfdSyh6m16TvnH0JpZlL
+         R12yMP6ChMt31UQIyfeqwWf2gL35fIWuli+AFTdt/pIhNwH6nA2jHiaCFKXcxazWbkU1
+         mJD4zbRHyXsR6gX9iq3ICtThOgvbyvDj+YoiA1QHkxWX6MbipkApfzlHgcRo/eMu8cSo
+         1Lgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742412626; x=1743017426;
-        h=content-transfer-encoding:in-reply-to:content-language:from
+        d=1e100.net; s=20230601; t=1742451444; x=1743056244;
+        h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=JcRJhKVbE8LiKn0WB81Ry6++/HhaRWmyYNiRtC8fff8=;
-        b=RcHWnm9gb06FXUOgHScmkC5iswrETtPvq15hj//nT4wmYtiYlIQadncZ5hMSEFzXPV
-         o/cY9plFfXTGzY5h/PiYKWnR4GxTcqai94lHArbRc8kqt+dtEHBu9ZuOVhnc2W5EWRnZ
-         uPXYvZdDWmtilvfUoz1H9dFAq/fFR23bjBY9+uaL8KBM57ZKlHiXezZjalRsbYCEWtxj
-         CilgGp0w4oSXcHMI8JAoDHKkdwdMmjotfS79SGFppUW8WBmefATTOjAgnf65LSbwLSmd
-         tfybORIeN1oby2LfWVdGC7w/zod1/1UrizvW4c+FFlcWkm72jtDu08QzMWXKX9PY6qee
-         PtzQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUQ1AAj5u/7hYPnUyphc56IEcEpA+W4uc8Fe2rV3AVmeg7W6hQ91EHojzz6+vtwH4HQWEDDm1I=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyO0rebHPApswqRSiplpJz6Ih46mtbQ3FmWVj0UUvyiXoTqlBjv
-	zgWX9jq2HoLTpx2DUIHknEsZvhKCRksS8qY+cKouwAwpuAXtS3HR
-X-Gm-Gg: ASbGnctSupPI7B9eOHaiUVuSYYgBs+zMI0jf8NsYSAWyqiUNh6jJ9FodCPA/7S+I4KR
-	t06g3L75V/MTXt0wO1kCnpSbQr49AZ8GySfTHMAkHLOC0JbddhfhxKyZ85NsUsXkh1epRj9ZHQW
-	hcS1kVl21QVSP2I0WqsHknJwbE7X717HWx9s/nRZrh+/7kj4yVvp1vhoV2HjdZtxMVigANOrLln
-	KcLQgP+vQ66aQmw1WciOj6pPXl1eKROAc2Y+WiaJCJwsJi8ot9+0F5cDegZo+XwfzFyQBZYqN2S
-	PRdZ+I7GiQZPXkJAYtH7ha828J1Fgk6QFGCa/TXi4GPNK7YZzny954pB/6rw9wqosH4ruAVh5Jy
-	Tbc0wfg3i2+RlPMwx3aUigqcOVezUXdwJaXlP74n/QQgPe1iE/Sc4dWK2PR+DbuGBREz4DU6klq
-	42rDpFEDAvts7WxGF6MSA=
-X-Google-Smtp-Source: AGHT+IHfY94z1fDRn6/5yWLXbj9lWPjuQfu08xCij4YrKfzU9oqQAqTzAP1SiocnoJAKedNXqvHa0w==
-X-Received: by 2002:a17:907:2d9f:b0:ac3:b613:a651 with SMTP id a640c23a62f3a-ac3b7d72767mr373478666b.17.1742412625436;
-        Wed, 19 Mar 2025 12:30:25 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac3149d0077sm1065324166b.93.2025.03.19.12.30.24
+        bh=3Df7/nJm6vBgqBIBBRK3eHSwVNX23gpqGbDFzSsS2AQ=;
+        b=UhmK+eS0J+7ri/ZbQuP9t82034lu3on1q8dmoUK4s6v43Z5+bfM9O62qwQXg4oX+eh
+         nfPYW+YEanAerZGsh3oQZ0do/gBG4i6Po+BCRoKBl2bckPMyadMIbtcLHJ+aYAIA0Yv+
+         0AJfEH8yStwXCL3r3xVvsyOjE8NG2gTfao8U0iBtUbEOYH9vgoeD/1agN5YTeBya85fG
+         kUTOU3nKWoJ2g4Zb2VdOhwzePA2ESEgcXJm1eaNgCmCwJ+9r2cTzDx76ABl0DNMMv5Z/
+         0CTGGjjnnalqmH1oHG7UP8wGE9+2HV1lMmNSgVvrt5nNhFRTeRaYliAmUOpF6l7Z7nDi
+         Uufw==
+X-Forwarded-Encrypted: i=1; AJvYcCVlssDJpJac4Ucz5OjraG36XUpE5XFsgfLxAZ5UGaq7gSFrTBlCriWqP5N2Eoa6CVwGus5YNdo=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwhQEnw0uZzWqvxnzaezx96m6E0E/DhT61y+69C+4EFx48NrLwa
+	BA6I1som8KS8ZsBYSyvNA1Cpp5qb/7pMN6iE65qyrwgo7hxCXQhDct7DqmZGGr0=
+X-Gm-Gg: ASbGncu3gW2tz8Xmu+FyLkqiK+HN4+XJtYR5l3jDAZZOmJPw4P39u6T6UljcClcnDJG
+	25xt2BieE13HALrBgWUjOQSJBRyE0R15i5CPMRJo29rcJb/7wdP8oJR+sWt8TSXSAthAF4vZDlt
+	OcA9iQ2WekeIAnpVZScT7M+5h6mMucud5x/7k256MQ1WeMFXxLs80oS/ZmPWgQoRqPdlTtMWRFI
+	7eLtYF/KzBSFc7PW1d5aO3Jh7aL8OJyeZ3Vs1AlIL3Uc4gnAzJdSj54rMrR7uVdpjeUWAOJJVmg
+	COsZ4Do9pm8tp+40sddl2kxDZXkbb/rbZJwlZMvliYJCo6DAarOnZxCZ8fSTXWzvaV0zBtOxn79
+	j
+X-Google-Smtp-Source: AGHT+IFwempKLPIhGnUTH6lwknWETQgWZuRBG0LDbF84yzf+Q+5WGmrF5EoT6BHx9aMLp2qTRB+XVQ==
+X-Received: by 2002:a05:600c:4503:b0:43c:fffc:7855 with SMTP id 5b1f17b1804b1-43d437c3327mr58255665e9.15.1742451443872;
+        Wed, 19 Mar 2025 23:17:23 -0700 (PDT)
+Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43d43d803f6sm39439615e9.0.2025.03.19.23.17.22
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Mar 2025 12:30:25 -0700 (PDT)
-Message-ID: <6d16cf71-ce66-46fd-94b3-5757ef044bd5@gmail.com>
-Date: Wed, 19 Mar 2025 20:30:22 +0100
+        Wed, 19 Mar 2025 23:17:23 -0700 (PDT)
+Message-ID: <039a0673-6254-45a0-b511-69d2a15aa96d@blackwall.org>
+Date: Thu, 20 Mar 2025 08:17:22 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -68,41 +67,73 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 nf-next 3/3] selftests: netfilter: Add
- conntrack_bridge.sh
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Jozsef Kadlecsik <kadlec@netfilter.org>, Roopa Prabhu <roopa@nvidia.com>,
- Nikolay Aleksandrov <razor@blackwall.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+Subject: Re: [Patch net-next 0/3] Add support for mdb offload failure
+ notification
+To: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org
+Cc: Joseph Huang <joseph.huang.2024@gmail.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Shuah Khan <shuah@kernel.org>,
- netfilter-devel@vger.kernel.org, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kselftest@vger.kernel.org
-References: <20250315200033.17820-1-ericwouds@gmail.com>
- <20250315200033.17820-4-ericwouds@gmail.com> <Z9n8qBrt-TK4XlRq@calendula>
-From: Eric Woudstra <ericwouds@gmail.com>
+ Roopa Prabhu <roopa@nvidia.com>, Simon Horman <horms@kernel.org>,
+ linux-kernel@vger.kernel.org, bridge@lists.linux.dev
+References: <20250318224255.143683-1-Joseph.Huang@garmin.com>
 Content-Language: en-US
-In-Reply-To: <Z9n8qBrt-TK4XlRq@calendula>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20250318224255.143683-1-Joseph.Huang@garmin.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-
-
-On 3/19/25 12:07 AM, Pablo Neira Ayuso wrote:
-> On Sat, Mar 15, 2025 at 09:00:33PM +0100, Eric Woudstra wrote:
->> Check conntrack bridge is functional in various vlan setups.
+On 3/19/25 00:42, Joseph Huang wrote:
+> Currently the bridge does not provide real-time feedback to user space
+> on whether or not an attempt to offload an mdb entry was successful.
 > 
-> Only conntrack bridge support is tested here, patch 2/3 does not seem
-> to be covered :(
+> This patch set adds support to notify user space about successful and
+> failed offload attempts, and the behavior is controlled by a new knob
+> mdb_notify_on_flag_change:
+> 
+> 0 - the bridge will not notify user space about MDB flag change
+> 1 - the bridge will notify user space about flag change if either
+>     MDB_PG_FLAGS_OFFLOAD or MDB_PG_FLAGS_OFFLOAD_FAILED has changed
+> 2 - the bridge will notify user space about flag change only if
+>     MDB_PG_FLAGS_OFFLOAD_FAILED has changed
+> 
+> The default value is 0.
+> 
+> A break-down of the patches in the series:
+> 
+> Patch 1 adds offload failed flag to indicate that the offload attempt
+> has failed. The flag is reflected in netlink mdb entry flags.
+> 
+> Patch 2 adds the knob mdb_notify_on_flag_change, and notify user space
+> accordingly in br_switchdev_mdb_complete() when the result is known.
+> 
+> Patch 3 adds netlink interface to manipulate mdb_notify_on_flag_change
+> knob.
+> 
+> This patch set was inspired by the patch series "Add support for route
+> offload failure notifications" discussed here:
+> https://lore.kernel.org/all/20210207082258.3872086-1-idosch@idosch.org/
+> 
+> Joseph Huang (3):
+>   net: bridge: mcast: Add offload failed mdb flag
+>   net: bridge: mcast: Notify on offload flag change
+>   net: bridge: Add notify on flag change netlink i/f
+> 
+>  include/uapi/linux/if_bridge.h |  9 +++++----
+>  include/uapi/linux/if_link.h   | 14 ++++++++++++++
+>  net/bridge/br_mdb.c            | 30 +++++++++++++++++++++++++-----
+>  net/bridge/br_multicast.c      | 25 +++++++++++++++++++++++++
+>  net/bridge/br_netlink.c        | 21 +++++++++++++++++++++
+>  net/bridge/br_private.h        | 26 +++++++++++++++++++++-----
+>  net/bridge/br_switchdev.c      | 31 ++++++++++++++++++++++++++-----
+>  7 files changed, 137 insertions(+), 19 deletions(-)
 > 
 
-I should add more details to this description.
+Hi,
+Could you please share more about the motivation - why do you need this and
+what will be using it? Also why do you need an option with 3 different modes
+instead of just an on/off switch for these notifications?
 
-I do add the nftables table bridge, chain forward, type filter
-and check the counter for ct state established.
-
-Without patch 2/3 this counter does not increase.
-
-I can add more match criteria to the counter next version, to better
-check patch 2/3 at l3 (and l4) level.
+Thanks,
+ Nik
 
