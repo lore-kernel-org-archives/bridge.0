@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6942022D7AA;
-	Fri, 21 Mar 2025 17:29:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 345421E9B34;
+	Fri, 21 Mar 2025 21:21:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742578195; cv=none; b=L2h+Q+gtT/ql+DF/Lu3nGijrrW/f8K6ShCoIopWAXxCSLyhtH0E1d3WxyCmF4rC0mGGekiWNrV7n7e/2CVwX13ei/DSto/z90RKsHOFaFMwEUZZw1gKVS52lFlDPfEnlUwOWCu+NrTIkjTxnaWdlpDd5WyyvmifYZNo4RE2oki4=
+	t=1742592104; cv=none; b=LHWimVzy9ivrDwLojhF7PM9e7xklVRiDPj4jfDlVJ5wbX2wSIcykUSfYUMN329L5b/DPdbiA/opCZhaOrLUaPkNmlh9XPlKs69iMmWkkmrE3SjOMrrL36DCLJumttU/YE6uJ2VpM68nNIjYLpoz5YhddyuWcZOOZvDa+KR8zJK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742578195; c=relaxed/simple;
-	bh=GSQ6QotvsD9wNVfOt39/sE6/2RqQvLffzMi+y4LBaEM=;
+	s=arc-20240116; t=1742592104; c=relaxed/simple;
+	bh=zqK3TJ1qeq7m01Nky2ep9+l1h8be9dxtswR9/vVTKUY=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=MRWHxpz3HGnlnVfXFhB3steIaFkvnxORKsETacqT6i9e7yO8DsEbbFOl97OiK4jVcOOzYAKc4OFNzO7rT5Zgo7zOye2qxLEnfou7yJ8bX1fMwBh0vmbfD0RUWxQUeeItXsvOJgzZiEW++Haqaz6tqeNnaUcyy+pdTr+bwOMmoEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jzHSHQMl; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=L6ggBnxtml1N5D9A4rjPRxcXG0RPJqqZ854E7MzgOA+J20cbwvmlzjwbPAtFPiOCAusCkJuQ0nRfwEvlx7HDegKe1m5O25gkDyJUDkhVCG3Z85rPnE0Fxutu5ozeFcx0gkydbxiAJhBx5yMX2NNyliTLz2MExu1DQ27tkjQ35Uo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JolPQkvl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jzHSHQMl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5BF0C4CEE3;
-	Fri, 21 Mar 2025 17:29:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JolPQkvl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB213C4CEE3;
+	Fri, 21 Mar 2025 21:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1742578194;
-	bh=GSQ6QotvsD9wNVfOt39/sE6/2RqQvLffzMi+y4LBaEM=;
+	s=k20201202; t=1742592102;
+	bh=zqK3TJ1qeq7m01Nky2ep9+l1h8be9dxtswR9/vVTKUY=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=jzHSHQMluOFbqvW7jYaZAseadmoFZhkeXxKlF9g59a7N18yZaWQmkMZl74V+1E8yo
-	 bfzZZSYg2jlPOs8eAu9LtuteBREWhWWko4E2YjfjGguxQsYf6JYsV1iPkaReUQVrAN
-	 guc6Nxm24KZxkjCjynxDR4wVDymFj0VGX3cQS3h8Mq21gUvEAusRmjixsAOBaweI2i
-	 +BZ31gmTRWsBmA5ZxakSAyYy9/5uHPOCGt87204PmcLSYLyVrGOOtZFO9GreD1X12P
-	 dVE5lMvu1Bk5DhC++NvwPGXsQJxYtqZYqNNd6KtArVeUwQSoTMPBMWPyj0+G87vgfG
-	 fMDnfWvoUmIdw==
+	b=JolPQkvlWSyP2HrT8QFSIfqfGJNgHSfviTlUhi9/tgFcsOC5rIoMpaoox+ZKgDCtS
+	 kBqrtaTiDemPIVBb4dYOpHNvW+GQSsnBo6eaxR4m/ErDCOjWa8enDmhug8NYlG5tQ3
+	 tuLULqyz6In/SAtdaR2ztDeZ8p0w1pskJv8+dNy+Bu5SwheoE6i1MN3ZAZ7neeptDZ
+	 5XfEbR8JzVmbZnECxHjPjCQYPZUonq8DTUCmZYkG6dMiqV7iBLN2st0KqMr1D+OXHa
+	 j07dy+5T243I5yaDWu9w9fpz40IVybGnL4UXwhzVGTsLMHcg9F/U3hm4KYAnqpvvXz
+	 notZR/4qdNOGA==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 342643806659;
-	Fri, 21 Mar 2025 17:30:32 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAD083806659;
+	Fri, 21 Mar 2025 21:22:19 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -37,37 +37,39 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next] MAINTAINERS: update bridge entry
+Subject: Re: [PATCH v2 net] net: Remove RTNL dance for SIOCBRADDIF and
+ SIOCBRDELIF.
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <174257823101.2564531.334366443045899530.git-patchwork-notify@kernel.org>
-Date: Fri, 21 Mar 2025 17:30:31 +0000
-References: <20250314100631.40999-1-razor@blackwall.org>
-In-Reply-To: <20250314100631.40999-1-razor@blackwall.org>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, idosch@nvidia.com, idosch@idosch.org,
- pabeni@redhat.com, kuba@kernel.org, bridge@lists.linux.dev,
- davem@davemloft.net
+ <174259213876.2627311.3307708570431277417.git-patchwork-notify@kernel.org>
+Date: Fri, 21 Mar 2025 21:22:18 +0000
+References: <20250316192851.19781-1-kuniyu@amazon.com>
+In-Reply-To: <20250316192851.19781-1-kuniyu@amazon.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, roopa@nvidia.com, razor@blackwall.org,
+ willemb@google.com, horms@kernel.org, idosch@idosch.org, sdf@fomichev.me,
+ kuni1840@gmail.com, netdev@vger.kernel.org, bridge@lists.linux.dev,
+ syzkaller@googlegroups.com, kangyan91@outlook.com, samsun1006219@gmail.com
 
 Hello:
 
 This patch was applied to netdev/net.git (main)
 by Paolo Abeni <pabeni@redhat.com>:
 
-On Fri, 14 Mar 2025 12:06:31 +0200 you wrote:
-> Roopa has decided to withdraw as a bridge maintainer and Ido has agreed to
-> step up and co-maintain the bridge with me. He has been very helpful in
-> bridge patch reviews and has contributed a lot to the bridge over the
-> years. Add an entry for Roopa to CREDITS and also add bridge's headers
-> to its MAINTAINERS entry.
+On Sun, 16 Mar 2025 12:28:37 -0700 you wrote:
+> SIOCBRDELIF is passed to dev_ioctl() first and later forwarded to
+> br_ioctl_call(), which causes unnecessary RTNL dance and the splat
+> below [0] under RTNL pressure.
 > 
-> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+> Let's say Thread A is trying to detach a device from a bridge and
+> Thread B is trying to remove the bridge.
 > 
 > [...]
 
 Here is the summary with links:
-  - [net-next] MAINTAINERS: update bridge entry
-    https://git.kernel.org/netdev/net/c/f653b608f783
+  - [v2,net] net: Remove RTNL dance for SIOCBRADDIF and SIOCBRDELIF.
+    https://git.kernel.org/netdev/net/c/ed3ba9b6e280
 
 You are awesome, thank you!
 -- 
