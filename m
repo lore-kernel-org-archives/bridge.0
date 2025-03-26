@@ -1,91 +1,122 @@
-Received: from out162-62-57-49.mail.qq.com (out162-62-57-49.mail.qq.com [162.62.57.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f194.google.com (mail-yw1-f194.google.com [209.85.128.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2957C2475E3
-	for <bridge@lists.linux.dev>; Wed, 26 Mar 2025 18:24:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.57.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4F8A19C569
+	for <bridge@lists.linux.dev>; Wed, 26 Mar 2025 22:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743013487; cv=none; b=HF4PcYlDLPIif16oozAUXU5vgh7VzqOfkwYJpyKuycL+F+vLOohHljHgW0OYt8dZQ3W5X1EjlWphtAtndpAwAIgrrZ7iocNwIGQ+aMxNjsg2wpmj8zITAeX/vS1bEOVOrkLVEHHYTkc2v1m4GFvg4Vv2lRWSgYoo1AC2ZedSSXA=
+	t=1743028728; cv=none; b=c0s7xnb66XSDWfsSaibAO+A8AZaM0zdar1hMfshSgW8BtUEVQoNi0y6FjcHlOnfrVWkdUMNG/TDxuV6J/T6kh9fpdUUUCP0qa8XmXbIcT/bDX0zuz85+aW6/BTLpocVGByKsXgSbqHejQIgVJD/8rFmuQ20ZtY/IbBLvh9CIQGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743013487; c=relaxed/simple;
-	bh=1UhRK95LP8hqlPseMawABnpT11GCkmJwEaKCs8WEWW8=;
-	h=Message-ID:From:To:Cc:Subject:Date; b=NeWL5eVTsFtZXPYFni3LNP6h5Mxd/z+TBIPlGPJ7rgewrq3t01CtIC3zOuUV885cGlewjR2uyk5aZkIpqKTxXNp5JlbnndxjmYJ0Fr6kqtRPkYSyceaB8/rmvBYVcf/ovX4u7plG360se37b6BiWG+w3HyQuNgupmEy/OPdPCi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=cIrnw/1V; arc=none smtp.client-ip=162.62.57.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1743028728; c=relaxed/simple;
+	bh=H2y9HtTQmvQBzJD1T7U+UffAZs7WKkknHLjpbbnkIc4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bV3sbfufw4qAhfIjIzaeysBrn/khA4iNFjmSFcQ7N6wQogxx2TNcPn7cE/dYxJL38qvL0fy9Xzuh98Zlfb3WcRcQpBewuyXlUGM+AMV5In1oMC4D6JfHlabyMI7mkTRlPNSE90tUh8Con5oMFzLuL3kdYeh4m45ry7WS7qIwuhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FENYYf50; arc=none smtp.client-ip=209.85.128.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="cIrnw/1V"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1743013479; bh=h7q4/X5vEb/MoGY6Kon60isqwwB6JHPQYp8IebAK9+8=;
-	h=From:To:Cc:Subject:Date;
-	b=cIrnw/1VeAq0sZMgcX/7I4mKflDOPqnQPj//bodgqph8BNTtR7rBguxZh4hmX09XY
-	 ylNHcXwMPwVr030XqzBQCUlcxrv1gCw7rp3sxbOCIGIlzO/MoaDUfpvIn2XOXbq32R
-	 FoJvStWjNk/hNYZprmFxnPpnY36Z6SvEBLoLWqaU=
-Received: from localhost.localdomain ([111.19.95.140])
-	by newxmesmtplogicsvrszgpua8-1.qq.com (NewEsmtp) with SMTP
-	id 2D7030FB; Thu, 27 Mar 2025 02:11:23 +0800
-X-QQ-mid: xmsmtpt1743012683tr4silwsz
-Message-ID: <tencent_4B358ADB8A54F04A32CD9933114B8B383606@qq.com>
-X-QQ-XMAILINFO: NtvpdyJXE1j9rTsJZGXp36RuJGdcd4cfQo+bmpS4rT6vnuQaugyzqnOI+uNC8s
-	 KxTx0gzAHsEdaqPze4ZGJ/OgIHedjsd+uWRzOtbnoKAaCIn5n/8Rb0E+AhRpjcAL1VsFehcFMia3
-	 FbbKRi8STTb2kDybragRDljfgu/PCle3JheOJit+g/y8GiulBfmOMCyIj4vrExNsfwVSJbeHAFkK
-	 ssVK+7JUIg09otzF3zBO1lsExNGlx5tiySzuXmWmMz+t/gD4gparwAGb+CJSNX1LshCa81FbKnY4
-	 v7rJnmjzcv8BONfOqcztsMxmOdutoFn3gXljX6NA7aH+GZ1TiRVzf87gaYYCcubKGSEvvpGPhlhL
-	 devgtzi/Rz0fmu/M4BKX3Q7eIhol/8A2F5hJOx4WDHpr3Q68Rg7TOn2VN69bUz1z5MMhR483Mtcv
-	 /xjpnaf31CZYa76k2jUXVHm/GBj6M9hajhOszKCJz1gMbg+FkqHaG9TQMvCS/zkIun+tAse7usgD
-	 9sn0NaqtVgY/fWA1daKpZAiK/BYz1Ii8Az14YlVb4s0DEqNhoq8On+aEH9b2+h/TdZar+pMu98oo
-	 HWIBi7dChmiJouDyJvB93Qwb7AG5j5yWjvWkTjt32cv+DdNlOe7E4s8xIDSg1u81kCoYxeApAepL
-	 rJ2gLLtLVmvWpunfQD4BooC8fPNU07W9bftztKFffvhAvn6QV7kJXBHossg3xpCkOKtvGMxss7gh
-	 /tZwtBE/UgWlTt3qT/kFrQpJl98cV2XcfwqKLm95B3HNEZawMlNafL0BeDjeiq+D6IE3msMinRhw
-	 RdBkbcSSq5YwLWi2iyCBjc8z0ja+pLGrGq7kr38mJz6hSqPSXbOqWNFqhBcIeStsSmYw++Oh7Lse
-	 D8kgICXJ4hw1v4RnBhIA0I02X/6rsH0qO+dFMGzylArGSOnV2FdpoTTd5lv7B0lk1+DLUx0lB0Ri
-	 NBy8iRxgZu28ztIp7E9DyvmssSaGJm
-X-QQ-XMRINFO: Nq+8W0+stu50PRdwbJxPCL0=
-From: inuc@qq.com
-To: bridge@lists.linux.dev
-Cc: netdev@vger.kernel.org,
-	roopa@nvidia.com,
-	razor@blackwall.org,
-	Liu Jie <inuc@qq.com>
-Subject: [PATCH] net: bridge: set skb->protocol for 802.1Q VLAN packets
-Date: Thu, 27 Mar 2025 02:11:17 +0800
-X-OQ-MSGID: <20250326181117.15513-1-inuc@qq.com>
-X-Mailer: git-send-email 2.16.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FENYYf50"
+Received: by mail-yw1-f194.google.com with SMTP id 00721157ae682-6febf391132so4009627b3.1
+        for <bridge@lists.linux.dev>; Wed, 26 Mar 2025 15:38:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743028726; x=1743633526; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=9D44QjpZljk+SGdrmPC7kTMGNHThYXdBfqrpwqLcab0=;
+        b=FENYYf50n6e1RDuXSRL4uX2RO5q7u4fXlnDYpOnCSxZr1u54AZl8kIY35I4UZSp8pL
+         m+o7H5XM1UuSShz9RtnzY8HGMY2na28XJ6Ju56hGn2BIlVcAWFV6X3yBKoUNJPu4sM+H
+         aC9Djb6YZ2af60rSnS2jSLfvrc/RuS51CDwZQ1a8MOSXe+xkzK+vUKNyvbumyJduqLIB
+         XSItUtSmzRbKk07fg0XwEUDseO/8HErn29ehiWR1X60FiIFcclC366l7z43IrYjkfQls
+         8cNVOEh3gYLH1e73SbfY1siNZ9yplaVp6ZbJ1iNa0dpkt94Utnb1AXLzPpqNMbik+lOG
+         B/Xw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743028726; x=1743633526;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9D44QjpZljk+SGdrmPC7kTMGNHThYXdBfqrpwqLcab0=;
+        b=boh+QHcxHy+ui+0IQat1CLB2s/S04ETlxB5xvhTdFOx5cStaA8GmMAy4H2omutd7cI
+         WECuw6Z421gpxHO9WR79wCY5Y+DW3wKVQdlvmarK63x9kEv4cc/TGiKdFAGFWOM1Dk0E
+         hPn7OORr5y+SknH2oElebWcqWpXvwMQeQEFhg+FmLW/IHdv/Ws4ya8+XqmpL6/U3KR1s
+         RrfqkkiYjeeDm8xmOXqtDiUXFpfNxWznx8o7/pxKxsns5iYlK88CzEGA9VpDPIHk5iyp
+         XS1nL5Ud1XGA+tYCYS7mgc9bSG1Zwd3oEf74xuNYuC6iUA4zLvzeCHGEfqh5opeQ2pck
+         lgtg==
+X-Forwarded-Encrypted: i=1; AJvYcCWXu2wwW4BFYwgBuGrF9qetVKJkVwuu5mjgfpxPEiMtz2UUILnJzedurBpwMgRTqQDmRyWpLhk=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy5hFbXhTXaFvDWxHpvjwVdgq2p+slvnX6HK/jvDwVfrNw05bC/
+	0wqMVsaxiM+yvpcHh0osuIOwYLTnNTie0U2xSwoOW8dJys3ed2Lc
+X-Gm-Gg: ASbGncuSsXQB4ML4zQjVudQu8/dztAw/3iGiWfRRkYtRsc2dAovw+DnDMtNF8/AdEXx
+	gpwBXgiPfrd1GfaDSfjO2ZhL0sUYzRiCe4ebUrXpTqC4O3LOctL63kWjwDreKslBmxZUPhSfTFO
+	VsDbwOOep5HebEaqv+rdV/v/hZ/c3yeePg+fWUIcdvrQ8QYIjihfbJ3GK5Imon9F2ZdhkzOwo4d
+	PdSFErBY9aG2AKcAXon5HtlVqyTs1VxwICUEKsNAeW6EboUwGC5xvULwKPTBxwuhP/oOR+lgEDw
+	kZQZ+G1FcvBcyW2byJeJrzw0Rztpf5oITUXLLhGt5NaESNH5IxbbpzvTogK4O+giWek=
+X-Google-Smtp-Source: AGHT+IFdgdXC0PO8hx8zYU5TTKZvweZhG74lAB4hPV2nUNafFDcA0T0mgJgKTjPM7YGUdKXT3THvYA==
+X-Received: by 2002:a05:690c:4b09:b0:6f9:544f:67dc with SMTP id 00721157ae682-70224f87e53mr19561247b3.1.1743028725541;
+        Wed, 26 Mar 2025 15:38:45 -0700 (PDT)
+Received: from [10.102.6.66] ([208.97.243.82])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-702283ec2e1sm517867b3.125.2025.03.26.15.38.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 26 Mar 2025 15:38:45 -0700 (PDT)
+Message-ID: <85a52bd9-8107-4cb8-b967-2646d0e74ab4@gmail.com>
+Date: Wed, 26 Mar 2025 18:38:44 -0400
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [Patch net-next 1/3] net: bridge: mcast: Add offload failed mdb
+ flag
+To: Nikolay Aleksandrov <razor@blackwall.org>,
+ Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org
+Cc: Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Roopa Prabhu <roopa@nvidia.com>, Simon Horman <horms@kernel.org>,
+ linux-kernel@vger.kernel.org, bridge@lists.linux.dev
+References: <20250318224255.143683-1-Joseph.Huang@garmin.com>
+ <20250318224255.143683-2-Joseph.Huang@garmin.com>
+ <c90151bc-a529-4f4e-a0b9-5831a6b803f7@blackwall.org>
+Content-Language: en-US
+From: Joseph Huang <joseph.huang.2024@gmail.com>
+In-Reply-To: <c90151bc-a529-4f4e-a0b9-5831a6b803f7@blackwall.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Liu Jie <inuc@qq.com>
+On 3/21/2025 4:19 AM, Nikolay Aleksandrov wrote:
+>> @@ -516,11 +513,14 @@ static void br_switchdev_mdb_complete(struct net_device *dev, int err, void *pri
+>>   	     pp = &p->next) {
+>>   		if (p->key.port != port)
+>>   			continue;
+>> -		p->flags |= MDB_PG_FLAGS_OFFLOAD;
+>> +
+>> +		if (err)
+>> +			p->flags |= MDB_PG_FLAGS_OFFLOAD_FAILED;
+>> +		else
+>> +			p->flags |= MDB_PG_FLAGS_OFFLOAD;
+> 
+> These two should be mutually exclusive, either it's offloaded or it failed an offload,
+> shouldn't be possible to have both set. I'd recommend adding some helper that takes
+> care of that.
 
-When bridging locally originated VLAN-tagged packets, we must ensure
-skb->protocol is properly set to ETH_P_8021Q. Currently, if this field
-remains unset, br_allowed_ingress() may incorrectly drop valid VLAN
-packets during the bridge transmission path.
+It is true that these two are mutually exclusive, but strictly speaking 
+there are four types of entries:
 
-Fix this by explicitly checking eth_hdr(skb)->h_proto for VLAN tags when
-handling locally generated packets.
+1. Entries which are not offload-able (i.e., the ports are not backed by 
+switchdev)
+2. Entries which are being offloaded, but results yet unknown
+3. Entries which are successfully offloaded, and
+4. Entries which failed to be offloaded
 
-Signed-off-by: Liu Jie <inuc@qq.com>
----
- net/bridge/br_device.c | 3 +++
- 1 file changed, 3 insertions(+)
+Even if we ignore the ones which are being offloaded (type 2 is 
+transient), we still need two flags, otherwise we won't be able to tell 
+type 1 from type 4 entries.
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 0ab4613aa..9094ba7e4 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -63,6 +63,9 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 	skb_reset_mac_header(skb);
- 	skb_pull(skb, ETH_HLEN);
- 
-+	if (eth_hdr(skb)->h_proto == htons(ETH_P_8021Q))
-+		skb->protocol = htons(ETH_P_8021Q);
-+
- 	if (!br_allowed_ingress(br, br_vlan_group_rcu(br), skb, &vid,
- 				&state, &vlan))
- 		goto out;
--- 
-2.17.1
+If we need two flags anyway, having separate flags for type 3 and type 4 
+simplifies the logic.
 
+Or did I misunderstood your comments?
+
+Thanks,
+Joseph
