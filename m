@@ -1,64 +1,64 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+Received: from mail-yw1-f195.google.com (mail-yw1-f195.google.com [209.85.128.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8F1D2101B3
-	for <bridge@lists.linux.dev>; Mon, 31 Mar 2025 12:52:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A94418BBBB
+	for <bridge@lists.linux.dev>; Mon, 31 Mar 2025 20:11:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743425530; cv=none; b=WavcRuMFW7ll2RuJjIZftLu0hg9RdQEh+UDrinA6hTFLXX/Au5P8AlTbtLrwskO7/33ByGLOu9dbYmhTYF8Z0+g5lbGLNJQtgeI5y25PPKEh3Bw4K9ZHkQu+sAcg9Fax4l4oi3P7Q8O6aBe3IdMYZedNEuoU8EtVub4Z+6aKFbU=
+	t=1743451914; cv=none; b=Gj9N9gCzeOVddJPrA14+ai7vwLDgzeVDqeoi1/pp7sfJkf4n3VlP/PAVEQRZ4mmKk9XG7Y/sZz2No2Mo7+TpeAl6vt1aAa5zoqVphRUrXdX7F8SWtm4vcHoykuVSTihiZscAtxH2fbKN3Whvwr7gz8vGLkmHGHSXm1AX0PjvKxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743425530; c=relaxed/simple;
-	bh=Zc0HI/HpPRp4LKMEY0BpJbXpuNHzAcrT5EXAtIL0Yfo=;
+	s=arc-20240116; t=1743451914; c=relaxed/simple;
+	bh=OBzbiRgekCpil9D7mX+5gJrMZSeLnL5vGhu0E44lgKQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fj1UQWrLMrJTm/zfuENMfn3352mDwJVvdb/Bl9TRAqn4y3JWLRfnAH0B9u05QcfIELvOYJgCbtgNuVL36t/zkryDnEMh/P4XpBXvPTVUhg9o62CBmb84yxnGeJCcYuspLmAZ1k9S2DkSz8xv2tSliVhnMHT336+WBlUMkS+SklA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=0sHMZHCq; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	 In-Reply-To:Content-Type; b=ZrSQCLpn8M4Cw9vp0D6iER7rKlWOT1437GEsR4rFNIo94KJfWAqe35/rk1y7ontIKqNknCSconc9Hd9Jff18yA0xVvRNnwhqN+se4xX9Ez0Gc5AyefmSOhS3PXAttqgYO2lk6Tz+EuB3wYEjEWYtbG8Ip/sTJWKyjnHuUf9ky6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AR1lMjOZ; arc=none smtp.client-ip=209.85.128.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="0sHMZHCq"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-5e61d91a087so7080380a12.0
-        for <bridge@lists.linux.dev>; Mon, 31 Mar 2025 05:52:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AR1lMjOZ"
+Received: by mail-yw1-f195.google.com with SMTP id 00721157ae682-6f666c94285so49179747b3.3
+        for <bridge@lists.linux.dev>; Mon, 31 Mar 2025 13:11:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1743425527; x=1744030327; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1743451911; x=1744056711; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=k6T65GxNTfj24quUriuBkHJ+dt0mRwDTK5ChQlYE9MI=;
-        b=0sHMZHCqqYdEzJrBfGxGzwQlIvkDfpgpwZ9AceMJzEyWwiWG5LNokXkLG4abAKmF3b
-         jCTuvEryKbLfpFqljTKDKkLgsu+fRo9TUonXbdAmhbPJrz+P2n2ZcNQVC9ihoQwES5qc
-         H7f/OM1ZHzQEWdnlaORTWZf+bN8r7/U9ILKEWZTVNSaAA4/k4Qw+XsSLzksT1+BlnIPa
-         hS44JOts/rH5371VhL4UvOOK6AQZEF4orV+o1VXLGy+EBKvWAVYPfHWF/lLn1eIxfqS4
-         W+NPZgnM4hfETCcrN1S6UiRb03j+xmAtN/2n7sEkd36skWWVJaYxsMyrVI97hyXnaq+0
-         6yTg==
+        bh=LR1OgG1N7YtLAYw3VdmcuwXI0YdDXSMCdXCbozGI5l8=;
+        b=AR1lMjOZ1KFPXk8hOdMn793Wb77Vo98mILyZktVX6M93Nz1PFjFGtbC64/t+V04Ihv
+         cotQyyAuLnQm0pjn++jyhJ8jBRYSAU4QijEknSODVMPDaWz3hRSgrTwFqmn18D+hGild
+         H8lmMJuECLASvo5lbzuRMZ6Hp4QqEyxhyIpPZtHloS72WZgejNGoA8tFwjDCWvnrHtZn
+         NTu6AURLC9s7x++F16kJ1ciLgGfOEgbu9bQeksROasOieE6dIz9kPHlFHf6hvOcRZzOB
+         lav18lSEnfQoEczJ54kOvsQa+fsQzTdGoeaBNU816hUIoYsTFPouB4vB+6MoLpNviKky
+         WB+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743425527; x=1744030327;
+        d=1e100.net; s=20230601; t=1743451911; x=1744056711;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=k6T65GxNTfj24quUriuBkHJ+dt0mRwDTK5ChQlYE9MI=;
-        b=CRf+liLTjpjm9cNx5IuZKpT2zGzfuXrovV9OHIGgUK4b9r/cdTmc9mddC0/feaQrkk
-         z/tKgMCxrG3YhQaSAue5ag/59/pzN0A+Bn02Qd2AzEp5NRGNPhIT/D9wPYbnPRz95+NH
-         6cB+bLK8r0DICqh3mA7lnO2mxv4zzPZ0ZGGzPQiOMhSVzd0iC1xjy2j9oBTHAFytNNhW
-         /L5NLHUpslzEErUcEc/L5Xb91OkvMDqDaEM4uJiF5HJVMjXjGIrPP0ATVmDlQOYAkDj+
-         uYm0zOTwj/s4mUBn5ze05U5N38UdCrYGppeZvqgVLnf3eZsqffOGB09Gj4fWydGN9MqR
-         +N8g==
-X-Forwarded-Encrypted: i=1; AJvYcCUISiS97nWaoii4OUv45Adf9cMJoLTc/YPo21tb96xaN9Hb3m9f9fXiJqfv8C10zfumaQ8PQo8=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxwAxDdzJdvvoHgdbk5MsqjvudAARM3FzNjpmCRwjPC4ggnCq+Y
-	Dm9GWZp2PnVqPnNW5rwmHJk/9EbqoBzWcR1O6tV1Jd2Mee41QGJNPr1a8OBS/p0=
-X-Gm-Gg: ASbGncvxDKCrhHs2i4G4iKJOlpvaY7cA43VKqzYAxcGR5o/ITnWe4lbnSjnIktuy34X
-	i0bIZPZ1e01LC+WHJWR9lMHgUUvLgtRwWTRppuNCp9kpPW0Cf2In+7pNq/FSGAItO9lw5Jtx7Vi
-	rSeswfsDMU4drrrszNcxAlzBTHh1CISXBw+ZzkqAj0X4vuLCcvb8GZV8gCEfe5jUfdjSr3vxepA
-	6lsNeIGbbNNxDWnx4xUF1V8IUGID+MUaHh1DjCLMzrd8sjCeC2Z/gVy9Nq7InL97cg7OXh2bgUL
-	TAn7LSeHKYebDbzvPMXxFwJIkHv8HH4MjYEP9QIVvQ7JgDYX5mI=
-X-Google-Smtp-Source: AGHT+IFxhdtbJTpnPbhUgLUozMESZ9/aqB70JTwf+Ggby43nXPU4gPgaePZldfj2ATJIUcnPh/2Ssw==
-X-Received: by 2002:a17:907:8686:b0:ac3:ef11:8787 with SMTP id a640c23a62f3a-ac738b910e3mr905521466b.54.1743425526894;
-        Mon, 31 Mar 2025 05:52:06 -0700 (PDT)
-Received: from [100.115.92.205] ([109.160.74.194])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac71927b150sm623687666b.46.2025.03.31.05.52.05
+        bh=LR1OgG1N7YtLAYw3VdmcuwXI0YdDXSMCdXCbozGI5l8=;
+        b=wYU8BR2ZAkYvLmXLvVw09gNZbHlk+0ubYG6X9Zlyr5VosBs3uGmGhXPCNgyAxJii3l
+         B7DO6pebHqJbDzdFEaZiC9BNBrNUmBef83earv7QYSuPvgvOAUSrJFJcYadzahHClBAZ
+         fD7QLv9t+JWALf6EMIQ2HGsEqaqesD34uJYNKmmCj7b4MkTdkjx+/49uipgegyU+mQTX
+         HUvYVCaq4QJpRnV/kTUuCIX7ayoGUyBiIzBc3Xw/FNLxvNdTIn3pmwTQ2WKdKmhQ1NdX
+         kT4FVtYs1djifToZM4VVWKjyL6wiQ4dpHSLYpomigD+OtmbRgnSp1FrS4xJiar+Q7w94
+         ANaA==
+X-Forwarded-Encrypted: i=1; AJvYcCVgo6YjcWVl2+XeCsxGS0huRP2X3+oKi3s+d+rX/hppklks7wJ5m2x5GdhDYlmElz9xnS1jbtg=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz3BMgHW3weACq4tM5GnWkN9+moO+RABRu41Qf8KMVQBZd/0xGQ
+	x+fHJQjBcwYUb7Qd2iMW5Ha1b8wjbVUUZbO52ICuOyTMreDtT838
+X-Gm-Gg: ASbGncsxfO2YtIKMd0eQRZQiNr3VaXsJC95zZnZKdhY9Net4EeOr46aJZ7dx5KXkrc5
+	fdXr/VUGhjMFD+wXyXKDjbj46TRVfQ/1gPn6Zv9/0t7xNeFcyGsKSRt6a4zCYdXebuck4hLYry2
+	Zix6SWiCezmve2MPbMnvQmr4ZO+5pSjvcmxqAhyuO3kEX/sUP8NdM9uJj7Sm/tj6SMhZomdQXSn
+	iSIWiTT5xO87b6OKmwtAOiA+IKfXn3+apiy1hzV/y5J8Ak6jqbyp0w1AyhtWZyacFD4gIas8kTV
+	wEzw4Ue02hQ5Wf7gS5YMZ9ePkDGDdaxqfZaEqhU/PVyBQsSrF/7TK1Q6jfVx/sc0DFQ=
+X-Google-Smtp-Source: AGHT+IH766RK/hwM7mkPwql2PqHI7sNoGHRERLD30OsqqydvJaXG//mcrrrJ8IvYqM/qPgbCxFEohQ==
+X-Received: by 2002:a05:690c:6f90:b0:6ef:94db:b208 with SMTP id 00721157ae682-702572ffee4mr138081477b3.24.1743451911527;
+        Mon, 31 Mar 2025 13:11:51 -0700 (PDT)
+Received: from [10.102.6.66] ([208.97.243.82])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7023a341a69sm23270557b3.25.2025.03.31.13.11.50
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Mar 2025 05:52:06 -0700 (PDT)
-Message-ID: <da181580-56bd-460c-b2bf-16ebb86bbff5@blackwall.org>
-Date: Mon, 31 Mar 2025 15:51:54 +0300
+        Mon, 31 Mar 2025 13:11:51 -0700 (PDT)
+Message-ID: <5d93f576-1d27-4d3f-8b37-0b2127260cca@gmail.com>
+Date: Mon, 31 Mar 2025 16:11:50 -0400
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -66,9 +66,9 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [Patch net-next 1/3] net: bridge: mcast: Add offload failed mdb
- flag
-To: Joseph Huang <joseph.huang.2024@gmail.com>,
+Subject: Re: [Patch net-next 2/3] net: bridge: mcast: Notify on offload flag
+ change
+To: Nikolay Aleksandrov <razor@blackwall.org>,
  Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org
 Cc: Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
  <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
@@ -76,111 +76,143 @@ Cc: Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
  Roopa Prabhu <roopa@nvidia.com>, Simon Horman <horms@kernel.org>,
  linux-kernel@vger.kernel.org, bridge@lists.linux.dev
 References: <20250318224255.143683-1-Joseph.Huang@garmin.com>
- <20250318224255.143683-2-Joseph.Huang@garmin.com>
- <c90151bc-a529-4f4e-a0b9-5831a6b803f7@blackwall.org>
- <85a52bd9-8107-4cb8-b967-2646d0e74ab4@gmail.com>
- <ffe6f6cc-7157-48ad-9cde-dc38d8427849@blackwall.org>
- <8f51bb33-c5a5-4046-93d6-f58e841256e5@gmail.com>
+ <20250318224255.143683-3-Joseph.Huang@garmin.com>
+ <d9a8d030-7cac-4f5f-b422-1bae7f08c74f@blackwall.org>
 Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <8f51bb33-c5a5-4046-93d6-f58e841256e5@gmail.com>
+From: Joseph Huang <joseph.huang.2024@gmail.com>
+In-Reply-To: <d9a8d030-7cac-4f5f-b422-1bae7f08c74f@blackwall.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 3/28/25 17:53, Joseph Huang wrote:
-> On 3/27/2025 6:52 PM, Nikolay Aleksandrov wrote:
->> On 3/27/25 00:38, Joseph Huang wrote:
->>> On 3/21/2025 4:19 AM, Nikolay Aleksandrov wrote:
->>>>> @@ -516,11 +513,14 @@ static void br_switchdev_mdb_complete(struct 
->>>>> net_device *dev, int err, void *pri
->>>>>            pp = &p->next) {
->>>>>           if (p->key.port != port)
->>>>>               continue;
->>>>> -        p->flags |= MDB_PG_FLAGS_OFFLOAD;
->>>>> +
->>>>> +        if (err)
->>>>> +            p->flags |= MDB_PG_FLAGS_OFFLOAD_FAILED;
->>>>> +        else
->>>>> +            p->flags |= MDB_PG_FLAGS_OFFLOAD;
->>>>
->>>> These two should be mutually exclusive, either it's offloaded or it 
->>>> failed an offload,
->>>> shouldn't be possible to have both set. I'd recommend adding some 
->>>> helper that takes
->>>> care of that.
->>>
->>> It is true that these two are mutually exclusive, but strictly 
->>> speaking there are four types of entries:
->>>
->>> 1. Entries which are not offload-able (i.e., the ports are not backed 
->>> by switchdev)
->>> 2. Entries which are being offloaded, but results yet unknown
->>> 3. Entries which are successfully offloaded, and
->>> 4. Entries which failed to be offloaded
->>>
->>> Even if we ignore the ones which are being offloaded (type 2 is 
->>> transient), we still need two flags, otherwise we won't be able to 
->>> tell type 1 from type 4 entries.
->>>
->>> If we need two flags anyway, having separate flags for type 3 and 
->>> type 4 simplifies the logic.
->>>
->>> Or did I misunderstood your comments?
->>>
->>> Thanks,
->>> Joseph
->>
->> I think you misunderstood me, I don't mind having the two flags. :)
+On 3/21/2025 4:47 AM, Nikolay Aleksandrov wrote:
+>> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+>> index 68dccc2ff7b1..5b09cfcdf3f3 100644
+>> --- a/net/bridge/br_switchdev.c
+>> +++ b/net/bridge/br_switchdev.c
+>> @@ -504,20 +504,41 @@ static void br_switchdev_mdb_complete(struct net_device *dev, int err, void *pri
+>>   	struct net_bridge_mdb_entry *mp;
+>>   	struct net_bridge_port *port = data->port;
+>>   	struct net_bridge *br = port->br;
+>> +	bool offload_changed = false;
+>> +	bool failed_changed = false;
+>> +	u8 notify;
+>>   
+>>   	spin_lock_bh(&br->multicast_lock);
+>>   	mp = br_mdb_ip_get(br, &data->ip);
+>>   	if (!mp)
+>>   		goto out;
+>> +
+>> +	notify = br->multicast_ctx.multicast_mdb_notify_on_flag_change;
 > 
-> Got it. Thanks.
-> 
->> My point is that they must be managed correctly and shouldn't be allowed
->> to be set simultaneously.
->>
->> Cheers,
->>   Nik
->>
-> 
-> Helper function like this?
-> 
-> +static void set_mdb_pg_offload_flags(bool err, u8 *flags)
-> +{
-> +    *flags &= ~(MDB_PG_FLAGS_OFFLOAD | MDB_PG_FLAGS_OFFLOAD_FAILED);
-> +    *flags |= (err ? MDB_PG_FLAGS_OFFLOAD_FAILED : MDB_PG_FLAGS_OFFLOAD);
-> +}
+> let's not waste cycles if there was an error and notify == 0, please keep the original
+> code path and avoid walking over the group ports.
 
-This could work, but I have to see how it aligns with the rest of the
-code to be able to answer well. Also why not just pass the pg?
-Please also choose another helper name, e.g.
-br_multicast_set_pg_offload_flags() or something in these lines. You
-can check br_private.h for other helpers to get an idea.
+But we do want to keep the error flag so that the error shows up in 
+'bridge mdb show', right? Notify should only affect the real-time 
+notifications, and not the error status itself.
 
 > 
-> and then from the call site
+>> +
+>>   	for (pp = &mp->ports; (p = mlock_dereference(*pp, br)) != NULL;
+>>   	     pp = &p->next) {
+>>   		if (p->key.port != port)
+>>   			continue;
+>>   
+>> -		if (err)
+>> +		if (err) {
+>> +			if (!(p->flags & MDB_PG_FLAGS_OFFLOAD_FAILED))
+>> +				failed_changed = true;
+>>   			p->flags |= MDB_PG_FLAGS_OFFLOAD_FAILED;
+>> -		else
+>> +		} else {
+>> +			if (!(p->flags & MDB_PG_FLAGS_OFFLOAD))
+>> +				offload_changed = true;
+>>   			p->flags |= MDB_PG_FLAGS_OFFLOAD;
+>> +		}
+>> +
+>> +		if (notify == MDB_NOTIFY_ON_FLAG_CHANGE_DISABLE ||
+>> +		    (!offload_changed && !failed_changed))
+>> +			continue;
+>> +
+>> +		if (notify == MDB_NOTIFY_ON_FLAG_CHANGE_FAIL_ONLY &&
+>> +		    !failed_changed)
+>> +			continue;
+>> +
+>> +		br_mdb_flag_change_notify(br->dev, mp, p);
 > 
-> -        p->flags |= MDB_PG_FLAGS_OFFLOAD;
-> +        set_mdb_pg_offload_flags(err, &p->flags);
+> This looks like a mess.. First you need to manage these flags properly as I wrote in my
+> other reply, they must be mutually exclusive and you can do this in a helper. Also
+> please read the old flags in the beginning, then check what flags changed, make a mask
+> what flags are for notifications (again can come from a helper, it can be generated when
+> the option changes so you don't compute it every time) and decide what to do if any of
+> those flags changed.
+> Note you have to keep proper flags state regardless of the notify option.
 > 
-> ?
+>>   	}
+>>   out:
+>>   	spin_unlock_bh(&br->multicast_lock);
 > 
-> Or simply clearing the flags in-line:
-> 
-> -        p->flags |= MDB_PG_FLAGS_OFFLOAD;
-> +        p->flags &= ~(MDB_PG_FLAGS_OFFLOAD | MDB_PG_FLAGS_OFFLOAD_FAILED);
-> +
-> +        if (err)
-> +            p->flags |= MDB_PG_FLAGS_OFFLOAD_FAILED;
-> +        else
-> +            p->flags |= MDB_PG_FLAGS_OFFLOAD;
-> 
-> ?
 
-I'd prefer using a  helper. Thanks.
+How does this look:
 
-> 
-> Thanks,
-> Joseph
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -496,6 +496,21 @@ struct br_switchdev_mdb_complete_info {
+         struct br_ip ip;
+  };
 
-Cheers,
-  Nik
++static void br_multicast_set_pg_offload_flags(int err,
++                                             struct 
+net_bridge_port_group *p)
++{
++       p->flags &= ~(MDB_PG_FLAGS_OFFLOAD | MDB_PG_FLAGS_OFFLOAD_FAILED);
++       p->flags |= (err ? MDB_PG_FLAGS_OFFLOAD_FAILED : 
+MDB_PG_FLAGS_OFFLOAD);
++}
++
++static bool br_multicast_should_notify(struct net_bridge *br,
++                                      u8 old_flags, u8 new_flags)
++{
++       return (br_boolopt_get(br, 
+BR_BOOLOPT_FAILED_OFFLOAD_NOTIFICATION) &&
++               ((old_flags & MDB_PG_FLAGS_OFFLOAD_FAILED) !=
++               (new_flags & MDB_PG_FLAGS_OFFLOAD_FAILED)));
++}
++
+  static void br_switchdev_mdb_complete(struct net_device *dev, int err, 
+void *priv)
+  {
+         struct br_switchdev_mdb_complete_info *data = priv;
+@@ -504,23 +519,25 @@ static void br_switchdev_mdb_complete(struct 
+net_device *dev, int err, void *pri
+         struct net_bridge_mdb_entry *mp;
+         struct net_bridge_port *port = data->port;
+         struct net_bridge *br = port->br;
+-
+-       if (err)
+-               goto err;
++       u8 old_flags;
 
+         spin_lock_bh(&br->multicast_lock);
+         mp = br_mdb_ip_get(br, &data->ip);
+         if (!mp)
+                 goto out;
+         for (pp = &mp->ports; (p = mlock_dereference(*pp, br)) != NULL;
+              pp = &p->next) {
+                 if (p->key.port != port)
+                         continue;
+-               p->flags |= MDB_PG_FLAGS_OFFLOAD;
++
++               old_flags = p->flags;
++               br_multicast_set_pg_offload_flags(err, p);
++               if (br_multicast_should_notify(br, old_flags, p->flags))
++                       br_mdb_flag_change_notify(br->dev, mp, p);
+         }
+  out:
+         spin_unlock_bh(&br->multicast_lock);
+-err:
+         kfree(priv);
+  }
+
+Thanks,
+Joseph
