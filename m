@@ -1,46 +1,44 @@
 Received: from mx0a-000eb902.pphosted.com (mx0a-000eb902.pphosted.com [205.220.165.212])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDE9D2E62A4
-	for <bridge@lists.linux.dev>; Thu,  3 Apr 2025 23:45:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 859E01DE8A5
+	for <bridge@lists.linux.dev>; Thu,  3 Apr 2025 23:55:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.212
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743723941; cv=fail; b=K8zCq02TxiOT8wTwlWyUFx90gJlpT5JM/gQz8aI+NxBdf20UL/Se9NezvwC8/4Jo+84RkP82FIScCWCVb5j5NfSDu9iYDNn0BA4u07ODNfuY/AHxLP+K4caQ5k1ns0JfzsYC3hk7S8urRj2VON2eCJOiKouBtt6TFAo68svSCOI=
+	t=1743724507; cv=fail; b=o+KJSgFBnrVXV/5kf72XSs0uIdmuXBVkxYmd3b8COiwFGAt0ACivqzSMW8R3meFd/Df6jFwU67yEEFcQPyy32Is6Q/4X8b/eF1tT8OA2QUixlXy9nhyR6dxHwGlWSuCalJ0mW01KR1mJNJoemH2oxnR/oMXM1S5NOT1msIiZqSQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743723941; c=relaxed/simple;
-	bh=1TJrK9ti31pyhSm7AV1r76/UNVwua3CK0655DlwK47E=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GnPJLs1hWssh3sE3KuCkt8ajhR8n/rPCAZwSvEEohonUo02f9fa7pwAuiKWpmY2j3OEZVAigIF9vmWPUQWvRQ7GWmNHVEEB9ege6U21Ka3/JD9t79KjbjZ/BGTT1kate5WavC/fOtImul3EDRPNunuDs44MjTkj1zz7/OZihhsQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=garmin.com; spf=pass smtp.mailfrom=garmin.com; dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b=X3hRnVgk; dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b=IqaezgIR; arc=fail smtp.client-ip=205.220.165.212
+	s=arc-20240116; t=1743724507; c=relaxed/simple;
+	bh=54QcAFksLh0hWDl4X5KEUrD5IS9R8kuV0wdwi7uRkXQ=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=u3OnByIEGarNkCF+nfq/3SnWMiEvp7uskSBIq0gSMpE9LuatlaLevkUG1R4VLBolM/vn+Txyx1z+IaT2nLLaoK7KtdKQ3AfP7+ILtMxwZzYyIEVsCBvn30L6LDvf2OasGfUw8dRtC+4rGTiX4llPY/NMkhVNiD9lpO7YxuHqEoE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=garmin.com; spf=pass smtp.mailfrom=garmin.com; dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b=pUit0k7M; dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b=PkQhS004; arc=fail smtp.client-ip=205.220.165.212
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=garmin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=garmin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b="X3hRnVgk";
-	dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b="IqaezgIR"
-Received: from pps.filterd (m0220294.ppops.net [127.0.0.1])
-	by mx0a-000eb902.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 533Ndsaj018207;
-	Thu, 3 Apr 2025 18:45:32 -0500
+	dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b="pUit0k7M";
+	dkim=pass (2048-bit key) header.d=garmin.com header.i=@garmin.com header.b="PkQhS004"
+Received: from pps.filterd (m0220296.ppops.net [127.0.0.1])
+	by mx0a-000eb902.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 533NVQGt016913;
+	Thu, 3 Apr 2025 18:45:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pps1; bh=jCjQH
-	+qhPtAADqXCrcPT1UwXWjr/TbxrPuO6RSOgKDw=; b=X3hRnVgky5YHXW8bLsoux
-	AsGdYEo0Gv+Lm+RWfrF4aNOgIyHI+k8+ALFd3yMssWJ+I/OiaMhthvQ4MLdi6YDF
-	taapPCDey2Pf0w6NDAqaf3kN+Wd2b6D5FuoWk2cBx1jWr2U7lw3ccZtR8hdXSeSI
-	B327N8xmBtr2YeEbtVAcK1jZ/oYNzOm4OfVGdxXn8m9yRGBvhaZRpEUWSlwtNbLi
-	Ws2TBzugYP1nQns3ID4LgcSV2M7X1C4McaNFtWFdCfP8xOBEeY05doO4eIC8S69u
-	+Q7iFY4e7vCzKloIhVtGIWdRkgNZogRrsNym1NvjRqwicq0AqE7LewKxTH7/xDue
-	w==
-Received: from byapr05cu005.outbound.protection.outlook.com (mail-westusazlp17010006.outbound.protection.outlook.com [40.93.1.6])
-	by mx0a-000eb902.pphosted.com (PPS) with ESMTPS id 45ss7j9cfe-1
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pps1; bh=nM7kR9eWu+hZSsBtsQIEv0NJ71F
+	te3zT3VyKlMws3uM=; b=pUit0k7MpWfV8y7Qkff/Jj0JXoSDWlCucKy67oaxjPo
+	RxbpQKq8VVOOpdAxoFoHGkMZEAmJf03g1mYDUYu00sI3c2cktVDYdl6MtHq63Qx+
+	FzZpWSqgjOlWRKyo1xladntN8p6ERjTiCBAtyidDY+tfaZ71HIcxPom7nkRjaeyy
+	0eQwWQ+X2V50GBkR7i81LTL6jgR8/i0hMeKbbFbDoGfjw8RRrcmoSn41iVWeSoik
+	c2y6dtD073AgByzDo+aIwe30YHkiOxRswCm68JZ/SEqcAX6J/2gW0xm5CgpIKvtB
+	6uFCxgGJ9kOSpnOZyzZfxe1f8UKHdygA98fMcmxzbxA==
+Received: from nam11-bn8-obe.outbound.protection.outlook.com (mail-bn8nam11lp2177.outbound.protection.outlook.com [104.47.58.177])
+	by mx0a-000eb902.pphosted.com (PPS) with ESMTPS id 45ssgwhbu7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 03 Apr 2025 18:45:32 -0500 (CDT)
+	Thu, 03 Apr 2025 18:45:12 -0500 (CDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=vCEbaBLYET4Gbjsmd/geiSG1hyL5uFATrnfRxxU/QarEULrCHOMKjKJVQoXCQ3GdesDa3bIN53SYQ+pJz+pEP/HEDsJ6n6DPL/O1o5tHtw0zcgksc2ofnh8c6A9k7TPID7/e47l/rKebRy0ZKBMJSuVkWfG+hokW/QW4QueyuQlFP8/eAi8vR5Hw7XFfGoUtZupAqqj6hAxnlIJHn5yWSp0Hk03LVsvvIWXzioma6ylZIo06PufARpnwfVun4mYNzVTRsM6wHosfQ7degd/znCsCLAbS0ppZJK+QNnBXYQOGPxIy+qj+PJOT1u2dWgctxFZpOUThD5K9wFKu8vgJFg==
+ b=BY0gy7soTQjpfrJSfB1mtF6pDoX83I5RjVz5D3jcrDAmzKdj5gfJ5efdyip/84meVdeyGnq3jqPIm/vsNJP+8opqQAbuKN4P+02s5BvuKE5BPziFPwhfpm/fnQXqy9BpKlbiWIkwgrskqbuhfxI00Unn87B6mLy+B24DQnMVTa3xE/GueioNTrq+6xYNzI0olY+4Omu6dmktXpu9OWqkmLQezQc7yUP9/A4AfvmwHnTqeAQMLmHu5s9GBrqHUb3Mt/aN1Ljj7R9g/jxBWhGQPhtBfcCE7LCZOo6QRCATQAc2yT2boJZ00op5WEWnp85aMKxndcLYnd2rjgb9bBWEsg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jCjQH+qhPtAADqXCrcPT1UwXWjr/TbxrPuO6RSOgKDw=;
- b=CC+UWJ8BmkVhW5JZd+rN4u3zbNV4J33A4eLWPCC2SpsWE7PrZQa/aFPLgeHm/ikGN5vZMXMqUaf/PfqZhdnarY4QSByPqQI54rFU1yKP5d5O3nGLSdM5vG+bEQKwYUImaks1JE/sNtZC6yMkt5X9DWvt1ZR78H3bJOEbaVF+kCl+wAFUNQCfAiqsGT87lDv1iT61BeBd2SRrg5Sx/CBZY0mpF2ShzVNXK9+cwxNN59LkoIbYTuBaknKFPOxsAPI7AtkiT2OEjT0tPayrvDsRI4U64l8U8RHHDkneXU9jkZzOa/SoQcXrOSsaX9siCgcStzEtYPHY6/H4wZfOM+/eJQ==
+ bh=nM7kR9eWu+hZSsBtsQIEv0NJ71Fte3zT3VyKlMws3uM=;
+ b=HZtW6gqk6IAv0hQIxamxytXY3H8gUH70A3r4WIiYVq+cyiXF0EUYDz3XDIe3gEci4MZL4Q2AVU0KJXVq9ybzXmJvcNx/gOeNgAq5/DZwtPMSTVD14DbHp5ftsoCay+OpZp5SiV4CcmdAUERYBg95lBIS5cCd+6zmkHNcuZe+CU8NRB56GCw6Mz+iQeC7N+9TUekmPCGCg8F9sxgWwzw54Py/FLshkQ9bQvO4CzZy4hDYAW8aFz8eYeLlSPcYp9E8tFhEs9Bb6KI1jdD7siYOBoUB24CIiPxfX7+NxDb019IcC9siR90QdZ7+eewZohoqftlyc2vYN9AqVFIaiAv3ag==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  204.77.163.244) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=garmin.com;
  dmarc=pass (p=reject sp=quarantine pct=100) action=none
@@ -48,18 +46,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jCjQH+qhPtAADqXCrcPT1UwXWjr/TbxrPuO6RSOgKDw=;
- b=IqaezgIRqvnQjuNoZJ/VM8VpnMBJDGcEBwL+GKrLtVSBClpHKeUP3/Bi2SEztSyy6uETPVWXlUQIp/Q8KZK7u0p3ZhQJnGVdYXPZTKgSUzoaxvpDBi4J2g32l/EqYQmODOy2P79p5PzgBcNjQGo1O3EhjSzZVcQdLMopgCxxYRPPZGui2WS4AwnVZ0J7UgvE2aaoN6QIP/7Jj0CsLBmEc3fU3Dq5jdh90L0+BtZDdCS6I3ux1ShrWuoCd/nJlyDetsQrwpVXGLvgmjVB5Z9G5637KJwoiM3bEICsi0EuxSnRs3g/g/tjZtHrepq+7IjqHwg0YN5Ds82JAdpikcyL9g==
-Received: from DS7PR03CA0194.namprd03.prod.outlook.com (2603:10b6:5:3b6::19)
- by SJ0PR04MB7615.namprd04.prod.outlook.com (2603:10b6:a03:32b::8) with
+ bh=nM7kR9eWu+hZSsBtsQIEv0NJ71Fte3zT3VyKlMws3uM=;
+ b=PkQhS00490uN85O/ogKXcuOEfNhEZXHbi6eCtIaRXOIy9WjS+jVj3vZKEvH1zNr9oMObbpRHDQnJ9FmODq0in66ktlwMTTg+ezfB4OqvfVvOdgq+mwtIN6oqg9V7xC8fMIjhhgZo5unwhKJTZkfp1AwPoFvxjxf+//YkY0vagmEj7zSD120F68WAZ1KFRBkkj2lBsmdNILCTG9eadtzvzsebY15m/DnYFApyb3YCDlMZtFyADkvda2s6N6lqGd2NW4kxpxwnBAECoTT/X20FzGqgjSYco3Svqi+Ie5Qc1Eh3ORaas/KVFEyp0Mg94oAfCh/PYUJXTfcoRsvRtVKd7A==
+Received: from PH8PR21CA0002.namprd21.prod.outlook.com (2603:10b6:510:2ce::16)
+ by PH0PR04MB8323.namprd04.prod.outlook.com (2603:10b6:510:da::12) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8583.43; Thu, 3 Apr
- 2025 23:45:30 +0000
-Received: from CY4PEPF0000FCC5.namprd03.prod.outlook.com
- (2603:10b6:5:3b6:cafe::5a) by DS7PR03CA0194.outlook.office365.com
- (2603:10b6:5:3b6::19) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8534.54 via Frontend Transport; Thu,
- 3 Apr 2025 23:45:30 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.44; Thu, 3 Apr
+ 2025 23:45:06 +0000
+Received: from CO1PEPF000044F8.namprd21.prod.outlook.com
+ (2603:10b6:510:2ce:cafe::68) by PH8PR21CA0002.outlook.office365.com
+ (2603:10b6:510:2ce::16) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8632.6 via Frontend Transport; Thu, 3
+ Apr 2025 23:45:06 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 204.77.163.244)
  smtp.mailfrom=garmin.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=garmin.com;
@@ -67,24 +65,24 @@ Received-SPF: Pass (protection.outlook.com: domain of garmin.com designates
  204.77.163.244 as permitted sender) receiver=protection.outlook.com;
  client-ip=204.77.163.244; helo=edgetransport.garmin.com; pr=C
 Received: from edgetransport.garmin.com (204.77.163.244) by
- CY4PEPF0000FCC5.mail.protection.outlook.com (10.167.242.107) with Microsoft
+ CO1PEPF000044F8.mail.protection.outlook.com (10.167.241.198) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8606.22 via Frontend Transport; Thu, 3 Apr 2025 23:45:30 +0000
-Received: from kc3wpa-exmb3.ad.garmin.com (10.65.32.83) by cv1wpa-edge1
- (10.60.4.255) with Microsoft SMTP Server (version=TLS1_2,
+ 15.20.8632.2 via Frontend Transport; Thu, 3 Apr 2025 23:45:06 +0000
+Received: from OLAWPA-EXMB2.ad.garmin.com (10.5.144.14) by cv1wpa-edge1
+ (10.60.4.252) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 3 Apr 2025
- 18:45:27 -0500
+ 18:44:59 -0500
 Received: from cv1wpa-exmb2.ad.garmin.com (10.5.144.72) by
- kc3wpa-exmb3.ad.garmin.com (10.65.32.83) with Microsoft SMTP Server
+ OLAWPA-EXMB2.ad.garmin.com (10.5.144.14) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.2.1258.34; Thu, 3 Apr 2025 18:45:29 -0500
+ 15.1.2507.39; Thu, 3 Apr 2025 18:45:02 -0500
 Received: from cv1wpa-exmb3.ad.garmin.com (10.5.144.73) by
  CV1WPA-EXMB2.ad.garmin.com (10.5.144.72) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Thu, 3 Apr 2025 18:45:28 -0500
+ 15.1.2507.39; Thu, 3 Apr 2025 18:45:01 -0500
 Received: from CAR-4RCMR33.ad.garmin.com (10.5.209.17) by smtp.garmin.com
  (10.5.144.73) with Microsoft SMTP Server id 15.1.2507.39 via Frontend
- Transport; Thu, 3 Apr 2025 18:45:28 -0500
+ Transport; Thu, 3 Apr 2025 18:45:00 -0500
 From: Joseph Huang <Joseph.Huang@garmin.com>
 To: <netdev@vger.kernel.org>
 CC: Joseph Huang <Joseph.Huang@garmin.com>,
@@ -102,12 +100,10 @@ CC: Joseph Huang <Joseph.Huang@garmin.com>,
         Simon Horman
 	<horms@kernel.org>, <linux-kernel@vger.kernel.org>,
         <bridge@lists.linux.dev>
-Subject: [Patch v2 net-next 3/3] net: bridge: mcast: Notify on mdb offload failure
-Date: Thu, 3 Apr 2025 19:44:05 -0400
-Message-ID: <20250403234412.1531714-4-Joseph.Huang@garmin.com>
+Subject: [Patch v2 net-next 0/3] Add support for mdb offload failure notification
+Date: Thu, 3 Apr 2025 19:44:02 -0400
+Message-ID: <20250403234412.1531714-1-Joseph.Huang@garmin.com>
 X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250403234412.1531714-1-Joseph.Huang@garmin.com>
-References: <20250403234412.1531714-1-Joseph.Huang@garmin.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -118,175 +114,105 @@ Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000FCC5:EE_|SJ0PR04MB7615:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1c9da522-1031-4ddd-e07d-08dd73099e57
+X-MS-TrafficTypeDiagnostic: CO1PEPF000044F8:EE_|PH0PR04MB8323:EE_
+X-MS-Office365-Filtering-Correlation-Id: 02582396-9b63-4375-c0e8-08dd73099018
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|376014|7416014|36860700013;
+	BCL:0;ARA:13230040|36860700013|1800799024|7416014|376014|82310400026;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?YWvuJp/M51q674FiXWPKslAoVhbYD1K2jELbTrx77w905u0PfsITk9b5bSra?=
- =?us-ascii?Q?MBUDHupmiEyERHXfbo01SaHdlxbpveR7x58ghGpfhteWcE3jWn9xEdQ9/ac0?=
- =?us-ascii?Q?Dyu6gXm82r+DuVdKwf372M280LHYK5mQFYuanjqp0NdBZly0KQc7ZcfHwb8R?=
- =?us-ascii?Q?Xp7+SBQpVsFq34ld7VsGA+adeMMF8hCBnNXpfFfA6GnuzZcYU1bbyrDGH2sI?=
- =?us-ascii?Q?U7ZI8GGGPucxEhrCXJJQ2Nf9pvxVw6dwXwXeu1RKUqv4BMC7PMLDU9XHeBbC?=
- =?us-ascii?Q?YtAolEI64jEzb+GOE+NU1agxOsYmJFeGzVB/YkWXKk4sS/oLvyE6RHBmtLvG?=
- =?us-ascii?Q?zp5IUTXpyjE6X2FDoto8YkGtrgwGQOhzrQFYbUaxp02PDLdvghPqRa/nV4pp?=
- =?us-ascii?Q?nKujy8FUIoiiTDza5dit/fdJ2lv8OSishylqljFnjQ5UUZDB9qUliUBfZcVL?=
- =?us-ascii?Q?NTJwyR2OWuV0OpEhzTqbU6Aq2iBhLl9IHgPwdE3MJPwsOdzt0wtbVs3XH7an?=
- =?us-ascii?Q?lSLArSOM+hv/rT0GUcrOYh/zdTTTeIMUoN8eSV6r81fku/EWBzSzbq4D8Q7I?=
- =?us-ascii?Q?J+69tmbaB4Szo6/LB7QN/wKYR2LzTsFloqw7RpvQfvIrM6ONaMpVGq5jXL8W?=
- =?us-ascii?Q?Z+9on8zKJ+ZqJENy2pQ57qSnlhOZZ/4VHG4+p06jNWbg3leUklkjUkzm4XSk?=
- =?us-ascii?Q?JNt77DjMVPtb51aESMUR7QCifKUS+WRSCd6W7KYqCTn+PcRll4psOBGj3T/0?=
- =?us-ascii?Q?Msw01H71DoRC3m1wXp/+S3uNI7wj1GbRT0Y3nkSMIT6Oitr9NP4L2iHl3Gc8?=
- =?us-ascii?Q?aIVECM47+NCcLt6CObs82g1rTDf2EoZP9MmpN5YYe4T+DkImSvYtiU2EijpD?=
- =?us-ascii?Q?S84sqbBIALuK4nv4W7OJE6WAqsZCAEpOqd8YibOGU1tIBbyYAaU4cMr3DLVk?=
- =?us-ascii?Q?nIU5jpvpXo012BdqMmlQVgwyrwlEJ3jXtdDDS3WpRg6z5OZaQK1dVWEzA5dB?=
- =?us-ascii?Q?/Aoa72OoYV5BYpCSrUjokN8+IKU4tN07LsM9vGxND2eStD0YBmA/dyPhwS1o?=
- =?us-ascii?Q?hzAo1Nt/A8FZBjPq/Gi9HioH+ZaI6aicu2NeYTpM7zljEUKgbgmj/k6Df8SX?=
- =?us-ascii?Q?h/ol+6s90JBH8On7ZcuetKx9kDruL7KGph0pyCmNEZHwCRJd4FulywDJFrFS?=
- =?us-ascii?Q?ilJX/O6jxr1nwfdNSyAovrG415d24KeN/q+QQsGEqrMB3yUu8xrDTEuzon/U?=
- =?us-ascii?Q?LRI9RPlpDBXlxyHga79BMae4QPAZdcKQ5J7fD+9rso34miZBWS478pGpImO3?=
- =?us-ascii?Q?um/Isfp5LznkYQDd/Y9EBBOK5dhGgRbNo/c0y75RU16pv+TFeJCeJhEhr2bP?=
- =?us-ascii?Q?juRgSHfSRGC18sVXPZiuf73Xr36oYa6wdmvJpYUK3zpQtEd/V5CPNLWw6k+c?=
- =?us-ascii?Q?4B6RZFml/iY94LEZNNSsrHDJfd5XPAwrPRb8FP55QycRB3v616J+WIcWVskK?=
- =?us-ascii?Q?kAr/rNCSDIuh+gk=3D?=
+	=?us-ascii?Q?G1yu93TzM5tG3fsQkFnFrw+oSGLQnfegv2g61sX4Iab3CEwdsF8df4BgKkd/?=
+ =?us-ascii?Q?NxxSg0p2QfGxCseylxFnMmQgZA2zWus6BHkIifQDJNocqOIf1Vam7IhUMvVP?=
+ =?us-ascii?Q?MgBXiinRd0+AWbVvOYDUxuusw++cSqF/rhV1Teitmwh7tEmaEEBSzaN0i3et?=
+ =?us-ascii?Q?KNme3V4dv0wD04z0Eqkviagi/BQwWvvgfEhRwUDNp3N+xObOraChzSaVb1y5?=
+ =?us-ascii?Q?GB+dzl8OU6Cxe9hhPgPrxYiypnSwqj6hzlD5Zc9BDaBvbSCG3KJCU/aUc3dI?=
+ =?us-ascii?Q?+qM/MKhS7EaqItvNgOPEpC5FUfXdeIcqhvR+IF26xpLZxhntSbeYNBr8Cm3+?=
+ =?us-ascii?Q?5Uisujl1Uq/rqCuNkwG2jek2a9nnaL4jjKbkPktnJtx6kGRDM/qtG7001xwW?=
+ =?us-ascii?Q?o8ynYUPQC5pEiHd+zzlkwwlAN4ZqI/xCueE4zR5pRHtar7FCVyMUQDUgZavE?=
+ =?us-ascii?Q?HLNGz4KW9pJUc7JaotUX47w9hqMyxksLRdY5+43JcTMGPy2BtcWJkJxohPH1?=
+ =?us-ascii?Q?0wYdeTkkoJceCru+DVfbvlF16hW6/VCxezpSCHRVaxtPpUk8tF5yQWEuWUod?=
+ =?us-ascii?Q?ahwT1FrL+ggFkyOAI0oy+c1rvbzep4DQv4xu9tOq+ZN/7dl/FQKGeHgt1/+B?=
+ =?us-ascii?Q?iEpNWGmUZDavtLPDGp7A6zq6F3R6FneEUkYgFxdCkZVTFU3OGTqZDxEbOZ1R?=
+ =?us-ascii?Q?AXJNF5o96KWamYQJtDGGeY6Minkwcih6xkoYK+l7YduBbqFP/5VPZgjZ97xW?=
+ =?us-ascii?Q?XDw7nPsSwI2SGJ0RIr/bc53iqGNVqauJUK/Pt959pP4Y5KhHVCoBLEAC5AVg?=
+ =?us-ascii?Q?v1g2DPS53IMDA+eDzUA0hTVjeNTqOm2O2fYgDnsBJhkwmZLz9E8togrL372V?=
+ =?us-ascii?Q?sOmouruViwRtOlq28Rshm4xZ5sh+ReTXaX6p8urJR1tvUBGAWk72UsTmEhXI?=
+ =?us-ascii?Q?e65zF+h5yNx6cg+qE1iZLdkWDiDrkB+iOx2ju6byrGjk1dxuKyzwXhJwmHcF?=
+ =?us-ascii?Q?PWzvd2HD72/duG6Ml24j8OUAsjJhTWP3SsSyigHpHExzgDb0SrPR/iUilGOW?=
+ =?us-ascii?Q?KsV1/VRiTfZWtM8g+4/J5HCMIV8yzHdFIvLCZIaOGuKh1x3Zq3HM0euNprOq?=
+ =?us-ascii?Q?m4XAJBNJu+E8KcRWdkPs3ABN8Istikjzx8lcWRmp3HdXCA2tW/zBWlR6ODJl?=
+ =?us-ascii?Q?p/vHCiyBbq391s4pzSKsoxxuttpCxJqFQmGnsyHbhWodcMAgQG1CkYf3CV7z?=
+ =?us-ascii?Q?YURmTv2KiVpHp3lhhmwz15wvWxzBUrOqRdNFuwHqzcQLanKDuV8r3QIShCFR?=
+ =?us-ascii?Q?DZYf2CO+4OaA9DOn8E/zEv1Q6OeNHdc99CewHc+/tRXqbJr1LW8SbBaSR5/G?=
+ =?us-ascii?Q?ZnKPfyloSK1lH0hdDPygVgaM7PAFO/BATjXnxMqVRa4GQlLVsdlmhFi7rdM9?=
+ =?us-ascii?Q?Wl2PwWW+Wu6r6JQDsqgDWS7J0zsRW6/i709GXO8dau8V0TPT0VVSKD7DkSPM?=
+ =?us-ascii?Q?3epbqARGFCT4d+U=3D?=
 X-Forefront-Antispam-Report:
-	CIP:204.77.163.244;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:edgetransport.garmin.com;PTR:extedge.garmin.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(376014)(7416014)(36860700013);DIR:OUT;SFP:1102;
+	CIP:204.77.163.244;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:edgetransport.garmin.com;PTR:extedge.garmin.com;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(7416014)(376014)(82310400026);DIR:OUT;SFP:1102;
 X-OriginatorOrg: garmin.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Apr 2025 23:45:30.3218
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Apr 2025 23:45:06.4330
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1c9da522-1031-4ddd-e07d-08dd73099e57
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02582396-9b63-4375-c0e8-08dd73099018
 X-MS-Exchange-CrossTenant-Id: 38d0d425-ba52-4c0a-a03e-2a65c8e82e2d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=38d0d425-ba52-4c0a-a03e-2a65c8e82e2d;Ip=[204.77.163.244];Helo=[edgetransport.garmin.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	CY4PEPF0000FCC5.namprd03.prod.outlook.com
+	CO1PEPF000044F8.namprd21.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR04MB7615
-X-Authority-Analysis: v=2.4 cv=GfQXnRXL c=1 sm=1 tr=0 ts=67ef1d9c cx=c_pps a=CbxOEkXH4sIw/lcH++vrDQ==:117 a=YA0UzX50FYCGjWi3QxTvkg==:17 a=h8e1o3o8w34MuCiiGQrqVE4VwXA=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19 a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=XR8D0OoHHMoA:10
- a=qm69fr9Wx_0A:10 a=NbHB2C0EAAAA:8 a=kv1pVitMRhVdw8weP3UA:9 cc=ntf
-X-Proofpoint-ORIG-GUID: 3acdXBATy-qIANphG6fmeK7kmDGk23ge
-X-Proofpoint-GUID: 3acdXBATy-qIANphG6fmeK7kmDGk23ge
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB8323
+X-Authority-Analysis: v=2.4 cv=OcqYDgTY c=1 sm=1 tr=0 ts=67ef1d88 cx=c_pps a=v3ez6FdVe4RSF1xj2bRqRw==:117 a=YA0UzX50FYCGjWi3QxTvkg==:17 a=h8e1o3o8w34MuCiiGQrqVE4VwXA=:19 a=wKuvFiaSGQ0qltdbU6+NXLB8nM8=:19 a=Ol13hO9ccFRV9qXi2t6ftBPywas=:19 a=XR8D0OoHHMoA:10
+ a=qm69fr9Wx_0A:10 a=VwQbUJbxAAAA:8 a=NbHB2C0EAAAA:8 a=nms5tGoDfQjFp_ETsZIA:9 cc=ntf
+X-Proofpoint-GUID: Piw2x3GElwDxfURN8Lx_SDMtKt_BNwV1
+X-Proofpoint-ORIG-GUID: Piw2x3GElwDxfURN8Lx_SDMtKt_BNwV1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-03_10,2025-04-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- lowpriorityscore=0 priorityscore=1501 impostorscore=0 mlxlogscore=999
- malwarescore=0 clxscore=1015 spamscore=0 adultscore=0 suspectscore=0
- mlxscore=0 classifier=spam authscore=0 authtc=n/a authcc=notification
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ suspectscore=0 malwarescore=0 mlxscore=0 mlxlogscore=893 bulkscore=0
+ lowpriorityscore=0 impostorscore=0 adultscore=0 clxscore=1015 spamscore=0
+ phishscore=0 classifier=spam authscore=0 authtc=n/a authcc=notification
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.21.0-2502280000
  definitions=main-2504030126
 
-Notify user space on mdb offload failure if mdb_offload_fail_notification
-is set.
+Currently the bridge does not provide real-time feedback to user space
+on whether or not an attempt to offload an mdb entry was successful.
 
-Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
+This patch set adds support to notify user space about failed offload
+attempts, and is controlled by a new knob mdb_offload_fail_notification.
+
+A break-down of the patches in the series:
+
+Patch 1 adds offload failed flag to indicate that the offload attempt
+has failed. The flag is reflected in netlink mdb entry flags.
+
+Patch 2 adds the new bridge bool option mdb_offload_fail_notification.
+
+Patch 3 notifies user space when the result is known, controlled by
+mdb_offload_fail_notification setting.
+
+Joseph Huang (3):
+  net: bridge: mcast: Add offload failed mdb flag
+  net: bridge: Add offload_fail_notification bopt
+  net: bridge: mcast: Notify on mdb offload failure
+
+ include/uapi/linux/if_bridge.h | 10 ++++++----
+ net/bridge/br.c                |  5 +++++
+ net/bridge/br_mdb.c            | 28 +++++++++++++++++++++++-----
+ net/bridge/br_private.h        | 30 +++++++++++++++++++++++++-----
+ net/bridge/br_switchdev.c      | 11 ++++++-----
+ 5 files changed, 65 insertions(+), 19 deletions(-)
+
 ---
- net/bridge/br_mdb.c       | 26 +++++++++++++++++++++-----
- net/bridge/br_private.h   |  9 +++++++++
- net/bridge/br_switchdev.c |  4 ++++
- 3 files changed, 34 insertions(+), 5 deletions(-)
-
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 0639691cd19b..5f53f387d251 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -519,16 +519,17 @@ static size_t rtnl_mdb_nlmsg_size(const struct net_bridge_port_group *pg)
- 	       rtnl_mdb_nlmsg_pg_size(pg);
- }
- 
--void br_mdb_notify(struct net_device *dev,
--		   struct net_bridge_mdb_entry *mp,
--		   struct net_bridge_port_group *pg,
--		   int type)
-+static void __br_mdb_notify(struct net_device *dev,
-+			    struct net_bridge_mdb_entry *mp,
-+			    struct net_bridge_port_group *pg,
-+			    int type, bool notify_switchdev)
- {
- 	struct net *net = dev_net(dev);
- 	struct sk_buff *skb;
- 	int err = -ENOBUFS;
- 
--	br_switchdev_mdb_notify(dev, mp, pg, type);
-+	if (notify_switchdev)
-+		br_switchdev_mdb_notify(dev, mp, pg, type);
- 
- 	skb = nlmsg_new(rtnl_mdb_nlmsg_size(pg), GFP_ATOMIC);
- 	if (!skb)
-@@ -546,6 +547,21 @@ void br_mdb_notify(struct net_device *dev,
- 	rtnl_set_sk_err(net, RTNLGRP_MDB, err);
- }
- 
-+void br_mdb_notify(struct net_device *dev,
-+		   struct net_bridge_mdb_entry *mp,
-+		   struct net_bridge_port_group *pg,
-+		   int type)
-+{
-+	__br_mdb_notify(dev, mp, pg, type, true);
-+}
-+
-+void br_mdb_flag_change_notify(struct net_device *dev,
-+			       struct net_bridge_mdb_entry *mp,
-+			       struct net_bridge_port_group *pg)
-+{
-+	__br_mdb_notify(dev, mp, pg, RTM_NEWMDB, false);
-+}
-+
- static int nlmsg_populate_rtr_fill(struct sk_buff *skb,
- 				   struct net_device *dev,
- 				   int ifindex, u16 vid, u32 pid,
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 02188b7ff8e6..fc43ccc06ccb 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1005,6 +1005,8 @@ int br_mdb_hash_init(struct net_bridge *br);
- void br_mdb_hash_fini(struct net_bridge *br);
- void br_mdb_notify(struct net_device *dev, struct net_bridge_mdb_entry *mp,
- 		   struct net_bridge_port_group *pg, int type);
-+void br_mdb_flag_change_notify(struct net_device *dev, struct net_bridge_mdb_entry *mp,
-+			       struct net_bridge_port_group *pg);
- void br_rtr_notify(struct net_device *dev, struct net_bridge_mcast_port *pmctx,
- 		   int type);
- void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
-@@ -1354,6 +1356,13 @@ br_multicast_set_pg_offload_flags(struct net_bridge_port_group *p,
- 	p->flags |= (offloaded ? MDB_PG_FLAGS_OFFLOAD :
- 		MDB_PG_FLAGS_OFFLOAD_FAILED);
- }
-+
-+static inline bool
-+br_mdb_should_notify(const struct net_bridge *br, u8 changed_flags)
-+{
-+	return br_opt_get(br, BROPT_MDB_OFFLOAD_FAIL_NOTIFICATION) &&
-+		(changed_flags & MDB_PG_FLAGS_OFFLOAD_FAILED);
-+}
- #else
- static inline int br_multicast_rcv(struct net_bridge_mcast **brmctx,
- 				   struct net_bridge_mcast_port **pmctx,
-diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-index 40f0b16e4df8..9b5005d0742a 100644
---- a/net/bridge/br_switchdev.c
-+++ b/net/bridge/br_switchdev.c
-@@ -504,6 +504,7 @@ static void br_switchdev_mdb_complete(struct net_device *dev, int err, void *pri
- 	struct net_bridge_mdb_entry *mp;
- 	struct net_bridge_port *port = data->port;
- 	struct net_bridge *br = port->br;
-+	u8 old_flags;
- 
- 	spin_lock_bh(&br->multicast_lock);
- 	mp = br_mdb_ip_get(br, &data->ip);
-@@ -514,7 +515,10 @@ static void br_switchdev_mdb_complete(struct net_device *dev, int err, void *pri
- 		if (p->key.port != port)
- 			continue;
- 
-+		old_flags = p->flags;
- 		br_multicast_set_pg_offload_flags(p, !err);
-+		if (br_mdb_should_notify(br, old_flags ^ p->flags))
-+			br_mdb_flag_change_notify(br->dev, mp, p);
- 	}
- out:
- 	spin_unlock_bh(&br->multicast_lock);
+v1: https://lore.kernel.org/netdev/20250318224255.143683-1-Joseph.Huang@garmin.com/
+    iproute2 link:
+    https://lore.kernel.org/netdev/20250318225026.145501-1-Joseph.Huang@garmin.com/
+v2: Add br_multicast_pg_set_offload_flags helper to set offload flags
+    Change multi-valued option mdb_notify_on_flag_change to bool option
+    mdb_offload_fail_notification
+    Change _br_mdb_notify to __br_mdb_notify
+    Drop all #ifdef CONFIG_NET_SWITCHDEV
+    Add br_mdb_should_notify helper and reorganize code in
+    br_switch_mdb_complete
 -- 
 2.49.0
 
