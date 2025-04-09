@@ -1,156 +1,95 @@
-Received: from spam.asrmicro.com (asrmicro.com [210.13.118.86])
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87B0225C709
-	for <bridge@lists.linux.dev>; Wed,  9 Apr 2025 08:01:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.13.118.86
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B36611DE3AA;
+	Wed,  9 Apr 2025 09:18:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744185704; cv=none; b=AT6q7LJHKTtBMFTTWgpI3dZjtVmP1+ZBXkCXjD2J+M+c6vCUaJ/fQHA/eb+5OLTvwcRMfBwLdkMHYOxj+2yqw/poV1uavV3Bt94GYCMdsBVHjr904gxH25oOMng6vc52WCVbsOQDs5oTCoc/wa+N2itcUZ92sfe5a/odX8vUQ+o=
+	t=1744190317; cv=none; b=XeqEcgfUd7TmDXnCeSOEKOl1sOudVADq4PBAcTyKMJ/+NwebjZhLLob5MiB98qfwBkJPX9KN6UQ0qShMN/NPFedmYFSJG6tbMNrvZ2yaWH29S+kVz6bpiz+WND4v/yOVCvx/qlrOsLRiylJFpLxU3LUxiJ1iVQ8ytCj6b+3vhDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744185704; c=relaxed/simple;
-	bh=uB80WfCPadHDQNF1Ma8F2Btk9k5iSpMqhcGgLwl8MCg=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=LusnyA99MxfFwanAmt00m47RrDHFrgYJDX3iANfxViMZVpPL5az8TKpBIW2/OAiwpLp4wWtleOAbJr20CgRiKunW5YcLkkSaCpf14l7VJvxViKrHfumRrz0NYoMyTQLR/BuSZBWd2N2htz5TQFoGVEMfGnFRt9iy6+tZoS//u0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=asrmicro.com; spf=pass smtp.mailfrom=asrmicro.com; arc=none smtp.client-ip=210.13.118.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=asrmicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asrmicro.com
-Received: from spam.asrmicro.com (localhost [127.0.0.2] (may be forged))
-	by spam.asrmicro.com with ESMTP id 5397YM0N003222
-	for <bridge@lists.linux.dev>; Wed, 9 Apr 2025 15:34:22 +0800 (GMT-8)
-	(envelope-from huajianyang@asrmicro.com)
-Received: from exch03.asrmicro.com (exch03.asrmicro.com [10.1.24.118])
-	by spam.asrmicro.com with ESMTPS id 5397Xk2e002977
-	(version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=FAIL);
-	Wed, 9 Apr 2025 15:33:46 +0800 (GMT-8)
-	(envelope-from huajianyang@asrmicro.com)
-Received: from localhost (10.26.128.141) by exch03.asrmicro.com (10.1.24.118)
- with Microsoft SMTP Server (TLS) id 15.0.847.32; Wed, 9 Apr 2025 15:33:49
- +0800
-From: Huajian Yang <huajianyang@asrmicro.com>
-To: <pablo@netfilter.org>
-CC: <kadlec@netfilter.org>, <razor@blackwall.org>, <idosch@nvidia.com>,
-        <davem@davemloft.net>, <dsahern@kernel.org>, <edumazet@google.com>,
-        <kuba@kernel.org>, <pabeni@redhat.com>, <horms@kernel.org>,
-        <netfilter-devel@vger.kernel.org>, <coreteam@netfilter.org>,
-        <bridge@lists.linux.dev>, <netdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Huajian Yang <huajianyang@asrmicro.com>
-Subject: [PATCH] net: Expand headroom to send fragmented packets in bridge fragment forward
-Date: Wed, 9 Apr 2025 15:33:36 +0800
-Message-ID: <20250409073336.31996-1-huajianyang@asrmicro.com>
-X-Mailer: git-send-email 2.48.1
+	s=arc-20240116; t=1744190317; c=relaxed/simple;
+	bh=SvN3Gcf50djMUpmY0B1/0uK5pLnCZSO+X3P+SrDIIZ8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UXs28hxFtEpV5IoLWvP1OlH7PVxRxgxEY0BAlSsQRkyxASSQvrmHNdzvVYwH4Vsn4wgBLhCF2vEMSdpGVLgz3hMBnurR9Fdm5FQTjK2Ii5Sr7hjHaEgZw/eEmeBhFQrPGCaZPSXfky8mW3jxvb6jom9G75FlK6A/8HjAzSDVG4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
+Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
+	(envelope-from <fw@strlen.de>)
+	id 1u2RZd-0004ns-Qe; Wed, 09 Apr 2025 11:18:21 +0200
+Date: Wed, 9 Apr 2025 11:18:21 +0200
+From: Florian Westphal <fw@strlen.de>
+To: Huajian Yang <huajianyang@asrmicro.com>
+Cc: pablo@netfilter.org, kadlec@netfilter.org, razor@blackwall.org,
+	idosch@nvidia.com, davem@davemloft.net, dsahern@kernel.org,
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+	horms@kernel.org, netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org, bridge@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net: Expand headroom to send fragmented packets in
+ bridge fragment forward
+Message-ID: <20250409091821.GA17911@breakpoint.cc>
+References: <20250409073336.31996-1-huajianyang@asrmicro.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: exch03.asrmicro.com (10.1.24.118) To exch03.asrmicro.com
- (10.1.24.118)
-X-DNSRBL: 
-X-SPAM-SOURCE-CHECK: pass
-X-MAIL:spam.asrmicro.com 5397YM0N003222
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250409073336.31996-1-huajianyang@asrmicro.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 
-The config NF_CONNTRACK_BRIDGE will change the way fragments are processed.
-Bridge does not know that it is a fragmented packet and forwards it
-directly, after NF_CONNTRACK_BRIDGE is enabled, function nf_br_ip_fragment
-will check and fraglist this packet.
+Huajian Yang <huajianyang@asrmicro.com> wrote:
+> The config NF_CONNTRACK_BRIDGE will change the way fragments are processed.
+> Bridge does not know that it is a fragmented packet and forwards it
+> directly, after NF_CONNTRACK_BRIDGE is enabled, function nf_br_ip_fragment
+> will check and fraglist this packet.
+> 
+> Some network devices that would not able to ping large packet under bridge,
+> but large packet ping is successful if not enable NF_CONNTRACK_BRIDGE.
 
-Some network devices that would not able to ping large packet under bridge,
-but large packet ping is successful if not enable NF_CONNTRACK_BRIDGE.
+Can you add a new test to tools/testing/selftests/net/netfilter/ that
+demonstrates this problem?
 
-In function nf_br_ip_fragment, checking the headroom before sending is
-undoubted, but it is unreasonable to directly drop skb with insufficient
-headroom.
+> In function nf_br_ip_fragment, checking the headroom before sending is
+> undoubted, but it is unreasonable to directly drop skb with insufficient
+> headroom.
 
-Using skb_copy_expand to expand the headroom of skb instead of dropping
-it.
+Are we talking about
+if (first_len - hlen > mtu
+  or
+skb_headroom(skb) < ll_rs)
 
-Signed-off-by: Huajian Yang <huajianyang@asrmicro.com>
----
- net/bridge/netfilter/nf_conntrack_bridge.c | 14 ++++++++++++--
- net/ipv6/netfilter.c                       | 14 ++++++++++++--
- 2 files changed, 24 insertions(+), 4 deletions(-)
+?
 
-diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
-index 816bb0fde718..b8fb81a49377 100644
---- a/net/bridge/netfilter/nf_conntrack_bridge.c
-+++ b/net/bridge/netfilter/nf_conntrack_bridge.c
-@@ -62,7 +62,7 @@ static int nf_br_ip_fragment(struct net *net, struct sock *sk,
- 
- 		if (first_len - hlen > mtu ||
- 		    skb_headroom(skb) < ll_rs)
--			goto blackhole;
-+			goto expand_headroom;
- 
- 		if (skb_cloned(skb))
- 			goto slow_path;
-@@ -70,7 +70,7 @@ static int nf_br_ip_fragment(struct net *net, struct sock *sk,
- 		skb_walk_frags(skb, frag) {
- 			if (frag->len > mtu ||
- 			    skb_headroom(frag) < hlen + ll_rs)
--				goto blackhole;
-+				goto expand_headroom;
- 
- 			if (skb_shared(frag))
- 				goto slow_path;
-@@ -97,6 +97,16 @@ static int nf_br_ip_fragment(struct net *net, struct sock *sk,
- 
- 		return err;
- 	}
-+
-+expand_headroom:
-+	struct sk_buff *expand_skb;
-+
-+	expand_skb = skb_copy_expand(skb, ll_rs, skb_tailroom(skb), GFP_ATOMIC);
-+	if (unlikely(!expand_skb))
-+		goto blackhole;
-+	kfree_skb(skb);
-+	skb = expand_skb;
-+
- slow_path:
- 	/* This is a linearized skbuff, the original geometry is lost for us.
- 	 * This may also be a clone skbuff, we could preserve the geometry for
-diff --git a/net/ipv6/netfilter.c b/net/ipv6/netfilter.c
-index 581ce055bf52..619d4b97581b 100644
---- a/net/ipv6/netfilter.c
-+++ b/net/ipv6/netfilter.c
-@@ -166,7 +166,7 @@ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 
- 		if (first_len - hlen > mtu ||
- 		    skb_headroom(skb) < (hroom + sizeof(struct frag_hdr)))
--			goto blackhole;
-+			goto expand_headroom;
- 
- 		if (skb_cloned(skb))
- 			goto slow_path;
-@@ -174,7 +174,7 @@ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 		skb_walk_frags(skb, frag2) {
- 			if (frag2->len > mtu ||
- 			    skb_headroom(frag2) < (hlen + hroom + sizeof(struct frag_hdr)))
--				goto blackhole;
-+				goto expand_headroom;
- 
- 			/* Partially cloned skb? */
- 			if (skb_shared(frag2))
-@@ -208,6 +208,16 @@ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 		kfree_skb_list(iter.frag);
- 		return err;
- 	}
-+
-+expand_headroom:
-+	struct sk_buff *expand_skb;
-+
-+	expand_skb = skb_copy_expand(skb, ll_rs, skb_tailroom(skb), GFP_ATOMIC);
-+	if (unlikely(!expand_skb))
-+		goto blackhole;
-+	kfree_skb(skb);
-+	skb = expand_skb;
-+
- slow_path:
- 	/* This is a linearized skbuff, the original geometry is lost for us.
- 	 * This may also be a clone skbuff, we could preserve the geometry for
--- 
-2.48.1
+>  
+>  		if (first_len - hlen > mtu ||
+>  		    skb_headroom(skb) < ll_rs)
+> -			goto blackhole;
+> +			goto expand_headroom;
 
+I guess this should be
+
+if (first_len - hlen > mtu)
+	goto blackhole;
+if (skb_headroom(skb) < ll_rs)
+	goto expand_headroom;
+
+... but I'm not sure what the actual problem is.
+
+> +expand_headroom:
+> +	struct sk_buff *expand_skb;
+> +
+> +	expand_skb = skb_copy_expand(skb, ll_rs, skb_tailroom(skb), GFP_ATOMIC);
+> +	if (unlikely(!expand_skb))
+> +		goto blackhole;
+
+Why does this need to make a full skb copy?
+Should that be using skb_expand_head()?
+
+>  slow_path:
+
+Actually, can't you just (re)use the slowpath for the skb_headroom < ll_rs
+case instead of adding headroom expansion?
