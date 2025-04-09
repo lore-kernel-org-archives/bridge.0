@@ -1,25 +1,29 @@
 Received: from spam.asrmicro.com (asrmicro.com [210.13.118.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9BEB25A347
-	for <bridge@lists.linux.dev>; Wed,  9 Apr 2025 07:45:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87B0225C709
+	for <bridge@lists.linux.dev>; Wed,  9 Apr 2025 08:01:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.13.118.86
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744184714; cv=none; b=KZAQVuEKPbffDSpqwP7xzjDvC91TbKkZd3lsZ4GO41yZF5m1n0QVw3arlPnAJwxImr+oi0lCYSqcA988/P/Ce1IIxaJOOlJMs0rHg9rcmGVlcSlg18q4pc4+3D8PnU4NM01mVmL1NJjTmAz1UTJkV41hYPeu4DlR6AyNOa1J6+w=
+	t=1744185704; cv=none; b=AT6q7LJHKTtBMFTTWgpI3dZjtVmP1+ZBXkCXjD2J+M+c6vCUaJ/fQHA/eb+5OLTvwcRMfBwLdkMHYOxj+2yqw/poV1uavV3Bt94GYCMdsBVHjr904gxH25oOMng6vc52WCVbsOQDs5oTCoc/wa+N2itcUZ92sfe5a/odX8vUQ+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744184714; c=relaxed/simple;
-	bh=fqYCoMpJIfChuAVwq1FHFJqFMnJx9VG5aYy9ssLpQIM=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=eathFKtAECpJ64yFE8C0+Y7taDBNj4YUzJYF3SKOY6LlFk9TgJrLXtjpuucCQFiPVvWCymGlPkT6JFU4YDsIR3WsViZ0VxLGza5k/OIX3YbRPmSM9szpirf+rhdTeHY/bsj7f6yeQn7CoxhZQ8oMehAxwz9nimS9C1jnlYXDf2M=
+	s=arc-20240116; t=1744185704; c=relaxed/simple;
+	bh=uB80WfCPadHDQNF1Ma8F2Btk9k5iSpMqhcGgLwl8MCg=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=LusnyA99MxfFwanAmt00m47RrDHFrgYJDX3iANfxViMZVpPL5az8TKpBIW2/OAiwpLp4wWtleOAbJr20CgRiKunW5YcLkkSaCpf14l7VJvxViKrHfumRrz0NYoMyTQLR/BuSZBWd2N2htz5TQFoGVEMfGnFRt9iy6+tZoS//u0k=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=asrmicro.com; spf=pass smtp.mailfrom=asrmicro.com; arc=none smtp.client-ip=210.13.118.86
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=asrmicro.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asrmicro.com
+Received: from spam.asrmicro.com (localhost [127.0.0.2] (may be forged))
+	by spam.asrmicro.com with ESMTP id 5397YM0N003222
+	for <bridge@lists.linux.dev>; Wed, 9 Apr 2025 15:34:22 +0800 (GMT-8)
+	(envelope-from huajianyang@asrmicro.com)
 Received: from exch03.asrmicro.com (exch03.asrmicro.com [10.1.24.118])
-	by spam.asrmicro.com with ESMTPS id 5397ikCm006604
+	by spam.asrmicro.com with ESMTPS id 5397Xk2e002977
 	(version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=FAIL);
-	Wed, 9 Apr 2025 15:44:46 +0800 (GMT-8)
+	Wed, 9 Apr 2025 15:33:46 +0800 (GMT-8)
 	(envelope-from huajianyang@asrmicro.com)
 Received: from localhost (10.26.128.141) by exch03.asrmicro.com (10.1.24.118)
- with Microsoft SMTP Server (TLS) id 15.0.847.32; Wed, 9 Apr 2025 15:44:49
+ with Microsoft SMTP Server (TLS) id 15.0.847.32; Wed, 9 Apr 2025 15:33:49
  +0800
 From: Huajian Yang <huajianyang@asrmicro.com>
 To: <pablo@netfilter.org>
@@ -31,8 +35,8 @@ CC: <kadlec@netfilter.org>, <razor@blackwall.org>, <idosch@nvidia.com>,
         <linux-kernel@vger.kernel.org>,
         Huajian Yang <huajianyang@asrmicro.com>
 Subject: [PATCH] net: Expand headroom to send fragmented packets in bridge fragment forward
-Date: Wed, 9 Apr 2025 15:44:44 +0800
-Message-ID: <20250409074444.8213-1-huajianyang@asrmicro.com>
+Date: Wed, 9 Apr 2025 15:33:36 +0800
+Message-ID: <20250409073336.31996-1-huajianyang@asrmicro.com>
 X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -46,7 +50,7 @@ X-ClientProxiedBy: exch03.asrmicro.com (10.1.24.118) To exch03.asrmicro.com
  (10.1.24.118)
 X-DNSRBL: 
 X-SPAM-SOURCE-CHECK: pass
-X-MAIL:spam.asrmicro.com 5397ikCm006604
+X-MAIL:spam.asrmicro.com 5397YM0N003222
 
 The config NF_CONNTRACK_BRIDGE will change the way fragments are processed.
 Bridge does not know that it is a fragmented packet and forwards it
@@ -109,7 +113,7 @@ index 816bb0fde718..b8fb81a49377 100644
  	/* This is a linearized skbuff, the original geometry is lost for us.
  	 * This may also be a clone skbuff, we could preserve the geometry for
 diff --git a/net/ipv6/netfilter.c b/net/ipv6/netfilter.c
-index 581ce055bf52..cb67c31971e0 100644
+index 581ce055bf52..619d4b97581b 100644
 --- a/net/ipv6/netfilter.c
 +++ b/net/ipv6/netfilter.c
 @@ -166,7 +166,7 @@ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
@@ -138,7 +142,7 @@ index 581ce055bf52..cb67c31971e0 100644
 +expand_headroom:
 +	struct sk_buff *expand_skb;
 +
-+	expand_skb = skb_copy_expand(skb, hroom, skb_tailroom(skb), GFP_ATOMIC);
++	expand_skb = skb_copy_expand(skb, ll_rs, skb_tailroom(skb), GFP_ATOMIC);
 +	if (unlikely(!expand_skb))
 +		goto blackhole;
 +	kfree_skb(skb);
