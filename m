@@ -1,84 +1,84 @@
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 414622550C5;
-	Wed,  9 Apr 2025 10:45:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCCB31A2390;
+	Thu, 10 Apr 2025 02:29:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744195543; cv=none; b=ujdYMVB7hGpVQMYDkUxCvi98mJ2tLPO5hdjFAGNet7F3wKXys8n4bW35Msd6dozFjMNjXFKUUkPQJ83TFfcL0AwS8ukxZa/OXEVFi0qLGOnRYMmRWAMkhCicHMIoAXiS557hpZTZmOanImIgbyuoW2tr3RlTavqnMXngwjiAuyQ=
+	t=1744252196; cv=none; b=udtEs+jXs8dc1QuXU565Lq+lxKYbBonGf92ZhVllrPnoZeACShgRWzy1fM34Ul6Ce3lWzH3jv0N4A1K5OYEhqDIwiNjHg+pKsUmdCcT0a36X7QzECA7KosxQMBR9lFNu+wOSdENq8hOrUpx5bBnQz1QDrLKik3yobQxdkV0vNDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744195543; c=relaxed/simple;
-	bh=Zd42bH/iKPNHGtL2PyAIzxQXMD0Ub6g/t7/nY59Wno4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KElfBFiGs04KQ/6oqFbJS3Q7LpVly5WN4lvL6skkNKNYV9OpKBGRPF0quOXb/l4ATZe/pOtw8LiATVm8jKK029oaeZK/8TMgsGwfiKcLZUh30v0xvFJJ92bY07jnMikYvax0n3AQZzzV1HriIbcrKfh1Zvs5Unh9mfqgrnSSI6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
-	(envelope-from <fw@strlen.de>)
-	id 1u2Svt-0005gk-4E; Wed, 09 Apr 2025 12:45:25 +0200
-Date: Wed, 9 Apr 2025 12:45:25 +0200
-From: Florian Westphal <fw@strlen.de>
-To: Yang =?utf-8?B?SHVhamlhbu+8iOadqOWNjuWBpe+8iQ==?= <huajianyang@asrmicro.com>
-Cc: Florian Westphal <fw@strlen.de>,
-	"pablo@netfilter.org" <pablo@netfilter.org>,
-	"kadlec@netfilter.org" <kadlec@netfilter.org>,
-	"razor@blackwall.org" <razor@blackwall.org>,
-	"idosch@nvidia.com" <idosch@nvidia.com>,
-	"davem@davemloft.net" <davem@davemloft.net>,
-	"dsahern@kernel.org" <dsahern@kernel.org>,
-	"edumazet@google.com" <edumazet@google.com>,
-	"kuba@kernel.org" <kuba@kernel.org>,
-	"pabeni@redhat.com" <pabeni@redhat.com>,
-	"horms@kernel.org" <horms@kernel.org>,
-	"netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>,
-	"coreteam@netfilter.org" <coreteam@netfilter.org>,
-	"bridge@lists.linux.dev" <bridge@lists.linux.dev>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: =?utf-8?B?562U5aSNOiBbUEFUQ0hdIG5ldDog?=
- =?utf-8?Q?Expand_headroo?= =?utf-8?Q?m?= to send fragmented packets in
- bridge fragment forward
-Message-ID: <20250409104525.GC17911@breakpoint.cc>
-References: <20250409073336.31996-1-huajianyang@asrmicro.com>
- <20250409091821.GA17911@breakpoint.cc>
- <0a711412f54c4dc6a7d58f4fa391dc0f@exch03.asrmicro.com>
+	s=arc-20240116; t=1744252196; c=relaxed/simple;
+	bh=E7Des7EK+sUgtkY+WWs2fRdo6Bd/TmZZDDYF1r+l6Bk=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=uu16V3PkGuDADFjwojPxplbTMqHzdwFnPP23ccjNPmpFQWQb9VVJ+ydhdepi/rdXg84DRLFK4hHVmbrVxy+sgjwuzCIs8En/368xhA+GLmCN9Fr5CfQCRU9NAZD0QzlN+6WRtuaLCnySEozVB/pp6lODnrAVXJilb/V2dr/LM/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PkMau/40; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PkMau/40"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45822C4CEE2;
+	Thu, 10 Apr 2025 02:29:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744252196;
+	bh=E7Des7EK+sUgtkY+WWs2fRdo6Bd/TmZZDDYF1r+l6Bk=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=PkMau/40iG7yghU/12Wz+qD1NdYequg4GpOWJX2XoM9VW32GB2fhJZVeasFTZFPuU
+	 XUwAyZ5WnChtpQY6XUjb8gTlyKEKoD4xCG4dQg0VUy1WUL8Z6fiDQGLIoB1qAO5c7Q
+	 VcYm163376I29iejxAYjVuU+yKrEtm08M8YLl7hEFuOT6Ipg2FshA7Hmw2+G/yJUF/
+	 ZCMHY/4jhTlH2FsJ2C4ueEsPwvUZh5xuFABJdPvA/Eaq+uwvABhJPv2C0gA21P21J3
+	 MrY4Vk7FWcF+YPIsKpeWNJ1LJVsd9XMqiyGB6AiOemvUHKWFr+thFgXpHI4TXF4Jeb
+	 0uKJNSN2UiWjQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB23438111DC;
+	Thu, 10 Apr 2025 02:30:34 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <0a711412f54c4dc6a7d58f4fa391dc0f@exch03.asrmicro.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Subject: Re: [PATCH net-next 0/2] bridge: Prevent unicast ARP/NS packets from
+ being suppressed by bridge
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <174425223377.3120264.13308441300773749640.git-patchwork-notify@kernel.org>
+Date: Thu, 10 Apr 2025 02:30:33 +0000
+References: <cover.1744123493.git.petrm@nvidia.com>
+In-Reply-To: <cover.1744123493.git.petrm@nvidia.com>
+To: Petr Machata <petrm@nvidia.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, netdev@vger.kernel.org,
+ razor@blackwall.org, idosch@nvidia.com, bridge@lists.linux.dev,
+ mlxsw@nvidia.com
 
-Yang Huajian（杨华健） <huajianyang@asrmicro.com> wrote:
-> > if (skb_headroom(skb) < ll_rs)
-> >	goto expand_headroom;
-> 
-> > ... but I'm not sure what the actual problem is.
-> 
-> Yes, your guess is correct!
-> 
-> Actual problem: I think it is unreasonable to directly drop skb with insufficient headroom.
-> 
-> > Why does this need to make a full skb copy?
-> > Should that be using skb_expand_head()?
-> 
-> Using skb_expand_head has the same effect.
- 
-> > Actually, can't you just (re)use the slowpath for the skb_headroom < ll_rs case instead of adding headroom expansion?
-> 
-> I tested it just now, reuse the slowpath will successed.
-> But maybe this change cannot resolve all cases if the netdevice really needs this headroom.
+Hello:
 
-The slowpath considers headroom requirements, see ip_frag_next():
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-        skb2 = alloc_skb(len + state->hlen + state->ll_rs, GFP_ATOMIC);
+On Tue, 8 Apr 2025 17:40:22 +0200 you wrote:
+> From: Amit Cohen <amcohen@nvidia.com>
+> 
+> Currently, unicast ARP requests/NS packets are replied by bridge when
+> suppression is enabled, then they are also forwarded, which results two
+> replicas of ARP reply/NA - one from the bridge and second from the target.
+> 
+> The purpose of ARP/ND suppression is to reduce flooding in the broadcast
+> domain, which is not relevant for unicast packets. In addition, the use
+> case of unicast ARP/NS is to poll a specific host, so it does not make
+> sense to have the switch answer on behalf of the host.
+> 
+> [...]
 
-You should wait for more feedback and then send a v2 tomorrow.
+Here is the summary with links:
+  - [net-next,1/2] net: bridge: Prevent unicast ARP/NS packets from being suppressed by bridge
+    https://git.kernel.org/netdev/net-next/c/827b2ac8e796
+  - [net-next,2/2] selftests: test_bridge_neigh_suppress: Test unicast ARP/NS with suppression
+    https://git.kernel.org/netdev/net-next/c/0ffb594212a0
 
-Thanks!
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
