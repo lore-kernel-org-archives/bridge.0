@@ -1,101 +1,152 @@
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 926461F2367
-	for <bridge@lists.linux.dev>; Fri, 11 Apr 2025 15:41:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35E141898F8
+	for <bridge@lists.linux.dev>; Sat, 12 Apr 2025 12:24:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744386069; cv=none; b=V/GOjc7Dt+/A/HHHp9P1bU3qR8IKJJg8bLOdSxN0cX+iOMeQQttDd4VZZOPrUrbevrstTsk/YXxgNoznek9alvqH2n4uKGG4WXeTOSJ9/QxwnuPunxkPyiCzduVpRB4K3hcdkcY5lN5UO1jdlgVIFuZqhgW0o3Xo5VQTD5cbr50=
+	t=1744460676; cv=none; b=AaUqIioI3tUASHsLiCWDfkjWE0ITyuq55wSKt9X9ezfrBDxoJnooBl59qCbyu++5T6/YhgUBODQpAI+mYqtQ9FEA8K98n1l1Dvf/X8GPTrVt0N1LHqoy3Ob1fm8CTWFZ8mi8jxm53/RduIBVyx9YybzvjNn6DI3cN2907nWyECQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744386069; c=relaxed/simple;
-	bh=6xqHOzSEtizESNQeKofm4qGWhQziFiLceka4SYrVITY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MjgqYJ/tQHwvZLgGYrZXIu/hnMgNmw27IpXl1B9ld2zW44ogh+/ceOs8z3Et4+9TIpSVKXyK6ZpxvIUfTfQOXIiLBtqXKgfGKneU0Epu0oEHh2tVRMbXcDUEdtiTXFHKEy6QhQld/AM+bCsDvTNR73SwE2MVGUCy6n/bwBZUi8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=de9psyhY; arc=none smtp.client-ip=209.85.221.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1744460676; c=relaxed/simple;
+	bh=J80O7lx+S9pEIU6bV6NeFN2f6XCVqGZw2Hw8t5NoRHE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ScjHWKJ4A9b9FDtY2lGhxlmYfu88lTjPDWHfMIMXnja+phjksikNVVKApXOSZ1b1Xq8b3+8DodhwL/u2s1xorIggGxk1bpXFmgpnr/YaJwTeDY/RCEcgxx8SP8YBDcTTGeWspcj7rkaeSMfT8Mzl3tB615SzM8bMpvuIsiHFilA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UWP5ED5q; arc=none smtp.client-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="de9psyhY"
-Received: by mail-wr1-f46.google.com with SMTP id ffacd0b85a97d-39ac56756f6so1767319f8f.2
-        for <bridge@lists.linux.dev>; Fri, 11 Apr 2025 08:41:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UWP5ED5q"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-abbb12bea54so561348466b.0
+        for <bridge@lists.linux.dev>; Sat, 12 Apr 2025 05:24:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1744386065; x=1744990865; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=m1ER5xB9Jg+xmJZBLV8A7QxFaT92qRl63hkizFpOJiI=;
-        b=de9psyhYRi7uyXTJDlB1HOtET5x3twwzGcigvwBqhePYKjNyMNDEELQm6R+HkfqGDQ
-         gGIGMsS7cYovqCtt24GcF3On740qwDX9YpiiCaf4yb1eocPGbtKlllr6XexqMTq9lgHz
-         6AxOS2VcjWq87Iy5TWLp6lqc9MrzAqs3YuhLFOKrsTbj5sAkYJgOdRqiLKz8vAuUK83c
-         JQvA+ZxXvuG35XXJSVL+4LDhOYdZpCwXgTQiyGKmR5PeWPcpw77KiKEbzD4YACu0mL+b
-         tLGR2eXzkoKawoES/PzkIB68//B8o1Ee/V4x06w6beVghRy3ZPmOnlJ3vQQz8FmyJucW
-         3nVg==
+        d=gmail.com; s=20230601; t=1744460673; x=1745065473; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=bVuqSu3NOK87RkcbSVOR8gLBwOzmPgPAFU9FS4oYFp4=;
+        b=UWP5ED5q45vQjdipv4fGGIYXKT2GzuhtJjsdNXML/UU0bEkKO1bG94Hwop5ekqHhRB
+         673UFgKuEJDwYkuAJYxLmgWoCBwkIZUiivo/RGTgNfGy310KZxpp+hgT6S32s4J9rYTO
+         6DAEOynoUAoqrEm71uBAdKml2ugwNQGJZ5Tye94KpNzBbOi5aKaGEj9TRmSGEYqDL0Ty
+         KYklAdqosTNbp0NJ6NRDs4OEvwGT6NQzbte1zG9TDV1AJdq5b5ATKz4OFpjA2fU8cz+x
+         iPoh8p2M1geGyPXe1xG8LLrGv/URM9P+QnvPMvu8o9xr9DN4gkcE3hxJmZGp0gOPNqVy
+         Jdig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744386065; x=1744990865;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=m1ER5xB9Jg+xmJZBLV8A7QxFaT92qRl63hkizFpOJiI=;
-        b=sQ2Y4TiA1hxJcn3XQR2KOVBvzHz4DrUuoMudWlQdZQY6LImjcRlwpFWPGHJ875onbs
-         nA7Kby7cvDNj88NgOD+EvxgXPc0YIy57lJ/8NpD0kLRK8VOLfZwgewOsHLdHQ1RmHF1w
-         BUUEkB1g+VGOBh6hONoVpctHogGSOuhPknv6qNkqPZYYyeBMSdP0IXQSpbIKY/mVt8hZ
-         G916mYEtt7zqWt0SL4+R0Oktd+IznQj+H1606tanur5JaElL2PXsYrAiEYz2XWpVEvRX
-         TAZnuUGTpRheQRCG7ODmV2vuy18iu82UXcEFXUGlO/586mtKPB388JWdjcExfA8siAul
-         ksiA==
-X-Forwarded-Encrypted: i=1; AJvYcCU2bl9w8eRERtQM/KpL/xKFBABLPNr/MCXDh5rtt8DlaqPFjSlM+rRckHC6Q+a62SbHXZ3sBS4=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyyuZ4S4a5Hx3tpHwLgRmx+PVZuYy7H1iaBzDnSCE88h4tT/to7
-	+qU5YqLSV+Q+MFPx3ss/Fmm0sDrMO3nPdCnJ2Y4Dx9Q0R76ZrPEijiTBAUt0dXA=
-X-Gm-Gg: ASbGncsdtVDQEqLWxIPY865925iZ5hIOHNnMmD6E4XZ9MZdKUyb77w6w74CApGcHNjv
-	iINDVZuDmPyh880EZaajRqyvZjS9THmidf3WGGEvU8a+9uLUBJoKFfy7/TO9VBO29HshJJAF1vd
-	7vDYAj5S4POGW9ZQ6lA699opGgdIV6DIkpvi3QllvP9oHkBpplnk4U7LfmB4V6/+i7beHUwJVYe
-	w66/KX1YDkrpidCrsZfbYu41I946Kh2sCzz05+doZhIRtrv/c0S3M5QXaFjoOdWzZbgyhOZErhC
-	8o0d8bqLLy27ry0lpZrzIASLoK6PgHGCMDqWrSbkH1XEaiZN50nn3PCw752+7jqTdaPv9mY/sum
-	LPiNb+J0=
-X-Google-Smtp-Source: AGHT+IEisQGsleHy4Zv5Gzb/47cBIzfdWyFjOgUR75w0kWOWSpMn5SkcGKo3Imt6toqDOuEhLNofAQ==
-X-Received: by 2002:a5d:5f94:0:b0:39c:1f02:44ae with SMTP id ffacd0b85a97d-39ea54fd3d6mr3226660f8f.27.1744386064350;
-        Fri, 11 Apr 2025 08:41:04 -0700 (PDT)
-Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f235b050fsm90397935e9.40.2025.04.11.08.41.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 11 Apr 2025 08:41:03 -0700 (PDT)
-Message-ID: <7e7746f3-3113-4f80-b9e1-71d28048c2d3@blackwall.org>
-Date: Fri, 11 Apr 2025 18:41:02 +0300
+        d=1e100.net; s=20230601; t=1744460673; x=1745065473;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=bVuqSu3NOK87RkcbSVOR8gLBwOzmPgPAFU9FS4oYFp4=;
+        b=AvQecnuoHn/JumzKZwnDgR0W+6sY2OCe5yhpO+LMv/6soZpAe6YE4esXWLne53ks1/
+         N4SEhp4FtNNWTgtby67f0/JaFJQubIul+vOllM8WDI9cwbtrvZijzbm3V1jlm+iGNUMR
+         nn2xE820lfBiTcIUiShh9PI+/Qlz3ujDEgeibAnImxAt51oRPGivEf2KwC+murkiKtbh
+         tc0EVyLgh0sXUy06BibIqYzlBufKC25WSy7B7qhvxbkHajHtMt5rbSFGBsC+bg0q2zwv
+         XwayW/z2DCjhQw7Y2h9RkdHJpdvoQkvvUd/WVJFwBYl5ct2M+18Uq/tj9P2YMUMEnn6a
+         e47w==
+X-Forwarded-Encrypted: i=1; AJvYcCVthjMROJrx+i/kXnttLGmZC/Ce2UTyhbs6cWh4AX2eeMCOIc0TFHuD6fI60slM5Qb/gHCPh+E=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw0o43Oi7dFdclkrQ6rrwP7qgnUM69103VXraly5kK8QsrU1Blv
+	7ga8Uc3zCaA1vgB8MpvlLZdeKYxZTAa8yiQyauZwITlHGH0iQqZs
+X-Gm-Gg: ASbGncsLbaCu7ei1ZyifgZUlgf5mYHC6tsqmL8DxB0vxvXgz7PvWpvd5NmAqqFclCxB
+	SuPtLOnYlbuQttqQ6lK9RbRLTw+1Q73ZYiy68wH3zPNqV14fRpU6mKkffApXobYSib2+h+8Ng4n
+	L3Xnf8dzmV0COM18xr5CWsTXb42lrVH5I1rCyX7n2Z1jhDECLidTr2hnSXZQgFp9uLkewpS/mxJ
+	kZfNkGCrYoitcjC1/fi+Z1uVLOC+ioNhOBrfIbXynGfQUB/EfXboRA3tpuxB1asnFdfgTgdm56C
+	KpwXWNer1MNkLWoA646iqZrDtTDrJ++PFx6ZGQAZehqYK+v26dd1+BRu619j69kTTJVMHyCiyt6
+	ZH+ntSXbQUbn2bpES1ZNN
+X-Google-Smtp-Source: AGHT+IFc5anELwtiJCusv+yFZK/tdXxvnsuy47DJan7xHGiTN/SrWnZQYj+SMt5guZE4sgjUUqlcjg==
+X-Received: by 2002:a17:907:3f16:b0:aca:c7e0:6375 with SMTP id a640c23a62f3a-acad3456e7fmr561981366b.2.1744460672462;
+        Sat, 12 Apr 2025 05:24:32 -0700 (PDT)
+Received: from localhost (dslb-002-205-021-146.002.205.pools.vodafone-ip.de. [2.205.21.146])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-acaa1be91a3sm588742766b.44.2025.04.12.05.24.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Apr 2025 05:24:31 -0700 (PDT)
+From: Jonas Gorski <jonas.gorski@gmail.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Vladimir Oltean <olteanv@gmail.com>
+Cc: Vladimir Oltean <vladimir.oltean@nxp.com>,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH RFC net 0/2] net: dsa: fix handling brentry vlans with flags
+Date: Sat, 12 Apr 2025 14:24:26 +0200
+Message-ID: <20250412122428.108029-1-jonas.gorski@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [Patch v5 net-next 1/3] net: bridge: mcast: Add offload failed
- mdb flag
-To: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org
-Cc: Joseph Huang <joseph.huang.2024@gmail.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Roopa Prabhu <roopa@nvidia.com>, Simon Horman <horms@kernel.org>,
- linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-References: <20250411150323.1117797-1-Joseph.Huang@garmin.com>
- <20250411150323.1117797-2-Joseph.Huang@garmin.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20250411150323.1117797-2-Joseph.Huang@garmin.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 4/11/25 18:03, Joseph Huang wrote:
-> Add MDB_FLAGS_OFFLOAD_FAILED and MDB_PG_FLAGS_OFFLOAD_FAILED to indicate
-> that an attempt to offload the MDB entry to switchdev has failed.
-> 
-> Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
-> ---
->  include/uapi/linux/if_bridge.h |  9 +++++----
->  net/bridge/br_mdb.c            |  2 ++
->  net/bridge/br_private.h        | 20 +++++++++++++++-----
->  net/bridge/br_switchdev.c      |  9 +++++----
->  4 files changed, 27 insertions(+), 13 deletions(-)
-> 
+While trying to figure out the hardware behavior of a DSA supported
+switch chip and printing various internal vlan state changes, I noticed
+that some flows never triggered adding the cpu port to vlans, preventing
+it from receiving any of the VLANs traffic.
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+E.g. the following sequence would cause the cpu port not being member of
+the vlan, despite the bridge vlan output looking correct:
+
+$ ip link add swbridge type bridge vlan_filtering 1 vlan_default_pvid 1
+$ ip link set lan1 master swbridge
+$ bridge vlan add dev lan1 vid 1 pvid untagged
+$ bridge vlan add dev swbridge vid 1 pvid untagged self
+
+Adding more printk debugging, I traced it br_vlan_add_existing() setting
+changed to true (since the vlan "gained" the pvid untagged flags), and
+then the dsa code ignoring the vlan notification, since it is a vlan for
+the cpu port that is updated.
+
+Then I noticed that deleting that vlan didn't work either:
+
+$ bridge vlan
+port              vlan-id
+lan1              1 PVID Egress Untagged
+swbridge          1 PVID Egress Untagged
+$ bridge vlan del dev swbridge vid 1 self
+$ bridge vlan
+port              vlan-id
+lan1              1 PVID Egress Untagged
+swbridge          1 Egress Untagged
+
+which is caused by the same issue, because from the dsa standpoint I am
+now trying to delete a non-existing vlan.
+
+After fixing that, both were now correctly working, but the configured
+vlan on the cpu port would be stuck with whatever the initial add set.
+
+E.g.:
+$ bridge vlan add dev swbridge vid 1 pvid untagged self
+$ bridge vlan add dev swbridge vid 1 self
+
+would change the flags in the vlandb, but the hardware configured vlan
+would still untag at egress to the cpu port.
+
+Patch two fixes this by allowing changed = true vlan add notifications
+for the cpu port, but skip the refcounting. Presumably with the patch
+there should never be a vlan add notification for the brentry with
+changed set to true anymore.
+
+In case my reasoning is wrong, I added a WARN_ON(), but I didn't get to
+trigger it so far.
+
+I did a check of all handlers of switchdev port vlan add notifications,
+but DSA seems to be the only one that even looks at the changed flag.
+
+Sent as RFC as I am not too familiar with the dsa/vlan code, so I might
+very well have overlooked something.
+
+Jonas Gorski (2):
+  net: bridge: switchdev: do not notify new brentries as changed
+  net: dsa: propagate brentry flag changes
+
+ net/bridge/br_vlan.c |  4 +++-
+ net/dsa/switch.c     | 22 ++++++++++++----------
+ 2 files changed, 15 insertions(+), 11 deletions(-)
+
+-- 
+2.43.0
 
