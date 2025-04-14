@@ -1,64 +1,67 @@
-Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11011030.outbound.protection.outlook.com [52.101.65.30])
+Received: from DUZPR83CU001.outbound.protection.outlook.com (mail-northeuropeazon11013037.outbound.protection.outlook.com [52.101.67.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 102632BEC59
-	for <bridge@lists.linux.dev>; Mon, 14 Apr 2025 12:49:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.65.30
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC3D2BD5A0
+	for <bridge@lists.linux.dev>; Mon, 14 Apr 2025 12:52:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.67.37
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744634980; cv=fail; b=CUrWukKF+RV93S1XijdhP6diS+G35u1XJVNqGalj4BkGWLYOs1V04WClk0pzf2Xofe2t8MFAR2+Jdjyo72ZUHez5Rsze1LyGlW3vSiLlvPbs/8mexg6oeoB59Pg0xDUP0pDqO6OqtBEasXwlXbjmh2vuwoHH5uFUx+qw7VG6ncQ=
+	t=1744635176; cv=fail; b=ojiRFlLSgLoFqNbYiqu3OCADiS1O6uzhW84GcDYUunoFmudSAPWGYcuAUQeOE/wTWXswTuF3UnItyVZU7eEsHqKAYo2yYiTn3s+pNe+ejmk7Zw2GXq1G58o+cXceQG6iS2GUxXhYYfSxuWNccn+FARVRjlFb0MskAZQHz205Vvo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744634980; c=relaxed/simple;
-	bh=xevKO1RsEPlxooes/u1ay21jR8eYtSIf6iGg8Ma4YdQ=;
-	h=Date:From:Cc:Subject:Message-ID:Content-Type:Content-Disposition:
-	 In-Reply-To:MIME-Version; b=TxmN+Tmp65VXmXahGsNgeuGQxrJuzaoP2V17OT/wuuMd1Qp8B8DAJsWwcUnLFFabN6Nh82f0tPlB4msiFxovY4S323XLkRc4hC7R94fqmzH8eIWUP2kzjcI0jNGzc/C6O8xrtuH1KZxrgLXlxnB4zJV0pUUHzS30EcuvGIOfMQQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=EKTr8CTM; arc=fail smtp.client-ip=52.101.65.30
+	s=arc-20240116; t=1744635176; c=relaxed/simple;
+	bh=1zIyYAVsDMzg9oMuQw6tFwTJTLWVBKD33AXLSHUImBU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=Ek5iQn8/lOFr/NVi74/5EQ2f9ehuNrYqnVYQ7z4Ycq8vyzaW1KDyY0C+2NfG2Kasp8Kq1oJk6nUsOEv0yqntMWFHPFcWJEWB9kVRi0AbsdGPMB0Q0o7VHY8AxaoWOk1O3pGdS6rkCnTfsQngiCMIvMGI1qpEKK+IOddEWJ0bmW8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=OzJoXIJX; arc=fail smtp.client-ip=52.101.67.37
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="EKTr8CTM"
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="OzJoXIJX"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=pJbDVax9M2xeyTRpx1wWIHtU17wkzV+6TNg5kbNcIa0scQCaJA2cnretogyt/rLiOA2BfleEA0mpWveYReozY0u5s7+LgAcG9elRqGxgvrbV8/ezhCjzNUycNv8YwlqiJeb3clJMgA1sKgeTAo7ynGfqyfa/E6IblRvNO0sa8jRotFzP+TUCP43myylLvyG+ArnfxfUka514V1xSH5QB9U9BZORVQKVr0uqkAas2lDdyA0ZAXZPJ2n0dpMewJdHj/ikVrC+pGLX8EgWSB9SBfDbdW2qixCgqOcUYwSuFkCZr9/BKHLrIUhLr2tX8fO7iqth2J511dIrugeuDViyMig==
+ b=xKGLeJ2ZUJugsSK+7IbU8NO4irvsZKQMmDOlmGKJBaCFhpR4k+rlHxXslwspxi9jbqilDyElwE0g0sE8851awr8LyGzznKJx5Iw/WjbptOE13NX1xyPwjdfpUlZfLQxmJpuUoQKEZk+mDQVkP7jhv7ACwYHxifLtZb6aAcu1CUp9MHpr20Sys4THLinNTxSJs204EOFVxe2Bzn+fIsksUA5UJGq5ixEZ3fmLaLUoDgMq8L6U56XRaWm3tkVjJzW5VucafI9ha50gzPsucDzxOF92zK23wvOHn1QUalJ7M0BZMc6RzMOMV0hw5i9/y0B29AbxKB67JQJ3Ym+s6nqRFg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mHL3ACAMjGdfjpMLN+ZHvnKPbf8y++fpU2kIyEuO1Qw=;
- b=IybI56bMT/Dk9P6cP6HW1mVFTGouJ3sn/97OGipa8EUfL8kkhqzYZvsi4Kjx9YXJO4tZAPIrSYmKcUu3iFjIvt9kaziMyqOn2a6c65yK36myzOlWRxMqU/Cbrx08RGC6svvRn21UzIJ260wkhr6vEMp7ZH1BTO+SVadZf1hQV6/ZmUtgcXUQzdtb8QeaB5uMT524phqSKlZHc2YYeWGNDmSMY0twMzQ5Z2jlCfRCto9PCZk5xgjWuQrhwbO9LZgAiB8fXak67VsBzlVzMehlVzcLE1OyBFypzMjVSZuoBvqr56j+oQoP7dgCUr8QWSb6c+gmZQO9P8uvCkAiLQeZKA==
+ bh=yuavfLqxYO5LcOrU4tQIen8hEJMS35/rJohzkF/NS4E=;
+ b=GRlw9QuZcrr2PdFa9u0zmwXJj3PEOHBrVq1qPDw8PMd4Ri4OFqoSdmWABtkvTBa9sJOMxQG+BMvx67ILK9uGTF3GQzeDwzZ+m3cBdFRNF8s2FvzYlK3PvJLcSjVqC/C/9iTFo5xg6GjKu4xAVVsAuz45c5R900BTcGvmL8dKU9pwU070hGdlHD00nSXXMxWUKg03O+m5E1DI8Y7C4VwlAD+vxVRXK9mprS6Ee93N4r9U0Rm3dSPy6/ZVtNPt/QsKpqXZtKSlX/m/PaKos9vx+RfpG9uZb4/OHdQUzLJLkKpgowGig1eOI8RE1dl+LSnZsH+bE9S46UQkpVP+k/OnwQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
  header.d=nxp.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mHL3ACAMjGdfjpMLN+ZHvnKPbf8y++fpU2kIyEuO1Qw=;
- b=EKTr8CTMgH6qTbl8Ruf6FjNwkdlAjaRz6E3SecnCRzsVrc/g/N/PYrbKN0SdmLMsDIpKEEX4DbgGoMnAmpt83TLA5Fs/RcRM2IVzwfJk20PAKi8jP7xpgRb7uSV47iK7EXqSjCPSEhRI7l7FBq8l0yX44XRk27PCtyN/hU4VdSja/Ptv6pvuFP0XN7cquGiwGf6XsAh2zEcja+7h9nWn0EQyZpaovnXGQFgYRY/sVWiZFRnu+2OJxA2MVHzJggjl/IHDTkFUacAGDk36L19kj+Ydjnmae6kFG6+WfGBDPwC4ucDSV1iS6GPUy/ERiUYvDAXUC8pvbfn00hPtlxafwQ==
+ bh=yuavfLqxYO5LcOrU4tQIen8hEJMS35/rJohzkF/NS4E=;
+ b=OzJoXIJXqepfkyWlvLbIJ/OBDtMz8QzKiSqeUtbcmJR6/DWGgmlQJc0mO9FWHHJl9zS7oHQEySLqRN9ULCin30wWUUovufqBqFzbH0WrUMwjoyzfOZfsTz/NQL2LG64hKYRMORlvThC6xysgrlSxuQRlu4O5R2mL7Pbme8ZCPo4YnmOtA6+2fWTk7xSdW0UGMx0ft0he6UgWJW5VLwpCV1En3naHeXOBvP1eRtg5odHvEzBlNxgkVAZXbGGqDgyD6SwLHpX/C1Sn+WT0jxJ6H2VvHqXDPUwJU/QbrZXv8NyUq0hPuESN2bVzGKSL8aA+zxDpIu1VD/LMcm1ooYNUwA==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nxp.com;
 Received: from AM8PR04MB7779.eurprd04.prod.outlook.com (2603:10a6:20b:24b::14)
- by AS8PR04MB8977.eurprd04.prod.outlook.com (2603:10a6:20b:42c::22) with
+ by AS8PR04MB8897.eurprd04.prod.outlook.com (2603:10a6:20b:42c::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.32; Mon, 14 Apr
- 2025 12:49:34 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.33; Mon, 14 Apr
+ 2025 12:52:51 +0000
 Received: from AM8PR04MB7779.eurprd04.prod.outlook.com
  ([fe80::7417:d17f:8d97:44d2]) by AM8PR04MB7779.eurprd04.prod.outlook.com
  ([fe80::7417:d17f:8d97:44d2%4]) with mapi id 15.20.8632.035; Mon, 14 Apr 2025
- 12:49:34 +0000
-Date: Mon, 14 Apr 2025 15:49:30 +0300
+ 12:52:51 +0000
+Date: Mon, 14 Apr 2025 15:52:48 +0300
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
+To: Jonas Gorski <jonas.gorski@gmail.com>
 Cc: Nikolay Aleksandrov <razor@blackwall.org>,
 	Ido Schimmel <idosch@nvidia.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Simon Horman <horms@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
-	Vladimir Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH RFC net 2/2] net: dsa: propagate brentry flag changes
-Message-ID: <20250414124930.j435ccohw3lna4ig@skbuf>
+Message-ID: <20250414125248.55kdsbjfllz4jjed@skbuf>
+References: <20250412122428.108029-3-jonas.gorski@gmail.com>
+ <20250412122428.108029-3-jonas.gorski@gmail.com>
+ <20250414124930.j435ccohw3lna4ig@skbuf>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250412122428.108029-3-jonas.gorski@gmail.com>
- <20250412122428.108029-3-jonas.gorski@gmail.com>
-X-ClientProxiedBy: PA7P264CA0216.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:102:374::15) To AM8PR04MB7779.eurprd04.prod.outlook.com
+In-Reply-To: <20250414124930.j435ccohw3lna4ig@skbuf>
+X-ClientProxiedBy: VI1P191CA0008.EURP191.PROD.OUTLOOK.COM
+ (2603:10a6:800:1ba::6) To AM8PR04MB7779.eurprd04.prod.outlook.com
  (2603:10a6:20b:24b::14)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -67,149 +70,153 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM8PR04MB7779:EE_|AS8PR04MB8977:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5e9a1f32-e26d-4777-863c-08dd7b52ce49
+X-MS-TrafficTypeDiagnostic: AM8PR04MB7779:EE_|AS8PR04MB8897:EE_
+X-MS-Office365-Filtering-Correlation-Id: f4577aad-8b64-4b64-d63e-08dd7b5343f7
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016;
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|1800799024|7416014|366016|7053199007;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?H1QI/BBzLRV8G2qXz7LZnA5ExFXliU/CJ+7iXvRjxkru8XUdnIYfvYFs3UD1?=
- =?us-ascii?Q?dtnB+18K/td6QuOC+8bgHePV6CY7fVRzRAppQsXYZ0cS1ZISkFpxQG1KE1Iv?=
- =?us-ascii?Q?IxaVbTPoFOVLqp0Vsoc7tdlhk3Gd+zvhe3zjiLFriJPzW7EzRL+YEiRZe1BX?=
- =?us-ascii?Q?ns9+eJ8oConFdgiH/Dlxx7aCXA1SUhmn1b4wmjuJBPHqUr1kkWDbTlqJFlde?=
- =?us-ascii?Q?aGld4uJQj6SHAYT+5GgrrpMcDo35ECdOm8Fdj7+uK7MNvSG9iUPrG3kwjqTC?=
- =?us-ascii?Q?UdtHcxvqLtXw5bdvj4GovVN6Nyrrm5jqVwpflrMEk7LoBLyTfvZvxyxIcmLS?=
- =?us-ascii?Q?kiTRWQMs2qTBVgU8CC9hi7Ji5EKKv2OZeLEq4ocKQerIItI2nrEOboi59AZu?=
- =?us-ascii?Q?tmBmqSoFLYxKQA+oFvE9ofin10mauzFLdm89Smkyh9x/huAZ+1lMnHPaDJvf?=
- =?us-ascii?Q?NXFgKBMpOws74UgOlaqwnmvraNF9AfmW2XCUzzmJXyP3Vgm872vhWpfZlmGk?=
- =?us-ascii?Q?bbsMJ5Oj1k3raeZ8fqEYGqpsxJJ/eo7E2YgiOX8KDfDF0ogUPKNhI0jwxOFt?=
- =?us-ascii?Q?YcA4xY4fFkmfbrACYJuUd4TN1DfECDeiANDABvKRbqqCPcYEL/7RkYK4MMJw?=
- =?us-ascii?Q?xOtjEyy+nVT1UBCWvcsl3zIo9HS9wJjXPAQ9yqNckw80fCXJBpJCpDwhviNr?=
- =?us-ascii?Q?B7L8ntnwBrZu+yS0wJBEQ8Haaa5wYy3oTCZqAcYe8UBxdcytqiOLUrLlYZXL?=
- =?us-ascii?Q?ylsPJmWeqzW+MS+tEO4WI608JOFm7U9FZSKAD69THDuZiUJ9Py6Zo9vLD1lA?=
- =?us-ascii?Q?tnIk19HWQ4cEJQOn2quFssNJlDy6aOcI89EIuz1CJolhvZfkyk623eqeG5zP?=
- =?us-ascii?Q?sGqSh99fYSMQ2filjsFKni8Y6P/HjVN+eIwzKvsffsSINXhHIqAo9wdyRNor?=
- =?us-ascii?Q?S3gMzu8pXQMQIpZc1d7c+J8tQo3o862Cxg0yJTQ7NOV31mOLwaOizH/h8zBR?=
- =?us-ascii?Q?h3EsvE8CNk0JoLNQkJpXllVp6WBDnPur8Y8BUYUwePjHGyq+53XIoyotwWsg?=
- =?us-ascii?Q?dS6N3Mu7hEGCyyO2PfYtCBE/aSqQjy/aXU03UFYo1RkVP8R6/OI9Z+gDi3B6?=
- =?us-ascii?Q?YiMinU3I/Jf9WR5fI4/3be9I50QSUuulS/DOKZ3TumjjtB282X35zQmyAAO4?=
- =?us-ascii?Q?5dZklRZYDUfGHduE7a5iicC0jNw3ikZp6NExR9zovg0U7erY9We/0ij1UIls?=
- =?us-ascii?Q?+tdRH+9Xm9iP1nlkA2OrrH/ppKf90lEsBT8RbikMgoRkTOntvStD7YMjMNOS?=
- =?us-ascii?Q?CQxoGfivUPV8JDg1wpcsBikJB+k7xU07eh3gT9KLlDtRO4Vjdibc0kNkTzfJ?=
- =?us-ascii?Q?fqE/uShiZBG1377+pQ0pUgW9aAmwvG5sRdERIi1k16/e7u7DDDAGpNMr3Lml?=
- =?us-ascii?Q?fgf3tvs7cHQ=3D?=
+	=?us-ascii?Q?kLTjISv/k+zVV0jGKMJYDwugtk0F3nXUAdnSRO1kfMUEYAH4iLWg/qCcSCgU?=
+ =?us-ascii?Q?wyn90CG2RXVSo8Ft9UbSLT8/rZzdfkQTrwjwvkIZC1ims1IqAbGqQ7MJJLHQ?=
+ =?us-ascii?Q?Ui6LJnBj6D2znle+iKtxwOfUfAHhkA6pa1ItQnhWxRNEKzgyB3qpvkanJF5Z?=
+ =?us-ascii?Q?APhQzdc1BUa5UNbw6a8+5Htg+STGFw1ofBimvG/o6R0BwIPsmMU0Ibz8Hafa?=
+ =?us-ascii?Q?CfWLfmn9Chgjdw2FJhAmv+UYxBQ7XU5GgOHdKg8SSHvmP5hm4120zSN+dTUx?=
+ =?us-ascii?Q?x885tphR/4GJ/PP7qzvmH+hB6cH7VieOAbvqXcmAf94gtnjcZRPVxIsFsD0k?=
+ =?us-ascii?Q?z5LspjHm+YsPRj12XZrrVQ4w0qFzgeFI8xc3TQXKaCTF8vM0hsc29J19TWT3?=
+ =?us-ascii?Q?vB8irKQ+9B96/o1MIPR9h3ChUmx4TVGl0Cc+DeU2MefSMdnM81rDLr5tt6RE?=
+ =?us-ascii?Q?nhUt/ZqsUk3L1d2j+L4f6vS+pwsUGJtqeL6pZINulc/CWdnRtE/pgV2/PEEe?=
+ =?us-ascii?Q?it3NRS8LlhHL7Iv7miQd2bFzHKQvyY8NdFq7Z+j+i22pOLm88zcGDg4XE+Fk?=
+ =?us-ascii?Q?reKPqD5v27Rn0q+NzNlkRPDjoWRMnEp3q/dkBNdlzVNW+5cj/Y+tRf0RyVHe?=
+ =?us-ascii?Q?KduMnomKtUorxOg+VCuis4aeD7K2niiBrIM5oKjof7t4qxk0rNLOVFiM5uYG?=
+ =?us-ascii?Q?g5HpYYSoung3tZWHWB+EG+H2PnFBjx8UAIU8Z8OvOHRUBGn2rI09Imo7zH8+?=
+ =?us-ascii?Q?PDneGemS+I2fTXPwQ8tgv8vNBXC0I8on/fxuR7QdWrUpAZ5zUxzKsQfwTY53?=
+ =?us-ascii?Q?kW0nfBJSwoBhWohYRCVOz+CyikU8mhy0skkuucYAIw0zJQy6pGPRGoGnFf3+?=
+ =?us-ascii?Q?OBKwLUwBlc7A/lHl2mYtpVqVjGBLk7q8T2v3ls05WUveVFoySHxgBE2sB2md?=
+ =?us-ascii?Q?QmYgC8OLc8efVhE0ogQ5opGR78L7IMfyitlafgT8GA/HLe7HcAc/gVA5vGYI?=
+ =?us-ascii?Q?l1K0QSOb/zOHHublsV/YegAPkgWZ5qLSNlwzfvHmhBxgzDvRMB0TlNEDTSxm?=
+ =?us-ascii?Q?4eHeLPXFYpDrmjdK1VBKIn9aiBbMZNe0/7u4BCxYSR2fveTZoTrPyRmWhPek?=
+ =?us-ascii?Q?phVQeFBG0RCVKHnYq5JZzhd9cYgw2CIOxzgmRWnqvXQ1/f9dNtpXZzMztLvq?=
+ =?us-ascii?Q?NFdGREnDbFGzGCsXzrRyS+zt68C1dJwbqoer7WY6t/uF2iypZ9xjejpGb21L?=
+ =?us-ascii?Q?0eIMLyezth35h4r4vKH+8HGFL8nKdOuUe5a2ymrvoAqlIeehi5QBoGm8LhGo?=
+ =?us-ascii?Q?8FGdAp85Vqo9KzgaXYn0160x50d8RAgaJ6t4i8Shct+5L+q31YZCnFyLf0w6?=
+ =?us-ascii?Q?z5KvMI7VrhwmnI/+dZMo2mY5+4vHTvZyudb32jOJ49Rvz3STyPPKafoeh1nr?=
+ =?us-ascii?Q?kyq6+AQDBb8=3D?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR04MB7779.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR04MB7779.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(7416014)(366016)(7053199007);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?SESL8W7TezzadUP2ajiXZYVICQ5FtGGz9t/3G7LQ3wIFB4g0WlAgBpB+JMGg?=
- =?us-ascii?Q?JZyQrDCGBGtAE0IWncCpkJtIwjb00S0OmF5TpjhOcKSiRWc2JiD0xHDALG9r?=
- =?us-ascii?Q?/oalQYrcDNANJDEEMTvq6t/NC1PAtX9SEIcmwzT7KNSlFtsDvTQM7pqwxaya?=
- =?us-ascii?Q?izBtz8ytCVq0NwhayrVMM1FGiG10wgqpkx7QkVam5d420yDLkV5jBdROtQJz?=
- =?us-ascii?Q?6drPgusCrf3V7tQtaR01wPejhohPHUFWyTTqwFUxlh4sX/f/MXvnTfg5uX+A?=
- =?us-ascii?Q?Sr/dhEIzQPUgNWuMluiiuU0NTJGjb5jjwIYzTBGE7wq7CiwPuuObXgYoJtEu?=
- =?us-ascii?Q?GKLKdsjNziWNYhPtmRA+leA9dE2gsKv4VXRqjbfTCmjfJOm0jnRF8O2MAcVe?=
- =?us-ascii?Q?sd+hwKFuAk9L48FVqVmMgkKiVea97wezi5ffO9UyVzDc+r+JnTnfFG3NnghM?=
- =?us-ascii?Q?seV/9KHcggGJmfsMcM2dg6Ns284PnsZ8rKLcKPFPuJw0b2qeHZFLIlbCNEt4?=
- =?us-ascii?Q?sKdBX2MG6o9fGTvlGa/dcWIVL3vOynB7R3lIgi2FU6QiFpNgUnCexfVtGdcH?=
- =?us-ascii?Q?qU93gmh+1nZ9y0WCyWby0w0BsPRuPTmgHzxRwJaiK3zCz7EjYmte3t0mQKyn?=
- =?us-ascii?Q?wGqmasiPDOzVk9VIOa2IC2p6OpLLFw/qjw63u4KnBPca2xmfw/z8hqzbcyH7?=
- =?us-ascii?Q?kaLBNNXknAGHq7/KdpT3OFb1TVCF1m/QsMwx4YBWfhSFboAECVbfJUWBtaeW?=
- =?us-ascii?Q?49Vh/qevkWphlQvnD8EwtsaUrKy4cdqUrZ5ln5S/Dqpn0axc7yQtqxBwTotM?=
- =?us-ascii?Q?z40zdS7TrPKfHA2Xx4osodUleXLTEzRnZlDbM87o+FGMy1gSLmEKMUun48IZ?=
- =?us-ascii?Q?WGplqaqrZpDO3FM6+ufS5HYGdwioDzzr6DcsJI/QrPhU8GuMDtHG5slYINGS?=
- =?us-ascii?Q?jooRUFjOShHdLV1G9LkzCalo7dflTVkuYnNB0e0BG+DZccsVm+Sp1vOvcXwV?=
- =?us-ascii?Q?6TtF8g/KAmrkRjte4sK2UeQQSZbncEbFT/iYX4k6Rx/ThyLCKkU7XMgvCwSc?=
- =?us-ascii?Q?h6n7UQqg+uLj9hdqBFEiW2ySV3X88wg6mHVBp/j/h2vOEJ6TVjuVZma4h3I0?=
- =?us-ascii?Q?RR1Og+6zOcas/StlF0OT7HC1RNBbZqSrPZcufevVxs5kzSO6u4cNb9hZ/DLW?=
- =?us-ascii?Q?w/7jIHtCABWi9w5XbllyKO/JN4G5ZgYwqal94cH3ojMTm64aU/55tjTNtjI2?=
- =?us-ascii?Q?ZqLijlzUuMdrb9lzmbBPQNE6ziyVKUfN+6171qC+FGEOoDtSsAmYWd3PI7S+?=
- =?us-ascii?Q?J30+eFY8qORiiek02ES8UB+KRfW7zOCI5TtuxajQyT1PJeAvQM7MDyfDbfzD?=
- =?us-ascii?Q?anUriZK5iuHjztonjUyf1kU7/UYuzJ9aJwwnZJ/xbVW5fHUzSTXMG35X6g29?=
- =?us-ascii?Q?cG0wX14Rv38cBrQE4WDs1cCJuc5HYbIS5s6b5KlsNFpDBnYbH0+kID2bYoxr?=
- =?us-ascii?Q?Oyo2zLl6FBEjOSlESEjt+4T2RY0oRGP7bSOv0/YqWBq2Muq6AnS/wQikvcNJ?=
- =?us-ascii?Q?8C5LZ3regBttCQOLA2F2K08qSple3OU6uNB5lQfFHtMAEREv8UoXsj3iynbi?=
- =?us-ascii?Q?ww=3D=3D?=
+	=?us-ascii?Q?91lEOfbP49fFBkJKQlKoV4ye/OCpcspdrDNew/hRcicuIM/uJyJjn3nYvBRl?=
+ =?us-ascii?Q?5tBGYn4NDEiHGtMAKwDPDHEV1H3LMjGZHzPkRpZa+j/SiFgQpTzlvHwybC+n?=
+ =?us-ascii?Q?9sIqrxY0I36Q3a+oMhnxJu76yH8xzBMPK0yhnTYL5BuY8Z+99Gms3t+Tzz0h?=
+ =?us-ascii?Q?es6zKscdczLyPo63V9a/MsAMLsWC1naeuInqyViy8D0mdVvs6vkbjKe5F005?=
+ =?us-ascii?Q?bg52ilLhDwsWsaEgHN0ipr8q4l3STv3YJGuunTDBS111eapkQd7/FfeXqkuI?=
+ =?us-ascii?Q?h+Y43MNv1CHrZhftmRU/USs1cjqBHH0AZtkwEYqJ6rIJW9Fy7WLKqYH3zk0i?=
+ =?us-ascii?Q?e+vkEhOdTNeCrJZ+G6vio8mz+/f44Tjr4kNDflwwRqvJH+inpexRKVcWNaRy?=
+ =?us-ascii?Q?OVGHdOzqkGdpkT8ndCkf3hxs2YOLWB1SaTbc0rw/it3Xg8ksxZa4QBErrHtp?=
+ =?us-ascii?Q?lmD0dVBA4w+rJjiT2A0QqRJc1pKLChzOLdno/Divj6NZ8r/CBc7v04M8OWwK?=
+ =?us-ascii?Q?l3EzrVBeDr0qMbKZefNJHY6HD9ODVvGJHWORbww9gG2nsaH2cGEvbAbWQEYg?=
+ =?us-ascii?Q?nnYfYbgIt1M9gOyXoDW8ez9wVq6aB4FRmde7m1N/wwZkpmKdfvyA7OYsQOfY?=
+ =?us-ascii?Q?QVhIcrx5bnp/N/7WQh+83Wx5DO6wRuSAKCrqYAUt+ML/5IH4+iuWsITZcbf5?=
+ =?us-ascii?Q?R7aMK4lj3HglJkSNn3n3fiCI6GlUd2avk/bq7htlou1ufGLYzexUl04dpcAv?=
+ =?us-ascii?Q?VHnlv00CLFBMnbibtWgsu1M2wFp4fesUfn0JJMlAbDLV8kMj32sMhCg8HekE?=
+ =?us-ascii?Q?ECdIOBDr/g5Zj/jIzNLeshqB3M8qEwK+7iv+WeTPway1c2N1g0aZELR5tr9M?=
+ =?us-ascii?Q?xvrXYTSGso++55UIH5wxPFYqxNIgoelyx0AAGiIy9mhLK3tgG+yVlyRJIVDm?=
+ =?us-ascii?Q?dGQF89ZgDqW0ULPh/EVgL3v0PurjNdhtvR61lnoMP7sGoVsfbW857FqvBxwN?=
+ =?us-ascii?Q?yrckGKQzdlagSBmSPZZHaUcj1Ccix99S6WlPV70AiHXRZqmyjxvpbKL2hjA9?=
+ =?us-ascii?Q?ak1TAj5fJvG/CXR1Kfp9mAPtHfBy132cUVR5RhPKczdl6gZolMg5uPFybc4q?=
+ =?us-ascii?Q?fiZPI+7Q7fMfcBjVhyf3xSIG3VlK8PV0yr4Rtjg/YNSRNuOEyKt5nz1mKBwc?=
+ =?us-ascii?Q?Nx6uJHso50ZphYync3rPEVHeD5R5z/6pFWpinqulr2qOYRKWW+f7VfJa5QVl?=
+ =?us-ascii?Q?jKdnSuqWLPA6bJk7aP/30ou2ACdUUredb8RpZvoM90Sai4NydqhxKjgYy3Of?=
+ =?us-ascii?Q?H6ZP2o6Au13geEebg7fR8h7uno4cgCmKKE5/uftJ7E1UuPF5AdQc3iwmkNO+?=
+ =?us-ascii?Q?H+fKSemsmSkL8SFxT/40edIy+BeLbrrW8hBHC62/fDseQ3dhKt9Ay2fFA1NL?=
+ =?us-ascii?Q?K2aL532a4KxCgcSvPJOA/R9lWQIoKimH3HTO4tx3ppVXjQkp2aqfiA7O2gsT?=
+ =?us-ascii?Q?rh2dAIWhN39EPQkrgenzfI/oUMG+2EMIoF3/6kzXd5eiecz+CQm6NzuQb1xm?=
+ =?us-ascii?Q?yQprz+IAdnkB3RXZ1LoBizSt8Lp5eoV0MgHAKnx4vbP/96SnIuReZov1KgZZ?=
+ =?us-ascii?Q?kA=3D=3D?=
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5e9a1f32-e26d-4777-863c-08dd7b52ce49
+X-MS-Exchange-CrossTenant-Network-Message-Id: f4577aad-8b64-4b64-d63e-08dd7b5343f7
 X-MS-Exchange-CrossTenant-AuthSource: AM8PR04MB7779.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2025 12:49:34.1237
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2025 12:52:51.0472
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gOHvcto8C4U0ZdJhahl4MurFBdyx61OSSsZyFKSEooB3FkU9VZkQ+kIWeysmvzxd8740GivyMa1LzWj2sq3vPw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB8977
+X-MS-Exchange-CrossTenant-UserPrincipalName: COuyRzvr6WW1Oq3p1KkU9XpAyCtl9ydj6z3EkISRK1dWEJw84ImKKIvTQgDX0J9N0VcDbupObteAzq0z6egF3w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB8897
 
-On Sat, Apr 12, 2025 at 02:24:28PM +0200, Jonas Gorski wrote:
-> Currently any flag changes for brentry vlans are ignored, so the
-> configured cpu port vlan will get stuck at whatever the original flags
-> were.
++Jonas, whom I've mistakenly removed from To: :-/
+
+On Mon, Apr 14, 2025 at 03:49:30PM +0300, Vladimir Oltean wrote:
+> On Sat, Apr 12, 2025 at 02:24:28PM +0200, Jonas Gorski wrote:
+> > Currently any flag changes for brentry vlans are ignored, so the
+> > configured cpu port vlan will get stuck at whatever the original flags
+> > were.
+> > 
+> > E.g.
+> > 
+> > $ bridge vlan add dev swbridge vid 10 self pvid untagged
+> > $ bridge vlan add dev swbridge vid 10 self
+> > 
+> > Would cause the vlan to get "stuck" at pvid untagged in the hardware,
+> > despite now being configured as tagged on the bridge.
+> > 
+> > Fix this by passing on changed vlans to drivers, but do not increase the
+> > refcount for updates.
+> > 
+> > Since we should never get an update for a non-existing VLAN, add a
+> > WARN_ON() in case it happens.
+> > 
+> > Fixes: 134ef2388e7f ("net: dsa: add explicit support for host bridge VLANs")
+> > Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
+> > ---
 > 
-> E.g.
+> I think it's important to realize that the meaning of the "flags" of
+> VLANs offloaded to the CPU port is not completely defined.
+> "egress-untagged" from the perspective of the hardware CPU port is the
+> opposite direction compared to "egress-untagged" from the perspective of
+> the bridge device (one is Linux RX, the other is Linux TX).
 > 
-> $ bridge vlan add dev swbridge vid 10 self pvid untagged
-> $ bridge vlan add dev swbridge vid 10 self
+> Additionally, we install in DSA as host VLANs also those bridge port VLANs
+> which were configured by the user on foreign interfaces. It's not exactly
+> clear how to reconcile the "flags" of a VLAN installed on the bridge
+> itself with the "flags" of a VLAN installed on a foreign bridge port.
 > 
-> Would cause the vlan to get "stuck" at pvid untagged in the hardware,
-> despite now being configured as tagged on the bridge.
+> Example:
+> ip link add br0 type bridge vlan_filtering 1 vlan_default_pvid 0
+> ip link set veth0 master br0 # foreign interface, unrelated to DSA
+> ip link set swp0 master br0 # DSA interface
+> bridge vlan add dev br0 vid 1 self pvid untagged # leads to an "dsa_vlan_add_hw: cpu port N vid 1 untagged" trace event
+> bridge vlan add dev veth0 vid 1 # still leads to an "dsa_vlan_add_bump: cpu port N vid 1 refcount 2" trace event after your change
 > 
-> Fix this by passing on changed vlans to drivers, but do not increase the
-> refcount for updates.
+> Depending on your expectations, you might think that host VID 1 would
+> also need to become egress-tagged in this case, although from the
+> bridge's perspective, it hasn't "changed", because it is a VLAN from a
+> different VLAN group (port veth0 vs bridge br0).
 > 
-> Since we should never get an update for a non-existing VLAN, add a
-> WARN_ON() in case it happens.
+> The reverse is true as well. Because the user can toggle the "pvid" flag
+> of the bridge VLAN, that will make the switchdev object be notified with
+> changed=true. But since DSA clears BRIDGE_VLAN_INFO_PVID, the host VLAN,
+> as programmed to hardware, would be identical, yet we reprogram it anyway.
 > 
-> Fixes: 134ef2388e7f ("net: dsa: add explicit support for host bridge VLANs")
-> Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
-> ---
-
-I think it's important to realize that the meaning of the "flags" of
-VLANs offloaded to the CPU port is not completely defined.
-"egress-untagged" from the perspective of the hardware CPU port is the
-opposite direction compared to "egress-untagged" from the perspective of
-the bridge device (one is Linux RX, the other is Linux TX).
-
-Additionally, we install in DSA as host VLANs also those bridge port VLANs
-which were configured by the user on foreign interfaces. It's not exactly
-clear how to reconcile the "flags" of a VLAN installed on the bridge
-itself with the "flags" of a VLAN installed on a foreign bridge port.
-
-Example:
-ip link add br0 type bridge vlan_filtering 1 vlan_default_pvid 0
-ip link set veth0 master br0 # foreign interface, unrelated to DSA
-ip link set swp0 master br0 # DSA interface
-bridge vlan add dev br0 vid 1 self pvid untagged # leads to an "dsa_vlan_add_hw: cpu port N vid 1 untagged" trace event
-bridge vlan add dev veth0 vid 1 # still leads to an "dsa_vlan_add_bump: cpu port N vid 1 refcount 2" trace event after your change
-
-Depending on your expectations, you might think that host VID 1 would
-also need to become egress-tagged in this case, although from the
-bridge's perspective, it hasn't "changed", because it is a VLAN from a
-different VLAN group (port veth0 vs bridge br0).
-
-The reverse is true as well. Because the user can toggle the "pvid" flag
-of the bridge VLAN, that will make the switchdev object be notified with
-changed=true. But since DSA clears BRIDGE_VLAN_INFO_PVID, the host VLAN,
-as programmed to hardware, would be identical, yet we reprogram it anyway.
-
-Both would seem to indicate that "changed" from the bridge perspective
-is not what matters for calling the driver, but a different "changed"
-flag, calculated by DSA from its own perspective.
-
-I was a bit reluctant to add such complexity in dsa_port_do_vlan_add(),
-considering that many drivers treat the VLANs on the CPU port as
-always-tagged towards software (not b53 though, except for
-b53_vlan_port_needs_forced_tagged() which is only for DSA_TAG_PROTO_NONE).
-In fact, what is not entirely clear to me is what happens if they _don't_
-treat the CPU port in a special way. Because software needs to know in
-which VLAN did the hardware begin to process a packet: if the software
-bridge needs to continue the processing of that packet, it needs to do
-so _in the same VLAN_. If the accelerator sends packets as VLAN-untagged
-to software, that information is lost and VLAN hopping might take place.
-So I was hoping that nobody would notice that the change of flags on
-host VLANs isn't propagated to drivers, because none of the flags should
-be of particular relevance in the first place.
-
-I would like to understand better, in terms of user-visible impact, what
-is the problem that you see?
+> Both would seem to indicate that "changed" from the bridge perspective
+> is not what matters for calling the driver, but a different "changed"
+> flag, calculated by DSA from its own perspective.
+> 
+> I was a bit reluctant to add such complexity in dsa_port_do_vlan_add(),
+> considering that many drivers treat the VLANs on the CPU port as
+> always-tagged towards software (not b53 though, except for
+> b53_vlan_port_needs_forced_tagged() which is only for DSA_TAG_PROTO_NONE).
+> In fact, what is not entirely clear to me is what happens if they _don't_
+> treat the CPU port in a special way. Because software needs to know in
+> which VLAN did the hardware begin to process a packet: if the software
+> bridge needs to continue the processing of that packet, it needs to do
+> so _in the same VLAN_. If the accelerator sends packets as VLAN-untagged
+> to software, that information is lost and VLAN hopping might take place.
+> So I was hoping that nobody would notice that the change of flags on
+> host VLANs isn't propagated to drivers, because none of the flags should
+> be of particular relevance in the first place.
+> 
+> I would like to understand better, in terms of user-visible impact, what
+> is the problem that you see?
