@@ -1,185 +1,224 @@
-Received: from EUR03-DBA-obe.outbound.protection.outlook.com (mail-dbaeur03on2067.outbound.protection.outlook.com [40.107.104.67])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D650425D1E0
-	for <bridge@lists.linux.dev>; Mon, 14 Apr 2025 12:58:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.104.67
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744635542; cv=fail; b=MRlhPSrg03wfOfL2bMEW3u9AE8xfb1t7cbGWF4VPvp6EYWdw/6qtVlocz0cBnT22CJeWAyEqSbMPjJ8gnewp6w7vPd+fksj83CgTxr/FDjv2Mk4xSQxE795QyV8unDCpGCkSy02SG5xE16UPyazsnAlzSLpOnuCvXzQrPJ9rlUE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744635542; c=relaxed/simple;
-	bh=4hEbZr24ojARwd0bYgK9niUrGA87V53H6aicF45kvSM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=IWeVrGPhE4DwGlUgjBhFCzatked2IUweHrSVwlv5fTmiQoWHW9J1TFyppIGdtRrbmzhxtwGW/Wuty2AwK6EyM1nVNTY0m987lkTnkrQ6bi/Khp7lIi85S9M04DMqeYXV12/E/+kX/O9YDFGIa5Ayvj0jq5slkDWtAIhC9G0ifzg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=iYWAT+Fg; arc=fail smtp.client-ip=40.107.104.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B436C28F524
+	for <bridge@lists.linux.dev>; Mon, 14 Apr 2025 13:49:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744638581; cv=none; b=m/keaS/QnXvxztbcH1Y4hOmIxUrH3dttW+1S8ZwqqMW2uCMkNo6jAoeJyFa4IQfnTWmr3SJcGjRTn/aGWxtUW7JUVoO2Gg0Ey1W6EzavvRMvy31ZwWgtr3OpLEPLIHFEtJyDsnRJ9rtIf7tXl8oFy+ePBxc1VyQaTpaafEftx8A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744638581; c=relaxed/simple;
+	bh=8+orToe/4RdZZxMkZi8d6qlyA9kIqNrN26wfR6EjFsM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NieVZOTx7M/+FlIFNH7DYFoK6J0UI+Rgrsdp5f6C9Oy9JLdIJDj5itu5OaKviIktBoiv+xEPjFfkfI1KfgG2VTuodiy4PIZ5SoQl9ivi48CCCKp3W4V49j3x7KLBc2+5kcu4CLM5MRB46oB034gJQFGiCy5F92Te1jh05w/EhSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FvIAmjE1; arc=none smtp.client-ip=209.85.219.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="iYWAT+Fg"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=rpYmmW5V7fv6zhIrU62ymRtDYRV5FuLv/AvYyA8xCYKAVxJnmGSW7urimN4jJQvXFckhallB2d7wcSNFyj6r5K8QlZu3qRd9BQzVod6P34KepzpEcArxWnu4SMgijq71JNP+N3OiOeetSL1GnD8fmsvE4GFo49WKmEmvUlMgtrYUIHVbjG9YcDPVzzYutYtnNXYMUw/kqTUYoobV7jHUquqRXy4+DQyUIRVlHUD8KHIFt5CR93XgvVLCrpwkoZz5i7KMFNtaqzdl6hlYBGvV3VtMc3A2E/zesrG6FwLrsQx+O/sjLnEoltQekILUtuY7SutSFmF4pBEc/6RNGYGVfA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FVSi/WSphvU4b4mh/9I/oGotT/Rkum9DWg0FAPE4mn8=;
- b=jnWMs4pbDnajdgsxLjyjQrmhCxywLy2eM3ynavk4qpG2ZZLmgwcw/GYZdT3He0jkhrV8oeUTvCMsRWCfPRdrMrNbpm3kVpkZIVuI2Vr2GHQ2kRdcbAbijIKowJ86ALxEMAOcIo1nn+/bxKvtt9geovLXqoo2sSg2jB7hR4ASz4Et7jIoCJZ3tVS6+dTCkTvP2QTUOU/sm92vWXNmkM5PAfkHAcDqptD5YqDdO2gfE17+bjKZQvhhk1HQIJ99UF2yn4XAVBqRKZ1FsGr/ZMQZpBuQCUrY6L28ph0mY81Sl+PZxHNiY8R01B0rYCEBC0crgI8si4yccwOLIgGIlKGbjA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FVSi/WSphvU4b4mh/9I/oGotT/Rkum9DWg0FAPE4mn8=;
- b=iYWAT+FgIOUBZU83VtgGybmPVGds/rEGKPu3cG2eOD+dJDsrON2SJq9H/HaWIszemQGY7gnfJazsVuwiQd/n42xWSEo3fVWJFW2+vZ5alaItJOjTIqXEMOOZJWEbVdanbkOSqhBijutNr3SKytB6P/7p017ZPlaNN9eaYm8jjZNzsL3Jb9H1K5Vu1b1e0OnfIazUOF9ITAWFTn8gjQ//RjAfcPUmsI2n+ZMHo9+9DN010+sud7afQoV6HpsDWml29QICAUD9ph71PiVp2W7FGxcK9Ir+lZ8K7FQouiXPZOvPnN3Na+a2lQoCGaNsLOqhL4tGV/58Vv6toprpC1fk1A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-Received: from AM8PR04MB7779.eurprd04.prod.outlook.com (2603:10a6:20b:24b::14)
- by DBAPR04MB7366.eurprd04.prod.outlook.com (2603:10a6:10:1a0::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.30; Mon, 14 Apr
- 2025 12:58:57 +0000
-Received: from AM8PR04MB7779.eurprd04.prod.outlook.com
- ([fe80::7417:d17f:8d97:44d2]) by AM8PR04MB7779.eurprd04.prod.outlook.com
- ([fe80::7417:d17f:8d97:44d2%4]) with mapi id 15.20.8632.035; Mon, 14 Apr 2025
- 12:58:57 +0000
-Date: Mon, 14 Apr 2025 15:58:54 +0300
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-To: Jonas Gorski <jonas.gorski@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC net 1/2] net: bridge: switchdev: do not notify new
- brentries as changed
-Message-ID: <20250414125854.gtong53wmctv5pda@skbuf>
-References: <20250412122428.108029-2-jonas.gorski@gmail.com>
- <20250414113926.vpy3gvck6etkscmu@skbuf>
- <CAOiHx=kRUE8_-4q6wOytrZObyyeSBMTHRMhaFGWDAJ-KBq5vFA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOiHx=kRUE8_-4q6wOytrZObyyeSBMTHRMhaFGWDAJ-KBq5vFA@mail.gmail.com>
-X-ClientProxiedBy: VI1PR06CA0192.eurprd06.prod.outlook.com
- (2603:10a6:803:c8::49) To AM8PR04MB7779.eurprd04.prod.outlook.com
- (2603:10a6:20b:24b::14)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FvIAmjE1"
+Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e6df4507690so3785363276.0
+        for <bridge@lists.linux.dev>; Mon, 14 Apr 2025 06:49:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1744638578; x=1745243378; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8+orToe/4RdZZxMkZi8d6qlyA9kIqNrN26wfR6EjFsM=;
+        b=FvIAmjE1WAXgLCPglXfuxTRq9fOsA5M5hVDz3elAHg66daLQ/fGFxC5TQ4JG2hyfPI
+         JSTEEnFdeo5czmXTj3FvMqIxYBdF40j7p1tQYcJ5jqDBRtiV/svCCPUNUqx6xbV0gIBi
+         F2zcUbQ2wjw0F4NzfEzBHQYKm0+J7LHhwecbw6Bky5tc/5yCXjYV1HN2vgt48Vzo1TOT
+         /vEorIocvLNIkSPvlv4IvvNYBM+0aTnr9GH8vOblkc8UItcsbxMhwKo6ruxi7BVF/wBL
+         s3ECP61SgmSiNsYS4Zenl/+C6DDdFQFec+HxkETMcJvd0C/MdiP6dQbnWBghcCz+umU2
+         0eKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744638578; x=1745243378;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8+orToe/4RdZZxMkZi8d6qlyA9kIqNrN26wfR6EjFsM=;
+        b=lp0Z6MnI3q1K3aeh50yF14NsvZiM05mkJmlHziyD5PxI8JKQMyfvNQzWWoO1KkhCjR
+         IRdonlU5UzXX7lKZr5qXn4ZO3Cnt84a7JDPKl7qrQtj7GmUXP2rwxSiklu0VIEumjzqE
+         IMUzhGsfVxrHZfSaCZeDQJ+Imii1KUeMP9LGZuWMP593dWY8RsKOEXBGW6DiKJsy9XpQ
+         mflX3DGUabDgz+G5HeM4lp2g7CXK91nGmLf4cZF3pyDok05GBBW956nvmenaetX3wl4S
+         EMeSGVFaiXGLgmwtT0ZK+ia54qg++UtOlPS+Y8e9DDN2o9LaHEh2FDyf+LMBvHkGlYzx
+         mlgw==
+X-Forwarded-Encrypted: i=1; AJvYcCXPVnGkJHHrTa4ovz6rrWArkjufRoNRzcY2C0Sc0YjQSJ2pebAoM1+brQXSvkz2r94J6V9YSIA=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxpfZyMFWMQN9jWsyjc6W9Vuc2DS6w3lL6vJPwYxqMXBPBG3dfU
+	cSuZMQhXZbSfBj4HO4XO/CrMrLsf5nIJcEfqt5754x5vXH6dHPsZFiuBs9Fk/CSYtvk7bwm89JS
+	jED0E0NBUTSMFmbQLlYDAh+8wcAE=
+X-Gm-Gg: ASbGncvSMug6Mwxa7UXirL8n0kjOgWJAD1gRqqCn3K+A+ySPCjX2+Ig+oBN0XM7c6S2
+	JK7pWldBxMLLVVqmku/ezowzUmQhPIxK8akEP9U9oxTuY+5Wqs8AUcprbDRjcLHx5hKFPEh4cUr
+	IlHzVb9i29xI3m6VYj4TOV
+X-Google-Smtp-Source: AGHT+IE7pz41ktet1N5msnDIGSIJ8EVDaFKfYflTEEXpfdGTOulYVfFTKrTv4d98YMMWSu5tauXipgFsb8VtweYkv9k=
+X-Received: by 2002:a05:6902:a07:b0:e60:b135:4c07 with SMTP id
+ 3f1490d57ef6-e704dfda84cmr18878812276.15.1744638578458; Mon, 14 Apr 2025
+ 06:49:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM8PR04MB7779:EE_|DBAPR04MB7366:EE_
-X-MS-Office365-Filtering-Correlation-Id: f0ea26ab-ad90-49c8-263a-08dd7b541e4c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|1800799024|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?NWcyd2RIR1hwVjFaUmNKOVFJOE1SSjlDbDZXN2NkU2dtS3I1U3MzMjhNVTBp?=
- =?utf-8?B?VnlibS85dlFENFB0MEt1NUM4Wnl4eWZBY0ZGL0xQWEdHNHBTZWxKNVB5RmFX?=
- =?utf-8?B?V0x2UmlRMkNBWWx5TEEyMUhNbUw2SFQ5TUVhMkRkUnc2REwwQVZhR0tSdHc3?=
- =?utf-8?B?Z0ZtbEtOYmJGWksvdFhPWUNqSEpYNzJ4ZDlVM3IxMnQrQlJDS0pkNThDQURG?=
- =?utf-8?B?T2lSTVFEMkR5M3I1Qm5rd20rN2hXZVFFaEVNcm5sMTNWVmsrWlNrMFM4TmNn?=
- =?utf-8?B?Q0NWOWMvZkljRTY4Y2k5QVE3aURiY1F4SEJFWCtjVDB4azhXckl5RVF6T0hw?=
- =?utf-8?B?NDFGMStNcVlyWDFNKytwdk9OSXZ5V1hJdTFCTVc1NDJwdVhXazR2dXFkV0k4?=
- =?utf-8?B?Y0Jja1NKNmhKa2crSW5yT2dTS0F2Q21BTGxuU2QxbGRoYU1UanBINE9rZ0pa?=
- =?utf-8?B?dGRja3N6QkNTM2dWbFJWdUdhOExTTnYvbW1wbWNESzRTUGJ1NU1pT1RRcllY?=
- =?utf-8?B?NEVBN2VzSGpiVDBhYlNLTHUxLy94MUtxTzJTdDh3bjBtUGp4cytoN0RaM2VV?=
- =?utf-8?B?NzhaR2hBWjFhNVdjbDNaamFqdXB2S2lBSEJHQitnM1FjWHh1V2NFcWt0MGRN?=
- =?utf-8?B?aFBBRlRRbjhXQjhFeG51SmQyaThvKzJEUG0ydEhBZnFmcy9Va01MUlVObi9p?=
- =?utf-8?B?bDFRYTZmWVdLd1pRZUs5RDdjbjBIVEdBa0p6R0FVeEdLRnJYamNrc2JER2Q1?=
- =?utf-8?B?bTFtaFBzTDNZTE9sTGdBYXR5ZitYcWtHUDlyNE15Mm4zQ2dBZUFTV2FYc08r?=
- =?utf-8?B?U3pnTGw5TmdRK3ZCRnhjUDhjYVdrbjZaRjhzcDZ6U05pdzh0cnB1QWpDSmpl?=
- =?utf-8?B?OWhwV1pTSmJ6UHFUQXpxVWwrYVh1SzNwaEtsM1oyZ0VvS1l1djg1ZDYyTE1m?=
- =?utf-8?B?TEg5MmQ4eGJ1N2lVS0l2MnBnZC9tRVN0cUJQa0xnYWh6K3JZK0RhdytWRlpr?=
- =?utf-8?B?KytjcVZmbnkycFNZYURWYTJZL05jNlhsTVQ3b1Bmbkkrb0FFMy9mc0pDZHpm?=
- =?utf-8?B?aVVkSTcrTUx5eWE3Q09SY2NsalRSTUd2WXoveFNyK3pCcjVvc2pKYUE5NUZL?=
- =?utf-8?B?L0ZHTnY2ZVdzRFZhTExIbGtLcnE2TDlaSGxtcVdWUFVDbU9OdnFIM2haSmNT?=
- =?utf-8?B?QnBCaUJHNjN0aXFlSXh1Y3M5alRFRXJTUHNDOWpSbHFFNnpyNkxEZFE3clJq?=
- =?utf-8?B?Mk5nbmdKenZycE1jRURUQW9tMnpMaUlqYXJjdFljSnRvQWE3cG1qd1hOWmVF?=
- =?utf-8?B?bTNJNTdkamt4aE5BZHZGd0U0RVd3VlZvaGN5L2x5U0s3NmQzbDRSS0NuVW1Y?=
- =?utf-8?B?bmk1bUc0WnlLKzNqWm0xNU9KRDZrZ0dKbXVkVHFEdytWYktSc2JPOElRY0h6?=
- =?utf-8?B?WjBHM2FrcC9zekJ6V01qNVlyTHFhMGV0bzFKeWhKS3RIcGlSanZHL05KTDZr?=
- =?utf-8?B?bjZoQjVMUUlVbnhZZUZ5NCtuWi9GWnpEZWlqR2N5UWorV0VoNkNpbVFYN3Zy?=
- =?utf-8?B?dVcwR3pnWmtkMFlFTEpuYWJVL0NCdnV0SUxwTG5SZ3IrQ0RxZ3VOQ0daUU9M?=
- =?utf-8?B?Y1ROSUJtQjFIWFdQTHp0UHYwa2NDYStuMTJ5dCtHSzNIUXd5Q1FrYkhQaXBS?=
- =?utf-8?B?WmVSRnpxeThrQ3JDaDZmdlpMalZnVWRrRFNCVkpxQ0J6YjRRUEx5UVJpMzUz?=
- =?utf-8?B?OUhMRHNDYXZzeFNSblVYNFo2MHcyaFJZVjJiZm5kbHVzTUU1cDlGZ3orcGE0?=
- =?utf-8?B?L0k2WkRjU0VKU2xFOWtLajA5Y2I0YmhwQ0JReUdxeDNScURaYVJzM0E1Mkx0?=
- =?utf-8?B?MnZoNFFZL09WMFVpWUVYcnprSEIzbzlaVHlTUDJNZ3JmRXgxOHNoMlZpUkxi?=
- =?utf-8?Q?gdzArzDT+E8=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR04MB7779.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dnlmeXBpWUVweUFKbGxCeGFXRVRJRGN4NlJjSC9xS01jaUo3dTE4NnNsbjFX?=
- =?utf-8?B?Z1Rkc2k1b2hXRDZSU2FKS1JEWmFGKzRIRStsZU01VmNTVTNtQ0hueXFpQ1dL?=
- =?utf-8?B?c3pXY0twbkdjSzdJNHJWK2VBR3BxanhkZGlkZCtnQ1VvRENNODJBUnQ3bFFQ?=
- =?utf-8?B?U2hMNEtja1F6dm5qWHQwRzJodmo2T1BJbkFzQVBkV0VwU1dhWGZCK2F1WVd6?=
- =?utf-8?B?VDhaUnJRK1FlWTh0YTNNNHF0dFFpaUV1dG9UYzd0bVk1WEs1YU00T0h5a3Fu?=
- =?utf-8?B?dDAzbVhOZi9ScHE4M2VObVQvVXdLU1dtc3g1Zno4OW9ST0t6NG1pU25zS0RO?=
- =?utf-8?B?TzFmdHhCNytKK2t5U0s2L3pPekJmQWdUcWQzNEVaa2RLUmRaWjdnNWNqQmln?=
- =?utf-8?B?b2tPSFVTbEhIWWh3ZEd0bEJ5OG9SdlJCSmlvd2pLbnVDYXRlLzNWK245STFE?=
- =?utf-8?B?Ukd1SEtsOUY3T0wxQ1N4SDJuazRnZ0pZYzc4SVpsV211OElDeDhEbm9NdVA0?=
- =?utf-8?B?TG13L0FnU1VvMjdpZTliemNvVStwYzZURUZmM3JsMkpYS2xhN2NibTRwZ2Vv?=
- =?utf-8?B?MXpHYVNHQjM4N3J0N0lSZ3c4SCtiTEVTdW84K3h5VmpkNUVLbFdPOFFvbmxS?=
- =?utf-8?B?TC9lTXlFYlA4eHVHS3FIUml4dklTaVAreHg5OFhjU1N1T1NlNTBUaGlybG8x?=
- =?utf-8?B?ditKK1NGUUd4TnUwYkhFWVczUm4rMHpnR0dHeU1SaXVtU09TU3RHa1ZGYk9i?=
- =?utf-8?B?MG9haCtPQytSOFBGcVlHbDJ2WnRGeHZTekpuQ1pHMlRuQ2EyaDIyMzhFZHpH?=
- =?utf-8?B?VFhRdGgycjBIZnRhcm13VzlGTWxBWEpIYTV3SHlUVHpodkxRNkhqSWFXOUUx?=
- =?utf-8?B?cG8xbHRjamNuOUpWanF0d1UxMzY2Zk5lUlhBeGhpd0RFZ2pRQ010VzM4ZXVo?=
- =?utf-8?B?SUFmVEZkc1dzNCtQUHcrTytEM2JCdFRaWlRUcjhGQkYxSysxYWdBOVFvUHQy?=
- =?utf-8?B?bDRxLzFZNEFrNWdwdVRaOGxoK0pSNXE1cFpVQ1ZKRHFmVkR3SDB1c0VOalBn?=
- =?utf-8?B?U3ZkbkFzYzNFbVJSRmtTZUd6K0ZsbXNSUmZ6d3BjZU9wUFdPRWtNbE5GMEtk?=
- =?utf-8?B?QUlFZzlSSE1nSkxWdjFiT0FsL2p0TU5OZlp3ZHpGK21KMGtqVzBHWS9Zakky?=
- =?utf-8?B?RkkwTWp1RHZwN2xZSGpzSXo5WEV6SU1LVEJzTEdEeE1yY0QvaEsxeDB3dVRs?=
- =?utf-8?B?Um0wMWYreXRIWEdESUlHckVGR3F6TUkzUThoQVM1VHA4dDU4Mm1zM0lBSDlW?=
- =?utf-8?B?SDV6aE40UEd4NWtob1R3anNWUVF0T2hzNkRNRWpYU3ppU1BUTUE2dGFlZHcv?=
- =?utf-8?B?RlErNlNGaGM1V05SWXAvcnBTeVZWNG1rakZaMlp0NEFOSkdUd1dNQS9tSmNM?=
- =?utf-8?B?NnlDa2c0OFYrck5PUUlKWTlaWmgxZTlRVXJuQlJlUDZINXkxS04rQUtyaHZG?=
- =?utf-8?B?bk1XMkI2T1lqNXJoa01LcVR5MmM0d0dDUkNiMzZTc3pPNitGQkdsWUNnTmR0?=
- =?utf-8?B?RDJETzBTUVlGaHlGTlRzQWd0d2VablRuTU9GelVHQXhhdlRleHB2SDRuTStN?=
- =?utf-8?B?WnNTVWkvQnE0Nm9qVGgzK3NFL0Z0VitPUXdlU010UWFKRkRiN1lzZ1N6Tmhy?=
- =?utf-8?B?NFZDZGV3SFlWSXVhQlVPTnVHdE5zckNHYnZkTE8xajNpcGV2SGxpYkhlcTZ4?=
- =?utf-8?B?ak52U3Q3OHhNeFM0bG41UVg2TGM2NHhIV1pFT01HV0NFMUZVcUVKVVJBV1hP?=
- =?utf-8?B?R0YxY1B0U1d5eXRGK2F6cTExSGM5YnFsemp6ZjFPaFI0TzlUU1I0c2ppazFl?=
- =?utf-8?B?RUFGUWVjYk9IZUpnOVBvN1JlamFCOWJsVlRVQ3VXZUhEbncrbjloelFsQVBM?=
- =?utf-8?B?UE0rQndDNU5zbk95WU4yeEYzbWgrU1Y4ck1pdGJtN3RNNGtJaVpEOG5QWDZR?=
- =?utf-8?B?QkVqcFNMSlFOcUNXR0MwbTRRSE5pT1g2NytRbU1sUGhOQUFuTGtjczdmN211?=
- =?utf-8?B?L1U0V0FQYlk0TlRpMlNGRFZVVTYxSW1JU3orMDRQdTcxalpFRzdGQ1cvcElF?=
- =?utf-8?B?U3BtRHRLSHN3U1d0UllmdC9oRk5HYXYzV2FPajFmYm15ZHVFRHhiVVdRYytx?=
- =?utf-8?B?T0E9PQ==?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f0ea26ab-ad90-49c8-263a-08dd7b541e4c
-X-MS-Exchange-CrossTenant-AuthSource: AM8PR04MB7779.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2025 12:58:57.3513
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: D6hN9StE77zrYbq4i6+5YnQBlhCCwHl//l3yB5BUt7WJYzU0b7OMj8TDXi4knHhJT5G/krx1nE+29fnq5TYJYw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBAPR04MB7366
+References: <20250412122428.108029-3-jonas.gorski@gmail.com>
+ <20250414124930.j435ccohw3lna4ig@skbuf> <20250414125248.55kdsbjfllz4jjed@skbuf>
+In-Reply-To: <20250414125248.55kdsbjfllz4jjed@skbuf>
+From: Jonas Gorski <jonas.gorski@gmail.com>
+Date: Mon, 14 Apr 2025 15:49:27 +0200
+X-Gm-Features: ATxdqUFhDGYeuHnd2o7xa-r3cQYxibJ0ZKR7cyDNcq-eDDRt7bhB2BFaj0CHTI4
+Message-ID: <CAOiHx==VEbdn3ULHXf5FEBaNAxzyoHTqJEMYYtcQzjkj__RoLg@mail.gmail.com>
+Subject: Re: [PATCH RFC net 2/2] net: dsa: propagate brentry flag changes
+To: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Andrew Lunn <andrew@lunn.ch>, bridge@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 14, 2025 at 02:11:18PM +0200, Jonas Gorski wrote:
-> On Mon, Apr 14, 2025 at 1:39â€¯PM Vladimir Oltean <vladimir.oltean@nxp.com> wrote:
-> > > $ ip link add swbridge type bridge vlan_filtering 1 vlan_default_pvid 1
-> 
-> as mentioned for the cover letter, I will fix the example to use
-> default_pvid 0 to have a "working" example.
+On Mon, Apr 14, 2025 at 2:52=E2=80=AFPM Vladimir Oltean <vladimir.oltean@nx=
+p.com> wrote:
+>
+> +Jonas, whom I've mistakenly removed from To: :-/
+>
+> On Mon, Apr 14, 2025 at 03:49:30PM +0300, Vladimir Oltean wrote:
+> > On Sat, Apr 12, 2025 at 02:24:28PM +0200, Jonas Gorski wrote:
+> > > Currently any flag changes for brentry vlans are ignored, so the
+> > > configured cpu port vlan will get stuck at whatever the original flag=
+s
+> > > were.
+> > >
+> > > E.g.
+> > >
+> > > $ bridge vlan add dev swbridge vid 10 self pvid untagged
+> > > $ bridge vlan add dev swbridge vid 10 self
+> > >
+> > > Would cause the vlan to get "stuck" at pvid untagged in the hardware,
+> > > despite now being configured as tagged on the bridge.
+> > >
+> > > Fix this by passing on changed vlans to drivers, but do not increase =
+the
+> > > refcount for updates.
+> > >
+> > > Since we should never get an update for a non-existing VLAN, add a
+> > > WARN_ON() in case it happens.
+> > >
+> > > Fixes: 134ef2388e7f ("net: dsa: add explicit support for host bridge =
+VLANs")
+> > > Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
+> > > ---
+> >
+> > I think it's important to realize that the meaning of the "flags" of
+> > VLANs offloaded to the CPU port is not completely defined.
+> > "egress-untagged" from the perspective of the hardware CPU port is the
+> > opposite direction compared to "egress-untagged" from the perspective o=
+f
+> > the bridge device (one is Linux RX, the other is Linux TX).
+> >
+> > Additionally, we install in DSA as host VLANs also those bridge port VL=
+ANs
+> > which were configured by the user on foreign interfaces. It's not exact=
+ly
+> > clear how to reconcile the "flags" of a VLAN installed on the bridge
+> > itself with the "flags" of a VLAN installed on a foreign bridge port.
+> >
+> > Example:
+> > ip link add br0 type bridge vlan_filtering 1 vlan_default_pvid 0
+> > ip link set veth0 master br0 # foreign interface, unrelated to DSA
+> > ip link set swp0 master br0 # DSA interface
+> > bridge vlan add dev br0 vid 1 self pvid untagged # leads to an "dsa_vla=
+n_add_hw: cpu port N vid 1 untagged" trace event
+> > bridge vlan add dev veth0 vid 1 # still leads to an "dsa_vlan_add_bump:=
+ cpu port N vid 1 refcount 2" trace event after your change
+> >
+> > Depending on your expectations, you might think that host VID 1 would
+> > also need to become egress-tagged in this case, although from the
+> > bridge's perspective, it hasn't "changed", because it is a VLAN from a
+> > different VLAN group (port veth0 vs bridge br0).
+> >
+> > The reverse is true as well. Because the user can toggle the "pvid" fla=
+g
+> > of the bridge VLAN, that will make the switchdev object be notified wit=
+h
+> > changed=3Dtrue. But since DSA clears BRIDGE_VLAN_INFO_PVID, the host VL=
+AN,
+> > as programmed to hardware, would be identical, yet we reprogram it anyw=
+ay.
+> >
+> > Both would seem to indicate that "changed" from the bridge perspective
+> > is not what matters for calling the driver, but a different "changed"
+> > flag, calculated by DSA from its own perspective.
+> >
+> > I was a bit reluctant to add such complexity in dsa_port_do_vlan_add(),
+> > considering that many drivers treat the VLANs on the CPU port as
+> > always-tagged towards software (not b53 though, except for
+> > b53_vlan_port_needs_forced_tagged() which is only for DSA_TAG_PROTO_NON=
+E).
+> > In fact, what is not entirely clear to me is what happens if they _don'=
+t_
+> > treat the CPU port in a special way. Because software needs to know in
+> > which VLAN did the hardware begin to process a packet: if the software
+> > bridge needs to continue the processing of that packet, it needs to do
+> > so _in the same VLAN_. If the accelerator sends packets as VLAN-untagge=
+d
+> > to software, that information is lost and VLAN hopping might take place=
+.
+> > So I was hoping that nobody would notice that the change of flags on
+> > host VLANs isn't propagated to drivers, because none of the flags shoul=
+d
+> > be of particular relevance in the first place.
+> >
+> > I would like to understand better, in terms of user-visible impact, wha=
+t
+> > is the problem that you see?
 
-Please do so. You have consistently given examples with vlan_default_pvid 1
-throughout the patch set.
+I was just in the progress of writing down some thoughts myself I had
+while thinking about this.
 
-> Will add it. And I did check that, even considered shortly to merge this to
-> 
->         if (becomes_brentry || would_change)
->                 *changed = true;
-> 
-> but then considered that a refactoring too much.
+So to me passing on the original flags but then no updates of these
+flags feels wrong. I would expect them to be either never passed on,
+or always sync it (and let the driver choose to handle or ignore
+them).
 
-I agree that it would be an unnecessary change for 'net'. You can send a
-refactoring patch for net-next after Thursday, though.
+Having the cpu port as egress untagged I can easily find one case
+where this breaks stuff (at least with b53):
+
+With lan1, lan2 being dsa ports of the same switch:
+
+# bridge with lan1
+$ ip link add swbridge type bridge vlan_filtering 1
+$ ip link set lan1 master swbridge
+$ bridge vlan add dev swbridge vid 10 self pvid untagged
+
+# lan2 stand alone
+$ ip link add lan2.10 link lan2 type vlan id 10
+
+as then lan2.10 would never receive any packets, as the VLAN 10
+packets received by the CPU ports never carry any vlan tags.
+
+The core issue here is that b53 switches do not provide any way of
+knowing the original tagged state of received packets, as the dsa
+header has no field for that (bcm56* switches do, but these are a
+different beast).
+
+I guess the proper fix for b53 is probably to always have a vlan tag
+on the cpu port (except for the special vlan 0 for untagged traffic on
+ports with no PVID), and enable untag_vlan_aware_bridge_pvid.
+
+To continue the stream of consciousness, it probably does not make
+sense to pass on the untagged flag for the bridge/cpu port, because it
+will affect all ports of the switch, regardless of them being member
+of the bridge. Looking through drivers in net/drivers/dsa, I don't see
+anyone checking if egress untag is applied to the cpu port, so I
+wonder if not most, maybe even all (dsa) switch drivers have the same
+issue and would actually need to keep the cpu port always tagged. And
+looking through the tag_* handlers, only ocelot looks like it may have
+the information available whether a packet was originally tagged or
+not, so would also need to have untag_vlan_aware_bridge_pvid enabled.
+
+Makes the think the cpu port always tagged should be the default
+behavior. It's easy to strip a vlan tag that shouldn't be there, but
+hard to add one that's missing, especially since in contrast to PVID
+you can have more than one vlan as egress untagged.
+
+Jonas
