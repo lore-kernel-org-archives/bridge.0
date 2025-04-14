@@ -1,177 +1,192 @@
-Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2055.outbound.protection.outlook.com [40.107.92.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A2EF14F9F9
-	for <bridge@lists.linux.dev>; Sun, 13 Apr 2025 09:25:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744536326; cv=none; b=Qv4ErWvFB/yKSdkWq42tHhWl1b57VJp7JwqL96thzPeGlitX3OpfJ58jm5RLEq0xtTCx0ly6onsGZehOHiTAdspXqRDNZDRQnDu/1VycMIU8REAkErLq9MdsvGw1VlD9gasv3Bwc32B4dZ0aKIgT8G8v55z6+5MvQduS+pXpSak=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744536326; c=relaxed/simple;
-	bh=XW0UTv9CvXun7cSv8wxoN8fYT/wluyfThYmnYWG9Fzw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=If0VAW7lyx/O/uW+IValKswzsKeIlnY1Gow0JfeDoI4+nW4zJcZoX47L5mKEXRUcpU2ULL05S51kDuyXtRRD/LpR5EgWYJiMy6i/XBSIPzyhN3Hb2WFTdWfqFuiIzX7VS5PN4+idk2IjGEJrVV4fQktGO5AVcZtX8KRJS5PhAew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RmRhX+Pn; arc=none smtp.client-ip=209.85.219.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49A6F259C9D
+	for <bridge@lists.linux.dev>; Mon, 14 Apr 2025 08:42:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.55
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744620172; cv=fail; b=R7YjvIzK6Af2UgCHCrjT3moLrZYcEnweLEfpceON6c2FIaIakXnhI01RNSmdrlehTY00xcPpeRN8aEuHYyT88fl+wdYJO1NYFv21T5U86q7Ray9UQ1c+WuJJvVA3HMHO/ejSsnhdpZ2o1mQLs84aZd20cszx+5O2hwkWNpiOfAk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744620172; c=relaxed/simple;
+	bh=dRLoek6jdUSbB5K4R2SfBYiK6WvtucZXpokVua81k0E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=Jlqh7qGCyTillDvOtOuLu4z1mZRvLNlaUVJcnouJOW6okVde4KYB88dpn8vY+YqMHpZpWxiUCIPt+lU++OLstTYDGfPZ5hSXGTpnV8s+5hbY59/fsyv5V7gXorohyDvR/Bf/zsF6eI2/Z1wCUUuxXtlkbycje+2XTe1IAKh+eME=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=fk4du96b; arc=fail smtp.client-ip=40.107.92.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RmRhX+Pn"
-Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e589c258663so3054158276.1
-        for <bridge@lists.linux.dev>; Sun, 13 Apr 2025 02:25:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744536324; x=1745141124; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XW0UTv9CvXun7cSv8wxoN8fYT/wluyfThYmnYWG9Fzw=;
-        b=RmRhX+Pn+hx1jnQtoMCQ5m+c1UMYYG7adqinOiZNypfG5LEu5Ebn5qebCBZ9LOWGFD
-         H8DZINyd7tqY/fpXzqnVPPAjXl5o5d5fpwd1Wm//ZSZN4tLJPAaL3mT93V8M4SwkcqOG
-         J2soQcohc+nipQCTGk0lX1Tj3t2aDftd8jFRq33tnvgXbL39X5sbgg4sk3SRvgQ1SljR
-         5+TkGIdR4KxLSZtJ0AaytlPkvDq39A1Nf+qGW5e++XxJeRlItZga3cUUjYs6NrnOn/UU
-         nUlZECq5hgG4molwzvZePT/Zc9SE4hIXqJ5IDwXQNj/gBUR9OBHkwl3/xzhgdgFGA2N9
-         1Tyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744536324; x=1745141124;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XW0UTv9CvXun7cSv8wxoN8fYT/wluyfThYmnYWG9Fzw=;
-        b=RBUT23fH37j8hg/9iVS1B4n0PG9jUCsbqyThWl0zTtYuRSte4F7y6wKBvJzol//qBV
-         oLYxByEvad/Nb7Ky5EHu/1QdkR+gRj/lLtrjfJQRE68srEf2qDw6fBBtYhpiPs2cbW3G
-         LhqjPgG6oEoM2pu/rpJpqMmL2JDGLoU/UGpYwwPpa3vrBVSxVas4V2XkMaLrZpsLsp0B
-         ycTrnwiKju7LBOGtD1WWbIiQe+ZLRpu8OeWjlUix5icdL/z/QORnxMpbU+EQP/L6j0eL
-         6eKu17kX1xWqcnobtTDhBaGieGEukxvynRezzQNR6wVtNq+PApn+NEiJY6g+aq+pjNQ0
-         yekQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVBrsDNdkNED8/26gzv+Gs+d0ss0YzvaET3xM9jGh6dhHcAKU/2kVw0k5PrUxR1FLoMQN8iBtg=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyeJN78ks3m0BcQ93hb3VOa/UaJrL64+xi67/9SOCz7Xex0StWn
-	/gP0a+fHq6SjuqWvinj7erDtFYsd018MuYmHHLU7uofkjMKyxozey6FV21Smka0x3UznCQd65h8
-	O1uM+In1nSBKP4y8axjzkeKQRWmo=
-X-Gm-Gg: ASbGnctWVWXnofPpQl4ixvQsDrkjADvFxWuDX7KJOf0KwgCTPFeT8OB4TYI2RRMKPh2
-	oHjjtz3TbvLZHdq1x9nqcYNy9ieyV6oA1jBRMaZ3Q4jqbs3A2lW6x8ePAz/vKX9DckWV3Qm/352
-	HHFo5msmEzRZ6sJnpFrN5y
-X-Google-Smtp-Source: AGHT+IEUPr9fpjvjQQp/TLLIU5fDq/TyhcM1PNpw1aLvcN/dix4gtOImMC2y/7/MMDqAAoqeFqHr4d14FnKJbb84sRw=
-X-Received: by 2002:a05:6902:218b:b0:e6d:f8d3:5ee6 with SMTP id
- 3f1490d57ef6-e704dfad75bmr13813435276.41.1744536323820; Sun, 13 Apr 2025
- 02:25:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="fk4du96b"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=fLYtkjAmmfq399DKtgorihQ4/+otNXpkAjHK766WnTEluh/im+3vK+psODisAPqn4mwyspklXMiX7dwLQH5n2KIvt+SjEOGnUpQHDp+sDsZcMf/GK47Ffphqysf39EmZ14S2lAbMmasI+p57ZnLVTwqhqdzBExM+AQAZggavarNQPUvPgIz20xsBdRIXJWw2QQ2ehXMVzn8YtSqrr2GdJRZyqenN0ZBpBmM2/iJxOftaiUpInL5KSk+wetbm163A2z2BQS1UD5E1EYTA+Ix3tlPNu+kX5HtBemXcROlGMmhxE+/Z9f5wMwdUGyTYYXdWQbFFFdms5lByOSTevlQYig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZxfduRFEtvt65IfFcyZO5TcjMkHebX5LBbsq0fIrIUw=;
+ b=TkLeztgGjNzH8uBNkyd/oAa/TsWusQRmv1j2NOKmbnDcrKT0yxlwIgRqPoNTXe/LDHzueOs6DHczJnckmvS2l1YgjeKlsGdigyYtXtPILi6Mi5sbzFiZpX15vsrWT7dfXGVXnTvrIMrAvPGJcHTOiEM3KOxxoR2ry3Vnu/BdfbeTat59+b4ux/K9S9L/9o6ZjAItx68WkDkW8iyzAjvVqXXS2MhcOTQ1k3Gp0nHcrmczw5xnr9VHbOiGatFJFOARWCKaVQswmyG450a4PWs5bv7WlvCUIN0wg58qh6cBSStBuQ91ZJuAgnm/Dn9B3rmeMBgm35ugBaLW+CTiNsB/wQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZxfduRFEtvt65IfFcyZO5TcjMkHebX5LBbsq0fIrIUw=;
+ b=fk4du96bbFjTxqOYYaDA5dM8kyuvm5zIBQdLO30+X5ZAxzZ+bHKcIF8sVKLqTN7KOANDJmz3UcpuHHscu3IoCgEBxcbdOATq2hbBg51kzu+5Dl5NGonb141gTH8aFWiaKNy1l71/KIn0JUiHTblWbRjd3IbbpxSurDEf2hR9wQrijYMtvkFSNrs2ZuPbp6P05DagScZ+uYacyJjz/d17/oEnge5mILi/NJQInullaarOESU7lua7zBZT6P9/XW1Jk8TkTqi8A3ttLewfb99gnkcxGI+Ihx2FYhycvTu0EuL8n2U3T3JFPHFS1aqnAgvM40+pMfNMLgc+D9Ok0OTJAw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by IA1PR12MB6089.namprd12.prod.outlook.com (2603:10b6:208:3ef::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.35; Mon, 14 Apr
+ 2025 08:42:46 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::66fc:f8a2:1bfb:6de8%4]) with mapi id 15.20.8632.030; Mon, 14 Apr 2025
+ 08:42:46 +0000
+Date: Mon, 14 Apr 2025 11:42:36 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Shengyu Qu <wiagn233@outlook.com>
+Cc: razor@blackwall.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Felix Fietkau <nbd@nbd.name>
+Subject: Re: [PATCH net-next v2] net: bridge: locally receive all multicast
+ packets if IFF_ALLMULTI is set
+Message-ID: <Z_zKfOHxHRr0EC5Q@shredder>
+References: <TYCPR01MB84378490F19C7BE975037B1698B12@TYCPR01MB8437.jpnprd01.prod.outlook.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <TYCPR01MB84378490F19C7BE975037B1698B12@TYCPR01MB8437.jpnprd01.prod.outlook.com>
+X-ClientProxiedBy: FR2P281CA0129.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:9e::16) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20250412122428.108029-1-jonas.gorski@gmail.com>
- <20250412133422.xtkd3pxoc7nwprrb@skbuf> <CAOiHx=mYJm_mrwrDCuQ4ZEviPKLgWDqNcaSXPzaXHeGYWBJCaA@mail.gmail.com>
-In-Reply-To: <CAOiHx=mYJm_mrwrDCuQ4ZEviPKLgWDqNcaSXPzaXHeGYWBJCaA@mail.gmail.com>
-From: Jonas Gorski <jonas.gorski@gmail.com>
-Date: Sun, 13 Apr 2025 11:25:12 +0200
-X-Gm-Features: ATxdqUGr1sHPIJAJqS4j0fS7KvaiCs3iVse3NbRGaHjOGUrakBsCO4TJU4Jf4Wc
-Message-ID: <CAOiHx=mchprjNi8qQKsYzf18rE0NZxt-SjBRs9xnJEppcXUe7Q@mail.gmail.com>
-Subject: Re: [PATCH RFC net 0/2] net: dsa: fix handling brentry vlans with flags
-To: Vladimir Oltean <olteanv@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Andrew Lunn <andrew@lunn.ch>, Vladimir Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|IA1PR12MB6089:EE_
+X-MS-Office365-Filtering-Correlation-Id: 06a16bcc-7ed6-4b15-e042-08dd7b30543e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|7416014|366016|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?STACYPLCZkzeeRQARQUftenFngoSHoNl4VW+IOS9uXcTXghSx7J0doQJ7vNW?=
+ =?us-ascii?Q?QbNhcxnlVPPrjKTzYa3K2vLpSiPgiTJG0nbB98QqtsrzAlomq1kIl1OcML2r?=
+ =?us-ascii?Q?KKci70k80AdlykjKHdmStaXSbn3+PrTY6iZ69++HK99T2V8bQYEun/prKo0u?=
+ =?us-ascii?Q?1VB2e2YExnhcXHVmhbuhxu7Qp+GMM3m32G4MW0C/kjtT+vL20D5XfwxaWebU?=
+ =?us-ascii?Q?oPWGgqHDiBCHcRVRmZS5QjAz4dUFo9sbDBp1TsrwDsm5+t2oX4Hai6leBse3?=
+ =?us-ascii?Q?HIye9kTpJs4ldV9Q8v9x3XPyoAIFZWUuR1xzh/S980FzqNao4m26SZl9XvJw?=
+ =?us-ascii?Q?7ZjDHoxwnlOhm7nCJzAH/2Rndz/r10Xw+9WLWelQlV135z26S+iHpYUq5Hkn?=
+ =?us-ascii?Q?0swNzywRpmRR1Axuj901le5oLXh3Z69p35MWArdCM0fqHjLkxiE6c0AK1mQX?=
+ =?us-ascii?Q?2NlKBuMECE527GG1Rnh9MVOV5In4xv6WBI6hsL7cTCM2fAJ5znCTUCclCKpV?=
+ =?us-ascii?Q?39DB/0gTN2wVdmaAvdYL2WaGz81yHKKY5q7aLT7ZcZDUUHdyslLcZ8KUUhbR?=
+ =?us-ascii?Q?5EVNzMOI1/IIn63RxJOocFklJkuA1riPdwCpgnxtxs4pD7IjHdh4SyPl8nVq?=
+ =?us-ascii?Q?KSgL6+Yutb6VRGu7phaXgRZyUgKodL72qdpNMrp1eeRnrb4PjJo8SpLNNK0n?=
+ =?us-ascii?Q?ptrBHYom8fvonI9LbCBND1Qjcm/i0yC3b/PznphjOlwhrwvGncAK8WB+BDd2?=
+ =?us-ascii?Q?GV0g70+yLoafPCj7zMZbF+wVCNrDHAKVJVexNL9Hvkd1QkxO2FIQzz9QzUhu?=
+ =?us-ascii?Q?f0Gw1rv+EN5d82ZBAIGNXbD2vZYhjWqIRtkYJrBO2WP7RZ20+K3TPcVPg86W?=
+ =?us-ascii?Q?465OBcCYYKWdS3r1XZzTDrTd+jzCDMvu9da5kbNnKLGYObw45FiD58fp+L89?=
+ =?us-ascii?Q?Xdb5V5gVXV+FgccfIGJM7j28K4NkN6qRLSx83942tmFwbX7F+4RcYg9eog8A?=
+ =?us-ascii?Q?aj1VxEwNy901uZUX4WLOShWJdOtU5Fs7VQLsSNDnknfx02wFZf2Gfx/Raunf?=
+ =?us-ascii?Q?QVolq+j5y1Yy9KaOTIKyQbO1l9UQFSwuSwOD0ieqnlXHREAAAz+NZ0uFgZ0l?=
+ =?us-ascii?Q?L/+dD9grvZSLnNJuX1znB7+Uo80a0EFxQ/Kz71tkpQEE+wWKgyx3MwFgrafc?=
+ =?us-ascii?Q?8rJufeKg3JucM37VFmyDtgXS1ORQ8lwhuppj0DDF4Vm6rhrz8c00C/J2xD1Q?=
+ =?us-ascii?Q?mqUl5cISQgLrdo/BJY6JGbmCX01C+WvcsX8NH9Y/Zl5ZKW84kXd5o2RN6NPO?=
+ =?us-ascii?Q?RuGRiO0m7L0oFf8o3CAIujgO8Lwc5yl47Tm+xaOacZIq7pL/tSmc/Vuypdfv?=
+ =?us-ascii?Q?1Rpw9gPtYZ1soQxjaRQWwmF5S8U3PYwboArbcNsLUYhaeY+TlFys2Z5XPZvl?=
+ =?us-ascii?Q?WPrgNmXn31U=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?XpGeDkrtmYRnme3sUCYmnmHMgw7NViEXsX8ATkP/r0FVvoarLThUhZ8FTvBv?=
+ =?us-ascii?Q?ChM5GkoZiwjpeuCB8x6J9ZVl1YDO+lRNQoQttbBQSPcfrBpwwUxxp7x2WrJ6?=
+ =?us-ascii?Q?9HNe4gsxkcVTAFXKGez9OahVWcVREfdqNiDxACG5miB86NmxygavIaqOs2YH?=
+ =?us-ascii?Q?Z6fJ0bAdk+czpf9re/ni/6hVanAUygoLtnQSCPitjjVmBYUdcw7stEDXzf9j?=
+ =?us-ascii?Q?sF+chW7zNior3QTz2ll4DlINi7OPv8UHbC5vRroPhoMxfqRm35PWOVNDCKJs?=
+ =?us-ascii?Q?fCiacqbLxUC9ypo9XxJQJqLWneipTlya9EISdyfpD8B6pk39cdWLZbLVnlpI?=
+ =?us-ascii?Q?ORhvqk3uFrMqDL6dAp5top7T0VNuHnYV/Nz73BBB2wlg9LuCiUqiQeKNIwEc?=
+ =?us-ascii?Q?2Hx65cm5JxZue2pFjplg+3ilrOqsQJm/euh4vd3t62ZHb0VO1+jpiM6a/4uT?=
+ =?us-ascii?Q?v2aS601yW9GWz9TD7YBazvRNf0UGLLIhGprFig5aeQL8XzUgInLhf9IVEhyD?=
+ =?us-ascii?Q?3BiOERnKF91sXjFQOq2qeXFxOlXdq9YLXHkPgY8ZVGcXik8/bQGmln5fVHMg?=
+ =?us-ascii?Q?/NIvX6fJBjQF5tJ1TBUSh5EvBUOEwKdnUoJ/21z3b5A42FPgvokB2mcthfNV?=
+ =?us-ascii?Q?0lVtW/D6mIKn3mm4JRvMRXXk1xlb2a9CzGiMDBUBDE63cPwL5rdGWf36H6oG?=
+ =?us-ascii?Q?ique8luI2iRi+6R7FVuI2E6ouZYHdLiYfJpMZx9+RDuWI7WvN5+f6ScRegX+?=
+ =?us-ascii?Q?YtZFjO0oIzV+aIWrxS/OURusSOcuMwi9h6kC/NW6GB1wgmuit4V9Fx70S13E?=
+ =?us-ascii?Q?0RsT4thrL/twgnN2BUFQNjFY+PXz5DxAMCRL/FB1jC59Jugr4WaWPM1pcakJ?=
+ =?us-ascii?Q?plMCZxQxpqCBx67gQqRoW5i/TvVGB9U1Td678Kfjnv92BgtZSJCBQqDyGPE8?=
+ =?us-ascii?Q?Amo4bAIZzu6ELpNdVfyb6g1T6A8Ceea92bAp9ean7t74G+JlpNqcG6epTsHh?=
+ =?us-ascii?Q?GoCEUI6E3RHtXL1n7DVmLpUedhhp8hcZFKaBc5HBtDIrHVxIhg24Z5TFHdA9?=
+ =?us-ascii?Q?rAwCs/0w+BLD2S1jEEJH/whSvAWDDrkf456+iWaNIVg67kfvsaTAG4xJdONm?=
+ =?us-ascii?Q?ioSujgLdfmPe6tQZId3FR/DbCevc4grybDsNJLHfp35NmpB9lDymjIQYMAgq?=
+ =?us-ascii?Q?ZkL9si1Z4uikaFZPowvXExolmI+sTYNZT+YdTOjkSDvTfDXYMzq7Xb165EV7?=
+ =?us-ascii?Q?zEx9KXCVx5HvgkpX7CCyXpg50dslzWhyNCNstvlistlHBmo5ZIKBJoic7PmA?=
+ =?us-ascii?Q?umRp+X4D7ClBJ7QyC8FrZ14Ckv9zkdQz5K1TqkKyYpU7q4y4kaAC0yYABuyB?=
+ =?us-ascii?Q?aTwBL5TSYHAp5qxEjKCtqYTHpDb5cbRbWwZL1qdpgb3ZGXgyRCOkbaRgAzh+?=
+ =?us-ascii?Q?nncZon/E8Q0kJev8bbXVD/O1qs8spO9toUhho02gkLz2aYuqslm+CTn7rENf?=
+ =?us-ascii?Q?lvQvswu5t5vL3w6sPFf6ob/LTckbzDgA7qu3R/5Px5wDAHznstPVj0HlscaA?=
+ =?us-ascii?Q?vNgissyly3OWkb6vbxBOmXYOEw5fznaOwfV/XLMv?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 06a16bcc-7ed6-4b15-e042-08dd7b30543e
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2025 08:42:46.2285
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: SzYAxp/AfrjkeyZv9yq9mYeWz46OHaXXCdRZVZ2MjdLm6ZiNBTnW53YS86cr2FU4WpZ7g6FNnQPV5pncDEKDnA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6089
 
-On Sat, Apr 12, 2025 at 3:50=E2=80=AFPM Jonas Gorski <jonas.gorski@gmail.co=
-m> wrote:
->
-> On Sat, Apr 12, 2025 at 3:34=E2=80=AFPM Vladimir Oltean <olteanv@gmail.co=
-m> wrote:
-> >
-> > On Sat, Apr 12, 2025 at 02:24:26PM +0200, Jonas Gorski wrote:
-> > > While trying to figure out the hardware behavior of a DSA supported
-> > > switch chip and printing various internal vlan state changes, I notic=
-ed
-> > > that some flows never triggered adding the cpu port to vlans, prevent=
-ing
-> > > it from receiving any of the VLANs traffic.
-> > >
-> > > E.g. the following sequence would cause the cpu port not being member=
- of
-> > > the vlan, despite the bridge vlan output looking correct:
-> > >
-> > > $ ip link add swbridge type bridge vlan_filtering 1 vlan_default_pvid=
- 1
-> > > $ ip link set lan1 master swbridge
-> >
-> > At this step, dsa_port_bridge_join() -> switchdev_bridge_port_offload()
-> > -> ... -> br_switchdev_port_offload() -> nbp_switchdev_sync_objs() ->
-> > br_switchdev_vlan_replay() -> br_switchdev_vlan_replay_group(br_vlan_gr=
-oup(br))
-> > -> br_switchdev_vlan_replay_one() should have notified DSA, with change=
-d=3Dfalse.
-> > It should be processed by dsa_user_host_vlan_add() -> dsa_port_host_vla=
-n_add().
-> >
-> > You make it sound like that doesn't happen.
->
-> Yes, because I messed up writing down what I did. That should have
-> been vlan_default_pvid 0 so there are no VLANs configured by default.
-> >
-> > I notice you didn't mention which "DSA supported chip" you are using.
-> > By any chance, does its driver set ds->configure_vlan_while_not_filteri=
-ng =3D false?
-> > That would be my prime suspect, making dsa_port_skip_vlan_configuration=
-() ignore
-> > the code path above, because the bridge port is not yet VLAN filtering.
-> > It becomes VLAN filtering only a bit later in dsa_port_bridge_join(),
-> > with the dsa_port_switchdev_sync_attrs() -> dsa_port_vlan_filtering(br_=
-vlan_enabled(br))
-> > call.
-> >
-> > If that is the case, the only thing that is slightly confusing to me is
-> > why you haven't seen the "skipping configuration of VLAN" extack messag=
-e.
-> > But anyway, if the theory above is true, you should instead be looking
-> > at adding proper VLAN support to said driver, and drop this set instead=
-,
-> > because VLAN replay isn't working properly.
->
-> It's b53, and on first glance it does not set it. But as I just
-> noticed, I messed up the example.
+On Sat, Apr 12, 2025 at 09:16:13PM +0800, Shengyu Qu wrote:
+> If multicast snooping is enabled, multicast packets may not always end up
+> on the local bridge interface, if the host is not a member of the multicast
+> group. Similar to how IFF_PROMISC allows all packets to be received
+> locally, let IFF_ALLMULTI allow all multicast packets to be received.
 
-So I had the chance to properly check and b53 does not unset it, so it
-should be true.
+Would be good to explain in the commit message why this is needed when
+you can instead configure the bridge as a router port. Felix provided
+useful information on v1:
 
-> So adding the lan1 vid is supposed to be the very first vlan that is conf=
-igured.
->
-> >
-> > > $ bridge vlan add dev lan1 vid 1 pvid untagged
-> > > $ bridge vlan add dev swbridge vid 1 pvid untagged self
-> > >
-> > > Adding more printk debugging, I traced it br_vlan_add_existing() sett=
-ing
-> > > changed to true (since the vlan "gained" the pvid untagged flags), an=
-d
-> > > then the dsa code ignoring the vlan notification, since it is a vlan =
-for
-> > > the cpu port that is updated.
-> >
-> > Yes, this part and everything that follows should be correct.
+https://lore.kernel.org/netdev/7932cd23-571e-4646-b5dd-467ec8106695@nbd.name/
 
-So as an addendum that I probably should have included in the cover
-letter and commit message:
+> 
+> Signed-off-by: Felix Fietkau <nbd@nbd.name>
+> Signed-off-by: Shengyu Qu <wiagn233@outlook.com>
+> ---
+> Since Felix didn't send v2 for this patch, I decided to do it by myself.
 
-Starting with no vlans configured on the bridge:
+Felix provided his SoB on v2? If not, "Reported-by" might be more
+appropriate.
 
-$ bridge vlan add dev lan1 vid 1 pvid untagged
-$ bridge vlan add dev swbridge vid 1 pvid untagged self
+> 
+> Changes since v1:
+>  - Move to net-next
+>  - Changed code according to Nikolay's advice
+> ---
+>  net/bridge/br_input.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> index 232133a0fd21..aefcc3614373 100644
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -189,7 +189,8 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+>  		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
+>  		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst)) {
+>  			if ((mdst && mdst->host_joined) ||
+> -			    br_multicast_is_router(brmctx, skb)) {
+> +			    br_multicast_is_router(brmctx, skb) ||
+> +				(br->dev->flags & IFF_ALLMULTI)) {
 
-does not work, but
+The alignment here is off. Also, you can drop the parenthesis.
 
-$ bridge vlan add dev lan1 vid 1 pvid untagged
-$ bridge vlan add dev swbridge vid 1 self
-
-does properly trigger a configuration of the vlan on the cpu port.
-
-And the difference is that in the former, would_change =3D>
-vlan->changed is true (due to "pvid untagged"), and in the latter it
-is not.
-
-Best regards,
-Jonas
+>  				local_rcv = true;
+>  				DEV_STATS_INC(br->dev, multicast);
+>  			}
+> -- 
+> 2.43.0
+> 
