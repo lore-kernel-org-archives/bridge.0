@@ -1,129 +1,196 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2079.outbound.protection.outlook.com [40.107.92.79])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 659CA288CAE
-	for <bridge@lists.linux.dev>; Tue, 15 Apr 2025 09:40:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744710004; cv=none; b=dm89QPU8C9abUbmhDaNITU1Aj8InzIDLivD5LSfN6YXP1DcImnDo45/yj6UCVXS9QF8aknz001QCU7a2wWRWrTpQCWNgbxlOobioDn3eHkwOS8AAXSpHF0mcdYFeWKdYIW2T5MtLMqdT4aKHODr7kJRj454j4AlgybDa2wCmw9U=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744710004; c=relaxed/simple;
-	bh=zuT+UrwO92mBo3PFOJ4dtbbO5SqyhaBWwQA8C7tLxqM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eshv92N6XB/gybDbejfAo0g2TwWHE1ve8aD8dUp1jshWdLZrkOL3kWFXbPaHdc+ZpjhaxojbdVLrsRUAZwRsXs8SNJqg3L2O+wpYBhsteHwGee//jjThQ+z7uCH06ZF6HhO3Nb678o5eez7/VwtiL606s6M+IbwM7/IvUxkHCc8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=qsX0qO5W; arc=none smtp.client-ip=209.85.128.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF0941E5B73
+	for <bridge@lists.linux.dev>; Tue, 15 Apr 2025 10:50:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.79
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744714226; cv=fail; b=KbV2m4Ftn33KaJ/EMI8r9Q2NnZ9GySSz/FOUa2sZGGcb+iZSZqV1MxJreQ+RPl4TTiHq3HXv+J/G/36bGPsHm0R1qJrQ2gaYvj81dvDdtfmUg3CCiOSPvAvKn5QLlHIrBkpgO7u+kv9QqJxfnEKJPXiD/IPPpfXRKrkC1DzDnos=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744714226; c=relaxed/simple;
+	bh=pJh0U+KFgY9bQqR8pz9Jzi+U+7as2AX/PSJNQHCwIZQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=RHkhsxBAJnOTWlyB3GmoNSvt8rI7kIid/zG/ojv0TTLoEE0eI2gj7bU33CcPqbtAWHXq7/ZbGCl44Q/xh+Vzlh4/newJMipjHH3YcdNFWxUz3P3S4Wpt0xGWTuJ0HpyPqzv4o3ZRUS9PWDmWTe33J6Xa3zfigkzbg6tduLPWQ6A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=KWNidDBx; arc=fail smtp.client-ip=40.107.92.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="qsX0qO5W"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-43ed8d32a95so44773355e9.3
-        for <bridge@lists.linux.dev>; Tue, 15 Apr 2025 02:40:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1744710000; x=1745314800; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=OmZOs8Rz2SRsBXQDEu0M9cDNyzZUv/bQ4RbErsr9sHY=;
-        b=qsX0qO5WlILOdjPktUxMuqtgOMgKk7P+OGmEfUcx2JAHgeO+G7rr+EhaXCu0RM9vlQ
-         xknjNxxALo9qCc7MIAsKjsXleH1D0EHnxqHg6ZizXE+4HEkbdABxQ6LVGUSMIu0egu3k
-         zspDlZP6ODPxJ9zOtdZqg9ScQStmK3+wqZSD95380qj1xmJsF8N51287cHbBMTOVTswU
-         aybUjb3O9pSaNDxT1z0OJb2Z4Rnv+xzmPjZu9ys+F3Qxgf6DstWaeweQotimkdKF8ZsP
-         b4vWYR9Fb/ZbaEeYQtrnZmipCf7duosLzWnFopz6k00E29y4u4rD9r/zcdVH9/eaTRag
-         INyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744710000; x=1745314800;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=OmZOs8Rz2SRsBXQDEu0M9cDNyzZUv/bQ4RbErsr9sHY=;
-        b=nPA47w/Yg933J/5hsAL0QEQ+HjwJSfscgh9GSjWzWcZ90X1iZuEKvt4gR3kotmpQwa
-         4TK//pggIaB8XWKCcLhLw0jT9Nn5JIGkyJa+y4BB6ARVVPEid66ypcMgeTWZC7bqR4w1
-         G/I+huu0pN24WO6ncYQ/Ue4ZAX5qIwZZ+qTVSGixFA5hffIM9BAbZ6FI+PplRHsLBl8/
-         W8a+Q4ZdXNohY7LN39miVc11Vd+a9wmCynFI/em4BHtIqYAfOyqakIIIYvn7JqiN5NSX
-         jTedjLM30coPANt5zCPEFQp3+ZivFGs25Z41gLoLlaWjWbpuO5I+9aY0tTE0e+ORhENQ
-         CWDQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXqyIJhGt/4auqMF6w06uQw1SLrZ/2cX4XDNBTP86j9I3eF3Ms79HsLEIhxsKDdHdvwQQ3cVQA=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yza9raWMcgqtSFijTicg2xShTCJ6U5UwD/zEzcO8WdSx9QGwYgJ
-	3wfN3pHTFlbEU/T3VeqToLiQgiHfNcKohhXSaYHizmmE8zYLMMcL2t05xFn9KAI=
-X-Gm-Gg: ASbGncvd1a2G30WLXOKt2zmnpfUOEB5adO01dC+LpZhz3TNneM064fDIDok36nSLTkE
-	7v0OtdFigZ1thsNQyPpQt0cAP869FfSVXnPcHDJvaQ8Uu8pId8bJJJUyLu5FvwicwFvXhYipVGY
-	5MebkrN2gk9GgAJIA/r7Oec70mYItJx8xh27QEsWAoPa1bMouonfx7pLe14b6PZak8BeLxhnPuD
-	VRFCUkfJuVwDCMED2GuMW+t01RfpVouwT11V4mrQqCyIQYQKR/cx2cRSZ4YIAE+lIDpwzDKL+g5
-	LmKL7+r9+oHu6O42IPzr92NfpI/v52ugeSglhV/DmFNSBZUbdaBWKRE0tpTMMF1pAjmqxwzQwLy
-	SzuJNkYo=
-X-Google-Smtp-Source: AGHT+IHF2FagMNaFNbqP/pP/Mm5s2FMwRszKIuGZ4NXlyxggm0m0+ymsT1EDLfxfWhc/bLYDwM86og==
-X-Received: by 2002:a05:600c:1f94:b0:43c:fe90:1282 with SMTP id 5b1f17b1804b1-43f3a925eb1mr132089105e9.7.1744710000434;
-        Tue, 15 Apr 2025 02:40:00 -0700 (PDT)
-Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43f2066d109sm207839905e9.20.2025.04.15.02.39.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Apr 2025 02:39:59 -0700 (PDT)
-Message-ID: <8b338c8b-9514-43e4-b1b8-3240b3bde798@blackwall.org>
-Date: Tue, 15 Apr 2025 12:39:58 +0300
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="KWNidDBx"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=IIKBHPDpfDRxkdqlYFUwbfgJJ0y/+ljOcsXr0Uwk7xjmcky+RIaeOsw8zDmAvJF+ZPrndGv9waGobrbIcTqZIGnBRo2i2vqTFfw4m4hdYDHfkNhCClIz0P0Bjla/t3ZbwjFqTJPGcH449cVBGzisSJIduAUi64z/DR8yUSPmXkohjfu5PyuPZmaw4YxkhIqrvh1zq6sjUnYjrWOf3T2B7g/9l9xMxtHG99wRfITtv2/goehAjyycSA9mq1DIqQ6jS/JVIaOD7O5eTI83iapDkj0PMHV3aA6rDStwuiHf1Xa+Q9sZl+OFfsPRPT3C22zdfBT6gyTmNLwvvU5/ZIlnFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=a3CVh+fteM7HL52eC1DzjbfRrKKGyz1hxGJXR958rS0=;
+ b=EJSv9wNLmkSh2BxWtFxULtHIRKMf8P82uH+5GGjvZV0V9lRR1OVHM/klTu8mHsMV+MTHji4P7gwzp1hLx7Zh/3oS2bZQvUfdpmfO3DaODeROwhCptaj+3xdCkhMxdHnXUNTwNkiXC820gfTjyN/1ZSjkHFVUitlCSJadRszuvN/ZrvxwxElx+ILCBHYQAXTrS7lTJOyG4BvLMnkpCtRQyi26JgAAUfULB5bjmTbeQhSEABVABd3qrCZhtmkovM1oiaS+toYrNvWz4ZG+jeeTaQ+MYxxm73IAuSm4OY49vD2g7TS0PJqoBcDmCBP66Vor4UJnPRdIAZ1qv5GFzJIGPg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=a3CVh+fteM7HL52eC1DzjbfRrKKGyz1hxGJXR958rS0=;
+ b=KWNidDBxMO4o44bk13eTx4zHzqC9ovlr2if8w8n6EJ9HDSbo1+Wqd5e4rvXElb7NOjsvFX4CL0GI9q+3ZBMRs2aedPBM0JhzdhohS+YVYs/wmrsc2tL/Zf1BwLtX4NpooaR9PfbRse/UovQtxlImcPKEHAtb/oQRkKhn6byTdAb3vc5p18USfrRJNFMqaAxLqf/DM1/mjoANFIyp9LRlanaw38Qzj51CA2GSnAt3Zd1C9gMG5cgciNGpmTuatKP42gTWJTyVi6GB1GawqIbCrYAgcByHHDpRY9sFmZm44eUeTdGtSZyALRmrB1mjcMiw5ifQYVurqed0AtTxOvqaMg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by DS0PR12MB8246.namprd12.prod.outlook.com (2603:10b6:8:de::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.36; Tue, 15 Apr
+ 2025 10:50:21 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::66fc:f8a2:1bfb:6de8%4]) with mapi id 15.20.8632.030; Tue, 15 Apr 2025
+ 10:50:21 +0000
+Date: Tue, 15 Apr 2025 13:50:12 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Jonas Gorski <jonas.gorski@gmail.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Vladimir Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2] net: bridge: switchdev: do not notify new
+ brentries as changed
+Message-ID: <Z_455Kq1seP-KPhC@shredder>
+References: <20250414200020.192715-1-jonas.gorski@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250414200020.192715-1-jonas.gorski@gmail.com>
+X-ClientProxiedBy: FR4P281CA0035.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:c7::19) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3] net: bridge: locally receive all multicast
- packets if IFF_ALLMULTI is set
-To: Shengyu Qu <wiagn233@outlook.com>, idosch@nvidia.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Felix Fietkau <nbd@nbd.name>
-References: <OSZPR01MB8434308370ACAFA90A22980798B32@OSZPR01MB8434.jpnprd01.prod.outlook.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <OSZPR01MB8434308370ACAFA90A22980798B32@OSZPR01MB8434.jpnprd01.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS0PR12MB8246:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7db6a920-d1ad-471a-ad34-08dd7c0b517b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?+jtX+47gZAsdLKOP0i9+6Z14CP6hWhzPfrafbsYpWWi3MH7onV8khzU9gJZa?=
+ =?us-ascii?Q?NfsNdUHk62T8eerHVt52szSMzQa4T3b/3s+TFwkwveMioN6DHrWEDosmpijP?=
+ =?us-ascii?Q?M/KHovAubKuSTro3XNlteuvl7SPSz9n6DFYbCtYuPcLFtgNxp2gQerWuaz+r?=
+ =?us-ascii?Q?QLcBK5NWSoycMLRhJsgA9jr2UqqmbpK/1T7vU1iqGJUfOfTeZ1cGGELEryli?=
+ =?us-ascii?Q?17UdsiKWysu1SNqSMZ1zClDAN3tBF11lW7KTXsDdtCIyvoZ8ql3Pgcl3qScV?=
+ =?us-ascii?Q?ceLhARXESmyqDY4p73z4tvc9y8DZot0ce6taNOKoOkxwSgwcjADFnqmsSx9Y?=
+ =?us-ascii?Q?rMbvysTJ9PxmxZA5juwQafokcOYVLUzjuS0yXQH2YAC4U2oG4Gp64PjeMkAp?=
+ =?us-ascii?Q?zOGBpmDiZqVDnUjAd55YE4apscA1GU56cgdxrsUbNpL4EVWWXO+7wnKKyEqD?=
+ =?us-ascii?Q?Qza8KQt6C0UHMyaL70mQAgnI1YP8y4YnUyHsKs6Y6oAprtSyaIGFsDzaDCKL?=
+ =?us-ascii?Q?Xcf6F1mP3HPT3pLTy0w+8inOS9F0UB33+0Gfjn27RQuGaHfByMYhtaRdYebu?=
+ =?us-ascii?Q?rjFLxLZcIZRJleFj162AlRZg+XzduCWXzeSJNjw2CblvWcZ60iFAEKsWIRHl?=
+ =?us-ascii?Q?BpPArSO0K7HoWHLD1oKIJW7pINAsiqSzzFgjd55xX92COMnIog5O5s7BS7OA?=
+ =?us-ascii?Q?kLk3H+VkOdQ4GRrlhzj60vSalSTAhs6XtjdhBrOltaVAoNrFBSggB8wrCrOT?=
+ =?us-ascii?Q?cnAkBZfgAG4W1nURfPjgS7dUn+RnxRi38HPVrWLsOiwTaJ4zjIiAnhBtiV9r?=
+ =?us-ascii?Q?JKNtJ9YlG+3tN4bqGl7PiYCUVRX3IPcPJS4w7S/js4L2ytydNdcK9vzNfioQ?=
+ =?us-ascii?Q?6agALUK/nbnTR+V6jjL/GTBPvh83Yikp/9wxAvOTQ6q7UYws2AqKAFMWxKd0?=
+ =?us-ascii?Q?1a+rwJUdbwOFf1gwsv6ks7YUa4JIOMT26OEjSn/HF8q3wCOuX+LOwW6OFsZX?=
+ =?us-ascii?Q?2qY7TYYxWJaSwTQLMlS+1EPHxMzeDiL4Ywn563m7JsFUrQUDytYOav8G1m67?=
+ =?us-ascii?Q?JM9pzwU5Sh1S/I+XUMjVNdUOe48xHvt28w5akC4d0Ml50IyFd663DYfBDEnZ?=
+ =?us-ascii?Q?6f0Z3LRoIgcVaLqqWlnobvUeYkkS3MATzvgGkoNXNMTqHZRDiV7+IyJmAHvl?=
+ =?us-ascii?Q?rXCiR3314wvZtpTqbLXmABGpMwai8+iF3Uf97hkqpm7jjCYR8+3Bnje5hKMe?=
+ =?us-ascii?Q?nmf3BwW3g7l8nmfHXKtV+BHK529QthSk7hzWMJSYHce+WW3bdOf/dONbeLi5?=
+ =?us-ascii?Q?wT999rZCOX3lji8zhY5OibZb34T75Ck5WTdC9DEireydo4rnNSusx50qYTi0?=
+ =?us-ascii?Q?uGPTjA0Os/xDirGJPgkoGZQlRW2paoqfUlv+I4jmJm0lsdf0XHtnKuYbKbH0?=
+ =?us-ascii?Q?OqnlnLuT47E=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?YgI6UoStE/vgDoN4BnmWJGrMkKg9vFs3wjEAbj6juJuHXm+B6m0k21xee73C?=
+ =?us-ascii?Q?KENoMRel50APDvzyKJdZJZyA270dYsZrc5K2jqfou/KIIEvheJSYZ4pMLdHj?=
+ =?us-ascii?Q?LuoREcDiTW7idh9yjJFfSRP5ofmRe0CyxdKJApFvOIKFdzYbT1yQePlLdjLY?=
+ =?us-ascii?Q?a9ycglqwxVDGt4tcJvM1EuVLvrtWH0YOH/P75HXfSbnjiC6jloY7AImUE5Im?=
+ =?us-ascii?Q?o1XTbfn2mCoNH2aPKV4TfJH1ehJqhqVCCE8qYrLVSKh2fWOPZP9ciza3Z1s3?=
+ =?us-ascii?Q?LiqF7FnDWuCAnZtS+MKrn0zlKyFq7OGjLkLKYPC/zoosgNmWhOIavf92R9Yb?=
+ =?us-ascii?Q?srqo09Xna6kU7LVWOJvX41YRaUryixXPfWECDRaOuD4kfhYPyuFykKBylBIt?=
+ =?us-ascii?Q?WRNu7w+b8ewT299DZTfilIx0WE3SqkryUiDgdgQ7VSlbdv3OT1qlBfNDmyJ0?=
+ =?us-ascii?Q?VT06FVD3XI98/dleVYNyoA1iZ12xApunAQ8Kype6gxEeHQb7W/gdYxb2/BlD?=
+ =?us-ascii?Q?qSkEj4PLQn3ZZDL3ySto8xqv7h1XH3Z5FFK+aNpqHE7SnR8o2HLOI0IuMMAA?=
+ =?us-ascii?Q?jwl2nW9PkiSoRAWcdPpSMMlWabYt6/mkKzshtJxPIoDvfQenTxiK7XqJMexj?=
+ =?us-ascii?Q?VQ9MTZciQX3nLlw+T5l/mGgbjGYybBLMjw6akJr+9/FAYCuLcwz5/yFA/h2q?=
+ =?us-ascii?Q?yC1Y44/ve8oF4VBOmsFslyK+gOLaXKWj2cWxfJkG/qgIMpOyQQ55C9u2yJUs?=
+ =?us-ascii?Q?bbCjBX3wM1cyj4zXbnbPNknLE5xWD8zLOnHlEVJC8Vd8xS7mgp5MNSd2nP+W?=
+ =?us-ascii?Q?V5j3/kof4QiV+J/x84VyEtXSknCnIa+N3KJF0ZzGFr6t9Xaf4uzLtiXrQuXF?=
+ =?us-ascii?Q?krsYJpfiIEYdJjduotTL+KRKghtekW/pvss+kBjHyW3T8SSkuaISGipXyRAK?=
+ =?us-ascii?Q?DX9zYkLMP7vzSbayQ4y41rzQKHoy9r/cdZ700tElT2E9AXMMx1id9KZi54kW?=
+ =?us-ascii?Q?68rNIk8SjbPIOjaO4/V9UJwLWvvNBqZKLJ17eIoey0NrpL+gfLfqOoRiVW9D?=
+ =?us-ascii?Q?U3dj5LC7U4jg/YAMUB97fVqI8VQ40oBI9mpBgU+JMGBMZAo9Gnciia7uzCGu?=
+ =?us-ascii?Q?6JEgimqpZGFNI9ns0pHzyeCp609/rYavgrLUSb/0MMnM/4vMmDjMDPB0w7nA?=
+ =?us-ascii?Q?hFpxq213CFsk3wpvGDBa4X3nSdyTbzVpMnptlNKprZe0RJRbdKTHW/G8zRHr?=
+ =?us-ascii?Q?FErXERprNIQAnuKV1iWyrQjE4mc6cbcEE2gCgAE3RinnuUFAE/wkXJ53m9Ot?=
+ =?us-ascii?Q?hmBLo6JDTb2hj0nqfg/pHPnmqHOxAw66x3RJpW75vWCO+cM80Hw/lx8kLLQW?=
+ =?us-ascii?Q?ADRJ5xppuBjNnLrSTeMNrhenSagWvxV65nBI3QJevSxdfqZc4DgYwowzeFSc?=
+ =?us-ascii?Q?JLF6rGZUTxi6DZ0U8aYKUfEga5nzAYWqrSBhmq0UuLAqKUsK+oMpHRBXMIJA?=
+ =?us-ascii?Q?aX96MkFdvP3QQGCEX5zYl+4QIV9q2G9x9yY02iR0M/fIY8Na4dmq4NfIfxpL?=
+ =?us-ascii?Q?auiBt9x1xRXJVGHNUsaG7G4winww0s/25dpJxzpn?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7db6a920-d1ad-471a-ad34-08dd7c0b517b
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2025 10:50:21.2464
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: FVJcPgH6p8Dv8naZDrW6EkIAUiMF9ZyG93cSKCB+tGa8d0TO32t0phqyxBNinXJNLRYjr7RAepesy4KL9Y6L3Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8246
 
-On 4/14/25 13:56, Shengyu Qu wrote:
-> If multicast snooping is enabled, multicast packets may not always end up
-> on the local bridge interface, if the host is not a member of the multicast
-> group. Similar to how IFF_PROMISC allows all packets to be received
-> locally, let IFF_ALLMULTI allow all multicast packets to be received.
+On Mon, Apr 14, 2025 at 10:00:20PM +0200, Jonas Gorski wrote:
+> When adding a bridge vlan that is pvid or untagged after the vlan has
+> already been added to any other switchdev backed port, the vlan change
+> will be propagated as changed, since the flags change.
 > 
-> OpenWrt uses a user space daemon for DHCPv6/RA/NDP handling, and in relay
-> mode it sets the ALLMULTI flag in order to receive all relevant queries on
-> the network.
+> This causes the vlan to not be added to the hardware for DSA switches,
+> since the DSA handler ignores any vlans for the CPU or DSA ports that
+> are changed.
 > 
-> This works for normal network interfaces and non-snooping bridges, but not
-> snooping bridges (unless multicast routing is enabled).
+> E.g. the following order of operations would work:
 > 
-> Reported-by: Felix Fietkau <nbd@nbd.name>
-> Closes:https://github.com/openwrt/openwrt/issues/15857#issuecomment-2662851243
-> Signed-off-by: Shengyu Qu <wiagn233@outlook.com>
-> ---
-> Changes since v1:
->  - Move to net-next
->  - Changed code according to Nikolay's advice
+> $ ip link add swbridge type bridge vlan_filtering 1 vlan_default_pvid 0
+> $ ip link set lan1 master swbridge
+> $ bridge vlan add dev swbridge vid 1 pvid untagged self
+> $ bridge vlan add dev lan1 vid 1 pvid untagged
 > 
-> Changes since v2:
->  - Fix alignment
->  - Remove redundant parenthesis
->  - Add more infomation in commit message
-> ---
->  net/bridge/br_input.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> but this order would break:
 > 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> index 232133a0fd21..5f6ac9bf1527 100644
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -189,7 +189,8 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
->  		if ((mdst || BR_INPUT_SKB_CB_MROUTERS_ONLY(skb)) &&
->  		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst)) {
->  			if ((mdst && mdst->host_joined) ||
-> -			    br_multicast_is_router(brmctx, skb)) {
-> +			    br_multicast_is_router(brmctx, skb) ||
-> +			    br->dev->flags & IFF_ALLMULTI) {
->  				local_rcv = true;
->  				DEV_STATS_INC(br->dev, multicast);
->  			}
+> $ ip link add swbridge type bridge vlan_filtering 1 vlan_default_pvid 0
+> $ ip link set lan1 master swbridge
+> $ bridge vlan add dev lan1 vid 1 pvid untagged
+> $ bridge vlan add dev swbridge vid 1 pvid untagged self
+> 
+> Additionally, the vlan on the bridge itself would become undeletable:
+> 
+> $ bridge vlan
+> port              vlan-id
+> lan1              1 PVID Egress Untagged
+> swbridge          1 PVID Egress Untagged
+> $ bridge vlan del dev swbridge vid 1 self
+> $ bridge vlan
+> port              vlan-id
+> lan1              1 PVID Egress Untagged
+> swbridge          1 Egress Untagged
+> 
+> since the vlan was never added to DSA's vlan list, so deleting it will
+> cause an error, causing the bridge code to not remove it.
+> 
+> Fix this by checking if flags changed only for vlans that are already
+> brentry and pass changed as false for those that become brentries, as
+> these are a new vlan (member) from the switchdev point of view.
+> 
+> Since *changed is set to true for becomes_brentry = true regardless of
+> would_change's value, this will not change any rtnetlink notification
+> delivery, just the value passed on to switchdev in vlan->changed.
+> 
+> Fixes: 8d23a54f5bee ("net: bridge: switchdev: differentiate new VLANs from changed ones")
+> Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
 
-Thanks,
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
