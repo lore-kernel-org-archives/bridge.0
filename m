@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA3BF1FF1B4;
-	Wed, 16 Apr 2025 00:59:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC1B1A7AFD;
+	Thu, 17 Apr 2025 01:20:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744765197; cv=none; b=YKZ9yvaRIyqJpMXiIDwr9DVcueJyerXPhcW4HMvlh71V0X69K453Ayhk1dhBDS1Kw3ts+I5/AhCepwdbp6UC2QWJdb6eLsDez32LxgvDrygRECopEpYKoudqBVxMj8MKNBs2IQ9WRtiII/ur8xKAH8nhRni+VkDCpXbfeBInrnI=
+	t=1744852831; cv=none; b=g4vmFru/H4kDJSOmH4jbbTk4GoZR3ORyfDKS3YVDKbWKoYp7RL0Rpo9dgCcomcW/+HnConNxjzVS3NNLQQN2GECKdTCa+2I+aBhs0pDDw+t59idSJ2OFQPE+5rqGgx+jf9HdZrGkYc8OoFvoSxm7YvifxIB8q9Vq/naSMKL8PxA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744765197; c=relaxed/simple;
-	bh=151ygcNcMsIrFJplJv9MnBQOAdO53zCmpNtyrWa+quA=;
+	s=arc-20240116; t=1744852831; c=relaxed/simple;
+	bh=CbVNOXQOaknbCRMdlUFFVunW9UA6aCLGDEXNlWntgCQ=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=dQAL67UIcz5MVtWpxnu/BYEFj5tw4SmynUJQxCakZtHxArcWU99/QJA+D1TP612PYxx3oMBGQCiqou8NOpKnRke2DaMGNrsJiP7yp0FzG+G43cN6+YJIs/jL4zru4+yWckGI5Ewce8fgG8FEwzdhdYG9GRNTOnuShKf1bMwy0lk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QSnC9P3R; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=XvUBIGTg0Og5yVTJVhqBh10u2pv0lckHaadCo53zbrdrALRe+rT4iwS4oYWobEolF800LejjcPukkvPobnMVW3MPUTBGoOTASZ3nj/PG0CEdTpsAsaLuzrwFpi5ZtY8LPXFOWCkqOnx2x3I2+P5L7tYAP6c4MV2rgXiGQRGoOOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wkq4K6Pp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QSnC9P3R"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C61C4CEEB;
-	Wed, 16 Apr 2025 00:59:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wkq4K6Pp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE721C4AF0B;
+	Thu, 17 Apr 2025 01:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744765197;
-	bh=151ygcNcMsIrFJplJv9MnBQOAdO53zCmpNtyrWa+quA=;
+	s=k20201202; t=1744852831;
+	bh=CbVNOXQOaknbCRMdlUFFVunW9UA6aCLGDEXNlWntgCQ=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=QSnC9P3Rr+Kfd0txBvFl7NiYvSHdTIhA+belTHNgD0yzB8wKinm0IpPBHyz9SsYye
-	 LywxoCGvyO/B6SFafA1vrkCSGzYLIh8jXEbVYI+ViIX3xVMOWTT3/DBI+8sEzZ2gLu
-	 cgnr546LFuT4L9q6Baq4iL9oiyQKkggHqwfSP1f3rwe6SYADAiETUfJuNNNloyaub9
-	 b6w/V2huI0AhuM+F7ydpNpKa9fRgC40Rh/l7IDt8FUXSqYrtvN5rXbk/bdqks/PbBU
-	 3BedhfjgT1beI+lvuWZUD4jYfP5GAHh3i8/KLtJSFSHlJVPFDTqTS1y4VidH5i9oIl
-	 0u9XdfeoZhqSQ==
+	b=Wkq4K6PpYGzmzdInssvOZMnSGkfObr4SwJDpOGhU0gj9juJOIg8uiddui9vo+3fhG
+	 k7yk0dqyz5jkBzGhNiOJmdeG4yO2HsI5kqz8R2aqxJgZn0enEOAf4HUEPKqBjUo1N2
+	 Z9tRmIHuNxTGQKZDzrcxRV7RYJWbxXMLVI4SifMf966tlnQejVf1D2KJTDY3QUhDui
+	 VZx0v0/JUwlGK7rf+/l2C8gBUedTDlKhBh7W1a1V4oL0rGNRn2V/6wxAFHGeXZ3MEA
+	 Lb+BJgZOnJOYgSccnkSBSWBw0nqNtxn9h+DJ2Gt8qvf6gceK4l8zShwidolQMU3l/0
+	 FNW3ZEAfgDQgg==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id AE1EE3822D4B;
-	Wed, 16 Apr 2025 01:00:36 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33C2A3822D59;
+	Thu, 17 Apr 2025 01:21:10 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -37,40 +37,39 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v3] net: bridge: locally receive all multicast
- packets if IFF_ALLMULTI is set
+Subject: Re: [PATCH net v2] net: bridge: switchdev: do not notify new brentries as
+ changed
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <174476523524.2834710.11784912594036142552.git-patchwork-notify@kernel.org>
-Date: Wed, 16 Apr 2025 01:00:35 +0000
-References: <OSZPR01MB8434308370ACAFA90A22980798B32@OSZPR01MB8434.jpnprd01.prod.outlook.com>
-In-Reply-To: <OSZPR01MB8434308370ACAFA90A22980798B32@OSZPR01MB8434.jpnprd01.prod.outlook.com>
-To: Shengyu Qu <wiagn233@outlook.com>
+ <174485286881.3555240.12419478540241978966.git-patchwork-notify@kernel.org>
+Date: Thu, 17 Apr 2025 01:21:08 +0000
+References: <20250414200020.192715-1-jonas.gorski@gmail.com>
+In-Reply-To: <20250414200020.192715-1-jonas.gorski@gmail.com>
+To: Jonas Gorski <jonas.gorski@gmail.com>
 Cc: razor@blackwall.org, idosch@nvidia.com, davem@davemloft.net,
  edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- bridge@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- nbd@nbd.name
+ vladimir.oltean@nxp.com, bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 
 Hello:
 
-This patch was applied to netdev/net-next.git (main)
+This patch was applied to netdev/net.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Mon, 14 Apr 2025 18:56:01 +0800 you wrote:
-> If multicast snooping is enabled, multicast packets may not always end up
-> on the local bridge interface, if the host is not a member of the multicast
-> group. Similar to how IFF_PROMISC allows all packets to be received
-> locally, let IFF_ALLMULTI allow all multicast packets to be received.
+On Mon, 14 Apr 2025 22:00:20 +0200 you wrote:
+> When adding a bridge vlan that is pvid or untagged after the vlan has
+> already been added to any other switchdev backed port, the vlan change
+> will be propagated as changed, since the flags change.
 > 
-> OpenWrt uses a user space daemon for DHCPv6/RA/NDP handling, and in relay
-> mode it sets the ALLMULTI flag in order to receive all relevant queries on
-> the network.
+> This causes the vlan to not be added to the hardware for DSA switches,
+> since the DSA handler ignores any vlans for the CPU or DSA ports that
+> are changed.
 > 
 > [...]
 
 Here is the summary with links:
-  - [net-next,v3] net: bridge: locally receive all multicast packets if IFF_ALLMULTI is set
-    https://git.kernel.org/netdev/net-next/c/a496d2f0fd61
+  - [net,v2] net: bridge: switchdev: do not notify new brentries as changed
+    https://git.kernel.org/netdev/net/c/eb25de13bd9c
 
 You are awesome, thank you!
 -- 
