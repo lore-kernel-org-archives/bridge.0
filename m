@@ -1,57 +1,34 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C17DC1F09B1
-	for <bridge@lists.linux-foundation.org>; Tue, 22 Apr 2025 22:49:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B6F52046A6;
+	Wed, 23 Apr 2025 12:09:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745362199; cv=none; b=oVQY4jLbtpiLGCC35lLX585DIymurfSeG0CEAjZyYcMunEZiabMioHT18sQTvT0NzxKvh2Y+goOmWidetTb8ueX9UzIgDERYPZ8ofajE3QYZQ4WZv44ot9CiezSfAUwj49ZlntkW+8ED6fw5nkz1KNq4VNjMBhB7n8YpLbZy9Yc=
+	t=1745410194; cv=none; b=Mnqe5ZutrpYNZRKnYa1vIznM+honeyFTG05YV8kXxqZKwsSIfDzddE628ypJLx+XnOHl1ybwCcae6EpKcA7nuZtaO6c5Lhb0J8qxNz9fNK0hWzhIASpkZ3VYBES9tpNHDLSYIBXqGGSpqi3GPf/uZCk6m3wEJk43QcdzE9sxX4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745362199; c=relaxed/simple;
-	bh=gK02uRtbIPfT0wi8eklMvtcyFjPFLGNwxr2+qteMrnE=;
+	s=arc-20240116; t=1745410194; c=relaxed/simple;
+	bh=vLcN7g+Ja3SMZ8nPqxXia6WWcptQ6SSpe51JHAKGj3c=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=bRImYdHWFmPxuVksueZEp0Mu/m0pb/vqf8URHtBDPnN8BwyMZay9kGiVUqm6AaGb51rx1qU9MU1AZnaXZWCMIvs1UbngKkHLy6bfKpxPEBy7OTATs6p5WSRsasFLC9CI0OTP9zV06luumK0dfTjICN2pHqtNoz48jyeL4aow7Mo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BFn5y/l8; arc=none smtp.client-ip=140.211.166.137
+	 In-Reply-To:To:Cc; b=hodAdpGJpR1uvV/7ncYw5lQkmYa5zLuqh7/OktagoG51jhvKwXLjfR7sVQJlNS39w0sO1qvJJun6fuqMxeDBTDCZMM5pc+xds3+FQ56nkoom4ePFq20msif++39ohm0YpDL9oflGa9TiMTzo4Ubf0L8xGZB+1Aw2OHfLM2girww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QzfrqKkB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BFn5y/l8"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4381340CC5
-	for <bridge@lists.linux-foundation.org>; Tue, 22 Apr 2025 22:49:58 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -10.792
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id HlgXTLSXTntU for <bridge@lists.linux-foundation.org>;
- Tue, 22 Apr 2025 22:49:57 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=139.178.84.217; helo=dfw.source.kernel.org; envelope-from=patchwork-bot+netdevbpf@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 7DF5740CB6
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7DF5740CB6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=BFn5y/l8
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7DF5740CB6
-	for <bridge@lists.linux-foundation.org>; Tue, 22 Apr 2025 22:49:57 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id 11F6F5C3B5C;
-	Tue, 22 Apr 2025 22:47:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C71A2C4CEEC;
-	Tue, 22 Apr 2025 22:49:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QzfrqKkB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D106C4CEE2;
+	Wed, 23 Apr 2025 12:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745362195;
-	bh=gK02uRtbIPfT0wi8eklMvtcyFjPFLGNwxr2+qteMrnE=;
+	s=k20201202; t=1745410193;
+	bh=vLcN7g+Ja3SMZ8nPqxXia6WWcptQ6SSpe51JHAKGj3c=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=BFn5y/l8E2U2vjMF4Ao0SOlj0cvksEMNuehxjcTYbeqNyrTcsRK72/jyCzQZJhkKB
-	 uWiFcyaRlQfGC2HiAmsz5yIzo4uw7/11RTH2HkGsrWMIk+SHj3MI3At28k+PU4jZOp
-	 Hwn7Ig1KZLcsHc3VaPvqrKGu2U9eJlpAUDdAVIPyvWtkdqda8klhgKBx/pgnIzxLRg
-	 I7L2tcSRhNd6m7EDCNCfvpNw3Ps0M8nujulMay541+00y45B1Rs71GEeZ4XAZ/W3Zu
-	 r2oLOWKTuxTgWUzRMsVpqufT1Cd3IO/2I2kXXkWyhwovqj1UXaxSudDTxRncbcs5aQ
-	 MiLLXVutc9XKw==
+	b=QzfrqKkBtfNxajJRAcZknTpFhojVGQXG36rEu6hhtJxQ5fPTjvtMMU41RYai1F8Rh
+	 0ZoSZRpzaUA5+9UI3jj+gemszNK/wNMWK6XVjIz8A27I9BNWO9DJXFVFVNgpPlGBhB
+	 6A+37fR8BhD3AWira9Goi+fHGl0O0fk0Y2GmhWvFMM8W7f7EYCfmYTKIdx8BXUNhiw
+	 k0VBaRZBkJPtbfuA9wc7zMyerXiPN+DNpuWKsv3FPU4NTFuQYjP6xrSVMQSK3WDndS
+	 x5WkZl9SR2a2UDv6v2nFZWP46FJ3K3uH0u2RdoPc6POkvb5KgWgAwnZT6T7Anwh+X3
+	 k2oDIp6PzlkNA==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7146E380CEF4;
-	Tue, 22 Apr 2025 22:50:35 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EAE58380CED9;
+	Wed, 23 Apr 2025 12:10:32 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -60,39 +37,42 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [Patch v4 iproute2-next 0/2] Add mdb offload failure notification
+Subject: Re: [PATCH net-next 0/3] bridge: multicast: per vlan query improvement
+ when port or vlan state changes
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <174536223428.2078978.18421801962462859445.git-patchwork-notify@kernel.org>
-Date: Tue, 22 Apr 2025 22:50:34 +0000
-References: <20250415144306.908154-1-Joseph.Huang@garmin.com>
-In-Reply-To: <20250415144306.908154-1-Joseph.Huang@garmin.com>
-To: Joseph Huang <Joseph.Huang@garmin.com>
-Cc: netdev@vger.kernel.org, razor@blackwall.org, idosch@nvidia.com,
- bridge@lists.linux-foundation.org, joseph.huang.2024@gmail.com
+ <174541023175.2604292.4001892845158453419.git-patchwork-notify@kernel.org>
+Date: Wed, 23 Apr 2025 12:10:31 +0000
+References: <cover.1744896433.git.petrm@nvidia.com>
+In-Reply-To: <cover.1744896433.git.petrm@nvidia.com>
+To: Petr Machata <petrm@nvidia.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, netdev@vger.kernel.org,
+ razor@blackwall.org, idosch@nvidia.com, bridge@lists.linux.dev,
+ yongwang@nvidia.com, aroulin@nvidia.com, mlxsw@nvidia.com
 
 Hello:
 
-This series was applied to iproute2/iproute2-next.git (main)
-by David Ahern <dsahern@kernel.org>:
+This series was applied to netdev/net-next.git (main)
+by David S. Miller <davem@davemloft.net>:
 
-On Tue, 15 Apr 2025 10:43:04 -0400 you wrote:
-> Add support to handle mdb offload failure notifications.
+On Thu, 17 Apr 2025 15:43:11 +0200 you wrote:
+> From: Yong Wang <yongwang@nvidia.com>
 > 
-> Kernel commits:
-> e846fb5e7c52 ("net: bridge: mcast: Add offload failed mdb flag")
-> 9fbe1e3e61c2 ("net: bridge: Add offload_fail_notification bopt")
-> 
-> The link to kernel changes:
-> https://lore.kernel.org/netdev/20250411150323.1117797-1-Joseph.Huang@garmin.com/
+> The current implementation of br_multicast_enable_port() only operates on
+> port's multicast context, which doesn't take into account in case of vlan
+> snooping, one downside is the port's igmp query timer will NOT resume when
+> port state gets changed from BR_STATE_BLOCKING to BR_STATE_FORWARDING etc.
 > 
 > [...]
 
 Here is the summary with links:
-  - [v4,iproute2-next,1/2] bridge: mdb: Support offload failed flag
-    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=7e24631ccf31
-  - [v4,iproute2-next,2/2] iplink_bridge: Add mdb_offload_fail_notification
-    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=4f4e3bb5c3d3
+  - [net-next,1/3] net: bridge: mcast: re-implement br_multicast_{enable, disable}_port functions
+    https://git.kernel.org/netdev/net-next/c/4b30ae9adb04
+  - [net-next,2/3] net: bridge: mcast: update multicast contex when vlan state is changed
+    https://git.kernel.org/netdev/net-next/c/6c131043eaf1
+  - [net-next,3/3] selftests: net/bridge : add tests for per vlan snooping with stp state changes
+    https://git.kernel.org/netdev/net-next/c/aea45363e29d
 
 You are awesome, thank you!
 -- 
