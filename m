@@ -1,102 +1,93 @@
-Received: from spam.asrmicro.com (asrmicro.com [210.13.118.86])
+Received: from mail.netfilter.org (mail.netfilter.org [217.70.190.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B71B02701BA
-	for <bridge@lists.linux.dev>; Thu, 24 Apr 2025 02:13:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.13.118.86
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C2311FDA82
+	for <bridge@lists.linux.dev>; Thu, 24 Apr 2025 21:25:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.190.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745460785; cv=none; b=WQ7Asy+5g05eDnYxsuBWJ3bnWfzIjc20i9DsykV1gvVo73GJRipogbMB1zW58YiWVfzxAFGceCpBK2yr9ifgVmUOPKgfeVeGKew5nOnJ88M8MK6C8dHMAQ4lLk1kFLnRsbEm+uiPSYXorslFIN5V6Z9/6ChwgJzvDTrRDhInLd8=
+	t=1745529960; cv=none; b=oP8qPgbAVHxfgqVT0MmBtqUwIvktS1MNrdoXlJc1cOHO6BBba8pC2rJhC/J6n8sE8hcylKU4OywgdE+VKEXT3qCWUHpfi4XhMpm3B0JOC0OJHkQ0WDpvvl+GMPNe9PV0GgWRniAu7IWSgip7GI9m513StPThHuoirBkbDKxBjPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745460785; c=relaxed/simple;
-	bh=ngAvRTONXmOFNq0kaBBb2o8T/nNOkmpZwfprdyr1saE=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=GzezNsROcxAyqc9w+ki2FcPB+jFom0k+YZvNdmthGossJCQRcsvQC7gnzd59um5aKpzk5BSK+fFz6S+vlHvW0JqGKnviptj/BgToYOfC7WNphBW1fex/TVCGFezOEZsniZtFv0lBuZ3GEiLkXYK2ecSlQy0asQZ9siAGfRif/48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=asrmicro.com; spf=pass smtp.mailfrom=asrmicro.com; arc=none smtp.client-ip=210.13.118.86
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=asrmicro.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asrmicro.com
-Received: from exch01.asrmicro.com (exch01.asrmicro.com [10.1.24.121])
-	by spam.asrmicro.com with ESMTPS id 53O2C1WR086872
-	(version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=FAIL);
-	Thu, 24 Apr 2025 10:12:01 +0800 (GMT-8)
-	(envelope-from huajianyang@asrmicro.com)
-Received: from exch03.asrmicro.com (10.1.24.118) by exch01.asrmicro.com
- (10.1.24.121) with Microsoft SMTP Server (TLS) id 15.0.847.32; Thu, 24 Apr
- 2025 10:12:02 +0800
-Received: from exch03.asrmicro.com ([::1]) by exch03.asrmicro.com ([::1]) with
- mapi id 15.00.0847.030; Thu, 24 Apr 2025 10:12:02 +0800
-From: =?gb2312?B?WWFuZyBIdWFqaWFuo6jR7ruqvaGjqQ==?= <huajianyang@asrmicro.com>
-To: "pablo@netfilter.org" <pablo@netfilter.org>
-CC: Florian Westphal <fw@strlen.de>,
-        "kadlec@netfilter.org"
-	<kadlec@netfilter.org>,
-        "razor@blackwall.org" <razor@blackwall.org>,
-        "idosch@nvidia.com" <idosch@nvidia.com>,
-        "davem@davemloft.net"
-	<davem@davemloft.net>,
-        "dsahern@kernel.org" <dsahern@kernel.org>,
-        "edumazet@google.com" <edumazet@google.com>,
-        "kuba@kernel.org"
-	<kuba@kernel.org>,
-        "pabeni@redhat.com" <pabeni@redhat.com>,
-        "horms@kernel.org" <horms@kernel.org>,
-        "netfilter-devel@vger.kernel.org"
-	<netfilter-devel@vger.kernel.org>,
-        "coreteam@netfilter.org"
-	<coreteam@netfilter.org>,
-        "bridge@lists.linux.dev" <bridge@lists.linux.dev>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: =?gb2312?B?tPC4tDogW1BBVENIXSBuZXQ6IE1vdmUgc3BlY2lmaWMgZnJhZ21lbnRlZCBw?=
- =?gb2312?Q?acket_to_slow=5Fpath_instead_of_dropping_it?=
-Thread-Topic: [PATCH] net: Move specific fragmented packet to slow_path
+	s=arc-20240116; t=1745529960; c=relaxed/simple;
+	bh=b/0+yurGv1ACW+6C36BhVgC/X61hgTJAj/RwtvOObx4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sXW6r9lLwGWoniqR8q/GSN3ezqDb4gsYIo+kXOm9oneNZn2Y6ImFKCQtglALP2OLcoOeNS7w0ok2Qd2pp59Zgs0BS3wqzZZvvu0LTVwAKKFsuuLYykEPWpUu7SR8G/B2JXfYcKWhESJlCp/eCcSu2ze/nBnk3nfc8Ql5wa2bBMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org; spf=pass smtp.mailfrom=netfilter.org; dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b=vvDrmGub; dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b=gEBZPTRC; arc=none smtp.client-ip=217.70.190.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=netfilter.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b="vvDrmGub";
+	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b="gEBZPTRC"
+Received: by mail.netfilter.org (Postfix, from userid 109)
+	id 86FE260630; Thu, 24 Apr 2025 23:25:57 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
+	s=2025; t=1745529957;
+	bh=3AKJ0o15XjVsSUO1ySJBAwGn/VtjV0+jASv1w9bnHUI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=vvDrmGub+Rrn1dm82HyfP6QDVzlu6X/YS9XFSVnc9FFrtm9GX7u8IlQBTSnoMaFqG
+	 39l6LR0JdWUpNTpsyq8FmnyV8QdspPwBzbrQCEZ7CKx2NM+pDe/S54vnjX4KZEmGvX
+	 ugkZeiPAP/4wRo8uPglGot9u7jgAj+ecKfaX1GO1jMc6vpgkT7+0Nfgcqg4sKYZGBA
+	 dx+H9V9Uq+J89b/whott10l1mBn71cKaly6Z0BehrHUC6Q3Qg2wBL8IQgLAmkErUhv
+	 gU3CxPlt32GCzaWG+uyJFqIwyLymOtX5YgsaR+9k1Ecz7bJs0J6i/JhbccS2fgnzfP
+	 KbmMZNR8vujuQ==
+X-Spam-Level: 
+Received: from netfilter.org (mail-agni [217.70.190.124])
+	by mail.netfilter.org (Postfix) with ESMTPSA id C06AE60581;
+	Thu, 24 Apr 2025 23:25:54 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
+	s=2025; t=1745529954;
+	bh=3AKJ0o15XjVsSUO1ySJBAwGn/VtjV0+jASv1w9bnHUI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gEBZPTRCX50VNlbMKODscp4KGeLWCZOcEzk6ZljEDACdCT/Rr5W1t+53eO7WMLPpx
+	 020I2H9/hzYcLTtS23bFAZj0LMtD2X/zIdtWE+Emv1nWFhxuX5INAJDQaluZw9YpYl
+	 VZVki8gklpabUg7C7Su9/XNE8tftNvT0YV54RNUKbjipdc/OeX8NsbcCcnvREFkUnT
+	 9188YTV4DfL4yiJXu9jZSDddrLAWkTOshdTRXuxi1pTYl3WToCWHlR0iqIfeNdjPOh
+	 TTDPd/bmv7Ymv1Vk0SLTFY9fcYlMtAuiaou2ncHIT4h5HeHa0qMYgPo9GCCC4JuNLf
+	 XYPSjEHxDaHEA==
+Date: Thu, 24 Apr 2025 23:25:52 +0200
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+To: Florian Westphal <fw@strlen.de>
+Cc: Huajian Yang <huajianyang@asrmicro.com>, kadlec@netfilter.org,
+	razor@blackwall.org, idosch@nvidia.com, davem@davemloft.net,
+	dsahern@kernel.org, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, horms@kernel.org,
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net: Move specific fragmented packet to slow_path
  instead of dropping it
-Thread-Index: AQHbr3tKZ+wvjkSVukOYgchKk3XfyLOnYFuAgAq8iFA=
-Date: Thu, 24 Apr 2025 02:12:02 +0000
-Message-ID: <313bbfd54e6540e58e60dfcd9f0e8b2e@exch03.asrmicro.com>
+Message-ID: <aAqsYBIlbhdtnblW@calendula>
 References: <20250417092953.8275-1-huajianyang@asrmicro.com>
  <aAEMPbbOGZDRygwr@strlen.de>
-In-Reply-To: <aAEMPbbOGZDRygwr@strlen.de>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-DNSRBL: 
-X-SPAM-SOURCE-CHECK: pass
-X-MAIL:spam.asrmicro.com 53O2C1WR086872
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <aAEMPbbOGZDRygwr@strlen.de>
 
-SGkgUGFibG8sDQoNCkNhbiB5b3UgZ2l2ZSBzb21lIGFkdmljZT8NCg0KVGhhbmtzLg0KDQpCZXN0
-IFJlZ2FyZHMsDQpIdWFqaWFuDQoNCi0tLS0t08q8/tStvP4tLS0tLQ0Kt6K8/sjLOiBGbG9yaWFu
-IFdlc3RwaGFsIFttYWlsdG86ZndAc3RybGVuLmRlXSANCreiy83KsbzkOiAyMDI1xOo01MIxN8jV
-IDIyOjEyDQrK1bz+yMs6IFlhbmcgSHVhamlhbqOo0e67qr2ho6kgPGh1YWppYW55YW5nQGFzcm1p
-Y3JvLmNvbT4NCrOty806IHBhYmxvQG5ldGZpbHRlci5vcmc7IGthZGxlY0BuZXRmaWx0ZXIub3Jn
-OyByYXpvckBibGFja3dhbGwub3JnOyBpZG9zY2hAbnZpZGlhLmNvbTsgZGF2ZW1AZGF2ZW1sb2Z0
-Lm5ldDsgZHNhaGVybkBrZXJuZWwub3JnOyBlZHVtYXpldEBnb29nbGUuY29tOyBrdWJhQGtlcm5l
-bC5vcmc7IHBhYmVuaUByZWRoYXQuY29tOyBob3Jtc0BrZXJuZWwub3JnOyBuZXRmaWx0ZXItZGV2
-ZWxAdmdlci5rZXJuZWwub3JnOyBjb3JldGVhbUBuZXRmaWx0ZXIub3JnOyBicmlkZ2VAbGlzdHMu
-bGludXguZGV2OyBuZXRkZXZAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJu
-ZWwub3JnDQrW98ziOiBSZTogW1BBVENIXSBuZXQ6IE1vdmUgc3BlY2lmaWMgZnJhZ21lbnRlZCBw
-YWNrZXQgdG8gc2xvd19wYXRoIGluc3RlYWQgb2YgZHJvcHBpbmcgaXQNCg0KSHVhamlhbiBZYW5n
-IDxodWFqaWFueWFuZ0Bhc3JtaWNyby5jb20+IHdyb3RlOg0KPiBUaGUgY29uZmlnIE5GX0NPTk5U
-UkFDS19CUklER0Ugd2lsbCBjaGFuZ2UgdGhlIGJyaWRnZSBmb3J3YXJkaW5nIGZvciANCj4gZnJh
-Z21lbnRlZCBwYWNrZXRzLg0KPiANCj4gVGhlIG9yaWdpbmFsIGJyaWRnZSBkb2VzIG5vdCBrbm93
-IHRoYXQgaXQgaXMgYSBmcmFnbWVudGVkIHBhY2tldCBhbmQgDQo+IGZvcndhcmRzIGl0IGRpcmVj
-dGx5LCBhZnRlciBORl9DT05OVFJBQ0tfQlJJREdFIGlzIGVuYWJsZWQsIGZ1bmN0aW9uIA0KPiBu
-Zl9icl9pcF9mcmFnbWVudCBhbmQgYnJfaXA2X2ZyYWdtZW50IHdpbGwgY2hlY2sgdGhlIGhlYWRy
-b29tLg0KPiANCj4gSW4gb3JpZ2luYWwgYnJfZm9yd2FyZCwgaW5zdWZmaWNpZW50IGhlYWRyb29t
-IG9mIHNrYiBtYXkgaW5kZWVkIGV4aXN0LCANCj4gYnV0IHRoZXJlJ3Mgc3RpbGwgYSB3YXkgdG8g
-c2F2ZSB0aGUgc2tiIGluIHRoZSBkZXZpY2UgZHJpdmVyIGFmdGVyIA0KPiBkZXZfcXVldWVfeG1p
-dC5TbyBkcm9waW5nIHRoZSBza2Igd2lsbCBjaGFuZ2UgdGhlIG9yaWdpbmFsIGJyaWRnZSANCj4g
-Zm9yd2FyZGluZyBpbiBzb21lIGNhc2VzLg0KDQpGaXhlczogM2MxNzFmNDk2ZWY1ICgibmV0Zmls
-dGVyOiBicmlkZ2U6IGFkZCBjb25uZWN0aW9uIHRyYWNraW5nIHN5c3RlbSIpDQpSZXZpZXdlZC1i
-eTogRmxvcmlhbiBXZXN0cGhhbCA8ZndAc3RybGVuLmRlPg0KDQpUaGlzIHNob3VsZCBwcm9iYWJs
-eSBiZSByb3V0ZWQgdmlhIFBhYmxvLg0KDQpQYWJsbywgZmVlbCBmcmVlIHRvIHJvdXRlIHRoaXMg
-dmlhIG5mLW5leHQgaWYgeW91IHRoaW5rIGl0cyBub3QgYW4gdXJnZW50IGZpeCwgaXRzIGJlZW4g
-bGlrZSB0aGlzIHNpbmNlIGJyaWRnZSBjb25udHJhY2sgd2FzIGFkZGVkLg0K
+On Thu, Apr 17, 2025 at 04:12:13PM +0200, Florian Westphal wrote:
+> Huajian Yang <huajianyang@asrmicro.com> wrote:
+> > The config NF_CONNTRACK_BRIDGE will change the bridge forwarding for
+> > fragmented packets.
+> > 
+> > The original bridge does not know that it is a fragmented packet and
+> > forwards it directly, after NF_CONNTRACK_BRIDGE is enabled, function
+> > nf_br_ip_fragment and br_ip6_fragment will check the headroom.
+> > 
+> > In original br_forward, insufficient headroom of skb may indeed exist,
+> > but there's still a way to save the skb in the device driver after
+> > dev_queue_xmit.So droping the skb will change the original bridge
+> > forwarding in some cases.
+> 
+> Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
+> Reviewed-by: Florian Westphal <fw@strlen.de>
+> 
+> This should probably be routed via Pablo.
+> 
+> Pablo, feel free to route this via nf-next if you think its not an
+> urgent fix, its been like this since bridge conntrack was added.
+
+Thanks, I will include this in the nf-next batch.
