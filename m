@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D031E335213;
-	Mon,  5 May 2025 22:36:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86622D6427;
+	Mon,  5 May 2025 22:54:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746484590; cv=none; b=UGsH7fLHGHhYc/icVhgtepVRV0p4RdkURLI3ZwaCMP1cKQzwQk6AAFOOV4z5akh0uPWIipBILvYS02vkN0hMVKMTMPXyucSOpoFRliZ+/z6yv/pecX0ejH7V7nrFuNVslOvudPID/Cf9M6m6Kz8cDatbinD/ftcEcS3DDN0A4Gk=
+	t=1746485692; cv=none; b=Uirj7OIjgt3pHFhUQiJwBl51+TSHaWEY7tVherwOi1CQNpTRIuM/4QjMgGtCtLO8r3NegDBMdK3740LB/sAXoSi+x/1W/ankS7TcmAvs/coJbQHu2rqRwrizRRGiq3VDP7Ek7NdTYP+NKgdKxbq5qqZOiTDa0DFLnjjf+2T0v+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746484590; c=relaxed/simple;
+	s=arc-20240116; t=1746485692; c=relaxed/simple;
 	bh=zmpFkEnZZLrrF49HUhfJohjoZOt4osMV05kEKXJ/pvM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Pa06KHILGmFFd/3r/uGz7/E/35PQ2x8Jj+p73ROCtjcS7fYVovPyGJVTMs6raW8mSKIkJ8K0/35XiieXsdqoWoj5mYFkEYPb/PJtlZrn2g8tcF6JGnFZ1h1PgtbiBEsLJFUN+wTQBBsdE+KHqKYgLh0Lbnzy+2HeNw+ZmqqZcZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aNwGdJ0K; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=Wnnt+sQImmywfArMa/phspBAan7g6YcwKuH9lji1KoBCdb1KstR0Zu2x8p7aDGNBO7q1KdoWhgD9af7dTpJnuBSbf0dKFp9CsGhibffJ/3U4hXQ55H9RuNy1xj1M7q+B2fHYUm9FyhAlEhAgewZGiUEPmFXZarld/K3TyzctbCs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BrCrJtgf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aNwGdJ0K"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E389C4CEE4;
-	Mon,  5 May 2025 22:36:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BrCrJtgf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A848C4CEED;
+	Mon,  5 May 2025 22:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746484590;
+	s=k20201202; t=1746485691;
 	bh=zmpFkEnZZLrrF49HUhfJohjoZOt4osMV05kEKXJ/pvM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=aNwGdJ0KAPoSxinGpxaUhAVq7z75/cNcKQHEDRwzKgQ7TzDRso5TUnWg6ue0X4lP/
-	 72oWsxFfli6cAQdceFw5zLcDTNtyI2ISWSgJiLD7ypUeMV2pTj6bxFO3PrxLLbdy7I
-	 UkEVjhbVy5Ninf4+KCy+WwQ//P870u2BmOfyDVhgniuOSFar2coslNCPdkJXSAQxnj
-	 eH/icCrOGIpG0oP1AM9vlG+G5WBiYSEnmK3qkPibtY9y4zhSBzUbpT0i1cIEkZO3bG
-	 Ql8QRlx73Xw5VYXNTdXeao0gtfqHG4KHzN+OYLDGwNlCd9c8ZE3B2BPTtbwEPxGBCo
-	 0hDsY2vECYwkw==
+	b=BrCrJtgf9W/bbv9b2G+e87jzFrNoEmY6i0ASZuqToYZ8eTxvGctPQh7Pu69qJUOfy
+	 +MjClG6qYrMEHyFwQHYboSCVpIxSjKo0Xq0f1q9JPdGRBJzx/eAP4dkZoMxs+A5pGU
+	 3lig44Rs86xFrnXeVeYDZRgSe5bWOcBYy/UOTCwysWf9B79yxXouHyzgDmdqgTfyxZ
+	 jPxA7FIi8x+ErlB6UWsco62XvI8maxnqgyggHiGEgcvLebZd60QxxhhZtsxesvxU4X
+	 VAkGZp6+5DCpH/o2nBO4AoUWE6nMkMw5jeIBO/oM5YwnTwvDKA7wFfUXr00FBmDJPe
+	 BF43nvhQmJd/w==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -41,12 +41,12 @@ Cc: Petr Machata <petrm@nvidia.com>,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.14 551/642] bridge: mdb: Allow replace of a host-joined group
-Date: Mon,  5 May 2025 18:12:47 -0400
-Message-Id: <20250505221419.2672473-551-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.12 428/486] bridge: mdb: Allow replace of a host-joined group
+Date: Mon,  5 May 2025 18:38:24 -0400
+Message-Id: <20250505223922.2682012-428-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
-References: <20250505221419.2672473-1-sashal@kernel.org>
+In-Reply-To: <20250505223922.2682012-1-sashal@kernel.org>
+References: <20250505223922.2682012-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -55,7 +55,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.14.5
+X-stable-base: Linux 6.12.26
 Content-Transfer-Encoding: 8bit
 
 From: Petr Machata <petrm@nvidia.com>
