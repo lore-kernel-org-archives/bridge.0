@@ -1,122 +1,213 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2071.outbound.protection.outlook.com [40.107.237.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 964DF22D9F8;
-	Mon,  5 May 2025 23:05:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746486323; cv=none; b=FE8D9v97vb5pgX/wWnXWgNB/+gvk89uw7pl2FX6Q3SCCFR6pHtjTlHlM8uSSFmgWiu8vwNC12SJ5BfTCQ6ZOSYcqT+b7uDOpxErWvSCE7r41CsK4JnCBRzJ7zWt9jqxeeL6r7zX8WfcrWdg0cok0pVqoDHKAGS7Knj2V/SYq4w0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746486323; c=relaxed/simple;
-	bh=pLsPsfht90VZB3Si4meBRTHexekqw5MmVmkOeEYazCY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=pqfvbY+BtOeGDzC9vQ0O5cKodbqLyZgsBIV4nET7Y7wOm6udrRl7hdN5I4IuFWIZOfXRU9OqCqzmAsAABeh5r+VSByMumL8KHZt5EEtZJj4M7/DlhLla9KGdwSCI7raMHhK0VKscOh3TxfeDGi6a+o4i01SSDXws1HCkdGMd7yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nl5716WV; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7425628CF79
+	for <bridge@lists.linux.dev>; Thu, 15 May 2025 08:49:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.237.71
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1747298995; cv=fail; b=N8jZJthKu7Rd0H6dJ2PmTACJP3/pXVy9jvYHdpzlI3rgmk8MtWYR8CN8Xy3fhk512Z23tnl8WCYQRVVanbwffW1wK8mRysoOpIIctsSDUlrX1iIdFzI5VXTOAaym1IBEaPi/ihxh3//dDYZffSMjq1CwrgfLcwb4mNFk/cu1IjY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1747298995; c=relaxed/simple;
+	bh=+K4vtlC7daQi+XfXiTfr6iWX7Tk9pmPLtZBLHCDgihA=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Ekn/lyMdleqogZbXxPx4dXjw14DBImSS4h6gPDJiWqtwl3XO76VR1We5wo5yukpAsrfoCQbQo8etDAMHQFBZA95118uVS8xJVv7PfUk/PmNZ3KDIbxEKh9hAi1HoDTJ2VgZ9kG1w18czex/4IHsuYIXaAff3d2qooczqcvhh6KY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IXPstFGX; arc=fail smtp.client-ip=40.107.237.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nl5716WV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F5F9C4CEE4;
-	Mon,  5 May 2025 23:05:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746486323;
-	bh=pLsPsfht90VZB3Si4meBRTHexekqw5MmVmkOeEYazCY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Nl5716WVmlerxyhtXG650G49LsZ9eny6NcMHTKOBUfIXDLYiWCGtz8FlWv9xagmjx
-	 wLsNXVK2W+YKfMBku28tUPsvWxdl0VyalZWpjFtsnPHBgE3FerfL6j3GrDZLQXvyUb
-	 pfWcvixxr0VqlL+LPdRUSW1mxjks6CyWWehzc5iPSaKIaBlvdDZAejvK7VTAKftp1z
-	 Xhxt1TGpUpwQLjP9P0tdChc+fbvp6kdOUHs95IMotpR+oZQPtUJakuK3NHEZF8IGaZ
-	 vqkCjErL0ATd7+ND/8fRhp92K0lbnKOUzibUJTvBs4dCDdu6WZWhon5SGZ27eynWw4
-	 C3g/W25oLZGQw==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Petr Machata <petrm@nvidia.com>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Sasha Levin <sashal@kernel.org>,
-	davem@davemloft.net,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	shuah@kernel.org,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6 259/294] bridge: mdb: Allow replace of a host-joined group
-Date: Mon,  5 May 2025 18:55:59 -0400
-Message-Id: <20250505225634.2688578-259-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250505225634.2688578-1-sashal@kernel.org>
-References: <20250505225634.2688578-1-sashal@kernel.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IXPstFGX"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oPJP+3LG6c24bEWyBSXvRhxhPH2bWv2vZLo4FiuqrBAMCrkYzwof+nOTABA4vt04egcjMUBjybvZtA6oTsSEoJYyLPx3p7snwDoKqGGWI39Cafc2BDfv3iFxzIZ2ef7BXSrqzFF/NGZhSQKutTRnSTbjoNZigKIBqvg7T5/F9ZXs2ymnWkzU4IASTHLdt6zQmPIRFL5unvZSqZ5ZPvTCJFlSB1HotxesRU5J92KggzWqUo5nPibJ4ShHBe4Kdv94AviY2GFcEWjQADs9+zNqcpCTkl0DmhC2VItFQoLGxXQ/QRyTOSd2kDrbriaCcgxfIG3cg751NZOje+ZDrYYEVA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=uqEMQLGxKwqbuc+TMyMzS32Fe0EvxpTDbXlt0cA1gNE=;
+ b=KXs2phMPq0mLbqygu/8b3/W2WimcO+554wJWX+N0Mal9nVCwcwP9v85cycmVSr3Wuf1iEeA9coz6Bc2neyJmEmh3coAPX1r4smFqVQWEmm0FyEuGPFdBEpLW5FcVK1SMCvBXAO6HlREjQLPpmllGeDktHviQPucMdOV35m428/Qf+lOUo/VtYYe7m26mcT3yxuGyeX2oFM2CCrh/AlgKtX5/vzX1J2fubwB5jzpUy45h/pe+ibzM12oogj7v+Fssa52fbGfeL5v8ozJoJlk/x3xnu6M1zssaIH28/zIvlkWwLinkr6kXLSlzxImE8P3o6l2G7TTEzGr3SH8E5BW/bA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uqEMQLGxKwqbuc+TMyMzS32Fe0EvxpTDbXlt0cA1gNE=;
+ b=IXPstFGXL9vWXiN3i8cprTvPY15WodWW6sNpqaXyEpeL99+0pQX6k0k0E+pISPZQ+9EO1gvMRlZ23UvLY51p+K7FlRY3G2fFfiMciwFv3O5mMaHeKAlZfQR6usMP4WGyaf1Gm68MBB66QUhuJrBj+/dhmuEYr4IDkEYGq/wcO3Bphr70pYoJGDC5YEl7tHCmsLelCwXHzxjzTXfUY7S3ub5mttwvrR5R7TXQ8WDrwSJlPvzg0IIoNps7993trkp9682yfctr74+PKduof/18dpuEcfvcZG75i1ZNspOQj1xFlPoTvosSGRi8t7zmirlYmHk5opYfIIBSfrh0iolWuw==
+Received: from PH8PR20CA0001.namprd20.prod.outlook.com (2603:10b6:510:23c::15)
+ by MN2PR12MB4486.namprd12.prod.outlook.com (2603:10b6:208:263::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8722.31; Thu, 15 May
+ 2025 08:49:49 +0000
+Received: from CY4PEPF0000FCC4.namprd03.prod.outlook.com
+ (2603:10b6:510:23c:cafe::6a) by PH8PR20CA0001.outlook.office365.com
+ (2603:10b6:510:23c::15) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8722.20 via Frontend Transport; Thu,
+ 15 May 2025 08:49:48 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ CY4PEPF0000FCC4.mail.protection.outlook.com (10.167.242.106) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8722.18 via Frontend Transport; Thu, 15 May 2025 08:49:48 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 15 May
+ 2025 01:49:31 -0700
+Received: from shredder.mtl.com (10.126.230.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Thu, 15 May
+ 2025 01:49:26 -0700
+From: Ido Schimmel <idosch@nvidia.com>
+To: <netdev@vger.kernel.org>, <bridge@lists.linux.dev>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<edumazet@google.com>, <razor@blackwall.org>,
+	<venkat.x.venkatsubra@oracle.com>, <horms@kernel.org>, <pablo@netfilter.org>,
+	<fw@strlen.de>, Ido Schimmel <idosch@nvidia.com>
+Subject: [PATCH net] bridge: netfilter: Fix forwarding of fragmented packets
+Date: Thu, 15 May 2025 11:48:48 +0300
+Message-ID: <20250515084848.727706-1-idosch@nvidia.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.89
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000FCC4:EE_|MN2PR12MB4486:EE_
+X-MS-Office365-Filtering-Correlation-Id: db2cd62d-f8f7-4a23-df30-08dd938d72fb
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|7416014|82310400026|36860700013;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?t+RczYOlvVkvW5w404u8ceZv+0Be9rp+/QOkyh6u98G9xYPTXHM+y+CEHAk7?=
+ =?us-ascii?Q?Yg0OG63sQleYHBgxdNp1XngLgLCNR+ULGOVespV7c+vxRxQCosCr2FixVGfe?=
+ =?us-ascii?Q?pz/FV1h3GHRKtJareTDLs5FH6y8MfXRJ6CpRVEVnSnDYmvsbPL68KWXjN/Dg?=
+ =?us-ascii?Q?9N9s1kMDimUAid/t+ww6+6JcEyBlsaX3M097kFsAYq77aIK+rve+jBO2DWCf?=
+ =?us-ascii?Q?9OUqSb5GY8nekG0tAM3egtD0tXtyAROfUxqTPwumHArhXKytVz3B4Bh2VIRu?=
+ =?us-ascii?Q?sKFHmIku8T/pGLtglf9hn1cE5su+VDNWjKRfkGBUrj6GYK13XUw4MLCGpUBl?=
+ =?us-ascii?Q?FjJAzN+e1+nUMq22QizFdBsOKa79wcd8sl7sDnSbJucYW6m/nszWPy3I4lCd?=
+ =?us-ascii?Q?eTC5EfR/NYIo7KFsgujITa57LosZGRefo6N6QEKQNWzVQMeriJf7au8NmeJS?=
+ =?us-ascii?Q?jtt1klDIsI8MuoQL1ueb72yjgLL/zVWVsD/4veYWTPi0i3lBQi5oL3MReTQO?=
+ =?us-ascii?Q?LFkA4oH7DQK5jVFJccuICIFkGHlh2sUtW12YNvQD02GHXfn/VWoy8pAlNxXw?=
+ =?us-ascii?Q?88YwT8Jy+j0moTW/UyCjC6f3nrLCn1jbrC+OCL93msBsSxcEmWA/l2G1rqRK?=
+ =?us-ascii?Q?h9QseyXC8gBRUPqfjigMWPiP0yonmWTIuykn4jg1nTBheW9l52h7EE0DwKhu?=
+ =?us-ascii?Q?WBy/QtYMLt79vKr2QOpucwXuT/q92ZtwDbaR+thqnak8AQOfvdeLO0gXRBUw?=
+ =?us-ascii?Q?vYOQTjU0D47gzFVwRWwfx4BMlA48q0JlCDzfaLAQIZqyDNgtLDjFyPtr6eKU?=
+ =?us-ascii?Q?erxl1zxVJyvItfnEgaXz9k+Tb2q5+79P55B4M4aOVql5yPnxbrpLELNIEkgw?=
+ =?us-ascii?Q?9JvrqNwr3Nk9zQs0FHwqh8xpgEUBxNH8xmta4DBIyY1LnVhy/j5qdMuQMP0v?=
+ =?us-ascii?Q?GS/pxQ6xXrCbHq3KMudGUYr9J0ePydvMamfqpfBvClY4Jk4KzH+Xulwzrz/m?=
+ =?us-ascii?Q?jHHTshJ39OGln3T75yWYSfe7CN8pf9+EsXSR4U+V5u5gK4GFj3tSY6ZGPajR?=
+ =?us-ascii?Q?4V7bKT2+3uamQZexdnLtQDbOMMZs5q3DgEhGisL4B4apIkb8gUw4F9C5S8Cs?=
+ =?us-ascii?Q?x1IHnrFCLPY4rMWDM/2b5w12Mqu5DPGd431HRWC9vg8I9b8U2hORZHa1cWcy?=
+ =?us-ascii?Q?3fRxmJrC7UTxyALaij58yMm+vU40hCBCHqXRAAWyQ2kuVH9ssEZpt0cGKxe0?=
+ =?us-ascii?Q?TNj303Qq0gXGXrz+n2QIVKMmtTnSSEdEOocfZeK5SBEssAYn08AE7phcL8mb?=
+ =?us-ascii?Q?/z/JAoOZeyE41ObqqAllaS32GripuLmMfx3RXjAd/cGJ0ga9QdjJLJr52Afs?=
+ =?us-ascii?Q?qKvZdGwVyrPJ55H7LP0kvtI8t46n4S6XQus1csh1hFu8w0LRVyYOh5AlNO66?=
+ =?us-ascii?Q?bb3w6fxcpX8g3quaHAmUjlau42e9D1DsUJVvO2EC85vXcZPNjM7xvtM2LPxh?=
+ =?us-ascii?Q?aPOvBHJ2Af9NhiZ8fGVx91/LmtzQ8SIEo3dz8cVW4OgcHu9HwMZwmSTuvg?=
+ =?us-ascii?Q?=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(82310400026)(36860700013);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 May 2025 08:49:48.3962
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: db2cd62d-f8f7-4a23-df30-08dd938d72fb
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CY4PEPF0000FCC4.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4486
 
-From: Petr Machata <petrm@nvidia.com>
+When netfilter defrag hooks are loaded (due to the presence of conntrack
+rules, for example), fragmented packets entering the bridge will be
+defragged by the bridge's pre-routing hook (br_nf_pre_routing() ->
+ipv4_conntrack_defrag()).
 
-[ Upstream commit d9e9f6d7b7d0c520bb87f19d2cbc57aeeb2091d5 ]
+Later on, in the bridge's post-routing hook, the defragged packet will
+be fragmented again. If the size of the largest fragment is larger than
+what the kernel has determined as the destination MTU (using
+ip_skb_dst_mtu()), the defragged packet will be dropped.
 
-Attempts to replace an MDB group membership of the host itself are
-currently bounced:
+Before commit ac6627a28dbf ("net: ipv4: Consolidate ipv4_mtu and
+ip_dst_mtu_maybe_forward"), ip_skb_dst_mtu() would return dst_mtu() as
+the destination MTU. Assuming the dst entry attached to the packet is
+the bridge's fake rtable one, this would simply be the bridge's MTU (see
+fake_mtu()).
 
- # ip link add name br up type bridge vlan_filtering 1
- # bridge mdb replace dev br port br grp 239.0.0.1 vid 2
- # bridge mdb replace dev br port br grp 239.0.0.1 vid 2
- Error: bridge: Group is already joined by host.
+However, after above mentioned commit, ip_skb_dst_mtu() ends up
+returning the route's MTU stored in the dst entry's metrics. Ideally, in
+case the dst entry is the bridge's fake rtable one, this should be the
+bridge's MTU as the bridge takes care of updating this metric when its
+MTU changes (see br_change_mtu()).
 
-A similar operation done on a member port would succeed. Ignore the check
-for replacement of host group memberships as well.
+Unfortunately, the last operation is a no-op given the metrics attached
+to the fake rtable entry are marked as read-only. Therefore,
+ip_skb_dst_mtu() ends up returning 1500 (the initial MTU value) and
+defragged packets are dropped during fragmentation when dealing with
+large fragments and high MTU (e.g., 9k).
 
-The bit of code that this enables is br_multicast_host_join(), which, for
-already-joined groups only refreshes the MC group expiration timer, which
-is desirable; and a userspace notification, also desirable.
+Fix by moving the fake rtable entry's metrics to be per-bridge (in a
+similar fashion to the fake rtable entry itself) and marking them as
+writable, thereby allowing MTU changes to be reflected.
 
-Change a selftest that exercises this code path from expecting a rejection
-to expecting a pass. The rest of MDB selftests pass without modification.
-
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://patch.msgid.link/e5c5188b9787ae806609e7ca3aa2a0a501b9b5c4.1738685648.git.petrm@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 62fa8a846d7d ("net: Implement read-only protection and COW'ing of metrics.")
+Fixes: 33eb9873a283 ("bridge: initialize fake_rtable metrics")
+Reported-by: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+Closes: https://lore.kernel.org/netdev/PH0PR10MB4504888284FF4CBA648197D0ACB82@PH0PR10MB4504.namprd10.prod.outlook.com/
+Tested-by: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_mdb.c                                  | 2 +-
- tools/testing/selftests/net/forwarding/bridge_mdb.sh | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/bridge/br_nf_core.c | 7 ++-----
+ net/bridge/br_private.h | 1 +
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 7305f5f8215ca..96bea0c8408fe 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -1030,7 +1030,7 @@ static int br_mdb_add_group(const struct br_mdb_config *cfg,
+diff --git a/net/bridge/br_nf_core.c b/net/bridge/br_nf_core.c
+index 98aea5485aae..a8c67035e23c 100644
+--- a/net/bridge/br_nf_core.c
++++ b/net/bridge/br_nf_core.c
+@@ -65,17 +65,14 @@ static struct dst_ops fake_dst_ops = {
+  * ipt_REJECT needs it.  Future netfilter modules might
+  * require us to fill additional fields.
+  */
+-static const u32 br_dst_default_metrics[RTAX_MAX] = {
+-	[RTAX_MTU - 1] = 1500,
+-};
+-
+ void br_netfilter_rtable_init(struct net_bridge *br)
+ {
+ 	struct rtable *rt = &br->fake_rtable;
  
- 	/* host join */
- 	if (!port) {
--		if (mp->host_joined) {
-+		if (mp->host_joined && !(cfg->nlflags & NLM_F_REPLACE)) {
- 			NL_SET_ERR_MSG_MOD(extack, "Group is already joined by host");
- 			return -EEXIST;
- 		}
-diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-index a3678dfe5848a..c151374ddf040 100755
---- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
-@@ -149,7 +149,7 @@ cfg_test_host_common()
- 	check_err $? "Failed to add $name host entry"
- 
- 	bridge mdb replace dev br0 port br0 grp $grp $state vid 10 &> /dev/null
--	check_fail $? "Managed to replace $name host entry"
-+	check_err $? "Failed to replace $name host entry"
- 
- 	bridge mdb del dev br0 port br0 grp $grp $state vid 10
- 	bridge mdb get dev br0 grp $grp vid 10 &> /dev/null
+ 	rcuref_init(&rt->dst.__rcuref, 1);
+ 	rt->dst.dev = br->dev;
+-	dst_init_metrics(&rt->dst, br_dst_default_metrics, true);
++	dst_init_metrics(&rt->dst, br->metrics, false);
++	dst_metric_set(&rt->dst, RTAX_MTU, br->dev->mtu);
+ 	rt->dst.flags	= DST_NOXFRM | DST_FAKE_RTABLE;
+ 	rt->dst.ops = &fake_dst_ops;
+ }
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index d5b3c5936a79..4715a8d6dc32 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -505,6 +505,7 @@ struct net_bridge {
+ 		struct rtable		fake_rtable;
+ 		struct rt6_info		fake_rt6_info;
+ 	};
++	u32				metrics[RTAX_MAX];
+ #endif
+ 	u16				group_fwd_mask;
+ 	u16				group_fwd_mask_required;
 -- 
-2.39.5
+2.49.0
 
