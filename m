@@ -1,160 +1,283 @@
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2058.outbound.protection.outlook.com [40.107.93.58])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail.aperture-lab.de (mail.aperture-lab.de [116.203.183.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8DAB4A33
-	for <bridge@lists.linux.dev>; Sun, 18 May 2025 06:47:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.58
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747550839; cv=fail; b=NJCJS2FhxZFZm3fKJU5oZ5zjIdGEDFUOgE33REZis2R8rVAj4fEtAdRwe3P+sIMD4udI/mikFW39KdrHb40k6IzfOqFkFP/G7AJNO6lFntiyg8BPOJ0bZwxMQ1Su+tnFfzC+DGvO0a4nmTR3Ryx7frDrrKFfr3TUvE+HSkIOFjE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747550839; c=relaxed/simple;
-	bh=W82OdZEpdXC1SuhxF0q7iq/xH++ocVYU5gVgzSl8bkU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=hjdCofGkzDgJDdTXnZZxvFz5wbRjDrus0oa4P6z+bnA4ujg7cQ9XBXsn4b9Kdp21C2a81iE51BKRfTe+dvy6XJADLyh5qB0BJ49i+MXZNCLApBhPIyLPlRAqprRyK59uoS4OcTznOgkRJvEVn7CO2BlATnh4on53ELokuSkvy44=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=L+J5yS/f; arc=fail smtp.client-ip=40.107.93.58
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="L+J5yS/f"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=a3Br21Gt33XsluBsYGf1fGWGCYS0Gb/dW46X8R2DLaYX9zPskEnD5KtZG/7TD6xVQkSiRqSw20ysQw5kISk4Dk8vhDW+74f0EWfuJeVqqucIKi3OcukPyf/QTmx+mJNtBDwxUC4uUHjdXIUsQJgOra79nj1RXloSG62BwMchzTvjkC85WlpFlVCCQmWGqzrc074KxOuLg7wVXW3fxdkOEHHBnLxc99E4hIk1JaqWTAZiW2PrhjDKPOziOA4VVgTY6YLwOcr6zNP7Y8ymAaGJCKGS/WjhNBX51deoN6kTrl3cXk6aGJptjrkH0/70gJ95Tfi+MOgETLl63GBeIAAFiA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=oV6uBylF1iOF674qIKWZ9pWl04C8szq6dWRj5hV+Ovg=;
- b=IEyy9edX7tJn8Qe3eHU+XHNd7TnaEsHFIs328y6I0AZZDSrYecCirUBHk+INQEYfemFRtcnehYeTTb2TSkeojM2kP7ZqwxB30ktYJXyJTxklyzlvPHw0GmtXFg/OlfSIIRNcsKKINAMtKBPa1oqhN2MLcdmkzjhFxemXhvysGFimJHIqmPMOIWG97vtpC2ZDn7pbaZaFBU2yA2iQqMg1EEtMwFzZg+WcovnYSnTZ/XQuMZqlnIQMkqo840hO6wXzgbaj1yhbVEDRihUjaOmCfSvY5HSWg2iD9voWxWINqsmPMRdACeVCgryhsoEEmZHgHhqBirik9FeAiM+Yxu1G/g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oV6uBylF1iOF674qIKWZ9pWl04C8szq6dWRj5hV+Ovg=;
- b=L+J5yS/f0L86XMdKjOvKMpefThPnLvf9U5sMXcj6oebAAXuZa7pBNY+KF3yeRoEtIGGC26w84ELIZSwmG1szzKTDbxyNuiX+R7xh1kU4f3nwp2rh5F4C9J2dU43Le2Gfejzi2YJBK5WGx5xbj7sS8dvPWB5CsBo+PsKA899QCh+ghKwUGpShs2nOd2isrxZAtM8LcjhS30a3oQW2yCk//we2aeUiYs5ZR7sbm4F9FViiPHOdqH0wGByuX7DpSngQPoCcZd28amBEGmnbTMSMMhEa7mahQXS69WKSghRfbtePiO4OcB0UqmEFteCofrBhXLhyVltHnwIFTOs6kNSJwQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by DM6PR12MB4265.namprd12.prod.outlook.com (2603:10b6:5:211::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8722.33; Sun, 18 May
- 2025 06:47:15 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8%7]) with mapi id 15.20.8722.027; Sun, 18 May 2025
- 06:47:14 +0000
-Date: Sun, 18 May 2025 09:47:04 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, davem@davemloft.net,
-	kuba@kernel.org, pabeni@redhat.com, edumazet@google.com,
-	razor@blackwall.org, venkat.x.venkatsubra@oracle.com,
-	horms@kernel.org, fw@strlen.de
-Subject: Re: [PATCH net] bridge: netfilter: Fix forwarding of fragmented
- packets
-Message-ID: <aCmCaMAwONiyTwR0@shredder>
-References: <20250515084848.727706-1-idosch@nvidia.com>
- <aCfQfq_FEwa98RCw@calendula>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aCfQfq_FEwa98RCw@calendula>
-X-ClientProxiedBy: VI1PR0202CA0012.eurprd02.prod.outlook.com
- (2603:10a6:803:14::25) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7111A3234
+	for <bridge@lists.linux.dev>; Thu, 22 May 2025 20:00:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=116.203.183.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1747944023; cv=none; b=boQ7ysrKwvbWLveaI/t7lzYQMOv48yxO4WSY9/e8/1+3hREYzk46+jmMB2Uf09VEprGAjOUbkF02TdAS+7MD6/K2yzX0BE1isdOb6DbTK/3YqHIu2u83IDEOe5OfFJd9XmK2x9e4e3XK/RknJE0lFgeMKbU9N3mt0t5Vbl4z90w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1747944023; c=relaxed/simple;
+	bh=yLDbXO/gSmkNEDZIFZ98m8PJwn3LOwfLyLA3H+5I8X8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=kIVUbEMVU0puFP2RBgE2/6c5kxn6TY+fOPwC880QaBiV/Jli6ReDqgtn7eIQZxLXRNNofomrupUwbFONyfLMCRtJ0FviioLsxRfA7/jjsbsNBBpsktZY0hu6gXfMePsRcamrcO6MB9RxckDz7Z3JJuRvHx22yhvYGWbr5Uzoo5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue; spf=pass smtp.mailfrom=c0d3.blue; arc=none smtp.client-ip=116.203.183.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=c0d3.blue
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 31D5E54E733;
+	Thu, 22 May 2025 22:00:16 +0200 (CEST)
+From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+To: bridge@lists.linux.dev
+Cc: netdev@vger.kernel.org,
+	openwrt-devel@lists.openwrt.org,
+	linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Ivan Vecera <ivecera@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Simon Horman <horms@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Xiao Liang <shaw.leon@gmail.com>,
+	Markus Stockhausen <markus.stockhausen@gmx.de>,
+	Jan Hoffmann <jan.christian.hoffmann@gmail.com>,
+	Birger Koblitz <git@birger-koblitz.de>,
+	=?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+	=?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
+Subject: [PATCH net-next 5/5] net: dsa: forward bridge/switchdev mcast active notification
+Date: Thu, 22 May 2025 21:17:07 +0200
+Message-ID: <20250522195952.29265-6-linus.luessing@c0d3.blue>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250522195952.29265-1-linus.luessing@c0d3.blue>
+References: <20250522195952.29265-1-linus.luessing@c0d3.blue>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DM6PR12MB4265:EE_
-X-MS-Office365-Filtering-Correlation-Id: 60b548c3-2e76-4cc9-43bc-08dd95d7d314
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7416014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?XLQzVEIkxC5L/cnm4YEuGeYZSmP4AQtLtg7xfH9IVTnA12Ayn8alisF/MwRn?=
- =?us-ascii?Q?oL3YmL+e8bqf3929pDMbKkMsgeINMxV+W/U1Vsqyb9ulmf6qYhasZyefHbVv?=
- =?us-ascii?Q?S0+9Ujb0zAxNrSKOaBCNw45xa4QH4pHMlEw2V33PpnlsJ+QvP9htIsk7gBAb?=
- =?us-ascii?Q?ixhWeTmhah7q6fUMl3TFL8iV6VIzT6IwxhafGusEJ5fMQSzl+FYvDN5MLdYK?=
- =?us-ascii?Q?N2v/yoPB0gmWZH03GO7sP2XliBYaVdZ1zmSW0vkK4GtLPOYSQlThaqm0i7kK?=
- =?us-ascii?Q?pL7cYhlwMeZFRri/d703EMSWm3O70haWny5akvj5wcLUPDQotZpTcUeX1Tz+?=
- =?us-ascii?Q?TfFwkpGiiUYgF8JPdcQBowev50A8nWmIG7zE+MHSJqRmlaoWiIjVf5gfn6+G?=
- =?us-ascii?Q?2wWz+AQFvwD75z293XLPM5HdPy3Y2OUbZU7BWkc0bHKfy2zfZ7Pq8ghmQSQR?=
- =?us-ascii?Q?zRslus76MrC0114Cn6Aa5JxJjZNdAGY0OAKuil3rLJZPlALE/q/Dlo3Slhf9?=
- =?us-ascii?Q?ge0gGsLX75BVe3D+Zmm2ghS1GadTxjVd0/rEpA7Ry45hogWueUEeBu0PXoOk?=
- =?us-ascii?Q?SmpXbqJmLHVX4jH1EaQMJMd5gX/96ZBXo47nwPVryMjBMALOVztvVP6Mn/wl?=
- =?us-ascii?Q?R6VOcl34zfSipt+KNmZ20kH92/NVBS30Bc3JDu9Hn1HgTkcPzgz2zSqMiA+R?=
- =?us-ascii?Q?P7XYsU7EchLyWRJgW7u60f1Yn6F0WDeTDC6Pj5/Trr610oWV9tKeRrJ9wgZM?=
- =?us-ascii?Q?eCDMstbby9NXvrmbE/67MQDyS3qvUb6vAVPe0QxGncn6zq98YJOO62hpGSU7?=
- =?us-ascii?Q?Madzl+xpIeTvX3rd3j05GAPYFg32Sv+Q7cmBN2dKo3eMNHfmK97MRg/9bjLl?=
- =?us-ascii?Q?UgIbIIZtpST4rwDLQWoujoBJxJfldwGt6aFBEPw1yJz4wMcGQTC020aadk9f?=
- =?us-ascii?Q?KN2u+rOznnjYnafuMJyfRZVRFyg6Zi4PaMmaQiYzsdd7nffnUukmxLirR0j3?=
- =?us-ascii?Q?rZXgvEPr2dj9N7dfhZM+aYXsZ+/39UW8NtWOBpym13bv0X1ae0sC1ZoC1POe?=
- =?us-ascii?Q?arRuhcyFY1mVO+hOjwIV7KEXgw6MKuOtAV4NQhbwfdDnj1H4a/6G35C6bo9Q?=
- =?us-ascii?Q?mwPgzzps2JI2L9X+UPyqKwT0sazu4GBCvidAvnA1Y2mfmfHbN8aJ5RCxZ3+w?=
- =?us-ascii?Q?98LegaUpUcdRxqZeBWZiQdtdWSs0g4VfEP/cTkb4aKW1DHcNfigR/75Ozl1c?=
- =?us-ascii?Q?hiIh9iU95IXg8gSAJ0oCx1gOVR2K4TzzuMMyAh1oW09Wkg8cUG8BXiPbNi1L?=
- =?us-ascii?Q?Nv+VcbACM9n0iFAdSpbJKbb51VZjDsH3C/VYY+rwQ6kigqkUxFhamFwm6o7+?=
- =?us-ascii?Q?NfoODL8Pr4A2wuXVpTCMGtdVJvv0PtMR8LFJpEMgOFycN+mFavSjINX+0hFm?=
- =?us-ascii?Q?xglRKkXpnZc=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?JuUcy2bM3Jbpc4DYDiZCaBr+3KbFkyQhfQk5fA1opAOYNIt02JS1CtwbJtmv?=
- =?us-ascii?Q?d/swKOuPgtp37IjcN+lx0s0+SQwwsz0IVyhL6R/zmJIE+4GWtByvBzMXjLVA?=
- =?us-ascii?Q?SDMLPPmvGWVeBRE/XzG3nBQzhyyEbP6Ncohf4SLMxsMvlPVjmj30MohwbcoY?=
- =?us-ascii?Q?Buy+bNInvYsITihyaBWgxHXeMvTBfjLNYkvPvhGP4JL2ijsBmYbs7Txfunbl?=
- =?us-ascii?Q?EDwbKYG6179x2goajHZBRcqBcTXEGG4G1oDUOy58FlJhfYTmS1eT6zIdqxvb?=
- =?us-ascii?Q?LnZUOjMXUBK0rDOYrtOoLzP2Smi7bGVZWd/f+SOCBWkz9W+eD8E3u8TxTFWY?=
- =?us-ascii?Q?0x43T3cw9NdNq8NTznRrorPElkzVg35hZbZUiGh2KRWi86YafNWtC2rnZL6U?=
- =?us-ascii?Q?Vgkvu3J8kIrc2TSHIoKAURW+wlseNLI+9VzP8v7dxnbw9NJYcvMh16TlYyj6?=
- =?us-ascii?Q?NU99C8ZZJWUOpCAKdQncBtmZG8S/pN9eCV/ImpbW/lpyhUiK7bS4fQEwHaJS?=
- =?us-ascii?Q?Svp/OUfRn4IcTXmK6vSLlzYvHm9aWaEp0Z+hzjxJb8iwiO7207z2wGKTGo72?=
- =?us-ascii?Q?rkzGKE+Zlp4APHhyQNW8TPjkDp+0/8pQ6TTtj7VaKNziMgCaaqjplfh7GGtQ?=
- =?us-ascii?Q?cpvSDT3ZGT7lBLazsIGd36Hdn4NQw9OKsV3IScvCKAoI4EVQ1qP4UCv+g1xB?=
- =?us-ascii?Q?CL9gWlZ555L0FW/OtNcTSuEnGtmeW+PFp6f8677LjquFPLQ+iQZvQCBtasCB?=
- =?us-ascii?Q?28lRV1lJdjgFEHDhT23vADh46SCVvF9Z9FkB2Ez/boVNGD05FSPjHb9BdfVn?=
- =?us-ascii?Q?0+feU8NJpwy4U4Vuz2UEKSpqjldkU2T3A4NbDfFtbl0GgXzQ+F/KgKlMQWgf?=
- =?us-ascii?Q?cVprtouqtZ543r0cgJ+c5iabvnFwRNwu0mbPLGTK5enEsxzu8kBy9ujy3pj+?=
- =?us-ascii?Q?mPKiU9p7h7qHN/djqvF+UGTOYugFR6gBhTndJQoSnpGiixRVPOR79vTi2vic?=
- =?us-ascii?Q?HUHf5fGjQy0XEOaYDVx/vJzTzcNLZ9pzcXHfXaEbBMXs44RDRtjxaXk02xd5?=
- =?us-ascii?Q?FuSo2B7MQOc+scB8GFfC9Awa70g8CCH/7woMfIsvQ9lXjNBnZAXg7Vj040WB?=
- =?us-ascii?Q?7mWPea0B4K6AmH9PvKcMAMDAm/TIlmINxWqCoIf4Vdc7HbtkaKVR+B+XGshZ?=
- =?us-ascii?Q?pR/56lZOyiG4ZZ6MpmUPDWuuClqjhb4KcWGJ1wUZ/TERjHX35CH8qkhNkrVQ?=
- =?us-ascii?Q?8TjrBqArzd2ax0haIMryldOfpHWAiQaB5VjIAjbZplN4FONmqUaarR3umWv6?=
- =?us-ascii?Q?ZJ6e7DqV5yKOZzy6eq5ajwlccyGyhSlfdw9oASB1Q82pjp9wgpX9d1dWI5CJ?=
- =?us-ascii?Q?oarkX7MBcdldq3B3A6k9EI2k8JSmqg4oDXnfKpvDry/bajxWw3tQgdSw8xmA?=
- =?us-ascii?Q?UrmqDjHxUg7HWZLSC5ixMaKHwcK9ksQvQVbdRCYo6wSjntsb7MRp6ROtKk8s?=
- =?us-ascii?Q?1CmedSSHtRLJ87KQAUWQ5UxGLSLX8Rj4ay7UhX7NQGwqOz8hIDxlfxoWAizx?=
- =?us-ascii?Q?QNvb3OOz/Xr/eiYNgF9MgwhbcUM/lj1Pdd/qj6mJ?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 60b548c3-2e76-4cc9-43bc-08dd95d7d314
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2025 06:47:14.9329
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: qJBbXtZahTtnxXdWLq6dL8VOWsIajm1coR0iBaGxRNgaT615Q+hP7BvtdzjWYNKwhaFwti8sHWvZVtmarAyOXg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4265
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Sat, May 17, 2025 at 01:55:42AM +0200, Pablo Neira Ayuso wrote:
-> On Thu, May 15, 2025 at 11:48:48AM +0300, Ido Schimmel wrote:
-> [...]
-> > diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> > index d5b3c5936a79..4715a8d6dc32 100644
-> > --- a/net/bridge/br_private.h
-> > +++ b/net/bridge/br_private.h
-> > @@ -505,6 +505,7 @@ struct net_bridge {
-> >  		struct rtable		fake_rtable;
-> >  		struct rt6_info		fake_rt6_info;
-> >  	};
-> 
-> This is missing #ifdef to restrict it to bridge netfilter.
+Add a new "port_mdb_active()" handler to the DSA API. This allows DSA
+drivers to receive the multicast active notification from the
+bridge. So that switch drivers can act on it accordingly, especially
+to avoid packetloss.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/tree/net/bridge/br_private.h#n503
+The switchdev notifier "handled" attribute is propagated, too, so that a
+DSA based switch driver can decide whether it wants to act on the event
+for each port individually or only on the first one, on behalf of all
+others.
 
-It's already restricted to bridge netfilter...
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+---
+ Documentation/networking/dsa/dsa.rst |  9 +++++++++
+ include/net/dsa.h                    |  5 +++++
+ net/dsa/port.c                       | 19 +++++++++++++++++++
+ net/dsa/port.h                       |  3 +++
+ net/dsa/switch.c                     | 13 +++++++++++++
+ net/dsa/switch.h                     | 11 ++++++++++-
+ net/dsa/user.c                       | 21 ++++++++++++++++++++-
+ 7 files changed, 79 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/networking/dsa/dsa.rst b/Documentation/networking/dsa/dsa.rst
+index 7b2e69cd7ef0..0b0be619be04 100644
+--- a/Documentation/networking/dsa/dsa.rst
++++ b/Documentation/networking/dsa/dsa.rst
+@@ -1025,6 +1025,15 @@ Bridge VLAN filtering
+   the specified MAC address from the specified VLAN ID if it was mapped into
+   this port forwarding database.
+ 
++- ``port_mdb_active``: bridge layer function invoked when the bridge starts (or
++  stops) to actively apply multicast snooping to multicast payload, i.e. when
++  multicast snooping is enabled and a multicast querier is present on the link
++  for a particular protocol family (or not). A switch should (by default) ensure:
++  To flood multicast packets for the given protocol family if multicast snooping
++  is inactive - to avoid multicast (and consequently also IPv6 unicast, which
++  depends on multicast for NDP) packet loss. And should (by default) avoid
++  forwarding to an active port if there is no listener or multicast router on it.
++
+ Link aggregation
+ ----------------
+ 
+diff --git a/include/net/dsa.h b/include/net/dsa.h
+index a0a9481c52c2..edc0e6821ba2 100644
+--- a/include/net/dsa.h
++++ b/include/net/dsa.h
+@@ -1080,6 +1080,11 @@ struct dsa_switch_ops {
+ 	int	(*port_mdb_del)(struct dsa_switch *ds, int port,
+ 				const struct switchdev_obj_port_mdb *mdb,
+ 				struct dsa_db db);
++	int	(*port_mdb_active)(struct dsa_switch *ds, int port,
++				   const struct switchdev_mc_active mc_active,
++				   struct netlink_ext_ack *extack,
++				   bool handled);
++
+ 	/*
+ 	 * RXNFC
+ 	 */
+diff --git a/net/dsa/port.c b/net/dsa/port.c
+index 5c9d1798e830..a1e692d9122e 100644
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -1290,6 +1290,25 @@ int dsa_port_bridge_host_mdb_del(const struct dsa_port *dp,
+ 	return dsa_port_host_mdb_del(dp, mdb, db);
+ }
+ 
++int dsa_port_bridge_mdb_active(const struct dsa_port *dp,
++			       const struct switchdev_mc_active mc_active,
++			       struct netlink_ext_ack *extack,
++			       bool handled)
++{
++	struct dsa_switch *ds = dp->ds;
++	struct dsa_notifier_mdb_active_info info = {
++		.dp = dp,
++		.mc_active = mc_active,
++		.extack = extack,
++		.handled = handled,
++	};
++
++	if (!ds->ops->port_mdb_active)
++		return -EOPNOTSUPP;
++
++	return dsa_port_notify(dp, DSA_NOTIFIER_MDB_ACTIVE, &info);
++}
++
+ int dsa_port_vlan_add(struct dsa_port *dp,
+ 		      const struct switchdev_obj_port_vlan *vlan,
+ 		      struct netlink_ext_ack *extack)
+diff --git a/net/dsa/port.h b/net/dsa/port.h
+index 6bc3291573c0..0e92815e7de2 100644
+--- a/net/dsa/port.h
++++ b/net/dsa/port.h
+@@ -75,6 +75,9 @@ int dsa_port_bridge_host_mdb_add(const struct dsa_port *dp,
+ 				 const struct switchdev_obj_port_mdb *mdb);
+ int dsa_port_bridge_host_mdb_del(const struct dsa_port *dp,
+ 				 const struct switchdev_obj_port_mdb *mdb);
++int dsa_port_bridge_mdb_active(const struct dsa_port *dp,
++			       const struct switchdev_mc_active mc_active,
++			       struct netlink_ext_ack *extack, bool handled);
+ int dsa_port_pre_bridge_flags(const struct dsa_port *dp,
+ 			      struct switchdev_brport_flags flags,
+ 			      struct netlink_ext_ack *extack);
+diff --git a/net/dsa/switch.c b/net/dsa/switch.c
+index 3d2feeea897b..5b30dfe4bebd 100644
+--- a/net/dsa/switch.c
++++ b/net/dsa/switch.c
+@@ -652,6 +652,16 @@ static int dsa_switch_host_mdb_del(struct dsa_switch *ds,
+ 	return err;
+ }
+ 
++static int dsa_switch_mdb_active(struct dsa_switch *ds,
++				 struct dsa_notifier_mdb_active_info *info)
++{
++	if (!ds->ops->port_mdb_active)
++		return -EOPNOTSUPP;
++
++	return ds->ops->port_mdb_active(ds, info->dp->index, info->mc_active,
++					info->extack, info->handled);
++}
++
+ /* Port VLANs match on the targeted port and on all DSA ports */
+ static bool dsa_port_vlan_match(struct dsa_port *dp,
+ 				struct dsa_notifier_vlan_info *info)
+@@ -1026,6 +1036,9 @@ static int dsa_switch_event(struct notifier_block *nb,
+ 	case DSA_NOTIFIER_HOST_MDB_DEL:
+ 		err = dsa_switch_host_mdb_del(ds, info);
+ 		break;
++	case DSA_NOTIFIER_MDB_ACTIVE:
++		err = dsa_switch_mdb_active(ds, info);
++		break;
+ 	case DSA_NOTIFIER_VLAN_ADD:
+ 		err = dsa_switch_vlan_add(ds, info);
+ 		break;
+diff --git a/net/dsa/switch.h b/net/dsa/switch.h
+index be0a2749cd97..69a5004e48c8 100644
+--- a/net/dsa/switch.h
++++ b/net/dsa/switch.h
+@@ -24,6 +24,7 @@ enum {
+ 	DSA_NOTIFIER_MDB_DEL,
+ 	DSA_NOTIFIER_HOST_MDB_ADD,
+ 	DSA_NOTIFIER_HOST_MDB_DEL,
++	DSA_NOTIFIER_MDB_ACTIVE,
+ 	DSA_NOTIFIER_VLAN_ADD,
+ 	DSA_NOTIFIER_VLAN_DEL,
+ 	DSA_NOTIFIER_HOST_VLAN_ADD,
+@@ -66,13 +67,21 @@ struct dsa_notifier_lag_fdb_info {
+ 	struct dsa_db db;
+ };
+ 
+-/* DSA_NOTIFIER_MDB_* */
++/* DSA_NOTIFIER_MDB_{ADD,DEL} */
+ struct dsa_notifier_mdb_info {
+ 	const struct dsa_port *dp;
+ 	const struct switchdev_obj_port_mdb *mdb;
+ 	struct dsa_db db;
+ };
+ 
++/* DSA_NOTIFIER_MDB_ACTIVE */
++struct dsa_notifier_mdb_active_info {
++	const struct dsa_port *dp;
++	const struct switchdev_mc_active mc_active;
++	struct netlink_ext_ack *extack;
++	int handled;
++};
++
+ /* DSA_NOTIFIER_LAG_* */
+ struct dsa_notifier_lag_info {
+ 	const struct dsa_port *dp;
+diff --git a/net/dsa/user.c b/net/dsa/user.c
+index 804dc7dac4f2..231b92d6e7b9 100644
+--- a/net/dsa/user.c
++++ b/net/dsa/user.c
+@@ -603,7 +603,7 @@ static int dsa_user_port_attr_set(struct net_device *dev, const void *ctx,
+ 	struct dsa_port *dp = dsa_user_to_port(dev);
+ 	int ret;
+ 
+-	if (ctx && ctx != dp)
++	if (ctx && ctx != dp && attr->id != SWITCHDEV_ATTR_ID_BRIDGE_MC_ACTIVE)
+ 		return 0;
+ 
+ 	switch (attr->id) {
+@@ -657,6 +657,15 @@ static int dsa_user_port_attr_set(struct net_device *dev, const void *ctx,
+ 
+ 		ret = dsa_port_vlan_msti(dp, &attr->u.vlan_msti);
+ 		break;
++	case SWITCHDEV_ATTR_ID_BRIDGE_MC_ACTIVE:
++		const bool *handled = ctx;
++
++		if (!dsa_port_offloads_bridge_dev(dp, attr->orig_dev))
++			return -EOPNOTSUPP;
++
++		ret = dsa_port_bridge_mdb_active(dp, attr->u.mc_active, extack,
++						 *handled);
++		break;
+ 	default:
+ 		ret = -EOPNOTSUPP;
+ 		break;
+@@ -3758,6 +3767,11 @@ static int dsa_user_switchdev_event(struct notifier_block *unused,
+ 
+ 	switch (event) {
+ 	case SWITCHDEV_PORT_ATTR_SET:
++		struct switchdev_notifier_port_attr_info *item = ptr;
++
++		if (item && item->attr->id == SWITCHDEV_ATTR_ID_BRIDGE_MC_ACTIVE)
++			item->info.ctx = &item->handled;
++
+ 		err = switchdev_handle_port_attr_set(dev, ptr,
+ 						     dsa_user_dev_check,
+ 						     dsa_user_port_attr_set);
+@@ -3796,6 +3810,11 @@ static int dsa_user_switchdev_blocking_event(struct notifier_block *unused,
+ 							    dsa_user_port_obj_del);
+ 		return notifier_from_errno(err);
+ 	case SWITCHDEV_PORT_ATTR_SET:
++		struct switchdev_notifier_port_attr_info *item = ptr;
++
++		if (item && item->attr->id == SWITCHDEV_ATTR_ID_BRIDGE_MC_ACTIVE)
++			item->info.ctx = &item->handled;
++
+ 		err = switchdev_handle_port_attr_set(dev, ptr,
+ 						     dsa_user_dev_check,
+ 						     dsa_user_port_attr_set);
+-- 
+2.49.0
+
