@@ -1,266 +1,174 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62E7E2741AD;
-	Wed,  4 Jun 2025 01:06:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B1A24DCF1
+	for <bridge@lists.linux-foundation.org>; Wed,  4 Jun 2025 11:14:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748999166; cv=none; b=ZEd4RGgkkT8+4vheHNk0L9GLLygl3HOoNUjditccAKJjFR+FcdW7znQ1nn+P7xpaiV3IazIqxTzFp78LqeV+ojZTb74DlypyB8wttqVbdeEaK/Z0OOgC0BOj7dRXniYyWRLWJcs3VMbUxvADkceSpSw8/LXnUny7LFkUtQEc5Jc=
+	t=1749035694; cv=none; b=iEr0qKoXYRV+VuUorodaWLgUMo/EAnKQ40pUwgyT6pDkjswFNT0PugJ/e/5x1BeVCyHGuJiQ/3YLIdCDPyM1D1V39NlN4moRC0U62smYJmgVezcWaZmgmfPuZILEPrxFvhz3JQ8e2e/bHst0/FBQiuBM3EPS/lquw4W6SGrMwug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748999166; c=relaxed/simple;
-	bh=+ufvZDeQZqG9z/x1UYxI3XtzZkUgcESqcL8LIDE+3IU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=RXHstyGZBpZg6X7EryKWoYQVH6jm6EYs/CjE5B/AzVKfoTGOA6uhl3Hx//ZSTpUJplERcXt3wN20maVxbsu5YxPBmMRSPBmSot5IfuaE2x4txEpRw2N4jEFDi5aa3jqw26jKGWsIuQBE7TutgtuKLbN5ZkB79Bh0fe+TDCzukfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KSb79OgN; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KSb79OgN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A558C4CEED;
-	Wed,  4 Jun 2025 01:06:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748999166;
-	bh=+ufvZDeQZqG9z/x1UYxI3XtzZkUgcESqcL8LIDE+3IU=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=KSb79OgNurUKuBTO3K97KNlo1BAdfqfLia7c17G33zYzukQeOqni3gOHvgGK3+P0m
-	 xHQejSU3UwVeHoyh7/jlV0Gbfe8ZxqrJVokA4sxi68/l8dtNsFvmI332Or4BTPqXVH
-	 eRqZF1ScLyw7Zbr3tmAXbsNuAkaAg0m7RVeIwJlkVGg9/o7KgU5/vU+wt0ZxSzqS4E
-	 WVFhDIdoUGqYRDn9jZpIviNdFsjD6JF9c3aWXHsPjs6KLxUJTXMtdUNWuAvTjKHQZD
-	 1UWtxVJ8bXk9jSqyaoedxQ0uaVaLqLfxreztNeei0+OelIasZfnvq1eemN1JnFU9VG
-	 JyLEUwY9X6IWQ==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Yong Wang <yongwang@nvidia.com>,
-	Andy Roulin <aroulin@nvidia.com>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Petr Machata <petrm@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Sasha Levin <sashal@kernel.org>,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 25/33] net: bridge: mcast: re-implement br_multicast_{enable, disable}_port functions
-Date: Tue,  3 Jun 2025 21:05:16 -0400
-Message-Id: <20250604010524.6091-25-sashal@kernel.org>
+	s=arc-20240116; t=1749035694; c=relaxed/simple;
+	bh=Klz9txw57GzdTGx2HdVc9FFDT0xClzwEGccEBkynaMw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ugeqU+vFBTwSoFcI3zprumebAGRKJrs4oACgtvhzWCQURv88H86xPT1TVIkiTqoU604xrbLjMdtGQkDCsI/B5LTFDWz2zxG0e/QmpQJTo8bURlMVYLtUhyVd4vTEhlublOkj7WAtGlqyuYmXAw+uQ/XNyk5drN/tGyJE5gp1c/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 29B8E40F9E
+	for <bridge@lists.linux-foundation.org>; Wed,  4 Jun 2025 11:14:52 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.2
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id kRT4zvnU1o8k for <bridge@lists.linux-foundation.org>;
+ Wed,  4 Jun 2025 11:14:51 +0000 (UTC)
+X-Greylist: delayed 1068 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 04 Jun 2025 11:14:50 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org B43A840C27
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B43A840C27
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a0a:edc0:2:b01:1d::104; helo=metis.whiteo.stw.pengutronix.de; envelope-from=fpf@pengutronix.de; receiver=<UNKNOWN> 
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B43A840C27
+	for <bridge@lists.linux-foundation.org>; Wed,  4 Jun 2025 11:14:50 +0000 (UTC)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <fpf@pengutronix.de>)
+	id 1uMlnk-0007LO-Vc; Wed, 04 Jun 2025 12:56:56 +0200
+Received: from dude05.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::54])
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <fpf@pengutronix.de>)
+	id 1uMlnk-001mP8-2J;
+	Wed, 04 Jun 2025 12:56:56 +0200
+Received: from fpf by dude05.red.stw.pengutronix.de with local (Exim 4.96)
+	(envelope-from <fpf@pengutronix.de>)
+	id 1uMlnk-0052tu-1y;
+	Wed, 04 Jun 2025 12:56:56 +0200
+From: Fabian Pfitzner <f.pfitzner@pengutronix.de>
+To: netdev@vger.kernel.org
+Cc: dsahern@gmail.com,
+	idosch@nvidia.com,
+	bridge@lists.linux-foundation.org,
+	entwicklung@pengutronix.de,
+	Fabian Pfitzner <f.pfitzner@pengutronix.de>
+Subject: [PATCH] bridge: dump mcast querier state per vlan
+Date: Wed,  4 Jun 2025 12:53:23 +0200
+Message-Id: <20250604105322.1185872-1-f.pfitzner@pengutronix.de>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250604010524.6091-1-sashal@kernel.org>
-References: <20250604010524.6091-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.184
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: fpf@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: bridge@lists.linux-foundation.org
 
-From: Yong Wang <yongwang@nvidia.com>
+Dump the multicast querier state per vlan.
+This commit is almost identical to [1].
 
-[ Upstream commit 4b30ae9adb047dd0a7982975ec3933c529537026 ]
+The querier state can be seen with:
 
-When a bridge port STP state is changed from BLOCKING/DISABLED to
-FORWARDING, the port's igmp query timer will NOT re-arm itself if the
-bridge has been configured as per-VLAN multicast snooping.
+bridge -d vlan global
 
-Solve this by choosing the correct multicast context(s) to enable/disable
-port multicast based on whether per-VLAN multicast snooping is enabled or
-not, i.e. using per-{port, VLAN} context in case of per-VLAN multicast
-snooping by re-implementing br_multicast_enable_port() and
-br_multicast_disable_port() functions.
+The options for vlan filtering and vlan mcast snooping have to be enabled
+in order to see the output:
 
-Before the patch, the IGMP query does not happen in the last step of the
-following test sequence, i.e. no growth for tx counter:
- # ip link add name br1 up type bridge vlan_filtering 1 mcast_snooping 1 mcast_vlan_snooping 1 mcast_querier 1 mcast_stats_enabled 1
- # bridge vlan global set vid 1 dev br1 mcast_snooping 1 mcast_querier 1 mcast_query_interval 100 mcast_startup_query_count 0
- # ip link add name swp1 up master br1 type dummy
- # bridge link set dev swp1 state 0
- # ip -j -p stats show dev swp1 group xstats_slave subgroup bridge suite mcast | jq '.[]["multicast"]["igmp_queries"]["tx_v2"]'
-1
- # sleep 1
- # ip -j -p stats show dev swp1 group xstats_slave subgroup bridge suite mcast | jq '.[]["multicast"]["igmp_queries"]["tx_v2"]'
-1
- # bridge link set dev swp1 state 3
- # sleep 2
- # ip -j -p stats show dev swp1 group xstats_slave subgroup bridge suite mcast | jq '.[]["multicast"]["igmp_queries"]["tx_v2"]'
-1
+ip link set [dev] type bridge mcast_vlan_snooping 1 vlan_filtering 1
 
-After the patch, the IGMP query happens in the last step of the test:
- # ip link add name br1 up type bridge vlan_filtering 1 mcast_snooping 1 mcast_vlan_snooping 1 mcast_querier 1 mcast_stats_enabled 1
- # bridge vlan global set vid 1 dev br1 mcast_snooping 1 mcast_querier 1 mcast_query_interval 100 mcast_startup_query_count 0
- # ip link add name swp1 up master br1 type dummy
- # bridge link set dev swp1 state 0
- # ip -j -p stats show dev swp1 group xstats_slave subgroup bridge suite mcast | jq '.[]["multicast"]["igmp_queries"]["tx_v2"]'
-1
- # sleep 1
- # ip -j -p stats show dev swp1 group xstats_slave subgroup bridge suite mcast | jq '.[]["multicast"]["igmp_queries"]["tx_v2"]'
-1
- # bridge link set dev swp1 state 3
- # sleep 2
- # ip -j -p stats show dev swp1 group xstats_slave subgroup bridge suite mcast | jq '.[]["multicast"]["igmp_queries"]["tx_v2"]'
-3
+The querier state shows the following information for IPv4 and IPv6
+respectively:
 
-Signed-off-by: Yong Wang <yongwang@nvidia.com>
-Reviewed-by: Andy Roulin <aroulin@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1) The ip address of the current querier in the network. This could be
+   ourselves or an external querier.
+2) The port on which the querier was seen
+3) Querier timeout in seconds
+
+[1] https://git.kernel.org/pub/scm/network/iproute2/iproute2.git/commit/?id=16aa4494d7fc6543e5e92beb2ce01648b79f8fa2
+
+Signed-off-by: Fabian Pfitzner <f.pfitzner@pengutronix.de>
 ---
 
-Based on my comprehensive analysis, here's my assessment: **YES** ##
-Analysis Summary This commit should be backported to stable kernel
-trees. Here's my detailed reasoning: ### **What the Bug Fixes** The
-commit fixes a critical bug where **IGMP query timers fail to re-arm**
-when a bridge port transitions from BLOCKING/DISABLED to FORWARDING
-state in **per-VLAN multicast snooping** configurations. ### **Technical
-Problem** 1. **Context**: When `BROPT_MCAST_VLAN_SNOOPING_ENABLED` is
-active, each VLAN has its own multicast context (`port_mcast_ctx`) with
-separate query timers 2. **Bug**: The old implementation in
-`br_multicast_enable_port()` and `br_multicast_disable_port()` only
-operated on the port's main multicast context (`port->multicast_ctx`) 3.
-**Impact**: Per-VLAN multicast contexts were never properly
-enabled/disabled during STP state transitions 4. **Result**: IGMP/MLD
-query timers for VLANs remain permanently disabled, causing multicast
-flooding instead of proper snooping ### **Evidence from Commit** The
-commit message provides clear **before/after test results**: -
-**Before**: IGMP query count stays at 1 (timer not re-arming) -
-**After**: IGMP query count increases to 3 (timer properly re-arming)
-This demonstrates the fix works and solves a real, testable problem. ###
-**Code Analysis** The fix **re-implements** `br_multicast_enable_port()`
-and `br_multicast_disable_port()` to: 1. **Check VLAN snooping status**:
-If `BROPT_MCAST_VLAN_SNOOPING_ENABLED` is set 2. **Iterate through
-VLANs**: Process each VLAN's multicast context individually 3. **Proper
-state handling**: Only enable contexts for VLANs in LEARNING/FORWARDING
-states 4. **Fallback behavior**: Use old behavior when VLAN snooping is
-disabled ### **Backporting Criteria Met** ✅ **Bug Fix**: Fixes
-functional regression in multicast snooping ✅ **Self-contained**:
-Changes isolated to bridge multicast code ✅ **No API changes**: Pure
-internal refactoring with same public interface ✅ **Production Impact**:
-Affects real-world VLAN multicast deployments ✅ **Well-tested**:
-Includes specific test case demonstrating the fix ✅ **Minimal Risk**:
-Well-reviewed code from experienced maintainers (Nvidia networking team)
-### **Stability Impact** - **Risk Level**: Low - internal refactoring
-with clear improvement - **Regression Potential**: Very low - maintains
-backward compatibility - **User Impact**: High - fixes broken multicast
-functionality in VLAN scenarios This is exactly the type of targeted bug
-fix that stable trees are designed to include: it fixes a clear
-functional regression affecting production deployments while carrying
-minimal risk of introducing new issues.
+This patch is a bit redundant compared to [1]. It makes sense to put it
+into a helper function, but i am not sure where to place this function.
+Maybe somewhere under /lib?
 
- net/bridge/br_multicast.c | 77 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 69 insertions(+), 8 deletions(-)
+ bridge/vlan.c | 58 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 3cd2b648408d6..085c9e706bc47 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1931,12 +1931,17 @@ static void __br_multicast_enable_port_ctx(struct net_bridge_mcast_port *pmctx)
+diff --git a/bridge/vlan.c b/bridge/vlan.c
+index ea4aff93..b928c653 100644
+--- a/bridge/vlan.c
++++ b/bridge/vlan.c
+@@ -892,6 +892,64 @@ static void print_vlan_global_opts(struct rtattr *a, int ifindex)
+ 		print_uint(PRINT_ANY, "mcast_querier", "mcast_querier %u ",
+ 			   rta_getattr_u8(vattr));
  	}
- }
- 
--void br_multicast_enable_port(struct net_bridge_port *port)
-+static void br_multicast_enable_port_ctx(struct net_bridge_mcast_port *pmctx)
- {
--	struct net_bridge *br = port->br;
-+	struct net_bridge *br = pmctx->port->br;
- 
- 	spin_lock_bh(&br->multicast_lock);
--	__br_multicast_enable_port_ctx(&port->multicast_ctx);
-+	if (br_multicast_port_ctx_is_vlan(pmctx) &&
-+	    !(pmctx->vlan->priv_flags & BR_VLFLAG_MCAST_ENABLED)) {
-+		spin_unlock_bh(&br->multicast_lock);
-+		return;
-+	}
-+	__br_multicast_enable_port_ctx(pmctx);
- 	spin_unlock_bh(&br->multicast_lock);
- }
- 
-@@ -1963,11 +1968,67 @@ static void __br_multicast_disable_port_ctx(struct net_bridge_mcast_port *pmctx)
- 	br_multicast_rport_del_notify(pmctx, del);
- }
- 
-+static void br_multicast_disable_port_ctx(struct net_bridge_mcast_port *pmctx)
-+{
-+	struct net_bridge *br = pmctx->port->br;
++	if (vtb[BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE]) {
++		struct rtattr *bqtb[BRIDGE_QUERIER_MAX + 1];
++		SPRINT_BUF(other_time);
 +
-+	spin_lock_bh(&br->multicast_lock);
-+	if (br_multicast_port_ctx_is_vlan(pmctx) &&
-+	    !(pmctx->vlan->priv_flags & BR_VLFLAG_MCAST_ENABLED)) {
-+		spin_unlock_bh(&br->multicast_lock);
-+		return;
-+	}
++		parse_rtattr_nested(bqtb, BRIDGE_QUERIER_MAX, vtb[BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE]);
++		memset(other_time, 0, sizeof(other_time));
 +
-+	__br_multicast_disable_port_ctx(pmctx);
-+	spin_unlock_bh(&br->multicast_lock);
-+}
-+
-+static void br_multicast_toggle_port(struct net_bridge_port *port, bool on)
-+{
-+#if IS_ENABLED(CONFIG_BRIDGE_VLAN_FILTERING)
-+	if (br_opt_get(port->br, BROPT_MCAST_VLAN_SNOOPING_ENABLED)) {
-+		struct net_bridge_vlan_group *vg;
-+		struct net_bridge_vlan *vlan;
-+
-+		rcu_read_lock();
-+		vg = nbp_vlan_group_rcu(port);
-+		if (!vg) {
-+			rcu_read_unlock();
-+			return;
++		open_json_object("mcast_querier_state_ipv4");
++		if (bqtb[BRIDGE_QUERIER_IP_ADDRESS]) {
++			print_string(PRINT_FP,
++				NULL,
++				"%s ",
++				"mcast_querier_ipv4_addr");
++			print_color_string(PRINT_ANY,
++				COLOR_INET,
++				"mcast_querier_ipv4_addr",
++				"%s ",
++				format_host_rta(AF_INET, bqtb[BRIDGE_QUERIER_IP_ADDRESS]));
 +		}
-+
-+		/* iterate each vlan, toggle vlan multicast context */
-+		list_for_each_entry_rcu(vlan, &vg->vlan_list, vlist) {
-+			struct net_bridge_mcast_port *pmctx =
-+						&vlan->port_mcast_ctx;
-+			u8 state = br_vlan_get_state(vlan);
-+			/* enable vlan multicast context when state is
-+			 * LEARNING or FORWARDING
-+			 */
-+			if (on && br_vlan_state_allowed(state, true))
-+				br_multicast_enable_port_ctx(pmctx);
-+			else
-+				br_multicast_disable_port_ctx(pmctx);
++		if (bqtb[BRIDGE_QUERIER_IP_PORT])
++			print_uint(PRINT_ANY,
++				"mcast_querier_ipv4_port",
++				"mcast_querier_ipv4_port %u ",
++				rta_getattr_u32(bqtb[BRIDGE_QUERIER_IP_PORT]));
++		if (bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER])
++			print_string(PRINT_ANY,
++				"mcast_querier_ipv4_other_timer",
++				"mcast_querier_ipv4_other_timer %s ",
++				sprint_time64(
++					rta_getattr_u64(bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER]),
++									other_time));
++		close_json_object();
++		open_json_object("mcast_querier_state_ipv6");
++		if (bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]) {
++			print_string(PRINT_FP,
++				NULL,
++				"%s ",
++				"mcast_querier_ipv6_addr");
++			print_color_string(PRINT_ANY,
++				COLOR_INET6,
++				"mcast_querier_ipv6_addr",
++				"%s ",
++				format_host_rta(AF_INET6, bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]));
 +		}
-+		rcu_read_unlock();
-+		return;
++		if (bqtb[BRIDGE_QUERIER_IPV6_PORT])
++			print_uint(PRINT_ANY,
++				"mcast_querier_ipv6_port",
++				"mcast_querier_ipv6_port %u ",
++				rta_getattr_u32(bqtb[BRIDGE_QUERIER_IPV6_PORT]));
++		if (bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER])
++			print_string(PRINT_ANY,
++				"mcast_querier_ipv6_other_timer",
++				"mcast_querier_ipv6_other_timer %s ",
++				sprint_time64(
++					rta_getattr_u64(bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER]),
++									other_time));
++		close_json_object();
 +	}
-+#endif
-+	/* toggle port multicast context when vlan snooping is disabled */
-+	if (on)
-+		br_multicast_enable_port_ctx(&port->multicast_ctx);
-+	else
-+		br_multicast_disable_port_ctx(&port->multicast_ctx);
-+}
-+
-+void br_multicast_enable_port(struct net_bridge_port *port)
-+{
-+	br_multicast_toggle_port(port, true);
-+}
-+
- void br_multicast_disable_port(struct net_bridge_port *port)
- {
--	spin_lock_bh(&port->br->multicast_lock);
--	__br_multicast_disable_port_ctx(&port->multicast_ctx);
--	spin_unlock_bh(&port->br->multicast_lock);
-+	br_multicast_toggle_port(port, false);
- }
- 
- static int __grp_src_delete_marked(struct net_bridge_port_group *pg)
-@@ -4130,9 +4191,9 @@ int br_multicast_toggle_vlan_snooping(struct net_bridge *br, bool on,
- 		__br_multicast_open(&br->multicast_ctx);
- 	list_for_each_entry(p, &br->port_list, list) {
- 		if (on)
--			br_multicast_disable_port(p);
-+			br_multicast_disable_port_ctx(&p->multicast_ctx);
- 		else
--			br_multicast_enable_port(p);
-+			br_multicast_enable_port_ctx(&p->multicast_ctx);
- 	}
- 
- 	list_for_each_entry(vlan, &vg->vlan_list, vlist)
--- 
+ 	if (vtb[BRIDGE_VLANDB_GOPTS_MCAST_IGMP_VERSION]) {
+ 		vattr = vtb[BRIDGE_VLANDB_GOPTS_MCAST_IGMP_VERSION];
+ 		print_uint(PRINT_ANY, "mcast_igmp_version",
+--
 2.39.5
 
