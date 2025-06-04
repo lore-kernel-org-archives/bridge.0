@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C3586338;
-	Wed,  4 Jun 2025 01:05:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62E7E2741AD;
+	Wed,  4 Jun 2025 01:06:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748999107; cv=none; b=T6qD6vICNTr59LWfhGL8+qiCgsSJ1TLjK7uMzrGXZQKuX9F6DhhARXE157klgnyec3jaxBA9H0Cy2lK93FUpGswjSNoD/bEy0hhat0QsYNCTU1n9h4R8fQx+DlM88ra5D1BJ2piVM/5kk+me7TrHQIOanLJAI8eXwbsUTtfH5dc=
+	t=1748999166; cv=none; b=ZEd4RGgkkT8+4vheHNk0L9GLLygl3HOoNUjditccAKJjFR+FcdW7znQ1nn+P7xpaiV3IazIqxTzFp78LqeV+ojZTb74DlypyB8wttqVbdeEaK/Z0OOgC0BOj7dRXniYyWRLWJcs3VMbUxvADkceSpSw8/LXnUny7LFkUtQEc5Jc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748999107; c=relaxed/simple;
-	bh=AuXcbPA4DMgjBeYa5NhRIa829Cw0lJ7Foit6g6DS49k=;
+	s=arc-20240116; t=1748999166; c=relaxed/simple;
+	bh=+ufvZDeQZqG9z/x1UYxI3XtzZkUgcESqcL8LIDE+3IU=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=T5VaHWzm02ipcsyDhi9Zs/ldo0RRfRsF2Q7Ws6Qs66UoOR7aP7x/TEUuLe/8YleVlmmSEP0uvcI07HyUBciY+D038DrD/ty0Neba9oRwiRm4J+z9fVUVygTo5hpAxD9VIgfo1XVW36APLqCvmbVrbfrzXd9ufS5A+s5/9Ff22Yg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UkyAbMBs; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=RXHstyGZBpZg6X7EryKWoYQVH6jm6EYs/CjE5B/AzVKfoTGOA6uhl3Hx//ZSTpUJplERcXt3wN20maVxbsu5YxPBmMRSPBmSot5IfuaE2x4txEpRw2N4jEFDi5aa3jqw26jKGWsIuQBE7TutgtuKLbN5ZkB79Bh0fe+TDCzukfw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KSb79OgN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UkyAbMBs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15653C4CEF3;
-	Wed,  4 Jun 2025 01:05:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KSb79OgN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A558C4CEED;
+	Wed,  4 Jun 2025 01:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1748999107;
-	bh=AuXcbPA4DMgjBeYa5NhRIa829Cw0lJ7Foit6g6DS49k=;
+	s=k20201202; t=1748999166;
+	bh=+ufvZDeQZqG9z/x1UYxI3XtzZkUgcESqcL8LIDE+3IU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=UkyAbMBsT/VHvuZCIu8hcXos6UWhHZiX35gxeL8pYjN+ca4L6QLYTTGqXrJF/I9k6
-	 O+vCGwpdwFiJbFMYjfuLWQwtyJcLpKz/vp1NxVjKZPpVeurD94R8qlelkAe41+SZXP
-	 kBKi3Eep3PTRv56UgacATim541vfN9zRcE3gzsXylt+V++cA6tx25RVkso2yHmCbVw
-	 5zpx9J/UQkozOu5qYpbDxm4faWVP5l5K+NnF4CAVIUJ+9Sz0DEfMmFwKuFwtgywPWo
-	 NluZLmVL9hJkRHQbtB+UFrutGx8K55Btes7tQGsZiYhWAbi+Z+WpEVQ4P4y+7rjf8W
-	 +e4cvMxYbdd0A==
+	b=KSb79OgNurUKuBTO3K97KNlo1BAdfqfLia7c17G33zYzukQeOqni3gOHvgGK3+P0m
+	 xHQejSU3UwVeHoyh7/jlV0Gbfe8ZxqrJVokA4sxi68/l8dtNsFvmI332Or4BTPqXVH
+	 eRqZF1ScLyw7Zbr3tmAXbsNuAkaAg0m7RVeIwJlkVGg9/o7KgU5/vU+wt0ZxSzqS4E
+	 WVFhDIdoUGqYRDn9jZpIviNdFsjD6JF9c3aWXHsPjs6KLxUJTXMtdUNWuAvTjKHQZD
+	 1UWtxVJ8bXk9jSqyaoedxQ0uaVaLqLfxreztNeei0+OelIasZfnvq1eemN1JnFU9VG
+	 JyLEUwY9X6IWQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
@@ -38,12 +38,12 @@ Cc: Yong Wang <yongwang@nvidia.com>,
 	Sasha Levin <sashal@kernel.org>,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 36/46] net: bridge: mcast: re-implement br_multicast_{enable, disable}_port functions
-Date: Tue,  3 Jun 2025 21:03:54 -0400
-Message-Id: <20250604010404.5109-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 25/33] net: bridge: mcast: re-implement br_multicast_{enable, disable}_port functions
+Date: Tue,  3 Jun 2025 21:05:16 -0400
+Message-Id: <20250604010524.6091-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250604010404.5109-1-sashal@kernel.org>
-References: <20250604010404.5109-1-sashal@kernel.org>
+In-Reply-To: <20250604010524.6091-1-sashal@kernel.org>
+References: <20250604010524.6091-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -52,7 +52,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.140
+X-stable-base: Linux 5.15.184
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
@@ -154,7 +154,7 @@ minimal risk of introducing new issues.
  1 file changed, 69 insertions(+), 8 deletions(-)
 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 5972821ce1950..e28c9db0c4db2 100644
+index 3cd2b648408d6..085c9e706bc47 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
 @@ -1931,12 +1931,17 @@ static void __br_multicast_enable_port_ctx(struct net_bridge_mcast_port *pmctx)
@@ -249,7 +249,7 @@ index 5972821ce1950..e28c9db0c4db2 100644
  }
  
  static int __grp_src_delete_marked(struct net_bridge_port_group *pg)
-@@ -4156,9 +4217,9 @@ int br_multicast_toggle_vlan_snooping(struct net_bridge *br, bool on,
+@@ -4130,9 +4191,9 @@ int br_multicast_toggle_vlan_snooping(struct net_bridge *br, bool on,
  		__br_multicast_open(&br->multicast_ctx);
  	list_for_each_entry(p, &br->port_list, list) {
  		if (on)
