@@ -1,166 +1,122 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61B5027935F
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 07:22:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749540179; cv=fail; b=S9cggSKTH35tNmts/Z5Xx8AcdwAMIYAKKRgjla1myHtY/g3hWDm5g1RWFgqOk8ZxqxzPu08mfTbBqDW85eZeySSPoNhBpcVEL+R/rycfzxneBoa+rqUKURYaoNhH6IQls6sI4AuJ5cITuYx9UqjUxYWpy0lyMD0VoZSMEvq+Yyk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749540179; c=relaxed/simple;
-	bh=heE+bh6klqysbJmhB5rZC8UYZllE5NFIheY+3C8kUK4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=LbpXEdpEeUxiW4Pii8nBTBX7fIPI8tUB5hrogCTFv3FsPoo07wJ0x1GAzFVAfI9dqSLnylhPkdaS9heecvyITasyGOwTxOzKUsv6GLjTpQs/jFYXY/n6GSWy4ofwX8yYNSPh8/baQ+3OxmSvmlE+raEaRDjgVlAjjcukdv4KTUg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IcITebRt; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD3AE28FFCE
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:20:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1749558037; cv=none; b=VXvhf5lp1x58To00bf0oI/VbnC7+JywHuRxZpONXpx/3UAKXuBirmnknR1mffNjiE52ouKy4RCSJuhpqkHoCj6KFq5/NGnX5I9wF/ImZkPAu7bYob1/ydiP+eJMvCsuIqcUPkjZ7YxiCdcVoYX1q08ajtsXDXY3RmHZ8mp0Dj8o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1749558037; c=relaxed/simple;
+	bh=GxAzovlHgLGnYrZU1ySFi76vhcQRxNyPfdNwRBun9e8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=C8D09OMJuQO6DOkKytFv7RCoZG6R5J0kLWYCN1by9spAWnnYfTET8Kr0B7mJNCXvhTIEdA6f1hhFMw3vuJAq5tdFXid1OU1L2PemFksHaObU2jBihqNw40UbpSxoDDwIs7scliGNyJICvZ5rD0KWvM+58ouCr0nXWMx/NaOSKlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=B5YwUXeL; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IcITebRt"
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="B5YwUXeL"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id EF17641DE6
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 07:22:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3AE8D404F5
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:20:36 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id renm8CeMSjp1 for <bridge@lists.linux-foundation.org>;
- Tue, 10 Jun 2025 07:22:57 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:200a::604; helo=nam12-mw2-obe.outbound.protection.outlook.com; envelope-from=idosch@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 777FD41DD2
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 777FD41DD2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=IcITebRt
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on20604.outbound.protection.outlook.com [IPv6:2a01:111:f403:200a::604])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 777FD41DD2
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 07:22:57 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=o6Nk0JHYS+T09T3qvjKzdN1zu9ciF2zJRd6M0vyCFyoXeMdiEaYB7wQLSo+Dp8HyW2HNsFKsql0CFFIgRxL5veKHzr3uxKg5xuFM4KEkDyoD5L5JtSnBuTLjvuuOo/P/sm+LMms8YfeGNE5e5KMkl9h170eadFXLLTjuvuFoS5GnKPX+f6+NaMiSIbtV0Z3GVGSV6J4cdWKKKqTCXoH/Prt8nxPYBxNIQSZzC7I7KZGHJj5bNgKrU0dkUxp/TVIIdLgUTJKb3QeCp2IpNKvP30ra6jBASzoPeGZArGCNvNBf+tOHSXaWkMJ9/RpBxI+JQ9albzgJ+VMKIy9UkZ11SQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=u/X1mKRaQOgS9g8721DT0I0MlzwDWgglqf4CEnXS5BE=;
- b=xbMUthypMKvuVpr+CSMkxa2Qr+PU7SrclmzUDIqJJ62jkKO8SdtfY9gl+gK/OOEXKxwl3594dl/ub/qvkNx8cQFRahbJ7I+gWCmEDtsRa18V6sJb6PowiNUdlUBTZmRtshhw3KYvHZpV5197eLgn8cBJ2t2/DNVSK1ZiVIv931F2AXk8bySRj9/6CUgpSHWHEDzsfOcbal+CgeBjgi9h7plgemwHWyZ1ztrIKAS/o3oSM5SRXhh/VtOTrVYH1fbbkwU3Cxk0787EaH9dGmC3XFpWuuUiEndxM1M28qLw66ANMUN2/1krMTdVhFOmx8GRmfyCrNg7VZ/+SJnavsQ/bw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=u/X1mKRaQOgS9g8721DT0I0MlzwDWgglqf4CEnXS5BE=;
- b=IcITebRtAUjCKcDpxmE8CDkYG5369Et9cPwRjghbpBNW3+qbanzJeR6eXjs486izjS1qItscknfqLkcmqW90oLEl75Nehf3gSTP3bIrvgYeOKNcvCE6GoUyCcB1fkOzBFwtTjMc2jE0/40p8NkbPzz/316dxHTxfvTS5haG4gj1oaFtpZNXoH8vFkwbMaFbBIojWWfw0WxW7M/me3Ggl/AhUtmHndOxoAgxqIF6GPypeHn0hegJeETm4o7d+IsLjDF7U02Rv89fRkz7UHb3xW8nP7B9i6P93YWSSQbw74Aq28RDDXIBi/wq95QWugKnGfuXowjaS4Zz4SkwcTmE1DQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by PH7PR12MB9152.namprd12.prod.outlook.com (2603:10b6:510:2ec::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8769.23; Tue, 10 Jun
- 2025 07:22:51 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::66fc:f8a2:1bfb:6de8%7]) with mapi id 15.20.8792.034; Tue, 10 Jun 2025
- 07:22:51 +0000
-Date: Tue, 10 Jun 2025 10:22:40 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Petr Machata <petrm@nvidia.com>
-Cc: David Ahern <dsahern@gmail.com>, netdev@vger.kernel.org,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	bridge@lists.linux-foundation.org
-Subject: Re: [PATCH iproute2-next v2 4/4] ip: iplink_bridge: Support bridge
- VLAN stats in `ip stats'
-Message-ID: <aEfdQMWuDHu_lJaA@shredder>
-References: <cover.1749484902.git.petrm@nvidia.com>
- <c0d97a28464afeb3c123f73b656e5e5532893726.1749484902.git.petrm@nvidia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c0d97a28464afeb3c123f73b656e5e5532893726.1749484902.git.petrm@nvidia.com>
-X-ClientProxiedBy: TL0P290CA0008.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:5::19) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id qyIDKJ9qqNcP for <bridge@lists.linux-foundation.org>;
+ Tue, 10 Jun 2025 12:20:35 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::136; helo=mail-lf1-x136.google.com; envelope-from=razor@blackwall.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1F2A440261
+Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F2A440261
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=B5YwUXeL
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1F2A440261
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:20:34 +0000 (UTC)
+Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-553543ddfc7so5177239e87.0
+        for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 05:20:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1749558033; x=1750162833; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+/yj1cI+THStCgol0p5dxqSrifx2yS1OsxMik6/kECg=;
+        b=B5YwUXeLvHpvwUekGYb49YDHjmJtSeCTlgd7Isjhi0irpiwooxwreWEfCXl3AUB1BC
+         Kj2Br7H5De/7ZYgZgmRSn/qkQO+Aqhm1zcjrehTiZhwUqmUYU5C760usX09vSLXBghnp
+         /4XyLYY5cw2tY+xL0CkheRH3GmTglcdWOqoNgFXuvl+UK5Qi1p6xjQk0Po4UPkeXnYTC
+         Ee9L02rl29HM+lctZpr8wLznbuTl8nRNir0LWCCGFTI0dDFsPQJT1BLO+Iq8PxBSXWPs
+         PuNBmjUXtnEN/+QDzlBOdmVI6Haz2t8WXOhCkYMM3W6/ERlKpS6ophLLC6z4X3TkfnUd
+         wvrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749558033; x=1750162833;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+/yj1cI+THStCgol0p5dxqSrifx2yS1OsxMik6/kECg=;
+        b=iPG4xSexd/Xd/ZA3mUCy9YjXgrsXkcrFRpleom5z7FthqRMKHFHK6o2lx+nj0L8upI
+         9W6ddbxaN1y/Ogo0xi77eFTenXNi0cIw7ZiK3VtJ1Rjhe9WvzJMsybHCBfVEAHWX2Hx/
+         10LhDizrDtyx8a2di4uZZ391F1uexfrLTRstZzu0d16yvgtV/pOCfNPlSWFFwZH6WMz/
+         c34eOMGX4ZeuHTofGiP/CTvYHwE0Pn/0OHIh+z9wvU4oFxP4nu5244SxmqVoqhdrF4A7
+         Q1oss6X/X7jOHKXE1rquzo6yFk44dzC7X47r0OUYi39M4+aMzekjapDP1Dr4kreqkLbg
+         XqTg==
+X-Forwarded-Encrypted: i=1; AJvYcCWnGD9ucTnV5r5TqQCNNBg8aApuZEsYUXul3MWmMfPQyIkeadRhTU9kWWATk/sRFRv+VvPP5BE=@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YwBYdA+0Y3exIv8Gdo98M+KoXGURpK0LQvhqVyRhBTHHxl/6Cwj
+	D2xwmArphJmshLXB7TIV608q8QRf3iZxdt+9CMSsZQcftLJU5Tni0T9D8EKItWjZK6U=
+X-Gm-Gg: ASbGncuRAHlbJWI3wJNqHlnnalXJoP2QEv2BCw81Lg5ouS/K0fOo8fakpRiRcWNB4Cp
+	ZwG4nVZCGLC6Ci2zj0KgDR1OA8sBJSNm6LORZYdfynlm6txT1sTxMvfJzOqs4n9WYaCx9/0eDPn
+	NnQ7EoM2Gxtz9+cbEBNNTDdIxpuprFDWR8MBz/WAkEal2lj7wJyjJsFyRVqqgMw3xuIP7AdSoIL
+	ZRT2G3OSxlyuBthHDWQ2LKuXdi9Vb5Wrvp37WQ65hGC7uw9Us9e1gkIvuH1tdZqdkyCP3GxcmLT
+	6OxKwwZAmT/sN+un5U+hCzNgEa6Ua+JxHOrxXr6e3x/Yeu9AEMktLUjFfccgZK6w+BFMXpXnzSd
+	04PaSl4K4plANQT6PWMSKfkKsuAvCKnE=
+X-Google-Smtp-Source: AGHT+IEl1JdeQusLwp3zre1k9d82StLthBpTHKOhic5o5TqIO+6zKIQSHxAEW6Ax+/UcbkiOXIeGvA==
+X-Received: by 2002:ac2:4e0a:0:b0:553:65eb:319b with SMTP id 2adb3069b0e04-5539475e453mr745771e87.22.1749558032370;
+        Tue, 10 Jun 2025 05:20:32 -0700 (PDT)
+Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5536772254dsm1525207e87.111.2025.06.10.05.20.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Jun 2025 05:20:31 -0700 (PDT)
+Message-ID: <5a6798b9-5e6a-47fc-8217-d7907e0f8720@blackwall.org>
+Date: Tue, 10 Jun 2025 15:20:29 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|PH7PR12MB9152:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4a3b5664-fd46-439a-384f-08dda7ef9bf1
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|1800799024|376014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?WMDBVybMypFKglVgPm76korZDjorPO7xsH/XA6mVPkzw3SGF0iQg6Ob7k4FC?=
- =?us-ascii?Q?FKywej+Vg1Mxzj3yGDofpSOQ1LJZZOAkLEbxr8ZdtN4vcqialXn4BmDsuVhy?=
- =?us-ascii?Q?G7NvXkTFOZBMRZYSgwO6Cnfi4KEoL3B8Jro8TqUfetraC9hwU1CAllqwyy/J?=
- =?us-ascii?Q?U3OxmDNWMuZKjfciJXvKRc1PcmL5w4ed/9v3Ao6qarBwepNj6xB2r2DxCGxE?=
- =?us-ascii?Q?UqiAcSlvm+CmmgXKSFJOoh9zF8dNR1VlCruFOw7C5jPmP5IqqPMlnomySkhc?=
- =?us-ascii?Q?oURvWUxXA12W9J6dHHAq8zxsH7sea/l89TA4eDxry6hY0a6DY/NHH5S8DWDg?=
- =?us-ascii?Q?/NEjzQUoQ+QVicB/ZE+BF2SjDTsJous3m8BA6/7xlc+/MJeWFq3SgELvAMAX?=
- =?us-ascii?Q?THlnjVOWJRKO/aw2sOPL05NTQeOtWEuh9RCrhT4kVrypzCOSRuxQJX9UfzBw?=
- =?us-ascii?Q?tad3EoyibQWGBOkxEcMpWnjK/s8YHTpA73W+/9pwu1v3dmcWqcTKoYDEkxG2?=
- =?us-ascii?Q?oeqxzdXX6VYhzsjU+rtapX4jW1DHH4uhS6ubVL0ikPJCfJ5kOWFIRv8RryQr?=
- =?us-ascii?Q?PXV9roCfI0yKvA2qxvu09c/Yu7p6s7VGM5329/w1a4/b9/Tvfyr1sADxx1W0?=
- =?us-ascii?Q?G4R8960+1tdLTTeJ1qwnp05aJkBW5P01wluX/mf9Q6ZIC/F26j3IZwTGTVfN?=
- =?us-ascii?Q?paiy3fJYghh3cVR7OjIMKUhyl2Yd3zKUbaj5hkGtH1skW+bsj+OdxY3/OkEO?=
- =?us-ascii?Q?mP9yYyd+68Iq9qh1tmPGn1BCBD417VVy7EftMeSlqNgZinXAN7Wl4qdKSBC9?=
- =?us-ascii?Q?qBttNGCvlyFWNyvSnILUGQdUiNqM3K+iqOqAa7xukPAMEzK8C4A6wprLjh5M?=
- =?us-ascii?Q?IxQRw63aurqUXuVgKRhsDtfRU8jEjmUbHJ4GPt6VuS1y7AB6SA3kkHrySwU/?=
- =?us-ascii?Q?8iGB6XJN+T+SAHt/55LmHpslRblXFkzcwDW9zc4gUP9qBt6fJId/Kndqj6x7?=
- =?us-ascii?Q?SheqCWJUyDomiCWxhiFsCjAkSnktIDiefkgkFBURYjtrSsPqgWeMl7rvpzA8?=
- =?us-ascii?Q?hcdS74qSf+BQVvPIVvC/a4mlFOg7/UzFOm7YjIiK1QiTYLZw5dxbXxfrEJx2?=
- =?us-ascii?Q?0oZOoxMEm016IPhl46GNQQJR9s1aru9iyawPuaw+H2WoeCbVnTWKND0hgpjc?=
- =?us-ascii?Q?vyRC3U3gnVJaFIeP/nOzV63A0CP7GlSs2yDuCrzs95Xygx9guAdsVOfGEdHi?=
- =?us-ascii?Q?RwQKfvwNtc8ccrIKGq9WcZ3loJV6rRRjW0CUSeWpFn/9n0gDw7Qb5R/wp0I/?=
- =?us-ascii?Q?6DLFDtsCGUYvI0CkohfZedLtBDQsP5Rl3vdUN889DKzpwP1YvdTuYcpERVcW?=
- =?us-ascii?Q?uXeOgwQoDSrnHFl9CcErc3lzkoNTztoJOV5AVYwTdo2HzNMOLAf9II/uYkfD?=
- =?us-ascii?Q?zDOT82u5NQU=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?zKmYrN6N05cqaWIl4AnlMDPHjqcO+7dWjF2JQxn8qfBN4DBp2ZZbldCncm2X?=
- =?us-ascii?Q?8dQtUeiycGf4SZKGr7b5QhpwkythyZ+4KpvVUbCQXURbFTt2nlywhPAApZlB?=
- =?us-ascii?Q?i8Rnzp69FQmxi8YSW+tjQHmXKmq08V+dN3fee3eXsFk/2dgJpceH81vgw0h5?=
- =?us-ascii?Q?35yRZ1TAgloDSqYOBJWLDuxWpOfpZl1Hkt+P1TYwqyJa259XsZ9JwhlvUP78?=
- =?us-ascii?Q?ej33X/mIY7LC4Kftpbqa2cKQ7+ck3hKsddr7tlt4JHoquY4StJi4ZDcPVtda?=
- =?us-ascii?Q?tw+/ZvnwiKsR+AhH5n8WW9AAXJU3dcWsNEqSynfvvqipchaja2m0cEJQYpeg?=
- =?us-ascii?Q?hQXTbiP3q8wS6gqJK8ne21X/CzzPK6FXBtiD+nl/Cz6nrfiHZorschuutYNN?=
- =?us-ascii?Q?7juyJFAyjYcsFZx1VIOzL9iOUmBFCXwZwgt5SemPCF4ZBgcrcn8/jTU0WdUt?=
- =?us-ascii?Q?WrR9bI9DHRtrdntrmmbZJKzhkdxVTJ7yxKEhKp0bnfoVELOeDkNmu/50QISz?=
- =?us-ascii?Q?HOzIbEaRTH1zEQtusUbsXPwVqdpG6cEkZaHl48B3XjnSjcz6gVP+flt29ueN?=
- =?us-ascii?Q?7HumN70IAphlkpOmubbVXLYK/U8PQKbxA/+pHA9S/jy6QZizg1CNvrgBXB2/?=
- =?us-ascii?Q?/TvyhZosQGDtR0yD2Z15HRWOXKa3+ttVaAQhjobfVjEoU29SIe3VLjlnBCXn?=
- =?us-ascii?Q?/avEpZAOVLcXyDaIJM8LLzudmLsPq55RAI2wCzus9wFux8Cz+yP7nedLdObZ?=
- =?us-ascii?Q?dmglTiklo2VmbDIeNymcVbTZQpoHZsi74Jyda09QHQg67UhZDTw+r5V7wTO9?=
- =?us-ascii?Q?80I8lP6u3UDUVRDGZVITUPEQauwqmJyXfnx8UUlp9kYyl9NcKga7ULlUOLHC?=
- =?us-ascii?Q?1NoU57BL8VlK0Ov+T2OfLx5HFTkHM0AgODCcrGujdmhECPD3NYz8Dc1UTDJn?=
- =?us-ascii?Q?C5TIbKbqF+tXe6BK1SsKyrYB54aTLAGU6V+n+LMlPPL/8CB4PD2KPYlQfTJV?=
- =?us-ascii?Q?ctasDqezbyNrVq582/Av2oiEybgaS/9gpyCLIWuYJXI3/EdpNXkEwPN7sUFj?=
- =?us-ascii?Q?cLWH1AMEMVLrMi3/ORri+cZIE4zaL2e81Hnm71gPQIjdMyoi8BhDztD23o3K?=
- =?us-ascii?Q?yHoyiwS3f3OtC8llMQyaMOViyP7G8FOay5voXwt2X2rXCYHD+X6DVhkjT94n?=
- =?us-ascii?Q?EE6cOnsrf5hfJyMeo4T6K/MIsMTwb3KE5GIDPCToL2eBVz+mudaI9+dcmFJA?=
- =?us-ascii?Q?v5iT5w/0s4GM2yvugoA5ugmuOsCfb+UzNGcDEZoSW8L9AKSRcT/uY0sCx0BQ?=
- =?us-ascii?Q?RfoEoRf8EBFusgvrrmP6ZhpVsirem1cmOFJkEGNKGJwk3+i5bmAS1WYR7omF?=
- =?us-ascii?Q?5g/v/kJdf5R8q2yB/IU0i7US4cjU7k2bQsfnKtJqFaKT+cPwlGxx3dSehFFV?=
- =?us-ascii?Q?v/+k2HGNb7mycfHRcwO94MasHoooZ92CO+virs0sTLYqzJ7iWSPjB0bC3ZKs?=
- =?us-ascii?Q?OY7u3uf/uiSxPKcr34p+Q9Ekswzxiym2979MPs1IPWP3PGGNhSnDb0ft7qV/?=
- =?us-ascii?Q?FW3zGEL7Tae3lnhS+hhhVFW7aV07ohRwusJL4jWv?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4a3b5664-fd46-439a-384f-08dda7ef9bf1
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jun 2025 07:22:51.3267
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tdFV8IbJBMqks+Fm0ICn2eXkqrpHHAEpvUKLN2q0h282o5goO5Sg/SnAfDefMC+2ZPQgI0JnymANWjvGMO+TLQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB9152
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH iproute2-next v2 1/4] ip: ipstats: Iterate all xstats
+ attributes
+To: Petr Machata <petrm@nvidia.com>, David Ahern <dsahern@gmail.com>,
+ netdev@vger.kernel.org
+Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
+References: <cover.1749484902.git.petrm@nvidia.com>
+ <e8834ec759b3e7f94545fe07a219ca592e84e402.1749484902.git.petrm@nvidia.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <e8834ec759b3e7f94545fe07a219ca592e84e402.1749484902.git.petrm@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Jun 09, 2025 at 06:05:12PM +0200, Petr Machata wrote:
->  ip/iplink_bridge.c | 48 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 48 insertions(+)
+On 6/9/25 19:05, Petr Machata wrote:
+> ipstats_stat_desc_show_xstats() operates by first parsing the attribute
+> stream into a type-indexed table, and then accessing the right attribute.
+> But bridge VLAN stats are given as several BRIDGE_XSTATS_VLAN attributes,
+> one per VLAN. With the above approach to parsing, only one of these
+> attributes would be shown. Instead, iterate the stream of attributes and
+> call the show_cb for each one with a matching type.
+> 
+> Signed-off-by: Petr Machata <petrm@nvidia.com>
+> ---
+> 
+> Notes:
+>      v2:
+>      - Use rtattr_for_each_nested
+>      - Drop #include <alloca.h>, it's not used anymore
+> 
+>   ip/ipstats.c | 17 +++++++----------
+>   1 file changed, 7 insertions(+), 10 deletions(-)
+> 
 
-Code LGTM, but I just realized that the new vlan suite needs to be added
-to the ip-stats man page
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
