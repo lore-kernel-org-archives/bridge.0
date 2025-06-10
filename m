@@ -1,83 +1,83 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD3AE28FFCE
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:20:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFE7A28FFD6
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:21:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749558037; cv=none; b=VXvhf5lp1x58To00bf0oI/VbnC7+JywHuRxZpONXpx/3UAKXuBirmnknR1mffNjiE52ouKy4RCSJuhpqkHoCj6KFq5/NGnX5I9wF/ImZkPAu7bYob1/ydiP+eJMvCsuIqcUPkjZ7YxiCdcVoYX1q08ajtsXDXY3RmHZ8mp0Dj8o=
+	t=1749558068; cv=none; b=WR5yChnPKaOEnO8oxZzVu3Y4ZfciWUCdgTLdgkx2RdArixNhcqM6KT7JnmWaqte0zBRf1LrkqgEvC2kEM5ueZP8IOCcQlT/4hL4ajlKExzBNxUzFkiRvECD8u5eOXDxwJLKFp6Bh80hhxYBBIshbnvo7XqY0eIw0j7Mj0myWe/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749558037; c=relaxed/simple;
-	bh=GxAzovlHgLGnYrZU1ySFi76vhcQRxNyPfdNwRBun9e8=;
+	s=arc-20240116; t=1749558068; c=relaxed/simple;
+	bh=u0j01G9fvtcien2pLULX5dEIhNEOfJHSJYRvt2F1akk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=C8D09OMJuQO6DOkKytFv7RCoZG6R5J0kLWYCN1by9spAWnnYfTET8Kr0B7mJNCXvhTIEdA6f1hhFMw3vuJAq5tdFXid1OU1L2PemFksHaObU2jBihqNw40UbpSxoDDwIs7scliGNyJICvZ5rD0KWvM+58ouCr0nXWMx/NaOSKlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=B5YwUXeL; arc=none smtp.client-ip=140.211.166.133
+	 In-Reply-To:Content-Type; b=YDL93YF+TWKbmdgIiY4etugNufuPp8dEPqfjEobLAjEk6j49GVFlhFRLvZjUm7Kxh6xvkMtolvg0/mwIYbOe75vH9LOME9NoSrR4Pu60K4MQUsM1M8kr9ddbUcQdR2RLVsCKWty9IOYvnzdo4FcxmhukrYeHTzvIKlCrzSo7J1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=eEIh3Vng; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="B5YwUXeL"
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="eEIh3Vng"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3AE8D404F5
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:20:36 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 82A20833A7
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:21:06 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id qyIDKJ9qqNcP for <bridge@lists.linux-foundation.org>;
- Tue, 10 Jun 2025 12:20:35 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::136; helo=mail-lf1-x136.google.com; envelope-from=razor@blackwall.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 1F2A440261
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F2A440261
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=B5YwUXeL
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1F2A440261
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:20:34 +0000 (UTC)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-553543ddfc7so5177239e87.0
-        for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 05:20:34 -0700 (PDT)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id H1ByHfRVto-z for <bridge@lists.linux-foundation.org>;
+ Tue, 10 Jun 2025 12:21:06 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::129; helo=mail-lf1-x129.google.com; envelope-from=razor@blackwall.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org C4893832D1
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C4893832D1
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=eEIh3Vng
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C4893832D1
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:21:05 +0000 (UTC)
+Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-54e98f73850so5754773e87.1
+        for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 05:21:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1749558033; x=1750162833; darn=lists.linux-foundation.org;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1749558063; x=1750162863; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=+/yj1cI+THStCgol0p5dxqSrifx2yS1OsxMik6/kECg=;
-        b=B5YwUXeLvHpvwUekGYb49YDHjmJtSeCTlgd7Isjhi0irpiwooxwreWEfCXl3AUB1BC
-         Kj2Br7H5De/7ZYgZgmRSn/qkQO+Aqhm1zcjrehTiZhwUqmUYU5C760usX09vSLXBghnp
-         /4XyLYY5cw2tY+xL0CkheRH3GmTglcdWOqoNgFXuvl+UK5Qi1p6xjQk0Po4UPkeXnYTC
-         Ee9L02rl29HM+lctZpr8wLznbuTl8nRNir0LWCCGFTI0dDFsPQJT1BLO+Iq8PxBSXWPs
-         PuNBmjUXtnEN/+QDzlBOdmVI6Haz2t8WXOhCkYMM3W6/ERlKpS6ophLLC6z4X3TkfnUd
-         wvrQ==
+        bh=wwioawj3LoM8t1kN/tzjpsLzY0VIcc0CS1zTnNXsK2E=;
+        b=eEIh3Vngdb8uthWnE5SALFBgEsE0/gIkeGs9GdiKWndd/GKcLs/c3AnGItkP4lavfj
+         P4uskiHP8ZD5JIk0IFg6Qc8fBt2jicr1olJ3BD9qr8e+luFiAoMTBfrfcg2/4RmK0Cga
+         wvdwrmg1pK8/qWTCVkH9KAmRErgKkGXJo9w1PDM5sucJcFhStkJ45/9IxGkGmUEg+YrS
+         O7CX3yCeuPfKiEteQgYYjNkphYm65oh1dCl7oqMshnO/J4DLz6a0ShcpOpgDTJPSt2q6
+         JkfAEekTQmWa8PlLPnOyZ9o78EBNQ5PVNujZK9LmBIS9rSRT2aKXjqraK/mVRbUs9OAm
+         FGUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749558033; x=1750162833;
+        d=1e100.net; s=20230601; t=1749558063; x=1750162863;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+/yj1cI+THStCgol0p5dxqSrifx2yS1OsxMik6/kECg=;
-        b=iPG4xSexd/Xd/ZA3mUCy9YjXgrsXkcrFRpleom5z7FthqRMKHFHK6o2lx+nj0L8upI
-         9W6ddbxaN1y/Ogo0xi77eFTenXNi0cIw7ZiK3VtJ1Rjhe9WvzJMsybHCBfVEAHWX2Hx/
-         10LhDizrDtyx8a2di4uZZ391F1uexfrLTRstZzu0d16yvgtV/pOCfNPlSWFFwZH6WMz/
-         c34eOMGX4ZeuHTofGiP/CTvYHwE0Pn/0OHIh+z9wvU4oFxP4nu5244SxmqVoqhdrF4A7
-         Q1oss6X/X7jOHKXE1rquzo6yFk44dzC7X47r0OUYi39M4+aMzekjapDP1Dr4kreqkLbg
-         XqTg==
-X-Forwarded-Encrypted: i=1; AJvYcCWnGD9ucTnV5r5TqQCNNBg8aApuZEsYUXul3MWmMfPQyIkeadRhTU9kWWATk/sRFRv+VvPP5BE=@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwBYdA+0Y3exIv8Gdo98M+KoXGURpK0LQvhqVyRhBTHHxl/6Cwj
-	D2xwmArphJmshLXB7TIV608q8QRf3iZxdt+9CMSsZQcftLJU5Tni0T9D8EKItWjZK6U=
-X-Gm-Gg: ASbGncuRAHlbJWI3wJNqHlnnalXJoP2QEv2BCw81Lg5ouS/K0fOo8fakpRiRcWNB4Cp
-	ZwG4nVZCGLC6Ci2zj0KgDR1OA8sBJSNm6LORZYdfynlm6txT1sTxMvfJzOqs4n9WYaCx9/0eDPn
-	NnQ7EoM2Gxtz9+cbEBNNTDdIxpuprFDWR8MBz/WAkEal2lj7wJyjJsFyRVqqgMw3xuIP7AdSoIL
-	ZRT2G3OSxlyuBthHDWQ2LKuXdi9Vb5Wrvp37WQ65hGC7uw9Us9e1gkIvuH1tdZqdkyCP3GxcmLT
-	6OxKwwZAmT/sN+un5U+hCzNgEa6Ua+JxHOrxXr6e3x/Yeu9AEMktLUjFfccgZK6w+BFMXpXnzSd
-	04PaSl4K4plANQT6PWMSKfkKsuAvCKnE=
-X-Google-Smtp-Source: AGHT+IEl1JdeQusLwp3zre1k9d82StLthBpTHKOhic5o5TqIO+6zKIQSHxAEW6Ax+/UcbkiOXIeGvA==
-X-Received: by 2002:ac2:4e0a:0:b0:553:65eb:319b with SMTP id 2adb3069b0e04-5539475e453mr745771e87.22.1749558032370;
-        Tue, 10 Jun 2025 05:20:32 -0700 (PDT)
+        bh=wwioawj3LoM8t1kN/tzjpsLzY0VIcc0CS1zTnNXsK2E=;
+        b=HMUzgN2tVLzkv73G5GomdajNDM2zxlRAXemBb2wopf/tGm0JSE2PDTd5rztx3H5HR0
+         VkPw/JZjQ2IRJQ/3+nXhSDqrxWonOAneOkgDL0o8lm2vv8XH7y/+iPo816ALEXz6TLUr
+         K1Vm1HypfP+8fmcYY2RVkIVs/fIxWQj/Oh9A4kFMQrbGxbVU0Gt4aJsTm7+Pr1y+CVYC
+         4ICbQMIwVr3iY5xzfJHKpFz1N8/m+Psjidm1DKBnvqWhXBNAZ2Qek17kG8d3bo3GKwfk
+         BfMsSuERue7Gmxr8qv5osZfUCwc8iizv514Q0Tw73YNUi59OqNRKo3aSShKo0zmnok15
+         csbQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWL95Qs4/pb2ceQI1Ldv8IsAW+L8POB5ftDVpRWDFOpnDahDiWqrlEqjzzzJzCtnuk1Pq1W/yY=@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzxifqiozGOUH2mO5fRtXiqa6chSLHfk94+yCgju6cIoFfaNDlr
+	k35vb5obGAMIRMO1h35xtfonBL0LBJg/piv9sJ+Tyqa6p0J7OxpLIXrVE10Eubu/06o=
+X-Gm-Gg: ASbGncusVQ3f6O5m/LCgxXZ5TtZNOOa6XG61uUBnAEbOLeWIK7LMx/OFGRO1lA1vavp
+	u13oTc8WELH6sFULN9ufRerGwQOjMwVvqb25HM7y3Y4Ju6Tn7L6nFaopm/Cgl4xfdKuB4Dl0SSQ
+	RRehVojEffbieXY0ifAq0hoIJiqVfrTsvOROmIYutU9CZIDQWKDGEL+1siytvZTRJ5JH5sT+a0b
+	yNNDvIPEMaoAfer6tzFlWpV3GSzYJv5g/cgqcneIMdYq3yEONr3WB4U6oUrtonKyCqxgmYK/0TW
+	8QSGXpcqHlyWn/S1XNQl8IHgNjaOlgWS+vfLTy8eBN3EbImjKvqX4jnictUUY7IeM7rq4WjzYJF
+	bWMaQEUENtVJnbmu160bOnGDX335iP3c=
+X-Google-Smtp-Source: AGHT+IEspqSQo2l6BoJsMZshtR+Z6E87KKc2jCvflDBVZfWYLnYP+yI6/3Yx/J8lMpyaxw9s1GFUHw==
+X-Received: by 2002:a05:6512:1248:b0:553:32f3:7ec0 with SMTP id 2adb3069b0e04-55366bd0d03mr4190897e87.9.1749558063127;
+        Tue, 10 Jun 2025 05:21:03 -0700 (PDT)
 Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5536772254dsm1525207e87.111.2025.06.10.05.20.31
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-553677330c8sm1527573e87.238.2025.06.10.05.21.02
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Jun 2025 05:20:31 -0700 (PDT)
-Message-ID: <5a6798b9-5e6a-47fc-8217-d7907e0f8720@blackwall.org>
-Date: Tue, 10 Jun 2025 15:20:29 +0300
+        Tue, 10 Jun 2025 05:21:02 -0700 (PDT)
+Message-ID: <2b1350f3-ac60-42d6-b647-251d040a36a6@blackwall.org>
+Date: Tue, 10 Jun 2025 15:21:01 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -85,38 +85,29 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH iproute2-next v2 1/4] ip: ipstats: Iterate all xstats
- attributes
+Subject: Re: [PATCH iproute2-next v2 2/4] ip: ip_common: Drop
+ ipstats_stat_desc_xstats::inner_max
 To: Petr Machata <petrm@nvidia.com>, David Ahern <dsahern@gmail.com>,
  netdev@vger.kernel.org
 Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
 References: <cover.1749484902.git.petrm@nvidia.com>
- <e8834ec759b3e7f94545fe07a219ca592e84e402.1749484902.git.petrm@nvidia.com>
+ <b1514e637ec85b85fb76360c29573a4d9dc15dbf.1749484902.git.petrm@nvidia.com>
 Content-Language: en-US
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <e8834ec759b3e7f94545fe07a219ca592e84e402.1749484902.git.petrm@nvidia.com>
+In-Reply-To: <b1514e637ec85b85fb76360c29573a4d9dc15dbf.1749484902.git.petrm@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 6/9/25 19:05, Petr Machata wrote:
-> ipstats_stat_desc_show_xstats() operates by first parsing the attribute
-> stream into a type-indexed table, and then accessing the right attribute.
-> But bridge VLAN stats are given as several BRIDGE_XSTATS_VLAN attributes,
-> one per VLAN. With the above approach to parsing, only one of these
-> attributes would be shown. Instead, iterate the stream of attributes and
-> call the show_cb for each one with a matching type.
+> After the previous patch, this field is not read anymore. Drop it.
 > 
 > Signed-off-by: Petr Machata <petrm@nvidia.com>
+> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 > ---
-> 
-> Notes:
->      v2:
->      - Use rtattr_for_each_nested
->      - Drop #include <alloca.h>, it's not used anymore
-> 
->   ip/ipstats.c | 17 +++++++----------
->   1 file changed, 7 insertions(+), 10 deletions(-)
+>   ip/ip_common.h     | 1 -
+>   ip/iplink_bond.c   | 2 --
+>   ip/iplink_bridge.c | 4 ----
+>   3 files changed, 7 deletions(-)
 > 
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-
