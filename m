@@ -1,185 +1,163 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0599528FFF6
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:21:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749558118; cv=none; b=njcGbS0jIQJZsMsztdKfeRidYELKEq0E7WE8JSFR6UM9ExUrv37QN07z1pK75nN3JpuYO6vvaY+1W+tw5saXpiGBlDDRzNmO2YCUQaPELBNmK3LvMvo9fuUtcoPqsEMEfzyyn/iHzJX9KoMs8vKo5TutcYnXY3kDEAv+CjbedCw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749558118; c=relaxed/simple;
-	bh=pGkjcw6YDzKi2PtQFF1DybqZsg9nWYh5T4MBtqVpx5U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TDF3ik96ibjZm0y0gEHmaE0OdRJzV/iVdQ2vu2FhcT9+70th/5u/e+VI0nO9x8oznvJN25h1v7WmalrBmsRED8bic6KQELZdQCBH0Hnk8rwp8r7PRuRFGNtL/Xe9V+nOetUbI1hgIaXxas7tXYpTplefc7E47/d/ogXfm7yZ4wU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=vBR2061R; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D03E2BD589
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 13:16:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1749561382; cv=fail; b=jyFOKVOmoHFsXkeMw0UbYtejdwYobNu2c99G7YM3DsLG/MbE+Fu/KTRPMCnmiqLoR2xwQjTahDQZFuEu+LSqZLRYGENTb3IgeC/4cYLRQ3C2wWyfnHG/38Od7cmgMyHtcVVartXqCH9oLACQ+uphzhNbmR7GOxFf8gMzDwTgDSA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1749561382; c=relaxed/simple;
+	bh=Plu6uqlTqIs1urWCpz7zXFanuIefKdum/UWoRApN9Fs=;
+	h=References:From:To:CC:Subject:Date:In-Reply-To:Message-ID:
+	 MIME-Version:Content-Type; b=nobN7sYcvleCZlTK99iG0lbJVWJsjVk5iFXAvAarzDkRg6GngTMbqjcHMw3T8HyK/KIA2cVKzPeNaAWSOxdJyb71M/tn270pavQ0eJQ3rQBOXZ1w3KeFogmxktK0iQph9vBY4+cl7PldN52JpBEFogOEEEn8+JDcBtpEWeZYqGA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ZHVCDH1v; arc=fail smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="vBR2061R"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ZHVCDH1v"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7188840139
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:21:56 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id DF58D41205
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 13:16:20 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.898
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id LoGPnYm9GCt5 for <bridge@lists.linux-foundation.org>;
- Tue, 10 Jun 2025 12:21:56 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::235; helo=mail-lj1-x235.google.com; envelope-from=razor@blackwall.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org BF08540123
-Authentication-Results: smtp2.osuosl.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF08540123
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=vBR2061R
-Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BF08540123
-	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 12:21:55 +0000 (UTC)
-Received: by mail-lj1-x235.google.com with SMTP id 38308e7fff4ca-30f30200b51so46915371fa.3
-        for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 05:21:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1749558113; x=1750162913; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Wkr8NlzrT7q+6KLISKYLjBRPxrJzkpjNvX6605AbOkg=;
-        b=vBR2061RKWpfRc5CRJYxrd+GjdQwVFXeU3u3tRuBHuy7YT4Db+z+U0wasCNLPbZxw3
-         I9gqgz12NLkDb2nduvhj3G3MXJUUWAzQGUu+eUIZhm8bnZWidE2veJkH4zqkP2l+oRbW
-         cn1oAU6o++/OoOK2id55tIyTtxynYza8hXVgoDtS99ey7sGHG3FYteuCQo779hjw9Pa7
-         KXQb5kqjzB2Bum6eYUsgMn9exMQHG1idneq8y4x4BIFBYF3Bafohmz/GD/QfhJ+9lfXL
-         WowRv2CdGv54bKA5EAHJJDF6o2Z+5RiaWvxegkE+PDQ644wSopfdyKmSsSd9EAMyfNBO
-         Su+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749558113; x=1750162913;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Wkr8NlzrT7q+6KLISKYLjBRPxrJzkpjNvX6605AbOkg=;
-        b=f2ZDAh3W0D6JFIoJpd2ZZmfpfFq1FnocXq0Oo++kMGgwkXgXT2jmSXlKrE1motyt1T
-         VQGFEnPHM0Y/cE2AvFTujzLdjTTY/FMGOA0yxFObShvNTCo9YT+KkKtvOZrpIzLFUDVc
-         nnxkQEa4mf6d+wK0mQqbKBYAa1ZrQikGfWrQ82CtIE+EQpgU3Xjs7MEdUjm/QmbbKwDJ
-         JB0RCp9c0rUqOklXR5SVFTW3iaTmCG0y5RajfvcdqoxgHEnXMkotlt6yXkl1HN+3FOOm
-         V/70xECGRxLTk39K/Z7QDO8SFZzE7kmIqIuLzs07NSX5F17Aw89yiATEzK7mE2GxdPP+
-         0r7Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUHXZ77KJfuAbehG/PHLUUJCsOGI1CGmHcYjxxqTV+BD/C6xQLv7xNw+uRGXOJKZq2EhNtaaL0=@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Yzk9iBZRmnymfh234oj1AwkL8Hy/Hyswrzajaj+/ULgslC/V8O7
-	RYStXWT5oRQfU/y7gFvjjKgiMbeM1rSt9a/RryCem22dqv7qlqTnZiVsScwi4hEjQE8=
-X-Gm-Gg: ASbGnctV/rhnRMt6xIrgUSw5yaNgA47vVhMlQ2UFOsBnAx0hmGKhzoyFYuJueK4LTh0
-	sGPFM4shwPwFNPfPwLtXo/imn25HnLPZbU9tkpDLH+0Hx4nTSctDFr2dLMPlhBciaHtzYmGcllG
-	rOgyZ03FQ3JXwLUmKzuHdzGLb3bRCa/SOO1pW4yBY2c0MKMwyYMsQEsiHzwYf/g0niduXsK47bN
-	jqApj88E9M4ixQaXxAFFfeOR3BKi9kkgpl+Sd7+6M+WrYoecS7fspB0I1QVGPyI/J0gHyPg0tbz
-	gXXJkrDeRz+tp662o41nDPRMtYvz6VnaIjGN152E37UJJugsDw/D441waxZlHE+QoYBxXAI7pQr
-	Sl9lGLNnezFkPEO5k5hcg6WzIXsFaqEM=
-X-Google-Smtp-Source: AGHT+IEgwRAVIyE6nLzZ0225oh2wo8Bpgx3Maq6YW9HopN0ZkGH0l2d9dudPlx3GX8xSOSGIfI4g+g==
-X-Received: by 2002:a2e:be9c:0:b0:32a:6502:df45 with SMTP id 38308e7fff4ca-32adfe900c4mr41634491fa.40.1749558113312;
-        Tue, 10 Jun 2025 05:21:53 -0700 (PDT)
-Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-32ae1ccfc48sm14389601fa.95.2025.06.10.05.21.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Jun 2025 05:21:52 -0700 (PDT)
-Message-ID: <23d87175-9212-49f6-b4fd-2d5ba251c085@blackwall.org>
-Date: Tue, 10 Jun 2025 15:21:51 +0300
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id G3ICp0fPzZdd for <bridge@lists.linux-foundation.org>;
+ Tue, 10 Jun 2025 13:16:20 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2009::614; helo=nam10-bn7-obe.outbound.protection.outlook.com; envelope-from=petrm@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 1105440BD6
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1105440BD6
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=ZHVCDH1v
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on20614.outbound.protection.outlook.com [IPv6:2a01:111:f403:2009::614])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1105440BD6
+	for <bridge@lists.linux-foundation.org>; Tue, 10 Jun 2025 13:16:19 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=j5XdJySXVcF4VndhvIlZWu7YBLUbsxjfvdFHeWyB6pEfDsQOZFQsvqCMIzr0+UzXq1Gxq2bgTN7qHRzs7PZ/yjsZwzGq3PkMAVud4qEZtcs4rc7QQVf5GBhht+MF17uUzxui7oZ0ktJL4b/zHbGLEujsDlsnZLc/E3nTEpiboseLq8XGeOebeDILR+uPsnH2FjeFGllmawtSthcp5bPpRRo8H+NQHHlJffrgLRq1R4ZECBp5kid12piUzmJ6vyF3SGENQtUdjXVZu3KwgQ5b5mjTMQW0Bce0Ej+wzV41IOyxoD/F9U8jFzqd2P0iBE5pFvVuFAZGWAXu4hzc15n9CQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/j+tV33v1+a3+C+kgZFD6aaN1p2APufwDl6+ngVF+74=;
+ b=aqvy6qabwG20XOTBvj60I1xJ7TTAXR8+XvJ7GO1vxG+1MwlFXUI/BkrqnD12u15jUkMgs7i5WgQ8KxpXX/j0yeTq3aMYrOtPHQA6kjA/SY1t9RmPK7Dm4rjs4ft7NJRSY/xPH/7JYrwTbvx2/3pMWmkg/pXLUjzQdq2vvYVgzYAEurCuT6hArUIrsepq3c8anivmXdgHxFc1xr7acvpenI/anbECNnJxWdb7gvUCDWLF27EnCS8FBev1qhJ3cDIUr2qB8IWHzeq5s+Fkosnwvz01npVoRKEqc6zzZxvGsy6S4nKF+g9ofIAfbT9uEmHlbFU6Wjoo3rLInYMDulaRRw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=lists.linux-foundation.org
+ smtp.mailfrom=nvidia.com; dmarc=pass (p=reject sp=reject pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/j+tV33v1+a3+C+kgZFD6aaN1p2APufwDl6+ngVF+74=;
+ b=ZHVCDH1vSABUfALRdsoa7ZKg9+j8fonEts9Vh28gnVa4alpid18r4RlMLMh5BHg3JRsdfzUh7+xcSvGGzR8bibHy85gUqKkJ2etUhmLf1s+ZgsEtbIxX5aSL8Hh7fFqOiUT6LnDFHh2C10Wsw/3vio75liQuWEM4r7f9s3dnpROUMtzzrpIiLCUaGGF3b/pRUlfpeivEzzARaxcvITTCwn262fCwg8feRdYx5Ndss5RSFKejWIN8hkmkZeeqKvUaH3tA1aR+VBkdqlI8zGZ9euRN/vmSjhiCUvzK5SjAxHNPs7fW1PgLTEyEM/trd2x2U2dL+tEGau6s2y78Pq3vSw==
+Received: from SA9PR13CA0053.namprd13.prod.outlook.com (2603:10b6:806:22::28)
+ by BL3PR12MB6593.namprd12.prod.outlook.com (2603:10b6:208:38c::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8792.38; Tue, 10 Jun
+ 2025 13:16:15 +0000
+Received: from SA2PEPF0000150A.namprd04.prod.outlook.com
+ (2603:10b6:806:22:cafe::b9) by SA9PR13CA0053.outlook.office365.com
+ (2603:10b6:806:22::28) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8835.18 via Frontend Transport; Tue,
+ 10 Jun 2025 13:16:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SA2PEPF0000150A.mail.protection.outlook.com (10.167.242.42) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8835.15 via Frontend Transport; Tue, 10 Jun 2025 13:16:14 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Tue, 10 Jun
+ 2025 06:15:58 -0700
+Received: from fedora (10.126.230.35) by rnnvmail201.nvidia.com (10.129.68.8)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Tue, 10 Jun
+ 2025 06:15:53 -0700
+References: <cover.1749484902.git.petrm@nvidia.com>
+ <c0d97a28464afeb3c123f73b656e5e5532893726.1749484902.git.petrm@nvidia.com>
+ <aEfdQMWuDHu_lJaA@shredder>
+User-agent: mu4e 1.8.14; emacs 29.4
+From: Petr Machata <petrm@nvidia.com>
+To: Ido Schimmel <idosch@nvidia.com>
+CC: Petr Machata <petrm@nvidia.com>, David Ahern <dsahern@gmail.com>,
+	<netdev@vger.kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>,
+	<bridge@lists.linux-foundation.org>
+Subject: Re: [PATCH iproute2-next v2 4/4] ip: iplink_bridge: Support bridge
+ VLAN stats in `ip stats'
+Date: Tue, 10 Jun 2025 15:14:18 +0200
+In-Reply-To: <aEfdQMWuDHu_lJaA@shredder>
+Message-ID: <87sek7enzw.fsf@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH iproute2-next v2 4/4] ip: iplink_bridge: Support bridge
- VLAN stats in `ip stats'
-To: Petr Machata <petrm@nvidia.com>, David Ahern <dsahern@gmail.com>,
- netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux-foundation.org
-References: <cover.1749484902.git.petrm@nvidia.com>
- <c0d97a28464afeb3c123f73b656e5e5532893726.1749484902.git.petrm@nvidia.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <c0d97a28464afeb3c123f73b656e5e5532893726.1749484902.git.petrm@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA2PEPF0000150A:EE_|BL3PR12MB6593:EE_
+X-MS-Office365-Filtering-Correlation-Id: 688cf231-5593-49c2-8b8f-08dda820fa32
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700013|376014|1800799024|82310400026;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?h2kuNz4YRfpINISeocGp424NIS54u4z37wPOpkCMkuItr1mtzOPAiitbpjbg?=
+ =?us-ascii?Q?eqCmvB1RuR+RCRUx/DeYDbBO011hXyiJdkVy0DzNjTELeYo7YppXF1NJohPo?=
+ =?us-ascii?Q?vU2BPMgg2x13GcUVQ/y7WWE2WXTj8uOlDszCgZJ4oerZRScMMKrzbL/5eDuX?=
+ =?us-ascii?Q?O2+JzCX+dOQOWFWVAlBvw4lTqSHGPDm5y8ZRnRxtYcs/1s0qWhJXFbJOyWX7?=
+ =?us-ascii?Q?QHfodGXwAn+j4wo3MLLNGe0pMu2B4p3uOgzwqVL9bGE4pvytpg1iPBhvE5QF?=
+ =?us-ascii?Q?zPVfiOC3B8UIlEBE3uK2uKw4K1hRdgwv3zcym1FGQ+peZbVAXdNG9+id7dU9?=
+ =?us-ascii?Q?nhIHUOcn443MNVIlgvTPcSphSIC6U03Zb6+E83AQsBTs7JfR/HwiRJRxKi4p?=
+ =?us-ascii?Q?VfCdQSGCpApb3MNA+W2PDTlJ0zNzgCngHNALcDuVzAtlYWHApwPLUaz8mGZS?=
+ =?us-ascii?Q?Rgn0Ohl6nKZfdC3yEgl2g0k2alNWosoIiD1KVzZxEIMouf9JE/ktUkSL+z6m?=
+ =?us-ascii?Q?EG1bOA4AUzAZEItoy8NgUqdwxxYZSNQuciL5wgCbIRIbrX5T16E9GZ+yWIpQ?=
+ =?us-ascii?Q?2p7FuQSwCfBG3PIBPMB3kaPbE1XX8tZoITG52jHX2o64VcKlYKQdn6OqBw9n?=
+ =?us-ascii?Q?e9J+Fe5n/B6VxSSNzwLZtNApCeFb1CQjTBjzPoGEUeLl0PNVK3Yrtp6RCqnp?=
+ =?us-ascii?Q?uuzo/+O3LuK9GVwVWzx0JF122iRYI8nwAyBikaJv3hLsrfU+lSvgJr8n7Tt9?=
+ =?us-ascii?Q?Rd7rEzwyMwH0iJW7yzfRt+hz6eXzaTo+78WN3VY3Cpsc+xT/vQ2Oyi7yZD+l?=
+ =?us-ascii?Q?vemj/h9IJteE0vfSWkvrEvrUELEPpCc4O5ADigQXmRm5Og7wCjmcYdPmUevf?=
+ =?us-ascii?Q?ho9k5BVGdzDdHFguqC0XRzkP8xzmuZk1GhgBovNAna5k/ByJ8bF5SSAO70tt?=
+ =?us-ascii?Q?ZKLra/R8PLM4+K1WgybBCjxqf/nxG1l9tQRs3lhHJNz0+dt0oQXyOPded2g/?=
+ =?us-ascii?Q?QLpsjWF7l+cWWK02YgC3b+nuBP4gU2L6Y5SF/a17/vwr0L8S5zTBMvCjMLEt?=
+ =?us-ascii?Q?69KBGAQiWj4LexM070ttJgPmLOG4GUP66sTcU3i5L4sS96Xn1nIrE0+eWuuT?=
+ =?us-ascii?Q?HuQ4RQVIBi3lhZP4yAANyiPu9BCzF7TP9+sCytz++KLIyGxl7T5QxCwux+4u?=
+ =?us-ascii?Q?PtcqyHlgGu0HGWqNSzZ0jNmtJrzGfEdtbKWxc0H+bV0Zhqt5/e6e1mdj3/qt?=
+ =?us-ascii?Q?1c/RwLtjk/5ltjNRS3+6iMSG5X0jt5UmhoDmANeOYP5MH6bIHVkbFwMK8vrN?=
+ =?us-ascii?Q?EFM9OEU+lv9LykiTbvWCU/2JkMuo661YGax8pbTBmlJ9YiTAB56lEE8vhSfi?=
+ =?us-ascii?Q?+AgrjE0WGUYip0941MDDTbiRNrdD2wGcuEkBvJRdYpn8d8v67POOjmBfvNas?=
+ =?us-ascii?Q?ZfsOYWtILRGuKPey5Holv+p69wvV3NsaVdaNYA8rZEM87GoEhKSsQx/5aYEK?=
+ =?us-ascii?Q?Wbq40vx8MZkyPLYRQjwtTgAdyWLvr3pZY0z2?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(376014)(1800799024)(82310400026);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jun 2025 13:16:14.5019
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 688cf231-5593-49c2-8b8f-08dda820fa32
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SA2PEPF0000150A.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6593
 
-On 6/9/25 19:05, Petr Machata wrote:
-> Add support for displaying bridge VLAN statistics in `ip stats'.
-> Reuse the existing `bridge vlan' display and JSON format:
-> 
->   # ip stats show dev v2 group xstats_slave subgroup bridge suite vlan
->   2: v2: group xstats_slave subgroup bridge suite vlan
->                     10
->                       RX: 3376 bytes 50 packets
->                       TX: 2824 bytes 44 packets
-> 
->                     20
->                       RX: 684 bytes 7 packets
->                       TX: 0 bytes 0 packets
-> 
->   # ip -j -p stats show dev v2 group xstats_slave subgroup bridge suite vlan
->   [ {
->           "ifindex": 2,
->           "ifname": "v2",
->           "group": "xstats_slave",
->           "subgroup": "bridge",
->           "suite": "vlan",
->           "vlans": [ {
->                   "vid": 10,
->                   "rx_bytes": 3376,
->                   "rx_packets": 50,
->                   "tx_bytes": 2824,
->                   "tx_packets": 44
->               },{
->                   "vid": 20,
->                   "rx_bytes": 684,
->                   "rx_packets": 7,
->                   "tx_bytes": 0,
->                   "tx_packets": 0
->               } ]
->       } ]
-> 
-> Similarly for the master stats:
-> 
->   # ip stats show dev br1 group xstats subgroup bridge suite vlan
->   211: br1: group xstats subgroup bridge suite vlan
->                     10
->                       RX: 3376 bytes 50 packets
->                       TX: 2824 bytes 44 packets
-> 
->                     20
->                       RX: 684 bytes 7 packets
->                       TX: 0 bytes 0 packets
-> 
->   # ip -j -p stats show dev br1 group xstats subgroup bridge suite vlan
->   [ {
->           "ifindex": 211,
->           "ifname": "br1",
->           "group": "xstats",
->           "subgroup": "bridge",
->           "suite": "vlan",
->           "vlans": [ {
->                   "vid": 10,
->                   "flags": [ ],
->                   "rx_bytes": 3376,
->                   "rx_packets": 50,
->                   "tx_bytes": 2824,
->                   "tx_packets": 44
->               },{
->                   "vid": 20,
->                   "flags": [ ],
->                   "rx_bytes": 684,
->                   "rx_packets": 7,
->                   "tx_bytes": 0,
->                   "tx_packets": 0
->               } ]
->       } ]
-> 
-> Signed-off-by: Petr Machata <petrm@nvidia.com>
-> ---
-> 
-> Notes:
->      v2:
->      - Add the master stats as well.
-> 
->   ip/iplink_bridge.c | 48 ++++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 48 insertions(+)
-> 
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Ido Schimmel <idosch@nvidia.com> writes:
 
+> On Mon, Jun 09, 2025 at 06:05:12PM +0200, Petr Machata wrote:
+>>  ip/iplink_bridge.c | 48 ++++++++++++++++++++++++++++++++++++++++++++++
+>>  1 file changed, 48 insertions(+)
+>
+> Code LGTM, but I just realized that the new vlan suite needs to be added
+> to the ip-stats man page
+
+D'oh! v3 here we go.
