@@ -1,109 +1,118 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D7C284039
-	for <bridge@lists.linux-foundation.org>; Mon, 16 Jun 2025 02:25:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50B6B2BEFF3
+	for <bridge@lists.linux.dev>; Tue, 17 Jun 2025 06:58:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750040749; cv=none; b=RP78py2FVgyJtbhlI5cK0j+EkC2r/wpWq3karn7a8C5E5hoTnkYHkH/3NV0hpgz7aFaFhssgwD1XolT/zqXrj+BmdJ2wl/tOsoZ6sakuGVppRq9xI1nBj33WgXyQ++oEzukLTODOcdRWGx738+KXCjndzWZr/nzUq5XEPbSKvFc=
+	t=1750143535; cv=none; b=W0ldSajkpfB+ful1c2taiQhi45uS/GnXzzsd9yGQ4oEGXV+cRcS1+/QlywCGL6WqOPZNTu6cfDQTbRC4Fh0BcC1SgH8iqiKPPhCVSB5/GbVoDsPieUN6V7ckwZmUiFH7IgGpn3gIubmYx77CmENzvucvDOH1ALhBkaTO1HaV5yA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750040749; c=relaxed/simple;
-	bh=yeFyrQM5AEph3nqocW9/s3/siGve0QTTes0vDmiTWpE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mQNsr/ihqvaHyZ/jvpcd8zKvC/xeh9Wab4WG2uUr2pkYCD2KUtcM6kAcdVk5uZFhSXpgULb7jNxpUvMmIUjATttfGwUA6xyy0w+ML468Ln++t62iqbe6pyjJrA71ydYlxySoyRjQ05PXsaDjkXGICODGCK1zM/oIRHuMamr2uBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FkNivQeL; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1750143535; c=relaxed/simple;
+	bh=NyldArvQ1w/4Y84MUaUrw2GtMMsFi72AmBHahegFWGs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QSR7H3CM52DohLw0WXt1fdc5LRgvGole+Q8nL1R1+1mDUjyLljL3eauLBtIwqpGk6ImXBj11njlEoGZu+2M0Lpehwfr3bSs8dUrhBzALrt5u43+fgvXNhxoR68TIwZvzmP1kMorp1sYLlnKS+FKVR6WrdgjUDaXiJFtf50tLY+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gP9I+wE2; arc=none smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FkNivQeL"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id BBC3A40491
-	for <bridge@lists.linux-foundation.org>; Mon, 16 Jun 2025 02:25:47 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id T7aP-9FLrOao for <bridge@lists.linux-foundation.org>;
- Mon, 16 Jun 2025 02:25:47 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2607:f8b0:4864:20::130; helo=mail-il1-x130.google.com; envelope-from=dsahern@gmail.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 26CB240480
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 26CB240480
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=FkNivQeL
-Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 26CB240480
-	for <bridge@lists.linux-foundation.org>; Mon, 16 Jun 2025 02:25:46 +0000 (UTC)
-Received: by mail-il1-x130.google.com with SMTP id e9e14a558f8ab-3ddda0a8ba2so41711925ab.0
-        for <bridge@lists.linux-foundation.org>; Sun, 15 Jun 2025 19:25:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gP9I+wE2"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-607cc1a2bd8so9155824a12.2
+        for <bridge@lists.linux.dev>; Mon, 16 Jun 2025 23:58:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750040746; x=1750645546; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=BgTgVNhQF2E1TeVy3ZkzaWAE3nckokq6BK2WDQTXKws=;
-        b=FkNivQeLxyPBySH2J0BiYS5JxwNBLWzYCXsV2BhlvtJ+9hdevbyujiFnQ35hpJSJ75
-         AMSH2D1ThJ3LslRlPNXQ5lEQ/R1sANT3WkZF/tbkGwhNZ43/7oDoUuUVAMs2+TqGfJBZ
-         WOh86hTcg9fgN+LKyVH0liT5EmfK3Z9XGpFwrNBlmNRPB131BvXGMEHSfszgm+8FMHNP
-         n7MoxeoHkE+VPCvZU4wlVHqhRVWsPFQC9PPWky+u5m18CeYSEcTumewJe5l8YxM2yf3l
-         kVzWtCO3O9wLE29+sCUU7t6AdhowfNW2rne3SHnvfRvSEMX5CjCqt8jhflohK093dZKt
-         iJSg==
+        d=gmail.com; s=20230601; t=1750143532; x=1750748332; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZEHkovM/ftOTKmDVv8tlHJdRjSXgOoZevlav+wL3M/0=;
+        b=gP9I+wE2T+5k2sK2M+Y1jaEpChLXiba1h66MTBaATN+3EhfTVHF33apkHKeo9hXIef
+         XOog15f2xxr2mkc8ZN2V4npX5v+qbNVC/YEdsibOCZaHgBEajdpR+6aHI8omAq/SAwch
+         +KNhpqqha9G9rF2WjmSKxYJqnX7Hc7s98U0f1nkcrwwv8ac3S997dcxKJyDX5L2Hp+xN
+         7gE5w+b6jMNREFOnNuGjZnq6uPP/JDJODz4+45/KvU8tMTo9WXQ6HDY6FHwwCTP9VVGp
+         MbSG2dxqk01PnigtYpxmoZiszOy/muLkE0Ax57AZo9J7iMs+oP8QNmiJVCaTw0MvFMvO
+         KspA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750040746; x=1750645546;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BgTgVNhQF2E1TeVy3ZkzaWAE3nckokq6BK2WDQTXKws=;
-        b=P+b3LCIRlcF/NG1tCAQEy+QDkN1kKaUpDJQ23EyhK4se09KkifWfep73hBfv/clJjX
-         aG7GRthekzo9T/8sbmXX92bSaHv7tHSUZwxLwH2sDvG+dgsxddAJGhOiR2qfwrf88dpT
-         LF/H/Bm3gdfzf4yOOCJ5UToRPoQqIA61F932i6Vi3hEt+9h2JNQ8eqS7w9ZxYLdNnOml
-         Jdajm7B7kqv6LQt9qoIpdopz9LyJxPI/nqXkrTiL+VX/7WPbn5VOMdCJ17QDw/2LHxBp
-         +p08WUpemv87IiYYb/ZQIKh41FMtT5oquj+vyB8/eE86ffBNbwV/DJzi8NVaKcUPoUo6
-         LYXw==
-X-Forwarded-Encrypted: i=1; AJvYcCXFA1UY4wq/rLaWCy+bytqsgbB+WZmYhhJF6Hwu2scvbiMnctb5gK7+UPx3ZaNaMdAz48eYkaw=@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YyA47CNZfEWVhPzfttI3qUodLfibb7FYo14oqarCwD2z141rS38
-	mq+OFZeRMwv/RnpxIAMBgGjUgyjeArxX9Dheopg54di2KPP/ceU+h3OY
-X-Gm-Gg: ASbGncv5KwBqOWFfOAMMtXBfZsY9dz3Uk07a3VAFT4XuIXfv5D/mCBpsIxVBVmjC/Jk
-	QXf/jDab0LD6YJIy86ekluByvxgwsAMUgLPQBogtKBcd5gVUgRmB3t6vD9eb+NEaUnvCMsOqqSX
-	9IGv4LUxtppQCdzfUboSqRQaeYK5S34ZPOksiHb9X26fXKojefy2jLkn+k6JR73jwGL+gth8o88
-	rGnL/nvg+dqwM1PtXHo6RfPMp8K9wHOyH4n1hOkhOzD9HZESxVG/RYEhUYFpm2G9pxlL4ODeuMV
-	tNpkdV8N0A7j3oOaPjqUHTw1oL5hc9nJS8zGVvZ9msekY585k5Hi+lCnKLRjMYKhTpeQEIz5Vpj
-	1M7ATgyXTrjFPdsFdZzdSa9HkWhHGJRBBlYhvmOGtGtTPOt9I2DQjBw==
-X-Google-Smtp-Source: AGHT+IGesun+N2Fm0W/s40zUYMzKgBFnhl5xqVFUClZW1BUYLIvQHYcLL4mYPtHcTXUmtHHTDYEoSg==
-X-Received: by 2002:a05:6e02:1a8c:b0:3dd:9a7e:13f4 with SMTP id e9e14a558f8ab-3de07c50279mr90766025ab.6.1750040745920;
-        Sun, 15 Jun 2025 19:25:45 -0700 (PDT)
-Received: from ?IPV6:2601:282:1e02:1040:7db2:1a95:a8bb:562c? ([2601:282:1e02:1040:7db2:1a95:a8bb:562c])
-        by smtp.googlemail.com with ESMTPSA id 8926c6da1cb9f-50149b9df11sm1531147173.54.2025.06.15.19.25.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 15 Jun 2025 19:25:45 -0700 (PDT)
-Message-ID: <d38ab6ee-cafe-4981-9e01-19c7b5525847@gmail.com>
-Date: Sun, 15 Jun 2025 20:25:44 -0600
+        d=1e100.net; s=20230601; t=1750143532; x=1750748332;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ZEHkovM/ftOTKmDVv8tlHJdRjSXgOoZevlav+wL3M/0=;
+        b=Et6MsgA3ufg8h3KYtdqDEjqrIh6rxILmRN+CbpBrTyQSLp3XyxfRzweUT593AMJcCw
+         ZAlZL3Sipua45JSV7MOYcR/38BY7G+J+YiSo922118DzJtwZQRWxxO/UUwCXjjrwqfUz
+         CgwSy0mxs108kzQrLALK8WOCeQbbiZ/82UpD8W4hKmHuVAy4VBHc2JN7yqLgEX9cjA7p
+         scfeEyCTw7105X3Sn6C05Nyb/NEwZPPerBnvENhasbHZtmiFeunQT/GkxXxKIT87ZloL
+         Hy1OFFAxIZJ7KwVDmfeL+kG6eUZ7N7g8aLGVilr1irFglLXk69GBln0CcIv0TrDB9t5Q
+         HdIw==
+X-Forwarded-Encrypted: i=1; AJvYcCWaLxTGVz2WW8hWSsg+X38XKVBxuvn3tj35SrjpskU4snoLAl1n+IXNDxgIi/gfYthsztQL+Rg=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz0S2Oq98wJTP0huy+JG0tAAgHodT9TihzmysejNFys5lVLX84V
+	I2HcLKG8pBnm02NgFc+XQXCGfAFLb5kMZnPzj1/4q/EtF2vo3HQi13Ad
+X-Gm-Gg: ASbGncs+AQS0XtOxEXlref8WxnkBxM2/TchO1ZztEGs0rwJ7l6HrdCMkUCuFVtxBaLn
+	yOwQpR/8Wj4NY6zANsw+zrfqIrXq+PFJbNWphxyRlZmcfQfeAcylZjYHl7lyCkMUHspOwUTPcEJ
+	GtSnTwqULNgAs5DN6vuWQ1evsyAZpLHSw5J7NuDiNfG5e6cd8Qwkgf7nkQ4WyjEOmN6zRXdsUM1
+	ZaNr1y+uuvZqqF/+sPfIjRrP/AGu1xovibKYXw6vW0y+soDaMLgXXKjZN8KxiobUSkpL8DZ3pEA
+	fnuLZSwxrX4HFW2DUgJ93EDZVDNcxqZHEn2MFW8C9dKzCdaaA2HUgM8gCP1Piyw/B7mJRYhAnQh
+	Tjf2lqhqJLE8HgS3UpH+2j0OY3Uu97YVt1AcSwoS4dSaN7Jy42h8Qw6J5+rRVzlh3Vy58/rmh8N
+	m8P+PH
+X-Google-Smtp-Source: AGHT+IEkEroXt6hnnQAHHBHds3G+bUNLpqeXOk2KWlfIM9C4ys+anUXEcA/XK2csXAWbF2ucdi7ILg==
+X-Received: by 2002:a17:907:868a:b0:ad8:932e:77ba with SMTP id a640c23a62f3a-adfad4181e5mr1163989366b.38.1750143531293;
+        Mon, 16 Jun 2025 23:58:51 -0700 (PDT)
+Received: from localhost.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-adec81be674sm811109566b.53.2025.06.16.23.58.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Jun 2025 23:58:50 -0700 (PDT)
+From: Eric Woudstra <ericwouds@gmail.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>
+Cc: netfilter-devel@vger.kernel.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Eric Woudstra <ericwouds@gmail.com>
+Subject: [PATCH v12 nf-next 0/2] conntrack: bridge: add double vlan, pppoe and pppoe-in-q
+Date: Tue, 17 Jun 2025 08:58:33 +0200
+Message-ID: <20250617065835.23428-1-ericwouds@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH iproute2-next v3 0/4] ip: Support bridge VLAN stats in `ip
- stats'
-To: Petr Machata <petrm@nvidia.com>, netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>,
- Nikolay Aleksandrov <razor@blackwall.org>, bridge@lists.linux-foundation.org
-References: <cover.1749567243.git.petrm@nvidia.com>
-Content-Language: en-US
-From: David Ahern <dsahern@gmail.com>
-In-Reply-To: <cover.1749567243.git.petrm@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 6/10/25 9:51 AM, Petr Machata wrote:
-> ip stats displays bridge-related multicast and STP stats, but not VLAN
-> stats. There is code for requesting, decoding and formatting these stats
-> accessible through `bridge -s vlan', but the `ip stats' suite lacks it. In
-> this patchset, extract the `bridge vlan' code to a generally accessible
-> place and extend `ip stats' to use it.
-> 
+Conntrack bridge only tracks untagged and 802.1q.
 
-applied to iproute2-next. Thanks
+To make the bridge-fastpath experience more similar to the
+forward-fastpath experience, add double vlan, pppoe and pppoe-in-q
+tagged packets to bridge conntrack and to bridge filter chain.
+
+Changes in v12:
+
+- Only allow tracking this traffic when a conntrack zone is set.
+- nf_ct_bridge_pre(): skb pull/push without touching the checksum,
+   because the pull is always restored with push.
+- nft_do_chain_bridge(): handle the extra header similar to
+   nf_ct_bridge_pre(), using pull/push.
+
+Changes in v11:
+
+- nft_do_chain_bridge(): Proper readout of encapsulated proto.
+- nft_do_chain_bridge(): Use skb_set_network_header() instead of thoff.
+- removed test script, it is now in separate patch.
+
+v10 split from patch-set: bridge-fastpath and related improvements v9
+
+Eric Woudstra (2):
+  netfilter: bridge: Add conntrack double vlan and pppoe
+  netfilter: nft_chain_filter: Add bridge double vlan and pppoe
+
+ net/bridge/netfilter/nf_conntrack_bridge.c | 83 ++++++++++++++++++----
+ net/netfilter/nft_chain_filter.c           | 55 +++++++++++++-
+ 2 files changed, 125 insertions(+), 13 deletions(-)
+
+-- 
+2.47.1
 
