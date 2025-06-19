@@ -1,84 +1,73 @@
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2088.outbound.protection.outlook.com [40.107.94.88])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A5DB28C02C
-	for <bridge@lists.linux.dev>; Tue, 17 Jun 2025 06:58:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750143536; cv=none; b=sBk8U1nqV1Qk/UrRSw+r4WNhylg/fjEmLXBSSa8F+nYo6S5jPGdJ7AeeBPMBFxONnGD0gwhFEAvk+/tfMMFzGg9ajKX78m6zjXIik3aAfI7K+dqKRdrjJAAed4lqlhLXwKKZ9HxqDtctIHJq2xuQ53mE21OO9MbrEFiqCfJPFgU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750143536; c=relaxed/simple;
-	bh=TxdumPKtcywI6uKQ4pwKxBrxJvq5eX4R5rPP4NvYWC0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Qi3kjTQqt3YXf/3vHExu8Fc0a80gNoNWisE6G0qvMQ4Mndp+N0gqsIQj3iv+xD8XtZ06BBm9E7Vwbbwr6Ck9sgmlMk3mY4Th3HiUiS5UPPu2e0Cyd6Vyx/X4ue7b9YQFPVHaxN11R/zkCasCdVKkRfag1TOGgd0dRnTCUh/dAWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BtktQ9UD; arc=none smtp.client-ip=209.85.208.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58AA3285418
+	for <bridge@lists.linux.dev>; Thu, 19 Jun 2025 18:23:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.88
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1750357432; cv=fail; b=qzcPM9Djv/7q+prjd8561RqoghcevDZSyuKz/3wpWJFr0LeYR+8GY58lYvmhtefH8Fq1yQfAH3/UDzonfn3O4GLww+0TNrXfkk204grqlZUVriIo77+r5KN1rIMr4Y7h0DOkNN68JMkDDmIPvNj50srcdfuGSTM483aiyXkzvyU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1750357432; c=relaxed/simple;
+	bh=WbD1SutS5/vLS2A+jx0330NFE0T7mfB8EUMkk0V69as=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=r664BBqQfBS/I1YobRqb+r3W1AmdkpSeyOsEFQYMZM/nVmFaKp5OqP6z6APMM43NsOWxNmTUD4f3J0FPmYhl9MNNV8wlifCD7D02P/JrIHXxSBnr2vq56Vwr60tXeGQ9stH1HoveUIvAo8gJat9K+qETXG4xuwVuh99ONPzJpsQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ZPemnBQl; arc=fail smtp.client-ip=40.107.94.88
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BtktQ9UD"
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-607434e1821so7664387a12.0
-        for <bridge@lists.linux.dev>; Mon, 16 Jun 2025 23:58:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750143532; x=1750748332; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DEUA3s1rs6WdBTbpnUZoPmP+efvFUhPuP5B5crs3AeE=;
-        b=BtktQ9UDRvsWbFTcG+RasPivfCznDhlWkkTYwyYstfnWqnSYWvsvrl/KbkLKLObosO
-         sJJ3I8dLQaSEfCzR/ZMJhNvc/+xVA7F1NNChJcf/ASvO5xMwAqPwnOa/RuO/DLGdZaL7
-         AwV4y/B8EMZPCv1v1jJpr9jCD9YVSEqzNpBEQRHr93cO4JdxYm1RucK2jn+z/c/DevvU
-         l6XL7jlkMBQaC5gusbJsZ7HVUDCIjGnPzLRsF1kvpteypbR4vXlollInBqJFqbC2k/Pe
-         tSM+QQXhm1kYs8bazcw9T1bvTzz78AyDQiFsNSnbh4BJzJebU1XY7QCHg41baIhq67jJ
-         ASwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750143532; x=1750748332;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DEUA3s1rs6WdBTbpnUZoPmP+efvFUhPuP5B5crs3AeE=;
-        b=sKyE/E1YwzN7hI/Tla8SL3vI/tSu35mm7Hp0KP9KnLGukAb1POgRDIxMuVwkqhcWjf
-         SbZJ2KH4fBwqOtht6iRWX+TsFt3oa7xl75o3OK3XtUbRdq4xZi0lOEM+sk4rQXJvvnvV
-         3PPhE7134nqaXQ5y/oxEsLD9mu8iWWdXKmlZxgPxwIf0QpCFyqZ5nO2FWOXsgN5uXKCB
-         3bz5CYuUg2pHlZMfHMOgYdBpG4QfkYGJPYHoC2xaDnMYrF4diYr60nxB/LhvWJ7Rkm/j
-         SnWNWsGfy7Ji3En3Sx7gsW0NxUH1B5zkm1dQ3kuqNWP994ilY5J8JevPMSFPdaKFrQl+
-         9r5w==
-X-Forwarded-Encrypted: i=1; AJvYcCV3L1jYr9wSD+jZkO8gUSeUKskLARcX/yeVOSEM2UJPIhKNuN/9AK8paPN6ggCfWK3Ncs33ClY=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyE/UBK1Mp73qO/u70hqjym68+9xLOwXueggbrRe0iNL2Zv6Sa4
-	7pNTsgs21z+3Ts35kbdUh+V8csK7W8iBWZBGMb+bkcxJe9Z8uSN0y7EK
-X-Gm-Gg: ASbGncvhPVW2kwNQ6/zsnr+x9iQKwxLUWfbuth5X+2LxwiMqJJvpu2glUlWeMj6jhLK
-	3ZuNN9NFDwAREBbAldkEEmSM/AB+J0i9y6toCEW/Cv8C0xwpHujkEMN0DqTcEFwR/5k5Pj/FS5d
-	SJfSJbhwg/fv339GRghvw28XYVgI+3FjShnln7kMSRcEYJmnLHKNYxWPA13t4uhiSou86f5Q/RU
-	BFeFN0MU8Quly5F35EFniS/AZUqlMHwwrgRFEeVy0dQWpras4GUEKQ+P+l5Jd2nZWQ1/O1ETeeM
-	JHKxJwX3r5J60ybh1YsxIkj/q4hWykd3M+QLrdr55KDLSwaMvHzG1LgJiUI8a16peMPeT/vTAQw
-	hLDdu3ikh2kryJqs/77H9FinYAbmasZI75eUi8UzB5HS7yyI8MHy7O9BbUZ2TwlHFR3cflSCfEi
-	a1AaazeBjT2v8mMRQ=
-X-Google-Smtp-Source: AGHT+IEWvjSrTL6JNZv0ulgiz9/dYB+sJXThEPdkJZ1iROYdLX6684t6uUA2M9bAMVjS6TGmH9H79Q==
-X-Received: by 2002:a17:907:97d4:b0:ad2:3fa9:7511 with SMTP id a640c23a62f3a-adfad4513e4mr1214994766b.41.1750143532099;
-        Mon, 16 Jun 2025 23:58:52 -0700 (PDT)
-Received: from localhost.localdomain (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-adec81be674sm811109566b.53.2025.06.16.23.58.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Jun 2025 23:58:51 -0700 (PDT)
-From: Eric Woudstra <ericwouds@gmail.com>
-To: Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>
-Cc: netfilter-devel@vger.kernel.org,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH v12 nf-next 1/2] netfilter: bridge: Add conntrack double vlan and pppoe
-Date: Tue, 17 Jun 2025 08:58:34 +0200
-Message-ID: <20250617065835.23428-2-ericwouds@gmail.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20250617065835.23428-1-ericwouds@gmail.com>
-References: <20250617065835.23428-1-ericwouds@gmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ZPemnBQl"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=kNzS51og1pkFBc43yotj+M60wOhLj20ws1UVZKSut9vosWYEIUNR245Q7uEu2XEtTe/HEMtw65LtlLKcHvpcm2pEp/ZVsN+8VNLtF/idihI1+RMQfNz0veAUIYTpIhuRVL/loRSUgcAF8mt8+/PBn7zGQQSUDlWpEEsWbAXtw5Ct1o3BXP/6hw+l9pzFSjEjouRTOGCJA4x4xiwk22NbjRFHX8FdPJtR/JyPDstRp6b7LWrUDemytSnMKxOSErmRNs8S/3aI240E+MtYAqSq4o6W+1iwwKNO2zMYc3dZa10BqMhv+nhxP8aGsaXOY8gSl4y/QXB5LRugyYx15CLUvA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=awnFavCy0d+rzXisaapQtGu7YTZT22KM+Kjp4F0QWTM=;
+ b=VrK23lmSYx1BjaWvdTq8490Z0wFmHF8NSFT4gItkpD76ayb0tC1YgehvwkOoUpqPl4JiMb5e+UcuC9Z/vryB4jfu0yvY6ndBKqxV9xwTK7PAHe1WPTRIKN4HucatRpdSzn6FWjb7Boo+NkFCNHbWSaC2QCVXP4FnfOcaRQqOLLAATeyaXNnH66tjCTxAMwcSm5ap0Iu4b/RNugLJtSLarW7mezqj2VzoCpw958H6Al+CFiq9syKvtjRxar6tjAOJIpFP4c7QicWhp8XGw5RTo3X9sZjLDqOe38IlDITNpJ3h46wlr/bmmvMIgceNtNpiTaX4ZYkZfIph/ms7oG2bBA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=awnFavCy0d+rzXisaapQtGu7YTZT22KM+Kjp4F0QWTM=;
+ b=ZPemnBQl9i9XzwPcAiY4SDQChKN3ywe9fOfP2PggORAGWScnSdsom8DbXLFOMrVxm7o6g3Vz7RRXRU2KMxAPqr2dZKEiI8QDt0PDQs8XQWMAP0pHdrlrg+qwUxG6hhr8dhJHmtbdzuvy85Ymtvk7Cgu+asnEJ2Ws+qyawawCgM9B8JAnFryJ9GQt3oa4oZy2xFij4suuS6U21VA9XIGYyj7oM0mBR0uzqo3ixsmX2qTbgvewcqomVP/2ATKs9FQLznHbV3tgahlr7p1lMpkhul5X5OdsIQzjpS+if6lXys/rmALSujKxuf8Wr/j0JVhFLl3hB3yYvlhCiqLW5bdVcQ==
+Received: from SJ0PR03CA0177.namprd03.prod.outlook.com (2603:10b6:a03:338::32)
+ by CH1PPFF9270C127.namprd12.prod.outlook.com (2603:10b6:61f:fc00::62b) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8835.26; Thu, 19 Jun
+ 2025 18:23:46 +0000
+Received: from SJ5PEPF000001D1.namprd05.prod.outlook.com
+ (2603:10b6:a03:338:cafe::49) by SJ0PR03CA0177.outlook.office365.com
+ (2603:10b6:a03:338::32) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8769.29 via Frontend Transport; Thu,
+ 19 Jun 2025 18:23:46 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ SJ5PEPF000001D1.mail.protection.outlook.com (10.167.242.53) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8857.21 via Frontend Transport; Thu, 19 Jun 2025 18:23:46 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.4; Thu, 19 Jun
+ 2025 11:23:36 -0700
+Received: from shredder.lan (10.126.230.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Thu, 19 Jun
+ 2025 11:23:32 -0700
+From: Ido Schimmel <idosch@nvidia.com>
+To: <netdev@vger.kernel.org>, <bridge@lists.linux.dev>
+CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<edumazet@google.com>, <razor@blackwall.org>, <horms@kernel.org>,
+	<petrm@nvidia.com>, <yongwang@nvidia.com>, Ido Schimmel <idosch@nvidia.com>
+Subject: [PATCH net] bridge: mcast: Fix use-after-free during router port configuration
+Date: Thu, 19 Jun 2025 21:22:28 +0300
+Message-ID: <20250619182228.1656906-1-idosch@nvidia.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -86,144 +75,226 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ5PEPF000001D1:EE_|CH1PPFF9270C127:EE_
+X-MS-Office365-Filtering-Correlation-Id: 372862e4-b101-496e-b970-08ddaf5e6e3d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|36860700013|1800799024|376014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?vizgCelmzprUncRInAg7+KQB/LfaY2T2mPaKz4CS6W2U6SEH3hF/2q1dmXQP?=
+ =?us-ascii?Q?p57cZLtfFJMhZNKwuN70yXLhZTpbVr3kqoMicPwbkLqKft92nIQvNeRj/FHp?=
+ =?us-ascii?Q?t05vvJgO3XYRPThh6Y2xczAV0zt7Z3roUPowtom+8lAgdhMxmRAQ4K4b3vgr?=
+ =?us-ascii?Q?wtNvOl7/TC++ftUpYmlawKoe9RPRRxqm/kpWRdUp5D/Hgdtpjb2SNf5Sjp0D?=
+ =?us-ascii?Q?/mbVSFkVRGmplss1KWseWLXw/fhhEr8y1cMhD048+MZ6ga2VsOTWrlbvgnhk?=
+ =?us-ascii?Q?81MgeU5rBuwAC9pUwBcHHh25l1/g2bzLXGZpkTbg9T6TXd47Xdzsj7y7NxIv?=
+ =?us-ascii?Q?hH0haGpggwhei/OZuWekXcQnT/KIarzQ95Flx4JHLoes8pGx7VXLT5Gf78nq?=
+ =?us-ascii?Q?ixdXkGa8goiKVhK5RNwaGV2BT9KhSpHAarzNp+eQ1KZ717dKz6pmYY6az9tX?=
+ =?us-ascii?Q?OwmaJOumEBFCVA6vLBm/eAnGmpos9RcQt+7p94cCLhkCyyWjHzitB2DTcCb3?=
+ =?us-ascii?Q?k1SmKlkoYZO9ToHOV9ivrQKBPqPrWenUq7tbTp/cv0GfE/Ms1Ti77Egrz1Kg?=
+ =?us-ascii?Q?9mdgfxrbdTOazA2qtf6ZZH7Qo7qTbF3vY5jyGyHnShAsTFuZrYf1MCmOpo4H?=
+ =?us-ascii?Q?nqoeT4UoMbnFVEH7OGgRnJXgUogmgPSHaYPSTymCzwuJ+auLZv36GqfXnCXn?=
+ =?us-ascii?Q?oKPPOTssKcHlJgfL3r6qHQhZprI09ssPNX/3b4MszkEhEkafOntUDEzP1Nb6?=
+ =?us-ascii?Q?u7d2+mnr8OlCUkYYdZcKZXYmEVtSjQaP2uI+ZXS8xwEIIcoW2rBD16x41Bcw?=
+ =?us-ascii?Q?au0+cIW8v3Eu8Q9eqYjR+WuG989XD9vkT4/AICu40RhPZaOeTwAAy9Lointw?=
+ =?us-ascii?Q?PmtJCrL2e/H4hV1bHK8u7ARGe47kQgpWwXnKC2F7nPJGn0dqsJI8yw1tRKe7?=
+ =?us-ascii?Q?0UNU1lCOpmgxarNtdbkxJcu7vUVZex3Tallm972x1JErtHYau/IQgZ8CtAdr?=
+ =?us-ascii?Q?K+0zmODCl6WSEqwj0IDupFnm3n5C/umnPx5S0mPcV2zhB12eTeC7D/rmyXZp?=
+ =?us-ascii?Q?b06OSW4BYATtewQ7+SxCYz0rrZkn07hmdnRkZDscO3Fqlub0KWA/W3crKovg?=
+ =?us-ascii?Q?xTf+uYWrSjEaUWdIT0nnScxhhmw/325VDditVyb/a1gCYSF+t6dqcySJatNH?=
+ =?us-ascii?Q?aeNO3WQ5pwu9saLSAkzq4ZHCAk7NjoDLrBQtUdc2g0pwbEHnvGxlsBqnwGX2?=
+ =?us-ascii?Q?inNKdSrfx/O9lt2UZw/AKFteA9nhYaV5uVIYKuS8/dlO2JaJI6S1d2WRmWY9?=
+ =?us-ascii?Q?Je5HR2JRyKFthAX/knb37E5DH6ZnL2ECOBVmmj8fzgsUnzOfi4k02Xk69J5j?=
+ =?us-ascii?Q?df3nJ6f5P988mklSaYcv2EAcU7ajScbXnAJOdAB5zv1rT3VW/+P5Srue0rUU?=
+ =?us-ascii?Q?esdoC23Vot3phsCgfvI8VOEstKKpBTjSTtWNJkgUFPXOuDz+LPsoam5BNXoK?=
+ =?us-ascii?Q?+o1cNKQl/ZJuNXBDoP/BhVEkt3PUkIVAKCr2?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(36860700013)(1800799024)(376014);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jun 2025 18:23:46.7403
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 372862e4-b101-496e-b970-08ddaf5e6e3d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ5PEPF000001D1.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH1PPFF9270C127
 
-This adds the capability to conntrack 802.1ad, QinQ, PPPoE and PPPoE-in-Q
-packets that are passing a bridge, only when a conntrack zone is set.
+The bridge maintains a global list of ports behind which a multicast
+router resides. The list is consulted during forwarding to ensure
+multicast packets are forwarded to these ports even if the ports are not
+member in the matching MDB entry.
 
-Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
+When per-VLAN multicast snooping is enabled, the per-port multicast
+context is disabled on each port and the port is removed from the global
+router port list:
+
+ # ip link add name br1 up type bridge vlan_filtering 1 mcast_snooping 1
+ # ip link add name dummy1 up master br1 type dummy
+ # ip link set dev dummy1 type bridge_slave mcast_router 2
+ $ bridge -d mdb show | grep router
+ router ports on br1: dummy1
+ # ip link set dev br1 type bridge mcast_vlan_snooping 1
+ $ bridge -d mdb show | grep router
+
+However, the port can be re-added to the global list even when per-VLAN
+multicast snooping is enabled:
+
+ # ip link set dev dummy1 type bridge_slave mcast_router 0
+ # ip link set dev dummy1 type bridge_slave mcast_router 2
+ $ bridge -d mdb show | grep router
+ router ports on br1: dummy1
+
+Since commit 4b30ae9adb04 ("net: bridge: mcast: re-implement
+br_multicast_{enable, disable}_port functions"), when per-VLAN multicast
+snooping is enabled, multicast disablement on a port will disable the
+per-{port, VLAN} multicast contexts and not the per-port one. As a
+result, a port will remain in the global router port list even after it
+is deleted. This will lead to a use-after-free [1] when the list is
+traversed (when adding a new port to the list, for example):
+
+ # ip link del dev dummy1
+ # ip link add name dummy2 up master br1 type dummy
+ # ip link set dev dummy2 type bridge_slave mcast_router 2
+
+Similarly, stale entries can also be found in the per-VLAN router port
+list. When per-VLAN multicast snooping is disabled, the per-{port, VLAN}
+contexts are disabled on each port and the port is removed from the
+per-VLAN router port list:
+
+ # ip link add name br1 up type bridge vlan_filtering 1 mcast_snooping 1 mcast_vlan_snooping 1
+ # ip link add name dummy1 up master br1 type dummy
+ # bridge vlan add vid 2 dev dummy1
+ # bridge vlan global set vid 2 dev br1 mcast_snooping 1
+ # bridge vlan set vid 2 dev dummy1 mcast_router 2
+ $ bridge vlan global show dev br1 vid 2 | grep router
+       router ports: dummy1
+ # ip link set dev br1 type bridge mcast_vlan_snooping 0
+ $ bridge vlan global show dev br1 vid 2 | grep router
+
+However, the port can be re-added to the per-VLAN list even when
+per-VLAN multicast snooping is disabled:
+
+ # bridge vlan set vid 2 dev dummy1 mcast_router 0
+ # bridge vlan set vid 2 dev dummy1 mcast_router 2
+ $ bridge vlan global show dev br1 vid 2 | grep router
+       router ports: dummy1
+
+When the VLAN is deleted from the port, the per-{port, VLAN} multicast
+context will not be disabled since multicast snooping is not enabled
+on the VLAN. As a result, the port will remain in the per-VLAN router
+port list even after it is no longer member in the VLAN. This will lead
+to a use-after-free [2] when the list is traversed (when adding a new
+port to the list, for example):
+
+ # ip link add name dummy2 up master br1 type dummy
+ # bridge vlan add vid 2 dev dummy2
+ # bridge vlan del vid 2 dev dummy1
+ # bridge vlan set vid 2 dev dummy2 mcast_router 2
+
+Fix these issues by removing the port from the relevant (global or
+per-VLAN) router port list in br_multicast_port_ctx_deinit(). The
+function is invoked during port deletion with the per-port multicast
+context and during VLAN deletion with the per-{port, VLAN} multicast
+context.
+
+Note that deleting the multicast router timer is not enough as it only
+takes care of the temporary multicast router states (1 or 3) and not the
+permanent one (2).
+
+[1]
+BUG: KASAN: slab-out-of-bounds in br_multicast_add_router.part.0+0x3f1/0x560
+Write of size 8 at addr ffff888004a67328 by task ip/384
+[...]
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x6f/0xa0
+ print_address_description.constprop.0+0x6f/0x350
+ print_report+0x108/0x205
+ kasan_report+0xdf/0x110
+ br_multicast_add_router.part.0+0x3f1/0x560
+ br_multicast_set_port_router+0x74e/0xac0
+ br_setport+0xa55/0x1870
+ br_port_slave_changelink+0x95/0x120
+ __rtnl_newlink+0x5e8/0xa40
+ rtnl_newlink+0x627/0xb00
+ rtnetlink_rcv_msg+0x6fb/0xb70
+ netlink_rcv_skb+0x11f/0x350
+ netlink_unicast+0x426/0x710
+ netlink_sendmsg+0x75a/0xc20
+ __sock_sendmsg+0xc1/0x150
+ ____sys_sendmsg+0x5aa/0x7b0
+ ___sys_sendmsg+0xfc/0x180
+ __sys_sendmsg+0x124/0x1c0
+ do_syscall_64+0xbb/0x360
+ entry_SYSCALL_64_after_hwframe+0x4b/0x53
+
+[2]
+BUG: KASAN: slab-use-after-free in br_multicast_add_router.part.0+0x378/0x560
+Read of size 8 at addr ffff888009f00840 by task bridge/391
+[...]
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x6f/0xa0
+ print_address_description.constprop.0+0x6f/0x350
+ print_report+0x108/0x205
+ kasan_report+0xdf/0x110
+ br_multicast_add_router.part.0+0x378/0x560
+ br_multicast_set_port_router+0x6f9/0xac0
+ br_vlan_process_options+0x8b6/0x1430
+ br_vlan_rtm_process_one+0x605/0xa30
+ br_vlan_rtm_process+0x396/0x4c0
+ rtnetlink_rcv_msg+0x2f7/0xb70
+ netlink_rcv_skb+0x11f/0x350
+ netlink_unicast+0x426/0x710
+ netlink_sendmsg+0x75a/0xc20
+ __sock_sendmsg+0xc1/0x150
+ ____sys_sendmsg+0x5aa/0x7b0
+ ___sys_sendmsg+0xfc/0x180
+ __sys_sendmsg+0x124/0x1c0
+ do_syscall_64+0xbb/0x360
+ entry_SYSCALL_64_after_hwframe+0x4b/0x53
+
+Fixes: 2796d846d74a ("net: bridge: vlan: convert mcast router global option to per-vlan entry")
+Fixes: 4b30ae9adb04 ("net: bridge: mcast: re-implement br_multicast_{enable, disable}_port functions")
+Reported-by: syzbot+7bfa4b72c6a5da128d32@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/684c18bd.a00a0220.279073.000b.GAE@google.com/T/
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/netfilter/nf_conntrack_bridge.c | 83 ++++++++++++++++++----
- 1 file changed, 71 insertions(+), 12 deletions(-)
+ net/bridge/br_multicast.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
-index 6482de4d8750..6a17bd81038e 100644
---- a/net/bridge/netfilter/nf_conntrack_bridge.c
-+++ b/net/bridge/netfilter/nf_conntrack_bridge.c
-@@ -242,53 +242,112 @@ static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 0224ef3dfec0..1377f31b719c 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -2015,10 +2015,19 @@ void br_multicast_port_ctx_init(struct net_bridge_port *port,
+ 
+ void br_multicast_port_ctx_deinit(struct net_bridge_mcast_port *pmctx)
  {
- 	struct nf_hook_state bridge_state = *state;
- 	enum ip_conntrack_info ctinfo;
-+	u32 len, data_len = U32_MAX;
-+	int ret, offset = 0;
- 	struct nf_conn *ct;
--	u32 len;
--	int ret;
-+	__be16 outer_proto;
- 
- 	ct = nf_ct_get(skb, &ctinfo);
- 	if ((ct && !nf_ct_is_template(ct)) ||
- 	    ctinfo == IP_CT_UNTRACKED)
- 		return NF_ACCEPT;
- 
-+	if (ct && nf_ct_zone_id(nf_ct_zone(ct), CTINFO2DIR(ctinfo)) !=
-+			NF_CT_DEFAULT_ZONE_ID) {
-+		switch (skb->protocol) {
-+		case htons(ETH_P_PPP_SES): {
-+			struct ppp_hdr {
-+				struct pppoe_hdr hdr;
-+				__be16 proto;
-+			} *ph;
++	struct net_bridge *br = pmctx->port->br;
++	bool del = false;
 +
-+			offset = PPPOE_SES_HLEN;
-+			if (!pskb_may_pull(skb, offset))
-+				return NF_ACCEPT;
-+			outer_proto = skb->protocol;
-+			ph = (struct ppp_hdr *)(skb->data);
-+			switch (ph->proto) {
-+			case htons(PPP_IP):
-+				skb->protocol = htons(ETH_P_IP);
-+				break;
-+			case htons(PPP_IPV6):
-+				skb->protocol = htons(ETH_P_IPV6);
-+				break;
-+			default:
-+				nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
-+				return NF_ACCEPT;
-+			}
-+			data_len = ntohs(ph->hdr.length) - 2;
-+			__skb_pull(skb, offset);
-+			skb_reset_network_header(skb);
-+			break;
-+		}
-+		case htons(ETH_P_8021Q): {
-+			struct vlan_hdr *vhdr;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	timer_delete_sync(&pmctx->ip6_mc_router_timer);
+ #endif
+ 	timer_delete_sync(&pmctx->ip4_mc_router_timer);
 +
-+			offset = VLAN_HLEN;
-+			if (!pskb_may_pull(skb, offset))
-+				return NF_ACCEPT;
-+			outer_proto = skb->protocol;
-+			vhdr = (struct vlan_hdr *)(skb->data);
-+			skb->protocol = vhdr->h_vlan_encapsulated_proto;
-+			data_len = U32_MAX;
-+			__skb_pull(skb, offset);
-+			skb_reset_network_header(skb);
-+			break;
-+		}
-+		}
-+	}
-+
-+	ret = NF_ACCEPT;
- 	switch (skb->protocol) {
- 	case htons(ETH_P_IP):
- 		if (!pskb_may_pull(skb, sizeof(struct iphdr)))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		len = skb_ip_totlen(skb);
-+		if (data_len < len)
-+			len = data_len;
- 		if (pskb_trim_rcsum(skb, len))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		if (nf_ct_br_ip_check(skb))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		bridge_state.pf = NFPROTO_IPV4;
- 		ret = nf_ct_br_defrag4(skb, &bridge_state);
- 		break;
- 	case htons(ETH_P_IPV6):
- 		if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		len = sizeof(struct ipv6hdr) + ntohs(ipv6_hdr(skb)->payload_len);
-+		if (data_len < len)
-+			len = data_len;
- 		if (pskb_trim_rcsum(skb, len))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		if (nf_ct_br_ipv6_check(skb))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		bridge_state.pf = NFPROTO_IPV6;
- 		ret = nf_ct_br_defrag6(skb, &bridge_state);
- 		break;
- 	default:
- 		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
--		return NF_ACCEPT;
-+		goto do_not_track;
- 	}
- 
--	if (ret != NF_ACCEPT)
--		return ret;
-+	if (ret == NF_ACCEPT)
-+		ret = nf_conntrack_in(skb, &bridge_state);
- 
--	return nf_conntrack_in(skb, &bridge_state);
-+do_not_track:
-+	if (offset) {
-+		__skb_push(skb, offset);
-+		skb_reset_network_header(skb);
-+		skb->protocol = outer_proto;
-+	}
-+	return ret;
++	spin_lock_bh(&br->multicast_lock);
++	del |= br_ip6_multicast_rport_del(pmctx);
++	del |= br_ip4_multicast_rport_del(pmctx);
++	br_multicast_rport_del_notify(pmctx, del);
++	spin_unlock_bh(&br->multicast_lock);
  }
  
- static unsigned int nf_ct_bridge_in(void *priv, struct sk_buff *skb,
+ int br_multicast_add_port(struct net_bridge_port *port)
 -- 
-2.47.1
+2.49.0
 
