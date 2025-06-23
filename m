@@ -1,50 +1,50 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6444B23026B
-	for <bridge@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:47:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFC01219A91
+	for <bridge@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:48:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750668462; cv=none; b=W230XWWvMNRD7/FAJ2uHu6UIIStEP0RZKXV3xcE/5x1xVuMOaaaZk72mH5tlq9lKMl2wuPs0vaJSsmSZXJ1OxQ+Q0nnjbarQzIRcByX69e4oLbn07C4+XPzXd6J/+FOLx/QrCq3sQ3nzZpGc/YhC4mTUJncF6GK2wkOHZqMMCoQ=
+	t=1750668496; cv=none; b=okQIcbTwJdHJ/b1MZAWS63qOTUAbVaRJfZybxr4FO4ur1P+pOcuH6JV29+aLxiN9ABqr6LNz5vu53OEw63bHcgpOEHXCBF08ohRZmKzYcqs2Bxf6EC/MDZipGaaJxr3pN7AuDab18dzV4BQnvBRvbJgs5OUEChVQKRAvOCR8n/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750668462; c=relaxed/simple;
-	bh=qNc6GTlheLM80V5QuxI0fmiPiNuK2uca5oRKTRIo7hE=;
+	s=arc-20240116; t=1750668496; c=relaxed/simple;
+	bh=qdCNAIukvetacEnzH582AOFjHGWS81JfZDBaR94wtDs=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=pCl1PBzgsndF3LElKLgY7KdagW2MeFOX3n/mTs8aWAdHjYENenfZdSzDe/DeHSpmoBKNs1UqfwVSUFtZljaAMvlERHO5xp8bqEZITEFZ7X4oxm466qCC5Y+t12mz26OXUNqXRV8rKU9lL8aUN+JRYxQGXK2GzOuDmyxfkwA7sGo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	 MIME-Version; b=A17ICq6skETNFZXY7Zk5ShYWuOIcS6iuii3hYvLYQmUsJ8he7+POGitZTBCl9IMEgYHSiW6Pdx9S2OpeXrjE2INzUCH8BmsBS8mPGxCah7IR+yEMQaIo4S8RGKAs8AFikVxhqrRpPU4e0ZYX6jQ9IwHnp87kjKMS0J7u6Y62Rpc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1CC6C808BC
-	for <bridge@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:47:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8089D407A2
+	for <bridge@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:48:15 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.2
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 2qXRA67rOn0O for <bridge@lists.linux-foundation.org>;
- Mon, 23 Jun 2025 08:47:40 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 3DBrbDyDezVi for <bridge@lists.linux-foundation.org>;
+ Mon, 23 Jun 2025 08:48:14 +0000 (UTC)
 Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a0a:edc0:2:b01:1d::104; helo=metis.whiteo.stw.pengutronix.de; envelope-from=fpf@pengutronix.de; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 58BEA808E7
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 58BEA808E7
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org ADBD9407A0
+Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADBD9407A0
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 58BEA808E7
-	for <bridge@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:47:40 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id ADBD9407A0
+	for <bridge@lists.linux-foundation.org>; Mon, 23 Jun 2025 08:48:14 +0000 (UTC)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
 	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
 	(Exim 4.92)
 	(envelope-from <fpf@pengutronix.de>)
-	id 1uTcpz-0001u4-4f; Mon, 23 Jun 2025 10:47:35 +0200
+	id 1uTcqX-0002an-Ef; Mon, 23 Jun 2025 10:48:09 +0200
 Received: from dude05.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::54])
 	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.96)
 	(envelope-from <fpf@pengutronix.de>)
-	id 1uTcpy-004ux9-2s;
-	Mon, 23 Jun 2025 10:47:34 +0200
+	id 1uTcqX-004uxT-0U;
+	Mon, 23 Jun 2025 10:48:09 +0200
 Received: from fpf by dude05.red.stw.pengutronix.de with local (Exim 4.96)
 	(envelope-from <fpf@pengutronix.de>)
-	id 1uTcpy-004e0T-2h;
-	Mon, 23 Jun 2025 10:47:34 +0200
+	id 1uTcqX-004eCa-0H;
+	Mon, 23 Jun 2025 10:48:09 +0200
 From: Fabian Pfitzner <f.pfitzner@pengutronix.de>
 To: netdev@vger.kernel.org
 Cc: dsahern@gmail.com,
@@ -53,9 +53,9 @@ Cc: dsahern@gmail.com,
 	entwicklung@pengutronix.de,
 	razor@blackwall.org,
 	Fabian Pfitzner <f.pfitzner@pengutronix.de>
-Subject: [PATCH iproute2-next v4 1/3] bridge: move mcast querier dumping code into a shared function
-Date: Mon, 23 Jun 2025 10:45:18 +0200
-Message-Id: <20250623084518.1101527-2-f.pfitzner@pengutronix.de>
+Subject: [PATCH iproute2-next v4 2/3] bridge: dump mcast querier per vlan
+Date: Mon, 23 Jun 2025 10:45:20 +0200
+Message-Id: <20250623084518.1101527-3-f.pfitzner@pengutronix.de>
 X-Mailer: git-send-email 2.39.5
 In-Reply-To: <20250623084518.1101527-1-f.pfitzner@pengutronix.de>
 References: <20250623084518.1101527-1-f.pfitzner@pengutronix.de>
@@ -71,178 +71,48 @@ X-SA-Exim-Mail-From: fpf@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
 X-PTX-Original-Recipient: bridge@lists.linux-foundation.org
 
-Put mcast querier dumping code into a shared function. This function
-will be called from the bridge utility in a later patch.
+Dump the multicast querier state per vlan.
+This commit is almost identical to [1].
 
-Adapt the code such that the vtb parameter is used
-instead of tb[IFLA_BR_MCAST_QUERIER_STATE].
+The querier state can be seen with:
+
+bridge -d vlan global
+
+The options for vlan filtering and vlan mcast snooping have to be enabled
+in order to see the output:
+
+ip link set [dev] type bridge mcast_vlan_snooping 1 vlan_filtering 1
+
+The querier state shows the following information for IPv4 and IPv6
+respectively:
+
+1) The ip address of the current querier in the network. This could be
+   ourselves or an external querier.
+2) The port on which the querier was seen
+3) Querier timeout in seconds
+
+[1] https://git.kernel.org/pub/scm/network/iproute2/iproute2.git/commit/?id=16aa4494d7fc6543e5e92beb2ce01648b79f8fa2
 
 Signed-off-by: Fabian Pfitzner <f.pfitzner@pengutronix.de>
 ---
+ bridge/vlan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-I decided to not only move the code into a separate function, but also
-to adapt it to fit into the function. If I split it into a pure refactoring
-and an adapting commit, the former will not compile preventing git bisects.
-
- include/bridge.h   |  3 +++
- ip/iplink_bridge.c | 58 ++------------------------------------------
- lib/bridge.c       | 60 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 65 insertions(+), 56 deletions(-)
-
-diff --git a/include/bridge.h b/include/bridge.h
-index 8bcd1e38..b2f978f4 100644
---- a/include/bridge.h
-+++ b/include/bridge.h
-@@ -3,9 +3,12 @@
- #define __BRIDGE_H__ 1
-
- #include <linux/if_bridge.h>
-+#include <linux/rtnetlink.h>
-
- void bridge_print_vlan_flags(__u16 flags);
- void bridge_print_vlan_stats_only(const struct bridge_vlan_xstats *vstats);
- void bridge_print_vlan_stats(const struct bridge_vlan_xstats *vstats);
-
-+void bridge_print_mcast_querier_state(const struct rtattr* vtb);
-+
- #endif /* __BRIDGE_H__ */
-diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
-index 31e7cb5e..4e1f5147 100644
---- a/ip/iplink_bridge.c
-+++ b/ip/iplink_bridge.c
-@@ -682,62 +682,8 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
- 			   rta_getattr_u8(tb[IFLA_BR_MCAST_QUERIER]));
-
- 	if (tb[IFLA_BR_MCAST_QUERIER_STATE]) {
--		struct rtattr *bqtb[BRIDGE_QUERIER_MAX + 1];
--		SPRINT_BUF(other_time);
--
--		parse_rtattr_nested(bqtb, BRIDGE_QUERIER_MAX, tb[IFLA_BR_MCAST_QUERIER_STATE]);
--		memset(other_time, 0, sizeof(other_time));
--
--		open_json_object("mcast_querier_state_ipv4");
--		if (bqtb[BRIDGE_QUERIER_IP_ADDRESS]) {
--			print_string(PRINT_FP,
--				NULL,
--				"%s ",
--				"mcast_querier_ipv4_addr");
--			print_color_string(PRINT_ANY,
--				COLOR_INET,
--				"mcast_querier_ipv4_addr",
--				"%s ",
--				format_host_rta(AF_INET, bqtb[BRIDGE_QUERIER_IP_ADDRESS]));
--		}
--		if (bqtb[BRIDGE_QUERIER_IP_PORT])
--			print_uint(PRINT_ANY,
--				"mcast_querier_ipv4_port",
--				"mcast_querier_ipv4_port %u ",
--				rta_getattr_u32(bqtb[BRIDGE_QUERIER_IP_PORT]));
--		if (bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER])
--			print_string(PRINT_ANY,
--				"mcast_querier_ipv4_other_timer",
--				"mcast_querier_ipv4_other_timer %s ",
--				sprint_time64(
--					rta_getattr_u64(bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER]),
--									other_time));
--		close_json_object();
--		open_json_object("mcast_querier_state_ipv6");
--		if (bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]) {
--			print_string(PRINT_FP,
--				NULL,
--				"%s ",
--				"mcast_querier_ipv6_addr");
--			print_color_string(PRINT_ANY,
--				COLOR_INET6,
--				"mcast_querier_ipv6_addr",
--				"%s ",
--				format_host_rta(AF_INET6, bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]));
--		}
--		if (bqtb[BRIDGE_QUERIER_IPV6_PORT])
--			print_uint(PRINT_ANY,
--				"mcast_querier_ipv6_port",
--				"mcast_querier_ipv6_port %u ",
--				rta_getattr_u32(bqtb[BRIDGE_QUERIER_IPV6_PORT]));
--		if (bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER])
--			print_string(PRINT_ANY,
--				"mcast_querier_ipv6_other_timer",
--				"mcast_querier_ipv6_other_timer %s ",
--				sprint_time64(
--					rta_getattr_u64(bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER]),
--									other_time));
--		close_json_object();
-+		struct rtattr *vtb = tb[IFLA_BR_MCAST_QUERIER_STATE];
-+		bridge_print_mcast_querier_state(vtb);
+diff --git a/bridge/vlan.c b/bridge/vlan.c
+index 14b8475d..d2770eff 100644
+--- a/bridge/vlan.c
++++ b/bridge/vlan.c
+@@ -852,6 +852,10 @@ static void print_vlan_global_opts(struct rtattr *a, int ifindex)
+ 		print_uint(PRINT_ANY, "mcast_querier", "mcast_querier %u ",
+ 			   rta_getattr_u8(vattr));
  	}
-
- 	if (tb[IFLA_BR_MCAST_HASH_ELASTICITY])
-diff --git a/lib/bridge.c b/lib/bridge.c
-index a888a20e..35cc409a 100644
---- a/lib/bridge.c
-+++ b/lib/bridge.c
-@@ -45,3 +45,63 @@ void bridge_print_vlan_stats(const struct bridge_vlan_xstats *vstats)
-
- 	close_json_object();
- }
-+
-+void bridge_print_mcast_querier_state(const struct rtattr *vtb)
-+{
-+	struct rtattr *bqtb[BRIDGE_QUERIER_MAX + 1];
-+	SPRINT_BUF(other_time);
-+
-+	parse_rtattr_nested(bqtb, BRIDGE_QUERIER_MAX, vtb);
-+	memset(other_time, 0, sizeof(other_time));
-+
-+	open_json_object("mcast_querier_state_ipv4");
-+	if (bqtb[BRIDGE_QUERIER_IP_ADDRESS]) {
-+		print_string(PRINT_FP,
-+			NULL,
-+			"%s ",
-+			"mcast_querier_ipv4_addr");
-+		print_color_string(PRINT_ANY,
-+			COLOR_INET,
-+			"mcast_querier_ipv4_addr",
-+			"%s ",
-+			format_host_rta(AF_INET, bqtb[BRIDGE_QUERIER_IP_ADDRESS]));
++	if (vtb[BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE]) {
++		struct rtattr *attr = vtb[BRIDGE_VLANDB_GOPTS_MCAST_QUERIER_STATE];
++		bridge_print_mcast_querier_state(attr);
 +	}
-+	if (bqtb[BRIDGE_QUERIER_IP_PORT])
-+		print_uint(PRINT_ANY,
-+			"mcast_querier_ipv4_port",
-+			"mcast_querier_ipv4_port %u ",
-+			rta_getattr_u32(bqtb[BRIDGE_QUERIER_IP_PORT]));
-+	if (bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER])
-+		print_string(PRINT_ANY,
-+			"mcast_querier_ipv4_other_timer",
-+			"mcast_querier_ipv4_other_timer %s ",
-+			sprint_time64(
-+				rta_getattr_u64(bqtb[BRIDGE_QUERIER_IP_OTHER_TIMER]),
-+								other_time));
-+	close_json_object();
-+	open_json_object("mcast_querier_state_ipv6");
-+	if (bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]) {
-+		print_string(PRINT_FP,
-+			NULL,
-+			"%s ",
-+			"mcast_querier_ipv6_addr");
-+		print_color_string(PRINT_ANY,
-+			COLOR_INET6,
-+			"mcast_querier_ipv6_addr",
-+			"%s ",
-+			format_host_rta(AF_INET6, bqtb[BRIDGE_QUERIER_IPV6_ADDRESS]));
-+	}
-+	if (bqtb[BRIDGE_QUERIER_IPV6_PORT])
-+		print_uint(PRINT_ANY,
-+			"mcast_querier_ipv6_port",
-+			"mcast_querier_ipv6_port %u ",
-+			rta_getattr_u32(bqtb[BRIDGE_QUERIER_IPV6_PORT]));
-+	if (bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER])
-+		print_string(PRINT_ANY,
-+			"mcast_querier_ipv6_other_timer",
-+			"mcast_querier_ipv6_other_timer %s ",
-+			sprint_time64(
-+				rta_getattr_u64(bqtb[BRIDGE_QUERIER_IPV6_OTHER_TIMER]),
-+								other_time));
-+	close_json_object();
-+}
+ 	if (vtb[BRIDGE_VLANDB_GOPTS_MCAST_IGMP_VERSION]) {
+ 		vattr = vtb[BRIDGE_VLANDB_GOPTS_MCAST_IGMP_VERSION];
+ 		print_uint(PRINT_ANY, "mcast_igmp_version",
 --
 2.39.5
 
