@@ -1,126 +1,104 @@
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28CCE2367B3
-	for <bridge@lists.linux.dev>; Wed,  2 Jul 2025 08:41:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92CC73093A6
+	for <bridge@lists.linux-foundation.org>; Wed,  2 Jul 2025 14:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751445712; cv=none; b=fbSrD19sBDBBgNbESMwNxTcURt0Wp1hlD8IcB7d4qEejh/jrscRUpIjU3AcEe3X//H7BJ89B9hn9EuUtwStOTvNdWjUTfwQ34foZQN4aeP1EQEghNrmdOIekvsekCVrToBcHWxtrV1Bm/m3Du1KqLTBdwB3a0tSs0OP4oX4rbLs=
+	t=1751467189; cv=none; b=FyEcT1YRmMXch/nL2g/qsWI03gv2UmA6s83vD7Q3vuwzIWdE+faOUgyTWzZum3gIILDEqKvh0zyfskcikVM4Ky91zpTZAayOu2Y5c47D8or7nRqvHRGibUitZEfltO0CVUgzKqWcYfrPbYORYEAaoveJ7OLO+FWD+ToCi7eejcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751445712; c=relaxed/simple;
-	bh=yiZwDP3lXQ5zigCNoF6oAAAWr7zjLZWfVbmf4bcC2SA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=BnrHXRhkP/DcHzsTdAfBqp+f6+mLYbZFkceS+xw0WhJuHCHC90c5RhIwqQMIOdA/lZLOVX7FesQdKq2ckLKO0+XLufTYh9UecwKdP2ruVIso5Z3hyVsuqPx7Ic4qvJGnsviLQ0Xnr2p2FMiWF2wR0gwezbFdVa3Htpg1KsOVX7w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com; spf=pass smtp.mailfrom=waldekranz.com; dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b=iDkJox8o; arc=none smtp.client-ip=209.85.218.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=waldekranz.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=waldekranz.com
+	s=arc-20240116; t=1751467189; c=relaxed/simple;
+	bh=R19ihR/OzC6bqGGAFeNWZKeZX9q7baXzFvYHJPRF9Po=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=H7t917hp7iHEs4e+Qje8xWJmLq3vuJb4aTl/ZjpWPkOMk/Jvieah1lp6YbpL9D6woJsEr97pfJpgVWl3GCbyhy/fjXC4nGcwhJDF2Dvqoz2ZJ5w9xGj2vfsX1M6PAeNA7W8VzBaYaAtdPmqJ5Qkep79HXm8muQfjTpbjm1lNh3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n0l+QKx4; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=waldekranz-com.20230601.gappssmtp.com header.i=@waldekranz-com.20230601.gappssmtp.com header.b="iDkJox8o"
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-ae361e8ec32so921971966b.3
-        for <bridge@lists.linux.dev>; Wed, 02 Jul 2025 01:41:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=waldekranz-com.20230601.gappssmtp.com; s=20230601; t=1751445708; x=1752050508; darn=lists.linux.dev;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+g1v0m8aDNnOEfwu4uRQC0dDUg9Qe01yaAwfMhR5CgU=;
-        b=iDkJox8oCgpYA6ynRUqyNDGEisJr+hD5G/0tvAb0Y0fXpRf1DOwZZ68FdCvAhvyfto
-         aiPn8zvbLZ7AMc8N1bYCdtYElytWg/AArjCijJi36pqyTw8UTufj+6Ll9PaIQtlFyIw5
-         070mH0cDL5bA1AUzJ6p7sZYcKWTFzX3Ijb2qTHCof5Y5DqNmP1OqIcNFlqFMI3eo02GA
-         LIXn9Lz78Phsls9jjoFMoRvU1n/dusXMUtTAUj6r/5b7dw4h7M6fnsmQtlHS3gTvLkkj
-         V1HR5eGKFSQ0LCbLklqTyq8QptgwXj2brIkywPh9WI0YCNiv/24bmg12SJuDIJ1zCi0D
-         YZFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751445708; x=1752050508;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+g1v0m8aDNnOEfwu4uRQC0dDUg9Qe01yaAwfMhR5CgU=;
-        b=bNSQilMbSLUDc+1EfRSisD3GH57YttWWk11msTfdevqyGFAgUu08eVJVrmeY3DEiQA
-         lGdTDupNdCfWIwsJy8e+BokZclPhUCPuQ34PHxcX9gzlMfnjRop7nbBZPd8PeQdV5y3r
-         NgKrudcbd85NicQ4PG5loPJd2o1OEP3t3eqmIqacvJiB2Zg5WzjWTKOOnUXBa/zN9JRD
-         dig6AYzq89S8G1/Q9Wz4kYpa10cI7fWqGQ+X40rVC5h/m9LkraDX0h1PeqB5liWrsm6k
-         4+5+sQvNVpwObm6sGMxipXkR+iMZbQ/TAe5LeQ+wkCs8LZOb4OM2U4GYSJ2JxmDrbvgF
-         M/nQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUND6evGZS1YFapiJsoOyYwy+vDPFxjDMJyFBOOqkrFml+gts9lUr+xmTz9OMjXaJ1l6rATD74=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzTpu2i14aRjiSUcv2/OzzggarDNt5GXkkrMfDycxca+DKipoFT
-	J3HAW65gpFBqK7DDJOfmpoWHWsdlUzy5AWAuMF5Xr4t+3TrGAuAsZbkREci6hVdux40=
-X-Gm-Gg: ASbGncvJqEQLGW444rVPIa4vNSLniivmxktiuv46WhWdgu2RiokPWT9E7xZz7JvSnot
-	Xv9JN80bQplZCYFe+8WH5uH/QLb9yWUsyYJrpdJQXk9GoQFTZn0oWvqhgVSB47GeTHqaQW3kvYI
-	ohVI4pibWcX/WRS32yYr2PLZfKDRStKERZS5V+DCtotatYUTvROAUVRF92anW5HfrCg6iWNv4gD
-	02UAPhVnN0W1q0oZzouJLzslD5TnD+yEx5XXk0dPbKGKIm9N1s1Mpdi7Kt1dIvBtm/GqRFtVNEH
-	AmlYgnyt36zUN/G4g3ZdYTdOVwt6+qt5fRA6nsdptP8UmMH44u8ewSD6mAEYdUgQ1vPuKXUjKL1
-	10yfd+uec7WrwlPOl
-X-Google-Smtp-Source: AGHT+IEAT04i+G6dTY7KDU/s2zt7X2lFu59Vom3aNPj/WoKa/U2EndBYJk+f2l1y2tj0gHmlMwt+vg==
-X-Received: by 2002:a17:907:944e:b0:ad8:9b5d:2c1e with SMTP id a640c23a62f3a-ae3c2c8b851mr204395766b.29.1751445708272;
-        Wed, 02 Jul 2025 01:41:48 -0700 (PDT)
-Received: from wkz-x13 (h-79-136-22-50.NA.cust.bahnhof.se. [79.136.22.50])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ae353659678sm1041760966b.38.2025.07.02.01.41.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jul 2025 01:41:47 -0700 (PDT)
-From: Tobias Waldekranz <tobias@waldekranz.com>
-To: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org
-Cc: Joseph Huang <Joseph.Huang@garmin.com>, Nikolay Aleksandrov
- <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
- <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
- <horms@kernel.org>, Florian Fainelli <f.fainelli@gmail.com>, Vladimir
- Oltean <vladimir.oltean@nxp.com>, bridge@lists.linux.dev,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] net: bridge: Do not offload IGMP/MLD messages
-In-Reply-To: <20250701193639.836027-1-Joseph.Huang@garmin.com>
-References: <20250701193639.836027-1-Joseph.Huang@garmin.com>
-Date: Wed, 02 Jul 2025 10:41:45 +0200
-Message-ID: <87a55nyofq.fsf@waldekranz.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n0l+QKx4"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2E019414B4
+	for <bridge@lists.linux-foundation.org>; Wed,  2 Jul 2025 14:39:48 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 0vL4RAdOUD31 for <bridge@lists.linux-foundation.org>;
+ Wed,  2 Jul 2025 14:39:47 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=147.75.193.91; helo=nyc.source.kernel.org; envelope-from=patchwork-bot+netdevbpf@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 4C09D40FB2
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C09D40FB2
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=n0l+QKx4
+Received: from nyc.source.kernel.org (nyc.source.kernel.org [147.75.193.91])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4C09D40FB2
+	for <bridge@lists.linux-foundation.org>; Wed,  2 Jul 2025 14:39:47 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by nyc.source.kernel.org (Postfix) with ESMTP id EE9E5A5363E;
+	Wed,  2 Jul 2025 14:39:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DD1CC4CEE7;
+	Wed,  2 Jul 2025 14:39:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751467185;
+	bh=R19ihR/OzC6bqGGAFeNWZKeZX9q7baXzFvYHJPRF9Po=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=n0l+QKx4kkKS37EgfPZ2gZQy8Qe/TRE0QBf9SRUvqIMsTbK8s/rXQdvi+uMsLgHcf
+	 wfC9OaE11W2N80JPNTB51ZpD9dmabCme0o6OgwKdcRk/tE06gHDKeyNJkX8RNOMN2s
+	 zQoJdNgZdANzJYtqG7ZxnDHU1Ujma2ACeHERa2uZZuM8pTtblxRhV2l5d+9Nvo033v
+	 pE1J5kQQWCdsNhoGWRTU/YlGZ+L58IgAqTfpuTjSa5FDW9LlH1aH6tkU4BTJlgc6L5
+	 Aiwxx11abTwbw58Ld24D4DkRPw4UT9Hw9zkCVg3dTCiZT7woMpJ9jnUaM1JFNR/zyW
+	 g8EEhO+JCmaDg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70C4C383B273;
+	Wed,  2 Jul 2025 14:40:11 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH iproute2-next v6 0/3] bridge: dump mcast querier state per
+ vlan
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175146721025.744720.14595669667124615372.git-patchwork-notify@kernel.org>
+Date: Wed, 02 Jul 2025 14:40:10 +0000
+References: <20250625-mcast-querier-vlan-lib-v6-0-03659be44d48@pengutronix.de>
+In-Reply-To: 
+ <20250625-mcast-querier-vlan-lib-v6-0-03659be44d48@pengutronix.de>
+To: Fabian Pfitzner <f.pfitzner@pengutronix.de>
+Cc: netdev@vger.kernel.org, entwicklung@pengutronix.de, razor@blackwall.org,
+ bridge@lists.linux-foundation.org, dsahern@gmail.com, idosch@nvidia.com
 
-On tis, jul 01, 2025 at 15:36, Joseph Huang <Joseph.Huang@garmin.com> wrote:
-> Do not offload IGMP/MLD messages as it could lead to IGMP/MLD Reports
-> being unintentionally flooded to Hosts. Instead, let the bridge decide
-> where to send these IGMP/MLD messages.
+Hello:
 
-Hi Joseph,
+This series was applied to iproute2/iproute2-next.git (main)
+by David Ahern <dsahern@kernel.org>:
 
-Do I understand the situation correctly that this is the case where the
-local host is sending out reports in response to a remote querier?
+On Wed, 25 Jun 2025 10:39:12 +0200 you wrote:
+> Dump the multicast querier state per vlan.
+> This commit is almost identical to [1].
+> 
+> The querier state can be seen with:
+> 
+> bridge -d vlan global
+> 
+> [...]
 
-       mcast-listener-process (IP_ADD_MEMBERSHIP)
-          \
-          br0
-         /   \
-      swp1   swp2
-        |     |
-  QUERIER     SOME-OTHER-HOST
+Here is the summary with links:
+  - [iproute2-next,v6,1/3] bridge: move mcast querier dumping code into a shared function
+    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=da6fbcf63c13
+  - [iproute2-next,v6,2/3] bridge: dump mcast querier per vlan
+    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=baeeb9a8e184
+  - [iproute2-next,v6,3/3] bridge: refactor bridge mcast querier function
+    https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=cdc027cb7f47
 
-So in the above setup, br0 will want to br_forward() reports for
-mcast-listener-process's group(s) via swp1 to QUERIER; but since the
-source hwdom is 0, the report is eligible for tx offloading, and is
-flooded by hardware to both swp1 and swp2, reaching SOME-OTHER-HOST as
-well?
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-> Fixes: 472111920f1c ("net: bridge: switchdev: allow the TX data plane forwarding to be offloaded")
-> Signed-off-by: Joseph Huang <Joseph.Huang@garmin.com>
-> ---
->  net/bridge/br_switchdev.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
-> index 95d7355a0407..757c34bf5931 100644
-> --- a/net/bridge/br_switchdev.c
-> +++ b/net/bridge/br_switchdev.c
-> @@ -18,7 +18,8 @@ static bool nbp_switchdev_can_offload_tx_fwd(const struct net_bridge_port *p,
->  		return false;
->  
->  	return (p->flags & BR_TX_FWD_OFFLOAD) &&
-> -	       (p->hwdom != BR_INPUT_SKB_CB(skb)->src_hwdom);
-> +	       (p->hwdom != BR_INPUT_SKB_CB(skb)->src_hwdom) &&
-> +	       !br_multicast_igmp_type(skb);
->  }
->  
->  bool br_switchdev_frame_uses_tx_fwd_offload(struct sk_buff *skb)
-> -- 
-> 2.49.0
+
