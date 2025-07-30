@@ -1,35 +1,53 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A60052F85D1;
-	Thu, 17 Jul 2025 14:50:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B88872E3711;
+	Wed, 30 Jul 2025 21:45:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752763805; cv=none; b=sfxFaiivmd8onSvviDfrJD1pWootifIF+fiJysOeX/iqr6hO6vkHLeLQ9/PlvgZYDyZctn6oNn3hHuLVD/3OWgwE/M9bqCiM8xKd0IBagmIimeeyKj6vnuCouDFfgdNvdVkbT6cTEdAuFL3GQZbl3yNxksS2vjMv9pn3OnLe/ss=
+	t=1753911944; cv=none; b=VceBGxtfqMXxv+mzneTfVc/PZf6osu7xcIfszF2lt9ZFOoLOBHc6t+GR6GpqeFGUyCYZYtCUdpMLX+dep5TYz99yjcp//YFE0K9EjOvJFhkVxsROyIF/c8zLPFSm0vRJ6p+2HhO97hpYL/cUQUFjB7eczlWpIZ81Qah+R4z7cg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752763805; c=relaxed/simple;
-	bh=QAnmNUKgNLHn47abrSUtVM/9GiS0L3CE1Q3Lkr1ccbU=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=NMo/3+uIFFBxwRs/lflmNTPVSj7veysRHnY6+X3qy5MtIqXzDuPkb6c3q5HYN2/tadNgHM6HZ2RulaCfIq4/PP1swy7u/LNdRSbgA/7APAYgHvC8RoXgD8jjrJvni0hu9qRzbV6W14M+Io4626NDPbfcnDdb9ibnN4gFOQAEVg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qSwqYNaw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753911944; c=relaxed/simple;
+	bh=Y92YzVx0S6qzMTvUYIZsDyuNk7AZBf+dBkZeWeD2ETk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=iNFJqNW1PybCpLxF3kUz9UHJnpdqrhjnXQaZhcBUzcaxsIZO4EaUgRH+FMFosVys2Daj5BM4M4AqB7wJgLOcuvLwxHL5SKBqlZnCZghtj7EKrg8erUIkZjG+ZRFm1GYAzMDNguHR00VMtaJGkxh0H9q2A4gq4ZvRYpZEvEazsMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ir5aMzbG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qSwqYNaw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30DF3C4CEE3;
-	Thu, 17 Jul 2025 14:50:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ir5aMzbG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD8A3C4CEE3;
+	Wed, 30 Jul 2025 21:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752763805;
-	bh=QAnmNUKgNLHn47abrSUtVM/9GiS0L3CE1Q3Lkr1ccbU=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=qSwqYNaw3d3y8jPGC4zq3hZdPf6JHroqx/MKRBREtJ1mKQHL0CmrI6S4V8c59Cw0M
-	 uIamhxnrLHZzUAIRYBsU9J/zVQejMNQjuS8LOiWxbw200yrXWjL6rwgKmSFzRQ2P8J
-	 yEoDolxZV9Iyy4zlytHPASDe4dXVo/BVRKav1ShafdpUdx+VX19myakPq+chpKjbAE
-	 e0gaoKPAYjXgaiDfg89kuem1qpqxQMV4raQTbxUYjSdxk3tvPTbBOllPnbi+tjIV+A
-	 hu6b8Isd+rS2DcdEU+7X5ZZAHMGc59jwGWMsn4Ub/3ry5sGpEHNsaxHeyr7/SbIXtB
-	 qGDqXryJ8W1pQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70C5C383BF47;
-	Thu, 17 Jul 2025 14:50:26 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1753911944;
+	bh=Y92YzVx0S6qzMTvUYIZsDyuNk7AZBf+dBkZeWeD2ETk=;
+	h=From:To:Cc:Subject:Date:From;
+	b=Ir5aMzbGzMa/CQUN7Ury5S5+qORKlY61LlQcnpDusGKHVBBa8/iJKWiUsKgbrLACu
+	 Ka9PuAsMHHuk9lslUGAI6PCkQX4Jz0E6PYIxucFgr3rzUkdc3K4ov3nZvDCPgVxCD1
+	 Uc3QemOx2chhNr+8914HYMHm4u5gBIisFJ3s141DIeNU+PoO4/Rt/HcOvAeTNSqOgt
+	 NxnZ/R6yjv5DFsb5jZvs3xcQcq31JsP8UldJUIeCyplXZ27q7HcR68QmzUm7qv/AFz
+	 XwXa06h/BemjAJpoo59U/sDXDdvaNY5VEns5rco6WyeA9WIn10/J5OnesqXe3kc0ZP
+	 GfhIX1EpYhAtA==
+From: Arnd Bergmann <arnd@kernel.org>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	David Ahern <dsahern@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+	Simon Horman <horms@kernel.org>,
+	Breno Leitao <leitao@debian.org>,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] netfilter: add back NETFILTER_XTABLES dependencies
+Date: Wed, 30 Jul 2025 23:45:32 +0200
+Message-Id: <20250730214538.466973-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -37,42 +55,86 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v3 net] net: bridge: Do not offload IGMP/MLD messages
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175276382500.1959085.4099760417199249498.git-patchwork-notify@kernel.org>
-Date: Thu, 17 Jul 2025 14:50:25 +0000
-References: <20250716153551.1830255-1-Joseph.Huang@garmin.com>
-In-Reply-To: <20250716153551.1830255-1-Joseph.Huang@garmin.com>
-To: Joseph Huang <Joseph.Huang@garmin.com>
-Cc: netdev@vger.kernel.org, joseph.huang.2024@gmail.com, razor@blackwall.org,
- idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, vladimir.oltean@nxp.com,
- f.fainelli@gmail.com, tobias@waldekranz.com, bridge@lists.linux.dev,
- linux-kernel@vger.kernel.org
 
-Hello:
+From: Arnd Bergmann <arnd@arndb.de>
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Some Kconfig symbols were changed to depend on the 'bool' symbol
+NETFILTER_XTABLES_LEGACY, which means they can now be set to built-in
+when the xtables code itself is in a loadable module:
 
-On Wed, 16 Jul 2025 11:35:50 -0400 you wrote:
-> Do not offload IGMP/MLD messages as it could lead to IGMP/MLD Reports
-> being unintentionally flooded to Hosts. Instead, let the bridge decide
-> where to send these IGMP/MLD messages.
-> 
-> Consider the case where the local host is sending out reports in response
-> to a remote querier like the following:
-> 
-> [...]
+x86_64-linux-ld: vmlinux.o: in function `arpt_unregister_table_pre_exit':
+(.text+0x1831987): undefined reference to `xt_find_table'
+x86_64-linux-ld: vmlinux.o: in function `get_info.constprop.0':
+arp_tables.c:(.text+0x1831aab): undefined reference to `xt_request_find_table_lock'
+x86_64-linux-ld: arp_tables.c:(.text+0x1831bea): undefined reference to `xt_table_unlock'
+x86_64-linux-ld: vmlinux.o: in function `do_arpt_get_ctl':
+arp_tables.c:(.text+0x183205d): undefined reference to `xt_find_table_lock'
+x86_64-linux-ld: arp_tables.c:(.text+0x18320c1): undefined reference to `xt_table_unlock'
+x86_64-linux-ld: arp_tables.c:(.text+0x183219a): undefined reference to `xt_recseq'
 
-Here is the summary with links:
-  - [v3,net] net: bridge: Do not offload IGMP/MLD messages
-    https://git.kernel.org/netdev/net/c/683dc24da8bf
+Change these to depend on both NETFILTER_XTABLES and
+NETFILTER_XTABLES_LEGACY.
 
-You are awesome, thank you!
+Fixes: 9fce66583f06 ("netfilter: Exclude LEGACY TABLES on PREEMPT_RT.")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ net/bridge/netfilter/Kconfig | 1 +
+ net/ipv4/netfilter/Kconfig   | 3 +++
+ net/ipv6/netfilter/Kconfig   | 1 +
+ 3 files changed, 5 insertions(+)
+
+diff --git a/net/bridge/netfilter/Kconfig b/net/bridge/netfilter/Kconfig
+index 60f28e4fb5c0..4fd5a6ea26b4 100644
+--- a/net/bridge/netfilter/Kconfig
++++ b/net/bridge/netfilter/Kconfig
+@@ -43,6 +43,7 @@ config NF_CONNTRACK_BRIDGE
+ config BRIDGE_NF_EBTABLES_LEGACY
+ 	tristate "Legacy EBTABLES support"
+ 	depends on BRIDGE && NETFILTER_XTABLES_LEGACY
++	depends on NETFILTER_XTABLES
+ 	default	n
+ 	help
+ 	 Legacy ebtables packet/frame classifier.
+diff --git a/net/ipv4/netfilter/Kconfig b/net/ipv4/netfilter/Kconfig
+index 2c438b140e88..7dc9772fe2d8 100644
+--- a/net/ipv4/netfilter/Kconfig
++++ b/net/ipv4/netfilter/Kconfig
+@@ -14,6 +14,7 @@ config NF_DEFRAG_IPV4
+ config IP_NF_IPTABLES_LEGACY
+ 	tristate "Legacy IP tables support"
+ 	depends on NETFILTER_XTABLES_LEGACY
++	depends on NETFILTER_XTABLES
+ 	default	m if NETFILTER_XTABLES_LEGACY
+ 	help
+ 	  iptables is a legacy packet classifier.
+@@ -326,6 +327,7 @@ endif # IP_NF_IPTABLES
+ config IP_NF_ARPTABLES
+ 	tristate "Legacy ARPTABLES support"
+ 	depends on NETFILTER_XTABLES_LEGACY
++	depends on NETFILTER_XTABLES
+ 	default	n
+ 	help
+ 	  arptables is a legacy packet classifier.
+@@ -343,6 +345,7 @@ config IP_NF_ARPFILTER
+ 	select IP_NF_ARPTABLES
+ 	select NETFILTER_FAMILY_ARP
+ 	depends on NETFILTER_XTABLES_LEGACY
++	depends on NETFILTER_XTABLES
+ 	help
+ 	  ARP packet filtering defines a table `filter', which has a series of
+ 	  rules for simple ARP packet filtering at local input and
+diff --git a/net/ipv6/netfilter/Kconfig b/net/ipv6/netfilter/Kconfig
+index 276860f65baa..81daf82ddc2d 100644
+--- a/net/ipv6/netfilter/Kconfig
++++ b/net/ipv6/netfilter/Kconfig
+@@ -10,6 +10,7 @@ menu "IPv6: Netfilter Configuration"
+ config IP6_NF_IPTABLES_LEGACY
+ 	tristate "Legacy IP6 tables support"
+ 	depends on INET && IPV6 && NETFILTER_XTABLES_LEGACY
++	depends on NETFILTER_XTABLES
+ 	default	m if NETFILTER_XTABLES_LEGACY
+ 	help
+ 	  ip6tables is a legacy packet classifier.
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.39.5
 
