@@ -1,94 +1,102 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B872A15533F
-	for <bridge@lists.linux.dev>; Thu, 31 Jul 2025 19:58:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD1402AD2F
+	for <bridge@lists.linux.dev>; Wed,  6 Aug 2025 09:28:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753991919; cv=none; b=HtvoIN+Ls1zVcHolt4tNfjES72aB+D4oTzbJ6DDYqPedHO9SWxpzxVk2A8XcjTd0wIU0HewhX5VQ2leeOiUkHODWXjD7EvI2zVmBTkc/yRgmyP0BZUbuBCKWQVj4JGZRPXlIv8EfrgW22b+I1e8rDthSKnmXM4ODGUxjlgttp4o=
+	t=1754472537; cv=none; b=PNY6JWQcUz4QUK784bKPipFsnEaO/7oyGRAAEw8TxrouEe5ni5HfWM7TBRTtNtbSe19tOlKlkoY4mSECrNXJxLeD8VnIcw/RBsl3nE5GbgArHw4frsoeQ0SuV8qVhG3miGXxMLuZYPyh/49YlETe87nKZkt615vLM8kPZnGQiPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753991919; c=relaxed/simple;
-	bh=VE3joiXSw99qAb6jVz6lsKUWuKipwIyRAFo8ArBr8qk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YXHcfEhCJEw3yXKmimYit7mQRm18Rz9/uPKo8XjluzvLBipDhDFeM7b/9Bp7mfssDFYAj3jKC+OiKINF+zeDGTpP2G091U5wls2v2yxFXSzoqocnG6YQKX2awfjfUMwZvTeEpV8Sh698OXy7Xnuk18Hn+PF2eN9M4gFTIXt0m2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.208.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-615756b1e99so248741a12.0
-        for <bridge@lists.linux.dev>; Thu, 31 Jul 2025 12:58:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753991915; x=1754596715;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JOub6JEULz4NRTq/hirUiArEKHDk37KcHlXQ+q2/ZHc=;
-        b=IKyOyD9NA3HWIwal2y3Bg5Dv7CW7M4R/fGIqOxHGkOX+3Ep2pFzPeO2GKwDGJcgGy2
-         mJ+vpgnyRLaTKgGBa3salMzmpNoaqQzWGiUPHV3JQovovapgccxNW1xq1sfNojItLmWQ
-         H1OKh4WtCp4Ea+bKt470vDsMg6HWYIOT3IZkngrwifWdUV+aJUqcO8i+we5iyaeyzZHm
-         LrxUwZBIJLJVRqgGBzpEjGd3x8pI8f+PcR47VxLLI/EGW+0oYn+K+dRj6FpifBV5Lh8B
-         4dHhcDikRbxu55c+3WbFGc1sG0uVjI3+te5DXdsua2B2LxxyWoFVoiS8d0UgfhqqQQ/Y
-         4Itg==
-X-Forwarded-Encrypted: i=1; AJvYcCWER7fC5UHkEUEBK++tXBSjSX0pKcOOUcHKXfz1zIfDOZmPplMCAdiF8k/ST4TfjToxePfnWAo=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxIQjBCuirpoiz3m9UsZylLh3Mya9OzHOEGHaw6/53IBAPG+lXZ
-	CiuUcDrkVWBcuNQIdgVKSoEYdvVrB4ZVgJBb/fOldXwwv0jm7fFV1F1T
-X-Gm-Gg: ASbGnctWlouoWKDhjDuqz/gCtB8L9G/KB9GEjNx4fRIomfW2NEGk9XjVk4B/QjI5GJj
-	BVyDa4rKlOOS46hQxgUNct2XWmwHAhti53Mk/UNZxyrtlHYA07kwZL5DJKKkiSmHsSHMlF1yeo7
-	6GrnxeBZEh1JaFmP7IuF2koFxhwYtbqXbhcSBsCd+YPON+iHNZk3+WMF4fDEZoPmIvOS9tMLHow
-	2eJsE8R9yxETAL7psoYJlMXzJqZSTtKBRsPwvzciUwKkfnDGb8EcOyIwud9C7ztYs09IChMOfCr
-	GxbmtEWjq5MF2JwCnR81dcVzrSUs2dY6VQk2omVd+NvXeAphv54a/JM7SxfvciA9OOCq9oasTFc
-	gqjflVYqmgKbEIQ/R0YNZ
-X-Google-Smtp-Source: AGHT+IHi5E7zdxk5Xx1zNsFA7iW/9W+ly6JoYYOQpr1wOvbx3PwGi79d4r5orR4ephm9fAhIPcGSfQ==
-X-Received: by 2002:a17:906:7951:b0:ae0:c355:2140 with SMTP id a640c23a62f3a-af8fd9f7520mr1057608066b.45.1753991914859;
-        Thu, 31 Jul 2025 12:58:34 -0700 (PDT)
-Received: from gmail.com ([2a03:2880:30ff::])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a0766f9sm163674566b.24.2025.07.31.12.58.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Jul 2025 12:58:34 -0700 (PDT)
-Date: Thu, 31 Jul 2025 12:58:31 -0700
-From: Breno Leitao <leitao@debian.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>, 
-	Jozsef Kadlecsik <kadlec@netfilter.org>, Nikolay Aleksandrov <razor@blackwall.org>, 
-	Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, David Ahern <dsahern@kernel.org>, 
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Arnd Bergmann <arnd@arndb.de>, Simon Horman <horms@kernel.org>, 
-	netfilter-devel@vger.kernel.org, coreteam@netfilter.org, bridge@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] netfilter: add back NETFILTER_XTABLES dependencies
-Message-ID: <uadem53d2ymvjweqjdvilrpr2vwsfxu2gbwyaopacyl3x2zmhl@raeakspbvdiw>
-References: <20250730214538.466973-1-arnd@kernel.org>
+	s=arc-20240116; t=1754472537; c=relaxed/simple;
+	bh=bhJ5WP3HwvnnIMpMD69DY2iqOt3OMJucp0B8rJ3Cx/w=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=XFwoCvywCGxNTejLlw3szeCLiqY9W2tRg57KZg0RaNM1qAuP4ph5rAfT0UvJHXmJFEdgjtFIGXrIutS74q0PKuIs6VAXvc97Wlc37dDgWUxGQaTL2X/6AxMx7+SbGiFNjnefcXmYwITvZT3PrTeLVA9gN1txYnT7dZvTO5slDCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.88.194])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4bxlM55DfVztScj;
+	Wed,  6 Aug 2025 17:27:45 +0800 (CST)
+Received: from dggpemf500016.china.huawei.com (unknown [7.185.36.197])
+	by mail.maildlp.com (Postfix) with ESMTPS id 362C7140156;
+	Wed,  6 Aug 2025 17:28:47 +0800 (CST)
+Received: from huawei.com (10.175.124.27) by dggpemf500016.china.huawei.com
+ (7.185.36.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Wed, 6 Aug
+ 2025 17:28:46 +0800
+From: Wang Liang <wangliang74@huawei.com>
+To: <razor@blackwall.org>, <idosch@nvidia.com>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<horms@kernel.org>
+CC: <bridge@lists.linux.dev>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <yuehaibing@huawei.com>,
+	<zhangchangzhong@huawei.com>, <wangliang74@huawei.com>
+Subject: [PATCH net] net: bridge: fix soft lockup in br_multicast_query_expired()
+Date: Wed, 6 Aug 2025 17:49:41 +0800
+Message-ID: <20250806094941.1285944-1-wangliang74@huawei.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250730214538.466973-1-arnd@kernel.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
+ dggpemf500016.china.huawei.com (7.185.36.197)
 
-On Wed, Jul 30, 2025 at 11:45:32PM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> Some Kconfig symbols were changed to depend on the 'bool' symbol
-> NETFILTER_XTABLES_LEGACY, which means they can now be set to built-in
-> when the xtables code itself is in a loadable module:
-> 
-> x86_64-linux-ld: vmlinux.o: in function `arpt_unregister_table_pre_exit':
-> (.text+0x1831987): undefined reference to `xt_find_table'
-> x86_64-linux-ld: vmlinux.o: in function `get_info.constprop.0':
-> arp_tables.c:(.text+0x1831aab): undefined reference to `xt_request_find_table_lock'
-> x86_64-linux-ld: arp_tables.c:(.text+0x1831bea): undefined reference to `xt_table_unlock'
-> x86_64-linux-ld: vmlinux.o: in function `do_arpt_get_ctl':
-> arp_tables.c:(.text+0x183205d): undefined reference to `xt_find_table_lock'
-> x86_64-linux-ld: arp_tables.c:(.text+0x18320c1): undefined reference to `xt_table_unlock'
-> x86_64-linux-ld: arp_tables.c:(.text+0x183219a): undefined reference to `xt_recseq'
-> 
-> Change these to depend on both NETFILTER_XTABLES and
-> NETFILTER_XTABLES_LEGACY.
-> 
-> Fixes: 9fce66583f06 ("netfilter: Exclude LEGACY TABLES on PREEMPT_RT.")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+When set multicast_query_interval to a large value, the local variable
+'time' in br_multicast_send_query() may overflow. If the time is smaller
+than jiffies, the timer will expire immediately, and then call mod_timer()
+again, which creates a loop and may trigger the following soft lockup
+issue:
 
-Tested-by: Breno Leitao <leitao@debian.org>
+  watchdog: BUG: soft lockup - CPU#1 stuck for 221s! [rb_consumer:66]
+  CPU: 1 UID: 0 PID: 66 Comm: rb_consumer Not tainted 6.16.0+ #259 PREEMPT(none)
+  Call Trace:
+   <IRQ>
+   __netdev_alloc_skb+0x2e/0x3a0
+   br_ip6_multicast_alloc_query+0x212/0x1b70
+   __br_multicast_send_query+0x376/0xac0
+   br_multicast_send_query+0x299/0x510
+   br_multicast_query_expired.constprop.0+0x16d/0x1b0
+   call_timer_fn+0x3b/0x2a0
+   __run_timers+0x619/0x950
+   run_timer_softirq+0x11c/0x220
+   handle_softirqs+0x18e/0x560
+   __irq_exit_rcu+0x158/0x1a0
+   sysvec_apic_timer_interrupt+0x76/0x90
+   </IRQ>
+
+This issue can be reproduced with:
+  ip link add br0 type bridge
+  echo 1 > /sys/class/net/br0/bridge/multicast_querier
+  echo 0xffffffffffffffff >
+  	/sys/class/net/br0/bridge/multicast_query_interval
+  ip link set dev br0 up
+
+Fix this by comparing expire time with jiffies, to avoid the timer loop.
+
+Fixes: 7e4df51eb35d ("bridge: netlink: add support for igmp's intervals")
+Signed-off-by: Wang Liang <wangliang74@huawei.com>
+---
+ net/bridge/br_multicast.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 1377f31b719c..631ae3b4c45d 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1892,7 +1892,8 @@ static void br_multicast_send_query(struct net_bridge_mcast *brmctx,
+ 	time += own_query->startup_sent < brmctx->multicast_startup_query_count ?
+ 		brmctx->multicast_startup_query_interval :
+ 		brmctx->multicast_query_interval;
+-	mod_timer(&own_query->timer, time);
++	if (time_is_after_jiffies(time))
++		mod_timer(&own_query->timer, time);
+ }
+ 
+ static void
+-- 
+2.34.1
+
