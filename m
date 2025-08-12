@@ -1,246 +1,154 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453192E2657
-	for <bridge@lists.linux-foundation.org>; Tue, 12 Aug 2025 08:06:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.137
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754986001; cv=fail; b=IdmhSxEUqVtcyxGOml/g49Byh5VcOPsImdRMY/+w6MAIrfahe6T4z57SlF3gJvmotCbuXFAtltDK2CbOaNQz/QUblp6oJC53NCOoEuB0Xi8QvG2uO0iyvcC/hEv6z2ehPEitrUS1dIytMnv/ogXh5COZ4z4O5r7nu9Gixx0ybXM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754986001; c=relaxed/simple;
-	bh=cVJr5HZa6yE0WebrzapOJBEBd1/4alA9c9ZF2xrcfUA=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Z6lH2lRDTao9E+MFrz4Gx0QnZF2wUgIttPUw5JmB4C1DgCOBOnqFHzRCfzfDOhO83IARUVX6HrvEnkV9Wx5AJKdonI5E3FmTGA5nNtfu9tjsDawK2zfDK74sgfBN2TRbNElcV6wxpULFH332BfA6vsqkVwfPShUFacaWO86lih4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=AEvg39YD; arc=fail smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B2012E9755
+	for <bridge@lists.linux-foundation.org>; Tue, 12 Aug 2025 08:27:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1754987279; cv=none; b=KbQCKiPCAmmgW3CS1SFUaAKpcrnX2CVlh4y3mOPHpQPP3eIxPaxu1AIzQkxDMknGYUN7dCJ1NaioPtdRXqV4t+hkIQWA9TuZkBxRvgtlbixj0cknclWII2zDJqkAdVEry103mEoccVyy3u7Tmll/YwlFFuI4m5k18nvHWKEoGBY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1754987279; c=relaxed/simple;
+	bh=PXnGwUuF24xOhbEFOMK21d4w06vFXybiFXeF2Ah/w4U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WRTYqb0NTL0/7DNGsL2UD95Ho+/mg6k232j/S066TktouMQxxzfbYFDrAm9pAnG72324ha4Ci5whLs1IxPe+mzgkvfmzh6mPAa8oCXd9svVRDb0ZM7NoRHOB7LGGqla/rnraPhDlWZPnq6I/VWAUFiWiwab2yOwQc4Tj5fkYrZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b=dD1wmi/B; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="AEvg39YD"
+	dkim=pass (2048-bit key) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.b="dD1wmi/B"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CB23741C20
-	for <bridge@lists.linux-foundation.org>; Tue, 12 Aug 2025 08:06:38 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8BADC6135F
+	for <bridge@lists.linux-foundation.org>; Tue, 12 Aug 2025 08:27:56 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -1.898
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id w_0f-atSeRmD for <bridge@lists.linux-foundation.org>;
- Tue, 12 Aug 2025 08:06:38 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:2418::62a; helo=nam12-bn8-obe.outbound.protection.outlook.com; envelope-from=idosch@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org DF29341C16
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DF29341C16
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=AEvg39YD
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2062a.outbound.protection.outlook.com [IPv6:2a01:111:f403:2418::62a])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DF29341C16
-	for <bridge@lists.linux-foundation.org>; Tue, 12 Aug 2025 08:06:37 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=uFW4KN6jmCuTyY5I9YdkBlxLY7CmcoG/JH58ZLvijtmLZbxmPdK5I0g9RY2+ThlKoniMxKFZe3qry+chkYo7kkVFRhfam/HFmlpRmvsegGu0BzBvJMOIZEEYpvTBITBdE6z3H0V2e4HItgDGJUjVOUQAiQCz+yPk+HDxM+fxldSKebHnIgP/Dx4IQYLBEdqQHJxPnXGmmHDd5SsnP2RhAUjob1Ssf+HBO3tnoA8z2miZ8fSitw15NI32y2NSXrxN61f2euhYUNcWUnc9OB/MDfoYeBOtXbgSDcZ0WPU1tPz1tFf8Pt3WtdkaIX6tIPgTlR2MtJf3ys6QUGxGotj1Rg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nWSVHr+zb6Yx3rFauYpqyKRjc7y9RTuYYGwLP8eAe0o=;
- b=QG4MnZVZExNXO6svea6yTy7lLp2Pm2nrAkA0Hhc5SsW3pUJFSMCsmeAqbFIDPFrapKHzEXTOiRyWgIrcXYkLHd1kVyo0+Ptau6XOI+zkoxkbfsG4/2LjGKe1lXxaDFvhKKiq8u/up4EGzga/zBaLTfEQqwzy6z9t1cCyXzmR0/N8HVPe0w8DmKtqvvKIIDQyWNKdswTsX/nFl6CjSFfyq6VLJOvXSv7gxkjJDRPV+76/H15NdkyB2v/PhotJppdrU3lGHaq6xVL+5HK07Rw5zsmeXqMJ5l8TZdyr6GqJTYnnNbMS3zSLs3ZcnJ66B0rfexvUuQ1mY5zzUcpoWanwbg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nWSVHr+zb6Yx3rFauYpqyKRjc7y9RTuYYGwLP8eAe0o=;
- b=AEvg39YD32H2V3S0eYumrrwOyWgaZcbiSyDI6cpMpUXxbFc+nEMnDsR8MlgZXxJGuBpo3DuDokpKtLzDXnWgyMwfw4PuOguh0EqqW6rqqx5sUiGIeDkC+pliI2dzhxxYuK9RKiGbHy5FXpdCsASMfmXuYzzw3i+7t3IgIxq9DvNs8lkBgTLrTIlpez5VKUgUxDoGRYcMDjdd7AVXWydRg8HxFOq2IEMOLBbsh0Nc2XbhU77z94SaS8evteo6jlepu4fdD5lmRtomqEaE6hcz3ei8Uuq1gs9joeyVODUoNoDvpo/qT0P27nw3/oUT6fZqZcJoue4bF4jeQob1E81jpA==
-Received: from SA9PR13CA0060.namprd13.prod.outlook.com (2603:10b6:806:22::35)
- by PH7PR12MB5734.namprd12.prod.outlook.com (2603:10b6:510:1e1::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9009.22; Tue, 12 Aug
- 2025 08:06:33 +0000
-Received: from SA2PEPF000015CC.namprd03.prod.outlook.com
- (2603:10b6:806:22:cafe::d5) by SA9PR13CA0060.outlook.office365.com
- (2603:10b6:806:22::35) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9031.13 via Frontend Transport; Tue,
- 12 Aug 2025 08:06:33 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- SA2PEPF000015CC.mail.protection.outlook.com (10.167.241.202) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9031.11 via Frontend Transport; Tue, 12 Aug 2025 08:06:32 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Tue, 12 Aug
- 2025 01:06:16 -0700
-Received: from shredder.mtl.com (10.126.230.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Tue, 12 Aug
- 2025 01:06:11 -0700
-From: Ido Schimmel <idosch@nvidia.com>
-To: <netdev@vger.kernel.org>, <bridge@lists.linux-foundation.org>
-CC: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<edumazet@google.com>, <razor@blackwall.org>, <petrm@nvidia.com>,
-	<horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>
-Subject: [PATCH net-next 2/2] selftests: net: Test bridge backup port when port is administratively down
-Date: Tue, 12 Aug 2025 11:02:13 +0300
-Message-ID: <20250812080213.325298-3-idosch@nvidia.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250812080213.325298-1-idosch@nvidia.com>
-References: <20250812080213.325298-1-idosch@nvidia.com>
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id SAY6zAsY0JRV for <bridge@lists.linux-foundation.org>;
+ Tue, 12 Aug 2025 08:27:55 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::633; helo=mail-ej1-x633.google.com; envelope-from=razor@blackwall.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 1A2DE611FE
+Authentication-Results: smtp3.osuosl.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1A2DE611FE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=blackwall-org.20230601.gappssmtp.com header.i=@blackwall-org.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=dD1wmi/B
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1A2DE611FE
+	for <bridge@lists.linux-foundation.org>; Tue, 12 Aug 2025 08:27:54 +0000 (UTC)
+Received: by mail-ej1-x633.google.com with SMTP id a640c23a62f3a-af95b919093so767352566b.2
+        for <bridge@lists.linux-foundation.org>; Tue, 12 Aug 2025 01:27:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20230601.gappssmtp.com; s=20230601; t=1754987273; x=1755592073; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+inNV5L+26/jdh8SQHKHh0W+Rujj2zhiV+GcfqL4CjE=;
+        b=dD1wmi/Bk4BNsm/uoxUCAPNsnITBBoCMviWBeDpw1NJkldzemzoSbDGhoX3nGWeGcX
+         zZA0H7n6zjreZp1/MskHrx9JUkDOFh11ZYorL8oijIOoGQVhL8Ckvp1ADCbWPb2rj43U
+         tkeo3KzireYyPxV8onrowb264bJdKjBxyiiKExNRgFfB+KUdDB3wBPhL605jtL1XnKmh
+         CYa1qZ4ezhmWQkcHga6kvDyIm3tN17DSB4EJ+rZHBBBkPspqlFt2NRD15LvNmNobHwlo
+         OPFXocPOFdEyKWXdHpqIn0pO1Bp2FBMbcS0PojYcd1gLbrYdOs9rVj9c/PPPJCJoaUb1
+         hL8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754987273; x=1755592073;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+inNV5L+26/jdh8SQHKHh0W+Rujj2zhiV+GcfqL4CjE=;
+        b=k0cV4rsb3WLpeiNwkA1zaYUkId8oJ7HjWLepszeP1OOtoh1W38cW8ZfnLNJ0zg9HU5
+         VIaiusj8MNTm0vC1zUBb0q8lG06I+YADwfVbz5Mp9APMwDrO97/x9sXMUj5KyXh7FetM
+         fZ+sWhTRihXI+84eKWW7z5IHavEbIDyYLbxmPoj6HrgWlsK8m/bITOKiUs5xaz9s1NFH
+         uFACFecZHA/miUpOt5q9pEXoBlLFHeBkiQfft1ijwh6H1obPOjwXnx4wMpUf62hZ9HLq
+         j3YSE22LCxLiZOWKer8l8d2r9vMcW9pcXfoyMIkjcP2UgO1Qp6n478QY1vY1mwPsncPZ
+         ijaA==
+X-Forwarded-Encrypted: i=1; AJvYcCUxtAFUvMPVZXNasokOUU0Qtc6GVpv43vV3yaqKDqx6ZYdAh9q7B8WjkAaxoAmA1Cg931YDXgY=@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YxEFuRwYHfxCe3Sq3KSBkkBkkiLi10QS+mKUojESdpjONZm+IVY
+	1hHTArdztPP4hZXYQgkPHXDIOGV3lyvCkCwX5vNwPo7HHCDL6Tg5m5uWNROWXyaBc24=
+X-Gm-Gg: ASbGncvyqa+85N1um/BKvnn1annyCkjilLYuRSbCSbzPXKoXSFbd1sbQf0/kSa5KG+p
+	qF3TWyT1U4nm4bpcomMTbs86XmDoq47v/KttoWOnvHwJOYxnfy2f6/ACkUWogMGnENi8Aa5pwSC
+	tZ+e3bpzGiU0D/6clGSUV+7/VjAR8VxjCTqk3qcEzJBbLmq3QD4z+d9bMNKgRE2kmII/lnlAcge
+	vg3z7nIDrtOX+0rDgTrVOB78FUn+772cC4kpA0lssO5XMW5fQVCTpfJcj2bOtMvxVk/zciR9gfp
+	B8svZeXWNcF6uB+Sz0hEa87x0uTlZW4JrVwcj7GHgLfgyy4MzQdv8g4kC7eAnP/lsbgt7iLan/z
+	SpqV0jZrVZYtzYRNw5Us6zsBJ5Z5aE5/hfpeX0gA=
+X-Google-Smtp-Source: AGHT+IHiODXSXqVSNlXTPQ0+KmwM7lX/U2trNNPVHoBVYZOtB9bVUuVfmYGU4RbFOrj0nX/NiG1amA==
+X-Received: by 2002:a17:907:9721:b0:ae3:bb0a:1ccd with SMTP id a640c23a62f3a-afa1dfa9174mr222098166b.26.1754987272989;
+        Tue, 12 Aug 2025 01:27:52 -0700 (PDT)
+Received: from [100.115.92.205] ([109.160.72.208])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-af91a24062esm2160802366b.126.2025.08.12.01.27.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Aug 2025 01:27:52 -0700 (PDT)
+Message-ID: <3e84e2ea-2b11-4e3d-99e9-4c6ecabe3bc4@blackwall.org>
+Date: Tue, 12 Aug 2025 11:27:50 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA2PEPF000015CC:EE_|PH7PR12MB5734:EE_
-X-MS-Office365-Filtering-Correlation-Id: adbd59f8-d48e-4002-9a1d-08ddd97726b7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|36860700013|82310400026|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?gexZd3Y/g/CIUFarhCpgASc77gWekH55UOVAqJgc4esWoNyoUrl9mkZ1ovxq?=
- =?us-ascii?Q?zuoKBE7qpRVdpjoMKldbz0C7SG40ejCCt62jI3Oy7SXkGNiXUm1T9c/+9Qfy?=
- =?us-ascii?Q?YrhPDYH4grUoIlYm+alk8wYNzQK8WYl+teMB+FWb7y3vUAFTx8pID+s9exa4?=
- =?us-ascii?Q?VlqzR3RZFk331Lvv1HaEDS4KBbIJB+J9Bdl97+58VuPOwKTSuTDDIiLsGpsR?=
- =?us-ascii?Q?t8HHi19vnBK0iFfrGqu0cS5rlh3foNw5XEiKdvpRCg/ecKe14puaqtk/+oTQ?=
- =?us-ascii?Q?SOcC/qYyrZIZvLKy3rpP1+MYRnErCu4YMuBwCLtVn10MmtgFTaPjvg68lfnf?=
- =?us-ascii?Q?1GZsC7cfZOMfvoTzC8VMAFeQrFqrt4l9Y9jrM4nqqSjToG2X+3wNQjXRsvCr?=
- =?us-ascii?Q?h8eXfDXab8SpKpQ6BUhlKmtRuK6FNSEyPe6fXqt3kUrQRARLWTXoYUI1tiWG?=
- =?us-ascii?Q?7mh94V6HkbM/1rMCFh/ghytdjHLxhojYpzPAnCOVlTyeGBlRqHwVZRZHwVF4?=
- =?us-ascii?Q?FY3FTYFEKY4swT9hXxrROxfAPpKnF5rnFT2veqk3P3ccyr017uRZR/zg7GeK?=
- =?us-ascii?Q?paMucXM/ah9nAofGjVkP/VMtdXnDFSmRSmQU7+iCqZ7gvlT5kboODwFpklYe?=
- =?us-ascii?Q?REdQton3wUI3ppBvs95MUSKhRKRNhbgibWQlzEzcKVn+/GK0t8PQfD43ZfiD?=
- =?us-ascii?Q?byl9tTS4gFhK7OKG6vPys+InbF6yYt9tzbkv6kwTqQQE7ZIC6XxBW2gauBU4?=
- =?us-ascii?Q?QsHKbfz5my7aY2ltXr2iYhNnm2qGwh510bADaGUJEXATOa5bcB2UH27Hcp8q?=
- =?us-ascii?Q?gDnwhovAV/2+nh/fPNiD5Z4Rwlc5AedWzF11vxFCkL8KKPiZcD/tey6639UO?=
- =?us-ascii?Q?nOvMW15FZs3tsTvAlPVEyJC1l+MYG/FzJvp7MeGXnSWTahreLkPG1hYz85qi?=
- =?us-ascii?Q?9pNprKC9O/vKIwCzBjiiHEz9OtUZ/r0BrMfS+2beG6V98m2hO/RLjdErUjOo?=
- =?us-ascii?Q?ad9qUYo6kDYZsfHYKq0X+g1I5UzMjRraIkVXtcdptz5hLMmQxfQKioIIyMxo?=
- =?us-ascii?Q?vjpCDP2e/kFRXfNkqC07Aax3PoVP/UkCjC0C8NVoDp1R+6npYvkW8RQEHc+l?=
- =?us-ascii?Q?AW5TPBTZRMM6iuTtqIQievXvhwpPQIqoB9o6QgyPBiQBDAXalbEhEzb3jUe4?=
- =?us-ascii?Q?/OXeuFipiqobdUL5fgr0jlIB209tdJz74dWvts6s9J2sU3JLEEv1NsAJkCEu?=
- =?us-ascii?Q?yXvoSQMiqCtbpEoYBP+utzmkXVol0d/s0IH1VM9U4mpZ6BexWxcUU08L1bTd?=
- =?us-ascii?Q?qfvrUmozMMx2plLREiFzvOTji1+Pqxg3SpV7GtXccRZpZgWSax/rWB/Q4oh4?=
- =?us-ascii?Q?tbkVniAtaNoeHlwNLiW6vqfWFdx6a1xf4V9DoV75jpPI2hrt1OLGzhZHH23M?=
- =?us-ascii?Q?jlKCKwO2JbrSOA+F8oMxWtY7D6y+JZOejCfhITCaRFhAQZVqWiFL/DrBx0rN?=
- =?us-ascii?Q?qIxm/9+X2jP3dTKSUNTunGg+ybT+hctuy90Z?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(36860700013)(82310400026)(1800799024);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Aug 2025 08:06:32.8871
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: adbd59f8-d48e-4002-9a1d-08ddd97726b7
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SA2PEPF000015CC.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5734
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 1/2] bridge: Redirect to backup port when port is
+ administratively down
+To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
+ bridge@lists.linux-foundation.org
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, petrm@nvidia.com, horms@kernel.org
+References: <20250812080213.325298-1-idosch@nvidia.com>
+ <20250812080213.325298-2-idosch@nvidia.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20250812080213.325298-2-idosch@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Test that packets are redirected to the backup port when the primary
-port is administratively down.
+On 8/12/25 11:02, Ido Schimmel wrote:
+> If a backup port is configured for a bridge port, the bridge will
+> redirect known unicast traffic towards the backup port when the primary
+> port is administratively up but without a carrier. This is useful, for
+> example, in MLAG configurations where a system is connected to two
+> switches and there is a peer link between both switches. The peer link
+> serves as the backup port in case one of the switches loses its
+> connection to the multi-homed system.
+> 
+> In order to avoid flooding when the primary port loses its carrier, the
+> bridge does not flush dynamic FDB entries pointing to the port upon STP
+> disablement, if the port has a backup port.
+> 
+> The above means that known unicast traffic destined to the primary port
+> will be blackholed when the port is put administratively down, until the
+> FDB entries pointing to it are aged-out.
+> 
+> Given that the current behavior is quite weird and unlikely to be
+> depended on by anyone, amend the bridge to redirect to the backup port
+> also when the primary port is administratively down and not only when it
+> does not have a carrier.
+> 
 
-With the previous patch:
+hehe I did ask that question long time ago while adding support for backup ports,
+at the time wasn't needed for the MLAG case :-)
 
- # ./test_bridge_backup_port.sh
- [...]
- TEST: swp1 administratively down                                    [ OK ]
- TEST: No forwarding out of swp1                                     [ OK ]
- TEST: Forwarding out of vx0                                         [ OK ]
- TEST: swp1 administratively up                                      [ OK ]
- TEST: Forwarding out of swp1                                        [ OK ]
- TEST: No forwarding out of vx0                                      [ OK ]
- [...]
- Tests passed:  89
- Tests failed:   0
+> The change is motivated by a report from a user who expected traffic to
+> be redirected to the backup port when the primary port was put
+> administratively down while debugging a network issue.
+> 
+> Reviewed-by: Petr Machata <petrm@nvidia.com>
+> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+>   net/bridge/br_forward.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+> index 29097e984b4f..870bdf2e082c 100644
+> --- a/net/bridge/br_forward.c
+> +++ b/net/bridge/br_forward.c
+> @@ -148,7 +148,8 @@ void br_forward(const struct net_bridge_port *to,
+>   		goto out;
+>   
+>   	/* redirect to backup link if the destination port is down */
+> -	if (rcu_access_pointer(to->backup_port) && !netif_carrier_ok(to->dev)) {
+> +	if (rcu_access_pointer(to->backup_port) &&
+> +	    (!netif_carrier_ok(to->dev) || !netif_running(to->dev))) {
+>   		struct net_bridge_port *backup_port;
+>   
+>   		backup_port = rcu_dereference(to->backup_port);
 
-Without the previous patch:
-
- # ./test_bridge_backup_port.sh
- [...]
- TEST: swp1 administratively down                                    [ OK ]
- TEST: No forwarding out of swp1                                     [ OK ]
- TEST: Forwarding out of vx0                                         [FAIL]
- TEST: swp1 administratively up                                      [ OK ]
- TEST: Forwarding out of swp1                                        [ OK ]
- [...]
- Tests passed:  85
- Tests failed:   4
-
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
----
- .../selftests/net/test_bridge_backup_port.sh  | 31 ++++++++++++++++---
- 1 file changed, 27 insertions(+), 4 deletions(-)
-
-diff --git a/tools/testing/selftests/net/test_bridge_backup_port.sh b/tools/testing/selftests/net/test_bridge_backup_port.sh
-index 1b3f89e2b86e..2a7224fe74f2 100755
---- a/tools/testing/selftests/net/test_bridge_backup_port.sh
-+++ b/tools/testing/selftests/net/test_bridge_backup_port.sh
-@@ -315,6 +315,29 @@ backup_port()
- 	tc_check_packets $sw1 "dev vx0 egress" 101 1
- 	log_test $? 0 "No forwarding out of vx0"
- 
-+	# Check that packets are forwarded out of vx0 when swp1 is
-+	# administratively down and out of swp1 when it is administratively up
-+	# again.
-+	run_cmd "ip -n $sw1 link set dev swp1 down"
-+	busywait $BUSYWAIT_TIMEOUT bridge_link_check $sw1 swp1 disabled
-+	log_test $? 0 "swp1 administratively down"
-+
-+	run_cmd "ip netns exec $sw1 mausezahn br0.10 -a $smac -b $dmac -A 198.51.100.1 -B 198.51.100.2 -t ip -p 100 -q -c 1"
-+	tc_check_packets $sw1 "dev swp1 egress" 101 3
-+	log_test $? 0 "No forwarding out of swp1"
-+	tc_check_packets $sw1 "dev vx0 egress" 101 2
-+	log_test $? 0 "Forwarding out of vx0"
-+
-+	run_cmd "ip -n $sw1 link set dev swp1 up"
-+	busywait $BUSYWAIT_TIMEOUT bridge_link_check $sw1 swp1 forwarding
-+	log_test $? 0 "swp1 administratively up"
-+
-+	run_cmd "ip netns exec $sw1 mausezahn br0.10 -a $smac -b $dmac -A 198.51.100.1 -B 198.51.100.2 -t ip -p 100 -q -c 1"
-+	tc_check_packets $sw1 "dev swp1 egress" 101 4
-+	log_test $? 0 "Forwarding out of swp1"
-+	tc_check_packets $sw1 "dev vx0 egress" 101 2
-+	log_test $? 0 "No forwarding out of vx0"
-+
- 	# Remove vx0 as the backup port of swp1 and check that packets are no
- 	# longer forwarded out of vx0 when swp1 does not have a carrier.
- 	run_cmd "bridge -n $sw1 link set dev swp1 nobackup_port"
-@@ -322,9 +345,9 @@ backup_port()
- 	log_test $? 1 "vx0 not configured as backup port of swp1"
- 
- 	run_cmd "ip netns exec $sw1 mausezahn br0.10 -a $smac -b $dmac -A 198.51.100.1 -B 198.51.100.2 -t ip -p 100 -q -c 1"
--	tc_check_packets $sw1 "dev swp1 egress" 101 4
-+	tc_check_packets $sw1 "dev swp1 egress" 101 5
- 	log_test $? 0 "Forwarding out of swp1"
--	tc_check_packets $sw1 "dev vx0 egress" 101 1
-+	tc_check_packets $sw1 "dev vx0 egress" 101 2
- 	log_test $? 0 "No forwarding out of vx0"
- 
- 	run_cmd "ip -n $sw1 link set dev swp1 carrier off"
-@@ -332,9 +355,9 @@ backup_port()
- 	log_test $? 0 "swp1 carrier off"
- 
- 	run_cmd "ip netns exec $sw1 mausezahn br0.10 -a $smac -b $dmac -A 198.51.100.1 -B 198.51.100.2 -t ip -p 100 -q -c 1"
--	tc_check_packets $sw1 "dev swp1 egress" 101 4
-+	tc_check_packets $sw1 "dev swp1 egress" 101 5
- 	log_test $? 0 "No forwarding out of swp1"
--	tc_check_packets $sw1 "dev vx0 egress" 101 1
-+	tc_check_packets $sw1 "dev vx0 egress" 101 2
- 	log_test $? 0 "No forwarding out of vx0"
- }
- 
--- 
-2.50.1
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
