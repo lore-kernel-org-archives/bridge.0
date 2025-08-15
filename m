@@ -1,94 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AE1D319871;
-	Fri, 15 Aug 2025 00:59:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D792F28980A
+	for <bridge@lists.linux.dev>; Fri, 15 Aug 2025 15:08:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755219595; cv=none; b=iPxzVu2PhVowmadrwvSvYq1HNk0XIzl0z8zp8IaoTx/4LTr7GsKrMRjOQ2DmH71sIpmOWWaYSuC7tED4YTpdx9wMCspZAh1so4pACiQNfmz7P0QXhfmHeBmJJrJzHSqC8/lXGS9Q6r+//1yqImu0wQHOSElSg7MtdjAtmOHAEtE=
+	t=1755270518; cv=none; b=M6RSE4FTiMoE8DXMAfxLdL+14urF/1MdxYrE/FzYNEdtAcQQnaBaM+2OEiAm0bsTINPIhIimTETlW8JjNq+IMCPWLrcNX9kmzB2/aN1oaG27abk6IBp7KLKzf19jO/BK9e8B8Ll5LzNIq0VC6Ye4tYOJc9mkOq7XmU824V1FkH8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755219595; c=relaxed/simple;
-	bh=HoKdVPAd3FBMKlpMOOlRVFWHJIHLx6qrRJmrY/ez2CI=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=n2oLmcMcma7/tNpAiq7Wjjh/kfJyI6CcubYp7DqnfGKCYCElN9+nll3D40hwOhTfU/X7B4C+rLDX+ZSEIdj1hd+xrP1mYUsAIrg2zqWJcTB3eGD39TM/Ek//p7qJK13o6CuC7JPV5hAElClMuPB3JXjiLtpnXFQSY4MJ8MXfbFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q154lQ6D; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1755270518; c=relaxed/simple;
+	bh=wxXY4tEGwganMnpiKU8Ayd+L73yT/MpiUpiLzweyTx0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=g87E15sydkVfPuqvdbghntGTcn6fII6daNqW8YEcXk3Lpp1gj7zw5JFIvxEWaOBYtQkuSlH9IymAWoqwtNmfn97XlXOrC0SJd3vfIYqJyJvBVcdZdb/OfFBo0YXxm8gnS6hsHpAHMXJlxz+ecLZCx6DJm1INDDHdYopryKuS02A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=CejdWkmX; arc=none smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q154lQ6D"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE9A1C4CEED;
-	Fri, 15 Aug 2025 00:59:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1755219595;
-	bh=HoKdVPAd3FBMKlpMOOlRVFWHJIHLx6qrRJmrY/ez2CI=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=q154lQ6DnhpU4k2Kf41J/gqrR7XUzgCE1JS0CedR5Edh7g1X36A14I9WsC/B3Tc1n
-	 mEIASTorSvQN3zUkBwQ5CDZ4b8U3HUcT7p/zoODVY7S1x08LyV6G9FC3bi9eHUSs6K
-	 8zTfpMxP0PEWwvkV4EVNmRzaqgPhBQ8ODTjc3inPr/KEJB8bp8bOlW8mR8blCqJuPJ
-	 KbliXal+omo6vL2jO8vqHKL+areSG3XOpoPIdik9NvqGidwqUq6f5z9qoirlIysrd6
-	 mvPNBxu2nEauPXAlDBfY43tBmQHdo8zYCUmqKZXDa0cgO4nOzfYlY/OjzoCUHk4Ng7
-	 kaKtC7sDBobeQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 70E3039D0C3E;
-	Fri, 15 Aug 2025 01:00:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="CejdWkmX"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-618896b3ff9so4283136a12.1
+        for <bridge@lists.linux.dev>; Fri, 15 Aug 2025 08:08:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1755270514; x=1755875314; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=DvYymIzLnJigupjUPWkbrLGydSeNzR7fRIJx+eQRmEI=;
+        b=CejdWkmXFAVrTKexgUKyKjBUgZEZM9LgJ1x+K8KpSzkgOsXBJ6n6yEl+zt1wscukoN
+         GNwCE/sqXtBnwG0GPoeNNU2+rExqUuM7C9/Q7o7ItaYjTKT34alAr5nkUrSY9fNElsLd
+         WE6b7YuyRKIpAVGx0VWg89iemDHEG+t2dQBjfA75BMPq1S1jIxop1iDPV4dDX5IxZSe+
+         oDplob9aeJnYQ+CYN/hp7oorZ7TIWjdeuQS7I4Y+Fz/50rKusiaWyHJJLYscknc1YXk3
+         cvDPwmMUwEywlJWjXnDM6lNjZew7QSaNaJ8Tenopw4VlqcXD8tQ0WZgnVLnwg2qwTaNQ
+         N+Qw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1755270514; x=1755875314;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=DvYymIzLnJigupjUPWkbrLGydSeNzR7fRIJx+eQRmEI=;
+        b=jdvwEJZf+4QD63tFeZJOIjI8rOLw1Mp89O3AH01mrthTI7rP/z8VL35X7WbEvfsGg4
+         b31768KUrNmgplZfYELEuzSRxsO4zWERHL3ewcwLymaoLIZm9M2SnYmMfvinhbJaNrii
+         9yfQXA/RupR7JA2MDKOa555cg6Ht9HHGnUnGGb/b+aoEpvW6jKsEKhuK2GfLSJifXfdj
+         GdPS+WDrErhUDfsz9AG6VpAl6HFX3b32zzi8KgXW6oc8ly6GvKT9xiaJba9EvmisjN7O
+         U1MgrSG63JZcFsHALSABBXHXvyyzGz1mRmbo/cROwffQPj7W/8ra52rP4DFPqNP+fM2h
+         yzCQ==
+X-Gm-Message-State: AOJu0YzLgqigIDf9DrOXS7lZYetFlKexL7WnI+YNI1Ae3PMvezdAklRL
+	G7a8En23cF5MZ2xtCV9v3SSI1xQ7P/ASgmsAzOzKxFDyAo5/EJFJ45jMQDwhNeElaMI=
+X-Gm-Gg: ASbGnctOTILnNrDr0kCuyIfS+f9PJoKN7dI/7EvNElA9WlIPfp3maTTnYvAf7VhQzYa
+	Jg/MS6S8xXV+YgtPI5/c0NfepTUk+UDdabtkncVTJiTRRahuOfGewsSHGTliRdMxfOY5/I85tWs
+	6LLEFWurUhPDEt1+ZuzRM9CMOb+PSgUOkEVXDh0WwqpHhJTMQ4cs0HSCF5N3WARyI11tix5yoPn
+	+WQ95DcqAQzqpRKavu13gk3C8Rkx9Jk3mqF4e5uT5HQ9Ey/Ofcm8ViFWUruXjmABh5Oas9X0HDw
+	WZPejk/YBooOwzhOGzkNI8dzd45samNdnnG8a2/NDdJKfq3Sq9qSYXEi5uPCL9UuFEBG4DWiR2s
+	O1qf4f6kkzFBl5Ir82NU/MIgJjz1zCwYsjuMYI80=
+X-Google-Smtp-Source: AGHT+IGg3ipRv25chD0V0TpD5T6M8dl0rPLRTtfh63vVqHF23z3Qpb+K6dK+mPlUqX6NaiNGb1oPjA==
+X-Received: by 2002:a05:6402:2188:b0:618:780f:e89d with SMTP id 4fb4d7f45d1cf-6189199fa41mr6105149a12.3.1755270513688;
+        Fri, 15 Aug 2025 08:08:33 -0700 (PDT)
+Received: from [100.115.92.205] ([149.62.209.203])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-618b01ae5casm1791561a12.36.2025.08.15.08.08.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 15 Aug 2025 08:08:33 -0700 (PDT)
+Message-ID: <9680221e-e702-41b6-8401-9e940e2f3290@blackwall.org>
+Date: Fri, 15 Aug 2025 18:08:31 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v3] net: bridge: fix soft lockup in
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] net: bridge: remove unused argument of
  br_multicast_query_expired()
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175521960625.502863.7225770030306226732.git-patchwork-notify@kernel.org>
-Date: Fri, 15 Aug 2025 01:00:06 +0000
-References: <20250813021054.1643649-1-wangliang74@huawei.com>
-In-Reply-To: <20250813021054.1643649-1-wangliang74@huawei.com>
-To: Wang Liang <wangliang74@huawei.com>
-Cc: razor@blackwall.org, idosch@nvidia.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- bridge@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- yuehaibing@huawei.com, zhangchangzhong@huawei.com
+To: Wang Liang <wangliang74@huawei.com>, idosch@nvidia.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, yuehaibing@huawei.com,
+ zhangchangzhong@huawei.com
+References: <20250814042355.1720755-1-wangliang74@huawei.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20250814042355.1720755-1-wangliang74@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Wed, 13 Aug 2025 10:10:54 +0800 you wrote:
-> When set multicast_query_interval to a large value, the local variable
-> 'time' in br_multicast_send_query() may overflow. If the time is smaller
-> than jiffies, the timer will expire immediately, and then call mod_timer()
-> again, which creates a loop and may trigger the following soft lockup
-> issue.
+On 8/14/25 07:23, Wang Liang wrote:
+> Since commit 67b746f94ff3 ("net: bridge: mcast: make sure querier
+> port/address updates are consistent"), the argument 'querier' is unused,
+> just get rid of it.
 > 
->   watchdog: BUG: soft lockup - CPU#1 stuck for 221s! [rb_consumer:66]
->   CPU: 1 UID: 0 PID: 66 Comm: rb_consumer Not tainted 6.16.0+ #259 PREEMPT(none)
->   Call Trace:
->    <IRQ>
->    __netdev_alloc_skb+0x2e/0x3a0
->    br_ip6_multicast_alloc_query+0x212/0x1b70
->    __br_multicast_send_query+0x376/0xac0
->    br_multicast_send_query+0x299/0x510
->    br_multicast_query_expired.constprop.0+0x16d/0x1b0
->    call_timer_fn+0x3b/0x2a0
->    __run_timers+0x619/0x950
->    run_timer_softirq+0x11c/0x220
->    handle_softirqs+0x18e/0x560
->    __irq_exit_rcu+0x158/0x1a0
->    sysvec_apic_timer_interrupt+0x76/0x90
->    </IRQ>
+> Signed-off-by: Wang Liang <wangliang74@huawei.com>
+> ---
+>   net/bridge/br_multicast.c | 9 +++------
+>   1 file changed, 3 insertions(+), 6 deletions(-)
 > 
-> [...]
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 1377f31b719c..4dc62d01e2d3 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -4049,8 +4049,7 @@ int br_multicast_rcv(struct net_bridge_mcast **brmctx,
+>   }
+>   
+>   static void br_multicast_query_expired(struct net_bridge_mcast *brmctx,
+> -				       struct bridge_mcast_own_query *query,
+> -				       struct bridge_mcast_querier *querier)
+> +				       struct bridge_mcast_own_query *query)
+>   {
+>   	spin_lock(&brmctx->br->multicast_lock);
+>   	if (br_multicast_ctx_vlan_disabled(brmctx))
+> @@ -4069,8 +4068,7 @@ static void br_ip4_multicast_query_expired(struct timer_list *t)
+>   	struct net_bridge_mcast *brmctx = timer_container_of(brmctx, t,
+>   							     ip4_own_query.timer);
+>   
+> -	br_multicast_query_expired(brmctx, &brmctx->ip4_own_query,
+> -				   &brmctx->ip4_querier);
+> +	br_multicast_query_expired(brmctx, &brmctx->ip4_own_query);
+>   }
+>   
+>   #if IS_ENABLED(CONFIG_IPV6)
+> @@ -4079,8 +4077,7 @@ static void br_ip6_multicast_query_expired(struct timer_list *t)
+>   	struct net_bridge_mcast *brmctx = timer_container_of(brmctx, t,
+>   							     ip6_own_query.timer);
+>   
+> -	br_multicast_query_expired(brmctx, &brmctx->ip6_own_query,
+> -				   &brmctx->ip6_querier);
+> +	br_multicast_query_expired(brmctx, &brmctx->ip6_own_query);
+>   }
+>   #endif
+>   
 
-Here is the summary with links:
-  - [net,v3] net: bridge: fix soft lockup in br_multicast_query_expired()
-    https://git.kernel.org/netdev/net/c/d1547bf460ba
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
