@@ -1,21 +1,20 @@
 Received: from mail.aperture-lab.de (mail.aperture-lab.de [116.203.183.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0546E2C324E
-	for <bridge@lists.linux.dev>; Fri, 29 Aug 2025 08:57:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CE6D2DA77F
+	for <bridge@lists.linux.dev>; Fri, 29 Aug 2025 09:04:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=116.203.183.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756457872; cv=none; b=e00g3JBAeKQgtOapD97/XBGaLWPxDOeUKYveVRBQ61qlWgUd/LZyZ/gwBSHrpptpmV3S/ZeEc9Ncp+G8Xjd8WA9+EgKC7gtkf/af4IfsLAYGTuVUryWjA5YnE/MCT6CYfUvnlGKWiTm4FkKj1UmBt2yypDSQoKhygxDZN+3IEV4=
+	t=1756458291; cv=none; b=t4A1uF6ojTrnZl5BhIRVdQE07dgDnagj3oZRjUGNfX84qrlqwEZSpx4NVpZbHsg6lRTwRHonh3QBjfaIjvlMWdPWZgMVt81FtEpmEPtU1bMBcE5BZc5njyJSZyXaEgwCZVM2mmwHEMusMJV6sfDR8Yw7peWuQMPppf4i5VdfkQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756457872; c=relaxed/simple;
-	bh=XF9aiog0YNLpl5STE1KJ16Lm0Irt3eXp+klTmcIRsnI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ujs0YAIAHjaGS8aUhQqQyAAArATn9RkC/DprV5a5ocxJjvo7Dje3Y8ALoIMs2fbY9cHxQsf6mXQVXSb8CG77Z0KrYVPxJNYb3WpYBWjbm7AU/YEuX9G1vscQqUBdpYm/lkQK25EHqEKz/WrKsCR3MDsbSMwyR8yn1Am5YEldACg=
+	s=arc-20240116; t=1756458291; c=relaxed/simple;
+	bh=7n8YIYNPVi0kbDbA88EAPm6/YdHyBwlHBbXg4fdgg7E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GVRdCSifHiixy7uoY85Bs/4VCpFCxnade6ezLJ2AN/ztY+SbqiRiEvlEWxDMZscsjbw/8AjOfs/QMgPNxfCoTAeIQc8nFtdkVH4lotTqseu5krWdPNRigpw5zH8lGfyOt1RM5P34ppn9JoO5bhigUFrGrHDOpEhfPeuJNUmHEWQ=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue; spf=pass smtp.mailfrom=c0d3.blue; arc=none smtp.client-ip=116.203.183.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=c0d3.blue
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 8120054F65B;
-	Fri, 29 Aug 2025 10:57:46 +0200 (CEST)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6F560541275;
+	Fri, 29 Aug 2025 10:57:29 +0200 (CEST)
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
 To: bridge@lists.linux.dev
 Cc: netdev@vger.kernel.org,
@@ -30,139 +29,78 @@ Cc: netdev@vger.kernel.org,
 	"David S . Miller" <davem@davemloft.net>,
 	Kuniyuki Iwashima <kuniyu@google.com>,
 	Stanislav Fomichev <sdf@fomichev.me>,
-	Xiao Liang <shaw.leon@gmail.com>,
-	=?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Subject: [PATCH 9/9] net: bridge: mcast: add inactive state assertions
-Date: Fri, 29 Aug 2025 10:53:50 +0200
-Message-ID: <20250829085724.24230-10-linus.luessing@c0d3.blue>
+	Xiao Liang <shaw.leon@gmail.com>
+Subject: [PATCH 0/9] net: bridge: reduce multicast checks in fast path
+Date: Fri, 29 Aug 2025 10:53:41 +0200
+Message-ID: <20250829085724.24230-1-linus.luessing@c0d3.blue>
 X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250829085724.24230-1-linus.luessing@c0d3.blue>
-References: <20250829085724.24230-1-linus.luessing@c0d3.blue>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-To avoid packetloss and as it is very hard from a user's perspective to
-debug multicast snooping related issues it is even more crucial to properly
-switch from an active to an inactive multicast snooping state than the
-other way around.
+This patchset introduces new state variables to combine and reduce the
+number of checks we would otherwise perform on every multicast packet
+in fast/data path.
+  
+The second reason for introducing these new, internal multicast active
+variables is to later propagate a safety mechanism which was introduced
+in b00589af3b04 ("bridge: disable snooping if there is no querier") to
+switchdev/DSA, too. That is to notify switchdev/DSA if multicast
+snooping can safely be applied without potential packet loss.
+    
+Regards, Linus
 
-Therefore adding a few kernel warnings if any of our assertions to be in
-an inactive state would fail.
-
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 ---
- net/bridge/br_multicast.c | 36 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 34 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 09e23e4d8b74..46161e707fc5 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1383,10 +1383,29 @@ static struct sk_buff *br_multicast_alloc_query(struct net_bridge_mcast *brmctx,
- 	return NULL;
- }
- 
-+static void br_ip4_multicast_assert_inactive(struct net_bridge_mcast *brmctx)
-+{
-+	WARN_ON(br_multicast_snooping_active(brmctx, htons(ETH_P_IP), NULL));
-+}
-+
-+static void br_ip6_multicast_assert_inactive(struct net_bridge_mcast *brmctx)
-+{
-+	WARN_ON(br_multicast_snooping_active(brmctx, htons(ETH_P_IPV6), NULL));
-+}
-+
-+static void br_multicast_assert_inactive(struct net_bridge_mcast *brmctx)
-+{
-+	br_ip4_multicast_assert_inactive(brmctx);
-+	br_ip6_multicast_assert_inactive(brmctx);
-+}
-+
- static void br_multicast_toggle_enabled(struct net_bridge *br, bool on)
- {
- 	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, on);
- 	br_multicast_update_active(&br->multicast_ctx);
-+
-+	if (!on)
-+		br_multicast_assert_inactive(&br->multicast_ctx);
- }
- 
- struct net_bridge_mdb_entry *br_multicast_new_group(struct net_bridge *br,
-@@ -1846,7 +1865,6 @@ static void br_ip6_multicast_local_router_expired(struct timer_list *t)
- static void br_multicast_querier_expired(struct net_bridge_mcast *brmctx,
- 					 struct bridge_mcast_own_query *query)
- {
--	spin_lock(&brmctx->br->multicast_lock);
- 	if (!netif_running(brmctx->br->dev) ||
- 	    br_multicast_ctx_vlan_global_disabled(brmctx) ||
- 	    !br_opt_get(brmctx->br, BROPT_MULTICAST_ENABLED))
-@@ -1859,7 +1877,6 @@ static void br_multicast_querier_expired(struct net_bridge_mcast *brmctx,
- 	 * if our own querier is disabled, too
- 	 */
- 	br_multicast_update_active(brmctx);
--	spin_unlock(&brmctx->br->multicast_lock);
- }
- 
- static void br_ip4_multicast_querier_expired(struct timer_list *t)
-@@ -1867,7 +1884,12 @@ static void br_ip4_multicast_querier_expired(struct timer_list *t)
- 	struct net_bridge_mcast *brmctx = timer_container_of(brmctx, t,
- 							     ip4_other_query.timer);
- 
-+	spin_lock(&brmctx->br->multicast_lock);
- 	br_multicast_querier_expired(brmctx, &brmctx->ip4_own_query);
-+
-+	if (!brmctx->multicast_querier)
-+		br_ip4_multicast_assert_inactive(brmctx);
-+	spin_unlock(&brmctx->br->multicast_lock);
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -1876,7 +1898,12 @@ static void br_ip6_multicast_querier_expired(struct timer_list *t)
- 	struct net_bridge_mcast *brmctx = timer_container_of(brmctx, t,
- 							     ip6_other_query.timer);
- 
-+	spin_lock(&brmctx->br->multicast_lock);
- 	br_multicast_querier_expired(brmctx, &brmctx->ip6_own_query);
-+
-+	if (!brmctx->multicast_querier)
-+		br_ip6_multicast_assert_inactive(brmctx);
-+	spin_unlock(&brmctx->br->multicast_lock);
- }
- #endif
- 
-@@ -4428,6 +4455,7 @@ static void __br_multicast_stop(struct net_bridge_mcast *brmctx)
- 	spin_lock_bh(&brmctx->br->multicast_lock);
- 	/* bridge interface is down, set multicast state to inactive */
- 	br_multicast_update_active(brmctx);
-+	br_multicast_assert_inactive(brmctx);
- 	spin_unlock_bh(&brmctx->br->multicast_lock);
- }
- 
-@@ -4479,6 +4507,8 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
- 		spin_lock_bh(&br->multicast_lock);
- 		vlan->priv_flags ^= BR_VLFLAG_MCAST_ENABLED;
- 		br_multicast_update_active(&vlan->br_mcast_ctx);
-+		if (!on)
-+			br_multicast_assert_inactive(&vlan->br_mcast_ctx);
- 		spin_unlock_bh(&br->multicast_lock);
- 
- 		if (on) {
-@@ -4503,6 +4533,8 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
- 		else
- 			__br_multicast_disable_port_ctx(&vlan->port_mcast_ctx);
- 		br_multicast_update_active(brmctx);
-+		if (!on)
-+			br_multicast_assert_inactive(brmctx);
- 		spin_unlock_bh(&br->multicast_lock);
- 	}
- }
--- 
-2.50.1
+# Changelog
+
+Changelog to / follow-up of: [PATCH net-next 0/5] net: bridge: propagate safe mcast snooping to switchdev + DSA
+-> https://lkml.org/lkml/2025/5/22/1413
+
+* removed the switchdev/DSA changes for now
+* splitting "[PATCH net-next 1/5] net: bridge: mcast: explicitly track active state"
+  into:
+  * net: bridge: mcast: track active state, IGMP/MLD querier appearance
+  * net: bridge: mcast: track active state, foreign IGMP/MLD querier disappearance
+  * net: bridge: mcast: track active state, IPv6 address availability
+  * net: bridge: mcast: track active state, own MLD querier disappearance
+  * net: bridge: mcast: use combined active state in fast/data path
+  * net: bridge: mcast: track active state, bridge up/down
+
+* rebased to current net-next/main:
+  * from_timer() -> timer_container_of()
+
+* net: bridge: mcast: export ip{4,6}_active state to netlink:
+  * changing NLA_U8 to NLA_REJECT to make it read-only
+
+* moved br_multicast_update_active() call from br_ip{4,6}_multicast_query_expired()
+  (own querier timer callback) to br_ip{4,6}_multicast_querier_expired()
+  (other querier timer callback)
+  * even though both should have worked as br_multicast_querier_expired()
+    would call br_multicast_start_querier()->...->br_multicast_query_expired(),
+    even if the own querier is disabled, but let's use the more direct way
+
+* simplified br_multicast_update_active():
+  * no return value for now, don't track if the active state has changed,
+    these aren't necessary (yet)
+  * removed __br_multicast_update_active() variant as was used to force
+    an inactive state in __br_multicast_stop(), instead using an
+    netif_running(brmctx->br->dev) check in br_multicast_update_active()
+  * replaced br_ip{4,6}_multicast_check_active() with simpler
+    br_ip{4,6}_multicast_update_active() and
+    br_ip{4,6}_multicast_querier_exists()
+  * fixing build errors with CONFIG_IPV6 unset
+* simplified br_multicast_toggle_enabled()
+  * no return value for now
+  * fixes "old used uninitialized" issue
+
+* removed const from __br_multicast_querier_exists()'s "bool is_ipv6"
+* replaced "struct ethhdr *eth" in br_multicast_{snooping,querier}_active()
+  with direct ethernet protocol integer attributes
+* added a few comments in br_multicast_update_active() calling functions
 
