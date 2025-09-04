@@ -1,28 +1,28 @@
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2040.outbound.protection.outlook.com [40.107.244.40])
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2081.outbound.protection.outlook.com [40.107.243.81])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D96030DEC0
-	for <bridge@lists.linux.dev>; Thu,  4 Sep 2025 17:09:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.40
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96B7030E85E
+	for <bridge@lists.linux.dev>; Thu,  4 Sep 2025 17:09:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.81
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757005790; cv=fail; b=b0ymF4YxGt5FWcCvh7nri2qPeKvv1+C0TqAv+eImOrVlX3a7YrO/N5c/ob+jAOZDuOwmpDYcztbI10n4vwiy/WHWyVfhFLZvlA+m47GqK94O30WWhfvWyOJBh2eZ4fSG5W7UmzqH2ZXigsMAugDLr06lAHkcYUy0p2kI/N4np/8=
+	t=1757005798; cv=fail; b=o4URHOJPTs2NnyPnX6PfQx6pcshbwJgJXZsDn9Wap7MD/jqgZx9IXlkSljxn7pyFFtfhrdyvsQorhXdkWukDg+kgoMLzlIw2r8PoFObqp4b0KMFuxXVqV9eOCZ/s5AyX2F2R1/0VwNzZSv00tiglHyCAi11VwkKF30my7xJL6cw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757005790; c=relaxed/simple;
-	bh=coOeCGjIbHM8v8+fnnemKftNRzWIgnU5J/jHuzvlYxA=;
+	s=arc-20240116; t=1757005798; c=relaxed/simple;
+	bh=aIgUM5KljVd7v9nTxVgZFIeSNmsbzFsgG6bMt3AAC3M=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CBXQRHYapiWbIT9D9UKCeDNWUInWyUIQGlk5Av6s7d8N5Pa0FXegF5ahhsUYHSuc1yzC4qzluZDvKNq0nvOXwr7gF6wpzQ2ncw/mMV+Qp42CPyFxyDu82n/FhhHwxUfKikJuSwjAfR6UrCv7W+8yb3rpjfOTSB0Ywk1oQP2buxk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=pS848dhd; arc=fail smtp.client-ip=40.107.244.40
+	 MIME-Version:Content-Type; b=IoGKzvsHxSJdbz2NCWI521N9BrsA9tsnwKstlGQSf9Y7LLOihZjkIhgecPmmGRKFdAzkq8EdIhCJcA26+ondkP41WDaTvWlVhy9VwFzDxrVrLInMM6Ns+koeXOAa5rSf/d3qqkmERnrv08+8bVhyhZT94EB9Tq5mWQLxn7hTyxU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CMVuBK+f; arc=fail smtp.client-ip=40.107.243.81
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="pS848dhd"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CMVuBK+f"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QDvV4SEgzE9rJQrGUtwSniW+LMh8BX9jewc2N7PwNWzAl9BsT9ajBqZhmqWr/Dq3UBY3N19pCA4JyziEO4hqO65FeEEkeAbsVXb1MAYNQrwPNpSZVtXZ6byzz16xmxuUUSM8K2yaToXIoLTBZbgNfvOuqAtggP1ktkePnp+okQgEWN2Z67v72M4gzrdJ9P6DJ/2O5wcVUgj8ALoQsMq0PA4J8NnhljfO1F+bC+3pvCREeIkW8eXI4uo0Un/6Rv9OPnufh/sT+pkwzpKmrZabLeovD+8yyjylOPPTM3z2n03QZNFj1s5Fcu1wLdANuJK53hT7wgbjOibi/ylILgfu+Q==
+ b=xbu7b/uIl2lnsQ6HFyw93byVlIiqDI5UysgMfFSSBzacuCqlMN+7Mtiy7LkJfF2+FE8R+/8qN01qQCsx73Igj3Tfl8rgWa0dssuFECuCplIrUsVUGe3nA/4J9oLsYHQbk73kUiT1lt5HvI1Dqg/sYLl7dIEUvPu0+WM2fRegy3DLATbzNYv5QYH+aSv//J+1HM8j1Ed+EkqhypPVsUSRt4GO4J1AtTX6Th998K2zvSoFIM/VaSRUODk2OYTPhTPep9PVwkdZO2XGNuXl5baEfOfpG5J3axNqV1zY4SM7ufzXEmUtWvkDsqsIDu8EuBwsoH7vbxTo7H8tUSROqfdCgQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FNuPL7AIkOB4s4NSgoa+bOMfqB8iV3HAEG49Tpyzz3s=;
- b=o6s1Ja7F18507JB5s5BtmYTx/QE0p0eR3dlbWrAr9+J3D1eP9rEOvnwHJ7snT39Ub5EYoxUFF93JQjMpTjBaEjdKGfu7yqhOTlP6ZNXpJjr3UDd7DoeB0Yk5Qqq6c7yMbWgr9wUEnaqQZVcUnZAYXu27q+Ih4gi7JF2VIv696sJcwy9jx01Bl2LC0emphFhZLpTJd7RG8pzP5cBEkdtbGLypBdnwJxgkxxI9JpmBSPJcQeA2ZJensKZsOX0rMNERDr2R8bYUF6EToLIYLu16zkxKRuSIMumEmW9gREXMmUGVBF01o/NMjXpsFwbI21JjQfiiFWPcrXwt8DnkDXpX2A==
+ bh=+JE3i25LJ7i+KOYt+mH7ojBg9Jagz3t5cB26XcMqPjI=;
+ b=LHzFmRgSM0tK+E+f+htuonFM6uAqjfDUQowE3Qmj0OfBFdc+ixh7oVuqwswyI0tiRsakDXFgcQ7FsWv3lAepprUgjq85lzRDM//Esm8O0PdC3U8TtT/Lvh7gn7nXzkPdBC4loYBhL9F97GRn2k35PwxfnDFnDSOZIjBDspIphIjzDf4qTrx78EzyWZxIjJ8Fe6nX2y9dLKjX7IuOrbJ9Eo7yFv/D42MJG+8v8uc58AP/PbUJuGi5uKjd8AzDB0ljtCgVNWEePy6JLpsSOcxmgSPbFZ8HxKrW1b+/qqOnwlwvIVYNBUgsRgNFEmL2Xm428s4dtMtQexO88o55GIZIcA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.117.161) smtp.rcpttodomain=davemloft.net smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
@@ -30,18 +30,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FNuPL7AIkOB4s4NSgoa+bOMfqB8iV3HAEG49Tpyzz3s=;
- b=pS848dhdNge3T3+G3lTY0QB8FhJNNBJZamqdvevSukIozNMdgyFEHIS0WoXtF5Pc5pM6SyC1loN3/tAXl5WngEdGUcL9CgRgyq/34sfiws/nsVxidVeJmpIzTBY1xyl21b8VZTfUSomAGRyB0gD482CHmA1mJTn+qWs+wmgbxzUPM/OwKgo3pYzdWvxSvSCJnQ4thIvinoNYhWL8u4jkhOca2kPXKsZOyZWaQAoUolpif6LnJk9VgzkkfrnkdhrfuHAsTKAMck3agn4YpqrmTqFsQWS70aiuUAGXEWsvjve9jVTLm+S08loeznhaq0Rq/P1/LMNl90qujCgrZSoPSA==
-Received: from BN6PR17CA0059.namprd17.prod.outlook.com (2603:10b6:405:75::48)
- by SA1PR12MB6824.namprd12.prod.outlook.com (2603:10b6:806:25f::12) with
+ bh=+JE3i25LJ7i+KOYt+mH7ojBg9Jagz3t5cB26XcMqPjI=;
+ b=CMVuBK+fmrhXncmP6adi4MomG7A1G7Q7j1MYfncooy2sF5xqVbxu70LxEUhHG4C1v4NpVZg11wd4/ZS2TmgHA6JtwPfXTMqSeMMKvxsDttQYkoGGfH9l8uEj/YRQsS/AYGYZuw6UpPCYrTqF+Vqqok1r9ZEKexEiv8c7smRjpLXDUkBF/KTJpc7eVt1FPEQPNR5D0G1lz2ul3knvHVrcgSQmWCOd+y1PafChlxthimmwpIpIFsv0tru4balrxONk1l7C0gi0t9M3uasDPxOPTaz1PwCnQb2wk1h+aiCUEToWBFyti+9E/WZm/qcYse5V8CceUQGggwXstGmPompdNg==
+Received: from BN9PR03CA0659.namprd03.prod.outlook.com (2603:10b6:408:13b::34)
+ by CH3PR12MB8484.namprd12.prod.outlook.com (2603:10b6:610:158::8) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.29; Thu, 4 Sep
- 2025 17:09:42 +0000
-Received: from BN2PEPF00004FC1.namprd04.prod.outlook.com
- (2603:10b6:405:75:cafe::f5) by BN6PR17CA0059.outlook.office365.com
- (2603:10b6:405:75::48) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9094.18 via Frontend Transport; Thu,
- 4 Sep 2025 17:09:42 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9073.27; Thu, 4 Sep
+ 2025 17:09:53 +0000
+Received: from BN2PEPF00004FBD.namprd04.prod.outlook.com
+ (2603:10b6:408:13b:cafe::9d) by BN9PR03CA0659.outlook.office365.com
+ (2603:10b6:408:13b::34) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9094.19 via Frontend Transport; Thu,
+ 4 Sep 2025 17:09:53 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
@@ -49,17 +49,17 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
  216.228.117.161 as permitted sender) receiver=protection.outlook.com;
  client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
 Received: from mail.nvidia.com (216.228.117.161) by
- BN2PEPF00004FC1.mail.protection.outlook.com (10.167.243.187) with Microsoft
+ BN2PEPF00004FBD.mail.protection.outlook.com (10.167.243.183) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9094.14 via Frontend Transport; Thu, 4 Sep 2025 17:09:42 +0000
+ 15.20.9094.14 via Frontend Transport; Thu, 4 Sep 2025 17:09:53 +0000
 Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
  (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Thu, 4 Sep
- 2025 10:09:17 -0700
+ 2025 10:09:28 -0700
 Received: from fedora.docsis.vodafone.cz (10.126.231.35) by
  rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Thu, 4 Sep 2025 10:09:12 -0700
+ 15.2.1544.14; Thu, 4 Sep 2025 10:09:22 -0700
 From: Petr Machata <petrm@nvidia.com>
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
 	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
@@ -67,10 +67,11 @@ To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
 CC: Simon Horman <horms@kernel.org>, Nikolay Aleksandrov
 	<razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
 	<bridge@lists.linux.dev>, Petr Machata <petrm@nvidia.com>,
-	<mlxsw@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>
-Subject: [PATCH net-next 06/10] net: bridge: Introduce UAPI for BR_BOOLOPT_FDB_LOCAL_VLAN_0
-Date: Thu, 4 Sep 2025 19:07:23 +0200
-Message-ID: <ea99bfb10f687fa58091e6e1c2f8acc33f47ca45.1757004393.git.petrm@nvidia.com>
+	<mlxsw@nvidia.com>, Shuah Khan <shuah@kernel.org>,
+	<linux-kselftest@vger.kernel.org>
+Subject: [PATCH net-next 08/10] selftests: defer: Introduce DEFER_PAUSE_ON_FAIL
+Date: Thu, 4 Sep 2025 19:07:25 +0200
+Message-ID: <2a07d24568ede6c42e4701657fa0b738e490fe59.1757004393.git.petrm@nvidia.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <cover.1757004393.git.petrm@nvidia.com>
 References: <cover.1757004393.git.petrm@nvidia.com>
@@ -86,261 +87,106 @@ X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
  rnnvmail201.nvidia.com (10.129.68.8)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN2PEPF00004FC1:EE_|SA1PR12MB6824:EE_
-X-MS-Office365-Filtering-Correlation-Id: c9c13b84-c16b-482e-1d3a-08ddebd5d6f8
+X-MS-TrafficTypeDiagnostic: BN2PEPF00004FBD:EE_|CH3PR12MB8484:EE_
+X-MS-Office365-Filtering-Correlation-Id: f7b1e618-c151-4f9c-726f-08ddebd5dd7a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|36860700013|1800799024;
+	BCL:0;ARA:13230040|36860700013|376014|7416014|1800799024|82310400026;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?N6kkh9ddduKcEpJo48eKHT9NddKgfX9l9d4sEwjTw2hSD5MmCnnulbTtzoAD?=
- =?us-ascii?Q?ES5W2YIVSwOHdNQGogLAMw5kiL2xZSutaqA1E4B9tnmExeM3P8yy+6V/9rgr?=
- =?us-ascii?Q?VDqanpoJTJjzDG91VKdi/fX/RutBlMpaltgLltCo+rIc83MvoNoDIt8BVMUC?=
- =?us-ascii?Q?59yHunEhmpJhvj9mLBficFMrVE26wK/ra9mj1zlL05xVStGqujFQ8DzC+yRo?=
- =?us-ascii?Q?pjH71mLQ+PcBuEqhLEPaV1mJzd9KJ23hBR5u4Srky4/JShxjnX/Uda3wN6Jr?=
- =?us-ascii?Q?yQCJrJjo2r7PzkDGjR45YJOTbGfENazsqKMYQm2JUSIQtUi2Yy2+5MGk4RjN?=
- =?us-ascii?Q?g3RCYJaYG9FxfMt/PJMpuLLZ6nx8lHu08AuoyJ9424PLdzKc6LMc+Du6DXwZ?=
- =?us-ascii?Q?BtcrYnKdWQdKH1ayc9wKy0nw/Bv38QOQ0JDpvLODdTFeCg9uexlX8q3TJt0k?=
- =?us-ascii?Q?sKaHrs9ESmDSJnZ0+FdbTIaqRQK0x2rgGNshiLQ9ZNyJ1I1dWkhtYpFjH8lW?=
- =?us-ascii?Q?7SHDuXVd6evA1SzPX5KEzkGBJrA9/NXNjVH6zB4Pu1nqMA1C+fD9cjz3N5+J?=
- =?us-ascii?Q?mHecNpY5OF9inww3QUGWWfFDOWyHVY45w5G16TXqy7RnUygStW2wstW52UZm?=
- =?us-ascii?Q?EbL9smUNgizq8ZUUzp3VV6iCMjr/8N230Mdo1ffOO9VGX4qxJLz08Bc4pGXX?=
- =?us-ascii?Q?s8O2TXpivrO2NBE5aRkhTnCSnWQNM1KT6EpnG2DGGBw3y9rIKJNjOri4MN3/?=
- =?us-ascii?Q?64XI9APP0QKVUtkrH45BnCWryUJYQtTi0rm6U73eAtSjXjkxEqQbZpTPdDfW?=
- =?us-ascii?Q?2lsoTI3ScEi6pcvc8VWxCO/ArnLXUoKvao3x9tGy5oObRy5TmE90imYZ+fKQ?=
- =?us-ascii?Q?WCqOkQzb94dNlnXBGNQqonhPNg4p2XomR4wmv3Nm6n9Xhn8Km0dUHmbulnfr?=
- =?us-ascii?Q?WuPBFJMr9kawoEclNUE1yoTQY3asssDpXhL7/6F7wcHLcTMk/3wdObKHx/XV?=
- =?us-ascii?Q?UHJknCaUnwhGxIdTiVHPpIIdG3nQir1P8ZshproZvfjDa+DV1uqiV87/kO8f?=
- =?us-ascii?Q?zl9U16De3rlOUNbzDn2Oi+BC938jjWk8BGI8aavDflv29CJP/8AYLaAVybMb?=
- =?us-ascii?Q?upiaQcuPwjj396sRyU8MblBlAsfTCeLkpfZKwMJLl7mUAAatUEmc7qWe9t8i?=
- =?us-ascii?Q?Ui5+HVNEgSrAMMyw6etgmPmZdzJC8Ipo/2OWzeks92m3hw51WS/HIY8LziUa?=
- =?us-ascii?Q?D3rGho6I5lr7d7OW+dXmssBWlrhJJL+j+zOzmrbV8UOzyO145REroh0bvWcB?=
- =?us-ascii?Q?uH4m3XPvRpqmbFgysR4ITF233zNgO+DwTBF4aruKFMwT9e3gWe6e8Ne3V/dk?=
- =?us-ascii?Q?oBUSRV544wNCKBCMoUHGCFRZnf2gJ6cWP1+PMlhNhV9DIO2iWzJKwacoPQ8K?=
- =?us-ascii?Q?Qsf+bgBvMR2YwldAViHzhUFZmjXnXefoPzW3WPUMTQP81ugdzXbqNJFREAh0?=
- =?us-ascii?Q?85DY290WVl3MPM/GQ/5l7UR797rIfxYi7zGD?=
+	=?us-ascii?Q?xva+sH4BDhQ6hFZz/7mlXqOXE4H7sFWxY7XEOC9vVOZylkV8rkzgdK6bvfAb?=
+ =?us-ascii?Q?9GUIzgwo02FrjR9zJvKTbLTyy1Yh0KQ8eNeCg7YfZbrlXmm2yLO8QrbE19yi?=
+ =?us-ascii?Q?76G27UxCTG1cuvpAFY8DyTJEBfNOUeXYU9shPzT1wCTkRCDZ05AfLbx6g2fk?=
+ =?us-ascii?Q?4uzwCa4Q6m/ftWefUhjq4bhkZ7xpRK+QHr9dXkrZvilVGnxcJt0FeUnb8hUZ?=
+ =?us-ascii?Q?MMcCjK8kUpTck7tQaDOtjFRsceqf3czvT3ESiGQLyItAmUaNIByQc0Nlr5gf?=
+ =?us-ascii?Q?jw7gRgNf8/PXwgKQnuc9YQzirkU8ssCvNRshUA50iGai4WzwYGG+7Ylo8qDU?=
+ =?us-ascii?Q?EbGSxrp0ZPxyPbOMkEXI490XDFvSrL+75hZQxh3p1A5WTz5+rKpdVaK4liPD?=
+ =?us-ascii?Q?HvB3vlc1n7Me73A6saiA6FdPEJ/N2MWNsusN7RSyGaDjmRv/j58q8YOthtp6?=
+ =?us-ascii?Q?gkDY6wmkug7X3Q8oaIoLqh+FqJAJp7/PVP4K+MnUxrbyMSQu61uJKSvuvNiO?=
+ =?us-ascii?Q?iiOZnc56Lyhb1LMxJG4CD1OPXJ6Hwq60pOif3aPuBX0tizK4Bvf4uofe07vW?=
+ =?us-ascii?Q?WHb3CMeh5vhiB09+o63AMArLWI70hmeTZlVLA7DhKBFO9jpiBP2ZVfAB1A6k?=
+ =?us-ascii?Q?s99ZnPrsplqkzMT0vHWCLFfxxGlvVhyRU+OBxESwFJY5hFaMo6QJicoPYEjJ?=
+ =?us-ascii?Q?n3ZWAbSBFVjGrUx7Qxo8/FyR7kSVZke/x6EI1ugu2423XUZ08HzuuwaLyEn0?=
+ =?us-ascii?Q?ENL2bYkhrQTYg3kUdUIMuS0Bbu9mmW7rzsAtbhW/LC/ob9m5QN2KR+qTfeN3?=
+ =?us-ascii?Q?Dc4W82nVMjqw/qqXqrbWsd+7wluwWuiuGe2thYk5lk36eb4MqRzVlBQ/Fcp6?=
+ =?us-ascii?Q?38bPokvs4NKSe8hTQ1kIGOhBqeWcxqkaHWrj1JCrpndff1jQT22tBYS0uBRY?=
+ =?us-ascii?Q?ZD5zQVSOOO1zq6lyMGOnmX7jMVzxJXeiExrcGJOoK0c6V6JPuP8Bq3Tw+fNh?=
+ =?us-ascii?Q?TjPepNjdJXecMMTWUjcKWoYP3QCU9qZVUob6OglKJLyc+6jeYYnVPA/2qMiF?=
+ =?us-ascii?Q?WFtGzItS4yUj1zQWcjXH8HGyU9ScjA7Y+LT7x1DWSQbhp/G53zlvXMrnKl2f?=
+ =?us-ascii?Q?IjgMq0gyYByzDHvSJKFvY7juulQAtSjxz/+8izIVH8wxUPyJlJjXAvMlBWnL?=
+ =?us-ascii?Q?vwZ75jM10TaRk3gZiZ96I2MArEnOCN0YCP1fAi/4wCFXKR7zf3t/aTs7Qiv2?=
+ =?us-ascii?Q?o8kiJ50XGTWfj/0qliBGBQfgBtdvuO+SKwGnSQyYzqdAkIqQowFHqj8pZ7be?=
+ =?us-ascii?Q?v3C7QQnMLZg4SlzNQaH34+mXOa7VERM+iyGRLNFOxp0jzYe6Qb4jUCKGJLS1?=
+ =?us-ascii?Q?NPkjaJm/B6STJHV61eOPVpX3Z2UBkWWLgqCmncpZmxh3zIcg+wY8pVSwUsOu?=
+ =?us-ascii?Q?ZncXlvdWBAut3+Rl1oak2ZlLbuUqSLZDN2gatSpWG4dqsQEvpQaYaj5fpasn?=
+ =?us-ascii?Q?JgXO30dknVzW9MEmGp4VgwGbUH185TVVQBAK?=
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(376014)(36860700013)(1800799024);DIR:OUT;SFP:1101;
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700013)(376014)(7416014)(1800799024)(82310400026);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Sep 2025 17:09:42.1665
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Sep 2025 17:09:53.0867
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: c9c13b84-c16b-482e-1d3a-08ddebd5d6f8
+X-MS-Exchange-CrossTenant-Network-Message-Id: f7b1e618-c151-4f9c-726f-08ddebd5dd7a
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	BN2PEPF00004FC1.namprd04.prod.outlook.com
+	BN2PEPF00004FBD.namprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB6824
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8484
 
-The previous patches introduced a new option, BR_BOOLOPT_FDB_LOCAL_VLAN_0.
-When enabled, it has local FDB entries installed only on VLAN 0, instead of
-duplicating them across all VLANs.
+The fact that all cleanup (ideally) goes through the defer framework makes
+debugging of these commands a bit tricky. However, this also gives us a
+nice point to place a hook along the lines of PAUSE_ON_FAIL. When the
+environment variable DEFER_PAUSE_ON_FAIL is set, and a cleanup command
+results in non-zero exit status, show a bit of debuginfo and give the user
+an opportunity to interrupt the execution altogether.
 
-In this patch, add the corresponding UAPI toggle, and the code for turning
-the feature on and off.
-
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 Signed-off-by: Petr Machata <petrm@nvidia.com>
 ---
 
 Notes:
-CC: Andrew Lunn <andrew+netdev@lunn.ch>
+CC: Shuah Khan <shuah@kernel.org>
+CC: linux-kselftest@vger.kernel.org
 
- include/uapi/linux/if_bridge.h |  3 ++
- net/bridge/br.c                | 22 ++++++++
- net/bridge/br_fdb.c            | 96 ++++++++++++++++++++++++++++++++++
- net/bridge/br_private.h        |  2 +
- 4 files changed, 123 insertions(+)
+ tools/testing/selftests/net/lib/sh/defer.sh | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-index 73876c0e2bba..e52f8207ab27 100644
---- a/include/uapi/linux/if_bridge.h
-+++ b/include/uapi/linux/if_bridge.h
-@@ -823,6 +823,8 @@ struct br_mcast_stats {
- /* bridge boolean options
-  * BR_BOOLOPT_NO_LL_LEARN - disable learning from link-local packets
-  * BR_BOOLOPT_MCAST_VLAN_SNOOPING - control vlan multicast snooping
-+ * BR_BOOLOPT_FDB_LOCAL_VLAN_0 - local FDB entries installed by the bridge
-+ *                               driver itself should only be added on VLAN 0
-  *
-  * IMPORTANT: if adding a new option do not forget to handle
-  *            it in br_boolopt_toggle/get and bridge sysfs
-@@ -832,6 +834,7 @@ enum br_boolopt_id {
- 	BR_BOOLOPT_MCAST_VLAN_SNOOPING,
- 	BR_BOOLOPT_MST_ENABLE,
- 	BR_BOOLOPT_MDB_OFFLOAD_FAIL_NOTIFICATION,
-+	BR_BOOLOPT_FDB_LOCAL_VLAN_0,
- 	BR_BOOLOPT_MAX
- };
+diff --git a/tools/testing/selftests/net/lib/sh/defer.sh b/tools/testing/selftests/net/lib/sh/defer.sh
+index 6c642f3d0ced..47ab78c4d465 100644
+--- a/tools/testing/selftests/net/lib/sh/defer.sh
++++ b/tools/testing/selftests/net/lib/sh/defer.sh
+@@ -1,6 +1,10 @@
+ #!/bin/bash
+ # SPDX-License-Identifier: GPL-2.0
  
-diff --git a/net/bridge/br.c b/net/bridge/br.c
-index 1885d0c315f0..4bfaf543835a 100644
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -259,6 +259,23 @@ static struct notifier_block br_switchdev_blocking_notifier = {
- 	.notifier_call = br_switchdev_blocking_event,
- };
++# Whether to pause and allow debugging when an executed deferred command has a
++# non-zero exit code.
++: "${DEFER_PAUSE_ON_FAIL:=no}"
++
+ # map[(scope_id,track,cleanup_id) -> cleanup_command]
+ # track={d=default | p=priority}
+ declare -A __DEFER__JOBS
+@@ -38,8 +42,20 @@ __defer__run()
+ 	local track=$1; shift
+ 	local defer_ix=$1; shift
+ 	local defer_key=$(__defer__defer_key $track $defer_ix)
++	local ret
  
-+static int
-+br_toggle_fdb_local_vlan_0(struct net_bridge *br, bool on,
-+			   struct netlink_ext_ack *extack)
-+{
-+	int err;
+ 	eval ${__DEFER__JOBS[$defer_key]}
++	ret=$?
 +
-+	if (br_opt_get(br, BROPT_FDB_LOCAL_VLAN_0) == on)
-+		return 0;
++	if [[ "$DEFER_PAUSE_ON_FAIL" == yes && "$ret" -ne 0 ]]; then
++		echo "Deferred command (track $track index $defer_ix):"
++		echo "	${__DEFER__JOBS[$defer_key]}"
++		echo "... ended with an exit status of $ret"
++		echo "Hit enter to continue, 'q' to quit"
++		read a
++		[[ "$a" == q ]] && exit 1
++	fi
 +
-+	err = br_fdb_toggle_local_vlan_0(br, on, extack);
-+	if (err)
-+		return err;
-+
-+	br_opt_toggle(br, BROPT_FDB_LOCAL_VLAN_0, on);
-+	return 0;
-+}
-+
- /* br_boolopt_toggle - change user-controlled boolean option
-  *
-  * @br: bridge device
-@@ -287,6 +304,9 @@ int br_boolopt_toggle(struct net_bridge *br, enum br_boolopt_id opt, bool on,
- 	case BR_BOOLOPT_MDB_OFFLOAD_FAIL_NOTIFICATION:
- 		br_opt_toggle(br, BROPT_MDB_OFFLOAD_FAIL_NOTIFICATION, on);
- 		break;
-+	case BR_BOOLOPT_FDB_LOCAL_VLAN_0:
-+		err = br_toggle_fdb_local_vlan_0(br, on, extack);
-+		break;
- 	default:
- 		/* shouldn't be called with unsupported options */
- 		WARN_ON(1);
-@@ -307,6 +327,8 @@ int br_boolopt_get(const struct net_bridge *br, enum br_boolopt_id opt)
- 		return br_opt_get(br, BROPT_MST_ENABLED);
- 	case BR_BOOLOPT_MDB_OFFLOAD_FAIL_NOTIFICATION:
- 		return br_opt_get(br, BROPT_MDB_OFFLOAD_FAIL_NOTIFICATION);
-+	case BR_BOOLOPT_FDB_LOCAL_VLAN_0:
-+		return br_opt_get(br, BROPT_FDB_LOCAL_VLAN_0);
- 	default:
- 		/* shouldn't be called with unsupported options */
- 		WARN_ON(1);
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 4a20578517a5..58d22e2b85fc 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -582,6 +582,102 @@ void br_fdb_cleanup(struct work_struct *work)
- 	mod_delayed_work(system_long_wq, &br->gc_work, work_delay);
+ 	unset __DEFER__JOBS[$defer_key]
  }
  
-+static void br_fdb_delete_locals_per_vlan_port(struct net_bridge *br,
-+					       struct net_bridge_port *p)
-+{
-+	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_vlan *v;
-+	struct net_device *dev;
-+
-+	if (p) {
-+		vg = nbp_vlan_group(p);
-+		dev = p->dev;
-+	} else {
-+		vg = br_vlan_group(br);
-+		dev = br->dev;
-+	}
-+
-+	list_for_each_entry(v, &vg->vlan_list, vlist)
-+		br_fdb_find_delete_local(br, p, dev->dev_addr, v->vid);
-+}
-+
-+static void br_fdb_delete_locals_per_vlan(struct net_bridge *br)
-+{
-+	struct net_bridge_port *p;
-+
-+	ASSERT_RTNL();
-+
-+	list_for_each_entry(p, &br->port_list, list)
-+		br_fdb_delete_locals_per_vlan_port(br, p);
-+
-+	br_fdb_delete_locals_per_vlan_port(br, NULL);
-+}
-+
-+static int br_fdb_insert_locals_per_vlan_port(struct net_bridge *br,
-+					      struct net_bridge_port *p,
-+					      struct netlink_ext_ack *extack)
-+{
-+	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_vlan *v;
-+	struct net_device *dev;
-+	int err;
-+
-+	if (p) {
-+		vg = nbp_vlan_group(p);
-+		dev = p->dev;
-+	} else {
-+		vg = br_vlan_group(br);
-+		dev = br->dev;
-+	}
-+
-+	list_for_each_entry(v, &vg->vlan_list, vlist) {
-+		if (!br_vlan_should_use(v))
-+			continue;
-+
-+		err = br_fdb_add_local(br, p, dev->dev_addr, v->vid);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int br_fdb_insert_locals_per_vlan(struct net_bridge *br,
-+					 struct netlink_ext_ack *extack)
-+{
-+	struct net_bridge_port *p;
-+	int err;
-+
-+	ASSERT_RTNL();
-+
-+	list_for_each_entry(p, &br->port_list, list) {
-+		err = br_fdb_insert_locals_per_vlan_port(br, p, extack);
-+		if (err)
-+			goto rollback;
-+	}
-+
-+	err = br_fdb_insert_locals_per_vlan_port(br, NULL, extack);
-+	if (err)
-+		goto rollback;
-+
-+	return 0;
-+
-+rollback:
-+	NL_SET_ERR_MSG_MOD(extack, "fdb_local_vlan_0 toggle: FDB entry insertion failed");
-+	br_fdb_delete_locals_per_vlan(br);
-+	return err;
-+}
-+
-+int br_fdb_toggle_local_vlan_0(struct net_bridge *br, bool on,
-+			       struct netlink_ext_ack *extack)
-+{
-+	if (!on)
-+		return br_fdb_insert_locals_per_vlan(br, extack);
-+
-+	br_fdb_delete_locals_per_vlan(br);
-+	return 0;
-+}
-+
- static bool __fdb_flush_matches(const struct net_bridge *br,
- 				const struct net_bridge_fdb_entry *f,
- 				const struct net_bridge_fdb_flush_desc *desc)
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 87da287f19fe..16be5d250402 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -844,6 +844,8 @@ void br_fdb_find_delete_local(struct net_bridge *br,
- void br_fdb_changeaddr(struct net_bridge_port *p, const unsigned char *newaddr);
- void br_fdb_change_mac_address(struct net_bridge *br, const u8 *newaddr);
- void br_fdb_cleanup(struct work_struct *work);
-+int br_fdb_toggle_local_vlan_0(struct net_bridge *br, bool on,
-+			       struct netlink_ext_ack *extack);
- void br_fdb_delete_by_port(struct net_bridge *br,
- 			   const struct net_bridge_port *p, u16 vid, int do_all);
- struct net_bridge_fdb_entry *br_fdb_find_rcu(struct net_bridge *br,
 -- 
 2.49.0
 
