@@ -1,115 +1,162 @@
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2051.outbound.protection.outlook.com [40.107.244.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB0A3284662
-	for <bridge@lists.linux.dev>; Wed,  3 Sep 2025 10:11:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756894316; cv=none; b=bmArORojuBaFogziSFhgCv0C8QUrmuSNG2+MmUY9jjOejVA1zrK9bIIktgial/xUC+kbWKcu0rhBMhlhhIfk6V5NgFzAOnFR6Lyig+r/I9p9jgnp1WnWDpyzBHSIZ/cwApQKQsFTSh9ynQEclaxwGdFhh800ivACuhWOLJ4WkKA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756894316; c=relaxed/simple;
-	bh=ZWM+I7gOKWzcFzvY+hdqKvup4xsslWjbk9vdkN+t2Lg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XUBq3tKFLkcpJXIWWEZuccHXiHt5ZeIJBn5iRRZrEOkE317bfZy34fGB16ZiZd582NEftGUXek6C1pISG/apJeZVKRtJYnFKGox1KGCgOWjcT/cyBCK7XVb4uWa9W72zmw5bhLV2LSVWATon1zHMgx8lg394veApTMLFuC1yFgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=MJm2VemG; arc=none smtp.client-ip=209.85.167.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75069311C3D
+	for <bridge@lists.linux.dev>; Thu,  4 Sep 2025 17:09:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1757005759; cv=fail; b=u3HplaVs+0FlesaRNKQT4rjbfVtaKfrqkoBITrXbA8aJI0zYfErYls15kLF+Hbobfh26V2SFIjBPConDyEQtaEoLz3UieiDCco+BW9f1rc6KpxlttGuwL0Fnb4o5EmgReAaK0a2+WOcWESoHYQ8jrz6GO1ncqTp8xRuBZjgO7d0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1757005759; c=relaxed/simple;
+	bh=smZMWFXkm9EbCnxd+knCVrOQ5uuE+kiC1Dj3lWLPrhI=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=pW2oI9j/L1O4aYyCoh2qqdthqBHTtv9k7Qi2ZY7NuXDHmHqfzjpDvm+KlY4cNVxKYUmS9GOvuAosaY7t+3CriyqnlZRtd/Lqo/OzVUN1I9MNg7GrLLZYctBOjkyqoMGeV0udkymnnF8E6biGQd+bXiAy0mWRDrhUXwzaTl4z0K0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=uO2Bww9Q; arc=fail smtp.client-ip=40.107.244.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="MJm2VemG"
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-55f6ad5146eso3891806e87.0
-        for <bridge@lists.linux.dev>; Wed, 03 Sep 2025 03:11:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1756894313; x=1757499113; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=uaEC72YkdU0dzg1YAuuKkN3WkhmBtHuuoh/1oBPlyDY=;
-        b=MJm2VemGJ+c1Y9tMLvdIus98cHDjmSsQfbQg4Almkj4SqqjprMUfQeLocqaON1nVeD
-         Ad+w5PjhrBnKCxJJ5Ai2Pzo8G9t6ldkHW/JAdwlxGcC5DOEZ8qUV0vlZz/CayzAY8RFg
-         8iotmqsFXCPcd8kmRZ+BbrBc9VcY6mczVgKfTcs4QM36nrJkd0brlOAZWR6tIiTLS1ca
-         FRupgAFbrmOe91LWT7dK0w7w372F/6hZDFjcKg3vNBqFlm9UD46KcvMTN0Q1DaL7jwax
-         d0h1FUfQtnYy5LFcxH5bp08eG/aWP6Kot8ueTRhBzQL5iW/zrYI1Y+22qmZ8/Q//4DF8
-         fH4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756894313; x=1757499113;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uaEC72YkdU0dzg1YAuuKkN3WkhmBtHuuoh/1oBPlyDY=;
-        b=rSvFw2yb3XKVyoL1D9b1WKgMLm342oCIesC9rXbgKwU7ISw788/RTprC+5CIQ1hnkF
-         KwOmOkgEiiv9QYuxU7kZNVJ4XqRibJJH5qpLZnvDmVTl90FAC1GYDVKVSjSgn1Fjz7MY
-         yJezwfrLU+ilYmzIarQtKVVzySnROY1a0MEZNPc3CROOM14MtHDOm8vDC6lwiXH9NPsj
-         p2kAPb2uX7zjM9Y27tAMjOzkeUhCtAv8/a0jOFH42z6m1/aBWwULOpebsj8uP3uUuBfm
-         EE+lBPJFc9y+13EIFPcu6VSkycopv/tkQqk82ABZYCm57b5jlpmRPfkI70zoFJnEVNaU
-         vcxg==
-X-Forwarded-Encrypted: i=1; AJvYcCVA63jpilWsdg0WIY4OXyc2ZMtZpwhbzbfddju/CwP97resFdSbr9QVlSShVsIT1z+4XiZwBlU=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzyXC93raxoC2KYMIL1BRR10J+jHHKYxfH0UBpSqOQNrZXwaYJ0
-	nNwaH74DoG36AHmWcBYqgtd+BpBRNzDdMKumvYAjgFLXTA/91oy3vfCdEKC/BSut7c0=
-X-Gm-Gg: ASbGncvfrdqQMOSZfIhbZHHNFCO5IJWlqTT4gm+NT3XXq+XQK7rlWDBXviy0afntJuq
-	RBWiELlkj5M9R/AV7olm34WS+7R0/ObF0mwUnR76Wgur6F+gUZa6D7wiEJ53ciMR3zxc3GBOgQ6
-	L7YBxjrwUCiU3OMo+lijSEVqoFpZSbsjX2mVEHVhASOLTNgX1dvcddFeUuMqEzBFcM4l+IO2lfp
-	qLs07TsV8ybsPDz8wsrE8wzSIa552tApCkZ5/OrAkuE5JRHWsGq3BpKWHBM9uQvT95dwteSnfwX
-	oFLjYysMmF0EGgFD881piGIUaN2jdF7//xhlOGibpQTiI2jCv1RRGXVQGDbQSXdp5LDqGSQkg44
-	dH/IhDBvJMLp1zZz31Z+FLVuEQyr8i3gbenYgAtRs3qtgdx1x3GXERM9yLhZaT6tGSWaeU2E4cs
-	LpzNpt7W00S6Ax
-X-Google-Smtp-Source: AGHT+IHqbWry8xvL9J/n0nJMx7Sm8XKZqsiZtmb0vZ5EuUF59SiOy4XjuOBRm6SxlSbxf5fnxVNO0Q==
-X-Received: by 2002:a05:6512:3b0d:b0:55f:5685:b5e9 with SMTP id 2adb3069b0e04-55f708b3332mr4752512e87.8.1756894312876;
-        Wed, 03 Sep 2025 03:11:52 -0700 (PDT)
-Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5608acea03csm417484e87.90.2025.09.03.03.11.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Sep 2025 03:11:52 -0700 (PDT)
-Message-ID: <fb8b827e-9aee-4aea-8291-30e5e4c539dc@blackwall.org>
-Date: Wed, 3 Sep 2025 13:11:50 +0300
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="uO2Bww9Q"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=HzP1AbdfI3N5xd5uBnYS/RS9u90u7d8U+rz9zTecM7LOeBlWP39it8W+zLnIxWyw4pblrXBOZKRpZ6yxI958cFq7Y2CcNTmatctbdU9jGILR+py+96V7tXGAliE71E98A9IzFQ4S/yXtM8RM7Hh2IQTsKXreXsjopI1vgUTcfuFzBlEy5aEfjPS/0X2VOPzRNdGsRF9BTZvtazjlBPIWTLazrjflQUtaPWU5jVcE0oHKhbkR4iGviGuXp6crSvGaTAcMn2VqVVJfGo7pvFBNJJeHhOdgfmLmGf9wPgScrEhZ1fx820Taef7RAjxudBjm215xldlbCyRKINFbVjmpRQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zBpzWITxhJ6Ho06CZMoVbOh2TDLCSpdOfQ/aN7linjE=;
+ b=RV8L65BmfqVuXhF3Qs/Dmna9WU1QAzMADH9k0RyzXwOtaIqWpSpgRJDUoDCtJvGBZwgVMZMSotYFJ7KjeWV6FoZZAtiSnevS7gfc7cEHBYLcvsNQ9K0hxaht3eiOnxfUeCWIlZ6mE9xeABomO+lqS3ubRus+FAIRiNuH/BfgLcW43jduEUt5xk1I18q/dcLxfl95cqZNjnAXbOLlfygd62giw3xx6lgbR4WQ3w+10p0xYg3snt3XdXYzyJDnrSwwr67Sx7sXth6I5ohFwwKJuHQCGfLzsuZwnsNSJrerVvF6p2MlGNj4wNEp4Xoqsg87SIhjw/lFusMBGZJ740boEw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=davemloft.net smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zBpzWITxhJ6Ho06CZMoVbOh2TDLCSpdOfQ/aN7linjE=;
+ b=uO2Bww9QcSrWetqllPDiFdobdCACT1ubLabVDSVxsdfJ1TTt3mug1vzVzJ8hX/YPmVFMBIu3dhx/WeuFOmyEW/YRduMNFc3ZqObbluC2tF+t68SfaCwICs3TZgQPxLj+Hf6ELBeHXatsCHZUmuxa3CLfG2TFDKVakOWYAbNvFPqs1kbre8PPt4ULElzACeWXlfDIJBDrRPfe5M2kmPUZ7hYdXQixz66gKaDhhitOpUitmGNfF9/O2uotZe6sgBG51/zkvLeLFFL/sgMdS59p+UqlO3zdTQIWxK79eo5qWej48kk2frasmReRuO/vO9kpq0YVUIZZKdTEn8T/3AJLfw==
+Received: from CH0P221CA0030.NAMP221.PROD.OUTLOOK.COM (2603:10b6:610:11d::18)
+ by PH7PR12MB6667.namprd12.prod.outlook.com (2603:10b6:510:1a9::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9094.17; Thu, 4 Sep
+ 2025 17:09:11 +0000
+Received: from CH1PEPF0000A349.namprd04.prod.outlook.com
+ (2603:10b6:610:11d:cafe::75) by CH0P221CA0030.outlook.office365.com
+ (2603:10b6:610:11d::18) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9094.17 via Frontend Transport; Thu,
+ 4 Sep 2025 17:09:11 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ CH1PEPF0000A349.mail.protection.outlook.com (10.167.244.9) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9094.14 via Frontend Transport; Thu, 4 Sep 2025 17:09:10 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Thu, 4 Sep
+ 2025 10:08:51 -0700
+Received: from fedora.docsis.vodafone.cz (10.126.231.35) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14; Thu, 4 Sep 2025 10:08:46 -0700
+From: Petr Machata <petrm@nvidia.com>
+To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, <netdev@vger.kernel.org>
+CC: Simon Horman <horms@kernel.org>, Nikolay Aleksandrov
+	<razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
+	<bridge@lists.linux.dev>, Petr Machata <petrm@nvidia.com>, <mlxsw@nvidia.com>
+Subject: [PATCH net-next 01/10] net: bridge: Introduce BROPT_FDB_LOCAL_VLAN_0
+Date: Thu, 4 Sep 2025 19:07:18 +0200
+Message-ID: <ab85e33ef41ed19a3deaef0ff7da26830da30642.1757004393.git.petrm@nvidia.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <cover.1757004393.git.petrm@nvidia.com>
+References: <cover.1757004393.git.petrm@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/9] net: bridge: reduce multicast checks in fast path
-To: =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Cc: Jakub Kicinski <kuba@kernel.org>, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Eric Dumazet <edumazet@google.com>, "David S . Miller"
- <davem@davemloft.net>, Kuniyuki Iwashima <kuniyu@google.com>,
- Stanislav Fomichev <sdf@fomichev.me>, Xiao Liang <shaw.leon@gmail.com>
-References: <20250829085724.24230-1-linus.luessing@c0d3.blue>
- <20250829084747.55c6386f@kernel.org>
- <bfb11627-64d5-42a0-911e-8be99e222396@blackwall.org>
- <aLdQhJoViBzxcWYE@sellars> <aLd2_um-oWhS23Md@sellars>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <aLd2_um-oWhS23Md@sellars>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH1PEPF0000A349:EE_|PH7PR12MB6667:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4793a1dd-d7fd-45d3-55d5-08ddebd5c439
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|82310400026|36860700013|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?U9avBdIVqDmsQOrzpLwt6QH/v5yLmDN1xW03a/wKpaZ6+5egjRzjMZVs0Qfh?=
+ =?us-ascii?Q?WBlGpiPTG2YT/v81fASMFDSv3WB0B2AJNaql3uOQejGWMBKKqBKox2c2jlbA?=
+ =?us-ascii?Q?JjFcfCEoeMG5ujyXrdgTLnC2VpkfjaleQK/j8DviJoFtQZXnKWg7NoXlVdKS?=
+ =?us-ascii?Q?mEukOUq0x7W9Qtde+CEuWrbOphu9DgXOeInqaf0Jm36mf1R9lyKIrqXAMGL5?=
+ =?us-ascii?Q?9W/wIFOa/RKwv/xNiHqghV47u8V0fhtCGx/TaTQM8OcRNusjMVARgzxl8TfY?=
+ =?us-ascii?Q?l1Ro5HUJcjhcW0bFSUHDXlSRHFr8/W59VhAZRg4YY0gK7RG61swYeiwuT9WO?=
+ =?us-ascii?Q?BjpOP+/o1tkfArqQ5XJM+FE5IcrHjBQSFqhZp69g5Ross0gg/Nq6FB7wz5PC?=
+ =?us-ascii?Q?Vzs0XRMmHabombt7y1byKMmCJUUGNclr+Ltb8w18sHLr/reCy3qpIrKHaoKx?=
+ =?us-ascii?Q?2kjVcHudZWX/Yv6jGiS4+RG6lYWYpxjbZ2RfBCt45WAgqmtcxyzpQBULn0wB?=
+ =?us-ascii?Q?m9Vt8BCUGKJJEvQpaNW5KWz6ZuoP5MKxqwoQ1xvI77HX2E8AgU7XAZokTrey?=
+ =?us-ascii?Q?ICwNBdRcf06zFHNpF/q95w+LgiHxZ+a+ZHDHIbvkixClHUrWNBlOpcaJxQYB?=
+ =?us-ascii?Q?iK+4wWeEJFytW8BB/wLJyuhzuZruYcxXnW2CQS+sB43qLcUD27nwKw22HWb4?=
+ =?us-ascii?Q?uatHtbDpYOpsh2d/I3xV5sNz+ZeFMpfmM5sPjzzLQKTVEnYLGDtpSwd7AhVs?=
+ =?us-ascii?Q?9iD9pBbUVU64/2G1IF42j/LbNtIrl3DJoHZ6doHVy8WsD5uekKFnIsGqlsz7?=
+ =?us-ascii?Q?WAu9TiyYSBs+rDVULXEpUdNHaF9SXj3CBn0fWBJtWKDSKL6N8IS/IPNFJGA1?=
+ =?us-ascii?Q?05aQU4VJJC0EpZRyt1m7dpXxSdMEuOga97NjNx97wlwIKuM5/WMnmoANUt29?=
+ =?us-ascii?Q?nZ3c38iA9msGtnh+naMtyLhlouXChupBCzaezLAnyn5fYKLqfdjnZS/S3fvd?=
+ =?us-ascii?Q?iQ4tpwBztupH/qOGgcRcRj9nHEmJIXy/CXXCfidt0nO3cuHZ+Md8qpwnZrI4?=
+ =?us-ascii?Q?XHvEvVzBO8zKn6acZEwm/0bBRuJyIkHogMEa84gp86lB5NhBjoRyTi5H/1Et?=
+ =?us-ascii?Q?/jM31Ixqn6Fo/DTt0plOntlH9gPMOO2CkfrvmSU7IRmTbRRV7KcvSZGvv/35?=
+ =?us-ascii?Q?BaUcW0mU5iVSMJXU0KJG5iTPuBNqC/k0axX9/z7U/bjQ14TYKrzWeMF+IdhD?=
+ =?us-ascii?Q?sVY94NClK25f+XH3uJQ4P1GGjpxHst8C4NwAC1uz2WCWzwTCbqk2+PkKmOqT?=
+ =?us-ascii?Q?gxAj1LZ0/js3Jx8LkqLkOuIVy66YZY6E4suOIXKKi3OLE0NpFvVkyHYpS3Br?=
+ =?us-ascii?Q?lP9hkFTtpNpRjAhIGIaFnFJiD9/Z8UrHm2kUhyXFAr2+mGeOpkqGzjwShQZP?=
+ =?us-ascii?Q?9ZjrLQbT2Kp5wPdwhe1r6EoH5+FmQd2/yr0Kte2SnYvsWKk1phMxn1R7YGSQ?=
+ =?us-ascii?Q?2czfVv6kSkudLk64+wApDkPCfvqOczNMJkpo?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(82310400026)(36860700013)(1800799024);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Sep 2025 17:09:10.7513
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4793a1dd-d7fd-45d3-55d5-08ddebd5c439
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH1PEPF0000A349.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6667
 
-On 9/3/25 02:00, Linus Lüssing wrote:
-> On Tue, Sep 02, 2025 at 10:16:04PM +0200, Linus Lüssing wrote:
->> On the other hand, moving the spinlock out of / around
->> __br_multicast_stop() would lead to a sleeping-while-atomic bug
->> when calling timer_delete_sync() in there. And if I were to change
->> these to a timer_delete() I guess there is no way to do the sync
->> part after unlocking? There is no equivalent to something like the
->> flush_workqueue() / drain_workqueue() for workqueues, but for
->> simple timers instead, right?
-> 
-> I'm wondering if it would be sufficient to use timer_del() on
-> .ndo_stop->br_dev_stop()->br_multicast_stop().
-> 
-> And use timer_del_sync() only on
-> .ndo_uninit->br_dev_uninit()-> br_multicast_dev_del()->
-> br_multicast_ctx_deinit() and
-> br_vlan_put_master()->br_multicast_ctx_deinit().
-> 
-> 
-> So basically only sync / wait for timer callbacks to finish if
-> their context is about to be free'd, on bridge or VLAN destruction?
+The following patches will gradually introduce the ability of the bridge
+to look up local FDB entries on VLAN 0 instead of using the VLAN indicated
+by a packet.
 
-You should make sure the state is sane if the callbacks can be executed after
-br_multicast_stop(). There are many timers that can affect different aspects,
-it might be doable but needs careful inspection and code ordering.
+In this patch, just introduce the option itself, with which the feature
+will be linked.
+
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+---
+ net/bridge/br_private.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 8de0904b9627..87da287f19fe 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -487,6 +487,7 @@ enum net_bridge_opts {
+ 	BROPT_MCAST_VLAN_SNOOPING_ENABLED,
+ 	BROPT_MST_ENABLED,
+ 	BROPT_MDB_OFFLOAD_FAIL_NOTIFICATION,
++	BROPT_FDB_LOCAL_VLAN_0,
+ };
+ 
+ struct net_bridge {
+-- 
+2.49.0
 
