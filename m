@@ -1,80 +1,75 @@
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com (mail-mw2nam04on2089.outbound.protection.outlook.com [40.107.101.89])
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2086.outbound.protection.outlook.com [40.107.102.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 415DB30F813
-	for <bridge@lists.linux.dev>; Thu,  4 Sep 2025 17:10:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.101.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467AB346A19
+	for <bridge@lists.linux.dev>; Fri,  5 Sep 2025 11:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.102.86
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757005805; cv=fail; b=R6LBDgyOUXusnbKMcN+MNekFxdXBhX8bpj2OXBWSJA742Ae+X8Q3avbI2nJdGkj5mBwxCY+yIgYNRCWlj/YbXKKq0IfO5SQBoIAURMRH9f0wdicgOCR4n1UEdFFhkjN3RfVgkoE/lhUX0vMfyZTdi9A2VrD9YifL/7+LH4BYQ/s=
+	t=1757070865; cv=fail; b=dh3BFRCzbeukT4qhmrOkZUbyiHtoAkN9PPNgCtpxABZ0/F+ztoTYlP1SiBXD2r/Y7rknJCMn1Oh8Ai0+iodCKVqSZOdsubPE5tTdbGIu1kfvUPKiQ1czf5SyQCxsGGkL4zniTO/ULlz/CrFyDKuBNZK60hhbZGqR3uqFsnuppAo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757005805; c=relaxed/simple;
-	bh=bq9cGEt2ioA4lzn7eM2vP4Dq9g+/9Da5s83XTCCakOo=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EMSEVlOnNHTkR/B/nI6WP+SWFPO6P2Co5EpZhCeN9CRhA8BVMjAqhYO5pGEID7rcsGDYHMrxNlwzuCytfzHnROWvXldeuBQUF/nujg+eMdYFs2oCg3u3dgsD9yoFku4ubvnlPwmOlo8uXjCA7ZcnKyooTFIK4dztuDgsH5QAXUg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=sC9/nxKo; arc=fail smtp.client-ip=40.107.101.89
+	s=arc-20240116; t=1757070865; c=relaxed/simple;
+	bh=pJW0Ps5oDxZv2lZV/HrQK66AtQJe+d+xv0ylwC1YMlk=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=sW/U4lWlFAxq7hjTFNna2M4B+3pxjkrte0e6bqmY9iq3OtcVWxLLyxC+UIzvv9odAyc2EdAfxNpNqRp/pXAehm67h5IyQtUkYCrqg/3T6ofwwPJVvSdHaoHEi8EvRCVM5D3+Q5jVeaI2x3QDY1ssjjwCe1YyDxxj5ai0sB9+ZmA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=RD5tuIsv; arc=fail smtp.client-ip=40.107.102.86
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="sC9/nxKo"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="RD5tuIsv"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=wYXzJSkkKR6blVin5Y7VzFMLkogpiY+Iz0ouwQVhLaJsWVGyo8ttiXCUdkvlQFcj3bh4QBQsSELuMvXJtHqOrvzW7n4Phx69VN9ecmyU432fvtEc0PORMQzn/WJAFUzZXVqqe6MnSrweozv0lvyAftb6HQ8zYOiMw6ObTY+Jn0W47Dq12i8XERBL1wqI6QLCYbId8hLBB9ePky4nvRtnjOnI9Y0AACxUPOSKpxwLTt03OMQUbiN/F0k61qBEp53gdQ1MxUy1oJ+oxQ//7Kx8+3BFe5JOBr+qg0L6Vou+JAvOY8xB/OLj56d9p58GJdDp2P4/bQbSUQ2Onl2+ggu18Q==
+ b=nOmShPIVRS2nZq6okWxn3zxqUiNPSFRl/j7Mo84ZHTApSw/G+Qjb2JNFPBTTsgme4ybh9Rl3143rpxNhYiD1KY+6QdMRAjZuTX6xJX+nYrI9SqMMs7fwGke9Usz5rX2lZ6CH4GIkgCnfReFCBZr/8mkVJQZT1XjWX2YwBgCCyk2N9rO48YPGU0G0fGbZD+Df/iHUo7pvmXPBzoN/Lmfxe2Sf6iFFpH8FGX8lSopn5rQVeimSBmR5U5r64RnPXPA/G3aJ+s28brcP4lnQlfrLc4arPOhAjN/+ooYbgWxeaEKiyUxQDXVRTAzxPWig/qlLlMvDAtSWiOte6ewQP9suFQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=J0gwFLbstI0bne31Dy5BdFXkd1Fj3ZoNH/VAuS/3Sxc=;
- b=hPb2g9CiGjUH65ox9L9mGEhdwizwfcw96xcbO56bnUtfEFcu54wAapEP/lfZHAXiJtZLPGSKUVtAMIRrTNyVOdJ/7fsG2LUzJPjEJ+pwFYVcJiCSGrn8/vpoM2rkVbrM9hHOGEYJyYz1kv8Uo3H5IZQXUEjodBUtlDDCXXu/uebaeE5cc7iUZ0Q33OWK6L6TJs3xpWYJjflXY7j44QK6UlG+Xe5tUiG/xM2juzAbOWsqVnXxyuFmWMlbJiLLURKRSTlVGyMyEW9Xq4Ge5V/VsCr12jswAZHUClKy3DSka/CmUo02viknoAOnjEAQ621qvvYUIVOTMK3Zn7JVnsx2YA==
+ bh=ADss53qSwhjgsi/juYaNn6aLcf6WHyhnZGvJW9l7hwk=;
+ b=sVgUMQKIKhudyO2SSRKEWHRKgQ2NsTDd6/XVQ5dWCeDTqkybC1Mpk5SJ2zlUTtgmJS2wBlrVGWTPOQ00svw9QIeZCO+eRyAX7H3bDTowGthVE58Ga5BO6TGH1Mx0xOsWMKgLiD8OdprtLEs568eT58QyqBt7cC5as5PDo75lerUTGw02KdP6Gnw+43sbtAOhuY5YGHAf9fhm4w0JUXCMW5LBw2kkd+Uv5EXJbL9oRwXCyoP3qKuqFqt7YhQQD5gdlJA+m86jY67LExn0vFXbkrxRvH0W0RPiXJhFPOh4STpuResWqLweeHK3I0rO8VJGYo4redIHSiIOBmxTHgTfnA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=davemloft.net smtp.mailfrom=nvidia.com;
+ 216.228.117.161) smtp.rcpttodomain=davemloft.net smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J0gwFLbstI0bne31Dy5BdFXkd1Fj3ZoNH/VAuS/3Sxc=;
- b=sC9/nxKo0CMUzBZom1tj9fRBKvSehb3LEcdas++nca/wdp72ZkNguLnBQDtUTwd/qFgcmrrdVBpuW1ZONvYQCQCZp1oVDDWGD1T7/3HD6a/OOLDnJIZiN+fs9djW/8aJODf+nd65B0V1+Gc/jnvpFyc2Og01Tz2JAhCebqkt+NxP19+XUr0M6WAsFcL0GYUO7iuxQ3U0FWajkhzz90jAHLFIrLPjKBdVQ78AOC/qurVEvy/JJu3qCwkAr+18zfkSKUu8Vd886DCCuIlPiCmCEf9R1gTDLZngiFYz8S1/6NCGMS2w8k6tAqez9N7O+dSFCVUNiwYEt6e+CQ84WgrpGw==
-Received: from MW4PR03CA0275.namprd03.prod.outlook.com (2603:10b6:303:b5::10)
- by CH1PPFA0A5C3BCA.namprd12.prod.outlook.com (2603:10b6:61f:fc00::61f) with
+ bh=ADss53qSwhjgsi/juYaNn6aLcf6WHyhnZGvJW9l7hwk=;
+ b=RD5tuIsvFM5zgLGvmtb71uzGtNyiSdrKp7kH4ZjWnHZcw3cGdk5fWCFTOsZhbeLmFlDzvHs9dZSstRhzmPXFg20wbB4ANOhym5uUP8XwIfKwGJY+PfBNW94AP7qFosqRpkrl64kT8q86oCQiVcltNsj/1x1FekHpAOhq1whrQTPLoMkhYdhjX3wiYeMcnXu3ZuScf683kyaH+8sCdkempxuOHMUrCuDtvOzixjhA29qZr1MQdgOND84Kt+9W2PHa9PDJKfoQ8LzAkja+2nMg9RTnaO0bvVYPUqtOCK5XVi8fovvUFRU2UYPSpcI3OyX5A+Ewdg6rzcVlBzACeUwHcg==
+Received: from CY5PR04CA0007.namprd04.prod.outlook.com (2603:10b6:930:1e::27)
+ by CH2PR12MB4069.namprd12.prod.outlook.com (2603:10b6:610:ac::18) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9094.18; Thu, 4 Sep
- 2025 17:10:00 +0000
-Received: from CO1PEPF000042A7.namprd03.prod.outlook.com
- (2603:10b6:303:b5:cafe::1c) by MW4PR03CA0275.outlook.office365.com
- (2603:10b6:303:b5::10) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9073.27 via Frontend Transport; Thu,
- 4 Sep 2025 17:09:59 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9094.19; Fri, 5 Sep
+ 2025 11:14:19 +0000
+Received: from CY4PEPF0000FCC2.namprd03.prod.outlook.com
+ (2603:10b6:930:1e:cafe::31) by CY5PR04CA0007.outlook.office365.com
+ (2603:10b6:930:1e::27) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9094.18 via Frontend Transport; Fri,
+ 5 Sep 2025 11:14:18 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
 Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- CO1PEPF000042A7.mail.protection.outlook.com (10.167.243.36) with Microsoft
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ CY4PEPF0000FCC2.mail.protection.outlook.com (10.167.242.104) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9094.14 via Frontend Transport; Thu, 4 Sep 2025 17:09:59 +0000
+ 15.20.9094.14 via Frontend Transport; Fri, 5 Sep 2025 11:14:18 +0000
 Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Thu, 4 Sep
- 2025 10:09:39 -0700
-Received: from fedora.docsis.vodafone.cz (10.126.231.35) by
- rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.14; Thu, 4 Sep 2025 10:09:34 -0700
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Fri, 5 Sep
+ 2025 04:13:59 -0700
+Received: from fedora.mtl.com (10.126.231.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Fri, 5 Sep
+ 2025 04:13:51 -0700
 From: Petr Machata <petrm@nvidia.com>
 To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
 	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
 	<pabeni@redhat.com>, <netdev@vger.kernel.org>
-CC: Simon Horman <horms@kernel.org>, Nikolay Aleksandrov
-	<razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
-	<bridge@lists.linux.dev>, Petr Machata <petrm@nvidia.com>,
-	<mlxsw@nvidia.com>, Shuah Khan <shuah@kernel.org>,
-	<linux-kselftest@vger.kernel.org>
-Subject: [PATCH net-next 10/10] selftests: forwarding: Add test for BR_BOOLOPT_FDB_LOCAL_VLAN_0
-Date: Thu, 4 Sep 2025 19:07:27 +0200
-Message-ID: <62294f96884ab5d341648eef21243fa099a2dee5.1757004393.git.petrm@nvidia.com>
+CC: Simon Horman <horms@kernel.org>, Andrew Lunn <andrew@lunn.ch>, "Nikolay
+ Aleksandrov" <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
+	<bridge@lists.linux.dev>, Petr Machata <petrm@nvidia.com>, <mlxsw@nvidia.com>
+Subject: [PATCH net] net: bridge: Bounce invalid boolopts
+Date: Fri, 5 Sep 2025 13:12:33 +0200
+Message-ID: <e6fdca3b5a8d54183fbda075daffef38bdd7ddce.1757070067.git.petrm@nvidia.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <cover.1757004393.git.petrm@nvidia.com>
-References: <cover.1757004393.git.petrm@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -87,460 +82,81 @@ X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
  rnnvmail201.nvidia.com (10.129.68.8)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PEPF000042A7:EE_|CH1PPFA0A5C3BCA:EE_
-X-MS-Office365-Filtering-Correlation-Id: b8b6c83e-5fee-4d22-bf9d-08ddebd5e14a
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000FCC2:EE_|CH2PR12MB4069:EE_
+X-MS-Office365-Filtering-Correlation-Id: df6478d5-5867-46f1-b649-08ddec6d5b2e
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|36860700013|376014|7416014;
+	BCL:0;ARA:13230040|1800799024|82310400026|376014|36860700013;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?599b29z1qyDu7SLmgphw8J/fQTHXf0+Nb+ra6u0vaLlyizP3YKO5XK7RGDy4?=
- =?us-ascii?Q?Vsv3SZmef0BEYjW3MdflHKDrlkz51JUUSpNMO756FCFrAmUivdYyZbCTSanD?=
- =?us-ascii?Q?LNrqcFz3idTP3dYI9x6059O/IzGrlxieLdb/Sjxc2NkDsf3O3bSSw7GLkD3Y?=
- =?us-ascii?Q?fpHQFytbCtJjt3cM9LDM9BqDzem49tUsXRxI0v2jo22NafcOejSesiGtP3OG?=
- =?us-ascii?Q?BPVR0bmAJGt45fTdub+o0sLQVvlh250MhO5Jm9Ak/419+GV01KncoPvpoFUm?=
- =?us-ascii?Q?xajJkvlimHaG+0Y1KeAakhmQUck9B67mpVV/FvgjYlrcBiZ0d5PShWD8tkkZ?=
- =?us-ascii?Q?wU6qitHDc/RfZFCNmCSJzUlj7r2W9SMKWTajqvnhh+28a0vm2Nd6WQtMq+kQ?=
- =?us-ascii?Q?bVW4vEPPXLsipFr82NwxcI0qG9+ymNY6RN5H8O2McqBBiFRk+GG1AcnZ3lM9?=
- =?us-ascii?Q?uxSsFKvqK7FbDR/HN6cUvo5nt7rB2xm2VTcQ5or3Omybsq5Dh7jyr7Mty8EE?=
- =?us-ascii?Q?tuiPhIvoRqkhn+5W+/o4v55ZTyh7WH6ulK6Vn5dVDGeQA1K9iG14t617usp+?=
- =?us-ascii?Q?61NhDR+PBvHpA34VsYbHvNJK+U45RVuzOMGTalurPyEL+PIz/3ypFolulYzz?=
- =?us-ascii?Q?FbGXeKuAf3MSoqLP0FK7BkNkZz2GAiJ0oG3zRmSpaUPijblMQ8m59S7f2+Ns?=
- =?us-ascii?Q?/7ZSqzRDdldu4f/EuzOHM691DK/r1GNEjQPn2aq9XvzsMAus297DKu3D3cnG?=
- =?us-ascii?Q?SUBR12FKxCnDNTVxJi5ZmQpBtS7sg/TJmefO1JtqYqV8CQ+DiPWHZCxHB5Ir?=
- =?us-ascii?Q?/KmglB3RzBvvEUBQiqY1V43Zo1vZXkxTH2iySViJ+j4SAfkxSiTQ7Vm0MHZ2?=
- =?us-ascii?Q?XrRYb5uEMOsEVnfd2Um0J8neJex1YAikCNNsKqpaj69iBdnJUbdH5/Vr72NA?=
- =?us-ascii?Q?tOGdpak2muyegAkgNdg2qgocibxy2QMJ7ujH7yh/vQs83FAiB81fdMNUmTK5?=
- =?us-ascii?Q?s+hm5vrLoE+pHl4ByOlRd1zXb6O4cBwkLCzEE6Ucs6ABa41UD6ebeUJXzc7H?=
- =?us-ascii?Q?xSql4xn55En4hc6Yg6GfvsAE+/2MFPJUr0Bo734W/KyvK0TjsKt7UH9AH7Yt?=
- =?us-ascii?Q?9J62csqSjhOif/nUIwT0WmyFjgMIrDb2WOCXmOavWKJU7t5u6HhNSTIaja6c?=
- =?us-ascii?Q?0ivbN/e4otIQGPvXjCHsIWy/6wUPr0JdxpyiOrowbrWJcJKJ6FFtPrSHyVKK?=
- =?us-ascii?Q?vHI5yRJZxNQMxxDeZfJasY43g39iQmsomh8sIyfpOeHY2Dd15JCgCvx6DJvT?=
- =?us-ascii?Q?mk2d6lK+boD4f+HtySGDl6x/zfp48WsydVejWuhIB9MueFkcT2dNHLjaMA6T?=
- =?us-ascii?Q?qQnMOvd3HAwG+843Ah00fojEUsw16ltsTYjUWYB2ZNR9jPq9e3+5e33z7rmO?=
- =?us-ascii?Q?RTj7d2055FMRXUnFAwggytFHor+OBcvWCAVGGkEiFVBkWs4ICoz2YVv7vAv+?=
- =?us-ascii?Q?eOmF9h5n2tavJQu/TgLp0URdC3oKiWKakrhB?=
+	=?us-ascii?Q?dmwp8OAGlq8xrXLuUuMM87lm9P3V50S0SnWS9BICinSoCLS6DquPeRg3lq3T?=
+ =?us-ascii?Q?wuEb6WnmbIAKJsCHlhzGfIUZ16pkxQw4zbr0TVqCfS4k2vf7/hjIYUelcRph?=
+ =?us-ascii?Q?MmLHtPPT9gl85mGVT++tKdQ+tG41pp71PHfr2zt//vxIz99vuwMOdVaA4mz2?=
+ =?us-ascii?Q?JofRFOx+C7rVpqEsDqgWb6hcCd94+ZVcm0izr7jpUed0OJVVN2IpSw9UiMPR?=
+ =?us-ascii?Q?tA2jorYwXgoHrZAag8K2NYwN9O0DqB4tX1o1fglYhxBt5O+VExZ3pCuDbZgR?=
+ =?us-ascii?Q?TNxR0JL2xqU/rD5ZB12LCawPqke9psEAZXtL34jHtfHxYd0+zkP8eFvKOTuU?=
+ =?us-ascii?Q?bvXslIKXddqlcNtoU1eK7i148vg2Hy8Up7LJ9YpB5B7WHkgK0hzIXXeV7fcW?=
+ =?us-ascii?Q?ejkPVFB09YkvQRR2F5S649oZcE8YRYlT7WIxndeQZSm+tLFawebrCSZrWNKh?=
+ =?us-ascii?Q?X+BwLWbpd4Ujl2+swEUtAmfoWEvDfpWqz4sdRK0xJB4OGnU3Itd/zlADp6Ck?=
+ =?us-ascii?Q?MC2lKxmk8xJKg5hAiXH8Nsy2+hYDSYMtFvNlc9A/AQZTlY6iUVdWQ3Liz5Rb?=
+ =?us-ascii?Q?lxn54Juifv2Aw3fcR6/8mMhudCmRI1hebgXnKdaPW7o4nXA6Sc6H0MJ+mZ37?=
+ =?us-ascii?Q?HvN6h61tetkCyTV39e/Zbxj1FquMxjugflzFa0SbP8M3x8LHwte3plkGVjYq?=
+ =?us-ascii?Q?9gr0K8CrZiuqSdim71y7Hdua1AMKiJDGQRa+Ufwh/cwSSduAtdC/vp/fRgym?=
+ =?us-ascii?Q?wvc30vqQqpYANNXzHUEh8hQ7J3iqZ6JO4qg8OwDH2cvsHvb9IgcdCJXt/4xy?=
+ =?us-ascii?Q?uNrRdfL5PR09wbFxv25oUqDjvloywpNZdLBdAUmA40vprUKzq5LYtYhGzaE/?=
+ =?us-ascii?Q?8COI6/kpBmrLO0BS83xM2wZCu61gDHP3zPvPZ7/l8Q1EKhQborENuwf+mmpN?=
+ =?us-ascii?Q?HwmkEKrxhV1dwzycgrhIhicfrjRdQpPB+IEdAW/lF9myMUIPrvpcF+PqD/XR?=
+ =?us-ascii?Q?Wu9pRJqcwB+johUfDyynQlum1HIInIJI4fGUpYwXA7p2Mz5HZJoV11gd3ZS5?=
+ =?us-ascii?Q?7Ca3vNwMFTp0kLF4kwpYITVqMW26/nEpC9trzXeDA3NSbh+WOYdO/vslGd1t?=
+ =?us-ascii?Q?DrmPpweXZjWH6Al+H+XCLtJEnbtJkTxZdhx3rrXJCnFIKvKGOAwzHdLaQ6sJ?=
+ =?us-ascii?Q?Q8habzLGre48cW4/UGYmx32vXys3wQUoqE4gDUSOPHC0/EeqVZUy7u7yD1W6?=
+ =?us-ascii?Q?pZPMnilr0rcEETDqiHAwALb4zemR9/T/4QqlzWfbleziTscXsUWTW9WYSiay?=
+ =?us-ascii?Q?75gsxmfdQTzJOnvry1q6zJLw3dauX3kVir8++AsWoBdXJjmQq2PYF2XQ/bes?=
+ =?us-ascii?Q?lcGGJQNix6RfCsOYLLkkTdYBkf6sd2WG38Rv4hZ3o5sRLQg8d+HinGc/sQFJ?=
+ =?us-ascii?Q?7aaEedeeV+cifBRRuYkomdg369nKOakUh7KbwiBTFdOAmxSJTipjUneM5GXk?=
+ =?us-ascii?Q?eMOBJ/1KsC1EOfTliQlaKzNSpu/7i+fDdcVr?=
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700013)(376014)(7416014);DIR:OUT;SFP:1101;
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(376014)(36860700013);DIR:OUT;SFP:1101;
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Sep 2025 17:09:59.6360
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Sep 2025 11:14:18.0565
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b8b6c83e-5fee-4d22-bf9d-08ddebd5e14a
+X-MS-Exchange-CrossTenant-Network-Message-Id: df6478d5-5867-46f1-b649-08ddec6d5b2e
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	CO1PEPF000042A7.namprd03.prod.outlook.com
+	CY4PEPF0000FCC2.namprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH1PPFA0A5C3BCA
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4069
 
-Add a selftest to check the operation of this newly-introduced bridge
-option.
+The bridge driver currently tolerates options that it does not recognize.
+Instead, it should bounce them.
 
+Fixes: a428afe82f98 ("net: bridge: add support for user-controlled bool options")
 Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 ---
+ net/bridge/br.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Notes:
-CC: Shuah Khan <shuah@kernel.org>
-CC: linux-kselftest@vger.kernel.org
-
- .../testing/selftests/net/forwarding/Makefile |   1 +
- .../net/forwarding/bridge_fdb_local_vlan_0.sh | 374 ++++++++++++++++++
- 2 files changed, 375 insertions(+)
- create mode 100755 tools/testing/selftests/net/forwarding/bridge_fdb_local_vlan_0.sh
-
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index 0a0d4c2a85f7..e6f482a600da 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -5,6 +5,7 @@ TEST_PROGS = \
- 	bridge_fdb_learning_limit.sh \
- 	bridge_igmp.sh \
- 	bridge_locked_port.sh \
-+	bridge_fdb_local_vlan_0.sh \
- 	bridge_mdb.sh \
- 	bridge_mdb_host.sh \
- 	bridge_mdb_max.sh \
-diff --git a/tools/testing/selftests/net/forwarding/bridge_fdb_local_vlan_0.sh b/tools/testing/selftests/net/forwarding/bridge_fdb_local_vlan_0.sh
-new file mode 100755
-index 000000000000..5a0b43aff5aa
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/bridge_fdb_local_vlan_0.sh
-@@ -0,0 +1,374 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+# +-----------------------+ +-----------------------+ +-----------------------+
-+# | H1 (vrf)              | | H2 (vrf)              | | H3 (vrf)              |
-+# |    + $h1              | |    + $h2              | |    + $h3              |
-+# |    | 192.0.2.1/28     | |    | 192.0.2.2/28     | |    | 192.0.2.18/28    |
-+# |    | 2001:db8:1::1/64 | |    | 2001:db8:1::2/64 | |    | 2001:db8:2::2/64 |
-+# |    |                  | |    |                  | |    |                  |
-+# +----|------------------+ +----|------------------+ +----|------------------+
-+#      |                         |                         |
-+# +----|-------------------------|-------------------------|------------------+
-+# | +--|-------------------------|------------------+      |                  |
-+# | |  + $swp1                   + $swp2            |      + $swp3            |
-+# | |                                               |        192.0.2.17/28    |
-+# | |  BR1 (802.1q)                                 |        2001:db8:2::1/64 |
-+# | |  192.0.2.3/28                                 |                         |
-+# | |  2001:db8:1::3/64                             |                         |
-+# | +-----------------------------------------------+                      SW |
-+# +---------------------------------------------------------------------------+
-+#
-+#shellcheck disable=SC2317 # SC doesn't see our uses of functions.
-+#shellcheck disable=SC2034 # ... and global variables
-+
-+ALL_TESTS="
-+	test_d_no_sharing
-+	test_d_sharing
-+	test_q_no_sharing
-+	test_q_sharing
-+"
-+
-+NUM_NETIFS=6
-+source lib.sh
-+
-+pMAC=00:11:22:33:44:55
-+bMAC=00:11:22:33:44:66
-+mMAC=00:11:22:33:44:77
-+xMAC=00:11:22:33:44:88
-+
-+host_create()
-+{
-+	local h=$1; shift
-+	local ipv4=$1; shift
-+	local ipv6=$1; shift
-+
-+	simple_if_init "$h" "$ipv4" "$ipv6"
-+	defer simple_if_fini "$h" "$ipv4" "$ipv6"
-+
-+	ip_route_add vrf "v$h" 192.0.2.16/28 nexthop via 192.0.2.3
-+	ip_route_add vrf "v$h" 2001:db8:2::/64 nexthop via 2001:db8:1::3
-+}
-+
-+h3_create()
-+{
-+	simple_if_init "$h3" 192.0.2.18/28 2001:db8:2::2/64
-+	defer simple_if_fini "$h3" 192.0.2.18/28 2001:db8:2::2/64
-+
-+	ip_route_add vrf "v$h3" 192.0.2.0/28 nexthop via 192.0.2.17
-+	ip_route_add vrf "v$h3" 2001:db8:1::/64 nexthop via 2001:db8:2::1
-+
-+	tc qdisc add dev "$h3" clsact
-+	defer tc qdisc del dev "$h3" clsact
-+
-+	tc filter add dev "$h3" ingress proto ip pref 104 \
-+	   flower skip_hw ip_proto udp dst_port 4096 \
-+	   action pass
-+	defer tc filter del dev "$h3" ingress proto ip pref 104
-+
-+	tc qdisc add dev "$h2" clsact
-+	defer tc qdisc del dev "$h2" clsact
-+
-+	tc filter add dev "$h2" ingress proto ip pref 104 \
-+	   flower skip_hw ip_proto udp dst_port 4096 \
-+	   action pass
-+	defer tc filter del dev "$h2" ingress proto ip pref 104
-+}
-+
-+switch_create()
-+{
-+	ip_link_set_up "$swp1"
-+
-+	ip_link_set_up "$swp2"
-+
-+	ip_addr_add "$swp3" 192.0.2.17/28
-+	ip_addr_add "$swp3" 2001:db8:2::1/64
-+	ip_link_set_up "$swp3"
-+}
-+
-+setup_prepare()
-+{
-+	h1=${NETIFS[p1]}
-+	swp1=${NETIFS[p2]}
-+
-+	swp2=${NETIFS[p3]}
-+	h2=${NETIFS[p4]}
-+
-+	swp3=${NETIFS[p5]}
-+	h3=${NETIFS[p6]}
-+
-+	vrf_prepare
-+	defer vrf_cleanup
-+
-+	forwarding_enable
-+	defer forwarding_restore
-+
-+	host_create "$h1" 192.0.2.1/28 2001:db8:1::1/64
-+	host_create "$h2" 192.0.2.2/28 2001:db8:1::2/64
-+	h3_create
-+
-+	switch_create
-+}
-+
-+adf_bridge_create()
-+{
-+	local dev
-+	local mac
-+
-+	ip_link_add br up type bridge vlan_default_pvid 0 "$@"
-+	mac=$(mac_get br)
-+	ip_addr_add br 192.0.2.3/28
-+	ip_addr_add br 2001:db8:1::3/64
-+
-+	bridge_vlan_add dev br vid 1 pvid untagged self
-+	bridge_vlan_add dev br vid 2 self
-+	bridge_vlan_add dev br vid 3 self
-+
-+	for dev in "$swp1" "$swp2"; do
-+		ip_link_set_master "$dev" br
-+		bridge_vlan_add dev "$dev" vid 1 pvid untagged
-+		bridge_vlan_add dev "$dev" vid 2
-+		bridge_vlan_add dev "$dev" vid 3
-+	done
-+
-+	ip_link_set_addr br "$mac"
-+}
-+
-+check_fdb_local_vlan_0_support()
-+{
-+	if ip_link_add XXbr up type bridge vlan_filtering 1 fdb_local_vlan_0 1 \
-+		    &>/dev/null; then
-+		return 0
-+	fi
-+
-+	log_test_skip "FDB sharing" \
-+		      "iproute 2 or the kernel do not support fdb_local_vlan_0"
-+}
-+
-+check_mac_presence()
-+{
-+	local should_fail=$1; shift
-+	local dev=$1; shift
-+	local vlan=$1; shift
-+	local mac
-+
-+	mac=$(mac_get "$dev")
-+
-+	if ((vlan == 0)); then
-+		vlan=null
-+	fi
-+
-+	bridge -j fdb show dev "$dev" |
-+	    jq -e --arg mac "$mac" --argjson vlan "$vlan" \
-+	       '.[] | select(.mac == $mac) | select(.vlan == $vlan)' > /dev/null
-+	check_err_fail "$should_fail" $? "FDB dev $dev vid $vlan addr $mac exists"
-+}
-+
-+do_sharing_test()
-+{
-+	local should_fail=$1; shift
-+	local what=$1; shift
-+	local dev
-+
-+	RET=0
-+
-+	for dev in "$swp1" "$swp2" br; do
-+		check_mac_presence 0 "$dev" 0
-+		check_mac_presence "$should_fail" "$dev" 1
-+		check_mac_presence "$should_fail" "$dev" 2
-+		check_mac_presence "$should_fail" "$dev" 3
-+	done
-+
-+	log_test "$what"
-+}
-+
-+do_end_to_end_test()
-+{
-+	local mac=$1; shift
-+	local what=$1; shift
-+	local probe_dev=${1-$h3}; shift
-+	local expect=${1-10}; shift
-+
-+	local t0
-+	local t1
-+	local dd
-+
-+	RET=0
-+
-+	# In mausezahn, use $dev MAC as the destination MAC. In the MAC sharing
-+	# context, that will cause an FDB miss on VLAN 1 and prompt a second
-+	# lookup in VLAN 0.
-+
-+	t0=$(tc_rule_stats_get "$probe_dev" 104 ingress)
-+
-+	$MZ "$h1" -c 10 -p 64 -a own -b "$mac" \
-+		  -A 192.0.2.1 -B 192.0.2.18 -t udp "dp=4096,sp=2048" -q
-+	sleep 1
-+
-+	t1=$(tc_rule_stats_get "$probe_dev" 104 ingress)
-+	dd=$((t1 - t0))
-+
-+	((dd == expect))
-+	check_err $? "Expected $expect packets on $probe_dev got $dd"
-+
-+	log_test "$what"
-+}
-+
-+do_tests()
-+{
-+	local should_fail=$1; shift
-+	local what=$1; shift
-+	local swp1_mac
-+	local br_mac
-+
-+	swp1_mac=$(mac_get "$swp1")
-+	br_mac=$(mac_get br)
-+
-+	do_sharing_test "$should_fail" "$what"
-+	do_end_to_end_test "$swp1_mac" "$what: end to end, $swp1 MAC"
-+	do_end_to_end_test "$br_mac" "$what: end to end, br MAC"
-+}
-+
-+bridge_standard()
-+{
-+	local vlan_filtering=$1; shift
-+
-+	if ((vlan_filtering)); then
-+		echo 802.1q
-+	else
-+		echo 802.1d
-+	fi
-+}
-+
-+nonexistent_fdb_test()
-+{
-+	local vlan_filtering=$1; shift
-+	local standard
-+
-+	standard=$(bridge_standard "$vlan_filtering")
-+
-+	# We expect flooding, so $h2 should get the traffic.
-+	do_end_to_end_test "$xMAC" "$standard: Nonexistent FDB" "$h2"
-+}
-+
-+misleading_fdb_test()
-+{
-+	local vlan_filtering=$1; shift
-+	local standard
-+
-+	standard=$(bridge_standard "$vlan_filtering")
-+
-+	defer_scope_push
-+		# Add an FDB entry on VLAN 0. The lookup on VLAN-aware bridge
-+		# shouldn't pick this up even with fdb_local_vlan_0 enabled, so
-+		# the traffic should be flooded. This all holds on
-+		# vlan_filtering bridge, on non-vlan_filtering one the FDB entry
-+		# is expected to be found as usual, no flooding takes place.
-+		#
-+		# Adding only on VLAN 0 is a bit tricky, because bridge is
-+		# trying to be nice and interprets the request as if the FDB
-+		# should be added on each VLAN.
-+
-+		bridge fdb add "$mMAC" dev "$swp1" master
-+		bridge fdb del "$mMAC" dev "$swp1" vlan 1 master
-+		bridge fdb del "$mMAC" dev "$swp1" vlan 2 master
-+		bridge fdb del "$mMAC" dev "$swp1" vlan 3 master
-+
-+		local expect=$((vlan_filtering ? 10 : 0))
-+		do_end_to_end_test "$mMAC" \
-+				   "$standard: Lookup of non-local MAC on VLAN 0" \
-+				   "$h2" "$expect"
-+	defer_scope_pop
-+}
-+
-+change_mac()
-+{
-+	local dev=$1; shift
-+	local mac=$1; shift
-+	local cur_mac
-+
-+	cur_mac=$(mac_get "$dev")
-+
-+	log_info "Change $dev MAC $cur_mac -> $mac"
-+	ip_link_set_addr "$dev" "$mac"
-+	defer log_info "Change $dev MAC back"
-+}
-+
-+do_test_no_sharing()
-+{
-+	local vlan_filtering=$1; shift
-+	local standard
-+
-+	standard=$(bridge_standard "$vlan_filtering")
-+
-+	adf_bridge_create vlan_filtering "$vlan_filtering"
-+	setup_wait
-+
-+	do_tests 0 "$standard, no FDB sharing"
-+
-+	change_mac "$swp1" "$pMAC"
-+	change_mac br "$bMAC"
-+
-+	do_tests 0 "$standard, no FDB sharing after MAC change"
-+
-+	in_defer_scope check_fdb_local_vlan_0_support || return
-+
-+	log_info "Set fdb_local_vlan_0=1"
-+	ip link set dev br type bridge fdb_local_vlan_0 1
-+
-+	do_tests 1 "$standard, fdb sharing after toggle"
-+}
-+
-+do_test_sharing()
-+{
-+	local vlan_filtering=$1; shift
-+	local standard
-+
-+	standard=$(bridge_standard "$vlan_filtering")
-+
-+	in_defer_scope check_fdb_local_vlan_0_support || return
-+
-+	adf_bridge_create vlan_filtering "$vlan_filtering" fdb_local_vlan_0 1
-+	setup_wait
-+
-+	do_tests 1 "$standard, FDB sharing"
-+
-+	nonexistent_fdb_test "$vlan_filtering"
-+	misleading_fdb_test "$vlan_filtering"
-+
-+	change_mac "$swp1" "$pMAC"
-+	change_mac br "$bMAC"
-+
-+	do_tests 1 "$standard, FDB sharing after MAC change"
-+
-+	log_info "Set fdb_local_vlan_0=0"
-+	ip link set dev br type bridge fdb_local_vlan_0 0
-+
-+	do_tests 0 "$standard, No FDB sharing after toggle"
-+}
-+
-+test_d_no_sharing()
-+{
-+	do_test_no_sharing 0
-+}
-+
-+test_d_sharing()
-+{
-+	do_test_sharing 0
-+}
-+
-+test_q_no_sharing()
-+{
-+	do_test_no_sharing 1
-+}
-+
-+test_q_sharing()
-+{
-+	do_test_sharing 1
-+}
-+
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+tests_run
+diff --git a/net/bridge/br.c b/net/bridge/br.c
+index 4bfaf543835a..512872a2ef81 100644
+--- a/net/bridge/br.c
++++ b/net/bridge/br.c
+@@ -346,6 +346,13 @@ int br_boolopt_multi_toggle(struct net_bridge *br,
+ 	int err = 0;
+ 	int opt_id;
+ 
++	opt_id = find_next_bit(&bitmap, BITS_PER_LONG, BR_BOOLOPT_MAX);
++	if (opt_id != BITS_PER_LONG) {
++		NL_SET_ERR_MSG_FMT_MOD(extack, "Unknown boolean option %d",
++				       opt_id);
++		return -EINVAL;
++	}
++
+ 	for_each_set_bit(opt_id, &bitmap, BR_BOOLOPT_MAX) {
+ 		bool on = !!(bm->optval & BIT(opt_id));
+ 
 -- 
 2.49.0
 
