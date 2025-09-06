@@ -1,204 +1,192 @@
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF39523D7EC
-	for <bridge@lists.linux.dev>; Sat,  6 Sep 2025 12:26:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 681B218DF8D
+	for <bridge@lists.linux.dev>; Sat,  6 Sep 2025 17:42:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757161610; cv=none; b=nJ9PDun7bu33ccMfn3S1SMYDWPSoXO3ln08TZNaIloKxsoqN2A22ldjJF3IikuJZH0w9YMHc92V98qvfD357nS9H063daVj5Xon11sM2ILvEwNYaw3JeDZs05NyafN1BAg+QwKRqYlz4OIzCa+pDYD1eiE2Pjat7EJRqgERSYXg=
+	t=1757180578; cv=none; b=fLyOfEHnV68b5gEKFCzkZd5oXXWNt+7wkFHk5LZnqDHZ8ZxFznjx3bdhPPxJIcHnwWgs9vq46RKB29X4dwVSxR+Vi71RzWIFjEPJlwNt/qulXApcbaYNezGjBX5b6JcN9NWRDtTMj4WNzP6pTEwmaLav5slik/YnAwtzbo6sxYM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757161610; c=relaxed/simple;
-	bh=uyLHMnAZiaTBpdwrmMUjgQtsM/l0FVDb2WilloB6myE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JAs/YNc9IGT6XXdynGCg/WBEDVuStdwx9MBkYc7ps51EGyRmm+/sjHdYCyr9CpT2DKwGHzlbGmASgoW1QExFMCPU624VfLFFH45wVVJrmFrKpAC4vo2YOzFWQVQf0ebMd5shhrppoeAd/yxYdFsCy4y/QpGjQmsm+LxqEPVySIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WpRKStAb; arc=none smtp.client-ip=209.85.208.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1757180578; c=relaxed/simple;
+	bh=AlmO+Tf6FLEqNohfsm1mf0OtxDGnNw0UIro4O81ldyY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gMZaHzYcVRQTAWuLiKAvBlnuOnExIxS2Ff/YlNxfodeFGFxjgWDswsmstGda3IIpsoChu9EkwuxUPPbJQL4YquFK/7tyfgPEpO+HY1fiGUHEHyHdOVqESe/Jba+hsvPASawNJfR8GVdcmwcatE1Mve4OG1mwcunApYU12sEWYxA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=qZg+JVHY; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=bWMquRzK; arc=none smtp.client-ip=202.12.124.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WpRKStAb"
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-6188b5ae1e8so3766904a12.0
-        for <bridge@lists.linux.dev>; Sat, 06 Sep 2025 05:26:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757161606; x=1757766406; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=GYPCD/NPkTxuL2mcgrjhRFxILZrrbtXYYqo86fwBS9I=;
-        b=WpRKStAb5L+8BjpXbcd5sWKuxmVQ3qhejAt29yAppxGhzNpmufHA4A2LiHsArifFGN
-         za5hMshDDua+eADvgGNR9ZoRT9nCBbPEDi1MazY/DkQl8xRfC2uTUL/89l/QsU6BQeoK
-         vAvF5sbubTWjgdDyiX7Y03jFvf8mdQlFJMdtVGjXIuJQzvGoFgGW85X9Vw5WJwneurR8
-         /clwqwuJ5fx4vUbWXxhwEeWx580LgPb3NHBDc9/lIWrvTfWZKrMwjx33Ct+fOBKK4DDf
-         7NI9B9sfGQvwEKISTkW+klHIs+W4HE7T2nPHjXpGMZAatfRIDtEs8QJDzCB+KAWCXxZ5
-         ImhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757161606; x=1757766406;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=GYPCD/NPkTxuL2mcgrjhRFxILZrrbtXYYqo86fwBS9I=;
-        b=s2oZ9pjgaGEy9XP1PEXDDFz1DiaqX1zItmRL9JhoZSuEPx/UzbqoHZhy9YkCkcHb15
-         WJ0lNTb9yLQWf9kwy5eDrkr4xkqOzbErwJU+7122HuwXZLmizp5boLGBM6eYOMZHMtr1
-         DDmY6e1R6gsfh2/KCCIK/9tCC4hJJeZIcCJeUvahBe+d/aBIg7rIhmVLLxopD2n/MTUQ
-         YDWQJe2Y3U8B52F5LAnIxBflSgt/cClQ3tsnkgwnwJG0kfNeHusU/9hplgxJktQAyqPd
-         J6DSFkwN51JjrdQ+Xw0C3uZ1mXnsuAs5JgbblM3dQYzzyQeJVEyu3neLgXR475GFRrbY
-         6b4A==
-X-Forwarded-Encrypted: i=1; AJvYcCWOE8CQPmbb5HIzCcLjZseR0EDxpNv8Q78mjkFrmooy2uOogBga3IKsSkEJPDmmG/reHL2ERsQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw0fZ3jCVBCJHW8B5Cm7Q5puy/BiVnIJf3tP2ThvUsJxufxLWqc
-	w8twyv/RxVMx18AvTwFqfT2GCi71IKCRWMAnxNJhzRLxRKaqopP0dGiq
-X-Gm-Gg: ASbGncsjwkQPoyxqa0p20V6wbiP+UAw4JMfSFcaQsbUz2rBK0/4SOT6hIO7waEhNqXG
-	kuWEDLiezRC3zVLABwZpKUTs+lbZ+lgJnRvP/xYrApvc0NmNTmQRxYpjXvHO4kZaI1w4Knrqrt5
-	kn6Yq+2QfN/V+vwkYg5nrmdfFLvpXsxmemN0OcC4lDLcBu3RFmsj7LDnoju66pGVk5XP2Id1xGW
-	s4+DNW8yDMUQ0Pf8TFeLJbH/2Hl43dgrruCaYPCvrE/trS1Gxjq8Z5QmHbSvih4P4H3U0yUM9NA
-	Wxr/Qd7c/sN554ZnmjMvHV+bfX2XkhkUnCuDKVEBIv4X2ZZlTMfw8xtloxaTl1zJgtz40LnLJdH
-	hDxZV/K50EXUISqYjefnynNgj9dTDmB7uwa9bwqECZX3yf6JgJZFzy15o30iV5ukkkmiE7TXXiv
-	RZBG0+QoI9RCN6ap789XQa3lOeCDL9S8VvK7CDvTjWBQfozKDfytyp64NQ9SifMvY9MDw7k5wmH
-	ofK+d6ALj1I2VsJvyzAzMB1GMm6yd1oW5MtDLnt5kw=
-X-Google-Smtp-Source: AGHT+IGlmLdeGtuKvTH0MqCFaPfDo0A7tkqYM1S1rxpawOca3ZnjsfsapUwJICz2nhbV/8xz+LeIZw==
-X-Received: by 2002:a17:907:3cc9:b0:b04:6e60:4df1 with SMTP id a640c23a62f3a-b04b17672femr212961366b.53.1757161605812;
-        Sat, 06 Sep 2025 05:26:45 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b042fcae867sm1397299366b.58.2025.09.06.05.26.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 06 Sep 2025 05:26:45 -0700 (PDT)
-Message-ID: <4398dc1f-5454-4e06-806e-34ee02108ce2@gmail.com>
-Date: Sat, 6 Sep 2025 14:26:43 +0200
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="qZg+JVHY";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="bWMquRzK"
+Received: from phl-compute-09.internal (phl-compute-09.internal [10.202.2.49])
+	by mailfout.stl.internal (Postfix) with ESMTP id 045F61D002C2;
+	Sat,  6 Sep 2025 13:42:53 -0400 (EDT)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-09.internal (MEProxy); Sat, 06 Sep 2025 13:42:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1757180573; x=
+	1757266973; bh=Avaw/UT4rW0baoJoTj/4g1D2JRLB5NY0sZE2BPGhPIA=; b=q
+	Zg+JVHYAqs5LTTS7+RqATWqyiBFOOA9r5F4fMThR+9+dLn6UaYeqmUXgeqpEIXA1
+	cofaMh+hhd6/ke8mDOLwtfKgtKiZ8+D6RhUKhjKIGcKeuiCxZKAlmdVqVUOkg1ib
+	eDWn8zIKj4mzebT5MxoREZlF0qaBmr+R0qOyFiHGbUsEE8xB9Rz83qN7aHDzCESl
+	6Yx8jaPsPOOpFlt/QfBicjxjY/HIkPuQhcM/wObkOVTHzFYP5Jm8zLas5U/VpUBY
+	CwMwP1WTAK6cJAzvrOf71Y5Lg4F6eCmXL3BOcJT7lPfwX3kmiFiRMT3ihWWWA+pZ
+	eUr3MlEu8P5EJETC0c1rA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1757180573; x=1757266973; bh=Avaw/UT4rW0baoJoTj/4g1D2JRLB5NY0sZE
+	2BPGhPIA=; b=bWMquRzKCF55ghr4LrbKxbM5/frfNUZyAU5+PTva46RO+rn7SPM
+	fy9tQgcQNCXWmRSSNeD1m0Mdl65FFTtFV2zQyx20E0yGva7+UuHTggfrhU/e+g4B
+	gYJ1VX37My8cyj99mV6NNGYolGVZ1KmE5k0OWD+pjiRdLx58BZXfWbKciN2pEwi7
+	7truExcFynPGMxIVJhMBHpiG6T/2Otk+l3FNqV2g3zmbQpgLIrzE0W2F/l3tN3FJ
+	HiauvJxC6CVysl/+Qjf9zBZZxGb61XsIenhDfLxKcQ5RQiXKGU3zkRmbfMeJ8DYD
+	tc3DCjWkGRmFA2BRdwXeV7ZnfkfNmEKTHWQ==
+X-ME-Sender: <xms:nHK8aFmnRoe-b8xJWVoVQ1wvbPZfKqyIntlfefXCH2Y61vlpQ19XMA>
+    <xme:nHK8aLHpOpRWb4YCL5xs4xnY6V1vIAGwW0ZIRNBeJtlzWJ8D9qgQH5fFIaN-o68at
+    rdowntHPSCmyqhTOzg>
+X-ME-Received: <xmr:nHK8aBEiX5WJHrGFac2s-ISGF61Ph2UgNd6U6K-oVsjDM2g4DTffrJksIoay>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggdduvdegtdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpeffhffvvefukfhfgggtuggjsehttdertddttdejnecuhfhrohhmpefurggsrhhinhgr
+    ucffuhgsrhhotggruceoshgusehquhgvrghshihsnhgrihhlrdhnvghtqeenucggtffrrg
+    htthgvrhhnpeeuhffhfffgfffhfeeuiedugedtfefhkeegteehgeehieffgfeuvdeuffef
+    gfduffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hsugesqhhuvggrshihshhnrghilhdrnhgvthdpnhgspghrtghpthhtohepudekpdhmohgu
+    vgepshhmthhpohhuthdprhgtphhtthhopehlihhuhhgrnhhgsghinhesghhmrghilhdrtg
+    homhdprhgtphhtthhopehnvghtuggvvhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgt
+    phhtthhopehjvhesjhhvohhssghurhhghhdrnhgvthdprhgtphhtthhopegrnhgurhgvfi
+    donhgvthguvghvsehluhhnnhdrtghhpdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhl
+    ohhfthdrnhgvthdprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhmpd
+    hrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehprggsvghn
+    ihesrhgvughhrghtrdgtohhmpdhrtghpthhtohepjhhirhhisehrvghsnhhulhhlihdruh
+    hs
+X-ME-Proxy: <xmx:nHK8aL3mZ4L7lJE18dG3ivKN5VJvaycPWvI65ete3ZPV3qMtKhJKvg>
+    <xmx:nHK8aLej4d05DkeeYSxmn5gqFNVePs3ndq-zyVMwewZTX4t0gJG6wQ>
+    <xmx:nHK8aFLek2w5cm48_-w5TWUsvajTnqF6UiG6K8izJO_lKZapkgpjQg>
+    <xmx:nHK8aJELQig4zEUtRDzWO7k9vU0GzfDVm2s2bSVcrZ1A5buHLGzJ3A>
+    <xmx:nXK8aF70J--ieDHFCxYDYQum_-4ASe0Gd5LqnxzG4ByJHQ-D_2JeoaEs>
+Feedback-ID: i934648bf:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 6 Sep 2025 13:42:51 -0400 (EDT)
+Date: Sat, 6 Sep 2025 19:42:48 +0200
+From: Sabrina Dubroca <sd@queasysnail.net>
+To: Hangbin Liu <liuhangbin@gmail.com>
+Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>,
+	Ido Schimmel <idosch@nvidia.com>, Shuah Khan <shuah@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	bridge@lists.linux.dev, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCHv2 net-next 1/5] net: add a common function to compute
+ features from lowers devices
+Message-ID: <aLxymFjpPjckFb2Q@krikkit>
+References: <20250902072602.361122-1-liuhangbin@gmail.com>
+ <20250902072602.361122-2-liuhangbin@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v14 nf-next 3/3] netfilter: nft_chain_filter: Add bridge
- double vlan and pppoe
-To: Florian Westphal <fw@strlen.de>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
- Jozsef Kadlecsik <kadlec@netfilter.org>,
- Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, netfilter-devel@vger.kernel.org,
- bridge@lists.linux.dev, netdev@vger.kernel.org
-References: <20250708151209.2006140-1-ericwouds@gmail.com>
- <20250708151209.2006140-4-ericwouds@gmail.com> <aG2Vfqd779sIK1eL@strlen.de>
- <6e12178f-e5f8-4202-948b-bdc421d5a361@gmail.com> <aHEcYTQ2hK1GWlpG@strlen.de>
- <2d207282-69da-401e-b637-c12f67552d8d@gmail.com> <aLbuokOe9zcN27sd@strlen.de>
-From: Eric Woudstra <ericwouds@gmail.com>
-Content-Language: en-US
-In-Reply-To: <aLbuokOe9zcN27sd@strlen.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250902072602.361122-2-liuhangbin@gmail.com>
+
+2025-09-02, 07:25:58 +0000, Hangbin Liu wrote:
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 1d1650d9ecff..5c1c8b016c8e 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -12577,6 +12577,82 @@ netdev_features_t netdev_increment_features(netdev_features_t all,
+>  }
+>  EXPORT_SYMBOL(netdev_increment_features);
+>  
+> +/**
+> + *	netdev_compute_features_from_lowers - compute feature from lowers
+> + *	@dev: the upper device
+> + *
+> + *	Recompute the upper device's feature based on all lower devices.
+> + */
+> +void netdev_compute_features_from_lowers(struct net_device *dev)
+> +{
+> +	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE | IFF_XMIT_DST_RELEASE_PERM;
+> +	netdev_features_t gso_partial_features = VIRTUAL_DEV_GSO_PARTIAL_FEATURES;
+> +#ifdef CONFIG_XFRM_OFFLOAD
+> +	netdev_features_t xfrm_features  = VIRTUAL_DEV_XFRM_FEATURES;
+> +#endif
+> +	netdev_features_t mpls_features  = VIRTUAL_DEV_MPLS_FEATURES;
+> +	netdev_features_t vlan_features = VIRTUAL_DEV_VLAN_FEATURES;
+> +	netdev_features_t enc_features  = VIRTUAL_DEV_ENC_FEATURES;
+> +	unsigned int tso_max_size = TSO_MAX_SIZE;
+> +	u16 tso_max_segs = TSO_MAX_SEGS;
+> +	struct net_device *lower_dev;
+> +	struct list_head *iter;
+> +
+> +	mpls_features = netdev_base_features(mpls_features);
+> +	vlan_features = netdev_base_features(vlan_features);
+> +	enc_features = netdev_base_features(enc_features);
+> +
+> +	netdev_for_each_lower_dev(dev, lower_dev, iter) {
+> +		gso_partial_features = netdev_increment_features(gso_partial_features,
+> +								 lower_dev->gso_partial_features,
+> +								 VIRTUAL_DEV_GSO_PARTIAL_FEATURES);
+> +
+> +		vlan_features = netdev_increment_features(vlan_features,
+> +							  lower_dev->vlan_features,
+> +							  VIRTUAL_DEV_VLAN_FEATURES);
+> +
+> +#ifdef CONFIG_XFRM_OFFLOAD
+> +		xfrm_features = netdev_increment_features(xfrm_features,
+> +							  lower_dev->hw_enc_features,
+> +							  VIRTUAL_DEV_XFRM_FEATURES);
+> +#endif
+> +
+> +		enc_features = netdev_increment_features(enc_features,
+> +							 lower_dev->hw_enc_features,
+> +							 VIRTUAL_DEV_ENC_FEATURES);
+> +
+> +		mpls_features = netdev_increment_features(mpls_features,
+> +							  lower_dev->mpls_features,
+> +							  VIRTUAL_DEV_MPLS_FEATURES);
+> +
+> +		dst_release_flag &= lower_dev->priv_flags;
+> +
+> +		tso_max_size = min(tso_max_size, lower_dev->tso_max_size);
+> +		tso_max_segs = min(tso_max_segs, lower_dev->tso_max_segs);
+> +	}
+> +
+> +	dev->gso_partial_features = gso_partial_features;
+> +	dev->vlan_features = vlan_features;
+> +#ifdef CONFIG_XFRM_OFFLOAD
+> +	dev->hw_enc_features |= xfrm_features;
+> +#endif
+
+I'm not completely sure we want xfrm_features for upper devices other
+than bonding [1], but this will get overwritten immediately
+afterwards:
+
+> +	dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
+> +				    NETIF_F_HW_VLAN_CTAG_TX |
+> +				    NETIF_F_HW_VLAN_STAG_TX;
 
 
+[1] those lines in bond_compute_features were only added alongside
+bond IPsec offload, see 18cb261afd7b ("bonding: support hardware
+encryption offload to slaves")
 
-On 9/2/25 3:18 PM, Florian Westphal wrote:
-> Eric Woudstra <ericwouds@gmail.com> wrote:
->>> Thats because of implicit dependency insertion on userspace side:
->>> # ip saddr 1.2.3.4 counter ip daddr 3.4.5.6
->>> bridge test-bridge input
->>>   [ meta load protocol => reg 1 ]
->>>   [ cmp eq reg 1 0x00000008 ]
->>>   [ payload load 4b @ network header + 12 => reg 1 ]
->>>   ...
->>>
->>> So, if userspace would NOT do that it would 'just work'.
->>>
->>> Pablo, whats your take on this?
->>> We currently don't have a 'nhproto' field in nft_pktinfo
->>> and there is no space to add one.
->>>
->>> We could say that things work as expected, and that
->>>  ip saddr 1.2.3.4
->>>
->>> should not magically match packets in e.g. pppoe encap.
-> 
-> FTR, I think 'ip saddr 1.2.3.4' (standalone with no other info),
-> should NOT match inside a random l2 tunnel.
-> 
->>> I suspect it will start to work if you force it to match in pppoe, e.g.
->>> ether type 0x8864 ip saddr ...
->>>
->>> so nft won't silently add the skb->protocol dependency.
->>>
->>> Its not a technical issue but about how matching is supposed to work
->>> in a bridge.
->>>
->>> If its supposed to work automatically we need to either:
->>> 1. munge skb->protocol in kernel, even tough its wrong (we don't strip
->>>    the l2 headers).
->>> 2. record the real l3 protocol somewhere and make it accessible, then
->>>    fix the dependency generation in userspace to use the 'new way' (meta
->>>    l3proto)?
->>> 3. change the dependency generation to something else.
->>>    But what? 'ether type ip' won't work either for 8021ad etc.
->>>    'ip version' can't be used for arp.
->>>
->>
->> Hi Florian,
->>
->> Did you get any information on how to handle this issue?
-> 
-> Did you check if you can get it to match if you add the relevant
-> l3 dependency in the rule?
-> 
-> I don't think we should (or can) change how the rules get evaluated by
-> making 'ip saddr' match on other l2 tunnel protocols by default.
-> 
-> It is even incompatible with any exiting rulesets, consider e.g.
-> "ip daddr 1.2.3.4 drop" on a bridge, now this address becomes
-> unreachable but it works before your patch (if the address is found in
-> e.g. pppoe header).
-> 
-> 'ip/ip6' should work as expected as long as userspace provides
-> the correct ether type and dependencies.
-> 
-> I.e., what this patch adds as C code should work if being provided
-> as part of the rule.
-> 
-> What might make sense is to add the ppp(oe) header to src/proto.c
-> in nftables so users that want to match the header following ppp
-> one don't have to use raw payload match syntax.
-> 
-> What might also make sense is to either add a way to force a call
-> to nft_set_pktinfo_ipv4_validate() from the ruleset, or take your
-> patch but WITHOUT the skb->protocol munging.
-> 
-> However, due to the number of possible l2 header chain combinations
-> I'm not sure we should bother with trying to add all of them.
-> 
-> I worry we would end up turning nft_do_chain_bridge() preamble or
-> nft_set_pktinfo() into some kind of l2 packet dissector.
-> 
-> Maybe one way forward is to introduce
-> 
-> 	NFT_META_BRI_INET_VALIDATE
-> 
-> nft add rule ... meta inet validate ...
-> (just an idea, come up with better names...)
-> 
-> We'd have to add NFT_PKTINFO_L3PROTO flag to
-> include/net/netfilter/nf_tables.h.
-> (or, alternatively NFT_PKTINFO_UNSPEC).
-> 
-> Then, set this flag in struct nft_pktinfo, from
-> nft_set_pktinfo_ipv4|6_validate (or from nft_set_pktinfo_unspec).
-> 
-> NFT_META_BRI_INET_VALIDATE, would call nft_set_pktinfo_ipv4_validate
-> or nft_set_pktinfo_ipv6_validate depending on iph->version and set
-> NFT_BREAK verdict if the flag is still absent.
-> 
-> **USERSPACE IS RESPONSIBLE** to prevent arp packets from entering
-> this expression. If they do, then header validation should fail
-> but there would be an off-chance that the garbage is also a valid
-> ipv4 or ipv6 packet.
+but AFAIU hw_enc_features is only used as a mask over dev->features so
+it shouldn't be a problem to have xfrm stuff in bridge/team as well
 
-I'll try to recap what this would mean for this patch, correct me if I
-am wrong.
-
-'ip saddr 1.2.3.4' should NOT match inside a random l2 tunnel. That
-makes the 'issue' expected behavior. If the user must need to match
-ip(v6) address, it must be solved from userspace, modifying the rule.
-
-This patch (3/3) can be applied as-is, with only one change: remove
-munging skb->protocol.
-
+-- 
+Sabrina
