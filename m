@@ -1,84 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62E8823741;
-	Sun,  7 Sep 2025 00:22:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F7534316E
+	for <bridge@lists.linux.dev>; Mon,  8 Sep 2025 03:20:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757204578; cv=none; b=EsqwkchqNfTOf5H/WMQWzsBG20Tk0SO+rJhDrIDOLWX2M+rfND/EGSEU7fuuv9Ib1T7WyCE0wK2z3shK5JEDEsQJMaY4r4wZU6inuzhX1wvZScwjxaEbyxGAI0/8M7UXWJTOrKSEFujvMW8OxyOpitidO3Fwu4nz66lQhxx3CWk=
+	t=1757301626; cv=none; b=dwnSYTpTdQKe11dq922AQv2OdC2yNSaXfCApyLGA5lrrjV7ea6gXOcbOyW/5GrsqAqewaIYbWIXc/Re+4gfX0Qgje6J2cdVWgEiiiCT0/lSsegrZZIGYALgevc3+NEIxmUEd70zyzIUpbLzxqb6Rt3Qc7IWc/EasJd/cBu7AUL4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757204578; c=relaxed/simple;
-	bh=aznrg/OGqPa40peqPhI3tP0psk9VK9iCdIlKkG+46vI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GbL7fwntjzLpk6z4wxaxZDF3LwhYzK1bns2DEykgOOMRkKJWGk3QK90nRn7LcBPcv767JxTShlFLMMES4keLU+nOeHhx2EYO6HLkfH73w+TcOwmZmtx2sVyTHBByRJo4Dc702+oAtl6RITXTrS/sfOHl/vIJhrJIEhSSKELvgGc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GaONZwU6; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1757301626; c=relaxed/simple;
+	bh=EwhzMYqe1Xj2utRfYFtfhVdLaa1Zk8lRWqZlK5EdRBA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MNPrkrEDLAfNpnebEG5iki0nuXsw8qrYbcWKYonYJE/584iHf7T7pVSwa1CutrpnYCf+4ahjahdHnjf8tltg7ZIAqWPi7TxyjiLH4FMy6V+xsPoGV71WkF+HsNfIRMhmkCkB5IjW1t325HScRgm0Ro2NBSeKX58DUi0sIgLDO9Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kXojNA8g; arc=none smtp.client-ip=209.85.215.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GaONZwU6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48914C4CEE7;
-	Sun,  7 Sep 2025 00:22:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1757204577;
-	bh=aznrg/OGqPa40peqPhI3tP0psk9VK9iCdIlKkG+46vI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=GaONZwU6zwuu1VOquhmYsJzWh0CiaIGsHBgSdV1NNSzAMEDYCQy6uxJgAuU9aUSIZ
-	 FfdnMV55JroPPAPL9dhZbjSkUQ8BY7jk63sp5Wd4nLGI3B5fTlAQPZahN87lq51+fP
-	 DPlIrhK2mZGaymUcUTmjTk9HCNM0onA48zGS9pymkcJiiOShwWD4Iy99nbRh4lDdjp
-	 p0GPyYE2UOSJkyzRWzqYWF5zM0BJLbTNVkxccaBT+zGKbgC7CYIUCRHEwaP2Y9x4j+
-	 mDxj5Gygd6FvDOhm2AXxLtW2hPvqolEColzYiGYNTWVnL9osXnie8LyAIg+P/XZGZD
-	 KJEuNphxM9V2Q==
-Date: Sat, 6 Sep 2025 17:22:56 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Hangbin Liu <liuhangbin@gmail.com>
-Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn
- <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Sabrina
- Dubroca <sdubroca@redhat.com>, Jiri Pirko <jiri@resnulli.us>, Simon Horman
- <horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>, Shuah Khan
- <shuah@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>, Kuniyuki Iwashima
- <kuniyu@google.com>, Ahmed Zaki <ahmed.zaki@intel.com>, Alexander Lobakin
- <aleksander.lobakin@intel.com>, bridge@lists.linux.dev,
- linux-kselftest@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kXojNA8g"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-b4f9d61e7deso2479054a12.2
+        for <bridge@lists.linux.dev>; Sun, 07 Sep 2025 20:20:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757301624; x=1757906424; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2nQuprz9+iPOc6Hdx8EJtvsGxwZd1/+5PLT0+hvaev0=;
+        b=kXojNA8gZefDYRZHe59/xzc9eDq14115wGu1ReJsL4EqaRvWAUJg9HCD6WwHoeCdQt
+         hHXGFYB+HNVnNGb3kzqDQgFMQBo3Emqhv+FBm5qFXAuO40OgvLcQYfQURfkoT2xY9QuM
+         Q2xk5RHGsDxMjOr1RTbkcYNKi7MwvPcAp4UjCOEIKuGi5wBX2upSukquYJYww+jKKgRc
+         SG0hGDBtw+2TFd2WH8wkPys4S0WyHaAylotnSwBpxTZRh6UTaWWJ/RLqbI3+I0/+LtpW
+         LV+7hnmjlkSlcVSY00lqyfYld4mpCj7rFgCzUwVvb30et7Zo8kNosOVrykJywk1rv0nW
+         jYWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757301624; x=1757906424;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2nQuprz9+iPOc6Hdx8EJtvsGxwZd1/+5PLT0+hvaev0=;
+        b=p879Mwr52Ltp1c5c5r+sDSL7J64LqkmaunatlhVO/MFCN0yV9/9IDdzpKwTPfyHCov
+         Os4zX6rX+Z8tejJadldsnUHabN6XuaC65qwCG52waC247ru4pgghdanJlOmgCus0A7cT
+         YIhaPIdrn1YbtgcZ14Q/nXFNkGxwgBDRZmnEvhJ9kKWmcqlEvRT0MojfCXvU2iNEzq3p
+         xlfjsXnbDHPL1trZVUz6iU/u7DVgDZeV9c0sKZmp8C97Ed2ITZOXyCozt3xsZkHD+Bhy
+         /QgRXIg5pthIoostXCw9a1aO+NMl1XOmtxIjXK/lT4flvsT6hGB4mlXV++nCUKTyfy92
+         O8GQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUGbG+GYQjB9bhdT7EiHYzXtvHu2+GddaVhA6Y9sCY2FWJ+ukoynt1E4XAAMKOGQ2Amc031SBU=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyKBe50ViGxgRpOX5rTxpHRXHE2ZmZtbcjcIZ6I9lasafv5Gbj4
+	3oR9pmcixU0RQ06h98Rx3zkbXxn0CIjLQYvUY54aY/GMpyIUvlSBhKb7
+X-Gm-Gg: ASbGncudSnerT32ebYJcm7IreehL2RWDNTLyT++lQuSAKbN/YzN52/zBpaILxc/xpw2
+	VatKGH4nKC1CrG1qoQDFdwmlCkYePppBUtmg4Sh8wO5TZoyWn0UJTkYOmSbzi02E68yALP8NmUU
+	wQFMydzUuBPdUm5J+0pnO4dfS2fjbplF/OYDmLKtX/QmIe++ZwHI0YraFD8tGuDuaC3FNE5aQNy
+	WQbXOIkV6MVohmu9kgoXeDZZUAy7G+rx8GaNsJWRo0M3FZ23i74bFn/C5SqNmVK0dTy01o71v16
+	FY+TEdgGw3eiVp/qzmZxA8wD0Otz/Emkbn4DzFRQ2yl+owwzaih0Dpnij8rWMNQpmeT6C0AB5BA
+	6dlZkNbhWSGa2JJshMBKJiAH0b6GIRu8nEJhhrg==
+X-Google-Smtp-Source: AGHT+IEoSQGXZbGinmecOf/ZXQarNjfG39uhHBUMWGfk8LR5uTWXBfvqzZzxScLZFpwuRvqXf2Wc/g==
+X-Received: by 2002:a17:902:f681:b0:250:74b2:a840 with SMTP id d9443c01a7336-25172483a34mr95832515ad.44.1757301624231;
+        Sun, 07 Sep 2025 20:20:24 -0700 (PDT)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-24af84de7a4sm176247435ad.7.2025.09.07.20.20.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Sep 2025 20:20:23 -0700 (PDT)
+Date: Mon, 8 Sep 2025 03:20:14 +0000
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: Sabrina Dubroca <sd@queasysnail.net>
+Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>,
+	Ido Schimmel <idosch@nvidia.com>, Shuah Khan <shuah@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	bridge@lists.linux.dev, linux-kselftest@vger.kernel.org
 Subject: Re: [PATCHv2 net-next 1/5] net: add a common function to compute
  features from lowers devices
-Message-ID: <20250906172256.1571f8f9@kernel.org>
-In-Reply-To: <20250902072602.361122-2-liuhangbin@gmail.com>
+Message-ID: <aL5LbrPejURWELEo@fedora>
 References: <20250902072602.361122-1-liuhangbin@gmail.com>
-	<20250902072602.361122-2-liuhangbin@gmail.com>
+ <20250902072602.361122-2-liuhangbin@gmail.com>
+ <aLxymFjpPjckFb2Q@krikkit>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aLxymFjpPjckFb2Q@krikkit>
 
-On Tue,  2 Sep 2025 07:25:58 +0000 Hangbin Liu wrote:
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -5279,6 +5279,25 @@ int __netdev_update_features(struct net_device *dev);
->  void netdev_update_features(struct net_device *dev);
->  void netdev_change_features(struct net_device *dev);
->  
-> +/* netdevice features */
-> +#define VIRTUAL_DEV_VLAN_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> +					 NETIF_F_FRAGLIST | NETIF_F_GSO_SOFTWARE | \
-> +					 NETIF_F_GSO_ENCAP_ALL | \
-> +					 NETIF_F_HIGHDMA | NETIF_F_LRO)
-> +
-> +#define VIRTUAL_DEV_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> +					 NETIF_F_RXCSUM | NETIF_F_GSO_SOFTWARE | \
-> +					 NETIF_F_GSO_PARTIAL)
-> +
-> +#define VIRTUAL_DEV_MPLS_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> +					 NETIF_F_GSO_SOFTWARE)
-> +
-> +#define VIRTUAL_DEV_XFRM_FEATURES	(NETIF_F_HW_ESP | NETIF_F_HW_ESP_TX_CSUM | \
-> +					 NETIF_F_GSO_ESP)
-> +
-> +#define VIRTUAL_DEV_GSO_PARTIAL_FEATURES (NETIF_F_GSO_ESP)
-> +void netdev_compute_features_from_lowers(struct net_device *dev);
+On Sat, Sep 06, 2025 at 07:42:48PM +0200, Sabrina Dubroca wrote:
+> > +	dev->gso_partial_features = gso_partial_features;
+> > +	dev->vlan_features = vlan_features;
+> > +#ifdef CONFIG_XFRM_OFFLOAD
+> > +	dev->hw_enc_features |= xfrm_features;
+> > +#endif
+> 
+> I'm not completely sure we want xfrm_features for upper devices other
+> than bonding [1], but this will get overwritten immediately
+> afterwards:
+> 
+> > +	dev->hw_enc_features = enc_features | NETIF_F_GSO_ENCAP_ALL |
+> > +				    NETIF_F_HW_VLAN_CTAG_TX |
+> > +				    NETIF_F_HW_VLAN_STAG_TX;
 
-Isn't this what the ALL_FOR_ALL, ONE_FOR_ALL etc. flag sets were
-supposed to also achieve? Please try to move the new code closer
-to those, both in terms of where they are defined and naming...
+Ah.. right. I need more careful when change the order.
+
+> 
+> 
+> [1] those lines in bond_compute_features were only added alongside
+> bond IPsec offload, see 18cb261afd7b ("bonding: support hardware
+> encryption offload to slaves")
+> 
+> but AFAIU hw_enc_features is only used as a mask over dev->features so
+> it shouldn't be a problem to have xfrm stuff in bridge/team as well
+
+In this case I will keep this setting. Putting the feature compute to
+another function will violate our original intention of putting
+the feature compute together as much as possible.
+
+Thanks
+Hangbin
