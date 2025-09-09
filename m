@@ -1,158 +1,152 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-io1-f77.google.com (mail-io1-f77.google.com [209.85.166.77])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379F8224B1B
-	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 02:55:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBFD52FFDC8
+	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 05:13:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757386501; cv=none; b=foCmDLM0PkpHHo6UrIjhyX3Plfpy7N3Dg6dEjgrhirrm8fabxwuKypkChFc8g2OjtnwXfmVV5YFT7fHyw2qo8cw+cmYByBQXT9NmXt6anOQoZ9deDaN+UYOx91L9Gow5UCaH1mLSWdpQ70ix8IddN9h0bWXtGtpTRxWVCu0KrA8=
+	t=1757394814; cv=none; b=SHXfRkGb3XzIJqNhRcZS6m0c90OdDo/v8QCaruyfQk0vIlcSQ1aUN3RA7/u5U+oiXBzquJvY65BJipY05idmIvkiOIroUrkMOGimjuFrNllZUcorQLMP/Rf9JA4gATpX+4njUtc5qzGVLV3MWkRy3O+jJT4FBXihMYjOExzFkG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757386501; c=relaxed/simple;
-	bh=SODWK8iRJW+Kd8ixS7tgSWOcjpMFP1OafTXxlBzMwMo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JzsNUd9gwZRwxQsK6QhLwt469GNS0Yul2/t9fujYji2rhn5ihnA+zbv80l1LFC4VxIq7bDc5Sl6tnnnyKMDzMi3FdT9jSRZXHfUkY8VH2iURpQeqs17WwY+J+WljjImoP7NQMcoZ52UoODCx+7/71CwPOdY7uBhv1NEo6LS9Jbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YSylk1/8; arc=none smtp.client-ip=209.85.215.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YSylk1/8"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-b4f9d61e7deso3230047a12.2
-        for <bridge@lists.linux.dev>; Mon, 08 Sep 2025 19:55:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757386499; x=1757991299; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=on/vw6koKUQbJCI+KSSCTjkF92ULMha9wVjXRly0E+U=;
-        b=YSylk1/8VSuT/FiSJTw54xMw6Z8RtrH9kKCvK/RjKpyHO6nvOc6L7XmIFusnLVx373
-         EC984V/g5Jzfv3F2fpz8uDHogUCns/QaMNW/Lbg08GPA+izpopkEfFeMiRAliA2T/FHq
-         pllOXw/9j8skEN4b/VwWujo9/XIzZqmzkn49jhgm9BFtqLdExnuPO5waDycgYXqd8g+Y
-         3qx+iZOT0GKvSMIJynCjqOK4T00BVfxMuxPQuZlCtNt36DTpv4byBKFKvWIKm8BTJHqW
-         e6ag2s8jjd47RYGfZNaEOPe2xBFdPUSESQ7IljQRR/iVoDVx7QY2Vnws280nDg/TAzUY
-         3h5w==
+	s=arc-20240116; t=1757394814; c=relaxed/simple;
+	bh=qHBwNJiEIrhAZSsXUk5F3O1/3DlTmok1+B3EGO2k+9o=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=UMPTFB2aoiIwe3RgYougZ5MwcwVkFSn81UP0Fds3Ke0KUWOBlVtQxg4v0OBz39g7c0NngLZPzQqZwLUZ861nidIi/8aursj0QpJ+DLtRhEXdGt3CAzlG2JtwGlU9xCvZALnLfdSqOhJ1pyUCxMGSsYBbkz8ITAR4K7IrMGSZ8Yk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f77.google.com with SMTP id ca18e2360f4ac-88ad82b713cso228938039f.1
+        for <bridge@lists.linux.dev>; Mon, 08 Sep 2025 22:13:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757386499; x=1757991299;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=on/vw6koKUQbJCI+KSSCTjkF92ULMha9wVjXRly0E+U=;
-        b=o+9iIs2yNfV6/hdxfRafzlvdekLg+hIuXpYiegl4zS82/41QkUx46mu30lZsMmVSZQ
-         LdO8iMTanTjflJqwJRk1diSwCTqHaILJVjAby45hEfWfKDOhpPoxP3bX80rlJxKg+2K7
-         1BGzo6gJsc/68YIyNJFWgTuGlpTeya8xR1yU3GhBDTnOgOV5fJ9QBNIsZuNrg1/D2CuZ
-         NkKE0W76tlxKOuzoqIkUSMVh8mjf1nTHjmjA9D8jAng2y2G7pPvSN+pvWaPRrdgiR5gY
-         JPvBXSUBjcNURW1GGICyWxfx1Z8pkP+mcIai85z3MJYXF1MynCRFaynQ2HYrVvcXapdc
-         7NQg==
-X-Forwarded-Encrypted: i=1; AJvYcCX2C/EiQJWAMZuho1xan0xWA/lIfm7Zi1a7vep/Hy8m2IHX42IqEjd1/XuUfnIZyHcnY4fSbGY=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzSv4uadeK5qzVzp+DlT9sktP7Hzdsj1rAUH0XJvnbkTyW5IG9W
-	ocywbgEzATvvP45UovF+PtYV3n7ljyrUZ+xa/OVEoqEqQkXjaupMBHdY
-X-Gm-Gg: ASbGncuafH1Z/SIhll6Jn+wFyH6rB2wifRDMcj2pENadL89CZ2dfDT5M+CboYfYNr9h
-	4LGROtdTn3jDdGh4rfY25+BkUYxBPMEg/t8u2w5vDAB01GLpbbnX+AiI06LRjTa4fV6wZFuQm9S
-	Goe3TMfoyG1SjVqFy3DyjUUpd8DX57Rr9YR+gkqxbBZPyY1jSpiezwLE0dZYssRccGEXei8RVfV
-	YTlkZw1ElO/+pV/dFhvQJnuDohWsKPQG7/6JYH64lXEWcjLinjloOE8e/RC6vC3zmIu+l1H+2qC
-	Qaqv2DdY/FNYuAAV1iMbLcqPIwFVcdRSUCpTnn4dVvbjSZ87l51ltjBwODV9aDgLc2pxB9wxbce
-	5SyXBeQ5H1m1IkMA9GOwOKxVRphIcceZxL4HM/g==
-X-Google-Smtp-Source: AGHT+IG6fQEprMYRmastVBiiyh6tI+QaloXPCDm6oS/Iuu8O/6MRoczfFOWee08VD0/s5rJFKkaB+w==
-X-Received: by 2002:a17:902:d510:b0:24e:9e47:2327 with SMTP id d9443c01a7336-25170f37b63mr143674305ad.30.1757386499327;
-        Mon, 08 Sep 2025 19:54:59 -0700 (PDT)
-Received: from fedora ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-24cccba6624sm127708925ad.99.2025.09.08.19.54.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Sep 2025 19:54:58 -0700 (PDT)
-Date: Tue, 9 Sep 2025 02:54:49 +0000
-From: Hangbin Liu <liuhangbin@gmail.com>
-To: Sabrina Dubroca <sd@queasysnail.net>
-Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>,
-	Ido Schimmel <idosch@nvidia.com>, Shuah Khan <shuah@kernel.org>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	bridge@lists.linux.dev, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCHv2 net-next 5/5] selftests/net: add offload checking test
- for virtual interface
-Message-ID: <aL-W-YdGWOxgpPar@fedora>
-References: <20250902072602.361122-1-liuhangbin@gmail.com>
- <20250902072602.361122-6-liuhangbin@gmail.com>
- <aLyoEiWnuvQ-5ODz@krikkit>
- <aL5YamjbZB5gsL30@fedora>
- <aL6jlYPhsPfDKT8C@krikkit>
- <aL6soY3gEj-LIovi@fedora>
- <aL9PSoTwhn-HFWrH@krikkit>
+        d=1e100.net; s=20230601; t=1757394812; x=1757999612;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=H5peZDX8n96leXmY4994Qh1nagNgXKKzgkojoG9FJrE=;
+        b=PQ/wH+QQ2JclU86KP6hCPJqWxKo1aJ97wNgnmYA42ggVKSmAE1l23WB0/xzEW//BLV
+         +igexndvv4YYQlNsCBgAoc8y+SFIn0/4MtyUR5Z1Qz2s3vDZZFTLeQsr6itTuYmo+PCg
+         8CsKe200XuzFpTMV1RsFfAPLNO53uf3ao9mXjDvHXYtBE8vTRMST5mehgrVJTX3uQp5o
+         hvLXzQcl0sadqP+X7PmjI3bcGesAdPmnmxwR6e3CCm7LPExjSyTBVGxK2tAhvzyZhZTt
+         vLw1ZOBC2BFZsuckD+sfe7RQ9DCQ10smGCr2AGp0zwXDTFPjk5ulVmCngCDNRBpqRTne
+         TZcQ==
+X-Gm-Message-State: AOJu0Yy0G9dbEZ5xLhlMpdSgksBZGUh9FNJFWn9mLAWlSPyWofVtb2jr
+	bG1MnGarp0A7MWnaq+31n5lam95nbIWXv/Nm5sFHQbHAVkBxk0GDGPd+WptCmbs82cs8ymVw9Hn
+	CosbGGkEepzC1VJmAjWFMzv4vSIC6rhh7D+Dz+gfUrILAlWaeVZCyFRxmslkeZA==
+X-Google-Smtp-Source: AGHT+IHzavfrAlBXO5FpzJmMgsLXa1kd+8/ge+pWP6Ec0BswrfdfQswCRq5zCRd1BnH+AP3XtF7CkkYzPn9lcZCV0VwzcSMz9IZ6
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aL9PSoTwhn-HFWrH@krikkit>
+X-Received: by 2002:a05:6e02:218e:b0:3f0:40fd:9d1c with SMTP id
+ e9e14a558f8ab-3fd7f6657bdmr151260385ab.9.1757394811938; Mon, 08 Sep 2025
+ 22:13:31 -0700 (PDT)
+Date: Mon, 08 Sep 2025 22:13:31 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68bfb77b.a00a0220.eb3d.003f.GAE@google.com>
+Subject: [syzbot] [bridge?] [netfilter?] WARNING in br_nf_local_in
+From: syzbot <syzbot+aa8e2b2bfec0dd8e7e81@syzkaller.appspotmail.com>
+To: bridge@lists.linux.dev, coreteam@netfilter.org, davem@davemloft.net, 
+	edumazet@google.com, fw@strlen.de, horms@kernel.org, idosch@nvidia.com, 
+	kadlec@netfilter.org, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pabeni@redhat.com, 
+	pablo@netfilter.org, razor@blackwall.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Sep 08, 2025 at 11:48:58PM +0200, Sabrina Dubroca wrote:
-> > > > After we add the netdevsim to bond,
-> > > > the bond also shows "esp-hw-offload off" as the flag is inherit
-> > > > in dev->hw_enc_features, not dev->features.
-> > > 
-> > > Did you mean dev->hw_features?
-> > 
-> > No, the xfrm_features in patch 01 updates dev->hw_enc_features, not
-> > dev->hw_features.
-> 
-> Ok. But hw_enc_features is not the reason ethtool shows
-> "esp-hw-offload off". This line is:
-> 
-> 	bond_dev->hw_features |= BOND_XFRM_FEATURES;
-> 
-> (from bond_setup)
+Hello,
 
-Ah, there it is. You remind me that I have a bonding xfrm feature patch
-not posted yet.
+syzbot found the following issue on:
 
-> 
-> > Do you think if we should update dev->hw_features in the
-> > patch?
-> 
-> For dev->hw_features (and dev->features) maybe not, since that depends
-> on the upper device's features and implementation. I'm not sure we can
-> have a common function without changing the behavior on at least one
-> type of device.
-> 
-> But maybe ndo_fix_features could use a common
-> netdev_fix_features_from_lowers? bond/team/bridge have very similar
-> implementations.
+HEAD commit:    08b06c30a445 Merge tag 'v6.17-rc4-ksmbd-fix' of git://git...
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=12e3087c580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=b7511150b112b9c3
+dashboard link: https://syzkaller.appspot.com/bug?extid=aa8e2b2bfec0dd8e7e81
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
 
-Thanks, will add this to my todo list.
+Unfortunately, I don't have any reproducer for this issue yet.
 
-> 
-> > > > It looks the only way to check if bond dev->hw_enc_features has NETIF_F_HW_ESP
-> > > > is try set xfrm offload. As
-> > > 
-> > > Was this test meant to check hw_enc_features?
-> > > 
-> > > To check hw_enc_features, I think the only way would be sending GSO
-> > > packets, since it's only used in those situations.
-> > 
-> > Oh.. That would make the test complex. Can we ignore this test first?
-> 
-> Ok for me.
-> 
-> > BTW, I'm a bit lost in the callbacks.gso_segment. e.g.
-> > 
-> > esp4_gso_segment
-> >  - xfrm4_outer_mode_gso_segment
-> >    - xfrm4_transport_gso_segment
-> >      - ops->callbacks.gso_segment
-> > 
-> > But who calls esp4_gso_segment? I can't find where the features is assigned.
-> 
-> inet_gso_segment via inet_offloads[] (ESP is a L4 proto like UDP etc).
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-08b06c30.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/0e152fe53de2/vmlinux-08b06c30.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/5a1bd9f48488/bzImage-08b06c30.xz
 
-Ah, I only saw ipip_gso_segment calls inet_gso_segment, didn't notice
-ipv4_offload_init() also init the callback with inet_gso_segment.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+aa8e2b2bfec0dd8e7e81@syzkaller.appspotmail.com
 
-Thanks
-Hangbin
+------------[ cut here ]------------
+WARNING: CPU: 3 PID: 8841 at net/bridge/br_netfilter_hooks.c:630 br_nf_local_in+0x714/0x7f0 net/bridge/br_netfilter_hooks.c:630
+Modules linked in:
+CPU: 3 UID: 0 PID: 8841 Comm: syz.0.801 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
+RIP: 0010:br_nf_local_in+0x714/0x7f0 net/bridge/br_netfilter_hooks.c:630
+Code: 12 f7 4b f7 90 0f 0b 90 e9 e1 fb ff ff e8 04 f7 4b f7 be 03 00 00 00 48 89 ef e8 87 e8 73 fa e9 39 fa ff ff e8 ed f6 4b f7 90 <0f> 0b 90 e9 dc fd ff ff 4c 89 f7 e8 2c 56 b2 f7 e9 48 f9 ff ff 4c
+RSP: 0018:ffffc9000500efc0 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffffff8a6f9520
+RDX: ffff8880255b4880 RSI: ffffffff8a6f9743 RDI: 0000000000000001
+RBP: ffff88803a6b2900 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000008
+R13: ffff88803a6b29c0 R14: 0000000000000000 R15: ffff88803608d874
+FS:  00007faf552176c0(0000) GS:ffff8880d69b8000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007faf55216f98 CR3: 000000001fa82000 CR4: 0000000000352ef0
+Call Trace:
+ <TASK>
+ nf_hook_entry_hookfn include/linux/netfilter.h:158 [inline]
+ nf_hook_slow+0xbe/0x200 net/netfilter/core.c:623
+ nf_hook.constprop.0+0x3e7/0x6b0 include/linux/netfilter.h:273
+ NF_HOOK include/linux/netfilter.h:316 [inline]
+ br_pass_frame_up+0x307/0x490 net/bridge/br_input.c:70
+ br_handle_frame_finish+0xf5a/0x1ca0 net/bridge/br_input.c:227
+ br_nf_hook_thresh+0x307/0x410 net/bridge/br_netfilter_hooks.c:1170
+ br_nf_pre_routing_finish+0x8a1/0x1810 net/bridge/br_netfilter_hooks.c:425
+ NF_HOOK include/linux/netfilter.h:318 [inline]
+ NF_HOOK include/linux/netfilter.h:312 [inline]
+ br_nf_pre_routing+0xf7b/0x15b0 net/bridge/br_netfilter_hooks.c:534
+ nf_hook_entry_hookfn include/linux/netfilter.h:158 [inline]
+ nf_hook_bridge_pre net/bridge/br_input.c:283 [inline]
+ br_handle_frame+0xad5/0x14b0 net/bridge/br_input.c:434
+ __netif_receive_skb_core.constprop.0+0xa22/0x48c0 net/core/dev.c:5878
+ __netif_receive_skb_one_core+0xb0/0x1e0 net/core/dev.c:5989
+ __netif_receive_skb+0x1d/0x160 net/core/dev.c:6104
+ netif_receive_skb_internal net/core/dev.c:6190 [inline]
+ netif_receive_skb+0x137/0x7b0 net/core/dev.c:6249
+ tun_rx_batched.isra.0+0x3ee/0x740 drivers/net/tun.c:1509
+ tun_get_user+0x28e4/0x3ce0 drivers/net/tun.c:1950
+ tun_chr_write_iter+0xdc/0x210 drivers/net/tun.c:1996
+ new_sync_write fs/read_write.c:593 [inline]
+ vfs_write+0x7d3/0x11d0 fs/read_write.c:686
+ ksys_write+0x12a/0x250 fs/read_write.c:738
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xcd/0x4c0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7faf5438d69f
+Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 f9 92 02 00 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 4c 93 02 00 48
+RSP: 002b:00007faf55217000 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00007faf545c5fa0 RCX: 00007faf5438d69f
+RDX: 000000000000002a RSI: 0000200000000000 RDI: 00000000000000c8
+RBP: 00007faf54411e19 R08: 0000000000000000 R09: 0000000000000000
+R10: 000000000000002a R11: 0000000000000293 R12: 0000000000000000
+R13: 00007faf545c6038 R14: 00007faf545c5fa0 R15: 00007fffb9e76588
+ </TASK>
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
