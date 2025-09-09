@@ -1,273 +1,134 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE89523ABAF
-	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 08:19:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EB0927B4EE
+	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 09:07:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757405984; cv=none; b=ZnTFU98D/oaA1VHA8L0J45PoUZedJGPBcfKjJ8KtVruxNAEQv5+I1/IKIQFeJC1Z8vnH+G21bxCG52Yy1T+fJaPKElsc29vpscCB2KxbsIwenm4O5mJJPoDDI7AMPb33A2g8zJ/hpE0kK5roVG6e01Pih6rXTAd3m3CrcDbojNo=
+	t=1757408870; cv=none; b=LrxmDr3AO7RJSeUEkWszztrK7rUnx/JU8MBECpW3PPzdheU+xsL67OmJGTSBCu2Qy3vrZqNsqFZVmdT6J8nPyH93HPrcACY/v3cCHDoVWB+GQIqAyEPPfsIS6S2TqkTAJOQonIhHzd6jEyVdAnbY8ysLYZmGVAxh6sZq8cxeBAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757405984; c=relaxed/simple;
-	bh=Dgcs8MxHanr/0OJzZegDekRCw8UWXjmqJbMOO/yf2ls=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BJqcIVgoOASaxpxStbc9uf5UDvnjIytKqGzpizjar1Yq7kYhawTevVIoYaBA+TfKVo5/p62LS68fxExP+yuR2++efvbdHUXe2kpy/82xUh9PnD5ub1om78bXc1a8NacSP9Afa8e3wH0w6MbDVYCdsDjPdlERGyTcpYZrRYIrimM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cGOfnFk5; arc=none smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1757408870; c=relaxed/simple;
+	bh=B09GrDM+Gl2PH3qjxQkF8GMC+ho4Vz4J3tbOnPVxw+E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bm0t97fmUgKvWtDL2uPV3RpW0+BxO/lsx74WdtL3OvzW21aViVEcfPucbDJeV0kZkZFJmKkRE6OE53mTFsA/7ZywIVYZWlS6ADZkkS/GGrmZJ/mGXGuerJeaVaOvbpquCEiYptZDv5Fy7aKyApkX5lbm0MrNzPoaKzffTloWNog=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=aLgU6X5O; arc=none smtp.client-ip=209.85.167.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cGOfnFk5"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-b522fbe3088so1334779a12.1
-        for <bridge@lists.linux.dev>; Tue, 09 Sep 2025 01:19:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="aLgU6X5O"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-55f7b6e4145so2761909e87.1
+        for <bridge@lists.linux.dev>; Tue, 09 Sep 2025 02:07:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1757405982; x=1758010782; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2kkYMhRFqiCQOalVGgl3DPBxokTZqQJbI+Err9BZ1ds=;
-        b=cGOfnFk51rPLcxn+GbleBBjJYsOcXcAWQ2H1y8qr0UCU/OFwCYOrEFul0pAxS0B3nk
-         cLDaDppZk9eIC4gmQqhHsgGUq4aUJyssBdH9ulHOeiTYIoP3fGIH2NQFjV7/nqwpx4me
-         LWp7NQyiLTjuXKjxpdeCApsToqQhDkKFd+Qy3I7H65O93MVEqiqq8OZ8uW4nbzer7MAg
-         E+VekS9NIOWJSfmLemiEH0kJx5KUvPHwjPxfxl4aA9RDscGV7ypkTbrEfr2gXaZuzypT
-         tKhk9kqOOPF/gToGW9lWolkUgp9u0VFeBpo5Yf3v7hwkagphfCve+mlDws/XuxwPNjR8
-         bd5A==
+        d=blackwall.org; s=google; t=1757408866; x=1758013666; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aXS1CYgcUklnGpIeCza9yYOT777kwRmP6OwfUG9WUvs=;
+        b=aLgU6X5OvqN04xvaMJmRa/5891l04i6ehpBia2hbUKKem1up0ygmPktw7e9R8AUG9H
+         jNq3v8mDZ5VT3y2ajkXi+O6wFs6YPaVVl/bVXv1FSI2ji8IuYD6X3wSHKrRe6lvil0wV
+         YO0RGMBLPVpbuwJF/vPKnajmL6HVrDiOJnVjfxlrOPcMSXfIF2nURq26SRxDxiZuAaqC
+         hDQ43K4+VsvoZcbpDig+sqdmUw1qpGBLnL+ParxW75TnYy3DmXob8QWCuj1JWcc3grsg
+         rAZ6JEoRzVIn0sEVZFx29F7P77zPdV6Aj3XVTJoz3VLWdDfPLgC0mT9UdVHLAVhpyi4S
+         y7dA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757405982; x=1758010782;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2kkYMhRFqiCQOalVGgl3DPBxokTZqQJbI+Err9BZ1ds=;
-        b=bBeInIJtvMOA5G2PBx+YxxE0TuMojAPw+MDTDzcMpTtjC92VUf1GWPN2IAbR3sGenN
-         UBMQWM2oI4vDr8m3QDnxCy8l0VOfKnKO3nzyJIbnYBk4PBY46/EpE9ZGXp72PXvehBuQ
-         MyjGN5e+qud3xGq/iV6ldr4860uS1U5sewZak+jIZc4AFJK89MvQePysKLdG1ImpO+jW
-         FcDX+GkLTBvZZuPX7f4E2/B1s5rbmJ3uKsz30q0Y4xiTwK3xqN0nY6kJJjvkIno8VKbV
-         9i57NWbwRZJAn9JSY+smGDxdDSLVK7pLWWbEsXUtfZ1B1ZficLjlE+c9rVkVDC2nTcx9
-         Gi4g==
-X-Forwarded-Encrypted: i=1; AJvYcCUuZYvkPvkV/yY+yT7DghoEwpgSEUKLDpQp1OA6Wa9ykjcHP+sMPJ9leGLVg6VLIg6r8LdeX1o=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxA+VmPP5oRjareHbj/V8BDAUUDkhejMhQfH2zIiZ9vFaM9Cb65
-	ZsckalEabnf1HKTtoAAHZBI4Bcw9a+cLiXtIHDQw3/RnRUEaiamYoRaa
-X-Gm-Gg: ASbGncsNBaqdGgTdqWQHUg+rnBIsRn+MJm3YEndQdmhhnJN82pXd26RwejTSSoz1L9g
-	qqq0kWUW2iHVQI2U2WM6jXfUfzipKnvJ6BzHuQtnXAtlTnOn8bnBUXcIMsjubvQXpO3Eu+9GSKw
-	kPnA/TVFF+mEhDVP8VXLXYNN+SokPRbTUp37zcNseksy7KCVQkQp0jAjimUBVqlbIGHVKkijFZ8
-	VDhmjUHlTujVXU4Z2KAtY12afgt1O4DYKbeHplSD20ah7h6JdSW5iTjkP0aZ6bRR56YlaNKIhuT
-	8mp6MbJ04vxMn56HjNSUIKAaxLGQDxSlLlpxMsdn+B767tx4xct4Fl6iwAe5xOgJqErqqpXH8el
-	HGuy9ViOzIXOX4ieqK63stF9j7CPPWF/S0V3Gov1V/oUNuXrCuEj7
-X-Google-Smtp-Source: AGHT+IFPsqO9J0V2j7nWY4KCNV3228rVBXepKIlN3pJACIgkvAeC/KXN1N0FIs6Qijs0xiVKkktqgQ==
-X-Received: by 2002:a17:902:e811:b0:244:5bbe:acdd with SMTP id d9443c01a7336-25179f34dc0mr127684515ad.27.1757405981836;
-        Tue, 09 Sep 2025 01:19:41 -0700 (PDT)
-Received: from fedora.redhat.com ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-24c7ecd9cafsm174370575ad.83.2025.09.09.01.19.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Sep 2025 01:19:41 -0700 (PDT)
-From: Hangbin Liu <liuhangbin@gmail.com>
-To: netdev@vger.kernel.org
-Cc: Jay Vosburgh <jv@jvosburgh.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Sabrina Dubroca <sdubroca@redhat.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Simon Horman <horms@kernel.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Shuah Khan <shuah@kernel.org>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Stanislav Fomichev <stfomichev@gmail.com>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	bridge@lists.linux.dev,
-	linux-kselftest@vger.kernel.org,
-	Hangbin Liu <liuhangbin@gmail.com>
-Subject: [PATCHv3 net-next 5/5] selftests/net: add offload checking test for virtual interface
-Date: Tue,  9 Sep 2025 08:18:52 +0000
-Message-ID: <20250909081853.398190-6-liuhangbin@gmail.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250909081853.398190-1-liuhangbin@gmail.com>
-References: <20250909081853.398190-1-liuhangbin@gmail.com>
+        d=1e100.net; s=20230601; t=1757408866; x=1758013666;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aXS1CYgcUklnGpIeCza9yYOT777kwRmP6OwfUG9WUvs=;
+        b=V2qeUmhtGipLgzOj/cbTPXtXQgS9WlKIaR14OsC2tJ8pG5fATKFjWeZVK7Ndezq2yG
+         yDyD+eWkD55bnN17QQ+sraPgpyNi5eY/ZsvpM7qZDRfR8ei+fLHmJm+g3II1tflrOXkR
+         uZ9VmHtQ27KQUhkQ/qEntlXJyYw6+YDPdRy27S5V6fLw5YOl4mBYqq0S2jNBFVdsnSPG
+         8HlCI6iUqq9LvJ18x3iG5pQt1K3cijiD71+STqkm5ZK8XXvQ+ehj5L4c6D8xXN76x5LB
+         ZeojqPkdFvLcNSkyS1yCFZ63Vd4tPHUiBN57LwggiilcI9CEdwHXOEu7zWWMMmWcwBEL
+         J8uQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWtzDmLleQZyHbG2sD3O8qC1K4TTSagENU5+93ViIawBVxUzHH1VO1GZ16u8prZMTTlmWMpffY=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy+iDgpJERMap3iE1RSWDL4B3IBRb9m9oc5AeUNiuYa4KFMYIo+
+	1f9F8y0lghiRCMQHy9wkZKd8ar/PTxMSYmZ1vtLl/2nLcDISbtW1Xl8bdjkF9ER6fQk=
+X-Gm-Gg: ASbGncvzwNeD5Rofa3/1D76IyfRW3dbu2bEVX3M8tkOTtkS5bybqKqnGY/raUfqgL8N
+	IAYKnGtzVoDIHv64SCYOplLIwNVZIlEiNAjNBdYw5Y8apRqWMFZW6goK3upe+eS+rDLeqdOgO2o
+	BWOeWFjHdxF4QouL2FrROBhOtyVBUbNHm/JiScmE5po84ChWcxB2Qo79SPzK++4+4A3ok94THbA
+	Z5PsL63/5hcSeF+pdOckEHTAZfXzFNwaM2vJpytNr+z7BpBpZ87+pLDbE4/BOwRsvyMlicCaDak
+	yyV7SZTC5AB7ZVAHzmo2u6KdljS/ZrU+ApBsxgC8roXvFGaikNP82NI7zU4x+KRW+bE0ITMBgOv
+	/rT4CTQg49oCjIjS1C3gaE7wn2xRzz25klK68ak8/JZ5iGpSE+13Sh7P+ZLavg/4aVP+GEafHwt
+	XS/w==
+X-Google-Smtp-Source: AGHT+IF1YxMAnlg1qyBzbrHJljZUzCNBwbGGA/25YFm9LDOCgIfpPGjQ5Dcd3urek9oxqCQknz+G1A==
+X-Received: by 2002:a05:6512:130b:b0:55f:3e4d:fb3b with SMTP id 2adb3069b0e04-562637cbf70mr3443518e87.30.1757408866099;
+        Tue, 09 Sep 2025 02:07:46 -0700 (PDT)
+Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5680cfe2496sm394362e87.61.2025.09.09.02.07.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Sep 2025 02:07:45 -0700 (PDT)
+Message-ID: <3213449c-57bd-4243-ac8f-5c72071dfee5@blackwall.org>
+Date: Tue, 9 Sep 2025 12:07:43 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 00/10] bridge: Allow keeping local FDB entries
+ only on VLAN 0
+To: Jakub Kicinski <kuba@kernel.org>, Petr Machata <petrm@nvidia.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ netdev@vger.kernel.org, Simon Horman <horms@kernel.org>,
+ Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux.dev, mlxsw@nvidia.com,
+ Vladimir Oltean <vladimir.oltean@nxp.com>, Andrew Lunn <andrew@lunn.ch>,
+ Jiri Pirko <jiri@resnulli.us>
+References: <cover.1757004393.git.petrm@nvidia.com>
+ <20250908192753.7bdb8d21@kernel.org>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20250908192753.7bdb8d21@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-make sure the virtual interface offload setting is correct after
-changing lower devices.
+On 9/9/25 05:27, Jakub Kicinski wrote:
+> On Thu, 4 Sep 2025 19:07:17 +0200 Petr Machata wrote:
+>> Yet another option might be to use in-kernel FDB filtering, and to filter
+>> the local entries when dumping. Unfortunately, this does not help all that
+>> much either, because the linked-list walk still needs to happen. Also, with
+>> the obvious filtering interface built around ndm_flags / ndm_state
+>> filtering, one can't just exclude pure local entries in one query. One
+>> needs to dump all non-local entries first, and then to get permanent
+>> entries in another run filter local & added_by_user. I.e. one needs to pay
+>> the iteration overhead twice, and then integrate the result in userspace.
+>> To get significant savings, one would need a very specific knob like "dump,
+>> but skip/only include local entries". But if we are adding a local-specific
+>> knobs, maybe let's have an option to just not duplicate them in the first
+>> place.
+> 
+> Local-specific knob for dump seems like the most direct way to address
+> your concern, if I'm reading the cover letter right. Also, is it normal
+> to special case vlan 0 the way this series does? Wouldn't it be cleaner
+> to store local entries in a separate hash table? Perhaps if they lived
+> in a separate hash table it'd be odd to dump them for VLAN 0 (so the
+> series also conflates the kernel internals and control path/dump output)
+> 
+> Given that Nik has authored the previous version a third opinion would> be great... adding a handful of people to CC.
 
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
----
- tools/testing/selftests/net/Makefile        |   1 +
- tools/testing/selftests/net/config          |   1 +
- tools/testing/selftests/net/vdev_offload.sh | 137 ++++++++++++++++++++
- 3 files changed, 139 insertions(+)
- create mode 100755 tools/testing/selftests/net/vdev_offload.sh
+My 2c, it is ok to special case vlan 0 as it is illegal to use, so it can be used
+to match on "special" entries like this. I'd like to avoid the complexity of maintaining
+multiple hash tables or lists just because of this issue, it is not a common problem
+and I think the optional vlan 0 trick is a nice minimal way to deal with it. We already
+have fdb filtering for dumps, but that requires us to go over all fdbs and with
+fdb duplication the local ones alone can be a pretty high number.
 
-diff --git a/tools/testing/selftests/net/Makefile b/tools/testing/selftests/net/Makefile
-index 8c860782f9cd..c77c55677a3a 100644
---- a/tools/testing/selftests/net/Makefile
-+++ b/tools/testing/selftests/net/Makefile
-@@ -119,6 +119,7 @@ TEST_PROGS += tfo_passive.sh
- TEST_PROGS += broadcast_pmtu.sh
- TEST_PROGS += ipv6_force_forwarding.sh
- TEST_PROGS += route_hint.sh
-+TEST_PROGS += vdev_offload.sh
- 
- # YNL files, must be before "include ..lib.mk"
- YNL_GEN_FILES := busy_poller
-diff --git a/tools/testing/selftests/net/config b/tools/testing/selftests/net/config
-index d548611e2698..da4212373b84 100644
---- a/tools/testing/selftests/net/config
-+++ b/tools/testing/selftests/net/config
-@@ -128,3 +128,4 @@ CONFIG_NETKIT=y
- CONFIG_NET_PKTGEN=m
- CONFIG_IPV6_ILA=m
- CONFIG_IPV6_RPL_LWTUNNEL=y
-+CONFIG_NET_TEAM=m
-diff --git a/tools/testing/selftests/net/vdev_offload.sh b/tools/testing/selftests/net/vdev_offload.sh
-new file mode 100755
-index 000000000000..17b89a40a7d3
---- /dev/null
-+++ b/tools/testing/selftests/net/vdev_offload.sh
-@@ -0,0 +1,137 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+# shellcheck disable=SC1091
-+source lib.sh
-+
-+# Set related offload on lower deivces and check if upper device re-compute
-+# Some features are fixed on veth interface. Just list here in case we have a
-+# better way to test in future.
-+set_offload()
-+{
-+	local dev="$1"
-+	local state="$2"
-+
-+	# VLAN features
-+	# NETIF_F_FRAGLIST: tx-scatter-gather-fraglist
-+	# shellcheck disable=SC2154
-+	ip netns exec "$ns" ethtool -K "$dev" tx-scatter-gather-fraglist "$state"
-+
-+	# ENC features
-+	# NETIF_F_RXCSUM: rx-checksum (bond/team/bridge fixed)
-+
-+	# XFRM features (veth fixed, netdevsim supports)
-+	# NETIF_F_HW_ESP: esp-hw-offload
-+	# NETIF_F_GSO_ESP: tx-esp-segmentation
-+
-+	# GSO partial features
-+	# NETIF_F_GSO_PARTIAL: tx-gso-partial (veth/bond fixed)
-+
-+	# Common features
-+	# NETIF_F_SG: tx-scatter-gather
-+	ip netns exec "$ns" ethtool -K "$dev" tx-scatter-gather "$state" &> /dev/null
-+	# NETIF_F_GSO_SOFTWARE: NETIF_F_GSO_ACCECN: tx-tcp-accecn-segmentation
-+	ip netns exec "$ns" ethtool -K "$dev" tx-tcp-accecn-segmentation "$state"
-+	# NETIF_F_GSO_SOFTWARE: NETIF_F_GSO_SCTP: tx-sctp-segmentation
-+	ip netns exec "$ns" ethtool -K "$dev" tx-sctp-segmentation "$state"
-+	# NETIF_F_GSO_SOFTWARE: NETIF_F_GSO_FRAGLIST: tx-gso-list
-+	ip netns exec "$ns" ethtool -K "$dev" tx-gso-list "$state"
-+}
-+
-+__check_offload()
-+{
-+	local dev=$1
-+	local opt=$2
-+	local expect=$3
-+
-+	ip netns exec "$ns" ethtool --json -k "$dev" | \
-+		jq -r -e ".[].\"$opt\".active == ${expect}" >/dev/null
-+}
-+
-+check_offload()
-+{
-+	local dev=$1
-+	local state=$2
-+
-+	__check_offload "$dev" "tx-scatter-gather-fraglist" "$state" || RET=1
-+	__check_offload "$dev" "tx-scatter-gather" "$state" || RET=1
-+	__check_offload "$dev" "tx-tcp-accecn-segmentation" "$state" || RET=1
-+	__check_offload "$dev" "tx-sctp-segmentation" "$state" || RET=1
-+	__check_offload "$dev" "tx-gso-list" "$state" || RET=1
-+}
-+
-+setup_veth()
-+{
-+	# Set up test netns
-+	setup_ns ns switch
-+
-+	# shellcheck disable=SC2154
-+	ip -n "$ns" link add veth0 type veth peer name veth0 netns "$switch"
-+	ip -n "$ns" link add veth1 type veth peer name veth1 netns "$switch"
-+	ip -n "$switch" link set veth0 up
-+	ip -n "$switch" link set veth1 up
-+
-+	link_0=veth0
-+	link_1=veth1
-+}
-+
-+cleanup()
-+{
-+	cleanup_all_ns
-+}
-+
-+setup_bond()
-+{
-+	ip -n "$ns" link set "$link_0" nomaster
-+	ip -n "$ns" link set "$link_1" nomaster
-+	ip -n "$ns" link add bond0 type bond mode active-backup miimon 100
-+	ip -n "$ns" link set "$link_0" master bond0
-+	ip -n "$ns" link set "$link_1" master bond0
-+	ip -n "$ns" link set bond0 up
-+}
-+
-+setup_team()
-+{
-+	ip -n "$ns" link set "$link_0" nomaster
-+	ip -n "$ns" link set "$link_1" nomaster
-+	ip -n "$ns" link add team0 type team
-+	ip -n "$ns" link set "$link_0" master team0
-+	ip -n "$ns" link set "$link_1" master team0
-+	ip -n "$ns" link set team0 up
-+}
-+
-+setup_bridge()
-+{
-+	ip -n "$ns" link set "$link_0" nomaster
-+	ip -n "$ns" link set "$link_1" nomaster
-+	ip -n "$ns" link add br0 type bridge
-+	ip -n "$ns" link set "$link_0" master br0
-+	ip -n "$ns" link set "$link_1" master br0
-+	ip -n "$ns" link set br0 up
-+}
-+
-+do_test()
-+{
-+	local dev=$1
-+
-+	RET=0
-+	set_offload veth0 "on"
-+	set_offload veth1 "on"
-+	check_offload "$dev" "true"
-+	log_test "$dev" "enable offload"
-+
-+	RET=0
-+	set_offload veth0 "off"
-+	set_offload veth1 "off"
-+	check_offload "$dev" "false"
-+	log_test "$dev" "disable offload"
-+}
-+
-+trap cleanup EXIT
-+setup_veth
-+setup_bond
-+do_test bond0
-+setup_team
-+do_test team0
-+setup_bridge
-+do_test br0
--- 
-2.50.1
+The pros are that we don't have fdb duplication (much smaller number of fdbs),
+we use standard bridge infra available to store and find them (the fdb rhashtable,
+with local entries tagged as vlan 0) and code-wise it is pretty simple to maintain.
+This solution has worked for over 10 years at Cumulus, it is well tested.
+
+It needs to be optional though as it changes user-visible behaviour for local fdbs.
+Any other solution would probably have to be optional as well.
+
+And obviously I am biased, so good alternatives are welcome too. :-)
+
+Cheers,
+  Nik
+
+
+
 
