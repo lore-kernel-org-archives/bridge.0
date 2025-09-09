@@ -1,152 +1,132 @@
-Received: from mail-io1-f77.google.com (mail-io1-f77.google.com [209.85.166.77])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBFD52FFDC8
-	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 05:13:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E6B14A4DB
+	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 08:19:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757394814; cv=none; b=SHXfRkGb3XzIJqNhRcZS6m0c90OdDo/v8QCaruyfQk0vIlcSQ1aUN3RA7/u5U+oiXBzquJvY65BJipY05idmIvkiOIroUrkMOGimjuFrNllZUcorQLMP/Rf9JA4gATpX+4njUtc5qzGVLV3MWkRy3O+jJT4FBXihMYjOExzFkG0=
+	t=1757405946; cv=none; b=VpdEtRa9/95KOPjscLWqhQ/E7ttlN+ZRcYwecqb+Pqm8Pdd6XfzRaUfOj+cdrHFpoVut981dI9cECBoXeezcwDvwrM2jy/nuhivLlzsQDDaAWBx5OmBZhKrPYjSU+H87XHo2Xu3Egf1LKYLdcgjlqShBZY5hE+cVuWDN+qZMC9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757394814; c=relaxed/simple;
-	bh=qHBwNJiEIrhAZSsXUk5F3O1/3DlTmok1+B3EGO2k+9o=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=UMPTFB2aoiIwe3RgYougZ5MwcwVkFSn81UP0Fds3Ke0KUWOBlVtQxg4v0OBz39g7c0NngLZPzQqZwLUZ861nidIi/8aursj0QpJ+DLtRhEXdGt3CAzlG2JtwGlU9xCvZALnLfdSqOhJ1pyUCxMGSsYBbkz8ITAR4K7IrMGSZ8Yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.77
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f77.google.com with SMTP id ca18e2360f4ac-88ad82b713cso228938039f.1
-        for <bridge@lists.linux.dev>; Mon, 08 Sep 2025 22:13:32 -0700 (PDT)
+	s=arc-20240116; t=1757405946; c=relaxed/simple;
+	bh=UOs1D2zaTKzVNvaXvVUug3+A+pozaCT5dX8It7FgCbE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=j7xvtSZGvTbW2WejUt+O2dO+3ipT2oWuwMUtIZBayCUGnDFetYE90CvLD8pGcJqSlC7iXmWI+g9pMC1UbaDwhX7nWAE4G881a39e0V9D8/b3DsEsShFuk4rI0H0bVCnK2M3YBD+/tb8aS1GyAMVIdIchecnQWeW6h1Sfcvwjrfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HkwYd3nf; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HkwYd3nf"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2445805aa2eso52087635ad.1
+        for <bridge@lists.linux.dev>; Tue, 09 Sep 2025 01:19:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757405945; x=1758010745; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=UQCVIQ4ZNeoL3O3c1h4pVx8WIYjn5htIpwze/ZKsILQ=;
+        b=HkwYd3nfy/67H4gjB7J58iTmC2aoABwprv5DnyokV8nyEp/ueXVgRPOT/w/2g7y63n
+         LITKDAKi3AsKZOR6+UbehTqed3LpAfPAiCC4OipbW7fKiU12eAq98rz4LB3sfIxm+W0n
+         lrRZTbh9F84pE+jR0++Iq/QVjORJox0PHtI2dlpTMPQ3CQJ+zBOFRR8uHuLgwrOOIrFa
+         Yl8utbDTkX0mm272XEsydGrNSPdv58yy80dQd85ACd+u62hVrA0WPgKQ9gCHwT6FpCr6
+         jEpwnVi7fTD7qIiXdogN4kUB12d5e9a7gcl2HAtw5LYGHTgGPkXLs9CQHCf5d/SbbPLT
+         /GeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757394812; x=1757999612;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=H5peZDX8n96leXmY4994Qh1nagNgXKKzgkojoG9FJrE=;
-        b=PQ/wH+QQ2JclU86KP6hCPJqWxKo1aJ97wNgnmYA42ggVKSmAE1l23WB0/xzEW//BLV
-         +igexndvv4YYQlNsCBgAoc8y+SFIn0/4MtyUR5Z1Qz2s3vDZZFTLeQsr6itTuYmo+PCg
-         8CsKe200XuzFpTMV1RsFfAPLNO53uf3ao9mXjDvHXYtBE8vTRMST5mehgrVJTX3uQp5o
-         hvLXzQcl0sadqP+X7PmjI3bcGesAdPmnmxwR6e3CCm7LPExjSyTBVGxK2tAhvzyZhZTt
-         vLw1ZOBC2BFZsuckD+sfe7RQ9DCQ10smGCr2AGp0zwXDTFPjk5ulVmCngCDNRBpqRTne
-         TZcQ==
-X-Gm-Message-State: AOJu0Yy0G9dbEZ5xLhlMpdSgksBZGUh9FNJFWn9mLAWlSPyWofVtb2jr
-	bG1MnGarp0A7MWnaq+31n5lam95nbIWXv/Nm5sFHQbHAVkBxk0GDGPd+WptCmbs82cs8ymVw9Hn
-	CosbGGkEepzC1VJmAjWFMzv4vSIC6rhh7D+Dz+gfUrILAlWaeVZCyFRxmslkeZA==
-X-Google-Smtp-Source: AGHT+IHzavfrAlBXO5FpzJmMgsLXa1kd+8/ge+pWP6Ec0BswrfdfQswCRq5zCRd1BnH+AP3XtF7CkkYzPn9lcZCV0VwzcSMz9IZ6
+        d=1e100.net; s=20230601; t=1757405945; x=1758010745;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=UQCVIQ4ZNeoL3O3c1h4pVx8WIYjn5htIpwze/ZKsILQ=;
+        b=VQbb1zEJsmBJBxZghecEQhiKwj/wO9MjA24gukAEgqwGkK3YfDx+7v8w37YosQ70CP
+         /XdpM4qxigUxvFM+UJUE/+dsEdL0TkopGKul9kSGEsSSTXt8oaz1mVLD34yEwD1x4nXp
+         HtOPkP8llTP/xBrUd42Dn7fpHJMVv8DyY/SXybH5Sw+JbuSAmHKYkEflFkQFCBW+cyae
+         UcMSXMH1MjHmdEyp1P0X2TF3ChRTfPQU/x/aX8kpVoA/WWtMQXRr8Xsl4mYX8tqN05Oe
+         rDXKCSsh86nEEmVNwmejOev86fHMdnlhQGiP3oFOhevcIOchZ3bwEsXOOselXNO37nFq
+         3Tfw==
+X-Forwarded-Encrypted: i=1; AJvYcCXtHmusY/oBm9x7ARqGajJZxvi5YJSuse6p1HRq584uDOeUzCebdGOBgY0azr/GC6IJX4aBchs=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzA/NR/uTTB1uSLRV+CWvfXI/5EtKGbQSEXVxwOvfALuRtQqqKp
+	xuX95bd3kZaXYV68OspOYSFhyxNgUNXQfI2eNJKyKeM0B8wBvfij57+6
+X-Gm-Gg: ASbGnctJJyjay9TSjr2uiz8t4RxOmV56J8MTbl/Hl3EQoe8MYTB9pGkeN3nIHRWvsTh
+	0yOvvjqycXqygsEUFvUSu8LSxRyLed6SJaEJITN9bSMlpdSKBzTij560q37joOYPwGFh1htTyI6
+	9dHDexR22gsZnPVn233Mbi42eIxG2ljJg6feL9lQ6Zp8TnlGe6jTLBG3iS6pG6N/b1UsOKde9RD
+	FV1g//40PmuldoBLnNxXunmWQThP3ZTs1ugiShO0y+k4OXjJmmsXsWFyI44UuV2YrP8H2fAHIxv
+	YOO7Q1bLaSBjitcudQCTz8SfOgTfjUG60vHF0HIL1O/ixfsC7f8Shzv5XJs4s3KvFDWO2yRBRnW
+	y2XqP5dw6hL6UIOScR+5wKauUeYnoSH/sZA75i/S36giX+q19TplY
+X-Google-Smtp-Source: AGHT+IHOwAF6ey8JXaYopBWq9/Uhe7RT1srRJ5PBZryhDlCcrPMiCboRAz+KtxEzy/adPCaSbItKSw==
+X-Received: by 2002:a17:903:b8b:b0:246:620:a0b9 with SMTP id d9443c01a7336-25176729c6fmr119760875ad.61.1757405944709;
+        Tue, 09 Sep 2025 01:19:04 -0700 (PDT)
+Received: from fedora.redhat.com ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-24c7ecd9cafsm174370575ad.83.2025.09.09.01.18.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Sep 2025 01:19:04 -0700 (PDT)
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: netdev@vger.kernel.org
+Cc: Jay Vosburgh <jv@jvosburgh.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Sabrina Dubroca <sdubroca@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Simon Horman <horms@kernel.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Shuah Khan <shuah@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Stanislav Fomichev <stfomichev@gmail.com>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	bridge@lists.linux.dev,
+	linux-kselftest@vger.kernel.org,
+	Hangbin Liu <liuhangbin@gmail.com>
+Subject: [PATCHv3 net-next 0/5] net: common feature compute for upper interface
+Date: Tue,  9 Sep 2025 08:18:47 +0000
+Message-ID: <20250909081853.398190-1-liuhangbin@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:218e:b0:3f0:40fd:9d1c with SMTP id
- e9e14a558f8ab-3fd7f6657bdmr151260385ab.9.1757394811938; Mon, 08 Sep 2025
- 22:13:31 -0700 (PDT)
-Date: Mon, 08 Sep 2025 22:13:31 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <68bfb77b.a00a0220.eb3d.003f.GAE@google.com>
-Subject: [syzbot] [bridge?] [netfilter?] WARNING in br_nf_local_in
-From: syzbot <syzbot+aa8e2b2bfec0dd8e7e81@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, coreteam@netfilter.org, davem@davemloft.net, 
-	edumazet@google.com, fw@strlen.de, horms@kernel.org, idosch@nvidia.com, 
-	kadlec@netfilter.org, kuba@kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pabeni@redhat.com, 
-	pablo@netfilter.org, razor@blackwall.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello,
+Some high-level virtual drivers need to compute features from their
+lower devices, but each currently has its own implementation and may
+miss some feature computations. This patch set introduces a common function
+to compute features for such devices.
 
-syzbot found the following issue on:
+Currently, bonding, team, and bridge have been updated to use the new
+helper.
 
-HEAD commit:    08b06c30a445 Merge tag 'v6.17-rc4-ksmbd-fix' of git://git...
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=12e3087c580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b7511150b112b9c3
-dashboard link: https://syzkaller.appspot.com/bug?extid=aa8e2b2bfec0dd8e7e81
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+v3:
+a) fix hw_enc_features asign order (Sabrina Dubroca)
+b) set virtual dev feature defination in netdev_features.h (Jakub Kicinski)
+c) remove unneeded err in team_del_slave (Stanislav Fomichev)
+d) remove NETIF_F_HW_ESP test as it needs to be test with GSO pkts (Sabrina Dubroca)
 
-Unfortunately, I don't have any reproducer for this issue yet.
+v2:
+a) remove hard_header_len setting. I will set needed_headroom for bond/team
+   in a separate patch as bridge has it's own ways. (Ido Schimmel)
+b) Add test file to Makefile, set RET=0 to a proper location. (Ido Schimmel)
 
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-08b06c30.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/0e152fe53de2/vmlinux-08b06c30.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/5a1bd9f48488/bzImage-08b06c30.xz
+Hangbin Liu (5):
+  net: add a common function to compute features from lowers devices
+  bonding: use common function to compute the features
+  team: use common function to compute the features
+  net: bridge: use common function to compute the features
+  selftests/net: add offload checking test for virtual interface
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+aa8e2b2bfec0dd8e7e81@syzkaller.appspotmail.com
+ drivers/net/bonding/bond_main.c             |  99 +-------------
+ drivers/net/team/team_core.c                |  78 +----------
+ include/linux/netdev_features.h             |  18 +++
+ include/linux/netdevice.h                   |   1 +
+ net/bridge/br_if.c                          |  22 +---
+ net/core/dev.c                              |  76 +++++++++++
+ tools/testing/selftests/net/Makefile        |   1 +
+ tools/testing/selftests/net/config          |   1 +
+ tools/testing/selftests/net/vdev_offload.sh | 137 ++++++++++++++++++++
+ 9 files changed, 246 insertions(+), 187 deletions(-)
+ create mode 100755 tools/testing/selftests/net/vdev_offload.sh
 
-------------[ cut here ]------------
-WARNING: CPU: 3 PID: 8841 at net/bridge/br_netfilter_hooks.c:630 br_nf_local_in+0x714/0x7f0 net/bridge/br_netfilter_hooks.c:630
-Modules linked in:
-CPU: 3 UID: 0 PID: 8841 Comm: syz.0.801 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
-RIP: 0010:br_nf_local_in+0x714/0x7f0 net/bridge/br_netfilter_hooks.c:630
-Code: 12 f7 4b f7 90 0f 0b 90 e9 e1 fb ff ff e8 04 f7 4b f7 be 03 00 00 00 48 89 ef e8 87 e8 73 fa e9 39 fa ff ff e8 ed f6 4b f7 90 <0f> 0b 90 e9 dc fd ff ff 4c 89 f7 e8 2c 56 b2 f7 e9 48 f9 ff ff 4c
-RSP: 0018:ffffc9000500efc0 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffffff8a6f9520
-RDX: ffff8880255b4880 RSI: ffffffff8a6f9743 RDI: 0000000000000001
-RBP: ffff88803a6b2900 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000008
-R13: ffff88803a6b29c0 R14: 0000000000000000 R15: ffff88803608d874
-FS:  00007faf552176c0(0000) GS:ffff8880d69b8000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007faf55216f98 CR3: 000000001fa82000 CR4: 0000000000352ef0
-Call Trace:
- <TASK>
- nf_hook_entry_hookfn include/linux/netfilter.h:158 [inline]
- nf_hook_slow+0xbe/0x200 net/netfilter/core.c:623
- nf_hook.constprop.0+0x3e7/0x6b0 include/linux/netfilter.h:273
- NF_HOOK include/linux/netfilter.h:316 [inline]
- br_pass_frame_up+0x307/0x490 net/bridge/br_input.c:70
- br_handle_frame_finish+0xf5a/0x1ca0 net/bridge/br_input.c:227
- br_nf_hook_thresh+0x307/0x410 net/bridge/br_netfilter_hooks.c:1170
- br_nf_pre_routing_finish+0x8a1/0x1810 net/bridge/br_netfilter_hooks.c:425
- NF_HOOK include/linux/netfilter.h:318 [inline]
- NF_HOOK include/linux/netfilter.h:312 [inline]
- br_nf_pre_routing+0xf7b/0x15b0 net/bridge/br_netfilter_hooks.c:534
- nf_hook_entry_hookfn include/linux/netfilter.h:158 [inline]
- nf_hook_bridge_pre net/bridge/br_input.c:283 [inline]
- br_handle_frame+0xad5/0x14b0 net/bridge/br_input.c:434
- __netif_receive_skb_core.constprop.0+0xa22/0x48c0 net/core/dev.c:5878
- __netif_receive_skb_one_core+0xb0/0x1e0 net/core/dev.c:5989
- __netif_receive_skb+0x1d/0x160 net/core/dev.c:6104
- netif_receive_skb_internal net/core/dev.c:6190 [inline]
- netif_receive_skb+0x137/0x7b0 net/core/dev.c:6249
- tun_rx_batched.isra.0+0x3ee/0x740 drivers/net/tun.c:1509
- tun_get_user+0x28e4/0x3ce0 drivers/net/tun.c:1950
- tun_chr_write_iter+0xdc/0x210 drivers/net/tun.c:1996
- new_sync_write fs/read_write.c:593 [inline]
- vfs_write+0x7d3/0x11d0 fs/read_write.c:686
- ksys_write+0x12a/0x250 fs/read_write.c:738
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xcd/0x4c0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7faf5438d69f
-Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 f9 92 02 00 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 4c 93 02 00 48
-RSP: 002b:00007faf55217000 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 00007faf545c5fa0 RCX: 00007faf5438d69f
-RDX: 000000000000002a RSI: 0000200000000000 RDI: 00000000000000c8
-RBP: 00007faf54411e19 R08: 0000000000000000 R09: 0000000000000000
-R10: 000000000000002a R11: 0000000000000293 R12: 0000000000000000
-R13: 00007faf545c6038 R14: 00007faf545c5fa0 R15: 00007fffb9e76588
- </TASK>
+-- 
+2.50.1
 
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
