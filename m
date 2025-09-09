@@ -1,66 +1,67 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D409129E11E
-	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 09:19:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D77C6274B5D
+	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 09:21:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757409599; cv=none; b=Ei5+b9eT7D+eOq0EZhYTjcwtEc3vOAo1LZqYNWS3VrM7NW2MllHLe8czQ3IZBb2cbkMx3hujQ2bgMvu0nvbEX+8qpEfumaS11OnJAp7tBJr/sVZPtAiKtNoU381zDbxiJ76KvLY3isHPXuI5yNhQxqb4eu9G3vxQbP9wDndnA0o=
+	t=1757409667; cv=none; b=lQTUF8nWwSVeJtjJe9NmhZP9IhjDw7XXxafHT0zfXPurR07OJDGbTUNWs0DKHQGoUxadh0ijUt0jTNR7Zeogtew68VatfBOPh9C62zpNrgIkKQr4XIOtksnMOVZU3ZP31Q9fbdU5xpi6LjG42C9iszAjZ1ijwUSnWQoYQ5ihBBw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757409599; c=relaxed/simple;
-	bh=PZ0Fgxr1V6+9ghg4MKas+B5ujQdsZmxWeDfhsHJYHds=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=YLKAYzGOxwZ4wfZXGQwYcBfVGJb2iuXYPYrVlU1rQG8sQ5X/BsT7Vbkfrg9QD1y69+rodAwy5iR1r6uxsoOOMyWujLirWANwveIvFn6/ecmcfKF4lYOnpMKJz7hSmReW/ypvCM/taJkE1TlYEv5dvYEmHwDiDOhOWVMjR/QSbbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=ig67pvNP; arc=none smtp.client-ip=209.85.167.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1757409667; c=relaxed/simple;
+	bh=WuzPPifEQj9HHVMmiWcrGA+eJ4Bw5fBh6CnZszj0M4k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=a53kbGS0JVCT4UaRCHfGnCUlDGikaYJvVnM2WHVil1r27HeEsl3Qgt4lFwrjoLOP/eVXubJCIzi+0+z4acMrKbe88/x/ZiHQdREcW7YljdSwN+873IlXMODl4FYCpLWq5r6e2Fc9geD9VY62I/GKIDEYutCmS32vvYWQo5Fj0ZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dgftYvy8; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="ig67pvNP"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5608b619cd8so6408277e87.2
-        for <bridge@lists.linux.dev>; Tue, 09 Sep 2025 02:19:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dgftYvy8"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-afeec747e60so1000225566b.0
+        for <bridge@lists.linux.dev>; Tue, 09 Sep 2025 02:21:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1757409596; x=1758014396; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=brw5dOQ5UUDO/Fh89VIdK0n0tzjKtkES6VDBwZFpE38=;
-        b=ig67pvNP6nsbAWC1UvojKbl17TeFtl5Oo/o/6Ae8ouv4+Ocz7oAg1MRC+S7QZqLlDC
-         qz1kTtKL79hoRL8fLeV8iZEy5oRzPZbvGNkbR9l8ZNYO8mSYbgepM2mEwkF8A+S8sbF3
-         AldLtzUG/qKD0PPZ78wzrRxT3tnZ46jB+k0hiABX6fcU71lXz2kVigMwtH9rMIrn+7Gi
-         ac9z7vy1YF7jhZkM921P4ZIeW0ygfe5WsVcQB8hbDUaoeuMad5KCHXwzMngHN96CyiWK
-         tt+myhD8zWuDsSY8mu7dL08g8dHLI/JMXZLLhY99h5jx2IfeYNWujQ83cXzLhgxpKG8f
-         71Ug==
+        d=gmail.com; s=20230601; t=1757409664; x=1758014464; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=I2plwHTeZpARhSkuJ9Y2jpaZ80nzRFMhPMwl83KVZn8=;
+        b=dgftYvy8HBPKcHlzG4P4tfTgOS0CwW8r24EHfr4REt7nJY26WiSFKd1M+y3q30XY82
+         63isI8lRScLClyGzqHLv/pGC+TCvU8dFnFewIDiJwPfSGd3Q91htSPGkh+ZTSLv0fxg5
+         vRqv+6tq7mI2TBQLps2fkZl/ZHewEFWijRPwa65dXa2bJjLiBiItIuT4z7mwIHu8tw3P
+         Es1ksfTHHZ6wp9amOlssxpMdSLKuziFCMWiSUvwrTiwCSHGZemVNT0DKFwKeEgI2Pg4K
+         nxFhIbETc/OMR/3EgIdGr5cRyqWYCmd1ztkTGx3pOOpndmnJokeYgT9sYYM96aZxTpqB
+         5GZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757409596; x=1758014396;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1757409664; x=1758014464;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=brw5dOQ5UUDO/Fh89VIdK0n0tzjKtkES6VDBwZFpE38=;
-        b=wtTiwUe55nTH91tkLA4EtAdR3Xkh2b3CauATkdkX+QAP0RVtstKRSJMSsTvpY8RA3m
-         Bu+dtVlGc+y2FmW4tSUtPsa17RHzIxllii9aY8S55a2ftAfn6VPlWJAQydH0WorHflGE
-         99+uRGal3VvOvsWSKTRnotrhfF5lwwRAJSYXnFjMXPX9ykDmW7oYpw8jY2dHTnuV83w6
-         +XuZhO2ReFOWW4LOJsDmPiIzXjj5ZASvWfumD4qpQDXdutldDq+42SM5vcYYDpTjKd+v
-         Ovpeeq23ay06gSCnc5BOO613DdoRIQxdt1hE8z047MBMavrz96RJf/Q72Mp1wnECG3OT
-         jH5w==
-X-Forwarded-Encrypted: i=1; AJvYcCW8ZJPKAyoAiS+amWh/r2aJLgQdtilAu2Ddvr2lkyH+DAwSQD3MfGjgk2HoYLMCbx1zvU9xkU0=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy8tgdn58eH9OZBLtpUNAYQ5xraAKbU5lqrL54T206T/6fLQxxz
-	sJyOzYIVveXydaPidLPKY6Mk2XQBambK3PayXGeSaJJ7v89X1H63e6rdQsUeTWTLaEw=
-X-Gm-Gg: ASbGnctiWQdf3I70bQGEI8FUj3nDUkxCPfPVyggnc7B0DWIL9bwmapntNf11jucm8SI
-	BKbKPVh8hON8zB0dPxLyvLspSXB8XM4eSBfhkiVVBRt5AtQfR4DseuWWP1tCtTTpFqm8UBdAlS3
-	N4XJOE+uDd2iFVl1oQe12Uw+VNgaZ/qbcgw8ZVVqFJDxTXPj5CgvYqhySwfS0X279vlcA1bkDUP
-	KCy0PZR5H16djfkiKlYwGXaep4qWyCoqYsAVLJmHJnodr9O6+99RVNWIz8PV9W2ygrCMRwv3gqK
-	NVomKj2ViGzUVcNLC7VJ/0M/SjiKIBbTCa8z8KEMPZz+iTGPCLLmHPwg568Lij37hzHSPbSSGkV
-	TeHtwb6qrWR7j2lQMA6wLBSmKFxkn3LBTdrjmpDp3zA9TZM1XWmZZ8wUCxs4zeiq7Ot5fhPhHOM
-	KIXQ==
-X-Google-Smtp-Source: AGHT+IGyXyEnXPt/zd9SI74zODDrmgjcXDOuyeeX4wNZw6PtAsT0SI11XMnWl3GBdKlBp+qsLE74cg==
-X-Received: by 2002:a05:6512:3da2:b0:568:8ac2:f18f with SMTP id 2adb3069b0e04-5688ac2f457mr565954e87.30.1757409595617;
-        Tue, 09 Sep 2025 02:19:55 -0700 (PDT)
-Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5681795d633sm389344e87.68.2025.09.09.02.19.54
+        bh=I2plwHTeZpARhSkuJ9Y2jpaZ80nzRFMhPMwl83KVZn8=;
+        b=d2DVWQDpLmXqJ8Qsk7p9AdRZrxwRwigXxGxlLkr14YtcSZ6bPdbBZItpUrvj29IVmp
+         E14KHcwDtnzvQpNqiNZzByzIngzG/nhk9WI6d9qRk8JFkmgFRDveJ4Zdo5arY6Br2nOu
+         xq8MlYW/gqfxoIR+1YSwT8+0jnj0KVvWYsU/3IbX/XryX7hFxIrhQ2iq1q7QqcSsniON
+         icfnrJUrAHkhRoRi6yE+Rps4rAckr3JSJyz6CFF9kEfB68eb2Z9QvL5I3oxTNwE3+tSH
+         z0bhJBIolh8dazQzg6yXYVHYukZBWXX7M/Ys3UqI49H4URC6V6sOX/MG676d0+DMLP3n
+         wMng==
+X-Forwarded-Encrypted: i=1; AJvYcCW4UBfWkH5u1ajM+DFrhvBZSusZ1mkOmaDTtUL2x/kNqRNgUgRkobOoXuiTcRFvxL76fwo2j34=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxRe8vLUPqbHRnGRUvofNTSSkpkbcSqzL8xpjwiEoXyukn807Ne
+	MP74cAvgy5Q7s+F75putEJEHwJm+gHGia2/1VJh09GwjIFFLWc+KVKb3
+X-Gm-Gg: ASbGnctAbdzivHQdeJNp4hB9nvnqTpNTfu3bGMajYgun38P9OTMsr4VTDYak7dQkTnV
+	ilfk8RcHNkcLj9xBWUMdKzy27CpzuGBWHSE3MZFFtq2VkOJjG4ItOM/5VLYZx6UkYaJ4Zue5a2C
+	K5vBev7Ja4qRVGua4uhrL0eiHVTjjp8flMt8wcJ7CwcCo66lipqwxlwJCom+OJtuOjdghGmafwJ
+	xwTlODuHFOiAJQSgleC1UlTb0xNs3jOwxqs29209CJYChbpl0wfp+A5ijlVNtP+1VmqrWXoKkAf
+	Gf/DFVUBQXVb39K1o2k96rj+VGE8FkYP52I8wk8Y1lpzjke99rlZbn9LWUR2L5TL9ZWN4612qwP
+	HHMLB5fE6EopGryp3UmDjlv7yWTX+eOal5aOp+l7yWxno0DYrkQm7XzHfjYZQHw9bDgraI9Ggi5
+	s5kaUrlcxYftnr5Oc/6peKGp2na6h9p5+Mu5kOn5i6dkSt4dOl5L3rpr6LbclmeZyXSQ86Ih4lv
+	O4cSRKF3J7F8O8MiuYF0KArMP77tlGGvUsZBj3HKLQ=
+X-Google-Smtp-Source: AGHT+IGS/aJ996YKDZSFeqCFIy50lExzH/QqxhiTSTzJ51+0XLvp+rrAxwtXLJPKmlt+0wvatIZOCg==
+X-Received: by 2002:a17:907:1c8c:b0:afe:ed71:80aa with SMTP id a640c23a62f3a-b04b16d6406mr1209586266b.57.1757409664029;
+        Tue, 09 Sep 2025 02:21:04 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-62bfe99ffcbsm904264a12.3.2025.09.09.02.21.03
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Sep 2025 02:19:55 -0700 (PDT)
-Message-ID: <382bb1dd-47ba-445c-a13d-0d96312a756b@blackwall.org>
-Date: Tue, 9 Sep 2025 12:19:52 +0300
+        Tue, 09 Sep 2025 02:21:03 -0700 (PDT)
+Message-ID: <5334812c-37cb-42fa-9d53-402cf3d63786@gmail.com>
+Date: Tue, 9 Sep 2025 11:21:02 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -68,74 +69,65 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 00/10] bridge: Allow keeping local FDB entries
- only on VLAN 0
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: Jakub Kicinski <kuba@kernel.org>, Petr Machata <petrm@nvidia.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org, Simon Horman <horms@kernel.org>,
- Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux.dev, mlxsw@nvidia.com,
- Vladimir Oltean <vladimir.oltean@nxp.com>, Andrew Lunn <andrew@lunn.ch>,
- Jiri Pirko <jiri@resnulli.us>
-References: <cover.1757004393.git.petrm@nvidia.com>
- <20250908192753.7bdb8d21@kernel.org>
- <3213449c-57bd-4243-ac8f-5c72071dfee5@blackwall.org>
+Subject: Re: [PATCH v14 nf-next 3/3] netfilter: nft_chain_filter: Add bridge
+ double vlan and pppoe
+To: Florian Westphal <fw@strlen.de>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
+ Jozsef Kadlecsik <kadlec@netfilter.org>,
+ Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, netfilter-devel@vger.kernel.org,
+ bridge@lists.linux.dev, netdev@vger.kernel.org
+References: <20250708151209.2006140-1-ericwouds@gmail.com>
+ <20250708151209.2006140-4-ericwouds@gmail.com> <aLykN7EjcAzImNiT@strlen.de>
+From: Eric Woudstra <ericwouds@gmail.com>
 Content-Language: en-US
-In-Reply-To: <3213449c-57bd-4243-ac8f-5c72071dfee5@blackwall.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <aLykN7EjcAzImNiT@strlen.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 9/9/25 12:07, Nikolay Aleksandrov wrote:
-> On 9/9/25 05:27, Jakub Kicinski wrote:
->> On Thu, 4 Sep 2025 19:07:17 +0200 Petr Machata wrote:
->>> Yet another option might be to use in-kernel FDB filtering, and to filter
->>> the local entries when dumping. Unfortunately, this does not help all that
->>> much either, because the linked-list walk still needs to happen. Also, with
->>> the obvious filtering interface built around ndm_flags / ndm_state
->>> filtering, one can't just exclude pure local entries in one query. One
->>> needs to dump all non-local entries first, and then to get permanent
->>> entries in another run filter local & added_by_user. I.e. one needs to pay
->>> the iteration overhead twice, and then integrate the result in userspace.
->>> To get significant savings, one would need a very specific knob like "dump,
->>> but skip/only include local entries". But if we are adding a local-specific
->>> knobs, maybe let's have an option to just not duplicate them in the first
->>> place.
->>
->> Local-specific knob for dump seems like the most direct way to address
->> your concern, if I'm reading the cover letter right. Also, is it normal
->> to special case vlan 0 the way this series does? Wouldn't it be cleaner
->> to store local entries in a separate hash table? Perhaps if they lived
->> in a separate hash table it'd be odd to dump them for VLAN 0 (so the
->> series also conflates the kernel internals and control path/dump output)
->>
->> Given that Nik has authored the previous version a third opinion would> be great... adding a handful of people to CC.
+
+
+On 9/6/25 11:14 PM, Florian Westphal wrote:
+> Eric Woudstra <ericwouds@gmail.com> wrote:
+>> +	__be16 outer_proto, proto = 0;
+>>  	struct nft_pktinfo pkt;
+>> +	int ret, offset = 0;
+>>  
+>>  	nft_set_pktinfo(&pkt, skb, state);
+>>  
+>>  	switch (eth_hdr(skb)->h_proto) {
+>> +	case htons(ETH_P_PPP_SES): {
+>> +		struct ppp_hdr {
+>> +			struct pppoe_hdr hdr;
+>> +			__be16 proto;
+>> +		} *ph;
 > 
-> My 2c, it is ok to special case vlan 0 as it is illegal to use, so it can be used
-> to match on "special" entries like this. I'd like to avoid the complexity of maintaining
-> multiple hash tables or lists just because of this issue, it is not a common problem
-> and I think the optional vlan 0 trick is a nice minimal way to deal with it. We already
-> have fdb filtering for dumps, but that requires us to go over all fdbs and with
-> fdb duplication the local ones alone can be a pretty high number.
+> Maybe add nft_set_bridge_pktinfo() and place this
+> entire switch/case there?
 > 
 
-And just to make sure it is clear - usually we are talking about a low number of fdb entries
-(w/o duplicates), IIRC up to 100 in most cases.
+Ok. At the end of nft_do_chain_bridge() I've added (after removing
+skb->protocol munging):
 
-> The pros are that we don't have fdb duplication (much smaller number of fdbs),
-> we use standard bridge infra available to store and find them (the fdb rhashtable,
-> with local entries tagged as vlan 0) and code-wise it is pretty simple to maintain.
-> This solution has worked for over 10 years at Cumulus, it is well tested.
+	if (offset && ret == NF_ACCEPT)
+		skb_reset_network_header(skb);
+
+To reset the network header, only when it had been changed.
+
+Do you want this helper to return the offset, so it can be used here?
+Or do you think it is more clean to always reset the network header like so:
+
+	if (ret == NF_ACCEPT)
+		skb_reset_network_header(skb);
+
+(Same question for nf_ct_bridge_pre())
+
+>> +		skb_set_network_header(skb, offset);
 > 
-> It needs to be optional though as it changes user-visible behaviour for local fdbs.
-> Any other solution would probably have to be optional as well.
-> 
-> And obviously I am biased, so good alternatives are welcome too. :-)
-> 
-> Cheers,
->   Nik
-> 
-> 
-> 
-> 
+> I assume thats because the network header still points to
+> the ethernet header at this stage?
+
+That is correct.
 
