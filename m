@@ -1,100 +1,98 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
+Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE39232A3D7
-	for <bridge@lists.linux.dev>; Wed, 10 Sep 2025 14:29:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4BCE22EE5
+	for <bridge@lists.linux.dev>; Wed, 10 Sep 2025 14:57:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757514584; cv=none; b=BAaw3HSxxmJh7znwotvavyWald/YbR8CY6rIQBy5rOePdLAEoLRsMBRZIBh/XHn6kljQvzaxYoAwEKmSfB6ZqRiyh/hwlJOvp17nNmrrehNwmwanIcrISVywEOmpoUjdxXHM/0U5A+/t28TCdAZejfoQ35ao2uDQJTVpJCqUxzQ=
+	t=1757516280; cv=none; b=m6ecqS4YhJMboQ7W6Ne7nvCtKjHoieNP+Z/ZwcspE8Ndj0zNqSmNH7QkfwOEObIa2SJP6+9240k1B4IgAGk53ZRCEbo8s0scfUnq8akUjYBDHp4uZxxFGZb+LVQOvGRYLcZYUJ+w26yK3tBL9tfdVSBvStMcBvt4YzbQblmiPfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757514584; c=relaxed/simple;
-	bh=cnhOwN9VcUf2Rz3l2C247ElIZrWqheCGQnJMuTwAZzA=;
+	s=arc-20240116; t=1757516280; c=relaxed/simple;
+	bh=Vln8dfg2bHZWodEg9nnmVYDAn8PzYG29tHd56gGL644=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V/dnrWkg2l+nc9Fkl/x9yW12cMS93xZWD/dtG84VeI8/W7zvQcWsDkrKQacVNeTTeH/OiPpeNvq2PhL4zOa+Uv9SK6uVEiGHcvUW7pr4wij4uPOylqor8aeF+qQxZcIkCg1zS6oW+dLoLmmioLXQQDzf9FzQ03h9tIUzFPc5I2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=Q8n65ogE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=hlM66NJL; arc=none smtp.client-ip=202.12.124.158
+	 Content-Type:Content-Disposition:In-Reply-To; b=fxf3FUIIrdx+ozgzw3m7Am9zq0cSh5L0ou+/pgf62jPsFs0aqEHEHK7B97RAO+ptcdgrnMa+P1ohBAPdXLtQzUWZdrtI9CC9/a+MMKarBz4L6jrjIwjRsmCtRG2B+QM+/Otuc9oNmuby9dB3A7613KTjGlakPk6xvrCJ+HoLlMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=sETkKnpY; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=CWpMje03; arc=none smtp.client-ip=202.12.124.149
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="Q8n65ogE";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="hlM66NJL"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 820CB7A00BD;
-	Wed, 10 Sep 2025 10:29:39 -0400 (EDT)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-01.internal (MEProxy); Wed, 10 Sep 2025 10:29:40 -0400
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="sETkKnpY";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="CWpMje03"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.stl.internal (Postfix) with ESMTP id 8B9101D0010A;
+	Wed, 10 Sep 2025 10:57:57 -0400 (EDT)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Wed, 10 Sep 2025 10:57:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
 	 h=cc:cc:content-type:content-type:date:date:from:from
 	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm2; t=1757514579; x=
-	1757600979; bh=biJc7z4/7ue8YKkVq7n3iWeGn8gkGXy/6MAB1eB6pa8=; b=Q
-	8n65ogEuz8cbOZVNXReIB442lNFc7eRgJpIE2LSxfp9pxE30QZNRZyc48S0DPyFQ
-	gWngSklMIR4GC05VtkrK4JAbhay8CtOso1yxk2REvy2fLx5jSNCEJdErDyyjLxdv
-	YXkQBkirscuW8z0P+cSJjkdoVS4VFQ7rlZJ3i1Zkm1OIW3rcLMF/tU42n8qN6n7h
-	8mmk8caCRSkAVK8I646JPP00xg77u4ccFl6NPFhNgWZ2db/PqJHL9Qo4348q6WI2
-	zBAlfPwcXQHxITuYH9msMzk+gEZ1JQZCsMXKn9TGSYO9rVuMzHLWD1IfoRACedwy
-	bzDtgcpw5UJEEB+yOAIqQ==
+	:reply-to:subject:subject:to:to; s=fm2; t=1757516277; x=
+	1757602677; bh=fj2WWlUvdozMy73vBjpbx8CvlLfiX/DewG58TQUw/5s=; b=s
+	ETkKnpYjusLWEXoNeNa85hC3l2VxvioJqMnlZncO4mSdlN+Wy+p5+Ptj8gHUegFo
+	raapCNQ5PC/o3QDw348mEcBfPaEUZIHjrKTxqiDThr7tfBM2WjTaR8auX+H6xmH1
+	zXg1NNnFxlACbJyvM3Bmaz8uS2YluiGNZbMpIzc5E/E6Q3vEyYd8R/IuDnslBdiS
+	/bvuf7U/GrH8k7jBRCBQMyAQ99JW62xuO35nn0CIfqRJZWzBB+aIvUCnOiYouY1c
+	UwE2+xwwuxIFjZPCokJV7OQmM7KEqILW5xNLFUAhaBioHaDttHVqqyRkavgsvTIr
+	+LAfQNeoo5W8NYP1v/pIw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-type:content-type:date:date
 	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
 	:message-id:mime-version:references:reply-to:subject:subject:to
 	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1757514579; x=1757600979; bh=biJc7z4/7ue8YKkVq7n3iWeGn8gkGXy/6MA
-	B1eB6pa8=; b=hlM66NJLn5F8F64eNUMPtO13I8/bQh8jbdPW98EB/xQ7lJBpoX4
-	efvYZRilnMXTgfAQ8cbZPPC+Cg7YW0gZH95ao3RPsF/IjVWzqEG+0anoOTUVJSKX
-	FFmDhidAM2737QafQYzUT5KB+OdvZ0+GlFXnNhT9x152wADmOPcB1oI0xojIzY2q
-	FVZ8fRTZSH54NmcRg0Q4lpAgJzVkEqD5PfewztkyvFFNPBpVRNxiiORolBGVk/6X
-	rkoCWgi53wXG9eXOYOwS0uvEKhmT292qordbLMNiE70FVl00sbzLhvqMrFNiHgF/
-	8y8PX0WkmX6NbAnIWZEAc8VDAGD5R0hhgzg==
-X-ME-Sender: <xms:UYvBaC3fRrQVO1eX3q7oyueCtIlyVVAFyjECSd2cBRej1JDL3uE6Aw>
-    <xme:UYvBaLp90UcqFUHK5x1rZ0HJMHxbjbEJZK4ScPoXRfcjU19fpMF0ewXXUaG-bu7Xz
-    ZBR2FVodbguB-6pQ6I>
-X-ME-Received: <xmr:UYvBaMkBgxP5JjkYf1l8T_foxSwWEcrOnGDFdNAytkJ_jg9uV4AkumFvKv3U>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvfeehfecutefuodetggdotefrod
+	1757516277; x=1757602677; bh=fj2WWlUvdozMy73vBjpbx8CvlLfiX/DewG5
+	8TQUw/5s=; b=CWpMje03a6T5qWXd3hlOihHGuBovJsdC4Z3ADrG0anuP9M30tRM
+	tqeWFgB/uXvh8hKOJapCnYNRjoSwoT3tEMKzoQv2j4/a5Ep8ycH1v0wcA5y9XRx5
+	C4027bqatCeUBIfcr1sYOtet7BOXcvQv9yewwWzxNv3H0smxF9wX7BnprXsRPm+G
+	+n8QcAAc+8L4IWy6pyfcQ32TF6nyeNs+19FE05rOlzOQxiZsgYQD5HGGOFZIbaA8
+	bW13kS87FXfPPl+/1poalwZf15cqqAubeKtIy/9RZ+MQPp4SwiP94I2C6AotF0fa
+	RxHmk+IjCviUseEiQvNp+tEdC/cavdK5p5g==
+X-ME-Sender: <xms:9JHBaMxhqglCpDKMVYP8e8AhT9hCYm_vW9XWMjbgsCN2Wz9n18_pcw>
+    <xme:9JHBaKieOE50pJ2hiii6EAkcuh9CHvCAeGYJSp2ktPM9DK7d235rXYehEMZNhT27B
+    Yh_hh3K35xKQbu1l2I>
+X-ME-Received: <xmr:9JHBaDwZr7ytM6UEkSAQt1WJ24fkjKSPcjoKYdvN3ltBLlUgHOG-L9ggqsGw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvfeehlecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
     ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpeffhffvvefukfhfgggtuggjsehttdortddttdejnecuhfhrohhmpefurggsrhhinhgr
+    hrpeffhffvvefukfhfgggtuggjsehttdertddttdejnecuhfhrohhmpefurggsrhhinhgr
     ucffuhgsrhhotggruceoshgusehquhgvrghshihsnhgrihhlrdhnvghtqeenucggtffrrg
-    htthgvrhhnpeejkeelveelkeefgfeuheevjeeukedvhedvueegvdekleeghfelgeeiveff
-    tdeuudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hsugesqhhuvggrshihshhnrghilhdrnhgvthdpnhgspghrtghpthhtohepudelpdhmohgu
-    vgepshhmthhpohhuthdprhgtphhtthhopehiughoshgthhesnhhvihguihgrrdgtohhmpd
-    hrtghpthhtoheplhhiuhhhrghnghgsihhnsehgmhgrihhlrdgtohhmpdhrtghpthhtohep
-    nhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhvsehjvh
-    hoshgsuhhrghhhrdhnvghtpdhrtghpthhtoheprghnughrvgifodhnvghtuggvvheslhhu
-    nhhnrdgthhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhrtg
-    hpthhtohepvgguuhhmrgiivghtsehgohhoghhlvgdrtghomhdprhgtphhtthhopehkuhgs
-    rgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepphgrsggvnhhisehrvgguhhgrthdrtg
-    homh
-X-ME-Proxy: <xmx:UYvBaNSqnaeHxD7nDX8qawpgjxj9iZckjlyiQG1F-pMkUD4U87hDrw>
-    <xmx:UYvBaGBswn3frJRVReoRQ4F-csrWfp2-iz_wqL138AZLT4AkOzQ5Cw>
-    <xmx:UYvBaFpZBXy1qSPN7zkyZ1L0d39s06UOOigHfbyJnRLHFvSuHgNLug>
-    <xmx:UYvBaMi-V4S7Dwbn3HOYBG_Pq3qOtzkPZePajoXfKwfmxjMR0TdL1A>
-    <xmx:U4vBaId6acKZWK9-pf-OCW1eTYX1z4EZA6CvGhi6LvLbqVLl0vPH9Knr>
+    htthgvrhhnpeeuhffhfffgfffhfeeuiedugedtfefhkeegteehgeehieffgfeuvdeuffef
+    gfduffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hsugesqhhuvggrshihshhnrghilhdrnhgvthdpnhgspghrtghpthhtohepudekpdhmohgu
+    vgepshhmthhpohhuthdprhgtphhtthhopehlihhuhhgrnhhgsghinhesghhmrghilhdrtg
+    homhdprhgtphhtthhopehnvghtuggvvhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgt
+    phhtthhopehjvhesjhhvohhssghurhhghhdrnhgvthdprhgtphhtthhopegrnhgurhgvfi
+    donhgvthguvghvsehluhhnnhdrtghhpdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhl
+    ohhfthdrnhgvthdprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhmpd
+    hrtghpthhtohepkhhusggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehprggsvghn
+    ihesrhgvughhrghtrdgtohhmpdhrtghpthhtohepjhhirhhisehrvghsnhhulhhlihdruh
+    hs
+X-ME-Proxy: <xmx:9JHBaAzGKD3_Ef-FY6jEcp89YnqsHMzNpevTwGyu24f0392oizoNIQ>
+    <xmx:9JHBaFqydQnaNerRnnGOrEi4Q1oRjKuwVSiK_6NossEV5H9pkzW4lQ>
+    <xmx:9JHBaLmLCNjLRGSjwcxl0AHP5Xow0j7Bya4JRF-UbdSvOGOtlQ14_w>
+    <xmx:9JHBaGxqrul5Bo1bF8BBa6uuzM9PAbLLgh3uulAbuWL1tpNmxLWm-A>
+    <xmx:9ZHBaHgWVcH9x5WKs83y1vh8qbqkI61H32j3qTvimxa4qUaBk44kN_kZ>
 Feedback-ID: i934648bf:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 10 Sep 2025 10:29:37 -0400 (EDT)
-Date: Wed, 10 Sep 2025 16:29:35 +0200
+ 10 Sep 2025 10:57:55 -0400 (EDT)
+Date: Wed, 10 Sep 2025 16:57:54 +0200
 From: Sabrina Dubroca <sd@queasysnail.net>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
-	Jay Vosburgh <jv@jvosburgh.net>,
+To: Hangbin Liu <liuhangbin@gmail.com>
+Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
 	Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
 	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Shuah Khan <shuah@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+	Ido Schimmel <idosch@nvidia.com>, Shuah Khan <shuah@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Stanislav Fomichev <stfomichev@gmail.com>,
 	Kuniyuki Iwashima <kuniyu@google.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
 	Alexander Lobakin <aleksander.lobakin@intel.com>,
 	bridge@lists.linux.dev, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH net-next 1/5] net: add a common function to compute
- features from lowers devices
-Message-ID: <aMGLTzACsKLRIsVb@krikkit>
-References: <20250829095430.443891-1-liuhangbin@gmail.com>
- <20250829095430.443891-2-liuhangbin@gmail.com>
- <aLRr1W3jKRDYsRSq@shredder>
+Subject: Re: [PATCHv3 net-next 5/5] selftests/net: add offload checking test
+ for virtual interface
+Message-ID: <aMGR8vP9X0FOxJpY@krikkit>
+References: <20250909081853.398190-1-liuhangbin@gmail.com>
+ <20250909081853.398190-6-liuhangbin@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -103,116 +101,25 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <aLRr1W3jKRDYsRSq@shredder>
+In-Reply-To: <20250909081853.398190-6-liuhangbin@gmail.com>
 
-2025-08-31, 18:35:49 +0300, Ido Schimmel wrote:
-> On Fri, Aug 29, 2025 at 09:54:26AM +0000, Hangbin Liu wrote:
-> > Some high level virtual drivers need to compute features from lower
-> > devices. But each has their own implementations and may lost some
-> > feature compute. Let's use one common function to compute features
-> > for kinds of these devices.
-> > 
-> > The new helper uses the current bond implementation as the reference
-> > one, as the latter already handles all the relevant aspects: netdev
-> > features, TSO limits and dst retention.
-> > 
-> > Suggested-by: Paolo Abeni <pabeni@redhat.com>
-> > Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-> > ---
-> >  include/linux/netdevice.h | 19 ++++++++++
-> >  net/core/dev.c            | 79 +++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 98 insertions(+)
-> > 
-> > diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> > index f3a3b761abfb..42742a47f2c6 100644
-> > --- a/include/linux/netdevice.h
-> > +++ b/include/linux/netdevice.h
-> > @@ -5279,6 +5279,25 @@ int __netdev_update_features(struct net_device *dev);
-> >  void netdev_update_features(struct net_device *dev);
-> >  void netdev_change_features(struct net_device *dev);
-> >  
-> > +/* netdevice features */
-> > +#define VIRTUAL_DEV_VLAN_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> > +					 NETIF_F_FRAGLIST | NETIF_F_GSO_SOFTWARE | \
-> > +					 NETIF_F_GSO_ENCAP_ALL | \
-> > +					 NETIF_F_HIGHDMA | NETIF_F_LRO)
-> > +
-> > +#define VIRTUAL_DEV_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> > +					 NETIF_F_RXCSUM | NETIF_F_GSO_SOFTWARE | \
-> > +					 NETIF_F_GSO_PARTIAL)
-> > +
-> > +#define VIRTUAL_DEV_MPLS_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> > +					 NETIF_F_GSO_SOFTWARE)
-> > +
-> > +#define VIRTUAL_DEV_XFRM_FEATURES	(NETIF_F_HW_ESP | NETIF_F_HW_ESP_TX_CSUM | \
-> > +					 NETIF_F_GSO_ESP)
-> > +
-> > +#define VIRTUAL_DEV_GSO_PARTIAL_FEATURES (NETIF_F_GSO_ESP)
-> > +void netdev_compute_features_from_lowers(struct net_device *dev);
-> > +
-> >  void netif_stacked_transfer_operstate(const struct net_device *rootdev,
-> >  					struct net_device *dev);
-> >  
-> > diff --git a/net/core/dev.c b/net/core/dev.c
-> > index 1d1650d9ecff..fcad2a9f6b65 100644
-> > --- a/net/core/dev.c
-> > +++ b/net/core/dev.c
-> > @@ -12577,6 +12577,85 @@ netdev_features_t netdev_increment_features(netdev_features_t all,
-> >  }
-> >  EXPORT_SYMBOL(netdev_increment_features);
-> >  
-> > +/**
-> > + *	netdev_compute_features_from_lowers - compute feature from lowers
-> > + *	@dev: the upper device
-> > + *
-> > + *	Recompute the upper device's feature based on all lower devices.
-> > + */
-> > +void netdev_compute_features_from_lowers(struct net_device *dev)
-> > +{
-> > +	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE | IFF_XMIT_DST_RELEASE_PERM;
-> > +	netdev_features_t gso_partial_features = VIRTUAL_DEV_GSO_PARTIAL_FEATURES;
-> > +#ifdef CONFIG_XFRM_OFFLOAD
-> > +	netdev_features_t xfrm_features  = VIRTUAL_DEV_XFRM_FEATURES;
->                                        ^ double space (in other places as well)
-> 
-> > +#endif
-> > +	netdev_features_t mpls_features  = VIRTUAL_DEV_MPLS_FEATURES;
-> > +	netdev_features_t vlan_features = VIRTUAL_DEV_VLAN_FEATURES;
-> > +	netdev_features_t enc_features  = VIRTUAL_DEV_ENC_FEATURES;
-> > +	unsigned short max_hard_header_len = ETH_HLEN;
+2025-09-09, 08:18:52 +0000, Hangbin Liu wrote:
+> +__check_offload()
+> +{
+> +	local dev=$1
+> +	local opt=$2
+> +	local expect=$3
+> +
+> +	ip netns exec "$ns" ethtool --json -k "$dev" | \
+> +		jq -r -e ".[].\"$opt\".active == ${expect}" >/dev/null
 
-Going back to this discussion about hard_header_len:
+Sorry Hangbin, I should have noticed this when we discussed the IPsec
+test, since the problem is similar for the other features set in
+netdev_compute_features_from_lowers:
 
-> hard_header_len is not really a feature, so does not sound like it
-> belongs here. I'm pretty sure it's not needed at all.
-> 
-> It was added to the bond driver in 2006 by commit 54ef31371407 ("[PATCH]
-> bonding: Handle large hard_header_len") citing panics with gianfar on
-> xmit. In 2009 commit 93c1285c5d92 ("gianfar: reallocate skb when
-> headroom is not enough for fcb") fixed the gianfar driver to stop
-> assuming that it has enough room to push its custom header. Further,
-> commit bee9e58c9e98 ("gianfar:don't add FCB length to hard_header_len")
-> from 2012 fixed this driver to use needed_headroom instead of
-> hard_header_len.
-> 
-> The team driver is also adjusting hard_header_len according to the lower
-> devices, but it most likely copied it from the bond driver. On the other
-> hand, the bridge driver does not mess with hard_header_len and no
-> problems were reported there (that I know of).
-> 
-> Might be a good idea to remove this hard_header_len logic from bond and
-> team and instead set their needed_headroom according to the lower device
-> with the highest needed_headroom. Paolo added similar logic in bridge
-> and ovs but the use case is a bit different there.
-
-I'm not convinced removing adapting hard_header_len on bond/team is
-correct, even with old and broken drivers getting fixed years
-ago. hard_header_len will be used on the TX path (for some devices
-like bridge/macvlan via dev_forward_skb() and similar helpers, for IP
-tunnels setting their MTU, and via LL_RESERVED_SPACE).
-
-So I think we should keep setting hard_header_len to the largest of
-all lowers.
+`ethtool -k` does not test the dev->*_features (mpls, vlan, etc) set
+in the new common function, it only checks dev->features and
+dev->hw_features. So this will not test the new function.
 
 -- 
 Sabrina
