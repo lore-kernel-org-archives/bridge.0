@@ -1,169 +1,218 @@
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2083.outbound.protection.outlook.com [40.107.243.83])
+Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03649224AF3
-	for <bridge@lists.linux.dev>; Tue,  9 Sep 2025 16:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.83
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757436691; cv=fail; b=sTL5A4LSzhGXxhBW7FLGcV0iIZXcBsz/LN71+eYE70UesMsNbhiSOtmbMeOR/05odJ+D+ffBJgk3HDW0A9KXvuXlQ3WgS3mKL8Ef0Y6S+3a0euyUGj9276N3nCADppq+fHo8aeROeba38QWbWtAQjmLagGkqk8+lApmA80Z5WcU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757436691; c=relaxed/simple;
-	bh=QFamWY4XmckOgmlxW4dxO2Bx+a991ZXa4+AYPvBZB54=;
-	h=References:From:To:CC:Subject:Date:In-Reply-To:Message-ID:
-	 MIME-Version:Content-Type; b=YWgNCUKEbnkG7zi/adcZ1aKr4kRXGxxRi9zFpPTbxdlj5FREaZ06080S0cT9dgH5KuNmfggbcNcTC+nrW4RXwd8aj0l6AySksInZaicIRiC+Jp1300PN2QlzcVLLDDOB0NZWMXkcSDxq0VaWabVE06n0xbIS8t8PSvwcx7dxBf8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=aCHfg7DH; arc=fail smtp.client-ip=40.107.243.83
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE39232A3D7
+	for <bridge@lists.linux.dev>; Wed, 10 Sep 2025 14:29:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1757514584; cv=none; b=BAaw3HSxxmJh7znwotvavyWald/YbR8CY6rIQBy5rOePdLAEoLRsMBRZIBh/XHn6kljQvzaxYoAwEKmSfB6ZqRiyh/hwlJOvp17nNmrrehNwmwanIcrISVywEOmpoUjdxXHM/0U5A+/t28TCdAZejfoQ35ao2uDQJTVpJCqUxzQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1757514584; c=relaxed/simple;
+	bh=cnhOwN9VcUf2Rz3l2C247ElIZrWqheCGQnJMuTwAZzA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=V/dnrWkg2l+nc9Fkl/x9yW12cMS93xZWD/dtG84VeI8/W7zvQcWsDkrKQacVNeTTeH/OiPpeNvq2PhL4zOa+Uv9SK6uVEiGHcvUW7pr4wij4uPOylqor8aeF+qQxZcIkCg1zS6oW+dLoLmmioLXQQDzf9FzQ03h9tIUzFPc5I2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=Q8n65ogE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=hlM66NJL; arc=none smtp.client-ip=202.12.124.158
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="aCHfg7DH"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=nO5WDYQdVvh0dd5GGkNh3fpenpREEqz9Lj3YNNepOE7Kt9Mrg2Qi50fk8IqBTt0ltTMMf39stUsJA/NMl1dhdtxY2zz6mgTaKyXvVhHcX4TCEs7jDfr6OC94hdgLBjUA5W1JHBJBqc+IGrMKX7vHuZEJ4fY2zdx79m1ZjVrgrTTXlmmrdDjcfG2JxbWGfpij7styJVV1IupT4cj1s+rdR/tGmbqxnHT6mwoALIFashDQTCIvUSoyxjFYeKT+j+9VHkcxTza2q8ilQIKo2W6rVfTE+Wow7jAcCuskN79d70a21lbgFWnyD4yvpadlWYjbue6wVlVSCiE2Be/JE/NlTw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=TLqlvEpzHTgOySCmc/qG6kLNqin4M+Cucn7IrXlQZyw=;
- b=Lpk3QBVWdMDWzcqUApUJUZg3OMch0GclCD9AVNhgIRGs7m1Ijl5ZvCIBxiCt19hfdedPT/lo2VjaYA+Egb76yKKqWziTim8b9J0cPjQ75DrxvgS82YPjxbB2QR3obV7tsJJp+Whhxsyc1+ND21VzRnnUhSXLj5/PZNKnpldvsGD6zt7a4FrgIQiD6MIT2eaU2iB4HJBtWj7SBm/rxlXD26IaCjRaPmSY8r3984zNprx7B0bOUT0pkDD+sllz71hpfTwPA5S+COoVj5yD7v/CDzoqSrCz6MP+WZsCothWrrmPE0hY2aVluwKst0cNb4kTbJ4YeGh4WnMRs9owSxHVdA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TLqlvEpzHTgOySCmc/qG6kLNqin4M+Cucn7IrXlQZyw=;
- b=aCHfg7DHcPlV0/HWE8cGswFszdz7RXHaELcTHO4NZOr45uz1Td34NY7KwDq6/SnOYRjo5GKk4NTWEnsJPXZRLZIfIJ4O1zqGhMYaJRZ/SE8GoPqcgnzvklu5+VuLa4ARLmJThm7/VE4JemeFdxXMz9188p6QSwPLCEC1oZXc3oKikXTlUzrvmjopF1BKJdrwyDvGdVOOTSL222erGcXSNJJ0M1U9vNeUBSn/hF4BIaK0Uq3JNaV2U8N+pUjpP0LdS/WgLs9O2YEOeh73zSacqPLERKZVW1DB3rwAHc2eMCFSDgIjcOAO6FpDGESTsAYyoJxhAh3AMajQgR1+EPiJ1Q==
-Received: from SJ0PR13CA0023.namprd13.prod.outlook.com (2603:10b6:a03:2c0::28)
- by SA1PR12MB8095.namprd12.prod.outlook.com (2603:10b6:806:33f::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9094.22; Tue, 9 Sep
- 2025 16:51:26 +0000
-Received: from SN1PEPF00036F3C.namprd05.prod.outlook.com
- (2603:10b6:a03:2c0:cafe::ea) by SJ0PR13CA0023.outlook.office365.com
- (2603:10b6:a03:2c0::28) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9115.14 via Frontend Transport; Tue,
- 9 Sep 2025 16:51:11 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- SN1PEPF00036F3C.mail.protection.outlook.com (10.167.248.20) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9115.13 via Frontend Transport; Tue, 9 Sep 2025 16:51:24 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Tue, 9 Sep
- 2025 09:50:53 -0700
-Received: from fedora (10.126.230.35) by rnnvmail201.nvidia.com (10.129.68.8)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Tue, 9 Sep
- 2025 09:50:46 -0700
-References: <cover.1757004393.git.petrm@nvidia.com>
- <8087475009dce360fb68d873b1ed9c80827da302.1757004393.git.petrm@nvidia.com>
- <20250908191550.11beb208@kernel.org>
-User-agent: mu4e 1.8.14; emacs 30.2
-From: Petr Machata <petrm@nvidia.com>
-To: Jakub Kicinski <kuba@kernel.org>
-CC: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
-	<netdev@vger.kernel.org>, Simon Horman <horms@kernel.org>, "Nikolay
- Aleksandrov" <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
-	<bridge@lists.linux.dev>, <mlxsw@nvidia.com>
-Subject: Re: [PATCH net-next 02/10] net: bridge: BROPT_FDB_LOCAL_VLAN_0:
- Look up FDB on VLAN 0 on miss
-Date: Tue, 9 Sep 2025 15:34:19 +0200
-In-Reply-To: <20250908191550.11beb208@kernel.org>
-Message-ID: <87ecsfr2oq.fsf@nvidia.com>
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="Q8n65ogE";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="hlM66NJL"
+Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 820CB7A00BD;
+	Wed, 10 Sep 2025 10:29:39 -0400 (EDT)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-01.internal (MEProxy); Wed, 10 Sep 2025 10:29:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1757514579; x=
+	1757600979; bh=biJc7z4/7ue8YKkVq7n3iWeGn8gkGXy/6MAB1eB6pa8=; b=Q
+	8n65ogEuz8cbOZVNXReIB442lNFc7eRgJpIE2LSxfp9pxE30QZNRZyc48S0DPyFQ
+	gWngSklMIR4GC05VtkrK4JAbhay8CtOso1yxk2REvy2fLx5jSNCEJdErDyyjLxdv
+	YXkQBkirscuW8z0P+cSJjkdoVS4VFQ7rlZJ3i1Zkm1OIW3rcLMF/tU42n8qN6n7h
+	8mmk8caCRSkAVK8I646JPP00xg77u4ccFl6NPFhNgWZ2db/PqJHL9Qo4348q6WI2
+	zBAlfPwcXQHxITuYH9msMzk+gEZ1JQZCsMXKn9TGSYO9rVuMzHLWD1IfoRACedwy
+	bzDtgcpw5UJEEB+yOAIqQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1757514579; x=1757600979; bh=biJc7z4/7ue8YKkVq7n3iWeGn8gkGXy/6MA
+	B1eB6pa8=; b=hlM66NJLn5F8F64eNUMPtO13I8/bQh8jbdPW98EB/xQ7lJBpoX4
+	efvYZRilnMXTgfAQ8cbZPPC+Cg7YW0gZH95ao3RPsF/IjVWzqEG+0anoOTUVJSKX
+	FFmDhidAM2737QafQYzUT5KB+OdvZ0+GlFXnNhT9x152wADmOPcB1oI0xojIzY2q
+	FVZ8fRTZSH54NmcRg0Q4lpAgJzVkEqD5PfewztkyvFFNPBpVRNxiiORolBGVk/6X
+	rkoCWgi53wXG9eXOYOwS0uvEKhmT292qordbLMNiE70FVl00sbzLhvqMrFNiHgF/
+	8y8PX0WkmX6NbAnIWZEAc8VDAGD5R0hhgzg==
+X-ME-Sender: <xms:UYvBaC3fRrQVO1eX3q7oyueCtIlyVVAFyjECSd2cBRej1JDL3uE6Aw>
+    <xme:UYvBaLp90UcqFUHK5x1rZ0HJMHxbjbEJZK4ScPoXRfcjU19fpMF0ewXXUaG-bu7Xz
+    ZBR2FVodbguB-6pQ6I>
+X-ME-Received: <xmr:UYvBaMkBgxP5JjkYf1l8T_foxSwWEcrOnGDFdNAytkJ_jg9uV4AkumFvKv3U>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvfeehfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpeffhffvvefukfhfgggtuggjsehttdortddttdejnecuhfhrohhmpefurggsrhhinhgr
+    ucffuhgsrhhotggruceoshgusehquhgvrghshihsnhgrihhlrdhnvghtqeenucggtffrrg
+    htthgvrhhnpeejkeelveelkeefgfeuheevjeeukedvhedvueegvdekleeghfelgeeiveff
+    tdeuudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hsugesqhhuvggrshihshhnrghilhdrnhgvthdpnhgspghrtghpthhtohepudelpdhmohgu
+    vgepshhmthhpohhuthdprhgtphhtthhopehiughoshgthhesnhhvihguihgrrdgtohhmpd
+    hrtghpthhtoheplhhiuhhhrghnghgsihhnsehgmhgrihhlrdgtohhmpdhrtghpthhtohep
+    nhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhvsehjvh
+    hoshgsuhhrghhhrdhnvghtpdhrtghpthhtoheprghnughrvgifodhnvghtuggvvheslhhu
+    nhhnrdgthhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhrtg
+    hpthhtohepvgguuhhmrgiivghtsehgohhoghhlvgdrtghomhdprhgtphhtthhopehkuhgs
+    rgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepphgrsggvnhhisehrvgguhhgrthdrtg
+    homh
+X-ME-Proxy: <xmx:UYvBaNSqnaeHxD7nDX8qawpgjxj9iZckjlyiQG1F-pMkUD4U87hDrw>
+    <xmx:UYvBaGBswn3frJRVReoRQ4F-csrWfp2-iz_wqL138AZLT4AkOzQ5Cw>
+    <xmx:UYvBaFpZBXy1qSPN7zkyZ1L0d39s06UOOigHfbyJnRLHFvSuHgNLug>
+    <xmx:UYvBaMi-V4S7Dwbn3HOYBG_Pq3qOtzkPZePajoXfKwfmxjMR0TdL1A>
+    <xmx:U4vBaId6acKZWK9-pf-OCW1eTYX1z4EZA6CvGhi6LvLbqVLl0vPH9Knr>
+Feedback-ID: i934648bf:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 10 Sep 2025 10:29:37 -0400 (EDT)
+Date: Wed, 10 Sep 2025 16:29:35 +0200
+From: Sabrina Dubroca <sd@queasysnail.net>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
+	Jay Vosburgh <jv@jvosburgh.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Shuah Khan <shuah@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	bridge@lists.linux.dev, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next 1/5] net: add a common function to compute
+ features from lowers devices
+Message-ID: <aMGLTzACsKLRIsVb@krikkit>
+References: <20250829095430.443891-1-liuhangbin@gmail.com>
+ <20250829095430.443891-2-liuhangbin@gmail.com>
+ <aLRr1W3jKRDYsRSq@shredder>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF00036F3C:EE_|SA1PR12MB8095:EE_
-X-MS-Office365-Filtering-Correlation-Id: 623b37c8-633f-42ac-5c75-08ddefc11ced
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|1800799024|36860700013;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?XxZ5U+pd+t5uwfVaVErblnunYtJizPEAJsqIZDH+fpJ6ZPM0KzU0/tn9rmYo?=
- =?us-ascii?Q?nhwKuJo0rFgNcI9LrIgzUxCT7VT4Z6a0Lxd0aC9TQriLn4naOD0P4swPfJWj?=
- =?us-ascii?Q?m21hiR2DtG42DS1a4L93h216xAiZK05LuUbepKx310tjy30Hk3yBpWnf6za6?=
- =?us-ascii?Q?aMCa4eE68JGXLKTJhc0Ss0C2Pg5A6pGplcAKrmSiFwYqKLPNOiJZIIPXcwbD?=
- =?us-ascii?Q?6DD6cZUravpV2FVi67lI6CKE9z7tyUKeO4DX4qUs/M/lDa+mG8/RM0I9aOba?=
- =?us-ascii?Q?Y267MbsgpDn0IwHLoH6plhakLRAqA+IbgbRcnbmMQg2p4Mk6p6F/fU8b4Sip?=
- =?us-ascii?Q?xAVEu2iFDK8HatHXBVV3/kLuRO+MTe/3Q38nsQEElfDgrRdQ8PHePSuh71i4?=
- =?us-ascii?Q?PfnYCXG/6vLGA8gqocfi7hK5dOGOTYlQtGc8wuM6Ckp1K5+0V4hnF92ou594?=
- =?us-ascii?Q?/03JliESJFq2Rvc8P80ZW/uDR+U0zpg3JLVGzbQLe2j5GB4q62m7gR9Cyo7h?=
- =?us-ascii?Q?8/PzSlH4EZXT1pJR1x4Vd48Lwzrs3sBrOefDELm4bCEZum6+XBSbSlX4g3GQ?=
- =?us-ascii?Q?q4x94EOs9uzI3cqQdzVF7BZKwudKjr+XcjgFJG+fVAh9K8zL58Av1VUXq4Kv?=
- =?us-ascii?Q?aOarQPtNjJ8J4EwCADf/nk4jmZl7gpNOJXi31h9Hik2t8LVhlqXm1nJ9veio?=
- =?us-ascii?Q?c47wBbN2IL11U2g9vV566Ea2EJHawEuvcNnHJcB+wzY66Yl9x7QsFCIYS5/x?=
- =?us-ascii?Q?BRh5RK6TUOXoHpZAn4thutncec2C9sc8jwRgtFhP/yMdNNcKho7q8qvxzFNQ?=
- =?us-ascii?Q?3V/s6xmvgjiTj34Q9tIvDbAYKLbw/TmAGiV7ml/jfevArs41nVs7Zlr3dxef?=
- =?us-ascii?Q?gWf4exb7+Fuk94fzJvKTRurs0Ij40pL430s9uvnWGNcAZG2wtPIbii1L4S5I?=
- =?us-ascii?Q?pNZIzCH0K9H1eNwi2XC9ewrBeVnDYFklca2AZYsGDLK2E55aUbgb1TyrhBgL?=
- =?us-ascii?Q?AZ0jnt4XOvii4ENFrAAv3fgPqYx0oXHz2YIbHwrvGCRbNW+hY8m1sC0hDtHU?=
- =?us-ascii?Q?jVLz42h+sJejl8duyuHpDZV8MafxGM1PyDkugkZ3tHe4BXiVXnX03YiiWvAb?=
- =?us-ascii?Q?zvsGEHStInSFBSeDVnrVtrqAi3Q5vkRd51vKu4P5R1Or3MD5H9v8cLbZLAaT?=
- =?us-ascii?Q?I5rZY/OQMGt9CarC9e1WA/lfnQQ7KrO9/l0MGcAO7PRfg86SsZVn2MyXcNqo?=
- =?us-ascii?Q?zVYYuzH0/S1BPW30HSJVIlNQScs5PYG7ktpQ+ZO8OKxfcbaEhO/je1DhuvNd?=
- =?us-ascii?Q?9fWtHpIgPJn8j8iUK/mW2EGBJTI+m/SaKRtI6tsH6aEXbXpHmR07C/Ov5gL6?=
- =?us-ascii?Q?K7khXx0KdiLwp/IxiEqpEEny+MasjFxqZx4pViC1OF5hjXB14ozJEUvZHuz0?=
- =?us-ascii?Q?7mpc9vCv55HAI5ufsqeqMII2HPpXdSEMI3lUsBPUjU+Vbkzw8cXMlLmmvioC?=
- =?us-ascii?Q?MV5TjcQXsNZo3+AkdlEu9WmuWVweNyekxOVj?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(376014)(1800799024)(36860700013);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Sep 2025 16:51:24.7649
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 623b37c8-633f-42ac-5c75-08ddefc11ced
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SN1PEPF00036F3C.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8095
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <aLRr1W3jKRDYsRSq@shredder>
 
+2025-08-31, 18:35:49 +0300, Ido Schimmel wrote:
+> On Fri, Aug 29, 2025 at 09:54:26AM +0000, Hangbin Liu wrote:
+> > Some high level virtual drivers need to compute features from lower
+> > devices. But each has their own implementations and may lost some
+> > feature compute. Let's use one common function to compute features
+> > for kinds of these devices.
+> > 
+> > The new helper uses the current bond implementation as the reference
+> > one, as the latter already handles all the relevant aspects: netdev
+> > features, TSO limits and dst retention.
+> > 
+> > Suggested-by: Paolo Abeni <pabeni@redhat.com>
+> > Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+> > ---
+> >  include/linux/netdevice.h | 19 ++++++++++
+> >  net/core/dev.c            | 79 +++++++++++++++++++++++++++++++++++++++
+> >  2 files changed, 98 insertions(+)
+> > 
+> > diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+> > index f3a3b761abfb..42742a47f2c6 100644
+> > --- a/include/linux/netdevice.h
+> > +++ b/include/linux/netdevice.h
+> > @@ -5279,6 +5279,25 @@ int __netdev_update_features(struct net_device *dev);
+> >  void netdev_update_features(struct net_device *dev);
+> >  void netdev_change_features(struct net_device *dev);
+> >  
+> > +/* netdevice features */
+> > +#define VIRTUAL_DEV_VLAN_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
+> > +					 NETIF_F_FRAGLIST | NETIF_F_GSO_SOFTWARE | \
+> > +					 NETIF_F_GSO_ENCAP_ALL | \
+> > +					 NETIF_F_HIGHDMA | NETIF_F_LRO)
+> > +
+> > +#define VIRTUAL_DEV_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
+> > +					 NETIF_F_RXCSUM | NETIF_F_GSO_SOFTWARE | \
+> > +					 NETIF_F_GSO_PARTIAL)
+> > +
+> > +#define VIRTUAL_DEV_MPLS_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
+> > +					 NETIF_F_GSO_SOFTWARE)
+> > +
+> > +#define VIRTUAL_DEV_XFRM_FEATURES	(NETIF_F_HW_ESP | NETIF_F_HW_ESP_TX_CSUM | \
+> > +					 NETIF_F_GSO_ESP)
+> > +
+> > +#define VIRTUAL_DEV_GSO_PARTIAL_FEATURES (NETIF_F_GSO_ESP)
+> > +void netdev_compute_features_from_lowers(struct net_device *dev);
+> > +
+> >  void netif_stacked_transfer_operstate(const struct net_device *rootdev,
+> >  					struct net_device *dev);
+> >  
+> > diff --git a/net/core/dev.c b/net/core/dev.c
+> > index 1d1650d9ecff..fcad2a9f6b65 100644
+> > --- a/net/core/dev.c
+> > +++ b/net/core/dev.c
+> > @@ -12577,6 +12577,85 @@ netdev_features_t netdev_increment_features(netdev_features_t all,
+> >  }
+> >  EXPORT_SYMBOL(netdev_increment_features);
+> >  
+> > +/**
+> > + *	netdev_compute_features_from_lowers - compute feature from lowers
+> > + *	@dev: the upper device
+> > + *
+> > + *	Recompute the upper device's feature based on all lower devices.
+> > + */
+> > +void netdev_compute_features_from_lowers(struct net_device *dev)
+> > +{
+> > +	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE | IFF_XMIT_DST_RELEASE_PERM;
+> > +	netdev_features_t gso_partial_features = VIRTUAL_DEV_GSO_PARTIAL_FEATURES;
+> > +#ifdef CONFIG_XFRM_OFFLOAD
+> > +	netdev_features_t xfrm_features  = VIRTUAL_DEV_XFRM_FEATURES;
+>                                        ^ double space (in other places as well)
+> 
+> > +#endif
+> > +	netdev_features_t mpls_features  = VIRTUAL_DEV_MPLS_FEATURES;
+> > +	netdev_features_t vlan_features = VIRTUAL_DEV_VLAN_FEATURES;
+> > +	netdev_features_t enc_features  = VIRTUAL_DEV_ENC_FEATURES;
+> > +	unsigned short max_hard_header_len = ETH_HLEN;
 
-Jakub Kicinski <kuba@kernel.org> writes:
+Going back to this discussion about hard_header_len:
 
-> On Thu, 4 Sep 2025 19:07:19 +0200 Petr Machata wrote:
->>  		dst = br_fdb_find_rcu(br, eth_hdr(skb)->h_dest, vid);
->> +		if (unlikely(!dst && vid &&
->> +			     br_opt_get(br, BROPT_FDB_LOCAL_VLAN_0))) {
->
-> What does the assembly look like for this? I wonder if we're not better
-> off with:
->
-> 	unlikely(!dst) && vid && br_opt..
+> hard_header_len is not really a feature, so does not sound like it
+> belongs here. I'm pretty sure it's not needed at all.
+> 
+> It was added to the bond driver in 2006 by commit 54ef31371407 ("[PATCH]
+> bonding: Handle large hard_header_len") citing panics with gianfar on
+> xmit. In 2009 commit 93c1285c5d92 ("gianfar: reallocate skb when
+> headroom is not enough for fcb") fixed the gianfar driver to stop
+> assuming that it has enough room to push its custom header. Further,
+> commit bee9e58c9e98 ("gianfar:don't add FCB length to hard_header_len")
+> from 2012 fixed this driver to use needed_headroom instead of
+> hard_header_len.
+> 
+> The team driver is also adjusting hard_header_len according to the lower
+> devices, but it most likely copied it from the bond driver. On the other
+> hand, the bridge driver does not mess with hard_header_len and no
+> problems were reported there (that I know of).
+> 
+> Might be a good idea to remove this hard_header_len logic from bond and
+> team and instead set their needed_headroom according to the lower device
+> with the highest needed_headroom. Paolo added similar logic in bridge
+> and ovs but the use case is a bit different there.
 
-Well, I don't see much there. A couple basic blocks end up reordered is
-all I can glean out. I looked at GCC tree dumps which are more
-transparent to me, and it's the same exact code in both cases, except
-for variable naming, basic block numbering and branch prediction
-annotations -- kinda obviously.
+I'm not convinced removing adapting hard_header_len on bond/team is
+correct, even with old and broken drivers getting fixed years
+ago. hard_header_len will be used on the TX path (for some devices
+like bridge/macvlan via dev_forward_skb() and similar helpers, for IP
+tunnels setting their MTU, and via LL_RESERVED_SPACE).
 
-> Checking dst will be very fast here, and if we missed we're already 
-> on the slow path. So maybe we're better off moving the rest of the
-> condition out of the fast path, too?
+So I think we should keep setting hard_header_len to the largest of
+all lowers.
 
-GCC appears to compile unlikely(A && B && C) as unlikely(A) &&
-unlikely(B) && unlikely(C). So it's really much of a muchness -- when we
-annotate just !dst, it's going to assume 50/50 on those latter branches,
-but we don't really care at that point anymore, because the first 90/10
-is going to send us to the slow path. There's a bunch of 50/50 branches
-because of __builtin_constant_p's, but those are optimized away in
-middle-end. In the end it's the same code, just different basic block
-layout decisions.
-
-So we can do either.
+-- 
+Sabrina
