@@ -1,241 +1,106 @@
-Received: from fout-b8-smtp.messagingengine.com (fout-b8-smtp.messagingengine.com [202.12.124.151])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54BE226E712
-	for <bridge@lists.linux.dev>; Wed, 10 Sep 2025 17:41:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBE2D19DF5F
+	for <bridge@lists.linux.dev>; Thu, 11 Sep 2025 01:47:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757526117; cv=none; b=Jdw2UKhG9NpeLCACG9UzkawGE9m/cO8xwYJ7I/RpT0vVwFbx39P/4fJGViWfUrdk3Upuk8fiVeNQy1CirE4udCdG5U0Uceza6qQWmWlyiqv2C2Tns2/bg40PuFGh31Y3noJAXgh8fpKgFVDOwqTv3nPNaTYXuuWbZlZEUQPoPTg=
+	t=1757555227; cv=none; b=gcN3JuFBq4fVvFe7iJu9WtLRrvuDKBiXUo8xq4f1fyecv2MPsVAvHvw5cpBuPsNEvZlEWM+TC/XpyGCxuPLo/oRzvwLzHfixMssyNS4MFO2CcYLVrQ+FgBIFGGqBky2nbj4SMJBp46IDDHqRv5zkLQaeeOugRmjDoPXdMO9dVz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757526117; c=relaxed/simple;
-	bh=EcRQS91DKWoFV3mlE03+07yZ7own3/7HQnA7suLWa0E=;
+	s=arc-20240116; t=1757555227; c=relaxed/simple;
+	bh=gbU2qsb+60Hqlm6nQqHjpY15CNlC31/o71WvOU4PEuk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hKWYkeVLvYqr7FXlAVez6z9UxlICVeyECP5rHsj4tuiUKf5jbE7tiFQiHq/ttg+a5A2GPYzV0hgnpLDoUl38xLoL+9opx8AWhQ5VRti6r6TOY20gJizAYr/Fj3Tstze7b2ido+lK7KYZhqmpJQPGtToii17cl36jg/kjUKg6rCo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=XxxRC21a; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=J07JS454; arc=none smtp.client-ip=202.12.124.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
+	 Content-Type:Content-Disposition:In-Reply-To; b=NxhMPaX4p+LvrPBcgZDl1A4pbZ+QsTSFwwCd1cyESszltbqEG4zG+QqsrRExB3TVXZVkfB0/bwLCx0czxYKGGsL3PGLJE/EHAwxY793Po1Ftb5S5RzQaqDNwX2FPOHeQFfc36bb/zsWgCAcDBjEJVF0u4n5McFCV0900SFwQJnE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XbivQY+F; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="XxxRC21a";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="J07JS454"
-Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
-	by mailfout.stl.internal (Postfix) with ESMTP id E822E1D00052;
-	Wed, 10 Sep 2025 13:41:51 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-01.internal (MEProxy); Wed, 10 Sep 2025 13:41:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm2; t=1757526111; x=
-	1757612511; bh=AYwCDJAGLKrZF2XJ4TDx7GwNytvuxA9/1ofvDfGbl3s=; b=X
-	xxRC21a/FVDH6QKrI9lUIy4p8hvMIojCIAJhI2A9U1Nsxh+YCBd5T//TRZa89KLc
-	8hc2t1ixVEYZR+rcUNDz8k3dLl0oASZciW3+Fr5cJMwiLYDhyNta3HoK/lbKC7vf
-	dZNCop8zOXjvpZmd02mFKXgc27+lI4D2qn8bcfobCM9NnmicX7sQ7RiZLbNkJZb+
-	l5QErZMN4sSt93tzOeufZCAjd2u2ZLmWuHM2BYgFIv52GCyohUZEOvFK+i0s/dfp
-	SCr7ELZwPPIwGY8ty+08A51LAAsaf6Qa3oyoscxx1TtaW6DgqLe4MVCNjQRyeUP2
-	V9v9JSWj5plFSWgTpSu1Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1757526111; x=1757612511; bh=AYwCDJAGLKrZF2XJ4TDx7GwNytvuxA9/1of
-	vDfGbl3s=; b=J07JS454exXAD7skxff9boHaFiaWS7K6qPpUTuqeWWDqVmPBwEo
-	hhNqA6T08JCY85O6ClEEs8S1bR1yAkP1+RaOXsZ1Hzmr7KEg/HfBOOxrfFcnm/My
-	47T31Nfk1RW48K4hf22DRCLA64IJBnSFO1IQep+r6yWcAzU90BE/E4cUXWMafI+5
-	pexMPp6YymkGPLcmUcWsBeaFjadVQuYMXvi+4g/ahpkCl8UOLLusDFPUmy1fMfmx
-	Eby1vHhZ8Ktb+VAuq42pNoNz+Mi4aQV0V5YPGz7coXwGqC/5NXd69BpnJWbq1kUm
-	SYgfIqp0oVj29WedUWC06PXRemoC/BOMpnA==
-X-ME-Sender: <xms:XrjBaI_1ZlE6lvBDZks54Qme07cxdzUuwCVjP1SVmOTsRGU_CsmquA>
-    <xme:XrjBaHQR76Ci3eBqsfmVQwZFq_wtj37EyAA5sM-deeEy6Ce2hc80unm20b_0QuYv8
-    uSyAxklVKYThIyDUQs>
-X-ME-Received: <xmr:XrjBaPsDTBPtQ_b3iq-P7dX5l0-t3O7l4S-uoqpTNSdKla50-HMYvu4JnfwO>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddvfeelvdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpeffhffvvefukfhfgggtuggjsehttdertddttdejnecuhfhrohhmpefurggsrhhinhgr
-    ucffuhgsrhhotggruceoshgusehquhgvrghshihsnhgrihhlrdhnvghtqeenucggtffrrg
-    htthgvrhhnpeeuhffhfffgfffhfeeuiedugedtfefhkeegteehgeehieffgfeuvdeuffef
-    gfduffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hsugesqhhuvggrshihshhnrghilhdrnhgvthdpnhgspghrtghpthhtohepudelpdhmohgu
-    vgepshhmthhpohhuthdprhgtphhtthhopehiughoshgthhesnhhvihguihgrrdgtohhmpd
-    hrtghpthhtoheplhhiuhhhrghnghgsihhnsehgmhgrihhlrdgtohhmpdhrtghpthhtohep
-    nhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepjhhvsehjvh
-    hoshgsuhhrghhhrdhnvghtpdhrtghpthhtoheprghnughrvgifodhnvghtuggvvheslhhu
-    nhhnrdgthhdprhgtphhtthhopegurghvvghmsegurghvvghmlhhofhhtrdhnvghtpdhrtg
-    hpthhtohepvgguuhhmrgiivghtsehgohhoghhlvgdrtghomhdprhgtphhtthhopehkuhgs
-    rgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepphgrsggvnhhisehrvgguhhgrthdrtg
-    homh
-X-ME-Proxy: <xmx:XrjBaB6GRIrZlaMlAtKwhWRVOEOyfVghGJJrHz6RMEKet2EMcoovRQ>
-    <xmx:XrjBaOJGCjwrlFPBaSUmvBCRiHIMX-ygg4KBAtYOTPcCgxKrC6tKPQ>
-    <xmx:XrjBaLQuxjr7d3dQObaAorPPB_IEZaHq23tzL6zuXnBTpV42i-kKbA>
-    <xmx:XrjBaBpyGbfx7u3UJ2n-JP-izkKfOTCl0_pA39QpnubMHVEB8FQz1Q>
-    <xmx:X7jBaDNw2NQtmZtzBad5Kj6W4mwhWeFm7_XCtzhpSs9ZB3_vpcDokoxc>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 10 Sep 2025 13:41:49 -0400 (EDT)
-Date: Wed, 10 Sep 2025 19:41:47 +0200
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
-	Jay Vosburgh <jv@jvosburgh.net>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XbivQY+F"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-24c89867a17so1628455ad.1
+        for <bridge@lists.linux.dev>; Wed, 10 Sep 2025 18:47:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757555225; x=1758160025; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=9EKHosBRxgYKkSKH5grw3haxNFNlpbShU8sS3mHvALk=;
+        b=XbivQY+FZXBJ1mBDwUyuR2K44raioS50lni4cEuMjTvxgMnJpy7yncD3/QZhVehMUE
+         7mwvfi2I1A2rxsoNXW3YWJEexH6qPC7gIIqJPRbsfSQJtpLqZEPyY6khMBauupDWpOBB
+         OYQ7bwWsirRJH7Ym1JQFmIq4PO9rMk6wDNWqdmOxArfyi7+08XBnwt+Q7n5kQUVFEoJG
+         j4uQMsuri2nGmmKDeUylFYWwsPNpWQ9eWIFUpmKrp2utCJwgyfZwZQqFPMLo8o4WH0Bn
+         o2eKQt4NHKQq4NwDNitnHzCq3sDh/OUdkgzm7Ne4t0+xP5nw4nXcjVcSMP/10ol/hS7G
+         6G2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757555225; x=1758160025;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9EKHosBRxgYKkSKH5grw3haxNFNlpbShU8sS3mHvALk=;
+        b=TwfUs3uPtYkarojPv9rxU3WP9A0eCXk+SB6GPRoAesXssdpaemmPfIl0LtlRm7tZke
+         mD8nKAyBqhf6uUX/W7xRJaX3Tmyp56x4zIaV1w50IaBNHI/gMWta1hWI4w8SmDjEfaJu
+         ZGrH1R5PkTJvRaqppRu66MaH7o8jN19ijMa0877Mtc/bKgmyArvjDdh2ti7VzOSzrlFs
+         zd3QeBGC8ArE++uNHKgbL00UI1U9j2UqofZ7YCoJ0EJ5CAs5Hnyns8kfsKd1vvzO8vXM
+         68aLhnciEjD0dZUR87kp4UqcC00B4ZzNgt9nWPg7kP0oF0TffXXVvYyLkYibIRiPl8eh
+         ifcw==
+X-Forwarded-Encrypted: i=1; AJvYcCX33pSmjY1xw+mriMjK+UfOIQVd7qZqblEJ6tzRfrRkFDuZrGrPL++FP27ULcgI1SoVc5huBbo=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxzrnf7/nkbIU/1C2jjYP3Tj23bPsyWN82fwgz6FSOLkiK1+9N3
+	VQ0aQDUMoMJH8Gh20agPj+oxPgiEuJjdE/PNJKiJ6mGyKCgbXpr3UJ94
+X-Gm-Gg: ASbGncsuQui72K0TX6txspU9RqNqAbSBCBGYQsK1WrMm0iQ+GVObHsRkmwQM1b7gSXx
+	lCBNvI6knHE0YqVAP4E7Jc5e6vRnsD/oh8gyne6dAoBGzImqfQQdCLy34O1f3KCtGq7yWs+K0YO
+	EMcg2SIqaKhQodzEQxRZgu7o+xTJfDueqCtw6jMJBH6VfR17ZiYA8ec8KjC6i9xdLuCkMa60/YX
+	AH4oIxnTpcjieHfublPf3kOGTVRntdnPezpkR1DJ7XorKKKCBxquLWTvM0DEgCfg2TCIM1CFX/L
+	x6yL+XhVuj/Ce3LQZTaJCa6O2n+PFM/3xad2MRU1g5O+PAh95CzIGj/AZGc1/O9Im2BXDlapcQi
+	1/lvr/mmy2Ii5Wyf2f7Trs/Lw+LOqu9hZ0/WDag==
+X-Google-Smtp-Source: AGHT+IGUbHEB/rQLl+UqdSvAkEyeUvWOmdJPOZTNQ0SvY7LmtlnSpa1pNYdxeldQ71BciiP/DXGF5A==
+X-Received: by 2002:a17:902:f78f:b0:24b:24dc:91a2 with SMTP id d9443c01a7336-251738cd8b0mr193771385ad.60.1757555225116;
+        Wed, 10 Sep 2025 18:47:05 -0700 (PDT)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-25c3a84a5d6sm1058435ad.93.2025.09.10.18.46.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Sep 2025 18:47:04 -0700 (PDT)
+Date: Thu, 11 Sep 2025 01:46:55 +0000
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: Stanislav Fomichev <stfomichev@gmail.com>
+Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
 	Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Sabrina Dubroca <sdubroca@redhat.com>,
 	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Shuah Khan <shuah@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+	Ido Schimmel <idosch@nvidia.com>, Shuah Khan <shuah@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
 	Kuniyuki Iwashima <kuniyu@google.com>,
 	Ahmed Zaki <ahmed.zaki@intel.com>,
 	Alexander Lobakin <aleksander.lobakin@intel.com>,
 	bridge@lists.linux.dev, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH net-next 1/5] net: add a common function to compute
- features from lowers devices
-Message-ID: <aMG4W9xUGxjLAVys@krikkit>
-References: <20250829095430.443891-1-liuhangbin@gmail.com>
- <20250829095430.443891-2-liuhangbin@gmail.com>
- <aLRr1W3jKRDYsRSq@shredder>
- <aMGLTzACsKLRIsVb@krikkit>
- <aMGwcyKTvmz5StN1@shredder>
+Subject: Re: [PATCHv3 net-next 3/5] team: use common function to compute the
+ features
+Message-ID: <aMIqAfT__zvr32hM@fedora>
+References: <20250909081853.398190-1-liuhangbin@gmail.com>
+ <20250909081853.398190-4-liuhangbin@gmail.com>
+ <aMGZwEnJ943Rwf-Q@mini-arch>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aMGwcyKTvmz5StN1@shredder>
+In-Reply-To: <aMGZwEnJ943Rwf-Q@mini-arch>
 
-2025-09-10, 20:08:03 +0300, Ido Schimmel wrote:
-> On Wed, Sep 10, 2025 at 04:29:35PM +0200, Sabrina Dubroca wrote:
-> > 2025-08-31, 18:35:49 +0300, Ido Schimmel wrote:
-> > > On Fri, Aug 29, 2025 at 09:54:26AM +0000, Hangbin Liu wrote:
-> > > > Some high level virtual drivers need to compute features from lower
-> > > > devices. But each has their own implementations and may lost some
-> > > > feature compute. Let's use one common function to compute features
-> > > > for kinds of these devices.
-> > > > 
-> > > > The new helper uses the current bond implementation as the reference
-> > > > one, as the latter already handles all the relevant aspects: netdev
-> > > > features, TSO limits and dst retention.
-> > > > 
-> > > > Suggested-by: Paolo Abeni <pabeni@redhat.com>
-> > > > Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-> > > > ---
-> > > >  include/linux/netdevice.h | 19 ++++++++++
-> > > >  net/core/dev.c            | 79 +++++++++++++++++++++++++++++++++++++++
-> > > >  2 files changed, 98 insertions(+)
-> > > > 
-> > > > diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> > > > index f3a3b761abfb..42742a47f2c6 100644
-> > > > --- a/include/linux/netdevice.h
-> > > > +++ b/include/linux/netdevice.h
-> > > > @@ -5279,6 +5279,25 @@ int __netdev_update_features(struct net_device *dev);
-> > > >  void netdev_update_features(struct net_device *dev);
-> > > >  void netdev_change_features(struct net_device *dev);
-> > > >  
-> > > > +/* netdevice features */
-> > > > +#define VIRTUAL_DEV_VLAN_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> > > > +					 NETIF_F_FRAGLIST | NETIF_F_GSO_SOFTWARE | \
-> > > > +					 NETIF_F_GSO_ENCAP_ALL | \
-> > > > +					 NETIF_F_HIGHDMA | NETIF_F_LRO)
-> > > > +
-> > > > +#define VIRTUAL_DEV_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> > > > +					 NETIF_F_RXCSUM | NETIF_F_GSO_SOFTWARE | \
-> > > > +					 NETIF_F_GSO_PARTIAL)
-> > > > +
-> > > > +#define VIRTUAL_DEV_MPLS_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> > > > +					 NETIF_F_GSO_SOFTWARE)
-> > > > +
-> > > > +#define VIRTUAL_DEV_XFRM_FEATURES	(NETIF_F_HW_ESP | NETIF_F_HW_ESP_TX_CSUM | \
-> > > > +					 NETIF_F_GSO_ESP)
-> > > > +
-> > > > +#define VIRTUAL_DEV_GSO_PARTIAL_FEATURES (NETIF_F_GSO_ESP)
-> > > > +void netdev_compute_features_from_lowers(struct net_device *dev);
-> > > > +
-> > > >  void netif_stacked_transfer_operstate(const struct net_device *rootdev,
-> > > >  					struct net_device *dev);
-> > > >  
-> > > > diff --git a/net/core/dev.c b/net/core/dev.c
-> > > > index 1d1650d9ecff..fcad2a9f6b65 100644
-> > > > --- a/net/core/dev.c
-> > > > +++ b/net/core/dev.c
-> > > > @@ -12577,6 +12577,85 @@ netdev_features_t netdev_increment_features(netdev_features_t all,
-> > > >  }
-> > > >  EXPORT_SYMBOL(netdev_increment_features);
-> > > >  
-> > > > +/**
-> > > > + *	netdev_compute_features_from_lowers - compute feature from lowers
-> > > > + *	@dev: the upper device
-> > > > + *
-> > > > + *	Recompute the upper device's feature based on all lower devices.
-> > > > + */
-> > > > +void netdev_compute_features_from_lowers(struct net_device *dev)
-> > > > +{
-> > > > +	unsigned int dst_release_flag = IFF_XMIT_DST_RELEASE | IFF_XMIT_DST_RELEASE_PERM;
-> > > > +	netdev_features_t gso_partial_features = VIRTUAL_DEV_GSO_PARTIAL_FEATURES;
-> > > > +#ifdef CONFIG_XFRM_OFFLOAD
-> > > > +	netdev_features_t xfrm_features  = VIRTUAL_DEV_XFRM_FEATURES;
-> > >                                        ^ double space (in other places as well)
-> > > 
-> > > > +#endif
-> > > > +	netdev_features_t mpls_features  = VIRTUAL_DEV_MPLS_FEATURES;
-> > > > +	netdev_features_t vlan_features = VIRTUAL_DEV_VLAN_FEATURES;
-> > > > +	netdev_features_t enc_features  = VIRTUAL_DEV_ENC_FEATURES;
-> > > > +	unsigned short max_hard_header_len = ETH_HLEN;
-> > 
-> > Going back to this discussion about hard_header_len:
-> > 
-> > > hard_header_len is not really a feature, so does not sound like it
-> > > belongs here. I'm pretty sure it's not needed at all.
-> > > 
-> > > It was added to the bond driver in 2006 by commit 54ef31371407 ("[PATCH]
-> > > bonding: Handle large hard_header_len") citing panics with gianfar on
-> > > xmit. In 2009 commit 93c1285c5d92 ("gianfar: reallocate skb when
-> > > headroom is not enough for fcb") fixed the gianfar driver to stop
-> > > assuming that it has enough room to push its custom header. Further,
-> > > commit bee9e58c9e98 ("gianfar:don't add FCB length to hard_header_len")
-> > > from 2012 fixed this driver to use needed_headroom instead of
-> > > hard_header_len.
-> > > 
-> > > The team driver is also adjusting hard_header_len according to the lower
-> > > devices, but it most likely copied it from the bond driver. On the other
-> > > hand, the bridge driver does not mess with hard_header_len and no
-> > > problems were reported there (that I know of).
-> > > 
-> > > Might be a good idea to remove this hard_header_len logic from bond and
-> > > team and instead set their needed_headroom according to the lower device
-> > > with the highest needed_headroom. Paolo added similar logic in bridge
-> > > and ovs but the use case is a bit different there.
-> > 
-> > I'm not convinced removing adapting hard_header_len on bond/team is
-> > correct, even with old and broken drivers getting fixed years
-> > ago. hard_header_len will be used on the TX path (for some devices
-> > like bridge/macvlan via dev_forward_skb() and similar helpers, for IP
-> > tunnels setting their MTU, and via LL_RESERVED_SPACE).
-> > 
-> > So I think we should keep setting hard_header_len to the largest of
-> > all lowers.
+On Wed, Sep 10, 2025 at 08:31:12AM -0700, Stanislav Fomichev wrote:
+> > @@ -1976,27 +1919,16 @@ static int team_add_slave(struct net_device *dev, struct net_device *port_dev,
+> >  
+> >  	err = team_port_add(team, port_dev, extack);
+> >  
+> > -	if (!err)
+> > -		netdev_change_features(dev);
+> > -
+> >  	return err;
 > 
-> It is not clear to me why we are setting hard_header_len to the largest
-> of all lowers and not needed_headroom. While bond/team allow
-> non-Ethernet lowers (unlike bridge, which is also adjusted to use this
-> helper), they do verify that all the lower devices are of the same type.
-> Shouldn't devices of the same type have the same hardware header length?
+> do the same `return team_port_add` here as you do in team_del_slave?
 
-At least not with VLANs. Both basic ethernet and vlan devices are
-ARPHRD_ETHER, but the hard_header_len of the vlan device will be
-larger if we're not offloading:
+Oh, thanks. I forgot this one.
 
-    dev->hard_header_len = real_dev->hard_header_len + VLAN_HLEN;
-
-
-> On the other hand, needed_headroom can and does vary between devices of
-> the same type.
-
-I'm not saying anything about needed_headroom. It sounds like it
-should be updated as well.
-
--- 
-Sabrina
+Hangbin
