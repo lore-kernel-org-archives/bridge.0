@@ -1,165 +1,122 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 446F931283A
-	for <bridge@lists.linux-foundation.org>; Thu, 18 Sep 2025 15:47:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758210441; cv=fail; b=mdjvwvxivACo1riBgMpJKQAUOY4UVmAyKoDHIezXOgxPrieYBKYMW2FFaTgmizKKJXmdyow+Tfwsk2uOyzOTb/ExQ27hd4K1SY3iKAPi8n6ZzxW2y0iO1OowiTw3RJft1Yu/iIjk9BzQn/oYGcEZcmoXnEbG+ERmAZrFELtoKxU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758210441; c=relaxed/simple;
-	bh=1X359HIOEe8Q0otvBYCATIkQ55LQLBSLjbxymsN2fP0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=lOF5iVzsAC+FiniD61PKsStFFq9f+VI+dGBZkgFh35Dhl5Ig6LnUUdby8Cnnzwmivth9mX4TmKiNa+6cPYkAI8fWQH1j/fdvEVnVp0WZU/DFqyUivymNYCP0xOIh+pz7nUdD+RifuO9WWAGu/9D/hhDOWvBfDeLfAm/4afWhcOk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=JmeyWm+E; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9197D30FC1C
+	for <bridge@lists.linux-foundation.org>; Thu, 18 Sep 2025 16:18:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1758212334; cv=none; b=kliR1uw6AiOiH9npA54U58Fq+4CZUIkA2pfR6ekXwqQOTWhPkiz6mOQPe/778OuPyYVnXwWCoYIgUgw2Gw8o6v3BJYPwOcQwoojmUbnjqG3TnrJCNlGWVWw+QLTnrK7kHgDfwm0yUKhJzLFYgSTRZvH6H/7BcevoVqEjj72wdQk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1758212334; c=relaxed/simple;
+	bh=pT725trLHsFzb6j3PtSFoM1Nlf4Wwd7bd3nQDutkrOU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bQeAzAb1Z8CN9TEzPC5ypPyVSB6Eg+Z9EAB9jCaJr8cSDyjAO7mTjDw2uN0HFgPulQKfmLePqnzFOL0Wj4wJ0jZ3mM+KR3U4lSPMJF3WM8xQcd0X2vQn05q9IauV9moh23o2DcHpR0PM+0YE6pk+t+9TNbuUf+K7dwI+kcesrEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=G+ryC5vl; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="JmeyWm+E"
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="G+ryC5vl"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E5162605DA
-	for <bridge@lists.linux-foundation.org>; Thu, 18 Sep 2025 15:47:19 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1D5E68145D
+	for <bridge@lists.linux-foundation.org>; Thu, 18 Sep 2025 16:18:53 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.098
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 0fZZkqD3GU4k for <bridge@lists.linux-foundation.org>;
- Thu, 18 Sep 2025 15:47:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c10d::1; helo=sn4pr2101cu001.outbound.protection.outlook.com; envelope-from=idosch@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org A383F605D4
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A383F605D4
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=JmeyWm+E
-Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazlp170120001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c10d::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A383F605D4
-	for <bridge@lists.linux-foundation.org>; Thu, 18 Sep 2025 15:47:17 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=D2AVr+En0ol3O6IQh3c+FuaGRicn8tWAWkkZ3HdPljNWQhoWuDTTRyRfNJXNy2FzU3p9D11pNp7SVUvSVS8Y8S68IBjeRDSlSL8Dl0IDpPLVZ4UpIhil0XR5NNtz9ciagILOnT8t9X+6Gfej00/osYz6uQ56fo8lfqY03GB+O3EojH8TRdnpBQ5ofip+DN/JXzUydHMavrESth8BS/NIVcmZ6klUvR37fw1SOYQpXzCDTsvmn6rYXLzlOkWgQvxTgeBmV0672lnzP5ngrCoYl2Y/j93/biZ71rwzLtb6aUhnDG8g/bvbasMuJxYPQ2cGUIUG6Jf57Oc+ieuaGorzyA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=DX+jbKeUWtrM2mGSa4iGjE6Dv2G+w5J/p72B8YWfPDQ=;
- b=bmbffnF453hjSX+Xvfbt++OomBqTeVz7LSFNEwbVi41CVJILxIHRgREpHkiU1qBZ8efiDFxJ400Pc3iFAieCP+WhMe3F5099QGWKrZHqhRCv+3v/fdQeoSqqU7piaUme/rKrZoWcjADdKU9YmWrUbzpYOBxBdmrk3v2i3LdU2Q9HD2L7VaCSp9Z9y+rndeFjoQOpRFVLRFDPPTm4NtGSVLjLD8ROUHEo9M461r1lf67XdcoAX1SyHsGoXznYOshu6C5C82uD/egXZGPrR7DyAtG5LBTyJU1T6kOLJxphB+Xi1b2cp3DNbav6dZVfL6SsmJea5mprGXxh6+kBgbMurg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DX+jbKeUWtrM2mGSa4iGjE6Dv2G+w5J/p72B8YWfPDQ=;
- b=JmeyWm+EA5FMvRAmurqyHJDHvG2MDfVx8513PjSKcHiEuTUvaxBPDC4Pj3i3rR/FKQzFOxi1EaSw31nC126TJE+2e8XxPCINC8hgRO/0QvgQd2ch2X7WmMR4fPNHO4rB6N/Q+CPXNYIOXFICbpGMmn9zYcGI23YWax295KcSg58Q5Nhfuz4sUwlEBnJzZvF1EVvCBXWU4QUXosdVKvQ7pyjVOEByTjaFjeAAJQWLEuQo6uQE2IGq/Gvk7YM+L1yAc+4MfuZzuTSyu+w9yYm9BoszqZ0U6RPbCNEoqv8C/Vb7vGKbJ8y+L77Y6lBKoVk/aK2s5V+lPl3c2lsuHTW1tg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by DS5PPFA3734E4BA.namprd12.prod.outlook.com (2603:10b6:f:fc00::65c) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9115.22; Thu, 18 Sep
- 2025 15:47:10 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%7]) with mapi id 15.20.9137.012; Thu, 18 Sep 2025
- 15:47:10 +0000
-Date: Thu, 18 Sep 2025 18:46:55 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Petr Machata <petrm@nvidia.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org,
-	bridge@lists.linux-foundation.org
-Subject: Re: [PATCH iproute2-next v3] ip: iplink_bridge: Support
- fdb_local_vlan_0
-Message-ID: <aMwpbw5i9x6mhQzc@shredder>
-References: <d23fb4f116e5540afbd564e0e3a31d91eae42c60.1758209325.git.petrm@nvidia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d23fb4f116e5540afbd564e0e3a31d91eae42c60.1758209325.git.petrm@nvidia.com>
-X-ClientProxiedBy: GV3P280CA0041.SWEP280.PROD.OUTLOOK.COM
- (2603:10a6:150:9::19) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id VZml-WuEp6WT for <bridge@lists.linux-foundation.org>;
+ Thu, 18 Sep 2025 16:18:52 +0000 (UTC)
+Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::232; helo=mail-lj1-x232.google.com; envelope-from=razor@blackwall.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 01CA08145C
+Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 01CA08145C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=G+ryC5vl
+Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 01CA08145C
+	for <bridge@lists.linux-foundation.org>; Thu, 18 Sep 2025 16:18:51 +0000 (UTC)
+Received: by mail-lj1-x232.google.com with SMTP id 38308e7fff4ca-33ca74c62acso9627941fa.1
+        for <bridge@lists.linux-foundation.org>; Thu, 18 Sep 2025 09:18:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1758212329; x=1758817129; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Hn0hHTGqR47ZeFXXfyKJMLyN9yvA5G3Bb4pO4Wvs8Iw=;
+        b=G+ryC5vlKGxKzlGnAWAgUwhta8c/ekQRJmhnoRhJxZhaL5kK+mkkTZcsMDQcKLbSgw
+         fBx5TjOoF5RU0CTt3KN3LlpMOifBA+7ZGDYsfIVN71MqeohrFKYsJpUxi0wOsmINAUgo
+         fJS4F2U5OQTAH1EcBVuuZByEvuCTBPoh/mQfp8dSuFKtNRdFaOqK/Q6czYq4vG3QDCNW
+         +b+Ed6XDdpUHKf6lQH3PrXl37y9B/6BluCK5mBhYg4x9TwZMqbEgUmhEavd/i+FxWRw+
+         BUf7yhwqb7LmGYw8Lssd56bWtGyMLg8vXQ4CObrie4NXyV7E+t/Ks4oNtrD/SpEDxB6/
+         zqUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758212329; x=1758817129;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Hn0hHTGqR47ZeFXXfyKJMLyN9yvA5G3Bb4pO4Wvs8Iw=;
+        b=PDwv5Sx+/rCRU7q39v7mvcqBbP80UykCq/QWNroPBQfSThqJKHBPjSres0cHa+KPm0
+         xYYiH14f0FW4yZ/xOai/emJ3dSfb98or9zckwltjOhv8EvQ33m/sDIbHCpN9aSb3sNZx
+         5vIkhe3qAMpYNkeJg4GdBjC4T4mtlDufCK14Lwddkxw7q6JPNX38kUYROO5InCNP/vdP
+         goYHxnhCiQ9j7MFJetf23w07PRT1kDGmi9tlpl6H8D/5O3sQJklA11F5RbdIwOHpRFG2
+         9i6fHGGkQWUvYhyprJUlVc0FY+XJRJ9vU4+kIozPYWmjE2y/8qA/Q3tJxsQjd9YugmOh
+         r7tQ==
+X-Gm-Message-State: AOJu0YwhXqYKf1xkZuD1fF/Xflx0JI11wrQKur+Tip1Bluz/3KLo5YF1
+	qJYLgjuIyrZL/j2M26ZiXSZOgXZ2pzq01KZc1QB9BmBpnmgexeoIRc8+vpQnRnV5+Ps=
+X-Gm-Gg: ASbGncsV9EcnkjxAA4uGxviqjSM7fq2UqUDY7UFIDqIJ3Eo69Vbydj7omL2Qm+P0w6+
+	gMfqYyGhqt1eCtj+wxNs8qlmNhAFKuD6uqfhmgtRuyXacW7/2PNhv5ZZsGiwEQmN99T+SXGGLkZ
+	93+/JESr113lx0MmH0gfhg/oeh92NxeeqKL82JRSqsU/o/r5nNwAQe9isiti7VSaIogYpuJwVUt
+	9i+ojaLLEHfNIQtmReD0qda++8LQRO0wTpZ4dc/cnkiBVkf5UdlSS7ontK45700pMjm5jkKADRY
+	UYh0KNFuvqU//FijcGG7AJg9F/DpNZfXdx2Q4NSUlbqyamIADdLY3n6l3Qhd7vbfgVI2YYHt8+f
+	K2t5jKaxV9HDKlx/kdJuzFffI1yafIcA9Ve5SPFNtPRZ+AgpwT+bE7erl1OPNrm4wvqKuo+qWIm
+	d3b3agCanT301cIj+6+8Ub
+X-Google-Smtp-Source: AGHT+IErdKLUND9UQ229ACOmVBQ5JcyfC20KVgyLavY53NqXj/MXkRfXB4GF/n8dR84aDf+50gNRfg==
+X-Received: by 2002:a05:651c:2222:b0:336:e03d:6f51 with SMTP id 38308e7fff4ca-3641bd67604mr301251fa.34.1758212329222;
+        Thu, 18 Sep 2025 09:18:49 -0700 (PDT)
+Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-361aa4810fasm6850671fa.64.2025.09.18.09.18.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 18 Sep 2025 09:18:48 -0700 (PDT)
+Message-ID: <eb9e2d21-b2f7-4a60-bfe1-530d909526d1@blackwall.org>
+Date: Thu, 18 Sep 2025 19:18:47 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS5PPFA3734E4BA:EE_
-X-MS-Office365-Filtering-Correlation-Id: 97892ac3-5045-4708-9916-08ddf6caa12a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?3fnFn93IzC6K1bDJPFEeFERIKaCeh941iuEdhu2XqC8n8y0gmT82reMGaYRy?=
- =?us-ascii?Q?+FxkTSsGaUoIU2DyZl6+JnXssBQ1+F6pXcCjG3amOjTi7bAq6vPS24rt4BPg?=
- =?us-ascii?Q?NyWya2td2EiOo9xO7sHXsh5AUoXzwv5q6pCEXFa29PjnBsp9Z7aHBmjVJZvz?=
- =?us-ascii?Q?Z3E5mxiIMzt760B1rBmh5IYhLeZ8TsM2XRINJ5teKLicBJEVT39GjcWfHbza?=
- =?us-ascii?Q?PE+AtsHTFdSbnMTu0L6vk0bcRL3XpSVYehvV9RW1K10onvMujQSQnAaV7bYC?=
- =?us-ascii?Q?yomw5LVsT/eCLHZ3u/y7Kf9jftbkehEPQ1rNZUA27nha0FAN+mnV+sbxYg/8?=
- =?us-ascii?Q?JUuYxW88ItJuBbZOtfOfOqzif5ajZNGUwOzseD+lhLZ0/OlvYX/Nq5eqK8HU?=
- =?us-ascii?Q?r3u8Sl8qoXWXISy4+ptIi4Db9QVx513cEeZd8IgvPi2BAhP+XHMt9N2pBLP4?=
- =?us-ascii?Q?Sr5MZU6L+CI5ZtONmzUPJVeAFhnV4oO3TnLBO2TPpIsnGH0gaA99+jrEYOz6?=
- =?us-ascii?Q?L/OEOIf85f9X0f/T+G3R6BVZzqKPg9kRro/F08gtzMzfyMxkCz3SAYxdWafo?=
- =?us-ascii?Q?705sSz+/mhto6edEce3ZfJxsjU2MPi23YzKRTc5BZKIzBRcVIgBFv3zgLQnB?=
- =?us-ascii?Q?m4sAkytblxIn1BLPQpd8UaC+vwRi8ibiph45uF0/b4sRRq5JfR0mhzBDCXqZ?=
- =?us-ascii?Q?pDw+d8c5hbN5koPqeFTbaxEdEzQyFNljzfQz5nHLs7yyjzheM7Qh0UltOu5D?=
- =?us-ascii?Q?wB2BIhEbZ2I8o4Gk2mVjaOLyzSeohdKkO7VSfAoXJkIF4BlU/jdtp6cSn3ar?=
- =?us-ascii?Q?Lh/bZQ5WxwlZtq2HiSPyGsoyk4V5zp36evgEDpxcfU+ur0EaYeqGHLDPxwFq?=
- =?us-ascii?Q?BNCbCn7BGEQMs0Iy1QrjoYv9hrudoVEoxDX/yJbKfQKgEgBGv5wlLRYoMV6w?=
- =?us-ascii?Q?PaDP6pek4+T+QD5PK0n6ttydkfwPFec9s4tDRkEVMIri27HB3aj6Mh/0sWr9?=
- =?us-ascii?Q?u2f8zqtxDvI8tCgvvyA3RKkuk0opmOOfyEyGDeO9Quuy439PCKBsAxZVDOGD?=
- =?us-ascii?Q?dr9qBpzH3CXfM2+a0sy6AwM+TFBzNOpZQindovgE72o2OgJ4qNcccSHQcyqW?=
- =?us-ascii?Q?75jCHgswg1sV9dUx34esESe338NTdUpr59b+t1Y+mG+L/BTnITOZm3lxV/Tj?=
- =?us-ascii?Q?kFk4fp3iouiWmwsGO7g2CcTCkiVBFIkCyr4i2MG8sTP71Vg4ANiwGiNWB67f?=
- =?us-ascii?Q?wLu0ZcXfpxWSqQNMNhdm3Zii5aSFTrXtLpUHKzwnmF5UXLXfuuasTQ9z1sF0?=
- =?us-ascii?Q?NTDpAm/I+dt4uPnJrNpdGmSWbXl+goaNe8gHa5Ziw8aUS9+o4tE9kzLCfN6U?=
- =?us-ascii?Q?WLYpPxkYgVugb4VLh6wPeKH8Fkwr+wWFjCCejKiY7VtYcJ6ZguNWkLX/lJaj?=
- =?us-ascii?Q?UiGIGlTdOAk=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?MwnRTWZhck8431Ily2LQGwf1YRuEOUlukxr3ZZZq11xiiEv+pNDfn9H1nB23?=
- =?us-ascii?Q?cIL8y5GMY6h8s9E3fZklHu4Du9Cv/NqztlnxxEjANeqQpwMbUXhhCqqCPAjK?=
- =?us-ascii?Q?v3JTV7Tn+XsQr5AUQOMFT9W+UvZRxp0rv2VKv82vUVuqfuwujy0hTgm1VtVE?=
- =?us-ascii?Q?2Ggjl+1/lsHWEN+t0jGUNZ/y+9UAy1dy4dpTuuFBl1Gjs+wvcxBDJdJ7ne5s?=
- =?us-ascii?Q?DG0ZLFHPZt53Mmxs2gHxUKefBUwxkdG2SkqlebyNg9adC/TwpH1OaOCcGQAi?=
- =?us-ascii?Q?BrBnDkVx8oAeURg6/J9vJm1MGXm7q3IqtBkhW2riZI67i1lLuAG4HTfsgqpk?=
- =?us-ascii?Q?cPjVWO3aTkTIpXkXhdxGbgempM30GiJOSF9Gnq8SnkZLBAlFOppFoHAzCeKK?=
- =?us-ascii?Q?leV1tHnT5QEW2UoW0OwBemN6RTLMe8YlZ/557398d287UEr65ny9Fi57OewG?=
- =?us-ascii?Q?Td/3xD9qZ87nB/vwHnvnNB+wuCp5YQTov5h5SoOAJ/gDOEuGnDbqLZXFHEW2?=
- =?us-ascii?Q?6fq5+vTMFc5XD6eMylceSCBupR4qphZ+w4BXp99AlvKhnYQM6OoztvKnxOl8?=
- =?us-ascii?Q?ZZ3xIhvRDGmvXaYXTa+6KidsSYhpZDfk6OYyCucvH15oqQTNgDcSiTH9UJka?=
- =?us-ascii?Q?zX8dHqQWO7G97JBC4w/uJKcvAez6iXeh+EkAuVjTTfb857MyKNMN9fWq7Sms?=
- =?us-ascii?Q?hQ1vbKDi8vYymEjRMY9pgh5pZ4xJrLJLjwqcRi6lVva3OtS+pLlA+HbNwsyP?=
- =?us-ascii?Q?tlh+Ik7/ZyBOuLxF4jO4S0CTnbWxLNU0Xr9GqTOOaIrrJzlfmF/j6Tg4yKjT?=
- =?us-ascii?Q?OfDMoZQF+nCS2BIuCSOAPoDvjoB0UioEXGZ0BRmuAAWMVjqO45Ndie+2YYZO?=
- =?us-ascii?Q?MHqK8vaBqTr+sOrmil29b2lON8C59pj1I08cYU4zto8ZyDAdACu4gm/CfLiB?=
- =?us-ascii?Q?PucrVYaoK1TfGhyFZv0r4m98Zwzb2PJRwihrByR+/3Pqy4m6Hwu0VZ52TN6T?=
- =?us-ascii?Q?ClV2SDzdd78IjzSBth8xtOQo8WkvmHDMIfrIr5c4MT6WNj04g7vy2g94KYMh?=
- =?us-ascii?Q?1mwRjiOgZcKLqB3F+li4/WXOSNZ8mnTVZQ3RBdhz7+9ELxud/z51wobXP2ot?=
- =?us-ascii?Q?d+mk6Yf8jBrSzwd/r6QDnjJcUTzBgBjhqkPIzP6s1T2F7pHKFFwBA/kg1TtU?=
- =?us-ascii?Q?WS2RxcuCEpao3f6hc6/g/T1BPe+xTzSK6jht8IQud8aLUANK7g65ZcaO1Bhe?=
- =?us-ascii?Q?BhMNk0KxE/LVR8tb/3AGfs20ZnvHAvINhLcBVghlE+/vESp1aHVNzdaOcziX?=
- =?us-ascii?Q?J5bKWDFlO9Rme40rPX9VkwHOQAxo53c1GSNikH6eX4XrL6WNxGCxtQZe54Gt?=
- =?us-ascii?Q?hMVgpfPIsq8HkzrNRHwMbcPRipVRpz5eXxeoBJyM3vn+hJcrfDsEYyLEKyRy?=
- =?us-ascii?Q?iFeP5EQQ1V4/r0oAP+35GXOYbTUXPUm+A9MKNrDy/ad0lC3ujyLa1eKDlM6F?=
- =?us-ascii?Q?k+HQf3usYK6DktnpHBKTtK5sn7CP/fdLci8BgnxwA1UntRdQJhTdPRFnWs7I?=
- =?us-ascii?Q?tsu422SLWc6hb27luunSF7QN2W0Hgc0q5yttD0EC?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 97892ac3-5045-4708-9916-08ddf6caa12a
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Sep 2025 15:47:10.5315
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /xI7u+zrpViW5tnYyq6b6KZfxKN92biEW8xYBazvsX45vVl3AYSRolNfP/0RzZYrm9pCwRUHyMz20b/y9Ab+wQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS5PPFA3734E4BA
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH iproute2-next v3] ip: iplink_bridge: Support
+ fdb_local_vlan_0
+To: Petr Machata <petrm@nvidia.com>, Ido Schimmel <idosch@nvidia.com>,
+ David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org
+Cc: bridge@lists.linux-foundation.org
+References: <d23fb4f116e5540afbd564e0e3a31d91eae42c60.1758209325.git.petrm@nvidia.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <d23fb4f116e5540afbd564e0e3a31d91eae42c60.1758209325.git.petrm@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Sep 18, 2025 at 05:39:26PM +0200, Petr Machata wrote:
+On 9/18/25 18:39, Petr Machata wrote:
 > Add support for the new bridge option BR_BOOLOPT_FDB_LOCAL_VLAN_0.
 > 
 > Signed-off-by: Petr Machata <petrm@nvidia.com>
+> ---
+> 
+> Notes:
+>      v3:
+>      - When printing the option, test optmask, not optval
+>      
+>      v2:
+>      - Maintain RXT in bridge_print_opt()
+>      - Mention what the default is in the man page.
+> 
+>   ip/iplink_bridge.c    | 19 +++++++++++++++++++
+>   man/man8/ip-link.8.in | 15 +++++++++++++++
+>   2 files changed, 34 insertions(+)
+> 
+> diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Thanks,
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
