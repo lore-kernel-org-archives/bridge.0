@@ -1,117 +1,108 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56A9730E0D9
-	for <bridge@lists.linux-foundation.org>; Mon, 22 Sep 2025 15:55:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CD4915D1
+	for <bridge@lists.linux-foundation.org>; Wed, 24 Sep 2025 00:20:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758556552; cv=none; b=NPf6vIje5cb0ABjvALsoL8LIA3nlKmPHHIWQHqzeaTkahT6y7hEHMCOCqTHoMwq7gIkb16J3e6qf7O+VwZSDdaZYuIIj+dGuwQPieEoJhHBGIIRn7fPy6g2RwUMwkl1QhvJYsSavi+tVmB7QyEjSaMNDwfyRHhFxeQw+tN+tqM8=
+	t=1758673227; cv=none; b=mMOID/0abLEFZpo6bGxVMVzIH87cJpXcZ9Fa0d9TzBkqEwubz8skUP1AKs8KJsCDIbkxNFRmEFd2oYNJX9+Msx+SAimA4TpsPPj2uK00jullgC1di96lrXrf6OWpa+B0dGvce4zgwGXscaMi/rAEzCGm0O9Pwue0azJADm2OvoU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758556552; c=relaxed/simple;
-	bh=pq/O0L3iQRvpt2S4brWTo8EHJ/WdeRstTtx1HjRCEWk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=r8X5lfMKIwAqSK9b2aNkzLeBI+wu6Q3m6lt5p1Bt76LY6ObQH61+0SpKI5ZZqBNIJdiRuRxNFQ3oCpRnytDgAIlhrsitQk87ltXG/hsgQuMdC7V6hIidjInbU0vn2kWSi0rf1E3J+a1dKz0oFLKcAZ/hbVfK5W/wy2LaEpjWxV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=LJX0ZDmy; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1758673227; c=relaxed/simple;
+	bh=AsLKiOnYrDDrClhwRLf39bXJPVdgZThDfAY5suNGOwI=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=bgaiyNi2vv3mPW6vAEPDCnwuC7oFK0EC3t69obtketMo13Vtb20zjDC9aAADDl+IVse9fYOp9fRsgZVNN8SDsprjN/LfM/Ab2hRgG83ldjIezh/UN/hAbl9G84409vVT/lTwLMgIV0y74ZwPP6PxHo6AM4ONlRthpyKVRnmBKj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nWaJJHJM; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="LJX0ZDmy"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nWaJJHJM"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E19AE41922
-	for <bridge@lists.linux-foundation.org>; Mon, 22 Sep 2025 15:55:50 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id F3CBA60E0A
+	for <bridge@lists.linux-foundation.org>; Wed, 24 Sep 2025 00:20:25 +0000 (UTC)
 X-Virus-Scanned: amavis at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.098
+X-Spam-Score: -5.792
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id sj07uinr6Bce for <bridge@lists.linux-foundation.org>;
- Mon, 22 Sep 2025 15:55:50 +0000 (UTC)
-Received-SPF: None (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::12b; helo=mail-lf1-x12b.google.com; envelope-from=razor@blackwall.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 0364F40C3A
-Authentication-Results: smtp4.osuosl.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0364F40C3A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=LJX0ZDmy
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0364F40C3A
-	for <bridge@lists.linux-foundation.org>; Mon, 22 Sep 2025 15:55:49 +0000 (UTC)
-Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-57e03279bfeso1821192e87.0
-        for <bridge@lists.linux-foundation.org>; Mon, 22 Sep 2025 08:55:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1758556547; x=1759161347; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=JH5AoWKD3BnRdokPxPgfiznRnTMj6/N6Wxj8BEiEKQA=;
-        b=LJX0ZDmyjeBtyXQoVj9CycB6Dt8Z7RRpcCpCIwe8xxLkHoceO0vxadqM8omoaf8bOe
-         6bZrIC7zW3y1jYWUj1pE97qJEIyQJHTNrBEy7+jaIZnRoA39tHQbdJIH9gSNpxufiuwT
-         uMa47Yatm57TTxDhBgr7Eay1NSYnx7Eysm8803j7MVZlHbamVi3QgoF6oHoAlqwOYCXJ
-         2KX/SXGgjdneIxkBXePUGAP5qYvboX9OMay1z7l+HTXcaUd7tDYYoQODkiN5C49qXgGt
-         1DhDhIegg0uV7ZBC6Xjh3WBW6zBtQVhPIm6Y7qL1D7nV3mugZBGc7c0F4SJr5AF3GAtO
-         G+mg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758556547; x=1759161347;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=JH5AoWKD3BnRdokPxPgfiznRnTMj6/N6Wxj8BEiEKQA=;
-        b=aCElbWBP8BrYDJb4aq+LJbeHhY0aEdqNReG57rKL5w4AsIHB+xOKJx/grb3yeV/WES
-         uBW0ex0LeE/7/gYQfqlJ8Sed6J+geOGHQL9LO9Fl7lRaUZqfGOridFsdhF5PnAJClT9G
-         20+LPBXDmV2BOLqk9qYv4Rkxq2XpLMd1cDWreYHx1/kBdtd15bYeJOzkHwFqmcm7KsIr
-         EYkOhkEv5jiU59LXIQP9c/mYHHtBTiFlRS11Yyf5GO0x7dadRrcQhdpZb0+4+CDcjBDQ
-         dBhh3tJ0CaUNfY8KdBKDm6aaDLd437O/gNpG/wWAJdyLE3TET4vwaTkxsTDGzOBCDgxr
-         KpTg==
-X-Forwarded-Encrypted: i=1; AJvYcCUt+BQ6hO/x4fRglZGDrwh871ceZOsynrQ09n3kVAb80W9yJlfJ4MhXR23E9kuoW4hCJO+LXXc=@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwZHM5YoI7xIed5E+gvjg8uEqGA1SX4lxG7Rvo0//9Dzz1ZM3EK
-	fLP8m3AFwbioPzVuv/EyCaDehsDs3sh9/e9ma9H4MNlZvrSu4bMWso/7qfirnBIqSu8=
-X-Gm-Gg: ASbGncsFbwQoL1CcBzSkhhw9wgBPG1683nAUitg9taCdtljqNvz17e2+tu7oiKGkIXG
-	ZLBI4TlSWsEqEM6WDluKGdqOB+zh4EwdSTcS6YimB1olpiuDqLOgPUNpFLdpf+BJBx2f0FGUFoS
-	moRjEgOIVBLTJWJ3K/HK02KwpYR8KiMKwsjE2gmhf9cY3N46kmgTZvHZ9zTE5GH32YyzjdSMyn1
-	2ltBLCrhKFuVzu8auMLAkAXCMUbFwoUvrnshudZYVAAHWdGK7SE48lz2wRbMOr0OdoNvd+9WCmF
-	GEnE0jPRqFjVW+7DjG56meT7cvf3nRk0o/7oitpqN8Z4zIDqM3ghiFw/dV3C6zihpJhagQ/Y5Yw
-	yUGssfq8ghmdLo1sPXBxvYQQ+8flJvLT+7oXr2WmNf8MzuLx7IJijgT5AmFkBGfPfO4wA0wNQvi
-	hT0Q==
-X-Google-Smtp-Source: AGHT+IERmXOhfELt8HvWUl7P0WDmFnVRCBbD/AzuUK5nRxpLxCKfqpY4wj6t5yMfkpqaSjn/kjNSOQ==
-X-Received: by 2002:a05:6512:ea1:b0:577:fd15:396 with SMTP id 2adb3069b0e04-5789586999bmr5689677e87.15.1758556547546;
-        Mon, 22 Sep 2025 08:55:47 -0700 (PDT)
-Received: from [100.115.92.205] (176.111.185.210.kyiv.nat.volia.net. [176.111.185.210])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-57f504e8bbdsm500761e87.133.2025.09.22.08.55.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 22 Sep 2025 08:55:46 -0700 (PDT)
-Message-ID: <fa3b661b-8bdc-4d2f-a058-8e379ee411c6@blackwall.org>
-Date: Mon, 22 Sep 2025 18:55:44 +0300
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 4qUMnNmpL-ss for <bridge@lists.linux-foundation.org>;
+ Wed, 24 Sep 2025 00:20:25 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=patchwork-bot+netdevbpf@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 185CC6125F
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 185CC6125F
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nWaJJHJM
+Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 185CC6125F
+	for <bridge@lists.linux-foundation.org>; Wed, 24 Sep 2025 00:20:24 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by tor.source.kernel.org (Postfix) with ESMTP id 60E3660202;
+	Wed, 24 Sep 2025 00:20:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1212DC4CEF5;
+	Wed, 24 Sep 2025 00:20:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1758673223;
+	bh=AsLKiOnYrDDrClhwRLf39bXJPVdgZThDfAY5suNGOwI=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=nWaJJHJMUCIWhwL8RV1GpbKmyL+MIbboAKqP144zgExqikew5HlVDS++FBvxfVccL
+	 NNPYWbRd9SrdgbAysuQKK2nRHdrJsk88iBCt/gdxL/jtaFgneQP95egwbTBJqf9stw
+	 LCX2xhfUcKzu5AmFDxk7steqlOEfatmBzlBqoJk8+9GYz3x8SenAefwWCfk1VcfrhE
+	 rUXi+lle0Aja59Z9Z3A63NmjQIjJdQbqBeVuZdxObi6jzyLDgxJnFDHy7mG79iS0Ua
+	 snYe5wOK5s/Dhl27soP9kSHtdO1kyasMLwrPghbSezx6Qjg5cXQOqntfjr7TZZVpi5
+	 6x7UMImRC/uyg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33B6839D0C20;
+	Wed, 24 Sep 2025 00:20:21 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 2/2] selftests: bridge_fdb_local_vlan_0: Test FDB
- vs. NET_ADDR_SET behavior
-To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Ido Schimmel <idosch@nvidia.com>,
- netdev@vger.kernel.org
-Cc: Simon Horman <horms@kernel.org>, bridge@lists.linux-foundation.org,
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next 1/2] net: bridge: Install FDB for bridge MAC on
+ VLAN
+ 0
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <175867321999.1971872.15659581370165041096.git-patchwork-notify@kernel.org>
+Date: Wed, 24 Sep 2025 00:20:19 +0000
+References: 
+ <415202b2d1b9b0899479a502bbe2ba188678f192.1758550408.git.petrm@nvidia.com>
+In-Reply-To: 
+ <415202b2d1b9b0899479a502bbe2ba188678f192.1758550408.git.petrm@nvidia.com>
+To: Petr Machata <petrm@nvidia.com>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, idosch@nvidia.com, razor@blackwall.org,
+ netdev@vger.kernel.org, horms@kernel.org, bridge@lists.linux-foundation.org,
  mlxsw@nvidia.com
-References: <415202b2d1b9b0899479a502bbe2ba188678f192.1758550408.git.petrm@nvidia.com>
- <137cc25396f5a4f407267af895a14bc45552ba5f.1758550408.git.petrm@nvidia.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <137cc25396f5a4f407267af895a14bc45552ba5f.1758550408.git.petrm@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 9/22/25 17:14, Petr Machata wrote:
-> The previous patch fixed an issue whereby no FDB entry would be created for
-> the bridge itself on VLAN 0 under some circumstances. This could break
-> forwarding. Add a test for the fix.
-> 
-> Signed-off-by: Petr Machata <petrm@nvidia.com>
-> ---
->   .../net/forwarding/bridge_fdb_local_vlan_0.sh | 28 ++++++++++++++++---
->   1 file changed, 24 insertions(+), 4 deletions(-)
-> 
+Hello:
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Mon, 22 Sep 2025 16:14:48 +0200 you wrote:
+> Currently, after the bridge is created, the FDB does not hold an FDB entry
+> for the bridge MAC on VLAN 0:
+> 
+>  # ip link add name br up type bridge
+>  # ip -br link show dev br
+>  br               UNKNOWN        92:19:8c:4e:01:ed <BROADCAST,MULTICAST,UP,LOWER_UP>
+>  # bridge fdb show | grep 92:19:8c:4e:01:ed
+>  92:19:8c:4e:01:ed dev br vlan 1 master br permanent
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,1/2] net: bridge: Install FDB for bridge MAC on VLAN 0
+    https://git.kernel.org/netdev/net-next/c/cd9a9562b255
+  - [net-next,2/2] selftests: bridge_fdb_local_vlan_0: Test FDB vs. NET_ADDR_SET behavior
+    https://git.kernel.org/netdev/net-next/c/f67e9ae72dd7
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
