@@ -1,58 +1,81 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CD4915D1
-	for <bridge@lists.linux-foundation.org>; Wed, 24 Sep 2025 00:20:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB4123957D
+	for <bridge@lists.linux.dev>; Thu, 25 Sep 2025 18:31:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758673227; cv=none; b=mMOID/0abLEFZpo6bGxVMVzIH87cJpXcZ9Fa0d9TzBkqEwubz8skUP1AKs8KJsCDIbkxNFRmEFd2oYNJX9+Msx+SAimA4TpsPPj2uK00jullgC1di96lrXrf6OWpa+B0dGvce4zgwGXscaMi/rAEzCGm0O9Pwue0azJADm2OvoU=
+	t=1758825062; cv=none; b=XJp2z7gDVTvwRLbPGcdkT/6LhtaKxRpTxRYGJw9qBRu7mOQu3/HblAiay6Jmr0dZQ/rOfan4h1K1rtiwpDr/3GNRam9uPoXpcnM1dgQioDFUVeBuSGv89VcI2vV9JGwhD/RhG7mQmoO/acX9o3yI49jHFOtGtaGLH/pvoBYJU7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758673227; c=relaxed/simple;
-	bh=AsLKiOnYrDDrClhwRLf39bXJPVdgZThDfAY5suNGOwI=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=bgaiyNi2vv3mPW6vAEPDCnwuC7oFK0EC3t69obtketMo13Vtb20zjDC9aAADDl+IVse9fYOp9fRsgZVNN8SDsprjN/LfM/Ab2hRgG83ldjIezh/UN/hAbl9G84409vVT/lTwLMgIV0y74ZwPP6PxHo6AM4ONlRthpyKVRnmBKj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nWaJJHJM; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1758825062; c=relaxed/simple;
+	bh=mWfnCyX4ZXZBEuQ+MvwGx9mVDI5hxd/cIA20xBbVsbA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=k2yvnHRG6wgMtErtWvgUMCsZwBlxfyVxZjdx/FZK4gLcLVFg2EZQWd9Qjwcz6y0uJLh/spV+TFWeae+GZr3O+Ia68Dy1I1TTxInUNR378Lv0nhv2uiV+hfRr/XX2oypFIV6O7QLIAYFRPIWCXyyn3zsB0xFKADYhSZa24ATAaqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kqrmAqDK; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nWaJJHJM"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F3CBA60E0A
-	for <bridge@lists.linux-foundation.org>; Wed, 24 Sep 2025 00:20:25 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 4qUMnNmpL-ss for <bridge@lists.linux-foundation.org>;
- Wed, 24 Sep 2025 00:20:25 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=172.105.4.254; helo=tor.source.kernel.org; envelope-from=patchwork-bot+netdevbpf@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 185CC6125F
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 185CC6125F
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nWaJJHJM
-Received: from tor.source.kernel.org (tor.source.kernel.org [172.105.4.254])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 185CC6125F
-	for <bridge@lists.linux-foundation.org>; Wed, 24 Sep 2025 00:20:24 +0000 (UTC)
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by tor.source.kernel.org (Postfix) with ESMTP id 60E3660202;
-	Wed, 24 Sep 2025 00:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1212DC4CEF5;
-	Wed, 24 Sep 2025 00:20:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1758673223;
-	bh=AsLKiOnYrDDrClhwRLf39bXJPVdgZThDfAY5suNGOwI=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=nWaJJHJMUCIWhwL8RV1GpbKmyL+MIbboAKqP144zgExqikew5HlVDS++FBvxfVccL
-	 NNPYWbRd9SrdgbAysuQKK2nRHdrJsk88iBCt/gdxL/jtaFgneQP95egwbTBJqf9stw
-	 LCX2xhfUcKzu5AmFDxk7steqlOEfatmBzlBqoJk8+9GYz3x8SenAefwWCfk1VcfrhE
-	 rUXi+lle0Aja59Z9Z3A63NmjQIjJdQbqBeVuZdxObi6jzyLDgxJnFDHy7mG79iS0Ua
-	 snYe5wOK5s/Dhl27soP9kSHtdO1kyasMLwrPghbSezx6Qjg5cXQOqntfjr7TZZVpi5
-	 6x7UMImRC/uyg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33B6839D0C20;
-	Wed, 24 Sep 2025 00:20:21 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kqrmAqDK"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b3727611d76so68646366b.2
+        for <bridge@lists.linux.dev>; Thu, 25 Sep 2025 11:31:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1758825059; x=1759429859; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=K7V70C2OYgSvApO6vEjdxKmgkWi6ODruqlWoYJimYJ4=;
+        b=kqrmAqDKXQpbqIOR3//wEPwYy579VBvMU+2WLHhf/fkjsZDnh//klVZ3T3m+Subyk7
+         g1+YGP8WmMI9SZF2Ajc6+rXn0tgtPgSioeMpegqSHMEmd1TxQ4pqJKzBcihZTQbk82Gq
+         qYyHy5sRO3ssKHJPUO+lfaKPdtrVXnLtm5JSkNx+30t0NCXiJJIMlhK6NbAJT772qBHs
+         VDRBDTYDIxABWfq9UBh8A3DRSXyfdZqOs5J9oslVRIC2iF1/DPTwO49Hl5T+D5b6vnXM
+         GbSW0bMV3fthx2eS+XHjFTdTLYeMJatbu9fv3NHCxDSM0juZB9/rcGYUo+tVx6G7KvZT
+         qk/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758825059; x=1759429859;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=K7V70C2OYgSvApO6vEjdxKmgkWi6ODruqlWoYJimYJ4=;
+        b=lbK3LIIvPGkaIU0PYRGqyPB3E0mjhZ77CTGa2/s1sL4mXWqbthF6UJumz5542iwR5K
+         nBcq/iLknX3YDb5Bs0AO3aTiQGVogv3DXvpoKj64LymBTbh22Pv6OknmUszmMCcEOaLT
+         r8MvWJf5JoW2RfAKtvdZ+NxABtN5Bh3672Ss70WFN0eRZXp1yxPu8T0JE4d5c7xbbJX1
+         RU1K+hHB7FGSQoCT12y/sB7R2jglGzkwUTTcWDEmDCxM/NTH6aGSMedSa//Qona831+g
+         SbLV9dnEcuJMU+ir+HOZmPHqEKGj+i1jP8uOkbrb601eTPzEmg61t59eBLhXAXuAqMbY
+         sqMA==
+X-Forwarded-Encrypted: i=1; AJvYcCU571XzXHY7eP4pLZIr8qss0MvW4e+MR64HvMBAvKy52wBXAdpb2fsC5+DtNgb1D4n6MgP7O9E=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxOnszYNebBuc9ZdJpV6/yCSRd8WkE579vBUVH1AmjtU2S4jcXg
+	egPXsu9yYVtvpsGkxdqPbjLLvVFSKxwoRLtBuWniz+89UJhPOzRMEYZo
+X-Gm-Gg: ASbGncsttIfhUGR3kjanmfUj1cv7ZMIgqbC0XjKLXTVGEyAPxa1AzR3TeLTlW/6CPPj
+	DVReaRAiXsaG6GZzKBt1qf9aBy5lxgtS9390Oy76MU8AWsjAxVnp9J5si/6S2yZ1Buc2qAzVc+k
+	62bEJjHMtjKP3XfZwf1xJQQ1uI3Vl0QPLNZd5JvvVGj3dO65eFkD/TDW28VBqv6Hqux0OSYy2na
+	tOpw5qsa3mEmVRFAkP3FLQ5F453gDM/vpOcUzhTRkScgOJq8aNSsksYKmu+UhdJSHSqxVxMvhBO
+	CRlXrMd0QIg9kjStvtmni62SlKde8nMMjtVt+ZaeXE03jxj3ploT3XmDtNGJJEGmulxTioGVaIS
+	ifMY+Qz3AEajLfZ/3pErH+CvCJ/V0TxBbuWJTu6H4Qj3hjnehJ2R4XZ7POu+0OHGMbKLssFonO1
+	kyG4c9rJmNCSJcP2oOGA==
+X-Google-Smtp-Source: AGHT+IHkLAofooZVh3BAd89JwDIkjnucLG6nJfCAeGHO8bJNdmfj/gTKINUMsN2WpKXV8iwBOnj4tg==
+X-Received: by 2002:a17:907:3d4c:b0:b0d:ee43:d762 with SMTP id a640c23a62f3a-b34b9f5b4c4mr419901366b.4.1758825058790;
+        Thu, 25 Sep 2025 11:30:58 -0700 (PDT)
+Received: from eric (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b3545a9c560sm211198666b.107.2025.09.25.11.30.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Sep 2025 11:30:58 -0700 (PDT)
+From: Eric Woudstra <ericwouds@gmail.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>
+Cc: netfilter-devel@vger.kernel.org,
+	netdev@vger.kernel.org,
+	bridge@lists.linux.dev,
+	Eric Woudstra <ericwouds@gmail.com>
+Subject: [PATCH v15 nf-next 0/3] conntrack: bridge: add double vlan, pppoe and pppoe-in-q
+Date: Thu, 25 Sep 2025 20:30:40 +0200
+Message-ID: <20250925183043.114660-1-ericwouds@gmail.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -60,49 +83,68 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next 1/2] net: bridge: Install FDB for bridge MAC on
- VLAN
- 0
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <175867321999.1971872.15659581370165041096.git-patchwork-notify@kernel.org>
-Date: Wed, 24 Sep 2025 00:20:19 +0000
-References: 
- <415202b2d1b9b0899479a502bbe2ba188678f192.1758550408.git.petrm@nvidia.com>
-In-Reply-To: 
- <415202b2d1b9b0899479a502bbe2ba188678f192.1758550408.git.petrm@nvidia.com>
-To: Petr Machata <petrm@nvidia.com>
-Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, idosch@nvidia.com, razor@blackwall.org,
- netdev@vger.kernel.org, horms@kernel.org, bridge@lists.linux-foundation.org,
- mlxsw@nvidia.com
 
-Hello:
+Conntrack bridge only tracks untagged and 802.1q.
 
-This series was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+To make the bridge-fastpath experience more similar to the
+forward-fastpath experience, add double vlan, pppoe and pppoe-in-q
+tagged packets to bridge conntrack and to bridge filter chain.
 
-On Mon, 22 Sep 2025 16:14:48 +0200 you wrote:
-> Currently, after the bridge is created, the FDB does not hold an FDB entry
-> for the bridge MAC on VLAN 0:
-> 
->  # ip link add name br up type bridge
->  # ip -br link show dev br
->  br               UNKNOWN        92:19:8c:4e:01:ed <BROADCAST,MULTICAST,UP,LOWER_UP>
->  # bridge fdb show | grep 92:19:8c:4e:01:ed
->  92:19:8c:4e:01:ed dev br vlan 1 master br permanent
-> 
-> [...]
+Changes in v15:
 
-Here is the summary with links:
-  - [net-next,1/2] net: bridge: Install FDB for bridge MAC on VLAN 0
-    https://git.kernel.org/netdev/net-next/c/cd9a9562b255
-  - [net-next,2/2] selftests: bridge_fdb_local_vlan_0: Test FDB vs. NET_ADDR_SET behavior
-    https://git.kernel.org/netdev/net-next/c/f67e9ae72dd7
+- Do not munge skb->protocol.
+- Introduce nft_set_bridge_pktinfo() helper.
+- Introduce nf_ct_bridge_pre_inner() helper.
+- nf_ct_bridge_pre(): Don't trim on ph->hdr.length, only compare to what
+   ip header claims and return NF_ACCEPT if it does not match.
+- nf_ct_bridge_pre(): Renamed u32 data_len to pppoe_len.
+- nf_ct_bridge_pre(): Reset network_header only when ret == NF_ACCEPT.
+- nf_checksum(_partial)(): Use of skb_network_offset().
+- nf_checksum(_partial)(): Use 'if (WARN_ON()) return 0' instead.
+- nf_checksum(_partial)(): Added comments
 
-You are awesome, thank you!
+Changes in v14:
+
+- nf_checksum(_patial): Use DEBUG_NET_WARN_ON_ONCE(
+   !skb_pointer_if_linear()) instead of pskb_may_pull().
+- nft_do_chain_bridge: Added default case ph->proto is neither
+   ipv4 nor ipv6.
+- nft_do_chain_bridge: only reset network header when ret == NF_ACCEPT.
+
+Changes in v13:
+
+- Do not use pull/push before/after calling nf_conntrack_in() or
+   nft_do_chain().
+- Add patch to correct calculating checksum when skb->data !=
+   skb_network_header(skb).
+
+Changes in v12:
+
+- Only allow tracking this traffic when a conntrack zone is set.
+- nf_ct_bridge_pre(): skb pull/push without touching the checksum,
+   because the pull is always restored with push.
+- nft_do_chain_bridge(): handle the extra header similar to
+   nf_ct_bridge_pre(), using pull/push.
+
+Changes in v11:
+
+- nft_do_chain_bridge(): Proper readout of encapsulated proto.
+- nft_do_chain_bridge(): Use skb_set_network_header() instead of thoff.
+- removed test script, it is now in separate patch.
+
+v10 split from patch-set: bridge-fastpath and related improvements v9
+
+Eric Woudstra (3):
+  netfilter: utils: nf_checksum(_partial) correct data!=networkheader
+  netfilter: bridge: Add conntrack double vlan and pppoe
+  netfilter: nft_chain_filter: Add bridge double vlan and pppoe
+
+ include/net/netfilter/nf_tables.h          | 48 +++++++++++
+ net/bridge/netfilter/nf_conntrack_bridge.c | 97 ++++++++++++++++++----
+ net/netfilter/nft_chain_filter.c           | 17 +++-
+ net/netfilter/utils.c                      | 28 +++++--
+ 4 files changed, 164 insertions(+), 26 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.50.0
 
