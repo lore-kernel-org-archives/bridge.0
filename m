@@ -1,134 +1,106 @@
-Received: from mail.aperture-lab.de (mail.aperture-lab.de [116.203.183.178])
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA1F821C163
-	for <bridge@lists.linux.dev>; Sat,  4 Oct 2025 14:28:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=116.203.183.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60D711D5CDE
+	for <bridge@lists.linux.dev>; Sat,  4 Oct 2025 14:31:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759588084; cv=none; b=pmSE8k8U5Aop+AB9T/AQz3IsDTQygio1fM4IKIOFYCUrWEvk1gHxGcO0/zWxc7+eo7XvrVeNth1Y+W3ZWMFcxXwoa9G6ShlKKmkJdipfo77EuGT0sz2TlND/MSQtGODszYTUvhYUH1NL1jlzZdMkxuPiEfvXP4Yive/jrVrPNmI=
+	t=1759588310; cv=none; b=lXCg3+8DvSHfL8IECv7MlzxdzSPJerZEAh8LaEMB25CZxUNFfqM7xcTYtAyeskCXYhHble2ryeoX0KsK0aB4SRdKel3imc+zDjP8Xb3H24XUs0vey0F6lr7Zy/67arjZRgO8fkgZafE7gvlNAxjAtqlOG9vAXeyjwizp4dyO6Vg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759588084; c=relaxed/simple;
-	bh=tl77jBe7fIPku8Z7eZo9//stu+k4QPsQ0UhsRrMUZ/g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aAn7DlRGO3OyXVuYi3V5Q3sKzhdLye+NWOpQF5WvldcmJj28fd7ZkOBJtuXazZzTF8twWxRPe92KlVuCamb5ngUVzbUZ/rKm2MFshsuOnoPMH+AvC4hQH4iUpDUXOF5OI0gQZXWpdASWttdW6ipm0OpsE9vjtvoeGNSaoi3/afM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue; spf=pass smtp.mailfrom=c0d3.blue; arc=none smtp.client-ip=116.203.183.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=c0d3.blue
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B85B954C477;
-	Sat,  4 Oct 2025 16:27:55 +0200 (CEST)
-Date: Sat, 4 Oct 2025 16:27:54 +0200
-From: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: "Huang, Joseph" <joseph.huang.at.garmin@gmail.com>,
-	Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	David Ahern <dsahern@kernel.org>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [PATCH net] net: bridge: Trigger host query on v6 addr valid
-Message-ID: <aOEu6uQ4pP4PJH-y@sellars>
-References: <20250912223937.1363559-1-Joseph.Huang@garmin.com>
- <aMW2lvRboW_oPyyP@shredder>
- <be567dd9-fe5d-499d-960d-c7b45f242343@gmail.com>
- <aMqb63dWnYDZANdb@shredder>
+	s=arc-20240116; t=1759588310; c=relaxed/simple;
+	bh=xIpon02+PxxhgZvHq/oo2SFJKUD6pPkmd3iQGroNCAw=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=BCFnQ0t2L2jsO2zKpCcIAT/ktHs2SJUqEprHNTUXC/R3X1+ZOW+tkuSS+QrJKYGKRZnglOt+NdMJiAYMnI14kDyJ3SukGNurgPxaUggQiZKA9AmR3hkQmhEcx23PztMI0q45/fbc6xkFWAoMTKEi0K9eXFGLvQyqIjkZLnfXusM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=ZnJFKX5U; arc=none smtp.client-ip=209.85.208.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="ZnJFKX5U"
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-62fa062a1abso6163088a12.2
+        for <bridge@lists.linux.dev>; Sat, 04 Oct 2025 07:31:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1759588308; x=1760193108; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:references
+         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=xIpon02+PxxhgZvHq/oo2SFJKUD6pPkmd3iQGroNCAw=;
+        b=ZnJFKX5UMUdU6MmgV2051tHy0i0CzrBk10iyjL8dc7kfk5YMO7+tE4fgutkLmTG8Ga
+         2XEOJY53ybdocv4/6DFy5fDTX9i5oII8QU4PHmsAhWNMU5QgRrRs8Kmo3nNA4gTgGhhk
+         ipaSaEGei+z5hwbhGx28c/L+4KvzTUhKIn1pM19KFwlCjnzR+GVkHzZzc4dEFEd3Uo4f
+         OJrWCi6oscsSW9O4XvAA/xmFfPCUj1+Lt127rrlSk5nLdXhHYSmH1tkSQf60fX4czPiN
+         gc2CiEOGypKB6EnE3ThR5oIbYNAb7cvCNZReiWzREa/bCU954oECIS2XnOHO/5G5TE0g
+         v43Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759588308; x=1760193108;
+        h=content-transfer-encoding:mime-version:message-id:references
+         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xIpon02+PxxhgZvHq/oo2SFJKUD6pPkmd3iQGroNCAw=;
+        b=DXY46gJKGqz1+ZZd21WcHGLW0wLnI7d7Xqy7F1J7KxJR4ufEdw7XiCORZTXYwMzFIQ
+         VVm2trrc+ohGGjXxJ3CSkEDEKvKfYqsnrf4qBxRIPCb1k6xQ6xPLrF/y9r8u3xJbbliG
+         H9go5PRfV1ZZNoxjSFi1gV6v417a5n5N92ffunXeBHCJV9M6c/hdWOCvdjg2ljJphH45
+         Jmn4wsT4jlZpOwbQguDIyILy9raGTK79TcMEEGKRIqeire+CXTll0oJV71yoOgXWyggh
+         zxfVcj/f3t8Gig3XnCh5biA1TC2TdX5vXFzkKvlXfdkLvK+G26j89KFiI4Keos0hWrQr
+         FsKg==
+X-Forwarded-Encrypted: i=1; AJvYcCV56MzKhimLBQmi7WSzOaHiWBexEgWN+mNJjg0THK/5oPdSth0anyzhp/cFbWIpm8dFOGrTeos=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyANaD2biRBCwfKHcVd663fg9bkwdUCW909BfMdjF9B4Zq8Ooja
+	mVFrdEOOs+/ZOSEhbF1u43AxPo6j2oMdHuQ0ck8MLha2afkFTHTcV4STUFtvWUxCdvI=
+X-Gm-Gg: ASbGncu1ZfQxzLDSbNg+/c9NOYFZQaPPPfPRHvAYoc46u1DyEMNVISn0QXMCycjiysX
+	TudAy1QuHWIYGb6gInsnEH479o+bXNH71Zl8RJK37h1YJnY3r6lyTxmRCGJW3F2JFFFKnCCzQiK
+	07HvRocijYhtC4uUTlOjajbjYc89oZdq4ED1f6LS8N8ilKJD1Mcdx07ZxTtGbEqF2vHZqb9MxpM
+	maYz9cad/24ixrJCRiz9SqNBIqYiYbo7ozS5o3VakWJw0D4ZeZkrlpoU2CYdIkhdDkzbts/Wrwq
+	N4OymnMS5iFuSj+ndlu/mUhMwaLHE2Wxh1kWKGP9wFTBj6c53i4d7qHxz9MVQUBmEtwMP4Xus4O
+	WXdMMfWs4SFM0/pApvueRMiogS9LQlg0kbm+4qwhbYZHFSYm5uEqTU8CMTyyEBjkflA==
+X-Google-Smtp-Source: AGHT+IHiaKgJ510GpGFJf/bD85KK6EwJE5YnqKxoe4rZdpetGANffy6OLHDG1PHEb/0alwwlC6EX3w==
+X-Received: by 2002:a17:906:f599:b0:b45:a03f:d172 with SMTP id a640c23a62f3a-b49c407397bmr880852366b.57.1759588307449;
+        Sat, 04 Oct 2025 07:31:47 -0700 (PDT)
+Received: from ehlo.thunderbird.net ([149.62.207.49])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b4869b57f0asm692110166b.77.2025.10.04.07.31.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 04 Oct 2025 07:31:46 -0700 (PDT)
+Date: Sat, 04 Oct 2025 17:31:45 +0300
+From: Nikolay Aleksandrov <razor@blackwall.org>
+To: =?ISO-8859-1?Q?Linus_L=FCssing?= <linus.luessing@c0d3.blue>
+CC: Jakub Kicinski <kuba@kernel.org>, Petr Machata <petrm@nvidia.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+ Simon Horman <horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
+ bridge@lists.linux.dev, mlxsw@nvidia.com,
+ Vladimir Oltean <vladimir.oltean@nxp.com>, Andrew Lunn <andrew@lunn.ch>,
+ Jiri Pirko <jiri@resnulli.us>
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_net-next_00/10=5D_bridge=3A_Allow?=
+ =?US-ASCII?Q?_keeping_local_FDB_entries_only_on_VLAN_0?=
+User-Agent: K-9 Mail for Android
+In-Reply-To: <aOEe3XKr25GNGZpr@sellars>
+References: <cover.1757004393.git.petrm@nvidia.com> <20250908192753.7bdb8d21@kernel.org> <3213449c-57bd-4243-ac8f-5c72071dfee5@blackwall.org> <aOEe3XKr25GNGZpr@sellars>
+Message-ID: <171B368E-D819-4AA9-B343-EE1AE529F8AD@blackwall.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <aMqb63dWnYDZANdb@shredder>
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 17, 2025 at 02:30:51PM +0300, Ido Schimmel wrote:
-> But before making changes, I want to better understand the problem you
-> are seeing. Is it specific to the offloaded data path? I believe the
-> problem was fixed in the software data path by this commit:
+On October 4, 2025 4:19:25 PM GMT+03:00, "Linus L=C3=BCssing" <linus=2Elues=
+sing@c0d3=2Eblue> wrote:
+>On Tue, Sep 09, 2025 at 12:07:43PM +0300, Nikolay Aleksandrov wrote:
+>> My 2c, it is ok to special case vlan 0 as it is illegal to use, so it c=
+an be used
+>> to match on "special" entries like this=2E
+>
+>I'm probably missing some context, but why would VLAN 0 be illegal
+>to use? Isn't VLAN 0 used for untagged frames with priorities? A
+>priority tagged frame?
+>
+>Regards, Linus
 
-Two issues I noticed recently, even without any hardware switch
-offloading, on plain soft bridges:
+Sure it is, I said it in the context of the bridge which doesn't have such=
+ support=2E
 
-1) (Probably not the issue here? But just to avoid that this
-causes additional confusion:) we don't seem to properly converge to
-the lowest MAC address, which is a bug, a violation of the RFCs.
+Cheers,
+ Nik
 
-If we received an IGMP/MLD query from a foreign host with an
-address like fe80::2 and selected it and then enable our own
-multicast querier with a lower address like fe80::1 on our bridge
-interface for example then we won't send our queries, won't reelect
-ourself. If I recall correctly. (Not too critical though, as at least we
-have a querier on the link. But I find the election code a bit
-confusing and I wouldn't dare to touch it without adding some tests.)
 
-2) Without Ido's suggested workaround when the bridge multicast snooping
-+ querier is enabled before the IPv6 DAD has taken place then our
-first IGMP/MLD query will fizzle, not be transmitted.
-
-However (at least for a non-hardware-offloaded) bridge as far as I
-recall this shouldn't create any multicast packet loss and should
-operate as "normal" with flooding multicast data packets first,
-with multicast snooping activating on multicast data
-after another IGMP/MLD querier interval has elapsed (default:
-125 sec.)?
-
-Which indeed could be optimized and is confusing, this delay could
-be avoided. Is that that the issue you mean, Joseph?
-(I'd consider it more an optimization, so for net-next, not
-net though.)
-
-> In current implementation, :: always wins the election
-
-That would be news to me.
-
-RFC2710, section 5:
-
-   To be valid, the Query message MUST come from a link-
-   local IPv6 Source Address
-
-RFC3810, section 5.1.14, is even more explicit:
-
-   5.1.14.  Source Addresses for Queries
-
-   All MLDv2 Queries MUST be sent with a valid IPv6 link-local source
-   address.  If a node (router or host) receives a Query message with
-   the IPv6 Source Address set to the unspecified address (::), or any
-   other address that is not a valid IPv6 link-local address, it MUST
-   silently discard the message and SHOULD log a warning.
-
-So :: can't be used as a source address for an MLD query.
-And since 2014 with "bridge: multicast: add sanity check for query source addresses"
-(https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6565b9eeef194afbb3beec80d6dd2447f4091f8c)
-we should be adhering to that requirement? Let me know if I'm missing
-something.
-
-For IPv4 and 0.0.0.0 this is a different story though... I'm not
-aware of a requirement in RFCs to avoid 0.0.0.0 in IGMP
-queries. And "intuitively" one would prefer 0.0.0.0 to be the
-least prefered querier address. But when taking the IGMP RFCs
-literally then 0.0.0.0 would be the lowest one and always win... And RFC4541
-unfortunately does not clarify the use of 0.0.0.0 for IGMP queries.
-Not quite sure what the common practice among other layer 2 multicast
-snooping implemetations across other vendos is.
-
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0888d5f3c0f183ea6177355752ada433d370ac89
-> 
-> And Linus is working [1][2] on reflecting it to device drivers so that
-> the hardware data path will act like the software data path and flood
-> unregistered multicast traffic to all the ports as long as no querier
-> was detected.
-
-Right, for hardware offloading bridges/switches I'm on it, next
-revision shouldn't take much longer...
-
-Regards, Linus
