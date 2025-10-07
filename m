@@ -1,227 +1,139 @@
-Received: from mail-yx1-f66.google.com (mail-yx1-f66.google.com [74.125.224.66])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 402FA2D7DE8
-	for <bridge@lists.linux.dev>; Mon,  6 Oct 2025 15:43:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 792F328468D
+	for <bridge@lists.linux.dev>; Tue,  7 Oct 2025 08:15:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759765387; cv=none; b=oez0Ti0yiguTppdeH3Gw/ywBGnDwHUPBhHNMJef3qAmpJmkbpy/bl5l4A+T1pbpjtVps5jxPnN0gnxE2GHStEZwq1Z16zDphfuj4i5vlOPp76EYh2BFiaAkV5qQNwJdSaRLYfEhykeOUWgEYh3c3dfRDvHhGnoNkEPhKyhDSfss=
+	t=1759824955; cv=none; b=ZaVtNV1vjMpdXu8F3+2ZhxYbueJSX8ZHCoufXW3WGcz87lT79UFqXaWA48mQLCNiPeVt5dM0Lee1BHCn2TpdfmIJyRapr1fxQwalpvqtkNisPZqrBmtelu+DydoAXSe545Qs/0xfI+KZ7QCZs82EPi+1tpzi76lh6oVcoh74lPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759765387; c=relaxed/simple;
-	bh=Sq6l5xabB9e+e6U34Yp8QyEMCZS5fpLuZ1RC7incO+g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DLsM48JWM8BAGu3fqm4IQTW3wkDzHyxX6pVlVw87N8Cr+g0e+FLBH9wVhKwypCYx3mgN8qAOkDaZg4YycSQOz2Ory4eq4Bil+qtsPKqqfx+5dq5N1hSjIJkK3pt2vs6IQFOBInHmxS5x7F4MLoFXNVlBXPkeg2TC7zUJBMw/d68=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fUmotVjP; arc=none smtp.client-ip=74.125.224.66
+	s=arc-20240116; t=1759824955; c=relaxed/simple;
+	bh=cPnv7w2X0stTQnku4HMN5Ut9YFp+W6zl1F8RwXMzF3g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z9uODSxwSiPhWFmWZ4iVG6TJjekgdKfguHwQJYVm0t5eX8oz4yTC9qa1DissGbLZOH6hXlzriIYIQ8mWZrAnwn/hsUYBUHZYUsAQPUTQqSP1vo3EuwO96LTGDDQ8TtmM+itqZWnIjocwB091tEuVAYpmIr1rmR7j6NFJ6dJ9ohw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PgNJXASu; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fUmotVjP"
-Received: by mail-yx1-f66.google.com with SMTP id 956f58d0204a3-6353f2937f3so5923890d50.3
-        for <bridge@lists.linux.dev>; Mon, 06 Oct 2025 08:43:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PgNJXASu"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b256c8ca246so1206069766b.1
+        for <bridge@lists.linux.dev>; Tue, 07 Oct 2025 01:15:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759765385; x=1760370185; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yAe+1R0ImOzNI475E01dkfR+/+6aOuLI6QONqqqxB90=;
-        b=fUmotVjP4jQoXmqBBCLlTIZQghhVI0gXZyi5hnbAjK3SrbfqJlfe+qrp5SaxDNLRTT
-         ARK77T5M3NfGYrtddFdb8+pctQ3EYTLErk2u8UKgNXPeCyUEY8ZFdKQEy4cFDY9OC21T
-         aYcvBXEDKjIPPWEazf1Mcq0mu3vc2G+eeAd3SfuHAPWEG7IdjRmTdpz4xKS9kvEYUtDZ
-         ECyK7L1fwfF8XUb0Ha9dh17WoslwUqspL6FM/ZNe6iZN64DWOjCptfQtMTS5L+udT4Uo
-         CUrfwt4gbz/CHZVSzFe8iCjtDiXvU1gadXPUV+jKb06530Ks6TibxhlMKxlLDN8ns1HT
-         vMtA==
+        d=gmail.com; s=20230601; t=1759824950; x=1760429750; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Qf77yEGo9b9X4Y3EI1g9cCQ5ukTIt05Cnfqv6X1CMII=;
+        b=PgNJXASupl9Holn2IzGhJudjIxSpww4eQYX3FXdLaKECRJfFmB40GRO0bmKN0VquBp
+         IQ4sERTShH7iRJVPdNi6pXmnHYOEimmZEBbEna6XoDIfdErkaigeF1CZXnOAg0K/BTbN
+         broO9wD8uCUema0nBKFLql2MnlLUUa3aq5oT2vzmfx+z6ce/uJI4vHGPmEssBZySTJrP
+         CPIJ1ZX2k+FDTI08KG9iGVNS+5Mgh0WjoDIJ5Mk9+gcdCOdjgD6EALduYJYWAVZzHH2P
+         wn8hD3uDfZQFEzx8AJuUVZ9W0lLFQHiVUZxoavemBBpOolnulBIRiIGz6nyTC6LpEeSs
+         yc3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759765385; x=1760370185;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yAe+1R0ImOzNI475E01dkfR+/+6aOuLI6QONqqqxB90=;
-        b=M1wOHTR990d2zET5T7Ww7H+UUB5sRPjAk1FWCIXE2yvK1K4tP6ni7pjVVd02l+85G8
-         M/pUGXNRqjkytZPBdlUS1lxkXpyN5KMJgkoKiTFGj+q/9fusChL92yv9dULQ8mj0qm0Y
-         hEbfg1wsS3F/9tUDaJXlsBEzjz07j4TDxlbiuHgyvaApjj7brNf1EWCCRTeyUOJPSWh/
-         AnUJj3GubrthU219EZw5x3//6CjeXtWFSLbhjKPsv6cv4WdOwzXq3CMforKgDvDwM6oF
-         PhIcgBJ7bWKHNAsvWHTJPAe3ZGG4VUW6mFonMX0xmlLLIZs3zX6xtXkBoWnsjH4nYjQ5
-         UAKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU3Jf5NoDTNxdEDzX5RBEdqOnT/7RAEoIQG+KdkK15dWxecj1MV5g+P4htD6kNAsyJuHUh48yo=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxvt7BoTew8ql0sEJf2eJMcxdcWjubQBFXjBhBkR1SH1BCWNatw
-	aRyEXxuGPRSq/pcFWRGO8RtbJ2FSlh7hJHD3g4mfGgV1yeb4yC1XKJvn
-X-Gm-Gg: ASbGncsl2XSoF8rI3CgrsajZ1a1zOP2NL/FibAdgb5B0V2qqnp9vrNQQrtMrePX/uFl
-	WW514wSh6/HoRSnVh/LLzAjX0H/HlMAaQra8w5N3oC2DUJ2FPG9olMnnu2lr2PqxJ2WB7oX8to9
-	Jbq+WIpe86oQvpNKmIEFJ5ifgGUcxwDNoK5Yin6OKaEeZ0JmeQnosPajN9TClMKMVd1USAm2mP/
-	S7DD0WgY/j9UQbDciWCnO2Fw4BejXTXD5acoXD8H6FvcVE+dduRLWmwaVp+2VgVrGRKtoqXiUVl
-	WEK9PsmL4ckas/vU+xmOJ0Q9z3lhkDkZONa0R685UOkXXk4Cf9hlsj8nhY3IRAtFDFLh+RA5L31
-	uFwxT2TU8esHRszO/qEMCJLOXbr8LJ9UEgp5ipP1R9yLo5mKfbQB57raTszlrVFTwLfyJr45OkC
-	z3CGg8MkkzmA==
-X-Google-Smtp-Source: AGHT+IFY8kuDypIqImPefgYyCAzqc7QXd8Vok4gUo6a6htfoqAVFzbCA36siBwVWpS4uIroE6Hc6hQ==
-X-Received: by 2002:a53:c042:0:10b0:5f4:3486:edb3 with SMTP id 956f58d0204a3-63b99f3508cmr13089941d50.0.1759765384581;
-        Mon, 06 Oct 2025 08:43:04 -0700 (PDT)
-Received: from [10.102.6.66] ([208.97.243.82])
-        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-63b846a7b95sm4465545d50.24.2025.10.06.08.43.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Oct 2025 08:43:04 -0700 (PDT)
-Message-ID: <9cc66694-6fcd-4460-9bce-cdbcb0153a89@gmail.com>
-Date: Mon, 6 Oct 2025 11:43:02 -0400
+        d=1e100.net; s=20230601; t=1759824950; x=1760429750;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Qf77yEGo9b9X4Y3EI1g9cCQ5ukTIt05Cnfqv6X1CMII=;
+        b=f5ciG+Bv2qXSFOCZLMZ5fCZMN8Ekc7pKqvdwpQgyu4jdHAooEZ5XFw+8dgRDFxSOc3
+         W4XYFHiVMDhvbalxb44wet8buhK+uyOYzD6Xe4gw1s3bWbFKTX2PV+ZT4Jr8djhybJUs
+         l6f1mPJ6EAoThpPbpaNqgyy3Uy2wZQBnJveq855Um1LthdEAUb/a278FoL9FOnMhSfoY
+         HNrvhfJO+v3scHXNSmbRHWKTfAkuRXgqyfDL1Wjy3Naks6RxohWk6xogADoaQTJddnZ5
+         GBvTVxN3NeZ2aJrTGdS26cwl/jk5ajRgZZ33/Wib62c6ptB8+Y5OXk4CB8/2pd+gVWAi
+         fa6g==
+X-Gm-Message-State: AOJu0YxWr1n0WJqX/N3NNMVS+HDKGFzCP3FxUIQYYQCfu6+dx9TT4B8b
+	TalV41RpfSw2aHMziHMLg3Rt5Kt8CHqTXcOh/88KQlGAV99dhGx1/sv8
+X-Gm-Gg: ASbGncu9YYAk+TXmStmA3gwnqpzRffAkHbOFu/Yeqb+3uM4G/rj6BlSAPWKZA3cUgCC
+	/rarbDhDFfUaHD9LQDuoo8ltoGXMTDpbjUM3Kdns6xxZTQliX574U0dzg/HqowqPUZyVDBGxVEu
+	Mrv+0rOEjFrQnMlGHr1EvhHNHUbMEi6aNY7RXppgXdcXF1WcDSY8addODzhgGAy5Nxlk4kLh5bx
+	sX4VsL5vikhF9vH+b27HTHW46F46csKN35ZNKEEypn0JBFqqgBsKU2+Ok3xpPGeTfTLscsbb1zG
+	KNyVh4IRIX/RtYauyljkVaj79Rs2Jj5mWh4JJIjMYoEruhIGwfnQguCr2iGfLdWt3uCU1bRsJtq
+	ydvIlnIYI4/AWcla58DOFAIRqeuSW3bkp8Hh8Vv/5psspot433m1ZoSikY64mCAN4Kft3QmlGKi
+	6MBGx5Ak1ngUitKfZZ03bvAE68igtqvpZIRGuuXxCEjw==
+X-Google-Smtp-Source: AGHT+IFg16oZZSoScCoFNVXKIhQVbb07lghOlKOqecH3B4hiCjRVmKapplUwUi60y/itXKHUx8ALVg==
+X-Received: by 2002:a17:906:6ad2:b0:b4c:1ad1:d08c with SMTP id a640c23a62f3a-b4c1ad1d71dmr1040646866b.17.1759824949562;
+        Tue, 07 Oct 2025 01:15:49 -0700 (PDT)
+Received: from eric (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b4f7eacdfe6sm121313566b.27.2025.10.07.01.15.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Oct 2025 01:15:48 -0700 (PDT)
+From: Eric Woudstra <ericwouds@gmail.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Felix Fietkau <nbd@nbd.name>,
+	Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	Eric Woudstra <ericwouds@gmail.com>
+Subject: [PATCH v1 nf] bridge: br_vlan_fill_forward_path_pvid: use br_vlan_group_rcu()
+Date: Tue,  7 Oct 2025 10:15:01 +0200
+Message-ID: <20251007081501.6358-1-ericwouds@gmail.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net: bridge: Trigger host query on v6 addr valid
-To: =?UTF-8?Q?Linus_L=C3=BCssing?= <linus.luessing@c0d3.blue>,
- Ido Schimmel <idosch@nvidia.com>
-Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Nikolay Aleksandrov <razor@blackwall.org>, David Ahern <dsahern@kernel.org>,
- Stanislav Fomichev <sdf@fomichev.me>, Kuniyuki Iwashima <kuniyu@google.com>,
- Ahmed Zaki <ahmed.zaki@intel.com>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-References: <20250912223937.1363559-1-Joseph.Huang@garmin.com>
- <aMW2lvRboW_oPyyP@shredder> <be567dd9-fe5d-499d-960d-c7b45f242343@gmail.com>
- <aMqb63dWnYDZANdb@shredder> <aOEu6uQ4pP4PJH-y@sellars>
-Content-Language: en-US
-From: "Huang, Joseph" <joseph.huang.at.garmin@gmail.com>
-In-Reply-To: <aOEu6uQ4pP4PJH-y@sellars>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 10/4/2025 10:27 AM, Linus Lüssing wrote:
-> On Wed, Sep 17, 2025 at 02:30:51PM +0300, Ido Schimmel wrote:
->> But before making changes, I want to better understand the problem you
->> are seeing. Is it specific to the offloaded data path? I believe the
->> problem was fixed in the software data path by this commit:
-> 
-> Two issues I noticed recently, even without any hardware switch
-> offloading, on plain soft bridges:
-> 
-> 1) (Probably not the issue here? But just to avoid that this
-> causes additional confusion:) we don't seem to properly converge to
-> the lowest MAC address, which is a bug, a violation of the RFCs.
-> 
-> If we received an IGMP/MLD query from a foreign host with an
-> address like fe80::2 and selected it and then enable our own
-> multicast querier with a lower address like fe80::1 on our bridge
-> interface for example then we won't send our queries, won't reelect
-> ourself. If I recall correctly. (Not too critical though, as at least we
-> have a querier on the link. But I find the election code a bit
-> confusing and I wouldn't dare to touch it without adding some tests.)
-> 
+Bug: br_vlan_fill_forward_path_pvid uses br_vlan_group() instead of
+br_vlan_group_rcu(). Correct this bug.
 
-I agree that there might be some corner cases which the current election 
-code does not handle very well (one of them is outlined below).
+Fixes: bcf2766b1377 ("net: bridge: resolve forwarding path for VLAN tag actions in bridge devices")
+Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
 
-> 2) Without Ido's suggested workaround when the bridge multicast snooping
-> + querier is enabled before the IPv6 DAD has taken place then our
-> first IGMP/MLD query will fizzle, not be transmitted.
+---
 
-This (#2) is what this patch trying to address. With DAD enabled, the 
-first MLD Query is never transmitted. That essentially means that the 
-Robustness Variable is 1 (which is not very robust).
+Also see the debugging info send by Florian in mailing:
+"[RFC PATCH v3 nf-next] selftests: netfilter: Add bridge_fastpath.sh"
 
-> However (at least for a non-hardware-offloaded) bridge as far as I
-> recall this shouldn't create any multicast packet loss and should
-> operate as "normal" with flooding multicast data packets first,
-> with multicast snooping activating on multicast data
-> after another IGMP/MLD querier interval has elapsed (default:
-> 125 sec.)?
-> 
+net/bridge/br_private.h:1627 suspicious rcu_dereference_protected() usage!
 
-Some systems could not afford to flood multicast traffic. Think of some 
-resource-constrained low power sensors connected to a network with high 
-volume multicast video traffic for example. The multicast traffic could 
-easily choke the sensors and is essentially a DDoS attack.
+other info that might help us debug this:
 
-> Which indeed could be optimized and is confusing, this delay could
-> be avoided. Is that that the issue you mean, Joseph?
-> (I'd consider it more an optimization, so for net-next, not
-> net though.)
-> 
+rcu_scheduler_active = 2, debug_locks = 1
+7 locks held by socat/410:
+ #0: ffff88800d7a9c90 (sk_lock-AF_INET){+.+.}-{0:0}, at: inet_stream_connect+0x43/0xa0
+ #1: ffffffff9a779900 (rcu_read_lock){....}-{1:3}, at: __ip_queue_xmit+0x62/0x1830
+ #2: ffffffff9a779900 (rcu_read_lock){....}-{1:3}, at: ip_output+0x57/0x3c0
+ #3: ffffffff9a779900 (rcu_read_lock){....}-{1:3}, at: ip_finish_output2+0x263/0x17d0
+ #4: ffffffff9a779900 (rcu_read_lock){....}-{1:3}, at: process_backlog+0x38a/0x14b0
+ #5: ffffffff9a779900 (rcu_read_lock){....}-{1:3}, at: netif_receive_skb_internal+0x83/0x330
+ #6: ffffffff9a779900 (rcu_read_lock){....}-{1:3}, at: nf_hook.constprop.0+0x8a/0x440
 
-I'm not sure this should be categorized as an optimization. If we never 
-intend to send Startup Queries, that's a different story. But if we 
-intend to send it but failed, I think that should be a bug.
+stack backtrace:
+CPU: 0 UID: 0 PID: 410 Comm: socat Not tainted 6.17.0-rc7-virtme #1 PREEMPT(full)
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0x6f/0xb0
+ lockdep_rcu_suspicious.cold+0x4f/0xb1
+ br_vlan_fill_forward_path_pvid+0x32c/0x410 [bridge]
+ br_fill_forward_path+0x7a/0x4d0 [bridge]
+ ...
 
->> In current implementation, :: always wins the election
-> 
-> That would be news to me.
-> 
-> RFC2710, section 5:
-> 
->     To be valid, the Query message MUST come from a link-
->     local IPv6 Source Address
-> 
-> RFC3810, section 5.1.14, is even more explicit:
-> 
->     5.1.14.  Source Addresses for Queries
-> 
->     All MLDv2 Queries MUST be sent with a valid IPv6 link-local source
->     address.  If a node (router or host) receives a Query message with
->     the IPv6 Source Address set to the unspecified address (::), or any
->     other address that is not a valid IPv6 link-local address, it MUST
->     silently discard the message and SHOULD log a warning.
-> 
-> So :: can't be used as a source address for an MLD query.
-> And since 2014 with "bridge: multicast: add sanity check for query source addresses"
-> (https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6565b9eeef194afbb3beec80d6dd2447f4091f8c)
-> we should be adhering to that requirement? Let me know if I'm missing
-> something.
-> 
+ net/bridge/br_vlan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This is what I meant by ":: always wins":
-
-In br_multicast_select_querier(),
-
-	if (ipv6_addr_cmp(&saddr->src.ip6, &querier->addr.src.ip6) <= 0)
-		goto update;
-
-If querier->addr.src.ip6 is 0, nothing can be less than that, so ":: 
-always wins".
-
-However,
-
-1. querier->addr.src.ip6 is (un)initialized(?) to 0 (I couldn't find the 
-place where ip6_querier.addr is initialized)
-2. Querier election cannot take place due to the comparison above, until 
-the bridge selects itself first via br_multicast_select_own_querier()
-3. the bridge only selects itself after the first successful Query is 
-sent to the host
-4. br_ip6_multicast_alloc_query() will fail if v6 address is not valid
-
-So, without this patch a system would have to wait for
-
-31.25 seconds (for the second Query to the host to selects itself) +
-~125 seconds (for the next Query from the real Querier to arrive)
-
-in order to receive multicast traffic. For some embedded devices that's 
-a very long time (imagine turning on a TV and have to wait for 2 minutes 
-and a half before it starts working).
-
-Thanks,
-Joseph
-
-> For IPv4 and 0.0.0.0 this is a different story though... I'm not
-> aware of a requirement in RFCs to avoid 0.0.0.0 in IGMP
-> queries. And "intuitively" one would prefer 0.0.0.0 to be the
-> least prefered querier address. But when taking the IGMP RFCs
-> literally then 0.0.0.0 would be the lowest one and always win... And RFC4541
-> unfortunately does not clarify the use of 0.0.0.0 for IGMP queries.
-> Not quite sure what the common practice among other layer 2 multicast
-> snooping implemetations across other vendos is.
-> 
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0888d5f3c0f183ea6177355752ada433d370ac89
->>
->> And Linus is working [1][2] on reflecting it to device drivers so that
->> the hardware data path will act like the software data path and flood
->> unregistered multicast traffic to all the ports as long as no querier
->> was detected.
-> 
-> Right, for hardware offloading bridges/switches I'm on it, next
-> revision shouldn't take much longer...
-> 
-> Regards, Linus
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 939a3aa78d5c..54993a05037c 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -1455,7 +1455,7 @@ void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
+ 	if (!br_opt_get(br, BROPT_VLAN_ENABLED))
+ 		return;
+ 
+-	vg = br_vlan_group(br);
++	vg = br_vlan_group_rcu(br);
+ 
+ 	if (idx >= 0 &&
+ 	    ctx->vlan[idx].proto == br->vlan_proto) {
+-- 
+2.50.0
 
