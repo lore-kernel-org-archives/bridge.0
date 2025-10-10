@@ -1,200 +1,247 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012066.outbound.protection.outlook.com [52.101.43.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f79.google.com (mail-io1-f79.google.com [209.85.166.79])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 940D92417F0
-	for <bridge@lists.linux.dev>; Wed,  8 Oct 2025 12:28:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.66
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759926524; cv=fail; b=sss2jEYqOXWTXL7YlIqDtHDCJS3p3JrwzS4AhxqmRntc1RK2oZNrcS6E1XbTS7Op87ygkfGL49Ok9q0qiejot7BvgQ+Up3orSU0lgqIwYQ7NarNh4bxbHZ1uxWEPpFNxVlH3+3Fb8wCHoeQZywcC/xVk9+rNp6JMVdf8y0fL/xo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759926524; c=relaxed/simple;
-	bh=VdqWBu6mQFgeOm1n8yihIW0dyTESfIbt+Z0mKdlY5pA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=N1U7UGWsG7n6aeEEM1huIJJNmBXnkJY3x1AuZCxH/cCebsD86kRPu3z2T1IErR+Gz1VXqyBiD7SGibafEiVjCmUwsRwk6Y2LOD+OxRZrxym+Om+butN+blKkkjfXYPIlwYok/qCoC1aulgX3eli55mJMh3c7hBQUC8G+3tqHyIA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=aiuuGMHb reason="signature verification failed"; arc=fail smtp.client-ip=52.101.43.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="aiuuGMHb"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=aOTUYWELzZS3hCkp8XUfOgc8B3W2eKYM/yKR41lbvnXgfJdNd3GjgMDkTsU4LTuytunIqs8BpfMHUeNvbOWCd845m6zOl/BSjqiQpB1YGalPIZngu0nlDJ4nhuzLIxi6lvwp1c1LYO0YbmELEuS4F37N5POgePPtyYaY1wFZ5wmvQgfPE1DjKy50oVb62/NdJ/7gLmpxQJZ8ldxeTbe5Zix9EBrz5KzV4X1UCfFzGnyb1zbqjly2MUGCTEqTvUSX1IkD3MDgsACSqzMysT0KBvT/Lmum+1osV+Maj+v9szmW38Kw9KKlvYTR2p3NG5LBwt5OxATno3WzIfpKx/ACZw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=upNBhTjAhA53Xu3yAuIXFByRXRZXJfo2DtGmyvTssZY=;
- b=FJFSqt0zUnc5/q6HoyPrMLfno7zM4M4FWABaTkDYKiHi+DM5925cKx2yArZfmAY3axHwVlYnbrnBBN/ZRnW513nfehFiofAZY5LiLLYP09mHRr98PDLcSv3S2nDAFhyebAcZyxQcv+MwtkCEaoqZoQbK4gQPCLkcvn058xpfJzTnOX9DrDVZpzuF9qVFcAau/TUqKVO9euOrXricr9kCVxM3zbp10XEZz3aaqwJ8iBixMHqBd3G3Ngz7JDmCkxL9tDVvJTaf2I7MmysleiFTNLDsnlVvvlpHzPbr3XGDKRkuGNARQnoH8XkiQ5+aoyvyD6kMVpSBCjlGyhu0kQyVZQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=upNBhTjAhA53Xu3yAuIXFByRXRZXJfo2DtGmyvTssZY=;
- b=aiuuGMHbfJKwWm1/imHY8Mycrmvs7/Wn3fqZjSTYSo7jILZd5nIvcX1YmK5auZJqmfobLPmZV3wixQNFPFzkFGtP1ul7PFWyewjKons7+MPSqCXd/0G5LufXaDPfeiYqhw2G9JI+7aQL79RUbK4YWNhQzHvyWK17xrcgQJ6CdA6ml1yPmRYPFHm8oiiNODMl/tbpjAJRCnp0bLxLNDrg5kCWPD+DQcYikZvdMkc33hetRuqzVIVzq0dvVY5CzI+M3+lMBLh8bIqcp5x/z5J790ZqoFnDrj3X8JXXHyz+69doGtX5lbPpelofEDX6Ja+tpgCqz8w0mDSbjwlGyhRW8g==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by CH1PR12MB9693.namprd12.prod.outlook.com (2603:10b6:610:2b0::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9182.20; Wed, 8 Oct
- 2025 12:28:35 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%7]) with mapi id 15.20.9182.017; Wed, 8 Oct 2025
- 12:28:34 +0000
-Date: Wed, 8 Oct 2025 15:28:23 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: "Huang, Joseph" <joseph.huang.at.garmin@gmail.com>,
-	linus.luessing@c0d3.blue
-Cc: Joseph Huang <Joseph.Huang@garmin.com>, netdev@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	David Ahern <dsahern@kernel.org>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [PATCH net] net: bridge: Trigger host query on v6 addr valid
-Message-ID: <aOZY5yYiKtfUrLZr@shredder>
-References: <20250912223937.1363559-1-Joseph.Huang@garmin.com>
- <aMW2lvRboW_oPyyP@shredder>
- <be567dd9-fe5d-499d-960d-c7b45f242343@gmail.com>
- <aMqb63dWnYDZANdb@shredder>
- <aOEu6uQ4pP4PJH-y@sellars>
- <9cc66694-6fcd-4460-9bce-cdbcb0153a89@gmail.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9cc66694-6fcd-4460-9bce-cdbcb0153a89@gmail.com>
-X-ClientProxiedBy: TL2P290CA0001.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:2::19) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A54B2701B6
+	for <bridge@lists.linux.dev>; Fri, 10 Oct 2025 18:11:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.79
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760119891; cv=none; b=TvQQa6zKgkf99OJ3ujayyzzvDGk+GAPEyi3qfDuIZ0XIKIueCX4I2ks/noBkyY+B3djEfl0R3064glW1qYk4cu8Wtfr1RrqF/l0CSSuS47PB6NVRq5rMuAHsKTSyz1MWnCn/D8PjWaMifh5lGAcB4sP4m+7QoSpZ1OLGpEDX/XI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760119891; c=relaxed/simple;
+	bh=jroSb0GeuwaUWWYpr919dUviQieVv2crGZ0pB5X99iU=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Qjb9sNaIzDAK5Hz0jwnDyFEHGS7fxa47pRO1y2btxSYFhUg8G7Ok3vYfiHR4LFRq+9tov0nIi1bAz+75hWSCWThgueR6VcYGMXMSujSrLyaTHFAlxXJO8uKwXLIW+aXnyRVcj5a7nauqb6pWeLQ7SH8caEAOtkx+1+wb7ZW3WvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f79.google.com with SMTP id ca18e2360f4ac-92c122eb2bdso527558439f.1
+        for <bridge@lists.linux.dev>; Fri, 10 Oct 2025 11:11:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760119889; x=1760724689;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=A4ZPfdM/tOvI57tbUB064ewdT3F0ExQQ9e7VQddRHIo=;
+        b=LftHYXAVyCu47lde2h772diMTmHO//Q5YfF0t7TRGIWgYsxbZv8qvVeSiUZsbqoBfv
+         Nm56U85cuHxXEnCyW4CF//JOINiKaGa+nJiPRGDSX9tUiivb2fbYYZrLgUi+9y7vlThF
+         Qo8rOIqTQrDN764kTQ4nsKp1ZVTqdHTtg3Mtud49iT058EK7Eg4goClE9PirPvAOSrKg
+         cHHLhxd6dRerwl49RHAbLBRLjJEETU67ix/+pBOaWzS6bkr+gtdx0iGTZFih0sYQy0jD
+         K4hISSLqjkffKBO/RoK72pV4qekPgbES0SOObbuigVH1kUlnJ4/NUpXXYqtQ/FdzXSI9
+         dHqg==
+X-Gm-Message-State: AOJu0YwWkxk0ZTk7fBJ+M0fJSo9JKj6R8Obzm4Sw9rfeYKYL5i3De/8O
+	BwszfLfj34Lw0L3JaE0SzsEVGKtKlO7irQ/5FUhLyFvBpVsJfNJRTeWBaRoWxq27r5kfFuYT5fi
+	k3ncoM4avhoSXCf+cfX7Ex0wGA8TRGygh2UKO6ifCf5ziH+y8zxxV3HaL4jc+1Q==
+X-Google-Smtp-Source: AGHT+IEegEZG5KH1gQP89itIXU3fJWAIIJprLAOgbNp6UunfEp6ZOBfBJMZabT0qKdB5mLU3o+d1+/XWAcC8pexompf7EURWCIgT
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|CH1PR12MB9693:EE_
-X-MS-Office365-Filtering-Correlation-Id: 24be0855-6563-4180-fbb1-08de066632f9
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|376014|7416014|366016|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?iso-8859-1?Q?+cywiKz2gz/+LBAOusxphyagJ4R29fARWDmQlPJdpe8CatP3CZ3jQJkg2X?=
- =?iso-8859-1?Q?1wjl6JkZrFZ6O3t1VL1+IvnSuYQG3f+TdtSvkel2wLGG8foMlR6KsUllmf?=
- =?iso-8859-1?Q?5UhsW8ZJ9+jmmEWrgah6NzDBPcX0KRx0AkAYE27wHN5KwMtZ0i//+FoR4/?=
- =?iso-8859-1?Q?7bem+M3i3fzFasDuwEP0Ai6njIfQHzxqwb2nk60L2+yIZ8ron96RRExqE+?=
- =?iso-8859-1?Q?3mNC1T4rych7WB69aspiBJGXy4UpiNI6yqYbDOHUbbqzB0mQ4GHLig8nXi?=
- =?iso-8859-1?Q?NIKhrOOlwZObDNe8jV12uEgoKdRox9g8Xxg2XydsdDipt+dQ7WV76arD/w?=
- =?iso-8859-1?Q?aX0MYKjc6SzVsjOCRyJlwaQjrEql5xUSfL1K76QEPnHY2Wmsl+hTElM/c5?=
- =?iso-8859-1?Q?bjr3crNmfdJwQkNm9iVINg7aYWU7rjNdkJ1xifq/23CzW2WlVETpRcLDxd?=
- =?iso-8859-1?Q?VTnH5nvYTye6h77tUr6cclZjgchMri/b7Qq0pnGFw7NggbLFWY753B06la?=
- =?iso-8859-1?Q?XKi8co0RfkqnSW8U3bvjaEwlHTjQXYCPvNxqgDuNKIRvtUaL4gEqMQHB+S?=
- =?iso-8859-1?Q?T06pYOFQEaDVnuig2x0sXFZ/C8cB/2H8C8ve6xkLUNXLDCgh2nc7NBBQwC?=
- =?iso-8859-1?Q?lounNxTAfdMPnieAkvQ+/rnt13Zx7yoFpOmPL/JIgwfWxv/Dluw0lTfyt2?=
- =?iso-8859-1?Q?Qg4KTZg3KnofUyUBbtT/6gNxL/yaGxloVUj3eztEp2aiJ54SSp/5yQsfN2?=
- =?iso-8859-1?Q?2IQrKPIJWzyaWqPDWzgGynhHriuEfl9nJk+WbE78qjmGX19U861WAblBKR?=
- =?iso-8859-1?Q?YgydbxI5K/3+DC491TkCHkmkVMnDdXrdMkDy3CXLpMullzunyMsDCV3QVW?=
- =?iso-8859-1?Q?ZyhQBBvHq04gFW96VfPN/lhvf+lKeXZ8pSh9yu5U70RcppRMrRCE0VNALH?=
- =?iso-8859-1?Q?7pkZrSOY8isG2Xeaz4KIwK/eV8sd5Em83JFCMv0C58R8YB3W4TES4WL6nw?=
- =?iso-8859-1?Q?Ekz9hrEaHSAXWBSxQbnXC/+bRcN8Hko4xT7r24ydmX07ffEEQ8Qf6qfZH2?=
- =?iso-8859-1?Q?J6ObRVjld45O7jxOWUkzaVlRXbP491CGg6/PJDJQHrx0j1f7rFeTNRSMb7?=
- =?iso-8859-1?Q?RKwdvMXcac4LTBxsU7W5UR9S/SNffkJG1t86v7zVJJTR0R9p7h2Q5k2P6X?=
- =?iso-8859-1?Q?UMHJri1Z2vwQG5fV9M9hV9GTBB57lVVTaFbnVRTuatBId4INSJ8vp3H1l+?=
- =?iso-8859-1?Q?fcicANh87A5a+SbgyGqIRT8JshwekA+uPfuiKmbMrRLIJy03Kzv/QBOoxp?=
- =?iso-8859-1?Q?o8HUxWnFsBgw3wb7rUA2buO1B+KypIa9e2KQPKAeTirBMkVmAlJC98UyGN?=
- =?iso-8859-1?Q?3JF+X0ttckGa3qZ0Un53i9yxFMPAr74lk+L8lP7Gtr335Aq9vlXK+dCyEi?=
- =?iso-8859-1?Q?4mawXRpQ/u5pocNAvJbOGqa5hYdL2v6rR0fqzabVkYaQ0Ju8U8kvBTnnyD?=
- =?iso-8859-1?Q?tn6OtrkeXqh/4TF1bWU7OZ?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?iso-8859-1?Q?Q0XSo/lMxUfG4YJQrbynQ45P7FW+Fu/P60fdAHswxpjbZtFjmQAlMO9ItT?=
- =?iso-8859-1?Q?BohIzoLssqn+wN5o2I/9sX7RO3Gztb6V5F9C51WbU2xsFDxxcizX1dB8sO?=
- =?iso-8859-1?Q?NswwydSIJyjZLShYyZJimI4axQ2Vt3RZP7VBS59V4X+S/0VOd88zg1HzYb?=
- =?iso-8859-1?Q?tUW6Rx2kONqSx9/dQuflqwzYuLmzGgQYSO2I7ibVI7swnC0bTsv2qYxvtw?=
- =?iso-8859-1?Q?u/Y6dVrjGJQqptYnOChB1S4iYzA9V/hzKXmEmcT/Mq/TTHwbSqp22eoJpZ?=
- =?iso-8859-1?Q?V8KXLq5UnGio82NX/p3d5mp1x6eZu5OtDdDVEIV18xspxNXUtKWvpiwl6z?=
- =?iso-8859-1?Q?QipAsRE0CVsweMyMewa5wYRT1P0sZoGU1CR4zM8oXQdpwVgLhfnzzcdbcJ?=
- =?iso-8859-1?Q?6KsxdcpU3i0VbIP9x5pPfzH+FdJaLfodhrEY4cmcXamTUUAiq5620wBgfb?=
- =?iso-8859-1?Q?FfCH0ItITNrLXR2Nv35mzYIR/1qURA5cy74E88V2RIayHQeTocqFRjDfJ+?=
- =?iso-8859-1?Q?X/xE5lPSwePs/7TggSHeoMNNLAYDc3Bi6rmp+SuVRQ2XKiMi9n7CbN5oBY?=
- =?iso-8859-1?Q?dCUerkW/ihfJR7ycG2uyJENn2ItlDgLs7r1qTUT3Rj0fSjTnoBUJyRrIR4?=
- =?iso-8859-1?Q?8JWCSY6xBqxiobDcjwZMqr+MoUtF2u0uPeCQjU+AgS+Un6JJsA0ng7SU4g?=
- =?iso-8859-1?Q?vQyeoThSMOXnrpLRCByB4qxl9gOewAaBFf3QjeCAmCQmJN2+DitiB7wQUl?=
- =?iso-8859-1?Q?HoH7sadB7tQ0m2RlvvRBgTMDnXmsNjiBbOWtZkmnlUX5LdQ6HIKGMxkRlX?=
- =?iso-8859-1?Q?NfruXdImZZ5MUVoWAamtHuU17kS9Z1OOgH1bXo3JEhXezrp36VFzOArAfp?=
- =?iso-8859-1?Q?7LSXiQzue8cuIV6O5j62JSOUU50AAuDEEn0t+lmQ4TJvCTTwz60t9AZMZd?=
- =?iso-8859-1?Q?9kbdS5t20N/M5EZoFF1M92PiMADWkBK7JiQ6bGGH4cElunla8GkhFNZgT1?=
- =?iso-8859-1?Q?Dsz+yD+qTs6nHcMMEFvb/er2UQVN6dVxh5RcC+t/t6PWclFJYDXQLi148N?=
- =?iso-8859-1?Q?tPshiJfXDHSqn6JSgcRz90Enbejy6xm5fG3xis9vAA4dgF3vFaUSPOYLqt?=
- =?iso-8859-1?Q?JTpcL+hfshwVKgCog9gO1+OSVlMpur+HdN9SGVeht3HNxJWF5MH3E8rsB2?=
- =?iso-8859-1?Q?DzoWorcSQ7sAiyb48ura5b4z1ZWrJVnf9FyA+HXhfnTBbFf28dyoMB3aHu?=
- =?iso-8859-1?Q?C80484fvgH3MNdimneCsIbHxkFP2wz/3H0K//cdAh3xWdQJq8Ig1Q7X7OW?=
- =?iso-8859-1?Q?1sB7K1E9IKLVh7sRsZPzGxXo68lz9O9im6ELPHZ2Ud7RQtmd3B5LL5/d6z?=
- =?iso-8859-1?Q?EnVKsFTRUsYAjO7XO2pZLDtsirLzmo48EctG1ROHRlqGw810TrtMsu8gQi?=
- =?iso-8859-1?Q?i5PTTrCIYg8SLTI4X6mSwDu6wggqGDv+Zrswpo7r8bTZ1FCK3ycM01SDKL?=
- =?iso-8859-1?Q?b0lCXVJlFEjwS4bxcVxKI6hbzHNbcjG89fQruUP6b9kwJLn3YySDVvziqv?=
- =?iso-8859-1?Q?JYaX+TYjuh3wGPLBMc9KgOerMYgvbaRnMZ3HXKFLh34/6x1YrS/UHyIQUI?=
- =?iso-8859-1?Q?V5nRU/roXf0oUJVREKHghn8qRwlCSQ+fDP?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 24be0855-6563-4180-fbb1-08de066632f9
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Oct 2025 12:28:34.7586
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ZT83W4cnc2upfDI+1cbHhz33NbAvX0W4FHfBsoLqECL6So+6nOncKlDhD48j1/CDWO+ZR6MRV/UU8l+loH8g5Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH1PR12MB9693
+X-Received: by 2002:a05:6602:3425:b0:8f6:8812:ef66 with SMTP id
+ ca18e2360f4ac-93bd1776ad9mr1743686739f.4.1760119888756; Fri, 10 Oct 2025
+ 11:11:28 -0700 (PDT)
+Date: Fri, 10 Oct 2025 11:11:28 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <68e94c50.a70a0220.b3ac9.0000.GAE@google.com>
+Subject: [syzbot] [bridge?] KASAN: slab-use-after-free Read in
+ br_switchdev_fdb_notify (2)
+From: syzbot <syzbot+8a7f78e2f99977bb8765@syzkaller.appspotmail.com>
+To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
+	horms@kernel.org, idosch@nvidia.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
+	razor@blackwall.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Oct 06, 2025 at 11:43:02AM -0400, Huang, Joseph wrote:
-> On 10/4/2025 10:27 AM, Linus Lüssing wrote:
-> > However (at least for a non-hardware-offloaded) bridge as far as I
-> > recall this shouldn't create any multicast packet loss and should
-> > operate as "normal" with flooding multicast data packets first,
-> > with multicast snooping activating on multicast data
-> > after another IGMP/MLD querier interval has elapsed (default:
-> > 125 sec.)?
+Hello,
 
-Isn't this 10 seconds (default mcast_query_response_interval)?
+syzbot found the following issue on:
 
-BTW, I see that delay_timer is started in br_multicast_set_querier()
-which is called from br_changelink(). Isn't this problematic if querier
-is enabled while the bridge is administratively down? It's possible for
-this timer to expire by the time the bridge is opened.
+HEAD commit:    1b54b0756f05 net: doc: Fix typos in docs
+git tree:       net
+console output: https://syzkaller.appspot.com/x/log.txt?x=15412304580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=7a57b6f4ce559d7f
+dashboard link: https://syzkaller.appspot.com/bug?extid=8a7f78e2f99977bb8765
+compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
 
-> Some systems could not afford to flood multicast traffic. Think of some
-> resource-constrained low power sensors connected to a network with high
-> volume multicast video traffic for example. The multicast traffic could
-> easily choke the sensors and is essentially a DDoS attack.
+Unfortunately, I don't have any reproducer for this issue yet.
 
-Note that even with your patch (or optimistic DAD) there will still be a
-time period where multicast traffic is flooded to give responses enough
-time to arrive.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/32476f0f6d41/disk-1b54b075.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/f74e972d1c5e/vmlinux-1b54b075.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/a3d8ae0b9753/bzImage-1b54b075.xz
 
-Can you clarify how you observed the problem? Did you observe packet
-loss with hardware offload or did you observe excessive flooding with
-the software data path?
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+8a7f78e2f99977bb8765@syzkaller.appspotmail.com
 
-> > Which indeed could be optimized and is confusing, this delay could
-> > be avoided. Is that that the issue you mean, Joseph?
-> > (I'd consider it more an optimization, so for net-next, not
-> > net though.)
-> > 
-> 
-> I'm not sure this should be categorized as an optimization. If we never
-> intend to send Startup Queries, that's a different story. But if we intend
-> to send it but failed, I think that should be a bug.
+==================================================================
+BUG: KASAN: slab-use-after-free in br_switchdev_fdb_populate net/bridge/br_switchdev.c:141 [inline]
+BUG: KASAN: slab-use-after-free in br_switchdev_fdb_notify+0x30b/0x3e0 net/bridge/br_switchdev.c:165
+Read of size 8 at addr ffff8880558bd808 by task kworker/0:4/5896
 
-I would say that the deciding factor should be if it's a regression or
-not.
+CPU: 0 UID: 0 PID: 5896 Comm: kworker/0:4 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
+Workqueue: events_long br_fdb_cleanup
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xca/0x240 mm/kasan/report.c:482
+ kasan_report+0x118/0x150 mm/kasan/report.c:595
+ br_switchdev_fdb_populate net/bridge/br_switchdev.c:141 [inline]
+ br_switchdev_fdb_notify+0x30b/0x3e0 net/bridge/br_switchdev.c:165
+ fdb_notify+0x89/0x160 net/bridge/br_fdb.c:186
+ fdb_delete+0xec4/0x1160 net/bridge/br_fdb.c:324
+ br_fdb_cleanup+0x2aa/0x4d0 net/bridge/br_fdb.c:574
+ process_one_work kernel/workqueue.c:3263 [inline]
+ process_scheduled_works+0xade/0x17b0 kernel/workqueue.c:3346
+ worker_thread+0x8a0/0xda0 kernel/workqueue.c:3427
+ kthread+0x711/0x8a0 kernel/kthread.c:463
+ ret_from_fork+0x436/0x7d0 arch/x86/kernel/process.c:148
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 14184:
+ kasan_save_stack mm/kasan/common.c:47 [inline]
+ kasan_save_track+0x3e/0x80 mm/kasan/common.c:68
+ poison_kmalloc_redzone mm/kasan/common.c:388 [inline]
+ __kasan_kmalloc+0x93/0xb0 mm/kasan/common.c:405
+ kasan_kmalloc include/linux/kasan.h:260 [inline]
+ __do_kmalloc_node mm/slub.c:4376 [inline]
+ __kmalloc_node_noprof+0x276/0x4e0 mm/slub.c:4382
+ kmalloc_node_noprof include/linux/slab.h:932 [inline]
+ crypto_alloc_tfmmem crypto/api.c:514 [inline]
+ crypto_create_tfm_node+0x83/0x3f0 crypto/api.c:534
+ crypto_alloc_tfm_node+0x172/0x3f0 crypto/api.c:642
+ tls_set_sw_offload+0xa37/0x17d0 net/tls/tls_sw.c:2820
+ do_tls_setsockopt_conf net/tls/tls_main.c:698 [inline]
+ do_tls_setsockopt net/tls/tls_main.c:824 [inline]
+ tls_setsockopt+0xc40/0x1340 net/tls/tls_main.c:852
+ do_sock_setsockopt+0x17c/0x1b0 net/socket.c:2360
+ __sys_setsockopt net/socket.c:2385 [inline]
+ __do_sys_setsockopt net/socket.c:2391 [inline]
+ __se_sys_setsockopt net/socket.c:2388 [inline]
+ __x64_sys_setsockopt+0x13f/0x1b0 net/socket.c:2388
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0x3b0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+Freed by task 14179:
+ kasan_save_stack mm/kasan/common.c:47 [inline]
+ kasan_save_track+0x3e/0x80 mm/kasan/common.c:68
+ kasan_save_free_info+0x46/0x50 mm/kasan/generic.c:576
+ poison_slab_object mm/kasan/common.c:243 [inline]
+ __kasan_slab_free+0x5b/0x80 mm/kasan/common.c:275
+ kasan_slab_free include/linux/kasan.h:233 [inline]
+ slab_free_hook mm/slub.c:2422 [inline]
+ slab_free mm/slub.c:4695 [inline]
+ kfree+0x18e/0x440 mm/slub.c:4894
+ crypto_free_aead include/crypto/aead.h:196 [inline]
+ tls_sw_release_resources_tx+0x403/0x4f0 net/tls/tls_sw.c:2550
+ tls_sk_proto_cleanup net/tls/tls_main.c:352 [inline]
+ tls_sk_proto_close+0x24a/0x8c0 net/tls/tls_main.c:382
+ inet_release+0x144/0x190 net/ipv4/af_inet.c:437
+ __sock_release net/socket.c:662 [inline]
+ sock_close+0xc3/0x240 net/socket.c:1455
+ __fput+0x44c/0xa70 fs/file_table.c:468
+ task_work_run+0x1d1/0x260 kernel/task_work.c:227
+ resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
+ exit_to_user_mode_loop+0xe9/0x110 kernel/entry/common.c:43
+ exit_to_user_mode_prepare include/linux/irq-entry-common.h:225 [inline]
+ syscall_exit_to_user_mode_work include/linux/entry-common.h:175 [inline]
+ syscall_exit_to_user_mode include/linux/entry-common.h:210 [inline]
+ do_syscall_64+0x2bd/0x3b0 arch/x86/entry/syscall_64.c:100
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+The buggy address belongs to the object at ffff8880558bd800
+ which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 8 bytes inside of
+ freed 1024-byte region [ffff8880558bd800, ffff8880558bdc00)
+
+The buggy address belongs to the physical page:
+page: refcount:0 mapcount:0 mapping:0000000000000000 index:0xffff8880558bf800 pfn:0x558b8
+head: order:3 mapcount:0 entire_mapcount:0 nr_pages_mapped:0 pincount:0
+flags: 0xfff00000000240(workingset|head|node=0|zone=1|lastcpupid=0x7ff)
+page_type: f5(slab)
+raw: 00fff00000000240 ffff88801a041dc0 ffffea000084cc10 ffffea00009f7c10
+raw: ffff8880558bf800 000000000010000f 00000000f5000000 0000000000000000
+head: 00fff00000000240 ffff88801a041dc0 ffffea000084cc10 ffffea00009f7c10
+head: ffff8880558bf800 000000000010000f 00000000f5000000 0000000000000000
+head: 00fff00000000003 ffffea0001562e01 00000000ffffffff 00000000ffffffff
+head: ffffffffffffffff 0000000000000000 00000000ffffffff 0000000000000008
+page dumped because: kasan: bad access detected
+page_owner tracks the page as allocated
+page last allocated via order 3, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 5846, tgid 5846 (syz-executor), ts 78915902371, free_ts 23055932464
+ set_page_owner include/linux/page_owner.h:32 [inline]
+ post_alloc_hook+0x240/0x2a0 mm/page_alloc.c:1851
+ prep_new_page mm/page_alloc.c:1859 [inline]
+ get_page_from_freelist+0x21e4/0x22c0 mm/page_alloc.c:3858
+ __alloc_frozen_pages_noprof+0x181/0x370 mm/page_alloc.c:5148
+ alloc_pages_mpol+0x232/0x4a0 mm/mempolicy.c:2416
+ alloc_slab_page mm/slub.c:2492 [inline]
+ allocate_slab+0x8a/0x370 mm/slub.c:2660
+ new_slab mm/slub.c:2714 [inline]
+ ___slab_alloc+0xbeb/0x1420 mm/slub.c:3901
+ __slab_alloc mm/slub.c:3992 [inline]
+ __slab_alloc_node mm/slub.c:4067 [inline]
+ slab_alloc_node mm/slub.c:4228 [inline]
+ __do_kmalloc_node mm/slub.c:4375 [inline]
+ __kmalloc_noprof+0x305/0x4f0 mm/slub.c:4388
+ kmalloc_noprof include/linux/slab.h:909 [inline]
+ kzalloc_noprof include/linux/slab.h:1039 [inline]
+ __alloc_workqueue+0x108/0x1b80 kernel/workqueue.c:5715
+ alloc_workqueue_noprof+0xd4/0x210 kernel/workqueue.c:5818
+ wg_newlink+0x246/0x640 drivers/net/wireguard/device.c:341
+ rtnl_newlink_create+0x30d/0xb00 net/core/rtnetlink.c:3833
+ __rtnl_newlink net/core/rtnetlink.c:3950 [inline]
+ rtnl_newlink+0x16e4/0x1c80 net/core/rtnetlink.c:4065
+ rtnetlink_rcv_msg+0x7cc/0xb70 net/core/rtnetlink.c:6954
+ netlink_rcv_skb+0x205/0x470 net/netlink/af_netlink.c:2552
+ netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
+ netlink_unicast+0x82c/0x9e0 net/netlink/af_netlink.c:1346
+ netlink_sendmsg+0x805/0xb30 net/netlink/af_netlink.c:1896
+page last free pid 1 tgid 1 stack trace:
+ reset_page_owner include/linux/page_owner.h:25 [inline]
+ free_pages_prepare mm/page_alloc.c:1395 [inline]
+ __free_frozen_pages+0xbc4/0xd30 mm/page_alloc.c:2895
+ __free_pages mm/page_alloc.c:5260 [inline]
+ free_contig_range+0x1bd/0x4a0 mm/page_alloc.c:7091
+ destroy_args+0x69/0x660 mm/debug_vm_pgtable.c:958
+ debug_vm_pgtable+0x39f/0x3b0 mm/debug_vm_pgtable.c:1345
+ do_one_initcall+0x233/0x820 init/main.c:1271
+ do_initcall_level+0x104/0x190 init/main.c:1333
+ do_initcalls+0x59/0xa0 init/main.c:1349
+ kernel_init_freeable+0x334/0x4b0 init/main.c:1581
+ kernel_init+0x1d/0x1d0 init/main.c:1471
+ ret_from_fork+0x436/0x7d0 arch/x86/kernel/process.c:148
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+
+Memory state around the buggy address:
+ ffff8880558bd700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8880558bd780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff8880558bd800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff8880558bd880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8880558bd900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
