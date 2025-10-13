@@ -1,247 +1,108 @@
-Received: from mail-io1-f79.google.com (mail-io1-f79.google.com [209.85.166.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A54B2701B6
-	for <bridge@lists.linux.dev>; Fri, 10 Oct 2025 18:11:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81994610B
+	for <bridge@lists.linux.dev>; Mon, 13 Oct 2025 10:01:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760119891; cv=none; b=TvQQa6zKgkf99OJ3ujayyzzvDGk+GAPEyi3qfDuIZ0XIKIueCX4I2ks/noBkyY+B3djEfl0R3064glW1qYk4cu8Wtfr1RrqF/l0CSSuS47PB6NVRq5rMuAHsKTSyz1MWnCn/D8PjWaMifh5lGAcB4sP4m+7QoSpZ1OLGpEDX/XI=
+	t=1760349696; cv=none; b=f2K5QlNouvuTSWuyKseEaWEk+Raap36iS0fQ3Fo2LlkCgkFgvR7zGBavoAR2zJl63biO+DxeSUwkx0RKLsWMyzN7TwoLSqIEA8L1Zalih7J+CT1QgcsnHPDrYykqaQJHqs3cO+NWBME/gnG6fS8gp54wPxyJDBpHRD8/QpKGKcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760119891; c=relaxed/simple;
-	bh=jroSb0GeuwaUWWYpr919dUviQieVv2crGZ0pB5X99iU=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Qjb9sNaIzDAK5Hz0jwnDyFEHGS7fxa47pRO1y2btxSYFhUg8G7Ok3vYfiHR4LFRq+9tov0nIi1bAz+75hWSCWThgueR6VcYGMXMSujSrLyaTHFAlxXJO8uKwXLIW+aXnyRVcj5a7nauqb6pWeLQ7SH8caEAOtkx+1+wb7ZW3WvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f79.google.com with SMTP id ca18e2360f4ac-92c122eb2bdso527558439f.1
-        for <bridge@lists.linux.dev>; Fri, 10 Oct 2025 11:11:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760119889; x=1760724689;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=A4ZPfdM/tOvI57tbUB064ewdT3F0ExQQ9e7VQddRHIo=;
-        b=LftHYXAVyCu47lde2h772diMTmHO//Q5YfF0t7TRGIWgYsxbZv8qvVeSiUZsbqoBfv
-         Nm56U85cuHxXEnCyW4CF//JOINiKaGa+nJiPRGDSX9tUiivb2fbYYZrLgUi+9y7vlThF
-         Qo8rOIqTQrDN764kTQ4nsKp1ZVTqdHTtg3Mtud49iT058EK7Eg4goClE9PirPvAOSrKg
-         cHHLhxd6dRerwl49RHAbLBRLjJEETU67ix/+pBOaWzS6bkr+gtdx0iGTZFih0sYQy0jD
-         K4hISSLqjkffKBO/RoK72pV4qekPgbES0SOObbuigVH1kUlnJ4/NUpXXYqtQ/FdzXSI9
-         dHqg==
-X-Gm-Message-State: AOJu0YwWkxk0ZTk7fBJ+M0fJSo9JKj6R8Obzm4Sw9rfeYKYL5i3De/8O
-	BwszfLfj34Lw0L3JaE0SzsEVGKtKlO7irQ/5FUhLyFvBpVsJfNJRTeWBaRoWxq27r5kfFuYT5fi
-	k3ncoM4avhoSXCf+cfX7Ex0wGA8TRGygh2UKO6ifCf5ziH+y8zxxV3HaL4jc+1Q==
-X-Google-Smtp-Source: AGHT+IEegEZG5KH1gQP89itIXU3fJWAIIJprLAOgbNp6UunfEp6ZOBfBJMZabT0qKdB5mLU3o+d1+/XWAcC8pexompf7EURWCIgT
+	s=arc-20240116; t=1760349696; c=relaxed/simple;
+	bh=/zdJXVFTAP0rj7Un0FncCHRVdbesmAVrUUjkLHMoUo4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sekmWW9LQ4x8upuv149rx3UjqpbvKhVcWLtHR4j4AbSjMsbUrUT+UhSh2gLhRK7+tpNcxkqDPcXW4UQvY8fEJN0jbU3ZgWs6i5zoLeNFiuBbiek+0TEHnLgDhXsaQcS3iHlbLVUCxc3WxLbAjNuOcfgyJMvb6C8ZmVX79SN6Aas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=rgim7a8c; arc=none smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="rgim7a8c"
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 59D7uVUR019185;
+	Mon, 13 Oct 2025 10:01:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=corp-2025-04-25; bh=ppB0pofodMEoaF2947nwe6O/II/zm
+	V5RcebdR6t19+8=; b=rgim7a8cKV1Tk6vrZdO9VJK+cDE3cQ7HPUkRxwSm2HAd0
+	NantyIl2GQtwt1qyXAglCAWiCXGurADdywY1YTGj3186K5TwkNoKwJWaEPbMg9Vo
+	fwyxON40o1s5+9zmNDBeY119zapxr40zFjGL04eVo2jHFBFsrUWN7NS/El4XtNqp
+	dO3FvcEAKCa03N3iL5/uINJ3L1anBjAyFJwJIN2pAtF74s5dzoeIck0jOCcZweov
+	6XovzMfi3RDZA4k3Rb6XUvzl4WPNt6Iz2wMKGTa0q6Ou1f/BuhDV3jQOuRAUIf5L
+	Y2Z2RMq+WQ4wXHO/bBUS58gGwAA8bbkcXPoEsC4bQ==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 49ra1q90sk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 13 Oct 2025 10:01:26 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.2/8.18.1.2) with ESMTP id 59D92kvu026300;
+	Mon, 13 Oct 2025 10:01:25 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 49qdp737vp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 13 Oct 2025 10:01:25 +0000
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 59DA1O5C004981;
+	Mon, 13 Oct 2025 10:01:24 GMT
+Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 49qdp737ty-1;
+	Mon, 13 Oct 2025 10:01:24 +0000
+From: Alok Tiwari <alok.a.tiwari@oracle.com>
+To: idosch@nvidia.com, razor@blackwall.org, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        horms@kernel.org, bridge@lists.linux.dev, netdev@vger.kernel.org
+Cc: alok.a.tiwari@oracle.com
+Subject: [PATCH net-next] net: bridge: correct debug message function name in br_fill_ifinfo
+Date: Mon, 13 Oct 2025 03:01:16 -0700
+Message-ID: <20251013100121.755899-1-alok.a.tiwari@oracle.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6602:3425:b0:8f6:8812:ef66 with SMTP id
- ca18e2360f4ac-93bd1776ad9mr1743686739f.4.1760119888756; Fri, 10 Oct 2025
- 11:11:28 -0700 (PDT)
-Date: Fri, 10 Oct 2025 11:11:28 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <68e94c50.a70a0220.b3ac9.0000.GAE@google.com>
-Subject: [syzbot] [bridge?] KASAN: slab-use-after-free Read in
- br_switchdev_fdb_notify (2)
-From: syzbot <syzbot+8a7f78e2f99977bb8765@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	horms@kernel.org, idosch@nvidia.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
-	razor@blackwall.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
+ definitions=2025-10-13_03,2025-10-06_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 adultscore=0
+ phishscore=0 mlxlogscore=999 spamscore=0 bulkscore=0 malwarescore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2510020000 definitions=main-2510130046
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMDEyMDA1MSBTYWx0ZWRfXzVXbMS2smh7x
+ 7+vK+8mOoWtIFNqIvJvOxXBVmDTA7OyrQJFmLMgGsgB3nVwZMOZYKhYEo5f+SVGKZxw/1YGLXKF
+ uvd4NzJaB5WW2P2eBU7rPb5rizxc+oVXWpXzYyuZHTPYvHO7dOFYuxtlkJ4nfJil2rdx9IFmWgw
+ fss8bO0g07WZX5M6ZPTwhotsx0eH2uDX6U5DR/U+qMybEWcA7ewqDSWATsIb1fpHCrPonqiuTva
+ V/V1zzxtMpvZ1DYW+80aalC/NaV4mnyVv/QZgYarH6NIfFK4eLoPdvgtFNJH3gbQWwZNgG5HPQ/
+ eGA6nE9xFZNedhdLOx4bS0ytUPhvzvwfYmzXMU6OTXN9d8kO4Yw0YGuu5HdZkIEvBLh5QuEwVAi
+ WdChwES0L7FiZGExd175bDf40J3J1K2SfCUDNvT4i98sTJwMuKI=
+X-Proofpoint-GUID: 2GGuzYTQmhMJ-nX8VFdWKUhP0KRE3I4I
+X-Proofpoint-ORIG-GUID: 2GGuzYTQmhMJ-nX8VFdWKUhP0KRE3I4I
+X-Authority-Analysis: v=2.4 cv=GL0F0+NK c=1 sm=1 tr=0 ts=68eccdf6 b=1 cx=c_pps
+ a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17
+ a=x6icFKpwvdMA:10 a=yPCof4ZbAAAA:8 a=wHK_iL5GPdzSbBCK7koA:9 cc=ntf
+ awl=host:13624
 
-Hello,
+The debug message in br_fill_ifinfo() incorrectly refers to br_fill_info
+instead of the actual function name. Update it for clarity in debugging
+output.
 
-syzbot found the following issue on:
-
-HEAD commit:    1b54b0756f05 net: doc: Fix typos in docs
-git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=15412304580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7a57b6f4ce559d7f
-dashboard link: https://syzkaller.appspot.com/bug?extid=8a7f78e2f99977bb8765
-compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/32476f0f6d41/disk-1b54b075.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/f74e972d1c5e/vmlinux-1b54b075.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/a3d8ae0b9753/bzImage-1b54b075.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+8a7f78e2f99977bb8765@syzkaller.appspotmail.com
-
-==================================================================
-BUG: KASAN: slab-use-after-free in br_switchdev_fdb_populate net/bridge/br_switchdev.c:141 [inline]
-BUG: KASAN: slab-use-after-free in br_switchdev_fdb_notify+0x30b/0x3e0 net/bridge/br_switchdev.c:165
-Read of size 8 at addr ffff8880558bd808 by task kworker/0:4/5896
-
-CPU: 0 UID: 0 PID: 5896 Comm: kworker/0:4 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/18/2025
-Workqueue: events_long br_fdb_cleanup
-Call Trace:
- <TASK>
- dump_stack_lvl+0x189/0x250 lib/dump_stack.c:120
- print_address_description mm/kasan/report.c:378 [inline]
- print_report+0xca/0x240 mm/kasan/report.c:482
- kasan_report+0x118/0x150 mm/kasan/report.c:595
- br_switchdev_fdb_populate net/bridge/br_switchdev.c:141 [inline]
- br_switchdev_fdb_notify+0x30b/0x3e0 net/bridge/br_switchdev.c:165
- fdb_notify+0x89/0x160 net/bridge/br_fdb.c:186
- fdb_delete+0xec4/0x1160 net/bridge/br_fdb.c:324
- br_fdb_cleanup+0x2aa/0x4d0 net/bridge/br_fdb.c:574
- process_one_work kernel/workqueue.c:3263 [inline]
- process_scheduled_works+0xade/0x17b0 kernel/workqueue.c:3346
- worker_thread+0x8a0/0xda0 kernel/workqueue.c:3427
- kthread+0x711/0x8a0 kernel/kthread.c:463
- ret_from_fork+0x436/0x7d0 arch/x86/kernel/process.c:148
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-
-Allocated by task 14184:
- kasan_save_stack mm/kasan/common.c:47 [inline]
- kasan_save_track+0x3e/0x80 mm/kasan/common.c:68
- poison_kmalloc_redzone mm/kasan/common.c:388 [inline]
- __kasan_kmalloc+0x93/0xb0 mm/kasan/common.c:405
- kasan_kmalloc include/linux/kasan.h:260 [inline]
- __do_kmalloc_node mm/slub.c:4376 [inline]
- __kmalloc_node_noprof+0x276/0x4e0 mm/slub.c:4382
- kmalloc_node_noprof include/linux/slab.h:932 [inline]
- crypto_alloc_tfmmem crypto/api.c:514 [inline]
- crypto_create_tfm_node+0x83/0x3f0 crypto/api.c:534
- crypto_alloc_tfm_node+0x172/0x3f0 crypto/api.c:642
- tls_set_sw_offload+0xa37/0x17d0 net/tls/tls_sw.c:2820
- do_tls_setsockopt_conf net/tls/tls_main.c:698 [inline]
- do_tls_setsockopt net/tls/tls_main.c:824 [inline]
- tls_setsockopt+0xc40/0x1340 net/tls/tls_main.c:852
- do_sock_setsockopt+0x17c/0x1b0 net/socket.c:2360
- __sys_setsockopt net/socket.c:2385 [inline]
- __do_sys_setsockopt net/socket.c:2391 [inline]
- __se_sys_setsockopt net/socket.c:2388 [inline]
- __x64_sys_setsockopt+0x13f/0x1b0 net/socket.c:2388
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xfa/0x3b0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-Freed by task 14179:
- kasan_save_stack mm/kasan/common.c:47 [inline]
- kasan_save_track+0x3e/0x80 mm/kasan/common.c:68
- kasan_save_free_info+0x46/0x50 mm/kasan/generic.c:576
- poison_slab_object mm/kasan/common.c:243 [inline]
- __kasan_slab_free+0x5b/0x80 mm/kasan/common.c:275
- kasan_slab_free include/linux/kasan.h:233 [inline]
- slab_free_hook mm/slub.c:2422 [inline]
- slab_free mm/slub.c:4695 [inline]
- kfree+0x18e/0x440 mm/slub.c:4894
- crypto_free_aead include/crypto/aead.h:196 [inline]
- tls_sw_release_resources_tx+0x403/0x4f0 net/tls/tls_sw.c:2550
- tls_sk_proto_cleanup net/tls/tls_main.c:352 [inline]
- tls_sk_proto_close+0x24a/0x8c0 net/tls/tls_main.c:382
- inet_release+0x144/0x190 net/ipv4/af_inet.c:437
- __sock_release net/socket.c:662 [inline]
- sock_close+0xc3/0x240 net/socket.c:1455
- __fput+0x44c/0xa70 fs/file_table.c:468
- task_work_run+0x1d1/0x260 kernel/task_work.c:227
- resume_user_mode_work include/linux/resume_user_mode.h:50 [inline]
- exit_to_user_mode_loop+0xe9/0x110 kernel/entry/common.c:43
- exit_to_user_mode_prepare include/linux/irq-entry-common.h:225 [inline]
- syscall_exit_to_user_mode_work include/linux/entry-common.h:175 [inline]
- syscall_exit_to_user_mode include/linux/entry-common.h:210 [inline]
- do_syscall_64+0x2bd/0x3b0 arch/x86/entry/syscall_64.c:100
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-
-The buggy address belongs to the object at ffff8880558bd800
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 8 bytes inside of
- freed 1024-byte region [ffff8880558bd800, ffff8880558bdc00)
-
-The buggy address belongs to the physical page:
-page: refcount:0 mapcount:0 mapping:0000000000000000 index:0xffff8880558bf800 pfn:0x558b8
-head: order:3 mapcount:0 entire_mapcount:0 nr_pages_mapped:0 pincount:0
-flags: 0xfff00000000240(workingset|head|node=0|zone=1|lastcpupid=0x7ff)
-page_type: f5(slab)
-raw: 00fff00000000240 ffff88801a041dc0 ffffea000084cc10 ffffea00009f7c10
-raw: ffff8880558bf800 000000000010000f 00000000f5000000 0000000000000000
-head: 00fff00000000240 ffff88801a041dc0 ffffea000084cc10 ffffea00009f7c10
-head: ffff8880558bf800 000000000010000f 00000000f5000000 0000000000000000
-head: 00fff00000000003 ffffea0001562e01 00000000ffffffff 00000000ffffffff
-head: ffffffffffffffff 0000000000000000 00000000ffffffff 0000000000000008
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 3, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 5846, tgid 5846 (syz-executor), ts 78915902371, free_ts 23055932464
- set_page_owner include/linux/page_owner.h:32 [inline]
- post_alloc_hook+0x240/0x2a0 mm/page_alloc.c:1851
- prep_new_page mm/page_alloc.c:1859 [inline]
- get_page_from_freelist+0x21e4/0x22c0 mm/page_alloc.c:3858
- __alloc_frozen_pages_noprof+0x181/0x370 mm/page_alloc.c:5148
- alloc_pages_mpol+0x232/0x4a0 mm/mempolicy.c:2416
- alloc_slab_page mm/slub.c:2492 [inline]
- allocate_slab+0x8a/0x370 mm/slub.c:2660
- new_slab mm/slub.c:2714 [inline]
- ___slab_alloc+0xbeb/0x1420 mm/slub.c:3901
- __slab_alloc mm/slub.c:3992 [inline]
- __slab_alloc_node mm/slub.c:4067 [inline]
- slab_alloc_node mm/slub.c:4228 [inline]
- __do_kmalloc_node mm/slub.c:4375 [inline]
- __kmalloc_noprof+0x305/0x4f0 mm/slub.c:4388
- kmalloc_noprof include/linux/slab.h:909 [inline]
- kzalloc_noprof include/linux/slab.h:1039 [inline]
- __alloc_workqueue+0x108/0x1b80 kernel/workqueue.c:5715
- alloc_workqueue_noprof+0xd4/0x210 kernel/workqueue.c:5818
- wg_newlink+0x246/0x640 drivers/net/wireguard/device.c:341
- rtnl_newlink_create+0x30d/0xb00 net/core/rtnetlink.c:3833
- __rtnl_newlink net/core/rtnetlink.c:3950 [inline]
- rtnl_newlink+0x16e4/0x1c80 net/core/rtnetlink.c:4065
- rtnetlink_rcv_msg+0x7cc/0xb70 net/core/rtnetlink.c:6954
- netlink_rcv_skb+0x205/0x470 net/netlink/af_netlink.c:2552
- netlink_unicast_kernel net/netlink/af_netlink.c:1320 [inline]
- netlink_unicast+0x82c/0x9e0 net/netlink/af_netlink.c:1346
- netlink_sendmsg+0x805/0xb30 net/netlink/af_netlink.c:1896
-page last free pid 1 tgid 1 stack trace:
- reset_page_owner include/linux/page_owner.h:25 [inline]
- free_pages_prepare mm/page_alloc.c:1395 [inline]
- __free_frozen_pages+0xbc4/0xd30 mm/page_alloc.c:2895
- __free_pages mm/page_alloc.c:5260 [inline]
- free_contig_range+0x1bd/0x4a0 mm/page_alloc.c:7091
- destroy_args+0x69/0x660 mm/debug_vm_pgtable.c:958
- debug_vm_pgtable+0x39f/0x3b0 mm/debug_vm_pgtable.c:1345
- do_one_initcall+0x233/0x820 init/main.c:1271
- do_initcall_level+0x104/0x190 init/main.c:1333
- do_initcalls+0x59/0xa0 init/main.c:1349
- kernel_init_freeable+0x334/0x4b0 init/main.c:1581
- kernel_init+0x1d/0x1d0 init/main.c:1471
- ret_from_fork+0x436/0x7d0 arch/x86/kernel/process.c:148
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-Memory state around the buggy address:
- ffff8880558bd700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8880558bd780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff8880558bd800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff8880558bd880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880558bd900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-
+Signed-off-by: Alok Tiwari <alok.a.tiwari@oracle.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ net/bridge/br_netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 4e2d53b27221..0264730938f4 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -467,7 +467,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 	else
+ 		br = netdev_priv(dev);
+ 
+-	br_debug(br, "br_fill_info event %d port %s master %s\n",
++	br_debug(br, "br_fill_ifinfo event %d port %s master %s\n",
+ 		     event, dev->name, br->dev->name);
+ 
+ 	nlh = nlmsg_put(skb, pid, seq, event, sizeof(*hdr), flags);
+-- 
+2.50.1
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
