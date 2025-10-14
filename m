@@ -1,109 +1,133 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 252DB253951
-	for <bridge@lists.linux.dev>; Mon, 13 Oct 2025 12:22:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35F4714A9B
+	for <bridge@lists.linux.dev>; Tue, 14 Oct 2025 08:02:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760358181; cv=none; b=UgQG4+obQjHjLC5klHP7571ziFsB+KLuDiDEQ5BGaB11MXv78FDwCoKHoiKqPuAAoCzafk7PN7Q1ckEoWhE4H0ZjpkIsyAw67c4ywmCHI5dg3/4Xhy1foyV7sgRfE54Xw4pyZuBGhrh7wv/SadMgNh8eHVUjKF2ZLE7a8SVrzbY=
+	t=1760428951; cv=none; b=ZdvkiTLt4pfJTZsID7vKK9amfNO3r4PeCEW+OG6pUqzfhLCB2r74XTFFpVU8mLQVnhXxE0PvpLscnJ99Mi6EZ94w+I+q38ROs/XYDW4O+6iG053mbUOnDCr+xNWIxlLqUfeZtTc+rVHwtXKAHJapyLz2NLL0R7kv6zr8sIkHPAY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760358181; c=relaxed/simple;
-	bh=Gn0eEfF7GOLkPlHIsKqjmnlwl8WmOTEyVrNvqmXwSd8=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=QwD7L5bZNTJQouf4t+8zOFzrPCwNsGgddly/7nDKM26zFzHNlPgf7ETQKxOclKaa1bLo578Xo7QgkEVe/GNiX+r7dSs44rIKreMTH2WyoLqAGgmSJ21mRAdbajeNRM54Ikj+hxYUFemjUK0P+RrdhnxnsZsim9HG3soaq+f3vLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=JMPkFqBv; arc=none smtp.client-ip=209.85.221.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1760428951; c=relaxed/simple;
+	bh=zm7I7mmq5AscDvbVH2A6TlacZ/3e2PAL3DahCNCm4U0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LPPciohkxt/aydLCC7E2obxOgBrPBIYHDIs50KIZunxSyXhZtID3mGclRp+HdPYZ/YMEZ1UtAfUoqlvGTxQ7HAOWt0m70ZIfLcKjEMXl2mR1gigP7WlqT5U9hRyzmyBDMpoxYatTX9uuTC9tt9zWzQR9ZUdI7vJZlCIETgfk8II=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hcOxxgFN; arc=none smtp.client-ip=209.85.216.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="JMPkFqBv"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-3f2ae6fadb4so4850768f8f.1
-        for <bridge@lists.linux.dev>; Mon, 13 Oct 2025 05:22:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hcOxxgFN"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-339d7c403b6so4839257a91.2
+        for <bridge@lists.linux.dev>; Tue, 14 Oct 2025 01:02:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1760358177; x=1760962977; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=okdmUYlhFmHY6EW7sFMaABJgU4BMZvhN67KKvXy1How=;
-        b=JMPkFqBvfql0ZTcRsshtVC4rwibDZxA1uXQ9MCNE1KJbw+m/HstJxa7+43dwRSzIWU
-         rtKedR09Q4+tA73iOmFq+6w4QR1YvZHl3vJ1uecPFjYx09UgxU2zKzcgCBVuYbiiicxN
-         8GRNPkERlpMKgZA+z614ZKbOXApfljyPb6k/p62siEuc+Wf6KfKjMGGXK1Gh2wD+60cS
-         2dLc6f0wp3zunRf3/MG5cerAbu6jZDNMmvCHwGLM8MzosYVWZkMgL9/dg8JF2I3YMDY8
-         52ePt01jkRhWNJxbPrsU5Y/HW/Kq/TKgk2EWABI0BOjS6VQuCK3pq1s2UVzfbGJjwq5W
-         KFvQ==
+        d=gmail.com; s=20230601; t=1760428949; x=1761033749; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=6GyH1jrLC1slm1gXZQb4T5nA8guMeRrq7L+/TaRkyp8=;
+        b=hcOxxgFNHMeU5UMpcH1JMWoQH9frvhBT6vZY7GVflCQGxHF91Pjo3MyRv6BSR2KAA4
+         GQxhCaxxRT83UudxPGugzjkZ9KjxxwCggv3KsLQiu5y+ydXkNFL82rDq+QSMN2dAqVSF
+         abl7XjJ4OVka6OMGWM1n5nuirOA3SyWRDquOFQ/Ek3ByCVwirSX/0f7PhxUb4gVkOe1x
+         gblXxq4vRBnXHa/Elj17AQbexFVkg7M9hbQ1zTv616nW1bhj1ZaMqmMbcprDl03uLfEL
+         eU7NoXa6pB6chxVJ7w8hdUmI2Q08howv8zt8wJkzphGgYhzB8OJG1BP1MhW57PJIKK2s
+         Khyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760358177; x=1760962977;
-        h=content-transfer-encoding:mime-version:message-id:references
-         :in-reply-to:user-agent:subject:cc:to:from:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=okdmUYlhFmHY6EW7sFMaABJgU4BMZvhN67KKvXy1How=;
-        b=DLBGOWaGVo9vM2D1SjhYTy5JvOB9pywJGF5i7R7NmZg9i8dJzRkXHjGUrC52o+kKeP
-         /wuTjNif7lKLhpDjQcTtm8zIgJmLJTh+DPSDtKRVvgqzmWNTEVXpnJxKVcAPthUZl9k5
-         60lV7scIMWSJR+sFvUJkL7SjK9X2uvn9PCgna5EhBoVcSdbJ1dcug+Itb1fg1SMHiB+8
-         y1rVExQpiH/rGdyBhhnscjYvDbxu6QUfzsjvakmLyZ+ql5AsLyPFp3/oCR5LtENrFB1x
-         z3C1ycr0SLj81P1vB7HPFp3YwbHmuKNFL2ms53C3Ow/bqzk+LVabY2w+d7Be1YIsrGHi
-         X3cg==
-X-Forwarded-Encrypted: i=1; AJvYcCVgiIJ7xDaQir6awT8wyHCvL+FGYM1KZCr2xn91TZz4bP0Nh5z2fX5lQCkFBbn9rxHolRK6pNw=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yww9+a+PD0yU9WuGnwYo4xz+zbrVHRDjAEmnD6h6hES22gJXvrT
-	WXEB+7pmW7cWcIEJ7YoJoqA3rmcM1EG3/tRfM1i7Fs5cXK+wYOfppAiB2/64QUhbS5I=
-X-Gm-Gg: ASbGncsB2iMc02+ue0KQLTSF+0FLA4gCKsmVE7aB8d7FyHYvw6Z3zFF4SXJKk7Y1IwD
-	/P8oBddyhi3c0JLyl6QD1JHRAORiLUufJrU2xEEFaWDk+RlvPOg3X9a7KsRof7rJZq4snLJy3qK
-	RMLM2FusB1+wElLodIPOqUhZoBl7R4oULazI8Bt2l2okXxHr6E3NxDJD/SdCHZ0DAgTGmZa+nu8
-	p53F+I1IA1AgfJFlyWaRwpoVdcw/P+5JFjuwJAa3NZZ+5MmNL3ZeniUbOGhMn2lMqpyxXwFuSAS
-	xdSIX44zdCsoi8Oa/4H5Lknpwd/ZYVFa56mdSkpxWYLKH/3PJr8UjK8rWiqivld7ksrq1FLYG7U
-	gfnzt1ReXfI0YFtG9DzfPwcTs0qEwBJs6nSsjZ+2DWTK6q279og==
-X-Google-Smtp-Source: AGHT+IHr+wgXBWFp5s45MhtPrwaRVRuqKDLgoBhkzcLLkcJ0zROOkiOZDmrmpFdhFhrJJpDhZnRrtw==
-X-Received: by 2002:a05:6000:4285:b0:3e1:2d70:673e with SMTP id ffacd0b85a97d-4266e7e0012mr11904012f8f.37.1760358177089;
-        Mon, 13 Oct 2025 05:22:57 -0700 (PDT)
-Received: from ehlo.thunderbird.net ([149.62.207.59])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-426ce5e81d2sm18220967f8f.49.2025.10.13.05.22.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Oct 2025 05:22:56 -0700 (PDT)
-Date: Mon, 13 Oct 2025 14:22:54 +0200
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: Alok Tiwari <alok.a.tiwari@oracle.com>, idosch@nvidia.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, bridge@lists.linux.dev, netdev@vger.kernel.org
-CC: alok.a.tiwari@oracle.com
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_net-next=5D_net=3A_bridge=3A_correct_d?=
- =?US-ASCII?Q?ebug_message_function_name_in_br=5Ffill=5Fifinfo?=
-User-Agent: K-9 Mail for Android
-In-Reply-To: <20251013100121.755899-1-alok.a.tiwari@oracle.com>
-References: <20251013100121.755899-1-alok.a.tiwari@oracle.com>
-Message-ID: <14468513-2D16-4A19-9173-80559ED580F7@blackwall.org>
+        d=1e100.net; s=20230601; t=1760428949; x=1761033749;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=6GyH1jrLC1slm1gXZQb4T5nA8guMeRrq7L+/TaRkyp8=;
+        b=Rgddk25fvztxjd8neDdfl0OEgSXzQyGUV5NO1v0nJ+NB2wX2cE/qt8Fq0Q1S8fFyIF
+         mJ4ZCHtYmsHwownDTbwGFfewv+hUYuBTcVB1NNnEdRRa7GZ1tFyYAftRjklMyI2DrbPE
+         ioMQwtWCc3Xl3jhjcB0afE3L21uqZZeVrEZrUAf1qf9Cwh7AFO2VMGQiEs87a8xWjv5I
+         g6GrcIRMY9OJJARKaUnKvP8Yr+KaCKa+XQ977ZmvDOO9uN+brom8hKJcCFKae9DBl84G
+         ILLl4eoiK1OP0+BDYN0yQGXrfGfPnQ4+V3rMXXHbFiIoE07T1OFBytdjnKnSl7DWEnwY
+         kZMw==
+X-Forwarded-Encrypted: i=1; AJvYcCXJwnX+4uaClnXcBdGxu80uHD/7vHA2xSR5cRSAp51oC24T8wOQXhdl+gtwJPRG95rodGr8O6Y=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzrzBApIuogfc5Pz3fwuogqaSNJXxYkncjv4DigYJXPx08SsK6x
+	863ha81klPU52S+jUyhQGYJoEsnxJRAQNv469+TdfPKzXyrAr1vunLmU
+X-Gm-Gg: ASbGnctfZYgzXJIzwKtBOmn5b1Z/O3U+TNS9+OGVkROobe5VStXK8VXr6Xbx5pI+Jrr
+	eLAOlaTKJeezkMBJiwKgAXHPBD0WiScFZYFlRe/MtLW/kqStHr4evMFEmZphRN2lmuU/oWAsteC
+	lvp+saDWqQvaG4PdCMQph1WQbSFflc1EZLN+IabnTflwVfQh5rVbsiPIiFZUs9iziCx6rYlFuk2
+	/uIpbhS6x851cn/xP/M94oSp1k+wgjrsd01RT421J2t+WWIEOp3m2+JhhJs6s6vke8LcGBbuTXi
+	7XxUFk03HM2eMyMteJpz1+AdX0g+/ywjI0PfrIN8pgbFw5187tTDjk7+F676F7DUWkORINfdtbY
+	jALFTCXVq2fdNFdOvbpgq6OjDwWBwOLrUPDwH25jNDb98sktPfecd2eii
+X-Google-Smtp-Source: AGHT+IHgLYdPneakAA8pkp65cfa+3QOkYNTGyvgYvXWd6kxyTFqG4Cd7C1Vhd1fBH4ZNLOQ1Qrmfhg==
+X-Received: by 2002:a17:90b:3b84:b0:32d:d8de:191e with SMTP id 98e67ed59e1d1-33b51165115mr31684698a91.10.1760428949390;
+        Tue, 14 Oct 2025 01:02:29 -0700 (PDT)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33b626407c4sm14648210a91.6.2025.10.14.01.02.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Oct 2025 01:02:28 -0700 (PDT)
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: netdev@vger.kernel.org
+Cc: Jay Vosburgh <jv@jvosburgh.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Sabrina Dubroca <sdubroca@redhat.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Simon Horman <horms@kernel.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Shuah Khan <shuah@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Stanislav Fomichev <stfomichev@gmail.com>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	bridge@lists.linux.dev,
+	linux-kselftest@vger.kernel.org,
+	Hangbin Liu <liuhangbin@gmail.com>
+Subject: [PATCHv4 net-next 0/4] net: common feature compute for upper interface
+Date: Tue, 14 Oct 2025 08:02:13 +0000
+Message-ID: <20251014080217.47988-1-liuhangbin@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On October 13, 2025 12:01:16 PM GMT+02:00, Alok Tiwari <alok=2Ea=2Etiwari@o=
-racle=2Ecom> wrote:
->The debug message in br_fill_ifinfo() incorrectly refers to br_fill_info
->instead of the actual function name=2E Update it for clarity in debugging
->output=2E
->
->Signed-off-by: Alok Tiwari <alok=2Ea=2Etiwari@oracle=2Ecom>
->---
-> net/bridge/br_netlink=2Ec | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->diff --git a/net/bridge/br_netlink=2Ec b/net/bridge/br_netlink=2Ec
->index 4e2d53b27221=2E=2E0264730938f4 100644
->--- a/net/bridge/br_netlink=2Ec
->+++ b/net/bridge/br_netlink=2Ec
->@@ -467,7 +467,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
-> 	else
-> 		br =3D netdev_priv(dev);
->=20
->-	br_debug(br, "br_fill_info event %d port %s master %s\n",
->+	br_debug(br, "br_fill_ifinfo event %d port %s master %s\n",
-> 		     event, dev->name, br->dev->name);
->=20
-> 	nlh =3D nlmsg_put(skb, pid, seq, event, sizeof(*hdr), flags);
+Some high-level virtual drivers need to compute features from their
+lower devices, but each currently has its own implementation and may
+miss some feature computations. This patch set introduces a common function
+to compute features for such devices.
 
+Currently, bonding, team, and bridge have been updated to use the new
+helper.
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall=2Eorg>
+v4:
+* update needed_{headroom, tailroom} in the common helper (Ido Schimmel)
+* remove unneeded err in team (Stanislav Fomichev)
+* remove selftest as `ethtool -k` does not test the dev->*_features. We
+  can add back the selftest when there is a good way to test. (Sabrina Dubroca)
+
+v3:
+a) fix hw_enc_features asign order (Sabrina Dubroca)
+b) set virtual dev feature defination in netdev_features.h (Jakub Kicinski)
+c) remove unneeded err in team_del_slave (Stanislav Fomichev)
+d) remove NETIF_F_HW_ESP test as it needs to be test with GSO pkts (Sabrina Dubroca)
+
+v2:
+a) remove hard_header_len setting. I will set needed_headroom for bond/team
+   in a separate patch as bridge has it's own ways. (Ido Schimmel)
+b) Add test file to Makefile, set RET=0 to a proper location. (Ido Schimmel)
+
+Hangbin Liu (4):
+  net: add a common function to compute features from lowers devices
+  bonding: use common function to compute the features
+  team: use common function to compute the features
+  net: bridge: use common function to compute the features
+
+ drivers/net/bonding/bond_main.c | 99 ++-------------------------------
+ drivers/net/team/team_core.c    | 83 ++-------------------------
+ include/linux/netdev_features.h | 18 ++++++
+ include/linux/netdevice.h       |  1 +
+ net/bridge/br_if.c              | 22 +-------
+ net/core/dev.c                  | 95 +++++++++++++++++++++++++++++++
+ 6 files changed, 127 insertions(+), 191 deletions(-)
+
+-- 
+2.50.1
+
