@@ -1,54 +1,54 @@
-Received: from fhigh-b5-smtp.messagingengine.com (fhigh-b5-smtp.messagingengine.com [202.12.124.156])
+Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D44D2ECEA8
-	for <bridge@lists.linux.dev>; Mon, 20 Oct 2025 09:11:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EE112E9ECC
+	for <bridge@lists.linux.dev>; Mon, 20 Oct 2025 09:17:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760951499; cv=none; b=akX/ZCyGvpqJbAURS1glCFy3XtIDWz4KPh0HOWxVCS6Fa1aX9Jl9jP/1nYoZ2JzEKGuRLv3w56qkr8PqQjau4igIbfgWC5hBpG/FVE+hrZXB2TG8AMlF4SD85t1CTihnjx2C2+2Z78EkHWXYlg0ieFdtJkcpDPVOu3O1m3L83Kg=
+	t=1760951872; cv=none; b=q5xypGOSEHaMmdxI6ujvRxRh2KtbfHIAsoZz61ltXdlF7xBdSh8v2e+I3UQ2VhWRC1EsK1PAPCD8iyh179QXoaYfeww4Di97IcD5Ux9zjwitT+KUUtc6SNR3MJjygBfD/QdoMGEWZXJHFpPuyuq4HfBSbvX7f/drFmmFfgfNMVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760951499; c=relaxed/simple;
-	bh=r05lQ8QjsXHO/YtNy9p9A+fhssnqL2q9NxJ9w9nL3bs=;
+	s=arc-20240116; t=1760951872; c=relaxed/simple;
+	bh=IcOzGfRCiD84omBUBER3702x/g94WvAaK4yDyl2lh9g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R6PwC0VzZrzEpL3yJun+2ExVewa9MyMOlUyENjrBPJNBSlx1w5Dd5AVrYMhOkJ6reJHfeiwWGY2ySoeppclKY4xXuir08lULpSeGa5Iu8l7uph9ejO5FWmGSRWGvdOpNFORFL6tqxa4lmACQBvcGsbp4HHjz5QORwcL8zyGHRIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=X2goDTtl; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=eJNNtYcQ; arc=none smtp.client-ip=202.12.124.156
+	 Content-Type:Content-Disposition:In-Reply-To; b=LpV/G2vgm8Qnk+dqQIdY9UOPN805Y/IUeJq85FomprppCD1/rsw74lK5VGuBrKRmqp3NENVt409Rhi0yPdbsNJsWv2VVFi+tKbUME0fvf9A4UdG7+Gqc1DJiPRgC7jdA/yI/c8pGsJ/9/ffuOGaFDQdwZzNe9kmwoWLAvvXv1S8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=KRY2lsgS; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=VOe0ig4b; arc=none smtp.client-ip=202.12.124.148
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="X2goDTtl";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="eJNNtYcQ"
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="KRY2lsgS";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="VOe0ig4b"
 Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id E01D37A0027;
-	Mon, 20 Oct 2025 05:11:34 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-06.internal (MEProxy); Mon, 20 Oct 2025 05:11:35 -0400
+	by mailfout.stl.internal (Postfix) with ESMTP id D120C1D0002A;
+	Mon, 20 Oct 2025 05:17:49 -0400 (EDT)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-06.internal (MEProxy); Mon, 20 Oct 2025 05:17:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
 	 h=cc:cc:content-type:content-type:date:date:from:from
 	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm3; t=1760951494; x=
-	1761037894; bh=4Nwekh16SpF5rye+o1P7aLYihsMbKaZuUyC1glA+aIc=; b=X
-	2goDTtlkt4Few3Y3IMUjM89Pxr5DBsYKE5ECEJHBq3Af6x9IoEDficsG8guXDj5d
-	Z+fgSpnYZEwGlYxJkQbWMltkYrjUhTBZikQaPSxsITssdKHsVkjVXpCiIr15FCMd
-	xEzh3cEC7X2i9I7AxFNovXXYsjKfci2UF/babh0yY0NrcQs1KgbXL+Xk4qSrcnz9
-	WsDp76Xr8afaAYpRJCZofOWmiie2sP0LwH0Oo3tOXmk0YLWdhDdTIqIXJ0F6SnzJ
-	qKCrEJrvCk2tfvJD00K1U7oUeq+7d+7WRDQY1oJpGYsnAwbrhGSIHT5anXLCBnxj
-	l0BO3yDWKYeuTRuUegDUA==
+	:reply-to:subject:subject:to:to; s=fm3; t=1760951869; x=
+	1761038269; bh=AIfRkYJxkIS5P5kdA6Sl13c3qk4tod36pCxOV9tgd84=; b=K
+	RY2lsgSKLgfvDXeFixPglzBA+iSdEs97NWrIEhPZ0K1w7eIkSlrfd2kGCo945pqT
+	55jNvHv6X7ne1IkcXo2+ZM9IIeP92GJezbHDa9dXhm9jZYyJGR6uor1+mVhwh4Db
+	SBCEQXqtSWWXz8+v9Px1hU1su4DNeKXu4MoLKBoUXzHMaUye48A+AxrPgT9dbcP/
+	n7GIbdUPeMoYQ3mdcEausA5Pw5GX9JJIEr0j1ziXBR8JEfe4xQGU+b4ECBz3TzR8
+	jfRGZHSPa2F7F1uwI6hOGmIhf2SOBjfmOz4ETnzXaKj2VhEUmurTLK9pU62eyRv+
+	aCbkY3R6tGuMfH31eEPQQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-type:content-type:date:date
 	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
 	:message-id:mime-version:references:reply-to:subject:subject:to
 	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1760951494; x=1761037894; bh=4Nwekh16SpF5rye+o1P7aLYihsMbKaZuUyC
-	1glA+aIc=; b=eJNNtYcQSObbwrQdP+dp0gcGhSUG9mzPuLGuXDTXs/Ckr4KloiT
-	N+OjEr9CSMy2w+z2IJhuXC5pOkTp3NwG3L3vtEY0/Dvz9UUIptxbp3zECmZJIzXK
-	IK3XZZTjstU8rGlXAib+fI3PWfusrqH4BQLzr5IV2ukhs1RLeFe+HmImalipS54G
-	XtbF9tZNxZWSNfosoMCu1Grhu/Z3UJqsez1fuG6LnSA1DnRobhqPyl8d62CY8l/U
-	Q34b7gNghA6oddboYg0RJ5YYgMYiVXvZTpBOkLQ00sUR4nq9j0m3vTO1ysHUU2nz
-	lr3UANfTtIvhdfGixwinnPr1HZIFR/gu39Q==
-X-ME-Sender: <xms:xvz1aKWD_wumE50r5HBkJd4dPt0V1qfYvVQHsU7Z7WZRM-u7ghMSUA>
-    <xme:xvz1aP-Wk--0n6YbAKrkf7oHjEyrd_kxeVidq-3xjhINNMGyiQid6QOLk28WJWep1
-    Gj-tmTqxooMAc0fCfnD2KHVvP_nIJ43SS9XwNMvtAicAyuLo0ll>
-X-ME-Received: <xmr:xvz1aG6ik8DHpntr29BHpjGEzW4WwEf2DNsCFOD_jWGsTo0l28Y9HjjG0p9R>
+	1760951869; x=1761038269; bh=AIfRkYJxkIS5P5kdA6Sl13c3qk4tod36pCx
+	OV9tgd84=; b=VOe0ig4bLozaNZCZa6mfA+f9ryn3VXjo74zcWbGvKW147JjwUUa
+	VU8rCr6oAbNTkb6WO0IGQl3KAxcfizIYVHAOTwb8/oz5XTRiEs674K0B4RxCVikh
+	UnHtkyJxE4l5ZO2agKLye3UbQt03r6eSD3RWsNeY5JQoR9oSdkkg3AZFNsTrXoGY
+	KFrZ2VzqM2AHIIy60GYFLToiPnYaYTPrm3mhLpbrLT+ESOQPfFTOE4cRIaQGjA3g
+	Q5Z8kVOcJu4qaPuhj8AnVMk2wizjywyiaqX2yLpE8m7agoYPXmknCCfBqRPTifkr
+	Y5EUVQ88rBMewP6Sw2jdgw90fK/F010x+3g==
+X-ME-Sender: <xms:Pf71aDUp08oDc1vxuwjXxp8E8fMXNAjUnMGQY5bHvA8R959p4_ykeA>
+    <xme:Pf71aE91MNfVR16yxCajDFbp-pnbCbwrxRZ2wTMeAXzdEyqHH32VARLbMie4fuz3C
+    BYtPEDcY9v1y5dTAh7e9dtCZ4QCQaF6aorFNHdyGYFFpPtr_L74RA>
+X-ME-Received: <xmr:Pf71aH4q2p8F8qw2yj15FW_rkUXk6_NQYfxiJk-KANUUsNxyj3tSr3XT965m>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddufeejgeefucetufdoteggodetrf
     dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
     rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
@@ -65,15 +65,15 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddufeejgeefucetufdote
     dprhgtphhtthhopehkuhgsrgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepphgrsggv
     nhhisehrvgguhhgrthdrtghomhdprhgtphhtthhopehjihhrihesrhgvshhnuhhllhhird
     hush
-X-ME-Proxy: <xmx:xvz1aA17awBfJjX_xdW9fJTnyYQN056E3917g7M0vB8rJ0E5MhxeSQ>
-    <xmx:xvz1aFwY-lK0qDcR1nDDdDAWPwj9JUu13UtvkajRHkLWoOP658yiFA>
-    <xmx:xvz1aBnRsPCRx-VA8NEiSrfbKydQmOC5xujlJtfww3eK4gkPiR1aTg>
-    <xmx:xvz1aA8gJ4KgP_eCOPnqkXSZjBiDoFxqAwtYVoUDIl5moncRvNVXOg>
-    <xmx:xvz1aEOkNyM_-MPXE25wMp9Jn7DL3EPuRLaQQmj9cWX0EOiWstOGpFTS>
+X-ME-Proxy: <xmx:Pf71aN3Jcb7FxS48aBsobJtkf7hDWZDb5UQrTlulmIIRHLjgdtHrrQ>
+    <xmx:Pf71aOyGOO4zOrRkTxU8WUZmHm0EgSklCZzBouZSC3goIzhn6Uw8dQ>
+    <xmx:Pf71aGlEW-66nWk0OxyW3EVLzeO6xQCbxoSfEtH2jx2glJWE-5lOgA>
+    <xmx:Pf71aB8ZFFWbzam7HQ-a-UO5hy_Jb1dTTj8YtJbY4eNppOwoPF9ycg>
+    <xmx:Pf71aBPfZlpowByHHGQAMKT-PuisN9OB1228RjS90JlpgViRUw8O4fpe>
 Feedback-ID: i934648bf:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 20 Oct 2025 05:11:33 -0400 (EDT)
-Date: Mon, 20 Oct 2025 11:11:32 +0200
+ 20 Oct 2025 05:17:48 -0400 (EDT)
+Date: Mon, 20 Oct 2025 11:17:47 +0200
 From: Sabrina Dubroca <sd@queasysnail.net>
 To: Hangbin Liu <liuhangbin@gmail.com>
 Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
@@ -88,11 +88,11 @@ Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
 	Kuniyuki Iwashima <kuniyu@google.com>,
 	Alexander Lobakin <aleksander.lobakin@intel.com>,
 	bridge@lists.linux.dev
-Subject: Re: [PATCHv6 net-next 3/4] team: use common function to compute the
- features
-Message-ID: <aPX8xEOcG_b0JQ2P@krikkit>
+Subject: Re: [PATCHv6 net-next 4/4] net: bridge: use common function to
+ compute the features
+Message-ID: <aPX-O9vPowb_tb2U@krikkit>
 References: <20251017034155.61990-1-liuhangbin@gmail.com>
- <20251017034155.61990-4-liuhangbin@gmail.com>
+ <20251017034155.61990-5-liuhangbin@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -101,31 +101,25 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20251017034155.61990-4-liuhangbin@gmail.com>
+In-Reply-To: <20251017034155.61990-5-liuhangbin@gmail.com>
 
-2025-10-17, 03:41:54 +0000, Hangbin Liu wrote:
-> Use the new helper netdev_compute_master_upper_features() to compute the
-> team device features. This helper performs both the feature computation
-> and the netdev_change_features() call.
+2025-10-17, 03:41:55 +0000, Hangbin Liu wrote:
+> Previously, bridge ignored all features propagation and DST retention,
+> only handling explicitly the GSO limits.
 > 
-> Note that such change replace the lower layer traversing currently done
-> using team->port_list with netdev_for_each_lower_dev(). Such change is
-> safe as `port_list` contains exactly the same elements as
-> `team->dev->adj_list.lower` and the helper is always invoked under the
-> RTNL lock.
+> By switching to the new helper netdev_compute_master_upper_features(), the bridge
+> now expose additional features, depending on the lowers capabilities.
 > 
-> With this change, the explicit netdev_change_features() in team_add_slave()
-> can be safely removed, as team_port_add() already takes care of the
-> notification via netdev_compute_master_upper_features(), and same thing for
-> team_del_slave()
+> Since br_set_gso_limits() is already covered by the helper, it can be
+> removed safely.
 > 
-> This also fixes missing computations for MPLS, XFRM, and TSO/GSO partial
-> features.
+> Bridge has it's own way to update needed_headroom. So we don't need to
+> update it in the helper.
 > 
 > Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 > ---
->  drivers/net/team/team_core.c | 83 +++---------------------------------
->  1 file changed, 6 insertions(+), 77 deletions(-)
+>  net/bridge/br_if.c | 22 +++-------------------
+>  1 file changed, 3 insertions(+), 19 deletions(-)
 
 Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
 
