@@ -1,81 +1,67 @@
-Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EE112E9ECC
-	for <bridge@lists.linux.dev>; Mon, 20 Oct 2025 09:17:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C0131D7999
+	for <bridge@lists.linux.dev>; Tue, 21 Oct 2025 04:03:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760951872; cv=none; b=q5xypGOSEHaMmdxI6ujvRxRh2KtbfHIAsoZz61ltXdlF7xBdSh8v2e+I3UQ2VhWRC1EsK1PAPCD8iyh179QXoaYfeww4Di97IcD5Ux9zjwitT+KUUtc6SNR3MJjygBfD/QdoMGEWZXJHFpPuyuq4HfBSbvX7f/drFmmFfgfNMVw=
+	t=1761019423; cv=none; b=qDX2ihttaPlJBQsiTSdAsQ86i74xQDpxFM6Loyi3FbHC7vhf4UhBsmcL7AkiPwTm32bYPq7F3xHhic74M0sEfK/gJD5Z6Jt1rEE2fw6TZrDW8urQCxaJvpdsWGNpwx85/Mx+OvDVjT67vEyiuz8lmcXx18MT/mZenOqcHukAreM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760951872; c=relaxed/simple;
-	bh=IcOzGfRCiD84omBUBER3702x/g94WvAaK4yDyl2lh9g=;
+	s=arc-20240116; t=1761019423; c=relaxed/simple;
+	bh=FGw9uKLVYLz8Atlzf9NPOuGFgink3pTJjbUmcWekYM0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LpV/G2vgm8Qnk+dqQIdY9UOPN805Y/IUeJq85FomprppCD1/rsw74lK5VGuBrKRmqp3NENVt409Rhi0yPdbsNJsWv2VVFi+tKbUME0fvf9A4UdG7+Gqc1DJiPRgC7jdA/yI/c8pGsJ/9/ffuOGaFDQdwZzNe9kmwoWLAvvXv1S8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=KRY2lsgS; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=VOe0ig4b; arc=none smtp.client-ip=202.12.124.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
+	 Content-Type:Content-Disposition:In-Reply-To; b=QfjqTpOB79nEMa3bypGifoBr1Ty26ZO8d9VjVhrTS8Rm9TtVwmWdv9BLZEfV1CFkizH0Yn6Txe3rf4uTfTlNBmoo1/+wHAvGvXx+JMIRgo84Dx/Jm/qNurDMwyj2ZhIgOTnn1S0tjhRwziEYIUDiJ2kaymEFHdg7VhtWy32hjRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jpm7QJUb; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="KRY2lsgS";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="VOe0ig4b"
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfout.stl.internal (Postfix) with ESMTP id D120C1D0002A;
-	Mon, 20 Oct 2025 05:17:49 -0400 (EDT)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-06.internal (MEProxy); Mon, 20 Oct 2025 05:17:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm3; t=1760951869; x=
-	1761038269; bh=AIfRkYJxkIS5P5kdA6Sl13c3qk4tod36pCxOV9tgd84=; b=K
-	RY2lsgSKLgfvDXeFixPglzBA+iSdEs97NWrIEhPZ0K1w7eIkSlrfd2kGCo945pqT
-	55jNvHv6X7ne1IkcXo2+ZM9IIeP92GJezbHDa9dXhm9jZYyJGR6uor1+mVhwh4Db
-	SBCEQXqtSWWXz8+v9Px1hU1su4DNeKXu4MoLKBoUXzHMaUye48A+AxrPgT9dbcP/
-	n7GIbdUPeMoYQ3mdcEausA5Pw5GX9JJIEr0j1ziXBR8JEfe4xQGU+b4ECBz3TzR8
-	jfRGZHSPa2F7F1uwI6hOGmIhf2SOBjfmOz4ETnzXaKj2VhEUmurTLK9pU62eyRv+
-	aCbkY3R6tGuMfH31eEPQQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1760951869; x=1761038269; bh=AIfRkYJxkIS5P5kdA6Sl13c3qk4tod36pCx
-	OV9tgd84=; b=VOe0ig4bLozaNZCZa6mfA+f9ryn3VXjo74zcWbGvKW147JjwUUa
-	VU8rCr6oAbNTkb6WO0IGQl3KAxcfizIYVHAOTwb8/oz5XTRiEs674K0B4RxCVikh
-	UnHtkyJxE4l5ZO2agKLye3UbQt03r6eSD3RWsNeY5JQoR9oSdkkg3AZFNsTrXoGY
-	KFrZ2VzqM2AHIIy60GYFLToiPnYaYTPrm3mhLpbrLT+ESOQPfFTOE4cRIaQGjA3g
-	Q5Z8kVOcJu4qaPuhj8AnVMk2wizjywyiaqX2yLpE8m7agoYPXmknCCfBqRPTifkr
-	Y5EUVQ88rBMewP6Sw2jdgw90fK/F010x+3g==
-X-ME-Sender: <xms:Pf71aDUp08oDc1vxuwjXxp8E8fMXNAjUnMGQY5bHvA8R959p4_ykeA>
-    <xme:Pf71aE91MNfVR16yxCajDFbp-pnbCbwrxRZ2wTMeAXzdEyqHH32VARLbMie4fuz3C
-    BYtPEDcY9v1y5dTAh7e9dtCZ4QCQaF6aorFNHdyGYFFpPtr_L74RA>
-X-ME-Received: <xmr:Pf71aH4q2p8F8qw2yj15FW_rkUXk6_NQYfxiJk-KANUUsNxyj3tSr3XT965m>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddufeejgeefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
-    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
-    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
-    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopedujedpmhho
-    uggvpehsmhhtphhouhhtpdhrtghpthhtoheplhhiuhhhrghnghgsihhnsehgmhgrihhlrd
-    gtohhmpdhrtghpthhtohepnhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhr
-    tghpthhtohepjhhvsehjvhhoshgsuhhrghhhrdhnvghtpdhrtghpthhtoheprghnughrvg
-    ifodhnvghtuggvvheslhhunhhnrdgthhdprhgtphhtthhopegurghvvghmsegurghvvghm
-    lhhofhhtrdhnvghtpdhrtghpthhtohepvgguuhhmrgiivghtsehgohhoghhlvgdrtghomh
-    dprhgtphhtthhopehkuhgsrgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepphgrsggv
-    nhhisehrvgguhhgrthdrtghomhdprhgtphhtthhopehjihhrihesrhgvshhnuhhllhhird
-    hush
-X-ME-Proxy: <xmx:Pf71aN3Jcb7FxS48aBsobJtkf7hDWZDb5UQrTlulmIIRHLjgdtHrrQ>
-    <xmx:Pf71aOyGOO4zOrRkTxU8WUZmHm0EgSklCZzBouZSC3goIzhn6Uw8dQ>
-    <xmx:Pf71aGlEW-66nWk0OxyW3EVLzeO6xQCbxoSfEtH2jx2glJWE-5lOgA>
-    <xmx:Pf71aB8ZFFWbzam7HQ-a-UO5hy_Jb1dTTj8YtJbY4eNppOwoPF9ycg>
-    <xmx:Pf71aBPfZlpowByHHGQAMKT-PuisN9OB1228RjS90JlpgViRUw8O4fpe>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 20 Oct 2025 05:17:48 -0400 (EDT)
-Date: Mon, 20 Oct 2025 11:17:47 +0200
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Hangbin Liu <liuhangbin@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jpm7QJUb"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-33bcf228ee4so3794850a91.1
+        for <bridge@lists.linux.dev>; Mon, 20 Oct 2025 21:03:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1761019422; x=1761624222; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=CzjId5UhLzcQWxSkjMlTd353fisikKEHJ9Xlvn4jmOs=;
+        b=Jpm7QJUbi0pWTyHa+i1rQb6rq/EOU4MJSGYVFsr1XFx50H5t1EhOaHmBuJ3VUdAVMt
+         flE113BZSB/SQP8e+nDlM3putyi+kRWiyZ4mHMLOQ+u15+vipJTbDtU3Ag+KS+jZWLgj
+         38bYB0m9lJZSf94MHAOXVMY0ORZHzlK7vBxqT51XTLJdKPg2TPgY/s33Fsnutjeu9VPP
+         23y8bMk8v3Kb3Wl+PLGRbWD4GWWIgo+zUBNZhkEYZEamGLVJZlxG0FZr8S4mz8gM8Rg7
+         A1Kk+LsCvIQnVac+i3ZY4QonC85VyxagUDxOb84qUYbJIuJLNUOTIaY2fw9ez29bZtXD
+         RssQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761019422; x=1761624222;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CzjId5UhLzcQWxSkjMlTd353fisikKEHJ9Xlvn4jmOs=;
+        b=HSAHVSJcqMAhSA6i9qpJyydd9ToRKyMvtm5xuDFfyu6CGkjzPRlrVAuvoscs03dCSR
+         iNHix6CQG1dzHWogAwoy0XUNCbqyp3F/UH+JRGGNocWzs8gZAcwa6n6nSegPkuCUyeCu
+         t61KSCYtV64GlC6OgoeBhpMSHcqPwGZa25lIU3XtEmnPeP+h6OAay+L/wlMYBCVq//yl
+         ugZ1VDuc2HxXTGE6dfH02nOR8sRe6iLSjeHaNQ2QGY7c+eeLYH0H7Ug0tcmaZ6OJX2Ep
+         HvqnyE86X2MZQKMJpiyl6rYgqWo4xJyVDn9lBK6YCbM22yH+fxF/4pmvKD675DRu65RS
+         9IDQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWysH8E+rdNHXOPWoM38TefAH1lQagcCjx4ut/T4Scti/GgtmyQYl9nMOJTgjcZmBVx7eMfFBI=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwozSfLj2IYm7oTHuIp8vVJdoVZamme39iWGUx/MHX73MgQUGOn
+	eOk9BI+0zGGGld9t4+LScj3bKHU5DO3vLkknJCOv9idQOaKVR1YAAtzO
+X-Gm-Gg: ASbGncti2OdiEGXcfiDOrPBqLOhbsALIloZPLzkHwttPVPlh01Xz/P/0iOdmhBLY6je
+	u8XayZJTT3LwY2SbKfBBvbAJxZj28Cu0rCFCTOGYS83js1ObdMcM2737dqem+w2G9hCwTh4o17w
+	KEXYFDouNx0NadLPe25wogo5o2MLsoixK5r5db83O3F3SAdRsvMj4dNs+dQnme2aaDJfM90CN51
+	bTTAqgZzFV5cUfRIPL79FLQyziyRiap86cLU7J0IXntR/pJ/zigRDFo2BslcHphJGWGLz8sNUX0
+	oxCNwDCzUPbmBTET1qd0QQPjxGj5Riw3+IrnztEA5V9AMHARaMHwJAS9chCslalnmTdaGgq891s
+	pTEWhefeiueB+3zy3t4AGVTaXoilzq5m4hWcNVg+Ksstb1HDBHWt4VJgH8Rtxnt3TyQJXvC2EYV
+	TIRiVhYUQv2eraVE8=
+X-Google-Smtp-Source: AGHT+IEGLHBHLBcEiZkt0e0q2lpyK6XnA2EHB5p+AIeBPMFAHNsp8qccXxyZON/4GBnP34d68j285w==
+X-Received: by 2002:a17:90b:4cce:b0:32e:dd8c:dd18 with SMTP id 98e67ed59e1d1-33bcf8f7617mr21437755a91.17.1761019421547;
+        Mon, 20 Oct 2025 21:03:41 -0700 (PDT)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33d5df93591sm9771411a91.17.2025.10.20.21.03.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Oct 2025 21:03:40 -0700 (PDT)
+Date: Tue, 21 Oct 2025 04:03:31 +0000
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: Sabrina Dubroca <sd@queasysnail.net>
 Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
 	Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
@@ -88,11 +74,12 @@ Cc: netdev@vger.kernel.org, Jay Vosburgh <jv@jvosburgh.net>,
 	Kuniyuki Iwashima <kuniyu@google.com>,
 	Alexander Lobakin <aleksander.lobakin@intel.com>,
 	bridge@lists.linux.dev
-Subject: Re: [PATCHv6 net-next 4/4] net: bridge: use common function to
- compute the features
-Message-ID: <aPX-O9vPowb_tb2U@krikkit>
+Subject: Re: [PATCHv6 net-next 1/4] net: add a common function to compute
+ features for upper devices
+Message-ID: <aPcGE36U9DSza8xU@fedora>
 References: <20251017034155.61990-1-liuhangbin@gmail.com>
- <20251017034155.61990-5-liuhangbin@gmail.com>
+ <20251017034155.61990-2-liuhangbin@gmail.com>
+ <aPX8di8QX96JvIZY@krikkit>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -101,27 +88,57 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20251017034155.61990-5-liuhangbin@gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aPX8di8QX96JvIZY@krikkit>
 
-2025-10-17, 03:41:55 +0000, Hangbin Liu wrote:
-> Previously, bridge ignored all features propagation and DST retention,
-> only handling explicitly the GSO limits.
+On Mon, Oct 20, 2025 at 11:10:14AM +0200, Sabrina Dubroca wrote:
+> > +/**
+> > + *	netdev_compute_master_upper_features - compute feature from lowers
 > 
-> By switching to the new helper netdev_compute_master_upper_features(), the bridge
-> now expose additional features, depending on the lowers capabilities.
-> 
-> Since br_set_gso_limits() is already covered by the helper, it can be
-> removed safely.
-> 
-> Bridge has it's own way to update needed_headroom. So we don't need to
-> update it in the helper.
-> 
-> Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-> ---
->  net/bridge/br_if.c | 22 +++-------------------
->  1 file changed, 3 insertions(+), 19 deletions(-)
+> nit: I'm slightly annoyed (that's not quite the right word, sorry)
+> that we're adding a new function to "compute features" that doesn't
+> touch netdev->features, but I can't come up with a better name
+> (the best I got was "compute extra features" and it doesn't help).
 
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
+Ah, yes, the term "compute features" can be confusing since we don’t actually
+ update netdev->features. We can rename it if there’s a better alternative.
 
--- 
-Sabrina
+> 
+> > + *	@dev: the upper device
+> > + *	@update_header: whether to update upper device's header_len/headroom/tailroom
+> > + *
+> > + *	Recompute the upper device's feature based on all lower devices.
+> > + */
+> > +void netdev_compute_master_upper_features(struct net_device *dev, bool update_header)
+> > +{
+> [...]
+> > +	netif_set_tso_max_segs(dev, tso_max_segs);
+> > +	netif_set_tso_max_size(dev, tso_max_size);
+> > +
+> > +	netdev_change_features(dev);
+> 
+> Maybe a dumb idea: I'm wondering if we're doing this from the wrong
+> side.
+> 
+> Right now we have:
+> 
+> [some device op] -> [this new function] -> netdev_change_features -> __netdev_update_features -> ndo_fix_features
+> 
+> Would it make more sense to go instead:
+> 
+> [some device op] -> netdev_change_features -> __netdev_update_features -> ndo_fix_features -> [this new function]
+
+Since we actually doesn't touch netdev->feature. I think [this new function]
+and netdev_change_features() should be in parallel relationship.
+
+> 
+> Possible benefit: not forgetting to fix up the "extra" features in
+> some cases?  (ie calling netdev_change_features when we should have
+> called netdev_compute_master_upper_features)
+
+That’s a good reason to call them together. However, ndo_fix_features is used
+for computing new features for later use. Since we both compute and set them,
+maybe we should put this in ndo_set_features instead?
+
+Thanks
+Hangbin
