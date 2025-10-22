@@ -1,196 +1,86 @@
-Received: from fout-b1-smtp.messagingengine.com (fout-b1-smtp.messagingengine.com [202.12.124.144])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D527D346E4D
-	for <bridge@lists.linux.dev>; Tue, 21 Oct 2025 16:52:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.144
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB09D85626;
+	Wed, 22 Oct 2025 01:30:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761065579; cv=none; b=cMUyhP77DRIKO/mDqmd+S+f//88WauchOQfqiFLzKOLutYD+BEEC+Dro3HVWg1Lb90BnkZzo+Nt1jzJPbytgD4gb9+B/X2KSounmWxpUXlhwzVT5SfjiHUVp7amZxMPv1U0GVMXiSetQnXFsxKPnsjXaron2IWniIzG2n5s2mcI=
+	t=1761096634; cv=none; b=L5LW6+T/p3Yxs59Iq0iPQxpkQt/RHmz/edq7rW/mbfgDiBNjfLd4//S12SnuiAx/yPNkvLCbytAxxV1EcBwEoHb6HmxLS5TOpaKvUQmj5b86OdOfy6ppt2o+Ej8uc13PgeB1fV3ZzeV/9uUZX9vzjZ44FfQTLAiiCqUgpJOr7Fk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761065579; c=relaxed/simple;
-	bh=4JfixZFPfVihXjKhMmwk1/yB7Zcjh++/ZO67fzTTx1Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q61zjdSYFHATNCFalo9jxNGgIylqLbQKbgdbibU/Rbtvt18K4rCJ3BA00tebNzSyTN+pmNNpgIwDsD5u+cXR2Gczz7P1YWLUGN3cKHegZ2ms65PbwEjs7ECiLqR70AfKXU+iIXreosw0ESU7QEme++uqjIpvlqZ/7YP7rfLpAmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=km/RNYBE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ccJsJ1yw; arc=none smtp.client-ip=202.12.124.144
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
+	s=arc-20240116; t=1761096634; c=relaxed/simple;
+	bh=7eZIMqPq5f3rCxeFrzv7o3fi3T6SWZbfIloE1KdQ96E=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=uqf6U0MO9UvxotRInR69dS1n3HRooT7NBsWMX14qAYuSYRjzL2isFNdw2bfM5dTkErc11DuglK4KmE09TzCF/Mte4ZeJsBlwNdqhEk6jUeHj/QONRHYiAfje0Q//xP/sc76pJL06Gwq5i/kS/hvRTsuYXRwS9ajs8vnTxmP2AjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ri1SLeDW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="km/RNYBE";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ccJsJ1yw"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.stl.internal (Postfix) with ESMTP id A10141D0000C;
-	Tue, 21 Oct 2025 12:52:55 -0400 (EDT)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-04.internal (MEProxy); Tue, 21 Oct 2025 12:52:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm3; t=1761065575; x=
-	1761151975; bh=4OaAX2xEk2neBRfluWdNHM2MvJ4wdhZGJvRC6TwttHQ=; b=k
-	m/RNYBEByaImddACRmAHv7AGdxhfa56a2TzMdu/QsxNvzQ/XMWX5zEAK+aMrMGyh
-	+CPEbDR+KrsRqAjbkXtrLIEN1cuDbnQBsCb5J6ZO9N1AvPHXfQD6dNsdJgjSrJhX
-	5iJwB5QklHMY1dDobknrWlSwxOiVCx+bnMh2/aVCDZq8JwSSL/6G36j5do42xh7U
-	tmiuYt71Daw8UML2lU0X0lBuutW8fqeOcVqsRKdrRmBU72VDrqXPV4nCEUwPXMaG
-	j0+YJ95nHhi4hxtBfBhMXKRVepPvBhJC2Df3d9D98FEb5JXSNphe/z0tQO/Vz99L
-	e2o/chII7jhOD3GD9iT6w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1761065575; x=1761151975; bh=4OaAX2xEk2neBRfluWdNHM2MvJ4wdhZGJvR
-	C6TwttHQ=; b=ccJsJ1ywZzXP1dQSDHdQFL3/f8qUro14zActJgHsYIUYUJssR9e
-	ipn+/lHAWzI1/b3rPOYdTJIQHglBcA368Fb1G16uiOhTdwOfPkArOLUssGr+Xq43
-	N2rKT5OtHbSdxwfSO5XvCtl/FxR05+EjYsuTo5tWVKl/tJn8/iGaRn6bkdlQzX+P
-	7xkp+vdtGu0SW0VsuimXEZgUUvcg6uzdY1RbjvwtzZloSlbsToQ/0HJjyCkm1bP+
-	w7oQby0fHhIeB46fUPRow9WunHKfi1IoLyEeIakSMxcb8neX+uqYFEGb1P9QklUz
-	IdJduMebJUub5vv9b7bhMEVv8+ZVvP3G+IA==
-X-ME-Sender: <xms:Zrr3aOMQdGsWNTsyIA5riM01XWw7vz7hkT_WWV6ooYeeIRkt8jwxCA>
-    <xme:Zrr3aGVuQUQcMn4b7bjvvz9AoJKllzGOUfT8WHehfQmgf-xJN8mhZNpbFWuSzm6Ce
-    IyPGFuPk061rdM2dCpky78rEuIwla4CbQst4Q3UROtaUrBl220BbFMy>
-X-ME-Received: <xmr:Zrr3aNz8JQQFOoa9PbVXdlve7DyLDeXTCh9nvJCaQ5bP9h3WXXsACfhqsStN>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdeggddugeduvdefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
-    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
-    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
-    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopedujedpmhho
-    uggvpehsmhhtphhouhhtpdhrtghpthhtohepphgrsggvnhhisehrvgguhhgrthdrtghomh
-    dprhgtphhtthhopehlihhuhhgrnhhgsghinhesghhmrghilhdrtghomhdprhgtphhtthho
-    pehnvghtuggvvhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehjvhesjh
-    hvohhssghurhhghhdrnhgvthdprhgtphhtthhopegrnhgurhgvfidonhgvthguvghvsehl
-    uhhnnhdrtghhpdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgvthdprh
-    gtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhmpdhrtghpthhtohepkhhu
-    sggrsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehjihhrihesrhgvshhnuhhllhhird
-    hush
-X-ME-Proxy: <xmx:Zrr3aOPPYgTUvagRZ1f34p1zBe9hElKtroryGE391I1lArY-JETZwg>
-    <xmx:Zrr3aHp7yQLuilIS10mvwFWH6nXbowdVv-WXg7TGNPgXcdA_lX2I1Q>
-    <xmx:Zrr3aN_4soJVmBNFsZb4HnirwE5ExSqsoKW_QME-DyeSAAczkE4lng>
-    <xmx:Zrr3aF3zVfvwlyUI_MsrXbs0XzAqso7CMZ9yAyRtjkVGmQC2R4ZK2Q>
-    <xmx:Z7r3aJmP6COHdQTQOwuFGI26TXkkdgQ_h97RGA01QxInL6l2n_FDZDyf>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 21 Oct 2025 12:52:53 -0400 (EDT)
-Date: Tue, 21 Oct 2025 18:52:51 +0200
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: Hangbin Liu <liuhangbin@gmail.com>, netdev@vger.kernel.org,
-	Jay Vosburgh <jv@jvosburgh.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>,
-	Simon Horman <horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
-	Shuah Khan <shuah@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-	Stanislav Fomichev <stfomichev@gmail.com>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	bridge@lists.linux.dev
-Subject: Re: [PATCHv6 net-next 1/4] net: add a common function to compute
- features for upper devices
-Message-ID: <aPe6Y86R0vqc3a-R@krikkit>
-References: <20251017034155.61990-1-liuhangbin@gmail.com>
- <20251017034155.61990-2-liuhangbin@gmail.com>
- <aPX8di8QX96JvIZY@krikkit>
- <a2e85a2b-58b0-4460-ae7a-b1ea01e4d7e4@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ri1SLeDW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 322FBC4CEF1;
+	Wed, 22 Oct 2025 01:30:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1761096634;
+	bh=7eZIMqPq5f3rCxeFrzv7o3fi3T6SWZbfIloE1KdQ96E=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=ri1SLeDWHob7Jb6l2QXqT+L/mhX1EPJqi4kYG2KApagTO/dZUXjWgY67r7ftuq9DS
+	 +9u8hAu+F+4u4Q3mwvbHMv4uCsS0W+0bw/dmnWVEcsUnHGrzLj9i9Qn1ZukEktGIZV
+	 epp+Y/LcEEWeAUeJRYgjIZMGo2pYIP06i+po8yDNTN/qOk/nAILupdqYdO+xGVhXd1
+	 Oj4dgkDBkM0ePZMOUgmpOvHg3bz9nIPJYrBzRx+fcFYsXgPviBChM+9kGOR3pf/tmg
+	 Js719Ef7lFu/nX+Xx8HkBcw483DGe+4rfH2yzRmfmltNkaZ5QY8KBYluEgoKMaj34y
+	 +2/R/yU0/U0eA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADDAD3A55FAA;
+	Wed, 22 Oct 2025 01:30:16 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <a2e85a2b-58b0-4460-ae7a-b1ea01e4d7e4@redhat.com>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCHv6 net-next 0/4] net: common feature compute for upper
+ interface
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176109661524.1300441.954767233093800273.git-patchwork-notify@kernel.org>
+Date: Wed, 22 Oct 2025 01:30:15 +0000
+References: <20251017034155.61990-1-liuhangbin@gmail.com>
+In-Reply-To: <20251017034155.61990-1-liuhangbin@gmail.com>
+To: Hangbin Liu <liuhangbin@gmail.com>
+Cc: netdev@vger.kernel.org, jv@jvosburgh.net, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ sdubroca@redhat.com, jiri@resnulli.us, horms@kernel.org, idosch@nvidia.com,
+ shuah@kernel.org, sdf@fomichev.me, stfomichev@gmail.com, kuniyu@google.com,
+ aleksander.lobakin@intel.com, bridge@lists.linux.dev
 
-2025-10-21, 10:46:22 +0200, Paolo Abeni wrote:
-> On 10/20/25 11:10 AM, Sabrina Dubroca wrote:
-> > 2025-10-17, 03:41:52 +0000, Hangbin Liu wrote:
-> >> Some high level software drivers need to compute features from lower
-> >> devices. But each has their own implementations and may lost some
-> >> feature compute. Let's use one common function to compute features
-> >> for kinds of these devices.
-> >>
-> >> The new helper uses the current bond implementation as the reference
-> >> one, as the latter already handles all the relevant aspects: netdev
-> >> features, TSO limits and dst retention.
-> >>
-> >> Suggested-by: Paolo Abeni <pabeni@redhat.com>
-> >> Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-> > 
-> > No objection to this patch/series, just a nit and some discussion below, so:
-> > 
-> > Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
-> > 
-> > 
-> > [...]
-> >> +/**
-> >> + *	netdev_compute_master_upper_features - compute feature from lowers
-> > 
-> > nit: I'm slightly annoyed (that's not quite the right word, sorry)
-> > that we're adding a new function to "compute features" that doesn't
-> > touch netdev->features, but I can't come up with a better name
-> > (the best I got was "compute extra features" and it doesn't help).
+Hello:
+
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Fri, 17 Oct 2025 03:41:51 +0000 you wrote:
+> Some high-level virtual drivers need to compute features from their
+> lower devices, but each currently has its own implementation and may
+> miss some feature computations. This patch set introduces a common function
+> to compute features for such devices.
 > 
-> I'm not the right person to ask a good name, and I'm ok with the current
-> one, but since the question is pending... what about:
+> Currently, bonding, team, and bridge have been updated to use the new
+> helper.
 > 
-> netdev_{compute,update}_offloads_from_lower()
-> 
-> ?
-> 
-> As it actually updates (some of) the offloads available to the (upper)
-> device?
+> [...]
 
-(and the DST_RELEASE flags. at least the tso_max_* kind of fits into "offloads")
+Here is the summary with links:
+  - [PATCHv6,net-next,1/4] net: add a common function to compute features for upper devices
+    https://git.kernel.org/netdev/net-next/c/28098defc79f
+  - [PATCHv6,net-next,2/4] bonding: use common function to compute the features
+    https://git.kernel.org/netdev/net-next/c/d4fde269a970
+  - [PATCHv6,net-next,3/4] team: use common function to compute the features
+    https://git.kernel.org/netdev/net-next/c/745cd46c2a47
+  - [PATCHv6,net-next,4/4] net: bridge: use common function to compute the features
+    https://git.kernel.org/netdev/net-next/c/0152747a528a
 
-I think we can keep the current name. It's more "it kind of bothers
-the pedantic part of me" than "annoyed", and we can't find a better
-name, so let's ignore the pedantic part. Sorry for the noise.
-
-
-> >> + *	@dev: the upper device
-> >> + *	@update_header: whether to update upper device's header_len/headroom/tailroom
-> >> + *
-> >> + *	Recompute the upper device's feature based on all lower devices.
-> >> + */
-> >> +void netdev_compute_master_upper_features(struct net_device *dev, bool update_header)
-> >> +{
-> > [...]
-> >> +	netif_set_tso_max_segs(dev, tso_max_segs);
-> >> +	netif_set_tso_max_size(dev, tso_max_size);
-> >> +
-> >> +	netdev_change_features(dev);
-> > 
-> > Maybe a dumb idea: I'm wondering if we're doing this from the wrong
-> > side.
-> > 
-> > Right now we have:
-> > 
-> > [some device op] -> [this new function] -> netdev_change_features -> __netdev_update_features -> ndo_fix_features
-> > 
-> > Would it make more sense to go instead:
-> > 
-> > [some device op] -> netdev_change_features -> __netdev_update_features -> ndo_fix_features -> [this new function]
-> > 
-> > ?
-> 
-> Uhmmm.... this function touches a few more things beyond dev->*features,
-> calling it from ndo_fix_features() looks a bit out-of-scope.
-
-True. And as Hangbin said, it's setting (so a bit more "update" than
-"compute", as you wrote above) values whereas ndo_fix_features is just
-returning a value.
-
-So if we wanted to have this done by netdev_change_features, we'd
-probably need a new ndo, or some kind of flag to tell
-__netdev_update_features that this device needs the new function
-called. Well, we have netif_is_bridge_master, netif_is_team_master,
-netif_is_bond_master. But at this stage we don't know if update_header
-should be true/false. So ndo would be cleaner, but a lot
-heavier... it's probably not worth all this mess.
-
+You are awesome, thank you!
 -- 
-Sabrina
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
