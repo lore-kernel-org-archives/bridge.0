@@ -1,185 +1,142 @@
-Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012003.outbound.protection.outlook.com [52.101.48.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D68431D38E
-	for <bridge@lists.linux.dev>; Thu, 23 Oct 2025 14:47:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.3
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761230841; cv=fail; b=XoQ5XGbdjopUNOIYazVQJK31TwDO5GgDw9MLIZyAoq6+J6nz4v3In5vmGIg75zapKUlp9gtQI0PI+PZcfpXuIEmOqu3cfpElqLvQOGEm2VjVb2KpHNAWRLPXAXf1+XKbhTdNivxihCbnB2G41CT8zYvi9Z9Vz7PdpHNPWMZ0fpk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761230841; c=relaxed/simple;
-	bh=5A19wqUTTQdZ+SgbWoL7IOHZys+MEmuqcfzcN8dbQMs=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=fOqow5izEiQRLuPpPCMzFe4h62z2DWm1lVcWXvTe/1qQnZhjHZsE6otCymPxWY5b3mmO12ciFo4FqkdKRVPx1UJFQccgBL3ZmXnj6c7gdMDhOXmLehcdPiKOI+9r9xXj0hICj5zWJ6E/ucWXV9MAFysFad3sIvsBgCwlprxCZFI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=b7KnGeiV; arc=fail smtp.client-ip=52.101.48.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D54832EC563
+	for <bridge@lists.linux.dev>; Fri, 24 Oct 2025 07:43:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761291783; cv=none; b=cHO2UYPTeX41wQt5ZZJS9Sar26gHgA6Nm0VMDfMxD36wOXP5rm3SZ7ZsYGOnId1rVQYXi0smznmI/kwzXMI0SXz3ceLvsxBbs+zsygP6jKYsQk9QHrypt/+i3JwdhYae5G7c1710q50vuYnjvn8aRttz1nEPAUjr3B0jha61gEk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761291783; c=relaxed/simple;
+	bh=+Ri+9nDNnz2Ro7JzCcrVpBywjcXVkOfSO4cIXjqKvQc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Bsjji0rexRC7yc7HEgjdV5D26y2JR0JrkWoZfyVFN91Z8Hn4UpeJKV9WgcQOhDQNh4NU8i5x5+vIkBC69ys9kQHXfUSdgNvs7htUjt8K1S2KO660xUxcN0mfrG4k+SAQdPSLayhAu6TczxSClDClTrvQmtqH19jKds8ne6jMJjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=H/SXnfAo; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="b7KnGeiV"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=BJ7eJvRCFTsHQU3pOFjXSlxc5sY0shUfdH46j40ovNWNFBY8fapvWTeq8MAyNmVTkJ3q9iGzWfiMT0H1Jhph4BOoLAuCpnFlOcbmyj7RnX6yYU3xoTsBBn+dieeIE15CPPf3+VLpgfUdfXt63kRSDQvH6UlicBtGFQPDd/mTST2hec4ODwIG3IXRcZvuOeelXSnuNf9eNGlBJq1EGzeLcMqTyez4NY298xwQOouTSlj+hSJdO3C4r3V6aT7sFgakkzhkEka6R/PhpT2obpM7g8JTe3rdEa4r7nJUFhZDta1nUohaJ6qwsAU955u7RtCjB3VQHx1u+6fhdhqHqOYpRw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=65tDy8DncG6XQ27CfJmf3d0k+wUG0/PWdAIactjQCLw=;
- b=uCCrEO/cr7aS+neo66+gyNP4g3d/2+iRp0OqIOn848wXfSPdW7ck8GHFwtr/kA7+6GrG1ojuJiEhSxS4EIYUIMhrEF7g/BzWFLtPZgnquGypIM+id1lqnw9ZyR3B4PdOAi7cL/b/rB72vLzD6eF3f5agJZ6YK4t752TRman+k3QtkXZmS1ko3exDK9Lzfrl/+hgj5RFXKhdoaL3mJNdYaDMUGKLJtQbp8U488nN7an6884esDtzAJlZnur6YLlXwCpb4RcGiEGdCG/8di9xvTmtcegDHX8snmMIFonYIVufLqEFSUpUqU3eqb2EZ3D5JrE/fA3g0q4NbfPNS7AmiWg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=davemloft.net smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=65tDy8DncG6XQ27CfJmf3d0k+wUG0/PWdAIactjQCLw=;
- b=b7KnGeiVq6RA2/g0H4ymz84TQ1SSsMFthiC4Vl+Xyx3Q2tPstOGBh1dklfC5ywk68IqgqO7HqoHeZtXH5WLvPnqg1nfVdO4dH88Cx0vSqThN1kkWQ+MLWPFov3ZL5tgB8qfDpk+q4ZN0xvetE9rP2TNkGqm1I0KYhzwOeS4QqAmPhsyH9FqCon6JfOOs/fuCtvvmve879G0JsAZPgPgP423S9a3X01LvqpqQT7hgXqoyce3e6Knf7L+a3GQ9BZf3fSDX2a32U7nyyhS1boXYAnQMc7dGwsu6Hl9IBtJ+3VjQXeCvXI9boePPpUc7+bWu1uAPBZ36FrXxNTb144hyUA==
-Received: from BN9PR03CA0295.namprd03.prod.outlook.com (2603:10b6:408:f5::30)
- by DM4PR12MB7551.namprd12.prod.outlook.com (2603:10b6:8:10d::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9253.13; Thu, 23 Oct
- 2025 14:47:16 +0000
-Received: from BN3PEPF0000B06B.namprd21.prod.outlook.com
- (2603:10b6:408:f5:cafe::ef) by BN9PR03CA0295.outlook.office365.com
- (2603:10b6:408:f5::30) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9253.12 via Frontend Transport; Thu,
- 23 Oct 2025 14:47:16 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- BN3PEPF0000B06B.mail.protection.outlook.com (10.167.243.70) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9275.0 via Frontend Transport; Thu, 23 Oct 2025 14:47:15 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Thu, 23 Oct
- 2025 07:46:57 -0700
-Received: from fedora.mtl.com (10.126.231.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Thu, 23 Oct
- 2025 07:46:52 -0700
-From: Petr Machata <petrm@nvidia.com>
-To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, <netdev@vger.kernel.org>
-CC: Simon Horman <horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
-	"Nikolay Aleksandrov" <razor@blackwall.org>, <bridge@lists.linux.dev>, Petr
- Machata <petrm@nvidia.com>, <mlxsw@nvidia.com>
-Subject: [PATCH net-next 1/2] net: bridge: Flush multicast groups when snooping is disabled
-Date: Thu, 23 Oct 2025 16:45:37 +0200
-Message-ID: <5e992df1bb93b88e19c0ea5819e23b669e3dde5d.1761228273.git.petrm@nvidia.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="H/SXnfAo"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-b3e9d633b78so333732066b.1
+        for <bridge@lists.linux.dev>; Fri, 24 Oct 2025 00:43:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1761291780; x=1761896580; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=jhahQiKxL2l5ZMBK3/b5kydysdy0zRxJIFdQCfDiF8I=;
+        b=H/SXnfAo5K6pZKojRdhN/py6JHppD2vCs4rrCpCfqSCHXqKGkPCMqJiRwTOds/JxkY
+         SOJOPAoXupdVVHAF8l8JtqyKWqkjY+5ZUg7NAoBM3EbcoeRKGw07dtdAwotMLhZY+Iz4
+         H1h2FY/XjIBUgPdQJBC3uJL8GZqA9bGcURHmvntskNt/qe2h6Y42vphxqyFpqkGTf+4a
+         kdGnE+N5qMLTgKjJhTV1bA7fTQ5j0myOaM35hn0ua1dlsmprxisrlyhE+p1b82Y4se0J
+         Xep3xrtCCdW7Oi4nZg6KN2mPMjScUr0ZYKe8rPoJZUWJ7XSwe5fcLtfO9osRLugYNgw0
+         IY6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1761291780; x=1761896580;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=jhahQiKxL2l5ZMBK3/b5kydysdy0zRxJIFdQCfDiF8I=;
+        b=KL5sc3YAs1E764aYpENQqWv00XUrEqnSo9FIwaRRNt6tFhjRCMGYBKISuQsDKUOL44
+         zHkRA9anDNZeIBUMX32PDQKIRZbpu07P7KSU2ScsmHD7LAQRdRPNGZ4Br19pX/I/6QQW
+         lAWdPm2JEj8t+L9YpjMT2uxMmzwtRg4i+sI21hgYDWqmDStP3ek2dSEA5w0cfxe4Fcns
+         XtCWH7rDEEiR/QVk/rEoXU5nK/kscMuVFXSbBRPqatGwhe9xmfFsJDMgvWHT82RFJ7Q6
+         545BrFBA+ljaQub9nA0L1PpucnWU0EyN6PXIIhB03seHNqFAApzXoCV/KxCQUEk8vTlz
+         KC7w==
+X-Forwarded-Encrypted: i=1; AJvYcCVk3y6txOmYyPLoyS3dxnpVzCPyevENe60HZPtSiL/GnrV18G20jvMabDlgJJg7UJ+wtgIB5iQ=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwHcvkFbVTdm6DonLke0p//Vp92FVkxgTn0BVvl4skPtpnIbJgq
+	kb97RC8oTfvoE3Y2OtFMN4Qcum0s94yYvUbJhhn/cTyE0BKNfWpYE4VnBdK1GVED7Zk=
+X-Gm-Gg: ASbGnct6URogJtI7Vf0M8RiU0j3BB2qRmlanXw6EV0rM1qxF3xktzaY/2B5bg3ElPw3
+	F6O5t5urF2z8MQAW90yvrk/4+oTM5hyfaZCb/tyPIPv19qGmvCLBprQzPKiWtjEuUR3WLcUxoc0
+	JuRkT7cRkG9VaSo4EGLFCqAoZMRrW8Hlx+x+PwolpQX69JcCz2YZBcHfvXZoLZkv0GVxTrNh1My
+	8b6t8jkPcKI1cdq05AvpQrE4w+RXEvqVqTCjniwAe0nkcK2cHJm81RnOmFozAV1i77yIzrxx9oF
+	Y6AO2wlvOxyTZ3uXpNsvHfH202CrxYGYJqZpCyQKNT6wlgDYShaVckyPWHnots6QP8DZ7YtW71B
+	r7kxCSi9KFPnysI8+3Ta5hYhyswlwDMjIz1ZlBU6mUQZPxVorcf8Gk43YjdhMZ17L1hpgUU68ax
+	dTLnsuMDoBtVW1MTojmu/K+nsC6DI0Scde
+X-Google-Smtp-Source: AGHT+IFvbTrKGBBpoTCaoGS2gvcjtD63K6LWeth4uaR2zH92WeIfEL6ETRbjxcJ7CljSIdIyP7aerw==
+X-Received: by 2002:a17:906:ee89:b0:b6d:595b:f54d with SMTP id a640c23a62f3a-b6d6ba8f860mr195451266b.7.1761291779267;
+        Fri, 24 Oct 2025 00:42:59 -0700 (PDT)
+Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b6d5144ece8sm443173966b.68.2025.10.24.00.42.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Oct 2025 00:42:58 -0700 (PDT)
+Message-ID: <aa92bbb5-c64b-4262-a382-ae5609254606@blackwall.org>
+Date: Fri, 24 Oct 2025 10:42:57 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN3PEPF0000B06B:EE_|DM4PR12MB7551:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9a979fdd-555f-4ef3-f162-08de12430ed7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|376014|36860700013;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?dNPA7bWp9d4bBONN4bJiV2FvdymPXkoS873nYBDsH/An3LqUwNY/zFjDnlbw?=
- =?us-ascii?Q?qvUWDwJ+CJm2joXOhD6YBtWTgRD/qQclmZx+iaSfG+0rzX5YVzafp2sDZR8I?=
- =?us-ascii?Q?bT1uNZGAkyBFYg8GH9tX89GI97XVxp1hBivh8jdTFbb2+Bn3fpBUIoEAKGf7?=
- =?us-ascii?Q?QlV994xVZUs7Dos5bkBVRkdoRQ4loyMb1jRlaOZOwvdTs62l/YIMT3jdtqNy?=
- =?us-ascii?Q?hnfgeGNG5hia1XS65OChUSEMloUAGVjeSA/QTsurTqKeZle8X3vGgSnwf41v?=
- =?us-ascii?Q?QMuNJ2/+PfYHOoM6akuroTpOSf9tTWJqye4Gu91e14ua78xL89gMCsggcwU4?=
- =?us-ascii?Q?FRoJMilKRharL1sKcKgLZ5WTGMxp6FXVXMo0noPp9R+/L3o6eSeY+gv/2lFb?=
- =?us-ascii?Q?6WUwQCJW5naA3RD/r7TDj8J1cr1MqUMcjvspomO8d9KK1Pswiiya9AstpmtX?=
- =?us-ascii?Q?yhMac1ZJT5stI0/ZU02g4ask4S2kK6+7RI4WHYBAOi2r+5g8eXhRPAY4Y1mt?=
- =?us-ascii?Q?Ym8+S3l23VVX/S7pwmPPkHHYglK3u8Lwy+s8WrwnuhgldvYu91Sx+ewDXAfG?=
- =?us-ascii?Q?3lkB0OdoQSShtBkE6WwPe97aDgrzorvtuADg5G3OspTGPWNE0znmxtZEsGwh?=
- =?us-ascii?Q?qqabVy/4Zab02FN77Tcf8WIDuliFNxmyssuxAI5HLQY/ZKOpXXRC78u5EnTi?=
- =?us-ascii?Q?EdfmfeRJXoIXQCa23C7zH5YWvJAlQlB6pdlD0C7S+H3UESvkBlfDdwrolovK?=
- =?us-ascii?Q?Wh55MyaU4B8H3vU46KCFk2GsYrbgSo0Dj7pOOatLvDhg+uR73PcDPmIfPu1G?=
- =?us-ascii?Q?h2/v58A2bfy8nSPUwz+YlspYbGxbAqNrwxP28KwZsqkJgTSFu+rsYvjkKH/3?=
- =?us-ascii?Q?y3+mV+AiIGfMJ/pcNoTAFLWqY1ExrscnEKYNCHsl6+3YszD7QfVz0KJdDzhn?=
- =?us-ascii?Q?isZ6coG3AJKX1DYLoQx7UcKf0JP8pQJla2KvqbEZuY1sHcO4jTfJBApmeNQM?=
- =?us-ascii?Q?frP7E0JUsRI2vpOBPfibCpBwict3Nw7exZhfoGOJ9VllU7QpYl9IqzZEKMBz?=
- =?us-ascii?Q?FRfYO9+Sxs/CQgkPUB6tbkEKiVItrRCaH+LnnpdEPWMid3bhAtb4MKPU7q30?=
- =?us-ascii?Q?0hJzVfhZYoM29/SsrlznWVuipt5f7fOtM1PE3WQxQ81JFAcTqImME0n0vqlX?=
- =?us-ascii?Q?wr0JrzBULZe8JGiL6luTW7wW9d5yU2g8ymOcEycGKif4qgpQkA0oevlmQe+2?=
- =?us-ascii?Q?PsAzO7Cj1JuzJiw5gVwoyv3GUAYL37+rRhBKTSHFJWOQj82Yt9kwCnL2xfXF?=
- =?us-ascii?Q?DDbAoV82AVN/D9IDSJVwAtfB5cx8ckLtRnarlUBEKPM9e9MmESULelwops9U?=
- =?us-ascii?Q?CumcpU7txG1h5+mNLYNJUy6Dj16i6epYYOSBYr8oepvKI8GzgR6Cw5epftr3?=
- =?us-ascii?Q?vkK4raT78rpv1XrA5UJvMRPfHz12KwcJn+jWASV0b5DokuAKH0qTHbYu7FSz?=
- =?us-ascii?Q?m633gy8+pp8ZxPOf8i7CF7qC4d2b37vs6DqzBeWI2M4OXIPlqAICinhWXQN0?=
- =?us-ascii?Q?wAk19Yls8/5rF38STFs=3D?=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(376014)(36860700013);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Oct 2025 14:47:15.2418
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9a979fdd-555f-4ef3-f162-08de12430ed7
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BN3PEPF0000B06B.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB7551
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 1/2] net: bridge: Flush multicast groups when
+ snooping is disabled
+To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+Cc: Simon Horman <horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
+ bridge@lists.linux.dev, mlxsw@nvidia.com
+References: <5e992df1bb93b88e19c0ea5819e23b669e3dde5d.1761228273.git.petrm@nvidia.com>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <5e992df1bb93b88e19c0ea5819e23b669e3dde5d.1761228273.git.petrm@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-When forwarding multicast packets, the bridge takes MDB into account when
-IGMP / MLD snooping is enabled. Currently, when snooping is disabled, the
-MDB is retained, even though it is not used anymore.
+On 10/23/25 17:45, Petr Machata wrote:
+> When forwarding multicast packets, the bridge takes MDB into account when
+> IGMP / MLD snooping is enabled. Currently, when snooping is disabled, the
+> MDB is retained, even though it is not used anymore.
+> 
+> At the same time, during the time that snooping is disabled, the IGMP / MLD
+> control packets are obviously ignored, and after the snooping is reenabled,
+> the administrator has to assume it is out of sync. In particular, missed
+> join and leave messages would lead to traffic being forwarded to wrong
+> interfaces.
+> 
+> Keeping the MDB entries around thus serves no purpose, and just takes
+> memory. Note also that disabling per-VLAN snooping does actually flush the
+> relevant MDB entries.
+> 
+> This patch flushes non-permanent MDB entries as global snooping is
+> disabled.
+> 
+> Signed-off-by: Petr Machata <petrm@nvidia.com>
+> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+> ---
+>  net/bridge/br_multicast.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 22d12e545966..d55a4ab87837 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -4649,6 +4649,14 @@ static void br_multicast_start_querier(struct net_bridge_mcast *brmctx,
+>  	rcu_read_unlock();
+>  }
+>  
+> +static void br_multicast_del_grps(struct net_bridge *br)
+> +{
+> +	struct net_bridge_port *port;
+> +
+> +	list_for_each_entry(port, &br->port_list, list)
+> +		__br_multicast_disable_port_ctx(&port->multicast_ctx);
+> +}
+> +
+>  int br_multicast_toggle(struct net_bridge *br, unsigned long val,
+>  			struct netlink_ext_ack *extack)
+>  {
+> @@ -4669,6 +4677,7 @@ int br_multicast_toggle(struct net_bridge *br, unsigned long val,
+>  	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, !!val);
+>  	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED)) {
+>  		change_snoopers = true;
+> +		br_multicast_del_grps(br);
+>  		goto unlock;
+>  	}
+>  
 
-At the same time, during the time that snooping is disabled, the IGMP / MLD
-control packets are obviously ignored, and after the snooping is reenabled,
-the administrator has to assume it is out of sync. In particular, missed
-join and leave messages would lead to traffic being forwarded to wrong
-interfaces.
+I've actually thought about this, disabling multicast has always been weird in the
+bridge and I think this is an improvement:
 
-Keeping the MDB entries around thus serves no purpose, and just takes
-memory. Note also that disabling per-VLAN snooping does actually flush the
-relevant MDB entries.
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-This patch flushes non-permanent MDB entries as global snooping is
-disabled.
-
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
----
- net/bridge/br_multicast.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 22d12e545966..d55a4ab87837 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -4649,6 +4649,14 @@ static void br_multicast_start_querier(struct net_bridge_mcast *brmctx,
- 	rcu_read_unlock();
- }
- 
-+static void br_multicast_del_grps(struct net_bridge *br)
-+{
-+	struct net_bridge_port *port;
-+
-+	list_for_each_entry(port, &br->port_list, list)
-+		__br_multicast_disable_port_ctx(&port->multicast_ctx);
-+}
-+
- int br_multicast_toggle(struct net_bridge *br, unsigned long val,
- 			struct netlink_ext_ack *extack)
- {
-@@ -4669,6 +4677,7 @@ int br_multicast_toggle(struct net_bridge *br, unsigned long val,
- 	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, !!val);
- 	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED)) {
- 		change_snoopers = true;
-+		br_multicast_del_grps(br);
- 		goto unlock;
- 	}
- 
--- 
-2.49.0
 
