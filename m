@@ -1,66 +1,66 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D54832EC563
-	for <bridge@lists.linux.dev>; Fri, 24 Oct 2025 07:43:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 806882EB867
+	for <bridge@lists.linux.dev>; Fri, 24 Oct 2025 07:43:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761291783; cv=none; b=cHO2UYPTeX41wQt5ZZJS9Sar26gHgA6Nm0VMDfMxD36wOXP5rm3SZ7ZsYGOnId1rVQYXi0smznmI/kwzXMI0SXz3ceLvsxBbs+zsygP6jKYsQk9QHrypt/+i3JwdhYae5G7c1710q50vuYnjvn8aRttz1nEPAUjr3B0jha61gEk=
+	t=1761291804; cv=none; b=ujiyVrTFwWrRYkq7mSHpPgi1Ot12GmG09C6jw4z5Mcq0W4qWcBHHwScmhpM97GD/ph6L8D8roPN6/U+8N2SP9cMmyWGiOE4qRArcrYeivvGh1YPTnMpLFBWW2W/dxqs8E1zDAkPfaEgO8HgAArRRqqEdl9Q7BJAtPx22EdNjatk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761291783; c=relaxed/simple;
-	bh=+Ri+9nDNnz2Ro7JzCcrVpBywjcXVkOfSO4cIXjqKvQc=;
+	s=arc-20240116; t=1761291804; c=relaxed/simple;
+	bh=n9vrj8rw3vvgLnp0wFhiU0wr83DTSKQ91SlzmqgRO7A=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Bsjji0rexRC7yc7HEgjdV5D26y2JR0JrkWoZfyVFN91Z8Hn4UpeJKV9WgcQOhDQNh4NU8i5x5+vIkBC69ys9kQHXfUSdgNvs7htUjt8K1S2KO660xUxcN0mfrG4k+SAQdPSLayhAu6TczxSClDClTrvQmtqH19jKds8ne6jMJjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=H/SXnfAo; arc=none smtp.client-ip=209.85.218.53
+	 In-Reply-To:Content-Type; b=FM025cAUxSRfx+RY1QNJ4Ya968h+CgceOdV0+7Can6cSbvTdvOTrwBMwnmNGWwKJ4CcVs7chAjfxTiVutAfFV2RLeh7UDGa01K20irMbyhuvYrK/tPyseejVjt1AipojkwVgTLId4dlwNeJZKo9SeoJkY3cxE8C3Y6ZU8PkGSic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=inP88IBU; arc=none smtp.client-ip=209.85.218.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="H/SXnfAo"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-b3e9d633b78so333732066b.1
-        for <bridge@lists.linux.dev>; Fri, 24 Oct 2025 00:43:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="inP88IBU"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-b3e234fcd4bso326416966b.3
+        for <bridge@lists.linux.dev>; Fri, 24 Oct 2025 00:43:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1761291780; x=1761896580; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1761291800; x=1761896600; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=jhahQiKxL2l5ZMBK3/b5kydysdy0zRxJIFdQCfDiF8I=;
-        b=H/SXnfAo5K6pZKojRdhN/py6JHppD2vCs4rrCpCfqSCHXqKGkPCMqJiRwTOds/JxkY
-         SOJOPAoXupdVVHAF8l8JtqyKWqkjY+5ZUg7NAoBM3EbcoeRKGw07dtdAwotMLhZY+Iz4
-         H1h2FY/XjIBUgPdQJBC3uJL8GZqA9bGcURHmvntskNt/qe2h6Y42vphxqyFpqkGTf+4a
-         kdGnE+N5qMLTgKjJhTV1bA7fTQ5j0myOaM35hn0ua1dlsmprxisrlyhE+p1b82Y4se0J
-         Xep3xrtCCdW7Oi4nZg6KN2mPMjScUr0ZYKe8rPoJZUWJ7XSwe5fcLtfO9osRLugYNgw0
-         IY6w==
+        bh=btg6WWXpIi0CWUiiHvKL1LewBs3OVn+no42TB4G5pPk=;
+        b=inP88IBUvY3uFxQ/0bLiFcNTu7hdFfnZcHvRt+q1Ktv0UIPEOwps7Qrj2oTa6L1TU1
+         GKndmL1sFDwyqLdNajWHg/6QSpI/SVoThPPypxNag3nvUFA7fhEPfuVMD8aIAdrz0BHR
+         xZ0+JfSmsTInN0B1h81iN+UK6ytIr8InrlBXRM0gbpb7RCgoY2p1TYAuTSqNo2h/KU+v
+         4AtnmGUgzlZs3SnyA8arIIZygSedmYhi8XARV00ikP9/1bY1kL1Df6x46ij+w1MDReau
+         Rfa9E1yXEKchRs2Y+eVTCJ29QL9euhSKsASCJ9DWQt+LeTqsK2jHvcf0RU6RLFwGfomw
+         bCMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1761291780; x=1761896580;
+        d=1e100.net; s=20230601; t=1761291800; x=1761896600;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jhahQiKxL2l5ZMBK3/b5kydysdy0zRxJIFdQCfDiF8I=;
-        b=KL5sc3YAs1E764aYpENQqWv00XUrEqnSo9FIwaRRNt6tFhjRCMGYBKISuQsDKUOL44
-         zHkRA9anDNZeIBUMX32PDQKIRZbpu07P7KSU2ScsmHD7LAQRdRPNGZ4Br19pX/I/6QQW
-         lAWdPm2JEj8t+L9YpjMT2uxMmzwtRg4i+sI21hgYDWqmDStP3ek2dSEA5w0cfxe4Fcns
-         XtCWH7rDEEiR/QVk/rEoXU5nK/kscMuVFXSbBRPqatGwhe9xmfFsJDMgvWHT82RFJ7Q6
-         545BrFBA+ljaQub9nA0L1PpucnWU0EyN6PXIIhB03seHNqFAApzXoCV/KxCQUEk8vTlz
-         KC7w==
-X-Forwarded-Encrypted: i=1; AJvYcCVk3y6txOmYyPLoyS3dxnpVzCPyevENe60HZPtSiL/GnrV18G20jvMabDlgJJg7UJ+wtgIB5iQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwHcvkFbVTdm6DonLke0p//Vp92FVkxgTn0BVvl4skPtpnIbJgq
-	kb97RC8oTfvoE3Y2OtFMN4Qcum0s94yYvUbJhhn/cTyE0BKNfWpYE4VnBdK1GVED7Zk=
-X-Gm-Gg: ASbGnct6URogJtI7Vf0M8RiU0j3BB2qRmlanXw6EV0rM1qxF3xktzaY/2B5bg3ElPw3
-	F6O5t5urF2z8MQAW90yvrk/4+oTM5hyfaZCb/tyPIPv19qGmvCLBprQzPKiWtjEuUR3WLcUxoc0
-	JuRkT7cRkG9VaSo4EGLFCqAoZMRrW8Hlx+x+PwolpQX69JcCz2YZBcHfvXZoLZkv0GVxTrNh1My
-	8b6t8jkPcKI1cdq05AvpQrE4w+RXEvqVqTCjniwAe0nkcK2cHJm81RnOmFozAV1i77yIzrxx9oF
-	Y6AO2wlvOxyTZ3uXpNsvHfH202CrxYGYJqZpCyQKNT6wlgDYShaVckyPWHnots6QP8DZ7YtW71B
-	r7kxCSi9KFPnysI8+3Ta5hYhyswlwDMjIz1ZlBU6mUQZPxVorcf8Gk43YjdhMZ17L1hpgUU68ax
-	dTLnsuMDoBtVW1MTojmu/K+nsC6DI0Scde
-X-Google-Smtp-Source: AGHT+IFvbTrKGBBpoTCaoGS2gvcjtD63K6LWeth4uaR2zH92WeIfEL6ETRbjxcJ7CljSIdIyP7aerw==
-X-Received: by 2002:a17:906:ee89:b0:b6d:595b:f54d with SMTP id a640c23a62f3a-b6d6ba8f860mr195451266b.7.1761291779267;
-        Fri, 24 Oct 2025 00:42:59 -0700 (PDT)
+        bh=btg6WWXpIi0CWUiiHvKL1LewBs3OVn+no42TB4G5pPk=;
+        b=RfqAAnvJvinu/stanLIZHHry09sq8KRtAis6JdmW3gMbCS6FDnR18aLTmpEybsBRRn
+         cbrdxnXh3JNv+cKELkoPujSc60pL4rCTlehEaCj6ES5e9yCoOa3EAq6lU7GjDFHnhjpj
+         vuRXqiABH9nGOiksgVMJyxOKUijfofReS0PHhLiO0zmYnuJgv2jy8NqDR+MzfEBowsqL
+         lO2/6iMe5ZMDIu0sPEwOpzydZVwhm2DmcgWS85YcJY0EM4IU3D6Mg0c3p4eELI5ygMv6
+         ou5Vd5ly3w+VOaKImZVj6DYZq+VTJbvKiU9HFpI3RKGtzA4q1PCMADBguq/R9eCFPSgX
+         8E8Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXjWxl1ZhvKsBGuMFj7jzR02l25bSz25eCm+qjX9GMLmzNCsR019a5jNwTeemLU8xbRyaUTLFU=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyq3BFNb39t8jkPKIASp20wPlLJPtcn2bJJl8H4FxTfr62RyGuO
+	O5a2YOPV0KLqzQQNVyUY0YnRzWxNjrVWzqDtg5/a7kB5ZOLeFlZK/rerKYJ8VZ0suZ0=
+X-Gm-Gg: ASbGnctLBVt37+zrgO8APLEwdgMXD5Ph5cXzbaCrHqGvGfuiKixqTX/yEpUlclNiA3o
+	WqmAzhtGeMTG/IpJiUJT6bFni1+IrcQXiqYv1W8REk7PXGPN1zkOdaa8cpO/E5MahBWONfp4JRw
+	6zRiv8/R4rMGPzGRv0h+ITkfVPj99PyDxg5Vs/v2Sx7dQJy/c4hKO81r2XuvUuL1/4nWjlvpvAf
+	clpfAJ0iFxk9zxCLQwlsl1qjQbMZal/OZdNhXF5KrsBF8PpKyJ0x1O1q20K2cV6LlfXPgz4MP+s
+	YpMbmUgsSsjK2xNLeQRwpDESzvvSFIlG/4PF4ybAglDIsK8Bp34MtThN2bNvbaM1Zb7OwMghESJ
+	a/rGKdB8iTMg/aowFJlW/Vz0uhT9hqj9pF0n67vyZYEnqyTkEeVjB1/PHcIAxUsnnYQYT1A1bph
+	MHzq6bMKfbByP8Pt6w/N2R2gw/N4o3ajClYHbf5h0jDy0=
+X-Google-Smtp-Source: AGHT+IENVgAAY05iZMjJCVKA8oSGaw8hZMk+fKU5hdYwbKNdz8hghfeyg+3i0gPeAqEdHdSGOTqcCA==
+X-Received: by 2002:a17:907:1c21:b0:b6d:536f:ada with SMTP id a640c23a62f3a-b6d536f1134mr702214066b.43.1761291799580;
+        Fri, 24 Oct 2025 00:43:19 -0700 (PDT)
 Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b6d5144ece8sm443173966b.68.2025.10.24.00.42.58
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-63e3f316847sm3676823a12.23.2025.10.24.00.43.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Oct 2025 00:42:58 -0700 (PDT)
-Message-ID: <aa92bbb5-c64b-4262-a382-ae5609254606@blackwall.org>
-Date: Fri, 24 Oct 2025 10:42:57 +0300
+        Fri, 24 Oct 2025 00:43:19 -0700 (PDT)
+Message-ID: <4cb007ea-c29a-44e7-933c-cfe3f728d42c@blackwall.org>
+Date: Fri, 24 Oct 2025 10:43:18 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -68,75 +68,38 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 1/2] net: bridge: Flush multicast groups when
- snooping is disabled
+Subject: Re: [PATCH net-next 2/2] selftests: bridge_mdb: Add a test for MDB
+ flush on snooping disable
 To: Petr Machata <petrm@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
 Cc: Simon Horman <horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
- bridge@lists.linux.dev, mlxsw@nvidia.com
+ bridge@lists.linux.dev, mlxsw@nvidia.com, linux-kselftest@vger.kernel.org,
+ Shuah Khan <shuah@kernel.org>
 References: <5e992df1bb93b88e19c0ea5819e23b669e3dde5d.1761228273.git.petrm@nvidia.com>
+ <9420dfbcf26c8e1134d31244e9e7d6a49d677a69.1761228273.git.petrm@nvidia.com>
 Content-Language: en-US
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <5e992df1bb93b88e19c0ea5819e23b669e3dde5d.1761228273.git.petrm@nvidia.com>
+In-Reply-To: <9420dfbcf26c8e1134d31244e9e7d6a49d677a69.1761228273.git.petrm@nvidia.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 10/23/25 17:45, Petr Machata wrote:
-> When forwarding multicast packets, the bridge takes MDB into account when
-> IGMP / MLD snooping is enabled. Currently, when snooping is disabled, the
-> MDB is retained, even though it is not used anymore.
-> 
-> At the same time, during the time that snooping is disabled, the IGMP / MLD
-> control packets are obviously ignored, and after the snooping is reenabled,
-> the administrator has to assume it is out of sync. In particular, missed
-> join and leave messages would lead to traffic being forwarded to wrong
-> interfaces.
-> 
-> Keeping the MDB entries around thus serves no purpose, and just takes
-> memory. Note also that disabling per-VLAN snooping does actually flush the
-> relevant MDB entries.
-> 
-> This patch flushes non-permanent MDB entries as global snooping is
+> Check that non-permanent MDB entries are removed as IGMP / MLD snooping is
 > disabled.
 > 
 > Signed-off-by: Petr Machata <petrm@nvidia.com>
 > Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 > ---
->  net/bridge/br_multicast.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
 > 
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 22d12e545966..d55a4ab87837 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -4649,6 +4649,14 @@ static void br_multicast_start_querier(struct net_bridge_mcast *brmctx,
->  	rcu_read_unlock();
->  }
->  
-> +static void br_multicast_del_grps(struct net_bridge *br)
-> +{
-> +	struct net_bridge_port *port;
-> +
-> +	list_for_each_entry(port, &br->port_list, list)
-> +		__br_multicast_disable_port_ctx(&port->multicast_ctx);
-> +}
-> +
->  int br_multicast_toggle(struct net_bridge *br, unsigned long val,
->  			struct netlink_ext_ack *extack)
->  {
-> @@ -4669,6 +4677,7 @@ int br_multicast_toggle(struct net_bridge *br, unsigned long val,
->  	br_opt_toggle(br, BROPT_MULTICAST_ENABLED, !!val);
->  	if (!br_opt_get(br, BROPT_MULTICAST_ENABLED)) {
->  		change_snoopers = true;
-> +		br_multicast_del_grps(br);
->  		goto unlock;
->  	}
->  
+> Notes:
+> CC: linux-kselftest@vger.kernel.org
+> CC: Shuah Khan <shuah@kernel.org>
+> 
+>  .../selftests/net/forwarding/bridge_mdb.sh    | 100 +++++++++++++++++-
+>  1 file changed, 98 insertions(+), 2 deletions(-)
+> 
 
-I've actually thought about this, disabling multicast has always been weird in the
-bridge and I think this is an improvement:
 
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-
 
