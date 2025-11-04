@@ -1,192 +1,159 @@
-Received: from mail-ed1-f67.google.com (mail-ed1-f67.google.com [209.85.208.67])
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF95F2459E5
-	for <bridge@lists.linux.dev>; Tue,  4 Nov 2025 12:21:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49B432ED4B
+	for <bridge@lists.linux.dev>; Tue,  4 Nov 2025 14:58:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762258870; cv=none; b=U4Qqu+htH8L8svbp9pNGBIMBGIUmGLbTwhZ42RD56+mNVO+BfGj5CvydFVhYeJf5oIVA4NBy6ERe9xgdhgcluwuVHA3cfLG96XqAFUgpXuEj+Ed2VP4ESCv5JFzyA2Y9WLD5Fp9/Z0N7aN5KxyZG7YqJQbDsQMpn8+edqZYW3jU=
+	t=1762268297; cv=none; b=eGJKJuWI5Vo47Tp0e8JpHqy1b26Yfv1d82nvLsh8Jb9GbdNecKZqJQ/KfWHZztwhvUHvawe7M8wTX3Lw2ABy7y/hukrDo6WSCzMYL0yx43ZuNnn6abxq0m8u8CpjNTrWDKjtaANNHtVr44APxzD1msXnIQWUH2zxLmaV6ENAprQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762258870; c=relaxed/simple;
-	bh=7/iFG5WAzUfDx6M3aJ8HMxRqjLannXvtDd7sxFaC5ck=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qVG9WDuxU19udnp69jBU76slS0JCnT3hPlp8JrHIxP2sspo8zc3u+yJoOdko5UGmM7rwEiq/W0wyspbPW/2kqk85reLWO/uoaW6MXhzkK+9Q8qN+JkFICcBiOmoFTJbqXIo6mGduT/NxSLUkKAkpNneTU5iH12atrTZRWWIOEFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=bx4vjE/o; arc=none smtp.client-ip=209.85.208.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1762268297; c=relaxed/simple;
+	bh=inDzx/S8cSkg3dwC/uO23c8W2vRyNZzLVUHSMHmPaCg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uXDNQwyycnIfchZWs8tTSmNZTPXVYDn3h7eCh4U6hwWe3oneMf7lI6cwyu3jVgFdGVQuvXXSeRJdMnH0hFr2OsWRpTmTKoAHn6pBrG/3SDAuV7S+CdFFYmjsQ/DmNnxhvYZkIofcQYG5vEhCsCTS6n3Eloyq7AC+8p+kyvBsyi8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OGuD3BPc; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="bx4vjE/o"
-Received: by mail-ed1-f67.google.com with SMTP id 4fb4d7f45d1cf-640a3317b89so3503631a12.0
-        for <bridge@lists.linux.dev>; Tue, 04 Nov 2025 04:21:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OGuD3BPc"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-640c48b3b90so3134877a12.0
+        for <bridge@lists.linux.dev>; Tue, 04 Nov 2025 06:58:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1762258865; x=1762863665; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CIVUgC/iS+GQBOZrHTrQQryq92A92IQg/Ogu+NF5aA0=;
-        b=bx4vjE/o9jOhv+9tQYTcY6lO3EQPzxCrQhFmjuy643FllylHg9x5VSM7zOrRdqWAjb
-         vb3MMqcabXtb3o7QHWWbWlJK5lwJCjgHAovgLLSVOE6qVaSGJxk8mVxsPNGJqPxUcjF3
-         C2muFlCMpqxKGq/rPxHysk0Rvoih59o3fHACIbPwkxJF6f2UaK1SQ5FF45AEJmM3V69k
-         jN0XZCToERUaXYYDDNYdTg1mj0e0PPSShLo9nSiDmV14hcRZabLGqO+GnPIqssqrn7Mn
-         glExXcFyAXH7116ZzcG1UryeJ3cA5HQ8B+tL+DoNjmaKtEF0QOzra7DTqsn26N1F/G+g
-         95ug==
+        d=gmail.com; s=20230601; t=1762268294; x=1762873094; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=/l16ttdB2MK5S2rHLIiMDaDf51UWK0TbRnH8/E42ilk=;
+        b=OGuD3BPcDRA6Kc+dGsjlw9GaiMTcHvgs9C1dUrWdtFtIgPgzKvKLHSX5mQckYXA3aO
+         QDAnp+lytIcw37vvHYukPrEPokkwgOwiiOpR4CxB0FriZvIKuC2cJ69GIK2k1cM7XlyA
+         k5hKzY8snG9Ub2uySofltPQMX8Yh8DITvsEpE73JMxY4my0WJ4aGFE9qzvrDMTBkU4DL
+         fZm5BhdD0HkgGSaj6ZyXzGR1/6h6KMtgvu0EGlole+eFBM5Ko9T9MeqiAwpKDVubMVos
+         WW62/5AQn+EbnVmZlLurEcv3IdEJ/HncI3SSHRYqONaVAShJRk4oyurehQ09758sGh5q
+         ruZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762258865; x=1762863665;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CIVUgC/iS+GQBOZrHTrQQryq92A92IQg/Ogu+NF5aA0=;
-        b=BG7gkPO5lLW1Bs8HKID39yuUy3TAKt4cCIoO/ckaE+HmBMiA7Ku/slMRkDEHKMekBa
-         dFTqFSQekFeP1cKNL5+16vj4QtI6uif9dJLebjOyRGxLaUf8IKW6XyniVRBSerJofSEJ
-         bkCoci1MbA82W/XLDP+fLo23QdMcco6mfhzZzrqGD9stsJbSrhAa13AAlvLP9R2qSEsi
-         h54Yfta5C0nif//LedbVWo+G2np4u510fuAZ4EOEQBHefBkxUB7y3ZbMzw5M6jxC1xVe
-         LADM9D4CJTBFvgGTz4e7el6B11OlXwSLPPZ4CbVlg4gGBu3bGpnmyme1cC2x7TW2sD2N
-         KjPA==
-X-Forwarded-Encrypted: i=1; AJvYcCWtjBGkl+AD1/TYGFqulhmWznfCbvWDtHBYhjkJrpzoFMpzxnZC5W/1NS0dothPO5/eBbQbukc=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwGB4zStE09LnG+riojoQkZ6s4RbWvMguaylJLo+koh9JT08q4k
-	n345p8Kf4yxT+bdHCpd11l3zn9G2tSfhz03PntTsPh+bx1moMh29XByjwQm+6AbB1mA=
-X-Gm-Gg: ASbGncuYVbY2b4m5KclR6sXSnSDLs1D0OD4ipyed8Lv64dqwsydhWa6THGi8CcGa1fJ
-	acMKCK+0zXpsjgw610vyVQYC0wr++xdF5Uy1VsPDJJh9Jd6c1phExgnr3UAmX052yw4b67D01xI
-	/8/bPmH+PtYytfM9ZM5go93ZTLiToiB+8zepTGlx5lNGVkn46RENyvuWesfEnSdK3P5UvQGzbIB
-	QttjzyKRCGSOiIIaJaJUNWqy2xaw7XdtkBAFKQwakCoKMg0HzqygapPsKIAxHB0XZ+kQibr/bxp
-	erMOEObV9ooRh/QzejMfVRaBTs69qCFGmtcPB7ZHSSw55Tit4ckmY0JMc56LLYEzx73xBaa1M6E
-	D2s2aPJzc4x6IFB+LE9ONlhtPkIBYKzACHOKHwby7AxzuJvkaINTutSVdOnmA2fXt+Wpcwu4aKg
-	3iTquSFyNGA30xqlyMk73c9iQ3fQG5svky
-X-Google-Smtp-Source: AGHT+IENWRfmlV9P17N5ZlhgCIeMTm8nEfcZT9bxZ2XnEMDFm4tmpuNEJmNOAIW98mTrbihiyO83MQ==
-X-Received: by 2002:a05:6402:13c5:b0:634:ce70:7c5 with SMTP id 4fb4d7f45d1cf-64077040ccbmr13947262a12.17.1762258865100;
-        Tue, 04 Nov 2025 04:21:05 -0800 (PST)
-Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-640ff615e64sm46612a12.28.2025.11.04.04.21.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Nov 2025 04:21:04 -0800 (PST)
-Message-ID: <87bb6973-26e5-46c7-8253-3a5eb636dd6a@blackwall.org>
-Date: Tue, 4 Nov 2025 14:21:03 +0200
+        d=1e100.net; s=20230601; t=1762268294; x=1762873094;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=/l16ttdB2MK5S2rHLIiMDaDf51UWK0TbRnH8/E42ilk=;
+        b=J01iwhxU4QPlPoHy4LOLTYrkjXTgz1B/yhY3J5/hCNaVntkAe0HmjGPpU1WQMWqOSc
+         FD0F+wenVvVaiw9Zi+uQNY1iVzzGCDD7Ff2GXw8FGmO57duxtjzsAOvIKlvJwFqUygyU
+         iIBn4PBU+qKpQx83qNvP2vbTwL80EWUCU2X6A16ORUkvoFsgXM+u4YuIEnM/ri0Enpcb
+         eNnPQ4Qka5UMETW+Z4fO8DAzUk/PbpW1UyNb9ShKiuFmTVDdaH9ymt8fRtGATDCraBwp
+         B3T+Y9DjOlB+Flp6aI/sHkLzgUP5DUcpE3b2Ny7BXgpSDu+Nd0E+V1ibcTd+xy5WIpfF
+         zKhQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVgnpc9wRcGTTvgIPfXfCKvqSocbfgfaMTsrx2IqtuxjbLiKPODasoW2NaUjGJXfg4xdphjg1U=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzZmyJn7F1IVpRhVkxC2yVFm1YJvSsae9wNp0G7b2UjpaTuSSgk
+	LG+z37w8umerqtvpUDfrMF9Z3xVk5Dm4CzvyuJsCCmC3GAs6kowK1bVD
+X-Gm-Gg: ASbGnctFgE3eOTgjNNUTH2g6oRyV+dl0Xd/QfoOTgtyOypTR25F2lENdm6bLlVPrazx
+	rRK2VckAw6c16q2y0zObK85MgAPclNGSvReQm2OTtPm9mntjzJCD2tPEiNlNfNcVCxw9vQlHOzT
+	wUWTosnju8F1d172qerTax4RKdkLoQsDBuGB1kFG592EiVN55NnOtn5+GcBSHdt5YV3tS6bQX+9
+	gTVrqMMEvPUq1sriVDj7iL8pxVvZnnqxRdxcEWsHoIp9yUm5Qqffdxzz5ps9AuIN0Pd1IK9WXdb
+	ifbr930qKP9ffpK/24NDRaULQ8OWAyuBihjT+1aYJi5YNgeix+1zozgg/KoyDj2WUW1AWYTUZT4
+	ZIRvzkQ6fbOgHWWluwAE8NaUq14NIWTSVaL9WmzM8+zQZmdfD58tDxMppat7ry3xUt3XyvtB1d8
+	XMoFp44rk9wsY0XKXLqLcFyv0O2b8pjpXuOEmPVJdZ1bh+SIGF+qYcfGP8x+u+d6w6DONXfDx0t
+	hcqa9RXoA==
+X-Google-Smtp-Source: AGHT+IFoBSG/LmTvbfsb0CiqfJ3IGEEn0aKFuWDCFW1M6Vz6/5HAUfuq0eiik8IrlE2I5ZwBHF/nxg==
+X-Received: by 2002:a17:906:b00e:b0:b70:7e10:4f4b with SMTP id a640c23a62f3a-b707e104f68mr1269603266b.18.1762268293920;
+        Tue, 04 Nov 2025 06:58:13 -0800 (PST)
+Received: from eric (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b723f6e2560sm232681666b.46.2025.11.04.06.58.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Nov 2025 06:58:13 -0800 (PST)
+From: Eric Woudstra <ericwouds@gmail.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>
+Cc: netfilter-devel@vger.kernel.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Eric Woudstra <ericwouds@gmail.com>
+Subject: [PATCH v16 nf-next 0/3] conntrack: bridge: add double vlan, pppoe and pppoe-in-q
+Date: Tue,  4 Nov 2025 15:57:25 +0100
+Message-ID: <20251104145728.517197-1-ericwouds@gmail.com>
+X-Mailer: git-send-email 2.50.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/2] net: bridge: fix use-after-free due to MST port
- state bypass
-To: netdev@vger.kernel.org
-Cc: tobias@waldekranz.com, idosch@nvidia.com, kuba@kernel.org,
- davem@davemloft.net, bridge@lists.linux.dev, pabeni@redhat.com,
- edumazet@google.com, horms@kernel.org,
- syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
-References: <20251104120313.1306566-1-razor@blackwall.org>
- <20251104120313.1306566-2-razor@blackwall.org>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20251104120313.1306566-2-razor@blackwall.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 11/4/25 14:03, Nikolay Aleksandrov wrote:
-> syzbot reported[1] a use-after-free when deleting an expired fdb. It is
-> due to a race condition between learning still happening and a port being
-> deleted, after all its fdbs have been flushed. The port's state has been
-> toggled to disabled so no learning should happen at that time, but if we
-> have MST enabled, it will bypass the port's state, that together with VLAN
-> filtering disabled can lead to fdb learning at a time when it shouldn't
-> happen while the port is being deleted. VLAN filtering must be disabled
-> because we flush the port VLANs when it's being deleted which will stop
-> learning. This fix avoids adding more checks in the fast-path and instead
-> toggles the MST static branch when changing VLAN filtering which
-> effectively disables MST when VLAN filtering gets disabled, and re-enables
-> it when VLAN filtering is enabled && MST is enabled as well.
-> 
-> [1] https://syzkaller.appspot.com/bug?extid=dd280197f0f7ab3917be
-> 
-> Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
-> Reported-by: syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
-> Closes: https://lore.kernel.org/netdev/69088ffa.050a0220.29fc44.003d.GAE@google.com/
-> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
-> ---
-> Initially I did look into moving the rx handler
-> registration/unregistration but that is much more difficult and
-> error-prone. This solution seems like the cleanest approach that doesn't
-> affect the fast-path.
-> 
->  net/bridge/br_mst.c     | 18 +++++++++++++-----
->  net/bridge/br_private.h |  5 +++++
->  net/bridge/br_vlan.c    |  1 +
->  3 files changed, 19 insertions(+), 5 deletions(-)
-> 
-> diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
-> index 3f24b4ee49c2..4abf8551290f 100644
-> --- a/net/bridge/br_mst.c
-> +++ b/net/bridge/br_mst.c
-> @@ -194,6 +194,18 @@ void br_mst_vlan_init_state(struct net_bridge_vlan *v)
->  		v->state = v->port->state;
->  }
->  
-> +void br_mst_static_branch_toggle(struct net_bridge *br)
-> +{
-> +	/* enable the branch only if both VLAN filtering and MST are enabled
-> +	 * otherwise port state bypass can lead to learning race conditions
-> +	 */
-> +	if (br_opt_get(br, BROPT_VLAN_ENABLED) &&
-> +	    br_opt_get(br, BROPT_MST_ENABLED))
-> +		static_branch_enable(&br_mst_used);
-> +	else
-> +		static_branch_disable(&br_mst_used);
-> +}
-> +
->  int br_mst_set_enabled(struct net_bridge *br, bool on,
->  		       struct netlink_ext_ack *extack)
->  {
-> @@ -224,11 +236,7 @@ int br_mst_set_enabled(struct net_bridge *br, bool on,
->  	if (err && err != -EOPNOTSUPP)
->  		return err;
->  
-> -	if (on)
-> -		static_branch_enable(&br_mst_used);
-> -	else
-> -		static_branch_disable(&br_mst_used);
-> -
-> +	br_mst_static_branch_toggle(br);
->  	br_opt_toggle(br, BROPT_MST_ENABLED, on);
->  	return 0;
->  }
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 16be5d250402..052bea4b3c06 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -1952,6 +1952,7 @@ int br_mst_fill_info(struct sk_buff *skb,
->  		     const struct net_bridge_vlan_group *vg);
->  int br_mst_process(struct net_bridge_port *p, const struct nlattr *mst_attr,
->  		   struct netlink_ext_ack *extack);
-> +void br_mst_static_branch_toggle(struct net_bridge *br);
->  #else
->  static inline bool br_mst_is_enabled(struct net_bridge *br)
->  {
-> @@ -1987,6 +1988,10 @@ static inline int br_mst_process(struct net_bridge_port *p,
->  {
->  	return -EOPNOTSUPP;
->  }
-> +
-> +static inline void br_mst_static_branch_toggle(struct net_bridge *br)
-> +{
-> +}
+Conntrack bridge only tracks untagged and 802.1q.
 
-oh, just realized this is actually unnecessary since MST relies on bridge vlan filtering
-to be enabled, I will wait 24h for feedback and post v2 without this
+To make the bridge-fastpath experience more similar to the
+forward-fastpath experience, introduce patches for double vlan,
+pppoe and pppoe-in-q tagged packets to bridge conntrack and to
+bridge filter chain.
 
->  #endif
->  
->  struct nf_br_ops {
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index ce72b837ff8e..636d11f932eb 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -911,6 +911,7 @@ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val,
->  	br_manage_promisc(br);
->  	recalculate_group_addr(br);
->  	br_recalculate_fwd_mask(br);
-> +	br_mst_static_branch_toggle(br);
->  	if (!val && br_opt_get(br, BROPT_MCAST_VLAN_SNOOPING_ENABLED)) {
->  		br_info(br, "vlan filtering disabled, automatically disabling multicast vlan snooping\n");
->  		br_multicast_toggle_vlan_snooping(br, false, NULL);
+Changes in v16:
+
+- Changed nft_chain_filter patch: Only help populating pktinfo offsets,
+   call nft_do_chain() with original network_offset.
+- Changed commit messages.
+- Removed kernel-doc comments.
+
+Changes in v15:
+
+- Do not munge skb->protocol.
+- Introduce nft_set_bridge_pktinfo() helper.
+- Introduce nf_ct_bridge_pre_inner() helper.
+- nf_ct_bridge_pre(): Don't trim on ph->hdr.length, only compare to what
+   ip header claims and return NF_ACCEPT if it does not match.
+- nf_ct_bridge_pre(): Renamed u32 data_len to pppoe_len.
+- nf_ct_bridge_pre(): Reset network_header only when ret == NF_ACCEPT.
+- nf_checksum(_partial)(): Use of skb_network_offset().
+- nf_checksum(_partial)(): Use 'if (WARN_ON()) return 0' instead.
+- nf_checksum(_partial)(): Added comments
+
+Changes in v14:
+
+- nf_checksum(_patial): Use DEBUG_NET_WARN_ON_ONCE(
+   !skb_pointer_if_linear()) instead of pskb_may_pull().
+- nft_do_chain_bridge: Added default case ph->proto is neither
+   ipv4 nor ipv6.
+- nft_do_chain_bridge: only reset network header when ret == NF_ACCEPT.
+
+Changes in v13:
+
+- Do not use pull/push before/after calling nf_conntrack_in() or
+   nft_do_chain().
+- Add patch to correct calculating checksum when skb->data !=
+   skb_network_header(skb).
+
+Changes in v12:
+
+- Only allow tracking this traffic when a conntrack zone is set.
+- nf_ct_bridge_pre(): skb pull/push without touching the checksum,
+   because the pull is always restored with push.
+- nft_do_chain_bridge(): handle the extra header similar to
+   nf_ct_bridge_pre(), using pull/push.
+
+Changes in v11:
+
+- nft_do_chain_bridge(): Proper readout of encapsulated proto.
+- nft_do_chain_bridge(): Use skb_set_network_header() instead of thoff.
+- removed test script, it is now in separate patch.
+
+v10 split from patch-set: bridge-fastpath and related improvements v9
+
+Eric Woudstra (3):
+  netfilter: utils: nf_checksum(_partial) correct data!=networkheader
+  netfilter: bridge: Add conntrack double vlan and pppoe
+  netfilter: nft_chain_filter: Add bridge double vlan and pppoe
+
+ net/bridge/netfilter/nf_conntrack_bridge.c | 92 ++++++++++++++++++----
+ net/netfilter/nft_chain_filter.c           | 58 +++++++++++++-
+ net/netfilter/utils.c                      | 28 +++++--
+ 3 files changed, 153 insertions(+), 25 deletions(-)
+
+-- 
+2.50.0
 
