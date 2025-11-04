@@ -1,153 +1,192 @@
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+Received: from mail-ed1-f67.google.com (mail-ed1-f67.google.com [209.85.208.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6680B2ED858
-	for <bridge@lists.linux.dev>; Tue,  4 Nov 2025 12:03:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF95F2459E5
+	for <bridge@lists.linux.dev>; Tue,  4 Nov 2025 12:21:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.67
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762257805; cv=none; b=rIRDk8EHoTd2D0m7CbyBN4r2ciwcJsyAgEWQqE7Lf/t5ZH/s/6LZ1XodLkzQoa1Pcmd0vQjHRAitjQKQVRxssLRZiLAMQ8OitssoZTTjNnpgctlF3c6iFZtwRC33reHJ6Ri8aaAxy+nbGMh8NAJXtABqCuWpJGtKs7NQNNixb9s=
+	t=1762258870; cv=none; b=U4Qqu+htH8L8svbp9pNGBIMBGIUmGLbTwhZ42RD56+mNVO+BfGj5CvydFVhYeJf5oIVA4NBy6ERe9xgdhgcluwuVHA3cfLG96XqAFUgpXuEj+Ed2VP4ESCv5JFzyA2Y9WLD5Fp9/Z0N7aN5KxyZG7YqJQbDsQMpn8+edqZYW3jU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762257805; c=relaxed/simple;
-	bh=WqQ5LOsWzxd4q/cXJqOV2o+0+/GhIJo/SZMXegXdxEI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aTIQ+uP2dhq6R+Fz9LJU0Ilxx4sSmZ9ndWb98RVPmsUeONt5RKccJ6ZIFqkEwOOSo5kH0VyTNIAVLUdHaUkPBBCKvJo5Y5S4g0wQyND0qxaWwxHEYAzLqUR006tSvgCGyDi/Inn0/+v4PaVb732KyKikgxmwFz5C5OvglZb/63M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=W0StWPuN; arc=none smtp.client-ip=209.85.218.51
+	s=arc-20240116; t=1762258870; c=relaxed/simple;
+	bh=7/iFG5WAzUfDx6M3aJ8HMxRqjLannXvtDd7sxFaC5ck=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qVG9WDuxU19udnp69jBU76slS0JCnT3hPlp8JrHIxP2sspo8zc3u+yJoOdko5UGmM7rwEiq/W0wyspbPW/2kqk85reLWO/uoaW6MXhzkK+9Q8qN+JkFICcBiOmoFTJbqXIo6mGduT/NxSLUkKAkpNneTU5iH12atrTZRWWIOEFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=bx4vjE/o; arc=none smtp.client-ip=209.85.208.67
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="W0StWPuN"
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-b70406feed3so1227128066b.3
-        for <bridge@lists.linux.dev>; Tue, 04 Nov 2025 04:03:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="bx4vjE/o"
+Received: by mail-ed1-f67.google.com with SMTP id 4fb4d7f45d1cf-640a3317b89so3503631a12.0
+        for <bridge@lists.linux.dev>; Tue, 04 Nov 2025 04:21:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1762257802; x=1762862602; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bvbqWBgLxJDAhey/iacVcsdDYJtkr5fIj/Bp321hkOg=;
-        b=W0StWPuN3AfL4bIuuYgpFxRMudg0Z00p84zKFXPueKNU8jldSIgkhudGQIpeSSm3MC
-         E6i3TMz6GrFRaanKOJqWGmEUuBGu9Ov9PZ+k/PB91qs5NEsJpaVrP6wDBZE2V5QExwCr
-         CKX/nuslwjd+SIX2/TFZGpiZIIk90/99f0EVDkuTZF4GDp6NNvhRe8nZph1p6w9KrQ2N
-         T5dgkmmdnF6gnQIcdRyRaypUh2+q3Nb+5QYkcckZmkH6bARnDWPXfSbd50gQga/lvk60
-         EENpoC9ZDC5cz9qDg9NQj0UVU+Lul04G1rMUc3V3F6v1TjII9Jy76gYhOs/uWs/KKC+t
-         5pBQ==
+        d=blackwall.org; s=google; t=1762258865; x=1762863665; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=CIVUgC/iS+GQBOZrHTrQQryq92A92IQg/Ogu+NF5aA0=;
+        b=bx4vjE/o9jOhv+9tQYTcY6lO3EQPzxCrQhFmjuy643FllylHg9x5VSM7zOrRdqWAjb
+         vb3MMqcabXtb3o7QHWWbWlJK5lwJCjgHAovgLLSVOE6qVaSGJxk8mVxsPNGJqPxUcjF3
+         C2muFlCMpqxKGq/rPxHysk0Rvoih59o3fHACIbPwkxJF6f2UaK1SQ5FF45AEJmM3V69k
+         jN0XZCToERUaXYYDDNYdTg1mj0e0PPSShLo9nSiDmV14hcRZabLGqO+GnPIqssqrn7Mn
+         glExXcFyAXH7116ZzcG1UryeJ3cA5HQ8B+tL+DoNjmaKtEF0QOzra7DTqsn26N1F/G+g
+         95ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762257802; x=1762862602;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bvbqWBgLxJDAhey/iacVcsdDYJtkr5fIj/Bp321hkOg=;
-        b=SR2g9h17N5U0V7QSvn4eN5WptY8dWXnZAK6TXWBihZzNrejSxybL12+UjFZesOTNpI
-         TbwP+nsPSllq0zF69rjzS8L3PrmF4ihFMg6BTAORju7Gcq1NauTAM9H9qYNpCVJGlt5J
-         c92vW73MrWrFF8TnAg6nQSI7z71rwJoLnOyrMQQVP6DfFcLL2WMCNtiaku5l/nFVVRx1
-         0jsEROIt1db8vCtlGyFKOmud8VmlHs+1gTd0J4h4i7kNJCLrunJw2EcS8LeVI55NLMHw
-         NOb9p61VXK7m78cGXkmpKWeLyI+iDMl602bBwQQCwc9LEh4NQ3E7P9gugM0wWse7H5/n
-         RgyQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU1LZBzdFKyIhdq8H/HovQPMId0xlJhjyFzoMSBfGe8zTe5X+D71+vJuaBf3MDY4d8WkpbeejQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwVVKPi8FwVNEgTdesbQFuMfa8JQsX6gQA+rMrF0QNN0jUeOOi1
-	HegzMFsPJDDXmuzAGgGWn5IDf9j1jd3Sau90z1OtHNtRQ/x2XzhX1PkYhRpnMkO9u44=
-X-Gm-Gg: ASbGncvdRB1OoxaWV5VEtql9/Sj2JxJZpkgKrXGWmZ88rH3rNALb776weSVsXzExTIb
-	8aUsuezxtYqfBQUvun0n5KBLOMqOQfX1Ojyrj5HWshPDYGuPiSgkIjo58x5rbK2DKPppknlNA4H
-	EH7zbNsyrwew/8YfXgjS2xMS9BhQyZMKMR7+0nGONDbKWUqs50RNQy5brSpE2vLSeMOey+2AObc
-	6JnXTlsB0BSJArDY8Rl+YZ0v+zSTRWZTka6GZOboaiXdhQpYvGKFw86lcSBihuY7cgO0t/4VzAj
-	aDpi0UR4YlkAudsXaG8I758j10AeHoI/UnsWya2GX/AcRtzqqashkg5olQAupJpwD1akTWXYgmu
-	3K9hVEL9rWb7AJV2DgELuh3UbPmVgus7/6pn4p2UqLUrBdPv36RKBUG97ccSlBcL+aqbRgGy2bx
-	U+JIAvq970VPncqYSv/ooiGk7LMlxHwn4ZgQ==
-X-Google-Smtp-Source: AGHT+IEeTSpLZEihOentgy2q7pULZCs4PZHYtywdpRDtbjbVTMWaGOn0tMquXEH/8nFuSuogXRleNg==
-X-Received: by 2002:a17:906:7953:b0:b72:5a54:172f with SMTP id a640c23a62f3a-b725a541c89mr102075766b.53.1762257801493;
-        Tue, 04 Nov 2025 04:03:21 -0800 (PST)
-Received: from debil.nvidia.com (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b723d3a3082sm195032166b.11.2025.11.04.04.03.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Nov 2025 04:03:20 -0800 (PST)
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: netdev@vger.kernel.org
-Cc: tobias@waldekranz.com,
-	idosch@nvidia.com,
-	kuba@kernel.org,
-	davem@davemloft.net,
-	bridge@lists.linux.dev,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	horms@kernel.org,
-	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net 2/2] selftests: forwarding: bridge: add a state bypass with disabled VLAN filtering test
-Date: Tue,  4 Nov 2025 14:03:13 +0200
-Message-ID: <20251104120313.1306566-3-razor@blackwall.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251104120313.1306566-1-razor@blackwall.org>
-References: <20251104120313.1306566-1-razor@blackwall.org>
+        d=1e100.net; s=20230601; t=1762258865; x=1762863665;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CIVUgC/iS+GQBOZrHTrQQryq92A92IQg/Ogu+NF5aA0=;
+        b=BG7gkPO5lLW1Bs8HKID39yuUy3TAKt4cCIoO/ckaE+HmBMiA7Ku/slMRkDEHKMekBa
+         dFTqFSQekFeP1cKNL5+16vj4QtI6uif9dJLebjOyRGxLaUf8IKW6XyniVRBSerJofSEJ
+         bkCoci1MbA82W/XLDP+fLo23QdMcco6mfhzZzrqGD9stsJbSrhAa13AAlvLP9R2qSEsi
+         h54Yfta5C0nif//LedbVWo+G2np4u510fuAZ4EOEQBHefBkxUB7y3ZbMzw5M6jxC1xVe
+         LADM9D4CJTBFvgGTz4e7el6B11OlXwSLPPZ4CbVlg4gGBu3bGpnmyme1cC2x7TW2sD2N
+         KjPA==
+X-Forwarded-Encrypted: i=1; AJvYcCWtjBGkl+AD1/TYGFqulhmWznfCbvWDtHBYhjkJrpzoFMpzxnZC5W/1NS0dothPO5/eBbQbukc=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwGB4zStE09LnG+riojoQkZ6s4RbWvMguaylJLo+koh9JT08q4k
+	n345p8Kf4yxT+bdHCpd11l3zn9G2tSfhz03PntTsPh+bx1moMh29XByjwQm+6AbB1mA=
+X-Gm-Gg: ASbGncuYVbY2b4m5KclR6sXSnSDLs1D0OD4ipyed8Lv64dqwsydhWa6THGi8CcGa1fJ
+	acMKCK+0zXpsjgw610vyVQYC0wr++xdF5Uy1VsPDJJh9Jd6c1phExgnr3UAmX052yw4b67D01xI
+	/8/bPmH+PtYytfM9ZM5go93ZTLiToiB+8zepTGlx5lNGVkn46RENyvuWesfEnSdK3P5UvQGzbIB
+	QttjzyKRCGSOiIIaJaJUNWqy2xaw7XdtkBAFKQwakCoKMg0HzqygapPsKIAxHB0XZ+kQibr/bxp
+	erMOEObV9ooRh/QzejMfVRaBTs69qCFGmtcPB7ZHSSw55Tit4ckmY0JMc56LLYEzx73xBaa1M6E
+	D2s2aPJzc4x6IFB+LE9ONlhtPkIBYKzACHOKHwby7AxzuJvkaINTutSVdOnmA2fXt+Wpcwu4aKg
+	3iTquSFyNGA30xqlyMk73c9iQ3fQG5svky
+X-Google-Smtp-Source: AGHT+IENWRfmlV9P17N5ZlhgCIeMTm8nEfcZT9bxZ2XnEMDFm4tmpuNEJmNOAIW98mTrbihiyO83MQ==
+X-Received: by 2002:a05:6402:13c5:b0:634:ce70:7c5 with SMTP id 4fb4d7f45d1cf-64077040ccbmr13947262a12.17.1762258865100;
+        Tue, 04 Nov 2025 04:21:05 -0800 (PST)
+Received: from [192.168.0.205] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-640ff615e64sm46612a12.28.2025.11.04.04.21.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Nov 2025 04:21:04 -0800 (PST)
+Message-ID: <87bb6973-26e5-46c7-8253-3a5eb636dd6a@blackwall.org>
+Date: Tue, 4 Nov 2025 14:21:03 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/2] net: bridge: fix use-after-free due to MST port
+ state bypass
+To: netdev@vger.kernel.org
+Cc: tobias@waldekranz.com, idosch@nvidia.com, kuba@kernel.org,
+ davem@davemloft.net, bridge@lists.linux.dev, pabeni@redhat.com,
+ edumazet@google.com, horms@kernel.org,
+ syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
+References: <20251104120313.1306566-1-razor@blackwall.org>
+ <20251104120313.1306566-2-razor@blackwall.org>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20251104120313.1306566-2-razor@blackwall.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Add a test which checks that port state bypass cannot happen if we have
-VLAN filtering disabled and MST enabled. Such bypass could lead to race
-condition when deleting a port because learning may happen after its
-state has been toggled to disabled while it's being deleted, leading to
-a use after free.
+On 11/4/25 14:03, Nikolay Aleksandrov wrote:
+> syzbot reported[1] a use-after-free when deleting an expired fdb. It is
+> due to a race condition between learning still happening and a port being
+> deleted, after all its fdbs have been flushed. The port's state has been
+> toggled to disabled so no learning should happen at that time, but if we
+> have MST enabled, it will bypass the port's state, that together with VLAN
+> filtering disabled can lead to fdb learning at a time when it shouldn't
+> happen while the port is being deleted. VLAN filtering must be disabled
+> because we flush the port VLANs when it's being deleted which will stop
+> learning. This fix avoids adding more checks in the fast-path and instead
+> toggles the MST static branch when changing VLAN filtering which
+> effectively disables MST when VLAN filtering gets disabled, and re-enables
+> it when VLAN filtering is enabled && MST is enabled as well.
+> 
+> [1] https://syzkaller.appspot.com/bug?extid=dd280197f0f7ab3917be
+> 
+> Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
+> Reported-by: syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
+> Closes: https://lore.kernel.org/netdev/69088ffa.050a0220.29fc44.003d.GAE@google.com/
+> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+> ---
+> Initially I did look into moving the rx handler
+> registration/unregistration but that is much more difficult and
+> error-prone. This solution seems like the cleanest approach that doesn't
+> affect the fast-path.
+> 
+>  net/bridge/br_mst.c     | 18 +++++++++++++-----
+>  net/bridge/br_private.h |  5 +++++
+>  net/bridge/br_vlan.c    |  1 +
+>  3 files changed, 19 insertions(+), 5 deletions(-)
+> 
+> diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
+> index 3f24b4ee49c2..4abf8551290f 100644
+> --- a/net/bridge/br_mst.c
+> +++ b/net/bridge/br_mst.c
+> @@ -194,6 +194,18 @@ void br_mst_vlan_init_state(struct net_bridge_vlan *v)
+>  		v->state = v->port->state;
+>  }
+>  
+> +void br_mst_static_branch_toggle(struct net_bridge *br)
+> +{
+> +	/* enable the branch only if both VLAN filtering and MST are enabled
+> +	 * otherwise port state bypass can lead to learning race conditions
+> +	 */
+> +	if (br_opt_get(br, BROPT_VLAN_ENABLED) &&
+> +	    br_opt_get(br, BROPT_MST_ENABLED))
+> +		static_branch_enable(&br_mst_used);
+> +	else
+> +		static_branch_disable(&br_mst_used);
+> +}
+> +
+>  int br_mst_set_enabled(struct net_bridge *br, bool on,
+>  		       struct netlink_ext_ack *extack)
+>  {
+> @@ -224,11 +236,7 @@ int br_mst_set_enabled(struct net_bridge *br, bool on,
+>  	if (err && err != -EOPNOTSUPP)
+>  		return err;
+>  
+> -	if (on)
+> -		static_branch_enable(&br_mst_used);
+> -	else
+> -		static_branch_disable(&br_mst_used);
+> -
+> +	br_mst_static_branch_toggle(br);
+>  	br_opt_toggle(br, BROPT_MST_ENABLED, on);
+>  	return 0;
+>  }
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index 16be5d250402..052bea4b3c06 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+> @@ -1952,6 +1952,7 @@ int br_mst_fill_info(struct sk_buff *skb,
+>  		     const struct net_bridge_vlan_group *vg);
+>  int br_mst_process(struct net_bridge_port *p, const struct nlattr *mst_attr,
+>  		   struct netlink_ext_ack *extack);
+> +void br_mst_static_branch_toggle(struct net_bridge *br);
+>  #else
+>  static inline bool br_mst_is_enabled(struct net_bridge *br)
+>  {
+> @@ -1987,6 +1988,10 @@ static inline int br_mst_process(struct net_bridge_port *p,
+>  {
+>  	return -EOPNOTSUPP;
+>  }
+> +
+> +static inline void br_mst_static_branch_toggle(struct net_bridge *br)
+> +{
+> +}
 
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
----
- .../net/forwarding/bridge_vlan_unaware.sh     | 35 ++++++++++++++++++-
- 1 file changed, 34 insertions(+), 1 deletion(-)
+oh, just realized this is actually unnecessary since MST relies on bridge vlan filtering
+to be enabled, I will wait 24h for feedback and post v2 without this
 
-diff --git a/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh b/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh
-index 2b5700b61ffa..20769793310e 100755
---- a/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_vlan_unaware.sh
-@@ -1,7 +1,7 @@
- #!/bin/bash
- # SPDX-License-Identifier: GPL-2.0
- 
--ALL_TESTS="ping_ipv4 ping_ipv6 learning flooding pvid_change"
-+ALL_TESTS="ping_ipv4 ping_ipv6 learning flooding pvid_change mst_state_no_bypass"
- NUM_NETIFS=4
- source lib.sh
- 
-@@ -114,6 +114,39 @@ pvid_change()
- 	ping_ipv6 " with bridge port $swp1 PVID deleted"
- }
- 
-+mst_state_no_bypass()
-+{
-+	local mac=de:ad:be:ef:13:37
-+
-+	# Test that port state isn't bypassed when MST is enabled and VLAN
-+	# filtering is disabled
-+	RET=0
-+
-+	# MST can be enabled only when there are no VLANs
-+	bridge vlan del vid 1 dev $swp1
-+	bridge vlan del vid 1 dev $swp2
-+	bridge vlan del vid 1 dev br0 self
-+
-+	ip link set br0 type bridge mst_enabled 1
-+	check_err $? "Could not enable MST"
-+
-+	bridge link set dev $swp1 state disabled
-+	check_err $? "Could not set port state"
-+
-+	$MZ $h1 -c 1 -p 64 -a $mac -t ip -q
-+
-+	bridge fdb show brport $swp1 | grep -q de:ad:be:ef:13:37
-+	check_fail $? "FDB entry found when it shouldn't be"
-+
-+	log_test "VLAN filtering disabled and MST enabled port state no bypass"
-+
-+	ip link set br0 type bridge mst_enabled 0
-+	bridge link set dev $swp1 state forwarding
-+	bridge vlan add vid 1 dev $swp1 pvid untagged
-+	bridge vlan add vid 1 dev $swp2 pvid untagged
-+	bridge vlan add vid 1 dev br0 self
-+}
-+
- trap cleanup EXIT
- 
- setup_prepare
--- 
-2.51.0
+>  #endif
+>  
+>  struct nf_br_ops {
+> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+> index ce72b837ff8e..636d11f932eb 100644
+> --- a/net/bridge/br_vlan.c
+> +++ b/net/bridge/br_vlan.c
+> @@ -911,6 +911,7 @@ int br_vlan_filter_toggle(struct net_bridge *br, unsigned long val,
+>  	br_manage_promisc(br);
+>  	recalculate_group_addr(br);
+>  	br_recalculate_fwd_mask(br);
+> +	br_mst_static_branch_toggle(br);
+>  	if (!val && br_opt_get(br, BROPT_MCAST_VLAN_SNOOPING_ENABLED)) {
+>  		br_info(br, "vlan filtering disabled, automatically disabling multicast vlan snooping\n");
+>  		br_multicast_toggle_vlan_snooping(br, false, NULL);
 
