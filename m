@@ -1,172 +1,166 @@
-Received: from mail-ed1-f68.google.com (mail-ed1-f68.google.com [209.85.208.68])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012039.outbound.protection.outlook.com [52.101.48.39])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5C7530F95C
-	for <bridge@lists.linux.dev>; Wed,  5 Nov 2025 11:20:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.68
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762341615; cv=none; b=Yx9dL1kmyfi9LAIppbNs95HMLSPtQKu+vDq0AKbJBhlcHC0hTqaZ4HTsF52lRem5qd20ZbCinMb0Nfi9/pLv/lqBh2gBCEM5LxkqZy7RK7R0hViNvcGi/CiAVpteakkMfVH8s0L0k4n3AW4ovdli1EM2bx04ck5aE/uf+8cLqAo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762341615; c=relaxed/simple;
-	bh=a401LttyQ75fGtqxWKsOWl7Pv3QSIHLvklmCC6Xv5E8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rrvvOuz/ZgryBt3NpmZFCfw1trR1ndzAqt0Aabgr890se1IetDAhaLb42ciqsAeIs74m/M9/nE2Ae6I2JhHZlYZJ739MetcjNkjiX96yfw38EZys3GhcnXeILy7zGA0WztMgUNFfgWOP2IBIqwzR3nl42d58GC83lIRjxp4Gk+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=Q9k0qdZj; arc=none smtp.client-ip=209.85.208.68
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48A033093D2
+	for <bridge@lists.linux.dev>; Wed,  5 Nov 2025 17:00:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.39
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762362001; cv=fail; b=BjOg1RZdicsoLuq4L2wkPXVe2r5w7XQnU0E/9r1Isyly4ufKJZg3LRU3XnXhcWZrcu2AxZJQZ5Xx8l79bHoqx83w2FlarHs+rN6ae3lqUnSL5oMB0FvXpi96bkPVzLAaNiV/t9dJGowCHTHE7CF7+lw/NerNzRpLav94rkGqfE4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762362001; c=relaxed/simple;
+	bh=UTfTzM92X1V/7tB4jIJ2iMIcwNeUyJtkwURna6nMycg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=XkUhX53m9t/vcWXovtJmN0hKP7f2OXEuLXsVnV//xFJC6dS//koZSFnkDShSLEpvKtlWs9u7MsxL/o5qHw5cbscBHV7ZzJ8EM28jaCpGVtr5E5TyFixTJTvRKRFLj2If1nc32n7Cam2V8qX5yLIilDeHoe2bYSzh6WjmaQNLZB4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qmypr00p; arc=fail smtp.client-ip=52.101.48.39
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="Q9k0qdZj"
-Received: by mail-ed1-f68.google.com with SMTP id 4fb4d7f45d1cf-64080ccf749so8851828a12.2
-        for <bridge@lists.linux.dev>; Wed, 05 Nov 2025 03:20:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1762341612; x=1762946412; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HXuQLmFLJRmL3IxiXo4AbgeD2yxAF5Mj/ARWDStmAfA=;
-        b=Q9k0qdZjK/YdBTCuq9YdEwmO5YZ3PWnZEDVxKI3m61lbWWfRVDfW+FEHTtV5hDrO9R
-         yjj5jc0gpvPLkAiK8FbCQZzBu64xw/DrTILbll+GPk3YSCwHigE28QRlfJcJBRoJMjnH
-         8FIXluH4opNvTMMk6VjWC9ZvSsGwdaWaaQIrLjrQ+eCDbn6AtxDPZsZpRiEyDSr+pGhb
-         6+/7RAg7H8oQWxf+2sXCCJxl5uiHmtZM6SUqNKjIS2tNhItphqpI0bEuinpiqmvMxp0V
-         ZvwUeq86Tw3aUHudtmp0uwSoCay18yAqpATxsRsCZ+ddRPUF9CtoKUTySkxBjPLfTHIO
-         ND9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762341612; x=1762946412;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HXuQLmFLJRmL3IxiXo4AbgeD2yxAF5Mj/ARWDStmAfA=;
-        b=H08pxqiQ4CEMyX5vx4hFTu4ck6r+EFCjv03WuiH3oGOmA6juyJ4EZ3aLcXKBx/1Xce
-         9reTeYMCI3iYXLSJt34GbIEPRGyPHJe2RdoQ7n4/TKrr/213tp57Gm/zkiTkQwaDiP9a
-         EynDV3IAhkd/u/6ZYWhQPrYce9NBhDNNeGLNGpa8zEYryODBQxgUXt8MtKTvi4uC0gfL
-         Y3S8UI4X6VDJFEs9tH8MmqRucFKz1cpQNfw2CFDCaCwrLyB/Gt72umI6AX/6+Jx1CA8z
-         SqUjNiIb9spsaUY7nz+PDqyHakbTT+03S3YmI3NnbDmjDwBGRyCAk4NZudhKL35kPXFa
-         6kNw==
-X-Forwarded-Encrypted: i=1; AJvYcCXhlCauD/ONxnnMehSYV6RdGih9YoCENokND4dOB4RPvYWhKhx7LOhGfRWzGbRUB6jkceJcE88=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyzKlh2osT8ibCdxf+RZgvZlrmOXIa1EqRgOBbyfYqUHMNtPLtZ
-	aIfLHc9aFjdT8134s53FVISx1NTirSaZVypoiWzR25ZLl2McP5Ir+fbkJAn/Uh4R7Ic=
-X-Gm-Gg: ASbGncsEhll3BJhyF4/TXd/0Y4En/rEUrZ6v6lFAscbJUBqGbDW0uCtd3vyms2P8axF
-	A/SI9TIpy99tbhRN0AD8bDBfUBkuxRqGTrYXPr1QYBsyspy2BuQxyo9uP1UJoN2JGAI+a8R1hj2
-	1aYtPiJLI8AD8na8YwtPGE+bUcOzNvjn0mzm20qXVkiOtBkuyIosqPNdynpzw+19AUnwT9NnAWp
-	opbftyj4tkCwAJQhv+L2KwTuB0GY9jAaX/45AZkqa7gzK5/WcmFMZXojvBsSWaA5cRwfNAfWnZx
-	z/wGWZo2hlFl1851QpIqcVOdIaLtiQF52nxl3rZp405p486Cv8yCaWbD/7GZuKnc5SCLyfwTCEn
-	kxU40ksGcClGTS/KDlJ8nWsgQYxX7TK2hXvxO2qwtHmstNQzh6f05NpyLtdv6gwR1I0z/L4KBB2
-	J4BC1xj7oPNIA/xmV6z9NFBlsAsyW3SrVAhg==
-X-Google-Smtp-Source: AGHT+IHTjDVCx2Qm0j6PAJKMcvlD9wlV3gnSH90GhrBjX1D3t7o2Y5SBx2BDZbWvHZ8eBLNWGGFQqg==
-X-Received: by 2002:a17:907:97d4:b0:b70:edaf:4ee5 with SMTP id a640c23a62f3a-b7265297d83mr264651266b.16.1762341612063;
-        Wed, 05 Nov 2025 03:20:12 -0800 (PST)
-Received: from debil.nvidia.com (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b724064d25csm455208266b.72.2025.11.05.03.20.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Nov 2025 03:20:11 -0800 (PST)
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: netdev@vger.kernel.org
-Cc: tobias@waldekranz.com,
-	idosch@nvidia.com,
-	kuba@kernel.org,
-	davem@davemloft.net,
-	bridge@lists.linux.dev,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	horms@kernel.org,
-	petrm@nvidia.com,
-	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net v2 2/2] net: bridge: fix MST static key usage
-Date: Wed,  5 Nov 2025 13:19:19 +0200
-Message-ID: <20251105111919.1499702-3-razor@blackwall.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20251105111919.1499702-1-razor@blackwall.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qmypr00p"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=oZa3oodar4aNPI3PHXlMFA+RJfi0Vvef2nBCMdmOKoJHBWgPfcBoMhMbIt9zglTLxWf2OZb5BxjEOx6U3byfYtV3VTsbBUb3KtdBBk/NpRS7QbYgIyA4gfNKJFGZwZFeu3QQ5IwbF+PoGlgMM8bj/UBSoA2Ubjk8qdE1SSSEh9iWdAtMiHcWBGd9gIcPSbq84mDuruSbsKCC4BPYZ1E/oIGxaOKIWos+hmqtGoEeuT890UJYhPEQ339NMDN1RqO01TyhAczL62fuPIn1uPadpKPeiEkXyTxugdI0JETFeRvpSmoZuU38gUCAS4zPC03EVQmqkaV6JJm5zZPFKyREZw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=B1dIHVXcX0iujnBJkM7Q/rl98EThwNvw8IAWWGHWZ5s=;
+ b=R6ys3doxIZs9i540CdZehuSwR0fCR2xVnxarfIOGCxbppGT2Zm1hgDm9hPJ/jNnHUrc+DcObAYEKREBCkJGk8GDGi2sAFUc1iaWSKRouxAC4NOUpyjMfUMVO6sbLiCpYUj0rqYy85Re59hDCaIubLgzBV9/OG32nxzeKBD0J63RaDsE2+LvDI1Cbgu0ApTH2tQLAxeN1uPeEiA10OdWduwvxi7oe3svZCPjLnF5DhNDJ8TLfiBwB44cYeXGFww3fifS0X64IOxefYs9FhIWb/UpRrUBiwBudXnM+5PF690VMFPm9wwQf90qHQquTUKhD7uDSrSyMBIkAS2Le0KZ4Xw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=B1dIHVXcX0iujnBJkM7Q/rl98EThwNvw8IAWWGHWZ5s=;
+ b=qmypr00p/vYX2pdybQ+io6qoqvClMlnoy+vyyNqUdw41BW6tAaxBRBdbuL/JHIP9ngfxvZB7FYx4AR5C84X25r7S7ByquQrmVPVz56rDKDPtW+pSEHqFIa3m4AdyBrwmeZZw0t0srFjpSL97rAHSvPPf2z5SyhMCqEgBGx2hxfSnE7n3y1ozAemW+sXFZqfq5bmNCyH3sE6QC1NEJh10Jvdmt+8MfphORF7n+5V4q++rTxet6WJIDnjF4mBAN/49kpRh7D9/0+hOUsW48GG4rB+CKupazH10+jzq6h4SGp+d76pV/dNIH6tpzF36cQRXMKC131lB4SuShOjMUTgyvQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by DS0PR12MB7874.namprd12.prod.outlook.com (2603:10b6:8:141::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9275.16; Wed, 5 Nov
+ 2025 16:59:55 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%7]) with mapi id 15.20.9298.006; Wed, 5 Nov 2025
+ 16:59:55 +0000
+Date: Wed, 5 Nov 2025 18:59:42 +0200
+From: Ido Schimmel <idosch@nvidia.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, tobias@waldekranz.com, kuba@kernel.org,
+	davem@davemloft.net, bridge@lists.linux.dev, pabeni@redhat.com,
+	edumazet@google.com, horms@kernel.org, petrm@nvidia.com,
+	syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
+Subject: Re: [PATCH net v2 1/2] net: bridge: fix use-after-free due to MST
+ port state bypass
+Message-ID: <aQuCfmZix1qlbFEZ@shredder>
 References: <20251105111919.1499702-1-razor@blackwall.org>
+ <20251105111919.1499702-2-razor@blackwall.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251105111919.1499702-2-razor@blackwall.org>
+X-ClientProxiedBy: TL2P290CA0002.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:2::12) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS0PR12MB7874:EE_
+X-MS-Office365-Filtering-Correlation-Id: 735375f2-42bc-40b7-7875-08de1c8cbeb8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|7053199007;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?Bp/6RJGEpicHUpBZWUAwtvF7BkV6EKiizQwH70JD0tvM+gos4kO+RLEqKk0e?=
+ =?us-ascii?Q?a9FJOzTInCDg5OgAD9nmRNvDaNaxtjNLRv0JBHmod/Z8N1ceRXgPSLCYCLJy?=
+ =?us-ascii?Q?HIXB9Lf8kXO+Dt1kNDh/Rv9W9jcKClNJLroHgkeUIXYc6pgKbntFVntFaFRD?=
+ =?us-ascii?Q?4G3i0h2akgT/VpkhvXhDrNXlDXrr8AMJ8CbQME6OmqD8Fq5JtZCN19zlU7Ee?=
+ =?us-ascii?Q?uK/f1+ewKvbjP+rIeBn/DcbBBw5RxbKdrRs5AJ1kSs5cE41X8iNr2aNUYsNb?=
+ =?us-ascii?Q?7hgiAhd24wQir964lHMCezyoIcmP71AHogLnHf3xJbmQMx906Sm0tzBu6xRA?=
+ =?us-ascii?Q?QXbcLYlYcxTWbp382jFsNBVRQRoaPF0NjHQcsVCNjbs6k63jyPHWc8rkKk6h?=
+ =?us-ascii?Q?7BiX81uwjs0DsyiapEJMZlYyqkH447hdWDfWkKN8fTTBi9wjBj5R3kU75org?=
+ =?us-ascii?Q?EtWhhAL3iAW8NiBcymmJgX+rFK+XpdpPd7Ha+kTSXUPRtkfFGQgEGgLicwwR?=
+ =?us-ascii?Q?eLO0B3RHitXtMwQ6kfYmCfthXQJTofu2lhk/XXM+O5ch+XqX2ZyahzORr3Ox?=
+ =?us-ascii?Q?iZqzkmlRgZMRAJ+FR4MJIluGSohLDXvIaSssHKkN0sHugY14itvuYUu1uRGS?=
+ =?us-ascii?Q?eRnXcxtdwMwMms3NbwB630pCbLP5wkrKSBv1PAMKqL15umyvYbXG7gbb/cHL?=
+ =?us-ascii?Q?TRX4oTkpkC7tmJEu+URtb84Y/3oovEDOhSAuxaR3DMoJjGpba/mkLNx4SMKz?=
+ =?us-ascii?Q?4pmsOh92sRHUaUYmr4YG5SqaP3NaNTB/YsR8srVQYi+KXP41fAhmKphCgKEw?=
+ =?us-ascii?Q?bZ8dYY/gYCLObFH66gg8EtJWHO6x7wcMEcLwDr7gMnvO+ZeGzJBf7Q+qzYOJ?=
+ =?us-ascii?Q?YDD2WHk/gRP1jjRn2zFgsbERPD/Iu7WkwIfsxiotgRaHztcUUQGXjriN3FoY?=
+ =?us-ascii?Q?fBFoJS5mikyr0VuvmIexq2IGcx9EntV38JwkGgaEukp6pjDzRTZnGOofXY/Y?=
+ =?us-ascii?Q?dmjt2f5HsDXQD46CD23xHW2/Ec83Qt6+gDUoO/K9vXzZptDMRXB4mZmXiuof?=
+ =?us-ascii?Q?j+J/TcqTLiMoAcrZ9BZI4y6QRrYxa3qep/exoZIQWBJVsjmtsTwumu0qqmFj?=
+ =?us-ascii?Q?46VSXlC4D+1JgpLZbagkjEOytxRJdPY1yGlfwOdzlwYo/k4I9D6uRw3NICMZ?=
+ =?us-ascii?Q?1nSpxtKtq0kXXesJm7Tqws2KQdVuSJc4v9hl5siLJE6pSTa20DHxzXoDxtfL?=
+ =?us-ascii?Q?QIPsI8Tcdlvapjm6K2Y5yIAynmU5PC+8myod7O++cNuOxy4bMA/jDGOjzEss?=
+ =?us-ascii?Q?kxoCibvwiIyQg0NVQS0MP5R3ELvPEb5uxRJB5d8dVtHxGcxCaHvf/mbXeHvF?=
+ =?us-ascii?Q?LHNyHip/bpxi697ZadtXz7ix3OaQQE4emFflhF9j00mXIBgpGS9NhBqwwJmo?=
+ =?us-ascii?Q?j67xMkVUQNZnkMWuydPQE9XcP10b2Wxo?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(7053199007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?qXb9+uXeHp7ViEGi1BfY/oqa8v00SjjK4vwdVzvSomTwLjUaU3M08NtVhHGV?=
+ =?us-ascii?Q?EGA/OTeltL40xHHEnYIvvjWh8o6q+rBeK5cUZ6DXm4Db2J80ZPyQYf0zXeSS?=
+ =?us-ascii?Q?D/gUxCnWllvocdqBO0PCdSVmG9XKKTCFSSfPVwHvzKYhUicgXHoWD0p7yIIX?=
+ =?us-ascii?Q?IlBicFdpxYokzu+wEeAo4h3rc1+eNM+VLiLjO4tmo3zr1PBl5oulJ6zZEC2q?=
+ =?us-ascii?Q?Y6qVjFLZhYfdlWbo2nYYuQ6R/aux9nS6gfs0BBZm7tMbEBp8KD+AHsGjKmpG?=
+ =?us-ascii?Q?8kqzL8+PfD9LDF6uaZB2xcP5laV2w6okm2MvtISKN7ijJjqHj7qI06anCTTE?=
+ =?us-ascii?Q?cXRsQS6DVGfSPxytNP/7mO9KxNGQo84o21hcYNQB6baMSOo+lH/yuarju6Dd?=
+ =?us-ascii?Q?Tas36zq3XyMm2byd/Zq3/5dgpSR2+oqYJoi86PNim/mWELZReMaERUTZ+leT?=
+ =?us-ascii?Q?TzpsflJJgMs2YWIPg57et60Eka0m345xx8jaehB/NzyDuW5UwdlUplCWjQPb?=
+ =?us-ascii?Q?wTMlAuDGMAXJSj76w/a//1IZEmI3otzTS/zD5YIRQPslhLLG/BLNvcxWiju9?=
+ =?us-ascii?Q?lWZwELECgyNNN9lxqjYYFsmscNSDrUsSJT468jD4mSTjR93w+mbZPG3/87Ty?=
+ =?us-ascii?Q?ME1NBmMFpLxTxypBpbUOhOLPb1u10yyUglG/qtTtRKqhxPKuZOmLhmOm6uqk?=
+ =?us-ascii?Q?ryRrcjjbflHORTMaeE0LtVnRelWPkjDD1tt5fh+5izDnYgIkKTjTtgI8xy2r?=
+ =?us-ascii?Q?kQUxtj3zeP3ew3cQK6l3NlM/7z69tRSS4j5MrsbUGIifPy37RLWztaVCL8+R?=
+ =?us-ascii?Q?wPBOCdg01c5izq79G6AaZKZh3eNPlLEX6ti2y7QAYKdSbdqTPA6vs+Y4SFrz?=
+ =?us-ascii?Q?+56OUPa0jrsSfVbYRl8rBaFvHUQWsk+0/JCUgXNH4oMS7y1YgiGDeNyZ3qV6?=
+ =?us-ascii?Q?sltCgxuoVhUmIC+D/SuuIG8OmTYOzceoLwJKunGcPPeNHOuzGXOTZkVed9Ox?=
+ =?us-ascii?Q?juBHFBAl56yHTBUC/w6ZlKSIEcViul8yhDLh9dPghOnrBvVfVnfog2kKh2Z2?=
+ =?us-ascii?Q?5bM5DRyrxuIyGNmBnlgopCJlVZ8sO5eDB7HhGTkz9JolBZQSVucLp0pR0dB+?=
+ =?us-ascii?Q?VGW2gQXmQ6kC1Z31XaBUbw6nxWRCb9U1RHWVZ7oAai5ntgn6I1RuZNdz1qTg?=
+ =?us-ascii?Q?LHZGuoIdsBVaDiEyse6x2Q/U9JY/5mwHF+paAWfXvQdNP1y83aD3drYbcaKO?=
+ =?us-ascii?Q?FEptnxbD76uSRMtoSsw2VBqYEoceK6Xapmj+Ia9d4yaAnLhR3WyYRDIDplfN?=
+ =?us-ascii?Q?A8OJtpv6fGXM9D1zJG+b2CjdKHYxxEIWtbcieyIoxTqOCa8/pLhUf230cJQW?=
+ =?us-ascii?Q?ol9qqzdZr2lXkpB1w9h2s+RaQLa+UlWn1PQhR36OlnAoB4cgSLD7tiT/7GW1?=
+ =?us-ascii?Q?zNeCmRap8iq88WKfXsq8M9Lgh6QawLxgZsKRSBH8ODRA2e2JFqseknWo0QF+?=
+ =?us-ascii?Q?Qfd6m/iaJgCMSiyZRxf/DI4Je/q8Mgq2ExqN8oR9QmHxPiB1AkGmcYAAjjPM?=
+ =?us-ascii?Q?8wu7IaXDu0L8fTgmmI9vyhQGcvfvh/lHpce7WJ/r?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 735375f2-42bc-40b7-7875-08de1c8cbeb8
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Nov 2025 16:59:55.7303
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: s9jKhFKrw/ik+Jey0aYlu8MN4vrKhhIyVI9LcfXkxJVoz52Tcy7w8L4OLj258mpudTayQ+obY8DUmUTJIp0tzg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7874
 
-As Ido pointed out, the static key usage in MST is buggy and should use
-inc/dec instead of enable/disable because we can have multiple bridges
-with MST enabled which means a single bridge can disable MST for all.
-Use static_branch_inc/dec to avoid that. When destroying a bridge decrement
-the key if MST was enabled.
+On Wed, Nov 05, 2025 at 01:19:18PM +0200, Nikolay Aleksandrov wrote:
+> syzbot reported[1] a use-after-free when deleting an expired fdb. It is
+> due to a race condition between learning still happening and a port being
+> deleted, after all its fdbs have been flushed. The port's state has been
+> toggled to disabled so no learning should happen at that time, but if we
+> have MST enabled, it will bypass the port's state, that together with VLAN
+> filtering disabled can lead to fdb learning at a time when it shouldn't
+> happen while the port is being deleted. VLAN filtering must be disabled
+> because we flush the port VLANs when it's being deleted which will stop
+> learning. This fix adds a check for the port's vlan group which is
+> initialized to NULL when the port is getting deleted, that avoids the port
+> state bypass. When MST is enabled there would be a minimal new overhead
+> in the fast-path because the port's vlan group pointer is cache-hot.
+> 
+> [1] https://syzkaller.appspot.com/bug?extid=dd280197f0f7ab3917be
+> 
+> Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
+> Reported-by: syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
+> Closes: https://lore.kernel.org/netdev/69088ffa.050a0220.29fc44.003d.GAE@google.com/
+> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
-Reported-by: Ido Schimmel <idosch@nvidia.com>
-Closes: https://lore.kernel.org/netdev/20251104120313.1306566-1-razor@blackwall.org/T/#m6888d87658f94ed1725433940f4f4ebb00b5a68b
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
----
-v2: new fix
-
- net/bridge/br_if.c      |  1 +
- net/bridge/br_mst.c     | 10 ++++++++--
- net/bridge/br_private.h |  5 +++++
- 3 files changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 98c5b9c3145f..ca3a637d7cca 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -386,6 +386,7 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
- 		del_nbp(p);
- 	}
- 
-+	br_mst_uninit(br);
- 	br_recalculate_neigh_suppress_enabled(br);
- 
- 	br_fdb_delete_by_port(br, NULL, 0, 1);
-diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
-index 3f24b4ee49c2..43a300ae6bfa 100644
---- a/net/bridge/br_mst.c
-+++ b/net/bridge/br_mst.c
-@@ -22,6 +22,12 @@ bool br_mst_enabled(const struct net_device *dev)
- }
- EXPORT_SYMBOL_GPL(br_mst_enabled);
- 
-+void br_mst_uninit(struct net_bridge *br)
-+{
-+	if (br_opt_get(br, BROPT_MST_ENABLED))
-+		static_branch_dec(&br_mst_used);
-+}
-+
- int br_mst_get_info(const struct net_device *dev, u16 msti, unsigned long *vids)
- {
- 	const struct net_bridge_vlan_group *vg;
-@@ -225,9 +231,9 @@ int br_mst_set_enabled(struct net_bridge *br, bool on,
- 		return err;
- 
- 	if (on)
--		static_branch_enable(&br_mst_used);
-+		static_branch_inc(&br_mst_used);
- 	else
--		static_branch_disable(&br_mst_used);
-+		static_branch_dec(&br_mst_used);
- 
- 	br_opt_toggle(br, BROPT_MST_ENABLED, on);
- 	return 0;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index b571d6f61389..7280c4e9305f 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1954,6 +1954,7 @@ int br_mst_fill_info(struct sk_buff *skb,
- 		     const struct net_bridge_vlan_group *vg);
- int br_mst_process(struct net_bridge_port *p, const struct nlattr *mst_attr,
- 		   struct netlink_ext_ack *extack);
-+void br_mst_uninit(struct net_bridge *br);
- #else
- static inline bool br_mst_is_enabled(const struct net_bridge_port *p)
- {
-@@ -1989,6 +1990,10 @@ static inline int br_mst_process(struct net_bridge_port *p,
- {
- 	return -EOPNOTSUPP;
- }
-+
-+static inline void br_mst_uninit(struct net_bridge *br)
-+{
-+}
- #endif
- 
- struct nf_br_ops {
--- 
-2.51.0
-
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
