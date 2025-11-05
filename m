@@ -1,64 +1,64 @@
-Received: from mail-ej1-f68.google.com (mail-ej1-f68.google.com [209.85.218.68])
+Received: from mail-ed1-f68.google.com (mail-ed1-f68.google.com [209.85.208.68])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D8782F5332
-	for <bridge@lists.linux.dev>; Wed,  5 Nov 2025 11:20:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.68
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5C7530F95C
+	for <bridge@lists.linux.dev>; Wed,  5 Nov 2025 11:20:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.68
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762341614; cv=none; b=dTRMdNsTpZNWMRfOpWtfs6BYlo8WU3FUb4e2fTTN/EnCcoiLHGp6b68nYSK7hr0jgRYhrr8hXepmwZ9t9J2PlD80XdSaCOuRP8WyStMqIui4clgi5eq0lkieB0vrkUUakBhwxi569WbLw8J4s1Y7zdOPMJEpDr8gxwRbEZEDlW8=
+	t=1762341615; cv=none; b=Yx9dL1kmyfi9LAIppbNs95HMLSPtQKu+vDq0AKbJBhlcHC0hTqaZ4HTsF52lRem5qd20ZbCinMb0Nfi9/pLv/lqBh2gBCEM5LxkqZy7RK7R0hViNvcGi/CiAVpteakkMfVH8s0L0k4n3AW4ovdli1EM2bx04ck5aE/uf+8cLqAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762341614; c=relaxed/simple;
-	bh=2ZqPgpPiPHrS92JfBz+aBJWUDxgtCMKCK+HjZxs5CD8=;
+	s=arc-20240116; t=1762341615; c=relaxed/simple;
+	bh=a401LttyQ75fGtqxWKsOWl7Pv3QSIHLvklmCC6Xv5E8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tj/J5eQX2LJnpH/MrZz9conl7tI26N+qy9it7pWM8vMwDObXKOKh/Yn+38w1mQg6cft0XSC2wxAIqPoshVNbd+JcdWEwYBWgCMwsNM8tZThT9raUrZcl2o6jPp2IiqTk8kQy+N00YWNpk1mLvDJ2V46gXsT4EmCqZk5GKy+a/vQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=X95qoW77; arc=none smtp.client-ip=209.85.218.68
+	 MIME-Version; b=rrvvOuz/ZgryBt3NpmZFCfw1trR1ndzAqt0Aabgr890se1IetDAhaLb42ciqsAeIs74m/M9/nE2Ae6I2JhHZlYZJ739MetcjNkjiX96yfw38EZys3GhcnXeILy7zGA0WztMgUNFfgWOP2IBIqwzR3nl42d58GC83lIRjxp4Gk+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=Q9k0qdZj; arc=none smtp.client-ip=209.85.208.68
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="X95qoW77"
-Received: by mail-ej1-f68.google.com with SMTP id a640c23a62f3a-b7200568b13so399104966b.1
-        for <bridge@lists.linux.dev>; Wed, 05 Nov 2025 03:20:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="Q9k0qdZj"
+Received: by mail-ed1-f68.google.com with SMTP id 4fb4d7f45d1cf-64080ccf749so8851828a12.2
+        for <bridge@lists.linux.dev>; Wed, 05 Nov 2025 03:20:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1762341611; x=1762946411; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1762341612; x=1762946412; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wMKJnQ1D1xmyer3aTvAUN3eT/mrH4zICFOPCjbHYI/I=;
-        b=X95qoW77HDTxEKRPehO4LCd4I+8PYONSA5eFXQD2VUBY2xXJMc8cIH+Aj+Pi8oWD9P
-         u2N5KAuBeN5AG5UrVwebH5oP97iNCXJPYaBmxVzGfF5ED/ztVfYjpd80hLiJaaqJLV3F
-         j0w1waCLGN7Q5qsK53nkdi2Hrl6A2vyg+5YPRzx9Q1Y1gBB6dlG8DC9D/qFSSbXrxVwi
-         7qiywLC73hEpdBCr7aLmQleOXoVoHJFejHts2fSzlCu6Sk4a4OfH6+NzXajca/IhBe99
-         7uR4Er4nqCAdoim3u8Ip0YXneZBS2+Ui6LAFjIwtChEorP5ZmaE8U4kIQI02nTPdbFUa
-         HuUA==
+        bh=HXuQLmFLJRmL3IxiXo4AbgeD2yxAF5Mj/ARWDStmAfA=;
+        b=Q9k0qdZjK/YdBTCuq9YdEwmO5YZ3PWnZEDVxKI3m61lbWWfRVDfW+FEHTtV5hDrO9R
+         yjj5jc0gpvPLkAiK8FbCQZzBu64xw/DrTILbll+GPk3YSCwHigE28QRlfJcJBRoJMjnH
+         8FIXluH4opNvTMMk6VjWC9ZvSsGwdaWaaQIrLjrQ+eCDbn6AtxDPZsZpRiEyDSr+pGhb
+         6+/7RAg7H8oQWxf+2sXCCJxl5uiHmtZM6SUqNKjIS2tNhItphqpI0bEuinpiqmvMxp0V
+         ZvwUeq86Tw3aUHudtmp0uwSoCay18yAqpATxsRsCZ+ddRPUF9CtoKUTySkxBjPLfTHIO
+         ND9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1762341611; x=1762946411;
+        d=1e100.net; s=20230601; t=1762341612; x=1762946412;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wMKJnQ1D1xmyer3aTvAUN3eT/mrH4zICFOPCjbHYI/I=;
-        b=qcsswZ8vUODGAkLPIhHZsXLXzniB8j9O3AciZeHPc1Syd5DR71LAcyF5pN5Qsj3SFJ
-         EvUo9RXJ3DlbC4l+qZFnEScSWUxUG9JdmoFgRX+ttXdc/OVTAwv3M/3Hi4Gml4ApSLpd
-         x6BBLxZwkZt7WP7ahniQJ9E9juM6oHLC9b6FkRuZGqZcSaxLqg5EwKvcFrYQAy6TcsPq
-         AymOuW2j4/FC4UyWizG0LLbNTy+r7+A4znY7r4jjMi2BBn0yd/YIP1TNfMe1toUnifp6
-         TRtoGNPPQFKrte5s1h36k5CrE0GwlGGvYcjuJwbYUWo7k90hqn19UkRhBFnYipRFfJ0K
-         C3Wg==
-X-Forwarded-Encrypted: i=1; AJvYcCVqrk9I7dUr3sg8lNk53uThpsa9VxRGtrRLm94UYTAZVhHefhUEUkoNHr5K9UfPWFJ8Z3kEZPw=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxSYUjrZ3elSoTZUmTNUbgQn4nJGNexGC1h07kGzRx9g6vqD0BX
-	82RGfSrv9ptWXyPH0Ovg/HTg98ik+8gdgcu24au35EKdQlGwCaJ54ijF5JpCbl3HVzU=
-X-Gm-Gg: ASbGnctChP0ShgBatbIxlQBIMb/GktA78cFB+BUu7i83bvvHCOE04KwYjxLBneZ4fod
-	jtdgIWnoooh1nYVDYmVDECMcoS3syNYc06Y3t2r1rFDTYKX1ob3f2t3ibrCjbRQLvE9JfRrxrJ0
-	h19N/WsPl1rBq95Rs408IF6UIU/WK8NJJS9yRcQFtLchi4hrh5/s3OzOHMcnWy1AbglWS7S/VAW
-	5UfT0+BNmtBBGdc2k343xu3/e1lcUJzWDcgo9YfeAsJa6KaoB7nGsV8fN+yiQUX3tFVZkzIEa9/
-	k2zXZ4AWYoVDaESTjYvTUR4VYuTYlO3AS2KVMBVLy5pIjVW6fS6G9CUz1NFUXm3a8IzgCoT9XAo
-	nYMvq2lNPLGRjOpn/jIh9iF31OqRPf5zybggXs7bDhZluc0F1bekWHmTeTzNP1A5ioOY0w5emWE
-	2zoB2ZZD9JN0dXaAeOrsQC2K+rY3cwrnFIwg==
-X-Google-Smtp-Source: AGHT+IHx03FuYXvELFzKpMaKbaxgNjC/IRcF4XcMpAXdnaRWceclyZ7+QT+bIuyV4EfsXKnTVW3QCA==
-X-Received: by 2002:a17:907:26c8:b0:b71:75bd:cf51 with SMTP id a640c23a62f3a-b7265587b30mr239001766b.38.1762341610641;
-        Wed, 05 Nov 2025 03:20:10 -0800 (PST)
+        bh=HXuQLmFLJRmL3IxiXo4AbgeD2yxAF5Mj/ARWDStmAfA=;
+        b=H08pxqiQ4CEMyX5vx4hFTu4ck6r+EFCjv03WuiH3oGOmA6juyJ4EZ3aLcXKBx/1Xce
+         9reTeYMCI3iYXLSJt34GbIEPRGyPHJe2RdoQ7n4/TKrr/213tp57Gm/zkiTkQwaDiP9a
+         EynDV3IAhkd/u/6ZYWhQPrYce9NBhDNNeGLNGpa8zEYryODBQxgUXt8MtKTvi4uC0gfL
+         Y3S8UI4X6VDJFEs9tH8MmqRucFKz1cpQNfw2CFDCaCwrLyB/Gt72umI6AX/6+Jx1CA8z
+         SqUjNiIb9spsaUY7nz+PDqyHakbTT+03S3YmI3NnbDmjDwBGRyCAk4NZudhKL35kPXFa
+         6kNw==
+X-Forwarded-Encrypted: i=1; AJvYcCXhlCauD/ONxnnMehSYV6RdGih9YoCENokND4dOB4RPvYWhKhx7LOhGfRWzGbRUB6jkceJcE88=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyzKlh2osT8ibCdxf+RZgvZlrmOXIa1EqRgOBbyfYqUHMNtPLtZ
+	aIfLHc9aFjdT8134s53FVISx1NTirSaZVypoiWzR25ZLl2McP5Ir+fbkJAn/Uh4R7Ic=
+X-Gm-Gg: ASbGncsEhll3BJhyF4/TXd/0Y4En/rEUrZ6v6lFAscbJUBqGbDW0uCtd3vyms2P8axF
+	A/SI9TIpy99tbhRN0AD8bDBfUBkuxRqGTrYXPr1QYBsyspy2BuQxyo9uP1UJoN2JGAI+a8R1hj2
+	1aYtPiJLI8AD8na8YwtPGE+bUcOzNvjn0mzm20qXVkiOtBkuyIosqPNdynpzw+19AUnwT9NnAWp
+	opbftyj4tkCwAJQhv+L2KwTuB0GY9jAaX/45AZkqa7gzK5/WcmFMZXojvBsSWaA5cRwfNAfWnZx
+	z/wGWZo2hlFl1851QpIqcVOdIaLtiQF52nxl3rZp405p486Cv8yCaWbD/7GZuKnc5SCLyfwTCEn
+	kxU40ksGcClGTS/KDlJ8nWsgQYxX7TK2hXvxO2qwtHmstNQzh6f05NpyLtdv6gwR1I0z/L4KBB2
+	J4BC1xj7oPNIA/xmV6z9NFBlsAsyW3SrVAhg==
+X-Google-Smtp-Source: AGHT+IHTjDVCx2Qm0j6PAJKMcvlD9wlV3gnSH90GhrBjX1D3t7o2Y5SBx2BDZbWvHZ8eBLNWGGFQqg==
+X-Received: by 2002:a17:907:97d4:b0:b70:edaf:4ee5 with SMTP id a640c23a62f3a-b7265297d83mr264651266b.16.1762341612063;
+        Wed, 05 Nov 2025 03:20:12 -0800 (PST)
 Received: from debil.nvidia.com (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b724064d25csm455208266b.72.2025.11.05.03.20.09
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b724064d25csm455208266b.72.2025.11.05.03.20.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Nov 2025 03:20:10 -0800 (PST)
+        Wed, 05 Nov 2025 03:20:11 -0800 (PST)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: tobias@waldekranz.com,
@@ -70,11 +70,10 @@ Cc: tobias@waldekranz.com,
 	edumazet@google.com,
 	horms@kernel.org,
 	petrm@nvidia.com,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
-Subject: [PATCH net v2 1/2] net: bridge: fix use-after-free due to MST port state bypass
-Date: Wed,  5 Nov 2025 13:19:18 +0200
-Message-ID: <20251105111919.1499702-2-razor@blackwall.org>
+	Nikolay Aleksandrov <razor@blackwall.org>
+Subject: [PATCH net v2 2/2] net: bridge: fix MST static key usage
+Date: Wed,  5 Nov 2025 13:19:19 +0200
+Message-ID: <20251105111919.1499702-3-razor@blackwall.org>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251105111919.1499702-1-razor@blackwall.org>
 References: <20251105111919.1499702-1-razor@blackwall.org>
@@ -86,98 +85,88 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-syzbot reported[1] a use-after-free when deleting an expired fdb. It is
-due to a race condition between learning still happening and a port being
-deleted, after all its fdbs have been flushed. The port's state has been
-toggled to disabled so no learning should happen at that time, but if we
-have MST enabled, it will bypass the port's state, that together with VLAN
-filtering disabled can lead to fdb learning at a time when it shouldn't
-happen while the port is being deleted. VLAN filtering must be disabled
-because we flush the port VLANs when it's being deleted which will stop
-learning. This fix adds a check for the port's vlan group which is
-initialized to NULL when the port is getting deleted, that avoids the port
-state bypass. When MST is enabled there would be a minimal new overhead
-in the fast-path because the port's vlan group pointer is cache-hot.
-
-[1] https://syzkaller.appspot.com/bug?extid=dd280197f0f7ab3917be
+As Ido pointed out, the static key usage in MST is buggy and should use
+inc/dec instead of enable/disable because we can have multiple bridges
+with MST enabled which means a single bridge can disable MST for all.
+Use static_branch_inc/dec to avoid that. When destroying a bridge decrement
+the key if MST was enabled.
 
 Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
-Reported-by: syzbot+dd280197f0f7ab3917be@syzkaller.appspotmail.com
-Closes: https://lore.kernel.org/netdev/69088ffa.050a0220.29fc44.003d.GAE@google.com/
+Reported-by: Ido Schimmel <idosch@nvidia.com>
+Closes: https://lore.kernel.org/netdev/20251104120313.1306566-1-razor@blackwall.org/T/#m6888d87658f94ed1725433940f4f4ebb00b5a68b
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
-v2: new fix approach using port's vlan group check when MST is enabled
-    we rely on the fact that the vlan group gets initialized to NULL
-    when the port is getting deleted
+v2: new fix
 
- net/bridge/br_forward.c | 2 +-
- net/bridge/br_input.c   | 4 ++--
- net/bridge/br_private.h | 8 +++++---
- 3 files changed, 8 insertions(+), 6 deletions(-)
+ net/bridge/br_if.c      |  1 +
+ net/bridge/br_mst.c     | 10 ++++++++--
+ net/bridge/br_private.h |  5 +++++
+ 3 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index 870bdf2e082c..dea09096ad0f 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -25,7 +25,7 @@ static inline int should_deliver(const struct net_bridge_port *p,
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 98c5b9c3145f..ca3a637d7cca 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -386,6 +386,7 @@ void br_dev_delete(struct net_device *dev, struct list_head *head)
+ 		del_nbp(p);
+ 	}
  
- 	vg = nbp_vlan_group_rcu(p);
- 	return ((p->flags & BR_HAIRPIN_MODE) || skb->dev != p->dev) &&
--		(br_mst_is_enabled(p->br) || p->state == BR_STATE_FORWARDING) &&
-+		(br_mst_is_enabled(p) || p->state == BR_STATE_FORWARDING) &&
- 		br_allowed_egress(vg, skb) && nbp_switchdev_allowed_egress(p, skb) &&
- 		!br_skb_isolated(p, skb);
++	br_mst_uninit(br);
+ 	br_recalculate_neigh_suppress_enabled(br);
+ 
+ 	br_fdb_delete_by_port(br, NULL, 0, 1);
+diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
+index 3f24b4ee49c2..43a300ae6bfa 100644
+--- a/net/bridge/br_mst.c
++++ b/net/bridge/br_mst.c
+@@ -22,6 +22,12 @@ bool br_mst_enabled(const struct net_device *dev)
  }
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 67b4c905e49a..777fa869c1a1 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -94,7 +94,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ EXPORT_SYMBOL_GPL(br_mst_enabled);
  
- 	br = p->br;
++void br_mst_uninit(struct net_bridge *br)
++{
++	if (br_opt_get(br, BROPT_MST_ENABLED))
++		static_branch_dec(&br_mst_used);
++}
++
+ int br_mst_get_info(const struct net_device *dev, u16 msti, unsigned long *vids)
+ {
+ 	const struct net_bridge_vlan_group *vg;
+@@ -225,9 +231,9 @@ int br_mst_set_enabled(struct net_bridge *br, bool on,
+ 		return err;
  
--	if (br_mst_is_enabled(br)) {
-+	if (br_mst_is_enabled(p)) {
- 		state = BR_STATE_FORWARDING;
- 	} else {
- 		if (p->state == BR_STATE_DISABLED) {
-@@ -429,7 +429,7 @@ static rx_handler_result_t br_handle_frame(struct sk_buff **pskb)
- 		return RX_HANDLER_PASS;
+ 	if (on)
+-		static_branch_enable(&br_mst_used);
++		static_branch_inc(&br_mst_used);
+ 	else
+-		static_branch_disable(&br_mst_used);
++		static_branch_dec(&br_mst_used);
  
- forward:
--	if (br_mst_is_enabled(p->br))
-+	if (br_mst_is_enabled(p))
- 		goto defer_stp_filtering;
- 
- 	switch (p->state) {
+ 	br_opt_toggle(br, BROPT_MST_ENABLED, on);
+ 	return 0;
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 16be5d250402..b571d6f61389 100644
+index b571d6f61389..7280c4e9305f 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -1935,10 +1935,12 @@ static inline bool br_vlan_state_allowed(u8 state, bool learn_allow)
- /* br_mst.c */
- #ifdef CONFIG_BRIDGE_VLAN_FILTERING
- DECLARE_STATIC_KEY_FALSE(br_mst_used);
--static inline bool br_mst_is_enabled(struct net_bridge *br)
-+static inline bool br_mst_is_enabled(const struct net_bridge_port *p)
- {
-+	/* check the port's vlan group to avoid racing with port deletion */
- 	return static_branch_unlikely(&br_mst_used) &&
--		br_opt_get(br, BROPT_MST_ENABLED);
-+	       br_opt_get(p->br, BROPT_MST_ENABLED) &&
-+	       rcu_access_pointer(p->vlgrp);
- }
- 
- int br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
-@@ -1953,7 +1955,7 @@ int br_mst_fill_info(struct sk_buff *skb,
+@@ -1954,6 +1954,7 @@ int br_mst_fill_info(struct sk_buff *skb,
+ 		     const struct net_bridge_vlan_group *vg);
  int br_mst_process(struct net_bridge_port *p, const struct nlattr *mst_attr,
  		   struct netlink_ext_ack *extack);
++void br_mst_uninit(struct net_bridge *br);
  #else
--static inline bool br_mst_is_enabled(struct net_bridge *br)
-+static inline bool br_mst_is_enabled(const struct net_bridge_port *p)
+ static inline bool br_mst_is_enabled(const struct net_bridge_port *p)
  {
- 	return false;
+@@ -1989,6 +1990,10 @@ static inline int br_mst_process(struct net_bridge_port *p,
+ {
+ 	return -EOPNOTSUPP;
  }
++
++static inline void br_mst_uninit(struct net_bridge *br)
++{
++}
+ #endif
+ 
+ struct nf_br_ops {
 -- 
 2.51.0
 
