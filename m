@@ -1,80 +1,80 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DCCE29ACF0;
-	Thu,  6 Nov 2025 15:40:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E25692D2498
+	for <bridge@lists.linux.dev>; Thu,  6 Nov 2025 23:47:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762443645; cv=none; b=Fa4/nMo+dDQNqCt5GMJT++eE87WkkfuXjkKqAwbGRJtF4NiedzgPc9yyd9fd0izmZTsEA3OGofAFf7ohBrW6nOzHEkV98ozmwmYJWScuV4WMA3D3IaVFjGk5wD4hJK8eJ3wWiWinOyjRcJWWzGUOZn+Wo2fb4BW/NKRulucJ6NY=
+	t=1762472848; cv=none; b=KnQOxj5trtNVT12rnkYSXdRHuqoeWltfGLbCSYvaoL4iDRiloK1IO0GwNuBW3D9nhOuGfG4arw/EGvg9oN+geaSmN+QfJ3qWKOvWAC6BTvrzC+4RsXSZRe0X3Te1LMlozKprF2Ncg1zmA14UKZBfZoOXq2wy2Q/ZgwbU5Dxnh9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762443645; c=relaxed/simple;
-	bh=eT2q8erGB+/KVnsBfN98cIr9uTO+vnVu1FxePouL63Y=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=kHvakSFxzKdFn+vFwKY7Amod7vEwajtAqSGps6aL6adW0BYeXBLx/V8JgFM48GMXUNjow6HiJDyykWviiUXIFfdwUupDdo9DWNXrERIXEiW4GpP7cDA2dzeOqt2o7UOWy29fHYoNk7PZ7EU/dgbhyD69xWQMNXdZcL/38WZPcAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BRljxcDA; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BRljxcDA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 935A4C116D0;
-	Thu,  6 Nov 2025 15:40:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1762443644;
-	bh=eT2q8erGB+/KVnsBfN98cIr9uTO+vnVu1FxePouL63Y=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=BRljxcDAHVolP8ZOWC73Imo0SzT53rLNqbAG8HNd99rVSY/2gdgKDH9GF3xZMDOHP
-	 o27ddZ5xwDdXJ2mgzczWZ34Gd8q7szaWu81o58n0m4a/aApo1ZpBDculUcEdKYXaqY
-	 TuBXesMiP/wJnIbNS+OCAUn+G6OoFzU2y81L1mMis7Mw/gElilt3D0Eueo3UfF+PqR
-	 xgwpQbqR1QpF9Mnu2dJvfyLImKqKptQqdH1HZWKFcMUGvNKj6iXYyR2415bwsukHM6
-	 Fpsm9I8QubQnmmH7/TPqCtcfteD5Q15PjqaYk9oW5plZBiQ9FWsQGk+CxZTXW6sQ0C
-	 lZiRf5E3ul5PQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADCE439EF947;
-	Thu,  6 Nov 2025 15:40:18 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1762472848; c=relaxed/simple;
+	bh=0yDBKr3QbihLy9egvMgBK8fZ1PK4/GQnwnszzzE4DNg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SOA+cj/l5Jy9JvhDcFZJWa2ecHjXUHnAbbt2IFwxF229GR7JgJI/9ca6YBKJOe2VtGUBZrvhpJmID0PYgGCn7xlpqv81LTfdW0fHfjpL6eUWEij8BGunTk80WhycUoy1YpsB7CV7c8WDw8Z2JhiKvwfQ+Gbcc+9ZdUzMkOdvdEg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
+Received: by Chamillionaire.breakpoint.cc (Postfix, from userid 1003)
+	id 452C46021B; Fri,  7 Nov 2025 00:47:25 +0100 (CET)
+Date: Fri, 7 Nov 2025 00:47:25 +0100
+From: Florian Westphal <fw@strlen.de>
+To: Eric Woudstra <ericwouds@gmail.com>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Jozsef Kadlecsik <kadlec@netfilter.org>, Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, netfilter-devel@vger.kernel.org,
+	bridge@lists.linux.dev, netdev@vger.kernel.org
+Subject: Re: [PATCH v16 nf-next 3/3] netfilter: nft_chain_filter: Add bridge
+ double vlan and pppoe
+Message-ID: <aQ0zja96khMMZfsq@strlen.de>
+References: <20251104145728.517197-1-ericwouds@gmail.com>
+ <20251104145728.517197-4-ericwouds@gmail.com>
+ <aQohjDYORamn7Gya@strlen.de>
+ <114f0b33-2c5f-4ae8-8ed8-e8bc7ef3dd2c@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2 0/2] net: bridge: fix two MST bugs
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176244361750.255671.13047904965376024193.git-patchwork-notify@kernel.org>
-Date: Thu, 06 Nov 2025 15:40:17 +0000
-References: <20251105111919.1499702-1-razor@blackwall.org>
-In-Reply-To: <20251105111919.1499702-1-razor@blackwall.org>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, tobias@waldekranz.com, idosch@nvidia.com,
- kuba@kernel.org, davem@davemloft.net, bridge@lists.linux.dev,
- pabeni@redhat.com, edumazet@google.com, horms@kernel.org, petrm@nvidia.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <114f0b33-2c5f-4ae8-8ed8-e8bc7ef3dd2c@gmail.com>
 
-Hello:
+Eric Woudstra <ericwouds@gmail.com> wrote:
+> >> +		return NF_ACCEPT;
+> >=20
+> >=20
+> > Hmm.  I'm not sure, I think this should either drop them right away
+> > OR pass them to do_chain without any changes (i.e. retain existing
+> > behavior and have this be same as nft_set_pktinfo_unspec()).
+> >=20
+> > but please wait until resend.
+> >=20
+> > I hope to finish a larger set i've been working on by tomorrow.
+> > Then I can give this a more thorough review (and also make a summary +
+> > suggestion wrt. the bridge match semantics wrt.  vlan + pppoe etc.
+> >=20
+> > My hunch is that your approach is pretty much the way to go
+> > but I need to complete related homework to make sure I did not
+> > miss/forget anything.
+>=20
+> I understand. I've send this, because from v5 to v15 it moved towards
+> matching in the rule, but it all started with the fact that
+> nft_flow_offload_eval() uses nft_thoff().
+>=20
+> At a bare minimum I need to address having pkt->thoff set correctly to
+> implement the software bridge-fastpath.
 
-This series was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Sorry, fail to see how thats related.
 
-On Wed,  5 Nov 2025 13:19:17 +0200 you wrote:
-> Hi,
-> Patch 01 fixes a race condition that exists between expired fdb deletion
-> and port deletion when MST is enabled. Learning can happen after the
-> port's state has been changed to disabled which could lead to that
-> port's memory being used after it's been freed. The issue was reported
-> by syzbot, more information in patch 01. Patch 02 fixes an issue with
-> MST's static key which Ido spotted, we can have multiple bridges with MST
-> and a single bridge can erroneously disable it for all.
-> 
-> [...]
+If the header is incomplete, then with your approach the packet isn't
+even seen by nft_flow_offload_eval() (-> NF_ACCEPT'd).
 
-Here is the summary with links:
-  - [net,v2,1/2] net: bridge: fix use-after-free due to MST port state bypass
-    https://git.kernel.org/netdev/net/c/8dca36978aa8
-  - [net,v2,2/2] net: bridge: fix MST static key usage
-    https://git.kernel.org/netdev/net/c/ee87c63f9b2a
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Whats the problem with passing the skb to nft_do_chain in its
+'original' form?
