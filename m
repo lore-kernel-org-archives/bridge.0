@@ -1,75 +1,159 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f205.google.com (mail-il1-f205.google.com [209.85.166.205])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 457012561A2;
-	Fri, 14 Nov 2025 01:00:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2026A363C54
+	for <bridge@lists.linux.dev>; Wed, 19 Nov 2025 13:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.205
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763082038; cv=none; b=I3v06FyVCRiipodYSciQahNwLS/Anm7wrEDvjJvMnvt4jhyFPJkI+2jGeGNbbIRRKGt9bnRYOMqlCLFHVWKeQcAdSrnKXFFir9fsPTsL2XOsW1YT0gbxjnuGfz9Sqo6KF5FzT3b5FhtDhRwTrVjTgh4WI+TPCfMxSruxAyFFQ+o=
+	t=1763558067; cv=none; b=Szi/NtFyD3397tHA8y5n5T91Ouh3JbVO1CLricg9pS5/TUZyF1VuhBaTOU21x4IbKPPCAR/EEc2HiaqCs+8xI604rBSdY+6YmqV7GT80bXXkeWY3ZL3giw9XkpZ98N+9zeN1lanhx05fc0WdC2wMD6f6+5eoiTlSEmS0ISmQ1sg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763082038; c=relaxed/simple;
-	bh=8/ErFUEyC8wp6OEGHuFxyQcxgP5VBA4JKxvq0P8q1M0=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=ADIrVfyDTkjONe7pCf8gg0zhEf2C+i5FKwEMBeoms4xNh5Ge4/2aQJHNl1S+ZM4DyF7zmdhcgLypX4y+JMH5vAr3ObAeRT26J2b3Ga2C0t//+Cl1st29uO0xso8ZPPTtIBR/P/9k9S+1LwR7Z5H074+rTgXyt8FPanyqkz0ifHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cDuDqnaA; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cDuDqnaA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 890F6C116D0;
-	Fri, 14 Nov 2025 01:00:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1763082037;
-	bh=8/ErFUEyC8wp6OEGHuFxyQcxgP5VBA4JKxvq0P8q1M0=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=cDuDqnaAOMK81ldxIzyRxOczUviebqMESET3gtoqpVXACplLzwsUIibAkXS4o8NHl
-	 mUbMG7wq9nDYJg5yofP6STyZOHppU+qRU3LoO4N4+M02PDHxwsyoqZadh/0wTvRZel
-	 NELPDSM3YY/MfmCIvx50BHEGRWc0KouclgLrsQyjd3/3VxBdHd2RUJFhC0P+QL/YGy
-	 nxIBHE9oV/YFiosSmJoE7i1Xi5VyoW1kgkak8+HSytrbLPuXpTR1WyzhmDAJwpk+8O
-	 EEhbFnMj1rQ4Rt/+c4vzOQ73My2uOV43nuNH+mKE0o/xMVkgaX/lupCxpuHWYM2455
-	 vFtd6Iw91Jfbw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id ADE2E3A55F83;
-	Fri, 14 Nov 2025 01:00:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=arc-20240116; t=1763558067; c=relaxed/simple;
+	bh=42RmOKiDA6GeexOCOMcU/ivBYtVakVLPOtwUodTLUOk=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=ZbCBfVm74ODbV797CQvni33UI1dXlbYCtu4yub312oXI83elTHwTNACpfbSm6ESzNyzzcQsa/EThW8h9deNATQ+4IhUmif8zsMKOH9wHIHB5lEW9pJVUZ1CTXWhzYvAoEUOvwGL2+D0fkI2L7XRZX5lTpkt3n99EUE7aHKw77Vo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.205
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f205.google.com with SMTP id e9e14a558f8ab-435a04dace1so5608625ab.0
+        for <bridge@lists.linux.dev>; Wed, 19 Nov 2025 05:14:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763558060; x=1764162860;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=cWeS540O/DtVZO2hs++H8AN2oyKVmTS0zqyLwiaCVtg=;
+        b=PCw4QqmzpoRpTcGXvYJFJ+fvuvAFeWP7rcPUwu2ZCMx8qNdYvMox/AvRZY87uSAkLq
+         dt395N0gXi6ODeIbFydjyqCrRAzsy2FUq7yWT/J3SxtpCy+onpnz+Ly5fgbe/uq0bZ+P
+         QcDwrK8ua4GylaZFzaCs3dap3D2MBwL1OAZeKYZrdxlNcMexeEm/m3c3Bc3LWnC2TAn6
+         4pIcUzXT1GMIfgRN2orVNv4YQYbtWzI/+c7ON3JA6A/LHU22Toc45NJ+PV461AWYPwAa
+         KGbvzlrtVBT1WC20pajQH8Vi0fDsSFwU2rblQdXNffh2PIRWcLSJrzHBtLbq/cMEJOeM
+         4VXA==
+X-Gm-Message-State: AOJu0YztPAT8oHzKFQsbDY6dOw6tjEWgNWwU7iVOFmA8oTGJ1Ftb1Gx6
+	JPMMGWajhG//uL7pria8LtHzN5HsMorO5kizsdpMWB8RSCxjcuFm4IbCrpN7kJhUdltrYUxoSmr
+	MqmGQArOJKjHAwYAFMu+L5DjL0cYwqHP6bHWnvGiNCxeADf4K+TI12EdTGQItaw==
+X-Google-Smtp-Source: AGHT+IE0wN29h+b//Oy4kflZwkutKByXWn7e4G2F17+fGh7LzriH+pLrQE9E/GQMsNJDpkneW5Y33SPtXhIrBOd2RULh8XNfzAHd
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] MAINTAINERS: Remove eth bridge website
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <176308200652.1069791.7434847464546852384.git-patchwork-notify@kernel.org>
-Date: Fri, 14 Nov 2025 01:00:06 +0000
-References: 
- <0a32aaf7fa4473e7574f7327480e8fbc4fef2741.1762946223.git.baruch@tkos.co.il>
-In-Reply-To: 
- <0a32aaf7fa4473e7574f7327480e8fbc4fef2741.1762946223.git.baruch@tkos.co.il>
-To: Baruch Siach <baruch@tkos.co.il>
-Cc: razor@blackwall.org, idosch@nvidia.com, bridge@lists.linux.dev,
- netdev@vger.kernel.org
+X-Received: by 2002:a05:6e02:3810:b0:434:96ea:ff8b with SMTP id
+ e9e14a558f8ab-43496eb0395mr195448995ab.35.1763558060468; Wed, 19 Nov 2025
+ 05:14:20 -0800 (PST)
+Date: Wed, 19 Nov 2025 05:14:20 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <691dc2ac.050a0220.2ffa18.0005.GAE@google.com>
+Subject: [syzbot] [bridge?] [netfilter?] WARNING in nf_ct_bridge_post
+From: syzbot <syzbot+a8ba738fe2db6b4bb27f@syzkaller.appspotmail.com>
+To: bridge@lists.linux.dev, coreteam@netfilter.org, davem@davemloft.net, 
+	edumazet@google.com, fw@strlen.de, horms@kernel.org, idosch@nvidia.com, 
+	kadlec@netfilter.org, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pabeni@redhat.com, 
+	pablo@netfilter.org, phil@nwl.cc, razor@blackwall.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hello:
+Hello,
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+syzbot found the following issue on:
 
-On Wed, 12 Nov 2025 13:17:03 +0200 you wrote:
-> Ethernet bridge website URL shows "This page isn’t available".
-> 
-> Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-> ---
->  MAINTAINERS | 1 -
->  1 file changed, 1 deletion(-)
+HEAD commit:    5bebe8de1926 mm/huge_memory: Fix initialization of huge ze..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=1526e97c580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=a1db0fea040c2a9f
+dashboard link: https://syzkaller.appspot.com/bug?extid=a8ba738fe2db6b4bb27f
+compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=13fca8b4580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=121b7332580000
 
-Here is the summary with links:
-  - MAINTAINERS: Remove eth bridge website
-    https://git.kernel.org/netdev/net/c/7410c86fc05b
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-5bebe8de.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/45a180eaa13d/vmlinux-5bebe8de.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/9ba2dcafae20/bzImage-5bebe8de.xz
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+a8ba738fe2db6b4bb27f@syzkaller.appspotmail.com
+
+bridge0: received packet on syz_tun with own address as source address (addr:aa:aa:aa:aa:aa:aa, vlan:1)
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 5876 at net/bridge/netfilter/nf_conntrack_bridge.c:357 nf_ct_bridge_refrag net/bridge/netfilter/nf_conntrack_bridge.c:357 [inline]
+WARNING: CPU: 0 PID: 5876 at net/bridge/netfilter/nf_conntrack_bridge.c:357 nf_ct_bridge_post+0x3ff/0x1060 net/bridge/netfilter/nf_conntrack_bridge.c:408
+Modules linked in:
+CPU: 0 UID: 0 PID: 5876 Comm: syz.3.94 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
+RIP: 0010:nf_ct_bridge_refrag net/bridge/netfilter/nf_conntrack_bridge.c:357 [inline]
+RIP: 0010:nf_ct_bridge_post+0x3ff/0x1060 net/bridge/netfilter/nf_conntrack_bridge.c:408
+Code: 89 ff 48 89 da 48 8d 8c 24 40 01 00 00 49 c7 c0 40 0c 2a 8a e8 12 d6 e1 ff 41 bf 02 00 00 00 e9 9c 07 00 00 e8 d2 1a 96 f7 90 <0f> 0b 90 45 31 ff e9 8b 07 00 00 e8 c1 1a 96 f7 eb 05 e8 ba 1a 96
+RSP: 0018:ffffc9000d996ae0 EFLAGS: 00010293
+RAX: ffffffff8a29f88e RBX: ffff888050bc0140 RCX: ffff88803b2b0000
+RDX: 0000000000000000 RSI: ffffffff8f40f220 RDI: 0000000000000081
+RBP: ffffc9000d996cc0 R08: ffff88803b2b0000 R09: 0000000000000002
+R10: 000000000000dd86 R11: 0000000000000000 R12: 1ffff1100a17802e
+R13: dffffc0000000000 R14: ffffc9000d996d80 R15: 0000000000000081
+FS:  00007f027c05e6c0(0000) GS:ffff88808d730000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00002000000000c0 CR3: 0000000059f5b000 CR4: 0000000000352ef0
+Call Trace:
+ <TASK>
+ nf_hook_entry_hookfn include/linux/netfilter.h:158 [inline]
+ nf_hook_slow+0xc5/0x220 net/netfilter/core.c:623
+ nf_hook include/linux/netfilter.h:273 [inline]
+ NF_HOOK+0x215/0x3c0 include/linux/netfilter.h:316
+ br_forward_finish+0xd3/0x130 net/bridge/br_forward.c:66
+ NF_HOOK+0x320/0x3c0 include/linux/netfilter.h:318
+ __br_forward+0x41e/0x600 net/bridge/br_forward.c:115
+ deliver_clone net/bridge/br_forward.c:131 [inline]
+ maybe_deliver+0xb5/0x160 net/bridge/br_forward.c:191
+ br_flood+0x31a/0x6a0 net/bridge/br_forward.c:238
+ br_handle_frame_finish+0x15a3/0x1c90 net/bridge/br_input.c:229
+ nf_hook_bridge_pre net/bridge/br_input.c:313 [inline]
+ br_handle_frame+0xb75/0x14f0 net/bridge/br_input.c:442
+ __netif_receive_skb_core+0x10b9/0x4380 net/core/dev.c:5966
+ __netif_receive_skb_one_core net/core/dev.c:6077 [inline]
+ __netif_receive_skb+0x72/0x380 net/core/dev.c:6192
+ netif_receive_skb_internal net/core/dev.c:6278 [inline]
+ netif_receive_skb+0x1cb/0x790 net/core/dev.c:6337
+ tun_rx_batched+0x1b9/0x730 drivers/net/tun.c:1485
+ tun_get_user+0x2b65/0x3e90 drivers/net/tun.c:1953
+ tun_chr_write_iter+0x113/0x200 drivers/net/tun.c:1999
+ new_sync_write fs/read_write.c:593 [inline]
+ vfs_write+0x5c9/0xb30 fs/read_write.c:686
+ ksys_write+0x145/0x250 fs/read_write.c:738
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f027b18e17f
+Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 f9 92 02 00 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 4c 93 02 00 48
+RSP: 002b:00007f027c05e000 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00007f027b3e6090 RCX: 00007f027b18e17f
+RDX: 000000000000004e RSI: 0000200000000500 RDI: 00000000000000c8
+RBP: 00007f027b211f91 R08: 0000000000000000 R09: 0000000000000000
+R10: 000000000000004e R11: 0000000000000293 R12: 0000000000000000
+R13: 00007f027b3e6128 R14: 00007f027b3e6090 R15: 00007ffc84bca4a8
+ </TASK>
 
 
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
