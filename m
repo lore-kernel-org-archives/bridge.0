@@ -1,159 +1,361 @@
-Received: from mail-il1-f205.google.com (mail-il1-f205.google.com [209.85.166.205])
+Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2026A363C54
-	for <bridge@lists.linux.dev>; Wed, 19 Nov 2025 13:14:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.205
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A01532862E
+	for <bridge@lists.linux.dev>; Wed, 26 Nov 2025 12:30:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763558067; cv=none; b=Szi/NtFyD3397tHA8y5n5T91Ouh3JbVO1CLricg9pS5/TUZyF1VuhBaTOU21x4IbKPPCAR/EEc2HiaqCs+8xI604rBSdY+6YmqV7GT80bXXkeWY3ZL3giw9XkpZ98N+9zeN1lanhx05fc0WdC2wMD6f6+5eoiTlSEmS0ISmQ1sg=
+	t=1764160236; cv=none; b=PIVVy2+H312xcEVNlaSdMQWixRAFzmOw3OLEkezxr1ImFsvDXeFtDXTzIT0fIpvSrauMZ1ByH3+gZFTq+D+VkNuWN69olARIT7es3e8L+ARp7BaIxe9BzhrOgFgQD6XIO6ZzHcFXtBaqcYoODaenckniLhRDHTl9Bm0xKX8+aSk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763558067; c=relaxed/simple;
-	bh=42RmOKiDA6GeexOCOMcU/ivBYtVakVLPOtwUodTLUOk=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=ZbCBfVm74ODbV797CQvni33UI1dXlbYCtu4yub312oXI83elTHwTNACpfbSm6ESzNyzzcQsa/EThW8h9deNATQ+4IhUmif8zsMKOH9wHIHB5lEW9pJVUZ1CTXWhzYvAoEUOvwGL2+D0fkI2L7XRZX5lTpkt3n99EUE7aHKw77Vo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.205
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f205.google.com with SMTP id e9e14a558f8ab-435a04dace1so5608625ab.0
-        for <bridge@lists.linux.dev>; Wed, 19 Nov 2025 05:14:21 -0800 (PST)
+	s=arc-20240116; t=1764160236; c=relaxed/simple;
+	bh=zuDAeWXxkcATIwWSYfYjainxxEHyxp6MfJIcYrvvFoA=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=hLtmelTfWMLWYhkZw4yxkpnP7Gk29C42w3SA8uKmgvADYgm4tp49eHfL66nWsxNgsD7E7rFejamtZQJaWMafVPou5POmTiQrfgCihM/qlEIvZSElTViSGGzhDaOZsRdZWkpOfUivg2HKXP7eRwKXkKyybh90zItLpPvmX2DZY/A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YahsyfJ5; arc=none smtp.client-ip=74.125.224.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YahsyfJ5"
+Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-642f3bab0c8so4768222d50.0
+        for <bridge@lists.linux.dev>; Wed, 26 Nov 2025 04:30:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1764160233; x=1764765033; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=MlACRUyTfvoHdS9cGSsq8rSReNgiGVEbr819gPfJSB8=;
+        b=YahsyfJ5HeWgnDjCb9fOn+DugnLSt/ATWSmK9RZiaTWS21wnLq52luLeUY+1FUlTGd
+         kFiLfhX7PCfJ2ypsuczkbURyS0c04FH1fOqb4NQNqhH91sUwRkYnGvxVbpW2uxb4VffW
+         GEN2zgVGE9WeOx4hA4rDPXWMSjBt1LcU3kEj8HSdIEG4BL8CrSuo1/npz65zXFoi0uHu
+         /3YnGo8xda5/Ta2YTE11iZETkUsNnPmb+dGJMQd3/9+GuufqhtHcJpdR104Hm3G/XwaC
+         Ai8r4zigr8mh6S1OyM3Z6sIBGXAMpFm9bDdHE4erjMkxomM1hRU0R628t64kO1xh6KkC
+         EFVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763558060; x=1764162860;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=cWeS540O/DtVZO2hs++H8AN2oyKVmTS0zqyLwiaCVtg=;
-        b=PCw4QqmzpoRpTcGXvYJFJ+fvuvAFeWP7rcPUwu2ZCMx8qNdYvMox/AvRZY87uSAkLq
-         dt395N0gXi6ODeIbFydjyqCrRAzsy2FUq7yWT/J3SxtpCy+onpnz+Ly5fgbe/uq0bZ+P
-         QcDwrK8ua4GylaZFzaCs3dap3D2MBwL1OAZeKYZrdxlNcMexeEm/m3c3Bc3LWnC2TAn6
-         4pIcUzXT1GMIfgRN2orVNv4YQYbtWzI/+c7ON3JA6A/LHU22Toc45NJ+PV461AWYPwAa
-         KGbvzlrtVBT1WC20pajQH8Vi0fDsSFwU2rblQdXNffh2PIRWcLSJrzHBtLbq/cMEJOeM
-         4VXA==
-X-Gm-Message-State: AOJu0YztPAT8oHzKFQsbDY6dOw6tjEWgNWwU7iVOFmA8oTGJ1Ftb1Gx6
-	JPMMGWajhG//uL7pria8LtHzN5HsMorO5kizsdpMWB8RSCxjcuFm4IbCrpN7kJhUdltrYUxoSmr
-	MqmGQArOJKjHAwYAFMu+L5DjL0cYwqHP6bHWnvGiNCxeADf4K+TI12EdTGQItaw==
-X-Google-Smtp-Source: AGHT+IE0wN29h+b//Oy4kflZwkutKByXWn7e4G2F17+fGh7LzriH+pLrQE9E/GQMsNJDpkneW5Y33SPtXhIrBOd2RULh8XNfzAHd
+        d=1e100.net; s=20230601; t=1764160233; x=1764765033;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MlACRUyTfvoHdS9cGSsq8rSReNgiGVEbr819gPfJSB8=;
+        b=L4S4CA22BCWE0HDz1faAmA7fnfiNrc+oTR9NCAtgK1/waxL06zpPYyOWX2kxbVzQ3u
+         azzn4NyKZV/hYeim/8zm3kW8lK3SlG060pmxVm4LGe665aQqaYUDBbiTMtp0v6Udfi+1
+         886sNG4T9ZDDB7QRHhL0XyCsph9Br66/S3Wu+jnzihE1eDHMx8x01q+rrqtVeM5PXERj
+         teElYnRJkONIS/qW1UT4M2FUElEXdd8DS+0mX5VgIL+hX4ZoesGedHMyEK1RD9i9MS2q
+         CDyNltZFkz8F757vDwGxlWkZsIkcjopoGeFHGzi+/7/NaswIVXFgxusbg2oQJEGnCHlh
+         7rMA==
+X-Forwarded-Encrypted: i=1; AJvYcCULaIe9p7ICwZkvTk66fxClV/rzJw42PUSu53jFzvoqXlQ9ZJbnxsF0fijqxNYsO1T4cnslkwg=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw56FN6dy5YnqoqVbJxsVhrbf1L/EI0ZrO/JJiPL3dElMicavgZ
+	b9BeJsYatCEjAWUkgEni10ADHFMWQQGe2cGI6U/OHu27W+0GNL6Sqlw/iMsYn2tiiVIYJkZ6pHo
+	GXx0D5oQT3djcIvubGwPeIfPS4VZ5hXY=
+X-Gm-Gg: ASbGnctomZIYEc2Rl1gW/6h7sOi4lFKXvhd3MWZbiZdiwd3eKXGU69MapUfiyO5Tj1r
+	cN9A03+QiXbJk8Lv60goONeqHCUTYteIfuBnDnTp4W21IxSbecOvKz/S+sEKsfbq01jgIxoELdN
+	akHfUd4BtYBVMzViHBiysnLLw8SJbtFgauCqMfUy3Nf6Ykuay7n+XgtUgVHaPRL5kxOLwBoqSM4
+	fuaDRZsYwyD+mruO6f5ibKlV6nYkzG3xMaYLcMiiy/OOob/xFBVVoiKg67pVYl53OyyDJVz
+X-Google-Smtp-Source: AGHT+IEXOQizvqc9+llt4jpKTxdi4Usw+dQaJcuWB7KGpGg1Ub3djwY0vSqecK9u7OfoT57oCq1pvjfTjjA8S8EiRMc=
+X-Received: by 2002:a53:cd8c:0:b0:63e:1943:ce49 with SMTP id
+ 956f58d0204a3-64302abb486mr9848238d50.39.1764160233107; Wed, 26 Nov 2025
+ 04:30:33 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:3810:b0:434:96ea:ff8b with SMTP id
- e9e14a558f8ab-43496eb0395mr195448995ab.35.1763558060468; Wed, 19 Nov 2025
- 05:14:20 -0800 (PST)
-Date: Wed, 19 Nov 2025 05:14:20 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <691dc2ac.050a0220.2ffa18.0005.GAE@google.com>
-Subject: [syzbot] [bridge?] [netfilter?] WARNING in nf_ct_bridge_post
-From: syzbot <syzbot+a8ba738fe2db6b4bb27f@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, coreteam@netfilter.org, davem@davemloft.net, 
-	edumazet@google.com, fw@strlen.de, horms@kernel.org, idosch@nvidia.com, 
-	kadlec@netfilter.org, kuba@kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, pabeni@redhat.com, 
-	pablo@netfilter.org, phil@nwl.cc, razor@blackwall.org, 
-	syzkaller-bugs@googlegroups.com
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Wed, 26 Nov 2025 20:29:57 +0800
+X-Gm-Features: AWmQ_blT03ccA0A6TDwXKfZCeqXMEMCfqIm_UBBK6puqc4GIDnJiJfBGl4UPp9s
+Message-ID: <CALOAHbDOMD9+FUw6aog=AKa-6+a_9tuqaQhq3LKXLzFgzBreSg@mail.gmail.com>
+Subject: [BUG] mlx5e: ARP broadcast over offloaded bridge fails when using a
+ bonded LACP interface
+To: Saeed Mahameed <saeedm@nvidia.com>, tariqt@nvidia.com, mbloch@nvidia.com, 
+	Nikolay Aleksandrov <razor@blackwall.org>, idosch@nvidia.com, jv@jvosburgh.net, 
+	andrew+netdev@lunn.ch, David Miller <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: netdev <netdev@vger.kernel.org>, bridge@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+Hello mlx5e/bridge/bonding maintainers,
 
-syzbot found the following issue on:
+Technical Context
+------------------------
 
-HEAD commit:    5bebe8de1926 mm/huge_memory: Fix initialization of huge ze..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=1526e97c580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=a1db0fea040c2a9f
-dashboard link: https://syzkaller.appspot.com/bug?extid=a8ba738fe2db6b4bb27f
-compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=13fca8b4580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=121b7332580000
+In our Kubernetes production environment, we have enabled SR-IOV on
+ConnectX-6 DX NICs to allow multiple containers to share a single
+Physical Function (PF). In other words, each container is assigned its
+own Virtual Function (VF).
 
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-5bebe8de.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/45a180eaa13d/vmlinux-5bebe8de.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/9ba2dcafae20/bzImage-5bebe8de.xz
+We have two CX6-DX NICs on a single host, configured in a bonded
+interface. The VFs and the bonding device are connected via a Linux
+bridge. Both CX6-DX NICs are operating in switchdev mode, and the
+Linux bridge is offloaded. The topology is as follows:
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+a8ba738fe2db6b4bb27f@syzkaller.appspotmail.com
-
-bridge0: received packet on syz_tun with own address as source address (addr:aa:aa:aa:aa:aa:aa, vlan:1)
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 5876 at net/bridge/netfilter/nf_conntrack_bridge.c:357 nf_ct_bridge_refrag net/bridge/netfilter/nf_conntrack_bridge.c:357 [inline]
-WARNING: CPU: 0 PID: 5876 at net/bridge/netfilter/nf_conntrack_bridge.c:357 nf_ct_bridge_post+0x3ff/0x1060 net/bridge/netfilter/nf_conntrack_bridge.c:408
-Modules linked in:
-CPU: 0 UID: 0 PID: 5876 Comm: syz.3.94 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2~bpo12+1 04/01/2014
-RIP: 0010:nf_ct_bridge_refrag net/bridge/netfilter/nf_conntrack_bridge.c:357 [inline]
-RIP: 0010:nf_ct_bridge_post+0x3ff/0x1060 net/bridge/netfilter/nf_conntrack_bridge.c:408
-Code: 89 ff 48 89 da 48 8d 8c 24 40 01 00 00 49 c7 c0 40 0c 2a 8a e8 12 d6 e1 ff 41 bf 02 00 00 00 e9 9c 07 00 00 e8 d2 1a 96 f7 90 <0f> 0b 90 45 31 ff e9 8b 07 00 00 e8 c1 1a 96 f7 eb 05 e8 ba 1a 96
-RSP: 0018:ffffc9000d996ae0 EFLAGS: 00010293
-RAX: ffffffff8a29f88e RBX: ffff888050bc0140 RCX: ffff88803b2b0000
-RDX: 0000000000000000 RSI: ffffffff8f40f220 RDI: 0000000000000081
-RBP: ffffc9000d996cc0 R08: ffff88803b2b0000 R09: 0000000000000002
-R10: 000000000000dd86 R11: 0000000000000000 R12: 1ffff1100a17802e
-R13: dffffc0000000000 R14: ffffc9000d996d80 R15: 0000000000000081
-FS:  00007f027c05e6c0(0000) GS:ffff88808d730000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00002000000000c0 CR3: 0000000059f5b000 CR4: 0000000000352ef0
-Call Trace:
- <TASK>
- nf_hook_entry_hookfn include/linux/netfilter.h:158 [inline]
- nf_hook_slow+0xc5/0x220 net/netfilter/core.c:623
- nf_hook include/linux/netfilter.h:273 [inline]
- NF_HOOK+0x215/0x3c0 include/linux/netfilter.h:316
- br_forward_finish+0xd3/0x130 net/bridge/br_forward.c:66
- NF_HOOK+0x320/0x3c0 include/linux/netfilter.h:318
- __br_forward+0x41e/0x600 net/bridge/br_forward.c:115
- deliver_clone net/bridge/br_forward.c:131 [inline]
- maybe_deliver+0xb5/0x160 net/bridge/br_forward.c:191
- br_flood+0x31a/0x6a0 net/bridge/br_forward.c:238
- br_handle_frame_finish+0x15a3/0x1c90 net/bridge/br_input.c:229
- nf_hook_bridge_pre net/bridge/br_input.c:313 [inline]
- br_handle_frame+0xb75/0x14f0 net/bridge/br_input.c:442
- __netif_receive_skb_core+0x10b9/0x4380 net/core/dev.c:5966
- __netif_receive_skb_one_core net/core/dev.c:6077 [inline]
- __netif_receive_skb+0x72/0x380 net/core/dev.c:6192
- netif_receive_skb_internal net/core/dev.c:6278 [inline]
- netif_receive_skb+0x1cb/0x790 net/core/dev.c:6337
- tun_rx_batched+0x1b9/0x730 drivers/net/tun.c:1485
- tun_get_user+0x2b65/0x3e90 drivers/net/tun.c:1953
- tun_chr_write_iter+0x113/0x200 drivers/net/tun.c:1999
- new_sync_write fs/read_write.c:593 [inline]
- vfs_write+0x5c9/0xb30 fs/read_write.c:686
- ksys_write+0x145/0x250 fs/read_write.c:738
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f027b18e17f
-Code: 89 54 24 18 48 89 74 24 10 89 7c 24 08 e8 f9 92 02 00 48 8b 54 24 18 48 8b 74 24 10 41 89 c0 8b 7c 24 08 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 31 44 89 c7 48 89 44 24 08 e8 4c 93 02 00 48
-RSP: 002b:00007f027c05e000 EFLAGS: 00000293 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 00007f027b3e6090 RCX: 00007f027b18e17f
-RDX: 000000000000004e RSI: 0000200000000500 RDI: 00000000000000c8
-RBP: 00007f027b211f91 R08: 0000000000000000 R09: 0000000000000000
-R10: 000000000000004e R11: 0000000000000293 R12: 0000000000000000
-R13: 00007f027b3e6128 R14: 00007f027b3e6090 R15: 00007ffc84bca4a8
- </TASK>
+         Container0
+                |
+         VF reppresentor
+                |
+       linux bridge (offloaded)
+                |
+              bond
+                |
+    +----------------------+
+    |                            |
+eth0 (PF)               eth1 (PF)
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Both eth0 and eth1 are on switchdev mode.
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+  $ cat /sys/class/net/eth0/compat/devlink/mode
+   switchdev
+  $ cat /sys/class/net/eth1/compat/devlink/mode
+   swithcdev
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+This setup follows the guidance provided in the official NVIDIA
+documentation [0].
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+The bond is configured in 802.3ad (LACP) mode. We enabled the ARP
+broadcast feature on the bonding device, which is functionally similar
+to the patchset referenced here:
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+   https://lore.kernel.org/all/cover.1750642572.git.tonghao@bamaicloud.com/
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+Issue Description
+------------------------
 
-If you want to undo deduplication, reply with:
-#syz undup
+When pinging another host from Container0, we observe that only one
+ARP request is sent out, even though both eth0 and eth1 appear to be
+generating ARP requests at the PF level, and the doorbell is being
+triggered.
+
+tcpdump output:
+
+  $ tcpdump -i any -n arp host 10.247.209.128
+  17:50:16.309758 eth1_5 B   ARP, Request who-has 10.247.209.128 tell
+10.247.209.140, length 38
+  17:50:16.309777 eth0_5 Out ARP, Request who-has 10.247.209.128 tell
+10.247.209.140, length 38
+  17:50:16.309784 bond0 Out ARP, Request who-has 10.247.209.128 tell
+10.247.209.140, length 38
+  17:50:16.309786 eth0  Out ARP, Request who-has 10.247.209.128 tell
+10.247.209.140, length 38
+  17:50:16.309788 eth1  Out ARP, Request who-has 10.247.209.128 tell
+10.247.209.140, length 38
+  17:50:16.309758 bridge0 B   ARP, Request who-has 10.247.209.128 tell
+10.247.209.140, length 38
+
+No ARP reply is captured by tcpdump.
+
+However, ARP broadcast appears to be functional, as two ARP requests
+are triggering the doorbell, as traced by the following bpftrace
+script:
+
+kprobe:mlx5e_sq_xmit_wqe
+{
+        $skb =3D (struct sk_buff *)arg1;
+
+        if ($skb->protocol !=3D 0x608) { // arp
+                return;
+        }
+
+        $iph =3D (struct iphdr *)($skb->head + $skb->network_header);
+        $arp_data =3D $skb->head + $skb->network_header + sizeof(struct arp=
+hdr);
+        $arph =3D (struct arphdr *)($skb->head + $skb->network_header);
+        $smac =3D $arp_data;
+
+        $sip =3D $arp_data + 6;
+        $tip =3D $arp_data + 16;
+        // 10.247.209.128
+        if (!($tip[0] =3D=3D 10 && $tip[1] =3D=3D 247 && $tip[2] =3D=3D 209=
+ &&
+$tip[3] =3D=3D 128)) {
+                return;
+        }
+
+        $dev =3D $skb->dev;
+        $dev_name =3D $skb->dev->name;
+
+        printf("Device:%s(%02x:%02x:%02x:%02x:%02x:%02x) [%d] Sender
+IP:%d.%d.%d.%d (%02x:%02x:%02x:%02x:%02x:%02x), ",
+                $dev_name, $dev->dev_addr[0], $dev->dev_addr[1],
+$dev->dev_addr[2], $dev->dev_addr[3],
+                $dev->dev_addr[4], $dev->dev_addr[5], $dev->ifindex,
+                $sip[0], $sip[1], $sip[2], $sip[3],
+                $smac[0], $smac[1], $smac[2], $smac[3], $smac[4], $smac[5])=
+;
+
+        printf("Target IP:%d.%d.%d.%d, OP:%d\n",
+                $tip[0], $tip[1], $tip[2], $tip[3],
+                 (($arph->ar_op & 0xFF00) >> 8) | (($arph->ar_op &
+0x00FF) << 8));
+}
+
+bpftrace output:
+
+  Device:eth0_5(ba:d2:2d:ff:80:82) [68] Sender IP:10.247.209.140
+(06:99:0f:34:b1:15), Target IP:10.247.209.128, OP:1
+  Device:eth0(e0:9d:73:c3:d2:3e) [2] Sender IP:10.247.209.140
+(06:99:0f:34:b1:15), Target IP:10.247.209.128, OP:1
+  Device:eth1(e0:9d:73:c3:d2:3e) [3] Sender IP:10.247.209.140
+(06:99:0f:34:b1:15), Target IP:10.247.209.128, OP:1
+
+And the detailed callstack with bpftrace:
+
+Device:eth0_5(ba:d2:2d:ff:80:82) [68] Sender IP:10.247.209.140
+(06:99:0f:34:b1:15), Target IP:10.247.209.128, OP:1
+
+        mlx5e_sq_xmit_wqe+1
+        dev_hard_start_xmit+142
+        sch_direct_xmit+161
+        __dev_xmit_skb+482
+        __dev_queue_xmit+637
+        br_dev_queue_push_xmit+194
+        br_forward_finish+83
+        br_nf_hook_thresh+220
+        br_nf_forward_finish+381
+        br_nf_forward_arp+647
+        nf_hook_slow+65
+        __br_forward+214
+        maybe_deliver+188
+        br_flood+118
+        br_handle_frame_finish+421
+        br_handle_frame+781
+        __netif_receive_skb_core.constprop.0+651
+        __netif_receive_skb_list_core+291
+        netif_receive_skb_list_internal+459
+        napi_complete_done+122
+        mlx5e_napi_poll+358
+        __napi_poll.constprop.0+46
+        net_rx_action+680
+        __do_softirq+271
+        irq_exit_rcu+82
+        common_interrupt+142
+        asm_common_interrupt+39
+        cpuidle_enter_state+237
+        cpuidle_enter+52
+        cpuidle_idle_call+261
+        do_idle+124
+        cpu_startup_entry+32
+        start_secondary+296
+        secondary_startup_64_no_verify+229
+
+Device:eth0(e0:9d:73:c3:d2:3e) [2] Sender IP:10.247.209.140
+(06:99:0f:34:b1:15), Target IP:10.247.209.128, OP:1
+
+        mlx5e_sq_xmit_wqe+1
+        dev_hard_start_xmit+142
+        sch_direct_xmit+161
+        __dev_xmit_skb+482
+        __dev_queue_xmit+637
+        bond_dev_queue_xmit+43
+        __bond_start_xmit+590
+        bond_start_xmit+70
+        dev_hard_start_xmit+142
+        __dev_queue_xmit+1260
+        br_dev_queue_push_xmit+194
+        br_forward_finish+83
+        br_nf_hook_thresh+220
+        br_nf_forward_finish+381
+        br_nf_forward_arp+647
+        nf_hook_slow+65
+        __br_forward+214
+        br_flood+266
+        br_handle_frame_finish+421
+        br_handle_frame+781
+        __netif_receive_skb_core.constprop.0+651
+        __netif_receive_skb_list_core+291
+        netif_receive_skb_list_internal+459
+        napi_complete_done+122
+        mlx5e_napi_poll+358
+        __napi_poll.constprop.0+46
+        net_rx_action+680
+        __do_softirq+271
+        irq_exit_rcu+82
+        common_interrupt+142
+        asm_common_interrupt+39
+        cpuidle_enter_state+237
+        cpuidle_enter+52
+        cpuidle_idle_call+261
+        do_idle+124
+        cpu_startup_entry+32
+        start_secondary+296
+        secondary_startup_64_no_verify+229
+
+Device:eth1(e0:9d:73:c3:d2:3e) [3] Sender IP:10.247.209.140
+(06:99:0f:34:b1:15), Target IP:10.247.209.128, OP:1
+
+        mlx5e_sq_xmit_wqe+1
+        dev_hard_start_xmit+142
+        sch_direct_xmit+161
+        __dev_xmit_skb+482
+        __dev_queue_xmit+637
+        bond_dev_queue_xmit+43
+        __bond_start_xmit+590
+        bond_start_xmit+70
+        dev_hard_start_xmit+142
+        __dev_queue_xmit+1260
+        br_dev_queue_push_xmit+194
+        br_forward_finish+83
+        br_nf_hook_thresh+220
+        br_nf_forward_finish+381
+        br_nf_forward_arp+647
+        nf_hook_slow+65
+        __br_forward+214
+        br_flood+266
+        br_handle_frame_finish+421
+        br_handle_frame+781
+        __netif_receive_skb_core.constprop.0+651
+        __netif_receive_skb_list_core+291
+        netif_receive_skb_list_internal+459
+        napi_complete_done+122
+        mlx5e_napi_poll+358
+        __napi_poll.constprop.0+46
+        net_rx_action+680
+        __do_softirq+271
+        irq_exit_rcu+82
+        common_interrupt+142
+        asm_common_interrupt+39
+        cpuidle_enter_state+237
+        cpuidle_enter+52
+        cpuidle_idle_call+261
+        do_idle+124
+        cpu_startup_entry+32
+        start_secondary+296
+        secondary_startup_64_no_verify+229
+
+Additionally, traffic captured on the uplink switch confirms that ARP
+requests are only being sent via one NIC.
+
+This suggests a potential issue with bridge offloading. However, we
+lack the capability to trace hardware-level behavior directly.
+Notably, `ethtool -S ethX` shows no packet drops or errors.
+
+Questions
+--------------
+
+1. How can we further trace hardware behavior to diagnose this issue?
+2. Is this a known limitation of bridge offloading in this configuration?
+3. Are there any recommended solutions or workarounds?
+
+This issue is reproducible. We are willing to recompile the mlx
+drivers if additional information is needed.
+
+Current driver version:
+
+  $ ethtool -i eth0
+  driver: mlx5_core
+  version: 24.10-1.1.4
+  firmware-version: 22.43.2026 (MT_0000000359)
+  expansion-rom-version:
+  bus-info: 0000:21:00.0
+  supports-statistics: yes
+  supports-test: yes
+  supports-eeprom-access: no
+  supports-register-dump: no
+  supports-priv-flags: yes
+
+[0].https://docs.nvidia.com/networking/display/public/sol/technology+previe=
+w+of+kubernetes+cluster+deployment+with+accelerated+bridge+cni+and+nvidia+e=
+thernet+networking#src-119742530_TechnologyPreviewofKubernetesClusterDeploy=
+mentwithAcceleratedBridgeCNIandNVIDIAEthernetNetworking-Application
+
+--=20
+Regards
+Yafang
