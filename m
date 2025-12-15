@@ -1,66 +1,66 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A562C334691
-	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:48:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8C43358CC
+	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765799322; cv=none; b=pAd1mMsaQ8ok5Vpt++yBC+HJ6nEe12bq/MrwcBg5m0QusR92LhrnpCBwrddhsS++JjgMf6CfgArf72cK+OFG30RFffVcKa7/h54rXHmH/0L5yzWrPxto/xXaRMXP3raFqM6GQFYucMNoxSieJpg4yHv+geKHe8xpmEImbE9Me0o=
+	t=1765799325; cv=none; b=qLCjE3i5/LINIvD9kYreknFhSYo39oyDQb6ZBMjqCiYY2sEqaxi+cWqDbXbTbN0pDKH6+NoQeW5zB0sdXiKPK/OeG4yvvt26Gdnvm4gs83Rz4Bt+jzikyVsQAQm7LksEL2H4FdPWJy5hvgEeIa4/bjsaPCK9KndYzUif1c83YRI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765799322; c=relaxed/simple;
-	bh=kdwYayfiPuGdbX+6/rKZkI1jkonQkDY24KG3T7ZKuZA=;
+	s=arc-20240116; t=1765799325; c=relaxed/simple;
+	bh=UEs/C9BYSnit6YUYNsXI/TPVZ8wlbVWtOoMfZCt2Czk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ab1egnTsgYS4Rxc2ohUJu5oruZTrQwT0Cs5V4zHbIj6UdNZ43j7G82Chb6jhH8qwSXU2VHv+PFYiVE59LUleYtQB7yJpRO//xQWEuLCyIq01VW5XWGwVPiOus5Az9Jpifp8nXza2LyJJL5Vi/bZ88qzcKVZXvCRtpzt2XSIMm3k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QcsCesm+; arc=none smtp.client-ip=209.85.214.180
+	 MIME-Version; b=eH6ZNFlinXZUB6N32FfEH+CuVRYVREKXhGoEwROZzA8vVhd7pj8fMOwI7FpZyS1hmPo4B167I5mFWbOsWvtYIWbxyTvx2hUaHU41uncuM6YLytR3uv/4GlpBY95uWu27KJmjTiN9pjihvhVTW3WL1wsPkHqqexutp5ks0uTiO/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IEJip3YF; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QcsCesm+"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2a07f8dd9cdso19640545ad.1
-        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:48:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IEJip3YF"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-29844c68068so41128365ad.2
+        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:48:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765799320; x=1766404120; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765799322; x=1766404122; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JUAs+7T6aM5YvKJFQXSXqoVkTtSxZtzq470O+YaXF94=;
-        b=QcsCesm+rzVlM0p0NNvahMxi7sJL0lTwLnM5tpyQ9Ob0k6K7/an2mNl0Q89IiDIF9J
-         WxiVqxve609KeXbnO0ZZr7FU0cfR1o298/iv5yQviaEd+akyEAVnrfZaN+hhQeYnj+NI
-         hpz+DAoGr6I259gYnFFajFFhsmijX8nYC/4cbWh6nackVl1STco+9raF+iY8Rcegwp1P
-         IXXGTT9hwIv26B+8+nwrD2T4WPrhmsn2S3Fj2ke5+2x5foNZRHY8dRNm+snlWoICaold
-         Qth4ymoZi1euZRZlz0l1+F3bfu3bIoDrL+m0xeY4o6ideOqbUZU7KRutzDZU4BKYNLie
-         VCpQ==
+        bh=6HauKBmXABfepG7VVzo5pWgXSZcUBePm/ZvLfsSGC9U=;
+        b=IEJip3YF2cxHozNV/K1RMtKlPsQK7iV3MUgZTG8jceYDI2aFDkbas9F520ql6acAn2
+         6OvqE4fnqOU4wnRWQQENpz3RO/aoXSoPlX9oUQoBDXshutEiwPwB84lSVbapVlIEfTU+
+         3FC26y+zi25nbqYlO97c+hM6jlo1iO/TNVqXi1D0bLcaVUrJ0lBzS2XK1nU0hspj4lxv
+         nge9COjNDdKiyb6Ji21l4YHPzn+CrbIe63pnk0BzQZa7R8HxLzC5TQepY4xV6ubsEx6p
+         WVVgexHIBBf6JMfx/2RQDWXHNFI96iRKzKTExirPJ+BGHzdS/TmA0rArX+aKnwimTWfN
+         UmxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765799320; x=1766404120;
+        d=1e100.net; s=20230601; t=1765799322; x=1766404122;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=JUAs+7T6aM5YvKJFQXSXqoVkTtSxZtzq470O+YaXF94=;
-        b=DW92+lFBPGaswhTvw6ko17MOrjrN5RrKssWK4oYEDyrbpjlayNPmB67yOnM2CiTxlo
-         Znb71Pulr+Dx98+PM8xiQ3X124xM9gqGv9tJeVOy5SZaDtxUTMY80Q3UzXMCrLTv/OgD
-         YdJ8TgB4tP6vPu6n6fkN9S1s0SmabeLFMnlZuPkzTLAofqVZcFMNxD9PVl4SD75kuZMV
-         upGJcg8Lybx94rEynkPujjRm3I/wa1xZkMiU44S4kb/CyUE5gIfjKCyEuHFEieoJPmoo
-         X/eLaEdSY4DOgaN8sQm7C2Ry6pVjBw22bHbmCARijFNULLWmh7IlNJWTLXmdBqgSx+Hv
-         9kaw==
-X-Forwarded-Encrypted: i=1; AJvYcCWUjbbInCvnOOalcuqqGUCyPFpRxzzEFUxHGwDgYQXLL/2D+u2XahhQmqM72JB6/UalWg0HTMQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyZwCYJ5J7P5Zmp23rrY68uojP83a37Hlo1KdPTpapAptdYbHoP
-	VkXPodslChGxDveQoWJGsFujpaptq1WbDkb/CLOmwSQT9DYiJWQS/Ge0
-X-Gm-Gg: AY/fxX5Ar9fQE1DCkNOz+IRN6DEhEcDVdJZ5T9K/fL9mPZTnLTUXzmn1BnPbdg/pJP5
-	BoMM+rLKwpNfeYAC6U0e+Ghn+iMJOdMruiw+RCbwK3XX08oRMedybm+Vt/0f+YE5dwShDyK3uk3
-	VCydbyO7V5wfci0xOI/j4ljIs3qVqwHp4ATwyQ964IUVzy73J0PstELvAfWiQszpEggDf2ZCNEG
-	jvKmz9f+ZbX0nOrjljlm0o0eSktcjgCqtD+mnXqx53emzLWf+xKOp8yZAc5QdJfvkER7RuZKrwZ
-	t4BwR/q33HVhoXsdyZcSOTPPt4Q+iT232ENG+UT/4Rne/lbJFU4o3JawsTJvMODh5EERQrnxAhs
-	+gZoNU25DZOg3S077gMYrjbw0Ayp5MP5tU2dSk+yBm+qXsicWCdkQPVZIvyNjILPWkHwIQBhMhv
-	T1XPMT0TrtU2w=
-X-Google-Smtp-Source: AGHT+IEA4ldqjntSU1IZe10aX19mQKLjoCVDqCMnCNeqo44SOanRLtLHyqhQX8MxC8RVHbAWKM2xrg==
-X-Received: by 2002:a17:903:1a2e:b0:2a0:b02b:2105 with SMTP id d9443c01a7336-2a0b02b228amr63659225ad.56.1765799319837;
-        Mon, 15 Dec 2025 03:48:39 -0800 (PST)
+        bh=6HauKBmXABfepG7VVzo5pWgXSZcUBePm/ZvLfsSGC9U=;
+        b=cUePHeSqgywgBNLzF3o3Zzc/YQgpUMGIsJCxQIe2FTvO4OLnPRQ7qcwAqW0GVSQsoV
+         GbR1EKTKIiaSoaJzosPNTYmY9e2jL1MDun96i6ATPmaI6pS+p96RjbgetZ6MBoRCtXDP
+         G0apvo+N/qnNmkFHtZyse1d+USvtt/c1yEtnF3XCEIEYsng/OotOG9lp3rxssrgUfALS
+         1MVhi1j57cHU/jYX5YSIkZca+jW1xpyYgGVlyiiy/Tvy84imndXKJndGEvVcRQkYzSIF
+         z3Kv7Ot7Jlii7IbRUt/KrWSDu1dZZ31/6Qpla1Z1QG0c2bc23qogaDeKpLNgFyNptxYO
+         P8gQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXrMUvGjUJcfICbDv0UaqHcXjtwLt6/1sJnWfctcaa8z1I126KwYfeRho02hWRMsxHllwT+bIk=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzhLz2nOpuPqX/+7UcoyjX6E7JbgLPQpCaXjkPagK7ktxr7ibXO
+	fjXpL+6JLBDwSCnucy3rAylpLjHoxx9xiIuoLFBB/pWkdZ/opRieJQuV
+X-Gm-Gg: AY/fxX51roPH8lOGZDi9G9np8C9Zpb0Jywg+iT37QewyTny5WsiXIGZXJX74bVHhVgJ
+	vthhif7OcOzTXM8T4NwZmrkjH0leMSeo2QNEvzQugbUq+Vj2emDnCAwQ3YL1Vx61bIIHq9MW70n
+	KUSnLYYQIHpIfwNBeJcDaEFsRyuTpERUE7nL3hWc/ua7kCz7bDyDO8ZIFZjP2LGVQkQUUHufl5+
+	zbDy6RSgMflvMerKwgVSnNSgv2cttwFVoznrEsg6zt/+A3lX6mBqNZVgBXVHFYbO8zrf6koH7Xe
+	t9ZM8EidH/kY8/Ka6xY2WvzcVwt+N6gT4TfOP/QBLrI5ceuw8R5iUuw2dNVMjkv1Ga5tcciaueC
+	MMwQp14HKMO0+2AXa11Jn89qtsCir+R/oT9FZWxlTalkNYUBQI+xi6zba42A4/oxSfbzqnroH+9
+	lBZJBGBT8NAcs=
+X-Google-Smtp-Source: AGHT+IHfPz2x7Vw5nYSquN5rdr59IqpuimzSW/oHADfYTkii49T/33BfFck+CRU3WD2YFqFgGY1MBw==
+X-Received: by 2002:a17:902:ccc8:b0:2a0:823f:4da6 with SMTP id d9443c01a7336-2a0823f4e6bmr66287715ad.50.1765799322057;
+        Mon, 15 Dec 2025 03:48:42 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a0867ebe9dsm77190525ad.40.2025.12.15.03.48.39
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29f271bc8a0sm97458185ad.92.2025.12.15.03.48.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 03:48:39 -0800 (PST)
+        Mon, 15 Dec 2025 03:48:41 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id 46E2D447330A; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id 1E64B44588D7; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 12/14] drm/scheduler: Describe @result in drm_sched_job_done()
-Date: Mon, 15 Dec 2025 18:39:00 +0700
-Message-ID: <20251215113903.46555-13-bagasdotme@gmail.com>
+Subject: [PATCH 10/14] drm/amdgpu: Describe @AMD_IP_BLOCK_TYPE_RAS in amd_ip_block_type enum
+Date: Mon, 15 Dec 2025 18:38:58 +0700
+Message-ID: <20251215113903.46555-11-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,34 +160,34 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=982; i=bagasdotme@gmail.com; h=from:subject; bh=kdwYayfiPuGdbX+6/rKZkI1jkonQkDY24KG3T7ZKuZA=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4Pfzvv2aMJ6/2fiW3RmVPTpTFSM/fBW4Nu0ikdP3 J/+EMyq6ShlYRDjYpAVU2SZlMjXdHqXkciF9rWOMHNYmUCGMHBxCsBENP8y/FN2WnBW9dYhDc+y QzUe+4R7v/wRO/L/c0NDkJC4klf71CqG3yyrLnq/ur5px+nadXME75rW9sxVOp7eMOmL58xwZZ6 TlnwA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1065; i=bagasdotme@gmail.com; h=from:subject; bh=UEs/C9BYSnit6YUYNsXI/TPVZ8wlbVWtOoMfZCt2Czk=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4P/rZd71fJeeea2Y6ze7l+/BUWfvZxbPVvJ7FLhc b8Ca2nfjlIWBjEuBlkxRZZJiXxNp3cZiVxoX+sIM4eVCWQIAxenAEzkQCXDH065v1Nu7J+SJNXm fKBEpbzzpEZrbklCWe8WSUFLrulTkhn+J33s75ffwvJ3fu98iUql0+pnUqJKXmg5a8ursxTsZFv IBQA=
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
 Sphinx reports kernel-doc warning:
 
-WARNING: ./drivers/gpu/drm/scheduler/sched_main.c:367 function parameter 'result' not described in 'drm_sched_job_done'
+WARNING: ./drivers/gpu/drm/amd/include/amd_shared.h:113 Enum value 'AMD_IP_BLOCK_TYPE_RAS' not described in enum 'amd_ip_block_type'
 
-Describe @result parameter to fix it.
+Describe the value to fix it.
 
-Fixes: 539f9ee4b52a8b ("drm/scheduler: properly forward fence errors")
+Fixes: 7169e706c82d7b ("drm/amdgpu: Add ras module ip block to amdgpu discovery")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- drivers/gpu/drm/scheduler/sched_main.c | 1 +
+ drivers/gpu/drm/amd/include/amd_shared.h | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/scheduler/sched_main.c b/drivers/gpu/drm/scheduler/sched_main.c
-index 1d4f1b822e7b76..4f844087fd48eb 100644
---- a/drivers/gpu/drm/scheduler/sched_main.c
-+++ b/drivers/gpu/drm/scheduler/sched_main.c
-@@ -361,6 +361,7 @@ static void drm_sched_run_free_queue(struct drm_gpu_scheduler *sched)
- /**
-  * drm_sched_job_done - complete a job
-  * @s_job: pointer to the job which is done
-+ * @result: job result
-  *
-  * Finish the job's fence and resubmit the work items.
-  */
+diff --git a/drivers/gpu/drm/amd/include/amd_shared.h b/drivers/gpu/drm/amd/include/amd_shared.h
+index 17945094a13834..d8ed3799649172 100644
+--- a/drivers/gpu/drm/amd/include/amd_shared.h
++++ b/drivers/gpu/drm/amd/include/amd_shared.h
+@@ -89,6 +89,7 @@ enum amd_apu_flags {
+ * @AMD_IP_BLOCK_TYPE_VPE: Video Processing Engine
+ * @AMD_IP_BLOCK_TYPE_UMSCH_MM: User Mode Scheduler for Multimedia
+ * @AMD_IP_BLOCK_TYPE_ISP: Image Signal Processor
++* @AMD_IP_BLOCK_TYPE_RAS: RAS
+ * @AMD_IP_BLOCK_TYPE_NUM: Total number of IP block types
+ */
+ enum amd_ip_block_type {
 -- 
 An old man doll... just what I always wanted! - Clara
 
