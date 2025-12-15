@@ -1,66 +1,66 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB3792EB874
-	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA283328B67
+	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798762; cv=none; b=Gt6wNedKd7ZEu6lhW00QcdXNJrDhcdSyFVsFAsgG7i5hXoDTl05sKNq+MW4Tlnas5fDTIki+dQHu4UbwBST0Q4DzHEU1sUYCQ9SUQxHDJceCGQiuxs/GevgAM5eGXCRRkGoZOCfuVfrbWwGVNnrbSLKxBd0PUgaW5peBGBg/3tM=
+	t=1765798766; cv=none; b=DyS+6c4X5ysXFW3EbAKu74UQ5GoY3NLBbgW3gQu0XV2bUmGwi60lccWBRdzfnXwFMQ64y/5W5Uu9KjQkHOqolIDmSbSFxzeOfN7hqGWUvcvCQ64i5Gk8pXfK9kgQFiTtjrS9ROJ3TYuKzkbI3MJOw7q5UJI7oJy5G11R7UJInCU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765798762; c=relaxed/simple;
-	bh=ZF9oIk+6VfTU18bKiromuOjnT5V3QoMoKRjEOTmh6aM=;
+	s=arc-20240116; t=1765798766; c=relaxed/simple;
+	bh=g0JdaQypaND4lTcW0ZqbYUYcFFa4BCtHp67rCXQ3qdI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lm1F5c9s6ehiWixOnq5QgqkoYX8z8WbuZ6EpFWAuJ9fVpkn5Jaa9xU0c3TNazsxeJ8m9y9TLb2vZeKgY6I65nXgNr9HZH/GoCDBYQyXFPeJPxIju/yXyRDEADqbzFuRZuUOpNeMS1EsYbWNohHgZ5UTrkz182LykVZyuIYKTs8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dO3+Yk2B; arc=none smtp.client-ip=209.85.210.171
+	 MIME-Version; b=NVk82lBe/kvO/b+q9FSWZeydiBkLdcVXc2DWC/MdPv1rJFMxYemZ8B0fZntDpjlCbzVN5UTKdHJE0dRtx6ADh0z9Zy0UCnIJGvN6GYbck8EYqecSZf1dRk1alu3hbI6iJTNYeX7YRX/yVYS3jP3U3Eh7mCrMDDOJkaVdLBTred4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N7+6IGD2; arc=none smtp.client-ip=209.85.216.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dO3+Yk2B"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-7b9c17dd591so2678773b3a.3
-        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N7+6IGD2"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-34c868b197eso920362a91.2
+        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765798759; x=1766403559; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765798763; x=1766403563; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XhdWc9MI61x0CV5VCAtcSDjXy8TDKlNky9k0yGxBSF0=;
-        b=dO3+Yk2BWGcWaru3G1rGYyp8ivc4xZE0PMLTjPbz6dAsvt2RBFbUuMCMICFN0oZE28
-         sntTvrx9Qy8e80k3YKYGx859fquEhzZW7S5/ForMJ3qCThybyezJrAmSu0IumUssxQvp
-         OMBSR0x6oxmJTLsIc7SvD7JouPP/BlX+VJPSb+JGC94a/d44F2GfyB4SHgcn0KpqbUvA
-         qffcHB4/eMXuOr6XflufPajCTjci34cNUoAgADR5B+IZIFW+pDQtbm9Y5NdXx6hUOtLb
-         oc8Noq92lpDbn9QfHtnhDVH6rkGS5bWnT29jAs6c6dUvHMMNkivuXkaX6j+gdtCJlcjs
-         KODQ==
+        bh=c1jHunOtVkIwedmQvRsrzJgL7loZmMhygmTOE5iX6PY=;
+        b=N7+6IGD2vBFaG/NVGjn1i0HT8JH6isiUT4LD8oaat/u5X8i66aektAJM6r0rNe3vVt
+         iwKumKIGaq2pbYEbPp1s90kxUjoJmksfhWNwtvTC8pbXCJYvF6BZtDQKmy8J3tcn+gdY
+         f6TxXUOSY0nElA7URA0KjfvciYbhQjkQ1XCA7t+B7gQLGs7ZjX+kYmcihCHRuPCp1X3W
+         Lp95oaMOqok7D2tgtp8koew96Q3ujS+P2+cpen8PjJgGWEBb7Hv36zg8va2jgbW0R8z3
+         xAlUaRlBG/Xz4MyC2db/BpVzWyevk0x95npdvSoEpuJC+2SVYoDNTnmw1JiCCGCO7P21
+         XFug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765798759; x=1766403559;
+        d=1e100.net; s=20230601; t=1765798763; x=1766403563;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=XhdWc9MI61x0CV5VCAtcSDjXy8TDKlNky9k0yGxBSF0=;
-        b=uU1u3twP0lgIbzPhTH/mcrW048DT499xcOkt+2VNbiP8UH1AgCVuduIm0UkTi056fs
-         AXSmzGgELeKBMcM2DgKZYEDo6gLdZPdN++cbgg+KOT7+HqrfWo+gGojMdmGi+j19L8Vk
-         PYkAdV08LOBCLC83vbT6/gvP3fwan1N+R1qZrBCuQoreSOW95tB3iUC9BoLoN79OLUJH
-         oBXr3Jcu91gseW+8UhKNFpqeY2g1Bumes7/0cEf61SyIEZUDRXiRYYfXgvVZGUl1SXZm
-         XNDJQt5k75YlW7O6326fJldtMYaiFsC2p7CxLISoDDy4XuA/JhY5DubK9vnNGb2LiStO
-         twag==
-X-Forwarded-Encrypted: i=1; AJvYcCWjD93Ie69dR0SijkLYsHbhDCaCn+8FqZPNGzh45/gy8dxDvqZjb+fRyT1pif7LkyT0L53j5f4=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxoLjRylWfjhuxBpayl6DjKK/L9cFylhMH1juVJdOM6FOBir2DD
-	AtzwymAI/qSwJIf9dd6SnED9QTBjHr3oWFkayqHJYRUhVfdW+fjrcXxY
-X-Gm-Gg: AY/fxX7bLWKl6zP70hGnj4VOc81unLC9c5fCYNsaGDxxEdqirPKQmOpsnxg/AafJ37s
-	v7D3G61c+xVsQ4xO4li/kdaLSGFLT+abyLHZqI5G+ggMmNW/fFKWio/3JX4XNsa9p6akUxTN0YK
-	oi6uM6ZbpsULqjwu5VRfEp5ztJD+1HUsEoGyD10pvKVPbew9aCtg3HF9f4q1YFpGYIsCd7DZGOX
-	uFzQ2apRt4SFHsvnRxsdZgQadt9UAC+084YCTYZASN+vS084PTWdiyr2Zb6o/b0wY4MTByygXoX
-	w9KvgjqUjoROGKpkixR/RPHdmI4U21INLbB/Rn0+zAb4lMrK02T1lrKjLr88oNVRsbsC6Et8cbo
-	qFyqf9aboD1Wge7LbWlTByygV2HBoMnul+9TFn2Nf+3Z+tuGkeVTnt9sJRAZ2a4tMJYL1yDsLZb
-	nPVhajpKJl39o=
-X-Google-Smtp-Source: AGHT+IEml9qI+VrrnmRfetIj/W3ZZs/y3fpGJeeY3YNSfL1Lp+Ud1G2wHo5sReKCb7zM9fF8T1soPQ==
-X-Received: by 2002:a05:6a00:4211:b0:7e8:4587:e8c8 with SMTP id d2e1a72fcca58-7f669c8ea65mr9926386b3a.59.1765798758916;
-        Mon, 15 Dec 2025 03:39:18 -0800 (PST)
+        bh=c1jHunOtVkIwedmQvRsrzJgL7loZmMhygmTOE5iX6PY=;
+        b=ttL00hcKjhZFZmDZwgTV/aJqeIhg6frYeqHYs6OaG0MJpPDaCnGm5v8UVE1XBZ05o1
+         NGe9G4GmBrlvZ8jzyyO30WDK6AQI714Nm0NSS1J0qfa2OcKxJ2d7c0vm0rUlqSc6wt9z
+         /hvgRhClwrXLHlBDWH0F1dqbh7I5nSJdXqAkZ8P/rtT6CHJtpo+8x1paMdO4J1pRxd9z
+         RCOmLeTRqUze/IaVwiLQa9iFnlkB7THzATtxIOkcRLzG0OXHvyO5AiM93ScNgLUEqmJT
+         P7g9MU6NBaCxYgMMyNIPVL6B4NDpSEq1q3Ov0QPSmyI9UapHBkR8RJ3cT9LTurMGvYOp
+         NQwQ==
+X-Forwarded-Encrypted: i=1; AJvYcCViUdJNZOT503/HCmilmPBoZA2yIby/oWYo6CsU5oYkrfwiftoL1KcsUsOwMHxZ9Qic8S2o51o=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwQXHy869QFt26j1xXqn7tAXLqGSqQOfJS2E7VxgJtOkaSR7V1p
+	1wsLFRo6xq0LhcLUgf09MEsHJLCmopLBY5yzpAVMv7Mn0Ye6c2YlU8eY
+X-Gm-Gg: AY/fxX7NNjjc7NRdxWFwxEscItvaoBfCC1y0M02KtgAXc11XKsvQfy1srR/NnpdEm3d
+	Z2M5eGMBd9IoZr4TEzWSndUE5/WyhdVSLkjtEd6jpcmoLHekf+27RPsFUeQLL1ZimN6gRfd+0fi
+	/fFHo9zu+kUDaB4hAZXfy7od2nD2Hf7+P0NVvOA84GsgbzFsYwvdj56tqz3PtcxSnIN+qZoyxpN
+	FxsU4PuLwmiPr8tH05FpPProBYMKDNdYwEb+t9U4b210OS6/t0Hh19CLiV3ktpvKFksS88XfNhG
+	MBzE4Amio7M39CfQNYaqsRYlKDeCJUeBZ7PGHOoAwY/i0GW37F8XVg+KA3bEtG0FRm6SjAuekov
+	fsmvEePK3JQObSPvIHfGgDEpA/oFWf4F3UdDOckt9k+ss7MGfR3VBKzEcvWbKGh4yLpQ1utrCv5
+	UJuG0ehQP0VMU=
+X-Google-Smtp-Source: AGHT+IGkBlvtTJJI36YenJR2Mj5A83uVH+1orPi0BLwAvata7acR5hue/qogcd9VSy03MC0if9MWYQ==
+X-Received: by 2002:a17:902:dad1:b0:2a0:b066:3f55 with SMTP id d9443c01a7336-2a0b06646d5mr58199625ad.10.1765798762558;
+        Mon, 15 Dec 2025 03:39:22 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7f4c566c7cfsm12487742b3a.67.2025.12.15.03.39.13
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9d394easm129684215ad.25.2025.12.15.03.39.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 15 Dec 2025 03:39:18 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id BCD48444B396; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id DE7F144588D6; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 07/14] fs: Describe @isnew parameter in ilookup5_nowait()
-Date: Mon, 15 Dec 2025 18:38:55 +0700
-Message-ID: <20251215113903.46555-8-bagasdotme@gmail.com>
+Subject: [PATCH 09/14] drm/amd/display: Don't use kernel-doc comment in dc_register_software_state struct
+Date: Mon, 15 Dec 2025 18:38:57 +0700
+Message-ID: <20251215113903.46555-10-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,34 +160,36 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=946; i=bagasdotme@gmail.com; h=from:subject; bh=ZF9oIk+6VfTU18bKiromuOjnT5V3QoMoKRjEOTmh6aM=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4NPZboGqi8J0lGIEPx09J91+O5zYvcmVc9uCnNeq KyqY9/YUcrCIMbFICumyDIpka/p9C4jkQvtax1h5rAygQxh4OIUgIloczEyXFE5FS25V7U4nF3s wsyajN23tv7S0jlgc8jW4LrtPJ7fvYwMd203HZvEp7U3/4W850Q53mn2BsnZf49w2jwWklnFefM GBwA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1238; i=bagasdotme@gmail.com; h=from:subject; bh=g0JdaQypaND4lTcW0ZqbYUYcFFa4BCtHp67rCXQ3qdI=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4OZ3cRMgut038Q1Mvx+WnR34qt26aRSjxQZU2vjg 6FirXs7SlkYxLgYZMUUWSYl8jWd3mUkcqF9rSPMHFYmkCEMXJwCMJFN+xkZVrl1e0394/7u+RLu +RrXLfO4ZDZ3GN7cIROa8FQ8sjv1CCPD78WiQS1yNZrTC6Ti9OZz7YjK/sxnP51XNFzRTCM96w0 nAA==
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
 Sphinx reports kernel-doc warning:
 
-WARNING: ./fs/inode.c:1607 function parameter 'isnew' not described in 'ilookup5_nowait'
+WARNING: ./drivers/gpu/drm/amd/display/dc/dc.h:2796 This comment starts with '/**', but isn't a kernel-doc comment. Refer to Documentation/doc-guide/kernel-doc.rst
+ * Software state variables used to program register fields across the display pipeline
 
-Describe the parameter.
+Don't use kernel-doc comment syntax to fix it.
 
-Fixes: a27628f4363435 ("fs: rework I_NEW handling to operate without fences")
+Fixes: b0ff344fe70cd2 ("drm/amd/display: Add interface to capture expected HW state from SW state")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- fs/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/dc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/inode.c b/fs/inode.c
-index 521383223d8a45..2f4beda7bb8841 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -1593,6 +1593,7 @@ EXPORT_SYMBOL(igrab);
-  * @hashval:	hash value (usually inode number) to search for
-  * @test:	callback used for comparisons between inodes
-  * @data:	opaque data pointer to pass to @test
-+ * @isnew:	whether the inode is new or not
-  *
-  * Search for the inode specified by @hashval and @data in the inode cache.
-  * If the inode is in the cache, the inode is returned with an incremented
+diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
+index 29edfa51ea2cc0..0a9758a042586f 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc.h
++++ b/drivers/gpu/drm/amd/display/dc/dc.h
+@@ -2793,7 +2793,7 @@ void dc_get_underflow_debug_data_for_otg(struct dc *dc, int primary_otg_inst, st
+ 
+ void dc_get_power_feature_status(struct dc *dc, int primary_otg_inst, struct power_features *out_data);
+ 
+-/**
++/*
+  * Software state variables used to program register fields across the display pipeline
+  */
+ struct dc_register_software_state {
 -- 
 An old man doll... just what I always wanted! - Clara
 
