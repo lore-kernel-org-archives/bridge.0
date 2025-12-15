@@ -1,66 +1,66 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE30B336EC3
-	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:48:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D795336ED0
+	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:48:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765799327; cv=none; b=S61snnvXCrxD3mMe6bgcaqoy5zGy5f1av832s/Qe0BdruQjXj4VDw/Bw2ZJdv7r7jfdO6ob+bN1X5XgrNPayU4JIf07OemDROrWgZ2dNye7D12Vi9JRUNsx+cnUmfS/T0fBOJy98h6oXzPxMFGDr2ETbGan63T00bKvFrqryu8A=
+	t=1765799328; cv=none; b=KLaVJbp5waVi6C5EPBqVpoFq2vy29rj6aJpnZv27wwIYCpjE+q1UmJNVpq9O0oXd+VliL5yZm6LYYTcaBCWkjG5umwlT9mTO8bDQeGK9HEj8qpcktVrYqiyq4a443Rf6Yu3X3RQ/8VgncAlt0wCL8ltbaOjZ9JDkPsVcezwAGCY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765799327; c=relaxed/simple;
-	bh=Q9RPGjCwe41o18D04IVKznpQEFsNHpWb2BdI9cEOKh8=;
+	s=arc-20240116; t=1765799328; c=relaxed/simple;
+	bh=j4BXJJMKUhATWUahdKX0lx9i399WYlQDn9Ep3/iweMY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=B54m8Vl7e+ZRPk1IcinMl65ZJTGyNTVQMxGu/NJB5uoYg/Pekn8hkBlHSDPveWrREKnw4fXiWnBRHjdbOeNfGcwPGUElDlBZ++2bnOnYwycEZkIDuj1rJDAb5YuNOvP1GE8twaKoRyiAoaxd5C0mJDWKn67AzOhYOF739dRTBzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MSHjNPeO; arc=none smtp.client-ip=209.85.216.54
+	 MIME-Version; b=HhkaGsxwjgCUhLHO6OOMGfGM568u6HpW/Icjm+PSomeBJqrNwfJpIPFgetWDRwK2uyUMttVsJge8mo+oyHcwKaJywJNfUvZlGIdQka4jf6tRIq+A8QEBiN5CYfo/isLldgQiVCPQQk23dRjyS7IiHZswUQP3CF77DoH0mpak4Hk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X1oXf+So; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MSHjNPeO"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-343ea89896eso3417913a91.2
-        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:48:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X1oXf+So"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-34c3259da34so1895482a91.2
+        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:48:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765799324; x=1766404124; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765799325; x=1766404125; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8E8ZSVvZ3A1H5XIeWol9WzN+P6GbKkkMDrw9AgBsXoI=;
-        b=MSHjNPeOUmv0ONxcvkX28AI67swemZ58S0TFajxVH/Lu5Mrp2lRNIiwC3l7BI86gXP
-         SVSvvsOPUbpkU/6eOLm6FInNwAGbC8VSWusz14IzCQV5cSjIbqjKv8ogv0YnnmMSfkXr
-         XEHt+v01oCx3tca/9x5fOzy0XTXP8uSWqoQ+Zwjuld0BYaQZLVrWnIQjsZxJVKmT1Vwh
-         3aJ06II/WEYl60urVvEFKq4srobk4do6F/oieB00rNH7W9kNyQzZLk+nQ5lDYnQ68iCT
-         vglZ5rzpCnHvTrvLs6CwGzMcs83N+RFS8aZK2UJjFqWLxe6KzK4iXcKMWhoOwsULK0ya
-         NTXw==
+        bh=HPi/WFWmImBnVQgsxNvJvJyvieXM1xBFzKoWis67Gg4=;
+        b=X1oXf+SoI8e67/Ewp9Z8ITuryOc+IcalUG1fHP0/eBaQPgCN6cKkaMxBEf9sp6lUj5
+         pVTLqmvYF7OqHKz1GDWbdEC7Mz0/kPal+8CSQ0Gqfjn8mV8pxK6JOWbLKMsne7uLmXwj
+         7Wo8kZvM0inbE7NBNpaWNbRMQj9Z0vn+3q60et1yDD6Njjgbd7wVFHV0HEC3PalhkXcp
+         t6/FUeOjdTEmrEhr7XzUJ/a1RTHwVcFUNE4NPuAJxo52gLKGYcQrHTqg/NUqtdZo+Nsk
+         c4U337pNFxMOzU4Zn1Y0D11Zlhp9EshbNLJFoXJW0GqTJXYnlcsJz1HkvMAR1iK61jqg
+         ojyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765799324; x=1766404124;
+        d=1e100.net; s=20230601; t=1765799325; x=1766404125;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=8E8ZSVvZ3A1H5XIeWol9WzN+P6GbKkkMDrw9AgBsXoI=;
-        b=DT6i1Ztyxu4xkvZ3ftoDy324zE3dHQ8/CrFGfC9/i9ZLdRxbd9ykdr1zS84stmuEEf
-         6W8TNIhrgxXANVbiWU9TUHwTkcF3eolCcN6txvsdxq1mjbCqpDGttJIQ9yBS5S2FTZJ4
-         F2W/PX8eDadKsxHpH9zFKVWB39p/gn0dPeuph+hnp2x7IJ6RNo3CK7UplVvfFEAMd2s2
-         uQX5sCBt5C8D5HGKLveOEnHxPYzfVTNw5xF8MwJocY0HOwjxtZXO62nseSSqOX/QPEGA
-         o/jg7kkpvamH4IT0hV4mfH+hcffDaJADSFE2paE9H9ZQGviTEFrhUY0AzlpZPfxKEgjy
-         irxQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWJW4oGgLJM0KAaDb34wINqz5lth7/V6scPo40qrHmFT3bvWjIZcmp1d8qTABZDMbgtHBHMzEI=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzwQwPkskOPLlXN7tDEgT11YCY61mKHQPHnsCy4jgaiyI4VSp6I
-	qdcDxXeNBaQqdyEDWjtuSe2C/d9rdCKQDUx5idEedC9vKjPjE3Zetryx
-X-Gm-Gg: AY/fxX4ZVM5sQhgbgCkoDGEnXb6rZzrhgaLPIitjyAQID+bk/YvRZQJRSJRaENm2HsT
-	u5IHQA3y27jH9IqEBBViSBEnjU8C1tjyNTD75ROG6cSb4cdUcxmzoIWTQE+yajnAwBmyUizTPWm
-	3ke8rfXw9FCNCYLlJjIOXeab7qjSCvr9Od+XrdKKY98c8m4qYB2ydZ0N7gFe6M497FT/u8Euxff
-	UDLI9wxPpgSm1KFJr7nQ3Vu0UATx/Aix6gqZtl4QJLCbMfFc6wrbCbM4X/KdTiOgz4vpcndrZVV
-	92XMBSjek8eQKCtQnrFS6/Cmqy0jkpJ/SkGBjbylCYyuy1DUG0zdQe7NjKfRFRiKBh8fzbgESO+
-	DwLji02S2yQXMUfCr3u/L9vhFcvhDM2JqCZjuNTmlin1i3k8gVKlIprm1Z1ittbR+4zXiztnehp
-	I+c4FQXs5I+fTiW93r8uL3HA==
-X-Google-Smtp-Source: AGHT+IFGPLXocnh0bsYmKlmGLz0U7nywcuz+b0WgS325GJYSuSdFNXAMsV5RYXPrF9APc0Uu9mi/Dg==
-X-Received: by 2002:a17:90b:2692:b0:340:54a1:d6fe with SMTP id 98e67ed59e1d1-34abd6e705bmr9983263a91.15.1765799324036;
+        bh=HPi/WFWmImBnVQgsxNvJvJyvieXM1xBFzKoWis67Gg4=;
+        b=Buj6PcSZxQVT5TyihBVIXc0RQ6+MUPFlxAQVD/awcbLkIvJXHgRFISQpmW89ME79eA
+         ioxcUR3b3vBeL9ouXrpj950Ua9qa6JdDZ5RL9kCwdnVf7cky585laalVxiifHcYcNRCB
+         ar+3nRFUBQfXhDt4tkrG4vXqJK6d2eLfGtfIXeOaIbmzYWf+F2xopXSvKaw7NNVXrW0x
+         k95Wo+BVePaSULYaibYpPwDYwlM5/PGfxuesCHRCFiEHfplm3NmURb1FKFh3wMU5kwkt
+         9oewds7IcNJ45RCRGCL6CVYs+lGDDAQHf7TCGAejeaySIecBnDhMtbyKZ/MqpS8AQUCq
+         q/2Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVxR/e2ByUAt4Ewq8GILRc9Re0diQqk7RmSCqHiSNAbTSul0oBstjWpQMB84vx0SEVAlBXsKSY=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwBGsVqqcwKGF8y5fvpWnKcWn4GD9VVYKatJhJ0yT0psZ1Dy8cl
+	3lPPIx+HiORl8VOewRa04mFfKS5tudOTZaZrBRvBY79xpVV1ZQLp/RMt
+X-Gm-Gg: AY/fxX4KN/sHiSs0KVQ8i4pwG9wHazfGfKjVfaBbE8d5sDFEqKSnFZrMQDtUcnilCu1
+	nD1jVd1SucVvep2Ei7mub1JPKMEmqoO6mvgBkV1Qj6ZMuSqgrQ2gjIsYiaDgO0mzXn4V+C9SJvM
+	REd8ssGVODSlUsiilWHhjFvsf0BqbhuMYK+BO9IR3lnB44TFcCG6z1NmtGjX8SRbHfZ8jtHlEbb
+	YkfjcCQJEl7iATLSLRTFt/MysTvoqsA70AUj3RnhfXW/oynfH/9W5MWaaV1HnYyp/rulVcdB4El
+	noK+F9/qb8MhXK1F/5g0SGfQmkBu9Tx2w2PIRuvwquQe/mfNhIwMvpw6zinjSTc6jr/Ahlb5R4A
+	p7JlHeB3olo7icTVo/L8N4f5POMeArpuQbHyqT4j93XZm6SaRVft92ln8NEvKn2QZnODmY/x5SI
+	oS/Cq+a11jYh4oyUJCG2kI0w==
+X-Google-Smtp-Source: AGHT+IHySr1buuGxwyvRmyNwB1yX2aGVZnCno4j9FG3NSChYg8gy/QOhSf79+qyZQv+BzWWdtgvcAQ==
+X-Received: by 2002:a17:90b:388a:b0:340:be40:fe0c with SMTP id 98e67ed59e1d1-34abe4a6b3amr9032481a91.36.1765799324639;
         Mon, 15 Dec 2025 03:48:44 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c0c2c48bf7asm12763568a12.32.2025.12.15.03.48.41
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34abe3ba59bsm9003471a91.7.2025.12.15.03.48.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 15 Dec 2025 03:48:42 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id 711C5447330D; Mon, 15 Dec 2025 18:39:07 +0700 (WIB)
+	id 60C6F447330B; Mon, 15 Dec 2025 18:39:07 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 14/14] net: bridge: Describe @tunnel_hash member in net_bridge_vlan_group struct
-Date: Mon, 15 Dec 2025 18:39:02 +0700
-Message-ID: <20251215113903.46555-15-bagasdotme@gmail.com>
+Subject: [PATCH 13/14] drm/gpusvm: Fix drm_gpusvm_pages_valid_unlocked() kernel-doc comment
+Date: Mon, 15 Dec 2025 18:39:01 +0700
+Message-ID: <20251215113903.46555-14-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,34 +160,42 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=895; i=bagasdotme@gmail.com; h=from:subject; bh=Q9RPGjCwe41o18D04IVKznpQEFsNHpWb2BdI9cEOKh8=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n0POW63OZ/vV5HO1nI0n8+fcu08SpWN+KD02YL721 ObASlnjjlIWBjEuBlkxRZZJiXxNp3cZiVxoX+sIM4eVCWQIAxenAExESpiR4Y+mRyzDrR2tsxn8 /5W9nMso8ZF7PQPXv0v9ETpvN1g+X8rw39Gt4w5/EGPqsSVHKrba3jn4a/bV+2uL/9ts2fkotu6 9MRMA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1611; i=bagasdotme@gmail.com; h=from:subject; bh=j4BXJJMKUhATWUahdKX0lx9i399WYlQDn9Ep3/iweMY=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n0OumS5gNW5/3GqYe0vV4BnvxdVlFyqnrRPWP9PpP u3FMcecjlIWBjEuBlkxRZZJiXxNp3cZiVxoX+sIM4eVCWQIAxenAEykPJ/hF9Pft9/+BqzKa/W8 rdg9vSMz5a6N4PnTByKYzgTJnWZ/P5Hhn+aKvLS4vrtB9w7NNb77cZZgzZ2+T776O+w93L/xls2 5xAgA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Sphinx reports kernel-doc warning:
+Commit 6364afd532bcab ("drm/gpusvm: refactor core API to use pages struct")
+renames drm_gpusvm_range_pages_valid_unlocked() to
+drm_gpusvm_pages_valid_unlocked(), but its kernel-doc comment gets
+stale, hence kernel-doc complains:
 
-WARNING: ./net/bridge/br_private.h:267 struct member 'tunnel_hash' not described in 'net_bridge_vlan_group'
+WARNING: ./drivers/gpu/drm/drm_gpusvm.c:1229 function parameter 'svm_pages' not described in 'drm_gpusvm_pages_valid_unlocked'
+WARNING: ./drivers/gpu/drm/drm_gpusvm.c:1229 expecting prototype for drm_gpusvm_range_pages_valid_unlocked(). Prototype was for drm_gpusvm_pages_valid_unlocked() instead
 
-Fix it by describing @tunnel_hash member.
+Fix them up.
 
-Fixes: efa5356b0d9753 ("bridge: per vlan dst_metadata netlink support")
+Fixes: 6364afd532bcab ("drm/gpusvm: refactor core API to use pages struct")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- net/bridge/br_private.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_gpusvm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 7280c4e9305f36..bf441ac1c4d38a 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -247,6 +247,7 @@ struct net_bridge_vlan {
-  * struct net_bridge_vlan_group
+diff --git a/drivers/gpu/drm/drm_gpusvm.c b/drivers/gpu/drm/drm_gpusvm.c
+index 73e550c8ff8c98..fcfbe8c062bf6d 100644
+--- a/drivers/gpu/drm/drm_gpusvm.c
++++ b/drivers/gpu/drm/drm_gpusvm.c
+@@ -1216,9 +1216,9 @@ bool drm_gpusvm_range_pages_valid(struct drm_gpusvm *gpusvm,
+ EXPORT_SYMBOL_GPL(drm_gpusvm_range_pages_valid);
+ 
+ /**
+- * drm_gpusvm_range_pages_valid_unlocked() - GPU SVM range pages valid unlocked
++ * drm_gpusvm_pages_valid_unlocked() - GPU SVM range pages valid unlocked
+  * @gpusvm: Pointer to the GPU SVM structure
+- * @range: Pointer to the GPU SVM range structure
++ * @svm_pages: Pointer to the GPU SVM pages
   *
-  * @vlan_hash: VLAN entry rhashtable
-+ * @tunnel_hash: tunnel rhashtable
-  * @vlan_list: sorted VLAN entry list
-  * @num_vlans: number of total VLAN entries
-  * @pvid: PVID VLAN id
+  * This function determines if a GPU SVM range pages are valid. Expected be
+  * called without holding gpusvm->notifier_lock.
 -- 
 An old man doll... just what I always wanted! - Clara
 
