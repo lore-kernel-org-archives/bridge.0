@@ -1,66 +1,66 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA283328B67
-	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7891E332EBA
+	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798766; cv=none; b=DyS+6c4X5ysXFW3EbAKu74UQ5GoY3NLBbgW3gQu0XV2bUmGwi60lccWBRdzfnXwFMQ64y/5W5Uu9KjQkHOqolIDmSbSFxzeOfN7hqGWUvcvCQ64i5Gk8pXfK9kgQFiTtjrS9ROJ3TYuKzkbI3MJOw7q5UJI7oJy5G11R7UJInCU=
+	t=1765798767; cv=none; b=VNGzAql6J3UaP4cTAg5wTUGSqrw+YxOzKgnjp/F7WIfLsNxkgIjBDQdqJ/zeKCr64a7CUyaX1sGwWjah6yVmaDPwyp21XFAkyqxnyzyHVLMbD33KBpd6GPM3OyIpzkinv3ZBDfL8AoROuLKconXyOZ+LIXWXipkeVrZ6NZXJF80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765798766; c=relaxed/simple;
-	bh=g0JdaQypaND4lTcW0ZqbYUYcFFa4BCtHp67rCXQ3qdI=;
+	s=arc-20240116; t=1765798767; c=relaxed/simple;
+	bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NVk82lBe/kvO/b+q9FSWZeydiBkLdcVXc2DWC/MdPv1rJFMxYemZ8B0fZntDpjlCbzVN5UTKdHJE0dRtx6ADh0z9Zy0UCnIJGvN6GYbck8EYqecSZf1dRk1alu3hbI6iJTNYeX7YRX/yVYS3jP3U3Eh7mCrMDDOJkaVdLBTred4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N7+6IGD2; arc=none smtp.client-ip=209.85.216.50
+	 MIME-Version; b=RdibcQcfsbDqKilbIcR6UyCLWwjY31I5L6woNyyLtfEBYgSSnmJpFDabBDeGokoWfWEBTxAMbtVItBd5ECE2VALN8oW8EMDMJ1yxh0XYFjuGZ5zFTJ9mYzxA0CvdRakj2HPON6QbhklYfEjUzVZh8eugPW9vRT5Ctq0msmJLuO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gZDP/Ca3; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N7+6IGD2"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-34c868b197eso920362a91.2
-        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gZDP/Ca3"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a09d981507so12622505ad.1
+        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1765798763; x=1766403563; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=c1jHunOtVkIwedmQvRsrzJgL7loZmMhygmTOE5iX6PY=;
-        b=N7+6IGD2vBFaG/NVGjn1i0HT8JH6isiUT4LD8oaat/u5X8i66aektAJM6r0rNe3vVt
-         iwKumKIGaq2pbYEbPp1s90kxUjoJmksfhWNwtvTC8pbXCJYvF6BZtDQKmy8J3tcn+gdY
-         f6TxXUOSY0nElA7URA0KjfvciYbhQjkQ1XCA7t+B7gQLGs7ZjX+kYmcihCHRuPCp1X3W
-         Lp95oaMOqok7D2tgtp8koew96Q3ujS+P2+cpen8PjJgGWEBb7Hv36zg8va2jgbW0R8z3
-         xAlUaRlBG/Xz4MyC2db/BpVzWyevk0x95npdvSoEpuJC+2SVYoDNTnmw1JiCCGCO7P21
-         XFug==
+        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
+        b=gZDP/Ca3glUGpsOL88136XjyqTUre9tuSG0IaWiK91X181uTIHAAplu2+drvFk2qpS
+         fFxc9tyusHqACh0eZsDNBLtTSQXf1C6VUSFFd1mqYLXZLBB/NXqHDhgWiId6ILjl3jF3
+         aNiAoXkgP6gLJzr0oPNvlpAuwN0w5DhqrVvur2u0tuHgYO3FkOvn/YqiJFzQnYW9Lo5U
+         5wIDHkTS2oI/xf/XZRw76+GBjSjLauZXS5aW1z63scgRjUqQoXkgFYPOmCtXDx7Whjym
+         lBhI7sj7CFiLV803p134NQzAMk0gxeAHoRQHjJOdcSTevzkk/HK9f9H77IOjgWrxXjnA
+         52Wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1765798763; x=1766403563;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=c1jHunOtVkIwedmQvRsrzJgL7loZmMhygmTOE5iX6PY=;
-        b=ttL00hcKjhZFZmDZwgTV/aJqeIhg6frYeqHYs6OaG0MJpPDaCnGm5v8UVE1XBZ05o1
-         NGe9G4GmBrlvZ8jzyyO30WDK6AQI714Nm0NSS1J0qfa2OcKxJ2d7c0vm0rUlqSc6wt9z
-         /hvgRhClwrXLHlBDWH0F1dqbh7I5nSJdXqAkZ8P/rtT6CHJtpo+8x1paMdO4J1pRxd9z
-         RCOmLeTRqUze/IaVwiLQa9iFnlkB7THzATtxIOkcRLzG0OXHvyO5AiM93ScNgLUEqmJT
-         P7g9MU6NBaCxYgMMyNIPVL6B4NDpSEq1q3Ov0QPSmyI9UapHBkR8RJ3cT9LTurMGvYOp
-         NQwQ==
-X-Forwarded-Encrypted: i=1; AJvYcCViUdJNZOT503/HCmilmPBoZA2yIby/oWYo6CsU5oYkrfwiftoL1KcsUsOwMHxZ9Qic8S2o51o=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwQXHy869QFt26j1xXqn7tAXLqGSqQOfJS2E7VxgJtOkaSR7V1p
-	1wsLFRo6xq0LhcLUgf09MEsHJLCmopLBY5yzpAVMv7Mn0Ye6c2YlU8eY
-X-Gm-Gg: AY/fxX7NNjjc7NRdxWFwxEscItvaoBfCC1y0M02KtgAXc11XKsvQfy1srR/NnpdEm3d
-	Z2M5eGMBd9IoZr4TEzWSndUE5/WyhdVSLkjtEd6jpcmoLHekf+27RPsFUeQLL1ZimN6gRfd+0fi
-	/fFHo9zu+kUDaB4hAZXfy7od2nD2Hf7+P0NVvOA84GsgbzFsYwvdj56tqz3PtcxSnIN+qZoyxpN
-	FxsU4PuLwmiPr8tH05FpPProBYMKDNdYwEb+t9U4b210OS6/t0Hh19CLiV3ktpvKFksS88XfNhG
-	MBzE4Amio7M39CfQNYaqsRYlKDeCJUeBZ7PGHOoAwY/i0GW37F8XVg+KA3bEtG0FRm6SjAuekov
-	fsmvEePK3JQObSPvIHfGgDEpA/oFWf4F3UdDOckt9k+ss7MGfR3VBKzEcvWbKGh4yLpQ1utrCv5
-	UJuG0ehQP0VMU=
-X-Google-Smtp-Source: AGHT+IGkBlvtTJJI36YenJR2Mj5A83uVH+1orPi0BLwAvata7acR5hue/qogcd9VSy03MC0if9MWYQ==
-X-Received: by 2002:a17:902:dad1:b0:2a0:b066:3f55 with SMTP id d9443c01a7336-2a0b06646d5mr58199625ad.10.1765798762558;
-        Mon, 15 Dec 2025 03:39:22 -0800 (PST)
+        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
+        b=RcTJJa8KF6J79cr/gui79yxZwgPVjZumxDy1FIOAqnvFLHnxbvapOq8tP05S54n5tx
+         kOUZtDVN/rDa8Iprq2DshMU//L0Xlk3LCcrMznMGZqbXMstjye4fBVv7suRaU/0kykGe
+         amCO5ICZocfhWhPhLJ9tnG1mGPfw0CcsWBl2Ru6bM8mITd0NO9oAuiGJ1C5f8i8qq/xc
+         k9MHRCyovD0SFHI0eJ6x+5PMMvFvC5Ll0k7lvuYP56R26g1Ez702FiKUeMaS5EJ6Mtp4
+         JU5UJPvEu2+dgjsrJE96ePpWntil3NuB89ROCS3ff1bgRC6P1cOPBGAcxOlbec/dI2hk
+         PrZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX5M8sMDz0vlVE5FX4atwRXZ/GVlnP4br3l0yXwiKMYGKbVx8Oc9vVmpDrvzv0O9TzHJS2nTO8=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyx/u6HURhnG29LdYzekT53FPvJZFpY1LEVZ8rjBKme81oKACKL
+	2yDdGgS1BnnPcbrqd8peIaW+I41hOxJ7REBQKiAi+9FFNvcIyIFVUjT3
+X-Gm-Gg: AY/fxX4Facibz4jjajzbNN20ar8HEGiG6ffDngGWGWhgbPNe3vEqVYjmE+QcvsyMDVY
+	PTLQ2HjWL3Et26ny3kCO7PGF4wn5mMaq04b8hXRfOymWhPldzOCZlEzJXQXdJlGE1H3+CfqRfGo
+	8Ertsn84D0Z45xnsxdhlHT+D3DCQ/US+jMyfUVV10jcbLh4HdgSgBBhMG7uKxzawQVeeghnTEXC
+	GDGIku2ZmxTm2+nApM/34174zkbK0sDq3eQCInL614j9x9KhKu23YaLK8axKPAVQOHJ7JGl7Cnk
+	Uzv6xwjegTbmndGFuXJ7O1iwoEehhvtLl3UQ0EhKn4FjY1hqgewdZNyu4cf0aDALFGmAMbU4pUF
+	SRAk45zNUYrAjD8b/33fBF/FcAr6LmQ8f0/qZBYDqWqlqVKw3lsZqCum9SwFYJv8PCab2Fd4iX+
+	zlmHzCiQB2Q3M=
+X-Google-Smtp-Source: AGHT+IGEKo7pUOqZ/Msgj5pboeIPXCGG8SyTdVwEqd2zfEZHqjnoFfxwhdJcfbexnC7zJuC88ktUrA==
+X-Received: by 2002:a17:903:1988:b0:2a0:d0ae:454d with SMTP id d9443c01a7336-2a0d0ae4b49mr35282785ad.22.1765798763267;
+        Mon, 15 Dec 2025 03:39:23 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9d394easm129684215ad.25.2025.12.15.03.39.14
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a0f58d7c27sm27523715ad.24.2025.12.15.03.39.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 15 Dec 2025 03:39:18 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id DE7F144588D6; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id 357B044588D8; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 09/14] drm/amd/display: Don't use kernel-doc comment in dc_register_software_state struct
-Date: Mon, 15 Dec 2025 18:38:57 +0700
-Message-ID: <20251215113903.46555-10-bagasdotme@gmail.com>
+Subject: [PATCH 11/14] drm/gem/shmem: Describe @shmem and @size parameters
+Date: Mon, 15 Dec 2025 18:38:59 +0700
+Message-ID: <20251215113903.46555-12-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,36 +160,37 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1238; i=bagasdotme@gmail.com; h=from:subject; bh=g0JdaQypaND4lTcW0ZqbYUYcFFa4BCtHp67rCXQ3qdI=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4OZ3cRMgut038Q1Mvx+WnR34qt26aRSjxQZU2vjg 6FirXs7SlkYxLgYZMUUWSYl8jWd3mUkcqF9rSPMHFYmkCEMXJwCMJFN+xkZVrl1e0394/7u+RLu +RrXLfO4ZDZ3GN7cIROa8FQ8sjv1CCPD78WiQS1yNZrTC6Ti9OZz7YjK/sxnP51XNFzRTCM96w0 nAA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1239; i=bagasdotme@gmail.com; h=from:subject; bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4OX/nxidPxCa7t5fuOD8HMfrQSuP1hub/O7ZcKpR 3k2jWdLOkpZGMS4GGTFFFkmJfI1nd5lJHKhfa0jzBxWJpAhDFycAjCRtAcM/yunTjs9ydWYJypu wYcH6cfFNi1X5dYSuyPxxuv3me1JcpKMDBs+vU9uutHzrUbncPwy+73MjZlbOwIfHrr54bGU4uz aOwwA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Sphinx reports kernel-doc warning:
+Sphinx reports kernel-doc warnings:
 
-WARNING: ./drivers/gpu/drm/amd/display/dc/dc.h:2796 This comment starts with '/**', but isn't a kernel-doc comment. Refer to Documentation/doc-guide/kernel-doc.rst
- * Software state variables used to program register fields across the display pipeline
+WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'shmem' not described in 'drm_gem_shmem_init'
+WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'size' not described in 'drm_gem_shmem_init'
 
-Don't use kernel-doc comment syntax to fix it.
+Describe the parameters.
 
-Fixes: b0ff344fe70cd2 ("drm/amd/display: Add interface to capture expected HW state from SW state")
+Fixes: e3f4bdaf2c5bfe ("drm/gem/shmem: Extract drm_gem_shmem_init() from drm_gem_shmem_create()")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- drivers/gpu/drm/amd/display/dc/dc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
-index 29edfa51ea2cc0..0a9758a042586f 100644
---- a/drivers/gpu/drm/amd/display/dc/dc.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc.h
-@@ -2793,7 +2793,7 @@ void dc_get_underflow_debug_data_for_otg(struct dc *dc, int primary_otg_inst, st
- 
- void dc_get_power_feature_status(struct dc *dc, int primary_otg_inst, struct power_features *out_data);
- 
--/**
-+/*
-  * Software state variables used to program register fields across the display pipeline
-  */
- struct dc_register_software_state {
+diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+index 93b9cff89080f9..7f73900abcbb9d 100644
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -96,7 +96,8 @@ static int __drm_gem_shmem_init(struct drm_device *dev, struct drm_gem_shmem_obj
+ /**
+  * drm_gem_shmem_init - Initialize an allocated object.
+  * @dev: DRM device
+- * @obj: The allocated shmem GEM object.
++ * @shmem: The allocated shmem GEM object.
++ * @size: shmem GEM object size
+  *
+  * Returns:
+  * 0 on success, or a negative error code on failure.
 -- 
 An old man doll... just what I always wanted! - Clara
 
