@@ -1,66 +1,66 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8BBF330B08
-	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A562C334691
+	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:48:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798768; cv=none; b=LBIFy/pTxcNNuFD4HySLt8l+hWB8vTrnlF/mlu7ap1vUIYlECtxI0zYswlWHtxZ86rPG4i++ISJqe33U76Q569x9dN5RpmpFvZvRxLdJm4IEvsNZ9oRbeDAJq1eDO2KA8PkiRmB4mdlTYYNhZQwagL6h1XeJE642dsK6VvsH1lc=
+	t=1765799322; cv=none; b=pAd1mMsaQ8ok5Vpt++yBC+HJ6nEe12bq/MrwcBg5m0QusR92LhrnpCBwrddhsS++JjgMf6CfgArf72cK+OFG30RFffVcKa7/h54rXHmH/0L5yzWrPxto/xXaRMXP3raFqM6GQFYucMNoxSieJpg4yHv+geKHe8xpmEImbE9Me0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765798768; c=relaxed/simple;
-	bh=XiWwx/yBvL5qhtur1OJ6r0Qtve5kN/UAKMQDFDv8Kk4=;
+	s=arc-20240116; t=1765799322; c=relaxed/simple;
+	bh=kdwYayfiPuGdbX+6/rKZkI1jkonQkDY24KG3T7ZKuZA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FK0M+3qriAhkY6VXLanNe4kotdsGhz3aza36LF2vXGaMiCDZAMO2NTIv/J6dDf8UUU48HUvw5+573V3FxaEp83stzrqQ6ZI3oYG5pgogSddzRe+WGt7yOca/jdiBgxuVX0TybQwfyDsJxJPh4b9p0e8FfirAKdt6tieNvQooAxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YJNp39p1; arc=none smtp.client-ip=209.85.216.42
+	 MIME-Version; b=ab1egnTsgYS4Rxc2ohUJu5oruZTrQwT0Cs5V4zHbIj6UdNZ43j7G82Chb6jhH8qwSXU2VHv+PFYiVE59LUleYtQB7yJpRO//xQWEuLCyIq01VW5XWGwVPiOus5Az9Jpifp8nXza2LyJJL5Vi/bZ88qzcKVZXvCRtpzt2XSIMm3k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QcsCesm+; arc=none smtp.client-ip=209.85.214.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YJNp39p1"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-34c708702dfso1110373a91.1
-        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QcsCesm+"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2a07f8dd9cdso19640545ad.1
+        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:48:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765798763; x=1766403563; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1765799320; x=1766404120; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KFsNe5Gu995f8GfU2RxaYzwbXM91ZCVhfkD06BV90tM=;
-        b=YJNp39p1Ijwc+c+eAS5dBByADdFq6WT35c+0T8SHROF2CUZHX0Hliz6COMADhVV76m
-         XY6Y48oyoyJAUI9Umrh/q83G0j1L/cg93nGNlVEz0+P/dHYvtHldtQK6gr8rWcB7bZl5
-         MojVXJ22gU9xuIyuVVpjlxOmojHDd9LXi85F2osCr/QYB/pIQcwwUA8xY8Aig5Z7uzDC
-         u3IY0s/34f2nuazO3nx8bezD0CuUFwu3jWY2FfByc4EOzBQSYjn81iAUInp/9tOlTfEh
-         U69RHirAAWDEXBhaUWI7rcpcxaZirC5l0PHgCjgGXc/vg9dRQ/alu4nrKlQ16trVjaCu
-         pldQ==
+        bh=JUAs+7T6aM5YvKJFQXSXqoVkTtSxZtzq470O+YaXF94=;
+        b=QcsCesm+rzVlM0p0NNvahMxi7sJL0lTwLnM5tpyQ9Ob0k6K7/an2mNl0Q89IiDIF9J
+         WxiVqxve609KeXbnO0ZZr7FU0cfR1o298/iv5yQviaEd+akyEAVnrfZaN+hhQeYnj+NI
+         hpz+DAoGr6I259gYnFFajFFhsmijX8nYC/4cbWh6nackVl1STco+9raF+iY8Rcegwp1P
+         IXXGTT9hwIv26B+8+nwrD2T4WPrhmsn2S3Fj2ke5+2x5foNZRHY8dRNm+snlWoICaold
+         Qth4ymoZi1euZRZlz0l1+F3bfu3bIoDrL+m0xeY4o6ideOqbUZU7KRutzDZU4BKYNLie
+         VCpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765798763; x=1766403563;
+        d=1e100.net; s=20230601; t=1765799320; x=1766404120;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=KFsNe5Gu995f8GfU2RxaYzwbXM91ZCVhfkD06BV90tM=;
-        b=Zsm/MSJGUN2gwE/H5XEsdMhL/ewyVTsFkFJdVAGtT/9GiHTLOGsH+wMOjiZqxVRylf
-         W4xCdp8bRSpmLyxjZBkcN+s4K7OwnzjtwrDupb5j4YrX/Zzl0y+P/CvZil2lxPla3Jg5
-         pLgOsM+wB0Gvd4uFQ3zV4mEymP3zD5/OK6CMMgU+GO3IXO98q8JCyZQn+d+nfuGTQFdG
-         yBp5Od8QCUsXBHcQnk5dtfR87APieJ32y+yTl6NvHv/pjn8DkgFHtJTZtG+shXpvMltg
-         fFY9i20AztDH07sOgqJPwe/65UumF/8h6QTMwz4R5DySxBZu3IJ9xM8qSxi6cQpEUtsj
-         r31g==
-X-Forwarded-Encrypted: i=1; AJvYcCU7ghUV8akqCzkOjeu0K/UmoBwSHSJrZikHw2Y+MOgVzk32wjAtE11Tg8QDJUkw37/IE+zH6eY=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxruKB5hUZ2tGZLMMCuHkzKy1unPnMjtpSWyqnUBQF2+Q5ryDvi
-	A4nrCQwxJEI1s/GiMWObluC0cFeB0EmFZ5WUilJCtFa7pAJ/D/iSOhl3l98XT+6ZCkk=
-X-Gm-Gg: AY/fxX6Jw3oDYkoRKjNvFAgfHIPx2/iR4/H7ldyFJB4nWtHu5Vi4WbDsF2C6yA7OR+G
-	bFocsTep1cQiKZyq7hCtL4WGi1iVSN64jSrUQOa6YoVVTTF70TN3KCoI/EdYekZu/73CEI36cdZ
-	lwG+w1WEsIr12roAzw1iwo3UuMhkK6n2rEwJikgVm571GzGdU9viEro6MkpZAbEL6MdvLgTLGu1
-	rlc2FHNU2bnjinB9T24H6Ia62all3SDIanTy/mO6VpPVkhV49Ad2PGpb3RuZ51S/r/zJCMUy3HL
-	ba9PBcFRlRTbWCM7U7atR/0zBPHp6roBJD4n0S7O/AGAaEY6ZDly/8h/ok4iKX2sgOWD2VTyNCU
-	JmLrcFZhQXPhgULEktDfcw+N7iEESbd3y+KTx/Y69z7wRmTs2/huCCYf+vVQtkBzMOop/lWZMDa
-	/uQYcAk5wPfSE=
-X-Google-Smtp-Source: AGHT+IEy2tcNugFFoZ/L1b/kwWL3FdgAjYD+lvIJBPYKZMY6hs2UzwV9S1AhT0ES6IDo2vtVEhI5ug==
-X-Received: by 2002:a17:90b:2811:b0:340:bb51:17eb with SMTP id 98e67ed59e1d1-34abd6d35c0mr9572904a91.15.1765798763360;
-        Mon, 15 Dec 2025 03:39:23 -0800 (PST)
+        bh=JUAs+7T6aM5YvKJFQXSXqoVkTtSxZtzq470O+YaXF94=;
+        b=DW92+lFBPGaswhTvw6ko17MOrjrN5RrKssWK4oYEDyrbpjlayNPmB67yOnM2CiTxlo
+         Znb71Pulr+Dx98+PM8xiQ3X124xM9gqGv9tJeVOy5SZaDtxUTMY80Q3UzXMCrLTv/OgD
+         YdJ8TgB4tP6vPu6n6fkN9S1s0SmabeLFMnlZuPkzTLAofqVZcFMNxD9PVl4SD75kuZMV
+         upGJcg8Lybx94rEynkPujjRm3I/wa1xZkMiU44S4kb/CyUE5gIfjKCyEuHFEieoJPmoo
+         X/eLaEdSY4DOgaN8sQm7C2Ry6pVjBw22bHbmCARijFNULLWmh7IlNJWTLXmdBqgSx+Hv
+         9kaw==
+X-Forwarded-Encrypted: i=1; AJvYcCWUjbbInCvnOOalcuqqGUCyPFpRxzzEFUxHGwDgYQXLL/2D+u2XahhQmqM72JB6/UalWg0HTMQ=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyZwCYJ5J7P5Zmp23rrY68uojP83a37Hlo1KdPTpapAptdYbHoP
+	VkXPodslChGxDveQoWJGsFujpaptq1WbDkb/CLOmwSQT9DYiJWQS/Ge0
+X-Gm-Gg: AY/fxX5Ar9fQE1DCkNOz+IRN6DEhEcDVdJZ5T9K/fL9mPZTnLTUXzmn1BnPbdg/pJP5
+	BoMM+rLKwpNfeYAC6U0e+Ghn+iMJOdMruiw+RCbwK3XX08oRMedybm+Vt/0f+YE5dwShDyK3uk3
+	VCydbyO7V5wfci0xOI/j4ljIs3qVqwHp4ATwyQ964IUVzy73J0PstELvAfWiQszpEggDf2ZCNEG
+	jvKmz9f+ZbX0nOrjljlm0o0eSktcjgCqtD+mnXqx53emzLWf+xKOp8yZAc5QdJfvkER7RuZKrwZ
+	t4BwR/q33HVhoXsdyZcSOTPPt4Q+iT232ENG+UT/4Rne/lbJFU4o3JawsTJvMODh5EERQrnxAhs
+	+gZoNU25DZOg3S077gMYrjbw0Ayp5MP5tU2dSk+yBm+qXsicWCdkQPVZIvyNjILPWkHwIQBhMhv
+	T1XPMT0TrtU2w=
+X-Google-Smtp-Source: AGHT+IEA4ldqjntSU1IZe10aX19mQKLjoCVDqCMnCNeqo44SOanRLtLHyqhQX8MxC8RVHbAWKM2xrg==
+X-Received: by 2002:a17:903:1a2e:b0:2a0:b02b:2105 with SMTP id d9443c01a7336-2a0b02b228amr63659225ad.56.1765799319837;
+        Mon, 15 Dec 2025 03:48:39 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34abe2f34c7sm2908684a91.9.2025.12.15.03.39.14
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a0867ebe9dsm77190525ad.40.2025.12.15.03.48.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 03:39:18 -0800 (PST)
+        Mon, 15 Dec 2025 03:48:39 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id CA7C1444B397; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id 46E2D447330A; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 08/14] VFS: fix __start_dirop() kernel-doc warnings
-Date: Mon, 15 Dec 2025 18:38:56 +0700
-Message-ID: <20251215113903.46555-9-bagasdotme@gmail.com>
+Subject: [PATCH 12/14] drm/scheduler: Describe @result in drm_sched_job_done()
+Date: Mon, 15 Dec 2025 18:39:00 +0700
+Message-ID: <20251215113903.46555-13-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,40 +160,34 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1286; i=bagasdotme@gmail.com; h=from:subject; bh=XiWwx/yBvL5qhtur1OJ6r0Qtve5kN/UAKMQDFDv8Kk4=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4O3vI8WDrMwXuvBLq8mNivp3ZeuaVYeu+cJXRZ0u 9ehPPdrRykLgxgXg6yYIsukRL6m07uMRC60r3WEmcPKBDKEgYtTACbSG8vI8EpCRPb0s1m/77E2 hv9V7O9IOeS06tfyqjLP7/lK/+xuKjL8zzy7NtZA+f5K8VWm3d9utqf1737naLT7ZsEzs3nvY45 PYQUA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=982; i=bagasdotme@gmail.com; h=from:subject; bh=kdwYayfiPuGdbX+6/rKZkI1jkonQkDY24KG3T7ZKuZA=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4Pfzvv2aMJ6/2fiW3RmVPTpTFSM/fBW4Nu0ikdP3 J/+EMyq6ShlYRDjYpAVU2SZlMjXdHqXkciF9rWOMHNYmUCGMHBxCsBENP8y/FN2WnBW9dYhDc+y QzUe+4R7v/wRO/L/c0NDkJC4klf71CqG3yyrLnq/ur5px+nadXME75rW9sxVOp7eMOmL58xwZZ6 TlnwA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Sphinx report kernel-doc warnings:
+Sphinx reports kernel-doc warning:
 
-WARNING: ./fs/namei.c:2853 function parameter 'state' not described in '__start_dirop'
-WARNING: ./fs/namei.c:2853 expecting prototype for start_dirop(). Prototype was for __start_dirop() instead
+WARNING: ./drivers/gpu/drm/scheduler/sched_main.c:367 function parameter 'result' not described in 'drm_sched_job_done'
 
-Fix them up.
+Describe @result parameter to fix it.
 
-Fixes: ff7c4ea11a05c8 ("VFS: add start_creating_killable() and start_removing_killable()")
+Fixes: 539f9ee4b52a8b ("drm/scheduler: properly forward fence errors")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- fs/namei.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/scheduler/sched_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index bf0f66f0e9b92c..91fd3a786704e2 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -2836,10 +2836,11 @@ static int filename_parentat(int dfd, struct filename *name,
- }
- 
+diff --git a/drivers/gpu/drm/scheduler/sched_main.c b/drivers/gpu/drm/scheduler/sched_main.c
+index 1d4f1b822e7b76..4f844087fd48eb 100644
+--- a/drivers/gpu/drm/scheduler/sched_main.c
++++ b/drivers/gpu/drm/scheduler/sched_main.c
+@@ -361,6 +361,7 @@ static void drm_sched_run_free_queue(struct drm_gpu_scheduler *sched)
  /**
-- * start_dirop - begin a create or remove dirop, performing locking and lookup
-+ * __start_dirop - begin a create or remove dirop, performing locking and lookup
-  * @parent:       the dentry of the parent in which the operation will occur
-  * @name:         a qstr holding the name within that parent
-  * @lookup_flags: intent and other lookup flags.
-+ * @state:        task state bitmask
+  * drm_sched_job_done - complete a job
+  * @s_job: pointer to the job which is done
++ * @result: job result
   *
-  * The lookup is performed and necessary locks are taken so that, on success,
-  * the returned dentry can be operated on safely.
+  * Finish the job's fence and resubmit the work items.
+  */
 -- 
 An old man doll... just what I always wanted! - Clara
 
