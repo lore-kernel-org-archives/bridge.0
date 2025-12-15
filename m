@@ -1,143 +1,193 @@
-Received: from mail-oo1-f79.google.com (mail-oo1-f79.google.com [209.85.161.79])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1281333507A
-	for <bridge@lists.linux.dev>; Mon,  1 Dec 2025 17:08:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CC05330335
+	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764608919; cv=none; b=QBJ2+fmHsD4SsKOrz/4aozsFGFCtl3YZAB0zki6HhiYATTWt035QfVhPBCY9poQU8qVpK2gYNl2d4EpdV5wL0ZoaUxRrIjdght+NLSFIApNPDYLPLNEcC7uz5xaEJAIQJ5xbrxU/eSYdO0aEIevYY4zlgcSPp4n4mGt6yTKMaLI=
+	t=1765798754; cv=none; b=ACgiEQX674+JFr3AAO+DfWjTsbK4u7W456G8Z4h0b8QjbDMWVjFpYt9nC+Y3c1EkiycSZ6Lv+I/xNF344YPdmdbO85HyyH1Al4iEpyN/eaagXxjpGWz6t6jRnky1fff0DgDt2qrNFq/WFAZfmlFi+mp19yco1WC1k6p89p0uVGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764608919; c=relaxed/simple;
-	bh=bBXkacKZ3dPPSO1kOOntC9FmsUogIrenh6VYlbtFTxg=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=vFrUKTULBttLxbadJkXRzLAEwm1XgXtfcx/OlTMIPFdGD8xgJQlTg4RzclPI93tZHAOJ7/lGl7MIGMAdoieGMoeJKbBgkvti/Z5lHwvhWlBEUKwSpflDP/lpv6L0OmISRStGwk0WxRr7Gc2oXVEeoB08k4erDKm9hPFjOWa/2/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f79.google.com with SMTP id 006d021491bc7-65747f4376bso6308059eaf.2
-        for <bridge@lists.linux.dev>; Mon, 01 Dec 2025 09:08:37 -0800 (PST)
+	s=arc-20240116; t=1765798754; c=relaxed/simple;
+	bh=zaXx2zRxHwtjfsFTgY05kdIMv0UeQBx9b1FFiByYYYk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aW8WGdES+k3mxSb1ONxIsezb/9UdF61vQQ2eqthVTZVrsS9J1GGuqNk0/Ksx9GqwNEBxxHgrtqMvb7A5qIXAZ990W3wfxwKNCEiDj+Qnggb2JyxIvJSziwofBpgNabBajFz5QkC0e/CrFie1pvBWmZURF+dRnojhNpSWe1NX4ZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=npWEkxi2; arc=none smtp.client-ip=209.85.210.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="npWEkxi2"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-7f216280242so956409b3a.1
+        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765798751; x=1766403551; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=H6vVzDCLpyU2LgSSSdcXlxGJ4GVOIz+XeeVoTvfPkdk=;
+        b=npWEkxi2EMj6mVdR6sAb5ygLCUcW7E4tlKfUJ9634pTk8N8CwhV3RzCqJJ+2vnZRaC
+         TVoGwrra9YRUXYRjMmYX41OfxrfhYTQWjTsJZ0APew0gjBuLoF5uDcqZHscHsmIayCNJ
+         +myHaczINc9Cf6ILd1CX1HMQgMwmb9yLu+yEZPRJ0rztWbpaGn2WJSZL7OVurNKvXumD
+         DRqv+j1FzXvudifWql1HV4Qfb89AeoxV7BVTtApG1zgZQbi8sKx9zTe3XJXzbCYJPVRf
+         3vOyyFcvfLlj2V4RqqPXfRCrcZ4xVTpT4u/HxAh+8qM0hkPkMFEF9Dp4un6R8BN8P4HV
+         z4Ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1764608917; x=1765213717;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IGgw4cmQSTUXMDHP6hSXGRUhINvpMa94Hp04p38gdUQ=;
-        b=iX+iNDP3r3L55Gph/MuDizqom/jUTp1ifGa2S8gRT404qRW4McPRRfV09wYrFHinp8
-         WpdDIgSGcxqI9vngivvbZJqwy09f0dHGB/+/4bjB0srvicEmyNhISmqgjf0V6K7Q5AZp
-         Nrg8SLR6pmWUOoKikPFZtYWuF8wIt59gkmCn/aLjRfXiWuAkjcTwhdSjVHC+NpCu6sNe
-         SzA5GpjD8QQO4rb6E7Tf9vpEEwQ1wUOflYsKSpLBvLAsyn/vVG/XPqcCVpPMcdAx/jvR
-         fpE53b2rwdOBAmvgsmnZkUSvhvR/iCrNyA3jGj4o+PuLK9z+V+jd56GamwG+46Lb7NfW
-         8Tzg==
-X-Gm-Message-State: AOJu0Yxzx6QtFEKBLPPbeIoY15ICqOcO4xW9lAV8eJw7ohl7iWzmxd7x
-	ZZpKR5fW426ZCHS397HZuaEHe7IJ5/nWdo5lhNJ1rF/ABq4WjoNRdWhdA6nHorYOusfXL30mkRi
-	6YhXYIvcuu3vfe/mDZJwF6c3aVRlHTw8MNmTPtXMIekwyRG4A1r34z4Gtjep5xQ==
-X-Google-Smtp-Source: AGHT+IH9NuFruHmgK/3D/rVbGU7t6FAooCbOPK47woHfGrJ9gVgHedVFHG3uvO9GUzJhQf2rwRrYEU0KFR8lwlyYUSPCcRzfjuvy
+        d=1e100.net; s=20230601; t=1765798751; x=1766403551;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=H6vVzDCLpyU2LgSSSdcXlxGJ4GVOIz+XeeVoTvfPkdk=;
+        b=kYTHh65LVJKRZpJxcUQstWBFRbp08L89JF95BSKg3W8fwnQ3oGuJzNNfucyj1cLtcA
+         7PXx9Flg6lV0xJ6SUGlTWT5KajGzPhdQZYp+cT2v/ewX5XVAMRzYnIAP+4qBKS3TlfSH
+         Sa3FcMji0k34me44w7FMEYJOWVSmkP1455MHHfBEXfqyZhzAYoroKwfJo6GfW7vkgO2F
+         ObFuOhu8MkDkm0Gq/wSpnubsxnhBoLIkaKzlwERER6ExDAB0fQilM/MTuKXU6DAnXKS3
+         zPZw5tbOK4NzsOq/kJFmLx590UyoU8o6k3rNoZATvyeUN532DMBSic432yjRCB/7TNMR
+         iMHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVris7zNDu0scqT76lrbWLO9sag4bbo4Td9tSWkHkT/Xw8jz0mkPhAuehcCo1qyt5QTugLrJy0=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyJ6cypZzgKogMyX5qS4q7eOX8kgK43bwtTIfumSlhTZkGAiv1r
+	D4+2HZKmzIu+3AgWPyFoC0NzDuwiSR5+MVn+G4peDrlkjQRRbBQIeTKp
+X-Gm-Gg: AY/fxX4wi1IrZOAHAG3m9K7/mPO84j2xZwrpU806IMhFxfxdDI+GGa9FizxxVhLpnJy
+	uQpyVvLlwJyGzepjxfZUWE+CTrFgUQ7RCkhY2r6ZYBGXjdn4JfBK38UWEgRlHYKV/FL0flsfMpu
+	L4ZELnftSeWQ44fVKL1tK6yd/i98Cqi5F2gWBWprw5gKMMqPdOmzPsvqYVd/FdsdTKA8YRkZ46F
+	k+zOqlwbDK9WnZoSgY6lxcR5AMrCFsNBTXR+E2mhEZoKK7UeR2VRBFjjVfAihB0sq9R+EK2ESX3
+	EbPPmDP+5LA4pw29XSTEGk9tKAt+1yy6Q76yTMiZXlRWACypyKO1J+6AxQQi9lQAEmm4ELqP8/k
+	TR/qRnvJcBCirmT0P0fHZscKEiHhbeJCBaR8GNCZ6PYf4nm9ZqNwMgimBiZC/ng3sPXG1JTo5Bo
+	HnFlcgQ0kS3oc=
+X-Google-Smtp-Source: AGHT+IFlU3I+cKXX8C9kVGFzGiJyAz7/LTk2+tkj0Oiyk+q1A92AqVW93jQniiO/3heM3uCR/CKzzA==
+X-Received: by 2002:a05:6a20:728e:b0:366:14b0:4b16 with SMTP id adf61e73a8af0-369aa740ecamr11005465637.33.1765798751132;
+        Mon, 15 Dec 2025 03:39:11 -0800 (PST)
+Received: from archie.me ([210.87.74.117])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9b3850csm133388085ad.17.2025.12.15.03.39.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Dec 2025 03:39:10 -0800 (PST)
+Received: by archie.me (Postfix, from userid 1000)
+	id 1D26D444B391; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
+	Linux DRI Development <dri-devel@lists.freedesktop.org>,
+	Linux Filesystems Development <linux-fsdevel@vger.kernel.org>,
+	Linux Media <linux-media@vger.kernel.org>,
+	linaro-mm-sig@lists.linaro.org,
+	kasan-dev@googlegroups.com,
+	Linux Virtualization <virtualization@lists.linux.dev>,
+	Linux Memory Management List <linux-mm@kvack.org>,
+	Linux Network Bridge <bridge@lists.linux.dev>,
+	Linux Networking <netdev@vger.kernel.org>
+Cc: Harry Wentland <harry.wentland@amd.com>,
+	Leo Li <sunpeng.li@amd.com>,
+	Rodrigo Siqueira <siqueira@igalia.com>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Philipp Stanner <phasta@kernel.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Uladzislau Rezki <urezki@gmail.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Taimur Hassan <Syed.Hassan@amd.com>,
+	Wayne Lin <Wayne.Lin@amd.com>,
+	Alex Hung <alex.hung@amd.com>,
+	Aurabindo Pillai <aurabindo.pillai@amd.com>,
+	Dillon Varone <Dillon.Varone@amd.com>,
+	George Shen <george.shen@amd.com>,
+	Aric Cyr <aric.cyr@amd.com>,
+	Cruise Hung <Cruise.Hung@amd.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Sunil Khatri <sunil.khatri@amd.com>,
+	Dominik Kaszewski <dominik.kaszewski@amd.com>,
+	Bagas Sanjaya <bagasdotme@gmail.com>,
+	David Hildenbrand <david@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	Max Kellermann <max.kellermann@ionos.com>,
+	"Nysal Jan K.A." <nysal@linux.ibm.com>,
+	Ryan Roberts <ryan.roberts@arm.com>,
+	Alexey Skidanov <alexey.skidanov@intel.com>,
+	Vlastimil Babka <vbabka@suse.cz>,
+	Kent Overstreet <kent.overstreet@linux.dev>,
+	Vitaly Wool <vitaly.wool@konsulko.se>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Mateusz Guzik <mjguzik@gmail.com>,
+	NeilBrown <neil@brown.name>,
+	Amir Goldstein <amir73il@gmail.com>,
+	Jeff Layton <jlayton@kernel.org>,
+	Ivan Lipski <ivan.lipski@amd.com>,
+	Tao Zhou <tao.zhou1@amd.com>,
+	YiPeng Chai <YiPeng.Chai@amd.com>,
+	Hawking Zhang <Hawking.Zhang@amd.com>,
+	Lyude Paul <lyude@redhat.com>,
+	Daniel Almeida <daniel.almeida@collabora.com>,
+	Luben Tuikov <luben.tuikov@amd.com>,
+	Matthew Auld <matthew.auld@intel.com>,
+	Roopa Prabhu <roopa@cumulusnetworks.com>,
+	Mao Zhu <zhumao001@208suo.com>,
+	Shaomin Deng <dengshaomin@cdjrlc.com>,
+	Charles Han <hanchunchao@inspur.com>,
+	Jilin Yuan <yuanjilin@cdjrlc.com>,
+	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
+	George Anthony Vernon <contact@gvernon.com>
+Subject: [PATCH 02/14] mm: Describe @flags parameter in memalloc_flags_save()
+Date: Mon, 15 Dec 2025 18:38:50 +0700
+Message-ID: <20251215113903.46555-3-bagasdotme@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
+References: <20251215113903.46555-1-bagasdotme@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:3448:b0:450:4628:e3f2 with SMTP id
- 5614622812f47-4514e7a4293mr11442006b6e.42.1764608915594; Mon, 01 Dec 2025
- 09:08:35 -0800 (PST)
-Date: Mon, 01 Dec 2025 09:08:35 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <692dcb93.a70a0220.2ea503.00b6.GAE@google.com>
-Subject: [syzbot] [bridge?] INFO: task hung in br_ioctl_stub (2)
-From: syzbot <syzbot+6bdeba54c73aa6a6219d@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	horms@kernel.org, idosch@nvidia.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
-	razor@blackwall.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=950; i=bagasdotme@gmail.com; h=from:subject; bh=zaXx2zRxHwtjfsFTgY05kdIMv0UeQBx9b1FFiByYYYk=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4N0b+unPg8UXJx6+/+iP9I7pV1rdBYrPMm9NqGYl enCm2OnOkpZGMS4GGTFFFkmJfI1nd5lJHKhfa0jzBxWJpAhDFycAjCR246MDN8qzkf5GvF8u6h8 fK78A+u9Z2vjTS5MNJ2mcnT+/S07J0sxMvTNsLugLdEgeebaKl/Lt7ZFnv2pX8UvGPzINA+RNZw /gQsA
+X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
+Content-Transfer-Encoding: 8bit
 
-Hello,
+Sphinx reports kernel-doc warning:
 
-syzbot found the following issue on:
+WARNING: ./include/linux/sched/mm.h:332 function parameter 'flags' not described in 'memalloc_flags_save'
 
-HEAD commit:    765e56e41a5a Merge tag 'v6.18rc7-SMB-client-fix' of git://..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=159ace12580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=a1db0fea040c2a9f
-dashboard link: https://syzkaller.appspot.com/bug?extid=6bdeba54c73aa6a6219d
-compiler:       Debian clang version 20.1.8 (++20250708063551+0c9f909b7976-1~exp1~20250708183702.136), Debian LLD 20.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12ddee12580000
+Describe @flags to fix it.
 
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-765e56e4.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/fd649009c819/vmlinux-765e56e4.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/bf3e0d5c78c2/bzImage-765e56e4.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+6bdeba54c73aa6a6219d@syzkaller.appspotmail.com
-
-INFO: task syz.0.27:5720 blocked for more than 143 seconds.
-      Not tainted syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:syz.0.27        state:D stack:28904 pid:5720  tgid:5719  ppid:5469   task_flags:0x400140 flags:0x00080002
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5325 [inline]
- __schedule+0x1798/0x4cc0 kernel/sched/core.c:6929
- __schedule_loop kernel/sched/core.c:7011 [inline]
- schedule+0x165/0x360 kernel/sched/core.c:7026
- schedule_preempt_disabled+0x13/0x30 kernel/sched/core.c:7083
- __mutex_lock_common kernel/locking/mutex.c:676 [inline]
- __mutex_lock+0x7e6/0x1350 kernel/locking/mutex.c:760
- br_ioctl_stub+0x199/0xc80 net/bridge/br_ioctl.c:418
- br_ioctl_call net/socket.c:1227 [inline]
- sock_ioctl+0x4d8/0x790 net/socket.c:1329
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:597 [inline]
- __se_sys_ioctl+0xfc/0x170 fs/ioctl.c:583
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0xfa/0xfa0 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f91bf78f7c9
-RSP: 002b:00007f91c0675038 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007f91bf9e5fa0 RCX: 00007f91bf78f7c9
-RDX: 0000200000000000 RSI: 00000000000089a2 RDI: 0000000000000003
-RBP: 00007f91bf813f91 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f91bf9e6038 R14: 00007f91bf9e5fa0 R15: 00007ffd440d2c68
- </TASK>
-INFO: task kworker/u4:11:5722 blocked for more than 150 seconds.
-      Not tainted syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/u4:11   state:D stack:28872 pid:5722  tgid:5722  ppid:2      task_flags:0x4208060 flags:0x00080000
-Workqueue: events_unbound linkwatch_event
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5325 [inline]
- __schedule+0x1798/0x4cc0 kernel/sched/core.c:6929
- __schedule_loop kernel/sched/core.c:7011 [inline]
- schedule+0x165/0x360 kernel/sched/core.c:7026
- schedule_preempt_disabled+0x13/0x30 kernel/sched/core.c:7083
- __mutex_lock_common kernel/locking/mutex.c:676 [inline]
- __mutex_lock+0x7e6/0x1350 kernel/locking/mutex.c:760
-
-
+Fixes: 3f6d5e6a468d02 ("mm: introduce memalloc_flags_{save,restore}")
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ include/linux/sched/mm.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index 0e1d73955fa511..95d0040df58413 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -325,6 +325,7 @@ static inline void might_alloc(gfp_t gfp_mask)
+ 
+ /**
+  * memalloc_flags_save - Add a PF_* flag to current->flags, save old value
++ * @flags: Flags to add.
+  *
+  * This allows PF_* flags to be conveniently added, irrespective of current
+  * value, and then the old version restored with memalloc_flags_restore().
+-- 
+An old man doll... just what I always wanted! - Clara
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
