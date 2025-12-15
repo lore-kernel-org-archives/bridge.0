@@ -1,64 +1,66 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5D16330313
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9063432F74D
 	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798755; cv=none; b=OGPvlIrN/d854ExDCTib2lHj2l4TmZ+d/aDeUGgwn0hu/Tsqx/RtLsLeMK+7+jU7qgPiMNToWeJ+z+SbIrnYVqR5b5bAIPL1eVcwB9VLHBPD36Jz2dFjhmuXWZocCay4LtEX9023ZomEJkE1TeXs1VqiW/MMzfURwgIDe8N62pg=
+	t=1765798755; cv=none; b=cV8tkDwo00lA8NP6WZEb6U4zo/bM+ATKKyoR5YSCFZdP/tKLclWpO9H6Op7VZ8TuYpCPOYN4H0AulWU2skHyMSUTJ3sL9b7dm75NCawcOO8TcGw8ZGLKwpIXmJGhHj2LZzGkskQ3ULE2vVxUpsk2Hdsynt8y7hYJiyGyrCV+rrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1765798755; c=relaxed/simple;
-	bh=zPsruu4atyDYOaQCsKIEqnFkDKfYqb53HHp2txNqt3A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SVwLpkkOyeYPDPsxERS9XUmUlyCsUvgTmqoGdIMzW0zqaDhzDpBLx7ooKsdALE2Bo2JQpL3IfvjgRyvdpe8rIEwHhDbx3K/JqRGxHMO388QynQHwUXvYm7ALNjOnWv0G7XelLt0tWjrS2Q5KCgA9r8vmD9mI6cmWN1O54lK2U2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZT0MUkqR; arc=none smtp.client-ip=209.85.216.45
+	bh=yvRLY8BHqBHKchvPjcPm3zDNVddYxArgXi7Qv6PDXBI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=E7LxHxTrLKwoRemDzereOMKVF5w/Re0rT2PAOA9/s9TBbg7/Uib4KaviHbCZSDy2WcBSMDiqyGjV1rONjbFvOv5kzMlEbBc/rrSAS/gZVcpoTwAz2StYgy7H/XiolKUD9bwA2giFrE12k0kDyJX8EWcM7coDOlowpIL+i+wqcnk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MuQi02Dg; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZT0MUkqR"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-34a2acb736eso2597378a91.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MuQi02Dg"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-34c565c3673so620701a91.0
         for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1765798750; x=1766403550; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rTcY4k7PJNNctnILuEp0lcvqj1X2scOTc/Z894ZNYfE=;
-        b=ZT0MUkqRIiA/E6pN1nkR55BWECEckFI4Y5OEHuNzh0eMt0RuQzZV4y/ZsJ0TzNEaK8
-         ETFL6ABeCpYhn9wNSyFhlsdBhqWmPm2zesTzhUwXaBIKAZw7a9ticXBNRlnSmX27l53f
-         70nYUw/1knQ8Gg+U+XKoFLBsZ+pRVh/OPRCvV7RjRtATdCgrbX62DK2ksiP0x1PvGlzS
-         Eetm0jmz6yCBxTMqxp31DkMk9OCS97jwzbc+xczBVTagrkUH3gWbOP6oAvlYs/i+Wr38
-         L8lCXy6QzQMfkRh/Q4GgfaRNk/ENuHps0VCg9zyB02VbyMj0qcjpfqYcqzMVIn2Hubmh
-         oXBA==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SOExJIUd6SMMpu9ecZcijfoRnX+3TKAUcxRzAMDO5OU=;
+        b=MuQi02DgRUi1OFEn7u4jHJbgAR4NbYt7VARF7jnpTBKBq5CW1I83uYZDcG2zlOLMBI
+         hAHudosyGiquwR5w8f1FERLDgA1PtsdA/uMd4+vVb1lai8RJc5xUluYrfsPJ1oqbx1N4
+         P8/rNwtwE59hnYrywBWbuGh+9+RKTBdxmBpQeBgYhOzQCAO0KZCnIQhsvkGonOkImqLb
+         ZAl7+vx97TsrtyUD6tFwTmyTHmgAZiJHwcwXcPW9vyJKjqiK6FHZFNCUOJEocq0LsUP0
+         P66r4JKW3gqMQdrdNGnCuo4TiX1TKo4+wdB9BkAqSE/Uz2pfGGS4h4kp60O5CWPJGWJT
+         4MGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1765798750; x=1766403550;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rTcY4k7PJNNctnILuEp0lcvqj1X2scOTc/Z894ZNYfE=;
-        b=Tx9gfRQuEhtCk+rBvmI63eVXeSHi2wWY9Bw3J2QL+OppvQZk8hGddv3mW7taf2DnA5
-         YhsjFkvsMbERCXK9InTbJLm3z9FFtH2E51bw/bSSQpBksX/2TmAAIxr0XE5bK59MO3ZD
-         0Av1ODmxKHo2n4HKMyjZ28jITM/y4NkPoRmDlV+PiZRn/S3M8UZYNlC2vgzshaoQWgAG
-         GycJiDZRZrEamFsVxcfMdj9fzjuGCCgczaNJHhssVUre48Ym3pL0cnMsjfMccL0sU0uT
-         lSQB8SAeBxho60R8qGa0506IK4cwwTM8m3zssY/OPd5O64Vb0s6hYxEtTA+lmwCCfDpa
-         bY9g==
-X-Forwarded-Encrypted: i=1; AJvYcCWGKb6EsF1Sjc+XAK13JUIsUg1Mg97noUHUWIhp43IpT6UuMniszyDVb+p6z4e4zwPr2sy2xuY=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxuFsObNVlu/z41rSFDeJ91CLq1PmlHEqSHmP+xZYc4eLhLb5NL
-	D462gcB5dYphs/Xvj98dgCLAYure05McA9+deAIcTwDYZWCVWgB9WRe1
-X-Gm-Gg: AY/fxX4wuBFRYSFdtqRG6WTeuLcbtKDIv5RPaqjhp3zufOKSRoUGpTQdoCq+bAhfJvz
-	aisL1ZcoFvK9+x10JXKntqeE01D30P0lHMOo6ScvaZEQ6OR6XjycTca4rUJRL0L4g4ImX5KJXpP
-	X8gYvXvcpbNnDuyW5uhRZq9axKAOH7zPonjsfpA18MKMjGIoBlDDliR8VDZTrNoIeR8ZUD+d8jg
-	zIOfTYLd6d5gPKYV8xyTdJsgMsoDTnrublopiQrfiKoqO0Gx54p3/bjJc5XlX3gADHPD88vTVut
-	OXvhkQxfqPkH3vCfMoG72uFuawdLQ5gj1TJK4CmzB5QJY3vpHosDeUrdPUekMHmhtNrW5pau3zf
-	o+RUJLqJS0jnbHlXOtTy+UBR8w/rwObwdGB2J8dPNfWiCTNPDK2LovC2rfp50CUTw0yFNItMx8V
-	HJfX9sPonowy1VWtjIojY3PQ==
-X-Google-Smtp-Source: AGHT+IH7Y0ZP0SVYlRqXrzHx+fOVv/+/V5Bjimjq/e2I+okG90jQDlqbjW8VY0Em0JiciGGZ262G7g==
-X-Received: by 2002:a17:902:c402:b0:295:c2e7:7199 with SMTP id d9443c01a7336-29f23c7b8b9mr114062105ad.29.1765798749863;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=SOExJIUd6SMMpu9ecZcijfoRnX+3TKAUcxRzAMDO5OU=;
+        b=mwIu31G0cjU6cgGPEYn21cMsOPJgphx6zqI1rPWvd03HQbdi+kQPrpwHKwWpOp6/05
+         NhZaygdlO9qQJcAyczBTWkEi90xps/zqnKJ4TTMSORoE3dM2/onfdauf6y9wVNuLye2w
+         fYcQ8roK1LCkG59NdyP/RuilA4lElVMYORKU2lUtI6CDzKqQYjtHZiWD1MgaWjDp9kwT
+         heuYPuVA6h6OGLYrbAgDqrCxmum7KQ+kYfEf2lW/Hs16piP2RV4kEHGxPJXaSRhHLWZQ
+         HqW5iakyAhWWFYwq3jwuvkuZZxIrVCCtb7CpsWROWyZknwSGXXuxX3C+AUm2q2tz0URo
+         Qt1g==
+X-Forwarded-Encrypted: i=1; AJvYcCVbFC3Q4DmsZmEq79ZnS+bJS5ybTj/9LNPXP3lgL9iy9xt9hR9NE5ar0S7jF0eKhBdUPvnFjM4=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwdXRKZKQk/hGk2ZY1RkEDXwwMXTDPvdCU7pigvpvbFmGlQoUi1
+	dGv0IcGw107znTzDD6dBZbSiYIIXjHjQsxVRUOtQAOWaXglJaxsrCssD
+X-Gm-Gg: AY/fxX7Ffr1hSPpeN4KEqBIH/7gY1eiaPnFDY9ja/N318e8L5mZtNjdno2srepyErn3
+	uddTmKamFUY1eBDUoBf+8gLaBjIqqBMWegUb5lxNDmWMkKsCoBzsKXYjrNCb74tXiMf9OC6nf0p
+	QYtw9DoOHbuOSvd5PDMg6KKN41aM152YM9pe5iMKsiB/84ztppMWQTQ1RVUWWXNj9TfqkT6Zybs
+	9/WtBHSSfondFZRdFoRDw386mS+eYIzArCOOJMVJB+rMMg41jByuZJkJlhrbkcmNiwkvoee1xmm
+	ku+NiYUom5ublaRZ3VWF2MM4dvofFatuMvo7paz8UHHbFk6iuZAh38MF+UgAeJMvrM7KppwtL3A
+	b3uaiYcc2TGn8i2grrQajM+D4TvhumQsRf2n6anPYY6Knf+mt06In1BGodI3V1LpaPl+ViAIMHM
+	aic2f3D/M7a6/ZBrucyFzfaQ==
+X-Google-Smtp-Source: AGHT+IEi7Much+ynnSaGi+9pLWL2hRrocApHWp5vBqFK1ft2pjcvnQtgIu8VXEyupMREgh2/mG55NA==
+X-Received: by 2002:a17:90b:2e03:b0:341:1a50:2ea9 with SMTP id 98e67ed59e1d1-34a926d9c70mr13163422a91.16.1765798749780;
         Mon, 15 Dec 2025 03:39:09 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-29ee9b3850csm133386495ad.17.2025.12.15.03.39.07
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34abe294a00sm9273005a91.12.2025.12.15.03.39.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 15 Dec 2025 03:39:08 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id AC75C444B38F; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
+	id EAE05444B390; Mon, 15 Dec 2025 18:39:05 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -146,65 +148,46 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 00/14] Assorted kernel-doc fixes
-Date: Mon, 15 Dec 2025 18:38:48 +0700
-Message-ID: <20251215113903.46555-1-bagasdotme@gmail.com>
+Subject: [PATCH 01/14] genalloc: Describe @start_addr parameter in genpool_algo_t
+Date: Mon, 15 Dec 2025 18:38:49 +0700
+Message-ID: <20251215113903.46555-2-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
+References: <20251215113903.46555-1-bagasdotme@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2064; i=bagasdotme@gmail.com; h=from:subject; bh=zPsruu4atyDYOaQCsKIEqnFkDKfYqb53HHp2txNqt3A=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4MMm/867RRu9s/LeXucS+TRacFsjy3x8goRK//G7 Jyfu8O1o5SFQYyLQVZMkWVSIl/T6V1GIhfa1zrCzGFlAhnCwMUpABOJ+cjwP9rl0j2O1i3mgnEF j0tV/6z5nLTvdKmsJY/NvB286XtLTzEy7D+8+dTHe63Sb6bPXnHWT1NH5vPMzba75Xe45yw3OaR ZzAUA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=962; i=bagasdotme@gmail.com; h=from:subject; bh=yvRLY8BHqBHKchvPjcPm3zDNVddYxArgXi7Qv6PDXBI=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4MeLjlRVOvo/zL51uM7fT8nbubcy37qLGeos8/kb VKe75YIdJSyMIhxMciKKbJMSuRrOr3LSORC+1pHmDmsTCBDGLg4BWAiGosZ/mm4fru/UqLr5XIZ H96Qry1BDLd3LedR2Gkharj+Q1jej2pGhm7zlf21hfvmpVcxGBvN2yCmrfs71+wCw2eFqbVucQl NvAA=
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Hi,
+Sphinx reports kernel-doc warning:
 
-Here are assorted kernel-doc fixes for 6.19 cycle. As the name
-implies, for the merging strategy, the patches can be taken by
-respective maintainers to appropriate fixes branches (targetting
-6.19 of course) (e.g. for mm it will be mm-hotfixes).
+WARNING: ./include/linux/genalloc.h:52 function parameter 'start_addr' not described in 'genpool_algo_t'
 
-Enjoy!
+Describe @start_addr to fix it.
 
-Bagas Sanjaya (14):
-  genalloc: Describe @start_addr parameter in genpool_algo_t
-  mm: Describe @flags parameter in memalloc_flags_save()
-  textsearch: Describe @list member in ts_ops search
-  mm: vmalloc: Fix up vrealloc_node_align() kernel-doc macro name
-  mm, kfence: Describe @slab parameter in __kfence_obj_info()
-  virtio: Describe @map and @vmap members in virtio_device struct
-  fs: Describe @isnew parameter in ilookup5_nowait()
-  VFS: fix __start_dirop() kernel-doc warnings
-  drm/amd/display: Don't use kernel-doc comment in
-    dc_register_software_state struct
-  drm/amdgpu: Describe @AMD_IP_BLOCK_TYPE_RAS in amd_ip_block_type enum
-  drm/gem/shmem: Describe @shmem and @size parameters
-  drm/scheduler: Describe @result in drm_sched_job_done()
-  drm/gpusvm: Fix drm_gpusvm_pages_valid_unlocked() kernel-doc comment
-  net: bridge: Describe @tunnel_hash member in net_bridge_vlan_group
-    struct
+Fixes: 52fbf1134d4792 ("lib/genalloc.c: fix allocation of aligned buffer from non-aligned chunk")
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+---
+ include/linux/genalloc.h | 1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/gpu/drm/amd/display/dc/dc.h      | 2 +-
- drivers/gpu/drm/amd/include/amd_shared.h | 1 +
- drivers/gpu/drm/drm_gem_shmem_helper.c   | 3 ++-
- drivers/gpu/drm/drm_gpusvm.c             | 4 ++--
- drivers/gpu/drm/scheduler/sched_main.c   | 1 +
- fs/inode.c                               | 1 +
- fs/namei.c                               | 3 ++-
- include/linux/genalloc.h                 | 1 +
- include/linux/kfence.h                   | 1 +
- include/linux/sched/mm.h                 | 1 +
- include/linux/textsearch.h               | 1 +
- include/linux/virtio.h                   | 2 ++
- mm/vmalloc.c                             | 2 +-
- net/bridge/br_private.h                  | 1 +
- 14 files changed, 18 insertions(+), 6 deletions(-)
-
-
-base-commit: 8f0b4cce4481fb22653697cced8d0d04027cb1e8
+diff --git a/include/linux/genalloc.h b/include/linux/genalloc.h
+index 0bd581003cd5df..0ee23ddd0acd3a 100644
+--- a/include/linux/genalloc.h
++++ b/include/linux/genalloc.h
+@@ -44,6 +44,7 @@ struct gen_pool;
+  * @nr: The number of zeroed bits we're looking for
+  * @data: optional additional data used by the callback
+  * @pool: the pool being allocated from
++ * @start_addr: chunk start address
+  */
+ typedef unsigned long (*genpool_algo_t)(unsigned long *map,
+ 			unsigned long size,
 -- 
 An old man doll... just what I always wanted! - Clara
 
