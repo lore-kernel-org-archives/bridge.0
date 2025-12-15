@@ -1,66 +1,66 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7891E332EBA
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8BBF330B08
 	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 11:39:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765798767; cv=none; b=VNGzAql6J3UaP4cTAg5wTUGSqrw+YxOzKgnjp/F7WIfLsNxkgIjBDQdqJ/zeKCr64a7CUyaX1sGwWjah6yVmaDPwyp21XFAkyqxnyzyHVLMbD33KBpd6GPM3OyIpzkinv3ZBDfL8AoROuLKconXyOZ+LIXWXipkeVrZ6NZXJF80=
+	t=1765798768; cv=none; b=LBIFy/pTxcNNuFD4HySLt8l+hWB8vTrnlF/mlu7ap1vUIYlECtxI0zYswlWHtxZ86rPG4i++ISJqe33U76Q569x9dN5RpmpFvZvRxLdJm4IEvsNZ9oRbeDAJq1eDO2KA8PkiRmB4mdlTYYNhZQwagL6h1XeJE642dsK6VvsH1lc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765798767; c=relaxed/simple;
-	bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=;
+	s=arc-20240116; t=1765798768; c=relaxed/simple;
+	bh=XiWwx/yBvL5qhtur1OJ6r0Qtve5kN/UAKMQDFDv8Kk4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RdibcQcfsbDqKilbIcR6UyCLWwjY31I5L6woNyyLtfEBYgSSnmJpFDabBDeGokoWfWEBTxAMbtVItBd5ECE2VALN8oW8EMDMJ1yxh0XYFjuGZ5zFTJ9mYzxA0CvdRakj2HPON6QbhklYfEjUzVZh8eugPW9vRT5Ctq0msmJLuO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gZDP/Ca3; arc=none smtp.client-ip=209.85.214.176
+	 MIME-Version; b=FK0M+3qriAhkY6VXLanNe4kotdsGhz3aza36LF2vXGaMiCDZAMO2NTIv/J6dDf8UUU48HUvw5+573V3FxaEp83stzrqQ6ZI3oYG5pgogSddzRe+WGt7yOca/jdiBgxuVX0TybQwfyDsJxJPh4b9p0e8FfirAKdt6tieNvQooAxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YJNp39p1; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gZDP/Ca3"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a09d981507so12622505ad.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YJNp39p1"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-34c708702dfso1110373a91.1
         for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 03:39:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1765798763; x=1766403563; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
-        b=gZDP/Ca3glUGpsOL88136XjyqTUre9tuSG0IaWiK91X181uTIHAAplu2+drvFk2qpS
-         fFxc9tyusHqACh0eZsDNBLtTSQXf1C6VUSFFd1mqYLXZLBB/NXqHDhgWiId6ILjl3jF3
-         aNiAoXkgP6gLJzr0oPNvlpAuwN0w5DhqrVvur2u0tuHgYO3FkOvn/YqiJFzQnYW9Lo5U
-         5wIDHkTS2oI/xf/XZRw76+GBjSjLauZXS5aW1z63scgRjUqQoXkgFYPOmCtXDx7Whjym
-         lBhI7sj7CFiLV803p134NQzAMk0gxeAHoRQHjJOdcSTevzkk/HK9f9H77IOjgWrxXjnA
-         52Wg==
+        bh=KFsNe5Gu995f8GfU2RxaYzwbXM91ZCVhfkD06BV90tM=;
+        b=YJNp39p1Ijwc+c+eAS5dBByADdFq6WT35c+0T8SHROF2CUZHX0Hliz6COMADhVV76m
+         XY6Y48oyoyJAUI9Umrh/q83G0j1L/cg93nGNlVEz0+P/dHYvtHldtQK6gr8rWcB7bZl5
+         MojVXJ22gU9xuIyuVVpjlxOmojHDd9LXi85F2osCr/QYB/pIQcwwUA8xY8Aig5Z7uzDC
+         u3IY0s/34f2nuazO3nx8bezD0CuUFwu3jWY2FfByc4EOzBQSYjn81iAUInp/9tOlTfEh
+         U69RHirAAWDEXBhaUWI7rcpcxaZirC5l0PHgCjgGXc/vg9dRQ/alu4nrKlQ16trVjaCu
+         pldQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1765798763; x=1766403563;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=TrKHAwDmwEWPzZzAT0wzFml+5He+R0bXqVhPFRZE9SA=;
-        b=RcTJJa8KF6J79cr/gui79yxZwgPVjZumxDy1FIOAqnvFLHnxbvapOq8tP05S54n5tx
-         kOUZtDVN/rDa8Iprq2DshMU//L0Xlk3LCcrMznMGZqbXMstjye4fBVv7suRaU/0kykGe
-         amCO5ICZocfhWhPhLJ9tnG1mGPfw0CcsWBl2Ru6bM8mITd0NO9oAuiGJ1C5f8i8qq/xc
-         k9MHRCyovD0SFHI0eJ6x+5PMMvFvC5Ll0k7lvuYP56R26g1Ez702FiKUeMaS5EJ6Mtp4
-         JU5UJPvEu2+dgjsrJE96ePpWntil3NuB89ROCS3ff1bgRC6P1cOPBGAcxOlbec/dI2hk
-         PrZQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX5M8sMDz0vlVE5FX4atwRXZ/GVlnP4br3l0yXwiKMYGKbVx8Oc9vVmpDrvzv0O9TzHJS2nTO8=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyx/u6HURhnG29LdYzekT53FPvJZFpY1LEVZ8rjBKme81oKACKL
-	2yDdGgS1BnnPcbrqd8peIaW+I41hOxJ7REBQKiAi+9FFNvcIyIFVUjT3
-X-Gm-Gg: AY/fxX4Facibz4jjajzbNN20ar8HEGiG6ffDngGWGWhgbPNe3vEqVYjmE+QcvsyMDVY
-	PTLQ2HjWL3Et26ny3kCO7PGF4wn5mMaq04b8hXRfOymWhPldzOCZlEzJXQXdJlGE1H3+CfqRfGo
-	8Ertsn84D0Z45xnsxdhlHT+D3DCQ/US+jMyfUVV10jcbLh4HdgSgBBhMG7uKxzawQVeeghnTEXC
-	GDGIku2ZmxTm2+nApM/34174zkbK0sDq3eQCInL614j9x9KhKu23YaLK8axKPAVQOHJ7JGl7Cnk
-	Uzv6xwjegTbmndGFuXJ7O1iwoEehhvtLl3UQ0EhKn4FjY1hqgewdZNyu4cf0aDALFGmAMbU4pUF
-	SRAk45zNUYrAjD8b/33fBF/FcAr6LmQ8f0/qZBYDqWqlqVKw3lsZqCum9SwFYJv8PCab2Fd4iX+
-	zlmHzCiQB2Q3M=
-X-Google-Smtp-Source: AGHT+IGEKo7pUOqZ/Msgj5pboeIPXCGG8SyTdVwEqd2zfEZHqjnoFfxwhdJcfbexnC7zJuC88ktUrA==
-X-Received: by 2002:a17:903:1988:b0:2a0:d0ae:454d with SMTP id d9443c01a7336-2a0d0ae4b49mr35282785ad.22.1765798763267;
+        bh=KFsNe5Gu995f8GfU2RxaYzwbXM91ZCVhfkD06BV90tM=;
+        b=Zsm/MSJGUN2gwE/H5XEsdMhL/ewyVTsFkFJdVAGtT/9GiHTLOGsH+wMOjiZqxVRylf
+         W4xCdp8bRSpmLyxjZBkcN+s4K7OwnzjtwrDupb5j4YrX/Zzl0y+P/CvZil2lxPla3Jg5
+         pLgOsM+wB0Gvd4uFQ3zV4mEymP3zD5/OK6CMMgU+GO3IXO98q8JCyZQn+d+nfuGTQFdG
+         yBp5Od8QCUsXBHcQnk5dtfR87APieJ32y+yTl6NvHv/pjn8DkgFHtJTZtG+shXpvMltg
+         fFY9i20AztDH07sOgqJPwe/65UumF/8h6QTMwz4R5DySxBZu3IJ9xM8qSxi6cQpEUtsj
+         r31g==
+X-Forwarded-Encrypted: i=1; AJvYcCU7ghUV8akqCzkOjeu0K/UmoBwSHSJrZikHw2Y+MOgVzk32wjAtE11Tg8QDJUkw37/IE+zH6eY=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxruKB5hUZ2tGZLMMCuHkzKy1unPnMjtpSWyqnUBQF2+Q5ryDvi
+	A4nrCQwxJEI1s/GiMWObluC0cFeB0EmFZ5WUilJCtFa7pAJ/D/iSOhl3l98XT+6ZCkk=
+X-Gm-Gg: AY/fxX6Jw3oDYkoRKjNvFAgfHIPx2/iR4/H7ldyFJB4nWtHu5Vi4WbDsF2C6yA7OR+G
+	bFocsTep1cQiKZyq7hCtL4WGi1iVSN64jSrUQOa6YoVVTTF70TN3KCoI/EdYekZu/73CEI36cdZ
+	lwG+w1WEsIr12roAzw1iwo3UuMhkK6n2rEwJikgVm571GzGdU9viEro6MkpZAbEL6MdvLgTLGu1
+	rlc2FHNU2bnjinB9T24H6Ia62all3SDIanTy/mO6VpPVkhV49Ad2PGpb3RuZ51S/r/zJCMUy3HL
+	ba9PBcFRlRTbWCM7U7atR/0zBPHp6roBJD4n0S7O/AGAaEY6ZDly/8h/ok4iKX2sgOWD2VTyNCU
+	JmLrcFZhQXPhgULEktDfcw+N7iEESbd3y+KTx/Y69z7wRmTs2/huCCYf+vVQtkBzMOop/lWZMDa
+	/uQYcAk5wPfSE=
+X-Google-Smtp-Source: AGHT+IEy2tcNugFFoZ/L1b/kwWL3FdgAjYD+lvIJBPYKZMY6hs2UzwV9S1AhT0ES6IDo2vtVEhI5ug==
+X-Received: by 2002:a17:90b:2811:b0:340:bb51:17eb with SMTP id 98e67ed59e1d1-34abd6d35c0mr9572904a91.15.1765798763360;
         Mon, 15 Dec 2025 03:39:23 -0800 (PST)
 Received: from archie.me ([210.87.74.117])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a0f58d7c27sm27523715ad.24.2025.12.15.03.39.14
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-34abe2f34c7sm2908684a91.9.2025.12.15.03.39.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 15 Dec 2025 03:39:18 -0800 (PST)
 Received: by archie.me (Postfix, from userid 1000)
-	id 357B044588D8; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
+	id CA7C1444B397; Mon, 15 Dec 2025 18:39:06 +0700 (WIB)
 From: Bagas Sanjaya <bagasdotme@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -148,9 +148,9 @@ Cc: Harry Wentland <harry.wentland@amd.com>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: [PATCH 11/14] drm/gem/shmem: Describe @shmem and @size parameters
-Date: Mon, 15 Dec 2025 18:38:59 +0700
-Message-ID: <20251215113903.46555-12-bagasdotme@gmail.com>
+Subject: [PATCH 08/14] VFS: fix __start_dirop() kernel-doc warnings
+Date: Mon, 15 Dec 2025 18:38:56 +0700
+Message-ID: <20251215113903.46555-9-bagasdotme@gmail.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20251215113903.46555-1-bagasdotme@gmail.com>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
@@ -160,37 +160,40 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1239; i=bagasdotme@gmail.com; h=from:subject; bh=NBybN5/snlW67CYY0LDf5z9mjlB8/ZE5MQWmfMjzEtk=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4OX/nxidPxCa7t5fuOD8HMfrQSuP1hub/O7ZcKpR 3k2jWdLOkpZGMS4GGTFFFkmJfI1nd5lJHKhfa0jzBxWJpAhDFycAjCRtAcM/yunTjs9ydWYJypu wYcH6cfFNi1X5dYSuyPxxuv3me1JcpKMDBs+vU9uutHzrUbncPwy+73MjZlbOwIfHrr54bGU4uz aOwwA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1286; i=bagasdotme@gmail.com; h=from:subject; bh=XiWwx/yBvL5qhtur1OJ6r0Qtve5kN/UAKMQDFDv8Kk4=; b=owGbwMvMwCX2bWenZ2ig32LG02pJDJn2n4O3vI8WDrMwXuvBLq8mNivp3ZeuaVYeu+cJXRZ0u 9ehPPdrRykLgxgXg6yYIsukRL6m07uMRC60r3WEmcPKBDKEgYtTACbSG8vI8EpCRPb0s1m/77E2 hv9V7O9IOeS06tfyqjLP7/lK/+xuKjL8zzy7NtZA+f5K8VWm3d9utqf1737naLT7ZsEzs3nvY45 PYQUA
 X-Developer-Key: i=bagasdotme@gmail.com; a=openpgp; fpr=701B806FDCA5D3A58FFB8F7D7C276C64A5E44A1D
 Content-Transfer-Encoding: 8bit
 
-Sphinx reports kernel-doc warnings:
+Sphinx report kernel-doc warnings:
 
-WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'shmem' not described in 'drm_gem_shmem_init'
-WARNING: ./drivers/gpu/drm/drm_gem_shmem_helper.c:104 function parameter 'size' not described in 'drm_gem_shmem_init'
+WARNING: ./fs/namei.c:2853 function parameter 'state' not described in '__start_dirop'
+WARNING: ./fs/namei.c:2853 expecting prototype for start_dirop(). Prototype was for __start_dirop() instead
 
-Describe the parameters.
+Fix them up.
 
-Fixes: e3f4bdaf2c5bfe ("drm/gem/shmem: Extract drm_gem_shmem_init() from drm_gem_shmem_create()")
+Fixes: ff7c4ea11a05c8 ("VFS: add start_creating_killable() and start_removing_killable()")
 Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 3 ++-
+ fs/namei.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 93b9cff89080f9..7f73900abcbb9d 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -96,7 +96,8 @@ static int __drm_gem_shmem_init(struct drm_device *dev, struct drm_gem_shmem_obj
+diff --git a/fs/namei.c b/fs/namei.c
+index bf0f66f0e9b92c..91fd3a786704e2 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -2836,10 +2836,11 @@ static int filename_parentat(int dfd, struct filename *name,
+ }
+ 
  /**
-  * drm_gem_shmem_init - Initialize an allocated object.
-  * @dev: DRM device
-- * @obj: The allocated shmem GEM object.
-+ * @shmem: The allocated shmem GEM object.
-+ * @size: shmem GEM object size
+- * start_dirop - begin a create or remove dirop, performing locking and lookup
++ * __start_dirop - begin a create or remove dirop, performing locking and lookup
+  * @parent:       the dentry of the parent in which the operation will occur
+  * @name:         a qstr holding the name within that parent
+  * @lookup_flags: intent and other lookup flags.
++ * @state:        task state bitmask
   *
-  * Returns:
-  * 0 on success, or a negative error code on failure.
+  * The lookup is performed and necessary locks are taken so that, on success,
+  * the returned dentry can be operated on safely.
 -- 
 An old man doll... just what I always wanted! - Clara
 
