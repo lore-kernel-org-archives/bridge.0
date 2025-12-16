@@ -1,71 +1,65 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E57342E7166
-	for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 20:42:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E86F121FF21
+	for <bridge@lists.linux.dev>; Tue, 16 Dec 2025 00:19:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765831324; cv=none; b=B+ShtSLXfFGndKK2FWN8BcQ6zXmkDrTZThKzOX/pr8VWBW8O/FtifbQL75KBiz2ku04qk06iYm79ptBQOjmt8VdVyCoDE6HDAM+ukVpwGTzvI34tt0pH8SwfykER0q9Yod6wqIqA7iJ0v/kum7z3WQhui01j9AwCDlKjkBuOe8M=
+	t=1765844365; cv=none; b=NsvwuM94Ri+EOIsRyLu0D8qNX4gnJHE13K6qYKb/quPOrgaMvlHei4vhvjOikMNDTltuMsv8DdG1VA+8lVRN/Lur8LZcV3aJN6wwA9VO50KDfSH5SDUYC2v0S/gmRJ9kDI/6H5RprCaklmU/mQrAg4F30NqAcuE8okUq9HvUiOY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765831324; c=relaxed/simple;
-	bh=Tg2Hz5s/jJowltHvM8wwgjOW8nNKrG1QcZozg60XeFs=;
+	s=arc-20240116; t=1765844365; c=relaxed/simple;
+	bh=2xBU63nTJiakTL8J+GV+JbrGyJ0kmCpFFyI7LldHPv8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Bhvfti4MdZIOvA845bzUQpEdqatvzYezF1+Bczm+THPsrKwg+XjpfiOroUSVwSxqm+qjJ70RZESjMe1AFNU79Caea2U535QVOXMSFBqEW5mI1Xy8mTb6o772vrrRn1l/CTADUUlnTW5Uoj8utbQ46Y/aWA+0mEu70xjLjxNqcHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QYINGqbb; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=BBhmaGKw9Jomk/i2Wfksz6jKmdjFnAqvZ56Wi2tlMpEK78owojjDWmxJQOp5BKJQOoi6QNL0FOMyfxIecGlQjPOdSjrhXSitimWBpUpCQwQ4k0SR2OCyX37Hb6B/YJUS/LEFzFE745NP9dHklRucokk+dUgcgNI9TouGesu+f7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kl/tt3ip; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QYINGqbb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1765831320;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vIugujDFg05cEDjSFPsNuy7/nXwlnSCGQEq9oeQZt8U=;
-	b=QYINGqbbRc/FUPodLAsCOdI6iNJAWOz0cigxmje7v9iWY2vLYqh+36mxn5Y5flqd6pqz7Q
-	KThVt3n4fWMSeeREoC+OK4qOLZvpPJorz6TWmltzE9jEw1AlT0V4F5jCrS9JShHdvJgRj5
-	Y5Ftn3TVUE0L6Aa/NL+XTp0JrK0Vumc=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-509-XqiDHUxGNo6-L1UqSIoXqg-1; Mon, 15 Dec 2025 15:41:59 -0500
-X-MC-Unique: XqiDHUxGNo6-L1UqSIoXqg-1
-X-Mimecast-MFC-AGG-ID: XqiDHUxGNo6-L1UqSIoXqg_1765831318
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-477cf2230c8so37539355e9.0
-        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 12:41:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kl/tt3ip"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-29f0f875bc5so53062465ad.3
+        for <bridge@lists.linux.dev>; Mon, 15 Dec 2025 16:19:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1765844363; x=1766449163; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Sk1yhdZDsbmHyAUXRbfG+BCb5AaoOf6d28kSsthudBo=;
+        b=Kl/tt3ipJKJmUwNLQN3dmAFaXBoNFjs6UmJNXeCDA7od6GHXSGASPfTMjZ2KWGnTFD
+         t70nUuZGF7QNiXBvjTXC4QuR5YIkZWv6bFPd6/oG+Gn9n7Zfe0muk/Axbe6apZXCG8wH
+         jy8UBlKueNLm3/HQfacx+ZPJD02hBHJ4HM42X2FzZ2sxSc8Yqz8Bs5IHcR2XPC4zJtum
+         /TjBKIFocF3RDSq3rrGd/bzuuwBoMeVD8w0tHuqCuEqPTZmBOGAWQ0DOHPpvxHoKn+5R
+         Q6KAKtKXFyaiQ6AW9QB7ff5gmOYhk/48J7t9/6Tp4eWiFzauELuY2dV8SutTsD4VhX4F
+         XHoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765831318; x=1766436118;
+        d=1e100.net; s=20230601; t=1765844363; x=1766449163;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vIugujDFg05cEDjSFPsNuy7/nXwlnSCGQEq9oeQZt8U=;
-        b=JUl9T19bOSqPQ+z5G0UpRmKISPJ+WbntzNro3FT8LsS3FS6rQa8kEM1s6Yk7zQYoFg
-         nXUJgaBoR+IyDuJvp9bgKxa2O9TIOUw0Ehilqx1R4T6eQ2EFOrT1NqBKgN2aa8qXCv/k
-         MM9gI2kC0AwzbWYzUd7e2gffknHQojOFE4Wv0j/vEuYg9mlt9sBZ0aat5uYdjIApx8qs
-         L4NWeYqyEOawKQx2YcnTt0lcJOEMlyR1Yarp6p3AlPbh5ILrX3qV058W+PrHEdhUgHB/
-         qbNtczSYKRoK8218/BUFC2yZiDxiTk5USQBkgR4dprGRba+QgqqABuSDi3r2vE5xhkr/
-         oivw==
-X-Forwarded-Encrypted: i=1; AJvYcCWODW6wTL9HNRvX1vkf4x9RIhbVu7KDJhJV8RMD0IBJcYAm4mrXgS9rY7VuDcn+TEZWsFofrJw=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzmQvSg0u3n/YiHCbJm7/TOql2dZUQuVsp4Xc2tFjCc6fAg9fFL
-	6FdidapHlXgRbF9m9PBA76wXRlbqGhcRwcPaObWE83udjCWi+yFRVVD2qYvOOCcg22ICO09N96L
-	IP1HT+ce66T0K46I9dzrKhWwRL3yaodMKeiP3z28108qUAXzJdOfgQDQnNw==
-X-Gm-Gg: AY/fxX6uULgoZwEuGp2cYLb3SAyrnmvb5Uq62aJRpwRYhdTjbSN2l2iGvwiMt55U9pG
-	6K81Fx8Vfkp6tdN8tYOcTDtehVPMabQ4wmEsleFXywpd8yVWRJxsUooG5DRzmg+POrtxIkRARvV
-	1QDdP7rPODmYS8BIFVzmxCoIQSJMulNkgfUULGECrBufxKoNGaCAJk0J5dvPltWImrwq6iPXUe/
-	3U/Hcg8SwmxDB0q2pFqpA3/iMAZI5FY4cOD2vSlJwve4yEAvF5mYLPO9BtrrxBQB5Txd1Lw1MIL
-	kpVCCzxrrkJdondZqddTGCG4/70DoX/POTzuqaHCp9eR/SUTCVpLtk2G9TBWpg5TY8eNRiLTbvt
-	Y9Z7wfD4qnb2ASRi2XMSQ+LYSePkYgkffEA==
-X-Received: by 2002:a05:600c:6290:b0:477:76bf:e1fb with SMTP id 5b1f17b1804b1-47a8f8cdfd1mr164694715e9.16.1765831318224;
-        Mon, 15 Dec 2025 12:41:58 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFpvKxyv9KrTZN+I+gLKkWZxXPblkRG4VaB9KOKEG2SIjVVbTsH1HJ4pcy9Q9bDzIs00zZydQ==
-X-Received: by 2002:a05:600c:6290:b0:477:76bf:e1fb with SMTP id 5b1f17b1804b1-47a8f8cdfd1mr164694005e9.16.1765831317597;
-        Mon, 15 Dec 2025 12:41:57 -0800 (PST)
-Received: from redhat.com (IGLD-80-230-31-118.inter.net.il. [80.230.31.118])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-47a8f6f26ebsm211656485e9.14.2025.12.15.12.41.50
+        bh=Sk1yhdZDsbmHyAUXRbfG+BCb5AaoOf6d28kSsthudBo=;
+        b=Rtqco1BKM0Ys+MIDz9F7ugDedrU5pnHYA41YPjO1UO83eCuOnfLxTO/5v7PdD8Z6qG
+         Zzz6NBL/C7/zr914gqri2J5RdBiAjNuOl6flB5VfzuUMM84xBBosP7vMAI8UsWUb0PNQ
+         AB0Szo0FPV5n8gFkPYUAZhtEBm5H9KZQLMyP41aY+Ej1HUd/5m/i8zEX/LRxV+1ts9te
+         z+v5XklP06txpgr6ZipRpH/cuKAkogy8f0krGBIkXkcUNHhuLfNO+gk/JB3LRZ4NuKUV
+         6TX/KrQOnAPUfF1WLskas9rRg6ZsvXc1FPSvGLdEXE5UnknKQc7zOa/9cCnTQsEvqNFs
+         SDCQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUiSyYEOvnf/e+u2OAamB+EdHRZOyaBjhqhAQZVCztH6yR+3D0osfSAJjZZtqNgXOxvG8mp8S0=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx+W2PH0VFL8x2y4Qy6h/90vGj5ujB3Vv41vuVcaXD9dSwH+ljh
+	W13AKkRQN0ISuZXu+WaDoEXipTaHFIcOqXef9TkcJMV/qVtpSu6RvqCN
+X-Gm-Gg: AY/fxX79Pw31XwE8SJqV46fLG/O1jJWluEuFcs4TXFwGN2+T8RJphezQrEbjmvgKIna
+	cE77QC+uX+rXCdvY/7wJw37Ok0Osq+C7OVzcZA0/riZGZ2RCTRoTJNkYr35Hw1lmAVgh95Q1VmC
+	qTp92XMjdA4Uychvwd77AiHiYr57RC025U0li4BtRHqINyw54JxAE3xHtZ6mLpB3L5pji4uxAuc
+	bvFZ62JG5x0BNSENS7/jQ8U3yQ37Af98bljPK9HML/6Y2qPXJdPQXeP+mEojT1OlBSF4LZayArV
+	7/FTtU4VjCEJyMn4AlwhJxiWuFb4V5CEzjBWtViDvIXVCW6BO04eIANbCWXwT6PHhpNEOqyDyj3
+	t/ydUKTUQUyfhacsQrUKsCtc8KCAQrju/nRfrUN6S7ycOU6EMu4gTuESTCWcjwanCWlccwFEzoK
+	i4c77DcKQGhgTCIKaDCLf6+lYrq6uenPfqlf7yEL022+M=
+X-Google-Smtp-Source: AGHT+IHmrytMydYNAgs0qRZg7qEjrXkSVHGK3fUWY6ADeu6KzKqLiLcf4Z3v4UGHQ57LoQ8XnYjK1w==
+X-Received: by 2002:a05:7301:f84:b0:2a4:3593:6466 with SMTP id 5a478bee46e88-2ac300f729dmr7381219eec.22.1765844362545;
+        Mon, 15 Dec 2025 16:19:22 -0800 (PST)
+Received: from fedora (c-67-164-59-41.hsd1.ca.comcast.net. [67.164.59.41])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-11f2e30491dsm51066947c88.16.2025.12.15.16.19.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Dec 2025 12:41:56 -0800 (PST)
-Date: Mon, 15 Dec 2025 15:41:49 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
+        Mon, 15 Dec 2025 16:19:21 -0800 (PST)
+Date: Mon, 15 Dec 2025 16:19:16 -0800
+From: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>
 To: Bagas Sanjaya <bagasdotme@gmail.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Linux AMDGPU <amd-gfx@lists.freedesktop.org>,
@@ -93,6 +87,7 @@ Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Sumit Semwal <sumit.semwal@linaro.org>,
 	Alexander Potapenko <glider@google.com>,
 	Marco Elver <elver@google.com>, Dmitry Vyukov <dvyukov@google.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
@@ -139,59 +134,31 @@ Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Jilin Yuan <yuanjilin@cdjrlc.com>,
 	Swaraj Gaikwad <swarajgaikwad1925@gmail.com>,
 	George Anthony Vernon <contact@gvernon.com>
-Subject: Re: [PATCH 06/14] virtio: Describe @map and @vmap members in
- virtio_device struct
-Message-ID: <20251215154141-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 04/14] mm: vmalloc: Fix up vrealloc_node_align()
+ kernel-doc macro name
+Message-ID: <aUClhBdwQb83vN0o@fedora>
 References: <20251215113903.46555-1-bagasdotme@gmail.com>
- <20251215113903.46555-7-bagasdotme@gmail.com>
+ <20251215113903.46555-5-bagasdotme@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20251215113903.46555-7-bagasdotme@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: kHwlRFbJ1jQsJIz7bKeHFh2REe36iNMHDy83uhhB_wI_1765831318
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20251215113903.46555-5-bagasdotme@gmail.com>
 
-On Mon, Dec 15, 2025 at 06:38:54PM +0700, Bagas Sanjaya wrote:
-> Sphinx reports kernel-doc warnings:
+On Mon, Dec 15, 2025 at 06:38:52PM +0700, Bagas Sanjaya wrote:
+> Sphinx reports kernel-doc warning:
 > 
-> WARNING: ./include/linux/virtio.h:181 struct member 'map' not described in 'virtio_device'
-> WARNING: ./include/linux/virtio.h:181 struct member 'vmap' not described in 'virtio_device'
+> WARNING: ./mm/vmalloc.c:4284 expecting prototype for vrealloc_node_align_noprof(). Prototype was for vrealloc_node_align() instead
 > 
-> Describe these members.
+> Fix the macro name in vrealloc_node_align_noprof() kernel-doc comment.
 > 
-> Fixes: bee8c7c24b7373 ("virtio: introduce map ops in virtio core")
+> Fixes: 4c5d3365882dbb ("mm/vmalloc: allow to set node and align in vrealloc")
 > Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
 > ---
->  include/linux/virtio.h | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 132a474e59140a..68ead8fda9c921 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -150,11 +150,13 @@ struct virtio_admin_cmd {
->   * @id: the device type identification (used to match it with a driver).
->   * @config: the configuration ops for this device.
->   * @vringh_config: configuration ops for host vrings.
-> + * @map: configuration ops for device's mapping buffer
->   * @vqs: the list of virtqueues for this device.
->   * @features: the 64 lower features supported by both driver and device.
->   * @features_array: the full features space supported by both driver and
->   *		    device.
->   * @priv: private pointer for the driver's use.
-> + * @vmap: device virtual map
->   * @debugfs_dir: debugfs directory entry.
->   * @debugfs_filter_features: features to be filtered set by debugfs.
->   */
-> -- 
-> An old man doll... just what I always wanted! - Clara
 
+LGTM.
+Reviewed-by: Vishal Moola (Oracle) <vishal.moola@gmail.com>
