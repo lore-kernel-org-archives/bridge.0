@@ -1,60 +1,80 @@
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F27A428466C
-	for <bridge@lists.linux.dev>; Sat, 20 Dec 2025 19:16:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 981ED145B27;
+	Sun, 28 Dec 2025 09:34:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766258223; cv=none; b=OE3nETH9zv7cZ1fuCT35z2vyI/kKpreGqCfu/EXX3+PKi8zBFV5yY15jXpCBxRFgM+KuRRM73U5DPIgoP3rQsTeMp1g6MO52Xs54QJwG4CstZCgd3PE27fLANqFAW0P8g/TmkYz8yOscb4QNBhlcpMTbuRpCvVqtB48+GI9WX7k=
+	t=1766914464; cv=none; b=Uxky6M6gDlg+rEO4/YircYtCvU0na50LJnZ3WHYsNhFgF/bGMmrJ6lQaxc8k95hwb7qEv78MoqinBzeReDSXF1hO6R1zEUhcDbYi5lzE/Ggj/b2KMw4Em9osWPDe9ukAxiDxJeD1yO38Vv4J9n1MsNHAWw3uiRCAPxobd7B04nw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766258223; c=relaxed/simple;
-	bh=wNcAmYBMJRoxLEEkuFIyrUQOB9kkOUqZdUxsj7Aizkg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YnAV8OF7GqvvjKq5cpJJKFCGVmjZEzddPmjAagZb7cz0wT7noebOD3kLQs1aFYqv6ywVllak3tpBXZuO92v2VKPWdtwbtPqvR2ISKXonXBiijbClCJ26MXKNSu+w5CvWlrazbkrHHHeYdNagIVHL5bVn4lbSIyjCC7Nuf8flGdI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
-Received: by Chamillionaire.breakpoint.cc (Postfix, from userid 1003)
-	id C89D560351; Sat, 20 Dec 2025 20:16:51 +0100 (CET)
-Date: Sat, 20 Dec 2025 20:16:45 +0100
-From: Florian Westphal <fw@strlen.de>
-To: Daniel Gomez <da.gomez@kernel.org>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
-	Jozsef Kadlecsik <kadlec@netfilter.org>, Phil Sutter <phil@nwl.cc>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Luis Chamberlain <mcgrof@kernel.org>,
-	Petr Pavlu <petr.pavlu@suse.com>,
-	Sami Tolvanen <samitolvanen@google.com>,
-	Aaron Tomlin <atomlin@atomlin.com>,
-	Lucas De Marchi <demarchi@kernel.org>,
-	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Daniel Gomez <da.gomez@samsung.com>
-Subject: Re: [PATCH] netfilter: replace -EEXIST with -EBUSY
-Message-ID: <aUb2HS6kTR-z7gp2@strlen.de>
-References: <20251219-dev-module-init-eexists-netfilter-v1-1-efd3f62412dc@samsung.com>
- <aUUDRGqMQ_Ss3bDJ@strlen.de>
- <fdb9f97d-7813-48a0-9fdf-ddc039d853eb@kernel.org>
+	s=arc-20240116; t=1766914464; c=relaxed/simple;
+	bh=iRuKF543WzRf/d8F+ViynWH9gDwYuLVykWk19SzgOZE=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=GBfAG4Tqp89EE/s8015wiO5jtDpnrkum1fI8QoMHWQxNR8xfm90x8ZzKZD4GEcyGn/eH4iUmn+V7RCuYyo6m4dX4JFqqtwQBDu8lVq0EJen0Cv6flP5RSV+WB2SzZyKdo5eiCqeKd34hD10ce72DNqfz7zJO398oRVjiFfzjxAw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DS7/qPIV; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DS7/qPIV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 288E6C4CEFB;
+	Sun, 28 Dec 2025 09:34:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1766914464;
+	bh=iRuKF543WzRf/d8F+ViynWH9gDwYuLVykWk19SzgOZE=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=DS7/qPIVzqMwBCdraQKVNznuMd6Bw55RUphI6N49eD2l2GW9U8kV43MA8Mnzh/ssv
+	 Bm0TVWk933/ZjdrmgjvzC1MTDlc4mdaB71BZ51HpjdKnv1xqu8pciqpJF16krU2jS+
+	 Nytuyb1So6ejqlqsTaCIDpWM0v6wLfZ4FUNa0ke2Tm7cEy6ak6R0kA0df5bItvQfe8
+	 W3/eCQK+/6S+1bSAjroCj0FFFPlIACfeqmjXGDafKICNHtqf6LqnnUYd3snNeUwplI
+	 cglFMeUfh5xKMBkQGG+5jZGXzQMMFDUU5iJwiDmgoL/omnEI7Q3IU7d+tHCLGC7XQU
+	 CD+4xOSLz5L4A==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B587A3AB0926;
+	Sun, 28 Dec 2025 09:31:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fdb9f97d-7813-48a0-9fdf-ddc039d853eb@kernel.org>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] net: bridge: Describe @tunnel_hash member in
+ net_bridge_vlan_group struct
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <176691426757.2294622.16719813097186880142.git-patchwork-notify@kernel.org>
+Date: Sun, 28 Dec 2025 09:31:07 +0000
+References: <20251218042936.24175-2-bagasdotme@gmail.com>
+In-Reply-To: <20251218042936.24175-2-bagasdotme@gmail.com>
+To: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+ bridge@lists.linux.dev, razor@blackwall.org, idosch@nvidia.com,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, roopa@cumulusnetworks.com
 
-Daniel Gomez <da.gomez@kernel.org> wrote:
-> something like:
+Hello:
+
+This patch was applied to netdev/net.git (main)
+by Paolo Abeni <pabeni@redhat.com>:
+
+On Thu, 18 Dec 2025 11:29:37 +0700 you wrote:
+> Sphinx reports kernel-doc warning:
 > 
-> Replace -EEXIST with -EBUSY to ensure correct error reporting in the module
-> initialization path.
+> WARNING: ./net/bridge/br_private.h:267 struct member 'tunnel_hash' not described in 'net_bridge_vlan_group'
+> 
+> Fix it by describing @tunnel_hash member.
+> 
+> Fixes: efa5356b0d9753 ("bridge: per vlan dst_metadata netlink support")
+> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+> 
+> [...]
 
-Makes sense, I will mangle it locally when I apply this.  Thanks!
+Here is the summary with links:
+  - [net,v2] net: bridge: Describe @tunnel_hash member in net_bridge_vlan_group struct
+    https://git.kernel.org/netdev/net/c/f79f9b7ace17
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
