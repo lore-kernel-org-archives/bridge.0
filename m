@@ -1,81 +1,109 @@
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com [209.85.210.70])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9CE233710F
-	for <bridge@lists.linux.dev>; Mon, 19 Jan 2026 08:19:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22EAE3D1CC1
+	for <bridge@lists.linux.dev>; Tue, 20 Jan 2026 09:22:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768810767; cv=none; b=TecIc53r6rLkN0sIIBLYkahfI8Ks6r9z9vPzMJkwTvW3K6eYdcosfo2DpDS9XR4SYghU4FhjMONZZDTdyBqpTVdVEXPvqsi8qzCvZ4wLgUp6+5WEfmqq0GLyQzAkI0zAI0jILPMJtED7bSwk4NyzzlbC55ZKUYLCs0FuuepuXy0=
+	t=1768900962; cv=none; b=DNkyP9DcFnVlWdtweQ9cAjl65N+pVobSNRK2Jr/zOKvdcdIjkI8gXIfi6IcP0Z7g7Q5ZODMarHB9VmEKljSir0PzBa0yNgBeyWaAMcQhcMFScNJ1ZpSCH2qFXf+SGXQDqndV06+3+PsCP5zE4gOMqg7DYrWtpzkmoLCgmkIhxd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768810767; c=relaxed/simple;
-	bh=Jb3FKv07DCzw86c6lQOtvV9wn5Qbc0cIexkfIx/2GCQ=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Ac63Bp3a4q/jZO5Rq3QH7UXrNjBeq6WQtiR1/5oJFeEv86yRCxufltDIO92otFNCm6g1kYo5Re71N7mJL6W16MwD3t47WnC4Zlj1XIGQG40mNRxrY1tum5rP2OlQOG0y7XnNpOw5S8fOrfJEJ5yJ1ijYy5Bz2pcmlYcsLukCmQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-7cfd708b2a9so5100353a34.0
-        for <bridge@lists.linux.dev>; Mon, 19 Jan 2026 00:19:25 -0800 (PST)
+	s=arc-20240116; t=1768900962; c=relaxed/simple;
+	bh=lD+mKH/VoL7U+Xn8rlClapNXVv2BkfA7db4D0sWd64Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MaVsOnuuz4Xr8mshsU5N+kVScM77N7ZJmtBKBTjdyMQi7TcaT0VuEGSkoqN4/2PaYAyskcO8P1qdFyz2tpjPqVwzAXi6z+eSkXdCv+Mrmd7TPgtU/z35pbG3ufKtdbseSbvtTlclqTcnGD3Gdj1JPjBEagepEyu9XZnUuJ64ZLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KjFiI/Xy; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KjFiI/Xy"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2a0a95200e8so33292235ad.0
+        for <bridge@lists.linux.dev>; Tue, 20 Jan 2026 01:22:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1768900960; x=1769505760; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=bWSMDHHZmGWMxvi8CWFXwngeoN3yjP8cY0r0efHq7Mg=;
+        b=KjFiI/XyO25Yq/jDc8EBdQrb8VcefAUQtQ2Zp7xTsFl8KRtQmC8cx7CDEIL5LEbv5t
+         AiX+1wqVxR8dfSTjqhth0D8G5BJJ1w+XWpd2mvj7rQRaNOz7eD9k6COlNKmw+VvwvaMB
+         nh+ZFDVpggp21K4Wy0NdxCRMhAxLHbN6u1FLy8IZSIY88v2R77fpUW4bDbMwIq+xDEIx
+         Tqd+53sGcRSYK6/z3DOnOrLAJ02XH/bdrTalDX5LFdQsWB15RfGQBvA3Wz5vWzF+8tjm
+         eZ5mTnFnJISMbTwQORfuoI4E5WOKvymyUUKwx4+D3fO5pLrgma0/S5v+A+S2qDuYcv9C
+         WS8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768810765; x=1769415565;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Ni2tG3D0/GMousFMArbvuVSn5vpRnsJtfyimarHsdLU=;
-        b=olaUtXXM8MH/G8RpH0Ioc0zK9jvt0I+HRe/iMFmxPb6MtQc2JMlmoW8gCSembktJ+m
-         lCp+46xRIrg58IAsclFxoIBdnFdign+Gl5g8Hj8dPj3BzhyEl8hwxLarv5VZ2fOXwayH
-         HUAfvhKf1B1duYgJPzaI6NcqgMMep9eIzyjY6Psa50PrmMX8AUh6q9ZefX/IlRzf1sLJ
-         c3ihxOwYldmp/UpvSD6ZNxCznWS/SQpql9ygMiOEeNfHb9upznqXufprvAaoln+cgCWq
-         FNcTJ45oRefOaPPoqeqPKlPJVRx9NZmp3OMquH4z5N9rKBX1C602mTZrnwwZKUHwu3Mi
-         OboQ==
-X-Gm-Message-State: AOJu0YwtDS5lDJo2JkjHx0NHd4bRU56glc7iwd6BL2H5KvEIHym69B0/
-	OUYDOUcWBKsNAZ5Kx3FXeekR7or7URZMX2kSh9S0QgOEoeNeIkmJKJ/l77gxtPAdqhosYzWR+YD
-	+Pai/hxKALuox9B10JdEpGdZjHhvcJYUwsoFEbR9oO05J8aXRXOuW84cOzjg=
+        d=1e100.net; s=20230601; t=1768900960; x=1769505760;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bWSMDHHZmGWMxvi8CWFXwngeoN3yjP8cY0r0efHq7Mg=;
+        b=bxM6Dzm9VWjcX+4P3mnhCj7np7c6lX73lOVEJQr7VOnG3upHFzBj2TRnsSpeYEJEri
+         kG4xwMb6xuGmnIZiPhLKpR/Fgeyy8xqgC7iphtEYcOlxtN4sSbMCS0rUXHlMPd0Ho1uA
+         tf6yym5UWkzmikW/yqKL/ofzqvEr23edHhEphuT1llmSk6HRVWdNXCtUW0K29Ug95/GK
+         8I61G0mQ6t5zGZaKFopjdi1VsvIG1Qf62GHm2mWvMXuy57Lyozcy988KRvsiYFyKx0TL
+         9BWckjiBSKT/UxNUAAl4RZUvlc1kM0Q+2Do2rmw/1qldNyrB54eHS2TRtujYggSnK6Pp
+         V9OQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXSM75aj5NvCbvI9T74BEtSs/NxW4BTWGPBQsAatM+z/KhfjCbOGgF7FV3zkHpc44/lmrobA14=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy+c2jDgJRGTZnXBFibMfp4ZGvRqRyME05NpoEFqbieXszcAWqc
+	j+Hiw+FscP2/P2upwNSguugWD4npUp2Gxfk0qLUD+JfhOPGfOuU5E0Ql
+X-Gm-Gg: AZuq6aKBZ/iaRVR5amQEh1WdUoc3IK8J925YFPRxyfoC/wcrQLjvoF6dy/QJztRW+j5
+	B6rlkNtomT2jRriZ9xKNOITN6JBvnDQVJZjOWmveTeoxX/Zxl2LeOUn1oVW6Jum0MrYpjCVwh5h
+	njwqVcPhavUl+t2SnzybqRjhPW+DxnIdkVo5dr0sZJ8A/P/FDKwn5G00wMC+KM0ftbAB+4yW3NK
+	5uIVU9wzJxUVW28IVbVjtBmIkEOmibbiyDV/dtYtU0V3RuqijvA/Bhfcd8Wt4WYSqATTCwj3tdj
+	o7oPluMlCxjdgl9h4N43qcCKfcU1kz919NqPqC3QEDUvzCRCkP/NmGZyIavN6cN2hfZEsrLuRyo
+	vItn8LvSaMSRv9+mjIA+Qi+72eUzD33mYEn4G3Nsbz3ffZI0PHbAKdvGnWn8vcmvQUa4F+1q560
+	bbOGYvxwroqvJAsfxTzmtpXYPUcjrcUmOG02m4rhnQ5P9gAiblgQhfcQ==
+X-Received: by 2002:a17:902:ecc6:b0:2a0:afeb:fbbb with SMTP id d9443c01a7336-2a768b7a743mr10676105ad.1.1768900960214;
+        Tue, 20 Jan 2026 01:22:40 -0800 (PST)
+Received: from d.home.mmyangfl.tk ([2001:19f0:8001:1644:5400:5ff:fe3e:12b1])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a719412d38sm107330435ad.87.2026.01.20.01.22.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Jan 2026 01:22:39 -0800 (PST)
+From: David Yang <mmyangfl@gmail.com>
+To: netdev@vger.kernel.org
+Cc: David Yang <mmyangfl@gmail.com>,
+	Sabrina Dubroca <sd@queasysnail.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Simon Horman <horms@kernel.org>,
+	Mark Bloch <mbloch@nvidia.com>,
+	Petr Machata <petrm@nvidia.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Carolina Jubran <cjubran@nvidia.com>,
+	Breno Leitao <leitao@debian.org>,
+	Shigeru Yoshida <syoshida@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	bridge@lists.linux.dev
+Subject: [PATCH net-next 0/4] u64_stats: Introduce u64_stats_copy()
+Date: Tue, 20 Jan 2026 17:21:28 +0800
+Message-ID: <20260120092137.2161162-1-mmyangfl@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:997:b0:65f:5c88:67a8 with SMTP id
- 006d021491bc7-66117a3a2dbmr3962051eaf.74.1768810764914; Mon, 19 Jan 2026
- 00:19:24 -0800 (PST)
-Date: Mon, 19 Jan 2026 00:19:24 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <696de90c.a70a0220.34546f.0435.GAE@google.com>
-Subject: [syzbot] Monthly bridge report (Jan 2026)
-From: syzbot <syzbot+list1e4b7a4bd5a6b9f5fd40@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, idosch@nvidia.com, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, razor@blackwall.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello bridge maintainers/developers,
+On 64bit arches, struct u64_stats_sync is empty and provides no help
+against load/store tearing. memcpy() should not be considered atomic
+against u64 values. Use u64_stats_copy() instead.
 
-This is a 31-day syzbot report for the bridge subsystem.
-All related reports/information can be found at:
-https://syzkaller.appspot.com/upstream/s/bridge
+David Yang (4):
+  u64_stats: Introduce u64_stats_copy()
+  net: bridge: mcast: fix memcpy with u64_stats
+  macsec: fix memcpy with u64_stats
+  vxlan: vnifilter: fix memcpy with u64_stats
 
-During the period, 1 new issues were detected and 0 were fixed.
-In total, 7 issues are still open and 39 have already been fixed.
+ drivers/net/macsec.c                |  6 +++---
+ drivers/net/vxlan/vxlan_vnifilter.c |  2 +-
+ include/linux/u64_stats_sync.h      | 15 +++++++++++++++
+ net/bridge/br_multicast.c           |  2 +-
+ 4 files changed, 20 insertions(+), 5 deletions(-)
 
-Some of the still happening issues:
+-- 
+2.51.0
 
-Ref Crashes Repro Title
-<1> 52      Yes   INFO: rcu detected stall in br_handle_frame (6)
-                  https://syzkaller.appspot.com/bug?extid=f8850bc3986562f79619
-<2> 5       No    KMSAN: uninit-value in netif_skb_features (4)
-                  https://syzkaller.appspot.com/bug?extid=1543a7d954d9c6d00407
-<3> 1       No    WARNING in br_nf_local_in (2)
-                  https://syzkaller.appspot.com/bug?extid=9c5dd93a81a3f39325c2
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-To disable reminders for individual bugs, reply with the following command:
-#syz set <Ref> no-reminders
-
-To change bug's subsystems, reply with:
-#syz set <Ref> subsystems: new-subsystem
-
-You may send multiple commands in a single email message.
