@@ -1,81 +1,89 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BA8430E83E
-	for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 16:22:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5ABE1F03EF
+	for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 18:16:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769185356; cv=none; b=M9/uSePJvv/S1vukx40/CrSAvcNaefW3K0tTw96HC945ZztVyYCpbHzgRIdCMB7n+6DodSTAk41XB8/UZOfdRDDIIWurJDLQ0INjQD7CzrNx+wVe7GXrrQ7EYJ6x67qry4eMzvWMDV5qF5u2KE2nqPb7uNkpATSInf4nMXHQgt0=
+	t=1769192191; cv=none; b=m5pcgFpL0s0fPoETpZ49MY7IZo0llyQknPCjDts/rvH8BnxfL6mFUsSCQUEgeKBshVGUnNmrGLJ3YAByWrzaM3RRlUxij2KnjQdb0UhOGb9HUjKBJLB11hmZd/a0TDtURCIDgYbp6DTnCNYaIk1kSiVbmJNGTBIY+SFAlcs8Anc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769185356; c=relaxed/simple;
-	bh=fuHJNs9q0jub17ekWOOL9sffjn3h+K2Q6gGWIFoNBxw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BhB0FBP0pFq55+IM/8nUFvEBkB5J3STj9+uuqBaijsfI4VBDrOxXWKSXv6mFGpnzd7YonTnE9POQ/w/vK8n4J1AmG/0BNhJ4ZRTDk3ZsMAIBn39463bv+b/t7cBYpD82D+e8grawYuR2OR943zojS0D5V8sfXwFN+l0aEPD13N8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ofx32OfR; arc=none smtp.client-ip=209.85.210.177
+	s=arc-20240116; t=1769192191; c=relaxed/simple;
+	bh=HL9Z8exH0p8ghijOUjxjCoBmCDjBhhDKtkS3KASOoh0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NtwVuF1I3f7nHRFYADRoEj1cCRdpMdxoqAKe9P2b3NxiQW2SH4gBEZnU6+8ua/QeLkT1SrsKIUyhQDI2RrPOyXeA2huE6Ap9W550yoD+Qh/OroYAepZ0f7Q9oAKxazY8VAJfeY76OYh+RyJc4Y4++RM028fKgCsGilRx0kbgV1Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jjrLfcIc; arc=none smtp.client-ip=209.85.222.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ofx32OfR"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-8230c33f477so1021608b3a.2
-        for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 08:22:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jjrLfcIc"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8c52f15c5b3so261872685a.3
+        for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 10:16:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769185355; x=1769790155; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZjJ7CPS5/DqUp4cokLUu32N2BVEoOZUcO8cPBS5b2w8=;
-        b=Ofx32OfRi/i2vrGMbSMq2hMmmIsV8isOvy1+Qgbh6/4FvWiVBnDqTWRxiGn+dCywiK
-         KBIG4pXk3+nclPuhlYURbiTctu3oNXRK/RDUnt5nAOSvZeMg9hGVlQ124ZOtlAWAHtlO
-         JY1LSN5OOy3gg6t9KIRRdHJ4UA5vVMgfwcCba4eQhD7hqw19mf07yOzJQI85SJrpw3Lc
-         fx8fX0LnIl+fc86OjdXxe2xeEhHZpdK2H1qHZOT4oiNN08KQUVqKVjFRfJ7bLZX06b7O
-         yfoEyWt7mLivF87sCrZDeNKblzCChC8IQ5AoT1gIK+z+ppjWOdrUN8cYAKAeJvRpWNuz
-         ckmg==
+        d=gmail.com; s=20230601; t=1769192189; x=1769796989; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=zF0a10J5mLJVO6RkpWuar6FLLd6MMCZJu1XiB3Hvb/Q=;
+        b=jjrLfcIcJd2j6K9KH8A7Kv1JeHWJDVcvoQWmwkEInW89/f5pEGqRpZAxGA5/oIwaR+
+         1F/a6NmEEs2yo71RQaB7QxtJxJKwNQ0fRl4Yef+cBndNOtv2eCWeAhprcs+t7e6zkD+5
+         XP4ysknuHmWT+CFFPyJphlPgfoWCofH22YLdZGFx1UhV4dKTPeT9ezxyiqpYR6A1J+vo
+         w/iDqp+50rfjeJ3oSuNYrABdM44TRQeGv9HldknGKs+ZxSYiiw0bByBzG12HfrfHqjZd
+         Lf34pHL/VsnTjhTgmr0wcEDqhDSyMsaPvfDmFSP7MWMXCa+QbyBjW5KJt9bRJN47PURZ
+         v2Pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769185355; x=1769790155;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ZjJ7CPS5/DqUp4cokLUu32N2BVEoOZUcO8cPBS5b2w8=;
-        b=E/i107bUE8P+CJV0PdSs1WOca2uY13JPUulNVG/6tsGTBdFdZE7rVRzfWNBO85Six8
-         V8AYAY9j138LifGLb9G8XvFGdbrA2PUXwnUIRoCCgTyVxqyaonFtD35qDBxSjpcY66bI
-         xoaT5iXXBYLXyME3EcuYHE61sEWo9b60psbzjI2pxzaWlMCdoSVWHDcgbhoEMuluWF2z
-         LSNLH4/RdQtwt59s2sRMrJvWus343sZ3YGo6Rhg7QTtD112VpSgSJWvSIPjkOkrso0HL
-         iBBzeA2eaibHE2JMPE2RfDFvyED/0m7HlSrG6S8qAmj3NZfEQCzPMQPFqgp0/lf/6rA1
-         R/Nw==
-X-Forwarded-Encrypted: i=1; AJvYcCWX5ayXMva++tF3HEJNi0mojWtGQ1LZySqjyTpGkXL1y+R610KsRxqaBlnZQP0LSH66hAYSU9Q=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzQKO1aU3IG9e1V3C8j1QV1WUCUpYGe9zZPeJ8DpoJzBI/ZwbuS
-	Ldj+OpxmxLg5chcM68PwhjYY+fOG3LZCXwfB0Dms/bsdKQLuVcAtYaWX
-X-Gm-Gg: AZuq6aJCKmCbmpZ1udtoQ9O4sVe8SK9c8G5N9xvL92YaHsjbwJMSQNfIeYlGj3JXryd
-	265nZQXH1wXbzjB1W21yf61NYX1M4iOIt+iQqTWTljilMOkcGJtHaDpv3P/2FEg6RBNDXrZtl4q
-	OZMpEBOOGe3mIElOS1PJUfcw1/Bw6fTY7laXOjPxeHQCTu6PK9flxef/sbitXpPv5f5QN2plkGG
-	nclrfJfpG47r7oGif96v7/OomUSAHSu3Yqyzzmbn2Gb/4BsI7974y6gbuf7cWqeVyp05JK3mEf0
-	x/gsAbBiwkjA0fwM0tfw1DOBc+DuXJhcj4VQ7BJfjp/xkavrSRKJxiB2V3Pn4Ybpn2y0ln1hn6t
-	tA+SjZ6tsHpy52TJBAXcPuD7BqD3syk0RLHOfoThZJ8fAvsofFCsuMZafoQUIKoV+i5Zp7rjc6+
-	hcO7U8IUNBv5xwlN8f8MhIVL8GMHDFI1JASXLzxAtpNmkkOEoyvDPkzA==
-X-Received: by 2002:a17:90b:3c06:b0:353:49f2:1e7c with SMTP id 98e67ed59e1d1-3537b272a3cmr1132136a91.30.1769185354648;
-        Fri, 23 Jan 2026 08:22:34 -0800 (PST)
+        d=1e100.net; s=20230601; t=1769192189; x=1769796989;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zF0a10J5mLJVO6RkpWuar6FLLd6MMCZJu1XiB3Hvb/Q=;
+        b=iCCUt0brBEsGiBRe5FSWw8sVKArSe6n517CsrVHjJoBx0TS3rDTnUhGwv63SpMHRBN
+         V5qebLIHtrfy0nyr5tucQ0RhYL/+k/lS0rkAktFBLgSF2pL2QYh50AAomLDh1WQwdkap
+         hlzPuTf6tCjmF0XCOZHQEwNDuZ5kEB0dW8yH2k3ro57ATwAwlEMALF0eP7TdCQexU9p0
+         SGgqiI+JV30lSJwjb+NuUBchiGddZxNXOcwy407D5vdG1mHWUvRyPWjKwrYN1dKQYh7T
+         4+LAxA5qobTjFmCOf93ZEpyAFLIgrfBP7kyOi4OLoDgdTVLWvrDRZnZLtmPfHLDbvokL
+         HRrg==
+X-Forwarded-Encrypted: i=1; AJvYcCVUFXTey/smIzLnMFuTOnsSHQJfcRj5RhmNLsZvpzXtfEBYvBuQLB0uBU4uWbZ2w88xVwLHLZo=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwUq/v4zHpuwVQDnbP9flat4r4gpM19m5XTloQM8Klt92esywuM
+	aSrxHv5ljMPWQZ3GopCongAV0/NRo0DGgYThEpnm9NoqBUb2Be0JDbwhd+jqhA==
+X-Gm-Gg: AZuq6aImlSAQ2K65IWrGTAYV+jm+Y0mIEIyp3kEGPufAFeCL9C4dCFt0S5wDVRnkfpH
+	eocLLkPDS4tgeRdMtTLsOVz0LBzI2qCLA6VKISYYFjb18gbZFmKZPy5B+a7nxF6RQ1SOcOPV+AY
+	lr6CP0LBehOXXlnAsBSsJppT5Q0WgUTUIl5wYtq4bcmzeY16olJ0b7UORN/VQ5rumnEsStRtYU4
+	0XKi8ixBalpjZwLRGD5jq4KNOCwY3JYGM8pdAe9cC2SmYnuy7vZMuPRwSwUfXQEjNMunNHc8rOW
+	ODqX1WZYO3TPmn5PAbyVS73bRYona9ULPQT8X7pK4KrrVk4WuUqGg0UAS6pwjCuQoV7FsCTBjOj
+	9qzzs0nFZf+5V7AT+tys86ltS4AfASwPInIIXXde/mx8fFxqefSXAbI7IvEa4rgE8EBEb2KhLKL
+	+EFn/0aOMxfqoiIBB7m0u+VTAu16H/tadTY9AcAvDpgTyv0dZ/xcY+qG4jsb5VeId2
+X-Received: by 2002:a17:90b:17ca:b0:33b:cfac:d5c6 with SMTP id 98e67ed59e1d1-3537af9505emr1485005a91.29.1769185336053;
+        Fri, 23 Jan 2026 08:22:16 -0800 (PST)
 Received: from d.home.mmyangfl.tk ([2001:19f0:8001:1644:5400:5ff:fe3e:12b1])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3536dc50882sm2496967a91.16.2026.01.23.08.22.31
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3536dc50882sm2496967a91.16.2026.01.23.08.22.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 08:22:34 -0800 (PST)
+        Fri, 23 Jan 2026 08:22:15 -0800 (PST)
 From: David Yang <mmyangfl@gmail.com>
 To: netdev@vger.kernel.org
 Cc: David Yang <mmyangfl@gmail.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
+	Sabrina Dubroca <sd@queasysnail.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
 	Simon Horman <horms@kernel.org>,
+	Aaron Conole <aconole@redhat.com>,
+	Eelco Chaudron <echaudro@redhat.com>,
+	Ilya Maximets <i.maximets@ovn.org>,
+	Shigeru Yoshida <syoshida@redhat.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Breno Leitao <leitao@debian.org>,
+	Carolina Jubran <cjubran@nvidia.com>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Guillaume Nault <gnault@redhat.com>,
+	linux-kernel@vger.kernel.org,
 	bridge@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v2 3/7] net: bridge: mcast: fix memcpy with u64_stats
-Date: Sat, 24 Jan 2026 00:21:35 +0800
-Message-ID: <20260123162159.2877941-4-mmyangfl@gmail.com>
+	dev@openvswitch.org
+Subject: [PATCH net-next v2 0/7] u64_stats: Introduce u64_stats_reads()
+Date: Sat, 24 Jan 2026 00:21:32 +0800
+Message-ID: <20260123162159.2877941-1-mmyangfl@gmail.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260123162159.2877941-1-mmyangfl@gmail.com>
-References: <20260123162159.2877941-1-mmyangfl@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -85,27 +93,32 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
 On 64bit arches, struct u64_stats_sync is empty and provides no help
-against load/store tearing. memcpy() should not be considered tear-free.
-Use u64_stats_reads() instead.
+against load/store tearing. memcpy() and struct copying should not be
+considered tear-free. Use u64_stats_reads() instead.
 
-Signed-off-by: David Yang <mmyangfl@gmail.com>
----
- net/bridge/br_multicast.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+v1: https://lore.kernel.org/r/20260120092137.2161162-1-mmyangfl@gmail.com
+  - rename to u64_stats_reads() to clarify data flow direction
+  - refine the implementation
+  - add docs
+  - fix struct copying too
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index d55a4ab87837..0f8e15b4fa60 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -5201,7 +5201,7 @@ void br_multicast_get_stats(const struct net_bridge *br,
- 
- 		do {
- 			start = u64_stats_fetch_begin(&cpu_stats->syncp);
--			memcpy(&temp, &cpu_stats->mstats, sizeof(temp));
-+			u64_stats_reads(&temp, &cpu_stats->mstats, sizeof(temp));
- 		} while (u64_stats_fetch_retry(&cpu_stats->syncp, start));
- 
- 		mcast_stats_add_dir(tdst.igmp_v1queries, temp.igmp_v1queries);
+David Yang (7):
+  u64_stats: Introduce u64_stats_reads()
+  u64_stats: Doc incorrect usage with plain variables
+  net: bridge: mcast: fix memcpy with u64_stats
+  net: openvswitch: fix load tearing with u64_stats
+  macsec: fix memcpy with u64_stats
+  mpls: Fix load tearing with u64_stats
+  vxlan: vnifilter: fix memcpy with u64_stats
+
+ drivers/net/macsec.c                |  6 ++--
+ drivers/net/vxlan/vxlan_vnifilter.c |  2 +-
+ include/linux/u64_stats_sync.h      | 56 ++++++++++++++++++++++++-----
+ net/bridge/br_multicast.c           |  2 +-
+ net/mpls/af_mpls.c                  |  2 +-
+ net/openvswitch/datapath.c          |  3 +-
+ 6 files changed, 55 insertions(+), 16 deletions(-)
+
 -- 
 2.51.0
 
