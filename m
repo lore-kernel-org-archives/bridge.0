@@ -1,198 +1,165 @@
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B1BE36C59D
-	for <bridge@lists.linux.dev>; Thu, 22 Jan 2026 15:14:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769094864; cv=pass; b=raLMhQxRk061K+6niSk/wKDIRRWXotdePienhy65VGvy/tlbCLy+PUNr13FKLCOL8/xRuCtU4Kuq2tF/YvWrBXOR9/H/zffsrBlZzw32dZPxg2vpg9G2BNCwYhmBjnBMH8/cTNOGTegbQrsdsubow1GeaelnSd8Y0se5IongiOo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769094864; c=relaxed/simple;
-	bh=BzjoKlvqt1EzagDyE1uDPXUBk0JHsuSDNte2h/zwXm4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IzsXsGyNWAdIEoBncPxPMz2u3/dpJQt1DzT3zjLoa/7Z9QQ43uTm8WpjGCSIkKa9x2yUbz3OXX+19PxPy2Fpr6FREDjr7sySMgwy2DCOFh6dBqk/dTycJLh2K/ycabGigZ1bvd9RVQjpQio+ewc67xT8yIfiibyPzU/DcMCJwSo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mnft9G2e; arc=pass smtp.client-ip=209.85.210.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCAF826C3AE
+	for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 16:22:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769185345; cv=none; b=Y5sE/Okdxoc3mX/T43buE+alXnRQxZD4eQE4uDljgTRqoOV6GsTgcKgueyNmwedL/PARBM4ikKnRPfB7sdOMS/H2tHN7i/qBSx77/W/WJ6ji6VVABq9VVYPSjYplPIHe8F/etXghdpEqTwgH7zGOHJ30F3AbxSy64t0T2FTPVAA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769185345; c=relaxed/simple;
+	bh=w5MIfnlIHaBZE9Sx+nDab+c35nSGwa8xj0TFBnbl3RQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=KrAcNgkyaluss/Nz6a8dGQxY2x5xy7lewCm8I6mHNAg1QvhACwz06xI9cSGJQ9ANMaYZZAMO87JqNCqJNAHOFDbgPPFoOtudPg6wo8Y+AzLefTtuWjFb19CAe0i89FkR66wozFU14A3RgLpfTHgj5wuCHBe2dAbfXJP4ZTf5HEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aSZqohpA; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mnft9G2e"
-Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-7cfd6f321b5so580269a34.2
-        for <bridge@lists.linux.dev>; Thu, 22 Jan 2026 07:14:20 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769094860; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ObNYUjg0MLz8XOnTtuDe3yXp3c4pTpCjFnAWNuyIRg+ugMqwi2bAboPjAgq/zoez91
-         1vsulgIXoaC+6DhIVS0YThlOX5cHoM0+XPotKrgGPM5kPIyssX4+XuX3SawvzIZGMXNk
-         UHUENEfpsX7geZ1NgnOeDmxLnb/qSXCUJdMopiAoePskzuz3r6pEWvnWX4V5y0gOA7+a
-         FWfNSt89n72eGN7wuapuNoYK5LilmCBLN0/z8iEH6kY2IcGIN7ufaz2ray+nmXyi/81s
-         0JYl51QcYGMOpcO0EI1N1DeiOx3gSpiDvZI3tn51jtjOp6BawIsPXRKYIK3HzyNrAUOV
-         ofzw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=JBOZm8NEn1I7Enhvm7jPT5V5sGA/hVgZBX7ufyhJPsQ=;
-        fh=z4EtvKD4nTOjocQTEnb11MkyvGdJwOucpYrEL0e/x9o=;
-        b=f1LkV67TPvfcHoiYeV53TNHsup9b51A3sp+3s+rqWuoSOjE28nFIcq345NhkiBqgAc
-         Ujr9yxAHUWaxMR6a4dyfoVad54sPTkbuD7eGFCK/FfKe60IbPj5OrBVRThY1n8FJsOLp
-         shSZt39d8xGPVTwJZe/ttShnBbWG1LVrZKUTveC63VW0bbNTLo4uJDerNI0bVJDCNbVE
-         BSlcFLz2iFRrEvNfAdpdFS5sBye9WQ3DTw+ntWnHcLZ3ry8wcjRQHbGRVwGFejz391vC
-         GWJyi1P2oaVl+HwLuRheGOP0FlpK36OEnjV9qCudbN0uAKWBwO3kI5uA1WJZViPAAA8U
-         sm9w==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aSZqohpA"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-352ccc61658so1127059a91.0
+        for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 08:22:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769094860; x=1769699660; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1769185343; x=1769790143; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JBOZm8NEn1I7Enhvm7jPT5V5sGA/hVgZBX7ufyhJPsQ=;
-        b=Mnft9G2eAf1eCH8LB74oR24ZVXnNeW8wfr/RBE1MwgFKy64YQmFJtdK99UOgkrt4AI
-         NiveJOpo3jdlk03M6zygtINk0USjqQgLX61A7ej9fKujGP0YyTRVdfjUvDuhK0QEV15k
-         wteOYooFAqejzURS7c6ADxWMRkHBi0LWpFIejyzEiiVKhYufIoCKrwZVW3zR4z+KDfYZ
-         PtI4gMjmZ4oZGqShufHzLIjkFfPtEVadmGeQPQirlXsSyqOLLPFu9RSyNMz7AIdBXFKK
-         B7VAHuMOyTHNZ9saOZ/8DDW9QY2xEIuCajKc3C0nIUNj/sNit/UqGe/PsXG9+NiRVaB8
-         OBLA==
+        bh=j1hAVBooT6RSatSb0JkTTI9JelC7CFfOn3FnTuarbB4=;
+        b=aSZqohpALhcUzozdjTOVMrFNgUrJfx+ax5iNeRwIgd3n6izyhA5Hq1/S8OfCVRWSvk
+         NR/HAu87Eo0g6tKfyJkMMM3wV/CumvH+2D4QL6g4EmrSkn5/bkAimUPYi8ELtmpduFns
+         qyICfDAt6sa2y/A2wZ7pANo8rFKsty6wQ1XQaLAm2jPAjIaP2U3fIuQlzNPOxp9OMCyZ
+         1GBE20qSkCOya2XeU+9efknFuRbElGXkpTVvYbUL7+1VqZI0cqr5i6svx6vIsFUlkS/c
+         XlNlnS/dX+6eTYl/yTjtMcqM4YYyc+9lWEHoVW6327i8NLt0QmDcyBG2UtTX53G11BjL
+         aYSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769094860; x=1769699660;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20230601; t=1769185343; x=1769790143;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=JBOZm8NEn1I7Enhvm7jPT5V5sGA/hVgZBX7ufyhJPsQ=;
-        b=TozcJIPGeS1nValec7EJOQa6aJ6Ppk7w8540jFv9gjiR2PWxMk2k9JJkmTu8sOSn/b
-         ShSgc+1zr3024TbS1X/kgBefAPn5wBxBQb32B+HOQoDFRdDvB+ZgR9sad6Tx9gTpj/it
-         bcJKnH6gtxEzV6tsU3bS13SQGWQhLY7huwW11mKFVhaSxof3/L/ifgl43P06/RwarFWO
-         wl4dpVSubdKg/2dyxnOhZVH5XSHJ7njNym7INIeZeU2iT6RtTCjdHg3m0D+P0sbjWg0L
-         ytxBus5Te1MP1SGwLOqYCKsuuOGP56D5Q6xK9sKWFJgGg82r8w8io6pmDwkcH/EvzR6o
-         7VIQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWqBLxCRhg9kMkP3F+gqJDwDw4kdKM2W81ZamGRfjxx+2F3JvbYcxYXRcl+UPg34FXzzkrWb8o=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzQsPr4QBxssIteVVEXh6kmzraO6bIfKO73vNdWR36kWmsm017y
-	9DGfhSWel+URG7tPMXIX3/gebZCGdFFRCPvJHo7xvmwUeSYzaO9g+zw6IWeI3el85vbVTh//MlR
-	tLxhERWgHmIKT097gLXPXc+g3YMjiXFw=
-X-Gm-Gg: AZuq6aJM2XJhsho0q7U0afaxiOCRyw1qf4RIFeTI/TedFD9wANqNQ5S9QwCm3Ho73lS
-	c+7svIcGahpEzUbaxDbfD7/eWJxtnqwLveTuo0NHptGxNws9x4lWiwtEBrFb6orpkJTUYnbs1Er
-	6MVIhbLP7z44woBC/VJZZO+Py84YJd63ZunxYSf2t0vLUEsMRd8AfCYaj8PnH2VsRuvLIBaWQKe
-	Ek1PZQQiN1YdOjnGIHfr6tHM/ZZ3qil5CYcecPD2c7rOp3ouZSMoXimynC94c6zUTlHkoJuTIoh
-	6ruCyO8wNslZf9tYcLvK1uHjk5JYeG747eLI+XhmUEoOYvY7MGj91DZJCQ2S
-X-Received: by 2002:a4a:ddd1:0:b0:662:bffd:9e35 with SMTP id
- 006d021491bc7-662bffda1e2mr1583385eaf.77.1769094859811; Thu, 22 Jan 2026
- 07:14:19 -0800 (PST)
+        bh=j1hAVBooT6RSatSb0JkTTI9JelC7CFfOn3FnTuarbB4=;
+        b=dPZ1O2e3f5FUG+df2OHZeK7k6jOUu+pfOmdcMZd2LrJ0RjfjqAL9FnsAZCcHArmEXP
+         G4HYs19/u0C7MgknbKCaZdSbcmKbAYzCasOaFCUw8XinS1hpf5mFybh15bnme/c4TqaA
+         GUfZ1sBcY7wYoNPIhqgv+ZTccZBS8a6e+919dcoN4OtkOuNIOEfHo9nyVwkCRPS+kpsl
+         TrPyiYlKymWsF83gmAujbf5H80BtTqKlffP97DAzIXMI+jrsNdLI20ssNlTl7zyuv1L4
+         0xWtvWIoaGTlHBzLd8QhygD2Pw5gs/KAdZUrX/PXM3CpONxCWrT8IFQ/zculV4QQ6ZQC
+         SrRw==
+X-Forwarded-Encrypted: i=1; AJvYcCWuSBsonsBSp3DeDoYSOlCzJ+RPHPceunrVej158O2OI0/7M+pGy/q5mM7c+qSOO0B3EKR2lzA=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz+DNm9pj4KL6oBhCl2FL0bCtan8gEkybOiWNEmBVQhC71keFGx
+	GaF+ExdShVMBjOhWDk1/6HmkJMdRW5rkcDb0RXCCe6AogMQf0Vz7khgZ
+X-Gm-Gg: AZuq6aIP1RF1TJT0s3WgqIrmgQ/7/CMEDzDNSwv8deQQxTz0hoT7vNfPfPLgrU+MMj+
+	vE3MtUpJ0Dxc1SLXBCfHgcDBMKD12HkteGQIGfH1W1oXs77EkLR/jbohpcrjgze/H9qm3IZvyqX
+	0LXIHiZb4bIfOKFMPR+rkk0q9KLeyK4lSlJh/FV+NWhCAhgTfAb27pAQmJK8OG/pvLU3WxdGJYf
+	tOYiEFiYTAaHDZpfF7n1KLAgiqn3gzeNZa56cycupfeWqRbm8yDRJGBJG3mGU7TgUdjEkYV71D4
+	1W3wgaZUhVR3GxfcY0DpA0G7hxw3nBsFf8BLgvAz8DNZ8wf6VyqeTZxYGPltD27iL73sfJLYOiP
+	0Dbg6piTMBaUPNnzrHKjYP8GmZoJfGzwjj5g+ZEnnjkq+TDCRAIA6yN2WPPyY9+ckZS6pgm4RT8
+	GlHv6sU2BHnmUpxrrYICDy1AdzqNk3u6F98+hbVyr+GJZ42i0hwFV7LA==
+X-Received: by 2002:a17:90b:2244:b0:349:3fe8:170d with SMTP id 98e67ed59e1d1-35378ba82b6mr1242634a91.3.1769185342968;
+        Fri, 23 Jan 2026 08:22:22 -0800 (PST)
+Received: from d.home.mmyangfl.tk ([2001:19f0:8001:1644:5400:5ff:fe3e:12b1])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3536dc50882sm2496967a91.16.2026.01.23.08.22.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Jan 2026 08:22:22 -0800 (PST)
+From: David Yang <mmyangfl@gmail.com>
+To: netdev@vger.kernel.org
+Cc: David Yang <mmyangfl@gmail.com>,
+	Sabrina Dubroca <sd@queasysnail.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Simon Horman <horms@kernel.org>,
+	Aaron Conole <aconole@redhat.com>,
+	Eelco Chaudron <echaudro@redhat.com>,
+	Ilya Maximets <i.maximets@ovn.org>,
+	Shigeru Yoshida <syoshida@redhat.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Breno Leitao <leitao@debian.org>,
+	Carolina Jubran <cjubran@nvidia.com>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Guillaume Nault <gnault@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	bridge@lists.linux.dev,
+	dev@openvswitch.org
+Subject: [PATCH net-next v2 1/7] u64_stats: Introduce u64_stats_reads()
+Date: Sat, 24 Jan 2026 00:21:33 +0800
+Message-ID: <20260123162159.2877941-2-mmyangfl@gmail.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260123162159.2877941-1-mmyangfl@gmail.com>
+References: <20260123162159.2877941-1-mmyangfl@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260120092137.2161162-1-mmyangfl@gmail.com> <20260120092137.2161162-2-mmyangfl@gmail.com>
- <aXELnMSc4UU6DkbZ@krikkit> <CAAXyoMMAMAbEu=-wTf3MGMiZr2Uq7pqJXC+_zrtxKrsjyYi+AQ@mail.gmail.com>
- <aXIIBbCpuY_ISi-t@krikkit>
-In-Reply-To: <aXIIBbCpuY_ISi-t@krikkit>
-From: Yangfl <mmyangfl@gmail.com>
-Date: Thu, 22 Jan 2026 23:13:43 +0800
-X-Gm-Features: AZwV_Qht3cszjBZS3tSwI0aj4ueyYvMDm0wFiSnF3H1eB_3KslEbR7FUK3MfJh4
-Message-ID: <CAAXyoMMJsWK8F5neewwZHtEHe0-iT1rbfPekSDXm7HJvG2bOpQ@mail.gmail.com>
-Subject: Re: [PATCH net-next 1/4] u64_stats: Introduce u64_stats_copy()
-To: Sabrina Dubroca <sd@queasysnail.net>
-Cc: netdev@vger.kernel.org, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, Simon Horman <horms@kernel.org>, 
-	Mark Bloch <mbloch@nvidia.com>, Petr Machata <petrm@nvidia.com>, 
-	Stanislav Fomichev <sdf@fomichev.me>, Carolina Jubran <cjubran@nvidia.com>, Breno Leitao <leitao@debian.org>, 
-	Shigeru Yoshida <syoshida@redhat.com>, linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 22, 2026 at 7:20=E2=80=AFPM Sabrina Dubroca <sd@queasysnail.net=
-> wrote:
->
-> 2026-01-22, 02:22:49 +0800, Yangfl wrote:
-> > On Thu, Jan 22, 2026 at 1:23=E2=80=AFAM Sabrina Dubroca <sd@queasysnail=
-.net> wrote:
-> > >
-> > > 2026-01-20, 17:21:29 +0800, David Yang wrote:
-> > > > The following (anti-)pattern was observed in the code tree:
-> > > >
-> > > >         do {
-> > > >                 start =3D u64_stats_fetch_begin(&pstats->syncp);
-> > > >                 memcpy(&temp, &pstats->stats, sizeof(temp));
-> > > >         } while (u64_stats_fetch_retry(&pstats->syncp, start));
-> > > >
-> > > > On 64bit arches, struct u64_stats_sync is empty and provides no hel=
-p
-> > > > against load/store tearing, especially for memcpy(), for which arch=
-es may
-> > > > provide their highly-optimized implements.
-> > > >
-> > > > In theory the affected code should convert to u64_stats_t, or use
-> > > > READ_ONCE()/WRITE_ONCE() properly.
-> > > >
-> > > > However since there are needs to copy chunks of statistics, instead=
- of
-> > > > writing loops at random places, we provide a safe memcpy() variant =
-for
-> > > > u64_stats.
-> > > >
-> > > > Signed-off-by: David Yang <mmyangfl@gmail.com>
-> > > > ---
-> > > >  include/linux/u64_stats_sync.h | 15 +++++++++++++++
-> > > >  1 file changed, 15 insertions(+)
-> > > >
-> > > > diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_sta=
-ts_sync.h
-> > > > index 457879938fc1..849ff6e159c6 100644
-> > > > --- a/include/linux/u64_stats_sync.h
-> > > > +++ b/include/linux/u64_stats_sync.h
-> > > > @@ -79,6 +79,14 @@ static inline u64 u64_stats_read(const u64_stats=
-_t *p)
-> > > >       return local64_read(&p->v);
-> > > >  }
-> > > >
-> > > > +static inline void *u64_stats_copy(void *dst, const void *src, siz=
-e_t len)
-> > > > +{
-> > > > +     BUILD_BUG_ON(len % sizeof(u64_stats_t));
-> > > > +     for (size_t i =3D 0; i < len / sizeof(u64_stats_t); i++)
-> > > > +             ((u64 *)dst)[i] =3D local64_read(&((local64_t *)src)[=
-i]);
-> > >
-> > > Maybe u64_stats_read/u64_stats_t instead of local64_read/local64_t?
-> > >
-> >
-> > I think casting to u64_stats_t is a bit overkill here since we accept
-> > const void * and we are the actual implementation.
->
-> It would be a bit more consistent. Just within this function you have
-> 2 lines using u64_stats_t and the 3rd uses local64_t. And reusing
-> types/helpers within a similar context doesn't seem overkill.
->
->
-> [...]
-> > > Since this new helper is always used within a
-> > > u64_stats_fetch_begin/u64_stats_fetch_retry loop, maybe it would be
-> > > nicer to push the retry loop into the helper as well?  Not a strong
-> > > opinion. It would be a bit "simpler" for the callers, but your curren=
-t
-> > > proposal has the advantage of looking like memcpy(), and of also
-> > > looking (for the caller) like other retry loops fetching each counter
-> > > explicitly.
-> > >
-> >
-> > The callers may want to copy other discontinuous data as well, albeit
-> > no one did it then.
->
-> I'm not sure why they would. I think the main point of using memcpy is
-> "I don't want to copy each counter by name one by one", and possibly
-> "I don't want to have to patch this code as well if we add a new
-> counter". If you already have a batch copy for a bunch of counters,
-> it's usually easier to add others in a contiguous block.
->
+The following pattern was observed in the code tree:
 
-While I agree with your statement, I don't think it's a good idea to
-push the retry loop into the helper. u64_stats_copy(syncp, dst, src,
-len) would be a strange API, while no others accept syncp argument.
-Also, it would give a false appearance to those who read the driver
-code, since it does not involve fetch_begin()/fetch_retry()
-explicitly.
+        do {
+                start = u64_stats_fetch_begin(&pstats->syncp);
+                memcpy(&temp, &pstats->stats, sizeof(temp));
+        } while (u64_stats_fetch_retry(&pstats->syncp, start));
 
-In my opinion, it would be better to introduce a for-like macro
-#define with_u64_stats_fetch(syncp), eliminating two function calls as
-well as one variable declaration altogether.
+On 64bit arches, struct u64_stats_sync is empty and provides no help
+against load/store tearing. memcpy() or struct copying does not
+guarantee tear free, although compilers never generate such instructions
+in practice.
+
+Theoretically the affected code should convert to u64_stats_t, or use
+atomic operations properly.
+
+However since there are needs to copy chunks of statistics, instead of
+writing loops everywhere, we provide a safe memcpy() variant for that
+purpose.
+
+Signed-off-by: David Yang <mmyangfl@gmail.com>
+---
+ include/linux/u64_stats_sync.h | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
+index 457879938fc1..15ea4db2a77b 100644
+--- a/include/linux/u64_stats_sync.h
++++ b/include/linux/u64_stats_sync.h
+@@ -79,6 +79,14 @@ static inline u64 u64_stats_read(const u64_stats_t *p)
+ 	return local64_read(&p->v);
+ }
+ 
++static inline void *u64_stats_reads(void *dst, const void *src, size_t len)
++{
++	BUILD_BUG_ON(len % sizeof(u64_stats_t));
++	for (size_t i = 0; i < len; i += sizeof(u64_stats_t))
++		*(u64 *)(dst + i) = u64_stats_read((const u64_stats_t *)(src + i));
++	return dst;
++}
++
+ static inline void u64_stats_set(u64_stats_t *p, u64 val)
+ {
+ 	local64_set(&p->v, val);
+@@ -110,6 +118,7 @@ static inline bool __u64_stats_fetch_retry(const struct u64_stats_sync *syncp,
+ }
+ 
+ #else /* 64 bit */
++#include <linux/string.h>
+ 
+ typedef struct {
+ 	u64		v;
+@@ -120,6 +129,12 @@ static inline u64 u64_stats_read(const u64_stats_t *p)
+ 	return p->v;
+ }
+ 
++static inline void *u64_stats_reads(void *dst, const void *src, size_t len)
++{
++	BUILD_BUG_ON(len % sizeof(u64_stats_t));
++	return memcpy(dst, src, len);
++}
++
+ static inline void u64_stats_set(u64_stats_t *p, u64 val)
+ {
+ 	p->v = val;
+-- 
+2.51.0
+
