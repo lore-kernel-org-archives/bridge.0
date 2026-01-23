@@ -1,90 +1,78 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 694CD47A6B
-	for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 16:22:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BA8430E83E
+	for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 16:22:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769185352; cv=none; b=IY4c1YbMJOkE1/c73vI/mOc0/KYT7l0JFOAi3O1putx2rZTkVZsBxs8DhkfHapc1wcwFcFY85gwELE8KCXVFO2Z5Sn7IiJDwkI8vg4RimWa3nO9zX4kSUP9qa1eOzn3HyZTu7dBjwaHn6mgNGLqWjK1fIXD940WSAHGI9McRfRQ=
+	t=1769185356; cv=none; b=M9/uSePJvv/S1vukx40/CrSAvcNaefW3K0tTw96HC945ZztVyYCpbHzgRIdCMB7n+6DodSTAk41XB8/UZOfdRDDIIWurJDLQ0INjQD7CzrNx+wVe7GXrrQ7EYJ6x67qry4eMzvWMDV5qF5u2KE2nqPb7uNkpATSInf4nMXHQgt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769185352; c=relaxed/simple;
-	bh=CWAmd2gDO+bz+iiUcK+EZ5ZuNzlcyN9HRHG8OTxXoro=;
+	s=arc-20240116; t=1769185356; c=relaxed/simple;
+	bh=fuHJNs9q0jub17ekWOOL9sffjn3h+K2Q6gGWIFoNBxw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hAMfAZLcVDZyuYvrRTPLsY45YNCg+AhD8nzsZ9geXBj+vmOuJDR48rWgJg5H9m2TBWtfw+mKdWrqYg3/tprsGazxKeoaCCKYqqo/irp2GLaboBtiYt0LEuOHLMWWxj8xog1WT2uQzRJM/jz1U4JcXrFCS8YJG+Zvkt9Dg1ZyYTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MtAy60Bc; arc=none smtp.client-ip=209.85.215.180
+	 MIME-Version; b=BhB0FBP0pFq55+IM/8nUFvEBkB5J3STj9+uuqBaijsfI4VBDrOxXWKSXv6mFGpnzd7YonTnE9POQ/w/vK8n4J1AmG/0BNhJ4ZRTDk3ZsMAIBn39463bv+b/t7cBYpD82D+e8grawYuR2OR943zojS0D5V8sfXwFN+l0aEPD13N8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ofx32OfR; arc=none smtp.client-ip=209.85.210.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MtAy60Bc"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-c2a9a9b43b1so1492220a12.2
-        for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 08:22:31 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ofx32OfR"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-8230c33f477so1021608b3a.2
+        for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 08:22:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769185351; x=1769790151; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1769185355; x=1769790155; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/v74RSchMzcO/nfO8KMHLNyi6DHe8JbEgv9uztbjT94=;
-        b=MtAy60BcQNd4SvQ9H+xxK6MVf59Fv7iurU4qitcAIV+bMP7xn35E0+CwDwVKWywJ2A
-         K2R/zL6KTfw9YExhP4RFjrIhI7C7nlGbDLncq0AImV30cyWDN2idYmSHlrFwZYiYtlaV
-         hGXMsXlAIGPk9ZMF0Zkuhm/NGwoHXqa5LHqoxOLFRZcAbj+WQrEbHMfh+/gpjjsj7Spu
-         7p+eT6ezmVZSg0Uggbl4oeIydX83dL6cN6rmWH3hsneewx3tJR0apAgpRePwnKbIpWyL
-         BJjKMFTFV9h+MEbPE0ImUCqWGdYF99u8/kZLhCSmJOnYL8YIk4Pol1x3bij25TZ6EkKP
-         fGFw==
+        bh=ZjJ7CPS5/DqUp4cokLUu32N2BVEoOZUcO8cPBS5b2w8=;
+        b=Ofx32OfRi/i2vrGMbSMq2hMmmIsV8isOvy1+Qgbh6/4FvWiVBnDqTWRxiGn+dCywiK
+         KBIG4pXk3+nclPuhlYURbiTctu3oNXRK/RDUnt5nAOSvZeMg9hGVlQ124ZOtlAWAHtlO
+         JY1LSN5OOy3gg6t9KIRRdHJ4UA5vVMgfwcCba4eQhD7hqw19mf07yOzJQI85SJrpw3Lc
+         fx8fX0LnIl+fc86OjdXxe2xeEhHZpdK2H1qHZOT4oiNN08KQUVqKVjFRfJ7bLZX06b7O
+         yfoEyWt7mLivF87sCrZDeNKblzCChC8IQ5AoT1gIK+z+ppjWOdrUN8cYAKAeJvRpWNuz
+         ckmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769185351; x=1769790151;
+        d=1e100.net; s=20230601; t=1769185355; x=1769790155;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=/v74RSchMzcO/nfO8KMHLNyi6DHe8JbEgv9uztbjT94=;
-        b=uJbKreEraig6v7FZnJuyAwDrmXnskawMjTMZCLzWyBQ0xTTOmvYbiuD3qgFYnf65y2
-         g+K2Djt7CCiDInQzMnleiZhtmOMuftPO+w77MzZYl03kW8mu4RRIxzS0LHGosYplGL/8
-         6GLUwn0u4+wkUoYaSGlT3eOxcAEOJOH24xdosfs8VeDtR9ezhhnsNGELq9eYqCEzoPOT
-         MEcDY8+OAiPZbqpHHXjMCz1SNigmHf+9Vm+cpAcQFN0uJnchxC0MgVMN5YVg4mfs37jJ
-         ZAha2i04mpdYemV/ePZ4nPgoCJdG0fhsXn4zODG9jc8HfhVTFw7uK7D+qJQXwo1aHHvY
-         H/Tw==
-X-Forwarded-Encrypted: i=1; AJvYcCU6Ql5TXUWyG+92DLDjuGDdybccULcDmoc10qUZptx1pNmMOFzK/7JbEDjq+oi3L+PxxBmXkc0=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyCRyGQc287jzMPdO6x/kXRxNtCcK3gH4aAAvyLcCU1XlobchKf
-	4SjcS8qTn5d/6+1A533vC5DSKmpWDNOiuQ87xfjt7/yXFXRF3kiGSg1H
-X-Gm-Gg: AZuq6aIdt5OuyF6TsJC2MwzfDkfCFmUtw9zFUZCgstiiQqwWlLNhcY9/GLUC/L7yBBL
-	8GaOIztbyjUo7Q+IH99L6eKrDno1TXA8bzm/X7QoB6EHCJkZoIwG39sdaly4+gGK1PNBj5V3idH
-	HkU8511YK6It5xVn4lk2/ZBoAgGBvvXheUDk4Ln5et2NcBJoensmnpuAGsKrgk8Ry5acvDFjIm+
-	n/QkRuYX0XaMwzu0Uo0Z46xuFWkpQVInTIgAwPAvI0390Va5aGefgwowqNqWpxz4WlckuNmuhw8
-	i2kCIVKGxjOdHcWBjoiso+QOATmyrjCF8d26Xj4sao8EKOydXKiSRE5rO47BCRbg9rOKSd9ogvs
-	jcfI7kLKP7B4DDVMs+y1PfBawlARfT5XrSU3XYifc+kqIZzs6wEd6qL28kQ3kmTgb5XK8h2dHyA
-	twCvEiBJFjsos1rSTobZUaOoh6R+L8ZXQG9u5UK+yQpIoQTXwhr+Oll3ufaYHO+xXW
-X-Received: by 2002:a17:90b:548d:b0:353:38b3:dccf with SMTP id 98e67ed59e1d1-353688574f4mr3025512a91.23.1769185350618;
-        Fri, 23 Jan 2026 08:22:30 -0800 (PST)
+        bh=ZjJ7CPS5/DqUp4cokLUu32N2BVEoOZUcO8cPBS5b2w8=;
+        b=E/i107bUE8P+CJV0PdSs1WOca2uY13JPUulNVG/6tsGTBdFdZE7rVRzfWNBO85Six8
+         V8AYAY9j138LifGLb9G8XvFGdbrA2PUXwnUIRoCCgTyVxqyaonFtD35qDBxSjpcY66bI
+         xoaT5iXXBYLXyME3EcuYHE61sEWo9b60psbzjI2pxzaWlMCdoSVWHDcgbhoEMuluWF2z
+         LSNLH4/RdQtwt59s2sRMrJvWus343sZ3YGo6Rhg7QTtD112VpSgSJWvSIPjkOkrso0HL
+         iBBzeA2eaibHE2JMPE2RfDFvyED/0m7HlSrG6S8qAmj3NZfEQCzPMQPFqgp0/lf/6rA1
+         R/Nw==
+X-Forwarded-Encrypted: i=1; AJvYcCWX5ayXMva++tF3HEJNi0mojWtGQ1LZySqjyTpGkXL1y+R610KsRxqaBlnZQP0LSH66hAYSU9Q=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzQKO1aU3IG9e1V3C8j1QV1WUCUpYGe9zZPeJ8DpoJzBI/ZwbuS
+	Ldj+OpxmxLg5chcM68PwhjYY+fOG3LZCXwfB0Dms/bsdKQLuVcAtYaWX
+X-Gm-Gg: AZuq6aJCKmCbmpZ1udtoQ9O4sVe8SK9c8G5N9xvL92YaHsjbwJMSQNfIeYlGj3JXryd
+	265nZQXH1wXbzjB1W21yf61NYX1M4iOIt+iQqTWTljilMOkcGJtHaDpv3P/2FEg6RBNDXrZtl4q
+	OZMpEBOOGe3mIElOS1PJUfcw1/Bw6fTY7laXOjPxeHQCTu6PK9flxef/sbitXpPv5f5QN2plkGG
+	nclrfJfpG47r7oGif96v7/OomUSAHSu3Yqyzzmbn2Gb/4BsI7974y6gbuf7cWqeVyp05JK3mEf0
+	x/gsAbBiwkjA0fwM0tfw1DOBc+DuXJhcj4VQ7BJfjp/xkavrSRKJxiB2V3Pn4Ybpn2y0ln1hn6t
+	tA+SjZ6tsHpy52TJBAXcPuD7BqD3syk0RLHOfoThZJ8fAvsofFCsuMZafoQUIKoV+i5Zp7rjc6+
+	hcO7U8IUNBv5xwlN8f8MhIVL8GMHDFI1JASXLzxAtpNmkkOEoyvDPkzA==
+X-Received: by 2002:a17:90b:3c06:b0:353:49f2:1e7c with SMTP id 98e67ed59e1d1-3537b272a3cmr1132136a91.30.1769185354648;
+        Fri, 23 Jan 2026 08:22:34 -0800 (PST)
 Received: from d.home.mmyangfl.tk ([2001:19f0:8001:1644:5400:5ff:fe3e:12b1])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3536dc50882sm2496967a91.16.2026.01.23.08.22.23
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3536dc50882sm2496967a91.16.2026.01.23.08.22.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 08:22:29 -0800 (PST)
+        Fri, 23 Jan 2026 08:22:34 -0800 (PST)
 From: David Yang <mmyangfl@gmail.com>
 To: netdev@vger.kernel.org
 Cc: David Yang <mmyangfl@gmail.com>,
-	Sabrina Dubroca <sd@queasysnail.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
 	Simon Horman <horms@kernel.org>,
-	Aaron Conole <aconole@redhat.com>,
-	Eelco Chaudron <echaudro@redhat.com>,
-	Ilya Maximets <i.maximets@ovn.org>,
-	Shigeru Yoshida <syoshida@redhat.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Breno Leitao <leitao@debian.org>,
-	Carolina Jubran <cjubran@nvidia.com>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Guillaume Nault <gnault@redhat.com>,
-	linux-kernel@vger.kernel.org,
 	bridge@lists.linux.dev,
-	dev@openvswitch.org
-Subject: [PATCH net-next v2 2/7] u64_stats: Doc incorrect usage with plain variables
-Date: Sat, 24 Jan 2026 00:21:34 +0800
-Message-ID: <20260123162159.2877941-3-mmyangfl@gmail.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net-next v2 3/7] net: bridge: mcast: fix memcpy with u64_stats
+Date: Sat, 24 Jan 2026 00:21:35 +0800
+Message-ID: <20260123162159.2877941-4-mmyangfl@gmail.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260123162159.2877941-1-mmyangfl@gmail.com>
 References: <20260123162159.2877941-1-mmyangfl@gmail.com>
@@ -96,82 +84,28 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On 64-bit architectures, u64_stats does rely on the load/store atomicity
-of 64-bit data.
-
-However, users often mistakenly believe that the helpers could also
-protect/"lock" plain (64-bit) variables, which can lead to load/store
-tearing.
-
-Remove the misleading "non atomic operation" comments and add explicit
-examples of incorrect usage.
-
-Users may also be tempted to use memcpy() or struct copying. Doc the
-usage of u64_stats_reads() for this case.
+On 64bit arches, struct u64_stats_sync is empty and provides no help
+against load/store tearing. memcpy() should not be considered tear-free.
+Use u64_stats_reads() instead.
 
 Signed-off-by: David Yang <mmyangfl@gmail.com>
 ---
- include/linux/u64_stats_sync.h | 41 ++++++++++++++++++++++++++--------
- 1 file changed, 32 insertions(+), 9 deletions(-)
+ net/bridge/br_multicast.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
-index 15ea4db2a77b..10f988170e51 100644
---- a/include/linux/u64_stats_sync.h
-+++ b/include/linux/u64_stats_sync.h
-@@ -39,21 +39,44 @@
-  *   spin_lock_bh(...) or other synchronization to get exclusive access
-  *   ...
-  *   u64_stats_update_begin(&stats->syncp);
-- *   u64_stats_add(&stats->bytes64, len); // non atomic operation
-- *   u64_stats_inc(&stats->packets64);    // non atomic operation
-+ *   u64_stats_add(&stats->bytes64, len);
-+ *   u64_stats_inc(&stats->packets64);
-  *   u64_stats_update_end(&stats->syncp);
-  *
-  * While a consumer (reader) should use following template to get consistent
-  * snapshot for each variable (but no guarantee on several ones)
-  *
-- * u64 tbytes, tpackets;
-- * unsigned int start;
-+ *   u64 tbytes, tpackets;
-+ *   unsigned int start;
-  *
-- * do {
-- *         start = u64_stats_fetch_begin(&stats->syncp);
-- *         tbytes = u64_stats_read(&stats->bytes64); // non atomic operation
-- *         tpackets = u64_stats_read(&stats->packets64); // non atomic operation
-- * } while (u64_stats_fetch_retry(&stats->syncp, start));
-+ *   do {
-+ *           start = u64_stats_fetch_begin(&stats->syncp);
-+ *           tbytes = u64_stats_read(&stats->bytes64);
-+ *           tpackets = u64_stats_read(&stats->packets64);
-+ *   } while (u64_stats_fetch_retry(&stats->syncp, start));
-+ *
-+ * Remember point #2: update_begin()/update_end() and
-+ * fetch_begin()/fetch_retry() are no-ops on 64-bit architectures. u64_stats
-+ * _cannot_ be used to protect plain variables against tearing.
-+ *
-+ *   u64 stats64, cnt;
-+ *   struct { u64_stats_t stats[10]; } st, buf;
-+ *
-+ *   u64_stats_update_begin(&stats->syncp);
-+ *   stats64 = cnt;  // no
-+ *   stats64 += cnt; // no
-+ *   stats64++;      // no
-+ *   st = buf;                      // no
-+ *   memcpy(&st, &buf, sizeof(st)); // no
-+ *   u64_stats_update_end(&stats->syncp);
-+ *
-+ *   do {
-+ *           start = u64_stats_fetch_begin(&stats->syncp);
-+ *           cnt = stats64; // no
-+ *           buf = st;                               // no
-+ *           memcpy(&buf, &st, sizeof(st));          // no
-+ *           u64_stats_reads(&buf, &st, sizeof(st)); // use this instead
-+ *   } while (u64_stats_fetch_retry(&stats->syncp, start));
-  *
-  *
-  * Example of use in drivers/net/loopback.c, using per_cpu containers,
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index d55a4ab87837..0f8e15b4fa60 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -5201,7 +5201,7 @@ void br_multicast_get_stats(const struct net_bridge *br,
+ 
+ 		do {
+ 			start = u64_stats_fetch_begin(&cpu_stats->syncp);
+-			memcpy(&temp, &cpu_stats->mstats, sizeof(temp));
++			u64_stats_reads(&temp, &cpu_stats->mstats, sizeof(temp));
+ 		} while (u64_stats_fetch_retry(&cpu_stats->syncp, start));
+ 
+ 		mcast_stats_add_dir(tdst.igmp_v1queries, temp.igmp_v1queries);
 -- 
 2.51.0
 
