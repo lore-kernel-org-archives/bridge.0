@@ -1,124 +1,197 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5ABE1F03EF
-	for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 18:16:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 843963D994
+	for <bridge@lists.linux.dev>; Sun, 25 Jan 2026 16:25:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769192191; cv=none; b=m5pcgFpL0s0fPoETpZ49MY7IZo0llyQknPCjDts/rvH8BnxfL6mFUsSCQUEgeKBshVGUnNmrGLJ3YAByWrzaM3RRlUxij2KnjQdb0UhOGb9HUjKBJLB11hmZd/a0TDtURCIDgYbp6DTnCNYaIk1kSiVbmJNGTBIY+SFAlcs8Anc=
+	t=1769358348; cv=none; b=XAWA1iTIBIrqc0oMdgVIHwRsuBrurkwd7KCoK0HA+MDHk6jF+aZLCGXbNjNrz5Y2HKFnBw8kXFCtZaXDb5G1utzdrk4TWcTLUR3ztzo5X/OS3Q/Eq8PPOGx5UsQvzL8ngNiEVLLjA/NDZg2zBRlhWNuaECVQH41wQfa6ym29awQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769192191; c=relaxed/simple;
-	bh=HL9Z8exH0p8ghijOUjxjCoBmCDjBhhDKtkS3KASOoh0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NtwVuF1I3f7nHRFYADRoEj1cCRdpMdxoqAKe9P2b3NxiQW2SH4gBEZnU6+8ua/QeLkT1SrsKIUyhQDI2RrPOyXeA2huE6Ap9W550yoD+Qh/OroYAepZ0f7Q9oAKxazY8VAJfeY76OYh+RyJc4Y4++RM028fKgCsGilRx0kbgV1Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jjrLfcIc; arc=none smtp.client-ip=209.85.222.171
+	s=arc-20240116; t=1769358348; c=relaxed/simple;
+	bh=QVtSTX/XLp16X/oXKfhKEuxOzQqk8ZSe4U/GC/FHDBk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kGe6GIzniFPV8Z0IFNKXBoY/Kd2LOrpjHl8GLLUZ5YIfLICrSoEL8T9iQfqz1BGGL1v/su8g3ZV0/WgbQnsvoopm1levAYNuFohEvpTjPD6N2to9Sisgc2vKWY0wLve1agqsONZdhKFLLJzSaoVUIT/gJXovShKz57CBKFcfdJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fLm/eQWS; arc=none smtp.client-ip=209.85.208.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jjrLfcIc"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8c52f15c5b3so261872685a.3
-        for <bridge@lists.linux.dev>; Fri, 23 Jan 2026 10:16:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fLm/eQWS"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-652fdd043f9so6703965a12.1
+        for <bridge@lists.linux.dev>; Sun, 25 Jan 2026 08:25:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769192189; x=1769796989; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=zF0a10J5mLJVO6RkpWuar6FLLd6MMCZJu1XiB3Hvb/Q=;
-        b=jjrLfcIcJd2j6K9KH8A7Kv1JeHWJDVcvoQWmwkEInW89/f5pEGqRpZAxGA5/oIwaR+
-         1F/a6NmEEs2yo71RQaB7QxtJxJKwNQ0fRl4Yef+cBndNOtv2eCWeAhprcs+t7e6zkD+5
-         XP4ysknuHmWT+CFFPyJphlPgfoWCofH22YLdZGFx1UhV4dKTPeT9ezxyiqpYR6A1J+vo
-         w/iDqp+50rfjeJ3oSuNYrABdM44TRQeGv9HldknGKs+ZxSYiiw0bByBzG12HfrfHqjZd
-         Lf34pHL/VsnTjhTgmr0wcEDqhDSyMsaPvfDmFSP7MWMXCa+QbyBjW5KJt9bRJN47PURZ
-         v2Pw==
+        d=gmail.com; s=20230601; t=1769358344; x=1769963144; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=3v57Iy+bDz50Wo3pEiRxYhkqRNwfCJZJ1CeX2JqnHG4=;
+        b=fLm/eQWSrUArM2M2Ml/1ijIgUZf11okKODlGD0rjEWqG8Y3ie0CNUlb3r37ld50ctZ
+         NrTSoULnn5pc2ROLxHODN993eutV/xE76cTZULyYtKDJFwMPnNKJIF8pyYW2+Om7rLGA
+         ZKbWIWbqAjC7JwButcN7emyrsnBhBHbs/FwbAak+1R/n768wOHXrktl7H3NOFflcBp+X
+         OJRHb3MRkfDsnMwfZROQjhwYJSzLyoes23/1uwxNG6c+aL3zADJbpGRD5FsDDbrN3MJ/
+         xsrFDtdRb6tmpDt7KpyY5DIDUoxjji/95DCQBvUy9CBH74XTG1hndwctvKO1k97ZKqQZ
+         jknw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769192189; x=1769796989;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zF0a10J5mLJVO6RkpWuar6FLLd6MMCZJu1XiB3Hvb/Q=;
-        b=iCCUt0brBEsGiBRe5FSWw8sVKArSe6n517CsrVHjJoBx0TS3rDTnUhGwv63SpMHRBN
-         V5qebLIHtrfy0nyr5tucQ0RhYL/+k/lS0rkAktFBLgSF2pL2QYh50AAomLDh1WQwdkap
-         hlzPuTf6tCjmF0XCOZHQEwNDuZ5kEB0dW8yH2k3ro57ATwAwlEMALF0eP7TdCQexU9p0
-         SGgqiI+JV30lSJwjb+NuUBchiGddZxNXOcwy407D5vdG1mHWUvRyPWjKwrYN1dKQYh7T
-         4+LAxA5qobTjFmCOf93ZEpyAFLIgrfBP7kyOi4OLoDgdTVLWvrDRZnZLtmPfHLDbvokL
-         HRrg==
-X-Forwarded-Encrypted: i=1; AJvYcCVUFXTey/smIzLnMFuTOnsSHQJfcRj5RhmNLsZvpzXtfEBYvBuQLB0uBU4uWbZ2w88xVwLHLZo=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwUq/v4zHpuwVQDnbP9flat4r4gpM19m5XTloQM8Klt92esywuM
-	aSrxHv5ljMPWQZ3GopCongAV0/NRo0DGgYThEpnm9NoqBUb2Be0JDbwhd+jqhA==
-X-Gm-Gg: AZuq6aImlSAQ2K65IWrGTAYV+jm+Y0mIEIyp3kEGPufAFeCL9C4dCFt0S5wDVRnkfpH
-	eocLLkPDS4tgeRdMtTLsOVz0LBzI2qCLA6VKISYYFjb18gbZFmKZPy5B+a7nxF6RQ1SOcOPV+AY
-	lr6CP0LBehOXXlnAsBSsJppT5Q0WgUTUIl5wYtq4bcmzeY16olJ0b7UORN/VQ5rumnEsStRtYU4
-	0XKi8ixBalpjZwLRGD5jq4KNOCwY3JYGM8pdAe9cC2SmYnuy7vZMuPRwSwUfXQEjNMunNHc8rOW
-	ODqX1WZYO3TPmn5PAbyVS73bRYona9ULPQT8X7pK4KrrVk4WuUqGg0UAS6pwjCuQoV7FsCTBjOj
-	9qzzs0nFZf+5V7AT+tys86ltS4AfASwPInIIXXde/mx8fFxqefSXAbI7IvEa4rgE8EBEb2KhLKL
-	+EFn/0aOMxfqoiIBB7m0u+VTAu16H/tadTY9AcAvDpgTyv0dZ/xcY+qG4jsb5VeId2
-X-Received: by 2002:a17:90b:17ca:b0:33b:cfac:d5c6 with SMTP id 98e67ed59e1d1-3537af9505emr1485005a91.29.1769185336053;
-        Fri, 23 Jan 2026 08:22:16 -0800 (PST)
-Received: from d.home.mmyangfl.tk ([2001:19f0:8001:1644:5400:5ff:fe3e:12b1])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3536dc50882sm2496967a91.16.2026.01.23.08.22.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 08:22:15 -0800 (PST)
-From: David Yang <mmyangfl@gmail.com>
-To: netdev@vger.kernel.org
-Cc: David Yang <mmyangfl@gmail.com>,
-	Sabrina Dubroca <sd@queasysnail.net>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Simon Horman <horms@kernel.org>,
-	Aaron Conole <aconole@redhat.com>,
-	Eelco Chaudron <echaudro@redhat.com>,
-	Ilya Maximets <i.maximets@ovn.org>,
-	Shigeru Yoshida <syoshida@redhat.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Breno Leitao <leitao@debian.org>,
-	Carolina Jubran <cjubran@nvidia.com>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Guillaume Nault <gnault@redhat.com>,
-	linux-kernel@vger.kernel.org,
-	bridge@lists.linux.dev,
-	dev@openvswitch.org
-Subject: [PATCH net-next v2 0/7] u64_stats: Introduce u64_stats_reads()
-Date: Sat, 24 Jan 2026 00:21:32 +0800
-Message-ID: <20260123162159.2877941-1-mmyangfl@gmail.com>
-X-Mailer: git-send-email 2.51.0
+        d=1e100.net; s=20230601; t=1769358344; x=1769963144;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3v57Iy+bDz50Wo3pEiRxYhkqRNwfCJZJ1CeX2JqnHG4=;
+        b=IGU2d0U4ow5Vt/MBJ+eCiWe0GY8oAqYtiiovFZ6yDMHkWGE78PQVsNdgipBfThTbyU
+         PAGTabDlrlRJeaqy7A5/umJZpYpB9Omc3CgKwQZ6GdOLow5GHfCA6vPdIpGAUAPnkr0D
+         QeK9ehaqUJmr1MNu3JDXyVFM/tIWP01l8f6h0wPtdNSwN12o1v9qExDc6pjAab7+vtaz
+         uDOTvJIlWazsismJngYqReQm879ZyeLQMmf6jfpOt7y47/4LALxiLy/ISFrLGhmvW/7i
+         kaFRaVZm9UZFo9EJNLq+GPEU5bQW20zsxAMQoc+Efh2JcRuAzP6K4xx2q9UewvzHHShW
+         PX1g==
+X-Forwarded-Encrypted: i=1; AJvYcCVGe+UW81CQSGfva/6EbLQrFkEnWu+iOhiwEz15Jvd79aTmtIJeRC+R1Hp70Apu01LICAiYB38=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzWdCuu3SGdmgiXMyTKd1oDkkxeppXdxFoFoVCiAJg7AGtL8r+L
+	5BBCly5kzs+fYbMtHv3m9kVpVQHLmJOdismDvpwbVmuZDJpzRHPXU9f5
+X-Gm-Gg: AZuq6aK4c204f+/8XYlUWCJzZ01RrafgtCx+bXbXdQNudPAaerVn6KengG8WA1W/ZyJ
+	ywlcW/iEiM1nW8X2zFm5MNQ98YqcgCJGQMXk2KnswM8E7Kl5rhoyS8vkmFbtEi10H9cfUaJypZm
+	2R3/p2TIxceqUysLAr+sx0yEgP/JY5lqBQw0mA1ROOFQD3eRxqfw+obnbHD0DTgJedIb7bJLcAZ
+	5leR9cRrPkBdiLl+AiXsTDRCMLGovSHOTYpmkdQeTBusaJiaD0qq3vzfOZ5TpPoGPSpvpeaADgE
+	20T5YfDZupAN9W8e5zb60UGfIYpSrvof9VOB6rAz3FkFfySsAuDBOoTmIeYSgPVSvdIO6R9YUsK
+	htocbm3WISqqzWYdnl5tDxMXxF9fGK0qClkXN9AvX3u9nbdE7lOE1jaEwgaWnRQTbzyiOKmQUeM
+	30Zb5EckBTFyELrCxbZ7nU8BWt2lq72h1RExLDthWZIQS6BI5Lfo4O8+ZJ0IBs5i19wntBmLBM4
+	S1RRrI/NxEJFd48qyB3ZncLNbIDTgQLxnCN1m32U0+yqvcPkUtRb5dx45AUDrANPQ==
+X-Received: by 2002:a05:6402:f23:b0:658:7a1:fbe7 with SMTP id 4fb4d7f45d1cf-658706ecd1amr811921a12.23.1769358343678;
+        Sun, 25 Jan 2026 08:25:43 -0800 (PST)
+Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6584b3e07cbsm3860622a12.1.2026.01.25.08.25.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 25 Jan 2026 08:25:43 -0800 (PST)
+Message-ID: <e9c7fa63-6c9b-48c2-97c9-2d73e1029f20@gmail.com>
+Date: Sun, 25 Jan 2026 17:25:41 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v17 nf-next 4/4] netfilter: nft_chain_filter: Add bridge
+ double vlan and pppoe
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+ Jozsef Kadlecsik <kadlec@netfilter.org>, Florian Westphal <fw@strlen.de>,
+ Phil Sutter <phil@nwl.cc>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>
+Cc: netfilter-devel@vger.kernel.org, netdev@vger.kernel.org,
+ bridge@lists.linux.dev
+References: <20251109192427.617142-1-ericwouds@gmail.com>
+ <20251109192427.617142-5-ericwouds@gmail.com>
+From: Eric Woudstra <ericwouds@gmail.com>
+Content-Language: en-US
+In-Reply-To: <20251109192427.617142-5-ericwouds@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 64bit arches, struct u64_stats_sync is empty and provides no help
-against load/store tearing. memcpy() and struct copying should not be
-considered tear-free. Use u64_stats_reads() instead.
 
-v1: https://lore.kernel.org/r/20260120092137.2161162-1-mmyangfl@gmail.com
-  - rename to u64_stats_reads() to clarify data flow direction
-  - refine the implementation
-  - add docs
-  - fix struct copying too
 
-David Yang (7):
-  u64_stats: Introduce u64_stats_reads()
-  u64_stats: Doc incorrect usage with plain variables
-  net: bridge: mcast: fix memcpy with u64_stats
-  net: openvswitch: fix load tearing with u64_stats
-  macsec: fix memcpy with u64_stats
-  mpls: Fix load tearing with u64_stats
-  vxlan: vnifilter: fix memcpy with u64_stats
+On 11/9/25 8:24 PM, Eric Woudstra wrote:
+> In nft_do_chain_bridge() pktinfo is only fully populated for plain packets
+> and packets encapsulated in single 802.1q or 802.1ad.
+> 
+> When implementing the software bridge-fastpath and testing all possible
+> encapulations, there can be more encapsulations:
+> 
+> The packet could (also) be encapsulated in PPPoE, or the packet could be
+> encapsulated in an inner 802.1q, combined with an outer 802.1ad or 802.1q
+> encapsulation.
+> 
+> nft_flow_offload_eval() also examines the L4 header, with the L4 protocol
+> known from the conntrack-tuplehash. To access the header it uses
+> nft_thoff(), but for these packets it returns zero.
+> 
+> Introduce nft_set_bridge_pktinfo() to help populate pktinfo with the
+> offsets.
+> 
+> Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
+> ---
+>  net/netfilter/nft_chain_filter.c | 55 +++++++++++++++++++++++++++++---
+>  1 file changed, 51 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/netfilter/nft_chain_filter.c b/net/netfilter/nft_chain_filter.c
+> index d4d5eadaba9c..082b10e9e853 100644
+> --- a/net/netfilter/nft_chain_filter.c
+> +++ b/net/netfilter/nft_chain_filter.c
+> @@ -227,21 +227,68 @@ static inline void nft_chain_filter_inet_fini(void) {}
+>  #endif /* CONFIG_NF_TABLES_IPV6 */
+>  
+>  #if IS_ENABLED(CONFIG_NF_TABLES_BRIDGE)
+> +static int nft_set_bridge_pktinfo(struct nft_pktinfo *pkt, struct sk_buff *skb,
+> +				  const struct nf_hook_state *state,
+> +				  __be16 *proto)
+> +{
+> +	nft_set_pktinfo(pkt, skb, state);
+> +
+> +	switch (*proto) {
+> +	case htons(ETH_P_PPP_SES): {
+> +		struct ppp_hdr {
+> +			struct pppoe_hdr hdr;
+> +			__be16 proto;
+> +		} *ph;
+> +
+> +		if (!pskb_may_pull(skb, PPPOE_SES_HLEN)) {
+> +			*proto = 0;
+> +			return -1;
+> +		}
+> +		ph = (struct ppp_hdr *)(skb->data);
+> +		switch (ph->proto) {
+> +		case htons(PPP_IP):
+> +			*proto = htons(ETH_P_IP);
+> +			return PPPOE_SES_HLEN;
+> +		case htons(PPP_IPV6):
+> +			*proto = htons(ETH_P_IPV6);
+> +			return PPPOE_SES_HLEN;
+> +		}
+> +		break;
+> +	}
+> +	case htons(ETH_P_8021Q): {
+> +		struct vlan_hdr *vhdr;
+> +
+> +		if (!pskb_may_pull(skb, VLAN_HLEN)) {
+> +			*proto = 0;
+> +			return -1;
+> +		}
+> +		vhdr = (struct vlan_hdr *)(skb->data);
+> +		*proto = vhdr->h_vlan_encapsulated_proto;
+> +		return VLAN_HLEN;
+> +	}
+> +	}
+> +	return 0;
+> +}
+> +
+>  static unsigned int
+>  nft_do_chain_bridge(void *priv,
+>  		    struct sk_buff *skb,
+>  		    const struct nf_hook_state *state)
+>  {
+>  	struct nft_pktinfo pkt;
+> +	__be16 proto;
+> +	int offset;
+>  
+> -	nft_set_pktinfo(&pkt, skb, state);
+> +	proto = eth_hdr(skb)->h_proto;
+> +
+> +	offset = nft_set_bridge_pktinfo(&pkt, skb, state, &proto);
+>  
+> -	switch (eth_hdr(skb)->h_proto) {
+> +	switch (proto) {
+>  	case htons(ETH_P_IP):
+> -		nft_set_pktinfo_ipv4_validate(&pkt, 0);
+> +		nft_set_pktinfo_ipv4_validate(&pkt, offset);
+>  		break;
+>  	case htons(ETH_P_IPV6):
+> -		nft_set_pktinfo_ipv6_validate(&pkt, 0);
+> +		nft_set_pktinfo_ipv6_validate(&pkt, offset);
+>  		break;
+>  	default:
+>  		nft_set_pktinfo_unspec(&pkt);
 
- drivers/net/macsec.c                |  6 ++--
- drivers/net/vxlan/vxlan_vnifilter.c |  2 +-
- include/linux/u64_stats_sync.h      | 56 ++++++++++++++++++++++++-----
- net/bridge/br_multicast.c           |  2 +-
- net/mpls/af_mpls.c                  |  2 +-
- net/openvswitch/datapath.c          |  3 +-
- 6 files changed, 55 insertions(+), 16 deletions(-)
+I've also tried asking on the cover letter 0/4, but no response.
 
--- 
-2.51.0
+Can I ask what is the status of this patchset? Quite some time has
+passed by now...
 
