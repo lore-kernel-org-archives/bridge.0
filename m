@@ -1,275 +1,632 @@
-Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013013.outbound.protection.outlook.com [40.107.201.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from a8-237.smtp-out.amazonses.com (a8-237.smtp-out.amazonses.com [54.240.8.237])
+	(using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAE21156677
-	for <bridge@lists.linux.dev>; Sun,  1 Feb 2026 15:19:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.13
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769959163; cv=fail; b=X5tfU7dmp7Alw6g1N7P2GNlpBczZOvvSA2kgJQEHnAdPGcD94DHUo28H+pAm1IogIdL+QNYIZBszeHQ6+ej2dlCtpgupPKr3Icnz2Zc6NTbCLwiHctgrE8e8Tydps25esEOpNdYequu0gQPHtOvieqONIGAtvJ049eF8RG+dihI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769959163; c=relaxed/simple;
-	bh=9dc/4yAuZnVrXPKBzqzCbXFIRdPpYh6oKpQ9idtT+nQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=PhCEK/mpUvl1XgTw2vVXHl5zH2CspHcVc4BOsPK2HI8U/8pGguQoupimHBRl3ODBn1Xen5YZjVp23WLQAw796k2PwGhaXB4+Wu64JpDRWkAOMFMXDPsfcHu1QHB8txcJAT5qC+hlHtwdoa1RBOFapw/Pa0gP02rfKdfY9WIkOcA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CERqomDp; arc=fail smtp.client-ip=40.107.201.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9183630DEC0
+	for <bridge@lists.linux.dev>; Mon,  2 Feb 2026 07:07:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.240.8.237
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770016035; cv=none; b=anSQezEv6g3PTOeafoWNTOUYd7padiWGgkJK6C5Zo1ce3AjhbLtZkVJEjQo9ZPRfBFkySCwc0sOeJu5VSl5KXGarVODt/74XolqNeZGROrgzd2e1hoYQI0nJYmQhQcupKeDmK/HLTiP3AyyfEigPzr0L+lm9oBWAsygmH/r3Iyg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770016035; c=relaxed/simple;
+	bh=t1DXsfC+9e2Qm+wl5lRSGzewZp7vn8HCLkFIdGWIioE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pn+MiKmwapXEqJKCweDLnjLemaXhNORrMQciALKlYusb9qq0LUgVFr+/QmDR0FuDbPvdjKzk74WWSvsCcKOh8LIheNI1GmBXpU5rKsnawP/HfNIGSJdUsy324IeBga5nT2ykgl6zFVulCVayypB7MUr0yJN+MSUvbUbinE//rpw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=corvaglia.dev; spf=pass smtp.mailfrom=mail.corvaglia.dev; dkim=pass (2048-bit key) header.d=corvaglia.dev header.i=@corvaglia.dev header.b=gjMi+QMi; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=DLfgzF2m; arc=none smtp.client-ip=54.240.8.237
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=corvaglia.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.corvaglia.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CERqomDp"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=HA1UZa6VLQ/bKoTmQFycdKNKoXBquFB0JFAXqDyfv9f3kPesr28yY71k386lIOym4in80RsIz+wTc4v3Opq6G+Pr3N0ZovxKDxAMB6/E4vnw9Rz/mxekmdxFfD/Hy35pEnpr2zdBDJBS8W5YvTs0Kyn4A5gFoMVmQduKcQol8ieSZveFBusSAGYveej7JTFfJzZPVesaNyv2Mqft6gsH2seeNqWejDC8xZb1zXO9+pqeEtPDMDaEZkukSU96uW0HJuiSkvDsZyJeSOo+srGMpKxRbPnhplZqnDUH1PUk+Mq0XO3i2p4ZgFhQuDQPiqHfyBzgG9TX52cPT3qi4Z80Qg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=pnuEI5vbO/xCfD8+ltw/JJlL/eiMv/27Hi/fByB4POg=;
- b=cieZ2twjUb70e21cpibB51g3RSWoWOswB2aFFbWvBp+vAIMTge0Uk/oinhVI+sy0ISLdm5j175wBwONO6+ZvvcHXUX5sY/zJS+y86pecJHrjhNRTl5joh5FmTafBFWboYbgAuJPrbuFQhJK//7xbYJcKUlgqBeGDaPGtRZrDsTXAXuYc3T6F7ziDZglNjASwNOsZFOznSZMwik6PUv5ofGKjUG3HRobiQ7/XAUBl+AlKjDp64Ai3NUYFtOY+K5pNrMz0rZBD6knQAUZWRLXdYGE9JiS6/rI8QdXqOJFjNmktIKkHSy0Bq9kqa5A7zilxX6RRk7egSbQo7TX9Ho7m9w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pnuEI5vbO/xCfD8+ltw/JJlL/eiMv/27Hi/fByB4POg=;
- b=CERqomDpKvR5a1pmlqSne8xPBl8vfaGhh6SczUFowDweSeSlkQSeXi0xZb3goddn1JGYPh+G5j1+nSk2MR4exQ3gN8Mkw1mmKlcIdGdK0YP7xTyk1xuWhM6tOb73Hu/S6crGRZtclEHoXWdcbnbhjr65Gl4VzdlitLqW8O3nACfxb6vQHnTQIw3QL/ePi3ERqemvE9/JmCt9UFraea4pvYYaShvibp09AM93/L2j/Wch3EYMBteVuxlcMQg7V81IS7ax9z1ytkFOjYdMA19QYEiz5VgRVh2cdBkQ83P9YsmPLM8JaeSpvSgmdunABr5ohTZPm166KLZEPGCfJvyqsA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by SA1PR12MB8857.namprd12.prod.outlook.com (2603:10b6:806:38d::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9564.15; Sun, 1 Feb
- 2026 15:19:18 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%2]) with mapi id 15.20.9564.013; Sun, 1 Feb 2026
- 15:19:18 +0000
-Date: Sun, 1 Feb 2026 17:19:10 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: David Corvaglia <david@corvaglia.dev>
-Cc: razor@blackwall.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] net: bridge: use sysfs_emit instead of sprintf
-Message-ID: <20260201151910.GA139675@shredder>
-References: <0100019c14f90490-950ddd9b-1897-4111-bddd-0d4b8abf380a-000000@email.amazonses.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0100019c14f90490-950ddd9b-1897-4111-bddd-0d4b8abf380a-000000@email.amazonses.com>
-X-ClientProxiedBy: TLZP290CA0015.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:9::11) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (2048-bit key) header.d=corvaglia.dev header.i=@corvaglia.dev header.b="gjMi+QMi";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="DLfgzF2m"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=bvgar2idfqx6rr2b3v3v2bwbuxumhdxo; d=corvaglia.dev; t=1770016032;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Transfer-Encoding;
+	bh=t1DXsfC+9e2Qm+wl5lRSGzewZp7vn8HCLkFIdGWIioE=;
+	b=gjMi+QMihqFrIrNXtFS1bSzxq3rBRDdA/bap9jB4S9+iAvruuEB5YzYEKizvoRx1
+	bk699i6Pdg8ehBjuKGwjNQgF0W6GlSVEYmCjT/9myewwKyfibK7/7JHJDmvr/xZJ+qM
+	ZExYlFbh++gJxcHC8HcU/TCZU6sI5WzHx403EWqAp4LbWhroQq50IVNa5t2vsL8T4HT
+	9+uaaQa3L5j99dI1BgmROYQXOsHj6Mh+Rr0Sw2XvE7crYGW1Q+S0CvFtKxPNTNmQqwy
+	tGa30iyf2rfIoyt9agchmmH/gvJJnq8PtVAMWsee/zoM4pb+anbngffuYrvixoIuGFM
+	UK1CQMIMIg==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=6gbrjpgwjskckoa6a5zn6fwqkn67xbtw; d=amazonses.com; t=1770016032;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Feedback-ID;
+	bh=t1DXsfC+9e2Qm+wl5lRSGzewZp7vn8HCLkFIdGWIioE=;
+	b=DLfgzF2mH9Yf15eoNqrvnhCn1yqm3l4tNxC7jMhUa37d21TN9M8MFWKIgmAcsIJD
+	OxUkm35L55Iqpt//1XRKp3OQi5eBPak9thzk7ZQALW8KUU/LJRD3xkcCr0ASBc58gtK
+	Pe6rnP3XHzckHT1ikNGlbfzTZZSrastoUr0Epn04=
+From: David Corvaglia <david@corvaglia.dev>
+To: razor@blackwall.org, idosch@nvidia.com
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, horms@kernel.org, bridge@lists.linux.dev, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	David Corvaglia <david@corvaglia.dev>
+Subject: [PATCH net-next v2] net: bridge: use sysfs_emit instead of sprintf
+Date: Mon, 2 Feb 2026 07:07:12 +0000
+Message-ID: <0100019c1d2d46e0-a083f912-ac82-47e8-8cbb-ac9d70355ed3-000000@email.amazonses.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|SA1PR12MB8857:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4ca31e9e-ac70-4418-72e3-08de61a544ab
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|366016|376014|1800799024|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?2DdN5eCW+EUcOmZA5goOGWy7vtGHrIziqXuY9x3DVqbkB9JSPP9TQ5VgcuQ9?=
- =?us-ascii?Q?Ub9G8AFHTuIGSedFCR7LwBxuRY+uf5/I/bz6Ly998tmO72O3btayL7Y2NOha?=
- =?us-ascii?Q?uPtocE2z4GGv0EjWruNUC9vKAN+h79lskUYyjsJbLkWjAjocdFydXkGTPhnq?=
- =?us-ascii?Q?njIntzmEorYpJ7BJEUlrcByS7dPnsqaJ7nAmerPdWGNrHsP8CITrIG1G65fj?=
- =?us-ascii?Q?TJzOY2iRXLmMibbSVHaS/66L8DUedz0mek8pa6WYuAfiyEwZeigA6HjfPkGJ?=
- =?us-ascii?Q?9IdF2vH60v1Nqgf9dx9BNNX9ESS7jQIBugvkHndbRHEBFWly3Oc7hmwHJXlA?=
- =?us-ascii?Q?kPrpm0rgsrnIdy5Lu08Ju56bgsqke9g8Bq8DbauyJKt+ZK7WRd4L1OeaZeBE?=
- =?us-ascii?Q?39kTTKffCVoXXC3nOaOlV3AbIvG3u/NGfFQn769iFHDVuZpwE88E9yUX0zKV?=
- =?us-ascii?Q?Cpcml90ibBmfKFTEfS4Z3FWEKUTUFFZF5kUYpnZY0ntc+ZQji1fMh4km4Pr/?=
- =?us-ascii?Q?552hTDIzHrUk7awTy9qrZ1rKFQtx0aC0AVazZrqQPcR4l+hPqUKg1u5UI547?=
- =?us-ascii?Q?4DazoqRbL0fYL+eaBI1J6erjuc1CkZho29eBCg0S6xAU8uPHn9eqoDJuvjL0?=
- =?us-ascii?Q?uQFdzZQTQdNmRhtKnUbu/ZQodU5I3UhskFndRveBIEmmPxzWYD86fJmkbxLx?=
- =?us-ascii?Q?OeO8lU02GfY0Y2NMSoEiyqXJOJZsIkWSXGtZQeLvu5OjcyaLaf5kxlLCp2sF?=
- =?us-ascii?Q?M+D7u6ThZ+GJ0CfwpbEuIeL9yd3sRlebukKBG5GUgTLhxdEeDU9Hu9m7MzYz?=
- =?us-ascii?Q?0okQ7eSlujgrlGI9NOjwTgwWmK+MXDlfOZZ9Ax7VQDkgLOU+CcNcGapqzxr6?=
- =?us-ascii?Q?YCcLdisNMDXAN3os3CelGkNQrMsf8VxlpkdGCwFQl8JmC/eQ9viOrJi/bh8/?=
- =?us-ascii?Q?SRa0eslhbGcVk3F8P9/8bEBYAT7W1UWZgpVzRJVXY9Bh8FnPr0MAn4+kGRTx?=
- =?us-ascii?Q?9rjgMAJAdwlJzfmJ95NN0CqTp3eoXCi9neAcINDvRuzAparw9GFVTEe5xao+?=
- =?us-ascii?Q?PSUZOu0TS3iS1ZK+qUQ1rcMtKAO2s+KieJvUDBSmiLrcmNRBqphoejgfF2/a?=
- =?us-ascii?Q?E/1FihAAARaBfnBZbdA1d4/BS6pllOXRHuzv1IhfFCapRVw0HQTOxf9padft?=
- =?us-ascii?Q?vv7GNvfNZ+t9GpIy4G9jUHapvwuw+kNUXKtKWzwZyPUG/NqrPF47KpEeASz6?=
- =?us-ascii?Q?N4iA3PBTAqbjixwPP6G8AsuzcnlsJ4/jplVCcACvaFA45f0KnzM5IyUkYjMS?=
- =?us-ascii?Q?yAEENJBINr7YqXZQtYmjFLcOkm+9NSiylYfxj6rwD0M+j4ijBIqcxutMOUw3?=
- =?us-ascii?Q?sHNeNDC10S+/s828QuMvtNqOsM1Mz6VftmoummihYsl655hYo8EQfQE/JB/c?=
- =?us-ascii?Q?JKaM6gxQ3wB6E9w5gDJPPWoG96P0edKyZaY3rsIU5XS7FBCbcQxCuj7KqI5X?=
- =?us-ascii?Q?ipJy9sho2DUXAsj9WVIJ34Xn+2dB+QpGtzX+e2///KmzWPckityVz1FB0RTq?=
- =?us-ascii?Q?m59M3SdE64Pi8j279U8=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(366016)(376014)(1800799024)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?hOh2FsGuEdUpCwuLRl8xH6drbqMVokpakcTr2IthR3T0jsWhhWktnx6OU077?=
- =?us-ascii?Q?xroMMApxOqPGJi+lBwBK6qSggfO6lGabfDagHkb1A1fWFoSPUuvitD46mHEc?=
- =?us-ascii?Q?a2bS8Q+eSRIvCkFvRhhqUBPO+9sHowlED9hs0WzY2dPEwdmY/LtwDvmec2b4?=
- =?us-ascii?Q?JWkYo1gSFOTife/0qVAkIRPqdtJiJTRGX5vx2FuTa3zhSiAerGnzrA8wZj8e?=
- =?us-ascii?Q?axSonv0okNT+1v73iHAdX1mdPqB8SQXSwCxwEkvFunA+pZtWE4QSEolIIlXC?=
- =?us-ascii?Q?4sGmMrp3Yjbqh31paJTLU+2Ue24IrFYjs+PChassXsVwKWDVvwb6Rby+uW08?=
- =?us-ascii?Q?O9KZQaFlSoJQOK+q6vwEU0uAC+/yBDVScWfsk5zH81ogKR/PODLKoXqiBMnz?=
- =?us-ascii?Q?0w3VfddMYcthww2HzzKtfkW1PoR6L+Fm2UdGPK69SWP27PZfKm/jwUJhiKni?=
- =?us-ascii?Q?PVgDXDljhclZhC9lGnezGse5yI9GuMpYZ6yiAlighJXNScHeLERE/sly0d6f?=
- =?us-ascii?Q?xO535ZCD1Mbucjf8+ti3vcOhxzJmRIghoGQkJ8WcczQUmtCor0EtVoyGYq2D?=
- =?us-ascii?Q?nF+61SKfvWSNT3t1JXRHzGAdH7zVoAz4aHZ827h5mCHQgeH9O22KdzSIkFsA?=
- =?us-ascii?Q?JEmTJ8QszE9wzJJT1ECHjQ6+JC+SPKPfSu2EdiVBKisLnTyxiLv6OmZDVnwh?=
- =?us-ascii?Q?VKNFyWVqeccd8NF+M25BSWnMxhsPQD96LmX2U5l89/LhgJSXmTqgi94++9gV?=
- =?us-ascii?Q?5pO4dwWHUo/1Z05DhzIewOrKaeFgJAgFys1Ge8BgqSl1kF+9UuUo7uYvvi6Y?=
- =?us-ascii?Q?1hjDqWE8/h+1h2hI99viqyz7MGt6LS/OXABjz3+Z0nkyT0hveghwFxlat2nK?=
- =?us-ascii?Q?i664B9rI8M1LvTHTYmuCu8ykKiXt67VmcFuQDAoxgi+zLfgEQnvqvctLmhnC?=
- =?us-ascii?Q?cGM2RF8jUfL81fxHEYbIeOrE8YmggacrdkXPzo+tdVMEy0xmsogA/T22CivN?=
- =?us-ascii?Q?+Gdk+cA1HftyJv5+5i2ohpM1NDhVTd+b9r/VGkm/IX8K8NyU+YgR8DAykvFx?=
- =?us-ascii?Q?jsDBaue5NL/zwEM6yrwEkW21Mjnfp02koerrReTCVXR1c8IMfKDcYO5zOnV5?=
- =?us-ascii?Q?UTA4hJ2loM32oUNF5V3wSe9m7pbpkSi3V1pO1JgASg+T9kPWYDSkCUuNtxV/?=
- =?us-ascii?Q?N/pprx0P4VM9pE7sFSerUdJvIsXtTPjMLtOnsNCbfxT9mBEEJLlzJjZzYTod?=
- =?us-ascii?Q?PPgz0zrp9lIP/qNDlXOmc2UMVecKjlAwucj/cK19GzJ/siK5Zs4OXK2vtCSy?=
- =?us-ascii?Q?iqKcEJ52k7VzjQJgI3Y12ScloPSB/3qa6UhXKlo0y3TN172+N7p/UgAjZKug?=
- =?us-ascii?Q?zyAjKkUX9N5iYqpJHgoQFK5DEGJjivXm8R1hHPheMjQKYUqexxmG7B67vr0V?=
- =?us-ascii?Q?9XOezH5ZhtcWpe6eGV4bAZlug/tsalyB/c7CKTkXOqRKlQH00vqt6Cz96ckx?=
- =?us-ascii?Q?Jjl9qR/J/pcnJ1m5VEmvH2LCD4ptAxKinI8Ail77KAgyIqQsHAuezCC4JtQ1?=
- =?us-ascii?Q?MTZG/fTGjG660KArq3YAiU4JTSM369A9Hvk+qhfxRCug7n7FSFQXN0oKkQId?=
- =?us-ascii?Q?rMwCRlQrMmht+32Zf/JdrHNljC8FYRlK2bCoJURQkqOs5ZzE79TTnao33DYP?=
- =?us-ascii?Q?44PRmzUXp+k7nAN3oW3xsWu8IbP80I2W02dexBwVnT5chsI7?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ca31e9e-ac70-4418-72e3-08de61a544ab
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Feb 2026 15:19:18.3862
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HREEd8tdejIsZstszOY/nWX3upMt5qdwTIIEwV/LO8kbRJvyXKoN0+89s2m+qEbJ1FJCnGgHGdSgWZmS6mIKEQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8857
+Content-Transfer-Encoding: 8bit
+Feedback-ID: ::1.us-east-1.Dw79TYOMY2hrNmvZ7e9+qnciE2cwcAniRLo3LdoqSVI=:AmazonSES
+X-SES-Outgoing: 2026.02.02-54.240.8.237
 
-On Sat, Jan 31, 2026 at 04:53:09PM +0000, David Corvaglia wrote:
-> Replace sprintf with sysfs_emit in sysfs show() methods as outlined in
-> Documentation/filesystems/sysfs.rst. sysfs_emit is preferred to sprintf 
-> in sysfs show() methods as it is safer with buffer handling.
-> 
-> Signed-off-by: David Corvaglia <david@corvaglia.dev>
+Replace sprintf with sysfs_emit in sysfs show() methods as outlined in
+Documentation/filesystems/sysfs.rst.
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+sysfs_emit is preferred to sprintf in sysfs show() methods as it is safer
+with buffer handling.
 
-But the patch is introducing a few alignment issues and it would be good
-to fix them in v2. See below.
+Signed-off-by: David Corvaglia <david@corvaglia.dev>
+---
+v2: Fix alignment of sysfs_emit arguments.
+v1: https://lore.kernel.org/bridge/0100019c14f90490-950ddd9b-1897-4111-bddd-0d4b8abf380a-000000@email.amazonses.com/
+    This is my first patch to the kernel! I've been able to build and boot
+    with the patch. I also tested the sysfs reads and they seem to be
+    correct. Any feedback is appreciated.
 
-[...]
+ net/bridge/br_stp_if.c   |   8 +--
+ net/bridge/br_sysfs_br.c | 108 +++++++++++++++++++--------------------
+ net/bridge/br_sysfs_if.c |  32 ++++++------
+ 3 files changed, 73 insertions(+), 75 deletions(-)
 
-> @@ -87,7 +87,7 @@ static DEVICE_ATTR_RW(forward_delay);
->  static ssize_t hello_time_show(struct device *d, struct device_attribute *attr,
->  			       char *buf)
->  {
-> -	return sprintf(buf, "%lu\n",
-> +	return sysfs_emit(buf, "%lu\n",
->  		       jiffies_to_clock_t(to_bridge(d)->hello_time));
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index c20a41bf253b..cc4b27ff1b08 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -344,8 +344,8 @@ int br_stp_set_path_cost(struct net_bridge_port *p, unsigned long path_cost)
+ 
+ ssize_t br_show_bridge_id(char *buf, const struct bridge_id *id)
+ {
+-	return sprintf(buf, "%.2x%.2x.%.2x%.2x%.2x%.2x%.2x%.2x\n",
+-	       id->prio[0], id->prio[1],
+-	       id->addr[0], id->addr[1], id->addr[2],
+-	       id->addr[3], id->addr[4], id->addr[5]);
++	return sysfs_emit(buf, "%.2x%.2x.%.2x%.2x%.2x%.2x%.2x%.2x\n",
++			  id->prio[0], id->prio[1],
++			  id->addr[0], id->addr[1], id->addr[2],
++			  id->addr[3], id->addr[4], id->addr[5]);
+ }
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index cb4855ed9500..4ed3d3e3afc2 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -67,7 +67,7 @@ static ssize_t forward_delay_show(struct device *d,
+ 				  struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%lu\n", jiffies_to_clock_t(br->forward_delay));
++	return sysfs_emit(buf, "%lu\n", jiffies_to_clock_t(br->forward_delay));
+ }
+ 
+ static int set_forward_delay(struct net_bridge *br, unsigned long val,
+@@ -87,8 +87,8 @@ static DEVICE_ATTR_RW(forward_delay);
+ static ssize_t hello_time_show(struct device *d, struct device_attribute *attr,
+ 			       char *buf)
+ {
+-	return sprintf(buf, "%lu\n",
+-		       jiffies_to_clock_t(to_bridge(d)->hello_time));
++	return sysfs_emit(buf, "%lu\n",
++			  jiffies_to_clock_t(to_bridge(d)->hello_time));
+ }
+ 
+ static int set_hello_time(struct net_bridge *br, unsigned long val,
+@@ -108,8 +108,8 @@ static DEVICE_ATTR_RW(hello_time);
+ static ssize_t max_age_show(struct device *d, struct device_attribute *attr,
+ 			    char *buf)
+ {
+-	return sprintf(buf, "%lu\n",
+-		       jiffies_to_clock_t(to_bridge(d)->max_age));
++	return sysfs_emit(buf, "%lu\n",
++			  jiffies_to_clock_t(to_bridge(d)->max_age));
+ }
+ 
+ static int set_max_age(struct net_bridge *br, unsigned long val,
+@@ -129,7 +129,7 @@ static ssize_t ageing_time_show(struct device *d,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%lu\n", jiffies_to_clock_t(br->ageing_time));
++	return sysfs_emit(buf, "%lu\n", jiffies_to_clock_t(br->ageing_time));
+ }
+ 
+ static int set_ageing_time(struct net_bridge *br, unsigned long val,
+@@ -150,7 +150,7 @@ static ssize_t stp_state_show(struct device *d,
+ 			      struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br->stp_enabled);
++	return sysfs_emit(buf, "%d\n", br->stp_enabled);
+ }
+ 
+ 
+@@ -173,7 +173,7 @@ static ssize_t group_fwd_mask_show(struct device *d,
+ 				   char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%#x\n", br->group_fwd_mask);
++	return sysfs_emit(buf, "%#x\n", br->group_fwd_mask);
+ }
+ 
+ static int set_group_fwd_mask(struct net_bridge *br, unsigned long val,
+@@ -200,8 +200,8 @@ static ssize_t priority_show(struct device *d, struct device_attribute *attr,
+ 			     char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n",
+-		       (br->bridge_id.prio[0] << 8) | br->bridge_id.prio[1]);
++	return sysfs_emit(buf, "%d\n",
++			  (br->bridge_id.prio[0] << 8) | br->bridge_id.prio[1]);
+ }
+ 
+ static int set_priority(struct net_bridge *br, unsigned long val,
+@@ -235,21 +235,21 @@ static DEVICE_ATTR_RO(bridge_id);
+ static ssize_t root_port_show(struct device *d, struct device_attribute *attr,
+ 			      char *buf)
+ {
+-	return sprintf(buf, "%d\n", to_bridge(d)->root_port);
++	return sysfs_emit(buf, "%d\n", to_bridge(d)->root_port);
+ }
+ static DEVICE_ATTR_RO(root_port);
+ 
+ static ssize_t root_path_cost_show(struct device *d,
+ 				   struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "%d\n", to_bridge(d)->root_path_cost);
++	return sysfs_emit(buf, "%d\n", to_bridge(d)->root_path_cost);
+ }
+ static DEVICE_ATTR_RO(root_path_cost);
+ 
+ static ssize_t topology_change_show(struct device *d,
+ 				    struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "%d\n", to_bridge(d)->topology_change);
++	return sysfs_emit(buf, "%d\n", to_bridge(d)->topology_change);
+ }
+ static DEVICE_ATTR_RO(topology_change);
+ 
+@@ -258,7 +258,7 @@ static ssize_t topology_change_detected_show(struct device *d,
+ 					     char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br->topology_change_detected);
++	return sysfs_emit(buf, "%d\n", br->topology_change_detected);
+ }
+ static DEVICE_ATTR_RO(topology_change_detected);
+ 
+@@ -266,7 +266,7 @@ static ssize_t hello_timer_show(struct device *d,
+ 				struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->hello_timer));
++	return sysfs_emit(buf, "%ld\n", br_timer_value(&br->hello_timer));
+ }
+ static DEVICE_ATTR_RO(hello_timer);
+ 
+@@ -274,7 +274,7 @@ static ssize_t tcn_timer_show(struct device *d, struct device_attribute *attr,
+ 			      char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->tcn_timer));
++	return sysfs_emit(buf, "%ld\n", br_timer_value(&br->tcn_timer));
+ }
+ static DEVICE_ATTR_RO(tcn_timer);
+ 
+@@ -283,7 +283,7 @@ static ssize_t topology_change_timer_show(struct device *d,
+ 					  char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->topology_change_timer));
++	return sysfs_emit(buf, "%ld\n", br_timer_value(&br->topology_change_timer));
+ }
+ static DEVICE_ATTR_RO(topology_change_timer);
+ 
+@@ -291,7 +291,7 @@ static ssize_t gc_timer_show(struct device *d, struct device_attribute *attr,
+ 			     char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%ld\n", br_timer_value(&br->gc_work.timer));
++	return sysfs_emit(buf, "%ld\n", br_timer_value(&br->gc_work.timer));
+ }
+ static DEVICE_ATTR_RO(gc_timer);
+ 
+@@ -299,7 +299,7 @@ static ssize_t group_addr_show(struct device *d,
+ 			       struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%pM\n", br->group_addr);
++	return sysfs_emit(buf, "%pM\n", br->group_addr);
+ }
+ 
+ static ssize_t group_addr_store(struct device *d,
+@@ -365,7 +365,7 @@ static ssize_t no_linklocal_learn_show(struct device *d,
+ 				       char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br_boolopt_get(br, BR_BOOLOPT_NO_LL_LEARN));
++	return sysfs_emit(buf, "%d\n", br_boolopt_get(br, BR_BOOLOPT_NO_LL_LEARN));
+ }
+ 
+ static int set_no_linklocal_learn(struct net_bridge *br, unsigned long val,
+@@ -387,7 +387,7 @@ static ssize_t multicast_router_show(struct device *d,
+ 				     struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br->multicast_ctx.multicast_router);
++	return sysfs_emit(buf, "%d\n", br->multicast_ctx.multicast_router);
+ }
+ 
+ static int set_multicast_router(struct net_bridge *br, unsigned long val,
+@@ -409,7 +409,7 @@ static ssize_t multicast_snooping_show(struct device *d,
+ 				       char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_MULTICAST_ENABLED));
++	return sysfs_emit(buf, "%d\n", br_opt_get(br, BROPT_MULTICAST_ENABLED));
+ }
+ 
+ static ssize_t multicast_snooping_store(struct device *d,
+@@ -425,8 +425,8 @@ static ssize_t multicast_query_use_ifaddr_show(struct device *d,
+ 					       char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n",
+-		       br_opt_get(br, BROPT_MULTICAST_QUERY_USE_IFADDR));
++	return sysfs_emit(buf, "%d\n",
++			  br_opt_get(br, BROPT_MULTICAST_QUERY_USE_IFADDR));
+ }
+ 
+ static int set_query_use_ifaddr(struct net_bridge *br, unsigned long val,
+@@ -450,7 +450,7 @@ static ssize_t multicast_querier_show(struct device *d,
+ 				      char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br->multicast_ctx.multicast_querier);
++	return sysfs_emit(buf, "%d\n", br->multicast_ctx.multicast_querier);
+ }
+ 
+ static int set_multicast_querier(struct net_bridge *br, unsigned long val,
+@@ -470,7 +470,7 @@ static DEVICE_ATTR_RW(multicast_querier);
+ static ssize_t hash_elasticity_show(struct device *d,
+ 				    struct device_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "%u\n", RHT_ELASTICITY);
++	return sysfs_emit(buf, "%u\n", RHT_ELASTICITY);
+ }
+ 
+ static int set_elasticity(struct net_bridge *br, unsigned long val,
+@@ -494,7 +494,7 @@ static ssize_t hash_max_show(struct device *d, struct device_attribute *attr,
+ 			     char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br->hash_max);
++	return sysfs_emit(buf, "%u\n", br->hash_max);
+ }
+ 
+ static int set_hash_max(struct net_bridge *br, unsigned long val,
+@@ -517,7 +517,7 @@ static ssize_t multicast_igmp_version_show(struct device *d,
+ {
+ 	struct net_bridge *br = to_bridge(d);
+ 
+-	return sprintf(buf, "%u\n", br->multicast_ctx.multicast_igmp_version);
++	return sysfs_emit(buf, "%u\n", br->multicast_ctx.multicast_igmp_version);
+ }
+ 
+ static int set_multicast_igmp_version(struct net_bridge *br, unsigned long val,
+@@ -539,7 +539,7 @@ static ssize_t multicast_last_member_count_show(struct device *d,
+ 						char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br->multicast_ctx.multicast_last_member_count);
++	return sysfs_emit(buf, "%u\n", br->multicast_ctx.multicast_last_member_count);
+ }
+ 
+ static int set_last_member_count(struct net_bridge *br, unsigned long val,
+@@ -561,7 +561,7 @@ static ssize_t multicast_startup_query_count_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br->multicast_ctx.multicast_startup_query_count);
++	return sysfs_emit(buf, "%u\n", br->multicast_ctx.multicast_startup_query_count);
+ }
+ 
+ static int set_startup_query_count(struct net_bridge *br, unsigned long val,
+@@ -583,8 +583,8 @@ static ssize_t multicast_last_member_interval_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%lu\n",
+-		       jiffies_to_clock_t(br->multicast_ctx.multicast_last_member_interval));
++	return sysfs_emit(buf, "%lu\n",
++			  jiffies_to_clock_t(br->multicast_ctx.multicast_last_member_interval));
+ }
+ 
+ static int set_last_member_interval(struct net_bridge *br, unsigned long val,
+@@ -606,8 +606,8 @@ static ssize_t multicast_membership_interval_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%lu\n",
+-		       jiffies_to_clock_t(br->multicast_ctx.multicast_membership_interval));
++	return sysfs_emit(buf, "%lu\n",
++			  jiffies_to_clock_t(br->multicast_ctx.multicast_membership_interval));
+ }
+ 
+ static int set_membership_interval(struct net_bridge *br, unsigned long val,
+@@ -630,8 +630,8 @@ static ssize_t multicast_querier_interval_show(struct device *d,
+ 					       char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%lu\n",
+-		       jiffies_to_clock_t(br->multicast_ctx.multicast_querier_interval));
++	return sysfs_emit(buf, "%lu\n",
++			  jiffies_to_clock_t(br->multicast_ctx.multicast_querier_interval));
+ }
+ 
+ static int set_querier_interval(struct net_bridge *br, unsigned long val,
+@@ -654,8 +654,8 @@ static ssize_t multicast_query_interval_show(struct device *d,
+ 					     char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%lu\n",
+-		       jiffies_to_clock_t(br->multicast_ctx.multicast_query_interval));
++	return sysfs_emit(buf, "%lu\n",
++			  jiffies_to_clock_t(br->multicast_ctx.multicast_query_interval));
+ }
+ 
+ static int set_query_interval(struct net_bridge *br, unsigned long val,
+@@ -677,9 +677,8 @@ static ssize_t multicast_query_response_interval_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(
+-		buf, "%lu\n",
+-		jiffies_to_clock_t(br->multicast_ctx.multicast_query_response_interval));
++	return sysfs_emit(buf, "%lu\n",
++		          jiffies_to_clock_t(br->multicast_ctx.multicast_query_response_interval));
+ }
+ 
+ static int set_query_response_interval(struct net_bridge *br, unsigned long val,
+@@ -701,9 +700,8 @@ static ssize_t multicast_startup_query_interval_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(
+-		buf, "%lu\n",
+-		jiffies_to_clock_t(br->multicast_ctx.multicast_startup_query_interval));
++	return sysfs_emit(buf, "%lu\n",
++			  jiffies_to_clock_t(br->multicast_ctx.multicast_startup_query_interval));
+ }
+ 
+ static int set_startup_query_interval(struct net_bridge *br, unsigned long val,
+@@ -727,8 +725,8 @@ static ssize_t multicast_stats_enabled_show(struct device *d,
+ {
+ 	struct net_bridge *br = to_bridge(d);
+ 
+-	return sprintf(buf, "%d\n",
+-		       br_opt_get(br, BROPT_MULTICAST_STATS_ENABLED));
++	return sysfs_emit(buf, "%d\n",
++			  br_opt_get(br, BROPT_MULTICAST_STATS_ENABLED));
+ }
+ 
+ static int set_stats_enabled(struct net_bridge *br, unsigned long val,
+@@ -754,7 +752,7 @@ static ssize_t multicast_mld_version_show(struct device *d,
+ {
+ 	struct net_bridge *br = to_bridge(d);
+ 
+-	return sprintf(buf, "%u\n", br->multicast_ctx.multicast_mld_version);
++	return sysfs_emit(buf, "%u\n", br->multicast_ctx.multicast_mld_version);
+ }
+ 
+ static int set_multicast_mld_version(struct net_bridge *br, unsigned long val,
+@@ -777,7 +775,7 @@ static ssize_t nf_call_iptables_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IPTABLES));
++	return sysfs_emit(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IPTABLES));
+ }
+ 
+ static int set_nf_call_iptables(struct net_bridge *br, unsigned long val,
+@@ -799,7 +797,7 @@ static ssize_t nf_call_ip6tables_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IP6TABLES));
++	return sysfs_emit(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_IP6TABLES));
+ }
+ 
+ static int set_nf_call_ip6tables(struct net_bridge *br, unsigned long val,
+@@ -821,7 +819,7 @@ static ssize_t nf_call_arptables_show(
+ 	struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_ARPTABLES));
++	return sysfs_emit(buf, "%u\n", br_opt_get(br, BROPT_NF_CALL_ARPTABLES));
+ }
+ 
+ static int set_nf_call_arptables(struct net_bridge *br, unsigned long val,
+@@ -845,7 +843,7 @@ static ssize_t vlan_filtering_show(struct device *d,
+ 				   char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br_opt_get(br, BROPT_VLAN_ENABLED));
++	return sysfs_emit(buf, "%d\n", br_opt_get(br, BROPT_VLAN_ENABLED));
+ }
+ 
+ static ssize_t vlan_filtering_store(struct device *d,
+@@ -861,7 +859,7 @@ static ssize_t vlan_protocol_show(struct device *d,
+ 				  char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%#06x\n", ntohs(br->vlan_proto));
++	return sysfs_emit(buf, "%#06x\n", ntohs(br->vlan_proto));
+ }
+ 
+ static ssize_t vlan_protocol_store(struct device *d,
+@@ -877,7 +875,7 @@ static ssize_t default_pvid_show(struct device *d,
+ 				 char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%d\n", br->default_pvid);
++	return sysfs_emit(buf, "%d\n", br->default_pvid);
+ }
+ 
+ static ssize_t default_pvid_store(struct device *d,
+@@ -893,7 +891,7 @@ static ssize_t vlan_stats_enabled_show(struct device *d,
+ 				       char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_ENABLED));
++	return sysfs_emit(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_ENABLED));
+ }
+ 
+ static int set_vlan_stats_enabled(struct net_bridge *br, unsigned long val,
+@@ -915,7 +913,7 @@ static ssize_t vlan_stats_per_port_show(struct device *d,
+ 					char *buf)
+ {
+ 	struct net_bridge *br = to_bridge(d);
+-	return sprintf(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_PER_PORT));
++	return sysfs_emit(buf, "%u\n", br_opt_get(br, BROPT_VLAN_STATS_PER_PORT));
+ }
+ 
+ static int set_vlan_stats_per_port(struct net_bridge *br, unsigned long val,
+diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+index 74fdd8105dca..1f57c36a7fc0 100644
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -47,7 +47,7 @@ const struct brport_attribute brport_attr_##_name = { 	        \
+ #define BRPORT_ATTR_FLAG(_name, _mask)				\
+ static ssize_t show_##_name(struct net_bridge_port *p, char *buf) \
+ {								\
+-	return sprintf(buf, "%d\n", !!(p->flags & _mask));	\
++	return sysfs_emit(buf, "%d\n", !!(p->flags & _mask));	\
+ }								\
+ static int store_##_name(struct net_bridge_port *p, unsigned long v) \
+ {								\
+@@ -83,7 +83,7 @@ static int store_flag(struct net_bridge_port *p, unsigned long v,
+ 
+ static ssize_t show_path_cost(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->path_cost);
++	return sysfs_emit(buf, "%d\n", p->path_cost);
+ }
+ 
+ static BRPORT_ATTR(path_cost, 0644,
+@@ -91,7 +91,7 @@ static BRPORT_ATTR(path_cost, 0644,
+ 
+ static ssize_t show_priority(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->priority);
++	return sysfs_emit(buf, "%d\n", p->priority);
+ }
+ 
+ static BRPORT_ATTR(priority, 0644,
+@@ -111,65 +111,65 @@ static BRPORT_ATTR(designated_bridge, 0444, show_designated_bridge, NULL);
+ 
+ static ssize_t show_designated_port(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->designated_port);
++	return sysfs_emit(buf, "%d\n", p->designated_port);
+ }
+ static BRPORT_ATTR(designated_port, 0444, show_designated_port, NULL);
+ 
+ static ssize_t show_designated_cost(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->designated_cost);
++	return sysfs_emit(buf, "%d\n", p->designated_cost);
+ }
+ static BRPORT_ATTR(designated_cost, 0444, show_designated_cost, NULL);
+ 
+ static ssize_t show_port_id(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "0x%x\n", p->port_id);
++	return sysfs_emit(buf, "0x%x\n", p->port_id);
+ }
+ static BRPORT_ATTR(port_id, 0444, show_port_id, NULL);
+ 
+ static ssize_t show_port_no(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "0x%x\n", p->port_no);
++	return sysfs_emit(buf, "0x%x\n", p->port_no);
+ }
+ 
+ static BRPORT_ATTR(port_no, 0444, show_port_no, NULL);
+ 
+ static ssize_t show_change_ack(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->topology_change_ack);
++	return sysfs_emit(buf, "%d\n", p->topology_change_ack);
+ }
+ static BRPORT_ATTR(change_ack, 0444, show_change_ack, NULL);
+ 
+ static ssize_t show_config_pending(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->config_pending);
++	return sysfs_emit(buf, "%d\n", p->config_pending);
+ }
+ static BRPORT_ATTR(config_pending, 0444, show_config_pending, NULL);
+ 
+ static ssize_t show_port_state(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->state);
++	return sysfs_emit(buf, "%d\n", p->state);
+ }
+ static BRPORT_ATTR(state, 0444, show_port_state, NULL);
+ 
+ static ssize_t show_message_age_timer(struct net_bridge_port *p,
+ 					    char *buf)
+ {
+-	return sprintf(buf, "%ld\n", br_timer_value(&p->message_age_timer));
++	return sysfs_emit(buf, "%ld\n", br_timer_value(&p->message_age_timer));
+ }
+ static BRPORT_ATTR(message_age_timer, 0444, show_message_age_timer, NULL);
+ 
+ static ssize_t show_forward_delay_timer(struct net_bridge_port *p,
+ 					    char *buf)
+ {
+-	return sprintf(buf, "%ld\n", br_timer_value(&p->forward_delay_timer));
++	return sysfs_emit(buf, "%ld\n", br_timer_value(&p->forward_delay_timer));
+ }
+ static BRPORT_ATTR(forward_delay_timer, 0444, show_forward_delay_timer, NULL);
+ 
+ static ssize_t show_hold_timer(struct net_bridge_port *p,
+ 					    char *buf)
+ {
+-	return sprintf(buf, "%ld\n", br_timer_value(&p->hold_timer));
++	return sysfs_emit(buf, "%ld\n", br_timer_value(&p->hold_timer));
+ }
+ static BRPORT_ATTR(hold_timer, 0444, show_hold_timer, NULL);
+ 
+@@ -182,7 +182,7 @@ static BRPORT_ATTR(flush, 0200, NULL, store_flush);
+ 
+ static ssize_t show_group_fwd_mask(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%#x\n", p->group_fwd_mask);
++	return sysfs_emit(buf, "%#x\n", p->group_fwd_mask);
+ }
+ 
+ static int store_group_fwd_mask(struct net_bridge_port *p,
+@@ -205,7 +205,7 @@ static ssize_t show_backup_port(struct net_bridge_port *p, char *buf)
+ 	rcu_read_lock();
+ 	backup_p = rcu_dereference(p->backup_port);
+ 	if (backup_p)
+-		ret = sprintf(buf, "%s\n", backup_p->dev->name);
++		ret = sysfs_emit(buf, "%s\n", backup_p->dev->name);
+ 	rcu_read_unlock();
+ 
+ 	return ret;
+@@ -244,7 +244,7 @@ BRPORT_ATTR_FLAG(isolated, BR_ISOLATED);
+ #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+ static ssize_t show_multicast_router(struct net_bridge_port *p, char *buf)
+ {
+-	return sprintf(buf, "%d\n", p->multicast_ctx.multicast_router);
++	return sysfs_emit(buf, "%d\n", p->multicast_ctx.multicast_router);
+ }
+ 
+ static int store_multicast_router(struct net_bridge_port *p,
+-- 
+2.43.0
 
-Here
-
->  }
->  
-> @@ -108,7 +108,7 @@ static DEVICE_ATTR_RW(hello_time);
->  static ssize_t max_age_show(struct device *d, struct device_attribute *attr,
->  			    char *buf)
->  {
-> -	return sprintf(buf, "%lu\n",
-> +	return sysfs_emit(buf, "%lu\n",
->  		       jiffies_to_clock_t(to_bridge(d)->max_age));
-
-Here
-
->  }
->  
-
-[...]
-
->  static int set_group_fwd_mask(struct net_bridge *br, unsigned long val,
-> @@ -200,7 +200,7 @@ static ssize_t priority_show(struct device *d, struct device_attribute *attr,
->  			     char *buf)
->  {
->  	struct net_bridge *br = to_bridge(d);
-> -	return sprintf(buf, "%d\n",
-> +	return sysfs_emit(buf, "%d\n",
->  		       (br->bridge_id.prio[0] << 8) | br->bridge_id.prio[1]);
-
-Here
-
->  }
-
-[...]
-
-> @@ -425,7 +425,7 @@ static ssize_t multicast_query_use_ifaddr_show(struct device *d,
->  					       char *buf)
->  {
->  	struct net_bridge *br = to_bridge(d);
-> -	return sprintf(buf, "%d\n",
-> +	return sysfs_emit(buf, "%d\n",
->  		       br_opt_get(br, BROPT_MULTICAST_QUERY_USE_IFADDR));
-
-Here
-
->  }
-
-> @@ -583,7 +583,7 @@ static ssize_t multicast_last_member_interval_show(
->  	struct device *d, struct device_attribute *attr, char *buf)
->  {
->  	struct net_bridge *br = to_bridge(d);
-> -	return sprintf(buf, "%lu\n",
-> +	return sysfs_emit(buf, "%lu\n",
->  		       jiffies_to_clock_t(br->multicast_ctx.multicast_last_member_interval));
-
-Here
-
->  }
->  
-> @@ -606,7 +606,7 @@ static ssize_t multicast_membership_interval_show(
->  	struct device *d, struct device_attribute *attr, char *buf)
->  {
->  	struct net_bridge *br = to_bridge(d);
-> -	return sprintf(buf, "%lu\n",
-> +	return sysfs_emit(buf, "%lu\n",
->  		       jiffies_to_clock_t(br->multicast_ctx.multicast_membership_interval));
-
-Here
-
->  }
->  
-> @@ -630,7 +630,7 @@ static ssize_t multicast_querier_interval_show(struct device *d,
->  					       char *buf)
->  {
->  	struct net_bridge *br = to_bridge(d);
-> -	return sprintf(buf, "%lu\n",
-> +	return sysfs_emit(buf, "%lu\n",
->  		       jiffies_to_clock_t(br->multicast_ctx.multicast_querier_interval));
-
-Here
-
->  }
->  
-> @@ -654,7 +654,7 @@ static ssize_t multicast_query_interval_show(struct device *d,
->  					     char *buf)
->  {
->  	struct net_bridge *br = to_bridge(d);
-> -	return sprintf(buf, "%lu\n",
-> +	return sysfs_emit(buf, "%lu\n",
->  		       jiffies_to_clock_t(br->multicast_ctx.multicast_query_interval));
-
-Here
-
->  }
-
-[...]
-
-> @@ -727,7 +727,7 @@ static ssize_t multicast_stats_enabled_show(struct device *d,
->  {
->  	struct net_bridge *br = to_bridge(d);
->  
-> -	return sprintf(buf, "%d\n",
-> +	return sysfs_emit(buf, "%d\n",
->  		       br_opt_get(br, BROPT_MULTICAST_STATS_ENABLED));
-
-Here
-
->  }
