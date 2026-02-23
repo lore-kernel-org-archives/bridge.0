@@ -1,23 +1,24 @@
 Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B7EA3043CE
-	for <bridge@lists.linux.dev>; Mon, 23 Feb 2026 16:01:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CA4636A017
+	for <bridge@lists.linux.dev>; Mon, 23 Feb 2026 19:15:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771862484; cv=none; b=aNxA7yIGXoVaV8Gi+RjlNaO2efHSqdXHnaox2afcSSu4bq81S1rPpivz8voTOYCeXhI4fbGVtOugrfUcmhRMzxXUNrzAIFqopxXeSfhDTNsn0i68jWfZMGtG2Ppdzzg7UKUE6tXkNTAWLirikoIPKoHVivp0W+TTclv4ZL4LT0M=
+	t=1771874127; cv=none; b=Fqwu6s4VtbrQd0oltti+uwV+QK3iAZ56WvBiVCQLS2o5I2acKiLyCrRIS8Nh0ZwB/ncycok6C/7sk43QD7L87M9ZUAWBu28wpkxSdJt6XMuIyXRCGxN3F9GZmqGpcjNQ1T2nBuzSav60v3ZAM3XvPUREhquNZk00IpQMoShh1IA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771862484; c=relaxed/simple;
-	bh=wu2jEMSeASBK/6J7P4JboN7dhpfcXah/GbCIlIXFqt8=;
-	h=Date:From:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aU/uIdLGigX82zN85ZiKS8LQLfkqt/SCjqLyxbPwpmt5D7i0dUsI+6bHAnuC0rt9eEEgtQAx68nuxzyzIkzKsnK2ouwNDd47+QE4ZxJP7Uw9FaY846fr/DZDNMF4t+vdzCGuhNpOn7kFp5oZuSZnB3h1nQETi1AEjK5ni06hpBw=
+	s=arc-20240116; t=1771874127; c=relaxed/simple;
+	bh=euGYXGgYWMyZMGsz4MxkxdkxaAM2S/q1TAQT4GS79vI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KmQIWGKLEp37z/LiqAPppNNBy/Msc1Cx6/8Penu7AXBaWJxcOwKJ06fFQO7vdN+Fs2BS4FAImEVo1zde2EsOIu4SnCj7QeHykTL+XXCxem6OvKOoAVKHw/emNUyf/VvvZ0Jz8LHpL3D3nuVhgJCgjf0PJvBTO0bZGCBvBHuWgVM=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
 Received: by Chamillionaire.breakpoint.cc (Postfix, from userid 1003)
-	id 507286033B; Mon, 23 Feb 2026 17:01:15 +0100 (CET)
-Date: Mon, 23 Feb 2026 17:01:15 +0100
+	id 929E56033B; Mon, 23 Feb 2026 20:15:22 +0100 (CET)
+Date: Mon, 23 Feb 2026 20:15:22 +0100
 From: Florian Westphal <fw@strlen.de>
+To: Eric Woudstra <ericwouds@gmail.com>
 Cc: Pablo Neira Ayuso <pablo@netfilter.org>, Phil Sutter <phil@nwl.cc>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
@@ -28,7 +29,7 @@ Cc: Pablo Neira Ayuso <pablo@netfilter.org>, Phil Sutter <phil@nwl.cc>,
 	netdev@vger.kernel.org, bridge@lists.linux.dev
 Subject: Re: [PATCH v18 nf-next 4/4] netfilter: nft_chain_filter: Add bridge
  double vlan and pppoe
-Message-ID: <aZx5y6c6gIzELiHq@strlen.de>
+Message-ID: <aZynSuGMtK7JOOCj@strlen.de>
 References: <20260222195845.77880-1-ericwouds@gmail.com>
  <20260222195845.77880-5-ericwouds@gmail.com>
 Precedence: bulk
@@ -42,17 +43,35 @@ Content-Disposition: inline
 In-Reply-To: <20260222195845.77880-5-ericwouds@gmail.com>
 
 Eric Woudstra <ericwouds@gmail.com> wrote:
-
-This an AI-generated review, with no edits.
-I added my own 2 cents at the end.
-
+> In nft_do_chain_bridge() pktinfo is only fully populated for plain packets
+> and packets encapsulated in single 802.1q or 802.1ad.
+> 
+> When implementing the software bridge-fastpath and testing all possible
+> encapulations, there can be more encapsulations:
+> 
+> The packet could (also) be encapsulated in PPPoE, or the packet could be
+> encapsulated in an inner 802.1q, combined with an outer 802.1ad or 802.1q
+> encapsulation.
+> 
+> nft_flow_offload_eval() also examines the L4 header, with the L4 protocol
+> known from the conntrack-tuplehash. To access the header it uses
+> nft_thoff(), but for these packets it returns zero.
+> 
+> Introduce nft_set_bridge_pktinfo() to help populate pktinfo with the
+> offsets.
+ 
+> Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
+> ---
+>  net/netfilter/nft_chain_filter.c | 55 +++++++++++++++++++++++++++++---
+>  1 file changed, 51 insertions(+), 4 deletions(-)
+> 
 > diff --git a/net/netfilter/nft_chain_filter.c b/net/netfilter/nft_chain_filter.c
 > index d4d5eadaba9c..66ef30c60e56 100644
 > --- a/net/netfilter/nft_chain_filter.c
 > +++ b/net/netfilter/nft_chain_filter.c
 > @@ -227,21 +227,68 @@ static inline void nft_chain_filter_inet_fini(void) {}
 >  #endif /* CONFIG_NF_TABLES_IPV6 */
->
+>  
 >  #if IS_ENABLED(CONFIG_NF_TABLES_BRIDGE)
 > +static int nft_set_bridge_pktinfo(struct nft_pktinfo *pkt, struct sk_buff *skb,
 > +				  const struct nf_hook_state *state,
@@ -62,68 +81,15 @@ I added my own 2 cents at the end.
 > +
 > +	switch (*proto) {
 > +	case htons(ETH_P_PPP_SES): {
+> +		struct ppp_hdr {
+> +			struct pppoe_hdr hdr;
 
-[ ... ]
+Hmm, this seems to trigger warning on NIPAs build_allmodconfig_warn test:
 
-> +	}
-> +	case htons(ETH_P_8021Q): {
-> +		struct vlan_hdr *vhdr, _vhdr;
-> +
-> +		vhdr = skb_header_pointer(skb, 0, sizeof(_vhdr), &_vhdr);
-> +		if (!vhdr) {
-> +			*proto = 0;
-> +			return -1;
-> +		}
-> +		*proto = vhdr->h_vlan_encapsulated_proto;
-> +		return VLAN_HLEN;
-> +	}
-> +	}
-> +	return 0;
-> +}
+../include/uapi/linux/if_pppox.h:153:29: warning: array of flexible structures
 
-The commit message states support for "inner 802.1q, combined with an
-outer 802.1ad or 802.1q encapsulation", but the code only handles
-ETH_P_8021Q (0x8100). Should there be a case for ETH_P_8021AD (0x88A8)?
+Would you mind a new version?  Its the last patch, so I leave it up to
+you if you want to resend the whole series or just 4/4.
 
-When a packet has an 802.1ad outer VLAN tag, proto will be ETH_P_8021AD
-but won't match any case in the switch statement. The function returns 0
-with proto unchanged, then nft_do_chain_bridge() calls
-nft_set_pktinfo_unspec(), setting thoff to 0.
-
-Other netfilter code handles both protocols, for example:
-
-net/netfilter/nf_flow_table_ip.c:
-    switch (tuple->encap[i].proto) {
-    case htons(ETH_P_8021Q):
-    case htons(ETH_P_8021AD):
-        if (skb_vlan_push(...))
-
-For double VLAN scenarios like outer 802.1q + inner 802.1q, the function
-strips the outer tag and sets proto to ETH_P_8021Q (from the inner VLAN).
-When nft_do_chain_bridge() switches on this proto value, it doesn't match
-ETH_P_IP or ETH_P_IPV6, so it falls through to the default case and calls
-nft_set_pktinfo_unspec().
-
-This means for a packet with two 802.1q tags followed by IPv4, the offset
-returned is 4 (one VLAN header), but nft_set_pktinfo_unspec() is called
-and thoff becomes 0 instead of 8.
-
-Should nft_set_bridge_pktinfo() handle nested encapsulations recursively,
-or should nft_do_chain_bridge() check if the updated proto is still a
-VLAN type and call nft_set_bridge_pktinfo() again?
-
-[ fw: I oppose auto-following nested headers an would prefer to add
-  any vlan-vlan-vlan-vlan-vlan-pppoe or whatever incrementally after
-  someone explains why thats sane.
-
-Wrt. the rest, I suspect the LLM gets confused due to vlan offloading,
-the code is fine if vlan offloading is on, we have outer vlan tag in
-the skb and eth_hdr(skb)->h_proto will be ETH_P_8021Q.
-
-Neverthelss: should this support configurations where vlan tag offload
-is off?  If it should, then ETH_P_8021AD / ETH_P_8021Q combo has to be
-handled.  That could be done in a followup change, of course.
-
-So, *I* don't see a need to send another iteration of the patch.
-
-Eric, whats your take?  Supersede?  Ignore LLM?  Follwup patch?
+Sorry, I did not have time to run the entire test pipeline with the
+pending patches until today.
