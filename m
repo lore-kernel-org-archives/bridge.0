@@ -1,146 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f66.google.com (mail-pj1-f66.google.com [209.85.216.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2C391FE45D;
-	Wed, 25 Feb 2026 01:52:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EA0A1DE885
+	for <bridge@lists.linux.dev>; Wed, 25 Feb 2026 03:38:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771984377; cv=none; b=kZbZyOs69f8NkoPpT0MuSlOkVpvUuTYOJ1cGxQqI5cwUrTmje3PONabYfSc3NMeLvV22yrWw5TnGubmGM9FdEqEhU203J1f6QW6Vg51954UvgK1uVGdnRQqFV/zAEt3N8aGZ9bnrBNB8LhG3uq9PX1CgJlAz3/ZehNlHNKtG3bI=
+	t=1771990729; cv=none; b=oyiuCrwkc1sopLH9Vz6ZbMPK93s+vWlfdrYp7GbCJkMJAS8A6XdZYjwmWZuWZNXiG6oKHsKZbbb7ECHPeRfPNV48d2owbs6BGQ6BCCuTSs/xBYuKaCbbPtXTzxsfYMiIbgehxu9LoTUO00OxurERYg0HMhGdcG7a5g7X/Kz4eN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771984377; c=relaxed/simple;
-	bh=i/biUd2rDEtE2nEDkGOA3//Fh0kr3ME9dH02WVsIbs8=;
+	s=arc-20240116; t=1771990729; c=relaxed/simple;
+	bh=CgQkRKZi8n6qzzxkB9hjDn8pnf1PBXTxjcBXQQvQt6g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=m/4RWBdH/+aazfHkKPV1SF4l85mFPs1mlY1wFZ/fpjwS4r8HJDun6gwdJ/D+7QXS/dIOlMlV9DTFKfI875yX0hyMr1rJsFmLTVos8F08ROyfAhFDanL17ZpMl1NrpBdJXHYx3NyL+huykUL8b6qcoLIPtMfmRegq1Byk2Nkyph8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nymQXvCz; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=KBtrig2fFJwpTN+TOFpPieo5lYMl61Zj4mzXirtxIZtBr4MT5hJM7+HB7t1LMATAvRcFRnvq3xQ8EsMHVL1YpYPtui4GEcHCaDG+rVCV7dVRiNyWu2yN0R2eQL+ioTpa8p+X1Y4LChnxC0JpC8rNQdJ7O+L5oGy8UrzUOYJrF9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cz9w8wyR; arc=none smtp.client-ip=209.85.216.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nymQXvCz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DAC7C19424;
-	Wed, 25 Feb 2026 01:52:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771984377;
-	bh=i/biUd2rDEtE2nEDkGOA3//Fh0kr3ME9dH02WVsIbs8=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=nymQXvCzy4P7iuBwuxxkqnsRGGu3X5oOqtVpt1S5x1t9Nj8AO9/DP3DXBIf19QvgL
-	 idHWbDhSxNHl0ZlIqSxxiME6eN3X9hPJyqyvQ7QVw+w4Rk8CkvfPTdcVb1DVgPBITv
-	 6uiaEnN+/QOAK+PaGbPCdVVdT9srT/p2LF1SyPVCs8LMxD1w55QiNgjMqDdL1aR88b
-	 /6x9eqnArIYVvGkVn4Kf4j0niD1TzR3uUVf+CcW1KtctktnVS+dYV0W8cGQ/lUtZaV
-	 2hiNOyJF0sMo1O3wccYynMzF/4QPJ1SDqr9owauyBGmzqtmJvaXnP664PQ4QhvG0Qw
-	 V4TS1CsnHZOyw==
-From: Jakub Kicinski <kuba@kernel.org>
-To: ericwouds@gmail.com
-Cc: Jakub Kicinski <kuba@kernel.org>,
-	mostrows@earthlink.net,
-	netfilter-devel@vger.kernel.org,
-	pabeni@redhat.com,
-	kees@kernel.org,
-	edumazet@google.com,
-	razor@blackwall.org,
-	horms@kernel.org,
-	fw@strlen.de,
-	pablo@netfilter.org,
-	andrew+netdev@lunn.ch,
-	idosch@nvidia.com,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cz9w8wyR"
+Received: by mail-pj1-f66.google.com with SMTP id 98e67ed59e1d1-35851eadc17so3498194a91.2
+        for <bridge@lists.linux.dev>; Tue, 24 Feb 2026 19:38:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1771990728; x=1772595528; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bIBkt8Uip58Gmu/ZZcPFAEjJpU3JU8q0pJGlTo8qLYw=;
+        b=cz9w8wyRxWkUgjgZHIiWbiiWVPnNGAAXojnj6EOmj2doNHVnK4ouzMNyrrrJFvwjs9
+         jMiScuQeeG5/ENcEZ0SRDtm+bfBUbllNO/5Zhj0QYRmmV+shIEOLmYREBzihnFzIM+kJ
+         JdrklK7nRIUvqm/kYk5A+ZBP1D56lpYNuLXW+EZ7Mo+lKhfsBfUiBpOzImqn6oLvac4h
+         p1QtyS4tHY5Wg1YIrwXIaaieJ4FMSIYz2yKxzZa6LTRF07VD19QmAq3YzxTbwvYmeEvu
+         YIBsx2qLIaSk4whb3jSVaBwrwj+5jRwvZVO+MO6WvNA9O49mDPq8PnpKurjcqWDX4TwA
+         2a1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771990728; x=1772595528;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=bIBkt8Uip58Gmu/ZZcPFAEjJpU3JU8q0pJGlTo8qLYw=;
+        b=upRQJsLEmDPQ3ZB+tc2TjMmHDSelC4OLRb0yF81tJdew/2D0+Pu7AeMTvlxJ8Nswbn
+         qwcUnPsFtOIeMXAsK/SdnnMeFv3z0kiat+M3weV/zyZMpogXjgOsYwZeMvQsCR/CWGLN
+         G7qv6a0l5la2EnIG0c/wo5t5LJBdEvfiEjeuqsSLjVLPLYW9CeP0a9xepLqmgkcv4qvC
+         Njyu36qgcxHqN6Sdu+tU+6Opa8boCxKokE2SprJAz+Gu2EVNFFGjGbU4WGBrXrAHWoWh
+         Bhp2+j23Oi0pr2ZFCn05SiTbmykW6qjEcV8D1Vm7/wkZInC3eyaSFe9JtcqyFbNChaKm
+         7jMQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU0H/knSQmI/WtXzM4Ga/Kx4+hdIQKCoBx0iTUxNb7g7GKwrAjn8P+0ierwLJq+Mt/bjsFQQSM=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzhBkpE4Wl3E+syqhx+36tfV2KWcePKL96vcVEGERG4ig860Mi0
+	Am2pmy3y6qNIqBfrZUQ4gUGrdCpr+7IXNz9NIQFa/oUzszS7j5UcHN36
+X-Gm-Gg: ATEYQzyKjNOtU10T+LkN4jW9USj5v00fTF3Ze5gtg8w9lWiKq9rglaXZE8N7o4iiqXG
+	04ao03yI/TJL9TTriylmFqqpEEUEe8ukTbm3Vnqh8PcDDg2zXI3VjSIxeyWhYEDiCIY6LjLIdIs
+	00wZn7rvTngpWUSgOpM6HMnRtswNwAZbqRI6OXUrXq3yvzI4QPUymH/14ta64Pvk3MiqT4RuTMf
+	91yrmSeFQQPPbRbB6lFQT5wPvmFrmPdARSJjFT5T9OlAqzB5olsMY7zGikCRxmnMYGB+e5UEfUK
+	kGugJr7ixH4H6cZnygi9lftBfVhN7Ue47aW7ifpiuKCR85D/KDKOCIAFaHJNLw9pu9NugAnyR40
+	OCR6EjtwhwZUCM6FHK+gBe7Pqr6kZGXnonM9SJ7paG2uVJihJrrChBkeFxOaB7U6e8vrfqIw1GT
+	MKvZfSJBVztRZjjufywhIUz0CA0Q+INJVNrlDKwpQBhGyPoscSA0Y/XHW+XuR7kmWs6oJ3Eg==
+X-Received: by 2002:a17:90b:164e:b0:356:2c7b:c026 with SMTP id 98e67ed59e1d1-358ae8d80d0mr12854544a91.23.1771990727568;
+        Tue, 24 Feb 2026 19:38:47 -0800 (PST)
+Received: from localhost.localdomain ([138.199.21.245])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359018838b2sm1161746a91.5.2026.02.24.19.38.44
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Tue, 24 Feb 2026 19:38:47 -0800 (PST)
+From: Eric-Terminal <ericterminal@gmail.com>
+To: Dominique Martinet <asmadeus@codewreck.org>,
+	Eric Van Hensbergen <ericvh@kernel.org>,
+	Latchesar Ionkov <lucho@ionkov.net>,
+	"David S . Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>
+Cc: v9fs@lists.linux.dev,
 	netdev@vger.kernel.org,
-	davem@davemloft.net,
+	linux-kernel@vger.kernel.org,
+	Nikolay Aleksandrov <razor@blackwall.org>,
 	bridge@lists.linux.dev,
-	phil@nwl.cc
-Subject: Re: [v19,nf-next,4/5] netfilter: nft_set_pktinfo_ipv4/6_validate: Add nhoff argument
-Date: Tue, 24 Feb 2026 17:52:56 -0800
-Message-ID: <20260225015256.967692-1-kuba@kernel.org>
+	Anna Schumaker <anna@kernel.org>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	linux-nfs@vger.kernel.org,
+	Yufan Chen <ericterminal@gmail.com>
+Subject: [PATCH v2 0/4] net: replace deprecated simple_strto* parsers with kstrto*
+Date: Wed, 25 Feb 2026 11:38:36 +0800
+Message-ID: <20260225033840.33000-1-ericterminal@gmail.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260224065307.120768-5-ericwouds@gmail.com>
-References: <20260224065307.120768-5-ericwouds@gmail.com>
+In-Reply-To: <20260225010853.15916-1-ericterminal@gmail.com>
+References: <20260225010853.15916-1-ericterminal@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1227; i=ericterminal@gmail.com; h=from:subject; bh=1tb3uAWyvMrtFX3Irq/HFgcUiWj8AVbAWEAlYdlN66k=; b=owGbwMvMwCXWM/dCzeS3H+sZT6slMWTOy5PjOL2xPl8orDiN9Vn/QSb/0BUXPKvm3L10KPZa0 znOjmuuHaUsDGJcDLJiiix3/++bm+t1a8517sO5MHNYmUCGMHBxCsBETn1i+O9fn/J4q9KXlT41 l/z2/fnWJGZ86GTOW+dJyx3eLk7MfLaM4Z+Ozll1w1OGChuc1/+1W/D54UbVPp8HRzkuSX/dd+p zfSQnAA==
+X-Developer-Key: i=ericterminal@gmail.com; a=openpgp; fpr=DDFFBE9D6D4ADA9CD70BC36D8C9DD07C93EDF17F
 Content-Transfer-Encoding: 8bit
 
-This is an AI-generated review of your patch. The human sending this
-email says "The tracking of feedback in the AI bot is often wrong,
-but FWIW this is what it has to say about the submission"
+From: Yufan Chen <ericterminal@gmail.com>
 
-For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
----
-netfilter: nft_set_pktinfo_ipv4/6_validate: Add nhoff argument
+This series replaces deprecated simple_strto* parsers in net paths with
+kstrto* helpers and keeps parser behavior strict.
 
-This commit adds the ability to specify an offset when calling
-nft_set_pktinfo_ipv4/6_validate() for cases where the IP header is not
-at skb_network_header().
+v2:
+Split the original large patch into a 4-patch series for easier review.
+Added a prerequisite fix for xen_9pfs dataring cleanup idempotency
+(Patch 1) to ensure safe error handling during the parser transition.
+Refined the xen_9pfs version parsing logic to use strsep() for better
+token handling.
 
-> diff --git a/include/net/netfilter/nf_tables_ipv4.h b/include/net/netfilter/nf_tables_ipv4.h
-> index fcf967286e37..bd354937134f 100644
-> --- a/include/net/netfilter/nf_tables_ipv4.h
-> +++ b/include/net/netfilter/nf_tables_ipv4.h
+Patch 1/4 fixes xen_9pfs dataring cleanup idempotency to avoid repeated
+resource teardown on init error paths.
+Patch 2/4 switches xen_9pfs backend version parsing to kstrtouint().
+Patch 3/4 updates bridge brport_store() to use kstrtoul().
+Patch 4/4 updates sunrpc proc_dodebug() to use kstrtouint().
 
-[ ... ]
+Yufan Chen (4):
+  9p/trans_xen: make cleanup idempotent after dataring alloc errors
+  9p/trans_xen: replace simple_strto* with kstrtouint
+  net: bridge: replace deprecated simple_strtoul with kstrtoul
+  sunrpc: sysctl: replace simple_strtol with kstrtouint
 
-> diff --git a/include/net/netfilter/nf_tables_ipv6.h b/include/net/netfilter/nf_tables_ipv6.h
-> index c53ac00bb974..1e84a891f268 100644
-> --- a/include/net/netfilter/nf_tables_ipv6.h
-> +++ b/include/net/netfilter/nf_tables_ipv6.h
-> @@ -24,17 +24,17 @@ static inline void nft_set_pktinfo_ipv6(struct nft_pktinfo *pkt)
->  	pkt->fragoff = frag_off;
->  }
->
-> -static inline int __nft_set_pktinfo_ipv6_validate(struct nft_pktinfo *pkt)
-> +static inline int __nft_set_pktinfo_ipv6_validate(struct nft_pktinfo *pkt, u32 nhoff)
->  {
->  #if IS_ENABLED(CONFIG_IPV6)
->  	unsigned int flags = IP6_FH_F_AUTH;
->  	struct ipv6hdr *ip6h, _ip6h;
-> -	unsigned int thoff = 0;
-> +	unsigned int thoff = nhoff;
-                             ^^^^^
+ net/9p/trans_xen.c       | 77 +++++++++++++++++++++++++++-------------
+ net/bridge/br_sysfs_if.c |  5 ++-
+ net/sunrpc/sysctl.c      | 24 ++++++-------
+ 3 files changed, 67 insertions(+), 39 deletions(-)
 
-When nhoff != 0, does ipv6_find_hdr() interpret 'thoff' as a relative or
-absolute offset?
-
-Looking at the IPv6 header read above:
-
-	ip6h = skb_header_pointer(pkt->skb, skb_network_offset(pkt->skb) + nhoff,
-				  sizeof(*ip6h), &_ip6h);
-
-The IPv6 header is at absolute offset 'skb_network_offset(pkt->skb) + nhoff'.
-
-But when ipv6_find_hdr() is called:
-
-	protohdr = ipv6_find_hdr(pkt->skb, &thoff, -1, &frag_off, &flags);
-
-ipv6_find_hdr() interprets a non-zero *offset as an absolute offset from
-skb->data (it does: ip6 = skb_header_pointer(skb, *offset, ...) and
-start = *offset + sizeof(struct ipv6hdr)).
-
-In bridge contexts where skb_network_offset != 0 (typically 14 for Ethernet),
-ipv6_find_hdr() will read from the wrong location when nhoff != 0. Shouldn't
-this be 'unsigned int thoff = skb_network_offset(pkt->skb) + nhoff;' to match
-how the IPv6 header is read?
-
-The IPv4 version correctly computes absolute offsets:
-
-	pkt->thoff = skb_network_offset(pkt->skb) + nhoff + thoff;
-
-All current callers pass nhoff=0, so this is dormant until a future patch
-enables non-zero nhoff (which this commit is designed to support).
-
->  	unsigned short frag_off;
->  	u32 pkt_len, skb_len;
->  	int protohdr;
->
-> -	ip6h = skb_header_pointer(pkt->skb, skb_network_offset(pkt->skb),
-> +	ip6h = skb_header_pointer(pkt->skb, skb_network_offset(pkt->skb) + nhoff,
->  				  sizeof(*ip6h), &_ip6h);
->  	if (!ip6h)
->  		return -1;
-
-[ ... ]
-
-Florian Westphal raised a concern in v18 about a build warning in
-include/uapi/linux/if_pppox.h:153:29 ('array of flexible structures').
-He requested a new version to fix this. The author addressed this in v19 by
-adding patch 1/5 'net: pppoe: avoid zero-length arrays in struct pppoe_hdr'
-that wraps the flexible arrays in '#ifndef __KERNEL__' guards.
-
-Reference: https://lore.kernel.org/netdev/aZynSuGMtK7JOOCj@strlen.de/
+-- 
+2.47.3
