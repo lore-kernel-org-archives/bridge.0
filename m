@@ -1,160 +1,149 @@
-Received: from mail-pj1-f66.google.com (mail-pj1-f66.google.com [209.85.216.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012050.outbound.protection.outlook.com [52.101.53.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 793DA284682
-	for <bridge@lists.linux.dev>; Wed, 25 Feb 2026 03:39:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.66
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771990744; cv=none; b=jU5YgQ7FA0WqmkCFFabMDPQeziqxR2tETbozJUkl5Eh0BOLVY9Ytwf7TL3smBU69d+S1x6Y0UdihVGYodvdm9T9B6M8JnGKIZdsxrgHsOiOe8aivh0DEJb9FdldBSagxeE8YpC+nWfvVWoZHqrlFAiJES+Wkrn8pZC8qgXm36js=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771990744; c=relaxed/simple;
-	bh=DIh8WtJKsYfFWmCLOMLa1uDVR3z6AtCB+KFcTxnsk9E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=F2MwDBB1h3mC7jB8LxrcfI5Wv3s4AqPzdk7eBmrxj2naZe0yP4yORdxL49OePNtCYRt+jNL8h9UcuKs40OrFt0HEAELVzWYpACtSQqrX0o1sjR+PzsbrSIgBY0Fq/T+pjSqanvUp7rZ6VL72Uvs7Zh40pE/uZTj4m2LFHCCt2xw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NhDYHp4n; arc=none smtp.client-ip=209.85.216.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F7BB276050
+	for <bridge@lists.linux.dev>; Wed, 25 Feb 2026 14:40:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772030442; cv=fail; b=me5socrASlmoRMOBdau3XQm7cpLpg+lrvpMZAlp9fS/zVJjMIoHo2diLA9WSC3GNg1IhQmloJLTiYMUNEbvKf7zYLTyvl39dOuKSI8Nt1Hqmo0bI7NifDK4AB0XoS6O8KJ23xP6spaoWFR68XMxttTHHx2UQUgSIzivwJTabwAo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772030442; c=relaxed/simple;
+	bh=A3Jfy4g3Wtn8KQRa1WUE9bw7w4Vu92r2AVQ8iaRwUOQ=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=hHEPDVWoQlMSE/W5uk8uATn3O2s2LeGrpQG4hEXHdMEbcJhT58bqGbAsHB8OeRaV4vKrureD7FgTLvpjopRjwv5vWzg+IpVsTml2+XMRI4c9Rq7u4Kbtft9r9apYQUQncgRajtoRtXZRqMotP04IUOZcrkbCLn1nxj9b7j4g66E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=BeLf20Rz; arc=fail smtp.client-ip=52.101.53.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NhDYHp4n"
-Received: by mail-pj1-f66.google.com with SMTP id 98e67ed59e1d1-358ed696623so565016a91.0
-        for <bridge@lists.linux.dev>; Tue, 24 Feb 2026 19:39:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771990743; x=1772595543; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qbcH8R6MMRau4mrpEGGDZ1QNTvGTHu8f4PpAUvn8HKw=;
-        b=NhDYHp4nQzepspYByRT/7cu1FB56doyvZEU+elb8U1eCKOw0te8z5Ijrp2rpaa8dnW
-         us5/QYK/+LnEjEadVdKI/RvX1XMwEJZozCuKIiItFdm3MdR1H5pFaJJNtFIFlcgRuQKb
-         EOET8v1zG4GwZVg4a02GBs8I+H6VtxrEHqc5QSVqiKatT9U7B2FCn4LyDT7jp2RRfodG
-         MQ6L8O2NiF1h52vVyjPkjeiDl2uH432fCP+qCgRJFD2TqZuPf1v9/xgS+jqOOOPhrBvs
-         aaZAnqDtCHHceTqMxoiz7BCm1omYpT84Ub8PYOAYLbzA7mz6/Hje5YwY2CUaJKj8U80+
-         BlOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771990743; x=1772595543;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=qbcH8R6MMRau4mrpEGGDZ1QNTvGTHu8f4PpAUvn8HKw=;
-        b=QfLZkqfxCW1nKiRWyJTEC4PwV76GrYfZwiT3qhSbkDbmkCNhVGL6nhn5ANV6UzZnLj
-         Tl5itD8Tn8UTTPOqZFn1ubUaTwYacDVZcWi6Wo+s5IEN6OiGxESl13k3ret4VvzjkE3t
-         4n19JEJCX893PlR/TCBrxcF87Mygtr3RtX67MgOY9EHd4BHiw/+L5GJbouT4sYCDTNmm
-         8AFcMXRIY6/G2Q6rBnjlaNMEQ8A9U+LA72UiK0mhIuJM7P76Gr0VmkE6TltlcF6BgmFr
-         6Gb3OAlBCvCeRuHADrpkNh/sMgK+Rr7UqP7f3myCESzG3aroKtVZdgI9wK4r1VmjGTTx
-         xzzw==
-X-Forwarded-Encrypted: i=1; AJvYcCVGJUnEe1/gIuzpOl4bcZ2AERzgfpMCL8+UXAms6LPh3P6CwKZDGoc+crEMO+bBTkUA7Y8zXv0=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzdB8pNMTAjDH5j6D4vzP5P/SW9nGWbXO4xV7QSgU6rP5ZCxwKD
-	oNo6b8GXev890O+Pi8PprvF8YofaTko8blGCYFAeDT4iaAQkVVZCnpVd
-X-Gm-Gg: ATEYQzyi0ZkPBJu6wjqZrqe6OOGaDXgrBBm7XcAU+IeAg0HXulCJY7QMxPnoQcjyZMx
-	r3fd17JUDIDW4xNx97AlCV6suUZslVCsOgmJusjDUMs1I6PtnOX5mJ/7haFUFQ6cZEtS6N04LWK
-	UoXD/NqzbS1DsMZefRJ5z7odEz64WyuHOuse7g6FGwrmQO2EHSrzLDzaj9ADbRsmhJZfSOdUw4F
-	0E4Sh0nYP7j3r6RLRjhaDHDvsYMe5iYyydlg95jGBzTlPB8tmD71FBUbu6jbxWDxstiiL3pRJp2
-	z0NY6p6+L1HlQIabx2VWWPNyCB2bE8lEGhRyBiqZffl64GODl463td1f4FQ4hb+f7D0Sv+M0OzW
-	ubr8Cq1AsBSQvZ2+uDTabg66NgeL/D5JgWyZIQtqbEKjUH2bKwYY8JACdIaTmNQ4PBt5ATirVoi
-	J27KtUNtrgYSOUTSvqEKt/qrfNCOZM9a7MyhKTcHLQ50KYdHTlFpiDKRxp7WM4Rpc6rJt0hw==
-X-Received: by 2002:a17:90b:3f90:b0:359:7eb:d922 with SMTP id 98e67ed59e1d1-3590f226ddcmr865260a91.30.1771990742896;
-        Tue, 24 Feb 2026 19:39:02 -0800 (PST)
-Received: from localhost.localdomain ([138.199.21.245])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359018838b2sm1161746a91.5.2026.02.24.19.38.59
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 24 Feb 2026 19:39:02 -0800 (PST)
-From: Eric-Terminal <ericterminal@gmail.com>
-To: Dominique Martinet <asmadeus@codewreck.org>,
-	Eric Van Hensbergen <ericvh@kernel.org>,
-	Latchesar Ionkov <lucho@ionkov.net>,
-	"David S . Miller" <davem@davemloft.net>,
-	Jakub Kicinski <kuba@kernel.org>
-Cc: v9fs@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	bridge@lists.linux.dev,
-	Anna Schumaker <anna@kernel.org>,
-	Chuck Lever <chuck.lever@oracle.com>,
-	linux-nfs@vger.kernel.org,
-	Yufan Chen <ericterminal@gmail.com>
-Subject: [PATCH v2 4/4] sunrpc: sysctl: replace simple_strtol with kstrtouint
-Date: Wed, 25 Feb 2026 11:38:40 +0800
-Message-ID: <20260225033840.33000-5-ericterminal@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260225033840.33000-1-ericterminal@gmail.com>
-References: <20260225010853.15916-1-ericterminal@gmail.com>
- <20260225033840.33000-1-ericterminal@gmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="BeLf20Rz"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=LPIAphv/3y0FJM3l51ETQnTINiCco7+zIxZ8P4f028TF+cZrrZujuCoWjli9ScF1QB0657+8aFiTLvdE3LK/fOuKx0KeatQpcKPkPaxhLgPsphzi9NM7dSjIpmlV7Xk/lC1iS6GZyvjPoY+hxGFkZi6P5+7P9xv+toCOk7oU+mPgZ0DxGB1pVNQR7/EUvJXDbHTnxgd6EGXbgz8GgoUDk3kRK8I8+emMxMNPqEd+rGCZSGoqyMM3/8Odv+e6Y05gUQA7gLiJeaa/A3HNolgR7r03zDKNq59v8sWUk724cNHsIitiJeB5jgIw35obkxzPahc5UkmijA0bf5Hc65W/0w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KK3E6/9FySDP2i73YDmGWNhZ1lJAkcT2YB+GufFO37Q=;
+ b=nEi7tk656Qfk/LycSdRlyvMQ+g1bYpNgpYcmVWXYw9qX0aNpPCW5enaxTEz9P5sscdbENiI5SB2OnDvQp5Eassntf6b3Z5BCgM6MhrqPPWnbP4/v+UDg7RJLPp9B/jR/fKpqa1tZujczLrQzoioc3W3vlXa6+oZZNLKn4nmP+l0knSajXlDjTgoXpXgjnF2Ax8ZNBVseBDvaz+8aTEl9hXL8E1Es2q59pDlHX+0TO9Oe6HJWzn/e4mNkQjuZ32NVqJiYr6Zm3qqJamCmOv1m5pL7mUmaz40OEXk2Gn+pbtD+NAzpi8objQxCkOCaoiNOV9VFiPsV2/nd4bvgjhdYQw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KK3E6/9FySDP2i73YDmGWNhZ1lJAkcT2YB+GufFO37Q=;
+ b=BeLf20RzXXUFfAIiI1lIRckEuKoqpcJuklgucPgPin8VEiKoIYc6rwd9eBrxcSvuQuwoUTKgkUFlDH/lse1lFZiGvmiA5fMVZZUF+lx0y4VIpEpjNpFHRUTJJa0AwrxL2lN4/6UodsdkGvsMauidSnKeSSwfe1FMKbSQaiHeX6WXQyvSZq0uNW5UeE4hb0K3a/bUnO0zAns7o53tanM+0kh4ww2U3tJP6HusnSEk8XVEhzNsOmuGdJjzKWkWAyZJjhDAnjT0hr64928vOfWLiWiRtVUbDGhMFDSMFEO3/exo6724Dp+7uaWHvkuQjR+a2ED8JRsfCJ4OTTuJzKrWoA==
+Received: from MN2PR05CA0015.namprd05.prod.outlook.com (2603:10b6:208:c0::28)
+ by IA0PPFD78AA37BB.namprd12.prod.outlook.com (2603:10b6:20f:fc04::be6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9587.19; Wed, 25 Feb
+ 2026 14:40:37 +0000
+Received: from BL02EPF0001A103.namprd05.prod.outlook.com
+ (2603:10b6:208:c0:cafe::6) by MN2PR05CA0015.outlook.office365.com
+ (2603:10b6:208:c0::28) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9632.22 via Frontend Transport; Wed,
+ 25 Feb 2026 14:40:37 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ BL02EPF0001A103.mail.protection.outlook.com (10.167.241.133) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9632.12 via Frontend Transport; Wed, 25 Feb 2026 14:40:36 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 25 Feb
+ 2026 06:40:13 -0800
+Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.35) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Wed, 25 Feb 2026 06:40:09 -0800
+From: Danielle Ratson <danieller@nvidia.com>
+To: <netdev@vger.kernel.org>
+CC: <razor@blackwall.org>, <davem@davemloft.net>, <edumazet@google.com>,
+	<kuba@kernel.org>, <pabeni@redhat.com>, <horms@kernel.org>,
+	<shuah@kernel.org>, <linux-kernel@vger.kernel.org>, <bridge@lists.linux.dev>,
+	<linux-kselftest@vger.kernel.org>, <idosch@nvidia.com>, <petrm@nvidia.com>,
+	Danielle Ratson <danieller@nvidia.com>
+Subject: [PATCH net v2 0/2] bridge: Check relevant options in VLAN range grouping
+Date: Wed, 25 Feb 2026 16:39:54 +0200
+Message-ID: <20260225143956.3995415-1-danieller@nvidia.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1785; i=ericterminal@gmail.com; h=from:subject; bh=VO5IMzOC4K3hwnb1MwA7obneQq8hnuATlXNUArothF8=; b=owGbwMvMwCXWM/dCzeS3H+sZT6slMWTOy5NnFy7tzFYvrrwYZrvs0uTl0WyZgj17bh7bWXj9H ktUtqdnRykLgxgXg6yYIsvd//vm5nrdmnOd+3AuzBxWJpAhDFycAjCRB7cYGfYkbQsNc83T5D7V EcAdsUvkgG9N148DEm3V4R0XV915FMTwz9S6piw0ccG+fidP1kyRFuYGXW3ZZ3eK5hY4sX5+P2c LKwA=
-X-Developer-Key: i=ericterminal@gmail.com; a=openpgp; fpr=DDFFBE9D6D4ADA9CD70BC36D8C9DD07C93EDF17F
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF0001A103:EE_|IA0PPFD78AA37BB:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3b931b96-b8a4-478e-d9a1-08de747bd6f6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|82310400026|36860700013|7416014|376014;
+X-Microsoft-Antispam-Message-Info:
+	Pyey/jr6ioG4xYvVhyHC++fhQt+DQIxSxH4oHQXPuBWsSeRTmgn/zcD6HUqNRgo9cogs1g/5HPadvtOIDsSjSocE0s254ijam45//giwyDXyBFxdikoZT1O6SPFaQHDVIHIxcg5ubiqz7ZcYYYMcqEXW6dlx91tvN1E8yklpZqeVTW/2fHuujY5jREA6kL52ySuKkXbjbhA1DvJ6n6ujBCqplP7UUwFdh2ughSlIAidP3GNTmp1UgtNfkL5lKWfMgPTQQidp022vVOzOeJOMtjW5Q4bSFBuuEM5jWBlNkhOxc/UAGXaPFx6IWjRvZX6EglkLkuVp1+S+ltL0Ooqmc8wtFdC3k2cOnofc3GGJ6cYHm+fzd4YGI2ei3p3jphqRik+NZGzSpFPKIEMHGnIuOwqyBN799lu5Ny0T6BKEK4F2OuowgReuvG+Zg/N9TWBX0Lw8R+yxNuYqqhAWZrKihEYtRJ44U3ENws/a6mKifVhWMZR5Rt2Ruf6O6qR+tEEEmyx5ya4V1pGurXVT4EN7vV+dRZI5JAkzdZu8b8ha+EMEQH81tYJIxIYP6gLp+uRxQKMQQxaCykM2auW3eDXZwyAR0WlKrUyIVvtki7gfNA6sbdB9wFlQNd+aNCgMTvgH3MHrsCi8VBJo418IQqt1UJIlSXMSXY8PF0EHdMlImImmOuxyrZ8T9afCxZ1LcEA6+LWbQa+Cw/n7xY4ZnL7+jz6ZlBHIOLG2XoCiFl3EkFEgwtcImZcGYHC5pUfhP+O5L9HfEuo5g4hsv/WGyikuag2aKUZln2GBRWTLSN+G4uX+ZZNaExKasSogt6jgKgmrPkULVbN3zt5DPrt8XB71ow==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700013)(7416014)(376014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	gXbbmq5fdyyRj6yn1+7dVwTpIKnairebEO5C8KddNwdUfuGFhMS/LP2kHuDIEbwVQIqYYt8Nr/imwaqy7DPlqGYpV4+PDkOcj/ArwGtNbZmCNsj2kN6IsMbWsRnpzhsrDr8ATJlZg0SDIgpQmhV6Zyg48NM1Ko2oyRiHoVV9tVN+/1H2EGUUJNUxVH2h5++HPSl2n1vUI8VJtvP4mbvzA5YqX68MNUhF9N6grendV28KbgnyD7pOY0GAeARjlWJ9nScqHlCqWGVjZ/oDLKfeFVlpyiLS2zRAM7xpJIkOfb7Ss60Ob+u4GkyGNx/TW4LT74CRuHNJtNcZnK8MqGq7hpeHncjVUiCx7PQ20QJYJNOKBDY8o2Bt6TDIJ6Kb6no1AxXAX/fEb6WozU+ZSe9iao2h/8ejgZPX8kDiW7kz5W1id3+BxnxBA2gOlon8AYeC
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Feb 2026 14:40:36.6261
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3b931b96-b8a4-478e-d9a1-08de747bd6f6
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL02EPF0001A103.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PPFD78AA37BB
 
-From: Yufan Chen <ericterminal@gmail.com>
+The br_vlan_opts_eq_range() function determines if consecutive VLANs can
+be grouped together in a range for compact netlink notifications. It
+currently checks state, tunnel info, and multicast router configuration,
+but misses two categories of per-VLAN options that affect the output:
+1. User-visible priv_flags (neigh_suppress, mcast_enabled)
+2. Port multicast context options (mcast_max_groups, mcast_n_groups)
 
-Use kstrtouint() in proc_dodebug() after trimming trailing
-whitespace. This keeps accepted whitespace behavior while enforcing
-full-token parsing with standard errno returns.
+When VLANs have different settings for these options, they are incorrectly
+grouped into ranges, causing netlink notifications to report only one
+VLAN's settings for the entire range.
 
-Signed-off-by: Yufan Chen <ericterminal@gmail.com>
----
- net/sunrpc/sysctl.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+Fix by checking priv_flags equality, but only for flags that affect netlink
+output (BR_VLFLAG_NEIGH_SUPPRESS_ENABLED and BR_VLFLAG_MCAST_ENABLED),
+and comparing multicast context options (mcast_max_groups, mcast_n_groups).
 
-diff --git a/net/sunrpc/sysctl.c b/net/sunrpc/sysctl.c
-index bdb587a72..07072218b 100644
---- a/net/sunrpc/sysctl.c
-+++ b/net/sunrpc/sysctl.c
-@@ -12,6 +12,7 @@
- #include <linux/linkage.h>
- #include <linux/ctype.h>
- #include <linux/fs.h>
-+#include <linux/kernel.h>
- #include <linux/sysctl.h>
- #include <linux/module.h>
- 
-@@ -65,10 +66,11 @@ static int
- proc_dodebug(const struct ctl_table *table, int write, void *buffer, size_t *lenp,
- 	     loff_t *ppos)
- {
--	char		tmpbuf[20], *s = NULL;
-+	char		tmpbuf[20];
- 	char *p;
- 	unsigned int	value;
- 	size_t		left, len;
-+	int		ret;
- 
- 	if ((*ppos && !write) || !*lenp) {
- 		*lenp = 0;
-@@ -89,19 +91,17 @@ proc_dodebug(const struct ctl_table *table, int write, void *buffer, size_t *len
- 		if (left > sizeof(tmpbuf) - 1)
- 			return -EINVAL;
- 		memcpy(tmpbuf, p, left);
-+
-+		while (left && isspace(tmpbuf[left - 1]))
-+			left--;
- 		tmpbuf[left] = '\0';
-+		if (!tmpbuf[0])
-+			goto done;
- 
--		value = simple_strtol(tmpbuf, &s, 0);
--		if (s) {
--			left -= (s - tmpbuf);
--			if (left && !isspace(*s))
--				return -EINVAL;
--			while (left && isspace(*s)) {
--				left--;
--				s++;
--			}
--		} else
--			left = 0;
-+		ret = kstrtouint(tmpbuf, 0, &value);
-+		if (ret)
-+			return ret;
-+		left = 0;
- 		*(unsigned int *) table->data = value;
- 		/* Display the RPC tasks on writing to rpc_debug */
- 		if (strcmp(table->procname, "rpc_debug") == 0)
+Add a test with four test cases for each option, to ensure that VLANs with
+different values are not grouped into ranges and VLANs with matching
+values are properly grouped together.
+
+Patchset overview:
+Patch #1: fix
+Patch #2: test
+
+v2:
+	* Address shellcheck-reported issues.
+
+Danielle Ratson (2):
+  bridge: Check relevant per-VLAN options in VLAN range grouping
+  selftests: net: Add bridge VLAN range grouping tests
+
+ net/bridge/br_private.h                       |  10 +
+ net/bridge/br_vlan_options.c                  |  26 ++-
+ tools/testing/selftests/net/Makefile          |   1 +
+ .../testing/selftests/net/bridge_vlan_dump.sh | 204 ++++++++++++++++++
+ 4 files changed, 238 insertions(+), 3 deletions(-)
+ create mode 100755 tools/testing/selftests/net/bridge_vlan_dump.sh
+
 -- 
-2.47.3
+2.51.0
 
