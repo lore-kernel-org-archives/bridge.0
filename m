@@ -1,126 +1,171 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B90DB288C81
-	for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 12:48:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98CCB331226
+	for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 23:41:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772110119; cv=none; b=QPy9soQSpgW+mlaqUh0bf+SdtKSj/R78blmo1My2uGcAHOdJM5H0fiSmKOXOTd4N6NwQHIv3fIQ8Xm4C4Ao186Nejx4P8LhCaVCUgNBNPOFkf4uhvNWspwsJEyqvZWGPc+Ul1hIwZvhuBHPj9zlaJlieZnUtHHVnx+1JxnHxScE=
+	t=1772149284; cv=none; b=KyN2kiEO+eowWtJPsaZxFK+ne6CTk8Q3V71Iwr13oK6x4cYK56kLNdyudVD/7ABlcns/dMpm5THsRcFwc1erIocJ8VlhZtSFI8u4nRSt201BPTeo9TVYEPp+Zgn17O+egh2JX+rQGaGIASIhrLCt6l59/Ig9vdrweWT8xQ7hWe4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772110119; c=relaxed/simple;
-	bh=xCXfprn4FrQzYyIjCT8vcqONZ5mA7SGSBmwwJXyM9g0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ntgsrEXRNHIJhUBMJPLlf2F1SPzyn0fFU4Vst1niegxgaEn1BQeaVT1G+LK9jGipbXn/PbfAHYs4NG6t8UGNO84sNTpDDZFEi6g+qEDMUZJ0GGDb7OfVwtmlUTELQH9+fOG0/PdsFFwJsoyQoJSMSfhEvBj+GEtPHr0jQAfiI9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lhmSDdUq; arc=none smtp.client-ip=209.85.210.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772149284; c=relaxed/simple;
+	bh=t+/KKK/QywuiWInxJ/ygAyUdUV+YFs2CCpu4dOtyVUc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kOlAppwOVx/ExuDA8Sb2SXOvPBV0r1ZuPFqLEkx5x4EthuwzCFQ7+QFuLLAtsnVdOKJ/0+mC3sM7fdf5FNuY/yDWvLQTyKI9ID+gpctUgEY2g2BKeNQNwG6mWdMduqvNtWibR+SQ1y0bSqmSwVbfG9EMekT3/EAKTs8qjokdGZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=o9BtI0GB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3d5gGFqq; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=o9BtI0GB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3d5gGFqq; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lhmSDdUq"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-8249fc726e9so520572b3a.2
-        for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 04:48:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772110118; x=1772714918; darn=lists.linux.dev;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=SGhBIs3dYbcFk6P/XqQpMpVB1hZMUHNjX+2F9A4bd2I=;
-        b=lhmSDdUqphY+7C/EvoAByeHICjU7Yda9JC6zPFl7Tu0WHE8Ib9Ul8Z5WL/3zLDA1XG
-         KtzuIiPkZL7SWukohLsmj32k22ODypvuLUqd8GIToovOiCP3w07CjAwJmHkw87ZXhfE6
-         aoFQnUsxt71COik176scgIHW2CeqJVl1rKgm1FI3aqtJC88aZeTP5IlHfEPBfnQssDc7
-         K7UyOS218f+/QFvi1S0jKl5i5tCC6alLmnpr0Bm/F+kTvmkieCmJ9xT2M5jXHcu/wkUm
-         QKm+5suBhU62UXUkwB9t+/Y5Ap0X4vmXgQsgSnUqBfSm8CJaizlsZ5Xc2deXEJmfpqdB
-         jz8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772110118; x=1772714918;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SGhBIs3dYbcFk6P/XqQpMpVB1hZMUHNjX+2F9A4bd2I=;
-        b=UDwLwtbY+QL4b2CtYcy78HodMvmgN5Xgjm4vO81kuqciSDssn0OUmPFI0QfGXU/gPb
-         /n+ErkY5URc3g2/e8U5373PtQUjN+XIJIGygi5uRpeMs4Snh0LtKbXscS8Mg1eiJGplD
-         Vkc54fvNV3nStppTaTLbg3B0RN0UFIBju/E9Thu7YaAQO7bi0WKJkunB0TFv0AiIGidt
-         p/I+AW6RvV9w71FLZddPN4CBGiSl5DowUwncaAlhSeCiwlyVUEZ4k/CKm1KjYhgo9Vde
-         o2VGZtv3z3ZkMcKYlU71PqY1uSAx8k+NLCc5WLj3jmdqoI6HjkEvJLhHVq83kRFhaxFn
-         X8zQ==
-X-Forwarded-Encrypted: i=1; AJvYcCW4zGbMyXhwd3rVRGsHPSQySk2U16oyjnc8z4Ar3aKzelHhy5CfHQEirj2ggb7nimtA71Vu3Ok=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz/7ABeALrGRrgTlODx2F4Bu7fbsidQsM0kGnMusgnHtZUL8it2
-	MzPzTcUXHrxoC31e2i3BaKuastV27DzWOpPsJ8Co4nbsHhRZdl3/T5El
-X-Gm-Gg: ATEYQzyuVwBd1qFHtFdwBVnEAG9Rl31o5qqFDly1tSKd9tfgjzcMzDE0Vf3+WPzLrk3
-	dWf/bGaQmx9u4W3g/Nu7uOOLOWj1GDnPrC5MP6YicT1eXeW0iXE/tiUtHMZ5GdoLR8FziGQmO9L
-	z5v3JJ8hPYvB3rOYmCTRHiIABqhoo6sO7cJI4DKxb2/Fmgun9s2Je32vqfp8zbybAqmqeJtNiav
-	6cFA2j7Y21HQiCUydDqIHfhQ/6ylyg/c3OfbfU2pccyA7t5xYB2B31hXkneOJTfczPPetneCBJ/
-	DqPXmKV8fteMxJecxGUjKdxktRrPCeJzsY6aRUFVspeqovAoz3RdSHeqPuIeyFUfZnHJN9ivv8A
-	svmSlw02C9Owi20/MS6jhFSIuRjB1a3i9AyzAyoKO+ZUYgtCyoHFWrmFThN2vC4wozlbtetQhnx
-	qo0lhPOxgjAE7y1XeT0TvVvST4B2w=
-X-Received: by 2002:a05:6a21:648a:b0:358:dc7d:a2d1 with SMTP id adf61e73a8af0-395ad1ad5eamr4023452637.42.1772110118054;
-        Thu, 26 Feb 2026 04:48:38 -0800 (PST)
-Received: from fedora ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c70fa801954sm2040737a12.22.2026.02.26.04.48.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Feb 2026 04:48:37 -0800 (PST)
-Date: Thu, 26 Feb 2026 12:48:27 +0000
-From: Hangbin Liu <liuhangbin@gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="o9BtI0GB";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3d5gGFqq";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="o9BtI0GB";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3d5gGFqq"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id C866E3F770;
+	Thu, 26 Feb 2026 23:41:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772149281; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=KIUojCn/VfAaNbXQUA5b8xf9/uavvlDywgk/Hl1k1rA=;
+	b=o9BtI0GBt3iIKkQXOxFChEJBk20P9zrsOYw/sCqM6ghtZpkUTU77s/eLvxHNpMCmRKBQyD
+	eBCEu9UIjC0iZFdFvA7Hr8ubjHdkBq2lbW36PNmtXrRnfTm5AUggtS5kgcwPhFFV8K7/6i
+	ylATzjnlvUDf4PnorDVYN1tTuEpHYFQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772149281;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=KIUojCn/VfAaNbXQUA5b8xf9/uavvlDywgk/Hl1k1rA=;
+	b=3d5gGFqqCLA0ODRSX03h1HhAfCyZuqikL1hbjGY8G3N01cuBuI6WjLsdYpsZgLL5HErE57
+	SFpL9mztegOLZYCA==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772149281; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=KIUojCn/VfAaNbXQUA5b8xf9/uavvlDywgk/Hl1k1rA=;
+	b=o9BtI0GBt3iIKkQXOxFChEJBk20P9zrsOYw/sCqM6ghtZpkUTU77s/eLvxHNpMCmRKBQyD
+	eBCEu9UIjC0iZFdFvA7Hr8ubjHdkBq2lbW36PNmtXrRnfTm5AUggtS5kgcwPhFFV8K7/6i
+	ylATzjnlvUDf4PnorDVYN1tTuEpHYFQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772149281;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=KIUojCn/VfAaNbXQUA5b8xf9/uavvlDywgk/Hl1k1rA=;
+	b=3d5gGFqqCLA0ODRSX03h1HhAfCyZuqikL1hbjGY8G3N01cuBuI6WjLsdYpsZgLL5HErE57
+	SFpL9mztegOLZYCA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 166803EA62;
+	Thu, 26 Feb 2026 23:41:21 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id //88AiHaoGmPTQAAD6G6ig
+	(envelope-from <fmancera@suse.de>); Thu, 26 Feb 2026 23:41:21 +0000
+From: Fernando Fernandez Mancera <fmancera@suse.de>
 To: netdev@vger.kernel.org
-Cc: Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Sridhar Samudrala <sridhar.samudrala@intel.com>,
-	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Samiullah Khawaja <skhawaja@google.com>,
-	Ahmed Zaki <ahmed.zaki@intel.com>,
-	Alexander Lobakin <aleksander.lobakin@intel.com>,
-	linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [RFC PATCH net-next 3/3] failover: use .ndo_update_offloads for
- failover
-Message-ID: <aaBBG5iu76-u7ePb@fedora>
-References: <20260226114208.27774-1-liuhangbin@gmail.com>
- <20260226114208.27774-4-liuhangbin@gmail.com>
+Cc: bridge@lists.linux.dev,
+	roopa@cumulusnetworks.com,
+	horms@kernel.org,
+	pabeni@redhat.com,
+	kuba@kernel.org,
+	edumazet@google.com,
+	davem@davemloft.net,
+	idosch@nvidia.com,
+	razor@blackwall.org,
+	Fernando Fernandez Mancera <fmancera@suse.de>
+Subject: [PATCH net] net: bridge: fix nd_tbl NULL dereference when IPv6 is disabled
+Date: Fri, 27 Feb 2026 00:40:59 +0100
+Message-ID: <20260226234059.19402-1-fmancera@suse.de>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260226114208.27774-4-liuhangbin@gmail.com>
+X-Spam-Score: -2.80
+X-Spam-Level: 
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_SEVEN(0.00)[11];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[]
+X-Spam-Flag: NO
 
-On Thu, Feb 26, 2026 at 11:42:08AM +0000, Hangbin Liu wrote:
-> diff --git a/include/net/net_failover.h b/include/net/net_failover.h
-> index b12a1c469d1c..f0f038d113a0 100644
-> --- a/include/net/net_failover.h
-> +++ b/include/net/net_failover.h
-> @@ -30,11 +30,4 @@ struct net_failover_info {
->  struct failover *net_failover_create(struct net_device *standby_dev);
->  void net_failover_destroy(struct failover *failover);
->  
-> -#define FAILOVER_VLAN_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> -				 NETIF_F_FRAGLIST | NETIF_F_ALL_TSO | \
-> -				 NETIF_F_HIGHDMA | NETIF_F_LRO)
-> -
+When booting with the 'ipv6.disable=1' parameter, the nd_tbl is never
+initialized because inet6_init() exits before ndisc_init() is called
+which initializes it. Then, if neigh_suppress is enabled and an ICMPv6
+Neighbor Discovery packet reaches the bridge, br_do_suppress_nd() will
+dereference ipv6_stub->nd_tbl which is NULL, passing it to
+neigh_lookup(). This causes a kernel NULL pointer dereference.
 
-Oh, forgot to fix this. Maybe we can use MASTER_UPPER_DEV_VLAN_FEATURES to
-replace it?
+ BUG: kernel NULL pointer dereference, address: 0000000000000268
+ Oops: 0000 [#1] PREEMPT SMP NOPTI
+ [...]
+ RIP: 0010:neigh_lookup+0x16/0xe0
+ [...]
+ Call Trace:
+  <IRQ>
+  ? neigh_lookup+0x16/0xe0
+  br_do_suppress_nd+0x160/0x290 [bridge]
+  br_handle_frame_finish+0x500/0x620 [bridge]
+  br_handle_frame+0x353/0x440 [bridge]
+  __netif_receive_skb_core.constprop.0+0x298/0x1110
+  __netif_receive_skb_one_core+0x3d/0xa0
+  process_backlog+0xa0/0x140
+  __napi_poll+0x2c/0x170
+  net_rx_action+0x2c4/0x3a0
+  handle_softirqs+0xd0/0x270
+  do_softirq+0x3f/0x60
 
-drivers/net/net_failover.c: In function ‘net_failover_create’:
-drivers/net/net_failover.c:687:37: error: ‘FAILOVER_VLAN_FEATURES’ undeclared (first use in this function)
-  687 |         failover_dev->hw_features = FAILOVER_VLAN_FEATURES |
-      |                                     ^~~~~~~~~~~~~~~~~~~~~~
+Fix this by adding a check before br_is_local_ip6() or neigh_lookup()
+call. If ipv6_stub->nd_tbl is NULL, return immediately.
 
+Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+Closes: https://lore.kernel.org/netdev/CAHXs0ORzd62QOG-Fttqa2Cx_A_VFp=utE2H2VTX5nqfgs7LDxQ@mail.gmail.com/
+Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+---
+Note: I am investigating more places where this might be happening too.
+---
+ net/bridge/br_arp_nd_proxy.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Thanks
-Hangbin
+diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
+index 1e2b51769eec..ed756518cee0 100644
+--- a/net/bridge/br_arp_nd_proxy.c
++++ b/net/bridge/br_arp_nd_proxy.c
+@@ -437,6 +437,12 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
+ 		return;
+ 	}
+ 
++	/* IPv6 disabled at boot, return before calling into br_is_local_ip6()
++	 * or neigh_lookup()
++	 */
++	if (!ipv6_stub->nd_tbl)
++		return;
++
+ 	if (vid != 0) {
+ 		/* build neigh table lookup on the vlan device */
+ 		vlandev = __vlan_find_dev_deep_rcu(br->dev, skb->vlan_proto,
+-- 
+2.53.0
 
-> -#define FAILOVER_ENC_FEATURES	(NETIF_F_HW_CSUM | NETIF_F_SG | \
-> -				 NETIF_F_RXCSUM | NETIF_F_ALL_TSO)
-> -
->  #endif /* _NET_FAILOVER_H */
-> -- 
-> 2.50.1
-> 
