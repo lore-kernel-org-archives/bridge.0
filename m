@@ -1,78 +1,86 @@
-Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010067.outbound.protection.outlook.com [52.101.56.67])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E76F53B95F9
-	for <bridge@lists.linux.dev>; Wed, 25 Feb 2026 14:40:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.67
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772030455; cv=fail; b=CU3K1A54c9N2P0qbpID7j0+fMfse9rNU8xHJ12z1lV+HKJcYducQuoPh10M0P5qsVPMLZjWCZTZ0Un+0af6N1KAhYdm8YQVWLbXNS2Ch+RxLLTaHPas/+pIfIQG2lau9+i0wfr+pxg8lcZ1774+FOEJJmLTgTfVgJbS4bjBZQ4s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772030455; c=relaxed/simple;
-	bh=2vdEuW65FxHeyUQ3z0Wgi+Kvm7AX4Zros52VWtF8rm4=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PB8qLiGIiYamgjQ0d+RWaIgSQRM3KGz9OpEmeY9EkGu9hr8j1pAKoHey28GiJA62jpB5WgiuFI/6JXOW3dvLbjGjWC5g/TUurs4PI3zZftMkm/XpM5Fby0b0KPpBus6MZKQH0WWNShRVVAdYyX0b8yXF6tTBpjzLv6dgOnH1SDI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=JLs7g9SC; arc=fail smtp.client-ip=52.101.56.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D58831961B
+	for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 11:43:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772106194; cv=none; b=r0ki/PTqKAIJ9Hon1t60W6nacwurw84qQQ9hId9xZJcnqA0qjK8OmXFMNuUlW2K+ShEOpWLgx2AhlD7bRlqRsFzPWBqoSSamtq8hJk5Uax+dxkn7bHfDjVFaFcjU5ZdP2n0KYYbCWu2q+d/Pdvl5hCcbp9sfsMY8BCYc7nWyHYs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772106194; c=relaxed/simple;
+	bh=dJjhH8ryVeN8VbL+ettl5uMr2GTzSV/PrDSmpGn4P1A=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QahZAHkkWN9hiPkhclnJUG0Tm20KTEQswM/yna61JTUZfowJUfApwcceIxTj7HW3nH2PoLOyPCiN1A/tpsOTjOUAhLxjOHd6SjwLNhz6vEOeMIR+oRnj8qc5CNmQbZNnNbPHH01/vNbr3D7RCpNcZFuQ72uAiUuWHnjthZCrRwg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JWqxfwOH; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="JLs7g9SC"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Rnn94A155RHkdN//uA9n5PcMvOcEvN+MXtIjclUB8VeElRKg+1XVtDcrd8sGOvaHRjB0UvYxqiM576SrPtZZNIpGMO+RY/ZngO7QXIMXxvGbpkAK570J0YRTwYxwZ1rGpO0kTTDz4AeUkC6AdJUMTTCF8kv6bn5ek3oe/KyqVyVnr/ZfykbOy7prkInQCFjr81uCbXT0A2yb4/bMsrrLcMJziA0cbLVF1k2z4VbfvuNMyKQkcnGQHKZzNcjv78s+eq4Cp0lw2EjY94ZFtOiT+vJdgwD9DQCeK/K0qxqRriaztkGj3pLSvzFqn0S7PXZY12y6Fp/nlnXpdgQXnPDWKA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=sUa+RbNoHp7r8f/nYXTWjygZ+DnBbJvzhpJ07gNVj2c=;
- b=HTeQDYt/Oaq6zoSecxLolvtxx9hD6UYksI/ddJZfqElSd7l1xzdrS8o0yPeu+qBcI5n7EI5kevX97zmvRcqmEvaWPjH0w/ZyCcBT5LEc/Q61rCzoN7u8SSEMIf7hiSzMsk8/FpgmavtPNDvRkM8y7u/oUcweuZwhlkRK2zZd28MYQCL2AzfMLdEtEJKtyyO+61JTElH+mdt+vU8Rruwo6us25Y57122+l9KHGcGs86sQECKKbnluFsMfbyT0auMzwDp42s7K5EjrBIVet3O4WwLnyYEA5IlV5jmBrhfMPTjsXIkGtS8iskzObs52fJuhWbmEA2E4CjKC96LW2njdtQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=sUa+RbNoHp7r8f/nYXTWjygZ+DnBbJvzhpJ07gNVj2c=;
- b=JLs7g9SC+mgkEiWwlgU5bQI+Zu193KjkJgbgfEUzmqvtDkZncv9ppa6DaYhtfaw+DlxxcskMlnClktR2sU9OgPf9kQUMV/1YYTGN790ze8b7a+1hgSs5F7Jb8DzOU+D9F9Gl/tezwgm3rhhrdaEHNFdOBsUqLvh3YHroFqcMVxnl15X2wcpKtqATtNz+vSRluINfi2/7ZWOyfMLAa9IJAStIu4JQDk0vRjp/dDtyI9KcvXnfUbNxOo2Qm/U7Dt/PTer3w+zlVicGUzxyNAWB0l2I9Oluu9jcwH40pOUb7GGm6JohbOiiXYaVCzflGp33IbQzvgtAMFVQSufznkwb6Q==
-Received: from SJ0P220CA0028.NAMP220.PROD.OUTLOOK.COM (2603:10b6:a03:41b::11)
- by IA1PR12MB9467.namprd12.prod.outlook.com (2603:10b6:208:594::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9654.11; Wed, 25 Feb
- 2026 14:40:44 +0000
-Received: from SJ5PEPF00000209.namprd05.prod.outlook.com
- (2603:10b6:a03:41b:cafe::e0) by SJ0P220CA0028.outlook.office365.com
- (2603:10b6:a03:41b::11) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9632.23 via Frontend Transport; Wed,
- 25 Feb 2026 14:40:21 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- SJ5PEPF00000209.mail.protection.outlook.com (10.167.244.42) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9632.12 via Frontend Transport; Wed, 25 Feb 2026 14:40:43 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 25 Feb
- 2026 06:40:20 -0800
-Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.35) by
- rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Wed, 25 Feb 2026 06:40:17 -0800
-From: Danielle Ratson <danieller@nvidia.com>
-To: <netdev@vger.kernel.org>
-CC: <razor@blackwall.org>, <davem@davemloft.net>, <edumazet@google.com>,
-	<kuba@kernel.org>, <pabeni@redhat.com>, <horms@kernel.org>,
-	<shuah@kernel.org>, <linux-kernel@vger.kernel.org>, <bridge@lists.linux.dev>,
-	<linux-kselftest@vger.kernel.org>, <idosch@nvidia.com>, <petrm@nvidia.com>,
-	Danielle Ratson <danieller@nvidia.com>
-Subject: [PATCH net v2 2/2] selftests: net: Add bridge VLAN range grouping tests
-Date: Wed, 25 Feb 2026 16:39:56 +0200
-Message-ID: <20260225143956.3995415-3-danieller@nvidia.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260225143956.3995415-1-danieller@nvidia.com>
-References: <20260225143956.3995415-1-danieller@nvidia.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JWqxfwOH"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2a9296b3926so5846535ad.1
+        for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 03:43:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772106192; x=1772710992; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=EdgMvJCRheKq92C1xI4uXJcoc9Cjrdybv0fSGYfTngw=;
+        b=JWqxfwOHWD5snmJanroJPv5WSSFydjF1bG7JDJpjfQWQXp+p8UkqdB1xTQtRANIeFk
+         fApJmBGgwfIHe/8uscPcaAtSz51Qj7kKxtjAyoyiTusgcd+RL+98eGHSXKwwceW25C66
+         6YPu1gldV/Gq4RqIGL9jZFCAS0KoI1ucI/hWb+xIqclNZR095S44VYDMbEGlhy3y7ltN
+         hxfNDM/hksGLXIYA8K5xIexttlAVQN3iMdXbJcmCuVW0jDvJmScwhDNax4AG39qau67P
+         3bNHzlocqNVYt1BmTiUWQRUVzaAxvtbnM+pm8nLs3dK0jOSwVWrgCqop7YBam08N2CIb
+         vgzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772106192; x=1772710992;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EdgMvJCRheKq92C1xI4uXJcoc9Cjrdybv0fSGYfTngw=;
+        b=ptQ6jpPhkIds16iAWypWKOL4xC7wvSlT6hULWdgzYSJuZo3dxnZHH7A43463e41s7H
+         iJCDZUn8+d4Kyp/AjEOcpzMfYIcPiS5KtLEpKUvBQhn+yIkk6gNRQewb/MgaCpTxcAui
+         rOpSQXyXeEA5fvXw1ktlsZE464IYv1hWJ5NZOi/XDwGmLcei4ufI8IS1gQ49fRYRWsLD
+         OyKTjecJSbV9IODC8wLl1Z73q4YPdI077dZjqJFGtziCTa1KXVWBspFi1+NB5h0+Mnu+
+         6tmN8wxH36hmXFyTLd4zFGLbGcJZSRV4dwaZYPIT+UKQhCWlpDGsTchUrkSQSSMbAzrF
+         6V6Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWEJycvEuU689rk8jZpSSiqMhv8oU5D+O/gaU8GDv2NmeG9/OdgxikrETu4k6kPG8LfGhX6suo=@lists.linux.dev
+X-Gm-Message-State: AOJu0YywlIq4H1eKG+maaX/8R/bw1eY6/3AbneWV9dmjIIj61blEzqBe
+	OIgGtfWUh949mYY+VuSdxoT+CkXDh14XdoAOUTen/V4z3oxMf6ZprQF7
+X-Gm-Gg: ATEYQzw6+yeXRTYeapDVUl/GxNHXoT0x6lQfFfPICK4FfQm6p9U2BboGp/BcqjEFIW0
+	XpvzdluVSkLgpD3XKDOS0dVXsj0DS6jokxG1Phjgf6oGhBq4h6ExBsvDaGF8Hz1fFAi3KyMEY0d
+	DcGK5rfm2f4ESSdpLRvJTjMnJFIX1zGNnR0cPsTpKZBe6VxmQupsTpjlqITTtI5FG07gxzcVdjb
+	AloP+5ySCMKDficKMwpjlX1j9Gb61y5m0k0lGS/8veo2xCOh+IORqC+M2yt22tdfZV+INGSHMPK
+	RcvY9Wgdc6rVutuKDBalSglBQ+znoNPybq7AZctU4e9S/vB7M1hOGIj08CMVgQuEqtYExXUTION
+	dur4bngjMyE3YZBcKS/rhdyZj5glNSYhsoVlG2Cjz7VjyoJJ2B7PZ/hZwUBHY020inFSs7vUHTu
+	dSZ645HCIu/Lpj68T8cro4jpwMiKyjArR3/+g33A==
+X-Received: by 2002:a17:902:ce03:b0:2aa:ea3d:a37b with SMTP id d9443c01a7336-2ae0305ebeamr20234825ad.2.1772106191620;
+        Thu, 26 Feb 2026 03:43:11 -0800 (PST)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2adfb5dbac7sm34131545ad.37.2026.02.26.03.43.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Feb 2026 03:43:10 -0800 (PST)
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: netdev@vger.kernel.org
+Cc: Jay Vosburgh <jv@jvosburgh.net>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Sridhar Samudrala <sridhar.samudrala@intel.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Samiullah Khawaja <skhawaja@google.com>,
+	Ahmed Zaki <ahmed.zaki@intel.com>,
+	Alexander Lobakin <aleksander.lobakin@intel.com>,
+	linux-kernel@vger.kernel.org,
+	bridge@lists.linux.dev,
+	Hangbin Liu <liuhangbin@gmail.com>
+Subject: [RFC PATCH net-next 0/3] net: add ndo_update_offloads for offload computation
+Date: Thu, 26 Feb 2026 11:42:05 +0000
+Message-ID: <20260226114208.27774-1-liuhangbin@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -80,292 +88,46 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ5PEPF00000209:EE_|IA1PR12MB9467:EE_
-X-MS-Office365-Filtering-Correlation-Id: 71da2e7d-1282-47ef-293c-08de747bdb39
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|36860700013|376014|7416014|82310400026;
-X-Microsoft-Antispam-Message-Info:
-	Aa+hqAkW2oroBRyEbUDCbJGkpnZ5oo2TAWiEkl7Pebm9b25xk5DRTA35pNjzP6IGgNcuPkA6M27Ll/PvOfa95NK3L8GhxtywErTM3sWYCaaSXLvRv5szGRP02jeewqCo8iKQgnPWqMtSirEgukere5JV0jdhPgGyA54eY7BFF+JG/9TctEVa8OTY6VVyy17eZU3HIh2lWKx+oP1ccA697RVGYmhZmMbwvT/SNi4mO4OtHz0XmwFBBGCqDdiybOYpbfTpGoCXxPpculMKNNMxwKhDlLiudobys1h7N3NF3tb4RQqwkGE+7ENej1OWZwbARtPMPWtXnqu91Z6APyV9BLfx4wFtbbpoFH3jdx+Veowtuq9K0yPTJ9vtVIxU+AAh6VU4VtsyZPACAIUs2kwPhpFO/nLEojNLOs67jrKM6LZRtmlyOtQeeBMb9kHklU1eZ+EJe+7rvE28WTJgj1Fl6l6a3NroXmF2WNs5E+A6QTRxzl+Tmryi0taALNMR3vEFv70keuA2Yb052QJyCKRhndzSHjkZzNiMfMWcUuxk4bIcHvDcfOd1/ma/3vtyrTsQpYLRBZCA2TeIuZLCTMCMOsFClbArSUVNPZwMt2kCmUTKDmJUFCCpwE2o3y1F9it9MqkcBej+GTG6csde2wahXGcqbvkadJzAHLj7kUsKNaXDv8Sktww5PqsVogKB3egUFDqhYpOYlXeyCOw3tG6fskVoqNuzUrP4Lkqb2mphkXHb3ND8MpS6k1JaZCXsSaoowly1zmO/Av/XFpP/Ko8n8wJ8HfcOxZYgHIwhb0PE2Pw0SeASTDXGt/l20q5osaOVtnCfWDxE6jb1MnatCp7CeA==
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(36860700013)(376014)(7416014)(82310400026);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	q2poM7u7Imk+7ixzmpBaA+kDtuTSEtabJ8yWCxUYcWPAlZ8srpYTXK3U7NN9HsPCpr7T6z9CMfaJ5O18REwTkoAlQpfRCkZylzPl+Gji72nyf+vZzpTsR+lYIjSipQQcaKBWhBU+317x72BmKfX3PJ4iCCOVsvtRYz1pRK9zXRGHU77vGoFBq+jEHV+sGk6VhWE+yVPkcCb/gbidzU7Lu9nbRhnoaCDY95SWkTu91+GLI7355pqzbXBx53rEzUZCTu1Ui9fcQSFmlzX+pfsG1R2/ejaxcK5rm4vYqRZJkWYgCLTHj7Em95u60cGKs1mqm/HcMzk9bfmjUUbidyPNZ/qYViF2RmZ0LFbA3vtfUQvvjpKu+QS2IW6m3UrKi+2Yro89+TepyCi+5VdbWeCbGoIWD2cwlVJBfyeJeBQTqRxIbX7stR4RFDO9Di3lLZKO
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Feb 2026 14:40:43.9908
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 71da2e7d-1282-47ef-293c-08de747bdb39
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ5PEPF00000209.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB9467
 
-Add a new test file bridge_vlan_dump.sh with four test cases that verify
-VLANs with different per-VLAN options are not incorrectly grouped into
-ranges in the dump output.
+Currently, master devices (bonding, bridge, team) manually call
+netdev_compute_master_upper_features() scattered throughout their port
+add/remove operations. This approach requires each driver to remember
+to update features at the right times and leads to code duplication.
 
-The tests verify the kernel's br_vlan_opts_eq_range() function correctly
-prevents VLAN range grouping when neigh_suppress, mcast_max_groups,
-mcast_n_groups, or mcast_enabled options differ.
+The series adds a new ndo_update_offloads callback that is automatically
+invoked during feature updates when upper/lower device relationships change.
+This centralizes the feature computation flow and removes the burden
+from individual drivers.
 
-Each test verifies that VLANs with different option values appear as
-individual entries rather than ranges, and that VLANs with matching
-values are properly grouped together.
+Changes:
+1. Patch 1: Add ndo_update_offloads callback to net_device_ops and invoke
+   it from __netdev_update_features()
+2. Patch 2: Convert bonding, bridge, and team drivers to use the new
+   callback, removing manual feature computation calls
+3. Patch 3: Convert net_failover driver, significantly simplifying its
+   feature management code
 
-Example output:
+*Discuss*:
+1. Should we set ndo_update_offloads after ndo_set_features? Or maybe just
+   call netdev_compute_master_upper_features() in ndo_set_features?
+2. Do we need to compute the offload feature for hsr?
 
-$ ./bridge_vlan_dump.sh
-TEST: VLAN range grouping with neigh_suppress                       [ OK ]
-TEST: VLAN range grouping with mcast_max_groups                     [ OK ]
-TEST: VLAN range grouping with mcast_n_groups                       [ OK ]
-TEST: VLAN range grouping with mcast_enabled                        [ OK ]
 
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
----
+Hangbin Liu (3):
+  net: add ndo_update_offloads
+  net: use ndo_update_offloads for bonding/bridge/team
+  failover: use .ndo_update_offloads for failover
 
-Notes:
-    v2:
-    	* Address SC issues by adding double-quoting to relevant places,
-    	  and adding ignore tags to irrelevant issues.
+ drivers/net/bonding/bond_main.c | 10 ++++--
+ drivers/net/net_failover.c      | 64 ++++-----------------------------
+ drivers/net/team/team_core.c    | 11 +++---
+ include/linux/netdevice.h       |  7 ++++
+ include/net/net_failover.h      |  7 ----
+ net/bridge/br_device.c          |  6 ++++
+ net/bridge/br_if.c              |  4 ---
+ net/core/dev.c                  | 11 ++++--
+ 8 files changed, 42 insertions(+), 78 deletions(-)
 
- tools/testing/selftests/net/Makefile          |   1 +
- .../testing/selftests/net/bridge_vlan_dump.sh | 204 ++++++++++++++++++
- 2 files changed, 205 insertions(+)
- create mode 100755 tools/testing/selftests/net/bridge_vlan_dump.sh
-
-diff --git a/tools/testing/selftests/net/Makefile b/tools/testing/selftests/net/Makefile
-index afdea6d95bde..605c54c0e8a3 100644
---- a/tools/testing/selftests/net/Makefile
-+++ b/tools/testing/selftests/net/Makefile
-@@ -15,6 +15,7 @@ TEST_PROGS := \
- 	big_tcp.sh \
- 	bind_bhash.sh \
- 	bpf_offload.py \
-+	bridge_vlan_dump.sh \
- 	broadcast_ether_dst.sh \
- 	broadcast_pmtu.sh \
- 	busy_poll_test.sh \
-diff --git a/tools/testing/selftests/net/bridge_vlan_dump.sh b/tools/testing/selftests/net/bridge_vlan_dump.sh
-new file mode 100755
-index 000000000000..ad66731d2a6f
---- /dev/null
-+++ b/tools/testing/selftests/net/bridge_vlan_dump.sh
-@@ -0,0 +1,204 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Test bridge VLAN range grouping. VLANs are collapsed into a range entry in
-+# the dump if they have the same per-VLAN options. These tests verify that
-+# VLANs with different per-VLAN option values are not grouped together.
-+
-+# shellcheck disable=SC1091,SC2034,SC2154,SC2317
-+source lib.sh
-+
-+ALL_TESTS="
-+	vlan_range_neigh_suppress
-+	vlan_range_mcast_max_groups
-+	vlan_range_mcast_n_groups
-+	vlan_range_mcast_enabled
-+"
-+
-+setup_prepare()
-+{
-+	setup_ns NS
-+	defer cleanup_all_ns
-+
-+	ip -n "$NS" link add name br0 type bridge vlan_filtering 1 \
-+		vlan_default_pvid 0 mcast_snooping 1 mcast_vlan_snooping 1
-+	ip -n "$NS" link set dev br0 up
-+
-+	ip -n "$NS" link add name dummy0 type dummy
-+	ip -n "$NS" link set dev dummy0 master br0
-+	ip -n "$NS" link set dev dummy0 up
-+}
-+
-+vlan_range_neigh_suppress()
-+{
-+	RET=0
-+
-+	# Add two new consecutive VLANs for range grouping test
-+	bridge -n "$NS" vlan add vid 10 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 10 dev dummy0
-+
-+	bridge -n "$NS" vlan add vid 11 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 11 dev dummy0
-+
-+	# Configure different neigh_suppress values and verify no range grouping
-+	bridge -n "$NS" vlan set vid 10 dev dummy0 neigh_suppress on
-+	check_err $? "Failed to set neigh_suppress for VLAN 10"
-+
-+	bridge -n "$NS" vlan set vid 11 dev dummy0 neigh_suppress off
-+	check_err $? "Failed to set neigh_suppress for VLAN 11"
-+
-+	# Verify VLANs are not shown as a range, but individual entries exist
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_fail $? "VLANs with different neigh_suppress incorrectly grouped"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+10$|^\s+10$"
-+	check_err $? "VLAN 10 individual entry not found"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+11$|^\s+11$"
-+	check_err $? "VLAN 11 individual entry not found"
-+
-+	# Configure same neigh_suppress value and verify range grouping
-+	bridge -n "$NS" vlan set vid 11 dev dummy0 neigh_suppress on
-+	check_err $? "Failed to set neigh_suppress for VLAN 11"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_err $? "VLANs with same neigh_suppress not grouped"
-+
-+	log_test "VLAN range grouping with neigh_suppress"
-+}
-+
-+vlan_range_mcast_max_groups()
-+{
-+	RET=0
-+
-+	# Add two new consecutive VLANs for range grouping test
-+	bridge -n "$NS" vlan add vid 10 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 10 dev dummy0
-+
-+	bridge -n "$NS" vlan add vid 11 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 11 dev dummy0
-+
-+	# Configure different mcast_max_groups values and verify no range grouping
-+	bridge -n "$NS" vlan set vid 10 dev dummy0 mcast_max_groups 100
-+	check_err $? "Failed to set mcast_max_groups for VLAN 10"
-+
-+	bridge -n "$NS" vlan set vid 11 dev dummy0 mcast_max_groups 200
-+	check_err $? "Failed to set mcast_max_groups for VLAN 11"
-+
-+	# Verify VLANs are not shown as a range, but individual entries exist
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_fail $? "VLANs with different mcast_max_groups incorrectly grouped"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+10$|^\s+10$"
-+	check_err $? "VLAN 10 individual entry not found"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+11$|^\s+11$"
-+	check_err $? "VLAN 11 individual entry not found"
-+
-+	# Configure same mcast_max_groups value and verify range grouping
-+	bridge -n "$NS" vlan set vid 11 dev dummy0 mcast_max_groups 100
-+	check_err $? "Failed to set mcast_max_groups for VLAN 11"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_err $? "VLANs with same mcast_max_groups not grouped"
-+
-+	log_test "VLAN range grouping with mcast_max_groups"
-+}
-+
-+vlan_range_mcast_n_groups()
-+{
-+	RET=0
-+
-+	# Add two new consecutive VLANs for range grouping test
-+	bridge -n "$NS" vlan add vid 10 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 10 dev dummy0
-+
-+	bridge -n "$NS" vlan add vid 11 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 11 dev dummy0
-+
-+	# Add different numbers of multicast groups to each VLAN
-+	bridge -n "$NS" mdb add dev br0 port dummy0 grp 239.1.1.1 vid 10
-+	check_err $? "Failed to add mdb entry to VLAN 10"
-+	defer bridge -n "$NS" mdb del dev br0 port dummy0 grp 239.1.1.1 vid 10
-+
-+	bridge -n "$NS" mdb add dev br0 port dummy0 grp 239.1.1.2 vid 10
-+	check_err $? "Failed to add second mdb entry to VLAN 10"
-+	defer bridge -n "$NS" mdb del dev br0 port dummy0 grp 239.1.1.2 vid 10
-+
-+	bridge -n "$NS" mdb add dev br0 port dummy0 grp 239.1.1.1 vid 11
-+	check_err $? "Failed to add mdb entry to VLAN 11"
-+	defer bridge -n "$NS" mdb del dev br0 port dummy0 grp 239.1.1.1 vid 11
-+
-+	# Verify VLANs are not shown as a range due to different mcast_n_groups
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_fail $? "VLANs with different mcast_n_groups incorrectly grouped"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+10$|^\s+10$"
-+	check_err $? "VLAN 10 individual entry not found"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+11$|^\s+11$"
-+	check_err $? "VLAN 11 individual entry not found"
-+
-+	# Add another group to VLAN 11 to match VLAN 10's count
-+	bridge -n "$NS" mdb add dev br0 port dummy0 grp 239.1.1.2 vid 11
-+	check_err $? "Failed to add second mdb entry to VLAN 11"
-+	defer bridge -n "$NS" mdb del dev br0 port dummy0 grp 239.1.1.2 vid 11
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_err $? "VLANs with same mcast_n_groups not grouped"
-+
-+	log_test "VLAN range grouping with mcast_n_groups"
-+}
-+
-+vlan_range_mcast_enabled()
-+{
-+	RET=0
-+
-+	# Add two new consecutive VLANs for range grouping test
-+	bridge -n "$NS" vlan add vid 10 dev br0 self
-+	defer bridge -n "$NS" vlan del vid 10 dev br0 self
-+
-+	bridge -n "$NS" vlan add vid 11 dev br0 self
-+	defer bridge -n "$NS" vlan del vid 11 dev br0 self
-+
-+	bridge -n "$NS" vlan add vid 10 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 10 dev dummy0
-+
-+	bridge -n "$NS" vlan add vid 11 dev dummy0
-+	defer bridge -n "$NS" vlan del vid 11 dev dummy0
-+
-+	# Configure different mcast_snooping for bridge VLANs
-+	# Port VLANs inherit BR_VLFLAG_MCAST_ENABLED from bridge VLANs
-+	bridge -n "$NS" vlan global set dev br0 vid 10 mcast_snooping 1
-+	bridge -n "$NS" vlan global set dev br0 vid 11 mcast_snooping 0
-+
-+	# Verify port VLANs are not grouped due to different mcast_enabled
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_fail $? "VLANs with different mcast_enabled incorrectly grouped"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+10$|^\s+10$"
-+	check_err $? "VLAN 10 individual entry not found"
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -Eq "^\S+\s+11$|^\s+11$"
-+	check_err $? "VLAN 11 individual entry not found"
-+
-+	# Configure same mcast_snooping and verify range grouping
-+	bridge -n "$NS" vlan global set dev br0 vid 11 mcast_snooping 1
-+
-+	bridge -n "$NS" -d vlan show dev dummy0 | grep -q "10-11"
-+	check_err $? "VLANs with same mcast_enabled not grouped"
-+
-+	log_test "VLAN range grouping with mcast_enabled"
-+}
-+
-+# Verify the newest tested option is supported
-+if ! bridge vlan help 2>&1 | grep -q "neigh_suppress"; then
-+	echo "SKIP: iproute2 too old, missing per-VLAN neighbor suppression support"
-+	exit "$ksft_skip"
-+fi
-+
-+trap defer_scopes_cleanup EXIT
-+setup_prepare
-+tests_run
-+
-+exit "$EXIT_STATUS"
 -- 
-2.51.0
+2.50.1
 
