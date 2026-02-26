@@ -1,63 +1,63 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC890376BFD
-	for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 11:43:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118E4364024
+	for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 11:43:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772106202; cv=none; b=biDEEkOuHxaeIjfRjQQ4L7UhXa2l/60CFtn63q3wC9OgjqqCbAtlwDeuek5OUaJGd5OgonOkOd919H8TZJffSqmycghUbFyiOta0HDdncdiRabspjpmLOuq3OY2AWgTe5hwsOq4NZ7YJ3yjwf9cOMWcRXuMah7QB7JI+cYBGnKg=
+	t=1772106208; cv=none; b=O4d4KZGKZpFU1x2MR5QLOIonqb+do2oXUMVzd/NdytL8SwJCCCIORWxZcxFlk4tVaFzDmw7BXsDcXvXfsIKb/23TXdcbfestSh8oRN3biSDfEgDADrBfoXJxuKQCWDKKwJOdz2yZa9cqqjC0t892197Ot0vSfsJki8FSv72l0Cc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772106202; c=relaxed/simple;
-	bh=GzjQ1QrmncB3M8ZZh2gze1EuHsDImbS4oU69hNkTzxU=;
+	s=arc-20240116; t=1772106208; c=relaxed/simple;
+	bh=QE7+shqhYrIkkr0DVQn90AztuymZ6yT+ozQWHEu81W4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=c+Cn32LQ9zrALW1LJ94dPVvJePIwi8TFZFU3hZQQuN2iCqOKEr85BrIMgH2fURsqK7HxMKnL8yqsvCi9y8Fh6gIogvKkMXKfPblAnEufLlgFi3wnl4UDZi6uGVKWH5vF52Ldn2QGr6LYCbjyf1+s072ZIF8vlOge/qLVsZs0Xv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iCx67jqN; arc=none smtp.client-ip=209.85.214.178
+	 MIME-Version; b=bf3zST5PTC5fDs/rumTDcVTBZIcvNxJgsDMXNdsI3U5uyjhV1FPlLWkRBuKtU3C8xATK1bKSySxmHRNBv1Xu9nHsJCEixA4jch9Bnuy5W/G9onNroSxS6xWDTKHIhbngGAEUIMbzNCczC0tyxzztyJ/uUzysnuYFp3IiMPCgumE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gOsWGVNB; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iCx67jqN"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2adcede372cso2983135ad.0
-        for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 03:43:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gOsWGVNB"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2ad9f2ee29aso4617925ad.1
+        for <bridge@lists.linux.dev>; Thu, 26 Feb 2026 03:43:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772106199; x=1772710999; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1772106206; x=1772711006; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4ciG01gWGaVHVP/mcZG8G3rAKieiLmIPuwLg8daH8Bc=;
-        b=iCx67jqNK2iCtFaRhgZ2Hx+6h/e93JPZ6CZCEfrkXD+0sCn2niKA1pBGLzLe9OPsd2
-         3S78pYn2m3HeSyktpNqJrMK1T77PPzgEnFZML+vZ9mXljGTQxcmsv12MkspPciMvE87x
-         EolKSG90rjJZEWjjYgrseBRrGIJExkTB10BHMZ9uWGvSpRZpuzxv5reohzG/ApDdZcGS
-         WF1x9MOrwVRVoucq30ESKprmnrfaitlLRQS8Idqy8ihq8aNBXUyDxa1o3RQ5QffWMoHP
-         FkDbAIkbU+jnQpNWjgps063CvzPWqQ0dknZDsS75ctV7ptzRst91zFRRgkrjZn59702G
-         q8/w==
+        bh=K8tCHRpr4wzppgYjorSC40fFUhqaMIZWAyWgimJgq3o=;
+        b=gOsWGVNBpbi7B1aFc9MxHEhwbmY0lxa6RdA7Vpq5JNNMK70TXkKPYYfrX1I9oH8wvC
+         tU6mSN0DtBdHRdTiCht0b7LpVP0r/Cc9krC65OPdwwWWBfecV6L5bA6FFSq6gx1acoNM
+         lW5CulS0rBjoewp/XRr7zo0RvIMwaJQ6dbB5BD+9KNTmFX/7e1c3kfex67SYJ7WGejHH
+         jAxIeYKzzEUxeE18nGH+aHVoO8R6v3NAioeEmgybe1fqCj0PqtZ6xF7HbxyNdFEJAGCn
+         oMve5DX4PLwcQVrogco8q4GDXZikycJADE7GkIQ2SPulW2Te2HoYMbkFbWotGpA6npkt
+         HaAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772106199; x=1772710999;
+        d=1e100.net; s=20230601; t=1772106206; x=1772711006;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=4ciG01gWGaVHVP/mcZG8G3rAKieiLmIPuwLg8daH8Bc=;
-        b=Dv2lfqpqITYthD+Vrxj8WXbbIKXgxrAzlCqHDGWR4bcoEfa6p3fBifuSJyqttCl68H
-         IRGW7qjwAqFng2wK3pSAfrZ8ODDqfQbXYuBbXaoao4Zyxj/7oWW5xEWpbqArdGhfP5Vv
-         HKz16K9PYh3qNoPBO02Mi8tq7GR3bHgLJ1rB36jXTdAToeCDZsIzuCG+wVU4+kVcDbIl
-         4vZAQ6Tul1QZFkGQk2+d7BvCjRlab3D+RxR8RXeq6l0bXCEXPJJq4usefSCKcf+b7jkc
-         uHztmvR+ySlAwseMsqYBHirwWMZ0shKgxwTyEFk2I+GDDAXd+R6f4RTqmLhub20V21tE
-         4kzA==
-X-Forwarded-Encrypted: i=1; AJvYcCUYfrL+3Yz6Sf/WcLs3aWCK+uOGRgMjS0Z1pz4Bevb6xNSK23uJUz/ZC3ZiMsQCj6TvXNXJyxs=@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywu/CLHeTlkFr60ir7abEE4b2rZM5m5UDB1gUXu8X6ieLN7EHx+
-	rXT6l4QG3rE84vN6vOsmp4UR/mQ+ddT2t0SUTXkr0DWlI5D82X9x7QdZ
-X-Gm-Gg: ATEYQzzK1etEl/mK59REt/s9Th+WjBGmRXUWBtznVI2iUZDBl0LH+0KtpfvZeFcxvcs
-	El7C9GFCz4bR1TfU5jhwAqFolfXBle8ey1zZf/YvzKGKdo6Lnl+jXmjFNJFH8NMVQ7/mGDFzQei
-	yk9hikReCHkIo77afFwGuIPh4UYGjpLJigE5ttgX7r6zO+Hfzsw/aEFOW4yeHWpxApg0ewFb5+c
-	JhP6k0IHq9uOdRiX5xn5zEHWu0XC3AowKuCCF5ItqgC7SUfhQP69eX0Gwp2/3etkS4FztAWxZLK
-	LkfneRXNygC1HkQKEDGDNsK31fUPyTCiMwbw8krXFotOTCx3+e2xOmbLXRJDLJdlN2qFf2SjdqV
-	D/XFYT5/5xyKxFAZcNFtT0qD1V+WhfRVYuN2kIhIjsaVMd4PRuXOIqNbVrZX2qWrSSHov466fXi
-	IC9928yLB5KniLkEbn2ksj/k5V7TU=
-X-Received: by 2002:a17:903:32d2:b0:2aa:f2f3:bcb0 with SMTP id d9443c01a7336-2ae036e631amr24181285ad.47.1772106199007;
-        Thu, 26 Feb 2026 03:43:19 -0800 (PST)
+        bh=K8tCHRpr4wzppgYjorSC40fFUhqaMIZWAyWgimJgq3o=;
+        b=DbS5TaerRImo7pdK3GmCl1qZZYGVaMGgtzaU3sz8/GMuon+paPw6eNVsOlPGbEKoAd
+         3lnyU9EogKZlaShyy8AbpZGsaNAh+zuwJSXLwnXeGDrcTxclJ9hMi9dbaVQYRoxEdfa7
+         WTgTTBvK0fmb8Go8KySIV5NT3tD43yrNcggh5DauYeR1MyERaBmqqe2LbzBSjLxWTYxA
+         qJDnP2S+y2PbUeS9Q7CTBCKVvjx3zpKFnBLmWzVE8c15hdylUr+FiP4t+GqjHE5G8RPI
+         hjrFdrWCO1dR4jEF6WSHNpCtKjAtPFFiuJlu4TjpmPh2TRJEtqbgL1ve429falRLdW6v
+         HNpA==
+X-Forwarded-Encrypted: i=1; AJvYcCXSShU64wsTyLAEdiBH5ULFdwuA2fQLIlkdtNwZuypdyFPQDaXeS4qsNAsHgyRvnp8JuzNzUAU=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzh+sf5dACOp59H4Gt0c7DaVgCoy0AXhDRLZX+0Luj3bpH/NU4E
+	WlY/2phFocPoT3GnzIEd8KZetR/00sRug8vXtuUbRIPkLP6ubFkwV4DN
+X-Gm-Gg: ATEYQzwBCvix7y3lLjb5kOp95TOHipSac0IVLQReWdQYZstPKcXwtprtHXEs3rCANDZ
+	u8qn3fmdFx7SXx8yVif9znjkNKZLguCYL9fLFTFwGIiyfT2TRCRNbdrBVoN8ptzfj1X9XZ6+Dg6
+	uCELS4as1GfPIQHejOyuiOUzmha2YbdzSp/PsGFsh/+qdWi6v9u2GytukBRB8liClbQD7DLClEy
+	LnsLavWbcWwbZIKd9WzBe7k+4Y5QH0CVh7RtcVaMevYb+/V6hXS61HBi6d6akW73ednd8GSV4XF
+	JK1r467BM+13+OTEnIw8hpDLqGCC1oYwtDKXCPelK//o5N/W8aSIgK0G5te3fbJhj62mL8FoZg2
+	mZyotH+akXlxq2XnlyjmC6EtRAf6HHr7AXyp19viHqicZik654CQ2Y6/CDMvgp/ztVZoleqU8Tz
+	/YQeWTthGaddwHAsnAWjkY8atqsA8=
+X-Received: by 2002:a17:902:ce84:b0:2ad:ba04:40cd with SMTP id d9443c01a7336-2adba0442abmr77452645ad.22.1772106206343;
+        Thu, 26 Feb 2026 03:43:26 -0800 (PST)
 Received: from fedora ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2adfb5dbac7sm34131545ad.37.2026.02.26.03.43.12
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2adfb5dbac7sm34131545ad.37.2026.02.26.03.43.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Feb 2026 03:43:18 -0800 (PST)
+        Thu, 26 Feb 2026 03:43:26 -0800 (PST)
 From: Hangbin Liu <liuhangbin@gmail.com>
 To: netdev@vger.kernel.org
 Cc: Jay Vosburgh <jv@jvosburgh.net>,
@@ -79,9 +79,9 @@ Cc: Jay Vosburgh <jv@jvosburgh.net>,
 	linux-kernel@vger.kernel.org,
 	bridge@lists.linux.dev,
 	Hangbin Liu <liuhangbin@gmail.com>
-Subject: [RFC PATCH net-next 1/3] net: add ndo_update_offloads
-Date: Thu, 26 Feb 2026 11:42:06 +0000
-Message-ID: <20260226114208.27774-2-liuhangbin@gmail.com>
+Subject: [RFC PATCH net-next 2/3] net: use ndo_update_offloads for bonding/bridge/team
+Date: Thu, 26 Feb 2026 11:42:07 +0000
+Message-ID: <20260226114208.27774-3-liuhangbin@gmail.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20260226114208.27774-1-liuhangbin@gmail.com>
 References: <20260226114208.27774-1-liuhangbin@gmail.com>
@@ -93,63 +93,230 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add a new ndo_update_offloads callback to net_device_ops that allows
-devices to compute and update their offload features during feature
-updates.
+Convert bonding, bridge, and team drivers to use the new
+ndo_update_offloads callback instead of manually calling
+netdev_compute_master_upper_features() during port add/remove operations.
 
-This callback enabling master devices to recompute their features
-based on current slave device configuration. This is particularly
-useful for bonding, bridging, team, and failover devices that need
-to aggregate features from their lower devices.
+This change centralizes the feature computation flow:
 
-The callback is optional and only implemented by devices that need
-dynamic offload feature computation.
+Before:
+- netdev_compute_master_upper_features()
+  - compute offload features
+  - netdev_change_features()
+    - __netdev_update_features()
+      - update other features
+
+After:
+- netdev_master_upper_dev_link()
+  - __netdev_upper_dev_link()
+    - netdev_change_features()
+      - __netdev_update_features()
+        - ndo_update_offloads()
+          - netdev_compute_master_upper_features()
+        - update other features
+
+This ensures offload features are computed automatically when
+upper/lower device links change, removing the need for manual
+feature computation calls in the driver code.
+
+The netdev_change_features() call in team_uninit() is also removed
+since it calls team_port_del() for each port, which now triggers
+feature updates automatically.
 
 Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 ---
- include/linux/netdevice.h | 7 +++++++
- net/core/dev.c            | 3 +++
- 2 files changed, 10 insertions(+)
+ drivers/net/bonding/bond_main.c | 10 +++++++---
+ drivers/net/team/team_core.c    | 11 +++++++----
+ net/bridge/br_device.c          |  6 ++++++
+ net/bridge/br_if.c              |  4 ----
+ net/core/dev.c                  |  8 ++++++--
+ 5 files changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index d4e6e00bb90a..1169091ccb9a 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -1281,6 +1281,12 @@ struct netdev_net_notifier {
-  *	constraints, and returns the resulting flags. Must not modify
-  *	the device state.
-  *
-+ * void (*ndo_update_offloads)(struct net_device *dev);
-+ *	Called during feature update to allow device to compute and update
-+ *	offload features (like vlan_features, hw_enc_features) based on
-+ *	current lower device configuration. Typically used by master
-+ *	devices to aggregate features from slave devices.
-+ *
-  * int (*ndo_set_features)(struct net_device *dev, netdev_features_t features);
-  *	Called to update device configuration to new features. Passed
-  *	feature set might be less than what was returned by ndo_fix_features()).
-@@ -1558,6 +1564,7 @@ struct net_device_ops {
- 							struct sock *sk);
- 	netdev_features_t	(*ndo_fix_features)(struct net_device *dev,
- 						    netdev_features_t features);
-+	void			(*ndo_update_offloads)(struct net_device *dev);
- 	int			(*ndo_set_features)(struct net_device *dev,
- 						    netdev_features_t features);
- 	int			(*ndo_neigh_construct)(struct net_device *dev,
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 55a960da42b5..dc524f595e28 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1504,6 +1504,11 @@ static netdev_features_t bond_fix_features(struct net_device *dev,
+ 	return features;
+ }
+ 
++static void bond_update_offloads(struct net_device *dev)
++{
++	netdev_compute_master_upper_features(dev, true);
++}
++
+ static void bond_setup_by_slave(struct net_device *bond_dev,
+ 				struct net_device *slave_dev)
+ {
+@@ -2224,7 +2229,6 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
+ 	}
+ 
+ 	bond->slave_cnt++;
+-	netdev_compute_master_upper_features(bond->dev, true);
+ 	bond_set_carrier(bond);
+ 
+ 	/* Needs to be called before bond_select_active_slave(), which will
+@@ -2479,7 +2483,6 @@ static int __bond_release_one(struct net_device *bond_dev,
+ 		call_netdevice_notifiers(NETDEV_RELEASE, bond->dev);
+ 	}
+ 
+-	netdev_compute_master_upper_features(bond->dev, true);
+ 	if (!(bond_dev->features & NETIF_F_VLAN_CHALLENGED) &&
+ 	    (old_features & NETIF_F_VLAN_CHALLENGED))
+ 		slave_info(bond_dev, slave_dev, "last VLAN challenged slave left bond - VLAN blocking is removed\n");
+@@ -3971,7 +3974,7 @@ static int bond_slave_netdev_event(unsigned long event,
+ 	case NETDEV_FEAT_CHANGE:
+ 		if (!bond->notifier_ctx) {
+ 			bond->notifier_ctx = true;
+-			netdev_compute_master_upper_features(bond->dev, true);
++			netdev_change_features(bond->dev);
+ 			bond->notifier_ctx = false;
+ 		}
+ 		break;
+@@ -5895,6 +5898,7 @@ static const struct net_device_ops bond_netdev_ops = {
+ 	.ndo_add_slave		= bond_enslave,
+ 	.ndo_del_slave		= bond_release,
+ 	.ndo_fix_features	= bond_fix_features,
++	.ndo_update_offloads	= bond_update_offloads,
+ 	.ndo_features_check	= passthru_features_check,
+ 	.ndo_get_xmit_slave	= bond_xmit_get_slave,
+ 	.ndo_sk_get_lower_dev	= bond_sk_get_lower_dev,
+diff --git a/drivers/net/team/team_core.c b/drivers/net/team/team_core.c
+index c08a5c1bd6e4..fa62965b61de 100644
+--- a/drivers/net/team/team_core.c
++++ b/drivers/net/team/team_core.c
+@@ -1249,7 +1249,6 @@ static int team_port_add(struct team *team, struct net_device *port_dev,
+ 	port->index = -1;
+ 	list_add_tail_rcu(&port->list, &team->port_list);
+ 	team_port_enable(team, port);
+-	netdev_compute_master_upper_features(team->dev, true);
+ 	__team_port_change_port_added(port, !!netif_oper_up(port_dev));
+ 	__team_options_change_check(team);
+ 
+@@ -1333,7 +1332,6 @@ static int team_port_del(struct team *team, struct net_device *port_dev)
+ 	dev_set_mtu(port_dev, port->orig.mtu);
+ 	kfree_rcu(port, rcu);
+ 	netdev_info(dev, "Port device %s removed\n", portname);
+-	netdev_compute_master_upper_features(team->dev, true);
+ 
+ 	return 0;
+ }
+@@ -1641,7 +1639,6 @@ static void team_uninit(struct net_device *dev)
+ 	team_mcast_rejoin_fini(team);
+ 	team_notify_peers_fini(team);
+ 	team_queue_override_fini(team);
+-	netdev_change_features(dev);
+ }
+ 
+ static void team_destructor(struct net_device *dev)
+@@ -1959,6 +1956,11 @@ static netdev_features_t team_fix_features(struct net_device *dev,
+ 	return features;
+ }
+ 
++static void team_update_offloads(struct net_device *dev)
++{
++	netdev_compute_master_upper_features(dev, true);
++}
++
+ static int team_change_carrier(struct net_device *dev, bool new_carrier)
+ {
+ 	struct team *team = netdev_priv(dev);
+@@ -1994,6 +1996,7 @@ static const struct net_device_ops team_netdev_ops = {
+ 	.ndo_add_slave		= team_add_slave,
+ 	.ndo_del_slave		= team_del_slave,
+ 	.ndo_fix_features	= team_fix_features,
++	.ndo_update_offloads	= team_update_offloads,
+ 	.ndo_change_carrier     = team_change_carrier,
+ 	.ndo_features_check	= passthru_features_check,
+ };
+@@ -2931,7 +2934,7 @@ static int team_device_event(struct notifier_block *unused,
+ 	case NETDEV_FEAT_CHANGE:
+ 		if (!port->team->notifier_ctx) {
+ 			port->team->notifier_ctx = true;
+-			netdev_compute_master_upper_features(port->team->dev, true);
++			netdev_change_features(port->team->dev);
+ 			port->team->notifier_ctx = false;
+ 		}
+ 		break;
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index a818fdc22da9..3f2e8f5249fb 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -289,6 +289,11 @@ static netdev_features_t br_fix_features(struct net_device *dev,
+ 	return br_features_recompute(br, features);
+ }
+ 
++static void br_update_offloads(struct net_device *dev)
++{
++	netdev_compute_master_upper_features(dev, false);
++}
++
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ static void br_poll_controller(struct net_device *br_dev)
+ {
+@@ -456,6 +461,7 @@ static const struct net_device_ops br_netdev_ops = {
+ 	.ndo_add_slave		 = br_add_slave,
+ 	.ndo_del_slave		 = br_del_slave,
+ 	.ndo_fix_features        = br_fix_features,
++	.ndo_update_offloads	 = br_update_offloads,
+ 	.ndo_fdb_add		 = br_fdb_add,
+ 	.ndo_fdb_del		 = br_fdb_delete,
+ 	.ndo_fdb_del_bulk	 = br_fdb_delete_bulk,
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 4c67a32745f6..7806436340ef 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -680,8 +680,6 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+ 
+ 	br_mtu_auto_adjust(br);
+ 
+-	netdev_compute_master_upper_features(br->dev, false);
+-
+ 	kobject_uevent(&p->kobj, KOBJ_ADD);
+ 
+ 	return 0;
+@@ -734,8 +732,6 @@ int br_del_if(struct net_bridge *br, struct net_device *dev)
+ 	if (changed_addr)
+ 		call_netdevice_notifiers(NETDEV_CHANGEADDR, br->dev);
+ 
+-	netdev_compute_master_upper_features(br->dev, false);
+-
+ 	return 0;
+ }
+ 
 diff --git a/net/core/dev.c b/net/core/dev.c
-index 096b3ff13f6b..d05837c0713a 100644
+index d05837c0713a..7043ee022980 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -10982,6 +10982,9 @@ int __netdev_update_features(struct net_device *dev)
- 	ASSERT_RTNL();
- 	netdev_ops_assert_locked(dev);
+@@ -8893,6 +8893,9 @@ static int __netdev_upper_dev_link(struct net_device *dev,
+ 	__netdev_walk_all_upper_dev(upper_dev, __netdev_update_lower_level,
+ 				    priv);
  
-+	if (dev->netdev_ops->ndo_update_offloads)
-+		dev->netdev_ops->ndo_update_offloads(dev);
++	/* re-compute all features after adding link */
++	netdev_change_features(upper_dev);
 +
- 	features = netdev_get_wanted_features(dev);
+ 	return 0;
  
- 	if (dev->netdev_ops->ndo_fix_features)
+ rollback:
+@@ -8985,6 +8988,9 @@ static void __netdev_upper_dev_unlink(struct net_device *dev,
+ 	__netdev_update_lower_level(upper_dev, priv);
+ 	__netdev_walk_all_upper_dev(upper_dev, __netdev_update_lower_level,
+ 				    priv);
++
++	/* re-compute all features after removing link */
++	netdev_change_features(upper_dev);
+ }
+ 
+ /**
+@@ -12851,8 +12857,6 @@ void netdev_compute_master_upper_features(struct net_device *dev, bool update_he
+ 
+ 	netif_set_tso_max_segs(dev, tso_max_segs);
+ 	netif_set_tso_max_size(dev, tso_max_size);
+-
+-	netdev_change_features(dev);
+ }
+ EXPORT_SYMBOL(netdev_compute_master_upper_features);
+ 
 -- 
 2.50.1
 
