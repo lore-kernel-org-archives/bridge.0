@@ -1,21 +1,20 @@
 Received: from mail.aperture-lab.de (mail.aperture-lab.de [116.203.183.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFBB4377005
-	for <bridge@lists.linux.dev>; Mon,  2 Mar 2026 05:49:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ECDA377011
+	for <bridge@lists.linux.dev>; Mon,  2 Mar 2026 05:49:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=116.203.183.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772430568; cv=none; b=JP72ONsW1bY5Uh7Il3dzF1YKquUMPYgepPxXEKN0hA9ZCiRolxWUjAtFufhgF1x2K6gbZ+uhc9nxPOZhyuJXlk8zNitN4Sg8jT8KvpGgheNxZMEez9/RhfAUpc28mHsmKaoX0Jjn27Bv7dRdLNliYANEm3ttGRfl514lH7yJsSw=
+	t=1772430568; cv=none; b=A+WYAxvrqcdzIv+6Hg5LI1vDj5pqO2GPx5xwUoXkMzFzJRQEdY7rbfwWF3u5mJQrI8Evh5Q+67UqE0CbOCbhWVnWRtVr/UoT/N+Al00rixIdR9nrRl8ciIbEEpYSGTcjH3+03KtmOwDGdDsFq8MhqRHefH1QXXhWTafuZa5+CfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1772430568; c=relaxed/simple;
-	bh=V050GCjejq31W/9Ha43gZfKPtsQINZkypMaioaOkFhs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KMFsEqvtZEZkt64FObpPx8kQ9uwgn+KZ8gXFtNr9vCfD0soPDzGS5htPhulTMFrdm83p8FLU52fkR3ST20/3HtqdAGGhvUv8q2d7QnSOnVhvteWlvv5NUSpx2pJqw7+ccv5/pI/+PfuBl6b+cjVFIEEnJTKU6N7ZCAlBZDXz69o=
+	bh=E7tCISH2KEDATzOho0/yty4c+9zszD5xJgnElr5JYDU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=GmYn61jns0lklc3ixTEtnbnKUcVY9etRdAFPmM55xhB6H8Gl7j9gUv36mmlBy9P6FyjfKUwwrf4icr25ldXvJO1vWdp/Bz0PhTahJ0IbFXnqHA1nqkZNrtvXjA+dRlTZODogcAMjSZQlJCAdZA+2JiYoabD3YBhsQl5VJLU8tkc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue; spf=pass smtp.mailfrom=c0d3.blue; arc=none smtp.client-ip=116.203.183.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=c0d3.blue
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=c0d3.blue
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 07F7D54CC5F;
-	Mon,  2 Mar 2026 06:40:42 +0100 (CET)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D6B1854C45D;
+	Mon,  2 Mar 2026 06:40:33 +0100 (CET)
 From: =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
 To: bridge@lists.linux.dev
 Cc: netdev@vger.kernel.org,
@@ -34,12 +33,10 @@ Cc: netdev@vger.kernel.org,
 	Xiao Liang <shaw.leon@gmail.com>,
 	shuah@kernel.org,
 	=?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Subject: [PATCH net-next v3 02/14] net: bridge: mcast: track active state, adding tests
-Date: Mon,  2 Mar 2026 06:39:56 +0100
-Message-ID: <20260302054008.21638-3-linus.luessing@c0d3.blue>
+Subject: [PATCH net-next v3 00/14] net: bridge: reduce multicast checks in fast path
+Date: Mon,  2 Mar 2026 06:39:54 +0100
+Message-ID: <20260302054008.21638-1-linus.luessing@c0d3.blue>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260302054008.21638-1-linus.luessing@c0d3.blue>
-References: <20260302054008.21638-1-linus.luessing@c0d3.blue>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -50,738 +47,270 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-Before making any significant changes to the internals of the Linux
-bridge add some tests regarding the multicast activity. This is
-also to verify that we have the semantics of the new
-*_MCAST_ACTIVE_{V4,V6} netlink attributes as expected.
+This patchset introduces new state variables to combine and reduce the
+number of checks we would otherwise perform on every multicast packet
+in fast/data path. Instead of checking if our querier is enabled or
+if another querier timer is pending, plus if the initial query
+grace period has elapsed, plus for IPv6 and for our own querier if we
+have an IPv6 address yet - and all this for every multicast packet -
+we can now simply check one boolean state variable per protocol family
+combining all this, the new ip{4,6}_active. Or MCAST_ACTIVE_V4 /
+MCAST_ACTIVE_V6 to netlink/userspace.
+  
+The second reason for introducing these new, internal multicast active
+variables is to later propagate a safety mechanism which was introduced
+in commit b00589af3b04 ("bridge: disable snooping if there is no querier")
+to switchdev/DSA, too. That is to notify switchdev/DSA if multicast
+snooping can safely be applied without potential packet loss.
 
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+An example usage/integration of this with the modified Realtek rtl83xx
+switch driver can be found in a draft pull-request at the OpenWrt
+project: https://github.com/openwrt/openwrt/pull/18780
+This was tested at least on an ZyXEL GS1900-24HP v1 switch.
+
+iproute2 patch:
+https://patchwork.kernel.org/project/netdevbpf/patch/20260206023704.4839-1-linus.luessing@c0d3.blue/
+
+Regards, Linus
+
 ---
+
+# Changelog v3
+
+* rebased to current net-next/main branch
+* [PATCH net-next v3 01/14] net: bridge: mcast: export ip{4,6}_active state to netlink 
+  * no changes, adding "Reviewed-by: Ido Schimmel <idosch@nvidia.com>"
+* [PATCH net-next v3 02/14] net: bridge: mcast: track active state, adding tests 
+  * fixing a race condition in the test_vlan_inactive_brdown()
+    test, which would occasionally trigger and result in false
+    fails, by adding a small delay, a call to test_active_setup_wait(),
+    before checking the current state
+  * increasing NUM_NETIFS from 1 to 2, to better reflect both sides
+    of a veth pair (most places seem to use a NUM_NETIFS=2 for one
+    veth pair, even though NUM_NETIFS leads to correct test results, too)
+  * adding address family to error messages
+  * adding line number to error messages
+  * unifying common/similar code of mcast_vlan_active_check()
+    and mcast_active_check() in a new mcast_active_check_ret()
+  * adding bridge_mdb_active.sh to TEST_PROGS in
+    tools/testing/selftests/net/forwarding/Makefile
+  * avoiding ${} around variable names in bash math contexts
+  * adding double quotes in several places around variables when fetching
+    their values to avoid globbing and word splitting
+  * adding "# skipping:" to purposefully skipped function calls in
+    tests for inactive multicast state to better highlight their
+    intentional difference to their fully active counterpart
+  * skip the newly added bridge_mdb_active.sh test with a warning
+    if iproute2 is too old
+  * reducing one occurence of a double newline to a single one
+    in bridge_mdb_active.sh
+  * adding linux-kselftest@vger.kernel.org shuah@kernel.org to CC
+  * reducing column sizes to less than or equal to 80 in a various places
+* [PATCH net-next v3 03/14] net: bridge: mcast: avoid sleeping on bridge-down
+  * moving multicast spinlock grabs for br_multicast_open() and
+    br_multicast_stop() into these functions and
+    turning br_multicast_open() and br_multicast_stop() into small
+    wrapers to grab the multicast spinlock and then calling
+    the otherwise not self-locking br_multicast_open_locked() /
+    br_multicast_stop_locked()
+    * fixes a build error with CONFIG_BRIDGE_IGMP_SNOOPING unset
+  * renaming br_multicast_stopping() to br_multicast_is_stopping()
+  * reworded commit message to try to clarify how the new
+    timer_shutdown() use is supposed to work
+* [PATCH net-next v3 04/14] net: bridge: mcast: track active state, IGMP/MLD querier appearance 
+  * turn the br_info() call in br_multicast_notify_active()
+    into a br_debug() to reduce potential log clutter
+  * renaming br_multicast_stopping() to br_multicast_is_stopping()
+* [PATCH net-next v3 05/14] net: bridge: mcast: track active state, foreign IGMP/MLD querier disappearance
+  * no changes, adding "Reviewed-by: Ido Schimmel <idosch@nvidia.com>"
+* [PATCH net-next v3 06/14] net: bridge: mcast: track active state, IPv6 address availability
+  * no changes, adding "Reviewed-by: Ido Schimmel <idosch@nvidia.com>"
+* [PATCH net-next v3 07/14] net: bridge: mcast: track active state, own MLD querier disappearance 
+  * dropping the not quite fitting final statement in the commit message
+    about this being the last necessary check
+  * adding "Reviewed-by: Ido Schimmel <idosch@nvidia.com>"
+* [PATCH net-next v3 08/14] net: bridge: mcast: track active state, if snooping is enabled
+  * removing update on enabling/disabling of VLAN aware
+    multicast snooping, adding it the VLAN specific patch instead
+* [PATCH net-next v3 09/14] net: bridge: mcast: track active state, VLAN snooping
+  * readding update on enabling/disabling VLAN aware multicast snooping
+  * adding a goto in br_multicast_update_active() to avoid
+    unnecessary checks
+  * turning "if (!br_multicast_ctx_is_vlan(brmctx))" in
+    br_multicast_update_active() into an "else if" to avoid
+    unnecessary checks
+* [PATCH net-next v3 10/14] net: bridge: mcast: track active state, bridge up/down 
+  * adding a goto in br_multicast_update_active() to avoid
+    unnecessary checks
+* [PATCH net-next v3 11/14] net: bridge: mcast: track active state, prepare for outside lock reads
+  * removing the unnecessary READ_ONCE() macros in spinlocked
+    sections in br_multicast_notify_active() and br_multicast_update_active()
+* [PATCH net-next v3 12/14] net: bridge: mcast: use combined active state in netlink
+  * no changes, adding "Reviewed-by: Ido Schimmel <idosch@nvidia.com>"
+* [PATCH net-next v3 13/14] net: bridge: mcast: use combined active state in fast/data path
+  * changing the proto parameter to br_multicast_querier_exists() from
+    int to u16
+  * dropping unnecessary parenthesis in switch cases
+  * avoiding lines over 80 columns for calls to
+    br_multicast_snooping_active() in br_{device,input}.c and
+    the br_multicast_querier_exists() definition in br_multicast.c
+* [PATCH net-next v3 14/14] net: bridge: mcast: add inactive state assertions
+  * replace WARN_ON()s with WARN_ON_ONCE()
+
+# Changelog v2
+
+Summary of notable changes:
+
+With the newly added selftests things are moved around a bit,
+to be able to early on verify every commit that the general
+and netlink ABI behaviour did not change.
+
+The locking for br_multicast_open() and br_multicast_stop()
+is now more symmetric.
+
+The newly added tests revealed that in the previous pull-request
+the checks were insufficient/incorrect when using VLANs, this
+got fixed.
+
+An inactive assertion / kernel splat was fixed.
+
+
+* all: rebased to current net-next/main (a90f6dcefca6)
+* [PATCH net-next v2 1/14] net: bridge: mcast: export ip{4,6}_active state to netlink
+ * removed the ip{4,6}_active state variables for now,
+   using/mimicking the current checks used in fast-path
+   to define the intended result for the netlink/userspace ABI
+ * br_vlan_global_opts_fill(): removing "const" from
+   "struct net_bridge_vlan *v_opts" (for now), to allow
+   dereferencing it
+   br->multicast_ctx.ip{4,6}_active to start with,
+* [PATCH net-next v2 2/14] net: bridge: mcast: track active state, adding tests
+  * NEW: test that the new netlink interface has the intended results
+* [PATCH net-next v2 3/14] net: bridge: mcast: avoid sleeping on bridge-down
+  * NEW: to be able
+* [PATCH net-next v2 4/14] net: bridge: mcast: track active state, IGMP/MLD querier appearance
+  * adding br_multicast_notify_active() with a simple br_info()
+    to start with to track the evolving ip{4,6}_active behaviour
+  * br_ip{4,6}_multicast_query_delay_expired(): don't enable
+    ip{4,6}_active if we are about to get disabled by
+    adding/checking br_multicast_stopping()
+  * adding protocol specific ...delay_timer.function resets
+    in (new) br_multicast_reset_timer_cbs(), instead of
+    changing timer_setup()s in br_multicast_ctx_init()
+* [PATCH net-next v2 5/14] net: bridge: mcast: track active state, foreign IGMP/MLD querier disappearance
+  * unchanged
+* [PATCH net-next v2 6/14] net: bridge: mcast: track active state, IPv6 address availability
+  * unchanged
+* [PATCH net-next v2 7/14] net: bridge: mcast: track active state, own MLD querier disappearance
+  * unchanged  
+* [PATCH net-next v2 8/14] net: bridge: mcast: track active state, if snooping is enabled
+  * renamed title: "... mcast: active state ..."
+    -> "... mcast: track activestate ..."
+  * adding VLAN aware check for BROPT_MCAST_VLAN_SNOOPING_ENABLED
+  * removing misplaced, second br_multicast_update_active(brmctx)
+    in br_multicast_toggle_one_vlan()
+* [PATCH net-next v2 9/14] net: bridge: mcast: track active state, VLAN snooping
+  * NEW
+* [PATCH net-next v2 10/14] net: bridge: mcast: track active state, bridge up/down
+  * adding mcast-spin-lock around br_multicast_open() in br_dev_open()a
+  * adding mcast-spin-lock around br_multicast_update_active()
+    in __br_multicast_stop()
+  * removing (now already locked) mcast-spin-lock addition
+    in br_multicast_toggle_one_vlan()
+  * removing (now already locked) mcast-spin-lock addition
+    in br_multicast_toggle_vlan_snooping()
+* [PATCH net-next v2 11/14] net: bridge: mcast: track active state, prepare for outside lock reads
+  * NEW
+* [PATCH net-next v2 12/14] net: bridge: mcast: use combined active state in netlink
+  * NEW (partially from: "net: bridge: mcast: export ip{4,6}_active state to netlink")
+* [PATCH net-next v2 13/14] net: bridge: mcast: use combined active state in fast/data path
+  * using READ_ONCE() on ip{4,6}_active states
+* [PATCH net-next v2 14/14] net: bridge: mcast: add inactive state assertions
+  * with the moved lock, bail out early if we are about to
+    get disabled (via br_multicast_stopping()) and just entered
+    br_ip{4,6}_multicast_querier_expired()
+  * removed br_multicast_assert_inactive() in
+    br_multicast_toggle_one_vlan(), as it can toggle to enabled
+
+# Changelog (v1)
+
+Changelog to / follow-up of: [PATCH net-next 0/5] net: bridge: propagate safe mcast snooping to switchdev + DSA
+-> https://lkml.org/lkml/2025/5/22/1413
+
+* removed the switchdev/DSA changes for now
+* splitting "[PATCH net-next 1/5] net: bridge: mcast: explicitly track active state"
+  into:
+  * net: bridge: mcast: track active state, IGMP/MLD querier appearance
+  * net: bridge: mcast: track active state, foreign IGMP/MLD querier disappearance
+  * net: bridge: mcast: track active state, IPv6 address availability
+  * net: bridge: mcast: track active state, own MLD querier disappearance
+  * net: bridge: mcast: use combined active state in fast/data path
+  * net: bridge: mcast: track active state, bridge up/down
+
+* rebased to current net-next/main:
+  * from_timer() -> timer_container_of()
+
+* net: bridge: mcast: export ip{4,6}_active state to netlink:
+  * changing NLA_U8 to NLA_REJECT to make it read-only
+
+* moved br_multicast_update_active() call from br_ip{4,6}_multicast_query_expired()
+  (own querier timer callback) to br_ip{4,6}_multicast_querier_expired()
+  (other querier timer callback)
+  * even though both should have worked as br_multicast_querier_expired()
+    would call br_multicast_start_querier()->...->br_multicast_query_expired(),
+    even if the own querier is disabled, but let's use the more direct way
+
+* simplified br_multicast_update_active():
+  * no return value for now, don't track if the active state has changed,
+    these aren't necessary (yet)
+  * removed __br_multicast_update_active() variant as was used to force
+    an inactive state in __br_multicast_stop(), instead using an
+    netif_running(brmctx->br->dev) check in br_multicast_update_active()
+  * replaced br_ip{4,6}_multicast_check_active() with simpler
+    br_ip{4,6}_multicast_update_active() and
+    br_ip{4,6}_multicast_querier_exists()
+  * fixing build errors with CONFIG_IPV6 unset
+* simplified br_multicast_toggle_enabled()
+  * no return value for now
+  * fixes "old used uninitialized" issue
+
+* removed const from __br_multicast_querier_exists()'s "bool is_ipv6"
+* replaced "struct ethhdr *eth" in br_multicast_{snooping,querier}_active()
+  with direct ethernet protocol integer attributes
+* added a few comments in br_multicast_update_active() calling functions
+
+Linus Lüssing (14):
+  net: bridge: mcast: export ip{4,6}_active state to netlink
+  net: bridge: mcast: track active state, adding tests
+  net: bridge: mcast: avoid sleeping on bridge-down
+  net: bridge: mcast: track active state, IGMP/MLD querier appearance
+  net: bridge: mcast: track active state, foreign IGMP/MLD querier
+    disappearance
+  net: bridge: mcast: track active state, IPv6 address availability
+  net: bridge: mcast: track active state, own MLD querier disappearance
+  net: bridge: mcast: track active state, if snooping is enabled
+  net: bridge: mcast: track active state, VLAN snooping
+  net: bridge: mcast: track active state, bridge up/down
+  net: bridge: mcast: track active state, prepare for outside lock reads
+  net: bridge: mcast: use combined active state in netlink
+  net: bridge: mcast: use combined active state in fast/data path
+  net: bridge: mcast: add inactive state assertions
+
+ include/uapi/linux/if_bridge.h                |   2 +
+ include/uapi/linux/if_link.h                  |  14 +
+ net/bridge/br_device.c                        |   3 +-
+ net/bridge/br_input.c                         |   3 +-
+ net/bridge/br_multicast.c                     | 376 ++++++++--
+ net/bridge/br_netlink.c                       |  10 +-
+ net/bridge/br_private.h                       |  45 +-
+ net/bridge/br_vlan.c                          |   5 +
+ net/bridge/br_vlan_options.c                  |  10 +-
+ net/core/rtnetlink.c                          |   2 +-
  .../testing/selftests/net/forwarding/Makefile |   1 +
  .../net/forwarding/bridge_mdb_active.sh       | 702 ++++++++++++++++++
- 2 files changed, 703 insertions(+)
+ 12 files changed, 1089 insertions(+), 84 deletions(-)
  create mode 100755 tools/testing/selftests/net/forwarding/bridge_mdb_active.sh
 
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index ff4a00d91a26..a92eee17f3c5 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -10,6 +10,7 @@ TEST_PROGS := \
- 	bridge_mdb_host.sh \
- 	bridge_mdb_max.sh \
- 	bridge_mdb_port_down.sh \
-+	bridge_mdb_active.sh \
- 	bridge_mld.sh \
- 	bridge_port_isolation.sh \
- 	bridge_sticky_fdb.sh \
-diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb_active.sh b/tools/testing/selftests/net/forwarding/bridge_mdb_active.sh
-new file mode 100755
-index 000000000000..f4bf565bd3f0
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/bridge_mdb_active.sh
-@@ -0,0 +1,702 @@
-+#!/bin/bash
-+# SPDX-License-Identifier: GPL-2.0
-+
-+# +-------+      +---------+
-+# | brq0  |      | br0     |
-+# | + $h1 |      | + $swp1 |
-+# +----|--+      +----|----+
-+#      |              |
-+#      \--------------/
-+#
-+#
-+# This script checks if we have the expected mcast_active_v{4,6} state
-+# on br0 in a variety of scenarios. This state determines if ultimately
-+# multicast snooping is applied to multicast data packets
-+# (multicast snooping active) or if they are (by default) flooded instead
-+# (multicast snooping inactive).
-+#
-+# Notably, multicast snooping can be enabled but still be inactive if not all
-+# requirements to safely apply multicast snooping to multicast data packets
-+# are met.
-+#
-+# Depending on the test case an IGMP/MLD querier might be on brq0, on br0
-+# or neither.
-+
-+
-+ALL_TESTS="
-+	test_inactive
-+	test_active_other_querier
-+	test_active_own_querier
-+	test_inactive_brdown
-+	test_inactive_nov6
-+	test_inactive_snooping_off
-+	test_inactive_querier_off
-+	test_inactive_other_querier_norespdelay
-+	test_inactive_own_querier_norespdelay
-+	test_inactive
-+	test_vlan_inactive
-+	test_vlan_active_other_querier
-+	test_vlan_active_own_querier
-+	test_vlan_inactive_brdown
-+	test_vlan_inactive_nov6
-+	test_vlan_inactive_snooping_off
-+	test_vlan_inactive_vlans_snooping_off
-+	test_vlan_inactive_vlan_snooping_off
-+	test_vlan_inactive_other_querier_norespdelay
-+	test_vlan_inactive_own_querier_norespdelay
-+"
-+
-+NUM_NETIFS=2
-+MCAST_MAX_RESP_IVAL_SEC=1
-+MCAST_VLAN_ID=42
-+source lib.sh
-+
-+switch_create()
-+{
-+	ip link add dev br0 type bridge\
-+		vlan_filtering 0 \
-+		mcast_query_response_interval $((MCAST_MAX_RESP_IVAL_SEC*100))\
-+		mcast_snooping 0 \
-+		mcast_vlan_snooping 0
-+	ip link add dev brq0 type bridge\
-+		vlan_filtering 0 \
-+		mcast_query_response_interval $((MCAST_MAX_RESP_IVAL_SEC*100))\
-+		mcast_snooping 0 \
-+		mcast_vlan_snooping 0
-+
-+	echo 1 > /proc/sys/net/ipv6/conf/br0/disable_ipv6
-+	echo 1 > /proc/sys/net/ipv6/conf/brq0/disable_ipv6
-+
-+	ip link set dev "$swp1" master br0
-+	ip link set dev "$h1" master brq0
-+
-+	ip link set dev "$h1" up
-+	ip link set dev "$swp1" up
-+}
-+
-+switch_destroy()
-+{
-+	ip link set dev "$swp1" down
-+	ip link set dev "$h1" down
-+
-+	ip link del dev brq0
-+	ip link del dev br0
-+}
-+
-+setup_prepare()
-+{
-+	h1=${NETIFS[p1]}
-+	swp1=${NETIFS[p2]}
-+
-+	switch_create
-+}
-+
-+cleanup()
-+{
-+	pre_cleanup
-+	switch_destroy
-+}
-+
-+mcast_active_check_ret()
-+{
-+	local ret="$1"
-+	local af="$2"
-+	local state="$3"
-+	local vlan="$4"
-+	local lineno="$5"
-+
-+	if [ "$state" -eq 0 ]; then
-+		if [ "$ret" -eq 0 ]; then
-+			check_err 1 "$lineno: Mcast ${vlan}inactive check failed ($af)"
-+		fi
-+	elif [ "$state" -eq 1 ]; then
-+		if [ "$ret" -ne 0 ]; then
-+			check_err 1 "$lineno: Mcast ${vlan}active check failed ($af)"
-+		fi
-+	fi
-+}
-+
-+mcast_active_check()
-+{
-+	local af="$1"
-+	local state="$2"
-+	local lineno="$3"
-+
-+	ip -d -j link show dev br0\
-+		| jq -e ".[] | select(.linkinfo.info_data.mcast_active_$af == 1)"\
-+		&> /dev/null
-+	mcast_active_check_ret "$?" "$af" "$state" "" "$lineno"
-+}
-+
-+mcast_vlan_active_check()
-+{
-+	local af="$1"
-+	local state="$2"
-+	local lineno="$3"
-+	local vid="${MCAST_VLAN_ID}"
-+
-+	bridge -j vlan global show dev br0\
-+		| jq -e ".[].vlans.[] | select(.vlan == $vid and .mcast_active_$af == 1)"\
-+		&> /dev/null
-+	mcast_active_check_ret "$?" "$af" "$state" "VLAN " "$lineno"
-+}
-+
-+mcast_assert_active_v4()
-+{
-+	mcast_active_check "v4" "1" "$1"
-+}
-+
-+mcast_assert_active_v6()
-+{
-+	mcast_active_check "v6" "1" "$1"
-+}
-+
-+mcast_assert_inactive_v4()
-+{
-+	mcast_active_check "v4" "0" "$1"
-+}
-+
-+mcast_assert_inactive_v6()
-+{
-+	mcast_active_check "v6" "0" "$1"
-+}
-+
-+mcast_vlan_assert_active_v4()
-+{
-+	mcast_vlan_active_check "v4" "1" "$1"
-+}
-+
-+mcast_vlan_assert_active_v6()
-+{
-+	mcast_vlan_active_check "v6" "1" "$1"
-+}
-+
-+mcast_vlan_assert_inactive_v4()
-+{
-+	mcast_vlan_active_check "v4" "0" "$1"
-+}
-+
-+mcast_vlan_assert_inactive_v6()
-+{
-+	mcast_vlan_active_check "v6" "0" "$1"
-+}
-+
-+test_inactive_nolog()
-+{
-+	ip link set dev br0 down
-+	ip link set dev brq0 down
-+	ip link set dev br0 type bridge mcast_snooping 0
-+	ip link set dev brq0 type bridge mcast_snooping 0
-+	ip link set dev br0 type bridge mcast_querier 0
-+	ip link set dev brq0 type bridge mcast_querier 0
-+	ip link set dev br0 type bridge mcast_vlan_snooping 0
-+	ip link set dev br0 type bridge vlan_filtering 0
-+
-+	echo 1 > /proc/sys/net/ipv6/conf/br0/disable_ipv6
-+	echo 1 > /proc/sys/net/ipv6/conf/brq0/disable_ipv6
-+
-+	mcast_assert_inactive_v4 "$1"
-+	mcast_assert_inactive_v6 "$1"
-+}
-+
-+test_inactive()
-+{
-+	RET=0
-+
-+	test_inactive_nolog "$1"
-+	log_test "Mcast inactive test"
-+}
-+
-+wait_lladdr_dad() {
-+	local check_tentative
-+
-+	check_tentative="map(select(.scope == \"link\" and ((.tentative == true) | not))) | .[]"
-+
-+	ip -6 -j a s dev "$1"\
-+		| jq -e ".[].addr_info | ${check_tentative}" &> /dev/null
-+}
-+
-+test_active_setup_bridge()
-+{
-+	[ -n "$1" ] && echo 0 > /proc/sys/net/ipv6/conf/br0/disable_ipv6
-+	[ -n "$2" ] && echo 0 > /proc/sys/net/ipv6/conf/brq0/disable_ipv6
-+
-+	[ -n "$3" ] && ip link set dev br0 up
-+	[ -n "$4" ] && ip link set dev brq0 up
-+	[ -n "$5" ] && slowwait 3 wait_lladdr_dad br0
-+	[ -n "$6" ] && slowwait 3 wait_lladdr_dad brq0
-+}
-+
-+test_active_setup_config()
-+{
-+	[ -n "$1" ] && ip link set dev br0 type bridge mcast_snooping 1
-+	[ -n "$2" ] && ip link set dev brq0 type bridge mcast_snooping 1
-+	[ -n "$3" ] && ip link set dev br0 type bridge mcast_querier 1
-+	[ -n "$4" ] && ip link set dev brq0 type bridge mcast_querier 1
-+}
-+
-+test_active_setup_wait()
-+{
-+	sleep $((MCAST_MAX_RESP_IVAL_SEC * 2))
-+}
-+
-+test_active_setup_reset_own_querier()
-+{
-+	ip link set dev br0 type bridge mcast_querier 0
-+	ip link set dev br0 type bridge mcast_querier 1
-+
-+	test_active_setup_wait
-+}
-+
-+test_vlan_active_setup_config()
-+{
-+	[ -n "$1" ] && ip link set dev br0 type bridge vlan_filtering 1
-+	[ -n "$2" ] && ip link set dev brq0 type bridge vlan_filtering 1
-+	[ -n "$3" ] && ip link set dev br0 type bridge mcast_vlan_snooping 1
-+	[ -n "$4" ] && ip link set dev brq0 type bridge mcast_vlan_snooping 1
-+}
-+
-+test_vlan_active_setup_add_vlan()
-+{
-+	bridge vlan add vid "${MCAST_VLAN_ID}" dev "$swp1"
-+	bridge vlan add vid "${MCAST_VLAN_ID}" dev "$h1"
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev br0\
-+		mcast_query_response_interval $((MCAST_MAX_RESP_IVAL_SEC*100))
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev brq0\
-+		mcast_query_response_interval $((MCAST_MAX_RESP_IVAL_SEC*100))
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev br0 mcast_snooping 0
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev brq0 mcast_snooping 0
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev br0 mcast_querier 0
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev brq0 mcast_querier 0
-+}
-+
-+test_vlan_active_setup_config_vlan()
-+{
-+	[ -n "$1" ] && bridge vlan global set vid "${MCAST_VLAN_ID}" dev br0 mcast_snooping 1
-+	[ -n "$2" ] && bridge vlan global set vid "${MCAST_VLAN_ID}" dev brq0 mcast_snooping 1
-+	[ -n "$3" ] && bridge vlan global set vid "${MCAST_VLAN_ID}" dev br0 mcast_querier 1
-+	[ -n "$4" ] && bridge vlan global set vid "${MCAST_VLAN_ID}" dev brq0 mcast_querier 1
-+}
-+
-+test_vlan_teardown()
-+{
-+	bridge vlan del vid "${MCAST_VLAN_ID}" dev "$swp1"
-+	bridge vlan del vid "${MCAST_VLAN_ID}" dev "$h1"
-+	mcast_assert_inactive_v4 "$1"
-+	mcast_assert_inactive_v6 "$1"
-+	mcast_vlan_assert_inactive_v4 "$1"
-+	mcast_vlan_assert_inactive_v6 "$1"
-+}
-+
-+test_vlan_active_setup_reset_own_querier()
-+{
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev br0 mcast_querier 0
-+	bridge vlan global set vid "${MCAST_VLAN_ID}" dev br0 mcast_querier 1
-+
-+	test_active_setup_wait
-+}
-+
-+test_active_other_querier_nolog()
-+{
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  "4"
-+	test_active_setup_wait
-+
-+	mcast_assert_active_v4 "$1"
-+	mcast_assert_active_v6 "$1"
-+}
-+
-+test_active_other_querier()
-+{
-+	RET=0
-+
-+	test_active_other_querier_nolog "$LINENO"
-+	test_inactive_nolog "$LINENO"
-+	log_test "Mcast active with other querier test"
-+}
-+
-+test_active_own_querier_nolog()
-+{
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_active_v4 "$1"
-+	mcast_assert_active_v6 "$1"
-+}
-+
-+test_active_own_querier()
-+{
-+	RET=0
-+
-+	test_active_own_querier_nolog "$LINENO"
-+	test_inactive_nolog "$LINENO"
-+	log_test "Mcast active with own querier test"
-+}
-+
-+test_active_final()
-+{
-+	mcast_assert_active_v4 "$1"
-+	mcast_assert_active_v6 "$1"
-+
-+	test_inactive_nolog "$1"
-+}
-+
-+test_inactive_brdown()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" ""  "4" ""  "6"
-+	test_active_setup_config "1" "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_bridge ""  ""  "3" ""  ""  ""
-+	mcast_assert_active_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_bridge ""  ""  ""  ""  "5" ""
-+	test_active_setup_reset_own_querier
-+	test_active_final "$LINENO"
-+
-+	log_test "Mcast inactive, bridge down test"
-+}
-+
-+test_inactive_nov6()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge ""  "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_active_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_bridge "1" ""  ""  ""  "5" ""
-+	test_active_setup_reset_own_querier
-+	test_active_final "$LINENO"
-+
-+	log_test "Mcast inactive, own querier, no IPv6 address test"
-+}
-+
-+test_inactive_snooping_off()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config ""  "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_config "1" ""  ""  ""
-+	test_active_setup_reset_own_querier
-+	test_active_final "$LINENO"
-+
-+	log_test "Mcast inactive, snooping disabled test"
-+}
-+
-+test_inactive_querier_off()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_config ""  ""  "3" ""
-+	test_active_setup_wait
-+	test_active_final "$LINENO"
-+
-+	log_test "Mcast inactive, no querier test"
-+}
-+
-+test_inactive_other_querier_norespdelay()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" "3" ""
-+	# skipping: test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_wait
-+	test_active_final "$LINENO"
-+
-+	log_test "Mcast inactive, other querier, no response delay test"
-+}
-+
-+test_inactive_own_querier_norespdelay()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  "4"
-+	# skipping: test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_wait
-+	test_active_final "$LINENO"
-+
-+	log_test "Mcast inactive, own querier, no response delay test"
-+}
-+
-+test_vlan_inactive()
-+{
-+	RET=0
-+
-+	test_inactive_nolog "$LINENO"
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	ip link set dev br0 type bridge vlan_filtering 1
-+	ip link set dev br0 type bridge mcast_vlan_snooping 1
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	ip link set dev br0 type bridge mcast_vlan_snooping 0
-+	ip link set dev br0 type bridge vlan_filtering 0
-+	test_active_own_querier_nolog "$LINENO"
-+	ip link set dev br0 type bridge vlan_filtering 1
-+	mcast_assert_active_v4 "$LINENO"
-+	mcast_assert_active_v6 "$LINENO"
-+
-+	ip link set dev br0 type bridge mcast_vlan_snooping 1
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_inactive_nolog "$LINENO"
-+	log_test "Mcast VLAN inactive test"
-+}
-+
-+test_vlan_active_final()
-+{
-+	mcast_assert_inactive_v4 "$1"
-+	mcast_assert_inactive_v6 "$1"
-+	mcast_vlan_assert_active_v4 "$1"
-+	mcast_vlan_assert_active_v6 "$1"
-+
-+	test_vlan_teardown "$1"
-+	test_inactive_nolog "$1"
-+}
-+
-+test_vlan_active_other_querier()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" ""  "4"
-+	test_active_setup_wait
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN active, other querier test"
-+}
-+
-+test_vlan_active_own_querier()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" "3" ""
-+	test_active_setup_wait
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN active, own querier test"
-+}
-+
-+test_vlan_inactive_brdown()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" ""  "4" ""  "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_bridge ""  ""  "3" ""  ""  ""
-+	test_active_setup_wait
-+	mcast_vlan_assert_active_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_bridge ""  ""  ""  ""  "5" ""
-+	test_vlan_active_setup_reset_own_querier
-+	test_vlan_active_final "$LINENO, RET: $RET"
-+
-+	log_test "Mcast VLAN inactive, bridge down test"
-+}
-+
-+test_vlan_inactive_nov6()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge ""  "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+	mcast_vlan_assert_active_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_bridge "1" ""  ""  ""  "5" ""
-+	test_vlan_active_setup_reset_own_querier
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN inactive, own querier, no IPv6 address test"
-+}
-+
-+test_vlan_inactive_snooping_off()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config ""  "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_config "1" ""  ""  ""
-+	test_vlan_active_setup_reset_own_querier
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN inactive, snooping disabled test"
-+}
-+
-+test_vlan_inactive_vlans_snooping_off()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" ""  "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	test_vlan_active_setup_config ""  ""  "3" ""
-+	test_vlan_active_setup_reset_own_querier
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN inactive, snooping for VLANs disabled test"
-+}
-+
-+test_vlan_inactive_vlan_snooping_off()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan ""  "2" "3" ""
-+	test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	test_vlan_active_setup_config_vlan "1" ""  ""  ""
-+	test_vlan_active_setup_reset_own_querier
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN inactive, snooping for this VLAN disabled test"
-+}
-+
-+test_vlan_inactive_other_querier_norespdelay()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" ""  "4"
-+	# skipping: test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_wait
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN inactive, other querier, no response delay test"
-+}
-+
-+test_vlan_inactive_own_querier_norespdelay()
-+{
-+	RET=0
-+
-+	test_active_setup_bridge "1" "2" "3" "4" "5" "6"
-+	test_active_setup_config "1" "2" ""  ""
-+	test_vlan_active_setup_config "1" "2" "3" "4"
-+	test_vlan_active_setup_add_vlan
-+	test_vlan_active_setup_config_vlan "1" "2" "3" ""
-+	# skipping: test_active_setup_wait
-+
-+	mcast_assert_inactive_v4 "$LINENO"
-+	mcast_assert_inactive_v6 "$LINENO"
-+	mcast_vlan_assert_inactive_v4 "$LINENO"
-+	mcast_vlan_assert_inactive_v6 "$LINENO"
-+
-+	test_active_setup_wait
-+	test_vlan_active_final "$LINENO"
-+
-+	log_test "Mcast VLAN inactive, own querier, no response delay test"
-+}
-+
-+trap cleanup EXIT
-+
-+setup_prepare
-+
-+if ! ip -d link show dev br0 2>&1 | grep -q "mcast_active"; then
-+	echo "SKIP: iproute2 too old, missing mcast_active support"
-+	exit "$ksft_skip"
-+fi
-+
-+setup_wait
-+tests_run
-+
-+exit "$EXIT_STATUS"
 -- 
 2.51.0
 
