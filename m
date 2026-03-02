@@ -1,70 +1,123 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BF6A3FB07B;
-	Mon,  2 Mar 2026 14:32:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB77D3FFAC0
+	for <bridge@lists.linux.dev>; Mon,  2 Mar 2026 14:43:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772461944; cv=none; b=eY2hbfoDy+g3HKaGT4V5u/F2AXeKXJja8qvgZihmmShKu39WtrUiVdvPc/Hz9dBJrHSkr2FPIIttoomURca4Wr3KPTqxceMeGLbJA5SriGMmTjBuzbBIahM3y9KTCuSP0ZXHTyVKSyLbyyu3T6vBDt621pnXQruxWAmhbN2m1N8=
+	t=1772462632; cv=none; b=VTcnk2zFLaWbFE5AeH+cFkyyf505vVLCdyC/AcaGQK1yOiqVg13dw2D16wwolWLaH/CEVqtF2t5hFWeZgT6mCfEVWYU7nRXy5hBjTVkAyFajRyb9FAnibQosoeBn533J4jZ1z4FqkDkuEyk7gv3zR0AnsZ7k5EiyrdC4krg4cvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772461944; c=relaxed/simple;
-	bh=h6k0adrxzs8tkznFMKKZtLodMFWceJNPI6vZne9JVG4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KGfBubfjXqq5g3CbAja+wYG9ZzG5ojcDS6LFTeE73zI5HSmTwCi4k/Te89UBe5X6mNtjya8um6cGwg+9awoFZujZ1epZL0d0zfj98BJUld7YHl2m+A9W8dezpE0BD2WnG6NOCbGYsx7tE0lDbxSTyIdd1aexVpG9SrsHS6VAdiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F1Gjp0Yh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772462632; c=relaxed/simple;
+	bh=RQGmZZ8CEhR1S209GcP/TlrZH674Q1jePi2YgB5Jt2w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VBmVqT7mhSP3qdD02liWZNIfnPA2X6bHxzZCQLhc1AZATeFLqJWbshYlnfI3+/VQrgtP9t349EXDdU1lY99+2TEafGLcIL2TiTUXRCs4qeicl7P/sbv8gas+PHMarheFZ3lpzGq8KM2Mq+r9vqHHKuJnZda8DIm8vZFBF75texo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=dlPF4pya; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=xcANsfwI; arc=none smtp.client-ip=202.12.124.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F1Gjp0Yh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85585C19423;
-	Mon,  2 Mar 2026 14:32:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772461944;
-	bh=h6k0adrxzs8tkznFMKKZtLodMFWceJNPI6vZne9JVG4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=F1Gjp0Yhe+m74gNVLN5sOY5kAfHd6jtg9FuSHLyYTgdE0nVMLHDFxNQFFrUZMhSQP
-	 0dqIC0KksYWl++2xlAULAYrCn6i2dpJgDz17hkce/InpwKVpx3HaPxrSw8XjYi9oSJ
-	 uRtwaado77UamHltgEpz+BEcSRYdVRE7DYJYuau6MCLKQHbrz1+SLuH80Bd2cwRx8q
-	 BBsY4/T9k1u9tKNmnn38Fyq6kYRsve8jvpDzBpodzAmw2Egp8uqF5VKBJolA5LaClj
-	 EApG5RPYxGeEaUn2uHTmTGHAsps2XbTu6hC8RU0PFSTXOIWaQuw3r9vPGY9AvmbnCH
-	 orH3DddAAtdFA==
-Date: Mon, 2 Mar 2026 06:32:22 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-To: Linus =?UTF-8?B?TMO8c3Npbmc=?= <linus.luessing@c0d3.blue>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, Nikolay
- Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, Andrew
- Lunn <andrew+netdev@lunn.ch>, Simon Horman <horms@kernel.org>, Paolo Abeni
- <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>, "David S . Miller"
- <davem@davemloft.net>, Kuniyuki Iwashima <kuniyu@google.com>, Stanislav
- Fomichev <sdf@fomichev.me>, Xiao Liang <shaw.leon@gmail.com>,
- shuah@kernel.org
-Subject: Re: [PATCH net-next v3 02/14] net: bridge: mcast: track active
- state, adding tests
-Message-ID: <20260302063222.068b000b@kernel.org>
-In-Reply-To: <aaVFmtS1hdYSYRZR@sellars>
-References: <20260302054008.21638-1-linus.luessing@c0d3.blue>
-	<20260302054008.21638-3-linus.luessing@c0d3.blue>
-	<aaVFmtS1hdYSYRZR@sellars>
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="dlPF4pya";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="xcANsfwI"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.stl.internal (Postfix) with ESMTP id 9F9C91D001AD;
+	Mon,  2 Mar 2026 09:43:47 -0500 (EST)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-04.internal (MEProxy); Mon, 02 Mar 2026 09:43:48 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1772462627; x=
+	1772549027; bh=MARMD3Ck8MulvZzKCwCpHskTpJ6yye/yw1QtgDrg/18=; b=d
+	lPF4pyapd3EDMVErw2Tgn0x8CsF4xk88rZKfvFo3xMwQPmNV+ESECJCH588KYGF5
+	l2FYorsLXFFliX+zGucUlBvAvs0W/DDKM2UwfVV6JXSf00kgFkjGkjLMnw4PuI1u
+	cSSqpq0Sulkv2jGkc3bwvNI/mkmhIJ/mjqvYBegwTaEg8b2ht7tp+bPTp1W93uUp
+	HX5Ribe0lW0gj4AevCBKhjoWR8WjGTBlgRU+g5QXU9LFD9uzUAje0MZTG9LKLvBR
+	H58NL84ZTkLJZQ6mVpKaC3Y9fM4EWvPTDfsEG2e3NVRtDVew2+sIOs8spgj4LQtK
+	osou8EXUl5eLRbe66theQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1772462627; x=1772549027; bh=MARMD3Ck8MulvZzKCwCpHskTpJ6yye/yw1Q
+	tgDrg/18=; b=xcANsfwIttP5RZzLLoCMyW0i4hCiizPspwj0CkCJFevoh6zVf4e
+	aGADnmhqqzl7a1r9u3wXGcLsJVtJ/qtjyGRPcH4ev1Nvr7yue5yWhY+7fv+kjnkE
+	EdQAEw1WcFOKEryngGSUgDoJZOuQBlRmXDKRy11u0J2tA6qbKueoZrswdPOtM21E
+	lqV6kbSi091DR3FMWLBAH0fA+jaj7RmBCtR17sBd0yiUs9zkVUYuB2r6+5ou1vLY
+	dBR9ZGdsnoQljbzaeFo0JlrrJxnupCuaYqSDYm0DDzDDN5lcsxFomSTFvr3G6DmY
+	M4JqmrLx9tVTZAfcxBzkwYXyxZ4D7X7wO0w==
+X-ME-Sender: <xms:IqKlaWfVtWVB6rOHJZmjwr6UgaFqL9kKxst15ehBvJmy2_GWrc_4ZQ>
+    <xme:IqKlaevuhNhHLBei-r9rfC2-BtDKJ-jFAzcj-xP8tMi_R01FkGKM5Kjhn82NrUFyS
+    p0MGGvGX7TdDOTA2q4UPekkO4QsXQ8rFKdg9_4Vj4vqQSILD5nqR-E>
+X-ME-Received: <xmr:IqKlaTAbA0gKQHeEzPxDjM1fFIsxjICPuBisYuqF7nmsTSSb3sXnomYxuahj>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvheejleegucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
+    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
+    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
+    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopedugedpmhho
+    uggvpehsmhhtphhouhhtpdhrtghpthhtohepfhhmrghntggvrhgrsehsuhhsvgdruggvpd
+    hrtghpthhtohepnhgvthguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthht
+    ohepsghrihgughgvsehlihhsthhsrdhlihhnuhigrdguvghvpdhrtghpthhtoheprhhooh
+    hprgestghumhhulhhushhnvghtfihorhhkshdrtghomhdprhgtphhtthhopehsughfsehf
+    ohhmihgthhgvvhdrmhgvpdhrtghpthhtohepphgvthhrmhesnhhvihguihgrrdgtohhmpd
+    hrtghpthhtohephhhorhhmsheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepihguohhs
+    tghhsehnvhhiughirgdrtghomhdprhgtphhtthhopehrrgiiohhrsegslhgrtghkfigrlh
+    hlrdhorhhg
+X-ME-Proxy: <xmx:IqKlaeFGewbUEyu1s6_Zrf2FsddK5ftcwDTk_XKCatBIoaDzkrO-Rg>
+    <xmx:IqKlabvTdzoGfXDJ4VzcbTUt3m8NT-kKF3iUdpAbds0YumEoczQQhQ>
+    <xmx:IqKlacm5XirjKiuFF3qDWpmZgNnSCRokEtF5jD2masfUErU4fW7yKg>
+    <xmx:IqKlaWPFwD_EX_v8NSs-oYmr2zteG9rMNqUOgmvT_SULDuN7Rit8UA>
+    <xmx:I6KlaWGE2v_-VX5oe3GRkNCSnsbCG1L2i-LBmDflGZr5VDZhWMWGVbGz>
+Feedback-ID: i934648bf:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 2 Mar 2026 09:43:45 -0500 (EST)
+Date: Mon, 2 Mar 2026 15:43:43 +0100
+From: Sabrina Dubroca <sd@queasysnail.net>
+To: Fernando Fernandez Mancera <fmancera@suse.de>
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev,
+	roopa@cumulusnetworks.com, sdf@fomichev.me, petrm@nvidia.com,
+	horms@kernel.org, idosch@nvidia.com, razor@blackwall.org,
+	pabeni@redhat.com, kuba@kernel.org, edumazet@google.com,
+	davem@davemloft.net, andrew+netdev@lunn.ch
+Subject: Re: [PATCH 2/2 net v2] net: vxlan: fix nd_tbl NULL dereference when
+ IPv6 is disabled
+Message-ID: <aaWiH5KBf-n1NxAR@krikkit>
+References: <20260302140847.5941-1-fmancera@suse.de>
+ <20260302140847.5941-2-fmancera@suse.de>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260302140847.5941-2-fmancera@suse.de>
 
-On Mon, 2 Mar 2026 09:08:58 +0100 Linus L=C3=BCssing wrote:
-> But why does shellcheck list so many errors with
-> "This function is never invoked." Even though they are invoked
-> with my above command?
+2026-03-02, 15:08:47 +0100, Fernando Fernandez Mancera wrote:
+> When booting with the 'ipv6.disable=1' parameter, the nd_tbl is never
+> initialized because inet6_init() exits before ndisc_init() is called
+> which initializes it. If an IPv6 packet is injected into the interface,
+> route_shortcircuit() is called and a NULL pointer dereference happens on
+> neigh_lookup().
 
-It can't understand the functions called by run_tests.
-We should probably disable that specific warning.
+VXLAN can be built-in even when IPv6 is built as a module, and then
+ipv6_mod_enabled can't be used in VXLAN:
 
-> I also don't get what netdev/check_selftest wants from me. I only
-> see "FAILED" here? https://netdev-ctrl.bots.linux.dev/logs/build/1059784/=
-14444497/check_selftest/summary
+ld: drivers/net/vxlan/vxlan_core.o: in function `route_shortcircuit':
+drivers/net/vxlan/vxlan_core.c:2133:(.text+0x116e0): undefined reference to `ipv6_mod_enabled'
 
-This one want alphabetical sort of the selftests in the Makefile
---=20
-pw-bot: cr
+
+GENEVE has a Kconfig tweak to prevent this since 094be0927ff3
+("geneve: fix build with modular IPV6"):
+
+    depends on IPV6 || !IPV6
+
+but VXLAN doesn't.
+
+But then I think we don't need to use ipv6_stub at all.
+
+-- 
+Sabrina
