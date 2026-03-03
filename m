@@ -1,179 +1,228 @@
-Received: from fhigh-b5-smtp.messagingengine.com (fhigh-b5-smtp.messagingengine.com [202.12.124.156])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73AFA308F15
-	for <bridge@lists.linux.dev>; Mon,  2 Mar 2026 23:03:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FAB0374E77
+	for <bridge@lists.linux.dev>; Tue,  3 Mar 2026 11:15:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772492586; cv=none; b=Vix/swLyqhbGhiEOO/WAlqH5PmCtPK7S3iFYNccpdchwt7SP6OAe1CwvnMUcitCyCUOMS3Z+RHvoh0J5AWnKNUOr1URVVcD/Cb509mIla5twtI7ISspI/K0UyfMOoAAJNEaR1LpRxcAynj8/BKE9RI6cSuH4+LiHOAL2bY0Z1oo=
+	t=1772536528; cv=none; b=gnJT4xoXQ/Z7KTa9D/PoPlTmdghuIZL/BirrOnvQpNKxf/IsnY+nJeCxgru2A2cC5xx53Hy+3Cp1AtOlS2//OqpqwUVoTs41N0JuKXeaCCxkGcfpqQ8phPyw6GN/VzMP75rN11f0lHncluTpXH1ULo6g0NbaXZw3xnH16SihAvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772492586; c=relaxed/simple;
-	bh=Jl89p1g5deJ0BXo7cTwKx0SWo+WzWGXfgTQWbcvYZ+I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tVV2PH7C/gZ2HZTR2/UnKWax5KamZmHkpya6AtLv+N1sw1YcQJwyhufVcWnKV8MlO9ybFS9ErSAi/Fp8taCJYw4bTqMf/Z5xFA9u0jBAz3N0pp7qgqAcspyN2/CZnJnSJi1hAX/BXFYb4g56AnXEpGYfvlWge8c5kN1O2LoGiFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=V4gGn0eK; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=FVSYh9SH; arc=none smtp.client-ip=202.12.124.156
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
+	s=arc-20240116; t=1772536528; c=relaxed/simple;
+	bh=5vE8M1dbYKWF7k7fikSx4Ui4/vpuw9KlLc+R61FZqwU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aGfbEYeIdtsOc2cvIKtiXRT9pQXrHbVYGHnjepgpTuQ9KzJ7gjAPqaj2jhN82+eayVaZpUecBCPAVbtf0MFC0JurcbwXYayCB9Npc2QfGc7KFBX6nynOs5DoFUlxfEMiCXYkaMEXI28uLxOtVckBi/uOuyRPyw8/v90J8DP/75w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=H8hL8+rM; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4S+Tgb/I; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=kLw0MJbO; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=+yWksISm; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="V4gGn0eK";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="FVSYh9SH"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 24DCF7A01C3;
-	Mon,  2 Mar 2026 18:03:02 -0500 (EST)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Mon, 02 Mar 2026 18:03:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-transfer-encoding:content-type:content-type
-	:date:date:from:from:in-reply-to:in-reply-to:message-id
-	:mime-version:references:reply-to:subject:subject:to:to; s=fm2;
-	 t=1772492581; x=1772578981; bh=Tf/E0lUFZL9XqTFLgQtRGMwHnbNMh8k3
-	KpbNkpldS9M=; b=V4gGn0eKwVRqh/qgNJpUSs+36kX5n7liW9F25dzaLLjZXu/p
-	ZYKXP/29zExLMOVGnFQIxc6Wmm7JFsg99sX9qH9WCq9Fi8Mmhd01JoNPU9xZCbTO
-	pgRu70+7f0stsrvK0c96bA+8wn6QbBlXtBO0lgZT2AF0ZX2WorAyYQeS6W6QYrT4
-	eQVyfhq4fG84Z2mq7PVsmx4ntos0Q3fCAnH1ClJYXD6RGsh25F1Ky2dKNkV/0aeV
-	Witd2UrPJb30fotvyFTxFdv9SThzH2DbqCb7Pz8BFpnOfDH4jLPpMGAmA1vOyZ/z
-	d/tP+ZBPygBuf3DL6Kc9YHAY8WMMEF+didi5tA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1772492581; x=
-	1772578981; bh=Tf/E0lUFZL9XqTFLgQtRGMwHnbNMh8k3KpbNkpldS9M=; b=F
-	VSYh9SHwLYq+dbhVAKj86LOwkEkZQNw1LRsSv7nak058qHoD5tstvrag0gXrAgrZ
-	QE2eKUw07hsIwviveIIC6Xfwt6sODxNI3LWwUvZra77tV4avnM69HDidDcThiip6
-	mPVc2sysHSD2SmL+12N+g8ukNo36GiIcUP++P2iM8VQXZOxy/0hxgnrcIuMJaYdi
-	JzRnDsePvG/33oJqNLq3QeLAjfYZyEQK/eiNtUt7nAdZ5goQrLsuWggiGwoUSXmZ
-	0wDGiK1++u1LmYfEo4IvQN4JsO8l81qIWClEC4EYj8DJipQn7jNFYr6/rjqusf9k
-	9lu2mw8tqnkbj2B8mOLYw==
-X-ME-Sender: <xms:JBemacasNzLVwPggI293aF9Kn8O9MGN_Jw-1mWMnFABPalM2H6xpEg>
-    <xme:JBemacm79pGeDOk-0yfe9KMyA44wEEHBpc7G-EkMHtO4mxPoBTAajvHM1QEQi88rG
-    BRRU33U8haN5gA8C31Q7qPOQfMNVpQ02mFF3agz5A6F9B5k7pa_C1vz>
-X-ME-Received: <xmr:JBemaaUSe1361TqOoAzCwAHU9A6E2WIIQueFiwTUiYvBP1zDaH1jXQLiiTLK>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvheekleehucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkfhggtggugfgjsehtkeertddttdejnecuhfhrohhmpefurggsrhhi
-    nhgrucffuhgsrhhotggruceoshgusehquhgvrghshihsnhgrihhlrdhnvghtqeenucggtf
-    frrghtthgvrhhnpefgvdegieetffefvdfguddtleegiefhgeeuheetveevgeevjeduleef
-    ffeiheelvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehsugesqhhuvggrshihshhnrghilhdrnhgvthdpnhgspghrtghpthhtohepudegpdhm
-    ohguvgepshhmthhpohhuthdprhgtphhtthhopehfmhgrnhgtvghrrgesshhushgvrdguvg
-    dprhgtphhtthhopehiughoshgthhesnhhvihguihgrrdgtohhmpdhrtghpthhtohepnhgv
-    thguvghvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepsghrihgughgvse
-    hlihhsthhsrdhlihhnuhigrdguvghvpdhrtghpthhtoheprhhoohhprgestghumhhulhhu
-    shhnvghtfihorhhkshdrtghomhdprhgtphhtthhopehsughfsehfohhmihgthhgvvhdrmh
-    gvpdhrtghpthhtohepphgvthhrmhesnhhvihguihgrrdgtohhmpdhrtghpthhtohephhho
-    rhhmsheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprhgriihorhessghlrggtkhifrg
-    hllhdrohhrgh
-X-ME-Proxy: <xmx:JBemaWJtYUT9UkxxG95zXarAoETWAkeR_25YB6kfVN6PnTm4lKqcrw>
-    <xmx:JBemaSsylVru43Fy8UzTocZz94BfGJlimhh6My_9WR8CqFuzFUnFQA>
-    <xmx:JBemaT1-HWcVN0l81fUXWU9pAl6mqqZD4vAc5LGYMVEHlDzX5NbBjA>
-    <xmx:JBemaSMf8e8qsi8Z8dAeXzqwM9OFIDnzMk-UWmKV-E0istGTgi3RiQ>
-    <xmx:JRemacOnQPr-qCSmHnf5uwK-90goHkQn3AiMMh7gZ7VTDNB6Nsh7Rgg4>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 2 Mar 2026 18:03:00 -0500 (EST)
-Date: Tue, 3 Mar 2026 00:02:58 +0100
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Fernando Fernandez Mancera <fmancera@suse.de>
-Cc: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
-	bridge@lists.linux.dev, roopa@cumulusnetworks.com, sdf@fomichev.me,
-	petrm@nvidia.com, horms@kernel.org, razor@blackwall.org,
-	pabeni@redhat.com, kuba@kernel.org, edumazet@google.com,
-	davem@davemloft.net, andrew+netdev@lunn.ch
-Subject: Re: [PATCH 2/2 net v2] net: vxlan: fix nd_tbl NULL dereference when
- IPv6 is disabled
-Message-ID: <aaYXIkHH4xsP_YDx@krikkit>
-References: <20260302140847.5941-1-fmancera@suse.de>
- <20260302140847.5941-2-fmancera@suse.de>
- <aaWiH5KBf-n1NxAR@krikkit>
- <c2e08123-9338-4836-82e7-f47eb344f41f@suse.de>
- <20260302163643.GA971179@shredder>
- <fd8370d6-b163-45ac-9e6c-24046f46539e@suse.de>
- <853cf5a5-1c4e-43e5-b1fb-38c986488ba8@suse.de>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="H8hL8+rM";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4S+Tgb/I";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="kLw0MJbO";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="+yWksISm"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id C27023F7A7;
+	Tue,  3 Mar 2026 11:15:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772536525; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mTOPM5JVrkLBQv0U5x4Nb+Byop940gIykarVp2oKr6c=;
+	b=H8hL8+rM4H0Lso7K2UjsoxN1tMevM29KUSW26blmIzum7gq1EcW93Dl8Nwda2uBI1/QRaJ
+	Rj8J2fo+/zwGOVPXtFvAOnv7/l8UckYaCv+jwz2sq6WgfNLCy6kA6srEQK2T8tcnpTsalK
+	F72s13G/3LJYyx02fwa5L4RoFVtWjto=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772536525;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mTOPM5JVrkLBQv0U5x4Nb+Byop940gIykarVp2oKr6c=;
+	b=4S+Tgb/IgJp6XCTx7ZskfVTSdoQ0Ex2u4QB4xxplhW2BVMnKhXfMAbyp5u7Gc4fDM6KlyB
+	1rGWViM9DqufYuDA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=kLw0MJbO;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=+yWksISm
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772536524; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mTOPM5JVrkLBQv0U5x4Nb+Byop940gIykarVp2oKr6c=;
+	b=kLw0MJbOHIfj4QFeUQRtcekTj/WzDT918zlk7sd0CUhVS5bLFAuETyZPydSPpxjTwePxvG
+	ql8wTrZOuPCm/ZWOc75KNdG+35I2G6wFfI5+9T54swUvfUzB43VQr6DHpehVvq3I9+akWK
+	DeW04cVi+V0u9U+MlzZkSq0UUezmPnk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772536524;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mTOPM5JVrkLBQv0U5x4Nb+Byop940gIykarVp2oKr6c=;
+	b=+yWksISmPOF6cCIBZElnX8ox+mDPn4IR4bpVJXQ6DV1MQJ5na60miLew3Lo8iYvDE/vnIH
+	Le3F85wMy5+fuyDw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0001F3EA69;
+	Tue,  3 Mar 2026 11:15:23 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id NUqTOMvCpmlKQAAAD6G6ig
+	(envelope-from <fmancera@suse.de>); Tue, 03 Mar 2026 11:15:23 +0000
+Message-ID: <a3dd2b4f-28d6-43b8-a262-da98be9796c6@suse.de>
+Date: Tue, 3 Mar 2026 12:15:23 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2 net v2] net: vxlan: fix nd_tbl NULL dereference when
+ IPv6 is disabled
+To: Sabrina Dubroca <sd@queasysnail.net>
+Cc: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
+ bridge@lists.linux.dev, roopa@cumulusnetworks.com, sdf@fomichev.me,
+ petrm@nvidia.com, horms@kernel.org, razor@blackwall.org, pabeni@redhat.com,
+ kuba@kernel.org, edumazet@google.com, davem@davemloft.net,
+ andrew+netdev@lunn.ch
+References: <20260302140847.5941-1-fmancera@suse.de>
+ <20260302140847.5941-2-fmancera@suse.de> <aaWiH5KBf-n1NxAR@krikkit>
+ <c2e08123-9338-4836-82e7-f47eb344f41f@suse.de>
+ <20260302163643.GA971179@shredder>
+ <fd8370d6-b163-45ac-9e6c-24046f46539e@suse.de>
+ <853cf5a5-1c4e-43e5-b1fb-38c986488ba8@suse.de> <aaYXIkHH4xsP_YDx@krikkit>
+Content-Language: en-US
+From: Fernando Fernandez Mancera <fmancera@suse.de>
+In-Reply-To: <aaYXIkHH4xsP_YDx@krikkit>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <853cf5a5-1c4e-43e5-b1fb-38c986488ba8@suse.de>
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TAGGED_RCPT(0.00)[netdev];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_TLS_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: C27023F7A7
 
-2026-03-02, 19:04:14 +0100, Fernando Fernandez Mancera wrote:
-> On 3/2/26 6:44 PM, Fernando Fernandez Mancera wrote:
-> > On 3/2/26 5:36 PM, Ido Schimmel wrote:
-> > > On Mon, Mar 02, 2026 at 04:13:14PM +0100, Fernando Fernandez Mancera
-> > > wrote:
-> > > > On 3/2/26 3:43 PM, Sabrina Dubroca wrote:
-> > > > > 2026-03-02, 15:08:47 +0100, Fernando Fernandez Mancera wrote:
-> > > > > > When booting with the 'ipv6.disable=1' parameter, the nd_tbl is never
-> > > > > > initialized because inet6_init() exits before ndisc_init() is called
-> > > > > > which initializes it. If an IPv6 packet is injected into
-> > > > > > the interface,
-> > > > > > route_shortcircuit() is called and a NULL pointer
-> > > > > > dereference happens on
-> > > > > > neigh_lookup().
-> > > > > 
-> > > > > VXLAN can be built-in even when IPv6 is built as a module, and then
-> > > > > ipv6_mod_enabled can't be used in VXLAN:
-> > > > > 
-> > > > > ld: drivers/net/vxlan/vxlan_core.o: in function `route_shortcircuit':
-> > > > > drivers/net/vxlan/vxlan_core.c:2133:(.text+0x116e0):
-> > > > > undefined reference to `ipv6_mod_enabled'
-> > > > > 
-> > > > > 
-> > > > > GENEVE has a Kconfig tweak to prevent this since 094be0927ff3
-> > > > > ("geneve: fix build with modular IPV6"):
-> > > > > 
-> > > > >       depends on IPV6 || !IPV6
-> > > > > 
-> > > > > but VXLAN doesn't.
-> > > > > 
-> > > > 
-> > > > Ugh, good catch. Thanks Sabrina.
-> > > > 
-> > > > > But then I think we don't need to use ipv6_stub at all.
-> > > > 
-> > > > If we enforce "depends on IPV6 || IPV6=n" on VXLAN we could get rid of
-> > > > ipv6_stub completely and use direct calls instead.
-> > > 
-> > > I just noticed that this is already enforced for the bridge, so maybe
-> > > you can just remove ipv6_stub in patch #1?
-> > > 
-> > 
-> > Yes, after Sabrina mentioned it that was what I planned to do. But on
-> > VXLAN I want to avoid such patch for net tree as a fix. Instead I
-> > propose to use the __in6_dev_get() check as neigh_reduce() does.
-
-I'm not convinced __in6_dev_get() makes more sense. It's also pretty
-much a random NULL check to me, and at least with checking nd_tbl
-directly it's clearly related to the code that follows.
-
-In neigh_reduce(), __in6_dev_get() seems to have been present from the
-start, and back then in6_dev was used in the function. Now, it might
-easily be removed by a clean-up patch that doesn't notice it's useful.
-
-
-Should there be a helper ipv6_mod_available() (or a better name) in
-net/ipv6/addrconf_core.c (so always available) to wrap those checks in
-a way that doesn't rely on Kconfig magic nor non-obvious NULL checks?
-(maybe even replacing ipv6_mod_enabled()?)
-
-> > Later,
-> > do a follow-up patch on net-next tree removing ipv6_stub and enforcing
-> > "depends on IPV6 || IPV6=n".
-> > 
+On 3/3/26 12:02 AM, Sabrina Dubroca wrote:
+> 2026-03-02, 19:04:14 +0100, Fernando Fernandez Mancera wrote:
+>> On 3/2/26 6:44 PM, Fernando Fernandez Mancera wrote:
+>>> On 3/2/26 5:36 PM, Ido Schimmel wrote:
+>>>> On Mon, Mar 02, 2026 at 04:13:14PM +0100, Fernando Fernandez Mancera
+>>>> wrote:
+>>>>> On 3/2/26 3:43 PM, Sabrina Dubroca wrote:
+>>>>>> 2026-03-02, 15:08:47 +0100, Fernando Fernandez Mancera wrote:
+>>>>>>> When booting with the 'ipv6.disable=1' parameter, the nd_tbl is never
+>>>>>>> initialized because inet6_init() exits before ndisc_init() is called
+>>>>>>> which initializes it. If an IPv6 packet is injected into
+>>>>>>> the interface,
+>>>>>>> route_shortcircuit() is called and a NULL pointer
+>>>>>>> dereference happens on
+>>>>>>> neigh_lookup().
+>>>>>>
+>>>>>> VXLAN can be built-in even when IPv6 is built as a module, and then
+>>>>>> ipv6_mod_enabled can't be used in VXLAN:
+>>>>>>
+>>>>>> ld: drivers/net/vxlan/vxlan_core.o: in function `route_shortcircuit':
+>>>>>> drivers/net/vxlan/vxlan_core.c:2133:(.text+0x116e0):
+>>>>>> undefined reference to `ipv6_mod_enabled'
+>>>>>>
+>>>>>>
+>>>>>> GENEVE has a Kconfig tweak to prevent this since 094be0927ff3
+>>>>>> ("geneve: fix build with modular IPV6"):
+>>>>>>
+>>>>>>        depends on IPV6 || !IPV6
+>>>>>>
+>>>>>> but VXLAN doesn't.
+>>>>>>
+>>>>>
+>>>>> Ugh, good catch. Thanks Sabrina.
+>>>>>
+>>>>>> But then I think we don't need to use ipv6_stub at all.
+>>>>>
+>>>>> If we enforce "depends on IPV6 || IPV6=n" on VXLAN we could get rid of
+>>>>> ipv6_stub completely and use direct calls instead.
+>>>>
+>>>> I just noticed that this is already enforced for the bridge, so maybe
+>>>> you can just remove ipv6_stub in patch #1?
+>>>>
+>>>
+>>> Yes, after Sabrina mentioned it that was what I planned to do. But on
+>>> VXLAN I want to avoid such patch for net tree as a fix. Instead I
+>>> propose to use the __in6_dev_get() check as neigh_reduce() does.
 > 
-> FWIW; removing the ipv6_stub won't keep us from checking ipv6_mod_enabled()
-> as ipv6.disable=1 can still be set at booting time and therefore nd_tbl will
-> still be non-initialized because ndisc_init() and neigh_table_init() are
-> never called.
+> I'm not convinced __in6_dev_get() makes more sense. It's also pretty
+> much a random NULL check to me, and at least with checking nd_tbl
+> directly it's clearly related to the code that follows.
+> 
+> In neigh_reduce(), __in6_dev_get() seems to have been present from the
+> start, and back then in6_dev was used in the function. Now, it might
+> easily be removed by a clean-up patch that doesn't notice it's useful.
+> 
 
-Ok.
+Fair enough, let's just stick to the nd_tbl NULL check for now on VXLAN. 
+I will send a patch on net-next tree once this is merged to enforce 
+"depends on IPV6 || IPV6=n" and remove ipv6_stub from there.
 
--- 
-Sabrina
+I hope that sounds good to you all.
+
+> 
+> Should there be a helper ipv6_mod_available() (or a better name) in
+> net/ipv6/addrconf_core.c (so always available) to wrap those checks in
+> a way that doesn't rely on Kconfig magic nor non-obvious NULL checks?
+> (maybe even replacing ipv6_mod_enabled()?)
+> 
+
+Maybe yes, but not sure if it is worth it. As discussed here [1] 
+dropping IPv6 as a module seems like a good idea. Anyway, let's discuss 
+that topic there!
+
+[1] https://lore.kernel.org/netdev/20260302171131.28373ccb@kernel.org/
+
+Thanks,
+Fernando.
+
+>>> Later,
+>>> do a follow-up patch on net-next tree removing ipv6_stub and enforcing
+>>> "depends on IPV6 || IPV6=n".
+>>>
+>>
+>> FWIW; removing the ipv6_stub won't keep us from checking ipv6_mod_enabled()
+>> as ipv6.disable=1 can still be set at booting time and therefore nd_tbl will
+>> still be non-initialized because ndisc_init() and neigh_table_init() are
+>> never called.
+> 
+> Ok.
+> 
+
