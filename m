@@ -1,90 +1,110 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26337311940;
-	Tue,  3 Mar 2026 12:14:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90C093033E9;
+	Wed,  4 Mar 2026 08:20:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772540057; cv=none; b=tFBnVJjRhVhNSTDorgBB/X91BoCmhnJgWd4NKU/mk86ttMPM3glRC8vUX1/n8gY0k9Bbwc9vUoIoger5gPMTa9MQ5p3C3nTpm/UElqx8A9EXAMB54ofL0XbehlBP2Rc+8i6wUxfO4PpzZCCPIkRol/Y/cPTvpyVhPGconu2EDn0=
+	t=1772612424; cv=none; b=rEAFYo/lN4HC8YWax4wd8t2aEIp5GGagadjCogQpqPhDhd1uBvmUoqcyhcpheyCK3ay5Etbes/ZSxzD3sprQXQYF5DLjbAs48KUHzUUiI9cYWzNrm6nob7SZ4VieZYen1rksm6mhNUmCXGoLX2LKqOLCqtn7rGwx55OLb9iCIlA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772540057; c=relaxed/simple;
-	bh=TRVHfXeminoP9mtqkPjk0BCs7S999ODClst+HhImP/I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hBXGsyLCQxRhW1Og6MA0a/tZ00RP/j7B8f401/5rKSiaawjzrIc566rRkaZU+gZo7MZWzqjdgqmlPQPT5VF0QkD3VG/5ISDIgkqPN2h7csJv+OUCvQ6WDTHQhT8s36Ax0rDJNH8UV4souEmLA8udZk1BNpWBnNpuzp1931icLAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K3xXBU6O; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772612424; c=relaxed/simple;
+	bh=LgsT2ZLIn1tM6EIVIbCNe9NLt6lkZlMPPb9/TSVpbPY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=jeKHu1QD7CWurP22Poji4p2f6c8Fju8AKpuJRdpSS1EL9eHq7iF//rGfZTfpbNK89Ar3wUGkVxmoQJ3KOIyxRJYpT+SzAMM13BbQppQEk19AbFrWwKUWQcyVbzHLGSdq1OMV6j5J9Zcq7iIz6JcWggvMPgX4NVGwEae7WiKPujA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n5VC+SeO; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K3xXBU6O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5DEDC116C6;
-	Tue,  3 Mar 2026 12:14:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n5VC+SeO"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 10378C19425;
+	Wed,  4 Mar 2026 08:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772540056;
-	bh=TRVHfXeminoP9mtqkPjk0BCs7S999ODClst+HhImP/I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=K3xXBU6OAaYLt5xTSOhvq6ZV612HcFkLwlUiBQesCDpkFbOz4ykvbkfVXcfW0lHj6
-	 eV7p3OExG6XpF+k3mZgUCFKhYsC2sfExIZcam5U8Bq1uOotbWAAanwiT+/pORa0JQ6
-	 synMEgeEbxBwAMYDKRcWI24L0Y57k7fpR2qvB7cc+sakxu/cMvqc3M3cfIpxNe3i/X
-	 VnqercY8SCYR/IkPbOROLhwHND5mSr9CDfLKAQVhLcDGP2NYSwIRVbsamT+Barp9/r
-	 9WmdRYMNKndjZWHozsLch10EYM/h2xaKafY7uUhJq+I9HKZLsr1KGiv3mdAuL06p1r
-	 OIsywbCby78vw==
-Date: Tue, 3 Mar 2026 12:14:11 +0000
-From: Simon Horman <horms@kernel.org>
-To: Linus =?utf-8?Q?L=C3=BCssing?= <linus.luessing@c0d3.blue>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
-	Eric Dumazet <edumazet@google.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Xiao Liang <shaw.leon@gmail.com>, shuah@kernel.org
-Subject: Re: [PATCH net-next v3 00/14] net: bridge: reduce multicast checks
- in fast path
-Message-ID: <20260303121411.GC71509@kernel.org>
-References: <20260302054008.21638-1-linus.luessing@c0d3.blue>
+	s=k20201202; t=1772612424;
+	bh=LgsT2ZLIn1tM6EIVIbCNe9NLt6lkZlMPPb9/TSVpbPY=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=n5VC+SeOLL+FOp9tniAIyKI9vsveNDh5ND0y7WUsMQWPMDNsaKY+EuSQFmrRlF2mr
+	 DXHe/d8XYzzI17jixvJy0YPlSgJginzKT55X0bRwH8JPYKNmxo3Np7nKv7Op28qyRe
+	 RkHned9OW2S48hYrafWsDQ+Avj/zZSH+zUidBmkaXf1Ja3zFHo1u1MyO5yqATmLi4U
+	 XxcRBrEXXzWou1EA1CF2CYW/uJI1txHpL3AwaVyDmDqCVvu0746DVeWacrHX0iKS3r
+	 ZtgJLm321Bki3uIYRx9OSisbyHTmC4WKYGSrke96KZyR7x9bLq/j/lN6kioAL4Q65U
+	 VtVXRJ806sa7A==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0117EB7EA4;
+	Wed,  4 Mar 2026 08:20:23 +0000 (UTC)
+From: Maximilian Pezzullo via B4 Relay <devnull+maximilianpezzullo.gmail.com@kernel.org>
+Date: Wed, 04 Mar 2026 09:20:23 +0100
+Subject: [PATCH] net: bridge: fix NULL dereference in br_do_suppress_nd
+ when ipv6.disable=1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260302054008.21638-1-linus.luessing@c0d3.blue>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260304-br-nd-suppress-ipv6-null-fix-v1-1-084356ba8257@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MQQqDMBAAvyJ77kISNQW/Ij1E3bQLIQ1ZFEHyd
+ xePMwxzgVBlEpi6CyodLPzPCvbVwfoL+UvImzI447zpzYBLxbyh7KVUEkEuh8e8p4SRTzRhtD6
+ u7h1tAF1oo/rZz5/Wbl62a91uAAAA
+X-Change-ID: 20260304-br-nd-suppress-ipv6-null-fix-0a516fc27f1a
+To: Nikolay Aleksandrov <razor@blackwall.org>, 
+ Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ Guruprasad C P <gurucp2005@bugzilla.kernel.org>, 
+ Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772612423; l=1381;
+ i=maximilianpezzullo@gmail.com; s=20260303; h=from:subject:message-id;
+ bh=HvIRU/i10xnVMJH/+ZNsf/sb22J8jejklG20d/MkhlI=;
+ b=H1UIZ23bHg2tUhPT/B36gsRLVgF6dOQrgedgYPa2gB8N3k2aMndRbMNRp4MyC68a1YB916q2k
+ IM7hHazRSNcBZO/shE3Z1glFxiwlDELetWeaLorRqMzb6U+TS9nqXKb
+X-Developer-Key: i=maximilianpezzullo@gmail.com; a=ed25519;
+ pk=TRTR4c2Vb1IfluQvv5OUDPg7EE+pIzdPBND85UU559w=
+X-Endpoint-Received: by B4 Relay for maximilianpezzullo@gmail.com/20260303
+ with auth_id=658
+X-Original-From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+Reply-To: maximilianpezzullo@gmail.com
 
-On Mon, Mar 02, 2026 at 06:39:54AM +0100, Linus Lüssing wrote:
-> This patchset introduces new state variables to combine and reduce the
-> number of checks we would otherwise perform on every multicast packet
-> in fast/data path. Instead of checking if our querier is enabled or
-> if another querier timer is pending, plus if the initial query
-> grace period has elapsed, plus for IPv6 and for our own querier if we
-> have an IPv6 address yet - and all this for every multicast packet -
-> we can now simply check one boolean state variable per protocol family
-> combining all this, the new ip{4,6}_active. Or MCAST_ACTIVE_V4 /
-> MCAST_ACTIVE_V6 to netlink/userspace.
->   
-> The second reason for introducing these new, internal multicast active
-> variables is to later propagate a safety mechanism which was introduced
-> in commit b00589af3b04 ("bridge: disable snooping if there is no querier")
-> to switchdev/DSA, too. That is to notify switchdev/DSA if multicast
-> snooping can safely be applied without potential packet loss.
-> 
-> An example usage/integration of this with the modified Realtek rtl83xx
-> switch driver can be found in a draft pull-request at the OpenWrt
-> project: https://github.com/openwrt/openwrt/pull/18780
-> This was tested at least on an ZyXEL GS1900-24HP v1 switch.
-> 
-> iproute2 patch:
-> https://patchwork.kernel.org/project/netdevbpf/patch/20260206023704.4839-1-linus.luessing@c0d3.blue/
-> 
-> Regards, Linus
+From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
 
-Hi Linus,
+When the kernel is booted with ipv6.disable=1, the IPv6 module loads
+but skips full initialization, leaving ipv6_stub as NULL. If the bridge
+neigh_suppress feature is enabled on a port and an ICMPv6 Neighbor
+Solicitation arrives, br_do_suppress_nd() calls neigh_lookup() via
+ipv6_stub->nd_tbl without first checking whether ipv6_stub is valid,
+causing a kernel panic.
 
-This patch-set appears to break builds with IPV6=n.
+Fix this by returning early if ipv6_stub or its nd_tbl pointer is NULL.
 
-Please take a look into that for the next version: each patch
-should build when applied one by one.
+Reported-by: Guruprasad C P <gurucp2005@bugzilla.kernel.org>
+Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221143
+Signed-off-by: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+---
+ net/bridge/br_arp_nd_proxy.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
+index 1e2b51769eec..0b1b9ba29b7d 100644
+--- a/net/bridge/br_arp_nd_proxy.c
++++ b/net/bridge/br_arp_nd_proxy.c
+@@ -455,6 +455,9 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
+ 		return;
+ 	}
+ 
++	if (!ipv6_stub || !ipv6_stub->nd_tbl)
++		return;
++
+ 	n = neigh_lookup(ipv6_stub->nd_tbl, &msg->target, vlandev);
+ 	if (n) {
+ 		struct net_bridge_fdb_entry *f;
+
+---
+base-commit: af4e9ef3d78420feb8fe58cd9a1ab80c501b3c08
+change-id: 20260304-br-nd-suppress-ipv6-null-fix-0a516fc27f1a
+
+Best regards,
+-- 
+Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+
+
