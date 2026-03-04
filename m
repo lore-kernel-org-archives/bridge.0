@@ -1,120 +1,204 @@
-Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66FE33932C7
-	for <bridge@lists.linux.dev>; Wed,  4 Mar 2026 08:43:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A3F22E1722
+	for <bridge@lists.linux.dev>; Wed,  4 Mar 2026 12:04:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772613831; cv=none; b=r7zYMMZtG94MY8ZUOkbv2BQJLFITm4M72JNDWjUqemnJ6T8THb90lu53k0balwJYh7ryN3CaC/pwDYiAl7Jq6ozmhMU2J8e2fGBXTHzZnmhTZWXT7+S0zpnmPwm5TBKzd+mnoUBq+lR455jnrRtvDRa0eAxtGymtqFGueKwR3/g=
+	t=1772625856; cv=none; b=eZH3jci8jQ2/J2gIUpQv1LYL37fvtiADd9z6RwDYhH1LUhkKyfPyR+UxGTI/6cmg9TYKtq4dm+y9FKdVbKEiqlyBobjCmc5wEtIhlAN/jozXbe9bI9sV00a6WGtgkPUQksEZm1rhJEbBK/6FMgEjnVHTD5SdIJmtUGUDLwO/Bbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772613831; c=relaxed/simple;
-	bh=VIJxBhv7XGCFbPbdOeAB7Qdcmzlygb76zrm9jwwzsOA=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=LrD+YMZItpuhI0Ru8XvmpIbRfJMNaO0hqRoLUP7wKRueTQh2GazFxf6xmtn9dpgAN/PooLf6EvEgjv29arDlzhv0APGgqD1HseP26lDU1BkussHBcevSVxYZA0MUdrfMOddlUKX+gReO30GO4zAsiPlDgwDhm0rdYzRr0pTTgoo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vwNexQa+; arc=none smtp.client-ip=209.85.215.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com
+	s=arc-20240116; t=1772625856; c=relaxed/simple;
+	bh=EIyl4fXrw5ijQxrMYho3kOi07CSN4zRY4ukIwx7/O4E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=P3eFdHjC5xTg/L68uyAJLQn8z34psTVAtkbyiV9j3VvI3PUtBQ7FyO2MDW1XpJWIymgW2t3bRAp+kjwP2s4dtbt5shddKQd/P7+BOVlr4PRNWbh1UNtWLAo4i2y0js9Rw/mLmftabZzo+3pw3hBXfZHsG8AlO2dhy5m3uKXWVKY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=0apy2m3Q; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=T2e36t6H; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=0apy2m3Q; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=T2e36t6H; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vwNexQa+"
-Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-bce224720d8so3798618a12.1
-        for <bridge@lists.linux.dev>; Wed, 04 Mar 2026 00:43:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1772613830; x=1773218630; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=E3vMQO/IQoYaKESJWlFHP+qMU8qosPwTVj93SXFE13Y=;
-        b=vwNexQa+5mXnZJs5/tnzpT9Dhwh7yozx7jxKaEkx4ztYs1hT2qbkWRvBBPKlv4UF/m
-         vrjNvRgOFDuB+aeKU/yCY0vRHr/4pFEXSkwMkMOmuKNyNy0SC1Wm7BWS7SuPJCuqQb14
-         IS9e/wWazzYlJEdACk2MX3w6rdMHnye0xHlj1Lw0JaGIeXB/5SpnDwiqZAl8+oQxH8J1
-         3s1hi47owSaMoSynMvO7Y9hqnTWO7CAXtboI47nfoXoWj5f/6LLN26SagvTKKEl9bUF2
-         sxKYjZ/UNRmTIPhETHFXI8wT/YXQblFJFtid06BsG09BjkE++RX2S1K7Xs1FN/N/89hA
-         Dz9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772613830; x=1773218630;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=E3vMQO/IQoYaKESJWlFHP+qMU8qosPwTVj93SXFE13Y=;
-        b=j81rno3LTHwjuC9YuJfFgoGCWtTNBCdOa2RHnP34CzDRueVMjvprucHC07DryQYqw8
-         0qPWrgwL8KYx+IBxL6x25mSXdhKx0bWCG3xDcKD3SzVkMAC3h7yLZxNvv2BproBY8z74
-         RKIpwuwcmX26JW/NL/VhCoRWNdR25tqzTi6GuCwi4+tZEJSv5wQeHrs6T7AISnLMmbbi
-         f11PNU1vOss0YXU0bO/gT1l3HUnWixulfv73C9OAjBGvA3IZ1ZabR6BlN6bIUN7d4qxU
-         pvw5k9wzyvckONjhCR2Orqs5ZWxQFEejEnPyKo00vdWsuG/azWyAUPUxaiWzMp/7Aq6F
-         K30Q==
-X-Gm-Message-State: AOJu0Yz48bXVh3FbCq2Q5FsFuFp4/VjAxQ+BlwVGIOOhF4D3svJpS1eP
-	oJTVHvIWIxR5HvA/2ACwIFwfodj2sTS91ZpIq0W0lH7af3DWD+V3tqSiRmG0KbIRjeij2ZBTXlS
-	DLTgs8A==
-X-Received: from pfbbj10.prod.google.com ([2002:a05:6a00:318a:b0:7cf:2dad:ff87])
- (user=kuniyu job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:438f:b0:827:2ee0:411f
- with SMTP id d2e1a72fcca58-82972b61332mr1138758b3a.4.1772613829535; Wed, 04
- Mar 2026 00:43:49 -0800 (PST)
-Date: Wed,  4 Mar 2026 08:42:57 +0000
-In-Reply-To: <20260304-br-nd-suppress-ipv6-null-fix-v1-1-084356ba8257@gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="0apy2m3Q";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="T2e36t6H";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="0apy2m3Q";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="T2e36t6H"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 9A4733E7CE;
+	Wed,  4 Mar 2026 12:04:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772625853; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=eTjAKaYbkWr+nPD3XLiDK+enNzrWG9oyzkZ1dT/C4NE=;
+	b=0apy2m3QCPHfCIzMnNNZG9yKm0pn6OPt8R3gn1CyL4mxysM4XJC5wiFmGvkb4C+K/NZEg4
+	gqW1xyfD+0wGIZ9u6KxJxl6fNxJEDBB7rwci7Yzz4yAvqkxIxaLaKMd2CGpItf34tbVxqq
+	4EvLagFSdlQIopoi3HAHPQT9uD2yZkg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772625853;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=eTjAKaYbkWr+nPD3XLiDK+enNzrWG9oyzkZ1dT/C4NE=;
+	b=T2e36t6HmmeRWZsDMGqUMXEhp/Gu/w8WIECWuuzt2JHiHi3zimwLRvoRNuR1JbxfI/atGP
+	kUZaiv9bN/rxHfCQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=0apy2m3Q;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=T2e36t6H
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772625853; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=eTjAKaYbkWr+nPD3XLiDK+enNzrWG9oyzkZ1dT/C4NE=;
+	b=0apy2m3QCPHfCIzMnNNZG9yKm0pn6OPt8R3gn1CyL4mxysM4XJC5wiFmGvkb4C+K/NZEg4
+	gqW1xyfD+0wGIZ9u6KxJxl6fNxJEDBB7rwci7Yzz4yAvqkxIxaLaKMd2CGpItf34tbVxqq
+	4EvLagFSdlQIopoi3HAHPQT9uD2yZkg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772625853;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=eTjAKaYbkWr+nPD3XLiDK+enNzrWG9oyzkZ1dT/C4NE=;
+	b=T2e36t6HmmeRWZsDMGqUMXEhp/Gu/w8WIECWuuzt2JHiHi3zimwLRvoRNuR1JbxfI/atGP
+	kUZaiv9bN/rxHfCQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B5D493EA69;
+	Wed,  4 Mar 2026 12:04:12 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id HcVqKbwfqGkSdQAAD6G6ig
+	(envelope-from <fmancera@suse.de>); Wed, 04 Mar 2026 12:04:12 +0000
+From: Fernando Fernandez Mancera <fmancera@suse.de>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux.dev,
+	roopa@cumulusnetworks.com,
+	sdf@fomichev.me,
+	petrm@nvidia.com,
+	horms@kernel.org,
+	idosch@nvidia.com,
+	razor@blackwall.org,
+	pabeni@redhat.com,
+	kuba@kernel.org,
+	edumazet@google.com,
+	davem@davemloft.net,
+	andrew+netdev@lunn.ch,
+	Fernando Fernandez Mancera <fmancera@suse.de>,
+	Guruprasad C P <gurucp2005@gmail.com>
+Subject: [PATCH 1/2 net v3] net: bridge: fix nd_tbl NULL dereference when IPv6 is disabled
+Date: Wed,  4 Mar 2026 13:03:56 +0100
+Message-ID: <20260304120357.9778-1-fmancera@suse.de>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260304-br-nd-suppress-ipv6-null-fix-v1-1-084356ba8257@gmail.com>
-X-Mailer: git-send-email 2.53.0.473.g4a7958ca14-goog
-Message-ID: <20260304084348.1075022-1-kuniyu@google.com>
-Subject: Re: [PATCH] net: bridge: fix NULL dereference in br_do_suppress_nd
- when ipv6.disable=1
-From: Kuniyuki Iwashima <kuniyu@google.com>
-To: devnull+maximilianpezzullo.gmail.com@kernel.org
-Cc: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	gurucp2005@bugzilla.kernel.org, horms@kernel.org, idosch@nvidia.com, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, maximilianpezzullo@gmail.com, 
-	netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-1.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[15];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_TLS_ALL(0.00)[];
+	TO_DN_SOME(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[lists.linux.dev,cumulusnetworks.com,fomichev.me,nvidia.com,kernel.org,blackwall.org,redhat.com,google.com,davemloft.net,lunn.ch,suse.de,gmail.com];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim,suse.de:email];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[netdev];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -1.51
+X-Spam-Level: 
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 9A4733E7CE
 
-From: Maximilian Pezzullo via B4 Relay <devnull+maximilianpezzullo.gmail.com@kernel.org>
-Date: Wed, 04 Mar 2026 09:20:23 +0100
-> From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
-> 
-> When the kernel is booted with ipv6.disable=1, the IPv6 module loads
-> but skips full initialization, leaving ipv6_stub as NULL. If the bridge
-> neigh_suppress feature is enabled on a port and an ICMPv6 Neighbor
-> Solicitation arrives, br_do_suppress_nd() calls neigh_lookup() via
-> ipv6_stub->nd_tbl without first checking whether ipv6_stub is valid,
-> causing a kernel panic.
-> 
-> Fix this by returning early if ipv6_stub or its nd_tbl pointer is NULL.
-> 
-> Reported-by: Guruprasad C P <gurucp2005@bugzilla.kernel.org>
-> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221143
-> Signed-off-by: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
-> ---
->  net/bridge/br_arp_nd_proxy.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-> index 1e2b51769eec..0b1b9ba29b7d 100644
-> --- a/net/bridge/br_arp_nd_proxy.c
-> +++ b/net/bridge/br_arp_nd_proxy.c
-> @@ -455,6 +455,9 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
->  		return;
->  	}
->  
-> +	if (!ipv6_stub || !ipv6_stub->nd_tbl)
-> +		return;
+When booting with the 'ipv6.disable=1' parameter, the nd_tbl is never
+initialized because inet6_init() exits before ndisc_init() is called
+which initializes it. Then, if neigh_suppress is enabled and an ICMPv6
+Neighbor Discovery packet reaches the bridge, br_do_suppress_nd() will
+dereference ipv6_stub->nd_tbl which is NULL, passing it to
+neigh_lookup(). This causes a kernel NULL pointer dereference.
 
-ipv6_stub is never be NULL.
+ BUG: kernel NULL pointer dereference, address: 0000000000000268
+ Oops: 0000 [#1] PREEMPT SMP NOPTI
+ [...]
+ RIP: 0010:neigh_lookup+0x16/0xe0
+ [...]
+ Call Trace:
+  <IRQ>
+  ? neigh_lookup+0x16/0xe0
+  br_do_suppress_nd+0x160/0x290 [bridge]
+  br_handle_frame_finish+0x500/0x620 [bridge]
+  br_handle_frame+0x353/0x440 [bridge]
+  __netif_receive_skb_core.constprop.0+0x298/0x1110
+  __netif_receive_skb_one_core+0x3d/0xa0
+  process_backlog+0xa0/0x140
+  __napi_poll+0x2c/0x170
+  net_rx_action+0x2c4/0x3a0
+  handle_softirqs+0xd0/0x270
+  do_softirq+0x3f/0x60
 
-Also, Fernando is already working on the fix.
-https://lore.kernel.org/netdev/20260226234059.19402-1-fmancera@suse.de/
-https://lore.kernel.org/netdev/20260302140847.5941-1-fmancera@suse.de/
+Fix this by replacing IS_ENABLED(IPV6) call with ipv6_mod_enabled() in
+the callers. This is in essence disabling NS/NA suppression when IPv6 is
+disabled.
 
+Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+Reported-by: Guruprasad C P <gurucp2005@gmail.com>
+Closes: https://lore.kernel.org/netdev/CAHXs0ORzd62QOG-Fttqa2Cx_A_VFp=utE2H2VTX5nqfgs7LDxQ@mail.gmail.com/
+Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+---
+v2: use ipv6_mod_enabled() instead of a null check and replace the check
+on the caller
+v3: no changes
+---
+ net/bridge/br_device.c | 2 +-
+ net/bridge/br_input.c  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-> +
->  	n = neigh_lookup(ipv6_stub->nd_tbl, &msg->target, vlandev);
->  	if (n) {
->  		struct net_bridge_fdb_entry *f;
-> 
-> ---
-> base-commit: af4e9ef3d78420feb8fe58cd9a1ab80c501b3c08
-> change-id: 20260304-br-nd-suppress-ipv6-null-fix-0a516fc27f1a
-> 
-> Best regards,
-> -- 
-> Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index ee01122f466f..f7502e62dd35 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -74,7 +74,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	     eth_hdr(skb)->h_proto == htons(ETH_P_RARP)) &&
+ 	    br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED)) {
+ 		br_do_proxy_suppress_arp(skb, br, vid, NULL);
+-	} else if (IS_ENABLED(CONFIG_IPV6) &&
++	} else if (ipv6_mod_enabled() &&
+ 		   skb->protocol == htons(ETH_P_IPV6) &&
+ 		   br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED) &&
+ 		   pskb_may_pull(skb, sizeof(struct ipv6hdr) +
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index 1405f1061a54..2cbae0f9ae1f 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -170,7 +170,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 	    (skb->protocol == htons(ETH_P_ARP) ||
+ 	     skb->protocol == htons(ETH_P_RARP))) {
+ 		br_do_proxy_suppress_arp(skb, br, vid, p);
+-	} else if (IS_ENABLED(CONFIG_IPV6) &&
++	} else if (ipv6_mod_enabled() &&
+ 		   skb->protocol == htons(ETH_P_IPV6) &&
+ 		   br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED) &&
+ 		   pskb_may_pull(skb, sizeof(struct ipv6hdr) +
+-- 
+2.53.0
+
