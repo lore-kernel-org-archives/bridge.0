@@ -1,110 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90C093033E9;
-	Wed,  4 Mar 2026 08:20:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66FE33932C7
+	for <bridge@lists.linux.dev>; Wed,  4 Mar 2026 08:43:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772612424; cv=none; b=rEAFYo/lN4HC8YWax4wd8t2aEIp5GGagadjCogQpqPhDhd1uBvmUoqcyhcpheyCK3ay5Etbes/ZSxzD3sprQXQYF5DLjbAs48KUHzUUiI9cYWzNrm6nob7SZ4VieZYen1rksm6mhNUmCXGoLX2LKqOLCqtn7rGwx55OLb9iCIlA=
+	t=1772613831; cv=none; b=r7zYMMZtG94MY8ZUOkbv2BQJLFITm4M72JNDWjUqemnJ6T8THb90lu53k0balwJYh7ryN3CaC/pwDYiAl7Jq6ozmhMU2J8e2fGBXTHzZnmhTZWXT7+S0zpnmPwm5TBKzd+mnoUBq+lR455jnrRtvDRa0eAxtGymtqFGueKwR3/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772612424; c=relaxed/simple;
-	bh=LgsT2ZLIn1tM6EIVIbCNe9NLt6lkZlMPPb9/TSVpbPY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=jeKHu1QD7CWurP22Poji4p2f6c8Fju8AKpuJRdpSS1EL9eHq7iF//rGfZTfpbNK89Ar3wUGkVxmoQJ3KOIyxRJYpT+SzAMM13BbQppQEk19AbFrWwKUWQcyVbzHLGSdq1OMV6j5J9Zcq7iIz6JcWggvMPgX4NVGwEae7WiKPujA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n5VC+SeO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772613831; c=relaxed/simple;
+	bh=VIJxBhv7XGCFbPbdOeAB7Qdcmzlygb76zrm9jwwzsOA=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=LrD+YMZItpuhI0Ru8XvmpIbRfJMNaO0hqRoLUP7wKRueTQh2GazFxf6xmtn9dpgAN/PooLf6EvEgjv29arDlzhv0APGgqD1HseP26lDU1BkussHBcevSVxYZA0MUdrfMOddlUKX+gReO30GO4zAsiPlDgwDhm0rdYzRr0pTTgoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vwNexQa+; arc=none smtp.client-ip=209.85.215.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--kuniyu.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n5VC+SeO"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 10378C19425;
-	Wed,  4 Mar 2026 08:20:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772612424;
-	bh=LgsT2ZLIn1tM6EIVIbCNe9NLt6lkZlMPPb9/TSVpbPY=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=n5VC+SeOLL+FOp9tniAIyKI9vsveNDh5ND0y7WUsMQWPMDNsaKY+EuSQFmrRlF2mr
-	 DXHe/d8XYzzI17jixvJy0YPlSgJginzKT55X0bRwH8JPYKNmxo3Np7nKv7Op28qyRe
-	 RkHned9OW2S48hYrafWsDQ+Avj/zZSH+zUidBmkaXf1Ja3zFHo1u1MyO5yqATmLi4U
-	 XxcRBrEXXzWou1EA1CF2CYW/uJI1txHpL3AwaVyDmDqCVvu0746DVeWacrHX0iKS3r
-	 ZtgJLm321Bki3uIYRx9OSisbyHTmC4WKYGSrke96KZyR7x9bLq/j/lN6kioAL4Q65U
-	 VtVXRJ806sa7A==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0117EB7EA4;
-	Wed,  4 Mar 2026 08:20:23 +0000 (UTC)
-From: Maximilian Pezzullo via B4 Relay <devnull+maximilianpezzullo.gmail.com@kernel.org>
-Date: Wed, 04 Mar 2026 09:20:23 +0100
-Subject: [PATCH] net: bridge: fix NULL dereference in br_do_suppress_nd
- when ipv6.disable=1
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vwNexQa+"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-bce224720d8so3798618a12.1
+        for <bridge@lists.linux.dev>; Wed, 04 Mar 2026 00:43:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772613830; x=1773218630; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=E3vMQO/IQoYaKESJWlFHP+qMU8qosPwTVj93SXFE13Y=;
+        b=vwNexQa+5mXnZJs5/tnzpT9Dhwh7yozx7jxKaEkx4ztYs1hT2qbkWRvBBPKlv4UF/m
+         vrjNvRgOFDuB+aeKU/yCY0vRHr/4pFEXSkwMkMOmuKNyNy0SC1Wm7BWS7SuPJCuqQb14
+         IS9e/wWazzYlJEdACk2MX3w6rdMHnye0xHlj1Lw0JaGIeXB/5SpnDwiqZAl8+oQxH8J1
+         3s1hi47owSaMoSynMvO7Y9hqnTWO7CAXtboI47nfoXoWj5f/6LLN26SagvTKKEl9bUF2
+         sxKYjZ/UNRmTIPhETHFXI8wT/YXQblFJFtid06BsG09BjkE++RX2S1K7Xs1FN/N/89hA
+         Dz9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772613830; x=1773218630;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=E3vMQO/IQoYaKESJWlFHP+qMU8qosPwTVj93SXFE13Y=;
+        b=j81rno3LTHwjuC9YuJfFgoGCWtTNBCdOa2RHnP34CzDRueVMjvprucHC07DryQYqw8
+         0qPWrgwL8KYx+IBxL6x25mSXdhKx0bWCG3xDcKD3SzVkMAC3h7yLZxNvv2BproBY8z74
+         RKIpwuwcmX26JW/NL/VhCoRWNdR25tqzTi6GuCwi4+tZEJSv5wQeHrs6T7AISnLMmbbi
+         f11PNU1vOss0YXU0bO/gT1l3HUnWixulfv73C9OAjBGvA3IZ1ZabR6BlN6bIUN7d4qxU
+         pvw5k9wzyvckONjhCR2Orqs5ZWxQFEejEnPyKo00vdWsuG/azWyAUPUxaiWzMp/7Aq6F
+         K30Q==
+X-Gm-Message-State: AOJu0Yz48bXVh3FbCq2Q5FsFuFp4/VjAxQ+BlwVGIOOhF4D3svJpS1eP
+	oJTVHvIWIxR5HvA/2ACwIFwfodj2sTS91ZpIq0W0lH7af3DWD+V3tqSiRmG0KbIRjeij2ZBTXlS
+	DLTgs8A==
+X-Received: from pfbbj10.prod.google.com ([2002:a05:6a00:318a:b0:7cf:2dad:ff87])
+ (user=kuniyu job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:438f:b0:827:2ee0:411f
+ with SMTP id d2e1a72fcca58-82972b61332mr1138758b3a.4.1772613829535; Wed, 04
+ Mar 2026 00:43:49 -0800 (PST)
+Date: Wed,  4 Mar 2026 08:42:57 +0000
+In-Reply-To: <20260304-br-nd-suppress-ipv6-null-fix-v1-1-084356ba8257@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260304-br-nd-suppress-ipv6-null-fix-v1-1-084356ba8257@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MQQqDMBAAvyJ77kISNQW/Ij1E3bQLIQ1ZFEHyd
- xePMwxzgVBlEpi6CyodLPzPCvbVwfoL+UvImzI447zpzYBLxbyh7KVUEkEuh8e8p4SRTzRhtD6
- u7h1tAF1oo/rZz5/Wbl62a91uAAAA
-X-Change-ID: 20260304-br-nd-suppress-ipv6-null-fix-0a516fc27f1a
-To: Nikolay Aleksandrov <razor@blackwall.org>, 
- Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- Guruprasad C P <gurucp2005@bugzilla.kernel.org>, 
- Maximilian Pezzullo <maximilianpezzullo@gmail.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1772612423; l=1381;
- i=maximilianpezzullo@gmail.com; s=20260303; h=from:subject:message-id;
- bh=HvIRU/i10xnVMJH/+ZNsf/sb22J8jejklG20d/MkhlI=;
- b=H1UIZ23bHg2tUhPT/B36gsRLVgF6dOQrgedgYPa2gB8N3k2aMndRbMNRp4MyC68a1YB916q2k
- IM7hHazRSNcBZO/shE3Z1glFxiwlDELetWeaLorRqMzb6U+TS9nqXKb
-X-Developer-Key: i=maximilianpezzullo@gmail.com; a=ed25519;
- pk=TRTR4c2Vb1IfluQvv5OUDPg7EE+pIzdPBND85UU559w=
-X-Endpoint-Received: by B4 Relay for maximilianpezzullo@gmail.com/20260303
- with auth_id=658
-X-Original-From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
-Reply-To: maximilianpezzullo@gmail.com
+Mime-Version: 1.0
+References: <20260304-br-nd-suppress-ipv6-null-fix-v1-1-084356ba8257@gmail.com>
+X-Mailer: git-send-email 2.53.0.473.g4a7958ca14-goog
+Message-ID: <20260304084348.1075022-1-kuniyu@google.com>
+Subject: Re: [PATCH] net: bridge: fix NULL dereference in br_do_suppress_nd
+ when ipv6.disable=1
+From: Kuniyuki Iwashima <kuniyu@google.com>
+To: devnull+maximilianpezzullo.gmail.com@kernel.org
+Cc: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
+	gurucp2005@bugzilla.kernel.org, horms@kernel.org, idosch@nvidia.com, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, maximilianpezzullo@gmail.com, 
+	netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org
+Content-Type: text/plain; charset="UTF-8"
 
-From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+From: Maximilian Pezzullo via B4 Relay <devnull+maximilianpezzullo.gmail.com@kernel.org>
+Date: Wed, 04 Mar 2026 09:20:23 +0100
+> From: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+> 
+> When the kernel is booted with ipv6.disable=1, the IPv6 module loads
+> but skips full initialization, leaving ipv6_stub as NULL. If the bridge
+> neigh_suppress feature is enabled on a port and an ICMPv6 Neighbor
+> Solicitation arrives, br_do_suppress_nd() calls neigh_lookup() via
+> ipv6_stub->nd_tbl without first checking whether ipv6_stub is valid,
+> causing a kernel panic.
+> 
+> Fix this by returning early if ipv6_stub or its nd_tbl pointer is NULL.
+> 
+> Reported-by: Guruprasad C P <gurucp2005@bugzilla.kernel.org>
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221143
+> Signed-off-by: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+> ---
+>  net/bridge/br_arp_nd_proxy.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
+> index 1e2b51769eec..0b1b9ba29b7d 100644
+> --- a/net/bridge/br_arp_nd_proxy.c
+> +++ b/net/bridge/br_arp_nd_proxy.c
+> @@ -455,6 +455,9 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
+>  		return;
+>  	}
+>  
+> +	if (!ipv6_stub || !ipv6_stub->nd_tbl)
+> +		return;
 
-When the kernel is booted with ipv6.disable=1, the IPv6 module loads
-but skips full initialization, leaving ipv6_stub as NULL. If the bridge
-neigh_suppress feature is enabled on a port and an ICMPv6 Neighbor
-Solicitation arrives, br_do_suppress_nd() calls neigh_lookup() via
-ipv6_stub->nd_tbl without first checking whether ipv6_stub is valid,
-causing a kernel panic.
+ipv6_stub is never be NULL.
 
-Fix this by returning early if ipv6_stub or its nd_tbl pointer is NULL.
-
-Reported-by: Guruprasad C P <gurucp2005@bugzilla.kernel.org>
-Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221143
-Signed-off-by: Maximilian Pezzullo <maximilianpezzullo@gmail.com>
----
- net/bridge/br_arp_nd_proxy.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 1e2b51769eec..0b1b9ba29b7d 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -455,6 +455,9 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 		return;
- 	}
- 
-+	if (!ipv6_stub || !ipv6_stub->nd_tbl)
-+		return;
-+
- 	n = neigh_lookup(ipv6_stub->nd_tbl, &msg->target, vlandev);
- 	if (n) {
- 		struct net_bridge_fdb_entry *f;
-
----
-base-commit: af4e9ef3d78420feb8fe58cd9a1ab80c501b3c08
-change-id: 20260304-br-nd-suppress-ipv6-null-fix-0a516fc27f1a
-
-Best regards,
--- 
-Maximilian Pezzullo <maximilianpezzullo@gmail.com>
+Also, Fernando is already working on the fix.
+https://lore.kernel.org/netdev/20260226234059.19402-1-fmancera@suse.de/
+https://lore.kernel.org/netdev/20260302140847.5941-1-fmancera@suse.de/
 
 
+> +
+>  	n = neigh_lookup(ipv6_stub->nd_tbl, &msg->target, vlandev);
+>  	if (n) {
+>  		struct net_bridge_fdb_entry *f;
+> 
+> ---
+> base-commit: af4e9ef3d78420feb8fe58cd9a1ab80c501b3c08
+> change-id: 20260304-br-nd-suppress-ipv6-null-fix-0a516fc27f1a
+> 
+> Best regards,
+> -- 
+> Maximilian Pezzullo <maximilianpezzullo@gmail.com>
