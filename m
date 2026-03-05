@@ -1,162 +1,179 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010046.outbound.protection.outlook.com [52.101.193.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58E4021ABC9
-	for <bridge@lists.linux.dev>; Thu,  5 Mar 2026 11:39:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772710797; cv=fail; b=PSpaH9E2ubPk76O4qGj8KcEDfiqrS/1bEitWu2V7OfnW7aPbfA/1E+roUlIg92UUU8ZLACutNUTe5AMPzzZ785xhd+96QxcE00qwjmoxRBno2NxVsNj9d+3hCFd2uKHkNVNAlVTa9EDoyldYXd6g2HBEDf6mYTQiyktZWop4ZSI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772710797; c=relaxed/simple;
-	bh=nzjE/XEZsv0j8x6ReVu7qr5e0mvRfXmkp81tnVjtjKQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=O6PbLJG69gcyLa/XfMX8qDsPf/3akzLcC9Xz7rHuxY88qRQUbkAuyuCawalDm3NJHWgiuX+RWhZC10a6uv8gdi2MC5VpsHAnIBNK9HLHGfBII1I3eLeSO10uNd7YgNccBxP6ulD7JAu7Jyi5Bhb7P/SuuTm4+NCbKOKdzxvjXJM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=EQyusqOG; arc=fail smtp.client-ip=52.101.193.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5459E382366
+	for <bridge@lists.linux.dev>; Thu,  5 Mar 2026 11:41:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772710892; cv=none; b=tEYwvk2+vWBMKt00Eqb+CQhLxW+JpEs3yoNm8lLnoKDc6T4HQz+mkhq5A2ixkCrblYlLBctFdEtOq6bSo+OZ0i32HHEN5U9McsJKJXzsN7BstTBCRed8bj47QPkemMhGSzMuMm9AOYL3zcoly9RQj6bkMR8EsPAwQeT36uVdNBw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772710892; c=relaxed/simple;
+	bh=H917Ln2/Z2AntsJKtyWBTGmKLzPhqrA1KM2ItKBP3OI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mnyBvZv4pFvM3WzVh1YQ9ltaXypZMN41QQtPYCSf5XSuY6ygiLpZpfKP9yMk1bY/KnouGDhRNOpojJOkdDjiIWj6EpDm4vQj2CR1NKUnEfkdV04qohVkaOk8X/72kHA3FqIkt35OK9TnnhO7yP99fm//KI+QGA/dtwYDSMfwpnA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=sD5PLWoS; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=P0qwovsl; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=sD5PLWoS; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=P0qwovsl; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="EQyusqOG"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=U9HVDK21iKceFlTeIgvOZ+0W796inrSXNjpv3uLe2Kyum3jEfYuwUCKUslLxzGsa3+cLZCt1mHbFyhXVWLl9mh3EHUPVBCozvkYEmOFkE8H1AbWP0c1qo46PQVZdjNQtPgCyyjHh6BMTWKUg5c/IPkj8uhizPNO8snPyANX7s6DuHHzrRsCmXVuKfMpRZPKZ/qUNfa+N9Jt3nbJ8Mf6HZBEh+gYekyj0szZTUb8Mx8lOe4IeDUJ+C18FJaUBkuSmZ65Awds5akHB05lZx5paR1hOk7fPvdPITMqc4UgTubIB7q2CVi3FjVk36EoOG2XfjJKcRO5ujh0pkdlJnRY3sA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=M/O0cBAtYI3UPDlFQgSg0/8SZMogo/KFiTSDIZNgm68=;
- b=CVpuKFHBz37T6BpW6PwFuIQUuratUTis2QmcVty2F5YEXnVKgafUDfrOUdj2YFwZBtFneXcm6H0g8JiNF9jrC3se6aYFLuw9F41jmwOUvplMEXCLOSxATzkcCAYHUXr05h+lIfyqNbzhoiY8I0HTCXarELz6tbthvYzZriEl4FaWv0CJw0TUpFy8LYhbFazIcosXq0MmbSvb8+LO7/aAHEFv5PMoAAq9G/I/mT7SP+d1k/qj+apn18ZWdqof0eaAz4KgJTWMxweysxu18JVnKwkji4h+PlsXQSJnH8BFaCRJi8BHCnLtKc7GUL/kzB9AfHjkol1bIgMEoljmzlgchQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=M/O0cBAtYI3UPDlFQgSg0/8SZMogo/KFiTSDIZNgm68=;
- b=EQyusqOGFsuMwsfTWXhpr8oHJ/HfoCqL7TZpgv8MpeIOVVYQkOibFrJFf9W37bMZ5xlsg0Wn7jgdlFvgCS/l9vLLUX266dmBWVU87tve+xFk1L6Y3UrE5OaCgWOjYWFxiJc4YgUMFt67kpgpwZfku5u6cCYNA9CkrzQs+D3qaU4jo+ZYTrTe+b4A9hsN+ohiq6184jQ7JiwUDd8bw4dODLfpgmRVgEkk4QVb+A2l5cKK/+7lb2dstXdWfO97kzMNPPmR2DPkpUiZhMwxJ1t1OVDcZI164xmVecmavI867ioPRguIycSq37WKMgUxOli4hvhGFWhkZZNezdbdgRD3kQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
- by DS0PR12MB7899.namprd12.prod.outlook.com (2603:10b6:8:149::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9654.22; Thu, 5 Mar
- 2026 11:39:51 +0000
-Received: from DS0PR12MB7900.namprd12.prod.outlook.com
- ([fe80::3033:67fc:3646:c62f]) by DS0PR12MB7900.namprd12.prod.outlook.com
- ([fe80::3033:67fc:3646:c62f%5]) with mapi id 15.20.9654.022; Thu, 5 Mar 2026
- 11:39:51 +0000
-Date: Thu, 5 Mar 2026 13:39:40 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Fernando Fernandez Mancera <fmancera@suse.de>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev,
-	roopa@cumulusnetworks.com, sdf@fomichev.me, petrm@nvidia.com,
-	horms@kernel.org, razor@blackwall.org, pabeni@redhat.com,
-	kuba@kernel.org, edumazet@google.com, davem@davemloft.net,
-	andrew+netdev@lunn.ch, Guruprasad C P <gurucp2005@gmail.com>
-Subject: Re: [PATCH 1/2 net v3] net: bridge: fix nd_tbl NULL dereference when
- IPv6 is disabled
-Message-ID: <20260305113940.GA1359245@shredder>
-References: <20260304120357.9778-1-fmancera@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260304120357.9778-1-fmancera@suse.de>
-X-ClientProxiedBy: TL0P290CA0003.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:5::18) To DS0PR12MB7900.namprd12.prod.outlook.com
- (2603:10b6:8:14e::10)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="sD5PLWoS";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="P0qwovsl";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="sD5PLWoS";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="P0qwovsl"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 965F25BCD5;
+	Thu,  5 Mar 2026 11:41:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772710889; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=i8L5dGkLgpO3MaNXIU/7TIGLbWA0jgYkuqaOa6a7ctI=;
+	b=sD5PLWoSjRCGyOxH41c34lsCZMHMaIAzQcXKNhgMBfMa3u/aP1VcbslcLe7nCsEfZiGfPB
+	e8db6bwQivMFcBCUR/Il8ZsBEFMsPP7/+Iy+ZvrvHyOx/nlkleXNX6rPYhRoAv7J8kuBHQ
+	vAFiza+Xdr29ai7IjR2qPqpk1E5L+FE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772710889;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=i8L5dGkLgpO3MaNXIU/7TIGLbWA0jgYkuqaOa6a7ctI=;
+	b=P0qwovslMUwy5C1JoeHKi53jznx/7Ef5kDwp2qwgKBCSPOR9d4Dp1T2gSS9oqaRC4SHfga
+	Uar2lBAJmQ//pFAw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=sD5PLWoS;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=P0qwovsl
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1772710889; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=i8L5dGkLgpO3MaNXIU/7TIGLbWA0jgYkuqaOa6a7ctI=;
+	b=sD5PLWoSjRCGyOxH41c34lsCZMHMaIAzQcXKNhgMBfMa3u/aP1VcbslcLe7nCsEfZiGfPB
+	e8db6bwQivMFcBCUR/Il8ZsBEFMsPP7/+Iy+ZvrvHyOx/nlkleXNX6rPYhRoAv7J8kuBHQ
+	vAFiza+Xdr29ai7IjR2qPqpk1E5L+FE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1772710889;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=i8L5dGkLgpO3MaNXIU/7TIGLbWA0jgYkuqaOa6a7ctI=;
+	b=P0qwovslMUwy5C1JoeHKi53jznx/7Ef5kDwp2qwgKBCSPOR9d4Dp1T2gSS9oqaRC4SHfga
+	Uar2lBAJmQ//pFAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BEEFB3EA68;
+	Thu,  5 Mar 2026 11:41:28 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id udJuK+hrqWmRPgAAD6G6ig
+	(envelope-from <fmancera@suse.de>); Thu, 05 Mar 2026 11:41:28 +0000
+Message-ID: <777685c9-1fa9-4a47-a88c-12779214df71@suse.de>
+Date: Thu, 5 Mar 2026 12:41:28 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB7900:EE_|DS0PR12MB7899:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8661dd14-2117-40da-a396-08de7aabe9a5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|366016|1800799024|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	YSBM/1r0FGkm0dzfsDrSzmaNufdO+MdOLqyx0rEyTVbjSHwiwvMgRiGGnyTSsLsUvCKUaxPli4F9Og8CKcfxUht3RtLcChN8gciuUiOAuFlRzqWCWEQ8hsvu3slucC7BbnExH2Wt3aNUgsWGRKAyo14LFTIKVlFAFpk7tjqX16YQxdcUrBZBESknyaq6gHQHRSX3KB96/Q8/zjvmYJTiWINYP1RyBJGrySyy5feFf2N1rLYcKvhyNtY84q7Cn9CY/0JaDJp3qYclJzbucpHgNVnQviYv2aYniiYsVrB6DYepbIub++ssa1V7IZuyyB1izUfCeotly0XeO2hg+ta6w5z8K3uPU3fAf1zut+0ttif8SOzL/+uFZrtHGR/ic/1P/kdEnr6ZI+y3rqkS+j36HdUxqxhJwTVqgjcaSYXm2ardEYt+PElBaLr1593kxc8onOdxD7W/WsTn0vOyYOkniPR+HQZaTmEeHxpx4MYMRt90Sq1e6HDyG/feWET87whKp/Cs4UI6eoSJw/ht83n9tNoLAXvFNy5Kz3aNMeztelzPgC05oViNb7mLcshNZADOlQ0Mq+VemdQTNdK5aQTAh6lWdImjlG2DsWZstmReNfOJD7Ar9pNI0FZCmR5M2EdjR3oESOwWNufQtjyBprv1JT9EpX0xoGm0yPtj2AlsXSam9Jp8l2EAMfeBwaGG2SM9esxqir8Tgzdx8Ylkc5xbIU8SXQNj/ApsOAtyhQZ2evM=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB7900.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?Dqj3ULC6V5baVj7lv2xDtWWOeJ/aHtc4xvGTAyctCKnDRTd4ySC9lg+yo4Da?=
- =?us-ascii?Q?Selz+Ygl5skjccKqIDvS1XgAIl3IksX8mre6LlqPD2cau/orScXiRVPCkxo7?=
- =?us-ascii?Q?yZ6Kg/eq+fETcSWVtRFzHqUgQoIsuDhCjrUAfXlWQJUY4xeRuexUCq2CowFp?=
- =?us-ascii?Q?DwnGA1mnVWiPfuCWG1/RDBcskE5XDOUPmijLG2UawRuUmxNqTuLPHTDjTWsm?=
- =?us-ascii?Q?8nFBvO+pOP37+QZcWhvd9Zmp4TqFtqykCWDbKzm4kK19BQdRDrlzHSUB7IOw?=
- =?us-ascii?Q?ffEo/Z8KGZLOV9N8dpcSdUVTZkCZtvIyhBZ91+wrxbWjt5equOxCX5s9nnp4?=
- =?us-ascii?Q?d4AbalDuNTvTkO30w7TUyHHnsrVw1RHgk4T3X18GQuzy12v5S1RsppUfkf6r?=
- =?us-ascii?Q?2P8jS3DS+N7QUrV2W7i9W+p4akjTZjBKUOEpMKlKApwCg9tUmMEyZSAP8L65?=
- =?us-ascii?Q?8lfq0aY9g5TzycpThU/Z2ryFOiQ/TT/02MXScud3f4qf1OOL4EU9/M+5Hd3P?=
- =?us-ascii?Q?3LsGebutQOabjxxtYHMVtquvuuda86lHOyrUp4wk/xVCGoNKdelFvHYGrJ6u?=
- =?us-ascii?Q?J4N0J9yBmFhG+bj695knbHwwS2fTy9MiSHLFbqTHzw4kHW3hnBT+jx5+EBZv?=
- =?us-ascii?Q?eeDgj0BZ43CoYlAcQekSQ8dpH8DK78gExAMOsOAWHfa7oQFwoGWHsoeAdbfC?=
- =?us-ascii?Q?gzyjLEfHubjUYuVu7JFR/x/fcHV6Ouzx8WzyOoMZlhcpfmPPpYGlEggLmZad?=
- =?us-ascii?Q?ThVVBRdZaSmsqoMPBSEpxW95h9NHuj4Q7srGsG1hhtoJ0Uy2Lt4ir7qKp1Nd?=
- =?us-ascii?Q?ZeeNHNrAe2wgcs8S5CorotgrevrJDupRwwgGG2/dtpvODYE/tiKYZK7jrqJh?=
- =?us-ascii?Q?Zf4xQYotjbAfaJ8nhg43wsSwVYLDlqhJBzepnS1J0/MlotRy9AJj3pdipgWJ?=
- =?us-ascii?Q?4T2S6SEO0DjlgvmOzITpNgCO6Y2kf7he64093+Ewp6EV91A57qTNu9yb53zS?=
- =?us-ascii?Q?zO+4DOAauI9WRYcsrG6jcV6K2xgEcnAQ9r5w5+zDUqJ2E9Ht4UOrGcAWEOfz?=
- =?us-ascii?Q?bynMFRHwb8eIngA2GlYCqSWZ8+O8z6mGtSoWDgEpsGljBh1T4o3tT12jetsI?=
- =?us-ascii?Q?d+OIMWj/6QQs97iE3/3jTe49Rah3pXNt95R98qzBWe/VGKqizx4R06A9O491?=
- =?us-ascii?Q?JnrqfdqS/QkVmpnBSs2TWILTycxy4faHQcpoKizYZeD4B4rKU6aQDWzvA/ID?=
- =?us-ascii?Q?iIFl6QGfmm0Ot1mbNAHB4OgbAr1pNcHa85sFkmAYu5GHC76RqIgxu8lQlVZb?=
- =?us-ascii?Q?Ej82OiBED1qmSXmLbbmdFNXm7N1T4yT7d3MUxFmU2StvhV0ABqHLT1E50HQf?=
- =?us-ascii?Q?op0Va+z2xbEh/7KlGZlgy++2mxYCl3eb4s7lSm3daBoXJJTfFC3ZMkCs8y8z?=
- =?us-ascii?Q?0rZnpO7dqiiyXB/WPZI6LYsnKrGUGlMIGj0Uq3g1oaOPz6wMxdTGJd91Hj6N?=
- =?us-ascii?Q?JtQ2tyMV1mtuI6q2NqllXJmCzAaWEhz1s/Sf1sa8h+0PJm6GU/c8B1rgkkAh?=
- =?us-ascii?Q?xEhtSMNYgz1fI7VoIKiAj9a30SAzt9s/NIR1nAfG/FJyZPjjUnGpoA7dCiN4?=
- =?us-ascii?Q?Otignxn6pQnwVWLO3le3JSNiK94Jl6ciChQjCJlbUKiY91sERUZxMCG89sKu?=
- =?us-ascii?Q?gjc5jynlvUuJBaM0SwgKrefZix3zrmQuwxBFYC+KO8n5bk1nGgUk5+QArlA0?=
- =?us-ascii?Q?/rw9lL7XdQ=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8661dd14-2117-40da-a396-08de7aabe9a5
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB7900.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Mar 2026 11:39:51.3731
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: W+hgPKY2yXF5maJ1O6NiDJ6C+S4XSmYWaoL9Cf1G53OEMvjEijlFN1oVvw/3LMGynN5IVJ1g645/aiGAhux71w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7899
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2 net v3] net: bridge: fix nd_tbl NULL dereference when
+ IPv6 is disabled
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev,
+ roopa@cumulusnetworks.com, sdf@fomichev.me, petrm@nvidia.com,
+ horms@kernel.org, razor@blackwall.org, pabeni@redhat.com, kuba@kernel.org,
+ edumazet@google.com, davem@davemloft.net, andrew+netdev@lunn.ch,
+ Guruprasad C P <gurucp2005@gmail.com>
+References: <20260304120357.9778-1-fmancera@suse.de>
+ <20260305113940.GA1359245@shredder>
+Content-Language: en-US
+From: Fernando Fernandez Mancera <fmancera@suse.de>
+In-Reply-To: <20260305113940.GA1359245@shredder>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_CC(0.00)[vger.kernel.org,lists.linux.dev,cumulusnetworks.com,fomichev.me,nvidia.com,kernel.org,blackwall.org,redhat.com,google.com,davemloft.net,lunn.ch,gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received,2a07:de40:b281:104:10:150:64:97:from];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[netdev];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim,suse.de:mid,suse.de:email,nvidia.com:email]
+X-Rspamd-Queue-Id: 965F25BCD5
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
 
-On Wed, Mar 04, 2026 at 01:03:56PM +0100, Fernando Fernandez Mancera wrote:
-> When booting with the 'ipv6.disable=1' parameter, the nd_tbl is never
-> initialized because inet6_init() exits before ndisc_init() is called
-> which initializes it. Then, if neigh_suppress is enabled and an ICMPv6
-> Neighbor Discovery packet reaches the bridge, br_do_suppress_nd() will
-> dereference ipv6_stub->nd_tbl which is NULL, passing it to
-> neigh_lookup(). This causes a kernel NULL pointer dereference.
+On 3/5/26 12:39 PM, Ido Schimmel wrote:
+> On Wed, Mar 04, 2026 at 01:03:56PM +0100, Fernando Fernandez Mancera wrote:
+>> When booting with the 'ipv6.disable=1' parameter, the nd_tbl is never
+>> initialized because inet6_init() exits before ndisc_init() is called
+>> which initializes it. Then, if neigh_suppress is enabled and an ICMPv6
+>> Neighbor Discovery packet reaches the bridge, br_do_suppress_nd() will
+>> dereference ipv6_stub->nd_tbl which is NULL, passing it to
+>> neigh_lookup(). This causes a kernel NULL pointer dereference.
+>>
+>>   BUG: kernel NULL pointer dereference, address: 0000000000000268
+>>   Oops: 0000 [#1] PREEMPT SMP NOPTI
+>>   [...]
+>>   RIP: 0010:neigh_lookup+0x16/0xe0
+>>   [...]
+>>   Call Trace:
+>>    <IRQ>
+>>    ? neigh_lookup+0x16/0xe0
+>>    br_do_suppress_nd+0x160/0x290 [bridge]
+>>    br_handle_frame_finish+0x500/0x620 [bridge]
+>>    br_handle_frame+0x353/0x440 [bridge]
+>>    __netif_receive_skb_core.constprop.0+0x298/0x1110
+>>    __netif_receive_skb_one_core+0x3d/0xa0
+>>    process_backlog+0xa0/0x140
+>>    __napi_poll+0x2c/0x170
+>>    net_rx_action+0x2c4/0x3a0
+>>    handle_softirqs+0xd0/0x270
+>>    do_softirq+0x3f/0x60
+>>
+>> Fix this by replacing IS_ENABLED(IPV6) call with ipv6_mod_enabled() in
+>> the callers. This is in essence disabling NS/NA suppression when IPv6 is
+>> disabled.
+>>
+>> Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+>> Reported-by: Guruprasad C P <gurucp2005@gmail.com>
+>> Closes: https://lore.kernel.org/netdev/CAHXs0ORzd62QOG-Fttqa2Cx_A_VFp=utE2H2VTX5nqfgs7LDxQ@mail.gmail.com/
+>> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
 > 
->  BUG: kernel NULL pointer dereference, address: 0000000000000268
->  Oops: 0000 [#1] PREEMPT SMP NOPTI
->  [...]
->  RIP: 0010:neigh_lookup+0x16/0xe0
->  [...]
->  Call Trace:
->   <IRQ>
->   ? neigh_lookup+0x16/0xe0
->   br_do_suppress_nd+0x160/0x290 [bridge]
->   br_handle_frame_finish+0x500/0x620 [bridge]
->   br_handle_frame+0x353/0x440 [bridge]
->   __netif_receive_skb_core.constprop.0+0x298/0x1110
->   __netif_receive_skb_one_core+0x3d/0xa0
->   process_backlog+0xa0/0x140
->   __napi_poll+0x2c/0x170
->   net_rx_action+0x2c4/0x3a0
->   handle_softirqs+0xd0/0x270
->   do_softirq+0x3f/0x60
+> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 > 
-> Fix this by replacing IS_ENABLED(IPV6) call with ipv6_mod_enabled() in
-> the callers. This is in essence disabling NS/NA suppression when IPv6 is
-> disabled.
-> 
-> Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
-> Reported-by: Guruprasad C P <gurucp2005@gmail.com>
-> Closes: https://lore.kernel.org/netdev/CAHXs0ORzd62QOG-Fttqa2Cx_A_VFp=utE2H2VTX5nqfgs7LDxQ@mail.gmail.com/
-> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+> I assume you will remove ipv6_stub from the bridge in net-next
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-
-I assume you will remove ipv6_stub from the bridge in net-next
+Yes, a patch series dropping ipv6_stub is cooking.
