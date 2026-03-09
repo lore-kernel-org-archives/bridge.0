@@ -1,220 +1,186 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012007.outbound.protection.outlook.com [40.107.200.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19ADB256C84;
-	Mon,  9 Mar 2026 10:24:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773051865; cv=none; b=FjZALrB+tn2A8lnDjKor/8ZNb52frpoiCXDadez1G3/1c+nmSKOMUqymnv3IB+pSkop4FJXNXce/kzLFgQjnmPJXAiP10mWgXglkd4MtcS9lW2zuLNm2jkQ4b512MezJmKGahg67dNm8ix7+BmWyzMgv+paajjiDtnqm6Y05nNE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773051865; c=relaxed/simple;
-	bh=BvtwtwcwSfVKcyfpQtaLtqIA+tgqr1RTHQjVXI2Vme4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nf44ujCLCXoRRlbycuyQjTGGyjXxU+ku6q8dhmwfcZoGBlEHVPYr0GYKRlJYwxa4rj8MZg3zoZEUKiUDD2PwQOwC6xMtHi1Mi9b8f3hiV2yk8U2GAYnRuOdOsZQB2s6WoEyO5XmlQn5cvaLy6rlBxaE8xtxtt+ezFwfFdF2zDz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VyxrtNLr; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 577C824EAB1
+	for <bridge@lists.linux.dev>; Mon,  9 Mar 2026 12:31:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.7
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773059485; cv=fail; b=ibJ89Rz1K716Lj2oU5oXy6JlEirdFp4/pp4t0iFFhHQw5gC5l4ymJkr1DQ/meOVINsU9k+xuKbvi5cB3n13FSXRAs+f1VcUFh/kbUQCyjhz0hjGlGU6kxCSZC0oYK5zhF1qshZe0ZoZooT920nlz5LCfsaFb5hd9O6kiTAYFZow=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773059485; c=relaxed/simple;
+	bh=yKlhKmJbzhCCU4dpITaqpoRgIETYGbLTLeboLrbC4bs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=RDncjWyIMBUWO4iZLhSkyVssq0jILefg81u0K2IzZ+TH6GiDVidIIzEJUFTYjSLZmUwBRrm+HRUacPaMSJu35PR6pFfO9m0jjZ+472zhwUrNEOmIFYojmuS6vai8wvr2wmoWwb2z5/VEIdp95bQg5pjJNiuerR5SgCkBODnJlkI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CAVz3KiW reason="signature verification failed"; arc=fail smtp.client-ip=40.107.200.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VyxrtNLr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2071CC4CEF7;
-	Mon,  9 Mar 2026 10:24:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773051864;
-	bh=BvtwtwcwSfVKcyfpQtaLtqIA+tgqr1RTHQjVXI2Vme4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=VyxrtNLruvKU9Vq3Qy2KtTqc+zYLfcjs4YIvhrvgiJb5gtOY46oVjmEXXf7YinaVE
-	 5khuGRS3qY3UVL3hy3wmqnxBqvI1CB9WN5omD4S1iOusTrEMAErj8IVjZpI2iwTydl
-	 kp1MAotDxje3JrxOzGaxEaQpq2ccXBvx6bQYBMFVG4QmeEjqOMPkj/eShoCuRfouBI
-	 VHIUcd0fANbygZgY+He3mnYpd8yx4sU8KIp4XiAdUHQzAwOv9Gh9kd8B65S5RAaXQY
-	 fNJ2en5dg5ao95Rm8vU1c8tDOfIl9ck6y/pl+8clVoNNZR7PoKKxzwBPVU5Skak+rq
-	 q5HmKfWfPwj6w==
-Message-ID: <01a4936f-77cd-4c60-a1be-cabec872a2bb@kernel.org>
-Date: Mon, 9 Mar 2026 11:24:06 +0100
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CAVz3KiW"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=tV6wb79foCTjLQ/1RbHJQ+jLEjdRyg5mvVxBTRqynvHBu/7502j+bV5MT+2ockUKIQTGnQ6ThEbgw86aHEaAza1A1lGsGUS040+lrzxMtsRBQIQ+J1v+Aw+WXD2OB3ORx7XEQcptjMtzlzJvAPAhgSuq+yxKBbq/70sJROxiapj7R/F+mU6EGlv4aXGF/8dJYjddciMMKpMpnr3qHF5jFkWLGx5lMSrmWmVrHLig8ch+BAz5WBxhSIud5w5aTybANrpjlaeLm2tujRNfUemiW7QinTcwUwQAv0M48p+/Rx24eaHmf3i7ek4EXkLo+EJmTjO0eH3ZxFCz2fkTNs0SrA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Domb6dxE5FUA8v/gR3qdCb9XPX/gt5uil8SU1RTf61w=;
+ b=DgJzSFXTIPZW94+Yo4kC6JttSMwob6EJVcYxtzNldkipC4UuY8b1Pi8DCAdU2kh2m6fNpI55NLLIUNYJgiB5plDY7gzRNxMHSjps/vxS6ZjL9phXZ5Rq4pqLEigrgmtHwHbwN6n7GAIwcRp3fmA1muaTLbVLNmS0jgyKNutcadOdSBb9LVM91V7nojKu342l9qOfoQXjVk2morOZ6Gwq/cmLElsbsS/3e2NWS4ueVIHMB6Bz1R1Pms2oXFrs/iLyEHJcbXJDwhdrPrfEpEyUQGGn8kPbu7AiRMhoay9ZdVZKEhwYb+gwJAdnSDMpONIZ3UOj8dPksJ+qBhk7ARFInw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Domb6dxE5FUA8v/gR3qdCb9XPX/gt5uil8SU1RTf61w=;
+ b=CAVz3KiWJKfbVHjCPww5DlDcMnGzMt5/w+8Uz5fKUf5DC18qDhFESSIDmAcK5DT1v50+eLUpEdYDEZMoWZRRU1ZMXxn3sSAldWbY5iXws3XHYeN6pY7dfTsYy+O55URUB20vDt/NbwosufVY7zhusZYwyr58l5kdhJ04HhERhmAsT57VLTIGyvQdyihsdL1FmsJhFY4NrRdWMnmcyzsatzS8QTtWE0rrAeqoK3hsVIaRdd/zZ6rolfYP7VQFn3tzlJVUuwLmeWpZK35Krx23C1YBa2+NTrjA1JU/Hu6nZ4a/HeDDMuk5teZYhfWGnXWB42tICc+UgimSEUbaN94nmw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
+ by SJ0PR12MB5664.namprd12.prod.outlook.com (2603:10b6:a03:42b::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.10; Mon, 9 Mar
+ 2026 12:31:19 +0000
+Received: from DS0PR12MB7900.namprd12.prod.outlook.com
+ ([fe80::3033:67fc:3646:c62f]) by DS0PR12MB7900.namprd12.prod.outlook.com
+ ([fe80::3033:67fc:3646:c62f%5]) with mapi id 15.20.9700.003; Mon, 9 Mar 2026
+ 12:31:19 +0000
+Date: Mon, 9 Mar 2026 14:31:09 +0200
+From: Ido Schimmel <idosch@nvidia.com>
+To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@google.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Xiao Liang <shaw.leon@gmail.com>, shuah@kernel.org,
+	petrm@nvidia.com
+Subject: Re: [PATCH net-next v4 03/14] net: bridge: mcast: avoid sleeping on
+ bridge-down
+Message-ID: <20260309123109.GA1919092@shredder>
+References: <20260307044548.5230-1-linus.luessing@c0d3.blue>
+ <20260307044548.5230-4-linus.luessing@c0d3.blue>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260307044548.5230-4-linus.luessing@c0d3.blue>
+X-ClientProxiedBy: TLZP290CA0007.ISRP290.PROD.OUTLOOK.COM (2603:1096:950:9::7)
+ To DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/10 net-next] ipv6: convert CONFIG_IPV6 to built-in only
- and clean up Kconfigs
-To: Fernando Fernandez Mancera <fmancera@suse.de>, netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
- Selvin Xavier <selvin.xavier@broadcom.com>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
- Simon Horman <horms@kernel.org>, Saurav Kashyap <skashyap@marvell.com>,
- Javed Hasan <jhasan@marvell.com>,
- "maintainer:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER"
- <GR-QLogic-Storage-Upstream@marvell.com>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- Nilesh Javali <njavali@marvell.com>,
- Manish Rangankar <mrangankar@marvell.com>, Varun Prakash
- <varun@chelsio.com>, Alexander Aring <aahringo@redhat.com>,
- David Teigland <teigland@redhat.com>,
- Andreas Gruenbacher <agruenba@redhat.com>,
- Nikolay Aleksandrov <razor@blackwall.org>, David Ahern <dsahern@kernel.org>,
- Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
- Phil Sutter <phil@nwl.cc>, David Howells <dhowells@redhat.com>,
- Marc Dionne <marc.dionne@auristor.com>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
- Bjorn Andersson <bjorn.andersson@oss.qualcomm.com>,
- Arnd Bergmann <arnd@arndb.de>,
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
- Eric Biggers <ebiggers@kernel.org>, Michal Simek <michal.simek@amd.com>,
- Luca Weiss <luca.weiss@fairphone.com>, Sven Peter <sven@kernel.org>,
- Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
- Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
- Andrew Morton <akpm@linux-foundation.org>, David Gow <david@davidgow.net>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Ryota Sakamoto <sakamo.ryota@gmail.com>,
- Kuniyuki Iwashima <kuniyu@google.com>, Kir Chou <note351@hotmail.com>,
- Kuan-Wei Chiu <visitorckw@gmail.com>, Vikas Gupta
- <vikas.gupta@broadcom.com>,
- Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
- Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
- =?UTF-8?Q?Markus_Bl=C3=B6chl?= <markus@blochl.de>,
- "open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>,
- "open list:INFINIBAND SUBSYSTEM" <linux-rdma@vger.kernel.org>,
- "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@corigine.com>,
- "open list:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER"
- <linux-scsi@vger.kernel.org>,
- "open list:DISTRIBUTED LOCK MANAGER (DLM)" <gfs2@lists.linux.dev>,
- "open list:ETHERNET BRIDGE" <bridge@lists.linux.dev>,
- "open list:NETFILTER" <netfilter-devel@vger.kernel.org>,
- "open list:NETFILTER" <coreteam@netfilter.org>,
- "open list:RXRPC SOCKETS (AF_RXRPC)" <linux-afs@lists.infradead.org>,
- "open list:SCTP PROTOCOL" <linux-sctp@vger.kernel.org>,
- "open list:TIPC NETWORK LAYER" <tipc-discussion@lists.sourceforge.net>
-References: <20260309022013.5199-1-fmancera@suse.de>
- <20260309022013.5199-2-fmancera@suse.de>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260309022013.5199-2-fmancera@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR12MB7900:EE_|SJ0PR12MB5664:EE_
+X-MS-Office365-Filtering-Correlation-Id: 21461247-3a10-4174-0342-08de7dd7c3a9
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|7416014|1800799024;
+X-Microsoft-Antispam-Message-Info:
+	Fd1NMnXvsHALDGZgzItvt8vKNurOCglMleiQ1ArhlZH2HnfYa3iDp7ZGhvvPVoJSJF4drBwyrg9/PvNjCdWE/MysobLq3jc48+y+U4ZOb3qMp24lVhNa2Ew9jxTRd1BeiHHfUEp8JIT1sbvQNp5RsqcfVp0eTUHvAZkHfCko2m4g/w4uLdMN1aDglt8xK/TCKmNLzw6X9GloZZQTHmnqOrPm0EoUk1PfzflWVedho6ql3Wk90Oz017mX8H+8aLICN+Uc/wCVG456n/WV3ttZsE3LuSkMAGsEiIWWHw5rXR7FpLy/ZWdXvz2R90d+Mf131TxdBo/vEam+nihrJ2uQ4dkgJvdsld3yU78GJHFDCE0OFIBUeBNLKxs50/CuXdVUOmHkteoUTHGACBzotcfcixue8gnW50R34opvcO1X+WaF/91esav36X7vckbeJi/5k51sfktdzSfiIwn8DiA4ypft4Y2gxN0KMzRwOGMb672rktKUZnsQUfKIS7tj2nSWTYyW/1/Wf1T8pHj1doym5i7aFKrFiC7grV96sL3KXrl926k8EMOSv1P4Q+9V4Z8IP7bS2ZGZUNdcNGRGLh8QDzgFsSRIalJW+GAuwlXeIc30hB8gNmwmKQwFSA6c4U5KknHU+Ve8JdKHg2fQ0AGX6M7L3CLpjN02m0V4mNJ1y5393kbLuiJhpqxZm3+K+T2hWMLHu1V1KyPB/oe2Xitce9mHyz/57Bc8j3VD18ybTY4=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB7900.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?iso-8859-1?Q?YGA3/oDwDl8DpHrxDGFtUD9kAiCLxe66CZqLp7U5KZW10WPhOqliD3Gdsc?=
+ =?iso-8859-1?Q?cfbqWeBnQjZ+AyPvBuEZpSCbFrzu7xuvPPNr0vwKw4Q8CaAUN7yvE8yEDZ?=
+ =?iso-8859-1?Q?WmW+aMPvOKUeehjOgJt1PRekVsQwiRoSBhKx5f4++Jk3oXAULng1ZxThO0?=
+ =?iso-8859-1?Q?07leOjjzXirlfZoW0aywVlXM8JVBcrENWRTAtu/9jmdVRzJXdQTgq5P92C?=
+ =?iso-8859-1?Q?L19aD1EkraJiWVscwzyWnuM6zp1ROQNezWA5JNKh9EAcJ97lhnzLnr9Keg?=
+ =?iso-8859-1?Q?Vn0P0LXWWg9qfmRWhnOALQgBoWHs+UpXclED/DTQ/irV3O68LHdMyp7D3/?=
+ =?iso-8859-1?Q?VWisXNQjvwvko4KXNQ4H+bFne+dsKSpY/C6Z2fqXHIgVM51F8kCVUpRiCy?=
+ =?iso-8859-1?Q?81cJIqmTVhFJA2JmZ7UQhU+/pP0X4OGmjTSA752JDwygGw9AIlrHLQn9Rg?=
+ =?iso-8859-1?Q?fXKX0tX4/rvHEr7Wip/2j6JD6SYWJFaByOUxlbnOG07xTHxgxGsJVj6bc6?=
+ =?iso-8859-1?Q?CNUlKrzQ1K2brYMJk+SdYvJ0vLMHGuy8vv0se5I4PDxjf5I9Q7wHFVZtXa?=
+ =?iso-8859-1?Q?bG6UD/1SFFrA/tRFvoIDEwJGaCXrV5rr2CwS0Q+wmNA04Ahf/9Q8T2gr95?=
+ =?iso-8859-1?Q?tstJdWXZ3bxXZvTUjL0B5Hn2Kioyy7Arxc2ga/BLBRAcolGFVmkiNHu0Pj?=
+ =?iso-8859-1?Q?xGaCQFAzW2Mn/Ydzb2L3Lds/iztwjgSp4sczYOUcQiate54BKxe0VwUGTh?=
+ =?iso-8859-1?Q?wTN/gZa1u2rCWLa6q8bEQm+BCoJpr549eX8bSQ/jvZsmygjw/9+Y5PfuLD?=
+ =?iso-8859-1?Q?hViDfl0HZuEhAsBcDKcRfanQ/CccIuBvsfqEPcxJo3k3TJyhJRsdYS6oOV?=
+ =?iso-8859-1?Q?yTWijUxDFa4CdfIfKs76wAOe/rARfaB5+YC6qQDdiAhjNsB9RnCfuYpk35?=
+ =?iso-8859-1?Q?8lxAjQ+SQNgiOCvKeF41kJsNMPgRaKLnmlYqOkY/azylHzNcWbtW9vCjv8?=
+ =?iso-8859-1?Q?+jDbri/x6781mHDnjNtPqkVtHAKQdDIw2DLkam2jGFeMMr2s4J4AGKQPXE?=
+ =?iso-8859-1?Q?kkjQGXigMZF2x9fGXfPjTe8eJGt2FlFlcfVfIvexMOBiDnTDE5nP5aS2bB?=
+ =?iso-8859-1?Q?PmMzqJhYFu4t26jLQXkilpVkK8Xrdu1vCrK26YP69yOpcE/MT7GhsYhSDn?=
+ =?iso-8859-1?Q?TdOKI3TAU71Mk6jqHrmp0V/hngRVV6Q60tFiZPGCz51z3YqI2USCa9OA3G?=
+ =?iso-8859-1?Q?ZJX0PcpatBI6933z2cwbkt8vNAYoB8f2gKYTmi5UnDG5DuYmLPpZKfaAg2?=
+ =?iso-8859-1?Q?07E+Zr0z5VxWXAqV86/ZMpCns3XmE+mO3iMN9NBZ75maFJ1M5G0WnCQbB2?=
+ =?iso-8859-1?Q?XBBpoI22wcM+l+o/1c9oN/qdMShMzCGpR8Wlbv6jUHgPrHXx11JUO+LIHo?=
+ =?iso-8859-1?Q?i9LgV8C1bK1c/155PnuGGsjzNX8xvgX4Wxa7kENkxBVgaEO1JyTPLBwJf+?=
+ =?iso-8859-1?Q?U2M7BSv2ObzgM5l9Iasx1ixz3/kwaU+iZ750plwJSLBfbzlNfjokAMLTEn?=
+ =?iso-8859-1?Q?8BPAt5AyncptTo+mUvRhf+SBty8p6R5A1bzv5hBXdC9eMzlTmSL1pnqhJh?=
+ =?iso-8859-1?Q?rzaocc6yK5ACjn5il6FjMaHylXzRADBqVRDaLsS2gyWsLg3tc2X+yA3UYz?=
+ =?iso-8859-1?Q?RV4uPbtqGDcDYhY92uGXwVuIHqgu6TaAZ/Uk2JKu7yGXJoo4F1nIrHGaph?=
+ =?iso-8859-1?Q?772pB72t2ba5CFqM4MIn2ivRDYHN0DpjdT19efX9IJQy3Luersc0AkNUHS?=
+ =?iso-8859-1?Q?AqoGJxcf1g=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 21461247-3a10-4174-0342-08de7dd7c3a9
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB7900.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2026 12:31:19.0237
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: V6fMB1veI2LnQKhHFtXrukzsz3Fmt+Ed3p2tNjwPU9DysuIctNXUAPHAd6aAOIrAyLjVs3lyD4qWG9HSUvu2Uw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB5664
 
-On 09/03/2026 03:19, Fernando Fernandez Mancera wrote:
-> Configuring IPV6 as a module provides little or no benefit and requires
-> time and resources to maintain. Therefore, drop the support for it.
-> 
-> Change CONFIG_IPV6 from tristate to bool. Remove all Kconfig
-> dependencies across the tree that explicitly checked for IPV6=m. Adjust
-> all the default configurations from CONFIG_IPV6=m to CONFIG_IPV6=y. In
-> addition, remove MODULE_DESCRIPTION(), MODULE_ALIAS(), MODULE_AUTHOR()
-> and MODULE_LICENSE().
-> 
-> This is also replacing module_init() by fs_initcall().
-> 
-> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
-> ---
->  arch/arm64/configs/defconfig                | 2 +-
->  arch/m68k/configs/amiga_defconfig           | 2 +-
->  arch/m68k/configs/apollo_defconfig          | 2 +-
->  arch/m68k/configs/atari_defconfig           | 2 +-
->  arch/m68k/configs/bvme6000_defconfig        | 2 +-
->  arch/m68k/configs/hp300_defconfig           | 2 +-
->  arch/m68k/configs/mac_defconfig             | 2 +-
->  arch/m68k/configs/multi_defconfig           | 2 +-
->  arch/m68k/configs/mvme147_defconfig         | 2 +-
->  arch/m68k/configs/mvme16x_defconfig         | 2 +-
->  arch/m68k/configs/q40_defconfig             | 2 +-
->  arch/m68k/configs/sun3_defconfig            | 2 +-
->  arch/m68k/configs/sun3x_defconfig           | 2 +-
->  drivers/infiniband/Kconfig                  | 1 -
->  drivers/infiniband/hw/ocrdma/Kconfig        | 2 +-
->  drivers/infiniband/ulp/ipoib/Kconfig        | 2 +-
->  drivers/net/Kconfig                         | 9 ---------
->  drivers/net/ethernet/broadcom/Kconfig       | 2 +-
->  drivers/net/ethernet/chelsio/Kconfig        | 2 +-
->  drivers/net/ethernet/mellanox/mlxsw/Kconfig | 1 -
->  drivers/net/ethernet/netronome/Kconfig      | 1 -
->  drivers/scsi/bnx2fc/Kconfig                 | 1 -
->  drivers/scsi/bnx2i/Kconfig                  | 1 -
->  drivers/scsi/cxgbi/cxgb3i/Kconfig           | 2 +-
->  drivers/scsi/cxgbi/cxgb4i/Kconfig           | 2 +-
->  fs/dlm/Kconfig                              | 2 +-
->  fs/gfs2/Kconfig                             | 2 +-
->  net/bridge/Kconfig                          | 1 -
->  net/ipv4/Kconfig                            | 9 ++++-----
->  net/ipv6/Kconfig                            | 6 +-----
->  net/ipv6/af_inet6.c                         | 8 +-------
->  net/l2tp/Kconfig                            | 1 -
->  net/netfilter/Kconfig                       | 8 --------
->  net/rxrpc/Kconfig                           | 2 +-
->  net/sctp/Kconfig                            | 1 -
->  net/tipc/Kconfig                            | 1 -
->  36 files changed, 28 insertions(+), 65 deletions(-)
-> 
-> diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-> index b67d5b1fc45b..0651a771f5c1 100644
-> --- a/arch/arm64/configs/defconfig
-> +++ b/arch/arm64/configs/defconfig
-> @@ -140,7 +140,7 @@ CONFIG_IP_MULTICAST=y
->  CONFIG_IP_PNP=y
->  CONFIG_IP_PNP_DHCP=y
->  CONFIG_IP_PNP_BOOTP=y
-> -CONFIG_IPV6=m
-> +CONFIG_IPV6=y
->  CONFIG_NETFILTER=y
->  CONFIG_BRIDGE_NETFILTER=m
->  CONFIG_NF_CONNTRACK=m
+On Sat, Mar 07, 2026 at 05:45:37AM +0100, Linus Lüssing wrote:
+> @@ -4111,29 +4123,40 @@ void br_multicast_ctx_init(struct net_bridge *br,
+>  	seqcount_spinlock_init(&brmctx->ip6_querier.seq, &br->multicast_lock);
+>  #endif
+>  
+> -	timer_setup(&brmctx->ip4_mc_router_timer,
+> -		    br_ip4_multicast_local_router_expired, 0);
+> -	timer_setup(&brmctx->ip4_other_query.timer,
+> -		    br_ip4_multicast_querier_expired, 0);
+> -	timer_setup(&brmctx->ip4_other_query.delay_timer,
+> -		    br_multicast_query_delay_expired, 0);
+> -	timer_setup(&brmctx->ip4_own_query.timer,
+> -		    br_ip4_multicast_query_expired, 0);
+> +	timer_setup(&brmctx->ip4_mc_router_timer, NULL, 0);
+> +	timer_setup(&brmctx->ip4_other_query.timer, NULL, 0);
+> +	timer_setup(&brmctx->ip4_other_query.delay_timer, NULL, 0);
+> +	timer_setup(&brmctx->ip4_own_query.timer, NULL, 0);
+>  #if IS_ENABLED(CONFIG_IPV6)
+> -	timer_setup(&brmctx->ip6_mc_router_timer,
+> -		    br_ip6_multicast_local_router_expired, 0);
+> -	timer_setup(&brmctx->ip6_other_query.timer,
+> -		    br_ip6_multicast_querier_expired, 0);
+> -	timer_setup(&brmctx->ip6_other_query.delay_timer,
+> -		    br_multicast_query_delay_expired, 0);
+> -	timer_setup(&brmctx->ip6_own_query.timer,
+> -		    br_ip6_multicast_query_expired, 0);
+> +	timer_setup(&brmctx->ip6_mc_router_timer, NULL, 0);
+> +	timer_setup(&brmctx->ip6_other_query.timer, NULL, 0);
+> +	timer_setup(&brmctx->ip6_other_query.delay_timer, NULL, 0);
+> +	timer_setup(&brmctx->ip6_own_query.timer, NULL, 0);
+>  #endif
+> +
+> +	/* for non-vlan multicast timer callbacks:
+> +	 * they are set on br_multicast_open() instead
+> +	 */
+> +	if (!vlan)
+> +		return;
+> +
+> +	spin_lock_bh(&br->multicast_lock);
+> +	br_multicast_reset_timer_cbs(&vlan->br_mcast_ctx);
+> +	spin_unlock_bh(&br->multicast_lock);
 
-No, I don't want IPV6. It is allowed as module if some users need, but
-it's heavy bloat added to each person's build testing setup. Kernel
-image is already huge and barely fits boot partitions when built with
-KASAN and I do want a generic image with KASAN.
+It wasn't clear to me why special treatment is needed for the per-VLAN
+context and it's not explained in the commit message either. I suspect
+that it's a workaround for the fact that br_multicast_reset_timer_cbs()
+is only called for VLANs that were actually added on the bridge (i.e.,
+"brentry"), whereas the "other query" timers are used even when the VLAN
+entry is not used for filtering.
 
-It must stay module for me. Alternatively, drop it, but then some users
-will be really affected.
+This is related to my comment on patch #9 and it should probably be
+handled in br_multicast_toggle_vlan(), which is called both when
+multicast snooping is toggled on a specific VLAN and on all the VLANs
+(i.e., "mcast_vlan_snooping").
 
-Best regards,
-Krzysztof
+>  }
