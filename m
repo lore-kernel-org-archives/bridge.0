@@ -1,229 +1,876 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010038.outbound.protection.outlook.com [52.101.193.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B8243859C7
-	for <bridge@lists.linux.dev>; Sun,  8 Mar 2026 20:13:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.38
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773000784; cv=fail; b=KUPBGXVXJ1xgy4ao3szaBMOoHD0RrePjX/HdTj3ykPEYvTsZXA4JCXFUAICttBfeZEGXqON0U8R11bCUP6dFFSPsaLSYpxWZ46mF7D0spqL8+fGJJcrPWvtqTu2CMEVUbY+QgAQMUByaNZwRsugGnQOtjM4hLEGXeNrWH0Ykmj4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773000784; c=relaxed/simple;
-	bh=uelAa2WjUMehXSFm/H5ENPgvi2AVlKS9TYhFSHvx3+c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Kx6Zao1PvsjXcUNbgUgWs9FzioWtbfEzRihMWmwjla4a2eTQev4THMI6hUIjaw22MjTCJ2LtQCvUpl8K+Z9zkHso30RF+78SH3bEKUS/G4tya4KdWggPXmvrJG1/fzVsvJcaQVYfmeISgFLms2eYQoIvqgPdC3RsbDUkw0A7wEg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=OyWMken9 reason="signature verification failed"; arc=fail smtp.client-ip=52.101.193.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C447B23A98E
+	for <bridge@lists.linux.dev>; Mon,  9 Mar 2026 02:21:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773022868; cv=none; b=fCK3GQ3buhue1PSfrgT10SW4DU78rnTmk2tewQKv0ooEU4lj//c32UrVZUTz23dhGyPrPXOZOmnYwCv2XAvb5cUvYeTwg/7f4eA7pZMiTy/nCOpOwVwo87h+4zYvUuV+vdWIWrJphyvwqnAvqV3L180POpAB9RRsYvBMQqRrMMU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773022868; c=relaxed/simple;
+	bh=9oIdB65xkGcnD4QVv8aacj2gF35ruEaQ9bltldsurWc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jeoWeGLANvV/6R0vEzqE+GhQoj+hB6zg5cRVO64amJZI/EbYluQ/31W9yQgz83xxe6Tqbe5hXvGulsvuf9kpjDcsKBWRzP1f3lAZBSL6auahxB34R2RGgW8gLakcbEv0InbLlLY9yyjp1qlfyjaHP20bXy2q/jKQz8NjecVbQM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ivRXx5Oj; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=OnowB2R8; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ivRXx5Oj; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=OnowB2R8; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="OyWMken9"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Andh9qq7iN3UhaNd+UPTL/9xIp7lcv9d3uTTxWH6FzLNRtyeo9SyAJK94HEs+4YafQaFmOAH0GcV+2irhLcp7NiLispNZyrKAU6Mq7IyDCj8vqw1P2SpRPtdFQ5yU8Ml1fHXcIHiy8UDhgu6vT6DwqJ8Nnmi/ZXSZ+2X6I2s1H9aIfCvxQxYqzdeNTdgPOfvwANcmuM7ktjBAECKMaG+T7wPzY1+cbLPfwotk+lLVZZPQtsA3hJ+fsVSdvxe03Am1AE8bU0wAu5f03N8ssjH+lX2ZocacdwppmLR/KR2u3DxRTfEZOTubh5fhKI5hNTbg33ICCzOuxJZRIdNYSqMBw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dfkCrTTy6Bk7OuxFYMsn+ncHFLrXgj404+5Fw4zt3As=;
- b=ijzIKk1PrhC4AJ3l0rz50DvyV8t7Aa08hB2JNdFqV+Q89hwhCMXjFaqRXyw4UEEW2a3fjVDCLmZuwIwQdLzQh/3NqUtbAMFkhIP+8Q1uejp5WkWA52eyJj7OTU26xekeh2W6wrnQfKnoDOOxdMQeDLFybApeR7pqNnmyWxPTYbYNPEUGGsex3RqcYa6OvaqCMFaQ/juNxV8VlLNaAzNU1EQkSmdltfac9Qfm6boZ1lkdgV4ZRu0mRIZtJwMq8AeFQ+DyHT5m2gfyyQzm+TD/XNqXoA0mB4pljqT2kp20cfF6Yn/ZvX8iCeZwLsjyXZwHhJ8dBIzTJOsFXz9SiVgOfw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dfkCrTTy6Bk7OuxFYMsn+ncHFLrXgj404+5Fw4zt3As=;
- b=OyWMken9vtJUGQROoz156aAmAh8sH2vV9O1GfSlS9eG7GiejE+8hsbSag444l/IOBexrbRd0GJ6e4lrcMlDJgs4DuWO4x+AuYrfj08V1ly7ayqHFX53CrC+F9sfhySdlLkyC+Dmktt2gg+OSYUm4efKUbl0OWMhfDBiqhzecIoH28GyzkrUBiT/3eHUfys3dZzscPMGIuVyYC1bNfhNEZA8D29pKgjTOGOHt3o7XaPmSE/327dTYUJAL8i4QklPqaGF+HFvBT9y9uD3OGD39EPYWgcwM67X+T5v7sNKe4zW0kfS5EwMKOgnsMxZG50ORvSfEYqc111ckdr0Wzy5i0Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
- by IA0PR12MB9009.namprd12.prod.outlook.com (2603:10b6:208:48f::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.10; Sun, 8 Mar
- 2026 20:13:00 +0000
-Received: from DS0PR12MB7900.namprd12.prod.outlook.com
- ([fe80::3033:67fc:3646:c62f]) by DS0PR12MB7900.namprd12.prod.outlook.com
- ([fe80::3033:67fc:3646:c62f%5]) with mapi id 15.20.9700.003; Sun, 8 Mar 2026
- 20:12:59 +0000
-Date: Sun, 8 Mar 2026 22:12:50 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	Nikolay Aleksandrov <razor@blackwall.org>,
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ivRXx5Oj";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="OnowB2R8";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ivRXx5Oj";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="OnowB2R8"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 099744D1EE;
+	Mon,  9 Mar 2026 02:21:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1773022864; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WjG4ib8vehXL8WZreb8zwLoBFdV2J5UTXxhsLl3FAVw=;
+	b=ivRXx5OjHjBhcIOjREvA/2OrtGkdTQbz1UDNAJbSvXh7ulfez2Hb82vFjScOUa5DPf9L0u
+	DQok4O6qu0aoevUtzGhii/9prdCsb19SgZu32zt2NN8MiVPtuMpIQxV9DC2+gI1e0/sqhD
+	VCa/mBTResjT0yWsCJ7MVaelmz84OWI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1773022864;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WjG4ib8vehXL8WZreb8zwLoBFdV2J5UTXxhsLl3FAVw=;
+	b=OnowB2R8Zm4rOKQqLNdQGg9rjDb2PZLQtcDIhV1SkzFa5IkESmqO9Y8lfE41C1JYfb2ZnS
+	i3JkLxnzl3r8O0Dw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1773022864; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WjG4ib8vehXL8WZreb8zwLoBFdV2J5UTXxhsLl3FAVw=;
+	b=ivRXx5OjHjBhcIOjREvA/2OrtGkdTQbz1UDNAJbSvXh7ulfez2Hb82vFjScOUa5DPf9L0u
+	DQok4O6qu0aoevUtzGhii/9prdCsb19SgZu32zt2NN8MiVPtuMpIQxV9DC2+gI1e0/sqhD
+	VCa/mBTResjT0yWsCJ7MVaelmz84OWI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1773022864;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=WjG4ib8vehXL8WZreb8zwLoBFdV2J5UTXxhsLl3FAVw=;
+	b=OnowB2R8Zm4rOKQqLNdQGg9rjDb2PZLQtcDIhV1SkzFa5IkESmqO9Y8lfE41C1JYfb2ZnS
+	i3JkLxnzl3r8O0Dw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DE9CF3EC6F;
+	Mon,  9 Mar 2026 02:20:59 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id iHfhMosurmk0MgAAD6G6ig
+	(envelope-from <fmancera@suse.de>); Mon, 09 Mar 2026 02:20:59 +0000
+From: Fernando Fernandez Mancera <fmancera@suse.de>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Fernando Fernandez Mancera <fmancera@suse.de>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Leon Romanovsky <leon@kernel.org>,
+	Selvin Xavier <selvin.xavier@broadcom.com>,
 	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Simon Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	"David S . Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Petr Machata <petrm@nvidia.com>,
+	Simon Horman <horms@kernel.org>,
+	Saurav Kashyap <skashyap@marvell.com>,
+	Javed Hasan <jhasan@marvell.com>,
+	GR-QLogic-Storage-Upstream@marvell.com (maintainer:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER),
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Nilesh Javali <njavali@marvell.com>,
+	Manish Rangankar <mrangankar@marvell.com>,
+	Varun Prakash <varun@chelsio.com>,
+	Alexander Aring <aahringo@redhat.com>,
+	David Teigland <teigland@redhat.com>,
+	Andreas Gruenbacher <agruenba@redhat.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	David Ahern <dsahern@kernel.org>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	Phil Sutter <phil@nwl.cc>,
+	David Howells <dhowells@redhat.com>,
+	Marc Dionne <marc.dionne@auristor.com>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	Jon Maloy <jmaloy@redhat.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+	Bjorn Andersson <bjorn.andersson@oss.qualcomm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+	Eric Biggers <ebiggers@kernel.org>,
+	Michal Simek <michal.simek@amd.com>,
+	Luca Weiss <luca.weiss@fairphone.com>,
+	Sven Peter <sven@kernel.org>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	David Gow <david@davidgow.net>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Ryota Sakamoto <sakamo.ryota@gmail.com>,
 	Kuniyuki Iwashima <kuniyu@google.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Xiao Liang <shaw.leon@gmail.com>, shuah@kernel.org,
-	petrm@nvidia.com
-Subject: Re: [PATCH net-next v4 09/14] net: bridge: mcast: track active
- state, VLAN snooping
-Message-ID: <20260308201250.GA1806274@shredder>
-References: <20260307044548.5230-1-linus.luessing@c0d3.blue>
- <20260307044548.5230-10-linus.luessing@c0d3.blue>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260307044548.5230-10-linus.luessing@c0d3.blue>
-X-ClientProxiedBy: TL0P290CA0006.ISRP290.PROD.OUTLOOK.COM (2603:1096:950:5::9)
- To DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
+	Kir Chou <note351@hotmail.com>,
+	Kuan-Wei Chiu <visitorckw@gmail.com>,
+	Vikas Gupta <vikas.gupta@broadcom.com>,
+	Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
+	Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
+	=?UTF-8?q?Markus=20Bl=C3=B6chl?= <markus@blochl.de>,
+	linux-m68k@lists.linux-m68k.org (open list:M68K ARCHITECTURE),
+	linux-rdma@vger.kernel.org (open list:INFINIBAND SUBSYSTEM),
+	oss-drivers@corigine.com (open list:NETRONOME ETHERNET DRIVERS),
+	linux-scsi@vger.kernel.org (open list:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER),
+	gfs2@lists.linux.dev (open list:DISTRIBUTED LOCK MANAGER (DLM)),
+	bridge@lists.linux.dev (open list:ETHERNET BRIDGE),
+	netfilter-devel@vger.kernel.org (open list:NETFILTER),
+	coreteam@netfilter.org (open list:NETFILTER),
+	linux-afs@lists.infradead.org (open list:RXRPC SOCKETS (AF_RXRPC)),
+	linux-sctp@vger.kernel.org (open list:SCTP PROTOCOL),
+	tipc-discussion@lists.sourceforge.net (open list:TIPC NETWORK LAYER)
+Subject: [PATCH 01/10 net-next] ipv6: convert CONFIG_IPV6 to built-in only and clean up Kconfigs
+Date: Mon,  9 Mar 2026 03:19:34 +0100
+Message-ID: <20260309022013.5199-2-fmancera@suse.de>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260309022013.5199-1-fmancera@suse.de>
+References: <20260309022013.5199-1-fmancera@suse.de>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB7900:EE_|IA0PR12MB9009:EE_
-X-MS-Office365-Filtering-Correlation-Id: d07ab970-6ba7-4a67-6e71-08de7d4f1851
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|7053199007;
-X-Microsoft-Antispam-Message-Info:
-	Aus5bhEBDhA1uubTpTYr8fG5gEasmxFbX5NGY/Do15gG5pp3fdLJfCSckkIjOc0ZpLDbxDVi1dP+FUPv4jZ8jHKAnn7LFkYCgVlE+xhFtFRZsQlNL4r4emalCbJcDIlSkX3JQuUU3b63hD5uOR1dBXr1iznyB8r+jqsdSC5u5vQofJ568TJSqY6oB7x+7QhQG1o6NiQaO+gFhSt0OkwXkYbOfodcBooZCvQwRDCkJdca3Q2D7I7NLJzy0kvn0yT9XvFmeHzzYoj6dYPd/4s0wgBm+DEfxmbRJiqBqiXqJE7DLk2NzKWAEMZ/bAypZPb0e+YGWgDyzwCBZNglPHY/s4BS4qV9mtI346tfnd4zwpC3d3oMvMf2IRBSdLfVQUC7oRj0f5GdDZbkxrtV57oDOlA0jaNASiYAFqeepaNGxZ0kfP9djoEv2JXU6E1i5tpSfUv0pXoP4LTet1amrnKXfFxhc+GIZDSSfFMMjmVljQ3FqiuKjTEAOVcJMR9aXwpP7OIuzL/ocrlNFs/nhP6m5okPoaogG6fsDJ9/yJOf/Bgygld4UAijbjJPztJyTd40vtskRT9KhVfoyk4dYBy1iqb+25yQptKwqIdAvjibT+UD3nzZbF30kmXA2L9wVbXVXSqOIL0HUAmsOUIoVqbtE4gusOtNk2OT/O41q/t/Y/3fEgnE0e6UHFlYFOMn2YZQ2QPnhJNGJ/v072xhMDBUzhy1zewJ58gKZD6bwrWDjzA=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB7900.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(7053199007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?iso-8859-1?Q?lDKFWm8iak2nSsDno3jAE08i3veLw6DR7A2tu2Uao5wCnvVPD0dVaVtDi/?=
- =?iso-8859-1?Q?cbKvpKDcZzpYuACthGrMUJP/0T+GSemOlY/m8AfysjonBFfbGbq2RjQfx9?=
- =?iso-8859-1?Q?77XIJYV/Hv96hIW9oovKDaTh0Dyh0pn1xssD9aAqF8mrcxawb2hCIHnO+S?=
- =?iso-8859-1?Q?qoba4Z4crveOWmCIuBVG6Qg5zp4Mf/cF5d200dFiB86UiJUJ7qUOdNU3vO?=
- =?iso-8859-1?Q?4HWF6n70ylW7OX9w2vgTrsyfmSCrEav18uJH9qX1C4IFH91LVXd5aWJ6DD?=
- =?iso-8859-1?Q?WlheYNu5JwotJk1XFcueLHR4JqH6i4xiksGeIpy3IHt3zwbfSkZ6YvFrfP?=
- =?iso-8859-1?Q?qhME5ukea0FsRJ1oPjl9FwVoUan+1DfbiN5YgiuBmkCl+eoXJMMfZ4D5Wf?=
- =?iso-8859-1?Q?Soc/Twxo0ffMxCcP06nomhDW7vUnSaU3uhBOFUvC0SkAxglZYEJRv3MeZV?=
- =?iso-8859-1?Q?RInel9SfwpJqtryV+2bo7kK7MsRb9L+Lq+NVqoyWXHIXiruQSZOL6xo7pW?=
- =?iso-8859-1?Q?MQ27TsvMh/ya0K7MDRjmRzSaKTaa1rBMIw26wlLlyGi2DBHMffW90HwniF?=
- =?iso-8859-1?Q?n7vn5QKvfP2R9/eiJXloGY5uP1Y+eQXdTETmEZTdnLy5iGy/IcmEtLroty?=
- =?iso-8859-1?Q?3RAKoGLjwJaQ3adh1G4X47WBeJ9gnfryujcbEumWjKgU2JCYVb8r6lTun7?=
- =?iso-8859-1?Q?AjtAtL8JNvbBBuxwmocm3wyw2hXZ5U3aJ2TRpidly/gGgXiCNhYvRgx5m+?=
- =?iso-8859-1?Q?bui/Qf0jk6IzfYRYwz8A6EzqdN8lOc4n2H7BIORH8eUDGGtmmms5416LsV?=
- =?iso-8859-1?Q?LLvNSChwsghJ8fjxDFusGmRfdKYd8r1IOC7uCBJvhBe0lSY1JiVAcD71E9?=
- =?iso-8859-1?Q?Z5dYpJc7QVb2nx+d9Wwij+EhYrOh30Xw5zD7jhD2iRZwJBKmQ96+8Bo28Q?=
- =?iso-8859-1?Q?4kg+K+SRpcq27ybavEphHQPGT3DWD5aX4zt3agsoVh5gzEL6lz3FTjs/Db?=
- =?iso-8859-1?Q?ZfJ4eXHGVJC67GYzPM6xhoEsuJaSAqUwwkBF7eh2y5ucCuErW6UB7GKniG?=
- =?iso-8859-1?Q?DnUb9ScuJEIr9PeRkYe2EyMs4BR2QYprl7A/QEpm9YpUBjjbsJ6jIdS0jK?=
- =?iso-8859-1?Q?RiIMtiAJASamzROrshnSpZ/PW97DTslsyaX3LQ0wlQkCRLxku2oI9RDRXl?=
- =?iso-8859-1?Q?d57x/us12NDdDzE0eP1sW11T3MazhC7QICuycxbg4ZIv51a/afDY8aQO/b?=
- =?iso-8859-1?Q?wJbt60NYb7i6Bj3RTKay3fVOvrPP1r7JphckmE0cE14or59xFGaNm7Jd8M?=
- =?iso-8859-1?Q?uqtHBPf+Wttyfn2wjiVNTL/wyDgwkEs38FFoCc8TGV73++4JfI+KjVOasq?=
- =?iso-8859-1?Q?vdxD1MUE7XXI+z7bGELL1/g0rIvjVuQFmmDhzz8bOzC7Z9ky/FUis8wkyM?=
- =?iso-8859-1?Q?vn4hjjbu7zjOYfOhBsPzNFKpk5rAyxV9ODDKnJObNXXkQCe0hLWSL98Y6S?=
- =?iso-8859-1?Q?1mSCocppg/hS4fYZMLaDdO50SYPNP5uTqFzKFFhBs1WtEaA1otOMPBHotO?=
- =?iso-8859-1?Q?YZl+f5/ZGYiqKP6xftNX5oMB2sY/32MxhUOd990a+0qy8OcDssKWJt1Lwu?=
- =?iso-8859-1?Q?Hav0axO+TCY/NEGxl0y4rWOZKbheB3FUupGq6Q7JtPDzgsxLYX175hVId9?=
- =?iso-8859-1?Q?zb3obx92/KJ1RB7eQaHhnKtXO55l6JDkSyE7qoi05vfzS7FqJRPS3qISAi?=
- =?iso-8859-1?Q?Ozk0YZdFAhtprmZV6J8YYgMSV5kYUf1/8405BzQQ5h6yyFxphmIYEHMgZq?=
- =?iso-8859-1?Q?h/GRMINiow=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d07ab970-6ba7-4a67-6e71-08de7d4f1851
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB7900.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Mar 2026 20:12:59.8493
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: wENB3+5V6dHJb0alNbc5apqED3mmhDpg7CgaPO1tKu7kqBMPbiXkGhY9UDima019I7fHAYJnPrAsbsGKNQzTeQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB9009
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 0.70
+X-Spam-Level: 
+X-Spamd-Result: default: False [0.70 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	FORGED_RECIPIENTS(2.00)[m:netdev@vger.kernel.org,m:linux-kernel@vger.kernel.org,m:fmancera@suse.de,m:jgg@ziepe.ca,m:pabeni@redhat.com,m:aahringo@redhat.com,m:teigland@redhat.com,m:agruenba@redhat.com,m:fw@strlen.de,m:dhowells@redhat.com,m:jmaloy@redhat.com,m:kuninori.morimoto.gx@renesas.com,m:linux-rdma@vger.kernel.org,m:linux-scsi@vger.kernel.org,s:linux-afs@lists.infradead.org,s:bridge@lists.linux.dev,s:tipc-discussion@lists.sourceforge.net,s:coreteam@netfilter.org];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	URIBL_BLOCKED(0.00)[suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo,tldp.org:url];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com,hotmail.com];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_CC(0.00)[vger.kernel.org,suse.de,linux-m68k.org,ziepe.ca,kernel.org,broadcom.com,lunn.ch,davemloft.net,google.com,redhat.com,nvidia.com,marvell.com,HansenPartnership.com,oracle.com,chelsio.com,blackwall.org,netfilter.org,strlen.de,nwl.cc,auristor.com,gmail.com,oss.qualcomm.com,arndb.de,amd.com,fairphone.com,bp.renesas.com,renesas.com,linux-foundation.org,davidgow.net,gondor.apana.org.au,hotmail.com,blochl.de,lists.linux-m68k.org,corigine.com,lists.linux.dev];
+	R_RATELIMIT(0.00)[to_ip_from(RLpochko8s1nzzw7sn49btux84)];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	TAGGED_RCPT(0.00)[netdev];
+	RCPT_COUNT_GT_50(0.00)[62];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email]
+X-Spam-Flag: NO
 
-On Sat, Mar 07, 2026 at 05:45:43AM +0100, Linus Lüssing wrote:
-> If VLAN aware multicast snooping is enabled then we need to perform a
-> few extra checks to figure out if multicast snooping is actually enabled
-> for a specific VLAN, as there is then an additional per VLAN multicast
-> snooping toggle.
-> 
-> Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-> ---
->  net/bridge/br_multicast.c | 25 ++++++++++++++++++++++++-
->  1 file changed, 24 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index cdc921b97243..1059984d8147 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -1142,9 +1142,31 @@ static void br_multicast_update_active(struct net_bridge_mcast *brmctx)
->  
->  	lockdep_assert_held_once(&brmctx->br->multicast_lock);
->  
-> -	if (!br_opt_get(brmctx->br, BROPT_MULTICAST_ENABLED))
-> +	if (!br_opt_get(brmctx->br, BROPT_MULTICAST_ENABLED)) {
->  		force_inactive = true;
-> +		goto update;
-> +	}
->  
-> +	if (br_opt_get(brmctx->br, BROPT_MCAST_VLAN_SNOOPING_ENABLED)) {
-> +		/* with per-vlan snooping enabled there is an extra per-vlan
-> +		 * toggle to enable/disable snooping which we must check
-> +		 */
-> +		if (br_multicast_ctx_vlan_global_disabled(brmctx))
-> +			force_inactive = true;
-> +		/* with per-vlan snooping enabled the non-vlan multicast
-> +		 * snooping context is inactive
-> +		 */
-> +		else if (!br_multicast_ctx_is_vlan(brmctx))
-> +			force_inactive = true;
-> +	} else {
-> +		/* with per-vlan snooping disabled a vlan multicast
-> +		 * snooping context is inactive
-> +		 */
-> +		if (br_multicast_ctx_is_vlan(brmctx))
-> +			force_inactive = true;
-> +	}
-> +
-> +update:
->  	br_ip4_multicast_update_active(brmctx, force_inactive);
->  	br_ip6_multicast_update_active(brmctx, force_inactive);
->  
-> @@ -4505,6 +4527,7 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
->  
->  		spin_lock_bh(&br->multicast_lock);
->  		vlan->priv_flags ^= BR_VLFLAG_MCAST_ENABLED;
-> +		br_multicast_update_active(&vlan->br_mcast_ctx);
->  
->  		if (on)
->  			__br_multicast_open(&vlan->br_mcast_ctx);
+Configuring IPV6 as a module provides little or no benefit and requires
+time and resources to maintain. Therefore, drop the support for it.
 
-I believe the active state is not disabled when snooping is disabled on
-a specific VLAN. AFAICT that's because br_multicast_update_active() is
-only called when the VLAN is actually used by the bridge (i.e.,
-"brentry"). Can be reproduced with [1]. Please add it as a test case in
-patch #2.
+Change CONFIG_IPV6 from tristate to bool. Remove all Kconfig
+dependencies across the tree that explicitly checked for IPV6=m. Adjust
+all the default configurations from CONFIG_IPV6=m to CONFIG_IPV6=y. In
+addition, remove MODULE_DESCRIPTION(), MODULE_ALIAS(), MODULE_AUTHOR()
+and MODULE_LICENSE().
 
-Will continue tomorrow.
+This is also replacing module_init() by fs_initcall().
 
-[1]
-#!/bin/bash
+Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+---
+ arch/arm64/configs/defconfig                | 2 +-
+ arch/m68k/configs/amiga_defconfig           | 2 +-
+ arch/m68k/configs/apollo_defconfig          | 2 +-
+ arch/m68k/configs/atari_defconfig           | 2 +-
+ arch/m68k/configs/bvme6000_defconfig        | 2 +-
+ arch/m68k/configs/hp300_defconfig           | 2 +-
+ arch/m68k/configs/mac_defconfig             | 2 +-
+ arch/m68k/configs/multi_defconfig           | 2 +-
+ arch/m68k/configs/mvme147_defconfig         | 2 +-
+ arch/m68k/configs/mvme16x_defconfig         | 2 +-
+ arch/m68k/configs/q40_defconfig             | 2 +-
+ arch/m68k/configs/sun3_defconfig            | 2 +-
+ arch/m68k/configs/sun3x_defconfig           | 2 +-
+ drivers/infiniband/Kconfig                  | 1 -
+ drivers/infiniband/hw/ocrdma/Kconfig        | 2 +-
+ drivers/infiniband/ulp/ipoib/Kconfig        | 2 +-
+ drivers/net/Kconfig                         | 9 ---------
+ drivers/net/ethernet/broadcom/Kconfig       | 2 +-
+ drivers/net/ethernet/chelsio/Kconfig        | 2 +-
+ drivers/net/ethernet/mellanox/mlxsw/Kconfig | 1 -
+ drivers/net/ethernet/netronome/Kconfig      | 1 -
+ drivers/scsi/bnx2fc/Kconfig                 | 1 -
+ drivers/scsi/bnx2i/Kconfig                  | 1 -
+ drivers/scsi/cxgbi/cxgb3i/Kconfig           | 2 +-
+ drivers/scsi/cxgbi/cxgb4i/Kconfig           | 2 +-
+ fs/dlm/Kconfig                              | 2 +-
+ fs/gfs2/Kconfig                             | 2 +-
+ net/bridge/Kconfig                          | 1 -
+ net/ipv4/Kconfig                            | 9 ++++-----
+ net/ipv6/Kconfig                            | 6 +-----
+ net/ipv6/af_inet6.c                         | 8 +-------
+ net/l2tp/Kconfig                            | 1 -
+ net/netfilter/Kconfig                       | 8 --------
+ net/rxrpc/Kconfig                           | 2 +-
+ net/sctp/Kconfig                            | 1 -
+ net/tipc/Kconfig                            | 1 -
+ 36 files changed, 28 insertions(+), 65 deletions(-)
 
-for ns in ns0 ns1; do
-	ip netns del $ns &> /dev/null
-	ip netns add $ns
-	ip -n $ns link set dev lo up
-done
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index b67d5b1fc45b..0651a771f5c1 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -140,7 +140,7 @@ CONFIG_IP_MULTICAST=y
+ CONFIG_IP_PNP=y
+ CONFIG_IP_PNP_DHCP=y
+ CONFIG_IP_PNP_BOOTP=y
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_NETFILTER=y
+ CONFIG_BRIDGE_NETFILTER=m
+ CONFIG_NF_CONNTRACK=m
+diff --git a/arch/m68k/configs/amiga_defconfig b/arch/m68k/configs/amiga_defconfig
+index 31d16cba9879..ba511da41ec8 100644
+--- a/arch/m68k/configs/amiga_defconfig
++++ b/arch/m68k/configs/amiga_defconfig
+@@ -72,7 +72,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/apollo_defconfig b/arch/m68k/configs/apollo_defconfig
+index c0c419ec9a9e..0a5f045c5a86 100644
+--- a/arch/m68k/configs/apollo_defconfig
++++ b/arch/m68k/configs/apollo_defconfig
+@@ -68,7 +68,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/atari_defconfig b/arch/m68k/configs/atari_defconfig
+index 2b7547ecc4c4..d1506feb27f5 100644
+--- a/arch/m68k/configs/atari_defconfig
++++ b/arch/m68k/configs/atari_defconfig
+@@ -75,7 +75,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/bvme6000_defconfig b/arch/m68k/configs/bvme6000_defconfig
+index 0b63787cff0d..4614d383fe9b 100644
+--- a/arch/m68k/configs/bvme6000_defconfig
++++ b/arch/m68k/configs/bvme6000_defconfig
+@@ -65,7 +65,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/hp300_defconfig b/arch/m68k/configs/hp300_defconfig
+index 308836b60bba..d0e74a2f01e3 100644
+--- a/arch/m68k/configs/hp300_defconfig
++++ b/arch/m68k/configs/hp300_defconfig
+@@ -67,7 +67,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/mac_defconfig b/arch/m68k/configs/mac_defconfig
+index 97e108c0d24f..aa5b8682503a 100644
+--- a/arch/m68k/configs/mac_defconfig
++++ b/arch/m68k/configs/mac_defconfig
+@@ -66,7 +66,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/multi_defconfig b/arch/m68k/configs/multi_defconfig
+index 7e9f83af9af4..99e0bc09cb41 100644
+--- a/arch/m68k/configs/multi_defconfig
++++ b/arch/m68k/configs/multi_defconfig
+@@ -86,7 +86,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/mvme147_defconfig b/arch/m68k/configs/mvme147_defconfig
+index 2fe33271d249..f36844c03074 100644
+--- a/arch/m68k/configs/mvme147_defconfig
++++ b/arch/m68k/configs/mvme147_defconfig
+@@ -64,7 +64,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/mvme16x_defconfig b/arch/m68k/configs/mvme16x_defconfig
+index 4308daaa7f74..be89e951e8bc 100644
+--- a/arch/m68k/configs/mvme16x_defconfig
++++ b/arch/m68k/configs/mvme16x_defconfig
+@@ -65,7 +65,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/q40_defconfig b/arch/m68k/configs/q40_defconfig
+index 36eb29ec54ee..0c1b17d12204 100644
+--- a/arch/m68k/configs/q40_defconfig
++++ b/arch/m68k/configs/q40_defconfig
+@@ -66,7 +66,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/sun3_defconfig b/arch/m68k/configs/sun3_defconfig
+index 524a89fa6953..a39df48a3f19 100644
+--- a/arch/m68k/configs/sun3_defconfig
++++ b/arch/m68k/configs/sun3_defconfig
+@@ -61,7 +61,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/arch/m68k/configs/sun3x_defconfig b/arch/m68k/configs/sun3x_defconfig
+index f4fbc65c52d9..921f2c138b48 100644
+--- a/arch/m68k/configs/sun3x_defconfig
++++ b/arch/m68k/configs/sun3x_defconfig
+@@ -62,7 +62,7 @@ CONFIG_INET_IPCOMP=m
+ CONFIG_INET_DIAG=m
+ CONFIG_INET_UDP_DIAG=m
+ CONFIG_INET_RAW_DIAG=m
+-CONFIG_IPV6=m
++CONFIG_IPV6=y
+ CONFIG_IPV6_ROUTER_PREF=y
+ CONFIG_INET6_AH=m
+ CONFIG_INET6_ESP=m
+diff --git a/drivers/infiniband/Kconfig b/drivers/infiniband/Kconfig
+index 78ac2ff5befd..23f4245f7d7d 100644
+--- a/drivers/infiniband/Kconfig
++++ b/drivers/infiniband/Kconfig
+@@ -4,7 +4,6 @@ menuconfig INFINIBAND
+ 	depends on HAS_IOMEM && HAS_DMA
+ 	depends on NET
+ 	depends on INET
+-	depends on m || IPV6 != m
+ 	depends on !ALPHA
+ 	select DMA_SHARED_BUFFER
+ 	select IRQ_POLL
+diff --git a/drivers/infiniband/hw/ocrdma/Kconfig b/drivers/infiniband/hw/ocrdma/Kconfig
+index 54bd70bc4d1a..b50c5f507e7c 100644
+--- a/drivers/infiniband/hw/ocrdma/Kconfig
++++ b/drivers/infiniband/hw/ocrdma/Kconfig
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config INFINIBAND_OCRDMA
+ 	tristate "Emulex One Connect HCA support"
+-	depends on ETHERNET && NETDEVICES && PCI && INET && (IPV6 || IPV6=n)
++	depends on ETHERNET && NETDEVICES && PCI && INET
+ 	select NET_VENDOR_EMULEX
+ 	select BE2NET
+ 	help
+diff --git a/drivers/infiniband/ulp/ipoib/Kconfig b/drivers/infiniband/ulp/ipoib/Kconfig
+index 254e31a90a66..b5253a231bdd 100644
+--- a/drivers/infiniband/ulp/ipoib/Kconfig
++++ b/drivers/infiniband/ulp/ipoib/Kconfig
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config INFINIBAND_IPOIB
+ 	tristate "IP-over-InfiniBand"
+-	depends on NETDEVICES && INET && (IPV6 || IPV6=n)
++	depends on NETDEVICES && INET
+ 	help
+ 	  Support for the IP-over-InfiniBand protocol (IPoIB). This
+ 	  transports IP packets over InfiniBand so you can use your IB
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 17108c359216..46f37ec713b8 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -41,7 +41,6 @@ if NET_CORE
+ config BONDING
+ 	tristate "Bonding driver support"
+ 	depends on INET
+-	depends on IPV6 || IPV6=n
+ 	depends on TLS || TLS_DEVICE=n
+ 	help
+ 	  Say 'Y' or 'M' if you wish to be able to 'bond' multiple Ethernet
+@@ -75,7 +74,6 @@ config DUMMY
+ config WIREGUARD
+ 	tristate "WireGuard secure network tunnel"
+ 	depends on NET && INET
+-	depends on IPV6 || !IPV6
+ 	select NET_UDP_TUNNEL
+ 	select DST_CACHE
+ 	select CRYPTO_LIB_CURVE25519
+@@ -105,7 +103,6 @@ config WIREGUARD_DEBUG
+ config OVPN
+ 	tristate "OpenVPN data channel offload"
+ 	depends on NET && INET
+-	depends on IPV6 || !IPV6
+ 	select DST_CACHE
+ 	select NET_UDP_TUNNEL
+ 	select CRYPTO
+@@ -202,7 +199,6 @@ config IPVLAN_L3S
+ config IPVLAN
+ 	tristate "IP-VLAN support"
+ 	depends on INET
+-	depends on IPV6 || !IPV6
+ 	help
+ 	  This allows one to create virtual devices off of a main interface
+ 	  and packets will be delivered based on the dest L3 (IPv6/IPv4 addr)
+@@ -249,7 +245,6 @@ config VXLAN
+ config GENEVE
+ 	tristate "Generic Network Virtualization Encapsulation"
+ 	depends on INET
+-	depends on IPV6 || !IPV6
+ 	select NET_UDP_TUNNEL
+ 	select GRO_CELLS
+ 	help
+@@ -265,7 +260,6 @@ config GENEVE
+ config BAREUDP
+ 	tristate "Bare UDP Encapsulation"
+ 	depends on INET
+-	depends on IPV6 || !IPV6
+ 	select NET_UDP_TUNNEL
+ 	select GRO_CELLS
+ 	help
+@@ -308,7 +302,6 @@ config PFCP
+ config AMT
+ 	tristate "Automatic Multicast Tunneling (AMT)"
+ 	depends on INET && IP_MULTICAST
+-	depends on IPV6 || !IPV6
+ 	select NET_UDP_TUNNEL
+ 	help
+ 	  This allows one to create AMT(Automatic Multicast Tunneling)
+@@ -479,7 +472,6 @@ config NET_VRF
+ 	tristate "Virtual Routing and Forwarding (Lite)"
+ 	depends on IP_MULTIPLE_TABLES
+ 	depends on NET_L3_MASTER_DEV
+-	depends on IPV6 || IPV6=n
+ 	depends on IPV6_MULTIPLE_TABLES || IPV6=n
+ 	help
+ 	  This option enables the support for mapping interfaces into VRF's. The
+@@ -614,7 +606,6 @@ config NETDEVSIM
+ 	tristate "Simulated networking device"
+ 	depends on DEBUG_FS
+ 	depends on INET
+-	depends on IPV6 || IPV6=n
+ 	depends on PSAMPLE || PSAMPLE=n
+ 	depends on PTP_1588_CLOCK_MOCK || PTP_1588_CLOCK_MOCK=n
+ 	select NET_DEVLINK
+diff --git a/drivers/net/ethernet/broadcom/Kconfig b/drivers/net/ethernet/broadcom/Kconfig
+index cd7dddeb91dd..3190231c91da 100644
+--- a/drivers/net/ethernet/broadcom/Kconfig
++++ b/drivers/net/ethernet/broadcom/Kconfig
+@@ -96,7 +96,7 @@ config BNX2
+ 
+ config CNIC
+ 	tristate "QLogic CNIC support"
+-	depends on PCI && (IPV6 || IPV6=n)
++	depends on PCI
+ 	select BNX2
+ 	select UIO
+ 	help
+diff --git a/drivers/net/ethernet/chelsio/Kconfig b/drivers/net/ethernet/chelsio/Kconfig
+index c931ec8cac40..96d7779cd2f0 100644
+--- a/drivers/net/ethernet/chelsio/Kconfig
++++ b/drivers/net/ethernet/chelsio/Kconfig
+@@ -68,7 +68,7 @@ config CHELSIO_T3
+ 
+ config CHELSIO_T4
+ 	tristate "Chelsio Communications T4/T5/T6 Ethernet support"
+-	depends on PCI && (IPV6 || IPV6=n) && (TLS || TLS=n)
++	depends on PCI && (TLS || TLS=n)
+ 	depends on PTP_1588_CLOCK_OPTIONAL
+ 	select FW_LOADER
+ 	select MDIO
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/Kconfig b/drivers/net/ethernet/mellanox/mlxsw/Kconfig
+index 74f7e27b490f..2229a2694aa5 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/Kconfig
++++ b/drivers/net/ethernet/mellanox/mlxsw/Kconfig
+@@ -56,7 +56,6 @@ config MLXSW_SPECTRUM
+ 	depends on MLXSW_CORE && MLXSW_PCI && NET_SWITCHDEV && VLAN_8021Q
+ 	depends on PSAMPLE || PSAMPLE=n
+ 	depends on BRIDGE || BRIDGE=n
+-	depends on IPV6 || IPV6=n
+ 	depends on NET_IPGRE || NET_IPGRE=n
+ 	depends on IPV6_GRE || IPV6_GRE=n
+ 	depends on VXLAN || VXLAN=n
+diff --git a/drivers/net/ethernet/netronome/Kconfig b/drivers/net/ethernet/netronome/Kconfig
+index d03d6e96f730..d115d16d4649 100644
+--- a/drivers/net/ethernet/netronome/Kconfig
++++ b/drivers/net/ethernet/netronome/Kconfig
+@@ -33,7 +33,6 @@ config NFP_APP_FLOWER
+ 	bool "NFP4000/NFP6000 TC Flower offload support"
+ 	depends on NFP
+ 	depends on NET_SWITCHDEV
+-	depends on IPV6!=m || NFP=m
+ 	default y
+ 	help
+ 	  Enable driver support for TC Flower offload on NFP4000 and NFP6000.
+diff --git a/drivers/scsi/bnx2fc/Kconfig b/drivers/scsi/bnx2fc/Kconfig
+index 3cf7e08df809..d12eeb13384a 100644
+--- a/drivers/scsi/bnx2fc/Kconfig
++++ b/drivers/scsi/bnx2fc/Kconfig
+@@ -2,7 +2,6 @@
+ config SCSI_BNX2X_FCOE
+ 	tristate "QLogic FCoE offload support"
+ 	depends on PCI
+-	depends on (IPV6 || IPV6=n)
+ 	depends on LIBFC
+ 	depends on LIBFCOE
+ 	select NETDEVICES
+diff --git a/drivers/scsi/bnx2i/Kconfig b/drivers/scsi/bnx2i/Kconfig
+index 75ace2302fed..e649a04fab1d 100644
+--- a/drivers/scsi/bnx2i/Kconfig
++++ b/drivers/scsi/bnx2i/Kconfig
+@@ -3,7 +3,6 @@ config SCSI_BNX2_ISCSI
+ 	tristate "QLogic NetXtreme II iSCSI support"
+ 	depends on NET
+ 	depends on PCI
+-	depends on (IPV6 || IPV6=n)
+ 	select SCSI_ISCSI_ATTRS
+ 	select NETDEVICES
+ 	select ETHERNET
+diff --git a/drivers/scsi/cxgbi/cxgb3i/Kconfig b/drivers/scsi/cxgbi/cxgb3i/Kconfig
+index e20e6f3bfe64..143e881ec77e 100644
+--- a/drivers/scsi/cxgbi/cxgb3i/Kconfig
++++ b/drivers/scsi/cxgbi/cxgb3i/Kconfig
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config SCSI_CXGB3_ISCSI
+ 	tristate "Chelsio T3 iSCSI support"
+-	depends on PCI && INET && (IPV6 || IPV6=n)
++	depends on PCI && INET
+ 	select NETDEVICES
+ 	select ETHERNET
+ 	select NET_VENDOR_CHELSIO
+diff --git a/drivers/scsi/cxgbi/cxgb4i/Kconfig b/drivers/scsi/cxgbi/cxgb4i/Kconfig
+index 63c8a0f3cd0c..dd1c8ff36b00 100644
+--- a/drivers/scsi/cxgbi/cxgb4i/Kconfig
++++ b/drivers/scsi/cxgbi/cxgb4i/Kconfig
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config SCSI_CXGB4_ISCSI
+ 	tristate "Chelsio T4 iSCSI support"
+-	depends on PCI && INET && (IPV6 || IPV6=n)
++	depends on PCI && INET
+ 	depends on PTP_1588_CLOCK_OPTIONAL
+ 	depends on THERMAL || !THERMAL
+ 	depends on ETHERNET
+diff --git a/fs/dlm/Kconfig b/fs/dlm/Kconfig
+index b46165df5a91..fb6ba9f5a634 100644
+--- a/fs/dlm/Kconfig
++++ b/fs/dlm/Kconfig
+@@ -2,7 +2,7 @@
+ menuconfig DLM
+ 	tristate "Distributed Lock Manager (DLM)"
+ 	depends on INET
+-	depends on SYSFS && CONFIGFS_FS && (IPV6 || IPV6=n)
++	depends on SYSFS && CONFIGFS_FS
+ 	help
+ 	A general purpose distributed lock manager for kernel or userspace
+ 	applications.
+diff --git a/fs/gfs2/Kconfig b/fs/gfs2/Kconfig
+index 7bd231d16d4a..8beee571b6af 100644
+--- a/fs/gfs2/Kconfig
++++ b/fs/gfs2/Kconfig
+@@ -26,7 +26,7 @@ config GFS2_FS
+ 
+ config GFS2_FS_LOCKING_DLM
+ 	bool "GFS2 DLM locking"
+-	depends on (GFS2_FS!=n) && NET && INET && (IPV6 || IPV6=n) && \
++	depends on (GFS2_FS!=n) && NET && INET && \
+ 		CONFIGFS_FS && SYSFS && (DLM=y || DLM=GFS2_FS)
+ 	help
+ 	  Multiple node locking module for GFS2
+diff --git a/net/bridge/Kconfig b/net/bridge/Kconfig
+index 3c8ded7d3e84..318715c8fc9b 100644
+--- a/net/bridge/Kconfig
++++ b/net/bridge/Kconfig
+@@ -7,7 +7,6 @@ config BRIDGE
+ 	tristate "802.1d Ethernet Bridging"
+ 	select LLC
+ 	select STP
+-	depends on IPV6 || IPV6=n
+ 	help
+ 	  If you say Y here, then your Linux box will be able to act as an
+ 	  Ethernet bridge, which means that the different Ethernet segments it
+diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
+index df922f9f5289..21e5164e30db 100644
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -191,7 +191,7 @@ config NET_IP_TUNNEL
+ 
+ config NET_IPGRE
+ 	tristate "IP: GRE tunnels over IP"
+-	depends on (IPV6 || IPV6=n) && NET_IPGRE_DEMUX
++	depends on NET_IPGRE_DEMUX
+ 	select NET_IP_TUNNEL
+ 	help
+ 	  Tunneling means encapsulating data of one protocol type within
+@@ -303,7 +303,6 @@ config SYN_COOKIES
+ 
+ config NET_IPVTI
+ 	tristate "Virtual (secure) IP: tunneling"
+-	depends on IPV6 || IPV6=n
+ 	select INET_TUNNEL
+ 	select NET_IP_TUNNEL
+ 	select XFRM
+@@ -439,7 +438,7 @@ config INET_TCP_DIAG
+ 
+ config INET_UDP_DIAG
+ 	tristate "UDP: socket monitoring interface"
+-	depends on INET_DIAG && (IPV6 || IPV6=n)
++	depends on INET_DIAG
+ 	default n
+ 	help
+ 	  Support for UDP socket monitoring interface used by the ss tool.
+@@ -447,7 +446,7 @@ config INET_UDP_DIAG
+ 
+ config INET_RAW_DIAG
+ 	tristate "RAW: socket monitoring interface"
+-	depends on INET_DIAG && (IPV6 || IPV6=n)
++	depends on INET_DIAG
+ 	default n
+ 	help
+ 	  Support for RAW socket monitoring interface used by the ss tool.
+@@ -750,7 +749,7 @@ config TCP_AO
+ 	select CRYPTO
+ 	select CRYPTO_LIB_UTILS
+ 	select TCP_SIGPOOL
+-	depends on 64BIT && IPV6 != m # seq-number extension needs WRITE_ONCE(u64)
++	depends on 64BIT # seq-number extension needs WRITE_ONCE(u64)
+ 	help
+ 	  TCP-AO specifies the use of stronger Message Authentication Codes (MACs),
+ 	  protects against replays for long-lived TCP connections, and
+diff --git a/net/ipv6/Kconfig b/net/ipv6/Kconfig
+index b8f9a8c0302e..c024aa77f25b 100644
+--- a/net/ipv6/Kconfig
++++ b/net/ipv6/Kconfig
+@@ -3,9 +3,8 @@
+ # IPv6 configuration
+ #
+ 
+-#   IPv6 as module will cause a CRASH if you try to unload it
+ menuconfig IPV6
+-	tristate "The IPv6 protocol"
++	bool "The IPv6 protocol"
+ 	default y
+ 	select CRYPTO_LIB_SHA1
+ 	help
+@@ -17,9 +16,6 @@ menuconfig IPV6
+ 	  Documentation/networking/ipv6.rst and read the HOWTO at
+ 	  <https://www.tldp.org/HOWTO/Linux+IPv6-HOWTO/>
+ 
+-	  To compile this protocol support as a module, choose M here: the
+-	  module will be called ipv6.
+-
+ if IPV6
+ 
+ config IPV6_ROUTER_PREF
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+index 0b995a961359..cfdac4753683 100644
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -71,10 +71,6 @@
+ 
+ #include "ip6_offload.h"
+ 
+-MODULE_AUTHOR("Cast of dozens");
+-MODULE_DESCRIPTION("IPv6 protocol stack for Linux");
+-MODULE_LICENSE("GPL");
+-
+ /* The inetsw6 table contains everything that inet6_create needs to
+  * build a new socket.
+  */
+@@ -1312,6 +1308,4 @@ static int __init inet6_init(void)
+ 	proto_unregister(&tcpv6_prot);
+ 	goto out;
+ }
+-module_init(inet6_init);
+-
+-MODULE_ALIAS_NETPROTO(PF_INET6);
++fs_initcall(inet6_init);
+diff --git a/net/l2tp/Kconfig b/net/l2tp/Kconfig
+index b7856748e960..0de178d5baba 100644
+--- a/net/l2tp/Kconfig
++++ b/net/l2tp/Kconfig
+@@ -5,7 +5,6 @@
+ 
+ menuconfig L2TP
+ 	tristate "Layer Two Tunneling Protocol (L2TP)"
+-	depends on (IPV6 || IPV6=n)
+ 	depends on INET
+ 	select NET_UDP_TUNNEL
+ 	help
+diff --git a/net/netfilter/Kconfig b/net/netfilter/Kconfig
+index 6cdc994fdc8a..f3ea0cb26f36 100644
+--- a/net/netfilter/Kconfig
++++ b/net/netfilter/Kconfig
+@@ -249,7 +249,6 @@ config NF_CONNTRACK_FTP
+ 
+ config NF_CONNTRACK_H323
+ 	tristate "H.323 protocol support"
+-	depends on IPV6 || IPV6=n
+ 	depends on NETFILTER_ADVANCED
+ 	help
+ 	  H.323 is a VoIP signalling protocol from ITU-T. As one of the most
+@@ -589,7 +588,6 @@ config NFT_QUOTA
+ config NFT_REJECT
+ 	default m if NETFILTER_ADVANCED=n
+ 	tristate "Netfilter nf_tables reject support"
+-	depends on !NF_TABLES_INET || (IPV6!=m || m)
+ 	help
+ 	  This option adds the "reject" expression that you can use to
+ 	  explicitly deny and notify via TCP reset/ICMP informational errors
+@@ -636,7 +634,6 @@ config NFT_XFRM
+ 
+ config NFT_SOCKET
+ 	tristate "Netfilter nf_tables socket match support"
+-	depends on IPV6 || IPV6=n
+ 	select NF_SOCKET_IPV4
+ 	select NF_SOCKET_IPV6 if NF_TABLES_IPV6
+ 	help
+@@ -652,7 +649,6 @@ config NFT_OSF
+ 
+ config NFT_TPROXY
+ 	tristate "Netfilter nf_tables tproxy support"
+-	depends on IPV6 || IPV6=n
+ 	select NF_DEFRAG_IPV4
+ 	select NF_DEFRAG_IPV6 if NF_TABLES_IPV6
+ 	select NF_TPROXY_IPV4
+@@ -1071,7 +1067,6 @@ config NETFILTER_XT_TARGET_MASQUERADE
+ config NETFILTER_XT_TARGET_TEE
+ 	tristate '"TEE" - packet cloning to alternate destination'
+ 	depends on NETFILTER_ADVANCED
+-	depends on IPV6 || IPV6=n
+ 	depends on !NF_CONNTRACK || NF_CONNTRACK
+ 	depends on IP6_NF_IPTABLES || !IP6_NF_IPTABLES
+ 	select NF_DUP_IPV4
+@@ -1084,7 +1079,6 @@ config NETFILTER_XT_TARGET_TPROXY
+ 	tristate '"TPROXY" target transparent proxying support'
+ 	depends on NETFILTER_XTABLES
+ 	depends on NETFILTER_ADVANCED
+-	depends on IPV6 || IPV6=n
+ 	depends on IP6_NF_IPTABLES || IP6_NF_IPTABLES=n
+ 	depends on IP_NF_MANGLE || NFT_COMPAT
+ 	select NF_DEFRAG_IPV4
+@@ -1126,7 +1120,6 @@ config NETFILTER_XT_TARGET_SECMARK
+ 
+ config NETFILTER_XT_TARGET_TCPMSS
+ 	tristate '"TCPMSS" target support'
+-	depends on IPV6 || IPV6=n
+ 	default m if NETFILTER_ADVANCED=n
+ 	help
+ 	  This option adds a `TCPMSS' target, which allows you to alter the
+@@ -1581,7 +1574,6 @@ config NETFILTER_XT_MATCH_SOCKET
+ 	tristate '"socket" match support'
+ 	depends on NETFILTER_XTABLES
+ 	depends on NETFILTER_ADVANCED
+-	depends on IPV6 || IPV6=n
+ 	depends on IP6_NF_IPTABLES || IP6_NF_IPTABLES=n
+ 	select NF_SOCKET_IPV4
+ 	select NF_SOCKET_IPV6 if IP6_NF_IPTABLES
+diff --git a/net/rxrpc/Kconfig b/net/rxrpc/Kconfig
+index f60b81c66078..43416b3026fb 100644
+--- a/net/rxrpc/Kconfig
++++ b/net/rxrpc/Kconfig
+@@ -25,7 +25,7 @@ if AF_RXRPC
+ 
+ config AF_RXRPC_IPV6
+ 	bool "IPv6 support for RxRPC"
+-	depends on (IPV6 = m && AF_RXRPC = m) || (IPV6 = y && AF_RXRPC)
++	depends on IPV6
+ 	help
+ 	  Say Y here to allow AF_RXRPC to use IPV6 UDP as well as IPV4 UDP as
+ 	  its network transport.
+diff --git a/net/sctp/Kconfig b/net/sctp/Kconfig
+index e947646a380c..fc989a3791b3 100644
+--- a/net/sctp/Kconfig
++++ b/net/sctp/Kconfig
+@@ -6,7 +6,6 @@
+ menuconfig IP_SCTP
+ 	tristate "The SCTP Protocol"
+ 	depends on INET
+-	depends on IPV6 || IPV6=n
+ 	select CRYPTO_LIB_SHA1
+ 	select CRYPTO_LIB_SHA256
+ 	select CRYPTO_LIB_UTILS
+diff --git a/net/tipc/Kconfig b/net/tipc/Kconfig
+index bb0d71eb02a6..18f62135e47b 100644
+--- a/net/tipc/Kconfig
++++ b/net/tipc/Kconfig
+@@ -6,7 +6,6 @@
+ menuconfig TIPC
+ 	tristate "The TIPC Protocol"
+ 	depends on INET
+-	depends on IPV6 || IPV6=n
+ 	help
+ 	  The Transparent Inter Process Communication (TIPC) protocol is
+ 	  specially designed for intra cluster communication. This protocol
+-- 
+2.53.0
 
-ip -n ns0 link add name veth0 type veth peer name veth1 netns ns1
-
-ip -n ns0 link add name br0 up type bridge vlan_filtering 1 mcast_snooping 1 mcast_vlan_snooping 1
-ip -n ns1 link add name br1 up type bridge vlan_filtering 1 mcast_snooping 1 mcast_vlan_snooping 1
-
-ip -n ns0 link set dev veth0 up master br0
-ip -n ns1 link set dev veth1 up master br1
-
-bridge -n ns0 vlan add vid 10 dev veth0 master
-bridge -n ns1 vlan add vid 10 dev veth1 master
-
-sleep 1
-
-bridge -n ns0 vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 100 mcast_querier 1
-bridge -n ns1 vlan global set vid 10 dev br1 mcast_snooping 1 mcast_query_response_interval 100 mcast_querier 0
-
-sleep 1
-
-bridge -n ns1 -j -p vlan global show dev br1 vid 10 | jq '.[]["vlans"][]["mcast_active_v4"]'
-
-bridge -n ns1 vlan global set vid 10 dev br1 mcast_snooping 0
-sleep 1
-bridge -n ns1 -j -p vlan global show dev br1 vid 10 | jq '.[]["vlans"][]["mcast_active_v4"]'
