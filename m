@@ -1,48 +1,48 @@
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011002.outbound.protection.outlook.com [52.101.57.2])
+Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012020.outbound.protection.outlook.com [40.107.200.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1A7E3E7149
-	for <bridge@lists.linux.dev>; Mon,  9 Mar 2026 16:17:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24CC33D331B
+	for <bridge@lists.linux.dev>; Mon,  9 Mar 2026 16:51:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.20
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773073056; cv=fail; b=DNaUiJ6kain82ZobYfdOWu9ciR3uPzyW0y9gDv27X14dj9U50EGgBHMkLf0htfovzBjPKP2s65OOCBJfPfPnEcZr0jGiZz5Dy5k7s4EUF/I2fld1DLzEEiTcMwh9zMDKubxiRZB2y28kjZKeABIMoG8IGg+jDMn0nQov8FiSq5E=
+	t=1773075109; cv=fail; b=j27rHdZBpmtVcwFf11IeNYmd+RaBWANSapZCxKxCTocKzcg+cVZTnYEsWvkW3dfx0H3wobG4ROuJcwPzW3M0w/dEU+fNrphEA8tFPztJh1LZA6Z3v9MiHxTmH9EYa5FMX40Tqt8vj9SBS1oy4AS4k+HOITxqk5YRjN0ht1/LJRk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773073056; c=relaxed/simple;
-	bh=CmGy/xrBhfOvroTHDtLIrX1U1a8A0MUJVuVTLwVa+Hg=;
+	s=arc-20240116; t=1773075109; c=relaxed/simple;
+	bh=flVlsIj6fPtjjYTCKxMetNkvyltdYnGuL/5wA7/O7m4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=mfnMrQ2D8mPMH4DB4vSV7bOQTTl3iR6FUFD6vUYp6QbCt06sRYVzZunw1AvS3xYO8U74G0u0MZJ7LJrKRf+mfwSfmrL/gjNhoOIFI4m9h9+h34RvTYfw1HFy/BchVAFUGxO0S7R2YG1EvXXBQ+CHo6zgKJye3DF+Qu43BvdiDFs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=nCDU9/2d reason="signature verification failed"; arc=fail smtp.client-ip=52.101.57.2
+	 Content-Disposition:In-Reply-To:MIME-Version; b=l47PBcI+XqR5UjqZHTpU2IAUKPodbil3/kZCCiptZ+3JerLtBFUREw9lxyAiDDSUkRByjt9gmQcMhpYKWqyfMutjETU7l1O9DOl1xOf5o8bldErmYT1FqXQ13Rwb3Xl+KidJvxvAMKbG9cxpkqTcf72812jR80xispk1wmg2iNQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=iKsXT9iU reason="signature verification failed"; arc=fail smtp.client-ip=40.107.200.20
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="nCDU9/2d"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="iKsXT9iU"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=cEnsK+pXsEUw4CPwk0T43anvc9iHp9K5RUlfh2+saNo87I4HsbsA8GCDvuqo/hKQCKH1o4WqqzwNBEv7Gq9UGzrDYi60qLi4onoDKk+1tgXNBTZlMauSTuOemX0Jtqv03r66GR+kJND78gNQMzI/VwRBQ0Z1XsX8sSpvWremNW4n5WhNl7X0S48CvMwGdi6CYEm0K9iQhtwQ2Xxs+BFdkF8IFQgxU3ige4AZr+GuAI0zpUsRtbWlbJU33D2wmC3AoxC5IisbxTN7sLfms6Sjy4EiBT9irS0fEQymE44CDIC3l0/O7O4at+yySELw9O8mnetaPsji8kEJGwfReYIqIA==
+ b=cyD1njZJzBKQBMv6vDKo4xtNq7W9HFB7U7X0vo+qkrL9pkFAQ+dcxoQcKdS182PAaep3lPx6RlO0tlXcvdWnYHn1XLtrw8awEsQ56Pf1koLKTPabalQnoi8chCRqY96rbuS9BseiqgBK3m3NpexdEFyUpCIXUa+hnB2H+vQ3kNqAcLdQjjkPlpwnSBTKeoe4NNL94sipDS5jY7tau1Jm5ZSYE6yqwgAPVAHZliade5XKf1n4Udpvbqi6U6x/0C6rfVDVKlT1bQ6Zeh0PfGSJ7zgAzaliF0aBU7SPXkrZpibRP8DJp5o68T388YEN/d6t0fmxDzGkupLsk7k/rUi8Xg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tpn4nRH92aCttYa3vQXarDUvZcf4Qf0mtK+EcddkjDw=;
- b=di05C8B2N/4t/gmhOW6ZuWcJJryQdB8bl00mvrp6cnxQd8JId6VylsBOameKpE9wUTleJxrneVU764g8VfF1sQvMFfyKijqqB+tQFMcKFwerT/iYYfmh6EwCgBtGq0Becm/G7yNJxOtvmh21XK6rIgMvRno79b4e4BOI1SqNS1VZ2cxf2vTggo5Wl1IC2WxBV6i50QzVC4w/XlM0ANPVqyAeM/hQRaQMq5P6Q8Yg0BKA+HuJk5s5EZgHd0J31KU8iNf5pIXHfiAHkKL5j24hqmecA+6Fypn0vTZqi4ce2fK3Bt77thpcVJ4a6wpat5b2nXQITBqMhRW7aXr8doCrZQ==
+ bh=XlPIPNLZ/wAw81RZqdFIUwUFJVVE7iDZyn2RKgDQTeM=;
+ b=xRNdJOg6VH7kLmYe7mdE+Wxy4r2bL+jcgJQrWb6oJ+n9wrx/mDaNVWlDDHzuvuesueQPguICEOb5Pg4N04lz/I8a6IKR2d6Y/8E/Z2g9ndE1PfsGGU/9IorMsNVVWBsM/Zeit4WB07+UeT3sFamlw7K+PZ9RRBUJ/6fxQhYS3GZg0I9PTEHdhqhJfXZKFisL/eRKPXrxDrCLdDJwK7mQjckIJPDmsMmloksMH0JEUt3F8DBfDEPrJqNCe4kQbAomUYyWJGDB6x0SnmUmlHHqlYnNWTJoBkmGonQkx50GXiwz9o0kWP2QJlqSQmxE5bLGq/G58uUOhtw8HP9WtQ8/fA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tpn4nRH92aCttYa3vQXarDUvZcf4Qf0mtK+EcddkjDw=;
- b=nCDU9/2dqM9MC4+1g2ZHPU3ITBYVHe1j7fM/7KD5N0lelf6SceaiTYyl5rxXL8ZR/OZXeL17hpLkMmX1qvBd/pyvZT/5H0g0ModUQ/eVHZUP2zldB0hqKrYAaFzxRYTEGWzdk7qY3P4uWcMXPciniON32uX7SmZvDAlH4PoQTkBYWefKQq0flQcC+t9QNa5Hmd/I6eFh5LEitewoHAwPHuIPfze+UgpQlL6nWcdcqeHEo4ssDcz+UZwmnJcynce6HuoKdcpVVLCt7AoClb45Qo9YVirUrOEfvgRzefEwtG1OyaUAcr9a18/9JoMDXLB/EiliqX8z+QTTpQvtvkOooQ==
+ bh=XlPIPNLZ/wAw81RZqdFIUwUFJVVE7iDZyn2RKgDQTeM=;
+ b=iKsXT9iUY8jdV9UnmQX9cAdF9oIBMWLeic1HfEeV4g/7JIWs7BuH86R+/WhFNMXB3v4xbLifWDN2TnCHPA4svwWEIe3+vLDKBwfouodgviWR9RN9UyyvOYMDbc1T/fcbHW/GKVOck7ykOhFeOiHG14IkNzx9OLESQ7yUtdvE8SXl/brD/ZVTB1lyVem+tfintM+5vnnAF7VM4cvd20RFrLgw3czBlBrkqkZMvUoG9d2NKqaKVpZFVZBV1ocYYMhZwFgYZAdl6cMjr5X3i8SxJIWrleXVSpBEDFPa+nInyoJIga32Wfz2YSK3XYdb4AtjTN7/jSHG7GXCObHrpyf2Zw==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
- by MN0PR12MB5713.namprd12.prod.outlook.com (2603:10b6:208:370::18) with
+ by CY5PR12MB6575.namprd12.prod.outlook.com (2603:10b6:930:41::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.10; Mon, 9 Mar
- 2026 16:17:29 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.11; Mon, 9 Mar
+ 2026 16:51:43 +0000
 Received: from DS0PR12MB7900.namprd12.prod.outlook.com
  ([fe80::3033:67fc:3646:c62f]) by DS0PR12MB7900.namprd12.prod.outlook.com
  ([fe80::3033:67fc:3646:c62f%5]) with mapi id 15.20.9700.003; Mon, 9 Mar 2026
- 16:17:28 +0000
-Date: Mon, 9 Mar 2026 18:17:18 +0200
+ 16:51:43 +0000
+Date: Mon, 9 Mar 2026 18:51:34 +0200
 From: Ido Schimmel <idosch@nvidia.com>
 To: Linus =?iso-8859-1?Q?L=FCssing?= <linus.luessing@c0d3.blue>
 Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
@@ -57,17 +57,18 @@ Cc: bridge@lists.linux.dev, netdev@vger.kernel.org,
 	Stanislav Fomichev <sdf@fomichev.me>,
 	Xiao Liang <shaw.leon@gmail.com>, shuah@kernel.org,
 	petrm@nvidia.com
-Subject: Re: [PATCH net-next v4 11/14] net: bridge: mcast: track active
- state, prepare for outside lock reads
-Message-ID: <20260309161718.GA2012933@shredder>
+Subject: Re: [PATCH net-next v4 13/14] net: bridge: mcast: use combined
+ active state in fast/data path
+Message-ID: <20260309165134.GA2021040@shredder>
 References: <20260307044548.5230-1-linus.luessing@c0d3.blue>
- <20260307044548.5230-12-linus.luessing@c0d3.blue>
+ <20260307044548.5230-14-linus.luessing@c0d3.blue>
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260307044548.5230-12-linus.luessing@c0d3.blue>
-X-ClientProxiedBy: TL2P290CA0017.ISRP290.PROD.OUTLOOK.COM (2603:1096:950:3::7)
- To DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
+In-Reply-To: <20260307044548.5230-14-linus.luessing@c0d3.blue>
+X-ClientProxiedBy: TL2P290CA0023.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:3::12) To DS0PR12MB7900.namprd12.prod.outlook.com
+ (2603:10b6:8:14e::10)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -75,152 +76,164 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB7900:EE_|MN0PR12MB5713:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6d2ae323-362a-488d-ed23-08de7df75b72
+X-MS-TrafficTypeDiagnostic: DS0PR12MB7900:EE_|CY5PR12MB6575:EE_
+X-MS-Office365-Filtering-Correlation-Id: c9677233-df95-4fc1-b69a-08de7dfc24a5
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|7416014|7053199007;
+X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|1800799024|376014|7416014;
 X-Microsoft-Antispam-Message-Info:
-	XUFznokTjH2KVv2FNkk5XSvqwbB6jJYsZIJm0OY4DoReLP2nDW7rO2QtvX3Umz6Z9gQDMN2T5DP516KISG4fLZ0q7W3KekTVFuBgqeZcQ05+92o46HLeoxJzax4EcF10yg6qcfMTk0xZS7D4bdTnHKQ80GpwdG4j1dE4B4t/Z06BS+L9BLzz5OuKsiAMjf79seunF89QdXnnQScXL2n/cppsGjs9GlN3nF6sMvEuOWh+ZNsRbyUBkcUOvVdPwp20AHPhiFzuoOS/wlXmgEDpZzsIzeAlka3y+p1AEtlfUBhdIE6Lq7P5n5fYaXRmlQ/BYMXVn/MBh4DN+5Zf+b/E36ugTw09kJc2Ta+vakRNYzWMscw5+eosAnMNREI25AiAEDI9j7G8vpGUbw4Ewnh+1SFYuzc2pNt3HW/MkWEfRdJOZcYNbxaICsv5aVBiZbLIZVHb9NSgaSeIGfBrg1Q1rxEOIvR21bHbR9xsI+Xx/2/GX2K12tCPGeHvuyF1w1Ou/eRVp9IAI1UFo/KUye/PVsSSpEdyxis6CuKBoa+xcOmikX1pg3w/Mh/SNja9jhxY5E8q3g23uN+WDOhUgGE+yH2m7xK2dul3Njy3OJNTK9WYZUgroo8Mf4pkPTKVRjcepuQWwNmN631CSY+CxAY0S4WaHirtZmChoP94uPj+NN7ZK2bFwywJymEEgXNVgwXjrHINAIG4esXFe6h9KjRgPZ+US+r+P2HvjeGPRl4fQvQ=
+	4LRlvUlkbM0EYqlHbP6o8MoF6LXM/vKKkjruemD7xzMeYqgFchxABt6/oY2DZXehTpvgpPUIfnUkVQ9fI+/FJ42DWlrPeWImkArW7Uqd4rSxIJ6mfeaoHGaVqjat1RWyM60DlK7ZsOa/kCuQNU0+4YBKGJVQRknTufmNV0DWRae802J5MZRtY2CP21Ier66e3s4K7tBJZeWqeRdq0y7aHNiKyWXvSw5FDHdFkppDtKurWmS7Y/biOXiaMniRPiXTFzxg/H71/nasdQaBJzaMrKE/2VQtNJVyneDRkkh8+5gEDJS/pz7f4mj2zPm5EPgQsFLlZau7bcbLHGLkh1OF5NdnwswqppLwk462DfiPhzcXQcxInc/bfOb6c29JbpZtrAscNrdHGdJ1Xhw4Tw3pa38h0hI/Uat6meGwg5RcbOrCTrYnou9K0RYBXyNublqqdI+xpiGi9S+qVpWuyGT9b03hENI/Jv2uOgnMshmn8EOnDMMHBi5ex0n074a9yCJU96DuMMS+eqcFgAVDioo8GDSBR7vn6VjdW/iQ2hDxK5W5tPa+uwOC56vUwiENECKNRzz7HmvXfawAHHhpoqmnwl6QNXEZHPAQ4DNtURzD8+GF8SsELOR+pPGCBtNo0tD795wobt9nj6jDVMyx/ub1nSa+itFUPvYAZZ81g0t9mXE+zKI3Xq/VzKGGClPaC3pNfLJ8oesOqLrqLikrT/r7mDDA7WvJ3yKoO2jWnhig3dw=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB7900.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(7053199007);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB7900.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?iso-8859-1?Q?e5keXBLAfVYgIZfD/rM0vG9f2GmPltZM1odWPMtcIDkBN8W60PDQEE/5xb?=
- =?iso-8859-1?Q?mXuItFXfB6ofv/PYMaZ9P63EnMEv++BQVcnbpSB++BfAlKA4U8zGxGEHkZ?=
- =?iso-8859-1?Q?gM+Hk4/9o0mFSnbdF49Rt3f6SSTy6wHZXcVIym79Uok2D4jW3SRa8zI9jh?=
- =?iso-8859-1?Q?QqdoMFcYX860im+olbVgPpMYk5LT9dqsJ3Qx5hiMB4uusHsnhMrvPbaqMa?=
- =?iso-8859-1?Q?eUufO/3j2NttlF/ckEC9IEOnBF2FTpt7bHU7Hpb71n95VOanqkMyW5KM/Q?=
- =?iso-8859-1?Q?xLgP6Q1aIpOU1PNjTXvnFKMRm95ubCpWMG244xcvwD8BaHrhPgouNHwA39?=
- =?iso-8859-1?Q?QFsC4cHZFsn66mFu6Dxs0ITnG6kQRMvV4z+pnl7E7ySKjUsNGEQG4AUhAd?=
- =?iso-8859-1?Q?C5K9smuE6/DAUcIDw+RUPcyxAYi2A110nQBqPGmFx9KGhdEoxGEzPfCRaJ?=
- =?iso-8859-1?Q?w09MMROy6c2CgEhqaC2QUem542SrSSJJvzVjmZJzzujTtJcUdgpocdzORS?=
- =?iso-8859-1?Q?mF+aMR53FwVMW0QqsoT1SpLXA3w3Ma+cLk+rd2asZDk1hjwAoCMcxNAISq?=
- =?iso-8859-1?Q?hdPuj6W7ElJTAw1hvAJgayYN0ngwFj9D3vb+AM+6rK3uLm6SDxfEoWnLxg?=
- =?iso-8859-1?Q?TBzJIllrso2BLvAzfvN1HozUYuvHYOShw+yUXww/Xn7mthfuLaJgvtyVrj?=
- =?iso-8859-1?Q?AWmsGlBycKo9mVli2i2fv60vZV3o8cBs0I5r9s6tQic5e838ziwJ1JFOMK?=
- =?iso-8859-1?Q?Vg8NCsKt7ZD8hf5mvZj/AovTZ4tkYs7faV8ROCI22DGcHfXpQypiXHEL+q?=
- =?iso-8859-1?Q?wdfTuhs2E+5gi8I8yxT02ApODLFbuGlUrpYspldBmxgYTvgVgT9QusJMck?=
- =?iso-8859-1?Q?hNzWfPMoSxpMVu9UDTOzFhSK4zSaMdzIvG7b80Oq8zRUi2JkpBzr1juQwh?=
- =?iso-8859-1?Q?nVEpZJNyDfRMkK6rCA/ElXdG5mp0mP/5vBajdevOlZxcNBQXRAAucrt4s4?=
- =?iso-8859-1?Q?hteA3gucw7tvAY33r0D4v7by2UF9EWwXI5PPfa45/6QZrMMPnx55U+dOHC?=
- =?iso-8859-1?Q?g+26nBsv/qvlsSITU+gfjTgpTUIZcJbpVxR1BgeGQoaGyum9ssCFB6QqPd?=
- =?iso-8859-1?Q?RAUE6KUSyZ0JU/f7Edt9nJWtEVoKCroRKQMFcjWq/+ibL48Ez6OxydaA7C?=
- =?iso-8859-1?Q?dJ4+9y6ew1fcQMRRstZXgPTJw6XvpMNEe/40fuzzVwxCN3pobebD+sI6HU?=
- =?iso-8859-1?Q?5WlbFen7g1ixaHv0C+R2fPGhffEMwMLxi9Vs/+/axoi2zJRL4zU081j+ah?=
- =?iso-8859-1?Q?e7brnByOsCaQNEdywVBAAuHhABm2Rd/Eyu0V1B1EUKAsiI+52OpXCAFfti?=
- =?iso-8859-1?Q?gj7C/mVfh3PQqXzH4LBFy8L6mV9A3uroy8xRHgPjoQxfpBg16Y6/sjVzo8?=
- =?iso-8859-1?Q?DlbQ2Tp1kAA9EiuYKJay0D5U75JuNckO13XiZpLVxF0yLCfx6izZBKmoKw?=
- =?iso-8859-1?Q?zejibpjyLwaFaEwrt5Qpgi58LPRRAbTlfY4tGcPjr2/qmspUa6u792SEHm?=
- =?iso-8859-1?Q?9RHmPMaB1SjUjQAQCByK32yzo2umUVpUNAMwC8w5J7ZYi0lneYPuqVx2E8?=
- =?iso-8859-1?Q?nD9/U58XgOpF/7hFNBeuVL7h0bPLsLdKgs7rsKTYYXtzkb9Howg5WzQd/z?=
- =?iso-8859-1?Q?+WRaTJK/47wyPqJKn39DIA3Wc41/N/ltKBmvIphzfl9bDae0IPKhAPgUPV?=
- =?iso-8859-1?Q?8pVUSJsfIUfu26JHGvIYTJJaqzDHRjh69qQkeuB9HQwijTvsU3gQn5leXa?=
- =?iso-8859-1?Q?4kWWhLYHKg=3D=3D?=
+	=?iso-8859-1?Q?O7vnFJiNEKN+sP0OfGzZgCvY36FAoqPMmNig4uYQThtNaRKRFVKtXUVHjo?=
+ =?iso-8859-1?Q?ipsUW/mKH9oFQa1tJZgCEEHS++rOycumrUWng4eT/Pp5aUf/ifcU49Rtmi?=
+ =?iso-8859-1?Q?hP/RxE/ZySBA5GMdBNWGO8Gv9VSR85GuI5NCbp1cNJ48PdwH81p+xO51Fi?=
+ =?iso-8859-1?Q?vh9spWHgR3wbiaePGiJ8nUn9UPzQt5E8MKPauwBF9xm/keU4bxjRENP7De?=
+ =?iso-8859-1?Q?qxV+kzwdUoXj9VZbW9lSPA5iVVdAScGsFHU81rhxX7VgpWailo7UZAkJNy?=
+ =?iso-8859-1?Q?Ob/BAfAGehMtSWYkn0lJsfGKZk0J7BaT+u0HEKaU4wwoi9q9NUQ5VltCFT?=
+ =?iso-8859-1?Q?WtIwZamYQ9LjtUjVU4GUBXo0EnY6u8DqjexN1v2RMu29ugCypjzGQ99/sP?=
+ =?iso-8859-1?Q?rldViUCIyf0YrrgFRt8c2FDP94yw+lJbUF7V2A1GGz+9OWUe/mZBS1Nklb?=
+ =?iso-8859-1?Q?AyH85sa+ESkqcY9WD0nH+iQEP2GOfKAkKxKlmh5MfsQkfvmuxsMcB9hyBt?=
+ =?iso-8859-1?Q?nDp7mDuxgY7s3/UbD3AivIKpJAab868TaPwxUJl429mwcEmL/vdLCAqoSE?=
+ =?iso-8859-1?Q?OOcduqqMcixKOvwW/lBJ9PKqPj+X0SjA6QlHl6Ho3Kxb0MLIiARhguwL2G?=
+ =?iso-8859-1?Q?fNzbOg0rEtCeLeRsuWRt9Wq/ZelIlBFl+KH59wjxFuauPCN96yObhkmh3O?=
+ =?iso-8859-1?Q?MQlBUCEXYEuZBi3jZKbpn9ym3L6Z9zqcxT/H97oC2Rjj3aVeHDWi2ef+u8?=
+ =?iso-8859-1?Q?Z8XdiwiWLQMsK81g92KTpKtDSMubMDAsuDPkS8vc/c9Olfsze+383saBZ1?=
+ =?iso-8859-1?Q?1ks3fER/Lzh3akQZBJid1BJjel3bIG96hMixj+Oa0/hH7FGVGVvIYIU3MK?=
+ =?iso-8859-1?Q?C+7ChOEE4Gc18BqanbN0wZ4K5cR5D4S4eQxvPf5T5knLfYyNDGRPT41yqk?=
+ =?iso-8859-1?Q?aLmcx7XTvNzlJtC8BW5Hhcslf6n9BpLzok72syN9kMhGPqKsKc67ZViBOQ?=
+ =?iso-8859-1?Q?yeIApkUctZkJJ4nLcpDaWjx6E/HKF+T8G6w5NmqCUGsYeuJ8zo3mJCwu76?=
+ =?iso-8859-1?Q?1tTgvFqdaBfyfyzvkCyoS1E0x4+Cixssh21wg5WRywNQmmpGcDCP7BjgM8?=
+ =?iso-8859-1?Q?57hf+KmxAVKXY98+JLvt/Bw3DnZM/09ATiPgNhouFIJ2Gk1oNZ4LbskaAd?=
+ =?iso-8859-1?Q?DhqOuXSW/+UVCK/x89DqHxU91vm7Yu7/rZJJY1C21HVvlqaAHBNmIkcCXo?=
+ =?iso-8859-1?Q?+YvYSvnNeLUBw0L/bzN6arNswEDqECH/DtELgJb8DT89DS+jPIhBEUY6Yh?=
+ =?iso-8859-1?Q?aO51mpwOYA4VLkBFGjFkD+Rq3KksGtZFWohsMNH+sg0jCjPNR8IHDkD5lc?=
+ =?iso-8859-1?Q?zkayAzRRqxLDIJsNMTS6gISyshzghbvPdQDcDVADtNxR5O02Qd6OSosp1x?=
+ =?iso-8859-1?Q?VAl2ftdvOibB75zc9bJYGzkMwbXwxuqSSuPYfI9BmBSjCWSmTH7wGmPvLM?=
+ =?iso-8859-1?Q?Ll8as7DcJv+Wr1x6sTH/3p9l4a9hn4Un8KueXhOZErjkcGjM+P/Bd+C9xs?=
+ =?iso-8859-1?Q?9vttde6N0TcbzSVE8YZDFV7si7HYtG/voQJnXvFjUY0E7pQ5p2dxFxu0Se?=
+ =?iso-8859-1?Q?v5oq0TU4M4Qb4XjkZzBWy0ICs98lAVrMPRD65LJ8VrfiYNC0/GtKM+9YbZ?=
+ =?iso-8859-1?Q?ivWHmcTrePwblx3Qmv2AXoe4Y0ABcfax/CJerjOoRzelqHn/HMwY2q22YY?=
+ =?iso-8859-1?Q?oEGLOUY0E6Snjo94YTM39HtbutKlXN9d9pySS4oA4Bj3UFTW4zYfQ+evAE?=
+ =?iso-8859-1?Q?dFoSsL9wWA=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6d2ae323-362a-488d-ed23-08de7df75b72
+X-MS-Exchange-CrossTenant-Network-Message-Id: c9677233-df95-4fc1-b69a-08de7dfc24a5
 X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB7900.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2026 16:17:28.4758
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2026 16:51:43.5144
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: VPLAgUE+s/E7vKjeSIyncZyWYxIuUV0OYekdr4O9arQM/OIg1nYZl8ANqSX7cmNNHEmhFzSuP/YCAA+TlKzb4Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB5713
+X-MS-Exchange-CrossTenant-UserPrincipalName: z278VQ+V7/yLALT3d8Rm2JWp2/iKodQ3zicnnyxES9rdBFDGC1KWvN1ANvlwKxO1xnO54t5oKlUYwCGUOMlsRg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6575
 
-On Sat, Mar 07, 2026 at 05:45:45AM +0100, Linus Lüssing wrote:
-> We are updating ip{4,6}_active and check all variables their state relies
-> on while holding the bridge multicast spinlock. However we are going to
-> read it without this lock in a follow-up commit on fast/data path, too.
-> 
-> As these variables are only booleans this shouldn't be a problem,
-> ip{4,6}_active will be loaded and stored atomically. And those
-> read sides should converge eventually. But to allow tooling to verify
-> this use the READ_ONCE() and WRITE_ONCE macros.
-> 
-> Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-> ---
->  net/bridge/br_multicast.c | 24 ++++++++++++++----------
->  1 file changed, 14 insertions(+), 10 deletions(-)
-> 
+On Sat, Mar 07, 2026 at 05:45:47AM +0100, Linus Lüssing wrote:
 > diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index cb78f9555db6..6faa484dede7 100644
+> index 6faa484dede7..aa2edb63a97b 100644
 > --- a/net/bridge/br_multicast.c
 > +++ b/net/bridge/br_multicast.c
-> @@ -1085,9 +1085,10 @@ static void br_ip4_multicast_update_active(struct net_bridge_mcast *brmctx,
->  					   bool force_inactive)
->  {
->  	if (force_inactive)
-> -		brmctx->ip4_active = false;
-> +		WRITE_ONCE(brmctx->ip4_active, false);
->  	else
-> -		brmctx->ip4_active = br_ip4_multicast_querier_exists(brmctx);
-> +		WRITE_ONCE(brmctx->ip4_active,
-> +			   br_ip4_multicast_querier_exists(brmctx));
+> @@ -1067,6 +1067,26 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge_mcast *brm
+>  	return skb;
 >  }
 >  
->  static void br_ip6_multicast_update_active(struct net_bridge_mcast *brmctx,
-> @@ -1095,23 +1096,26 @@ static void br_ip6_multicast_update_active(struct net_bridge_mcast *brmctx,
->  {
->  #if IS_ENABLED(CONFIG_IPV6)
->  	if (force_inactive)
-> -		brmctx->ip6_active = false;
-> +		WRITE_ONCE(brmctx->ip6_active, false);
->  	else
-> -		brmctx->ip6_active = br_ip6_multicast_querier_exists(brmctx);
-> +		WRITE_ONCE(brmctx->ip6_active,
-> +			   br_ip6_multicast_querier_exists(brmctx));
->  #endif
->  }
->  
->  static void br_multicast_notify_active(struct net_bridge_mcast *brmctx,
->  				       bool ip4_active_old, bool ip6_active_old)
->  {
-> -	if (brmctx->ip4_active == ip4_active_old &&
-> -	    brmctx->ip6_active == ip6_active_old)
-> +	int ip4_active = brmctx->ip4_active;
-> +	int ip6_active = brmctx->ip6_active;
+> +static bool
+> +__br_multicast_querier_exists(struct net_bridge_mcast *brmctx,
+> +			      struct bridge_mcast_other_query *querier,
+
+Both can be const
+
+> +			      bool is_ipv6)
+> +{
+> +	bool own_querier_enabled;
 > +
-> +	if (ip4_active == ip4_active_old &&
-> +	    ip6_active == ip6_active_old)
->  		return;
->  
->  	br_debug(brmctx->br, "mc_active changed, vid: %i: v4: %i->%i, v6: %i->%i\n",
->  		 brmctx->vlan ? brmctx->vlan->vid : -1,
-> -		 ip4_active_old, brmctx->ip4_active,
-> -		 ip6_active_old, brmctx->ip6_active);
-> +		 ip4_active_old, ip4_active, ip6_active_old, ip6_active);
+> +	if (brmctx->multicast_querier) {
+> +		if (is_ipv6 && !br_opt_get(brmctx->br, BROPT_HAS_IPV6_ADDR))
+> +			own_querier_enabled = false;
+> +		else
+> +			own_querier_enabled = true;
+> +	} else {
+> +		own_querier_enabled = false;
+> +	}
+> +
+> +	return !timer_pending(&querier->delay_timer) &&
+> +	       (own_querier_enabled || timer_pending(&querier->timer));
+> +}
+> +
+>  static bool br_ip4_multicast_querier_exists(struct net_bridge_mcast *brmctx)
+
+Same (br_ip6_multicast_querier_exists() as well)
+
+>  {
+>  	return __br_multicast_querier_exists(brmctx, &brmctx->ip4_other_query,
+> @@ -1081,6 +1101,21 @@ static bool br_ip6_multicast_querier_exists(struct net_bridge_mcast *brmctx)
 >  }
-
-This hunk seems unnecessary? Pretty sure you can leave this function
-as-is.
-
->  
->  /**
-> @@ -4269,7 +4273,7 @@ void br_multicast_ctx_init(struct net_bridge *br,
->  	brmctx->multicast_membership_interval = 260 * HZ;
->  
->  	brmctx->ip4_querier.port_ifidx = 0;
-> -	brmctx->ip4_active = 0;
-> +	WRITE_ONCE(brmctx->ip4_active, 0);
->  	seqcount_spinlock_init(&brmctx->ip4_querier.seq, &br->multicast_lock);
->  	brmctx->multicast_igmp_version = 2;
->  #if IS_ENABLED(CONFIG_IPV6)
-> @@ -4277,7 +4281,7 @@ void br_multicast_ctx_init(struct net_bridge *br,
->  	brmctx->ip6_querier.port_ifidx = 0;
->  	seqcount_spinlock_init(&brmctx->ip6_querier.seq, &br->multicast_lock);
 >  #endif
-> -	brmctx->ip6_active = 0;
-> +	WRITE_ONCE(brmctx->ip6_active, 0);
-
-Is this necessary? Who can read the active states while the multicast
-context is still be initialized?
-
 >  
->  	timer_setup(&brmctx->ip4_mc_router_timer, NULL, 0);
->  	timer_setup(&brmctx->ip4_other_query.timer, NULL, 0);
-> -- 
-> 2.53.0
-> 
+> +static bool
+> +br_multicast_querier_exists(struct net_bridge_mcast *brmctx, u16 proto)
+
+Same
+
+> +{
+> +	switch (proto) {
+> +	case ETH_P_IP:
+> +		return br_ip4_multicast_querier_exists(brmctx);
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +	case ETH_P_IPV6:
+> +		return br_ip6_multicast_querier_exists(brmctx);
+> +#endif
+> +	default:
+> +		return false;
+> +	}
+> +}
+
+[...]
+
+> +br_multicast_snooping_active(const struct net_bridge_mcast *brmctx,
+> +			     __be16 eth_proto,
+> +			     const struct net_bridge_mdb_entry *mdb)
+>  {
+> -	bool own_querier_enabled;
+> -
+> -	if (brmctx->multicast_querier) {
+> -		if (is_ipv6 && !br_opt_get(brmctx->br, BROPT_HAS_IPV6_ADDR))
+> -			own_querier_enabled = false;
+> -		else
+> -			own_querier_enabled = true;
+> -	} else {
+> -		own_querier_enabled = false;
+> -	}
+> -
+> -	return !timer_pending(&querier->delay_timer) &&
+> -	       (own_querier_enabled || timer_pending(&querier->timer));
+> -}
+> -
+> -static inline bool br_multicast_querier_exists(struct net_bridge_mcast *brmctx,
+> -					       struct ethhdr *eth,
+> -					       const struct net_bridge_mdb_entry *mdb)
+> -{
+> -	switch (eth->h_proto) {
+> -	case (htons(ETH_P_IP)):
+> -		return __br_multicast_querier_exists(brmctx,
+> -			&brmctx->ip4_other_query, false);
+> +	switch (eth_proto) {
+> +	case htons(ETH_P_IP):
+> +		return READ_ONCE(brmctx->ip4_active);
+>  #if IS_ENABLED(CONFIG_IPV6)
+
+This can be removed given that 'ipv6_active' is always available
+
+> -	case (htons(ETH_P_IPV6)):
+> -		return __br_multicast_querier_exists(brmctx,
+> -			&brmctx->ip6_other_query, true);
+> +	case htons(ETH_P_IPV6):
+> +		return READ_ONCE(brmctx->ip6_active);
+>  #endif
+>  	default:
+>  		return !!mdb && br_group_is_l2(&mdb->addr);
+> @@ -1458,9 +1437,10 @@ static inline bool br_multicast_is_router(struct net_bridge_mcast *brmctx,
+>  	return false;
+>  }
