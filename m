@@ -1,159 +1,117 @@
-Received: from fhigh-b8-smtp.messagingengine.com (fhigh-b8-smtp.messagingengine.com [202.12.124.159])
+Received: from melduny.fyrkat.no (melduny.fyrkat.no [217.144.76.212])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7733451BB;
-	Tue, 10 Mar 2026 19:17:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.159
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7B7135AC26;
+	Tue, 10 Mar 2026 19:52:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.144.76.212
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773170229; cv=none; b=JhHL7GOxTURdJkp9ts1hhIqmZHAc7MvhdN1q7N1HomFAzXAE8xldgjNIZ0NiU2Xwx/i8vZMl/4EboFFugrb0HdWyufuvqlugUFx8oY4kWRubvJ0dVvrdq9bgcdzyKnQPIXm2LDKQrgZY54jxpG8ZifnUwCoaIWXJIAQo2kXT7jg=
+	t=1773172339; cv=none; b=gFfLdAhmEda98q+E1mgX004KYJmRxKcsa8p8PVdZOYX0ViGKVUkrw7qly+3F4vfWiVIKDl+i0lWgLn55cA9plcipkUFmdmq+YlHntzdLMxtNj1sGs/e1HXsd5Na+bpe8A5738BsBJ8EfqXGtIDBjGTJ+5sfSjP8H09AC7+YYJnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773170229; c=relaxed/simple;
-	bh=JuP6+/Lr1cjvm2XE+GuIWXoKiVNwOzz0tz/+2UHI3Uc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dCngej/v/QVHbsUc0P3OdQAPxv8bW9LyRQRSpO6TFgxcCXhzzmGnpyzt6nISeNQIKl1DgrRPlcGHCBh2UWzhkjhAnG+wJ0CFppPLgEhJ9LuwtQtBpot+C8eM9Ye10HORC8VSlhMmEzoPUDQre3G5ah8Ic2aZ4P927mEKwQjHeIA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=LdREGZGo; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ZK6Aseud; arc=none smtp.client-ip=202.12.124.159
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="LdREGZGo";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ZK6Aseud"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 26AD17A0045;
-	Tue, 10 Mar 2026 15:17:05 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Tue, 10 Mar 2026 15:17:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm2; t=1773170224; x=
-	1773256624; bh=JI4/ouCYSUkfsJTeYVN/oRQFPt3CQ3rygZ0gT9OgWgg=; b=L
-	dREGZGoLV4x/l+VXWiaIWnKW5W6YB7rIF8QhnlRGNbMJoU105gnkM9vVSXPvYRCY
-	AoW4GBDiuARb10c7bC0/ft0QmPVUpBppe+DDIUgLy4sABeHAFWTxgYn3NBjIfO0T
-	QVDFwwSTjb2AABxoDOQ/rk1T9BqMy7GYFlwNjeYCukmbp6FjK2h5DjxgNbWAr/x3
-	ieLZlFtHNbq8wxQx5j7sJ+KrN9SOkWFqNqJRRnZ7vVBc8zXjK954xT1CAN/8EJea
-	L5F7yhVU75QqHUJN4YE/zspJIUMz6pUExq9inYhHaoiCA7Nefsf5V/sAlMW4Om/o
-	EQiU6nASyGZpYTQyrURgg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1773170224; x=1773256624; bh=JI4/ouCYSUkfsJTeYVN/oRQFPt3CQ3rygZ0
-	gT9OgWgg=; b=ZK6AseudybgGquF2N3sOS7nr14uEW5OImuTAtacpbUJu8lanIg6
-	ciGmr2xjxC3TV1+ix9Ba0xwvQpDco8t3dyOVrPsJAG0Wjy5s6LbScEXy9eYgqiIe
-	Y0PSrQH6sg3SrI55Af5t4gY/vD1xdsmxBQJQSnIPAPLQkpbTI4FljlOiA6oIS+FC
-	wYzknR7UGEi6YfdCGOmhJKOKzKW82P4C7jk3KsNgX6NAS77Dbd8O3Una63/+VDx/
-	Ock9VB/5kEAvDdfhSVp4qB732oYjgXI/kjmtxzrDo6VILofpzOY1Capgrm7zzDW1
-	PsKmtmqMqgob4KUdcxaf06esqX1ROGw/wNw==
-X-ME-Sender: <xms:L26waaPKDXfu4QCIx9w8mCTMZb3HR2oHrV3G7rdvwxY9R3mPo9bEHw>
-    <xme:L26waaVQTJ9pBweukW5nCByI4CWi3efirC_sVN0HheWRGkchiObbKmgsq5qsdWyUt
-    rXcdw48WO4d5Thvlz5td_lam7QPaPWamiv6WLnedsUmyA7ObmnO5t-b>
-X-ME-Received: <xmr:L26waahTxW3dF4a3akUq2syxCsM8UaW93aVyFTRrwjW0ES61rio51uiR8ABf>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvkedukeegucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucenucfjughrpeffhffvvefukfhfgggtuggjsehttdertd
-    dttdejnecuhfhrohhmpefurggsrhhinhgrucffuhgsrhhotggruceoshgusehquhgvrghs
-    hihsnhgrihhlrdhnvghtqeenucggtffrrghtthgvrhhnpeeuhffhfffgfffhfeeuieduge
-    dtfefhkeegteehgeehieffgfeuvdeuffefgfduffenucevlhhushhtvghrufhiiigvpedt
-    necurfgrrhgrmhepmhgrihhlfhhrohhmpehsugesqhhuvggrshihshhnrghilhdrnhgvth
-    dpnhgspghrtghpthhtohepudekpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehs
-    hiiisghothdotghitdelkehfrgejtgdujeelhegvtggvrggtsehshiiikhgrlhhlvghrrd
-    grphhpshhpohhtmhgrihhlrdgtohhmpdhrtghpthhtoheprghnughrvgifsehluhhnnhdr
-    tghhpdhrtghpthhtohepsghrihgughgvsehlihhsthhsrdhlihhnuhigrdguvghvpdhrtg
-    hpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopegvughu
-    mhgriigvthesghhoohhglhgvrdgtohhmpdhrtghpthhtohephhhorhhmsheskhgvrhhnvg
-    hlrdhorhhgpdhrtghpthhtohepihguohhstghhsehnvhhiughirgdrtghomhdprhgtphht
-    thhopehjihhrihesrhgvshhnuhhllhhirdhushdprhgtphhtthhopehjvhesjhhvohhssg
-    hurhhghhdrnhgvth
-X-ME-Proxy: <xmx:MG6waS9FBNmQGJkNJB2Ht6y5H5u0X9x-K30y1w3ndns1QqVvnknUTw>
-    <xmx:MG6waZS489vp7mxWMxn4-XBqNtvlGYWVLvpV9Ad5ivMNb_bH8FoyvA>
-    <xmx:MG6waZvs7TMxk2Xmtv-RV61FBRzSD33SwP2Mw4b6evKUOHgoZw1k0Q>
-    <xmx:MG6waT5StBnnM6F5oRP_UijvWoBflHEDDfLrIFlS6sa4CgMghPSKyg>
-    <xmx:MG6waX886-s4cCWQYpUv-LwAvlJcKVF-wGOwu9mEX3vSO6moqTLsKglZ>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 10 Mar 2026 15:17:03 -0400 (EDT)
-Date: Tue, 10 Mar 2026 20:17:01 +0100
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: syzbot ci <syzbot+ci098fa7c1795eceac@syzkaller.appspotmail.com>
-Cc: andrew@lunn.ch, bridge@lists.linux.dev, davem@davemloft.net,
-	edumazet@google.com, horms@kernel.org, idosch@nvidia.com,
-	jiri@resnulli.us, jv@jvosburgh.net, kuba@kernel.org,
-	linux-kernel@vger.kernel.org, liuhangbin@gmail.com,
-	netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org,
-	sridhar.samudrala@intel.com, syzbot@lists.linux.dev,
-	syzkaller-bugs@googlegroups.com
-Subject: Re: [syzbot ci] Re: net: move netdev_compute_master_upper_features
- to ndo_set_features
-Message-ID: <abBuLV3P6aTzUg3W@krikkit>
-References: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
- <69b04e91.a70a0220.51e36.0000.GAE@google.com>
+	s=arc-20240116; t=1773172339; c=relaxed/simple;
+	bh=ZC/kikINZ4TAvirVIFkqBizjiOt39ErEkuGXZ1Z0W+Y=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=mvRAr7YXSF4Vs/eXvDq7sqmfB3y3ypDCJ29IwTfY4JaGAgWMatsQ0aPBb2VSsPt8N2g0EHJUcJUmhNCIDYgpqO/QGvjFIeO+IJCPRkQOhp3DC1ubvA/j0QUyt9HQNIJ8nWyx+RWIVvsmeWxxbLfRgRK6dxzG2g1W4HBx6ZhNjPg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kolla.no; spf=pass smtp.mailfrom=kolla.no; arc=none smtp.client-ip=217.144.76.212
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kolla.no
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kolla.no
+Received: by melduny.fyrkat.no (Postfix) with ESMTPSA id 51FE78D0F;
+	Tue, 10 Mar 2026 19:40:41 +0000 (UTC)
+Date: Tue, 10 Mar 2026 20:40:36 +0100 (CET)
+From: =?UTF-8?Q?Kolbj=C3=B8rn_Barmen?= <linux-m68k@kolla.no>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+cc: Fernando Fernandez Mancera <fmancera@suse.de>, netdev@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>, 
+    Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+    Selvin Xavier <selvin.xavier@broadcom.com>, 
+    Andrew Lunn <andrew+netdev@lunn.ch>, 
+    "David S. Miller" <davem@davemloft.net>, 
+    Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+    Paolo Abeni <pabeni@redhat.com>, Ido Schimmel <idosch@nvidia.com>, 
+    Petr Machata <petrm@nvidia.com>, Simon Horman <horms@kernel.org>, 
+    Saurav Kashyap <skashyap@marvell.com>, Javed Hasan <jhasan@marvell.com>, 
+    "maintainer:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER" <GR-QLogic-Storage-Upstream@marvell.com>, 
+    "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+    "Martin K. Petersen" <martin.petersen@oracle.com>, 
+    Nilesh Javali <njavali@marvell.com>, 
+    Manish Rangankar <mrangankar@marvell.com>, 
+    Varun Prakash <varun@chelsio.com>, Alexander Aring <aahringo@redhat.com>, 
+    David Teigland <teigland@redhat.com>, 
+    Andreas Gruenbacher <agruenba@redhat.com>, 
+    Nikolay Aleksandrov <razor@blackwall.org>, 
+    David Ahern <dsahern@kernel.org>, Pablo Neira Ayuso <pablo@netfilter.org>, 
+    Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>, 
+    David Howells <dhowells@redhat.com>, 
+    Marc Dionne <marc.dionne@auristor.com>, 
+    Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
+    Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>, 
+    Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
+    Bjorn Andersson <bjorn.andersson@oss.qualcomm.com>, 
+    Arnd Bergmann <arnd@arndb.de>, 
+    Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, 
+    Eric Biggers <ebiggers@kernel.org>, Michal Simek <michal.simek@amd.com>, 
+    Luca Weiss <luca.weiss@fairphone.com>, Sven Peter <sven@kernel.org>, 
+    Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, 
+    Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, 
+    Andrew Morton <akpm@linux-foundation.org>, David Gow <david@davidgow.net>, 
+    Herbert Xu <herbert@gondor.apana.org.au>, 
+    Ryota Sakamoto <sakamo.ryota@gmail.com>, 
+    Kuniyuki Iwashima <kuniyu@google.com>, Kir Chou <note351@hotmail.com>, 
+    Kuan-Wei Chiu <visitorckw@gmail.com>, 
+    Vikas Gupta <vikas.gupta@broadcom.com>, 
+    Bhargava Marreddy <bhargava.marreddy@broadcom.com>, 
+    Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>, 
+    =?UTF-8?Q?Markus_Bl=C3=B6chl?= <markus@blochl.de>, 
+    "open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>, 
+    "open list:INFINIBAND SUBSYSTEM" <linux-rdma@vger.kernel.org>, 
+    "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@corigine.com>, 
+    "open list:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER" <linux-scsi@vger.kernel.org>, 
+    "open list:DISTRIBUTED LOCK MANAGER (DLM)" <gfs2@lists.linux.dev>, 
+    "open list:ETHERNET BRIDGE" <bridge@lists.linux.dev>, 
+    "open list:NETFILTER" <netfilter-devel@vger.kernel.org>, 
+    "open list:NETFILTER" <coreteam@netfilter.org>, 
+    "open list:RXRPC SOCKETS (AF_RXRPC)" <linux-afs@lists.infradead.org>, 
+    "open list:SCTP PROTOCOL" <linux-sctp@vger.kernel.org>, 
+    "open list:TIPC NETWORK LAYER" <tipc-discussion@lists.sourceforge.net>
+Subject: Re: [PATCH 01/10 net-next] ipv6: convert CONFIG_IPV6 to built-in
+ only and clean up Kconfigs
+In-Reply-To: <01a4936f-77cd-4c60-a1be-cabec872a2bb@kernel.org>
+Message-ID: <e54d887c-5a70-b8c9-aeef-433c5134dd14@kolla.no>
+References: <20260309022013.5199-1-fmancera@suse.de> <20260309022013.5199-2-fmancera@suse.de> <01a4936f-77cd-4c60-a1be-cabec872a2bb@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <69b04e91.a70a0220.51e36.0000.GAE@google.com>
+Content-Type: text/plain; charset=US-ASCII
 
-2026-03-10, 10:02:09 -0700, syzbot ci wrote:
-> batman_adv: batadv0: Not using interface batadv_slave_1 (retrying later): interface not active
-> hsr_slave_0: entered promiscuous mode
-> hsr_slave_1: entered promiscuous mode
-> ------------[ cut here ]------------
-> err == -EMSGSIZE
-> WARNING: net/core/rtnetlink.c:4421 at rtmsg_ifinfo_build_skb+0x218/0x260, CPU#0: syz-executor/6496
+On Mon, 9 Mar 2026, Krzysztof Kozlowski wrote:
 
-I'm not sure this one is caused by this series, but either way,
-reviewing if_nlmsg_size/rtnl_fill_ifinfo for mismatches is really
-unpleasant :/
+> On 09/03/2026 03:19, Fernando Fernandez Mancera wrote:
+> > Configuring IPV6 as a module provides little or no benefit and requires
+> > time and resources to maintain. Therefore, drop the support for it.
+> > 
+> > Change CONFIG_IPV6 from tristate to bool. Remove all Kconfig
+> > dependencies across the tree that explicitly checked for IPV6=m. Adjust
+> > all the default configurations from CONFIG_IPV6=m to CONFIG_IPV6=y. In
+> > addition, remove MODULE_DESCRIPTION(), MODULE_ALIAS(), MODULE_AUTHOR()
+> > and MODULE_LICENSE().
+> > 
+> > This is also replacing module_init() by fs_initcall().
+> > 
+> > Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+> > ---
+-->8--
+> No, I don't want IPV6. It is allowed as module if some users need, but
+> it's heavy bloat added to each person's build testing setup. Kernel
+> image is already huge and barely fits boot partitions when built with
+> KASAN and I do want a generic image with KASAN.
+> 
+> It must stay module for me. Alternatively, drop it, but then some users
+> will be really affected.
 
-Things I see in rtnl_fill_ifinfo but don't find in if_nlmsg_size:
- - IFLA_PARENT_DEV_NAME
- - IFLA_PARENT_DEV_BUS_NAME
-   (both from 00e77ed8e64d ("rtnetlink: add
-   IFLA_PARENT_[DEV|DEV_BUS]_NAME"), which doesn't include a change to
-   if_nlmsg_size)
- - rtnl_link_slave_info_fill also outputs IFLA_INFO_SLAVE_KIND + the
-   IFLA_INFO_SLAVE_DATA nest, but rtnl_link_get_slave_info_data_size
-   only counts the nest, and its caller (rtnl_link_get_size) doesn't
-   have anything more about the slave info. This may be what syzbot is
-   tripping on here.
+I agree. If anything I would prefer to see IPv4 be made optional (and
+modular) as well, and not as something IPv6 depends on, it's (AFAIK)
+impossible today to build an IPv6-only Linux kernel. 
 
-
-But there's a
-
-    + nla_total_size(4) /* IFLA_WEIGHT */
-
-that doesn't get filled anywhere.
-
-
-> Modules linked in:
-> CPU: 0 UID: 0 PID: 6496 Comm: syz-executor Not tainted syzkaller #0 PREEMPT(full) 
-> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-> RIP: 0010:rtmsg_ifinfo_build_skb+0x218/0x260
-> Code: f6 ba 01 00 00 00 89 e9 e8 25 15 3a 00 4c 89 f0 48 83 c4 30 5b 41 5c 41 5d 41 5e 41 5f 5d e9 7f 3a 2e 02 cc e8 49 3b 42 f8 90 <0f> 0b 90 eb 90 89 d9 80 e1 07 fe c1 38 c1 0f 8c 95 fe ff ff 48 89
-> RSP: 0018:ffffc9000637e9a0 EFLAGS: 00010293
-> RAX: ffffffff89835e27 RBX: 0000000000000000 RCX: ffff8881b80a57c0
-> RDX: 0000000000000000 RSI: 00000000ffffffa6 RDI: 00000000ffffffa6
-> RBP: 00000000ffffffa6 R08: 0000000000000004 R09: 0000000000000004
-> R10: fffff52000c6fcdc R11: 0000000000000000 R12: 1ffff110235ddc21
-> R13: 0000000000000000 R14: ffff8881133dc780 R15: ffff88811aeee000
-> FS:  0000555557c4a500(0000) GS:ffff88818de65000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 000055555e1838c8 CR3: 0000000168b80000 CR4: 00000000000006f0
-> Call Trace:
->  <TASK>
->  rtnetlink_event+0x1b7/0x270
->  notifier_call_chain+0x1be/0x400
->  netdev_change_features+0x95/0xe0
->  __netdev_upper_dev_link+0xb20/0xc80
->  netdev_upper_dev_link+0xb0/0x100
->  macsec_newlink+0xb11/0x1200
->  rtnl_newlink_create+0x329/0xb70
->  rtnl_newlink+0x1666/0x1be0
-
--- 
-Sabrina
+-- kolla
