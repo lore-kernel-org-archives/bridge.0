@@ -1,170 +1,200 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0D4D3624CB
-	for <bridge@lists.linux.dev>; Tue, 10 Mar 2026 07:47:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DC4D18859B
+	for <bridge@lists.linux.dev>; Tue, 10 Mar 2026 08:37:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773128828; cv=none; b=PQ05qnBFv3WLivyohC57l0AeS4aWpbsdqdtSHP2H7M0YWk7MdRA3AqOoP1+K6CQRAFvrGWXtlkmqtOJ93vMC2+PPU2TygWXP7ImEsGyogYGjD+cW+olmkybGhLBabpLBfm4lkopXHk1xYWnqVFce9JSiWpragLyTTUGkijbASgE=
+	t=1773131826; cv=none; b=gbSB95XUOMDtBYPmsj5e6jKzrFdFGjztSvPNW1zGijwdy+PVVnDkguUsP6FNZ1Y4P0r/Xk6arzOtrnviUlRJnkpiEHTeSt2Y93h4fIeYckhVjyAAIHAjdtn+QNaRzJWQltRux/LPBmiKn1IU9thWSs7qzJUoQWtP0IgIsvmFdf0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773128828; c=relaxed/simple;
-	bh=bXnDNSFidNz36SeGMTKr9aEsO9Td+iPTz2QUPB6xp3c=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ed3OHTWTrrFWnuX1luCunFXup8WF/P/XkdiATzGMy9p1EpyYnjgM/RZH7nApxjv0IVec2Hrwg0JYtQ2lIGg/v7IJEyHaOi1f3qTJc2fY4rz3MqmeZgEVRJQLUVp0+Jki8h1XczWE20N8UV04LicqZUAeT0yjABjT7415S8bSVss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CAKb0nkJ; arc=none smtp.client-ip=209.85.216.41
+	s=arc-20240116; t=1773131826; c=relaxed/simple;
+	bh=SkOW0Me5Mei+6+811W8wfI40/OJEsEajTjQbZP2i/9k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VwGADJcOPJYqnEbhLTnS19pGcDG7AFDf2h6coqlNNhQxXuFFH4IN2bVZl0X5uw4hSiW5Sh/QMAubb2/RhNejGJ0R4OWuCnvoWX8XABziCLjnOWcEq4zgdIau9zksa4xqJjVgV62pJSgoTPpZTY/MqXAKQthNgzte6EuQRPIbVeM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kFDVoQ1D; arc=none smtp.client-ip=209.85.208.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CAKb0nkJ"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-359f8502ea8so65538a91.2
-        for <bridge@lists.linux.dev>; Tue, 10 Mar 2026 00:47:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kFDVoQ1D"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6615c766e60so7853583a12.3
+        for <bridge@lists.linux.dev>; Tue, 10 Mar 2026 01:37:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773128826; x=1773733626; darn=lists.linux.dev;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3MrEEXv7Xy2jJrXRIKwxLssaRaTIm50HmDgCOhNMffI=;
-        b=CAKb0nkJo5HN/7htRFxTg9Yp5p3LptnoD9+uNe0PzEqreJGuClOFgkcgCDtfS7i4xO
-         lWetOmOOb5fUFtyYf70Za9PBZl5TZOZT1PbC8ogUD2CDRfCBjrdbNvpruC5RYyijRwXe
-         TAjgYgiq+wZX+ErAKbYlXZE/5K02sITU7AEwifc0nIHKpy6hM2zuaBd62vPV1++Lhuag
-         aa0xgoQf1tiFrrQNvbxZVx1Mr59F3TWfcWl9zcfIaZVt6J3u3NdXRbOAdnggBgOwWoJZ
-         3uLJUb/4FtlBZdwnIkGBAacn7qtfbvUVqu7DaYiMkSr7r2ptYasvsSD4elnrBiTjE5Z5
-         7vPA==
+        d=gmail.com; s=20230601; t=1773131824; x=1773736624; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Nmp2C2LK1KcB7kS8d+inf4YkPeQ+OioLOT0ROrHIx4Q=;
+        b=kFDVoQ1DCkz2RfqZ3VrR153ZtYIFLsmVqkRreZPyA6VOsnfSSAKMgh2opBZoNDZRLU
+         oyz2jGNHy3o5yeN+kbRKPePKo9+wUgRVX//1B9uYvI6+2t3nONrcNAwy9ax+UsnR4BR6
+         d1VdQ5gPXPZar95Oypzxk+fD8WIoBLGdB4X1gSQvOhyf7/mryeiptBsQ4/g1qCZPfFs9
+         6zhngvG9fXkKvKr1i0dKJmImxkwmQuOTR1ntKX8/ZgnXGycgWVu7NhVhZIBlOL3Pxo/J
+         6dNue0T6CXQHuTBWnWHxKcSzV98+Z5TcaiCgb9paVKrkd1xfQlbX2VtPMu8NfADBWniI
+         DAkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773128826; x=1773733626;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=3MrEEXv7Xy2jJrXRIKwxLssaRaTIm50HmDgCOhNMffI=;
-        b=DO/6bl7IZeWV6mMAKNNOXSJx+n9zp0xFMaiemCsRLF5KVinDxR5HTn/ITXq8xsvMKy
-         tAqr8GOf/FW5Ki9zSmbSGuoGfU3PVbMmIak8Lb5m7hqL9XWvx44B3TfFYV3BfbwCJeBt
-         KFPcAX2j6mLdBppJxcFKwGGxfr/MIweAoplNy5zIqJvAvUH8VLxf2k/t07JawCnaz6YE
-         YyZMIM3ujcLBaeUIo4b471ZPi7BdHuEt8e0DXMREM1em0hNJn6haR8EyuUOX8OTPaSAU
-         XWvIA1PH8ZKh59E1pdrdC2y1IXhvIG1l/emqmMTMygwaELrs+cK4qswKCY9rGUv9Ku/A
-         mI6w==
-X-Forwarded-Encrypted: i=1; AJvYcCVUrtmIAso5AYPIXuVnQctu0l2JCoBFrDF01mpZ+GhtLC6SSZXyQiago7IG3NHllEVTtaF3kwY=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxiSzRM4CTpmMh1PexahO9PJ7YpC6FjSQ3n1pCRsyBVA8m0003h
-	nLgiHwpvIC9ZnYP0wORetliBL2EZV2Yc/Q5swnIRW+m7A6bfcxNhASQo
-X-Gm-Gg: ATEYQzzmyxG09eG1Aap9Wif28eWxQ29BZHT+gYURGa1dbgcRbAQih+NMRkXw0Ex/l3E
-	YkwQXGMKiyTbn7z7Pv9B/dKdj5qzMDNKmeP8V5c4gVm/bKUwicBFlA+ev5SOE379do0RRx84owy
-	ItBFTqyBCJM6qtcz1AuB9/hKfPribE+JaQZYy+pkwq0ThZOk/8lHHEVGo11UDflJyY2rCqEVHqr
-	hgoA+SAjpgoQvifRkgqdA8GUXkbV7pBCPhJprxBEqpYjDux0hZGZuWXsngP6pUQB34I5KWfUedY
-	7KXccvRj1DS6Pl3ksXMbUWtuco3S5Lz6EmLLdO+3WECa/WdDWa1SMbGAlrG5zQktu/O4TYcCifI
-	FyTvHvyOrDCwHsaVc6Fb4DGP6kMkwpaF9FwlfUGCFwd9V8VDrB9JRYpWuGAytK0CH6Zg4dUkAgV
-	rKTFSGRje6BuwbELh0ApqMWQF6ZaXNy8C9GOsueTbP5UoStANhm4gLERRwauxdiu6+uzwZOM6Nq
-	j5ZHKWnO0PnzeMiNFNr5rZAsrk7rAtGJOrmH8ruw0s=
-X-Received: by 2002:a17:90b:5252:b0:359:9bad:13d9 with SMTP id 98e67ed59e1d1-359be29eea6mr12832642a91.15.1773128826073;
-        Tue, 10 Mar 2026 00:47:06 -0700 (PDT)
-Received: from 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-359bc7ef38csm7260607a91.2.2026.03.10.00.47.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 00:47:05 -0700 (PDT)
-From: Hangbin Liu <liuhangbin@gmail.com>
-Date: Tue, 10 Mar 2026 15:45:07 +0800
-Subject: [PATCH net-next 3/3] net: no need to disable LRO specifically
+        d=1e100.net; s=20230601; t=1773131824; x=1773736624;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Nmp2C2LK1KcB7kS8d+inf4YkPeQ+OioLOT0ROrHIx4Q=;
+        b=ql34T1cAONb5oGIYH4aj3+sIanbLT+NfdEtRlPYy9Tw3stcKe7miqCV3AQfzAAlq8H
+         wXuU34r+b/KtTtfNSw53srQa+iKlDc4NAS5Ms5iFFtFehEZJtWK7z+zv9rUHanxJJPgu
+         /2hixC1Y9HQP9RN1B89FkIWTyGnra2Fb73isMAWQXXLdwXNHzxzIbjC0NDgU4uJqxiU0
+         jSwGXg8hlzjv+aZgA9ciFrNf79o/GRaTsBEcy93+uc+wrTDUJIN8dTARfC0Z5Pq9uWnG
+         /alFiZtDRffDsAnGZ64TF0ihGNLfjHCdXeSuWZFBBfXNF4T0ZQXh68Z3FF/nJqoZ7P4e
+         MzbQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXpxMcF9sedsCmF8Cc9yoE5jCDA1tpKvCPZig7hazwkh/RBNkkwI3NjUlt7VZFvqrWYqcwN1Z8=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxnrc04TllawfSxqdnpz4JsZq8hkCxfcxMqddbbH4/RtDqoSfPB
+	b41DAzZGec9bXeVnfxOtcr43D7nMeGjhLCMn9JX12cNy9krz2eQLRo5u
+X-Gm-Gg: ATEYQzy7o7v527aOOZEQq+ew0n4ignhMNHzFKKf1ojd5wXx040yshwxJhkkxazm3lW2
+	GNlAk0FxPhQk+BQqJCT1EqhYtLGYLWiBl1hp5XIom9FayRKWRhiDZSmP168+Eo7VZIB5t0cicNa
+	jcRLPLF9cqQRBEl3lqlegp7bFQK/P6LBCrzg6GItdZ0yg6FBC15+s2p/9qhgPk9L8Pj/kXHoQFt
+	/frU4ZGd0o3xN85RWqg9IwSYecQRyrTOexI6kMZbLBfSsVJTaApnzZnBs84NFVgrIyldSQX7dqC
+	M+zDzuOGCp5NZvyyrROVxdFVFolXICur6jL3TnNUFf7MwQy46tqVYftoo/HivD+vQT92WgBDiNw
+	mhWsIaep8ayX/5bCAEDyN4PEZxDYAfcXK0ZjQLLQGdgEYTNJ/449o2CX8btVYm2oKBx6/RX/XaE
+	vZQ+XtwXBDOwN9QrfphYwZlEetDfvjQKO5HJt9mx1Nk5rKBOTM1VeY/vtCJ5fwd7ZG/4VQcRpSY
+	0Zm57F5reOQZkk+psJQLN3fBc9Ia7zFdUBvPGcSzq1+CXQ7Dn1aWEVGjw6HbkcxdmXC0R1W5v5T
+	BrKjHs29rJ8uiSjHvPDHrcqc3no+9acrRw==
+X-Received: by 2002:a05:6402:13cb:b0:660:ce49:f6d1 with SMTP id 4fb4d7f45d1cf-6619d53ce70mr7697726a12.30.1773131823379;
+        Tue, 10 Mar 2026 01:37:03 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-661a3e61eb6sm4096796a12.8.2026.03.10.01.37.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 Mar 2026 01:37:02 -0700 (PDT)
+Message-ID: <76b3546a-37c5-4dab-9074-4df0cbe48524@gmail.com>
+Date: Tue, 10 Mar 2026 09:37:00 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v19 nf-next 5/5] netfilter: nft_chain_filter: Add bridge
+ double vlan and pppoe
+To: Florian Westphal <fw@strlen.de>, Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>,
+ Simon Horman <horms@kernel.org>, Eric Dumazet <edumazet@google.com>,
+ Ido Schimmel <idosch@nvidia.com>, netfilter-devel@vger.kernel.org,
+ bridge@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
+ Phil Sutter <phil@nwl.cc>, Michal Ostrowski <mostrows@earthlink.net>,
+ Andrew Lunn <andrew+netdev@lunn.ch>
+References: <20260224065307.120768-1-ericwouds@gmail.com>
+ <20260224065307.120768-6-ericwouds@gmail.com>
+From: Eric Woudstra <ericwouds@gmail.com>
+Content-Language: en-US
+In-Reply-To: <20260224065307.120768-6-ericwouds@gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260310-offload_compute-v1-3-3df79c09ea65@gmail.com>
-References: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
-In-Reply-To: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
-To: Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Jiri Pirko <jiri@resnulli.us>, Nikolay Aleksandrov <razor@blackwall.org>, 
- Ido Schimmel <idosch@nvidia.com>, Simon Horman <horms@kernel.org>, 
- Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- bridge@lists.linux.dev, Hangbin Liu <liuhangbin@gmail.com>
-X-Mailer: b4 0.14.3
 
-In commit "net: use ndo_set_features to set offload features for
-bonding/bridge/team" we called netdev_change_features() in
-__netdev_upper_dev_link(), which will disable LRO automatically on lower
-device if upper device doesn't have LRO enabled. So we don't need to
-dev_disable_lro() again after netdev_upper_dev_link().
 
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
----
- drivers/net/bonding/bond_main.c | 3 ---
- drivers/net/team/team_core.c    | 3 ---
- net/8021q/vlan.c                | 2 --
- net/bridge/br_if.c              | 2 --
- net/hsr/hsr_slave.c             | 1 -
- 5 files changed, 11 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 4d32b06079ee..5b117acb1138 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -2177,9 +2177,6 @@ int bond_enslave(struct net_device *bond_dev, struct net_device *slave_dev,
- 	}
- #endif
- 
--	if (!(bond_dev->features & NETIF_F_LRO))
--		dev_disable_lro(slave_dev);
--
- 	res = netdev_rx_handler_register(slave_dev, bond_handle_frame,
- 					 new_slave);
- 	if (res) {
-diff --git a/drivers/net/team/team_core.c b/drivers/net/team/team_core.c
-index 4906ea3717b1..73d4f68a7ccd 100644
---- a/drivers/net/team/team_core.c
-+++ b/drivers/net/team/team_core.c
-@@ -1191,9 +1191,6 @@ static int team_port_add(struct team *team, struct net_device *port_dev,
- 		goto err_enable_netpoll;
- 	}
- 
--	if (!(dev->features & NETIF_F_LRO))
--		dev_disable_lro(port_dev);
--
- 	err = netdev_rx_handler_register(port_dev, team_handle_frame,
- 					 port);
- 	if (err) {
-diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
-index 2b74ed56eb16..fda3a80e9340 100644
---- a/net/8021q/vlan.c
-+++ b/net/8021q/vlan.c
-@@ -193,8 +193,6 @@ int register_vlan_dev(struct net_device *dev, struct netlink_ext_ack *extack)
- 	vlan_group_set_device(grp, vlan->vlan_proto, vlan_id, dev);
- 	grp->nr_vlan_devs++;
- 
--	netdev_update_features(dev);
--
- 	return 0;
- 
- out_unregister_netdev:
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index 030248bc94c5..0aa653a1e651 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -620,8 +620,6 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	if (err)
- 		goto err5;
- 
--	dev_disable_lro(dev);
--
- 	list_add_rcu(&p->list, &br->port_list);
- 
- 	nbp_update_port_count(br);
-diff --git a/net/hsr/hsr_slave.c b/net/hsr/hsr_slave.c
-index 44f83c8c56a7..4b6ab185392b 100644
---- a/net/hsr/hsr_slave.c
-+++ b/net/hsr/hsr_slave.c
-@@ -169,7 +169,6 @@ static int hsr_portdev_setup(struct hsr_priv *hsr, struct net_device *dev,
- 	res = netdev_rx_handler_register(dev, hsr_handle_frame, port);
- 	if (res)
- 		goto fail_rx_handler;
--	dev_disable_lro(dev);
- 
- 	return 0;
- 
+On 2/24/26 7:53 AM, Eric Woudstra wrote:
+> In nft_do_chain_bridge() pktinfo is only fully populated for plain packets
+> and packets encapsulated in single 802.1q or 802.1ad.
+> 
+> When implementing the software bridge-fastpath and testing all possible
+> encapulations, there can be more encapsulations:
+> 
+> The packet could (also) be encapsulated in PPPoE, or the packet could be
+> encapsulated in an inner 802.1q, combined with an outer 802.1ad or 802.1q
+> encapsulation.
+> 
+> nft_flow_offload_eval() also examines the L4 header, with the L4 protocol
+> known from the conntrack-tuplehash. To access the header it uses
+> nft_thoff(), but for these packets it returns zero.
+> 
+> Introduce nft_set_bridge_pktinfo() to help populate pktinfo with the
+> offsets.
+> 
+> Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
+> ---
+>  net/netfilter/nft_chain_filter.c | 55 +++++++++++++++++++++++++++++---
+>  1 file changed, 51 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/netfilter/nft_chain_filter.c b/net/netfilter/nft_chain_filter.c
+> index d4d5eadaba9c..66ef30c60e56 100644
+> --- a/net/netfilter/nft_chain_filter.c
+> +++ b/net/netfilter/nft_chain_filter.c
+> @@ -227,21 +227,68 @@ static inline void nft_chain_filter_inet_fini(void) {}
+>  #endif /* CONFIG_NF_TABLES_IPV6 */
+>  
+>  #if IS_ENABLED(CONFIG_NF_TABLES_BRIDGE)
+> +static int nft_set_bridge_pktinfo(struct nft_pktinfo *pkt, struct sk_buff *skb,
+> +				  const struct nf_hook_state *state,
+> +				  __be16 *proto)
+> +{
+> +	nft_set_pktinfo(pkt, skb, state);
+> +
+> +	switch (*proto) {
+> +	case htons(ETH_P_PPP_SES): {
+> +		struct ppp_hdr {
+> +			struct pppoe_hdr hdr;
+> +			__be16 proto;
+> +		} *ph, _ph;
+> +
+> +		ph = skb_header_pointer(skb, 0, sizeof(_ph), &_ph);
+> +		if (!ph) {
+> +			*proto = 0;
+> +			return -1;
+> +		}
+> +		switch (ph->proto) {
+> +		case htons(PPP_IP):
+> +			*proto = htons(ETH_P_IP);
+> +			return PPPOE_SES_HLEN;
+> +		case htons(PPP_IPV6):
+> +			*proto = htons(ETH_P_IPV6);
+> +			return PPPOE_SES_HLEN;
+> +		}
+> +		break;
+> +	}
+> +	case htons(ETH_P_8021Q): {
+> +		struct vlan_hdr *vhdr, _vhdr;
+> +
+> +		vhdr = skb_header_pointer(skb, 0, sizeof(_vhdr), &_vhdr);
+> +		if (!vhdr) {
+> +			*proto = 0;
+> +			return -1;
+> +		}
+> +		*proto = vhdr->h_vlan_encapsulated_proto;
+> +		return VLAN_HLEN;
+> +	}
+> +	}
+> +	return 0;
+> +}
+> +
+>  static unsigned int
+>  nft_do_chain_bridge(void *priv,
+>  		    struct sk_buff *skb,
+>  		    const struct nf_hook_state *state)
+>  {
+>  	struct nft_pktinfo pkt;
+> +	__be16 proto;
+> +	int offset;
+>  
+> -	nft_set_pktinfo(&pkt, skb, state);
+> +	proto = eth_hdr(skb)->h_proto;
+> +
+> +	offset = nft_set_bridge_pktinfo(&pkt, skb, state, &proto);
+>  
+> -	switch (eth_hdr(skb)->h_proto) {
+> +	switch (proto) {
+>  	case htons(ETH_P_IP):
+> -		nft_set_pktinfo_ipv4_validate(&pkt, 0);
+> +		nft_set_pktinfo_ipv4_validate(&pkt, offset);
+>  		break;
+>  	case htons(ETH_P_IPV6):
+> -		nft_set_pktinfo_ipv6_validate(&pkt, 0);
+> +		nft_set_pktinfo_ipv6_validate(&pkt, offset);
+>  		break;
+>  	default:
+>  		nft_set_pktinfo_unspec(&pkt);
 
--- 
-Git-155)
+Just in case, I'm sending a kind and small reminder, before it is too
+late in the cycle.
+
+Regards,
+
+Eric
 
