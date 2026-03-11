@@ -1,188 +1,162 @@
-Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4381C39DBD8;
-	Tue, 10 Mar 2026 22:19:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC6EE367F46
+	for <bridge@lists.linux.dev>; Wed, 11 Mar 2026 00:47:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773181148; cv=none; b=Ec5ysc8oubxptZId8MunknKSgSz/5iwaNSlbkhOt4SEjiEfLQmRcXu/BqJYzh5IoNKMYk4r4oabddV6n5QmJotCs16G27h1xy/0X0KfiOJjAo4SrGd4r8UmakSJwd2uqGV+wHqw04VIrMQv1jsJomKvMswVyflGcLKWJNIjo0SM=
+	t=1773190073; cv=none; b=OR3OMmxE/YU2RfYq9NGvkXJesMQg24R/FBO0v+KjJf32BPCmyYEJsQd9qP42M8PuOu15VSExid+SmxMnqAWJNfyhTWXBJw6qRvXPTGrrI/uBuA3CQmueCV9f8IgP9MfO14sBb6l0SvLeWXMzY0PhLxKC9zcKR5tuM8q54tGFfpo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773181148; c=relaxed/simple;
-	bh=iJDAvNQWfTXa/d54rND70rOy1C42f+AfmZ9GTZCuIqQ=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=dvYTdTKCaLr0UtWvM9ad+HLmV1nsfAo/7xq4tuAvZxw+VOg+vrjd0hek8zn4nayCKHbKECHcxp4RGcuzrH9HWsdq/eUKtsJL7zakuETHKCZvs++F4lMQ5q3XDUTgZ8kHEFpT1ZCBy/vdcSDtvcwf6rSNgpyw82XVrWqUx5sC6iM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=VqmquK1T; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YsZydKiE; arc=none smtp.client-ip=103.168.172.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1773190073; c=relaxed/simple;
+	bh=0NOikj0F4XRAl27fF0T51r1cDQUQLoSd+Y7hpcI8wOg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rMuj0Ac5GN+L3uy/KMFkqgFJmpDv53EtS6pwrbE86C4rr4/WlNU0VPwezGkq/EhvGzC1uRUE8BV18/PuA3jLPvXQy3D8gVv9UnO9NqnYR3pUfwxt0VEpJ/JVnVgsnnZg8XXvHtf7nT2xPqD6cDW+AfUd1Z0D/aPfvJdR5kTgtX8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HvIUFYE9; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="VqmquK1T";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YsZydKiE"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.phl.internal (Postfix) with ESMTP id 4653D1380E3E;
-	Tue, 10 Mar 2026 18:19:06 -0400 (EDT)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-04.internal (MEProxy); Tue, 10 Mar 2026 18:19:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1773181146;
-	 x=1773188346; bh=FRlgnoZcWgoJlJFqsFQjQT0OGLiik2V/K6MtiEBUEM4=; b=
-	VqmquK1ThYfiJInFZEGG+39y5whxw59dS6wZmFtow//LgI9y/NonddGjeQwmPZ/2
-	azkFcT32OrNx1XyiDOr0SaQ1c3nit329uNzohSK04kAbuPfUBFvs+u/RDGluQCOH
-	jqpYR+ziRqTTdRVWSVQRO+ZlgzGsbmNV1TT/a1fbaV2Kk1hzz+wOSMHlSX99KO5g
-	liDb7rlA8TUDTa7QMbvEsO4wdGf4PMFZaqaAKvaTijErp7qSZF5me0X3/l3J+bQ3
-	JFgCWwMhYW/RPNGyxTYOY0k8Cx6hAY7usxxd1NlF6i6cmqwPssqQEma3m8r81vJt
-	NNjYJykU0bjy7dNr3b7bPg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1773181146; x=
-	1773188346; bh=FRlgnoZcWgoJlJFqsFQjQT0OGLiik2V/K6MtiEBUEM4=; b=Y
-	sZydKiERyzUc1fHk/tl6Li6wEjARPsNPjW3is4FphQW2TdGFTZh2K8cBgBSXgLJG
-	SMh9tYz3F6k86gz7hSdCxRuRx5n52375jbcIsWultOywVWXVNWj9hT8IHPT1n2N9
-	kXo6LkCsquMF36B2QwUmMTAoRt9FHOC6pYVGd6MzUaP/260NLveReE04O5UcNUuh
-	e6mbnn6GYKv2thlc7Bda7TKmZh90RkYcEc1zqs06LZoCsFpQcjkWrLx7jWtfFwsk
-	LDUHqtAjSb0+N4B8n921/cdjf5CvA3BSSSi0aVLaP/iYCLYeegalSoXaORHgPaBi
-	HBTDeZNvX49NavL4DUsgA==
-X-ME-Sender: <xms:15iwaRkDfzzHLp_X1kq4L_AU6-ituzyF3iSQa14ZIgckIpAikMqXfw>
-    <xme:15iwaXqbd0PN-S2y7b3kkHufFY4ihJjA8BCVC5x5-YHDU5jqaRe6NflZmhtQFXKdn
-    G9IhYD-tgpZBjo54RVlaMAsWUM6gf5AMCwjfFZoqGIzOjaROTos_uI>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvkedvvddtucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
-    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
-    hrnhepteefudehvedutdeugfeuveffleduheehfeehffeujeduledvheeivdffleffjedt
-    necuffhomhgrihhnpehgihhthhhusgdrtghomhenucevlhhushhtvghrufhiiigvpedtne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgt
-    phhtthhopeehtddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepmhhitghhrghlrd
-    hsihhmvghksegrmhgurdgtohhmpdhrtghpthhtohepmhgrrhgtrdguihhonhhnvgesrghu
-    rhhishhtohhrrdgtohhmpdhrtghpthhtoheprhgriihorhessghlrggtkhifrghllhdroh
-    hrghdprhgtphhtthhopehmrghrkhhushessghlohgthhhlrdguvgdprhgtphhtthhopehp
-    rhgrsghhrghkrghrrdhmrghhrgguvghvqdhlrggurdhrjhessghprdhrvghnvghsrghsrd
-    gtohhmpdhrtghpthhtohepsghhrghrghgrvhgrrdhmrghrrhgvugguhiessghrohgruggt
-    ohhmrdgtohhmpdhrtghpthhtoheprhgrjhgrshhhvghkrghrrdhhuhguuhhmuhhlrgessg
-    hrohgruggtohhmrdgtohhmpdhrtghpthhtohepshgvlhhvihhnrdigrghvihgvrhessghr
-    ohgruggtohhmrdgtohhmpdhrtghpthhtohepvhhikhgrshdrghhuphhtrgessghrohgrug
-    gtohhmrdgtohhm
-X-ME-Proxy: <xmx:15iwaSyEiYKgC69cB5qy-uYRb8Nd3O_tBXiwXloun5USwoBjUG8xeA>
-    <xmx:15iwafjqNp39TlpDsB0Ao61CEHQ-Vr8McIxINz19uDmPbtTumgvUrg>
-    <xmx:15iwaczf5HZmVpoLxDtA2owqT7w2ViLLaS7j8VNYgxUfNRdi3v-vWA>
-    <xmx:15iwaeuiBcsTfGR3tZRU2tKnnZXfCbonW_DF82rzFvkDf76wOt_Zvw>
-    <xmx:2piwaSTzLKB4kDavqjxW2WNnXgJllxK2Ek5Rc5V4bVqgUqlvQa6tnmkj>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 173C2700065; Tue, 10 Mar 2026 18:19:03 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HvIUFYE9"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2ad4d639db3so60071105ad.0
+        for <bridge@lists.linux.dev>; Tue, 10 Mar 2026 17:47:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773190072; x=1773794872; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=D87ZdyQZ4IabAndi5c77q4G/EVeuF8jpmWClRpdBIok=;
+        b=HvIUFYE9DJU7OEci29RAOzYS42cyTR5i0YkT4Bj+72PIhL8Nm7WZkobi4FOq1VoIpD
+         ItiEranwLo139DwLVKGijoGgZHfqoMmx/6/IPgs08OB+hzidMrvjp6MoYGk+DJW0uG6v
+         fBK1AJZukTvR99qGlXJT9jmnKkKLO+T40KJ6sUTDFU9ehTKPjB7WVMwscx7g38fyVye6
+         JDBrXJgXmSTz8iUmalpl8n71ohXaHD4l8qfom6upMjhzY1Ku7aIXNjowr54KYtpUm6vD
+         yyCj0CnbRacbXZeWOK4WkCyC7e4Exybctid+6H8UhEDVGsxwQC2uNzXO3kfzwcIfu/Lp
+         dRgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773190072; x=1773794872;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=D87ZdyQZ4IabAndi5c77q4G/EVeuF8jpmWClRpdBIok=;
+        b=TP5gzZHXv/duFeF0Wx4AUtniZOsQH6dXxqKFOfnXWN3xJOXoPGmdNDbTOxzipxwz7e
+         VE4/dIyC/2zvJ7I61YAGNUdqiI6zxQEhu8mC4tuQJdCEQw8Lf0avNaqDBVDNlLJh30Hi
+         WVdJk73gdmWpHkOxXmI2HKXEJ0ibUNvNkpB3VeTJlQ9WL5ibNaJ5yo1F25Nv64ft8/dM
+         0jNVAIYbDtVKWWxLqIMSyW2Ry0a/4RH5FBRBhwqPPh/ES/mEpUd8xw1aYY4/vem8H7i4
+         BoV2eTCuvDFvnnNQUczl//plKytkkwZPapwcPFLAbosHoqExtyQeL4ryRQy827j0F6wA
+         HzqA==
+X-Forwarded-Encrypted: i=1; AJvYcCUe4Kzev2e0+Y6RPNRpjXx6cM6/TWsPNPgAa1tkC51kFx87f/kuhs+TxZ/4r1mCuHOOQDIIYoM=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy1B0fdITY3YJ0WijDNioYasO9ihMXfo+bcQKOvQP6WhiRqFnzX
+	SOsEiK0FGvQyA0RcIkzFJ8XHuRNSzlTwNNuTBtUbkSo5zxKjz7K7h15oWr3cuJV8
+X-Gm-Gg: ATEYQzxuyloU7zp0dvn6AfxuZW81Prgcbq+2yozNdbTKm69zjKgb+3BPVeC1PEJGukp
+	97RDpGCxPcR2YBQnZhUw3+cR5nLgWrE9OSSEgofynttRoxKTv+pV/CBp29eGzUQm2ca9+0yuQxM
+	dlRWHFs9XgOUA5yMO88XG/yRW/EBAmw6UUgU9nXGMluCt1z200BExn0ZdbApQAIcvOR6e/VdOcF
+	0yFgQt2jK1e2gO8ZMvbyQj7ML23Wwf5fOxKcuMHDN17Kc7jYOD+/uL7+oiyGzvxcn9Q0e8KdiYL
+	D7uvUhZao0YxuK0eiLWo5NM2HPe6tn5IM9nmX9GsE+tV9ea2lUEO4RMyz6/QQmMP76+lkZlRvLt
+	RmPS0QrCTbNAp7oTG6QJW1wCuLfeQf+UJtzmxxxVebfCMUBNZOGWBtxlpRcDLL6O7BvySfqRZ+4
+	DGBIW9PUqFq7/9OEQ5WiwuNQTpNjU=
+X-Received: by 2002:a17:902:db06:b0:2ae:5005:a26e with SMTP id d9443c01a7336-2aeae78cb97mr7226095ad.2.1773190071971;
+        Tue, 10 Mar 2026 17:47:51 -0700 (PDT)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aeae378974sm4231175ad.82.2026.03.10.17.47.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Mar 2026 17:47:51 -0700 (PDT)
+Date: Wed, 11 Mar 2026 00:47:41 +0000
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: Sabrina Dubroca <sd@queasysnail.net>
+Cc: syzbot ci <syzbot+ci098fa7c1795eceac@syzkaller.appspotmail.com>,
+	andrew@lunn.ch, bridge@lists.linux.dev, davem@davemloft.net,
+	edumazet@google.com, horms@kernel.org, idosch@nvidia.com,
+	jiri@resnulli.us, jv@jvosburgh.net, kuba@kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	pabeni@redhat.com, razor@blackwall.org, sridhar.samudrala@intel.com,
+	syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot ci] Re: net: move netdev_compute_master_upper_features
+ to ndo_set_features
+Message-ID: <abC7rdjxv9ENw-tA@fedora>
+References: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
+ <69b04e91.a70a0220.51e36.0000.GAE@google.com>
+ <abBuLV3P6aTzUg3W@krikkit>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-ThreadId: Aes-ty0OVaaR
-Date: Tue, 10 Mar 2026 23:18:29 +0100
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
-Cc: =?UTF-8?Q?Kolbj=C3=B8rn_Barmen?= <linux-m68k@kolla.no>,
- "Krzysztof Kozlowski" <krzk@kernel.org>,
- "Fernando Fernandez Mancera" <fmancera@suse.de>,
- Netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
- "Geert Uytterhoeven" <geert@linux-m68k.org>,
- "Jason Gunthorpe" <jgg@ziepe.ca>, "Leon Romanovsky" <leon@kernel.org>,
- "Selvin Xavier" <selvin.xavier@broadcom.com>,
- "Andrew Lunn" <andrew+netdev@lunn.ch>,
- "David S . Miller" <davem@davemloft.net>,
- "Eric Dumazet" <edumazet@google.com>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>, "Ido Schimmel" <idosch@nvidia.com>,
- "Petr Machata" <petrm@nvidia.com>, "Simon Horman" <horms@kernel.org>,
- "Saurav Kashyap" <skashyap@marvell.com>,
- "Javed Hasan" <jhasan@marvell.com>,
- "maintainer:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER"
- <GR-QLogic-Storage-Upstream@marvell.com>,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <martin.petersen@oracle.com>,
- "Nilesh Javali" <njavali@marvell.com>,
- "Manish Rangankar" <mrangankar@marvell.com>,
- "Varun Prakash" <varun@chelsio.com>,
- "Alexander Aring" <aahringo@redhat.com>,
- "David Teigland" <teigland@redhat.com>,
- "Andreas Gruenbacher" <agruenba@redhat.com>,
- "Nikolay Aleksandrov" <razor@blackwall.org>,
- "David Ahern" <dsahern@kernel.org>,
- "Pablo Neira Ayuso" <pablo@netfilter.org>,
- "Florian Westphal" <fw@strlen.de>, "Phil Sutter" <phil@nwl.cc>,
- "David Howells" <dhowells@redhat.com>,
- "Marc Dionne" <marc.dionne@auristor.com>,
- "Marcelo Ricardo Leitner" <marcelo.leitner@gmail.com>,
- "Xin Long" <lucien.xin@gmail.com>, "Jon Maloy" <jmaloy@redhat.com>,
- "Krzysztof Kozlowski" <krzysztof.kozlowski@oss.qualcomm.com>,
- "Bjorn Andersson" <bjorn.andersson@oss.qualcomm.com>,
- "Dmitry Baryshkov" <dmitry.baryshkov@oss.qualcomm.com>,
- "Eric Biggers" <ebiggers@kernel.org>,
- "Michal Simek" <michal.simek@amd.com>,
- "Luca Weiss" <luca.weiss@fairphone.com>, "Sven Peter" <sven@kernel.org>,
- "Lad, Prabhakar" <prabhakar.mahadev-lad.rj@bp.renesas.com>,
- "Kuninori Morimoto" <kuninori.morimoto.gx@renesas.com>,
- "Andrew Morton" <akpm@linux-foundation.org>,
- "David Gow" <david@davidgow.net>,
- "Herbert Xu" <herbert@gondor.apana.org.au>,
- "Ryota Sakamoto" <sakamo.ryota@gmail.com>,
- "Kuniyuki Iwashima" <kuniyu@google.com>,
- "Kir Chou" <note351@hotmail.com>, "Kuan-Wei Chiu" <visitorckw@gmail.com>,
- "Vikas Gupta" <vikas.gupta@broadcom.com>,
- "Bhargava Marreddy" <bhargava.marreddy@broadcom.com>,
- "Rajashekar Hudumula" <rajashekar.hudumula@broadcom.com>,
- =?UTF-8?Q?Markus_Bl=C3=B6chl?= <markus@blochl.de>,
- "open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>,
- "open list:INFINIBAND SUBSYSTEM" <linux-rdma@vger.kernel.org>,
- "open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@corigine.com>,
- "open list:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER"
- <linux-scsi@vger.kernel.org>,
- "open list:DISTRIBUTED LOCK MANAGER (DLM)" <gfs2@lists.linux.dev>,
- "open list:ETHERNET BRIDGE" <bridge@lists.linux.dev>,
- "open list:NETFILTER" <netfilter-devel@vger.kernel.org>,
- "open list:NETFILTER" <coreteam@netfilter.org>,
- "open list:RXRPC SOCKETS (AF_RXRPC)" <linux-afs@lists.infradead.org>,
- "open list:SCTP PROTOCOL" <linux-sctp@vger.kernel.org>,
- "open list:TIPC NETWORK LAYER" <tipc-discussion@lists.sourceforge.net>
-Message-Id: <ebebb003-f7d7-4659-8248-9d36e9c2c26b@app.fastmail.com>
-In-Reply-To: <87bjgvpenh.fsf@miraculix.mork.no>
-References: <20260309022013.5199-1-fmancera@suse.de>
- <20260309022013.5199-2-fmancera@suse.de>
- <01a4936f-77cd-4c60-a1be-cabec872a2bb@kernel.org>
- <e54d887c-5a70-b8c9-aeef-433c5134dd14@kolla.no>
- <5c4b6043-a484-479d-83bc-a86ecdb8f810@app.fastmail.com>
- <87bjgvpenh.fsf@miraculix.mork.no>
-Subject: Re: [PATCH 01/10 net-next] ipv6: convert CONFIG_IPV6 to built-in only and
- clean up Kconfigs
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <abBuLV3P6aTzUg3W@krikkit>
 
-On Tue, Mar 10, 2026, at 22:18, Bj=C3=B8rn Mork wrote:
-> "Arnd Bergmann" <arnd@arndb.de> writes:
->
->> The list does not include openwrt though, and I know that in
->> previous releases, there was an optional kmod-ipv6 package
->> that could be left out of an install without rebuilding
->> the kernel.
->
-> The kmod-ipv6 package was dropped in 2016:
-> https://github.com/openwrt/openwrt/commit/33beafa8d88e51907acba6fdece5=
-a35f509934df
->
-> And IPv6 was unconditionally enabled in OpenWrt in 2022:
-> https://github.com/openwrt/openwrt/commit/832e7b817221d288df76b763ca12=
-c585365db5d8
+On Tue, Mar 10, 2026 at 08:17:01PM +0100, Sabrina Dubroca wrote:
+> 2026-03-10, 10:02:09 -0700, syzbot ci wrote:
+> > batman_adv: batadv0: Not using interface batadv_slave_1 (retrying later): interface not active
+> > hsr_slave_0: entered promiscuous mode
+> > hsr_slave_1: entered promiscuous mode
+> > ------------[ cut here ]------------
+> > err == -EMSGSIZE
+> > WARNING: net/core/rtnetlink.c:4421 at rtmsg_ifinfo_build_skb+0x218/0x260, CPU#0: syz-executor/6496
+> 
+> I'm not sure this one is caused by this series, but either way,
 
-Thanks for checking!
 
-Not sure what the commit log for the second one is trying to say, as
-there generally was no build failure in mainline for a long time
+ rtnetlink_event+0x1b7/0x270
+ notifier_call_chain+0x1be/0x400
+ netdev_change_features+0x95/0xe0
+ __netdev_upper_dev_link+0xb20/0xc80
+ netdev_upper_dev_link+0xb0/0x100
 
-But if nobody has bothered to revert the patch, it doesn't seem
-to have caused any problems.
 
-    Arnd
+This patch calls netdev_change_features() after __netdev_upper_dev_link(),
+Which trigger a NETDEV_FEAT_CHANGE notify and calls rtmsg_ifinfo_event()
+to fill the new link info. Maybe the event is a bit early and macsec has
+data not ready?
+
+Thanks
+Hangbin
+
+> reviewing if_nlmsg_size/rtnl_fill_ifinfo for mismatches is really
+> unpleasant :/
+> 
+> Things I see in rtnl_fill_ifinfo but don't find in if_nlmsg_size:
+>  - IFLA_PARENT_DEV_NAME
+>  - IFLA_PARENT_DEV_BUS_NAME
+>    (both from 00e77ed8e64d ("rtnetlink: add
+>    IFLA_PARENT_[DEV|DEV_BUS]_NAME"), which doesn't include a change to
+>    if_nlmsg_size)
+>  - rtnl_link_slave_info_fill also outputs IFLA_INFO_SLAVE_KIND + the
+>    IFLA_INFO_SLAVE_DATA nest, but rtnl_link_get_slave_info_data_size
+>    only counts the nest, and its caller (rtnl_link_get_size) doesn't
+>    have anything more about the slave info. This may be what syzbot is
+>    tripping on here.
+> 
+> 
+> But there's a
+> 
+>     + nla_total_size(4) /* IFLA_WEIGHT */
+> 
+> that doesn't get filled anywhere.
+> 
+> 
+> > Modules linked in:
+> > CPU: 0 UID: 0 PID: 6496 Comm: syz-executor Not tainted syzkaller #0 PREEMPT(full) 
+> > Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+> > RIP: 0010:rtmsg_ifinfo_build_skb+0x218/0x260
+> > Code: f6 ba 01 00 00 00 89 e9 e8 25 15 3a 00 4c 89 f0 48 83 c4 30 5b 41 5c 41 5d 41 5e 41 5f 5d e9 7f 3a 2e 02 cc e8 49 3b 42 f8 90 <0f> 0b 90 eb 90 89 d9 80 e1 07 fe c1 38 c1 0f 8c 95 fe ff ff 48 89
+> > RSP: 0018:ffffc9000637e9a0 EFLAGS: 00010293
+> > RAX: ffffffff89835e27 RBX: 0000000000000000 RCX: ffff8881b80a57c0
+> > RDX: 0000000000000000 RSI: 00000000ffffffa6 RDI: 00000000ffffffa6
+> > RBP: 00000000ffffffa6 R08: 0000000000000004 R09: 0000000000000004
+> > R10: fffff52000c6fcdc R11: 0000000000000000 R12: 1ffff110235ddc21
+> > R13: 0000000000000000 R14: ffff8881133dc780 R15: ffff88811aeee000
+> > FS:  0000555557c4a500(0000) GS:ffff88818de65000(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > CR2: 000055555e1838c8 CR3: 0000000168b80000 CR4: 00000000000006f0
+> > Call Trace:
+> >  <TASK>
+> >  rtnetlink_event+0x1b7/0x270
+> >  notifier_call_chain+0x1be/0x400
+> >  netdev_change_features+0x95/0xe0
+> >  __netdev_upper_dev_link+0xb20/0xc80
+> >  netdev_upper_dev_link+0xb0/0x100
+> >  macsec_newlink+0xb11/0x1200
+> >  rtnl_newlink_create+0x329/0xb70
+> >  rtnl_newlink+0x1666/0x1be0
+> 
+> -- 
+> Sabrina
