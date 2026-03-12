@@ -1,197 +1,143 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3420A59
-	for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 07:48:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38B3F347BD4
+	for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 09:40:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773301719; cv=none; b=f4Xm8TNoAroN5jxyrSjD2ucuKjvGnxTA6/Nc/faLmmoxnwav/zEH3eMF0rr4py9icE0PCoVuY0K6AjvHpFoMdltQE7Wpwi6pVxMLSBZZgU3vqxdEXka1WHAHEbZpXaiK1GFHnopq7fW7aOkSfloutmj68vS1Fy7uVZmQozFRoB8=
+	t=1773308451; cv=none; b=mBpzURMTAFevVCwUMCdqf+CYHkyOtyCFxBIjt2qEsE7pO/gsiI2HBJY9cG82bG6ykHMnOBvg5nFE3k0HGG9hUkeP/FSzFJHVJ18SB94Op70f8HEEugectZLMghfHYvLSFByoGF/7rD++tAErwHng9vXwuhxFMPrvGxL1e+Uemdg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773301719; c=relaxed/simple;
-	bh=r2PdE6HYGVzZYpXyEn5kett8unUMILRQGQuMPOiuUPo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KUtltVjjUelVag6KXlJlwNOtgS8kUYPC5FnyVWDAYAP4WrdIAoxE+P9AnL8nWVJ5WU4lfq8F5VEyqKQRK2K19nGVO71OIArUOH0eyumQlKyT56hZefwTpg+NZNatWtKGogblsXsiSBCeQ45XPuo8qu1/+JpmWoH4cnrHTS4M9jw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-356337f058aso420794a91.2
-        for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 00:48:37 -0700 (PDT)
+	s=arc-20240116; t=1773308451; c=relaxed/simple;
+	bh=ddEVo4L1jDTJ75CDuotLTBCt2IwHCurzLzGzvhrGLB0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RbmigLvF0dlapTrhpw2t5MW2/suGhecpilnTGWFDqvZwHuQId9fjz7XZ1A/WYhaqCZCfUSN+TqweuGlQdrc+YiCauw1wvOAMbCp2TEM2WUTtQzvlawYMI930EMAGGSeUQxxxOVURGKJ3ena7DRhmtP8tKXdwZ/PtNnL7og+Y+8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=habS9Tvi; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="habS9Tvi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773308449;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=e6EdyD35EC+SpPH1TY5bENOyft6Ge/0pFEQiQDyadAk=;
+	b=habS9TvitoXdA0y1Ol2EBDShvBplk6Z9I7msfNJw56LwzALTv28ogf+TP4aGY64qGBQlnc
+	x6AUi36K9fjLu3y64VX9m1SJPFkXyKza5MpwVXfOKO/vNmdp5kYZHe909By9qeN/uCMg1b
+	2KwPMaHAJBtVm0/6ILBOMt2oh5zXen0=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-577-bF7i2gZ3MOKcRSOuF8RpCA-1; Thu, 12 Mar 2026 05:40:48 -0400
+X-MC-Unique: bF7i2gZ3MOKcRSOuF8RpCA-1
+X-Mimecast-MFC-AGG-ID: bF7i2gZ3MOKcRSOuF8RpCA_1773308447
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-439a9182148so507451f8f.2
+        for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 02:40:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773301717; x=1773906517;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/LhKuHInA3JH1whpdNQPR6DLSzWmpT0VhZEHTHtHiaY=;
-        b=WCEsUCoyG8qTgC2joV/gtqlJ3sEsZwWZhjub/U4RHGN1K/9KCWLgzGkRxpnakDrFrK
-         iI2Usht4Qg6ItfQRasOnTpHRCjDQAAjEUBY3N3CTKcUh8nQQo459WIlMWOHJOfv1Dwow
-         wnTqr33lJLzOnkC/0df/wTpyVkPZroIzs0f9bATcLWRcrdhWLJdrwwmttc1y0PXf06P4
-         42vQj4kn0KoBTYKPGAD84s/RRV97/thMVeVf2NaBZIhmsLa6+Dkl9JaU06h4NPt8r6Pb
-         e6os+7cNXiVU7pKMNKOfEJQeRXxUePBqR3QQt1NrLGw96kYRQPcUD2wK6FxSNbVSzG7O
-         Beug==
-X-Forwarded-Encrypted: i=1; AJvYcCVOgPhDGnNnh2xgsJAX8gwLoibXuxWv7HC507M6UMfkN5NG77FuX95AeuqBV912V10c0btJPMY=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyee9UFfFiwM0/m0BMdS+Zy9+o+G+vI4tRnMkNAvnjTE67jFKgF
-	wJ4Bj7JGOcBRXQMA2e55v+Sr0ej8uTEPiMqGnhIdx6pGE2zltIxlZ3L+IstgQMjS1SsSqw==
-X-Gm-Gg: ATEYQzwDr6I54NMAp3SwHMiiGVHpegW+sfWqFhA3kPiDXJbtvSGnqpdcJIp7Rw3ND5s
-	6EZXHS71DxWYcWYm/EmDpeTb9oJ6Xb/Qv98eNYd32276qp7FSPkcn0xRrORchlyXH2Bzh9OrTyK
-	DeKDcg/mn0KjdjEnanjAEBlSZFK5+eb23LJBBFXG1z2d0ncBOR0nC8ZFkgzBhKfzYYBDLmXccWA
-	T6D10/Q5Bb0Av5W4QXT+Qvp4kyupseqTkIvdiMQLHerCST32DwwtEQAxtIg2ewyRIvBRufExdmN
-	dBzeb2Tmlrptse1940giQ2GpA2iXib92096COeCXVe55xW6LYmmqdVaiZu1o4pdXTGGzJmiQlrH
-	adRkHPzOdncObxl4NKy/CrveoofvVPzTpdityZ4mYRbCIg1eQbl7kM1h9e+GkfoUakXTpSXL6mI
-	eti+jtMxgNior7eJ+ZTvDuRo+CVtugQjCxwGN5wh0LnXAl6WNjISC5i8cjaPmWdDs=
-X-Received: by 2002:a17:90b:3c90:b0:354:c6f3:d365 with SMTP id 98e67ed59e1d1-35a012eacd0mr5115377a91.17.1773301717062;
-        Thu, 12 Mar 2026 00:48:37 -0700 (PDT)
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com. [74.125.82.181])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35a021a7a2csm2426898a91.3.2026.03.12.00.48.36
-        for <bridge@lists.linux.dev>
+        d=1e100.net; s=20230601; t=1773308447; x=1773913247;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=e6EdyD35EC+SpPH1TY5bENOyft6Ge/0pFEQiQDyadAk=;
+        b=KIHyt/fRjHBVeaXKdNx8UP/+tifA6hdYBi7Omz/J2YRkuVGntTox3dncsb2FUXvUPh
+         yy4rfpAWstStcHE5n/kji4ltiUYO8xqxr95oTZRYEGBmHMSx5c9dPL1gPZudgU9YNDMw
+         lXJX4WQSIhrlqd0nElXMuPyVnNybkB642X5KDwDJtRcXwPTcJnIBkOQ3rtr/LRQlqpVJ
+         NY2C5PoVra/DEdMJT+8iySxn5Ex/2i9CeBw711Q1b+oi5GoZ/VAcVJJjO3ICWY9Vku0k
+         81cmpEnG+s7ZtRIiSKyGcC1W38DZ0AyOSm1RUgtaUUuq07WJsqTo/x091PcPgQoZSZU4
+         NFjA==
+X-Forwarded-Encrypted: i=1; AJvYcCX8Ap7Z5s/SPCCpL3KqA+Epm5lTNEm9Ef8uJKLYs1j/qb3lb3IRGD+PbPvmvtXSAhVcIToxNgg=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyreiPRC7pz1cEpXujM087ihQb5S6/HK73b8d/IXsBgKFtVHBdP
+	krSxaAe5H+K0GaPBZ+wR37isAzs/Z5XHvCPDpqrTPI1c19BKk/7rlIUbjlLingRyA3IsY8nbF0w
+	UsXNPfUVq9oVw/f0uJGPO9yoyNHCRKl9MSIXbhNNkbOvCtLV34sCGhTaBxQ==
+X-Gm-Gg: ATEYQzxd0ivtQKUGiO2inlPXnS7MGoYOFfYei1jpaSA+HhaxFB+mehqCggDOHPfNATA
+	vhLQp71U8jweUFhQ8w8VtZJW2Qw/0vwiCt8yWoT9FJ2cy5zUJgVzQVlHW7LlYB/97rHfQwdB6c0
+	Rw6o9NtDO+pH4Q4QVT/3UqHC/GRmCd3J1YpS3G8rLatb/ydwsOBLGb+BHDfRpmKQI7ExgwtYxOK
+	o5OA7lJreEhhPjYmTFIpjgGQrkOjKwFmBQdIrLiZ70zoyszzQVlfHoc5RaCYEMualMV5D4q1lKR
+	LAcUp7krJPM3jex5qnzdEEkY6c7qvkc0w+ZZLOOnWN7JIGiKHE2ySnmzT1DX73jNwMf9EIWk0hv
+	lbKqlT4n11P2hELjPxE8tBaeZ+YR8CtE8cXbcNQuTBJhTqXYhE92vujg=
+X-Received: by 2002:a05:6000:228a:b0:439:ca64:967c with SMTP id ffacd0b85a97d-439f822b9d9mr9932350f8f.44.1773308446726;
+        Thu, 12 Mar 2026 02:40:46 -0700 (PDT)
+X-Received: by 2002:a05:6000:228a:b0:439:ca64:967c with SMTP id ffacd0b85a97d-439f822b9d9mr9932296f8f.44.1773308446263;
+        Thu, 12 Mar 2026 02:40:46 -0700 (PDT)
+Received: from [192.168.88.32] ([216.128.11.95])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439fe22f3a4sm7155566f8f.38.2026.03.12.02.40.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Mar 2026 00:48:36 -0700 (PDT)
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2be4781d2baso1847660eec.0
-        for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 00:48:36 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU/vvEc5sq9q3dxnGr9qOCOEx4JrnzoA2Ghc6flWyGA40gS94kFr95fWCuy+rP6pM+AZIK7s94=@lists.linux.dev
-X-Received: by 2002:a05:6122:1b0f:b0:56a:9f03:1719 with SMTP id
- 71dfb90a1353d-56b47483c0fmr2043365e0c.7.1773301414536; Thu, 12 Mar 2026
- 00:43:34 -0700 (PDT)
+        Thu, 12 Mar 2026 02:40:45 -0700 (PDT)
+Message-ID: <bcc536ac-dde1-4b63-8fed-70850818472b@redhat.com>
+Date: Thu, 12 Mar 2026 10:40:43 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260310153506.5181-1-fmancera@suse.de> <20260310153506.5181-2-fmancera@suse.de>
-In-Reply-To: <20260310153506.5181-2-fmancera@suse.de>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Thu, 12 Mar 2026 08:43:23 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdWj-7J5bMq=wpv12CGaV7xtq7=O3nLHLvOT_odxOE4ueA@mail.gmail.com>
-X-Gm-Features: AaiRm50vZ50YS2w5-6lod2s5W_kA6Ap8FK_nMN9HyVzDzz2AFRy7FAD50ZqnaYU
-Message-ID: <CAMuHMdWj-7J5bMq=wpv12CGaV7xtq7=O3nLHLvOT_odxOE4ueA@mail.gmail.com>
-Subject: Re: [PATCH 01/10 net-next v2] ipv6: convert CONFIG_IPV6 to built-in
- only and clean up Kconfigs
-To: Fernando Fernandez Mancera <fmancera@suse.de>
-Cc: netdev@vger.kernel.org, rbm@suse.com, Jason Gunthorpe <jgg@ziepe.ca>, 
-	Leon Romanovsky <leon@kernel.org>, Selvin Xavier <selvin.xavier@broadcom.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>, Simon Horman <horms@kernel.org>, 
-	Saurav Kashyap <skashyap@marvell.com>, Javed Hasan <jhasan@marvell.com>, 
-	"maintainer:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER" <GR-QLogic-Storage-Upstream@marvell.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Nilesh Javali <njavali@marvell.com>, 
-	Manish Rangankar <mrangankar@marvell.com>, Varun Prakash <varun@chelsio.com>, 
-	Alexander Aring <aahringo@redhat.com>, David Teigland <teigland@redhat.com>, 
-	Andreas Gruenbacher <agruenba@redhat.com>, Nikolay Aleksandrov <razor@blackwall.org>, 
-	David Ahern <dsahern@kernel.org>, Pablo Neira Ayuso <pablo@netfilter.org>, 
-	Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>, David Howells <dhowells@redhat.com>, 
-	Marc Dionne <marc.dionne@auristor.com>, 
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, 
-	Jon Maloy <jmaloy@redhat.com>, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
-	Bjorn Andersson <bjorn.andersson@oss.qualcomm.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Eric Biggers <ebiggers@kernel.org>, Michal Simek <michal.simek@amd.com>, 
-	Luca Weiss <luca.weiss@fairphone.com>, Sven Peter <sven@kernel.org>, 
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>, 
-	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, David Gow <david@davidgow.net>, 
-	Kuan-Wei Chiu <visitorckw@gmail.com>, Ryota Sakamoto <sakamo.ryota@gmail.com>, 
-	Kir Chou <note351@hotmail.com>, Kuniyuki Iwashima <kuniyu@google.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, Vikas Gupta <vikas.gupta@broadcom.com>, 
-	Bhargava Marreddy <bhargava.marreddy@broadcom.com>, 
-	Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>, =?UTF-8?Q?Markus_Bl=C3=B6chl?= <markus@blochl.de>, 
-	Heiner Kallweit <hkallweit1@gmail.com>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:M68K ARCHITECTURE" <linux-m68k@lists.linux-m68k.org>, 
-	"open list:INFINIBAND SUBSYSTEM" <linux-rdma@vger.kernel.org>, 
-	"open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@corigine.com>, 
-	"open list:BROADCOM BNX2FC 10 GIGABIT FCOE DRIVER" <linux-scsi@vger.kernel.org>, 
-	"open list:DISTRIBUTED LOCK MANAGER (DLM)" <gfs2@lists.linux.dev>, "open list:ETHERNET BRIDGE" <bridge@lists.linux.dev>, 
-	"open list:NETFILTER" <netfilter-devel@vger.kernel.org>, 
-	"open list:NETFILTER" <coreteam@netfilter.org>, 
-	"open list:RXRPC SOCKETS (AF_RXRPC)" <linux-afs@lists.infradead.org>, 
-	"open list:SCTP PROTOCOL" <linux-sctp@vger.kernel.org>, 
-	"open list:TIPC NETWORK LAYER" <tipc-discussion@lists.sourceforge.net>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [syzbot ci] Re: net: move netdev_compute_master_upper_features to
+ ndo_set_features
+To: Sabrina Dubroca <sd@queasysnail.net>, Hangbin Liu <liuhangbin@gmail.com>
+Cc: syzbot ci <syzbot+ci098fa7c1795eceac@syzkaller.appspotmail.com>,
+ andrew@lunn.ch, bridge@lists.linux.dev, davem@davemloft.net,
+ edumazet@google.com, horms@kernel.org, idosch@nvidia.com, jiri@resnulli.us,
+ jv@jvosburgh.net, kuba@kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, razor@blackwall.org, sridhar.samudrala@intel.com,
+ syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+References: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
+ <69b04e91.a70a0220.51e36.0000.GAE@google.com> <abBuLV3P6aTzUg3W@krikkit>
+ <abC7rdjxv9ENw-tA@fedora> <abHcP3GTO29rfKML@krikkit>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <abHcP3GTO29rfKML@krikkit>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: -aI9FajIwrWlKKeV8-rFD7RRAF41vQadhWBJ2YS8hqE_1773308447
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Fernando,
+On 3/11/26 10:18 PM, Sabrina Dubroca wrote:
+> 2026-03-11, 00:47:41 +0000, Hangbin Liu wrote:
+>> On Tue, Mar 10, 2026 at 08:17:01PM +0100, Sabrina Dubroca wrote:
+>>> 2026-03-10, 10:02:09 -0700, syzbot ci wrote:
+>>>> batman_adv: batadv0: Not using interface batadv_slave_1 (retrying later): interface not active
+>>>> hsr_slave_0: entered promiscuous mode
+>>>> hsr_slave_1: entered promiscuous mode
+>>>> ------------[ cut here ]------------
+>>>> err == -EMSGSIZE
+>>>> WARNING: net/core/rtnetlink.c:4421 at rtmsg_ifinfo_build_skb+0x218/0x260, CPU#0: syz-executor/6496
+>>>
+>>> I'm not sure this one is caused by this series, but either way,
+>>
+>>
+>>  rtnetlink_event+0x1b7/0x270
+>>  notifier_call_chain+0x1be/0x400
+>>  netdev_change_features+0x95/0xe0
+>>  __netdev_upper_dev_link+0xb20/0xc80
+>>  netdev_upper_dev_link+0xb0/0x100
+>>
+>>
+>> This patch calls netdev_change_features() after __netdev_upper_dev_link(),
+>> Which trigger a NETDEV_FEAT_CHANGE notify and calls rtmsg_ifinfo_event()
+>> to fill the new link info. Maybe the event is a bit early and macsec has
+>> data not ready?
+> 
+> But this would still mean that there's a mismatch between
+> if_nlmsg_size() and rtnl_fill_ifinfo(), and your patch is only
+> revealing it.
+> 
+> I'll send fixes for the stuff I mentioned, no idea if that's what
+> syzbot saw since we don't have a repro.
 
-On Tue, 10 Mar 2026 at 16:37, Fernando Fernandez Mancera
-<fmancera@suse.de> wrote:
-> Maintaining a modular IPv6 stack offers image size and memory savings
-> for specific setups, this benefit is outweighed by the architectural
-> burden it imposes on the subsystems on implementation and maintenance.
-> Therefore, drop it.
->
-> Change CONFIG_IPV6 from tristate to bool. Remove all Kconfig
-> dependencies across the tree that explicitly checked for IPV6=m. In
-> addition, remove MODULE_DESCRIPTION(), MODULE_ALIAS(), MODULE_AUTHOR()
-> and MODULE_LICENSE().
->
-> This is also replacing module_init() by device_initcall(). It is not
-> possible to use fs_initcall() as IPv4 does because that creates a race
-> condition on IPv6 addrconf.
->
-> Finally, modify the default configs from CONFIG_IPV6=m to CONFIG_IPV6=y
-> except for m68k as according to the bloat-o-meter the image is
-> increasing by 330KB~ and that isn't acceptable. Instead, disable IPv6 on
-> this architecture by default. This is aligned with m68k RAM requirements
-> and recommendations [1].
->
-> [1] http://www.linux-m68k.org/faq/ram.html
->
-> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+It looks like even the nipa CI is reproducing the issue, i.e.:
 
-Thanks for your patch!
+https://netdev-ctrl.bots.linux.dev/logs/vmksft/net-dbg/results/554921/17-rtnetlink-sh/
 
->  arch/m68k/configs/amiga_defconfig           | 45 +-------------------
->  arch/m68k/configs/apollo_defconfig          | 46 +-------------------
->  arch/m68k/configs/atari_defconfig           | 45 +-------------------
->  arch/m68k/configs/bvme6000_defconfig        | 45 +-------------------
->  arch/m68k/configs/hp300_defconfig           | 47 +--------------------
->  arch/m68k/configs/mac_defconfig             | 45 +-------------------
->  arch/m68k/configs/multi_defconfig           | 45 +-------------------
->  arch/m68k/configs/mvme147_defconfig         | 45 +-------------------
->  arch/m68k/configs/mvme16x_defconfig         | 45 +-------------------
->  arch/m68k/configs/q40_defconfig             | 45 +-------------------
->  arch/m68k/configs/sun3_defconfig            | 45 +-------------------
->  arch/m68k/configs/sun3x_defconfig           | 45 +-------------------
+more failures here:
 
-Why are the stats not the same for each file?
+https://netdev.bots.linux.dev/contest.html?pw-n=0&branch=net-next-2026-03-12--06-00&pw-n=0&pass=0
 
-> --- a/arch/m68k/configs/apollo_defconfig
-> +++ b/arch/m68k/configs/apollo_defconfig
+the fail in mascsec-offload looks quite deterministic, could you please
+have a look?
 
-> @@ -384,7 +343,6 @@ CONFIG_FB=y
->  CONFIG_FRAMEBUFFER_CONSOLE=y
->  CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION=y
->  CONFIG_LOGO=y
-> -# CONFIG_LOGO_LINUX_VGA16 is not set
+/P
 
-Unrelated change.
-
->  # CONFIG_LOGO_LINUX_CLUT224 is not set
->  CONFIG_HID=m
->  CONFIG_HIDRAW=y
-
-> --- a/arch/m68k/configs/hp300_defconfig
-> +++ b/arch/m68k/configs/hp300_defconfig
-
-> @@ -386,8 +345,6 @@ CONFIG_FB=y
->  CONFIG_FRAMEBUFFER_CONSOLE=y
->  CONFIG_FRAMEBUFFER_CONSOLE_LEGACY_ACCELERATION=y
->  CONFIG_LOGO=y
-> -# CONFIG_LOGO_LINUX_MONO is not set
-> -# CONFIG_LOGO_LINUX_VGA16 is not set
-
-Two more.
-
->  CONFIG_HID=m
->  CONFIG_HIDRAW=y
->  CONFIG_UHID=m
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
