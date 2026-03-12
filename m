@@ -1,131 +1,185 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from fhigh-a1-smtp.messagingengine.com (fhigh-a1-smtp.messagingengine.com [103.168.172.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D02253B7775
-	for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 09:46:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA0CE39C00E;
+	Thu, 12 Mar 2026 11:13:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773308793; cv=none; b=hDnk1eKFJH0nXo+XUa3FYY4VpIehVxPQjMBiEHX8lauFsNmCSKUL1EZvLCzp5SGqM2MpqMIc6g+USUl0lIW34sL+fFav9WP2fR/d54AfVPjfq6kDI9YOCivMtmHfp1UDu+xgobKQ/uvfuVXi1dexNbJKOszK+ZOWySjehO2DjdU=
+	t=1773314039; cv=none; b=cPjO6xm/UO2efiW6mFokzTr4noufEhcBgJba9FgbYkG8zLfYXRZxLvAbOMd0qZcaa88VS+7KrE3gXTHr/t75edI9KxFiPJITUpPkK9Jhe/je7aO167UpSC2LEWeTw5fZxnurLheQMtObgq6bGxZWvbKByo6v4+fmcvoyclC/KCY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773308793; c=relaxed/simple;
-	bh=XmgO1TscYmjuACXGsGpTPCpFJQ8z+1vv7PMc1mKHSMM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DEDVEmRL/7GcXE4unJIUCE4X+dlYiA0NOS46Bq9i0m4o+fs8yzToD9ipd5Atmew0RI3jTesuEqE1R+6cHF4Q8ckLz4Cxnt+wrOpLH8j/c9Sdh3PyfqbWaXfDZvRbm8Rsv1vWhasbyheywi7fxIlQhoX1hqcbgH3w4ruujBn+lZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f0WpSmed; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1773314039; c=relaxed/simple;
+	bh=0XdpQrXhtnWbL+mwUEXr2gN7/lR78+TTds+tdxJxm3Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VBAFpb5KK7yn2nvH67yBloXTef9Ye2koNURcg2RxMwva7cDv82pmCQ/tD8TQqRc2W/CjSj6VO6Ln0e6b+fS1JUzYY8VFh+eaAxi5h3nTYQ5OkavH8Kn49gHA2QgB67WG8+5kHBoNPObPFbP0KNnbAKuUD5c1YxEFed/p1ncIVKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=id1Z/3dT; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=HdI7izUU; arc=none smtp.client-ip=103.168.172.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f0WpSmed"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773308790;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v3laAzH2RegSSG4RPB9RBAb4LG65Lm6P17O2gbvY3vM=;
-	b=f0WpSmed9CDPqlrhQERlgTu17lFHWNN1iKiDp7V82OddnmoswCx/kWRUGnjzbl114b0+Ln
-	boOaIevniJnL9yS3KPP0i6AFfWiL5XEdEYYGgbvxm7B4n6J6jVbap0Zg8AvOpzYWMtJbIF
-	MIvfvmNp3mjoUawKUfTv6J4JMi97yKM=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-207-5FxU7fBgPbWGPiqnzj1Y5Q-1; Thu, 12 Mar 2026 05:46:29 -0400
-X-MC-Unique: 5FxU7fBgPbWGPiqnzj1Y5Q-1
-X-Mimecast-MFC-AGG-ID: 5FxU7fBgPbWGPiqnzj1Y5Q_1773308788
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-439c4d71603so1590892f8f.0
-        for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 02:46:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773308788; x=1773913588;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=v3laAzH2RegSSG4RPB9RBAb4LG65Lm6P17O2gbvY3vM=;
-        b=doTPGLibY8q16+QJ3MFthmExQTh5xsZMXE8sacOeEwjX7mP6dp0fDdniOKilScT/p2
-         s/Ti42ICw8jj2TdFabEpgvc2ZgIfbgpWmMNSKIl4mTxKbddGsdiwTystQiiFkCDrEGG/
-         HRQcy8Z92/TyOy3FD9N9mAxvY3Q9vKCdNUihsqbpTqouXX0tIfZo+sLLWpHeXZBGkX/R
-         haJtuSHXJUCILlt3N4rvqgN1T5cvxgDNxZT5Nrj1wyc5cmlc/Dq+2jmMni+jiMsnylE/
-         L/rLCzrbx5NBXoVLh8PWPZqq8zTuyQ3KvWfVpmEtkPE56UzH2GuKkTynahc78ks+9jxa
-         h4nw==
-X-Forwarded-Encrypted: i=1; AJvYcCVYVxahHrmbg3wrNu9pgESOqjbklHkhOSTk47EDLsohCKPmKEY60NsPb26ISZmLqUvyTfX1H0k=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxpZi33kiwpDldewYxMx6p/jCWNOCqn6Ga8bnx8rTUhNd6vdikQ
-	YfQbvJ7iZCajKHNPh9+ZWGFBWE6FKtFlOHtpHcsMQrOtNz2NUcO892MZ03i7PegmLGRPxGt8Nuo
-	GtlekFZzpij2LUcpRiN+cOV2gaxxjMCbfBpUuLOFBz7Z1x+Tf07IyinwlEw==
-X-Gm-Gg: ATEYQzyOIOHnQS8vmsWLoZFMDsEo+ysS15DvZtsOD1pCm3U6gd4MMURMAU31o9rGDcb
-	0UCigzE6QjaaOphmUCAvE8fPV0kV6jZGAWapyqdG9pPTPfZec/lpLhGyKhHwHoJC/g1hh8j6Zrb
-	gK6FMlN8jmVNDYI0SE2zkSnPY59Q6zN0N0EBZUzxmyjhvNRN4GBPLU2Gn1/9uILKZ/1KwmgCR2l
-	NsZCaOChv0HbAVKuW8/q2ev32KsSKtixQidkesL2Cett35qeNtMoRTQi5Q1rRhhN0WBin5kFV24
-	kmNXihgHNtObeF+hu6qO+9osD/twMh4e+lBrMoStRa58ZWXdi98J1bJD5yvVd2GwCshxlcmLM5Q
-	57xFTwI9tApKyyLnWjwQB7Xmw230EtVz8VslkgMZtkKg9ESUZC2fX+7o=
-X-Received: by 2002:a05:6000:2c07:b0:439:c24b:ec15 with SMTP id ffacd0b85a97d-439fdf8aa4fmr4902913f8f.5.1773308788216;
-        Thu, 12 Mar 2026 02:46:28 -0700 (PDT)
-X-Received: by 2002:a05:6000:2c07:b0:439:c24b:ec15 with SMTP id ffacd0b85a97d-439fdf8aa4fmr4902885f8f.5.1773308787836;
-        Thu, 12 Mar 2026 02:46:27 -0700 (PDT)
-Received: from [192.168.88.32] ([216.128.11.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439fe1a76e5sm6445035f8f.12.2026.03.12.02.46.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Mar 2026 02:46:27 -0700 (PDT)
-Message-ID: <645d7dd2-9dd6-4af6-aae3-4e0b5af612dc@redhat.com>
-Date: Thu, 12 Mar 2026 10:46:25 +0100
+	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="id1Z/3dT";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="HdI7izUU"
+Received: from phl-compute-08.internal (phl-compute-08.internal [10.202.2.48])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id E06721400269;
+	Thu, 12 Mar 2026 07:13:55 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-08.internal (MEProxy); Thu, 12 Mar 2026 07:13:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
+	 h=cc:cc:content-type:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm2; t=1773314035; x=
+	1773400435; bh=ILkp3krwCY9KceXPRK4lYO0lmYmanAidcUSQL9jXG7U=; b=i
+	d1Z/3dTqWMGyau8nmqmsftQJZDVXI7t63cG6Z9sSUCqJVSIBp24HZN9FlfnppTA/
+	Deh0R7w/ABjjJ7XFxa85y1Nj1un1qOCItNLkIW4W1PivZztwBun5rw0OEKYhh1x/
+	03Lcy0NlcUVVMIFYtF5oH46B+dNchQvKHKSKjq8Z4/TQ9A+0g+Hyid8XM+7P3Ulo
+	gG/g3Lemkvo5RkbWnK72KO+Ll2r6b8Za+W6QM1orLSYJHgkLMYRPPlqVlMCp4gi0
+	blZiCLrWqJvniyMOPI8rO841l4XJQe/+NpfyJ2PJI9vIZ0ivK0imtrOCnmy/0MIt
+	yeBFZsnNeO5l9VhkJVHJA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+	1773314035; x=1773400435; bh=ILkp3krwCY9KceXPRK4lYO0lmYmanAidcUS
+	QL9jXG7U=; b=HdI7izUUduXL6/7i3635HLgpPKhN26c7qgpfxf1SlxjLAuKHjS1
+	mq2fSL85jAjSVXg0W4h5Zx0w75IX3MQl6OxchzIVz6XcsxE6buWaEjPZ2tlWjbxq
+	qizRiINI1Pib7pY99H7zOORWnbWoNGz7oG/WRUPJU3e8TjGtUhSXtLf+YtEjJRqg
+	fuKeFXnorNtpQPv4o0h9G7ucALFjGEjGLoKYoQn42eYo44kYPBz5l7DOQVg9ABoA
+	WSxKNlb6bmWAJ96vcoZ+fNMHx9BTnlOaQOcw9mqD05i8Mn7HSXRBHvOOjqEUlcbh
+	h5kSA3FAp0zydzGFad2anhonERiOGO0gtvQ==
+X-ME-Sender: <xms:8p-yaZIJJ1K7KEtlbo6lPyFZfiULC3MuTDyhOkKzO-viOp0ftkEQAA>
+    <xme:8p-yaWjW6t2u-mSPMEMnWXUzHZLlVeZA_KJKjVFVnh87aGSw3JjcmebOTnPEpUrwu
+    NWFBFyBAx2QdgXoge2wRCIIU_R_gphA17YSHl_GLwpHRR3e55w5Yho>
+X-ME-Received: <xmr:8p-yaa95Ne0-fZ39-nY5gRAHRe4_Bo2L_ai-RdCzoim0-0cczE4NsObasjy9>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddvkeeiieefucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
+    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
+    grthhtvghrnhepteffveefhfeuieekjeegiefftedufeevgfduueejveehudeuhfehfeet
+    ieekfeetnecuffhomhgrihhnpehlihhnuhigrdguvghvnecuvehluhhsthgvrhfuihiivg
+    eptdenucfrrghrrghmpehmrghilhhfrhhomhepshgusehquhgvrghshihsnhgrihhlrdhn
+    vghtpdhnsggprhgtphhtthhopedukedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoh
+    epphgrsggvnhhisehrvgguhhgrthdrtghomhdprhgtphhtthhopehlihhuhhgrnhhgsghi
+    nhesghhmrghilhdrtghomhdprhgtphhtthhopehshiiisghothdotghitdelkehfrgejtg
+    dujeelhegvtggvrggtsehshiiikhgrlhhlvghrrdgrphhpshhpohhtmhgrihhlrdgtohhm
+    pdhrtghpthhtoheprghnughrvgifsehluhhnnhdrtghhpdhrtghpthhtohepsghrihgugh
+    gvsehlihhsthhsrdhlihhnuhigrdguvghvpdhrtghpthhtohepuggrvhgvmhesuggrvhgv
+    mhhlohhfthdrnhgvthdprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtoh
+    hmpdhrtghpthhtohephhhorhhmsheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepihgu
+    ohhstghhsehnvhhiughirgdrtghomh
+X-ME-Proxy: <xmx:8p-yaSrAYv7m8WytVD9YXVJfQaRRG11l3LhEpuOcWLyfzgfjm7Jgug>
+    <xmx:8p-yaXOXD7GzBDRPe19zAtgLfXFeYo0bZbJ_JnBJyWBQHXUchVY5lg>
+    <xmx:8p-yaY4rnNJd1e5whNllIoLjLEQk5IdDdjEhTFnZ6K1alrghU-KSPg>
+    <xmx:8p-yabVxd_hP_tGifezo462NUvpAutdA-6frR4pLfp_PQITn-fLZZg>
+    <xmx:85-yaT7UUdllFlfKkwP3vKZ2eDD4Ca1xhk0FhQ-SnePGxKZ-PyS8bRgu>
+Feedback-ID: i934648bf:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 12 Mar 2026 07:13:53 -0400 (EDT)
+Date: Thu, 12 Mar 2026 12:13:52 +0100
+From: Sabrina Dubroca <sd@queasysnail.net>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Hangbin Liu <liuhangbin@gmail.com>,
+	syzbot ci <syzbot+ci098fa7c1795eceac@syzkaller.appspotmail.com>,
+	andrew@lunn.ch, bridge@lists.linux.dev, davem@davemloft.net,
+	edumazet@google.com, horms@kernel.org, idosch@nvidia.com,
+	jiri@resnulli.us, jv@jvosburgh.net, kuba@kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	razor@blackwall.org, sridhar.samudrala@intel.com,
+	syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot ci] Re: net: move netdev_compute_master_upper_features
+ to ndo_set_features
+Message-ID: <abKf8Fg865Fhipwk@krikkit>
+References: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
+ <69b04e91.a70a0220.51e36.0000.GAE@google.com>
+ <abBuLV3P6aTzUg3W@krikkit>
+ <abC7rdjxv9ENw-tA@fedora>
+ <abHcP3GTO29rfKML@krikkit>
+ <bcc536ac-dde1-4b63-8fed-70850818472b@redhat.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 0/3] net: move
- netdev_compute_master_upper_features to ndo_set_features
-To: Hangbin Liu <liuhangbin@gmail.com>, Jay Vosburgh <jv@jvosburgh.net>,
- Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Jiri Pirko <jiri@resnulli.us>,
- Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
- Simon Horman <horms@kernel.org>,
- Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- bridge@lists.linux.dev
-References: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _BhlyfcAUP4_TJel7a0DQ5FiU6MyBdnML4kIR0H-HXA_1773308788
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <bcc536ac-dde1-4b63-8fed-70850818472b@redhat.com>
 
-On 3/10/26 8:45 AM, Hangbin Liu wrote:
-> Currently, master devices (bonding, bridge, team) manually call
-> netdev_compute_master_upper_features() scattered throughout their port
-> add/remove operations. This approach requires each driver to remember
-> to update features at the right times and leads to code duplication.
+2026-03-12, 10:40:43 +0100, Paolo Abeni wrote:
+> On 3/11/26 10:18 PM, Sabrina Dubroca wrote:
+> > 2026-03-11, 00:47:41 +0000, Hangbin Liu wrote:
+> >> On Tue, Mar 10, 2026 at 08:17:01PM +0100, Sabrina Dubroca wrote:
+> >>> 2026-03-10, 10:02:09 -0700, syzbot ci wrote:
+> >>>> batman_adv: batadv0: Not using interface batadv_slave_1 (retrying later): interface not active
+> >>>> hsr_slave_0: entered promiscuous mode
+> >>>> hsr_slave_1: entered promiscuous mode
+> >>>> ------------[ cut here ]------------
+> >>>> err == -EMSGSIZE
+> >>>> WARNING: net/core/rtnetlink.c:4421 at rtmsg_ifinfo_build_skb+0x218/0x260, CPU#0: syz-executor/6496
+> >>>
+> >>> I'm not sure this one is caused by this series, but either way,
+> >>
+> >>
+> >>  rtnetlink_event+0x1b7/0x270
+> >>  notifier_call_chain+0x1be/0x400
+> >>  netdev_change_features+0x95/0xe0
+> >>  __netdev_upper_dev_link+0xb20/0xc80
+> >>  netdev_upper_dev_link+0xb0/0x100
+> >>
+> >>
+> >> This patch calls netdev_change_features() after __netdev_upper_dev_link(),
+> >> Which trigger a NETDEV_FEAT_CHANGE notify and calls rtmsg_ifinfo_event()
+> >> to fill the new link info. Maybe the event is a bit early and macsec has
+> >> data not ready?
+> > 
+> > But this would still mean that there's a mismatch between
+> > if_nlmsg_size() and rtnl_fill_ifinfo(), and your patch is only
+> > revealing it.
+> > 
+> > I'll send fixes for the stuff I mentioned, no idea if that's what
+> > syzbot saw since we don't have a repro.
 > 
-> The series moves netdev_compute_master_upper_features() to callback
-> ndo_set_features so that the offload compute could automatically
-> invoked during feature updates when upper/lower device relationships
-> change. This centralizes the feature computation flow and removes the
-> burden from individual drivers.
+> It looks like even the nipa CI is reproducing the issue, i.e.:
 > 
-> ---
-> Hangbin Liu (3):
->       net: use ndo_set_features to set offload features for bonding/bridge/team
->       failover: use ndo_set_features for failover offload compute
->       net: no need to disable LRO specifically
+> https://netdev-ctrl.bots.linux.dev/logs/vmksft/net-dbg/results/554921/17-rtnetlink-sh/
 > 
->  drivers/net/bonding/bond_main.c | 14 +++++----
->  drivers/net/net_failover.c      | 67 +++++------------------------------------
->  drivers/net/team/team_core.c    | 15 ++++-----
->  include/net/net_failover.h      |  7 -----
->  net/8021q/vlan.c                |  2 --
->  net/bridge/br_device.c          |  7 +++++
->  net/bridge/br_if.c              |  6 ----
->  net/core/dev.c                  |  8 +++--
->  net/hsr/hsr_slave.c             |  1 -
->  9 files changed, 37 insertions(+), 90 deletions(-)
+> more failures here:
+> 
+> https://netdev.bots.linux.dev/contest.html?pw-n=0&branch=net-next-2026-03-12--06-00&pw-n=0&pass=0
+> 
+> the fail in mascsec-offload looks quite deterministic, could you please
+> have a look?
 
-I'm dropping this series from PW due to the self-tests failures. I guess
-it could be restored later if it turns out the real problem is elsewhere.
+Ah crap, sorry Hangbin, you were right.  macsec_fill_info() returns
+-EMSGSIZE when the key length is unexpected, and at this point we
+haven't set it to its proper value yet.
 
-/P
+Bandaid solution would be:
 
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index f6cad0746a02..0f7ef7bfbdde 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -4337,7 +4337,7 @@ static int macsec_fill_info(struct sk_buff *skb,
+                csid = secy->xpn ? MACSEC_CIPHER_ID_GCM_AES_XPN_256 : MACSEC_CIPHER_ID_GCM_AES_256;
+                break;
+        default:
+-               goto nla_put_failure;
++               return 0;
+        }
+ 
+        if (nla_put_sci(skb, IFLA_MACSEC_SCI, secy->sci,
+
+
+Proper fix (so that the notification we're sending during
+upper_dev_link has full linkinfo) would be to move
+netdev_upper_dev_link() to after macsec_changelink_common() and fix up
+the error handling. I don't see anything in macsec_add_dev or
+macsec_changelink_common that needs the device to be linked. But
+anyway it doesn't make sense for macsec_fill_info to return -EMSGSIZE
+on invalid data, so the "bandaid" should be included as well.
+
+Should this be part of this series (either just the "bandaid" or the
+"proper fix"+bandaid), since we never saw a problem before?
+
+-- 
+Sabrina
