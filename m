@@ -1,108 +1,231 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFA6B175A87;
-	Thu, 12 Mar 2026 13:48:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A296373C00
+	for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 14:34:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773323338; cv=none; b=Pglhx5RwzrdM7b/amvZ3DoI/GpkC4aR1WWDyzLO2eCtrb1x6i/Md0V7ns7yHrPs0dTARdkYdWMZwUHItM1QFYgA+Ez0BZtfMutEAu2mDhKnSotz8i3WFKq+ykTYSaqRp+4uUn26xKTlDpJcQXwTEfvmlUU2rlQsOp10fWZP1qoI=
+	t=1773326097; cv=none; b=d78mUCRYVDOBOm3WQP/Px5uGTW8W3o0t+xi/vZbTlWBX4/Dn+hbOn96lBrNGWg+HbmdRoIpn+ZlPMv0cJaWg03flhIYKLMDaIG0KE6geyOBZSfQzBUr04VLUPmeiGtSdYP5jTVSvYfN+9gAGOzwk7MztR7NHZH+y7zJnYZP4RRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773323338; c=relaxed/simple;
-	bh=n6Wi8+Wf3bcqnQdzJvITeSyaVeWgTfVDYqyrAlHIfO8=;
+	s=arc-20240116; t=1773326097; c=relaxed/simple;
+	bh=6JtGac83PpZLOkb7JoNXF61Pp3hiImbveoEHI06tr0A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RMXUWNoQRFVwzH2zJAZTGtgViy6bChn27ZKp5L/GG1qJC/zt4XWpVcTKc6iQAIoyH1FvE/tdi8PkJLGrbornc71jJlvnW5LeUghpQGVOmupre1ol48atBy1RGm+lTAZVLQiAjL/0eV4duPDVRpbQOLmI5gOSxVo+jaHYSYiyPFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b=Vbza1ZoZ; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=GfnkGqzXLKIlT6Dq52Bu66eFTz/isC9fQF3ps2u3fFnjgv5vFgoiAMOPMCyNpN3DnT1rFOlSjFIg55BJ5NU9XQYOIgeAhXP+MIRq2xkvc5RavPyPr8dpgGod4nu2+i3Ve+SToYCnkUCdhz6vk/DKY9/27zy5oZWzbEk1+VEsK3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bePjBPIp; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="Vbza1ZoZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1211C4CEF7;
-	Thu, 12 Mar 2026 13:48:54 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-	dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="Vbza1ZoZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-	t=1773323333;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cGQoGI0iD9IPU4MUwC9OugDLG8y8kJybLkuwslOCZHA=;
-	b=Vbza1ZoZ3MQ4b2ykXY2DyqS4C6Ur7UHx9qiWIc/vFh778HfoElPE2RxbHwwtYDWBWz5kTd
-	GgqrRtZHwWKcuZxBSTueiwWRWvj2d75BQlYdE8HJs5S7vd9FutLk/Ei4er761vtUbva2iY
-	m5uliyiKx+1wocBBtZVjNBVv6c6GbN0=
-Received: 
-	by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 780e6e40 (TLSv1.3:TLS_AES_256_GCM_SHA384:256:NO);
-	Thu, 12 Mar 2026 13:48:53 +0000 (UTC)
-Date: Thu, 12 Mar 2026 14:48:48 +0100
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
-To: Fernando Fernandez Mancera <fmancera@suse.de>
-Cc: netdev@vger.kernel.org, rbm@suse.com, Jason Gunthorpe <jgg@ziepe.ca>,
-	Leon Romanovsky <leon@kernel.org>,
-	Zhu Yanjun <zyjzyj2000@gmail.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Boris Pismenny <borisp@nvidia.com>,
-	Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
-	Simon Horman <horms@kernel.org>,
-	Edward Cree <ecree.xilinx@gmail.com>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Harald Welte <laforge@gnumonks.org>,
-	Antonio Quartulli <antonio@openvpn.net>,
-	Sabrina Dubroca <sd@queasysnail.net>,
-	Oliver Neukum <oliver@neukum.org>, David Ahern <dsahern@kernel.org>,
-	Stanislav Yakovlev <stas.yakovlev@gmail.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Parav Pandit <parav@nvidia.com>, Edward Srouji <edwards@nvidia.com>,
-	Vlad Dumitrescu <vdumitrescu@nvidia.com>,
-	Kees Cook <kees@kernel.org>, Jianbo Liu <jianbol@nvidia.com>,
-	Gal Pressman <gal@nvidia.com>, Guillaume Nault <gnault@redhat.com>,
-	Cosmin Ratiu <cratiu@nvidia.com>,
-	Carolina Jubran <cjubran@nvidia.com>,
-	Alexandre Cassen <acassen@corp.free.fr>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	"open list:INFINIBAND SUBSYSTEM" <linux-rdma@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:NETRONOME ETHERNET DRIVERS" <oss-drivers@corigine.com>,
-	"open list:SFC NETWORK DRIVER" <linux-net-drivers@amd.com>,
-	"open list:GTP (GPRS Tunneling Protocol)" <osmocom-net-gprs@lists.osmocom.org>,
-	"open list:USB CDC ETHERNET DRIVER" <linux-usb@vger.kernel.org>,
-	"open list:WIREGUARD SECURE NETWORK TUNNEL" <wireguard@lists.zx2c4.com>,
-	"open list:INTEL PRO/WIRELESS 2100, 2200BG, 2915ABG NETWOR..." <linux-wireless@vger.kernel.org>,
-	"open list:ETHERNET BRIDGE" <bridge@lists.linux.dev>
-Subject: Re: [PATCH 05/10 net-next v2] drivers: net: drop ipv6_stub usage and
- use direct function calls
-Message-ID: <abLEQMx6mPM4vL4t@zx2c4.com>
-References: <20260310153506.5181-1-fmancera@suse.de>
- <20260310153506.5181-6-fmancera@suse.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bePjBPIp"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2ae4e538abdso12708355ad.3
+        for <bridge@lists.linux.dev>; Thu, 12 Mar 2026 07:34:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773326095; x=1773930895; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2Xo4CEzPoRnsxcWTwpZVwHi/yVVw3KlTALyiUcwtez0=;
+        b=bePjBPIpnPrxs6v7/XitjJjAaKuJQl+oa3y3PYHa+FkMK1IMh9sNpeToOvVxn0BlD6
+         +tcojv+/BDnanOvYt6q9vMZuIaThT3Cjp/kNPldYhkfycjacTCNsg34FtK8gNgnavr8f
+         vPelIIeHKHL6uSo8O0cfxVp1W9HiyiaFf1JU1KOkKChZ28HKyRoEsMxSusUsbAN7LkJT
+         2SIiM2nZIu3iZndhj7fN+8ScC6UGLWe6F72GPGgAbNOBWm9XaR/3UdVZwgJfVQ9F9bYz
+         hPUPwTrldrh7uki40KZ73TCLEB1k4P7CU85UadiPwkkLdCUG84/CSyPJW79m4qdsUVTK
+         4Tzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773326095; x=1773930895;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2Xo4CEzPoRnsxcWTwpZVwHi/yVVw3KlTALyiUcwtez0=;
+        b=gbB/+mwds+dlrCq6ewWw30Nh3UKgyEgWhn9ECNTDdAZ+pKQoUpqvEBKOfAD8T/SR8Y
+         y1NxmEiJKjrbYNHmhYd7LJZx2e7Yza+f/eCZJlkmtmp8h8imH9Ay7JWaNA+0JDrswKMQ
+         NvSPJGU/gBtbVNYYrgQra88iXGRZH0aIkIhLgDMN65VTboOzFJFPyHyDchpRFsYF5UAO
+         djZ2oVkewuogFcMDlfxyrmJ1bVPfaUQBmw/wdC+8Rdj0DqoYPj6u2l9zeSiR3hfLCJPr
+         moHZwnimWeIKWv+1/yLsz97QcJTR58ZBioXEhzxPx5AJEX7kMP5mmfPWTVmIttAjLtIt
+         KJpg==
+X-Forwarded-Encrypted: i=1; AJvYcCXm1CYcFNaQI8nBP588EKwI5eltmkyGHUc9R9PdHOJb4Pw6xmfxf65L/FOpcGmgN+yl6MZ2Zag=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxtkOTCKtgEoeNeBGF57ul5REyVg1TFoL04WzaL8DJVRHOcpe8i
+	In6KwlDueOxiz/sO9iF/JB9KptUWyJMeJyFfHseeVrukVdHhdt2OA5+E
+X-Gm-Gg: ATEYQzwFB8RfyWzmB5H+WS51o5wphFYiJnCHzi2RUK9B29cgoth71VnLZ3EysnAIGB1
+	VviwT6EGkUqDLE1yDDYjjRkxpgI+gS3mzVW4V6bZHT0smeL1JPr/EMMJlMkhgcNifaM6LpYhR8R
+	Ibl+jaD427NHzkfhJMwsALHV0AHjVtL1ERJN1wVvonDwYWaTqKCV+ZlZkmwHUkjJENZzdtXDvfy
+	oEf7R7/Y43G8FNUHv+Ql7Om1Rh5bU2aaKUtMkx9JjJlLdzhn6ExXg0MV+/pjsEPyV3VL5Djuidk
+	zVEThS54UYWho+Vp5Xol3uF1Zi8WO2neyTYYm+FxkDV87jRITtyUwt3GemT852lO85gJXHw7Z7n
+	y3ZyszvsMuHHSJ9BOyeWImBbS8Dc+CXt8ODiXrOo8rnjBhjsKRBq1nSus7+vB4874WTA/KLptnR
+	9nkHme0uHpV3fMDAWDaTHR+JGGlqw=
+X-Received: by 2002:a17:902:ffd0:b0:2ae:ac0c:5a29 with SMTP id d9443c01a7336-2aeae7640d3mr64159275ad.10.1773326095542;
+        Thu, 12 Mar 2026 07:34:55 -0700 (PDT)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aeae378980sm58269035ad.84.2026.03.12.07.34.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2026 07:34:54 -0700 (PDT)
+Date: Thu, 12 Mar 2026 14:34:44 +0000
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: Sabrina Dubroca <sd@queasysnail.net>
+Cc: Paolo Abeni <pabeni@redhat.com>,
+	syzbot ci <syzbot+ci098fa7c1795eceac@syzkaller.appspotmail.com>,
+	andrew@lunn.ch, bridge@lists.linux.dev, davem@davemloft.net,
+	edumazet@google.com, horms@kernel.org, idosch@nvidia.com,
+	jiri@resnulli.us, jv@jvosburgh.net, kuba@kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	razor@blackwall.org, sridhar.samudrala@intel.com,
+	syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot ci] Re: net: move netdev_compute_master_upper_features
+ to ndo_set_features
+Message-ID: <abLPBEg_-j5rp4IM@fedora>
+References: <20260310-offload_compute-v1-0-3df79c09ea65@gmail.com>
+ <69b04e91.a70a0220.51e36.0000.GAE@google.com>
+ <abBuLV3P6aTzUg3W@krikkit>
+ <abC7rdjxv9ENw-tA@fedora>
+ <abHcP3GTO29rfKML@krikkit>
+ <bcc536ac-dde1-4b63-8fed-70850818472b@redhat.com>
+ <abKf8Fg865Fhipwk@krikkit>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260310153506.5181-6-fmancera@suse.de>
+In-Reply-To: <abKf8Fg865Fhipwk@krikkit>
 
-On Tue, Mar 10, 2026 at 04:34:28PM +0100, Fernando Fernandez Mancera wrote:
-> diff --git a/drivers/net/wireguard/socket.c b/drivers/net/wireguard/socket.c
-> index 253488f8c00f..c362c78d908e 100644
-> --- a/drivers/net/wireguard/socket.c
-> +++ b/drivers/net/wireguard/socket.c
-> @@ -136,8 +136,7 @@ static int send6(struct wg_device *wg, struct sk_buff *skb,
->  			if (cache)
->  				dst_cache_reset(cache);
->  		}
-> -		dst = ipv6_stub->ipv6_dst_lookup_flow(sock_net(sock), sock, &fl,
-> -						      NULL);
-> +		dst = ip6_dst_lookup_flow(sock_net(sock), sock, &fl, NULL);
->  		if (IS_ERR(dst)) {
->  			ret = PTR_ERR(dst);
->  			net_dbg_ratelimited("%s: No route to %pISpfsc, error %d\n",
+On Thu, Mar 12, 2026 at 12:13:52PM +0100, Sabrina Dubroca wrote:
+> > >> This patch calls netdev_change_features() after __netdev_upper_dev_link(),
+> > >> Which trigger a NETDEV_FEAT_CHANGE notify and calls rtmsg_ifinfo_event()
+> > >> to fill the new link info. Maybe the event is a bit early and macsec has
+> > >> data not ready?
+> > > 
+> > > But this would still mean that there's a mismatch between
+> > > if_nlmsg_size() and rtnl_fill_ifinfo(), and your patch is only
+> > > revealing it.
+> > > 
+> > > I'll send fixes for the stuff I mentioned, no idea if that's what
+> > > syzbot saw since we don't have a repro.
+> > 
+> > It looks like even the nipa CI is reproducing the issue, i.e.:
+> > 
+> > https://netdev-ctrl.bots.linux.dev/logs/vmksft/net-dbg/results/554921/17-rtnetlink-sh/
+> > 
+> > more failures here:
+> > 
+> > https://netdev.bots.linux.dev/contest.html?pw-n=0&branch=net-next-2026-03-12--06-00&pw-n=0&pass=0
+> > 
+> > the fail in mascsec-offload looks quite deterministic, could you please
+> > have a look?
+> 
+> Ah crap, sorry Hangbin, you were right.  macsec_fill_info() returns
+> -EMSGSIZE when the key length is unexpected, and at this point we
+> haven't set it to its proper value yet.
+> 
+> Bandaid solution would be:
+> 
+> diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+> index f6cad0746a02..0f7ef7bfbdde 100644
+> --- a/drivers/net/macsec.c
+> +++ b/drivers/net/macsec.c
+> @@ -4337,7 +4337,7 @@ static int macsec_fill_info(struct sk_buff *skb,
+>                 csid = secy->xpn ? MACSEC_CIPHER_ID_GCM_AES_XPN_256 : MACSEC_CIPHER_ID_GCM_AES_256;
+>                 break;
+>         default:
+> -               goto nla_put_failure;
+> +               return 0;
+>         }
+>  
+>         if (nla_put_sci(skb, IFLA_MACSEC_SCI, secy->sci,
+> 
+> 
+> Proper fix (so that the notification we're sending during
+> upper_dev_link has full linkinfo) would be to move
+> netdev_upper_dev_link() to after macsec_changelink_common() and fix up
+> the error handling. I don't see anything in macsec_add_dev or
+> macsec_changelink_common that needs the device to be linked. But
 
-Rest in peace, stub.
+If we move the netdev_upper_dev_link() after macsec_changelink_common(),
+we will not goto nla_put_failure via default, right?
 
-For the WireGuard part,
+> anyway it doesn't make sense for macsec_fill_info to return -EMSGSIZE
+> on invalid data, so the "bandaid" should be included as well.
+> 
+> Should this be part of this series (either just the "bandaid" or the
+> "proper fix"+bandaid), since we never saw a problem before?
 
-    Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Since macsec need the "bandaid" fix either way. How about you post the
+"bandaid" fix to net. And I include the "proper fix" in this series for
+net-next?
+
+BTW, here is my draft patch, would you like to review it first?
+
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index f6cad0746a02..1f8da4c291c6 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -4161,10 +4161,6 @@ static int macsec_newlink(struct net_device *dev,
+ 	lockdep_set_class(&dev->addr_list_lock,
+ 			  &macsec_netdev_addr_lock_key);
+ 
+-	err = netdev_upper_dev_link(real_dev, dev, extack);
+-	if (err < 0)
+-		goto unregister;
+-
+ 	/* need to be already registered so that ->init has run and
+ 	 * the MAC addr is set
+ 	 */
+@@ -4177,12 +4173,12 @@ static int macsec_newlink(struct net_device *dev,
+ 
+ 	if (rx_handler && sci_exists(real_dev, sci)) {
+ 		err = -EBUSY;
+-		goto unlink;
++		goto unregister;
+ 	}
+ 
+ 	err = macsec_add_dev(dev, sci, icv_len);
+ 	if (err)
+-		goto unlink;
++		goto unregister;
+ 
+ 	if (data) {
+ 		err = macsec_changelink_common(dev, data);
+@@ -4190,6 +4186,10 @@ static int macsec_newlink(struct net_device *dev,
+ 			goto del_dev;
+ 	}
+ 
++	err = netdev_upper_dev_link(real_dev, dev, extack);
++	if (err < 0)
++		goto unlink;
++
+ 	/* If h/w offloading is available, propagate to the device */
+ 	if (macsec_is_offloaded(macsec)) {
+ 		const struct macsec_ops *ops;
+@@ -4200,7 +4200,7 @@ static int macsec_newlink(struct net_device *dev,
+ 			ctx.secy = &macsec->secy;
+ 			err = macsec_offload(ops->mdo_add_secy, &ctx);
+ 			if (err)
+-				goto del_dev;
++				goto unlink;
+ 
+ 			macsec->insert_tx_tag =
+ 				macsec_needs_tx_tag(macsec, ops);
+@@ -4209,7 +4209,7 @@ static int macsec_newlink(struct net_device *dev,
+ 
+ 	err = register_macsec_dev(real_dev, dev);
+ 	if (err < 0)
+-		goto del_dev;
++		goto unlink;
+ 
+ 	netdev_update_features(dev);
+ 	netif_stacked_transfer_operstate(real_dev, dev);
+@@ -4219,10 +4219,10 @@ static int macsec_newlink(struct net_device *dev,
+ 
+ 	return 0;
+ 
+-del_dev:
+-	macsec_del_dev(macsec);
+ unlink:
+ 	netdev_upper_dev_unlink(real_dev, dev);
++del_dev:
++	macsec_del_dev(macsec);
+ unregister:
+ 	unregister_netdevice(dev);
+ 	return err;
+
+Thanks
+Hangbin
