@@ -1,120 +1,136 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97410277035
-	for <bridge@lists.linux.dev>; Mon, 16 Mar 2026 01:02:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 949463382DE
+	for <bridge@lists.linux.dev>; Mon, 16 Mar 2026 04:26:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773622934; cv=none; b=pv/fv6WHVNV6xlY0Xw+uGi0JjoYSXVQEPj+3BlggCH4xEeSszmMACMWnI27L+0ff0p2X62UUUXv0I4hOLJGqmcQ52yUq6QZMcRjY1301Chp6Id9A7AOP18oeUv4dMBcUFoSvytZv879WfONBs8Xcgvg18yUTae2zhtmfny/dadc=
+	t=1773635213; cv=none; b=unaB1e55cHU2RWUEi9tyaKIk4DN38tl6fxkYmjyMEuGhdNVarMuhoL1xC7OUZbdaUv9XZtXwiIs7utXMSkR8eSP6gJMGcZ+KgalR1NwoBzDB82Av86oiHPz15HsbSmg6ACqoWeHYtKKpHGyRUSyypy7J16Q4nakpFIs+wlQ9fAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773622934; c=relaxed/simple;
-	bh=Eky1nMoAs0udEY/YyYt5887/RWDwMv3LBHaMdNwTh0g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s8uPKj9VuKiCv7l6TPug25bl5YvdmAEqzwZmK4VlgK3k4ULAKqeVdJF34noq6kerg5vDiD6fdqunLLureXWVoE3IEW8bLVG/LRpoXW1KJ9dRUa/VO/1WxWEmT3HCejF2exRdOy5C3mGhtcfBZVBg7rPas9tkhe0Ikb2w36uQnfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OLVziUxp; arc=none smtp.client-ip=209.85.215.181
+	s=arc-20240116; t=1773635213; c=relaxed/simple;
+	bh=4vs8RNGc7MDno4+X32x3Mh+tGMstn+YXEKpVY+sxySA=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Eh7IC+RPoOLghwVtdeiLb7/HRNYhZfGa6TBaCWalFtRIZ1kjO0yrb6bm30TgyzDfwuM1ogPkqO2o1tYoYRuH3oQmFF3LPEdr106iKIUhu96JbvKTZfNoKAk7NSbB8WJYg+/TNIaoWvsxXTmLaGs+USU1WCu/ItVO+tXYDIrmxGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dVDzzjsQ; arc=none smtp.client-ip=209.85.210.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OLVziUxp"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c736261ee8dso1304074a12.1
-        for <bridge@lists.linux.dev>; Sun, 15 Mar 2026 18:02:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dVDzzjsQ"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-82a3d3235c9so600383b3a.2
+        for <bridge@lists.linux.dev>; Sun, 15 Mar 2026 21:26:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773622931; x=1774227731; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YLOS+CBHAqth4oLgPzOQhkefjgoFRG3KFqew2fphAF8=;
-        b=OLVziUxpaj8QwUHVsIesNFHCA60SVV5dJmHN/nYK9zmNDgn+dfx1HRVM+VDnj4k4fv
-         UWAIJSkWDmvS+hqWsRKqsb+UzrhfnIjWE5I1wMrd3v0Uan29IVwvYMDhge+NFxXtnxpN
-         mWvsMWdvg1vUQwD/WFIaN7EDQ+/fpK7VlbAb43cVX58hH5laZJg+xaYRrVZjedqzo7JO
-         iDn8V5vCObYHb6VjR6cUnKBaaxNjAVirKsvVQu4Y/iEIzHzabfpMs19ndewf/fXKW5x2
-         HaLUHDSrz/Oxf2B3T4Q+nR/P5kmA57aBQnoTqlYq6yJPZ+enE0KWjGfLmIRkl6ueIqMY
-         Znyg==
+        d=gmail.com; s=20230601; t=1773635212; x=1774240012; darn=lists.linux.dev;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=QG6YmZw2q5tnLzZ0HARS5dPxw6jYWbvpIUxUxyo/SI4=;
+        b=dVDzzjsQPASwe1JG0djIFQXG6Y039fBKNuOwUluLnjJ2EGJdNH3c3DA9JM4UNSPYKa
+         yv051GbHblszhh4HeXuGJ5OqqGCr35q1w7SNzaiqCjdbOJbvxN/oHejZsrsY83otGyOX
+         COL7jyJlnWP7axqkuQY0K1JWQj++W+W5khL2H8KS1LzogmGLHDZsd/aIJ/BvrpvW0093
+         xNHfODG+MIk5IKXUIb/dJjRkLGWw4thT+R4/5YjUHJoChhEiqrIZvTk6e2wp6fXNiSAd
+         phGI9hhBvaPo9AdCnlgcakkPhZHptrsZhNqf7MxFgZqbihpZLjoKm4JxeewNLMyGG74H
+         h/Pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773622931; x=1774227731;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YLOS+CBHAqth4oLgPzOQhkefjgoFRG3KFqew2fphAF8=;
-        b=LVZkKlscgHKQqxz1LCtQXPAWe5E95aC8VJFuLVo5Ads8empBJ2Ld6iukdjuzzE+Zim
-         GD01xD+/oqcyI1z/Qv7Un5n4yZicVCFTzAVwZklZHFQEifdHyaB/eSccC5Vwt4aNgXy/
-         X5M1AKaHbgnHl6aH3MQWjRQb9455xiICat1qtR8bkUiyX/+4svHVsYvVc1nix1aOYEVA
-         faosV/Yw2HbfFnXNkRLua7NnoZ00n6e71E0nTlLaClAlrE6VWmCbUmhvfiocoWsSRVkM
-         0fVJz7BJTFdH0wCJyewN7pCw2FpN1ytbcTLHj4aVtoGnYVtBLFDJi3dOV3v3SksNusOC
-         kg9w==
-X-Forwarded-Encrypted: i=1; AJvYcCU6E4l7wqYQouAMElr9I4vXRcB73QS7EEFXVdsltqJNIzg6RwSQ/eZ+/iseaZ497EdyOuBm3qQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyUV3HseAYaEOdr8jnvCoJfHfmOrFYzs7YBgDbZ2oOxSgfrvVPY
-	gIV4mcwC9e0HCl65VR2td7cmEfZhalv7jj2I2xaUqjx1KhpWRCkxKIVK
-X-Gm-Gg: ATEYQzxtcy6+w26k/lUnO/voy7sLp7af+mjbLabuPnw3JnZVZhfSTcrk9SlVN309Wwh
-	mR1bqGrLlTiaKG/so8ldkmbBxOjgwPjDkx/KJiQ7idVLdbZlWhV9aCoE5dOuVLDzkgwjC17m7nG
-	Qta8z8kZsNBOC1X1hyr70fr6FI4sA/97P65Y/01p3To6m7dXHV0y2ZSGl98N8erfCvFkvq8vyp+
-	j98sZcucpv5ZFDfPPInlJgQiWx65wvhu8+JK/EkIWO5jJngNtOPu53BzN7/aUepXtx7hBL14RXT
-	Y2kRkHjeAxD9l5XySSV1+weXkeoI0z2PwHwQeW3h/HFqwElPqgNphrrH3jsaEO9lMuuwdfZRD2r
-	Jy+qVcNYw9sqld5v/Mua/D0Fo+lIg2fBYs2DswY5YnRmVy7C5SF69nH3j3nZn89pT6gXQQ/gNwl
-	8An+mHGcBy+Jf7B8FBf3mHggPvKfu+SEcR35PoRQ==
-X-Received: by 2002:a05:6300:6713:b0:35d:6b4e:91f1 with SMTP id adf61e73a8af0-398ecca4e41mr10054657637.34.1773622931501;
-        Sun, 15 Mar 2026 18:02:11 -0700 (PDT)
-Received: from fedora ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c74029fa6eesm1891891a12.20.2026.03.15.18.02.04
+        d=1e100.net; s=20251104; t=1773635212; x=1774240012;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QG6YmZw2q5tnLzZ0HARS5dPxw6jYWbvpIUxUxyo/SI4=;
+        b=X6F3BVZJeDUI+09eoHRQpgGLYAm+Alzp8AbA6yM1rn6kH5GEKaEwVv3FoGUWWUHktv
+         +gDM9W4wMujLomj5lcdr3ogzwoEtAMGmgO7F2d0oPEF81mOfxWnUdk++zoTp749Cw6FQ
+         4SuwUHh0QlVpWJ8bBsJq7RnoGxjCFLG+73W/1t3L7UTeR+y2dszM8hMZ+VKWe89wt/CK
+         DOg6cn2r20dnrQBMj1aC6jCHQQPLmkoOg8tghFoxdBOKLDyrBebpCj/LWEFbsa/X7adO
+         f7FQ5Z2DEE79mGZ3uQzm6Uy0TOKB51fzmISTMWuQLoYNlZBfnTkHpk/Idyamxh788oCq
+         eLEA==
+X-Forwarded-Encrypted: i=1; AJvYcCX38BcwYomI/uvEqGxPfsyTN9roMocv3ga8j0BC9A2jkI6K2Sk4G+LfX+sS1uaRKj3kw9w92Vw=@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywra8m1OLpYcey8tkAxVDH49oYlIYi42DLAYVJIbZ8k/sTtOIZI
+	k64Sxn+lVCj2ryl4bJsrayjToIE84edmdSvhyVmV7Yo3gg13msy/mMcf
+X-Gm-Gg: ATEYQzw9p3AeWjTeuwExmg+310JxXnRz1p9LoKN0gFBGTOsDoH+EPY2KxeCDazmEPbG
+	DC91Nx2XmzqsdtTFID/degDArpvOLnYvjAyGWVvvj3xmhCisqgBZxMAkQU3X8b9U7M/JGB34xl+
+	VqNWGuFJGHci0M0BOVurlb0W1Q5pqu0mzpFLhJxyRarHiPlnnELM1tb+EaOs8z53QzAsKFL8Sou
+	qn+FJ7AQxRsxGMpV6u3NgBs5LuZs/v+80q+XZG/0G4hQ9M9y3IjE8dQFgSABJ9j8gNG/NZVODBw
+	zJMGTtoJSD0JAPwlmMpDd0JLtH1eVRx8X+LscrwEuQo2HpT6ew2nG+GXFFXL0q4yCJb7bvDj1I0
+	mnXgYOp0CSC78KfW2j4ns1XWCInrueG5AVa0COw2DZg93YSYBF3woo8gDJ2eN5InDDvDUT6Lihi
+	tWGPBOM/I21ni4gxaR6VxBVOURKWZWTpos2dwE0AU72+XnnRu0f51101OjBulw3O+9iJ0p
+X-Received: by 2002:a05:6a00:929f:b0:829:822e:cdc9 with SMTP id d2e1a72fcca58-82a1970498amr10802677b3a.2.1773635211899;
+        Sun, 15 Mar 2026 21:26:51 -0700 (PDT)
+Received: from 1.0.0.127.in-addr.arpa ([240e:34c:5760:3860:bc29:deed:92d0:823c])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a0738422esm12180267b3a.55.2026.03.15.21.26.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Mar 2026 18:02:10 -0700 (PDT)
-Date: Mon, 16 Mar 2026 01:02:01 +0000
+        Sun, 15 Mar 2026 21:26:51 -0700 (PDT)
 From: Hangbin Liu <liuhangbin@gmail.com>
-To: Simon Horman <horms@kernel.org>
-Cc: jv@jvosburgh.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	davem@davemloft.net, sd@queasysnail.net, andrew+netdev@lunn.ch,
-	pabeni@redhat.com, sridhar.samudrala@intel.com, jiri@resnulli.us,
-	bridge@lists.linux.dev, edumazet@google.com, kuba@kernel.org,
-	razor@blackwall.org, idosch@nvidia.com
-Subject: Re: [net-next,v2,1/4] net: use ndo_set_features to set offload
- features for bonding/bridge/team
-Message-ID: <abdWiYhu4IOldqtE@fedora>
-References: <20260313-offload_compute-v2-1-ffbc8ce5d50c@gmail.com>
- <20260315161943.1419237-1-horms@kernel.org>
+Subject: [PATCH net-next v3 0/5] net: centralize master device offload
+ feature computation
+Date: Mon, 16 Mar 2026 12:26:08 +0800
+Message-Id: <20260316-offload_compute-v3-0-a5d4a07d86d3@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260315161943.1419237-1-horms@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WN0QrCIBhGXyW8zvinbbWueo+IcPq7CZsONVmMv
+ Xvi1SC6/Dic860koDcYyO2wEo/JBONsHvx4IHIQtkdqVN6EAWuAV0Cd1qMT6iXdNL8j0rOETmj
+ BEBgj2Zo9arOU4oNYjNTiEskzk8GE6PynXKWq8L/VVFGgXOlLK6FF0dT3fhJmPGVeWontff7rs
+ +xr3cmrxFrVIPf+tm1fUZn7QPgAAAA=
+X-Change-ID: 20260310-offload_compute-4c0bafa2e022
+To: Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Jiri Pirko <jiri@resnulli.us>, Nikolay Aleksandrov <razor@blackwall.org>, 
+ Ido Schimmel <idosch@nvidia.com>, Simon Horman <horms@kernel.org>, 
+ Sabrina Dubroca <sd@queasysnail.net>, 
+ Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ bridge@lists.linux.dev, Hangbin Liu <liuhangbin@gmail.com>
+X-Mailer: b4 0.14.3
 
-On Sun, Mar 15, 2026 at 04:19:43PM +0000, Simon Horman wrote:
-> > diff --git a/net/core/dev.c b/net/core/dev.c
-> > index f48dc299e4b2..16b3fc620807 100644
-> > --- a/net/core/dev.c
-> > +++ b/net/core/dev.c
-> > @@ -8920,6 +8920,9 @@ static int __netdev_upper_dev_link(struct net_device *dev,
-> >  	__netdev_walk_all_upper_dev(upper_dev, __netdev_update_lower_level,
-> >  				    priv);
-> >
-> > +	/* re-compute all features after adding link */
-> > +	netdev_change_features(upper_dev);
-> > +
-> >  	return 0;
-> >
-> >  rollback:
-> 
-> Can the feature computation skip updating ancillary fields when features
-> don't change?
-> 
-> The new architecture routes computation through netdev_change_features() ->
-> __netdev_update_features() -> ndo_set_features(). However,
-> __netdev_update_features() has this check:
-> 
-> net/core/dev.c:__netdev_update_features() {
->     ...
->     if (dev->features == features)
->         goto sync_lower;
-> 
+Currently, master devices (bonding, bridge, team) manually call
+netdev_compute_master_upper_features() scattered throughout their port
+add/remove operations. This approach requires each driver to remember
+to update features at the right times and leads to code duplication.
 
-Ah, yes. In the RFC patch set[1], I wanted to use a new ndo_update_offloads
-callback to handle offload updates. But in the formal patch, I thought we
-could avoid introducing a new callback and use ndo_set_features directly.
-However, it looks like we need to fall back to ndo_update_offloads now.
+The series adds a new ndo_update_offloads callback that is automatically
+invoked during feature updates when upper/lower device relationships change.
+This centralizes the feature computation flow and removes the burden
+from individual drivers.
 
-[1] https://lore.kernel.org/netdev/20260226114208.27774-1-liuhangbin@gmail.com/
+---
+Changes in v3:
+- ndo_set_features may be skipped when no feature change, fallback to
+  use ndo_update_offloads for offload computation (Simon Horman)
+- Link to v2: https://lore.kernel.org/r/20260313-offload_compute-v2-0-ffbc8ce5d50c@gmail.com
 
-Thanks
-Hangbin
+Changes in v2:
+- Fix macsec Security Entity uninitialized issue (Sabrina Dubroca)
+  - Tested with macsec-offload.sh, rtnetlink.sh, link_netns.py, all pssed
+- Link to v1: https://lore.kernel.org/r/20260310-offload_compute-v1-0-3df79c09ea65@gmail.com
+
+---
+Hangbin Liu (5):
+      net: add ndo_update_offloads for offload computation
+      net: use ndo_update_offloads to set offload features for bonding/bridge/team
+      macsec: move netdev_upper_dev_link() after macsec_changelink_common()
+      failover: use ndo_update_offloads for failover offload compute
+      net: no need to disable LRO specifically
+
+ drivers/net/bonding/bond_main.c | 13 ++++----
+ drivers/net/macsec.c            | 23 +++++++-------
+ drivers/net/net_failover.c      | 66 +++++------------------------------------
+ drivers/net/team/team_core.c    | 14 ++++-----
+ include/linux/netdevice.h       |  7 +++++
+ include/net/net_failover.h      |  7 -----
+ net/8021q/vlan.c                |  2 --
+ net/bridge/br_device.c          |  6 ++++
+ net/bridge/br_if.c              |  6 ----
+ net/core/dev.c                  | 11 +++++--
+ net/hsr/hsr_slave.c             |  1 -
+ 11 files changed, 55 insertions(+), 101 deletions(-)
+---
+base-commit: 5446b8691eb8278f10deca92048fad84ffd1e4d5
+change-id: 20260310-offload_compute-4c0bafa2e022
+
+Best regards,
+-- 
+Hangbin Liu <liuhangbin@gmail.com>
+
