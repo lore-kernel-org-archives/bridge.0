@@ -1,66 +1,67 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 949463382DE
-	for <bridge@lists.linux.dev>; Mon, 16 Mar 2026 04:26:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F15FB32A3E5
+	for <bridge@lists.linux.dev>; Mon, 16 Mar 2026 04:27:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773635213; cv=none; b=unaB1e55cHU2RWUEi9tyaKIk4DN38tl6fxkYmjyMEuGhdNVarMuhoL1xC7OUZbdaUv9XZtXwiIs7utXMSkR8eSP6gJMGcZ+KgalR1NwoBzDB82Av86oiHPz15HsbSmg6ACqoWeHYtKKpHGyRUSyypy7J16Q4nakpFIs+wlQ9fAI=
+	t=1773635227; cv=none; b=Am8W2OAJyA2X9EbOpbGIyhkMZNaPNvedFjScBHIL/kGGxXx8vPaVuhNwGC40kOP+EYi8v0VbuV5yeMgbwW/ovVD9DmCY2oejn53h1x5j8uBqPRj51pGI/g7LVQwlPIB89L9jItu6WcjwiFDhGGVb80UERwhvvAhmOoILQOgawW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773635213; c=relaxed/simple;
-	bh=4vs8RNGc7MDno4+X32x3Mh+tGMstn+YXEKpVY+sxySA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Eh7IC+RPoOLghwVtdeiLb7/HRNYhZfGa6TBaCWalFtRIZ1kjO0yrb6bm30TgyzDfwuM1ogPkqO2o1tYoYRuH3oQmFF3LPEdr106iKIUhu96JbvKTZfNoKAk7NSbB8WJYg+/TNIaoWvsxXTmLaGs+USU1WCu/ItVO+tXYDIrmxGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dVDzzjsQ; arc=none smtp.client-ip=209.85.210.179
+	s=arc-20240116; t=1773635227; c=relaxed/simple;
+	bh=qNPeHvHZTZR/YyNb7PrqwI9kz5RD4rqaFT50tFfTL2s=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=jj5V0psaDFbarg/bUFavZy0sNEsQjBCjTAmMJTQk+ALzfQQf+IiW0xfK0fiwTL3jSl7eeJv6qzTg70y/P/hvz2PUxYaw0s277QRsAXMqOsv4UKxj7DwxdXIRIckrcmj11fu3TyJoH8efWNOg6yvMlNCX4axpFChTUTUJfBYHKrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MKSKU+CX; arc=none smtp.client-ip=209.85.215.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dVDzzjsQ"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-82a3d3235c9so600383b3a.2
-        for <bridge@lists.linux.dev>; Sun, 15 Mar 2026 21:26:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MKSKU+CX"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c73e9e4cdf7so1030640a12.2
+        for <bridge@lists.linux.dev>; Sun, 15 Mar 2026 21:27:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773635212; x=1774240012; darn=lists.linux.dev;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=QG6YmZw2q5tnLzZ0HARS5dPxw6jYWbvpIUxUxyo/SI4=;
-        b=dVDzzjsQPASwe1JG0djIFQXG6Y039fBKNuOwUluLnjJ2EGJdNH3c3DA9JM4UNSPYKa
-         yv051GbHblszhh4HeXuGJ5OqqGCr35q1w7SNzaiqCjdbOJbvxN/oHejZsrsY83otGyOX
-         COL7jyJlnWP7axqkuQY0K1JWQj++W+W5khL2H8KS1LzogmGLHDZsd/aIJ/BvrpvW0093
-         xNHfODG+MIk5IKXUIb/dJjRkLGWw4thT+R4/5YjUHJoChhEiqrIZvTk6e2wp6fXNiSAd
-         phGI9hhBvaPo9AdCnlgcakkPhZHptrsZhNqf7MxFgZqbihpZLjoKm4JxeewNLMyGG74H
-         h/Pw==
+        d=gmail.com; s=20230601; t=1773635225; x=1774240025; darn=lists.linux.dev;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=S4NrMDbk24kpM0xeU9hz073wyfuICysoD9kSVFILYB4=;
+        b=MKSKU+CXzbyHfRbvdIhNnUIet0ZIMcrVhcYzkL9Wak3KS1lbTLAOnFAfu1nOnHsZ6/
+         W2MHsJDDi/vqqPpuIiCIwXJjuTRbXbFnZTYyoWyukL7OXP/OAeVuqOzujmfjknOXnXLH
+         thldt6n4e1V9CP5wh1ihaTPv3nWuq3POD626DvpaMWhfYqThPqXYGbJriKwPE5XydoY4
+         7xJkowTNY6eAZsxzMs4hFuIy3oOSrVkj2oEopQDwpVT/p1Sn9gDmV1kcbbVCXyR4ebwK
+         kD1ouRyNbeLesUl2udaAm+V+rVbBEVfd1gqPvASNpZC+L/ThibinJYRZEvrg7kbu9SsO
+         lbcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773635212; x=1774240012;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QG6YmZw2q5tnLzZ0HARS5dPxw6jYWbvpIUxUxyo/SI4=;
-        b=X6F3BVZJeDUI+09eoHRQpgGLYAm+Alzp8AbA6yM1rn6kH5GEKaEwVv3FoGUWWUHktv
-         +gDM9W4wMujLomj5lcdr3ogzwoEtAMGmgO7F2d0oPEF81mOfxWnUdk++zoTp749Cw6FQ
-         4SuwUHh0QlVpWJ8bBsJq7RnoGxjCFLG+73W/1t3L7UTeR+y2dszM8hMZ+VKWe89wt/CK
-         DOg6cn2r20dnrQBMj1aC6jCHQQPLmkoOg8tghFoxdBOKLDyrBebpCj/LWEFbsa/X7adO
-         f7FQ5Z2DEE79mGZ3uQzm6Uy0TOKB51fzmISTMWuQLoYNlZBfnTkHpk/Idyamxh788oCq
-         eLEA==
-X-Forwarded-Encrypted: i=1; AJvYcCX38BcwYomI/uvEqGxPfsyTN9roMocv3ga8j0BC9A2jkI6K2Sk4G+LfX+sS1uaRKj3kw9w92Vw=@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywra8m1OLpYcey8tkAxVDH49oYlIYi42DLAYVJIbZ8k/sTtOIZI
-	k64Sxn+lVCj2ryl4bJsrayjToIE84edmdSvhyVmV7Yo3gg13msy/mMcf
-X-Gm-Gg: ATEYQzw9p3AeWjTeuwExmg+310JxXnRz1p9LoKN0gFBGTOsDoH+EPY2KxeCDazmEPbG
-	DC91Nx2XmzqsdtTFID/degDArpvOLnYvjAyGWVvvj3xmhCisqgBZxMAkQU3X8b9U7M/JGB34xl+
-	VqNWGuFJGHci0M0BOVurlb0W1Q5pqu0mzpFLhJxyRarHiPlnnELM1tb+EaOs8z53QzAsKFL8Sou
-	qn+FJ7AQxRsxGMpV6u3NgBs5LuZs/v+80q+XZG/0G4hQ9M9y3IjE8dQFgSABJ9j8gNG/NZVODBw
-	zJMGTtoJSD0JAPwlmMpDd0JLtH1eVRx8X+LscrwEuQo2HpT6ew2nG+GXFFXL0q4yCJb7bvDj1I0
-	mnXgYOp0CSC78KfW2j4ns1XWCInrueG5AVa0COw2DZg93YSYBF3woo8gDJ2eN5InDDvDUT6Lihi
-	tWGPBOM/I21ni4gxaR6VxBVOURKWZWTpos2dwE0AU72+XnnRu0f51101OjBulw3O+9iJ0p
-X-Received: by 2002:a05:6a00:929f:b0:829:822e:cdc9 with SMTP id d2e1a72fcca58-82a1970498amr10802677b3a.2.1773635211899;
-        Sun, 15 Mar 2026 21:26:51 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1773635225; x=1774240025;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=S4NrMDbk24kpM0xeU9hz073wyfuICysoD9kSVFILYB4=;
+        b=LLQPyzoswR9cVfS16yI5w+rfrEtRCimI4idoiIQPIbQpAVBeEFz29xwX4luDNguSQt
+         7TyckaT6DvdBeY+y9Xmofh+5tq2hbkAUSknmoyVuGIY08JBgSAlIXmg4DnAffjmnvqqi
+         Je/uvhSaiFSCZ8Hl2/XPP9wvR8SrHEEWLkGQd8LqIfV2iRqn9sdfDuFUdO//u5sGPziG
+         0T/7G9rgNUVj3lV7rxKNH8uRl7Z0XAifLaVui8cyKqVZGeHBZf62II1gmNoRlw4SjGiS
+         JLv7na3swPitFP7PbRl++OTfYRjKjJNLKBU886DcDYR1LPMrvytqNEk/f/41V7mkhMw+
+         yEPA==
+X-Forwarded-Encrypted: i=1; AJvYcCWKiNaOAPBXgcGttGW234USJNAcy5v6PSdtn0CBXcSnI35RmQd8fIglICa7QWrOp3jrmEe7siw=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxe7ruvGPsHP8cAN1URuhIv3WU+Het4XAZ0y5rkHA1rAOkniGv9
+	Grj0qJcTeb5O8LuAj4ns9b3Kkji8oAqAZwiIc+ggvWftkA8tqCS+QmIG
+X-Gm-Gg: ATEYQzya8QNzBFV2974dfSsamxmPNtHa8mrHds5YAa60y4L9KyG4PC29GOcyvgVbdex
+	tVF4NdsP12kKB+BT6t5AW6KJDwVVwrHnPOs10t07J/yGQkCJArDd+gwXh6/rT84jQXclYd6CCdI
+	tQnoXiVUupRSvfgv/OHTN6RprAfXf+yOi9Az06QWINkr6WTwFa2Jcj5367Z2k4fpn1Qt2gtuzQZ
+	E7QzUp6tllJG84bmYSArUHWzQAPuiooQGhAS/pkXf94TN79y5OsD9hEur09ubjF1/lftEgHp5Oh
+	s5yRuZGeY474fm6NinnvwNDXnsdeLy7+l+VDkbrxfN1zoM43YVmeLJqu+J7hxDud4rn5VVr+NFm
+	4IXLYky4ZkDz+UERJrDkPlhVWFWBqtb2IKAvrBJe0sBvBZIjudy9tq2q9gXVlr0olb7jI93lDW7
+	B9DroeWifbyKDzwFZp88nisAJbXCuOBtSh6BiXhNl1AjA4kHMl77F3WbYCDA==
+X-Received: by 2002:a05:6a21:d83:b0:398:98ab:71a9 with SMTP id adf61e73a8af0-398eccd8644mr10815982637.44.1773635225270;
+        Sun, 15 Mar 2026 21:27:05 -0700 (PDT)
 Received: from 1.0.0.127.in-addr.arpa ([240e:34c:5760:3860:bc29:deed:92d0:823c])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a0738422esm12180267b3a.55.2026.03.15.21.26.38
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a0738422esm12180267b3a.55.2026.03.15.21.26.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Mar 2026 21:26:51 -0700 (PDT)
+        Sun, 15 Mar 2026 21:27:04 -0700 (PDT)
 From: Hangbin Liu <liuhangbin@gmail.com>
-Subject: [PATCH net-next v3 0/5] net: centralize master device offload
- feature computation
-Date: Mon, 16 Mar 2026 12:26:08 +0800
-Message-Id: <20260316-offload_compute-v3-0-a5d4a07d86d3@gmail.com>
+Date: Mon, 16 Mar 2026 12:26:09 +0800
+Subject: [PATCH net-next v3 1/5] net: add ndo_update_offloads for offload
+ computation
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -69,11 +70,9 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WN0QrCIBhGXyW8zvinbbWueo+IcPq7CZsONVmMv
- Xvi1SC6/Dic860koDcYyO2wEo/JBONsHvx4IHIQtkdqVN6EAWuAV0Cd1qMT6iXdNL8j0rOETmj
- BEBgj2Zo9arOU4oNYjNTiEskzk8GE6PynXKWq8L/VVFGgXOlLK6FF0dT3fhJmPGVeWontff7rs
- +xr3cmrxFrVIPf+tm1fUZn7QPgAAAA=
-X-Change-ID: 20260310-offload_compute-4c0bafa2e022
+Message-Id: <20260316-offload_compute-v3-1-a5d4a07d86d3@gmail.com>
+References: <20260316-offload_compute-v3-0-a5d4a07d86d3@gmail.com>
+In-Reply-To: <20260316-offload_compute-v3-0-a5d4a07d86d3@gmail.com>
 To: Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn <andrew+netdev@lunn.ch>, 
  "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -85,52 +84,64 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  bridge@lists.linux.dev, Hangbin Liu <liuhangbin@gmail.com>
 X-Mailer: b4 0.14.3
 
-Currently, master devices (bonding, bridge, team) manually call
-netdev_compute_master_upper_features() scattered throughout their port
-add/remove operations. This approach requires each driver to remember
-to update features at the right times and leads to code duplication.
+Add a new ndo_update_offloads callback to net_device_ops that allows
+devices to compute and update their offload features during feature
+updates.
 
-The series adds a new ndo_update_offloads callback that is automatically
-invoked during feature updates when upper/lower device relationships change.
-This centralizes the feature computation flow and removes the burden
-from individual drivers.
+This callback enables master devices to recompute their features
+based on current slave device configuration. This is particularly
+useful for bonding, bridging, team, and failover devices that need
+to aggregate features from their lower devices.
 
+The callback is optional and only implemented by devices that need
+dynamic offload feature computation.
+
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 ---
-Changes in v3:
-- ndo_set_features may be skipped when no feature change, fallback to
-  use ndo_update_offloads for offload computation (Simon Horman)
-- Link to v2: https://lore.kernel.org/r/20260313-offload_compute-v2-0-ffbc8ce5d50c@gmail.com
+ include/linux/netdevice.h | 7 +++++++
+ net/core/dev.c            | 3 +++
+ 2 files changed, 10 insertions(+)
 
-Changes in v2:
-- Fix macsec Security Entity uninitialized issue (Sabrina Dubroca)
-  - Tested with macsec-offload.sh, rtnetlink.sh, link_netns.py, all pssed
-- Link to v1: https://lore.kernel.org/r/20260310-offload_compute-v1-0-3df79c09ea65@gmail.com
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index ae269a2e7f4d..acaec0340266 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -1281,6 +1281,12 @@ struct netdev_net_notifier {
+  *	constraints, and returns the resulting flags. Must not modify
+  *	the device state.
+  *
++ * void (*ndo_update_offloads)(struct net_device *dev);
++ *	Called during feature update to allow device to compute and update
++ *	offload features (like vlan_features, hw_enc_features) based on
++ *	current lower device configuration. Typically used by master
++ *	devices to aggregate features from slave devices.
++ *
+  * int (*ndo_set_features)(struct net_device *dev, netdev_features_t features);
+  *	Called to update device configuration to new features. Passed
+  *	feature set might be less than what was returned by ndo_fix_features()).
+@@ -1558,6 +1564,7 @@ struct net_device_ops {
+ 							struct sock *sk);
+ 	netdev_features_t	(*ndo_fix_features)(struct net_device *dev,
+ 						    netdev_features_t features);
++	void			(*ndo_update_offloads)(struct net_device *dev);
+ 	int			(*ndo_set_features)(struct net_device *dev,
+ 						    netdev_features_t features);
+ 	int			(*ndo_neigh_construct)(struct net_device *dev,
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 200d44883fc1..bbd532aa6a1b 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -11011,6 +11011,9 @@ int __netdev_update_features(struct net_device *dev)
+ 	ASSERT_RTNL();
+ 	netdev_ops_assert_locked(dev);
+ 
++	if (dev->netdev_ops->ndo_update_offloads)
++		dev->netdev_ops->ndo_update_offloads(dev);
++
+ 	features = netdev_get_wanted_features(dev);
+ 
+ 	if (dev->netdev_ops->ndo_fix_features)
 
----
-Hangbin Liu (5):
-      net: add ndo_update_offloads for offload computation
-      net: use ndo_update_offloads to set offload features for bonding/bridge/team
-      macsec: move netdev_upper_dev_link() after macsec_changelink_common()
-      failover: use ndo_update_offloads for failover offload compute
-      net: no need to disable LRO specifically
-
- drivers/net/bonding/bond_main.c | 13 ++++----
- drivers/net/macsec.c            | 23 +++++++-------
- drivers/net/net_failover.c      | 66 +++++------------------------------------
- drivers/net/team/team_core.c    | 14 ++++-----
- include/linux/netdevice.h       |  7 +++++
- include/net/net_failover.h      |  7 -----
- net/8021q/vlan.c                |  2 --
- net/bridge/br_device.c          |  6 ++++
- net/bridge/br_if.c              |  6 ----
- net/core/dev.c                  | 11 +++++--
- net/hsr/hsr_slave.c             |  1 -
- 11 files changed, 55 insertions(+), 101 deletions(-)
----
-base-commit: 5446b8691eb8278f10deca92048fad84ffd1e4d5
-change-id: 20260310-offload_compute-4c0bafa2e022
-
-Best regards,
 -- 
-Hangbin Liu <liuhangbin@gmail.com>
+Git-155)
 
