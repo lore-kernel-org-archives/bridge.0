@@ -1,80 +1,65 @@
-Received: from fhigh-b2-smtp.messagingengine.com (fhigh-b2-smtp.messagingengine.com [202.12.124.153])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A52F3783DF
-	for <bridge@lists.linux.dev>; Wed, 18 Mar 2026 23:29:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0CB7175A8C
+	for <bridge@lists.linux.dev>; Thu, 19 Mar 2026 02:03:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773876573; cv=none; b=tLhRGqvkTzeyxDYCmRCYFrvcThyMhvbAG98gk+nJWKSjCztnwh42x5PsyP7I3dMIlNFZHyhbtSarBQstvwy0zYf/56rWXDRpCaCjGvUuXi9Y7zBeFcIstzNuZq+WuKXdXqL0RTr56jSqyk36PScZ6ahe8I+a/eboVJCPCoiYMQY=
+	t=1773885784; cv=none; b=ncdVco9/KCp3P/wcpWwMZWtgR3LH0sE7CC/xk9CVMuFoFTVaT/1ElH0ggu4mYy1E47X/rbgrL333ovN2tQScARuNvUMcGx+RPHS7PC6k6XLFbDkAGgZOm2aQD8xSD5q6a6QuECBc/iphTxaINWvbVMSwRNOjKJ0YWncCm1DRHBw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773876573; c=relaxed/simple;
-	bh=Yltuqge8PJ7BjcOQyqRpWatjQMP9p0TpULVftc/TqUM=;
+	s=arc-20240116; t=1773885784; c=relaxed/simple;
+	bh=mKWLwc26UHp0QckseNliuojMeOSjfywUsmMLAQ3UG5A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cOpeJrnXWpSumCWdC/GCnp3jnxSPDzH3ziqVfXwg2Cp0wP6CF/C8NXA9+n/nDV+Y0WV9ge9cjrS24UE6RR/qg7FbBm3lTgFRsL+Q/2W4d+NEGuiQRPhvwj/YBCsH8o8j0nguqThBAM+WlDi/NchyK36kbSxKC4GfbcEkbzAsgiw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net; spf=pass smtp.mailfrom=queasysnail.net; dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b=I4yqW3l9; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=AT4JROXy; arc=none smtp.client-ip=202.12.124.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=queasysnail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=queasysnail.net
+	 Content-Type:Content-Disposition:In-Reply-To; b=XyaeL+F6q9Eba8YQA/5FZ6PJfUNFyl5fp4+CZPD94Na5NHSK0LhBGuXXgOW2B+7KBDW7Y5Z+8cOGoIularmXYk7yGAsEUlfJ4llHXdkv/vci6e+kA76duMcxT/KRc+uAd/GC/iPZ1RZ1UKdwG03V1s5+mLX6rIy6kAPUCESNGLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c8smt5dt; arc=none smtp.client-ip=209.85.210.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=queasysnail.net header.i=@queasysnail.net header.b="I4yqW3l9";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="AT4JROXy"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id DA68B7A01B3;
-	Wed, 18 Mar 2026 19:29:28 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Wed, 18 Mar 2026 19:29:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=queasysnail.net;
-	 h=cc:cc:content-type:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm2; t=1773876568; x=
-	1773962968; bh=XbUyYjVc65Nz+Nj4mNs9Q0oYuHKw+RwPHEk+rYYtfDs=; b=I
-	4yqW3l9VvDtVYa1qXIrFGmGGqeYjyX+V8Szhnxt7xXCsnjIi77lyjBrtCkq5T7fP
-	tfIHYv71v0WHCmzgrtFWsSYh9z4xRlWWOKI7N336zBntFnqPGqqWhJvuklRQetCo
-	8HR6hHHBo/n4UNuYLzvwVv7MxF58nYzycNh390gaTRKGP62mIxfl4q1oJQYLk7lV
-	0718DPOzYCLZIemQBzIj8SOG6dpySAOeH8/uLXqU0eMmO5Q8QCrnuJtex4/JZvFH
-	iwPqW0XHDBm22k0Dk3Qb7ZKk+YTCbbKS01HErf8rGY3mjgJeFG0nFjSBoMguzysm
-	G6DvaA/MiTt9A5v8HR0vg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-	1773876568; x=1773962968; bh=XbUyYjVc65Nz+Nj4mNs9Q0oYuHKw+RwPHEk
-	+rYYtfDs=; b=AT4JROXyyZp/TwUwuqWdRI1pz/kkUMG9YA4+zqt0ahuxDIhfywj
-	yrERMKg9Q6ZIw3jqapow5jaORm0cz87hTgZ39O2XjNgYq1U+hC1iBnYAjFpm4H+Y
-	CC4Oel3jM+AxhId99E0t3e0XOVJUPQzqNen9W5T/F4aA1BKOQFSjS5I9pQ4H4WWJ
-	NbvaNnnqkGAvCMqzmQgBqT56xcXjphGNxHBO2OsG0ahS811ZNMUmf6TbCfx/dqaz
-	GJd35eTR+EBpwEkB7xU7oSeCaiBP7ider8nH60iVcoj6TakNZDWyiv7PJe5RpUbq
-	otrO8Wv+3xuI4uPfVcEOmmJWexiMMxDf4Kw==
-X-ME-Sender: <xms:VzW7af4DTgKPywiTtSgKbnoZVqwRR3srD4zOdKolULINJWWDk_lTtw>
-    <xme:VzW7aUULXSAW7ztJiPXd8RWs6JpOli4uebpDZRPqovuaVNUxOj5Xq0STFeFXYQsaN
-    jF04rqop4qTD3F7OVtjtbppC2JxaHK8p9b91cifDDeMQsNith91m5o>
-X-ME-Received: <xmr:VzW7aXjPhC1CIkuKaIoQAaRd_1D_pGo7JzjNQKDz_WO5UFeFoQAd98nG2c7x>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgdeftdehgeehucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkfhggtggujgesthdtredttddtjeenucfhrhhomhepufgrsghrihhn
-    rgcuffhusghrohgtrgcuoehsugesqhhuvggrshihshhnrghilhdrnhgvtheqnecuggftrf
-    grthhtvghrnhepuefhhfffgfffhfefueeiudegtdefhfekgeetheegheeifffguedvueff
-    fefgudffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epshgusehquhgvrghshihsnhgrihhlrdhnvghtpdhnsggprhgtphhtthhopeduhedpmhho
-    uggvpehsmhhtphhouhhtpdhrtghpthhtoheplhhiuhhhrghnghgsihhnsehgmhgrihhlrd
-    gtohhmpdhrtghpthhtohepjhhvsehjvhhoshgsuhhrghhhrdhnvghtpdhrtghpthhtohep
-    rghnughrvgifodhnvghtuggvvheslhhunhhnrdgthhdprhgtphhtthhopegurghvvghmse
-    gurghvvghmlhhofhhtrdhnvghtpdhrtghpthhtohepvgguuhhmrgiivghtsehgohhoghhl
-    vgdrtghomhdprhgtphhtthhopehkuhgsrgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtoh
-    epphgrsggvnhhisehrvgguhhgrthdrtghomhdprhgtphhtthhopehjihhrihesrhgvshhn
-    uhhllhhirdhushdprhgtphhtthhopehrrgiiohhrsegslhgrtghkfigrlhhlrdhorhhg
-X-ME-Proxy: <xmx:VzW7aUeZPDpj1n9WDs0cVcl_QMoiwJYlNPN-4qI78IdfbV5oAWLYJQ>
-    <xmx:VzW7aW192n06YMPEMsn1AzN7x_Mgz2m6y3SOOK-HsDgGcRfstHZt2A>
-    <xmx:VzW7aQolxV9KSErG0GEE94OnRJUf4XX94qAElgn8-VXX4qWejrDN7A>
-    <xmx:VzW7aejLGtKfDJwpGuPo93t_wyA58HgDW5XDEwXtdO0S4LzJDonCmg>
-    <xmx:WDW7aaaizXubWOz4lkBldekXAbWYKpfSGKQyFvjDdfr2mWPRS-yeR4Bd>
-Feedback-ID: i934648bf:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 18 Mar 2026 19:29:27 -0400 (EDT)
-Date: Thu, 19 Mar 2026 00:29:25 +0100
-From: Sabrina Dubroca <sd@queasysnail.net>
-To: Hangbin Liu <liuhangbin@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c8smt5dt"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-8298fad2063so96500b3a.3
+        for <bridge@lists.linux.dev>; Wed, 18 Mar 2026 19:03:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773885783; x=1774490583; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ScNRNBIvzfApbX9SKu6wfVyGsSnrc3rMHZZR+kMrCFg=;
+        b=c8smt5dtK9O4Z+lyqA4fBSfy99LQ5RiV36G5yqhlxbnA+Y2/HiIcfQx+Xs9FVbFHtk
+         2p5JXsA1dpCE+5UZGvV3/aPyyenMmBRRQSPb1ydkH5QWkcBrTv7L1m3Pihd5DSozfikh
+         VnkG3FaZSkR/gcSeUNbEmJNwSM/OUYwPZbqudWIwzPTvjRyXq8PB11aduVHEL9dDw1DH
+         7ElPUbiqIYZ4SPc2lMgNqFSl2JKg8t7KvlEIBhGG8EbRDcUTOrTwli12JPYszJRSp1Hi
+         y1JTYZTZBy4dL41RqmMzCimwXvLIv8TiHg8Okmezry2C9SNLGW4u1xLTiy4MBX3KvOpq
+         8dUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773885783; x=1774490583;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ScNRNBIvzfApbX9SKu6wfVyGsSnrc3rMHZZR+kMrCFg=;
+        b=gyuN0tnNiDfjehjKQjQ9qr4XX4898geDgRuKjGIBo1GQJBnTv6yUbL5assqo8Z2xEx
+         oqaei54k0FELfO7n+tEi0zBT4wYhdSh3s+iuKdCE/BUeyvj+1aJ0YbShZJ70ReQiwJ0U
+         3MpdDjh0Od5z6qYibl44DFXR2Z1qcEwY//aN3R94CyF4fHalgTJYaXjgxSlacrSyLeHU
+         txsV2tI0Oh01K+6mZN7MXWAjASAaSfWXP6YlLRd/uXyPAgSmeusaMxyaEWalTi2iLaFy
+         R8/wU8Z72ZbpH67FE52rfFP4SOArEPpJtTeK+a9amrUHAJbUb94puwbllrM8iQ72hAFL
+         2NZA==
+X-Forwarded-Encrypted: i=1; AJvYcCX4+ZNuTaet3UeWVHhNtwomy3nNg9WwtpF44+YiSTcO/Y73lAIQaFKbyZvAFz9hZDmdPxPfOR4=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxwmlrclcWAiDQqyEdiOHsdCYtaL6Z1xPA/VJOw2k3tjQuSHQsg
+	J2/MNm0BbzmqJpuEFwDK2Bnik15GMMBlfPtmojayypdLTB3XMUO1+XRV
+X-Gm-Gg: ATEYQzyX+tf6FSiIxRNmmJXO2QAVBo8zSbkMQhy3Ukhz5BplIFqWOH1+aEcphHohP9+
+	tMmFxOriVrWz+fIYJB8Sdl4VdkyfznfFbwdwaikBgBi+GUJnZRp32+malzVG0KKGNFKbG3oBqin
+	eBgDErif+0SN+d2gGMbP+4y1McwXwIiadNHVRaW4f+wTJ0q3c+KNpe7RkHu5HinhyN/VxpUuq5b
+	2W8voB7mxOHZwuYbaATygXfvJn5MkjmzFol4nhs8T6aA+/qmKSelAXSlFuUdG8Bh6xWyAaZfa4U
+	GtLRpKp17+Z4PZMU35TXFReme1KvjmpENVqWtTf0QwYIBlODW0MIyl58otfp3k8usBepi2ENgjT
+	/GTvnknQFQspOyyGL5GQidKl21jiXD0ISrgv9RCyX4fRivoxH2UliUukQSuZrxfY3XCBu9MJGuW
+	uCl4quVmKWQ9kYBdH5gKL96hspg1c=
+X-Received: by 2002:a05:6a00:17a4:b0:824:36f8:346f with SMTP id d2e1a72fcca58-82a6ae213f7mr5040966b3a.25.1773885782857;
+        Wed, 18 Mar 2026 19:03:02 -0700 (PDT)
+Received: from fedora ([209.132.188.88])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a6bbe1ffbsm5577164b3a.43.2026.03.18.19.02.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Mar 2026 19:03:02 -0700 (PDT)
+Date: Thu, 19 Mar 2026 02:02:53 +0000
+From: Hangbin Liu <liuhangbin@gmail.com>
+To: Sabrina Dubroca <sd@queasysnail.net>
 Cc: Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
@@ -87,56 +72,61 @@ Cc: Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
 	bridge@lists.linux.dev
 Subject: Re: [PATCH net-next v3 1/5] net: add ndo_update_offloads for offload
  computation
-Message-ID: <abs1VWLQVmXcWESQ@krikkit>
+Message-ID: <abtZTceO0xHKf1F3@fedora>
 References: <20260316-offload_compute-v3-0-a5d4a07d86d3@gmail.com>
  <20260316-offload_compute-v3-1-a5d4a07d86d3@gmail.com>
  <ablv266AIETvJwpP@krikkit>
  <abn8qFyE7pDuM4oN@fedora>
+ <abs1VWLQVmXcWESQ@krikkit>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <abn8qFyE7pDuM4oN@fedora>
+In-Reply-To: <abs1VWLQVmXcWESQ@krikkit>
 
-2026-03-18, 01:15:20 +0000, Hangbin Liu wrote:
-> On Tue, Mar 17, 2026 at 04:14:35PM +0100, Sabrina Dubroca wrote:
-> > 2026-03-16, 12:26:09 +0800, Hangbin Liu wrote:
-> > > Add a new ndo_update_offloads callback to net_device_ops that allows
-> > > devices to compute and update their offload features during feature
-> > > updates.
+On Thu, Mar 19, 2026 at 12:29:25AM +0100, Sabrina Dubroca wrote:
+> 2026-03-18, 01:15:20 +0000, Hangbin Liu wrote:
+> > On Tue, Mar 17, 2026 at 04:14:35PM +0100, Sabrina Dubroca wrote:
+> > > 2026-03-16, 12:26:09 +0800, Hangbin Liu wrote:
+> > > > Add a new ndo_update_offloads callback to net_device_ops that allows
+> > > > devices to compute and update their offload features during feature
+> > > > updates.
+> > > > 
+> > > > This callback enables master devices to recompute their features
+> > > > based on current slave device configuration. This is particularly
+> > > > useful for bonding, bridging, team, and failover devices that need
+> > > > to aggregate features from their lower devices.
+> > > > 
+> > > > The callback is optional and only implemented by devices that need
+> > > > dynamic offload feature computation.
 > > > 
-> > > This callback enables master devices to recompute their features
-> > > based on current slave device configuration. This is particularly
-> > > useful for bonding, bridging, team, and failover devices that need
-> > > to aggregate features from their lower devices.
-> > > 
-> > > The callback is optional and only implemented by devices that need
-> > > dynamic offload feature computation.
+> > > Maybe a dumb idea (and sorry to suggest this quite late in your
+> > > submissions): since all implementations of this callback are only
+> > > calling netdev_compute_master_upper_features(), does this need to be a
+> > > new ndo, or could this be some kind of flag within struct net_device
 > > 
-> > Maybe a dumb idea (and sorry to suggest this quite late in your
-> > submissions): since all implementations of this callback are only
-> > calling netdev_compute_master_upper_features(), does this need to be a
-> > new ndo, or could this be some kind of flag within struct net_device
+> > Ideally all dev with IFF_MASTER should re-compute the offload. But at present
+> > some master devices do have this flag, or have their own offload
+> > implementation.
+> > 
+> > Do you mean add a new private flag, like IFF_RECOMPUTE_OFFLOAD? For the second
+> > parameter, maybe we can pass false for bridge specifically.
 > 
-> Ideally all dev with IFF_MASTER should re-compute the offload. But at present
-> some master devices do have this flag, or have their own offload
-> implementation.
-> 
-> Do you mean add a new private flag, like IFF_RECOMPUTE_OFFLOAD? For the second
-> parameter, maybe we can pass false for bridge specifically.
+> I hadn't thought specifically about where to store that flag. As a
+> private flag, why not (this should be internal to the kernel, so not a
+> uapi flag like IFF_MASTER), but priv_flags is marked as "hotpath" now,
+> so maybe something similar to needs_free_netdev or
+> netns_immutable. Either way, then devices are free to do their own
+> magic, or request the core to call
+> netdev_compute_master_upper_features() for them in some common
+> locations. Does that makes sense?
 
-I hadn't thought specifically about where to store that flag. As a
-private flag, why not (this should be internal to the kernel, so not a
-uapi flag like IFF_MASTER), but priv_flags is marked as "hotpath" now,
-so maybe something similar to needs_free_netdev or
-netns_immutable. Either way, then devices are free to do their own
-magic, or request the core to call
-netdev_compute_master_upper_features() for them in some common
-locations. Does that makes sense?
+This looks better than private flags. I just feel this magic hide a little
+deep for a common master feature.
 
--- 
-Sabrina
+Thanks
+Hangbin
