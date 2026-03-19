@@ -1,132 +1,197 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0CB7175A8C
-	for <bridge@lists.linux.dev>; Thu, 19 Mar 2026 02:03:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B14B3B19CC
+	for <bridge@lists.linux.dev>; Thu, 19 Mar 2026 09:16:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773885784; cv=none; b=ncdVco9/KCp3P/wcpWwMZWtgR3LH0sE7CC/xk9CVMuFoFTVaT/1ElH0ggu4mYy1E47X/rbgrL333ovN2tQScARuNvUMcGx+RPHS7PC6k6XLFbDkAGgZOm2aQD8xSD5q6a6QuECBc/iphTxaINWvbVMSwRNOjKJ0YWncCm1DRHBw=
+	t=1773911809; cv=none; b=gmYHtdb9ID3yioOV+B8kz5k6d5X+jfgZ5VPP6XwVRnPjkQZxU9wdKt1wKg+bszfIidB961vlHyIKLMeYTIvgNFn3qcdZlYD8U9KJzqdpKGDV6Wo2FseV1tpS70QczIo1ceBKz0r+AW3T11KziB3NCB+Y2nvs2K/JbQN+45Q7bLE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773885784; c=relaxed/simple;
-	bh=mKWLwc26UHp0QckseNliuojMeOSjfywUsmMLAQ3UG5A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XyaeL+F6q9Eba8YQA/5FZ6PJfUNFyl5fp4+CZPD94Na5NHSK0LhBGuXXgOW2B+7KBDW7Y5Z+8cOGoIularmXYk7yGAsEUlfJ4llHXdkv/vci6e+kA76duMcxT/KRc+uAd/GC/iPZ1RZ1UKdwG03V1s5+mLX6rIy6kAPUCESNGLI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c8smt5dt; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773911809; c=relaxed/simple;
+	bh=EbYbtbxeuya+Ay51v+Jzncijx1e58TLX0Q2QWFRrQHY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:content-type; b=khrWwYF5iSw0MQEbI5+4REP1DfzGuzAROG8iDGnYyjaM/BjFMhyaMPOjDTkLdTXO7R2gwirwV4I1BWGUqACfS1I1bF5hsq4xVvhGHTOmsLuUVQeiT+utGEGu/cBwD9UhVEgpD8Byy34GjHuYUewQvRpqphTY6f1V1f/TnsvD1vc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LB+tkz1V; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c8smt5dt"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-8298fad2063so96500b3a.3
-        for <bridge@lists.linux.dev>; Wed, 18 Mar 2026 19:03:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773885783; x=1774490583; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ScNRNBIvzfApbX9SKu6wfVyGsSnrc3rMHZZR+kMrCFg=;
-        b=c8smt5dtK9O4Z+lyqA4fBSfy99LQ5RiV36G5yqhlxbnA+Y2/HiIcfQx+Xs9FVbFHtk
-         2p5JXsA1dpCE+5UZGvV3/aPyyenMmBRRQSPb1ydkH5QWkcBrTv7L1m3Pihd5DSozfikh
-         VnkG3FaZSkR/gcSeUNbEmJNwSM/OUYwPZbqudWIwzPTvjRyXq8PB11aduVHEL9dDw1DH
-         7ElPUbiqIYZ4SPc2lMgNqFSl2JKg8t7KvlEIBhGG8EbRDcUTOrTwli12JPYszJRSp1Hi
-         y1JTYZTZBy4dL41RqmMzCimwXvLIv8TiHg8Okmezry2C9SNLGW4u1xLTiy4MBX3KvOpq
-         8dUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773885783; x=1774490583;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ScNRNBIvzfApbX9SKu6wfVyGsSnrc3rMHZZR+kMrCFg=;
-        b=gyuN0tnNiDfjehjKQjQ9qr4XX4898geDgRuKjGIBo1GQJBnTv6yUbL5assqo8Z2xEx
-         oqaei54k0FELfO7n+tEi0zBT4wYhdSh3s+iuKdCE/BUeyvj+1aJ0YbShZJ70ReQiwJ0U
-         3MpdDjh0Od5z6qYibl44DFXR2Z1qcEwY//aN3R94CyF4fHalgTJYaXjgxSlacrSyLeHU
-         txsV2tI0Oh01K+6mZN7MXWAjASAaSfWXP6YlLRd/uXyPAgSmeusaMxyaEWalTi2iLaFy
-         R8/wU8Z72ZbpH67FE52rfFP4SOArEPpJtTeK+a9amrUHAJbUb94puwbllrM8iQ72hAFL
-         2NZA==
-X-Forwarded-Encrypted: i=1; AJvYcCX4+ZNuTaet3UeWVHhNtwomy3nNg9WwtpF44+YiSTcO/Y73lAIQaFKbyZvAFz9hZDmdPxPfOR4=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxwmlrclcWAiDQqyEdiOHsdCYtaL6Z1xPA/VJOw2k3tjQuSHQsg
-	J2/MNm0BbzmqJpuEFwDK2Bnik15GMMBlfPtmojayypdLTB3XMUO1+XRV
-X-Gm-Gg: ATEYQzyX+tf6FSiIxRNmmJXO2QAVBo8zSbkMQhy3Ukhz5BplIFqWOH1+aEcphHohP9+
-	tMmFxOriVrWz+fIYJB8Sdl4VdkyfznfFbwdwaikBgBi+GUJnZRp32+malzVG0KKGNFKbG3oBqin
-	eBgDErif+0SN+d2gGMbP+4y1McwXwIiadNHVRaW4f+wTJ0q3c+KNpe7RkHu5HinhyN/VxpUuq5b
-	2W8voB7mxOHZwuYbaATygXfvJn5MkjmzFol4nhs8T6aA+/qmKSelAXSlFuUdG8Bh6xWyAaZfa4U
-	GtLRpKp17+Z4PZMU35TXFReme1KvjmpENVqWtTf0QwYIBlODW0MIyl58otfp3k8usBepi2ENgjT
-	/GTvnknQFQspOyyGL5GQidKl21jiXD0ISrgv9RCyX4fRivoxH2UliUukQSuZrxfY3XCBu9MJGuW
-	uCl4quVmKWQ9kYBdH5gKL96hspg1c=
-X-Received: by 2002:a05:6a00:17a4:b0:824:36f8:346f with SMTP id d2e1a72fcca58-82a6ae213f7mr5040966b3a.25.1773885782857;
-        Wed, 18 Mar 2026 19:03:02 -0700 (PDT)
-Received: from fedora ([209.132.188.88])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82a6bbe1ffbsm5577164b3a.43.2026.03.18.19.02.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Mar 2026 19:03:02 -0700 (PDT)
-Date: Thu, 19 Mar 2026 02:02:53 +0000
-From: Hangbin Liu <liuhangbin@gmail.com>
-To: Sabrina Dubroca <sd@queasysnail.net>
-Cc: Jay Vosburgh <jv@jvosburgh.net>, Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>, Simon Horman <horms@kernel.org>,
-	Sridhar Samudrala <sridhar.samudrala@intel.com>,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	bridge@lists.linux.dev
-Subject: Re: [PATCH net-next v3 1/5] net: add ndo_update_offloads for offload
- computation
-Message-ID: <abtZTceO0xHKf1F3@fedora>
-References: <20260316-offload_compute-v3-0-a5d4a07d86d3@gmail.com>
- <20260316-offload_compute-v3-1-a5d4a07d86d3@gmail.com>
- <ablv266AIETvJwpP@krikkit>
- <abn8qFyE7pDuM4oN@fedora>
- <abs1VWLQVmXcWESQ@krikkit>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LB+tkz1V"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773911805;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Dr6Jt1lrU+MaN3MnhqKuiUasJhPBdxOQ/Vdi6dmcTD8=;
+	b=LB+tkz1Vd+L6Q6xy9Y+NA9QYw4xlGYk3crfxjrCfZLYgqDkocozqTMiItDfsv6e0dgoKZz
+	eRuWYVusFur5yQq6tLAc7oqUVk0Ssyg8mLFFEY0eU4i6tCg1EbOf7ql53fttbf9ZP+9Cwr
+	AlYbW06Brd5pZNiQ04aDd2RPNdk/5Qg=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-130-luOZ9ogTNRGee2rFD0NMVw-1; Thu,
+ 19 Mar 2026 05:16:41 -0400
+X-MC-Unique: luOZ9ogTNRGee2rFD0NMVw-1
+X-Mimecast-MFC-AGG-ID: luOZ9ogTNRGee2rFD0NMVw_1773911799
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 373D91944F05;
+	Thu, 19 Mar 2026 09:16:38 +0000 (UTC)
+Received: from gerbillo.redhat.com (unknown [10.44.32.182])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 10E9A1800351;
+	Thu, 19 Mar 2026 09:16:32 +0000 (UTC)
+From: Paolo Abeni <pabeni@redhat.com>
+To: liuhangbin@gmail.com
+Cc: horms@kernel.org,
+	pabeni@redhat.com,
+	bridge@lists.linux.dev,
+	kuba@kernel.org,
+	idosch@nvidia.com,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	razor@blackwall.org,
+	edumazet@google.com,
+	sd@queasysnail.net,
+	jv@jvosburgh.net,
+	andrew+netdev@lunn.ch,
+	jiri@resnulli.us,
+	sridhar.samudrala@intel.com,
+	davem@davemloft.net
+Subject: Re: [net-next,v3,2/5] net: use ndo_update_offloads to set offload features for bonding/bridge/team
+Date: Thu, 19 Mar 2026 10:16:23 +0100
+Message-ID: <20260319091623.107634-1-pabeni@redhat.com>
+In-Reply-To: <20260316-offload_compute-v3-2-a5d4a07d86d3@gmail.com>
+References: <20260316-offload_compute-v3-2-a5d4a07d86d3@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <abs1VWLQVmXcWESQ@krikkit>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Mimecast-MFC-PROC-ID: rS0h4CxUvXgoX9OIJTABK5GRkJRWVR0WwSjtHjclWHk_1773911799
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On Thu, Mar 19, 2026 at 12:29:25AM +0100, Sabrina Dubroca wrote:
-> 2026-03-18, 01:15:20 +0000, Hangbin Liu wrote:
-> > On Tue, Mar 17, 2026 at 04:14:35PM +0100, Sabrina Dubroca wrote:
-> > > 2026-03-16, 12:26:09 +0800, Hangbin Liu wrote:
-> > > > Add a new ndo_update_offloads callback to net_device_ops that allows
-> > > > devices to compute and update their offload features during feature
-> > > > updates.
-> > > > 
-> > > > This callback enables master devices to recompute their features
-> > > > based on current slave device configuration. This is particularly
-> > > > useful for bonding, bridging, team, and failover devices that need
-> > > > to aggregate features from their lower devices.
-> > > > 
-> > > > The callback is optional and only implemented by devices that need
-> > > > dynamic offload feature computation.
-> > > 
-> > > Maybe a dumb idea (and sorry to suggest this quite late in your
-> > > submissions): since all implementations of this callback are only
-> > > calling netdev_compute_master_upper_features(), does this need to be a
-> > > new ndo, or could this be some kind of flag within struct net_device
-> > 
-> > Ideally all dev with IFF_MASTER should re-compute the offload. But at present
-> > some master devices do have this flag, or have their own offload
-> > implementation.
-> > 
-> > Do you mean add a new private flag, like IFF_RECOMPUTE_OFFLOAD? For the second
-> > parameter, maybe we can pass false for bridge specifically.
-> 
-> I hadn't thought specifically about where to store that flag. As a
-> private flag, why not (this should be internal to the kernel, so not a
-> uapi flag like IFF_MASTER), but priv_flags is marked as "hotpath" now,
-> so maybe something similar to needs_free_netdev or
-> netns_immutable. Either way, then devices are free to do their own
-> magic, or request the core to call
-> netdev_compute_master_upper_features() for them in some common
-> locations. Does that makes sense?
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
 
-This looks better than private flags. I just feel this magic hide a little
-deep for a common master feature.
+For local reproduction steps see https://netdev-ai.bots.linux.dev/ai-local.html
+---
+net: use ndo_update_offloads to set offload features for bonding/bridge/team
 
-Thanks
-Hangbin
+This patch converts bonding, bridge, and team drivers to use the new
+ndo_update_offloads callback, centralizing offload feature computation
+during port add/remove operations.
+
+> diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+> index 90b71bd53040..ea6bb20f9348 100644
+> --- a/drivers/net/bonding/bond_main.c
+> +++ b/drivers/net/bonding/bond_main.c
+
+[ ... ]
+
+> diff --git a/drivers/net/team/team_core.c b/drivers/net/team/team_core.c
+> index b7282f5c9632..affbcc6fc130 100644
+> --- a/drivers/net/team/team_core.c
+> +++ b/drivers/net/team/team_core.c
+> @@ -1247,7 +1247,6 @@ static int team_port_add(struct team *team, struct net_device *port_dev,
+>  	port->index = -1;
+>  	list_add_tail_rcu(&port->list, &team->port_list);
+>  	team_port_enable(team, port);
+> -	netdev_compute_master_upper_features(team->dev, true);
+>  	__team_port_change_port_added(port, !!netif_oper_up(port_dev));
+>  	__team_options_change_check(team);
+
+[ ... ]
+
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index d39571e13744..030248bc94c5 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -680,8 +680,6 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
+>
+>  	br_mtu_auto_adjust(br);
+>
+> -	netdev_compute_master_upper_features(br->dev, false);
+> -
+>  	kobject_uevent(&p->kobj, KOBJ_ADD);
+>
+>  	return 0;
+
+[ ... ]
+
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index bbd532aa6a1b..8bcbf7c22830 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -8923,6 +8923,9 @@ static int __netdev_upper_dev_link(struct net_device *dev,
+>  	__netdev_walk_all_upper_dev(upper_dev, __netdev_update_lower_level,
+>  				    priv);
+>
+> +	/* re-compute all features after adding link */
+> +	netdev_change_features(upper_dev);
+> +
+>  	return 0;
+>
+>  rollback:
+
+Could this netdev_change_features() call happen too early for team and
+bridge drivers?
+
+The call triggers __netdev_update_features(), which invokes both
+ndo_update_offloads() and ndo_fix_features(). While ndo_update_offloads()
+works with the netdev lower device list (already updated by
+__netdev_adjacent_dev_link_neighbour()), the ndo_fix_features() callbacks
+iterate driver-specific port lists.
+
+For team_port_add():
+
+drivers/net/team/team_core.c:team_port_add() {
+    ...
+    team_upper_dev_link(team, port, extack);  /* line ~1231 */
+        netdev_upper_dev_link()
+            __netdev_upper_dev_link()
+                netdev_change_features()  /* <-- triggers feature update */
+                    __netdev_update_features()
+                        ops->ndo_fix_features()  /* team_fix_features() */
+
+    list_add_tail_rcu(&port->list, &team->port_list);  /* line 1247 */
+    ...
+}
+
+team_fix_features() iterates team->port_list to compute features, but the
+new port hasn't been added to that list yet.
+
+Similarly for br_add_if():
+
+net/bridge/br_if.c:br_add_if() {
+    ...
+    netdev_master_upper_dev_link(dev, br->dev, NULL, NULL, extack);  /* line ~628 */
+        __netdev_upper_dev_link()
+            netdev_change_features()  /* <-- triggers feature update */
+                __netdev_update_features()
+                    ops->ndo_fix_features()  /* br_fix_features() */
+
+    list_add_rcu(&p->list, &br->port_list);  /* line 634 */
+    ...
+}
+
+br_fix_features() calls br_features_recompute() which iterates
+br->port_list, but the new port isn't in that list yet.
+
+If the new port lacks support for a feature the master currently has
+enabled (like NETIF_F_SG, NETIF_F_IP_CSUM, or NETIF_F_TSO), that feature
+would remain incorrectly enabled. The old code path called
+netdev_compute_master_upper_features() AFTER the port was added to the
+driver list, so the new port's capabilities were included in the feature
+computation.
+
+The bonding driver isn't affected because bond_fix_features() uses
+bond_for_each_slave(), which maps to netdev_for_each_lower_private() and
+iterates the netdev infrastructure's lower device list rather than a
+separate driver list.
+
