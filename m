@@ -1,143 +1,127 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010014.outbound.protection.outlook.com [40.93.198.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 136B9264617
-	for <bridge@lists.linux.dev>; Tue, 24 Mar 2026 20:01:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.14
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774382470; cv=fail; b=uYlrFE0Wby4ZeeNrJapYnRFnAjz1AMlS4zcm5jUPJdaa8fIIJaPdNaueeXecPb5m5yCyvsodd9DxqWFUrxKWUEMipP+F0EzZnj5L8CIqkw6qvKOq16Tna8Qf3tCLgl/NzSmr//mfvfBUaJiZNpMGRaos6dzClDY2n2bZIeeRmjk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774382470; c=relaxed/simple;
-	bh=uQYIl/7HWjryp4fuNu7jcD+9TZdCFWRzZACaigi/LFY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=XWbBSPFrT+C+AszFoeznbeVckjWC22uPleBZN7QVUUmVyb+fMVbMgeu5+nv3kUqNIF/xiqf/uwRTgzkars/mEgdrW/IHDZky865emrjWSFNi6GyJs/TiJl3yiQgzMbXyIq6fHtlaofeYMxnmrf4yWB+Ppf1eH9iWM1PRszHU6lM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=QL5/zCQz; arc=fail smtp.client-ip=40.93.198.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70AD5356A24
+	for <bridge@lists.linux.dev>; Wed, 25 Mar 2026 07:28:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774423713; cv=none; b=qCw9jCdesFaSTeBJXIhbRtY2JF/LAQYiERv3vRgwLyps3TSdvdP+VWp7Qtgy/6F0nCNGN+GRnFYEE+nrIG/N2GRyxNpKGVblMtOUwYvQGt8JcHQkqkjdcdwUD3dr5tpsTHHQvI6ZhRN6ZbifV+vtQWeFOEwzGYcg4v33qPiEZns=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774423713; c=relaxed/simple;
+	bh=S/BaYDdPcQXTkL2SnY6Z59AFoydNh1oEXzUXxXeESmU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kPcpXT2tOne3+5JF+P9YYtbP/23XVDON2ssv5vYx06QYzNXc6brudZq5AkdTHK3Cq+RtuilAHGhUeBQPfo07W5Ni1EAGDG2VO7tKvY3iPBzkm9xv8PISO8+uBLBkhbEU2QSD4F8Ot9PGJOV5ZAortLpodNRI1MAFS1LP1i0vmjE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vk3XXkVB; arc=none smtp.client-ip=209.85.218.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="QL5/zCQz"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Yufm27snDSbm9yO4w0lsPjIRIsNHuHcfHfYAqCdOLCu/P6xN+vaheRgF+zk0axSArOFbC/cxU2+DjXen7tUzyYn/nsQix+2kDzH2p4F5SxvxgEtrCG7zNByL9b1UnKr+//Hi7KtRZlPh4X0DsTT1gI38Q1FV/blomTN6ZewnMkwnomXhrx/M6L+DLicDOCtfc8FIDJoocdiDut4CQutPyBUPOQYZg29gMEQkCyyuJh4CZMVZt+eLESA1jLo8b9vnice+yJp9SO7Og+5RjPQ7gnCdFdIZ/vUvnAx35ATIGKcA8DRYnGYnPEskby0lEDTYRZQAEgLI+sZfZserucDHNw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Vgm0Gab+3jfImyEXQChuxm3brIsTsYut/O6K6LXkKS4=;
- b=PRYBhvogOcHYytjToBmPzJ59Tz/Xr21TxKz0M+nKcE0wrVQDiwovsFcsA7z7fiGVGthTqnm3KcE9jcS81AEXXxiXN5NQXN+gWnJE/TKT6lT7I9dOb6Yw4T0Zw5O4dznST2eTPRmt+roPjiovRKjqaL7UESSMqjFIjeA5rYF8k+Rlb5uOmaW6eAyNdzLCP1db9F50NzaiqWoFKWzCHviaAn49HXEeLsKIELLy8nWBwy2AhJFO7HXVtYwVaUv7tTqjXuyqV0CtuMLKWcVNnocZ1X6y78etQQQRg5jalbalI+Jshw+7DWizd9MIMzlrCSPmlywePFNoEg13OVvRkwrOFw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Vgm0Gab+3jfImyEXQChuxm3brIsTsYut/O6K6LXkKS4=;
- b=QL5/zCQzqLzu9TVAuN3rIXApAI2MeVNow837RsMuSEJSiwS8chuEpoRwpFvd4C+vWeT+ZFiQ/iyKaAYs9bm+pxU5VP8W1a0d1LV/k3/IsUZRySYTiDhp8SDLutTykB8jk7aNSwlv0E//ZrfS1qa+fvhBwGT4frtsDxwm3MNCjD8aBu2KO7/ZrPlus55nO5VbMTRCk3hJL+JzfIvGGP76rNePzGxQPKQJYhNZGRz9vGQhy2+Xy17Gt/OeZdegig2ocN/jYpz970F/2bsEmElwlXMNWg3CpGfoMUVoAqPUbWuWeRuu52MCuqca/l0oy9Z9bPnudAgMQEznHWwVvYfoKg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from DS0PR12MB7900.namprd12.prod.outlook.com (2603:10b6:8:14e::10)
- by CY8PR12MB8267.namprd12.prod.outlook.com (2603:10b6:930:7c::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.20; Tue, 24 Mar
- 2026 20:01:02 +0000
-Received: from DS0PR12MB7900.namprd12.prod.outlook.com
- ([fe80::3033:67fc:3646:c62f]) by DS0PR12MB7900.namprd12.prod.outlook.com
- ([fe80::3033:67fc:3646:c62f%5]) with mapi id 15.20.9745.007; Tue, 24 Mar 2026
- 20:01:01 +0000
-Date: Tue, 24 Mar 2026 22:00:51 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Andy Roulin <aroulin@nvidia.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <shuah@kernel.org>, Petr Machata <petrm@nvidia.com>,
-	linux-doc@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next 1/3] net: bridge: add stp_mode attribute for STP
- mode selection
-Message-ID: <20260324200051.GA572287@shredder>
-References: <20260324184942.2828691-1-aroulin@nvidia.com>
- <20260324184942.2828691-2-aroulin@nvidia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260324184942.2828691-2-aroulin@nvidia.com>
-X-ClientProxiedBy: TL0P290CA0007.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:5::11) To DS0PR12MB7900.namprd12.prod.outlook.com
- (2603:10b6:8:14e::10)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vk3XXkVB"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-b97bca3797dso266692466b.0
+        for <bridge@lists.linux.dev>; Wed, 25 Mar 2026 00:28:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774423711; x=1775028511; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xXcLoA3AOm8JsZyBFRvvn/2aLGbl2SRuVxCEIFV1m/A=;
+        b=Vk3XXkVBsjF9JB4qdwhiTLgMZ7TCJSRY9tlBif1CcX/xwtyp6OBznCh/+yckIKyT+I
+         XkF3eHe+RylxRhHVt7SsI5cZOVItLY4LuAy5Xlms8dMt+a1rpWV++Y8AxvsRRdjzFivt
+         56l+UDucroKuKSCdiQLgfBOJ13K8tmaX20NtK+JvNI0E4GYe7ecC+1Tnyn8YBchC2xJe
+         ySzehMk6QvWuEpkImO0X5FFa263Oied4Ng83OmlC2OUfXYhyT08vZRzXuG65O4u2HmCk
+         a4tEbDhj5BsZsUVn/XNl2Y6tvm4/amLVw2Akw6pQXp6swy5ohjtU93WwYXwCRfR/A7LZ
+         ZFlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774423711; x=1775028511;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xXcLoA3AOm8JsZyBFRvvn/2aLGbl2SRuVxCEIFV1m/A=;
+        b=rl6iim7SAxgoyk/mUMpWzhmV80rVYJpRW0EEaF3OWMkkzYPw99rGA6d3YO/VpuCBSt
+         GcXIaKFt0dbvQmfRQZbg8M4UGwOH1s1kS+IOsI0vaLhgnQvGKB63or/9UBnyKEn7YNIn
+         JlDelHA9uj+Rbo/hi7kO0Z7jet/thSeL+kHZpdYUmKbkJJL9PhPy45YGQzmsaz6QHRjH
+         6kztOIIAJr1VZLUmgfh9YctRNhgYud477cxtTPfEnwsp10QQ+r4VRoUnqEUoiN5Xw+rS
+         2vyb4EIF+5lG0Ke+gt8MXKlD3hh/OnhOeSP2qIMSHIzlSjnZSahPGuqfhlDihMc2jRZl
+         sduQ==
+X-Gm-Message-State: AOJu0YydBt7t89nJ3AQu/plpHZEgp+SU2n0CBYUtYcUGXQsqksrFFc/9
+	D6VfvN6nxXKOlcPLRCs9dDuu3sCEU97I7fUoT9a0P/tKlbGif9UjcsUr
+X-Gm-Gg: ATEYQzxs/aakNKSAo/xUVM6PvRRe/2m+HGFIN4cx1TaEExgdXxaC28GPX1sqmDrIIAw
+	JIP3KMOc573QKflaBkq7IPN1bV/IXFsvJOdi9kpHgTYBi2XIIyKeROJrGkY2bkpClMG+I/cm3S1
+	dbyMSP8Ztp6VjvllZfGMt3e+JLR1ej4vPR2UnLx05IwUTnDku5XQX5Oc8eaxEf9MBBTw12+HQ7c
+	72LTJzlBy1u1U6tvuJ8i+0UjQv7lmWjcTgCxZFN4GY3MUBDE2+wP36pF/beJpjKCravz4bLjyv8
+	RH3uJdbhOul4+UYq6DlZTSlSJGbwBf3V6NwWEXezDafmsmWNiFd+2OEzE6AQkReQ6B27T8W8Ovi
+	2tzGmkpTPvvW8/wY7PDB8IVhDEyYeIHemnKWNaTfFyW/6alRgMdXiRBS8wdZQG3xVVPKwqWLHuU
+	9YQWNB2gq30hr0rx1yiDfXPmy6L7bbWHsVddX9q1FIC2omMF5+7tSbeaE7LCfnw5cBt7X/HTtGN
+	fVoNqp33B2Z
+X-Received: by 2002:a17:907:d1c:b0:b98:6c41:a77f with SMTP id a640c23a62f3a-b9a3f1a815dmr138126866b.20.1774423710456;
+        Wed, 25 Mar 2026 00:28:30 -0700 (PDT)
+Received: from [192.168.0.2] (dslb-002-205-018-238.002.205.pools.vodafone-ip.de. [2.205.18.238])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b984b056f3bsm573597266b.26.2026.03.25.00.28.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Mar 2026 00:28:29 -0700 (PDT)
+Message-ID: <abb8a10c-571e-44f2-a15e-1d5da288963d@gmail.com>
+Date: Wed, 25 Mar 2026 08:28:28 +0100
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB7900:EE_|CY8PR12MB8267:EE_
-X-MS-Office365-Filtering-Correlation-Id: 98e0f3bb-cbaa-42ea-3286-08de89e0129a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|366016|7416014|1800799024|56012099003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	TLddKbbx7gQ3CWrhOSeWZOaVs2u91CQ3JGf/HXmLZeYaD5sXQhealr6T7BWptjqwfGOq1a5XKU+nmItId/4vXfAlhOfUex+9/YX6EbHnbbltEnoClhRs3OnnAleSMzVh0dHnjhWK7/GtK+asps6IqpIBGSliHm7M3oF4E0SVe9Zsk+QXt48VcHb/nH06XEOdloFktn/UOStkj9rbmG5qwqgtDR0rR+8f5OOklyxKgZ7pTn85suxED+g8+1r0udKa4DPMIttw7HRFxH5tQRPadAatsCSZNnxGbjuKwPIe2SHcotcjl2uIc4qvRwufLJxN9DdU/+hj7RpZhe2Npgy12e4nF6Gw2/5d7+XDd2j9v9Vxh0jhdekUmm55h82k1zxhR8NgxQEMKLlugWFuRwRBzuMKT+Qe65cwGs2JBcrGS8GdGRxAY4Mv/tUrtzvCi54SsnDJJnwqbxlzEgHM1mK4od1O8e2MkF2W8ckHMzhJTul/U5vfKtr8IvmkTvBMZzGZs53Z9gvZN2aylzlRcriyYRUaTavaWIoI7S5eLGVj/RtPxiYoSo90tfV2Ppb0QKwbZmN13kosdbDj9AaRwNnIpLNF7dYTCzEQ9YlwqBpjnQz26dLUY0CNbnOeBzgiMyM1DZLStkEc4ItDYhnE86oFvi7pn5pWMRBjQwuVwPJ9+5WiqNQL9ls/EicwEFMEwzezsE43d2CB04od2Hq9WukxTqjskfGU2c9B7nSE449265k=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR12MB7900.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(7416014)(1800799024)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?KWteE59vxy6R4iW7PaH5gK0MhG6UzXdYTDodGMfwufIupvWnqOIiDvnZF/CY?=
- =?us-ascii?Q?EG7zCEt+WRHB+MtbrPo5U63D1af99Vx4W4RxMiHGxYkFjdVFzJ6tCsgQuGtz?=
- =?us-ascii?Q?c6QRx6d6VF4eLVPMcOSX206FB88aGX39Jh+QIN1/WyEtw7aLk8r9KuVjgK07?=
- =?us-ascii?Q?OO41EaniUAXpC/0awIqHYEEOURFSFZOnssMv7xU3HYUy+C2TCXtgJOO8xEnW?=
- =?us-ascii?Q?CNH9QNFqDlrX3mfnaBa1g9VK+OukpHza4JlP2PNP+FBSVfWGpcUIM23sO7AR?=
- =?us-ascii?Q?5wk+b3U0GBpgCbnU3HLKDE53BVTunkOKYaA2PpKV8tISLhwZmDQ76lwBODS6?=
- =?us-ascii?Q?TCwkkWP8AKMSNiQ73toUtOE24OfR7/37r/bBH8bC3WSj3hnDU3DCKmuBMnTK?=
- =?us-ascii?Q?AZ9ugNSDT98N5gxkSvRgu7VT3XFbnn7bueMHYpXzLSjW5Psup+O5YOBLig5E?=
- =?us-ascii?Q?FjMP/Dr67Gl5Ew8GibanC2DpcrBhinXnLL/JaphmY/Sa961jS+2+PeH5m+g5?=
- =?us-ascii?Q?c9YPLjtDzoIALxcJJGC43R+5hnPRND30fcz7oh3Jolo2hg6UwemNnA0X5iNJ?=
- =?us-ascii?Q?Koeav8a4hE0TUrPLElux2dkNSPchLhFHB8xSb9FliQQLc2C9J8mzyUvc+Phk?=
- =?us-ascii?Q?bHkEnDuEU8xeSx58aZE2o5x4LM/36nBDe4DU7HLbedBsW+OtCMFqn9q6zmnJ?=
- =?us-ascii?Q?mfn+/fTgi0rSjPs1hn+YSMhRTo+Yh8EKJxpdko8dufk6NnxQzPmEVvykx0mJ?=
- =?us-ascii?Q?bHVBSWlAP7v73ap1a67e++r1CtRh9vdfWKaQZpGAR2PyNQSA8B2iyFFTKtB8?=
- =?us-ascii?Q?1hMZfovfdG4j1uhnk4eMWcHL0bou3HywmGYloIHZZPtKKgZvVpc/gxgZZM1W?=
- =?us-ascii?Q?SXsD5JoxGxjPlT36dmXkUKz8F0BKSSL6mvYWu4WpM/SrFZVqEzCKF2lK3a5H?=
- =?us-ascii?Q?37OtMqzSPSXiV3ZiKBT3RuTBumnLohsNaoYw6IazRqGzcXCoa2zS7hf334vo?=
- =?us-ascii?Q?LZhApdHQ6ZYHjC70OXXFNh9G5tW77fmk4QMJtgsOSyJgVosQRRUv0/rcsyft?=
- =?us-ascii?Q?G/wHhdooehqTrfBLDB4ZBFDlNVSaCAB5u+NiPJNeo3FhMGc3amPUhpKHzDrS?=
- =?us-ascii?Q?4Yu1H1FQ6xJrJkLEHmk96R4t8tuRBbh95PLk4/h0XVrkST5O9oC6UJPr1Opg?=
- =?us-ascii?Q?LGwYs0TiCcklau6vTJJgH4Achp4vpMGbli+WppBnqPgXEWBOs90xxSRSaQhf?=
- =?us-ascii?Q?9B6jzmgqGLpd/brNzp9uqQTWEfJEhIBVQ/tLgmyFPZ9t4Rq1L7jtDAFMkim+?=
- =?us-ascii?Q?Ic3z3Nnazazs2H21HMbsVPa2ued6ngDkBpTwtY7BTCH2QNSwWrDZ/lqu/Idg?=
- =?us-ascii?Q?BVY/xsghfeoxl83dGWAPuM8a/yzXCWBXqvh8UmBHbn9bGhvCpILLd1T9Y/7n?=
- =?us-ascii?Q?+PsWWxlfG23sYb3dWiYL5QTn6/ykTZznoekb9UBh9WohrxC0DvPgzcfCw8+i?=
- =?us-ascii?Q?q06gw0U6HtOG5LBGbCUyP1W8Z+k3toUCh7SWuzHHsX6TcsP/9skEtqEoVx6v?=
- =?us-ascii?Q?CyPjyzJioYwivZ7INHac3uFBnHow8QzIVjFMQewZY41U0CSgg6/W38JmRDUA?=
- =?us-ascii?Q?v/5rOMSbkWs2WHFmS1NusWIOMsZ0bN4RCTlJdRYjYl07oo1tx7JI5qaxjUk5?=
- =?us-ascii?Q?2Ef82vVB5KPQZU0xq3un3DR5kDo/gjQz/4xjNIp5bER146kxmzgl+gExfMAR?=
- =?us-ascii?Q?LGM+6q8sYw=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 98e0f3bb-cbaa-42ea-3286-08de89e0129a
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB7900.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Mar 2026 20:01:01.3607
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: LnrLcLgrhqQ6UkV8OPuLy3rFGdW1Z1EZo+mtpwIIzpMXrkTwI3bmNrlI/IUlXdxW5bjwu++/0tZKM1iCvyIWTQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB8267
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next 0/3] net: bridge: add stp_mode attribute for STP
+ mode selection
+To: Andy Roulin <aroulin@nvidia.com>, netdev@vger.kernel.org
+Cc: bridge@lists.linux.dev, Nikolay Aleksandrov <razor@blackwall.org>,
+ Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <shuah@kernel.org>,
+ Petr Machata <petrm@nvidia.com>, linux-doc@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260324184942.2828691-1-aroulin@nvidia.com>
+Content-Language: en-US
+From: Jonas Gorski <jonas.gorski@gmail.com>
+In-Reply-To: <20260324184942.2828691-1-aroulin@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 24, 2026 at 11:49:40AM -0700, Andy Roulin wrote:
->  include/uapi/linux/if_link.h | 40 ++++++++++++++++++++++++++++++++++++
+On 24/03/2026 19:49, Andy Roulin wrote:
+> The bridge-stp usermode helper is currently restricted to the initial
+> network namespace, preventing userspace STP daemons like mstpd from
+> operating on bridges in other namespaces. Since commit ff62198553e4
+> ("bridge: Only call /sbin/bridge-stp for the initial network
+> namespace"), bridges in non-init namespaces silently fall back to
+> kernel STP with no way to request userspace STP.
+> 
+> This series adds a new IFLA_BR_STP_MODE bridge attribute that allows
+> explicit per-bridge control over STP mode selection. Three modes are
+> supported:
+> 
+>   - auto (default): existing behavior, try /sbin/bridge-stp in
+>     init_net, fall back to kernel STP otherwise
+>   - user: directly enable BR_USER_STP without invoking the helper,
+>     works in any network namespace
+>   - kernel: directly enable BR_KERNEL_STP without invoking the helper
 
-I forgot that this requires a spec update. See:
+I like that very much! This will also allow selftests for
+switchdev/dsa drivers for correct (mst) STP state (change) handling.
 
-Documentation/netlink/specs/rt-link.yaml
+> The user and kernel modes bypass call_usermodehelper() entirely,
+> addressing the security concerns discussed at [1]. The caller is
+> responsible for managing the userspace STP daemon directly, rather
+> than relying on the kernel to invoke /sbin/bridge-stp.
 
-But wait at least 24h before posting v2.
+Should the caller directly manage the STP daemon, or could the STP
+daemon also just automatically manage bridges with
+IFLA_BR_STP_STATE=BR_STP_MODE_KERNEL (and IFLA_BR_STP_STATE != 0)?
 
->  net/bridge/br_device.c       |  1 +
->  net/bridge/br_netlink.c      | 18 +++++++++++++++-
->  net/bridge/br_private.h      |  1 +
->  net/bridge/br_stp_if.c       | 17 ++++++++-------
->  5 files changed, 69 insertions(+), 8 deletions(-)
+The latter would require less changes for network managers, as they
+wouldn't need to be aware of (individual) STP daemon
+implementations.
+
+But I guess either is fine, as long as the latter behavior
+configurable.
+
+Best regards,
+Jonas
