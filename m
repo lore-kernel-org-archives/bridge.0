@@ -1,283 +1,147 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012037.outbound.protection.outlook.com [52.101.53.37])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4349402B87
-	for <bridge@lists.linux.dev>; Thu, 26 Mar 2026 15:08:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774537691; cv=none; b=JokCCz2FOgRFAWNZfCrHQJAilkt9yOzulRfRQSNFEuh1K8dBr9uu38RYw/uYXl9txdltUT3CRsvnem8ChBtVj4TOyFWxmoMyW4HrXLbVcrd7xC/3aDiV/ARtfckRKOUy+k8xWc6DYesJBbReL6ED0Wnu3512nY1TxuUfOntTYi0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774537691; c=relaxed/simple;
-	bh=e55NJdo7/A3hpAJ6kxWohOaV0421uYsdnSxjy1Zm6Lw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BVnKtGQ6/QUVmdWJgei6TsluBOOiGdltLNYpaaQ+ETghzV0FVV+wsGhJtlmjjJqaJIzSneRqY/Qr0pmcJdz7N4hroBDHv7F2Wd/vHXSFbrGogC2W6Sk7MXDjkFIuBijKPCB8j2tDzpk2qXrR0rcx9yuS+b/bBVRTnuRqPktG/70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PA+e9Oz9; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C913C198C
+	for <bridge@lists.linux.dev>; Thu, 26 Mar 2026 16:29:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.37
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774542577; cv=fail; b=NrJvu/UI6dwavwygWO5imaHsKFw9I39bjsvh1g9aHNBWznL9ztR7NeY7JuCo93CWnLBM24pNLz/54QxQXqTqb3x3yoHCHbuyUCIwlNI0EWavfrt5GOf2wJ538YrGxPqE8+CZGu5LZ0ghFNa3e/oBjQan8oiXpbqqmG1z3RB2dHI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774542577; c=relaxed/simple;
+	bh=3E3mQn2UyPWmbHlEEjJ8V3WiSFaRuhAWglG9n5vDT7g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=vExLmR9qSAH399ZcOHLI+hDHC3vbe6sD7iS3JpO04lSaWLUCrGS8dpB7VqhQuwFG1FQ/k9o9EgRPhGk95v36ir1nHaQRwRJQMDeCcCyNEFlKWorxCihbGwE8M9uBJLZzdErUVOxr5pwcU5WvmvjsJxOJPpb50+9KxHrZDcHvOdc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YU3eeaNT; arc=fail smtp.client-ip=52.101.53.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PA+e9Oz9"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2b056b7f783so4887125ad.1
-        for <bridge@lists.linux.dev>; Thu, 26 Mar 2026 08:08:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774537689; x=1775142489; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=49SPRabqR++4MRXv28bpRM0Zk1UkXQGuUNet1+Gr+HM=;
-        b=PA+e9Oz93sFgdPaakCokL7Cf8lytpN7Ch2EGTrZCceCdcK2mlyb+BP0q9YSpM5A+5D
-         uRtWw3CEp1jEjW5SYNBzIIP1TivXKyBUKJ/+mFpH0Pc1CcBBqW1aph65bVRyr/2agc3V
-         9mOa5HfACnt8+KUOOG5JZYob+HtOmuFUizwVMhL2n4XYCWSTZtyP44pbJ7oVr0wGBU2V
-         1q00SNfHQunPmrDBRSTma8PpCi+fJfWgdqCjxgZenZO4Xv5yPG3gh6lfPWfnVEaJ1Br4
-         5J1Vdax4Yuj3A2Gct6MZk2RSdLbSmbEGa4YsIxbQzTGci2Zj9djCaD9EMOcrn30Lyxmf
-         TFHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774537689; x=1775142489;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=49SPRabqR++4MRXv28bpRM0Zk1UkXQGuUNet1+Gr+HM=;
-        b=AObT4cBchrIf6cPCj8wHapKRn8rQKgmRpU/xO+vzVA36ZD8U40KWZxnNG1+QzpZglQ
-         pL8A4MOzd7CIYaYYf6qrQlgQuozKZBidhDSaGBrdtNNhP+1ZldejSTTOtAq1Su1gYFHn
-         iNMTMbP2rT9Gzmx1zwpaZrW01qmyMxjel5ItAHtW1le5/Nb7xuDy6R5pj3x5ds2KhpFf
-         ha/kreD3bkqCDb/ordqBAW3appMUWEcWppbc2L+S2tVZTB6iQDcqzbvImBpAtSlrsjX/
-         rQ37bHoxucFFn40qLoLLRfffKQlweW8G9nuPCnmiVlsXDxLwH8mnmSR4SkYxqFnF6ma5
-         3Yiw==
-X-Forwarded-Encrypted: i=1; AJvYcCU3NS+tiRV1DRnx2jdIO8aB82I4RPSQOoOpJZNexdtYC74iL2EaINfUzP25SkfcHXEHcO+yzMk=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwK1ekoSrgpp+ausO2qw4znsvMLOPgsHsfof8reMfDsrW+ICtJn
-	NcknDDwvyb4Dyf/3p2IQ/UMcQQH0Ws9kjPY8hjXrgd/Zz9F6OBaaJ/ig
-X-Gm-Gg: ATEYQzzBgVU9wqpXQSPt06JUby6A/UDSPVhl0yt1OAzd/ClDOAXR4TaCUy+B24NmnyY
-	5/0vvU0ERItpjnGqIq0tkk3Qj4N0ACYgFWhRVuLnHHnmyCRte0XcS8qAjv50tp0JrbP0TGDp2DQ
-	rvDKwLC9uVbH8oB2q+Xgk/nM1DICVq0p4NHARHwIcSFgFWN2qQNDXVyL1B9Jdqt/qIUKa1wju00
-	4TMCJ5TSMSxwwfMuaqbigDsAozwLNAFOfAtcgAmFf5qxZp7RWmyufLfAw5byyhBtR9AJrjVfkav
-	k1Jr1ywpmEXWQqqAAuZLIX6EDPOdtocDMBMSFgLzsjQvdUJo8KgGC9GJvSNozN/1iHmphNEa1A8
-	a0dOX2kxBZU0XpNcr1hhqxIojQ8qa4Q57GPUCJv16FmQ9CSRINMNAKZFbRMkKy6liOfisSQLvZc
-	OknzIl7GAX5/gqMX9lcgtttfxFkuFTRKVyFT3J9+OHiRgjOe6awaU=
-X-Received: by 2002:a17:902:f712:b0:2b0:ba48:274 with SMTP id d9443c01a7336-2b0c4818b3cmr20475495ad.1.1774537689063;
-        Thu, 26 Mar 2026 08:08:09 -0700 (PDT)
-Received: from DESKTOP-82PPU4A.localdomain ([202.8.116.170])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b0bc8bb5fasm33146375ad.59.2026.03.26.08.08.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Mar 2026 08:08:08 -0700 (PDT)
-From: Ujjal Roy <royujjal@gmail.com>
-To: "David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	David Ahern <dsahern@kernel.org>
-Cc: Ujjal Roy <ujjal@alumnux.com>,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] ipv6: mld: encode multicast exponential fields
-Date: Thu, 26 Mar 2026 15:07:42 +0000
-Message-ID: <20260326150742.50289-5-royujjal@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260326150742.50289-1-royujjal@gmail.com>
-References: <20260326150742.50289-1-royujjal@gmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YU3eeaNT"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=YuuTMMnrWRMR/jKdBOXn9vtbmB2mT1DiSQQvl8AGJ2DbB8ao5E4oGoYhSt1oja4uJtObyFmcUKADTlJBuooYw3RCey1+Yr+wgrBC8QqQBaRWhQxMLoNpfTzW26Kx1pblyP01QfkcorL8azOMQvSuwc4x1ViTjrQBzDvMbdEtdQmWlOhUVqMRoLY8i6UH5v6syljpSrcbO7ufVsVQnBTJSnsPTgz3XI2+aFvyX+avUif+xdpBvbmg9UabOBgXVLm6P5176kzfJM9y0B0FPzwZOTYU889WatRYW3YJd/jcFWNfkAti1OSsqxpDIQTXOrXHWBltQxpbc61O5W9KkztFxw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=rTZkoJAqtclntFeekHfP55qGOqnRDXpz7ZBIMP7JIGA=;
+ b=fa9u650Uc7APOYJ6vRQufqEHYkHMh39odL6e3P7f/Q68JM14WGxG5QdXVhkeQwBeRs7sz736q7l8bIugaAg0GX7Yc9nDL1Q7B6sWrc2JTvRy1YshtRPfGK68aAMtZgynlKTyG1nApbuFnMS+7u6dj2bgJXk3MT5mlgJ9YhRN7Qu4Fdt4b6QkjGJNFpbJr68FJHZFPyN+LqjL4gCBlem6SPcZMFjzMIdGG5gBY72ZWXAYpPPaavykhjH+IfHIicerSouXS/LEtQ473lWnAzZTKoGEw2v5mPGi5fYd3ud/hUumLjJf4sz9aP0dBHUkD2NUvOZUPe+ioVjwofDwrgsFsg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rTZkoJAqtclntFeekHfP55qGOqnRDXpz7ZBIMP7JIGA=;
+ b=YU3eeaNTKUn6yO4jk/u57fwieg6E7WuKUk2I7BVWSSRTDUFSRKL2VqmRkNDg4bO+NE+cAPJQDCEQwUNXtighcSCyxMIJ7CJyFYPWBtRuTjJOFruO7F3vEx8WAuEE9bArCReBcZjNuxXym9ltVvL+kWPIvOWhfZowkw9Z5NANZHCP5uDESYWboTFohKqJM5zC40JTMSSsHGXfTwQs9Bs0b45L+9EolYuKE+rzq4nAFOdH1cP90NiTQPYtbcahWMMwbHSTzcO9Vx3bksKhxNDQ4fqicnJ2gf7QzhUdnwJ865oB4ceSf0xoiFVgT0OPANsHWpx06/er5K5ulrwJ3zbJpQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by SN7PR12MB7977.namprd12.prod.outlook.com (2603:10b6:806:340::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.7; Thu, 26 Mar
+ 2026 16:29:30 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9745.019; Thu, 26 Mar 2026
+ 16:29:30 +0000
+Date: Thu, 26 Mar 2026 18:29:20 +0200
+From: Ido Schimmel <idosch@nvidia.com>
+To: Yang Yang <n05ec@lzu.edu.cn>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, razor@blackwall.org, andrew+netdev@lunn.ch,
+	horms@kernel.org, florian.fainelli@broadcom.com,
+	roopa@cumulusnetworks.com, dlstevens@us.ibm.com, nb@tipi-net.de,
+	netdev@vger.kernel.org, bridge@lists.linux.dev,
+	linux-kernel@vger.kernel.org, yifanwucs@gmail.com,
+	tomapufckgml@gmail.com, tanyuan98@outlook.com, bird@lzu.edu.cn
+Subject: Re: [PATCH net 1/3] bridge: br_nd_send: linearize skb before parsing
+ ND options
+Message-ID: <20260326162920.GA1051615@shredder>
+References: <20260326034441.2037420-1-n05ec@lzu.edu.cn>
+ <20260326034441.2037420-2-n05ec@lzu.edu.cn>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260326034441.2037420-2-n05ec@lzu.edu.cn>
+X-ClientProxiedBy: TL2P290CA0015.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:2::18) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|SN7PR12MB7977:EE_
+X-MS-Office365-Filtering-Correlation-Id: df8fab28-0ab9-46f1-bbd8-08de8b54daff
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|366016|1800799024|56012099003|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	Gh+XCwyMLIH0QqEsrlcZrLAvfgkZkH6YIHGWp2elMaw61q+pcbx/FplNzfhuuQiLh7T3rZvR8taqvJbOrWyhTGC/GGLpD7tWcERbKCDq2Fj1AGG8w+psY4t1MkkinUbvmV+8OkzIupQPk34GylyC4w+6Z/PCtqyXbJn5up7sf/tftA3OJ1NzsdWa5i4aAsRKBEvLquF7+9BwL93XZJjXfIf4Zc+YKM0r7pdGL6KBemBdq+RaivZUF52QQkLYFFSOCzcA80WRvfVoYj0o/BiLclPYyisY+p+xhz3N64GOYN8HYsnZRx4BU/G7c46Xr41mWoYUJNXIF/INqy8DtFYcnBMRJDKzwXoPZ3k3mL3WJpm+JDq72VBLUIjZ19y+uyvPlOf+yMUDQ9PQSTexe7Q82vvv2PuNSqrY4GDzoaxB0x7Jal4ViPt1K6JoO38DXm488MnMhwBrCo7x184w3uOzFFWPqmSCZtOcrO46CRE4tj5wrX9aGH+SrC+J3P6uNJLOjI3FNWKvDY/bhxmBY53JtzXtGfYMdxM6ftOmAT3lH+kJioXx/m7sWfbh0FxeW3GC3ruFP5y8zc1r8Irwt2rBwOzL92DqMtV6sgaTtoTmwvv85jLHkhAjm7FsWENFGI4/ZeuKhvBJM2Fnp316OTr+ZUiZKzpTo1FuvucbaA9ZHk3OsDzEKnhRBLFT9pQ34nNtMyyF25RWO+deSQO5sDXC0KcfXcTzyTUYU0XpnZJgzkI=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(56012099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?aNV8OKIX9uAerDzOLERnJ3Df7JLMVwGKmrm+Izh3Jp9dWVC20KDmGmZk01tr?=
+ =?us-ascii?Q?Ip7LgRnooYDcBxPrAJzgovvB2ZRbxeCVl18u6c4ZoM9ENInIOv+z9crJ6p5S?=
+ =?us-ascii?Q?UPj57fyBunuhe/Lv7dEZwiCG7zLsR6jp/A+1lKwDGzJPlKGmBrk5tKdG/uLZ?=
+ =?us-ascii?Q?YyTjhaY2SRtGAxwdOPQh7e08DKrS4Pg8f4wsLTD2BH/Nhnn6lyG+9hKZo3mc?=
+ =?us-ascii?Q?CaCq2ajmjefTghgLat9vIoJHZskFHAZ5F34kq4Lgezz7Gr/CyNtYzL+ixlIx?=
+ =?us-ascii?Q?cfI+gBOsKou+zLXZXMaDF0EF1qV6JOcTTGiRFyMhu6H/ZtI+9GgeVg4fYT2T?=
+ =?us-ascii?Q?rIf3yErOGku04PBFfRXiDM/NQI9Jsy11nPQ1qpEq8BMenjFG0Keegpa7eErX?=
+ =?us-ascii?Q?cw+5+ELJ0yqHpuJeNco+NvGAjig6Yd8gNUh+KNtgOyW5kIt2NLfdbL3AbWAI?=
+ =?us-ascii?Q?u3s/C4/ZmUxFXfgdrJotW90Dh5s4uLkBHciSNvlUDywObrCyXE/z3WonyZSc?=
+ =?us-ascii?Q?joP3euuQp2q7MZOKjNKPW8kkoTJ5E08y5tgm8zKhL7gSNZeYg1yQck0BF9CI?=
+ =?us-ascii?Q?MJ2vxD2OQGLrxXMAjjYUDwsXWUpgXI4ZLXEYlse7d96YyIBlgPjtrG3pWucU?=
+ =?us-ascii?Q?C16jxe1gvgKGbb3xcOrFyTO6MdNK5XwenzKCFmP2UgQhqfGjar6TCbOMmmeR?=
+ =?us-ascii?Q?NYnsUpmq18sxKZtNkEwGCaCk0I25E2SMihp5cSvk72slcl9cMnwcDz1f6VvY?=
+ =?us-ascii?Q?2iIk/uOhTl/FiOpxQ3n363Wy0BIPmLmsFDP3vMNVEzTWtPqUp4IO0xGTv9Y0?=
+ =?us-ascii?Q?oTmapWgw+2L0/pwCFXRVnNw7sKRy/NnTs/sQrwRBuIfY6Cl0jZzZNhsv0/Hg?=
+ =?us-ascii?Q?zH+UKE7kYwIh4RCJMuU/Y/w7cwTFyHRtdhRgsByikpFE8Wq/P8QHEL7O1qe7?=
+ =?us-ascii?Q?ZC0g5Yf5KXkQy9P76KyWxt76a/6fjwXRN5wBDosVklzPrqE1K2a6UJuKKzg5?=
+ =?us-ascii?Q?cML9UT5tAuEj+aEmm89XbOhJe0Dzp+c41/6SPJ+HSunCgUgwhjjb+YTwyzq/?=
+ =?us-ascii?Q?hdKj0QWv1FQ+oxfi+wTJpkRrpspFQm9YyNfFou6wmzltK5F/R0YaRaHrpmYK?=
+ =?us-ascii?Q?sqZEooyDAQg9gG++/11DE+w5ecagPt0mG8sWyr947ryMHpfy8iAQBuWgldmw?=
+ =?us-ascii?Q?a2mWv9iKsw4VxFo/HyOwjbkYbcUBGpBhoeSfHTnx/4RdBr0ygqOE3Pq42Ki5?=
+ =?us-ascii?Q?8u1793fbMdurV2t1770+A4uIuFja4+iAPauYlEg1Gvnnbv4Mj4mnZXk0M/2S?=
+ =?us-ascii?Q?Xtk4xH8RQ035BK2MCVP5IrfVb3G87beso4xrFqTlTxJEVxit5tcxZP+fLGqP?=
+ =?us-ascii?Q?e4tY5yxCDF0UKaOs+RZq6LaKqWF2LWooa/TP5a7HgMwcflzm1oo7ER/ia7u5?=
+ =?us-ascii?Q?qYnh5b79YJcEwG87w9S/H2MfW6WnVUY2D/KVDxqojU8pZlqyYVReVAOvPsCH?=
+ =?us-ascii?Q?/0BwKG1TcytG/J2W6+3xrP/8VhSQhHcfq0CHHWkoQRS6qkY5BhN7RqusEoDe?=
+ =?us-ascii?Q?8/C+z//Ov+/VvTUBePsQa2gOftdeqEHfUnxgkUV6m1stCc9rhPkcpJhWeOpi?=
+ =?us-ascii?Q?7Emdjj564WMEbFhNKexnWsQ1AvnlHpI1ZJDOWDX8vxJbVBjPgNmxkuKwpgtV?=
+ =?us-ascii?Q?RytykBMcNhjoiISFAbriuaIFPdwdk3jPl+vqIVniVaPG3hL4CG28oo62CnQH?=
+ =?us-ascii?Q?/imXBoO/sg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: df8fab28-0ab9-46f1-bbd8-08de8b54daff
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Mar 2026 16:29:30.2256
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: +k7ilfOcjEoRB3UF6R2q2Bhgy1ZGZ2f76iYB/6Ld/UqezlyHoco4Iba1rWNCO/U2Bzv4eKjqQU1NoaIsa2pAfw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7977
 
-In MLD, QQIC and MRC fields are not currently encoded when
-generating query packets. Since the receiver of the query
-interprets these fields using the MLDv2 floating-point
-decoding logic, any raw interval value that exceeds the
-linear threshold is currently parsed incorrectly as an
-exponential value, leading to an incorrect interval
-calculation.
+On Thu, Mar 26, 2026 at 03:44:39AM +0000, Yang Yang wrote:
+> br_nd_send() parses neighbour discovery options from ns->opt[] and
+> assumes that these options are in the linear part of request.
+> 
+> Its callers only guarantee that the ICMPv6 header and target address
+> are available, so the option area can still be non-linear. Parsing
+> ns->opt[] in that case can access data past the linear buffer.
+> 
+> Linearize request before option parsing and derive ns from the linear
+> network header.
+> 
+> Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+> Reported-by: Yifan Wu <yifanwucs@gmail.com>
+> Reported-by: Juefei Pu <tomapufckgml@gmail.com>
+> Tested-by: Ao Zhou <n05ec@lzu.edu.cn>
+> Co-developed-by: Yuan Tan <tanyuan98@outlook.com>
+> Signed-off-by: Yuan Tan <tanyuan98@outlook.com>
+> Suggested-by: Xin Liu <bird@lzu.edu.cn>
+> Signed-off-by: Yang Yang <n05ec@lzu.edu.cn>
 
-Encode and assign the corresponding protocol fields during
-query generation. Introduce the logic to dynamically
-calculate the exponent and mantissa using bit-scan (fls).
-This ensures QQIC (8-bit) and MRC (16-bit) fields are
-properly encoded when transmitting query packets with
-intervals that exceed their respective linear thresholds
-(128 for QQI; 32768 for MRD).
-
-RFC3810: If QQIC >= 128, the QQIC field represents a
-floating-point value as follows:
-     0 1 2 3 4 5 6 7
-    +-+-+-+-+-+-+-+-+
-    |1| exp | mant  |
-    +-+-+-+-+-+-+-+-+
-
-RFC3810: If Maximum Response Code >= 32768, the Maximum
-Response Code field represents a floating-point value as
-follows:
-     0 1 2 3 4 5 6 7 8 9 A B C D E F
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |1| exp |          mant         |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-Signed-off-by: Ujjal Roy <royujjal@gmail.com>
----
- include/net/mld.h         | 117 ++++++++++++++++++++++++++++++++++++++
- net/bridge/br_multicast.c |   4 +-
- 2 files changed, 119 insertions(+), 2 deletions(-)
-
-diff --git a/include/net/mld.h b/include/net/mld.h
-index 6373eb76efe5..0962312d29b9 100644
---- a/include/net/mld.h
-+++ b/include/net/mld.h
-@@ -90,12 +90,129 @@ struct mld2_query {
- #define MLDV2_QQIC_MAN(value)	((value) & 0x0f)
- 
- #define MLD_QQIC_MIN_THRESHOLD	128
-+/* Max representable (mant = 0xF, exp = 7) -> 31744 */
-+#define MLD_QQIC_MAX_THRESHOLD	31744
- #define MLD_MRC_MIN_THRESHOLD	32768UL
-+/* Max representable (mant = 0xFFF, exp = 7) -> 8387584 */
-+#define MLD_MRC_MAX_THRESHOLD	8387584
- #define MLDV1_MRD_MAX_COMPAT	(MLD_MRC_MIN_THRESHOLD - 1)
- 
- #define MLD_MAX_QUEUE		8
- #define MLD_MAX_SKBS		32
- 
-+/* V2 exponential field encoding */
-+
-+/*
-+ * Calculate Maximum Response Code from Maximum Response Delay
-+ *
-+ * MLDv2 Maximum Response Code 16-bit encoding (RFC3810).
-+ *
-+ * RFC3810 defines only the decoding formula:
-+ * Maximum Response Delay = (mant | 0x1000) << (exp + 3)
-+ *
-+ * but does NOT define the encoding procedure. To derive exponent:
-+ *
-+ * For the 16-bit MRC, the "hidden bit" (0x1000) is left shifted by 12
-+ * to sit above the 12-bit mantissa. The RFC then shifts this entire
-+ * block left by (exp + 3) to reconstruct the value.
-+ * So, 'hidden bit' is the MSB which is shifted by (12 + exp + 3).
-+ *
-+ * - Total left shift of the hidden bit = 12 + (exp + 3) = exp + 15.
-+ * - This is the MSB at the 0-based bit position: (exp + 15).
-+ * - Since fls() is 1-based, fls(value) - 1 = exp + 15.
-+ *
-+ * Therefore:
-+ *     exp  = fls(value) - 16
-+ *     mant = (value >> (exp + 3)) & 0x0FFF
-+ *
-+ * Final encoding formula:
-+ *     0x8000 | (exp << 12) | mant
-+ *
-+ * Example (value = 1311744):
-+ *  0               1               2               3
-+ *  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ * |0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0| 1311744
-+ * |                      ^-^--------mant---------^ ^...(exp+3)...^| exp=5
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ *
-+ * Encoded:
-+ *   0x8000 | (5 << 12) | 0x404 = 0xD404
-+ */
-+static inline u16 mldv2_mrc(unsigned long mrd)
-+{
-+	u16 mc_man, mc_exp;
-+
-+	/* RFC3810: MRC < 32768 is literal */
-+	if (mrd < MLD_MRC_MIN_THRESHOLD)
-+		return (u16)mrd;
-+
-+	/* Saturate at max representable (mant = 0xFFF, exp = 7) -> 8387584 */
-+	if (mrd >= MLD_MRC_MAX_THRESHOLD)
-+		return 0xFFFF;
-+
-+	mc_exp = (u16)(fls(mrd) - 16);
-+	mc_man = (u16)((mrd >> (mc_exp + 3)) & 0x0FFF);
-+
-+	return (0x8000 | (mc_exp << 12) | mc_man);
-+}
-+
-+/*
-+ * Calculate Querier's Query Interval Code from Query Interval
-+ *
-+ * MLDv2 QQIC 8-bit floating-point encoding (RFC3810).
-+ *
-+ * RFC3810 defines only the decoding formula:
-+ * QQI = (mant | 0x10) << (exp + 3)
-+ *
-+ * but does NOT define the encoding procedure. To derive exponent:
-+ *
-+ * For any value of mantissa and exponent, the decoding formula
-+ * indicates that the "hidden bit" (0x10) is shifted 4 bits left
-+ * to sit above the 4-bit mantissa. The RFC again shifts this
-+ * entire block left by (exp + 3) to reconstruct the value.
-+ * So, 'hidden bit' is the MSB which is shifted by (4 + exp + 3).
-+ *
-+ * Total left shift of the 'hidden bit' = 4 + (exp + 3) = exp + 7.
-+ * This is the MSB at the 0-based bit position: (exp + 7).
-+ * Since fls() is 1-based, fls(value) - 1 = exp + 7.
-+ *
-+ * Therefore:
-+ *     exp  = fls(value) - 8
-+ *     mant = (value >> (exp + 3)) & 0x0F
-+ *
-+ * Final encoding formula:
-+ *     0x80 | (exp << 4) | mant
-+ *
-+ * Example (value = 3200):
-+ *  0               1
-+ *  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ * |0 0 0 0 1 1 0 0 1 0 0 0 0 0 0 0| (value = 3200)
-+ * |        ^-^-mant^ ^..(exp+3)..^| exp = 4, mant = 9
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ *
-+ * Encoded:
-+ *   0x80 | (4 << 4) | 9 = 0xC9
-+ */
-+static inline u8 mldv2_qqic(unsigned long value)
-+{
-+	u8 mc_man, mc_exp;
-+
-+	/* RFC3810: QQIC < 128 is literal */
-+	if (value < MLD_QQIC_MIN_THRESHOLD)
-+		return (u8)value;
-+
-+	/* Saturate at max representable (mant = 0xF, exp = 7) -> 31744 */
-+	if (value >= MLD_QQIC_MAX_THRESHOLD)
-+		return 0xFF;
-+
-+	mc_exp  = (u8)(fls(value) - 8);
-+	mc_man = (u8)((value >> (mc_exp + 3)) & 0x0F);
-+
-+	return (0x80 | (mc_exp << 4) | mc_man);
-+}
-+
- /* V2 exponential field decoding */
- 
- /* Calculate Maximum Response Delay from Maximum Response Code
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 1de6242413e0..c59dab6fff4e 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1181,7 +1181,7 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge_mcast *brm
- 		break;
- 	case 2:
- 		mld2q = (struct mld2_query *)icmp6_hdr(skb);
--		mld2q->mld2q_mrc = htons((u16)jiffies_to_msecs(interval));
-+		mld2q->mld2q_mrc = htons((u16)jiffies_to_msecs(mldv2_mrc(interval)));
- 		mld2q->mld2q_type = ICMPV6_MGM_QUERY;
- 		mld2q->mld2q_code = 0;
- 		mld2q->mld2q_cksum = 0;
-@@ -1190,7 +1190,7 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge_mcast *brm
- 		mld2q->mld2q_suppress = sflag;
- 		mld2q->mld2q_qrv = 2;
- 		mld2q->mld2q_nsrcs = htons(llqt_srcs);
--		mld2q->mld2q_qqic = brmctx->multicast_query_interval / HZ;
-+		mld2q->mld2q_qqic = mldv2_qqic(brmctx->multicast_query_interval / HZ);
- 		mld2q->mld2q_mca = *group;
- 		csum = &mld2q->mld2q_cksum;
- 		csum_start = (void *)mld2q;
--- 
-2.43.0
-
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
