@@ -1,166 +1,241 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B904398903
-	for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 12:19:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C452931716B;
+	Fri, 27 Mar 2026 15:49:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774613968; cv=none; b=rLEx1HH5+Yl05XT/DjaNFTh6/9U7WEj8PiMAhT/tj4NkLVJV+pXgfEZCYkGNg9sZaFCZKy/FOV9u3LLb0jYIojFWjnMB4w40aMfqkni/Q4rhchcGAWxVQJxlCR4FligOE61239pjmeKnwwN9RqTmNdcFiYvlGCAzs0naChpfnG0=
+	t=1774626589; cv=none; b=g5hZKWabA/Ak1xIc1RDzZIxgczYccWg91BtPgneSg4pL6zsZCzCIMmZPk5pXFEW7Y8nS1aa/Q7kZ2Wue+G8sBoJkMNTmSmUWEcBJirVlFg4vCuOsjkAJaYpUDpnPT7xiCCe7BLinWdibxZrOB26p0H14AQijEZ2fo9FRRreB0ww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774613968; c=relaxed/simple;
-	bh=PqtqR/6h0NC60cTerLw5KDXlizq+v+vVVirZ7vHZIx4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Fo5C0wN+BeFgRug/tYCykhBlrPfezuPpCzagadl4hoPD3/eqKYYr8GYflRQykfNFAeQlDlZMHcK1GtKlnQY0WZjJd02r/WMhWrYITPr2/vHSDOEm4Qnaro+SaZo0rpGAw4OOp64PzPmTS7+X/N5pj1rDgxOiE6d7dGR1lbi4/A0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=OYXU54ue; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1774626589; c=relaxed/simple;
+	bh=M+nenQkxk8SdEgDxtuXflZdhUfZnrTKyoQ5HfwuEvFU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aivuCZKOdCyOIjPiPNl5IyGpuJ53KzkT6Dzjw20/+Ykp7dmhXx3wWfXbT7iQmf7UlLbksDZV5jyZhOVGCArphdEbXEt7lJB5RXYyDjzkxZyITOpzLmd4vwiAOp8qoTHmnI+WC10WdPimgDC+VDpeHjDeHmlpTM5NImxtm4x2u+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mP3uBAG4; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="OYXU54ue"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-483487335c2so22194745e9.2
-        for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 05:19:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1774613965; x=1775218765; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=6zimsPVsDumOVwRCe4M573NwSIeXesqqtNX9MQ4nuFE=;
-        b=OYXU54ueN3oSKLht816xHcDgwhLi11SmI4D+IqWqzISelrw9awbtpknyBsz2Nw+aTs
-         MHMAJpXwlhqQlh5hNCxD/jYSC1k930j3nMabO5XDnfKJcCOrPxTfrh8+jWblSKdQ3LXD
-         nbL380r+oBUG8tZZ0os1cSVLBYJFpGtx5yZo0qW6d4aK8xVc46aipvl4o0ojSTAalGTf
-         Qz1yAyUdMQymfDU1DniZGsjlUm0QyMYcO73ZzKJzJ6CMQcT0miXOtDcI2JC4F/Z5yPxW
-         Kt+de+Pq3/E/UBiKNWZytPOqnylCKGQ0FNCt1I92Me97RTTVLgMwDq1L7SiW64Y4o+MQ
-         kZZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774613965; x=1775218765;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6zimsPVsDumOVwRCe4M573NwSIeXesqqtNX9MQ4nuFE=;
-        b=RcGl3KxclF2Ax2fF8F9Ai5e2B9qIGTxq8vl6nUnKwy3R7FLCr6iGXwaIVxVv41v8wc
-         gtuC0kH6VzxEWC/AjQ0RXxfAKWiwz5Bk7LpESge6gcfwYoP2QtvTrDRfy52qQ85819rx
-         Bnr9fo+jQuKve/pWBrTso4ZPbVmzyN7Xeab70Ndz2ZrQ+A48y5eASCry/9g6LXGaeK3X
-         pTD023qeNMBmH6KBHxnL2CoJPoQqOujJ0SoH/dlZ6SFsm4IyaY1j/ZtJkU38haMFYli/
-         Q/VPv7WKBjvpHE2HNP38Fz7jui841ZkPVPxCaSTPSmgSW19Ut2NZzhoBMIT0/khqrwXQ
-         mIxA==
-X-Forwarded-Encrypted: i=1; AJvYcCUhQZQX0qMn+LuZkqgz/rZ/5LbkGkNJvXYTBO7DwTUuubxvXAke0LOiqVIYVvAPUn6GC9+jjVM=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxEUFO5ZuarnZpaQ0HEmulNzpqTigfH7MY93EzAn/XfMu5Fg2Lm
-	isTwTpPe/IKI5A/sqfj8KcnYbS+Q11FFLnbIj7IRNkMCqMyWhTOWorNL2YgKiYTpcLA=
-X-Gm-Gg: ATEYQzyQT2CQ7MYCKkwxH/CoPI/JFYad95BFl2ae4qfnpxQYJb52EmRYDyRw9QHj4T5
-	D5qVWUR5EtajAfXY2IegBT6OG6U90c6QPRRwX9dCxuxzrXb5mAoL34sY4Sk23JLhUc2TPLEqbpc
-	p0yN2EQzdJl72RFP5wJ3KWATUeQY9PAJSCpLC5pbK/4yYiIg3JSRkVXW08fZHIkunmYJ3FdZWRy
-	lhRqk1YmG/OVfzddhBlJ5ljo4L7OYxV21j2SfBTLgVTOrxwpQnWx+ySJiI/ZzHMdbR3ZrZbPmbj
-	eMmd2ES86+pHQJ98cihnPpbzRjsk+FuqjSHUsBed42G5W5M1q0wyOAjwbWxDbeS0dMGRmW6gAYZ
-	fLRUWB0LbQurqV4PkfH30P/0ET6SUdwKZ4xET//65UaK5GyUs1jsIG4UfFWAta0NXIg/Y8WIL4s
-	hDyCEy89pXQfegd6Lgy7fMaaYZcGgC8MiONNEitRURoyzqyxBhe/7drA==
-X-Received: by 2002:a05:600c:8b4b:b0:485:3fe6:21f5 with SMTP id 5b1f17b1804b1-48727f0e5f8mr35058265e9.10.1774613965289;
-        Fri, 27 Mar 2026 05:19:25 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48722d38a5fsm86886705e9.12.2026.03.27.05.19.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 27 Mar 2026 05:19:24 -0700 (PDT)
-Message-ID: <f23ed1b3-6321-4e6d-9cda-ec5d34304f3b@blackwall.org>
-Date: Fri, 27 Mar 2026 14:19:23 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mP3uBAG4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774626588; x=1806162588;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=M+nenQkxk8SdEgDxtuXflZdhUfZnrTKyoQ5HfwuEvFU=;
+  b=mP3uBAG4SDSU3BVOxoHm2tNOCUtzGinSJtk/2WzMl2iZIvSu1EAU4Z9v
+   tilIfHkCq/O4eIVvQ7L6WTqpKqj9yRMy87hWwoFhlI2ZtQbhMV1QEgskm
+   COZzFewaVcf4RKq5c1/7hypwCXPwBJercCWfQVOwPZop6x808QCUOaojw
+   OmnzQkmCZImTHH65BzV+1Aoq7tbegnOZzRS0aUlZiEnvmNtBmqX4ePcUd
+   MNxHxAKdPehD+7iv21DbgWtDHHHQ4IxCS9OqxqEx68MReg+HeheYcFddY
+   1qFb03tlImOD+anMqItFd2mFuj5VzBcZN/Eqgsn8yEMlLfEy2Kahy39A4
+   A==;
+X-CSE-ConnectionGUID: mtHHLv4kTvGx8j0wYOKDAg==
+X-CSE-MsgGUID: M5XJhCAsSLGjGiCX/OCJIg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11741"; a="75900934"
+X-IronPort-AV: E=Sophos;i="6.23,144,1770624000"; 
+   d="scan'208";a="75900934"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2026 08:49:47 -0700
+X-CSE-ConnectionGUID: rhMmywIISfyt2nMaqFTYlQ==
+X-CSE-MsgGUID: oyaYUmESTK+CrBvs8Tvlag==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,144,1770624000"; 
+   d="scan'208";a="226952013"
+Received: from lkp-server01.sh.intel.com (HELO 3905d212be1b) ([10.239.97.150])
+  by fmviesa004.fm.intel.com with ESMTP; 27 Mar 2026 08:49:44 -0700
+Received: from kbuild by 3905d212be1b with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w69RN-00000000AQ9-0GBY;
+	Fri, 27 Mar 2026 15:49:41 +0000
+Date: Fri, 27 Mar 2026 23:49:35 +0800
+From: kernel test robot <lkp@intel.com>
+To: Ujjal Roy <royujjal@gmail.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>, David Ahern <dsahern@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, Ujjal Roy <ujjal@alumnux.com>,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/4] ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
+Message-ID: <202603272318.WLQHm8jS-lkp@intel.com>
+References: <20260326150742.50289-3-royujjal@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/4] ipv4: igmp: encode multicast exponential fields
-To: Ujjal Roy <royujjal@gmail.com>, "David S . Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- Ido Schimmel <idosch@nvidia.com>, David Ahern <dsahern@kernel.org>
-Cc: Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260326150742.50289-1-royujjal@gmail.com>
- <20260326150742.50289-4-royujjal@gmail.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260326150742.50289-4-royujjal@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260326150742.50289-3-royujjal@gmail.com>
 
-On 26/03/2026 17:07, Ujjal Roy wrote:
-> In IGMP, QQIC and MRC fields are not currently encoded
-> when generating query packets. Since the receiver of the
-> query interprets these fields using the IGMPv3 floating-
-> point decoding logic, any raw interval value that exceeds
-> the linear threshold is currently parsed incorrectly as
-> an exponential value, leading to an incorrect interval
-> calculation.
-> 
-> Encode and assign the corresponding protocol fields during
-> query generation. Introduce the logic to dynamically
-> calculate the exponent and mantissa using bit-scan (fls).
-> This ensures QQIC and MRC fields (8-bit) are properly
-> encoded when transmitting query packets with intervals
-> that exceed their respective linear threshold value of
-> 128 (for QQI/MRT).
-> 
-> RFC 3376: if QQIC/MRC >= 128, the QQIC/MRC field represents
-> a floating-point value as follows:
->       0 1 2 3 4 5 6 7
->      +-+-+-+-+-+-+-+-+
->      |1| exp | mant  |
->      +-+-+-+-+-+-+-+-+
-> 
-> Signed-off-by: Ujjal Roy <royujjal@gmail.com>
-> ---
->   include/linux/igmp.h      | 80 +++++++++++++++++++++++++++++++++++++++
->   net/bridge/br_multicast.c | 14 +++----
->   2 files changed, 86 insertions(+), 8 deletions(-)
-> 
-[snip]
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 1438c023db62..1de6242413e0 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -939,7 +939,7 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge_mcast *brm
->   	struct sk_buff *skb;
->   	struct igmphdr *ih;
->   	struct ethhdr *eth;
-> -	unsigned long lmqt;
-> +	unsigned long lmqt, mrt;
->   	struct iphdr *iph;
->   	u16 lmqt_srcs = 0;
+Hi Ujjal,
 
-please keep reverse xmas tree order
+kernel test robot noticed the following build warnings:
 
->   
-> @@ -1004,15 +1004,15 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge_mcast *brm
->   	skb_put(skb, 24);
->   
->   	skb_set_transport_header(skb, skb->len);
-> +	mrt = group ? brmctx->multicast_last_member_interval :
-> +		      brmctx->multicast_query_response_interval;
->   	*igmp_type = IGMP_HOST_MEMBERSHIP_QUERY;
->   
->   	switch (brmctx->multicast_igmp_version) {
->   	case 2:
->   		ih = igmp_hdr(skb);
->   		ih->type = IGMP_HOST_MEMBERSHIP_QUERY;
-> -		ih->code = (group ? brmctx->multicast_last_member_interval :
-> -				    brmctx->multicast_query_response_interval) /
-> -			   (HZ / IGMP_TIMER_SCALE);
-> +		ih->code = mrt / (HZ / IGMP_TIMER_SCALE);
->   		ih->group = group;
->   		ih->csum = 0;
->   		csum = &ih->csum;
-> @@ -1021,11 +1021,9 @@ static struct sk_buff *br_ip4_multicast_alloc_query(struct net_bridge_mcast *brm
->   	case 3:
->   		ihv3 = igmpv3_query_hdr(skb);
->   		ihv3->type = IGMP_HOST_MEMBERSHIP_QUERY;
-> -		ihv3->code = (group ? brmctx->multicast_last_member_interval :
-> -				      brmctx->multicast_query_response_interval) /
-> -			     (HZ / IGMP_TIMER_SCALE);
-> +		ihv3->code = igmpv3_mrc(mrt / (HZ / IGMP_TIMER_SCALE));
->   		ihv3->group = group;
-> -		ihv3->qqic = brmctx->multicast_query_interval / HZ;
-> +		ihv3->qqic = igmpv3_qqic(brmctx->multicast_query_interval / HZ);
->   		ihv3->nsrcs = htons(lmqt_srcs);
->   		ihv3->resv = 0;
->   		ihv3->suppress = sflag;
+[auto build test WARNING on net-next/main]
+[also build test WARNING on net/main klassert-ipsec/master linus/master v7.0-rc5 next-20260326]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
+url:    https://github.com/intel-lab-lkp/linux/commits/Ujjal-Roy/ipv4-igmp-get-rid-of-IGMPV3_-QQIC-MRC-and-simplify-calculation/20260327-083159
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/20260326150742.50289-3-royujjal%40gmail.com
+patch subject: [PATCH 2/4] ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
+config: x86_64-randconfig-121-20260327 (https://download.01.org/0day-ci/archive/20260327/202603272318.WLQHm8jS-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+sparse: v0.6.5-rc1
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260327/202603272318.WLQHm8jS-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603272318.WLQHm8jS-lkp@intel.com/
+
+sparse warnings: (new ones prefixed by >>)
+   net/ipv6/mcast.c: note: in included file:
+   include/net/mld.h:32:43: sparse: sparse: array of flexible structures
+>> include/net/mld.h:147:30: sparse: sparse: cast to restricted __be16
+
+vim +147 include/net/mld.h
+
+    29	
+    30	struct mld2_report {
+    31		struct icmp6hdr		mld2r_hdr;
+  > 32		struct mld2_grec	mld2r_grec[];
+    33	};
+    34	
+    35	#define mld2r_type		mld2r_hdr.icmp6_type
+    36	#define mld2r_resv1		mld2r_hdr.icmp6_code
+    37	#define mld2r_cksum		mld2r_hdr.icmp6_cksum
+    38	#define mld2r_resv2		mld2r_hdr.icmp6_dataun.un_data16[0]
+    39	#define mld2r_ngrec		mld2r_hdr.icmp6_dataun.un_data16[1]
+    40	
+    41	/* MLDv2 Query */
+    42	struct mld2_query {
+    43		struct icmp6hdr		mld2q_hdr;
+    44		struct in6_addr		mld2q_mca;
+    45	#if defined(__LITTLE_ENDIAN_BITFIELD)
+    46		__u8			mld2q_qrv:3,
+    47					mld2q_suppress:1,
+    48					mld2q_resv2:4;
+    49	#elif defined(__BIG_ENDIAN_BITFIELD)
+    50		__u8			mld2q_resv2:4,
+    51					mld2q_suppress:1,
+    52					mld2q_qrv:3;
+    53	#else
+    54	#error "Please fix <asm/byteorder.h>"
+    55	#endif
+    56		__u8			mld2q_qqic;
+    57		__be16			mld2q_nsrcs;
+    58		struct in6_addr		mld2q_srcs[];
+    59	};
+    60	
+    61	#define mld2q_type		mld2q_hdr.icmp6_type
+    62	#define mld2q_code		mld2q_hdr.icmp6_code
+    63	#define mld2q_cksum		mld2q_hdr.icmp6_cksum
+    64	#define mld2q_mrc		mld2q_hdr.icmp6_maxdelay
+    65	#define mld2q_resv1		mld2q_hdr.icmp6_dataun.un_data16[1]
+    66	
+    67	/* RFC3810, 5.1.3. Maximum Response Code:
+    68	 *
+    69	 * If Maximum Response Code >= 32768, Maximum Response Code represents a
+    70	 * floating-point value as follows:
+    71	 *
+    72	 *  0 1 2 3 4 5 6 7 8 9 A B C D E F
+    73	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    74	 * |1| exp |          mant         |
+    75	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    76	 */
+    77	#define MLDV2_MRC_EXP(value)	(((value) >> 12) & 0x0007)
+    78	#define MLDV2_MRC_MAN(value)	((value) & 0x0fff)
+    79	
+    80	/* RFC3810, 5.1.9. QQIC (Querier's Query Interval Code):
+    81	 *
+    82	 * If QQIC >= 128, QQIC represents a floating-point value as follows:
+    83	 *
+    84	 *  0 1 2 3 4 5 6 7
+    85	 * +-+-+-+-+-+-+-+-+
+    86	 * |1| exp | mant  |
+    87	 * +-+-+-+-+-+-+-+-+
+    88	 */
+    89	#define MLDV2_QQIC_EXP(value)	(((value) >> 4) & 0x07)
+    90	#define MLDV2_QQIC_MAN(value)	((value) & 0x0f)
+    91	
+    92	#define MLD_QQIC_MIN_THRESHOLD	128
+    93	#define MLD_MRC_MIN_THRESHOLD	32768UL
+    94	#define MLDV1_MRD_MAX_COMPAT	(MLD_MRC_MIN_THRESHOLD - 1)
+    95	
+    96	#define MLD_MAX_QUEUE		8
+    97	#define MLD_MAX_SKBS		32
+    98	
+    99	/* V2 exponential field decoding */
+   100	
+   101	/* Calculate Maximum Response Delay from Maximum Response Code
+   102	 *
+   103	 * RFC3810, 5.1.3. defines the decoding formula:
+   104	 *      0 1 2 3 4 5 6 7 8 9 A B C D E F
+   105	 *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   106	 *     |1| exp |          mant         |
+   107	 *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   108	 * Maximum Response Delay = (mant | 0x1000) << (exp+3)
+   109	 */
+   110	static inline unsigned long mldv2_mrd(const struct mld2_query *mlh2)
+   111	{
+   112		/* RFC3810, relevant sections:
+   113		 *  - 5.1.3. Maximum Response Code
+   114		 *  - 9.3. Query Response Interval
+   115		 */
+   116		unsigned long mc_mrc = ntohs(mlh2->mld2q_mrc);
+   117	
+   118		if (mc_mrc < MLD_MRC_MIN_THRESHOLD) {
+   119			return mc_mrc;
+   120		} else {
+   121			unsigned long mc_man, mc_exp;
+   122	
+   123			mc_exp = MLDV2_MRC_EXP(mc_mrc);
+   124			mc_man = MLDV2_MRC_MAN(mc_mrc);
+   125	
+   126			return ((mc_man | 0x1000) << (mc_exp + 3));
+   127		}
+   128	}
+   129	
+   130	/* Calculate Querier's Query Interval from Querier's Query Interval Code
+   131	 *
+   132	 * RFC3810, 5.1.9. defines the decoding formula:
+   133	 *      0 1 2 3 4 5 6 7
+   134	 *     +-+-+-+-+-+-+-+-+
+   135	 *     |1| exp | mant  |
+   136	 *     +-+-+-+-+-+-+-+-+
+   137	 * QQI = (mant | 0x10) << (exp + 3)
+   138	 */
+   139	static inline unsigned long mldv2_qqi(const struct mld2_query *mlh2)
+   140	{
+   141		/* RFC3810, relevant sections:
+   142		 *  - 5.1.9. QQIC (Querier's Query Interval Code)
+   143		 *  - 9.2. Query Interval
+   144		 *  - 9.12. Older Version Querier Present Timeout
+   145		 *    (the [Query Interval] in the last Query received)
+   146		 */
+ > 147		unsigned long qqic = ntohs(mlh2->mld2q_qqic);
+   148	
+   149		if (qqic < MLD_QQIC_MIN_THRESHOLD) {
+   150			return qqic;
+   151		} else {
+   152			unsigned long mc_man, mc_exp;
+   153	
+   154			mc_exp = MLDV2_QQIC_EXP(qqic);
+   155			mc_man = MLDV2_QQIC_MAN(qqic);
+   156	
+   157			return ((mc_man | 0x10) << (mc_exp + 3));
+   158		}
+   159	}
+   160	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
