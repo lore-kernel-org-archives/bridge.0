@@ -1,66 +1,66 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E6D43B8BB0
-	for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 06:38:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E23B13BE64D
+	for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 06:38:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774593492; cv=none; b=AU8WkVct4lEwMNTj7vUvl86N0Nr6R2ivqd1zjNKh679STcXQ8rXVht5IUhCdBNz/uFczlHrHlHeCDgAXtMBjj4iI4st/1psnrKkOG9bExt30geA0YH+p8r5v1uiwxenMWalgqFYhnaaT2XyXxVzM81QAzn3oMnX3+hpf6Skxq6o=
+	t=1774593503; cv=none; b=nLPjjomCYSj3VXnxj2jbOFPRylCABJY/H9obDhHQxlsbxjl4vjio7nRXpLzzlp7xMN1ZIDndS8Af6wkxNZKAdMfArrfy4wdqnunsTqroU7/YWDW3UsUR258+BXHpXuDsPvi/7q5DTOS3RCazoUGXjvw/iVvvqkv3hr3Nz1Vjh6c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774593492; c=relaxed/simple;
-	bh=OalUvNka4rSqIza6cXGQTTpYwwa3mB6/6RhFkMnDUhU=;
+	s=arc-20240116; t=1774593503; c=relaxed/simple;
+	bh=0PQ0R9rAwmS9xKjuhJFascJ1dmFx6hqwZe5aHDfzhHM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MDrh/sZx35rWnivsepI0NdAmZYHsPlDp27Lbr2PVhACfjeBPy6k3CNeRuiBKzK3itp2ixcjMmPRemOy3+M5fuRxW4vNwXv81crYsFmUv7iKT1EE1+aR/PADKXo2rklDpN5x42kWwFEQDYci3ME4DIQR9+zgsjQSw2p97F4XR/R8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=JONk1kws; arc=none smtp.client-ip=209.85.128.47
+	 In-Reply-To:Content-Type; b=Lbw6nlL5boyupDBrBpVcdfJWA+SV5jYVxaR8Y04d+9y9mwMnxa7WBRpi3yvE/lgTmetOSRLOU/nVMQskvOM0b7yR0xI3s3f+9inijuMeyrTQhYC9OyKZ7NouVu6W9v86Iz1FzVi94D0L1blh8S6+/9qzcZY/VACUuu5g441TONQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=iMOM5b8i; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="JONk1kws"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-486507134e4so20344105e9.0
-        for <bridge@lists.linux.dev>; Thu, 26 Mar 2026 23:38:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="iMOM5b8i"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4852e9ca034so17554575e9.2
+        for <bridge@lists.linux.dev>; Thu, 26 Mar 2026 23:38:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1774593482; x=1775198282; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1774593492; x=1775198292; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=ufslfVKbYiC1gJ1SBX0ye+COWeE+LMG8L5cvsaYvZjY=;
-        b=JONk1kwswtWz6ekJw7F/v7+j4QQupjt9v7k1s6ToGkoeZ5eL3L2OH7zPEHTQ7qQ/Rg
-         /Ad4bClXDXzIN70kSO4xu+jinoNQMDt+Q1JDqKgGtUYVjgszz/feskZSBehfg8jHHgeU
-         HJtANFESbzYMYKofCMmLQTg2Jl+nhQ4EhyUeSIpf1qKS2AbhAJwfhCvCPRKW6ABlSXy2
-         oX0LKHeza1TA7TPfH0jWxeEVu+TdH5NHDvd/8m1CMEHv+rQW6+17jMrqXHSvZnXX1NpB
-         AvcVWAlAYbnAiRw9iMO2whLxG9YLQKf8I2j0Xg0PRwvzoHqkIMADBAXiGKaxOq6AcyhZ
-         venw==
+        bh=vy83C5FxtN9GPfanScbX328M9aV0PE+NWeES6DorSXA=;
+        b=iMOM5b8iWgbQL9E59VijaodGEt5axyRzAFiSaqPPOTl2JXs/I2gJ6ttQ9XUWk84Aug
+         gaUPrhRBEgKJsPG9RSmDatBOl+JsNrG54URqpX14ovHLh5fWOgRPwMl+S7g+b0q76i7x
+         tU0thUJVAgUH0kFkVgIzbsQu4pTDkgytg7Ppy9Oz2Ho3YwIlXITROvCj5B9LM7QzH+RK
+         9A5sVNgHIxzs0NFJXzrXC2n+KS8WFJXVJemYT/f7aGW9xzbH35OlK/n1TUk1cy3YvcFr
+         wXPiqcEAzIYW+SEDW2JM403mHAeKYhV3172AY2MzoDdte88Ub0tAQUX5WLWj407q1mib
+         uwzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774593482; x=1775198282;
+        d=1e100.net; s=20251104; t=1774593492; x=1775198292;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ufslfVKbYiC1gJ1SBX0ye+COWeE+LMG8L5cvsaYvZjY=;
-        b=bz1sF/+rJLNsND6Xfxo8cJEl6MCTeB/5hrH6gOrfwNlmi2/CNTHAQixjlFnEUHDPIO
-         GbYAjJJl0GakLev0g1a8Gpd5SEsxkDRuvhWsd7yzJxK7Ln39Nqyes7Mgt4qI0hA5BwcB
-         Qvn9VH2uKZ3W5TO5wL3d1SPZChWfZvhPr3a/rZKTs6UyPgx9Y/iQRUmVMEpMWLVzdhez
-         h72UVBD8xbJMSKkkDzk1bSlJaQSykDh0EnLEIHz5iHAVMKk+mjYr+c0Rc7wyNdpnYT6O
-         G6gtpN6cIEhaDKS0JA4YSN6EndUISBLjp3miDxLrwlsAl4P0HrgagBshY/UmoVnB19+j
-         vPhQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVPfisY9q+5ziDCZY4YIH1w/PwM+CAjmmVRgea7wS8/50PrnQpfn7CwHG3OKz9KKd3j9Pg0MF4=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzy11pwO7It5UhmLtP7cJtv+n1t1CNt76C7JZfWv2x9Ql4XbvJi
-	4DOcywE4geb59jNlNFutBMi05bSGAIrTPzowHoUZJHTRQQEksSePtOkBzUZ05L7SVzc=
-X-Gm-Gg: ATEYQzyGuBpZS9bThO200DGdR/980VXv2m1T3N8r/WPju/xSOGwoMQgYa+uqWj1v9E1
-	eR28OuPv6JXPGShl6G26axkgips5s1KM0VoRDlvfsW/krAH4Aerraxqr8ieyll9bC2jdOCih7b2
-	9GItL+9v1d/QmhLXLyxxztAEOYVqH7y2u8TLaxVX55fVRot4okZkSAOe29oHqckHByUM8EC7SM/
-	2Y81mzVwrJHBrlKjbF2mvmPY8KwTetOVbp7Xy6V0/gfC6lHs2MccmeOj25ucgdzpx9QAGtGL3uw
-	BSOnPUQHlXp7/6a6f4cx4zAmGh5E7W8pDLE9r7crBsBBItshaQ4Ge0y344dP+fFw2sXisPehUqg
-	6PDcBQdjPXWP4rzsGYxe6wZOaOITtsLpmuyHljd1ug2L46ouefF1lem4uYeWwGoY9nvIAvxL/sT
-	XrltcM2eZsA6I8cPFFl69jlgK3ZMH/iutj8qN122Fmff94DJkyuwD/OA==
-X-Received: by 2002:a05:600c:4685:b0:480:20f1:7aa6 with SMTP id 5b1f17b1804b1-48727ef67f8mr19564215e9.21.1774593481383;
-        Thu, 26 Mar 2026 23:38:01 -0700 (PDT)
+        bh=vy83C5FxtN9GPfanScbX328M9aV0PE+NWeES6DorSXA=;
+        b=Ap61cV5Txqew6N2/+Uyvih0k1DF/MzFKnChtbH8+E7jPai4CcD84KGipTs3uBm9qj5
+         mOybmViSgtnygNl79U+szyOzro7Z0w3LFAtQUjcyfm/bg9VgHoEvGqqlyR3HnUqE8FyV
+         QSB2wx8vTxAHdkJKjCt3EEN3qDgiB2kdLyRUdk9LM90s+4NMSCKnIyMFzq7FdrcpZQbx
+         PNSc48U5Ljlyirc9KLXDkUM0EzXbUE1NKHYmoAN0KZkrUjn5VcqlkDHmADyc4ngAYfh7
+         hSMtHZzUlyjN9Nyjv/r0F1KrHdGQLHHyG6gQ8JLLpiPQWe0yPGQ5CTe6YoPqki3fQVin
+         fwgQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXYZCI8ZHM+42bSdWwP3o6lxalOt2OImUPjDN1765EqtFH8bBECL8wZV2vL1jEPbSPHLHo7KxA=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx/RqdtdqNyuTM50Sc23O1quxlsZjm4Ao0l1JIaPmBtYf7gas5X
+	sfnmmQNBk2v24dRmbD1Z7Demq1+E9p6c0oGPbnKYpUk6kaIKNaO4s+KWUYCu0POKTJw=
+X-Gm-Gg: ATEYQzx3HnzPQAfW0MzLTGUou2tpstkg3dw4/8YjFT1HKuupqf23RDdRZU6sXtHqrxW
+	X6wtH0weZijFeCFAlf359+ULNGUt7jIqGy3c3SJWNdHKNx/j2z9gG6pksEzNYrhUZPE+laFBbbw
+	qXwCnEm3G+HC0qJIkKR09DiZd4tye6hRurJXaqD/vVHp9u3iVYdfd7UFV0Sro5ikY+qaXx50biw
+	Guti8CJv/xSleBw1xHDnsDjSSHKauWHKZv4kBCET6wG9h4/Yf8rvqwMEIJb3u5LnPUU68JT0uIH
+	xaXBCIRyN7B7OMucMQDQBz8COyfERnGnzX4SdwZqK0loZu/cpzozX2/KMKzRb1eu6Nj1cTFssLX
+	phhgADjtHhX6imsy5xklS0HaIDfiaUjz/Y2zxJErZloPyxxnUEK3EqeM0cKGkCI9X0VZ0GGc1n0
+	R5n2gIGet6aAmPclg/HFG05G9z1rbqBpYfHv1C6L3MepESj1MT56x7hg==
+X-Received: by 2002:a05:600c:8b77:b0:486:ffa3:584 with SMTP id 5b1f17b1804b1-48727f17035mr17478945e9.15.1774593492578;
+        Thu, 26 Mar 2026 23:38:12 -0700 (PDT)
 Received: from [192.168.0.161] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48722c9f58fsm121003165e9.11.2026.03.26.23.38.00
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-487270fd880sm12607495e9.8.2026.03.26.23.38.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Mar 2026 23:38:00 -0700 (PDT)
-Message-ID: <4b0ce6be-1f9e-4f2d-b2db-16d39c8b133e@blackwall.org>
-Date: Fri, 27 Mar 2026 08:37:59 +0200
+        Thu, 26 Mar 2026 23:38:12 -0700 (PDT)
+Message-ID: <8414c7c5-5400-46b4-a470-fade0ff4faee@blackwall.org>
+Date: Fri, 27 Mar 2026 08:38:10 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -68,7 +68,8 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 2/3] bridge: br_nd_send: validate ND option lengths
+Subject: Re: [PATCH net 3/3] vxlan: validate ND option lengths in
+ vxlan_na_create
 To: Yang Yang <n05ec@lzu.edu.cn>, davem@davemloft.net, edumazet@google.com,
  kuba@kernel.org, pabeni@redhat.com, idosch@nvidia.com
 Cc: andrew+netdev@lunn.ch, horms@kernel.org, florian.fainelli@broadcom.com,
@@ -77,23 +78,23 @@ Cc: andrew+netdev@lunn.ch, horms@kernel.org, florian.fainelli@broadcom.com,
  linux-kernel@vger.kernel.org, yifanwucs@gmail.com, tomapufckgml@gmail.com,
  tanyuan98@outlook.com, bird@lzu.edu.cn
 References: <20260326034441.2037420-1-n05ec@lzu.edu.cn>
- <20260326034441.2037420-3-n05ec@lzu.edu.cn>
+ <20260326034441.2037420-4-n05ec@lzu.edu.cn>
 Content-Language: en-US
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260326034441.2037420-3-n05ec@lzu.edu.cn>
+In-Reply-To: <20260326034441.2037420-4-n05ec@lzu.edu.cn>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 26/03/2026 05:44, Yang Yang wrote:
-> br_nd_send() walks ND options according to option-provided lengths.
-> A malformed option can make the parser advance beyond the computed
-> option span or use a too-short source LLADDR option payload.
+> vxlan_na_create() walks ND options according to option-provided
+> lengths. A malformed option can make the parser advance beyond the
+> computed option span or use a too-short source LLADDR option payload.
 > 
 > Validate option lengths against the remaining NS option area before
 > advancing, and only read source LLADDR when the option is large enough
 > for an Ethernet address.
 > 
-> Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+> Fixes: 4b29dba9c085 ("vxlan: fix nonfunctional neigh_reduce()")
 > Cc: stable@vger.kernel.org
 > Reported-by: Yifan Wu <yifanwucs@gmail.com>
 > Reported-by: Juefei Pu <tomapufckgml@gmail.com>
@@ -103,21 +104,21 @@ On 26/03/2026 05:44, Yang Yang wrote:
 > Suggested-by: Xin Liu <bird@lzu.edu.cn>
 > Signed-off-by: Yang Yang <n05ec@lzu.edu.cn>
 > ---
->   net/bridge/br_arp_nd_proxy.c | 6 ++++--
+>   drivers/net/vxlan/vxlan_core.c | 6 ++++--
 >   1 file changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-> index af3d1e33f50b8..6b5595868a39c 100644
-> --- a/net/bridge/br_arp_nd_proxy.c
-> +++ b/net/bridge/br_arp_nd_proxy.c
-> @@ -288,12 +288,14 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
->   	ns_olen = request->len - (skb_network_offset(request) +
->   				  sizeof(struct ipv6hdr)) - sizeof(*ns);
->   	for (i = 0; i < ns_olen - 1; i += (ns->opt[i + 1] << 3)) {
+> diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
+> index 17c941aac32db..a94ac82a61364 100644
+> --- a/drivers/net/vxlan/vxlan_core.c
+> +++ b/drivers/net/vxlan/vxlan_core.c
+> @@ -1965,12 +1965,14 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
+>   	ns_olen = request->len - skb_network_offset(request) -
+>   		sizeof(struct ipv6hdr) - sizeof(*ns);
+>   	for (i = 0; i < ns_olen-1; i += (ns->opt[i+1]<<3)) {
 > -		if (!ns->opt[i + 1]) {
 > +		if (!ns->opt[i + 1] || i + (ns->opt[i + 1] << 3) > ns_olen) {
 >   			kfree_skb(reply);
->   			return;
+>   			return NULL;
 >   		}
 >   		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
 > -			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
