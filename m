@@ -1,135 +1,133 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2436B223708
-	for <bridge@lists.linux.dev>; Sat, 28 Mar 2026 06:23:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774679028; cv=pass; b=I2k8FEbsPGBsvgJOWbfzlfirouX9QxBnSYaeLCbJEqHD/fkupIRDs9PqFKCNmopwvSsvpLX2jL5sBciO8MupumwgHIU47ofdb1DpBOS/gKXVGEgZIVoG0Gicqe9quexbguLI4D+9hNqzz3bWMkzTvBZAymw8RAglpjg0Vqnszp8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774679028; c=relaxed/simple;
-	bh=mGrMw4MiJplVaIj0CCi1OYNWT4Z3Rp1BfJNazbAf/Zg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dbfNWghpAYeRGx6CXGZr/YAJYFFX88GP27XFjSEsG1zG9ZPOzMDOxwIVKbCKflrtd4ajUWcprsGvf/+DfogGp+iGbLsz+mOPCeM01V8xsUcskdCzatNTs0/FqREXXgqI4YXY4KJnnRfsNTQTQLZl/OlvPMI9w5mfNYdwasd1Ftg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=Z2HfYkjf; arc=pass smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D219318ED9
+	for <bridge@lists.linux.dev>; Sat, 28 Mar 2026 06:30:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774679405; cv=none; b=qLgfKdCy2UB+9m560tYBzsy96BgV+uq8bveun0wAcQ6ec33ms8vE45G2+ZEqdO5XgykMMDefBui67tuhbDXSnAJdLSZxVGU5hV5KNQ9yvhI/c40ezP5BD5sc3mb37ixJDaC6OgK4vjW0ScouNqYtaqrC2v5ZOF8kR//mazb7U24=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774679405; c=relaxed/simple;
+	bh=xW1wc94YfM9S77eQBr4XSjqABGmaEYNxYjRtreidgFo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qsOEBWEp0A0MrzOO5yzd78Jt2ecHfEewKoCsHrmjGVf+v1D+3uli19+rtv0Y10+Keun25empUrDHeXyb2X2exCW1FCZ0tzMzalVCuXlGBwi3EL73xs37JeikwXiSKuK2hZeZndEspRjNP34rTrpDH0ktLBcdzqWD+F2OzlgWEcc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=EuQSO5Io; arc=none smtp.client-ip=74.125.82.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="Z2HfYkjf"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-35c1107d4b7so2300279a91.1
-        for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 23:23:46 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774679026; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ZkeJrEcJAd29d9ieasf1zQdqMWRQO6iQ7xQOdneqzqdxPXkGPdtFmysrgNfp0W1wg4
-         p+3/WOI5z2a5DY4qW9EwFXX3NLUdFWxQl0Poc5Qkqjiz9+BLmBVUtUU5jnR2wFK3Pacy
-         uMECVIfef/+MkC8SkFRRJ6J4qalVupR3v6R9Kp92uQe+PEhwoVgwAapPzM5VdYzr+0hm
-         e8MLFoZdc4ntiLcWVv4L+i/YTdBqHtXsr7A/WZD2QXrMRRCiGUUyG5lrHgfa0bAJugMi
-         xE7kc6YImIuc9T/IjNaaTU5QnZzv7FnOaRCXRB1rYa/QALPMv6pi2R7xg2eUJa1lr6lY
-         l3aw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=mGrMw4MiJplVaIj0CCi1OYNWT4Z3Rp1BfJNazbAf/Zg=;
-        fh=Pvs7WAW+qGyvlALCdRVRv2CoUE0oUsyEwLjdUIYjSmY=;
-        b=fu/3lI5x3k6ug6MTz3nSe2orvPzKgfqQiTPpW+zR0nQybo3zpQEAEOZZlkMcfYv0u9
-         ihQ0JA9eGI+BefdtYXfMk9a3Ni2W73qgQweKxdos5+Q/D9Sz9Ttt4uiyhGAgRiKoGXC8
-         ufD6peiz8fsRbEgGtevwprYbhsygnlwbVCmqnyTjwiX8BN75IfPIEEn0OOkTE+9hmKAb
-         7+9pp4iil/maXfkRRlhuSGfB+xmIyvA383k3MTUUQuixNCi36uM22EUh9DgZNLBF55We
-         /R20esZvhKyNAxqi7QcTqyKLtC0KergudtWs5esrvD6Thez6pM46a8kL3s2jRtTKDNQC
-         5IUw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="EuQSO5Io"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2b6b0500e06so3940879eec.1
+        for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 23:30:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=asu.edu; s=google; t=1774679026; x=1775283826; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mGrMw4MiJplVaIj0CCi1OYNWT4Z3Rp1BfJNazbAf/Zg=;
-        b=Z2HfYkjfLarnlh+dkc12n9S/5gi+IfgcQhYrccT5FVciCxWYRkgDWJi29wR6P//BRE
-         t+ox3z3Zd/MieNW0/mgVU8cHoAQHBMwju6uJW9jLRA8oOJfDdSIJzwGSiyh1JYxZsAgJ
-         M367oSDGtdY+y1AeXffxo53YXz+7WGb+eUpdbe6nEhTayggJPszOwbXzmzMN5WYefENq
-         tgktT1eNySSXYG8sqeUCn8F9q1+9Ho3x3FMsk/jHkX603pT2WU88doFJ+mflSkVOZW8h
-         7FSJrEBIhPHjuYZ5QM3PPujKsADhYwRCHEXlEnIgkoEvQprtfsdeP8AVSWGgaMVCx5AC
-         qF1A==
+        d=asu.edu; s=google; t=1774679403; x=1775284203; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZZC3wXGU2hX/iAEcs6Ou5xr77klGlMLsUM+XsPJ10yg=;
+        b=EuQSO5IoXj+NiQWudo5Kg7f4LmQ4KkjplWhmcpAmZZwtqG8s5hvm8Wgytxna5tdJbU
+         ipmSkT3vJipx8ReerOrlyBPwQ79LKrJdzQcqcGTB8/4ihkg6guDgypU4Pkn6yp2LK/Yu
+         2SvOOg/OBVsXooT0MWBHPv4bNL9rY3fKWk33l9WPlDG1dp2xbTbWEQt5tnt694p5LqMT
+         PZcp1118c/on6ITK0SzVoOygykAm3DVFdTwgaSzR4Fj2vA7X+yXfZBCIYmC8OVUNfEsg
+         z4nlMwV2bPbEtBxNjwlmHHnBA4515p84IRm+jtL00O/xjI3e97gik+MHyReoAO73QSVH
+         5Vpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774679026; x=1775283826;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=mGrMw4MiJplVaIj0CCi1OYNWT4Z3Rp1BfJNazbAf/Zg=;
-        b=C3+yb+pGiZBXvDFXFdHasSyFDj9lYMo9K2viTJeE0cnyPVIljMuYwzLre1rYiGFPq0
-         tyCRlNF5Bx9m6DSMbM2sQFv4CiQtLkN13GUZOFIMBVHe+ymnYaAkllTAYMsUJPVpITWZ
-         d61CVzvE6K3uvSEKaE+G/nf31NbW9fN9vxdVKPiTdPE52u8NMYYMzQ2fGcQdCNVvqX0s
-         EeJ+PcdNIhKCjqkRw+E5j+MLaS8b7bz65+i4JM31NcI709WgTigOWDgKtRoevkThwyyF
-         YXCsng6IgaKSKC55G1ZEIidegt9PkAmL6peIhIwGPNlS+xhkoa1R9vJRX0lMh8V7JIsA
-         d9Sg==
-X-Forwarded-Encrypted: i=1; AJvYcCUV7sDT4LXVMI3S5dKWVQcvu9zBZqawHygO34PAYcRjQHh/Py/0nRWkhb7coIs/9wdZSHXOlYs=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzL9TIZz8xqF3npwTsoaTVAYwZBqKUbwpmqZAzd0PsOeKnPMvq7
-	zy+Q4+muzcAtubsIAW36wIa0ndPLTFPsRYuqJHOeQnl1U7xeSH46mIyFWVxIhH3CRx1HhlCx82A
-	PJKfwpbI/w6Pn4Nal1oUwZ1Kpm2nF8EG/MiNfy4Ze
-X-Gm-Gg: ATEYQzz1sidin+Lm1xbkN+YL7c7GZZJJlBnJoqQ+SJFq6enzBQNW0cXU+OcwVYJdbYX
-	IsuhkJ9cdBmjTjJ+Qv8AhJEb2UINZYPNPnZG4qQYBti2Qvljw1PnAWEt0VIOMqSY+V8a5SCZyoh
-	EDaqLR7Hq6dKdo84Y1v9Xi7SCtX5YzZwu9c4apupkVppmI5V8pI88lbF9V/NsDcHgYDS8okE0aN
-	5cNWEBVjU1zXXR2ys3C8wd4xmETx5VWc0345S7z2bX7Z0BaSJC85TMPLbgs8G7Fk9oeDW34+nnD
-	06iWBGrv
-X-Received: by 2002:a17:90a:e705:b0:353:5595:3247 with SMTP id
- 98e67ed59e1d1-35c2ff618edmr5113370a91.12.1774679026308; Fri, 27 Mar 2026
- 23:23:46 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1774679403; x=1775284203;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZZC3wXGU2hX/iAEcs6Ou5xr77klGlMLsUM+XsPJ10yg=;
+        b=hiVgGLI081v5UirkvJYX+VNXxuaP8G59PJRO73LlA9OKh7x7hcdBzWXaG4AuS5/LAe
+         hFy1ojfKJbJOL+j8aRkFhA6+fEjw8mrDiJVVteEoss4MKbT51vIvgWjS3rJosuZfkbkP
+         UMFZ1Ll33Yi1MCo/W9/6RLoZhglUzznXobY5ShNHrQnh/b1kC/xH60ieWr5x+K4ci6Cf
+         XWnd5haOYUy0VpRAQr8PtcWS8Bawo4R1OHMQ1S94sSSnb474+X7IvNf/7eAuDvd8yzix
+         Q91GvQboQj2VCLZK1fnUTFoorwlHr0AWWO4I/7+gsDOfPOzH89esYkKv6r30Uup73+6z
+         Jg8A==
+X-Gm-Message-State: AOJu0YzVwE9fmevE2+C3xMEOo2rmRx2cICJC6DKM8J7ilUp0Li8aAzFn
+	2sOMNkDlDXW1JwopXTyjyvB+rt+oL8+8tXR0+vkjW3qIkbfajmEpH9wOO6m4fWmqdw==
+X-Gm-Gg: ATEYQzwwWdYEPW9F9fcO0jQfe3A250bUPVjslYYWfeApWu/Yvba6i1pdlrYX9BZgM8T
+	2KWBg25KGzGKoUY8RwyXDRIqaSpXC/6WrnYvb3eBgsQx8+dz9+ulZDHhv46Gugbu/iHoyvZR5EJ
+	2ZdnYGS+OP+4URHBkFg0br01+tR75hLLgBzV7JAXC43iRbf53fwf22Yqbr0eEj0q1xnMilD13Q7
+	q3+2bhwVNLYW+yakBH4gV1PKfiN4VWt7fYvgMEA/IIaBQgUE/4UMac6f4+PgGUgq3shAr9QOjbf
+	jqqTpVwxZwB4/Uyyjywp2+pnMomL061+sifLw2Q6ZYyxsXN7OtIDrNyPapr3YHstVFq4AubPrAH
+	vJS4hMeccmuK1yoBwCB225O3fzhbXT8pS7InJ8045NJEnKWlvX5tWnL1GUL8j0bPm2ynj11kITd
+	WzZwV/PEZD5g+7zxLxruAl/o7gvGsSKrfK5gAUfFq2or8+HT+GixeQJA==
+X-Received: by 2002:a05:7300:ac8a:b0:2be:fe8:8b0a with SMTP id 5a478bee46e88-2c185e44a68mr2625453eec.21.1774679403069;
+        Fri, 27 Mar 2026 23:30:03 -0700 (PDT)
+Received: from p1.scai.dhcp.asu.edu (209-147-138-15.nat.asu.edu. [209.147.138.15])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c3c7483ffcsm1376216eec.26.2026.03.27.23.30.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Mar 2026 23:30:02 -0700 (PDT)
+From: Xiang Mei <xmei5@asu.edu>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux.dev,
+	horms@kernel.org,
+	razor@blackwall.org,
+	kuba@kernel.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	bestswngs@gmail.com,
+	Xiang Mei <xmei5@asu.edu>
+Subject: [PATCH net v2] bridge: mrp: reject zero test interval to avoid OOM panic
+Date: Fri, 27 Mar 2026 23:30:00 -0700
+Message-ID: <20260328063000.1845376-1-xmei5@asu.edu>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260326032438.3307549-1-xmei5@asu.edu> <20260327113412.GD567789@horms.kernel.org>
- <f7fea291-bde9-4f95-8a59-1b209407ee27@blackwall.org> <20260327171917.7575d715@kernel.org>
-In-Reply-To: <20260327171917.7575d715@kernel.org>
-From: Xiang Mei <xmei5@asu.edu>
-Date: Fri, 27 Mar 2026 23:23:35 -0700
-X-Gm-Features: AQROBzDsd7uTa4Y8C1u6puTZAJ7JTHkpQpXfmYuMWfXq0kecoUQ_Yx7IUQh2sm4
-Message-ID: <CAPpSM+SHL8VQU2jfzbs8vEVhdHiV=VQb3Dx-9iwryQEFK-QkSw@mail.gmail.com>
-Subject: Re: [PATCH net] bridge: mrp: reject zero test interval to avoid OOM panic
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>, Simon Horman <horms@kernel.org>, netdev@vger.kernel.org, 
-	bridge@lists.linux.dev, idosch@nvidia.com, davem@davemloft.net, 
-	edumazet@google.com, pabeni@redhat.com, bestswngs@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Thanks for your review. interval=3D1 works fine even in the case when we
-use netem to delay the consumer. I'll correct the fix tag and send a
-v2.
+br_mrp_start_test() and br_mrp_start_in_test() accept the user-supplied
+interval value from netlink without validation. When interval is 0,
+usecs_to_jiffies(0) yields 0, causing the delayed work
+(br_mrp_test_work_expired / br_mrp_in_test_work_expired) to reschedule
+itself with zero delay. This creates a tight loop on system_percpu_wq
+that allocates and transmits MRP test frames at maximum rate, exhausting
+all system memory and causing a kernel panic via OOM deadlock.
 
-On Fri, Mar 27, 2026 at 5:19=E2=80=AFPM Jakub Kicinski <kuba@kernel.org> wr=
-ote:
->
-> On Fri, 27 Mar 2026 13:46:39 +0200 Nikolay Aleksandrov wrote:
-> > On 27/03/2026 13:34, Simon Horman wrote:
-> > > On Wed, Mar 25, 2026 at 08:24:38PM -0700, Xiang Mei wrote:
-> > >> br_mrp_start_test() and br_mrp_start_in_test() accept the user-suppl=
-ied
-> > >> interval value from netlink without validation. When interval is 0,
-> > >> usecs_to_jiffies(0) yields 0, causing the delayed work
-> > >> (br_mrp_test_work_expired / br_mrp_in_test_work_expired) to reschedu=
-le
-> > >> itself with zero delay. This creates a tight loop on system_percpu_w=
-q
-> > >> that allocates and transmits MRP test frames at maximum rate, exhaus=
-ting
-> > >> all system memory and causing a kernel panic via OOM deadlock.
-> > >
-> > > I would suspect the primary outcome of this problem is high CPU consu=
-mption
-> > > rather than memory exhaustion. Is there a reason to expect that
-> > > the transmitted fames can't be consumed as fast as they are created?
-> >
-> > +1
-> > More so with CAP_NET_ADMIN you can cause all sorts of OOM and high-cpu =
-usage
-> > conditions. This is a configuration error and OOM doesn't lead to panic=
- unless
-> > instructed to. I don't think this is worth changing at all.
->
-> Then again if there's no practical use for 0 we should consider
-> the risk of getting this sort of submission over and over again?
-> Dunno..
+The same zero-interval issue applies to br_mrp_start_in_test_parse()
+for interconnect test frames.
+
+Use NLA_POLICY_MIN(NLA_U32, 1) in the nla_policy tables for both
+IFLA_BRIDGE_MRP_START_TEST_INTERVAL and
+IFLA_BRIDGE_MRP_START_IN_TEST_INTERVAL, so zero is rejected at the
+netlink attribute parsing layer before the value ever reaches the
+workqueue scheduling code. This is consistent with how other bridge
+subsystems (br_fdb, br_mst) enforce range constraints on netlink
+attributes.
+
+Fixes: 20f6a05ef635 ("bridge: mrp: Rework the MRP netlink interface")
+Fixes: 7ab1748e4ce6 ("bridge: mrp: Extend MRP netlink interface for configuring MRP interconnect")
+Reported-by: Weiming Shi <bestswngs@gmail.com>
+Signed-off-by: Xiang Mei <xmei5@asu.edu>
+---
+ net/bridge/br_mrp_netlink.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/bridge/br_mrp_netlink.c b/net/bridge/br_mrp_netlink.c
+index ce6f63c77cc0..86f0e75d6e34 100644
+--- a/net/bridge/br_mrp_netlink.c
++++ b/net/bridge/br_mrp_netlink.c
+@@ -196,7 +196,7 @@ static const struct nla_policy
+ br_mrp_start_test_policy[IFLA_BRIDGE_MRP_START_TEST_MAX + 1] = {
+ 	[IFLA_BRIDGE_MRP_START_TEST_UNSPEC]	= { .type = NLA_REJECT },
+ 	[IFLA_BRIDGE_MRP_START_TEST_RING_ID]	= { .type = NLA_U32 },
+-	[IFLA_BRIDGE_MRP_START_TEST_INTERVAL]	= { .type = NLA_U32 },
++	[IFLA_BRIDGE_MRP_START_TEST_INTERVAL]	= NLA_POLICY_MIN(NLA_U32, 1),
+ 	[IFLA_BRIDGE_MRP_START_TEST_MAX_MISS]	= { .type = NLA_U32 },
+ 	[IFLA_BRIDGE_MRP_START_TEST_PERIOD]	= { .type = NLA_U32 },
+ 	[IFLA_BRIDGE_MRP_START_TEST_MONITOR]	= { .type = NLA_U32 },
+@@ -316,7 +316,7 @@ static const struct nla_policy
+ br_mrp_start_in_test_policy[IFLA_BRIDGE_MRP_START_IN_TEST_MAX + 1] = {
+ 	[IFLA_BRIDGE_MRP_START_IN_TEST_UNSPEC]	= { .type = NLA_REJECT },
+ 	[IFLA_BRIDGE_MRP_START_IN_TEST_IN_ID]	= { .type = NLA_U32 },
+-	[IFLA_BRIDGE_MRP_START_IN_TEST_INTERVAL]	= { .type = NLA_U32 },
++	[IFLA_BRIDGE_MRP_START_IN_TEST_INTERVAL]	= NLA_POLICY_MIN(NLA_U32, 1),
+ 	[IFLA_BRIDGE_MRP_START_IN_TEST_MAX_MISS]	= { .type = NLA_U32 },
+ 	[IFLA_BRIDGE_MRP_START_IN_TEST_PERIOD]	= { .type = NLA_U32 },
+ };
+-- 
+2.43.0
+
