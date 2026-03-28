@@ -1,74 +1,86 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1878B16DEB1;
-	Sat, 28 Mar 2026 00:19:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEC321F16B;
+	Sat, 28 Mar 2026 03:40:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774657160; cv=none; b=pbFbytFSAOpWf7tD7w/eEEeDMwugxR7Roar3GgLHK19kHuRCyLlAFrTlf0tBntRAD4odgzLPvgBXPvZaKiuyyKOBJsk+GLdXSQ3ulrerbPlJ+vdei4n4SZleOPjh6JiNBq/hg8zOb0jOBMZkmVuK87mz6BmbgWE5wCmW73prYh4=
+	t=1774669227; cv=none; b=tgF98RfNIrFdfFhNZOeexCLf9JM/rYd9JfSwVQEwJeiQDmLDwN1NOaVPeXMcRC24YG2EXhPOZgTuWdHgf+QYfYYmlT8Iopxp7c7QyV2kh7LOpkQ41jdABThAmiQSA22QSBT8paFWT9okL6838Yl5glNVHw6jJX/p515qUMFc+vs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774657160; c=relaxed/simple;
-	bh=96/Bq7QsX0oS+XIrJ6cfIExvCtg0qQiSLSrY/A1UGIo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=F+gdHhdfDLt80+1WZeF1X9+8qOW0vazB3g9rv792OR8hot1EzBZ5G0sOYz7quUXZFCWrHS2B4OgM/V72C00QnCrKH6MbTdHnCpTdiJIclwzzHyUb1hMGDX8L+EinXGVC8HH58Hx1ujLWJv4mTAkF9t/vsvhkhP8Ip+wCw4hzFwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lZeilZTd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774669227; c=relaxed/simple;
+	bh=89UbiLj17IXKiOjBpxTyV1V6JPFLc2HpE1rwd750GOw=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=YinLZvWj1BBYZmFDOdY9MceSQx+EZxBPK/jEZGGNXTgJZXRD3Z2S4NHuHp0ZZ7TKzkrJtPR9MlpACMUq4Wj1GG2d3b/RaOPKEtci0VVs88kaylH6vzBGGEe4GmoMf3N4HT36UtIOiGo1DTLl/aDZZPZpXF2h4+rN0nJN+6nWIh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZWNAZ2qh; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lZeilZTd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CD75C19423;
-	Sat, 28 Mar 2026 00:19:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZWNAZ2qh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6173FC4CEF7;
+	Sat, 28 Mar 2026 03:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774657159;
-	bh=96/Bq7QsX0oS+XIrJ6cfIExvCtg0qQiSLSrY/A1UGIo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=lZeilZTdHiuhAkCdTAYQiNl+fJ+QqZA8qfDppHx2ccobb1J5XXuOqFOczt0gWjsXO
-	 hZBpPwGj4zfKMaQezeTtvzkk8xz49+BBYVxH20wiW2/N1EV40uGLJ1A7zfI+WxsHfq
-	 xcNRHt7MWIDVHKamuqn4++6DYb+kWDH8nMgcMnpMKvnBuC35YR9nkf/zLwhkCh81WI
-	 QsEzuamZVlK4/l0dyb1lJp41oBGCEVgdKbb39+ezXKWXKtxqIsp7oos0zYzOvOXeqF
-	 wNuSzb8mxYGyj/VB7hz6wWst0Hyx8z7iMWmcQw0aHGANWeZh5YpDBtjHnbxp1HkKjD
-	 aFhz8qRFA350Q==
-Date: Fri, 27 Mar 2026 17:19:17 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Simon Horman <horms@kernel.org>, Xiang Mei <xmei5@asu.edu>,
- netdev@vger.kernel.org, bridge@lists.linux.dev, idosch@nvidia.com,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- bestswngs@gmail.com
-Subject: Re: [PATCH net] bridge: mrp: reject zero test interval to avoid OOM
- panic
-Message-ID: <20260327171917.7575d715@kernel.org>
-In-Reply-To: <f7fea291-bde9-4f95-8a59-1b209407ee27@blackwall.org>
-References: <20260326032438.3307549-1-xmei5@asu.edu>
-	<20260327113412.GD567789@horms.kernel.org>
-	<f7fea291-bde9-4f95-8a59-1b209407ee27@blackwall.org>
+	s=k20201202; t=1774669227;
+	bh=89UbiLj17IXKiOjBpxTyV1V6JPFLc2HpE1rwd750GOw=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=ZWNAZ2qhgV3pxWZppktLr8dd7JN+Rd4x0ql9NXYcnxmrRD7iyR0eKiW11cXqZd30S
+	 ri75Ax5R4Ks4hnxYQUOGP/Zq6Nc+prIN1UlS8yxUcaGPamMjrTwKBQ7uoJAQztDMW8
+	 8ytPVb9/MNgMuql6AzLIJVxROAQCwdfqQFcY2Q7dg2maZ1g3G0RERAs2jhNA31fMib
+	 hQLktzTFuV7RC1QzPS6Y5w+KqOeIuMTMI+UkH4NPaxI6Z+7X+cTr6han7v4wwhWQFO
+	 2Z4k1VYAvUV3f9xmhgp46CdiDUmFF3EYdnIqMxXQFqz5FOIYuqcNyn2FsFnzMk/LHs
+	 y1zBEfbhE/tqA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FE423930181;
+	Sat, 28 Mar 2026 03:40:14 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/3] bridge/vxlan: harden ND option parsing paths
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177466921304.4169512.6574568898601672683.git-patchwork-notify@kernel.org>
+Date: Sat, 28 Mar 2026 03:40:13 +0000
+References: <20260326034441.2037420-1-n05ec@lzu.edu.cn>
+In-Reply-To: <20260326034441.2037420-1-n05ec@lzu.edu.cn>
+To: Yang Yang <n05ec@lzu.edu.cn>
+Cc: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, razor@blackwall.org, idosch@nvidia.com,
+ andrew+netdev@lunn.ch, horms@kernel.org, florian.fainelli@broadcom.com,
+ roopa@cumulusnetworks.com, dlstevens@us.ibm.com, nb@tipi-net.de,
+ netdev@vger.kernel.org, bridge@lists.linux.dev, linux-kernel@vger.kernel.org,
+ yifanwucs@gmail.com, tomapufckgml@gmail.com, tanyuan98@outlook.com,
+ bird@lzu.edu.cn
 
-On Fri, 27 Mar 2026 13:46:39 +0200 Nikolay Aleksandrov wrote:
-> On 27/03/2026 13:34, Simon Horman wrote:
-> > On Wed, Mar 25, 2026 at 08:24:38PM -0700, Xiang Mei wrote:  
-> >> br_mrp_start_test() and br_mrp_start_in_test() accept the user-supplied
-> >> interval value from netlink without validation. When interval is 0,
-> >> usecs_to_jiffies(0) yields 0, causing the delayed work
-> >> (br_mrp_test_work_expired / br_mrp_in_test_work_expired) to reschedule
-> >> itself with zero delay. This creates a tight loop on system_percpu_wq
-> >> that allocates and transmits MRP test frames at maximum rate, exhausting
-> >> all system memory and causing a kernel panic via OOM deadlock.  
-> > 
-> > I would suspect the primary outcome of this problem is high CPU consumption
-> > rather than memory exhaustion. Is there a reason to expect that
-> > the transmitted fames can't be consumed as fast as they are created?
+Hello:
+
+This series was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu, 26 Mar 2026 03:44:38 +0000 you wrote:
+> Hi,
 > 
-> +1
-> More so with CAP_NET_ADMIN you can cause all sorts of OOM and high-cpu usage
-> conditions. This is a configuration error and OOM doesn't lead to panic unless
-> instructed to. I don't think this is worth changing at all.
+> This series hardens ND option parsing in bridge and vxlan paths.
+> 
+> Patch 1 linearizes the request skb in br_nd_send() before walking ND
+> options. Patch 2 adds explicit ND option length validation in
+> br_nd_send(). Patch 3 adds matching ND option length validation in
+> vxlan_na_create().
+> 
+> [...]
 
-Then again if there's no practical use for 0 we should consider 
-the risk of getting this sort of submission over and over again?
-Dunno..
+Here is the summary with links:
+  - [net,1/3] bridge: br_nd_send: linearize skb before parsing ND options
+    https://git.kernel.org/netdev/net/c/a01aee7cafc5
+  - [net,2/3] bridge: br_nd_send: validate ND option lengths
+    https://git.kernel.org/netdev/net/c/850837965af1
+  - [net,3/3] vxlan: validate ND option lengths in vxlan_na_create
+    https://git.kernel.org/netdev/net/c/afa9a05e6c49
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
