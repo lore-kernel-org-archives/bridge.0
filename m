@@ -1,154 +1,114 @@
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A186A2C326F
-	for <bridge@lists.linux.dev>; Sat, 28 Mar 2026 06:06:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD2FD40DFD2
+	for <bridge@lists.linux.dev>; Sat, 28 Mar 2026 06:18:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774677999; cv=none; b=SB1kUrEBhrAz8pRq4Jl5UE4VdpGW6ZAYoOVYofg65gQLzzWONNdyQ6z+O4sB2o0Cdv10vL0GhGVAW2YaPYNTQokxqAM/0UsNmrEWKhn5r11IPkHfkUwADGy3CgK5GPdro67RuFcJHWiwcdvLI8CnoThIAIEb43M0hYhPTPjA4nM=
+	t=1774678714; cv=none; b=YN4hvuIn4X2Fg+LTmcEnIqjbtJXkVW4rIPpqe1Rw7Ap5qzQ19YBCGViPE3hCbKrOfgZwCBROdL/Hch0fv/c4UWvMNXy6OA+tzKyeXU1skFozmNXWr4oZGjU+llflpsjKKVaA9yphTpcX4zazjQ9Khs+klfXVziqM3xJaipZ0pbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774677999; c=relaxed/simple;
-	bh=0Xp/nC473N6MzrjjihQ+pA/SoM0IAByS0Khxi3q9oP8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DI4WcjuZwzQjXmk8yCPqpmNE4lL6wRdSa7fd7j6RiM6iPrtqNY08OY0qAT+It86rYcVP7TPhyrZwqnub0eYReLROjBOFeNCkKfIwBmA3UHNVR7lfET1YdwMWlgHsY1p4nPxA9zJeghnJTo6QSXLVIPv2RJO145mkp/FUakN+7cw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=JzNEW9St; arc=none smtp.client-ip=74.125.82.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
+	s=arc-20240116; t=1774678714; c=relaxed/simple;
+	bh=fpWGD4WzwufnasbHIbkLS6WpSJ/8pnZ3W3U3rLEMYmw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=f40ZGqGznGvqnDEAdOJmP1SNtXVRPiyBHnjIDbknMS6AQgiWPkE23WqHEU0cFBgQ25tFnYxchbOVjZL8wavxhKKE3H2ghh2YL44wQzu3a+d+BkcrMX6GTonFz9f6WuzwbqGshdHKA2SwR5mMX/1KDXdzN1TaQXrGlImkz/OXks8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=VIzAjxHt; arc=none smtp.client-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="JzNEW9St"
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-2c175635a33so1979337eec.0
-        for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 23:06:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="VIzAjxHt"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-439fe4985efso2120147f8f.3
+        for <bridge@lists.linux.dev>; Fri, 27 Mar 2026 23:18:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=asu.edu; s=google; t=1774677996; x=1775282796; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=9UFRU1bS8HFHkRjVrl9E5GNOg3WQVTUj/Y+AMxYSKfQ=;
-        b=JzNEW9StGgWhO6itn0QIpUBji0JcIJ9x3lphTrP49nbG7lNvQWWtlcvXKOIFFjKgSj
-         tEe9ZCjFRYPazJjd4bZXL/WTqH1bHertuvEvX4ktLAEO0ZbBr2UppUBNz2lvYAnpZAGM
-         u6th6TesZELErP0Cu5IPTgjdu8e1qvsoWncMY0gWDnggB28eOS3uh+jCE8Rnh8xL/aWq
-         mbsjI2s/fXD4rRW9KRcgoSwhD0Pvgc54siF6+4sTBi13vSsArPBFKFwXG1wxRkd3/Uuh
-         UdagXB5OSy8vDObYexnVXplN4y1+IhbOlKIjH5XvVZ+SIDwji8+b7WaFo9GjfNF04pus
-         3AXQ==
+        d=blackwall.org; s=google; t=1774678711; x=1775283511; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=O+7pAhqIKsXBo8wnUBwzZQUNvGJtnEKbwOvep909ul0=;
+        b=VIzAjxHtMWUiZKaACcIrDwAi1bx1NVr8m6kZrPHM8l0SsNZgL6mZbjjjVSThmb7m1T
+         HALy12wvqiZo/m67mbbWfvTzUDPVLArmvIYua6oG0nAjdXCBDKoEcDBma4VsDi++Ga49
+         L5RE1FY0EcgescB3GMwX7rMIfl6Io0+HqmnkOAFMI3F0L2lC3q7MjcbwGhqKcmZYnyeE
+         fbyHPZd5gMgb+w2ZDB2pskn2itFzh4ramiwb/Zf1GCEbstI3AdMlsK9uZ4W3d9LbAE2A
+         uGp6rr2QrnpGMuxG/+CXtUJ38xfAqpDva15SPxdw9S+7OcszDwF9vwZ8uI2H8SPwdyQ+
+         tTmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774677996; x=1775282796;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9UFRU1bS8HFHkRjVrl9E5GNOg3WQVTUj/Y+AMxYSKfQ=;
-        b=pI5aiyyl85d7tlpsUHYM66Creh2/crfz9uaL/x9My76B1cOnJCQn2FazXFwi2/5Vvz
-         2cPEGaBOgzTtZ6sNVk0+SIZzuGxxhy4I9mxdYasg1jwdhxm51wLTs2R/XCWYBfdW+jiJ
-         NnzBgOM2Fdr3NuF4NU5wg+YtnLK303zKGWY6qgDnILSV5our7HDlR6Cg0v/j0T4se5Zj
-         xSS3TnHFXmoShjDzuogZjolJRekFMS2iS+2X0Ef63969sDVK4bGaK+m3hI/50+CSI1w1
-         mwDOpVshXlm4VlgjJ0GOdX80X3aqRAkRfO+WEtGLxBgJ6VcsOJvDW/KoDd4kIPzrUdF1
-         TwWg==
-X-Forwarded-Encrypted: i=1; AJvYcCW00uBDOQTyMab71s3t6OLAO/4ok1GtgC8sCSUxMu+NtNsURzo9O2uekmar97W05HXTd2sMIAs=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxCscpoP1iEoldrpAgkY5l2Vx7P372wS+HSadcSkExkN5iMquK+
-	MKgin67H64iteD5L8Q7g5wXj5D+bOBJCCFoDQ8fbmQa2lzK9Da4iZ5ITsnr5Rvy0jA==
-X-Gm-Gg: ATEYQzxOg2t7ozAXE1aAH59O0P18anmhxr+aSU6j8E3NOpzXbPE0irmkbv2pfyXTAXf
-	e4oxmb/x7Jm6p5zSG+YrujX3tSM6jEdpexGKWTB5mseFATzqaLgbeomosLB+I8kic7wz2R8w4vG
-	bfRlbCkb4yGv4h7QQXmd+zmLucSAlubA+xSanjNE9XQFIhDL0thn8PM9Y3TgZwJTzcYc1s/EUgn
-	IvDeZI96RH3wh0PZncSz5oQuOWA91eJ+9nEM1zVArztAWFPTaH8ViklO2ucdY78dQSg0mIMTvZW
-	Rz5K54EW+0DFQbKbhEXsvJmsm2zVw4wp3n7tvcXPLF8+gofNTk3g/Y92Zs6iqpYBBPtes/I8cmG
-	QUBxN7M4UwwmdQe8Hp71C5gI2Fs4AD74GDepfQTa/BEFQuWwu8hm8WMY9PQkjJlOwG61Ha08w0s
-	FzYjncIeR1td/7DauKf5V8WxQetxFvag==
-X-Received: by 2002:a05:7300:ec18:b0:2c0:c482:805 with SMTP id 5a478bee46e88-2c185deb4a5mr3348153eec.15.1774677995658;
-        Fri, 27 Mar 2026 23:06:35 -0700 (PDT)
-Received: from p1 (209-147-138-15.nat.asu.edu. [209.147.138.15])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2c3c49a5b0fsm1461097eec.11.2026.03.27.23.06.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Mar 2026 23:06:35 -0700 (PDT)
-Date: Fri, 27 Mar 2026 23:06:32 -0700
-From: Xiang Mei <xmei5@asu.edu>
-To: Simon Horman <horms@kernel.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org, 
-	idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, pabeni@redhat.com, 
-	bestswngs@gmail.com
-Subject: Re: [PATCH net] bridge: mrp: reject zero test interval to avoid OOM
- panic
-Message-ID: <ddglb3jhxn453xi3csd2telvziriqzveqsokxdtestwrgeptan@ptrhexbfkvsx>
-References: <20260326032438.3307549-1-xmei5@asu.edu>
- <20260327113412.GD567789@horms.kernel.org>
+        d=1e100.net; s=20251104; t=1774678711; x=1775283511;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=O+7pAhqIKsXBo8wnUBwzZQUNvGJtnEKbwOvep909ul0=;
+        b=aIMBdwbYlFksjjAzQiwW7sTijg9CnOM5x3jE2J8e9tdQgciuCEiLZ+n0buBiqWHpfD
+         NFAEptI1FD7ymkOWVvvy/e3REXVRW1myJslgy14JZ1V00W+ckNhAsSihrLOxIqi87w5m
+         NmiX8oLMxnJ5FbbXJo7hV/sAccfQd32w+fhmyJ3B1Ejw+NA3c1rLkgvFm78j4rqmnuj6
+         AZSs6u+213Fb9Q7zLtc7yIKyfDBnePouAocTsSsNYzbCCuaKJumVz1BPiaVqdxeFNv8L
+         psCSxlG4CFckLrRgWGe6mzpVG8cKdHjnnQ+lMSr05MrV4J0OeX6cSg3qk5nc82TuG/rH
+         OQIQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW+4mM5Dxuw2FZ3Ry/KP9j6Brkyq2wH6nrtN4e+AekD/pQMlk84qedsiauiXR6TyuAJ14ZjFlI=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzO+amD59N2c22Q2jPDDm5Qgy8zlg7Ur5NOKghP26HUd9ClhiVk
+	21ll0aK17AlBzA/B+cWXXUUMRgaAMEpO52yPQ5gJgHygxyRny1dt/zUZPNQMU+2cjfs=
+X-Gm-Gg: ATEYQzzIWD33l7Bgt1rXYCiy/cUGvzPypoHkOBfr/zSrcdXGPTM7Y2kTS90nO/ZyCtW
+	k39azH+8HH/VVkw1o6s1eU+ZfEzuWt82tNqLhY9U5F9cEbVGf/mSYtOqIEjymy7HTH439patpKM
+	gLAa6e9UwE6KRW+PLIAIO8t9YBTHW0z/Qp5KRPHLvkFEr5XqCE4JTRaQSXeSACVpvYyqLAim2du
+	AkRUCfE348lJuDwhlhhENzJgDSLvYXUudSX6NcAm6nuuzPsO6HEgm3P9FC01VFY9yo4bs6D5P0t
+	v1UIpd1P+65VfBh1o1SawbNZUGwk71t66jdqy6btlm1ed8lxxzQKjKaecHnkeNq8pa7Mlhut7HU
+	p6fYdMnJPB3fdQgb+VJHE8t6gW5mFz3nnvftKHRVkpPP1MHix7S4iIQ5nniIDjUetNs0pE/kp3L
+	NSuYgdKk5i8AUw29zOV2dFqk1zhzS1UudxpFuuuI/rfahuq/RY8rELKw==
+X-Received: by 2002:a05:6000:26c1:b0:43b:3a65:8c9d with SMTP id ffacd0b85a97d-43b9e9e90b8mr8793617f8f.19.1774678710530;
+        Fri, 27 Mar 2026 23:18:30 -0700 (PDT)
+Received: from [192.168.0.161] (78-154-15-142.ip.btc-net.bg. [78.154.15.142])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43cf245f87esm3003997f8f.22.2026.03.27.23.18.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 27 Mar 2026 23:18:30 -0700 (PDT)
+Message-ID: <85e823e3-394f-4bff-a8ab-90bbd2e1ab0d@blackwall.org>
+Date: Sat, 28 Mar 2026 08:18:28 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260327113412.GD567789@horms.kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] bridge: mrp: reject zero test interval to avoid OOM
+ panic
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: Simon Horman <horms@kernel.org>, Xiang Mei <xmei5@asu.edu>,
+ netdev@vger.kernel.org, bridge@lists.linux.dev, idosch@nvidia.com,
+ davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+ bestswngs@gmail.com
+References: <20260326032438.3307549-1-xmei5@asu.edu>
+ <20260327113412.GD567789@horms.kernel.org>
+ <f7fea291-bde9-4f95-8a59-1b209407ee27@blackwall.org>
+ <20260327171917.7575d715@kernel.org>
+Content-Language: en-US
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20260327171917.7575d715@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 27, 2026 at 11:34:12AM +0000, Simon Horman wrote:
-> On Wed, Mar 25, 2026 at 08:24:38PM -0700, Xiang Mei wrote:
-> > br_mrp_start_test() and br_mrp_start_in_test() accept the user-supplied
-> > interval value from netlink without validation. When interval is 0,
-> > usecs_to_jiffies(0) yields 0, causing the delayed work
-> > (br_mrp_test_work_expired / br_mrp_in_test_work_expired) to reschedule
-> > itself with zero delay. This creates a tight loop on system_percpu_wq
-> > that allocates and transmits MRP test frames at maximum rate, exhausting
-> > all system memory and causing a kernel panic via OOM deadlock.
+On 28/03/2026 02:19, Jakub Kicinski wrote:
+> On Fri, 27 Mar 2026 13:46:39 +0200 Nikolay Aleksandrov wrote:
+>> On 27/03/2026 13:34, Simon Horman wrote:
+>>> On Wed, Mar 25, 2026 at 08:24:38PM -0700, Xiang Mei wrote:
+>>>> br_mrp_start_test() and br_mrp_start_in_test() accept the user-supplied
+>>>> interval value from netlink without validation. When interval is 0,
+>>>> usecs_to_jiffies(0) yields 0, causing the delayed work
+>>>> (br_mrp_test_work_expired / br_mrp_in_test_work_expired) to reschedule
+>>>> itself with zero delay. This creates a tight loop on system_percpu_wq
+>>>> that allocates and transmits MRP test frames at maximum rate, exhausting
+>>>> all system memory and causing a kernel panic via OOM deadlock.
+>>>
+>>> I would suspect the primary outcome of this problem is high CPU consumption
+>>> rather than memory exhaustion. Is there a reason to expect that
+>>> the transmitted fames can't be consumed as fast as they are created?
+>>
+>> +1
+>> More so with CAP_NET_ADMIN you can cause all sorts of OOM and high-cpu usage
+>> conditions. This is a configuration error and OOM doesn't lead to panic unless
+>> instructed to. I don't think this is worth changing at all.
 > 
-> I would suspect the primary outcome of this problem is high CPU consumption
-> rather than memory exhaustion. Is there a reason to expect that
-> the transmitted fames can't be consumed as fast as they are created?
-> 
+> Then again if there's no practical use for 0 we should consider
+> the risk of getting this sort of submission over and over again?
+> Dunno..
 
-yes, you are right. In the default veth setup, the primary effect there 
-is CPU exhaustion. However, if a qdisc with delay (e.g., netem) is 
-attached to the bridge port, skbs accumulate in the qdisc and are never
-freed, leading to actual OOM. Both the qdisc attachment and the MRP 
-configuration are reachable from the same unprivileged context.
-
-In our test, for a 3.5GB ram machine, with interval=0, OOM leads to a
-kernel panic in 10 sec:
-
-[   10.901868] Kernel panic - not syncing: System is deadlocked on memory
-[   10.902139] CPU: 0 UID: 0 PID: 2 Comm: kthreadd Not tainted 7.0.0-rc4+ #6 PREEMPTLAZY 
-[   10.902525] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.17.0-0-gb52ca86e094d-prebuilt.qemu.org 04/01/2014
-[   10.903045] Call Trace:
-[   10.903163]  <TASK>
-[   10.903262]  vpanic+0x694/0x780
-[   10.903451]  ? __pfx_vpanic+0x10/0x10
-[   10.903625]  ? __pfx__raw_spin_lock+0x10/0x10
-[   10.903811]  panic+0xca/0xd0
-[   10.903952]  ? __pfx_panic+0x10/0x10
-[   10.904118]  ? panic_on_this_cpu+0x1a/0x40
-[   10.904319]  out_of_memory+0x124e/0x1350
-[   10.904497]  ? __pfx_out_of_memory+0x10/0x10
-[   10.904694]  __alloc_pages_slowpath.constprop.0+0x2325/0x2dd0
-[   10.904949]  ? __pfx___alloc_pages_slowpath.constprop.0+0x10/0x10
-[   10.905214]  __alloc_frozen_pages_noprof+0x4f8/0x800
-[   10.905445]  ? __pfx___alloc_frozen_pages_noprof+0x10/0x10
-[   10.905686]  ? kasan_save_track+0x14/0x30
-
-When interval=1, we can't crash the kernel even though netem reaching
-sch->limit. You are right, it's a race between creating and comsuming.
-But interval=0 gives the the user too much power to win the race easily.
-
-> > 
-> > The same zero-interval issue applies to br_mrp_start_in_test_parse()
-> > for interconnect test frames.
-> > 
-> > Use NLA_POLICY_MIN(NLA_U32, 1) in the nla_policy tables for both
-> > IFLA_BRIDGE_MRP_START_TEST_INTERVAL and
-> > IFLA_BRIDGE_MRP_START_IN_TEST_INTERVAL, so zero is rejected at the
-> > netlink attribute parsing layer before the value ever reaches the
-> > workqueue scheduling code. This is consistent with how other bridge
-> > subsystems (br_fdb, br_mst) enforce range constraints on netlink
-> > attributes.
-> > 
-> > Fixes: 7ab1748e4ce6 ("bridge: mrp: Extend MRP netlink interface for configuring MRP interconnect")
-> 
-> I think you also want
-> 
-> Fixes: 20f6a05ef635 ("bridge: mrp: Rework the MRP netlink interface")
-> 
-> As highlighted by AI review.
-
-Thanks for the reminder.
-
-> 
-> > Reported-by: Weiming Shi <bestswngs@gmail.com>
-> > Signed-off-by: Xiang Mei <xmei5@asu.edu>
-> 
-> ...
+Sure, I'm fine either way. To that end the patch looks good, just need the
+fixes tag as mentioned earlier.
