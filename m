@@ -1,205 +1,147 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012063.outbound.protection.outlook.com [40.107.209.63])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 239A439A7F2
-	for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 19:39:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCEE4282F00
+	for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 19:48:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.63
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774899570; cv=pass; b=Hpb5LZOKNff4BxfKYKMY6pcdE2If/3LAP+jqGPqOLupm93A7IXU7ak3o13pmQDZOSGzgkg3yiz+4k2LQBXPf4JYf7sBPcIxIMJFwQ67Jr8N6+RUZBuz1dB3e0n4/bpm/enUdzbDbDgP6uQzhceRHtE4j2SNTEa20fowwSHoiMMM=
+	t=1774900116; cv=fail; b=ZRrI317S/j0k3UC1iKJd8WgFQhSRj9/Eqp6rLiij1BG5tAIHwmek1m9NmfsSGMM8titjTntB8oWbM/x0be3kucqbJGzbegTkXdZQLfkntATMbnceyG/nI3INAs5To4xhMqcb7Kx/5p4rqD050UWDpiLLvZBAmt1u2rYJTOo/NBo=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774899570; c=relaxed/simple;
-	bh=raOnWdkwciR774nemG5W5s7l+qsio7cSR6A3+T7p82Y=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ae3jaII10s3zJjlZOwt3FuzPUZ3MZGxpiERQYoNNEtj0ZjOAF58hfdKnw2WVQzPGcbckblVDsyEXXlMdSQC+nR9IdP8Amz/WQu0+z/aIDasgIMbxnXHhPaDtLWMG9ohbsuUd9YUG0fMlLMswFiEjnIvH/+SWYRevoFoAGNsvnlE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A1Fidzmt; arc=pass smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774900116; c=relaxed/simple;
+	bh=3dJB/HR80ud44I9pmWrpeXtkQpy9CkrjolmdSslBAzo=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=sp+3aHaA6BJkMUoOUqoqBFoBgRf2hLiiO/0T8CwpXKCZF9dhmNAkCGDd4fPavTi+JZhZvZOcUwI9Y0xZ9ae1YM7kThJYZyPn+S9EeBNGYz3iYjdF0f8bbAmASZB7JBqAAxoiEKGOR1OPvMzXrsGPHvXZGoMufb8/yLg4RJsOubc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=AYJOf2Zm; arc=fail smtp.client-ip=40.107.209.63
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A1Fidzmt"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-66a9a2187a5so7748914a12.0
-        for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 12:39:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774899567; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Tdfdrsj91VfRnRgG/eIBsqDXcc6X0AjHtRqyqnNZtT6kess7s470Vn+8lxh+7pOqU7
-         anA8ncyvnWF+LThZyFvMBT340d8ME2VTEDv2FSPODaH84Y29gUdeUmQ+9YPFZnbaWzx/
-         PDI/tlVtd8bV6Cp2gGG4oNGB5Dy7Qxm345Be23Lqg8Nly+4IrfieQYkZZE2/Vltpuuco
-         vFX5DR7z2xJ21UiEgcaH5wFls6uCtb15MjT8yU3Nep0k5tUkTLUQ4tBi8Fu+fX8kiWdH
-         nxKC+tbkpXhkUVwK9cTJsdJMwSMziANEhzEULF1Dv0AbwdVYsUjlyV6ErrYXy9NmKx53
-         cByg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=oKh8L3ukh4XUchWBADzpdMRcZ/muD9vhADkdS5aaBtA=;
-        fh=XA2aWbW/LMlfs2TPJuopT/d2iANfQIj9Ttx76dYgXDs=;
-        b=cFRwpWye4doAsxonUshjJSWDEWBW7ZoMHqAM++PZ6Etdv5/hr2ApEPTZkiCGrhC3og
-         Qxe4yYf2H2Tw3vyhd2hhVi68uAHPsGoNQPWlAg+Lu3wczcI4Cb2pEOSSoAs+N7/TRWUZ
-         O1au/0mtudDOSZry3GMNnJogWUj08+bNiOUhp5VMXMI05Ev6hcX53e2SuGAZjxsxVnWX
-         bdCQ+XP6gQf2Nx2b2X8ay7fxJzjq3xektUtlftnaBqrwuqK1/juKwqZzXoXa6PIAm+d+
-         xq6G4Wg0Bo9raZgKCFpJLO5ne6JhilVNj+Yin22T/IXGPmlWeJmz2s8Sm2EiAZK3ebUU
-         p8Qg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774899567; x=1775504367; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oKh8L3ukh4XUchWBADzpdMRcZ/muD9vhADkdS5aaBtA=;
-        b=A1Fidzmtgf7DcP3vzDJKeW5ibvEL9xsOkoukSnjH3hNkCaV+y0lef1Nm3AKuiq4xjt
-         bQc+d+IB5JPny8si47+U9VjPdaNFNOyhKL/MnR9eRkGSFiZB0c3BynoZXtIEwgDg/lTl
-         V/5eNEUZ7unhgz/uWc/pxyGDgHhN65aoxzAjNXRx0VcA6vfPfXkECYuMsussAXR2ZcLT
-         XIaCCGEZlS4boy1ZA2Rca48h6qTQxBQd394H1np+vdUTQTdJ8p2owQSNFNLHo36+XCjr
-         hqxC0S/1ewQvC1xh1qrroXotiYPqbMQ0XzPOBt7C5D2x9x99/gP+qLk59auA9lR+/3t7
-         luww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774899567; x=1775504367;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=oKh8L3ukh4XUchWBADzpdMRcZ/muD9vhADkdS5aaBtA=;
-        b=psZyAs2YzXeKwOv0PRl4ODq9b+f9P/TNARs0OzkrstrZrHLOIv2mQZcqJbRLepdzht
-         4LdOQS5ddBeoAj3LbKsC4HJbt2gfPHLAmdLPZXy+wvx6UUM8OF2xeGkFmcdfVgfb4xjv
-         7fUoA7xshm84EJCJ9EPZR5DhoOgBk/SX30NVOoTaKkaC/P1bSG82OvIljvvcXfWHYJ9W
-         Jtuq2HbnGanAkw+OUj0/SAVzSMMGKSvf24wGlRXYLFyeoFWqxeH8bkwzSl1pQi+Vr2Vj
-         KMXVjh9WRp/uN2t0dk8OLT4VUdE79ZYGkRUm7JVEMlCg7Z8uPFsQqA9kvRs8rx6fr2vv
-         A2HA==
-X-Forwarded-Encrypted: i=1; AJvYcCV+XmYQdFc51hYyZLJUZvS83Eqd89Ql8RBx/s615uYpDzpXcq49VzjRU/a8w1SS3r0gRKgwTG4=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz1lxpO2lH3qr+x4zxqyaY6naY1yfTel7o+5dm4ciDKgvEd6rO8
-	DndoQjm3eWFj8tPw+wJC/AqeLvmo2ThTXXCXSHaRnMk5nXg22XEOVIx0xAcMegvxd1v/Cl1gpiz
-	vvv7riiOHL/nOqeszy5RToW5IzfGXj/o=
-X-Gm-Gg: ATEYQzywp2y5Vf6J281B0TjUn2r21b3IMqZcFFfR7QMsR53ubsyMb2nKGnUf3oBBDrK
-	zFJQtBfsS/niowPOVP5JGG44VCOsctBv0dQyLkMNhkerJcV51eRL4OgqopEG7xJE7Id+rp5Cly2
-	KkqLRNwhvIJKeKtEtJDobdpDPuxzcKABhEWk6En0vChgEs65DqYEw1u3O7xk1w4N5KB6MNaOT0g
-	VDcWktuOTj4PgUTsyqr9Y0GGcM1i6OWsFrPDuQURfRc3P9iFGqEUUm8wDgEvw1fIUSOwsxqAxAe
-	QqyNa6k=
-X-Received: by 2002:a17:907:846:b0:b98:4f24:a6d with SMTP id
- a640c23a62f3a-b9b502bfd51mr937477666b.11.1774899567358; Mon, 30 Mar 2026
- 12:39:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="AYJOf2Zm"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=KL6Vgl9HV6uQT7Tg1mMVJc8bRreYmkqYxgvw/UvjBgoRhXnPSsBTllNH2xX3qAyp9KpjYaCk0BjVNKcyXAg/R1XRDSjRl3J4kfjXDv7zC2T26L+DjupjXvCKQBdCg/aD0iPrD6qH8OsbLgX6y3RlagyJZgCCAi1aPZinjeVQhClLOsVN2/5UJ0+BQaEunkmbp8nzH1xuCFA6XM3RWg/LzeMV8v9S71DcR4fmQteJvOelPfU37EGCZoTXPaoG8wxDDTS4sW6WdURkmlGzhmxmyXTIkj2HsuIC6KxgFASO1SlMH5fyOP0HepXMDSWRJfHJe2Lg16k7JfdGYGVktW9eWw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fp5MFBemFUAw5D+oCXqJRv3dRb7YhzRDN/7lJg+J694=;
+ b=hnC8mO4OaeQzddd0fR0q4SDXF3QuCm/FhKpFX39c/zgD0jB1yWzvyLfSNje+i8w+lMCS1EuP4TO3/RUjvw+EaN7NHAld2LmRgkOxgtjk+Iz5ZsFRVwy+NzYxBSMawm1FttCNBi3aoX0SPCs3tMXfu78eAcA4ps1UqfihzUQy7BzL6VGJxq+88VAFpQEsGsZsnbirCAxE3Yoq+HGq1vUO67tEOBiNdKuGj8IAB/NBcJ74jQKevJbw7vf86hkigN2ujPG18MCrGHoHXNh0QMYrhCRyx3flH8zX3XkpBQJnM25+0sSHI6qlG/ZLG4mU0r/Bbf5+bXcedqawyfqkyvPUDg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fp5MFBemFUAw5D+oCXqJRv3dRb7YhzRDN/7lJg+J694=;
+ b=AYJOf2ZmfPdpzxznQBmNaSosr/1PbxJvSI0brbMtmXcD6q2A5i0WfYgbsLHBrKGfwpe+JAwijnV9pyFueKfmNgblsv+8vmANOMc8xxFowUrJ7GoU4XLG74c4oF3zo6gXF5aZy3AFBBMYZfbpvnj6VY0qJ1hrt+udibK7+KW/X5N9I/gCcbbT9CAmtCAGiyQCI7/eDFMowd0+WQrZKWUv3XbqGNAkUL/K8eXSAuVKJ1GiTXVj5YcVT7UrC7FbeAceEI9s7oB49qKKjlpDKRD1qdRS18XyEWvaEww3oHoDbUekC5ZbFLRbZS87sQ0P50PWbuYJXi6dEEYL3g97vb+27Q==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS7PR12MB8202.namprd12.prod.outlook.com (2603:10b6:8:e1::13) by
+ DS2PR12MB9664.namprd12.prod.outlook.com (2603:10b6:8:27b::10) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9769.15; Mon, 30 Mar 2026 19:48:27 +0000
+Received: from DS7PR12MB8202.namprd12.prod.outlook.com
+ ([fe80::38fd:4146:aea:639e]) by DS7PR12MB8202.namprd12.prod.outlook.com
+ ([fe80::38fd:4146:aea:639e%6]) with mapi id 15.20.9769.014; Mon, 30 Mar 2026
+ 19:48:27 +0000
+Message-ID: <f83ad183-6e00-4c61-a364-6fd0bc0e50b8@nvidia.com>
+Date: Mon, 30 Mar 2026 12:48:23 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 0/3] net: bridge: add stp_mode attribute for
+ STP mode selection
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux.dev, Nikolay Aleksandrov <razor@blackwall.org>,
+ Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <shuah@kernel.org>,
+ Petr Machata <petrm@nvidia.com>, Donald Hunter <donald.hunter@gmail.com>,
+ Jonas Gorski <jonas.gorski@gmail.com>, linux-doc@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260330022107.670566-1-aroulin@nvidia.com>
+Content-Language: en-US
+From: Andy Roulin <aroulin@nvidia.com>
+In-Reply-To: <20260330022107.670566-1-aroulin@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SJ0PR05CA0092.namprd05.prod.outlook.com
+ (2603:10b6:a03:334::7) To DS7PR12MB8202.namprd12.prod.outlook.com
+ (2603:10b6:8:e1::13)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <f23ed1b3-6321-4e6d-9cda-ec5d34304f3b@blackwall.org> <20260330191611.16929-1-royujjal@gmail.com>
-In-Reply-To: <20260330191611.16929-1-royujjal@gmail.com>
-From: Ujjal Roy <royujjal@gmail.com>
-Date: Tue, 31 Mar 2026 01:09:15 +0530
-X-Gm-Features: AQROBzBPKFrWxeTO63V57MZLR93bpDWq5OJl46BKm3EnyddwLm9W3nhW6ZcH4tU
-Message-ID: <CAE2MWkkY3anF0Am4JbCFeFax1dSH2F7AyRUjHJs6S17fKkhU6g@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 0/5] net: bridge: mcast: add multicast
- exponential field encoding
-To: "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
-	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>, Andy Roulin <aroulin@nvidia.com>, 
-	Yong Wang <yongwang@nvidia.com>, Petr Machata <petrm@nvidia.com>
-Cc: Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR12MB8202:EE_|DS2PR12MB9664:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8eeaf31d-44f9-4e5b-2aa6-08de8e954fb3
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	7Uw6JCEWCVchIpBusp/hfdvkrCEkhXVWVQV4fcgLhC0bzwTryDPxBbS2TKVptmlOy0zBf+stigf8aD0XI0SZhvC3MuHRXfPUvmUkDdFm8/KHxdRDN5xE3a05yq7Z5yFLjcKYo1mce18YyboPIA4aUMsvz0Lesu9s4Xq3w3RAAIpsVxGjLubZ/IWVkzl2yeu6KULrt57cEuGHB9ZywJNqR6HySyrga73fC5drxa/dxTXlkZICflRDvYRDNBQu/Q7381bUogO4GE3HQzk8k7boezVdDj2yPS9GTp5Dj/UuRS/K/S6rNPLYLH/icltT7eoyBHQd9W4kMSJRD9+mqee4cyqVs4BWffrCrSlO6LeHrQPUZ4t4/M5bU0GOe6p+KAjABxOg1eVmPk+HpeGOd4Rn/hVNWeXbFrHj8VOQ2jYQDdu7q350fuv4Escdhl9geg5BNJqn6LQXfGAHdLOeoM28JQQXHc+24YVo9W1bQRlyJLJq4zVkbTEuIEw0FIqPqs/jU6pOHlboQUOiqlRtNyg5Upl7gZuZ6vUCpexzD4TJwetCXrq21vaTIKZXaGvNcZU9iDIw2TX4AzZ+GwfsttnlhctrJRmALgFoDio697iSUQ5Q4CU38432JmFaTyfkzaKhcC2ltou1BGZcs2r7mN3GsOSQEU8nQWs3k/Rzf60k9UsHq2eSVaJznK58ui8kD5LRcYmBqATJtKbIfyEK+vwBtYrepQEUvHG3axFP+0fFth8=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB8202.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?Wjd3b1ZnVnMyRGFQV2hWY01nN3Z3Z0NvdXpTcU9ZUGNHeVdSbi9YakNzbU9X?=
+ =?utf-8?B?cytscHBPSHl6eERWang2V2RzQ1VDbUQwNnJPTDkrbkVYRzkwVUgzZlZUYjhR?=
+ =?utf-8?B?NDNnOU5ic1VVYkY1d0d1d3JtcWplc1JoeUVLSE1PbkJsQUwzWUhPcDFuQ1Qv?=
+ =?utf-8?B?U0RpV1NoZGNKZXdsblFGbWN2UzF1ZHkyaHJwbmYyeFN3ZFBNNktZOUJSNGJF?=
+ =?utf-8?B?TVpxSUdva0x3a1gxdGl1bTJIR1J4OHdsMGh2amd3QjMyRjMrOUIzS1FSeC9x?=
+ =?utf-8?B?cjJkQVhOVVo5RVZYNGREelM1SFkyWWxrUUNLazJVaXRUNFlocTgyWFRDNXc4?=
+ =?utf-8?B?NHBQYUxWMkJIRjgxR3BsNjFwUVp2UXFvNDJ1dmJydzdMd2dIRDA5bTNOUDl6?=
+ =?utf-8?B?bEZ3eGp3dFlIWGY0c0doMi9Fcm1rbVlNbWk0VjcyWDFWYjdnQk9UMGZnMFhX?=
+ =?utf-8?B?Q0gwaUR0Q0N6a3BVMGs3V2xzUGZzNEZxbHgxNGg5TlpaVEcyaWYvZGUxV044?=
+ =?utf-8?B?eVBhbHNuNkwwV0JTa0JCendIbEtVenFqZkVaRVNHQm00QTNzdWZYT2cwSng5?=
+ =?utf-8?B?Wll3REltQ1VrZG94WEVCNFZGL0YwZTdWb0pKZzMzbHdJdVI5Y0JGVkNLc3p4?=
+ =?utf-8?B?TDRYV1ZkQWs4T09CZHM0NVVrTlN3MDlYZHk2UWVRTnFIQTI3elQwS0Z0ZlBw?=
+ =?utf-8?B?TmRTMHlpdlBGTGxJYXU2Q0Ztd25GYnd1YWhYdk5wQjFLWnJvSkNVbTV6dkYz?=
+ =?utf-8?B?eG1qYnJBamJEQ3BGREMwYTNYLytxWWpnWmNrWFFRZ01qUWlqeFZ3TCtDNUsy?=
+ =?utf-8?B?djR0SVkrbDFCdGVxNmQrRDhQRGJqNDUrNmFZZHV5R1MvclhiSmZERUc3L0Nh?=
+ =?utf-8?B?VVYvS3FkWC9kWCtJQW90WUtqaE1QaWt2ZVY2eSswNXRMNm1XQ0Y3aGNIbC94?=
+ =?utf-8?B?YTBEeDhOVVpqaGtPQzhMY3F4WDRrY3RkMDZlejg4VU9IT0ozdDNJTTRrM09x?=
+ =?utf-8?B?WFplaGQrVzhYMDNyMEh6L2dwUDZtZmVHVWF3b1N0TEI5SFhxaDVPMXpwa3Mr?=
+ =?utf-8?B?aDlIRHkxbzVjS2RYVk5lUmEwMHcwK1BqSHRHSmhNRlppY0pJaE1FUXJWdkhJ?=
+ =?utf-8?B?NzVBRFFRc1Y1M2U2YlN3aEN1b1RFdU8rZ0tHOUJnWlhOblNqMExSN2ovbVcr?=
+ =?utf-8?B?MHZXRkwvcHQ1WE9oSEIxb3dHMm5VYURDa1hleU5QZUdGa3MrOHBuL3FaUmNX?=
+ =?utf-8?B?U0NBZjZ4MTZjQVF2bVFOVjFQWGxzNERNdlRuS1B3NmNib3o1T1E0TXp1elhs?=
+ =?utf-8?B?ZjYxdCtvOFY2MVpnelp2aTNpcGNSelptcnRUTm9QQVVWd2F5Um5MaHQ5cGZH?=
+ =?utf-8?B?R1JESHNldlRkMnVVNjFNT00vM0xDaHMzTWZ3QUJiU2xQcU5nYUVYS09XUUV2?=
+ =?utf-8?B?SWZQbjlSQXAvdkxjYVVUMm1iRWRZblZZckVWMmxOYzAyM2wzWm5pYWNyejdR?=
+ =?utf-8?B?OXVkbzBOeXYzdFBNRDdZcE5XV1ZsV2ZwS3E3VG1CdXJ5Njgyc2ZaaGN1YjVE?=
+ =?utf-8?B?OXJLNXpBb3dFMHJXeUEvVTlRTml4U0g0RXhGR1N3SytiS3NhVWFZSG5Gc0ky?=
+ =?utf-8?B?MjFWWjRPd0YvcDNPMlIzTmJoWVc2M09nZzdmTk52Q2lDQ3hSdkdwSE9TQ3h6?=
+ =?utf-8?B?MVFpUStiTTJuSVNObWRJY3dGVWNEZXkxck5BOHFWbmFsZy9UQWxIaGI2N1lI?=
+ =?utf-8?B?Z2VKb2tCZ0ZseWtCSUdsM2xxWjM3MEVPYmwvYjdCbjJ6TzVDYkpsYUszUXJO?=
+ =?utf-8?B?S04vaC9sUVVsSzBsb1dHcm5mS0FJMEhMYmt4Z2lqamRWR3pjT3o5eDRZOE00?=
+ =?utf-8?B?NDQ4NVdudlNOY3FCVVlnU09UYm1USTIxMVlUZENva0pJSTdQWGtTTmhQdEpX?=
+ =?utf-8?B?bzZsQ1JQQkNlR3ExN04zdy96ZlFVY3pOZ2t0Q1I5eUhzUlRET0o0RTh0S2tU?=
+ =?utf-8?B?UGE5MGtJMHArWDFmWUdIY0dXcGo1OFBDbkE0RzRDakFpTlZyd0E4QlhvNkIz?=
+ =?utf-8?B?SnFZdlAzSUdUbjJ5ZGhwdEFBaDFtSVFWNC81cndMdk9QajZ5WXhYWENjQ0hM?=
+ =?utf-8?B?QUoyRFh4UmhjUm4rdGhkZXdaMC92OGh2MStKdStaejJ0ZTh2cm5BYTFoQ1FS?=
+ =?utf-8?B?RS9UWnJMN2xXWERvZVJKMjR0SGhVKzc5OGlEUlU1MGpKSmxlL0MxSHJXRUtG?=
+ =?utf-8?B?L1VLWjVpcWdhc0RHSlpPVXBHMmNtL2xVcUVKWDgrMm5TYnAvelE5NDlNRzhU?=
+ =?utf-8?B?YWJxZ1BXR3RNYys5S2NXcHN2L0FCa2lTcDhqQkh6Y0FpeW9oVzA4dz09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8eeaf31d-44f9-4e5b-2aa6-08de8e954fb3
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB8202.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Mar 2026 19:48:27.3804
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Nu5Ge1KzQq2En+zozu6DBJe1CrRgsUuzjJ2q4YbIfc9ST8faJx2JuKEO8c/RD12SF0rxH8do8Pj+SIDaTDUIRA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS2PR12MB9664
 
-On Tue, Mar 31, 2026 at 12:46=E2=80=AFAM Ujjal Roy <royujjal@gmail.com> wro=
-te:
->
-> Description:
-> This series addresses a mismatch in how multicast query
-> intervals and response codes are handled across IPv4 (IGMPv3)
-> and IPv6 (MLDv2). While decoding logic currently exists,
-> the corresponding encoding logic is missing during query
-> packet generation. This leads to incorrect intervals being
-> transmitted when values exceed their linear thresholds.
->
-> The patches introduce a unified floating-point encoding
-> approach based on RFC3376 and RFC3810, ensuring that large
-> intervals are correctly represented in QQIC and MRC fields
-> using the exponent-mantissa format.
->
-> Key Changes:
-> * ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and simplify calculation
->   Removes legacy macros in favor of a cleaner, unified
->   calculation for retrieving intervals from encoded fields,
->   improving code maintainability.
->
-> * ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
->   Standardizes MLDv2 terminology by renaming mldv2_mrc()
->   to mldv2_mrd() (Maximum Response Delay) and introducing
->   a new API mldv2_qqi for QQI calculation, improving code
->   readability.
->
-> * ipv4: igmp: encode multicast exponential fields
->   Introduces the logic to dynamically calculate the exponent
->   and mantissa using bit-scan (fls). This ensures QQIC and
->   MRC fields (8-bit) are properly encoded when transmitting
->   query packets with intervals that exceed their respective
->   linear threshold value of 128 (for QQI/MRT).
->
-> * ipv6: mld: encode multicast exponential fields
->   Applies similar encoding logic for MLDv2. This ensures
->   QQIC (8-bit) and MRC (16-bit) fields are properly encoded
->   when transmitting query packets with intervals that exceed
->   their respective linear thresholds (128 for QQI; 32768
->   for MRD).
->
-> Impact:
-> These changes ensure that multicast queriers and listeners
-> stay synchronized on timing intervals, preventing protocol
-> timeouts or premature group membership expiration caused
-> by incorrectly formatted packet headers.
->
-> v2:
-> - Retargeted the series to net-next as suggested
-> - Fixed a compilation warning in the MLD rename change
-> - Kept reverse xmas tree order in IGMP exponential encoding change
-> - Added bridge selftests to validate IGMPv3 Query MRC and QQIC handling
->
-> Ujjal Roy (5):
->   ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and simplify calculation
->   ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
->   ipv4: igmp: encode multicast exponential fields
->   ipv6: mld: encode multicast exponential fields
->   selftests: net: bridge: add tests for igmpv3 MRC and QQIC validation
->
->  include/linux/igmp.h                          | 158 +++++++++++++++-
->  include/net/mld.h                             | 179 +++++++++++++++++-
->  net/bridge/br_multicast.c                     |  22 +--
->  net/ipv4/igmp.c                               |   6 +-
->  net/ipv6/mcast.c                              |  19 +-
->  .../selftests/net/forwarding/.gitignore       |   2 +
->  .../testing/selftests/net/forwarding/Makefile |  10 +
->  .../selftests/net/forwarding/bridge_igmp.sh   | 109 +++++++++++
->  .../selftests/net/forwarding/mc_decode.c      |  38 ++++
->  .../selftests/net/forwarding/mc_encode.c      |  40 ++++
->  10 files changed, 535 insertions(+), 48 deletions(-)
->  create mode 100644 tools/testing/selftests/net/forwarding/mc_decode.c
->  create mode 100644 tools/testing/selftests/net/forwarding/mc_encode.c
->
->
-> base-commit: cf0d9080c6f795bc6be08babbffa29b62c06e9b0
-> --
-> 2.43.0
->
+On 3/29/26 19:21, Andy Roulin wrote:
+> 
+> Patch 1 adds the kernel support. The mode can only be changed while
+> STP is disabled and is processed before IFLA_BR_STP_STATE in
+> br_changelink() so both can be set atomically in a single netlink
+> message.
 
-Forgot to attach test result using bridge_igmp.sh selftest.
-First two test cases are added newly v3query_mrc_test and v3query_qqic_test=
-.
+https://sashiko.dev/#/patchset/20260330022107.670566-1-aroulin%40nvidia.com
 
-Without these patches:
-tools/testing/selftests/net/forwarding# ./bridge_igmp.sh
-TEST: IGMPv3 query: verify MRC (configured=3D160, expected=3D132)       [FA=
-IL]
-        Bad MRC value in IGMP packet:     Max Resp Time: 51.2 sec (0xa0)
-TEST: IGMPv3 query: verify QQIC (configured=3D160, expected=3D132)      [FA=
-IL]
-        Bad QQIC value in IGMP packet:     QQIC: 160
-TEST: IGMPv2 report 239.10.10.10                                    [ OK ]
-...
-
-With these patches:
-tools/testing/selftests/net/forwarding# ./bridge_igmp.sh
-TEST: IGMPv3 query: verify MRC (configured=3D160, expected=3D132)       [ O=
-K ]
-TEST: IGMPv3 query: verify QQIC (configured=3D160, expected=3D132)      [ O=
-K ]
-TEST: IGMPv2 report 239.10.10.10                                    [ OK ]
-...
+will fix the reported issue in v4.
