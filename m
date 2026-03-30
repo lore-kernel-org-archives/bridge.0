@@ -1,63 +1,63 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 330F6382291
-	for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 19:16:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 348DC396D09
+	for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 19:17:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774898217; cv=none; b=vGbanMXtiXZPmtPqNLccuDcPW2nKAiUR0mkHJA1VZve/FP24CM5zQLh1OeKHNpwvIrEMMa70h4WfrohkGiVrORkSanTEQTjtJiiwH10/lxE2Y+J5v+tY08r5x0kANvj+JZQpEzKCfzJsmWaHh8NhJBbgXQ+VkiW8uyTmDxE5kgE=
+	t=1774898224; cv=none; b=gTwkAxZX58wDDqE00NT5vi9rC3KEvUNW0eYIZk6NW+MZeRS1e7Rdvt2ZScfQyHKndF4rSPQESHp3Fp1jjAg6WIw3N/3xW16XYUz5DzIzmtCvGfGsAaLFnYXP846wj3xaPMBjjvXPS/HvQiDAK673v8aic5/9LHEoGEXVWA6/zAM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774898217; c=relaxed/simple;
-	bh=/s+EgbT4cwqyAVP8otaVBOlL/dCCRmkYjYM+V8pat60=;
+	s=arc-20240116; t=1774898224; c=relaxed/simple;
+	bh=cT/13qstn8/nOhBjQXRq0PqqXbdhTgppzUWbgSGQO70=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C3lvVTQFChXgD7QiTDKk/N6u9vzvvhrGKOw6uIFiQH0U5QbCVZ1h0kn7R2NwzRGv3Sa0u54Hs+2zL4Ys0sM5A31SFhXWFWIU4VSUHHaJw/28l1nDsG7chfobppFK+KMVNtxkUezlW8Val+ZFRxcuQOJZvuHonC4eKZwUu3m72Do=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IPh0Wizf; arc=none smtp.client-ip=209.85.216.46
+	 MIME-Version; b=lGbLpqqr1qZtrTVUgxRqQfH6hY9hOL0kBpbJd+k75ovzc0VKxhlK2MGcOKvHqVcXXLF0kP+TLNRauXjbOAQ8WrRcQs/DBHyLe1+YmiFIKjxG5HAg7yexyy22YrbaG6R6lvgXDuJt63og21sTwm9x7cOKCGiQ2esMdEI+RV7fxJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LhvyYq+y; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IPh0Wizf"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-35691a231a7so2946999a91.3
-        for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 12:16:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LhvyYq+y"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-35d94f4ee36so1342949a91.3
+        for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 12:17:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774898215; x=1775503015; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1774898222; x=1775503022; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5WISAf0QjUXrCjlDt5u3fdpEKEmBPI+ZNLLd/DIJAm8=;
-        b=IPh0WizfobkAR+ZDCfDtbtYEaoJlTij2irV06T9vQc6Qo2SOSSnpIzMZ4dsp3PCvRt
-         v1u0br//N8ZihDFkya1DhMOOpPVONZ6iNQ5ZNaRpPH8+ryfnd34J5jCRqpup3F/Ho3qz
-         8lIsFvNrRyf+d0aK3foym3TJ+ok+scID0ugJlSYQQqxPN0iew9h8noeELgHP9VelEDRf
-         JbWZ+tLN4eVAWIlxWAe8VHtHU1/CwWheJpFV+wiLHkE0J1OHO+6vdEiJuAIG9RRDK//f
-         U+JMUpbsec/fyMdLoFyDZvnSHU8dO1skZmO79PPn2d0HM5vCWJa69n6uMYUJW+++MvgX
-         iRLQ==
+        bh=5f2zrKZrRaGjASZcWc6dPmrf+99AFfJekwpd+WSzFDo=;
+        b=LhvyYq+ywQLbaJ9ANVquoYlVkYjQjXnD7FPrRO1rg35jBjRQ4GTqJKQZp6uF7lyUoh
+         qpcdv7XQ2Cn8cjeVSYSk+zmQyWBS4tCNhXZkdInWIUcZ0Wh3+FTM+kur/6T8F6fILAYZ
+         o4Uf7bNfdXcZLCx9esJPa/Q3JGsO6t0a3MFsYDQkOAmzlyBGAXPgr1SgYh7hqC/KdfkP
+         RyKxmOmDUQ0822tQYZ56uQJYKv5f2qDzrDIfiiyHV9G0+li6ZWQ5f8C0H0cH2tYyChbO
+         WsgWNKJAp/51z6dh8dOHPZbZv0krexJdfifDh9zL45wMs6ARJcY58txOMSXO1vshWkw8
+         LFMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774898215; x=1775503015;
+        d=1e100.net; s=20251104; t=1774898222; x=1775503022;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5WISAf0QjUXrCjlDt5u3fdpEKEmBPI+ZNLLd/DIJAm8=;
-        b=Z53aGrs7bLHUefr2hZMqG7jBiCSHJSD3VDTwSFraWXYH8j0PEcn5KvGQqEGjGuubaT
-         zcEgmQsD70Sx90XLJNvJnGBZoj5CiWLRM0bMKNIWHY3KXQrfX2zYHhSamxcayawZt4gl
-         9r5i4XHXc+uXqaSa8P49JGMONf8b2VldZflgOGPhg/9/1XUOez7qBcVra5kdu2yIE237
-         sttyXaxv7DtZW9F7Mc61BGofKDKLwZt402kU457BdNheZaqSqU+ZswpqVhRJ+mnCaE8A
-         bSl/I/jXnc02knEKlaZ2Dnzevb/VhKilx730p40qtTTrE26l4zgpGGv9fVc/cJHJMnvH
-         qGZw==
-X-Forwarded-Encrypted: i=1; AJvYcCWpO1oagdzwA8tZpMjeisMiSXPeOzT57lIRSkXsZAkEgnTqz1OTS3VL9PcUF2q8+QZg9Qy8tb8=@lists.linux.dev
-X-Gm-Message-State: AOJu0YysSQNbNB1hH2f/FlajCvVjd4d/BZN1+Dbka3PU/cgGzX56YZkT
-	btiNDXvT9q7vaGzcpNHsyCo/WfCeoFPtN7KknQAFRrO34cquOa3df8q4
-X-Gm-Gg: ATEYQzz937Dz9QKQ7gHiTXhCy6km1M1ZuIEX3m4xrLd8KylNPbIWHgv+3n6qfUZdcAp
-	l5iSRwqcQ0L2spyK0TwlDr5FylbUXZiol0nzrFG96PUiHuqw81fdAwQNSEcpgxrufFJ7IECjorY
-	K4zuwDOqpz6HXpqcg9FAHVyd4dPQBFdXcFRgQqQAtkqkYVgcIfPIHwBIdqVsZsTWLTJ8zVsF0R3
-	5yQzJUMWGUqCmeexkOG4j+whOKnTCjJZ8bKWKi+8HURpRfp6sT+0bsvvaiMm8RCljsAyRfaJohK
-	OkWkofuV3VoniGhgKs0sz7TQkSqLCE4RBzrGOrbJ4AxAPq0bb9hc1bNmwjv5B49oGyzeL/ZzYoP
-	khWysqR8D/QtdgeEKOVQezgim0l7IYx6iiRmPnN/NON03Xo6aOZBUXRi1rZtQPxdk+YxQVmHlyl
-	BrVu/ApBgYr/rjqbJierh9sKy5X6MXnBQhY1zF9SWX
-X-Received: by 2002:a17:90a:e7c1:b0:35d:a276:a87d with SMTP id 98e67ed59e1d1-35da276afa0mr6030327a91.27.1774898215457;
-        Mon, 30 Mar 2026 12:16:55 -0700 (PDT)
+        bh=5f2zrKZrRaGjASZcWc6dPmrf+99AFfJekwpd+WSzFDo=;
+        b=kEwq3tFvnvz/SVqMzzWsfxWIudWs1NzydL2gb3XXLOg9YkxdggK0FN7nCCP+3/ikv6
+         v4ln+opGdT4biHQ6JMwH7bBc4ym+E42/+ic61iA7o9K10/ouUN1NzFfhXCPmwt2kmq3i
+         DJfOH71rykCM6CjZf6wVcYabFxFAcj95JIg5rawZAh7S/bRSz27wxQYgXrCWhVWRSWIC
+         dcmPzG/H7k5IQrBsrkU1YMhpOieect7WSANJfDlHOjtbCe1PZzq1gZQ/TCUlJ35hrxU1
+         Yj989490T33z2hrszBuVfYUGGTrHdqkjFu5lYsPLxRXCyjgN7Md2odG3KVnQRGXQ0WEb
+         YrUg==
+X-Forwarded-Encrypted: i=1; AJvYcCX/EL2nXTH1jOoNLCQBpzTvhUrYZdnZWOeUTtriz774wfD+SBGiqLFDloaRLg44dEflkU10TsI=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwhWZ/c2+aIocyhp3g6nRH+sA9xhT9VD0LJGS2ixXK4f3XuKTp2
+	6ITrmTpwN4/8422WDzr3b8tOYHsSb6w3OXccxjeQ4pumeIOdKjkiPu17
+X-Gm-Gg: ATEYQzxZvrvNuisgH/ryJxN/d5LEyHq1Q7EzdULo0u6YHzSpwOkq3d6AAT/OuzedhNG
+	SyRn8qeaKI+pz1KDTan80Raoi6khbxRl6r92Cg/kL9f/TCuNKdUNj1CIOMOl6DO31FyPzwc7/QM
+	0kkrL2IT+O8aos5XhjEehVS1rwwROyk9x7CwVEvP3gnO67APJbLLXsdFpUSQjy43tg04s1U6vD2
+	wqsDVO5pdeeEvF5byzDDCk4pVQt7rbHPcf5mUJCLMstY550Osze4j77lFYyc0Miue6B/uM9q/ba
+	mWoleFtb/G/0hrpFAde9IdF7vePdLNm7Yhp/UVYR2Y+hjRFe+NkqhevuvvlAQlYjUQUX1f/gcTI
+	XHRFd/z3i6nWaY2GMW8XXoJVlmMZuA9CUTbneJD5GeWjCTRWdTrJhMa4tBhh8j12kmIvwA9u1qY
+	UL6y5zIFXZZNPHI50Xr96lmRNm7lBJL6D2lCVhlPff
+X-Received: by 2002:a17:90b:3cce:b0:336:b60f:3936 with SMTP id 98e67ed59e1d1-35c3000c6f0mr12496361a91.12.1774898222332;
+        Mon, 30 Mar 2026 12:17:02 -0700 (PDT)
 Received: from DESKTOP-82PPU4A.localdomain ([202.8.116.192])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35d950d9b12sm9627178a91.17.2026.03.30.12.16.48
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35d950d9b12sm9627178a91.17.2026.03.30.12.16.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Mar 2026 12:16:54 -0700 (PDT)
+        Mon, 30 Mar 2026 12:17:01 -0700 (PDT)
 From: Ujjal Roy <royujjal@gmail.com>
 To: "David S . Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
@@ -76,9 +76,9 @@ Cc: Ujjal Roy <ujjal@alumnux.com>,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH net-next v2 4/5] ipv6: mld: encode multicast exponential fields
-Date: Mon, 30 Mar 2026 19:16:10 +0000
-Message-ID: <20260330191611.16929-5-royujjal@gmail.com>
+Subject: [PATCH net-next v2 5/5] selftests: net: bridge: add tests for igmpv3 MRC and QQIC validation
+Date: Mon, 30 Mar 2026 19:16:11 +0000
+Message-ID: <20260330191611.16929-6-royujjal@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260330191611.16929-1-royujjal@gmail.com>
 References: <f23ed1b3-6321-4e6d-9cda-ec5d34304f3b@blackwall.org>
@@ -91,199 +91,279 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In MLD, QQIC and MRC fields are not currently encoded when
-generating query packets. Since the receiver of the query
-interprets these fields using the MLDv2 floating-point
-decoding logic, any raw interval value that exceeds the
-linear threshold is currently parsed incorrectly as an
-exponential value, leading to an incorrect interval
-calculation.
+Add bridge selftests that configure IGMPv3 parameters and validate the
+resulting Query packet fields for Max Resp Code (MRC) and Querier Query
+Interval Code (QQIC).
 
-Encode and assign the corresponding protocol fields during
-query generation. Introduce the logic to dynamically
-calculate the exponent and mantissa using bit-scan (fls).
-This ensures QQIC (8-bit) and MRC (16-bit) fields are
-properly encoded when transmitting query packets with
-intervals that exceed their respective linear thresholds
-(128 for QQI; 32768 for MRD).
+This also adds helper binary to encode floating-point exponential fields.
 
-RFC3810: If QQIC >= 128, the QQIC field represents a
-floating-point value as follows:
-     0 1 2 3 4 5 6 7
-    +-+-+-+-+-+-+-+-+
-    |1| exp | mant  |
-    +-+-+-+-+-+-+-+-+
-
-RFC3810: If Maximum Response Code >= 32768, the Maximum
-Response Code field represents a floating-point value as
-follows:
-     0 1 2 3 4 5 6 7 8 9 A B C D E F
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |1| exp |          mant         |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Future extensions may cover corresponding IPv6 cases.
 
 Signed-off-by: Ujjal Roy <royujjal@gmail.com>
 ---
- include/net/mld.h         | 117 ++++++++++++++++++++++++++++++++++++++
- net/bridge/br_multicast.c |   4 +-
- 2 files changed, 119 insertions(+), 2 deletions(-)
+ .../selftests/net/forwarding/.gitignore       |   2 +
+ .../testing/selftests/net/forwarding/Makefile |  10 ++
+ .../selftests/net/forwarding/bridge_igmp.sh   | 109 ++++++++++++++++++
+ .../selftests/net/forwarding/mc_decode.c      |  38 ++++++
+ .../selftests/net/forwarding/mc_encode.c      |  40 +++++++
+ 5 files changed, 199 insertions(+)
+ create mode 100644 tools/testing/selftests/net/forwarding/mc_decode.c
+ create mode 100644 tools/testing/selftests/net/forwarding/mc_encode.c
 
-diff --git a/include/net/mld.h b/include/net/mld.h
-index 5e093f9c75d9..1ee7d3f68a33 100644
---- a/include/net/mld.h
-+++ b/include/net/mld.h
-@@ -90,12 +90,129 @@ struct mld2_query {
- #define MLDV2_QQIC_MAN(value)	((value) & 0x0f)
+diff --git a/tools/testing/selftests/net/forwarding/.gitignore b/tools/testing/selftests/net/forwarding/.gitignore
+index 418ff96c52ef..aa0c7f1afb4b 100644
+--- a/tools/testing/selftests/net/forwarding/.gitignore
++++ b/tools/testing/selftests/net/forwarding/.gitignore
+@@ -1,3 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ forwarding.config
+ ipmr
++mc_encode
++mc_decode
+diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
+index bbaf4d937dd8..a26da846632d 100644
+--- a/tools/testing/selftests/net/forwarding/Makefile
++++ b/tools/testing/selftests/net/forwarding/Makefile
+@@ -1,5 +1,15 @@
+ # SPDX-License-Identifier: GPL-2.0+ OR MIT
  
- #define MLD_QQIC_MIN_THRESHOLD	128
++top_srcdir = ../../../../..
++
++CFLAGS += -Wall -Wl,--no-as-needed -O2 -g -I$(top_srcdir)/usr/include $(KHDR_INCLUDES)
++CFLAGS += -I$(top_srcdir)/tools/include
++
++TEST_GEN_FILES := \
++	mc_encode \
++	mc_decode \
++# end of TEST_GEN_FILES
++
+ TEST_PROGS := \
+ 	bridge_activity_notify.sh \
+ 	bridge_fdb_learning_limit.sh \
+diff --git a/tools/testing/selftests/net/forwarding/bridge_igmp.sh b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
+index d4e7dd659354..9841c4e4eca0 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_igmp.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
+@@ -2,6 +2,8 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+ ALL_TESTS="
++	v3query_mrc_test
++	v3query_qqic_test
+ 	v2reportleave_test
+ 	v3include_test
+ 	v3inc_allow_test
+@@ -84,6 +86,7 @@ switch_destroy()
+ {
+ 	ip link set dev $swp2 down
+ 	ip link set dev $swp1 down
++	ip link set dev br0 down
+ 
+ 	ip link del dev br0
+ }
+@@ -116,6 +119,112 @@ cleanup()
+ 	vrf_cleanup
+ }
+ 
++check_binary()
++{
++	local cmd=$1; shift
++	local args=$@
++
++	if [[ ! -x "$(command -v "$cmd")" ]]; then
++		log_test_skip "$args $cmd not found"
++		return $EXIT_STATUS
++	fi
++}
++
++tcpdump_show_with_filter()
++{
++	local if_name=$1; shift
++	local filter=$@
++
++	tcpdump -e -n -r ${capfile[$if_name]} "$filter" 2>&1
++}
++
++validate_query()
++{
++	local if_name=$1; shift
++	local test="$1"; shift
++	local value="$1"; shift
++	local pattern=""
++	local field_val=""
++	local pos=""
++	local msg="IGMPv3 query: verify $test"
++	check_command tshark || return 1
++	check_binary "./mc_encode" $msg || return 1
++
++	if [ "$test" = "MRC" ]; then
++		pos=1 # MRC field offset within IGMP header
++		field_val=$(tshark -r ${capfile[$if_name]} -Y "igmp.type==0x11" \
++			   -V 2>/dev/null | grep "Max Resp Time")
++	elif [ "$test" = "QQIC" ]; then
++		pos=9 # QQIC field offset within IGMP header
++		field_val=$(tshark -r ${capfile[$if_name]} -Y "igmp.type==0x11" \
++			   -V 2>/dev/null | grep "QQIC")
++	fi
++
++	local enc_val=$(./mc_encode $value)
++	pattern="ip proto 2 and igmp[0] == 0x11 and igmp[$pos] == $enc_val"
++	local opt_str=""
++	tcpdump_show_with_filter $if_name $pattern | grep -q "igmp query v3"
++	ret=$?
++	if [ "$field_val" != "" -a $ret -ne 0 ]; then
++		opt_str="Bad $test value in IGMP packet: $field_val"
++	fi
++	check_err $ret "$opt_str"
++
++	log_test "$msg" "configured=$value, expected=$enc_val"
++}
++
++v3query_mrc_test()
++{
++	RET=0
++	local qri_val=160
++	local br_qri=$((qri_val*10))
++
++	# Set MRT to validate
++	ip link set dev br0 type bridge mcast_query_interval 12500 \
++					mcast_query_response_interval $br_qri \
++					mcast_igmp_version 3
++	check_err $? "IGMPv3 QUERY bridge configuration failed"
++
++	ip link set dev br0 down
++	tcpdump_start $h2
++	ip link set dev br0 up
++	sleep 2
++	tcpdump_stop $h2
++
++	validate_query $h2 "MRC" $qri_val
++	tcpdump_cleanup $h2
++
++	ip link set dev br0 type bridge mcast_query_interval 12500 \
++					mcast_query_response_interval 1000 \
++					mcast_igmp_version 2
++}
++
++v3query_qqic_test()
++{
++	RET=0
++	local qqi_val=160
++	local br_qqi=$((qqi_val*100))
++
++	# Set QQIC to validate
++	ip link set dev br0 type bridge mcast_query_interval $br_qqi \
++					mcast_query_response_interval 1000 \
++					mcast_igmp_version 3
++	check_err $? "IGMPv3 QUERY bridge configuration failed"
++
++	ip link set dev br0 down
++	tcpdump_start $h2
++	ip link set dev br0 up
++	sleep 2
++	tcpdump_stop $h2
++
++	validate_query $h2 "QQIC" $qqi_val
++	tcpdump_cleanup $h2
++
++	ip link set dev br0 type bridge mcast_query_interval 12500 \
++					mcast_query_response_interval 1000 \
++					mcast_igmp_version 2
++}
++
+ v2reportleave_test()
+ {
+ 	RET=0
+diff --git a/tools/testing/selftests/net/forwarding/mc_decode.c b/tools/testing/selftests/net/forwarding/mc_decode.c
+new file mode 100644
+index 000000000000..5b626101497d
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/mc_decode.c
+@@ -0,0 +1,38 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <stdio.h>
++#include <stdlib.h>
++#include <linux/bitops.h>
++
++#define IGMPV3_FP_EXP(value)            (((value) >> 4) & 0x07)
++#define IGMPV3_FP_MAN(value)            ((value) & 0x0f)
++
++/* IGMPV3 floating-point exponential field threshold */
++#define IGMPV3_EXP_MIN_THRESHOLD        128
++
++static inline unsigned long decode_field(const u8 code)
++{
++    /* RFC3376, relevant sections:
++     *  - 4.1.1. Maximum Response Code
++     *  - 4.1.7. QQIC (Querier's Query Interval Code)
++     */
++    if (code < IGMPV3_EXP_MIN_THRESHOLD) {
++        return (unsigned long)code;
++    } else {
++        unsigned long mc_man, mc_exp;
++        mc_exp = IGMPV3_FP_EXP(code);
++        mc_man = IGMPV3_FP_MAN(code);
++        return ((mc_man | 0x10) << (mc_exp + 3));
++    }
++}
++
++int main(int argc, char *argv[])
++{
++    uint8_t qqic = 0;
++    if (argc >= 2)
++        qqic = atoi(argv[1]);
++    unsigned long qqi = decode_field(qqic);
++
++    printf("%lu\n", qqi);
++
++    return 0;
++}
+diff --git a/tools/testing/selftests/net/forwarding/mc_encode.c b/tools/testing/selftests/net/forwarding/mc_encode.c
+new file mode 100644
+index 000000000000..a2183b864be4
+--- /dev/null
++++ b/tools/testing/selftests/net/forwarding/mc_encode.c
+@@ -0,0 +1,40 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <stdio.h>
++#include <stdlib.h>
++#include <linux/bitops.h>
++
++/* IGMPV3 floating-point exponential field threshold */
++#define IGMPV3_EXP_MIN_THRESHOLD        128
 +/* Max representable (mant = 0xF, exp = 7) -> 31744 */
-+#define MLD_QQIC_MAX_THRESHOLD	31744
- #define MLD_MRC_MIN_THRESHOLD	32768UL
-+/* Max representable (mant = 0xFFF, exp = 7) -> 8387584 */
-+#define MLD_MRC_MAX_THRESHOLD	8387584
- #define MLDV1_MRD_MAX_COMPAT	(MLD_MRC_MIN_THRESHOLD - 1)
- 
- #define MLD_MAX_QUEUE		8
- #define MLD_MAX_SKBS		32
- 
-+/* V2 exponential field encoding */
++#define IGMPV3_EXP_MAX_THRESHOLD        31744
 +
-+/*
-+ * Calculate Maximum Response Code from Maximum Response Delay
-+ *
-+ * MLDv2 Maximum Response Code 16-bit encoding (RFC3810).
-+ *
-+ * RFC3810 defines only the decoding formula:
-+ * Maximum Response Delay = (mant | 0x1000) << (exp + 3)
-+ *
-+ * but does NOT define the encoding procedure. To derive exponent:
-+ *
-+ * For the 16-bit MRC, the "hidden bit" (0x1000) is left shifted by 12
-+ * to sit above the 12-bit mantissa. The RFC then shifts this entire
-+ * block left by (exp + 3) to reconstruct the value.
-+ * So, 'hidden bit' is the MSB which is shifted by (12 + exp + 3).
-+ *
-+ * - Total left shift of the hidden bit = 12 + (exp + 3) = exp + 15.
-+ * - This is the MSB at the 0-based bit position: (exp + 15).
-+ * - Since fls() is 1-based, fls(value) - 1 = exp + 15.
-+ *
-+ * Therefore:
-+ *     exp  = fls(value) - 16
-+ *     mant = (value >> (exp + 3)) & 0x0FFF
-+ *
-+ * Final encoding formula:
-+ *     0x8000 | (exp << 12) | mant
-+ *
-+ * Example (value = 1311744):
-+ *  0               1               2               3
-+ *  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ * |0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0| 1311744
-+ * |                      ^-^--------mant---------^ ^...(exp+3)...^| exp=5
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ *
-+ * Encoded:
-+ *   0x8000 | (5 << 12) | 0x404 = 0xD404
-+ */
-+static inline u16 mldv2_mrc(unsigned long mrd)
++static inline uint8_t encode_field(unsigned int value)
 +{
-+	u16 mc_man, mc_exp;
++    uint8_t mc_exp, mc_man;
 +
-+	/* RFC3810: MRC < 32768 is literal */
-+	if (mrd < MLD_MRC_MIN_THRESHOLD)
-+		return (u16)mrd;
++    /* RFC3376: QQIC/MRC < 128 is literal */
++    if (value < IGMPV3_EXP_MIN_THRESHOLD)
++        return (uint8_t)value;
 +
-+	/* Saturate at max representable (mant = 0xFFF, exp = 7) -> 8387584 */
-+	if (mrd >= MLD_MRC_MAX_THRESHOLD)
-+		return 0xFFFF;
++    /* Saturate at max representable (mant = 0xF, exp = 7) -> 31744 */
++    if (value >= IGMPV3_EXP_MAX_THRESHOLD)
++        return 0xFF;
 +
-+	mc_exp = (u16)(fls(mrd) - 16);
-+	mc_man = (u16)((mrd >> (mc_exp + 3)) & 0x0FFF);
++    mc_exp  = (uint8_t)(fls(value) - 8);
++    mc_man = (uint8_t)((value >> (mc_exp + 3)) & 0x0F);
 +
-+	return (0x8000 | (mc_exp << 12) | mc_man);
++    return 0x80 | (mc_exp << 4) | mc_man;
 +}
 +
-+/*
-+ * Calculate Querier's Query Interval Code from Query Interval
-+ *
-+ * MLDv2 QQIC 8-bit floating-point encoding (RFC3810).
-+ *
-+ * RFC3810 defines only the decoding formula:
-+ * QQI = (mant | 0x10) << (exp + 3)
-+ *
-+ * but does NOT define the encoding procedure. To derive exponent:
-+ *
-+ * For any value of mantissa and exponent, the decoding formula
-+ * indicates that the "hidden bit" (0x10) is shifted 4 bits left
-+ * to sit above the 4-bit mantissa. The RFC again shifts this
-+ * entire block left by (exp + 3) to reconstruct the value.
-+ * So, 'hidden bit' is the MSB which is shifted by (4 + exp + 3).
-+ *
-+ * Total left shift of the 'hidden bit' = 4 + (exp + 3) = exp + 7.
-+ * This is the MSB at the 0-based bit position: (exp + 7).
-+ * Since fls() is 1-based, fls(value) - 1 = exp + 7.
-+ *
-+ * Therefore:
-+ *     exp  = fls(value) - 8
-+ *     mant = (value >> (exp + 3)) & 0x0F
-+ *
-+ * Final encoding formula:
-+ *     0x80 | (exp << 4) | mant
-+ *
-+ * Example (value = 3200):
-+ *  0               1
-+ *  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ * |0 0 0 0 1 1 0 0 1 0 0 0 0 0 0 0| (value = 3200)
-+ * |        ^-^-mant^ ^..(exp+3)..^| exp = 4, mant = 9
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ *
-+ * Encoded:
-+ *   0x80 | (4 << 4) | 9 = 0xC9
-+ */
-+static inline u8 mldv2_qqic(unsigned long value)
++int main(int argc, char *argv[])
 +{
-+	u8 mc_man, mc_exp;
++    unsigned int qqi = 0;
++    if (argc >= 2)
++        qqi = atoi(argv[1]);
 +
-+	/* RFC3810: QQIC < 128 is literal */
-+	if (value < MLD_QQIC_MIN_THRESHOLD)
-+		return (u8)value;
++    uint8_t qqic = encode_field(qqi);
 +
-+	/* Saturate at max representable (mant = 0xF, exp = 7) -> 31744 */
-+	if (value >= MLD_QQIC_MAX_THRESHOLD)
-+		return 0xFF;
++    printf("%u\n", qqic);
 +
-+	mc_exp  = (u8)(fls(value) - 8);
-+	mc_man = (u8)((value >> (mc_exp + 3)) & 0x0F);
-+
-+	return (0x80 | (mc_exp << 4) | mc_man);
++    return 0;
 +}
-+
- /* V2 exponential field decoding */
- 
- /* Calculate Maximum Response Delay from Maximum Response Code
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 27010744d7ae..c2d144f6a86e 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1181,7 +1181,7 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge_mcast *brm
- 		break;
- 	case 2:
- 		mld2q = (struct mld2_query *)icmp6_hdr(skb);
--		mld2q->mld2q_mrc = htons((u16)jiffies_to_msecs(interval));
-+		mld2q->mld2q_mrc = htons((u16)jiffies_to_msecs(mldv2_mrc(interval)));
- 		mld2q->mld2q_type = ICMPV6_MGM_QUERY;
- 		mld2q->mld2q_code = 0;
- 		mld2q->mld2q_cksum = 0;
-@@ -1190,7 +1190,7 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge_mcast *brm
- 		mld2q->mld2q_suppress = sflag;
- 		mld2q->mld2q_qrv = 2;
- 		mld2q->mld2q_nsrcs = htons(llqt_srcs);
--		mld2q->mld2q_qqic = brmctx->multicast_query_interval / HZ;
-+		mld2q->mld2q_qqic = mldv2_qqic(brmctx->multicast_query_interval / HZ);
- 		mld2q->mld2q_mca = *group;
- 		csum = &mld2q->mld2q_cksum;
- 		csum_start = (void *)mld2q;
 -- 
 2.43.0
 
