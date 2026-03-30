@@ -1,369 +1,205 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 348DC396D09
-	for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 19:17:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774898224; cv=none; b=gTwkAxZX58wDDqE00NT5vi9rC3KEvUNW0eYIZk6NW+MZeRS1e7Rdvt2ZScfQyHKndF4rSPQESHp3Fp1jjAg6WIw3N/3xW16XYUz5DzIzmtCvGfGsAaLFnYXP846wj3xaPMBjjvXPS/HvQiDAK673v8aic5/9LHEoGEXVWA6/zAM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774898224; c=relaxed/simple;
-	bh=cT/13qstn8/nOhBjQXRq0PqqXbdhTgppzUWbgSGQO70=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lGbLpqqr1qZtrTVUgxRqQfH6hY9hOL0kBpbJd+k75ovzc0VKxhlK2MGcOKvHqVcXXLF0kP+TLNRauXjbOAQ8WrRcQs/DBHyLe1+YmiFIKjxG5HAg7yexyy22YrbaG6R6lvgXDuJt63og21sTwm9x7cOKCGiQ2esMdEI+RV7fxJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LhvyYq+y; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 239A439A7F2
+	for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 19:39:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774899570; cv=pass; b=Hpb5LZOKNff4BxfKYKMY6pcdE2If/3LAP+jqGPqOLupm93A7IXU7ak3o13pmQDZOSGzgkg3yiz+4k2LQBXPf4JYf7sBPcIxIMJFwQ67Jr8N6+RUZBuz1dB3e0n4/bpm/enUdzbDbDgP6uQzhceRHtE4j2SNTEa20fowwSHoiMMM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774899570; c=relaxed/simple;
+	bh=raOnWdkwciR774nemG5W5s7l+qsio7cSR6A3+T7p82Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ae3jaII10s3zJjlZOwt3FuzPUZ3MZGxpiERQYoNNEtj0ZjOAF58hfdKnw2WVQzPGcbckblVDsyEXXlMdSQC+nR9IdP8Amz/WQu0+z/aIDasgIMbxnXHhPaDtLWMG9ohbsuUd9YUG0fMlLMswFiEjnIvH/+SWYRevoFoAGNsvnlE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A1Fidzmt; arc=pass smtp.client-ip=209.85.208.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LhvyYq+y"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-35d94f4ee36so1342949a91.3
-        for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 12:17:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A1Fidzmt"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-66a9a2187a5so7748914a12.0
+        for <bridge@lists.linux.dev>; Mon, 30 Mar 2026 12:39:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774899567; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Tdfdrsj91VfRnRgG/eIBsqDXcc6X0AjHtRqyqnNZtT6kess7s470Vn+8lxh+7pOqU7
+         anA8ncyvnWF+LThZyFvMBT340d8ME2VTEDv2FSPODaH84Y29gUdeUmQ+9YPFZnbaWzx/
+         PDI/tlVtd8bV6Cp2gGG4oNGB5Dy7Qxm345Be23Lqg8Nly+4IrfieQYkZZE2/Vltpuuco
+         vFX5DR7z2xJ21UiEgcaH5wFls6uCtb15MjT8yU3Nep0k5tUkTLUQ4tBi8Fu+fX8kiWdH
+         nxKC+tbkpXhkUVwK9cTJsdJMwSMziANEhzEULF1Dv0AbwdVYsUjlyV6ErrYXy9NmKx53
+         cByg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=oKh8L3ukh4XUchWBADzpdMRcZ/muD9vhADkdS5aaBtA=;
+        fh=XA2aWbW/LMlfs2TPJuopT/d2iANfQIj9Ttx76dYgXDs=;
+        b=cFRwpWye4doAsxonUshjJSWDEWBW7ZoMHqAM++PZ6Etdv5/hr2ApEPTZkiCGrhC3og
+         Qxe4yYf2H2Tw3vyhd2hhVi68uAHPsGoNQPWlAg+Lu3wczcI4Cb2pEOSSoAs+N7/TRWUZ
+         O1au/0mtudDOSZry3GMNnJogWUj08+bNiOUhp5VMXMI05Ev6hcX53e2SuGAZjxsxVnWX
+         bdCQ+XP6gQf2Nx2b2X8ay7fxJzjq3xektUtlftnaBqrwuqK1/juKwqZzXoXa6PIAm+d+
+         xq6G4Wg0Bo9raZgKCFpJLO5ne6JhilVNj+Yin22T/IXGPmlWeJmz2s8Sm2EiAZK3ebUU
+         p8Qg==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774898222; x=1775503022; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1774899567; x=1775504367; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5f2zrKZrRaGjASZcWc6dPmrf+99AFfJekwpd+WSzFDo=;
-        b=LhvyYq+ywQLbaJ9ANVquoYlVkYjQjXnD7FPrRO1rg35jBjRQ4GTqJKQZp6uF7lyUoh
-         qpcdv7XQ2Cn8cjeVSYSk+zmQyWBS4tCNhXZkdInWIUcZ0Wh3+FTM+kur/6T8F6fILAYZ
-         o4Uf7bNfdXcZLCx9esJPa/Q3JGsO6t0a3MFsYDQkOAmzlyBGAXPgr1SgYh7hqC/KdfkP
-         RyKxmOmDUQ0822tQYZ56uQJYKv5f2qDzrDIfiiyHV9G0+li6ZWQ5f8C0H0cH2tYyChbO
-         WsgWNKJAp/51z6dh8dOHPZbZv0krexJdfifDh9zL45wMs6ARJcY58txOMSXO1vshWkw8
-         LFMw==
+        bh=oKh8L3ukh4XUchWBADzpdMRcZ/muD9vhADkdS5aaBtA=;
+        b=A1Fidzmtgf7DcP3vzDJKeW5ibvEL9xsOkoukSnjH3hNkCaV+y0lef1Nm3AKuiq4xjt
+         bQc+d+IB5JPny8si47+U9VjPdaNFNOyhKL/MnR9eRkGSFiZB0c3BynoZXtIEwgDg/lTl
+         V/5eNEUZ7unhgz/uWc/pxyGDgHhN65aoxzAjNXRx0VcA6vfPfXkECYuMsussAXR2ZcLT
+         XIaCCGEZlS4boy1ZA2Rca48h6qTQxBQd394H1np+vdUTQTdJ8p2owQSNFNLHo36+XCjr
+         hqxC0S/1ewQvC1xh1qrroXotiYPqbMQ0XzPOBt7C5D2x9x99/gP+qLk59auA9lR+/3t7
+         luww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774898222; x=1775503022;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1774899567; x=1775504367;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5f2zrKZrRaGjASZcWc6dPmrf+99AFfJekwpd+WSzFDo=;
-        b=kEwq3tFvnvz/SVqMzzWsfxWIudWs1NzydL2gb3XXLOg9YkxdggK0FN7nCCP+3/ikv6
-         v4ln+opGdT4biHQ6JMwH7bBc4ym+E42/+ic61iA7o9K10/ouUN1NzFfhXCPmwt2kmq3i
-         DJfOH71rykCM6CjZf6wVcYabFxFAcj95JIg5rawZAh7S/bRSz27wxQYgXrCWhVWRSWIC
-         dcmPzG/H7k5IQrBsrkU1YMhpOieect7WSANJfDlHOjtbCe1PZzq1gZQ/TCUlJ35hrxU1
-         Yj989490T33z2hrszBuVfYUGGTrHdqkjFu5lYsPLxRXCyjgN7Md2odG3KVnQRGXQ0WEb
-         YrUg==
-X-Forwarded-Encrypted: i=1; AJvYcCX/EL2nXTH1jOoNLCQBpzTvhUrYZdnZWOeUTtriz774wfD+SBGiqLFDloaRLg44dEflkU10TsI=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwhWZ/c2+aIocyhp3g6nRH+sA9xhT9VD0LJGS2ixXK4f3XuKTp2
-	6ITrmTpwN4/8422WDzr3b8tOYHsSb6w3OXccxjeQ4pumeIOdKjkiPu17
-X-Gm-Gg: ATEYQzxZvrvNuisgH/ryJxN/d5LEyHq1Q7EzdULo0u6YHzSpwOkq3d6AAT/OuzedhNG
-	SyRn8qeaKI+pz1KDTan80Raoi6khbxRl6r92Cg/kL9f/TCuNKdUNj1CIOMOl6DO31FyPzwc7/QM
-	0kkrL2IT+O8aos5XhjEehVS1rwwROyk9x7CwVEvP3gnO67APJbLLXsdFpUSQjy43tg04s1U6vD2
-	wqsDVO5pdeeEvF5byzDDCk4pVQt7rbHPcf5mUJCLMstY550Osze4j77lFYyc0Miue6B/uM9q/ba
-	mWoleFtb/G/0hrpFAde9IdF7vePdLNm7Yhp/UVYR2Y+hjRFe+NkqhevuvvlAQlYjUQUX1f/gcTI
-	XHRFd/z3i6nWaY2GMW8XXoJVlmMZuA9CUTbneJD5GeWjCTRWdTrJhMa4tBhh8j12kmIvwA9u1qY
-	UL6y5zIFXZZNPHI50Xr96lmRNm7lBJL6D2lCVhlPff
-X-Received: by 2002:a17:90b:3cce:b0:336:b60f:3936 with SMTP id 98e67ed59e1d1-35c3000c6f0mr12496361a91.12.1774898222332;
-        Mon, 30 Mar 2026 12:17:02 -0700 (PDT)
-Received: from DESKTOP-82PPU4A.localdomain ([202.8.116.192])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35d950d9b12sm9627178a91.17.2026.03.30.12.16.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Mar 2026 12:17:01 -0700 (PDT)
-From: Ujjal Roy <royujjal@gmail.com>
-To: "David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	David Ahern <dsahern@kernel.org>,
-	Shuah Khan <shuah@kernel.org>,
-	Andy Roulin <aroulin@nvidia.com>,
-	Yong Wang <yongwang@nvidia.com>,
-	Petr Machata <petrm@nvidia.com>
-Cc: Ujjal Roy <ujjal@alumnux.com>,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-kselftest@vger.kernel.org
-Subject: [PATCH net-next v2 5/5] selftests: net: bridge: add tests for igmpv3 MRC and QQIC validation
-Date: Mon, 30 Mar 2026 19:16:11 +0000
-Message-ID: <20260330191611.16929-6-royujjal@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260330191611.16929-1-royujjal@gmail.com>
-References: <f23ed1b3-6321-4e6d-9cda-ec5d34304f3b@blackwall.org>
- <20260330191611.16929-1-royujjal@gmail.com>
+        bh=oKh8L3ukh4XUchWBADzpdMRcZ/muD9vhADkdS5aaBtA=;
+        b=psZyAs2YzXeKwOv0PRl4ODq9b+f9P/TNARs0OzkrstrZrHLOIv2mQZcqJbRLepdzht
+         4LdOQS5ddBeoAj3LbKsC4HJbt2gfPHLAmdLPZXy+wvx6UUM8OF2xeGkFmcdfVgfb4xjv
+         7fUoA7xshm84EJCJ9EPZR5DhoOgBk/SX30NVOoTaKkaC/P1bSG82OvIljvvcXfWHYJ9W
+         Jtuq2HbnGanAkw+OUj0/SAVzSMMGKSvf24wGlRXYLFyeoFWqxeH8bkwzSl1pQi+Vr2Vj
+         KMXVjh9WRp/uN2t0dk8OLT4VUdE79ZYGkRUm7JVEMlCg7Z8uPFsQqA9kvRs8rx6fr2vv
+         A2HA==
+X-Forwarded-Encrypted: i=1; AJvYcCV+XmYQdFc51hYyZLJUZvS83Eqd89Ql8RBx/s615uYpDzpXcq49VzjRU/a8w1SS3r0gRKgwTG4=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz1lxpO2lH3qr+x4zxqyaY6naY1yfTel7o+5dm4ciDKgvEd6rO8
+	DndoQjm3eWFj8tPw+wJC/AqeLvmo2ThTXXCXSHaRnMk5nXg22XEOVIx0xAcMegvxd1v/Cl1gpiz
+	vvv7riiOHL/nOqeszy5RToW5IzfGXj/o=
+X-Gm-Gg: ATEYQzywp2y5Vf6J281B0TjUn2r21b3IMqZcFFfR7QMsR53ubsyMb2nKGnUf3oBBDrK
+	zFJQtBfsS/niowPOVP5JGG44VCOsctBv0dQyLkMNhkerJcV51eRL4OgqopEG7xJE7Id+rp5Cly2
+	KkqLRNwhvIJKeKtEtJDobdpDPuxzcKABhEWk6En0vChgEs65DqYEw1u3O7xk1w4N5KB6MNaOT0g
+	VDcWktuOTj4PgUTsyqr9Y0GGcM1i6OWsFrPDuQURfRc3P9iFGqEUUm8wDgEvw1fIUSOwsxqAxAe
+	QqyNa6k=
+X-Received: by 2002:a17:907:846:b0:b98:4f24:a6d with SMTP id
+ a640c23a62f3a-b9b502bfd51mr937477666b.11.1774899567358; Mon, 30 Mar 2026
+ 12:39:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <f23ed1b3-6321-4e6d-9cda-ec5d34304f3b@blackwall.org> <20260330191611.16929-1-royujjal@gmail.com>
+In-Reply-To: <20260330191611.16929-1-royujjal@gmail.com>
+From: Ujjal Roy <royujjal@gmail.com>
+Date: Tue, 31 Mar 2026 01:09:15 +0530
+X-Gm-Features: AQROBzBPKFrWxeTO63V57MZLR93bpDWq5OJl46BKm3EnyddwLm9W3nhW6ZcH4tU
+Message-ID: <CAE2MWkkY3anF0Am4JbCFeFax1dSH2F7AyRUjHJs6S17fKkhU6g@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 0/5] net: bridge: mcast: add multicast
+ exponential field encoding
+To: "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
+	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>, Andy Roulin <aroulin@nvidia.com>, 
+	Yong Wang <yongwang@nvidia.com>, Petr Machata <petrm@nvidia.com>
+Cc: Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add bridge selftests that configure IGMPv3 parameters and validate the
-resulting Query packet fields for Max Resp Code (MRC) and Querier Query
-Interval Code (QQIC).
+On Tue, Mar 31, 2026 at 12:46=E2=80=AFAM Ujjal Roy <royujjal@gmail.com> wro=
+te:
+>
+> Description:
+> This series addresses a mismatch in how multicast query
+> intervals and response codes are handled across IPv4 (IGMPv3)
+> and IPv6 (MLDv2). While decoding logic currently exists,
+> the corresponding encoding logic is missing during query
+> packet generation. This leads to incorrect intervals being
+> transmitted when values exceed their linear thresholds.
+>
+> The patches introduce a unified floating-point encoding
+> approach based on RFC3376 and RFC3810, ensuring that large
+> intervals are correctly represented in QQIC and MRC fields
+> using the exponent-mantissa format.
+>
+> Key Changes:
+> * ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and simplify calculation
+>   Removes legacy macros in favor of a cleaner, unified
+>   calculation for retrieving intervals from encoded fields,
+>   improving code maintainability.
+>
+> * ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
+>   Standardizes MLDv2 terminology by renaming mldv2_mrc()
+>   to mldv2_mrd() (Maximum Response Delay) and introducing
+>   a new API mldv2_qqi for QQI calculation, improving code
+>   readability.
+>
+> * ipv4: igmp: encode multicast exponential fields
+>   Introduces the logic to dynamically calculate the exponent
+>   and mantissa using bit-scan (fls). This ensures QQIC and
+>   MRC fields (8-bit) are properly encoded when transmitting
+>   query packets with intervals that exceed their respective
+>   linear threshold value of 128 (for QQI/MRT).
+>
+> * ipv6: mld: encode multicast exponential fields
+>   Applies similar encoding logic for MLDv2. This ensures
+>   QQIC (8-bit) and MRC (16-bit) fields are properly encoded
+>   when transmitting query packets with intervals that exceed
+>   their respective linear thresholds (128 for QQI; 32768
+>   for MRD).
+>
+> Impact:
+> These changes ensure that multicast queriers and listeners
+> stay synchronized on timing intervals, preventing protocol
+> timeouts or premature group membership expiration caused
+> by incorrectly formatted packet headers.
+>
+> v2:
+> - Retargeted the series to net-next as suggested
+> - Fixed a compilation warning in the MLD rename change
+> - Kept reverse xmas tree order in IGMP exponential encoding change
+> - Added bridge selftests to validate IGMPv3 Query MRC and QQIC handling
+>
+> Ujjal Roy (5):
+>   ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and simplify calculation
+>   ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
+>   ipv4: igmp: encode multicast exponential fields
+>   ipv6: mld: encode multicast exponential fields
+>   selftests: net: bridge: add tests for igmpv3 MRC and QQIC validation
+>
+>  include/linux/igmp.h                          | 158 +++++++++++++++-
+>  include/net/mld.h                             | 179 +++++++++++++++++-
+>  net/bridge/br_multicast.c                     |  22 +--
+>  net/ipv4/igmp.c                               |   6 +-
+>  net/ipv6/mcast.c                              |  19 +-
+>  .../selftests/net/forwarding/.gitignore       |   2 +
+>  .../testing/selftests/net/forwarding/Makefile |  10 +
+>  .../selftests/net/forwarding/bridge_igmp.sh   | 109 +++++++++++
+>  .../selftests/net/forwarding/mc_decode.c      |  38 ++++
+>  .../selftests/net/forwarding/mc_encode.c      |  40 ++++
+>  10 files changed, 535 insertions(+), 48 deletions(-)
+>  create mode 100644 tools/testing/selftests/net/forwarding/mc_decode.c
+>  create mode 100644 tools/testing/selftests/net/forwarding/mc_encode.c
+>
+>
+> base-commit: cf0d9080c6f795bc6be08babbffa29b62c06e9b0
+> --
+> 2.43.0
+>
 
-This also adds helper binary to encode floating-point exponential fields.
+Forgot to attach test result using bridge_igmp.sh selftest.
+First two test cases are added newly v3query_mrc_test and v3query_qqic_test=
+.
 
-Future extensions may cover corresponding IPv6 cases.
+Without these patches:
+tools/testing/selftests/net/forwarding# ./bridge_igmp.sh
+TEST: IGMPv3 query: verify MRC (configured=3D160, expected=3D132)       [FA=
+IL]
+        Bad MRC value in IGMP packet:     Max Resp Time: 51.2 sec (0xa0)
+TEST: IGMPv3 query: verify QQIC (configured=3D160, expected=3D132)      [FA=
+IL]
+        Bad QQIC value in IGMP packet:     QQIC: 160
+TEST: IGMPv2 report 239.10.10.10                                    [ OK ]
+...
 
-Signed-off-by: Ujjal Roy <royujjal@gmail.com>
----
- .../selftests/net/forwarding/.gitignore       |   2 +
- .../testing/selftests/net/forwarding/Makefile |  10 ++
- .../selftests/net/forwarding/bridge_igmp.sh   | 109 ++++++++++++++++++
- .../selftests/net/forwarding/mc_decode.c      |  38 ++++++
- .../selftests/net/forwarding/mc_encode.c      |  40 +++++++
- 5 files changed, 199 insertions(+)
- create mode 100644 tools/testing/selftests/net/forwarding/mc_decode.c
- create mode 100644 tools/testing/selftests/net/forwarding/mc_encode.c
-
-diff --git a/tools/testing/selftests/net/forwarding/.gitignore b/tools/testing/selftests/net/forwarding/.gitignore
-index 418ff96c52ef..aa0c7f1afb4b 100644
---- a/tools/testing/selftests/net/forwarding/.gitignore
-+++ b/tools/testing/selftests/net/forwarding/.gitignore
-@@ -1,3 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
- forwarding.config
- ipmr
-+mc_encode
-+mc_decode
-diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
-index bbaf4d937dd8..a26da846632d 100644
---- a/tools/testing/selftests/net/forwarding/Makefile
-+++ b/tools/testing/selftests/net/forwarding/Makefile
-@@ -1,5 +1,15 @@
- # SPDX-License-Identifier: GPL-2.0+ OR MIT
- 
-+top_srcdir = ../../../../..
-+
-+CFLAGS += -Wall -Wl,--no-as-needed -O2 -g -I$(top_srcdir)/usr/include $(KHDR_INCLUDES)
-+CFLAGS += -I$(top_srcdir)/tools/include
-+
-+TEST_GEN_FILES := \
-+	mc_encode \
-+	mc_decode \
-+# end of TEST_GEN_FILES
-+
- TEST_PROGS := \
- 	bridge_activity_notify.sh \
- 	bridge_fdb_learning_limit.sh \
-diff --git a/tools/testing/selftests/net/forwarding/bridge_igmp.sh b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
-index d4e7dd659354..9841c4e4eca0 100755
---- a/tools/testing/selftests/net/forwarding/bridge_igmp.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
-@@ -2,6 +2,8 @@
- # SPDX-License-Identifier: GPL-2.0
- 
- ALL_TESTS="
-+	v3query_mrc_test
-+	v3query_qqic_test
- 	v2reportleave_test
- 	v3include_test
- 	v3inc_allow_test
-@@ -84,6 +86,7 @@ switch_destroy()
- {
- 	ip link set dev $swp2 down
- 	ip link set dev $swp1 down
-+	ip link set dev br0 down
- 
- 	ip link del dev br0
- }
-@@ -116,6 +119,112 @@ cleanup()
- 	vrf_cleanup
- }
- 
-+check_binary()
-+{
-+	local cmd=$1; shift
-+	local args=$@
-+
-+	if [[ ! -x "$(command -v "$cmd")" ]]; then
-+		log_test_skip "$args $cmd not found"
-+		return $EXIT_STATUS
-+	fi
-+}
-+
-+tcpdump_show_with_filter()
-+{
-+	local if_name=$1; shift
-+	local filter=$@
-+
-+	tcpdump -e -n -r ${capfile[$if_name]} "$filter" 2>&1
-+}
-+
-+validate_query()
-+{
-+	local if_name=$1; shift
-+	local test="$1"; shift
-+	local value="$1"; shift
-+	local pattern=""
-+	local field_val=""
-+	local pos=""
-+	local msg="IGMPv3 query: verify $test"
-+	check_command tshark || return 1
-+	check_binary "./mc_encode" $msg || return 1
-+
-+	if [ "$test" = "MRC" ]; then
-+		pos=1 # MRC field offset within IGMP header
-+		field_val=$(tshark -r ${capfile[$if_name]} -Y "igmp.type==0x11" \
-+			   -V 2>/dev/null | grep "Max Resp Time")
-+	elif [ "$test" = "QQIC" ]; then
-+		pos=9 # QQIC field offset within IGMP header
-+		field_val=$(tshark -r ${capfile[$if_name]} -Y "igmp.type==0x11" \
-+			   -V 2>/dev/null | grep "QQIC")
-+	fi
-+
-+	local enc_val=$(./mc_encode $value)
-+	pattern="ip proto 2 and igmp[0] == 0x11 and igmp[$pos] == $enc_val"
-+	local opt_str=""
-+	tcpdump_show_with_filter $if_name $pattern | grep -q "igmp query v3"
-+	ret=$?
-+	if [ "$field_val" != "" -a $ret -ne 0 ]; then
-+		opt_str="Bad $test value in IGMP packet: $field_val"
-+	fi
-+	check_err $ret "$opt_str"
-+
-+	log_test "$msg" "configured=$value, expected=$enc_val"
-+}
-+
-+v3query_mrc_test()
-+{
-+	RET=0
-+	local qri_val=160
-+	local br_qri=$((qri_val*10))
-+
-+	# Set MRT to validate
-+	ip link set dev br0 type bridge mcast_query_interval 12500 \
-+					mcast_query_response_interval $br_qri \
-+					mcast_igmp_version 3
-+	check_err $? "IGMPv3 QUERY bridge configuration failed"
-+
-+	ip link set dev br0 down
-+	tcpdump_start $h2
-+	ip link set dev br0 up
-+	sleep 2
-+	tcpdump_stop $h2
-+
-+	validate_query $h2 "MRC" $qri_val
-+	tcpdump_cleanup $h2
-+
-+	ip link set dev br0 type bridge mcast_query_interval 12500 \
-+					mcast_query_response_interval 1000 \
-+					mcast_igmp_version 2
-+}
-+
-+v3query_qqic_test()
-+{
-+	RET=0
-+	local qqi_val=160
-+	local br_qqi=$((qqi_val*100))
-+
-+	# Set QQIC to validate
-+	ip link set dev br0 type bridge mcast_query_interval $br_qqi \
-+					mcast_query_response_interval 1000 \
-+					mcast_igmp_version 3
-+	check_err $? "IGMPv3 QUERY bridge configuration failed"
-+
-+	ip link set dev br0 down
-+	tcpdump_start $h2
-+	ip link set dev br0 up
-+	sleep 2
-+	tcpdump_stop $h2
-+
-+	validate_query $h2 "QQIC" $qqi_val
-+	tcpdump_cleanup $h2
-+
-+	ip link set dev br0 type bridge mcast_query_interval 12500 \
-+					mcast_query_response_interval 1000 \
-+					mcast_igmp_version 2
-+}
-+
- v2reportleave_test()
- {
- 	RET=0
-diff --git a/tools/testing/selftests/net/forwarding/mc_decode.c b/tools/testing/selftests/net/forwarding/mc_decode.c
-new file mode 100644
-index 000000000000..5b626101497d
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/mc_decode.c
-@@ -0,0 +1,38 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <linux/bitops.h>
-+
-+#define IGMPV3_FP_EXP(value)            (((value) >> 4) & 0x07)
-+#define IGMPV3_FP_MAN(value)            ((value) & 0x0f)
-+
-+/* IGMPV3 floating-point exponential field threshold */
-+#define IGMPV3_EXP_MIN_THRESHOLD        128
-+
-+static inline unsigned long decode_field(const u8 code)
-+{
-+    /* RFC3376, relevant sections:
-+     *  - 4.1.1. Maximum Response Code
-+     *  - 4.1.7. QQIC (Querier's Query Interval Code)
-+     */
-+    if (code < IGMPV3_EXP_MIN_THRESHOLD) {
-+        return (unsigned long)code;
-+    } else {
-+        unsigned long mc_man, mc_exp;
-+        mc_exp = IGMPV3_FP_EXP(code);
-+        mc_man = IGMPV3_FP_MAN(code);
-+        return ((mc_man | 0x10) << (mc_exp + 3));
-+    }
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+    uint8_t qqic = 0;
-+    if (argc >= 2)
-+        qqic = atoi(argv[1]);
-+    unsigned long qqi = decode_field(qqic);
-+
-+    printf("%lu\n", qqi);
-+
-+    return 0;
-+}
-diff --git a/tools/testing/selftests/net/forwarding/mc_encode.c b/tools/testing/selftests/net/forwarding/mc_encode.c
-new file mode 100644
-index 000000000000..a2183b864be4
---- /dev/null
-+++ b/tools/testing/selftests/net/forwarding/mc_encode.c
-@@ -0,0 +1,40 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <linux/bitops.h>
-+
-+/* IGMPV3 floating-point exponential field threshold */
-+#define IGMPV3_EXP_MIN_THRESHOLD        128
-+/* Max representable (mant = 0xF, exp = 7) -> 31744 */
-+#define IGMPV3_EXP_MAX_THRESHOLD        31744
-+
-+static inline uint8_t encode_field(unsigned int value)
-+{
-+    uint8_t mc_exp, mc_man;
-+
-+    /* RFC3376: QQIC/MRC < 128 is literal */
-+    if (value < IGMPV3_EXP_MIN_THRESHOLD)
-+        return (uint8_t)value;
-+
-+    /* Saturate at max representable (mant = 0xF, exp = 7) -> 31744 */
-+    if (value >= IGMPV3_EXP_MAX_THRESHOLD)
-+        return 0xFF;
-+
-+    mc_exp  = (uint8_t)(fls(value) - 8);
-+    mc_man = (uint8_t)((value >> (mc_exp + 3)) & 0x0F);
-+
-+    return 0x80 | (mc_exp << 4) | mc_man;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+    unsigned int qqi = 0;
-+    if (argc >= 2)
-+        qqi = atoi(argv[1]);
-+
-+    uint8_t qqic = encode_field(qqi);
-+
-+    printf("%u\n", qqic);
-+
-+    return 0;
-+}
--- 
-2.43.0
-
+With these patches:
+tools/testing/selftests/net/forwarding# ./bridge_igmp.sh
+TEST: IGMPv3 query: verify MRC (configured=3D160, expected=3D132)       [ O=
+K ]
+TEST: IGMPv3 query: verify QQIC (configured=3D160, expected=3D132)      [ O=
+K ]
+TEST: IGMPv2 report 239.10.10.10                                    [ OK ]
+...
