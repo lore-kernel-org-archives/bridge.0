@@ -1,88 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD0F23CAE85;
-	Wed,  1 Apr 2026 09:01:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775034085; cv=none; b=LUwgKC6fq0K++JNM8EOR9GLtC6V/khORdhTRHkDQWablMatjcbeyON9t3oXll05UA9B+YyUw69tQkRxOOIhf5T7WlEnLZjfKvDsWLi0HCWYkkCd6d8Zw3v9/RxOoi2jGn4QsrMWY+Fc2j7P1UAINNRW9HIOCLCyL896IF8MjpJA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775034085; c=relaxed/simple;
-	bh=pjlrfUH8eUQ+zCivUMUKUassfapoyoThebsNFDFzdp4=;
-	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=YXSElQI/TCdojvbSK5Zl1QdMF4nr3QetyVaiIaSQByjPIQYQz9PYj1Q7Z7xvgpSYTA0UsR2NJ2pLMCdkuAJLWJ3lLcBavRLiW+hxNdbOW8TLj9UFo4Ow92voP02PbNkMFoyj8ZSOVxJk9xdqkWOUIB4NxrCffO6KhhuHk3CO5UU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pJ3SAr9E; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23F9739D6DF
+	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 09:11:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775034706; cv=pass; b=deGA5S6QMQcnrvztt9QJej+PLYIs1sXYi5xX19yir8pOuX/MUpx1YnNngz4ZoO5f6AQloB0Zy+C+jFkYgtGlsXqUXhhB2Q7a1uGAPzk0z+/UMao+PGh3nLVSwYcMYkt97PEf98abT4y3VlqLelVr/5+V/QmwlYUOF2Ikfa8j31Y=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775034706; c=relaxed/simple;
+	bh=dmaTcuAy6jfJ+bmzS1Jm/uyBrkTWgyDnScrFaQ2/nas=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XkmGih7acj6veWXVgU1FpAVN2SxTACTj06JBZdFjuMjv6xqRkTNtn5IyvXpT3yapl23KQL2Nufxw7nVSk2t5O6PaGxsE+GcnJPLFbDom3s2M4683aWjduIs639pAgi9+121TB8Y98BW3meM4mhD0MyeK/vQyhTWzPqW5kkyYaTs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JZhPgCN8; arc=pass smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pJ3SAr9E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB42C4CEF7;
-	Wed,  1 Apr 2026 09:01:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775034085;
-	bh=pjlrfUH8eUQ+zCivUMUKUassfapoyoThebsNFDFzdp4=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date:From;
-	b=pJ3SAr9Ex+S5hQMA/Ph7zhn38RBnzGKY6Ylul6pDXNW9SXNaowNqlsHSgRBVw+pTa
-	 P63PJOVxf0bcO+NkqlDNqUrxHTciHsLsg5H+UP2ivEgkoetFaorB+uNBKuSsybJVlC
-	 Ktybf8zDkelHT6s9jN4F+xz3ZjlZ3xWKf/ziMk/rH4Jlq43f2bIW8+wF+mfoAJYSfr
-	 oGJdR/JYFAYduL+eNbCDtW9bjbzOIDzrMTqRVssUniyyriI6aeoyfbmILuYivbpz8o
-	 nCwwnSDa+JbvwEH7gRcskKZM9Zc/xjLa134EPrD7HpiJikTIstysnOm/2U764xr6ws
-	 e6vLdrtlMXwwQ==
-Content-Type: multipart/mixed; boundary="===============8023301804951780972=="
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JZhPgCN8"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-506aa68065eso57355031cf.1
+        for <bridge@lists.linux.dev>; Wed, 01 Apr 2026 02:11:43 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775034703; cv=none;
+        d=google.com; s=arc-20240605;
+        b=XQpsr9Evbnh/Zp/YSqJ2So9QR3J1vbT11FY/0M9eSdrrHl2SmeF41Y2qdLHD2UBnLx
+         IMcPysYmii/I5b2YreZELpckCJ3EZjNWUFovylOSbjZwHaUqTKGJp+EDLsPRDa6IBtkV
+         7pDO9U7cS2XCcomitcooYYtcXd+Pc/VPZ4Q3Vaqofu8nveohZXsMT/WrkvgSoESAvRqo
+         KW/ZdLsqxHsxTDbD9Iy6QfdolxkWrYzGkJhoYOIvwuoT72JjK2sYpHhTY7v/rg4YUNTe
+         6EraNxOk20Zeyg7YAXO7R+ETGHnrv72IwFZuN/dh2EGGgHPP2h4xO+LvIUM4DKbFocFG
+         1akg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=lctUVgmnSzTUnScobr+jAtLkB/onmBi35F0YaMEt+UE=;
+        fh=6SO8cBGuv9tVGo0SsW3/ld0RQm9ei4rKvgg3VJIM5V0=;
+        b=kwQjkDL0hznxsn7uv7Nk0NAtCI0YpUhCbHft4hvGrQTizPzy80KJgJHP5m5tKbrIvO
+         te/Csgz9j6qIRFSXmLVYqQXWHswu3RqbkU+uHUTbpBvDdLzSmEHhicyXf6CNpQZHXkIl
+         UwdulgBek2OM2JLZE6kcZc9z7H0S0j0ojgZATIp3VHyo8h9xe7aPxEKR8BakVVvf+630
+         mmwB8cPtoF5qWk2ipsGGLwxtsc6p3PemDd4I+zHBWL6ZRj3D3R5MXtyXNGXHjcKkXGiD
+         DX7DBVna4pxIo/IdpJy952pW9dD7PWxRAZiyKMvY3kzPPEoSi3iBqiGYZ4xc+je/dt0D
+         3cmA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1775034703; x=1775639503; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lctUVgmnSzTUnScobr+jAtLkB/onmBi35F0YaMEt+UE=;
+        b=JZhPgCN8ruXWd0mtFbM2NKR95FdjycFNGfnMctri6aiGIoFbWIKTf0Bnu12e1zSnxB
+         LxIYW1LIY9zOiwPiPPO4GtYvlDHBZql+HiquaRsTFej8b7WwzRnrYB/efKmsF+s/jHVI
+         GFQmzjcLyA/pIK+/BXRRCIjZvIq2C2QCJ2PNODVAK3GNK47y2AWTL5moOkDrfzSuER7Z
+         QhT01/VWSnj9twL7tXkM9tHrI9Fgn2Gh7Y6MFcw0AEHL8DQbmL+ApEfw576tvmiAjNqO
+         Daw/rDK6ZCLP2iyySkcxYVyGpEaKHcYqS5fljKuhutNm3XAujcbaLga3u+/upQ6y7XAy
+         hGhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775034703; x=1775639503;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=lctUVgmnSzTUnScobr+jAtLkB/onmBi35F0YaMEt+UE=;
+        b=gIpxlCSFvGvLNiWW+SJ+IebvjjH4xqeSOFqjUQFyGQr1D0+tSCsOstiqjV1qiJuWvX
+         5dnbXnv/IBAuGXJ4+NdXZmE7Qr5MX/CKyo5lAhq3PjYoTWtU9F/3aQo59I0GNFMuQqU3
+         IoV2wr7FiEXTrZ6V5i5N/GoHjtoZoujKwMLOj/eLp5COGVeu7+m8mDQnKTJLGuVjZajQ
+         zNvCtiRfWq0kMQLFV63AXNlxVTZYt1vE/lXFjCBMgST5bi6vhU4MNMIjYCUJw6Uk9sdJ
+         l0hO7F2Ge3dmTMlGzSgr9Uq8IY/8n5dc7Q9Y41bq/S4bmN0dJ5cHDYDvjIapRJAeHchT
+         ipYQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWfUfuLLsFhg5vRIGkK+kN8AReoz5IpLcU0xSBHZb7+0ORqVPFwf559ARd9J/kk7EyU75Ekz9U=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzu6hKqNE1VklCpFWq0OMdNcSqzVJq019yqYqTiCAl334eLMXzz
+	Ye1BjmfuoYR+njR5Eeeidi6ngyc3TBdfLh8Udgr2iHtKXLawhGikOZF/4M+xkRGms1ab+tt63Dr
+	JjNTx/F3V2x6ajoNWT4QLmnPG10lnObGs2SkjRnvM
+X-Gm-Gg: ATEYQzwOmO0oDyp/ahmZCRAHoL5O5sErrOGBISmtxwsL+4YM8t7SU+zI8Qmy1lfw4/K
+	2MhSjxP82slYor5mMW/7r1W9ifv3Z2Fqhw13W16I/zIweFMFQiMF7owC4NBBt/bfpDHY+RhU3pV
+	8tN2j9Nd1kBQtwsNuqccqRpWP1nEcPq2plHhvyu4NYIZlXcv0N1QnH1KG3hLBWtb2R0czf0iGE4
+	MahOvw4KCmG7b2pDSBeL6ChfXm+XYE/lWJ00g5BCLrINa8V+PB5Eebc5lec+BzE6MyaJmABSqj2
+	94sHMtfIuv+jWdj3
+X-Received: by 2002:a05:622a:5909:b0:4ed:b2da:966f with SMTP id
+ d75a77b69052e-50d3bd84b29mr44808651cf.31.1775034702251; Wed, 01 Apr 2026
+ 02:11:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <8dceda43e1d8fe0c9f3f34e035b5a4e66a40587db780e3722b88ad25e5797eec@mail.kernel.org>
-In-Reply-To: <20260401074509.1897527-6-dwmw2@infradead.org>
-References: <20260401074509.1897527-6-dwmw2@infradead.org>
-Subject: Re: [PATCH 5/6] net: Change CONFIG_INET to CONFIG_LEGACY_IP for IPv4-only code
-From: bot+bpf-ci@kernel.org
-To: dwmw2@infradead.org,saeedm@nvidia.com,leon@kernel.org,tariqt@nvidia.com,mbloch@nvidia.com,andrew+netdev@lunn.ch,davem@davemloft.net,edumazet@google.com,kuba@kernel.org,pabeni@redhat.com,horms@kernel.org,razor@blackwall.org,idosch@nvidia.com,martin.lau@linux.dev,daniel@iogearbox.net,john.fastabend@gmail.com,sdf@fomichev.me,ast@kernel.org,andrii@kernel.org,eddyz87@gmail.com,song@kernel.org,yonghong.song@linux.dev,kpsingh@kernel.org,haoluo@google.com,jolsa@kernel.org,kuniyu@google.com,willemb@google.com,dsahern@kernel.org,ncardwell@google.com,johannes@sipsolutions.net,pablo@netfilter.org,fw@strlen.de,phil@nwl.cc,gnault@redhat.com,dwmw@amazon.co.uk,kees@kernel.org,alazar@nvidia.com,gal@nvidia.com,paul@paul-moore.com,netdev@vger.kernel.org,linux-rdma@vger.kernel.org,linux-kernel@vger.kernel.org,oss-drivers@corigine.com,bridge@lists.linux.dev,bpf@vger.kernel.org,linux-wireless@vger.kernel.org,netfilter-devel@vger.kernel.org,coreteam@netfilter.org,torvalds@linux-foundation.org,jon.maddog.hall@gmail.com
-Cc: ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,clm@meta.com,ihor.solodrai@linux.dev
-Date: Wed,  1 Apr 2026 09:01:24 +0000 (UTC)
+References: <20260401074509.1897527-1-dwmw2@infradead.org> <20260401074509.1897527-7-dwmw2@infradead.org>
+In-Reply-To: <20260401074509.1897527-7-dwmw2@infradead.org>
+From: Eric Dumazet <edumazet@google.com>
+Date: Wed, 1 Apr 2026 02:11:31 -0700
+X-Gm-Features: AQROBzDMpjzScINQf3v40GgXHFr7zNRIwe6Qb5aBvyyAycV5Up8H_bwJXHOzd_8
+Message-ID: <CANn89i+GHkkubJp3MTKZ_r4tde1qLejfsxUh+w0gPZ3ec+YdjQ@mail.gmail.com>
+Subject: Re: [PATCH 6/6] net: Warn when processes listen on AF_INET sockets
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, 
+	Mark Bloch <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	"David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann <daniel@iogearbox.net>, 
+	John Fastabend <john.fastabend@gmail.com>, Stanislav Fomichev <sdf@fomichev.me>, 
+	Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
+	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Kuniyuki Iwashima <kuniyu@google.com>, Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, 
+	Neal Cardwell <ncardwell@google.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>, 
+	Guillaume Nault <gnault@redhat.com>, David Woodhouse <dwmw@amazon.co.uk>, Kees Cook <kees@kernel.org>, 
+	Alexei Lazar <alazar@nvidia.com>, Gal Pressman <gal@nvidia.com>, Paul Moore <paul@paul-moore.com>, 
+	netdev@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, oss-drivers@corigine.com, 
+	bridge@lists.linux.dev, bpf@vger.kernel.org, linux-wireless@vger.kernel.org, 
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
+	torvalds@linux-foundation.org, jon.maddog.hall@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
---===============8023301804951780972==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-> diff --git a/net/core/filter.c b/net/core/filter.c
-> index ad71ceefcb5e..ef99bd9fddd6 100644
-> --- a/net/core/filter.c
-> +++ b/net/core/filter.c
-
-[ ... ]
-
-> @@ -6095,7 +6095,7 @@ static int bpf_fib_set_fwd_params(struct bpf_fib_lookup *params, u32 mtu)
->  }
->  #endif
+On Wed, Apr 1, 2026 at 12:45=E2=80=AFAM David Woodhouse <dwmw2@infradead.or=
+g> wrote:
 >
-> -#if IS_ENABLED(CONFIG_INET)
-> +#if IS_ENABLED(CONFIG_LEGACY_IP)
->  static int bpf_ipv4_fib_lookup(struct net *net, struct bpf_fib_lookup *params,
->  			       u32 flags, bool check_mtu)
+> From: David Woodhouse <dwmw@amazon.co.uk>
+>
+> There is no need to listen on AF_INET sockets; a modern application can
+> listen on IPv6 (without IPV6_V6ONLY) and will accept connections from
+> the 20th century via IPv4-mapped addresses (::ffff:x.x.x.x) on the IPv6
+> socket.
+>
+> Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+> ---
+>  net/ipv4/af_inet.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+> index dc358faa1647..3838782a8437 100644
+> --- a/net/ipv4/af_inet.c
+> +++ b/net/ipv4/af_inet.c
+> @@ -240,6 +240,9 @@ int inet_listen(struct socket *sock, int backlog)
+>         struct sock *sk =3D sock->sk;
+>         int err =3D -EINVAL;
+>
+> +       pr_warn_once("process '%s' (pid %d) is listening on an AF_INET so=
+cket. Consider using AF_INET6 with IPV6_V6ONLY=3D0 instead.\n",
+> +                    current->comm, task_pid_nr(current));
+> +
 
-bpf_fib_set_fwd_params() above this hunk is still guarded by
-CONFIG_INET, and its only two callers are bpf_ipv4_fib_lookup()
-(now CONFIG_LEGACY_IP) and bpf_ipv6_fib_lookup() (CONFIG_IPV6).
-
-When CONFIG_INET=y with both CONFIG_LEGACY_IP=n and CONFIG_IPV6=n,
-bpf_fib_set_fwd_params() becomes an unused static function, which
-will produce a -Wunused-function warning and break CONFIG_WERROR
-builds.
-
-Should the guard on bpf_fib_set_fwd_params() be changed to
-something like:
-
-  #if IS_ENABLED(CONFIG_LEGACY_IP) || IS_ENABLED(CONFIG_IPV6)
-
-to match its actual callers?
-
-
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
-
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/23838411859
---===============8023301804951780972==--
+Some kernels are built without CONFIG_IPV6, so this warning would be
+quite misleading.
