@@ -1,119 +1,146 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx-01.divo.sbone.de (legacy1.sbone.de [80.151.10.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED8B35F5E1
-	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 16:26:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FCE1478851
+	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 16:44:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.151.10.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775060776; cv=none; b=jEmHkSKU03d7ghg5pQcAX3Dy4Pfi21cvXGwYsge5KjifN2dVsiB1vpCvYbZdtBuZonbzk8Bqh6ndkM7lCLpj0D647Mp8s4KEbTB+dUwga0TAxnFsGtwXqNTLn0O3wqh69Y51gRP4H/nfsHWWBcoFYpcmAzUPd0/0L0yZBOaaELQ=
+	t=1775061885; cv=none; b=hHQBbbSfjt9Y8UUlrMmo8fC9aZynqwudBQd7tW+cm2F/SRN2HXYWYVMM3k1mcP5G9in9Qxk67wtV2vOPA65HpZ0wxSPrWDikGnMNJv6dT2P2CViIOeTEkPWueBybRlu+GQIbZAAuRSFjrdI7Fe0wG8ym1iK/e/p0HlXHipmnx+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775060776; c=relaxed/simple;
-	bh=ybEdMnj+IV21R50M/Nq06VgnFb302XMUbdzsNI1SGq0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ak21jNLc3MyKpF8r40NaEgkPJKTz0fkYioyq9+nbQ7w1MDBaFe4aYDqnRVMCdY6VCe4NHmLOxWONcI1BwRiEQpJuQ7yFLICaGaYok3dqxT/ncMAQ8ZB/i5EFkk7F9zmtzfsAlu1bi1+BtzmLcs+vO/0poqxoBggC5KK5tH0RrsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=BsovLBpK; arc=none smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	s=arc-20240116; t=1775061885; c=relaxed/simple;
+	bh=L7QYUKOAasoCSYere7gl554w+Twajp2xHlhYrh3+o4s=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:MIME-Version:
+	 Content-Type:Message-Id; b=FryMQoaMSyFOTOgQeX0f94wSh6C0oaMJ+qHcDS9X2BMtk43tOyEpQ8F50QiUZ3b6haxNyyiS/8zbRdZ0WegiZB4NBkJV43LOJ0zYkbk1DrEsoMsuFsyOnpAaa+WG3vCJdSOZQBDOunnxLmsG9gHbfRdctJ/6hfeyMN+XEHZ6rCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.zabbadoz.net; spf=pass smtp.mailfrom=lists.zabbadoz.net; dkim=pass (4096-bit key) header.d=zabbadoz.net header.i=@zabbadoz.net header.b=M1b/lTq0; arc=none smtp.client-ip=80.151.10.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.zabbadoz.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lists.zabbadoz.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="BsovLBpK"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b9c01854477so350775966b.0
-        for <bridge@lists.linux.dev>; Wed, 01 Apr 2026 09:26:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1775060769; x=1775665569; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=wMfn5M+yor9qcHDuzn1ye+wM03ph8KGxN0vfAlP2l30=;
-        b=BsovLBpK2S0asgFz3YROsi7D+gZGp0C7dY254LOFMLttjmOh+oaMxzjAr0szEFLWvs
-         qR9VyC4ud4ZCNHhxDYyIePW2McjXbNjphBNYhX7nVuEqo50vYnhnVCtlYnw9aC2MmtQi
-         8STQ2sxrIkB4fROO1kNPYIxa8Ziy7qw+rCkgc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775060769; x=1775665569;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wMfn5M+yor9qcHDuzn1ye+wM03ph8KGxN0vfAlP2l30=;
-        b=naFs/z57VUlNidRt4lYDmwMtqWl14jl8wzp4bGkQiP2UhCq7zJfjznrqB6FUz42cgR
-         e4tQMggPy7AsOa2+/TdCPFkjHVZDa47F7Y1CBSjq/IJ34UKglh5xUkpNngLSqssiwDo0
-         +niziwZPAtepFUxkvS25vmTsEjE7lkq0ry1Imcvy7FmIzMSkTBYy2TuMiGWj3E0mTTDo
-         paU1eBFJ8MrWJ61whU8goCSwUu37qYeLiUQz6r6q16JPqfcR/9R12FEd0zMmnlzBhXbk
-         yozG/B2XguA+YZZXQ8O7MWvz8YW+8jWvrC9n8dR7QTBt1+JrkvmFhkesAPMPLjJRUDJM
-         MQpg==
-X-Forwarded-Encrypted: i=1; AJvYcCXYQwPNFBqVrvSFMMmlHS5pqwvt+YyjGEP1iQmaBgRpcSSOR5dmpSHm2FfUYnvAZn+/JFKmdNw=@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywxxzn8S7QRbj75WzD+i8edH0Crai5mub+njzr10DZRtS49OFmB
-	ik7ZVXYcSy4WjbLu9X4jORSHoy6LKOcZyHJYugWOrxvNQA375Ne8NI8r6SKFx1o12sgWSwiwbDp
-	dd1ZUX2AieA==
-X-Gm-Gg: ATEYQzyw7OuYZQYt9f8gOfyim2NCt/0QlH6yeFH1ELlEKKBikJkNT8ErPwYP1eqRlxW
-	Vxq5xgTWc9cJA0k8oR7f0Kz6MVXIoujCbzJG6xUDDCQTcF0GoBe+jFHOih7Uz4PPcRlHIk4ibF7
-	lGc6U2tB+qqgXQGER2KLV+wAznE3hddDWEXz2iBVLq29BvXLDRn9xeuddTWRH+snlMkpXlFT3MT
-	HkWXOaWJ+cuqRGGpgwwZCMo8h3EdgX4HQkM+NtjVxRu8u7CPtumu6zOXi/WtWJ4PRNYTikVPQ7a
-	LQkVg560eyugjtuuGM539VAMXM3Ex+uLcMbDMoRDhp1YNC9wTSOanCx28y9g0fDIDCTEHHEw7R3
-	d+zVZY9CEWLAxun0QwYsZEofw9JdNC7mFRb8EEtqQUsqz3ckz1NbHUFPoFB7UZCj5c2jFYZ8pHT
-	ZH96UbwYYQu4cS18OZHBzfXXx1tMc0D5i07s+VSN1khFQn2TsLeykIt50N3X75xIrQ8SM/37xw
-X-Received: by 2002:a17:907:ca22:b0:b98:2732:3dd1 with SMTP id a640c23a62f3a-b9c13b7acd6mr78179566b.42.1775060768539;
-        Wed, 01 Apr 2026 09:26:08 -0700 (PDT)
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com. [209.85.208.50])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-66e033ba245sm4275a12.20.2026.04.01.09.26.06
-        for <bridge@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Apr 2026 09:26:07 -0700 (PDT)
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-66bb4d4fcb4so7465942a12.2
-        for <bridge@lists.linux.dev>; Wed, 01 Apr 2026 09:26:06 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUddnbXWr2InzBGM2AcDJBTRIGd9DGqLL0wSo2zFWDj9yjrBKHHsaFTmYd7gBvIcQKGBZWQmyc=@lists.linux.dev
-X-Received: by 2002:a05:6402:35d0:b0:663:4315:7271 with SMTP id
- 4fb4d7f45d1cf-66db0cfbdaamr2927572a12.23.1775060766098; Wed, 01 Apr 2026
- 09:26:06 -0700 (PDT)
+	dkim=pass (4096-bit key) header.d=zabbadoz.net header.i=@zabbadoz.net header.b="M1b/lTq0"
+Received: from mail.sbone.de (mail.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:1025])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by mx-01.divo.sbone.de (Postfix) with ESMTPS id D9902A64805;
+	Wed, 01 Apr 2026 16:34:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=zabbadoz.net;
+	s=20240622; t=1775061285;
+	bh=L7QYUKOAasoCSYere7gl554w+Twajp2xHlhYrh3+o4s=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=M1b/lTq05e8KeboSTmXSX7M1YW9zV+QAk2vw6i+E8gwT1jgX8ScvW5jMD08uWILnk
+	 hjmryFuzVdO6KTWrTwpfjPv+/9jNSOSN4abNHubpizWYq68eJ6NKlMeKSrY31UJQgk
+	 +OqnAPYrDptHXN77ujSvPs7GsD4F8VTJx24/Oo8A5LKasyca8kBPPajU3vwSVrGHVc
+	 7D+WzRaTjhyhYzS5R/w3aKdjjU1KHLzqZxNGWv4dHUxnI3/vwKzh09LcVOgxm4KOtg
+	 zVjCJ1qBIN+NdzlhA+f0zP8ojXW0WYy/bORGZMtTUfZOCj928GNLhLKmRXyeiJDe9+
+	 ZIP5oyrNsYdM+wZuZjZhoglbRXUmMVdHSknEYsjgXeztybOHVcfCMBfvep6X7sN0VS
+	 YaeCs+e1c0yfnHD940PJyp7+EHpZkLukoP0+pC1C+xXylHVFRo7DhKbfTgqEsS/iZU
+	 DvqAN9R7c4dRylj+uHD7onpO3y4oDDI20o3N3GTeK/RPsIBIU1wL7kcMbWQ67/NuvO
+	 cMWKiLg1ww3avLz+Rahz0w7JZqN0p+ekNxl19IVby5BBH+hq/qCEb3YOoCZClU5ARv
+	 F+UDmS+dArLaOr9eOg0CMQp9PJcn4sFG5peJB/zGrPeHzFtW76RdyLZQXsfclUyRKt
+	 XrdKNAmsvH9zIf1fV5hZILXk=
+Received: from content-filter.t4-02.sbone.de (content-filter.t4-02.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:2742])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.sbone.de (Postfix) with ESMTPS id 8CD4A2D029E9;
+	Wed,  1 Apr 2026 16:35:04 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at sbone.de
+Received: from mail.sbone.de ([IPv6:fde9:577b:c1a9:4902:0:7404:2:1025])
+	by content-filter.t4-02.sbone.de (content-filter.t4-02.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:2742]) (amavisd-new, port 10024)
+	with ESMTP id 2IW08zsrTcK7; Wed,  1 Apr 2026 16:35:03 +0000 (UTC)
+Received: from nv.t4-02.sbone.de (nv.t4-02.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:22])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mail.sbone.de (Postfix) with ESMTPSA id AE4862D029D8;
+	Wed,  1 Apr 2026 16:35:00 +0000 (UTC)
+Date: Wed, 1 Apr 2026 16:35:00 +0000 (UTC)
+From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, 
+    Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>, 
+    Andrew Lunn <andrew+netdev@lunn.ch>, 
+    "David S. Miller" <davem@davemloft.net>, 
+    Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+    Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+    Nikolay Aleksandrov <razor@blackwall.org>, 
+    Ido Schimmel <idosch@nvidia.com>, Martin KaFai Lau <martin.lau@linux.dev>, 
+    Daniel Borkmann <daniel@iogearbox.net>, 
+    John Fastabend <john.fastabend@gmail.com>, 
+    Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>, 
+    Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+    Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, 
+    KP Singh <kpsingh@kernel.org>, Hao Luo <haoluo@google.com>, 
+    Jiri Olsa <jolsa@kernel.org>, Kuniyuki Iwashima <kuniyu@google.com>, 
+    Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, 
+    Neal Cardwell <ncardwell@google.com>, 
+    Johannes Berg <johannes@sipsolutions.net>, 
+    Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, 
+    Phil Sutter <phil@nwl.cc>, Guillaume Nault <gnault@redhat.com>, 
+    David Woodhouse <dwmw@amazon.co.uk>, Kees Cook <kees@kernel.org>, 
+    Alexei Lazar <alazar@nvidia.com>, Gal Pressman <gal@nvidia.com>, 
+    Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org, 
+    linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    oss-drivers@corigine.com, bridge@lists.linux.dev, bpf@vger.kernel.org, 
+    linux-wireless@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+    coreteam@netfilter.org, torvalds@linux-foundation.org, 
+    jon.maddog.hall@gmail.com
+Subject: Re: [PATCH 0/6] Deprecate Legacy IP
+In-Reply-To: <20260401074509.1897527-1-dwmw2@infradead.org>
+References: <20260401074509.1897527-1-dwmw2@infradead.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260401074509.1897527-1-dwmw2@infradead.org> <20260401074509.1897527-7-dwmw2@infradead.org>
- <CANn89i+GHkkubJp3MTKZ_r4tde1qLejfsxUh+w0gPZ3ec+YdjQ@mail.gmail.com>
- <252823d75e9221647e7f8ccef6105432aabe8d6f.camel@infradead.org> <20260401080657.70cd9bd1@phoenix.local>
-In-Reply-To: <20260401080657.70cd9bd1@phoenix.local>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Wed, 1 Apr 2026 09:25:49 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wj5KW97ZHUi_5kCwC+Lh53_sj2HJ1SnBU1pQAOtnk7oGw@mail.gmail.com>
-X-Gm-Features: AQROBzBuhMzLrgonz6WGspEvkWFhuj-ddiDGEYTFKbMu2F_LUT3de-t_k_EwsPU
-Message-ID: <CAHk-=wj5KW97ZHUi_5kCwC+Lh53_sj2HJ1SnBU1pQAOtnk7oGw@mail.gmail.com>
-Subject: Re: [PATCH 6/6] net: Warn when processes listen on AF_INET sockets
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Eric Dumazet <edumazet@google.com>, 
-	Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, 
-	Mark Bloch <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann <daniel@iogearbox.net>, 
-	John Fastabend <john.fastabend@gmail.com>, Stanislav Fomichev <sdf@fomichev.me>, 
-	Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
-	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Kuniyuki Iwashima <kuniyu@google.com>, Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, 
-	Neal Cardwell <ncardwell@google.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>, 
-	Guillaume Nault <gnault@redhat.com>, Kees Cook <kees@kernel.org>, Alexei Lazar <alazar@nvidia.com>, 
-	Gal Pressman <gal@nvidia.com>, Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	oss-drivers@corigine.com, bridge@lists.linux.dev, bpf@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	coreteam@netfilter.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; format=flowed; charset=US-ASCII
+Message-Id: <20260401163500.AE4862D029D8@mail.sbone.de>
 
-On Wed, 1 Apr 2026 at 08:07, Stephen Hemminger
-<stephen@networkplumber.org> wrote:
->
-> On Wed, 01 Apr 2026 10:28:23 +0100
-> David Woodhouse <dwmw2@infradead.org> wrote:
-> >
-> > Maybe on this date next year, we could make it not possible to build
-> > the kernel *without* IPv6... ?
->
-> There are some government agencies that used to require that IPV6 was disabled
-> for security reasons. Yes they had broken old firewalls
+On 4/1/26 07:44, David Woodhouse wrote:
 
-I think you missed the big clue here. "This date".
+Hi David,
 
-Sigh. It's going to be a long long day.
+(fun fishing this out from nntp.lore.kernel.org needing NAT64)
 
-              Linus
+> RFC1883, the IPv6 standard, was published in the final decade of the 1900s.
+> That's closer in time to the Apollo 11 moon landing than it was to today.
+> 
+> Even our esteemed Maddog has worked with computers for longer in the IPv6
+> era, than he ever did before it.
+> 
+> Yet Linux still can't even be *built* with only IPv6 support and without
+> support for Legacy IP. This long overdue patch series fixes that, and
+> ...
+
+This is very interesting; I'll be happy to read the more serious 
+discussions for 6/6 this year then :)
+
+That said, I've been there 15 years ago and done that for real,
+just not for Linux:
+https://freebsdfoundation.org/blog/freebsd-foundation-and-ixsystems-announce-ipv6-only-testing-versions-of-freebsd-and-pc-bsd/
+
+A lot of parts (e.g., PC-BSD,the IPv6-only snapshots we published 
+back then, websites) are long gone, but FreeBSD today still has NO-INET
+(as well as NO-INET6 and NO-IP) kernel configs which are regularly tested
+as part of a universe build to make sure the status-quo stayed, along with
+options to build (large parts) of userspace without IPv4 support.
+
+I have since run real IPv6-only machines :]]
+EAFNOSUPPORT and EPROTONOSUPPORT are (were) a good friend of mine.
+
+It helped a lot back then to find applications which had real trouble
+working without IPv4.
+It was fun sitting in a UKNOF presentation years later to hear about
+all these applications just working on IPv6-only and knowing why, whereas
+the presenter was unaware, and still had a 127.1 on his loopback *sigh*
+
+IPv6-only is something a lot of people will not understand and someone
+just has to do it!  It is a worthwhile goal, even if late, as you say.
+My reminder to people these days is: DNSsec is even older than IPv6.
+
+I have moved on (though would love to go back to more IPv6);
+please feel free to get in touch in case you want me to go and swap in
+some more memories from that time to share experience and help.
+
+To the global deployment of IPv6!
+/bz
