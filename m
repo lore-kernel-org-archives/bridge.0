@@ -1,114 +1,158 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EBFB361DDA
-	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 15:07:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F8E128150F
+	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 15:49:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775056045; cv=none; b=H2hygv4vrEl5dNYZH4LK5o1xkEGmJmJG27kiXeyNLYQ4xZwA5NLHRlZlNVJg3gZh3ks94oAnJVgmYDbP0w4udx/OzYA0JTueinV2kpz3s8Raxnb1XQI12gNkmipZT/+lhdnNOg4WHpsYDRIP8MeJgexmnWn5dL6T1Oj9x6Uw9/E=
+	t=1775058544; cv=none; b=mo7TEftlfVHgje9E1aFGZXRZj8ILDodCkZKdGE3IH6O3neLRix9ZJmQM0n+5wHv/kcfhdnPmK4FqcfKniprbZpOICWbn3Vm+jdtdt43nMgqc04OPvq8ZZffblz/UC9TBEVvfS71MzyAi2uu1oQfx6khxuqcPnnwm7Jh71JelPJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775056045; c=relaxed/simple;
-	bh=bjcwsYJwkpqzg1+Jd+PAkNPiIUaqng2IgQHyEKuA3jU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ku1R44tnczdC1ChV19bo40RoDgD1poVjw7WuLP3e3JgHdfDo0MTYRhXD9ij4zDRihBwVlHZx2mU6n7bXCZz9LAkNY1N44JJ9ctK8qmIXUeWuxG/zKmo5F93YfzDjTQcatVo1jx3SczQHO83M0fW9Mcv5j2DBwEI97gAr8Y/HRG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org; spf=pass smtp.mailfrom=networkplumber.org; dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b=fhphc8l/; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=networkplumber.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=networkplumber.org
+	s=arc-20240116; t=1775058544; c=relaxed/simple;
+	bh=kwqZqSHyhMEFq3zIeMyxlIPbqt2vUdc/6TijX13GaHU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YAaejOsSBKgKnnK1NL7crSznh8r5TThJBZRetpXUwg5VmIepFdEfpR3iU5zphSMqRw3VwbwOAKFL0QDzTxX31WwAe8Dxku7ghfqiQfqGLb3sr42GwLayeqNBBv+xWxhRcSZw4dqsmPSTCWp/uBTN53GXYojB3J1M/ag1Cu+Y4rI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Il8f95Fe; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=networkplumber-org.20230601.gappssmtp.com header.i=@networkplumber-org.20230601.gappssmtp.com header.b="fhphc8l/"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-354bc7c2c46so4203924a91.0
-        for <bridge@lists.linux.dev>; Wed, 01 Apr 2026 08:07:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Il8f95Fe"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4853a5ffc05so15076365e9.0
+        for <bridge@lists.linux.dev>; Wed, 01 Apr 2026 08:49:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=networkplumber-org.20230601.gappssmtp.com; s=20230601; t=1775056044; x=1775660844; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=QJuOxpA+gsO22gNPhXzJ2+Gj7ezb5L7fZMCH+oDlAG8=;
-        b=fhphc8l/vKD969uZupBar7x/T3fgCAeEJoFL9aSd3NXh/y5jhrDiXX5liqcseQBpRC
-         7Z2DOSB0XQzaNx1SUiR4HFr8RBPJcMBoSiKHlByKXqNKfxTXhVM/tmpDSKaApDZm6J1O
-         W3bIrgteIDwW/3LkA0GYYD16X3aQ2JGp2wSizciGyt1e4zgzO43hO7dMsHNbnTjy0FaT
-         Vd0IrruUn3TQMWk1I2jqKLBE2BY5fyt680J/2ZVIaflLXOLT6UO/bHiqN7LqkQOhP8Me
-         cEuwKhuE9oD+hon6IqwH0NUqXHUjC1kQ4VzyhUXtmzfTDxr/W4hlAqChUe09FeIsH+Ex
-         ORjA==
+        d=gmail.com; s=20251104; t=1775058540; x=1775663340; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=50fzfjsSVKBt8ZoaICP31zyxkLKQdtthMhX3pC/ytMQ=;
+        b=Il8f95FedjlURP8gVamwYhqRpWNcIqnxSvZDo7S5xMQPwIQNSIBEvTQ0czGB2zBfnP
+         sHd77HqbogFbWhOu0U21CzMKi8+P9gA+rO+PTcIZSatYnnPKVYfsE0qTDIpFThzUiLHI
+         t2GmBbsg649zAypvVZskgLos1Q8gMCODSgVLQ4pXj73xek7nj/6VzkXClj65lwp5aCWS
+         LtdSRqMaNew9b7kpO4RkagQnQ2VcvTQiJAn2iupXDCXfoOY10YRxxPcI0BkjTIVTqVU4
+         0LwyHjlxX/XTkQnbEHRe7lv4QEd/NLfwWpB+KP9fjlRrMWdI4ofUyEKhbA7xtr4kf1ZI
+         2JIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775056044; x=1775660844;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=QJuOxpA+gsO22gNPhXzJ2+Gj7ezb5L7fZMCH+oDlAG8=;
-        b=rONYXUhOaxy/+zq/o9cKudlb76+lLJrsMLKW9U2jEv+cDiXo36bsx9MZvjUTuzgC5K
-         zdXhTBD62Btx6S8WKkOmso/jly7rHHVXO23xCdqjt27rBaufByyB/ga1bYtZRjFE7mxr
-         2Inkh2NsZYgGg8KbWgOQ/ll4/Up0rqmR0y0Ysnh+8SnWWjTFVJWg8WWdzfhviLsuZMjg
-         zyI9zUusU+m36DE4MULh8KasKmxUi+bMtLYEst68hUKYt8znCkpAl+dCzeooAwxQs5I4
-         7arBP5luodNqBjGcPXI5tcQKvm7rbO/D2LVI79zFVa392wADQ6/h0sOJiKd2gc/mmVBq
-         XkVg==
-X-Forwarded-Encrypted: i=1; AJvYcCUZOYjMmgTDhdY8LQOgoAD1JnU5PEncYq0ZB/UuezE+7pZ3y2nrq3azjIVEv41KiTNZ075QhME=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyhCStR5Ca5HUuH/tCnHRrekHO0HBtDyII253ywgUXN6aY5BTyH
-	X9APiU5gAbnTPAYz6nIRc1T5dtiLSMYauNiy/vh5Mi8OI6Wt9EEFzjj8MskdXvhTQko=
-X-Gm-Gg: ATEYQzxuhbwAWCqOt0mlKweGPeW9DEwq1rctfZ3oR1homsPzps8PDwqdLLySEHjizb5
-	PIP/LYUsnNijCv9O9XZBrv+VzdVgGrhrNfpQMoBUo2m5adZMlyqwJxgm8MBEp08aCrE9/ecO2nO
-	PUo/c/lgh0k3WFh/Xx2yQ7hm4juNzgQAHXtogMRjMwIyfgkrdWp8pk3unIfCamdZ/E4Jcv/vzdN
-	PjTznPu1zOrkoARsgG+HBCwAF1FZ26WR9SEtC1wd9J33YLvGtLkkLdV+rhB/uvNI1ls6IfJtLX6
-	8oKoXwPIn8xiHu0FHrvVuYBQeG1N7sx9LFnaWOL02uO68e5L5UdS6Tab5tgQaRdsrNeCzHwjHio
-	+jEBXir4SwJPiV1d1Ss7Riy4GcOX13Z2rtX8LhYtArqV789BrcpJGuVVMRb4UwusfREfTcXZqk4
-	QYgOwcs94+REl4/zhQheMje4eu73x5IZI6OMfjEwKqHC5EKw==
-X-Received: by 2002:a17:90b:3e4f:b0:359:fdc0:4621 with SMTP id 98e67ed59e1d1-35dc6e9b097mr4036315a91.11.1775056043722;
-        Wed, 01 Apr 2026 08:07:23 -0700 (PDT)
-Received: from phoenix.local ([104.202.41.210])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35dbe623754sm5043344a91.6.2026.04.01.08.07.04
+        d=1e100.net; s=20251104; t=1775058540; x=1775663340;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=50fzfjsSVKBt8ZoaICP31zyxkLKQdtthMhX3pC/ytMQ=;
+        b=WvANrSeGMy7hueaUceCj/MORrx5VRhG9pk+0ELT2Jb9ARH3Nkb9UMhWSHTey6MmnoP
+         7Mq4czfBQwnMfqC5JoxGWyU+8t4DnQ9GWQgjvE8q2yOQlUsLqLBOES9pzD6u/Yc/YKlr
+         K6Oz0aDYc/rE7wEzSHwwJgrMeZVi9k9rVlXbbggvSU/iOh/vthXFdZqcn0C2I/dCNKSG
+         dDmy/53gjgU/RLBRRrsy8OK/TGc7Q9HNtHfJ1uh3DrDB0UcI1N7zB6JYdNBE4ZEi8DZX
+         mmgoD47rtH5mMaIMJeZEheqRkpJ6A6sprSTDYF+/JfhmdKjzZg+ERLv0+SfV1t3ak41l
+         /JXg==
+X-Gm-Message-State: AOJu0YyVBPeVUEW8fR2yIIyO1q4hrnYzl+bSFKXFF6HkTXoXytF9rt8t
+	37HFclSmVFeLMAoN2TMWVVTb+/YCeLROJp+JlUsLf74Rl/eoL1yDqGMi0luZsfinlxg=
+X-Gm-Gg: ATEYQzxGvsvHzXbWrglPKZa5wLQUpxHUXfY6v9ctlT89erEKiZhrgNjC0nD3sPhF0OX
+	3F6oxo7vkxF87jIOxPeWYBzqItYiQOutQ+EdaLUX7Ut+o5rH+sv7WaNsaJrrMmEzdc3J7PcsdRx
+	GNTSGjHN0mxynIp6PWsftT7DucaOv2tIxdBdud8xI1OH9SRuoDqMVd0MLR7K6Q3TJOLeUoxmW7H
+	pUTpSC8DNw99h7nqrtvZUtKBhZB+2H49/4BjumD27ghg+2pGZHbn4Jjo6zF64gtIIdKqUbRqbf1
+	DVyLTg/QDJ80JmiL0/az9mKh3pYZIRR3me1J3nJULJBB8Vqaiw8S9h7DTjuIFINB1uQCfyizvH8
+	+5YMyvz2l9+e0m5uxjaenMJdNV+LWQJMkpiY9yl5kVpm2a7AaJHmhH1oIKogTTXvKPPyx+MKoQI
+	453orTNG+71lclevDQAf1Ans2ber5yZhU34+QBycADdYYidKlTgTBK4p+mtmW65/oEMOyAzGL7i
+	hszWw4=
+X-Received: by 2002:a05:600c:474f:b0:485:3fc3:e8e9 with SMTP id 5b1f17b1804b1-48883592bf9mr42497045e9.3.1775058540309;
+        Wed, 01 Apr 2026 08:49:00 -0700 (PDT)
+Received: from ast-epyc4.inf.ethz.ch (ast-epyc4.inf.ethz.ch. [129.132.161.179])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887e952b0bsm114043595e9.12.2026.04.01.08.48.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Apr 2026 08:07:23 -0700 (PDT)
-Date: Wed, 1 Apr 2026 08:06:57 -0700
-From: Stephen Hemminger <stephen@networkplumber.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Eric Dumazet <edumazet@google.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, Mark
- Bloch <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David S.
- Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Nikolay
- Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, Martin
- KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann <daniel@iogearbox.net>,
- John Fastabend <john.fastabend@gmail.com>, Stanislav Fomichev
- <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko
- <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu
- <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, KP Singh
- <kpsingh@kernel.org>, Hao Luo <haoluo@google.com>, Jiri Olsa
- <jolsa@kernel.org>, Kuniyuki Iwashima <kuniyu@google.com>, Willem de Bruijn
- <willemb@google.com>, David Ahern <dsahern@kernel.org>, Neal Cardwell
- <ncardwell@google.com>, Johannes Berg <johannes@sipsolutions.net>, Pablo
- Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, Phil
- Sutter <phil@nwl.cc>, Guillaume Nault <gnault@redhat.com>, Kees Cook
- <kees@kernel.org>, Alexei Lazar <alazar@nvidia.com>, Gal Pressman
- <gal@nvidia.com>, Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- oss-drivers@corigine.com, bridge@lists.linux.dev, bpf@vger.kernel.org,
- linux-wireless@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, torvalds@linux-foundation.org
-Subject: Re: [PATCH 6/6] net: Warn when processes listen on AF_INET sockets
-Message-ID: <20260401080657.70cd9bd1@phoenix.local>
-In-Reply-To: <252823d75e9221647e7f8ccef6105432aabe8d6f.camel@infradead.org>
-References: <20260401074509.1897527-1-dwmw2@infradead.org>
-	<20260401074509.1897527-7-dwmw2@infradead.org>
-	<CANn89i+GHkkubJp3MTKZ_r4tde1qLejfsxUh+w0gPZ3ec+YdjQ@mail.gmail.com>
-	<252823d75e9221647e7f8ccef6105432aabe8d6f.camel@infradead.org>
+        Wed, 01 Apr 2026 08:48:59 -0700 (PDT)
+From: Zijing Yin <yzjaurora@gmail.com>
+To: bridge@lists.linux.dev
+Cc: razor@blackwall.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	Zijing Yin <yzjaurora@gmail.com>
+Subject: [PATCH net] bridge: guard local VLAN-0 FDB helpers against NULL vlan group
+Date: Wed,  1 Apr 2026 08:48:24 -0700
+Message-ID: <20260401154824.2905980-1-yzjaurora@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: git-send-email
+Content-Transfer-Encoding: 8bit
 
-On Wed, 01 Apr 2026 10:28:23 +0100
-David Woodhouse <dwmw2@infradead.org> wrote:
+When CONFIG_BRIDGE_VLAN_FILTERING is not set, br_vlan_group() and
+nbp_vlan_group() return NULL (br_private.h stub definitions). The
+BR_BOOLOPT_FDB_LOCAL_VLAN_0 toggle code is compiled unconditionally and
+reaches br_fdb_delete_locals_per_vlan_port() and
+br_fdb_insert_locals_per_vlan_port(), where the NULL vlan group pointer
+is dereferenced via list_for_each_entry(v, &vg->vlan_list, vlist).
 
-> > Some kernels are built without CONFIG_IPV6, so this warning would be
-> > quite misleading.  
-> 
-> Maybe on this date next year, we could make it not possible to build
-> the kernel *without* IPv6... ?
+The observed crash is in the delete path, triggered when creating a
+bridge with IFLA_BR_MULTI_BOOLOPT containing BR_BOOLOPT_FDB_LOCAL_VLAN_0
+via RTM_NEWLINK. The insert helper has the same bug pattern.
 
+  Oops: general protection fault, probably for non-canonical address 0xdffffc0000000056: 0000 [#1] KASAN NOPTI
+  KASAN: null-ptr-deref in range [0x00000000000002b0-0x00000000000002b7]
+  RIP: 0010:br_fdb_delete_locals_per_vlan+0x2b9/0x310
+  Call Trace:
+   br_fdb_toggle_local_vlan_0+0x452/0x4c0
+   br_toggle_fdb_local_vlan_0+0x31/0x80 net/bridge/br.c:276
+   br_boolopt_toggle net/bridge/br.c:313
+   br_boolopt_multi_toggle net/bridge/br.c:364
+   br_changelink net/bridge/br_netlink.c:1542
+   br_dev_newlink net/bridge/br_netlink.c:1575
 
-There are some government agencies that used to require that IPV6 was disabled
-for security reasons. Yes they had broken old firewalls
+Add NULL checks for the vlan group pointer in both helpers, returning
+early when there are no VLANs to iterate. This matches the existing
+pattern used by other bridge FDB functions such as br_fdb_add() and
+br_fdb_delete().
+
+Fixes: 21446c06b441 ("net: bridge: Introduce UAPI for BR_BOOLOPT_FDB_LOCAL_VLAN_0")
+Signed-off-by: Zijing Yin <yzjaurora@gmail.com>
+---
+Tested on Linux v7.0-rc5 (upstream tag) with clang 20.1.0, KASAN
+enabled, CONFIG_BRIDGE_VLAN_FILTERING=n.
+
+Note: gcc 13.3 with the same config optimizes away the NULL dereference
+path (UB elimination), so the crash does not trigger on gcc-built
+kernels. The code is still incorrect regardless of compiler behavior.
+
+Reproducer (C source): https://pastebin.com/YsWAMGa9
+Kernel .config:        https://pastebin.com/QMA1Y00i
+
+To reproduce: compile the C reproducer with `gcc -static -o repro repro.c`,
+run as root on a clang-built kernel. The crash triggers during
+br_dev_newlink() -> br_changelink() when the boolopt toggle reaches
+br_fdb_delete_locals_per_vlan_port() with a NULL vlan group. Note:
+RTM_SETLINK on an existing bridge may not trigger it due to different
+code ordering.
+
+ net/bridge/br_fdb.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index 0501ffc..e2c17f6 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -597,6 +597,9 @@ static void br_fdb_delete_locals_per_vlan_port(struct net_bridge *br,
+ 		dev = br->dev;
+ 	}
+ 
++	if (!vg)
++		return;
++
+ 	list_for_each_entry(v, &vg->vlan_list, vlist)
+ 		br_fdb_find_delete_local(br, p, dev->dev_addr, v->vid);
+ }
+@@ -630,6 +633,9 @@ static int br_fdb_insert_locals_per_vlan_port(struct net_bridge *br,
+ 		dev = br->dev;
+ 	}
+ 
++	if (!vg)
++		return 0;
++
+ 	list_for_each_entry(v, &vg->vlan_list, vlist) {
+ 		if (!br_vlan_should_use(v))
+ 			continue;
+-- 
+2.43.0
+
