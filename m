@@ -1,93 +1,93 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23F9739D6DF
-	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 09:11:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CF123CBE64
+	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 09:14:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775034706; cv=pass; b=deGA5S6QMQcnrvztt9QJej+PLYIs1sXYi5xX19yir8pOuX/MUpx1YnNngz4ZoO5f6AQloB0Zy+C+jFkYgtGlsXqUXhhB2Q7a1uGAPzk0z+/UMao+PGh3nLVSwYcMYkt97PEf98abT4y3VlqLelVr/5+V/QmwlYUOF2Ikfa8j31Y=
+	t=1775034901; cv=pass; b=PoMLz5szqzwPje/vPdg2Ys5q60rXkMGo0CBZtRqguy60BK83lDAcPqeuS6PNV7PFsP4N47f0VZdVQ689zuaKiPbokbsy6zPbRf5VirOE0glizqHXFq1S5SFDdfEdXmEicv5ddSRDJfIHm03GXwhqmWrdjeukVzs2cYemV6dPpy0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775034706; c=relaxed/simple;
-	bh=dmaTcuAy6jfJ+bmzS1Jm/uyBrkTWgyDnScrFaQ2/nas=;
+	s=arc-20240116; t=1775034901; c=relaxed/simple;
+	bh=Px8VZ/mZa/wVBiSvlhUqswxvgLPunBza8vM2mBYbtJ0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XkmGih7acj6veWXVgU1FpAVN2SxTACTj06JBZdFjuMjv6xqRkTNtn5IyvXpT3yapl23KQL2Nufxw7nVSk2t5O6PaGxsE+GcnJPLFbDom3s2M4683aWjduIs639pAgi9+121TB8Y98BW3meM4mhD0MyeK/vQyhTWzPqW5kkyYaTs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JZhPgCN8; arc=pass smtp.client-ip=209.85.160.173
+	 To:Cc:Content-Type; b=ND3vOCHk6MNKIxh0xZ/lG2DHhWD82OIq7uxy4RpSjIpUNmdgD4mMcm7PdOcLmuO2mP4OCN6mC5oOMEDlduCJHe2VrMcJ+1uAN56qgJbRzCVxdhQV/82GqzxD/wMYvENuSYrfqKSZ2t7HDoASoYux/2LRziXjuBtOvDDEMjQ1ANg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=SfhNIYDo; arc=pass smtp.client-ip=209.85.160.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JZhPgCN8"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-506aa68065eso57355031cf.1
-        for <bridge@lists.linux.dev>; Wed, 01 Apr 2026 02:11:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775034703; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="SfhNIYDo"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-506bcb23a78so56595221cf.3
+        for <bridge@lists.linux.dev>; Wed, 01 Apr 2026 02:14:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775034898; cv=none;
         d=google.com; s=arc-20240605;
-        b=XQpsr9Evbnh/Zp/YSqJ2So9QR3J1vbT11FY/0M9eSdrrHl2SmeF41Y2qdLHD2UBnLx
-         IMcPysYmii/I5b2YreZELpckCJ3EZjNWUFovylOSbjZwHaUqTKGJp+EDLsPRDa6IBtkV
-         7pDO9U7cS2XCcomitcooYYtcXd+Pc/VPZ4Q3Vaqofu8nveohZXsMT/WrkvgSoESAvRqo
-         KW/ZdLsqxHsxTDbD9Iy6QfdolxkWrYzGkJhoYOIvwuoT72JjK2sYpHhTY7v/rg4YUNTe
-         6EraNxOk20Zeyg7YAXO7R+ETGHnrv72IwFZuN/dh2EGGgHPP2h4xO+LvIUM4DKbFocFG
-         1akg==
+        b=JDti/i2NbuovgjN2cIme/lLxyvbuPDpP5MwIklnB61KmlfrOJFj+puv3DgiSKjPACP
+         enjxAac3F7GVM2Qj+nN+I3efHDMhAxHy5cyCS3LjaCMrTDk061TzOV6SQ8Nbsa5wo73X
+         G5IrgzcOUArI9HD7AZqF11lQuCnnXAz/xE+SIt7WSsICCBRAy8u5bMVSwtJCyFuTrut+
+         fMH8owyK+A8+ri0XGQNWZvsVBair4a5ram48gGlc900ha0GrJX2fJ9BunaYAYp0L8XVi
+         T9t1Wxiqk8zya54f4UnU4JqtQWbnfG7NxM1zwgcFs9XdnZ1uqrfKiBQx6dS3LoYEvcKk
+         cp/Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=lctUVgmnSzTUnScobr+jAtLkB/onmBi35F0YaMEt+UE=;
-        fh=6SO8cBGuv9tVGo0SsW3/ld0RQm9ei4rKvgg3VJIM5V0=;
-        b=kwQjkDL0hznxsn7uv7Nk0NAtCI0YpUhCbHft4hvGrQTizPzy80KJgJHP5m5tKbrIvO
-         te/Csgz9j6qIRFSXmLVYqQXWHswu3RqbkU+uHUTbpBvDdLzSmEHhicyXf6CNpQZHXkIl
-         UwdulgBek2OM2JLZE6kcZc9z7H0S0j0ojgZATIp3VHyo8h9xe7aPxEKR8BakVVvf+630
-         mmwB8cPtoF5qWk2ipsGGLwxtsc6p3PemDd4I+zHBWL6ZRj3D3R5MXtyXNGXHjcKkXGiD
-         DX7DBVna4pxIo/IdpJy952pW9dD7PWxRAZiyKMvY3kzPPEoSi3iBqiGYZ4xc+je/dt0D
-         3cmA==;
+        bh=QNCKy3dqIhDpgGkChFZLtJKaP66u94+8Bb0TUa2FxLg=;
+        fh=jZlrEWyyX6OLoLf9V9Cv0Qm4JW2h9TTr0xGTKjCZ/FM=;
+        b=i1soeauNBVZstUvI9WB/usjWhYdnIjXHIOblai5npkdKcheWCMp4dC949EYPhCid5p
+         2WgS87y6ohLyFE0UldznCvkHT20vT6tuU2dlFrudC5tclB27JqhXxyKaxIsIcO2fY1SL
+         O5A8eUzLJbU5/yFcvDpjqGpcgN8Z/ZUsUf7q0mCkjlbacS/SzxFSFoOYVU6KFdP2/L3m
+         cREboYXHx6cuu/lBjzRS528PgtSXcpc221Qv6NdbQFETTuoE7O9tmCbJFO3DmmZ2Rwo1
+         IHdKFmrxhBuYfngWaXWjY/1b7p/F6ZMQuJ4OqROgknYXRds/a34WLEI7vZb5Au71PVL8
+         Wgwg==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1775034703; x=1775639503; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1775034898; x=1775639698; darn=lists.linux.dev;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lctUVgmnSzTUnScobr+jAtLkB/onmBi35F0YaMEt+UE=;
-        b=JZhPgCN8ruXWd0mtFbM2NKR95FdjycFNGfnMctri6aiGIoFbWIKTf0Bnu12e1zSnxB
-         LxIYW1LIY9zOiwPiPPO4GtYvlDHBZql+HiquaRsTFej8b7WwzRnrYB/efKmsF+s/jHVI
-         GFQmzjcLyA/pIK+/BXRRCIjZvIq2C2QCJ2PNODVAK3GNK47y2AWTL5moOkDrfzSuER7Z
-         QhT01/VWSnj9twL7tXkM9tHrI9Fgn2Gh7Y6MFcw0AEHL8DQbmL+ApEfw576tvmiAjNqO
-         Daw/rDK6ZCLP2iyySkcxYVyGpEaKHcYqS5fljKuhutNm3XAujcbaLga3u+/upQ6y7XAy
-         hGhw==
+        bh=QNCKy3dqIhDpgGkChFZLtJKaP66u94+8Bb0TUa2FxLg=;
+        b=SfhNIYDo2X4pkdWgwIGAQpo5IkV6FoxJMyWsH0oYsZQ7IM5gRVkJGoCJoz229iF7SJ
+         hooEKmVoU02uZacOP5GP+y6jTJn6BiZZd5cnV+CmDB0/vm2qQFa7dxuC3DL0u3RIKOn/
+         OSGkWFpt5f4aoRWo6CNo59m6TI1VmZuNIJnJK7d29llAFeICeKOn/k797KJTC7Nq1PRL
+         WCM4NdnXVGlRZ14wFPVPmI0kIgEwpT2OPGVJtNSk32DrBFxu1SgUjT+uuIsms3bKwCBw
+         bCckZy1ifBq3BrbqUE7gRL0Y3pCqWoPV6dy0G/FuT4NSyvGuHhxPsnIn0XoDoACFfd0u
+         Fr1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775034703; x=1775639503;
+        d=1e100.net; s=20251104; t=1775034898; x=1775639698;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=lctUVgmnSzTUnScobr+jAtLkB/onmBi35F0YaMEt+UE=;
-        b=gIpxlCSFvGvLNiWW+SJ+IebvjjH4xqeSOFqjUQFyGQr1D0+tSCsOstiqjV1qiJuWvX
-         5dnbXnv/IBAuGXJ4+NdXZmE7Qr5MX/CKyo5lAhq3PjYoTWtU9F/3aQo59I0GNFMuQqU3
-         IoV2wr7FiEXTrZ6V5i5N/GoHjtoZoujKwMLOj/eLp5COGVeu7+m8mDQnKTJLGuVjZajQ
-         zNvCtiRfWq0kMQLFV63AXNlxVTZYt1vE/lXFjCBMgST5bi6vhU4MNMIjYCUJw6Uk9sdJ
-         l0hO7F2Ge3dmTMlGzSgr9Uq8IY/8n5dc7Q9Y41bq/S4bmN0dJ5cHDYDvjIapRJAeHchT
-         ipYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWfUfuLLsFhg5vRIGkK+kN8AReoz5IpLcU0xSBHZb7+0ORqVPFwf559ARd9J/kk7EyU75Ekz9U=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzu6hKqNE1VklCpFWq0OMdNcSqzVJq019yqYqTiCAl334eLMXzz
-	Ye1BjmfuoYR+njR5Eeeidi6ngyc3TBdfLh8Udgr2iHtKXLawhGikOZF/4M+xkRGms1ab+tt63Dr
-	JjNTx/F3V2x6ajoNWT4QLmnPG10lnObGs2SkjRnvM
-X-Gm-Gg: ATEYQzwOmO0oDyp/ahmZCRAHoL5O5sErrOGBISmtxwsL+4YM8t7SU+zI8Qmy1lfw4/K
-	2MhSjxP82slYor5mMW/7r1W9ifv3Z2Fqhw13W16I/zIweFMFQiMF7owC4NBBt/bfpDHY+RhU3pV
-	8tN2j9Nd1kBQtwsNuqccqRpWP1nEcPq2plHhvyu4NYIZlXcv0N1QnH1KG3hLBWtb2R0czf0iGE4
-	MahOvw4KCmG7b2pDSBeL6ChfXm+XYE/lWJ00g5BCLrINa8V+PB5Eebc5lec+BzE6MyaJmABSqj2
-	94sHMtfIuv+jWdj3
-X-Received: by 2002:a05:622a:5909:b0:4ed:b2da:966f with SMTP id
- d75a77b69052e-50d3bd84b29mr44808651cf.31.1775034702251; Wed, 01 Apr 2026
- 02:11:42 -0700 (PDT)
+        bh=QNCKy3dqIhDpgGkChFZLtJKaP66u94+8Bb0TUa2FxLg=;
+        b=A0oC3kE8S5mvHflE6XKGss/Rnp/Mzbha05SDHlo8rt1HIFvot8V/lrzNIpsglDVV3A
+         U4bz+dChVue9JGDZuVqBYQPb+LreiyOTSrbH/q3t60DhWLFE2aWvvilMj3vO0+jSJmn+
+         EzcGcwNcFM83sc2hc9Xd7eTn0ShOdE45iJak9aB7qwggdpk/ZrrayxX8yfrU/blg2DK/
+         7BcCmmPwUvDJ6/XWWaejO8RxKUhrO43YFyqmGqmkhBCLdRBdSxEnyvyqwTeCX3szvLha
+         WQdMoEC+wM38drt413qHfKww1cT/xD126sbrrNEpn9b4g/oFw4CoemwihRvJqUs3Rh4a
+         ukaA==
+X-Forwarded-Encrypted: i=1; AJvYcCXmuLR4hAN2GZuipj9P314erAVTtMyGzWB9ZUJSDP92aPiCgY6CUKfObcJ2Bl8BY6wdsQGml1U=@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywdfs5d5Nhmc32DQbSaRDeHwxs2FwFtCGBIceGnHlRNqJns5Iux
+	jMQIjimG5Ntl0PvlTe9eeNEqHmM7G4pxKToDWygmqUNwgExpJAetqILjnsWaaSueOMz5mnJ+F70
+	AIj5TDpwMCpnDmUSM87h7fuHJOA4nSwFQAP56T6kP
+X-Gm-Gg: ATEYQzwb3AFXax5X0a0YLgFzXI7Gn1azJtUdoD+dTlAgywSPeYmPhesBdn8DH5JqKCc
+	gbtV6mtmKlcUmRq++xepN5Tt4r8Bu43e5ado7ZMT3JejD/RDSbZifjV8PRgRmMsqKZi63l0Vofj
+	iJs6x7GnfrsZZQ8TaxLQ4D7LWzUXYCxjtIHpijQ7c1QbEG18ZWuMfNu/nAZbCW5HcRU1Uhk9ZxH
+	1uc+3lViRHLU3/EzWXMeBE64r0SzS4qVLnjR0PcUdzx3zVu0IQL0ijR8Bj9W2guRX2gL8MY2/8M
+	4kNssw==
+X-Received: by 2002:a05:622a:1c05:b0:509:2ef7:7034 with SMTP id
+ d75a77b69052e-50d3bcf5f5dmr36705111cf.50.1775034897967; Wed, 01 Apr 2026
+ 02:14:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260401074509.1897527-1-dwmw2@infradead.org> <20260401074509.1897527-7-dwmw2@infradead.org>
-In-Reply-To: <20260401074509.1897527-7-dwmw2@infradead.org>
+References: <20260401074509.1897527-1-dwmw2@infradead.org> <20260401074509.1897527-4-dwmw2@infradead.org>
+In-Reply-To: <20260401074509.1897527-4-dwmw2@infradead.org>
 From: Eric Dumazet <edumazet@google.com>
-Date: Wed, 1 Apr 2026 02:11:31 -0700
-X-Gm-Features: AQROBzDMpjzScINQf3v40GgXHFr7zNRIwe6Qb5aBvyyAycV5Up8H_bwJXHOzd_8
-Message-ID: <CANn89i+GHkkubJp3MTKZ_r4tde1qLejfsxUh+w0gPZ3ec+YdjQ@mail.gmail.com>
-Subject: Re: [PATCH 6/6] net: Warn when processes listen on AF_INET sockets
+Date: Wed, 1 Apr 2026 02:14:45 -0700
+X-Gm-Features: AQROBzAoGbAvZgGI1SP1QOjEPB9AfHu4JQqffzH3Pc3uWqwtvvbxFW3VGI6Tc4w
+Message-ID: <CANn89i+iRUgqtd+eirfSUM3k+keNZKzLwsHxZtwE+vHdv7H5PQ@mail.gmail.com>
+Subject: Re: [PATCH 3/6] net: Guard Legacy IP entry points with CONFIG_LEGACY_IP
 To: David Woodhouse <dwmw2@infradead.org>
 Cc: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, 
 	Mark Bloch <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
@@ -116,28 +116,27 @@ g> wrote:
 >
 > From: David Woodhouse <dwmw@amazon.co.uk>
 >
-> There is no need to listen on AF_INET sockets; a modern application can
-> listen on IPv6 (without IPV6_V6ONLY) and will accept connections from
-> the 20th century via IPv4-mapped addresses (::ffff:x.x.x.x) on the IPv6
-> socket.
+> Wrap the IPv4-specific registrations in inet_init() with
+> CONFIG_LEGACY_IP guards. When LEGACY_IP is disabled, the kernel
+> will not:
+>  - Register the AF_INET socket family
+>  - Register the ETH_P_IP packet handler (ip_rcv)
+>  - Initialize ARP, ICMP, IGMP, or IPv4 routing
+>  - Register IPv4 protocol handlers (TCP/UDP/ICMP over IPv4)
+>  - Initialize IPv4 multicast routing, proc entries, or fragmentation
 >
-> Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-> ---
->  net/ipv4/af_inet.c | 3 +++
->  1 file changed, 3 insertions(+)
+> The shared INET infrastructure (tcp_prot, udp_prot, tcp_init, etc.)
+> remains initialized for use by IPv6.
 >
-> diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-> index dc358faa1647..3838782a8437 100644
-> --- a/net/ipv4/af_inet.c
-> +++ b/net/ipv4/af_inet.c
-> @@ -240,6 +240,9 @@ int inet_listen(struct socket *sock, int backlog)
->         struct sock *sk =3D sock->sk;
->         int err =3D -EINVAL;
->
-> +       pr_warn_once("process '%s' (pid %d) is listening on an AF_INET so=
-cket. Consider using AF_INET6 with IPV6_V6ONLY=3D0 instead.\n",
-> +                    current->comm, task_pid_nr(current));
-> +
 
-Some kernels are built without CONFIG_IPV6, so this warning would be
-quite misleading.
+...
+
+>
+>         /* Add UDP-Lite (RFC 3828) */
+> -       udplite4_register();
+> +       if (IS_ENABLED(CONFIG_LEGACY_IP))
+> +               udplite4_register();
+
+udplite has been removed in net-next.
+
+I would think your patch series is net-next material ?
