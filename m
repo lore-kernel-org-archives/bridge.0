@@ -1,146 +1,86 @@
-Received: from mx-01.divo.sbone.de (legacy1.sbone.de [80.151.10.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FCE1478851
-	for <bridge@lists.linux.dev>; Wed,  1 Apr 2026 16:44:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.151.10.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8319D1A681D;
+	Thu,  2 Apr 2026 00:20:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775061885; cv=none; b=hHQBbbSfjt9Y8UUlrMmo8fC9aZynqwudBQd7tW+cm2F/SRN2HXYWYVMM3k1mcP5G9in9Qxk67wtV2vOPA65HpZ0wxSPrWDikGnMNJv6dT2P2CViIOeTEkPWueBybRlu+GQIbZAAuRSFjrdI7Fe0wG8ym1iK/e/p0HlXHipmnx+E=
+	t=1775089218; cv=none; b=EIn4rm4jCKRVpersCDhN9bQpEmE4YLgaxAI7Euhc8nb380D2AtEr530EOPBWED1kHUWTOSKnfDTGJphhPUfnjBlbLKbADQN03XRyvcuuHNgZ4FXZDT+4BwqSzNujf6l731pG/S0Cvq3g9uf0xpbcvw2hjElec3AadEyF7Jy7iaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775061885; c=relaxed/simple;
-	bh=L7QYUKOAasoCSYere7gl554w+Twajp2xHlhYrh3+o4s=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:MIME-Version:
-	 Content-Type:Message-Id; b=FryMQoaMSyFOTOgQeX0f94wSh6C0oaMJ+qHcDS9X2BMtk43tOyEpQ8F50QiUZ3b6haxNyyiS/8zbRdZ0WegiZB4NBkJV43LOJ0zYkbk1DrEsoMsuFsyOnpAaa+WG3vCJdSOZQBDOunnxLmsG9gHbfRdctJ/6hfeyMN+XEHZ6rCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.zabbadoz.net; spf=pass smtp.mailfrom=lists.zabbadoz.net; dkim=pass (4096-bit key) header.d=zabbadoz.net header.i=@zabbadoz.net header.b=M1b/lTq0; arc=none smtp.client-ip=80.151.10.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lists.zabbadoz.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lists.zabbadoz.net
+	s=arc-20240116; t=1775089218; c=relaxed/simple;
+	bh=xOc0MxuhOlh/2rYb+V6dfalnuoROdCwJOe5iK0mSue8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NAJ7zLkwc7m11/bX9acbNkMRd0snMdv35clyjj0uk8iXIlCJoaFvx2i2nzzN2mVWLoiUN0r+RudQyahNURLslHNOwy9O/+oCLigql9o63HRqJ0GlSVG5BcPM0qYWIhTF3dU3t+PZETu7kzuiMqkdE8glg0M+XgI0GlrMCkII4IE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NTVgB/f2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=zabbadoz.net header.i=@zabbadoz.net header.b="M1b/lTq0"
-Received: from mail.sbone.de (mail.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:1025])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by mx-01.divo.sbone.de (Postfix) with ESMTPS id D9902A64805;
-	Wed, 01 Apr 2026 16:34:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=zabbadoz.net;
-	s=20240622; t=1775061285;
-	bh=L7QYUKOAasoCSYere7gl554w+Twajp2xHlhYrh3+o4s=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=M1b/lTq05e8KeboSTmXSX7M1YW9zV+QAk2vw6i+E8gwT1jgX8ScvW5jMD08uWILnk
-	 hjmryFuzVdO6KTWrTwpfjPv+/9jNSOSN4abNHubpizWYq68eJ6NKlMeKSrY31UJQgk
-	 +OqnAPYrDptHXN77ujSvPs7GsD4F8VTJx24/Oo8A5LKasyca8kBPPajU3vwSVrGHVc
-	 7D+WzRaTjhyhYzS5R/w3aKdjjU1KHLzqZxNGWv4dHUxnI3/vwKzh09LcVOgxm4KOtg
-	 zVjCJ1qBIN+NdzlhA+f0zP8ojXW0WYy/bORGZMtTUfZOCj928GNLhLKmRXyeiJDe9+
-	 ZIP5oyrNsYdM+wZuZjZhoglbRXUmMVdHSknEYsjgXeztybOHVcfCMBfvep6X7sN0VS
-	 YaeCs+e1c0yfnHD940PJyp7+EHpZkLukoP0+pC1C+xXylHVFRo7DhKbfTgqEsS/iZU
-	 DvqAN9R7c4dRylj+uHD7onpO3y4oDDI20o3N3GTeK/RPsIBIU1wL7kcMbWQ67/NuvO
-	 cMWKiLg1ww3avLz+Rahz0w7JZqN0p+ekNxl19IVby5BBH+hq/qCEb3YOoCZClU5ARv
-	 F+UDmS+dArLaOr9eOg0CMQp9PJcn4sFG5peJB/zGrPeHzFtW76RdyLZQXsfclUyRKt
-	 XrdKNAmsvH9zIf1fV5hZILXk=
-Received: from content-filter.t4-02.sbone.de (content-filter.t4-02.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:2742])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.sbone.de (Postfix) with ESMTPS id 8CD4A2D029E9;
-	Wed,  1 Apr 2026 16:35:04 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at sbone.de
-Received: from mail.sbone.de ([IPv6:fde9:577b:c1a9:4902:0:7404:2:1025])
-	by content-filter.t4-02.sbone.de (content-filter.t4-02.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:2742]) (amavisd-new, port 10024)
-	with ESMTP id 2IW08zsrTcK7; Wed,  1 Apr 2026 16:35:03 +0000 (UTC)
-Received: from nv.t4-02.sbone.de (nv.t4-02.sbone.de [IPv6:fde9:577b:c1a9:4902:0:7404:2:22])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.sbone.de (Postfix) with ESMTPSA id AE4862D029D8;
-	Wed,  1 Apr 2026 16:35:00 +0000 (UTC)
-Date: Wed, 1 Apr 2026 16:35:00 +0000 (UTC)
-From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, 
-    Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>, 
-    Andrew Lunn <andrew+netdev@lunn.ch>, 
-    "David S. Miller" <davem@davemloft.net>, 
-    Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-    Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-    Nikolay Aleksandrov <razor@blackwall.org>, 
-    Ido Schimmel <idosch@nvidia.com>, Martin KaFai Lau <martin.lau@linux.dev>, 
-    Daniel Borkmann <daniel@iogearbox.net>, 
-    John Fastabend <john.fastabend@gmail.com>, 
-    Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>, 
-    Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-    Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, 
-    KP Singh <kpsingh@kernel.org>, Hao Luo <haoluo@google.com>, 
-    Jiri Olsa <jolsa@kernel.org>, Kuniyuki Iwashima <kuniyu@google.com>, 
-    Willem de Bruijn <willemb@google.com>, David Ahern <dsahern@kernel.org>, 
-    Neal Cardwell <ncardwell@google.com>, 
-    Johannes Berg <johannes@sipsolutions.net>, 
-    Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, 
-    Phil Sutter <phil@nwl.cc>, Guillaume Nault <gnault@redhat.com>, 
-    David Woodhouse <dwmw@amazon.co.uk>, Kees Cook <kees@kernel.org>, 
-    Alexei Lazar <alazar@nvidia.com>, Gal Pressman <gal@nvidia.com>, 
-    Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org, 
-    linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    oss-drivers@corigine.com, bridge@lists.linux.dev, bpf@vger.kernel.org, 
-    linux-wireless@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-    coreteam@netfilter.org, torvalds@linux-foundation.org, 
-    jon.maddog.hall@gmail.com
-Subject: Re: [PATCH 0/6] Deprecate Legacy IP
-In-Reply-To: <20260401074509.1897527-1-dwmw2@infradead.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NTVgB/f2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EBA4C19421;
+	Thu,  2 Apr 2026 00:20:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775089218;
+	bh=xOc0MxuhOlh/2rYb+V6dfalnuoROdCwJOe5iK0mSue8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=NTVgB/f2KhYP8gTTFW+iKP8X2zmpwXgR9AjSlmtOydimfF/UilRhtQA6gktQkc9EC
+	 4+iVZ4xHV6nvdEEt1mDPodUwFtEcqEEhYltCOC+vUappyuioJZEP0WxxrF/77UqEHG
+	 w9xN8QcRT25ABDdtQIr28h4aypusULUgFiKSw2BR4a/m6Z7J/Ji3pS7kZKVvVVuR2v
+	 eE5p3zPXhkfIzccjXjnBms6jOrfApzVc7GPIGOX/firjZHvh111/re4pAg6walAmSM
+	 zpudH87g5MmIoFwpHAXisRVD3BH4VyXECGFV4NYLPXoHi2VhjRUGP7TsOQ3sF3CbfH
+	 vhbA2Ai/1KFmQ==
+Date: Wed, 1 Apr 2026 17:20:10 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Eric Dumazet
+ <edumazet@google.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky
+ <leon@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, Mark Bloch
+ <mbloch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+ <horms@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel
+ <idosch@nvidia.com>, Martin KaFai Lau <martin.lau@linux.dev>, Daniel
+ Borkmann <daniel@iogearbox.net>, John Fastabend <john.fastabend@gmail.com>,
+ Stanislav Fomichev <sdf@fomichev.me>, Alexei Starovoitov <ast@kernel.org>,
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
+ Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, KP
+ Singh <kpsingh@kernel.org>, Hao Luo <haoluo@google.com>, Jiri Olsa
+ <jolsa@kernel.org>, Kuniyuki Iwashima <kuniyu@google.com>, Willem de Bruijn
+ <willemb@google.com>, David Ahern <dsahern@kernel.org>, Neal Cardwell
+ <ncardwell@google.com>, Johannes Berg <johannes@sipsolutions.net>, Pablo
+ Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, Phil
+ Sutter <phil@nwl.cc>, Guillaume Nault <gnault@redhat.com>, Kees Cook
+ <kees@kernel.org>, Alexei Lazar <alazar@nvidia.com>, Gal Pressman
+ <gal@nvidia.com>, Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+ oss-drivers@corigine.com, bridge@lists.linux.dev, bpf@vger.kernel.org,
+ linux-wireless@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, torvalds@linux-foundation.org
+Subject: Re: [PATCH 6/6] net: Warn when processes listen on AF_INET sockets
+Message-ID: <20260401172010.6734453e@kernel.org>
+In-Reply-To: <20260401080657.70cd9bd1@phoenix.local>
 References: <20260401074509.1897527-1-dwmw2@infradead.org>
+	<20260401074509.1897527-7-dwmw2@infradead.org>
+	<CANn89i+GHkkubJp3MTKZ_r4tde1qLejfsxUh+w0gPZ3ec+YdjQ@mail.gmail.com>
+	<252823d75e9221647e7f8ccef6105432aabe8d6f.camel@infradead.org>
+	<20260401080657.70cd9bd1@phoenix.local>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed; charset=US-ASCII
-Message-Id: <20260401163500.AE4862D029D8@mail.sbone.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On 4/1/26 07:44, David Woodhouse wrote:
-
-Hi David,
-
-(fun fishing this out from nntp.lore.kernel.org needing NAT64)
-
-> RFC1883, the IPv6 standard, was published in the final decade of the 1900s.
-> That's closer in time to the Apollo 11 moon landing than it was to today.
+On Wed, 1 Apr 2026 08:06:57 -0700 Stephen Hemminger wrote:
+> On Wed, 01 Apr 2026 10:28:23 +0100
+> David Woodhouse <dwmw2@infradead.org> wrote:
 > 
-> Even our esteemed Maddog has worked with computers for longer in the IPv6
-> era, than he ever did before it.
+> > > Some kernels are built without CONFIG_IPV6, so this warning would be
+> > > quite misleading.    
+> > 
+> > Maybe on this date next year, we could make it not possible to build
+> > the kernel *without* IPv6... ?  
 > 
-> Yet Linux still can't even be *built* with only IPv6 support and without
-> support for Legacy IP. This long overdue patch series fixes that, and
-> ...
+> There are some government agencies that used to require that IPV6 was disabled
+> for security reasons. Yes they had broken old firewalls
 
-This is very interesting; I'll be happy to read the more serious 
-discussions for 6/6 this year then :)
-
-That said, I've been there 15 years ago and done that for real,
-just not for Linux:
-https://freebsdfoundation.org/blog/freebsd-foundation-and-ixsystems-announce-ipv6-only-testing-versions-of-freebsd-and-pc-bsd/
-
-A lot of parts (e.g., PC-BSD,the IPv6-only snapshots we published 
-back then, websites) are long gone, but FreeBSD today still has NO-INET
-(as well as NO-INET6 and NO-IP) kernel configs which are regularly tested
-as part of a universe build to make sure the status-quo stayed, along with
-options to build (large parts) of userspace without IPv4 support.
-
-I have since run real IPv6-only machines :]]
-EAFNOSUPPORT and EPROTONOSUPPORT are (were) a good friend of mine.
-
-It helped a lot back then to find applications which had real trouble
-working without IPv4.
-It was fun sitting in a UKNOF presentation years later to hear about
-all these applications just working on IPv6-only and knowing why, whereas
-the presenter was unaware, and still had a 127.1 on his loopback *sigh*
-
-IPv6-only is something a lot of people will not understand and someone
-just has to do it!  It is a worthwhile goal, even if late, as you say.
-My reminder to people these days is: DNSsec is even older than IPv6.
-
-I have moved on (though would love to go back to more IPv6);
-please feel free to get in touch in case you want me to go and swap in
-some more memories from that time to share experience and help.
-
-To the global deployment of IPv6!
-/bz
+Which is why we sadly have to keep the ipv6_mod_enabled()
+sillilitude around. But that's a runtime thing.
