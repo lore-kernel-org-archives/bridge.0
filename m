@@ -1,179 +1,217 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C8593C5550
-	for <bridge@lists.linux.dev>; Fri,  3 Apr 2026 14:59:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3C093C73C5
+	for <bridge@lists.linux.dev>; Fri,  3 Apr 2026 15:01:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775228353; cv=none; b=NBEivCEvWy2mJ4bGedKs5ks50Y+6QAbcFU2VSiKV3TLnrEfRkrzOAOTp+UdMqJlrIrDIp0O/VeY6RUJl+fYzH0haKWT9BQDIJexX5gBhsFH8x32iObt1czACjSzw4XJEWY9JLBAU7CTByZpe5x+Mhq0EJAfbx0k9uBEw82K3cyE=
+	t=1775228462; cv=none; b=kRkLArhpna5E7G1oaH4H4KtFZ4Ow9Dxp9FYZ9CBcsZYKjoGLE0X1aQQQpdbA6klKyf6LzJrequlLkdPhFJ9di/l7n0laC1Q7kymdS5artZoUOq6yv1t9iPzQm/qfcfir/6JjMet3Bnb+jqV1hYTgJQDXYsJqz9WmWjj7DjSIfok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775228353; c=relaxed/simple;
-	bh=Xbc4Ra681nc48aNuM3ATdRJApIcuteTB0BIdE8dIwPE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=b6cdxXrQJifurRbU2XM2dX/lw1CMVRrZQraaGm/pmuGniqbjc5Iqm7GkfVdngfgYeeGwaFpunh9iD5fuo42EERjJi+KLd3rVOEnlyBphRmz8UUiP5ddyz3C8bzOIfnGbgrdK2Ziwn2rwIinBRFA5MWPPeDHt0cGFQMlpKsqxNMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=NYJxPhOe; arc=none smtp.client-ip=209.85.221.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1775228462; c=relaxed/simple;
+	bh=4T03tU+HgJyUNh24jwyBJCtFpN1e7T9GXw7WPkcUWAg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YY5BQo8k2Tr4CLa1zdgV2krIxqwhQ2mpSKkBDS2THHD62M0XqXRclDdNysEiNp8x25O5U2EwSGZOqcJ3zIDaOyH0811polPwySwTWzXXf+krsT5DC8K/j4IIKyPTsIctFyDmICILy9VZo34BiSZpOupNxbN2lOtPklm4BkLacfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WK/YXEL+; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="NYJxPhOe"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-43cfd1f9fd1so1150477f8f.3
-        for <bridge@lists.linux.dev>; Fri, 03 Apr 2026 07:59:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WK/YXEL+"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-82c68339cf0so1839339b3a.0
+        for <bridge@lists.linux.dev>; Fri, 03 Apr 2026 08:01:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1775228349; x=1775833149; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=kGPv9Bco5NsmxbV6+XT6L0Y0xbtKDX3C4wt1tJqNE8Q=;
-        b=NYJxPhOeuAO5Tub0uXv9aZ5RPR8qdf2KpqXowvjkhCoAybaESOEtA8Qfk809kOY+T0
-         pwFfewioCfngcZVg8BhMvlWvRzBzfljLWnrI2/5SOTv/PbHdvV/h0LSLeuGiPJQF/J8i
-         v4meRUbpozMt83hQAylxHsn0VaUwhz9oiHyN+6fvKljLJ8CB9gp8ZTU9OCGM9MH8jojA
-         7jOXqipUX0f6dC1aY51DUdR103JB0rF4C8gHGOgTxPOltYkZ8bmZEQ3akk0Q2ceR4Y70
-         vMPkQmiKcxCJiHXDrE9EgOWMBWt16JfvuJ/OcKzVRZWCB5mEhCpulGQ1p6Ohli0m4xLQ
-         qbGg==
+        d=gmail.com; s=20251104; t=1775228460; x=1775833260; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=nYEKwooYgSKsCFZiHLlPAB+cRjNKV5UWBUUDOOvo/B8=;
+        b=WK/YXEL+jpf0AMnCdp1Xj+Lek1GySEjBwNVZTlGGlbIHS1P5VJ5hM/idfxsxvd/f6q
+         AjC5tCnOIiL+HH/7+iiNf6Tjg5cGf56tLLWMUPvJvtIunHCjaRRDMdHzt6mFvHmIlJzC
+         o5efjrRbO5ggPHvtC+HYH/r+cIscuCIaJ1db7alrnlxyueRUNtfjsx7yaY5JRMDiO7vB
+         TmVlMbmehxCIVAp5+mZxKaBFqkIuiHrkxm5r4FULpXds71TwmtGRBmpe+Rrz9tMC6TS3
+         zNm3SBmwEMd+B5GhdfggyYNb1aGRcvU2BKFHKBaVPeLUqwreVrI193pJbBNtrmnT656A
+         gCkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775228349; x=1775833149;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kGPv9Bco5NsmxbV6+XT6L0Y0xbtKDX3C4wt1tJqNE8Q=;
-        b=tEuWlRpfe4fcznGh7VFPS0b4N+xG4Q7cNgR89JFiz+uFrDNSHFRpwSUaqygLfo64gw
-         o4ZUKnQN+ab1b9d0GrCs3y77emGp/mIBZvUtKSgcQCaG5z5ZB7u6ydDEbAtEOemS/Kkg
-         eImF+L7WE9dMzydLf4nzrUqj68BVg5cN6EY6LJYHD6o9oVr+OCYDCpn4C4OskuILHFeF
-         RrPzi13/V1eGZi+oskFVwYq87svPQISPgQ1XBgucxW+jpjxGfMCzp92zHDrnbMdm0RJ0
-         4ND5oUW3YrmcERDOfX+c8ZTCQQotX0kU6ms7E0lxYdpifws7QeaxexWasX3zvQdgwlk2
-         D1Vw==
-X-Gm-Message-State: AOJu0YyhTGWKEMgwdnOF7Ea2IeVmxD09Xb5q+XUf7Y50uLbyDN9THnIe
-	q4DFyiO+wZKj+5nwAgMLotavWZB0j34K5zhZfIHVPo+T5bHCdZzZlYTV67yTWysjM/Q=
-X-Gm-Gg: AeBDietbIdUVn0LSA3n13wVntXzlFGM+JGiRI5pceastLaswcaUlog4xgfBSD7ZhN1D
-	CfXUyZoEdLdTzqR/Bnrxmp5JPhMR4QTgqqyPP8/tqsPnx25ub/KVdQY8WUgTtfxa+FcPIzK70ea
-	j+UYbr1LJZWQrr8R1MqMemCZrqXzc1jDKhw3d/f6osicdEmkVlg19cQxRRxu09bSAUtYXOhQEiw
-	kFZc1g1Z0+JGvA7IXAoBAuKaDgTNg+vpkF1lJafbZGlM8KM9SFIbYOszH4ICiKs9Dp21u0ShZJa
-	UXSmG2TW0GX0g+P5Dx0mpLYglihu0Vt+aXuJIp/eCJMZ+qH1pIrOQTqS5RkKGJnZS2kVtCFduej
-	NkUPm/iHjLgdzHfuEnMJh4ATWfbbbHhCQbTx/07uHhjlmrv52VzBzlfGBiOOstkkByX1cGvEhEA
-	NtV6BdvSoRhCrK8cKht3M93IG+P6Cn09p39ncafM6xqP8QZLpChDzIYA==
-X-Received: by 2002:a05:6000:4382:b0:43d:60d:944b with SMTP id ffacd0b85a97d-43d292f1452mr5756991f8f.37.1775228348596;
-        Fri, 03 Apr 2026 07:59:08 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43d1e4f1a99sm18426635f8f.32.2026.04.03.07.59.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Apr 2026 07:59:08 -0700 (PDT)
-Message-ID: <98bdaf08-6bff-4ea3-9e74-65b41da1447b@blackwall.org>
-Date: Fri, 3 Apr 2026 17:59:06 +0300
+        d=1e100.net; s=20251104; t=1775228460; x=1775833260;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nYEKwooYgSKsCFZiHLlPAB+cRjNKV5UWBUUDOOvo/B8=;
+        b=dPHVZ8WLDHAfAU2k0KXmBEDSXkJFFXY7wvwotTXdRhKnPlMLwnMElxSFzBbWU6yQ51
+         S+GziLznHlfM34PSKfHaa1uusFqWFxDA6QUYMDDgghY3gIDo69KsKg9fXtFz6uRMmvCj
+         /3fCQWvhsan1VWfjoQfUcWeUzvcuNcYU8bRVyLPkpGKByC6w7li3Ho3kQpB7L6HV6HzG
+         Jq903pqqC5KXEPTpd1tqbcXA6Ua7E7CpMGlsaW98GxixmLR2zaaXNCtps6VNRYATGYDk
+         h+8Vnedq5kmmVjl8mNStRt7rHucOL6dlfDCrnKphwXCmoHP7KfLnIwTjFwvPNB7v4VGu
+         427Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUwd8WYtQ3uTLf2ogEoiQflFVvzL3MHBV1luOlkv6HWnwPbKSZzhU+gNzC8BzkSZp3vz699xro=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxazmeTPUgTa26/IKmtNEutVy6SCNpc0PzSZy446H1GxXCODdcS
+	n7Sxy17+nh/j9ZX+vagoG8UqyuIktKdMPaaEUmSvU78WBj6QF5ftc3ml
+X-Gm-Gg: AeBDievvgmXdsN41eOpugTySjmqI72B+B3ZYJjKbOBwDsxLI+oA5+E0zlXohI5CA1uN
+	b9gahGdpWR71oja3KuBGpihy9SiBm0lL+ZEPHb+T2xZtgSNre8ROB3LDdDHKk8t3R/w1ey87OkE
+	wsxvdjzpKT3nN1exRTLizo+1q79CoUAMInP+jApzONOn+AskpW7U1hTekHXITWxImanezuYzJKX
+	BMRtB4l8hCNMfHgh/64pcUyMBUqB/G3vyJmTapvUTh+zM8cBJSDVdgyaV66jW7lPPV1hwm6KE7j
+	mdnfPXU+Q5DyuXiyUmrLJ5cc8sd8cWCjupR1WYSKxM8pEN0+ZbE/ao3QivWaBlw5ED/sN2UaOu7
+	e6qHF4pyFzUOmlMU79TxEQYNJA17tjVEKhxvzt3pQOkSY+FKFRvnCVH3/SbLee5DSRIJcoFtaLt
+	q3tErq5fiDAMFAN26CHuvYZ0ycDtOV97IYG/3xNvpN
+X-Received: by 2002:a05:6a00:340a:b0:827:2d7b:5038 with SMTP id d2e1a72fcca58-82d001e9e7amr6034017b3a.5.1775228460095;
+        Fri, 03 Apr 2026 08:01:00 -0700 (PDT)
+Received: from DESKTOP-82PPU4A.localdomain ([202.8.116.192])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9ca79basm7789483b3a.58.2026.04.03.08.00.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2026 08:00:59 -0700 (PDT)
+From: Ujjal Roy <royujjal@gmail.com>
+To: "David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	David Ahern <dsahern@kernel.org>,
+	Shuah Khan <shuah@kernel.org>,
+	Andy Roulin <aroulin@nvidia.com>,
+	Yong Wang <yongwang@nvidia.com>,
+	Petr Machata <petrm@nvidia.com>
+Cc: Ujjal Roy <ujjal@alumnux.com>,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-kselftest@vger.kernel.org
+Subject: [PATCH net-next v3 0/5] net: bridge: mcast: support exponential field encoding
+Date: Fri,  3 Apr 2026 15:00:45 +0000
+Message-ID: <20260403150050.1235-1-royujjal@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] bridge: guard local VLAN-0 FDB helpers against NULL
- vlan group
-To: Zijing Yin <yzjaurora@gmail.com>, netdev@vger.kernel.org
-Cc: bridge@lists.linux.dev, idosch@nvidia.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- nathan@kernel.org, nick.desaulniers+lkml@gmail.com, morbo@google.com,
- justinstitt@google.com, petrm@nvidia.com, linux-kernel@vger.kernel.org,
- llvm@lists.linux.dev
-References: <20260402140153.3925663-1-yzjaurora@gmail.com>
-Content-Language: en-US
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260402140153.3925663-1-yzjaurora@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 02/04/2026 17:01, Zijing Yin wrote:
-> When CONFIG_BRIDGE_VLAN_FILTERING is not set, br_vlan_group() and
-> nbp_vlan_group() return NULL (br_private.h stub definitions). The
-> BR_BOOLOPT_FDB_LOCAL_VLAN_0 toggle code is compiled unconditionally and
-> reaches br_fdb_delete_locals_per_vlan_port() and
-> br_fdb_insert_locals_per_vlan_port(), where the NULL vlan group pointer
-> is dereferenced via list_for_each_entry(v, &vg->vlan_list, vlist).
-> 
-> The observed crash is in the delete path, triggered when creating a
-> bridge with IFLA_BR_MULTI_BOOLOPT containing BR_BOOLOPT_FDB_LOCAL_VLAN_0
-> via RTM_NEWLINK. The insert helper has the same bug pattern.
-> 
->    Oops: general protection fault, probably for non-canonical address 0xdffffc0000000056: 0000 [#1] KASAN NOPTI
->    KASAN: null-ptr-deref in range [0x00000000000002b0-0x00000000000002b7]
->    RIP: 0010:br_fdb_delete_locals_per_vlan+0x2b9/0x310
->    Call Trace:
->     br_fdb_toggle_local_vlan_0+0x452/0x4c0
->     br_toggle_fdb_local_vlan_0+0x31/0x80 net/bridge/br.c:276
->     br_boolopt_toggle net/bridge/br.c:313
->     br_boolopt_multi_toggle net/bridge/br.c:364
->     br_changelink net/bridge/br_netlink.c:1542
->     br_dev_newlink net/bridge/br_netlink.c:1575
-> 
-> Add NULL checks for the vlan group pointer in both helpers, returning
-> early when there are no VLANs to iterate. This matches the existing
-> pattern used by other bridge FDB functions such as br_fdb_add() and
-> br_fdb_delete().
-> 
-> Fixes: 21446c06b441 ("net: bridge: Introduce UAPI for BR_BOOLOPT_FDB_LOCAL_VLAN_0")
-> Signed-off-by: Zijing Yin <yzjaurora@gmail.com>
-> ---
-> Tested on Linux v7.0-rc5 (upstream tag) with clang 20.1.0, KASAN
-> enabled, CONFIG_BRIDGE_VLAN_FILTERING=n.
-> 
-> Bug independently reproduced with the attached C reproducer
-> (repro_br_fdb.c). The crash triggers deterministically on the first
-> run with CONFIG_BRIDGE_VLAN_FILTERING=n on a clang-built kernel.
-> 
-> Exact crash signature from reproduction:
-> 
->    Oops: general protection fault, probably for non-canonical address 0xdffffc0000000056: 0000 [#1] KASAN NOPTI
->    KASAN: null-ptr-deref in range [0x00000000000002b0-0x00000000000002b7]
->    RIP: 0010:br_fdb_delete_locals_per_vlan+0x72/0x3f0
->    Call Trace:
->     br_fdb_toggle_local_vlan_0+0x3d/0x1d0
->     br_boolopt_toggle+0xba/0x1a0
->     br_boolopt_multi_toggle+0x129/0x250
->     br_changelink+0x1100/0x1490
->     br_dev_newlink+0x115/0x190
->     rtnl_newlink+0xe15/0x25c0
-> 
-> Note: gcc 13.3 with the same config optimizes away the NULL dereference
-> path (UB elimination), so the crash does not trigger on gcc-built
-> kernels. The code is still incorrect regardless of compiler behavior.
-> 
-> Reproducer (C source): [PASTE_URL_HERE]
-> Kernel .config:        [PASTE_URL_HERE]
-> 
-> To reproduce: compile the C reproducer with `gcc -static -o repro repro.c`,
-> run as root on a clang-built kernel. The crash triggers during
-> br_dev_newlink() -> br_changelink() when the boolopt toggle reaches
-> br_fdb_delete_locals_per_vlan_port() with a NULL vlan group. Note:
-> RTM_SETLINK on an existing bridge may not trigger it due to different
-> code ordering.
-> 
->   net/bridge/br_fdb.c | 6 ++++++
->   1 file changed, 6 insertions(+)
-> 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index 0501ffcb8..e2c17f620 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -597,6 +597,9 @@ static void br_fdb_delete_locals_per_vlan_port(struct net_bridge *br,
->   		dev = br->dev;
->   	}
->   
-> +	if (!vg)
-> +		return;
-> +
->   	list_for_each_entry(v, &vg->vlan_list, vlist)
->   		br_fdb_find_delete_local(br, p, dev->dev_addr, v->vid);
->   }
-> @@ -630,6 +633,9 @@ static int br_fdb_insert_locals_per_vlan_port(struct net_bridge *br,
->   		dev = br->dev;
->   	}
->   
-> +	if (!vg)
-> +		return 0;
-> +
->   	list_for_each_entry(v, &vg->vlan_list, vlist) {
->   		if (!br_vlan_should_use(v))
->   			continue;
+Description:
+This series addresses a mismatch in how multicast query
+intervals and response codes are handled across IPv4 (IGMPv3)
+and IPv6 (MLDv2). While decoding logic currently exists,
+the corresponding encoding logic is missing during query
+packet generation. This leads to incorrect intervals being
+transmitted when values exceed their linear thresholds.
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+The patches introduce a unified floating-point encoding
+approach based on RFC3376 and RFC3810, ensuring that large
+intervals are correctly represented in QQIC and MRC fields
+using the exponent-mantissa format.
+
+Key Changes:
+* ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and simplify calculation
+  Removes legacy macros in favor of a cleaner, unified
+  calculation for retrieving intervals from encoded fields,
+  improving code maintainability.
+
+* ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
+  Standardizes MLDv2 terminology by renaming mldv2_mrc()
+  to mldv2_mrd() (Maximum Response Delay) and introducing
+  a new API mldv2_qqi for QQI calculation, improving code
+  readability.
+
+* ipv4: igmp: encode multicast exponential fields
+  Introduces the logic to dynamically calculate the exponent
+  and mantissa using bit-scan (fls). This ensures QQIC and
+  MRC fields (8-bit) are properly encoded when transmitting
+  query packets with intervals that exceed their respective
+  linear threshold value of 128 (for QQI/MRT).
+
+* ipv6: mld: encode multicast exponential fields
+  Applies similar encoding logic for MLDv2. This ensures
+  QQIC (8-bit) and MRC (16-bit) fields are properly encoded
+  when transmitting query packets with intervals that exceed
+  their respective linear thresholds (128 for QQI; 32768
+  for MRD).
+
+* selftests: net: bridge: add tests for MRC and QQIC validation
+  Updates bridge selftests to validate both linear and non-linear
+  (exponential) encoding for MRC and QQIC fields, ensuring
+  protocol compliance across IGMPv3 and MLDv2.
+
+Impact:
+These changes ensure that multicast queriers and listeners
+stay synchronized on timing intervals, preventing protocol
+timeouts or premature group membership expiration caused
+by incorrectly formatted packet headers.
+
+Test results:
+Giving results only from vlmc_query_intvl_test and vlmc_query_response_intvl_test
+of the script bridge_vlan_mcast.sh.
+Without patchset, here is the result.
+    - TEST: Vlan multicast snooping enable                                [ OK ]
+    - TEST: Vlan mcast_query_interval global option default value         [ OK ]
+    - Vlan 10 mcast_query_interval (QQIC) test cases:
+    - TEST: Number of tagged IGMPv2 general query                         [ OK ]
+    - TEST: IGMPv3 QQIC linear value 60                                   [ OK ]
+    - TEST: MLDv2 QQIC linear value 60                                    [ OK ]
+    - TEST: IGMPv3 QQIC non linear value 160                              [FAIL]
+    -         Wrong QQIC in sent tagged IGMPv3 general queries
+    - TEST: MLDv2 QQIC non linear value 160                               [FAIL]
+    -         Wrong QQIC in sent tagged MLDv2 general queries
+    - TEST: Vlan mcast_query_response_interval global option default value   [ OK ]
+    - Vlan 10 mcast_query_response_interval (MRC) test cases:
+    - TEST: IGMPv3 MRC linear value 60                                    [ OK ]
+    - TEST: IGMPv3 MRC non linear value 160                               [FAIL]
+    -         Wrong MRC in sent tagged IGMPv3 general queries
+    - TEST: MLDv2 MRC linear value 30000                                  [ OK ]
+    - TEST: MLDv2 MRC non linear value 60000                              [FAIL]
+    -         Wrong MRC in sent tagged MLDv2 general queries
+With these patchset, here is the result.
+    * TEST: Vlan multicast snooping enable                                [ OK ]
+    * TEST: Vlan mcast_query_interval global option default value         [ OK ]
+    * Vlan 10 mcast_query_interval (QQIC) test cases:
+    * TEST: Number of tagged IGMPv2 general query                         [ OK ]
+    * TEST: IGMPv3 QQIC linear value 60                                   [ OK ]
+    * TEST: MLDv2 QQIC linear value 60                                    [ OK ]
+    * TEST: IGMPv3 QQIC non linear value 160                              [ OK ]
+    * TEST: MLDv2 QQIC non linear value 160                               [ OK ]
+    * TEST: Vlan mcast_query_response_interval global option default value   [ OK ]
+    * Vlan 10 mcast_query_response_interval (MRC) test cases:
+    * TEST: IGMPv3 MRC linear value 60                                    [ OK ]
+    * TEST: IGMPv3 MRC non linear value 160                               [ OK ]
+    * TEST: MLDv2 MRC linear value 30000                                  [ OK ]
+    * TEST: MLDv2 MRC non linear value 60000                              [ OK ]
+
+v3:
+- Updated the series title for better clarity; old one is here
+  https://lore.kernel.org/all/20260326150742.50289-1-royujjal@gmail.com/
+- Added key changes section for new selftests patch
+- Updated netdev style comments and addressed review comments
+- Fixed MLDv2 MRC conversion logic during query generation
+- Mentioned intervals in units wherever applicable
+- Dropped type casting and fixed indentations
+
+v2:
+- Retargeted the series to net-next as suggested
+- Fixed a compilation warning in the MLD rename change
+- Kept reverse xmas tree order in IGMP exponential encoding change
+- Added bridge selftests to validate IGMPv3 Query MRC and QQIC handling
+
+Ujjal Roy (5):
+  ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and simplify calculation
+  ipv6: mld: rename mldv2_mrc() and add mldv2_qqi()
+  ipv4: igmp: encode multicast exponential fields
+  ipv6: mld: encode multicast exponential fields
+  selftests: net: bridge: add tests for MRC and QQIC validation
+
+ include/linux/igmp.h                          | 171 +++++++++++++++-
+ include/net/mld.h                             | 190 +++++++++++++++++-
+ net/bridge/br_multicast.c                     |  22 +-
+ net/ipv4/igmp.c                               |   6 +-
+ net/ipv6/mcast.c                              |  19 +-
+ .../selftests/net/forwarding/.gitignore       |   2 +
+ .../testing/selftests/net/forwarding/Makefile |  10 +
+ .../net/forwarding/bridge_vlan_mcast.sh       | 157 ++++++++++++++-
+ .../selftests/net/forwarding/mc_decode.c      |  73 +++++++
+ .../selftests/net/forwarding/mc_encode.c      |  78 +++++++
+ 10 files changed, 675 insertions(+), 53 deletions(-)
+ create mode 100644 tools/testing/selftests/net/forwarding/mc_decode.c
+ create mode 100644 tools/testing/selftests/net/forwarding/mc_encode.c
+
+
+base-commit: 8b0e64d6c9e7feec5ba5643b4fa8b7fd54464778
+-- 
+2.43.0
 
