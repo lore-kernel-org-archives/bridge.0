@@ -1,127 +1,138 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 783691DED40
-	for <bridge@lists.linux.dev>; Sat,  4 Apr 2026 17:25:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775323556; cv=pass; b=rnejn7VHnHxSwU+a/uo33hhhx2emvKmtHK2EI3Y5yUR37FaodW/bYmSQ/WdU/n5AdKfTt5TS73LxCv8u6TzeCgXRzFYJ8/C4Zz4uYBMGpIEZFwKXxnWhJAFTPkeUQMPy5wkMPfNpI0crY2DNmdbIsXrSDHwro5hamCy4EUTYrx0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775323556; c=relaxed/simple;
-	bh=iidgvtRYuaAhqrnd+5Px2QKaie9WCq8NPbXMgIRsVnU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EZUccowhOL3Zl8DRBEFASWU7Y/Pv/j/4Tbq0i9Ta3DL9ajSQQouxf1jBTOpiqtWA5ZH4L9ut3ErCxamYOl7uOh1f3HGlFjS5ORYrb/PVg2CPip4eIvn7EV3SSqWI0M9MjYm4ECfKNrdoeDEBB2a8mbj7Wsqg43hQmLZFOvio3UU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f4eH8Ur8; arc=pass smtp.client-ip=209.85.218.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53FEE4A02
+	for <bridge@lists.linux.dev>; Sun,  5 Apr 2026 00:03:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775347410; cv=none; b=hi0QhL9A/PGVOhAyNKCTiJqssmexHJ3FFQKWoO6oBO2aahEfnwl8gj/aaAAu6ooQDl95xv8E0+NqXLly5cGqwtj4M06H5BrKp1cVO+ahiB4oT6EbWuGZ76XaaFfdVrzVnSYQUdbXEGeWjrb5XibvmomMfyLqhRDFd/xP1ZM1T6E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775347410; c=relaxed/simple;
+	bh=eT0BY6+jZMne8BZ+Ndpq/aSw3ClUrczrR89b+z8vpLs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hylPPcm8CIzPU0rCZ6gnRNOqdoJQzeIbyOrhV23avroNr6oqz9/enUfxih3s+smI9mhlYqPZiOSb+5MVpMRUwfJ/G/BwUye2sgeUDxzrR+ke8c0wAgsyT/u0S6OP/uxki3tfTFaU83O6wr1BZ8vuFlfIg/d90OZEARrnkRcrGBI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=cwqv50XY; arc=none smtp.client-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f4eH8Ur8"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-b9c6f1d1282so179407366b.3
-        for <bridge@lists.linux.dev>; Sat, 04 Apr 2026 10:25:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775323554; cv=none;
-        d=google.com; s=arc-20240605;
-        b=WXCXpsEsO6pZEEBbIL4HBhqnxhe6L3sax4LPJQ/TpP/toNzE7I+MtTR1kEULePUx4U
-         +kTtz/XuiiUiyL/OIJBtie3byTwJyRfZrfs5HOMemmkcOeA/5l/2ExCx2z8fm66wz4x0
-         ZxDfuLcgdLqE8xHPHU6+I7yYIww3QY4DuhMXX8nQysMuyKSmkyf0ecppOnQZPd2JrGKq
-         mLHF/ZNlSA7KZTuaaBjHqDQdSaSDNUIJhwTGv/0d60py34XJ2rFebpLFv0+11suP+fyX
-         jUPhQZHd8p6pVzrsPCwf+aKa3IXc7Va8DZxQb0cX1DK5La0QHW/ocPzybMM3GcxfEqQU
-         HZZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=iidgvtRYuaAhqrnd+5Px2QKaie9WCq8NPbXMgIRsVnU=;
-        fh=GhzmAPOcYmV4uxeYHo0LT5UlRsGZbKvOPpaZNe0XHAw=;
-        b=GnJnwRqKKMc2g1Qk9weWwetUDndJYbS72a7moCOU/btTaFs9KWgz8rHeoibUoUdU0O
-         n3SLqiKHQXQ+XSmyefmwMf9TdUhunrqts3EcMu0nTa/Qm6SjD3T67jd0REHXdAjL1ZF7
-         U7m2TAiMlD9D+AVDqRScurKhSfxOY29QL+cClIrBBX4VPPm5wb9eVF6kPDtacT1ewXNu
-         UET7ypVWQCk+WYPSS7AqlCZ8VDK1dw525qeDRYD6ApebNvTWy7mT2qgnJ5qygVyVaIpQ
-         TeoKbZ2I5t6kA6CTKMbtVZagx8FAAZXRwHDG9rnvewOwjXgfs72Yb1JuvdCAa4tvRE87
-         1OFA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="cwqv50XY"
+Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-127380532eeso3343803c88.1
+        for <bridge@lists.linux.dev>; Sat, 04 Apr 2026 17:03:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775323554; x=1775928354; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iidgvtRYuaAhqrnd+5Px2QKaie9WCq8NPbXMgIRsVnU=;
-        b=f4eH8Ur8sfMZIwZYuWLvrBFPaW7P0K3UgEkgBSNFxpUw5JhIk6+c63xo8TTgi0YA13
-         eVxXpg8UiBqNYJxIWabAxRi2XDKFmUvqhXBrJdH2lnquqdpenFAbhjmv0XESldyOzPjw
-         E3yaxnLkph4wQVBh0H3V/nqispmKhFOy4Z6CPuS056U4rBGxYRF/S6RXzr5ee2xYS+bG
-         gXKR9XG7cuTANiATI4+/jh7ex1MCQJ/5G8NaIGoY3pDlKtbpsw8YkXmRHosIiD1/+voM
-         RQviapBHjocFNWtMLo9L1B8gN4sf8wsxLjhE5i7AIBYMuAnb/6n2w3e9tNLbOrgoy6dJ
-         4HZw==
+        d=asu.edu; s=google; t=1775347408; x=1775952208; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=3ZAq/JoXbDsaB10E9ei7z4Jwk5QHy8JrT6TkV/e+ag4=;
+        b=cwqv50XY54+p8Fd8idfG3KKBL0rKdj2AXN+K0LDk/sHILe+Q/l3M7xN+aO3w8pU5IA
+         Vet0LJbHaNEp8hd3/vkU8wtyeZrk6v7Mo80sXuF640dNE4z2jXy9fvfN2EwyjkAc6LjB
+         V9NtIoeAxiN+9Q1uPLoMHTlXPCsqxcBH4/3vtT4mBPzWeu39KtCH3+GZ2PpHK5tRwKft
+         t/is5o++et8l63I95M+zSRyMVj9rwog4ONuZZLS4uC3+T08qPHIBUzIKAT9Fhd/XADEj
+         wbxbpXb2ED6O+NJwPOZDA3Dx/GQYjKsavWCE94HycykgpW19LHotaeO2CA1qqi9aNHob
+         CHjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775323554; x=1775928354;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=iidgvtRYuaAhqrnd+5Px2QKaie9WCq8NPbXMgIRsVnU=;
-        b=MscGmf5BbSVupcF8nJTzDvn2fHX4oJKrTMmhoe0CfHE8FM0BHRMR6jkoNCc6PY0JE5
-         hUuoc6drEwhBnmM03L9ZC/h79W5/2RuTpJvJjr/IghhNgzzdH8AHYVeyngO3E2lzsOZo
-         Z9Uu224udMI+J1QL77kTrwqLnDnbHDCJotcc31++Y5JzGJnwcz9EmnVrvyL+ydNg+VMj
-         nDzIAReSyK+93cQ4jrnZ9jTz4hxiZebGtjKuoSX3wkiYfrPkvGpRvfPgS5zDyPfXTaUx
-         cRpMfxdTPUDLoqBo5Da5vDVnpgpChi1Uny+hVqenpFGfO2/uO+usfxAAUdeX8405myOs
-         AVJA==
-X-Forwarded-Encrypted: i=1; AJvYcCX4e+Umf7OJAO8WMhDyvdnHt8ZxXfsv0nkvnIK5GNfyojL1BTUWcwJPTfvl1YYY7w6FeoGTBqI=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzNP/SvA+KKRmZ0fu5V/clqt6cvYqVrzMsvidMJFlyFUByQiVLX
-	rs4sezzFaTnrhSo1eZOm5lpzcj5YEgsh0H+c6XsdCGhChNEH6+jO/LwBDARzQ92nv6jAJWuoWFO
-	+DQe+Lp2RjVA/wpO6W4WfMGD9ol1j+jI=
-X-Gm-Gg: AeBDieugp/sqzMMWE7/6J2lWoWywSORT3/plpULdJfW21L2Rrh6SJzIgGBbhhn+77G0
-	DxqsFy96EQIgaV2cKu9ibXhvEe9jBNQgKt6cxFPlY5di2zy3bcIrwPCsk7GfXInUy/s0049+XiQ
-	SQQEBk1ZmjMoryalB+wLHADUq1d/r9XPMmNMx7MlHpea1ryhHsy4Z8y+aOiJCre8RL2uVA/ow54
-	uikGIL6VYgFxCTs2A1CCsFjONCPXdbz40TqcYC2LZaPPmjRR9mQ7z7sxSOkphXg4Fq+y7NRaX/q
-	fMQkSwc=
-X-Received: by 2002:a17:907:ca19:b0:b98:4b8:1046 with SMTP id
- a640c23a62f3a-b9c67922d67mr245594366b.31.1775323553422; Sat, 04 Apr 2026
- 10:25:53 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775347408; x=1775952208;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3ZAq/JoXbDsaB10E9ei7z4Jwk5QHy8JrT6TkV/e+ag4=;
+        b=W7hP5STMyygv1/+LGjRy4bqKVtJ1rBGbMv42+8NEX2pwZdsKGa1t7MqK6r726uZCfR
+         x6snmBytWNPzBEpaCxZb7W7kYIXz2ekL6QmjndgbkjX4YfGC5bJTsjfvd7VzPgWW7amZ
+         Fstm9FtXjCBAMAt3HsyeoPOvZp5xhg7VTY/gsdJTc3UjMoRwBdmkfLTWqSnAsWc6RhTZ
+         l/0X5w5abmJ/e6BH84vr1UvTluUDXBT38BsL1t1SkLGuebJzCRLjCewm+X6IoaTGZSAp
+         nhkL+zRlgOv8j1EIQeS0iltAd7x0/ry/iDi87Dybd/PId7MLI4TmVZi7Zz5MPRfxzPOZ
+         T+sw==
+X-Forwarded-Encrypted: i=1; AJvYcCV0DA/ib/vEatpLl+1VuMr5WR+hLjM8gVLBkyo5jddz5GZEm786ciCB3e1dRuYt4ADZUbcEzm8=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx3sm/yT/aB0KXwT3xmktO3zIhjd97yNErZfHhaXMnYuzajg3++
+	t4Dkh249lhKCW4F0ITS6ghjlwiDaPuOg1N3qXJ6SOkE4GGjiKYum5wscmWc/d1DpyA==
+X-Gm-Gg: AeBDievw3ZSo9oYCkkQsEAFX6+zBoWVAfixVcp5hQPyNCiXuR88gqj/Vqjm+2OxBH61
+	LyXY26T64GK2dWSW4XnazMGVBMQKCU/nrwqWqEKQVHztR8NxoH3krVLpafh6Iaiv+6JjKXaTYaQ
+	zPebIB96/l2S0T5Z8iL3AtHf3cgCRm30r9AqQaZimpAcVnYRLqpmtGEhmDxIP7xCRu/R5iyVfEO
+	CdVMIzNIKm0y1ob5iwX96whpwXAF/bVnttpCk815OdI7h7VkKL5rZhAaw5WbcKg9JZVE8ybHkwU
+	Aa4TSr4/6a2q50AZ3qIbhIRITiwMzqBqAn4DXYUgUyOFwfPDjSlS6zNW/2ZgfFUy/lXEIKJ6JHI
+	P1SwqHomz+td83QpeWPpoknwDnGZaPLFpoMD3Ebry0zUG5Fw4QsIZFqIsx73WNxo4dCuttnspf8
+	06ZyRI7vuphB22c6nn5gyfHsRuefP5rUdfx/vuJ/kstA8O04E6ZAFv7g==
+X-Received: by 2002:a05:7022:418f:b0:11b:88a7:e1ac with SMTP id a92af1059eb24-12bfb745142mr3572419c88.19.1775347408405;
+        Sat, 04 Apr 2026 17:03:28 -0700 (PDT)
+Received: from p1.scai.dhcp.asu.edu (209-147-138-15.nat.asu.edu. [209.147.138.15])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12c07a8703esm1567831c88.8.2026.04.04.17.03.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Apr 2026 17:03:27 -0700 (PDT)
+From: Xiang Mei <xmei5@asu.edu>
+To: netdev@vger.kernel.org
+Cc: horms@kernel.org,
+	bridge@lists.linux.dev,
+	razor@blackwall.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	bestswngs@gmail.com,
+	Xiang Mei <xmei5@asu.edu>
+Subject: [PATCH net v2] bridge: cfm: reject invalid CCM interval at configuration time
+Date: Sat,  4 Apr 2026 17:03:24 -0700
+Message-ID: <20260405000324.548623-1-xmei5@asu.edu>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <f23ed1b3-6321-4e6d-9cda-ec5d34304f3b@blackwall.org>
- <20260330191611.16929-1-royujjal@gmail.com> <20260331141647.GB1637150@shredder>
-In-Reply-To: <20260331141647.GB1637150@shredder>
-From: Ujjal Roy <royujjal@gmail.com>
-Date: Sat, 4 Apr 2026 22:55:38 +0530
-X-Gm-Features: AQROBzBVeQxzaE8wUvFhFsGym5EPOw52jRhY5t-OqeOyQKNixaLBWAKYKMiyQyE
-Message-ID: <CAE2MWk=CSaijB_x0BzMtVGjuibqbzuCov8y+3Hm2UodrJJpF3A@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 0/5] net: bridge: mcast: add multicast
- exponential field encoding
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Nikolay Aleksandrov <razor@blackwall.org>, David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Andy Roulin <aroulin@nvidia.com>, Yong Wang <yongwang@nvidia.com>, 
-	Petr Machata <petrm@nvidia.com>, Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev, 
-	Kernel <netdev@vger.kernel.org>, Kernel <linux-kernel@vger.kernel.org>, 
-	linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 31, 2026, 7:47=E2=80=AFPM Ido Schimmel <idosch@nvidia.com> wrot=
-e:
->
-> On Mon, Mar 30, 2026 at 07:16:06PM +0000, Ujjal Roy wrote:
-> > Description:
-> > This series addresses a mismatch in how multicast query
-> > intervals and response codes are handled across IPv4 (IGMPv3)
-> > and IPv6 (MLDv2). While decoding logic currently exists,
-> > the corresponding encoding logic is missing during query
-> > packet generation. This leads to incorrect intervals being
-> > transmitted when values exceed their linear thresholds.
->
-> Thanks for the patches. I will take a look, but please read:
->
-> https://docs.kernel.org/process/maintainer-netdev.html
->
-> In particular:
->
-> "The new version of patches should be posted as a separate thread, not
-> as a reply to the previous posting."
+ccm_tx_work_expired() re-arms itself via queue_delayed_work() using
+the configured exp_interval converted by interval_to_us(). When
+exp_interval is BR_CFM_CCM_INTERVAL_NONE or out of range,
+interval_to_us() returns 0, causing the worker to fire immediately in
+a tight loop that allocates skbs until OOM.
 
-I have updated the cover letter title and sent the new version as a
-separate thread. The same can be found here in this link:
-https://lore.kernel.org/all/20260403150050.1235-1-royujjal@gmail.com/
+Fix this by validating exp_interval at configuration time:
+
+ - Constrain IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL to [1, 7] in the
+   netlink policy so userspace cannot set an invalid value.
+
+ - Reject starting CCM TX in br_cfm_cc_ccm_tx() when exp_interval has
+   not yet been configured (defaults to 0 from kzalloc).
+
+Fixes: a806ad8ee2aa ("bridge: cfm: Kernel space implementation of CFM. CCM frame TX added.")
+Reported-by: Weiming Shi <bestswngs@gmail.com>
+Signed-off-by: Xiang Mei <xmei5@asu.edu>
+---
+v2: Move validation out of the datapath and into configuration
+
+ net/bridge/br_cfm.c         | 6 ++++++
+ net/bridge/br_cfm_netlink.c | 2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
+index 118c7ea48c35..dea56fffa1c1 100644
+--- a/net/bridge/br_cfm.c
++++ b/net/bridge/br_cfm.c
+@@ -805,6 +805,12 @@ int br_cfm_cc_ccm_tx(struct net_bridge *br, const u32 instance,
+ 		goto save;
+ 	}
+ 
++	if (!interval_to_us(mep->cc_config.exp_interval)) {
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Invalid CCM interval");
++		return -EINVAL;
++	}
++
+ 	/* Start delayed work to transmit CCM frames. It is done with zero delay
+ 	 * to send first frame immediately
+ 	 */
+diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
+index 2faab44652e7..1bb33c8f587b 100644
+--- a/net/bridge/br_cfm_netlink.c
++++ b/net/bridge/br_cfm_netlink.c
+@@ -34,7 +34,7 @@ br_cfm_cc_config_policy[IFLA_BRIDGE_CFM_CC_CONFIG_MAX + 1] = {
+ 	[IFLA_BRIDGE_CFM_CC_CONFIG_UNSPEC]	 = { .type = NLA_REJECT },
+ 	[IFLA_BRIDGE_CFM_CC_CONFIG_INSTANCE]	 = { .type = NLA_U32 },
+ 	[IFLA_BRIDGE_CFM_CC_CONFIG_ENABLE]	 = { .type = NLA_U32 },
+-	[IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL] = { .type = NLA_U32 },
++	[IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL] = NLA_POLICY_RANGE(NLA_U32, 1, 7),
+ 	[IFLA_BRIDGE_CFM_CC_CONFIG_EXP_MAID]	 = {
+ 	.type = NLA_BINARY, .len = CFM_MAID_LENGTH },
+ };
+-- 
+2.43.0
+
