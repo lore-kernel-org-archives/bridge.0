@@ -1,62 +1,70 @@
-Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azon11012031.outbound.protection.outlook.com [40.107.209.31])
+Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010061.outbound.protection.outlook.com [52.101.201.61])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9831B38F936
-	for <bridge@lists.linux.dev>; Tue,  7 Apr 2026 07:07:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.209.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688103859EC
+	for <bridge@lists.linux.dev>; Tue,  7 Apr 2026 13:44:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.61
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775545654; cv=fail; b=JljWilsVOYhrsxu3rONrBap+5O+mFMEr09T7nfmIujZpEUgLMuI5eqMkp2/6D3n7VOXyWMKBfgXBI0MulqNwV0eKIRCKv2DSmz3sufag2+20gsy2oI3lD0fFAm41uqr2yoh7WJqRQJNQMcrXDvDyYyc6mt8VpqtxEZ/PXGX71RE=
+	t=1775569467; cv=fail; b=IZvo1K8XMdgOIOMF91ze5USSqY77o2M/UplL2Q3rYtEX11qHfdmmZvlUJv+aPPq123WNwuTI+XAzmk2BAhOblhoTP/mGOb98WdeyyZwuVZNpC0DyCpHy26GwqKwV2csm0vyULdIZKIR/UDaUs78QqpIRn2+aGiMOqgeqQaRMaxI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775545654; c=relaxed/simple;
-	bh=Y239i+sT4ZVV+RR+d8PPesfeBu2uXYXHhDS/7hjym7M=;
+	s=arc-20240116; t=1775569467; c=relaxed/simple;
+	bh=6FEGT8Yv7dN2BxupKh16zPrAF51KoqNsta81aJed99U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=QkF1wfLjeb0WRJ0mybjXq8hPOb3r+B5DZkwYat/jqsCUe2yn7phk4XzTFdegynxemlRjYGf0c5WSYQ3+NK9bckncDknRgXdDfaGdxFtC9NTnhHvcs7eJmgBcyZ6ZvA9dmwOyN0woAWlVYevn62P6BQ4dkjRyfZlQqtmMInAN5Uk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=FMdKLWRe; arc=fail smtp.client-ip=40.107.209.31
+	 Content-Disposition:In-Reply-To:MIME-Version; b=hGQ9CA8JzQELoNvBcEkHgWbbnbx8L5Cfb2XbqLCSNbt9X08IUrCg28UJovS95WSOOi8ukqt60IMZE4Jzk3QT60+g4xjNb6tw1c/4PjlhwcaJ2W5vp8LwgWVrQ/qa8Fu5WZbATHa8Z/BE2NXOgzczSVJwYyx2eHBCXhi7c1mlUEI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=pvcu2GxP; arc=fail smtp.client-ip=52.101.201.61
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="FMdKLWRe"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="pvcu2GxP"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=WuhjP7o2RVXS9qNFyHPRE56SX90LbsTbr7lQFmrpDoT5bJVsBdumSZBY1rpNihbeDA4k9bVVVzZ4daLBbsVsy4sGAj4yrwUfp34fUFb9aEEKCBuaFs+rfK8mZxq7evpxBmDa6RoVYxi3KaRUGK4BaZZ56v+d85IJajXDGqRGvxQP6ywWnp/fiJgc9LW7TJmbIEAUiMNG3OVJ1LxQohdJLF0OhoT/EM0n0yNttZXKrTjJ6c7PU5LzHuupnMauJdXIfrb6VJk1WEbRnoj+6ldejnT7ZN1es8pLzcf9lLbQzbMICPTL6Xabx0UOdRUMjM2XoxqpsXqh4mnposBXDvykng==
+ b=tvkVSa/udf9+88hOEvS4+F0EJaHvU7GFyYpHdNC+9FuDvgXyQ8V3pMQcDWRzAiYnUs7ZeHGiTv1nRlKNRL6f5rexQHMOpFzStR2pZCLiVPhY3lPslM10+sbYCS7uzKf1mcTwg375giiBGAoPLLfpQtOB1feTtyaUrapsVQGaQST1jBfWo3qdmzpVP9U6kVfRhtBmbClbAVCC1dZ71fYl4CjxAUDCuzyo0YjcJxXcycJhwFZN4Oqw+o1jsJeIduKgZp+hTtabHHOW6t+zfpYEOUcrzJUa5Z1Lk5XqhztuM69SX10jXBdtv5aHfl2d1P7B9X1yWFBlrVOs3w/LgtOfFA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8aKhJxxbORXsQSG6+YSWLdncIHbAYUBDXBhTJfFziQo=;
- b=xcraq88dRDF1o0kgelwYkt38KO0v9HyHgXuOX9IPV90M2ejU/PnX5GYk5hbII7XyBjasM1GpkR9PpHO/xrqRoc2K2TvkVzAuC6goZtaSU1Ts7rWo32+Mz1b1ULrggIGRmVmrUrngXr1m4kH0TmI641EL1UlnfvmBAhJznR3H65mlx+njJvCn1GHF2RyAsax+R1pag9CePkmsZXjRqi0Kdhu5Y7OUVaEvXI1nY3IJWQFe+kh4MUhMIV/FLHtt7Tdxh+QY01z30Y7od9GTt3pS7fShD6d+OIhXqy7RGjykcUQe56Q7dFL5uy0i6/OxSidTY/R/3brCHcQEGUdRQysv7g==
+ bh=5fzHsRKD/tR2zXRIlzt+4DJ5PvQAEWVVTzJwCQWX/6A=;
+ b=kBQEG1ZvYT1Q1uNssy6G0UYGLhWEMyi5DLJ3g0KrCXr9kyYHNu+X84UmasC6Eppmtc4rtHoEZBd5wqX4EhCizdexcznT4sSaRTKqK3zqgoWRClZqDI6Qb5doBX6QWGanjLIrfmqC8MoggaONk+vF2r/BPJ60nhypgN3mKOSHmQpagXNrMF2fdCCwfD2iZRlfUAo17FKCqGtoCcflVD4YKPz2rH7L+YxgVYnkToorbDYUxfNvT1yVVIKb2MqXm2m6BiMkHawkzZ1d0f3s8gmanG0yQ3esuuV9aotAxA/4sBx96tDuL6/nvZBH95D2yyvrYe8yCE21TJpqkLfJ55TDHA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8aKhJxxbORXsQSG6+YSWLdncIHbAYUBDXBhTJfFziQo=;
- b=FMdKLWReCWwFsYY0pbU1AYsFC3M43LHi56a7HXNefnWktR616reZpwltTkcr8xmkbNq/RTLHb0BIoebbTxfv/ohMd0/mRdHEwWqwYQaq47sLSKVDbAehKbLsgyzO0YKOC8GPiBevejkFUrRtfuuyix0Ewn3/ftViDfh2W7dBcZPHHAdcZmc7V1Pov8/cvLvFSXS9Hw0NucXU3ZZPJDf8I10z5RLO3FFu3fFo72u9O6bkAZdU2wz0lv6RIw4UVvR3vD2Fzjkmtmxh/nkGKZlqbvRJm0yWOPBfut9G0XP+w0zQM/9tZaGUQviuQW+u71iIxK8b+D9GfBXHMXlY6N9fig==
+ bh=5fzHsRKD/tR2zXRIlzt+4DJ5PvQAEWVVTzJwCQWX/6A=;
+ b=pvcu2GxPKERqTZozPFZHJyIj5JFdKYPdAbV/krlMmlHlq3w6Jnhq33VCfZZm5/HCbPfbTGwQbRwS36jDXbk3bjq74ebuuhBAUzbOMjm4YfvWrwObl2elH/16UrvNWS6Xt4wIqkNsjlPpWQfH3CjlKd0dgSFigSkVOrACbG20d1hQrsYLJ/ohp0cIV8K7uZ4cqxLQIP9jme90MKIiJP5OcCIxs6KhSzZEnFngKqhQGbPBepUg8FgoA20A+CQXXgYGshQqzxIBL4jm/WGb0zMvw/5mzKoJF9EBfS/W2sYj5HMrpS1Lc3bPhOyVaUuZcHH4sOebmGPfKr/SyqzarYxnLA==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by SJ2PR12MB7821.namprd12.prod.outlook.com (2603:10b6:a03:4d2::21) with
+ by LV5PR12MB9825.namprd12.prod.outlook.com (2603:10b6:408:2ff::21) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.17; Tue, 7 Apr
- 2026 07:07:29 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.19; Tue, 7 Apr
+ 2026 13:44:22 +0000
 Received: from SA3PR12MB7901.namprd12.prod.outlook.com
  ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
  ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9769.016; Tue, 7 Apr 2026
- 07:07:28 +0000
-Date: Tue, 7 Apr 2026 10:07:16 +0300
+ 13:44:22 +0000
+Date: Tue, 7 Apr 2026 16:44:11 +0300
 From: Ido Schimmel <idosch@nvidia.com>
-To: Xiang Mei <xmei5@asu.edu>
-Cc: netdev@vger.kernel.org, horms@kernel.org, bridge@lists.linux.dev,
-	razor@blackwall.org, davem@davemloft.net, edumazet@google.com,
-	pabeni@redhat.com, bestswngs@gmail.com
-Subject: Re: [PATCH net v2] bridge: cfm: reject invalid CCM interval at
- configuration time
-Message-ID: <20260407070716.GA752875@shredder>
-References: <20260405000324.548623-1-xmei5@asu.edu>
+To: Ujjal Roy <royujjal@gmail.com>
+Cc: "David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Andy Roulin <aroulin@nvidia.com>, Yong Wang <yongwang@nvidia.com>,
+	Petr Machata <petrm@nvidia.com>, Ujjal Roy <ujjal@alumnux.com>,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next v3 1/5] ipv4: igmp: get rid of IGMPV3_{QQIC,MRC}
+ and simplify calculation
+Message-ID: <20260407134411.GA849209@shredder>
+References: <20260403150050.1235-1-royujjal@gmail.com>
+ <20260403150050.1235-2-royujjal@gmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260405000324.548623-1-xmei5@asu.edu>
-X-ClientProxiedBy: TL2P290CA0002.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:2::12) To SA3PR12MB7901.namprd12.prod.outlook.com
+In-Reply-To: <20260403150050.1235-2-royujjal@gmail.com>
+X-ClientProxiedBy: TL2P290CA0011.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:2::14) To SA3PR12MB7901.namprd12.prod.outlook.com
  (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -65,129 +73,229 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|SJ2PR12MB7821:EE_
-X-MS-Office365-Filtering-Correlation-Id: a20ac907-ba8e-4a5e-0fa6-08de94745436
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|LV5PR12MB9825:EE_
+X-MS-Office365-Filtering-Correlation-Id: 91db5b94-c7a8-4afc-6253-08de94abc676
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|56012099003|18002099003|22082099003;
+	BCL:0;ARA:13230040|1800799024|376014|7416014|366016|22082099003|56012099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	EjiLeffQfo7HrujZFIIhY4kvqqMzSGAJighytlvStOlZ3Uh/Drt6OkvPhLGg3nj9rAQ0yEXd7CzxBPz5pa9MSxFe3whpQJxUw3CS08IX2CYdVLBc7voypfFGJvE7dXBct6OD/BlV91iDFxEQ3xZppdKcwgig6DHCnLIlFxomI/mjBXjnLQzfrpUOXhO4TKRKVua2lgHMPoTSBmGMJWPZvVI55/J8twD6KpkSs74s+Js2SlHAiIfBA5FJv/4nRSOxAjhSLyrCKvb4EPUw1dBXsU1E5CS7ms5t7fUgpmqCkALSncMSraklnjiRtINrrrVy72nEV129CE8CF4M6oncwQHJV5ty4+1mZgQe2ZNqy1H6djGyE2pUEu5AlQmFx5XlUhSpLh5NjQ13CATLRQg7Fj+vcF7zebLuOA9hHlJXzVChcLcP9rdruXpIK3RbzcpRQIm7X4849tXRYVYfuQYc7p1zgsiWVjc79Gc+7ZCKKLfPqidZ8fQ8261zE5zcZ/As8dzZD1Hp/C8mxPjJsrNDc+OkXXNo51bMonduhQ4AYmMNfy/tWaXAbRjmmvrd3Nz0W5ZGUoHeZEYpLnnayRVSRBGtePiBtItIcBI/r4kbx3BTv9tGHGrw81MDu5RthK723GQq4VOr10M93N+hpYDwL8y8DrwLH12D1cxS8ExzHgqu/dnd2AYkPwYNQVPJ61wHWb861KIK93auvcnbiPLfXmWmjSC2vOa8JlRe3fG5JLIk=
+	gfT7qogVTcflgSwSmsqvT9X552tFGBzMdAwmhiKCUzG2oZ5I4i35UilDYzBDLZOSyRzJ/5V1nTHqLIskZHd8ovopoz2OzX7K/njbDUinct25QIQoZg0Ru36kc5r9CzpCQu0neCzXxplrQRWWF+keSXZlxL+Ir1EfFlyB4IgRkj/r2Qz4XSS9OhyX1Pe3XPOYUk0HTxvFdqhBN2b0lXLOpY4Pi5aLC9e238bBcdn2sMan9pR9MS+u+4XTTtXop8CMYP+SnMhyPB3p7gFjKu5NYA8nlCTJ0ebi4INT5kqfmUmWHJ7dZKMreOnqgSe1wUS9qlCor7NSsQzd1PbX68pyyHV6OQkLVHcsFPQ2gixfhWN0bkD50KuMaVAOEpWj9bmruMeTwXaUSxvRFkWyfu1Hv503kyj8FNuQ3c7WbC9BfYAGTyE9kywgWybDd8o4PMr1RG+D0m+uaGdYLl24BUNmfQ3VqnUjhsonwcBGmoZfM3+fhXJJpZr2Txvfl59J8CrJNW7L2lIcct2V4Qdq3MKhJs4Ai4Vl3y5i2nKhQ5EHNz1b4fOQssxtJALsVOEH9wSlPbrcmB98ZSroV6OcETb9etJGgYLTFNlIeET9AX3ZBLMjysPERzavGS/WkkN/XxDqKGARxxGGGjR5ZttYiv1vCBO/LBlWDhjuuWKmASCjkIZ3SfrfeWgqtIBmRGS2LgCAG821zwXbGuul+2HQC4wkTH3PxzRPEAwePkp8iC38CD8=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(56012099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(22082099003)(56012099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?oRvYlp5ka/soOvBMsjojmAVtEPNUjZECk9BXJLF3lotQTtx2tO0TMHjo0xDx?=
- =?us-ascii?Q?IrBl11gFT1u0HHU2KBUoXZoM+auxluBpIKVQHKT75xijxJ0GomjftQKQzlIo?=
- =?us-ascii?Q?uPy5HRt9IstBoQvMOYIxUw86OIAzjvLvASHZAsg2bRlrruqOKRVmwzj4xvjN?=
- =?us-ascii?Q?E0r2xk79z6qW52jsh5x51Vvdvjj5YmC/ndSXKY7L/+jYZYdHavg1CK//Qc2w?=
- =?us-ascii?Q?wSuv67qURDBUVDBFUQ+4m1hxnsxQFWYOlV0ompqrdPVAB6dpTEzSd8CQirEC?=
- =?us-ascii?Q?DPhqd5E19CMfw5PZhQU4qJ5U+qkFccnCXp6Lah0QMk2McHpntXcYdSHYZKpp?=
- =?us-ascii?Q?n9MXWY9DCl0KGhCwKOnDiO+vT6aDugs6bSfenEHpJ34ZMeq6BM/8C/UrKq7f?=
- =?us-ascii?Q?jzwSb01R0B+NreTxlhgliXrx0iRk6uqR8pdz8wStCVBAEAehojyo/42+dw39?=
- =?us-ascii?Q?7xjFE9emQbpZRCQVgyKrjSyuUpU6BeBAFC14bHyu9cryhsuyWUZbZBma5ye0?=
- =?us-ascii?Q?wsb5Afm4wvat4XzPoVwuvJHi0C0V0PwU2hC1rS49oEQOidrh3tnIOapD6I8x?=
- =?us-ascii?Q?hLZnQ42sm1l+OXW5S1PAdHP6IKZLkmMM5HzOeUIKqXhyqx5GsQvPbuu+5hmA?=
- =?us-ascii?Q?lNTQQww6nn8v2Wu1EJrSdgLvzFquEStjlLbUThxwypRVtLAXy/UXXH9YxgWA?=
- =?us-ascii?Q?nG5zsPDC0um+5/mYiIkVdjwuFWuEPyjkS1kT8e7+pzFEfnHx1FhN2Z6lETJo?=
- =?us-ascii?Q?M2EZbemFuCrudaqIGAiHe2DRo69CYmO2c5gxeEKAfEk0wAMbooxAG2dXSWhF?=
- =?us-ascii?Q?KB5OeFReQRSukfs1fZAJ4+5v+VIach3U54NLBXge1Bi/pu5EiPx5I+DJpYdR?=
- =?us-ascii?Q?o16881LosLEg31R7nxKMfzplDl8sKrfY1x/L0dU0e08s8KLIfhX0HQPAXtEL?=
- =?us-ascii?Q?89jUJO/Vvv8SJXLdkadVZsBKG97wEv7mxz7gEckmhW5FVgZjbQVCXRQ6uWJT?=
- =?us-ascii?Q?k/PMQwKQ+pWrJYiC1LPn5cdfx7r4PseB5Oaf9cduUExf18HalR5NgUaOEjoa?=
- =?us-ascii?Q?GgZ0hnxD+f7+QBIo+RY9zWhxrdsZYQlHeisyRiMqxEHcYypMw3Sgl4ygSBhU?=
- =?us-ascii?Q?VDDn1OQC/3uM6ofE2knViM8HRbuDBnARVyIWx03nLf0Kgl1b62J33L02erRB?=
- =?us-ascii?Q?bAgUBUzzKlxsrpSg+jhaEsFFM0+X+ayCyKj1/L0GoqV7qitRv2JDJm0X5lx/?=
- =?us-ascii?Q?dHqKmDLwzP+N+Rvi31xW1yF57orYncUrmJMz5VLJZAUBgFWNjRM4lxZx+Na0?=
- =?us-ascii?Q?TkYhwstUVYbluH9jcKlAPskZY9VUfxyKy69zc/flvmv8M7skr/L/hA1Ad+tn?=
- =?us-ascii?Q?sxhiNRrpFl+3WUE/oZRfbRe4D5CCb4D61Ohyu9yrjqvqm9C56Qh3VAt88mOA?=
- =?us-ascii?Q?ElKXe8C+VlFTzsb5NicDjiYHUZjD/azc8H9y2sZEVB/QlbfJbxaLYsGPc6b3?=
- =?us-ascii?Q?qrDHaWG1KuHPzERiwiT6PYYclTit715hYM5kauJJ6H1VLOeAvDkdDbZO0Pk0?=
- =?us-ascii?Q?NIAXmJKp5gfz6VvQtpknzRvmqBzTMhS9q2icImTacS5LoFPG2BYQUe892Ptj?=
- =?us-ascii?Q?RqZitNr+p3R9URqMKnyaAkHnog0olGO4wfryQ/6+MOKNiDBTdTC+DdgxXKlf?=
- =?us-ascii?Q?PGZGdId5gAvY9wZv9zn+rcNJxzHi6dpIJgo6cvU0WYY73YyQJskwD1jIcfff?=
- =?us-ascii?Q?Oj7FofLo+Q=3D=3D?=
+	=?us-ascii?Q?GYvUIJJcfIq6ATtRqKW0x/6XuUT9IjIVBvJnoROUb/Bcdzpy3VFioHP0X0BK?=
+ =?us-ascii?Q?EpWDnOuzcm5g+hDmWC+uiXdjGNqZB+aPay/5nTQAVBY6nl/Vd62YG2nmIzix?=
+ =?us-ascii?Q?TK7E6NZju2V5nKSmow52avgMTk6cuSeclUDfTn1FfOowJX3v3UPz8k0mcGox?=
+ =?us-ascii?Q?1Ep8517+uS4UgKSk0de8votaT4ezHaLa5ftk9NyCVZk8E/NKVE26IEPc57Ep?=
+ =?us-ascii?Q?ItAPT85ssQSKSdA05D+9oDPfy9k4ssyyXj8M+tZ5e9/EjYRGng22CACf9iRX?=
+ =?us-ascii?Q?6KpO8USTmjwyhzwL8X9KVbGYV5bwCLlaY/tGRJMLiqgvFqdm+LLLHRJR8pln?=
+ =?us-ascii?Q?FpkmO5u/8eXP0qcXdVr4guMPLLBb2ZmqjTGsn79m7Sw+Xkrv5oDDzvzigOKa?=
+ =?us-ascii?Q?aC7lBd4ktcvuh2x2DtlzgtvEqYhlgs/rhff/p2HMBd6YMODBUyQrm7o/Mwvp?=
+ =?us-ascii?Q?S2KSjeLi4W04bzvN8/xyjz/GzBayRYgnmYtmIIkmSBWdriKVEihJa6bpVgMN?=
+ =?us-ascii?Q?XaARDixAFQMf94vKtuyr8ZyNlXmDWyfV66DcUfVu/89mt2iNFHEY8asLMORg?=
+ =?us-ascii?Q?LVHlfhU4RWRCBuP22GX48ajw4lYpAxQkD1YeJ9mWBu023su7GFndyRMPfZL5?=
+ =?us-ascii?Q?YBarAamn4J4sW7/D02CJ2qKY2PSEFH+sZgBG2A+/yD4O9r7wGHR/lOCrSbpl?=
+ =?us-ascii?Q?sZKZ0mmHPNGhcdJ/AMDHzJB9HVL5h0g63cuj3yn/r2xrSSOhJv1v5o2Z0tLz?=
+ =?us-ascii?Q?/oFln8i6B9nOc0fydawvXpMqys1PvqtzqCUr05hSQ8NeSwnIu2zo5YOijb4U?=
+ =?us-ascii?Q?wf79kOX/v2w8oAAFcxJ+0/NLF9m0eoEuWuK5nReXWqIbSv0MHT31jkyR4DwZ?=
+ =?us-ascii?Q?6vOwctz30swKwnSCBq0EVhrDqxCijkQ4skgLOiwHqZYfMFmY3DTkKDvlIV4g?=
+ =?us-ascii?Q?47KdkTuJCSqhIs8Ywopg8CNjjciiLGtX965tkjZiU1LmjHl5rKUPDVb6RJtI?=
+ =?us-ascii?Q?A0XeSVs4poacQ8dI4AFmIVsAAuCLVDqSkVonvdSfjqaVshJ3xvdZUXoPMNP2?=
+ =?us-ascii?Q?sBRgdek6wVWJMwK2USYY7Ni8QSeqRwtZaIsHA1v5CBk/cN/hg+ZE9fH0dgsE?=
+ =?us-ascii?Q?+/oWTLxiC+JYgJ9jJR94M98TDKQWMunx6e7ArYESRL0Qx0SYllLRBkbmofFg?=
+ =?us-ascii?Q?R5O3h5FA3oid/rmIFgbtXMDQh/hLsR1odIe6BiCKLY9jg6wJ7vtBqQYBEi+W?=
+ =?us-ascii?Q?R8GSJ11SZSWWTr9ltNI9hI2mOHbXi9b1oveV7IIMqgXY9v6D8U6WKOCHn5Pi?=
+ =?us-ascii?Q?pSrvqCvbhhOAfwVciKzmfF5DscEfDAFI3oV1vabepzPgCNsL25Lb1YaBx6cP?=
+ =?us-ascii?Q?vKMsTKyYKLKBk3eS7FhaR+lyciB5EwXKnCfPXtAk7cBPXhkQD5QkdFy4qW1Y?=
+ =?us-ascii?Q?aF3Z68h+1t4eQkgIwdDRY+5YIKjQ7KJgrR93hCkZVhDFKDzdyXOesiOhvf5L?=
+ =?us-ascii?Q?6Hszm4anEivG0E5G9AoE4lkjpG3kohylhPPy/Fe7o0Z2yFqy73hLJvYdv+vK?=
+ =?us-ascii?Q?CMEg0X+sy7RdIBe+bqF0snRscs343OOTtaizv1F9sofQMesMxHrSaVybsG8V?=
+ =?us-ascii?Q?UglXWqe6SQvFgsAh12KnQyiGhvTZtomxAos/GE95ZEiWV0f1Zeb3uDT+qum4?=
+ =?us-ascii?Q?hjNDcMN8NJXAkGaNuQaNcBkL8jQvAbnqtAdoIwB6tXTHN8+L8s18O3ymoSot?=
+ =?us-ascii?Q?jw76j7gAoQ=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a20ac907-ba8e-4a5e-0fa6-08de94745436
+X-MS-Exchange-CrossTenant-Network-Message-Id: 91db5b94-c7a8-4afc-6253-08de94abc676
 X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Apr 2026 07:07:28.4736
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Apr 2026 13:44:22.6160
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: T2MHNuiZzjMuHcP3HgUMbmtw/kqnghjcE8r/Pe73PU+J909WbFZsW7JhUHwG/6tRFDPIOxXnC8Lzmk7jA04elQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB7821
+X-MS-Exchange-CrossTenant-UserPrincipalName: NcTXEYWxIVv+W3MbCLGjlgYMkhGrW4lLZmmapmlWuLw0mIs9hzzpjME4M/zfSMIzJhJYqF1E7eDzp+iZWIAyJA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV5PR12MB9825
 
-On Sat, Apr 04, 2026 at 05:03:24PM -0700, Xiang Mei wrote:
-> ccm_tx_work_expired() re-arms itself via queue_delayed_work() using
-> the configured exp_interval converted by interval_to_us(). When
-> exp_interval is BR_CFM_CCM_INTERVAL_NONE or out of range,
-> interval_to_us() returns 0, causing the worker to fire immediately in
-> a tight loop that allocates skbs until OOM.
+On Fri, Apr 03, 2026 at 03:00:46PM +0000, Ujjal Roy wrote:
+> Get rid of the IGMPV3_MRC macro and use the igmpv3_mrt() API to
+> calculate the Max Resp Time from the Maximum Response Code.
 > 
-> Fix this by validating exp_interval at configuration time:
+> Similarly, for IGMPV3_QQIC, use the igmpv3_qqi() API to calculate
+> the Querier's Query Interval from the QQIC field.
 > 
->  - Constrain IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL to [1, 7] in the
->    netlink policy so userspace cannot set an invalid value.
-> 
->  - Reject starting CCM TX in br_cfm_cc_ccm_tx() when exp_interval has
->    not yet been configured (defaults to 0 from kzalloc).
-> 
-> Fixes: a806ad8ee2aa ("bridge: cfm: Kernel space implementation of CFM. CCM frame TX added.")
+> Signed-off-by: Ujjal Roy <royujjal@gmail.com>
 
-Nit: Doesn't matter in practice, but let's blame commit 2be665c3940d
-("bridge: cfm: Netlink SET configuration Interface.") instead as I don't
-think this bug could be triggered before exposing the netlink API.
+Looks fine, but see a few nits below
 
-> Reported-by: Weiming Shi <bestswngs@gmail.com>
-> Signed-off-by: Xiang Mei <xmei5@asu.edu>
 > ---
-> v2: Move validation out of the datapath and into configuration
+>  include/linux/igmp.h      | 84 +++++++++++++++++++++++++++++++++++----
+>  net/bridge/br_multicast.c |  2 +-
+>  net/ipv4/igmp.c           |  6 +--
+>  3 files changed, 80 insertions(+), 12 deletions(-)
 > 
->  net/bridge/br_cfm.c         | 6 ++++++
->  net/bridge/br_cfm_netlink.c | 2 +-
->  2 files changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
-> index 118c7ea48c35..dea56fffa1c1 100644
-> --- a/net/bridge/br_cfm.c
-> +++ b/net/bridge/br_cfm.c
-> @@ -805,6 +805,12 @@ int br_cfm_cc_ccm_tx(struct net_bridge *br, const u32 instance,
->  		goto save;
->  	}
->  
-> +	if (!interval_to_us(mep->cc_config.exp_interval)) {
-> +		NL_SET_ERR_MSG_MOD(extack,
-> +				   "Invalid CCM interval");
-> +		return -EINVAL;
-> +	}
-> +
->  	/* Start delayed work to transmit CCM frames. It is done with zero delay
->  	 * to send first frame immediately
->  	 */
-> diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
-> index 2faab44652e7..1bb33c8f587b 100644
-> --- a/net/bridge/br_cfm_netlink.c
-> +++ b/net/bridge/br_cfm_netlink.c
-> @@ -34,7 +34,7 @@ br_cfm_cc_config_policy[IFLA_BRIDGE_CFM_CC_CONFIG_MAX + 1] = {
->  	[IFLA_BRIDGE_CFM_CC_CONFIG_UNSPEC]	 = { .type = NLA_REJECT },
->  	[IFLA_BRIDGE_CFM_CC_CONFIG_INSTANCE]	 = { .type = NLA_U32 },
->  	[IFLA_BRIDGE_CFM_CC_CONFIG_ENABLE]	 = { .type = NLA_U32 },
-> -	[IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL] = { .type = NLA_U32 },
-> +	[IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL] = NLA_POLICY_RANGE(NLA_U32, 1, 7),
-
-Use BR_CFM_CCM_INTERVAL_3_3_MS and BR_CFM_CCM_INTERVAL_10_MIN instead of
-the magic numbers?
-
-The Sashiko review points out that blocking BR_CFM_CCM_INTERVAL_NONE
-might break user space, but it seems weird to allow passing a value that
-is interpreted the same as an invalid one. Worst case, if someone
-complains, we can revert and go back to v1.
-
->  	[IFLA_BRIDGE_CFM_CC_CONFIG_EXP_MAID]	 = {
->  	.type = NLA_BINARY, .len = CFM_MAID_LENGTH },
+> diff --git a/include/linux/igmp.h b/include/linux/igmp.h
+> index 073b30a9b850..0624410e75c6 100644
+> --- a/include/linux/igmp.h
+> +++ b/include/linux/igmp.h
+> @@ -92,15 +92,83 @@ struct ip_mc_list {
+>  	struct rcu_head		rcu;
 >  };
+>  
+> +/* RFC3376, relevant sections:
+> + *  - 4.1.1. Maximum Response Code
+> + *  - 4.1.7. QQIC (Querier's Query Interval Code)
+> + *
+> + * For both MRC and QQIC, values >= 128 use the same floating-point
+> + * encoding as follows:
+> + *
+> + *  0 1 2 3 4 5 6 7
+> + * +-+-+-+-+-+-+-+-+
+> + * |1| exp | mant  |
+> + * +-+-+-+-+-+-+-+-+
+> + */
+> +#define IGMPV3_FP_EXP(value)		(((value) >> 4) & 0x07)
+> +#define IGMPV3_FP_MAN(value)		((value) & 0x0f)
+> +
+> +/* IGMPV3 floating-point exponential field threshold */
+> +#define IGMPV3_EXP_MIN_THRESHOLD	128
+> +
+>  /* V3 exponential field decoding */
+> -#define IGMPV3_MASK(value, nb) ((nb)>=32 ? (value) : ((1<<(nb))-1) & (value))
+> -#define IGMPV3_EXP(thresh, nbmant, nbexp, value) \
+> -	((value) < (thresh) ? (value) : \
+> -        ((IGMPV3_MASK(value, nbmant) | (1<<(nbmant))) << \
+> -         (IGMPV3_MASK((value) >> (nbmant), nbexp) + (nbexp))))
+> -
+> -#define IGMPV3_QQIC(value) IGMPV3_EXP(0x80, 4, 3, value)
+> -#define IGMPV3_MRC(value) IGMPV3_EXP(0x80, 4, 3, value)
+> +
+> +/* IGMPv3 QQIC/MRC 8-bit exponential field decode.
+> + *
+> + * RFC3376, 4.1.1 & 4.1.7. defines the decoding formula:
+> + *      0 1 2 3 4 5 6 7
+> + *     +-+-+-+-+-+-+-+-+
+> + *     |1| exp | mant  |
+> + *     +-+-+-+-+-+-+-+-+
+> + * Max Resp Time = (mant | 0x10) << (exp + 3)
+> + * QQI = (mant | 0x10) << (exp + 3)
+> + */
+> +static inline unsigned long igmpv3_exp_field_decode(const u8 code)
+> +{
+> +	/* RFC3376, relevant sections:
+> +	 *  - 4.1.1. Maximum Response Code
+> +	 *  - 4.1.7. QQIC (Querier's Query Interval Code)
+> +	 */
+
+I find it weird to have a comment at the beginning of the function when
+there's already a comment above the function. Let's remove this comment
+since this information is already present in the MRC/QQIC functions
+below.
+
+> +	if (code < IGMPV3_EXP_MIN_THRESHOLD) {
+> +		return code;
+> +	} else {
+> +		unsigned long mc_man, mc_exp;
+> +
+> +		mc_exp = IGMPV3_FP_EXP(code);
+> +		mc_man = IGMPV3_FP_MAN(code);
+> +
+> +		return (mc_man | 0x10) << (mc_exp + 3);
+> +	}
+> +}
+> +
+> +/* Calculate Max Resp Time from Maximum Response Code
+> + *
+> + * After decode, MRC represents the Maximum Response Time (MRT) in units
+> + * of 0.1 seconds (100 ms).
+> + */
+> +static inline unsigned long igmpv3_mrt(const struct igmpv3_query *ih3)
+> +{
+> +	/* RFC3376, relevant sections:
+> +	 *  - 4.1.1. Maximum Response Code
+> +	 *  - 8.3. Query Response Interval
+> +	 */
+
+Please move this to the comment above the function
+
+> +	return igmpv3_exp_field_decode(ih3->code);
+> +}
+> +
+> +/* Calculate Querier's Query Interval from Querier's Query Interval Code
+> + *
+> + * After decode, QQIC represents the Querier's Query Interval in units
+> + * of seconds.
+> + */
+> +static inline unsigned long igmpv3_qqi(const struct igmpv3_query *ih3)
+> +{
+> +	/* RFC3376, relevant sections:
+> +	 *  - 4.1.7. QQIC (Querier's Query Interval Code)
+> +	 *  - 8.2. Query Interval
+> +	 *  - 8.12. Older Version Querier Present Timeout
+> +	 *    (the [Query Interval] in the last Query received)
+> +	 */
+
+Likewise
+
+> +	return igmpv3_exp_field_decode(ih3->qqic);
+> +}
+>  
+>  static inline int ip_mc_may_pull(struct sk_buff *skb, unsigned int len)
+>  {
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 881d866d687a..9fec76e887bc 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -3518,7 +3518,7 @@ static void br_ip4_multicast_query(struct net_bridge_mcast *brmctx,
+>  			goto out;
+>  
+>  		max_delay = ih3->code ?
+> -			    IGMPV3_MRC(ih3->code) * (HZ / IGMP_TIMER_SCALE) : 1;
+> +			    igmpv3_mrt(ih3) * (HZ / IGMP_TIMER_SCALE) : 1;
+>  	} else {
+>  		goto out;
+>  	}
+> diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+> index a674fb44ec25..d7eff36d98c3 100644
+> --- a/net/ipv4/igmp.c
+> +++ b/net/ipv4/igmp.c
+> @@ -991,7 +991,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+>  		 * different encoding. We use the v3 encoding as more likely
+>  		 * to be intended in a v3 query.
+>  		 */
+> -		max_delay = IGMPV3_MRC(ih3->code)*(HZ/IGMP_TIMER_SCALE);
+> +		max_delay = igmpv3_mrt(ih3) * (HZ / IGMP_TIMER_SCALE);
+>  		if (!max_delay)
+>  			max_delay = 1;	/* can't mod w/ 0 */
+>  	} else { /* v3 */
+> @@ -1006,7 +1006,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+>  			ih3 = igmpv3_query_hdr(skb);
+>  		}
+>  
+> -		max_delay = IGMPV3_MRC(ih3->code)*(HZ/IGMP_TIMER_SCALE);
+> +		max_delay = igmpv3_mrt(ih3) * (HZ / IGMP_TIMER_SCALE);
+>  		if (!max_delay)
+>  			max_delay = 1;	/* can't mod w/ 0 */
+>  		WRITE_ONCE(in_dev->mr_maxdelay, max_delay);
+> @@ -1016,7 +1016,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+>  		 * configured value.
+>  		 */
+>  		in_dev->mr_qrv = ih3->qrv ?: READ_ONCE(net->ipv4.sysctl_igmp_qrv);
+> -		in_dev->mr_qi = IGMPV3_QQIC(ih3->qqic)*HZ ?: IGMP_QUERY_INTERVAL;
+> +		in_dev->mr_qi = igmpv3_qqi(ih3) * HZ ? : IGMP_QUERY_INTERVAL;
+>  
+>  		/* RFC3376, 8.3. Query Response Interval:
+>  		 * The number of seconds represented by the [Query Response
 > -- 
 > 2.43.0
 > 
