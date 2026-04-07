@@ -1,74 +1,90 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE091253359;
-	Mon,  6 Apr 2026 14:15:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 257BB1F8691;
+	Tue,  7 Apr 2026 01:25:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775484935; cv=none; b=mFcgtl9xJXmoh/I38XxDDUkUL2GGZMxN71lQCDXQeHqO8BSMgeQCblHtahg8YIB1Kvxnb+G8HKwElZR8z+wNM7WsyDV5vib7GpovHmU6LNsWp9gf0f6QqwcIH0C8LP+oVDHUleueCanDfLGiVQJRQ3ojwm3uPlObBmKGBz8NbEk=
+	t=1775525106; cv=none; b=Ou6CQC1Kjzu5Nt2GfMX7e4py6a0RviDLTEhMee1keVPKIuy5zZ+tm2AWNv0GyxFa13ry0jkGPMhZGLvrEEQyHdiKbNkqT5MPxvYGyTGdPLG5bP+U3QDIQGvZ6KcGJHuqzdigjf0Sb90nPU3WVfMTyfwoTGHUGuzZfgH271119vI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775484935; c=relaxed/simple;
-	bh=9A8ZPtYQexORtGmGqDgRPu12WtZXoegIphLK3agmEyk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TbPVMDn0i0jENbe8mSknvpfhajHThrYfVpymnizKzaDpbYvsMdM05n6vZEkL6tUrySY/MmredfW3yozXJL9d15ksgTF/n3AGc+KYrLb5JM7zPtGKHTy8HpeoYqP4LoQ3pMFNFBqot9SlFUeU7W9qXotne9YGobzTCsv6vv71mNg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rChbnzIw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775525106; c=relaxed/simple;
+	bh=LKaanIRB0mVTM6u+vUqwo3v6gkW7YTy7tjioKxkgS7M=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=BXDOkAe95CKa8Bxh0s3Q2OwSEKcJi24QTI9OIP/ULF2kUPvSPi8UM2d2AdS7f0HvQTTgJZGGN6eM9cjzXMUl5NM7Gj8ZSdWX0gy5R3JmEaIh6URpe0MRjOoJh7uqFd72GerD7c7Tt1et0oGHGsbEr/4LvJoXPOAbbSaY+p2imyk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PrSGLug5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rChbnzIw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBF2BC2BCAF;
-	Mon,  6 Apr 2026 14:15:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PrSGLug5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C02CC4CEF7;
+	Tue,  7 Apr 2026 01:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775484935;
-	bh=9A8ZPtYQexORtGmGqDgRPu12WtZXoegIphLK3agmEyk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rChbnzIwGlNroE42Rm4I7DX9ojMi9U1MDqRUtewbYZmWPVnmXULFZJF7y0/sjOEkm
-	 Yx4y0PnfdxGYg5jhYf7GlvXnw0stNZn+MIdBDrlQ2IZvO8/HGYGL39HA78sgoobFZY
-	 vEYLeYdnaRpqp9s3l89/w0H9FMlkhO7wtQ/bORXHpi31fIigUomed5bS12i5mVTyqN
-	 DhfJoaMIxY+7Vt7MgeYi4lGhyKLREqFe/ZmfIvu0HIcoayxgUJwui+36rd0aLp8i4/
-	 gZzfVkE/SN3FXTuIdAzBjt2NDzTgnODS+VBud17zN4ZXeHeH+jVmQmFaWZefxuCB6I
-	 yU2tONii3+MFQ==
-Date: Mon, 6 Apr 2026 15:15:31 +0100
-From: Simon Horman <horms@kernel.org>
-To: Xiang Mei <xmei5@asu.edu>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
-	idosch@nvidia.com, davem@davemloft.net, edumazet@google.com,
-	pabeni@redhat.com, bestswngs@gmail.com
-Subject: Re: [PATCH net v2] bridge: cfm: reject invalid CCM interval at
- configuration time
-Message-ID: <20260406141531.GE395680@kernel.org>
-References: <20260405000324.548623-1-xmei5@asu.edu>
+	s=k20201202; t=1775525106;
+	bh=LKaanIRB0mVTM6u+vUqwo3v6gkW7YTy7tjioKxkgS7M=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=PrSGLug56Hz+rqzF+K21bcj59K+C1m+LyKp6JTfTh00e6ti4uSMf7BD55kOjzKoR6
+	 7eQloHO+XzAINp/2uzCNhntk4NLo7BcukjoNTnfZ3Hk+DT9Yzz3aI5Akp/qDs7WuYX
+	 p+PdMacOXiSeEdJ1k/pnT8R7Cri81IJvLRQHBzYmqd00M17MAe4BSeHw7nvPDbt2Ei
+	 wZ8MJHCMDijkZO/yiZhORR9Ktc1rF2BCXtu9uvY6lfspnbn5WDmv5UcWrL8IBV1f7x
+	 mKfc6VbheFR+d2Tt3PV9mxdXZkrZ/8tPFuKV6PeJYnRVn8o5AovlsHyEqLU2Z8y/jP
+	 EtK6t42zgwBSA==
+Date: Mon, 6 Apr 2026 18:25:04 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Ujjal Roy <royujjal@gmail.com>
+Cc: "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+ <horms@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel
+ <idosch@nvidia.com>, David Ahern <dsahern@kernel.org>, Shuah Khan
+ <shuah@kernel.org>, Andy Roulin <aroulin@nvidia.com>, Yong Wang
+ <yongwang@nvidia.com>, Petr Machata <petrm@nvidia.com>, Ujjal Roy
+ <ujjal@alumnux.com>, bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next v3 5/5] selftests: net: bridge: add tests for
+ MRC and QQIC validation
+Message-ID: <20260406182504.52a03794@kernel.org>
+In-Reply-To: <20260403150050.1235-6-royujjal@gmail.com>
+References: <20260403150050.1235-1-royujjal@gmail.com>
+	<20260403150050.1235-6-royujjal@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260405000324.548623-1-xmei5@asu.edu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sat, Apr 04, 2026 at 05:03:24PM -0700, Xiang Mei wrote:
-> ccm_tx_work_expired() re-arms itself via queue_delayed_work() using
-> the configured exp_interval converted by interval_to_us(). When
-> exp_interval is BR_CFM_CCM_INTERVAL_NONE or out of range,
-> interval_to_us() returns 0, causing the worker to fire immediately in
-> a tight loop that allocates skbs until OOM.
-> 
-> Fix this by validating exp_interval at configuration time:
-> 
->  - Constrain IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL to [1, 7] in the
->    netlink policy so userspace cannot set an invalid value.
-> 
->  - Reject starting CCM TX in br_cfm_cc_ccm_tx() when exp_interval has
->    not yet been configured (defaults to 0 from kzalloc).
-> 
-> Fixes: a806ad8ee2aa ("bridge: cfm: Kernel space implementation of CFM. CCM frame TX added.")
-> Reported-by: Weiming Shi <bestswngs@gmail.com>
-> Signed-off-by: Xiang Mei <xmei5@asu.edu>
-> ---
-> v2: Move validation out of the datapath and into configuration
+On Fri,  3 Apr 2026 15:00:50 +0000 Ujjal Roy wrote:
+> --- a/tools/testing/selftests/net/forwarding/.gitignore
+> +++ b/tools/testing/selftests/net/forwarding/.gitignore
+> @@ -1,3 +1,5 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+>  forwarding.config
+>  ipmr
+> +mc_encode
+> +mc_decode
 
-Thanks for the update.
+please keep this file sorted
 
-Reviewed-by: Simon Horman <horms@kernel.org>
+> diff --git a/tools/testing/selftests/net/forwarding/Makefile b/tools/testing/selftests/net/forwarding/Makefile
+> index bbaf4d937dd8..a26da846632d 100644
+> --- a/tools/testing/selftests/net/forwarding/Makefile
+> +++ b/tools/testing/selftests/net/forwarding/Makefile
+> @@ -1,5 +1,15 @@
+>  # SPDX-License-Identifier: GPL-2.0+ OR MIT
+>  
+> +top_srcdir = ../../../../..
+> +
+> +CFLAGS += -Wall -Wl,--no-as-needed -O2 -g -I$(top_srcdir)/usr/include $(KHDR_INCLUDES)
+> +CFLAGS += -I$(top_srcdir)/tools/include
 
-...
+Could you please keep the format more aligned with the ksft
+net/Makefile? Also is the -I$(top_srcdir)/tools/include
+still necessary? KHDR_INCLUDES don't include $src/usr/include ??
+
+> +TEST_GEN_FILES := \
+> +	mc_encode \
+> +	mc_decode \
+> +# end of TEST_GEN_FILES
+
+Also needs to be sorted
+-- 
+pw-bot: cr
