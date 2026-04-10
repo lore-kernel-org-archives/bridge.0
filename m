@@ -1,142 +1,85 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CD6D3CFF5F
-	for <bridge@lists.linux.dev>; Fri, 10 Apr 2026 18:07:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775844434; cv=pass; b=qO+stDiO95xIzE95+3NCYq3rzdTpF5LeQvfZr12hzBxArszMaID/GgG4DzGyrM2/t5qSZKW61+X/YOvGZcHZVmVNRKn72o8DQGB+85eomVsdWkFaw+0osdzjNoYdoOTiZo/jNL4rmE11ctlu3s8jgAH1rF+4rbAJcMs9V3lmv3g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775844434; c=relaxed/simple;
-	bh=m0SqRtjpc8fweCPgbIsrD2d0z6GAWlzdIRiS41O4cxg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DFR6r7v3cc+0Qw5SRqrW+bAz8JC8eb/Lk7eHCobaeeiQ64XkuPkjRlhfnK6WvhwIj2+9m4G8Sbm/TBUrtkA1BB6+apIKgwjQiLEdHDEAQ5DxIz+cF25iVl2uEjVjf8NAhi7rVF+/Uud952pjlBTHEa0Xrx4uP+1+MzZGbNO5GGM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pLy5s0NF; arc=pass smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3686343D7F;
+	Fri, 10 Apr 2026 23:10:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775862646; cv=none; b=KoXny8MeP00xO8CevmjmB0cxug8pdccowH70X2VCMofGENwos/Z2WtRb8e7ofVsvtoi32HNTALqN7jLCzUFOf6+vPOiHAy0CriYYVL4xlQIinmZKP7A6PmJ43UgAUJwOm8M+s8g9jKfM4jq+0spJm9Ov+RmbYoIHwCJJsfPHg8c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775862646; c=relaxed/simple;
+	bh=VLWH1xSQJbFjKnanR6LtfMMRcIn2EuvK7B8BqizJ75U=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=QUxKqBIcyMqB0BMpMh5NN80JnjApTto54XuNc261lFQhRe4Jt6/YQcvRi0RXhn7FRBAOn8/6J0Gs1DbhF6zaBhzsCZ9/QwrACbYLk04yS83mvBYJraM0g2VAHsknJJWrD1aC4HeX/Q6HUZNaiBxeagS0azP7HAL8m9/vHx1hIY8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eK3GPbIu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pLy5s0NF"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b79f8f7ea43so429383966b.2
-        for <bridge@lists.linux.dev>; Fri, 10 Apr 2026 11:07:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775844431; cv=none;
-        d=google.com; s=arc-20240605;
-        b=N8aVCbJ4aPhiI4KkirTahtgv1Z1nAwQ4y5nIPe+7q2tOGS3WCV8WVPlW2roseeX7oS
-         SO2uSEBzTc5kJiQPbGNVr2gfv2yHAk0SVFVxnkdUiIwmYdsoGFVtsf+ULRMzUljIyOZi
-         0T2IW4ATJ2+/p66RTXXSu+SbdyydRqI1RpnIBHN/dU+UMyCK7jjGDLKEWommhOtmbTNu
-         Ek+FbrdGywZWtAQLozLiPd7zrRCmsRr4JouKLWmc92xNYjaEOy5QU3fWFYhXB2WsnLrE
-         s4mUr6vc30p6ngZyHkxam+9+70BIkhpxifEKbfGGlo55P/HYWpdFGeLi6HNwN8vL0fOb
-         NNEQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=mGufM7na8wMpN8zx+blIkzaxv+HrthUqBNiPXsfFPcU=;
-        fh=qhPdfJokIlafRzOKK4F4JNJYoRkfLzVQYVWFyZs9Gzs=;
-        b=MFxOJpLTLUYHIg+/9P78GwrR1vk+fG10jVRTNixRvFISr+vUJn8Y/ILN7lD6CpgAN2
-         BW6R++42RYLmLf83DVgjO9oWktb3XFioVRGKlHzcHAX0dh3o09bni0koWHZTO/6yxaMy
-         Jip8rkItTtnbzkMBRP18sVjCEXPRE72fdPhmta66eGMgRHWyzPrZ7AJJ7F8d7Qeug2cR
-         qipJbG5bngZrunDNC2tRDYHa3UR8FZh5BbaG6ocosFY7lRpDdCqWFMwaofkojb6CLFl5
-         qJaeTg8c3mvsWppqMHrZM+ABnTrkHEHc6Dya52BZg/piDJ4i+2sONdKAMmOhLxhbmExw
-         xEGA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775844431; x=1776449231; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mGufM7na8wMpN8zx+blIkzaxv+HrthUqBNiPXsfFPcU=;
-        b=pLy5s0NFDzHgj5Fz2P3rctz7ZDNYyT8Z6oGCDr4zccjpYlCUC7k+SpRGYZjCYQxbOI
-         0gwVGmDMV7fzp+9eXr7laWXeq6UMqwPRblH1/mITS3Agnt+7l3sCJYxsUNbgCnIz3pSo
-         Xgzgv1mXkEQcScz0TEwv07kINEuZnpvDFVYan6eXPojHatiKDEuQlM9BZIkVOmM81KJY
-         omM7dFN9VmNaiTBkN4llCtKIY4LvixKaCZOl/qcZCiNrsfBZJiIS6lngxR7IANPSLNb2
-         5hTej1qBZ+QMcpkHl41cEIeEeNZzS4C5SC9W/7DWOIIUh+4BZNX0plA5RuZYAu88IhDe
-         mmPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775844431; x=1776449231;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=mGufM7na8wMpN8zx+blIkzaxv+HrthUqBNiPXsfFPcU=;
-        b=ZEc+UIB0Ze7fxOTnjfFHOjpriIJFUf/48kxAdgj0CVQywb2vvI7B4I029WdQQBGvqY
-         j3ZMlRI+g8HOu4gBoA+SQ8bdVJGNddqWXWkJEGyy5diZmK0j2wss6qhMh5d/C6WlzIQM
-         q+uTc20hmky7CQPscJ2brNoAc5XQHzgM8xNtSDqsJM69wHQJdTFAdL1oP0UA1lUwLiWH
-         su3j5AAWKpHEOIHn5BNs22N8o658sg1/+uFN2ZiRVgAXft+HLV1G6sOZOHonwkNHqpt1
-         bdwFmH8G+DwQFfijfQaG5fYVRoVwhtr2HUozXkFUt7q0I54dFdQ/dudrwsQxp5NkBmS+
-         pY5w==
-X-Forwarded-Encrypted: i=1; AJvYcCXW7pBbPaGtZw6cOslyM3Z9kHV4uAUjO8Q3Wd12EQ8o5x6ZZRPTItW9ZoYyVSSylFn7924QOXo=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyXDk3H137npvF+0DGF4ZQyvWMu7XZ2bmJUe4061JaAL0l7iJTi
-	ZSOJlD6DIekRuEfMtMamOpVdcjW5YFF373h3eZnHmwV/BcjvVSflKLXXJXdMXrvSYiHY6WcKEkc
-	5inxZta0HubG5ZxvmJjAOsXArnFf98+o=
-X-Gm-Gg: AeBDieu1v4k3Djg3ATMCJ7Qo3CpbGEvE1cAwkPpN7Pc7S5/9Kg8wApzdDb9sBQx9IW8
-	qS0aRCRUgg+fQ9epWolKI0CDBVO4ynXa5ZfHSXdxNccLGo6udlmnE6j/8DHj5HON0Mkoxg0KNSJ
-	+TYCfc2WdJXrPxRFBpnT2FsIHa9dU2tA59EvWRaaoZ37lZjDtnwj9tJR8dmbdJhed/OdRDIeuZl
-	jMv6d/oMUIImrEvAIyl5V88t7GE/9Lf2F8m6OPsllND1/LmYNM1Py5lEAwhY5nbGZGYEeG951xY
-	/h7hAEQ=
-X-Received: by 2002:a17:907:a1a0:b0:b9c:55e8:fba1 with SMTP id
- a640c23a62f3a-b9d72980914mr205690366b.26.1775844431242; Fri, 10 Apr 2026
- 11:07:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eK3GPbIu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF951C19421;
+	Fri, 10 Apr 2026 23:10:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775862646;
+	bh=VLWH1xSQJbFjKnanR6LtfMMRcIn2EuvK7B8BqizJ75U=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=eK3GPbIuShJ2N0W/epLZDSYNJkdgwumRYc2q8O10NMGX6xkPgaJDVJgPE2gOiLI+p
+	 vRA5DdSIQ2E/0U5MssqxqREjlxL+L3k/1MYwznVPpe5i+1pUPT1PSJxZYxRZ8RBoyD
+	 zfAYL2xmZwsZa+BMvmMg2+vaqkgn8GhtzYclYs36/yRBlwFw437W2+cJy58m5MnHQC
+	 RGUHsSrcJFBBw+dT4d4u+jYtlzBfY8SYoHniUXrf879mJaUqBo2E4FTrkBp+GkeZ1o
+	 /7F+bPjQ/UNUiKSQFh2cSOCLzJXR6BhC4BB4rLdzuxUyL7tWEe4HfrdeqsOmtYEmtu
+	 502YmrbZgWVqw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FD633809A88;
+	Fri, 10 Apr 2026 23:10:22 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260403150050.1235-1-royujjal@gmail.com> <20260403150050.1235-5-royujjal@gmail.com>
- <20260407134502.GD849209@shredder>
-In-Reply-To: <20260407134502.GD849209@shredder>
-From: Ujjal Roy <royujjal@gmail.com>
-Date: Fri, 10 Apr 2026 23:36:59 +0530
-X-Gm-Features: AQROBzA5y--UIRYT_Yu32kHeVQkZCbum9kUmK0fpAAGLhqzgcbax6qOFdWZqhBQ
-Message-ID: <CAE2MWknjWczxM3WrKkQ0eHV7PdNxMQ62GnTAp6tCPToumZnE=Q@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 4/5] ipv6: mld: encode multicast exponential fields
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Nikolay Aleksandrov <razor@blackwall.org>, David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Andy Roulin <aroulin@nvidia.com>, Yong Wang <yongwang@nvidia.com>, 
-	Petr Machata <petrm@nvidia.com>, Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v4 0/3] net: bridge: add stp_mode attribute for
+ STP
+ mode selection
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177586262079.2678602.7436891627860485314.git-patchwork-notify@kernel.org>
+Date: Fri, 10 Apr 2026 23:10:20 +0000
+References: <20260405205224.3163000-1-aroulin@nvidia.com>
+In-Reply-To: <20260405205224.3163000-1-aroulin@nvidia.com>
+To: Andy Roulin <aroulin@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
+ idosch@nvidia.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ corbet@lwn.net, shuah@kernel.org, petrm@nvidia.com, donald.hunter@gmail.com,
+ jonas.gorski@gmail.com, linux-doc@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Apr 7, 2026 at 7:15=E2=80=AFPM Ido Schimmel <idosch@nvidia.com> wro=
-te:
->
-> On Fri, Apr 03, 2026 at 03:00:49PM +0000, Ujjal Roy wrote:
-> > In MLD, QQIC and MRC fields are not correctly encoded when
-> > generating query packets. Since the receiver of the query
-> > interprets these fields using the MLDv2 floating-point
-> > decoding logic, any value that exceeds the linear threshold
-> > is incorrectly parsed as an exponential value, leading to
-> > an incorrect interval calculation.
-> >
-> > Encode and assign the corresponding protocol fields during
-> > query generation. Introduce the logic to dynamically
-> > calculate the exponent and mantissa using bit-scan (fls).
-> > This ensures QQIC (8-bit) and MRC (16-bit) fields are
-> > properly encoded when transmitting query packets with
-> > intervals that exceed their respective linear thresholds
-> > (128 for QQI; 32768 for MRD).
-> >
-> > RFC3810: If QQIC >=3D 128, the QQIC field represents a
-> > floating-point value as follows:
-> >      0 1 2 3 4 5 6 7
-> >     +-+-+-+-+-+-+-+-+
-> >     |1| exp | mant  |
-> >     +-+-+-+-+-+-+-+-+
-> >
-> > RFC3810: If Maximum Response Code >=3D 32768, the Maximum
-> > Response Code field represents a floating-point value as
-> > follows:
-> >      0 1 2 3 4 5 6 7 8 9 A B C D E F
-> >     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-> >     |1| exp |          mant         |
-> >     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-> >
-> > Signed-off-by: Ujjal Roy <royujjal@gmail.com>
->
-> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Hello:
 
-Do you mean to include "Reviewed-by:" tag into this commit message or
-the entire patchset? I will modify and send v4 once I get the reply.
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Sun,  5 Apr 2026 13:52:21 -0700 you wrote:
+> The bridge-stp usermode helper is currently restricted to the initial
+> network namespace, preventing userspace STP daemons like mstpd from
+> operating on bridges in other namespaces. Since commit ff62198553e4
+> ("bridge: Only call /sbin/bridge-stp for the initial network
+> namespace"), bridges in non-init namespaces silently fall back to
+> kernel STP with no way to request userspace STP.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v4,1/3] net: bridge: add stp_mode attribute for STP mode selection
+    https://git.kernel.org/netdev/net-next/c/54fc83a17285
+  - [net-next,v4,2/3] docs: net: bridge: document stp_mode attribute
+    https://git.kernel.org/netdev/net-next/c/c4f2aab121cd
+  - [net-next,v4,3/3] selftests: net: add bridge STP mode selection test
+    https://git.kernel.org/netdev/net-next/c/20ae6d76e381
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
