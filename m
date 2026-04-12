@@ -1,135 +1,80 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010043.outbound.protection.outlook.com [52.101.201.43])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EFC527A107
-	for <bridge@lists.linux.dev>; Sun, 12 Apr 2026 07:44:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775979853; cv=fail; b=Dq+kY41QZCnmOhUbnDgFvgrO0EnaSnOMKVvIcJCZ/9h27wF2grzh01DbeIDrFRZM4o6GHH30Q1U5AJSrCUoaCUdVqIWuJpJzOzbLhl0EUACeUmkBOLIH4TOs/2WPj//lAa6Ka+7j3I6JRoV2UOg9v4wvUyhm2A1/a1SR5q5lR/4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775979853; c=relaxed/simple;
-	bh=2eVJ7JwH/aXxNisVe3YlPYZJd+ZBNpYNxpNsa/7o7tc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=mwRUdXa1WeQHjc0SoFPBglYrLgGjz3rJTchoOudGRn2MuZmTZkYRkLiMqzycwP3DLh4zFI0lMvWIdf7U/FCFXgOoqFmm1CbCRAMtpP+7leh7Q1z/8ndoJIZQ509UIY0yta35CoJENJT7do+yh0Iej1J7ALZorNgh8q0SU4ThNaA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=CYjd685J; arc=fail smtp.client-ip=52.101.201.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F60336920C
+	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 10:09:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775988588; cv=none; b=LH1JZklz5XKufD/YOjiRm3bgJnGdRaqprnqIXCeBcaRMq0N6aLjauU1FmDhSlywsfemrO7T8h9VXp06l/PYYvApY5RYOzGcRwG4vGBlkrSR4LLhvYIrigMDiZmDF3QPp3qPFH+N3ls48YLLoU8kGutJzf+jH0dxYu7SkPZJ8Oac=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775988588; c=relaxed/simple;
+	bh=h+LM+OQS6rgWai5j52cPAAdJfkf5WSVJcEUIdemJav8=;
+	h=Message-Id:Content-Type:MIME-Version:Subject:To:From:Date; b=nIyt0tX1DAXAIrEJp8yu454GCUGQiVPy/0s32YLIr+SHV8yQ9M2/78Z0PDp7dWKDlo7eZyJSOh4/5IzV0XWBgt9irrBC0G5wpfNAWO9ym6sYII6su3m73VASd8LVNPLS2ztDkn+t7ZBvtrCrPD3i8VwgwA1pDdM55c09rPOz5TI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=fail (0-bit key) header.d=tnebnet.org header.i=@tnebnet.org header.b=fYNg0RDi reason="key not found in DNS"; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="CYjd685J"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=HUoyfopRIJ/6FesT45aWX4Heiq5SaFMKLRzWMb6SiMHXUEoo9KTFwSxQ4cAgKn08qmrfLkw2OdZFoBLAsxzsnEiFKxXb6tqmr/ovQS49MXb304WO/be6iPdnFZd1TXyhQGvk2WDr5vRd6r2tPvqxAQ66h6TKHeCrWZsfoLD+ynn1pk8Et9c7F54d+WTtXddlMcvCqRE6YZhmBLI45xddrpjfPOzxTEmCTHf6nn9W6TRLSM3QYDRqJm6cQet0D5GpzmsIr6LulidcVKmQaIa9xaL7gR+Ltl2IAZsKl+6B305v++oBgeTJV8rK8So+qBVk48FTNYdM94c5ZY6MB/WswQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2eVJ7JwH/aXxNisVe3YlPYZJd+ZBNpYNxpNsa/7o7tc=;
- b=hfVGzSDTKFO76pxPjnPF2lqOMwLupflFxmNUj2pALMbj+9/PT34B9B2jyqxptWTh0rRq2xrcIdCGuxhyqai0aF7EWoptw4BoPylb18ICWZ0TeVvUheGKZZAgyQkZH0JbkY2TITB8OwcoTZ5F6XW4Pq07bp6VsPoL9+mMIcDdcThLGfoeKpGKo1eQ58sHaag7OUT7KRHI8gubmUoL5lwSME/EuE5HaGgZGE4gYtynJ2DDoVQUQjSi8O4gYKUXRhu2Q9XxmJSKj6rtBDPYvmczjhZ46qtspffwo70CHOEEb+tlvee+RIiFw0vuCg7eNG0jGTH0jKme52FYOHU/LAv/DA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2eVJ7JwH/aXxNisVe3YlPYZJd+ZBNpYNxpNsa/7o7tc=;
- b=CYjd685JYmwBE03Cp2vNERgggbzE9ie5zT4+tDHs6koGuc1F7fADAMbsRdP/+osw/Bf2GeGVjNryoVbCdC6UuazoOo2I4WCTaHKBOQ2QW0e2UyBL5Y8wYckciFNbe2CA6oBR3rb6std2XN/aef+YkxK61YYeN21dibIE9eQsGxayWYxUXCyA6ZI+Oa1r00bAhxwtWFyN9l2BCNckW8ocFjE0KmNdQznTaAYlgI4fsfY3Gva+36jpT1b7A67T4LSZoNLtOjVkhFM2tlp2rvgsUBljGRY8IH73Cy24L8GEePIAWPO1kSnf8M56KK8Tha6IWV//JW4kBzSHluzG3pN1iA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by SJ0PR12MB7034.namprd12.prod.outlook.com (2603:10b6:a03:449::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9791.33; Sun, 12 Apr
- 2026 07:44:08 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9769.043; Sun, 12 Apr 2026
- 07:44:08 +0000
-Date: Sun, 12 Apr 2026 10:43:59 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Ujjal Roy <royujjal@gmail.com>
-Cc: "David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
-	Andy Roulin <aroulin@nvidia.com>, Yong Wang <yongwang@nvidia.com>,
-	Petr Machata <petrm@nvidia.com>, Ujjal Roy <ujjal@alumnux.com>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH net-next v3 4/5] ipv6: mld: encode multicast exponential
- fields
-Message-ID: <20260412074359.GA62552@shredder>
-References: <20260403150050.1235-1-royujjal@gmail.com>
- <20260403150050.1235-5-royujjal@gmail.com>
- <20260407134502.GD849209@shredder>
- <CAE2MWknjWczxM3WrKkQ0eHV7PdNxMQ62GnTAp6tCPToumZnE=Q@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAE2MWknjWczxM3WrKkQ0eHV7PdNxMQ62GnTAp6tCPToumZnE=Q@mail.gmail.com>
-X-ClientProxiedBy: TLZP290CA0006.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:9::16) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=tnebnet.org header.i=@tnebnet.org header.b="fYNg0RDi"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id C87EC8430B
+	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 10:09:46 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: 4.087
+X-Spam-Level: ****
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id 9AseGoF16x4T for <bridge@lists.linux-foundation.org>;
+ Sun, 12 Apr 2026 10:09:45 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=103.234.149.159; helo=mail1.tnebnet.org.localdomain; envelope-from=erick@tnebnet.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 4A0FD84308
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=tnebnet.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A0FD84308
+Received: from mail1.tnebnet.org.localdomain (smtp1.tnebnet.org [103.234.149.159])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4A0FD84308
+	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 10:09:43 +0000 (UTC)
+Received: from [104.37.168.56] ([104.37.168.56])
+	by mail1.tnebnet.org.localdomain  with ESMTP id 63CA94kp009492-63CA94l9009492
+	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 15:39:22 +0530
+Message-Id: <202604121009.63CA94kp009492-63CA94l9009492@mail1.tnebnet.org.localdomain>
+Content-Type: text/plain; charset="iso-8859-1"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|SJ0PR12MB7034:EE_
-X-MS-Office365-Filtering-Correlation-Id: 74642653-6b8e-4e0f-9e4d-08de986747a8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|18002099003|56012099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	VNgVdNvFanMVsACtrPGtVAODEGsSi7Bay1vojZzMjqQddPkNchJCrcfiZaIm+PCBR3IOk3vi2/BqcwNCC3y6pm/bTZ180SbaN8jMVANlb2PyCVPaIfbuV/RSYGOLkvM3/sYRyl77p0hM6kUp2fUwMzay3nKdKxc8JLli3o6fG2CTESCL2RhL2rZ9KFkYjuPQ4sH51b/TSjQmGLIA6wbDuuCxoUMe0ityV0AuNK8HbUAIN8NjjoI93Oji4Y+7I0zFt4cXMtRiZnGfZ4x34lh9tA14hq3KbVnKTL1pypqn5hVRufOf0nuBugLUsBc2DZb1/9fTGMxAQvFr2JS/hw1NxSK4yAJnxMhw4TdTQa9ouJ0vS26YUaWCQ9aXmD3+o+umHy116lBnxrZ0slEizjcNs/gC6wPeJ260j/USPF6bgpsdYnIWwtrQ8+Gf+osnkt8pVyCiG96ATvLEXmaA4CqBoPnYk+ZAB6YTZ8WdjfdkyuIjkIR/wuUDRzJPaMMsTn+C1I+mC14ENAtQ6o/b649nyh2hx1NjibcX4ceXjq+CD6XwA8HLbUIYTiPHzLY8BjKEZ8hWDvNx9rVGUT5GUtiKiR6gLvoBmBFcvOgiE2vJqagvQ4zAtltZeB6TOb63ig21+5khL6liaBPCU0iyyoXdJ6rmQaUFA70QJ+oPoXv+FPlkMLfDP9U1e0GE7dwFXQ/GuceZL1Qzv20Q+A57diu6TmcrcZNi5o1j1RH+mNYrm/8=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?w9zxw3IauMt3hCOBYGg4PzLPzP89FXTaIVDRLbpyjSPfBNDFUVNLWFDvnNn5?=
- =?us-ascii?Q?Z9mWWXQjT8znEKHZrar+ye0OkSlaLRJRzePG2yyt8WRMPn1yO8z7f9Nh/pNN?=
- =?us-ascii?Q?bUNJFUp5ZAmdbRobpr3waLfZLaS6BxliRqqIcvg+zgg4TI0TOkmfifNHx874?=
- =?us-ascii?Q?gzOBtcoiDxrmj8VexMDtpIcJ7QKjMAlEwLPxEnB3NL+z7e0gC+3VRlagsEOP?=
- =?us-ascii?Q?QBfWiXvAhrqN7J5EI3JEzi/hqr2ODidscajv+ld2/nk4RHEhZiIaHeGvqq1d?=
- =?us-ascii?Q?04x6N1UvuyUJ/GKP8tiqu7Lj0sVM3MVwcOYm4Scx08tGkJK0eWXNwl62jprM?=
- =?us-ascii?Q?RXC5J+CNWqMadmV2FTxS4v/Zcz3xd5W9Hy1/JVdPDDjMla3fA61ZEs0TiwHj?=
- =?us-ascii?Q?UmjAFczldxuPN2wkAjfG2XJej8CDyXGhRPuU8t4Y5Z52GY82tV0IjiVGj6gq?=
- =?us-ascii?Q?Nqw6D+0azkoAAHeBPdxbA7Oq5HdWgy5Dw305LVd0dfquelIy+zdXpiq3gvyZ?=
- =?us-ascii?Q?ZUyTSml0tJ/EtQ2m1k6r4sj8Q1coXB7gOO4g/MhPjJFlyz5Jlh4et1qkZaMD?=
- =?us-ascii?Q?Pro18B413agWl6LHbqSC0ws9Am+IFFcrhvyHKGYjdmOX45n9H7M2UhY88n24?=
- =?us-ascii?Q?nZexKP8NYOSXpjNhruvuGmjd2yNvGtozm46B60kMqQMaroZ66bQSpdwvnnbe?=
- =?us-ascii?Q?w/+9gus75UV2nYkoalza+FEgugv7Elcu+i50i3fn/0cinQsexmcLLROxbysx?=
- =?us-ascii?Q?cIb2yNKq96TVl35NPHPNDKMQ/nGIDhZQHidOYcV36AmLPb++q17Pj7c768yA?=
- =?us-ascii?Q?dhhNg7ccJAXKZpSyhmpzNkt6fZE6o4UVdSpqgA5O//fmdK1pJM0UzpzXYbgQ?=
- =?us-ascii?Q?b0z46CKh7aF2nQotF0kbaacBgImBLXV1rwNa0MeiKj+THID1UJMh9BzOTODs?=
- =?us-ascii?Q?WW8Gco9x0J4aEA8mELhc0oDCvYUiw2Djnvr5RStOjwzAFY2lEfwQ+UBeOEMs?=
- =?us-ascii?Q?bpPD/HaTAKC+6M9htfgAqVV/THQCZKzx0bVMrrbNP1Ufl95wZEwy8lFtRApI?=
- =?us-ascii?Q?m1E7wJBPR4+eCWz2hkBXFG0Kj17dtQV180mjTxB21Kh2pzC/jNyuDe+SnqFZ?=
- =?us-ascii?Q?SC0/vBvdlhHaPxiZWJTqjFrkPvWkYZw2pSHt5uNqJoNfwwIpo9SspDn2/oBd?=
- =?us-ascii?Q?keHHPlrINeFqCKWMp9lhp/ptFyO7tF80PbQvWINEH16wJAf5E0F+qFmdyiLv?=
- =?us-ascii?Q?h8RPgaARdye/ydUGO/S85Xq9+u9dRhM4F3fyqaiaD5COPgyeaNZE6Nh94BKo?=
- =?us-ascii?Q?pBH5yYFukBC7IdkE32B3IbShy0vHwHdHgMacecs/9yYJm9G4kfPR/41sMZsr?=
- =?us-ascii?Q?Z9PPQzK+fGirLdyHEhjqkuKxianOjjuo7TmX7eQSI6bkCQpJ5IwENKe6mrvz?=
- =?us-ascii?Q?1xCj2p/FgcdlpDdFflb8wZ9uK7nXQ49YC4tl1bJDlp/UV3x7CXvahyUkMvoZ?=
- =?us-ascii?Q?sC9c6ZkeSH+HApNtnxrUTreuZ+KHyPqG/Ah6ZEUk3d8qCoyM+pM3i8GkxcCe?=
- =?us-ascii?Q?qFdWolxiQ4FmX9+ecq0H6jRd/sc03CLO5vQ05DjTBIK4So6gOHkFjzmxqkq7?=
- =?us-ascii?Q?McwLd4eQ8i10AoDf19OoduMjpzBt3QPPlQx3Qe3KvqRws4uo1KEqNi3YfiFh?=
- =?us-ascii?Q?Ty0fZHM1E8Wlq+jFDRUOIzdx6lr4TsHXyYzjUNjU1IpWDvky?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 74642653-6b8e-4e0f-9e4d-08de986747a8
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2026 07:44:08.7046
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 243zZGvU/ZEuZz+pgWT78vcslngwX1koYol5YG7jG/G1wc/p6CCYhkjVHuzYoxN3QPhiCVJASDD1IhEpH7x6Xg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB7034
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Re;
+To: bridge@lists.linux-foundation.org
+From: "Erick Lorch"<Erick@tnebnet.org>
+Date: Sun, 12 Apr 2026 03:09:37 -0700
+Reply-To: ErickLorch@hotmail.com
+X-FEAS-BEC-Info: WlpIGw0aAQkEARIJHAEHBlJSCRoLAAEeDUhZUEhYSFhIWUhZXkguLVFYWC88UVpdWFhYWF9RSFlfSC0aAQsDKBwGDQoGDRxGBxoPSFlIWlBIGwsLDxsHDg4BCw0oGxwLBAkBGkUBBA8bRgcaD0hYSFpIWVtIWVhcRltfRlleUEZdXkhQSFhIWEhZSFhIWEhYSFtbSAoaAQwPDSgEARscG0YEAQYdEEUOBx0GDAkcAQcGRgcaD0hY
+X-FEAS-Client-IP: 104.37.168.56
+X-FE-Last-Public-Client-IP: 104.37.168.56
+X-FE-Policy-ID: 35:1:0:SYSTEM
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; d=tnebnet.org; s=TNEB; c=relaxed/relaxed;
+ h=content-type:mime-version:subject:to:from:date:reply-to;
+ bh=ztSjceq+A047RBWYeiTjdvnBfdtlQkxg0FDTKdnK194=;
+ b=fYNg0RDiAqiOeax0J4pPwbPX336S4bIpnPUGtQFP6tRf3ZLr8BSMekWo68sVLklo46YUiH5gSOkn
+	g1rMRs3XdQCavVXzcyxey6+PYXqnH0b1Ul1tctcNm3zQ0y5CKbK6S8imZPZvGrWUGnCQXWGlC7Qr
+	pQ9+ZVrOZUKpmpNtB32ifzQePnFt85UDN6d1jcr3YnRFM0mCbdRbk5US4CPqGiAAiaNcVSSP6id7
+	JmQuJvfjRIKlmhmHsUlysWHs2KHichz+MwKBqf0g9nZ1Vh9571O1zpspN7ZC62e1MyK+XT5WYc6s
+	ly/HcY+qRbjmdtBI6I9W5W0IcdU2M/0eh2B4TA==
 
-On Fri, Apr 10, 2026 at 11:36:59PM +0530, Ujjal Roy wrote:
-> Do you mean to include "Reviewed-by:" tag into this commit message or
-> the entire patchset? I will modify and send v4 once I get the reply.
+Good day
 
-This patch only, not the entire patchset...
+I reviewed your reputable profile which gives me the intuition that you wil=
+l be a potential business partner in a crude oil venture with my company wo=
+rth two Million (2,000 000) barrels monthly involving the NATIONAL OIL CORP=
+ORATION OF LIBYA (NOC) and our Oil Refinery Company. This crude oil venture=
+ will gain commissions value  in revenue approximately per trade with the N=
+OC;
+ =
+
+REPLY IF YOU ARE INTERESTED
+ =
+
+Regards,
+Erick Lorch
+Procurement Supervisor=20
