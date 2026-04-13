@@ -1,80 +1,138 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012035.outbound.protection.outlook.com [52.101.53.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B45142050
-	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 13:42:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776001336; cv=none; b=dUG/k6qYmms7XNMFaq6e4Kl1hI03CivcoltP03w01cjrdvLJJaaUIDbnpboBi5IbYqyYwfAc0Wo0W/pEhpuaryfUpP3MgdO9XngJqZAuwLlwNAluTRm6ZuKCxjz/xHT311oZr4YylCcj6R83uYjlDSxTx1RWn5JjU14+CG2Zfew=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776001336; c=relaxed/simple;
-	bh=h+LM+OQS6rgWai5j52cPAAdJfkf5WSVJcEUIdemJav8=;
-	h=Message-Id:Content-Type:MIME-Version:Subject:To:From:Date; b=P+nVXdYlOvjwqJmJMXG/KC27I+EwgzBPx0iIINd1LXn9mkY6Y4FgRr0ksJoY6FNKEOGO9vChruM5xTmJx+LYTZ17Mt42qvCnrP8auezekxhNbDRxFRpYFokE8HbkBnESVjBD0u+Z1ajHkYcT0amxrBH4Q1LbC57ROaSlyYPER/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=fail (0-bit key) header.d=tnebnet.org header.i=@tnebnet.org header.b=aWL0IXJa reason="key not found in DNS"; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84C113AD538
+	for <bridge@lists.linux.dev>; Mon, 13 Apr 2026 08:46:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.35
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776070007; cv=fail; b=FdJ6Nm3o5E1FkfqZUNRMGZ9dI+C6QaI2E5i7v2gT9JyvgAQHbfwqiC5fxtHL7buko54/uz0UlUN1IBgdfUZE+qqqYvoO7NwnAmGk6+CXFBOzrsMNr+4KMJkM4V2qtVj1TkI2jusq6Ira/d7CiWpL42gReA94GGagyhe20zyS/3k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776070007; c=relaxed/simple;
+	bh=AlQr1YhX4MvZekeFT/ME/8X3IQj2t8JXFvUg1HKPjFQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=JXcau4o3jHZOjUKabRQzxHXUEgnxjjMPl5bfJWoQOxGqrcDxEqIKri4xoXzfYxkXuDM6a1GuZWgGGYmr4uGCZDPycw6B8GeDE9ZaYdshGX5ZX2/uSmN9l7rtFNi6sPrsyc8iGUTST/CEqfXsigV8sMZoe7HySYJLJ+CpSGFc79U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=T8mfi8ds; arc=fail smtp.client-ip=52.101.53.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=tnebnet.org header.i=@tnebnet.org header.b="aWL0IXJa"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A615384474
-	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 13:42:13 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: 4.087
-X-Spam-Level: ****
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id KNTjdXL7hnPR for <bridge@lists.linux-foundation.org>;
- Sun, 12 Apr 2026 13:42:12 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=103.234.149.159; helo=mail1.tnebnet.org.localdomain; envelope-from=erick@tnebnet.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 08DE684473
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=tnebnet.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 08DE684473
-Received: from mail1.tnebnet.org.localdomain (smtp1.tnebnet.org [103.234.149.159])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 08DE684473
-	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 13:42:10 +0000 (UTC)
-Received: from [104.37.168.56] ([104.37.168.56])
-	by mail1.tnebnet.org.localdomain  with ESMTP id 63CDfQGB013070-63CDfQGV013070
-	for <bridge@lists.linux-foundation.org>; Sun, 12 Apr 2026 19:11:48 +0530
-Message-Id: <202604121341.63CDfQGB013070-63CDfQGV013070@mail1.tnebnet.org.localdomain>
-Content-Type: text/plain; charset="iso-8859-1"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="T8mfi8ds"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=l/y+PjYaOfyPyZJLLYr53VNnwYT74SREaTN/U8W5rM4uLgIHRC1YakPrXeEBwEXCr0fhIEhcOrZEzkHFdv8fZZC1tMp+M5Gpyy7xmNBQA/YsA3C4olA1DOpWu33eKYbdoH9G9yHo9qK6ltD4k+VMs0G+4tFZDq8vWkitenpthNWBSxsnWUOINkNIYvfzu4n/NdBU14Wc6dEnNvhSQOV2OOyrV2Lj9paJP3HmzAvQY0QK016te2HNZpNbKi1V271XBKZFfodu98DMzDk2OeTQWMd6Sh++hCepj5kZjqMHUwJlxcz9sSGOQIK/ZgYjWQHhVEzu8Uc1kUG1ZeK1GeEctA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2E+642XtTKMvi9u8XNWVBTKUXDu+PE+Y97INDO4r3PM=;
+ b=YXG6YwjvuUgdMjjxyl5AXQjtKCLLg6T6zZOLFSsQbhMufGL9Toscw9SI6XyhLW7a8poGIBds+/Grv6gBfUkVOhpLM7N9HQzdaMI6mG00Ek5Ea3XsBAHEGRnrsdcabpf/Gz+85e5AkKxe2xJEOwA2jHwFIodWFNqON1Ls7moBLbUORcHHr5bIaT8h8SAZ59TzmlgEgE8nDHpWcBKRS5Sxlmk24N/UiAbe+mLPCGIBLFyPHpwsqIe/G7q05rmhx/E25BC8Tl9po7RMWJdtpFyDdnwPNMINFM41BXpCJ50tqDjZpJ5kn2a5i0dSx/F5SU5YsncAX2iEZNUr/HABbEJ/eQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2E+642XtTKMvi9u8XNWVBTKUXDu+PE+Y97INDO4r3PM=;
+ b=T8mfi8dsA3S09bLyHepitH0Q89v9EeOWl/HGxpE77yb34yozQfXrzVCpQdhghebYL9hjH2UQp/u7aQzXbiETaNWSIVi2uGq5o3ccwFJLywPv8Gpr9/S09qCxTeRoFJeBrAXYtWAafvH1DLdo0DizZGGRAMpO4G1ppy5hbkmOY/cjAw4THDGBjbTNS1VGcnUQPllKN0Q63N2UM7GTjg806HTDd24Vg1yT/CKRqV+xWLAyw5i1EXVNHHAHZJ+z8Zi9LrqFcdg33SmofxjTPjE8YaIwu2jCHODm7T7yly20GPEuIupw5tWxrF6Ag2IZGNSjViRgzJMDORgx6ioFoNP5gw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by DS4PR12MB9772.namprd12.prod.outlook.com (2603:10b6:8:2a6::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.48; Mon, 13 Apr
+ 2026 08:46:41 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9769.046; Mon, 13 Apr 2026
+ 08:46:41 +0000
+Date: Mon, 13 Apr 2026 11:46:32 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Ujjal Roy <royujjal@gmail.com>
+Cc: "David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Andy Roulin <aroulin@nvidia.com>, Yong Wang <yongwang@nvidia.com>,
+	Petr Machata <petrm@nvidia.com>, Ujjal Roy <ujjal@alumnux.com>,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next v4 1/5] ipv4: igmp: get rid of IGMPV3_{QQIC,MRC}
+ and simplify calculation
+Message-ID: <20260413084632.GA209364@shredder>
+References: <20260412111047.1326-1-royujjal@gmail.com>
+ <20260412111047.1326-2-royujjal@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260412111047.1326-2-royujjal@gmail.com>
+X-ClientProxiedBy: TL2P290CA0001.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:2::19) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Re;
-To: bridge@lists.linux-foundation.org
-From: "Erick Lorch"<Erick@tnebnet.org>
-Date: Sun, 12 Apr 2026 06:42:03 -0700
-Reply-To: ErickLorch@hotmail.com
-X-FEAS-BEC-Info: WlpIGw0aAQkEARIJHAEHBlJSCRoLAAEeDUhZUEhYSFhIWUhZXkguLVFYWC88UVpdWFhYWF9RSFlfSC0aAQsDKBwGDQoGDRxGBxoPSFlIWllIBQ0MAQkoGxgNBAQBBg8KDQ1GCwcFSFhIWkhZW0hZWFxGW19GWV5QRl1eSFBIWEhYSFlIWEhYSFhIW1tIChoBDA8NKAQBGxwbRgQBBh0QRQ4HHQYMCRwBBwZGBxoPSFg=
-X-FEAS-Client-IP: 104.37.168.56
-X-FE-Last-Public-Client-IP: 104.37.168.56
-X-FE-Policy-ID: 35:1:0:SYSTEM
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; d=tnebnet.org; s=TNEB; c=relaxed/relaxed;
- h=content-type:mime-version:subject:to:from:date:reply-to;
- bh=ztSjceq+A047RBWYeiTjdvnBfdtlQkxg0FDTKdnK194=;
- b=aWL0IXJak6Q9Izh0EhTWQA7s4C3ka1JdSsfH8p18dG+mHMp1jPMHo/g35gNRh+QYeG6SjFSm9zoB
-	uTdXSKsNO4KY8VQZQh0njmQNrgdRNcNZLtJv03c4brHVUZ/sQk5XxlxnATOuAnM9zNHIDKA8kJSE
-	OYUAs+nZt15vDHEfo8nJSso6c3dc/wyctZsVt19NU3JVexWbVlkCrV3o+58LT9e7KEJepKN9f3T6
-	fZ3e5pMVkpl+dbJvfzqt+bBpaBIgX94AMcU98FA4V2hhjOBn/WWQWcEMkDH/GobXO6theQsDjneQ
-	oo4RWNWmoEhz/kjenqZGxKh+Ko0IWGI0HaVMpQ==
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS4PR12MB9772:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6fabd394-b802-4977-4eef-08de99392e83
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	DpEAOJTs2YUzs4G505WVQ3EnmJqjuH28GdJ/36mu8nQj8HLy0ITGeWLpJJRMl2btuK0TtmF/3Sz0FQKEgaxETQSx1XlN3k42SZPETJDYTpvCpI6yNCpWEhV6vUd0m1nrK9XRDfHYGBV2sYu8uc1/pbGvB0mAx+REEs0y/EHL9tek2eWEeoh7J3G/lnhvBEIhdQ7dX6mxIIl2TXjBxfbJl7dIJ8bwJBIzK9Tp+cBzyAHO57kFbLhitDVolYhN2Vd0YSziVR7JNSqQSMevpI4pJdUK1JMnW/5xVsqkPFcZDMb1gCNSV5O9lAkWw4EzKp0+u2ubkN7aedkp4+8TwCDUlaheTtK035vPXakTiP4EMYr9zM7KcQH11Zu2IpOyaDs926KN0sM6hCe/uscl4e4wJgizMjqtv2BKacR2oCwmnOvRFcJNjDmZ03RoKc3qqzjxSmoqirut8YK67FO0zaxnEdI+ursWwYAxPhGJMCxdjZDAbFf+orrsFm9X/m3r5XVS4m4BjQmTH7GcGhWBHzFTmDOKgA/aJWbgu8yoVcQIBGoGiIzJPqxdPM+guLxoHb/ldAnRs/+ljWiKtaeZ/DgNePRbqukgYDo/lTywEbH2GXZcuOdxV1AWrkZDf8ApLwj2jp6AXeGYmhqjkL0RD96RHD0qUHK4pD09P3ToEK2zIP3YBr0yTBDXlgazg2VafNS3kUuym28Y4da7L4v5SaKgxGgbQ12qu4AEAgoyOEQTFBw=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?Z4UQP7ZegB0yKoDOYJeYNe0Do81Lboq3XHDohogKuhfWKLuXLAInsl3Um7PL?=
+ =?us-ascii?Q?YxxaShTUiDME0MJzVksHyEqQAqo4j6WG8ylbVcE5xPT8RWSJBxcML9BpwoGL?=
+ =?us-ascii?Q?Id5e8+KRca9Pzx7bfkrBRI/OKvQa0poPmIdK+34U4Lt+7ZTBbw93BOoKiubo?=
+ =?us-ascii?Q?HukY2VS42hgWZNA+GQoNoWgLqrzHs+sEuFSsxtSSrg13NzV5M0F3Yg0RcaEF?=
+ =?us-ascii?Q?kDTLPp+7W0NNhX14JtNpq98jshYZ9eLER23h7PzN7jPMrzB+/iP2Q/Fo9adz?=
+ =?us-ascii?Q?rXJWZ+njrlJr5EM5luCV+H0m+/+kYcVJfhsyA82Z81ySuk7Px/9x5BagLcfV?=
+ =?us-ascii?Q?ZqdFMyBVVtuRnokLSrGJwFrQLK8RL4svTEVbuX1cgjSOW6w43fT6UcJelqOU?=
+ =?us-ascii?Q?XygnmB2sxmYtraQH1RTamrcypDbhQHvcFwC6BGohkoq3lvKdBjHTBQG6jb0D?=
+ =?us-ascii?Q?02ymwtA5O6htuTHeKYBrQkNdjzm7C6xRiilypZ34M4SZSZ5wEu1D4/AKOB7C?=
+ =?us-ascii?Q?2lfPzbLruud1fPEfnREZNk4EiQM57SNh4063+h41S3kar3ZSYwNBiCfF/Rx5?=
+ =?us-ascii?Q?F21dSD2n3jMemUhQb1zwbmoNoZzdW37H5oabnFkSOFkOYwy822QKQoVp+NFf?=
+ =?us-ascii?Q?26VVYEvHsRWrsoYPTO+uEn9LyoTKyWuN4w1g5iU1yK4YRcDvXQFwkWY8EspT?=
+ =?us-ascii?Q?Y7vSngkE8B91rAQYrR0JO50THv1s/09szm8C6yJlv9eY9yqiUGiZGOWWRoIE?=
+ =?us-ascii?Q?KHtiTYdt2pknarucJPDdqHypr0aGSjCDVoSEHTw8agciq97zJ93jH8qIsSVj?=
+ =?us-ascii?Q?8drk60xOBMUFywh3uMM0koMJghSDya44CmcsP/SqT4lhgkiWpCHxUx5iQrtX?=
+ =?us-ascii?Q?wm6dhdkOEaufUo8dJXSNNO/tqGbsz1/cmYdkmh82QRJ3MIKc3GQTRL43wlA1?=
+ =?us-ascii?Q?FC0N8oJhCAMIrRuP3nWyL8ph4M9P5hu4yxTlMfHs9kELSoUFYAaCrjjCk0JG?=
+ =?us-ascii?Q?JobnejTmFbCaV92/BbW/1PUwFZ0a5RtKSf68rWIeetoeM1X1bMmY6xoOa4kl?=
+ =?us-ascii?Q?MUkdiFgiNkqD+qDw0NLE9xflxEVOVc5Hc87NPYyJg76fIxTH2ZokERnHg6Db?=
+ =?us-ascii?Q?j6b5RC+1E0vKJoedcLwYl3gMhJG2PnSZlK8Zj4hlMG6MP2GBFrOMbZ5fy21I?=
+ =?us-ascii?Q?QSoB+6MAwYZm6z9eiATkaagLRU08+8IhNO5GP/w5iT+gD4bXOCOAWZJ6lqIY?=
+ =?us-ascii?Q?gT2mgOxYfXUlewmnTmQJE/dWaELo76HBxndCMqMWt/YSiF4/DduIcxSI9Aoo?=
+ =?us-ascii?Q?AD0Nq6QNfJ/JAkFXDKy3x1l35Jx7RPqYUKHD2wikBbqj0bDdAKGAUwoqPWHn?=
+ =?us-ascii?Q?AUeamkTHrrktitprk402mntgYQkTthzNvzG4gkdE33Cra6Nh7khPLePRmvk0?=
+ =?us-ascii?Q?faCDRacmZrBuVwqaUBD7SIbdB9aX0EmT2zAC6QWmG26IKHDokI49Vm6k39Cx?=
+ =?us-ascii?Q?sHfrb68q/i2iESRW4vqr0s5aTiZ3a8n4d1oV2gFoTTXYjGDih8yDdnjwsXpc?=
+ =?us-ascii?Q?QdCEUShT3sujtqSSzGJOl5fjkeQOEYOPuYgHdzLVJ+6wJ2iS3uGVKT5+Ej/y?=
+ =?us-ascii?Q?tV02LIIiFWhA3a0timFwXIAISfCVcciovdUbB1q234EDtEgyUQYo5Ke5MCn0?=
+ =?us-ascii?Q?2cAq89yDEzL76JrocfUCriV9NAjpagt5YGldwKoe3CWwUooq?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6fabd394-b802-4977-4eef-08de99392e83
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Apr 2026 08:46:41.2507
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: mwXaDHWxn8MRTWKq/wfD/GW69P5ik/T7pmDxRlFiwWT9CkxtbEFmkrDWZN66vzHoRJcLyMchsqS/ONYya1x6ag==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS4PR12MB9772
 
-Good day
+On Sun, Apr 12, 2026 at 11:10:43AM +0000, Ujjal Roy wrote:
+> Get rid of the IGMPV3_MRC macro and use the igmpv3_mrt() API to
+> calculate the Max Resp Time from the Maximum Response Code.
+> 
+> Similarly, for IGMPV3_QQIC, use the igmpv3_qqi() API to calculate
+> the Querier's Query Interval from the QQIC field.
+> 
+> Signed-off-by: Ujjal Roy <royujjal@gmail.com>
 
-I reviewed your reputable profile which gives me the intuition that you wil=
-l be a potential business partner in a crude oil venture with my company wo=
-rth two Million (2,000 000) barrels monthly involving the NATIONAL OIL CORP=
-ORATION OF LIBYA (NOC) and our Oil Refinery Company. This crude oil venture=
- will gain commissions value  in revenue approximately per trade with the N=
-OC;
- =
-
-REPLY IF YOU ARE INTERESTED
- =
-
-Regards,
-Erick Lorch
-Procurement Supervisor=20
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
