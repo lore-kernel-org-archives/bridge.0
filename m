@@ -1,234 +1,196 @@
-Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [13.76.78.106])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id CFAD23AEF5F
-	for <bridge@lists.linux.dev>; Mon, 13 Apr 2026 09:09:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.76.78.106
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776071381; cv=none; b=roPd4Pw+Pk9EEuw7RCB2gttWF+urslXWfKuDkf8bfgVLfE4cUyabBjOGP9FEQaYYqYbbi2PMM5MhGCbYG1NAmb6eju6MoNW8C0r1sP2ENXovI+c36jx36botdicDnAieQ51/rG0N946UWWcTMJ14DmNm74wHks3/qJud+PP10IE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776071381; c=relaxed/simple;
-	bh=MdQzP6/OY331Npl4Keioe9hDdRPVOpTm7hZ5llDM89s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kze1Tsv2A7GENOkP2H39bY44PvjmWrJjtxiXzexTZmi+oKr/gzlQnZthw6+TsmAQv8xLmgZ0ISWZfZqCnRJD4wB2+tn+hqEbG+TmgMgxZC9mClljziAk4WxoPLm+3Q4gT2seJBBHxo7mZV2VtD+emYdwecs4BC/qPQ5QdjUi5UI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lzu.edu.cn; spf=pass smtp.mailfrom=lzu.edu.cn; arc=none smtp.client-ip=13.76.78.106
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lzu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lzu.edu.cn
-Received: from enjou-Legion-Y7000P-2019.coin-barley.ts.net (unknown [172.23.56.36])
-	by app2 (Coremail) with SMTP id zQmowABH4Ia7stxpfqI5AA--.31380S3;
-	Mon, 13 Apr 2026 17:09:18 +0800 (CST)
-From: Ren Wei <n05ec@lzu.edu.cn>
-To: bridge@lists.linux.dev,
-	netdev@vger.kernel.org
-Cc: razor@blackwall.org,
-	idosch@nvidia.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	makita.toshiaki@lab.ntt.co.jp,
-	vyasevic@redhat.com,
-	yifanwucs@gmail.com,
-	tomapufckgml@gmail.com,
-	yuantan098@gmail.com,
-	bird@lzu.edu.cn,
-	enjou1224z@gmail.com,
-	zcliangcn@gmail.com,
-	n05ec@lzu.edu.cn
-Subject: [PATCH net 1/1] net: bridge: use a stable FDB dst snapshot in RCU readers
-Date: Mon, 13 Apr 2026 17:08:46 +0800
-Message-ID: <6570fabb85ecadb8baaf019efe856f407711c7b9.1776043229.git.zcliangcn@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <cover.1776043229.git.zcliangcn@gmail.com>
+Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010027.outbound.protection.outlook.com [52.101.201.27])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09579382298
+	for <bridge@lists.linux.dev>; Tue, 14 Apr 2026 08:05:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.27
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776153930; cv=fail; b=g849PBrv/gjcxsSbMygxh8jNef01IEEbpMqMWNrVzZhA15l3vvq39TJhazSasx9jrDNHHs6vHlDOVRP+R8OsjDzwozEy/p+9vZbVILQbvrtTcpMk9H70TWyVDntzYxFiSu8wfIa0XEQLEL+NVM0jZbbqiQoKp7zl8R2qyngfeN0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776153930; c=relaxed/simple;
+	bh=jq3648GC3PhRnWP4Ynx6Lhh8TvH8QbIf9TGIv/y58/4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=Keb/R3+Vip2t3+Mz85E7hQgzP7GZWXRXH3F3KfzjG2w5irYwBg0zAJPn4SqZ4C2sSweXCKE/Oy0BSvnEPFtZ3pMC3T3m+tYb87cqHknGQmtNnnwMt9M3Lbgp72xiCDcJ1JcAiQbpJ4N6HZ8RVr+V7TxM7mFIWIdEds/ydmI9aI8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=NmRQ9hC2; arc=fail smtp.client-ip=52.101.201.27
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="NmRQ9hC2"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=wQSxFr7Ld4Xcl2yb9BV6QRUXMzzY4u8wYMOTHu4E0WJsSqzkkKgR3u3RU9gtD74C748gZLHmbpMqLbJNA9lQSxjuXMpLi4hOg57HSi+GnJN2vLbjR5U4eYvzkMUfoFnhctCFkde6p0dDK2Ij8ozwXUrfwjSGgVj4PR1uaMME3xfi3CfQDJJzvtBpAEg0y+Mkob7GF7RUvUwqrcyJIe3BXLb+GAyC0o3JrrkOjEzp6O4i4BgDgIQbgO0763BMslJ+8nyztLsojEL/Xyn9Tigj7otkLo0JlNeKH0UiDhXsCHZ46XuD0CcBuqukRKFl8kRAiXatpDU/inIcEfX4r8v8ww==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=4WFjyGsZIm/3KH6EwbeN4pozDTuM3lpvz7iiQfLTQ/Y=;
+ b=eBS2Wp4c6ee02yw0idpKTAcBIUuXii5ArsIERBwpgcUhomH2tQyt3BnGq/+6EqZP1j7AIArM+PpRXYRWmf3qKEa8q4rtHdhfPesdNUMXu7ddqHnGuONn5mQ5hTOqZtEUzqJBNIt4fXjTvfG+evX/pWU1qPElr48MWVJRPAJ6NslNY/28eOxt8LrkQJW40fPmHOhSfpNK6y7VtrpP/k+JCZ4X7r0BbbJTbFa1XncfWG/2SqQprECWwBIlQWYS8YxWWiaXxZuxLh9X7CcBsmUnHFREUkK2g17j9ebcv3/l2eDX1hnT+WOf1Slv/xoe5XctSVP+s7RGYgIu9C55fcblTg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=4WFjyGsZIm/3KH6EwbeN4pozDTuM3lpvz7iiQfLTQ/Y=;
+ b=NmRQ9hC21MeiXqjEl8kVbzwxHsoRLT9ng6tuV3cC8VtDh6uo4+OGTuWGcbePpokCnSkCIqN7BNHoSCAjzOsaBpvbi4SwuEII2lU+uzesRisJKAJ8FQwVyWRSXoYYwgEitk9Pg+uSs1bHwCXifX1BoCFIx5GBIbTJLM7VAQ4fW+Ut2kLfU/9EY4MUn7AcfDGmGllNeD1spP51SamfT4mkWN5Jrhz6A5ARdB97GjJ3mqd0GBiLAR6N6X8zXKjcTzZ/GioxsDv05TwAhM4uWEMGMTmtD2rNMud7nkYpk1LC+s9tq19qKm6jtjsYmHOOqaeiRqSCHF1mpCiI2E43Gctr1A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by BL1PR12MB5707.namprd12.prod.outlook.com (2603:10b6:208:386::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.20; Tue, 14 Apr
+ 2026 08:05:25 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9769.046; Tue, 14 Apr 2026
+ 08:05:24 +0000
+Date: Tue, 14 Apr 2026 11:05:14 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Ren Wei <n05ec@lzu.edu.cn>
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org, razor@blackwall.org,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, horms@kernel.org, makita.toshiaki@lab.ntt.co.jp,
+	vyasevic@redhat.com, yifanwucs@gmail.com, tomapufckgml@gmail.com,
+	yuantan098@gmail.com, bird@lzu.edu.cn, enjou1224z@gmail.com,
+	zcliangcn@gmail.com
+Subject: Re: [PATCH net 1/1] net: bridge: use a stable FDB dst snapshot in
+ RCU readers
+Message-ID: <20260414074722.GA321402@shredder>
 References: <cover.1776043229.git.zcliangcn@gmail.com>
+ <6570fabb85ecadb8baaf019efe856f407711c7b9.1776043229.git.zcliangcn@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6570fabb85ecadb8baaf019efe856f407711c7b9.1776043229.git.zcliangcn@gmail.com>
+X-ClientProxiedBy: TL2P290CA0005.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:2::15) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:zQmowABH4Ia7stxpfqI5AA--.31380S3
-X-Coremail-Antispam: 1UD129KBjvJXoW3Ar4Dtr18tFyxtrWDAw1fJFb_yoW7tF1rpF
-	Z0gayfJrWkXr1a9w48ZFW8ZF1UtF4kGay5urZrA34FvFn8tFn5CayktFyavF1rAFZ5uFWa
-	yr1jqrySvw1DXa7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBF1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
-	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
-	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2
-	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
-	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r10
-	6r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
-	vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2IY04v7MxkF7I0E
-	n4kS14v26r4a6rW5MxkIecxEwVCm-wCF04k20xvY0x0EwIxGrwCF04k20xvE74AGY7Cv6c
-	x26r48MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCj
-	r7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6x
-	IIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcVCF
-	04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7
-	CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUj4E_UUUUU=
-X-CM-SenderInfo: zqqvvuo6o23hxhgxhubq/1tbiAQsQCWncrd8BFwAAsC
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|BL1PR12MB5707:EE_
+X-MS-Office365-Filtering-Correlation-Id: fad5f4b4-a7ae-41ec-5587-08de99fc9514
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|56012099003|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	0DhECPObE6v8pkQDtuSyd/OYLK9DQdtRyFcpSX4ZOrev6/DUTljFTAa8ZDSmIFFTOZ1CoJRspcWeWTSZl9D7v7cXUh+P22PvFpLy4Fm4lYiaE2MkVl55aUqFXpARFEOf2fjMGjRD1cUr7QA5F0VkKwB8O5AB/N1MSZmRisC1wx0xMc6gR1XlRAd7o/PKeAVxzW0RunulYzJAKzth/YN0m01VkXQB43SQTy6DZdd+duP4i8vTbVn6rQSLDRAJnccxK9t2CR1zcAMm9Xi3hycSXO8x3x2L2SQlRc13LmsdK6wU0b669E3HuKQiK03cWwv7TEjnglWTj4hPlHQQdI+GKfYrvuH5qtsg8FZ+md2Bpjc2jMnvol2LDuknxcChkcBYI4YuD9lnUFa88UxQaeCE2KKPFuewHDEi+dVSD58tzep2+yHgowPs9j0C6yh5yewpowy+kVumqChwYTsRma/SnwnjPffibi6MICaa784nWhAnOJSpxk6LpHD31Sr2/1AE8HkhnznPMu46YQULCILYp2jskNcTRQExuSbv4nyoTfgAqq0UF/TZXgg9PQJxKsLN0gJJwtyOYkAGdEddTA1X5hGjoU8MoVOZmwofIdqM2oRz+/gx7Kwcu8/vjLuHcKpWxeRB7VYPRiVyapSHGIq318hEKGMjMtXiLWdb28HLWSdSW+dy6YSaao0NqAeH1ZyM/uQLxaKiMrtY/goVg7GdXGl+YcoBqie4Ph8QeoOH5hY=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(56012099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?sTpOoqwZ/gKJU1J8Xm/c2Qg1kDSD2ymz3fsMpeqh1UbjEc9io6/cho8TRUKy?=
+ =?us-ascii?Q?d5KOU9S8s3ipRNnQK9QcdPNrau+xqPbB1tyei3NOGUsKxiXf2wtRa4nS9WP4?=
+ =?us-ascii?Q?rtJJUizKzUMw62NYkkKjhQuJQcGD5EDuOIoUaZsCfzdzXTmQjwUYheAcN9+L?=
+ =?us-ascii?Q?9bygX7htKEPAARjtLl64vgDYUcZI5pyWEtyMCADHE3ywbY6q1a9fBjB+qzPz?=
+ =?us-ascii?Q?7E+8cJWrVTlz0MV6o9cQfwiyoDJs5mWWh6fXRCQxIiMBXBkm3Ls+2KVmvJC4?=
+ =?us-ascii?Q?Q2eQxe/0aO4SaA4rodQ6Yngk2L7I6Zgr09pYb3397mg1bbaGNd/hYGuENzIf?=
+ =?us-ascii?Q?5w2o3iqGRc+hSdChQM5hb0E421ihNg5lbgp72t9iE/rcvYBNUREW4ej7OWWT?=
+ =?us-ascii?Q?JcnCV+/1I45SbrvbwoLXqftvW32R3WSToUI8T1HDlg3rbqPGvJ2Pndd8nLLb?=
+ =?us-ascii?Q?JIR8d8cVVv0EUs1dJqbTgCzlVFiT6Fol0kVgnRFpeFk+JFKkdgi1XR66oudo?=
+ =?us-ascii?Q?+/w9hQbzs7aJnrTf/mUUSVLtup/9aOYrBzJo2nbbS5fI8cqsyXWJmC2LHJ+L?=
+ =?us-ascii?Q?qWJIHsxM1y1T8I9GPRpvQ8gTuIOodNepKsh5YYU+VSe6IXl+rpy/+E3HOEmW?=
+ =?us-ascii?Q?I2BlSqZPpQmvg/GrsgP3IttHrkl6Zr+TCNQKbA5+Bir+6wFFlctmG88aorFH?=
+ =?us-ascii?Q?GIXTqPRoWXmFsUAxcUIgMyzFGLFHWlx5s6acWRunUSj1yvMCArWUAurfQh3C?=
+ =?us-ascii?Q?W87vu5mYt7RoMT9vSyqaqoqvne9FEY3QAs0jGMKplQxXhBXacHhVWF+m0L+N?=
+ =?us-ascii?Q?et5SFMp0Znkqs94I3S/V2EGvsBEOOBm03p+GPq1Ra1Pmn5kkEmB8K8DgGDSc?=
+ =?us-ascii?Q?PXJH43MtqQUzPQtnb92Q3RWXbquzUgFyK1xpQLrw6ZMOrFzzJLYtnrJ0tMpg?=
+ =?us-ascii?Q?i/RPiC6dCFjFQ9EpDhGoKn73wIldM1jwVdRvo6xcLFPJuD8X5zBilNFMYeYd?=
+ =?us-ascii?Q?qG2/3Cg5+W5iXK9cnJgo8zXWOXu2CTGNVpvG3EWm+EvCewYko6S+F1OgD0ZC?=
+ =?us-ascii?Q?y5n6vneHMAYeeTNqRllNYfMkVkInwVj9qCxquWRjhGHeiQx0ZwbjLp4bv8bK?=
+ =?us-ascii?Q?VM4rH7/A3w0OWuf2y0oMxahHXU/AawgQcw1aKDTOom/hV/54SHeJD8U6CcTF?=
+ =?us-ascii?Q?xrHPWVrEu44G5Y+CPntsWdtE5r8NVKDTj97OHc8cnViChFvEFQyqzlIhsybk?=
+ =?us-ascii?Q?A3QxGoi8IrhJJ9KfyDJFCcs0aug4j3yf7BrlfSWBxoqqCar+nOWY3XCUh/2R?=
+ =?us-ascii?Q?gy8mmFFTKl/qf+8vycSYiFTBLE0j3Gb1TIGMlNq8xxqnjAco8cyLqqh37HfT?=
+ =?us-ascii?Q?U6Odlc2P8VhLaTDRwT97dk/VX80N63zotiT810thY2LmxI1Ok++IMWqf16ha?=
+ =?us-ascii?Q?UhLpY8uTLmDaLScoSqfnfRiNYKfXP9NtjIAdiUEiMEEPJBSlWwjHEKKZWz/d?=
+ =?us-ascii?Q?eAEi2w2m1QxKnM2P/fzm3CgS8ngTacSoMEaT6MzRlOWQ7PsQbF+p1oakARAu?=
+ =?us-ascii?Q?WugCyG4cHEuo20YBCf6WY00aroEhE3dveaT64YJsDd6YuvKC4jOkhY+045zw?=
+ =?us-ascii?Q?FxTRM6xXyshtHwSptZDqn+Dnxm6TPqUMcLnuphIa8SIGmR6tG9gr6k+RylLw?=
+ =?us-ascii?Q?5BydeCvCXqEcHuzxLJdrvxqd6TzSOQxd+uVA2akGqJJbsgYeXLpDnBeLNySF?=
+ =?us-ascii?Q?Ke3P/ehl9w=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fad5f4b4-a7ae-41ec-5587-08de99fc9514
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2026 08:05:24.6807
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: uzO1UBN0+xFgW+Nzd56X8SIReigS+7yGYkCWEXUXdRZUzvj5ItZ/GMNBxm7fcFhrPfvpBii6HZM1FRxRO40SVA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5707
 
-From: Zhengchuan Liang <zcliangcn@gmail.com>
+On Mon, Apr 13, 2026 at 05:08:46PM +0800, Ren Wei wrote:
+> From: Zhengchuan Liang <zcliangcn@gmail.com>
+> 
+> Local FDB entries can be rewritten in place by `fdb_delete_local()`, which
+> updates `f->dst` to another port or to `NULL` while keeping the entry
+> alive. Several bridge RCU readers inspect `f->dst`, including
+> `br_fdb_fillbuf()` through the `brforward_read()` sysfs path.
+> 
+> These readers currently load `f->dst` multiple times and can therefore
+> observe inconsistent values across the check and later dereference.
+> In `br_fdb_fillbuf()`, this means a concurrent local-FDB update can change
+> `f->dst` after the NULL check and before the `port_no` dereference,
+> leading to a NULL-ptr-deref.
+> 
+> Fix this by taking a single `READ_ONCE()` snapshot of `f->dst` in each
+> affected RCU reader and using that snapshot for the rest of the access
+> sequence. Also publish the in-place `f->dst` updates in `fdb_delete_local()`
+> with `WRITE_ONCE()` so the readers and writer use matching access patterns.
 
-Local FDB entries can be rewritten in place by `fdb_delete_local()`, which
-updates `f->dst` to another port or to `NULL` while keeping the entry
-alive. Several bridge RCU readers inspect `f->dst`, including
-`br_fdb_fillbuf()` through the `brforward_read()` sysfs path.
+Sashiko is complaining [1] about missing READ_ONCE() annotations in some
+places, but I can handle them in net-next in a similar fashion to commit
+3e19ae7c6fd6 ("net: bridge: use READ_ONCE() and WRITE_ONCE() compiler
+barriers for fdb->dst").
 
-These readers currently load `f->dst` multiple times and can therefore
-observe inconsistent values across the check and later dereference.
-In `br_fdb_fillbuf()`, this means a concurrent local-FDB update can change
-`f->dst` after the NULL check and before the `port_no` dereference,
-leading to a NULL-ptr-deref.
+It's also complaining [2] about a not very interesting possible bug in
+br_fdb_dump() which is pre-existing.
 
-Fix this by taking a single `READ_ONCE()` snapshot of `f->dst` in each
-affected RCU reader and using that snapshot for the rest of the access
-sequence. Also publish the in-place `f->dst` updates in `fdb_delete_local()`
-with `WRITE_ONCE()` so the readers and writer use matching access patterns.
+> 
+> Fixes: 960b589f86c7 ("bridge: Properly check if local fdb entry can be deleted in br_fdb_change_mac_address")
+> Cc: stable@kernel.org
+> Reported-by: Yifan Wu <yifanwucs@gmail.com>
+> Reported-by: Juefei Pu <tomapufckgml@gmail.com>
+> Co-developed-by: Yuan Tan <yuantan098@gmail.com>
+> Signed-off-by: Yuan Tan <yuantan098@gmail.com>
+> Suggested-by: Xin Liu <bird@lzu.edu.cn>
+> Tested-by: Ren Wei <enjou1224z@gmail.com>
+> Signed-off-by: Zhengchuan Liang <zcliangcn@gmail.com>
+> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
 
-Fixes: 960b589f86c7 ("bridge: Properly check if local fdb entry can be deleted in br_fdb_change_mac_address")
-Cc: stable@kernel.org
-Reported-by: Yifan Wu <yifanwucs@gmail.com>
-Reported-by: Juefei Pu <tomapufckgml@gmail.com>
-Co-developed-by: Yuan Tan <yuantan098@gmail.com>
-Signed-off-by: Yuan Tan <yuantan098@gmail.com>
-Suggested-by: Xin Liu <bird@lzu.edu.cn>
-Tested-by: Ren Wei <enjou1224z@gmail.com>
-Signed-off-by: Zhengchuan Liang <zcliangcn@gmail.com>
-Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
----
- net/bridge/br_arp_nd_proxy.c |  8 +++++---
- net/bridge/br_fdb.c          | 28 ++++++++++++++++++----------
- 2 files changed, 23 insertions(+), 13 deletions(-)
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 6b5595868a39c..7ace0f4941bb6 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -202,11 +202,12 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- 
- 		f = br_fdb_find_rcu(br, n->ha, vid);
- 		if (f) {
-+			const struct net_bridge_port *dst = READ_ONCE(f->dst);
- 			bool replied = false;
- 
- 			if ((p && (p->flags & BR_PROXYARP)) ||
--			    (f->dst && (f->dst->flags & BR_PROXYARP_WIFI)) ||
--			    br_is_neigh_suppress_enabled(f->dst, vid)) {
-+			    (dst && (dst->flags & BR_PROXYARP_WIFI)) ||
-+			    br_is_neigh_suppress_enabled(dst, vid)) {
- 				if (!vid)
- 					br_arp_send(br, p, skb->dev, sip, tip,
- 						    sha, n->ha, sha, 0, 0);
-@@ -470,9 +471,10 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 
- 		f = br_fdb_find_rcu(br, n->ha, vid);
- 		if (f) {
-+			const struct net_bridge_port *dst = READ_ONCE(f->dst);
- 			bool replied = false;
- 
--			if (br_is_neigh_suppress_enabled(f->dst, vid)) {
-+			if (br_is_neigh_suppress_enabled(dst, vid)) {
- 				if (vid != 0)
- 					br_nd_send(br, p, skb, n,
- 						   skb->vlan_proto,
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index e2c17f620f009..6eb3ab69a5140 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -236,6 +236,7 @@ struct net_device *br_fdb_find_port(const struct net_device *br_dev,
- 				    const unsigned char *addr,
- 				    __u16 vid)
- {
-+	const struct net_bridge_port *dst;
- 	struct net_bridge_fdb_entry *f;
- 	struct net_device *dev = NULL;
- 	struct net_bridge *br;
-@@ -248,8 +249,11 @@ struct net_device *br_fdb_find_port(const struct net_device *br_dev,
- 	br = netdev_priv(br_dev);
- 	rcu_read_lock();
- 	f = br_fdb_find_rcu(br, addr, vid);
--	if (f && f->dst)
--		dev = f->dst->dev;
-+	if (f) {
-+		dst = READ_ONCE(f->dst);
-+		if (dst)
-+			dev = dst->dev;
-+	}
- 	rcu_read_unlock();
- 
- 	return dev;
-@@ -346,7 +350,7 @@ static void fdb_delete_local(struct net_bridge *br,
- 		vg = nbp_vlan_group(op);
- 		if (op != p && ether_addr_equal(op->dev->dev_addr, addr) &&
- 		    (!vid || br_vlan_find(vg, vid))) {
--			f->dst = op;
-+			WRITE_ONCE(f->dst, op);
- 			clear_bit(BR_FDB_ADDED_BY_USER, &f->flags);
- 			return;
- 		}
-@@ -357,7 +361,7 @@ static void fdb_delete_local(struct net_bridge *br,
- 	/* Maybe bridge device has same hw addr? */
- 	if (p && ether_addr_equal(br->dev->dev_addr, addr) &&
- 	    (!vid || (v && br_vlan_should_use(v)))) {
--		f->dst = NULL;
-+		WRITE_ONCE(f->dst, NULL);
- 		clear_bit(BR_FDB_ADDED_BY_USER, &f->flags);
- 		return;
- 	}
-@@ -928,6 +932,7 @@ int br_fdb_test_addr(struct net_device *dev, unsigned char *addr)
- int br_fdb_fillbuf(struct net_bridge *br, void *buf,
- 		   unsigned long maxnum, unsigned long skip)
- {
-+	const struct net_bridge_port *dst;
- 	struct net_bridge_fdb_entry *f;
- 	struct __fdb_entry *fe = buf;
- 	unsigned long delta;
-@@ -944,7 +949,8 @@ int br_fdb_fillbuf(struct net_bridge *br, void *buf,
- 			continue;
- 
- 		/* ignore pseudo entry for local MAC address */
--		if (!f->dst)
-+		dst = READ_ONCE(f->dst);
-+		if (!dst)
- 			continue;
- 
- 		if (skip) {
-@@ -956,8 +962,8 @@ int br_fdb_fillbuf(struct net_bridge *br, void *buf,
- 		memcpy(fe->mac_addr, f->key.addr.addr, ETH_ALEN);
- 
- 		/* due to ABI compat need to split into hi/lo */
--		fe->port_no = f->dst->port_no;
--		fe->port_hi = f->dst->port_no >> 8;
-+		fe->port_no = dst->port_no;
-+		fe->port_hi = dst->port_no >> 8;
- 
- 		fe->is_local = test_bit(BR_FDB_LOCAL, &f->flags);
- 		if (!test_bit(BR_FDB_STATIC, &f->flags)) {
-@@ -1083,9 +1089,11 @@ int br_fdb_dump(struct sk_buff *skb,
- 
- 	rcu_read_lock();
- 	hlist_for_each_entry_rcu(f, &br->fdb_list, fdb_node) {
-+		const struct net_bridge_port *dst = READ_ONCE(f->dst);
-+
- 		if (*idx < ctx->fdb_idx)
- 			goto skip;
--		if (filter_dev && (!f->dst || f->dst->dev != filter_dev)) {
-+		if (filter_dev && (!dst || dst->dev != filter_dev)) {
- 			if (filter_dev != dev)
- 				goto skip;
- 			/* !f->dst is a special case for bridge
-@@ -1093,10 +1101,10 @@ int br_fdb_dump(struct sk_buff *skb,
- 			 * Therefore need a little more filtering
- 			 * we only want to dump the !f->dst case
- 			 */
--			if (f->dst)
-+			if (dst)
- 				goto skip;
- 		}
--		if (!filter_dev && f->dst)
-+		if (!filter_dev && dst)
- 			goto skip;
- 
- 		err = fdb_fill_info(skb, br, f,
--- 
-2.43.0
+[1]
+"
+Are there other RCU readers that still need this protection?
 
+For instance, in br_dev_xmit(), br_fdb_find_rcu() returns a local FDB entry
+which is then passed to br_forward(). If a concurrent fdb_delete_local()
+sets the entry's dst to NULL, could this cause a NULL pointer dereference if
+br_forward() is inlined and the compiler emits multiple loads?
+
+Similarly, br_handle_frame_finish() appears to perform an unmarked read of
+dst->dst, which might race with br_fdb_update().
+
+Also, in br_fdb_delete_by_port(), f->dst is read directly without
+READ_ONCE(). While called under br->hash_lock, the br_fdb_update()
+fast path updates f->dst locklessly. Could this trigger KCSAN warnings due
+to an unmarked data race?
+"
+
+[2]
+"
+Does passing f to fdb_fill_info() allow a concurrent update to change
+the destination port after the filtering check?
+
+fdb_fill_info() executes a new READ_ONCE(fdb->dst). If f->dst changes
+between the filter_dev check above and the call to fdb_fill_info(), the
+dumped entry might claim to be on a device that doesn't match the requested
+filter_dev.
+
+Should fdb_fill_info() be updated to accept the dst snapshot instead?
+"
