@@ -1,122 +1,163 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+Received: from mail-oa1-f79.google.com (mail-oa1-f79.google.com [209.85.160.79])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27763C660C
-	for <bridge@lists.linux.dev>; Tue, 14 Apr 2026 09:33:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 277CF245008
+	for <bridge@lists.linux.dev>; Tue, 14 Apr 2026 11:58:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.79
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776159240; cv=none; b=FcpKeOzgkbq0NoMeRZqQkx24T4zoq0DiAUBOKnc2RaBIw/pSso8FFuaMilJKHnPKmnqXnCegPJAow2SeHLb6kNP+bZioUzxcYL9ohYNRCPRV6A+FWZZ7WtmpBnSyU7twWHDw15BOEQCx8SGYjuQP57mwEIPjBixWC4/mjCOTVh8=
+	t=1776167920; cv=none; b=cjkPKzCNdZ6T9HGGCbxPKHLMM3iDzZD41vvaWQkIxoE54vNbv3FVSEmdYT+O7yH/h2ezymL2WBVqREdXQMfcbwhmExQjY9VqPdGEinzz1c0ZSlMU/k/oDmbJEEvLhuZeJr1fWrHhIvLmJIW0sduHzqr1/+ugvNxJd+slY6i2IWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776159240; c=relaxed/simple;
-	bh=qpIuniXDudM0XboRaWxykSn2rrqlQMfFwWmEQwMUzO4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XzDsJTUFnmy6X4oExDuLatBk4CFBAteWvM7rJQ82GVDaGc+CQuBroA9Z/8qLtILpoCLUX5OmPGS45Ln61L+3pvJQ0YV7T5UsWOptTvhbF/nY14FIEuqgfDf+8Mx4P+lU7+HFVj3JJoqMUy9xZGmClyrj8zwKBbqSTh5Nm92p6zE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=JIkbN1Cq; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="JIkbN1Cq"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-488c2690057so52383935e9.0
-        for <bridge@lists.linux.dev>; Tue, 14 Apr 2026 02:33:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1776159237; x=1776764037; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=h5D/wg1b6VK+Oa91JECSbBLRKMJ3Bb4xR5XlVGb/8nU=;
-        b=JIkbN1Cqw2pSyw1Am6KnD3+tfIgYtmE+K+SwVINvt08wheVXQtSeKVe34n/Lb2Rx9m
-         82C7CFsqVKD7o6E1TpUZ2IuNtGF3fk3JB8gCO96gkFg/nUi7Cde5w/M6d/bKB6N6zX0T
-         rbcIJfeLbQrskgBlVkuY7MIAjirKaNnu9TjAx5rWRkpfoa5l/tfHPkM71cO/nnARTyRe
-         dRBU7PUTGq2c5bcnaKzk74oOFMktl7OjdJgeMI4kJ6Vtl86QTBJlH4UlH7BFsRSZP4fH
-         khw9BCH2xB9LPpnwAUAWSa+XnhJKtUK2Zq1TtSSFu4aI9mUI+SGnjUqZeOZ+m8ICkvuv
-         +avQ==
+	s=arc-20240116; t=1776167920; c=relaxed/simple;
+	bh=2HaJ7C6Eo6NfwcJIzimyysjHzA/pc/i0mLTwBqWk98U=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=VdwyKHOAbgq6dZ7+WBELdyf1u8ncoiRrO39CDAiiTEbV6C0jppqY4ZVwYowg6xSo26w4dPG0BF0JV35D2V7jRcBaUl0fR8lasrvj7yxMIVOIcw0qH/PY6acjdNG4hVcLA0Git5gqbi5WH1Z54/R/YI6ZM9O2qPgiAsHHm+EC3PI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.160.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oa1-f79.google.com with SMTP id 586e51a60fabf-40a4d2264abso10426691fac.2
+        for <bridge@lists.linux.dev>; Tue, 14 Apr 2026 04:58:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776159237; x=1776764037;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=h5D/wg1b6VK+Oa91JECSbBLRKMJ3Bb4xR5XlVGb/8nU=;
-        b=AL9/VuIBxhDTRuZq/Zqjuz/+WAnoRJIXGSZy31ebouyJ8BD24u6winBgHniR254oTt
-         lHuRVbw8Qk8bJr2T/NZY99yaU8wvZhNG2vCjNCgcUcyAR7TTkegoGjfQwY1u/mlIgd/0
-         x9QRsRGIu2MyJMBG27PlA2LROCPno38TL5tuyhsSsptyXty/DuOvXN+sD9bIGucW7PUz
-         tLVBVggo5ggZlKQvhAYl+HXSRPXbXIz9Jof3DdllyYAsCfYlEMlUyEAAr/dE/468m0Hp
-         E0+WMwJmcVV/2kkkvdvuEHf8a/8m3fij9CTdliYEYYtf7IUJl7h53cajDLSEuO2lrs4P
-         Onew==
-X-Forwarded-Encrypted: i=1; AFNElJ+8eoqG1CX/GnRUlMMVSrwjHQtGt1/ZV+A4EIrWanyKzri7OPaGy909ITKPfBbGjEYTVm+g2/U=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwxGiQSC24KaK5wpcxOcnfImsUsopNqaUbrJyTPfy0hBQGwwhim
-	idqpLgXC8WHTFo1WmZAaZFWdtLWfjsxX7ZsOR1E9trJKoR6KEPwARQ8KxV2VHqjWUpY=
-X-Gm-Gg: AeBDietZm/rVbA4x6Jd6xpj5gacmqTuzh80N4N3Wb3jqNjm/uVrjAm+856Z6D+FZfdX
-	6kyZPO4utxB6+vRhp+bC9e2+aFivQVjUbHLxbbY6Ohg69MKXBkLUVHhsfNprswu5EUot4QcUnvo
-	XWgSNDP9yGIwPDjolpkhm3aI6A2vyeOY178J7rX04L3gvKSTdpH1K9U7Xbc6LbjZyokYUrepcYE
-	SOf1PWils/IjPMa1P9YKlEj92yh+b4B1V+CBuypmK3JIZaWeVUBLmMUKzTVLzxyuMRz+CrU6f6D
-	VsXxoPTK5MLLWjdXiwTVqxMJlbsVMfyrFl+Za1max3eT4lVVSUwQBc2PM1kWRg1zAoXrNEJRU3h
-	J0NyVFlPbSdjD7/hByLyFbGn+yyJJMbi3dtPkqHytx8TZkwdNR1Ggx5i6lABzolgzVsRr8i/ho+
-	utTy+17x7Ham/+HIH5JPtF/tYvUU+gRdA+mTpEkzUGdaxkfUyqWXiyCTFaIpP4LGNl
-X-Received: by 2002:a05:600c:450a:b0:488:a882:b7 with SMTP id 5b1f17b1804b1-488d6ad17e6mr217660055e9.29.1776159237157;
-        Tue, 14 Apr 2026 02:33:57 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488ecde5b26sm48082835e9.2.2026.04.14.02.33.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Apr 2026 02:33:56 -0700 (PDT)
-Message-ID: <f02a8b8f-bb27-48f1-bae6-2cda240a79d0@blackwall.org>
-Date: Tue, 14 Apr 2026 12:33:55 +0300
+        d=1e100.net; s=20251104; t=1776167918; x=1776772718;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xCbszGg/pu29m3RS9h0lC44Y5Fgpvv9Jr9lX3YF0Ay4=;
+        b=YzMUizo14JThY6BCJVdxw5BQxRLKedOPBB6X+NobfvdFRygDVXfXjeGISMtSpXZavb
+         0IRnO74UAW7VfPiRTc99jbvShbYDRNUjBcJCPSu9RprSU2TAhM4TnQeM+2VuErimbpYP
+         8MnNYlrYKfteKEbXmJfLpDLn8BXGqIjqpd83SDFQ30+DFJxYDCwRdPijddwf3nQwifrW
+         Ce7NoNxNE2sBWw2iC+7/QCL9y12urzFJLHjob0W+xY9oIlUs+YPs307KaK9dWuSQ4+Hj
+         k5JSW+DNfBNAd3oNSoR2Zm1kysBKkwCc4+JyUQIQOcWeTS2biFVt1QqvWtJ1l726vAvF
+         WD6w==
+X-Gm-Message-State: AOJu0Yx6EeTU1o32DcTnJGsk4rxTyVhtab8Ad7WDSZWycX3dIPPygbSA
+	LnMCp3ZGbYI8sKYonJB+FJ4qD+WFo9E5Gj7Q2p5Dk0aUZfH1481enWfIFuRKdJbrfonOB0I5vjJ
+	UrQXXg/52cPBvrjRsHJGbMX1hz2Nk3zauyEQTrtuiR1PJzrZF4v4b+nmwzzKDZg==
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/1] net: bridge: use a stable FDB dst snapshot in RCU
- readers
-To: Ren Wei <n05ec@lzu.edu.cn>, bridge@lists.linux.dev, netdev@vger.kernel.org
-Cc: idosch@nvidia.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- makita.toshiaki@lab.ntt.co.jp, vyasevic@redhat.com, yifanwucs@gmail.com,
- tomapufckgml@gmail.com, yuantan098@gmail.com, bird@lzu.edu.cn,
- enjou1224z@gmail.com, zcliangcn@gmail.com
-References: <cover.1776043229.git.zcliangcn@gmail.com>
- <6570fabb85ecadb8baaf019efe856f407711c7b9.1776043229.git.zcliangcn@gmail.com>
-Content-Language: en-US, bg
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <6570fabb85ecadb8baaf019efe856f407711c7b9.1776043229.git.zcliangcn@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6820:2907:b0:682:3fc6:5581 with SMTP id
+ 006d021491bc7-68be5778213mr8828186eaf.7.1776167918128; Tue, 14 Apr 2026
+ 04:58:38 -0700 (PDT)
+Date: Tue, 14 Apr 2026 04:58:38 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69de2bee.a00a0220.475f0.0041.GAE@google.com>
+Subject: [syzbot] [bridge?] KASAN: use-after-free Read in qdisc_pkt_len_segs_init
+From: syzbot <syzbot+83181a31faf9455499c5@syzkaller.appspotmail.com>
+To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
+	horms@kernel.org, idosch@nvidia.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
+	razor@blackwall.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 13/04/2026 12:08, Ren Wei wrote:
-> From: Zhengchuan Liang <zcliangcn@gmail.com>
-> 
-> Local FDB entries can be rewritten in place by `fdb_delete_local()`, which
-> updates `f->dst` to another port or to `NULL` while keeping the entry
-> alive. Several bridge RCU readers inspect `f->dst`, including
-> `br_fdb_fillbuf()` through the `brforward_read()` sysfs path.
-> 
-> These readers currently load `f->dst` multiple times and can therefore
-> observe inconsistent values across the check and later dereference.
-> In `br_fdb_fillbuf()`, this means a concurrent local-FDB update can change
-> `f->dst` after the NULL check and before the `port_no` dereference,
-> leading to a NULL-ptr-deref.
-> 
-> Fix this by taking a single `READ_ONCE()` snapshot of `f->dst` in each
-> affected RCU reader and using that snapshot for the rest of the access
-> sequence. Also publish the in-place `f->dst` updates in `fdb_delete_local()`
-> with `WRITE_ONCE()` so the readers and writer use matching access patterns.
-> 
-> Fixes: 960b589f86c7 ("bridge: Properly check if local fdb entry can be deleted in br_fdb_change_mac_address")
-> Cc: stable@kernel.org
-> Reported-by: Yifan Wu <yifanwucs@gmail.com>
-> Reported-by: Juefei Pu <tomapufckgml@gmail.com>
-> Co-developed-by: Yuan Tan <yuantan098@gmail.com>
-> Signed-off-by: Yuan Tan <yuantan098@gmail.com>
-> Suggested-by: Xin Liu <bird@lzu.edu.cn>
-> Tested-by: Ren Wei <enjou1224z@gmail.com>
-> Signed-off-by: Zhengchuan Liang <zcliangcn@gmail.com>
-> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
-> ---
->   net/bridge/br_arp_nd_proxy.c |  8 +++++---
->   net/bridge/br_fdb.c          | 28 ++++++++++++++++++----------
->   2 files changed, 23 insertions(+), 13 deletions(-)
-> 
+Hello,
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+syzbot found the following issue on:
+
+HEAD commit:    17ad4759a082 Merge branch 'wangxun-improvement'
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=1505dcd2580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=229411a0a13ccb7d
+dashboard link: https://syzkaller.appspot.com/bug?extid=83181a31faf9455499c5
+compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/b67be09d914c/disk-17ad4759.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/20a2548795c3/vmlinux-17ad4759.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/29e723395cef/bzImage-17ad4759.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+83181a31faf9455499c5@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KASAN: use-after-free in __tcp_hdrlen include/linux/tcp.h:31 [inline]
+BUG: KASAN: use-after-free in qdisc_pkt_len_segs_init+0x7f8/0xa30 net/core/dev.c:4146
+Read of size 2 at addr ffff88815ace2434 by task syz.2.24/6033
+
+CPU: 0 UID: 0 PID: 6033 Comm: syz.2.24 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/18/2026
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xba/0x230 mm/kasan/report.c:482
+ kasan_report+0x117/0x150 mm/kasan/report.c:595
+ __tcp_hdrlen include/linux/tcp.h:31 [inline]
+ qdisc_pkt_len_segs_init+0x7f8/0xa30 net/core/dev.c:4146
+ sch_handle_ingress net/core/dev.c:4483 [inline]
+ __netif_receive_skb_core+0x13bd/0x31a0 net/core/dev.c:6065
+ __netif_receive_skb_list_core+0x24d/0x810 net/core/dev.c:6289
+ __netif_receive_skb_list net/core/dev.c:6356 [inline]
+ netif_receive_skb_list_internal+0x995/0xcf0 net/core/dev.c:6447
+ gro_normal_list include/net/gro.h:523 [inline]
+ gro_flush_normal include/net/gro.h:531 [inline]
+ napi_complete_done+0x299/0x730 net/core/dev.c:6815
+ gro_cell_poll+0x5a9/0x5d0 net/core/gro_cells.c:74
+ __napi_poll+0xae/0x340 net/core/dev.c:7742
+ napi_poll net/core/dev.c:7805 [inline]
+ net_rx_action+0x627/0xf70 net/core/dev.c:7962
+ handle_softirqs+0x22a/0x870 kernel/softirq.c:622
+ do_softirq+0x76/0xd0 kernel/softirq.c:523
+ </IRQ>
+ <TASK>
+ __local_bh_enable_ip+0xf8/0x130 kernel/softirq.c:450
+ local_bh_enable include/linux/bottom_half.h:33 [inline]
+ tun_rx_batched+0x617/0x790 drivers/net/tun.c:-1
+ tun_get_user+0x2aeb/0x3ed0 drivers/net/tun.c:1953
+ tun_chr_write_iter+0x113/0x200 drivers/net/tun.c:1999
+ new_sync_write fs/read_write.c:595 [inline]
+ vfs_write+0x61d/0xb90 fs/read_write.c:688
+ ksys_write+0x150/0x270 fs/read_write.c:740
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f177e39c819
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f177f1e3028 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00007f177e616180 RCX: 00007f177e39c819
+RDX: 000000000000fdef RSI: 00002000000002c0 RDI: 0000000000000003
+RBP: 00007f177e432c91 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f177e616218 R14: 00007f177e616180 R15: 00007ffee7d40588
+ </TASK>
+
+The buggy address belongs to the physical page:
+page: refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x15ace2
+flags: 0x57ff00000000000(node=1|zone=2|lastcpupid=0x7ff)
+raw: 057ff00000000000 ffffea00056b3888 ffffea00056b3888 0000000000000000
+raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner info is not present (never set?)
+
+Memory state around the buggy address:
+ ffff88815ace2300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff88815ace2380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+>ffff88815ace2400: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+                                     ^
+ ffff88815ace2480: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff88815ace2500: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+==================================================================
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
