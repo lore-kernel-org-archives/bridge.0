@@ -1,432 +1,159 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012004.outbound.protection.outlook.com [52.101.48.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C00B6363C46
-	for <bridge@lists.linux.dev>; Fri, 17 Apr 2026 05:57:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DF0D392C50
+	for <bridge@lists.linux.dev>; Sat, 18 Apr 2026 14:50:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.4
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776405446; cv=pass; b=UoCAtqVUXmqfiaI/Tue9N/OB5wh6QAY1hgVOvHe+xarSIK0sbFszreSS/pI9uyxInPEBWq5LpdGeXZbjsE5vAU3zWtjBgRTBPnUt4i0Bfc9tQem/zIK8BuAF56zJt0raJdzZHzuL1rG9ED8+vPfgwBmUzLTCeqcOw99RqF1Qcfg=
+	t=1776523815; cv=fail; b=AWdlWjxwtiyKozEzm8nHqXy2sOYC1WQgKqrT2XtRxQCbp0r9GBoJJ9qZBUcqyH7Smzu9BJbMN6x68iHcFAj7Ym11/TU7Pb5An1UBGQ1c6mXvcq/dTZURBCgwPj5I9jOJj+oIeyZ2m86+nvj2Hs8Ym76c5+FMaJzw6V/vX80AbtA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776405446; c=relaxed/simple;
-	bh=4fDLkAlPYl0zlshMTeD2bs7dYFbaoYKeX26/lmejc3w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OJHXrN6H+NrvMQjmnxXk2Hjg9RO2YVUy9kISTtn3K1jxoGY2x3bQv9sWcgTzyfxoEB8+8gruZgZ9gk0wH+HTxMMBJ/qbbvHf4mcdcNLw4i1qzNXkajIy/zU0TlRa1wR45gSD3FU1RPsNhr13u8MzZZizNuy9SgtfAnPawPtHlJ0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sYb0fAYv; arc=pass smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776523815; c=relaxed/simple;
+	bh=4Oac5h/PAct5oCCBWs7NTE4sgjwwr4Vo071Ohc+0SEY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=cwTkU1LUhe5Xs48NNqnMLYhefChGDgyi8oIY1Ik3YkcCSum3Ax9nNb4+YyCirrPetXTAi2MpVkSjmkY6aJ+N4ezxFK6mhyrCJkfrWx/BxKtq376mWrVmmLKoZ0zPMMjolamG9Fw0BtZ7Z4SIk/2QmnBgHxfROkUb6/IY/8D169c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=GMzJ10aS; arc=fail smtp.client-ip=52.101.48.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sYb0fAYv"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6714f678bdaso434827a12.3
-        for <bridge@lists.linux.dev>; Thu, 16 Apr 2026 22:57:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1776405443; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Ts+1YFWvQvEPC3jhwc14Z89WrRwErVvb5dF5w60GWJnYQOymskvMqHr4e29MVjizoY
-         S7gI2QEOE66CJUVJrZzO22cuiARnZ40bfQNNAz1AzwpI8fSwdK/eLkVaZWJRws9ulV0L
-         scx9kjlbm3o+kT1qYwrinPnmDKDhpOqD8TMZ4ufOVX/pVhI8k6zHT5ZD1KsoU1EGcpYU
-         ByNxUztv6ccAFwjudPJg8LBc16KisaX0ZYIp5YQGaiO8YyFOLl/5EsGQdEQVfSJH0Abr
-         /bCj/e33EcsnTc9JL5Yo5KRIYRHl3KGrAgF2G00yWqB1rHZvhPRgYBHfnUIWKFA58N1K
-         rYXw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=qHJSbhAY5Hj1P+Kw9gp3GRgD56SU4QEL2uene58s+UQ=;
-        fh=JFpVC+5gMe+3PhDvZI1f+Rch7EJeEblquf8/Xy96hCo=;
-        b=YugDdsZLUxQxOIPIpeeO8JGZ1rgLxcSAy/BfQF/Z+JxWJGlerI09US86n+zDXob5oD
-         Sohsay5vXJr/BM4Mr9Pp9zT3gqa4bNgVPOWUNBzKXwxCeTc4VwB6hQPeP/litfe05TTM
-         QAE55xE8oc4L1Uw+xYXR3z3EhLRRn6jrvXZ+wjCuoezYku2leLp1Xq5HXpv9RaYp0Arq
-         iahDqsBhOI8BCg+wUcCRAdUv78UFjfzITb3pP51T8IcO6nDwzVWlROlLLf6QXZAYpe2u
-         1vJBSCBCqULTNpQG1dMJCDelFce0urXnvPNTSui9Per6IBLxh1pgueJy0ZxjQuGRl/Mh
-         3Bcw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776405443; x=1777010243; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qHJSbhAY5Hj1P+Kw9gp3GRgD56SU4QEL2uene58s+UQ=;
-        b=sYb0fAYvOUke0++ffN4Ck8A3idufzMfkZD7i4kKQTy46sfKzTyPPUehmx+kjCrXp1b
-         yG9Sui4YoIEuml8Yl90QBNmpZDvDzGzjYpBBjmvoHW8FEqgffqvjEATM+QyhfguprJSN
-         JpaNNufmnV7BXR1L9hIUpxymtLEdJGs0y+pBKz2Nx8FrAYHE7oNbfDxOi32pSTsck1y9
-         mQ5WYGkDPUtQkITfqkHXI9dS0zULRQa/t9X7e11FYF0WlBzU4bRlt2N+tvPVyDAo8c7K
-         BWb7KCKUYh3/5X9rxsyGeMwjDYSfbhl9cce44nuuSQWegruk0lbSG9pC1JW/Ikl/ydOn
-         S45g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776405443; x=1777010243;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=qHJSbhAY5Hj1P+Kw9gp3GRgD56SU4QEL2uene58s+UQ=;
-        b=awuBXM/I+g3F4tOz8cQYYImdLKWX5SlcQk/uVsynZuUikDS14jLvI/k7TT8zJ3F7FJ
-         VbaZTaF0XVCdQAUsK1oF4w4D+TX+gI7uGSbcOEwqneno+2X/9C+C9cqWopvvXEi97el2
-         RHFFrzeU8ZYmH5gFYtlzZzFxEDTdXfexzqN6jxTSz2y63oz2TjcQgKS8HQAP7J2UCsIo
-         aCmwzqVwjuiwHm1HT694ABOaNca6BAZRYp6arYbwDbMyd5aBcVMrRJpkcfv7RN+Z5bDa
-         ua2zBFqTAXrPNrZNPfGlRHUQXLM8Xgk2DIK/J/tUKvpM/5XhiEs4BnCzRtuaV8NLGElD
-         LIjQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9alYKwk9cYiMjkknay0Yy5NffERGJsRK7ch3hjUiszTntUL9/5iBMX5abgttMquEs7triCk40=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyia21CoGMIUb4TYuNb8+KJ3WmtIvPVJiI7AEHxCfdNgGD6dbdU
-	SQYNRHfJI7sNc1VgA6nCaArCWZhu7KCfp1hxImP0CC9a/UhQtgTAx76b/bnCTJkkeT3cZCT7fPP
-	t1uS5as2MdElHrUJwS4jqqkbctFN77rg=
-X-Gm-Gg: AeBDiesLYSVnIPoUci6R3RJA4arXDlVAXGEo7idHxvw41a/zyV0VVOjvUMUFKx8aZsN
-	ZD6mMFAssgJESufalQD5Ghc0inMA9RHIj/+vWUt9BnwoGeJo2xYY99bcWlp93k1S8f0plDSZ5hj
-	NTpJU3xBpr7QRKX/MOkt0RhBnLk/nQYuj9elPDn7ChFin9K2hvhkwl1eZjBENVm13RNss2pU6pu
-	fPv/AIM2ByqasvYkrNs0LJBUS8FtNBUlKNUuuQUaV5f0GOc1lBGqLlSaziCiiHKZjgA/vqtVEl8
-	UvTgIvP9D6zt0ZM5Sw==
-X-Received: by 2002:a17:907:3e9e:b0:ba0:fb42:c254 with SMTP id
- a640c23a62f3a-ba41e4fc17fmr74134166b.33.1776405442662; Thu, 16 Apr 2026
- 22:57:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="GMzJ10aS"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=wE4A7c38DL5kyDVOG2z26ayX9dEtKJjkyx01lmjBJQQleR3W/S3vbi84RLumoACl4ZZMYMUcfF2uyAd/CwHYBqlpGqABx9DWHUS+Nu3TjhXtxNZtpwmS88TzTp8lzYQ+k+3eLUtJK39+X1YBtx3rJTKmBGKI2roRziDB/ZMBrbwYv+4g/oRpEPWGjzl2iPu6hKpGRMo6w0eGBZ2HJUqiCesy7bKmf+Iifi2AvPnQIgi7+z4NQ7kocq5TY85VHEfZb6d1dgBLCkPiCt1pnYxzZ8uduDxF0UKszkJ7prlPo2qIfNbEAjRE1ojvp93Z4zXpXZ+9NJO0Q7n0Y0VFGEwzGQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=PEQ6fs7rjRjy+MzhfZL8CyKNQAnXSE3ijfvDxUQpoIQ=;
+ b=scRe17n11b3OTkXNA2zFo2CzFjlhxEU1wLwmo9Rv0rzWg/D7jXHix53p3Sq1/aHMCUljGhoEJBX4t3hd+i2FZvrNRyYV80jDiuTzVdNtjfJNy5Y9bwweNF5pjBg0w3EojAn6wLWq+aOd1x0FZSbvD4lpDycVkd4Wz3C5DRldsymVYMN3HmhwBG1pAReXf/dape58YefgNVTNpskqAJKYflPBbjhmWB43SFtU34AXTcS5b5o7183WSbjVCXQ8LDZw3MCG1eoBMG7gqWC49jPUzWF6caAEsN1RqmTEeu5CC7Yv8jpzeffFFUHMPkL/B8pdgxHWApKCH/dl5M3Vgo9weA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=PEQ6fs7rjRjy+MzhfZL8CyKNQAnXSE3ijfvDxUQpoIQ=;
+ b=GMzJ10aSaidZslxF8lp/fqktHWiPj108mzVn9kL1Fn0YvgzhwiineK4DDowLbeEUbNyeiGCp3HjX+xt8gH9sEa79lzCKgPB/SVnNWboMislpuW+eqR205luruFkl6JDbsbq8CLbt+Uhmq1IiL7SQYJ6Maykm4VRaykf8MPn6SlIrQcnrWD6F4Yr7vp12VkLORyGWDBlZd//RQT1K8tDcXdiLNI6Es4hixmNr9fdUV4yudROVdqaV/qv3D4xLeqwNaLAutvisfygrUVJkNd7+nEIuWj+sqydSgFo0fMLZq5Az1+B8uc1ppXWsMPDdyDNn3G7BAFy3kqHDOn9XLw2hog==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by LV2PR12MB6015.namprd12.prod.outlook.com (2603:10b6:408:14f::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.25; Sat, 18 Apr
+ 2026 14:50:08 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9846.007; Sat, 18 Apr 2026
+ 14:50:08 +0000
+Date: Sat, 18 Apr 2026 17:49:57 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Ujjal Roy <royujjal@gmail.com>
+Cc: "David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Andy Roulin <aroulin@nvidia.com>, Yong Wang <yongwang@nvidia.com>,
+	Petr Machata <petrm@nvidia.com>, Ujjal Roy <ujjal@alumnux.com>,
+	bridge@lists.linux.dev, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH net-next v4 5/5] selftests: net: bridge: add MRC and QQIC
+ field encoding tests
+Message-ID: <20260418144957.GA798825@shredder>
+References: <20260412111047.1326-1-royujjal@gmail.com>
+ <20260412111047.1326-6-royujjal@gmail.com>
+ <20260413084752.GD209364@shredder>
+ <CAE2MWkmvdAVMBvJ9xKgEzjJZ010=oY_ZoG==FBjHEisHEMrS8Q@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAE2MWkmvdAVMBvJ9xKgEzjJZ010=oY_ZoG==FBjHEisHEMrS8Q@mail.gmail.com>
+X-ClientProxiedBy: FR4P281CA0373.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:f8::20) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260412111047.1326-1-royujjal@gmail.com> <20260412111047.1326-6-royujjal@gmail.com>
- <20260413084752.GD209364@shredder>
-In-Reply-To: <20260413084752.GD209364@shredder>
-From: Ujjal Roy <royujjal@gmail.com>
-Date: Fri, 17 Apr 2026 11:27:06 +0530
-X-Gm-Features: AQROBzB5fY-R1K2iDCJS4HRU-pTbet9wQAIZsnd7rkDVCi1swjpapiVgZRyU1jc
-Message-ID: <CAE2MWkmvdAVMBvJ9xKgEzjJZ010=oY_ZoG==FBjHEisHEMrS8Q@mail.gmail.com>
-Subject: Re: [PATCH net-next v4 5/5] selftests: net: bridge: add MRC and QQIC
- field encoding tests
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: "David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Nikolay Aleksandrov <razor@blackwall.org>, David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>, 
-	Andy Roulin <aroulin@nvidia.com>, Yong Wang <yongwang@nvidia.com>, 
-	Petr Machata <petrm@nvidia.com>, Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|LV2PR12MB6015:EE_
+X-MS-Office365-Filtering-Correlation-Id: eac95ba7-8321-4ebf-a39b-08de9d59c8c4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|366016|1800799024|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	dMzCaVP/hLC4g51Q8LTzW6rzpYEaUOhRaNbqy15Dx+DFwt4znhNLP/gk2fQDW2toJrgbcDQEZesRLO6tRzd4kly6UDqDMAtPk64oV+k5qkxTPdXHGvmbV11r+DGirKlTf7zqGNadZw+CMwHsTl8I5STnuub5pdfE71uOLUj+IYmuaFNMphjqTMjwz8e6Bi+S18fbaT5NSis6gvEVAuduTPFmrFKKXfsbZgzJYsctMJnQqr5qQ4F6owA1ywpUDqat3LO1aaN/pJx54NpVoiK0nUsyOdYYLxu8v8MxPMiStVPdy8fg5AEnpjlwiQj/93dvHGtgfm7ELuHjIl2FBO2w/ZhV8QYpznlE/06nNE/b7bswVv1doKiqu+PuekhNPNDLA02i8Lhd4Bb/kkYeWa9QPYQvEX9+a89oMwfUXbfoTs2q2N6U2wRkDr7qRkxRWNofsRHoxL1CqAp7u/+7HiYxLN71C8oTSogUxLlnuOBJ9vDcSZHs4tbN4n+IEQCb1IMMJRnvKQWCasHeQvy2KO3E+Mj9Z7ah8fU2VCE+Wg5YyuC/yATZwML8xZz1XV1Y/DwGPwaEI8SEDa+1lxb7ymV9KGrcjH+R4chCF5UhxhqQ5fqGbxiI4c7LdwNn/G/T0h+m0BUSEzurBHtJJYhMCNb0V8q/hgwz/uqAckEMavZGr9Pr1ItCU8ERxdwL10iXcfmeuale0kTdBVWv2t0+tOn11COygvTQ+62h8nMwJyo+bzA=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?cXM4OGpGbkI2Si94VEdwbnhKTkZiTWZzSlUrWTk2cGpta0gzVlRUcnNoSzBo?=
+ =?utf-8?B?TlRqc3JUc1YrMjdPcm1XRUJkeXlxcFY5VkhHNGNUcmdtdVcyb3NFWWx4a3NI?=
+ =?utf-8?B?MUR6RWRpVlMwUmRpanVOejR3MitVTGZ3RUVrTUo5L0I3Z0l0eXVycGYzWXJh?=
+ =?utf-8?B?aDBSTTVhMjNoOUJ0czFJVURlNnVMajh0SEZLQXg2VDJqandYeDdrbWcvaTM5?=
+ =?utf-8?B?UlFQNUJPSTRCemxYNW04VGR1cGZKOERNb0ZwRDYyWm53QjZlOVY3MFlERzVh?=
+ =?utf-8?B?TkJWazVyeGZ0dVRuRDdqNnVOWWRnTmt0OEwySm9iSXFHdEw1cTkyWUE3L1pt?=
+ =?utf-8?B?QkVYVzRDRlNYU0tvdkE0Tm96SmYxaTJZV2Znd085UUtrY1NheVhHZHVLRVIz?=
+ =?utf-8?B?M05hK1lHTGtkWnQ1eS85Tm5UUG5zTFhmMXp2bUZiY1RPZHFneVZRTEx1b3k0?=
+ =?utf-8?B?KzR6WXk1TkNheXB3Q3ZZK21uYkdKWk1rNmZCMU5ZNWRNbGJaUWhXOFB3aFc0?=
+ =?utf-8?B?U2Q1bzBhNnMyOFNvRnp5Uit6WE1OWkxndkhvaTUwRFF5NkN2VnhCVEwvU2RZ?=
+ =?utf-8?B?a3pUclUzcHAvSDU2TFJPN3JMZjVDbDlpM3YyOTB1ZzVyRTVCQXdnL1FjcjIv?=
+ =?utf-8?B?VlRTTHg0WFpTV0ZGeXhvaU5sNnNrMUc2MHBsY0V3UHJXSlMvOTVFNUZYcVh2?=
+ =?utf-8?B?KytVRFhlcGM5Qk9zUXhjVEtyU1VYdzVXN2RURjFvbTJzaWdBbDZYMHFRb3hO?=
+ =?utf-8?B?Y2krTW5EbHFZRGZ2RXJ1QUxzc1RzNzhGaXVlL05idXpVbnFTelhCeWR6eTBF?=
+ =?utf-8?B?NFF3RHQxVWc4TnhML0JHandqVDVHYXZTek1uUEtpMzFEYS90MFg4VlhCQTJ0?=
+ =?utf-8?B?YXNQeFl0NVFud0NVQnZGVEFrN0lpa3kyQUxBVFkrUWRFeW1YRTFkUmhvMVEx?=
+ =?utf-8?B?UDQvQWRjMkptV2FRL3ZnRmllVVJMUzc0Sy9mRjl4Nmd5ZGNsYjRkRjZjOUxw?=
+ =?utf-8?B?bEJKT2NqKzZ3bTZQWkc1YS9Nem80aUVNZ01lRmJEdm5OUVVpRHQ5WDc4QURF?=
+ =?utf-8?B?dDhlZjVic3kvOGtxd1pTdzhjRzlWYjR4aFN0SVZlQStqTzdzZjBEUDhoR2FK?=
+ =?utf-8?B?aDBONDFwTFVpVkdBM2FlMk5mVnFTc2xCNGNVclFKV0VvTVEyUnpYU0o3L3VM?=
+ =?utf-8?B?ejB2bXljbDVMSkdaQ08vQ3cvajlJNmhvazRxV3EycmRsSzY5WFBDdzBQc3k4?=
+ =?utf-8?B?dmxsTTJqanFYa3FrbkdKQU9DY0o1RWZkcUtIaVJlUnFzTjVrcmd3VHRsNUc2?=
+ =?utf-8?B?d3B0TXVweUN2elllNEZyaTUxb2V4SDR0MUZWYVVKamV4c1M1KzFJVjUwamtN?=
+ =?utf-8?B?bkRPOHl4U2wwSDFNbno2OStLN0VPZEw1ZmM3b3NQMUtiY1RWWnhNUUswSUVZ?=
+ =?utf-8?B?bmUxQXpDTjBrUFY3VUdNTG10ZFdOQ3dKeFBFMDFVSHNTQ0Nmc0tpWkxGTXVG?=
+ =?utf-8?B?MS9NQ2RjcC9SUW8vb2FWeUZYdkZPbXV3QmlqSFZPdktUSnQ3YVViQnhyT0NO?=
+ =?utf-8?B?NmwzMmtQcEFDRFR1cW1KeWxKMWhQOW96V0FjWVhmUkwxNXg2SXEwbUJFUXlG?=
+ =?utf-8?B?MU5xUDk5U2RTU0xsWEFQdk55QkxTYTRpRnlkaS9OOVQxQVVXbndzNzB5eTlu?=
+ =?utf-8?B?VEtML1c5MEpYYmJtUHBhcDkvMFNZRkpYME5uai9QbFNJQlVHWWxVWmtzUjJl?=
+ =?utf-8?B?QngxcUlBTm5KSk8rem9wVE5SNFEwOXdYZ2srMFlnbzJVK2h6TVh6aU9OMzA1?=
+ =?utf-8?B?Tzk5K3FwckJiU1hnSEM0ejVHKzNuZERxVlFmMldFRmY3M2hucEszR2tmMmNy?=
+ =?utf-8?B?TldFVkdTS2dzaGlGVHhrSlRHd0JqQkF0ZU8zbjJJNFNkdEFucGQvYWFJZHFl?=
+ =?utf-8?B?bWFPMW56VUNUZjMycE5GUzlLUGhiajU2OWNqSHVYaVY1L0h3NVFJSE9oK0dR?=
+ =?utf-8?B?R2JkOTNxNXBjd2dzeWcxNkhzMEw0SHFGQ2NIaWFSRktQUUNBenVsZjdkMEY0?=
+ =?utf-8?B?ZXJDNXB1TEN0ZTdTK0MxRng3MEoyQkRsN1NSWkFCY2dDbkhWZzFDSUVyUWQw?=
+ =?utf-8?B?QzNGbHVMc2dHcmpFdW85U25nODhZTmdwVWpxSWJiVTl4d2hnbi92UWhnY09G?=
+ =?utf-8?B?SUV3TUYvZm10d3BaNE40Skk5Y0RodzMwMlNwL3pUWnYyNTFVaU1HTGpCMmov?=
+ =?utf-8?B?MlB1Y25lOXBPSEc5ak1xb2p2SFpOdWdpMlBuQjNWQ2l5TjZCQVVySnY1L1dV?=
+ =?utf-8?B?VG1iRGlBcFJkZDNxdUlYNlB3dThrM3RjSmVFK2M5L1ZUNVU2c3FPQT09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: eac95ba7-8321-4ebf-a39b-08de9d59c8c4
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Apr 2026 14:50:08.1874
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: eR6DEhydTaHBzaWkzhvEILD/sjyOGIusNlkU/mRKTHIiA0TDf7gdZ5cmNUyCO6AwiW3V5RdIbBHmFNFvx2yDFQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB6015
 
-On Mon, Apr 13, 2026 at 2:18=E2=80=AFPM Ido Schimmel <idosch@nvidia.com> wr=
-ote:
->
-> See some comments below, but note that net-next is closed:
->
-> https://lore.kernel.org/netdev/20260412142250.131bf997@kernel.org/
->
-> So you can either wait with v5 until it is open again or post it as RFC
-> so that we can at least review (but not merge) it while net-next is
-> closed.
+On Fri, Apr 17, 2026 at 11:27:06AM +0530, Ujjal Roy wrote:
+> On Mon, Apr 13, 2026 at 2:18 PM Ido Schimmel <idosch@nvidia.com> wrote:
+> >
+> > See some comments below, but note that net-next is closed:
+> >
+> > https://lore.kernel.org/netdev/20260412142250.131bf997@kernel.org/
+> >
+> > So you can either wait with v5 until it is open again or post it as RFC
+> > so that we can at least review (but not merge) it while net-next is
+> > closed.
+> 
+> Let me clear the changes asked here inline, so that I will be prepared
+> with v5 until net-next is open. You can ask me to send it as RFC v5,
+> if you have doubts about inline answers.
 
-Let me clear the changes asked here inline, so that I will be prepared
-with v5 until net-next is open. You can ask me to send it as RFC v5,
-if you have doubts about inline answers.
+I checked the proposed changes and they look fine to me.
 
->
-> On Sun, Apr 12, 2026 at 11:10:47AM +0000, Ujjal Roy wrote:
-> > Enhance vlmc_query_intvl_test and vlmc_query_response_intvl_test in
-> > bridge_vlan_mcast.sh to validate IGMPv3/MLDv2 protocol compliance for
-> > MRC and QQIC field encoding across both linear and exponential ranges.
-> >
-> > TEST: Vlan multicast snooping enable                                [ O=
-K ]
-> > TEST: Vlan mcast_query_interval global option default value         [ O=
-K ]
-> > INFO: Vlan 10 mcast_query_interval (QQIC) test cases:
-> > TEST: Number of tagged IGMPv2 general query                         [ O=
-K ]
-> > TEST: IGMPv3 QQIC linear value 60                                   [ O=
-K ]
-> > TEST: MLDv2 QQIC linear value 60                                    [ O=
-K ]
-> > TEST: IGMPv3 QQIC non linear value 160                              [ O=
-K ]
-> > TEST: MLDv2 QQIC non linear value 160                               [ O=
-K ]
-> > TEST: Vlan mcast_query_response_interval global option default value   =
-[ OK ]
-> > INFO: Vlan 10 mcast_query_response_interval (MRC) test cases:
-> > TEST: IGMPv3 MRC linear value 60                                    [ O=
-K ]
-> > TEST: IGMPv3 MRC non linear value 160                               [ O=
-K ]
-> > TEST: MLDv2 MRC linear value 30000                                  [ O=
-K ]
-> > TEST: MLDv2 MRC non linear value 60000                              [ O=
-K ]
-> >
-> > Signed-off-by: Ujjal Roy <royujjal@gmail.com>
-> > ---
-> >  .../net/forwarding/bridge_vlan_mcast.sh       | 150 +++++++++++++++++-
-> >  1 file changed, 142 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.s=
-h b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-> > index e8031f68200a..9f9f33d58286 100755
-> > --- a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-> > +++ b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-> > @@ -162,14 +162,27 @@ vlmc_query_cnt_setup()
-> >  {
-> >       local type=3D$1
-> >       local dev=3D$2
-> > +     local match=3D$3
-> >
-> >       if [[ $type =3D=3D "igmp" ]]; then
-> > -             tc filter add dev $dev egress pref 10 prot 802.1Q \
-> > +             # This matches: IP Protocol 2 (IGMP)
-> > +             tc filter add dev "$dev" egress pref 10 prot 802.1Q \
-> >                       flower vlan_id 10 vlan_ethtype ipv4 dst_ip 224.0.=
-0.1 ip_proto 2 \
-> > +                     action continue
-> > +             # AND Type 0x11 (Query) at offset 24 after IP
-> > +             # IP (20 byte IP + 4 bytes Option)
->
-> Let's make it clearer: 20 bytes IPv4 header + 4 bytes Router Alert option
-             #    20 bytes IPv4 header + 4 bytes Router Alert option +
-IGMP[offset 0] Query
-
->
-> > +             match=3D(match u8 0x11 0xff at 24 $match)
-> > +             tc filter add dev "$dev" egress pref 20 prot 802.1Q u32 "=
-${match[@]}" \
-> >                       action pass
-> >       else
-> > -             tc filter add dev $dev egress pref 10 prot 802.1Q \
-> > +             # This matches: ICMPv6
-> > +             tc filter add dev "$dev" egress pref 10 prot 802.1Q \
-> >                       flower vlan_id 10 vlan_ethtype ipv6 dst_ip ff02::=
-1 ip_proto icmpv6 \
-> > +                     action continue
-> > +             # AND Type 0x82 (Query) at offset 48 after IPv6
-> > +             # IPv6 (40 bytes IPv6 + 2 bytes next HDR + 4 bytes Option=
- + 2 byte pad)
->
-> Same: 40 bytes IPv6 header + 8 bytes Hop-by-hop option
-             #    40 bytes IPv6 header + 8 bytes Hop-by-hop option +
-MLD[offset 0] Query
-
->
-> > +             match=3D(match u8 0x82 0xff at 48 $match)
-> > +             tc filter add dev "$dev" egress pref 20 prot 802.1Q u32 "=
-${match[@]}" \
-> >                       action pass
-> >       fi
->
-> Sashiko has a relevant comment:
->
-> "
-> Does this configuration evaluate all packets against the pref 20 filter,
-> regardless of the pref 10 result?
->
-> In tc, if a packet does not match a filter, classification automatically =
-falls
-> through to the next priority filter.  By using "action continue" on pref =
-10,
-> matching packets are also instructed to continue evaluation at the next f=
-ilter.
->
-> Because both matching and non-matching packets proceed to pref 20, pref 1=
-0
-> seems to act as a no-op gate.  Could this cause the u32 rules in pref 20 =
-to
-> inadvertently match unrelated background traffic on the interface?
->
-> To implement a logical AND across different classifiers, should pref 10 u=
-se
-> "action goto chain 1" with pref 20 placed inside chain 1?
-> "
-Answer: No, it should evaluate IGMP only by pref 10 filter AND IGMPv3
-Query by pref 20 filter. Query filter may include additional match for
-QQIC/MRC.
-
-Here is my new filter:
-             tc filter add dev "$dev" egress pref 10 prot 802.1Q \
-                     flower vlan_id 10 vlan_ethtype ipv4 dst_ip
-224.0.0.1 ip_proto 2 \
-                     action goto chain 1
-
->
-> >
-> > @@ -181,7 +194,53 @@ vlmc_query_cnt_cleanup()
-> >       local dev=3D$1
-> >
-> >       ip link set dev br0 type bridge mcast_stats_enabled 0
-> > -     tc filter del dev $dev egress pref 10
-> > +     tc filter del dev "$dev" egress pref 20
-> > +     tc filter del dev "$dev" egress pref 10
-> > +}
-> > +
-> > +vlmc_query_get_intvl_match()
-> > +{
-> > +     local type=3D$1
-> > +     local version=3D$2
-> > +     local test=3D$3
-> > +     local interval=3D$4
-> > +
-> > +     if [ "$test" =3D "qqic" ]; then
-> > +             # QQIC is 8-bit floating point encoding for IGMPv3 and ML=
-Dv2
-> > +             if [ "${type}v${version}" =3D "igmpv3" ]; then
-> > +                     # IP 20 bytes + 4 bytes Option + IGMPv3[9]
-> > +                     if [[ $interval -lt 128 ]]; then
-> > +                             echo "match u8 0x3c 0xff at 33"
->
-> Please pass the expected value as an argument instead of hard coding
-> "0x3c" here. Same in other places in the function.
-Will pass the expected code as an argument. Also will update the comments h=
-ere.
-                     # 20 bytes IPv4 header + 4 bytes Router Alert
-option + IGMPv3[offset 9] QQIC
-
->
-> > +                     else
-> > +                             echo "match u8 0x84 0xff at 33"
-> > +                     fi
-> > +             elif [ "${type}v${version}" =3D "mldv2" ]; then
-> > +                     # IPv6 40 + 2 next HDR + 4 Option + 2 pad + MLDv2=
-[25]
-> > +                     if [[ $interval -lt 128 ]]; then
-> > +                             echo "match u8 0x3c 0xff at 73"
-> > +                     else
-> > +                             echo "match u8 0x84 0xff at 73"
-> > +                     fi
-> > +             fi
-> > +     elif [ "$test" =3D "mrc" ]; then
-> > +             if [ "${type}v${version}" =3D "igmpv3" ]; then
-> > +                     # MRC is 8-bit floating point encoding for IGMPv3
-> > +                     # IP 20 bytes + 4 bytes Option + IGMPv3[1]
-> > +                     if [[ $interval -lt 128 ]]; then
-> > +                             echo "match u8 0x3c 0xff at 25"
-> > +                     else
-> > +                             echo "match u8 0x84 0xff at 25"
-> > +                     fi
-> > +             elif [ "${type}v${version}" =3D "mldv2" ]; then
-> > +                     # MRC is 16-bit floating point encoding for MLDv2
-> > +                     # IPv6 40 + 2 next HDR + 4 Option + 2 pad + MLDv2=
-[4]
-> > +                     if [[ $interval -lt 32768 ]]; then
-> > +                             echo "match u16 0x7530 0xffff at 52"
-> > +                     else
-> > +                             echo "match u16 0x8d4c 0xffff at 52"
-> > +                     fi
-> > +             fi
-> > +     fi
-> >  }
-> >
-> >  vlmc_check_query()
-> > @@ -191,9 +250,13 @@ vlmc_check_query()
-> >       local dev=3D$3
-> >       local expect=3D$4
-> >       local time=3D$5
-> > +     local test=3D$6
-> > +     local interval=3D$7
-> > +     local intvl_match=3D""
-> >       local ret=3D0
-> >
-> > -     vlmc_query_cnt_setup $type $dev
-> > +     intvl_match=3D"$(vlmc_query_get_intvl_match "$type" "$version" "$=
-test" "$interval")"
-> > +     vlmc_query_cnt_setup "$type" "$dev" "$intvl_match"
-> >
-> >       local pre_tx_xstats=3D$(vlmc_query_cnt_xstats $type $version $dev=
-)
-> >       bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_quer=
-ier 1
-> > @@ -201,7 +264,7 @@ vlmc_check_query()
-> >       if [[ $ret -eq 0 ]]; then
-> >               sleep $time
-> >
-> > -             local tcstats=3D$(tc_rule_stats_get $dev 10 egress)
-> > +             local tcstats=3D$(tc_rule_stats_get "$dev" 20 egress)
-> >               local post_tx_xstats=3D$(vlmc_query_cnt_xstats $type $ver=
-sion $dev)
-> >
-> >               if [[ $tcstats !=3D $expect || \
-> > @@ -441,6 +504,7 @@ vlmc_query_intvl_test()
-> >       check_err $? "Wrong default mcast_query_interval global vlan opti=
-on value"
-> >       log_test "Vlan mcast_query_interval global option default value"
-> >
-> > +     log_info "Vlan 10 mcast_query_interval (QQIC) test cases:"
->
-> Let's remove this as it makes the output confusing:
-Sure, I will remove this line.
-
->
-> INFO: Vlan 10 mcast_query_response_interval (MRC) test cases:
-> TEST: IGMPv3 MRC linear value 60                                    [ OK =
-]
-> [...]
-> TEST: Flood unknown vlan multicast packets to router port only      [ OK =
-]
-> TEST: Disable multicast vlan snooping when vlan filtering is disabled   [=
- OK ]
->
-> >       RET=3D0
-> >       bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_star=
-tup_query_count 0
-> >       bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_quer=
-y_interval 200
-> > @@ -448,8 +512,42 @@ vlmc_query_intvl_test()
-> >       # 1 is sent immediately, then 2 more in the next 5 seconds
-> >       vlmc_check_query igmp 2 $swp1 3 5
-> >       check_err $? "Wrong number of tagged IGMPv2 general queries sent"
-> > -     log_test "Vlan 10 mcast_query_interval option changed to 200"
-> > +     log_test "Number of tagged IGMPv2 general query"
-> >
-> > +     RET=3D0
-> > +     bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_igmp=
-_version 3
-> > +     check_err $? "Could not set mcast_igmp_version in vlan 10"
-> > +     bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_mld_=
-version 2
-> > +     check_err $? "Could not set mcast_mld_version in vlan 10"
-> > +     bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_quer=
-y_interval 6000
-> > +     check_err $? "Could not set mcast_query_interval in vlan 10"
-> > +     # 1 is sent immediately, IGMPv3 QQIC should match with linear val=
-ue 60s
-> > +     vlmc_check_query igmp 3 $swp1 1 1 qqic 60
-> > +     check_err $? "Wrong QQIC in generated IGMPv3 general queries"
-> > +     log_test "IGMPv3 QQIC linear value 60"
-> > +
-> > +     RET=3D0
-> > +     # 1 is sent immediately, MLDv2 QQIC should match with linear valu=
-e 60s
-> > +     vlmc_check_query mld 2 $swp1 1 1 qqic 60
-> > +     check_err $? "Wrong QQIC in generated MLDv2 general queries"
-> > +     log_test "MLDv2 QQIC linear value 60"
-> > +
-> > +     RET=3D0
-> > +     bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_quer=
-y_interval 16000
-> > +     check_err $? "Could not set mcast_query_interval in vlan 10"
-> > +     # 1 is sent immediately, IGMPv3 QQIC should match with non linear=
- value 160s
-> > +     vlmc_check_query igmp 3 $swp1 1 1 qqic 160
-> > +     check_err $? "Wrong QQIC in generated IGMPv3 general queries"
-> > +     log_test "IGMPv3 QQIC non linear value 160"
-> > +
-> > +     RET=3D0
-> > +     # 1 is sent immediately, MLDv2 QQIC should match with non linear =
-value 160s
-> > +     vlmc_check_query mld 2 $swp1 1 1 qqic 160
-> > +     check_err $? "Wrong QQIC in generated MLDv2 general queries"
-> > +     log_test "MLDv2 QQIC non linear value 160"
-> > +
-> > +     bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_igmp=
-_version 2
-> > +     bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_mld_=
-version 1
-> >       bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_star=
-tup_query_count 2
-> >       bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_quer=
-y_interval 12500
-> >  }
-> > @@ -468,11 +566,47 @@ vlmc_query_response_intvl_test()
-> >       check_err $? "Wrong default mcast_query_response_interval global =
-vlan option value"
-> >       log_test "Vlan mcast_query_response_interval global option defaul=
-t value"
-> >
-> > +     log_info "Vlan 10 mcast_query_response_interval (MRC) test cases:=
-"
->
-> Same
-I will remove this line also.
-
-[...]
+Thanks
