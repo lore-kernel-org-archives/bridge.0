@@ -1,54 +1,37 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CC8136B076
-	for <bridge@lists.linux.dev>; Wed, 22 Apr 2026 07:09:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ACBF46B5;
+	Wed, 22 Apr 2026 10:53:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776841750; cv=none; b=Fsri+isfKJ+vhOBOFsq+9AXTFLDrQ7hnCO3luTSa9d0HXx3krzchCTFgqRyCgDIY1MqHbNKm7xm27fQpu6/CrZZSUuWuFHC02C2TZImU1HKQuT61A3R7RGwMwNAE1Q4X6U66sm/qW3ZJ8XRmxP8kqAvAbKsajGH5XlnyAyzUCLI=
+	t=1776855217; cv=none; b=KkA03jfqtktAckqo31yvk8FVRs8Yx1NvFyw6S+3TmKuibfxdm3P2BgNbPq7bDYvmX9LAulDh3yBQBm2rPsNGUUxNXPCtN8AFuJkGVjpQu33sG1U8FKZ/I+9uVCuHj53Zn0rMDIlyeCyDb1RmEqtCnst8nzvOQ+8Hzn2v7OEpIV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776841750; c=relaxed/simple;
-	bh=Lh8pVmomFkOo4amu9fFZXflKJKs84bSrFxYYo4jSUvY=;
+	s=arc-20240116; t=1776855217; c=relaxed/simple;
+	bh=ft71bsoOUWGTJtW1ZFq6hY21ozdG2v4Dg7mr51X6pLE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DS35DCmLUiWkNiBvL7VpASbZk4JUxYXrrHhC9P9H9us/0lRYr4xaaSHWR6s5iCqCvK95HFWCAQOTMJ7+lg89aIC3vw2+TliOyLKiQMaiLSRrLP49HiHxE9Qv1ZFk9GV6C4lC052F4heC5vI9OtKKkwTC6j56ParCDkQy7Pfyjcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DAjWEFK7; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=kx8v2+QW/AiFCOB/rsosGYbM43rId2fxbS4C5SxrIQJ/s6LfsYqPiNP/89TvywWVfaKPahdLDPG74upHgE6cFO+rzHSSH2yKV19mCvpkSrhLksU1hqHSw1ifcrFEUllvtNX0b+mk7lzaMGSN8nms4j8vx1Q0WKAh5uJCpJW1lfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fUNttYnM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DAjWEFK7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1776841748; x=1808377748;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Lh8pVmomFkOo4amu9fFZXflKJKs84bSrFxYYo4jSUvY=;
-  b=DAjWEFK79OhPmQCmtyCpRD+xz+iYKLeRUxsn49jLGI9FBJrGLGSHlqcG
-   silKH1PM7a3mp8jUQSyygG6EiaYowHQTjSddG5k1y46TA+jfMDAS3L6p9
-   1YNB6PLDvmXAMyPW4qE+EeNgOpvkSWgDhlvPRsQMA/5P3xEIXb24YNbty
-   EfTY5PV+23jFpus4jdLGMPukU69aEHdF8eYlEizRdbCbF+EnMv6akeeEs
-   d7u4u95y3VB6Gp/ScVUR0lPNugYeuG/UUPQbVssbfCIKA0crxItPflYDm
-   l855q4hs0KGocZJbMTg7ft8axausbPcSmJMS+7MByAdTCMNYXFXCpVTHn
-   Q==;
-X-CSE-ConnectionGUID: g6RIuiZgRauDiNMSJ2vqrQ==
-X-CSE-MsgGUID: iyrN6H+pQ/GjqSjmEkC8KQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11763"; a="77664715"
-X-IronPort-AV: E=Sophos;i="6.23,192,1770624000"; 
-   d="scan'208";a="77664715"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Apr 2026 00:09:07 -0700
-X-CSE-ConnectionGUID: fjM2gdKWR9eNgwZD5Z38eQ==
-X-CSE-MsgGUID: LjAD8xsKRN6CT5YLUknGHA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,192,1770624000"; 
-   d="scan'208";a="225777795"
-Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.201])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Apr 2026 00:08:59 -0700
-Date: Wed, 22 Apr 2026 10:08:57 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fUNttYnM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5B4DC19425;
+	Wed, 22 Apr 2026 10:53:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776855216;
+	bh=ft71bsoOUWGTJtW1ZFq6hY21ozdG2v4Dg7mr51X6pLE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=fUNttYnMtOBg3D7mM/O3lX1Z0FGZo8PMNwpzoutfIDAn1mbNGCjRXJSl+TuSgdOyK
+	 voHy0YijRIzCz++rwem8APKKdDeE8s793e91t43vmEdEhOj0EZnTwM105OAHoRQShU
+	 auQ8TY+v1/K0im0i8CavgL8HaGtVtSHk+65Nw59rZpq7leNkAfWR+T89MjKp8I6Yg7
+	 H0c1EwBiPYCgS2l4XJCJd1rF2F8DnoAnXtVcfcUCgQYfVXUUGhb+CzGEorgrtJKHoc
+	 oAbdruxMz7gX4PABqsOKDE7h6be9BAug9JX4rJ2h/Sezp7wUDXbKZEZGrQEzonePmc
+	 K3P9S60/wfmjg==
+Date: Wed, 22 Apr 2026 11:53:24 +0100
+From: Simon Horman <horms@kernel.org>
 To: Jakub Kicinski <kuba@kernel.org>
 Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
-	pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org,
-	corbet@lwn.net, skhan@linuxfoundation.org, linux@armlinux.org.uk,
+	pabeni@redhat.com, andrew+netdev@lunn.ch, corbet@lwn.net,
+	skhan@linuxfoundation.org, linux@armlinux.org.uk,
 	tsbogend@alpha.franken.de, maddy@linux.ibm.com, mpe@ellerman.id.au,
 	npiggin@gmail.com, chleroy@kernel.org, 3chas3@gmail.com,
 	razor@blackwall.org, idosch@nvidia.com, jani.nikula@intel.com,
@@ -56,13 +39,14 @@ Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
 	herbert@gondor.apana.org.au, geert@linux-m68k.org,
 	ebiggers@kernel.org, johannes.berg@intel.com,
 	jonathan.cameron@huawei.com, kees@kernel.org, kuniyu@google.com,
-	fourier.thomas@gmail.com, rdunlap@infradead.org,
-	akpm@linux-foundation.org, linux-doc@vger.kernel.org,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	bridge@lists.linux.dev, dwmw2@infradead.org
+	fourier.thomas@gmail.com, andriy.shevchenko@intel.com,
+	rdunlap@infradead.org, akpm@linux-foundation.org,
+	linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, bridge@lists.linux.dev,
+	dwmw2@infradead.org
 Subject: Re: [PATCH net-deletions v2] net: remove unused ATM protocols and
  legacy ATM device drivers
-Message-ID: <aeh0CV3UQw1quCXv@ashevche-desk.local>
+Message-ID: <20260422105324.GM651125@horms.kernel.org>
 References: <20260422041846.2035118-1-kuba@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -73,8 +57,6 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20260422041846.2035118-1-kuba@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
 
 On Tue, Apr 21, 2026 at 09:18:44PM -0700, Jakub Kicinski wrote:
 > Remove the ATM protocol modules and PCI/SBUS ATM device drivers
@@ -120,48 +102,6 @@ On Tue, Apr 21, 2026 at 09:18:44PM -0700, Jakub Kicinski wrote:
 >    The guiding principle is to keep USB modems and delete
 >    the rest as USB ADSL2+ CPEs were most popular historically.
 > v1: https://lore.kernel.org/20260421021943.1295109-1-kuba@kernel.org
-> 
-> CC: corbet@lwn.net
-> CC: skhan@linuxfoundation.org
-> CC: linux@armlinux.org.uk
-> CC: tsbogend@alpha.franken.de
-> CC: maddy@linux.ibm.com
-> CC: mpe@ellerman.id.au
-> CC: npiggin@gmail.com
-> CC: chleroy@kernel.org
-> CC: 3chas3@gmail.com
-> CC: razor@blackwall.org
-> CC: idosch@nvidia.com
-> CC: jani.nikula@intel.com
-> CC: mchehab+huawei@kernel.org
-> CC: tytso@mit.edu
-> CC: herbert@gondor.apana.org.au
-> CC: geert@linux-m68k.org
-> CC: ebiggers@kernel.org
-> CC: johannes.berg@intel.com
-> CC: jonathan.cameron@huawei.com
-> CC: kees@kernel.org
-> CC: kuniyu@google.com
-> CC: fourier.thomas@gmail.com
-> CC: andriy.shevchenko@intel.com
-> CC: rdunlap@infradead.org
-> CC: akpm@linux-foundation.org
-> CC: linux-doc@vger.kernel.org
-> CC: linux-mips@vger.kernel.org
-> CC: linuxppc-dev@lists.ozlabs.org
-> CC: bridge@lists.linux.dev
-> CC: dwmw2@infradead.org
-> CC: herbert@gondor.apana.org.au
 
-Acked-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-
-P.S.
-Since it's almost removal and it will go via netdev tree (same tree you are
-maintaining, I suppose) the -D would have a big help to review the changes
-(and not see removals at all, as 32k lines of one email is too much).
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+Reviewed-by: Simon Horman <horms@kernel.org>
 
