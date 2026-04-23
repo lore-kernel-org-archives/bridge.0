@@ -1,214 +1,154 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA6E93E9594;
-	Thu, 23 Apr 2026 11:37:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 927392BEFF6
+	for <bridge@lists.linux.dev>; Thu, 23 Apr 2026 14:54:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776944238; cv=none; b=gG9SnYV4UB1ZhB5Q/qgeVgldG8qu22MUL9mYd7JUilUEO0SaVUMJ5IJjHt5JKKoCQkBylW0698If+Wqdr3qBUlH/zPbaFa6/FESikKEoJmlPrjGj6Dk0HLwZPYN7esCrfEQEKI4rfGbn3dNiQ8fpc7hTxWWJh2ZGocJBbkGctf8=
+	t=1776956088; cv=none; b=pf8D8NgFIAIqmdwPEz3iLLEtdL3yBtPQZnXvTBBjoQHfz/R0Fly5cjHAkMoxaF6eHDEG7kshGbyw8Ox/BAKuITslNuYmONzTlyCZdvc08ja3HtJyWwx08t+UXO4wAd3MpLgaRhpKzI7j8ibZT/WLbrg7ThkT3JJvY7C0mVEsMgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776944238; c=relaxed/simple;
-	bh=bFnqm5Br1q5pf0XfhOKYqXGgOc0pyuxWAbfVvLd99SU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=YNpqU3Nduoz0T4gg7Et47P1ClotyOc1Py5R3N96MAsWNBkgDGyEejp0zGKQCNMDyK0o7O0/EK9z0ZRyC9WHRM3kBQerbqwiugnr/Ij2OrRrCBFxLkHqe9AFr/10ZfSASZPrQ/pXqQTjvabCywqhQJQIEHIQtVgDuhy+xewI2F+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=desiato.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=XwhgW7tG; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=desiato.srs.infradead.org
+	s=arc-20240116; t=1776956088; c=relaxed/simple;
+	bh=hfUHLyKJSvrgtYgi0uQNctjhIyNjTTEmXV7g3LiZRcc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eSYZKWXIb5dCKtxMownxwy4LNXoFntwxAZixyiKWPkZpDhvUb7t4cmWtKH6juxuAfdAxgR3PYo1TWZuG072q7vgAhGV/2DrU+6oxu6So2saUyu18ofVhRDrbsMghfn3NPIy/nRhdTMi0cmh7Mne2fIEAPUp/hTzGkE90Vtk5IaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dV1tzpp+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="XwhgW7tG"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=bFnqm5Br1q5pf0XfhOKYqXGgOc0pyuxWAbfVvLd99SU=; b=XwhgW7tGch2xj+pdcehdwi8n70
-	uOkeIw7KG68bHcIeY67PSrtPAd1x4yrw1Gx+mYUZ0REgnRUclDiV1WUF5X84erIWc5f+VoSOSW4AO
-	BJnSLRWCPoLXUKgkTDG6kD1bHkzgCvoYlIQaJg6uHRNr0lE24qjTekMn0xJtwA6faSyHE7xOMVTdy
-	/DZbgS5nmSknxgNEGS+RR/y0ml+eH8IBJ6EKA8BN2NCvlO+fprDU2Ux8z5iy14tSLCCvBYlBsshuM
-	EF8SdYLMaMj1tzOpSmcEOeEneGwDSiV30wazuAGXsh3vRWafyo/TVqpSnCn4LCNsRvy8+WLGwdJ0M
-	QzDImPag==;
-Received: from [172.31.31.240] (helo=u09cd745991455d.ant.amazon.com)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1wFsMe-0000000CxD7-01dC;
-	Thu, 23 Apr 2026 11:37:00 +0000
-Message-ID: <15fd7d5819f33dd5e880a351b6c8115cc75bbaf7.camel@infradead.org>
-Subject: Re: [PATCH net-deletions v2] net: remove unused ATM protocols and
- legacy ATM device drivers
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>, Philip Prindeville
-	 <philipp_subx@redfish-solutions.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, davem@davemloft.net, openwrt-devel
- <openwrt-devel@lists.openwrt.org>, Guy Ellis <guy@traverse.com.au>, 
- netdev@vger.kernel.org, edumazet@google.com, pabeni@redhat.com, 
- andrew+netdev@lunn.ch, horms@kernel.org, corbet@lwn.net,
- skhan@linuxfoundation.org,  linux@armlinux.org.uk,
- tsbogend@alpha.franken.de, maddy@linux.ibm.com,  mpe@ellerman.id.au,
- npiggin@gmail.com, chleroy@kernel.org, 3chas3@gmail.com, 
- razor@blackwall.org, idosch@nvidia.com, jani.nikula@intel.com, 
- mchehab+huawei@kernel.org, tytso@mit.edu, herbert@gondor.apana.org.au, 
- geert@linux-m68k.org, ebiggers@kernel.org, johannes.berg@intel.com, 
- jonathan.cameron@huawei.com, kees@kernel.org, kuniyu@google.com, 
- fourier.thomas@gmail.com, rdunlap@infradead.org, akpm@linux-foundation.org,
-  linux-doc@vger.kernel.org, linux-mips@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, bridge@lists.linux.dev
-Date: Thu, 23 Apr 2026 12:36:59 +0100
-In-Reply-To: <aenP-TVgF-PrayEu@ashevche-desk.local>
-References: <20260422041846.2035118-1-kuba@kernel.org>
-	 <accbbcdf0ec14ae4d3f21ef5da7091bdcbd6574f.camel@infradead.org>
-	 <68316F0B-2442-4492-A041-E57EFC58AC08@redfish-solutions.com>
-	 <aenP-TVgF-PrayEu@ashevche-desk.local>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-giyqjUvQEX7jP9u8Ofpw"
-User-Agent: Evolution 3.52.3-0ubuntu1.1 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dV1tzpp+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776956086;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=TdUVkFiLAqBCJes+oJ0QB0pTbT2jdIw+uaSjtun6geI=;
+	b=dV1tzpp+JGeoe/daPipG6Clwob+O64hgsnMkp/Z6gm4LfvThcwuXrqyra7fNPl5Bf3k/5o
+	SgBJ7fyoo0bXcR5gXaF/kPX0b6yg/QaEUPv6jqntEycM0/mD/bqpTbd+pOJuHLKlEaeMkX
+	Nv3o5nC0r44dUQVn0A7yIk1na1bQ4Fw=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-83-Jl7Kq95iPiKNmniLCadWXA-1; Thu, 23 Apr 2026 10:54:43 -0400
+X-MC-Unique: Jl7Kq95iPiKNmniLCadWXA-1
+X-Mimecast-MFC-AGG-ID: Jl7Kq95iPiKNmniLCadWXA_1776956082
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43d780757eeso4185757f8f.1
+        for <bridge@lists.linux.dev>; Thu, 23 Apr 2026 07:54:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776956082; x=1777560882;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=TdUVkFiLAqBCJes+oJ0QB0pTbT2jdIw+uaSjtun6geI=;
+        b=DB915Tf/eN1EZhx4KwRPnIKDDmJkiC9F0ra6Dav8AZqQb8ezP15Nsbb14obv/T0x+K
+         rhNdZ4PIom0YsUXTdksOC9WCmYzLpsKsAVXMG9EFOkmthOi+Yp16N4a7lRBH1V2bgwMC
+         S/IaOhIDB0dnUl1TWboOWnFA6ZV9ZtJAEXXdTv1ARihY5OVUmkUgk8sOMiAl8c1OKg3q
+         t1B88URuWw3HXoKduKoikrDrH6poc9mm7ITAORiUnAcftzg1W3T7bKfLPADWCqc4Xiiq
+         G3HXtDLOB2xgGxbyXcwpYuspRJxPTkobfui84HVYg1bBcXM3Uw22oyEY/8Sd/TE7FnFG
+         DZTw==
+X-Forwarded-Encrypted: i=1; AFNElJ/YIfyinBFx4YQ2d9YDGSydktwpr2ZnKi3lRk5BwmxgarUv0mm3+dKn0VcBbuQwVAj8q92FSpw=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx7dZtm5ZUADYN/aPfAJfmMt1shHd5gCa2zq5Gt6Ofp6+EUGcyO
+	bHpm9CuLQHoLZ93pYvXxZu2KytSMYCxLUwVwVKfiDlzK3X7ut4xugnFKw9Uaq+eFpxQ5RCjw7s+
+	TaB9HEotMx2r4kkeOlHYRkTE0ivpzfvGm5yuLOL+iwvjUhwsPpLMoSa1RhQ==
+X-Gm-Gg: AeBDietZKAnnIcc1ijCSPg+kt6QlbT3WIRo1BsRTVSZVtijIC/9lVlcboI/Y1BlaN+z
+	MJtpfeaO/LwTYghP7aq8J7UU7JKIS6RUhHQle+lDdHyXSRYeHO9nDpFn5lGSIqMJQRUo/jGlLwo
+	OsHQnWYdeTSaqmA0wfr8lTJzgiK8SIWGFlgCU/DsC8MLCsmYIFUf9iXSSE8oQLtnBrKSdS2XkRw
+	11Pb4AKCO2bChzxYOv7nLpUMwV0yQ85sqdJMb6nc5Y7XN1W1POHCFf8+6DG71dFQcpiNwK0yuQ3
+	wC06IS7pKjtQPHkiNTlj+XzbQJZNGViCMF21wxifBuPPmgKsaEgZZxV6GJxHOCpV9dU/u6VVavk
+	s0tmPxCfAMmP04rpVAtNtNsAz/I9LVbqcglPsSA8TxNZko2AwUU13RiPczP/Qi7/jTaI=
+X-Received: by 2002:a05:6000:4a1a:b0:43e:a8d8:f3dc with SMTP id ffacd0b85a97d-43fe4052190mr36059653f8f.13.1776956081730;
+        Thu, 23 Apr 2026 07:54:41 -0700 (PDT)
+X-Received: by 2002:a05:6000:4a1a:b0:43e:a8d8:f3dc with SMTP id ffacd0b85a97d-43fe4052190mr36059588f8f.13.1776956081154;
+        Thu, 23 Apr 2026 07:54:41 -0700 (PDT)
+Received: from [192.168.88.32] ([150.228.93.216])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4e4daf2sm52345982f8f.33.2026.04.23.07.54.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Apr 2026 07:54:40 -0700 (PDT)
+Message-ID: <8e81d2a9-e095-4687-ae37-e4328bedb7a6@redhat.com>
+Date: Thu, 23 Apr 2026 16:54:37 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by desiato.infradead.org. See http://www.infradead.org/rpr.html
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-deletions v2] net: remove unused ATM protocols and
+ legacy ATM device drivers
+To: Andy Shevchenko <andriy.shevchenko@intel.com>,
+ Jakub Kicinski <kuba@kernel.org>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
+ andrew+netdev@lunn.ch, horms@kernel.org, corbet@lwn.net,
+ skhan@linuxfoundation.org, linux@armlinux.org.uk, tsbogend@alpha.franken.de,
+ maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com,
+ chleroy@kernel.org, 3chas3@gmail.com, razor@blackwall.org,
+ idosch@nvidia.com, jani.nikula@intel.com, mchehab+huawei@kernel.org,
+ tytso@mit.edu, herbert@gondor.apana.org.au, geert@linux-m68k.org,
+ ebiggers@kernel.org, johannes.berg@intel.com, jonathan.cameron@huawei.com,
+ kees@kernel.org, kuniyu@google.com, fourier.thomas@gmail.com,
+ rdunlap@infradead.org, akpm@linux-foundation.org, linux-doc@vger.kernel.org,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ bridge@lists.linux.dev, dwmw2@infradead.org
+References: <20260422041846.2035118-1-kuba@kernel.org>
+ <aeh0CV3UQw1quCXv@ashevche-desk.local>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <aeh0CV3UQw1quCXv@ashevche-desk.local>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: mZlYUHig60Pma-uqNjCbNKuV2dhIMXfaW7k6zUxZ19g_1776956082
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+On 4/22/26 9:08 AM, Andy Shevchenko wrote:
+> On Tue, Apr 21, 2026 at 09:18:44PM -0700, Jakub Kicinski wrote:
+>> Remove the ATM protocol modules and PCI/SBUS ATM device drivers
+>> that are no longer in active use.
+>>
+>> The ATM core protocol stack, PPPoATM, BR2684, and USB DSL modem
+>> drivers (drivers/usb/atm/) are retained in-tree to maintain PPP
+>> over ATM (PPPoA) and PPPoE-over-BR2684 support for DSL connections.
+>>
+>> Removed ATM protocol modules:
+>>  - net/atm/clip.c - Classical IP over ATM (RFC 2225)
+>>  - net/atm/lec.c - LAN Emulation Client (LANE)
+>>  - net/atm/mpc.c, mpoa_caches.c, mpoa_proc.c - Multi-Protocol Over ATM
+>>
+>> Removed PCI/SBUS ATM device drivers (drivers/atm/):
+>>  - adummy, atmtcp - software/testing ATM devices
+>>  - eni - Efficient Networks ENI155P (OC-3, ~1995)
+>>  - fore200e - FORE Systems 200E PCI/SBUS (OC-3, ~1999)
+>>  - he - ForeRunner HE (OC-3/OC-12, ~2000)
+>>  - idt77105 - IDT 77105 25 Mbps ATM PHY
+>>  - idt77252 - IDT 77252 NICStAR II (OC-3, ~2000)
+>>  - iphase - Interphase ATM PCI (OC-3/DS3/E3)
+>>  - lanai - Efficient Networks Speedstream 3010
+>>  - nicstar - IDT 77201 NICStAR (155/25 Mbps, ~1999)
+>>  - solos-pci - Traverse Technologies ADSL2+ PCI
+>>  - suni - PMC S/UNI SONET PHY library
+>>
+>> Also clean up references in:
+>>  - net/bridge/ - remove ATM LANE hook (br_fdb_test_addr_hook,
+>>    br_fdb_test_addr)
+>>  - net/core/dev.c - remove br_fdb_test_addr_hook export
+>>  - defconfig files - remove ATM driver config options
+>>
+>> The removed code is moved to an out-of-tree module package (mod-orphan).
+>>
+>> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+>> ---
+>> v2:
+>>  - keep BR2684
+>>  - correct the claim that Traverse Technologies is defunct,
+>>    I'm still deleting the solos driver, chances are nobody uses it.
+>>    Easy enough to revert back in since core is still around.
+>>    The guiding principle is to keep USB modems and delete
+>>    the rest as USB ADSL2+ CPEs were most popular historically.
 
---=-giyqjUvQEX7jP9u8Ofpw
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+A possible alternative would be moving the solos driver (and others
+similarly old, possibly not used anymore drivers into the staging dir
+(and let them be removed after some reasonable grace period).
 
-On Thu, 2026-04-23 at 10:53 +0300, Andy Shevchenko wrote:
-> On Wed, Apr 22, 2026 at 08:41:27PM -0600, Philip Prindeville wrote:
-> > > On Apr 22, 2026, at 7:05=E2=80=AFAM, David Woodhouse <dwmw2@infradead=
-.org> wrote:
-> > > On Tue, 2026-04-21 at 21:18 -0700, Jakub Kicinski wrote:
->=20
-> ...
->=20
-> > > > =C2=A0=C2=A0=C2=A0 I'm still deleting the solos driver, chances are=
- nobody uses it.
-> > > > =C2=A0=C2=A0=C2=A0 Easy enough to revert back in since core is stil=
-l around.
-> > > > =C2=A0=C2=A0=C2=A0 The guiding principle is to keep USB modems and =
-delete
-> > > > =C2=A0=C2=A0=C2=A0 the rest as USB ADSL2+ CPEs were most popular hi=
-storically.
-> > >=20
-> > > Still not entirely convinced; I worked on both USB ATM modems and on
-> > > Solos, and the Solos is both the most modern and the only one I still
-> > > actually have. And the only one we have native support for that could
-> > > ever do full 24Mb/s ADSL2+, I believe.
-> > >=20
-> > > If we drop it, OpenWrt will need to drop support for these, which I
-> > > think were quite popular at the time; there were a few UK resellers:
-> > > https://openwrt.org/toh/traverse/geos1_1
-> > >=20
-> > > I still don't actually care *enough* to try to find an ADSL line I
-> > > could plug one into for testing though... :)
-> >=20
-> > I have 3 boards lying around if anyone wants them.
->=20
-> The problem as I understand it is in one's willing to maintain and
-> support that driver while doing regular testing...
+/P
 
-Sure, but that's true of the usb-atm devices too, and I threw all of
-*those* in the skip already. :)
-
-I'll be more surprised if anyone is actively using one of those, than I
-would be if someone is using Solos. *If* we are going to keep the USB
-devices, I'd suggest it makes sense to keep Solos too.
-
-
-
---=-giyqjUvQEX7jP9u8Ofpw
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
-ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
-MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
-a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
-jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
-GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
-aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
-nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
-8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
-HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
-IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
-KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
-BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
-QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
-ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
-/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
-uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
-xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
-W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
-c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
-VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
-NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
-sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
-w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
-i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
-kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
-0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
-ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
-blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
-hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
-VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
-HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
-ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
-AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
-cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
-cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
-AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
-aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
-hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
-iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
-8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
-JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
-xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
-EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
-B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
-MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
-KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
-Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
-nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
-WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
-W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
-nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
-g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
-9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
-9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
-sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
-a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
-ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
-AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
-dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
-MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
-YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
-4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
-6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
-QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
-nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
-MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
-VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDQyMzExMzY1
-OVowLwYJKoZIhvcNAQkEMSIEIAKihgnDs+u9jIiZYQD9sBrURM0r9Aa6lQZSzu4u6NadMGQGCSsG
-AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
-cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
-VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
-cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAam9w1edb95ci
-KbOJSCr4JQ49reJ8juoPBXE10SrzqAmh+lCkNePzl6zrc5usEsg5FV6AVgG0GkLwf9sayjjhFHmj
-DQMrD7XNOvt1uH6sdOeeKkSiMWGb6RL1Mq7ZAa0hiD6466WPD+q2WPWFHkuormGGGbV352QeOnS6
-ET5PodWkdJFXL+7EZ/4dYc/nGlycSnOIiPqCE9Wj3He95TWj3s4S7I0FjPjEL1YenOO8Dfx7s9k4
-1pbe9cM+vEA02n2PN9E6Az8UdBgY5LbYLyqNfI2tKeljnBF8h8uQr7cpF3WrzFYP4QLcfL84kh82
-5Pypk40APppYLRPuEVsQ52ZYy5GrUNbp0DpWQKWGLM8ISKk8i0TNYCvUGYeeO+OmTneP/eYYlGDI
-YUVEZaOzkDEFjIuPNEdSZVTUuqVK14ZH3WYyPxMABXXjtQtadkzzLZSMCMtHj59GzHrxZ4Eniku/
-VyhircGMsrRcjfFYE/du49npOva2CjBYVKy1XgRp2JoocjBqjzgUq91crbnjPkquK7LttEduYKAV
-deUOc5r0QqcTIE3c85DPn/SkdYBTcueHAv/xJUzXK1Bn/lnXaVthJxKNk+PcGiVTkmxtO8v6Mky6
-qLjHZzLXlxFrgIHaQzsjPHyOZPllznp+ee/LMyJTTLz98RLCSHArUb4vBhUeHJYAAAAAAAA=
-
-
---=-giyqjUvQEX7jP9u8Ofpw--
