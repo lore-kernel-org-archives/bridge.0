@@ -1,64 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41D3B2868A9;
-	Thu, 23 Apr 2026 19:22:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from zg8tmja5ljk3lje4mi4ymjia.icoremail.net (zg8tmja5ljk3lje4mi4ymjia.icoremail.net [209.97.182.222])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5E942285068
+	for <bridge@lists.linux.dev>; Fri, 24 Apr 2026 09:31:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.97.182.222
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776972150; cv=none; b=rrE6hAc2ivPJYSKoI3m567YBc1NPIo+NJap5vG5walfAHHKMX86YgDm12I7ZVG3epeXWmcgoxTewyn7OfTFjf18n8AROh35vZD/Oc/GCzcj1a8PWHJhKe2PGQrsUTKqHBRtWBYIKQbOWH1IxN4fprrDqWAOznPWxu4z6jAShqbs=
+	t=1777023112; cv=none; b=ZLw/r1O4VSZUkaU/40KOMOx4pTSwgOBVfFN0m/v9BGcIzlVVFS71MBmACdtTL3ASgMhtgcr3dZ+YhaEXSuzwVFKWqNC4WahMsrln0zYhASZpfz9gvE7F+Pt3J8wUSzZ7pOEJmjBJ0smbeTNhth/aDexzbEBK5DUjdZd/YosKyDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776972150; c=relaxed/simple;
-	bh=j0GPDBAm0I4zxAqI6YWcxfV5/1mdBezPe3eBd3FNm2U=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gi2VG95TxdZN+le7YqM7tYvPT78+W4vWqgXTq48vI0WSBZOcqj3taclrqA+ZSGYQo5IsB1yCcdew26XfH1NUy/5l6hPuynW3omuxXjQcJhSDfmlL5X3sPtWSwWo9zYkdrWDfXjqjjHTWkzyHaAKjJ0fYwJTfQwiMmcsgK++kqx8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jkcJgQ3H; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jkcJgQ3H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F940C2BCAF;
-	Thu, 23 Apr 2026 19:22:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776972150;
-	bh=j0GPDBAm0I4zxAqI6YWcxfV5/1mdBezPe3eBd3FNm2U=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=jkcJgQ3HiRK14i/gFeArWLm8dfXNLDyZb/CpBpi/bg2TjV1D156Iw7VojatmxrCTw
-	 Uk4tMSO0ptQJ3yEQ0ywEKSb1noOxH3OwK1MnLTfCM/vq9XfmghTzfaPgRrnppZ1Xgc
-	 kFGzSEE8ml9Lbt3IukhfRveZZvqCqsyklMKvJD9kYlTLUyI39eU5IDbvCjRrrN4D+e
-	 q1PAjGln/6wuqEz86fqtMAJMuyI2Y/8d/SXUWnZV3HJ0AWUZwmmzs7/C/dV6JI9dze
-	 fRINV2aLL+GLGFZ48Gg+iryNpEsCaDM6wS6VAlLzaTOEQrnL0UAwaNb1jnF63pRK1a
-	 pr6UfVB7Bhukg==
-Date: Thu, 23 Apr 2026 12:22:27 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
- pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org, corbet@lwn.net,
- skhan@linuxfoundation.org, linux@armlinux.org.uk,
- tsbogend@alpha.franken.de, maddy@linux.ibm.com, mpe@ellerman.id.au,
- npiggin@gmail.com, chleroy@kernel.org, 3chas3@gmail.com,
- razor@blackwall.org, idosch@nvidia.com, jani.nikula@intel.com,
- mchehab+huawei@kernel.org, tytso@mit.edu, herbert@gondor.apana.org.au,
- geert@linux-m68k.org, ebiggers@kernel.org, johannes.berg@intel.com,
- jonathan.cameron@huawei.com, kees@kernel.org, kuniyu@google.com,
- fourier.thomas@gmail.com, rdunlap@infradead.org, akpm@linux-foundation.org,
- linux-doc@vger.kernel.org, linux-mips@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, bridge@lists.linux.dev, dwmw2@infradead.org
-Subject: Re: [PATCH net-deletions v2] net: remove unused ATM protocols and
- legacy ATM device drivers
-Message-ID: <20260423122227.1454f68c@kernel.org>
-In-Reply-To: <aeh0CV3UQw1quCXv@ashevche-desk.local>
-References: <20260422041846.2035118-1-kuba@kernel.org>
-	<aeh0CV3UQw1quCXv@ashevche-desk.local>
+	s=arc-20240116; t=1777023112; c=relaxed/simple;
+	bh=HV/HOmPr269yunyJbzTMG2ZKw9gGFaMudjaLHdZhMt8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qcToDbepzl8ECWzDuGbbjm+I0m3bPt41XC0X/VMmnkqLTNkRxj5Akr5PXN0UHNqloOn9M9cuTHYT8rQh8uttcFpm3tQ6BAZ4UPmixWT+mrMTfbqeMiMq+aHvCHn8zy4bgdKeZf4WYjrKqHsQpBqyNs5lLK2erRIz9jrvmd69pCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lzu.edu.cn; spf=pass smtp.mailfrom=lzu.edu.cn; arc=none smtp.client-ip=209.97.182.222
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lzu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lzu.edu.cn
+Received: from enjou-Legion-Y7000P-2019.coin-barley.ts.net (unknown [172.23.56.36])
+	by app2 (Coremail) with SMTP id zQmowAAnv4VvOOtpjelCAA--.34880S3;
+	Fri, 24 Apr 2026 17:31:30 +0800 (CST)
+From: Ren Wei <n05ec@lzu.edu.cn>
+To: netfilter-devel@vger.kernel.org,
+	bridge@lists.linux.dev
+Cc: pablo@netfilter.org,
+	fw@strlen.de,
+	phil@nwl.cc,
+	razor@blackwall.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	yuantan098@gmail.com,
+	yifanwucs@gmail.com,
+	tomapufckgml@gmail.com,
+	bird@lzu.edu.cn,
+	rakukuip@gmail.com,
+	n05ec@lzu.edu.cn
+Subject: [PATCH nf 1/1] netfilter: ebtables: fix OOB read in compat_mtw_from_user
+Date: Fri, 24 Apr 2026 17:23:00 +0800
+Message-ID: <4e714f6189f9691fa5980087ce378a57cf625976.1776834093.git.rakukuip@gmail.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <cover.1776834093.git.rakukuip@gmail.com>
+References: <cover.1776834093.git.rakukuip@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:zQmowAAnv4VvOOtpjelCAA--.34880S3
+X-Coremail-Antispam: 1UD129KBjvJXoW7Aw18XrWxJw43WF4kZF4kCrg_yoW8urWxpF
+	9rCr13KFWaqry3t3s2y340vFWUWrs7W39xAr97G3s7Wr18KF1jyw1rKasxuF98Xas5ur45
+	GF1qvr1Sk3y7ArJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBY1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
+	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
+	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2
+	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
+	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
+	6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2IY04v7MxkF7I0E
+	n4kS14v26r4a6rW5MxkIecxEwVCm-wCF04k20xvY0x0EwIxGrwCF04k20xvE74AGY7Cv6c
+	x26r48MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCj
+	r7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6x
+	IIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAI
+	w20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x
+	0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7sRi_HU3UUUUU==
+X-CM-SenderInfo: zqqvvuo6o23hxhgxhubq/1tbiAQsHCWnrLmIBQwAAsI
 
-On Wed, 22 Apr 2026 10:08:57 +0300 Andy Shevchenko wrote:
-> Since it's almost removal and it will go via netdev tree (same tree you are
-> maintaining, I suppose) the -D would have a big help to review the changes
-> (and not see removals at all, as 32k lines of one email is too much).
+From: Luxiao Xu <rakukuip@gmail.com>
 
-Good point, I'll remember for the future deletions
+The function compat_mtw_from_user() converts ebtables extensions from
+32-bit user structures to kernel native structures. However, it lacks
+proper validation of the user-supplied match_size/target_size.
+
+When certain extensions are processed, the kernel-side translation
+logic may perform memory accesses based on the extension's expected
+size. If the user provides a size smaller than what the extension
+requires, it results in an out-of-bounds read as reported by KASAN.
+
+This fix introduces a check to ensure match_size is at least as large
+as the extension's required compatsize. This covers matches, watchers,
+and targets, while maintaining compatibility with standard targets.
+
+Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
+Cc: stable@kernel.org
+Reported-by: Yuan Tan <yuantan098@gmail.com>
+Reported-by: Yifan Wu <yifanwucs@gmail.com>
+Reported-by: Juefei Pu <tomapufckgml@gmail.com>
+Reported-by: Xin Liu <bird@lzu.edu.cn>
+Signed-off-by: Luxiao Xu <rakukuip@gmail.com>
+Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
+---
+ net/bridge/netfilter/ebtables.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index aea3e19875c6..80cd0233c088 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1977,6 +1977,11 @@ static int compat_mtw_from_user(const struct compat_ebt_entry_mwt *mwt,
+ 		if (IS_ERR(match))
+ 			return PTR_ERR(match);
+ 
++		if (match_size < match->compatsize) {
++			module_put(match->me);
++			return -EINVAL;
++		}
++
+ 		off = ebt_compat_match_offset(match, match_size);
+ 		if (dst) {
+ 			if (match->compat_from_user)
+@@ -1996,6 +2001,12 @@ static int compat_mtw_from_user(const struct compat_ebt_entry_mwt *mwt,
+ 					    mwt->u.revision);
+ 		if (IS_ERR(wt))
+ 			return PTR_ERR(wt);
++
++		if (match_size < wt->compatsize) {
++			module_put(wt->me);
++			return -EINVAL;
++		}
++
+ 		off = xt_compat_target_offset(wt);
+ 
+ 		if (dst) {
+-- 
+2.43.0
+
