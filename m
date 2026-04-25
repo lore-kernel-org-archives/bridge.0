@@ -1,98 +1,80 @@
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAAC23090C6
-	for <bridge@lists.linux.dev>; Fri, 24 Apr 2026 09:52:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D93B923AB87
+	for <bridge@lists.linux.dev>; Sat, 25 Apr 2026 10:16:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777024341; cv=none; b=XlhwhvlPyaQlCzUkZtyWHNJiaI9U2lEtHimiW/sGEwTusFoIzPmNWlH13aFML1/acPgAxHNMBVHKuEfzv8JipGT0B1hvC6CdQ0AoUfg9Sgty2q1wPWvsZFQ3PGRe7ilD90+kcSHwXs+ZZsje+2mHj7qut5cNY3hBfSUzxlgHwSE=
+	t=1777112221; cv=none; b=TwDptoSeX3FXDqeaseph6Wmh/6FnyzLZgZvEBWxkNgGW+Ij5H+qYOjGl6ZyJRzvGVkm63IVJcSrIiAH6C9Rg+9TP1L41ZZU7keDVON6QybNAO1jmcRlocOfV4AquSZrceNvBsOXOKbQ9Fy3qGaAJbPOfb5/CjTVLS9znL3dBMik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777024341; c=relaxed/simple;
-	bh=XyHFxLW08zH56ek4JeZXjLTlwXrhoacLwNL/r7W01w4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=db+MjpfD2W5FT4JDgux2yULqxJkXEDDwZoCG+Kq6EJSOKMhLKgIocQp5rcfiEZ2mV0HREtSFG+F5tEqU7Sd8MPlFPhyHfJg5LDnEbMOK1evn02nQoetSRCuKgaaoMZkpcsa207l5WTGh3XLUI6JcOPvaKS0HvNeil0Qsvqj4g8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
-Received: by Chamillionaire.breakpoint.cc (Postfix, from userid 1003)
-	id 5ECD960425; Fri, 24 Apr 2026 11:52:17 +0200 (CEST)
-Date: Fri, 24 Apr 2026 11:52:11 +0200
-From: Florian Westphal <fw@strlen.de>
-To: Ren Wei <n05ec@lzu.edu.cn>
-Cc: netfilter-devel@vger.kernel.org, bridge@lists.linux.dev,
-	pablo@netfilter.org, phil@nwl.cc, razor@blackwall.org,
-	idosch@nvidia.com, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-	yuantan098@gmail.com, yifanwucs@gmail.com, tomapufckgml@gmail.com,
-	bird@lzu.edu.cn, rakukuip@gmail.com
-Subject: Re: [PATCH nf 1/1] netfilter: ebtables: fix OOB read in
- compat_mtw_from_user
-Message-ID: <aes9S-ToE9yOXrIM@strlen.de>
-References: <cover.1776834093.git.rakukuip@gmail.com>
- <4e714f6189f9691fa5980087ce378a57cf625976.1776834093.git.rakukuip@gmail.com>
+	s=arc-20240116; t=1777112221; c=relaxed/simple;
+	bh=tNX+qwy+nTQrdmx+we0M6zUS/XBnFj97S7HY1QMEqGg=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=AJ1vixR8aT9nsXkZpNC8kfcmXjp99JkrJwtwXzAn4b0uJAEJOx4Km7fuFzllo+1I6GWxW+kzRMmMxrBaQ5V2McJ9LkPuvosU2l56vqdEHf6sc7k38W6F4wZN8YfcWOH7JaHD295P4tkogJKEHhLStlovOqbT97mgLZWuZcs86AU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+	id 1C9A99200B3; Sat, 25 Apr 2026 12:16:50 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+	by angie.orcam.me.uk (Postfix) with ESMTP id 17A9992009D;
+	Sat, 25 Apr 2026 11:16:50 +0100 (BST)
+Date: Sat, 25 Apr 2026 11:16:50 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+To: Jakub Kicinski <kuba@kernel.org>
+cc: "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org, 
+    edumazet@google.com, pabeni@redhat.com, andrew+netdev@lunn.ch, 
+    horms@kernel.org, corbet@lwn.net, skhan@linuxfoundation.org, 
+    linux@armlinux.org.uk, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+    maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
+    chleroy@kernel.org, 3chas3@gmail.com, razor@blackwall.org, 
+    idosch@nvidia.com, jani.nikula@intel.com, mchehab+huawei@kernel.org, 
+    tytso@mit.edu, herbert@gondor.apana.org.au, 
+    Geert Uytterhoeven <geert@linux-m68k.org>, ebiggers@kernel.org, 
+    johannes.berg@intel.com, jonathan.cameron@huawei.com, kees@kernel.org, 
+    kuniyu@google.com, fourier.thomas@gmail.com, andriy.shevchenko@intel.com, 
+    rdunlap@infradead.org, Andrew Morton <akpm@linux-foundation.org>, 
+    linux-doc@vger.kernel.org, linux-mips@vger.kernel.org, 
+    linuxppc-dev@lists.ozlabs.org, bridge@lists.linux.dev, 
+    David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH net-deletions v2] net: remove unused ATM protocols and
+ legacy ATM device drivers
+In-Reply-To: <20260422041846.2035118-1-kuba@kernel.org>
+Message-ID: <alpine.DEB.2.21.2604251104030.28583@angie.orcam.me.uk>
+References: <20260422041846.2035118-1-kuba@kernel.org>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4e714f6189f9691fa5980087ce378a57cf625976.1776834093.git.rakukuip@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
 
-Ren Wei <n05ec@lzu.edu.cn> wrote:
-> From: Luxiao Xu <rakukuip@gmail.com>
-> 
-> The function compat_mtw_from_user() converts ebtables extensions from
-> 32-bit user structures to kernel native structures. However, it lacks
-> proper validation of the user-supplied match_size/target_size.
-> 
-> When certain extensions are processed, the kernel-side translation
-> logic may perform memory accesses based on the extension's expected
-> size. If the user provides a size smaller than what the extension
-> requires, it results in an out-of-bounds read as reported by KASAN.
-> 
-> This fix introduces a check to ensure match_size is at least as large
-> as the extension's required compatsize. This covers matches, watchers,
-> and targets, while maintaining compatibility with standard targets.
-> 
-> Fixes: 81e675c227ec ("netfilter: ebtables: add CONFIG_COMPAT support")
-> Cc: stable@kernel.org
-> Reported-by: Yuan Tan <yuantan098@gmail.com>
-> Reported-by: Yifan Wu <yifanwucs@gmail.com>
-> Reported-by: Juefei Pu <tomapufckgml@gmail.com>
-> Reported-by: Xin Liu <bird@lzu.edu.cn>
-> Signed-off-by: Luxiao Xu <rakukuip@gmail.com>
-> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
-> ---
->  net/bridge/netfilter/ebtables.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-> index aea3e19875c6..80cd0233c088 100644
-> --- a/net/bridge/netfilter/ebtables.c
-> +++ b/net/bridge/netfilter/ebtables.c
-> @@ -1977,6 +1977,11 @@ static int compat_mtw_from_user(const struct compat_ebt_entry_mwt *mwt,
->  		if (IS_ERR(match))
->  			return PTR_ERR(match);
->  
-> +		if (match_size < match->compatsize) {
-> +			module_put(match->me);
-> +			return -EINVAL;
-> +		}
-> +
+On Tue, 21 Apr 2026, Jakub Kicinski wrote:
 
-Are you sure this catches all bad requests? AFAIR compatsize is 0
-in most cases, which bypasses this test.
+> Removed PCI/SBUS ATM device drivers (drivers/atm/):
+>  - adummy, atmtcp - software/testing ATM devices
+>  - eni - Efficient Networks ENI155P (OC-3, ~1995)
 
-should this be:
+ I have one of those though sadly it broke a couple years back and doesn't 
+work anymore.
 
-u16 csize = match->compatsize ? : match->matchsize;
-...
-if (match_size < csize) {
-...
+>  - fore200e - FORE Systems 200E PCI/SBUS (OC-3, ~1999)
+>  - he - ForeRunner HE (OC-3/OC-12, ~2000)
+>  - idt77105 - IDT 77105 25 Mbps ATM PHY
+>  - idt77252 - IDT 77252 NICStAR II (OC-3, ~2000)
+>  - iphase - Interphase ATM PCI (OC-3/DS3/E3)
+>  - lanai - Efficient Networks Speedstream 3010
+>  - nicstar - IDT 77201 NICStAR (155/25 Mbps, ~1999)
 
-?
+ And I have a number of these, both 77201 and 77211 variants, scattered 
+across several systems of various architectures in my lab.
 
-@Pablo: I think the 32bit compat layer should be removed in -next, or
-at least strongly discouraged and slated for removal soon.
+>  - solos-pci - Traverse Technologies ADSL2+ PCI
+>  - suni - PMC S/UNI SONET PHY library
+
+ Plus a bunch of TURBOchannel ATM interfaces, a couple of LightStream ATM 
+switches and some Ethernet switches with LANE ports.  Never found time to 
+get this all set up, so I guess I can't complain really to see this stuff 
+go.  Still sad to see the continuous trend to strip Linux of features. :(
+
+  Maciej
