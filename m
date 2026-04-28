@@ -1,35 +1,49 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98F3921257F;
-	Mon, 27 Apr 2026 00:37:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DA36217F27;
+	Tue, 28 Apr 2026 13:35:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777250261; cv=none; b=XUgJT38dJJ+82r1goTF+4Xxq4frXyoXJSp3M4+OtR2Z0A9o4E4wWaqJVNrFDHKnphMKKeQ5cilRnErs/jSWF+a1l2c8uMi/Mkuh8di2KPxSeN8odLceST14Xk+aiX4QuTm+DM1Ps7tZaM2k5toVG1aiSRLfshSsiIobvyGsJ9Xk=
+	t=1777383340; cv=none; b=l2Z5ZC43B0r5zyb8lSwurVuRHmDaK9NorE6IGkFQvbnAqNDVKDhtcIMYYftIrXH3EOYrPL5JQwSJcSGmrG93hEWg4sq5vOmp9NqXPidNvLq8DgllXObEv/+JnhqXupfH0w3manwKw9e3csREsB20V71usaDCmtpOBlKtn9aDVVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777250261; c=relaxed/simple;
-	bh=/KQyIIXxBANDbJVbULlbyLCLd8t/G3HnMy/6KaTpJyo=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=ewf2VnwWykc3txzGyP8C0gDbKJr89hQJzL+RvfTH6l/RDd1C3/WYTaAdJLm280RYLhiy/xF1NMNrQx50cOu62+6BX5cbks4uoFDUJGYXAezDR0lqLpoIHKYwN0YlbIXFrmwWYEEKo5hITnZlnlQG7KEb35JG1ylGUiwSEzzB/Wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FJk7is+H; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777383340; c=relaxed/simple;
+	bh=Ra0veIFQ1tCfMufKmtFI29V/mH1Q5JGW0chyOGSq15g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZOr+pEB6xxOo0qJHWYLWq2iGLiPGzXB8XXp8tyqnZ1a0XqZDNxAxb5odOeq+SIIfCiFsx7zPTP/hV8rm8NE85MOAUBCcjXtK9JMesnfCmzqJ5o1YuckrzDRQz08sari6fRBl3WZhKWWXjY08SiTlCsnXUmGK5EzkSxIDyXZ8BUA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V0AqR9O1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FJk7is+H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 406E3C2BCAF;
-	Mon, 27 Apr 2026 00:37:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V0AqR9O1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6181CC2BCAF;
+	Tue, 28 Apr 2026 13:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777250261;
-	bh=/KQyIIXxBANDbJVbULlbyLCLd8t/G3HnMy/6KaTpJyo=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=FJk7is+Hy5OEaY3cjP+TfeQwamOc2VwogBDAIxZ6TLjWHWxV8gH6fwuHp/PoxRk2o
-	 oi2tIu9jDq9Jdq3ufB6mAx61Z8FkICyEXZ/lO31S38fUgQN4cbtQmLVhXhcaX6/iM+
-	 IYBbWSWoOUQtVg9Jg8Aa23MXfOA2RDhAPpnmY+A0J5lEZA9Fa+PDIM8n9pWiMEmO97
-	 BQzoIUM8aN6wXZCYhBaoRzEPVIccJ3G7xdcrdnN1dQplAFc7fYwz6i9ME2VIqvrtti
-	 V5DlYGI3OnZIrysDCAa8OJDUlXkLM/wE1BHbCnTf8MbKXVzq2Af3ntEnfcNWt3RRHD
-	 FZ55/2fAgDeug==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id BA06A38119E5;
-	Mon, 27 Apr 2026 00:37:00 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1777383340;
+	bh=Ra0veIFQ1tCfMufKmtFI29V/mH1Q5JGW0chyOGSq15g=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=V0AqR9O1zYoKDaYE25RXOXUj1QDpNc4ktm2+kZb1sEC+eMtprhQojeT0rJvwAlhpM
+	 AhF+BfNxV1T9DsEC45FqiVyBYC/DsPS0i5tN3AGHk+AbMzxOaIMLTFsT3Js7QlWJ8R
+	 /wjlhuu9sEyr1RNl/AKVQRqRMqt9g5h8tPBr54YCDYK7iVTh8SlLMbfOeQ7wQ4h6hG
+	 bTqCgXzUAbpGkUBoUDd9FMhA7ZYanDlh15Gnozcs7tFL5jE1FQPs2+iUou/JYKBZXS
+	 3PLCPkdVx5xZvvOMybTgEeW/u2RtgjaIYrati6DEvpEoAbcKujq4bH6/D2CstXrjOV
+	 eaz02OrzOWFTw==
+From: Simon Horman <horms@kernel.org>
+To: idosch@nvidia.com
+Cc: 'Simon Horman' <horms@kernel.org>,
+	netdev@vger.kernel.org,
+	bridge@lists.linux.dev,
+	davem@davemloft.net,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	razor@blackwall.org,
+	herbert@gondor.apana.org.au,
+	linus.luessing@c0d3.blue
+Subject: Re: [PATCH net] bridge: mcast: Fix a false positive lockdep splat
+Date: Tue, 28 Apr 2026 14:35:23 +0100
+Message-ID: <20260428133523.1321335-1-horms@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260426133435.207006-1-idosch@nvidia.com>
+References: <20260426133435.207006-1-idosch@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -37,51 +51,64 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-deletions v2] net: remove unused ATM protocols and
- legacy
- ATM device drivers
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177725021958.2839245.12173011555079376914.git-patchwork-notify@kernel.org>
-Date: Mon, 27 Apr 2026 00:36:59 +0000
-References: <20260422041846.2035118-1-kuba@kernel.org>
-In-Reply-To: <20260422041846.2035118-1-kuba@kernel.org>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: davem@davemloft.net, netdev@vger.kernel.org, edumazet@google.com,
- pabeni@redhat.com, andrew+netdev@lunn.ch, horms@kernel.org, corbet@lwn.net,
- skhan@linuxfoundation.org, linux@armlinux.org.uk, tsbogend@alpha.franken.de,
- maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com,
- chleroy@kernel.org, 3chas3@gmail.com, razor@blackwall.org, idosch@nvidia.com,
- jani.nikula@intel.com, mchehab+huawei@kernel.org, tytso@mit.edu,
- herbert@gondor.apana.org.au, geert@linux-m68k.org, ebiggers@kernel.org,
- johannes.berg@intel.com, jonathan.cameron@huawei.com, kees@kernel.org,
- kuniyu@google.com, fourier.thomas@gmail.com, andriy.shevchenko@intel.com,
- rdunlap@infradead.org, akpm@linux-foundation.org, linux-doc@vger.kernel.org,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- bridge@lists.linux.dev, dwmw2@infradead.org
 
-Hello:
+From: 'Simon Horman' <horms@kernel.org>
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
+Full review at: https://sashiko.dev
+---
+bridge: mcast: Fix a false positive lockdep splat
 
-On Tue, 21 Apr 2026 21:18:44 -0700 you wrote:
-> Remove the ATM protocol modules and PCI/SBUS ATM device drivers
-> that are no longer in active use.
-> 
-> The ATM core protocol stack, PPPoATM, BR2684, and USB DSL modem
-> drivers (drivers/usb/atm/) are retained in-tree to maintain PPP
-> over ATM (PPPoA) and PPPoE-over-BR2684 support for DSL connections.
-> 
-> [...]
+This commit defers the transmission of multicast queries to a high priority
+workqueue to avoid a false positive lockdep splat caused by nested bridge
+multicast lock acquisitions. It queues skbs to a per-context query_queue
+and flushes them asynchronously.
 
-Here is the summary with links:
-  - [net-deletions,v2] net: remove unused ATM protocols and legacy ATM device drivers
-    https://git.kernel.org/netdev/net/c/6deb53595092
+Closes: https://lore.kernel.org/netdev/000000000000c4c9d405f2643e01@google.com/
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 881d866d687a..252c46977ed5 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
 
+[ ... ]
 
+> @@ -1804,9 +1826,8 @@ static void __br_multicast_send_query(struct net_bridge_mcast *brmctx,
+>  		skb->dev = pmctx->port->dev;
+>  		br_multicast_count(brmctx->br, pmctx->port, skb, igmp_type,
+>  				   BR_MCAST_DIR_TX);
+> -		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_OUT,
+> -			dev_net(pmctx->port->dev), NULL, skb, NULL, skb->dev,
+> -			br_dev_queue_push_xmit);
+> +		skb_queue_tail(&pmctx->query_queue, skb);
+> +		queue_work(system_highpri_wq, &pmctx->query_queue_work);
+
+Can this code cause an out-of-memory condition if flooded with IGMP/MLD
+Leave packets?
+
+In the IGMP data path, br_multicast_leave_group() is triggered for each
+received Leave packet. If the bridge is the active querier, it directly calls
+__br_multicast_send_query() for each packet, which allocates a new query skb
+and queues it here using skb_queue_tail().
+
+Because the workqueue execution handles TX networking overhead, could softirq
+RX packet processing outpace the workqueue's ability to dequeue them?
+
+Since skb_queue_tail() does not impose any limits on the queue length, it
+looks like this might result in an unbounded accumulation of skbs in the
+query queue, potentially bypassing standard qdisc backpressure mechanisms and
+exhausting system memory.
+
+>  
+>  		if (over_lmqt && with_srcs && sflag) {
+>  			over_lmqt = false;
+> @@ -1816,7 +1837,8 @@ static void __br_multicast_send_query(struct net_bridge_mcast *brmctx,
+>  		br_multicast_select_own_querier(brmctx, group, skb);
+>  		br_multicast_count(brmctx->br, NULL, skb, igmp_type,
+>  				   BR_MCAST_DIR_RX);
+> -		netif_rx(skb);
+> +		skb_queue_tail(&brmctx->query_queue, skb);
+> +		queue_work(system_highpri_wq, &brmctx->query_queue_work);
+>  	}
+>  }
