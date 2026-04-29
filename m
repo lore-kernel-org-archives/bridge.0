@@ -1,223 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011011.outbound.protection.outlook.com [40.107.208.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC1B3449ECB
-	for <bridge@lists.linux.dev>; Tue, 28 Apr 2026 14:10:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777385452; cv=none; b=P0svDdNAd88cSlSLg6o9+31p3+mWsUG7CrufEt1ISQedygGtxyiSKbp5wdk6MzQWoutoTk75JvUirYvZM3ygsHgTDGW9YaEQ1csZemquP3CE8ms84KZsR0ZGZogSRCg0PrOAg3NGFB28op8WcD28QuDCEJHeIFomCt6ipEKPpUI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777385452; c=relaxed/simple;
-	bh=s3do0e5rCtxlTF9/cwVfZsB+RqqAZt5EnzhjSA6Ajvk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gckvPhUV+/rJbIPu18dCqB8IdcNNtly7SbSRyMDfVZR2zsUEoX653rmS6kmrAhPYhDxqZU+CRWnEmW51vBHiK36ZY48ZWd1nKMNGnyHR1sIkMlhVuLLYTP+Yr7o1lukmQOuYJ6HjkrlZhbj5wh3yf/mOgyQMX/x0xfAeU9qco0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RzwF+35K; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E801FECAB
+	for <bridge@lists.linux.dev>; Wed, 29 Apr 2026 06:24:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777443893; cv=fail; b=jy+RQlj8RFZvCeFUOyWJaqyT2cv5ATSuuElwnJwvG6JBtYToGmfI+LZUswlh84pYiN88gMIHOIRwCf6ij58LY0HQquYWnD/FIvecRzvVvpNhGOQHFB9eM5JvxljXWqX1D1Hdn8vq3R6aMPlnY7lhiVwBMQ9kIMSrfifrgc2BJZY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777443893; c=relaxed/simple;
+	bh=l96A8Nks6Ig8S6KMF4rfgK+ht/1z2kCNTTFC9huu3GM=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ANwjLsAXgKQLQiW+gPTHL2O1PyWv2Vl4KmwoVOQGTKAG+iWaMDjgqZi/xa21tHev6Tq9FNjtXO+JZQjbP/HEcbg9x1rRQ1FKqd1VY3ngRQFOCSh4Lx3JNnEPcDmRo8d+7vxIq9iMKhHDl43u1fbfhLolwjf7+/sMmYj0UsnDhN0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Uj360UCZ; arc=fail smtp.client-ip=40.107.208.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RzwF+35K"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777385449;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tP7oo7RDQoK7h0JXxV4QJ2IDSooBXQffesJO77KHtBA=;
-	b=RzwF+35KS2Pf/e8ubnaObSyT+epeZji7atgnu1uOA9hhJbly2Yn2JGFXhY+IvZcXTD1cgF
-	oI2uaY8VfFUBdjB+ApfoWvhUHXr4bqKbeVrbI2sri9wX8pyogfxhtWTMvrJ+nc4+an53+7
-	K9hYmGv99L7FmvEqB1h080j0zWmuMq0=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-391-a_5Kxw06MW2pWPouOoxKVQ-1; Tue, 28 Apr 2026 10:10:48 -0400
-X-MC-Unique: a_5Kxw06MW2pWPouOoxKVQ-1
-X-Mimecast-MFC-AGG-ID: a_5Kxw06MW2pWPouOoxKVQ_1777385448
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-8cd722c1a69so2059639085a.0
-        for <bridge@lists.linux.dev>; Tue, 28 Apr 2026 07:10:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777385448; x=1777990248;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=tP7oo7RDQoK7h0JXxV4QJ2IDSooBXQffesJO77KHtBA=;
-        b=b0FzIEnxMsGu8eheQV93FJ1CC7XJml0JTtMxfJofgvGJ6SuGK04pk2PST+FuC/ZvL1
-         XGPSNjjaLfhrESKmDOj55myhsxpT3haIWeEPPG3NgzFb9E6GT5oS9z757S7Il6BZV4qo
-         I+x4WUFEX8CfyY3UeryxuNzWHpqHBPR5qzyei6jCY0bUJ3eAKXqfjrlwARxs/um6PioZ
-         wbOQ4ZEG7EQ9eTLIXhtSYHFtKruzVIPWZCx1SiCNHzzjw2btJQEsKRoupbth1RPgiQmx
-         7e2LL+25/QTbPY/eMnYc2RaR17fMvViaVUsM2TBGrCpHEqlgRk83N83JvtfP4UuzBiF0
-         Ofaw==
-X-Forwarded-Encrypted: i=1; AFNElJ8hzaz3GZ07GCLYRMJniMrlpmM/Fqfgh8hZ0J5fj6Qco2COxPpqmRRlxUHAkfuZMBjfVuHX+w8=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxYOZ5FYK6kshvEqqQUaHQeKZG+9HdEwc/cyrEg7tFZYmyDy4yb
-	ZPWNomr2tNnMRU1GWzTRJhCp1be0TdEQNKzMDOxnXWoc0NPT0fhvcBvFBcnj91P4UXOqFdleh8m
-	foonCitJD4KuvbVk0y0z8KhZfgzwue2UMehPty9T5ix7iAmfFF/FyEEuyEg==
-X-Gm-Gg: AeBDiesU4ATzPqkZdaLQwYJMvav8iH7YqyqW8dDja7W3Kb2ySR+CoaoXEoU7e/7VRcI
-	KGjT+2e6B7Kyhhz2dhvcLmYQWF+Ag55zxC7nglZb92TkJIeI97R4fqAtN/grgASrhM/S63rzCkJ
-	6YqwNTNnnkgs8FTpPvqbLs0jTZI+lObISFkKzRIjrtsz9B/+rffEZKlLL4DO6FAT56Sg6FU73Cw
-	VTWuF5URd7apTcRcUF7Xzny316B82q35FplIlKUErBgRTApdnA2P8B6vmUiSv6m4Bp3DfoCbnF9
-	uvyREojDT1LA4vFdcyQeku+heZEmAEGeUYpms0MPqUMdtlSXRR06GnP5yV030ETPB7G2jGTuyNm
-	iSYw1fGzFJM4WSNyGZ3NSvGwhKh393nYi5F0A5MC2CnUP1mxUKhpUgXoi00k3sDIcJw==
-X-Received: by 2002:a05:620a:4493:b0:8ea:addd:892e with SMTP id af79cd13be357-8f7d9a0f618mr406785485a.49.1777385447459;
-        Tue, 28 Apr 2026 07:10:47 -0700 (PDT)
-X-Received: by 2002:a05:620a:4493:b0:8ea:addd:892e with SMTP id af79cd13be357-8f7d9a0f618mr406778585a.49.1777385446785;
-        Tue, 28 Apr 2026 07:10:46 -0700 (PDT)
-Received: from [192.168.88.32] ([216.128.9.114])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f7c19ae61bsm204783085a.0.2026.04.28.07.10.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Apr 2026 07:10:46 -0700 (PDT)
-Message-ID: <ba420053-c201-47a1-83af-6b092e46d6fb@redhat.com>
-Date: Tue, 28 Apr 2026 16:10:43 +0200
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Uj360UCZ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=KDmEEclHjEqOd7gzU7WtvVJcVWrtI0qrSJZdROZZuLVF3E0GCFHq5onN1oupmGzsPXVD1yO5dhPbZ68isZrz3AhBkNBAIh8Lg3oda3hzLmedily67AcBMX0FxKBlq/TB9Ghm5ihf1E2vy3GWejR0X59E6r/GxyoFDBULaDj4zNBD5iOLbyLm7mSpyVbEmNybskQp8mkDrIW8sRpwfdJAH1rlfXRNfbLsXspdiynthSkCIcZT8dQsCFuIpcvSD8gBkX16wqQVNGKz5eFeyR8Vv4o8yPBVBat6fAu9/Xi3EJv0JsDHtm5gvn/Rzg7CrFg2ouUdNckd8W5bNHSR7dUy6A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=kha/dDdMCnnc/aSOcpu627ccdMM19jR8fYNL7mhYOmo=;
+ b=sRRQfdv3WkVjdhG/tHITGu7IX/2NaPRDpUpxqUaLXh0HgLgnoYWb5C9a8t2VCKd8D+HWIckAsdeXKNqDdWBWwcwPNT014sjRp07azXMAJUQBKdmGvTlWHCWWBG6JSo9LI3Iox/TBOyhGcwVvrkKiEHl0LeXncKon3el2HPWuJbO4c4STIFkVKVI7btDdXr/V+Wv4tS1x8bF5pIRSs01OBjMJWzBOdJbxF91PjYItfnzlZhIZqy+gVWcRjOwiK1l4Y1hiKKPMoGgT2Z6sCjhx925fzSE7YBtbr4DcGm/OwnHGEgu5+HGO80v3o0DmZI5Iu5Eb+q6KOCgAVTdBxviqbA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kha/dDdMCnnc/aSOcpu627ccdMM19jR8fYNL7mhYOmo=;
+ b=Uj360UCZqZt0SyEJfXg5gk4+Wj4Ik2seomw0ZBqVdJEG1wMkfGnNqX9GwwFo94Xl0einDGunOb/V71fBh7DNQ/TxUDYMZw/YgD1GFe5Tb6JhsWyy39PAxB8pqI6wEM7UEVOvCWeA9Vnn7O5rJQE5nHTsUFCnhrZr16WEcc+fNBDprXoc4UVcUbhZCZuuKttJPTVCUHEDbptGiWoMSdlul/lUVKGjGDfxR6zzkI1GTdDSIMLOUFTt4HcZD/2ELiz7uEfbmrDQyyftQV0SgAmC0Dep+TeVel7DXkU6ftFBGMTkLadCFGogns39BSUvObClrdcIr7pt+SfT4wMTddCorQ==
+Received: from PH7PR17CA0003.namprd17.prod.outlook.com (2603:10b6:510:324::23)
+ by LV2PR12MB5895.namprd12.prod.outlook.com (2603:10b6:408:173::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.18; Wed, 29 Apr
+ 2026 06:24:46 +0000
+Received: from CY4PEPF0000EE31.namprd05.prod.outlook.com
+ (2603:10b6:510:324:cafe::d2) by PH7PR17CA0003.outlook.office365.com
+ (2603:10b6:510:324::23) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9846.30 via Frontend Transport; Wed,
+ 29 Apr 2026 06:24:46 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ CY4PEPF0000EE31.mail.protection.outlook.com (10.167.242.37) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9846.18 via Frontend Transport; Wed, 29 Apr 2026 06:24:46 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Tue, 28 Apr
+ 2026 23:24:25 -0700
+Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.37) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Tue, 28 Apr 2026 23:24:21 -0700
+From: Danielle Ratson <danieller@nvidia.com>
+To: <netdev@vger.kernel.org>
+CC: <razor@blackwall.org>, <idosch@nvidia.com>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<horms@kernel.org>, <shuah@kernel.org>, <bridge@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, <linux-kselftest@vger.kernel.org>, "Danielle
+ Ratson" <danieller@nvidia.com>
+Subject: [PATCH net-next 0/2] bridge: Do not suppress ARP probes and DAD NS unconditionally
+Date: Wed, 29 Apr 2026 09:24:03 +0300
+Message-ID: <20260429062405.1386417-1-danieller@nvidia.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] bridge: mcast: Fix a false positive lockdep splat
-To: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org,
- bridge@lists.linux.dev
-Cc: davem@davemloft.net, kuba@kernel.org, edumazet@google.com,
- razor@blackwall.org, horms@kernel.org, herbert@gondor.apana.org.au,
- linus.luessing@c0d3.blue
-References: <20260426133435.207006-1-idosch@nvidia.com>
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <20260426133435.207006-1-idosch@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VCMEbHckesHQLtuK3SYalLZPaHBwC09N8pgiZeVbSNE_1777385448
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000EE31:EE_|LV2PR12MB5895:EE_
+X-MS-Office365-Filtering-Correlation-Id: 989206af-beea-43bc-fede-08dea5b80222
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700016|82310400026|376014|7416014|1800799024|56012099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	U+nlyF58+iuh/TmAPdIg4Q6vNbSFdsqYAbGkOPF8+ANV+tLp0UgYmxAKJPggwyELWer3TVWj8j7VJxkjtjz9yUAWH57mDDpEcgTHYGM2fv2eU9t3p8Rf09Zb8NK0eas8mTAHIMdsG45UY0+U0pXt+qYGntHXhVGIR2X3ERASAXuiHKHuut4+ADGI2jtBIf8UrMnezr4OMALg0XWxC9BrROpm3Naqd17LMwSQKURToAiukptlXQWBqVWaFXpu9XCj7VCxLLSeiM9k8bw4BEsENSeAp3ELFXQXQndfXsQf4PEJ3hBLbBBR1dprnV2zFEb3RL9sFjYyn/tqgkF8oHdGnlqotWBjL9ga8dSQH6stVba/uI0dhZTF06G9rW09FvWXa+ZwKSOJePWhmUYInfE9AwkVA70bvK3ziO69l7Dc9Emognin+elXDowKsrVG3WUtO09tNstYLeweQpJqHnXPLJs60ZjnMzsIwkQYTQMCBgbE2GBRsnTeBUstYwA7HqUsf6NE+/yh166VPtCguWHvW5B+0NB3CbYYJrY0pg0j/pvJKT3bm7dREidZ10sF9LqCGavGfltcEZtFfbYcRFJBHaYPqDOlmQOW/8tu6kaBab1T912p7ghmL3qqVKYWrAsmLUZLKDySVWAmO3MItuwPESZDMB+nLpB6E39kRzgreKuYch+XddbC/Sua9DrMQz+8FsKDa/wiphsd+yK1z2wlyeOlmHv2d3lyjuO73BwOmFQRn7VZLqlHcCO8UclxngDdo7kC96NtcuH/M/wqzqXaJg==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700016)(82310400026)(376014)(7416014)(1800799024)(56012099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	aqmIVR+4cckaYwmqK5VacuogVzj/kF0ge9tYvGjF7qda9WA2Mb8Cp30PcwHHpwo9w9og9UvS1ux/UKWpluKvJsY2PtrqiOCIx11p6sizbF/nthMhZGA/vhb1/raUh1LODu5cjlEP9DjAP0yOpP+vaH/8oqK4c/VTYqvVcDF8OY28BcQpklJFJqlF3ZUYkVC7tHxRYYGMdVTCEJ0hRzT5N2gu0M7TpcIPl2dbuT+m58+8X6lrNGd/DFux7GirtBPSgRJRn1p2nXjPQuOxjE4kxpLpqDKnqxDXnXPB+vzbZEaX49tdTainBCnP29dgB0FYG0/gR83Qi/oXGeqaPYp3mAdcMs3mBPQQOHW/rda8ak7tYKNu+Qt1bYzcnel/mPeijbhGnYjJGSdWFAQMm2G79D+qYFxkLIupXJawwfqn5flcxf88DHbeqn7eCR0d6+K6
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Apr 2026 06:24:46.0309
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 989206af-beea-43bc-fede-08dea5b80222
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CY4PEPF0000EE31.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5895
 
-On 4/26/26 3:34 PM, Ido Schimmel wrote:
-> Connecting two bridges on the same system [1] can result in a lockdep
-> splat [2].
-> 
-> The report is a false positive. Multicast queries are built and
-> transmitted under the bridge multicast lock. When the outgoing port of
-> one bridge is configured on top of another bridge, the transmit path
-> re-enters bridge code and acquires the other bridge's multicast lock in
-> order to snoop the query. Both lock instances share a single lockdep
-> class, so lockdep flags the nested acquisition as an AA deadlock.
-> 
-> Giving each bridge its own lock class will not solve the problem: the
-> reverse topology would produce an ABBA splat with the same pair of
-> classes. It also consumes a lockdep key per bridge.
-> 
-> Instead, fix the problem by deferring the transmission of the queries to
-> a workqueue. Build the skb and update querier state under the lock as
-> before, then enqueue the skb on a per multicast context queue and
-> schedule the work.
+When using bridge neighbor suppression in EVPN deployments, Duplicate
+Address Detection (DAD) is currently broken for both IPv4 (ARP probes)
+and IPv6 (DAD Neighbor Solicitations). This prevents proper address
+conflict detection across the VXLAN fabric.
 
-I must admit that introducing an additional WQ to fix a false positive
-feels a bit overkill to me - even if I can't think of a better solution
-on top of my head.
+The neighbor suppression feature allows the bridge to reply to ARP/NS
+messages on behalf of remote hosts when FDB and neighbor entries exist,
+suppressing unnecessary flooding over the VXLAN overlay. However, the
+current implementation unconditionally suppresses ARP probes and DAD NS,
+which breaks DAD.
 
-> Flush the work when the multicast context is de-initialized. At this
-> stage the work cannot be requeued. There is no need to take a reference
-> on skb->dev since the work cannot outlive the bridge or the bridge port.
-> 
-> Use the high priority workqueue to reduce the delay between the enqueue
-> time and the transmission time. With default settings (i.e., querier
-> interval - 255 seconds, query interval - 125 seconds) the extra delay
-> should not be a problem.
-> 
-> [1]
-> ip link add name br1 up type bridge mcast_snooping 1 mcast_querier 1
-> ip link add name br0 up type bridge mcast_snooping 1 mcast_querier 1
-> ip link add link br0 name br0.10 up master br1 type vlan id 10
-> 
-> [2]
-> ============================================
-> WARNING: possible recursive locking detected
-> 7.0.0-virtme-gb50c64a58a90 #1 Not tainted
-> --------------------------------------------
+For DAD to work correctly:
+- When the bridge doesn't know the answer:
+  flood the probe/DAD packet to allow remote VTEPs to respond.
+- When the bridge knows the answer:
+  reply to indicate the address is in use.
 
-checkpatch reports that the above separator may break tool. Possibly
-just remove it from the commit message.
+This series fixes the issue by adjusting the early suppression checks to
+exclude ARP probes and DAD NS from unconditional suppression, allowing
+them to reach the normal FDB lookup path. Gratuitous ARP and IPv6
+unsolicited-NA messages are still suppressed unconditionally as before.
 
-> ip/339 is trying to acquire lock:
-> ffff888104f0b480 (&br->multicast_lock){+.-.}-{3:3}, at: br_ip6_multicast_query (net/bridge/br_multicast.c:3584)
-> 
-> but task is already holding lock:
-> ffff888104f03480 (&br->multicast_lock){+.-.}-{3:3}, at: br_multicast_port_query_expired (net/bridge/br_multicast.c:1904)
-> 
-> [...]
-> 
-> Call Trace:
-> [...]
-> br_ip6_multicast_query (net/bridge/br_multicast.c:3584)
-> br_multicast_ipv6_rcv (net/bridge/br_multicast.c:3988)
-> br_dev_xmit (net/bridge/br_device.c:98 (discriminator 1))
-> dev_hard_start_xmit (./include/linux/netdevice.h:5343 ./include/linux/netdevice.h:5352 net/core/dev.c:3888 net/core/dev.c:3904)
-> __dev_queue_xmit (./include/linux/netdevice.h:3619 net/core/dev.c:4871)
-> vlan_dev_hard_start_xmit (net/8021q/vlan_dev.c:131 (discriminator 1))
-> dev_hard_start_xmit (./include/linux/netdevice.h:5343 ./include/linux/netdevice.h:5352 net/core/dev.c:3888 net/core/dev.c:3904)
-> __dev_queue_xmit (./include/linux/netdevice.h:3619 net/core/dev.c:4871)
-> br_dev_queue_push_xmit (net/bridge/br_forward.c:60)
-> __br_multicast_send_query (net/bridge/br_multicast.c:1811 (discriminator 1))
-> br_multicast_send_query (net/bridge/br_multicast.c:1889)
-> br_multicast_port_query_expired (./include/linux/spinlock.h:390 net/bridge/br_multicast.c:1914)
-> call_timer_fn (./arch/x86/include/asm/jump_label.h:37 ./include/trace/events/timer.h:127 kernel/time/timer.c:1749)
-> [...]
-> 
-> Fixes: eb1d16414339 ("bridge: Add core IGMP snooping support")
-> Reported-by: syzbot+d7b7f1412c02134efa6d@syzkaller.appspotmail.com
-> Closes: https://lore.kernel.org/netdev/000000000000c4c9d405f2643e01@google.com/
-> Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-> ---
->  net/bridge/br_multicast.c | 39 +++++++++++++++++++++++++++++++++++----
->  net/bridge/br_private.h   |  4 ++++
->  2 files changed, 39 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 881d866d687a..252c46977ed5 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -1776,6 +1776,28 @@ static void br_multicast_select_own_querier(struct net_bridge_mcast *brmctx,
->  #endif
->  }
->  
-> +static void br_multicast_port_query_queue_work(struct work_struct *work)
-> +{
-> +	struct net_bridge_mcast_port *pmctx;
-> +	struct sk_buff *skb;
-> +
-> +	pmctx = container_of(work, struct net_bridge_mcast_port,
-> +			     query_queue_work);
-> +	while ((skb = skb_dequeue(&pmctx->query_queue)))
-> +		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_OUT, dev_net(skb->dev),
-> +			NULL, skb, NULL, skb->dev, br_dev_queue_push_xmit);
-> +}
-> +
-> +static void br_multicast_query_queue_work(struct work_struct *work)
-> +{
-> +	struct net_bridge_mcast *brmctx;
-> +	struct sk_buff *skb;
-> +
-> +	brmctx = container_of(work, struct net_bridge_mcast, query_queue_work);
-> +	while ((skb = skb_dequeue(&brmctx->query_queue)))
-> +		netif_rx(skb);
-> +}
-> +
->  static void __br_multicast_send_query(struct net_bridge_mcast *brmctx,
->  				      struct net_bridge_mcast_port *pmctx,
->  				      struct net_bridge_port_group *pg,
-> @@ -1804,9 +1826,8 @@ static void __br_multicast_send_query(struct net_bridge_mcast *brmctx,
->  		skb->dev = pmctx->port->dev;
->  		br_multicast_count(brmctx->br, pmctx->port, skb, igmp_type,
->  				   BR_MCAST_DIR_TX);
-> -		NF_HOOK(NFPROTO_BRIDGE, NF_BR_LOCAL_OUT,
-> -			dev_net(pmctx->port->dev), NULL, skb, NULL, skb->dev,
-> -			br_dev_queue_push_xmit);
-> +		skb_queue_tail(&pmctx->query_queue, skb);
-> +		queue_work(system_highpri_wq, &pmctx->query_queue_work);
+Patchset overview:
+Patch #1: Fixes the unconditional suppression.
+Patch #2: Adds selftests.
 
-Also the AI reported concerns vs unbounded queue len looks relevant.
-Usually the RX path is slower than TX, but i.e. asymmetric filtering
-rules could reverse the scenario.
+Danielle Ratson (2):
+  bridge: Do not suppress ARP probes and DAD NS unconditionally
+  selftests: net: Add tests for ARP probe and DAD NS handling
 
-/P
+ net/bridge/br_arp_nd_proxy.c                  |  16 ++-
+ .../net/test_bridge_neigh_suppress.sh         | 126 ++++++++++++++++++
+ 2 files changed, 137 insertions(+), 5 deletions(-)
+
+-- 
+2.51.0
 
