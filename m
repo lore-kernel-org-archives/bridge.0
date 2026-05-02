@@ -1,66 +1,67 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F9F22DCF4C
-	for <bridge@lists.linux.dev>; Sat,  2 May 2026 06:05:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C3AA2DF13F
+	for <bridge@lists.linux.dev>; Sat,  2 May 2026 06:06:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777701945; cv=none; b=HUnWokgI9X7mOaxYRG5ORCuViFPOSWdmky/JAdyGNRmmyPnbjojgvilfjYFBhjF2tZ+l9b6ZcsJ+31C/08u4z6IhrG1Ho/NS+oznruFTdSRKNRUSK0es9EsHOVMQT71R8m7OApQTgh6k6ujCCUYSQN9SazvBbEN1+Ua518XtGrQ=
+	t=1777701990; cv=none; b=LYtY5xEZrrmYc4gxmEekHFYR2+UlcjEFpXm3DlVBWH8bsTO7d8DeWfPJWA4+60lnnK+uk5Zh0Jmf5yW4iRis6NIPHE/9Gsd1cC8jO8p7VzuXqAD3cdF6CNSl/EHuSQpRfFsOcjEhAeQE+IJMfvTc+9YuJX9LdEDsQfzpnIU8MRc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777701945; c=relaxed/simple;
-	bh=X/hZCb0jhWMLtO0yzfJTyu1aVwl+6kQirfxui/Burbw=;
+	s=arc-20240116; t=1777701990; c=relaxed/simple;
+	bh=KTOCjruETFFyA9eMpMwBg7rk2PGjXG1IZi/DfUc1peI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TUZykWGdUHGAlUGJecmlR6kqud14HHfG1diWw0ORtJ2VaG77Y/xmEaOHuXfDQCB7KKE9AHtBLj+irB2K3gWct77mIHW8Ur8YLKA4oNcIJszJbBZFZMXRyM4lTeI4AhODTiph6kJID5viEmFMBjP/TG0iSmg1c6/WEeFAp7gmhzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=CdwejVey; arc=none smtp.client-ip=209.85.128.51
+	 In-Reply-To:Content-Type; b=uhokYuA6ttPvLOrsaz1krNT0gpCA+D1JxbxN4kqlnn+q9rv/b9XphLPI90HI5/5VM22tPDjPqNiTV2aB2Dpl4WTbeBSrsoNIy1uXQdAy2NTwHUjwnj78yNcXVYINcL0QWaKDgK6iDGLsd1qML1qyBqzvnPvYKRjNBzShffbhJjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=fjjv1c9P; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="CdwejVey"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4891f625344so25809475e9.0
-        for <bridge@lists.linux.dev>; Fri, 01 May 2026 23:05:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="fjjv1c9P"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-48909558b3aso25903035e9.0
+        for <bridge@lists.linux.dev>; Fri, 01 May 2026 23:06:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1777701942; x=1778306742; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1777701988; x=1778306788; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=Hb311y/HjKGqfYjiqwo0iWKOc8y7rqDPGTnOkcrspE8=;
-        b=CdwejVey1a4e8fN9cdsn7J90RlbUF6D/0UYC5vCUlAd0Xbi7Dy96GEYRSOroJA5Nqq
-         zfSq7p3bkgvS34e/97AQyBardJG8dHcGmY/mUn8YoYU3a8rPwhxuNmp10q7krvOnfWxN
-         js/fRq2tkT/B095Rc6OZXc4pZxs6BIK3cvSRdLLThY/neo3utJ5MEg1r53FVLWRLcJP5
-         JqPyQIH4W0+hqTfWTvt9q6jp+a/HMHVPX4rwtneNp5Q2PtiqEgkvwdUbkxrWWciMhI7l
-         8dQOnTJbpvBV0iPgBuXUYYDvCw3WN4s3qYgMa8q0zMGqj0xUJXuw3+WTc3jRq1KGgCne
-         0fVA==
+        bh=2x13DrMgH4CKBCggYi3SP9iAtnspCOSFTNkvACPndhs=;
+        b=fjjv1c9PcUOwyb2XUOsf7QdOpOPJUIn01+JgPsU492qiXBepE9w32esNcSg2gkPRmW
+         SFrto0xlKESHTRxr6rvDNE0DHPuX70IXmqxhReh3pVKM2gxVnKsOHdkJqDuLbqwH4ksX
+         Z08hxTHym0GtAT0tCftrMKIBB1MEo8bXMNecMQOvTwJsbh/tC0/mxtOBZTslUoDqOYGd
+         46QPAmaWhFUDyL1Cw5hEMRAtQn45k8jtr4lpEhABs1EaNDSFIVZbDFFEjwL0zmRsZcFF
+         srm/MLrO1sRib5d3+nzUW/aza8bfeoDZGoDIpPz1W59hW5aYhY6ugnnLJMMDw7wvg483
+         vRew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777701942; x=1778306742;
+        d=1e100.net; s=20251104; t=1777701988; x=1778306788;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Hb311y/HjKGqfYjiqwo0iWKOc8y7rqDPGTnOkcrspE8=;
-        b=TrdsTlNn47peGBV/kRqaTwTbbbIcpB6xPWk2OEsf7JtdruVO3T5Mrg2YAyKuYdNsuS
-         TlUvlchL4mOp0Q6OqZwAhRQPhiPEIbgxL2pSOr5NjF4xMCvK15JOjqWeyEQm1blbtWdG
-         ZonJZZ9N5xkIyncNQpZrL8NN3QTrZAptiRRh69NvDOydFJuOHn+i6Xj7n+WlWmMZN04L
-         UwWuVC2XzwfFEtuSJ8mzRJsx7kagml7MjlSPhXTM3bTkrrcrjxICetxGxzvrfA0EHfsX
-         l648gsQcFCPdplkHTriu3CiRavCu5SI00qbivg0Lww7O5KEuRwuJICwIKjhy+W4wO+Yc
-         N0mg==
-X-Forwarded-Encrypted: i=1; AFNElJ9qBNW17ccCWiOdSVPW13aQ4yYiqdYRaG09TY0Akm2qAGtCaeEO/aDXAyPIkGOrsM7t4WjbfpU=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy20Y7s8GOdWSMs7PNBKsTHddFeaXt/OOC+uFTGMAMYa7I16dn+
-	uupaNtevVfQkb7JbV/3pruQcN3RetUfqHrqS6YQaDi0xuY3z/CXCRwXYBB3ZsqYJMak=
-X-Gm-Gg: AeBDiespHzhqyOTzDmcmgS5VOfnP0GuegAx+h3ioGUMvUsuHaHiw7sOxVvXSrJYPZeG
-	nnwoG+EtB1hiihEjLfkrLB1QE3jbRLeatUSpa7A1w1n+vQMUK0Vwl1NOmLZ7Rr6hgmVW1K5a1wM
-	euj4weaJPwUES2+5ty5Qnxn+X5twIIjS0EkryjZ7VknSNlwPxyLfCNfphD35eWT0w8YBqHRC+PP
-	plfNX1OI0AwfsaluT46A9yeMTahkHfTFUbYQPMruG8JZ2aLQF3d9V6CsZuVQfP8gppMMEtWi/vj
-	XTtgXCLZv8bIVs923gv53eqdVHRnNlJLYXrmos2HqAn9pjB59IpYlmyYBZ3NuAr7ZSo8nrYSYhS
-	PyGPCqlJvZgUha6fk0EYKk0r8gMy9V0thon9fdPULF+LYddXAteApHjpBj8McPr33gb9aZTX9jI
-	lSw8ksCY0s6UE1xS+ZgBdH94kpjTJwWnOV/N2sYrdglcdvxA/nKjDOhHpc2Y+cOLtZ
-X-Received: by 2002:a05:600c:4f13:b0:486:faa8:9e4 with SMTP id 5b1f17b1804b1-48a970fda7bmr29905755e9.12.1777701942442;
-        Fri, 01 May 2026 23:05:42 -0700 (PDT)
+        bh=2x13DrMgH4CKBCggYi3SP9iAtnspCOSFTNkvACPndhs=;
+        b=e6sgaeY1Gbf5sUkfuOR3KPEs6ya18mgGIhVK2ATN97FLD0I5W7SsuEzf5xLgwR1hIJ
+         UEwafuxGBO/CNhHaRvywEZigEtPQtPglHbWJcSGsFfIhre1YKdeV0wm1TCK+BKVaiLRQ
+         yS//n9Jm2nLdLAcOiBmtOUeX4TRISEZjSoogvc7O398esYsiuQ8JAi7kfikFPHE/fzFj
+         B3CPXQteBscErhPzYAqt8xRJ5SlffutX7kuD4oVqx0fQGt8uHCI6GvU3jWFKC+Es7cy/
+         7NT2E0ZYR/wbBNJeP472Vq0iXOYgEVAWgjK4itkpiFSpcCeMOMIiSuMcZWYWaZmtO1hk
+         8ODA==
+X-Forwarded-Encrypted: i=1; AFNElJ/GQJMB3xZx2B6PY4MBVH/iuApkfkWwGZdzjNwAMcFvslFb60rH2KjTxt0cN7lZ14+GVESWyO0=@lists.linux.dev
+X-Gm-Message-State: AOJu0YycSOvB+qOeh4VQhB/r1cOa/UKp+eExyoJ5fgt64t7xrh4LNWRp
+	qHalhjiRj3qidiZPy5q0OlO7fjwt7IVePgcne0ecOuoKsqHiMMtdeqha7+dJELw1MFo=
+X-Gm-Gg: AeBDieuoEGhxbsKIAX2LqpM76e69nJ/yihFh3ohVpnCTBuh0Xk23GgtLlIPTKgGvnvI
+	sZV+LIv2e8zDlSKW9BHY5MwCiTWRTKG08BiN4qaL8nKAmYzZGEcwRDpKgfYA1CAYn0nj7SWr98y
+	vD0Gv+bRZgSMs2zjFL05vzcTlW2hvgdUNqwXwwhGV+49KHt43sYTsJPSGyOAzaxNrB/POQuAge6
+	dQqfYhlkHehVSHxKiJOZLnegPf/O532l/kgw0cL2Uej1XYqyV2S4u5yswHNeqd+vcujsQ9wud36
+	cBvKFdQsphBabMOzUAy28i9+7Y4xhupuIyZP8rUiIa2qNfaVJb9KabOB65sHdHgiXHTM6OQgxnT
+	LuMMA43wYxaWU8knclnU0IHS1At8++31iYe5V30GLnWxsT2ITfqFqy6qVMga3q4qMtQqigSpPIW
+	1ZVGquD5iT89ryMRIaT2kuIvW1LCIueIfLQprFqbTx9Z0kDVo8gEZtQhsz2UYORe2eLknJhkH4E
+	SA=
+X-Received: by 2002:a05:600c:608a:b0:488:acbc:b2e with SMTP id 5b1f17b1804b1-48a9865d2ddmr24979785e9.17.1777701987611;
+        Fri, 01 May 2026 23:06:27 -0700 (PDT)
 Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a822c3422sm157004635e9.8.2026.05.01.23.05.40
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a8eb3427fsm171888165e9.0.2026.05.01.23.06.25
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 May 2026 23:05:41 -0700 (PDT)
-Message-ID: <60fd2cc4-1c04-4db6-97cd-bc3bb9710a04@blackwall.org>
-Date: Sat, 2 May 2026 09:05:40 +0300
+        Fri, 01 May 2026 23:06:27 -0700 (PDT)
+Message-ID: <fc6c4143-d279-4e79-ad8b-c5c06949dcd6@blackwall.org>
+Date: Sat, 2 May 2026 09:06:25 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -68,8 +69,8 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 4/5] ipv6: mld: encode multicast exponential
- fields
+Subject: Re: [PATCH net-next v5 5/5] selftests: net: bridge: add MRC and QQIC
+ field encoding tests
 Content-Language: en-US, bg
 To: Ujjal Roy <royujjal@gmail.com>, "David S . Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
@@ -81,49 +82,35 @@ Cc: Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-kselftest@vger.kernel.org
 References: <20260501173130.3486-1-royujjal@gmail.com>
- <20260501173130.3486-5-royujjal@gmail.com>
+ <20260501173130.3486-6-royujjal@gmail.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260501173130.3486-5-royujjal@gmail.com>
+In-Reply-To: <20260501173130.3486-6-royujjal@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 01/05/2026 20:31, Ujjal Roy wrote:
-> In MLD, MRC and QQIC fields are not correctly encoded when
-> generating query packets. Since the receiver of the query
-> interprets these fields using the MLDv2 floating-point
-> decoding logic, any value that exceeds the linear threshold
-> is incorrectly parsed as an exponential value, leading to
-> an incorrect interval calculation.
+> Enhance vlmc_query_intvl_test and vlmc_query_response_intvl_test in
+> bridge_vlan_mcast.sh to validate IGMPv3/MLDv2 protocol compliance for
+> MRC and QQIC field encoding across both linear and exponential ranges.
 > 
-> Encode and assign the corresponding protocol fields during
-> query generation. Introduce the logic to dynamically
-> calculate the exponent and mantissa using bit-scan (fls).
-> This ensures MRC (16-bit) and QQIC (8-bit) fields are
-> properly encoded when transmitting query packets with
-> intervals that exceed their respective linear thresholds
-> (32768 for MRD; 128 for QQI).
-> 
-> RFC3810: If Maximum Response Code >= 32768, the Maximum
-> Response Code field represents a floating-point value as
-> follows:
->       0 1 2 3 4 5 6 7 8 9 A B C D E F
->      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
->      |1| exp |          mant         |
->      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-> 
-> RFC3810: If QQIC >= 128, the QQIC field represents a
-> floating-point value as follows:
->       0 1 2 3 4 5 6 7
->      +-+-+-+-+-+-+-+-+
->      |1| exp | mant  |
->      +-+-+-+-+-+-+-+-+
+> TEST: Vlan multicast snooping enable                                [ OK ]
+> TEST: Vlan mcast_query_interval global option default value         [ OK ]
+> TEST: Number of tagged IGMPv2 general query                         [ OK ]
+> TEST: IGMPv3 QQIC linear value 60(s)                                [ OK ]
+> TEST: MLDv2 QQIC linear value 60(s)                                 [ OK ]
+> TEST: IGMPv3 QQIC non linear value 160(s)                           [ OK ]
+> TEST: MLDv2 QQIC non linear value 160(s)                            [ OK ]
+> TEST: Vlan mcast_query_response_interval global option default value   [ OK ]
+> TEST: IGMPv3 MRC linear value of 60(x0.1s)                          [ OK ]
+> TEST: MLDv2 MRC linear value of 24000(ms)                           [ OK ]
+> TEST: IGMPv3 MRC non linear value of 240(x0.1s)                     [ OK ]
+> TEST: MLDv2 MRC non linear value of 48000(ms)                       [ OK ]
 > 
 > Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 > Signed-off-by: Ujjal Roy <royujjal@gmail.com>
 > ---
->   include/net/mld.h         | 119 ++++++++++++++++++++++++++++++++++++++
->   net/bridge/br_multicast.c |   4 +-
->   2 files changed, 121 insertions(+), 2 deletions(-)
+>   .../net/forwarding/bridge_vlan_mcast.sh       | 140 +++++++++++++++++-
+>   1 file changed, 132 insertions(+), 8 deletions(-)
 > 
 
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
