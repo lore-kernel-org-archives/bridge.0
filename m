@@ -1,66 +1,66 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7C8A1EEA31
-	for <bridge@lists.linux.dev>; Sat,  2 May 2026 06:02:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A37329992B
+	for <bridge@lists.linux.dev>; Sat,  2 May 2026 06:03:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777701759; cv=none; b=YAeIKu8joMIGJPGTSEXD8g8p1G+VKL0xQAgZcKfl+kKEvF9MUaicS3h+f6uDcj6015Vu/5x2eUnxq/rqoT0h/WlRnf/k6RTEY19bDQW6fFk5dTu3+Ioqer/yQnk543Qit8d17rYGikqwVZAHH2ANjW2RJlGo5LPCEBHc0o92gfo=
+	t=1777701816; cv=none; b=bm9aFJQMGCGLSCNtvN5D5JvCVfTKTJjdvPg8YK12ZFBcUrtLnUFr+13q78prO88HaIARIsj3HLYbRGPZtCs8Xy167qEmAGYwoWtnm6OJEKxnKA5yiUm3eKgfX8h+5f0CmaHuxW8orrV0wf7G7pK8p6kq+eByy03u+SKEhFGuOuE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777701759; c=relaxed/simple;
-	bh=zuZtarl0HDSmqW/AZV+7RjZzgS4L7RDu6mlYvcegPuY=;
+	s=arc-20240116; t=1777701816; c=relaxed/simple;
+	bh=S7Lb+q3oEv3NVM0NPPBYU6eUyq6N8yTsNyIwBajUKE0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MJJ1K6tMK509SbqR/sWXGBj7L7tsdgRqm0CBrtXvAHYig/I2A5/Wsg9kRi1dQGx+zfcYcLgd1WPGAIlNqPCM47rjnjzMnB4C4lS0LvZcib4mJ9iPtjy7fMrz6N4chAX+iXUyUF1rNxlugHxyO7UjbnajwGZE2HqKpPSzlfAeAb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=bCcxOP2A; arc=none smtp.client-ip=209.85.128.53
+	 In-Reply-To:Content-Type; b=dbDJ+bJznKASXDrDPcRXngpuTf8K3esvu/fnB9GsRx1b5zxGL7O534qcrKJWc5PxIdsfmTZCqBu8fyqWGMDHJJ8HvGry+jeXA0u6kOtctWQ9yUggDfqzs3nu2EcY2wXrG43ekgeYX2HEvoRTRoSqdTtHUg2lmLMUhyX0Nv+r8ak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=KEfPwmKh; arc=none smtp.client-ip=209.85.221.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="bCcxOP2A"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4891c00e7aeso19688745e9.2
-        for <bridge@lists.linux.dev>; Fri, 01 May 2026 23:02:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="KEfPwmKh"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-43d7e23defbso1386493f8f.0
+        for <bridge@lists.linux.dev>; Fri, 01 May 2026 23:03:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1777701755; x=1778306555; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1777701814; x=1778306614; darn=lists.linux.dev;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=FMTwyw43NAPsBdN0lEvEHduQcIRfAv5+dGrM1lniOAQ=;
-        b=bCcxOP2AQM3VFrkmqat35uurz3m4Yt/CMxt1kOt8fFUS7cKunEsAmjhbfcs8NjPjT2
-         7i/RV4wAQm2VRJGbDEzS8y2ls8hZwRCwoenP6pAUwHeFiGkEsDR3I06j/lq/Y6Yv7Nog
-         4jD7pjMxFQhwBruTFMiOmavTF1O42+YtoAbQAGX3zs8YhfI8ZzF9WXYlAhYzJwpei6RN
-         n72+xz9cMneGYTwwGx7iIDI0PyFo/qtQ/M8WmvglA7ZT7lhZk2uRLbY8zP1JwEKY7gGr
-         1MOtg+4ZaARBAkBhpkP+fI2qiJNmzuK862vlwM+KcytZqS9fvLPq6l9xpYlGxYk8S6rs
-         lNYQ==
+        bh=LZREXi6KS9s2NVYeEPr0xKFupND9na8xQrKsYAgQ4Cc=;
+        b=KEfPwmKh07a36TaTKoZYkmVcJC0JT5trCFRiyQ0nCqpsfFl5bCHsTTs/wH4RFUZ0im
+         9dlZtTp/MJEOGArKcgOW9DbvwbNiSueo7GWARGjTNj9jeDL6/dCXU0LB15lHLwct980S
+         p5xiFWRPlt+f227tcXtV62Hi/EIlN3ijI7cdlM13UbAsLAi1Q02509XD3XOuEx5n1rLR
+         8QcMLXLeajRDfdcenGy6EWA/S9MZT3dOCmTVrak2kzaLi5WlswLT3PL6A2KOYPfEod+K
+         5a3Xb9dhj+kbg7/ERMUsf5tHmkWw+i+V5bdhV+CTN8SSVwG5I7uRF1n0UyirlxZv4mPF
+         hZsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777701755; x=1778306555;
+        d=1e100.net; s=20251104; t=1777701814; x=1778306614;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=FMTwyw43NAPsBdN0lEvEHduQcIRfAv5+dGrM1lniOAQ=;
-        b=kzbTU+7r3m02N1TmlMzAPA3iN/4Qa5SIgeJrnrekrAZIh0nxrK+LMR6wUK2InLIKXR
-         EgDiVsejHNHFNCyxkGa45YSWATAQeMERM8P+wKvhftYIS1KKSt8Ut6El4kd0+LbQLqEA
-         4tZleivDXLc7HwN5Y1+lhr/NMp5fDzRrnDRu2xxFPubnKo1P5UU+d6hb0PfuHdXEyecv
-         wIJXq7bRAIUrNd3BZCwJdM+tdLNln80LCqt+NidBp5/Kaw0UzN5IMvKMCOULgvoTxbo7
-         n25wRLWGmFPFLMV8t4nWr9SVlVbiF0jDfbWW/vfzgln8lhTpPGTo0kaqOPecBzF1TlbE
-         XYjg==
-X-Forwarded-Encrypted: i=1; AFNElJ9p7e1pOwP0dZYt88FHP6j5l8EUXIy53sQODDEhMtAvFRDWm8RqScQ0e91k1SWUlJ2zMNh3348=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzB8MiYK7Usdt4+F3f7mgv4aBDagAGaym9U8vPpZU+ON/VfOYgZ
-	j57SsisTW5bxfqX2//lsB1TisbU25rftFQZLRVwDOo+rWcHfilUYnmDhrAbm+pose/o=
-X-Gm-Gg: AeBDiesK0N9/BCtN2fN0J8zbXyAS2KdXFupQB3LkM5dkAukID1HqyukVpCnizbMUJTZ
-	We1zvdu4HYv0xR4J0b+qQpaGqFVTDYxdzkR3C8Vb0w231lr30fEEYhRqJeAYg2cD0dR0NpkGg0E
-	3WAgVsRuI733bDLvDPqPZor9iB8uaXhsCPmyX9BGAFhqslsrmKvGJkbgXGrs1hR6uiZwZLJM86B
-	yuI4kJfI21xVQUgzhgNPv88jvY7ALoSZ+CFpn3AsrpFdEJqYKAa0uIuVguh+lqjAkrz94tGHjE0
-	7+8FktbNQe7axhUforsYjUfiaxV96xMMeTnQxTn2ghMp6dfQqGd4siKhQ5m1Z1sG/zoK70HjV9s
-	nS0G8Q0q6F+HQUrAsu3dYmF5YLuiZuSvz0j23cz+jR/AnnAZau/HnlBewoFM11icJ/916aX9I/e
-	e4z6YTYcrvi4KcExY/BidEsOrBJ9nrjwKXqWwTJU6fmObxY+L6faUXSiAK83+hchH3
-X-Received: by 2002:a05:600c:c058:b0:488:ac01:72b6 with SMTP id 5b1f17b1804b1-48a9866a998mr20975615e9.21.1777701754546;
-        Fri, 01 May 2026 23:02:34 -0700 (PDT)
+        bh=LZREXi6KS9s2NVYeEPr0xKFupND9na8xQrKsYAgQ4Cc=;
+        b=NkvJiKI+3rAn6WjkTDR5MvcN9dNrCfg3hTUvZc4t3z3938099fMNrrurXr9haEn6iJ
+         +GBfrQ7twjON5BfO4R4HWp2e+ZGt7iz0PDZa86/biEuorUd3Bf/a+vB8BF9XmcF4scFe
+         LUM0FTTBHmRahWcjpnF/E/7X5su/wHtYxyNTQgDoI/LO0uSeqbnWnUfnDVIzfg/JoXuv
+         b7flxLvHOx3s4IcT/Kcu7TsEMSiwmcn8w0nGdNUbR3zw7WFTVqayBpfB8R/w7aS1h3Pp
+         IAPSPh2CV9/Lc0wvZnikq8evSrJazijoI0RpHsURqcT8wqkTWASFraEU6zagJFt/Mijv
+         1cWw==
+X-Forwarded-Encrypted: i=1; AFNElJ8xng2073Rv/EZy9lAwR2uw2+GV0sn3d2DFb3ImTTvqTejhnv7rTM8xRT7znpjuBg6xbjRusqM=@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywjx4BdXc9xmH5GHdMlLt0exedqDBZlzmbzYEc130ZgpD8Mfz8S
+	pk87sivSNHcPGaYEDTFNFnAW6HziJbo4rTEEE1IpQi7fgmlI8jh5B6XU2IT0ohjKW2Q=
+X-Gm-Gg: AeBDievpl6R62Q5Ob943oFCkU7M/oZAzFmsHWccWGQxMZtmaonAOPKYpvjH64aeXHyV
+	+58/Q5A02l7VpCIYD29SLwE3kRKILrGRCiTUA1lYfMpZRR3HW1irWesarMFOhq+ST18eToVv+Gr
+	iTLlWuUubt0FoSCRpU6Df+NqxEzwDfeAlp0D8b5nl/G6/dTF+JOYtIOhND+HjNH/Pxmt9NBfg9p
+	9nG5wTlRPFB1HCAvDzi+RNuJMzCcRn8m8w6VEI4Ukag6DfFDzug5Or+24Y5e6vEZvCtGw+2kjJH
+	rBgEN8iyaB2DmGCqlBTSVQYS0BOXObjd1ri5V/lUj+t46CUOzzcBj45pvOuEoVcXU/VFg64/k9m
+	vKa1DUWtwVGOAPA6OWa4FSwLrnR99fxEayRu/GCd8co+iJ0HqkQHkDCi6JQ4w+lSAB2lM5sfLjE
+	SV13oYYQBKjRFEcTdsP6ZF1Z/0P1UAmI64mgLTmPK2VfHy27GjwyR+odQbv4oyOz3v
+X-Received: by 2002:a05:600d:8453:b0:48a:5339:ef0e with SMTP id 5b1f17b1804b1-48a9852f5e7mr19973775e9.3.1777701813598;
+        Fri, 01 May 2026 23:03:33 -0700 (PDT)
 Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-44a986aac01sm9113763f8f.31.2026.05.01.23.02.33
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a8fee4d60sm27091805e9.19.2026.05.01.23.03.32
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 May 2026 23:02:34 -0700 (PDT)
-Message-ID: <dc11bf91-dace-4235-9055-223042067a23@blackwall.org>
-Date: Sat, 2 May 2026 09:02:32 +0300
+        Fri, 01 May 2026 23:03:33 -0700 (PDT)
+Message-ID: <82343bf4-18ab-4482-9241-2f235f6f1449@blackwall.org>
+Date: Sat, 2 May 2026 09:03:31 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -68,8 +68,8 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 1/5] ipv4: igmp: get rid of IGMPV3_{QQIC,MRC}
- and simplify calculation
+Subject: Re: [PATCH net-next v5 2/5] ipv6: mld: rename mldv2_mrc() and add
+ mldv2_qqi()
 Content-Language: en-US, bg
 To: Ujjal Roy <royujjal@gmail.com>, "David S . Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
@@ -81,26 +81,27 @@ Cc: Ujjal Roy <ujjal@alumnux.com>, bridge@lists.linux.dev,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-kselftest@vger.kernel.org
 References: <20260501173130.3486-1-royujjal@gmail.com>
- <20260501173130.3486-2-royujjal@gmail.com>
+ <20260501173130.3486-3-royujjal@gmail.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260501173130.3486-2-royujjal@gmail.com>
+In-Reply-To: <20260501173130.3486-3-royujjal@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 01/05/2026 20:31, Ujjal Roy wrote:
-> Get rid of the IGMPV3_MRC macro and use the igmpv3_mrt() API to
-> calculate the Max Resp Time from the Maximum Response Code.
+> Rename mldv2_mrc() to mldv2_mrd() as it is used to calculate
+> the Maximum Response Delay from the Maximum Response Code.
 > 
-> Similarly, for IGMPV3_QQIC, use the igmpv3_qqi() API to calculate
-> the Querier's Query Interval from the QQIC field.
+> Introduce a new API mldv2_qqi() to define the existing
+> calculation logic of QQI from QQIC. This also organizes
+> the existing mld_update_qi() API.
 > 
 > Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 > Signed-off-by: Ujjal Roy <royujjal@gmail.com>
 > ---
->   include/linux/igmp.h      | 80 +++++++++++++++++++++++++++++++++++----
+>   include/net/mld.h         | 66 +++++++++++++++++++++++++++++++++------
 >   net/bridge/br_multicast.c |  2 +-
->   net/ipv4/igmp.c           |  6 +--
->   3 files changed, 76 insertions(+), 12 deletions(-)
+>   net/ipv6/mcast.c          | 19 ++---------
+>   3 files changed, 61 insertions(+), 26 deletions(-)
 > 
 
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
