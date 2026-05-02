@@ -1,63 +1,63 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47F29257851
-	for <bridge@lists.linux.dev>; Sat,  2 May 2026 13:19:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2CD0259C82
+	for <bridge@lists.linux.dev>; Sat,  2 May 2026 13:19:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777727992; cv=none; b=oxOb+1kp46VBh01W54lWYBf5ERxZzX+jO25YaBtnoGtUqV8VTjm2DUXlGayNO+Y+/PlliXilyvYvHNlFGIO05XV9i5mXhbWbkKbkzfBnxi3KcNGl0cNYFSEHW32KRMZohTLOg0OcNmDGF+X3fb48Ybdd03EZth6deQ0PiXUEHqk=
+	t=1777727998; cv=none; b=NAMBu2d5B88EXZDyeov7sQzf64Q+YzcSOXCjdg7+aoeEe1dKRTPDewY9sVrE3HQvMbVt/5RG2vizXLRX0gM5ZW96SOAUBXBlf6E2SG1WoqsTVmYEEa1hlGJlRw+vvzIsIBqEE02nj/f3Qyl7rdeBOKPs9ESBcr4YTPUgk4jArds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777727992; c=relaxed/simple;
-	bh=jJnc0mGZNzy4u3y501gtICX3ws5YMm+lbxgjciB6cvg=;
+	s=arc-20240116; t=1777727998; c=relaxed/simple;
+	bh=lxcyWp12IdlZXXKd8Ugl4on7xBBXleJuqVt+0M1OoPk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=e9M8BcD3YgV3wvh9oIdyQMrFrUe9myiqmVnKaBjUZzXjxx8hzFv3pbEyyxofmoHPgKVoIbQMFrMPon3g17z2kWOOhu02Ruvsb1XnYdpeM6RRSk828ugI3RgGclRgek5x9x3JqYyUl517HK8sKAwAmG2wQ7+iZsuqNcBTfiSSbPc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pInm5m3C; arc=none smtp.client-ip=209.85.210.173
+	 MIME-Version; b=RWXE/u47HEcX0saJPzAvYuNh/CvL0dW6+F7+eLN3YJbGDTFRutSoW87ZlTIG4dZER6vbOChvx53FCbXVSLWNI7oEt/o4YH3DD5NU5NMZ+c/253nO8+2poYzpXrtwq+Gu0NDC8b7+RtE+maf0M21RomfPCVAKMloPf3krI+gdh5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M9SNX6Yi; arc=none smtp.client-ip=209.85.210.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pInm5m3C"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-83537a80ab6so128176b3a.1
-        for <bridge@lists.linux.dev>; Sat, 02 May 2026 06:19:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M9SNX6Yi"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-83538fbd0b2so67758b3a.0
+        for <bridge@lists.linux.dev>; Sat, 02 May 2026 06:19:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777727989; x=1778332789; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1777727996; x=1778332796; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zl++HpBCtAW5kzSiDlCg+WmmabaPSzgG75Hq/zfZ4gA=;
-        b=pInm5m3CWiZRc3ZSDEL2SHskMlYppWVYlVPrR5p8bYZqh5H3g0RziYY3LEzeLywWLm
-         IZLcVV94cctNT9T0EUpjPWWSls+UoqFRQSL8mjoaL5LHB53kedMQzDjwF+SahXKRYgQg
-         S0k534sKjyNbuWnGW3bQrzOiqRMY3t0WTCIGBOjm9XqnthGZ/FT1KNkTrhsUXFlOXF4k
-         0M3GhCULBF94qpqBvIIVcvyGYb6nWbXeV9PQ/gS0wZjg8XskZqYODVYwJpZ4djaywusU
-         4sMdMqX3JW007HWH+suU1djO18qfOJxMHfmS6KoMX7lhfFN5r53rlRqoil1B3N6TaJK/
-         WT1A==
+        bh=2gfGrYQ7AWXi3RXTSR0Z1BGRv06bnLTOB4wH+tsRKV8=;
+        b=M9SNX6Yim3hKar0KmvV3E/h3e6KLvWm5VClj6p0i7TkFO7gkxQxMjsV8c9KIApKRh2
+         YOi0+SppZT5KpOxpsRk3x54+ZI79CdopLLyZ2mOnNM6cHxctcj/JuPa8j8t/RB5pjnXs
+         76rT7jxy32HvbVtZvojDXaD8L0Ce/OPmcHX+c0+EvmvxsgSXMLth3Tkvk5OkG7Lnlgzl
+         7QkDPwetQLSw5u3kyDAd0kz4VlZ7dvkNM86ZSEPsn4gJl0UOPmU4fTwvtA9JE634YhCa
+         DRLkES7GmssY0hB9NtkFNg5i7TtTNw+Ac47MQN8lBFUWJMaGTAgaTTsjjh+mGnyaXkl8
+         WxVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777727989; x=1778332789;
+        d=1e100.net; s=20251104; t=1777727996; x=1778332796;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=zl++HpBCtAW5kzSiDlCg+WmmabaPSzgG75Hq/zfZ4gA=;
-        b=lURHSHhn8fcPTmqIxgh4BkrT9nnAtyIYBdLNvGKiDP8OQmp3TyNLA8Bsorn+rZ9w3b
-         UTHQYdu6B1a/eJu8Gt+K3l6YspBnsQsWysPWQsyv1fGqvm+wH44imBdUQPlraKrPHYvC
-         xNVnlqLacN96lcW2Sf58rmiig26fRhZrReyvE/U6eX08mKCDEhBYmnXVRJFUg6Jv+8x/
-         5wuF4Hz7Gs848MJr+Lfjd4biIDFekt6SUd+E+c6nsDkbnjyuNrjF058BwMQnPoWBELyJ
-         v7l8uj8yXsCIoRmHjE8wTAOCNjTbteHfWpy/R3yp2OUWkm+lY2vRpcwg8wrg4g7zR5/2
-         +Eyw==
-X-Forwarded-Encrypted: i=1; AFNElJ8BKKH13bUqbWz2QQNTE3ZoUKIrjmoP8/A2DAu5TVGdwHNNVZEeGp2Hw+o/a2Sctphca4R+ZIA=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwzF8aFNKY2D+CCl4vNjF8nagMb5zHqTx7xPvqM7MPavK1chmsG
-	wThtLIH3df/7I8kf1vBrbnlsiJV15HBmuGpEP1KHMMCWF1sLuvUqE7il
-X-Gm-Gg: AeBDieuVap8STdWh9N1/byS4TuUymvnK7yLk1Dx9SNdmXaBoNSv1VwaDh2VK9alVf/t
-	VHFHHdGbHWuBav3Azh5ZHCOgf+NOR5sCberp1VMxa8bAzGGvtM/Swvw3mlUcv4BfcrGH4360jYv
-	dEcidJ0mSHuOxkhbH5r535V6vIyKBx3bwhw7KCkfqb0a5d1eKbUvmylmsFo4hbnagkKcIRt0JW7
-	jxW6Q9Ptys2V8XcviPiD1PgUmHXgnzF9ClhuJZl/2ym0VY/SCL7fQ4JimmU2hcFux1/m33wk2J/
-	FwE9/8QklEcxxBd9gQiaO4/3uB9M97I56H9nKDdssp41If1il4XXSFHBypa9+AtbZwVhEMEZzZY
-	4+o3758Xns3hdELWylO5LUF0H62HRpzc4b959HEHZxlkuApWUCLDLvdlc4F1BkFbw0bnJRr9V8U
-	EEtrvu0RVo/7foxhIC30gu1Yc6oC9zziPv5CuaXbSNysrUzFbBJw==
-X-Received: by 2002:a05:6a00:13a0:b0:82f:4628:4186 with SMTP id d2e1a72fcca58-8352d2cf7aamr3023049b3a.42.1777727989546;
-        Sat, 02 May 2026 06:19:49 -0700 (PDT)
+        bh=2gfGrYQ7AWXi3RXTSR0Z1BGRv06bnLTOB4wH+tsRKV8=;
+        b=X7xm4mdEZ5Ti6X5+8UWbmS0+p+5ciFN+ALuQfVT992TZEHvxpKrdxFZ3rvdD1pJ3Lq
+         dtqPbykf2SIZF1KbYbCqb1bcV/bsW5+QPiwXT/gS2EESEOh1oQAJNDNGGpAsNBrU8u6y
+         7PxpQE/5rOf073PJKNagZw5DsloXdSv5MIVciBdVYREAvemoHRmllW8O15S1V0zcYEMp
+         TgSmUszJ89KpLzga8i0i9YYeIkMEGrosghLECGK24P8RoorAzEjL7LCwSiGuw449DT5k
+         5LSHZ0cXxESUnbXdfa16U2IS6QIQ0CiBiNVdowx8AV4/iuproyg0Jk5WkLnycnhsQc7/
+         aukA==
+X-Forwarded-Encrypted: i=1; AFNElJ9KJdz51nUEpwNeVk88uvu+6+wN/1Zg984vZRRoC6RX8zcJjnxkDZdr15Tn+BYERf3Ov5jx5gU=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyv1dOvCBodma8vWPqIqTeiBdckBU5Msb8hZU5dmdiIiQFdEaRA
+	N982/H3VRg+LKdXjLm1+bTaakupwyLR9VcASxvu5is3eeVeMVSYMpMvQ
+X-Gm-Gg: AeBDieuDznCnBs4Qy35rtxc9dzebhdjRpb22WGpuCUSi6pO4nhKHgwrt0G4ORdGWHen
+	ylybBUx8JCpgABfePuIt52ZojRzGf2Fcnzj9+qPF4OdMIUVRnZBRFnJwZkhX9q48pAcSO4WZatY
+	ngPWaXDcoHcB30jRw+8t8nLm53voyY92W0Zpvg8dLd14MOfJo0cWlCrByhXKmNMNc2LH7mt0yoV
+	OKCo4Ejf0lhoypWQfYYe01e+7wtYRuxCl9jovEEDWFnaPAzh2XX5W+AxdGz3TtJjRkdogRWoc6J
+	YcFwC8Mb7PAmDyEpYJtH7AImKkYcEQVgBYbIRHUdos7dk/1YbI30heDjHeK5wJsIDiHqsIU6Uci
+	2Q1dR4RVlMgFYcsMUDtm5hBI0PxQcGui6F51nkxWCtqtw9DD++zQejWPwr+smR9N7weV878JiGg
+	hc2GVPysqggGvrrnPg2uLukqtvhAoU/lVtiRew2SqmA1JdBk8HZ0J9BG6tFNhu
+X-Received: by 2002:a05:6a00:aa8c:b0:82c:6bcc:f3fa with SMTP id d2e1a72fcca58-8352d2b58c1mr2888895b3a.35.1777727996093;
+        Sat, 02 May 2026 06:19:56 -0700 (PDT)
 Received: from DESKTOP-82PPU4A.localdomain ([202.8.116.84])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83515ad0176sm5553791b3a.39.2026.05.02.06.19.41
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83515ad0176sm5553791b3a.39.2026.05.02.06.19.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 May 2026 06:19:47 -0700 (PDT)
+        Sat, 02 May 2026 06:19:55 -0700 (PDT)
 From: Ujjal Roy <royujjal@gmail.com>
 To: "David S . Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
@@ -76,9 +76,9 @@ Cc: Ujjal Roy <ujjal@alumnux.com>,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH net-next v6 4/5] ipv6: mld: encode multicast exponential fields
-Date: Sat,  2 May 2026 13:19:05 +0000
-Message-ID: <20260502131907.987-5-royujjal@gmail.com>
+Subject: [PATCH net-next v6 5/5] selftests: net: bridge: add MRC and QQIC field encoding tests
+Date: Sat,  2 May 2026 13:19:06 +0000
+Message-ID: <20260502131907.987-6-royujjal@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260502131907.987-1-royujjal@gmail.com>
 References: <20260502131907.987-1-royujjal@gmail.com>
@@ -90,203 +90,227 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In MLD, MRC and QQIC fields are not correctly encoded when
-generating query packets. Since the receiver of the query
-interprets these fields using the MLDv2 floating-point
-decoding logic, any value that exceeds the linear threshold
-is incorrectly parsed as an exponential value, leading to
-an incorrect interval calculation.
+Enhance vlmc_query_intvl_test and vlmc_query_response_intvl_test in
+bridge_vlan_mcast.sh to validate IGMPv3/MLDv2 protocol compliance for
+MRC and QQIC field encoding across both linear and exponential ranges.
 
-Encode and assign the corresponding protocol fields during
-query generation. Introduce the logic to dynamically
-calculate the exponent and mantissa using bit-scan (fls).
-This ensures MRC (16-bit) and QQIC (8-bit) fields are
-properly encoded when transmitting query packets with
-intervals that exceed their respective linear thresholds
-(32768 for MRD; 128 for QQI).
-
-RFC3810: If Maximum Response Code >= 32768, the Maximum
-Response Code field represents a floating-point value as
-follows:
-     0 1 2 3 4 5 6 7 8 9 A B C D E F
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |1| exp |          mant         |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-RFC3810: If QQIC >= 128, the QQIC field represents a
-floating-point value as follows:
-     0 1 2 3 4 5 6 7
-    +-+-+-+-+-+-+-+-+
-    |1| exp | mant  |
-    +-+-+-+-+-+-+-+-+
+TEST: Vlan multicast snooping enable                                [ OK ]
+TEST: Vlan mcast_query_interval global option default value         [ OK ]
+TEST: Number of tagged IGMPv2 general query                         [ OK ]
+TEST: IGMPv3 QQIC linear value 60(s)                                [ OK ]
+TEST: MLDv2 QQIC linear value 60(s)                                 [ OK ]
+TEST: IGMPv3 QQIC non linear value 160(s)                           [ OK ]
+TEST: MLDv2 QQIC non linear value 160(s)                            [ OK ]
+TEST: Vlan mcast_query_response_interval global option default value   [ OK ]
+TEST: IGMPv3 MRC linear value of 60(x0.1s)                          [ OK ]
+TEST: MLDv2 MRC linear value of 24000(ms)                           [ OK ]
+TEST: IGMPv3 MRC non linear value of 240(x0.1s)                     [ OK ]
+TEST: MLDv2 MRC non linear value of 48000(ms)                       [ OK ]
 
 Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 Signed-off-by: Ujjal Roy <royujjal@gmail.com>
 ---
- include/net/mld.h         | 119 ++++++++++++++++++++++++++++++++++++++
- net/bridge/br_multicast.c |   4 +-
- 2 files changed, 121 insertions(+), 2 deletions(-)
+ .../net/forwarding/bridge_vlan_mcast.sh       | 140 +++++++++++++++++-
+ 1 file changed, 132 insertions(+), 8 deletions(-)
 
-diff --git a/include/net/mld.h b/include/net/mld.h
-index 10e402e0fe08..23255cc47ced 100644
---- a/include/net/mld.h
-+++ b/include/net/mld.h
-@@ -91,13 +91,132 @@ struct mld2_query {
+diff --git a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
+index e8031f68200a..07a377652a59 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
+@@ -162,14 +162,27 @@ vlmc_query_cnt_setup()
+ {
+ 	local type=$1
+ 	local dev=$2
++	local match=($3)
  
- /* MLDv2 QQIC floating-point exponential field min threshold */
- #define MLD_QQIC_MIN_THRESHOLD	128
-+/* MLDv2 QQIC FP max threshold (mant = 0xF, exp = 7) -> 31744 */
-+#define MLD_QQIC_MAX_THRESHOLD	31744
- /* MLDv2 MRC floating-point exponential field min threshold */
- #define MLD_MRC_MIN_THRESHOLD	32768UL
-+/* MLDv2 MRC FP max threshold (mant = 0xFFF, exp = 7) -> 8387584 */
-+#define MLD_MRC_MAX_THRESHOLD	8387584
- #define MLDV1_MRD_MAX_COMPAT	(MLD_MRC_MIN_THRESHOLD - 1)
+ 	if [[ $type == "igmp" ]]; then
+-		tc filter add dev $dev egress pref 10 prot 802.1Q \
++		# This matches: IP Protocol 2 (IGMP)
++		tc filter add dev "$dev" egress pref 10 prot 802.1Q \
+ 			flower vlan_id 10 vlan_ethtype ipv4 dst_ip 224.0.0.1 ip_proto 2 \
++			action goto chain 1
++		# AND Type 0x11 (Query) at offset 0 of IGMP header
++		# 20 bytes IPv4 header + 4 bytes Router Alert option + IGMP[offset 0]
++		tc filter add dev "$dev" egress pref 20 chain 1 prot 802.1Q u32 \
++			match u8 0x11 0xff at 24 "${match[@]}" \
+ 			action pass
+ 	else
+-		tc filter add dev $dev egress pref 10 prot 802.1Q \
++		# This matches: ICMPv6
++		tc filter add dev "$dev" egress pref 10 prot 802.1Q \
+ 			flower vlan_id 10 vlan_ethtype ipv6 dst_ip ff02::1 ip_proto icmpv6 \
++			action goto chain 1
++		# AND Type 0x82 (Query) at offset 0 of MLD header
++		# 40 bytes IPv6 header + 8 bytes Hop-by-hop option + MLD[offset 0]
++		tc filter add dev "$dev" egress pref 20 chain 1 prot 802.1Q u32 \
++			match u8 0x82 0xff at 48 "${match[@]}" \
+ 			action pass
+ 	fi
  
- #define MLD_MAX_QUEUE		8
- #define MLD_MAX_SKBS		32
+@@ -181,7 +194,39 @@ vlmc_query_cnt_cleanup()
+ 	local dev=$1
  
-+/* V2 exponential field encoding */
-+
-+/*
-+ * Calculate Maximum Response Code from Maximum Response Delay
-+ *
-+ * MRC represents the 16-bit encoded form of Maximum Response Delay (MRD);
-+ * once decoded, the resulting value is in milliseconds.
-+ *
-+ * RFC3810, 5.1.3. defines only the decoding formula:
-+ *     Maximum Response Delay = (mant | 0x1000) << (exp + 3)
-+ *
-+ * but does NOT define the encoding procedure. To derive exponent:
-+ *
-+ * For the 16-bit MRC, the "hidden bit" (0x1000) is left shifted by 12 to
-+ * sit above the 12-bit mantissa. The RFC then shifts this entire block
-+ * left by (exp + 3) to reconstruct the value. So, 'hidden bit' is the
-+ * MSB which is shifted by (12 + exp + 3).
-+ *
-+ * Total left shift of the hidden bit = 12 + (exp + 3) = exp + 15.
-+ * This is the MSB at the 0-based bit position: (exp + 15).
-+ * Since fls() is 1-based, fls(value) - 1 = exp + 15.
-+ *
-+ * Therefore:
-+ *     exp  = fls(value) - 16
-+ *     mant = (value >> (exp + 3)) & 0x0FFF
-+ *
-+ * Final encoding formula:
-+ *     0x8000 | (exp << 12) | mant
-+ *
-+ * Example (value = 1311744):
-+ *  0               1               2               3
-+ *  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ * |0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0| 1311744
-+ * |                      ^-^--------mant---------^ ^...(exp+3)...^| exp=5
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ *
-+ * Encoded:
-+ *   0x8000 | (5 << 12) | 0x404 = 0xD404
-+ */
-+static inline u16 mldv2_mrc(unsigned long mrd)
-+{
-+	u16 mc_man, mc_exp;
-+
-+	/* MRC < 32768 is literal */
-+	if (mrd < MLD_MRC_MIN_THRESHOLD)
-+		return mrd;
-+
-+	/* Saturate at max representable (mant = 0xFFF, exp = 7) -> 8387584 */
-+	if (mrd >= MLD_MRC_MAX_THRESHOLD)
-+		return 0xFFFF;
-+
-+	mc_exp = fls(mrd) - 16;
-+	mc_man = (mrd >> (mc_exp + 3)) & 0x0FFF;
-+
-+	return 0x8000 | (mc_exp << 12) | mc_man;
+ 	ip link set dev br0 type bridge mcast_stats_enabled 0
+-	tc filter del dev $dev egress pref 10
++	tc filter del dev "$dev" egress pref 20 chain 1
++	tc filter del dev "$dev" egress pref 10
 +}
 +
-+/*
-+ * Calculate Querier's Query Interval Code from Querier's Query Interval
-+ *
-+ * QQIC represents the 8-bit encoded form of Querier's Query Interval (QQI);
-+ * once decoded, the resulting value is in seconds.
-+ *
-+ * RFC3810, 5.1.9. defines only the decoding formula:
-+ *     QQI = (mant | 0x10) << (exp + 3)
-+ *
-+ * but does NOT define the encoding procedure. To derive exponent:
-+ *
-+ * For any value of mantissa and exponent, the decoding formula indicates
-+ * that the "hidden bit" (0x10) is shifted 4 bits left to sit above the
-+ * 4-bit mantissa. The RFC again shifts this entire block left by (exp + 3)
-+ * to reconstruct the value. So, 'hidden bit' is the MSB which is shifted
-+ * by (4 + exp + 3).
-+ *
-+ * Total left shift of the 'hidden bit' = 4 + (exp + 3) = exp + 7.
-+ * This is the MSB at the 0-based bit position: (exp + 7).
-+ * Since fls() is 1-based, fls(value) - 1 = exp + 7.
-+ *
-+ * Therefore:
-+ *     exp  = fls(value) - 8
-+ *     mant = (value >> (exp + 3)) & 0x0F
-+ *
-+ * Final encoding formula:
-+ *     0x80 | (exp << 4) | mant
-+ *
-+ * Example (value = 3200):
-+ *  0               1
-+ *  0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ * |0 0 0 0 1 1 0 0 1 0 0 0 0 0 0 0| (value = 3200)
-+ * |        ^-^-mant^ ^..(exp+3)..^| exp = 4, mant = 9
-+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-+ *
-+ * Encoded:
-+ *   0x80 | (4 << 4) | 9 = 0xC9
-+ */
-+static inline u8 mldv2_qqic(unsigned long value)
++vlmc_query_get_intvl_match()
 +{
-+	u8 mc_man, mc_exp;
++	local type=$1
++	local version=$2
++	local test=$3
++	local enc_val=$4
 +
-+	/* QQIC < 128 is literal */
-+	if (value < MLD_QQIC_MIN_THRESHOLD)
-+		return value;
-+
-+	/* Saturate at max representable (mant = 0xF, exp = 7) -> 31744 */
-+	if (value >= MLD_QQIC_MAX_THRESHOLD)
-+		return 0xFF;
-+
-+	mc_exp  = fls(value) - 8;
-+	mc_man = (value >> (mc_exp + 3)) & 0x0F;
-+
-+	return 0x80 | (mc_exp << 4) | mc_man;
-+}
-+
- /* V2 exponential field decoding */
++	if [ "$test" = "qqic" ]; then
++		# QQIC is 8-bit floating point encoding for IGMPv3 and MLDv2
++		if [ "${type}v${version}" = "igmpv3" ]; then
++			# QQIC is at offset 9 of IGMP header
++			# 20 bytes IPv4 header + 4 bytes Router Alert option + IGMP[offset 9]
++			echo "match u8 $enc_val 0xff at 33"
++		elif [ "${type}v${version}" = "mldv2" ]; then
++			# QQIC is at offset 25 of MLD header
++			# 40 bytes IPv6 header + 8 bytes Hop-by-hop option + MLD[offset 25]
++			echo "match u8 $enc_val 0xff at 73"
++		fi
++	elif [ "$test" = "mrc" ]; then
++		if [ "${type}v${version}" = "igmpv3" ]; then
++			# MRC is 8-bit floating point encoding at offset 1 of IGMP header
++			# 20 bytes IPv4 header + 4 bytes Router Alert option + IGMP[offset 1]
++			echo "match u8 $enc_val 0xff at 25"
++		elif [ "${type}v${version}" = "mldv2" ]; then
++			# MRC is 16-bit floating point encoding at offset 4 of MLD header
++			# 40 bytes IPv6 header + 8 bytes Hop-by-hop option + MLD[offset 4]
++			echo "match u16 $enc_val 0xffff at 52"
++		fi
++	fi
+ }
  
- /* Calculate Maximum Response Delay from Maximum Response Code
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 27010744d7ae..49ceea3ff974 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1181,7 +1181,7 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge_mcast *brm
- 		break;
- 	case 2:
- 		mld2q = (struct mld2_query *)icmp6_hdr(skb);
--		mld2q->mld2q_mrc = htons((u16)jiffies_to_msecs(interval));
-+		mld2q->mld2q_mrc = htons(mldv2_mrc(jiffies_to_msecs(interval)));
- 		mld2q->mld2q_type = ICMPV6_MGM_QUERY;
- 		mld2q->mld2q_code = 0;
- 		mld2q->mld2q_cksum = 0;
-@@ -1190,7 +1190,7 @@ static struct sk_buff *br_ip6_multicast_alloc_query(struct net_bridge_mcast *brm
- 		mld2q->mld2q_suppress = sflag;
- 		mld2q->mld2q_qrv = 2;
- 		mld2q->mld2q_nsrcs = htons(llqt_srcs);
--		mld2q->mld2q_qqic = brmctx->multicast_query_interval / HZ;
-+		mld2q->mld2q_qqic = mldv2_qqic(brmctx->multicast_query_interval / HZ);
- 		mld2q->mld2q_mca = *group;
- 		csum = &mld2q->mld2q_cksum;
- 		csum_start = (void *)mld2q;
+ vlmc_check_query()
+@@ -191,9 +236,13 @@ vlmc_check_query()
+ 	local dev=$3
+ 	local expect=$4
+ 	local time=$5
++	local test=$6
++	local enc_val=$7
++	local intvl_match=""
+ 	local ret=0
+ 
+-	vlmc_query_cnt_setup $type $dev
++	intvl_match="$(vlmc_query_get_intvl_match "$type" "$version" "$test" "$enc_val")"
++	vlmc_query_cnt_setup "$type" "$dev" "$intvl_match"
+ 
+ 	local pre_tx_xstats=$(vlmc_query_cnt_xstats $type $version $dev)
+ 	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_querier 1
+@@ -201,7 +250,7 @@ vlmc_check_query()
+ 	if [[ $ret -eq 0 ]]; then
+ 		sleep $time
+ 
+-		local tcstats=$(tc_rule_stats_get $dev 10 egress)
++		local tcstats=$(tc_rule_stats_get "$dev" 20 egress)
+ 		local post_tx_xstats=$(vlmc_query_cnt_xstats $type $version $dev)
+ 
+ 		if [[ $tcstats != $expect || \
+@@ -448,8 +497,46 @@ vlmc_query_intvl_test()
+ 	# 1 is sent immediately, then 2 more in the next 5 seconds
+ 	vlmc_check_query igmp 2 $swp1 3 5
+ 	check_err $? "Wrong number of tagged IGMPv2 general queries sent"
+-	log_test "Vlan 10 mcast_query_interval option changed to 200"
++	log_test "Number of tagged IGMPv2 general query"
++
++	RET=0
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_igmp_version 3
++	check_err $? "Could not set mcast_igmp_version in vlan 10"
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_mld_version 2
++	check_err $? "Could not set mcast_mld_version in vlan 10"
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_interval 6000
++	check_err $? "Could not set mcast_query_interval in vlan 10"
++	# 1 is sent immediately, IGMPv3 QQIC should match with linear value 60 (0x3c)
++	# which is 8-bit encoded value of 60 [units of seconds]
++	vlmc_check_query igmp 3 $swp1 1 1 qqic 0x3c
++	check_err $? "Wrong QQIC in generated IGMPv3 general queries"
++	log_test "IGMPv3 QQIC linear value 60(s)"
++
++	RET=0
++	# 1 is sent immediately, MLDv2 QQIC should match with linear value 60 (0x3c)
++	# which is 8-bit encoded value of 60 [units of seconds]
++	vlmc_check_query mld 2 $swp1 1 1 qqic 0x3c
++	check_err $? "Wrong QQIC in generated MLDv2 general queries"
++	log_test "MLDv2 QQIC linear value 60(s)"
++
++	RET=0
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_interval 16000
++	check_err $? "Could not set mcast_query_interval in vlan 10"
++	# 1 is sent immediately, IGMPv3 QQIC should match with non linear value 132 (0x84)
++	# which is 8-bit encoded value of 160 [units of seconds]
++	vlmc_check_query igmp 3 $swp1 1 1 qqic 0x84
++	check_err $? "Wrong QQIC in generated IGMPv3 general queries"
++	log_test "IGMPv3 QQIC non linear value 160(s)"
+ 
++	RET=0
++	# 1 is sent immediately, MLDv2 QQIC should match with non linear value 132 (0x84)
++	# which is 8-bit encoded value of 160 [units of seconds]
++	vlmc_check_query mld 2 $swp1 1 1 qqic 0x84
++	check_err $? "Wrong QQIC in generated MLDv2 general queries"
++	log_test "MLDv2 QQIC non linear value 160(s)"
++
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_igmp_version 2
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_mld_version 1
+ 	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_startup_query_count 2
+ 	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_interval 12500
+ }
+@@ -469,10 +556,47 @@ vlmc_query_response_intvl_test()
+ 	log_test "Vlan mcast_query_response_interval global option default value"
+ 
+ 	RET=0
+-	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 200
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_startup_query_count 0
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_igmp_version 3
++	check_err $? "Could not set mcast_igmp_version in vlan 10"
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_mld_version 2
++	check_err $? "Could not set mcast_mld_version in vlan 10"
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 600
++	check_err $? "Could not set mcast_query_response_interval in vlan 10"
++	# 1 is sent immediately, IGMPv3 MRC should match with linear value 60 (0x3c)
++	# which is 8-bit encoded value of 60 [units of 0.1s = 6 seconds]
++	vlmc_check_query igmp 3 $swp1 1 1 mrc 0x3c
++	check_err $? "Wrong MRC in generated IGMPv3 general queries"
++	log_test "IGMPv3 MRC linear value of 60(x0.1s)"
++
++	RET=0
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 2400
++	check_err $? "Could not set mcast_query_response_interval in vlan 10"
++	# 1 is sent immediately, MLDv2 MRC should match with linear value 0x5dc0 (24000)
++	# which is 16-bit encoded value of 24000 [units of ms / 24 seconds]
++	vlmc_check_query mld 2 $swp1 1 1 mrc 0x5dc0
++	check_err $? "Wrong MRC in generated MLDv2 general queries"
++	log_test "MLDv2 MRC linear value of 24000(ms)"
++
++	RET=0
++	# 1 is sent immediately, IGMPv3 MRC should match with non linear value 142 (0x8e)
++	# which is 8-bit encoded value of 240 [units of 0.1s = 24 seconds]
++	vlmc_check_query igmp 3 $swp1 1 1 mrc 0x8e
++	check_err $? "Wrong MRC in generated IGMPv3 general queries"
++	log_test "IGMPv3 MRC non linear value of 240(x0.1s)"
++
++	RET=0
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 4800
+ 	check_err $? "Could not set mcast_query_response_interval in vlan 10"
+-	log_test "Vlan 10 mcast_query_response_interval option changed to 200"
++	# 1 is sent immediately, MLDv2 MRC should match with non linear value 0x8770 (34672)
++	# which is 16-bit encoded value of 48000 [units of ms / 48 seconds]
++	vlmc_check_query mld 2 $swp1 1 1 mrc 0x8770
++	check_err $? "Wrong MRC in generated MLDv2 general queries"
++	log_test "MLDv2 MRC non linear value of 48000(ms)"
+ 
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_igmp_version 2
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_mld_version 1
++	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_startup_query_count 2
+ 	bridge vlan global set vid 10 dev br0 mcast_snooping 1 mcast_query_response_interval 1000
+ }
+ 
 -- 
 2.43.0
 
