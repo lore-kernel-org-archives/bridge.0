@@ -1,120 +1,114 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CAD44BC019
-	for <bridge@lists.linux.dev>; Wed,  6 May 2026 17:27:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB3993254A3;
+	Wed,  6 May 2026 22:05:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778088441; cv=none; b=d3dewKlG9lw1Ee+0l1GcUeAKE05Y2cduWaiOI3JucC3RHkgwqMcWKjEU7hsVOFz0URWEWYnhQH8pC8x8KAOgU9PywY6nH9JF+k9GsHgV+OLYa+aSTHGOIumEsSRhWIyH7XfRJYs4KOM0dLCnrUcYpWgeNWpy1dHZ4DXwKBcxTAM=
+	t=1778105159; cv=none; b=lK9rcro9/i9FzjjurM3GsOpqVqpfmcrLukT6MfUWtdP1hwg5oYFvG3+r3k3EHCBBbUxcQpuUCt4KNqr5SVK48uxIKI+BGeGOI7K1eJnxO1R06aWM7OCkDLsCaevYIpXsfoS1+ic4ka3zZOo9f5nJFlGUk0T5YWr0xVQjSV+AmU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778088441; c=relaxed/simple;
-	bh=cNsCaAiyMSC71nT8JGaQxRwOoTTxzgq9htUBVnX4oq0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oPVwrwow4VlbQHisPSOUNLvbECYTBR0OkEcPjcynX/bNJfvsLW0XGOS1Dv4Y4U0I6JNl4k8zoi2oHujb2nHgvfiWgrNvY9kwJmTCD8Zwlj6WBxtypwJQf9G2WU7Wz7+RUZrLOdP1BE+sVbc5QI0sU3tx0d9p0GGlJLJQ+Xq+MPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pd3yhgZd; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778105159; c=relaxed/simple;
+	bh=7F24RCSEGcHNBqpTUjBOLIoqOUalOAHE3T0rlCEnNYU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dCdxnY1z/MWwvvVXhqFJF7jbyvBq4wRA6rFxOWipFX/OtEysTcL7EPAYcVko31napJ42E13J7VeU63Iv+ZqX9ckxd/6s8Oih18+Hw+uoGc2lDKbKQo+cBZ7kI2WmkX2o4tefthft3wQwbkj3A3j5sztdSnwyYddEyqaqnaFarYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RbROPbMe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pd3yhgZd"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-365d4d2f9c1so505743a91.1
-        for <bridge@lists.linux.dev>; Wed, 06 May 2026 10:27:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778088437; x=1778693237; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=4PEVltZsn31WcLHjZc3d910sZos9grkTj6lR1cPeZe4=;
-        b=Pd3yhgZdXlQ7MFGNRnKhbdQmVz170vvMTVwfqvAq118gjPsLmSHBUOv9XkMTsRtpME
-         Tli555XqnqO37ZROVNgK3M8O9cGyoQyJlZyRmewHRQQa30wyslJa2lVqIbWIUekT9FuN
-         ElrRuhYd+/jfWUIUCEzPOOQx0J739Cae50Res+OOnI1hymZgP+OSapNZL8rHU/qShreM
-         QbeSUzSnlWoBJiKbPk0KgDqyu01GzfvmlxGcDEDpecPZH/IF8ju0EWhmq3REQpWTVooy
-         cIkq+55IwtJzHZqq9YguK7og14NGngD0WW4I4tZMu5DDd0UFIbhb9Uaw3p+eWke3+Vau
-         6Fmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778088437; x=1778693237;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4PEVltZsn31WcLHjZc3d910sZos9grkTj6lR1cPeZe4=;
-        b=iW2xtiG7Eq6Nt+CxK/DEDm6OBKl/SI3zDceAIjeA610caO41ML17pt6/6qJJPSumZ4
-         6lUDm2nBXqGtxVnKB5ZvhWsKG7GkFgG7PJhg/ACpEbdxhYc4ztHS8N06JzwKyNyjwX+5
-         dECfzWpEtUh2a53Fal8qpgZkyVqG43+9RhlGTq72ucxP42xoAcxHWb2VnY0X/qez72ox
-         O0Hwvf/h63COYU3zpZ3NXpk1iYmsdVSsnd9M/Y+TDI3seN53dYAmf3XmtKvfMbPKCvDv
-         meADV59qHGRo5GGT5ZGYYFXmhNZGa0hzxa0F0G1WnKXHFrS9myUVv+pNtcSBGsof1D4z
-         CrHw==
-X-Forwarded-Encrypted: i=1; AFNElJ+/A7rQdduER6usED27KiI+iW+ffOB8Ynp9S6A+ol5SfoRQLe5xAd2DvcDmrkdxbH+gVQ1FNV4=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzQQkJX5UG9H4kygSpexSUOQg5orIkljk7rwcGs8SkcgEhTXOG
-	CwbLT4Z5W/AHGLlMI+RVgZKdaf2ZMo5qMtKnaQydOLK0YD5OKXUO/qWq
-X-Gm-Gg: AeBDiesZamaQulq1ulvKTXmm5ltA88rAPjuQy+oAA8QTKkM9zIq4FYIwmyLhETlCIel
-	nE2KT8p5xwku1Xg0waPyPFEty71QCHAgYb8DYwMDQgxIe3JMv8/+xWTAalj/QCg/2QhaMwMj8hN
-	LYsBZLgddBnDHOcoPEH8YZpufP+scOdZFvcpwGXY5pqRtQbrk5gJpK4T2yQ8BEV3zN6cYaO39R5
-	cuUtYmMwq7Qyv9K6gdF1KzhXW3HWNpdTRgkoZskS1key50d+YPiVSM/xnVp6rOO68+Wt9QjAtZ+
-	Me2Hx3LIWLUhPgRuSnBka+jm4n/StxhWu1GhXVhVG+ZJ8QYMmcllxau8ycT/EasHmVSN7Y+CGS/
-	PSEz03PE3LocVIYd6fFfN7Tn0Gv5Aaq+oBiLg6RMbphNOBK5HM1Xho25cTb5qLZ5VAYRtokzyiY
-	cNUsdi9wWmH3vcrPTWC8LyWQHz90xeyZnH0G1HcMkBcLgazE+fyWhiftvc6dy30TgIJAsOpkZqh
-	SXGBcRHJQ8Y5LE=
-X-Received: by 2002:a17:903:13ce:b0:2b9:fc68:d8bc with SMTP id d9443c01a7336-2ba7881ba37mr47008655ad.0.1778088436995;
-        Wed, 06 May 2026 10:27:16 -0700 (PDT)
-Received: from arch.lan ([2409:40e1:300a:7d12:5c:b984:20b1:5a8e])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ba7ca244dasm28828955ad.72.2026.05.06.10.27.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 May 2026 10:27:16 -0700 (PDT)
-From: Aadarsh Chandra <aadarsh.official.xz@gmail.com>
-To: razor@blackwall.org,
-	idosch@nvidia.com
-Cc: davem@davemloft.net,
-	kuba@kernel.org,
-	netdev@vger.kernel.org,
-	bridge@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Aadarsh Chandra <aadarsh.official.xz@gmail.com>
-Subject: [PATCH net-next v3] net: bridge: replace simple_strtoul with kstrtoul
-Date: Wed,  6 May 2026 22:54:47 +0530
-Message-ID: <20260506172447.9770-1-aadarsh.official.xz@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RbROPbMe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B49C2BCB0;
+	Wed,  6 May 2026 22:05:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778105158;
+	bh=7F24RCSEGcHNBqpTUjBOLIoqOUalOAHE3T0rlCEnNYU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=RbROPbMeWGL0lt9IywQ+7IHYW65nBivjEU6qbICNhPyZePCMHTfvo+V65VKi66H5h
+	 S7Jpfo1wJnrmeGHrcBZj6N+SbdN06IDq6lxj/r/9J1jIiVt0wRtc2tywWBmcJ1qlnx
+	 90tdoXcst+7YQf/xl6//aSBCPk5X2xirTC5gNFLzF/TbkYvtIQEV9TRpBRqNJ9xjLw
+	 183YLqSa00CI9DwwKgRYzNQ3DHRf1bazXpAxhaA93Y2TuyKobGITQYxXIXASwv7urK
+	 nY23UNAaOzdGNpzqklo44UzKwOdLG+GWvI0cNCtzHelXukrwglm/GT0cwsSUdCJRJD
+	 fAzWBuawRxRpQ==
+Date: Wed, 6 May 2026 15:05:56 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Danielle Ratson <danieller@nvidia.com>
+Cc: Ido Schimmel <idosch@nvidia.com>, "netdev@vger.kernel.org"
+ <netdev@vger.kernel.org>, "donald.hunter@gmail.com"
+ <donald.hunter@gmail.com>, "davem@davemloft.net" <davem@davemloft.net>,
+ "edumazet@google.com" <edumazet@google.com>, "pabeni@redhat.com"
+ <pabeni@redhat.com>, "horms@kernel.org" <horms@kernel.org>,
+ "razor@blackwall.org" <razor@blackwall.org>, "andrew+netdev@lunn.ch"
+ <andrew+netdev@lunn.ch>, "shuah@kernel.org" <shuah@kernel.org>,
+ "ast@fiberby.net" <ast@fiberby.net>, "liuhangbin@gmail.com"
+ <liuhangbin@gmail.com>, "daniel@iogearbox.net" <daniel@iogearbox.net>, Andy
+ Roulin <aroulin@nvidia.com>, "fmaurer@redhat.com" <fmaurer@redhat.com>,
+ "sdf.kernel@gmail.com" <sdf.kernel@gmail.com>, "sd@queasysnail.net"
+ <sd@queasysnail.net>, "kees@kernel.org" <kees@kernel.org>,
+ "nickgarlis@gmail.com" <nickgarlis@gmail.com>, "amorenoz@redhat.com"
+ <amorenoz@redhat.com>, "alasdair@mcwilliam.dev" <alasdair@mcwilliam.dev>,
+ "johannes.wiesboeck@aisec.fraunhofer.de"
+ <johannes.wiesboeck@aisec.fraunhofer.de>, Petr Machata <petrm@nvidia.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "bridge@lists.linux.dev" <bridge@lists.linux.dev>,
+ "linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>
+Subject: Re: [PATCH net-next 1/6] bridge: uapi: Add neigh_forward_grat
+ netlink attributes
+Message-ID: <20260506150556.4e540854@kernel.org>
+In-Reply-To: <DM6PR12MB45167562767CFC70DA9AE8D0D83F2@DM6PR12MB4516.namprd12.prod.outlook.com>
+References: <20260503073532.2138165-1-danieller@nvidia.com>
+	<20260503073532.2138165-2-danieller@nvidia.com>
+	<20260505190044.0608dfb1@kernel.org>
+	<20260506070334.GA617302@shredder>
+	<DM6PR12MB45167562767CFC70DA9AE8D0D83F2@DM6PR12MB4516.namprd12.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The simple_strtoul() function is deprecated. It does not handle
-errors or overflows correctly. Replace it with kstrtoul() in
-brport_store() to ensure that invalid user input is caught and
-returned as an error.
+On Wed, 6 May 2026 08:31:01 +0000 Danielle Ratson wrote:
+> > > I think this should be u8 ? neigh-vlan-suppress looks buggy too  
+> > 
+> > I pointed this out during internal review, but assumed I am missing something
+> > since almost all the attributes use flag when they are in fact u8. We can fix  
+> 
+> This is in fact the reason why I also changed it myself to use flag before sending.
+> 
+> > neigh-forward-grat to use u8 in v2 and change the rest in net. To be clear, I
+> > believe the following should be converted from flag to u8:
+> > 
+> > mode, guard, protect, fast-leave, learning, unicast-flood, proxyarp, learning-
+> > sync, proxyarp-wifi, mcast-flood, mcast-to-ucast, vlan-tunnel, bcast-flood,
+> > neigh-suppress, isolated, mrp-ring-open, mrp-in-open, locked, mab, neigh-
+> > vlan-suppress
+> 
+> So should we proceed as Ido suggested?
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Signed-off-by: Aadarsh Chandra <aadarsh.official.xz@gmail.com>
----
-v3: move change log below the line and add Acked-by.
-v2: target net-next and simplify by reusing the ret variable as
-    suggested by Nikolay Aleksandrov.
+I think so. Tweak this patch and send a separate fix to net for the
+existing attrs.
 
- net/bridge/br_sysfs_if.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+> > > flag is a type without a payload, the presence of the attr is the
+> > > entire information
+> > >
+> > > None of the AIs seem to catch this, I think you may have over-split
+> > > this submission a little bit. This patch may have been better off
+> > > squashed into patch 4 ?  
+> 
+> It seems like the patch has enough content, but I can squash. I guess
+> ill split the commit between patches 4 and 5 accordingly.
 
-diff --git a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
-index 1f57c36a7fc0..cdecc7d1260c 100644
---- a/net/bridge/br_sysfs_if.c
-+++ b/net/bridge/br_sysfs_if.c
-@@ -318,7 +318,6 @@ static ssize_t brport_store(struct kobject *kobj,
-        struct net_bridge_port *p = kobj_to_brport(kobj);
-        ssize_t ret = -EINVAL;
-        unsigned long val;
--       char *endp;
- 
-        if (!ns_capable(dev_net(p->dev)->user_ns, CAP_NET_ADMIN))
-                return -EPERM;
-@@ -339,8 +338,8 @@ static ssize_t brport_store(struct kobject *kobj,
-                spin_unlock_bh(&p->br->lock);
-                kfree(buf_copy);
-        } else if (brport_attr->store) {
--               val = simple_strtoul(buf, &endp, 0);
--               if (endp == buf)
-+               ret = kstrtoul(buf, 0, &val);
-+               if (ret)
-                        goto out_unlock;
-                spin_lock_bh(&p->br->lock);
-                ret = brport_attr->store(p, val);
--- 
-2.54.0
+Could be my lack of familiarity with bridge but FWIW reading the
+submission it felt like it was split by "area of code" rather than
+logical steps. Splitting work into patches is a bit of an art..
+
+> > Related: The AI also did not catch that the spec was missing (easy
+> > to forget for rtnetlink). Do you think it's worth adding to
+> > review-prompts?  
+
+I assumed Sashiko missed this because it doesn't spent too much time on
+the series as a whole right now (I was going to tweak that but looks
+like Claude is having another meltdown, crazy inference latency,
+patches backlogging for review..)
+
+Are you saying that the review prompts-based test is also not catching
+this even if you give it the range of commits that form the series?
