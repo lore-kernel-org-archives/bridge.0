@@ -1,158 +1,172 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010052.outbound.protection.outlook.com [52.101.193.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC48B361DDC
-	for <bridge@lists.linux.dev>; Thu,  7 May 2026 13:48:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778161709; cv=none; b=fu6i26kGt/1kDAanYC4nyUOZV4+KeBRLwnvAyWndu0lx5wuH80op+83g/ZGFe5M6xGujmAyIS9UZALgUgW7SRxSxJ5cWiGjhlSGswJpF0cHtDG5zROMYDTOf5cgq6tgYxG16b3dYiLRYX8mzu+m/Vffo1PEm4xdG4MlcVxgbJR0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778161709; c=relaxed/simple;
-	bh=VFRgu2cJwqXZgxOEu/B3E6yAKtvNoFeFdDZSZ+K47YQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=dkn5SyZAqAzD6oHXPoXcOVy4jr/huTu6fxH/XZS8Tvf5hyHUj9v7YAsnTZ/wSISMzlMUTlgdMIWl56E4m0YJ/Bfp8gNdfxnFhvWwbA5Mns3V/GyLZk4ivGHBtGQUs0MT80nrH5MrY5X0JBORcs2iD7tH+dWOqYX7/90wQ7Kjopk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=b/g0aLzE; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57F05175A74
+	for <bridge@lists.linux.dev>; Thu,  7 May 2026 17:30:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778175026; cv=fail; b=PSfv/fMXv2DBhaNn9KKHb1cGRsnrw6WExpwmyBxxWy406k1x8j2wwcuAoCXVBkwVDkO5hmvz1eG9cbpv+Z6Fg+YAoAjx2wqU3ZSQU5X5Oc1smx9+S/4s63W9Dq5oUW5Uhw3UOSrnWBmviXPFE2g8a2FhJZNu2vvcNSbldxwlDuE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778175026; c=relaxed/simple;
+	bh=kE7y/XEc4Lq/pL56FX/49oSXU1+KcW+CTIkDpm8xQSM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=QOvlCn7l8gbG3Gg4++bgM3fs6nXe5/DMXBgJU+v6X6M/09L9pzLpcLAA10BFZKe91s4l+Rezv/88roq+o1xLvnahm9JuembF2RFEBJ/KRH2vnZsV+XntDz23jAjq+dUOrsAqGFYR4+/c5JKOmzkE72VH+Ey2r2mGtLfku+KoJ7I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=qrjcbc+y; arc=fail smtp.client-ip=52.101.193.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="b/g0aLzE"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-488b0e1b870so13030105e9.2
-        for <bridge@lists.linux.dev>; Thu, 07 May 2026 06:48:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1778161706; x=1778766506; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=WoAsiMhHn+IE4y5ZbpU36N8ZnmK7jeWLatv0EXI80UA=;
-        b=b/g0aLzEMA9k8QfxvM8H8WaUV5NxKsWMuIEsPHSFIsC+ODRkW2ei5shd+yAB3GvY57
-         RGGTIRqMZjoIOGHrG2FmjwzpuL78b2ayR5tH0olIVTMtwISOtKbwQbyZLxQZmblXw7gb
-         IQ0rh8XcC30rVsi9HOfFrpY6NOIeqh+7Em1Xbjx/LsSxhfyK7MKh1SDta1z2hX02ePnz
-         o7d00/CeIlqycjkn7N2N9hQVVQ71ubsjqHnoUCXrOEyH6vK9CigGpmVFnPXINlxVNm02
-         bnzE+keU1MJQZAydykCMaPKIA8NTK/DViRJU9+2cV8UMfegqovDh9hHWwoYdge/7jCN+
-         2zgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778161706; x=1778766506;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WoAsiMhHn+IE4y5ZbpU36N8ZnmK7jeWLatv0EXI80UA=;
-        b=b69Hzw0+Z181NEFOuIEp92WxGjOjUMcWXYRo7WcIYyH1BRLEAx2U4uYm54g2obLIzm
-         V/X/iYoLp7y5i7RXnAPkAaRBOJQOXSwOECbO2JhTfsSHQ4p9cqAK5jEfu0wXlHue5MDb
-         PHmkBtDaP6z+cDM3fdYtUWeawVP9+26RZvKlKTW/HVCFLCkDTWhvvCTN5P9/XsRJ6+eB
-         WtSKdvQXU99DyGac7CbACvPHMq8yD4lnvK1/R4hQ/U2QyIRioU0ql6onT5jjGFYTCM7O
-         1sWZUzyZDJ8pPGMtZ5jYISddmPmK7StSGLJlBj9JyCtLQVAI1mX3L+I5rXx8qVgbnUnc
-         MOKw==
-X-Forwarded-Encrypted: i=1; AFNElJ8Yn/YWSQw9Gex+9AiXhh1ZuLLC9/OUhPrN+3bgfUZuHUc0sOwk8bILkfmKa4HHaUJJ4A8Op0g=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw75NP7nd1t87NLWH5p1qdHk+YQGKemE3as2tmYzWNmrK9eVHYB
-	MemlnMgJUVFFzriQQvWXd2j++PT1agjG0j4CkcmiIF63VKT7CSyhoOHlG2PhWZyhhqw=
-X-Gm-Gg: AeBDiesXL1UIrPk8K3KQy2j5WKb3q5Z9hV85RRDSVgwF9gPzSCnnEgwGJH05LzliVVX
-	fHw8PlAmUrIROcx65AEckZPgHcSU2GrokdGUarGPdcZJBvzoB9j89OegqYBUn4KGAe0LiZjJqlM
-	jdoENgmba/04IE7wEwHQ5tDI6uGhKPiuVBwJEp8Ifw/rNDysJOINzkBYPaxvfpIBIDzKZSkttuS
-	G1lU6xWFbRdmLKMBlS4zqtXCguoICFC+JTc9OrejAoFkaGDcqqrFcaCCMHbl4Og2Et05uaIngFM
-	u4eIJ/xqX5ni+LV5YUtw3TmVn/UF4ZY/Mq0qaWTV3YKpBRf6lPEOooszEo/0ywRrE6aj6jg1x32
-	XMf3d+Bs3O8z5E57EtcV94+hAN7O0XtEtKLMtt2S3wjwv5fBN5Qa8ZzvaHbFRtcKRp6hum2xGMf
-	S6ThavHuRWoEO9rKikHuZ9FyllirNVRqdXQpyNJkiDl8/HPi+XQn2x4byD9A==
-X-Received: by 2002:a05:600c:c494:b0:485:46fd:7887 with SMTP id 5b1f17b1804b1-48e51f32c35mr127316915e9.13.1778161705907;
-        Thu, 07 May 2026 06:48:25 -0700 (PDT)
-Received: from localhost.localdomain ([2a00:6d43:105:c401:e307:1a37:2e76:ce91])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e52f5c1cfsm82872855e9.0.2026.05.07.06.48.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2026 06:48:25 -0700 (PDT)
-From: Marco Crivellari <marco.crivellari@suse.com>
-To: linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	bridge@lists.linux.dev
-Cc: Tejun Heo <tj@kernel.org>,
-	Lai Jiangshan <jiangshanlai@gmail.com>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Marco Crivellari <marco.crivellari@suse.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Simon Horman <horms@verge.net.au>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [RFC PATCH net-next] net: bridge: Move long delayed work on system_dfl_long_wq
-Date: Thu,  7 May 2026 15:48:15 +0200
-Message-ID: <20260507134815.295588-1-marco.crivellari@suse.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qrjcbc+y"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=HwFLAzSg16eYCvprCekHu+/ICcCpDfG00ER5n75tVBVe/NUobN5hs+m6FtFfj90SCP/YwxlxDiXcmGO9X7AtHOgnPu/z5la/Heb3Lwh+w7RwAWJRQYAirW2sssod/kANsqUiKRozsabXXjC0/KtnKNFM05B/Ho45go3xzSwuLONMG/P2UWFPGGOCnnHZqkZCLA9ucVJtofb+TJgVVOig7/XWWoYzdqhzagmbNLO1i+xI7u3HY0xCLdy+eyc5YLatyyd9vJrKBKyEkzylNGkuV8ThIpIjinNLDmD47kOo8PgX7g5YhtKPsDQhKznFW4+ZEMiST46wUvgTuueSDMfAdA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=1ySKPx6e3I7u6sxx1W5fyRFMTdkhMT8lIomffJJ//tQ=;
+ b=cfbrX23NJWADZ3S2ocyxk91Lkb1df94F2MWVSUaFHg2m0EXmya9t58O42oIMjlbfa0XrqcZPGWyJuLA+/dIMjQOsb1X2idCAz4svzqauWyXGIQM9Gq/C8qxeNCNIvfgwQsbmSxbv2oUhaILSrAXzXRqk+Gv1TU9x+whSbbsXB99KGp19S+xWuhwc/JlATlazeRGmJu1ZKlKe0io0Tu7zOI5eD/XIj1KTiHz1CYaK8xw89iUEh7qq18aULZWs7nK6DKAIykGx8l8RZaAPi7WRdPqMzXgtEH49O/T65ZtaV1sEvKdHjsnZTYpcyk+o71WJ3LqA7cDJyJGnzFZX5hXSaw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=1ySKPx6e3I7u6sxx1W5fyRFMTdkhMT8lIomffJJ//tQ=;
+ b=qrjcbc+yErXrGry25qywYDdiY7E/lDARfi761HPe+hFexADLP73IfTj8CJJONd+ZkdUvaTPTHzBkXSPRZjQWDRHBme867I2evsBw1lAnMh6HWdBjqSJE7QXLws0Ow4y14MtNZ1TaAPjLjKvdqwoNRU+4yuk7JtWq3YETp3SnuJ/hLHtOrAn356+lmtUZq7ViKVri7Kwc4SCrd6B7hcNNMmVc+htR/UQV860ZEmEcUWXQv3Vw5QxtZYgf13/I84+zbKoPQzNlncR//qge/qPm3mwf95ESNWJGJODpUjR/DyV0Os6drns6J1rfs6wV+HwzqyP2WJlUw8mcp8vyjVRlPA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by PH8PR12MB6961.namprd12.prod.outlook.com (2603:10b6:510:1bc::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.18; Thu, 7 May
+ 2026 17:30:20 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9891.017; Thu, 7 May 2026
+ 17:30:20 +0000
+Date: Thu, 7 May 2026 20:30:10 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: syzbot <syzbot+ae231e0552fa77b26ea1@syzkaller.appspotmail.com>,
+	linux-kernel@vger.kernel.org, peterz@infradead.org,
+	syzkaller-bugs@googlegroups.com, bridge@lists.linux.dev,
+	Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Subject: Re: [syzbot] [kernel?] WARNING: ODEBUG bug in smpboot_thread_fn
+Message-ID: <20260507173010.GA977556@shredder>
+References: <69f88fc0.050a0220.3460d5.0004.GAE@google.com>
+ <87qznowlfs.ffs@tglx>
+ <87bjerwqan.ffs@tglx>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87bjerwqan.ffs@tglx>
+X-ClientProxiedBy: FR4P281CA0154.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:ba::7) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|PH8PR12MB6961:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7a634c21-1b53-4c85-da9c-08deac5e4fb8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|366016|56012099003|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	zeEXCMXT7IBiVuvCD8Ij0cHOhfrgqZBe8lCf93jqxVmCaK4w2E7njzje32nw++3rqwJ83wp2jQFq3RExVxLNvF0Rp2Q3OSZJDaZqd2tGH1sZOz2Kf3MN7OAlNtd4gmwpC0k+47E/9i17uBbB134kaIHxCzMLOH8BD7CxCPhh8yUTqm1jmOvScEhvbkS5gH7wBv1YnX0QpD+Zlewwz4x3ydWljmUb9/4fgxjMph2Jm9hR8v4PvHrMXDP2nY6j+01UvrBV0HMqeYEW5mdAlW7uQVh1dU0tqqcSfpekhWgENczBSZhi+Xyrf5xqGFDs4pgXkmLDFSTrcsdVs8F2O84O9dsm1XxNjptIeKCsrEH+tU7mfVR9CirRhb2GtSGRHtXEbz5P8e4rccrqVPF7DOekK0qQEIW13wUgdzTP6JfPr2VjUNsHBBtp/y5SsYYLq73fEyVLCgmjeUdf56goa2uAuWJDOWXyCar/MRfVTFu1ZKaZLBT6IX9KsCoX+qJ/rTxPy7OB1pwISwvbT3vPycZdQ7FqWED5Wx9SDOJwWWpNQYXA+rFLzC5DSEIb+MjdVv1JqYEUOQvI0tLwETcntNOSsT7A3vxY5wJUQhYB2c4W0lNni9qOJ8paSEekJhFbAymjSsa2P8MO3ZrpUC8efRQ5dAG4yWNAk5YJf4VGZsWYR0SXIC3omV5ltcOrD+4Akxna
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(56012099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?1ntuOlsTGJGU+oShH4yzUO3YALroJ2B+Wfc3kzvUtkO4dQ6hmp3OpTb2OYO0?=
+ =?us-ascii?Q?fDEn7ruWkyUNliUPtqIEoW54fUAmimEbIgvTOQYdZhdqi/cod8I3UkPVMoTm?=
+ =?us-ascii?Q?aZfsaC1Sf3AHzd/opM0+QaZtWUzdEgNBioRduwUoRFTSXDzPf3JgyqcUj6qX?=
+ =?us-ascii?Q?F7Yz3vqfdFPzFtjAjqrjN2Jmc4Hj2+EfWjlwi96UGaDuX6u7QVL+Pzqz81OH?=
+ =?us-ascii?Q?dxFNk5Gz8ZFM+qejql39NdADJM2tHu17Gaj8o+r/iJ+C7wTPwqUeCFcRe40W?=
+ =?us-ascii?Q?KVn4JhDGPAMBdrcmDwHqqrUtTzAbwA+StWd7QbLKw97Ks5JJQvsjNUxJksPy?=
+ =?us-ascii?Q?npkmpFdaBRIXHO7xHLBEQHBOKlRYsGOVOCT68h5/T/LUR3lcRv3r0KbmtDja?=
+ =?us-ascii?Q?jbKTL7Atb4KAIZjF5LaPbmkIkXV0w+YXZ9IHsaSHHoKHYLZwchGo1WpEmU8z?=
+ =?us-ascii?Q?4bPmcMRrdxmXyr7UIWRw9cVBcolWYplepwxcHe1fz4zdlWtix6FPd1qpdFfQ?=
+ =?us-ascii?Q?oDZXDkG41BVP8wHEULl3uxh3bJhqNYXVw8kvU5keMSxcH1K/0140zUmdBGlr?=
+ =?us-ascii?Q?DT2wFkRnN5FZ+6JDKqg10LG7WzfKZaBgFJNpUJN00ZF0lLtvNp4Q9mqSP6KX?=
+ =?us-ascii?Q?Iu5exWULTmC4WB0lGMeNkNUNgsZYtbT3I7vnLVK4ACEb44q3lu56ZVUMeed3?=
+ =?us-ascii?Q?8qzCVzR68coJaB7LI9cwGKayZS1RrN70SEDd6DnJ9hwJwkfU6BEeS7i8738i?=
+ =?us-ascii?Q?Q+xPNrWu+DFYwTXZ4eWgarMr5TVWAT5yxbvN3+m2LIh+A4Kh0hqYw+rKh+g4?=
+ =?us-ascii?Q?sF5ikBZe1aml8TI72hJ1wsRkXLedZva/NOnZ7ipo1Ohe+mN5OypHTNNoLHqY?=
+ =?us-ascii?Q?n4VI+RYR0PmoYYANLCE1x0GQmieSVkECVF4ituQvZsZaKs4I/sKUa0muXGUY?=
+ =?us-ascii?Q?cYs5dmPBDKOaqgxmUkOhbosMKJ78mDWL3CGeKz/BCJeTblFOPlXRJkGQ8CMh?=
+ =?us-ascii?Q?nBtI8RKN3NC73ntXRhsDCVSDmtv5ixelF27H3SLFbu10HkN2P5KXL0ALK24P?=
+ =?us-ascii?Q?lm0g5BCvsjhLRWf4W2UYW9GMBwscZnqeCxvDlwEMQ/zNzvTWdimqB9gscK75?=
+ =?us-ascii?Q?5yVljZGkCy1Jnt7i+QJHufrgoczoGJNYWyGpf9sjMrJNMhrso60oGf7qXOtd?=
+ =?us-ascii?Q?jS4ezukjlMa5I8kkBhuLm/Ri9WiqCVQYZsLsPMOUdVeFQYzH9P7o/3ey99xK?=
+ =?us-ascii?Q?WFj+zg2hX1RGjFjxK+F7eKNeANe/dtu50jmPvuG2F2jrH8XfE33kI4p5wbRp?=
+ =?us-ascii?Q?IrIXO+gNYp2FOKv3A5pHnk/kxA+ymoG/OVA6VBEUiJtJ/1vhfo+4fhIHV69l?=
+ =?us-ascii?Q?FIal5vucEj8AQavs2PM+khEXdc0rHgHm7/GRRu2UgrxOQK0GeKiuKd27cb9I?=
+ =?us-ascii?Q?cB12TFyLy6yX83Cz3pr7pVYIOR+a3Z5qWbVwuHvM6xe0iBFtdP6bObG+STlX?=
+ =?us-ascii?Q?hObsJP2bMbpec/+eNOjf1A8T7sCadLVPL4psFtDqYwUauBBeeO2/9L1wKUOd?=
+ =?us-ascii?Q?TSRoEvdiMDJIBWJkwkZ1HmejCV8gHzmybBY0LN/3NNDijmT+GIXgvg+uRlim?=
+ =?us-ascii?Q?ZFYyS5c1JzLh/LMCe/I+E/horqaH7FHg8mV5NXMllNFaOuBs0oFbDWqMLTGk?=
+ =?us-ascii?Q?nHiK35PhF9s4JCYFbSrkXke3j0+1VARe5XO7SQbM+ogEpwbl?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7a634c21-1b53-4c85-da9c-08deac5e4fb8
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 May 2026 17:30:20.0407
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: TwEdSii5G/LrluGa3s5uhyJc85tpsr6HTT4FlgmjPaWRSvYyvvIh1V/Tg8Upl+SH7Bp4ocxvo02iPfJUacNA5g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB6961
 
-Currently the code enqueue work items using {queue|mod}_delayed_work(),
-using system_long_wq. This workqueue should be used when long works are
-expected and it is a per-cpu workqueue.
+On Thu, May 07, 2026 at 10:57:04AM +0200, Thomas Gleixner wrote:
+> On Wed, May 06 2026 at 18:29, Thomas Gleixner wrote:
+> > On Mon, May 04 2026 at 05:23, syzbot wrote:
+> >>
+> >> ------------[ cut here ]------------
+> >> ODEBUG: free active (active state 0) object: ffff888033a47278 object type: timer_list hint: br_ip6_multicast_port_query_expired+0x0/0x380 net/bridge/br_multicast.c:-1
+> >
+> >                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > An object which contains an active timer is RCU freed....
+> 
+> Unlike the other timer in the same object, the own_query timer is not
+> shut down in br_multicast_port_ctx_deinit()
+> 
+> Something kike the below.
+> 
+> Thanks,
+> 
+>         tglx
+> ---
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -2030,8 +2030,10 @@ void br_multicast_port_ctx_deinit(struct
+>  
+>  #if IS_ENABLED(CONFIG_IPV6)
+>  	timer_delete_sync(&pmctx->ip6_mc_router_timer);
+> +	timer_delete_sync(&pmctx->ip6_own_query_timer);
+>  #endif
+>  	timer_delete_sync(&pmctx->ip4_mc_router_timer);
+> +	timer_delete_sync(&pmctx->ip4_own_query_timer);
+>  
+>  	spin_lock_bh(&br->multicast_lock);
+>  	del |= br_ip6_multicast_rport_del(pmctx);
 
-The function(s) end up calling __queue_delayed_work(), which set a global
-timer that could fire anywhere, enqueuing the work where the timer fired.
+Thanks for the report and the fix. It looks correct, but it's unclear to
+me which commit to blame.
 
-Unbound works could benefit from scheduler task placement, to optimize
-performance and power consumption. Long work shouldn't stick to a single
-CPU.
+AFAICT, the trace tells us that the timer is pending (not executing)
+when the object that contains it is RCU freed. However, it shouldn't be
+possible for the timer to be pending at this stage since it is
+deactivated when the port multicast context is disabled and it is only
+reactivated if the context is not disabled.
 
-Recently, a new unbound workqueue specific for long running work has
-been added:
+So, I see two options:
 
-    c116737e972e ("workqueue: Add system_dfl_long_wq for long unbound works")
+1. We did not disable port multicast context.
 
-Since the workqueue work doesn't rely on per-cpu variables, there is no
-obvious reason that justify the use of a per-cpu workqueue. So change
-system_long_wq with system_dfl_long_wq so that the work may benefit from
-scheduler task placement.
+2. We did disable the port multicast context, but the timer somehow got
+reactivated.
 
-Signed-off-by: Marco Crivellari <marco.crivellari@suse.com>
----
- net/bridge/br_fdb.c    | 2 +-
- net/bridge/br_stp.c    | 2 +-
- net/bridge/br_stp_if.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index ac81e58d5f70..14c7943d59a1 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -583,7 +583,7 @@ void br_fdb_cleanup(struct work_struct *work)
- 
- 	/* Cleanup minimum 10 milliseconds apart */
- 	work_delay = max_t(unsigned long, work_delay, msecs_to_jiffies(10));
--	mod_delayed_work(system_long_wq, &br->gc_work, work_delay);
-+	mod_delayed_work(system_dfl_long_wq, &br->gc_work, work_delay);
- }
- 
- static void br_fdb_delete_locals_per_vlan_port(struct net_bridge *br,
-diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
-index 024210f95468..426e1c76ef6e 100644
---- a/net/bridge/br_stp.c
-+++ b/net/bridge/br_stp.c
-@@ -640,7 +640,7 @@ int br_set_ageing_time(struct net_bridge *br, clock_t ageing_time)
- 	br->ageing_time = t;
- 	spin_unlock_bh(&br->lock);
- 
--	mod_delayed_work(system_long_wq, &br->gc_work, 0);
-+	mod_delayed_work(system_dfl_long_wq, &br->gc_work, 0);
- 
- 	return 0;
- }
-diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
-index 28c1d3f7e22f..7a5f4747e1a1 100644
---- a/net/bridge/br_stp_if.c
-+++ b/net/bridge/br_stp_if.c
-@@ -53,7 +53,7 @@ void br_stp_enable_bridge(struct net_bridge *br)
- 	spin_lock_bh(&br->lock);
- 	if (br->stp_enabled == BR_KERNEL_STP)
- 		mod_timer(&br->hello_timer, jiffies + br->hello_time);
--	mod_delayed_work(system_long_wq, &br->gc_work, HZ / 10);
-+	mod_delayed_work(system_dfl_long_wq, &br->gc_work, HZ / 10);
- 
- 	br_config_bpdu_generation(br);
- 
--- 
-2.53.0
-
+I will look into it...
