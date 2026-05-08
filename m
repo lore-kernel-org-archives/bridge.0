@@ -1,81 +1,58 @@
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com [209.85.161.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70FDB33F5AB
-	for <bridge@lists.linux.dev>; Fri,  8 May 2026 20:32:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B507B30C354;
+	Fri,  8 May 2026 22:17:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778272344; cv=none; b=NKEBYTZNy08NDBp8Z5i/YlFQo4CaRsuluodl9D5mvNUKy5NZnCC+JT6olZcT9Py1VurauBygAeNTl3EaBIBJ/DbdBHw7Hb9+ubzgowbf596YINkIID2IiJnPUsOG3etSY8EfpxLeF/My84PgQDjwc3sfIDKwvEAfHDpykGFh7so=
+	t=1778278627; cv=none; b=spmTQo9mnUaAVJ7kYsyThoQa8EtWswzXUNxXJFOyWiBfJpEx8VGfIVjFKghSpmME2k3FbZpMfxbSMcmwHGOPfK/dVexWCYuGKYUuitJB8Xv39Gj7UP0HfzSLd/NLslau/YhyhTYLhO+cihnlMTm2h7ZoBPP6/DDpfJatxgiqVG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778272344; c=relaxed/simple;
-	bh=GWGjr37DgmOItQTJe0m6xQN4vFJPRIPcML91E8GPXL4=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=a5w9F8j+Evywq0zZBeT8wj7blbCDgspFMfaZKxa8FwM9eOVPnLr5XLVy+vQUAi/6lxiME3AqxoBbyFEyBaj1CbeAoK+8P5adfzou9UtbgIqnYwTEfxmvN+Tx54jzy4mZGnXGGj4Km7Qk/45vtJcLYRRkrJPH4z34RfSOlUWcIDA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-6961bda4505so2974147eaf.3
-        for <bridge@lists.linux.dev>; Fri, 08 May 2026 13:32:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778272342; x=1778877142;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Miwg42UgQH85cv2eBhd+OoEV5K7I6N9DVajlWc2+OPs=;
-        b=JmiN1Z5aI00nf8vRghLavzo652ZxEd9jtpJUV7Ik0ZHnfRDh6hI+8EtLP89X2djfDq
-         BnMEc2b1v+zCzWsFM81r2K0uNuqvglB78UnoO47js9kBbEBctfrx7if1odfjOVDYBNhR
-         uldS+7N++rxuyMPqAzMb8Uz0ICbkVYiZvBXtVbwHwWoFabi/mpGOs1fLJNQyIBZ5OIgQ
-         TDwuYDb9Zfe9cz96VE1C0Q+bzUENIKYCPVFr1y6M8G9RfpKEhqcocNGhHnJoN4W6BGqW
-         U9f9IK8YLBrQ/ICX44v5p3Z6zqFSuyIQNeZ8R2DkJn+wcRPKNZniDtNKb52aBktPeN5Q
-         oNkA==
-X-Gm-Message-State: AOJu0YzCqBvE5ZAD111wsMjk46g1/aQXWmW07K8BpZEqhEoB1EaF5/ab
-	sQXscdH12z1vKLqFu/4rZvlhpZr8eBQ5klcWpGzRHuBFE4LmAH/l2vUq2I2uLRJ/TOmbzkq/lOf
-	+/8mzKkfo3Thx5l71z4M7lEcYiUMKjr20+ylUlrR1LQ/wJm4MHqHokH4VjLM=
+	s=arc-20240116; t=1778278627; c=relaxed/simple;
+	bh=eqTk5pb5JyocaCQTV74wIppxWYFjYa11HBl05trmdNk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=K6nJOHbNGUB8upaY5onGirIWD58sOEMIo6t7zvxsSWYLI++Y9cIVMpbOfTWKzdDH/2Oxq9WZVUQt9QYbKuZSCO34l4AwdvnwwJB4TFzUOVAEgvyv2NB93r84XDUN+Qb7rfcu43fVhxoGNoOmOHxk9usCyzGTaI/BOYECOj87q7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tg3csxur; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tg3csxur"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF8A1C2BCB0;
+	Fri,  8 May 2026 22:17:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778278627;
+	bh=eqTk5pb5JyocaCQTV74wIppxWYFjYa11HBl05trmdNk=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Tg3csxurp/psDxpXOL7DfWtPv9bg8PwnwVckWoC0cZZdobXc8ZdMyQIfG2YmdsU2r
+	 DlFNsdXkwpU6V3M3v+u/Klut6Pn8jijBUoPYRrIOXYdhbzQGRnBTEpu+vbGTj3GSEI
+	 brjemlQ4htC+GR+KVq4UX89D8NnWp+sYeFq+Lk6vmI/9Hxs0nHKmVq5+PtyOJK2IR0
+	 Q7P7dCdprByqQx3cUER6mvwAs9tUHEZUihs/vZKvAYVnopYP21ICESp443aLBV+0fd
+	 YToMMNvEIuaTL1ptnacKwlT9E0ixdTHD/MawKvvepFHhGj5XV0gIQxMV5l7iYppDW1
+	 uu3k5QrNVJ0xQ==
+Date: Fri, 8 May 2026 15:17:05 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Aadarsh Chandra <aadarsh.official.xz@gmail.com>
+Cc: razor@blackwall.org, idosch@nvidia.com, davem@davemloft.net,
+ netdev@vger.kernel.org, bridge@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v3] net: bridge: replace simple_strtoul with
+ kstrtoul
+Message-ID: <20260508151705.2d1ae5bb@kernel.org>
+In-Reply-To: <20260506172447.9770-1-aadarsh.official.xz@gmail.com>
+References: <20260506172447.9770-1-aadarsh.official.xz@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:1893:b0:694:9bdb:596b with SMTP id
- 006d021491bc7-69998cbcb26mr7653901eaf.17.1778272342443; Fri, 08 May 2026
- 13:32:22 -0700 (PDT)
-Date: Fri, 08 May 2026 13:32:22 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69fe4856.050a0220.1036b8.0000.GAE@google.com>
-Subject: [syzbot] Monthly bridge report (May 2026)
-From: syzbot <syzbot+list124a596351a8114b500f@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, idosch@nvidia.com, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, razor@blackwall.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello bridge maintainers/developers,
+On Wed,  6 May 2026 22:54:47 +0530 Aadarsh Chandra wrote:
+> The simple_strtoul() function is deprecated. It does not handle
+> errors or overflows correctly. Replace it with kstrtoul() in
+> brport_store() to ensure that invalid user input is caught and
+> returned as an error.
 
-This is a 31-day syzbot report for the bridge subsystem.
-All related reports/information can be found at:
-https://syzkaller.appspot.com/upstream/s/bridge
-
-During the period, 1 new issues were detected and 0 were fixed.
-In total, 5 issues are still open and 42 have already been fixed.
-
-Some of the still happening issues:
-
-Ref Crashes Repro Title
-<1> 70      Yes   INFO: rcu detected stall in br_handle_frame (6)
-                  https://syzkaller.appspot.com/bug?extid=f8850bc3986562f79619
-<2> 28      No    KASAN: use-after-free Read in qdisc_pkt_len_segs_init
-                  https://syzkaller.appspot.com/bug?extid=83181a31faf9455499c5
-<3> 8       Yes   WARNING in nf_ct_bridge_post
-                  https://syzkaller.appspot.com/bug?extid=a8ba738fe2db6b4bb27f
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-To disable reminders for individual bugs, reply with the following command:
-#syz set <Ref> no-reminders
-
-To change bug's subsystems, reply with:
-#syz set <Ref> subsystems: new-subsystem
-
-You may send multiple commands in a single email message.
+Your email server (or something else in the pipe) is breaking the
+whitespace, this patch does not apply.
+-- 
+pw-bot: cr
