@@ -1,227 +1,154 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013012.outbound.protection.outlook.com [40.93.201.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E43B3806D9
-	for <bridge@lists.linux.dev>; Sun, 10 May 2026 11:40:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778413222; cv=none; b=s/Sc5vs/iK44Vh26kJeyEldgd7Fbb7jRG2hQac79NU9xjFLQfq/sZnPCLUSsnAoo1fu39KEOqwASpiWTUgDii7NiLyvjwp8DNsj7BWZHTqxubHiIRaZu0GfI6s+Ie4uK9vcY8a8WGKmyvkkZZShcFk3xJ7Ht/SSzco+jwOiYC98=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778413222; c=relaxed/simple;
-	bh=/Wo3+PBXbAXUlTotZqvdk9KEBPgZ8FLOpMFS4dkqvGk=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=lWplaa01zWa4Eh0V4IrZzlbWBK4O341GZhUvHuwqVsr4+Ye9rEnNFUcu+gPJyWvV0qwMDqLd6Ak9SiR55m2gJb6fnL4lJMLrqAEA014O6wockzvtBcSrhCkJJKjy3qWVoTmVK9dHur8gZhbKWRMqHnuc3ISSVnPYE1SdQCMR5es=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=BFc65aRU; arc=none smtp.client-ip=209.85.221.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D06354A32
+	for <bridge@lists.linux.dev>; Sun, 10 May 2026 15:54:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778428492; cv=fail; b=RTIcN+TXautJabRFu28qLD8JtdUn3zqGsW16osaEg1C4KdOo/4LrwzN7CCFrMjK1d3WpoLkCcovTZZh7XCPsw3asw+Fd4OJNEu0NdX0rKFtG2weSK9osdGe4rZoef3+qEFuopW2jSa1PQsI2NTNxiRmSIYJQnsGMBa++CppHw7Y=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778428492; c=relaxed/simple;
+	bh=9xvVBu7V+tOGbQZ1GomLWJrWTIhJmw/ERYWljJ0zueE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=V4KBY691mYCz/Z2hbve2Tw7yBurCBhgbopymBAXkoV7E6bEwz+IRSNPfeFMxqpuIEtisEMN3hVQEnbJviEM4T91oZr64dYY83rXOXHsaaJvSu250tIR1v50ThVJQQS6zZtP/U2soejZ0+RkeZ1G2WH57tanFBVUP2gf8CERJp5s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=iwsFfPBx reason="signature verification failed"; arc=fail smtp.client-ip=40.93.201.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="BFc65aRU"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-448528f4e69so2011167f8f.3
-        for <bridge@lists.linux.dev>; Sun, 10 May 2026 04:40:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1778413219; x=1779018019; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MU0V5qtLR9exTpcGnpIFJuqzegnzuD5wERdsIC6ROXI=;
-        b=BFc65aRUVA+lf3BDeXVeCtx+cG5PkOg+29wOzBk73SQ9YNRuhzjkJ3yr5frXHGWn/+
-         Mrf4bTTwOvLq02QBUrxq5tAXMBAZH5Oop5A240kYsoOTw1erMcw1ehV1CyOcS0pTk5OW
-         CjbiBenU82boZd3KuPwUfxW9pKYwJWOedZV3+dEjiqwMELxZjgc0MH+80IlExggp2tYx
-         dJwIx5Rx0RAcobuu1A8uhL3paBsFdzxFAPx98P6y/IEcBtL3QJQJ7DLDd31UhchMDAgK
-         G7FC/PYzqz0mTH0UlAnAv5l6k9koSuU8gmmQ41A32qD+wBWAZgD/nGTO2hD0XluMRbUs
-         2sng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778413219; x=1779018019;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=MU0V5qtLR9exTpcGnpIFJuqzegnzuD5wERdsIC6ROXI=;
-        b=KRperI4gRuqId8nSIFUyQCfVAGHkSF4mcJ0GnMFw06EpJNYOMrOm+2SdlR5KRLHZ4Q
-         +JPUPgIkOWtkD/WnFW0A18sgKRr7eu3h7MRXsUGxuUZsLaiT/wJmrBOuxaBepOY2jdYx
-         6sUQn3odnCf3idYK5PflWpeTwEelK/NwTfJDTLPbQL4mbu/3RZzdUrWR8Hnj019E3X+i
-         5AsmVszF/FqAUs+dJq1/Ja/swMPiYXq1St99XpDaKeovTQUeI6KNhInaHd/j6LBiU+Vw
-         0F1MeJLbjD3Y8KHpY9mJAF1GK8qK3hMGTzt5gvenwsoH5W7z9a6u5vQxnCpxMerH4EfY
-         KphA==
-X-Forwarded-Encrypted: i=1; AFNElJ9oPl0BYnrLAN+wZ53OKHKxBEsiVel/eJB6Ehgi4HOFE38fD7+x52/IhZVOJF3k+PuhFgGBFiA=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzcM9FtzEKXDqlmCyJirr6Wh+7lUwmXXVMriiusruLnhGQPY8c7
-	hQKaj0P+WouRkhoNlAiamHQIDyV9+Q1q1Z2EFxO5FlzuXzD+reyjoZy0xKt24eDqk0c=
-X-Gm-Gg: Acq92OHfHLGQ8MhCxaCjkV7m472KebT84zBQxeXfMbu3LMaJqIhDQohzF3uebv+crUE
-	BUdcrboBDx/zTYgPH3Us7AWF6T2z7XxRP2LK8Le5dtaT5HivCrJYEdGQNGKn5VyzXwdzpH/Xbn2
-	sNUvLq6tutnZGYPPGarwn39OVlPdkJJ7weJtSUmVzfduGGtp4f1w3b0Q1hJ/KKo13GHz8OcSl/N
-	zXOeDyIw+ZQnohzCxu7RJcJ35ClBZFpvqcPVsn7LYioywEq1W/VVCN+CV8frTrZUNzWTE22hsyP
-	C/EA4u8zoYulLAOasUQHhtzkgBUcgdCg8iKT6DYwfkAKfeD+J0fyhgqAOgXgwzGqmVniWzDbMcE
-	Q3TXqQ5FqSZ6DxA580+xnaLqiC19xa6rXCvj1YQWEl7goJcQsYqpB0TX6d1tzE1jPOCUmrn48KI
-	HneQV4HorQx4ZR1Z1qnFfM1ZFLJykzWb9yCkuNrNEC8eRg/n210zINAg==
-X-Received: by 2002:a05:6000:26cf:b0:44e:902f:e341 with SMTP id ffacd0b85a97d-45462c342a3mr15284725f8f.20.1778413218879;
-        Sun, 10 May 2026 04:40:18 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4549130549bsm18054698f8f.18.2026.05.10.04.40.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 10 May 2026 04:40:18 -0700 (PDT)
-Message-ID: <9263d4c1-0c57-4926-930b-1d701e1f17db@blackwall.org>
-Date: Sun, 10 May 2026 14:40:17 +0300
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="iwsFfPBx"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=aH3qf/maaWDqr01mPVqlZhcSlpLktfVzyprcfHHGeUS4tYt82JEDw0mPkqo9ZuZfNhjQQyeRfKcR3sQ66Ta5wz0UtmJA5GwGMZ9NPAmFhvoodbWIvg241K8QPGyqgEV+i3t/veTyVIJ7qbiFaEcXeSh+0swsM7gyFpEI92unrXS9As66Ya9bzQ6P3GYKGhOVq8sdvmOAF49TiDe25hyh5kb476PSCQS7lWMTrZx9xffvamvDP5MPT3VPH32zJh0DQS1fAWWOsmRM8/idzLwA+QKmxw8ljvFIVMlqjHRHSiu7GgtzuR+qDElsNNbz8vAl+AUTaZXtam17bEkJeWPXZg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=H4nF6EoLDWrtoYygUPOvzGNXFnWEGln4+00ssuNWV1U=;
+ b=fj5nJk10guvlf80Nln98HpXmb3qamupN3Xg7mT8uFfvPVLTBeJPQWIBilC5ipFlWvWXqyaFBaX/ODXoISjmWChYFQQ8qhcI14jICbt+K3HZy8NWwbvrRZJvXXxy1SRWJNWnbWeLb+mUgUqwUHrGdXjGhdkfx9+Qf+bPWYn0O0nss2B40YTD6X8SCad4p32r4n1eBgYHxaiJn/PCmArDJG3bR5OMBq1YyR/64rrWncK+Gt75q+4vNInLQtQMBRk92S1SiRJl1vwKr3A7WgDwYpz1osMbkp9zp7teWLnwD2fVzfxyRPhU7eom7w+0du7R61L2VHTgxPpxofIG7VNz82A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=H4nF6EoLDWrtoYygUPOvzGNXFnWEGln4+00ssuNWV1U=;
+ b=iwsFfPBxxnCbSSXB9VcBjB0KCe8pERQE1SUAinaF0mI7reipO8IeGjlXr0SlsSqR2AUme42Cuh32xpg0Oh6kV+sztMXt/SeOdBueEPVm67PkavtROew8oFSeFqYbAzPIfnynFMSRc1fXFbIE8Armb+yChJzRbkucF6x0TL/FmEllXe3eRIlULb2t9zoLk+W6od8CvtNwUrkZDW8DORDGTSmDAo7uwZjky9EVJPMkW445TK5wM5EAGoP7SsAFqgo7ujZLzsEetMfuGHHlee5aEJVbdfdoqiR++BfYxe5Q9Dq66WvHhAN6+HaEEtcgXg2P1JZAH554PrICmk1T6upnUg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by IA0PR12MB7774.namprd12.prod.outlook.com (2603:10b6:208:430::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.22; Sun, 10 May
+ 2026 15:54:47 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9891.021; Sun, 10 May 2026
+ 15:54:47 +0000
+Date: Sun, 10 May 2026 18:54:38 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Marco Crivellari <marco.crivellari@suse.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	bridge@lists.linux.dev, Tejun Heo <tj@kernel.org>,
+	Lai Jiangshan <jiangshanlai@gmail.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Michal Hocko <mhocko@suse.com>, Simon Horman <horms@verge.net.au>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>
+Subject: Re: [RFC PATCH net-next] net: bridge: Move long delayed work on
+ system_dfl_long_wq
+Message-ID: <20260510155438.GA122361@shredder>
+References: <20260507134815.295588-1-marco.crivellari@suse.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260507134815.295588-1-marco.crivellari@suse.com>
+X-ClientProxiedBy: FR4P281CA0062.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:ce::19) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/1] net: bridge: cfm: use a per-bridge frame type
-Content-Language: en-US, bg
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: Ren Wei <n05ec@lzu.edu.cn>, bridge@lists.linux.dev, netdev@vger.kernel.org
-Cc: idosch@nvidia.com, horatiu.vultur@microchip.com, kuba@kernel.org,
- henrik.bjoernlund@microchip.com, yuantan098@gmail.com, yifanwucs@gmail.com,
- tomapufckgml@gmail.com, bird@lzu.edu.cn, ronbogo@outlook.com,
- zylzyl2333@gmail.com
-References: <cover.1778378864.git.zylzyl2333@gmail.com>
- <7198fe2845c30c60c6b3833dd78cead8c5966931.1778378864.git.zylzyl2333@gmail.com>
- <e1f1b080-cfde-4ea4-b444-b64d43778b2f@blackwall.org>
-In-Reply-To: <e1f1b080-cfde-4ea4-b444-b64d43778b2f@blackwall.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|IA0PR12MB7774:EE_
+X-MS-Office365-Filtering-Correlation-Id: de5a4598-c994-42d8-ac3d-08deaeac763b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|7416014|376014|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	SVgjePjz/0YdDgO7QGZ9YnMQ+P0cFYn9A08iWD0NtG8BEiWqmBju6R4CoDo5Thaf7yTrfJ7FZ2tLqvwOBB0fMeU3fHTTA+bWiCWmKD5j/ndmvU54U2mLi2kwCc7IBpXqVAyddbMmwufGN7NLTylZ7/hDW/DIj1oMHfZq90AmKfB/euAED5yg3X/S6Lfi2jO1X2klN1lMf9kGv87sSW4pVQ/gH8SIqvh/iZFLFyBqe7XQgBI7StRNZEAZmNCan9n0O3KVU5hxl4Y3I4XgBgEOXGVDF4UQcnBLH2pTgpycL769AaXNu6DCAT13mBP4BDSZDhQIjz52ylXCpwoypbkJoazhO4y3cz8TIiH24LsVGiOlST7FuWZvR/DsvYNHBGbfrYvlNggNPB6gDqpkR6HebtP1WFFx0G3NCsauD6F4b7KNeQNHtHMv3fmBTit07RC94AaFJJ0HLSGt1z2O3j9Zw5Bi7ISnz0Z3ungB2yQfXezvQP+VMLKs1Y/dgrgAeHEk/0HquVPJ4jJFqV35nTEA8b9pkxwnAZblD5mnsmhjj3ck3mNRDwwLckUha85gFoU2ACRaX6Oh7Lg0FL8lvDSVqaSeA2ah0kWrjx/VIYj0v47vYKpjGkYHMzhjyvDXp+uCvDRuSEVid5gJZCuHZJkZisIsO3us3QEkO1/pmn1igTM/CWiHpd3wl6XPDA1LDtaT
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(7416014)(376014)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?iso-8859-1?Q?nPmJhUGfDCnUg9dv4Yrp/FR/8JcUFRRlB4BT51R5ApNB85FHvmzLzRdRe2?=
+ =?iso-8859-1?Q?dSFt8Uh6jmNdhhmC27Dp3j4KhjHs7egTrD9GlARRr2LkrjBd32fz1xNG4M?=
+ =?iso-8859-1?Q?OwdCA1CBIXm9HgwH0zsl/JCYJFq5gvrgOXwzERvI78cNzPDKrbHN+3H9xB?=
+ =?iso-8859-1?Q?m/eJaNQTEHRgQUx24B3ZGzNwfWoIySaGy1X9GM+a4HmG/nBY27GrB/K7jP?=
+ =?iso-8859-1?Q?tNnakQZ5kFSIbLbETbpd7bgrxW3DPG+QofHPaSimVl0SU1C4RBfhPXvZrJ?=
+ =?iso-8859-1?Q?qrDBKcDZHbtk/WusjiEEXPKVLC4fDWbVVJXsiQiKmW5Zm6ZLrf9PjGgvYH?=
+ =?iso-8859-1?Q?JVHo7opYjHZHMksgiTMqilrU5Rw+jtWbw2utcgU+E+K0j5wzhnRIs9ElRu?=
+ =?iso-8859-1?Q?nU/yEZLokpXsJrA7HuABV8ZrdA9Tc4wqXUwcmoaxNTQbA4ZyyNpBNAC4Wz?=
+ =?iso-8859-1?Q?uXQV04LEZPfbhTOH86Mv8XgDVHzg3Zw7XXkg/UmCxj73fSj1UwcZKqoGdH?=
+ =?iso-8859-1?Q?zlChzeC2f/36lVEogooc5B0OjEkGXDhpdKvh6INJeHpx0PHVfC7aQDuxDQ?=
+ =?iso-8859-1?Q?QiLYFfyStdEnpBEKpbfvZn1DYfkDuJtV+zSfCeG3cLTfjDRPRLXWnGA+Dm?=
+ =?iso-8859-1?Q?1x8Aa4ZcpUCjEUccYdD3thLuC4aRmauGfulWwpOlIV2lnLVeJM91lRdDsI?=
+ =?iso-8859-1?Q?ZBfWsHmlIEqNRqoQSufdVMhlOzd/fGVhJdKLAvqxyN+CCQMgg6SWcm2sbV?=
+ =?iso-8859-1?Q?jsQKUc1tEu0zokd6hjqGGdegE8B//lar36c7q3bdJbymKLhVAxgKLtoSHL?=
+ =?iso-8859-1?Q?1XqdLr2zBvjhTPweqf9xWv+ipt15C2aMMuQNK+vDvrAuYctq6GGBJRFdXH?=
+ =?iso-8859-1?Q?fVoqKT304ZGMFvxx5zg8KgicABYwp6Fou8HmEJGG1/XvIKyESx8RvppPK4?=
+ =?iso-8859-1?Q?V4D8+To9gJ45pqgkEkKC4AgbmSI+UvDSq1yP3U/hkH/KiVuKF5kXJ5Dlcg?=
+ =?iso-8859-1?Q?e6s3RrsOlwfFVMM2vWWMOLIAbKRPcVNErpUMzYvlDU5kg4XWlWMed5H0kX?=
+ =?iso-8859-1?Q?ZRUZng/6LI4pPqcH4noa5pcrc+PLCA6cavNH9U5ghpTvPmW2uTl3CgqnLs?=
+ =?iso-8859-1?Q?i8YIoXHtmfJZCK0h8uSzNVEHiwbZWA+S3D8rwkL8cut5P1uIh0S3IMtN9A?=
+ =?iso-8859-1?Q?RBRJ5/CX/YDWVfvpLVYH2gzwgWlaBUSMULOE3EgEiynSBQ425XBLp/1lr5?=
+ =?iso-8859-1?Q?++hQvWs8UvWIMfptC8URpr1JjbfTW10gbFGYdylQNSZ1uAKKGPq8TeNlaz?=
+ =?iso-8859-1?Q?g+RegG3xldwIgaXAfzova9AkYSYyPy7oxBE2HeKs3SpzQ9ZCEoUzQS1G41?=
+ =?iso-8859-1?Q?vf3XBi4jEzdDI7o8RW8CIM4RWq4TfmWiLmtUpP9rklg7KAYYaVlYWBX3Zy?=
+ =?iso-8859-1?Q?yoiruZEP1iQcuNdiFT2xzgOaS0MVgSrsMrh3UTPyuLBQH+BY5U52Ndkwyk?=
+ =?iso-8859-1?Q?MJSMVhYYnkx+hIaxyO1GO+/+8gkY/mtNa3a73onK+uZ9h3UvJ4cGJGGpsj?=
+ =?iso-8859-1?Q?YL11N8BaxNTnoPwCMqcIGpnYCRY8ni7S2RsuVR0apyExiLPhWMG9wJDo2V?=
+ =?iso-8859-1?Q?wJzz8Wise35Wo7O1HC/Ej6USae2tY3edbKPLfgzqea1a5WtDcxwuBqulP5?=
+ =?iso-8859-1?Q?CYOcDuIiWhyLJElZwynSD4Mfe2oO1rypO+R9zEtDm7QcRfpEYI9uoWxAwr?=
+ =?iso-8859-1?Q?6TpOrdwXrJ5pZBdo4whQRyFgr5mKSC2tJneGXnYOis8PEU?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: de5a4598-c994-42d8-ac3d-08deaeac763b
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 May 2026 15:54:47.6601
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: mJ5rp/yQSga/VBsv8UoMDSJOl9KqKZjMNSIWRDuA8ReGE6/HV3O2d9mQkBl+iFH9xKuhENVKbiI1oqOwYe7kLg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7774
 
-On 10/05/2026 13:05, Nikolay Aleksandrov wrote:
-> On 10/05/2026 12:15, Ren Wei wrote:
->> From: Yilin Zhu <zylzyl2333@gmail.com>
->>
->> CFM registers a bridge frame handler when the first MEP is created and
->> unregisters it when the last MEP is deleted. The registered object also
->> contains the hlist_node used by the bridge-local frame_type_list.
->>
->> The CFM frame type is currently global, so enabling CFM on multiple
->> bridges links the same hlist_node into multiple bridge-local lists. A
->> later unregister on one bridge can then operate on list state belonging
->> to another bridge.
->>
->> Move the CFM frame type into struct net_bridge and register/unregister
->> the bridge-owned object. This keeps frame handler list membership local
->> to the bridge while preserving the existing first-MEP/last-MEP lifetime.
->>
->> Fixes: dc32cbb3dbd7 ("bridge: cfm: Kernel space implementation of CFM. CCM 
->> frame RX added.")
->> Cc: stable@kernel.org
->> Reported-by: Yuan Tan <yuantan098@gmail.com>
->> Reported-by: Yifan Wu <yifanwucs@gmail.com>
->> Reported-by: Juefei Pu <tomapufckgml@gmail.com>
->> Reported-by: Xin Liu <bird@lzu.edu.cn>
->> Co-developed-by: Peihan Liu <ronbogo@outlook.com>
->> Signed-off-by: Peihan Liu <ronbogo@outlook.com>
->> Signed-off-by: Yilin Zhu <zylzyl2333@gmail.com>
->> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
->> ---
->>   net/bridge/br_cfm.c     | 14 ++++++--------
->>   net/bridge/br_private.h | 18 +++++++++++-------
->>   2 files changed, 17 insertions(+), 15 deletions(-)
->>
+On Thu, May 07, 2026 at 03:48:15PM +0200, Marco Crivellari wrote:
+> Currently the code enqueue work items using {queue|mod}_delayed_work(),
+> using system_long_wq. This workqueue should be used when long works are
+> expected and it is a per-cpu workqueue.
 > 
-> I think MRP suffers from the same bug, but I also think we can contain the
-> fix within the packet type structure instead of making the already huge
-> struct net_bridge even bigger. Also, linking a struct within net_bridge
-> to a list within the same net_bridge looks weird.
+> The function(s) end up calling __queue_delayed_work(), which set a global
+> timer that could fire anywhere, enqueuing the work where the timer fired.
 > 
-> IMO br_add_frame should take a type & a frame_handler, allocate a br_frame_type
-> dynamically and link it, then br_del_frame should take a type instead of a ptr
-> and remove that frame type and free it with kfree_rcu. That would require
-> br_add_frame return value to be checked in the respective cfm/mrp functions.
-> Warnings for already existing types on add or missing types on del should be
-> added.
+> Unbound works could benefit from scheduler task placement, to optimize
+> performance and power consumption. Long work shouldn't stick to a single
+> CPU.
 > 
+> Recently, a new unbound workqueue specific for long running work has
+> been added:
+> 
+> ����c116737e972e ("workqueue: Add system_dfl_long_wq for long unbound works")
+> 
+> Since the workqueue work doesn't rely on per-cpu variables, there is no
+> obvious reason that justify the use of a per-cpu workqueue. So change
+> system_long_wq with system_dfl_long_wq so that the work may benefit from
+> scheduler task placement.
+> 
+> Signed-off-by: Marco Crivellari <marco.crivellari@suse.com>
 
-Actually I have a better idea since these handlers can be added only once per
-bridge, we can do away with a simple bitmask (e.g. use net_bridge's options
-which is in a Rx hot cache line) and even reduce net_bridge size while fixing
-these bugs, and also remove a conditional from the fast-path when CFM/MRP are
-not compiled in. Would you like me to prepare it or do you want to give it a go?
-
-> Would you please take care of MRP as well?
-> 
-> Cheers,
->   Nik
-> 
->> diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
->> index 118c7ea48c35..547c7415c0ea 100644
->> --- a/net/bridge/br_cfm.c
->> +++ b/net/bridge/br_cfm.c
->> @@ -489,11 +489,6 @@ static int br_cfm_frame_rx(struct net_bridge_port *port, 
->> struct sk_buff *skb)
->>       return 1;
->>   }
->> -static struct br_frame_type cfm_frame_type __read_mostly = {
->> -    .type = cpu_to_be16(ETH_P_CFM),
->> -    .frame_handler = br_cfm_frame_rx,
->> -};
->> -
->>   int br_cfm_mep_create(struct net_bridge *br,
->>                 const u32 instance,
->>                 struct br_cfm_mep_create *const create,
->> @@ -558,8 +553,11 @@ int br_cfm_mep_create(struct net_bridge *br,
->>       INIT_HLIST_HEAD(&mep->peer_mep_list);
->>       INIT_DELAYED_WORK(&mep->ccm_tx_dwork, ccm_tx_work_expired);
->> -    if (hlist_empty(&br->mep_list))
->> -        br_add_frame(br, &cfm_frame_type);
->> +    if (hlist_empty(&br->mep_list)) {
->> +        br->cfm_frame_type.type = cpu_to_be16(ETH_P_CFM);
->> +        br->cfm_frame_type.frame_handler = br_cfm_frame_rx;
->> +        br_add_frame(br, &br->cfm_frame_type);
->> +    }
->>       hlist_add_tail_rcu(&mep->head, &br->mep_list);
->> @@ -588,7 +586,7 @@ static void mep_delete_implementation(struct net_bridge *br,
->>       kfree_rcu(mep, rcu);
->>       if (hlist_empty(&br->mep_list))
->> -        br_del_frame(br, &cfm_frame_type);
->> +        br_del_frame(br, &br->cfm_frame_type);
->>   }
->>   int br_cfm_mep_delete(struct net_bridge *br,
->> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
->> index bed1b1d9b282..a3ed9ee826f5 100644
->> --- a/net/bridge/br_private.h
->> +++ b/net/bridge/br_private.h
->> @@ -61,6 +61,9 @@ typedef struct bridge_id bridge_id;
->>   typedef struct mac_addr mac_addr;
->>   typedef __u16 port_id;
->> +struct net_bridge_port;
->> +struct sk_buff;
->> +
->>   struct bridge_id {
->>       unsigned char    prio[2];
->>       unsigned char    addr[ETH_ALEN];
->> @@ -70,6 +73,13 @@ struct mac_addr {
->>       unsigned char    addr[ETH_ALEN];
->>   };
->> +struct br_frame_type {
->> +    __be16            type;
->> +    int            (*frame_handler)(struct net_bridge_port *port,
->> +                         struct sk_buff *skb);
->> +    struct hlist_node    list;
->> +};
->> +
->>   #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
->>   /* our own querier */
->>   struct bridge_mcast_own_query {
->> @@ -585,6 +595,7 @@ struct net_bridge {
->>       struct hlist_head        mrp_list;
->>   #endif
->>   #if IS_ENABLED(CONFIG_BRIDGE_CFM)
->> +    struct br_frame_type    cfm_frame_type;
->>       struct hlist_head        mep_list;
->>   #endif
->>   };
->> @@ -926,13 +937,6 @@ int nbp_backup_change(struct net_bridge_port *p, struct 
->> net_device *backup_dev);
->>   int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff 
->> *skb);
->>   rx_handler_func_t *br_get_rx_handler(const struct net_device *dev);
->> -struct br_frame_type {
->> -    __be16            type;
->> -    int            (*frame_handler)(struct net_bridge_port *port,
->> -                         struct sk_buff *skb);
->> -    struct hlist_node    list;
->> -};
->> -
->>   void br_add_frame(struct net_bridge *br, struct br_frame_type *ft);
->>   void br_del_frame(struct net_bridge *br, struct br_frame_type *ft);
-> 
-
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
