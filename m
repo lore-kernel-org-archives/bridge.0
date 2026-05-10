@@ -1,176 +1,227 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012004.outbound.protection.outlook.com [52.101.43.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26F5F35F603
-	for <bridge@lists.linux.dev>; Sun, 10 May 2026 11:15:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.4
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778411747; cv=fail; b=UPqg9A7gJeubA8VinApen3JSCXjLh2iTcqSApIy0uNZivXbQasVCB3n+GIILgoJUOLHn4UUrx0WKbKXhghiS9CcG/mIvMOB4JIUZ3GUekRljCavwB6WxhrzSepZ/PDm/3jzUtKMCRsdarDD9VnEmPJ8wN9aX7elh2SZl4jKYDi0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778411747; c=relaxed/simple;
-	bh=DYChM1W9Ezqme0NzNNHVx9oHZd0/br4IDebgRc064ls=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=DRX3CyYxZkvPxPIZoyjGC90iXkCqHT5fOo1RUSTanGt9pyexVo49wc+sQ8AMb72i9x+5yneWceK916ExvshZdH71aq5v1mlqQPh7L2PThqXlowRm5MvzlcBjjVx1qKXpvqSp8gpLDtbxIXQXKu9QNIS4gbFzp7/EhOtO26ZZ28E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Bmy4wSuC; arc=fail smtp.client-ip=52.101.43.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E43B3806D9
+	for <bridge@lists.linux.dev>; Sun, 10 May 2026 11:40:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778413222; cv=none; b=s/Sc5vs/iK44Vh26kJeyEldgd7Fbb7jRG2hQac79NU9xjFLQfq/sZnPCLUSsnAoo1fu39KEOqwASpiWTUgDii7NiLyvjwp8DNsj7BWZHTqxubHiIRaZu0GfI6s+Ie4uK9vcY8a8WGKmyvkkZZShcFk3xJ7Ht/SSzco+jwOiYC98=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778413222; c=relaxed/simple;
+	bh=/Wo3+PBXbAXUlTotZqvdk9KEBPgZ8FLOpMFS4dkqvGk=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=lWplaa01zWa4Eh0V4IrZzlbWBK4O341GZhUvHuwqVsr4+Ye9rEnNFUcu+gPJyWvV0qwMDqLd6Ak9SiR55m2gJb6fnL4lJMLrqAEA014O6wockzvtBcSrhCkJJKjy3qWVoTmVK9dHur8gZhbKWRMqHnuc3ISSVnPYE1SdQCMR5es=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=BFc65aRU; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Bmy4wSuC"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=SSqJF9S2NyrBlPOyfqS3ZOdm6m0bNrxLE+88nveOiSGco2x3p1DAEe2aICz98c6PNZFUhY+wc1Cib4OgdGio0t58nQXLCqIwUsBCVdoyynQqP0pKekDULEebPu0SKB91ae/nAbRrVQC2eLCIjgRsBXyvs5qJzjgK0YUvBk7sBHmiSbsZe9VfADTuzRu+cIAC3VHvUhVS66CcLssMh3+/VE4R0iqr34l+/N60Mth1PMAfj+GdqwwuR+MFFozBTdSWWO3miJcwpsJS6GLHnbaEzztsI1U9/z9mGG8kLz7+M8AxmjpjcO14oZhqfJfEMt6lfDCeywO9se4k1wsucMik4A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=OnYBgqJx4ctxeEDJZUpR1xv2cvO+eqK1Im+MiH/TRVU=;
- b=OXQzgyZiS/guReUHZAH5UOg9uHXdWe2bvMYCoQhegEjeUw7Nn7/j/qU7ufaSFSDum7yatvnMpAFLX0gLpgkUo68wRbypX5yriRpt25X//RG/AQgroAUPIHgdiOcFfBv99I8k0kRaoc1kythRHa+FDyH2b11VaGEaFpzj621Lhly2dQoQrj29EstrZAQpRW5wAfH+R9IR3nJCD5bXAkcMqIfIRFwZiZ15Swd/DI+EU1pY4feIKJLJmZEEgJgYlX7m6VOS/GTw46p0PUBX99tq//FJn81cvcCqcYfEpz1+DCeYsfspS3Wl73PZIAc0ffrv8zwfZ5r5Si9KLhSb6tXVBw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OnYBgqJx4ctxeEDJZUpR1xv2cvO+eqK1Im+MiH/TRVU=;
- b=Bmy4wSuCtDIGDhzuOc0A8/jM79t2LUzgLiT8fOLJFvw+xod7Lye/XopctCDCK3XUJgVJxVpHC1gaacnnKXs9wtXMxxwU7ovDcQWd9XFrwsFhRgFLmDTUeL5dBb/2Sr0bMo5+XAbhA1yL9Y+tHpmV6RBoNRTGLwCZjcWs8Na9sG3TO87q+W6fuizxLrMqhuNL1ayks9EMEZSut1wWT4V121/alHETweMhMspfSJcxdca7YFoOW69cseT0exOWMDtKQ4JqA5w+rtLOhewBES5B8QZsEVHPDZH/6EnIZ79UsaSJO67VR/I+kL2G5ZG/FJzmj/st2uaAG0vywKvP02Yu3Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by DS7PR12MB8230.namprd12.prod.outlook.com (2603:10b6:8:ed::5) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9891.22; Sun, 10 May 2026 11:15:40 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.20.9891.021; Sun, 10 May 2026
- 11:15:40 +0000
-Date: Sun, 10 May 2026 14:15:30 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: syzbot <syzbot+ae231e0552fa77b26ea1@syzkaller.appspotmail.com>,
-	linux-kernel@vger.kernel.org, peterz@infradead.org,
-	syzkaller-bugs@googlegroups.com, bridge@lists.linux.dev,
-	Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
-Subject: Re: [syzbot] [kernel?] WARNING: ODEBUG bug in smpboot_thread_fn
-Message-ID: <20260510111530.GA86145@shredder>
-References: <69f88fc0.050a0220.3460d5.0004.GAE@google.com>
- <87qznowlfs.ffs@tglx>
- <87bjerwqan.ffs@tglx>
- <20260507173010.GA977556@shredder>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260507173010.GA977556@shredder>
-X-ClientProxiedBy: TL0P290CA0012.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:5::12) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="BFc65aRU"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-448528f4e69so2011167f8f.3
+        for <bridge@lists.linux.dev>; Sun, 10 May 2026 04:40:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1778413219; x=1779018019; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MU0V5qtLR9exTpcGnpIFJuqzegnzuD5wERdsIC6ROXI=;
+        b=BFc65aRUVA+lf3BDeXVeCtx+cG5PkOg+29wOzBk73SQ9YNRuhzjkJ3yr5frXHGWn/+
+         Mrf4bTTwOvLq02QBUrxq5tAXMBAZH5Oop5A240kYsoOTw1erMcw1ehV1CyOcS0pTk5OW
+         CjbiBenU82boZd3KuPwUfxW9pKYwJWOedZV3+dEjiqwMELxZjgc0MH+80IlExggp2tYx
+         dJwIx5Rx0RAcobuu1A8uhL3paBsFdzxFAPx98P6y/IEcBtL3QJQJ7DLDd31UhchMDAgK
+         G7FC/PYzqz0mTH0UlAnAv5l6k9koSuU8gmmQ41A32qD+wBWAZgD/nGTO2hD0XluMRbUs
+         2sng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778413219; x=1779018019;
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MU0V5qtLR9exTpcGnpIFJuqzegnzuD5wERdsIC6ROXI=;
+        b=KRperI4gRuqId8nSIFUyQCfVAGHkSF4mcJ0GnMFw06EpJNYOMrOm+2SdlR5KRLHZ4Q
+         +JPUPgIkOWtkD/WnFW0A18sgKRr7eu3h7MRXsUGxuUZsLaiT/wJmrBOuxaBepOY2jdYx
+         6sUQn3odnCf3idYK5PflWpeTwEelK/NwTfJDTLPbQL4mbu/3RZzdUrWR8Hnj019E3X+i
+         5AsmVszF/FqAUs+dJq1/Ja/swMPiYXq1St99XpDaKeovTQUeI6KNhInaHd/j6LBiU+Vw
+         0F1MeJLbjD3Y8KHpY9mJAF1GK8qK3hMGTzt5gvenwsoH5W7z9a6u5vQxnCpxMerH4EfY
+         KphA==
+X-Forwarded-Encrypted: i=1; AFNElJ9oPl0BYnrLAN+wZ53OKHKxBEsiVel/eJB6Ehgi4HOFE38fD7+x52/IhZVOJF3k+PuhFgGBFiA=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzcM9FtzEKXDqlmCyJirr6Wh+7lUwmXXVMriiusruLnhGQPY8c7
+	hQKaj0P+WouRkhoNlAiamHQIDyV9+Q1q1Z2EFxO5FlzuXzD+reyjoZy0xKt24eDqk0c=
+X-Gm-Gg: Acq92OHfHLGQ8MhCxaCjkV7m472KebT84zBQxeXfMbu3LMaJqIhDQohzF3uebv+crUE
+	BUdcrboBDx/zTYgPH3Us7AWF6T2z7XxRP2LK8Le5dtaT5HivCrJYEdGQNGKn5VyzXwdzpH/Xbn2
+	sNUvLq6tutnZGYPPGarwn39OVlPdkJJ7weJtSUmVzfduGGtp4f1w3b0Q1hJ/KKo13GHz8OcSl/N
+	zXOeDyIw+ZQnohzCxu7RJcJ35ClBZFpvqcPVsn7LYioywEq1W/VVCN+CV8frTrZUNzWTE22hsyP
+	C/EA4u8zoYulLAOasUQHhtzkgBUcgdCg8iKT6DYwfkAKfeD+J0fyhgqAOgXgwzGqmVniWzDbMcE
+	Q3TXqQ5FqSZ6DxA580+xnaLqiC19xa6rXCvj1YQWEl7goJcQsYqpB0TX6d1tzE1jPOCUmrn48KI
+	HneQV4HorQx4ZR1Z1qnFfM1ZFLJykzWb9yCkuNrNEC8eRg/n210zINAg==
+X-Received: by 2002:a05:6000:26cf:b0:44e:902f:e341 with SMTP id ffacd0b85a97d-45462c342a3mr15284725f8f.20.1778413218879;
+        Sun, 10 May 2026 04:40:18 -0700 (PDT)
+Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4549130549bsm18054698f8f.18.2026.05.10.04.40.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 10 May 2026 04:40:18 -0700 (PDT)
+Message-ID: <9263d4c1-0c57-4926-930b-1d701e1f17db@blackwall.org>
+Date: Sun, 10 May 2026 14:40:17 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS7PR12MB8230:EE_
-X-MS-Office365-Filtering-Correlation-Id: e9705e2c-7a53-4c6f-d299-08deae85783c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|366016|1800799024|18002099003|56012099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	7LUUFLbNkAkXw9S9ARjx6sK503pFuFbnR4HSU892fgGfOCP3ilKrbHh95iwqdrQ8KEg20A3RKQBHv1m60lL/5SabKjDzVjIF7TANGSJuJi4Ed3q20rNwvC6jZh6ycGZWhfC7BXHvV1V7JxLesu7Pq1IAP8RyAi20qyZBb3HHzuD5FgEp6Iga0S+e+uWtK/EG9rgxu5sH8Wfv0OUQBO3uXWITQDvyfeZ52gD3ncJI8f1tbiejyU68iKKiSnKeAPDxuE43dcd+R+rR5mf+YBYmy2dTCiCnWoHln8EvfBO+vu5sRZVI2+3nVXSCGqT8248MPreLNY+bkU+GSIeXj2bRQt7yLxZK/56JCSyAXrcdS5QYWkGpoPh3PXxRhWImiC5qnkN1V3Mepoe77oGnw89/iW0iKVssBqn/jJQsKR3gMS1Er9grUW7Agwa3TAWguuGZkTAAyb4mAUrvnLaUjd0QovcAEWT0bOu+UhQJ4Bg3IoVb+xyreA3Je0/W/4mGMsOHOBnFrylKJkhgnf18rxEruDqSdOOL0exlkHEvMV16gYph4cqEXSWHhqmM9MFX4kKzFwrbVUjR4LqdgpFnPXXPVkuCEUpUUDU025Jz2DIUm01wLKZvtfIz5n5Jv0xZfqr/QR03ThLJPbMaptkM24Mt+0Dyyz/aU6TanFn7sFf5QU68q2GWjqUWsYuwN8umMS7X
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?KfTKNkcUsi6HjJIRYl5uJ9PqwB3jU/wd1yOR0kX9YM8RmevGsJBTSoryr9OO?=
- =?us-ascii?Q?ekrcV24upA6qOyL7aYqzxNKAqcnDAA2iv+y9FPudR+e3N1xxz/J//+5brJzl?=
- =?us-ascii?Q?RueFBeyGWPriV4JCwRxSGl0pFucvJ0cQZsFGPQsf/1kK2igYMU1ydO5WItnY?=
- =?us-ascii?Q?vfGw2RKWMtaMP9P0p2AXIb3WcOSiMPnLQiI113bgGLyzNLu2G/9jtfdxtpfQ?=
- =?us-ascii?Q?BVXJ2vHza4nWooHc4VTMM4Wp2+/+0EriZl+lRdm83kRlG1rDvrB5WFKeTU3H?=
- =?us-ascii?Q?J2U9jNBJFTSSwuQw/EjmVDaQSeCWD/aP8sgpcGNiZMLX43S0jVhVsTUEHOdX?=
- =?us-ascii?Q?8j/7ycV4EIZRFeT9XuomUqKug2Gjd6cJDr249vED6e3GeerAxfih95S1+aoT?=
- =?us-ascii?Q?HbJdrvcWDkUEth3sJqOgyHGBktTsBNIIrtI+nn0ClPF2VESQ2QritdBDObmq?=
- =?us-ascii?Q?QCRM/YexbQ2jZ9342xhfeeJ0rLe4kW/j2ijhXrqG9j6cBJvh7Mopd5h6Yttf?=
- =?us-ascii?Q?P1+OjJfZ5Syc5fkZSrPdbevWdOKP11nxxWkqgWw2nNKlgdE0z88pZVO3UELC?=
- =?us-ascii?Q?8Z/1iZneDbEFNUHzngKW3Zig+C2MUeGuNcoAQjKy1qebNhCXv8bV2+3a11CC?=
- =?us-ascii?Q?G3U2Mx5paEQBb5sDaQRxEmhXeht2ffe9F+eXu1Qztu2GCfNucoeubt4eYbP+?=
- =?us-ascii?Q?OREmsE8J1iwFkh9rEZZRB1dPXJf8k5OEUvmxay7JZmsxMbg9dTVeNY4OJr5Z?=
- =?us-ascii?Q?tF5dJ8RFHFUQQDtNVO/YZocAr8mEFMjKC8dZV/3RgoI5rAfrSzZN3F/CoKfm?=
- =?us-ascii?Q?sBqcxU1UMp61zZymc0vfnSnn3mDSR4wr5S8mBQX8ejYQui9gfkQCo85+J8AX?=
- =?us-ascii?Q?gVBBuSlaBYsNJuQpnBdLwC7cyF9eeM3Mvwxheux2OpZl+WwsbCXBI5xlNytI?=
- =?us-ascii?Q?2gaPLLPK61cO5q/KALA9d/yCovvfNqScwuqEaXDACIjbp6gg1ptuCJV48BMj?=
- =?us-ascii?Q?LSvYEsq0ukCu7F5lsTBu3HdJP1ktv2HQ9HUUpmtBpC5LmvtfzOBK/vA1gD/M?=
- =?us-ascii?Q?YzI+wIZzKCRobcqxNMlbGhIlwaeZ5ej5zwKXJk3FZRUMK0iXQA1fg5ZEBBDo?=
- =?us-ascii?Q?tSZa3cv6xBlBPhYpjy7esm/NZ2O4yJI6XbQvdbJXHrFc43v7Fogbi6UM9qC2?=
- =?us-ascii?Q?Dri/V6ZTPTrEIGc6SGGK2sQnENSiykGs75dQOcAlNsckHHSUkyYGna1WYXef?=
- =?us-ascii?Q?rIkDq1WaDD7f0r2WNT2mhMdQlNverMrp12UrrgvCbPRzYUylWbD1BLKIk+dr?=
- =?us-ascii?Q?VvjVXvay3AGiPtQx2QECWf4/MVCKSkGQa8HZUUkYDpsIdasbA9rmgNP6+0BR?=
- =?us-ascii?Q?APf/gyWsiR7JP0dxdUanh2lKiYtjCNIlcAx0CdhxPzaM3X3PXLD5Px/laaZU?=
- =?us-ascii?Q?f7OX9q3ZinR+vI13m09TChmMM15v2KlxK0xpVytNKQHdJ35sJazOMUcMuO37?=
- =?us-ascii?Q?m6Df/T4DZirsMoLt2qZetavrIm/t8yTbj9GXnDAUpILRW3YPGkUAEZbe089p?=
- =?us-ascii?Q?FfEM8IjrnOzxV9Rm1KVU5/XrWuW4I3oFECPPXtmd1XlXMdMFTZI8H0cjfkm6?=
- =?us-ascii?Q?Ol8yAKxpObNl/YdW8fARfjvr4jlAWNtdzGxZLHG19pNtYah+rsbUhn1SVTsE?=
- =?us-ascii?Q?RCAQhemB494XimW3jyxKvyDdPhZ3ZXTd82mku+l9zxGmpRMX?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e9705e2c-7a53-4c6f-d299-08deae85783c
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 May 2026 11:15:40.7345
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Tz8bDz/RYTR+cLX3zO5eFDHxAbxt+GS/4aLhh0yUJtQ1nHa3TuFuo+peGTzNv8OJx7YXiDY014Nwpbi+gWwPDA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB8230
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/1] net: bridge: cfm: use a per-bridge frame type
+Content-Language: en-US, bg
+From: Nikolay Aleksandrov <razor@blackwall.org>
+To: Ren Wei <n05ec@lzu.edu.cn>, bridge@lists.linux.dev, netdev@vger.kernel.org
+Cc: idosch@nvidia.com, horatiu.vultur@microchip.com, kuba@kernel.org,
+ henrik.bjoernlund@microchip.com, yuantan098@gmail.com, yifanwucs@gmail.com,
+ tomapufckgml@gmail.com, bird@lzu.edu.cn, ronbogo@outlook.com,
+ zylzyl2333@gmail.com
+References: <cover.1778378864.git.zylzyl2333@gmail.com>
+ <7198fe2845c30c60c6b3833dd78cead8c5966931.1778378864.git.zylzyl2333@gmail.com>
+ <e1f1b080-cfde-4ea4-b444-b64d43778b2f@blackwall.org>
+In-Reply-To: <e1f1b080-cfde-4ea4-b444-b64d43778b2f@blackwall.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, May 07, 2026 at 08:30:10PM +0300, Ido Schimmel wrote:
-> On Thu, May 07, 2026 at 10:57:04AM +0200, Thomas Gleixner wrote:
-> > On Wed, May 06 2026 at 18:29, Thomas Gleixner wrote:
-> > > On Mon, May 04 2026 at 05:23, syzbot wrote:
-> > >>
-> > >> ------------[ cut here ]------------
-> > >> ODEBUG: free active (active state 0) object: ffff888033a47278 object type: timer_list hint: br_ip6_multicast_port_query_expired+0x0/0x380 net/bridge/br_multicast.c:-1
-> > >
-> > >                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > > An object which contains an active timer is RCU freed....
-> > 
-> > Unlike the other timer in the same object, the own_query timer is not
-> > shut down in br_multicast_port_ctx_deinit()
-> > 
-> > Something kike the below.
-> > 
-> > Thanks,
-> > 
-> >         tglx
-> > ---
-> > --- a/net/bridge/br_multicast.c
-> > +++ b/net/bridge/br_multicast.c
-> > @@ -2030,8 +2030,10 @@ void br_multicast_port_ctx_deinit(struct
-> >  
-> >  #if IS_ENABLED(CONFIG_IPV6)
-> >  	timer_delete_sync(&pmctx->ip6_mc_router_timer);
-> > +	timer_delete_sync(&pmctx->ip6_own_query_timer);
-> >  #endif
-> >  	timer_delete_sync(&pmctx->ip4_mc_router_timer);
-> > +	timer_delete_sync(&pmctx->ip4_own_query_timer);
-> >  
-> >  	spin_lock_bh(&br->multicast_lock);
-> >  	del |= br_ip6_multicast_rport_del(pmctx);
+On 10/05/2026 13:05, Nikolay Aleksandrov wrote:
+> On 10/05/2026 12:15, Ren Wei wrote:
+>> From: Yilin Zhu <zylzyl2333@gmail.com>
+>>
+>> CFM registers a bridge frame handler when the first MEP is created and
+>> unregisters it when the last MEP is deleted. The registered object also
+>> contains the hlist_node used by the bridge-local frame_type_list.
+>>
+>> The CFM frame type is currently global, so enabling CFM on multiple
+>> bridges links the same hlist_node into multiple bridge-local lists. A
+>> later unregister on one bridge can then operate on list state belonging
+>> to another bridge.
+>>
+>> Move the CFM frame type into struct net_bridge and register/unregister
+>> the bridge-owned object. This keeps frame handler list membership local
+>> to the bridge while preserving the existing first-MEP/last-MEP lifetime.
+>>
+>> Fixes: dc32cbb3dbd7 ("bridge: cfm: Kernel space implementation of CFM. CCM 
+>> frame RX added.")
+>> Cc: stable@kernel.org
+>> Reported-by: Yuan Tan <yuantan098@gmail.com>
+>> Reported-by: Yifan Wu <yifanwucs@gmail.com>
+>> Reported-by: Juefei Pu <tomapufckgml@gmail.com>
+>> Reported-by: Xin Liu <bird@lzu.edu.cn>
+>> Co-developed-by: Peihan Liu <ronbogo@outlook.com>
+>> Signed-off-by: Peihan Liu <ronbogo@outlook.com>
+>> Signed-off-by: Yilin Zhu <zylzyl2333@gmail.com>
+>> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
+>> ---
+>>   net/bridge/br_cfm.c     | 14 ++++++--------
+>>   net/bridge/br_private.h | 18 +++++++++++-------
+>>   2 files changed, 17 insertions(+), 15 deletions(-)
+>>
 > 
-> Thanks for the report and the fix. It looks correct, but it's unclear to
-> me which commit to blame.
+> I think MRP suffers from the same bug, but I also think we can contain the
+> fix within the packet type structure instead of making the already huge
+> struct net_bridge even bigger. Also, linking a struct within net_bridge
+> to a list within the same net_bridge looks weird.
 > 
-> AFAICT, the trace tells us that the timer is pending (not executing)
-> when the object that contains it is RCU freed. However, it shouldn't be
-> possible for the timer to be pending at this stage since it is
-> deactivated when the port multicast context is disabled and it is only
-> reactivated if the context is not disabled.
+> IMO br_add_frame should take a type & a frame_handler, allocate a br_frame_type
+> dynamically and link it, then br_del_frame should take a type instead of a ptr
+> and remove that frame type and free it with kfree_rcu. That would require
+> br_add_frame return value to be checked in the respective cfm/mrp functions.
+> Warnings for already existing types on add or missing types on del should be
+> added.
 > 
-> So, I see two options:
-> 
-> 1. We did not disable port multicast context.
-> 
-> 2. We did disable the port multicast context, but the timer somehow got
-> reactivated.
-> 
-> I will look into it...
 
-FYI, I found the problem (and a reproducer). I will try to send a fix
-later this week
+Actually I have a better idea since these handlers can be added only once per
+bridge, we can do away with a simple bitmask (e.g. use net_bridge's options
+which is in a Rx hot cache line) and even reduce net_bridge size while fixing
+these bugs, and also remove a conditional from the fast-path when CFM/MRP are
+not compiled in. Would you like me to prepare it or do you want to give it a go?
+
+> Would you please take care of MRP as well?
+> 
+> Cheers,
+>   Nik
+> 
+>> diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
+>> index 118c7ea48c35..547c7415c0ea 100644
+>> --- a/net/bridge/br_cfm.c
+>> +++ b/net/bridge/br_cfm.c
+>> @@ -489,11 +489,6 @@ static int br_cfm_frame_rx(struct net_bridge_port *port, 
+>> struct sk_buff *skb)
+>>       return 1;
+>>   }
+>> -static struct br_frame_type cfm_frame_type __read_mostly = {
+>> -    .type = cpu_to_be16(ETH_P_CFM),
+>> -    .frame_handler = br_cfm_frame_rx,
+>> -};
+>> -
+>>   int br_cfm_mep_create(struct net_bridge *br,
+>>                 const u32 instance,
+>>                 struct br_cfm_mep_create *const create,
+>> @@ -558,8 +553,11 @@ int br_cfm_mep_create(struct net_bridge *br,
+>>       INIT_HLIST_HEAD(&mep->peer_mep_list);
+>>       INIT_DELAYED_WORK(&mep->ccm_tx_dwork, ccm_tx_work_expired);
+>> -    if (hlist_empty(&br->mep_list))
+>> -        br_add_frame(br, &cfm_frame_type);
+>> +    if (hlist_empty(&br->mep_list)) {
+>> +        br->cfm_frame_type.type = cpu_to_be16(ETH_P_CFM);
+>> +        br->cfm_frame_type.frame_handler = br_cfm_frame_rx;
+>> +        br_add_frame(br, &br->cfm_frame_type);
+>> +    }
+>>       hlist_add_tail_rcu(&mep->head, &br->mep_list);
+>> @@ -588,7 +586,7 @@ static void mep_delete_implementation(struct net_bridge *br,
+>>       kfree_rcu(mep, rcu);
+>>       if (hlist_empty(&br->mep_list))
+>> -        br_del_frame(br, &cfm_frame_type);
+>> +        br_del_frame(br, &br->cfm_frame_type);
+>>   }
+>>   int br_cfm_mep_delete(struct net_bridge *br,
+>> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+>> index bed1b1d9b282..a3ed9ee826f5 100644
+>> --- a/net/bridge/br_private.h
+>> +++ b/net/bridge/br_private.h
+>> @@ -61,6 +61,9 @@ typedef struct bridge_id bridge_id;
+>>   typedef struct mac_addr mac_addr;
+>>   typedef __u16 port_id;
+>> +struct net_bridge_port;
+>> +struct sk_buff;
+>> +
+>>   struct bridge_id {
+>>       unsigned char    prio[2];
+>>       unsigned char    addr[ETH_ALEN];
+>> @@ -70,6 +73,13 @@ struct mac_addr {
+>>       unsigned char    addr[ETH_ALEN];
+>>   };
+>> +struct br_frame_type {
+>> +    __be16            type;
+>> +    int            (*frame_handler)(struct net_bridge_port *port,
+>> +                         struct sk_buff *skb);
+>> +    struct hlist_node    list;
+>> +};
+>> +
+>>   #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
+>>   /* our own querier */
+>>   struct bridge_mcast_own_query {
+>> @@ -585,6 +595,7 @@ struct net_bridge {
+>>       struct hlist_head        mrp_list;
+>>   #endif
+>>   #if IS_ENABLED(CONFIG_BRIDGE_CFM)
+>> +    struct br_frame_type    cfm_frame_type;
+>>       struct hlist_head        mep_list;
+>>   #endif
+>>   };
+>> @@ -926,13 +937,6 @@ int nbp_backup_change(struct net_bridge_port *p, struct 
+>> net_device *backup_dev);
+>>   int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff 
+>> *skb);
+>>   rx_handler_func_t *br_get_rx_handler(const struct net_device *dev);
+>> -struct br_frame_type {
+>> -    __be16            type;
+>> -    int            (*frame_handler)(struct net_bridge_port *port,
+>> -                         struct sk_buff *skb);
+>> -    struct hlist_node    list;
+>> -};
+>> -
+>>   void br_add_frame(struct net_bridge *br, struct br_frame_type *ft);
+>>   void br_del_frame(struct net_bridge *br, struct br_frame_type *ft);
+> 
+
