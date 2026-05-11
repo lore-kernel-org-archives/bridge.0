@@ -1,545 +1,298 @@
-Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010064.outbound.protection.outlook.com [52.101.85.64])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 282A43101A0
-	for <bridge@lists.linux.dev>; Mon, 11 May 2026 07:01:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.64
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778482878; cv=fail; b=Hev00zihVm151D6qGqBhBKfAYdOkAWMXpF5MBEslwZvtsUoWx1CO5kEg9uCbQzA/EI/8bCuJ6h3Z4ZobHVDbMCAl3noT8Cot+9bodYcYMDRhY8fPQvUoOtGnL//VB8Ejp1rAjwKXu6Lxn2xmK3cg0bH1AXkCugvr+iKvZsFW4pI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778482878; c=relaxed/simple;
-	bh=rAJczwMJJa/wfVaVwKqCNJ3A+Zpja+EWVkL/jrE2+4c=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jbSnEasXAVdHR85dquWGp5Zv1eZBTD/QxRoIOTUOrqODLwo7QPQaPQblTraKbo/ZOwXI1z9THuaWiG9CLVi5/zd3zwvNXCOZ6YGU9dj48NFB8iWf+FjuQUXVlG7bSGsOgOWUSmO1ZOf24evDZpgHgyno0QqnEVD9JNl2u5M+hro=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=W7es/cLs; arc=fail smtp.client-ip=52.101.85.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BB0B33F591;
+	Mon, 11 May 2026 15:52:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778514733; cv=none; b=POMMRMhM2Q1TtH35LSyXZI1fwAPeg/7THS4jcrYF5vs9TsPgwcQuNiBa+uOadlwMSy08V8zNsgXGE6oWsk+/GYqepKtoBunPuPkQ9TTVOo9ve+eGTvFoUsxLznc/tiC29n8rTjH2FjI+kcgf7C3fsmXnrrgBxXsxVWaBVAS31b4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778514733; c=relaxed/simple;
+	bh=XYS35lpdlJ3jrEk4niYv2AaZDJVYdfxgOj96dHJ7nj0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cYuP3+nLM0j/i+GdWNBxAfyVM0OYCBKX7srGm62dmtqM2vdd68W4uWP0hZlWMQQbuO33IyitGQootYqqUpdWIAvqCo6GPkJ7EwAmBsORk0fJ4ga08qQY+AqOighKwW6hBh4uSKOMBXG3WpEOFcBaqmxD4X1XApKgLKgKAPGbHB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jXl1vx11; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="W7es/cLs"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=B01JH9+NyfGeGc3RPtcMDiW90LpzHNZiM4L5vmwMMycoctWV4WpmkzRQddxJIvetXyYKA1LQiHpGskbfM3+K8eMm+U0BG0f7pwlgBrz16Y0UXlzVN9DEUgYfCAVZUlX4TJ4EjdMnYPig/b5MRZgIzSQhCreNzGzRBORpaW2L2ReiBLFQI9EPnGgbS4OjD5RaoVGWu6wNDCfisnWxkF6RomZGBu/75jo0gHFDzfmoOvH7w/fhpkpf6qiW6vaybxDD7M4bvOACgd5ReCVLZ5qlgIXJOrf42IwVdDLLt2+5x9yXKii0wLPM4LktPphqysEk/wD+0JdwkAhf+35grWYPkw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+BhCFznPdt2WpnmOJqXzkqB6U0ETT+WgnWhKBZ4Wyv4=;
- b=U1PdR9sGy4Q8JT/1+W0SDPzT6HNKP42iMo4YU7wLjcqBE0o5dbuA03ie5RYa2/lbDd1enGWrgcs4RH82aO4j9/eo88QiOzVjActmLRluS2snKKWflkRMTtexDBMpdsiyJVM01i7rAKseC8drC/UqrJItxXgi4N+XWDmXn9iovCckozpwo9xueNuSYHIsa9dWsts2Q/8mIZyZ8FmLB0hk0r4laOEixMsvCJ85Ld9CKgKYo9ZG7VWLUNf/pBpZDsL2Y0Jcb0RbFuR1Wj36gyC2Pn/4os64dqVRecNCXnZc2DDtUBGZDi3qXjvwW752uIyDDG5YxWWcGbSCYvfY+mUF7w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+BhCFznPdt2WpnmOJqXzkqB6U0ETT+WgnWhKBZ4Wyv4=;
- b=W7es/cLsnjRI5p7SdWGw3ymiBJUqX1kdB9Ktyd/QHyfuxr7B1yvOkufVh1S92xnNy43+qsgiITRHmtyGe8DtWmw7Of8/Ou5dclbM+kBIunAJXYuFtsp4Ox3XjBaTBc2vy2T5dx9S/mgROjWmY5i54b5wxlkEBkEZpKHhj6V0QHc714evE3y0o4h0JCHIFJAMD411FWUDrBF2gTHqHUTnK3CxMKgNqs54Al6dnnlqm9Zhomv2um4IxR/g+3D7gelpN0Utg+iJx4FDDou6XtRZa7nmyDYjhhp6S2FEhJenAkgjt88DVKPWhMcSgsJb3nakroaRPhTATA9AzHusUghMoQ==
-Received: from CH0PR03CA0118.namprd03.prod.outlook.com (2603:10b6:610:cd::33)
- by PH7PR12MB6419.namprd12.prod.outlook.com (2603:10b6:510:1fd::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.22; Mon, 11 May
- 2026 07:01:05 +0000
-Received: from CH1PEPF0000AD78.namprd04.prod.outlook.com
- (2603:10b6:610:cd:cafe::9d) by CH0PR03CA0118.outlook.office365.com
- (2603:10b6:610:cd::33) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9891.23 via Frontend Transport; Mon,
- 11 May 2026 07:01:05 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- CH1PEPF0000AD78.mail.protection.outlook.com (10.167.244.56) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.25.13 via Frontend Transport; Mon, 11 May 2026 07:01:04 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 11 May
- 2026 00:00:46 -0700
-Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.37) by
- rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Mon, 11 May 2026 00:00:39 -0700
-From: Danielle Ratson <danieller@nvidia.com>
-To: <netdev@vger.kernel.org>
-CC: <donald.hunter@gmail.com>, <kuba@kernel.org>, <davem@davemloft.net>,
-	<edumazet@google.com>, <pabeni@redhat.com>, <horms@kernel.org>,
-	<razor@blackwall.org>, <idosch@nvidia.com>, <andrew+netdev@lunn.ch>,
-	<shuah@kernel.org>, <ast@fiberby.net>, <liuhangbin@gmail.com>,
-	<daniel@iogearbox.net>, <aroulin@nvidia.com>, <fmaurer@redhat.com>,
-	<sdf.kernel@gmail.com>, <sd@queasysnail.net>, <kees@kernel.org>,
-	<nickgarlis@gmail.com>, <amorenoz@redhat.com>, <alasdair@mcwilliam.dev>,
-	<johannes.wiesboeck@aisec.fraunhofer.de>, <petrm@nvidia.com>,
-	<linux-kernel@vger.kernel.org>, <bridge@lists.linux.dev>,
-	<linux-kselftest@vger.kernel.org>, Danielle Ratson <danieller@nvidia.com>
-Subject: [PATCH net-next v2 6/6] selftests: net: Add tests for neigh_forward_grat option
-Date: Mon, 11 May 2026 09:59:36 +0300
-Message-ID: <20260511065936.4173106-7-danieller@nvidia.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260511065936.4173106-1-danieller@nvidia.com>
-References: <20260511065936.4173106-1-danieller@nvidia.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jXl1vx11"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75E62C2BCB0;
+	Mon, 11 May 2026 15:52:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778514732;
+	bh=XYS35lpdlJ3jrEk4niYv2AaZDJVYdfxgOj96dHJ7nj0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=jXl1vx11tudWu7CT5lGhKTW+9tTlMU51ZuUSHB8fmD2JmNq2k4yRJAcNUjNqPBYxL
+	 r1XIsxHhnd/3aZKnTwW5Bhap2jhLe7knhvL5IueBJ+Wye1beSdx0S0/med6U0Lqi1l
+	 fI/zRhmHGzoWCHXqOnpJZhbThVSGh7uxfjOUIJhKOevLBHUVjYURPQr3M90e68LwNX
+	 ir3bOZ5cKpD67uvm+yeYQy+MAGGWi7et17FnzwB0yyl9vIDT0ZYPJGY27JXXiC6t/F
+	 vJwXfvXXaEeS+9Etw2vLEosrY7fBbiY+W9vnmSTp5Ug47t/vrtNR1yfLTjRU1wuHnB
+	 89Di4rL5SNn5Q==
+Date: Mon, 11 May 2026 17:52:10 +0200
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Bart De Schuymer <bdschuym@pandora.be>,
+	Patrick McHardy <kaber@trash.net>, netdev@vger.kernel.org,
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+	bridge@lists.linux.dev
+Subject: Re: [PATCH net] net: neigh: Reallocate headroom if necessary in
+ neigh_hh_bridge()
+Message-ID: <agH7Kv_zGu1Sh_zl@lore-desk>
+References: <20260508-nf-neigh_hh_bridge-fix-v1-1-a1464468d92e@kernel.org>
+ <20260510111405.GA78831@shredder>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH1PEPF0000AD78:EE_|PH7PR12MB6419:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2276534b-2f98-4484-fe28-08deaf2b11da
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|82310400026|36860700016|1800799024|18002099003|22082099003|56012099003|3023799003;
-X-Microsoft-Antispam-Message-Info:
-	9R6iprzYAolNminth9Ko68ZmQYAI+FTYxSfTqUQ8wQFVnLBcWNJjgay+dNfYIYbc07ghMg+I/KdnVTHDUap7jlz6weTwp8SufY76NLLwJu69ZvsfP4S8kCAaRX6LRiG2LeJDIMlxP8TDLKEFt3y06PWoD615tVD8ZEPHwayby9aH8Uc9Lu9c3wxu9FvwwLRVJCtZLYsfqaoLR1haO75gsbW5ZLYHXoBhtyjVRKLF97Mynyg7DP7fNjpb3rnhx6aa4kEXAG/cyVUOWUDktdPTsDykz3cp5FlQfKhDLXQAQsiHV4tHhCq/uxMhBUbU54Vi/XST7LDm8Y21fH9bw7xgNkJp7zlg75MN0El5s2/hkR8S3Y4ZMPUZL7R6qQ/CKg1ybuMagSf15n6pg8jQTB4g8ADgb2ybAAwu61cB7OWeSfYNe45A5C4Ou5Z+OKcrX4Tj1mcZEAZGOuUENcmsYdBdANtmT2/UbmWOkRaSlbYDsueWt+xto4+AYDRnLtJ2KL7XlblmcsJLGjGs4RiWhjEfuSkYW2ALFmuFCLK4P/4UX93A/ebpxedaoub7OLyrw/ZeaJ7o2dAeMPe8lHwMsFVhLfXVDID0bdu9rQpesMkGf7TUjHtZehqmqa5tBES9B1QMMe5VlYjzl+FNj0FIFQuQRVZ8lOYIvnCLinv15yHVw0jy/EStFX1QxytvHWuhVEUcciEhG42tN1csx+WiG34/4UBAzq1c7fzqCkIuAXegxdQ=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(376014)(82310400026)(36860700016)(1800799024)(18002099003)(22082099003)(56012099003)(3023799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	3/Hu7HJ+bEbKYCKNzMMzu5t+S88/i7YY/8Ox4O+T/fB8WUrhm1Ug8VleRwPUexVbT3kDsr4Ji+6vEONxCLS33rZ9dvp1zico/JVycUYHwtcDS3bIzoxB5xd5Niw4pXz/Yg44EU2ePoRoOf/pGcJes3hoBHDNwxR+NRfCjD16UJIaJnIX6C5GI8UvAx+Eya8fY48TEuZvQedOgBRWyd3HPTJt3cvfcGVhYmOjtcrl8zvJpcCdXvwQWnLLSI+TuDrbUBDQfhMs2eG5O7bcvm5LIiPJdmkaq4sOoQNXhr7GOIq97OSYetPu0EAMqdUBmMCUyy19ROLBQETNELnoFVw1oOju33pRndoN0Dd+r0omEZEzsHEoh0GKa16pNRlkFsMWjs6xk5CcvTjsvNBtCQh4XVgpM36c55po7SmbzCOqeNfEHDedO5F9K+TAgnKk8Wxl
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 May 2026 07:01:04.9634
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2276534b-2f98-4484-fe28-08deaf2b11da
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH1PEPF0000AD78.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6419
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="2hZyzmXD+ZbltuU1"
+Content-Disposition: inline
+In-Reply-To: <20260510111405.GA78831@shredder>
 
-Add tests to validate the neigh_forward_grat bridge option for selective
-forwarding of gratuitous neighbor announcements.
 
-The tests verify per-port and per-VLAN control of gratuitous neighbor
-announcement forwarding for both IPv4 (gratuitous ARP) and IPv6
-(unsolicited NA):
-- When neigh_suppress is enabled with neigh_forward_grat off (default),
-  gratuitous announcements are suppressed
-- When neigh_forward_grat is enabled, gratuitous announcements are
-  forwarded while regular neighbor discovery remains suppressed
+--2hZyzmXD+ZbltuU1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For IPv4, use arping to send gratuitous ARP packets. For IPv6, use
-mausezahn to craft unsolicited Neighbor Advertisement packets.
+> On Fri, May 08, 2026 at 01:25:14PM +0200, Lorenzo Bianconi wrote:
+> > neigh_hh_bridge() assumes the skb always has sufficient headroom to copy
+> > the aligned  L2 header. This assumption can trigger the crash reported
+> > below using the following netfilter setup:
+> >=20
+> > $modprobe br_netfilter
+> > $sysctl -w net.bridge.bridge-nf-call-iptables=3D1
+> >=20
+> > $root@OpenWrt:~# nft list ruleset
+> > table ip nat {
+> >         chain prerouting {
+> >                 type nat hook prerouting priority dstnat; policy accept;
+> >                 ip daddr 192.168.83.123 dnat to 192.168.83.120
+> >         }
+> > }
+> >=20
+> > - iperf3 client (192.168.83.119) --> bridge (192.168.83.118) --> iperf3=
+ server (192.168.83.120)
+> >=20
+> > the iperf3 client is sending packet for 192.168.83.123 to the bridge de=
+vice.
+> >=20
+> > [ 1579.036575] Unable to handle kernel write to read-only memory at vir=
+tual address ffffff8004d76ffe
+> > [ 1579.045482] Mem abort info:
+> > [ 1579.048273]   ESR =3D 0x000000009600004f
+> > [ 1579.052024]   EC =3D 0x25: DABT (current EL), IL =3D 32 bits
+> > [ 1579.057363]   SET =3D 0, FnV =3D 0
+> > [ 1579.060417]   EA =3D 0, S1PTW =3D 0
+> > [ 1579.063550]   FSC =3D 0x0f: level 3 permission fault
+> > [ 1579.068345] Data abort info:
+> > [ 1579.071224]   ISV =3D 0, ISS =3D 0x0000004f, ISS2 =3D 0x00000000
+> > [ 1579.076720]   CM =3D 0, WnR =3D 1, TnD =3D 0, TagAccess =3D 0
+> > [ 1579.081770]   GCS =3D 0, Overlay =3D 0, DirtyBit =3D 0, Xs =3D 0
+> > [ 1579.087092] swapper pgtable: 4k pages, 39-bit VAs, pgdp=3D0000000080=
+dc4000
+> > [ 1579.093794] [ffffff8004d76ffe] pgd=3D180000009ffff003, p4d=3D1800000=
+09ffff003, pud=3D180000009ffff003, pmd=3D180000009ffe3003, pte=3D0060000084=
+d76787
+> > [ 1579.106343] Internal error: Oops: 000000009600004f [#1] SMP
+> > [ 1579.193824] CPU: 0 UID: 0 PID: 235 Comm: napi/qdma_eth-3 Tainted: G =
+          O       6.12.57 #0
+>=20
+> AFAICT this driver does not reserve any headroom in skbs that it's
+> injecting to the Rx path. Is there a reason for that?
 
-For the per-port tests, the IPv4 test exercises the ip link interface,
-while the IPv6 test exercises the bridge link interface.
-The per-VLAN tests use the bridge interface throughout, as per-VLAN
-attributes are only accessible via 'bridge vlan'.
+yep, right. I have already proposed a fix for the driver here:
+https://lore.kernel.org/netdev/20260511-airoha-eth-multi-serdes-v6-2-c89946=
+2c4f75@kernel.org/
+but I guess it worths to fix neigh_hh_bridge() as well.
 
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
----
+>=20
+> > [ 1579.202614] Tainted: [O]=3DOOT_MODULE
+> > [ 1579.206102] Hardware name: Airoha AN7581 Evaluation Board (DT)
+> > [ 1579.211929] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BT=
+YPE=3D--)
+> > [ 1579.218889] pc : br_nf_pre_routing_finish_bridge+0x1ac/0xcc8 [br_net=
+filter]
+> > [ 1579.225859] lr : br_nf_pre_routing_finish_bridge+0x18c/0xcc8 [br_net=
+filter]
+> > [ 1579.232822] sp : ffffffc0817cba20
+> > [ 1579.236128] x29: ffffffc0817cba20 x28: 0000000000000000 x27: ffffff8=
+002b89000
+> > [ 1579.243273] x26: ffffff8004d7700e x25: 0000000000000008 x24: 0000000=
+000000000
+> > [ 1579.250416] x23: ffffffc08179d4c0 x22: 0000000000000000 x21: ffffffc=
+08179d4c0
+> > [ 1579.257561] x20: ffffff8004d9b800 x19: ffffff8015010000 x18: 0000000=
+000000014
+> > [ 1579.264704] x17: ffffffbf9e930000 x16: ffffffc0817c8000 x15: 0000000=
+000000070
+> > [ 1579.271848] x14: 0000000000000080 x13: 0000000000000001 x12: 0000000=
+000000000
+> > [ 1579.278993] x11: ffffffc0798caae0 x10: ffffff8014db6fd8 x9 : 0000000=
+000000000
+> > [ 1579.286136] x8 : 0000000000000003 x7 : ffffffc08171f628 x6 : 0000000=
+01a3b83d3
+> > [ 1579.293281] x5 : 0000000000000000 x4 : 1beb76f22fee0000 x3 : ffffff8=
+004d7700e
+> > [ 1579.300425] x2 : 0000000000000000 x1 : ffffff8004d9b8bc x0 : ffffff8=
+0026ed000
+> > [ 1579.307570] Call trace:
+> > [ 1579.310018]  br_nf_pre_routing_finish_bridge+0x1ac/0xcc8 [br_netfilt=
+er]
+> > [ 1579.316632]  br_nf_hook_thresh+0xd4/0x14bc [br_netfilter]
+> > [ 1579.322032]  br_nf_hook_thresh+0x250/0x14bc [br_netfilter]
+> > [ 1579.327517]  br_nf_hook_thresh+0x76c/0x14bc [br_netfilter]
+> > [ 1579.333003]  br_handle_frame+0x180/0x480
+> > [ 1579.336935]  __netif_receive_skb_core.constprop.0+0x540/0xf40
+> > [ 1579.342682]  __netif_receive_skb_one_core+0x28/0x50
+> > [ 1579.347561]  process_backlog+0x98/0x1e0
+> > [ 1579.351398]  __napi_poll+0x34/0x1c4
+> > [ 1579.354887]  net_rx_action+0x178/0x330
+> > [ 1579.358638]  handle_softirqs+0x108/0x2d4
+> > [ 1579.362560]  __do_softirq+0x10/0x18
+> > [ 1579.366051]  ____do_softirq+0xc/0x20
+> > [ 1579.369627]  call_on_irq_stack+0x30/0x4c
+> > [ 1579.373550]  do_softirq_own_stack+0x18/0x20
+> > [ 1579.377734]  do_softirq+0x4c/0x60
+> > [ 1579.381050]  __local_bh_enable_ip+0x88/0x98
+> > [ 1579.385234]  napi_threaded_poll_loop+0x188/0x21c
+> > [ 1579.389853]  napi_threaded_poll+0x70/0x80
+> > [ 1579.393863]  kthread+0xd8/0xdc
+> > [ 1579.396918]  ret_from_fork+0x10/0x20
+> > [ 1579.400499] Code: 88dffc22 3707ffc2 f9406663 f9406684 (f81f0064)
+> > [ 1579.406589] ---[ end trace 0000000000000000 ]---
+> > [ 1579.411209] Kernel panic - not syncing: Oops: Fatal exception in int=
+errupt
+> > [ 1579.418083] SMP: stopping secondary CPUs
+> > [ 1579.422012] Kernel Offset: disabled
+> >=20
+> > Fix the issue reallocating the skb headroom if necessary in neigh_hh_br=
+idge routine.
+> >=20
+> > Fixes: e179e6322ac33 ("netfilter: bridge-netfilter: Fix MAC header hand=
+ling with IP DNAT")
+> > Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+> > ---
+> >  include/net/neighbour.h         | 15 +++++++++++----
+> >  net/bridge/br_netfilter_hooks.c |  5 ++++-
+> >  2 files changed, 15 insertions(+), 5 deletions(-)
+> >=20
+> > diff --git a/include/net/neighbour.h b/include/net/neighbour.h
+> > index 2dfee6d4258a..4e1222968753 100644
+> > --- a/include/net/neighbour.h
+> > +++ b/include/net/neighbour.h
+> > @@ -487,16 +487,23 @@ static inline int neigh_event_send(struct neighbo=
+ur *neigh, struct sk_buff *skb)
+> >  }
+> > =20
+> >  #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+> > -static inline int neigh_hh_bridge(struct hh_cache *hh, struct sk_buff =
+*skb)
+> > +static inline struct sk_buff *
+> > +neigh_hh_bridge(struct hh_cache *hh, struct sk_buff *skb)
+> >  {
+> > -	unsigned int seq, hh_alen;
+> > +	unsigned int seq, hh_alen =3D HH_DATA_ALIGN(ETH_HLEN);
+> > +
+> > +	if (unlikely(skb_headroom(skb) < hh_alen)) {
+> > +		skb =3D skb_expand_head(skb, hh_alen);
+> > +		if (!skb)
+> > +			return NULL;
+> > +	}
+>=20
+> The comment from Sashiko looks relevant:
+>=20
+> Does this adequately protect against writing to shared or cloned SKBs?
+>=20
+> If a cloned SKB already has sufficient headroom, this check evaluates to
+> false, and the code proceeds to overwrite the MAC header via memcpy().
+> Modifying a cloned SKB without unsharing it could corrupt the data for
+> other users of the buffer, or still trigger the read-only memory panic
+> this patch aims to fix.
+>=20
+> Should this use skb_cow_head() or explicitly check skb_shared() and
+> skb_cloned() before modifying the buffer data?
 
-Notes:
-    v2:
-    	* Add test cases for validating that regular (non-gratuitous) ARP
-    	  neigh_forward_grat is enabled.
+ack, I will fix it in v2.
 
- .../net/test_bridge_neigh_suppress.sh         | 342 +++++++++++++++++-
- 1 file changed, 340 insertions(+), 2 deletions(-)
+>=20
+> > =20
+> >  	do {
+> >  		seq =3D read_seqbegin(&hh->hh_lock);
+> > -		hh_alen =3D HH_DATA_ALIGN(ETH_HLEN);
+> >  		memcpy(skb->data - hh_alen, hh->hh_data, ETH_ALEN + hh_alen - ETH_HL=
+EN);
+> >  	} while (read_seqretry(&hh->hh_lock, seq));
+> > -	return 0;
+> > +
+> > +	return skb;
+> >  }
+> >  #endif
+> > =20
+> > diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_=
+hooks.c
+> > index 0ab1c94db4b9..6b59d7eb7906 100644
+> > --- a/net/bridge/br_netfilter_hooks.c
+> > +++ b/net/bridge/br_netfilter_hooks.c
+> > @@ -297,7 +297,10 @@ int br_nf_pre_routing_finish_bridge(struct net *ne=
+t, struct sock *sk, struct sk_
+> >  				goto free_skb;
+> >  			}
+> > =20
+> > -			neigh_hh_bridge(&neigh->hh, skb);
+> > +			skb =3D neigh_hh_bridge(&neigh->hh, skb);
+> > +			if (!skb)
+> > +				return -ENOMEM;
+> > +
+>=20
+> Also from Sashiko:
+>=20
+> Does returning early here leak the neighbour reference?
+>=20
+> Earlier in br_nf_pre_routing_finish_bridge(), a reference to neigh is
+> obtained via dst_neigh_lookup_skb(dst, skb). By returning -ENOMEM here,
+> we bypass the neigh_release(neigh) call at the end of the if (neigh) bloc=
+k.
+>=20
+> Could this cause the neighbour reference count to leak, eventually preven=
+ting
+> the network device from being unregistered?
 
-diff --git a/tools/testing/selftests/net/test_bridge_neigh_suppress.sh b/tools/testing/selftests/net/test_bridge_neigh_suppress.sh
-index 4bc92078e173..e9ed0d750996 100755
---- a/tools/testing/selftests/net/test_bridge_neigh_suppress.sh
-+++ b/tools/testing/selftests/net/test_bridge_neigh_suppress.sh
-@@ -58,6 +58,10 @@ TESTS="
- 	neigh_vlan_suppress_ns
- 	neigh_suppress_arp_probe
- 	neigh_suppress_dad_ns
-+	neigh_forward_grat_arp
-+	neigh_forward_grat_na
-+	neigh_vlan_forward_grat_arp
-+	neigh_vlan_forward_grat_na
- "
- VERBOSE=0
- PAUSE_ON_FAIL=no
-@@ -76,7 +80,8 @@ log_test()
- 		printf "TEST: %-60s  [ OK ]\n" "${msg}"
- 		nsuccess=$((nsuccess+1))
- 	else
--		ret=1
-+		# shellcheck disable=SC2154
-+		ret=$(ksft_exit_status_merge "$ret" "$ksft_fail")
- 		nfail=$((nfail+1))
- 		printf "TEST: %-60s  [FAIL]\n" "${msg}"
- 		if [ "$VERBOSE" = "1" ]; then
-@@ -99,6 +104,7 @@ log_test()
- 	fi
- 
- 	[ "$VERBOSE" = "1" ] && echo
-+	return 0
- }
- 
- run_cmd()
-@@ -136,6 +142,15 @@ tc_check_packets()
- 	[[ $pkts == $count ]]
- }
- 
-+neigh_forward_grat_check()
-+{
-+	if ! bridge link help 2>&1 | grep -q "neigh_forward_grat"; then
-+		echo "SKIP: iproute2 bridge too old, missing gratuitous ARP/unsolicited NA forwarding control support"
-+		# shellcheck disable=SC2154
-+		return "$ksft_skip"
-+	fi
-+}
-+
- ################################################################################
- # Setup
- 
-@@ -563,6 +578,17 @@ icmpv6_header_get()
- 	echo $p
- }
- 
-+icmpv6_na_header_get()
-+{
-+	local csum=$1; shift
-+	local tip=$1; shift
-+
-+	# Type 136 (Neighbor Advertisement), hex format, Override flag set,
-+	# Solicited flag clear (unsolicited NA).
-+	# ICMPv6.type : ICMPv6.code : ICMPv6.checksum : Flags : Target Address
-+	echo "88:00:$csum:20:00:00:00:$tip:"
-+}
-+
- neigh_suppress_uc_ns_common()
- {
- 	local vid=$1; shift
-@@ -1001,6 +1027,315 @@ neigh_suppress_dad_ns()
- 	log_test $? 0 "DAD NS suppression"
- }
- 
-+neigh_forward_grat_arp()
-+{
-+	local vid=10
-+	local sip=192.0.2.1
-+	local tip=$sip
-+	local h2_ip=192.0.2.2
-+	local h2_mac
-+
-+	neigh_forward_grat_check || return $?
-+
-+	echo
-+	echo "Gratuitous ARP forwarding"
-+	echo "-------------------------"
-+
-+	run_cmd "tc -n $sw1 qdisc replace dev vx0 clsact"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 101 proto 0x0806 flower indev swp1 arp_tip $tip arp_sip $sip arp_op request action pass"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 102 proto 0x0806 flower indev swp1 arp_tip $h2_ip arp_sip $sip arp_op request action pass"
-+
-+	h2_mac=$(ip -n "$h2" -j -p link show eth0."$vid" | jq -r '.[]["address"]')
-+	run_cmd "bridge -n $sw1 fdb replace $h2_mac dev vx0 master static vlan $vid"
-+	run_cmd "ip -n $sw1 neigh replace $tip lladdr $h2_mac nud permanent dev br0.$vid"
-+	run_cmd "ip -n $sw1 neigh replace $h2_ip lladdr $h2_mac nud permanent dev br0.$vid"
-+
-+	# Enable neighbor suppression. Gratuitous ARP should be suppressed by
-+	# default (neigh_forward_grat defaults to off).
-+	run_cmd "ip -n $sw1 link set dev vx0 type bridge_slave neigh_suppress on"
-+	run_cmd "ip -n $sw1 -d link show dev vx0 | grep \"neigh_suppress on\""
-+	log_test $? 0 "\"neigh_suppress\" is on"
-+
-+	# Send gratuitous ARP (sip == tip) and check it's suppressed.
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid $tip"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 0
-+	log_test $? 0 "Gratuitous ARP suppression"
-+
-+	# Explicitly enable neigh_forward_grat and verify gratuitous ARP is
-+	# now forwarded.
-+	run_cmd "ip -n $sw1 link set dev vx0 type bridge_slave neigh_forward_grat on"
-+	run_cmd "ip -n $sw1 -d link show dev vx0 | grep \"neigh_forward_grat on\""
-+	log_test $? 0 "\"neigh_forward_grat\" is on"
-+
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid $tip"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 1
-+	log_test $? 0 "Gratuitous ARP forwarding"
-+
-+	# Verify that regular (non-gratuitous) ARP requests are still
-+	# suppressed when neigh_forward_grat is enabled.
-+	run_cmd "ip netns exec $h1 arping -c 1 -w 5 -I eth0.$vid $h2_ip"
-+	tc_check_packets "$sw1" "dev vx0 egress" 102 0
-+	log_test $? 0 "Regular ARP suppression with \"neigh_forward_grat\" on"
-+
-+	# Disable neigh_forward_grat and verify suppression resumes.
-+	run_cmd "ip -n $sw1 link set dev vx0 type bridge_slave neigh_forward_grat off"
-+	run_cmd "ip -n $sw1 -d link show dev vx0 | grep \"neigh_forward_grat off\""
-+	log_test $? 0 "\"neigh_forward_grat\" is off"
-+
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid $tip"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 1
-+	log_test $? 0 "Gratuitous ARP suppression"
-+}
-+
-+# neigh_forward_grat_arp() uses 'ip link' interface, and neigh_forward_grat_na()
-+# uses 'bridge link' interface to exercise both paths.
-+neigh_forward_grat_na()
-+{
-+	local vid=10
-+	local saddr=2001:db8:1::1
-+	local daddr=ff02::1
-+	local h2_addr=2001:db8:1::2
-+	local h2_maddr=ff02::1:ff00:2
-+	local full_addr=20:01:0d:b8:00:01:00:00:00:00:00:00:00:00:00:01
-+	local h2_full_addr=20:01:0d:b8:00:01:00:00:00:00:00:00:00:00:00:02
-+	local csum="fd:32"
-+	local csum_ns="1f:2f"
-+	local dmac=33:33:00:00:00:01
-+	local h2_dmac=33:33:ff:00:00:02
-+	local h2_mac
-+	local smac
-+
-+	neigh_forward_grat_check || return $?
-+
-+	echo
-+	echo "Unsolicited NA forwarding"
-+	echo "-------------------------"
-+
-+	smac=$(ip -n "$h1" -j -p link show eth0."$vid" | jq -r '.[]["address"]')
-+
-+	run_cmd "tc -n $sw1 qdisc replace dev vx0 clsact"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 101 proto ipv6 flower indev swp1 ip_proto icmpv6 dst_ip $daddr src_ip $saddr type 136 code 0 action pass"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 102 proto ipv6 flower indev swp1 ip_proto icmpv6 dst_ip $h2_maddr src_ip $saddr type 135 code 0 action pass"
-+
-+	h2_mac=$(ip -n "$h2" -j -p link show eth0."$vid" | jq -r '.[]["address"]')
-+	run_cmd "bridge -n $sw1 fdb replace $h2_mac dev vx0 master static vlan $vid"
-+	run_cmd "ip -n $sw1 neigh replace $saddr lladdr $h2_mac nud permanent dev br0.$vid"
-+	run_cmd "ip -n $sw1 neigh replace $h2_addr lladdr $h2_mac nud permanent dev br0.$vid"
-+
-+	# Enable neighbor suppression. Unsolicited NA should be suppressed by
-+	# default (neigh_forward_grat defaults to off).
-+	run_cmd "bridge -n $sw1 link set dev vx0 neigh_suppress on"
-+	run_cmd "bridge -n $sw1 -d link show dev vx0 | grep \"neigh_suppress on\""
-+	log_test $? 0 "\"neigh_suppress\" is on"
-+
-+	# Send unsolicited NA and check it's suppressed.
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid -c 1 -a $smac -b $dmac -A $saddr -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum" "$full_addr") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 0
-+	log_test $? 0 "Unsolicited NA suppression"
-+
-+	# Explicitly enable neigh_forward_grat and verify unsolicited NA is
-+	# now forwarded.
-+	run_cmd "bridge -n $sw1 link set dev vx0 neigh_forward_grat on"
-+	run_cmd "bridge -n $sw1 -d link show dev vx0 | grep \"neigh_forward_grat on\""
-+	log_test $? 0 "\"neigh_forward_grat\" is on"
-+
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid -c 1 -a $smac -b $dmac -A $saddr -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum" "$full_addr") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 1
-+	log_test $? 0 "Unsolicited NA forwarding"
-+
-+	# Verify that solicited NS messages are still suppressed when
-+	# neigh_forward_grat is enabled.
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid -c 1 -a $smac -b $h2_dmac -A $saddr -B $h2_maddr -t ip hop=255,next=58,payload=$(icmpv6_header_get "$csum_ns" "$h2_full_addr") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 102 0
-+	log_test $? 0 "Solicited NS suppression with \"neigh_forward_grat\" on"
-+
-+	# Disable neigh_forward_grat and verify suppression resumes.
-+	run_cmd "bridge -n $sw1 link set dev vx0 neigh_forward_grat off"
-+	run_cmd "bridge -n $sw1 -d link show dev vx0 | grep \"neigh_forward_grat off\""
-+	log_test $? 0 "\"neigh_forward_grat\" is off"
-+
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid -c 1 -a $smac -b $dmac -A $saddr -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum" "$full_addr") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 1
-+	log_test $? 0 "Unsolicited NA suppression"
-+}
-+
-+neigh_vlan_forward_grat_arp()
-+{
-+	local vid1=10
-+	local vid2=20
-+	local sip1=192.0.2.1
-+	local sip2=192.0.2.17
-+	local h2_ip1=192.0.2.2
-+	local h2_mac1
-+	local h2_mac2
-+
-+	neigh_forward_grat_check || return $?
-+
-+	echo
-+	echo "Per-VLAN gratuitous ARP forwarding"
-+	echo "----------------------------------"
-+
-+	run_cmd "tc -n $sw1 qdisc replace dev vx0 clsact"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 101 proto 0x0806 flower indev swp1 arp_tip $sip1 arp_sip $sip1 arp_op request action pass"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 102 proto 0x0806 flower indev swp1 arp_tip $sip2 arp_sip $sip2 arp_op request action pass"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 103 proto 0x0806 flower indev swp1 arp_tip $h2_ip1 arp_sip $sip1 arp_op request action pass"
-+
-+	h2_mac1=$(ip -n "$h2" -j -p link show eth0."$vid1" | jq -r '.[]["address"]')
-+	h2_mac2=$(ip -n "$h2" -j -p link show eth0."$vid2" | jq -r '.[]["address"]')
-+	run_cmd "bridge -n $sw1 fdb replace $h2_mac1 dev vx0 master static vlan $vid1"
-+	run_cmd "bridge -n $sw1 fdb replace $h2_mac2 dev vx0 master static vlan $vid2"
-+	run_cmd "ip -n $sw1 neigh replace $sip1 lladdr $h2_mac1 nud permanent dev br0.$vid1"
-+	run_cmd "ip -n $sw1 neigh replace $sip2 lladdr $h2_mac2 nud permanent dev br0.$vid2"
-+	run_cmd "ip -n $sw1 neigh replace $h2_ip1 lladdr $h2_mac1 nud permanent dev br0.$vid1"
-+
-+	# Enable per-{Port, VLAN} neighbor suppression.
-+	run_cmd "bridge -n $sw1 link set dev vx0 neigh_vlan_suppress on"
-+	run_cmd "bridge -n $sw1 -d link show dev vx0 | grep \"neigh_vlan_suppress on\""
-+	log_test $? 0 "\"neigh_vlan_suppress\" is on"
-+
-+	# Enable neighbor suppression on VLAN 10. Gratuitous ARP should be
-+	# suppressed by default on VLAN 10 (neigh_forward_grat defaults to off)
-+	# but not on VLAN 20.
-+	run_cmd "bridge -n $sw1 vlan set vid $vid1 dev vx0 neigh_suppress on"
-+	run_cmd "bridge -n $sw1 -d vlan show dev vx0 vid $vid1 | grep \"neigh_suppress on\""
-+	log_test $? 0 "\"neigh_suppress\" is on (VLAN $vid1)"
-+
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid1 $sip1"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 0
-+	log_test $? 0 "Gratuitous ARP suppression (VLAN $vid1)"
-+
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid2 $sip2"
-+	tc_check_packets "$sw1" "dev vx0 egress" 102 1
-+	log_test $? 0 "Gratuitous ARP forwarding (VLAN $vid2)"
-+
-+	# Enable neigh_forward_grat on VLAN 10 and verify gratuitous ARP is
-+	# now forwarded.
-+	run_cmd "bridge -n $sw1 vlan set vid $vid1 dev vx0 neigh_forward_grat on"
-+	run_cmd "bridge -n $sw1 -d vlan show dev vx0 vid $vid1 | grep \"neigh_forward_grat on\""
-+	log_test $? 0 "\"neigh_forward_grat\" is on (VLAN $vid1)"
-+
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid1 $sip1"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 1
-+	log_test $? 0 "Gratuitous ARP forwarding (VLAN $vid1)"
-+
-+	# Verify that regular (non-gratuitous) ARP requests on VLAN $vid1 are
-+	# still suppressed when neigh_forward_grat is enabled.
-+	run_cmd "ip netns exec $h1 arping -c 1 -w 5 -I eth0.$vid1 $h2_ip1"
-+	tc_check_packets "$sw1" "dev vx0 egress" 103 0
-+	log_test $? 0 "Regular ARP suppression with \"neigh_forward_grat\" on (VLAN $vid1)"
-+
-+	# Enable neighbor suppression on VLAN 20 (neigh_forward_grat defaults to
-+	# off), and verify gratuitous ARP is suppressed on VLAN 20.
-+	run_cmd "bridge -n $sw1 vlan set vid $vid2 dev vx0 neigh_suppress on"
-+	run_cmd "bridge -n $sw1 -d vlan show dev vx0 vid $vid2 | grep \"neigh_suppress on\""
-+	log_test $? 0 "\"neigh_suppress\" is on (VLAN $vid2)"
-+
-+	# VLAN 10 should still forward (neigh_forward_grat is on).
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid1 $sip1"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 2
-+	log_test $? 0 "Gratuitous ARP forwarding (VLAN $vid1)"
-+
-+	# VLAN 20 should suppress (neigh_forward_grat defaults to off).
-+	run_cmd "ip netns exec $h1 arping -U -c 1 -w 5 -I eth0.$vid2 $sip2"
-+	tc_check_packets "$sw1" "dev vx0 egress" 102 1
-+	log_test $? 0 "Gratuitous ARP suppression (VLAN $vid2)"
-+}
-+
-+neigh_vlan_forward_grat_na()
-+{
-+	local vid1=10
-+	local vid2=20
-+	local saddr1=2001:db8:1::1
-+	local daddr=ff02::1
-+	local h2_addr1=2001:db8:1::2
-+	local h2_maddr1=ff02::1:ff00:2
-+	local full_addr1=20:01:0d:b8:00:01:00:00:00:00:00:00:00:00:00:01
-+	local h2_full_addr1=20:01:0d:b8:00:01:00:00:00:00:00:00:00:00:00:02
-+	local csum1="fd:32"
-+	local csum_ns1="1f:2f"
-+	local saddr2=2001:db8:2::1
-+	local full_addr2=20:01:0d:b8:00:02:00:00:00:00:00:00:00:00:00:01
-+	local csum2="fd:30"
-+	local dmac=33:33:00:00:00:01
-+	local h2_dmac1=33:33:ff:00:00:02
-+	local h2_mac1
-+	local h2_mac2
-+	local smac
-+
-+	neigh_forward_grat_check || return $?
-+
-+	echo
-+	echo "Per-VLAN unsolicited NA forwarding"
-+	echo "----------------------------------"
-+
-+	smac=$(ip -n "$h1" -j -p link show eth0."$vid1" | jq -r '.[]["address"]')
-+
-+	run_cmd "tc -n $sw1 qdisc replace dev vx0 clsact"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 101 proto ipv6 flower indev swp1 ip_proto icmpv6 dst_ip $daddr src_ip $saddr1 type 136 code 0 action pass"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 102 proto ipv6 flower indev swp1 ip_proto icmpv6 dst_ip $daddr src_ip $saddr2 type 136 code 0 action pass"
-+	run_cmd "tc -n $sw1 filter replace dev vx0 egress pref 1 handle 103 proto ipv6 flower indev swp1 ip_proto icmpv6 dst_ip $h2_maddr1 src_ip $saddr1 type 135 code 0 action pass"
-+
-+	h2_mac1=$(ip -n "$h2" -j -p link show eth0."$vid1" | jq -r '.[]["address"]')
-+	h2_mac2=$(ip -n "$h2" -j -p link show eth0."$vid2" | jq -r '.[]["address"]')
-+	run_cmd "bridge -n $sw1 fdb replace $h2_mac1 dev vx0 master static vlan $vid1"
-+	run_cmd "bridge -n $sw1 fdb replace $h2_mac2 dev vx0 master static vlan $vid2"
-+	run_cmd "ip -n $sw1 neigh replace $saddr1 lladdr $h2_mac1 nud permanent dev br0.$vid1"
-+	run_cmd "ip -n $sw1 neigh replace $saddr2 lladdr $h2_mac2 nud permanent dev br0.$vid2"
-+	run_cmd "ip -n $sw1 neigh replace $h2_addr1 lladdr $h2_mac1 nud permanent dev br0.$vid1"
-+
-+	# Enable per-{Port, VLAN} neighbor suppression.
-+	run_cmd "bridge -n $sw1 link set dev vx0 neigh_vlan_suppress on"
-+	run_cmd "bridge -n $sw1 -d link show dev vx0 | grep \"neigh_vlan_suppress on\""
-+	log_test $? 0 "\"neigh_vlan_suppress\" is on"
-+
-+	# Enable neighbor suppression on VLAN 10. Unsolicited NA should be
-+	# suppressed by default on VLAN 10 (neigh_forward_grat defaults to off)
-+	# but not on VLAN 20.
-+	run_cmd "bridge -n $sw1 vlan set vid $vid1 dev vx0 neigh_suppress on"
-+	run_cmd "bridge -n $sw1 -d vlan show dev vx0 vid $vid1 | grep \"neigh_suppress on\""
-+	log_test $? 0 "\"neigh_suppress\" is on (VLAN $vid1)"
-+
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid1 -c 1 -a $smac -b $dmac -A $saddr1 -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum1" "$full_addr1") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 0
-+	log_test $? 0 "Unsolicited NA suppression (VLAN $vid1)"
-+
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid2 -c 1 -a $smac -b $dmac -A $saddr2 -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum2" "$full_addr2") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 102 1
-+	log_test $? 0 "Unsolicited NA forwarding (VLAN $vid2)"
-+
-+	# Enable neigh_forward_grat on VLAN 10 and verify unsolicited NA is
-+	# now forwarded.
-+	run_cmd "bridge -n $sw1 vlan set vid $vid1 dev vx0 neigh_forward_grat on"
-+	run_cmd "bridge -n $sw1 -d vlan show dev vx0 vid $vid1 | grep \"neigh_forward_grat on\""
-+	log_test $? 0 "\"neigh_forward_grat\" is on (VLAN $vid1)"
-+
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid1 -c 1 -a $smac -b $dmac -A $saddr1 -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum1" "$full_addr1") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 1
-+	log_test $? 0 "Unsolicited NA forwarding (VLAN $vid1)"
-+
-+	# Verify that solicited NS messages on VLAN $vid1 are still suppressed
-+	# when neigh_forward_grat is enabled.
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid1 -c 1 -a $smac -b $h2_dmac1 -A $saddr1 -B $h2_maddr1 -t ip hop=255,next=58,payload=$(icmpv6_header_get "$csum_ns1" "$h2_full_addr1") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 103 0
-+	log_test $? 0 "Solicited NS suppression with \"neigh_forward_grat\" on (VLAN $vid1)"
-+
-+	# Enable neighbor suppression on VLAN 20 (neigh_forward_grat defaults to
-+	# off), and verify unsolicited NA is suppressed on VLAN 20.
-+	run_cmd "bridge -n $sw1 vlan set vid $vid2 dev vx0 neigh_suppress on"
-+	run_cmd "bridge -n $sw1 -d vlan show dev vx0 vid $vid2 | grep \"neigh_suppress on\""
-+	log_test $? 0 "\"neigh_suppress\" is on (VLAN $vid2)"
-+
-+	# VLAN 10 should still forward (neigh_forward_grat is on).
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid1 -c 1 -a $smac -b $dmac -A $saddr1 -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum1" "$full_addr1") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 101 2
-+	log_test $? 0 "Unsolicited NA forwarding (VLAN $vid1)"
-+
-+	# VLAN 20 should suppress (neigh_forward_grat defaults to off).
-+	run_cmd "ip netns exec $h1 mausezahn -6 eth0.$vid2 -c 1 -a $smac -b $dmac -A $saddr2 -B $daddr -t ip hop=255,next=58,payload=$(icmpv6_na_header_get "$csum2" "$full_addr2") -q"
-+	tc_check_packets "$sw1" "dev vx0 egress" 102 1
-+	log_test $? 0 "Unsolicited NA suppression (VLAN $vid2)"
-+}
-+
- ################################################################################
- # Usage
- 
-@@ -1087,7 +1422,10 @@ cleanup
- 
- for t in $TESTS
- do
--	setup; $t; cleanup;
-+	setup
-+	$t
-+	ret=$(ksft_exit_status_merge "$ret" $?)
-+	cleanup
- done
- 
- if [ "$TESTS" != "none" ]; then
--- 
-2.51.0
+ack, I will fix it in v2.
 
+Regards,
+Lorenzo
+
+>=20
+> >  			skb->dev =3D br_indev;
+> > =20
+> >  			ret =3D br_handle_frame_finish(net, sk, skb);
+> >=20
+> > ---
+> > base-commit: fcee7d82f27d6a8b1ddc5bbefda59b4e441e9bc0
+> > change-id: 20260508-nf-neigh_hh_bridge-fix-9ab775ee23c6
+> >=20
+> > Best regards,
+> > --=20
+> > Lorenzo Bianconi <lorenzo@kernel.org>
+> >=20
+
+--2hZyzmXD+ZbltuU1
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQTquNwa3Txd3rGGn7Y6cBh0uS2trAUCagH7KgAKCRA6cBh0uS2t
+rHTWAP9GYQqZbf4QmPWHoKaysLc6RTTu5GcLv0EYyMXAb40t+QD9HqcCeRgp+A2/
+g9+D4efb05a5ogH4R6Jrs7ZitIJi5AE=
+=QZ9U
+-----END PGP SIGNATURE-----
+
+--2hZyzmXD+ZbltuU1--
