@@ -1,454 +1,183 @@
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
+Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 048893839B7
-	for <bridge@lists.linux.dev>; Tue, 12 May 2026 10:34:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E612938D3FD
+	for <bridge@lists.linux.dev>; Tue, 12 May 2026 13:17:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778582063; cv=none; b=J3AhmDfUPfm/WQq84e7VWTeL5ec3462TdRUYVekOxQpnp23h2xZq9Ah0HpaWHwptrlMqKfW8XSEGWm9mvT4XIEhaJbMsrLW75G8wY1b01qbs0LHhgBN88jRmvLDk+MSVlCkrTniNbRxcUQxhwX3WAR+h0ma6qzxNTV9uhhW+lVI=
+	t=1778591866; cv=none; b=WU5jTAOQb1zpZXWTF7QMecA6OEe89ZZ+9YOSZYaHwQILDryelFKFUiD9rP0jPUjGyp47FeRiPM87hQjm4HEXV4ovCWyvDx6vtWWaNhRG8ibdsqaxvDfdVWutnwKcqmLPW2smQfviJvSamwTVbxuYo8s3VlhD1+exbDFcPT66Vbw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778582063; c=relaxed/simple;
-	bh=eEK9CSmflTinHxnclisn+SM8hm5DQJJDluFre7uQ/MA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DxJkcS5/UjNtV0AF4zG+1XxXmWjHb8dSCEaGv1uURswbb/nRNAPO7BqAs/65wy4U+lMwlRHQnq6seUfG4qbN1LQ0JPwCnCpAeYFQt7cpVTGKwl2nzhL7SI+Lz3pxGmDtRM17wZPrlr1TeQ2k1gBhWP4jcBZ+PyA9TU23U+YP5QY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KvfWKZ6N; arc=none smtp.client-ip=209.85.208.54
+	s=arc-20240116; t=1778591866; c=relaxed/simple;
+	bh=AaSElHOtQvI/PMMQbN50yT1nLckA2+tupeEMNVvVjEU=;
+	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QyYGhj2eFwL16b5x5dinbkYo6+RBdn4wkXRGTsGFAX45lV6XoYGqHTk9ah9Ocr88XgbfAnw4P2iVBg8h+BzlQQsJw5LPowqRgp1W+L78CwfWegW7zzvrXeNe6EZRKKhUTYfzAub1GPWza6mn2e0pkJ/SjKCRG2FFmcJrLi0W1Iw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ko6Y/BCy; arc=none smtp.client-ip=209.85.208.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KvfWKZ6N"
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-67e9b3037dcso7536188a12.0
-        for <bridge@lists.linux.dev>; Tue, 12 May 2026 03:34:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ko6Y/BCy"
+Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-393a44854d2so42918681fa.3
+        for <bridge@lists.linux.dev>; Tue, 12 May 2026 06:17:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778582055; x=1779186855; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VufqCM4273TfrwjnOjJJxWiUfnlQlQVqbX6N4j1aTUk=;
-        b=KvfWKZ6Nz7M7U03ZAHcpwozTTCtjKSOn3NlEXPyZQrhV/FMttxz7GdMKeqF5vWILz5
-         i21N2c/ELWwz7MqHJtDfTn7AXVRjP3kOXhrieBTXfXkymFIExZzDO92DdmlsiCbNFC0P
-         XqFum4TPki4kURlIVM5JFJI980gkgYCkRqATv2iVacqvj5aRMkM1b6OugSdAPkMhTpuI
-         IR7tzkkisFMljGAFnco78MXNWZkvShJXYsgToqZFcm0XY1CLi4cLFZbOw5b9jCykRx0l
-         A9k3nNvUxX1cW8uSTTY/23AsVWKkxSp9pTLR1NQlDXMH28p/oQvbnWuETn6/H/el1iZU
-         mMCg==
+        d=gmail.com; s=20251104; t=1778591862; x=1779196662; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=pslgnpi6oJHX0FC9c/oZUmb0rO29LqRdvT8VmcUjOsw=;
+        b=Ko6Y/BCyU6iL4HhVMgkbbLTWRjZbCoJYu1W0lmWje/rRNfmVrlO7nl18tdyinwcmqA
+         zgXKbdEpfBmcGaiVdYB+cjBBZFL+h1QXuDEq46rUG7toVDonfB+nVdxOy0v/xNMy0XFT
+         lbgAkRFPRmwdIdcxG/ZskuGpVjCthFhvmuAmyIbQDA9+ILUIV0XCJbuaB0/xQMGdNXUw
+         0yV1fAZuuqsk8Kiw1hkywkNwYgUzmx/CRB96iafXLn0GwDLd7HNtdRWPNyDD2t5puAl8
+         CBoiB0KVeueDQZoS9txKXREN1n8rpSchwqOQERM1lEVuqgvKG00BCpYkc+rkGQz6CMCe
+         fMQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778582055; x=1779186855;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=VufqCM4273TfrwjnOjJJxWiUfnlQlQVqbX6N4j1aTUk=;
-        b=W+m3QvY57Uy0IXFie/jEVbV97TRW+lWPRtCOOSqMzPLGT79bzJpomQzDvC92AfeBwf
-         Q71BVc/XKYnAHL1/t0ECaqLrXEsF8wuFr2Hmhs73Xt9g7CTPCjvZxnc6UGrp+TeNRC4c
-         iUuwEkJWjgLG+xr+9kf8Lv+BxaJUQhuNT/ci17jUVk1vmY+xxlKxezQVCF1Skz84lOdt
-         csDwsX5UkjGvoktW4rZQWSUVcwC4aTFqGPzdVKbRPnGLlZiwGiEa7i5NtJQi6dR2zeC6
-         VmPnQ/hMKywCWlJevnJjzuT4Fp7fnilbRWAljtKhab1LP8VKl+zly1Gm4myI9EciqAq/
-         W1Tw==
-X-Forwarded-Encrypted: i=1; AFNElJ/nPMUvNZLBZtJjUeAKfbGR995NTV974IR8L/lAE4jgDdhClneWLShfMoIWqKTKj0vtsogOBBo=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZfnXAYK4aAVupqx/9311NM7zo0S615gASfcakAlohtvg4zcM+
-	hC0kY7UX3JJprXO8+1cwB0FXJVjbpbDfjUqYovaXv7icnVH+00TCaD9M
-X-Gm-Gg: Acq92OGdFHhVnvW5TfYUUvhAtZx4XRgvFZex9TzRV+LOmxynPVu7xGLu8OYJkLIc9fQ
-	LIuNAuLvn7hqZUSgBMKSBIo2hppOmC0inB2p9bNvaoGUHgo6rlwMGVy56biaP++HHgb0EsHQ1Fg
-	R7npq0fnAiHqZhwoix2Ux2DNlRDhwsB06Ro2CP1GrrELeHN+KmgDSGkaOq/Uc/xO4RaF7+QNVsp
-	NSLUwLpUuU/G9sWwY9FFm1uuPDXVvHQRZ15/MYUz4gZdxW3qUMafMYTHGSLirLIjPpX9x0hHPpc
-	YcbhBHiqxbCmnFJXb/Pvc0wVpUhB2Ko79nCBiroUTC8PDDYoRJwFrPXCfQIVcXP5zmJI8masPVI
-	8bxcnDxrNvnWv1W9W6S8zy+JzRSqqeK0sQDaCIjVFUKnZQ2bZ7OkcNALZ9NUEDcvRwqOULfpi8u
-	b6ZmtQmbR7+T78p7kn6H+I7UlFBK+aVYbLoMCVttQdosDUt+JyV+iyMG5UO5+u+B11tcQpfjyFJ
-	t/AKuMIkTwuKhKpVl/F8VXepoXWvwrcQ2900cBOjMR6UvS1n3L0eg0=
-X-Received: by 2002:a05:6402:518a:b0:67b:790e:bf12 with SMTP id 4fb4d7f45d1cf-67ef07ba89cmr9095781a12.12.1778582055128;
-        Tue, 12 May 2026 03:34:15 -0700 (PDT)
-Received: from eric (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-67ef0e1c044sm4629218a12.27.2026.05.12.03.34.13
+        d=1e100.net; s=20251104; t=1778591862; x=1779196662;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:date:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pslgnpi6oJHX0FC9c/oZUmb0rO29LqRdvT8VmcUjOsw=;
+        b=g5tpsN+g/SOmZMOWANxjuyIZ5T/lVZfeuTcM8j5ktJkXYL0jqdSMzwXz1dKW5zJjIC
+         aBTmjoobmzBQkcqFU103fIVDAscbjSLhTPijGIAtPFWtVwu5w0Gv8pQVp+yhwgvwxKq8
+         9+XwoC+LQFxh/iVVyzuHVj/Q0pvUTWMBnhXfvAOPjKsDkYnV71vpO0Qt1II+EAE+LLdl
+         pCnWtp6mehfcQgM3X6+MT548zLcgRdmdDS8Yarw4qp3ZkaPk153Cuxqv1iLeTxkaBkQa
+         34ZSorELy4mtf7Q+4YBT/NHxedsOUNBN4QgFNtHq5v9O9VzC+i88KVzvWzrWZcxFoagC
+         0wkg==
+X-Forwarded-Encrypted: i=1; AFNElJ97/RSzfmvG+csJGxra7IdCL7ICM0s9URgKURgeO5SRvFcoa/BkP2AeZi5VQy9T5RL0U5kJuw0=@lists.linux.dev
+X-Gm-Message-State: AOJu0YzMlK1yzaoREIP4Vu4gw4fvYjXaThFPeQEthcI7f3ajYycIKQw8
+	zb2EK2+pX80EEaHTVfzuIOGPcn1Ahv752qy8MJB2cIc13qmxuh95H9HC
+X-Gm-Gg: Acq92OHO8XDIfiEA6wJPr1/6oktk3SejXS9X54/DfXJZGd/bLVf85pf0drjNTTibaok
+	pru0cwgQzP52NWDyu44LU2Ypqb/v3krmws+PbDMm21m6O/uulpotyOUNPKazZ9WFI08dmRYAE1X
+	Qhw8Skxvf8D1atXMKxE4NKudQQ4pvyMxd8zEAPQ2uHcAu5Pvrdwa7Fk6sNaHoFvGuyxjyzN3otw
+	hEG9n9fBOL2cE8bZKGWubG4N/pHKSLRBXiMSmYpUsSL48yeMAOzbP/7OojPznzC+Jp+Ije625H8
+	GwxxD+HtDaZanV1xJni8b//XYyRFPkMc3Vsgu+VJiu0D5GXrudN2cghirMMv8OWmUqwZ3bwSSX2
+	CynWCF16gbeaHKQ56U3hGqmTUNoKKeR24lVipC89+XRnEN44nO9ZF86yxGHtTthml
+X-Received: by 2002:a2e:a80b:0:b0:38c:63df:8298 with SMTP id 38308e7fff4ca-3940819a961mr45586531fa.28.1778591861755;
+        Tue, 12 May 2026 06:17:41 -0700 (PDT)
+Received: from milan ([2001:9b1:d5a0:a500::24b])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-393fa029671sm32172131fa.36.2026.05.12.06.17.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 03:34:14 -0700 (PDT)
-From: Eric Woudstra <ericwouds@gmail.com>
-To: Pablo Neira Ayuso <pablo@netfilter.org>,
-	Florian Westphal <fw@strlen.de>,
-	Phil Sutter <phil@nwl.cc>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>
-Cc: netfilter-devel@vger.kernel.org,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH v20 nf-next 2/2] netfilter: bridge: Add conntrack double vlan and pppoe
-Date: Tue, 12 May 2026 12:33:47 +0200
-Message-ID: <20260512103347.102746-3-ericwouds@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260512103347.102746-1-ericwouds@gmail.com>
-References: <20260512103347.102746-1-ericwouds@gmail.com>
+        Tue, 12 May 2026 06:17:41 -0700 (PDT)
+From: Uladzislau Rezki <urezki@gmail.com>
+X-Google-Original-From: Uladzislau Rezki <urezki@milan>
+Date: Tue, 12 May 2026 15:17:39 +0200
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: Ido Schimmel <idosch@nvidia.com>,
+	syzbot <syzbot+8b12fc6e0fb139765b58@syzkaller.appspotmail.com>,
+	bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com,
+	horms@kernel.org, kuba@kernel.org, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org,
+	syzkaller-bugs@googlegroups.com, fw@strlen.de
+Subject: Re: [syzbot] [bridge?] kernel BUG in __get_vm_area_node
+Message-ID: <agMoc9Bvcxis8mT7@milan>
+References: <69ff8c7c.050a0220.1036b8.000b.GAE@google.com>
+ <20260512084754.GA181587@shredder>
+ <agLyLko3Et-V2mRV@pc636>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <agLyLko3Et-V2mRV@pc636>
 
-In a bridge, until now, it is possible to track connections of plain
-ip(v6) and ip(v6) encapsulated in single 802.1q or 802.1ad.
+On Tue, May 12, 2026 at 11:26:06AM +0200, Uladzislau Rezki wrote:
+> On Tue, May 12, 2026 at 11:47:54AM +0300, Ido Schimmel wrote:
+> > On Sat, May 09, 2026 at 12:35:24PM -0700, syzbot wrote:
+> > > Hello,
+> > > 
+> > > syzbot found the following issue on:
+> > > 
+> > > HEAD commit:    9207d47f966b Merge tag 'for-linus' of git://git.kernel.org..
+> > > git tree:       upstream
+> > > console output: https://syzkaller.appspot.com/x/log.txt?x=17e44d06580000
+> > > kernel config:  https://syzkaller.appspot.com/x/.config?x=d0f0911eedbc130a
+> > > dashboard link: https://syzkaller.appspot.com/bug?extid=8b12fc6e0fb139765b58
+> > > compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+> > > userspace arch: i386
+> > > 
+> > > Unfortunately, I don't have any reproducer for this issue yet.
+> > > 
+> > > Downloadable assets:
+> > > disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-9207d47f.raw.xz
+> > > vmlinux: https://storage.googleapis.com/syzbot-assets/6c5e883f31aa/vmlinux-9207d47f.xz
+> > > kernel image: https://storage.googleapis.com/syzbot-assets/19f3e863ae5c/bzImage-9207d47f.xz
+> > > 
+> > > IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> > > Reported-by: syzbot+8b12fc6e0fb139765b58@syzkaller.appspotmail.com
+> > > 
+> > > ------------[ cut here ]------------
+> > > kernel BUG at mm/vmalloc.c:3206!
+> > 
+> > It seems that this bug was fixed by commit 30c19366636f ("mm: fix BUG
+> > splat with kvmalloc + GFP_ATOMIC"), but then commit c6307674ed82 ("mm:
+> > kvmalloc: add non-blocking support for vmalloc") re-introduced it.
+> > 
+> > Uladzislau, can you please look into it?
+> > 
+> > Note that the bridge is calling rhashtable_lookup_insert_fast() with BH
+> > disabled.
+> > 
+> Yep, since vmalloc can be called with ATOMIC/NOWAIT flags now. I am
+> checking this. Probably we can just remove below check:
+> 
+> <snip>
+> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+> index 676851d5cfe7..3d338e4bcbf7 100644
+> --- a/mm/vmalloc.c
+> +++ b/mm/vmalloc.c
+> @@ -3209,7 +3209,6 @@ struct vm_struct *__get_vm_area_node(unsigned long size,
+>         struct vm_struct *area;
+>         unsigned long requested_size = size;
+> 
+> -       BUG_ON(in_interrupt());
+>         size = ALIGN(size, 1ul << shift);
+>         if (unlikely(!size))
+>                 return NULL;
+> <snip>
+> 
+> We have already the check:
+> 
+> 	gfp_mask = gfp_mask & GFP_RECLAIM_MASK;
+> 	allow_block = gfpflags_allow_blocking(gfp_mask);
+> 	might_sleep_if(allow_block);
+> 
+> in alloc_vmap_area().
+> 
+Actually since we are not allowed to call vmalloc from NMI nor IRQ
+context. We should keep the check. But in a slightly different form:
 
-This patch adds the capability to track connections when the connection
-is (also) encapsulated in PPPoE. It also adds the capability to track
-connections that are encapsulated in an inner 802.1q, combined with an
-outer 802.1ad or 802.1q encapsulation.
+<snip>
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 676851d5cfe7..273bbe49eaef 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -3209,7 +3209,7 @@ struct vm_struct *__get_vm_area_node(unsigned long size,
+ 	struct vm_struct *area;
+ 	unsigned long requested_size = size;
+ 
+-	BUG_ON(in_interrupt());
++	BUG_ON(in_nmi() || in_hardirq());
+ 	size = ALIGN(size, 1ul << shift);
+ 	if (unlikely(!size))
+ 		return NULL;
+<snip>
 
-To prevent mixing connections that are tagged differently in the L2
-encapsulations, one should separate them using conntrack zones.
-Using a conntrack zone is a hard requirement for the newly added
-encapsulations of the tracking capability inside a bridge.
+if any context disables BH, i.e. local_bh_disable() it does not mean we
+are in IRQ context. Furthermore the documentation about in_interrupt()
+says:
 
-Also handling of de-/re-fragmenting is patched accordingly.
+<snip>
+/*
+ * The following macros are deprecated and should not be used in new code:
+ * in_softirq()   - We have BH disabled, or are processing softirqs
+ * in_interrupt() - We're in NMI,IRQ,SoftIRQ context or have BH disabled
+ */
+#define in_softirq()		(softirq_count())
+#define in_interrupt()		(irq_count())
+<snip>
 
-Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
----
- include/linux/netfilter_bridge.h           |   6 +
- net/bridge/netfilter/nf_conntrack_bridge.c | 203 ++++++++++++++++++---
- 2 files changed, 182 insertions(+), 27 deletions(-)
+those are should not be used.
 
-diff --git a/include/linux/netfilter_bridge.h b/include/linux/netfilter_bridge.h
-index 743475ca7e9d5..51e80b14fe3f4 100644
---- a/include/linux/netfilter_bridge.h
-+++ b/include/linux/netfilter_bridge.h
-@@ -10,6 +10,12 @@ struct nf_bridge_frag_data {
- 	bool    vlan_present;
- 	u16     vlan_tci;
- 	__be16  vlan_proto;
-+	bool    inner_vlan_present;
-+	u16     inner_vlan_tci;
-+	__be16  inner_vlan_proto;
-+	bool    pppoe_present;
-+	__be16  pppoe_sid;
-+	__be16  pppoe_proto;
- };
- 
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
-diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
-index 58a33d0380b00..7e152d1341107 100644
---- a/net/bridge/netfilter/nf_conntrack_bridge.c
-+++ b/net/bridge/netfilter/nf_conntrack_bridge.c
-@@ -16,6 +16,7 @@
- #include <net/netfilter/nf_conntrack_helper.h>
- #include <net/netfilter/nf_conntrack_bridge.h>
- 
-+#include <linux/ppp_defs.h>
- #include <linux/netfilter_ipv4.h>
- 
- #include "../br_private.h"
-@@ -142,7 +143,8 @@ static void br_skb_cb_restore(struct sk_buff *skb,
- }
- 
- static unsigned int nf_ct_br_defrag4(struct sk_buff *skb,
--				     const struct nf_hook_state *state)
-+				     const struct nf_hook_state *state,
-+				     int offset)
- {
- 	u16 zone_id = NF_CT_DEFAULT_ZONE_ID;
- 	enum ip_conntrack_info ctinfo;
-@@ -153,6 +155,9 @@ static unsigned int nf_ct_br_defrag4(struct sk_buff *skb,
- 	if (!ip_is_fragment(ip_hdr(skb)))
- 		return NF_ACCEPT;
- 
-+	if (offset)
-+		__skb_pull(skb, offset);
-+
- 	ct = nf_ct_get(skb, &ctinfo);
- 	if (ct)
- 		zone_id = nf_ct_zone_id(nf_ct_zone(ct), CTINFO2DIR(ctinfo));
-@@ -165,6 +170,8 @@ static unsigned int nf_ct_br_defrag4(struct sk_buff *skb,
- 	if (!err) {
- 		br_skb_cb_restore(skb, &cb, IPCB(skb)->frag_max_size);
- 		skb->ignore_df = 1;
-+		if (offset)
-+			__skb_push(skb, offset);
- 		return NF_ACCEPT;
- 	}
- 
-@@ -172,7 +179,8 @@ static unsigned int nf_ct_br_defrag4(struct sk_buff *skb,
- }
- 
- static unsigned int nf_ct_br_defrag6(struct sk_buff *skb,
--				     const struct nf_hook_state *state)
-+				     const struct nf_hook_state *state,
-+				     int offset)
- {
- #if IS_ENABLED(CONFIG_NF_DEFRAG_IPV6)
- 	u16 zone_id = NF_CT_DEFAULT_ZONE_ID;
-@@ -181,6 +189,9 @@ static unsigned int nf_ct_br_defrag6(struct sk_buff *skb,
- 	const struct nf_conn *ct;
- 	int err;
- 
-+	if (offset)
-+		__skb_pull(skb, offset);
-+
- 	ct = nf_ct_get(skb, &ctinfo);
- 	if (ct)
- 		zone_id = nf_ct_zone_id(nf_ct_zone(ct), CTINFO2DIR(ctinfo));
-@@ -194,7 +205,12 @@ static unsigned int nf_ct_br_defrag6(struct sk_buff *skb,
- 		return NF_STOLEN;
- 
- 	br_skb_cb_restore(skb, &cb, IP6CB(skb)->frag_max_size);
--	return err == 0 ? NF_ACCEPT : NF_DROP;
-+	if (err)
-+		return NF_DROP;
-+
-+	if (offset)
-+		__skb_push(skb, offset);
-+	return NF_ACCEPT;
- #else
- 	return NF_ACCEPT;
- #endif
-@@ -236,58 +252,139 @@ static int nf_ct_br_ipv6_check(const struct sk_buff *skb)
- 	return 0;
- }
- 
-+static int nf_ct_bridge_inner(struct sk_buff *skb, __be16 *proto, u32 *len,
-+			      struct nf_bridge_frag_data *data)
-+{
-+	if (data) {
-+		data->inner_vlan_present = false;
-+		data->pppoe_present = false;
-+	}
-+
-+	switch (*proto) {
-+	case htons(ETH_P_PPP_SES): {
-+		struct ppp_hdr {
-+			struct pppoe_hdr hdr;
-+			__be16 proto;
-+		} *ph;
-+
-+		if (!pskb_may_pull(skb, PPPOE_SES_HLEN))
-+			return -1;
-+		ph = (struct ppp_hdr *)(skb->data);
-+		switch (ph->proto) {
-+		case htons(PPP_IP):
-+			*proto = htons(ETH_P_IP);
-+			if (len)
-+				*len = ntohs(ph->hdr.length) - 2;
-+			if (data) {
-+				data->pppoe_present = true;
-+				data->pppoe_sid = ph->hdr.sid;
-+				data->pppoe_proto = ph->proto;
-+			}
-+			skb_set_network_header(skb, PPPOE_SES_HLEN);
-+			return PPPOE_SES_HLEN;
-+		case htons(PPP_IPV6):
-+			*proto = htons(ETH_P_IPV6);
-+			if (len)
-+				*len = ntohs(ph->hdr.length) - 2;
-+			if (data) {
-+				data->pppoe_present = true;
-+				data->pppoe_sid = ph->hdr.sid;
-+				data->pppoe_proto = ph->proto;
-+			}
-+			skb_set_network_header(skb, PPPOE_SES_HLEN);
-+			return PPPOE_SES_HLEN;
-+		}
-+		break;
-+	}
-+	case htons(ETH_P_8021Q): {
-+		struct vlan_hdr *vhdr;
-+
-+		if (!pskb_may_pull(skb, VLAN_HLEN))
-+			return -1;
-+		vhdr = (struct vlan_hdr *)(skb->data);
-+		*proto = vhdr->h_vlan_encapsulated_proto;
-+		if (data) {
-+			data->inner_vlan_present = true;
-+			data->inner_vlan_tci = vhdr->h_vlan_TCI;
-+			data->inner_vlan_proto = vhdr->h_vlan_encapsulated_proto;
-+		}
-+		skb_set_network_header(skb, VLAN_HLEN);
-+		return VLAN_HLEN;
-+	}
-+	}
-+	return 0;
-+}
-+
- static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
- 				     const struct nf_hook_state *state)
- {
- 	struct nf_hook_state bridge_state = *state;
-+	int ret = NF_ACCEPT, offset = 0;
- 	enum ip_conntrack_info ctinfo;
-+	u32 len, pppoe_len = 0;
- 	struct nf_conn *ct;
--	u32 len;
--	int ret;
-+	__be16 proto;
- 
- 	ct = nf_ct_get(skb, &ctinfo);
- 	if ((ct && !nf_ct_is_template(ct)) ||
- 	    ctinfo == IP_CT_UNTRACKED)
- 		return NF_ACCEPT;
- 
--	switch (skb->protocol) {
--	case htons(ETH_P_IP):
--		if (!pskb_may_pull(skb, sizeof(struct iphdr)))
-+	proto = skb->protocol;
-+
-+	if (ct && nf_ct_zone_id(nf_ct_zone(ct), CTINFO2DIR(ctinfo)) !=
-+			NF_CT_DEFAULT_ZONE_ID) {
-+		offset = nf_ct_bridge_inner(skb, &proto, &pppoe_len, NULL);
-+		if (offset < 0)
- 			return NF_ACCEPT;
-+	}
-+
-+	switch (proto) {
-+	case htons(ETH_P_IP):
-+		if (!pskb_may_pull(skb, offset + sizeof(struct iphdr)))
-+			goto do_not_track;
- 
- 		len = skb_ip_totlen(skb);
--		if (pskb_trim_rcsum(skb, len))
--			return NF_ACCEPT;
-+		if (pppoe_len && pppoe_len != len)
-+			goto do_not_track;
-+		if (pskb_trim_rcsum(skb, offset + len))
-+			goto do_not_track;
- 
- 		if (nf_ct_br_ip_check(skb))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		bridge_state.pf = NFPROTO_IPV4;
--		ret = nf_ct_br_defrag4(skb, &bridge_state);
-+		ret = nf_ct_br_defrag4(skb, &bridge_state, offset);
- 		break;
- 	case htons(ETH_P_IPV6):
--		if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
--			return NF_ACCEPT;
-+		if (!pskb_may_pull(skb, offset + sizeof(struct ipv6hdr)))
-+			goto do_not_track;
- 
- 		len = sizeof(struct ipv6hdr) + skb_ipv6_payload_len(skb);
--		if (pskb_trim_rcsum(skb, len))
--			return NF_ACCEPT;
-+		if (pppoe_len && pppoe_len != len)
-+			goto do_not_track;
-+		if (pskb_trim_rcsum(skb, offset + len))
-+			goto do_not_track;
- 
- 		if (nf_ct_br_ipv6_check(skb))
--			return NF_ACCEPT;
-+			goto do_not_track;
- 
- 		bridge_state.pf = NFPROTO_IPV6;
--		ret = nf_ct_br_defrag6(skb, &bridge_state);
-+		ret = nf_ct_br_defrag6(skb, &bridge_state, offset);
- 		break;
- 	default:
- 		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
--		return NF_ACCEPT;
-+		goto do_not_track;
- 	}
- 
--	if (ret != NF_ACCEPT)
--		return ret;
-+	if (ret == NF_ACCEPT)
-+		ret = nf_conntrack_in(skb, &bridge_state);
- 
--	return nf_conntrack_in(skb, &bridge_state);
-+do_not_track:
-+	if (offset && ret == NF_ACCEPT)
-+		skb_reset_network_header(skb);
-+
-+	return ret;
- }
- 
- static unsigned int nf_ct_bridge_in(void *priv, struct sk_buff *skb,
-@@ -340,12 +437,22 @@ nf_ct_bridge_refrag(struct sk_buff *skb, const struct nf_hook_state *state,
- 				  struct sk_buff *))
- {
- 	struct nf_bridge_frag_data data;
-+	__be16 proto;
-+	int offset;
- 
- 	if (!BR_INPUT_SKB_CB(skb)->frag_max_size)
- 		return NF_ACCEPT;
- 
- 	nf_ct_bridge_frag_save(skb, &data);
--	switch (skb->protocol) {
-+
-+	proto = skb->protocol;
-+
-+	offset = nf_ct_bridge_inner(skb, &proto, NULL, &data);
-+	if (offset < 0)
-+		return NF_ACCEPT;
-+	__skb_pull(skb, offset);
-+
-+	switch (proto) {
- 	case htons(ETH_P_IP):
- 		nf_br_ip_fragment(state->net, state->sk, skb, &data, output);
- 		break;
-@@ -366,11 +473,49 @@ static int nf_ct_bridge_frag_restore(struct sk_buff *skb,
- {
- 	int err;
- 
--	err = skb_cow_head(skb, ETH_HLEN);
--	if (err) {
--		kfree_skb(skb);
--		return -ENOMEM;
-+	if (data->pppoe_present) {
-+		struct ppp_hdr {
-+			struct pppoe_hdr hdr;
-+			__be16 proto;
-+		} *ph;
-+
-+		err = skb_cow_head(skb, PPPOE_SES_HLEN);
-+		if (err)
-+			goto error;
-+
-+		__skb_push(skb, PPPOE_SES_HLEN);
-+		skb_reset_network_header(skb);
-+		skb->protocol = htons(ETH_P_PPP_SES);
-+
-+		ph = (struct ppp_hdr *)(skb->data);
-+		ph->hdr.ver  = 1;
-+		ph->hdr.type = 1;
-+		ph->hdr.code = 0;
-+		ph->hdr.sid  = data->pppoe_sid;
-+		ph->hdr.length = htons(skb->len + 2 - PPPOE_SES_HLEN);
-+		ph->proto = data->pppoe_proto;
- 	}
-+
-+	if (data->inner_vlan_present) {
-+		struct vlan_hdr *vhdr;
-+
-+		err = skb_cow_head(skb, VLAN_HLEN);
-+		if (err)
-+			goto error;
-+
-+		__skb_push(skb, VLAN_HLEN);
-+		skb_reset_network_header(skb);
-+		skb->protocol = htons(ETH_P_8021Q);
-+
-+		vhdr = (struct vlan_hdr *)(skb->data);
-+		vhdr->h_vlan_TCI = data->inner_vlan_tci;
-+		vhdr->h_vlan_encapsulated_proto = data->inner_vlan_proto;
-+	}
-+
-+	err = skb_cow_head(skb, ETH_HLEN);
-+	if (err)
-+		goto error;
-+
- 	if (data->vlan_present)
- 		__vlan_hwaccel_put_tag(skb, data->vlan_proto, data->vlan_tci);
- 	else if (skb_vlan_tag_present(skb))
-@@ -380,6 +525,10 @@ static int nf_ct_bridge_frag_restore(struct sk_buff *skb,
- 	skb_reset_mac_header(skb);
- 
- 	return 0;
-+
-+error:
-+	kfree_skb(skb);
-+	return -ENOMEM;
- }
- 
- static int nf_ct_bridge_refrag_post(struct net *net, struct sock *sk,
--- 
-2.53.0
-
+--
+Uladzislau Rezki
