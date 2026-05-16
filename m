@@ -1,597 +1,151 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B76C26159E
-	for <bridge@lists.linux.dev>; Sat, 16 May 2026 05:09:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C494248166;
+	Sat, 16 May 2026 20:03:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778908147; cv=none; b=mVHyHuKf8ehEPywbCYNv6wtfzGhIiswiAW2Jfc0Q6puiUaVD566Eq9ko1fxk5TD8okblxZqGp9/bslJn3Y1c4MzZUCvBXYRX8DEiyHiLtxRe0bKeH4ZIlp1lV2rFa9FnZgQEnrc+kNPySQ9GopeUNdGINpCwj4VjvIgPrfyVLB4=
+	t=1778961783; cv=none; b=ZX51dUB304Yx52L4D0IIzFLeiSO1pwgD5vpAiqCeK5fazYNYd4PgLbrzXDO0I3dw873ETj+QWHVw5MP4ccLiTWzImu4RUM/CRq20ZpzxgpJTMMxpjT4TYdd4c2gahzOV435dT0t5QDwo88WLO1b800csIMlyCBAMFkR5T2cEikk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778908147; c=relaxed/simple;
-	bh=Rj09gxuPvEyqdy4zm7JNI4tHzLdAhb0vATom6J1GmC0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ugr29HrLT8BUEEmZTdoYl4FJc29uJErbsnRyLKzUi1q9NxLBzlf9ZkPTCIKLzxSwQQuLlJTxIp62GF9xpMtHHLnUXk7zBdTFJjT8M9yVU0maJ8WNHx5Tza2JarkxGbYynRsHfeeE/Y4KuMQz3jfHq+13lXg6njrjUhuLiKBiOE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GUyfVnfg; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778961783; c=relaxed/simple;
+	bh=PN9uZdwK+CxAxLvRlU7rBUAIwFyUXnoGDiuWJmFDlxE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gJAEdbSosJI6iVjVWAoW57Z0u+nnDtF8yyrSCi7ia42xuR61bgBJ7qDlod2bPkaeV/U31LCh5Nn5ain4+5NPNfOzYGMgYh4Xe5sQPwxZ3jwUR3k9Mqf3/S8DbbR7Sc6G/DQs2Aq5zMWMDGVjQrI40FlMiNSX7T+E0UVOSARrkwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=lCYhNtqU; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GUyfVnfg"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4891e5b9c1fso3382615e9.2
-        for <bridge@lists.linux.dev>; Fri, 15 May 2026 22:09:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778908144; x=1779512944; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UpzLzcWJMI2XCFlXB72klyPtV1insYCtu5LqpfKuDbU=;
-        b=GUyfVnfgV+RAO5V/GwX6sHIlnJ0/obljY6+EuOB/XGkknvzKQ15Zvm3QrRDrXGbnsc
-         EjlF7aOV0QxIO4xopd+sBWFIm4cQYolTm34zCXlYsjrU9J9q34qEgymn7Km8OKVekdzK
-         kEDkAAUTQiphEEbQBnJ/BwZtAQ1rhNEL5zS+dQypVgfsCCmp7lJBLawdyQJwRT5e1xYr
-         GlAWMCTD4I8G5i4tjvOWGkS9SbsULzVpICwZHYlpf90xFZ8fFTm6F3rY5AaoLvliSI8Y
-         sq4zYcW4Rt3EOA99LLJjTpoRgoL3fqitWUImEPGQXk/onLHCN73feOJGG9kAuKTCmTS3
-         zlvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778908144; x=1779512944;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=UpzLzcWJMI2XCFlXB72klyPtV1insYCtu5LqpfKuDbU=;
-        b=hjWCWTq9V3v9n9ha5yJGnUL6qysGuT3LjofHz2XOFcc3+e6jJnUE9cwL1UaAoT8O9t
-         DocrXIMVz6Jw/e9EIN6djqw+35jPNx7LQk2MLP45ncJfLnMQGsjnBEEq1c21A9QOaXDH
-         BFvyb897YkJF93jyjJ6vpERWdgpBzGcLrih+xEUROcoZcy6nD+4BccCU7BuEO2692gYk
-         P+wL5TJQ8uZ3ILnMK7YIUfv9uUJN0sZoo9OzNdub1HRzbF7bxTg9TGyUZeD1IZkf1sZX
-         c0Ji0NDIj2eihPTaqlRlQV2vAljlP6141CJPXzybOd8ngJGOaJx+9WiHp4PQ33CYPNuU
-         aBng==
-X-Gm-Message-State: AOJu0YwDOU1/4l0wmW1iLPX7BQm8jtltXuc0x++rhTYhfaNPnFysg7IP
-	8SBHlrq0+5vpExvULWFMzKgj6K8jAZsUcU7AMUhZcVD3c/MdLTURZHUM
-X-Gm-Gg: Acq92OFIkPNaT0fTkX0EeKFmjpBoVy+vn+7bZjGJ5uIrixe106ndSV5CmQydxFcBNml
-	hpyeTPFvR6ajG7Y3cWMnDdZIh780u6xSKMALp7dmxhSz0O45+gko1fr1tWwmlk8ZlQ/m+jKu9Z2
-	5EpN3E+3nDu5t3okLRAUKNxJrQKpyGc0IZm9EnPVCpXYLajH58xIdO7xpJxvvQ4ctMjI2Fb9VAF
-	qQF53NZtDyyIiyxVez21NaOOxDJ29wVogHmClbwXRnCsnHk1tqGm3DjaEtAPfKBnOnbosuqJOvH
-	60hS0k65CWcDtuqz9SIstBu2drmVWFqAZN0YaLWow8Y/C7xO+EceU8cIp5PXAnvuaRFnnHyoVCV
-	iBmQwAmY0A95rBHek2ip8JGaHBLlk8mjg3F58mdOJWhAMCNT0ma0Df0PHJxY/C3hHJAXVyS4Hjr
-	wS34vR5BvWWXVnDhNAS5tWx/ZykhCVKVc+GdZV9nf/vkAA6iMrtsplPYjagXNoJc7ejbYcffw95
-	Uy+1O3f9Cw=
-X-Received: by 2002:a05:600c:848c:b0:48a:563c:c8c0 with SMTP id 5b1f17b1804b1-48fe60e51c6mr87006545e9.7.1778908143565;
-        Fri, 15 May 2026 22:09:03 -0700 (PDT)
-Received: from dohko.chello.ie (188-141-5-72.dynamic.upc.ie. [188.141.5.72])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9e768bcesm20648123f8f.4.2026.05.15.22.09.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 22:09:03 -0700 (PDT)
-From: David Carlier <devnexen@gmail.com>
-To: netdev@vger.kernel.org
-Cc: bridge@lists.linux.dev,
-	razor@blackwall.org,
-	andrew@lunn.ch,
-	David Carlier <devnexen@gmail.com>
-Subject: [RFC net-next 1/1] net: tpmr: add Two-Port MAC Relay driver
-Date: Sat, 16 May 2026 06:08:58 +0100
-Message-ID: <20260516050858.23858-2-devnexen@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260516050858.23858-1-devnexen@gmail.com>
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="lCYhNtqU"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=ZmITtLTZpI66hIzuP6HmbpRfvOldnPVLLVQuNKN6VdI=; b=lCYhNtqU8eB6kZwreSs3lkU9Sv
+	7OnOqVXwLcl2mgIWTQbCTM9DtKcGwYEHRfeJ9c6ph4uiERCpbGmOQ1vPAxJvFHCoLPrTa7Pg/LYf1
+	00z8JX0m266U+dNIzMq/sBBUnuPIYebSflbRuMPNohZaRTacqx6J00VmlTceoyF86KYY=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1wOLDm-003GIE-Tk; Sat, 16 May 2026 22:02:50 +0200
+Date: Sat, 16 May 2026 22:02:50 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: David Carlier <devnexen@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org
+Subject: Re: [RFC net-next 1/1] net: tpmr: add Two-Port MAC Relay driver
+Message-ID: <1f611710-005d-48bd-8425-a1532ca95a21@lunn.ch>
 References: <20260516050858.23858-1-devnexen@gmail.com>
+ <20260516050858.23858-2-devnexen@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260516050858.23858-2-devnexen@gmail.com>
 
-Add a driver implementing the Two-Port MAC Relay as defined by IEEE
-802.1Q-2014 §6.7.1. A TPMR is a minimal L2 relay between exactly two
-member ports: no FDB, no MAC learning, no STP, and -- by
-specification -- it forwards most of the 01:80:C2:00:00:0X reserved
-group address range that a regular bridge would consume. This makes
-it suitable as a bump-in-the-wire element that is transparent to the
-control plane on both sides (LACP, LLDP, EAPOL, and so on continue
-to reach the far end as if the relay were not present).
+> +static bool tpmr_should_relay_reserved(const u8 *dst)
+> +{
+> +	static const u8 prefix[5] = { 0x01, 0x80, 0xc2, 0x00, 0x00 };
+> +
+> +	if (memcmp(dst, prefix, sizeof(prefix)) != 0)
+> +		return true;
+> +
+> +	return dst[5] != 0x01;
 
-The driver is created with "ip link add type tpmr" and slaves are
-attached through ndo_add_slave, with a hard cap of two members.
-Forwarding is implemented as an rx_handler: a frame arriving on one
-slave is sent out the other via dev_queue_xmit(), with no FDB
-lookup. The IEEE-permitted subset of reserved multicasts is relayed;
-the remainder is delivered to the host stack via RX_HANDLER_PASS,
-preserving today's behaviour for protocols that genuinely target the
-local machine. Only 01:80:C2:00:00:01 (IEEE 802.3x PAUSE) is
-terminated, as required by the MAC layer.
+I would assume the traffic is mostly unicast, with only a few
+multicast thrown in. So would it not make sense to first test for
+multicast?  Only if it is multicast do you need to look deeper into
+the address?
 
-The master's carrier follows the logical AND of both slaves'
-carriers, propagated via a netdev notifier. Both slaves enter
-IFF_PROMISC on enslave (and the refcount is balanced on detach) so
-the relay sees all unicast on the wire. rx_handler_register()
-provides exclusivity for free: a netdevice that is already a member
-of a bridge, bond, team, or macvlan is rejected with -EBUSY at
-enslave time.
+Also, is_multicast_ether_addr() exists.
 
-MTU consistency is enforced at enslave: a second slave whose MTU
-differs from the first is rejected.
+> +	eh = eth_hdr(skb);
+> +	if (is_multicast_ether_addr(eh->h_dest) &&
+> +	    !tpmr_should_relay_reserved(eh->h_dest))
+> +		return RX_HANDLER_PASS;
 
-Inspired by OpenBSD's tpmr(4) (David Gwynne, 2019), reimplemented
-against Linux's rx_handler / rtnl_link_ops infrastructure.
+Ah, you already have it here. I still think this can be optimized.
 
-Signed-off-by: David Carlier <devnexen@gmail.com>
----
- drivers/net/Kconfig          |  14 ++
- drivers/net/Makefile         |   1 +
- drivers/net/tpmr.c           | 409 +++++++++++++++++++++++++++++++++++
- include/uapi/linux/if_link.h |   8 +
- 4 files changed, 432 insertions(+)
- create mode 100644 drivers/net/tpmr.c
+> +	/* Enforce MTU consistency between the two members. */
+> +	if (tpmr->n_ports == 1) {
+> +		struct net_device *first;
+> +
+> +		first = rtnl_dereference(tpmr->ports[tpmr->ports[0].slot].dev);
+> +		if (first && first->mtu != slave_dev->mtu) {
+> +			NL_SET_ERR_MSG(extack,
+> +				       "Member MTU must match the other member's");
+> +			return -EINVAL;
+> +		}
+> +	}
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index ff79c466712d..f23de9f097e8 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -242,6 +242,20 @@ config VXLAN
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called vxlan.
- 
-+config TPMR
-+        tristate "Two-Port MAC Relay (TPMR) driver"
-+        help
-+          This driver provides an IEEE 802.1Q-2014 §6.7.1 Two-Port MAC
-+          Relay netdevice: a stripped-down L2 relay between exactly two
-+          member ports, with no MAC learning, no FDB and no STP. Unlike
-+          the bridge driver it forwards the IEEE-reserved
-+          01:80:c2:00:00:0x group (LACPDUs, LLDP, EAPOL/802.1X, ...),
-+          which makes it suitable as a transparent bump-in-the-wire in
-+          deployments using link aggregation, MACsec, or 802.1X.
-+
-+          To compile this driver as a module, choose M here: the module
-+          will be called tpmr.
-+
- config GENEVE
- 	tristate "Generic Network Virtualization Encapsulation"
- 	depends on INET
-diff --git a/drivers/net/Makefile b/drivers/net/Makefile
-index 88e4c485d6b2..9e9c84614b09 100644
---- a/drivers/net/Makefile
-+++ b/drivers/net/Makefile
-@@ -33,6 +33,7 @@ obj-$(CONFIG_TUN) += tun.o
- obj-$(CONFIG_TAP) += tap.o
- obj-$(CONFIG_VETH) += veth.o
- obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
-+obj-$(CONFIG_TPMR) += tpmr.o
- obj-$(CONFIG_VXLAN) += vxlan/
- obj-$(CONFIG_GENEVE) += geneve.o
- obj-$(CONFIG_BAREUDP) += bareudp.o
-diff --git a/drivers/net/tpmr.c b/drivers/net/tpmr.c
-new file mode 100644
-index 000000000000..a8156762d875
---- /dev/null
-+++ b/drivers/net/tpmr.c
-@@ -0,0 +1,409 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * IEEE 802.1Q-2014 §6.7.1 Two-Port MAC Relay driver
-+ *
-+ * A TPMR is a minimal L2 relay between exactly two member ports: no FDB,
-+ * no MAC learning, no STP. Frames received on one member are forwarded
-+ * unconditionally out the other, including the IEEE-reserved
-+ * 01:80:c2:00:00:0x group (LACPDUs, LLDP, EAPOL, ...) except for
-+ * 01:80:c2:00:00:01 (PAUSE), which is MAC-terminated by spec.
-+ *
-+ * Inspired by OpenBSD's tpmr(4) (dlg@, 2019), reimplemented against
-+ * Linux's rx_handler / rtnl_link_ops infrastructure.
-+ */
-+
-+#include <linux/etherdevice.h>
-+#include <linux/ethtool.h>
-+#include <linux/if_arp.h>
-+#include <linux/if_link.h>
-+#include <linux/kernel.h>
-+#include <linux/list.h>
-+#include <linux/module.h>
-+#include <linux/netdevice.h>
-+#include <linux/rtnetlink.h>
-+#include <linux/u64_stats_sync.h>
-+#include <net/rtnetlink.h>
-+
-+#define TPMR_DRV_NAME         "tpmr"
-+#define TPMR_DRV_VERSION      "0.1"
-+#define TPMR_MAX_PORTS                2
-+
-+struct tpmr_priv;
-+
-+struct tpmr_port {
-+	struct net_device __rcu         *dev;
-+	struct tpmr_priv                *tpmr;
-+	unsigned int                    slot;
-+};
-+
-+struct tpmr_priv {
-+	struct net_device               *dev;
-+	struct tpmr_port                ports[TPMR_MAX_PORTS];
-+	unsigned int                    n_ports;
-+};
-+
-+static const struct net_device_ops tpmr_netdev_ops;
-+static struct rtnl_link_ops tpmr_link_ops __read_mostly;
-+static int tpmr_device_event(struct notifier_block *nb,
-+			     unsigned long event, void *ptr);
-+
-+static struct notifier_block tpmr_notifier_block __read_mostly = {
-+	.notifier_call = tpmr_device_event,
-+};
-+
-+/*
-+ * IEEE 802.1Q-2014 §8.6.3 Table 8-1 — a TPMR forwards every reserved
-+ * 01:80:c2:00:00:0x address except 01:80:c2:00:00:01 (IEEE 802.3x PAUSE),
-+ * which is MAC-terminated by spec. Forwarding LACPDUs (02), 802.1X PAE
-+ * (03), LLDP (0e), etc. end-to-end is the whole point of this driver.
-+ */
-+static bool tpmr_should_relay_reserved(const u8 *dst)
-+{
-+	static const u8 prefix[5] = { 0x01, 0x80, 0xc2, 0x00, 0x00 };
-+
-+	if (memcmp(dst, prefix, sizeof(prefix)) != 0)
-+		return true;
-+
-+	return dst[5] != 0x01;
-+}
-+
-+static rx_handler_result_t tpmr_handle_frame(struct sk_buff **pskb)
-+{
-+	struct sk_buff *skb = *pskb;
-+	struct net_device *peer_dev;
-+	struct tpmr_port *p;
-+	struct ethhdr *eh;
-+	unsigned int len;
-+
-+	skb = skb_share_check(skb, GFP_ATOMIC);
-+	if (unlikely(!skb))
-+		return RX_HANDLER_CONSUMED;
-+	*pskb = skb;
-+
-+	p = rcu_dereference(skb->dev->rx_handler_data);
-+	if (unlikely(!p))
-+		return RX_HANDLER_PASS;
-+
-+	peer_dev = rcu_dereference(p->tpmr->ports[!p->slot].dev);
-+	if (!peer_dev || !netif_running(peer_dev) ||
-+	    !netif_carrier_ok(peer_dev))
-+		goto drop;
-+
-+	eh = eth_hdr(skb);
-+	if (is_multicast_ether_addr(eh->h_dest) &&
-+	    !tpmr_should_relay_reserved(eh->h_dest))
-+		return RX_HANDLER_PASS;
-+
-+	/* eth_type_trans() pulled the L2 header on receive; push it back
-+	 * before dev_queue_xmit().
-+	 */
-+	skb_push(skb, ETH_HLEN);
-+	skb->dev = peer_dev;
-+
-+	len = skb->len;
-+	dev_sw_netstats_rx_add(p->tpmr->dev, len);
-+
-+	if (dev_queue_xmit(skb) == NET_XMIT_SUCCESS)
-+		dev_sw_netstats_tx_add(p->tpmr->dev, 1, len);
-+
-+	return RX_HANDLER_CONSUMED;
-+
-+drop:
-+	kfree_skb(skb);
-+	return RX_HANDLER_CONSUMED;
-+}
-+
-+/* Master carrier is the logical AND of both slaves' carriers, and we only
-+ * advertise it when both slots are populated. Called with RTNL held.
-+ */
-+static void tpmr_update_carrier(struct tpmr_priv *tpmr)
-+{
-+	struct net_device *a, *b;
-+	bool up;
-+
-+	ASSERT_RTNL();
-+
-+	a = rtnl_dereference(tpmr->ports[0].dev);
-+	b = rtnl_dereference(tpmr->ports[1].dev);
-+
-+	up = a && b && netif_carrier_ok(a) && netif_carrier_ok(b);
-+
-+	if (up)
-+		netif_carrier_on(tpmr->dev);
-+	else
-+		netif_carrier_off(tpmr->dev);
-+}
-+
-+static int tpmr_add_slave(struct net_device *dev, struct net_device *slave_dev,
-+			  struct netlink_ext_ack *extack)
-+{
-+	struct tpmr_priv *tpmr = netdev_priv(dev);
-+	struct tpmr_port *port = NULL;
-+	unsigned int slot;
-+	int err;
-+
-+	ASSERT_RTNL();
-+
-+	if (slave_dev->type != ARPHRD_ETHER) {
-+		NL_SET_ERR_MSG(extack, "Only Ethernet devices can be TPMR members");
-+		return -EINVAL;
-+	}
-+	if (slave_dev->flags & IFF_LOOPBACK) {
-+		NL_SET_ERR_MSG(extack, "Loopback cannot be a TPMR member");
-+		return -EINVAL;
-+	}
-+	if (netdev_is_rx_handler_busy(slave_dev)) {
-+		NL_SET_ERR_MSG(extack,
-+			       "Device already has an rx_handler (bridge/bond/etc.)");
-+		return -EBUSY;
-+	}
-+	if (tpmr->n_ports >= TPMR_MAX_PORTS) {
-+		NL_SET_ERR_MSG(extack, "TPMR already has two members");
-+		return -EBUSY;
-+	}
-+
-+	/* Enforce MTU consistency between the two members. */
-+	if (tpmr->n_ports == 1) {
-+		struct net_device *first;
-+
-+		first = rtnl_dereference(tpmr->ports[tpmr->ports[0].slot].dev);
-+		if (first && first->mtu != slave_dev->mtu) {
-+			NL_SET_ERR_MSG(extack,
-+				       "Member MTU must match the other member's");
-+			return -EINVAL;
-+		}
-+	}
-+
-+	for (slot = 0; slot < TPMR_MAX_PORTS; slot++) {
-+		if (!rtnl_dereference(tpmr->ports[slot].dev)) {
-+			port = &tpmr->ports[slot];
-+			break;
-+		}
-+	}
-+	if (!port)
-+		return -EBUSY;  /* should not happen given n_ports check */
-+
-+	port->tpmr = tpmr;
-+	port->slot = slot;
-+
-+	err = dev_set_promiscuity(slave_dev, 1);
-+	if (err)
-+		return err;
-+
-+	err = netdev_master_upper_dev_link(slave_dev, dev, NULL, NULL, extack);
-+	if (err)
-+		goto err_promisc;
-+
-+	err = netdev_rx_handler_register(slave_dev, tpmr_handle_frame, port);
-+	if (err)
-+		goto err_upper;
-+
-+	rcu_assign_pointer(port->dev, slave_dev);
-+	tpmr->n_ports++;
-+
-+	/* Match dev->mtu to the members once a first one attaches. */
-+	if (tpmr->n_ports == 1)
-+		dev->mtu = slave_dev->mtu;
-+
-+	tpmr_update_carrier(tpmr);
-+	return 0;
-+
-+err_upper:
-+	netdev_upper_dev_unlink(slave_dev, dev);
-+err_promisc:
-+	dev_set_promiscuity(slave_dev, -1);
-+	return err;
-+}
-+
-+static int tpmr_del_slave(struct net_device *dev, struct net_device *slave_dev)
-+{
-+	struct tpmr_priv *tpmr = netdev_priv(dev);
-+	struct tpmr_port *port = NULL;
-+	unsigned int slot;
-+
-+	ASSERT_RTNL();
-+
-+	for (slot = 0; slot < TPMR_MAX_PORTS; slot++) {
-+		if (rtnl_dereference(tpmr->ports[slot].dev) == slave_dev) {
-+			port = &tpmr->ports[slot];
-+			break;
-+		}
-+	}
-+	if (!port)
-+		return -ENOENT;
-+
-+	netdev_rx_handler_unregister(slave_dev);
-+	RCU_INIT_POINTER(port->dev, NULL);
-+	netdev_upper_dev_unlink(slave_dev, dev);
-+	dev_set_promiscuity(slave_dev, -1);
-+
-+	tpmr->n_ports--;
-+	tpmr_update_carrier(tpmr);
-+	return 0;
-+}
-+
-+static int tpmr_device_event(struct notifier_block *nb,
-+			     unsigned long event, void *ptr)
-+{
-+	struct net_device *slave_dev = netdev_notifier_info_to_dev(ptr);
-+	struct net_device *master;
-+	struct tpmr_priv *tpmr;
-+
-+	if (slave_dev->reg_state == NETREG_REGISTERED) {
-+		master = netdev_master_upper_dev_get(slave_dev);
-+		if (!master || master->rtnl_link_ops != &tpmr_link_ops)
-+			return NOTIFY_DONE;
-+	} else {
-+		return NOTIFY_DONE;
-+	}
-+
-+	tpmr = netdev_priv(master);
-+
-+	switch (event) {
-+	case NETDEV_CHANGE:
-+	case NETDEV_UP:
-+	case NETDEV_DOWN:
-+		tpmr_update_carrier(tpmr);
-+		break;
-+	case NETDEV_UNREGISTER:
-+		tpmr_del_slave(master, slave_dev);
-+		break;
-+	}
-+	return NOTIFY_DONE;
-+}
-+
-+static netdev_tx_t tpmr_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+{
-+	/* Master itself doesn't transmit; frames enter via slave rx and
-+	 * exit via the peer slave's tx. Drop and count.
-+	 */
-+	kfree_skb(skb);
-+	dev_core_stats_tx_dropped_inc(dev);
-+	return NETDEV_TX_OK;
-+}
-+
-+static void tpmr_get_drvinfo(struct net_device *dev,
-+			     struct ethtool_drvinfo *drvinfo)
-+{
-+	strscpy(drvinfo->driver, TPMR_DRV_NAME, sizeof(drvinfo->driver));
-+	strscpy(drvinfo->version, TPMR_DRV_VERSION, sizeof(drvinfo->version));
-+}
-+
-+static const struct ethtool_ops tpmr_ethtool_ops = {
-+	.get_drvinfo    = tpmr_get_drvinfo,
-+	.get_link       = ethtool_op_get_link,
-+};
-+
-+static void tpmr_setup(struct net_device *dev)
-+{
-+	ether_setup(dev);
-+
-+	dev->netdev_ops         = &tpmr_netdev_ops;
-+	dev->ethtool_ops        = &tpmr_ethtool_ops;
-+	dev->needs_free_netdev  = true;
-+
-+	/* No qdisc/queue on the master — we never xmit through it. */
-+	dev->priv_flags         |= IFF_NO_QUEUE;
-+	dev->priv_flags         |= IFF_NO_RX_HANDLER;
-+
-+	/* Cosmetic: a relay is not a multicast endpoint of its own. */
-+	dev->flags              &= ~IFF_MULTICAST;
-+
-+	dev->lltx               = true;
-+	dev->hw_features        = 0;
-+
-+	eth_hw_addr_random(dev);
-+}
-+
-+static int tpmr_newlink(struct net_device *dev,
-+		struct rtnl_newlink_params *params,
-+		struct netlink_ext_ack *extack)
-+{
-+	struct tpmr_priv *tpmr = netdev_priv(dev);
-+
-+	tpmr->dev = dev;
-+	tpmr->n_ports = 0;
-+
-+	return register_netdevice(dev);
-+}
-+
-+static const struct nla_policy tpmr_policy[IFLA_TPMR_MAX + 1] = {
-+	/* reserved for future per-instance flags */
-+};
-+
-+static int __init tpmr_module_init(void)
-+{
-+	int err;
-+
-+	err = register_netdevice_notifier(&tpmr_notifier_block);
-+	if (err)
-+		return err;
-+
-+	err = rtnl_link_register(&tpmr_link_ops);
-+	if (err)
-+		unregister_netdevice_notifier(&tpmr_notifier_block);
-+	return err;
-+}
-+
-+static void __exit tpmr_module_exit(void)
-+{
-+	rtnl_link_unregister(&tpmr_link_ops);
-+	unregister_netdevice_notifier(&tpmr_notifier_block);
-+}
-+
-+static int tpmr_dev_init(struct net_device *dev)
-+{
-+	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
-+	if (!dev->tstats)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+static void tpmr_dev_uninit(struct net_device *dev)
-+{
-+	free_percpu(dev->tstats);
-+}
-+
-+static void tpmr_dellink(struct net_device *dev, struct list_head *head)
-+{
-+	struct tpmr_priv *tpmr = netdev_priv(dev);
-+	unsigned int slot;
-+
-+	for (slot = 0; slot < TPMR_MAX_PORTS; slot++) {
-+		struct net_device *slave = rtnl_dereference(tpmr->ports[slot].dev);
-+
-+		if (slave)
-+			tpmr_del_slave(dev, slave);
-+	}
-+	unregister_netdevice_queue(dev, head);
-+}
-+
-+static struct rtnl_link_ops tpmr_link_ops __read_mostly = {
-+	.kind           = TPMR_DRV_NAME,
-+	.priv_size      = sizeof(struct tpmr_priv),
-+	.setup          = tpmr_setup,
-+	.newlink        = tpmr_newlink,
-+	.dellink        = tpmr_dellink,
-+	.policy         = tpmr_policy,
-+	.maxtype        = IFLA_TPMR_MAX,
-+};
-+
-+static const struct net_device_ops tpmr_netdev_ops = {
-+	.ndo_init               = tpmr_dev_init,
-+	.ndo_uninit             = tpmr_dev_uninit,
-+	.ndo_start_xmit         = tpmr_start_xmit,
-+	.ndo_get_stats64        = dev_get_tstats64,
-+	.ndo_add_slave          = tpmr_add_slave,
-+	.ndo_del_slave          = tpmr_del_slave,
-+	.ndo_set_mac_address    = eth_mac_addr,
-+	.ndo_validate_addr      = eth_validate_addr,
-+};
-+
-+module_init(tpmr_module_init);
-+module_exit(tpmr_module_exit);
-+
-+MODULE_AUTHOR("David Carlier <devnexen@gmail.com>");
-+MODULE_DESCRIPTION("IEEE 802.1Q Two-Port MAC Relay (TPMR) driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS_RTNL_LINK(TPMR_DRV_NAME);
-+
-diff --git a/include/uapi/linux/if_link.h b/include/uapi/linux/if_link.h
-index 46413392b402..98241bfcb6c7 100644
---- a/include/uapi/linux/if_link.h
-+++ b/include/uapi/linux/if_link.h
-@@ -456,6 +456,14 @@ enum {
- 
- #define IFLA_INET6_MAX	(__IFLA_INET6_MAX - 1)
- 
-+/* TPMR section */
-+enum {
-+	IFLA_TPMR_UNSPEC,
-+	__IFLA_TPMR_MAX,
-+};
-+
-+#define IFLA_TPMR_MAX (__IFLA_TPMR_MAX - 1)
-+
- enum in6_addr_gen_mode {
- 	IN6_ADDR_GEN_MODE_EUI64,
- 	IN6_ADDR_GEN_MODE_NONE,
--- 
-2.53.0
+This seems to assume that tpmr->ports[0] is filled first. But what
+about:
 
+ip link eth0 set master tpmr0
+ip link eth1 set master tpmr0
+ip link eth0 set nomaster
+ip link eth42 set master tpmr0
+
+> +static int tpmr_del_slave(struct net_device *dev, struct net_device *slave_dev)
+> +{
+> +	struct tpmr_priv *tpmr = netdev_priv(dev);
+> +	struct tpmr_port *port = NULL;
+> +	unsigned int slot;
+> +
+> +	ASSERT_RTNL();
+> +
+> +	for (slot = 0; slot < TPMR_MAX_PORTS; slot++) {
+> +		if (rtnl_dereference(tpmr->ports[slot].dev) == slave_dev) {
+> +			port = &tpmr->ports[slot];
+> +			break;
+> +		}
+> +	}
+
+For the above to work, there needs to be some juggling here.
+
+> +static int tpmr_device_event(struct notifier_block *nb,
+> +			     unsigned long event, void *ptr)
+> +{
+> +	struct net_device *slave_dev = netdev_notifier_info_to_dev(ptr);
+> +	struct net_device *master;
+> +	struct tpmr_priv *tpmr;
+> +
+> +	if (slave_dev->reg_state == NETREG_REGISTERED) {
+> +		master = netdev_master_upper_dev_get(slave_dev);
+> +		if (!master || master->rtnl_link_ops != &tpmr_link_ops)
+> +			return NOTIFY_DONE;
+> +	} else {
+> +		return NOTIFY_DONE;
+> +	}
+> +
+> +	tpmr = netdev_priv(master);
+> +
+> +	switch (event) {
+> +	case NETDEV_CHANGE:
+> +	case NETDEV_UP:
+> +	case NETDEV_DOWN:
+> +		tpmr_update_carrier(tpmr);
+> +		break;
+> +	case NETDEV_UNREGISTER:
+> +		tpmr_del_slave(master, slave_dev);
+> +		break;
+> +	}
+> +	return NOTIFY_DONE;
+
+Maybe you also want to act on NETDEV_PRECHANGEMTU and reject it?
+
+> +static void tpmr_get_drvinfo(struct net_device *dev,
+> +			     struct ethtool_drvinfo *drvinfo)
+> +{
+> +	strscpy(drvinfo->driver, TPMR_DRV_NAME, sizeof(drvinfo->driver));
+> +	strscpy(drvinfo->version, TPMR_DRV_VERSION, sizeof(drvinfo->version));
+
+Driver version is meaningless because it never changes. Please leave
+it empty, and the core will fill it with the kernel version.
+
+I also wounder if this is the correct home, or if it should be in net,
+next to bridge? I don't know...
+
+Andrew
