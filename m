@@ -1,210 +1,161 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD81535B631
-	for <bridge@lists.linux-foundation.org>; Sun, 17 May 2026 12:12:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.136
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779019939; cv=fail; b=oAxBmRk2ZFGSCpxCdctJcxmpw3cAXlUAnKG1ebOsyOdd6Ljx7zVK3DHJ3hiSQP0ZGzueQ1q4wDxpllbf+I+Affnh3IDFphfELyu9OJm76J2R6G4gMSVLVz09HawwtSqY9mJaRlhhRQeqwWdxEF1IM/6e1VMVfTQHsYW+GjJWSyg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779019939; c=relaxed/simple;
-	bh=KPSYGG8UnUzou1ZJu4pwc49y1mzvq3hjTxdaleUuMiM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=hh2yXwaY6b/GQqxhx1gF1IPBxu8A1n9A3zHT0Ve0gruAMR14y28j9uh53zPU7eMU1CSgfTLrAFuhoXFIwCq5ND2bppGBOKgJKORe/FfAh2ckhLG5ydwMnS9DqrMJ7JE4pC+7ocJ+DOzVM/PRj9SwHm8nzcozg0mB2PaHfNGMS4Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Jj+P09Yd; arc=fail smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 846BA361662
+	for <bridge@lists.linux.dev>; Sun, 17 May 2026 13:43:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779025400; cv=none; b=jxnyIsQ5jU0rMUSSLexKWKuaPgbsT04B7k57q3cEk1b2F3JVSAbuxnzUHHqVxEIYSr5vtF6bHOtnjLq/5ppBfoc4qrybP/9OVphJ4WEuP5lmJ9O0FGTg19xFV35kSX6bvq26rFIUBYqn6NL+sqjKv/o0GqjXmewwIAHWCtCekvk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779025400; c=relaxed/simple;
+	bh=sMLXXNEtNM9byc9cxRPZeXDbmGRBMfUm3b7miLj3Ocs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hwNXxgbaWz9QPaxPIQSkmygsHUbHfTIrNynY/Ytf4aK14fnXD82v80FbgY2DmWrAXYTwzahr7KAa6yq2yFtjj0LEqtlagABvPucVm+GuvRxk4BlGuCuwbQOokmdSYw2VxLiavtL7FGdmHzIYfJmA1by8WBjp9nrMdmCkZry6HoY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=QU6go+Dl; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Jj+P09Yd"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6B32260C2D
-	for <bridge@lists.linux-foundation.org>; Sun, 17 May 2026 12:12:18 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.103
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id tNDijj9IxmFK for <bridge@lists.linux-foundation.org>;
- Sun, 17 May 2026 12:12:17 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c001::2; helo=sj2pr03cu001.outbound.protection.outlook.com; envelope-from=idosch@nvidia.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 99BD860C11
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 99BD860C11
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Jj+P09Yd
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazlp170120002.outbound.protection.outlook.com [IPv6:2a01:111:f403:c001::2])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 99BD860C11
-	for <bridge@lists.linux-foundation.org>; Sun, 17 May 2026 12:12:17 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Er7M0UNKYKRZenroZgopnAYnsM0ou8obdiefNbpshfCli+ilICP0cf9BdFdwCITiIdYXcwhDpu2l31Km6MMlhmi8v4cuICv9Tq6FVUAohdEz4k1EvEZ169bIxMOxcCEq9sJidB9v6h91URtgtyEqd+582QtyelJmRKRurPy4tDRpEefh7jeEigKQREV4QreOSGSCd2E34iVEax1BT9eyUzytNc0jWUqeBLgrHr3+a6dgqen0LoNAxkx8pJLG8BN2Hcg1uiB9Te5ob9uhcKfFND6dKS97dd3ByTBxAtN+G2HUK4wtyIeak0kGu68MzavfTb2B4SkenqQEWzDSDMYuPw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Eoqj0cggd4yH2OHyU3oT4MiHfYwl9voiaKN1nEjW6RQ=;
- b=eGi7lOhay1yyLOa6jH46bt4jH0DOvvKy84+bSo23Y3hU5GtWXAkwzdRsE1zL4YJgEVzXkuo/Dl6IY0N9pnRt88b97IMJieZEGYPZzGno3B8qzCw+ANjBpRn3+/dCgCOwTNnOVPeEumnZUuKIuA+htSjeU9QcroFZxDWYYdSU2jExi1VYfh3rmQ/35hS7A87G7Bbdqq1PRZHrshPwC55jGg8N9CgxGymTAaV4FyT3dHMbuBi3Q9rvQG8OumLdqqJJdzL6Om2HuBtmLU1Zryd8elw9L+nxPQc19Ja/0uAc69eN+NxzmFvtxhUQLNL+/uekMdhYqQkXCAUs6wx/7fluHw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Eoqj0cggd4yH2OHyU3oT4MiHfYwl9voiaKN1nEjW6RQ=;
- b=Jj+P09Yd4gP4tItDScKtW5yCURENQOntOgN/uXZYIbAbcse+yGs0JecFRnhRZNLI43wug8ox+4yxVT86MDyN+bXtVEyhZiJXYWoBvH6MWJUlxN3fLTf5kD0Rgg2pbw/VGb4TLIfmfFpP1a7PcvpLmBFXePmu/Sojw/M7fV5rWoi9PwEMBpYU5T8x/nAWdXv2MgvalAoHH3YEgO50cBhQeuZxrb38zM6tgcQ+RpaLMGDjH2hrDOmWdRIclT3eeTFtOcr71FO3bwqmzEJyx3hu/1/tNUeNZz1ITThkw9+QchXEzyCsxWKRSyKZ4hehIv2wBhcd7OiNBqGutNxquxNAaA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by LV8PR12MB9112.namprd12.prod.outlook.com (2603:10b6:408:184::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.22; Sun, 17 May
- 2026 12:12:14 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.21.0025.020; Sun, 17 May 2026
- 12:12:14 +0000
-From: Ido Schimmel <idosch@nvidia.com>
-To: netdev@vger.kernel.org,
-	bridge@lists.linux-foundation.org
-Cc: davem@davemloft.net,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	razor@blackwall.org,
-	horms@kernel.org,
-	dsahern@kernel.org,
-	yongwang@nvidia.com,
-	aroulin@nvidia.com,
-	petrm@nvidia.com,
-	tglx@kernel.org,
-	Ido Schimmel <idosch@nvidia.com>
-Subject: [PATCH net 2/2] selftests: bridge_vlan_mcast: Test toggling of multicast snooping
-Date: Sun, 17 May 2026 15:11:22 +0300
-Message-ID: <20260517121122.188333-3-idosch@nvidia.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260517121122.188333-1-idosch@nvidia.com>
-References: <20260517121122.188333-1-idosch@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: TL0P290CA0008.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:5::19) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="QU6go+Dl"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4891d7164ddso6765485e9.3
+        for <bridge@lists.linux.dev>; Sun, 17 May 2026 06:43:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1779025396; x=1779630196; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=+HArGPzJ3JrxUqYbJRCQTeZdStWSHyJjxqFBR8YJCaA=;
+        b=QU6go+DlOfCJqBtrT1Ph6SBfSHSYPWwtA7vlkjiGlPvs6WRevulwYW8RF/xlAHdTns
+         FOgkI27dXGo28eVZglgDJuLvcAv0kIwCw3jkKck1P1bA3McDDcDZZ7GtPwGwP9cQ6Lxg
+         7La0b5yP+7N1KLQGAjfT0+1S4Cx/GqmRKNA23OyYsIz/Hui24xr72ke2QhAMCXBaQVLC
+         ezFnTpm6Bmu+1g0nqOQHCJex9XVnaWtPbL9qmynTRBU8MByWfn4KuJF3AZ7NRFVsBmZj
+         dso5DYVc8Wq7aKiXIvYrHJDFKJzZ1Yvu5XljOTRn1GQXu5UjVWYR4BQjPdjFMpZAm8ko
+         zYcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779025396; x=1779630196;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=+HArGPzJ3JrxUqYbJRCQTeZdStWSHyJjxqFBR8YJCaA=;
+        b=Uy6erFwt9xhRJoQ1N2bMj0Fx18OvENICXeKmaPQYhdbBFB4sTBnjCqfS/wEdUd1Jap
+         wpmwl9v8gXrzzT8RUY/wgBhcL0z1UupaV8HGTd+VPe0ToFLXIxyZlFbbJqKGmLaKKbkv
+         CzLboNM2yfIKVMLXm1ax4NjQrDGyW7nYValkol19I1vu/+E0yrJgUjw7uWKneQ1WDvGu
+         NQdGMif42c59XYu0ecW44SxGXvijk08GKE59f5n834zdLCrG+vZwd4k/AjtGCA/Eh97L
+         BDCIMAK1Oc1AEBvid4LwF8PFPTRg1G/DejHV7HlWf4cGGU3piY6qn9MHvMX0Pwo0+CnO
+         YsKg==
+X-Forwarded-Encrypted: i=1; AFNElJ+LhfG+C/OOuaLwc19t75WW+EtjgAPsvtuEDfmrcahOztnDu69cE5h/osjhskoSvEzLJ/IX0v0=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw66eveGKuhAIvqkILQhLvIterM7Bc6jPJznKPbS8vIes14QVn6
+	QEhdPb5N9Vj/GUclEkuL/VhsFXgm8pwoXtHp2Xy/5b1g6mZqiUDeAWcWXI9ZUYGry80=
+X-Gm-Gg: Acq92OGN0fUfXcRm8xmPuLLiKFXc5OkMwvCnrNHNjJK+HPoeE+TLNk74el6Qex3ZF65
+	RsvX/haCQZDS+DwVpUX6Vp3wkid+ikL7wlv3KU1WqcqSdy3Kz7YIYSko9aNnSMinWEkccSct99j
+	Vbl/vI6+2L0+jNK2HJ13Ut1DiL+f2MmM6VMXBvQP7Z9/0CUEERF6acE9pYd1RljpH0Zs5Zg7B5f
+	WnklXVXfmF99II21s1XErW+JSXSmUGzlLYFt1x2mOgN3q9EZ65ZP0AMxC/pHchjNcc6Gn5KhfSq
+	NRV1LL/7uVaAOWGgjf5ZuXx4rJ8bJLuRIktrZS9OYRKXE2aBOSpr9RnvB+6i4Hyxk27iB7DBbRj
+	t863C0jW+L22WMhcED8om3SzhsIq30MWqCmiUE8TpKO0GMmsfRMtgGyNfuJOE3L3jUmiiR+tnT5
+	4WsQYg7A7hkzSyjxFYmE/yGIgQL6bFxRAIH7xGxmSJMdJxrQfuxHrXXrkpwQ==
+X-Received: by 2002:a05:600c:3f0f:b0:48f:99a9:bbcc with SMTP id 5b1f17b1804b1-48fe60ecb9cmr152488335e9.10.1779025395675;
+        Sun, 17 May 2026 06:43:15 -0700 (PDT)
+Received: from localhost (176.111.181.159.kyiv.nat.volia.net. [176.111.181.159])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9ed30110sm32700649f8f.13.2026.05.17.06.43.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 17 May 2026 06:43:15 -0700 (PDT)
+Date: Sun, 17 May 2026 16:43:12 +0300
+From: Nikolay Aleksandrov <razor@blackwall.org>
+To: David Carlier <devnexen@gmail.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, andrew@lunn.ch,
+	kuba@kernel.org, pabeni@redhat.com, edumazet@google.com,
+	horms@kernel.org
+Subject: Re: [PATCH net-next v1] net: tpmr: add Two-Port MAC Relay driver
+Message-ID: <agnF8KScbKxtUite@penguin>
+References: <20260517041306.24841-1-devnexen@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|LV8PR12MB9112:EE_
-X-MS-Office365-Filtering-Correlation-Id: fcaca7e1-ef6e-4ccf-a2f3-08deb40d87ac
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|18002099003|22082099003|56012099003|11063799003;
-X-Microsoft-Antispam-Message-Info:
-	8t9o2McsWa143sMFYelXEYfRLvXWEE8uc/LAdbBdu6erVRc5eJSK+dO4zyNWHkC6+ra/8xBGr+6VkbFnjIs1R1jVT54ZC+OWE+p0sYyyGIFfnmELV8hRqQ6ReNMNuu8ku9nbMBcQ94xzt7Rv3BnSoDeNiknQKZbh84JzFMAtgW8wGdEupVtfOxQt75ACUCAX6LeQdHtKPw3v419Hdd2oToMPAsnHCGrWMF91m2Yi9kl+7+0U4Urm/0YOCZE/y7jOR/m//sXnrbx8xxVSZbbssnyCcNweF9KDfxaqmJq7BF9tuDrmrjgaRW/TIQnHphklKMprcsVxtu5jKqhqOy5JE/R/QgaZ0c2rO+F3ZFeoI5oIw0RZjtEUE0CdOsZ8rdE2bZHne8mN12B9zIiOZgGuSJFK78oH9oWitSoyV5wezdLeC5dUaCudJLuVrEvS2L4mCypcM6Mh1jQ7oFHOgoZvxM4o4zjJajodocG3GjiUv0pE+dKrrWmMlXbbvS3sDj9Ik7KPC6LdZT6kGkvcbyNXom4UdmrYr1UQWKby3YrStQtAgDNLWFu+9GQugP1ConsWYqaR8JeHFzUfrSs1qmb7V9MYMhyHzn20Y3+L6nZUia+BjVmKocc3v6bj8VmmZPQf5yfjHAnhnvV6YM3MqUvKd1bi5N5wuJmO5U56cZ0Y1n8H17jVWbO9Cc9tmvbm+r75
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(18002099003)(22082099003)(56012099003)(11063799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?bVhexOCN/l05+SHizsHbKN01zTg/8wHmklgGY8n4WbHZ2lQK9ABGT7siSC2p?=
- =?us-ascii?Q?K+C/GDnTFmTxzfXMHQF94QF8pZRCYdJ1QOcKCnqf20AbBTDoyUa3WQPqnNhd?=
- =?us-ascii?Q?zGLaA6lEB2lnXv43yw3R3KxzR+9rXPtSdjjxzqNoKKV1NTTZE1SYrynPdxz7?=
- =?us-ascii?Q?SBWHCim23e8XmY1QnyXFsezYMV3YD5i4T1Z4DJVDtQ8rLutdMQqAbHV18MLc?=
- =?us-ascii?Q?vncDXoQYWJydtF2I0pRKHjqC6qZ3yGpkcOm7UOwmtseM21zRgGI+NtxfJ/Y7?=
- =?us-ascii?Q?Rb0+e9chdH/AQdZD3ZndQrq3p3NfGErSHJqSC1e6m+kddvgqrI++IoqsJLbm?=
- =?us-ascii?Q?E/+XaRv27s5d+HVYsRhdd9kaCuNz/SV4U4yYtGfLNxo4lgvcqLGkJS00FABT?=
- =?us-ascii?Q?nrxKFohr9fG31D3458tjCan4RFahCNiHcS3dFTJCixz65RNYI2K0fiVeNvKH?=
- =?us-ascii?Q?VKyevYgqCTA86LE3DjX8LLn463Btw9q98T+pgL6rtCqPSY7KkOKiNbZ4n2oI?=
- =?us-ascii?Q?uLdF899kTtypLyXuguyn/9iglxZ8MVmyOmQE3Jo+JV6A67iXwPgZJbPsrsg8?=
- =?us-ascii?Q?1N/f6ZKn0GAeH0qphTE7MUPHuYt9uDgLyP36ywAb0nB5Tu5hU5ArdBPq+tfD?=
- =?us-ascii?Q?O41kCf5IEK5ietZjWJnc3FysyBmPUkDvyLbPGDFLmJV2ZleQH+1/O4tBAHUY?=
- =?us-ascii?Q?YH19HxZgMwSEDeWHPZiBNBVbRuvbH6A/toEyBekvHRBboKGdI2CBQRlrMc9v?=
- =?us-ascii?Q?x0UzWyDwHE2ar2Ss+h6R30SrJzaNpoRcRpO8YioDzYSi/4+QZ2jm+9o1Euhs?=
- =?us-ascii?Q?m4MhFYkDR48jYXpGKA5zN+FAzYHCu5ePl7YLYTehfFzg7CG3Y/BOpkqnmbg6?=
- =?us-ascii?Q?ZNBBYlCtiHIQ/I/uWlqLmf+1swTfrFJsXx26h+GFX+s+QB0g5hsBkQKliOI7?=
- =?us-ascii?Q?IWvqWGDU/lZKWkOhl5QXPTe3mbmre8w4V2An4kXD7ZBWDk9s2WXGKsHaOXMl?=
- =?us-ascii?Q?iw+9B6H1RQdXekQ3+Zmum32E0m83K3GNXhojh0m6HpYAGoFDqSfg4IROFgiw?=
- =?us-ascii?Q?03Lw9E/K3Ts3h/qv5G1GkNiOxRdfw+dvVZvEBVCn8oVimaYBKFNxhGEU6WoR?=
- =?us-ascii?Q?oL1JiyCZV67f8oFbBDD9XSA6p/lkGMkWcQm6S/1886wHhQMJHT2jCIMTNsQm?=
- =?us-ascii?Q?8bvlIkddyMQCRSYR9usXs2QcieWIr7zarvsDjHsAp7gA+Zg+1UtuGiwN/0Ow?=
- =?us-ascii?Q?gxKe+yPPnfQIH/Wi5fMpguBbd9VqjJOvUkFrIddBR2n0wi2UkEUMPJEUy3ZE?=
- =?us-ascii?Q?zlCzXrMCJhBjCKIdSDARfreOUkghVZEmU4VGz/dMsayWgFQG1Av0WUGGWXp6?=
- =?us-ascii?Q?cUfoYElzJbEfwI8cppWU9HsP+5/uNhbGBoUJdj5ZyJlReEknO9LCc00yusA9?=
- =?us-ascii?Q?OU8F1+F1Rmqn4ETRsnD+1viTJdx8m9mOfSiVysXBHzSceousGPD3VPHAt45p?=
- =?us-ascii?Q?n+N1GQHUYC/XmD5NQ/P/PuLUmh17O1ZS1+bGwoEPmaqYeTBx7SmzqwmQoSK/?=
- =?us-ascii?Q?3nNjGvNbykMc/HnRoJ0pyVbN36AwLgK9KlFhK8d3ljnGBY4Tos9wWDYOqBBl?=
- =?us-ascii?Q?/biApF9RDj+z89sNdC6x+Oi5cF9YVfjhc2C6whuWCgzTkuz8+VfbB+HtDwP5?=
- =?us-ascii?Q?2EEEAvRPqQl5LXE4z7po9XweeubOaZy+Yrt3cwJ80AfHAxY9?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fcaca7e1-ef6e-4ccf-a2f3-08deb40d87ac
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 May 2026 12:12:13.9465
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: F28b5hhg9FApCbr+hIignVwiZwD+Oa9oW4N6RSi5rnedxazm7NIJf/jas9RMoTCgz3qzqbX2SEfZURHgOuHpkA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9112
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260517041306.24841-1-devnexen@gmail.com>
 
-Test toggling of multicast snooping when per-VLAN multicast snooping is
-enabled. The test always passes, but without "bridge: mcast: Fix
-possible use-after-free when removing a bridge port" it results in a
-splat.
-
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
----
- .../net/forwarding/bridge_vlan_mcast.sh       | 30 ++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
-
-diff --git a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-index e8031f68200a..ebdb4c790a5d 100755
---- a/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_vlan_mcast.sh
-@@ -4,7 +4,7 @@
- ALL_TESTS="vlmc_control_test vlmc_querier_test vlmc_igmp_mld_version_test \
- 	   vlmc_last_member_test vlmc_startup_query_test vlmc_membership_test \
- 	   vlmc_querier_intvl_test vlmc_query_intvl_test vlmc_query_response_intvl_test \
--	   vlmc_router_port_test vlmc_filtering_test"
-+	   vlmc_router_port_test vlmc_filtering_test vlmc_mcast_toggle_test"
- NUM_NETIFS=4
- CHECK_TC="yes"
- TEST_GROUP="239.10.10.10"
-@@ -537,6 +537,34 @@ vlmc_filtering_test()
- 	log_test "Disable multicast vlan snooping when vlan filtering is disabled"
- }
+On Sun, May 17, 2026 at 05:13:06AM +0100, David Carlier wrote:
+> Add a driver implementing the Two-Port MAC Relay as defined by IEEE
+> 802.1Q-2014 §6.7.1. A TPMR is a minimal L2 relay between exactly two
+> member ports: no FDB, no MAC learning, no STP, and -- by
+> specification -- it forwards most of the 01:80:C2:00:00:0X reserved
+> group address range that a regular bridge would consume. This makes
+> it suitable as a bump-in-the-wire element that is transparent to the
+> control plane on both sides (LACP, LLDP, EAPOL, and so on continue
+> to reach the far end as if the relay were not present).
+> 
+> The driver is created with "ip link add type tpmr" and slaves are
+> attached through ndo_add_slave, with a hard cap of two members.
+> Forwarding is implemented as an rx_handler: a frame arriving on one
+> slave is sent out the other via dev_queue_xmit(), with no FDB
+> lookup. The IEEE-permitted subset of reserved multicasts is relayed;
+> the remainder is delivered to the host stack via RX_HANDLER_PASS,
+> preserving today's behaviour for protocols that genuinely target the
+> local machine. Only 01:80:C2:00:00:01 (IEEE 802.3x PAUSE) is
+> terminated, as required by the MAC layer.
+> 
+> The master's carrier follows the logical AND of both slaves'
+> carriers, propagated via a netdev notifier. Both slaves enter
+> IFF_PROMISC on enslave (and the refcount is balanced on detach) so
+> the relay sees all unicast on the wire. rx_handler_register()
+> provides exclusivity for free: a netdevice that is already a member
+> of a bridge, bond, team, or macvlan is rejected with -EBUSY at
+> enslave time.
+> 
+> MTU consistency is enforced at enslave: a second slave whose MTU
+> differs from the first is rejected. Subsequent member MTU changes
+> are blocked via NETDEV_PRECHANGEMTU; to change a member's MTU,
+> detach it first.
+> 
+> Inspired by OpenBSD's tpmr(4) (David Gwynne, 2019), reimplemented
+> against Linux's rx_handler / rtnl_link_ops infrastructure.
+> 
+> Signed-off-by: David Carlier <devnexen@gmail.com>
+> ---
+> 
+> v1 (from RFC, addressing Andrew Lunn review):
+>   - Inline reserved-address check; only PAUSE is passed up,
+>     gated on is_multicast_ether_addr() + unlikely().
+>   - Fix MTU check that assumed ports[0] is always the
+>     surviving slot after a detach-then-add sequence;
+>     iterate ports[] to find the populated entry instead.
+>   - Reject member MTU changes via NETDEV_PRECHANGEMTU.
+>   - Drop driver version string; let ethtool core fill it.
+>   - Keep driver in drivers/net/ (precedent: veth, bonding,
+>     macvlan).
+> RFC: https://lore.kernel.org/netdev/20260516050858.23858-2-devnexen@gmail.com/
+> 
  
-+vlmc_mcast_toggle_test()
-+{
-+	RET=0
-+
-+	ip link add name br1-mcast up type bridge mcast_snooping 1 mcast_querier 1 vlan_filtering 1
-+	ip link add name dummy1-mcast up master br1-mcast type dummy
-+
-+	# Enabling per-VLAN multicast snooping should disable the per-port
-+	# multicast context on "dummy1-mcast".
-+	ip link set dev br1-mcast type bridge mcast_vlan_snooping 1
-+
-+	# Toggling multicast snooping on the bridge should not affect the
-+	# per-port multicast context on "dummy1-mcast" given that per-VLAN
-+	# multicast snooping is enabled.
-+	ip link set dev br1-mcast type bridge mcast_snooping 0
-+	ip link set dev br1-mcast type bridge mcast_snooping 1
-+
-+	# If both the per-port and per-{port, VLAN} multicast contexts are
-+	# enabled on "dummy1-mcast", removing it from the bridge will result
-+	# in a splat.
-+	ip link set dev dummy1-mcast nomaster
-+
-+	log_test "Toggling mcast snooping with per-VLAN mcast snooping enabled"
-+
-+	ip link del dev dummy1-mcast
-+	ip link del dev br1-mcast
-+}
-+
- trap cleanup EXIT
- 
- setup_prepare
--- 
-2.54.0
+Hi David,
+Please give people more time to review the proposed RFCs before sending v1.
+Also you specifically asked bridge maintainers to comment and did not
+wait for us to do so.
 
+Now to the point - I don't think this device is needed at all, this task can
+be accomplished in multiple ways with what we currently have, there is no 
+need to add another software device for something so simple.
+
+First, I'd like to ask: could you please elaborate why bridge's group_fwd_mask
+isn't working out for you? How exactly are you trying to use it?
+It was added for this purpose, to forward link-local frames and should be
+able to do the same as what you're describing. If there is a problem I'd
+rather we fix it or extend the bridge if something's missing instead of
+adding so much new code that we'll have to maintain forever.
+
+Second, what else did you try and how exactly did you try it?
+
+Examples of a few ways to solve this:
+ - tc: why dismiss mirred so fast, it can do the same combined with some matching?
+       Did you check mirred redirect?
+       cls_bpf/ebpf - definitely can do it as well
+ - nftables: should be able to solve it, too
+ - XDP: I wouldn't dismiss it because network managers cannot control it,
+        all modern network managers support custom scripts in some form
+        where you can load your custom XDP program and solve the problem
+
+Cheers,
+ Nik
