@@ -1,133 +1,143 @@
-Received: from mail-oa1-f46.google.com (mail-oa1-f46.google.com [209.85.160.46])
+Received: from mail-ot1-f77.google.com (mail-ot1-f77.google.com [209.85.210.77])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C73E35E926
-	for <bridge@lists.linux.dev>; Sun, 17 May 2026 17:37:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779039479; cv=pass; b=CigYhKiSa0IaN3ZcvdFjOl1/M3M0FgRbtjtkE0/dUw/cAQWP2OQi1Z04HajSBh+9lD3mTZHUl3w2HlITkyOcBgsd/E9j3SWtdZA1ooJgBGCwI1ak123noVy0bqn18FbWq+LCfmGzjIgtwrgi00qKMLJshrudFE8DWv3EYVr518w=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779039479; c=relaxed/simple;
-	bh=YZ5Ke/sEGFabuzBfVldOLJOcizsrW/Nl7bivRjdo/zU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Uf5+6fklcY8SBnyl6GzfEB8ddcPKtuqGRdpPrVSciyDB4cCCyzsVUCsPfNB5EmXnG3QYR34HpPjUS5XXX8slXAZN54iN/lAD4V8lsvxRePXcJs52bofbC/o1bqfJ7D4IDtl9Mug82ENGL9UFvjFwV+/uCwh3j3I5k5TNSJXyiB8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ltwW55Ph; arc=pass smtp.client-ip=209.85.160.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ltwW55Ph"
-Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-43496e6a964so1081116fac.2
-        for <bridge@lists.linux.dev>; Sun, 17 May 2026 10:37:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779039477; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Z2XiIb5yYGahWdB1dSdyjhaWmpx33GkD94SoZQQCh3HdXiElcPX+DWU19fPMQ7tzpH
-         J7+sECPfwibxUYyCB9chC7KMPHoylEbf6bGhb2esVy4e3Zu5LmIzha6wTTfqlQiRiuWn
-         rWis9FR65XFeexnEQJKZo13PQoEPJ9YpzEppO0eh4ihKeNRyvvdBueHIL4Akunb1Dyal
-         2M3BUc9yIyvyQvdlEu6Ka6g7OWAX9hL9DdsiHAUGAche0BkxJmka6ADZN26agpl0+QNx
-         uzIMWJfeLV/P7nYF1F1jKn4Q54LmAJI3VkT9VG5Pu0il7namJl+wIDl/r3YmTt3Q/tYZ
-         EOYQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=tlVlaFBAIkcv0HbZfkTnOaqrfVsvTeI+ScRy+0SZE24=;
-        fh=0rxEEFuK0+s8wi9kx9zzWs8UuVLcVwHA2ftBRaxZI60=;
-        b=RcY2vN8oHJl2y+URLOQdkrnkwzOMBpIVXCG7V19jxOVp5JKtjHqrfOE8/QXDEPd5pk
-         bz4CPEF9UIwnam9tlA3qqty6s2P2iEgCI1RADom9J56A4ld8YMe9vIa/y4Y1FDU5ZnYv
-         Irn/Fjra2cPCZPfBjAZT1XFdXsFVIrxZthTknMrKjDPDeCRP/2uKL26AkFYLvLUO9sO9
-         mW7MrPisbu/jwmGXsoyfQGyZewuAe86/6jGssBtJVskUHV9hPQl1CfzfMEjzKi12zNaq
-         XgduGCAPC6FacBY7r8JiiwR8F00Z5uKue8Ykp+TpmzB8VUd4ifvJykwiCWZZj2v8hC20
-         iHYQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779039477; x=1779644277; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tlVlaFBAIkcv0HbZfkTnOaqrfVsvTeI+ScRy+0SZE24=;
-        b=ltwW55Ph60HQBja0eYiNX0GPqNSSgVPrGw/aKDZaOmFDIGYyA0vI859hVS/wi/SPCR
-         EOVw8ykg1emaVUQot9dxWiSTotdW8aq0ARdrSwgjkbB21e0hVnXGCdL/3g6+k3E/Gp1c
-         +gjdxUth+tSDcG7nxSAk5AlG7/go1v+Ze9rDP+d8Cl2Rui/XaUSz5iTHBt8QwvqA4YuB
-         mDV7Vpj3qtr9vs2IwpUGuNBe+WK0hYswtidgxqH+IIs13YttT1JXzBghNokTCXZ7Jcid
-         G/rMGhv7vdEwD8rySWqF+hBT9zF5zkBIxl9//7BI39mf5fWF3QIkw0DX4p01FE3jjVX7
-         T+Bg==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63CB348035B
+	for <bridge@lists.linux.dev>; Mon, 18 May 2026 13:01:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.77
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779109286; cv=none; b=nRem7gMNIvktXOXfoR1CQ4EpK4lAy4zXgkapgV7nbCZcr5IFyofixndyUa3mF1kGT77FCzGh7tQOxUk0GO60FIKdtr0fOgbLr1djukUrwI2pCndw49Ho82CgjmX6JMVACotckp2oNMavnEhGACN0tE4NnVkpfdfYtTePM3bv5kA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779109286; c=relaxed/simple;
+	bh=lLl6RY6caPM3rOvfBqXkbSVRHfr3cxYaeRWdxt5n5hE=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Rag4LwfSCAvZf3dq075kc/TeYZeAfUsOLMemSf0AaIOuy5gwNu0yUrPdf8Vjg0/b6e3lR9k+f7ASEdBGDqwNwMtkL79AEkyzljElLf53X0k+Y80nB4AQegROl951/OZvNQDpa51NGz8ku95SmYDilDwh2R2pqTFRN6P9fBrDP7E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-ot1-f77.google.com with SMTP id 46e09a7af769-7dcc59fe0d8so3605504a34.2
+        for <bridge@lists.linux.dev>; Mon, 18 May 2026 06:01:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779039477; x=1779644277;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=tlVlaFBAIkcv0HbZfkTnOaqrfVsvTeI+ScRy+0SZE24=;
-        b=acOeqivqn3Oi/Gp1ob7amZsmsAEM4wgv8xlt7RjOq7bdxdW+EdtNTR7S50p5DykIiV
-         fiVR90SJt4bniuJL4gKTmHf4iazwxMXwAS0ijGC1wtXRb+o6Cq3ul9EjojWuK2uQi9uu
-         2RR1fmswsDWsaw2+HLkGxzkTjzxwyNbyWK9zRpglgZ5vINa6JdNGf3A3dMlxz6CZcEZu
-         Se/tLrjFIjujyQsSET7Y1HM2YTWlIFNgfRBKvXJDTONmhO0y1t47XIicr+qmCBQRwWXI
-         O91D9ln+rIfnVwCmia2Dour7bkS/Yn8v3MV/eV+aESXCJW+M3o4m418ymOWUYq4BDNby
-         LNHg==
-X-Forwarded-Encrypted: i=1; AFNElJ+2VYizYHnoPx+FyZUqspv0opcunYTDjL2XLxe1px4x77xFTny60uLkPMrDkC6VFIp22Qf6iHE=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxL1PDdyiAEk/L/L4XaVV/4TSq2s0he75QHkT90keSPm03jGRLY
-	2bKhNGXfvmGuQimezxyFR9NdBXDR2f1U7/VpsoFpmtpCQgi65I8iZlBA6h7sJSlXGMgzDLh4gXR
-	RoohJ6f8QRkfG5RfcKWWsejI8BfTYi/4=
-X-Gm-Gg: Acq92OElNG/htZVm3a9ZE3SbqMRSpD6lhMRaHZ8i+DB6S5hO8CBhUHzwPRG63Hb9EfZ
-	pRN68/WIInbvBt4tkdxJAwVo6KN4wLVY/yp4Y56nYMyrOa3X0dQbtTSofeIc7b5KZWvJCoHtEVv
-	BUBffqnOaCDi8wvATFe3Pgz4/Ed0cmDbB5RQBHvtsR1S2e7AlhMIsbctTp3Il8ts9H7EvtnsDMg
-	IZ6DnpIOlOxnKtoMh47bqj1HgQGDnauwqfYqUfBDDfShen2Wdbvk6bUQYsjnINeaqu4hEN/H9by
-	mkGudE8IrUwMsv1iFsyshA1ytcTeS4bnq3Y3OA==
-X-Received: by 2002:a05:6870:6b86:b0:435:51a3:7139 with SMTP id
- 586e51a60fabf-43a2da2c0e5mr7428036fac.13.1779039477364; Sun, 17 May 2026
- 10:37:57 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1779109284; x=1779714084;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=15XVrlqFLSsUnhnxXxSwCW7nrZfhUDLDuTiL9dFIkEs=;
+        b=Fyeptlt7DS7KoPqDgMqgKG1cnvZu86pHXFsRkwBewESqbNumaX30TmIivW6ZH8HLzm
+         s6g70XBocGWafZa8HlZDwHwDfb8n8QG1GHw7kQHkrRhbFdED8mPC2yNFxR5OotLihNWK
+         /e61+Z3nRgdx5i/Jb1arN36tWtJGa4XnGnUGUZqxvMJ/KhWzOyHSNl5noCSgFMwJIS/8
+         XBkHnBKr1ELj6KlGehtgbwwEWhSGZGtBjAAaa6AeZOI5Dvj4XeaD0gbUqMRSq7Ho7LXr
+         MmU+er7KWIi56JtrVWvkIhPofMfCzUSlkXiKhKxDIOjuO6cL8p+rWr1WD89a6LonbxZi
+         i7iw==
+X-Gm-Message-State: AOJu0Yyz3uo2bV1rsZmb3yWy9MTtNDwbS+SY2DZ6jlX8wdSdUDcz/7Vz
+	ZPex/R37e/UAimzpz2OaNN23T0gfrCKo61EDOgNdapBoqqei95WLYKjqhOMaR1iCjf+cGGHC7Bw
+	HoC35VfbUoqUWhdvEPnhzt6d1Nzd+jzGABSORoCVnaLOd0PbbODQTpL7nbAG1kQ==
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260517041306.24841-1-devnexen@gmail.com> <agnF8KScbKxtUite@penguin>
-In-Reply-To: <agnF8KScbKxtUite@penguin>
-From: David CARLIER <devnexen@gmail.com>
-Date: Sun, 17 May 2026 18:37:46 +0100
-X-Gm-Features: AVHnY4KT-anqkYPAowTH1z-aktUBhVHv9a9ooTXMQP-FAwDVJGuu25829Ys9ZHM
-Message-ID: <CA+XhMqzrQfN2qmyfCyO1J+u0865cUDfkGrexW+h4dXS39CokeQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v1] net: tpmr: add Two-Port MAC Relay driver
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, andrew@lunn.ch, 
-	kuba@kernel.org, pabeni@redhat.com, edumazet@google.com, horms@kernel.org
+X-Received: by 2002:a05:6830:d17:b0:7dc:cd0b:58af with SMTP id
+ 46e09a7af769-7e4f2a2d671mr9973331a34.6.1779109283951; Mon, 18 May 2026
+ 06:01:23 -0700 (PDT)
+Date: Mon, 18 May 2026 06:01:23 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a0b0da3.050a0220.175f0c.0000.GAE@google.com>
+Subject: [syzbot] [bridge?] WARNING in br_fill_linkxstats
+From: syzbot <syzbot+a35f9259d08f907c06e6@syzkaller.appspotmail.com>
+To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
+	horms@kernel.org, idosch@nvidia.com, kuba@kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
+	razor@blackwall.org, syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi !
+Hello,
 
-> Please give people more time to review the proposed RFCs before
-  > sending v1. Also you specifically asked bridge maintainers to comment
-  > and did not wait for us to do so.
+syzbot found the following issue on:
 
-  Fair point. I jumped to v1 too quickly. I CC'd the bridge list and you
-  specifically, then turned around v1 inside a day on the strength of one
-  review. I should have waited; sorry for the noise.
+HEAD commit:    627ac78f2741 ipv6: addrconf: bail out of dad_failure when ..
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=1074102e580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=f2b487b72ffad035
+dashboard link: https://syzkaller.appspot.com/bug?extid=a35f9259d08f907c06e6
+compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
 
-  > First, I'd like to ask: could you please elaborate why bridge's
-  > group_fwd_mask isn't working out for you?
+Unfortunately, I don't have any reproducer for this issue yet.
 
-  Honest answer: I should have tested that configuration before posting,
-  and I didn't. Let me actually run a 2-port bridge with group_fwd_mask
-  set, no_learning, stp_state 0, vlan_filtering 0, and see where it
-  falls short of a TPMR =E2=80=94 if it falls short at all. The places I'd =
-expect
-  to differ are PAUSE handling, multicast outside the 01:80:c2:00:00:0x
-  range, and carrier semantics, but I haven't proven any of that with
-  real traffic.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/81fff4bdde96/disk-627ac78f.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/4b0352468dcd/vmlinux-627ac78f.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/6db18d47dfe4/bzImage-627ac78f.xz
 
-  If the bridge configuration covers everything materially, dropping
-  this driver is the right call =E2=80=94 400 LOC duplicating existing
-  functionality isn't worth it. If there's a concrete gap, I'd rather
-  close it inside the bridge than maintain a parallel driver.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+a35f9259d08f907c06e6@syzkaller.appspotmail.com
 
-  > Second, what else did you try and how exactly did you try it?
+------------[ cut here ]------------
+diff > ((u16)~0U)
+WARNING: ./include/net/netlink.h:2265 at nla_nest_end include/net/netlink.h:2265 [inline], CPU#1: syz.2.5599/27626
+WARNING: ./include/net/netlink.h:2265 at br_fill_linkxstats+0x9e7/0xae0 net/bridge/br_netlink.c:1910, CPU#1: syz.2.5599/27626
+Modules linked in:
+CPU: 1 UID: 0 PID: 27626 Comm: syz.2.5599 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 04/18/2026
+RIP: 0010:nla_nest_end include/net/netlink.h:2265 [inline]
+RIP: 0010:br_fill_linkxstats+0x9e7/0xae0 net/bridge/br_netlink.c:1910
+Code: b6 bd 08 48 3b 84 24 60 01 00 00 75 33 44 89 f0 48 8d 65 d8 5b 41 5c 41 5d 41 5e 41 5f 5d e9 50 8f 30 01 cc e8 0a 1b 49 f7 90 <0f> 0b 90 e9 bc fe ff ff e8 fc 1a 49 f7 90 0f 0b 90 e9 53 ff ff ff
+RSP: 0018:ffffc9000d04f160 EFLAGS: 00010287
+RAX: ffffffff8a7ca956 RBX: 0000000000013550 RCX: 0000000000080000
+RDX: ffffc90010069000 RSI: 0000000000006616 RDI: 0000000000006617
+RBP: ffffc9000d04f310 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: dffffc0000000000
+R13: 1ffff92001a09e40 R14: 0000000000000000 R15: dffffc0000000000
+FS:  00007f437e58c6c0(0000) GS:ffff88812537a000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7ecf36ab4c CR3: 000000003d060000 CR4: 00000000003526f0
+Call Trace:
+ <TASK>
+ rtnl_fill_statsinfo+0x541/0x26f0 net/core/rtnetlink.c:6018
+ rtnl_stats_get+0x4b6/0x6d0 net/core/rtnetlink.c:6340
+ rtnetlink_rcv_msg+0x77e/0xbe0 net/core/rtnetlink.c:7018
+ netlink_rcv_skb+0x232/0x4b0 net/netlink/af_netlink.c:2551
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x75c/0x8e0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x813/0xb40 net/netlink/af_netlink.c:1895
+ sock_sendmsg_nosec net/socket.c:787 [inline]
+ __sock_sendmsg net/socket.c:802 [inline]
+ ____sys_sendmsg+0x972/0x9f0 net/socket.c:2698
+ ___sys_sendmsg+0x2a5/0x360 net/socket.c:2752
+ __sys_sendmsg net/socket.c:2784 [inline]
+ __do_sys_sendmsg net/socket.c:2789 [inline]
+ __se_sys_sendmsg net/socket.c:2787 [inline]
+ __x64_sys_sendmsg+0x1bd/0x2a0 net/socket.c:2787
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x15f/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f437d79ce59
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f437e58c028 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f437da16090 RCX: 00007f437d79ce59
+RDX: 0000000000000000 RSI: 0000200000000040 RDI: 000000000000000a
+RBP: 00007f437d832d6f R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f437da16128 R14: 00007f437da16090 R15: 00007ffe687b3418
+ </TASK>
 
-  Same admission. tc mirred, cls_bpf, nftables, XDP_REDIRECT are all on
-  the table and I haven't evaluated any of them seriously against the
-  use case. Let me come back with measurements instead of arguing in
-  the abstract.
 
-  Please consider v1 parked until then. Thanks for the pushback.
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-  David
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
