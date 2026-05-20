@@ -1,99 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73DDC1CDFCA;
-	Wed, 20 May 2026 01:23:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C658A2DF137
+	for <bridge@lists.linux-foundation.org>; Wed, 20 May 2026 01:30:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779240188; cv=none; b=NcMIW4wQb6rgm9IJrfiiFnqoomoPNdImc6OlDk4rO8bwDeOGzsDG3Dafy/GSIZg+Zc323Y8Pg4O57xsT5HcktCp3sgebU71icwR2T0LGLo+nBvj4YS94a0OoLKd4BLepqrNqnVzZtbAr/fpS76CimD2rbgaTLpdH5O94WbLnjmg=
+	t=1779240602; cv=none; b=AaeguiJPkaWBVaatySvEsVH0kERAKensFOe5iJGpl3lL4ac46hegq25PVBhlZy9Ibjmh7wUXhcDkYeo7XWfej8WQ+3LwF1amVFrqkgyrfnJdWtuc/R5mgptaP/MlBN4Jtlcx0ZaJy5BRh4W/uM9b+bxaEzMfaM2O1sJA/riI+5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779240188; c=relaxed/simple;
-	bh=MP0THJ5nhNz5mIlnL4GtxbFW1eIpQDm8FSbqAaFPSO8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EKJ0iUbNz3+BVOXPKkkzd4UG6Vi3UIz5Ig+nJhocDLr/oabPgpDkkdgiplmKvzt+xRfVwDeWSexXbzSmSWBJysXWKc+MS5fbnhTdETv+ZCRmgm6el6rfYFgT0ryFeOFyd1BTLdQGE2pilAMA30QmH3Lzt6gFziFutBPm5JE39fY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ciCC/e9J; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779240602; c=relaxed/simple;
+	bh=sM1L1zx+i2ahd/cTMDH9+znC4xMTO3u/lXS6BOMeSBU=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=kcpxPloCXeQa8JirvcCnOt18dWSLBxHQ6Q4aP1h+i9QIbLpTZE1eV2LDPlk5x4o3JNma5PdAJqFyRF28EhIIR9DHwI/0SrzBhYQVcy/8DTU2y/4yZy8PrGw6sAfW2tW4ASFCs0SuBTaHcvPuDiaBaLeCVz38u71nB4z2e/qIpV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l5B8zQvz; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ciCC/e9J"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC4D71F000E9;
-	Wed, 20 May 2026 01:23:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l5B8zQvz"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6E6D68231A
+	for <bridge@lists.linux-foundation.org>; Wed, 20 May 2026 01:30:01 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id wBiBz5rn8LaF for <bridge@lists.linux-foundation.org>;
+ Wed, 20 May 2026 01:30:00 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=patchwork-bot+netdevbpf@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A9E6B82319
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A9E6B82319
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l5B8zQvz
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A9E6B82319
+	for <bridge@lists.linux-foundation.org>; Wed, 20 May 2026 01:30:00 +0000 (UTC)
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	by tor.source.kernel.org (Postfix) with ESMTP id D35446022A;
+	Wed, 20 May 2026 01:29:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 846071F000E9;
+	Wed, 20 May 2026 01:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779240187;
-	bh=MLEa82qiTECphtMRr9+pbBP9zMHAGZSW6vFOaouKx/0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ciCC/e9J/+jI5jvE+QLps41GW1FUsNTPg9T18w3pzBKTlNTn60PW9ariawVfdTgoL
-	 noTu8hw+haAg/BEaJNc9wrGn3IxFgltM0AZl7l3ej5/HPygp+0ditLXnzURA3NTH0n
-	 tXTXdRnqGslTApNFu92Z7PEdEeaLvhFiNC1ltNKNaz+X63i0hhYqyiRAlYYhBuYYyO
-	 emkdsCvQjDWVq9zaHaMzR4oMfYCmM8QWCmriHrnsKmJQ/xYZQPOq8Zy5dM/KeuiHuX
-	 l+yscGhbvHrDeFhChr9Lex04P40dxXwSZGV2cbI59Yjgq1ar++p8dBf8Xd5PbOmFQW
-	 /dvm1T+r1hanQ==
-Message-ID: <2a7322e6-690b-4d3f-b675-231619ea87cf@kernel.org>
-Date: Tue, 19 May 2026 19:23:06 -0600
+	s=k20260515; t=1779240598;
+	bh=jszwEy24nLcTVgF3m5AFIH/l9o58q+amtk0RnAFl0DY=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=l5B8zQvzlECZ2ERhen3wNV1X03DG0ukqKYw5UIO1KAiA37ppkfBphvmUUKeLXDGJq
+	 GOYcvTHW66fbzXNZVaFJjKRWx76OpsVSrV4WLBU/Z/tOIAIdfJ1lNNnNZwLqlBRYdf
+	 Si3cAsr3CbjYfwNmRG+HylhNDvsqqxt5BBcX+93RBJdJJe+noXCWsrceAVMOwEep1B
+	 bzPx+gj5PbA7qM07TOMAXJ+07P3ujRJ8DfSQyaIkB7oO3n2T4VnBZviui2bPsLOeyh
+	 j2jo0MB1EB8Waly9jiOKtuu5o144l/fy5zYOlWDrxDPh4j/TPrOhxBqF9rUvusVD2Q
+	 lVchhj+4EojDA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 939B4383BF53;
+	Wed, 20 May 2026 01:30:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH iproute2-next] iplink: bridge: add stp_mode support
-Content-Language: en-US
-To: Andy Roulin <aroulin@nvidia.com>, netdev@vger.kernel.org
-Cc: stephen@networkplumber.org, bridge@lists.linux.dev, razor@blackwall.org,
- nikolay@nvidia.com, idosch@nvidia.com, petrm@nvidia.com, danieller@nvidia.com
-References: <20260518163647.1935156-1-aroulin@nvidia.com>
-From: David Ahern <dsahern@kernel.org>
-In-Reply-To: <20260518163647.1935156-1-aroulin@nvidia.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 0/2] bridge: mcast: Fix a possible use-after-free when
+ removing a bridge port
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177924060914.2943546.7719678973905052337.git-patchwork-notify@kernel.org>
+Date: Wed, 20 May 2026 01:30:09 +0000
+References: <20260517121122.188333-1-idosch@nvidia.com>
+In-Reply-To: <20260517121122.188333-1-idosch@nvidia.com>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux-foundation.org,
+ davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, edumazet@google.com,
+ razor@blackwall.org, horms@kernel.org, dsahern@kernel.org,
+ yongwang@nvidia.com, aroulin@nvidia.com, petrm@nvidia.com, tglx@kernel.org
 
-On 5/18/26 10:36 AM, Andy Roulin wrote:
-> diff --git a/ip/iplink_bridge.c b/ip/iplink_bridge.c
-> index df3264c3..d15221b2 100644
-> --- a/ip/iplink_bridge.c
-> +++ b/ip/iplink_bridge.c
-> @@ -120,6 +122,20 @@ static int bridge_parse_opt(struct link_util *lu, int argc, char **argv,
->  				invarg("invalid stp_state", *argv);
->  
->  			addattr32(n, 1024, IFLA_BR_STP_STATE, val);
-> +		} else if (strcmp(*argv, "stp_mode") == 0) {
-> +			__u32 stp_mode;
-> +
-> +			NEXT_ARG();
-> +			if (strcmp(*argv, "auto") == 0)
-> +				stp_mode = BR_STP_MODE_AUTO;
-> +			else if (strcmp(*argv, "user") == 0)
-> +				stp_mode = BR_STP_MODE_USER;
-> +			else if (strcmp(*argv, "kernel") == 0)
-> +				stp_mode = BR_STP_MODE_KERNEL;
-> +			else if (get_u32(&stp_mode, *argv, 0))
-> +				invarg("invalid stp_mode", *argv);
-> +
-> +			addattr32(n, 1024, IFLA_BR_STP_MODE, stp_mode);
->  		} else if (matches(*argv, "priority") == 0) {
->  			__u16 prio;
->  
-> @@ -512,6 +528,20 @@ static void bridge_print_opt(struct link_util *lu, FILE *f, struct rtattr *tb[])
->  			   "stp_state %u ",
->  			   rta_getattr_u32(tb[IFLA_BR_STP_STATE]));
->  
-> +	if (tb[IFLA_BR_STP_MODE]) {
-> +		static const char *stp_modes[] = {
-> +			"auto", "user", "kernel"
-> +		};
+Hello:
 
-Make this a single table used for both set and show.
+This series was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-> +		__u32 mode = rta_getattr_u32(tb[IFLA_BR_STP_MODE]);
-> +
-> +		if (mode < ARRAY_SIZE(stp_modes))
-> +			print_string(PRINT_ANY, "stp_mode",
-> +				     "stp_mode %s ", stp_modes[mode]);
-> +		else
-> +			print_uint(PRINT_ANY, "stp_mode",
-> +				   "stp_mode %u ", mode);
-> +	}
-> +
->  	if (tb[IFLA_BR_PRIORITY])
->  		print_uint(PRINT_ANY,
->  			   "priority",
+On Sun, 17 May 2026 15:11:20 +0300 you wrote:
+> Patch #1 fixes a possible use-after-free when removing a bridge port.
+> 
+> Patch #2 adds a test case that triggers the problem.
+> 
+> In net-next we can:
+> 
+> 1. Add DEBUG_NET_WARN_ON_ONCE() when a port multicast context is
+> de-initialized while enabled.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net,1/2] bridge: mcast: Fix a possible use-after-free when removing a bridge port
+    https://git.kernel.org/netdev/net/c/4df78ff02629
+  - [net,2/2] selftests: bridge_vlan_mcast: Test toggling of multicast snooping
+    https://git.kernel.org/netdev/net/c/ae743a8ca8db
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
