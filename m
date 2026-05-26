@@ -1,365 +1,152 @@
-Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [13.75.44.102])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 635223A7F66
-	for <bridge@lists.linux.dev>; Tue, 26 May 2026 03:21:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.75.44.102
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779765692; cv=none; b=gpFDgJKBROoYurcQJ9yc/Y/q1N81StumZLxHbZDIjV0OjbJBHycQa63ibpk92ERotxnwytL5RtD7p1QO1cImPbgCA9muko4/865frpob4zRccZZxUjMFyke0ETpo5Lce3Axn2VAVwswmO9BXqADnSKn+0zN+4S9kb+FJ4Jl4GqE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779765692; c=relaxed/simple;
-	bh=lDT0Q3DixdJcia7ri43T2ziyqd6gnHwDBYXZSOj6vTI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DL+z/ggSOV/eDIskpEAwFAW4JXDvKqVNzV8t4/UAoQ9YUrOvbi89uVDSXQyOCFFjVcCEX/ODgRFnrsYCd+J/9LHcK3r6WaFD46t2uAtSZSkpf81+diadAekW0y3unK/O00p7ITrriR8KDvrsBfu/RWAGM2pSoyXyICHF1zUZP4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lzu.edu.cn; spf=pass smtp.mailfrom=lzu.edu.cn; arc=none smtp.client-ip=13.75.44.102
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lzu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lzu.edu.cn
-Received: from enjou-Legion-Y7000P-2019 (unknown [172.23.56.36])
-	by app1 (Coremail) with SMTP id ygmowABnicOmERVqgxQvAA--.2271S2;
-	Tue, 26 May 2026 11:21:11 +0800 (CST)
-From: Ren Wei <n05ec@lzu.edu.cn>
-To: netfilter-devel@vger.kernel.org,
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012041.outbound.protection.outlook.com [52.101.53.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4853B6C1E
+	for <bridge@lists.linux.dev>; Tue, 26 May 2026 06:49:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779778147; cv=fail; b=rW8GTCacVOQtxwU558glBArLAMIOsQbRWifdlmJEj7nD/jgCO+/oRmiShkEM5mRqwo2P74HSA+utHKvsw60WdhjS2/kyW129Jf0KRUKHYyApJO3DoFNSLu6hAZMMQ9m2Ui7uLUBa+CqfZKqpxyEh7euDB+L3199hJei0RS/XOww=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779778147; c=relaxed/simple;
+	bh=j6xr5kWQapOCKjEgMdR+pAY2oaurGTME35R4NfN73rU=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=Bez/mD6WcQN8EmyRiOxeK38M5Q9ZfxglOCWc9ZMQLq9Lzx6Vgk7hbXWP1sdrvLkrSxa3s7FcOOob6gj6l8bWRpN15WrzWyptptadKW8FiMlT5foMdqEIBZFMgbRi5mKNYrEQ8XaAzjluJc2Fx9jrzhe1wnmAWplJMPF2k8/l0O0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=O3ns/sBj; arc=fail smtp.client-ip=52.101.53.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="O3ns/sBj"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=eKBQ3w0vpWZIgmzur20PNHH+lrQDRMvWCrdjHKhQ0iCj8RtNtD/bsSaCBV7Nkyh0PBxysQ6PPf3aYybOHi3QgoiBXj6S99xU33RpP4UMPBO+dNLcbdLSa/vjPXjezlWug7OmkEZqAHYyZV2WbF4hftDLrfa4ORcTZxfDzGXz6eh8fHv9+XOrnmr5EfPIgbDb707HcyXBawuYl7G5rd2+cZ/EnHStQsEvy8UUmhAxTT9ipXVEnegvaCVCXI7SL9N6lWdYPIRdz9NVt4V6AUB0HX50/HjMbH+M1XaOZszhX5WebcPvTIgv9AGA/1Z3sDHqcitQMwZihmqZPMJb9xG7jg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CnL36JsjEZQW2Qii3ZrPrPnF3SHXm6NnRWdx0V0LjKw=;
+ b=eX5f5m7m8w+aBCuQpErYGi2n4rXfxKRRxA7b2d8U9BLbwpv2XAuksLMeXYVG7EWPJhsLD/pE1Y2KJlF619U1k3q4Y8hP/2ZlPCNCq0ETVIy1m+bu+B4Ar+c8S24QhSzqjmH4NBCCooEbD/j98TDOM+5YaENiHsZgttY6ZAZs1k+m6d8XrQCE9ibaxNI7LLd3Oi0IpP4a2rVvfzcFmlZKtqa+KQrTA5oDQKqJLyp8axrBAIjii5Tf/YZVa402XByPA0QgD7q0o3Og2xmDFGuy9zV2z24IdLSHtWwj7nJJ/Ny4B5WSLH6/HRB17GEr3PuI/slUTxty9p+FeFsSU5oQUg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CnL36JsjEZQW2Qii3ZrPrPnF3SHXm6NnRWdx0V0LjKw=;
+ b=O3ns/sBjizN27M6Spvs27iDigyRTmc2zIXrmgLAaEqi9WNQTZTghqVNqOt1LzemVz5Ce/UlEG77cgdmoHB06R53qGMu8Gc6rUiRlyVqj1vsJ0kbK6l/OI2FRjydrB9kp74/x/+4SfQv4VPmXdY8ZWhCVu5iGbGcnG7jUFWxWI+st4QYmKxpl3jXTjG5EdDEnW05B9AdvByw1QTJVjW2xRcsWaX/yfb5CWV+TergBV/r+yRjgIKub6mBBS3jZVibfryzV2pdYu4PXsszP7Zh2eecIlLL7eh4veFoDCL8vS7lIJCVdztByQy1ibVFDXJawerKo1tx73cKy90MK6p6h+A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by DS7PR12MB6069.namprd12.prod.outlook.com (2603:10b6:8:9f::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.12; Tue, 26 May
+ 2026 06:48:59 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.21.0048.019; Tue, 26 May 2026
+ 06:48:59 +0000
+From: Ido Schimmel <idosch@nvidia.com>
+To: netdev@vger.kernel.org,
 	bridge@lists.linux.dev
-Cc: pablo@netfilter.org,
-	fw@strlen.de,
-	phil@nwl.cc,
+Cc: davem@davemloft.net,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	edumazet@google.com,
 	razor@blackwall.org,
-	idosch@nvidia.com,
-	stephen@networkplumber.org,
-	sw@simonwunderlich.de,
-	davem@davemloft.net,
-	yuantan098@gmail.com,
-	yifanwucs@gmail.com,
-	tomapufckgml@gmail.com,
-	bird@lzu.edu.cn,
-	royenheart@gmail.com,
-	n05ec@lzu.edu.cn
-Subject: [PATCH nf v2 1/1] bridge: br_netfilter: move fake rtable off struct net_bridge
-Date: Tue, 26 May 2026 11:21:03 +0800
-Message-ID: <831936f111e6e1f435f4f6247d07fe6a6624d271.1779680014.git.royenheart@gmail.com>
-X-Mailer: git-send-email 2.51.0
+	horms@kernel.org,
+	sdf@fomichev.me,
+	Ido Schimmel <idosch@nvidia.com>
+Subject: [PATCH net 0/3] bridge: Fix sleep in atomic context
+Date: Tue, 26 May 2026 09:48:15 +0300
+Message-ID: <20260526064818.272516-1-idosch@nvidia.com>
+X-Mailer: git-send-email 2.54.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: FR4P281CA0419.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:d0::18) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:ygmowABnicOmERVqgxQvAA--.2271S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxKFWUJr15uw43uF4rCr4xCrg_yoWftw4rpF
-	4rKayftr4UXF1Ygw48AF4Iyr13Krs5CFW3uryfC34S9w1jgF1kAa9akry2va1rZFWkuFW5
-	JF12qr45t3yDZF7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBY1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
-	w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
-	IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2
-	z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcV
-	Aq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j
-	6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
-	vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2IY04v7MxkF7I0E
-	n4kS14v26r1q6r43MxkIecxEwVCm-wCF04k20xvY0x0EwIxGrwCF04k20xvE74AGY7Cv6c
-	x26r48MxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCj
-	r7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6x
-	IIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAI
-	w20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x
-	0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUbGQ6JUUUUU==
-X-CM-SenderInfo: zqqvvuo6o23hxhgxhubq/1tbiAQsSCWoUBk4H1wAEsz
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS7PR12MB6069:EE_
+X-MS-Office365-Filtering-Correlation-Id: 77492528-da83-4f67-836b-08debaf2dd5f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|366016|6133799003|11063799006|18002099003|56012099003;
+X-Microsoft-Antispam-Message-Info:
+	usXmLdisQqIZtlI2yyLNWtHZixrKFTSeWE3UyRa6LkBv2EeJ8q7NLGOoJ4403UJz5u4U+OmHPEaJDfGe3jymSpbYOerPkh0W90pQLpEXbwi30L4jP/iIVzu9sCqUUsFa/Y7FVD679ntj67Dy7LGr6iBGRi0yEMwMSJmimEBSWwQHI6kHB7jPHzEJi0q4ILMHVt8mAPk0WF/Np7RTS1ll5HX7wTeLWgZQZr11u9Z2IHFGdIMLAraxD6FfNiy/PmFqX5sMb9Iwh3h7mENew5zritVAAf+xmKKum4tZr3JR1x4AwdmLc59ousW68BWv//Pk2dPVh9gmI2+m1/csjxsmfUdMd/0tppUTEonVwuWkGKag9IYGOrIva0L2DJa2z7pvlflhu4cBumrUNx5NCp7wwuom1kgcXorKNEG/oPAw04Oqpcb/JflgdoM993VAgtDP4yq2izh3FX0zi2Bvbsiut7+oNzlKZrizgBtLBbXA2CjWsg02G2aowYwiecQcQdL+C5zihGDK+ClZd6PoYi6pOH1YvYzNAl1vuQd5WJ6Guk6Pj4G5K3X7GH9BxCqw46WsbeFjLUergB+Yvsasg9VItzq9jWQF2KeqrHWmFwy6xdvo75GMKaiZYoDdqgi9MxTI4kajuzv3HXCg+T8WAp0fwimWHdTKvXhzwk/VkBCptOJ+JlqVm5cVHTr60SC+TLhb
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(6133799003)(11063799006)(18002099003)(56012099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?tXSmjz2fNgLuhQ9nfeSDh5pTQjxcdqDeg6DVumyRz7fvlZc3LErOaUGBTJN6?=
+ =?us-ascii?Q?TC1U2nSDCVWEPCXfnub5n253Md78n+6S6DsS22b0RlfrTfOi+W5orrV26uhp?=
+ =?us-ascii?Q?bJ8HdnE597gWhg7EquVXsWbovKFlpcFddQezWcEQvJkk7Gn94xKaNeD3Fgl7?=
+ =?us-ascii?Q?fdnUbf+tA5jTXtuDkP6z4Xy2HzfnvZ9pZUb+GxnAJhYEU6QcSImkII/x8tXe?=
+ =?us-ascii?Q?amtZnMH/uiYq1LfybNThaJ2Kza8mZPBNC92aULy+/lwpSxhSFrNmJFVa6hu+?=
+ =?us-ascii?Q?3dMvzLagUBL5ljN3C6sw24IiNCz2B9aIN/XrMtj9yEt6FVkw+jba375UTB91?=
+ =?us-ascii?Q?xkd16JBADTBzJKlAtPX3XX1EuO88S0PlTTwDSAUip83hANNHEeRhqnNFMFed?=
+ =?us-ascii?Q?Kistud33LLfhrd+Cun43tg+WxZyHpaWdIYm5LM7ynWEjdeyrwU/r8wOuAfJ5?=
+ =?us-ascii?Q?D1HHoPawXq9ue9O8UGt5hOeHQXSL5683B/9bLW42fFrXZKZwKxFAxxzrRcja?=
+ =?us-ascii?Q?JUMG0GodlP8bmsQ4AjDiVnX8lIRgMbjDUq29+2pw4PAuOYsMWdCozDCZ5c9R?=
+ =?us-ascii?Q?mOx0kJpgTGg7TUVuqBxy+yNqr5mE74V1SBdA+iUVOo7f7JIIJLQCYAC1OuxS?=
+ =?us-ascii?Q?KzM8jI1YPNXrjjfd4dwsbYBjHYcOFUzjSBDJuBe44Xoxq5fo6DPxI3fFJSDO?=
+ =?us-ascii?Q?8tshDp/03b3ZnQdJmi3+1hma5RoxdHn5AEfUoof6vkW/ImyE6fDC13+kz5hN?=
+ =?us-ascii?Q?Sm66U2YnAWB7ThDPGBG7jFCOVpXu3uAHL7b6Xnsapze4eag2+VA8GyW5EMeu?=
+ =?us-ascii?Q?hnj+LUcmtsSAgs4vHfPFEgFA37NDoIfulUo+k9BFKQVJb8kCqfYSE5298L9k?=
+ =?us-ascii?Q?b0h3vFj+jrJq7HPCI9OQZuythwysael8HGozfB5vtw2qAoyPikWSwtRTLCl/?=
+ =?us-ascii?Q?+QpYQaYtBX5O9CHHrFNjjzJW96ssx76t4RmOQq87nX4H7dGphPl5tDgacHXn?=
+ =?us-ascii?Q?91ViFyCeefSnaFVeZVNMHDp13X16OuuKmLllq0nDB6mdl65emSgnv87fmMeO?=
+ =?us-ascii?Q?LzqfrQI+tquGixFmgfQ8+5E/CY0oBHEQ1047GTdEvbBN1A5IGdJa026A44b4?=
+ =?us-ascii?Q?xw6KO9sp2nL+rlScCEY1PDxCBepZ0cYk7JQjnM3TDAOUL58NyD9cYJg7jcUM?=
+ =?us-ascii?Q?eFKCQbVMBOdYAkSpbUvClNPHuiqKs5ZNQhGo2NHPOXpEeCv7NDFu8UjQ9F24?=
+ =?us-ascii?Q?4dU8YanniM/CtYe2FtSMxFNmDIpPimeSKm7/EMdiGOTXxPPUp7zVT1rjotLx?=
+ =?us-ascii?Q?z5G6DHaJo/KS2qVzrbJXt5RG6T8gahoctok3ubZwkGxmuMxcUlrjgOqgxwQ5?=
+ =?us-ascii?Q?AhVpRp5dR9Kr30W1wtu3VnOHgh0wc8UjmpMmoG0gS8DZBXIsYjm4wS4HBqw4?=
+ =?us-ascii?Q?430/eVIsy5m6kZ1EW36jDpCIEW83ai+jmJy8UNR4dYFdZkXFASjoIoCGtvKS?=
+ =?us-ascii?Q?eS4ZW7PQawYiieYlQXXkCxRM2EPm66xyjDkT9PxKo4l4qKesi2D9uFM+Kjp8?=
+ =?us-ascii?Q?d/P8D4BEKNUBi2La2vo2TtFZDWTVp+4cmm2UuB6OE2RgKo4pw+OBbmoNoDJR?=
+ =?us-ascii?Q?2dQNkeUktCHNhqys9s8SNYc0jAm5Is/eLUv0s/JmRjcMc18pLs/jZBt4Il6v?=
+ =?us-ascii?Q?c+WyC/x8v4wQpnu5QgCTViSwTpTeM6lnrHPaO7rJlTSTfq02?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 77492528-da83-4f67-836b-08debaf2dd5f
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2026 06:48:59.3039
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: IVKbtWZxCSnaU41gqLjjoAFfnazhS3C78axrV6Z+gq/vY+tbKR+3CdcsutoCPRFGNY8JWBMEnz0rd0srZmHtZQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6069
 
-From: Haoze Xie <royenheart@gmail.com>
+Under certain circumstances the bridge driver can call
+dev_set_promiscuity() while holding the bridge spin lock. This is a
+problem as dev_set_promiscuity() might sleep.
 
-The bridge netfilter fake rtable currently lives inside struct
-net_bridge and is reattached to bridged packets with
-skb_dst_set_noref(). If such a packet is queued to NFQUEUE,
-__nf_queue() upgrades that fake dst with skb_dst_force().
+Patches #1-#2 fix the problem in the netlink and sysfs configuration
+paths by only taking the lock where it is actually needed, thereby
+avoiding calling dev_set_promiscuity() from an atomic context.
 
-At that point queued packets can hold a real dst reference even after
-bridge teardown starts freeing the backing struct net_bridge storage.
-When verdict reinjection later drops the skb, dst_release() can hit the
-freed bridge-private fake rtable.
+Patch #3 adds test cases for both configuration paths in rtnetlink.sh
+which already includes test cases for similar issues.
 
-Fix this by moving the fake rtable out of struct net_bridge and making
-bridge_parent_rtable() hand out a referenced dst. This keeps the queued
-skb path from holding a pointer into struct net_bridge while keeping the
-kludge local to br_netfilter.
+Note that dev_set_promiscuity() can sleep either when it takes the net
+device mutex or when calling netif_rx_mode_sync(). I encountered the
+problem with the latter, but blamed the former since it came earlier.
 
-Use rt_dst_alloc() so the fake dst reuses the core IPv4 rtable
-lifecycle, and release the bridge device reference during teardown via
-dst_dev_put() before dropping the bridge-owned dst reference.
+Ido Schimmel (3):
+  bridge: Fix sleep in atomic context in netlink path
+  bridge: Fix sleep in atomic context in sysfs path
+  selftests: rtnetlink: Add bridge promiscuity tests
 
-Fixes: 4adf0af6818f ("bridge: send correct MTU value in PMTU (revised)")
-Cc: stable@kernel.org
-Reported-by: Yuan Tan <yuantan098@gmail.com>
-Reported-by: Yifan Wu <yifanwucs@gmail.com>
-Reported-by: Juefei Pu <tomapufckgml@gmail.com>
-Reported-by: Xin Liu <bird@lzu.edu.cn>
-Signed-off-by: Haoze Xie <royenheart@gmail.com>
-Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
----
-changes in v2:
-  - spell out how NFQUEUE upgrades the fake dst into a real reference
-  - switch to rt_dst_alloc() instead of br_netfilter-private dst_ops state
-  - detach the bridge device with dst_dev_put() during teardown
-  - keep the ref-holding contract local to bridge_parent_rtable()
-  - v1 Link: https://lore.kernel.org/all/783d76ac83917b7302c1ec647794bd773bb1875a.1778687139.git.royenheart@gmail.com/
+ net/bridge/br_netlink.c                  | 17 +++----
+ net/bridge/br_switchdev.c                |  1 -
+ net/bridge/br_sysfs_if.c                 | 30 ++++++++---
+ tools/testing/selftests/net/rtnetlink.sh | 63 ++++++++++++++++++++++++
+ 4 files changed, 92 insertions(+), 19 deletions(-)
 
- include/net/netfilter/br_netfilter.h | 15 +++++-
- net/bridge/br_device.c               | 15 ++++--
- net/bridge/br_netfilter_hooks.c      |  2 +-
- net/bridge/br_netfilter_ipv6.c       |  2 +-
- net/bridge/br_nf_core.c              | 71 ++++++++++------------------
- net/bridge/br_private.h              | 12 ++---
- 6 files changed, 55 insertions(+), 62 deletions(-)
-
-diff --git a/include/net/netfilter/br_netfilter.h b/include/net/netfilter/br_netfilter.h
-index 371696ec11b2..99f64c2e70c0 100644
---- a/include/net/netfilter/br_netfilter.h
-+++ b/include/net/netfilter/br_netfilter.h
-@@ -3,6 +3,7 @@
- #define _BR_NETFILTER_H_
- 
- #include <linux/netfilter.h>
-+#include <net/dst.h>
- 
- #include "../../../net/bridge/br_private.h"
- 
-@@ -44,9 +45,21 @@ static inline struct rtable *bridge_parent_rtable(const struct net_device *dev)
- {
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
- 	struct net_bridge_port *port;
-+	struct rtable *rt;
- 
-+	/* Caller receives a held dst reference and must drop it. */
-+	rt = NULL;
-+	rcu_read_lock();
- 	port = br_port_get_rcu(dev);
--	return port ? &port->br->fake_rtable : NULL;
-+	if (!port)
-+		goto out;
-+
-+	rt = rcu_dereference(port->br->fake_rtable);
-+	if (rt && !dst_hold_safe(&rt->dst))
-+		rt = NULL;
-+out:
-+	rcu_read_unlock();
-+	return rt;
- #else
- 	return NULL;
- #endif
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index a35ceae0a6f2..00f426420bab 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -131,8 +131,16 @@ static int br_dev_init(struct net_device *dev)
- 		return err;
- 	}
- 
-+	err = br_netfilter_rtable_init(br);
-+	if (err) {
-+		br_mdb_hash_fini(br);
-+		br_fdb_hash_fini(br);
-+		return err;
-+	}
-+
- 	err = br_vlan_init(br);
- 	if (err) {
-+		br_netfilter_rtable_fini(br);
- 		br_mdb_hash_fini(br);
- 		br_fdb_hash_fini(br);
- 		return err;
-@@ -141,6 +149,7 @@ static int br_dev_init(struct net_device *dev)
- 	err = br_multicast_init_stats(br);
- 	if (err) {
- 		br_vlan_flush(br);
-+		br_netfilter_rtable_fini(br);
- 		br_mdb_hash_fini(br);
- 		br_fdb_hash_fini(br);
- 		return err;
-@@ -154,6 +163,7 @@ static void br_dev_uninit(struct net_device *dev)
- {
- 	struct net_bridge *br = netdev_priv(dev);
- 
-+	br_netfilter_rtable_fini(br);
- 	br_multicast_dev_del(br);
- 	br_multicast_uninit_stats(br);
- 	br_vlan_flush(br);
-@@ -209,10 +219,6 @@ static int br_change_mtu(struct net_device *dev, int new_mtu)
- 
- 	/* this flag will be cleared if the MTU was automatically adjusted */
- 	br_opt_toggle(br, BROPT_MTU_SET_BY_USER, true);
--#if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
--	/* remember the MTU in the rtable for PMTU */
--	dst_metric_set(&br->fake_rtable.dst, RTAX_MTU, new_mtu);
--#endif
- 
- 	return 0;
- }
-@@ -529,7 +535,6 @@ void br_dev_setup(struct net_device *dev)
- 	br->bridge_ageing_time = br->ageing_time = BR_DEFAULT_AGEING_TIME;
- 	dev->max_mtu = ETH_MAX_MTU;
- 
--	br_netfilter_rtable_init(br);
- 	br_stp_timer_init(br);
- 	br_multicast_init(br);
- 	INIT_DELAYED_WORK(&br->gc_work, br_fdb_cleanup);
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 0ab1c94db4b9..8b3b2fb48334 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -417,7 +417,7 @@ static int br_nf_pre_routing_finish(struct net *net, struct sock *sk, struct sk_
- 			return 0;
- 		}
- 		skb_dst_drop(skb);
--		skb_dst_set_noref(skb, &rt->dst);
-+		skb_dst_set(skb, &rt->dst);
- 	}
- 
- 	skb->dev = br_indev;
-diff --git a/net/bridge/br_netfilter_ipv6.c b/net/bridge/br_netfilter_ipv6.c
-index d8548428929e..4e245645f7e6 100644
---- a/net/bridge/br_netfilter_ipv6.c
-+++ b/net/bridge/br_netfilter_ipv6.c
-@@ -144,7 +144,7 @@ static int br_nf_pre_routing_finish_ipv6(struct net *net, struct sock *sk, struc
- 			return 0;
- 		}
- 		skb_dst_drop(skb);
--		skb_dst_set_noref(skb, &rt->dst);
-+		skb_dst_set(skb, &rt->dst);
- 	}
- 
- 	skb->dev = br_indev;
-diff --git a/net/bridge/br_nf_core.c b/net/bridge/br_nf_core.c
-index a8c67035e23c..e28512175671 100644
---- a/net/bridge/br_nf_core.c
-+++ b/net/bridge/br_nf_core.c
-@@ -14,6 +14,7 @@
- #include <linux/kernel.h>
- #include <linux/in_route.h>
- #include <linux/inetdevice.h>
-+#include <linux/rcupdate.h>
- #include <net/route.h>
- 
- #include "br_private.h"
-@@ -21,43 +22,6 @@
- #include <linux/sysctl.h>
- #endif
- 
--static void fake_update_pmtu(struct dst_entry *dst, struct sock *sk,
--			     struct sk_buff *skb, u32 mtu,
--			     bool confirm_neigh)
--{
--}
--
--static void fake_redirect(struct dst_entry *dst, struct sock *sk,
--			  struct sk_buff *skb)
--{
--}
--
--static u32 *fake_cow_metrics(struct dst_entry *dst, unsigned long old)
--{
--	return NULL;
--}
--
--static struct neighbour *fake_neigh_lookup(const struct dst_entry *dst,
--					   struct sk_buff *skb,
--					   const void *daddr)
--{
--	return NULL;
--}
--
--static unsigned int fake_mtu(const struct dst_entry *dst)
--{
--	return dst->dev->mtu;
--}
--
--static struct dst_ops fake_dst_ops = {
--	.family		= AF_INET,
--	.update_pmtu	= fake_update_pmtu,
--	.redirect	= fake_redirect,
--	.cow_metrics	= fake_cow_metrics,
--	.neigh_lookup	= fake_neigh_lookup,
--	.mtu		= fake_mtu,
--};
--
- /*
-  * Initialize bogus route table used to keep netfilter happy.
-  * Currently, we fill in the PMTU entry because netfilter
-@@ -65,24 +29,37 @@ static struct dst_ops fake_dst_ops = {
-  * ipt_REJECT needs it.  Future netfilter modules might
-  * require us to fill additional fields.
-  */
--void br_netfilter_rtable_init(struct net_bridge *br)
-+int br_netfilter_rtable_init(struct net_bridge *br)
- {
--	struct rtable *rt = &br->fake_rtable;
-+	struct rtable *rt;
-+
-+	rt = rt_dst_alloc(br->dev, 0, RTN_UNSPEC, true);
-+	if (!rt)
-+		return -ENOMEM;
-+
-+	rt->dst.flags |= DST_FAKE_RTABLE;
-+	rcu_assign_pointer(br->fake_rtable, rt);
-+
-+	return 0;
-+}
-+
-+void br_netfilter_rtable_fini(struct net_bridge *br)
-+{
-+	struct rtable *rt;
-+
-+	rt = rcu_replace_pointer(br->fake_rtable, NULL, lockdep_rtnl_is_held());
-+	if (!rt)
-+		return;
- 
--	rcuref_init(&rt->dst.__rcuref, 1);
--	rt->dst.dev = br->dev;
--	dst_init_metrics(&rt->dst, br->metrics, false);
--	dst_metric_set(&rt->dst, RTAX_MTU, br->dev->mtu);
--	rt->dst.flags	= DST_NOXFRM | DST_FAKE_RTABLE;
--	rt->dst.ops = &fake_dst_ops;
-+	dst_dev_put(&rt->dst);
-+	dst_release(&rt->dst);
- }
- 
- int __init br_nf_core_init(void)
- {
--	return dst_entries_init(&fake_dst_ops);
-+	return 0;
- }
- 
- void br_nf_core_fini(void)
- {
--	dst_entries_destroy(&fake_dst_ops);
- }
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index bed1b1d9b282..bb4aa408f232 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -508,11 +508,7 @@ struct net_bridge {
- 	struct rhashtable		fdb_hash_tbl;
- 	struct list_head		port_list;
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
--	union {
--		struct rtable		fake_rtable;
--		struct rt6_info		fake_rt6_info;
--	};
--	u32				metrics[RTAX_MAX];
-+	struct rtable __rcu		*fake_rtable;
- #endif
- 	u16				group_fwd_mask;
- 	u16				group_fwd_mask_required;
-@@ -2018,11 +2014,13 @@ extern const struct nf_br_ops __rcu *nf_br_ops;
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
- int br_nf_core_init(void);
- void br_nf_core_fini(void);
--void br_netfilter_rtable_init(struct net_bridge *);
-+int br_netfilter_rtable_init(struct net_bridge *br);
-+void br_netfilter_rtable_fini(struct net_bridge *br);
- #else
- static inline int br_nf_core_init(void) { return 0; }
- static inline void br_nf_core_fini(void) {}
--#define br_netfilter_rtable_init(x)
-+static inline int br_netfilter_rtable_init(struct net_bridge *br) { return 0; }
-+static inline void br_netfilter_rtable_fini(struct net_bridge *br) {}
- #endif
- 
- /* br_stp.c */
 -- 
-2.47.3
+2.54.0
 
