@@ -1,75 +1,68 @@
-Received: from us.padl.com (us.padl.com [216.154.215.154])
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [91.216.245.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2E43AA50A
-	for <bridge@lists.linux.dev>; Wed, 27 May 2026 07:16:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.154.215.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5AFB3C98B7
+	for <bridge@lists.linux.dev>; Wed, 27 May 2026 07:42:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.216.245.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779866198; cv=none; b=O91ERtu2uZQK4rfrsQUAqCSOgN4ZRF3VL5m9vvgrSXwB9+YKX+06ITD+FZVeViz/0BjbVIkXJsFPQUGSObhWu1oEHq+yOGXSFguAbwB9Cdh2XL+Hih9Z8Ri39JiqEVm33wZZB8Ei870ea6xypoGe0i6AUK65EzFmj7545VFZKHs=
+	t=1779867728; cv=none; b=eev41bO/PMmhavksB3Z9qC+ov6ho1jGaV1aPev7gC1oEEr+AIXzGdqdVuMGIjL4rAHKZq0XGZ3Qk5s0Rjc+QztmBVN614zV0gaRuf4m2dayIs31hLWoSyfZvfC0DwLLh9RvVvZpoyQQp9xLdUpHEKxzDwKkKiJdcDmqb86Rs5/A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779866198; c=relaxed/simple;
-	bh=vIxdAAp8PLpZ7PFhmWuqtC4SuKqVVjfiU2X5PLRSPSU=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=hPB//CwNDsxtGHGkkwggbFn7pptyICiDQfYHSg5bP/3LfW6dbz9v6q7Sq3J0VIwaZxBUUwVJfn3MaAlugHVPrS8F/bqvcRQYhQ0q9DwYaoynxDfPiLzPPc6+uzGj9O1Vhn5r53ZNqHARrO0ksy3QPS4hgyW51kOEoM9tak1O+Qk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b=fnkplXqq; arc=none smtp.client-ip=216.154.215.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=padl.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b="fnkplXqq"
-Received: from auth (localhost [127.0.0.1]) by us.padl.com (8.14.7/8.14.7) with ESMTP id 64R7G6Vl002262
-	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Wed, 27 May 2026 08:16:09 +0100
-DKIM-Filter: OpenDKIM Filter v2.11.0 us.padl.com 64R7G6Vl002262
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=padl.com; s=default;
-	t=1779866179; bh=vIxdAAp8PLpZ7PFhmWuqtC4SuKqVVjfiU2X5PLRSPSU=;
-	h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
-	b=fnkplXqq1W7tBpY10raBDNXPnWh/hy7hSDTEHEITN4r+5gPg6kHeXyIwfh5U/5cnG
-	 Kh/V4PkkvGpI/b7dzqB11kz5oLcJnc5jd/fodJfrK2ms7aZgkQQV3Od9rdfXr1E5X0
-	 0y6Xw5NuAYfdeIKy34rqj9LQ7xiCxnG3HWXk8WX34RvcguyY+XRM8k2drIRm+yGKSF
-	 CnrPdVDNIGKfiFj9dyM6WWzwkUrpEDZxgimUzThWPmVOB8hLyb2tRbMXdLOEUS+m1d
-	 bbKSmYZEHT9xMiqwNqH/ASU9aJmGA8wkPEY8v2t4OQeY6x9tobP2tcSyfELeyyOH4O
-	 /ERegxyFUjGIw==
-Content-Type: text/plain;
-	charset=utf-8
+	s=arc-20240116; t=1779867728; c=relaxed/simple;
+	bh=N53eunr/8xkIomMQr8fC79ih0Wwn1NRV4PqIde6D5wk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gIpeWTZnVps2kCwB++vIxaxYnQTRLWahZa7fn3QGO8tTCKInODa3d6u9dC7ikhwNai04HJwdTtqeEqFXp1dNZ+sg8aCIWu+smn4tsRy5QCkdOUJdutwQdcGAWwy5FAD9XFfUw26Fjd8ZCkEEWBrsl3Jn7GEUEtvKxqxK3j3HB3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de; spf=pass smtp.mailfrom=strlen.de; arc=none smtp.client-ip=91.216.245.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=strlen.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=strlen.de
+Received: by Chamillionaire.breakpoint.cc (Postfix, from userid 1003)
+	id 208FE602AB; Wed, 27 May 2026 09:42:04 +0200 (CEST)
+Date: Wed, 27 May 2026 09:42:03 +0200
+From: Florian Westphal <fw@strlen.de>
+To: Ren Wei <n05ec@lzu.edu.cn>
+Cc: netfilter-devel@vger.kernel.org, bridge@lists.linux.dev,
+	pablo@netfilter.org, phil@nwl.cc, razor@blackwall.org,
+	idosch@nvidia.com, stephen@networkplumber.org,
+	sw@simonwunderlich.de, davem@davemloft.net, yuantan098@gmail.com,
+	yifanwucs@gmail.com, tomapufckgml@gmail.com, bird@lzu.edu.cn,
+	royenheart@gmail.com
+Subject: Re: [PATCH nf v2 1/1] bridge: br_netfilter: move fake rtable off
+ struct net_bridge
+Message-ID: <ahagS3rGl2sG0OVS@strlen.de>
+References: <831936f111e6e1f435f4f6247d07fe6a6624d271.1779680014.git.royenheart@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.500.181.1.5\))
-Subject: Re: [PATCH net-next 1/6] net: bridge: mdb: add
- MDB_FLAGS_STREAM_RESERVED flag
-From: Luke Howard <lukeh@padl.com>
-In-Reply-To: <946d52d4-1456-4cf8-9dfa-9bba96121dcb@blackwall.org>
-Date: Wed, 27 May 2026 17:15:54 +1000
-Cc: netdev@vger.kernel.org, Kieran Tyrrell <kieran@sienda.com>,
-        Max Hunter <max@huntershome.org>,
-        Cedric Jehasse <cedric.jehasse@luminex.be>,
-        Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        Andrew Lunn <andrew+netdev@lunn.ch>, Ido Schimmel <idosch@nvidia.com>,
-        linux-kernel@vger.kernel.org, bridge@lists.linux.dev
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <4CEA01D0-0C3C-4617-AFEE-6B213C4B731D@padl.com>
-References: <cover.1779841530.git.lukeh@padl.com>
- <45e7cd01f9449c8ef15a5affd587fe7645ecddb7.1779841530.git.lukeh@padl.com>
- <946d52d4-1456-4cf8-9dfa-9bba96121dcb@blackwall.org>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-X-Mailer: Apple Mail (2.3826.500.181.1.5)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <831936f111e6e1f435f4f6247d07fe6a6624d271.1779680014.git.royenheart@gmail.com>
 
-Hi Nik,
+Ren Wei <n05ec@lzu.edu.cn> wrote:
+> From: Haoze Xie <royenheart@gmail.com>
+> 
+> The bridge netfilter fake rtable currently lives inside struct
+> net_bridge and is reattached to bridged packets with
+> skb_dst_set_noref(). If such a packet is queued to NFQUEUE,
+> __nf_queue() upgrades that fake dst with skb_dst_force().
+> 
+> At that point queued packets can hold a real dst reference even after
+> bridge teardown starts freeing the backing struct net_bridge storage.
+> When verdict reinjection later drops the skb, dst_release() can hit the
+> freed bridge-private fake rtable.
+> 
+> Fix this by moving the fake rtable out of struct net_bridge and making
+> bridge_parent_rtable() hand out a referenced dst. This keeps the queued
+> skb path from holding a pointer into struct net_bridge while keeping the
+> kludge local to br_netfilter.
+> 
+> Use rt_dst_alloc() so the fake dst reuses the core IPv4 rtable
+> lifecycle, and release the bridge device reference during teardown via
+> dst_dev_put() before dropping the bridge-owned dst reference.
 
-> We don't add hw-only functionality, if you'd like to have this flag
-> you'll have to do a software implementation of this feature first.
-> Also please check the slop(code) that Claude generates before sending
-> it, there are obvious issues in this patch.
+I think AI review is mostly correct:
+https://sashiko.dev/#/patchset/831936f111e6e1f435f4f6247d07fe6a6624d271.1779680014.git.royenheart%40gmail.com
 
-Noted, will review. I do have a software bridge implementation which I =
-shall include in the next revision if it progresses. I didn=E2=80=99t =
-include it as it still needs configuration knobs to associate one or =
-more traffic classes (or priorities) with this flag.
-
-Cheers,
-Luke=
+- no need for constant refcount bump
+- I don't think the ipv4 specific functions can be used safely here.
