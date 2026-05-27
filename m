@@ -1,228 +1,264 @@
-Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011008.outbound.protection.outlook.com [52.101.62.8])
+Received: from us.padl.com (us.padl.com [216.154.215.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12C3A317143
-	for <bridge@lists.linux.dev>; Tue, 26 May 2026 06:49:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.62.8
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779778180; cv=fail; b=cK31+c6xizF4tRP6Yv4uuvJ7uWsUaxEpclI9an7MEweFuHePWYMVMBPia+Yo+Jy2SSeEplKmEOsty0pKwbwSGdpSRtFL1zboes4kNUpV6U3pUZGNC/ryK9mYQkQ8RG/p2LfHe8dB0l7tssYWY2OgtMkHYLzJhTO4L1xRDoTnMhc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779778180; c=relaxed/simple;
-	bh=C1+fsCPRSVOSe/GpUmp5IMNI8HLtZ/Gus0TG2F2XKrE=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E07FB208D0
+	for <bridge@lists.linux.dev>; Wed, 27 May 2026 00:43:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.154.215.154
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779842632; cv=none; b=aCHYLLUPP50TtP9Ol4+4/fHVMy6E2dQUKN3fD677yVIgmVOsPD0Vhxi9Q2Kq53G0z/ExHwto7FXsn7dHhYMD0IIl3tQuw0DNj6mqvB7jgc4MyFIa2BkOZMWOrL6KWHyMhE6YhqRD7gzuvn9U+Rx0rctAl6EbW3una7JDm2gDuiQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779842632; c=relaxed/simple;
+	bh=OPvk6kNcEqW9pE2w9TlV94v17TjNQ/zyncqpHm20ogg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=I/KVrLSwxFEFMkLEVbbtS3j/JSHlzGEm+P5iq8/M8XBP9pPYZ8mq4g8vI5WEFXiiq0kknHIAKhzOTi1ydWC43aFVZv/ujV8XQTi7domc2lcPiq6oAyWX9G0j8Q7sN7ogYnmVDqsNHoUQx7yoGJGaZgI+YxGLRxo2NrWf9AE0Zh8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=ffMa3uZy; arc=fail smtp.client-ip=52.101.62.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	 MIME-Version; b=kxxoH5HQiZGEa/fZeceJkaLmBawOXHHGGr3fLRqK2QUqA7iT7A0XqEIBOxq02MPKh5N7HHq11jfocCnjTQA0CckthWuxbdk4wDuF/TTx6uErGPz1zzg5TxxtTCKALuqc2NLr/t0DgwgLopbwguKjtjcHYG/95kEGy0FLM11QC9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b=OmlI09XK; arc=none smtp.client-ip=216.154.215.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=padl.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ffMa3uZy"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Z6rqt8NcJeHKcak4luxHc8Z7N/CCFwNaYp/i0T9QJH3Sgo+8GSFF6MI5sE+eJ2jwDMEsUpeXCs4Z6uBTS1tLXwdpACizCTRTYDVNUP69wzaZQX9GOVqMC1pSe2rf3zJm3rSJjlsUBMEoIR2QFeFpEMA3PpbUE0wRC+0kYPmjYcMZ0lxtFRcEh4LM/hPf2yQhaT+8GYZEA7cm4qNvExw3T3+Ed9aWdJsQfNYdmUBsnhokc0nTRApYGI8HBmP3DzdWN1nVlSCyJxntZq3ZrG9aN4GTTp2eRVF3cEsHlpKFJuUfkuMCPf8bEGT3Vrct/orKNV70qJyXy/9hsoVzRhxsYQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NJQZ2dwzLr8UjZLE+LIc1wxkLr7nKaNheYee2CQJi1U=;
- b=YVHkcd9Vx9QM85emlOeB9d2DYGixi5E1CJG/Dz6KpPjwBG3PERL4nc382+m5pAJ7EVenNdEu2/5VVpfQwhf+j8ZNr5wViMpgz2LzGosUyjM/NpDQhQ0Q7N2yDW7Ha1QO5QzdPR7ZdRkpYTYdaqKTkXg9xVd7u+L11IUAH9WC7lgjSpLNPW36Q/ROkJ4N1OEdfDY7/Z3zMqNO1DHNVRehY0TMRm2cgjXJUVKFjM3+Ma7KDs8IIWP43wtMhjZ6KNF1h5V2rZgMD/fuJ0MYwM3PZTmE88LgyfTKILZ7UKrd2Oc4uKaIejpV6t0dro7waohDfSBV8KGIfCWCBdLFPygMKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NJQZ2dwzLr8UjZLE+LIc1wxkLr7nKaNheYee2CQJi1U=;
- b=ffMa3uZyjZ4jJRRqxTCAiaKqFNHUPnXU8L6Klhy2eAKbrHgM1qVL4+TTMifHqSBuURWQP2UcOXhyRr6yMl7Mf4uoF4EGIQWMclXUY7DBryx0Jfx8aDYrbN1ARQI2juMAN5Tt7I9Mba17Z0oYQyrKGyrjyp1g+1yyq5LaqNdbXaJiLrhyGg7ww9XEBJFUsFHuKgPCJzQUIlYlmCqRHvQfdOQAvwKSL11VgSsW9xBfmOagxqexyMa6DRSd8aB/qewfTCEEBvGvTUPbnTVNuH8MKwXgDyNdVa1vhhyyZXwPAiLQO2hTEeNNW22iX8J6A3M+TI8m9SFhs/Z3c0bDM1tuIQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by DS7PR12MB6069.namprd12.prod.outlook.com (2603:10b6:8:9f::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.12; Tue, 26 May
- 2026 06:49:29 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.21.0048.019; Tue, 26 May 2026
- 06:49:29 +0000
-From: Ido Schimmel <idosch@nvidia.com>
-To: netdev@vger.kernel.org,
-	bridge@lists.linux.dev
-Cc: davem@davemloft.net,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	razor@blackwall.org,
-	horms@kernel.org,
-	sdf@fomichev.me,
-	Ido Schimmel <idosch@nvidia.com>
-Subject: [PATCH net 3/3] selftests: rtnetlink: Add bridge promiscuity tests
-Date: Tue, 26 May 2026 09:48:18 +0300
-Message-ID: <20260526064818.272516-4-idosch@nvidia.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260526064818.272516-1-idosch@nvidia.com>
-References: <20260526064818.272516-1-idosch@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: FR4P281CA0439.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:c6::20) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b="OmlI09XK"
+Received: from auth (localhost [127.0.0.1]) by us.padl.com (8.14.7/8.14.7) with ESMTP id 64R0h2tE030932
+	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+	Wed, 27 May 2026 01:43:08 +0100
+DKIM-Filter: OpenDKIM Filter v2.11.0 us.padl.com 64R0h2tE030932
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=padl.com; s=default;
+	t=1779842614; bh=YRieJS/p07GCEeSJQbZsvPsVYeisfBSd+V3RqjVJImE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=OmlI09XKg2TBEXair9f5vsglhj84q+wpSsQ+qj5fCvm9wiycbMT3NIwCJttUFlGVn
+	 kY/eNfpK3UcuEKqt4NqyhB1BzVtNcAyl4ZhMCXH0WFa1YiZGGxzqNh5fM5XNy9u4Z1
+	 fZUZy9k0jBlvyhfofKFDb25LIYh9kWh22Yo9bw8Y+OvwYiMLtsKc3s6wbJdeDZAayt
+	 sNSMwOHdACSGLXJVMqcqdnbHQ4Gaq73jzU07dMjCjm6oT+h2lAw/69VC9eMU0Tw9S1
+	 e4iFpWFmR+932hPX8LZj32VZMtgXztZFtlXKnz9pJq7dvO0Yt1zJJzLALKYk4MxPLe
+	 6IziSIVREwuDQ==
+From: Luke Howard <lukeh@padl.com>
+To: netdev@vger.kernel.org
+Cc: Luke Howard <lukeh@padl.com>, Kieran Tyrrell <kieran@sienda.com>,
+        Max Hunter <max@huntershome.org>,
+        Cedric Jehasse <cedric.jehasse@luminex.be>,
+        Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Andrew Lunn <andrew+netdev@lunn.ch>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        Ido Schimmel <idosch@nvidia.com>, linux-kernel@vger.kernel.org,
+        bridge@lists.linux.dev
+Subject: [PATCH net-next 1/6] net: bridge: mdb: add MDB_FLAGS_STREAM_RESERVED flag
+Date: Wed, 27 May 2026 10:42:47 +1000
+Message-ID: <45e7cd01f9449c8ef15a5affd587fe7645ecddb7.1779841530.git.lukeh@padl.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1779841530.git.lukeh@padl.com>
+References: <cover.1779841530.git.lukeh@padl.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS7PR12MB6069:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5e70094c-82f9-48d0-f548-08debaf2ef6f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|366016|6133799003|3023799007|11063799006|18002099003|22082099003|56012099003;
-X-Microsoft-Antispam-Message-Info:
-	zVsO2KiU0h8nFMxowCyADPX1k2nKj2ClIKxQ5qTmGYBgPbn0kMhVSJI/R0SRy3bu2ADGhODW7gWa57SJ83VoyYD8K5T5De0Undgf30JxcGVoH2rfTO4V3LqQqVGDxFtLNEmhvaDp6M+fXAxk1PKsMFZ6ohP9sNvRGpOWcBrAfU5nK+rphNEYVslnqbLLEPSgm6g/5FftIUC/o/1Dz1EfYp++crtol66hbFB6EnPqk23uPLIm9GUuh4r9eeQ2OJ4Wh0VY+rcegWr9L+upHKDQcZ7AReiqh9V5dGq137oRgQzmMLkvtucDiKnJSfv4PTqIRlu1ME2x/fdkb2VRm0ybkn2OUjpg7wKm7yuQmmp6CcLE2Z0XVJbfOYyIg+b7oZx0UoVkNL3raXKcMOo76hgIrraNgoxVsjqT2DJD/Tb1ECyV/jBflRmroYIjYugO0D5nTWyA7QyZqfwxyN6gAi/DGMr+8R6/DKORQLx5HLs76v7yBG3u34KZRTBXzq8y29T36YRgNJcRFJkOd99GDNViyNcxAy8O+CMy4vhE+7C5VWMv2elXTPpgFAOeMgKguWY4dz1wdgDU/LxF5l+fPWTmaFf0NihwtSwFr2breh5T2kIepWyN+0W8Bpnjp+0tLiNeQI6lbgewVgivz/jt1g1U/CFQKy5TXG6mwvr5iVbg5boeHZqGiOWmUBWRw2n7YvfR
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(6133799003)(3023799007)(11063799006)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?+9791C23FVegzOZzxaYN1GoVErHtly5TctuIaISaIHQ0AMRdmoScsZ26NFBr?=
- =?us-ascii?Q?d9SezAu8bl9uHUrg2Uhdj0U5HzwoTKEBaryFEqpszKzdVL9pkIdBaxriu7rc?=
- =?us-ascii?Q?ThhR7UxZL0Ch1FPZgxmgL/ibD6coOvOQtfCFpKsbuINSxlK5GECs3gPrNYUK?=
- =?us-ascii?Q?r+KDWA1+eHlhwIHEO3jueUm3A6vIR+HTajHS5XWu0c9mVzppxFG2VDyQEFpF?=
- =?us-ascii?Q?hXT+HuCMno+9bBfdGXZB5g4D07hTV7AcgG9f2QSekwRlyP9P8CNzojC+mOe3?=
- =?us-ascii?Q?KY7QqFGJLAe1/e/Q22mM5RdcDx7v6Rj3BjBrw3uBW0CnCymIDxkG/clp3GWy?=
- =?us-ascii?Q?7/Y9ll6E6ix8mLWLK6307CQwTNU0dQJFVj7WhfiIb0xQxCX+rughxGcyKEU1?=
- =?us-ascii?Q?AOpvHClgBJzQSAQn9O+9Hf/jKQ3jlMgvzw0nlXxBoZDlq/mdxie4vgUNCiI4?=
- =?us-ascii?Q?NUe5i578cIaa9vSmgpYbPggt4NBqhg3kyoErn2iX3t/Akp0a3BLH6joPeeGJ?=
- =?us-ascii?Q?RZI930tgirdz4Zaun9RJcnG0a+vRDIrs/tU5rCMle001tK8rOhkF2Y8vd881?=
- =?us-ascii?Q?JYO6InwdfBxKx0S1kr8GVTXw/C1m/l4TP+bSoXyV10rIXhedFk0sMa0aeC6W?=
- =?us-ascii?Q?+QKeVV4VZ615gQ7nyUlhMN4w/Ho7j+dELeMjELstkG/o9npLG+YB7bahlCDj?=
- =?us-ascii?Q?PEeNG6MLGL8hs0M9mzuo9RQH3+duqjfXs+d/j1M+hRV+k/m3q2pHSi1//112?=
- =?us-ascii?Q?T1q9ZI2rrwvRQqRURBYkDDHeot/+PD0L6xX2f7yiWDEz2B3ZvXnjN2vD9D4Z?=
- =?us-ascii?Q?ksr9dtexABsLLpUQczTKrFhdKqbDVoAOku/Wbs7GGnRVomrXWO6zYiCCZ2E0?=
- =?us-ascii?Q?zq6SZnyyb22+nmpd4jhbzg3B6/e2Ca6HXFZW5ZLEYBN1htyVHBy/ZKanpAw8?=
- =?us-ascii?Q?IjRgFj1u8wV1JbtM3Cc6aXesk5ee/HpjTKILAwKZYROJ0uQAzYbUX0OHCNLM?=
- =?us-ascii?Q?Vf2CKOnSd+mpPLFUP/FM1Y6AOiSlJy1Z2em/MXZAEfoDqTtarK6BfGOUxu36?=
- =?us-ascii?Q?dD0qSQs7tWJOyrVk3MRYW7KIJyQUHlurjLqrlufRJeVVpLVTlfKCh9S1UY3b?=
- =?us-ascii?Q?e1RSavttg39Qg9rpESINzz7RQWQo+o90Q7eVdTFiaoepYaeZVnEkn2Xx9QUh?=
- =?us-ascii?Q?zENtF84y2UaYISewg8Ic6roUZMVIFT+6cABSep+44/VdcxExvUdFMc3PWVdX?=
- =?us-ascii?Q?USknlx8VjiqVGWc6ZwUy3sIB8PGcbOwfxeDu6aPe4j2TziJdCfhRwlceOvlG?=
- =?us-ascii?Q?4TTaucNq6HyMv8tZSgDQ0vh2uIybRO6RxGIsBqmMOu7P3YTKsVholK1bPpmt?=
- =?us-ascii?Q?qHr/cLeKNgfC7x5O5tlh74s0i8XeztYyCTlFEr4gtTRV230R65LAoQaFhI/U?=
- =?us-ascii?Q?aJbtvMEK69O6Z9wBJLO/J+4e14nZU/GR5PPaZgKyp8SVXYqq7tGZxVVJUyd/?=
- =?us-ascii?Q?gqCYXvmoEQC4ltY36SzI27PZhALdb+4G3o03zGNOrpwGc+nGOnczkEOa1xgA?=
- =?us-ascii?Q?yhnAneB7peEiC+ADkvT7hOOTAbfGwXUq/Kmk/HGEiJZKahGa1ucbb708Icfq?=
- =?us-ascii?Q?hfPcJY+LEXuCLc1QKk8iIbxyAfytvlD9+39zTwjG8AnQYXK08XNQBIAsShNL?=
- =?us-ascii?Q?VnLtElX6GH4SKIJxGFHZ+xYDeIvcD5NXTvmG6+DRUdixENlI?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5e70094c-82f9-48d0-f548-08debaf2ef6f
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2026 06:49:29.6609
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jcbfYGumUK/iczolF/cq/Z3tWZcOm5ZPb/h8pB6bHdgliQiBOQ/3h4n0TWDo8IKecD5vTxmxuhFredZVvMi8qg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6069
+Content-Transfer-Encoding: 8bit
 
-Add two test cases that always pass, but trigger sleeping in atomic
-context BUGs without "bridge: Fix sleep in atomic context in netlink
-path" and "bridge: Fix sleep in atomic context in sysfs path".
+Add a new MDB entry flag, MDB_FLAGS_STREAM_RESERVED, that userspace
+can set on RTM_NEWMDB to mark a multicast destination as belonging
+to a reserved stream (e.g. IEEE 802.1Q Stream Reservation Protocol /
+IEEE 1722 / TSN). The bridge core does no admission control on the
+basis of the flag; it is metadata propagated through switchdev to
+hardware drivers that can themselves enforce admission of AVB / SR
+priority traffic only to flagged destinations.
 
-Assisted-by: Claude:claude-opus-4-7
-Reviewed-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+The flag is settable via the new nested attribute MDBE_ATTR_FLAGS
+(NLA_U32 bitmask, validated against MDB_FLAGS_SETTABLE_MASK), and is
+reflected in dump output via br_mdb_entry.flags as is done today for
+the OFFLOAD/BLOCKED/STAR_EXCL flags.
+
+Assisted-by: Claude:claude-4.7-opus
+Signed-off-by: Luke Howard <lukeh@padl.com>
 ---
- tools/testing/selftests/net/rtnetlink.sh | 63 ++++++++++++++++++++++++
- 1 file changed, 63 insertions(+)
+ include/net/switchdev.h        |  4 ++++
+ include/uapi/linux/if_bridge.h |  2 ++
+ net/bridge/br_mdb.c            | 12 ++++++++++++
+ net/bridge/br_private.h        |  2 ++
+ net/bridge/br_switchdev.c      | 17 +++++++++++------
+ 5 files changed, 31 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/net/rtnetlink.sh b/tools/testing/selftests/net/rtnetlink.sh
-index c499953d4885..ace3a99023ed 100755
---- a/tools/testing/selftests/net/rtnetlink.sh
-+++ b/tools/testing/selftests/net/rtnetlink.sh
-@@ -24,6 +24,8 @@ ALL_TESTS="
- 	kci_test_macsec
- 	kci_test_macsec_vlan
- 	kci_test_team_bridge_macvlan
-+	kci_test_bridge_promisc_netlink
-+	kci_test_bridge_promisc_sysfs
- 	kci_test_ipsec
- 	kci_test_ipsec_offload
- 	kci_test_fdb_get
-@@ -61,6 +63,14 @@ check_fail()
- 	fi
+diff --git a/include/net/switchdev.h b/include/net/switchdev.h
+index ee500706496b0..03d176708b768 100644
+--- a/include/net/switchdev.h
++++ b/include/net/switchdev.h
+@@ -111,10 +111,14 @@ struct switchdev_obj_port_vlan {
+ 	container_of((OBJ), struct switchdev_obj_port_vlan, obj)
+ 
+ /* SWITCHDEV_OBJ_ID_PORT_MDB */
++
++#define SWITCHDEV_MDB_F_STREAM_RESERVED		BIT(0)
++
+ struct switchdev_obj_port_mdb {
+ 	struct switchdev_obj obj;
+ 	unsigned char addr[ETH_ALEN];
+ 	u16 vid;
++	u32 flags;
+ };
+ 
+ #define SWITCHDEV_OBJ_PORT_MDB(OBJ) \
+diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
+index 21a700c02ef76..51ec314994bec 100644
+--- a/include/uapi/linux/if_bridge.h
++++ b/include/uapi/linux/if_bridge.h
+@@ -705,6 +705,7 @@ struct br_mdb_entry {
+ #define MDB_FLAGS_STAR_EXCL		(1 << 2)
+ #define MDB_FLAGS_BLOCKED		(1 << 3)
+ #define MDB_FLAGS_OFFLOAD_FAILED	(1 << 4)
++#define MDB_FLAGS_STREAM_RESERVED	(1 << 5)
+ 	__u8 flags;
+ 	__u16 vid;
+ 	struct {
+@@ -760,6 +761,7 @@ enum {
+ 	MDBE_ATTR_IFINDEX,
+ 	MDBE_ATTR_SRC_VNI,
+ 	MDBE_ATTR_STATE_MASK,
++	MDBE_ATTR_FLAGS,
+ 	__MDBE_ATTR_MAX,
+ };
+ #define MDBE_ATTR_MAX (__MDBE_ATTR_MAX - 1)
+diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+index e0c7020b12f5f..1320ccd81b0a1 100644
+--- a/net/bridge/br_mdb.c
++++ b/net/bridge/br_mdb.c
+@@ -146,6 +146,8 @@ static void __mdb_entry_fill_flags(struct br_mdb_entry *e, unsigned char flags)
+ 		e->flags |= MDB_FLAGS_BLOCKED;
+ 	if (flags & MDB_PG_FLAGS_OFFLOAD_FAILED)
+ 		e->flags |= MDB_FLAGS_OFFLOAD_FAILED;
++	if (flags & MDB_PG_FLAGS_STREAM_RESERVED)
++		e->flags |= MDB_FLAGS_STREAM_RESERVED;
  }
  
-+sysfs_write()
-+{
-+	local val="$1"
-+	local path="$2"
+ static void __mdb_entry_to_br_ip(struct br_mdb_entry *entry, struct br_ip *ip,
+@@ -664,6 +666,7 @@ static const struct nla_policy br_mdbe_attrs_pol[MDBE_ATTR_MAX + 1] = {
+ 						  MCAST_INCLUDE),
+ 	[MDBE_ATTR_SRC_LIST] = NLA_POLICY_NESTED(br_mdbe_src_list_pol),
+ 	[MDBE_ATTR_RTPROT] = NLA_POLICY_MIN(NLA_U8, RTPROT_STATIC),
++	[MDBE_ATTR_FLAGS] = NLA_POLICY_MASK(NLA_U32, MDB_FLAGS_STREAM_RESERVED),
+ };
+ 
+ static bool is_valid_mdb_source(struct nlattr *attr, __be16 proto,
+@@ -1072,6 +1075,8 @@ static int br_mdb_add_group(const struct br_mdb_config *cfg,
+ 	if (entry->state == MDB_PERMANENT)
+ 		flags |= MDB_PG_FLAGS_PERMANENT;
+ 
++	flags |= cfg->pg_flags;
 +
-+	echo "$val" > "$path"
-+}
+ 	if (br_multicast_is_star_g(&group))
+ 		return br_mdb_add_group_star_g(cfg, mp, brmctx, flags, extack);
+ 	else
+@@ -1225,6 +1230,13 @@ static int br_mdb_config_attrs_init(struct nlattr *set_attrs,
+ 		cfg->rt_protocol = nla_get_u8(mdb_attrs[MDBE_ATTR_RTPROT]);
+ 	}
+ 
++	if (mdb_attrs[MDBE_ATTR_FLAGS]) {
++		u32 user_flags = nla_get_u32(mdb_attrs[MDBE_ATTR_FLAGS]);
 +
- run_cmd_common()
++		if (user_flags & MDB_FLAGS_STREAM_RESERVED)
++			cfg->pg_flags |= MDB_PG_FLAGS_STREAM_RESERVED;
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 02671e648dac7..b9ee19448e38b 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -111,6 +111,7 @@ struct br_mdb_config {
+ 	struct br_mdb_src_entry		*src_entries;
+ 	int				num_src_entries;
+ 	u8				rt_protocol;
++	unsigned char			pg_flags;
+ };
+ #endif
+ 
+@@ -317,6 +318,7 @@ struct net_bridge_fdb_flush_desc {
+ #define MDB_PG_FLAGS_STAR_EXCL		BIT(3)
+ #define MDB_PG_FLAGS_BLOCKED		BIT(4)
+ #define MDB_PG_FLAGS_OFFLOAD_FAILED	BIT(5)
++#define MDB_PG_FLAGS_STREAM_RESERVED	BIT(6)
+ 
+ #define PG_SRC_ENT_LIMIT	32
+ 
+diff --git a/net/bridge/br_switchdev.c b/net/bridge/br_switchdev.c
+index 18b558a931ad9..bc05cda2f5350 100644
+--- a/net/bridge/br_switchdev.c
++++ b/net/bridge/br_switchdev.c
+@@ -548,7 +548,8 @@ static void br_switchdev_mdb_complete(struct net_device *dev, int err, void *pri
+ }
+ 
+ static void br_switchdev_mdb_populate(struct switchdev_obj_port_mdb *mdb,
+-				      const struct net_bridge_mdb_entry *mp)
++				      const struct net_bridge_mdb_entry *mp,
++				      const struct net_bridge_port_group *pg)
  {
- 	local cmd="$*"
-@@ -680,6 +690,59 @@ kci_test_team_bridge_macvlan()
- 	end_test "PASS: team_bridge_macvlan"
+ 	if (mp->addr.proto == htons(ETH_P_IP))
+ 		ip_eth_mc_map(mp->addr.dst.ip4, mdb->addr);
+@@ -560,6 +561,9 @@ static void br_switchdev_mdb_populate(struct switchdev_obj_port_mdb *mdb,
+ 		ether_addr_copy(mdb->addr, mp->addr.dst.mac_addr);
+ 
+ 	mdb->vid = mp->addr.vid;
++	mdb->flags = 0;
++	if (pg && (pg->flags & MDB_PG_FLAGS_STREAM_RESERVED))
++		mdb->flags |= SWITCHDEV_MDB_F_STREAM_RESERVED;
  }
  
-+# Test that changing bridge port flags via the netlink path does not sleep with
-+# the bridge spin lock held.
-+kci_test_bridge_promisc_netlink()
-+{
-+	local dummy="test_dummy1"
-+	local bridge="test_br1"
-+	local team="test_team1"
-+	local ret=0
-+
-+	run_cmd ip link add $team up type team
-+	run_cmd ip link add $bridge up type bridge vlan_filtering 1
-+	run_cmd ip link add $dummy up type dummy
-+	run_cmd ip link set $dummy master $bridge
-+	run_cmd ip link set $team master $bridge
-+
-+	# This causes the bridge driver to sync all the static FDB entries to
-+	# the team device (which supports unicast filtering) and remove it from
-+	# promiscuous mode. The call to dev_set_promiscuity() can sleep due to
-+	# Rx mode inlining, which is a problem if the bridge spin lock is held.
-+	run_cmd bridge link set dev $dummy flood off learning off
-+
-+	run_cmd ip link del $dummy
-+	run_cmd ip link del $bridge
-+	run_cmd ip link del $team
-+
-+	end_test "PASS: bridge_promisc_netlink"
-+}
-+
-+# Same as kci_test_bridge_promisc_netlink(), but the flags are changed via the
-+# sysfs path.
-+kci_test_bridge_promisc_sysfs()
-+{
-+	local dummy="test_dummy1"
-+	local bridge="test_br1"
-+	local team="test_team1"
-+	local ret=0
-+
-+	run_cmd ip link add $team up type team
-+	run_cmd ip link add $bridge up type bridge vlan_filtering 1
-+	run_cmd ip link add $dummy up type dummy
-+	run_cmd ip link set $dummy master $bridge
-+	run_cmd ip link set $team master $bridge
-+
-+	run_cmd sysfs_write 0 /sys/class/net/$dummy/brport/unicast_flood
-+	run_cmd sysfs_write 0 /sys/class/net/$dummy/brport/learning
-+
-+	run_cmd ip link del $dummy
-+	run_cmd ip link del $bridge
-+	run_cmd ip link del $team
-+
-+	end_test "PASS: bridge_promisc_sysfs"
-+}
-+
- #-------------------------------------------------------------------
- # Example commands
- #   ip x s add proto esp src 14.0.0.52 dst 14.0.0.70 \
+ static void br_switchdev_host_mdb_one(struct net_device *dev,
+@@ -575,7 +579,7 @@ static void br_switchdev_host_mdb_one(struct net_device *dev,
+ 		},
+ 	};
+ 
+-	br_switchdev_mdb_populate(&mdb, mp);
++	br_switchdev_mdb_populate(&mdb, mp, NULL);
+ 
+ 	switch (type) {
+ 	case RTM_NEWMDB:
+@@ -622,6 +626,7 @@ static int br_switchdev_mdb_queue_one(struct list_head *mdb_list,
+ 				      unsigned long action,
+ 				      enum switchdev_obj_id id,
+ 				      const struct net_bridge_mdb_entry *mp,
++				      const struct net_bridge_port_group *pg,
+ 				      struct net_device *orig_dev)
+ {
+ 	struct switchdev_obj_port_mdb mdb = {
+@@ -632,7 +637,7 @@ static int br_switchdev_mdb_queue_one(struct list_head *mdb_list,
+ 	};
+ 	struct switchdev_obj_port_mdb *pmdb;
+ 
+-	br_switchdev_mdb_populate(&mdb, mp);
++	br_switchdev_mdb_populate(&mdb, mp, pg);
+ 
+ 	if (action == SWITCHDEV_PORT_OBJ_ADD &&
+ 	    switchdev_port_obj_act_is_deferred(dev, action, &mdb.obj)) {
+@@ -671,7 +676,7 @@ void br_switchdev_mdb_notify(struct net_device *dev,
+ 	if (!pg)
+ 		return br_switchdev_host_mdb(dev, mp, type);
+ 
+-	br_switchdev_mdb_populate(&mdb, mp);
++	br_switchdev_mdb_populate(&mdb, mp, pg);
+ 
+ 	mdb.obj.orig_dev = pg->key.port->dev;
+ 	switch (type) {
+@@ -740,7 +745,7 @@ br_switchdev_mdb_replay(struct net_device *br_dev, struct net_device *dev,
+ 		if (mp->host_joined) {
+ 			err = br_switchdev_mdb_queue_one(&mdb_list, dev, action,
+ 							 SWITCHDEV_OBJ_ID_HOST_MDB,
+-							 mp, br_dev);
++							 mp, NULL, br_dev);
+ 			if (err) {
+ 				spin_unlock_bh(&br->multicast_lock);
+ 				goto out_free_mdb;
+@@ -754,7 +759,7 @@ br_switchdev_mdb_replay(struct net_device *br_dev, struct net_device *dev,
+ 
+ 			err = br_switchdev_mdb_queue_one(&mdb_list, dev, action,
+ 							 SWITCHDEV_OBJ_ID_PORT_MDB,
+-							 mp, dev);
++							 mp, p, dev);
+ 			if (err) {
+ 				spin_unlock_bh(&br->multicast_lock);
+ 				goto out_free_mdb;
 -- 
-2.54.0
+2.43.0
 
