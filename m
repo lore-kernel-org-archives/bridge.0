@@ -1,49 +1,54 @@
 Received: from us.padl.com (us.padl.com [216.154.215.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7117823D281
-	for <bridge@lists.linux.dev>; Tue,  2 Jun 2026 00:44:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D70A2C234A
+	for <bridge@lists.linux.dev>; Tue,  2 Jun 2026 01:29:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.154.215.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780361096; cv=none; b=LWmN/yD5aqdMmq4053C/m25CNdYbSAZimRazhI3YSE6zKA/Ctc4e+yKWQilIR2AWPskGyatMuwJOKigmt38itUG7D7fG3kb+5yVqbfyNne12yuQuej53Du+/iIb8MbniSz+Ji+W6glLSGaLKcYBRrzdlT/q6D4/+TTkaac8m3eo=
+	t=1780363763; cv=none; b=iNNqaLGDYmnPcLws+5k4TNwdvo6P+fghcT4iq6iBtCBrEmAy1WNkQDKafRyHnAiEhJtl+GkjXv0+TPxp7BLBFpCVi+RMyf1jM9M/+zXSQbQPegjAuw/dVKJWv3+MsI0sURYFt9jm32PQKavcTx0pN4/HcH2+C1HUbRRLWSIgHcM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780361096; c=relaxed/simple;
-	bh=bv6tT8y+sYRr4rUbGXcdOd8wG/5DRS61mv1iJU6vvi4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=NPJXfum8NuOkRFbslK8d0S8WjfuGh1UN5BtkucPpJdol9TzX+pgoEHfs/OxQGDhtacX10fwqjKGpoQeicnB1fUsDZvzGkRsi5ZII6uk5hhE0Ig94bhhbxPonXT6oWRl0uYzBcaTPJv9WwOwYf4zBgJQybRihqHu87cQopMsf43s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b=CwK2A15L; arc=none smtp.client-ip=216.154.215.154
+	s=arc-20240116; t=1780363763; c=relaxed/simple;
+	bh=XYVybQ4AGpWqrfVXbsCVHv210k/jVff/IzDdIvxFR7w=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=DYoUBjgahCVfyVexK8XhF87XfBNoabRfo523b3OfJxj4qq9pLLxSHtRkUyMlP+ZD6AjXeqfv/bv1/do3KXyYMnzNn1CbK42K7B23GY5QYORd8yp5jCM/AjtXGHu6gxbpr4HAj/ks2+Xy9nrxmIWjK8UtyoeNjZNL33N5DEzy9xs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b=HzcBvWx3; arc=none smtp.client-ip=216.154.215.154
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=padl.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b="CwK2A15L"
-Received: from auth (localhost [127.0.0.1]) by us.padl.com (8.14.7/8.14.7) with ESMTP id 6520hx8w030351
+	dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b="HzcBvWx3"
+Received: from auth (localhost [127.0.0.1]) by us.padl.com (8.14.7/8.14.7) with ESMTP id 6521SvdB005973
 	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-	Tue, 2 Jun 2026 01:44:38 +0100
-DKIM-Filter: OpenDKIM Filter v2.11.0 us.padl.com 6520hx8w030351
+	Tue, 2 Jun 2026 02:29:07 +0100
+DKIM-Filter: OpenDKIM Filter v2.11.0 us.padl.com 6521SvdB005973
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=padl.com; s=default;
-	t=1780361083; bh=kT2kb8Zbt0fXPRAiw+lJHS3Bb+BFyDXh5on7RYGIJsI=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=CwK2A15LhfIGtKSya7AmcQwqk+0Xux9fwQt+ceRrhlpWvACT3z4BTXDHKL4kbR8fu
-	 jX3ZHfzaOaCwOWq5MSo3vc7Ae9VqpMKp1FMp6lBhkzb4LJY00xS/+pvAzMtXY9g9jK
-	 4HgXTRTbMTE1fyHcZhN9imSVIWyJihpbicwt0kuYWgX5Ipsc2uoTbyOdzafQ6TbWeK
-	 Swk1cnb+C9iDCrTYfZdtfZc+dikEtqxYUoVxSKOL9kg4ZUUPVDEQs0bjwfhKUec1eQ
-	 8+KSelZSRRlhr1uakL+Oy1TTk51PU2UB/PMRHLGXuwNOC4K8IjqdOokyIQuMUJWIPj
-	 0K1YDOVECorTw==
-From: Luke Howard <lukeh@padl.com>
-Date: Tue, 02 Jun 2026 10:43:51 +1000
-Subject: [PATCH net-next v2 6/6] net: dsa: mv88e6xxx: honour
- MDB_FLAGS_STREAM_RESERVED for AVB streams
+	t=1780363757; bh=XYVybQ4AGpWqrfVXbsCVHv210k/jVff/IzDdIvxFR7w=;
+	h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
+	b=HzcBvWx3p+WEIFaub6tBDLFIxeQTCMR/DJC0X6u37TTgLrfN1Q2+RUWpBr3szSF0o
+	 6q66HRK2dOLj03w42HcD3ROPfsg9fxpt4ohI3xRk9m5ENem4RTNUXnspGIY40a8nYT
+	 KPnBRedsEOuaVLrjsSMO1A4cESLGmYQ/hJhchu3DxKxiAT4V/v/yL7pTPpm1uZIdMh
+	 Yt0r5VBy/OIOsdA5QMJpN5vcfL3GX8GaZmjuZWdU6ee5wsqVbk+VEgZvBbAFSWhxn7
+	 Yc+dZ5asdYjeg6bSKdEadR47+vifaT6rX4EKs995On/kd4A8v9Yz+1LW4+n8A1MNez
+	 kjGwG3CzgNbpQ==
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260602-mv88e6xxx-8021qat-mqprio-v2-6-72be14522e7c@padl.com>
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81\))
+Subject: Re: [PATCH net-next v2 3/6] net: bridge: add 802.1Qat stream
+ reservation admission control
+From: Luke Howard <lukeh@padl.com>
+In-Reply-To: <20260602-mv88e6xxx-8021qat-mqprio-v2-3-72be14522e7c@padl.com>
+Date: Tue, 2 Jun 2026 11:28:47 +1000
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bridge@lists.linux.dev, linux-kselftest@vger.kernel.org,
+        Max Hunter <max@huntershome.org>, Kieran Tyrrell <kieran@sienda.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <08F7FD60-0628-4973-B778-5B925181B232@padl.com>
 References: <20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com>
-In-Reply-To: <20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com>
+ <20260602-mv88e6xxx-8021qat-mqprio-v2-3-72be14522e7c@padl.com>
 To: Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
@@ -52,165 +57,17 @@ To: Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
         Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
         David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
         Andrew Lunn <andrew@lunn.ch>, Vladimir Oltean <olteanv@gmail.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bridge@lists.linux.dev, linux-kselftest@vger.kernel.org,
-        Max Hunter <max@huntershome.org>, Kieran Tyrrell <kieran@sienda.com>,
-        Luke Howard <lukeh@padl.com>
-X-Mailer: b4 0.15.2
+X-Mailer: Apple Mail (2.3826.700.81)
 
-Map the MDB_FLAGS_STREAM_RESERVED flag to MC_STATIC_AVB_NRL when adding
-or removing MDB entries to the ATU. The presence or absence of this flag
-must match any existing ATU entries for the destination address, as the
-ATU entry type applies to all destination ports.
 
-A port in enhanced mode, requested by BR_FILTER_STREAM_RESERVED, will only
-admit frames with priorities associated with AVB traffic classes for these
-destinations.
 
-Note: MC_STATIC_AVB_NRL entries persist independently of the MQPRIO mode.
-If port ingress rate limiting (PIRL) support is ever added, this should
-be revisited.
+> On 2 Jun 2026, at 10:43=E2=80=AFam, Luke Howard <lukeh@padl.com> =
+wrote:
+>=20
+> + if (mdst->flags & BRIDGE_MDBE_F_HOST_STREAM_RESERVED)
+> + return false;
 
-Signed-off-by: Luke Howard <lukeh@padl.com>
----
- drivers/net/dsa/mv88e6xxx/chip.c | 101 ++++++++++++++++++++++++++++++---------
- 1 file changed, 78 insertions(+), 23 deletions(-)
+This flag should not have appeared until patch 4/6 (allow =
+MDB_FLAGS_STREAM_RESERVED on host groups).
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index db79302c2b84d..ef3cb1cca134d 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2269,6 +2269,35 @@ static bool mv88e6xxx_port_db_find(struct mv88e6xxx_chip *chip,
- 	return entry.state && ether_addr_equal(entry.mac, addr);
- }
- 
-+static int mv88e6xxx_port_db_loadpurge_entry(struct mv88e6xxx_chip *chip,
-+					     int port, u16 fid,
-+					     const unsigned char *addr,
-+					     struct mv88e6xxx_atu_entry *entry,
-+					     u8 state)
-+{
-+	/* Initialize a fresh ATU entry if it isn't found */
-+	if (!entry->state || !ether_addr_equal(entry->mac, addr)) {
-+		memset(entry, 0, sizeof(*entry));
-+		ether_addr_copy(entry->mac, addr);
-+	}
-+
-+	/* Purge the ATU entry only if no port is using it anymore */
-+	if (!state) {
-+		entry->portvec &= ~BIT(port);
-+		if (!entry->portvec)
-+			entry->state = 0;
-+	} else {
-+		if (state == MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC)
-+			entry->portvec = BIT(port);
-+		else
-+			entry->portvec |= BIT(port);
-+
-+		entry->state = state;
-+	}
-+
-+	return mv88e6xxx_g1_atu_loadpurge(chip, fid, entry);
-+}
-+
- static int mv88e6xxx_port_db_load_purge(struct mv88e6xxx_chip *chip, int port,
- 					const unsigned char *addr, u16 vid,
- 					u8 state)
-@@ -2281,27 +2310,8 @@ static int mv88e6xxx_port_db_load_purge(struct mv88e6xxx_chip *chip, int port,
- 	if (err)
- 		return err;
- 
--	/* Initialize a fresh ATU entry if it isn't found */
--	if (!entry.state || !ether_addr_equal(entry.mac, addr)) {
--		memset(&entry, 0, sizeof(entry));
--		ether_addr_copy(entry.mac, addr);
--	}
--
--	/* Purge the ATU entry only if no port is using it anymore */
--	if (!state) {
--		entry.portvec &= ~BIT(port);
--		if (!entry.portvec)
--			entry.state = 0;
--	} else {
--		if (state == MV88E6XXX_G1_ATU_DATA_STATE_UC_STATIC)
--			entry.portvec = BIT(port);
--		else
--			entry.portvec |= BIT(port);
--
--		entry.state = state;
--	}
--
--	return mv88e6xxx_g1_atu_loadpurge(chip, fid, &entry);
-+	return mv88e6xxx_port_db_loadpurge_entry(chip, port, fid, addr, &entry,
-+						 state);
- }
- 
- static int mv88e6xxx_policy_apply(struct mv88e6xxx_chip *chip, int port,
-@@ -6781,16 +6791,61 @@ static int mv88e6xxx_change_tag_protocol(struct dsa_switch *ds,
- 	return err;
- }
- 
-+static bool mv88e6xxx_atu_mc_entry_changed(const struct mv88e6xxx_atu_entry *existing,
-+					   int port,
-+					   const struct switchdev_obj_port_mdb *mdb,
-+					   u8 state)
-+{
-+	if (!ether_addr_equal(existing->mac, mdb->addr))
-+		return false;
-+
-+	if (existing->state != MV88E6XXX_G1_ATU_DATA_STATE_MC_STATIC &&
-+	    existing->state != MV88E6XXX_G1_ATU_DATA_STATE_MC_STATIC_AVB_NRL)
-+		return false;
-+
-+	if (existing->state == state)
-+		return false;
-+
-+	if (!(existing->portvec & ~BIT(port)))
-+		return false;
-+
-+	return true;
-+}
-+
- static int mv88e6xxx_port_mdb_add(struct dsa_switch *ds, int port,
- 				  const struct switchdev_obj_port_mdb *mdb,
- 				  struct dsa_db db)
- {
- 	struct mv88e6xxx_chip *chip = ds->priv;
-+	struct mv88e6xxx_atu_entry existing;
-+	u8 state;
-+	u16 fid;
- 	int err;
- 
- 	mv88e6xxx_reg_lock(chip);
--	err = mv88e6xxx_port_db_load_purge(chip, port, mdb->addr, mdb->vid,
--					   MV88E6XXX_G1_ATU_DATA_STATE_MC_STATIC);
-+
-+	/* Note that AVB_NRL entries persist independently of the MQPRIO mode;
-+	 * as ingress rate control is not used by this driver, this is safe.
-+	 */
-+	if ((mdb->flags & SWITCHDEV_MDB_F_STREAM_RESERVED) && chip->info->qav)
-+		state = MV88E6XXX_G1_ATU_DATA_STATE_MC_STATIC_AVB_NRL;
-+	else
-+		state = MV88E6XXX_G1_ATU_DATA_STATE_MC_STATIC;
-+
-+	err = mv88e6xxx_port_db_get(chip, mdb->addr, mdb->vid, &fid, &existing);
-+	if (err)
-+		goto out;
-+
-+	if (mv88e6xxx_atu_mc_entry_changed(&existing, port, mdb, state)) {
-+		dev_info_ratelimited(chip->dev,
-+				     "p%d: cannot offload MDB %pM: stream-reserved flag conflicts with existing entry\n",
-+				     port, mdb->addr);
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
-+	err = mv88e6xxx_port_db_loadpurge_entry(chip, port, fid, mdb->addr,
-+						&existing, state);
- 	if (err)
- 		goto out;
- 
-
--- 
-2.43.0
-
+Will be fixed in the next revision.=
