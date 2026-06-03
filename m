@@ -1,84 +1,82 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+Received: from us.padl.com (us.padl.com [216.154.215.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADD563822AA;
-	Wed,  3 Jun 2026 02:41:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92F953D6474
+	for <bridge@lists.linux.dev>; Wed,  3 Jun 2026 03:30:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.154.215.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780454491; cv=none; b=D4w1uu6QkJzuc9ZhHJL1nfuSYUHKc32fmsyNi2JVWx95sfxl3AShvfuOWtV2ZxTyNKjRyvDf6xgzzJOBBQhKt64NUmXSHsiU83tFVVzXNG8gLBXnBNIpSTjBHM0erIFhBsmpGc7lQdwOeNzksnqrr7TjEoGogILxXr86pbbJpx0=
+	t=1780457439; cv=none; b=f8+weBufuk0mGRnhWHymW3WGaPtXVd1uKHg8SOw7DwA9U+yDi+WRBW7zkU1gcrOWdHP4nUNfUkWXjzJXVisb1pAcfXY00sgiUZX5tAmpUKGMokEidwdSShpmzgo1HGH/lqfxaCxDd2k1KR1uR6XSP3ssec52qklu9c6tvaZ04EM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780454491; c=relaxed/simple;
-	bh=SvFxDoSmTme3bag0LC+3wu3y0fsNiyyEDYrRWLDqLMA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hdg6qjk1YQKkM0sxnoAK9jgIktcJ3/fLVgCA45Qlqljgg5eKfeXSOZWS6PQZjCPvE/2tuBDdI71tnDFBW+iw32nrvjH8P+fK2sGXbwJvmmKbz+w2b0nxr1bFSPJsGyUQfMNFi9LBEbwW+LhqSXNOwBnKj9Ve1BmaSCHHbZMd7Os=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=Wi4ymjTG; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	s=arc-20240116; t=1780457439; c=relaxed/simple;
+	bh=HckXV8SgUm6gBOsERf+KnMnS8zcCmg+Nd4fBgn+6UKE=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=NcPs+P5QK3V03xf6oycM9BLHx6nktJ8MoEoE+UL27c45TfxRC75+qx//6DOyRI7xI6vN0UaCg5QaNqTqo1cOK+PB4YrDT8PtQQZCPel3NzH3Wp7lbj2xOGCaY63w/NqngNIgwZD459xvf0ZcTaDRug+2Ybtp84/Ri2IwNR+CQm4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b=d8rdz33I; arc=none smtp.client-ip=216.154.215.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=padl.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="Wi4ymjTG"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=D37xiTtxF0fUm4ed9JLFHPGoRO7k+Z17+W07ncHTMTA=; b=Wi4ymjTGgcL6Ix7S3gtL1OKlPx
-	KA4C5pr9335Z6phBWyyaPL+5LzUJIMLp0xmFaSPnX04ukvu2fkHfNjv6jzf2/kqJZ8wNJQBTWsxyL
-	Hna0AAGbu9fJYTdWFbtXtOLTEbOcHSnmQvnudP8Wtu91I9a1jJADImoMs+XhBCaNewvY=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1wUbXd-005oLe-LW; Wed, 03 Jun 2026 04:41:13 +0200
-Date: Wed, 3 Jun 2026 04:41:13 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-To: Luke Howard <lukeh@padl.com>
-Cc: Cedric Jehasse <cedric.jehasse@gmail.com>,
-	Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
-	Vladimir Oltean <olteanv@gmail.com>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, bridge@lists.linux.dev,
-	linux-kselftest@vger.kernel.org, Max Hunter <max@huntershome.org>,
-	Kieran Tyrrell <kieran@sienda.com>
-Subject: Re: [PATCH net-next v2 5/6] net: dsa: mv88e6xxx: MQPRIO support
-Message-ID: <72af0cfc-9011-4713-9862-710eea5f1cb0@lunn.ch>
-References: <20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com>
- <20260602-mv88e6xxx-8021qat-mqprio-v2-5-72be14522e7c@padl.com>
- <t44kmhk6gqxnwhdvo7svouexwelwsya7zgukpbv3cxpfsmutqa@y3rjoj3tvqce>
- <A662D3F9-18DD-43C9-A43D-912E5A8A4360@padl.com>
- <8C6AD966-2C28-4BEF-95C4-1B2AC3751513@padl.com>
- <29c09316-c911-456e-acc5-e18402da4bd4@lunn.ch>
- <0402DFFF-634A-40C4-BC1E-B038F20926FF@padl.com>
- <89BA4203-110E-4767-895C-A2808602FAF8@padl.com>
+	dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b="d8rdz33I"
+Received: from auth (localhost [127.0.0.1]) by us.padl.com (8.14.7/8.14.7) with ESMTP id 6533U3NL016913
+	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+	Wed, 3 Jun 2026 04:30:28 +0100
+DKIM-Filter: OpenDKIM Filter v2.11.0 us.padl.com 6533U3NL016913
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=padl.com; s=default;
+	t=1780457433; bh=HckXV8SgUm6gBOsERf+KnMnS8zcCmg+Nd4fBgn+6UKE=;
+	h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
+	b=d8rdz33IM4nuvC2/SuI5GfmrcXoUs7Y+TClzQ9w/tqCO76IXp8eP+1V77i1IbHrfL
+	 TYAi+ZIBdZbbTv68ZfRXmhwsDc3k2ify599r8hP/NEVGJ8bkmIZossNsjQ/TIW3TJs
+	 kbqtkEByC+SkJxeGOnQBV8UExxPI22phHCxEOPtYn3mYrRap8Fns8DwJ1bZpXnB5Ln
+	 Wy+cqdZ5dKhJXZMJuOosMd7efPWTG5pVLAWf8/8QOGD0RC2hSae3AURl9EcAnhRQc9
+	 4erwzfqDqJ/HFntNib8RkbVFNZwQoWzqo1EO3/Yg9Nd59zuO0ba5j8KF+N8KkDWKxj
+	 PmXH62RMp/vWw==
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <89BA4203-110E-4767-895C-A2808602FAF8@padl.com>
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81\))
+Subject: Re: [PATCH net-next v2 5/6] net: dsa: mv88e6xxx: MQPRIO support
+From: Luke Howard <lukeh@padl.com>
+In-Reply-To: <2AC04CE3-1760-49B4-A25D-170629AAD38A@padl.com>
+Date: Wed, 3 Jun 2026 13:30:17 +1000
+Cc: Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
+        David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>, Vladimir Oltean <olteanv@gmail.com>,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bridge@lists.linux.dev, linux-kselftest@vger.kernel.org,
+        Max Hunter <max@huntershome.org>, Kieran Tyrrell <kieran@sienda.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <C9A205F0-0F73-423D-86C4-A0062E8475C9@padl.com>
+References: <20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com>
+ <20260602-mv88e6xxx-8021qat-mqprio-v2-5-72be14522e7c@padl.com>
+ <t44kmhk6gqxnwhdvo7svouexwelwsya7zgukpbv3cxpfsmutqa@y3rjoj3tvqce>
+ <A662D3F9-18DD-43C9-A43D-912E5A8A4360@padl.com>
+ <2AC04CE3-1760-49B4-A25D-170629AAD38A@padl.com>
+To: Cedric Jehasse <cedric.jehasse@gmail.com>
+X-Mailer: Apple Mail (2.3826.700.81)
 
-> We could add (e.g.) bridge_setup_tc to dsa_switch_ops, which (in the
-> mv88e6xxx implementation) could validate the bridge contained all
-> user ports. But it would not be possible to block a port from
-> leaving as port_bridge_leave cannot return an error, and tearing
-> MQPRIO config down silently would be a different sort of bad.
 
-There can be multiple bridges, even as far as one bridge per port.
+>> Good point, it=E2=80=99s interesting there is egress mapping on the =
+6390 but only for FPri to DSCP. The Frame Priority Table set ordinal one =
+would expect for egress QPri mapping is =E2=80=9Creserved for future =
+use=E2=80=9D. (Be nice if it were an undocumented feature.)
+>=20
+> I misread the data sheet. Egress PCP to FPRI mapping is possible =
+per-port on the 6390 family. This doesn=E2=80=99t resolve the other =
+issue (MQPRIO-less ports on the 6352 family). But it is good news and I =
+will revise accordingly in the next patch revision.
 
-For switch wide properties, you basically have to allow the first user
-to configure it, refcount additional users get added and removed, and
-only allow the last user to change it.
 
-The alternative is return -EOPNOTSUPP, and let the kernel do it in
-software, if a user wants something different to the global
-setting. The hardware is only there to accelerate what Linux can
-already do in software. That is the model we use.
+I did not misread the data sheet. The 6390 family does not support =
+egress FPri to QPri mapping. It supports egress FPri to _PCP_ mapping =
+(i.e. the internal and wire representations of the priority can differ). =
+Clearly needed a third coffee.
 
-     Andrew
+Luke=
