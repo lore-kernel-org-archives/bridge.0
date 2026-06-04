@@ -1,104 +1,85 @@
-Received: from mail-pl1-f193.google.com (mail-pl1-f193.google.com [209.85.214.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us.padl.com (us.padl.com [216.154.215.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25DAF13B5B3
-	for <bridge@lists.linux.dev>; Thu,  4 Jun 2026 01:52:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1BB53BE17E
+	for <bridge@lists.linux.dev>; Thu,  4 Jun 2026 05:39:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.154.215.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780537968; cv=none; b=EmEtl1ZCdKouQVvcb3+B8WdRAhvUUQ56+aTGpXsmJ01Ty1Zguc+ZY+88xLwK0Qjg3yluCX3xYcVd7Vf7hRZvCEXIL0cwng5uaDiXYmkZHDBU8kCwetVkrGbuhiW0YqMeXGxWY7NkB44Qg+uITRsapUVPPy4E2BPusy/YyJigOBU=
+	t=1780551591; cv=none; b=EJyVWxsHnrv867Sz5UJiI4F92EoUE834kU4e5rmrjvoO+lc3krhAANf3bIyPJuPQE2eqBOikv+YAgEUusvXQi9rvfXqOAHc4wRI86GmoTXNP5xaLqftKEAcTvvbxMKWPeEOz1uqj5O8Iep95Qcs2PzDS+goQB3tmYXRVaBJLKOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780537968; c=relaxed/simple;
-	bh=5SpROYMEKxmu0HLYw0TU7p5AejWLTbuQ9iBGb3rygBY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sH+1cGf0PAxTU/H3HJ9BJ9g0sKNHRoJyCKMeJAHjEiBTHdOA+O2++Sbn9VOj2yApaB8PioBFqbLuaUVqOy6nUuZYKQnQgz3rOhvS8tlX8LJu4iPu/9hjK3/tpkcSx+SoShxxqf8yXiipJxrr198dcyYApH3cTsVYJeQZGjVZ60g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KSJ9YZsa; arc=none smtp.client-ip=209.85.214.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KSJ9YZsa"
-Received: by mail-pl1-f193.google.com with SMTP id d9443c01a7336-2bea7176c72so1087795ad.0
-        for <bridge@lists.linux.dev>; Wed, 03 Jun 2026 18:52:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780537966; x=1781142766; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=R1VU/ORPdO9tKOsaR3dN6StpC2u7L99EsUXXUtJYK6E=;
-        b=KSJ9YZsayFxFZejIgbonhIgnsf+x3FBqtnOfGVXGhDSYLi5I7fGFtoHmpfvA5z56Fs
-         66kvvScI184neJkCmm+SQPxZRlilaHhPrjJdCeU03KHrjHZ78KAqyu0MRbYWZ0kWqwwV
-         5DTZ2Lfer4nJpfKtpRLvaiHZbx2JG2DkZ3+wgfxU6YOBwK2Po84ad3FB6+glrjFuY0vQ
-         chTJFIoB+Rd/WUXI+qDSl2w2J6hB5pce1ZMhmmHJU15savA/75RfoKqmG5GYlRZg83ky
-         RLl/sysCKsa9DAZMn4ex/UKze5JxsHvf3LiWNOspxx4fjUXd9XmUcV/sOrlxhbOpL86c
-         cDkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780537966; x=1781142766;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=R1VU/ORPdO9tKOsaR3dN6StpC2u7L99EsUXXUtJYK6E=;
-        b=IrfmFkY2yi5kEBubkespDFtu30+D3ayCWQocGMwtoWoGi5RjtF3bmpFMvP3PWY5mvr
-         9nAkHWgi25R0M6VBabu8fIAT5kwex61onyzImS5QGx7EwiQQuQ3aOn2Prmi9k5Bl2cBI
-         WsNWlHXCIEYKqAVr5qsy3vNz+eIbFyPjLyxsAo2aIArzYXlzBlL3NH2Mbsc/fF7k5mx1
-         XeCGwzhaZse7Ta7G7wLz7ip5lHZ5gygrFLGgxvxzoaLmjioTOm4a6iB5L4H/fNimcZKw
-         SFWDmlS09YJ+XZcBVW5FwxvWHcSBSWso9RiX5v0GKrEAtsT5eLXHe0/lefisiFUQSVBx
-         vipw==
-X-Forwarded-Encrypted: i=1; AFNElJ+iIJ7lX0Z17cxvEAxlWeMOuZSPcYq3jGbBhPwqNqut0V2AEqhbE4bVjG+bjQnDzE10AUWe2lk=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyLX1HBUxCIfKsur0hiZ4I/I+MkN02+TcLn1CrdPvWbTc0GwLEH
-	mjKHLbuwfPyrqzDhvrSmqdbHwMMAm/q2OhV9AlIUvFjqkLJjVtMx1T5E
-X-Gm-Gg: Acq92OGSGq72tVcd+gj3Ult0m2GmD8Yr1X4CxPwlrJeI+/uvtFDSPHB6FndBVbSSATl
-	/5zXJjg1KX/Htejydi0gt3t2AXSRoGbwLXMFyqJUuVdXOkPqraYd7Jt0uRTC80F02gwd9Arp5vk
-	k/diWSGb/YKjU5p69v+6smKs7jKNH8h5MTg5FjJeeaa6+jF4h5WOr+Y291zoutUhvpYA09nv9vd
-	gpRqStG6XebYVl2yazpp9LAUY3yV7tBpI2veAI1nT678nt2fi5SQZ++tPDSHMz5Hyaf/b6tpSZ7
-	7u9GGLDTjeQLh3Km9pvBvZfpJgSYxTNxAh+m4heSR3VgqCz52AuMVe0a/Ss/HCg35zQjsNmQu5Q
-	Yb0qPiPtrFWxcs/Diia7RNjdifDDLcD7neNpz7Y8RJ2Mh2uShJpRS9iMYFIupG3lvp6rk/fSyew
-	k0QV2x4dGliUaqzuuTnA==
-X-Received: by 2002:a17:902:f549:b0:2b4:5f96:184d with SMTP id d9443c01a7336-2c1639edf72mr63819855ad.5.1780537966352;
-        Wed, 03 Jun 2026 18:52:46 -0700 (PDT)
-Received: from [0.0.0.0] ([64.118.136.15])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16629d042sm38955675ad.60.2026.06.03.18.52.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Jun 2026 18:52:46 -0700 (PDT)
-Message-ID: <2bbc19cf-e098-46dd-ad76-a4862229786b@gmail.com>
-Date: Thu, 4 Jun 2026 09:52:38 +0800
+	s=arc-20240116; t=1780551591; c=relaxed/simple;
+	bh=/71IDNAYlaYhMk27O2rluNJgQT68JB+md99aDpuFqFw=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=oG3RLKMcCKn83n3KndzQAd5fL1ftO2aXZtsaybAnNavkGBJXBdS/4PX3f/QCmAhTJmDLZ9MibPau2KhgKYsIFBmSYIcIXgyyI9KdNlNqqFKOpmeVqIUb8us6Ms6e1EmMySx9OzbtzHrPWOh/o09AVTUsL1YjrFuj38rXRoY7ghQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; arc=none smtp.client-ip=216.154.215.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=padl.com
+Received: from smtpclient.apple (border.lukktone.com [139.130.100.52])
+	by us.padl.com (Postfix) with ESMTPSA id 7471B60058;
+	Thu,  4 Jun 2026 01:39:38 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 us.padl.com 7471B60058
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH nf v2 1/1] bridge: br_netfilter: move fake rtable off
- struct net_bridge
-To: Florian Westphal <fw@strlen.de>, Ren Wei <n05ec@lzu.edu.cn>
-Cc: netfilter-devel@vger.kernel.org, bridge@lists.linux.dev,
- pablo@netfilter.org, phil@nwl.cc, razor@blackwall.org, idosch@nvidia.com,
- stephen@networkplumber.org, sw@simonwunderlich.de, davem@davemloft.net,
- yuantan098@gmail.com, yifanwucs@gmail.com, tomapufckgml@gmail.com,
- bird@lzu.edu.cn
-References: <831936f111e6e1f435f4f6247d07fe6a6624d271.1779680014.git.royenheart@gmail.com>
- <ahagS3rGl2sG0OVS@strlen.de> <aiC7dFYZpiEHZeyG@strlen.de>
-From: Haoze Xie <royenheart@gmail.com>
-In-Reply-To: <aiC7dFYZpiEHZeyG@strlen.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81\))
+Subject: Re: [PATCH net-next v2 3/6] net: bridge: add 802.1Qat stream
+ reservation admission control
+From: Luke Howard <lukeh@padl.com>
+In-Reply-To: <537410c3-ff4e-43fd-834e-775cd1bbe89e@blackwall.org>
+Date: Thu, 4 Jun 2026 15:39:25 +1000
+Cc: Jiri Pirko <jiri@resnulli.us>,
+ Ivan Vecera <ivecera@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>,
+ Ido Schimmel <idosch@nvidia.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ David Ahern <dsahern@kernel.org>,
+ Shuah Khan <shuah@kernel.org>,
+ Andrew Lunn <andrew@lunn.ch>,
+ Vladimir Oltean <olteanv@gmail.com>,
+ netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ bridge@lists.linux.dev,
+ linux-kselftest@vger.kernel.org,
+ Max Hunter <max@huntershome.org>,
+ Kieran Tyrrell <kieran@sienda.com>,
+ Cedric Jehasse <cedric.jehasse@gmail.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <E1253C6D-F6F0-407A-AABF-FCAB57100A1C@padl.com>
+References: <20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com>
+ <20260602-mv88e6xxx-8021qat-mqprio-v2-3-72be14522e7c@padl.com>
+ <537410c3-ff4e-43fd-834e-775cd1bbe89e@blackwall.org>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+X-Mailer: Apple Mail (2.3826.700.81)
 
-On 6/4/2026 7:40 AM, Florian Westphal wrote:
-> Florian Westphal <fw@strlen.de> wrote:
->> Ren Wei <n05ec@lzu.edu.cn> wrote:
->>> Use rt_dst_alloc() so the fake dst reuses the core IPv4 rtable
->>> lifecycle, and release the bridge device reference during teardown via
->>> dst_dev_put() before dropping the bridge-owned dst reference.
->>
->> I think AI review is mostly correct:
->> https://sashiko.dev/#/patchset/831936f111e6e1f435f4f6247d07fe6a6624d271.1779680014.git.royenheart%40gmail.com
->>
->> - no need for constant refcount bump
->> - I don't think the ipv4 specific functions can be used safely here.
-> 
-> Are you going to send a new version or should this be treated as
-> a bug report?
-> 
-> Thanks.
+On 3 Jun 2026, at 5:35=E2=80=AFpm, Nikolay Aleksandrov =
+<razor@blackwall.org> wrote:
+> So looking at how this is implemented, why not put most of it in TC?
+> It is testing for skb class, for tc qdisc, I don't see a reason for it
+> to be in the bridge at all. You can filter the mcast groups and =
+simulate
+> the "reserved" flag, it has to be set manually anyway. Adding new
+> tests in the bridge software fast-path just for this is a waste.
 
-Sorry about the delay, we're testing and gonna to send a new
-version.
+This makes sense. Maybe it=E2=80=99s better to use flower+TCAM to =
+implement this, and have our SRP daemon manage flower entries in =
+addition to MDB entries. The mv88e6xxx driver=E2=80=99s TCAM support is =
+recent (hi Cedric!) and does not yet appear to support the 6352 or =
+matching on PCP/DA, but one presumes this is possible to add.
+
+Alternatively, responding to your comments, the bridge could mark frames =
+with a =E2=80=9Cstream reserved=E2=80=9D DA with a new tc_skb_ext bit, =
+which would be surfaced to flower similarly to l2_miss. The rest of the =
+policy would live in the flower rule. MDB_FLAGS_STREAM_RESERVED would =
+remain but IFLA_BRPORT_FILTER_STREAM_RESERVED could go (we would =
+dynamically enable the equivalent in mv88e6xxx by refcounting =
+MDB_FLAGS_STREAM_RESERVED entries).
+
+Luke=
