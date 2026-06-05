@@ -1,120 +1,114 @@
-Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com [209.85.208.179])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 169B737B003
-	for <bridge@lists.linux.dev>; Fri,  5 Jun 2026 08:16:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780647385; cv=pass; b=TpG7t8kWeS8xOu8ROiP/JAARM6BkWRgWrzofll+DstS/pXoagTVvzpI8fC9lM05Fo7cl93G6x7Ply/o0EX3cOJgDeQBL8+6OweEoCkVsEi+NodoA5P0fGyXmbTKNbkm2zccpnmqOTw2sAa0asA2orxAaU0L7JUr3K6mszi/bSGg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780647385; c=relaxed/simple;
-	bh=XnAelB6AxuXfk272RlEQBTCRyboXtSXruWGQB5iba8U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pV3wvRuJ/HAhnt7Ktf9/AtFybxpsSd3oohFKKB4D1dZLP2qiQqvrxJYBXJX3KD6Vg3zqTH/mg3tBx8a+zQEj6mKTY66N8prUg2RDqpS4Y04N22xncu9lbXfRzmCT8blnP+RiFGj6fvQPjvLFwhFXrlAsEhGvApsTzBMGUNY1e3o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=LnywUiA4; arc=pass smtp.client-ip=209.85.208.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2155F3C5823
+	for <bridge@lists.linux.dev>; Fri,  5 Jun 2026 08:20:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780647612; cv=none; b=MoXkzIMA7IgFiShYShNSPrS3hpIVc1yEyW3MC7UdQr9RRvtghUKfcW+blFXuoV2LwP6/DHz+Ya/nfMSd51EdTpZbLmyqJkI63zLEIVuFeCmVFQF2MT1q0itQPYlaRizOeWA68JLJVXLEs7OfXxkiCC5rYRWqAEowRfZHp1Tl8do=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780647612; c=relaxed/simple;
+	bh=Ad1nIwuhBFfO4iShVdGuS+I6zfiRoplsexotURrrbuE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kDyye53pqfXO4qYicQ1qOcVKi/CAaWzNsIRlaZdzlutaf4A2P+iu/xS/NONjCC0paElHKBY/0gsAfrHdnDKZ4hHbXrngIKiVpQv3JEKfl4A2XtAgnDcdJClUJZKpjVmHuit5sgEhuvT6yNUyKjL3FKIW95Azx3y0DSzsqvyUGl0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=RpdNJm/q; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="LnywUiA4"
-Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-3965adfd75fso16378771fa.1
-        for <bridge@lists.linux.dev>; Fri, 05 Jun 2026 01:16:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780647382; cv=none;
-        d=google.com; s=arc-20240605;
-        b=T+U1f8WyaulwNpD944y7vOS+QTUcmJsCx74zLn1X0R55rcDhXDPqnTpo6nwkII4M7T
-         CHphVxiqqOuLJ7nPOQ2BaFj73GG4jDrmcRrhJ9KKW9NSVLSDHORhrGbgxxzplrDFlfdt
-         nFgAy3iajmNDor0YJ0EShErppSDBGJ1+VBs9z9A61rSh01cWVg1GfEL/bJ1iYQtnEmbq
-         m/L2LNrCx4sKauJd6sSysw3UHQZrry3Zg0cgrdTU4rQVN7LCLjbZAnW7IX+FpKB/ZXxt
-         EX9Hf1z4+g00iJ5r7A7iLiF0yp1aE8orals4cDNUWXlXqgC0NaHlni7+D0bGTleQZJZs
-         7fbg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=chP+DoD6o+jNnBy+ko9NHVAvB6qXMkilsQ0fEfCieus=;
-        fh=b7rnQsLcZ2XRggjM3I7pwFmNTj29Sfzg4WlcEO90w34=;
-        b=D44wGr7WCmZUXe5s8VEhC/LoZ9rN/iwaPRJywe6u6BzgZupbDp3DY6YEwxFMLQc3/z
-         zQpZSQbMSEsnOfV1pf94y/7bXtrZoExEln3MwCHo1O0xqLNrfl6i0r0YX61qYsk62xZT
-         P8e1shyOdp465rp9iZjv4650nDlp46gAgniDB4y3OE0NAenRfL5gxH6yqH7jOcn6km1k
-         9maH9/VN4Ab6VuQ/q3zOK1IkIyKbngn83GVRY2NNKNFKckIAnegw23OGIz+8m/5w8ubt
-         H0YwJ7/pt1wlWT4LEZRMXI1vCASY9WxDMutoTW1C7KfKPBXinVAX0Dt5jUih0YvNOVsS
-         mVBw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="RpdNJm/q"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-490aebf33e9so8759745e9.3
+        for <bridge@lists.linux.dev>; Fri, 05 Jun 2026 01:20:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1780647382; x=1781252182; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=chP+DoD6o+jNnBy+ko9NHVAvB6qXMkilsQ0fEfCieus=;
-        b=LnywUiA4fsAzc7gTQLWwPX4EFQygZynEZnsBvhC1HczIUx7DH22MliQDqJgtVJDDO9
-         vPfAKGA/r9u9i5Ew6YPpTtXjC8+nPEaZ/MgiKoC8nYdjMaDzZJR5/rlm2SpJ+AetsboY
-         qwQbYZlzTCV/vsRY7XFMVRCUDOrl//m0Cx6pPuC66Gbcs7FI3VfyMFkRO5G01Q5FKYZw
-         N46nO3nKt4iXk//zeJlou2D3g1tZzuytQUAKGaXZDyAFIpKiC70aYQsuhRvh9iUvXjfx
-         s8l0/ya9Q8fiPbDgcvJfJNVW/QV/NcEPlgfTkSpWsN8ZS3/pzSvOrupJ5brB/lsbKG7m
-         eiZw==
+        d=blackwall.org; s=google; t=1780647609; x=1781252409; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=HO+c1Ts8db7gdpq3ytaulcv5tyCH+8/4qMx4yWr0gHo=;
+        b=RpdNJm/qTikbraRGEkIWHpyeSXKduEIl15hs0lcT2kFQ1SqM07idCW+jr/81nOgMmG
+         VzEpPO9QKlY4JLrXYeobZ3TbFhpmJWyR+ej5DnnZ5AvVx5zPaPGyplOp0AHc0bommgTv
+         shlgRiplCp1tl2aK5brwDbo143inp5hS7QLJP6CLDgAxswuKf2cAj6R5VDNB/zKh7dnX
+         OBo23aqYTjGe7LBriEw9FOJLhUk+ItuBgXG0bpF6gw+WyPAMFNfiUUypuRcqGAS1wZgF
+         EG8XY+cJiMcKxxkWMBq/Ih2wyfUno2l2fIeDfSM9fThamgjXuSu/igkm8qldSe0uVuWT
+         bPow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780647382; x=1781252182;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=chP+DoD6o+jNnBy+ko9NHVAvB6qXMkilsQ0fEfCieus=;
-        b=cwmlqPyYcLiANRySNsv0quHPAFl/NCaWqsTMQiCOJIJXQnIGylmk+gM0O+AS4T1Qdf
-         tQ17rfUV6ga9KeqO5Bt8lHpnlxSiGrJXyVx30EAHNvm+n73dx/bH0k65YPGVJUTHSkux
-         LqNSbYhbrFhljLocP8sGGsz4jL26bhSYZ0Nx61md9YPZS1JR+TZFzFzNLvrGuQRn+Nn8
-         1Pp6PgIrTWRT0RKwjGHlNHWphKfi6Fl7DZ88iIhc8DC2Ftc2Iu8v8xntPGipKaDr3y5R
-         R51tb3719obiSl93PPT42RcnW6S6zww6Ry6Zv2lQtBm8YpIAv/Incb8GhSLmNzSUS9hr
-         1+Uw==
-X-Forwarded-Encrypted: i=1; AFNElJ9JicZr5rCdwoTaUX6R+GJNoPK+Xq5ghNGH45pit1QYqgt69fVYdG2zCxCK2qNQ0IlOuLahDlA=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXldlhcEpSU4sCFCYszHCk+h8HuVf1+cgYdwqUskDEKebNTLFJ
-	zIvDsdsg8WVpnd/etaZ4Tbmwiqdr5UPqzSKXOqjyHNHblyC8flo7coGESrQCIxnOSn0q57d3cNW
-	cHsG+MAEUyLzVs9IEOYWRaFm5on2aOe9FgpxoV/eKew==
-X-Gm-Gg: Acq92OESNa3ZlDMSvsW7R2SI0i3X3lySrjLIaRwE7BtXf05UO06eyDQs1tY4WCD1Jt8
-	h6WFWvfGTXTD0XHkowWO820iIN5o0MSj/3M1zAq2k1YjueTmUIAhOn+g0mnyQsXaFFiJagjgSkm
-	wWoWRWw0A9Ln+30rQgN/V/XpijUe9l0d4rqHibSB+m1OA1/AONW+/4bKNl9m+t7V8ll3lwaGGOB
-	q6LFazhVFpzgkZt4cM4AIUf1Kw7BRNPRaIatl6MNefFlM6YQJ+k5IPnHIcuoPjrZ79t5FTJQAnL
-	ThHKI3W06FlNkHEjt7htNfWKEAIqY0L0F3d/EfrupIKYJYNbBcc=
-X-Received: by 2002:a05:6512:804e:b0:5aa:6d0f:d765 with SMTP id
- 2adb3069b0e04-5aa87b80e23mr404631e87.20.1780647382332; Fri, 05 Jun 2026
- 01:16:22 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780647609; x=1781252409;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=HO+c1Ts8db7gdpq3ytaulcv5tyCH+8/4qMx4yWr0gHo=;
+        b=S3QGh8uLw3bEbyL5W6GYhUfpkDJCy8LWXTnNnqKLMygSo4RgotgCJGhLnL263Xlydy
+         pALTqaMPuyN1xWBco8n5+JQbM1QWZwj77wiLJdjVsTeBLJ0btyZ5B5DtDgVMkDeefWlA
+         eORZ37qQc6qfZ2JQm9nmIQu/0HH/t0yTEk9OtCE/MlJJrUcfzu6cFlbQixrfmehlqEqE
+         PFDpTTqD5aRGyGw2PXXDeFD8SEDUqQw7DecAXBnze4GgulQNfHn2RgYIBB43GNEcthl6
+         9Y2O0WXgZVREzdE4Uy9gc1RUfJXVl4/79adVj8uIigOv5eLE6vPr/5ZRDOoqgQP9ozGX
+         FQLA==
+X-Forwarded-Encrypted: i=1; AFNElJ8g0BKDOBQbpwlsnOCbPIc13yuUsAS2rX1BMlW0vuEU7KF/DcGnnHEoHy9ScF2xhYBzqI8hVQE=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyzo/JWZlfdzMyRqkjb4kFTMb3lwQ1/TnWKTjs6MrHQUZrI5NGF
+	kYJcvR8oHxMQkS9283qdXQozmtmz4NNMz2nA0qd1/cr+Aoz3sgPelrkscwyu+YyObfo=
+X-Gm-Gg: Acq92OECkwNLSpe7WmDjivQ3mBo5NAd9ZTPIlk/Wspy8T7oCXzGeVsO9UijptPpgk5p
+	Mrd1Pod54m1om6Etn/ZFWbpux53fxYv9OM6CzBRsVVLYQ5ixWjGzx/tBgRrPiQnTcN7DzPakLto
+	H7Ux62WecUrhIpimiuOwOFn06KabDkGGpMy9mZxYK/IyoyTweCpw17hny6k5VbGoQN8CpSxnPZs
+	7YqiSAhlk84CZr7UJu4BVA7Gid9ijjNfMwkSIi+XLT3OR8dKwpNgynBGXTitHM55S/w3DUY4wv+
+	xjcOkib/SQ7ceQlH3fidkQ/w0O3NunN3N0qPwoLep0qKYZ9D+D94k3oew/4zm/BXNqlh8K23Eo5
+	3yvFFS4oPHsH4Fkx2Bhvyc9xg3H9h/p5OmXeg14m/xmcKelS2h40CPOW8tlzwu/Dki2bAdc5D8v
+	xU/vDQ+0iIZ61EeBBoxVigEOf8n7rvmC3TQPw1ga+vYjn3YI6/pfXhWJ9u1zlUlmshgYuXlKIrU
+	Z8=
+X-Received: by 2002:a05:600c:6387:b0:490:b26f:a512 with SMTP id 5b1f17b1804b1-490c251d015mr39333285e9.0.1780647609238;
+        Fri, 05 Jun 2026 01:20:09 -0700 (PDT)
+Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f345209sm23277449f8f.17.2026.06.05.01.20.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Jun 2026 01:20:08 -0700 (PDT)
+Message-ID: <4d9067d9-2a4a-45e2-aa43-c456648989da@blackwall.org>
+Date: Fri, 5 Jun 2026 11:20:07 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH net-next] net: bridge: Move long delayed work on
+ system_dfl_long_wq
+Content-Language: en-US, bg
+To: Marco Crivellari <marco.crivellari@suse.com>,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bridge@lists.linux.dev
+Cc: Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Michal Hocko <mhocko@suse.com>, Simon Horman <horms@verge.net.au>,
+ "David S . Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Ido Schimmel <idosch@nvidia.com>
 References: <20260507134815.295588-1-marco.crivellari@suse.com>
-In-Reply-To: <20260507134815.295588-1-marco.crivellari@suse.com>
-From: Marco Crivellari <marco.crivellari@suse.com>
-Date: Fri, 5 Jun 2026 10:16:09 +0200
-X-Gm-Features: AVHnY4Kbl9XFe5VYdITzs-SAi1Xwku4lxaI3mSz8BfUmYzi35gpoXXmtmCC3UxE
-Message-ID: <CAAofZF6CcyxoOsYr94KARUFtfi+=H1nF3mBQAtFWxEujdVgXUw@mail.gmail.com>
-Subject: Re: [RFC PATCH net-next] net: bridge: Move long delayed work on system_dfl_long_wq
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	bridge@lists.linux.dev
-Cc: Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, 
-	Frederic Weisbecker <frederic@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
-	Michal Hocko <mhocko@suse.com>, Simon Horman <horms@verge.net.au>, 
-	"David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Ido Schimmel <idosch@nvidia.com>, 
-	Nikolay Aleksandrov <razor@blackwall.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+ <CAAofZF6CcyxoOsYr94KARUFtfi+=H1nF3mBQAtFWxEujdVgXUw@mail.gmail.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <CAAofZF6CcyxoOsYr94KARUFtfi+=H1nF3mBQAtFWxEujdVgXUw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi,
+On 05/06/2026 11:16, Marco Crivellari wrote:
+> Hi,
+> 
+> On Thu, May 7, 2026 at 3:48 PM Marco Crivellari
+> <marco.crivellari@suse.com> wrote:
+>> [...]
+>>   net/bridge/br_fdb.c    | 2 +-
+>>   net/bridge/br_stp.c    | 2 +-
+>>   net/bridge/br_stp_if.c | 2 +-
+>>   3 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> Gentle ping.
+> 
+> Thanks!
+> 
 
-On Thu, May 7, 2026 at 3:48=E2=80=AFPM Marco Crivellari
-<marco.crivellari@suse.com> wrote:
-> [...]
->  net/bridge/br_fdb.c    | 2 +-
->  net/bridge/br_stp.c    | 2 +-
->  net/bridge/br_stp_if.c | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+Ping about what? The patch is marked as RFC so it is not
+going to be considered. It already got a reviewed-by one
+of the maintainers, I'm ok with it too, so when sending it please add:
 
-Gentle ping.
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-Thanks!
-
---=20
-
-Marco Crivellari
-
-SUSE Labs
+Cheers,
+  Nik
