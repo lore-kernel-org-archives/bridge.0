@@ -1,153 +1,99 @@
-Received: from mail-oi1-f208.google.com (mail-oi1-f208.google.com [209.85.167.208])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us.padl.com (us.padl.com [216.154.215.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4B3B3254BD
-	for <bridge@lists.linux.dev>; Fri,  5 Jun 2026 16:58:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.208
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB0BE38F928
+	for <bridge@lists.linux.dev>; Fri,  5 Jun 2026 22:37:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.154.215.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780678708; cv=none; b=oD97XaQtLZWCB0rJHT7Li9Mv/Y6kkpCotcksuvJ9o/CU4wQopITdfmC8ZTopBEf5K1xJkM5e5T9dJ/1COyTw5gLNTYIsiCTlF5PS3pIWMJlnW1JghoxTE0P0xg2CYGBld1G4w2vCoDi49B9BgeCH862vZIS3xGis/KyrnbwHTLw=
+	t=1780699036; cv=none; b=t8aPJo3zsrstt812dxW/CGaqNO1AhGxvFiRq2f/kjV18MZ+fRjcLgVUo++0qyt5uMoevoyNAbqUVBlemaik87cWSG3R0hHnszFaOHAPkvDAqKItvCjhqIM2Cnn/cz/MP6o5dQFujP8+ck4sibT7IXbVwKMVR3PP2BbDHA1e6rzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780678708; c=relaxed/simple;
-	bh=GIUaScalfrmR0APxMsbvRbijzzxjbRe3Dv6Z84yaP1E=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=jSdXlsc2gh6eXrZqGIQKROMqXOQXvs2M3UWa9G7J3aNVMDxRoqtP29XUFbF90lNI7dz7+5Zyy/RjdSpqB5O9FMQg9rn0vLGWeJXmKAq+pgdolnf0fWDP1kIfawQKJEX7a6+lB9efVex1yiFZg4uTRGjYp5JHusBUzaFSnVyAHXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.208
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f208.google.com with SMTP id 5614622812f47-4864aea156dso1495232b6e.3
-        for <bridge@lists.linux.dev>; Fri, 05 Jun 2026 09:58:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780678705; x=1781283505;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=dmst1QGiEErj6eYelafDa0+cdHvsg0Afv0a+dUCPKK0=;
-        b=K86lwqcBaarcJzoILZhZg8cYYLEHPR0oawzlF75TaFlJxvNYSiPFZfQXzZS2ip7dz+
-         uq1YIibaLZuFE3eXlnmAyGBld5xdO37DPINsA7/ZotdL+D4+e5O30WSezwAoQHMEuss4
-         uK6e1qBCizr2RMPmKdbE3zlW6D71i2aWliZj9lGc3fTIbf1hxIeHY7bOuSMqCbUdcwGQ
-         bYkn25kb+OXXHvYJjDuIML0aQtO/qkhQXJWnyLbowFAvhIVxQ+zd+ekMdNCOn5sZB4vf
-         bltDVZfs8eW/N9JYUE9InuUcxnBwBP9NGaV411f/r74lkq7abGyj4nXQf9qAX/oL3FPt
-         KVUA==
-X-Gm-Message-State: AOJu0YwZEkNkDPywwZn7b6LHHdUlKvTKBKcTnx0azgxiM/ZWOhLyODbR
-	6yZD4smZfizR8KZNrT0qTh1jFejxYRsE/BZktH/LUrkY7VdMTWkh1NCiM0uH/nPgX8LTfjKzYGr
-	xtoXObuFcnj70ahdQd2T5KpjrWBPILNAWWPEtqn2IHAY9DhkrOTf98ID1crOhKQ==
+	s=arc-20240116; t=1780699036; c=relaxed/simple;
+	bh=DrzvSPrOSjJW3+VVlhh9e7GElkZoHFD80o/e/bA+fv0=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=qh1CG5UGMEt9XKfmpXXwsqDJSdwN5mAt5LXCeWNFI+v8e36iiyrvFCx4GdomkSUBQhOWehTlQ52PKKwLXNRkqQY4iv/CjpmEg1RgbZTmjfc9samr88aQor7/vPylsDlDDoAfmBHbpTPpfRaUGPCmaTOUPEJiPAZkcjpm513cc8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b=1OkXNAl3; arc=none smtp.client-ip=216.154.215.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=padl.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b="1OkXNAl3"
+Received: from smtpclient.apple (119-18-22-158.771216.mel.static.aussiebb.net [119.18.22.158])
+	by us.padl.com (Postfix) with ESMTPSA id 3EDA160980;
+	Fri,  5 Jun 2026 18:37:07 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=padl.com; s=default;
+	t=1780699031; bh=DrzvSPrOSjJW3+VVlhh9e7GElkZoHFD80o/e/bA+fv0=;
+	h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
+	b=1OkXNAl3msO/YPjWFIsFkdJ2k+CFsQTZvRHO9RuEzmnjJIl1YFD72InK6c44/7IKQ
+	 CdraLxwFb56KPO3bVWdYk3lFeztXgPOO1RaIIKPNGbdaU48ghq0GBXAsCakCplDIF/
+	 wYRIXonhknZhYVqhKRRz0uX4WN3gz2fev6zKN6RRYbFFy2StAj2YNb+/JNdQPZyZvb
+	 NJGVXCCFj7ebAFiMQKhtNFyz1UqCDFlaXsS72bPcDR0JQKM0V42yzY1GVtrBOUSxBe
+	 HUo6mUxLZ1Xq8uGDlL/7LQLlLAYNwcIKWwCZsypoG3rlr8qhDZk29PU87/U/B0nnNo
+	 mUS50ucs7hqlA==
+Content-Type: text/plain;
+	charset=us-ascii
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Received: by 2002:a05:6820:f027:b0:69e:3563:4424 with SMTP id
- 006d021491bc7-69e68b72196mr2438741eaf.24.1780678705635; Fri, 05 Jun 2026
- 09:58:25 -0700 (PDT)
-Date: Fri, 05 Jun 2026 09:58:25 -0700
-In-Reply-To: <69de2bee.a00a0220.475f0.0041.GAE@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a230031.39669fcc.2372e3.0003.GAE@google.com>
-Subject: Re: [syzbot] [bridge?] KASAN: use-after-free Read in qdisc_pkt_len_segs_init
-From: syzbot <syzbot+83181a31faf9455499c5@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, davem@davemloft.net, dsahern@kernel.org, 
-	edumazet@google.com, horms@kernel.org, idosch@nvidia.com, 
-	jiayuan.chen@linux.dev, kuba@kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, pabeni@redhat.com, pshelar@nicira.com, 
-	razor@blackwall.org, syzkaller-bugs@googlegroups.com, tom@herbertland.com
-Content-Type: text/plain; charset="UTF-8"
-
-syzbot has found a reproducer for the following issue on:
-
-HEAD commit:    4aacf509e537 net: mv643xx: fix OF node refcount
-git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=15b8fdd2580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=65472e27d1590a04
-dashboard link: https://syzkaller.appspot.com/bug?extid=83181a31faf9455499c5
-compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10a6da86580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13a3c0ae580000
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/7559c887601e/disk-4aacf509.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/185ea069b480/vmlinux-4aacf509.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/4285524349b9/bzImage-4aacf509.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+83181a31faf9455499c5@syzkaller.appspotmail.com
-
-==================================================================
-BUG: KASAN: use-after-free in __tcp_hdrlen include/linux/tcp.h:31 [inline]
-BUG: KASAN: use-after-free in qdisc_pkt_len_segs_init+0x7f8/0xa30 net/core/dev.c:4140
-Read of size 2 at addr ffff88817cd41734 by task syz.0.17/5856
-
-CPU: 0 UID: 0 PID: 5856 Comm: syz.0.17 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 04/18/2026
-Call Trace:
- <IRQ>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- print_address_description+0x55/0x1e0 mm/kasan/report.c:378
- print_report+0x58/0x70 mm/kasan/report.c:482
- kasan_report+0x117/0x150 mm/kasan/report.c:595
- __tcp_hdrlen include/linux/tcp.h:31 [inline]
- qdisc_pkt_len_segs_init+0x7f8/0xa30 net/core/dev.c:4140
- __dev_queue_xmit+0x29a/0x3950 net/core/dev.c:4782
- dev_queue_xmit include/linux/netdevice.h:3418 [inline]
- hsr_xmit net/hsr/hsr_forward.c:440 [inline]
- hsr_forward_do net/hsr/hsr_forward.c:581 [inline]
- hsr_forward_skb+0x167e/0x2ab0 net/hsr/hsr_forward.c:743
- hsr_handle_frame+0x6b8/0xa50 net/hsr/hsr_slave.c:81
- __netif_receive_skb_core+0x98f/0x3170 net/core/dev.c:6089
- __netif_receive_skb_list_core+0x24d/0x810 net/core/dev.c:6277
- __netif_receive_skb_list net/core/dev.c:6344 [inline]
- netif_receive_skb_list_internal+0x995/0xcf0 net/core/dev.c:6435
- gro_normal_list include/net/gro.h:523 [inline]
- gro_flush_normal include/net/gro.h:531 [inline]
- napi_complete_done+0x299/0x730 net/core/dev.c:6803
- gro_cell_poll+0x5a9/0x5d0 net/core/gro_cells.c:74
- __napi_poll+0xae/0x340 net/core/dev.c:7733
- napi_poll net/core/dev.c:7796 [inline]
- net_rx_action+0x627/0xf70 net/core/dev.c:7953
- handle_softirqs+0x22a/0x840 kernel/softirq.c:622
- do_softirq+0x76/0xd0 kernel/softirq.c:523
- </IRQ>
- <TASK>
- __local_bh_enable_ip+0xf8/0x130 kernel/softirq.c:450
- local_bh_enable include/linux/bottom_half.h:33 [inline]
- tun_rx_batched+0x617/0x790 drivers/net/tun.c:-1
- tun_get_user+0x2bbc/0x43e0 drivers/net/tun.c:1955
- tun_chr_write_iter+0x113/0x200 drivers/net/tun.c:2001
- new_sync_write fs/read_write.c:595 [inline]
- vfs_write+0x61d/0xb90 fs/read_write.c:688
- ksys_write+0x150/0x270 fs/read_write.c:740
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0x174/0x580 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fe91fb9ce59
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffda826a2e8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 00007fe91fe15fa0 RCX: 00007fe91fb9ce59
-RDX: 000000000000007a RSI: 00002000000002c0 RDI: 0000000000000005
-RBP: 00007fe91fc32d6f R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007fe91fe15fac R14: 00007fe91fe15fa0 R15: 00007fe91fe15fa0
- </TASK>
-
-The buggy address belongs to the physical page:
-page: refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x17cd41
-flags: 0x57ff00000000000(node=1|zone=2|lastcpupid=0x7ff)
-raw: 057ff00000000000 ffffea0005f35048 ffffea0005f35048 0000000000000000
-raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner info is not present (never set?)
-
-Memory state around the buggy address:
- ffff88817cd41600: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff88817cd41680: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
->ffff88817cd41700: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                                     ^
- ffff88817cd41780: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff88817cd41800: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-==================================================================
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.500.181.1.5\))
+Subject: Re: [PATCH net-next v2 3/6] net: bridge: add 802.1Qat stream
+ reservation admission control
+From: Luke Howard <lukeh@padl.com>
+In-Reply-To: <n2pi7h5nvxg3xvshtcxqeizpukp6hphqa7kodbe7b3ioc3kcq5@n34fgocvaicm>
+Date: Sat, 6 Jun 2026 08:36:52 +1000
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+ Jiri Pirko <jiri@resnulli.us>,
+ Ivan Vecera <ivecera@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>,
+ Ido Schimmel <idosch@nvidia.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ David Ahern <dsahern@kernel.org>,
+ Shuah Khan <shuah@kernel.org>,
+ Andrew Lunn <andrew@lunn.ch>,
+ Vladimir Oltean <olteanv@gmail.com>,
+ netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ bridge@lists.linux.dev,
+ linux-kselftest@vger.kernel.org,
+ Max Hunter <max@huntershome.org>,
+ Kieran Tyrrell <kieran@sienda.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <950DFD0B-0975-4AAC-967E-C7E4750A496C@padl.com>
+References: <20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com>
+ <20260602-mv88e6xxx-8021qat-mqprio-v2-3-72be14522e7c@padl.com>
+ <537410c3-ff4e-43fd-834e-775cd1bbe89e@blackwall.org>
+ <E1253C6D-F6F0-407A-AABF-FCAB57100A1C@padl.com>
+ <n2pi7h5nvxg3xvshtcxqeizpukp6hphqa7kodbe7b3ioc3kcq5@n34fgocvaicm>
+To: Cedric Jehasse <cedric.jehasse@gmail.com>
+X-Mailer: Apple Mail (2.3826.500.181.1.5)
 
 
----
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+> But the concept comes from the 802.1Q spec. The spec describes =
+different types
+> of FDB entries. One of these is Dynamic Reservation Entries, which are =
+created
+> from the Stream Reservation Protocol.
+> The issue here is the Marvell switch has an implementation where we =
+need to
+> know if an entry is a Dynamic Reservation Entry. But the linux bridge =
+has a
+> simplified version of the FDB described in 802.1Q.
+> By adding a way to distinguish between the type of FDB entries, it's =
+possible
+> to program a Marvell which has this distinction between Dynamic =
+Reservation
+> Entries (or AVB entries) and other entries.
+
+If we only care about the multicast case, and we can depend on snooping =
+being enabled and flooding disabled, then I think Dynamic Reservation =
+Entries collapse to permanent MDB entries. Unicast is trickier.
+
+The issue of reclassifying (or dropping) frames that share a SRP class =
+PCP is separate. I think it could be done with a tc-flower entry that =
+reclassifies all ingress traffic with SRP PCPs (e.g. see 802.1Q Table =
+6-5) and then a per-stream egress entry that sets the queue and =
+priority.=
