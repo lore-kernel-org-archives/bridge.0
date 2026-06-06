@@ -1,187 +1,132 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63EC327707
-	for <bridge@lists.linux.dev>; Sat,  6 Jun 2026 22:00:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780783251; cv=pass; b=iXKmn2NWywS0DvOYk9lydgQ6vEptXTuGjGRqBa6LtQw84Rq6jT67HJZDsfCohb1x/nWYxlY+vJlkTL1UZCeDuvlMnYggVoEeAS4yZoj9MNnQJAoxwyY2FbfYp2vfcWuvvU63IbPhyEB/9wzD2v8g0IjNkIPBvp5oULJA5EiSySY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780783251; c=relaxed/simple;
-	bh=JklZoVSHSSeMVT5K/IXdnIYd5bJQP32cB2VrlK1mgsU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AcKpI2/ZHR3uilSQ5SZZ0iXKFIE3std9e9D4niRTQ6NwHnv/t7VAV/DCzUcqZu8FzFG0TUdZv3PAcMzq50gOuxY52uILyZW9KEMPoTdlvdZULF96aT+VX7ug7VDSHDJIwkTm//ohVm00+chHC53QxYkuhlbzzRy6J3t85JD3pLI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=bHhG2MCs; arc=pass smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECA4B2F8EA3
+	for <bridge@lists.linux.dev>; Sat,  6 Jun 2026 22:14:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780784051; cv=none; b=S+vIwIdJjnKaOxb8MBvwx9jW6y8pIhZ3Jaiufgi66ZKWvZ4Dz50g63bAyIU+vRC1yThmPAcIiHpyefIwbaIuAVtoyZzsUzYzNdvqpjyYqj3KwYiTEWYTdhVTO9DNqxBwx5CLDZ0qNTHocM0VOGNbZ8Vm4+ETb7SNrIdEuitVNLU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780784051; c=relaxed/simple;
+	bh=s5c6ul3C63xfvEM9cD74J3TRSk+sjNTozC8i6Xue4A4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ImTkLlBQsF1E6o7clzscdK6YRGo9dN5et7q34iatUrTXgpVVM2o0Glv37i9g0yLGsPDZcMM7eQtY3RY3iy3vucHlEXTUwqSfH2kc5LLZvL/YuHqCsFIYEsD5kO0vRzs7VL28V97BTrOFSENaLaL9tcRMcE4e+7Hn6MQqzBgXkDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=IPaTEAXP; arc=none smtp.client-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="bHhG2MCs"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c8588ec1b44so2202591a12.1
-        for <bridge@lists.linux.dev>; Sat, 06 Jun 2026 15:00:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780783250; cv=none;
-        d=google.com; s=arc-20240605;
-        b=d+b87xZwq4RguRNZ3uEw5h+BLyuxHv/64U87s8r6C9+/0/dvbNKkv85jHJN0Zo5fCB
-         xGfmKFJmrHEoAF41kL744R0Vrm3MIKW4a6tsH1vvwgfMILGUwl36wrWB6wOUKEzTjEfy
-         CHDi4WVwiWl2If9TZ9Cl0GRQ97NygKO79xYL4dAAdvAVU3WY51uiTRIW1pEKcCbVBF4n
-         ASFP+p7J53P3gb0qGG82hU/2L2Y82e9VQe3uCNF1B66wPnQ0gyvJn7yshHDGr9plEaJL
-         7WRAPAALi0Jb5yRQ50JVfZyz6xfNE9NW4jRNWCnOdoRrinzeYiT49YuSMvLhK6R5pqfw
-         kuiQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=HBZWdID8otG8mvTK/jX8anFGJZbVGI+h8QUrOAueMus=;
-        fh=OrL19lQ7I/DJF1H5rNlQrPmlVroOE437TPtfxbRxzsk=;
-        b=IJmEWqy+HBKIKXTyv+C7Rucc2+XA8V/ccXIIoqXV8fjelPscDDTDpttcjsf984tI4C
-         OIGeALypJWj5ZcCbzoCLNKBm/8M+M9dmFMEa8aMW7eFX9vwiDuOPgZjj6ORKgI5XSY6L
-         yIwOqVSEGluNja7SjbRq9IIcu6qi0fWlPu+KYZSzdrOPTPbIjkjThkq5tcI8Nklyxc/h
-         Fi2e/aSKCCAWC5CodO1XnyVKmfIbtL8d4hLqCXJq9v3ZzVAv4OUs/MVuKzRx3+dmlLkW
-         PbmbKFAsVO+2y3QZQRVSBbqqzvwbvhHDCQmlB1LxPTj2JZbASyLJvcGqLY4X0kpcYTGV
-         7+8w==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="IPaTEAXP"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-45ef56d9b67so2353355f8f.2
+        for <bridge@lists.linux.dev>; Sat, 06 Jun 2026 15:14:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=asu.edu; s=google; t=1780783250; x=1781388050; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HBZWdID8otG8mvTK/jX8anFGJZbVGI+h8QUrOAueMus=;
-        b=bHhG2MCshWwYNepGe7wG+fIzNhPlyTbqnCRfwbq4tS/cEukhCYZag5HZh7QGlLMzUJ
-         /zglgtaFM1pZUXXdRfUryz1EkQjcGIo6huQHG4AIeAoiuz/B//ItYxf7lZjhePBXdo0d
-         2wx7STUMsxGk7uvxcwMSWAeHIDGGiOWDSIAUEsK/qZB1aiU8yI0Xv9qyehuvUJ7bl9Zl
-         l/8+U9wXLwuqfvW5QbIYZL1K2Z+szM/rD9I7zboSr3i1xPW+DevnXUk/ypqPLGybMVYT
-         eutP5en/i2Mmty9BIfNL7u9suLtgcaKYBWKt/hwKGI/n+wK6ZYjFg2A8imz6WB4rpkr6
-         aCSg==
+        d=blackwall.org; s=google; t=1780784048; x=1781388848; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=9c+Hlm2LHsdp+Cs0S88z9ZuS/e5nxWWRGBAgwrHV+84=;
+        b=IPaTEAXPo2JeqOp+hxkpqDOBI9AmqQw9Z7i9hsdkTdlEQOHRux8VaPuohCIihpbvlb
+         c4KxNC3iq6yOX/i69dYG+Ir2pK5j2SYSQvwX0lqpIeEtBZx12AAI+K11DaZXA12OYMnk
+         6oELhEme5Ta6bAJY8Tngy0wRebIYc1mMKoUAKHxQ2n9UPrdJEosL4Iog00W3GjrqKMfE
+         pUUqo5hjCYtYi4VNfnSxIijJvdlC+zxrddq7efmZAbnllXnZMptVpuB3btLl/47yDITA
+         AXdciRBPswZnvU8s6lU5MffMOjhiZESUDh1FwowUSUpM74wVv80NoBFqDpVpQx0QLNPM
+         FNxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780783250; x=1781388050;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=HBZWdID8otG8mvTK/jX8anFGJZbVGI+h8QUrOAueMus=;
-        b=HORAx5DMQJKI1hqZn+ZkCeC3FwbICYF8zpquWopAwLOpCA5h6w5hygandOIOHFVTw+
-         0oKqtusiessR7AoCJ2ZHuv271Ci5+c4o9Pt+BYeo3GWmk/Fhhg1W1CkBYY79H8Hj0uAO
-         UWMwEB3xzDXc9myT3O2Tm+zbaWQ58JQZSbAYZSksM+/hjLFLJ6HmOfSxzgZkWoC+Bz0x
-         leVXLS0OJ3BJq1PgK/9lQmRMG09UpF/U8eamNxc18CbVhkSfbedd9QO7uKfzAqDds68N
-         7RtZRkU18HIo27sOdXFU2CMP8hYhomu2gsCDcJyRyXUyFrxJ0cNG3kacHPS76iwuQsjL
-         y5Uw==
-X-Forwarded-Encrypted: i=1; AFNElJ/knilU/9reWK8GstLpMQXH422+qSI+Eyj92SXFbmLMrQBz81u7PaYMiJ6Enyp7GDYd8VaVRek=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwI9A6kC6BVyCuMQa2at+yRMD4rlbaCeXpiH8s1HfJF5TdHc7mF
-	KSpYE08Uj2GzM6JoW3+vtjzOpba9sDONlPJn4NE64rmGzvLNPtY7xCD1sQdS+FVZCYdCXPr2Oo8
-	YyXjp+G1s0759VnhORaSPbhInp9Oww75GfWOgx/Hk
-X-Gm-Gg: Acq92OHEieYce6vHPglbIhgD0tre9cjimzTNaT7HreAPEg7QNv/S/A4QJI8H5HEH8A8
-	5b92FW8Iaqm0wSGyNYcXlyx8iuRFYwAWdqq68EUJjtHUBvhRg7KYmPPO+V09qpCAu2B5LYGRSsP
-	k3VJnHsNs96WVcaflJxC324/cXnIL2Tq36SdGaP4R5y9KuzBCGJL0zIkFalM5hndK1L3T28/Wv/
-	yV/lvu3ewhycZIpEQWI3MhAH9Wt71mRuEiHyxG7PWLMDRqlp3ynH39oUTc7GCw8zcJENMZACAhS
-	LYgV/wsvut1w3itxkGI/YqDI51rL2n3sDA1FICJ0RSO6bNVxZA==
-X-Received: by 2002:aa7:88cb:0:b0:842:68d3:e29d with SMTP id
- d2e1a72fcca58-842b0e7d233mr9029036b3a.36.1780783249552; Sat, 06 Jun 2026
- 15:00:49 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780784048; x=1781388848;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9c+Hlm2LHsdp+Cs0S88z9ZuS/e5nxWWRGBAgwrHV+84=;
+        b=sFLVrkH+RPbG3OHfJbhONLU0bgIsWj1k9HrL7SNbroi8isGKU+BGyOdLT3GeNP86hJ
+         wzXH6lyE3ovQFozX9OPKIAR7k7VKt9h+oQYfFsobPm4JoXWHhKC9I7aJRlof90K3GX3d
+         a5Nn4Tf8Fc+Ft+keBtQLizoo6m8I3SqlqB5SvsuFuzqUt8VXmR9CQoJIY7OVfYI7KQ+q
+         AViRpPILIg2YHjcp82vwpy+vIE6Z04cEecBCahC9NDH7NfT9W4DmMtH9/scudoUORfZD
+         4OojIxIajiO3D7/WMBavKMgL4F6B42znu31Nk5xA7PF67m5e9ogWhdDN4bqn61cMn8bd
+         NuzQ==
+X-Forwarded-Encrypted: i=1; AFNElJ94iqf4umv03AzSBV25TkZkHcsGYPaqzVIlzMAJAUYBiPyTTNxAsus0CWs6g0TeHn1wjbKUdds=@lists.linux.dev
+X-Gm-Message-State: AOJu0YyrpI2G1bLaoBcX/uOLxQoRUiWzeu/4EPM/JHW21TwM4a5QQcaM
+	d8L7hYkFNP8T2SEwdkCC6nSUY+4pMy8eP3u+wP0bO803T8/ixUu5eAaFgvn0Q79i2cs=
+X-Gm-Gg: Acq92OGSnFG2amzkaTQ3F9Di7bPVKZdZaeuLOpph9hZ9J7j1vmhmQ5gDRidMGxUM5B4
+	qVIYRzbzjj8IBq/pyBP+jzVDO3Frik/mmv44fuwG/xQbiFxN3FJoRbnxv9nC4d8F9Oh0tZWFJvj
+	oT+zcjOEVaJrXhyZjWuy6QrYLRh6exjlzGPakeiyQ76JVlDrmYfEMD0ChwI2Bzoj93x7MsVky8B
+	51IPMmatVk13acmlwmGpFdD7iCxw1w4RaziDaE3d+NXPEXgGW3v8b2zQmHTO8sbVRiNNVkY2/m1
+	8GfSscKsBCK3xj8NyrSQhItCd5w7/5Wdxk5bECRlmawH0vu3JVSXL+wiTdHcZiXF/y1ZeMI+6Nh
+	9oSwpWnT4yViMy+P4crn2Gvaof5JSlBLSE0HRg02VHDXfscfODGxQ+9h72P85uoV2B4HNxD7y1e
+	0ljADFIiQAQF0m8/qOaAqF5zw+m+RtHxceTz2gcnr+MxoIsyI4iH9dWy5Q
+X-Received: by 2002:a05:600c:6995:b0:490:b473:8f78 with SMTP id 5b1f17b1804b1-490c25dd66emr159444885e9.17.1780784048113;
+        Sat, 06 Jun 2026 15:14:08 -0700 (PDT)
+Received: from localhost (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3c183asm269237185e9.6.2026.06.06.15.14.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 06 Jun 2026 15:14:07 -0700 (PDT)
+Date: Sun, 7 Jun 2026 01:14:06 +0300
+From: Nikolay Aleksandrov <razor@blackwall.org>
+To: Luke Howard <lukeh@padl.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Cedric Jehasse <cedric.jehasse@gmail.com>,
+	Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>,
+	Vladimir Oltean <olteanv@gmail.com>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, bridge@lists.linux.dev,
+	linux-kselftest@vger.kernel.org, Max Hunter <max@huntershome.org>,
+	Kieran Tyrrell <kieran@sienda.com>
+Subject: Re: [PATCH net-next v2 3/6] net: bridge: add 802.1Qat stream
+ reservation admission control
+Message-ID: <aiSbrmlOunfxwvGu@penguin>
+References: <20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com>
+ <20260602-mv88e6xxx-8021qat-mqprio-v2-3-72be14522e7c@padl.com>
+ <537410c3-ff4e-43fd-834e-775cd1bbe89e@blackwall.org>
+ <E1253C6D-F6F0-407A-AABF-FCAB57100A1C@padl.com>
+ <n2pi7h5nvxg3xvshtcxqeizpukp6hphqa7kodbe7b3ioc3kcq5@n34fgocvaicm>
+ <d0e650fb-4011-4d64-9780-a0ddd0ca1cf3@lunn.ch>
+ <CCF20D32-6C9F-49DC-9838-592EFB5E88D2@padl.com>
+ <a63eed7d-b674-4830-a690-1b55dfdc9a72@blackwall.org>
+ <77CCA8EB-145D-4B76-B6F4-9B775C361995@padl.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260405000324.548623-1-xmei5@asu.edu> <20260407070716.GA752875@shredder>
-In-Reply-To: <20260407070716.GA752875@shredder>
-From: Xiang Mei <xmei5@asu.edu>
-Date: Sat, 6 Jun 2026 15:00:38 -0700
-X-Gm-Features: AVVi8Cf7lOaRxhyC9Nd1mAHqEQjUOB9sRQGvd0iUnAgNqhuZ5cGPZR2gKctHC9s
-Message-ID: <CAPpSM+Tuf5tLGabgjXg3=1sFOAg3ioFPMGeSeoufCPhrLH6tfw@mail.gmail.com>
-Subject: Re: [PATCH net v2] bridge: cfm: reject invalid CCM interval at
- configuration time
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: netdev@vger.kernel.org, horms@kernel.org, bridge@lists.linux.dev, 
-	razor@blackwall.org, davem@davemloft.net, edumazet@google.com, 
-	pabeni@redhat.com, bestswngs@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <77CCA8EB-145D-4B76-B6F4-9B775C361995@padl.com>
 
-Thanks for the feedback, and sorry for the delayed v3. It was sent.
+On Sun, Jun 07, 2026 at 07:49:26AM +1000, Luke Howard wrote:
+> 
+> 
+> > On 6 Jun 2026, at 6:21 pm, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+> > 
+> > On 06/06/2026 11:02, Luke Howard wrote:
+> >> The definition of Dynamic Reservation Entries in 802.1Q (clause 8.8.7) might support the addition of a new MDB (or even FDB) entry state to the kernel:
+> >> - add MDB_DYNAMIC_RESERVATION (a state, not a flag);
+> >> - the software bridge only _classifies_ packets against  MDB_DYNAMIC_RESERVATION entries, and only when MDB is authoritative. Classification sets dynamic_reservation_hit on tc_skb_ext;
+> >> - dynamic_reservation_hit is visible to the flow dissector so can be used for policy enforcement.
+> > 
+> > See, saying the bridge has to classify doesn't sound right. Why not do the
+> > classification where such operations are usually done, e.g. tc?
+> > You have to manually designate these entries anyway.
+> 
+> s/classify/mark, i.e. marking a forwarding bit for tc to match, a la l2_miss.
+> 
+> tc can’t see into the MDB to tell if a DA has a dynamic reservation entry so, without an explicit DRE bit, the SRP daemon would need to maintain a flower permit filter per DRE. Not needing this allows the user to set a single policy filter prior to starting SRP, e.g.:
+> 
+> tc filter add dev lan0 egress protocol 802.1Q pref 1 handle 1 flower vlan_prio 3 dynamic_reservation_hit 0 action drop
+> 
+> It also maps cleanly to chips that support 802.1Qav with priority regeneration or filtering, but which can’t support tc-flower.
 
-Best,
-Xiang
+Yeah, that was an expected answer and I've seen such claims multiple times.
+Just because it is convenient to add it in the bridge, does not make it the
+right software model. There are layers that do filtering, marking and manipulation
+this must be done at such layer. If you have to create a new table with the entries
+filled there then that is what your user-space software must do, or come up with a
+better alternative. There're also bridge netfilter chains that can do packet
+filtering and manipulation, that might be an option.
 
-On Tue, Apr 7, 2026 at 12:07=E2=80=AFAM Ido Schimmel <idosch@nvidia.com> wr=
-ote:
->
-> On Sat, Apr 04, 2026 at 05:03:24PM -0700, Xiang Mei wrote:
-> > ccm_tx_work_expired() re-arms itself via queue_delayed_work() using
-> > the configured exp_interval converted by interval_to_us(). When
-> > exp_interval is BR_CFM_CCM_INTERVAL_NONE or out of range,
-> > interval_to_us() returns 0, causing the worker to fire immediately in
-> > a tight loop that allocates skbs until OOM.
-> >
-> > Fix this by validating exp_interval at configuration time:
-> >
-> >  - Constrain IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL to [1, 7] in the
-> >    netlink policy so userspace cannot set an invalid value.
-> >
-> >  - Reject starting CCM TX in br_cfm_cc_ccm_tx() when exp_interval has
-> >    not yet been configured (defaults to 0 from kzalloc).
-> >
-> > Fixes: a806ad8ee2aa ("bridge: cfm: Kernel space implementation of CFM. =
-CCM frame TX added.")
->
-> Nit: Doesn't matter in practice, but let's blame commit 2be665c3940d
-> ("bridge: cfm: Netlink SET configuration Interface.") instead as I don't
-> think this bug could be triggered before exposing the netlink API.
->
-> > Reported-by: Weiming Shi <bestswngs@gmail.com>
-> > Signed-off-by: Xiang Mei <xmei5@asu.edu>
-> > ---
-> > v2: Move validation out of the datapath and into configuration
-> >
-> >  net/bridge/br_cfm.c         | 6 ++++++
-> >  net/bridge/br_cfm_netlink.c | 2 +-
-> >  2 files changed, 7 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
-> > index 118c7ea48c35..dea56fffa1c1 100644
-> > --- a/net/bridge/br_cfm.c
-> > +++ b/net/bridge/br_cfm.c
-> > @@ -805,6 +805,12 @@ int br_cfm_cc_ccm_tx(struct net_bridge *br, const =
-u32 instance,
-> >               goto save;
-> >       }
-> >
-> > +     if (!interval_to_us(mep->cc_config.exp_interval)) {
-> > +             NL_SET_ERR_MSG_MOD(extack,
-> > +                                "Invalid CCM interval");
-> > +             return -EINVAL;
-> > +     }
-> > +
-> >       /* Start delayed work to transmit CCM frames. It is done with zer=
-o delay
-> >        * to send first frame immediately
-> >        */
-> > diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
-> > index 2faab44652e7..1bb33c8f587b 100644
-> > --- a/net/bridge/br_cfm_netlink.c
-> > +++ b/net/bridge/br_cfm_netlink.c
-> > @@ -34,7 +34,7 @@ br_cfm_cc_config_policy[IFLA_BRIDGE_CFM_CC_CONFIG_MAX=
- + 1] =3D {
-> >       [IFLA_BRIDGE_CFM_CC_CONFIG_UNSPEC]       =3D { .type =3D NLA_REJE=
-CT },
-> >       [IFLA_BRIDGE_CFM_CC_CONFIG_INSTANCE]     =3D { .type =3D NLA_U32 =
-},
-> >       [IFLA_BRIDGE_CFM_CC_CONFIG_ENABLE]       =3D { .type =3D NLA_U32 =
-},
-> > -     [IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL] =3D { .type =3D NLA_U32 =
-},
-> > +     [IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL] =3D NLA_POLICY_RANGE(NLA=
-_U32, 1, 7),
->
-> Use BR_CFM_CCM_INTERVAL_3_3_MS and BR_CFM_CCM_INTERVAL_10_MIN instead of
-> the magic numbers?
->
-> The Sashiko review points out that blocking BR_CFM_CCM_INTERVAL_NONE
-> might break user space, but it seems weird to allow passing a value that
-> is interpreted the same as an invalid one. Worst case, if someone
-> complains, we can revert and go back to v1.
->
-> >       [IFLA_BRIDGE_CFM_CC_CONFIG_EXP_MAID]     =3D {
-> >       .type =3D NLA_BINARY, .len =3D CFM_MAID_LENGTH },
-> >  };
-> > --
-> > 2.43.0
-> >
+For the MDB to have a dynamic reservation entry means someone must've added it,
+these are not dynamically learned, so you can just as well build the table
+in a more appropriate place which can tag or filter the packet.
