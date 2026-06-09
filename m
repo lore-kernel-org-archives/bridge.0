@@ -1,148 +1,146 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012003.outbound.protection.outlook.com [40.107.200.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85AA43C0624
-	for <bridge@lists.linux.dev>; Tue,  9 Jun 2026 07:22:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73D893BE62A
+	for <bridge@lists.linux.dev>; Tue,  9 Jun 2026 07:46:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.3
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780989771; cv=pass; b=ZhvypGdHihYNMwdTIUd6Skc0aZLED5PH0BxmBMlxqh7t3yhOvjyOpWkRlz5p96u+nS6mnVA1Atu7hOaWTIkUCjmzk0S5Fbly1ZuySGkv3EE7odiZ4vccDtld707AFKzgMgPDLj1+UV2lFtV6eOjgC67Uj1KAb+Kn8vY0Fc396Ag=
+	t=1780991181; cv=fail; b=QX+ExV25eBh1wQQqAkCmsiURiSDQU8x/bCtK8bv3lW2Ig0XMXVU3jC8GDkFpulgfiDZ6zJQaZgv/c4txEiLhOQGI55ej11xY9+8XuSVIwO0hq/I8Sa5BGTR64ZUacITdKXvIw6NpdrlfklxQhXAnH46Ax3RTvuPgIPnZh/j7SrM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780989771; c=relaxed/simple;
-	bh=L2fJeoj9ZckODw6I+JHP0ss2IJ6JLk/k6cCU+U5PeT8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mswSgYJ+nd9c1lBwQdVwNMDQtAavTTNP8DeR4DaRYXypKkTQ7LmbwjKw5zmnhUUVx8Up+1MVaxOOjC3WCGhOiv2z0l1gmdqaBrxzYLR1/lyzAdmITUjT6fOW8USzNYyVAe85E0wNhVULP50Jqqgd6pJv2HjZhC1ijZSQ8V9QbEo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=KeBk6800; arc=pass smtp.client-ip=209.85.210.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
+	s=arc-20240116; t=1780991181; c=relaxed/simple;
+	bh=n1A8U6RBVc3lk5bOiTMQVJ4EYd3RbGJkCmFo5q8HbWw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=tsflJYbfgKCH3L1GWMox3TngSUpo7HmSH3hzMPEh1eQ5RHxPf0vv5xTLcXmkqbuXVNICZ2mmV/LjmImAAQQCEns25JHBnji1bLYlDpWecBs1bU6aEqUtMh3r+1ebok1n1M6Z94RAcixIbvMc1npA445zjdmuslbCyBhmtorK/2Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=DZPm3vWI; arc=fail smtp.client-ip=40.107.200.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="KeBk6800"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-84226d0f1d2so3462848b3a.1
-        for <bridge@lists.linux.dev>; Tue, 09 Jun 2026 00:22:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1780989770; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fpvnBWX4Fte7fGmU1oOKNcvy5YmN7Bkbyp6g5oPdDdJSlArumvmQVRcCLrB5TWmM+/
-         WBN48CysfGWZT7K0gc7R/FhaPapeEnVNogspF3zkTZai5CqusiumBlB5GDZQN7Oo9oEo
-         tcbBEbVlo+7zNVzmqy++eZ2ZgF583aBItwd9mHt7DXjXRwVj57C/Y4m+czl+wHpNzMMx
-         aISvVo4h0YrvxbYZcudkvbAfsmUAUalgjxbGgo9r18TzjZu+ojaMY87zTWZbxKFa+UcN
-         3PmYqORlUG2a62BDiiIY8lYwyubg60Taa+pVC+3XX5MlTbMBCU/QAG52urA/Oz54CQyF
-         XoPA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=XhzBDyqhqWawgeb7Rpt+eyD0SfA21gLZx0HZ3QvwY44=;
-        fh=xp68UIfY9q+ogy0S5WFa73NyympWZSWNTddlwOgUNzk=;
-        b=HupAlQIpGoOZUH/3R44SvqIN1zLDI07Y5HdzsY58fsm04W3C1kakRs3Xx6ylLRzRkV
-         vmAH7ftgDH3RuQLDFWZ0Hy3q3rMK2sL2jqKJXso1Xdkr3F5XLkBhqbI/BmiriSs1Mj7/
-         F3gvLAzMYrVlqVIZvMnXWn97d5UWu7zjn4yNONJO+KssANWVzNP5HQo/eVgwJ3dASDXo
-         0Sdv0PPV5cMVIkf+3VKuTCRv4FztMr33QxFBKUeOAhZCdzmr6gvPbP52dG8qRDIjI0YH
-         OJxqYr4AUobdl47oGeIR8N1Zm6mLw4OWIZzZuxaRVn0W6VhzXrulaPC7fbq9yQgvp2Mn
-         0Ucg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=asu.edu; s=google; t=1780989770; x=1781594570; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XhzBDyqhqWawgeb7Rpt+eyD0SfA21gLZx0HZ3QvwY44=;
-        b=KeBk6800NMG+02sRoEI+Use2zWSgqlWcITMA93/oI0vUMlUG56uMOTlSjyI7tkucEs
-         JNoe6PM+E7OQBF4uDb1bzEmkEg8uwPROl+mwqe8nce7rf7rMUBOTk97Rhe6fC58RiGW/
-         G4cBi8XZzRdTpUZt8POBWMLOg9Xed0sPHZAPfxiDIpPn6b4K3GPutSLv/fA9sNnkp9Mt
-         CIXMFB1c3qJOPGjLRfGfUGdwXSgRRR2lrCEXSJezjktvvJ8LnIyerU2lCLoC5S/cxWn6
-         MJR3/wK1tae4xS28WMrz/YT/Y2nLwEe6htXB70Om+A5dvTnZTyuOiHGBB2d8a++bIp1s
-         IE/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780989770; x=1781594570;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=XhzBDyqhqWawgeb7Rpt+eyD0SfA21gLZx0HZ3QvwY44=;
-        b=bAch/lrALN6okUOBqmrSrCCHWxyAgS2PWzjfAR+VvSOqBrNrHnsk6lg1/o8rLeWIOb
-         5a44ZkM6GpQknaAy5vSTuHmfJAj75TB5jRJlq8MvAPrdsg5omwcgwDH+ZOA4iELryBHy
-         yyK4p8qopAZvsuqRBNrg6ikYGMiM97hbn8dvYEur7GokhJerKqUSSwDpgo1+qADAcQzV
-         0HRDpiSHD3RMUFAeNZX+Fo8P3OjqIv5gP0ytp1NWoSJq6bZaXm5DTJlvHxkSTYBO/iCO
-         lcqCJcbA+9CBGjcbpbc1cqO45jvkOMoVFz5xwS1RgJIP/SIzGqAiwBKH6+V0hq9wDV7e
-         5W4Q==
-X-Forwarded-Encrypted: i=1; AFNElJ/jgQVwcnIV1tLo69lfxoNwoarCYOqMx/VQMex3GVr/bpocplF/0CKWmrXau9bPS6dryScbzzM=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx/PQMrt8YVR9jItlmuSS758eAaccSOznownp1NXjhroLjWOln3
-	9zURQcKBIQAQjDHlPlvu++7vcrx1iq9y6TaXujnecenOsciAft1mC4/sRvT5XOXL2pwSWv7nUmP
-	qesQPJrsSBJSNj/e54wilSOfA1k3P80747ubkHS+a
-X-Gm-Gg: Acq92OGlNpXkFNFCxvI/ECYPNFt9KWAfoVpJjlrK0uZENQdW/EWpzEEAc7pBdo8dJT2
-	2JQSoXUnhywdZUMgg9TWamSgesttsxfXO5emQIqnkNslbMCBlgF64br8Kw0Ad+0uEFrAJX28Xu7
-	BRlABSdELsy68/VtA1XBzt4vb2nt+duKEvKc6oK1l6xifvPOYejMqDVqfPm7Mz4Rge3BENNIwoP
-	YW1M1FECw14HceCDh81OzmfARJuBRksK8ZOvEN6er/xNt3CC+2GhkXhrfqYNBGazEGkdccZPRCY
-	jXuHgQLz3eN27XQaRg==
-X-Received: by 2002:a05:6a00:2e18:b0:82c:6aee:b21a with SMTP id
- d2e1a72fcca58-842b0ec6826mr19358557b3a.45.1780989769886; Tue, 09 Jun 2026
- 00:22:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="DZPm3vWI"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=lomsZht2upI1ctIgMSRDL6t6eAGE9yrSgy3hpBEhnuMgw0SjI5UhsYrWu6hmsZK16qMjeQN6ar7raR8iFo33N+aA5wetn8/PLcsOWR8UWg2oDWqqtS9+IbqLHFeZ4UUYMHuVIWZ1EHOrFQPjY6RrviYWLKQK4IQuwd3cHQmx87dinqvlM2Kwmq6zV2W1ZNnswVy7YhUs0EPpl9U1mGdPiUkqfbsH55nE/DjXKjonqQvtJoX0u4ub1j0CBy5VX6ZUj+NTREet57wzo9DibO7a0jdTCxSk5geQ9qfboi4J4HXrUwxRQH4l7dvVPvA7Ng9QA/1/jHw7/QsgSw8f3S/fJg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=c44j5lM8cDDTGoMspIWV2SYQ35NUsExS0URpe52S5ok=;
+ b=xDQ0TO3XRFTSW1zRrSJGuk5pNnuPw/1E0ZwouTjBjOpdE6hzOfi9nw3tUnFugFm5q1BgAKb347XFy7ZPR7atwiMrbnGOlNWorER0NmhxK5Tc643EstNb0xgr+fzf/DK12DjapG/FkVNnX1Cw0lKrMwUJed8RTOvVebc/35D4YK89fbYiGr4qQ4cvH3cxDOUL60y7zaWc4ROHZhJBS0DM9A951Gcx8J5775gIvHam6oaQYtJH+YXhz7VjCrcv/BofwDS4N6EThhbN3HqRM6mJJ+oubeg+TDBRViGyAo1Y0vbldDAHNlXpBlr4+2eu0lapRjE5S64S4/tyFvzo2KxZEQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=c44j5lM8cDDTGoMspIWV2SYQ35NUsExS0URpe52S5ok=;
+ b=DZPm3vWIeXE+9YyPuxNgg0QMcSehagYxCXQU3wpzSLpmrJpIkqcldQt5UYFVdNc6iypTWYL+hlmKHhFXRsCUM69ENOfX7fjudAmvEWOng3Oy/LcweJQKV3m/0JI2KyLDbZnRFCpehAghtvIVc77rLLYL7wlHrDYQepCUurW1TDEnBwQlxOKtwfnz9vEuDr3tRw7Ki5WhLywQcWlKkvrcGg+2TEZT9lHfOe3OVEnHT8UrA9Fa7Dl//lBm7Gd+dzmOa5YLfmmKejf2TM0IcdoHg1HdG8MBGyzkFfkt/LFn4rAYcyg+ZK00X9kyWapIxL3UzKJ58hG3moZrLmylVdQP+A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by CH3PR12MB8994.namprd12.prod.outlook.com (2603:10b6:610:171::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.12; Tue, 9 Jun 2026
+ 07:46:16 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.21.0092.010; Tue, 9 Jun 2026
+ 07:46:16 +0000
+Date: Tue, 9 Jun 2026 10:46:06 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Xiang Mei <xmei5@asu.edu>
+Cc: netdev@vger.kernel.org, horms@kernel.org, bridge@lists.linux.dev,
+	razor@blackwall.org, davem@davemloft.net, edumazet@google.com,
+	pabeni@redhat.com, bestswngs@gmail.com
+Subject: Re: [PATCH net v4] bridge: cfm: reject invalid CCM interval at
+ configuration time
+Message-ID: <20260609074606.GC663407@shredder>
+References: <20260609065116.2818837-1-xmei5@asu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260609065116.2818837-1-xmei5@asu.edu>
+X-ClientProxiedBy: FR0P281CA0150.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:96::8) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260606215848.1951633-1-xmei5@asu.edu> <20260609064613.GA652158@shredder>
- <CAPpSM+QGAARoC2Jq2EfMkXCgBQXy7k64W6rBFdJ8mhpfrR0zXA@mail.gmail.com> <099ba3ba-49af-4ed2-8b58-31f8132f0d32@blackwall.org>
-In-Reply-To: <099ba3ba-49af-4ed2-8b58-31f8132f0d32@blackwall.org>
-From: Xiang Mei <xmei5@asu.edu>
-Date: Tue, 9 Jun 2026 00:22:38 -0700
-X-Gm-Features: AVVi8Cf1pKtYuSzwyuVqnoD65scraW516qZkZNa3AxiW1AO5tTzX7XOZgeq8pmc
-Message-ID: <CAPpSM+R1nbAwJ5oxd4csVhwPHTVLo51DCEcM2Chm+s6oh-G0+A@mail.gmail.com>
-Subject: Re: [PATCH net v3] bridge: cfm: reject invalid CCM interval at
- configuration time
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: Ido Schimmel <idosch@nvidia.com>, netdev@vger.kernel.org, horms@kernel.org, 
-	bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	pabeni@redhat.com, bestswngs@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|CH3PR12MB8994:EE_
+X-MS-Office365-Filtering-Correlation-Id: a1b8028f-a12e-4d22-a283-08dec5fb2fd8
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|376014|18002099003|22082099003|6133799003|11063799006|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	K/NcIPhSqdA5kxA12A2LFCuQn+uLavVjEGM/odyoG38DXefkWmwMeT8VzxFdw6VWIFffraUG3ped155BxxPBShcgau0slOAyHjUWViN0Ziqrzvdt4xRJQS/jxJRyNxWZ61/EXzJ7YBoTuecKNu+eqwMa6spBvEM6IQKVnGXEf5sgSnUzQi4bKiBgk8dHZObqAhqkYL0htzd4yIpyMF+yxD8CzifVl2pgnMoNp9X8JpIjryOj/IqilPhRzIfve/mNuVvEkXu2WuJpnkLc0m0ezygDg6zNSeUrfkuzW45+K3Dei9dBfizVzFQKLQMaI8ggTJY97z5bi6zzm2hZ4PYXJQZJNDpKL2Q5JES2QbHzKbgopI162J74V7QQzN4OXyrDi7fTo9yK/4WSMbmoGexdUlUd6mWGG/OrvzmDZUbj5OSPWCNWS350RGHnjfCCmjshYjriVC3rIkDBOwbgKOng2yhhn0Ryg+5sek2mG8QKC4vAwAYU4A9qQM70HOzcd16+VA2s6Ye+vgWMyhUUAMpEvkgqVNX7C/FyytrrJZibwV7QI2NT1SLTgbZxPRhvhXPJu19yTONegso8n87iw1pFo4GR+OTywkC2dWDFSw0qY7qQZCywRhwaXFfwu6YEbjReZc47hFTFRcBx2IM52sxFkfJHjPj23us/pPrq+ywQV8uz5oBFX7EXxlLdBr07fmca
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(18002099003)(22082099003)(6133799003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?0j1zyiLdoF8loHSJ+LmP7sCDkg6Mq9OvNdpLI4cpvB+f57UgmXz99tklB/7f?=
+ =?us-ascii?Q?URaXV7pzylXjUDU9s1zkID7SImR4Gh8j4lLfKRHxbGIipYJw+ByT9sIJMo9x?=
+ =?us-ascii?Q?1sLzHiElSxhKqonEAONzYeGb29APFrUdP/lSHCOH9duMDgSmBjaMSPy4r5w2?=
+ =?us-ascii?Q?L7rfdtluGz0rMv37iPBoiEcSqpq7HgxxUTXy3Drv6/F3y4Ma7Gw2RM54NHvU?=
+ =?us-ascii?Q?lOFT0/o3Ep5TkImMXBM6b9K+vJuFGdZspqX8AG61YTlZsJ546zvPXW6kHYe7?=
+ =?us-ascii?Q?hOL8os6dvKDkvdMKbWPpIUBhF2zEPMeNukhckDl6ZeijNy069wYPv+fLT/TL?=
+ =?us-ascii?Q?hiGsvlSaCV6/E7xsnaoC2bJk4GuPMlvHky57BS4rycWdXYMtSwGjl132g3P3?=
+ =?us-ascii?Q?MyaxvtXV6Dlhf8NdLllPAsSo9kFLeTDcvVtq3aE0zE1OndsYd8onmLPAGmmU?=
+ =?us-ascii?Q?xMt0zOd68k4Ayltzg5RVA5MbukSYOj23HxWPOYlBISYAwCF0UOeHox2k09pK?=
+ =?us-ascii?Q?t2ZmyQUyD5bsnHCOB5lqlE+aLQpMzGKm/jZOKVhPYSSs9Ba3TFu6lJ6fR/vv?=
+ =?us-ascii?Q?c5tJyxnDBQw8RMgGFXRwZ4Ni8gHCMkagrqCkE8FNJzJ6DnGbFtbHbPhouDtl?=
+ =?us-ascii?Q?JENATYEFfe1WClgNXQpunmZ99g9SxtiJnwerGY+asQq+owtYNxaxP5FUMMCJ?=
+ =?us-ascii?Q?7W6+jvPsxaaZ+hBrZO5+JBkf1SA6YwS1BDfDfAEco9ix+7WKfsYKGY92QuQm?=
+ =?us-ascii?Q?HczQYKxDpezd8tFciyCEU51dqH1Y0Upx3RtgOUnFCNF0Egk4FivfFPRoini5?=
+ =?us-ascii?Q?wBsJxK6y7gqnaxYj7hFRlPAPL3uWxt+QafYCRSXa7J8WPYuqRY7IDs/xJN1v?=
+ =?us-ascii?Q?vj/iSZNEI8pyvHn4oMArSx6l3XgXLr9qAJgdnru2FeuHMsT8NPNeIVPSSPdN?=
+ =?us-ascii?Q?38PJV3kv/YNVFz+a35JaO+EgyKeTCJMvFUgscQN2G+m06beMFhre1Nrue3/T?=
+ =?us-ascii?Q?YMR6YBWbuD0J0Fp6pPzZTRS83TuZE5gGUklFmR2VcMMY6uc/0haSecUE3lq9?=
+ =?us-ascii?Q?m2DG091QDQkJpr0W9P55B6SxMVtTkmrApiJJ1075Xv+MVXJPYIHqDJJPE1+g?=
+ =?us-ascii?Q?DiMYAC2MpxI6mp14MGKfgym5Z2AvKTPq8f3p0Apt+TBNufPj5U/OHkSfzD2B?=
+ =?us-ascii?Q?LifrD30DoAiQL0lfcfqW8K9Hdam7t7KEgCbBiqaui1GeAQrXM/msLzXLvJgK?=
+ =?us-ascii?Q?mIFFiXdvGgaLiAOisItoRzU4TmJc11OqWc+QCIEe9+cDtiEs1mBJ9+IdaKTH?=
+ =?us-ascii?Q?QyemRZ6Fp9B3GRGVVoLoctQKnY+uF28tAyrcxHIVFyGQWAjWhFTiwiW9ukZt?=
+ =?us-ascii?Q?1DWAiJXo/6QzaW56GITxhgSG0yoaXj3ZYx6LZkxAXifTIbNdo76z2qygIzeS?=
+ =?us-ascii?Q?S0MDTOxjgEC4a/gqEjyIkUCWpjRtMftqupcsI1YD2GPnw3TOhgQ+su3dU3P4?=
+ =?us-ascii?Q?K+dePvLtDiLCBacZjbLg1nl5lJmKWxek3cxHgM68yg4HFipalB475JnnVy2X?=
+ =?us-ascii?Q?61LPJCVxfCVeP54qjHcgRuH5RSVfGwVqnKf+/E6C4OVkSUwMREjMMgsO/a0Q?=
+ =?us-ascii?Q?1a8N2jpRMSSK7OV6eB7hulV3d0KwfZohu6MxXdAN3tJ7wILfzrtQ/ak1HUgW?=
+ =?us-ascii?Q?Gj9XCjlqPjWd96YABZqJWzJBVIDVzX/pPzlqhVLpq1h/5dRl?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a1b8028f-a12e-4d22-a283-08dec5fb2fd8
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2026 07:46:16.4192
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: zT2eyBqPD66tuGRaiiA/kQxWk72LhXEevE55oZCOGSJVjD5N0vy5l3SUqv6exev49UIvBRXH7a2qbRKaCKrvbQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8994
 
-On Tue, Jun 9, 2026 at 12:19=E2=80=AFAM Nikolay Aleksandrov <razor@blackwal=
-l.org> wrote:
->
-> On 09/06/2026 09:51, Xiang Mei wrote:
-> > Thanks for your review and the tip. V4 was sent.
-> >
-> > Xiang
-> >
->
-> Please don't top post on netdev@.
->
-Thanks for the tip!
+On Mon, Jun 08, 2026 at 11:51:16PM -0700, Xiang Mei wrote:
+> ccm_tx_work_expired() re-arms itself via queue_delayed_work() using
+> the configured exp_interval converted by interval_to_us(). When
+> exp_interval is BR_CFM_CCM_INTERVAL_NONE or out of range,
+> interval_to_us() returns 0, causing the worker to fire immediately in
+> a tight loop that allocates skbs until OOM.
+> 
+> Fix this by validating exp_interval at configuration time:
+> 
+>  - Constrain IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL to the valid range
+>    [BR_CFM_CCM_INTERVAL_3_3_MS, BR_CFM_CCM_INTERVAL_10_MIN] in the
+>    netlink policy so userspace cannot set an invalid value.
+> 
+>  - Reject starting CCM TX in br_cfm_cc_ccm_tx() when exp_interval has
+>    not yet been configured (defaults to 0 from kzalloc).
+> 
+> Fixes: 2be665c3940d ("bridge: cfm: Netlink SET configuration Interface.")
+> Reported-by: Weiming Shi <bestswngs@gmail.com>
+> Signed-off-by: Xiang Mei <xmei5@asu.edu>
 
-Xiang
-> Cheers,
->   Nik
->
-> > On Mon, Jun 8, 2026 at 11:46=E2=80=AFPM Ido Schimmel <idosch@nvidia.com=
-> wrote:
-> >>
-> >> On Sat, Jun 06, 2026 at 02:58:48PM -0700, Xiang Mei wrote:
-> >>> ccm_tx_work_expired() re-arms itself via queue_delayed_work() using
-> >>> the configured exp_interval converted by interval_to_us(). When
-> >>> exp_interval is BR_CFM_CCM_INTERVAL_NONE or out of range,
-> >>> interval_to_us() returns 0, causing the worker to fire immediately in
-> >>> a tight loop that allocates skbs until OOM.
-> >>>
-> >>> Fix this by validating exp_interval at configuration time:
-> >>>
-> >>>   - Constrain IFLA_BRIDGE_CFM_CC_CONFIG_EXP_INTERVAL to the valid ran=
-ge
-> >>>     [BR_CFM_CCM_INTERVAL_3_3_MS, BR_CFM_CCM_INTERVAL_10_MIN] in the
-> >>>     netlink policy so userspace cannot set an invalid value.
-> >>>
-> >>>   - Reject starting CCM TX in br_cfm_cc_ccm_tx() when exp_interval ha=
-s
-> >>>     not yet been configured (defaults to 0 from kzalloc).
-> >>>
-> >>> Fixes: 2be665c3940d ("bridge: cfm: Netlink SET configuration Interfac=
-e.")
-> >>> Reported-by: Weiming Shi <bestswngs@gmail.com>
-> >>> Suggested-by: Ido Schimmel <idosch@nvidia.com>
-> >>> Signed-off-by: Xiang Mei <xmei5@asu.edu>
-> >>
-> >> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-> >>
-> >> Nit: I don't think that the Suggested-by is appropriate here since I
-> >> merely had minor comments on the previous version.
->
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+
+> ---
+> v4: remove the Suggested-by tag
+
+Should have kept my R-b tag...
