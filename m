@@ -1,160 +1,216 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C84DD399358;
-	Wed, 10 Jun 2026 08:31:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781080288; cv=none; b=W/iHTro/w5HVvc74O3Fi1hcJp0N3NWGFvswiSkGGo9KLTpfLrXc6Z9M5d2a9FCgzA7hN/JVxW7JfW7yHLb1dzlHizCikMdEkS8rLrULscFQLDMK/Che1cPr4lqBxUhXogBiuRclCjdI6tq7AXta5lm0g+d3RYhhk52qOox0Wtcg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781080288; c=relaxed/simple;
-	bh=v4HBoDWj3r6sBM7g0mxyX4dQ6EzByot+RLtUfjmPW1I=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=M8/txTnvspXHstrb1n0q8hdaD4qQMvi9ldq7dsB+3kbLxF7XP5Cgy9NnZeo6l/0ktOz1UJ2rb2zb8/ur741QWHi0l5L7jARrn1bCSA/h2JJpwzcGcw9JCFnUvqgHcgTTE8KgRx1hynixaGZGDtvnGJyURJsAOJlOW67Z0q8gd/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kYxEj0z1; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 827A33DFC7B
+	for <bridge@lists.linux-foundation.org>; Thu, 11 Jun 2026 12:19:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=140.211.166.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781180372; cv=fail; b=eY3zwDTXfnYP2Mi0Tj+LE03zXVeek7BC3QlGEErlT/IdLXbYSJ0qRb+Z+tVHppoUP0i/QV+8G8guk5Mlgk+24sgCEmFP+w7DDPjufmt7IhqVUbQ8kdky9deBBny5fhp17FQFZAtCo0SS2oTS9/I9nWDJnqyC/Tt/2JuvBb4rdKo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781180372; c=relaxed/simple;
+	bh=xoxBVGpvxwpg4iCKaoUqj5fWOguyLFGXc6sqMoTkPGQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=fS8GdOMb6c2l3AXgK0wNuy03c2VAULE/2tJAfvVjhPVrLpJTvFjEMHuVoZdypp7OGyJ+b7RwhjhIVFkXXfDPWUV1ySrtNJPrbttytxF81k5lV3lkvFSvzHo3Sz/AK+rmZc1v0Z1APT/hOwwWwS8L2ZBURIBQoYMjU8JuRjJ9sXY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=gIItUZdK; arc=fail smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kYxEj0z1"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 99DE9C2BCB9;
-	Wed, 10 Jun 2026 08:31:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1781080288;
-	bh=v4HBoDWj3r6sBM7g0mxyX4dQ6EzByot+RLtUfjmPW1I=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=kYxEj0z1VZPQBj7ZgGIGjEcn8VcgGlpQh7AuTe0HZS0Kj4N/gOmj8COtR4kmYtrIJ
-	 ribsK1uEZwTy80jOoxtCs+YjBCz75kyYVT3ajkUeIbklZaJOqZw3ZeKh3YqCrYLK8A
-	 5yQ/1XBnj+U0UtjFnvVf6DWcp6R54l2O0zKjzJdI1JEswl8W5P8ozRjPPZZWgexs0H
-	 TX/UKd4jlKl726Q/Mc84aAT1cjI8kmj3nMLfBWEys38hK6eDtBDJPliHCcFhrwRZRf
-	 MGj7SITNhbJxbuxqhruOrOBosKKRDjD2wVmCp9RA0i5Zb/rkJe/mtL5iUy6gYELkTQ
-	 Rlf3A3M/YgLFg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F54FCD8CB9;
-	Wed, 10 Jun 2026 08:31:28 +0000 (UTC)
-From: Cedric Jehasse via B4 Relay <devnull+cedric.jehasse.luminex.be@kernel.org>
-Date: Wed, 10 Jun 2026 10:31:23 +0200
-Subject: [PATCH RFC] net: bridge: mcast: don't clear L2 host_joined on port
- group deletion
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="gIItUZdK"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1F3954019E
+	for <bridge@lists.linux-foundation.org>; Thu, 11 Jun 2026 12:19:31 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.103
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id RgenrQLtIC7F for <bridge@lists.linux-foundation.org>;
+ Thu, 11 Jun 2026 12:19:30 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a01:111:f403:c112::5; helo=cy7pr03cu001.outbound.protection.outlook.com; envelope-from=idosch@nvidia.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 2125840187
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2125840187
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=gIItUZdK
+Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazlp170100005.outbound.protection.outlook.com [IPv6:2a01:111:f403:c112::5])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2125840187
+	for <bridge@lists.linux-foundation.org>; Thu, 11 Jun 2026 12:19:29 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ZCdZuuIQ0QWvziaPMg0BltOan3EVB6Q/KdDPabRqOCN8RG7tzevfPGLeXXn9CY1FqGD4gpy/XBYdIbFQA4XO8A8UtuYcUP8O30CMJrPg75arnG/ur7dIYpd4H0daJ5jiPnMLKf2kGt88P5rFCj9YromMqWajHG9ilRNKbJfttFzoZMkywQFQODtZwrMm8rVCzHIk66OpX3lDWaJNMOdZo+B7Fhpgc00NSJsosB2FjIDyjR4PLThXqzxSaX/6CIKZLuv9N52Udrra26Fm7Ww9nsb/fq3+GLkmgRSJOnaDrIcG3EJhP+FofvW4DQh9SewOGyiG57OF7+GyouE0ezCpfg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=eCMgQOyM+0eifpu1sMXVk7Snkk2Szzx5I+BG9SIdTeE=;
+ b=VVNc2Mrnd+QCBcXmnQd9NEtedOk0HK6pTsj5NUWOxjJjAKTPhIz93ql06DLOJY90a+ToqpVGDHycln+KT2luLnNSFpWpW+tD0O/67ot9kbhQ+TNeg7uPWdGLVpgLH1KjsmHEeoBKsJJlo/GZ4Nvcjit+08K3ZonRLG2OXzUIcNkG2H7KOS9m577p+akNADZvS1h3TICaEUq3GvoMwrj3O3Z43mLXauOY8u0+kRTRp9vN5Gff2AbERQkEjzI1vMW0TTfBjj6keFihi1bMXTU+xoTX1688mKPGRaUsZ1I/QTrNcptHkD7A5s6CzDEJpaKz4alAcTGd7PQG0ZdohIg2tw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eCMgQOyM+0eifpu1sMXVk7Snkk2Szzx5I+BG9SIdTeE=;
+ b=gIItUZdK6CSSZ5bguFYqw8hJNMxg5zmQxbYa0nra+3zWuVGc2m11H9VWh94xG8Tx06xFnhC+htX7ggPat1vxlrvgFkdaaS6TVsFyGSupdHwa7KQYdRXg/g7gvIWnU9XfzXeSIm2+F20JoRu6QaUxbuouRXWy4E7zKf2e8B3XJUew1pO0A/lPUl73fi0Lc5a4ZnpdLyaQeiCgbnSX5xoFsKsnkb94s7FE1C/uOOQ149nQqAtrfrR9ipukpu8ityyLoO/RSEtH0eb1ET7pYT+Sa/VfmUYMc6bXGfuHtSV1YrG4P6TwzjYoNje+oar2OqQpjwKAWsefK61qpjB9mm6NTg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by DS0PR12MB8217.namprd12.prod.outlook.com (2603:10b6:8:f1::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.17; Thu, 11 Jun
+ 2026 12:19:25 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.21.0092.010; Thu, 11 Jun 2026
+ 12:19:25 +0000
+Date: Thu, 11 Jun 2026 15:19:16 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Patrice Brissette <patrice.brissette@gmail.com>
+Cc: Ido Schimmel <idosch@idosch.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>,
+	Mrinmoy Ghosh <mrinmoy_g@hotmail.com>, razor@blackwall.org
+Subject: Re: [PATCH] net: bridge: vxlan: Protocol field in bridge fdb
+Message-ID: <20260611121916.GA913575@shredder>
+References: <CACWwMkvCAdjDPEraGhBdH67tkK=3p=aygZ2JYCRPkOzjVghFpw@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CACWwMkvCAdjDPEraGhBdH67tkK=3p=aygZ2JYCRPkOzjVghFpw@mail.gmail.com>
+X-ClientProxiedBy: FR4P281CA0172.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:b7::19) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260610-mdb_l2_host_joined_fix-v1-1-19746b0b8a5d@luminex.be>
-X-B4-Tracking: v=1; b=H4sIANogKWoC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzMDMwNL3dyUpPgco/iM/OKS+Kz8zLzUlPi0zArdtCSjlFQjQ1MLg2RzJaD
- mgqJUoDDY4GilIDdnpdjaWgDkt+kAbQAAAA==
-X-Change-ID: 20260609-mdb_l2_host_joined_fix-fb2de21580c7
-To: Nikolay Aleksandrov <razor@blackwall.org>, 
- Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Cedric Jehasse <cedric.jehasse@gmail.com>, 
- Cedric Jehasse <cedric.jehasse@luminex.be>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781080287; l=4075;
- i=cedric.jehasse@luminex.be; s=20260213; h=from:subject:message-id;
- bh=Nc7ftwi5FCk1zbALrXN+jcXd41GY2T6GIvI9xkrpbyI=;
- b=RibYAWjSHhDpRl4wwKOTGtVn2IwvM9Jw1n97jKA3elr9UsKpNIBvxLOjg/+skCn4QwVhywZJ3
- a/yHESXt1GWDh5keWxvxnazzZKzdVDZHT+KvQ9hrQixTHvJhFJFZwBV
-X-Developer-Key: i=cedric.jehasse@luminex.be; a=ed25519;
- pk=DL2RaHc2bc7tTDTMJdugm42BtJk4Ip+7V41Gkj+Avjk=
-X-Endpoint-Received: by B4 Relay for cedric.jehasse@luminex.be/20260213
- with auth_id=638
-X-Original-From: Cedric Jehasse <cedric.jehasse@luminex.be>
-Reply-To: cedric.jehasse@luminex.be
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DS0PR12MB8217:EE_
+X-MS-Office365-Filtering-Correlation-Id: 78cba971-0f40-4d75-5e44-08dec7b3ad59
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|1800799024|366016|23010399003|6133799003|18002099003|22082099003|3023799007|56012099006|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	NRO6Oa08+Ru1p2PB++soyQCwTnsqW8mJhf/EpNcTpUrVz35C4pIYZHOWicDlhCXbHWy3FT7re4vM/izSbkGoeQ8Q4b4zMHVRUaKSjRl/S80QeMa9rq1zwg9AHTo8PiT/gUjSJWhdemNyfbAjwTVIbFxsn1o2DG8Lr92P3Rr1aqFArsgnayrbTp8k8s9bCwG/amUasXsMGHfbwWlHhjpguR2zgy0rccsmQQnbRnWgheRWfLW7fBCp/X1zW4NT2+uRYM5ooap9qKB9PQv1QNjEkGgQVpldwPVxCXG8h+T2eA30tOns2I7I9N47N2nuFt4KQrhM/T/GCtFzFRB5u4I+E3vAW3KPBxc/vjdjIxk8G4o5h7FoGOLO3hI+RA2+bDTUJn6GHNVf/JoQXAZFZMJB3ydkBj/BwUye1PIOMo529KXvaAmrvmtqBdg/NI0r6/eSTeo3W2oTf9v71X3xGycLpEtXxnx8VqTQh+mNNsVpiXLUibvdMY/R+Q5x9K3/DqAzmdoR0rZS4W3HOzxYx/9NBqEJ/IcgfRjHPjM4K/vUmsevm4N1YwzY/1HVNHf0z3Xnq8cjP4i5vd7YMLDWi6KC0DGRK7+3U50Yo4ZAjE9cQNLdB2Xa8fojIu+wRXIxTeEKEY8G9dKBKGqV6R76JAJoAPEiXlcvZlxsJ2l4hnopaD47kf5dNJz45mnoQBeoHt2DfSpy+KYuxZO6FAdi7vgflw==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(23010399003)(6133799003)(18002099003)(22082099003)(3023799007)(56012099006)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?saJPVEgb72ht541S4Eq+V6yrpTg/c/y65TNmX9/IkU9M1Vpaa6F/n17NJqR1?=
+ =?us-ascii?Q?RbuR9cWwEdWGLjGpyyKPV3s7T5rOtUglF/VxhveS9BdIapMRFgSc7bvLKrRT?=
+ =?us-ascii?Q?N1x2uo1+kpCmc0Y7F1OoSYBWqiwcWZRfgtplatIbpuU3F3sogdIyKlnPtBaR?=
+ =?us-ascii?Q?d3UZkkiR67pGMC63z3JQ52MQ82LoGtZIcCgZ+KTW/QvEjsvmSPX6LYAD3td6?=
+ =?us-ascii?Q?YHxfY9MRje/j8qdzPmwTPomoz5YLe1D4hItAXZziHjfvx+ubQsqXoUFljczG?=
+ =?us-ascii?Q?lph5wbITe+BHwb9MvzsHQ7dkgy5LBvgAtouHyb24EhQfZ6ZfEzJbaCfw2n8f?=
+ =?us-ascii?Q?Yz4DnsvHbuozMt+3Lc99e5Yfo9hyNXd61BTPs6dG2kEYAqPSAD+v9O5sqEae?=
+ =?us-ascii?Q?+hpcPaSUf6VzsNaVAOUzXySXdmzqxqYsDHUBDZt+h0IGTZLuLUhwe+L33QSy?=
+ =?us-ascii?Q?7vu9UniaCJHoyoLvKQCqq6ikymEcecxsT3ugO+ggzPKX9TdHYhc04S4B3RMB?=
+ =?us-ascii?Q?s+xHOKxEKHlGuigQrk9q+OL+0AWCgJ6hL1+4T35raOxPJxWbpUAYBcEh082k?=
+ =?us-ascii?Q?Z0RlsZPv+toj5EOvqPamQXoae2+XOf8i18NROWSkb5/YWIFkcN6UNPlx5ysw?=
+ =?us-ascii?Q?RrvZsAWkvQEp9EYYt3XacCtdTU49tDdWvD4difj0H1KmhMkuNtmckz4bORUG?=
+ =?us-ascii?Q?FQvSNgp+4GEKAFFlo1QOoOf3g/8v0csGUHZACjLiEfxbMXi0K1PH2yNiaYGv?=
+ =?us-ascii?Q?GHq5Z7r5eu+3sPIoituXUoVnSK/ZQq5pBgqs4hAULN/5X8GrjEWcZuJom7Hi?=
+ =?us-ascii?Q?frpA5ou9aPd5MdZsKZ8/JQyDQLZ9OhMMpOAXZlgpTxmGZct0laXnEgVj31Lk?=
+ =?us-ascii?Q?H1jvSuzOL7puPo70QHkR/tDtDhUtaERoytKPSS/ixEG9eyP3tkHleE7qfMvO?=
+ =?us-ascii?Q?t0c1p3gPtx0SswdqAYwlpwHreS6/i1WO8C8eFSi5Lj931CMKNeSMFztWndIl?=
+ =?us-ascii?Q?jusQ2IsG0E/PQZ1dONslDqHUFDFj8/0T/X/cEtcyhBV7Qxhsqz9hTIw9bnLM?=
+ =?us-ascii?Q?gCnOigYfAEdnZ1HC+r7bYn3oyXoZWAb9AOFRRP16gt9vrTiUckN6cxkFSC8w?=
+ =?us-ascii?Q?2zb6at5pGS2CC4E5viUxFzs3YNRz6QGdUsEJHCt8WwbZve8AHA2fnI2tYpIs?=
+ =?us-ascii?Q?48Dx+5eSrbWNDCM9E3sNACyHr+lAZ3C10jDdfdvEnGNg6dAnx+ah1OYbf+nm?=
+ =?us-ascii?Q?q/tODWmmcbStMV4f37dUcwqhQRpudzMpYnqO4xWi0zKAoFBkhz+OrkUBwv4h?=
+ =?us-ascii?Q?UrSZsaQOBrqm5C/azxyjIHrWjU8lheBPBjuO3PgqZNy1UREv2cRQFuVCaBEU?=
+ =?us-ascii?Q?v4IDwg/4HeIeHxwVelJcNIGSCBUOChke5MgKWt7tRpSz5gvdIj+P/9EUGQs5?=
+ =?us-ascii?Q?mmZ/7Y0qTnEiiqedq/XVaq1eCmhRAopZLK/Uvn32E5QJEjqv/YquSjLOliwi?=
+ =?us-ascii?Q?wTBoyhIOWyT+QCR5rHI5lSxWOIsiYthmhEkmvSTyQwL/MZEYxAY7RGJQVW87?=
+ =?us-ascii?Q?TnWZhAvw9KcxczR5+FWx9WO3TOX+6Tjpvaq2F/tQRdWXlK/5jDjOVZ7WgwyC?=
+ =?us-ascii?Q?K1NRGjyGMqYp6KQdiUf1Luytp1Y9jAXKGUJgPcT+8RtOo4ukLplTDa4FX9Wf?=
+ =?us-ascii?Q?oLvlnmgv0x4OfusLb9ELz5nMNkc9YQj2QGWEoBnIXltLANGm?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 78cba971-0f40-4d75-5e44-08dec7b3ad59
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Jun 2026 12:19:25.6546
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: ietDbdo0hXZhzmqIllOPssOwCX95KZAioMJNKm0uI9lPZQcTPUoMv5OUGGgfzuoi9naNbKAnm2OxauOruCLRzw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8217
 
-From: Cedric Jehasse <cedric.jehasse@luminex.be>
+On Tue, Jun 09, 2026 at 06:55:10PM -0400, Patrice Brissette wrote:
+> I'm following up on the status of this patch series. This feature is
+> critical for our EVPN Multihoming deployments, and the corresponding
+> FRRouting work is currently blocked pending support for this
+> functionality.
+> 
+> Has there been any progress on this effort, or has someone else picked
+> it up?
 
-For a static L2 multicast group that has both a host entry and a port
-entry, deleting the port entry also removes the host entry, and the
-whole group then disappears from "bridge mdb show".
+No. Assumption was that the author will follow up on the feedback.
 
-To reproduce:
-  bridge mdb add dev br0 port br0  grp 01:02:03:04:05:06 permanent
-  bridge mdb add dev br0 port swp1 grp 01:02:03:04:05:06 permanent
-  bridge mdb del dev br0 port swp1 grp 01:02:03:04:05:06 permanent
-  bridge mdb show # the "port br0" host entry is gone, too
+> What are the next steps?
 
-br_multicast_del_pg() processes every non-(*,G) entry through the S,G
-path, which removes the port group from br->sg_port_tbl and then calls
-br_multicast_sg_del_exclude_ports(). L2 entries are stored in
-sg_port_tbl as well, so they take this path too.
+Before I answer this, I have some questions / comments below.
 
-When the last port is removed in br_multicast_sg_del_exclude_ports it
-sets "sgmp->host_joined = false", clearing the host membership directly
-and bypassing br_multicast_host_leave(). With host_joined now false and
-no ports left, br_multicast_del_pg() arms the group timer and
-br_multicast_group_expired() tears down the whole mdb entry -- even
-though the host membership was explicitly and permanently configured
-from user space.
+> 
+> For reference, the proposed work includes:
+> 
+> Adding support for a protocol field to bridge and VXLAN FDB entries.
+> 
+> Allowing the protocol field to identify the source of an FDB update,
+> for example:
+> 
+> Zebra for control-plane-originated entries
+> 
+> HW for data-plane-learned entries (e.g., ASIC-learned MACs)
 
-Keep removing L2 port groups from sg_port_tbl, but skip the S,G
-EXCLUDE-mode handling for them. The host membership of an L2 group is
-managed solely via br_multicast_host_join() / br_multicast_host_leave().
+Note that entries installed by the kernel (as opposed to user space)
+will always be programmed with RTPROT_KERNEL, regardless of the data
+path in which they were learned (software / hardware).
 
-Signed-off-by: Cedric Jehasse <cedric.jehasse@luminex.be>
----
-For a static L2 multicast group that has both a host entry and a port
-entry, deleting the port entry also removes the host entry, and the
-whole group then disappears from "bridge mdb show".
+> 
+> Extending iproute2 to support configuration and display of this new field.
+> 
+> The primary use case is EVPN Multihoming with ARP/ND synchronization
+> for hosts that are multihomed to a set of routers. In this
+> environment, the same MAC address may be learned locally by hardware
+> when the host is directly attached, or installed by the control plane
+> when the entry is synchronized through BGP, as commonly occurs in
+> all-active scenarios.
+> 
+> The protocol field allows FRRouting to distinguish
+> control-plane-installed entries from hardware-learned entries,
+> enabling correct MAC mobility handling, ES peer synchronization, and
+> proper processing of MAC ownership changes.
 
-To reproduce:
-  bridge mdb add dev br0 port br0  grp 01:02:03:04:05:06 permanent
-  bridge mdb add dev br0 port swp1 grp 01:02:03:04:05:06 permanent
-  bridge mdb del dev br0 port swp1 grp 01:02:03:04:05:06 permanent
-  bridge mdb show # the "port br0" host entry is gone, too
+Can't this be achieved by using "activity_notify"?
 
-br_multicast_del_pg() processes every non-(*,G) entry through the S,G
-path, which removes the port group from br->sg_port_tbl and then calls
-br_multicast_sg_del_exclude_ports(). L2 entries are stored in
-sg_port_tbl as well, so they take this path too.
+See:
 
-When the last port is removed in br_multicast_sg_del_exclude_ports it
-sets "sgmp->host_joined = false", clearing the host membership directly
-and bypassing br_multicast_host_leave(). With host_joined now false and
-no ports left, br_multicast_del_pg() arms the group timer and
-br_multicast_group_expired() tears down the whole mdb entry -- even
-though the host membership was explicitly and permanently configured
-from user space.
+https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/commit/?id=e041178ba6bc2af0a1148145ee303c9db79fb4cb
+https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=5e88777a382480d0b1f7eafb6d0fb680ec7a40bb
 
-Keep removing L2 port groups from sg_port_tbl, but skip the S,G
-EXCLUDE-mode handling for them. The host membership of an L2 group is
-managed solely via br_multicast_host_join() / br_multicast_host_leave().
+When an FDB entry is learned on an ES, install it with "activity_notify
+norefresh":
 
-This fixes the issue, but i'd like a second opinion on if this is the
-correct way to fix it.
----
- net/bridge/br_multicast.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+es1# bridge fdb replace 00:aa:bb:cc:dd:ee dev bond1 master static activity_notify norefresh
+es1# # bridge -d fdb get 00:aa:bb:cc:dd:ee br br1
+00:aa:bb:cc:dd:ee dev bond1 activity_notify master br1 static
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 881d866d687a..d718a6d1ddb1 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -816,7 +816,13 @@ void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
- 	if (!br_multicast_is_star_g(&mp->addr)) {
- 		rhashtable_remove_fast(&br->sg_port_tbl, &pg->rhnode,
- 				       br_sg_port_rht_params);
--		br_multicast_sg_del_exclude_ports(mp);
-+		/* L2 entries share sg_port_tbl with S,G entries but have no
-+		 * *,G/S,G EXCLUDE-mode semantics; their host membership is
-+		 * managed explicitly via br_multicast_host_join()/leave() and
-+		 * must not be cleared here when the last port group is removed.
-+		 */
-+		if (!br_group_is_l2(&mp->addr))
-+			br_multicast_sg_del_exclude_ports(mp);
- 	} else {
- 		br_multicast_star_g_handle_mode(pg, MCAST_INCLUDE);
- 	}
+It will transition to "inactive" after the aging time elapsed:
 
----
-base-commit: 022bdd9c0d036863c4bacd1688b73c6be3001cee
-change-id: 20260609-mdb_l2_host_joined_fix-fb2de21580c7
+es1# bridge -d fdb get 00:aa:bb:cc:dd:ee br br1
+00:aa:bb:cc:dd:ee dev bond1 activity_notify inactive master br1 static
 
-Best regards,
--- 
-Cedric Jehasse <cedric.jehasse@luminex.be>
+And install it as "activity_notify inactive" when synchronizing it to
+other ES peers:
 
+es2# bridge fdb add 00:aa:bb:cc:dd:ee dev bond1 master static activity_notify inactive
+es2# bridge -d fdb get 00:aa:bb:cc:dd:ee br br1
+00:aa:bb:cc:dd:ee dev bond1 activity_notify inactive master br1 static
 
+Then entry will become active if later it is refreshed / learned by the
+data path:
+
+es2# bridge -d fdb get 00:aa:bb:cc:dd:ee br br1
+00:aa:bb:cc:dd:ee dev bond1 activity_notify master br1 static
