@@ -1,104 +1,179 @@
-Received: from mail-m49198.qiye.163.com (mail-m49198.qiye.163.com [45.254.49.198])
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010013.outbound.protection.outlook.com [52.101.193.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D529327BEC
-	for <bridge@lists.linux.dev>; Sat, 27 Jun 2026 13:30:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.198
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782567060; cv=none; b=FCpLhlgL+kjn1q1vog1UWWFZjggbTpaIgPKuhG/RyoJ+GG2sO/6gYTCqmCf2GvtEwH2ZCuFIb/2mXBPu+MAs5T+RGmFG9o2bR+r8zRSbgJb+8zKZg0K9sW91Xw0vR5AJoJqm8C6ng2rnQDIcO4MSGll0Romx9yE6rQSQsZXwjl4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782567060; c=relaxed/simple;
-	bh=KsfSqqfjYjdrTEywzPG+vZec0FaK/PzKcLvf//wJplM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=VBssUuL/Ir1R4P3WZziZOy688rTrdRJ51fm0IRPNoWCqll/PUerFf9PwObYUtT+xLcxBztopasZp1bJtk1f1lpJ5cPNf7nZZwlV2FOxfXgZABgc4oFd/FawPLIhmUUvtCeMiUy6qjXiL2SmGbYOVqYoUi3GpDtkCq+4tNHge4ZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=QRzWDQO/; arc=none smtp.client-ip=45.254.49.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 921BD2D73B9
+	for <bridge@lists.linux.dev>; Sun, 28 Jun 2026 17:49:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.13
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782668957; cv=fail; b=jdeKHKFbEsMDfbVhmuzxl32bGeZjd8mmtkkKMJsVfVhfqpieKe+RmstB9muDraXAAdESjwWqR+uP7aynylWLRa3HzONsqz0gNv8Bk+K3iocv+AJ5nes50uPENw3e2FVyJW30vse81GV3X3G6MfDxi6ZHjmuAsVTqZFIGf3WpDZI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782668957; c=relaxed/simple;
+	bh=a+jhvqT8PyWrcmeDT0YXSH2aQXeq4C60+aQfyaXHmzE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=mpg5O4S9TTM/hrrxo9+XOrDW0IDNr37dnKsRV24ZFmpg66MH0P4tKaxprP9d5IBiQOkAW4WeJ96b/3uoxY0lWLYe4y8/tGwF3yggZk8cYm+Dlpa4k4of4nFeg+UGWCg4+y3xP3WbqUXKKRglqaZf34/JU9k4oRFC4R6E2oTfx6I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=YKJnCG7a; arc=fail smtp.client-ip=52.101.193.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="QRzWDQO/"
-Received: from PC-202605011814.localdomain (unknown [58.241.16.34])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 44003fdf3;
-	Sat, 27 Jun 2026 21:25:44 +0800 (GMT+08:00)
-From: Runyu Xiao <runyu.xiao@seu.edu.cn>
-To: Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>
-Cc: Runyu Xiao <runyu.xiao@seu.edu.cn>,
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="YKJnCG7a"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=E+RwvinnXfsPKBwZqaTD1w4+qrZBgMOOOx2IZiSu0tfPR7NTcXZtogQYegYFm6fmaeq2S7IbyDBfSdFf7KX+A8Sk8kS1GGYP7Vz8/8e78F+FpMUZLRD7DR6C6qz0QC4ltI03dKW+fEp0pevKne2ZY5J8HUlqsUtSFYPfrM/i4C06lH3darXa9JhiwOifllkQm4ZlT4ror9CpceS87y9nZBnTQhiDonbGrq1pBZ5VArw5MPDtjVjNy9V0PbNEyherNj3SHbImo9npDI0RO7sqCtC8dG9xMI9gVguxldxzclJJX4hflhRdOPbEG/+RUrw5Et8J/s9kE2h9HiZah8HBsQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=r952Rk/O2IWA6RVaPycRmJaOEsCWo0daVm9jEyqBcRU=;
+ b=JuwMfiaoqZU/ay9MFrcafTqW9IJ2EoMNC4m5T/7/ZTzKtsyrJz+2lJKQdIk0LV2YFrDOMD+NmLwifQslg6ty2ZTU5XDOpDigimVS/Dpm8m1aiGf5OHvQD4DkhgX3UN3nB63myj2cHNYJ4wNIVd+qkN7CDhjDUXJVO/qbmhI+LA6Xh7NtbjJOQobEawBZeXr0bJHazS3wbPmggbSpP75hvrJ7GurkuDOrf554+hcpnzovW3SVjYd9yjvGLIxpzjaucYefKp3oJhhdJKn0QTCeHCFbUNZHflKKJT/j43wVxkotu5ay+lby6Gm0pyeMeC5VBMPN5TZm0I5TKzTkNmV73Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=r952Rk/O2IWA6RVaPycRmJaOEsCWo0daVm9jEyqBcRU=;
+ b=YKJnCG7aFT2jlc+g6/vS8bPHL9NDFMWW+/A8uekhzG6SJQ+gZGP4G/9G5+MBjguqxV1Eyopt9+gmlPRXPzPWNCg6NTPMUHqn77p0tOrb7feIUUUxg+4HCo5BunrU0aUZ30Ux7+O9qtWJXYvpFq69rI3yeIt0vLSQlyaAn1dFo6WggS6KWOuwAGYzwQOnhFX163WhW7HRJza1zr+3JpG0Zan9rf3ep/4oYcSZdLmwDccj3HdijMpdxDsJfUrx1AMr4pHzX0qRkcoA4lEzXgFCQ8HFro/x0scl/gf4YAaLd/Gu8tbOUeilQz6XFGlYmHUW0W0LD8vGTqApl+9O5b5Bxg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by CH3PR12MB9026.namprd12.prod.outlook.com (2603:10b6:610:125::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.159.19; Sun, 28 Jun
+ 2026 17:49:11 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.21.0159.018; Sun, 28 Jun 2026
+ 17:49:11 +0000
+Date: Sun, 28 Jun 2026 20:49:00 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Runyu Xiao <runyu.xiao@seu.edu.cn>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
 	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, bridge@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
 	jianhao.xu@seu.edu.cn
-Subject: Question: bridge: clarify MST VLAN list RCU traversal contract
-Date: Sat, 27 Jun 2026 21:25:39 +0800
-Message-Id: <20260627132539.3701630-1-runyu.xiao@seu.edu.cn>
-X-Mailer: git-send-email 2.34.1
+Subject: Re: Question: bridge: clarify MST VLAN list RCU traversal contract
+Message-ID: <20260628174900.GA400397@shredder>
+References: <20260627132539.3701630-1-runyu.xiao@seu.edu.cn>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260627132539.3701630-1-runyu.xiao@seu.edu.cn>
+X-ClientProxiedBy: TLZP290CA0006.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:9::16) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-HM-Tid: 0a9f0941f21903a1kunm6870078cd1180
-X-HM-MType: 10
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCTRhJVhodTBhPGRpKGkkdS1YeHw
-	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlOQ1VJT0pVSk1VSE9ZV1kWGg8SFR0UWUFZT0tIVUpLSEpPSE
-	xVSktLVUpCS0tZBg++
-DKIM-Signature: a=rsa-sha256;
-	b=QRzWDQO/9WPdeQzsbZ30FreXwoqG7XekJtbKubt9eBc0W27gC/4yca4rDkf3xpDWPy3oZsgPCTg2nCtPatabQ5SHNJDpHKr07J4roVd6NhvIUv0uclmtFqb7S5F4Pcei8oX9N/GUH1xYre2EujBMESof+JfTwaMnJnYhFhO8W2U=; c=relaxed/relaxed; s=default; d=seu.edu.cn; v=1;
-	bh=aGEZ6gZtMKGo9wdTJQLn/OJG9o5Lvqyo3f6OLohy5u8=;
-	h=date:mime-version:subject:message-id:from;
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|CH3PR12MB9026:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9b4e9937-b50e-439b-b67c-08ded53d8f7a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|23010399003|18002099003|22082099003|11063799006|5023799004|56012099006|6133799003;
+X-Microsoft-Antispam-Message-Info:
+	huLcn9RUOkwORAG8ly7T479G/Yxcaqky9NuAhUWn2e7BUyGscW7C/yT44u4an4RufkJlCPOL7m5/S0sftBDdTQXXi7Y1RUggVtSU2oBRghGMS9TSWX1MjENdLWterI3y2q4NksMcN2xr+GvVCLmaXpf4jEwZG1YGKMkeGzmvUweiubDxclHzJo162UvK8MvSfP3OwSQtIhUoc70K3gZD/8LzsWYIrKi9GffI+DTuTxLZ6N8Gm1/ZA2fTgpmPpepuJjQC6P4MJpR/Ug9Czd0v+Dk4J5s4sob9EWHPKg245wBeDqKa/mtoWgxgo0w/800LduTKVzpOosV5o78lnLZ21+jSaxhkuAyHcF0yDAj5GmQsZr9wjptBNXz319k2EyNzeMEsNVcyCYktgRTQS877eOXnIsyp6JamDPmv9sAf3s2l0N2DxIXJw4JCqC//haHOBdElcMnffS6zGKHGxK+zErSVrlTGxfm4x75XuFsozEwPS0GugSMi25XTxF3IWZyJtobeKJ3KtYm+aDd9mI8UCq9cfQnt1/30K0VRX0DZldrkgkC05XqMHdDnxgzzmNs760X859RJsDHtX0vS77pDQsVmzCIzuJPzpwsyHuXE0ml0mjhJNJ2j1WSW+f79eZ/QzBquD5LYHcOvdBG9ln3vtGFAK3757N9WBMva2+VRVK8=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(23010399003)(18002099003)(22082099003)(11063799006)(5023799004)(56012099006)(6133799003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?kW7TcSk50SIjFQLeTag0Qt5XjxxrxbFO9IvrRmdv/OyMWWV1G/cIzgIYODva?=
+ =?us-ascii?Q?5FRFFPme7X5a6Um5Ah8/VjaNwk9ppwfqaQvqU4OwiWv8aEB6TKz5YPQIfw8N?=
+ =?us-ascii?Q?mjUknMa5GZjVYCJHEhLKjEBcY7lfYYwxk20WghA8B5tHtdiQdI3TOWYltsyo?=
+ =?us-ascii?Q?+AdFvd3wYS0sSdG45dEOEWNLqf8Prn+4wn8QaSQO6jjQswN2PdhRwQmy7Skv?=
+ =?us-ascii?Q?sEnTuOPzRCYlHUyeG1DTO0v56TydltqsKbs/V7yAorYHsuppXVAmanoNGCFa?=
+ =?us-ascii?Q?JgdtlvtkVwojqBeU12DfmqY5e/EIaY+fPcgDRLsOa9nAzHPVpZqqQa8BJ+ud?=
+ =?us-ascii?Q?QNYAzuKL2Ss6JIhYBFKHWiLe74JXhNkCkHXjw2JINdzFI6CT6FYYKUpYLPY4?=
+ =?us-ascii?Q?r7owIgSQ7Q1ucl1qc27VguisA+ZGAYG2maCHd9z0pBVfqQMpzK/cSkRuPaQo?=
+ =?us-ascii?Q?cQrJyuvNLtK9rMXFQZsPVWvsu7pwguqDngZU5xnVJhba2Q4Xt3NnklA30mrg?=
+ =?us-ascii?Q?HS8cwWRraSuNm1s8QRiXBzB/Zrkd20x8ayHln8rSRJZxGdeB9+N+z7dcMvBV?=
+ =?us-ascii?Q?e0EU/nDvSmU2y3/n4iUNl1yLmu9PfON4fvcav26cT8GqbP8o1zDGX9ljJg6d?=
+ =?us-ascii?Q?51+617G+rTqyii3emihCD0rfh2lgpHgvpgSkEwQ6wUuUxHIIOY11f4/O822u?=
+ =?us-ascii?Q?QhDgUQrba4fitLwRhD53JbNDtnXsHQXj9Lb5qaCxDZme6YE9JGmhvbfKkNFc?=
+ =?us-ascii?Q?D/INKHPcDBdOWJ8mt/7JsluX//I9tTNYXq60chiwxkE4iGjQoAUKp97Wf0wb?=
+ =?us-ascii?Q?fHLa3K/pCu/M/EYseWsYyIEr3wm7cGu8G08guKjARbxkOEHBYMf8cMpJQvcj?=
+ =?us-ascii?Q?Ns6Mwp4BlgtsPHpFbttqXh73q3dGT+iMvXxYAUpX5Vo1zPxOGacYxg4TTqCw?=
+ =?us-ascii?Q?3RLXx6LjY/+f/1A+jD0KJpNgeIylWP48vh+jKPbIcUCSM8UzNHxTXTOmQGXY?=
+ =?us-ascii?Q?HkvJ7wa1eefv5S3wvmjQie6LP+SgPZb8dSdtX4oJXlnPTb3648HnD50KBu+S?=
+ =?us-ascii?Q?H198Xc3bhOWh9BkpEStFCXVEmrFs3+Y7BBKQ+rheoh+FXbMaMZQLSikdUArj?=
+ =?us-ascii?Q?O10u5nd5SjEFpNHPTs+d5RB7/TeTRjkoRN0wO1BspKA2MnUk1NBshWuhxDCe?=
+ =?us-ascii?Q?gPiI2UB9cFVpXdEaDyUvKQx4RyE56VFp0+QnMpYE+hc/ScRBKtaRbR92zwBf?=
+ =?us-ascii?Q?NAIHNuP8N+TP5kVoOXeIVM2QjE8yZaA8bbJ7Y9iuhwBkI//mWMK0CEfHOx5Y?=
+ =?us-ascii?Q?8lcwWGVyOizEjjEBahxbuLWMvu4k6iDzNo6Y5jpYFmPhY8N9tZYI5gEK5k/U?=
+ =?us-ascii?Q?tgA0vUy7xMrzulqxdeT3OC3YoTtROgxPlQaJ39NFdWZj7SGkg4rMDXACx0pq?=
+ =?us-ascii?Q?SCyneebS1PBs/VvYw+l4Q4B9HsceVlAeFEHhPqzSzPQMxm84CK/fbnHtcH2c?=
+ =?us-ascii?Q?5rRwGPf+MRsPdB6Xin1r/soU+/0cdVNtXNcTIfFznr7K/meKIDsDJt+cTwIq?=
+ =?us-ascii?Q?YeJmx4YVAar1P5CriQazAW1uhE0hq5ZYj/P9GdRv3IWdzuyHnLoNEUlBviFm?=
+ =?us-ascii?Q?7EJZ8yrZHnv2Buwnbiil+1RJdwTeEYTBkKHGcEC3iq1L6TNFTRZjrEqsuH/H?=
+ =?us-ascii?Q?xVft1Zt6RzQ4OqmdrLScBekdu9jC7spygWk3Ekncn0ORrDqQmymas4NnRZYs?=
+ =?us-ascii?Q?R2WSQgVzLw=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9b4e9937-b50e-439b-b67c-08ded53d8f7a
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jun 2026 17:49:11.2000
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Bzx4n7UbNQfcO0QSag/JsvOnUvNAE4rtxcLFR49HTanwo7oqI23t2DRz1tJ8BHMTUM9uv9JYbpwq8DQFMMFBOQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9026
 
-Hi bridge maintainers,
+On Sat, Jun 27, 2026 at 09:25:39PM +0800, Runyu Xiao wrote:
+> Hi bridge maintainers,
+> 
+> This question comes from a candidate found by our static analysis tool
+> and then manually reviewed against the current tree. The audit used
+> CONFIG_PROVE_RCU_LIST as target-matched triage evidence; I am asking
+> for maintainer guidance because the source-level review did not prove
+> a use-after-free.
+> 
+> A CONFIG_PROVE_RCU_LIST audit flags the VLAN-list traversal in
+> br_mst_info_size():
+> 
+>   net/bridge/br_mst.c:251 br_mst_info_size()
+> 
+> The helper walks vg->vlan_list with list_for_each_entry_rcu().  In the
+> direct local context, br_get_link_af_size_filtered() first enters an
+> RCU read-side section, resolves the bridge port or bridge VLAN group,
+> and calls br_get_num_vlan_infos(vg, filter_mask).  That local RCU
+> read-side section is then dropped before the later MST sizing call:
+> 
+>   net/bridge/br_netlink.c:104 rcu_read_lock()
+>   net/bridge/br_netlink.c:113 br_get_num_vlan_infos(vg, filter_mask)
+>   net/bridge/br_netlink.c:114 rcu_read_unlock()
+>   net/bridge/br_netlink.c:123 br_mst_info_size(vg)
+> 
+> The helper is registered through rtnl_af_ops.get_link_af_size, and
+> bridge VLAN updates appear RTNL-centered, so the broader rtnetlink
+> sizing path may already provide the intended serialization.  I am not
+> claiming a use-after-free here.  The question is only whether the
+> RCU-list traversal contract around br_mst_info_size() should be made
+> explicit enough for CONFIG_PROVE_RCU_LIST to see it.
+> 
+> Would you prefer one of these directions?
+> 
+>   1. keep the MST sizing loop inside an explicit rcu_read_lock() in
+>      br_get_link_af_size_filtered();
+> 
+>   2. pass a confirmed RTNL lockdep condition to the iterator in
+>      br_mst_info_size();
+> 
+>   3. document that the outer rtnetlink sizing path is the required
+>      protection and leave the helper unchanged;
+> 
+>   4. use a different bridge-specific pattern.
+> 
+> I am intentionally sending this as a maintainer question rather than a
+> patch because the right contract seems to depend on the bridge/rtnetlink
+> caller semantics.
 
-This question comes from a candidate found by our static analysis tool
-and then manually reviewed against the current tree. The audit used
-CONFIG_PROVE_RCU_LIST as target-matched triage evidence; I am asking
-for maintainer guidance because the source-level review did not prove
-a use-after-free.
+I don't think anything needs to change. AFAICT, br_mst_info_size() is
+only reachable via the get_link_af_size() callback and
+rtnl_link_get_af_size() always invokes it from an RCU read-side critical
+section.
 
-A CONFIG_PROVE_RCU_LIST audit flags the VLAN-list traversal in
-br_mst_info_size():
-
-  net/bridge/br_mst.c:251 br_mst_info_size()
-
-The helper walks vg->vlan_list with list_for_each_entry_rcu().  In the
-direct local context, br_get_link_af_size_filtered() first enters an
-RCU read-side section, resolves the bridge port or bridge VLAN group,
-and calls br_get_num_vlan_infos(vg, filter_mask).  That local RCU
-read-side section is then dropped before the later MST sizing call:
-
-  net/bridge/br_netlink.c:104 rcu_read_lock()
-  net/bridge/br_netlink.c:113 br_get_num_vlan_infos(vg, filter_mask)
-  net/bridge/br_netlink.c:114 rcu_read_unlock()
-  net/bridge/br_netlink.c:123 br_mst_info_size(vg)
-
-The helper is registered through rtnl_af_ops.get_link_af_size, and
-bridge VLAN updates appear RTNL-centered, so the broader rtnetlink
-sizing path may already provide the intended serialization.  I am not
-claiming a use-after-free here.  The question is only whether the
-RCU-list traversal contract around br_mst_info_size() should be made
-explicit enough for CONFIG_PROVE_RCU_LIST to see it.
-
-Would you prefer one of these directions?
-
-  1. keep the MST sizing loop inside an explicit rcu_read_lock() in
-     br_get_link_af_size_filtered();
-
-  2. pass a confirmed RTNL lockdep condition to the iterator in
-     br_mst_info_size();
-
-  3. document that the outer rtnetlink sizing path is the required
-     protection and leave the helper unchanged;
-
-  4. use a different bridge-specific pattern.
-
-I am intentionally sending this as a maintainer question rather than a
-patch because the right contract seems to depend on the bridge/rtnetlink
-caller semantics.
-
-Thanks.
+Did you see a splat with CONFIG_PROVE_RCU_LIST?
