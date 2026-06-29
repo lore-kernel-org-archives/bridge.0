@@ -1,63 +1,63 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6A53381AFC
-	for <bridge@lists.linux.dev>; Mon, 29 Jun 2026 12:33:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E70AD406814
+	for <bridge@lists.linux.dev>; Mon, 29 Jun 2026 12:33:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782736407; cv=none; b=Rh5lZnxt+h5URx9i56IWHLWefOQZmpbmG8EFA88Ddx64m9Bdvm/1S7hK6Yp0RniuJoOWeDKJeTykMJt3DEi35O+uB/Rz1H7xyy7r5tti+rnWedhGhc4wKubbQpp+K31Of9A4j3bxr6PCe/99Y4zmVAYDeEQ8S3ehvWIvzIhFef0=
+	t=1782736410; cv=none; b=E91VveKql8icEt5ir0bcnkc/ODUvYJyB6u+vTRJEbTXA7o3MUgX1HTAA10Iehee1QU4lSi9cA91AkdgeU0M5359GdmtKq7PZXgQtW6EjxkYPU/auZovAOdQ6GGCRX8x+cgviaviMOPdPjg3x3CgIpy+gNfrZTld2gSMg9EMA3aY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782736407; c=relaxed/simple;
-	bh=ZCRB2ICnhy+yorYHit6z9ApMAWj8ye6ZQlK3b8ptewQ=;
+	s=arc-20240116; t=1782736410; c=relaxed/simple;
+	bh=uFlsWrhJwtQf9yt8auqKp+aP7EpEMnGUWhzv1INgKXg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DocIZS++Z/ETYV+5MFaZXRfnG4BvrMC8Vn6zl0B37n2PncgxZp3V2+e+4I83dYAE00QpPsCXUFufN6L1TeVQCgSmOb6E+XKGQ03YB1zqBUdaKms2KzNvXEfv3cZoHzOl9xe7gA3MqNsBr3MuK/KgSZPDm1Ut44ftfqvGaNVyEcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TV04Ch0k; arc=none smtp.client-ip=209.85.208.45
+	 MIME-Version; b=QIkEEg02eK0daDQfn/ogAw3V42tEydTNalHqc/QgVAhfpm2KA6Dx1QOOLON9sGbjMCxOs6GtCmT3ioXJXDyRDCStWKlA7LQobMetoduxFGFGleLG0y8bTws/yo4cpPMx3s8r7VSe38nmDkx/fH+JPAGSnVzK0/viK0BPJWApZMU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CFWAsa+I; arc=none smtp.client-ip=209.85.208.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TV04Ch0k"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-6974a6e54dbso6061670a12.2
-        for <bridge@lists.linux.dev>; Mon, 29 Jun 2026 05:33:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CFWAsa+I"
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-691c5776f95so5656744a12.3
+        for <bridge@lists.linux.dev>; Mon, 29 Jun 2026 05:33:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782736404; x=1783341204; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1782736407; x=1783341207; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IyKouin1u5dLTjGH2vHTEIBjw8XShphfnZNY49Ba01Y=;
-        b=TV04Ch0kNxcJok6ftw1s7HfCj3PVM5gSdwCE4eTw9fmsRl4d5THGJCyu0L3V9EHuN4
-         dLSt3CO+Ee+jepY+ihZf8JL4QBBp5Vse4XGcXpPIzw0A9XjKUFvXX/D2h+AW9bTFBxH1
-         N3TPBpwrXaymt+QI5kF4bLO2U74ymSvxRWeSTEo3dG+3HDIChN/U3+PYbHSo0s++BI4A
-         EHQQY2QaE0JROtg1aE2nH7IfMdQRGULYieirooqaZfRiBtbiQ3XwQuNSceVOCV0B9YAT
-         jiH1QuumOpPRnd78ER8tzuxOE68G/929nQc1J5YYHvOusitICosxGQ5veWIggSBAkVMa
-         +XKg==
+        bh=0ZkMfYGbmmBFNVQavhfnwkj1f6U3WSLYvJuEXnZXuTc=;
+        b=CFWAsa+IKK1F5w0T7tWSM+hEB/iVl0hfHM33vc456Sa6xC5q+taRFBQe5L6tTVhgDj
+         oVcC1p1GjF9viFf+pTtJmEi8iCtB9RunsDgsJ2CrLGj16r9wBDXOujNgKRVRGH88jWSm
+         Cq2JeS9LwG9suhdeTNOhlIi/hNXvN43XeVDduNoh61Glrv/I0nFzt09ZFCOSYOoMVGlO
+         L1YPzU7E1w0gg1P/+6EhgKIt6SURkKVcXwwvdLi3/EreElBiVx3/0l1CbOZsJgZBd73n
+         VMtMo8sfVYZnOnd2ON8DnsFi9lXJTlHHLT6fIiAyYLpslvY+vS3PmijtGY4LGuO6kxPf
+         RtJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782736404; x=1783341204;
+        d=1e100.net; s=20251104; t=1782736407; x=1783341207;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=IyKouin1u5dLTjGH2vHTEIBjw8XShphfnZNY49Ba01Y=;
-        b=CuOhstbeKdpWmzjcv1zDeKussILpIc318CjdXSO6Z2ilaIYnzTW2jDB7xuOHwoKs4B
-         KCpl2b8Sk5F4vQo5iVRoXhd10n7w6W/3MQ1RASJZ+CVAoKBZfkBgB3p4kWLBOWDdxfPu
-         wBRYLWG5y9ezcNhmdbiRG7MwFP3OwZbo70k3l+6j8KmsM/RExztf8JU4zyGEBvDFqu+/
-         gOwEk0IauP0dQilnpiLkDh2hPhxzEEPEmlxzaT1jZ46SWBzDTBpLGirf2jp3NbrN5FSz
-         40H93mPOcDrg1+AGaeZtUI2ADdZkvttAd1gTYWmVveX3f7IYCnmneyKro/Q0OAZ31Ahx
-         /MRg==
-X-Forwarded-Encrypted: i=1; AHgh+Rr/Cy2ZrHj7L+nXpslKSIlmxzsFJw3d8fHMu+kUaaZKTJFVxcQXftLBm9AGuk+cXDh7ht+82gE=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw3dmIJJK9Cjzxewyy9FoVihZG6Z8O4zdR39CPNsBTvmIuw8TV5
-	dDn5RUvNMzrR0PrOOCJY2OAQ2EWiRPqvIJvIHD7Q4nZwp5TUz7H/Fvf6
-X-Gm-Gg: AfdE7clkEQ5112rkqKOdrQRGZSzDjT7Utr2Nj71YlI1yFf52Qtl8qoZknK7ITNaFfy6
-	U8kQChmXTdLg1JYxOgmrjDfxp8PJ/aQsAJs/yNoGulJ9JI+rrcrEfQoLQ7ZRRMYyd3YLUzDi80S
-	a8XyYDqBa+D2G+01U5CIBVFp5Z4KRVHBoROSfyB2VyhkqmmrfWs0Sx7JeRxPBQ0y3Jdh8rD05AW
-	k91LM4RdNIzs158oagJWnYApYRoyDoraYsolF8srn0IGxwp87uhCKFQGpyVAfBK5ZRE5Uorq9Ls
-	4hwcIoAUN/rpyf5WaH9XhqDbcWwU5lCsv7crNDUX59wd4Mw7/S3Tui9SqqL8VTwSr/eyHS/gAoT
-	hLMpSCFmN8pXDdtqVEObEF5vztsyK4+wjr3uc5yEH7T+doRgKkWw2N1IDK9NJ2zuuqiK5raaPaw
-	u4Ce6nlhc=
-X-Received: by 2002:a17:907:9452:b0:c12:7e9f:5ae3 with SMTP id a640c23a62f3a-c127e9f5b7bmr43558466b.15.1782736403905;
-        Mon, 29 Jun 2026 05:33:23 -0700 (PDT)
+        bh=0ZkMfYGbmmBFNVQavhfnwkj1f6U3WSLYvJuEXnZXuTc=;
+        b=UAiYYY5SE38n77Lbrdo1rx69eONHnhJSB2A9ZXojyBxBP99xoYZNnAVuQxnjWirVJl
+         MjWVyDhvI8kdakFNd/Aq9wjLy3OwOZA8fTWhzcjff5F6TaygBGU0Gonx4VdOE5luRKN+
+         aCbCHd0AyPk2kzppsQGnugE4uIe/9MFKx33tOBCmauw+cZAuMceER2+uA5xHra98tvJd
+         ehMaWIoe/SN09XqNWEWNUJINHRRSl4RRE4fqaTrZ4Gyodj3axpmor8UKAk3jKuJXEWE3
+         StMCwKBKvND6LXSXiN8u5YlN3TQCoOYZxINhfzVr6M2H7wFuV5dSpb5ymjJCS2RZ4E4z
+         Ypog==
+X-Forwarded-Encrypted: i=1; AHgh+Rp62TxSF157DJql4C0ka3LEfZrepLPJCmkowx+2Wp8nyxVI4xD08HC4ZAYPx0JPKMWrgAakLD4=@lists.linux.dev
+X-Gm-Message-State: AOJu0YysbtCbJtLd9UFvsrGuWcxatLLXAz3VDrGzUrrEC3OXCfIkvnkE
+	q3afR0Dt38avp+HDZcpu639TCR3B+PqYCG/rU6FhFUhpOXdssWMFpWtX
+X-Gm-Gg: AfdE7clo8vba7RItaNuo23zkRNqeCkU/MZcWfk4SLqrZO8/Mjuk5f0hUW2DR+xN77td
+	7i4QDStr8QVFHYWdpaxacgphNQK1SBDENs/8ATVMMZCaCjN8+HLFdkqrEvKkhU7RjORcy5CFJ3q
+	K7vqjp9bimD/+YlKGeaOZaxqx2F56jad8jQC9b2O1gdLX0SM4pLTUkHtD/19Pixn+FJNUqt5E9P
+	LdeXay3gcYCHAcmhjL6ze74Mo9B02OTlaHwzMrzBw7SIYp+JJv4G+4lA+AA35bbKV7PHf6N6wYI
+	qrotRWPDm7MwpBTcwPOClD2d2f3w7PXspfexBPBzwQacu4hBuw8kyIKMB8WplFC7rj1dW32clFo
+	Wl7INoNN0FbCmRp0+pXS7Sc4Ow6PnsEUNdl12YNY9YfjBNhA+1PF5R2FVPIfrmMR9hHu0emKTFM
+	f5pQcmfqs=
+X-Received: by 2002:a17:906:4fc4:b0:c07:fcdd:7043 with SMTP id a640c23a62f3a-c12813bb075mr20833366b.16.1782736407037;
+        Mon, 29 Jun 2026 05:33:27 -0700 (PDT)
 Received: from fedora ([46.205.218.111])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c11fbe05c22sm773866566b.39.2026.06.29.05.33.21
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c11fbe05c22sm773866566b.39.2026.06.29.05.33.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2026 05:33:22 -0700 (PDT)
+        Mon, 29 Jun 2026 05:33:25 -0700 (PDT)
 From: Daniel Pawlik <pawlik.dan@gmail.com>
 To: netfilter-devel@vger.kernel.org,
 	netdev@vger.kernel.org
@@ -81,9 +81,9 @@ Cc: pablo@netfilter.org,
 	rchen14b@gmail.com,
 	lorenzo@kernel.org,
 	Daniel Pawlik <pawlik.dan@gmail.com>
-Subject: [PATCH 2/5] net: bridge: add flow offload helpers
-Date: Mon, 29 Jun 2026 14:32:50 +0200
-Message-ID: <20260629123253.1912621-3-pawlik.dan@gmail.com>
+Subject: [PATCH 3/5] netfilter: nf_flow_table_path: add L2 bridge offload
+Date: Mon, 29 Jun 2026 14:32:51 +0200
+Message-ID: <20260629123253.1912621-4-pawlik.dan@gmail.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260629123253.1912621-1-pawlik.dan@gmail.com>
 References: <20260629123253.1912621-1-pawlik.dan@gmail.com>
@@ -95,185 +95,304 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add three helpers that expose the bridge state needed by nft_flow_offload
-without requiring callers to include net/bridge/br_private.h. Each
-performs a single br_port_get_rcu() lookup:
+From: Ryan Chen <rchen14b@gmail.com>
 
- - br_fdb_has_forwarding_entry_rcu(): resolves the VLAN id for the packet
-   (skb tag or PVID when filtering is on, 0 otherwise) then checks whether
-   the bridge FDB contains a forwarding entry (dst != NULL, non-local) for
-   the resulting MAC/VLAN pair.
+Allow nft_flow_offload to accelerate traffic forwarded at layer 2 through
+Linux bridge ports.
 
- - br_vlan_get_offload_info_rcu(): when VLAN filtering is active, returns
-   the VLAN id (skb tag or PVID) and writes the bridge VLAN protocol to
-   *proto in a single port lookup. Returns 0 when filtering is off.
+Detection: nft_flow_offload_is_bridging() identifies bridged flows by
+checking that the ingress device is a bridge port and that the destination
+MAC appears in the bridge FDB with a forwarding destination port (non-local
+entry). VLAN resolution and FDB lookup are combined in a single
+br_port_get_rcu() call via br_fdb_has_forwarding_entry_rcu().
 
- - br_vlan_is_enabled_rcu(): returns true when VLAN filtering is enabled
-   on the bridge a port device belongs to.
+Routing: nft_flow_route_bridging() allocates minimal dst entries anchored
+to the bridge master device via rt_dst_alloc()/ip6_dst_alloc(). A full
+routing table lookup via nf_route() is intentionally avoided: it fails for
+prefixes that are only bridged, not routed, through the bridge interface
+(e.g. when the bridge has no IP address or the bridged subnet is not in
+the routing table).
 
-Based on MediaTek SDK patches by Bo-Cun Chen <bc-bocun.chen@mediatek.com>
-and the OpenWrt bridge offload series by Ryan Chen <rchen14b@gmail.com>.
+MAC addresses: for bridged flows, nft_dev_forward_path() copies Ethernet
+addresses directly from the packet header instead of going through the
+neighbour table. Direction (original vs reply) is resolved against the
+conntrack direction so both flow directions receive the correct MAC pair.
+
+VLAN context: nft_br_vlan_dev_fill_forward_path() pre-populates the
+net_device_path_ctx with the port VLAN id and protocol before the forward
+path walk, enabling VLAN-aware hardware offload entries.
+
+Also:
+- info->indev is updated for every path type in nft_dev_path_info() so
+  the bridge ingress device is correctly tracked regardless of path type.
+- nft_flow_route() is now a thin dispatcher that delegates to
+  nft_flow_route_routing() (routed traffic) or nft_flow_route_bridging()
+  (bridged traffic); the exported API is unchanged.
+
+Path discovery infrastructure was moved to nf_flow_table_path.c in
+commit 93d7a7ed0734 ("netfilter: flowtable: move path discovery
+infrastructure to its own file"), so all changes land in that file.
+
+Based on a MediaTek SDK patch by Bo-Cun Chen <bc-bocun.chen@mediatek.com>.
+Co-developed-by: Daniel Pawlik <pawlik.dan@gmail.com>
 Signed-off-by: Daniel Pawlik <pawlik.dan@gmail.com>
+Signed-off-by: Ryan Chen <rchen14b@gmail.com>
 ---
- include/linux/if_bridge.h | 23 ++++++++++++++++++++
- net/bridge/br_fdb.c       | 32 ++++++++++++++++++++++++++++
- net/bridge/br_vlan.c      | 45 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 100 insertions(+)
+ net/netfilter/nf_flow_table_path.c | 167 +++++++++++++++++++++++++++--
+ 1 file changed, 157 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/if_bridge.h b/include/linux/if_bridge.h
-index 75673b8bffcb..c1cae54749c5 100644
---- a/include/linux/if_bridge.h
-+++ b/include/linux/if_bridge.h
-@@ -148,6 +148,9 @@ int br_vlan_get_info(const struct net_device *dev, u16 vid,
- 		     struct bridge_vlan_info *p_vinfo);
- int br_vlan_get_info_rcu(const struct net_device *dev, u16 vid,
- 			 struct bridge_vlan_info *p_vinfo);
-+u16 br_vlan_get_offload_info_rcu(const struct net_device *dev,
-+				 const struct sk_buff *skb, __be16 *proto);
-+bool br_vlan_is_enabled_rcu(const struct net_device *dev);
- bool br_mst_enabled(const struct net_device *dev);
- int br_mst_get_info(const struct net_device *dev, u16 msti, unsigned long *vids);
- int br_mst_get_state(const struct net_device *dev, u16 msti, u8 *state);
-@@ -184,6 +187,17 @@ static inline int br_vlan_get_info_rcu(const struct net_device *dev, u16 vid,
- 	return -EINVAL;
+diff --git a/net/netfilter/nf_flow_table_path.c b/net/netfilter/nf_flow_table_path.c
+index 98c03b487f52..6c470854127f 100644
+--- a/net/netfilter/nf_flow_table_path.c
++++ b/net/netfilter/nf_flow_table_path.c
+@@ -15,6 +15,10 @@
+ #include <net/netfilter/nf_conntrack_core.h>
+ #include <net/netfilter/nf_conntrack_extend.h>
+ #include <net/netfilter/nf_flow_table.h>
++#include <linux/if_bridge.h>
++#include <linux/if_ether.h>
++#include <net/route.h>
++#include <net/ip6_route.h>
+ 
+ static enum flow_offload_xmit_type nft_xmit_type(struct dst_entry *dst)
+ {
+@@ -42,7 +46,25 @@ static bool nft_is_valid_ether_device(const struct net_device *dev)
+ 	return true;
  }
  
-+static inline u16 br_vlan_get_offload_info_rcu(const struct net_device *dev,
-+						const struct sk_buff *skb,
-+						__be16 *proto)
+-static int nft_dev_fill_forward_path(const struct nf_flow_route *route,
++static bool nft_flow_offload_is_bridging(struct sk_buff *skb)
 +{
++	bool ret;
++
++	if (!netif_is_bridge_port(skb->dev))
++		return false;
++	if (!skb_mac_header_was_set(skb))
++		return false;
++
++	rcu_read_lock();
++	ret = br_fdb_has_forwarding_entry_rcu(skb->dev, skb,
++					      eth_hdr(skb)->h_dest);
++	rcu_read_unlock();
++
++	return ret;
++}
++
++static int nft_dev_fill_forward_path(struct net_device_path_ctx *ctx,
++				     const struct nf_flow_route *route,
+ 				     const struct dst_entry *dst_cache,
+ 				     const struct nf_conn *ct,
+ 				     enum ip_conntrack_dir dir, u8 *ha,
+@@ -58,6 +80,12 @@ static int nft_dev_fill_forward_path(const struct nf_flow_route *route,
+ 		goto out;
+ 	}
+ 
++	/* Bridging fastpath copies Ethernet addresses into ha; do not replace
++	 * them via neighbour lookup on the routed destination device.
++	 */
++	if (!is_zero_ether_addr(ha))
++		goto out;
++
+ 	n = dst_neigh_lookup(dst_cache, daddr);
+ 	if (!n)
+ 		return -1;
+@@ -72,7 +100,23 @@ static int nft_dev_fill_forward_path(const struct nf_flow_route *route,
+ 		return -1;
+ 
+ out:
+-	return dev_fill_forward_path(dev, ha, stack);
++	return __dev_fill_forward_path(ctx, ha, stack);
++}
++
++static void nft_br_vlan_dev_fill_forward_path(const struct nft_pktinfo *pkt,
++					      struct net_device_path_ctx *ctx)
++{
++	__be16 proto = 0;
++	u16 vlan_id;
++
++	rcu_read_lock();
++	vlan_id = br_vlan_get_offload_info_rcu(pkt->skb->dev, pkt->skb, &proto);
++	if (vlan_id) {
++		ctx->num_vlans = 1;
++		ctx->vlan[0].id = vlan_id;
++		ctx->vlan[0].proto = proto;
++	}
++	rcu_read_unlock();
+ }
+ 
+ struct nft_forward_info {
+@@ -103,13 +147,13 @@ static int nft_dev_path_info(const struct net_device_path_stack *stack,
+ 
+ 	for (i = 0; i < stack->num_paths; i++) {
+ 		path = &stack->path[i];
++		info->indev = path->dev;
+ 		switch (path->type) {
+ 		case DEV_PATH_ETHERNET:
+ 		case DEV_PATH_DSA:
+ 		case DEV_PATH_VLAN:
+ 		case DEV_PATH_PPPOE:
+ 		case DEV_PATH_TUN:
+-			info->indev = path->dev;
+ 			if (is_zero_ether_addr(info->h_source))
+ 				memcpy(info->h_source, path->dev->dev_addr, ETH_ALEN);
+ 
+@@ -244,6 +288,7 @@ static int nft_flow_tunnel_update_route(const struct nft_pktinfo *pkt,
+ }
+ 
+ static int nft_dev_forward_path(const struct nft_pktinfo *pkt,
++				bool is_bridging,
+ 				struct nf_flow_route *route,
+ 				const struct nf_conn *ct,
+ 				enum ip_conntrack_dir dir,
+@@ -251,11 +296,33 @@ static int nft_dev_forward_path(const struct nft_pktinfo *pkt,
+ {
+ 	const struct dst_entry *dst = route->tuple[dir].dst;
+ 	struct net_device_path_stack stack;
++	struct net_device_path_ctx ctx = {
++		.dev	= dst->dev,
++	};
+ 	struct nft_forward_info info = {};
++	enum ip_conntrack_info pkt_ctinfo;
++	enum ip_conntrack_dir skb_dir;
++	struct ethhdr *eth;
+ 	unsigned char ha[ETH_ALEN];
+ 	int i;
+ 
+-	if (nft_dev_fill_forward_path(route, dst, ct, dir, ha, &stack) < 0 ||
++	memset(ha, 0, sizeof(ha));
++
++	if (is_bridging) {
++		nf_ct_get(pkt->skb, &pkt_ctinfo);
++		eth = eth_hdr(pkt->skb);
++		skb_dir = CTINFO2DIR(pkt_ctinfo);
++		if (skb_dir != dir) {
++			memcpy(ha, eth->h_source, ETH_ALEN);
++			memcpy(info.h_source, eth->h_dest, ETH_ALEN);
++		} else {
++			memcpy(ha, eth->h_dest, ETH_ALEN);
++			memcpy(info.h_source, eth->h_source, ETH_ALEN);
++		}
++		nft_br_vlan_dev_fill_forward_path(pkt, &ctx);
++	}
++
++	if (nft_dev_fill_forward_path(&ctx, route, dst, ct, dir, ha, &stack) < 0 ||
+ 	    nft_dev_path_info(&stack, &info, ha, &ft->data) < 0)
+ 		return -ENOENT;
+ 
+@@ -292,9 +359,11 @@ static int nft_dev_forward_path(const struct nft_pktinfo *pkt,
+ 	return 0;
+ }
+ 
+-int nft_flow_route(const struct nft_pktinfo *pkt, const struct nf_conn *ct,
+-		   struct nf_flow_route *route, enum ip_conntrack_dir dir,
+-		   struct nft_flowtable *ft)
++static int nft_flow_route_routing(const struct nft_pktinfo *pkt,
++				  const struct nf_conn *ct,
++				  struct nf_flow_route *route,
++				  enum ip_conntrack_dir dir,
++				  struct nft_flowtable *ft)
+ {
+ 	struct dst_entry *this_dst = skb_dst(pkt->skb);
+ 	struct dst_entry *other_dst = NULL;
+@@ -334,12 +403,12 @@ int nft_flow_route(const struct nft_pktinfo *pkt, const struct nf_conn *ct,
+ 	nft_default_forward_path(route, this_dst, dir);
+ 	nft_default_forward_path(route, other_dst, !dir);
+ 
+-	if (route->tuple[dir].xmit_type	== FLOW_OFFLOAD_XMIT_NEIGH &&
+-	    nft_dev_forward_path(pkt, route, ct, dir, ft) < 0)
++	if (route->tuple[dir].xmit_type == FLOW_OFFLOAD_XMIT_NEIGH &&
++	    nft_dev_forward_path(pkt, false, route, ct, dir, ft) < 0)
+ 		goto err_dst_release;
+ 
+ 	if (route->tuple[!dir].xmit_type == FLOW_OFFLOAD_XMIT_NEIGH &&
+-	    nft_dev_forward_path(pkt, route, ct, !dir, ft) < 0)
++	    nft_dev_forward_path(pkt, false, route, ct, !dir, ft) < 0)
+ 		goto err_dst_release;
+ 
+ 	return 0;
+@@ -349,4 +418,82 @@ int nft_flow_route(const struct nft_pktinfo *pkt, const struct nf_conn *ct,
+ 	dst_release(route->tuple[!dir].dst);
+ 	return -ENOENT;
+ }
++
++static int nft_flow_route_bridging(const struct nft_pktinfo *pkt,
++				   const struct nf_conn *ct,
++				   struct nf_flow_route *route,
++				   enum ip_conntrack_dir dir,
++				   struct nft_flowtable *ft)
++{
++	struct dst_entry *dsts[IP_CT_DIR_MAX] = {};
++	struct net_device *br_dev;
++	int i;
++
++	/* Allocate minimal dsts anchored to the bridge master device to supply
++	 * xmit_type and MTU. A full routing lookup via nf_route() is avoided
++	 * because it fails for prefixes that are bridged but not routed.
++	 */
++	rcu_read_lock();
++	br_dev = netdev_master_upper_dev_get_rcu(pkt->skb->dev);
++	if (!br_dev || !netif_is_bridge_master(br_dev)) {
++		rcu_read_unlock();
++		return -ENOENT;
++	}
++
++	for (i = 0; i < IP_CT_DIR_MAX; i++) {
++		switch (nft_pf(pkt)) {
++		case NFPROTO_IPV4: {
++			struct rtable *rt;
++
++			rt = rt_dst_alloc(br_dev, 0, RTN_UNICAST, true);
++			if (rt)
++				dsts[i] = &rt->dst;
++			break;
++		}
++		case NFPROTO_IPV6: {
++			struct rt6_info *rt;
++
++			rt = ip6_dst_alloc(nft_net(pkt), br_dev, 0);
++			if (rt)
++				dsts[i] = &rt->dst;
++			break;
++		}
++		}
++	}
++	rcu_read_unlock();
++
++	if (!dsts[dir] || !dsts[!dir]) {
++		dst_release(dsts[dir]);
++		dst_release(dsts[!dir]);
++		return -ENOENT;
++	}
++
++	nft_default_forward_path(route, dsts[dir], dir);
++	nft_default_forward_path(route, dsts[!dir], !dir);
++	/* Drop allocation references; route->tuple[*].dst holds the clones. */
++	dst_release(dsts[dir]);
++	dst_release(dsts[!dir]);
++
++	if (route->tuple[dir].xmit_type == FLOW_OFFLOAD_XMIT_NEIGH &&
++	    route->tuple[!dir].xmit_type == FLOW_OFFLOAD_XMIT_NEIGH) {
++		if (nft_dev_forward_path(pkt, true, route, ct, dir, ft) ||
++		    nft_dev_forward_path(pkt, true, route, ct, !dir, ft)) {
++			dst_release(route->tuple[dir].dst);
++			dst_release(route->tuple[!dir].dst);
++			return -ENOENT;
++		}
++	}
++
 +	return 0;
 +}
 +
-+static inline bool br_vlan_is_enabled_rcu(const struct net_device *dev)
++int nft_flow_route(const struct nft_pktinfo *pkt, const struct nf_conn *ct,
++		   struct nf_flow_route *route, enum ip_conntrack_dir dir,
++		   struct nft_flowtable *ft)
 +{
-+	return false;
++	if (nft_flow_offload_is_bridging(pkt->skb))
++		return nft_flow_route_bridging(pkt, ct, route, dir, ft);
++
++	return nft_flow_route_routing(pkt, ct, route, dir, ft);
 +}
- static inline bool br_mst_enabled(const struct net_device *dev)
- {
- 	return false;
-@@ -209,6 +223,8 @@ void br_fdb_clear_offload(const struct net_device *dev, u16 vid);
- bool br_port_flag_is_set(const struct net_device *dev, unsigned long flag);
- u8 br_port_get_stp_state(const struct net_device *dev);
- clock_t br_get_ageing_time(const struct net_device *br_dev);
-+bool br_fdb_has_forwarding_entry_rcu(const struct net_device *dev,
-+				     const struct sk_buff *skb, const u8 *addr);
- #else
- static inline struct net_device *
- br_fdb_find_port(const struct net_device *br_dev,
-@@ -237,6 +253,13 @@ static inline clock_t br_get_ageing_time(const struct net_device *br_dev)
- {
- 	return 0;
- }
-+
-+static inline bool br_fdb_has_forwarding_entry_rcu(const struct net_device *dev,
-+						   const struct sk_buff *skb,
-+						   const u8 *addr)
-+{
-+	return false;
-+}
- #endif
- 
- #endif
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index e4570bbed854..3161c2689f6a 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -267,6 +267,38 @@ struct net_bridge_fdb_entry *br_fdb_find_rcu(struct net_bridge *br,
- 	return fdb_find_rcu(&br->fdb_hash_tbl, addr, vid);
- }
- 
-+/**
-+ * br_fdb_has_forwarding_entry_rcu - check if a MAC can be forwarded by the bridge
-+ * @dev: bridge port network device
-+ * @skb: packet buffer (used to determine VLAN id)
-+ * @addr: destination MAC address
-+ *
-+ * Resolves the VLAN id for @skb on @dev (skb VLAN tag when present, PVID
-+ * when VLAN filtering is enabled, 0 otherwise) then checks whether the bridge
-+ * FDB contains a forwarding entry (dst != NULL, not a local/self entry) for
-+ * @addr and that VLAN id. Single br_port_get_rcu() lookup.
-+ * Must be called under RCU read lock.
-+ */
-+bool br_fdb_has_forwarding_entry_rcu(const struct net_device *dev,
-+				     const struct sk_buff *skb, const u8 *addr)
-+{
-+	struct net_bridge_port *port = br_port_get_rcu(dev);
-+	struct net_bridge_fdb_entry *fdb;
-+	u16 vid = 0;
-+
-+	if (!port)
-+		return false;
-+	if (br_opt_get(port->br, BROPT_VLAN_ENABLED)) {
-+		if (skb_vlan_tag_present(skb))
-+			vid = skb_vlan_tag_get_id(skb);
-+		else
-+			br_vlan_get_pvid_rcu(dev, &vid);
-+	}
-+	fdb = br_fdb_find_rcu(port->br, addr, vid);
-+	return fdb && fdb->dst;
-+}
-+EXPORT_SYMBOL_GPL(br_fdb_has_forwarding_entry_rcu);
-+
- /* When a static FDB entry is added, the mac address from the entry is
-  * added to the bridge private HW address list and all required ports
-  * are then updated with the new information.
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 5560afcaaca3..0b296362adf7 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -1559,6 +1559,51 @@ int br_vlan_get_info_rcu(const struct net_device *dev, u16 vid,
- }
- EXPORT_SYMBOL_GPL(br_vlan_get_info_rcu);
- 
-+/**
-+ * br_vlan_get_offload_info_rcu - get VLAN id and protocol for bridge flow offload
-+ * @dev: bridge port network device
-+ * @skb: packet buffer
-+ * @proto: output for the bridge VLAN protocol (set only when return value != 0)
-+ *
-+ * When VLAN filtering is enabled, resolves the VLAN id for flow offload (skb
-+ * VLAN tag id if present, PVID otherwise) and writes the bridge VLAN protocol
-+ * to @proto. Returns 0 when filtering is off or @dev is not a bridge port.
-+ * Single br_port_get_rcu() lookup. Must be called under RCU read lock.
-+ */
-+u16 br_vlan_get_offload_info_rcu(const struct net_device *dev,
-+				 const struct sk_buff *skb, __be16 *proto)
-+{
-+	struct net_bridge_port *port = br_port_get_rcu(dev);
-+	u16 vid = 0;
-+
-+	if (!port || !br_opt_get(port->br, BROPT_VLAN_ENABLED))
-+		return 0;
-+	if (skb_vlan_tag_present(skb))
-+		vid = skb_vlan_tag_get_id(skb);
-+	else
-+		br_vlan_get_pvid_rcu(dev, &vid);
-+	if (vid)
-+		*proto = port->br->vlan_proto;
-+	return vid;
-+}
-+EXPORT_SYMBOL_GPL(br_vlan_get_offload_info_rcu);
-+
-+/**
-+ * br_vlan_is_enabled_rcu - check if VLAN filtering is active on a port's bridge
-+ * @dev: bridge port network device
-+ *
-+ * Returns true if VLAN filtering is enabled on the bridge @dev belongs to.
-+ * Returns false when @dev is not a bridge port or filtering is off.
-+ * Must be called under RCU read lock.
-+ */
-+bool br_vlan_is_enabled_rcu(const struct net_device *dev)
-+{
-+	struct net_bridge_port *port = br_port_get_rcu(dev);
-+
-+	return port && br_opt_get(port->br, BROPT_VLAN_ENABLED);
-+}
-+EXPORT_SYMBOL_GPL(br_vlan_is_enabled_rcu);
-+
- static int br_vlan_is_bind_vlan_dev(const struct net_device *dev)
- {
- 	return is_vlan_dev(dev) &&
+ EXPORT_SYMBOL_GPL(nft_flow_route);
 -- 
 2.54.0
 
