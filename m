@@ -1,129 +1,219 @@
-Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C62E392C28
-	for <bridge@lists.linux.dev>; Tue, 30 Jun 2026 20:30:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782851444; cv=none; b=KUYNZL6pWACpMmql+Dip3t9aoWhs8S9nIB/v9Z8sZPO52o3dPzKFURCJWiVfikBkJxIFQiG5CjxXG/cuiKK2viiv3h85FFVkanAkjpMD8I5AXmFs8pcJrL7ujDpvH7RMUhPUYfJwGZjySSgddwLtR3W2DlOPT9N2oApVye9oY4I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782851444; c=relaxed/simple;
-	bh=N7YxzN8QAHzOTRjrqPBYvPuAQvgxClHSYHdMXxAXvDY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nn8YC/itUpHPVDQ+s+LMPyDZK427QIbbxQlcjJ0eKvbaHGRK3LCXnSyfLEzZ8oR4qlfQBXUG8ZwRM55bR8hDxLFHAsq+LEU7Kc82wFSXuHNbCKaYSuFq8fxnZgfDcijmEijv+RtNb0QA5G3Yu1Txgb+Bn6JhmO4BbNoZ4008UH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=G0pLmH91; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=cDYSWU8y; arc=none smtp.client-ip=202.12.124.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4912E39B971
+	for <bridge@lists.linux.dev>; Wed,  1 Jul 2026 06:11:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782886279; cv=pass; b=KJ9Y/tp/dGTh+iCZ2n6IHIhRvsUMCLdf/S3bejW9HLbgccS/i1B8fJKsKFXaSsVzFiMTr6WQCUUJBabWI/j8v2LdOpNRH45txPYTMjB4IxWfTeMcN9OTnUKpHM3afBkiA09QwFutL6wN36oDkkfvo+YUNrwg2ch/aHZTPyYHopk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782886279; c=relaxed/simple;
+	bh=ZxkEpGcaUnz5Szq84cetN2qcBNkJY5vj6Uao31D6ZxY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=c8UhMm51qXHpMcXAj6Fi9iPDtMDRRYpD1sH1vm9l+QpkAe6syO5vGyrMWtFLZAAsfxYJQQGVq62HDFCumeR98LFgihAqJnhS3fSRAS+mR1OPxC/D/XWU04WPcGvPdCvjqhkQBXmm+KUhI1FHNsNf9l3Xjfnwkr0jsdWRtzZ9sb0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U+AFCSxb; arc=pass smtp.client-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="G0pLmH91";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="cDYSWU8y"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.stl.internal (Postfix) with ESMTP id 066D41D000D1;
-	Tue, 30 Jun 2026 16:30:41 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-04.internal (MEProxy); Tue, 30 Jun 2026 16:30:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1782851440;
-	 x=1782937840; bh=bEmKaF/mWTazaoAG0lVKHqHXydq3O35JbDhcIvj/Y1s=; b=
-	G0pLmH91luv2LfAlEWCtnvwi45rkQSIgdfT6ZhTeYKxAnXajUFk59Y24CpB4J/bM
-	glbkvD4tlpIWJvDZr60rHHZk9Lj/VSOl1k+7uPtCi8rYf2lghk4MN/Ot+/dm8wie
-	QhFop1GJiemTG6Je0miK8meBiCCJhzeMw1YGB/9CKsTfy1V+CRP2zTBi4L6vlI4M
-	Q8zTXf+O1rB2HT40n68vP86NxHQnaAMG1/3AhUNqfDEo48XxGFKQnMC6sLdgoH/x
-	9gIg/SYdWAOOGwEGDY0QdZIzCWdcBl+uLDONMxGwRc9TD70uuy/n+uWqKLaJ28hL
-	ZcWUnBoNgivBoazjWuyn1g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1782851440; x=
-	1782937840; bh=bEmKaF/mWTazaoAG0lVKHqHXydq3O35JbDhcIvj/Y1s=; b=c
-	DYSWU8ylgh0WuKDRtcGLwn6Gjyz2ta8z/toNHaPa82aM+tp6KMm8L5hNXB1wGRk7
-	Uv2jelfKrAfuZ4RYFIOh/qP5O6p25l+/+NcQlyYzUhoiFylAT3Prt7LoRRLli4gE
-	6bEgrByGgji1MGInAJlSbCg8ocRJDyoKGXjGQA31T/xOP5PDk+c+rEUwwwtFRt6w
-	NfmBvyl/oTJRWDJYoBmeFiJocFAduNPZy8kwgXCQR0FdJuRMvZo9y2ui75nsFSLm
-	1EVFH0TT3qOJgmfh7MSe8ZM0aygPXmgpr1J48qbie7FIZZc4CwHRHC8i1EnbWjQf
-	NI0DIrwnWe0pdBRPFH6LQ==
-X-ME-Sender: <xms:cCdEalWOd6gI8vOdY_eHTEW9nEGtRKIHJSUoMUvRec6gv139Z7i74A>
-    <xme:cCdEagthl1WpGRxVFFhRjzNQyab9PIlfSvXSeHDS8V5keQBh3rrVQgMuW21RL1qAR
-    LcKqx0Wj0a0wzByuCEctVfgYl9-fbQ5JMRPOfoizhyIFg-s_E4>
-X-ME-Received: <xmr:cCdEanzadQWwTMxECXj7qLzVCpeZOIxOzh3dBeqIUnPH_8jIio4o2oJ0QYKuOZvqOCwckUcBHf-ptcRnmuad5aUotw>
-X-ME-Proxy-Cause: dmFkZTFPbMYa3UrMstpQ+++z9Rr80bW5m1jbp1QicDpHjIwx+Hg/aNNrh2+4yTfzLL1K2x
-    q6A4F9nBbVpBDrsTcObfnTsvxrypUaqvHokBp4l2nwVlXv+sj55LtObgqgh/y3ECIk7uUf
-    w3fZ0h5RiXj6eyyZghkgz04VRntP82R1I5BTQNyObqE9ra/3BlPcUGKFrFzmHQ0/s1e+eB
-    HkuEno4uYofyqpiIo1in0bk+eawNcNaI76TWa8mtHFVM+hGfU3CeVkf/JIhYSXcYyw4M0L
-    XpsVgq4Itd3i80hDKH9VZvnWtTttJCBcXyAKmbAkdQ+pTi4ojWYxJ1CmMaSZ12un22yrMQ
-    4pd9MMPaBHE1xOIpe/GRRQCahRPLnC0P/La7/QtzTpvzlNFrZsY6tFS3XSyasBzdvWeOtR
-    R3AYPJ6vObsMFXiIEKxmSgvnzjzx1absUYpiobe91WWWvC8qlr5pW0BZE9iTqSrxvFBTk8
-    A8QYQzROyb2OtNaPF4aMmoR2tW+lROdnljI+AtK52l2EfTWwKuQ8JM5OSLwd/dj84ihy29
-    uL76uP5n84NtCcwOI2el3ZZ2aQDkDzSU7lGhCQqRiteCMZ9oIZciCAzRlnxOWd3UruGrSp
-    74bCMYO90EPIXQjuMZb2xscogC0IntbOdInaRV8RX66ntb8T3dRSgOXDvnkw
-X-ME-Proxy: <xmx:cCdEajRfXGppUa_e07ysJrmbyREQ1oMkOfuC0n0juNG57Xj8HW2JKQ>
-    <xmx:cCdEah92ffa790esdKPdesa4Us9qGScvgeX6s0nLlLaF2D1Ts9UNIQ>
-    <xmx:cCdEahZzIgeQ4siJCV0UkRRtXs0ugl-j7zw1pXtzwHQV6iVJNbjWyw>
-    <xmx:cCdEaipilOOfsOSMFvcfe1YakMcswhi-Jrez0_w1nt0hxaikRwhsig>
-    <xmx:cCdEaoieTlYX9habJUq2HxbmUPkfQM4YbwP1wcMExVdsSxqJfyEpfmH4>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 30 Jun 2026 16:30:39 -0400 (EDT)
-Date: Tue, 30 Jun 2026 22:29:25 +0200
-From: Greg KH <greg@kroah.com>
-To: Ujjal Roy <royujjal@gmail.com>
-Cc: Sasha Levin <sashal@kernel.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>, David Ahern <dsahern@kernel.org>,
-	Shuah Khan <shuah@kernel.org>, Andy Roulin <aroulin@nvidia.com>,
-	Yong Wang <yongwang@nvidia.com>, Petr Machata <petrm@nvidia.com>,
-	stable@vger.kernel.org, Ujjal Roy <ujjal@alumnux.com>,
-	bridge@lists.linux.dev, Kernel <netdev@vger.kernel.org>,
-	Kernel <linux-kernel@vger.kernel.org>,
-	linux-kselftest@vger.kernel.org
-Subject: Re: Please backport bridge multicast exponential field encoding fix
- series to stable kernels
-Message-ID: <2026063019-crummy-mosaic-d9bb@gregkh>
-References: <CAE2MWknz4X_gcNo6jkR87Lg8F0zfubkOc4Ujr57CS3aBMWrjEA@mail.gmail.com>
- <20260625054005.0016.bridge-mcast@kernel.org>
- <CAE2MWkn=azz3gUKGBYc1jjvVnLxDHuHk9M7wAJHdAW8v=dP5GA@mail.gmail.com>
- <CAE2MWkkON7HuB+Szc1VhaPL8ZTYMAyfzmPM_7FkXvOPnjnF5rQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U+AFCSxb"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c125fbfbae0so28336866b.1
+        for <bridge@lists.linux.dev>; Tue, 30 Jun 2026 23:11:18 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782886277; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ZxGyq0mutjV0EJW3T8voz0xTDg3Lxc2FDTQ05oBrkhFUhO6D0EK3Jy0wKvuk7Od+m4
+         tJ8cDOrRLnMjUbn9TDFNvMLtG6vmSGUh5wkg9zPEv9TSyMT6ZaELUX0FfDKc4sEcJ5NC
+         07hFj8QA4EW47VCBNTPnAYgD0BSASjt72aQl0wb+nSMJccRiT4POTev/YMTzYN0xkJy6
+         Pa8kpMIpGNJmxkyvDgP3oMqRoR2Z3E0ENaiFs/Ia3/B7KjRa2VhiwqmH2SJAwfZ2VJAa
+         l80eQxnWCGhs9h01glpIBIOhYemBP7cS8y8T7L0mefTQlRumHKwQ6r4scOa+RTNYOXwH
+         iwOQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=CWhVhD5eLCMV4lXuEV0ZYaY1wQTvatZLeKGOm+NJE/g=;
+        fh=SW16llvAuPUVbT8ISYUn42YlWXR2vaJ0e0QmyySLrEk=;
+        b=FH3te4YsS7hg9SAyap8tcJfeV2S4D9eT/N/mSM1bifQaZjNSvd4PIVIULo9Rid8wka
+         qNxT1LpaeBZHBTvuFqW6vyu9aDdkl5KcrkGDKGjoZnUhw954eH7bZNNHfSeQta0drisy
+         WwDmC9J7tQrnbRPpMC3ku81gDCgNcZbhqUOyKLa/T+IkxXyftg0ey0BzZtB63ie4Ib8v
+         KFmcUuuEiuqtWc1kA/161OpfWC5VR/PGpVFofvs5ZdAvpq1Iv/01d6pJXAxm24wZYyuZ
+         jta5Kp8NMWyuKHCtxslYcF/F8dktJ8FUHACpFHv/na4EAp2UZqeC6mRWOPu5QfiOhaNp
+         S/dQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782886277; x=1783491077; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CWhVhD5eLCMV4lXuEV0ZYaY1wQTvatZLeKGOm+NJE/g=;
+        b=U+AFCSxb5rEORNuIiga8jMgZgNKG1eDkX6lyR4NaYuxiOv7HFg3ADobXvEc9CHyCwC
+         8Q+beVruJKtAelEa9utSrxm4slnyMEW1P2g2B/dBWu9udXDHiy3toz+cqg5FVsEQJ3kX
+         v09SvU4OzoHjfSWZQUl0WRMHm2eeo4t7d3yWO0K1/hxrSpo2KJrxh1Qnttni4LJCATsW
+         9CU1b/wdBz3lqX7uUAOSdrK27spWv6hsBrOsiZQT5PD32ylMHc6QQ5V8UaACzPL4pvEE
+         ddtDTmFhTeu+wX79hQbxFAu43ZFDQc4ZPExGMCDhO+LiJYP+Fe9BsqVMRev41f5ZwTLM
+         yxXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782886277; x=1783491077;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=CWhVhD5eLCMV4lXuEV0ZYaY1wQTvatZLeKGOm+NJE/g=;
+        b=jentiU2TKMyPsy4l7evbZyWtFbOwf8TvNKWmDzKd2ayh3ub5mE3KbdmRUUJ1ApvdPA
+         PDcxnZZzNV799p0ud5mDrF6ZRHGu3yQaIl2yfNuIdW/WNyRRssjKhHkatlX0taqpd4wT
+         Pa0oVWeAlOa5AIazvtgYPUqhyvuBQOaUwC0fEyge1MMTpWtooAWIyTe4P5TnZ4ODIiiH
+         q6YV+Yb9B7oezwzBQ4uh33e1eIiIc+VeKD+3DlMPVjta/iyLJFH65OI523fOaWRGM5NC
+         dq0lX+HPZWjoBHPpbn+lgGBaK6NnaG/f4wwUXnLWJ4GB/02kbFsvfiJe+ANHJw5+cXLy
+         uCVg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro5shPprl1RGResmGrceRV4x7f/bfJw4mvI3TyApA/VKY8Lk+bZxojVrg6Vt/cqFPGqxnJTr6k=@lists.linux.dev
+X-Gm-Message-State: AOJu0YxXK+OOZpJs4j0+4ZfkMmSBCW1n+hy1q5P17UBbgnOR9bhwl676
+	qdFfYwgXY+IrOLjpNq9YSInRlyth6MOebFllr7fO+OY7/dE89E5Z9TGmELfCb5XhnFnxS1hnRQx
+	+ShGEdaV5vQO9zSlZcyAtanzR+0tVjNM=
+X-Gm-Gg: AfdE7cl06TeTBD6374/cjBWhZ5vBSDF5UEY5OlcmFx4k19oOm7rZJ+gTuexKaPm82Ml
+	0sg0iNdTPTEiKry4fVCivjQyzgp3289hKi2or/JD8od+Nxx32eTwRfPUQcBPxjjIkOTR7G3VGs5
+	yztef2XBBbYgZUlyTFziGYMdepl0q64yaI88jLclna241PFv8GlkGYWW5cVxIRtTNWw5v/qyhjC
+	tKGXpZ6F7xKHOa3WAL6M7HHrsi6PIEX0Emh3xE/cnYyaiNOg9jCOxH89SpJqYmAhLkPKudmRq+K
+	Ju2XUVM=
+X-Received: by 2002:a17:907:3e18:b0:c12:a330:b92b with SMTP id
+ a640c23a62f3a-c12aa14aac6mr6173366b.40.1782886276371; Tue, 30 Jun 2026
+ 23:11:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAE2MWkkON7HuB+Szc1VhaPL8ZTYMAyfzmPM_7FkXvOPnjnF5rQ@mail.gmail.com>
+References: <20260630065735.3341614-1-pawlik.dan@gmail.com> <akOCJI-2kAAwOQzz@chamomile>
+In-Reply-To: <akOCJI-2kAAwOQzz@chamomile>
+From: Daniel Pawlik <pawlik.dan@gmail.com>
+Date: Wed, 1 Jul 2026 08:11:05 +0200
+X-Gm-Features: AVVi8CfA9uhypD8RuUIaiCQhrLk2tdtBO915kC01GwUewd1n6TYEXO1SRl3IXQQ
+Message-ID: <CALC2ApjGZFFPXr4d-r+4VNCpQO1N3Z4NOiBXwYU307jm-626OA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/5] netfilter: nf_flow_table_path: L2 bridge offload
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, 
+	bridge@lists.linux.dev, coreteam@netfilter.org, 
+	linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 01, 2026 at 01:33:07AM +0530, Ujjal Roy wrote:
-> On Thu, Jun 25, 2026 at 8:20 PM Ujjal Roy <royujjal@gmail.com> wrote:
-> >
-> > On Thu, Jun 25, 2026 at 4:12 PM Sasha Levin <sashal@kernel.org> wrote:
-> > >
-> > > > Please backport the 5-patch bridge multicast exponential field
-> > > > encoding series (726fa7da2d8c, 12cfb4ecc471, 95bfd196f0dc,
-> > > > e51560f4220a, 529dbe762de0) to the stable kernels.
-> > >
-> > > I tried, but it doesn't apply to 7.1. Could you provide a backport please?
-> > >
-> > > --
-> > > Thanks,
-> > > Sasha
-> >
-> > I will create patches on top of 7.1. But tell me what about all other
-> > stable releases? I have to create patches to all stables and how to
-> > share the patches to you? Via this email or any other process? I am a
-> > fresh on backporting my changes to all stables.
-> 
-> I have prepared the patches for stable releases mentioned in kernel.org.
-> 
-> And I am waiting for your response so that I can send you the patchset.
+Hi Florian, Pablo,
 
-Please just send the patches :)
+I'll leave it up to you - if `br_netfilter` isn't the right approach
+in this case, then we can drop that series.
+
+Before your reply, I wasn't familiar with Eric Woudstra's
+"bridge-fastpath" series - thanks for the tip.
+I'll take a look at it and try to build on those patches.
+
+Thanks, and best regards,
+Dan
+
+
+wt., 30 cze 2026 o 10:45 Pablo Neira Ayuso <pablo@netfilter.org> napisa=C5=
+=82(a):
+>
+> Hi,
+>
+> On Tue, Jun 30, 2026 at 08:57:30AM +0200, Daniel Pawlik wrote:
+> > This series adds L2 bridge offload support to nft_flow_offload, allowin=
+g
+> > bridged IPv4/IPv6 flows to be accelerated by the flowtable fast path
+> > without requiring L3 routing.
+> >
+> > Background
+> > ----------
+> > Hardware flow offload engines (e.g. MediaTek PPE) can accelerate bridge=
+d
+> > traffic but require that nft_flow_offload detect and handle bridged flo=
+ws
+> > differently from routed ones: no routing table lookup, MAC addresses fr=
+om
+> > the Ethernet header, and VLAN context pre-populated from the bridge por=
+t.
+> >
+> > v2: Fix missing Returns: tags in kernel-doc comments for the three new
+> >     bridge helpers (br_fdb_has_forwarding_entry_rcu,
+> >     br_vlan_get_offload_info_rcu, br_vlan_is_enabled_rcu).
+> >
+> > Patches
+> > -------
+> > 1/5  net: export __dev_fill_forward_path
+> >      Refactors dev_fill_forward_path() to expose __dev_fill_forward_pat=
+h()
+> >      which accepts a caller-supplied net_device_path_ctx, needed to
+> >      pre-populate VLAN state before the forward path walk.
+> >
+> > 2/5  net: bridge: add flow offload helpers
+> >      Adds br_fdb_has_forwarding_entry_rcu(), br_vlan_get_offload_info_r=
+cu()
+> >      and br_vlan_is_enabled_rcu() to expose bridge state to nft_flow_of=
+fload
+> >      without requiring inclusion of net/bridge/br_private.h.
+> >
+> > 3/5  netfilter: nf_flow_table_path: add L2 bridge offload
+> >      Core of the series. Adds nft_flow_offload_is_bridging() detection,
+> >      nft_flow_route_bridging() which avoids nf_route() (fails for
+> >      bridged-only subnets), MAC/VLAN pre-population for bridged flows,
+> >      and a dst leak fix. nft_flow_route() becomes a thin dispatcher.
+> >
+> > 4/5  netfilter: nf_flow_table_path: handle DEV_PATH_MTK_WDMA in path in=
+fo
+> >      Fixes zero-source-MAC in PPE entries when a bridged flow traverses
+> >      MT7996/MT7915 WiFi WDMA hardware.
+> >
+> > 5/5  netfilter: nf_flow_table_path: add VLAN passthrough support
+> >      Records VLAN encap info for passthrough-mode bridge ports so hardw=
+are
+> >      offload entries include the correct VLAN tag.
+> >
+> > Rebase note
+> > -----------
+> > Originally developed against OpenWrt pending-6.18 patches by Ryan Chen
+> > <rchen14b@gmail.com> and Bo-Cun Chen <bc-bocun.chen@mediatek.com>.
+> > Rebased to current upstream: path discovery infrastructure moved to
+> > nf_flow_table_path.c in commit 93d7a7ed0734 ("netfilter: flowtable: mov=
+e
+> > path discovery infrastructure to its own file"), so all netfilter chang=
+es
+> > now land in that file rather than nft_flow_offload.c.
+> >
+> > How to enable bridge offload
+> > -----------------------------
+> > 1. Load kmod-br-netfilter so that bridged IP traffic traverses the
+> >    netfilter forward chain.
+> >
+> > 2. Enable netfilter hooks on the bridge:
+> >      echo 1 > /sys/class/net/<br>/bridge/nf_call_iptables
+> >      echo 1 > /sys/class/net/<br>/bridge/nf_call_ip6tables
+>
+> This requires br_netfilter which is a no go.
+>
+> Sorry, but we should really target at the native nf_conntrack_bridge
+> support.
+>
+> > 3. Register bridge member interfaces in the nft flowtable:
+> >      table inet filter {
+> >          flowtable f {
+> >              hook ingress priority filter
+> >              devices =3D { eth0, wlan0 }
+> >          }
+> >          chain forward {
+> >              type filter hook forward priority filter
+> >              meta l4proto { tcp, udp } flow add @f
+> >          }
+> >      }
+>
+> Yes, but br_netfilter makes no sense for nftables.
+>
+> br_netfilter was made to fill gap at the time ebtables was lagging a
+> lot behind iptables in terms of features. And getting ebtables on pair
+> with iptables in functionality was not feasible either, because it
+> required many new extensions that were specific of the bridge family,
+> which probably was not a big deal, but it also required to get
+> the ebtables command line tool on pair with iptables userspace, which
+> has received more development attention/effort that the bridge tool.
+>
+> All of this does not stand true anymore with nftables, where the
+> bridge family capabilities are at pair with the inet families.
+>
+> I am looking now at the native flowtable bridge support, I will get
+> back to you with updates.
