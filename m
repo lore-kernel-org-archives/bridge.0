@@ -1,219 +1,988 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us.padl.com (us.padl.com [216.154.215.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4912E39B971
-	for <bridge@lists.linux.dev>; Wed,  1 Jul 2026 06:11:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782886279; cv=pass; b=KJ9Y/tp/dGTh+iCZ2n6IHIhRvsUMCLdf/S3bejW9HLbgccS/i1B8fJKsKFXaSsVzFiMTr6WQCUUJBabWI/j8v2LdOpNRH45txPYTMjB4IxWfTeMcN9OTnUKpHM3afBkiA09QwFutL6wN36oDkkfvo+YUNrwg2ch/aHZTPyYHopk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782886279; c=relaxed/simple;
-	bh=ZxkEpGcaUnz5Szq84cetN2qcBNkJY5vj6Uao31D6ZxY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=c8UhMm51qXHpMcXAj6Fi9iPDtMDRRYpD1sH1vm9l+QpkAe6syO5vGyrMWtFLZAAsfxYJQQGVq62HDFCumeR98LFgihAqJnhS3fSRAS+mR1OPxC/D/XWU04WPcGvPdCvjqhkQBXmm+KUhI1FHNsNf9l3Xjfnwkr0jsdWRtzZ9sb0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U+AFCSxb; arc=pass smtp.client-ip=209.85.218.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C77FE384235
+	for <bridge@lists.linux.dev>; Fri,  3 Jul 2026 06:45:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.154.215.154
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783061116; cv=none; b=hIhRpo2RsgxxJdUpfVBaIBdNx3DajKyQjGDC/BhzWi8YxouVbXwr1rZ6LdmuG8pI9Z54Zp58vO33Cji4zB93OY46f6MWMGv3K8RduakrqZlo+KVRgKUrzsnUx8SXyNAyZamtwwcpx60dra6qw5BRcGxsCun/oGHYB4nNG2TjBf4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783061116; c=relaxed/simple;
+	bh=lwrptk61eAtrVkqQO8Dilra0XURHlkaSjTium5iKlQA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=nKnWC52qoTKs3ArJHAG2vPZyP85akhUQ+tflmCQP53wgIfOlJaWPbPbCizrgvrCQFlq7q5MY+DrXyspqcXrI8Gg5yKDlJwY4RCMr/vcfUGbg0AtN5TGhHQGI58lhyQ+7721VtWfdtlgmIbeZ+ZC8Jq2f5z8co06w1REWjxwr6ms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com; spf=pass smtp.mailfrom=padl.com; dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b=kG2n7bl+; arc=none smtp.client-ip=216.154.215.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=padl.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=padl.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U+AFCSxb"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c125fbfbae0so28336866b.1
-        for <bridge@lists.linux.dev>; Tue, 30 Jun 2026 23:11:18 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782886277; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ZxGyq0mutjV0EJW3T8voz0xTDg3Lxc2FDTQ05oBrkhFUhO6D0EK3Jy0wKvuk7Od+m4
-         tJ8cDOrRLnMjUbn9TDFNvMLtG6vmSGUh5wkg9zPEv9TSyMT6ZaELUX0FfDKc4sEcJ5NC
-         07hFj8QA4EW47VCBNTPnAYgD0BSASjt72aQl0wb+nSMJccRiT4POTev/YMTzYN0xkJy6
-         Pa8kpMIpGNJmxkyvDgP3oMqRoR2Z3E0ENaiFs/Ia3/B7KjRa2VhiwqmH2SJAwfZ2VJAa
-         l80eQxnWCGhs9h01glpIBIOhYemBP7cS8y8T7L0mefTQlRumHKwQ6r4scOa+RTNYOXwH
-         iwOQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=CWhVhD5eLCMV4lXuEV0ZYaY1wQTvatZLeKGOm+NJE/g=;
-        fh=SW16llvAuPUVbT8ISYUn42YlWXR2vaJ0e0QmyySLrEk=;
-        b=FH3te4YsS7hg9SAyap8tcJfeV2S4D9eT/N/mSM1bifQaZjNSvd4PIVIULo9Rid8wka
-         qNxT1LpaeBZHBTvuFqW6vyu9aDdkl5KcrkGDKGjoZnUhw954eH7bZNNHfSeQta0drisy
-         WwDmC9J7tQrnbRPpMC3ku81gDCgNcZbhqUOyKLa/T+IkxXyftg0ey0BzZtB63ie4Ib8v
-         KFmcUuuEiuqtWc1kA/161OpfWC5VR/PGpVFofvs5ZdAvpq1Iv/01d6pJXAxm24wZYyuZ
-         jta5Kp8NMWyuKHCtxslYcF/F8dktJ8FUHACpFHv/na4EAp2UZqeC6mRWOPu5QfiOhaNp
-         S/dQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782886277; x=1783491077; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CWhVhD5eLCMV4lXuEV0ZYaY1wQTvatZLeKGOm+NJE/g=;
-        b=U+AFCSxb5rEORNuIiga8jMgZgNKG1eDkX6lyR4NaYuxiOv7HFg3ADobXvEc9CHyCwC
-         8Q+beVruJKtAelEa9utSrxm4slnyMEW1P2g2B/dBWu9udXDHiy3toz+cqg5FVsEQJ3kX
-         v09SvU4OzoHjfSWZQUl0WRMHm2eeo4t7d3yWO0K1/hxrSpo2KJrxh1Qnttni4LJCATsW
-         9CU1b/wdBz3lqX7uUAOSdrK27spWv6hsBrOsiZQT5PD32ylMHc6QQ5V8UaACzPL4pvEE
-         ddtDTmFhTeu+wX79hQbxFAu43ZFDQc4ZPExGMCDhO+LiJYP+Fe9BsqVMRev41f5ZwTLM
-         yxXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782886277; x=1783491077;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=CWhVhD5eLCMV4lXuEV0ZYaY1wQTvatZLeKGOm+NJE/g=;
-        b=jentiU2TKMyPsy4l7evbZyWtFbOwf8TvNKWmDzKd2ayh3ub5mE3KbdmRUUJ1ApvdPA
-         PDcxnZZzNV799p0ud5mDrF6ZRHGu3yQaIl2yfNuIdW/WNyRRssjKhHkatlX0taqpd4wT
-         Pa0oVWeAlOa5AIazvtgYPUqhyvuBQOaUwC0fEyge1MMTpWtooAWIyTe4P5TnZ4ODIiiH
-         q6YV+Yb9B7oezwzBQ4uh33e1eIiIc+VeKD+3DlMPVjta/iyLJFH65OI523fOaWRGM5NC
-         dq0lX+HPZWjoBHPpbn+lgGBaK6NnaG/f4wwUXnLWJ4GB/02kbFsvfiJe+ANHJw5+cXLy
-         uCVg==
-X-Forwarded-Encrypted: i=1; AHgh+Ro5shPprl1RGResmGrceRV4x7f/bfJw4mvI3TyApA/VKY8Lk+bZxojVrg6Vt/cqFPGqxnJTr6k=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXK+OOZpJs4j0+4ZfkMmSBCW1n+hy1q5P17UBbgnOR9bhwl676
-	qdFfYwgXY+IrOLjpNq9YSInRlyth6MOebFllr7fO+OY7/dE89E5Z9TGmELfCb5XhnFnxS1hnRQx
-	+ShGEdaV5vQO9zSlZcyAtanzR+0tVjNM=
-X-Gm-Gg: AfdE7cl06TeTBD6374/cjBWhZ5vBSDF5UEY5OlcmFx4k19oOm7rZJ+gTuexKaPm82Ml
-	0sg0iNdTPTEiKry4fVCivjQyzgp3289hKi2or/JD8od+Nxx32eTwRfPUQcBPxjjIkOTR7G3VGs5
-	yztef2XBBbYgZUlyTFziGYMdepl0q64yaI88jLclna241PFv8GlkGYWW5cVxIRtTNWw5v/qyhjC
-	tKGXpZ6F7xKHOa3WAL6M7HHrsi6PIEX0Emh3xE/cnYyaiNOg9jCOxH89SpJqYmAhLkPKudmRq+K
-	Ju2XUVM=
-X-Received: by 2002:a17:907:3e18:b0:c12:a330:b92b with SMTP id
- a640c23a62f3a-c12aa14aac6mr6173366b.40.1782886276371; Tue, 30 Jun 2026
- 23:11:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=padl.com header.i=@padl.com header.b="kG2n7bl+"
+Received: from [127.0.1.1] (border.lukktone.com [139.130.100.52])
+	by us.padl.com (Postfix) with ESMTPSA id 289CF60C1E;
+	Fri,  3 Jul 2026 02:45:03 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=padl.com; s=default;
+	t=1783061109; bh=OaeVtkVlVtO1zKd5ayjjIrU+PxbPdAvQFY6WtnU9EbI=;
+	h=From:Date:Subject:To:Cc:From;
+	b=kG2n7bl+pswtS48fRmuRa3vOsFQgeckWL90lY2mAGD1s1nZVb9C5ch4HtIFVcRDN4
+	 DkhScAv/uE5i+JdeHrbJ6upsvpZWrYJAnYwsMikg6Yzy57vue5UJVA7QajHOIZtmx9
+	 TwIubIkAmWI2O0d4pJK7clS7WFG0J3NvVah61pzZucXa0xpXd5m2U7Jw1x6OUAGh97
+	 BejUWki2ivmEvKf/e606g7X8rSbv4xYEJLuU6P6rDUUTjOzMvA8zDffu3RtyMoNB5M
+	 1rYgkJWl3IIUGB4vN1/B65GVFYCVdzZNzMY9UxGEAMmvAt79B3BLGerPvA84JLbRJ9
+	 TpkroXUSobj2A==
+From: Luke Howard <lukeh@padl.com>
+Date: Fri, 03 Jul 2026 16:44:54 +1000
+Subject: [PATCH RFC net-next v3] net: dsa: mv88e6xxx: MQPRIO support
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260630065735.3341614-1-pawlik.dan@gmail.com> <akOCJI-2kAAwOQzz@chamomile>
-In-Reply-To: <akOCJI-2kAAwOQzz@chamomile>
-From: Daniel Pawlik <pawlik.dan@gmail.com>
-Date: Wed, 1 Jul 2026 08:11:05 +0200
-X-Gm-Features: AVVi8CfA9uhypD8RuUIaiCQhrLk2tdtBO915kC01GwUewd1n6TYEXO1SRl3IXQQ
-Message-ID: <CALC2ApjGZFFPXr4d-r+4VNCpQO1N3Z4NOiBXwYU307jm-626OA@mail.gmail.com>
-Subject: Re: [PATCH v2 0/5] netfilter: nf_flow_table_path: L2 bridge offload
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: netfilter-devel@vger.kernel.org, netdev@vger.kernel.org, 
-	bridge@lists.linux.dev, coreteam@netfilter.org, 
-	linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260703-mv88e6xxx-8021qat-mqprio-v3-1-5b94f5e9fed5@padl.com>
+X-B4-Tracking: v=1; b=H4sIAGlaR2oC/4WQy04DIRSGX6VhLRPuzMzKxMQHcGtcAD3Top1Lg
+ ZIxTd9ditV0YeLykPMdvv8/owjBQ0T95owCZB/9PJWBP2yQ25tpB9hvy4wYYYoowvCY2xbUuq6
+ 4JYweTcLjcQl+xkINTii11QQoKvgSYPBrPf2KXp6frm8TJDzBmtDb90I82Xdw6frBDQlwPBWJd
+ ON+HfpNNRCc4J8jdyrORswoo1R1zhjV9lmj+wQ3WhH+F724BdcIUktWeN0xZftcU1gTAbt5HH0
+ qrRhrgRPGqRB0oIO1nBMJXSuFk8pwoSQxg+Q13t7HNIfP2mxmNc3/JWaGCdbMAhWSMdDucTHbQ
+ 1ME6s3iVFuZM4SGat21gkpOmp1PzeH0Afu79cvl8gWc+HZK3gEAAA==
+X-Change-ID: 20260602-mv88e6xxx-8021qat-mqprio-46fc466d70e1
+To: Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>, 
+ Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+ David Ahern <dsahern@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+ Andrew Lunn <andrew@lunn.ch>, Vladimir Oltean <olteanv@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ bridge@lists.linux.dev, linux-kselftest@vger.kernel.org, 
+ Cedric Jehasse <cedric.jehasse@gmail.com>, Max Hunter <max@huntershome.org>, 
+ Kieran Tyrrell <kieran@sienda.com>, Simon Gapp <simon.gapp@gapp-audio.com>, 
+ Max Holtmann <mh@rme-audio.de>, 
+ Christoph Mellauner <christoph.mellauner@joyned.at>, 
+ Luke Howard <lukeh@padl.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1783061103; l=31374;
+ i=lukeh@padl.com; s=20260701; h=from:subject:message-id;
+ bh=lwrptk61eAtrVkqQO8Dilra0XURHlkaSjTium5iKlQA=;
+ b=bFiTbcvktFlR3CTnGNJx9YfOl4rkecmDUGSQ0AqsNPeeTfAu6tmmKfKnnuhy3jgRp53Xsegp6
+ f7gk9tYEmfQAkT23cO+LU+9KSy/s78K1fuQM3PJ3vZVYVktj3wfTI0k
+X-Developer-Key: i=lukeh@padl.com; a=ed25519;
+ pk=D6YgUnH9/OzSZsduYm9XDbvXn1IHDwKwI1hLTsKNRLw=
 
-Hi Florian, Pablo,
+Add MQPRIO traffic class offload for the Marvell 6352 and 6390 families
+of switches.
 
-I'll leave it up to you - if `br_netfilter` isn't the right approach
-in this case, then we can drop that series.
+Three traffic classes are supported: legacy (TC0), low (TC1) and high
+(TC2), corresponding to non-AVB, AVB Class B and AVB Class A traffic.
+A single Ethernet frame priority may be mapped to each AVB class.
 
-Before your reply, I wasn't familiar with Eric Woudstra's
-"bridge-fastpath" series - thanks for the tip.
-I'll take a look at it and try to build on those patches.
+As the policy is per-switch, HW offload can only be enabled across
+multiple ports if the policy matches. This is similar to configuration
+of DCB ingress priority mappings on switches that only support global
+configuration. Attempts to configure a different policy on an additional
+port will return -EEXIST.
 
-Thanks, and best regards,
-Dan
+Signed-off-by: Luke Howard <lukeh@padl.com>
+---
+This patch series introduces support for using MQPRIO to configure
+egress queues, using the AVB frame priority to queue mapping which
+is supported by some Marvell switches.
 
+It does configure the isochronous pointer reservation and enable
+the standard AVB mode on all ports. The former potentially belongs
+in a local patch: discussion is welcome. For this reason, and also
+Jakub's comments about technical debt [1], I have demoted this to
+a RFC.
 
-wt., 30 cze 2026 o 10:45 Pablo Neira Ayuso <pablo@netfilter.org> napisa=C5=
-=82(a):
->
-> Hi,
->
-> On Tue, Jun 30, 2026 at 08:57:30AM +0200, Daniel Pawlik wrote:
-> > This series adds L2 bridge offload support to nft_flow_offload, allowin=
-g
-> > bridged IPv4/IPv6 flows to be accelerated by the flowtable fast path
-> > without requiring L3 routing.
-> >
-> > Background
-> > ----------
-> > Hardware flow offload engines (e.g. MediaTek PPE) can accelerate bridge=
-d
-> > traffic but require that nft_flow_offload detect and handle bridged flo=
-ws
-> > differently from routed ones: no routing table lookup, MAC addresses fr=
-om
-> > the Ethernet header, and VLAN context pre-populated from the bridge por=
-t.
-> >
-> > v2: Fix missing Returns: tags in kernel-doc comments for the three new
-> >     bridge helpers (br_fdb_has_forwarding_entry_rcu,
-> >     br_vlan_get_offload_info_rcu, br_vlan_is_enabled_rcu).
-> >
-> > Patches
-> > -------
-> > 1/5  net: export __dev_fill_forward_path
-> >      Refactors dev_fill_forward_path() to expose __dev_fill_forward_pat=
-h()
-> >      which accepts a caller-supplied net_device_path_ctx, needed to
-> >      pre-populate VLAN state before the forward path walk.
-> >
-> > 2/5  net: bridge: add flow offload helpers
-> >      Adds br_fdb_has_forwarding_entry_rcu(), br_vlan_get_offload_info_r=
-cu()
-> >      and br_vlan_is_enabled_rcu() to expose bridge state to nft_flow_of=
-fload
-> >      without requiring inclusion of net/bridge/br_private.h.
-> >
-> > 3/5  netfilter: nf_flow_table_path: add L2 bridge offload
-> >      Core of the series. Adds nft_flow_offload_is_bridging() detection,
-> >      nft_flow_route_bridging() which avoids nf_route() (fails for
-> >      bridged-only subnets), MAC/VLAN pre-population for bridged flows,
-> >      and a dst leak fix. nft_flow_route() becomes a thin dispatcher.
-> >
-> > 4/5  netfilter: nf_flow_table_path: handle DEV_PATH_MTK_WDMA in path in=
-fo
-> >      Fixes zero-source-MAC in PPE entries when a bridged flow traverses
-> >      MT7996/MT7915 WiFi WDMA hardware.
-> >
-> > 5/5  netfilter: nf_flow_table_path: add VLAN passthrough support
-> >      Records VLAN encap info for passthrough-mode bridge ports so hardw=
-are
-> >      offload entries include the correct VLAN tag.
-> >
-> > Rebase note
-> > -----------
-> > Originally developed against OpenWrt pending-6.18 patches by Ryan Chen
-> > <rchen14b@gmail.com> and Bo-Cun Chen <bc-bocun.chen@mediatek.com>.
-> > Rebased to current upstream: path discovery infrastructure moved to
-> > nf_flow_table_path.c in commit 93d7a7ed0734 ("netfilter: flowtable: mov=
-e
-> > path discovery infrastructure to its own file"), so all netfilter chang=
-es
-> > now land in that file rather than nft_flow_offload.c.
-> >
-> > How to enable bridge offload
-> > -----------------------------
-> > 1. Load kmod-br-netfilter so that bridged IP traffic traverses the
-> >    netfilter forward chain.
-> >
-> > 2. Enable netfilter hooks on the bridge:
-> >      echo 1 > /sys/class/net/<br>/bridge/nf_call_iptables
-> >      echo 1 > /sys/class/net/<br>/bridge/nf_call_ip6tables
->
-> This requires br_netfilter which is a no go.
->
-> Sorry, but we should really target at the native nf_conntrack_bridge
-> support.
->
-> > 3. Register bridge member interfaces in the nft flowtable:
-> >      table inet filter {
-> >          flowtable f {
-> >              hook ingress priority filter
-> >              devices =3D { eth0, wlan0 }
-> >          }
-> >          chain forward {
-> >              type filter hook forward priority filter
-> >              meta l4proto { tcp, udp } flow add @f
-> >          }
-> >      }
->
-> Yes, but br_netfilter makes no sense for nftables.
->
-> br_netfilter was made to fill gap at the time ebtables was lagging a
-> lot behind iptables in terms of features. And getting ebtables on pair
-> with iptables in functionality was not feasible either, because it
-> required many new extensions that were specific of the bridge family,
-> which probably was not a big deal, but it also required to get
-> the ebtables command line tool on pair with iptables userspace, which
-> has received more development attention/effort that the bridge tool.
->
-> All of this does not stand true anymore with nftables, where the
-> bridge family capabilities are at pair with the inet families.
->
-> I am looking now at the native flowtable bridge support, I will get
-> back to you with updates.
+This is the only way to configure priority to queue mappings on
+egress on Marvell switches (their configuration of _ingress_ mappings
+is more flexible and, on the 6390, is supported per-port). Egress
+queues can be set in TCAM entries, but my understanding is that
+tc-flower offloading can only specify priority, not queue, mappings.
+
+We are using it in conjunction with the since rejected support for
+802.1Q Dynamic Reservation Entries to implement hardware offloaded
+AVB (802.1BA) bridging. The Dynamic Reservation Entry extension to
+the FDB could potentially be implemented using tc-flower in a manner
+acceptable to upstream; I do not have the resources to investigate
+this at this time.
+
+[1] https://lore.kernel.org/all/20260615095112.1dca0977@kernel.org/
+---
+Changes in v3:
+- dropped support for Dynamic Resevation Entries in the MDB. Although
+  these are defined in the 802.1Q specification, it seemed unlikely that
+  the Linux bridge would accept this change. I maintain the old patches
+  at https://github.com/PADL/linux/tree/b4/mv88e6xxx-8021qat-mqprio.
+- Link to v2: https://patch.msgid.link/20260602-mv88e6xxx-8021qat-mqprio-v2-0-72be14522e7c@padl.com
+
+Changes in v2:
+- dropped CBS implementation (this is provided separately by Cedric
+  Jehasse's patch series, and is required for its definition of
+  num_tx_queues and qav_info)
+- added MQPRIO channel support
+- admission control is configured using a bridge port flag rather than
+  a device tree entry
+- software bridge support for admission control
+- Link to v1: https://lore.kernel.org/all/cover.1779841530.git.lukeh@padl.com/
+
+To: Andrew Lunn <andrew@lunn.ch>
+To: Vladimir Oltean <olteanv@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>
+To: Eric Dumazet <edumazet@google.com>
+To: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org
+---
+ drivers/net/dsa/mv88e6xxx/Makefile      |   3 +-
+ drivers/net/dsa/mv88e6xxx/avb.c         | 189 +++++++++++++++++++++++++++++
+ drivers/net/dsa/mv88e6xxx/avb.h         |  67 ++++++++++
+ drivers/net/dsa/mv88e6xxx/chip.c        | 208 ++++++++++++++++++++++++++++++++
+ drivers/net/dsa/mv88e6xxx/chip.h        |  45 +++++++
+ drivers/net/dsa/mv88e6xxx/global1.h     |   1 +
+ drivers/net/dsa/mv88e6xxx/global2.h     |   2 +
+ drivers/net/dsa/mv88e6xxx/global2_avb.c | 121 +++++++++++++++++++
+ 8 files changed, 635 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/dsa/mv88e6xxx/Makefile b/drivers/net/dsa/mv88e6xxx/Makefile
+index b0b08c6f159c6..6123b431e255e 100644
+--- a/drivers/net/dsa/mv88e6xxx/Makefile
++++ b/drivers/net/dsa/mv88e6xxx/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ obj-$(CONFIG_NET_DSA_MV88E6XXX) += mv88e6xxx.o
+-mv88e6xxx-objs := chip.o
++mv88e6xxx-objs := avb.o
++mv88e6xxx-objs += chip.o
+ mv88e6xxx-objs += devlink.o
+ mv88e6xxx-objs += global1.o
+ mv88e6xxx-objs += global1_atu.o
+diff --git a/drivers/net/dsa/mv88e6xxx/avb.c b/drivers/net/dsa/mv88e6xxx/avb.c
+new file mode 100644
+index 0000000000000..f02aa8a4ad458
+--- /dev/null
++++ b/drivers/net/dsa/mv88e6xxx/avb.c
+@@ -0,0 +1,189 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Marvell 88E6xxx Switch AVB support
++ *
++ * Copyright (c) 2024-2026 PADL Software Pty Ltd
++ */
++
++#include "avb.h"
++#include "chip.h"
++#include "global1.h"
++#include "global2.h"
++#include "port.h"
++
++static int mv88e6xxx_qav_read(struct mv88e6xxx_chip *chip, int addr,
++			      u16 *data, int len)
++{
++	if (!chip->info->ops->avb_ops->qav_read)
++		return -EOPNOTSUPP;
++
++	return chip->info->ops->avb_ops->qav_read(chip, addr, data, len);
++}
++
++static int mv88e6xxx_qav_write(struct mv88e6xxx_chip *chip, int addr, u16 data)
++{
++	if (!chip->info->ops->avb_ops->qav_write)
++		return -EOPNOTSUPP;
++
++	return chip->info->ops->avb_ops->qav_write(chip, addr, data);
++}
++
++static int mv88e6xxx_avb_write(struct mv88e6xxx_chip *chip, int addr, u16 data)
++{
++	if (!chip->info->ops->avb_ops->avb_write)
++		return -EOPNOTSUPP;
++
++	return chip->info->ops->avb_ops->avb_write(chip, addr, data);
++}
++
++static int mv88e6xxx_port_avb_read(struct mv88e6xxx_chip *chip, int port,
++				   int addr, u16 *data, int len)
++{
++	if (!chip->info->ops->avb_ops->port_avb_read)
++		return -EOPNOTSUPP;
++
++	return chip->info->ops->avb_ops->port_avb_read(chip, port, addr,
++						       data, len);
++}
++
++static int mv88e6xxx_port_avb_write(struct mv88e6xxx_chip *chip, int port,
++				    int addr, u16 data)
++{
++	if (!chip->info->ops->avb_ops->port_avb_write)
++		return -EOPNOTSUPP;
++
++	return chip->info->ops->avb_ops->port_avb_write(chip, port, addr, data);
++}
++
++static int mv88e6xxx_qav_set_iso_ptr(struct mv88e6xxx_chip *chip, u16 threshold)
++{
++	u16 data;
++	int err;
++
++	err = mv88e6xxx_qav_read(chip, MV88E6XXX_QAV_CFG, &data, 1);
++	if (err)
++		return err;
++
++	data &= ~(MV88E6XXX_QAV_CFG_GLOBAL_ISO_PTR_MASK);
++	data |= MV88E6XXX_QAV_CFG_GLOBAL_ISO_PTR_SET(threshold);
++
++	return mv88e6xxx_qav_write(chip, MV88E6XXX_QAV_CFG, data);
++}
++
++static int mv88e6xxx_avb_set_port_avb_mode(struct mv88e6xxx_chip *chip,
++					   int port, u16 avb_mode)
++{
++	u16 data;
++	int err;
++
++	err = mv88e6xxx_port_avb_read(chip, port, MV88E6XXX_PORT_AVB_CFG,
++				      &data, 1);
++	if (err)
++		return err;
++
++	data &= ~(MV88E6XXX_PORT_AVB_CFG_AVB_MODE |
++		  MV88E6XXX_PORT_AVB_CFG_AVB_OVERRIDE |
++		  MV88E6XXX_PORT_AVB_CFG_AVB_TUNNEL);
++
++	data |= avb_mode & MV88E6XXX_PORT_AVB_CFG_AVB_MODE;
++	data |= MV88E6XXX_PORT_AVB_CFG_AVB_FILTER_BAD_AVB;
++
++	return mv88e6xxx_port_avb_write(chip, port, MV88E6XXX_PORT_AVB_CFG, data);
++}
++
++static u8 mv88e6xxx_mqprio_tc_fpri(const struct tc_mqprio_qopt *qopt, int tc)
++{
++	u8 fpri;
++
++	for (fpri = 0; fpri < IEEE_8021Q_MAX_PRIORITIES; fpri++)
++		if (qopt->prio_tc_map[fpri] == tc)
++			return fpri;
++
++	return 0;
++}
++
++u16 mv88e6xxx_avb_pri_map_to_reg(const struct tc_mqprio_qopt *qopt)
++{
++	u8 hi_fpri = mv88e6xxx_mqprio_tc_fpri(qopt, MV88E6XXX_AVB_TC_HI);
++	u8 lo_fpri = mv88e6xxx_mqprio_tc_fpri(qopt, MV88E6XXX_AVB_TC_LO);
++	u8 hi_qpri = qopt->offset[MV88E6XXX_AVB_TC_HI];
++	u8 lo_qpri = qopt->offset[MV88E6XXX_AVB_TC_LO];
++
++	return MV88E6XXX_AVB_CFG_AVB_HI_FPRI_SET(hi_fpri) |
++	       MV88E6XXX_AVB_CFG_AVB_HI_QPRI_SET(hi_qpri) |
++	       MV88E6XXX_AVB_CFG_AVB_LO_FPRI_SET(lo_fpri) |
++	       MV88E6XXX_AVB_CFG_AVB_LO_QPRI_SET(lo_qpri);
++}
++
++int mv88e6xxx_avb_enable(struct mv88e6xxx_chip *chip,
++			 struct tc_mqprio_qopt_offload *mqprio)
++{
++	const struct mv88e6xxx_qav_info *qav = chip->info->qav;
++	int err, port;
++
++	if (!qav)
++		return -EOPNOTSUPP;
++
++	/* Reserve 64 (1 << 6) isochronous pointers per port for the AVB queues. */
++	err = mv88e6xxx_qav_set_iso_ptr(chip, mv88e6xxx_num_ports(chip) << 6);
++	if (err)
++		return err;
++
++	err = mv88e6xxx_avb_write(chip, MV88E6XXX_AVB_CFG_AVB,
++				  mv88e6xxx_avb_pri_map_to_reg(&mqprio->qopt));
++	if (err)
++		goto err_iso_ptr;
++
++	for (port = 0; port < mv88e6xxx_num_ports(chip); port++) {
++		if (!dsa_is_user_port(chip->ds, port))
++			continue;
++
++		err = mv88e6xxx_avb_set_port_avb_mode(chip, port,
++						      MV88E6XXX_PORT_AVB_CFG_AVB_MODE_STANDARD);
++		if (err)
++			goto err_port_mode;
++	}
++
++	return 0;
++
++err_port_mode:
++	while (--port >= 0) {
++		if (!dsa_is_user_port(chip->ds, port))
++			continue;
++
++		mv88e6xxx_avb_set_port_avb_mode(chip, port,
++						MV88E6XXX_PORT_AVB_CFG_AVB_MODE_LEGACY);
++	}
++	mv88e6xxx_avb_write(chip, MV88E6XXX_AVB_CFG_AVB, qav->avb_pri_map);
++err_iso_ptr:
++	mv88e6xxx_qav_set_iso_ptr(chip, 0);
++
++	return err;
++}
++
++int mv88e6xxx_avb_disable(struct mv88e6xxx_chip *chip)
++{
++	const struct mv88e6xxx_qav_info *qav = chip->info->qav;
++	int err, port;
++
++	if (!qav)
++		return -EOPNOTSUPP;
++
++	/* Return every user port to legacy. */
++	for (port = 0; port < mv88e6xxx_num_ports(chip); port++) {
++		if (!dsa_is_user_port(chip->ds, port))
++			continue;
++
++		err = mv88e6xxx_avb_set_port_avb_mode(chip, port,
++						      MV88E6XXX_PORT_AVB_CFG_AVB_MODE_LEGACY);
++		if (err)
++			return err;
++	}
++
++	err = mv88e6xxx_avb_write(chip, MV88E6XXX_AVB_CFG_AVB, qav->avb_pri_map);
++	if (err)
++		return err;
++
++	return mv88e6xxx_qav_set_iso_ptr(chip, 0);
++}
++
+diff --git a/drivers/net/dsa/mv88e6xxx/avb.h b/drivers/net/dsa/mv88e6xxx/avb.h
+new file mode 100644
+index 0000000000000..f231824d4eac7
+--- /dev/null
++++ b/drivers/net/dsa/mv88e6xxx/avb.h
+@@ -0,0 +1,67 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Marvell 88E6xxx Switch AVB support
++ *
++ * Copyright (c) 2024-2026 PADL Software Pty Ltd
++ */
++
++#ifndef _MV88E6XXX_AVB_H
++#define _MV88E6XXX_AVB_H
++
++#include "chip.h"
++
++/* Global AVB registers */
++
++/* Offset 0x00: AVB Global Config */
++
++#define MV88E6XXX_AVB_CFG_AVB			0x00
++
++#define MV88E6XXX_AVB_CFG_AVB_HI_FPRI_MASK	GENMASK(14, 12)
++#define MV88E6XXX_AVB_CFG_AVB_HI_FPRI_SET(p)	FIELD_PREP(MV88E6XXX_AVB_CFG_AVB_HI_FPRI_MASK, p)
++#define MV88E6XXX_AVB_CFG_AVB_HI_FPRI_GET(x)	FIELD_GET(MV88E6XXX_AVB_CFG_AVB_HI_FPRI_MASK, x)
++
++#define MV88E6XXX_AVB_CFG_AVB_LO_FPRI_MASK	GENMASK(6, 4)
++#define MV88E6XXX_AVB_CFG_AVB_LO_FPRI_SET(p)	FIELD_PREP(MV88E6XXX_AVB_CFG_AVB_LO_FPRI_MASK, p)
++#define MV88E6XXX_AVB_CFG_AVB_LO_FPRI_GET(x)	FIELD_GET(MV88E6XXX_AVB_CFG_AVB_LO_FPRI_MASK, x)
++
++#define MV88E6XXX_AVB_CFG_AVB_HI_QPRI_MASK	GENMASK(10, 8)
++#define MV88E6XXX_AVB_CFG_AVB_HI_QPRI_SET(p)	FIELD_PREP(MV88E6XXX_AVB_CFG_AVB_HI_QPRI_MASK, p)
++
++#define MV88E6XXX_AVB_CFG_AVB_LO_QPRI_MASK	GENMASK(2, 0)
++#define MV88E6XXX_AVB_CFG_AVB_LO_QPRI_SET(p)	FIELD_PREP(MV88E6XXX_AVB_CFG_AVB_LO_QPRI_MASK, p)
++
++/* Global Qav registers */
++#define MV88E6XXX_QAV_CFG			0x00
++
++#define MV88E6XXX_QAV_CFG_GLOBAL_ISO_PTR_MASK	GENMASK(9, 0)
++#define MV88E6XXX_QAV_CFG_GLOBAL_ISO_PTR_GET(x)	FIELD_GET(MV88E6XXX_QAV_CFG_GLOBAL_ISO_PTR_MASK, x)
++#define MV88E6XXX_QAV_CFG_GLOBAL_ISO_PTR_SET(x)	FIELD_PREP(MV88E6XXX_QAV_CFG_GLOBAL_ISO_PTR_MASK, x)
++
++/* allow mgmt frames in isochronous pointer pool */
++#define MV88E6XXX_QAV_CFG_ADMIT_MGMT		0x8000
++
++/* Per-port AVB registers */
++
++/* Offset 0x00: AVB Port Config */
++#define MV88E6XXX_PORT_AVB_CFG				0x00
++#define MV88E6XXX_PORT_AVB_CFG_AVB_MODE			GENMASK(15, 14)
++/* all frames legacy (non-AVB) unless overridden */
++#define MV88E6XXX_PORT_AVB_CFG_AVB_MODE_LEGACY		0x0000
++/* AVB frames indicated by priority */
++#define MV88E6XXX_PORT_AVB_CFG_AVB_MODE_STANDARD	0x4000
++/* STANDARD && ATU has STATIC_AVB_NRL bit set */
++#define MV88E6XXX_PORT_AVB_CFG_AVB_MODE_ENHANCED	0x8000
++/* ENHANCED && source port in destination port vector */
++#define MV88E6XXX_PORT_AVB_CFG_AVB_MODE_SECURE		0xc000
++
++#define MV88E6XXX_PORT_AVB_CFG_AVB_OVERRIDE		0x2000
++#define MV88E6XXX_PORT_AVB_CFG_AVB_FILTER_BAD_AVB	0x1000
++#define MV88E6XXX_PORT_AVB_CFG_AVB_TUNNEL		0x0800
++#define MV88E6XXX_PORT_AVB_CFG_AVB_DISCARD_BAD		0x0400
++
++u16 mv88e6xxx_avb_pri_map_to_reg(const struct tc_mqprio_qopt *qopt);
++int mv88e6xxx_avb_enable(struct mv88e6xxx_chip *chip,
++			 struct tc_mqprio_qopt_offload *mqprio);
++int mv88e6xxx_avb_disable(struct mv88e6xxx_chip *chip);
++
++#endif /* _MV88E6XXX_AVB_H */
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index dc8f9a04ab5e5..2d619fb809c1e 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -34,6 +34,7 @@
+ #include <net/dsa.h>
+ #include <net/pkt_sched.h>
+ 
++#include "avb.h"
+ #include "chip.h"
+ #include "devlink.h"
+ #include "global1.h"
+@@ -5708,6 +5709,10 @@ static const struct mv88e6xxx_qav_info mv88e6352_qav_info = {
+ 	.rate_mask = GENMASK(14, 0),
+ 	.hilimit_mask = GENMASK(14, 0),
+ 	.queue_mask = GENMASK(3, 0),
++	/* legacy (all queues), lo (queue 1/2), hi (queue 2/3) */
++	.avb_queue_mask = { GENMASK(3, 0), GENMASK(2, 1), GENMASK(3, 2) },
++	/* HI FPri 5/QPri 3, LO FPri 4/QPri 2 */
++	.avb_pri_map = 0x5342,
+ };
+ 
+ static const struct mv88e6xxx_qav_info mv88e6341_qav_info = {
+@@ -5715,6 +5720,10 @@ static const struct mv88e6xxx_qav_info mv88e6341_qav_info = {
+ 	.rate_mask = GENMASK(15, 0),
+ 	.hilimit_mask = GENMASK(13, 0),
+ 	.queue_mask = GENMASK(3, 0),
++	/* legacy (all queues), lo (queue 1/2), hi (queue 2/3) */
++	.avb_queue_mask = { GENMASK(3, 0), GENMASK(2, 1), GENMASK(3, 2) },
++	/* HI FPri 5/QPri 3, LO FPri 4/QPri 2 */
++	.avb_pri_map = 0x5342,
+ };
+ 
+ static const struct mv88e6xxx_qav_info mv88e6390_qav_info = {
+@@ -5722,6 +5731,10 @@ static const struct mv88e6xxx_qav_info mv88e6390_qav_info = {
+ 	.rate_mask = GENMASK(15, 0),
+ 	.hilimit_mask = GENMASK(13, 0),
+ 	.queue_mask = GENMASK(7, 0),
++	/* AVB traffic allowed on all queues */
++	.avb_queue_mask = { GENMASK(7, 0), GENMASK(7, 0), GENMASK(7, 0) },
++	/* HI FPri 3/QPri 7, LO FPri 2/QPri 6  */
++	.avb_pri_map = 0x3726,
+ };
+ 
+ static const struct mv88e6xxx_info mv88e6xxx_table[] = {
+@@ -7244,6 +7257,197 @@ static int mv88e6xxx_crosschip_lag_leave(struct dsa_switch *ds, int sw_index,
+ 	return err_sync ? : err_pvt;
+ }
+ 
++static int mv88e6xxx_tc_query_caps(struct tc_query_caps_base *base)
++{
++	switch (base->type) {
++	case TC_SETUP_QDISC_MQPRIO: {
++		struct tc_mqprio_caps *caps = base->caps;
++
++		caps->validate_queue_counts = true;
++
++		return 0;
++	}
++	default:
++		return -EOPNOTSUPP;
++	}
++}
++
++static int mv88e6xxx_validate_tc_mqprio(const struct mv88e6xxx_chip *chip,
++					const struct tc_mqprio_qopt_offload *mqprio)
++{
++	const struct mv88e6xxx_qav_info *qav = chip->info->qav;
++	const struct tc_mqprio_qopt *qopt = &mqprio->qopt;
++	struct netlink_ext_ack *extack = mqprio->extack;
++	u8 avb_tc_set = 0;
++	int tc, fpri;
++
++	if (qopt->num_tc == 0)
++		return 0;
++
++	if (qopt->hw != TC_MQPRIO_HW_OFFLOAD_TCS) {
++		NL_SET_ERR_MSG_MOD(extack, "only full TC hardware offload is supported");
++		return -EOPNOTSUPP;
++	} else if (!qav || !chip->info->ops->avb_ops) {
++		NL_SET_ERR_MSG_MOD(extack, "chip does not support MQPRIO DCB offload");
++		return -EOPNOTSUPP;
++	} else if (mqprio->mode != TC_MQPRIO_MODE_DCB) {
++		NL_SET_ERR_MSG_MOD(extack, "only DCB mode is supported");
++		return -EOPNOTSUPP;
++	} else if (mqprio->shaper != TC_MQPRIO_SHAPER_DCB) {
++		NL_SET_ERR_MSG_MOD(extack, "only DCB shaper is supported for AVB mode");
++		return -EOPNOTSUPP;
++	} else if (mqprio->preemptible_tcs) {
++		NL_SET_ERR_MSG_MOD(extack, "frame preemption is not supported");
++		return -EOPNOTSUPP;
++	} else if (qopt->num_tc > MV88E6XXX_AVB_TC_MAX + 1) {
++		NL_SET_ERR_MSG_MOD(extack, "too many traffic classes for AVB mode");
++		return -EOPNOTSUPP;
++	}
++
++	/* Validate switch-side constraints on AVB traffic classes. TC0 queue
++	 * mapping can only be configured on ingress using the DCB PCP app.
++	 */
++	for (tc = MV88E6XXX_AVB_TC_LO; tc < qopt->num_tc; tc++) {
++		if (qopt->count[tc] != 1) {
++			NL_SET_ERR_MSG_FMT_MOD(extack, "only one queue supported for TC%d", tc);
++			return -EOPNOTSUPP;
++		} else if ((qav->avb_queue_mask[tc] & BIT(qopt->offset[tc])) == 0) {
++			NL_SET_ERR_MSG_FMT_MOD(extack, "queue %d not valid for TC%d",
++					       qopt->offset[tc], tc);
++			return -EOPNOTSUPP;
++		}
++	}
++
++	/* Each AVB traffic class must map exactly one frame priority */
++	for (fpri = 0; fpri < IEEE_8021Q_MAX_PRIORITIES; fpri++) {
++		tc = qopt->prio_tc_map[fpri];
++
++		if (tc == MV88E6XXX_AVB_TC_LEGACY)
++			continue;
++
++		if (avb_tc_set & BIT(tc)) {
++			NL_SET_ERR_MSG_FMT_MOD(extack,
++					       "only one frame priority can be mapped to TC%d", tc);
++			return -EOPNOTSUPP;
++		}
++
++		avb_tc_set |= BIT(tc);
++	}
++
++	if (avb_tc_set != GENMASK(MV88E6XXX_AVB_TC_HI, MV88E6XXX_AVB_TC_LO)) {
++		NL_SET_ERR_MSG_MOD(extack,
++				   "both TC1 and TC2 must have 802.1p priorities assigned");
++		return -EOPNOTSUPP;
++	}
++
++	return qopt->num_tc;
++}
++
++static void mv88e6xxx_mqprio_update_policy(struct mv88e6xxx_tc_policy *pol,
++					   int port, int num_tc)
++{
++	if (num_tc) {
++		pol->tc_port_mask |= BIT(port);
++		pol->enabled = true;
++	} else {
++		pol->tc_port_mask &= ~BIT(port);
++		if (!pol->tc_port_mask)
++			pol->enabled = false;
++	}
++}
++
++static int mv88e6xxx_mqprio_netdev_set_tc(struct net_device *user,
++					  const struct tc_mqprio_qopt *qopt,
++					  int num_tc)
++{
++	int err, tc;
++
++	err = netdev_set_num_tc(user, num_tc);
++	if (err)
++		return err;
++
++	for (tc = 0; tc < num_tc; tc++) {
++		err = netdev_set_tc_queue(user, tc, qopt->count[tc],
++					  qopt->offset[tc]);
++		if (err)
++			return err;
++	}
++
++	return 0;
++}
++
++static int mv88e6xxx_setup_tc_mqprio(struct dsa_switch *ds, int port,
++				     struct tc_mqprio_qopt_offload *mqprio)
++{
++	struct netlink_ext_ack *extack = mqprio->extack;
++	struct mv88e6xxx_chip *chip = ds->priv;
++	struct mv88e6xxx_tc_policy *pol;
++	struct net_device *user;
++	bool can_update_pol;
++	u16 avb_pri_map;
++	int num_tc, err;
++
++	if (!dsa_is_user_port(ds, port))
++		return -EINVAL;
++
++	num_tc = mv88e6xxx_validate_tc_mqprio(chip, mqprio);
++	if (num_tc < 0)
++		return num_tc;
++
++	avb_pri_map = num_tc ? mv88e6xxx_avb_pri_map_to_reg(&mqprio->qopt) : 0;
++
++	user = dsa_to_port(ds, port)->user;
++
++	mv88e6xxx_reg_lock(chip);
++
++	pol = &chip->tc_policy;
++
++	if (!num_tc && !(pol->tc_port_mask & BIT(port))) {
++		netdev_reset_tc(user);
++		mv88e6xxx_reg_unlock(chip);
++		return 0;
++	}
++
++	can_update_pol = !pol->tc_port_mask || pol->tc_port_mask == BIT(port);
++	if (!can_update_pol && num_tc && avb_pri_map != pol->avb_pri_map) {
++		NL_SET_ERR_MSG_MOD(extack, "only a single priority mapping supported per switch");
++		err = -EEXIST;
++		goto err_unlock;
++	}
++
++	err = mv88e6xxx_mqprio_netdev_set_tc(user, &mqprio->qopt, num_tc);
++	if (err)
++		goto err_reset_tc;
++
++	if (can_update_pol) {
++		err = num_tc ? mv88e6xxx_avb_enable(chip, mqprio)
++			     : mv88e6xxx_avb_disable(chip);
++		if (err) {
++			NL_SET_ERR_MSG_FMT_MOD(extack, "failed to %s AVB",
++					       num_tc ? "enable" : "disable");
++			goto err_reset_tc;
++		}
++	}
++
++	mv88e6xxx_mqprio_update_policy(pol, port, num_tc);
++
++	if (num_tc && can_update_pol)
++		pol->avb_pri_map = avb_pri_map;
++	else if (!pol->tc_port_mask)
++		pol->avb_pri_map = 0;
++
++	mv88e6xxx_reg_unlock(chip);
++
++	return 0;
++
++err_reset_tc:
++	netdev_reset_tc(user);
++err_unlock:
++	mv88e6xxx_reg_unlock(chip);
++
++	return err;
++}
++
+ static int mv88e6xxx_setup_tc_cbs(struct dsa_switch *ds, int port,
+ 				  struct tc_cbs_qopt_offload *cbs)
+ {
+@@ -7335,6 +7539,10 @@ static int mv88e6xxx_port_setup_tc(struct dsa_switch *ds, int port,
+ 				   enum tc_setup_type type, void *type_data)
+ {
+ 	switch (type) {
++	case TC_QUERY_CAPS:
++		return mv88e6xxx_tc_query_caps(type_data);
++	case TC_SETUP_QDISC_MQPRIO:
++		return mv88e6xxx_setup_tc_mqprio(ds, port, type_data);
+ 	case TC_SETUP_QDISC_CBS:
+ 		return mv88e6xxx_setup_tc_cbs(ds, port, type_data);
+ 	default:
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.h b/drivers/net/dsa/mv88e6xxx/chip.h
+index d42d839e636bc..5e7c1c6bfbb95 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.h
++++ b/drivers/net/dsa/mv88e6xxx/chip.h
+@@ -8,6 +8,7 @@
+ #ifndef _MV88E6XXX_CHIP_H
+ #define _MV88E6XXX_CHIP_H
+ 
++#include <linux/dcbnl.h> /* for IEEE_8021Q_MAX_PRIORITIES */
+ #include <linux/idr.h>
+ #include <linux/if_vlan.h>
+ #include <linux/irq.h>
+@@ -19,6 +20,7 @@
+ #include <linux/ptp_clock_kernel.h>
+ #include <linux/timecounter.h>
+ #include <net/dsa.h>
++#include <net/pkt_sched.h>
+ 
+ #define EDSA_HLEN		8
+ #define MV88E6XXX_N_FID		4096
+@@ -252,6 +254,30 @@ struct mv88e6xxx_port_hwtstamp {
+ 	struct kernel_hwtstamp_config tstamp_config;
+ };
+ 
++/**
++ * enum mv88e6xxx_avb_tc - Traffic class values for AVB mode
++ * @MV88E6XXX_AVB_TC_LEGACY: Non-AVB traffic
++ * @MV88E6XXX_AVB_TC_LO:     Low priority AVB (Class B)
++ * @MV88E6XXX_AVB_TC_HI:     High priority AVB (Class A)
++ */
++enum mv88e6xxx_avb_tc {
++	MV88E6XXX_AVB_TC_LEGACY = 0,
++	MV88E6XXX_AVB_TC_LO = 1,
++	MV88E6XXX_AVB_TC_HI = 2,
++	MV88E6XXX_AVB_TC_MAX = MV88E6XXX_AVB_TC_HI,
++};
++
++struct mv88e6xxx_tc_policy {
++	/* AVB MQPRIO offload active on the switch */
++	bool enabled;
++
++	/* Ports with MQPRIO TC installed */
++	u16 tc_port_mask;
++
++	/* Switch-wide AVB FPri/QPri register value */
++	u16 avb_pri_map;
++};
++
+ enum mv88e6xxx_policy_mapping {
+ 	MV88E6XXX_POLICY_MAPPING_DA,
+ 	MV88E6XXX_POLICY_MAPPING_SA,
+@@ -463,6 +489,9 @@ struct mv88e6xxx_chip {
+ 	/* TCAM entries */
+ 	struct mv88e6xxx_tcam tcam;
+ 
++	/* Global MQPRIO traffic class configuration */
++	struct mv88e6xxx_tc_policy tc_policy;
++
+ 	/* Global2 scratch register config data3 */
+ 	u8 g2_scratch_config3;
+ };
+@@ -777,6 +806,20 @@ struct mv88e6xxx_avb_ops {
+ 	/* Access port-scoped 802.1Qav registers */
+ 	int (*port_qav_write)(struct mv88e6xxx_chip *chip, int port, int addr,
+ 			      u16 data);
++
++	/* Access global Class Shaping and Pacing registers */
++	int (*qav_read)(struct mv88e6xxx_chip *chip, int addr, u16 *data,
++			int len);
++	int (*qav_write)(struct mv88e6xxx_chip *chip, int addr, u16 data);
++
++	/* Access port-scoped Audio Video Bridging registers */
++	int (*port_avb_read)(struct mv88e6xxx_chip *chip, int port, int addr,
++			     u16 *data, int len);
++	int (*port_avb_write)(struct mv88e6xxx_chip *chip, int port, int addr,
++			      u16 data);
++
++	/* Access global Audio Video Bridging registers */
++	int (*avb_write)(struct mv88e6xxx_chip *chip, int addr, u16 data);
+ };
+ 
+ struct mv88e6xxx_ptp_ops {
+@@ -817,6 +860,8 @@ struct mv88e6xxx_qav_info {
+ 	u16 rate_mask; /* QPri Rate valid bits mask */
+ 	u16 hilimit_mask; /* QPri HiLimit bits mask*/
+ 	u8 queue_mask; /* supported queues bitmask */
++	u8 avb_queue_mask[MV88E6XXX_AVB_TC_MAX + 1]; /* AVB supported queues bitmask */
++	u16 avb_pri_map; /* default AVB FPri to QPri map */
+ };
+ 
+ static inline bool mv88e6xxx_has_stu(struct mv88e6xxx_chip *chip)
+diff --git a/drivers/net/dsa/mv88e6xxx/global1.h b/drivers/net/dsa/mv88e6xxx/global1.h
+index 3dbb7a1b8fe11..199a826d426f0 100644
+--- a/drivers/net/dsa/mv88e6xxx/global1.h
++++ b/drivers/net/dsa/mv88e6xxx/global1.h
+@@ -111,6 +111,7 @@
+ 
+ /* Offset 0x0A: ATU Control Register */
+ #define MV88E6XXX_G1_ATU_CTL		0x0a
++#define MV88E6XXX_G1_ATU_CTL_MAC_AVB	0x8000
+ #define MV88E6XXX_G1_ATU_CTL_LEARN2ALL	0x0008
+ #define MV88E6161_G1_ATU_CTL_HASH_MASK	0x0003
+ 
+diff --git a/drivers/net/dsa/mv88e6xxx/global2.h b/drivers/net/dsa/mv88e6xxx/global2.h
+index df52ff3adc88c..ae361cca51274 100644
+--- a/drivers/net/dsa/mv88e6xxx/global2.h
++++ b/drivers/net/dsa/mv88e6xxx/global2.h
+@@ -176,9 +176,11 @@
+ #define MV88E6352_G2_AVB_CMD_PORT_TAIGLOBAL	0xe
+ #define MV88E6165_G2_AVB_CMD_PORT_PTPGLOBAL	0xf
+ #define MV88E6352_G2_AVB_CMD_PORT_PTPGLOBAL	0xf
++#define MV88E6352_G2_AVB_CMD_PORT_AVBGLOBAL	0xf
+ #define MV88E6390_G2_AVB_CMD_PORT_MASK		0x1f00
+ #define MV88E6390_G2_AVB_CMD_PORT_TAIGLOBAL	0x1e
+ #define MV88E6390_G2_AVB_CMD_PORT_PTPGLOBAL	0x1f
++#define MV88E6390_G2_AVB_CMD_PORT_AVBGLOBAL	0x1f
+ #define MV88E6352_G2_AVB_CMD_BLOCK_PTP		0
+ #define MV88E6352_G2_AVB_CMD_BLOCK_AVB		1
+ #define MV88E6352_G2_AVB_CMD_BLOCK_QAV		2
+diff --git a/drivers/net/dsa/mv88e6xxx/global2_avb.c b/drivers/net/dsa/mv88e6xxx/global2_avb.c
+index 6b54e275d21ab..fe1607bc78734 100644
+--- a/drivers/net/dsa/mv88e6xxx/global2_avb.c
++++ b/drivers/net/dsa/mv88e6xxx/global2_avb.c
+@@ -119,6 +119,27 @@ static int mv88e6352_g2_avb_port_qav_write(struct mv88e6xxx_chip *chip,
+ 	return mv88e6xxx_g2_avb_write(chip, writeop, data);
+ }
+ 
++static int mv88e6352_g2_avb_port_avb_read(struct mv88e6xxx_chip *chip,
++					  int port, int addr, u16 *data,
++					  int len)
++{
++	u16 readop = (len == 1 ? MV88E6352_G2_AVB_CMD_OP_READ :
++				 MV88E6352_G2_AVB_CMD_OP_READ_INCR) |
++		     (port << 8) | (MV88E6352_G2_AVB_CMD_BLOCK_AVB << 5) |
++		     addr;
++
++	return mv88e6xxx_g2_avb_read(chip, readop, data, len);
++}
++
++static int mv88e6352_g2_avb_port_avb_write(struct mv88e6xxx_chip *chip,
++					   int port, int addr, u16 data)
++{
++	u16 writeop = MV88E6352_G2_AVB_CMD_OP_WRITE | (port << 8) |
++		      (MV88E6352_G2_AVB_CMD_BLOCK_AVB << 5) | addr;
++
++	return mv88e6xxx_g2_avb_write(chip, writeop, data);
++}
++
+ static int mv88e6352_g2_avb_ptp_read(struct mv88e6xxx_chip *chip, int addr,
+ 				     u16 *data, int len)
+ {
+@@ -151,6 +172,38 @@ static int mv88e6352_g2_avb_tai_write(struct mv88e6xxx_chip *chip, int addr,
+ 					addr, data);
+ }
+ 
++static int mv88e6352_g2_avb_qav_read(struct mv88e6xxx_chip *chip, int addr,
++				     u16 *data, int len)
++{
++	u16 readop = (len == 1 ? MV88E6352_G2_AVB_CMD_OP_READ :
++				 MV88E6352_G2_AVB_CMD_OP_READ_INCR) |
++		     (MV88E6352_G2_AVB_CMD_PORT_AVBGLOBAL << 8) |
++		     (MV88E6352_G2_AVB_CMD_BLOCK_QAV << 5) |
++		     addr;
++
++	return mv88e6xxx_g2_avb_read(chip, readop, data, len);
++}
++
++static int mv88e6352_g2_avb_qav_write(struct mv88e6xxx_chip *chip, int addr,
++				      u16 data)
++{
++	u16 writeop = MV88E6352_G2_AVB_CMD_OP_WRITE |
++		      (MV88E6352_G2_AVB_CMD_PORT_AVBGLOBAL << 8) |
++		      (MV88E6352_G2_AVB_CMD_BLOCK_QAV << 5) | addr;
++
++	return mv88e6xxx_g2_avb_write(chip, writeop, data);
++}
++
++static int mv88e6352_g2_avb_avb_write(struct mv88e6xxx_chip *chip, int addr,
++				      u16 data)
++{
++	u16 writeop = MV88E6352_G2_AVB_CMD_OP_WRITE |
++		      (MV88E6352_G2_AVB_CMD_PORT_AVBGLOBAL << 8) |
++		      (MV88E6352_G2_AVB_CMD_BLOCK_AVB << 5) | addr;
++
++	return mv88e6xxx_g2_avb_write(chip, writeop, data);
++}
++
+ const struct mv88e6xxx_avb_ops mv88e6352_avb_ops = {
+ 	.port_ptp_read		= mv88e6352_g2_avb_port_ptp_read,
+ 	.port_ptp_write		= mv88e6352_g2_avb_port_ptp_write,
+@@ -159,6 +212,11 @@ const struct mv88e6xxx_avb_ops mv88e6352_avb_ops = {
+ 	.tai_read		= mv88e6352_g2_avb_tai_read,
+ 	.tai_write		= mv88e6352_g2_avb_tai_write,
+ 	.port_qav_write		= mv88e6352_g2_avb_port_qav_write,
++	.qav_read		= mv88e6352_g2_avb_qav_read,
++	.qav_write		= mv88e6352_g2_avb_qav_write,
++	.port_avb_read		= mv88e6352_g2_avb_port_avb_read,
++	.port_avb_write		= mv88e6352_g2_avb_port_avb_write,
++	.avb_write		= mv88e6352_g2_avb_avb_write,
+ };
+ 
+ static int mv88e6165_g2_avb_tai_read(struct mv88e6xxx_chip *chip, int addr,
+@@ -185,6 +243,11 @@ const struct mv88e6xxx_avb_ops mv88e6165_avb_ops = {
+ 	.tai_read		= mv88e6165_g2_avb_tai_read,
+ 	.tai_write		= mv88e6165_g2_avb_tai_write,
+ 	.port_qav_write		= mv88e6352_g2_avb_port_qav_write,
++	.qav_read		= mv88e6352_g2_avb_qav_read,
++	.qav_write		= mv88e6352_g2_avb_qav_write,
++	.port_avb_read		= mv88e6352_g2_avb_port_avb_read,
++	.port_avb_write		= mv88e6352_g2_avb_port_avb_write,
++	.avb_write		= mv88e6352_g2_avb_avb_write,
+ };
+ 
+ static int mv88e6390_g2_avb_port_ptp_read(struct mv88e6xxx_chip *chip,
+@@ -217,6 +280,27 @@ static int mv88e6390_g2_avb_port_qav_write(struct mv88e6xxx_chip *chip,
+ 	return mv88e6xxx_g2_avb_write(chip, writeop, data);
+ }
+ 
++static int mv88e6390_g2_avb_port_avb_read(struct mv88e6xxx_chip *chip,
++					  int port, int addr, u16 *data,
++					  int len)
++{
++	u16 readop = (len == 1 ? MV88E6390_G2_AVB_CMD_OP_READ :
++				 MV88E6390_G2_AVB_CMD_OP_READ_INCR) |
++		     (port << 8) | (MV88E6352_G2_AVB_CMD_BLOCK_AVB << 5) |
++		     addr;
++
++	return mv88e6xxx_g2_avb_read(chip, readop, data, len);
++}
++
++static int mv88e6390_g2_avb_port_avb_write(struct mv88e6xxx_chip *chip,
++					   int port, int addr, u16 data)
++{
++	u16 writeop = MV88E6390_G2_AVB_CMD_OP_WRITE | (port << 8) |
++		      (MV88E6352_G2_AVB_CMD_BLOCK_AVB << 5) | addr;
++
++	return mv88e6xxx_g2_avb_write(chip, writeop, data);
++}
++
+ static int mv88e6390_g2_avb_ptp_read(struct mv88e6xxx_chip *chip, int addr,
+ 				     u16 *data, int len)
+ {
+@@ -249,6 +333,38 @@ static int mv88e6390_g2_avb_tai_write(struct mv88e6xxx_chip *chip, int addr,
+ 					addr, data);
+ }
+ 
++static int mv88e6390_g2_avb_qav_read(struct mv88e6xxx_chip *chip, int addr,
++				     u16 *data, int len)
++{
++	u16 readop = (len == 1 ? MV88E6390_G2_AVB_CMD_OP_READ :
++				 MV88E6390_G2_AVB_CMD_OP_READ_INCR) |
++		     (MV88E6390_G2_AVB_CMD_PORT_AVBGLOBAL << 8) |
++		     (MV88E6352_G2_AVB_CMD_BLOCK_QAV << 5) |
++		     addr;
++
++	return mv88e6xxx_g2_avb_read(chip, readop, data, len);
++}
++
++static int mv88e6390_g2_avb_qav_write(struct mv88e6xxx_chip *chip, int addr,
++				      u16 data)
++{
++	u16 writeop = MV88E6390_G2_AVB_CMD_OP_WRITE |
++		      (MV88E6390_G2_AVB_CMD_PORT_AVBGLOBAL << 8) |
++		      (MV88E6352_G2_AVB_CMD_BLOCK_QAV << 5) | addr;
++
++	return mv88e6xxx_g2_avb_write(chip, writeop, data);
++}
++
++static int mv88e6390_g2_avb_avb_write(struct mv88e6xxx_chip *chip, int addr,
++				      u16 data)
++{
++	u16 writeop = MV88E6390_G2_AVB_CMD_OP_WRITE |
++		      (MV88E6390_G2_AVB_CMD_PORT_AVBGLOBAL << 8) |
++		      (MV88E6352_G2_AVB_CMD_BLOCK_AVB << 5) | addr;
++
++	return mv88e6xxx_g2_avb_write(chip, writeop, data);
++}
++
+ const struct mv88e6xxx_avb_ops mv88e6390_avb_ops = {
+ 	.port_ptp_read		= mv88e6390_g2_avb_port_ptp_read,
+ 	.port_ptp_write		= mv88e6390_g2_avb_port_ptp_write,
+@@ -257,4 +373,9 @@ const struct mv88e6xxx_avb_ops mv88e6390_avb_ops = {
+ 	.tai_read		= mv88e6390_g2_avb_tai_read,
+ 	.tai_write		= mv88e6390_g2_avb_tai_write,
+ 	.port_qav_write		= mv88e6390_g2_avb_port_qav_write,
++	.qav_read		= mv88e6390_g2_avb_qav_read,
++	.qav_write		= mv88e6390_g2_avb_qav_write,
++	.port_avb_read		= mv88e6390_g2_avb_port_avb_read,
++	.port_avb_write		= mv88e6390_g2_avb_port_avb_write,
++	.avb_write		= mv88e6390_g2_avb_avb_write,
+ };
+
+---
+base-commit: 3abbe30231441f1fbb3305e9854c56a34650af53
+change-id: 20260602-mv88e6xxx-8021qat-mqprio-46fc466d70e1
+prerequisite-change-id: 20260430-net-next-mv88e6xxx-cbs-2121169caa68:v7
+prerequisite-patch-id: 8ad59c43368d4639e0cabcc59a7f6e487560d3f7
+prerequisite-patch-id: 22f1cda311b1826bd4151fc7d4cdf3d87ca519ed
+prerequisite-change-id: 20260603-net-next-mv88e6xxx-pcp-prio-5752caa7926b:v1
+prerequisite-patch-id: f324a0334ef91256d6f09562d978e9d6c32b7f3c
+prerequisite-patch-id: 79c2b056ae68846b5e2950b9738cb83e73d2710e
+
+Best regards,
+--  
+Luke Howard <lukeh@padl.com>
+
