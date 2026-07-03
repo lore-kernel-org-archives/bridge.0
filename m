@@ -1,223 +1,72 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-m3292.qiye.163.com (mail-m3292.qiye.163.com [220.197.32.92])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABE6535E948
-	for <bridge@lists.linux.dev>; Fri,  3 Jul 2026 07:34:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDB24433E7F
+	for <bridge@lists.linux.dev>; Fri,  3 Jul 2026 07:53:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.32.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783064066; cv=none; b=Npg2SZ8lRUuziw7TTpuuPmrF6EKiRdtdQ3jtqmY0OryEQGBAjdkORaOYuZIymDCPTAX6JGYMRw6NdMcbuHSDX89HcJHPXjvlI8ht1mIv7chqo26G5nbPEV3CQjekTKXcjHTEWs+vyA9baIZ/SVb+OtHaebp58dhk2VNZdPiPDWE=
+	t=1783065222; cv=none; b=B1fNSb69E7uBsUDqHd7IVJzd6M2hm93cww4Zjf5BAPTW51vSV11guKkWfHby1Gy7kGgbm8r+D4komadkGeAuzJen9Wpvml+A2GLi4pQ6l6h+D4jAEwUDzfGgk7Vi5Tpoaw7EUfe0yjifOW0WvO8aPHKvwMYH21OE47GZutmJw1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783064066; c=relaxed/simple;
-	bh=tVn9O9BGVyGOIjguCc/mLQfJqWG2NCeIK+eTfbZbuGw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hWY7rF3Wg9I+p0ZGz0okWS+Xq0Pd0qrfD4c9FS/VnGzIuqUYgjXdi/ug0NFlXADu8zMf5nf7irP/J6Osp98jgMClSAm3LBzAKtwP5bJebSTsrGyrzFXYYzj7aloz5Tz5A3grb72mEY8vIfJoQxh3Ml/UzKMS/kPHYbQ4t9Zdrww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=nsvfX2Kn; arc=none smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1783065222; c=relaxed/simple;
+	bh=Sh5U0WcktPrQRWf8YbANFZWk8ylWwf5JVctQoftyaZg=;
+	h=Content-Type:Message-ID:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:From:Date; b=X1pZGP4BW8lp7B846ob+5KSE8tpF3ePYlfZC3Qm+lF96+ja7LW5isRkeG836pkb3CIiJkS1Q1PIVAp8ghO1ydP1ZggBCfOqfmvCk40dwrUTl5kVvLQFyMCWrvENjP7NqKuFt3pat6LfvxQJHdENkrLKmuVNlBqne5gsXWzjcQUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn; spf=pass smtp.mailfrom=seu.edu.cn; dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b=SG1nvMnb; arc=none smtp.client-ip=220.197.32.92
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=seu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seu.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="nsvfX2Kn"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-45fd464d51fso124730f8f.3
-        for <bridge@lists.linux.dev>; Fri, 03 Jul 2026 00:34:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1783064062; x=1783668862; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=3hLETDnygn58F8xxBZ3Mcm3EVRjK0eC7Y6SGm1DIAAg=;
-        b=nsvfX2KnlILCUZHVjiQhmuTdbTnqZ7YpriTTBES/I9e3mLJnzg7x6CKA6Mla1Bb+Os
-         7HCerEpP2ndwtI0C8nYAmktS21+FV+GAq+K3jPuepXH6aFC6SXNOOLx5wK22OgOONt1+
-         zG7heAJ1m2e+8FyJ0BP96ZLfQQOpCr2QYbfkHEExSuMxv6qvcxGKDmPlkcIpCQzkn3gJ
-         +NJuDcPhfYih9+1t60AHGpIcaoEBs+RcTaQUer41oPVBET25BPflFxwO+fuBhs6B9yek
-         cQRd1/Fe9bL7CY16QMqAI7lUzSocViGzofLyA0fiqw+e1nlk7d6n7kDuaazQrP5IDwz3
-         MSxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783064062; x=1783668862;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3hLETDnygn58F8xxBZ3Mcm3EVRjK0eC7Y6SGm1DIAAg=;
-        b=ml9C54t3UGa5KhX5tAh7No+YyJIArD8b1qWHSSZhiYJQ+8iyfk6YkZ8fVf54zDo70n
-         TEIcFXr7fgQepPXs0jjJl4HGELQ0ajH5ABUENo0JVBsPo6TEJiB0nhrz8Qf5zK9QA+Rc
-         6BJAsdKQToZjpGyxNNTwqcxUXvDZR/SgQR4zSGwtLKwIMG6i/4lqjIeUnoJ7Tq3tCs+u
-         5m6QOY7k+nxQ+Igd5Zh2CD//wVdx5I36b4q74Dl3yr2riMx8QnIvGcopK42QVStlVNoA
-         iIG5K9jAb/NaqNghEhDQajW9eHhMY+yzgnEO+NCllgYO7J2OOalIOARlfA7kz8yJfN69
-         r0AQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqNfKUDr0pcBYMvvc8eAIkoj+g/3TdG3QLawKg4qGgrbwFCYUjghygrATiZOBnXeiDgvUkD78M=@lists.linux.dev
-X-Gm-Message-State: AOJu0YznLuQhhI5mBEA8W5KgNWKeT7bEgweZQbrV6ZjN21z8dOAfNabm
-	kaIGeVWV93kJmH0vOXo2i9n55gQqp+yCr9FqOoZ9DGDStSNbanY4apZv7qEpcYyUnLw=
-X-Gm-Gg: AfdE7cnsOZlZ11IOVnInP7vGqPIVK5sK7IcsKUwtWtYV1cX7WtMCnTOfyiZDqQ8CNgl
-	xbkYxiYK7Zm8OKItSTX+atpH2E6sv+3Djag+bHuQZQuR9+sAWjAgaiSFqsHLW1DRHklkKQ0347j
-	tVEoYYqD+S/CvOlJhN5A7i50ECJyGb+UCbewc3QL8Ypup6LgIzEJnM+noRWVTBA3Iv67dlGHqcR
-	c0Qodc6SEhzFj+vqK1RaGqXTgXiNrPUif4qmB5f0HVypEPI3krCrGUmGsZw3kDyrJIAc60uZ+dz
-	8A7KOrqWBK91/g7mcYayua58O7VumtSla+Tj7g3ugrafNuZpQRA55a8tKIcDilrY8g/uSwNXw12
-	qrQYhP2ttuz88X+Ggww5rfVWoz968/O9XajECpYW+ui/i8VpVHFnHZ0IOddZitdepdqPoSst2Ql
-	JL4vm+n6zEpDw8nDLlXGWko7gdUK/brOBi9TeQEThL34J28KMBZT84uw==
-X-Received: by 2002:adf:fa06:0:b0:475:f100:360a with SMTP id ffacd0b85a97d-4775a6d1b39mr10482015f8f.57.1783064061000;
-        Fri, 03 Jul 2026 00:34:21 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-477db3dbacbsm16180990f8f.4.2026.07.03.00.34.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Jul 2026 00:34:20 -0700 (PDT)
-Message-ID: <45fa2de3-1b56-48b3-a946-ae4c7ea26a22@blackwall.org>
-Date: Fri, 3 Jul 2026 10:34:18 +0300
+	dkim=pass (1024-bit key) header.d=seu.edu.cn header.i=@seu.edu.cn header.b="SG1nvMnb"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+Message-ID: <AMAAoQBgKr7QFadsWSye64o0.3.1783052662261.Hmail.220255722@seu.edu.cn>
+To: Ido Schimmel  <idosch@nvidia.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>, 
+	"David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	bridge <bridge@lists.linux.dev>, netdev <netdev@vger.kernel.org>, 
+	linux-kernel <linux-kernel@vger.kernel.org>, 
+	"jianhao.xu" <jianhao.xu@seu.edu.cn>
+Subject: =?UTF-8?B?UmU6IFF1ZXN0aW9uOiBicmlkZ2U6IGNsYXJpZnkgTVNUIFZMQU4gbGlzdCBSQ1UgdHJhdmVyc2FsIGNvbnRyYWN0?=
+X-Priority: 3
+X-Mailer: HMail Webmail Server V2.0 Copyright (c) 2016-163.com Sirius_WEB_WIN_1.64.1
+In-Reply-To: <20260628174900.GA400397@shredder>
+References: <20260627132539.3701630-1-runyu.xiao@seu.edu.cn> <20260628174900.GA400397@shredder>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC net-next] net: bridge: add BRIDGE_VLAN_INFO_DYNAMIC
- flag
-Content-Language: en-US, bg
-To: Luke Howard <lukeh@padl.com>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Ido Schimmel <idosch@nvidia.com>, Simon Horman <horms@kernel.org>
-Cc: Cedric Jehasse <cedric.jehasse@gmail.com>,
- Kieran Tyrrell <kieran@sienda.com>, Max Holtmann <mh@rme-audio.de>,
- Max Hunter <max@huntershome.org>,
- Christoph Mellauner <christoph.mellauner@joyned.at>,
- Simon Gapp <simon.gapp@gapp-audio.com>, netdev@vger.kernel.org,
- bridge@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20260703-vlan-dynamic-entry-v1-1-c2cbb134036c@padl.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260703-vlan-dynamic-entry-v1-1-c2cbb134036c@padl.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: from 220255722@seu.edu.cn( [223.112.146.162] ) by ajax-webmail ( [127.0.0.1] ) ; Fri, 3 Jul 2026 12:24:22 +0800 (GMT+08:00)
+From: Runyu Xiao <runyu.xiao@seu.edu.cn>
+Date: Fri, 3 Jul 2026 12:24:22 +0800 (GMT+08:00)
+X-HM-Tid: 0a9f2637f1c502f2kunm7fae1f9f1e2d
+X-HM-MType: 1
+X-HM-NTES-SC: AL0_4z5B86Wr4Tz9jdMF+bhXMTUS6Y2fHkyPT6dc03QDwVaZPGiA09TnwhbhTj
+	hLfuFZO94YXwX6xgvkjGVFFRKj5GfO5Omku9T/6BrnRlHEXAyMQMJfF4WZB3hWdN6nWl6ZDg+w6i
+	lWlQw5QgNCmEIDvyS+/0arsuJXQe751UCzPTg=
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkZGhlCVksYGBgdQx5KSk5MT1YVFA
+	kWGhdVEwETFhoSFyQUDg9ZV1kYEgtZQVlJSUhVSkpJVUpPTVVKTUlZV1kWGg8SFR0UWUFZT0tIVU
+	pLSEpOT0xVSktLVUpCS0tZBg++
+DKIM-Signature: a=rsa-sha256;
+	b=SG1nvMnbdVqOumlMHvWJTqP29odvDs4GTCRb3wjINsxAXsurgkxo5RQzamY8z42iw2Ilqn7757anXkaC+4npOvBR6GqkJPaS41lhw1YKrHy7t87IF8r65VUP3mVJ6ZLk9rBPaOimMaCBZpnvEQqltN/VlCzK3jP1vqmP2MVllbc=; s=default; c=relaxed/relaxed; d=seu.edu.cn; v=1;
+	bh=Sh5U0WcktPrQRWf8YbANFZWk8ylWwf5JVctQoftyaZg=;
+	h=date:mime-version:subject:message-id:from;
 
-On 03/07/2026 09:54, Luke Howard wrote:
-> Dynamic VLAN entries as specified in IEEE Std 802.1Q-2022,
-> Clause 8.8.5. These allow a user-space VLAN registration
-> protocol such as MVRP to mark a bridge's VLAN entries as
-> dynamic, so they can be distinguished from administratively
-> configured static entries.
-> 
-> Assisted-by: Claude:claude-opus-4-8
-> Signed-off-by: Luke Howard <lukeh@padl.com>
-> ---
-> This patch adds support for Dynamic VLAN Entries, as specified
-> in 802.1Q. I have marked it as RFC as a similar patch to add
-> support for Dynamic Reservation Entries to the FDB was rejected
-> on the argument that the dynamic bit should be stored separately.
-> 
-> Our MVRP implementation [1] will use this flag if available.
-> 
-> [1] https://github.com/PADL/OpenSRP
-
-Hi,
-Do this tracking entirely in your app, it doesn't bring anything to the
-kernel and just adding flags because it is convenient is not acceptable.
-These VLANs are the same from kernel POV and this flag doesn't change
-anything functionally.
-Alternatively perhaps a proto field similar to routes could help you out to
-distinguish who installed a VLAN entry, not sure if that would help your
-user-space app though, and you'll have to add a new rt proto id that should
-get accepted.
-
-Cheers,
-  Nik
-
-> ---
->   include/uapi/linux/if_bridge.h |  1 +
->   net/bridge/br_netlink.c        |  6 ++++++
->   net/bridge/br_vlan.c           | 18 ++++++++++++++----
->   3 files changed, 21 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/uapi/linux/if_bridge.h b/include/uapi/linux/if_bridge.h
-> index 21a700c02ef76..a3abbfe79694b 100644
-> --- a/include/uapi/linux/if_bridge.h
-> +++ b/include/uapi/linux/if_bridge.h
-> @@ -134,6 +134,7 @@ enum {
->   #define BRIDGE_VLAN_INFO_RANGE_END	(1<<4) /* VLAN is end of vlan range */
->   #define BRIDGE_VLAN_INFO_BRENTRY	(1<<5) /* Global bridge VLAN entry */
->   #define BRIDGE_VLAN_INFO_ONLY_OPTS	(1<<6) /* Skip create/delete/flags */
-> +#define BRIDGE_VLAN_INFO_DYNAMIC	(1<<7) /* 802.1Q Dynamic VLAN Registration Entry */
->   
->   struct bridge_vlan_info {
->   	__u16 flags;
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index b2cd4e39326d0..90f2e103f53d5 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -388,6 +388,9 @@ static int br_fill_ifvlaninfo_compressed(struct sk_buff *skb,
->   		if (v->flags & BRIDGE_VLAN_INFO_UNTAGGED)
->   			flags |= BRIDGE_VLAN_INFO_UNTAGGED;
->   
-> +		if (v->flags & BRIDGE_VLAN_INFO_DYNAMIC)
-> +			flags |= BRIDGE_VLAN_INFO_DYNAMIC;
-> +
->   		if (vid_range_start == 0) {
->   			goto initvars;
->   		} else if ((v->vid - vid_range_end) == 1 &&
-> @@ -440,6 +443,9 @@ static int br_fill_ifvlaninfo(struct sk_buff *skb,
->   		if (v->flags & BRIDGE_VLAN_INFO_UNTAGGED)
->   			vinfo.flags |= BRIDGE_VLAN_INFO_UNTAGGED;
->   
-> +		if (v->flags & BRIDGE_VLAN_INFO_DYNAMIC)
-> +			vinfo.flags |= BRIDGE_VLAN_INFO_DYNAMIC;
-> +
->   		if (nla_put(skb, IFLA_BRIDGE_VLAN_INFO,
->   			    sizeof(vinfo), &vinfo))
->   			goto nla_put_failure;
-> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-> index 5560afcaaca32..e6bc59e3a4c4f 100644
-> --- a/net/bridge/br_vlan.c
-> +++ b/net/bridge/br_vlan.c
-> @@ -54,9 +54,11 @@ static void __vlan_delete_pvid(struct net_bridge_vlan_group *vg, u16 vid)
->   	vg->pvid = 0;
->   }
->   
-> -/* Update the BRIDGE_VLAN_INFO_PVID and BRIDGE_VLAN_INFO_UNTAGGED flags of @v.
-> - * If @commit is false, return just whether the BRIDGE_VLAN_INFO_PVID and
-> - * BRIDGE_VLAN_INFO_UNTAGGED bits of @flags would produce any change onto @v.
-> +/* Update the BRIDGE_VLAN_INFO_PVID, BRIDGE_VLAN_INFO_UNTAGGED and
-> + * BRIDGE_VLAN_INFO_DYNAMIC flags of @v.
-> + * If @commit is false, return just whether the BRIDGE_VLAN_INFO_PVID,
-> + * BRIDGE_VLAN_INFO_UNTAGGED and BRIDGE_VLAN_INFO_DYNAMIC bits of @flags
-> + * would produce any change onto @v.
->    */
->   static bool __vlan_flags_update(struct net_bridge_vlan *v, u16 flags,
->   				bool commit)
-> @@ -71,7 +73,8 @@ static bool __vlan_flags_update(struct net_bridge_vlan *v, u16 flags,
->   
->   	/* check if anything would be changed on commit */
->   	change = !!(flags & BRIDGE_VLAN_INFO_PVID) == !!(vg->pvid != v->vid) ||
-> -		 ((flags ^ v->flags) & BRIDGE_VLAN_INFO_UNTAGGED);
-> +		 ((flags ^ v->flags) & (BRIDGE_VLAN_INFO_UNTAGGED |
-> +					BRIDGE_VLAN_INFO_DYNAMIC));
->   
->   	if (!commit)
->   		goto out;
-> @@ -86,6 +89,11 @@ static bool __vlan_flags_update(struct net_bridge_vlan *v, u16 flags,
->   	else
->   		v->flags &= ~BRIDGE_VLAN_INFO_UNTAGGED;
->   
-> +	if (flags & BRIDGE_VLAN_INFO_DYNAMIC)
-> +		v->flags |= BRIDGE_VLAN_INFO_DYNAMIC;
-> +	else
-> +		v->flags &= ~BRIDGE_VLAN_INFO_DYNAMIC;
-> +
->   out:
->   	return change;
->   }
-> @@ -1874,6 +1882,8 @@ static bool br_vlan_fill_vids(struct sk_buff *skb, u16 vid, u16 vid_range,
->   		info.flags |= BRIDGE_VLAN_INFO_UNTAGGED;
->   	if (flags & BRIDGE_VLAN_INFO_PVID)
->   		info.flags |= BRIDGE_VLAN_INFO_PVID;
-> +	if (flags & BRIDGE_VLAN_INFO_DYNAMIC)
-> +		info.flags |= BRIDGE_VLAN_INFO_DYNAMIC;
->   
->   	if (nla_put(skb, BRIDGE_VLANDB_ENTRY_INFO, sizeof(info), &info))
->   		goto out_err;
-> 
-> ---
-> base-commit: 2bb62a85aff6d4c14a62a476dfabaada3c1cc014
-> change-id: 20260703-vlan-dynamic-entry-56a028e8990e
-> 
-> Best regards,
-> --
-> Luke Howard <lukeh@padl.com>
-> 
-
+SGkgSWRvLAoKT24gU3VuLCAyOCBKdW4gMjAyNiAyMDo0OTowMCArMDMwMCwgSWRvIFNjaGltbWVs
+IHdyb3RlOgomZ3Q7IEkgZG9uJ3QgdGhpbmsgYW55dGhpbmcgbmVlZHMgdG8gY2hhbmdlLiBBRkFJ
+Q1QsIGJyX21zdF9pbmZvX3NpemUoKSBpcwomZ3Q7IG9ubHkgcmVhY2hhYmxlIHZpYSB0aGUgZ2V0
+X2xpbmtfYWZfc2l6ZSgpIGNhbGxiYWNrIGFuZAomZ3Q7IHJ0bmxfbGlua19nZXRfYWZfc2l6ZSgp
+IGFsd2F5cyBpbnZva2VzIGl0IGZyb20gYW4gUkNVIHJlYWQtc2lkZSBjcml0aWNhbAomZ3Q7IHNl
+Y3Rpb24uCiZndDsKJmd0OyBEaWQgeW91IHNlZSBhIHNwbGF0IHdpdGggQ09ORklHX1BST1ZFX1JD
+VV9MSVNUPwpUaGFua3MgZm9yIHRoZSBjbGFyaWZpY2F0aW9uLgoKTm8sIEkgZGlkIG5vdCBzZWUg
+YW4gaW4ta2VybmVsIHNwbGF0IGZyb20gdGhlIGFjdHVhbCBydG5ldGxpbmsgcGF0aC4KVGhlIHdh
+cm5pbmcgSSBoYWQgd2FzIGZyb20gdGhlIHJldmlld2VkIG91dC1vZi10cmVlIHJlcHJvZHVjZXIg
+dXNlZCBmb3IKb3VyIENPTkZJR19QUk9WRV9SQ1VfTElTVCB0cmlhZ2UsIG5vdCBmcm9tIGEgcmVh
+bCBicmlkZ2UgbmV0bGluayBjYWxsCnBhdGguCgpHaXZlbiB5b3VyIGV4cGxhbmF0aW9uIHRoYXQg
+cnRubF9saW5rX2dldF9hZl9zaXplKCkgYWxyZWFkeSBpbnZva2VzCnRoaXMgZnJvbSBhbiBSQ1Ug
+cmVhZC1zaWRlIGNyaXRpY2FsIHNlY3Rpb24sIEkgd2lsbCB0cmVhdCB0aGlzIGFzIGFuCmludGVu
+ZGVkIGNvbnRyYWN0IGFuZCBJIHdpbGwgbm90IHB1cnN1ZSBhIHBhdGNoIGZvciBpdCBiYXNlZCBv
+biB0aGUKY3VycmVudCBldmlkZW5jZS4KClRoYW5rcywKUnVueXUKCg==
