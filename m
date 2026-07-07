@@ -1,64 +1,64 @@
 Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD89039099C
-	for <bridge@lists.linux.dev>; Tue,  7 Jul 2026 09:11:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB5EE392C4C
+	for <bridge@lists.linux.dev>; Tue,  7 Jul 2026 09:11:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783415480; cv=none; b=S2Is0POCfkCQAV3F1DabfNLB3kOxjLuxO6Kly8WkCUiv7f5nvFWriboc8ejf0k7rPFHE3Ow8VUGypuKgym3QaSo8eepY62V8+kqVs0rmvLUUfZynvm8uH0JOiWXscXCvYSwfrl7IUqscyxY/70rAt+VvZQUqbQs69tcTU+GhlAA=
+	t=1783415481; cv=none; b=rxL6BGGWaAB5Vkts0dmQwG7Lj4GqMqzulcezH6+P1vNyl0HpoSb1bPp0wDVBdGEzOseo4I8lohxNx0F0uenVj9ET7omRbzCQkbr4azUf9nXM/ICMqyCJln142KFM4OE3ZTNJ//xQpxz4MIzcSijPmhtk3WHaTJk+1vrdpJob1IA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783415480; c=relaxed/simple;
-	bh=/L2CYa/L6Hv5Bh5hGEfPIOCpX6+gefXiQPwWix/MMqE=;
+	s=arc-20240116; t=1783415481; c=relaxed/simple;
+	bh=s02OZU6yGbhZS+80+Db+cUZOuelG+2HfZ5D9w07AOX8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PHFnfUb8k91zDwxoS5zGXApiCaZAU9kXamR5hDqQdlJtalpYiDOGr+HrbF5gEele7Md2bBtr7EFM/QJX36yXTBlkiTK/zasWAnhUPCykBN1+NfAaBHQ2J/j52eYS0YNUxdX9wTG+Xs1cxOUcCP7AXCl9nPpopbnVvdbqGyPyXJo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G2bheNeu; arc=none smtp.client-ip=209.85.208.45
+	 MIME-Version; b=TkYbOOVfknqc38zxajev51a3ZIfIHlxY6AXN66t1UGni4u1qC31XZbpc/B5w5FhoXr0nh1ZFWHZwYLikQ8Sa2U7joViut1da3OYGdlm8kOZlY1EjtCKYcCPO5ESqfXWFgsStc4+dMACl5jzpPSY1MqCUJ9WPoToGLd9Qo4ZtyuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QN8ABEs8; arc=none smtp.client-ip=209.85.208.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G2bheNeu"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-6986287534eso6654586a12.3
-        for <bridge@lists.linux.dev>; Tue, 07 Jul 2026 02:11:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QN8ABEs8"
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-698a9f11776so5549250a12.1
+        for <bridge@lists.linux.dev>; Tue, 07 Jul 2026 02:11:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783415476; x=1784020276; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1783415478; x=1784020278; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Sm5HNUD7n1DNF0D2zqXw/bbAWgUYwja5myfoUO3KdJU=;
-        b=G2bheNeu9Hkmn5vKkCbr/c4K17Ug5ca7W5C6+FwEkwCU8qUNyHIyYh8JurJodPu9Hj
-         qrK00e6uA25dLqOQD38JWSNq4KKbHbx0V0mGbnn/pyTSlT/iam4VbpFovb8ae60UAfug
-         xUoehO9gj3sSZdrnCkgd0LDrjeoeI1+AlXyKA9usfqbmr4t84ahN01fNhdQIhvTm0vBI
-         fVkXJJMOzvK5n3dJSyUL25ROHR6JyUxtjuHV2sou2VeWDCoqmr3z5sDYEEjF1VFmzzO6
-         jdgGd8e3LdeDFbgwEBhEbyaJEVPeoR3E66/osVKid07p4P7RIK2H/uOn49zAi71oNDsk
-         rT3Q==
+         :message-id:reply-to:content-type;
+        bh=GTNzg7neY6XAYNOZrTHnOAN/xy3esmxWmnvFgBYG4BI=;
+        b=QN8ABEs8q3rYFjap90cpJvSSi+ww82SMN1CU3yLXsmCgCfpahXzD09zpifEp928zY4
+         YxULaFcGM8D9L7XWNRxj2OFC4igXMte6BE2U4xVmhr5MrJtxfFC+j5XiUyo2/rtP0NeI
+         YQfAQzb7TSnjs2cWo35/87+DY4F+v14JbLISduE93233RijRiaAtrGs8EwEbs028XUsi
+         jDt/3iPh1hgvnATrCubeyPVGl0zK8EzbkU0SpHpr0HRrGLp3/09Fj3SOTS5lA1pHGMzk
+         rheHhoaDnZU8ds3CqlzMgNe1BnFEySik0kEhMruobtazuZoTAJsxUnZxz4NLCv0+0XnK
+         BB/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783415476; x=1784020276;
+        d=1e100.net; s=20251104; t=1783415478; x=1784020278;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Sm5HNUD7n1DNF0D2zqXw/bbAWgUYwja5myfoUO3KdJU=;
-        b=FXL4xjuerZtSVLIU8UhIZnDCM2jiFA8NVxpIDZIQS/oeDgbjCIf0EECti0YiTiWbdj
-         m3LDquxUI7XbQryKf/Lmr252BPeLppSN2SSucKqH2Fyeq9I02APOuRvO+PyDqriGfKOy
-         YAoKoz/oPBGTXUGQz/x5yawZKW+CFeOnfRNfxRiVsRqWK40EcH13/iNQtXayuI1L3A+p
-         vjAeBhacoRl5WbfVgNy1YfGMIdwbVTSVFzb/HCkiOUHGv6fFnd/yM/C84keegc+GoOz9
-         RaJj6BGc8EI/BgsZ20r2Go2cmBm9dZf7J3zZhB/26o+Gas9zVVcKGDC0RR5JaQumpITe
-         liGQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpN5c2kIYVRWwDJzapV9rV322z8xhHodHzgbNXdVcKg5S69/a72SrrNWKLKWPHiK5EAKXPaAeA=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzE8qLMA6sRjhFV3AQToTE+AQhclMLypsAQcHhleYMX2lDDVW4R
-	g5P6Nb6eTHWxwapiLBXzadKkqWSfIlxbq70HoUDbCq3fCfi9qVN/Ebep
-X-Gm-Gg: AfdE7ckyxaMGOOM92VHBMlDAL/wnJNKkuxX0TXNd68/iFlMy2j7HTTcuOQxbL09HLXu
-	dT9ifj3hHBrcxd8L7Wk0GnhEv43OT2NkjjSlVDH3XHQGulnB2zxZiJw+mQZAddVCSvlxs0npiVF
-	LOwaFTLtbQk8Eg82bsnInMalSNuH6wXfg5myVg+69z/z6Huwbab5gRPk/KKMrvp4DtfOBKIFvMY
-	i8hF0h4VP2vyjmGCW5vs9tBr3c9uF8pUi+IH6q4SKwpizuq3n5rR7Njmy3nCKaSGje9A8QcTHlO
-	7y0RHTwjKxpZJg/pKeN4Em61LwoFTDYvZVl3tAGZ0JYnaIIMqP9ZXjZit9s1tKySfieB90Zpa+t
-	4gXVt/bw3f4/omrEREw+t93ux0mjZBGiiSCwhCckvupiVD4AmcASH9a+tNwCBxVbH3c7wundeVx
-	G/hYvXHFCB1M4fDpIsB9p+teXGTpQzzztpMSbJzbkfYuXFnAZnPFbk0uR0PTr0fmEbzDqGnLsqI
-	84n0zZ5Bumwy8Osmce94ggBrQdhU2GxAPdUqo9n8HGm
-X-Received: by 2002:a05:6402:13d0:b0:69a:9fbe:5cbf with SMTP id 4fb4d7f45d1cf-69a9fbe5d6cmr180598a12.6.1783415475927;
-        Tue, 07 Jul 2026 02:11:15 -0700 (PDT)
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GTNzg7neY6XAYNOZrTHnOAN/xy3esmxWmnvFgBYG4BI=;
+        b=KRZ+hXUiNLNkUJZZinuIiqPNOJQvdgx9I6teHsvnEJOq0S4V2/opUHhfuLUeVlcZtD
+         BsS78qfqPPT8y3syIelvuvmG6J1nCGlP79/rID/43pRsRdEFeQKNtN0mXfruPYJytRyh
+         mBZeOxHuW61NoJSMkfM18GPtlL3q73PMGCEIWmp8q6Z9LHPYkFMjl8cfwlv+8VYvn0gn
+         ERkTSI1V5H+Sz5L1W3vz8eVxJZKiKTGPffV0p90K8FhRuhEPfGDANZPOvkHmc5ETRklp
+         qE2XLKIn+76MRXkCLgjEmoC7IXAUgosutbzA6FEwX95mEoC7NXdeaWmhAOGPSJnYYJK+
+         Ojjw==
+X-Forwarded-Encrypted: i=1; AHgh+RoEJsGffKylZxn+Lg1a3IaDLg0p1SZq1EiwIQMSAdhSG2flUTrm1rE45/KYP9G7W//CpymvQz4=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx5P2cpi975Huhsz7uDEXw4CxViBg5XmCcQNBuxnV8jCoHpFiAN
+	STiy5igVIIGRGFp8gZ5MwCQ0lpj0o6yiboyFJlLTVkrClzsnaVwZeA3p
+X-Gm-Gg: AfdE7cnSDMBk6CFJPVQd3H/AGviJceV4gcOip4WTJKGLK77OI3gHN/KnpsCpKfY8zaK
+	r0vox+cItHqjc1ThU3NKOahHTl/kKwz7dJaMhqpkKfxe1EWiEuwCnbbdIRpHNTbASw68gftTIsf
+	TWtfKEEHi5bB+B/BLMYAU0ZW86yudkwv0hAB6H9QpKd5qHpCfujEKCHLzkx7450pRc7etV/Vqdv
+	sSfKKnz0d8NDFjAPJGpCtdj0cnmdXYvAH9FI99MhAc69fxkqhkkVh6rWZTZBEjYjF/oRy4ANgja
+	UisvEj90eM7Hiy4lAEpkJt+5o2xo6GOuBa5/7fg5FbckjCKeAzCEzhWHzuE716l+u183AcCya7R
+	5Eb804NqSisn0prDUw6Upwy/fhdWpN8EzhSOHz+iC6nzmr2LI/9A6DbXJRoDqpoqy/cDo/cyO1i
+	VFffJhBUhgoNwvRNxQJpLur3QfVD0lJV9M9B53pI433NDQrLiT4m5wHJCYYfhrXzEySXIx7grzH
+	L23utx7OY0+8IZDl+s3XUrJvmM1lci88rXJ8bhmKbSh
+X-Received: by 2002:a05:6402:2483:b0:698:ae69:3992 with SMTP id 4fb4d7f45d1cf-69a85b9cd1emr2231989a12.16.1783415478241;
+        Tue, 07 Jul 2026 02:11:18 -0700 (PDT)
 Received: from eric (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69a19cd87d6sm5297152a12.6.2026.07.07.02.11.15
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69a19cd87d6sm5297152a12.6.2026.07.07.02.11.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jul 2026 02:11:15 -0700 (PDT)
+        Tue, 07 Jul 2026 02:11:17 -0700 (PDT)
 From: Eric Woudstra <ericwouds@gmail.com>
 To: Andrew Lunn <andrew+netdev@lunn.ch>,
 	"David S. Miller" <davem@davemloft.net>,
@@ -81,9 +81,9 @@ Cc: netdev@vger.kernel.org,
 	netfilter-devel@vger.kernel.org,
 	bridge@lists.linux.dev,
 	Eric Woudstra <ericwouds@gmail.com>
-Subject: [PATCH v12 nf-next 1/7] bridge: Add filling forward path from port to port
-Date: Tue,  7 Jul 2026 11:10:39 +0200
-Message-ID: <20260707091045.967678-2-ericwouds@gmail.com>
+Subject: [PATCH v12 nf-next 3/7] netfilter: nf_flow_table_offload: Add nf_flow_rule_bridge()
+Date: Tue,  7 Jul 2026 11:10:41 +0200
+Message-ID: <20260707091045.967678-4-ericwouds@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260707091045.967678-1-ericwouds@gmail.com>
 References: <20260707091045.967678-1-ericwouds@gmail.com>
@@ -95,101 +95,55 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-If a port is passed as argument instead of the master, then:
+Add nf_flow_rule_bridge().
 
-At br_fill_forward_path(): find the master and use it to fill the
-forward path.
+It only calls the common rule and adds the redirect.
 
-At br_vlan_fill_forward_path_pvid(): lookup vlan group from port
-instead.
-
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
 Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
 ---
- net/bridge/br_device.c  | 19 ++++++++++++++-----
- net/bridge/br_private.h |  2 ++
- net/bridge/br_vlan.c    |  6 +++++-
- 3 files changed, 21 insertions(+), 6 deletions(-)
+ include/net/netfilter/nf_flow_table.h |  3 +++
+ net/netfilter/nf_flow_table_offload.c | 13 +++++++++++++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 3b9fc86293fdb..56fc80d2f5215 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -385,16 +385,25 @@ static int br_del_slave(struct net_device *dev, struct net_device *slave_dev)
- static int br_fill_forward_path(struct net_device_path_ctx *ctx,
- 				struct net_device_path *path)
- {
-+	struct net_bridge_port *src, *dst;
- 	struct net_bridge_fdb_entry *f;
--	struct net_bridge_port *dst;
- 	struct net_bridge *br;
- 
--	if (netif_is_bridge_port(ctx->dev))
--		return -1;
-+	if (netif_is_bridge_port(ctx->dev)) {
-+		struct net_device *br_dev;
-+
-+		br_dev = netdev_master_upper_dev_get_rcu((struct net_device *)ctx->dev);
-+		if (!br_dev)
-+			return -1;
- 
--	br = netdev_priv(ctx->dev);
-+		src = br_port_get_rcu(ctx->dev);
-+		br = netdev_priv(br_dev);
-+	} else {
-+		src = NULL;
-+		br = netdev_priv(ctx->dev);
-+	}
- 
--	br_vlan_fill_forward_path_pvid(br, ctx, path);
-+	br_vlan_fill_forward_path_pvid(br, src, ctx, path);
- 
- 	f = br_fdb_find_rcu(br, ctx->daddr, path->bridge.vlan_id);
- 	if (!f)
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index d55ea9516e3e3..00f5b72ff42de 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1630,6 +1630,7 @@ bool br_vlan_can_enter_range(const struct net_bridge_vlan *v_curr,
- 			     const struct net_bridge_vlan *range_end);
- 
- void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
-+				    struct net_bridge_port *p,
- 				    struct net_device_path_ctx *ctx,
- 				    struct net_device_path *path);
- int br_vlan_fill_forward_path_mode(struct net_bridge *br,
-@@ -1799,6 +1800,7 @@ static inline int nbp_get_num_vlan_infos(struct net_bridge_port *p,
+diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
+index 7b23b245a5a86..5c6e3b65ae85b 100644
+--- a/include/net/netfilter/nf_flow_table.h
++++ b/include/net/netfilter/nf_flow_table.h
+@@ -368,6 +368,9 @@ void nf_flow_table_offload_flush_cleanup(struct nf_flowtable *flowtable);
+ int nf_flow_table_offload_setup(struct nf_flowtable *flowtable,
+ 				struct net_device *dev,
+ 				enum flow_block_command cmd);
++int nf_flow_rule_bridge(struct net *net, struct flow_offload *flow,
++			enum flow_offload_tuple_dir dir,
++			struct nf_flow_rule *flow_rule);
+ int nf_flow_rule_route_ipv4(struct net *net, struct flow_offload *flow,
+ 			    enum flow_offload_tuple_dir dir,
+ 			    struct nf_flow_rule *flow_rule);
+diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
+index 002ec15d988bd..5566ebda7b7d3 100644
+--- a/net/netfilter/nf_flow_table_offload.c
++++ b/net/netfilter/nf_flow_table_offload.c
+@@ -740,6 +740,19 @@ nf_flow_rule_route_common(struct net *net, const struct flow_offload *flow,
+ 	return 0;
  }
  
- static inline void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
-+						  struct net_bridge_port *p,
- 						  struct net_device_path_ctx *ctx,
- 						  struct net_device_path *path)
- {
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index a248ce70f919f..f4a82e107ec7d 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -1450,6 +1450,7 @@ int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
- EXPORT_SYMBOL_GPL(br_vlan_get_pvid_rcu);
- 
- void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
-+				    struct net_bridge_port *p,
- 				    struct net_device_path_ctx *ctx,
- 				    struct net_device_path *path)
- {
-@@ -1462,7 +1463,10 @@ void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
- 	if (!br_opt_get(br, BROPT_VLAN_ENABLED))
- 		return;
- 
--	vg = br_vlan_group_rcu(br);
-+	if (p)
-+		vg = nbp_vlan_group_rcu(p);
-+	else
-+		vg = br_vlan_group_rcu(br);
- 
- 	if (idx >= 0 &&
- 	    ctx->vlan[idx].proto == br->vlan_proto) {
++int nf_flow_rule_bridge(struct net *net, struct flow_offload *flow,
++			enum flow_offload_tuple_dir dir,
++			struct nf_flow_rule *flow_rule)
++{
++	if (nf_flow_rule_route_common(net, flow, dir, flow_rule) < 0)
++		return -1;
++
++	flow_offload_redirect(net, flow, dir, flow_rule);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(nf_flow_rule_bridge);
++
+ int nf_flow_rule_route_ipv4(struct net *net, struct flow_offload *flow,
+ 			    enum flow_offload_tuple_dir dir,
+ 			    struct nf_flow_rule *flow_rule)
 -- 
 2.53.0
 
