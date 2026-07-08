@@ -1,112 +1,156 @@
-Received: from mail.netfilter.org (mail.netfilter.org [217.70.190.124])
+Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012019.outbound.protection.outlook.com [52.101.43.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E5B531D757
-	for <bridge@lists.linux.dev>; Wed,  8 Jul 2026 09:54:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.190.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783504449; cv=none; b=D/6ZF+4ydepFV9k28NkwYkXhgwLHrP9HxMQAuZqmO+eB7qyi+EjMW0wR7q8U3tncKNLp3v0af40iXyUwWBDdVvDLl7Jtmea4j0IcTlTUDH5bdwfYOO5lQiPj1jFskpQrcuoSXbNbnUbL5d13i8kfZv+2BZ57CGlXunpuX+xR4GA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783504449; c=relaxed/simple;
-	bh=tejKlr+zjfgFQNzsPsXyc48IioicGULxBugjvND1sf4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EUlEiopC2dFfWrdjETsk4AikQTz3dvZlkO92ZyEzNVsOQpVBcL3D/kN2PA2fW9jdJuM+QcdenN4jyoyRqJz0UtF0qQTtoUAvPqD95b5YKMEy5skhJz+rGY4qTQLIeV+fL2ZtFIjL1m0L+I/y+SC0BOMaG7Khu2Tlj2Q+7H26kw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org; spf=pass smtp.mailfrom=netfilter.org; dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b=SPE2gCQl; arc=none smtp.client-ip=217.70.190.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=netfilter.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F05443D50C
+	for <bridge@lists.linux.dev>; Wed,  8 Jul 2026 12:28:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.19
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783513738; cv=fail; b=MnwSlJiaEFJczx03nDjLVXgUwYEaIGxyCVCuJ/py8EungM2Y5me07haYw31zcI67h1jAm6wwcUqwwPmiLHHAS8Pu4xmtmhGdmmc0YbnQBw6c9zqR8P8Q0/+C80g3hhNzEmW6ihWUN8KBAjVIw26WHq93KvAlEC9RDT0/VsGbEE8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783513738; c=relaxed/simple;
+	bh=3HrSZSqwlwULFXKT/DYU4pDltJ+q54I7UoFrAkbzPos=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=tu9S6PAhLK+AK7wJ9N9fkARXoren84tdmQ9VHtMlztddmpvFzbkXvy3+I0St1oOBGyoii/hJNS+rBkaBgfPx0TfauqF60s6jukdXurENmUk2kY4OuCWFjXq4sKFxk7DBj7fUT5QT8uOgD5SyRKtsA3pioCThEYIYXVEm+yJ6gAs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rRWmJh5C; arc=fail smtp.client-ip=52.101.43.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.b="SPE2gCQl"
-Received: from netfilter.org (mail-agni [217.70.190.124])
-	by mail.netfilter.org (Postfix) with UTF8SMTPSA id 0863E60575;
-	Wed,  8 Jul 2026 11:54:07 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
-	s=2025; t=1783504447;
-	bh=YasKGxXLIOr9y9/MbIC9v5B/sSJ0xIIqIKu8b6MBGk4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=SPE2gCQln/UhOwu+P/j9D7VL59EyliZX9aC9tklGPTrWWTxjLvM+UBk6G9VZJQrgN
-	 Mmm8Q4ygyazKnYJ6Qai9ftuf29rKobEr9Y1Wb32JMKdktbX66UoCWc0iThg+LOFOHy
-	 VL3EWvsTJbPdfohf9SISsxozy1Y+tahUf97giGCh7AmFov5Abs1cWbOu1H7ocbuXeP
-	 JQ9FK2dPDGsMNkRjMyxYfGuaWktbaU8AnpzwjoVQRZCS0t+3tsckHGUzeDEe+9wjkH
-	 ISCUeswW77eNDK7HVKj/l1KDbTPrxo8eabZGAe7ztHUjv/XRWfpIm6qzwuzItnDxLB
-	 RrbLihWGxJzXA==
-Date: Wed, 8 Jul 2026 11:54:03 +0200
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-To: Eric Woudstra <ericwouds@gmail.com>
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, Florian Westphal <fw@strlen.de>,
-	Phil Sutter <phil@nwl.cc>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Stanislav Fomichev <sdf.kernel@gmail.com>,
-	Samiullah Khawaja <skhawaja@google.com>,
-	Hangbin Liu <liuhangbin@gmail.com>,
-	Krishna Kumar <krikku@gmail.com>,
-	Martin Karsten <mkarsten@uwaterloo.ca>, netdev@vger.kernel.org,
-	netfilter-devel@vger.kernel.org, bridge@lists.linux.dev
-Subject: Re: [PATCH v12 nf-next 5/7] netfilter: nft_flow_offload:
- nft_flow_offload_eval: check thoff==0
-Message-ID: <ak4eO3V3f7MEOSEU@chamomile>
-References: <20260707091045.967678-1-ericwouds@gmail.com>
- <20260707091045.967678-6-ericwouds@gmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rRWmJh5C"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QaAiZu4Vdr1dczgMmYFEfENnPEz1seCO3LvK/+Qz13LOC4mg76fEhjOrc6mdq9S9XYHkjs1A1UHKVmtJlcLqNAg7c47YgohFvghZOgpt6HcTK/8kJbMaDzpQXn391cePV3oszj+lsxxpW+MV095Qn8tTmlDKNhpUX60UnnZ5yQa3YnbPSmDzeVPW7jmCNHdUlqEZ4D1avxTOGWcJFY6SZiJhmbio1K+YqjSCuiIiI3Ot87alIYxbyo04+jwISYqg6dl0O2kKlNKI1jhGhjxV1R52QhvcvRgAdtg0jsfvN7eFtdysuZ5gHAboopkcH6uinximacAvTVsD/WXMQx0hjg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=k0fG7mh+jjs4A9YUQTbDMGNtrhUE5njt7n/6UnVVTOE=;
+ b=Ze27UuqnPkur4zUd4he9zzveN84pOUX3mvGkX2vhjnJMFL7OyJBaFHlgH+u+bHGqZNGj16vnXyDLiJUtkSH3MtOqEZ/wVL+oKKLlgYlxIXj7SXKbnOKD+0tojO4PA7iZ5zW2Tq9eqU0t1T8yMQhTkT8Bi+z+ryi16D9OKLWuU4Sa47ev6+nfz0a16Z/vXQUKvwIjGYdOBED9eoQxzZDXXwDEpDpj/k/zFK2Dj3L1uCW02FjuXm57h/XIAq2OaG5BpvrJ6azKoggiLgK8moy9/fpZSaNBS1D8Ajv7ngwzYW8a5jVYJd4A+fLsGvWOIFldtwAtVTgNM/yKpseTpo4J0g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=k0fG7mh+jjs4A9YUQTbDMGNtrhUE5njt7n/6UnVVTOE=;
+ b=rRWmJh5C5iGeBkqFKi8Ba6fW7FsTy0KbxaD7KWSflwjeFLxDk2fnTn6cMHDYP2KPRcZiXxEwhEFAKqIrO2ZOchIk8/kGrnizTmopEDGvrunu45XZC9UyS5gV7Hxm4ZsQzaR01F+ln67oTxI5CKReHd6izc7fcopNQbfFRKYTgL1E1qeD7DALI20hWz/KcCzdG76ylR5fmbYXSDP/FITnaTR+lAXT54/xCZdpUixGKVWNtQ8o8ERR7dlzvILAfchAL+sPFSuv5v9GT+OwQRPJDJkOOh3BFjIiHG0GiUyJBLuK0TEhdPBqVv4EwcdY3q7WyGonghKhikLDMRFqRR00Fw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
+ by DM4PR12MB6637.namprd12.prod.outlook.com (2603:10b6:8:bb::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.10; Wed, 8 Jul
+ 2026 12:28:50 +0000
+Received: from SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
+ ([fe80::6f7f:5844:f0f7:acc2%6]) with mapi id 15.21.0181.010; Wed, 8 Jul 2026
+ 12:28:50 +0000
+From: Ido Schimmel <idosch@nvidia.com>
+To: netdev@vger.kernel.org,
+	bridge@lists.linux.dev
+Cc: davem@davemloft.net,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	horms@kernel.org,
+	razor@blackwall.org,
+	petrm@nvidia.com,
+	Ido Schimmel <idosch@nvidia.com>
+Subject: [PATCH net-next v3 0/2] bridge: mcast: Fix a false positive lockdep splat
+Date: Wed,  8 Jul 2026 15:28:18 +0300
+Message-ID: <20260708122820.1298718-1-idosch@nvidia.com>
+X-Mailer: git-send-email 2.54.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: FR4P281CA0023.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:c9::9) To SA3PR12MB7901.namprd12.prod.outlook.com
+ (2603:10b6:806:306::12)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260707091045.967678-6-ericwouds@gmail.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|DM4PR12MB6637:EE_
+X-MS-Office365-Filtering-Correlation-Id: 97a1eef7-6b4b-439a-496a-08dedcec775d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|376014|23010399003|56012099006|11063799006|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	PWU0Afq5q461rOgNvDH5LqOQt6DQLz5AfxBz625DCo1azOnUOdIuZMTzejsswiZiCdn+nke75a7qmRNUBRbQS8lq/39WtCV0BJ0FQwxwFW4B31hgjBI/vXrCHvlr5pT8KzHqc3GNP1Uv8p2tw1qAWtjP2uQ4pd9kOS81z46e7jhZ/cNWRNL8NELtwe/7Xo/aGRWVHyjyw1IlwaiZsNzJ3DNAJYj5Z5w2i+p48PhcxcSaM9FYQeH0v5fI+OlD8v9SdVQ4oj926NH8kehqtPIJTOeHsmeTUX5v8sV3xDQ5UaN/wSIB7sAeRgMptysOVEc4K+sV0OlQYdDDFvVpiRLSwRpnOtSX5R1jkDrB2owIoBj+PwzAoOmPS2DuYzRsLl32LvFlVPFXRxpOZxFlG0phWuKMfQVniAQ9yJqxBzVk+cMnKg0hZQsZbApe0YI4FiYxJFlBSzRif4NRQ/9lEoE3UIo0/HUfPWC7zrUKSCsf10k8nSMrQVne+WBlK98w9iDYo2PuWfMWnsT0Ko+oLE+SODpKQtXgSWQHmRW7BpVYoVIZaDuS80CpDf7Fa/Vf5FqDrrCqpg6iKQnWe2Yb6juH1Lf1XYpO6/3enKJRHNTmNE+LzKC3kF7PkDx5D/qHO0eZkJqJnZ7kjT+lqgKYWrJdwLPX9zA8GwK8nvvJVTZ1cNo=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(23010399003)(56012099006)(11063799006)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?kg0sIVJLYiLTNehkCzfqpLHpJGWz5OKBUyHneCXsfITJ/oxv4VmW9WAPkk8b?=
+ =?us-ascii?Q?txRWPitig5CxQsopQgR1fbO/41iMWuefgXS3Ies6iPXHHea2cfb/X0YjinLt?=
+ =?us-ascii?Q?8jPujZ9LAkXBtCvL28MU9vuuhVmpSJzxUiHL13/enDSXdDqhvYc6NoHSp+od?=
+ =?us-ascii?Q?9EzjgOCV29xxcGFrWac1Zj5NzCfuda9PciSRoH26LpDGVzPhDsLCp3voZr6W?=
+ =?us-ascii?Q?VrU58CFHkMCCEziISDPFaoYTkxiTFZnI5sAoocGCn0SAHsQwzaQbyHeFvcFc?=
+ =?us-ascii?Q?ntUCX2oVs4mDUdSmcn6ziq3TlER8h/kwK5hHXHWNIJt3+SfysTRWCifnbxGm?=
+ =?us-ascii?Q?cnxSg5/IoDLLwymduG5nmhJ3yFO2KUhVgWh8UOFku/Fs74BVL9Yf2vuGer6a?=
+ =?us-ascii?Q?XWHsnHXjxoWATiy46R2udHPgEmPJOFjIm+y88IPpxrnpD8DF9Mi7uwljJzae?=
+ =?us-ascii?Q?fiZoESpldOU0fQEksdjEHFrQMXXaIfcNY2sSBaBLFCx+MvuRm/zCHpmDpB2z?=
+ =?us-ascii?Q?36Hk9Qa6ONxYtUxrwxQtnhfKdPTOJTgmdf8vUH/uT8Itg/FHdvM78+cB2x4y?=
+ =?us-ascii?Q?l9iWrG5M8pgzW2/A9OvLRCiWs2ioReNTJuQNY1RZmOPcQGYXE2dSenooFsmP?=
+ =?us-ascii?Q?7757BI23Fn7HwTNpCtieHl0jRQ4XqyOD4QuV+4OpCxHopIBa1Pyyb3NNVsVg?=
+ =?us-ascii?Q?1VHjt4ZxmgBfhNslM4RUVip3oqYcLJcUAw4C54ILBAOZDzHSkdbKZwyy1mWl?=
+ =?us-ascii?Q?gJQAo7fAKx+dqYVTlf0HCkgbilhtPpzUYx2ouc61nxq6YdNhzV4he1ad0laO?=
+ =?us-ascii?Q?31pZXKXC/z24dIWzFJKvXi3QTVMfztO6d4vU0GES2PbLko/Px3hSG93fbWgB?=
+ =?us-ascii?Q?LO0d7916TMf1lj6zWIM80YVc926RgBg+Gwl8YJtUNZc23T5gUuG2IQ5juBkD?=
+ =?us-ascii?Q?0IcAxp3tpO2q9yJy1srj2DoUBUrftIvK9KA2ugEXbQMRuocLHjpjgtG/LsEb?=
+ =?us-ascii?Q?7T/RnXjfEziB8zDWg/Itz3FnN2As9+6V2xIsBFFnmigGTP7VSXswXoljN2GY?=
+ =?us-ascii?Q?H/6QCwT7UrA0h9y9hcIO2g0LXtTXAZDnmhl3xa0Inh9HU8pewYL+SNaWghRe?=
+ =?us-ascii?Q?uHFLvmoaHlGUCbE3ypikBn7hg52CI6mdenM6gjL5UB4KC0eWTwTZ6+yZPBUK?=
+ =?us-ascii?Q?kFegZNKBl+/kBOTJf9Oeez1l7cIomK8tuomHwhbt0lush0I7yFnwTqlBHlKV?=
+ =?us-ascii?Q?qnTu3snB1cyXEdzt+1dwBua4lff4p5pLxk9UMA/U6fgRSbKK0UPikNYORTQt?=
+ =?us-ascii?Q?eUhNghRNS952K/1ragUSOuKTkFiNFyF+94faeJTeqH5Ta3vNAzPA7viKCjH5?=
+ =?us-ascii?Q?2xqqIwNtw7hb9or2FhzEM4UdepP4rbpcu9dmOzd5onGGN6Ic4dkPVT3YO/SK?=
+ =?us-ascii?Q?6BPD+JdWSTY0OUKaHLTbOQw+rAFppIF9ie9Rqezh4o7T8oeO+hbe2QeR7kxG?=
+ =?us-ascii?Q?LknZSQvWDrngpOnWWGICjqG/ov3pVtzHDNcmA0l844d0gLGvGtNmWa7DdDxg?=
+ =?us-ascii?Q?9a7O4nKdKp5m9FS+792gu8bRtFzJMYAY0pUEO7zimf3uCTblO3UKncaccT7X?=
+ =?us-ascii?Q?N1oiaTXwo+wU2EEQKDworFM6WIwIcstCKB0/a42ijbs6EWDKmv9OLZzYulnO?=
+ =?us-ascii?Q?bvt3/Y6Ri1SC0OiqMjae/moI1vrg+stztWrdXMiiFHVwRq1yj1A3mDG32Tim?=
+ =?us-ascii?Q?LrEZI1UrSg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 97a1eef7-6b4b-439a-496a-08dedcec775d
+X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jul 2026 12:28:50.7695
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7KHE518LDgaCjks4qCTgmRnKhc/sowAWVa67VPyL2bIMYqZLgwRZhkxrHG64VYIOKYHF06HoPeMdtRmQcYyCiQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6637
 
-Hi,
+Patch #1 fixes false positive lockdep splat. See the commit message for
+more details.
 
-On Tue, Jul 07, 2026 at 11:10:43AM +0200, Eric Woudstra wrote:
-> In case of flow through bridge, when evaluating traffic with double vlan,
-> pppoe and pppoe-in-q. In this case thoff will be valid only when meta has
-> been processed. If meta was not processed in nftables, thoff is zero.
-> 
-> Signed-off-by: Eric Woudstra <ericwouds@gmail.com>
-> ---
->  net/netfilter/nft_flow_offload.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-> index f8c7f9f631e48..4f68fb64f1657 100644
-> --- a/net/netfilter/nft_flow_offload.c
-> +++ b/net/netfilter/nft_flow_offload.c
-> @@ -59,7 +59,7 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
->  	struct flow_offload *flow;
->  	enum ip_conntrack_dir dir;
->  	struct nf_conn *ct;
-> -	int ret;
-> +	int ret, thoff;
->  
->  	if (nft_flow_offload_skip(pkt->skb, nft_pf(pkt)))
->  		goto out;
-> @@ -70,8 +70,11 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
->  
->  	switch (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.protonum) {
->  	case IPPROTO_TCP:
-> -		tcph = skb_header_pointer(pkt->skb, nft_thoff(pkt),
-> -					  sizeof(_tcph), &_tcph);
-> +		thoff = nft_thoff(pkt);
-> +		if (thoff == 0)
-> +			goto out;
+Patch #2 is small cleanup following the previous patch.
 
-I addressed this by checking pkt->flags. I promised a helper to
-Florian to improve readability here, but I still have to come back
-with such patch. Basically, my assumption is that pkt->flags is unset
-if no IP packet has been parsed.
+Targeting at net-next since this is a false positive that is only
+visible with lockdep enabled and the change is not small / trivial.
 
-> +		tcph = skb_header_pointer(pkt->skb, thoff, sizeof(_tcph),
-> +					  &_tcph);
->  		if (unlikely(!tcph || tcph->fin || tcph->rst ||
->  			     !nf_conntrack_tcp_established(ct)))
->  			goto out;
-> -- 
-> 2.53.0
-> 
+v3:
+  - Use skb_queue_splice_tail_init() (Eric).
+  - Increment multicast stats from the workqueue.
+  - Add patch #2.
+  - Target at net-next.
+
+v2: https://lore.kernel.org/netdev/20260430162604.1043756-1-idosch@nvidia.com/
+  - Limit the queue to 1,000 skbs.
+  - Edit the trace to avoid checkpatch errors.
+
+v1: https://lore.kernel.org/netdev/20260426133435.207006-1-idosch@nvidia.com/
+
+Ido Schimmel (2):
+  bridge: mcast: Fix a false positive lockdep splat
+  bridge: mcast: Remove unnecessary argument from
+    br_multicast_alloc_query()
+
+ net/bridge/br_multicast.c | 105 ++++++++++++++++++++++++++++++--------
+ net/bridge/br_private.h   |   4 ++
+ 2 files changed, 89 insertions(+), 20 deletions(-)
+
+-- 
+2.54.0
+
