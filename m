@@ -1,80 +1,80 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91C97379C52
-	for <bridge@lists.linux.dev>; Thu,  9 Jul 2026 15:13:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54FBC3655C9
+	for <bridge@lists.linux.dev>; Thu,  9 Jul 2026 15:22:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.54
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783610033; cv=pass; b=R9I9GhNwtHsjbT8mAHF0xpX6GctsPyp1s0QHxr3j//A1UsYqdoq2/ExiqoEBGJkm8fnl22JxprqR/GpwPnydpDJYWBk58FC91aIjY9Di/XsFp7ZUQaBRYumkHc21Mt27iQ/xFqOD4m364JtXeuo+42L+eZVsbOreXESPO1Sus4o=
+	t=1783610524; cv=pass; b=pGg5UO31FoH0p3lnxwBp/bM9KAbXMPlXiDwOESvGFrG35Bdi9x79N1UeyYwsTntm8aMy5ql3c0t+H1Tgoh45nhahsaVRFAlLz9zucZ79ZnJ5J++JCXwUyeeBavq32jNHJ2qTmAsmwC1kpFB0GSlk/tgSXmmrirtFHoHxTuoha7s=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783610033; c=relaxed/simple;
-	bh=lm+iwZuldvNfgm8Lzbku/fwQXnHvxwIB+0za3JCHtHk=;
+	s=arc-20240116; t=1783610524; c=relaxed/simple;
+	bh=iDolcu2mWBl3uEuQAfKWNLBAt748fEeXf9V7/Qg2coE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Dt0vpwVjQUBijgtE/TUQoXMUE+BLSaztMDYZmWIoiDNRo1vab61YwDuXyCOVkb/8RrxfMUCDv7zd0+M7WuT2pJLOMABsLkuI7OWHcO1D+bldSu8qXZpB8SLRde4tJkW2VhEGs/cMGN6zj9hrygr3+eUGC4ynwg+Sw1BKUm1K1h4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m9n5Mqls; arc=pass smtp.client-ip=209.85.208.44
+	 To:Cc:Content-Type; b=FRninMvQW3a1bVQsKUh/dAisPh+KkcdSN235W0IKriWXvaGGE0qxHBXya8dp3+3s+6wNpIwZ561y/Uwiat5gU24KKQraMKp4fxdO+qv9Xqz7OsBpy+CBcTydscYeQdSFivmKl7/fz+5lTVzr+yN+JqK2j3OPwNv+vMJR7CF1iAY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MGF+try1; arc=pass smtp.client-ip=209.85.208.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m9n5Mqls"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-698a9f11776so3303954a12.1
-        for <bridge@lists.linux.dev>; Thu, 09 Jul 2026 08:13:51 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783610030; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MGF+try1"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6983d3dae7aso1747402a12.0
+        for <bridge@lists.linux.dev>; Thu, 09 Jul 2026 08:22:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783610521; cv=none;
         d=google.com; s=arc-20260327;
-        b=lcswhx7g6gCFE2Py9LsCSnY7AA9ayF8feJkLv8bvtdYu5qcyW/42sVRjGhHRYUj8e8
-         WHtwHTWqhr0iH1DN4DM7lqmdKp3ew996nOfsrBaqqQ41tXBOd+zUftJTGzr1xtzMznVV
-         tzipQBZ3Q6qQU+9oCJKqc9VgK5omGbsOpyHnKDOd884Kv91Nss4PNNG2mz51wiUww8e1
-         j46LFbfPlYtJG0Bb0FSuv1xEYlkywtOOWAIRz+ez6u4l/sIfaNtNzK2YA3cpHy0gNoGT
-         GKQRqX7fOKfSAeIpUxSgXdW2UpcH+hdpP0sVoVMKqTlwBswPNranstx9/tOP0DivZo/e
-         cKQg==
+        b=TEdVjYhfDGfC2wKmbGELymSz+0wt40h6/z1+iMptePXiKBCIQUd9GjmGNdwjDTMiec
+         TKjCLOVhV7nXSMTr5u+9tKbOtaufe9DTrgYb2Zg25vy34Uso/BXH6vdnEa1gzhIK8pfP
+         qQs1j8ovV9lmPgfCOm3GMt061EntVYM9BD4JxtDis/20ohAbstaXBqewLkjiORriJlQ9
+         BDp/52x37m622swgJhnKfmPfLVOl5RFyGlKxRXHBi46ObIaM6RzQ+1QyguOUFFPkgXbV
+         /+Oowg6vz4ZYSiHpMw30GCadhVCi6thUerFZ1nO39ZwertTGyphLraY1Yf3zdO/TX44L
+         J9hg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=lm+iwZuldvNfgm8Lzbku/fwQXnHvxwIB+0za3JCHtHk=;
-        fh=L3Le/64AweoEFLfTi097mHUOLzhP27kgLh05tP7RUHw=;
-        b=JybJ/NeB6MGTNBnfCN18fRWn3OvFpnINpX680L3DXuZXDEgs47FSkeAR7SVglwtqep
-         cB07KMtFo9alDs8CMcUkXqmV/HBLi7TMBUpAz6LYXfIrHQzFZHPn8nCn4pKpGQc/41DR
-         DUNhsou9pLMswrVKCC4ILAv2l65CQRWur3txJIYB72+Osd1K+OVnrb+q9m9uDcqF6+w8
-         Txt3t7ucb+IwWMkiFxnvtQbZwoF4FzD/Q3kAmGP2GLsfZfBUIGMe9J4s8FXdTZ1K+3jF
-         bt2DOP60R/nXkcdG7tbHEuVMpb4iLX9ZMSK50kljgnqZwH3wCZteHj85U0NVFciLE3CA
-         j4YA==;
+        bh=hl6Al4OsGwcvHqvs4fyMXGCvJt1Svt3mIHpxW1j8jYM=;
+        fh=KZU7Bh/JVH60aQ2/8+lgjKFIsqbLTnmwtF+Dg7W3voo=;
+        b=Hf7bExxDLU/H/ChL474D3b8URivmiXq3hRbt9bhB+MugDJUXyKkcIDQkQCO5UVY4Fv
+         FsqrtrYP16KnJ6aTmXey7eXCSi1K0q+WkXuGlTuobAVkfOmwTzlSE7HYViOMPgEdJ2k+
+         CCnl1QguzRE7EyTcrUrK4BuixjoM3cnWXyuXjikLVEmR6jvok4Skk+SkF9pJMvLkbsIy
+         RrdUtxnvCqOAWX92qr4KV8net7y6ZecCXGgs82KRb+onmLPGscSVTDaYAskMdIK3cCjf
+         kYDJVTR5RilgNU4r+RNoM8B5tS98C4g5FdGMpOa4tKZbV87Tdw1M9vskDgyXmdluM/rU
+         PBYg==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783610030; x=1784214830; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1783610521; x=1784215321; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=lm+iwZuldvNfgm8Lzbku/fwQXnHvxwIB+0za3JCHtHk=;
-        b=m9n5MqlsxgITbTiIxgHGX2vWQr6ITKLcIEbn7vFFVVZXzvhl5/cbEdUtMDsfSUNF9H
-         FQ54zwsBX1K6+SbX5N+QcLgfDcSxEZZF9WrPZPXzaM2jlIwmfQ7+6sTYVDc95xbbAhHq
-         HfEgNrMKQGJuDrPS3pKJ28YL/GZrnkUzHZZhXByTTm6ohbfsVncsVbw3LaItQ2aZ1r9y
-         SSMGnSkhm/g+fIY2Gzv6XvjPdBqm2w6vrtKPOmp60KCUBPC0p7S7NVz1O8hX/kbNvEu6
-         XYCAKc+OendEAcWSq8njY4AcE3/v+J4McFsUbGt34N5bdCJdRLPgHX56kNZxAkA6PyKM
-         fawQ==
+        bh=hl6Al4OsGwcvHqvs4fyMXGCvJt1Svt3mIHpxW1j8jYM=;
+        b=MGF+try1X8vRSZXqNi2EwOXCSsVwE+Pt5rdeSBsUAMDb/m1x5vVLqeaTwHZJm+Zf6y
+         7LEnollnwvraGSMYw1v6HfKyYJ2ZEB7c8LjyxHdDsdSaPmybtmKSuQ6hAEY7BQKhKd0r
+         SGzAM+txMfcFLEetLscHN1hVsIW46wOcDRuVW1lzc1a/MTaMuJFriqqjTjsLCQCvFASc
+         anumnw6qLVzRIghEOoy9XYMbsLUcHsDYUfyqyZJdJAKYX6Hs8UZ97B3fBUHUXrOWuOIY
+         i/XrbB2Bk5jaP0Gdv88JklllARz/FPR4AcbsHiCZNDSiaDM4/ppgY+VyrdeOrRRrym0h
+         QOkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783610030; x=1784214830;
+        d=1e100.net; s=20251104; t=1783610521; x=1784215321;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=lm+iwZuldvNfgm8Lzbku/fwQXnHvxwIB+0za3JCHtHk=;
-        b=UACgluT2soZgoDi++psAsw/y8OA76B+ExkUfj1GpcjNiDB/LqgEgk7v+F+KkkiS09F
-         1iqLKwY+5500D8qsUIi3bWJlWnY3WG6xnBSxZT+82GjJoEuQkjJC1LAspeljpz3ToepT
-         XttsoeG2Kr3K6J0b2QsxMXEGAlOHXqUwLPyENjt1rBQNIoNeyi2MNH/emfA9RW9nKB3b
-         w8uEU7h0zMX7Rt49xVUL45aj3GEIFUZgQ5cjFVDUsVlWIB7cR/wXcRE6RJwk+v14CQDr
-         aKGQZrncKhr1cExEdviCf5GoSGKXiob9r6SpnNUr9F4Vf9YmG/hvYySTELGQu4gv87Ve
-         Yqsg==
-X-Forwarded-Encrypted: i=1; AHgh+RoQqPlrE+/TCDuETQp9mX0g+AP9KyzbSP2iUfWEaK9ZEVcJxA1MZKKSK7CNV6ajEcUzXNW9a08=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzu5Jw5odG4/7871S/jcvdx5Kljnihppjcttp3JV1KF0BFC3Y5H
-	rwcUr80sOv8eK45Y/368MPow5y/ALT+RXMxiBslS64mvJItcWrQnILoUcpaRiDv4AcpumeTrINe
-	qKf3ZGXD7qSaUeVI0SosDja3J0wkCDVo=
-X-Gm-Gg: AfdE7cl5AyMI/rjUhaSWwyNcgHy3m0qCifK39vKMGCARzx/DeXGKjSmDJdwpnG4rmcF
-	//8/YHBhN0eEkQuXBWBx24hTnQn0aRAF8lR5Xpr8536+8V+QALu05xtHP0tu3zk98hcPfSFhs9H
-	xTL8xt4FtzTlqs2+moT2vdbOO6FDTGXFqOF8ag/ythL2GoZugt4Vl511AHynkzcgBaY5Ita8a0p
-	GuXwqDA8C7Tm9KeW0Ygywevni38Y+FXC3lPxNu9Ly681XXyo+iKGRZ1YtML0z1NxJzFhuM=
-X-Received: by 2002:a17:907:1b1c:b0:bed:19af:f89a with SMTP id
- a640c23a62f3a-c15cde8c84dmr329373166b.7.1783610029787; Thu, 09 Jul 2026
- 08:13:49 -0700 (PDT)
+        bh=hl6Al4OsGwcvHqvs4fyMXGCvJt1Svt3mIHpxW1j8jYM=;
+        b=nmeunqEzGAREaJEs+j793mrvIDIlRW+ig5KZ/W4CJqCG77KAdkyDXCJy4dLdPa7WJV
+         jOY3bcxzagkRx2FZRprJ+8Tqodzpj3OZS4n6dVV5+IQsP6pLl3Flae1porUr4qhPU79f
+         MLkJQ+v+506f/H+Ry0AjK3+Ek6Cy22qMfRW/jbfb3ZfryFWzk2n2b9CpO+z4oXvGHA5S
+         pSYJC/LjD3z9OPj/DQuxqt4rScgxCs3qdL5yt9mOtrS0Jp1n6DnPcu1nBZOIJH11yBzs
+         aL9u9p5D+/HP15b9diG2sifCEgngc7qRoJ/wdfySmLSQw/p35WfDbaBQ+NY1fAWSFQaT
+         +/eQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqmItINUOnqF2RrKKy/sKjfke5Jd/Fj3PepGO8Vvm5jhEACt07JJ7tWPk0OPpgrVEkE8g46UCA=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwaRGNSArVsyhqGWa62Aj9T6oB70KSRLRAGpKuDAh8Zh42cdZHr
+	6eoddH3RlXiDWwviuVSkIN0DxlwVc0k3RLSTyv+hFsEmqogakJilYe/eRs5tOzPeB4LD17pvuew
+	TxhUlq9vWz42cisfo7jo9zS//CTr9EQM=
+X-Gm-Gg: AfdE7ckZhdgrF/0ve3szdxsNaZi0R1s6DunIYGA+mXPQYi0hBrkQvYuZLkt8Ay2KnKB
+	u5dwlcgRbbeIcisgHEhIujS7l4W3uuqyRkMwedtAV3L/0FqseRh8/mrPeVnBk07XLUVTfzAZ9iE
+	jLEybvGp53tmic9VVLov2Yew0wLPqV/BdZ9Cml0dqeUFBSP+xinqXTvECXYav9s0tWXILoLWyr1
+	Plwo4DjnIoAK9sWRZJxY56SemoN9QEQ4+5ni4KsUW7MwWabKLq4St5nciaZi3AmUVyTmRk=
+X-Received: by 2002:a17:907:c50e:b0:c12:6280:33c9 with SMTP id
+ a640c23a62f3a-c15e780ee92mr173767266b.28.1783610520581; Thu, 09 Jul 2026
+ 08:22:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -84,12 +84,12 @@ MIME-Version: 1.0
 References: <20260709101327.9508-1-royujjal@gmail.com> <2026070925-delay-gauntlet-bc7c@gregkh>
  <CAE2MWk=mm8_bkd54Gv1mdox6rfvx85Dd3AjOCxPz0fPAfyuWYA@mail.gmail.com>
  <2026070954-activist-left-8303@gregkh> <CAE2MWkmcQdhGp3LTMtpgAse3AFcfKcAcpQe89+iijfP5e0w_QQ@mail.gmail.com>
- <2026070948-lively-exchange-a458@gregkh>
-In-Reply-To: <2026070948-lively-exchange-a458@gregkh>
+ <2026070948-lively-exchange-a458@gregkh> <CAE2MWkn3L7V3x8i0F-soGLxsBBo_Umgs1pJ3FwCw1OW7=U55zg@mail.gmail.com>
+In-Reply-To: <CAE2MWkn3L7V3x8i0F-soGLxsBBo_Umgs1pJ3FwCw1OW7=U55zg@mail.gmail.com>
 From: Ujjal Roy <royujjal@gmail.com>
-Date: Thu, 9 Jul 2026 20:43:37 +0530
-X-Gm-Features: AVVi8CfKbtzcJnRxXIx3ULOTra4r8qYMzKp7zTKSzETyFRYKJOujtPr221wvxYo
-Message-ID: <CAE2MWkn3L7V3x8i0F-soGLxsBBo_Umgs1pJ3FwCw1OW7=U55zg@mail.gmail.com>
+Date: Thu, 9 Jul 2026 20:51:46 +0530
+X-Gm-Features: AVVi8CdJgqKVLA2sAn6f7XPums4J2L125q9McUSFj0u2k_NGu-cn3IODEhE9pa8
+Message-ID: <CAE2MWk=xfQ1SpkHnVL0Tsru4e=_8xi2XvESs4Lh+=g4cbFEuuA@mail.gmail.com>
 Subject: Re: Please backport bridge multicast exponential field encoding fix
  series to 6.1.y/6.6.y/6.12.y/6.18.y/7.0.y
 To: Greg KH <gregkh@linuxfoundation.org>
@@ -103,107 +103,135 @@ Cc: Linux Stable <stable@vger.kernel.org>, "David S . Miller" <davem@davemloft.n
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 9, 2026 at 7:52=E2=80=AFPM Greg KH <gregkh@linuxfoundation.org>=
- wrote:
+On Thu, Jul 9, 2026 at 8:43=E2=80=AFPM Ujjal Roy <royujjal@gmail.com> wrote=
+:
 >
-> On Thu, Jul 09, 2026 at 06:35:04PM +0530, Ujjal Roy wrote:
-> > On Thu, Jul 9, 2026 at 6:23=E2=80=AFPM Greg KH <gregkh@linuxfoundation.=
-org> wrote:
-> > >
-> > > On Thu, Jul 09, 2026 at 06:12:40PM +0530, Ujjal Roy wrote:
-> > > > On Thu, Jul 9, 2026 at 4:34=E2=80=AFPM Greg KH <gregkh@linuxfoundat=
-ion.org> wrote:
-> > > > >
-> > > > > On Thu, Jul 09, 2026 at 10:13:27AM +0000, Ujjal Roy wrote:
-> > > > > > Hi Greg,
-> > > > > >
-> > > > > > Please consider backporting the following bridge multicast fix =
-series to 6.1.y, 6.6.y, 6.12.y, 6.18.y and 7.0.y.
-> > > > > >
-> > > > > > 726fa7da2d8c ("ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and sim=
-plify calculation")
-> > > > > > 12cfb4ecc471 ("ipv6: mld: rename mldv2_mrc() and add mldv2_qqi(=
-)")
-> > > > > > 95bfd196f0dc ("ipv4: igmp: encode multicast exponential fields"=
-)
-> > > > > > e51560f4220a ("ipv6: mld: encode multicast exponential fields")
-> > > > > > 529dbe762de0 ("selftests: net: bridge: add MRC and QQIC field e=
-ncoding tests")
-> > > > >
-> > > > > Why is any of this needed in older kernels?
-> > > > >
-> > > > > And 7.0.y is long end-of-life.
-> > > > >
-> > > > > And why, if this does fix issues, was it not tagged for stable to=
- start
-> > > > > with?
-> > > > >
-> > > > > thanks,
-> > > > >
-> > > > > greg k-h
+> On Thu, Jul 9, 2026 at 7:52=E2=80=AFPM Greg KH <gregkh@linuxfoundation.or=
+g> wrote:
+> >
+> > On Thu, Jul 09, 2026 at 06:35:04PM +0530, Ujjal Roy wrote:
+> > > On Thu, Jul 9, 2026 at 6:23=E2=80=AFPM Greg KH <gregkh@linuxfoundatio=
+n.org> wrote:
 > > > >
-> > > > I already explained this in the email thread, "Please backport brid=
-ge
-> > > > multicast exponential field encoding fix series to stable kernels".
+> > > > On Thu, Jul 09, 2026 at 06:12:40PM +0530, Ujjal Roy wrote:
+> > > > > On Thu, Jul 9, 2026 at 4:34=E2=80=AFPM Greg KH <gregkh@linuxfound=
+ation.org> wrote:
+> > > > > >
+> > > > > > On Thu, Jul 09, 2026 at 10:13:27AM +0000, Ujjal Roy wrote:
+> > > > > > > Hi Greg,
+> > > > > > >
+> > > > > > > Please consider backporting the following bridge multicast fi=
+x series to 6.1.y, 6.6.y, 6.12.y, 6.18.y and 7.0.y.
+> > > > > > >
+> > > > > > > 726fa7da2d8c ("ipv4: igmp: get rid of IGMPV3_{QQIC,MRC} and s=
+implify calculation")
+> > > > > > > 12cfb4ecc471 ("ipv6: mld: rename mldv2_mrc() and add mldv2_qq=
+i()")
+> > > > > > > 95bfd196f0dc ("ipv4: igmp: encode multicast exponential field=
+s")
+> > > > > > > e51560f4220a ("ipv6: mld: encode multicast exponential fields=
+")
+> > > > > > > 529dbe762de0 ("selftests: net: bridge: add MRC and QQIC field=
+ encoding tests")
+> > > > > >
+> > > > > > Why is any of this needed in older kernels?
+> > > > > >
+> > > > > > And 7.0.y is long end-of-life.
+> > > > > >
+> > > > > > And why, if this does fix issues, was it not tagged for stable =
+to start
+> > > > > > with?
+> > > > > >
+> > > > > > thanks,
+> > > > > >
+> > > > > > greg k-h
+> > > > >
+> > > > > I already explained this in the email thread, "Please backport br=
+idge
+> > > > > multicast exponential field encoding fix series to stable kernels=
+".
+> > > >
+> > > > Sorry, but that's not here (remember, some of us get 1000+ emails a
+> > > > day.)
+> > > >
+> > > > Please explain why patches need to be backported when asking for th=
+em to
+> > > > be backported.
+> > > >
+> > > > thanks,
+> > > >
+> > > > greg k-h
 > > >
-> > > Sorry, but that's not here (remember, some of us get 1000+ emails a
-> > > day.)
+> > > Sorry for breaking the thread. I understand your point, I will
+> > > maintain this in the future.
+> > > How should I send the patchset that addresses the conflicts on 5.10.y
+> > > and 7.1.y? Shall I send the conflicts patchset as a series via a
+> > > different thread or how? I've never done this before, so I'm asking.
 > > >
-> > > Please explain why patches need to be backported when asking for them=
- to
-> > > be backported.
+> > > Here is the explanation for why the patches need to be backported:
 > > >
-> > > thanks,
+> > > History: The multicast stack currently supports decoding of IGMPv3 an=
+d
+> > > MLDv2 exponential timer field encodings, but lacks the corresponding
+> > > encoding logic when generating multicast query packets. As a result,
+> > > query intervals and response codes exceeding the linear encoding rang=
+e
+> > > can be transmitted incorrectly. This can cause multicast queriers and
+> > > listeners to interpret different timing values, resulting in protocol
+> > > interoperability issues, membership timeouts, and premature multicast
+> > > group expiration.
 > > >
-> > > greg k-h
+> > > Testing: The series adds the missing encoding support for both IGMPv3
+> > > and MLDv2 and includes selftests that validate the behavior.
+> > > I backported the series to v6.6.123.2 and verified the accompanying
+> > > selftests. The selftests fail on the unpatched kernel and pass after
+> > > applying the series, demonstrating both the bug and the effectiveness
+> > > of the fix.
+> > >
+> > > Given that this is a protocol correctness issue affecting multicast
+> > > query generation, please consider backporting the complete series to
+> > > all applicable stable kernels.
+> > >
 > >
-> > Sorry for breaking the thread. I understand your point, I will
-> > maintain this in the future.
-> > How should I send the patchset that addresses the conflicts on 5.10.y
-> > and 7.1.y? Shall I send the conflicts patchset as a series via a
-> > different thread or how? I've never done this before, so I'm asking.
+> > But this really seems like a new feature being added, it's not fixing a
+> > regression of something that previously worked, right?
 > >
-> > Here is the explanation for why the patches need to be backported:
+> > WHy can't people just update to the latest kernel release to get this i=
+f
+> > they need it for their environments?
 > >
-> > History: The multicast stack currently supports decoding of IGMPv3 and
-> > MLDv2 exponential timer field encodings, but lacks the corresponding
-> > encoding logic when generating multicast query packets. As a result,
-> > query intervals and response codes exceeding the linear encoding range
-> > can be transmitted incorrectly. This can cause multicast queriers and
-> > listeners to interpret different timing values, resulting in protocol
-> > interoperability issues, membership timeouts, and premature multicast
-> > group expiration.
+> > thanks,
 > >
-> > Testing: The series adds the missing encoding support for both IGMPv3
-> > and MLDv2 and includes selftests that validate the behavior.
-> > I backported the series to v6.6.123.2 and verified the accompanying
-> > selftests. The selftests fail on the unpatched kernel and pass after
-> > applying the series, demonstrating both the bug and the effectiveness
-> > of the fix.
-> >
-> > Given that this is a protocol correctness issue affecting multicast
-> > query generation, please consider backporting the complete series to
-> > all applicable stable kernels.
-> >
+> > greg k-h
 >
-> But this really seems like a new feature being added, it's not fixing a
-> regression of something that previously worked, right?
+> This is a corner case when people set the query timer value higher
+> than 128. People usually use the default value and don't change it, so
+> they may not encounter this issue. But I found it when I changed the
+> value during some extensive validation of protocol timeouts.
 >
-> WHy can't people just update to the latest kernel release to get this if
-> they need it for their environments?
+> If one host doesn't have this fix, clients will observe premature
+> multicast group expiration. For example, a set-top box channel might
+> disconnect early.
 >
-> thanks,
->
-> greg k-h
+> But we can ignore this until few more people request this fix for older k=
+ernels.
 
-This is a corner case when people set the query timer value higher
-than 128. People usually use the default value and don't change it, so
-they may not encounter this issue. But I found it when I changed the
-value during some extensive validation of protocol timeouts.
+Last two patches actually fix the timeout issue. Below one fixes QQIC
+encoding BUG for IPv4.
 
-If one host doesn't have this fix, clients will observe premature
-multicast group expiration. For example, a set-top box channel might
-disconnect early.
-
-But we can ignore this until few more people request this fix for older ker=
-nels.
+95bfd196f0dc ("ipv4: igmp: encode multicast exponential fields")
+@@ -780,11 +780,9 @@ static struct sk_buff
+*br_ip4_multicast_alloc_query(struct net_bridge *br,
+        case 3:
+                ihv3 =3D igmpv3_query_hdr(skb);
+                ihv3->type =3D IGMP_HOST_MEMBERSHIP_QUERY;
+-               ihv3->code =3D (group ? br->multicast_last_member_interval =
+:
+-                                     br->multicast_query_response_interval=
+) /
+-                            (HZ / IGMP_TIMER_SCALE);
++               ihv3->code =3D igmpv3_mrc(mrt / (HZ / IGMP_TIMER_SCALE));
+                ihv3->group =3D group;
+-               ihv3->qqic =3D br->multicast_query_interval / HZ;
++               ihv3->qqic =3D igmpv3_qqic(br->multicast_query_interval
+/ HZ);  // This was not encoding earlier
