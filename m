@@ -1,200 +1,164 @@
-Received: from LO3P265CU004.outbound.protection.outlook.com (mail-uksouthazon11020087.outbound.protection.outlook.com [52.101.196.87])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B58025EF9C;
-	Fri, 10 Jul 2026 13:58:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.196.87
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783691887; cv=fail; b=UUJX6ucvwvzukiAlQ6k96RHCAiFrioLXeETnIG3a3QXRQD7UiibzQFBDe/ZZnyRV/R0oR5OS1d2HMQYs0fxukoYPthl273U4HKDX07tYGHCRtM0xxwjiMcwrh0gCEyR7h9MRBswGtyjmsos4gYJjMB0CxmDwsT+0m73V+Xc/GOs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783691887; c=relaxed/simple;
-	bh=6eJeERqTvv+GRnv6l7TjuRzD7mM+GPY1jDfugYDmxoc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=uI7QW/uTT7KZgSdNjOWWTyuvwy7xKYJr6bfgFYUpj/gDQRyaLym3dMSCEeicW1tRiIIAfRL+eWxK98D2tQ0/Y/sSuW2+FNpqiDqL9lZd3SIs4ZXd0Auq3vDZvM/3gvPcEKX1qtP+okEQDQb+CsvHYoOuhUo65aoGvKXYlk8lIKY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.196.87
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=d/UKidZW2yROLKPKhG9FiE0erou4BUfd55Lpt15BZFxg3TnBGnPR22WFAO/P5qeCVZTzla5KVq7FF2+sjL6f/eVU9L8aCA+A9v13lM7J79ByPmXSV1PYBna1DtAaik2hyvjy4laCdRgbioUBXLC4Bsu2FYtS2jE/miouPSlyxPK+PWGvq/gh5oAy2LFEA/OyCKON1T89HSNizgicj4ayd1GVsKNL29AbgMGn+1pZmeJZWElXC7d3/pe/6Caasr/n9gIAbTycOxszYbJr8ToI/OPQ+pXCdVJAgoMz6QcAAWjkwqgACnT6Jgx7VIaRM0WWyH5Es/f/W462mD6eVXlvmw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001; h=From:Date:Subject:Message-ID:MIME-Version;
- bh=dNuOHlrDEIkjKR9dIyVx0dXJKses962YAhpOz5OyCDA=;
- b=lphhwxzK+2YMMezx9gCXFikFc8fh60GNYaqcn/uEgPvULionwet/ks1XZC7WgoRlikuNW5mSEDb4KmGWpSwzIhMuODYrOIi6Xi3xBIfHxr4SdkXkiG5rN2rTw+K6NcA4NrXKAs4GCMeLI7tFU5m5cHu9uTxcYHS8WL0PcIEUUk0FkC8GQb+iqBYIqDjRoozdWdRSwDKF4ZwfA+s4scYNhGqfrTHkg41Ilg7LyYc8436wws/Pbl5yXn/QJafbHF6quEKi4CKj7OfdOKQWPXIq1gtW4Wy9LHOU5pUKhMsGhMSTui32I02vQ9zI7XwIroAjHT4OCrtT7okIPgJZm1C8Tg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
- dkim=pass header.d=atomlin.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=atomlin.com;
-Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:183::5)
- by LO0P123MB6878.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:30b::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.17; Fri, 10 Jul
- 2026 13:57:59 +0000
-Received: from CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
- ([fe80::cec4:77ab:262e:d230]) by CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
- ([fe80::cec4:77ab:262e:d230%4]) with mapi id 15.21.0181.014; Fri, 10 Jul 2026
- 13:57:59 +0000
-Date: Fri, 10 Jul 2026 09:57:55 -0400
-From: Aaron Tomlin <atomlin@atomlin.com>
-To: Petr Pavlu <petr.pavlu@suse.com>
-Cc: Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Philipp Reisner <philipp.reisner@linbit.com>, Lars Ellenberg <lars.ellenberg@linbit.com>, 
-	Christoph =?utf-8?Q?B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>, Johan Hovold <johan@kernel.org>, 
-	Alex Elder <elder@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Michal Januszewski <spock@gentoo.org>, 
-	Helge Deller <deller@gmx.de>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Trond Myklebust <trondmy@kernel.org>, 
-	Anna Schumaker <anna@kernel.org>, Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
-	NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>, 
-	Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Mark Fasheh <mark@fasheh.com>, 
-	Joel Becker <jlbec@evilplan.org>, Joseph Qi <joseph.qi@linux.alibaba.com>, 
-	Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>, Luis Chamberlain <mcgrof@kernel.org>, 
-	Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
-	Pavel Machek <pavel@kernel.org>, Len Brown <lenb@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Danilo Krummrich <dakr@kernel.org>, 
-	Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Kentaro Takeda <takedakn@nttdata.co.jp>, 
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	drbd-dev@lists.linux.dev, linux-block@vger.kernel.org, greybus-dev@lists.linaro.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org, 
-	ocfs2-devel@lists.linux.dev, cgroups@vger.kernel.org, linux-modules@vger.kernel.org, 
-	linux-pm@vger.kernel.org, driver-core@lists.linux.dev, bridge@lists.linux.dev, 
-	netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 2/2] module: Bring includes in linux/kmod.h up to date
-Message-ID: <xihlbspozbgwhez2byjatscslutapi3j4rjhpzxebtn2wjmk5a@qf62xs6lyd6q>
-References: <20260708154510.6794-1-petr.pavlu@suse.com>
- <20260708154510.6794-3-petr.pavlu@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260708154510.6794-3-petr.pavlu@suse.com>
-X-ClientProxiedBy: MN2PR07CA0020.namprd07.prod.outlook.com
- (2603:10b6:208:1a0::30) To CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:400:183::5)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB47E363C48
+	for <bridge@lists.linux.dev>; Fri, 10 Jul 2026 15:16:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783696610; cv=none; b=oocniZLrxa+Df5apeE+q0ccHKketxiskVuUL54NN70BE+TPg5crW/SnJrHZMsg8IJzzk5oWafA2x7QX1u9qRYwHJ2BQcZpKLRTUUqVmZucWv7/mLnHDf45XaSdMYzgEem7QCBvknQ+xtQMoOSGl54OvONO1w8vtWHnjHnKjF3wE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783696610; c=relaxed/simple;
+	bh=1JtLlpRRACfvKsroXlBPtY0Dc9Plol0JKs7d++0dOtM=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=P48TfFkpKm3+DjTyWvT0g/L3c4T3wWVns3kcY0VWz/XzTQVUCPd4pHiBRqvlpSl8OwKjE32DuR5l1kJQtIEKBB5x9WPwoInNQ0awSp6rPGJeQG5dNcviPA+zODkSZUZ+jQ6Qh2TC1zjNWhiV4epB/4AFUGbIo+nYCUL7m0ARhpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WvqlcEUV; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WvqlcEUV"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c15cb6f5c12so184136166b.0
+        for <bridge@lists.linux.dev>; Fri, 10 Jul 2026 08:16:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783696607; x=1784301407; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :references:cc:to:subject:from:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=pzG2aZr0GYhbw005TMkhGo2BjpwTfepBU/AvlO3Dhu0=;
+        b=WvqlcEUV5fE21dFoSycRlAjZMysilugnqKTaT3jIyyurnhzXC1PqoeqjqGAKztV+tC
+         iMk44xrtUVZJi/T1y9BWLKCyUDtnOMjzNrj1qi/rPlMw4/AqObNVx9yAHERVrHeCOxfj
+         0eG+Nd8s4tO4Mkbr3/mce3AUMxDK9oW7enOe5gz32tuD+KpKm0nHGgcV4lM1Dkdmt1X4
+         5M1RHToBl0+RMPpKvfDFNoUhHbKe5Wl4wpkOut2/jNb50eTnmXDaCTu20HshuNnUqV2j
+         HlNTGNPLQM+ukFWiF+5Kcepszv+qzaRUhIkQZbJI+pTKOM4RbagHmSQCcvMfmzTseNcx
+         KfKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783696607; x=1784301407;
+        h=content-transfer-encoding:content-type:in-reply-to:content-language
+         :references:cc:to:subject:from:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=pzG2aZr0GYhbw005TMkhGo2BjpwTfepBU/AvlO3Dhu0=;
+        b=cZdxgFjTgUg0LD7Gzh5nDjScuX1xv0kaCE+WbEJhtYn6g7w1rRlxAnpSsSxmaB6Z7Z
+         oT8h58mUkyN33Kc7UURaplqvjdD0ZE+TkpJRrpr6E0ppgj4ZXn6uAmBm8/zr9CKIU4kM
+         gQTs4zjW0+CU2w1TGTkzut+KI3axqvc1vMHMYTu+DCw//c0NAntQQA8WisY8gaZYnjF9
+         IFkvVR0S+thQi2rXGMkyrWZqVFyByyY/FEnGA8xv4QtYGCdjuIPVtDfqp66afhagJZYc
+         Di2TP2muCqzmr0ySzEanExRK7xMVyG6cexAWbBztqGIEgwZgSN1RltR23a7WUHPUy5yD
+         bzIg==
+X-Forwarded-Encrypted: i=1; AHgh+Roa+YZCT2+47qMM5mM3t2C6pZ6c237/cT9qEiWi9pD2WTZogt+aUfFkjPNEbplqxm3IFy1AwZo=@lists.linux.dev
+X-Gm-Message-State: AOJu0YwserOWmYT6YCxpvc68LIPM8av/klYNaAvCxez3hRItGYiWIiWc
+	6vP9ye5GDlqVGWGZ56YiRGYET1a8m/lSDz0AS9aMke4IRK72oRmEOoQR
+X-Gm-Gg: AfdE7clscEkB/vKNLxLHZ7HvKbMEsNPSAASKbX2LQ/a94fdRKvkc+/PVXpD7+NcKwPJ
+	J4/xoPErtMKyHzsBXEdMP5cJkyaJ1GvaQqDCJppalC/aRwcGC6XNb0PdjXR/BE3dAnD3fG0glk8
+	DuHiogb0zLRotxhZTMAZJD2HWI31uKltz+VbZnPuEwuN2rA0yQ8LgowWWZvjhtIKekuSmmF8ZRH
+	UMTTac1YQiRrYekgSY7yNS+Ll3Q5sklplDESaukqkS44Ag7SJKs3kJ5Aw5B1yIHCgQf/bvbHUsQ
+	rdjttcJxxJzTotqraL63lYa0J65kWo466K9OIbepC10j9kdVFiwXrc51LD3vEFN1sPwCSvLbjz5
+	bZfCVYjmz176s17v93InAPsPbmjWTwFr40RVTnZ7a7xd4WBrcOgSPfxx+2YPaCTolflvszKem5t
+	oCZ6NjoJw3FilY3HWtXW4LreIIvR4Lgc5ZPtgkp/qbiECpYNfT4oGfkX1TbKDy/4LSMj+2QLRLA
+	jYsZL8W2Vuwr5aTP2ZbvJqHdWSFKx6iK3v/6VCnXuOQ8HdyUQArptUF1YtKu2c76XwbpdpHwiRS
+	jB+zKs/Fy9pvZDAREkfNTzE=
+X-Received: by 2002:a17:906:4fcf:b0:c15:b96f:c3d1 with SMTP id a640c23a62f3a-c15ce06ed7emr537056666b.41.1783696606976;
+        Fri, 10 Jul 2026 08:16:46 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:20d:1300:1b1c:4449:176a:89ea? (2001-1c00-020d-1300-1b1c-4449-176a-89ea.cable.dynamic.v6.ziggo.nl. [2001:1c00:20d:1300:1b1c:4449:176a:89ea])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c15f272141dsm204948866b.59.2026.07.10.08.16.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Jul 2026 08:16:46 -0700 (PDT)
+Message-ID: <12451f0d-7e5b-4697-a734-8200944b204f@gmail.com>
+Date: Fri, 10 Jul 2026 17:16:44 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CWLP123MB6607:EE_|LO0P123MB6878:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8889c9a4-a311-464f-0f29-08dede8b401e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|1800799024|23010399003|366016|56012099006|4143699003|6133799003|3023799007|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	mnyvn741YVrPSaa0hwDbGrVtBRz+LIw95ja24e6zj7PbDMuYmcaDImgwK2HHFUGJbbEcU/o/lI/aj1VwebZpFhYjn4UNBPq0Wo0aBJiBiHe3jP82n7XKJZaaOP7aQSDCZkIHBBQoRitq/qc/ChGsRVhQZlLuO2WYFbdcf8mxHWu7lyFgatYFUByozN4BGDpucV3Z22SM6P1zRo1UfSTaESZ0Ck2YBy/WwQwcv7s6DVvTKZAUA4umAJCvnwKcMsWOIgi08wNl8E1PsoN2/mL8YDyYDnpKFa6J8iHkbsvfPLYe2jW/d9HrRHB6z62o53M9QTUxNAUefCfoiuWv9y1twRBkQvwlbble7/lJ+bawqZzE8wkMXVxr8aNr3u9oKAx0C9bxaVT8M6uKiA2rFfEScIE1kEubJz/zDxRHlnnN1Z2P+YER/lissTD9b+xKmRg/Sf8q5f8gDV5IQbo1LzG2awcxOlVf/+PlVTFLkqNRWBCpyhv8+9ohJ1AO+/UjiNB3LydrS89QDbi2A/4WcsSDaUxIIBrD5FuHSS2xZ90O6OvPaDYDeRdk4jD2z7K0DIogiyfS9zQitJX/zxK9aOCKHnmB+56lZ73lkP6/8l4ePv2jmJZnAppaQ4FxeFV4zYMyj/IYVUm0ykOl7VLAcDafxE8hRLZtvkgf9+Z4/XhYakQ=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(23010399003)(366016)(56012099006)(4143699003)(6133799003)(3023799007)(18002099003)(22082099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?ZjM4c0FxdHRFbVA2ZVNRdS80bFp5SDQxY3RQYjlGbTB1dDBzUG5zdEhFU2xK?=
- =?utf-8?B?KzFiM2M3a0QvNHptNUlwYzdNVWZIcWs4dlFteHVzSWczWWduUWNUejBmdEZm?=
- =?utf-8?B?aVNBdG1BcWpnd215UjYrb2J4TEc0cFFndzJVdURzdHJWV252bjNPdkh6Nnkx?=
- =?utf-8?B?ODVCN2pHanhmMzVKeXhMM3YyYXhZdExWQzJzdWl0YnhxcERtbUMvaFdvZm5x?=
- =?utf-8?B?aG0xdmk1cGRwNlNTRzJTajFMU1NzcityMERFQWJDL0NZdDhla09yaERpVlNq?=
- =?utf-8?B?UjhKbE1DdVdJZS9zMmZXMGQyNjkwK2dhZ2luUU13Z0J3eWowTUhEeTRqcFRq?=
- =?utf-8?B?elBCS0pTWlhvQWI5K3g0ckRHZU1CQkp0TGx6bk8yNUpWZmRIczB1b2hqYVQr?=
- =?utf-8?B?WkR5VnB4M2R2MGNwaFo5NkdlQUhVQXd5ZWEvYjVxc1l1dU9hUkcvZ29SOWpK?=
- =?utf-8?B?c0JrS0E1ZW1BVkNWNjdZYkZHNHljWW9lR3VHWENzcHY1empXbXNPb3ZwOG5I?=
- =?utf-8?B?aHRiN3JXQTNTQWNnZk1LS0N2RGVNOWMxOHhXWGRsUkxhK3REUG54M21lR0Jr?=
- =?utf-8?B?WjRra2JCeEVZRzhJNFlteExCZ0lacys2MUNXc0lDUnZ2cVVVT0JiMUpqWXJ2?=
- =?utf-8?B?VExGdTFVNHM2azlSek5WczR0SDdOVlZseGhmYmlJQmZ1M2plMFExeHhVRG4v?=
- =?utf-8?B?bytaWFdiSjdWL1dIbGpTNEkxL3FwWjRVdDRXZTBGNFlZNTUyNzJjSXFBNWlk?=
- =?utf-8?B?a3RvQS9GYTV2T0tzZ3h5RGZDcFplb0NHeXExOVl4M2IybkNVSktIbXJCMmM2?=
- =?utf-8?B?eU4vWDZrR29CcFlnZVdCd0tRV2J2TzBoeHBqbmtvTWdwZ3RndUl1ZUJ6Tk1q?=
- =?utf-8?B?ajVVRDIyRHNGTEJ5c3hsQ0N6aEdlaTk0VDZUZDBLeExBVDk3UTlzcmpHdVQr?=
- =?utf-8?B?cUhmdlNiTlhHUGRSUW96S1pGazVTbjBseTVCY0tqY1ViRjVkNEd6USs1WGUv?=
- =?utf-8?B?emhDcW5PTitrNGFCK3N4SG1vNXpCR2dwY212SVJYK3VjaTZEZUM5UzVUcjYv?=
- =?utf-8?B?TXp6bVRoU3BSdWVzaC8rQU95Nndubnd5eFUxQnFyb0JraWZxbTRkVWtLNmpL?=
- =?utf-8?B?VWRqMnhRRkRsVlJ5VWREeUNZWmFRbnFBMEk2VW9rSmpNem1hWisyTVplREIv?=
- =?utf-8?B?akFQbEhzVmt5ZjN5VC9wQThQV29uV1pqYlE4dVh5bE85SnRhQmRHbS9wMzdL?=
- =?utf-8?B?c1NzM1E4UU9iQWlaWUNGSkZUWWVwZDhTMmw2VWcxWjZOZmx5UnBmM3BGb2NW?=
- =?utf-8?B?ejRXR2FGVlFMR0lzQ3NOUFJCZUVlMmhIOGJweE5oSkhBRGx3b2ZOSXdnVnU5?=
- =?utf-8?B?ZEFPckdDcTJqNitIYkVjQTZ6VG90WGNUOGlNS3d3MGsrRktMd2V0Vk1qN0Fz?=
- =?utf-8?B?enovZGxLWWhYdEZMcCswcEtEODZHeWIzZFVPeE9qcWEraUpqR1U4TVd5Q3JE?=
- =?utf-8?B?OGJJUWdDaldocGhIb21FMURjQ2w4dUZYZ21RNmQzMkNWQkVJR0x2anF3RFJt?=
- =?utf-8?B?YVVlV01DaFpUVnBIZXA4SGZhdVVBbnFnVEtieWNQRERwZExPNzZpT1ZNQUFO?=
- =?utf-8?B?dFlyMEh4MEJKTjIzb2NreFFOMTB5MjVQSkpkYUdLekpLc0owbHJPN3RmaW5P?=
- =?utf-8?B?Y2poRGNsbmlWVGJwN3IxUXlZM3o3UDFQQVVIWkdVNitsZDJIaWlTWGliU3RB?=
- =?utf-8?B?VTZnbzNRK3IxMnM0ejFJMEwyM0F2TlhHRTVrOWJpUit5VWF4R2VSQmNMd0t0?=
- =?utf-8?B?Vm9LNStCbTRiYU9xMkdNYVMwR3dCcWx4QnhKMmorcDRYb2xSbkhpUFkxZldC?=
- =?utf-8?B?WEZmMTUxV1pNdHE5cTFUcFkveklZOW1CM1JWSHdFWGpxVUp3OFpvZ0pYVG4v?=
- =?utf-8?B?eWpkK20rb1BOUEZHUFdIUjJucHZ0cjQwNHZIMHRJaEZPbUlzRXE4OHV4STN3?=
- =?utf-8?B?a24zTWlLYnR5QzMyL3FnaWdpVWVmZldHNStkWjNkaUVHaWNidVNNM2tVK1Nx?=
- =?utf-8?B?cHVJMkNYbE5zOElrY24rSy92V1VlWTh3S2lVTWE5S1ZQQU50SzJmbVdsaThK?=
- =?utf-8?B?Q096SWdvQlRSNHMvZWpBSncyM2ZnUk1UU3BJNFZDY01kS00wOS9hNncxWHZH?=
- =?utf-8?B?amtYNmRidWJwVkNNangwdWNXWUxxUitDSjVwM3RaWHBOVkt5S2VHWUQ4cDU3?=
- =?utf-8?B?OGZ6OHhHRVFzaWE0dmdPMkZWNlZsN2ZFQklMcFhCRmdWc0pqM3djSjNPSEh6?=
- =?utf-8?B?eGpaS05KTWFBZ2xBZ2xuU3VWWHVyaVpteWI2UXByMW5EYlVXZ01LUT09?=
-X-OriginatorOrg: atomlin.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8889c9a4-a311-464f-0f29-08dede8b401e
-X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jul 2026 13:57:59.3246
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: hDwfhxFpj9eN2nNEFrA5KAidckTs70TyYQaw5oNwhBSjWpXN0ngpfIvW4gAKhWaf72JIUvICyafxXZ+msFt7yQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO0P123MB6878
+User-Agent: Mozilla Thunderbird
+From: Eric Woudstra <ericwouds@gmail.com>
+Subject: Re: [PATCH v12 nf-next 3/7] netfilter: nf_flow_table_offload: Add
+ nf_flow_rule_bridge()
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, Florian Westphal <fw@strlen.de>,
+ Phil Sutter <phil@nwl.cc>, Nikolay Aleksandrov <razor@blackwall.org>,
+ Ido Schimmel <idosch@nvidia.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ Stanislav Fomichev <sdf.kernel@gmail.com>,
+ Samiullah Khawaja <skhawaja@google.com>, Hangbin Liu <liuhangbin@gmail.com>,
+ Krishna Kumar <krikku@gmail.com>, Martin Karsten <mkarsten@uwaterloo.ca>,
+ netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ bridge@lists.linux.dev
+References: <20260707091045.967678-1-ericwouds@gmail.com>
+ <20260707091045.967678-4-ericwouds@gmail.com> <ak4dAXHDmTDRr7-b@chamomile>
+ <81c3bf65-b19b-4f80-aa8e-c0c4b3f5d6a7@gmail.com> <alC64Vg_xihR-huW@chamomile>
+Content-Language: en-US
+In-Reply-To: <alC64Vg_xihR-huW@chamomile>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jul 08, 2026 at 05:44:30PM +0200, Petr Pavlu wrote:
-> Including linux/kmod.h alone results in 1.5 MB of preprocessed output, even
-> though it provides only a few functions and macros.
+
+
+On 7/10/26 11:26 AM, Pablo Neira Ayuso wrote:
+> Hi Eric,
 > 
-> The header currently depends on:
+> On Wed, Jul 08, 2026 at 08:36:11PM +0200, Eric Woudstra wrote:
+>> On 7/8/26 11:48 AM, Pablo Neira Ayuso wrote:
+>>> On Tue, Jul 07, 2026 at 11:10:41AM +0200, Eric Woudstra wrote:
+>>>> Add nf_flow_rule_bridge().
+>>>>
+>>>> It only calls the common rule and adds the redirect.
+>>>
+>>> I decided to use the new _unsupp() function, so we don't pretend
+>>> bridge hw offload is already supported. We will need a driver before
+>>> we can add this, this stub does not provide much. I guess your goal
+>>> was just to avoid a crash here.
+>>
+>> No, I am already using hw_offload between bridged interfaces
+>> on the mt7986 succesfully for almost 2 years.
+>> It works dsa-port to direct interface (lan1 to eth1 on Bananapi R3) and
+>> between direct interfaces (eth0 to eth1 on Bananapi-R3-mini)
 > 
-> * __printf() -> linux/compiler_attributes.h,
-> * ENOSYS -> linux/errno.h,
-> * bool -> linux/types.h.
-> 
-> Include only these files, reducing the preprocessed output to 10 kB.
-> 
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-> ---
->  include/linux/kmod.h | 12 ++----------
->  1 file changed, 2 insertions(+), 10 deletions(-)
-> 
-> diff --git a/include/linux/kmod.h b/include/linux/kmod.h
-> index 9a07c3215389..b9474a62a568 100644
-> --- a/include/linux/kmod.h
-> +++ b/include/linux/kmod.h
-> @@ -2,17 +2,9 @@
->  #ifndef __LINUX_KMOD_H__
->  #define __LINUX_KMOD_H__
->  
-> -/*
-> - *	include/linux/kmod.h
-> - */
-> -
-> -#include <linux/umh.h>
-> -#include <linux/gfp.h>
-> -#include <linux/stddef.h>
-> +#include <linux/compiler_attributes.h>
->  #include <linux/errno.h>
-> -#include <linux/compiler.h>
-> -#include <linux/workqueue.h>
-> -#include <linux/sysctl.h>
-> +#include <linux/types.h>
->  
->  #ifdef CONFIG_MODULES
->  /* modprobe exit status on success, -ve on error.  Return value
-> -- 
-> 2.54.0
+> Do you utilize the existing mt7986 driver in-tree without changes to
+> achive this hardware offload? Or you have still have out-of-tree
+> patches that need to be merged to achive this?
 > 
 
-LGTM. Thank you.
+I do not change anything about the mediatek drivers to achieve hardware
+offload. No patch needed to fix hardware offload.
 
-Reviewed-by: Aaron Tomlin <atomlin@atomlin.com>
--- 
-Aaron Tomlin
+However I do have a small fix for the offloading towards the mediatek
+wifi interface. This is a fix for the software fastpath already.
+Also with hardware offload to wifi interface, once the software fastpath
+is setup correctly (needs this patch), then the hardware offload functions
+correctly without any further patch. See patch:
+
+https://patchwork.ozlabs.org/project/netfilter-devel/patch/20260317101525.358016-1-ericwouds@gmail.com/
+
+It is not reviewed yet.
+
+>> It can also be tested with my bridge_fastpath.sh selftest script.
+>> This script uses veth-device pairs to test the software fastpath.
+>> It can also use 2 real interfaces interconnected in a loop of copper,
+>> when chosen with commandline arguments. Then it tests software- and
+>> hardware-fastpath. It also tests many different scenarios.
+>>
+>> So this is why I've added it, as it is already functional. If a software
+>> fastpath is setup correctly, the hardware fastpath is also functional.
+> 
+> Thanks for explaining.
+> 
+> I am targetting at a minimal subset of the flowtable bridge support at
+> this stage. There is a need to make progress with the
+> nf_conntrack_bridge counterpart before the flowtable bridge can get
+> more features (namely, bridge vlan filtering support).
+
+I did send a newer version of my patch-set for nf_conntrack_bridge,
+last version also adding support to defrag/refrag. See:
+
+https://patchwork.ozlabs.org/project/netfilter-devel/cover/20260512103347.102746-1-ericwouds@gmail.com/
+
+I've added testcases for defrag/refrag to the bridge_fastpath.sh selftest
+script (v5), so I know it is functional.
+
+For proper vlan filtering support, I do also believe you will need to
+introduce DEV_PATH_BR_VLAN_KEEP_HW, or do something similar. See:
+
+https://patchwork.ozlabs.org/project/netfilter-devel/patch/20260317101722.358640-1-ericwouds@gmail.com/
+
