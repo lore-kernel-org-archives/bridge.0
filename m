@@ -1,66 +1,66 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A6323B6344
-	for <bridge@lists.linux.dev>; Mon, 20 Jul 2026 09:27:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9B463D330C
+	for <bridge@lists.linux.dev>; Mon, 20 Jul 2026 09:31:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784539638; cv=none; b=eX3GrQ5/axwrxHTkGKbOx6cb5rtNSLUfHwtiKwrIFNNBhCBnfApLvuWJun5pQW3ZA/SvoaJmO6hKSdZ9roT3/VYTM2/aB4j7JSlZXTGAzRh5O7eTseUSUEIWHTzNYDPXDErXEYwO9JAKPjmlPKk5MVNFhoxU2aHgtrMUAhk9FuM=
+	t=1784539872; cv=none; b=jiQ5b4zpgec6SpgiRz8HiZoxBQBBNMti9QecQRQziYhlNl75U2/IU33JxbcAo4gr7/bM5DnUE0jbkbz/pzGHERskQsOEsskEMlBiTOD3uhN04TM39X9j9IwaV8pupNaoC26kD2u0E441Zfx76Iboz4Ajp48doiHYbYaF39mIhBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784539638; c=relaxed/simple;
-	bh=HQMQFnSUXuBKeeJ97RIwrfO3zajoT/O4JZOcb4WgBqA=;
+	s=arc-20240116; t=1784539872; c=relaxed/simple;
+	bh=BxnKu8vNtsYLiK5ravYlLTKTjAKTsC6um00fkLnSK3U=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e9NgZrgC2ue7iu7tngEVdp64kGfUEpx3KzXqgUZTlKYI1WJpxOd+GhsNky2iP+Bh8ehDWtdEzqG6NBci53YjrfF8ta+/N3KM/3CCzvr47NmeVTekMjlJirKdiCjzRXx/tgy7ByKV4/6xGC+oEtMUC7TJDWCCSlQLL3bv409/7PA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=OuNn086f; arc=none smtp.client-ip=209.85.221.51
+	 In-Reply-To:Content-Type; b=Q0IxZSZ8zn1pV+TJU3c7u56z6lHAnSaRsgT58547Sk/Z5enFq/xzPZ9GcLBXVxZtIEptnwQHo/G2b7qqiM43uXETGxOBZtQQEFIAkScPkEeLbBJAR3Jx6H1CKuYwLrocYo2NvwaK+V6Ndys0VLY8GLsuweITQPCMzlUDbj5Fm4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=gcO3T73M; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="OuNn086f"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-47df43bfb07so2553972f8f.1
-        for <bridge@lists.linux.dev>; Mon, 20 Jul 2026 02:27:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="gcO3T73M"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-49548e01d02so12461845e9.0
+        for <bridge@lists.linux.dev>; Mon, 20 Jul 2026 02:31:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1784539631; x=1785144431; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1784539869; x=1785144669; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Y5AYMZaEUXhh4z8P8i95ra+KWHKRxofJ1kLmW4+NFQs=;
-        b=OuNn086frVk3obSfPJz/qUL3XMGT0j2DM81C/RkFN5Mxtwl7Ro9bH7rAgdKe8BdHnt
-         OvcCVrUWsmVOeOBDe4NPWssltIMIUp5pWwJU0p118xFAHqs34MK68m5rpQSqoP9DLiFP
-         zH9OHUg776x8XbW5L8U41EEVY8mhCWC6FZ77nIx4kF/ZIAizBENdEcAlBSPTo7g8bAQJ
-         ROS+HGIdRhdKe5ha6jkAcOxsM3lHiBFroYhcoGVuuWt31ID4Ecq40Etvp9H/HMgnFthN
-         D6BsCr3n3omfeIUHShRRrC7W48EfgKEKItCg/Tg6gLjfvBebDh9Wh3lGNepDinIQaOCA
-         3xuQ==
+        bh=pW1JswRc46/DemocbXNde6KLd1ZN2Gsh0169WW0rnNE=;
+        b=gcO3T73MIlXoACFgllYotkzE9oM/xiw0wV2kNf1Sv5GDvb7IC/c7vCHyNyJzgeBYDw
+         MGoVoYAB6scxjPTEkZwZKLpGYoFd4XN8jEEaSzdqR+i16II7Aj5Ha0zf+mjeEeCg8b9O
+         cg1hJ7w18Z1A3br08UjUOCko80aR0I1QZKjGm3d5gLHmUe52rZ2i+hSKgypOMEL+qaYV
+         u0Ytep5/UItXjcOOyLfU8r3dzspqdaMpjIdl4AKCOcZPOgaihcgWjwRjcaOsySQuPXKa
+         viUXrAl4o8Z557O+gAf9LuE0KBenTdVI+QALqInw5158zhYf+EwjQgFvCogsXesZz6Tg
+         HsmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784539631; x=1785144431;
+        d=1e100.net; s=20251104; t=1784539869; x=1785144669;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Y5AYMZaEUXhh4z8P8i95ra+KWHKRxofJ1kLmW4+NFQs=;
-        b=ZPfo0uT76zewEfbTEpkyTmff52y/BLXZN9qgH6hn7QAEpebmT8IVvnn20ituunKOkB
-         13pun2Pgon8/ymg9790ikbyG6P5prMpZ4NYIOcIHLfrzjXkaORiO2bsF/MhhOW/IDsLR
-         F5vFpi/KhvzSIeqnI5qNw6fLxqQdDXKuv/anPgeIOKTRO0TCHlAbLKiHvxmSLm77tLjD
-         wNXD4Zd5cvSo31CkOpy9MQpSnAp/oKOvjZPTStiNhF6wlAPBXMRQILO3c/6GY5ia2PE8
-         mIxNWqOVbTVHJmOKpnstZN6XV/bUqpQOnE9QdU5Weo+EO8+e/TWwlMlFAvbMfQibISoN
-         Z6xg==
-X-Forwarded-Encrypted: i=1; AHgh+Rr6uPiSjo8k8AKl2Mb/VLGnRH/9GCESgiha983f0dC44/eD1SWtxkMlgN6w50gxLWCJwsG93gY=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwRO6hzIHoOKvuTy30zXs2tzglYs6smVmy8DDRTz7pEtjSiKQaH
-	HFNUwxSnKR677WO0wr5n1HaGA2TY8YIXuGHNseGGdjYNpXoSX0vVefy5PKJgpLuYrfc=
-X-Gm-Gg: AfdE7cmqpeaOcSvkFUqfqrsL5lxhi+KbRAfiiPUaaEpCNYE5646U6aA63HFQ3lkJ5k8
-	1+eAzOIj6YJrIj5LOczZGJBunf2WQIHztb7a+BpyiOqdPlPU5nz2v5tGWczozXXns/PF3fYcgyc
-	evefIuuA8WTpU32G49woO8NYId8lTm11/k2e/GnSyAkL8To3lJfO/pZZQbdX+SGaJp7/9uiNNQX
-	kzLcbByKKzYWTuL37SLiZzExT+b8wh0R3Q5UAIpcOdn5xSdsFBBtTzMvV+iiWMB5OR5bt7+dhA5
-	z0HAp13aVf5zIS3LPWpvIjK6DQEtSt5HW5dAit/mi8pMNCc4x1Fnso81bO0bpqk9S3E0pGtXUAg
-	xpZ2G6IkDZzK8JaVXTKI87ko14iaVtUlpeFVAosIxGEbuW93w4WCEHbuzJuVV3jtJtR1480E9f3
-	gstmnA6LckpuQT+FOQqcUW7Vij4vHu2rvA
-X-Received: by 2002:a05:6000:60f:b0:47f:6d75:7a52 with SMTP id ffacd0b85a97d-47f6d757ac4mr10330530f8f.31.1784539631284;
-        Mon, 20 Jul 2026 02:27:11 -0700 (PDT)
+        bh=pW1JswRc46/DemocbXNde6KLd1ZN2Gsh0169WW0rnNE=;
+        b=hczBpoFQl8foPDKbP7cD5LPQR6hr4ojDAm/htwg8hahcV/qLawLlBh2y1NZ8Y8EqcG
+         MoxjODS97zSebLpiRExbPHKKRCOTAQOrcC7JAO8KwNSWoPjqjNGWtBmKC1PnLkDjKkVN
+         aXXIeI8z8pYmztWpA1LvociUjXpr9leqBZtn30XChyrARbjz1V+h3MDJ+DCBBSjPid0Q
+         0IudSQRUWnUQPr4RHKInzmWAW9bRJl4YAy8kKGP/O0wCKb8EalQ8y7PXjwmp7C8thpKI
+         9RXG6YCdtEypPhprV4jYjnzHN8kTwydT3j4YizUGSkKQe6f/33/h8WetofEx15qNyydA
+         rcog==
+X-Forwarded-Encrypted: i=1; AHgh+RqVht3cBhquaNjXe16Q1woF1+RnVhP4dVDxEAUhPvfxdk1a7fx/hqZYBqNdHpIX6S3DOd0bPVQ=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw1w/HEx4qLX3SNh51i78UZwOWYgwQdiMt67cZDhg5Rcpt0QxnC
+	Jv7A6bLIDmBHQSC/W8VKVF5Zs+EMzSsQL5/RGN7YRi7lWaIhkLigbkzPmvz+wOLWAkA=
+X-Gm-Gg: AfdE7clMh0METP5u0H17ZwKp9piphQxeDRtS0WwLYaQtqh9LuXcaWhCZNj7InWSdrAi
+	1a3UL2xmFETigUiPM3zJoH0vEZoeoGds2s/1CW/Kgvs9mFAD7Mpi8D6FiHymoMV670bZh21auGn
+	3v3uf30/bMt1qICBlu+U0dk9F8g1oz/BHijL/QvcDTjxw4AlzIP5xYnmMudKHVY6pVlqzCyQsh2
+	FgxHGw/Sf3VVpzOrBZ683o0O3VcprhXIfnQhCtLIhbiGi6vas/P9Ufvd2tl3uIaV+pzhIkk/nWk
+	HnQYtDTrdiLvM6y22iMcIw4kxC73ynhnq/maPnn13gZQsEw0Ms6Fmo79NnoAZRderIMMzGgIfhD
+	AH+6CbiwZ7cw7uh5hA4mb+lh+c+Wbw9gdDs94T9darqgC565o3V4Ep7uFPdEsJkke9IpfwC429T
+	LqTdbAko+kRXfEFSM0SEnmdP9QQaSmgh7k
+X-Received: by 2002:a05:600c:45d5:b0:495:4056:9473 with SMTP id 5b1f17b1804b1-4954a40d0c3mr144465725e9.28.1784539868617;
+        Mon, 20 Jul 2026 02:31:08 -0700 (PDT)
 Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f63eddd27sm28372768f8f.28.2026.07.20.02.27.10
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2edda2sm252362295e9.13.2026.07.20.02.31.07
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jul 2026 02:27:10 -0700 (PDT)
-Message-ID: <103f04dd-dc48-42e0-83db-46864ca9297b@blackwall.org>
-Date: Mon, 20 Jul 2026 12:27:09 +0300
+        Mon, 20 Jul 2026 02:31:08 -0700 (PDT)
+Message-ID: <ad48b1da-50bd-4b79-943a-0a3331191b7c@blackwall.org>
+Date: Mon, 20 Jul 2026 12:31:07 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -68,8 +68,8 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 5/5] bridge: Use ndisc_parse_options() to parse
- ND options in br_nd_send()
+Subject: Re: [PATCH net-next 0/5] bridge: Validate and clean up IPv6 neighbour
+ suppression
 Content-Language: en-US, bg
 To: Danielle Ratson <danieller@nvidia.com>, netdev@vger.kernel.org
 Cc: dsahern@kernel.org, idosch@nvidia.com, davem@davemloft.net,
@@ -77,34 +77,63 @@ Cc: dsahern@kernel.org, idosch@nvidia.com, davem@davemloft.net,
  ja@ssi.bg, petrm@nvidia.com, fw@strlen.de, kuniyu@google.com,
  bridge@lists.linux.dev, linux-kernel@vger.kernel.org
 References: <cover.1784463131.git.danieller@nvidia.com>
- <d75c565729850a2b95c5b19fd5997e94cf55029c.1784463131.git.danieller@nvidia.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <d75c565729850a2b95c5b19fd5997e94cf55029c.1784463131.git.danieller@nvidia.com>
+In-Reply-To: <cover.1784463131.git.danieller@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 19/07/2026 16:34, Danielle Ratson wrote:
+> The bridge implements IPv6 neighbour suppression by snooping Neighbour
+> Solicitation and Neighbour Advertisement messages, but it previously only
+> checked the ICMPv6 type and code before acting on them. This leaves it
+> open to acting on malformed or spoofed packets that any RFC 4861 compliant
+> node should reject, and the option parsing in br_nd_send() open-codes a
+> loop that has historically been a source of bugs.
+> 
+> This series hardens and cleans up that path:
+> 
+> Add ndisc_check_ns_na(), a standalone NS/NA validator modeled after
+> ipv6_mc_check_mld(), implementing the RFC 4861 section 7.1.1 / 7.1.2
+> mandatory receive checks (hop limit, checksum, code, length, target and
+> option validation). Wire the bridge into it so NS/NA messages are
+> validated to the same standard MLD already enjoys.
+> 
 > Replace the manual ND option parsing loop in br_nd_send() with
-> ndisc_parse_options(), which provides proper validation and avoids the
-> class of bugs that were fixed by commit 53fc685243bd ("bridge: Avoid
-> infinite loop when suppressing NS messages with invalid options") and
-> commit 850837965af1 ("bridge: br_nd_send: validate ND option lengths").
+> ndisc_parse_options() and ndisc_opt_addr_data(), and linearize the skb
+> once it has been validated as an NS/NA message so that this and any future
+> ND message handling operate on a linear buffer. The first patch is a small
+> preparatory cleanup that drops the now-unnecessary skb_header_pointer()
+> fallback from br_is_nd_neigh_msg().
 > 
-> Use ndisc_opt_addr_data() to extract the source link-layer address
-> from the parsed options, which correctly validates the option length
-> for the underlying device type.
+> No functional change is intended for well-formed packets.
 > 
-> Export ndisc_parse_options() so that it can be resolved from the bridge
-> when it is built as a module (CONFIG_BRIDGE=m); otherwise modpost fails
-> with an undefined symbol.
+> Patchset overview:
+> Patch #1: drop the skb_header_pointer() fallback.
+> Patches #2-#3: add ndisc_check_ns_na() and validate NS/NA with it.
+> Patch #4: linearize once the ND message type is validated.
+> Patch #5: parse options via ndisc_parse_options().
 > 
-> Reviewed-by: Petr Machata <petrm@nvidia.com>
-> Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-> ---
->   net/bridge/br_arp_nd_proxy.c | 32 +++++++++++++++++---------------
->   net/ipv6/ndisc.c             |  1 +
->   2 files changed, 18 insertions(+), 15 deletions(-)
+> Danielle Ratson (5):
+>    bridge: Use direct pointer in br_is_nd_neigh_msg()
+>    ipv6: ndisc: Add ndisc_check_ns_na() validation helper
+>    bridge: Validate NS/NA messages using ndisc_check_ns_na()
+>    bridge: Linearize skb once the ND message type is validated
+>    bridge: Use ndisc_parse_options() to parse ND options in br_nd_send()
+> 
+>   include/net/ndisc.h          |   2 +
+>   net/bridge/br_arp_nd_proxy.c |  54 +++++-----
+>   net/bridge/br_device.c       |   4 +-
+>   net/bridge/br_input.c        |   4 +-
+>   net/bridge/br_private.h      |   2 +-
+>   net/ipv6/Makefile            |   2 +-
+>   net/ipv6/ndisc.c             |   1 +
+>   net/ipv6/ndisc_snoop.c       | 190 +++++++++++++++++++++++++++++++++++
+>   8 files changed, 224 insertions(+), 35 deletions(-)
+>   create mode 100644 net/ipv6/ndisc_snoop.c
 > 
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Nice set, but I'm curious - any reason not to use EXPORT_SYMBOL_GPL() instead?
+
+Cheers,
+  Nik
 
