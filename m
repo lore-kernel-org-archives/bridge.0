@@ -1,117 +1,107 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755062E06EF
-	for <bridge@lists.linux.dev>; Sat, 25 Jul 2026 14:51:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D0BC625;
+	Sat, 25 Jul 2026 20:31:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784991093; cv=none; b=K0qw8aTqJaB7UVzuPl6e98/cN8ZgqAD0gZP+LCyADkjbCqKiasbeFoXxhacv7JQpsJErZqZ9sllmokehKFUh4DiQVR3bY0es5Okoqp+risFP91WU4rQkxLVf/SrYqE3aWmLbABYmLGgsHk+mxeTGZEdVAtXI853MmIijs2xR/6w=
+	t=1785011472; cv=none; b=aTgBjb9cj0tsiNCIRNgwNLQgX0d4hZvqBukP+Rg2l7tWTaje0908uRIqsphDDLpNn90NS7itft0NcPZn0kT/lLzw0lkWg+AGJ+lbKUrBFyLPInQnST1u4p1GrXrFF2jSYORyEQQo4xyOyaRpTavkuvEMlc1C2OJHvum7JLtMtJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784991093; c=relaxed/simple;
-	bh=KZs1Us200zaSsvqhZvrAFPnlls04ZdqH5I5VmDa9ki4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WBfxXBtnbMHxmEHECod7Hq5AeMKdtS7TD49T0pX32asyWmbcCQKWsJg+NP18F68mCa0+/MYIgjtSlMZnYTogF2Hgt2yQ1H3bbzelVmz9AHxrAWSlJeBtPh7Mk43P+GFe6mAuqGQSCxzqBspNesEfWb5u/C89TQAhP4lzYUaXP9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=HTEcM1ZN; arc=none smtp.client-ip=209.85.221.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1785011472; c=relaxed/simple;
+	bh=e6KMoD3bd5/q6p3xQeg23qgiuejFXySUo/aGZ6esyCc=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=JKAGydDvVpvukxAV9Q1NF4vPSEA0b15yWfsrQ+p8Z/gHAJTBkG3dE+5eiVca8cKXSa3+Noh0ZRnip2j1grPveDwhnKx5JBqbrqP+cZ/zdtyC9p92rmeO423HfMKXTQCZvNPA2mBE33TwVY9FNnKOF7f2Gxtd/dBn9DwNGDP2Zzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hAfTn9kP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="HTEcM1ZN"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47f92e3c14bso1261394f8f.0
-        for <bridge@lists.linux.dev>; Sat, 25 Jul 2026 07:51:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1784991089; x=1785595889; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ZgrPUXs+4puy9cY0msWgnbxd1bLXilsXJgyDMqCeWgM=;
-        b=HTEcM1ZNBxpZixKcpA/cyGCOSiLpYH+hRKqvmG9ZajPWXO6BczypfJXddxmCLYA8eh
-         1RUoRFGcJrfNaxZHfw9+CsCAd5rjNhrhZ2LlNzXRev7MvQflShL+BTbQMT354rRf7Dmn
-         oUF/7o45jGCBwpezlFzLocisoXR7YOWh5q1rGIgJIaxoWb7rPNPnbM+0fEMm8mP2lZ0C
-         Gdm5+jXhm1lN8NmNP+S7naZH6XhD3DQpjV7tVHWRLg2Wa8i5JaB9JWKfzuwVCXpToxuY
-         K/3yxanuEha3nJt4QxpCaoyFzJfhzUwNECPKPs6mHDeK83FknB+2qCsp8wmYiYI+GFcT
-         ZCQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784991089; x=1785595889;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ZgrPUXs+4puy9cY0msWgnbxd1bLXilsXJgyDMqCeWgM=;
-        b=Q67TccGGS0edTbN518zfJFGbAnDHfrgFm+m/GJ7HGmb8Opi+PfVPhVGHY0NLwfD9wg
-         A3rxvX0yDTP1SqePkqsglCoLQe/DL7QrZc2Cnwqkz6zWLyDaAs3k43XhwrpMZEEnMCNM
-         vm2D/xcgwia0hjjochz6pMNWxEDAnLfW4VonJo/J09JclKFv/3CdhAUdMq2x4UUskwma
-         mkksMTsGSAedMOQ99U/vahtM2Oubk4hkOqnNYoTZ7R6Q2/RYtPdB28p09cpEzW5/kIFj
-         XtMzi2RB9SGCRl+wWwrxlL/P6gxnx0bwP13EwWrnLYE7iXrt5z1HimQrfc15oYW9oY7j
-         In4A==
-X-Forwarded-Encrypted: i=1; AHgh+RpDlV/Wos2njURDiUQJNq8MaEIGkvzR/9TDlSJeVOyvMpVucXYcf0Dhhbvj9WynSmvLKfZ9Sms=@lists.linux.dev
-X-Gm-Message-State: AOJu0YzNJWnYumtnLSw06t1MWV+vQ0nvc0DZIMdlShuajWwiNW0+gYFy
-	nDEhJGKecldx6FHN9ga+Us9ec38Q4hIdu+Ny3WHYh5OiPFgsxJaROwzfEr1+FbWOKtM=
-X-Gm-Gg: AR+sD118JqJx1gAUdY1TrJkGfzrjsvMEFmYU796i31kQow1zOTGRFBlyL+Tzuh+yCQ0
-	zLsOBFzwG4ARtvaBIzlh7jouwqRuG5l1IAxTYPDdFOeihQUBSa1PWc9yUA0Cuy/6cE1BKBCJbgX
-	M4GpRpa27helzgtI6Zcf/4CsAB76WcrX0UkrihlWARemczVx2AB0lm1Oxy7nn1zsw+8O+cg4TlC
-	bP7Q0JX7gFeL1d6X9FvDdV5Jyj2LKq0YhMgeAZZS1PsuU8aYN+PNmM5jORu2ETFLpPsPnIEtogi
-	Oe4Y4EKL1l5Ztb5L6FOxIiruD4EdWa5+6YsEZFTyMXDQ35MFFq73qElqzq3m56ah3WDY7l2W6Gr
-	LyuGkfoBvYxw1ZOwmNnDMd3VmjF2DpuHTP7RqvT+KQWO53DU43mQX23h5rPs1bHVeJdtbL75Amw
-	==
-X-Received: by 2002:a05:600c:3551:b0:495:4d88:e630 with SMTP id 5b1f17b1804b1-496b56bf01emr30334965e9.10.1784991089051;
-        Sat, 25 Jul 2026 07:51:29 -0700 (PDT)
-Received: from localhost ([83.222.177.218])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496b499cc49sm83072585e9.9.2026.07.25.07.51.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Jul 2026 07:51:28 -0700 (PDT)
-Date: Sat, 25 Jul 2026 17:51:21 +0300
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: David Corvaglia <david@corvaglia.dev>
-Cc: Ido Schimmel <idosch@nvidia.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, bridge@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] bridge: mrp: fix MRP_Test option TLV length
-Message-ID: <amTNacya_ZXLjoDn@penguin>
-References: <20260724051202.61946-1-david@corvaglia.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hAfTn9kP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFA01F000E9;
+	Sat, 25 Jul 2026 20:31:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1785011470;
+	bh=e6KMoD3bd5/q6p3xQeg23qgiuejFXySUo/aGZ6esyCc=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=hAfTn9kP3ZABFKIwidJBkzkwUEnV03/r5N7p8kmUos3uDtUKUWtEJzQPpdypzC87s
+	 s8zXrjsDbl2M4eM1W7J86H4KiLLuZnMtxMMILtEw98qiQcngdzhm3Z933lwVaUuZ1u
+	 NLkyUWEUlaRXQiJD2BrV3+doGFNu5m2sLbsSq0EGZklaA6R4wtvLOLLa2OnPQe5qNl
+	 qRc/eqpUyUDjcyObmg1ruSpXH9PI078U1i4aarlF7k3SAVuPPwJdBfCiYHUHqv1JgK
+	 gHSHbd+Pb+4KEwvFVr0Xj05kVhoMd7+HPlRE8f80fEhbz02ckPWPFwbzdqixw/v4UL
+	 pVfAw00n8dMXA==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Petr Pavlu <petr.pavlu@suse.com>, Tony Luck <tony.luck@intel.com>,
+ Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>, Dave
+ Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
+ <hpa@zytor.com>, Philipp Reisner <philipp.reisner@linbit.com>, Lars
+ Ellenberg <lars.ellenberg@linbit.com>, Christoph =?utf-8?Q?B=C3=B6hmwalde?=
+ =?utf-8?Q?r?=
+ <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>, Johan
+ Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
+ <rafael@kernel.org>, Michal Januszewski <spock@gentoo.org>, Helge Deller
+ <deller@gmx.de>, Alexander Viro <viro@zeniv.linux.org.uk>, Christian
+ Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Trond Myklebust
+ <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
+ <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown
+ <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
+ <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Mark Fasheh
+ <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, Joseph Qi
+ <joseph.qi@linux.alibaba.com>, Tejun Heo <tj@kernel.org>, Johannes Weiner
+ <hannes@cmpxchg.org>, Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>,
+ Luis Chamberlain
+ <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, Daniel Gomez
+ <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Aaron
+ Tomlin <atomlin@atomlin.com>, Pavel Machek <pavel@kernel.org>, Len Brown
+ <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Danilo
+ Krummrich <dakr@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>,
+ Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, David
+ Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko@kernel.org>, Paul
+ Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, "Serge E.
+ Hallyn" <serge@hallyn.com>, Kentaro Takeda <takedakn@nttdata.co.jp>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+ drbd-dev@lists.linux.dev, linux-block@vger.kernel.org,
+ greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org,
+ linux-acpi@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-fsdevel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+ cgroups@vger.kernel.org, linux-modules@vger.kernel.org,
+ linux-pm@vger.kernel.org, driver-core@lists.linux.dev,
+ bridge@lists.linux.dev, netdev@vger.kernel.org, keyrings@vger.kernel.org,
+ linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] time/jiffies: Include linux/sysctl.h for
+ proc_int_u2k_conv_uop(), ...
+In-Reply-To: <20260721131207.803760-3-petr.pavlu@suse.com>
+References: <20260721131207.803760-1-petr.pavlu@suse.com>
+ <20260721131207.803760-3-petr.pavlu@suse.com>
+Date: Sat, 25 Jul 2026 22:31:07 +0200
+Message-ID: <874ihmke0k.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260724051202.61946-1-david@corvaglia.dev>
+Content-Type: text/plain
 
-On Fri, Jul 24, 2026 at 05:12:02AM +0000, David Corvaglia wrote:
-> oui is a pointer, so sizeof(oui) is the pointer size. The MRA
-> Option TLV thus advertises a wrong length (15 vs 10 on x86_64),
-> causing misparsing of the frame on peers. Fix is to replace
-> with sizeof(*oui).
-> 
-> Signed-off-by: David Corvaglia <david@corvaglia.dev>
-> ---
->  net/bridge/br_mrp.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-> index 3f7126a7d720..179d2470b724 100644
-> --- a/net/bridge/br_mrp.c
-> +++ b/net/bridge/br_mrp.c
-> @@ -215,7 +215,7 @@ static struct sk_buff *br_mrp_alloc_test_skb(struct br_mrp *mrp,
->  		struct br_mrp_oui_hdr *oui = NULL;
->  		u8 length;
->  
-> -		length = sizeof(*sub_opt) + sizeof(*sub_tlv) + sizeof(oui) +
-> +		length = sizeof(*sub_opt) + sizeof(*sub_tlv) + sizeof(*oui) +
->  			MRP_OPT_PADDING;
->  		br_mrp_skb_tlv(skb, BR_MRP_TLV_HEADER_OPTION, length);
->  
-> -- 
-> 2.55.0
-> 
+On Tue, Jul 21 2026 at 15:11, Petr Pavlu wrote:
 
-This is clearly a fix and looks like it is needed for proper parsing.
-I think it should be targeted at -net with a fixes tag, probably
-f7458934b0791 ("net: bridge: mrp: Update the Test frames for MRA")
+> The kernel/time/jiffies.c file uses proc_int_u2k_conv_uop(),
 
-Cheers,
- Nik
+jiffies.c uses ...
+
+> proc_int_k2u_conv_kop(), proc_int_conv(), proc_dointvec_conv() and
+> proc_doulongvec_minmax_conv(), which are declared in linux/sysctl.h. It
+> currently relies on this header being included indirectly through
+> linux/module.h -> linux/kmod.h. Add the missing include in preparation for
+> removing the linux/sysctl.h include from linux/kmod.h.
+
+Can you please split that spaghetti sentence into paragraphs?
+
+https://docs.kernel.org/process/maintainer-tip.html#changelog
+
+> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+
+Other than that.
+
+Acked-by: Thomas Gleixner <tglx@kernel.org>
