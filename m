@@ -1,107 +1,140 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D0BC625;
-	Sat, 25 Jul 2026 20:31:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC510322C67
+	for <bridge@lists.linux.dev>; Sun, 26 Jul 2026 06:25:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785011472; cv=none; b=aTgBjb9cj0tsiNCIRNgwNLQgX0d4hZvqBukP+Rg2l7tWTaje0908uRIqsphDDLpNn90NS7itft0NcPZn0kT/lLzw0lkWg+AGJ+lbKUrBFyLPInQnST1u4p1GrXrFF2jSYORyEQQo4xyOyaRpTavkuvEMlc1C2OJHvum7JLtMtJs=
+	t=1785047127; cv=none; b=F+jmVSUdZkmNAWkDzVKFBRK4K9kFRnQLQ2X2NmrUI55LLTW49N0eRJxUtvS2EJ+IZk+9M3Brl7a28/oa2azPyLOb5YaLVTuGXwjX0c+vcIg3UDRP5cdZqxPBJCDUAr9hvBEyOV6eIKOMd6MZBH8iHgsFS4b7RAGlaV4AUAek7WM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785011472; c=relaxed/simple;
-	bh=e6KMoD3bd5/q6p3xQeg23qgiuejFXySUo/aGZ6esyCc=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=JKAGydDvVpvukxAV9Q1NF4vPSEA0b15yWfsrQ+p8Z/gHAJTBkG3dE+5eiVca8cKXSa3+Noh0ZRnip2j1grPveDwhnKx5JBqbrqP+cZ/zdtyC9p92rmeO423HfMKXTQCZvNPA2mBE33TwVY9FNnKOF7f2Gxtd/dBn9DwNGDP2Zzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hAfTn9kP; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1785047127; c=relaxed/simple;
+	bh=dP3h+hLKsGm5KC/K2M0ypRB2Gy3z0jV1Y4qouUEoGl8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dRBCIZlXv7QuUrDEoJB8NDK3lI3845pAD9DZ3nvpQadYf2p0kyYFd0g6Y6Ngi+EnvguHKTC1feB9PkzUDAdYe/1sQ0df2P1WgTWZaXRlCqP1OozJbjBW2JFBuHLHcrfOlELI8wMbb4QSnaRCL0yJ9wFX4wSFX//75l9kAXj8QOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com; spf=pass smtp.mailfrom=xbow.com; dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b=AFWMwbUw; arc=none smtp.client-ip=209.85.214.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xbow.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hAfTn9kP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFA01F000E9;
-	Sat, 25 Jul 2026 20:31:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785011470;
-	bh=e6KMoD3bd5/q6p3xQeg23qgiuejFXySUo/aGZ6esyCc=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=hAfTn9kP3ZABFKIwidJBkzkwUEnV03/r5N7p8kmUos3uDtUKUWtEJzQPpdypzC87s
-	 s8zXrjsDbl2M4eM1W7J86H4KiLLuZnMtxMMILtEw98qiQcngdzhm3Z933lwVaUuZ1u
-	 NLkyUWEUlaRXQiJD2BrV3+doGFNu5m2sLbsSq0EGZklaA6R4wtvLOLLa2OnPQe5qNl
-	 qRc/eqpUyUDjcyObmg1ruSpXH9PI078U1i4aarlF7k3SAVuPPwJdBfCiYHUHqv1JgK
-	 gHSHbd+Pb+4KEwvFVr0Xj05kVhoMd7+HPlRE8f80fEhbz02ckPWPFwbzdqixw/v4UL
-	 pVfAw00n8dMXA==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Petr Pavlu <petr.pavlu@suse.com>, Tony Luck <tony.luck@intel.com>,
- Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@redhat.com>, Dave
- Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, Philipp Reisner <philipp.reisner@linbit.com>, Lars
- Ellenberg <lars.ellenberg@linbit.com>, Christoph =?utf-8?Q?B=C3=B6hmwalde?=
- =?utf-8?Q?r?=
- <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>, Johan
- Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
- <rafael@kernel.org>, Michal Januszewski <spock@gentoo.org>, Helge Deller
- <deller@gmx.de>, Alexander Viro <viro@zeniv.linux.org.uk>, Christian
- Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Trond Myklebust
- <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, Chuck Lever
- <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown
- <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo
- <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, Mark Fasheh
- <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>, Joseph Qi
- <joseph.qi@linux.alibaba.com>, Tejun Heo <tj@kernel.org>, Johannes Weiner
- <hannes@cmpxchg.org>, Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>,
- Luis Chamberlain
- <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, Daniel Gomez
- <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Aaron
- Tomlin <atomlin@atomlin.com>, Pavel Machek <pavel@kernel.org>, Len Brown
- <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Danilo
- Krummrich <dakr@kernel.org>, Nikolay Aleksandrov <razor@blackwall.org>,
- Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, David
- Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko@kernel.org>, Paul
- Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, "Serge E.
- Hallyn" <serge@hallyn.com>, Kentaro Takeda <takedakn@nttdata.co.jp>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
- drbd-dev@lists.linux.dev, linux-block@vger.kernel.org,
- greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org,
- linux-acpi@vger.kernel.org, linux-fbdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-fsdevel@vger.kernel.org,
- linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
- cgroups@vger.kernel.org, linux-modules@vger.kernel.org,
- linux-pm@vger.kernel.org, driver-core@lists.linux.dev,
- bridge@lists.linux.dev, netdev@vger.kernel.org, keyrings@vger.kernel.org,
- linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] time/jiffies: Include linux/sysctl.h for
- proc_int_u2k_conv_uop(), ...
-In-Reply-To: <20260721131207.803760-3-petr.pavlu@suse.com>
-References: <20260721131207.803760-1-petr.pavlu@suse.com>
- <20260721131207.803760-3-petr.pavlu@suse.com>
-Date: Sat, 25 Jul 2026 22:31:07 +0200
-Message-ID: <874ihmke0k.ffs@fw13>
+	dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b="AFWMwbUw"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2cace91f112so18405375ad.0
+        for <bridge@lists.linux.dev>; Sat, 25 Jul 2026 23:25:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=xbow.com; s=google; t=1785047125; x=1785651925; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=P8zGbl4R2Ffos3phLd71l7Q80RIBm+fS5r/cqYD6HXU=;
+        b=AFWMwbUw1vnFqv1eZOZpkZYNcgxKECIuy/WLQQppT+j1QvrFAdBUqMWSH7tsJ+O2We
+         bxnReOvuoU5R1+q4iy1/ZRCQLuTscxZ4OKgP6GFEyXD83ks1FdB1Y6mCRo+FnQ8KvKfE
+         bmfS9atB4EnISHHaN8uzo+BGruzoKSteRlMHN6ESeXKQkmsE1q93dwTyYa4z3Ypgva3A
+         oBjI8f/fdqO7Ac9C7aL8DJIewsTnktrfLJjrLF6P/VGRBbU8bCOFmC8DNp1bzSxU1NUm
+         uQ3ovHO5Mf5p5WyNY77tGjN/1vlSMjJ3gmhNZUwFsE4xDjYb4vtVUaGDLu++O7O7/Fzh
+         4sgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785047125; x=1785651925;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=P8zGbl4R2Ffos3phLd71l7Q80RIBm+fS5r/cqYD6HXU=;
+        b=PRfyvjX0b6iy0DnX8YN2rN+y/nJEqMq57NwpP2ruyAQuPT9uRVNHYD1vj2XC2mIUbI
+         oOnE+8IXdhAqpmXgAmeau12/XVF+UsBBkWzlHq/wcVQPuXwGwB+842+oa2Dy7dG1zqF6
+         sX3/JZsR31xXoax6P3DQi0Va5JpkRGbeTRUEKtRtqgaEi2iM2i/l0cdfDDbBrSY4n/0B
+         6nApZgZpnmJ9H42kyhdT7i1eICdGmzTOcs9pvcPgicM+wj+mabfYLlH2kHkFmFVCllCJ
+         omyCukIhfMgazgsQ19gYWaenozL2Cq4/YFhT7DspiK1ZJo6HGHeROtRPwPbsqk7sOv5n
+         8w8A==
+X-Forwarded-Encrypted: i=1; AHgh+Rqik2t97p85ucmyZsUIONVepFb9ozW5SEjHhkSpQufxtOa2GeQJiPLfwVZE0mWJPh9N1ir54KA=@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywm97ZIkEkIML5V/cE4prtWP3He77g4m12BMZcyxZ7wSJrV7kc1
+	gmvbok/0VNXEsgYXB6eUFi8IAuBFQC6qU2rAdYZkZhSo6IkSdttW1RRmw9dY8/VjkbY=
+X-Gm-Gg: AR+sD12BdYAtsnl3mwurb0kXPtzBEWTWO1m4759oUhON+JTDFipWRX/aXrVkQVpSbO8
+	QCAo3Zarev5DgwN0Ykp39jOGYHPOQGsV5lS27pTUXYSTPxBysU98UArw4tkFOlWSjQWv4nfHuC7
+	q4rNFH3NasU0rtMBnygvx6ZA6kwEOIIDicGEAXm1f0t7MBCI9Q49PFJ0QVX0Kv2qL0RKrelLaHK
+	skUnl+/w+NoCknRwc+QFg0tZyrKcstrHEE8ly8mW0KWW7HA/uR3v6IQfDPGGbv1JVwTMGImP1Im
+	9uzvpLxNy5kKFtMOyXLeF/T/pbfwU4XTS0pnMM+AYfgUxjsPthx9JUjFYWOd8DEaRN+yGPBNJ6T
+	1udxVUx/ydH/n4BsEXJkZnBpgh+rcvJG5f/3SGL/V4oEdlfT33bmnyqovMMITziNOyhxPTU2xJM
+	MNHIj336a8IcvtHxJt/P80L7XsEB0ItknRcIa+YRzkViD7hyrV7NmhMJ6soRQx
+X-Received: by 2002:a17:903:2310:b0:2c8:1f56:9fc5 with SMTP id d9443c01a7336-2cfde868609mr35863255ad.35.1785047124945;
+        Sat, 25 Jul 2026 23:25:24 -0700 (PDT)
+Received: from localhost.localdomain ([125.128.148.126])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cfde7bc413sm16689195ad.44.2026.07.25.23.25.22
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 25 Jul 2026 23:25:24 -0700 (PDT)
+From: Baul Lee <baul.lee@xbow.com>
+To: netdev@vger.kernel.org,
+	bridge@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: razor@blackwall.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	federico.kirschbaum@xbow.com,
+	Baul Lee <baul.lee@xbow.com>,
+	stable@vger.kernel.org
+Subject: [PATCH net] net: bridge: mrp: fix uninitialised bytes on the wire
+Date: Sun, 26 Jul 2026 15:25:18 +0900
+Message-ID: <20260726062518.43774-1-baul.lee@xbow.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 21 2026 at 15:11, Petr Pavlu wrote:
+br_mrp_alloc_test_skb() builds MRP test frames on an skb from
+dev_alloc_skb(), which does not zero the linear data area.  On the MRA
+ring-role branch the sub-option TLV header is appended with
 
-> The kernel/time/jiffies.c file uses proc_int_u2k_conv_uop(),
+	sub_tlv = skb_put(skb, sizeof(*sub_tlv));
+	sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
 
-jiffies.c uses ...
+leaving sub_tlv->length unwritten, and the two trailing alignment bytes
+are appended with a bare skb_put() that neither writes nor clears them.
+The surrounding oui and sub_opt regions are explicitly memset(0), which
+bounds the exposure to exactly these three bytes.
 
-> proc_int_k2u_conv_kop(), proc_int_conv(), proc_dointvec_conv() and
-> proc_doulongvec_minmax_conv(), which are declared in linux/sysctl.h. It
-> currently relies on this header being included indirectly through
-> linux/module.h -> linux/kmod.h. Add the missing include in preparation for
-> removing the linux/sysctl.h include from linux/kmod.h.
+Every MRA MRP_Test frame therefore carries three bytes of stale
+page-allocator memory, at frame offsets 65 to 67, to any observer of the
+MRP control traffic.  A capture on a kernel without
+CONFIG_INIT_ON_ALLOC_DEFAULT_ON shows those bytes varying frame to frame
+and, after a page-allocator spray, carrying the sprayed pattern; the
+same reproducer on an otherwise identical CONFIG_INIT_ON_ALLOC_DEFAULT_ON
+kernel leaks nothing, confirming the source is uninitialised allocation
+memory.  Reaching it needs CAP_NET_ADMIN, which is self-satisfiable on a
+stock kernel through unprivileged user and network namespaces.
 
-Can you please split that spaghetti sentence into paragraphs?
+Assign the sub-option TLV length explicitly, which is 0 as the AUTO_MGR
+sub-TLV carries no payload, and append the alignment padding with
+skb_put_zero().
 
-https://docs.kernel.org/process/maintainer-tip.html#changelog
+Discovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>
 
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Fixes: f7458934b079 ("net: bridge: mrp: Update the Test frames for MRA")
+Reported-by: Federico Kirschbaum <federico.kirschbaum@xbow.com>
+Reported-by: Baul Lee <baul.lee@xbow.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Baul Lee <baul.lee@xbow.com>
+---
+ net/bridge/br_mrp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Other than that.
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+index 3f7126a7d720..a5548f475604 100644
+--- a/net/bridge/br_mrp.c
++++ b/net/bridge/br_mrp.c
+@@ -226,9 +226,10 @@ static struct sk_buff *br_mrp_alloc_test_skb(struct br_mrp *mrp,
+ 
+ 		sub_tlv = skb_put(skb, sizeof(*sub_tlv));
+ 		sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
++		sub_tlv->length = 0x0;
+ 
+ 		/* 32 bit alligment shall be ensured therefore add 2 bytes */
+-		skb_put(skb, MRP_OPT_PADDING);
++		skb_put_zero(skb, MRP_OPT_PADDING);
+ 	}
+ 
+ 	br_mrp_skb_tlv(skb, BR_MRP_TLV_HEADER_END, 0x0);
+-- 
+2.50.1 (Apple Git-155)
 
-Acked-by: Thomas Gleixner <tglx@kernel.org>
