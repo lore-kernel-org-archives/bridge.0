@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47B163ED109;
-	Mon, 27 Jul 2026 22:40:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B872C22A4EE;
+	Mon, 27 Jul 2026 23:50:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785192056; cv=none; b=LsF6POXfEz3AAhapzCRasI/ChDub/dLHelgsXeKJ5/Q4X59c0IzJP0ErdbVZdg21Tnujq0bEakYZ5xqjL32IeFgKYcq4m3cWIHtmltAHxdfNJ2UPdLNfBmT3nC01xLG+N5RjMAqkrx/ws7rzgjFMQ2ClaeK4vc84Q3/6dx44poY=
+	t=1785196241; cv=none; b=HN7i5+Fb6VG2y4Qv/51iavyLJthWSXnBtwskdiKMP1qT8skPjvp5g7nqkvvalezHwW4wabwh7CoyvTtMkC19SNtN8vqDa5PyRsjtyAA3rP2ZR/WN6DxhKBwWxXMIQMxzUqNoAQ/QiLL+gXBi2g4AUcfGVaF84ETVPMu37eacucA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785192056; c=relaxed/simple;
-	bh=rf2bfZuVGszM70Samwl9CQmJhwVeNMnFbzxPN52Ll7g=;
+	s=arc-20240116; t=1785196241; c=relaxed/simple;
+	bh=/sBJ4yG6RA3KK2Zu0s1Plg1jSMbrwfuEWvGzN0+saUw=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=Fyq1zbcFkL5zHve71OfEgKqu9+Jyd8tPU5pJY6mURTIh3OyPVYB5qRaOJ3Z00b0WqpccJNhn55JvX/EVXhDFQmfsoeOGfS8WNWCgnsEAAbtnu8opeSyuvRbLZpN3V3j3/MkB5l4HEmk9pVUAxAs6FUVUEFVzjVgtuA7M6M3m+CQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R5Bb+z61; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=cWBihZQjTw7QhHZVWk8YLyV//qa9qL+K3+Ow5f/qdaVgtjUlwZW9mzalYrFEgXYhcMujgOUWXFzQVNZPFJWcLm29zZPP5rXAcUkWjcGCCsWXNbZbVR0KXJGw4W7nXj0kY4NCzG0U0eJ0YuoUd2bD8T+LBysbKYfdjniECesMG1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZPbXRC01; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R5Bb+z61"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E5411F00A3A;
-	Mon, 27 Jul 2026 22:40:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZPbXRC01"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63A571F000E9;
+	Mon, 27 Jul 2026 23:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785192055;
-	bh=XRwfXWQ34ILdWnNLRPG2d7pC4hEEoox7ulKOeiP0BA4=;
+	s=k20260515; t=1785196240;
+	bh=pJlgTfAI2YJyHJfU+AfJCsMrXgYqX2SAdmsANoBhUQk=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=R5Bb+z61fLsaze9AkWtBp9AOxgaXwByp8yP9BW3J1zW9mzzBn/PRSRpSJDBoUS4VJ
-	 reiaIwZEzDyLOJZJ3OS8DHzSppb/sNB9qwhD5snfufQI4NKEpyxShVkaNoWQaWqvIO
-	 RqeWv/qt9XE5HhIQbDJf9Jv+d/qVNPBLLYZSD8CpLvUAbJ0XS/FqVgLqRuvkxUUjfz
-	 NTtBZfj1KKPv06CzQZQ0nVkbiBFiOnnfcZJVw9o87nijTdMyJrjF8zPhpGIw8qGn7O
-	 1j8Tu4a9qZc+52luyYl9rO9nHvkzZEgupnUza61xo5mWOeF5+3swTt7K/UJbayCgLC
-	 h1VeQtVjs3i/g==
+	b=ZPbXRC01ESqUjd3YL6d95qBYvFFn5H1+r074OEmP6LdbB2toPVFctNAF3JHmaaenl
+	 iXfrl56DhhTM3GD+rrm/Lda4MoOv6qI3wW2pLgiHVkSvLqVdlHZ2QTVTX04VOhcUqp
+	 Q1JB5+RppVF/QN9MBpYdsSpoH0Ign/3DCDj+0jmlUwYglEFMHDws5VPGqksNnQ0d+Z
+	 87jVMP5vnMpMV5H2GVSJRRICc/n9CP+8t93tp2WGyoUQVmg5toePSQ4gPystcSph6o
+	 TXqT4ZjyesKDwxk6AZvsJ1WT6ses6G8Oq6FclKcBwLtaO5mrww8yJ9Yt28bYxTkogK
+	 CU26rcokCsmeg==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 93CF1380CECF;
-	Mon, 27 Jul 2026 22:40:21 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0C3B380CED4;
+	Mon, 27 Jul 2026 23:50:06 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -37,38 +37,39 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/1] net: bridge: fix fast-leave use-after-free
+Subject: Re: [PATCH net v2] net: bridge: mrp: fix Option TLV length in
+ MRP_Test
+ frames
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <178519202013.1443317.3670329492058915531.git-patchwork-notify@kernel.org>
-Date: Mon, 27 Jul 2026 22:40:20 +0000
-References: <cover.1784707712.git.zhilinz@nebusec.ai>
-In-Reply-To: <cover.1784707712.git.zhilinz@nebusec.ai>
-To: Ren Wei <enjou1224z@gmail.com>
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org, razor@blackwall.org,
- idosch@nvidia.com, davem@davemloft.net, edumazet@google.com,
- pabeni@redhat.com, horms@kernel.org, nbd@nbd.name, linus.luessing@c0d3.blue,
- vega@nebusec.ai, zhilinz@nebusec.ai
+ <178519620536.1464655.11874227970651465102.git-patchwork-notify@kernel.org>
+Date: Mon, 27 Jul 2026 23:50:05 +0000
+References: <20260726062605.2746-1-david@corvaglia.dev>
+In-Reply-To: <20260726062605.2746-1-david@corvaglia.dev>
+To: David Corvaglia <david@corvaglia.dev>
+Cc: razor@blackwall.org, idosch@nvidia.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ bridge@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 
 Hello:
 
 This patch was applied to netdev/net.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Fri, 24 Jul 2026 00:52:47 +0800 you wrote:
-> From: Zhiling Zou <zhilinz@nebusec.ai>
+On Sun, 26 Jul 2026 06:26:05 +0000 you wrote:
+> oui is a pointer, so sizeof(oui) is the pointer size. The MRA
+> Option TLV thus advertises a wrong length (15 vs 10 on x86_64),
+> causing misparsing of the frame on peers. Fix is to replace
+> with sizeof(*oui).
 > 
-> Hi Linux kernel maintainers,
-> 
-> We found and validated a issue in net/bridge/br_multicast.c. The bug
-> is reachable by a non-root user via user and net namespace.
-> We've tested it, and it should not affect any other functionality.
+> Fixes: f7458934b079 ("net: bridge: mrp: Update the Test frames for MRA")
+> Signed-off-by: David Corvaglia <david@corvaglia.dev>
 > 
 > [...]
 
 Here is the summary with links:
-  - [net,1/1] net: bridge: stop fast-leave after deleting a port group
-    https://git.kernel.org/netdev/net/c/a39789f211b8
+  - [net,v2] net: bridge: mrp: fix Option TLV length in MRP_Test frames
+    https://git.kernel.org/netdev/net/c/5546da86894d
 
 You are awesome, thank you!
 -- 
