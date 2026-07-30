@@ -1,184 +1,145 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D56237CD2A
-	for <bridge@lists.linux.dev>; Wed, 29 Jul 2026 17:31:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5750743F8CB
+	for <bridge@lists.linux.dev>; Thu, 30 Jul 2026 15:27:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785346314; cv=none; b=AHkhkaW7JXkokN8mAt9zccy5TNd+JwH9E05MfkvFFYkbizESLj6i2fHkqN9bIpgYRk0uSq7Vzib7zzVJGr5Nams7HBl/4jIYOUkVO5bewiey2yJ/xcFl22BNh3eaj38+zhG1AdBTGhqBN79Wt1pi5DiRfkiRTNFyJphZvWlH7pU=
+	t=1785425269; cv=none; b=SD+PWxEiqXk2pR/oKCu+0JcNrgvjCNeJb/9+6GawH56zx13WMOZCWDF44hzAREEXp3KG2Zsidp8kzMuqwac0p7+kRs9+Ehi6TERbP6NEWjC3GWgReRZBuvbEl6kvMrzneETYqc5YkPHhot4PiGzzoQH0zmL2Z7d1csjw988hUIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785346314; c=relaxed/simple;
-	bh=Jc7G6StL/c7Ytj+6YqLr8/+Jzh8vDBmz4m0lxtPGPWE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Nc8DKMOoRdPEZS3/AFS4nLb/jWmlREDsnSsCZZuRhWK4oSpCS4iwXUqHSrixhF11JiZKr9JIjeoxihvxJ50h+jCY6HEa/0JHqnGraDPkyVjTIrR+177MtdFDQ/Ue1auDyJvR+L0li0KP+ePMKyG492F+kzRlWgFW7jYwhqZYEQ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M3LcbnTg; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785425269; c=relaxed/simple;
+	bh=d5RXFfVRX5p3oscQXB9FNGQJzjxxqOI0ZyUQ/yhbbX0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ufVGwsNf6E+0DhZzsv0WnDDusUUhLiJYl3AMLOEF/PaaXDOOtgyrrzpYoM6dwHa3BtVgcQ2qfmY7+GiVYEGD858EXUL0FcDha0tA0Nf6VtIdVBUrGhNDpVb+F6KQAkf1Zr+9YkSkpb6GZ3I37wPb8eLF4H4wgI1FvvpAyuS3qIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=GRneWVRU; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M3LcbnTg"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3856d4015e0so105908a91.2
-        for <bridge@lists.linux.dev>; Wed, 29 Jul 2026 10:31:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="GRneWVRU"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4954a32cf1eso11470315e9.3
+        for <bridge@lists.linux.dev>; Thu, 30 Jul 2026 08:27:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785346312; x=1785951112; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=38ZcQuiK7/9UCGF364MaZa4PYPgvUUkg1FUph1SOAX0=;
-        b=M3LcbnTg2LQn5BGg5dw3pi8g7NTVGLZaXuvrEPQ+Vr1JaPoFr5jmSKwoiCutd7xRJ+
-         Gg3J/wbQ/dIiFfo7SZEooDQSMMa6STqh4Q7Pm+24+Nviid5j36efJzAaAt7kzVk3Itx6
-         kq6MAPOC3ZE+8KMJ9blxoC97gtoFwMB/IFXGg6t+DyQefiCP+P+USi1S+l7Od1+ZcpG5
-         Qp+IaP7/fopKzTUqEy3g1uwfxobcRZbtHYAi8PhsNrRfn3uT9CLfW17oDEcQF/CtC/2z
-         RkSW3fSOVuFZoBSLBf0SKqV0F4bPn+6fbvnxD6ESczwuhvDsssKEqgX2LDf9HIDEnmT1
-         jLGQ==
+        d=blackwall.org; s=google; t=1785425264; x=1786030064; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=nzJUatZRCgVEofo3LM1zenQhlJFklBY9WtRFTuod4dQ=;
+        b=GRneWVRUK0u/l1Tgy60rS7UecUCTEqSuDNXmi+lif1JdXFfLxORaghG/4ZQFsrxgIj
+         s8uefrte+LmL3vtHNIBpuHc8YcVZIImb+fE3Lo1Vb7qwvgosGMbj17YM0UQIpm8kf5Uv
+         QMSu497K1wuTC7Yyfn281Vhb4r7J8II780B6+TyUqkSov3JX2OGZu4DsnS4+ny5ddUoN
+         LsJRtQrx67lo+nt5my5IsIBi5TraG942BkPfsul1+9G9BC35AQF2YX+kT6QspQ0Hcc0i
+         jVcHVLZs20o0x9t0/G/SX+S/C7106J1VkkJ0B6yiTpR0OexG6u+bxnfQtyo3JwCxgMSb
+         yKMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785346312; x=1785951112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=38ZcQuiK7/9UCGF364MaZa4PYPgvUUkg1FUph1SOAX0=;
-        b=m4AvQg5dxbiYWQsez7u6fxugLZ5d6OWzJaaSQlUDjzm4CaW/QMsItf7ITyU/FOojqH
-         80jNAxiRa9cQw4ccRIzEYFiz+ZrEzz0wVUxvroHFK/3kGsNMKWHaz86X3tMMEXJvhgVz
-         4/DOtI7R4njlGGmIk4UmNFlcc+fLdMmTITKcODzIgxEOddwBepXvmomhSi++eumzxp4b
-         3xCrzGHGHpRJwHJJuXqPytYhkzbYUBR+u0Uy5DB7agGolG4rOi+dmWRP7dBFFdyBZdSZ
-         lA/lwXqI916o2EMj5lNe1IABO+nbbu3P4ZQNE1pr6LAXgm5Mo3kbh5nvlyfm5+jgynZO
-         qEbA==
-X-Forwarded-Encrypted: i=1; AHgh+RqYw5bgtyU0kdqcp655BWEVnKe/JGwW+locPZlCqKpux9H8eJKivmHF2oN8nQD/mkh4x7QrhZA=@lists.linux.dev
-X-Gm-Message-State: AOJu0YwtPRbeq6KMX+yJtYqsoF9nQ9TJmYYg9qpCdfBzauM0lPitKjTo
-	1srSYQStltyXesKMqy7/T5S5fcKJ2P22go+nFDnoiqy6wyg6q3lmr7R9
-X-Gm-Gg: AR+sD12FNQqwkD6kYj93q4/c2LyXvB083k9R9znjaMSTpwfyHhG4HyuZ9ozyW1k0pD4
-	HyhFgWErxHBnIw6ADMVTTYHoV52rcfQFOV99jganU5YsM367/wLP8mP/T44VxIg+cJdzRKNQoX8
-	b9dB6Hi/aIO7QyC6d+KIfDsybROU4+J6FKxWURMTglcQFt+tR5AVu34vW+YGsYf3r4Z3BdJuR2a
-	NApLTtVqmAf88gUnsDY93SUcfOIJqCF4w4aQpFdJqp1DafSPuGyQFnUNBAAH441scZLILmEUeH8
-	W3Ztsi1M2AADJvy0HpnqCCCF+t8YDkSRaV19HRudyW1CKJS8g7PB2QH39tbqTL9mkT556rsY+sC
-	Zv4Ok83zltuTUSPdaL7lPytEo3lIwHlYcIksnHgV82MYbb3ZkYKw58d83DXKeh+4A1vilmBeHTY
-	WiZsJqQUGpx36AnJByG3Vf3ZzaPf1P6V2R+fkEVhmSM+UYaKPiopOi1pDIVgMtOlQLx4tneafzj
-	z1LNsYtG0V3PFgSwJ5o6/APi4FSAZqHhdF7a4lzO53FX3WRDrDNWls=
-X-Received: by 2002:a17:90b:3e44:b0:37f:eda5:516f with SMTP id 98e67ed59e1d1-38f6a1b8dc3mr7154386a91.0.1785346312247;
-        Wed, 29 Jul 2026 10:31:52 -0700 (PDT)
-Received: from localhost.localdomain (45.78.65.84.16clouds.com. [45.78.65.84])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31504d480c5sm19583850eec.25.2026.07.29.10.31.47
+        d=1e100.net; s=20251104; t=1785425264; x=1786030064;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=nzJUatZRCgVEofo3LM1zenQhlJFklBY9WtRFTuod4dQ=;
+        b=QmKIB2cH9kAYs6PB9+d+MFkl89AsYxSX0MjSq0GcFlpOgQDMXQ/oWVmoC7xYbMwb6W
+         YpGcMns/aWObm5sKhevVjrxsVKjBbUwaNs3yvuLnz9oznIZgVFQhCiWhX2Ms5PAxwNMl
+         mU6batu0s8A3WNPswPcy0kSEHSH3iQavOw6a/b34MlsHqc01DbOZstg8xOD1kGyGnj/g
+         UT8NCmb4ec4VovHmeSJttTaeFKr9zOsV4OhqRtAM3Pljb2AQJD+QSKBnMjYAIl8h9t2Y
+         6p++AQXbW08nx1Din7EZMZQw1An5BfoafjGs7UX7H0yOT5vlff0FRYMiTmpfZeRNdwRg
+         eJfQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rrf8o0LsFnyDrP4nFmXeEq9DByBj6D1UxvgdG6cwwdiQuWYTPkm4IYgwUDk+ye/WNmhsNtlvfc=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw4CLExyE0m7i3N4FX/ekuhAL7wJkqQETss0VkVc3QLriXUjX3P
+	fWv3bSLWh0XMeOIpYMKcwrxR70KH+ec9ySGyTvagGgY7J5m6h+vJmvUwoYZQfP+bprI=
+X-Gm-Gg: AR+sD13AOaRf53KQ8p3nHUtJoEL22SJasm9NPluipGtJMkJk8k4qgB+EPV3hwDK01hH
+	/A3s3ho+oHr45v2XAzzONzymIN86UEvgd6ZnVm/wnf+IB2NDjIA5GKK8izfb3AI6aSEmakeXixr
+	iqBMxYReJXXzGN+yoPopaumWmn/hmtvqvcZ9SKkDW069Zh4sAxfv47Y1SygXD2qYcIeyRA3OhRF
+	p0UfLOAeByFm3ymykgQajL07/s6RaFbbNXRBoIcgNErtFN2bHI1xYoJsHT6EZdZ/uBzykHc1nKl
+	8ByqZm3Mx75aIEwMJ+g6Fiyp0dStA3hEwQSAMX4+QLdSmv80gdeZVwIzIzKwEQItcb6oronUjQy
+	aU/xNaoJiNcz9WSPdDWT/GqvoywSmBMO33DaNQGaN7kDocLCF2kGQ2EG9dPS9jkAmJ1A8ToLAR+
+	0P9S4Ueb+8tT4WnFSBW9EyU7Yb7VhIzvYBokXjXD42TAfUYMvLQSOhutw=
+X-Received: by 2002:a7b:cc89:0:b0:495:6f6b:fb75 with SMTP id 5b1f17b1804b1-49800ebba08mr29432035e9.38.1785425264161;
+        Thu, 30 Jul 2026 08:27:44 -0700 (PDT)
+Received: from localhost ([109.160.74.77])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-498011fd5fesm62954505e9.7.2026.07.30.08.27.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2026 10:31:51 -0700 (PDT)
-From: Chengfeng Ye <nicoyip.dev@gmail.com>
-To: Pablo Neira Ayuso <pablo@netfilter.org>,
-	Florian Westphal <fw@strlen.de>,
-	Phil Sutter <phil@nwl.cc>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	"David S. Miller" <davem@davemloft.net>,
+        Thu, 30 Jul 2026 08:27:43 -0700 (PDT)
+Date: Thu, 30 Jul 2026 18:27:41 +0300
+From: Nikolay Aleksandrov <razor@blackwall.org>
+To: Baul Lee <baul.lee@xbow.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev,
+	linux-kernel@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+	Andrew Lunn <andrew@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>
-Cc: netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chengfeng Ye <nicoyip.dev@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] netfilter: ebt_nflog: pin the NFLOG backend
-Date: Thu, 30 Jul 2026 01:31:00 +0800
-Message-ID: <20260729173100.216916-1-nicoyip.dev@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH net v2] net: bridge: mrp: fix uninitialised bytes on the
+ wire
+Message-ID: <amttbcdZkuWVSdLE@penguin>
+References: <20260726062518.43774-1-baul.lee@xbow.com>
+ <20260729131941.10254-1-baul.lee@xbow.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260729131941.10254-1-baul.lee@xbow.com>
 
-nf_log_unregister() runs after the per-net teardown so its final RCU
-grace period also drains readers that obtained the logger from a per-net
-binding.  However, ebt_nflog passes an explicit ULOG log type to
-nf_log_packet() without holding a reference on the selected logger module,
-unlike the xt_NFLOG and nft_log frontends.
+On Wed, Jul 29, 2026 at 10:19:41PM +0900, Baul Lee wrote:
+> br_mrp_alloc_test_skb() builds MRP test frames on an skb from
+> dev_alloc_skb(), which does not clear the linear data area.  On the MRA
+> ring-role branch the sub-option TLV header is appended with
+> 
+> 	sub_tlv = skb_put(skb, sizeof(*sub_tlv));
+> 	sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
+> 
+> so sub_tlv->length is never written, and the two trailing alignment bytes
+> are appended with a bare skb_put() that does not clear them either.  The
+> neighbouring oui and sub_opt regions are explicitly zeroed, so three
+> uninitialised bytes are left in every MRA MRP_Test frame that goes out.
+> 
+> Put the sub-option TLV header and the alignment padding in a single
+> skb_put_zero(), which clears both.  The AUTO_MGR sub-TLV carries no
+> payload, so the zeroed length field is already the value it should have.
+> 
+> Fixes: f7458934b079 ("net: bridge: mrp: Update the Test frames for MRA")
+> Suggested-by: Nikolay Aleksandrov <razor@blackwall.org>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Baul Lee <baul.lee@xbow.com>
+> ---
+> v2:
+>  - fold the alignment padding into a single skb_put_zero() for the
+>    sub-option TLV header, dropping the explicit length assignment and the
+>    second skb_put() (Nikolay Aleksandrov)
+>  - drop the paragraph about observing the leak, and the Reported-by tags
+> 
+> Link to v1: https://lore.kernel.org/netdev/20260726062518.43774-1-baul.lee@xbow.com/
+> 
+>  net/bridge/br_mrp.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+> index 179d2470b..ef16d0703 100644
+> --- a/net/bridge/br_mrp.c
+> +++ b/net/bridge/br_mrp.c
+> @@ -224,11 +224,9 @@ static struct sk_buff *br_mrp_alloc_test_skb(struct br_mrp *mrp,
+>  		sub_opt = skb_put(skb, sizeof(*sub_opt));
+>  		memset(sub_opt, 0x0, sizeof(*sub_opt));
+>  
+> -		sub_tlv = skb_put(skb, sizeof(*sub_tlv));
+> -		sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
+> -
+>  		/* 32 bit alligment shall be ensured therefore add 2 bytes */
+> -		skb_put(skb, MRP_OPT_PADDING);
+> +		sub_tlv = skb_put_zero(skb, sizeof(*sub_tlv) + MRP_OPT_PADDING);
+> +		sub_tlv->type = BR_MRP_SUB_TLV_HEADER_TEST_AUTO_MGR;
+>  	}
+>  
+>  	br_mrp_skb_tlv(skb, BR_MRP_TLV_HEADER_END, 0x0);
+> -- 
+> 2.53.0
+> 
 
-An ebtables nflog rule can therefore remain callable while nfnetlink_log
-is unloaded.  The resulting interleaving is:
+You should not send patches as replies, they should be sent on
+their own. Aside from that the patch looks good to me:
 
-  CPU 0                               CPU 1
-  nfnetlink_log_fini()
-    unregister_pernet_subsys()
-      kfree(nfnl_log_pernet(net))
-                                      ebt_nflog_tg()
-                                        nf_log_packet()
-                                          nfulnl_log_packet()
-                                            instance_lookup_get_rcu()
-
-The global ULOG logger is still registered at this point, so CPU 1
-dereferences the per-net state after CPU 0 has freed it.  KASAN reported:
-
-  BUG: KASAN: slab-use-after-free in instance_lookup_get_rcu
-  Read of size 8 at addr ff110001052e6210 by task poc/92
-  Call Trace:
-   instance_lookup_get_rcu+0x1ce/0x1f0 [nfnetlink_log]
-   nfulnl_log_packet+0x248/0x2fb0 [nfnetlink_log]
-   nf_log_packet+0x204/0x300
-   ebt_nflog_tg+0x351/0x550
-   ebt_do_table+0xedf/0x22b0
-  Allocated by task 90:
-   __kmalloc_noprof+0x186/0x470
-   ops_init+0x6d/0x420
-   register_pernet_operations+0x2f6/0x670
-   register_pernet_subsys+0x23/0x40
-  Freed by task 93:
-   kfree+0x131/0x3c0
-   ops_undo_list+0x3e3/0x700
-   unregister_pernet_operations+0x232/0x490
-   unregister_pernet_subsys+0x1c/0x30
-   nfnetlink_log_fini+0x34/0x450 [nfnetlink_log]
-
-Acquire the ULOG logger module reference when an ebt_nflog rule is
-validated and release it when the rule is destroyed.  Request the NFLOG
-backend for legacy callers when needed, matching xt_NFLOG.  This prevents
-module teardown until all ebt_nflog rules have stopped using the logger.
-
-Fixes: c83fa19603bd ("netfilter: nf_log: don't call synchronize_rcu in nf_log_unset")
-Cc: stable@vger.kernel.org
-Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
----
- net/bridge/netfilter/ebt_nflog.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/net/bridge/netfilter/ebt_nflog.c b/net/bridge/netfilter/ebt_nflog.c
-index 61bf8f4465ab..426f8adc912c 100644
---- a/net/bridge/netfilter/ebt_nflog.c
-+++ b/net/bridge/netfilter/ebt_nflog.c
-@@ -41,11 +41,25 @@ ebt_nflog_tg(struct sk_buff *skb, const struct xt_action_param *par)
- static int ebt_nflog_tg_check(const struct xt_tgchk_param *par)
- {
- 	struct ebt_nflog_info *info = par->targinfo;
-+	int ret;
- 
- 	if (info->flags & ~EBT_NFLOG_MASK)
- 		return -EINVAL;
- 	info->prefix[EBT_NFLOG_PREFIX_SIZE - 1] = '\0';
--	return 0;
-+
-+	ret = nf_logger_find_get(par->family, NF_LOG_TYPE_ULOG);
-+	if (ret != 0 && !par->nft_compat) {
-+		request_module("%s", "nfnetlink_log");
-+
-+		ret = nf_logger_find_get(par->family, NF_LOG_TYPE_ULOG);
-+	}
-+
-+	return ret;
-+}
-+
-+static void ebt_nflog_tg_destroy(const struct xt_tgdtor_param *par)
-+{
-+	nf_logger_put(par->family, NF_LOG_TYPE_ULOG);
- }
- 
- static struct xt_target ebt_nflog_tg_reg __read_mostly = {
-@@ -54,6 +68,7 @@ static struct xt_target ebt_nflog_tg_reg __read_mostly = {
- 	.family     = NFPROTO_BRIDGE,
- 	.target     = ebt_nflog_tg,
- 	.checkentry = ebt_nflog_tg_check,
-+	.destroy    = ebt_nflog_tg_destroy,
- 	.targetsize = sizeof(struct ebt_nflog_info),
- 	.me         = THIS_MODULE,
- };
--- 
-2.43.0
-
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
