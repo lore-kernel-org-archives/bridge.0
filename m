@@ -1,28 +1,28 @@
-Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012038.outbound.protection.outlook.com [40.107.200.38])
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012065.outbound.protection.outlook.com [52.101.53.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC0833F483D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34C6A3FD96E
 	for <bridge@lists.linux.dev>; Mon,  3 Aug 2026 11:26:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.38
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.65
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785756363; cv=fail; b=TxM3K2NsB9KwKoV9iT1nROx/BkQAtWo3DtWY05ybTcvEkCTKASmCxi8fAKvCG+boSl4T10KKT3QwnGVRHyT/uxtJEdMbJgb8BcHucQZZV/L7u3px+cOWZiTDa811AOUsuzLDGqcDfgXwlvDClK2TrqN83vC+4Rq+tR/VRgbCXUs=
+	t=1785756363; cv=fail; b=R7M5tNNw9NXwK5wwsiXL1B46/GQlm9hxtMXr+Smt6P5P4afGCe+4WGbOTlwiff3pAgy4ZOcq16ofvzhNNYn4mzCsdbZuQutFF3cryAuWmkSH1iUaySDaKCmEVvIjdCHeJk9aikGf5EDGt6pG+cjmA7lHniseXZazIgneO0kcgLc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785756363; c=relaxed/simple;
-	bh=PsQWzvP+nZV9Ftvna2MqXGK2ppxZhIkD6HtY9y4bBJ4=;
+	bh=Iw/Fi0w5c/TxlhhiZvVB4q6i+ENGMrQIhhAfid3vvvU=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G5nWkszw39ZSVH/ML3G5tQsiMNP3u4Li+f5BIIhXcvp1MSRsp/YoWppkEXotVJEr/sKWG3oc5U6OJAC902UGsGfFckkmC6ZX/VxCeb8vpptE1u4gzFV2sQFMLH5Zgw45ZQvLhcblGmT/RwLRcfojiMcBVxHVJHd2cMvw3YN9xiw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=GCPoYuzp; arc=fail smtp.client-ip=40.107.200.38
+	 MIME-Version:Content-Type; b=uoScusxhBz1c27SxwjJHmyKpxxh1hIpFGypa810xcXubJ/5sAZTzRQYG2YVdngPBu6tvz51P5+kou0CAodoZ01ytov3FhKYPKYmJqJHWegh5VuOBh9ovHgSoKgOFbA8w+wYCTCExwvpE7dWueuqdllch2rdndeWHZrlxUsmE/8Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=cCbPLcEr; arc=fail smtp.client-ip=52.101.53.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="GCPoYuzp"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="cCbPLcEr"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=htd3JvRr+RA3xvnrwEeLW/dhpue6imIcIBqjvaU4l7qbHGr6ZUdneCP0rpbS1NdEbYepFhNqkyGuWOJi3GNeCQdtjPR3DUKmHjV2B8uqrsW2IYCbPOUSZbRcDNF3CXU8L3JKstMpaNPoNoFgkJrt9+km8ewSBU2l882FjwjQzVFlp+DlxOuX3wOzQ3WWjlr2UVyrKRbWHukJsGiecAm09OKlrQZxlNZDtXkJKhAPJEhUONo210WEiUQP6KerwtspZeq0/VTAvFebixlZg0kfrQU5MoPtsM9Horr1r9iQ+Os+3n5oWzk4uWo/Z9xKITh9UBUwGmbDV4n/Eq02OtX32A==
+ b=eOsl8RWqrz7JcPIaK9ddk8lQ87UnJjQ4cYM/kuWzLcxO+KZQVhqWRKv0EJNrR52XD+h6nQZiVGVrAgVRrSPU9i4c64Pq/aMpgPokPQAluwJVCvbv6PAbc9Twq/uTUtwUGZrOI1pDpfQ5jc8+6bSZmiDCEP6lJlXJIetnpuk3k5ivkg3kM8QKxusF+DsxM0Cf8XCF6O5dFFn4thROfkNIQYaEY6rzoKII5xCynn2iE6dUeycSKuCHSO8ZRPNy1L5cLgW/k6zR0hH5PcpoX/3zvgypJeVIU9vHFQLXClwkqlPkBlQMiPmD4jXwTg5rxkQR12LwUkLnY5J6//heepHOfQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dh+D433ZcjdVYKfdRvAaAViP/sqKx+uqVJhIlVyYgL4=;
- b=getNBUd50jQ7NUz+8xsOmCpiVvzaRm2rJyLaQlgrTRIcpKUty9ftwJaMrvJpsdRuGeWNBwMrBKfhQRV/3jjA7cO0cyuPdebnVTPVdb7nIEJhyZ+TRyXlFiPTm2x4BF5niVX9oXuoCYkd0J6wP8Jj0vuZTRMsO35Cd/yCroh0jqfaVBivbKlRlizA+4RDuuhGxmCwdSYCSirL9e4HusQZE/VO/h6L3QAslQX/qfz0nGPh5TlluLu3V0VccblukLVkvQj27yspyEk9MVU/nrjiFZ4LBRSqQJy2ySZ8QAkVuzpTAbQ1jUs0ixKay8RsIxZFTc1Z6jaM1YtfmnUYr4OwAQ==
+ bh=VZkcTj2z70JFJusAax4ZVxRyiTWr9z4UftmhnDzxAzM=;
+ b=R1PuLCImg2DiKv2XcXoMbBn/siXMny+UHbpysi+d4FdAIaBlyet2rAT7+caVvePfwhs3a5Llm++uB+Pl904x4+dCasvYklGaXs5eadS2kk6YO8fAoRapb91+Rng15oKsfo6FnXDUTkcJjxfhpEZzGRHQt+aNZ22xhobcHCuBntxpGVr2lbGVs99vJkI9gsxkXd/45E3/oLR/75Sbn/iAeKmpH9Mpsu8ZeXxvxsR/a6zK9vFzJxNzcUNzZSPIOyXBqlnSmW3zWv1s0aRI/xq6TJCQU6H8818oJS4kU0hsrVdtnXV6iqa/YVb0ESUyJhMgCzCMpTVGtWfKw57Zi76XJw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.117.160) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
@@ -30,18 +30,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dh+D433ZcjdVYKfdRvAaAViP/sqKx+uqVJhIlVyYgL4=;
- b=GCPoYuzpi667lDsZb+3sQ5NoCMrN6uFKfrw0ytk4ZVzQEb5BE5TTLSwbb4JROPCc0IPEqELLVqsJw/JBOhqdB5fbGC9qbhPme+jDOSVKMjl+ExU01kvJGsPygI6scLbJnQZYgFnd3OqwDanilVT5fGHyVjIldH0UoFFKILTqSisaF2QVsR7yTaqjrZIxvGHmKr4WsaBXXVJE9u3W6sPRTMKvp0yUTO/m3p4B7xHSyVzwMIa1dheFOB47LxbPNMeALDdN7w4IaE7Id7FB5MqOfzDhWZf7DcJwLGTiIuMbuJAxB2JT7KOtH7f4YgY2gCX3gSv4ma89o063lWyFqUox5Q==
-Received: from SJ0PR03CA0180.namprd03.prod.outlook.com (2603:10b6:a03:338::35)
- by CYYPR12MB8939.namprd12.prod.outlook.com (2603:10b6:930:b8::10) with
+ bh=VZkcTj2z70JFJusAax4ZVxRyiTWr9z4UftmhnDzxAzM=;
+ b=cCbPLcErJDV9xolzEEPuRHEIHxL1gQiyf9BHFtyu5AHtSfqx2IbQtF1EmITVPjy9AdyiUv04W9aE0vkwmFQ06zmPE7POOp53g4lWB8v/GxNX8Wzhom+hh8NU04mABOseDcijKYXt38zM/rtnHCxK/eRUlP0ry3XtJRPvwUpAIRDeBMv992prQZYr7daieePBK6VxBiH/oo7zDEuah5RJ1yP7cgytRF8L5G3Np/FQpRMRChwj7drvduwrTBPPMUoPIrMGaMR42A8LC25s2xRvZEjNXirzA8GhotnDbrUkJ/80XPf6KicQok1O67vULOQ+OxvdxBcp+fx9kz/pQVncUQ==
+Received: from MW4PR04CA0360.namprd04.prod.outlook.com (2603:10b6:303:8a::35)
+ by CY5PR12MB6059.namprd12.prod.outlook.com (2603:10b6:930:2c::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.17; Mon, 3 Aug
- 2026 11:25:51 +0000
-Received: from SJ5PEPF000001D4.namprd05.prod.outlook.com
- (2603:10b6:a03:338:cafe::52) by SJ0PR03CA0180.outlook.office365.com
- (2603:10b6:a03:338::35) with Microsoft SMTP Server (version=TLS1_3,
+ 2026 11:25:54 +0000
+Received: from SJ5PEPF000001D0.namprd05.prod.outlook.com
+ (2603:10b6:303:8a:cafe::9a) by MW4PR04CA0360.outlook.office365.com
+ (2603:10b6:303:8a::35) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.18 via Frontend Transport; Mon, 3
- Aug 2026 11:25:51 +0000
+ Aug 2026 11:25:54 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
@@ -49,17 +49,17 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
  216.228.117.160 as permitted sender) receiver=protection.outlook.com;
  client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
 Received: from mail.nvidia.com (216.228.117.160) by
- SJ5PEPF000001D4.mail.protection.outlook.com (10.167.242.56) with Microsoft
+ SJ5PEPF000001D0.mail.protection.outlook.com (10.167.242.52) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.292.8 via Frontend Transport; Mon, 3 Aug 2026 11:25:51 +0000
+ 15.21.292.8 via Frontend Transport; Mon, 3 Aug 2026 11:25:54 +0000
 Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
  (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Mon, 3 Aug
- 2026 04:25:38 -0700
+ 2026 04:25:42 -0700
 Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.37) by
  rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Mon, 3 Aug 2026 04:25:33 -0700
+ 15.2.2562.20; Mon, 3 Aug 2026 04:25:38 -0700
 From: Danielle Ratson <danieller@nvidia.com>
 To: <netdev@vger.kernel.org>
 CC: <dsahern@kernel.org>, <idosch@nvidia.com>, <davem@davemloft.net>,
@@ -67,9 +67,9 @@ CC: <dsahern@kernel.org>, <idosch@nvidia.com>, <davem@davemloft.net>,
 	<horms@kernel.org>, <razor@blackwall.org>, <ja@ssi.bg>, <petrm@nvidia.com>,
 	<fw@strlen.de>, <kuniyu@google.com>, <bridge@lists.linux.dev>,
 	<linux-kernel@vger.kernel.org>, Danielle Ratson <danieller@nvidia.com>
-Subject: [PATCH net-next v2 3/5] bridge: Validate NS/NA messages using ndisc_check_ns_na()
-Date: Mon, 3 Aug 2026 14:25:03 +0300
-Message-ID: <20260803112505.613873-4-danieller@nvidia.com>
+Subject: [PATCH net-next v2 4/5] bridge: Linearize skb once the ND message type is validated
+Date: Mon, 3 Aug 2026 14:25:04 +0300
+Message-ID: <20260803112505.613873-5-danieller@nvidia.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260803112505.613873-1-danieller@nvidia.com>
 References: <20260803112505.613873-1-danieller@nvidia.com>
@@ -85,103 +85,103 @@ X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
  rnnvmail201.nvidia.com (10.129.68.8)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ5PEPF000001D4:EE_|CYYPR12MB8939:EE_
-X-MS-Office365-Filtering-Correlation-Id: 709fa420-ee78-458d-5387-08def151f9aa
+X-MS-TrafficTypeDiagnostic: SJ5PEPF000001D0:EE_|CY5PR12MB6059:EE_
+X-MS-Office365-Filtering-Correlation-Id: b7a23602-4894-429b-ae83-08def151fb38
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|82310400026|1800799024|36860700016|23010399003|10067099003|56012099006|11063799006|22082099003|18002099003;
+	BCL:0;ARA:13230040|23010399003|36860700016|376014|7416014|1800799024|82310400026|10067099003|11063799006|56012099006|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	rHJ9UJjK1MOPwnAjzZZtL+6O3hF7AX0hBXQ9+KHFrL0smcCyzofXUiB3VnSEcd57zhW1WINKeYwx9maunLfA68Nux70ToKbiG6VoEKW7u7pcQMAXo69ab2jmC2J68ixZZU820MxWyJISfpbfGPlX3px+Q7ZK6RYiIrfKLJNImdIAugO9SPDz4FaF11Ctqh4kIFttEyOq4YQhV6DUG0wxqBGppks/Ywe3NaLwqUzXSwxninwOSuauta4BCFHAHPKQMphQN7b5nbmHyOcZ1X/hKLXrYar1jmDzX+4atlWgqAgA2gVKF8gFUgPXel5gcVDRqpkij8BXVe0G4rjDXBH2EacaAMD50eQ8UfHz0R0dpLwXUIi8IOQWa1VBBz6cw64w5TQdOhs60yxvZXXeatMDF8XE6MiJy75QSv5dj2w0ELJ+LLOTbAKeWBzTcwtXBmLmvB1FFZlbx8VY59HKNummJ94UEPqeaOnxLhTBIFQ6jN4bheQuZfc0OwUerAh2BDsJPqlyYyhoURybEbkBS1S6vJkDIVO/VCMIj51tIVHdldG3GwpdvarDv2UNnwAsNxOTNAqx/eYSWPgUvYr0NWQg/TuUl21igkXKOwDsSUMwZRF9AEUJIU5JQpx64ig7Jc8ojD8lKP9QYtOq2SH8GP2nIO5WE95PXY4EughkADAtWdZHefNMRLut8eqtDXHY6uBSuP0dqU30tIIBJDE5Llk1/Q==
+	UvTcz6UOEB88pi1t5GEwmyxGN5d9FUexszkpqU6g80MWLZ3ipmiG72h7yjDNXo7fRs4I97OJ27QM4RanhYtAbf0yNy9WCPsVcQOWCoscDmGSAnvHafUZz1zFPJCvrVt96fexcumvpK8R6ocmd4bKTwW4FhVeoZYrwy92rtbg1fl8JLa+PfnC3lTtBoVqpjTyzbwozjlN38JKhYUmdRwkMvnv5Rgx72kooMxCyZwXpSd5Q+acIXYzP2SvHi5s/mf1qNvznPht+Ezuwp7+3WHPMh7cpKTwykAypLig3oHZC5YQoLGiF5ejP44fNChgX2bt02YeFPpOBbrQQockjpR6+/yz9jekXIQxC6MYUMvZfPJcdxIWfwxLoWaLWcr+MCEOsKwQB/ZJ34ak6gZl6CLZ5nSVZUonT7/DhocArHRi0Hm+24PpVKb9/ox/+grdJasSx+DYw66fC5nfJE0i7oVV1vUhJ+SZv/tkVL/z6dKw3Qeaawle1IDR4YdtCDIK+MA99Z568z8mH33QLX/soMFSbLiMhrsowvpNOMICBSA2HEz6/oAurn0mtdQJ0MLlkS15EWH/2mKlbnYh+M6Fk+INPgsEgaBMqBdTTFnIJXnYTz6MynuFcIfEQ02ay1nm8rWlnZfxBcxg3uYtLugs9TlfEsSh5mpVwIApl8KlrbYGybANEEm2JmTLkj6TUVefKhRjsZuOt0MnToUsB/G/8AVW1A==
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(7416014)(82310400026)(1800799024)(36860700016)(23010399003)(10067099003)(56012099006)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(23010399003)(36860700016)(376014)(7416014)(1800799024)(82310400026)(10067099003)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	HGH/dRhynqaKS1Hf+RvP7UUWdLoREtPXTAPJsXuseR8j6wI2mLfP4v9rW0XV2OL15J84HGFC2MvRMTbtH/nR93rOH8F/C1qwEa3ja2lNihZp1YK9bLxP7TFarBr15hMmfqJaLQ9ncG056+7U9/19NAvv7FBEOfNr82VXIIZrd9xilrEqpC9m+aOkQO8neNPM+QDUH4L1DokDJzzP04acZc60DLC68u+CR5dS0x8H2CesYX7sBhzviyPmz9PMQtK9FXd1P0Jr3rQ970YGY6vUl4R3CmGfrwgtncdyRUUmGY9zBagkr3Fn9tR1LmsklgBRAHmedVF7ovIge/NUZgBn73e88Sk94xNX2GpJRWVObic1vGTRVZdhJGAWUM5T4evp3fxhWL9jcwnihGhkgZU7Pq/Qt51oUk/y2CYIyN1OE2o25pNp6O045oB2wZNwJLSD
+	30ebRXW6CWMo4/L20es/VAhWeUPdvmrWMmxzFomxgaPy5SN15H4v0KWlLi7gCfNXsHZK/RxHQTtcUf9PZKO6PHAWUFBO+eMyr8xo1onl+ZGFTV6rtLtcdsIKDUCQ9mrHkQPEAiohXu+hCtvNDS1Yn5yzVvp2rxjbobgODr3+ffi3kW3jA/eSy860QWusctdORUcRrJ8Vq5se+GuhLwJ4ejPOpGaoUkZmn1kVi8zLn2hcAyaWnOmVD4repnYxGSr/7nyj7V0rzpW4X+lHAnhe1T8AX9HLXflPcSSwkCoj06T/R4T9ByP84FMFjmHXkkj8GkAVZznlDc5WEX53OH9DN7YCS5jX8DzSE8muBSRZyS4gk/F9eUaBQYzRrgKCHHIrFDx1dQ/uMg+SfdwubAgXI/ikZnrzaH4PFuKKgkQ98rPomcIhTKVsj3gBUsRnG52C
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 11:25:51.5266
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 11:25:54.1379
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 709fa420-ee78-458d-5387-08def151f9aa
+X-MS-Exchange-CrossTenant-Network-Message-Id: b7a23602-4894-429b-ae83-08def151fb38
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	SJ5PEPF000001D4.namprd05.prod.outlook.com
+	SJ5PEPF000001D0.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR12MB8939
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6059
 
-The bridge performs neighbor suppression by snooping NS/NA messages, but
-previously only checked the ICMPv6 type and code. This leaves it open to
-acting on malformed or spoofed packets that any RFC-compliant node should
-reject.
+br_nd_send() parses ND options from ns->opt[] and therefore needs the skb
+to be linear. Commit a01aee7cafc5 ("bridge: br_nd_send: linearize skb
+before parsing ND options") ensured that by linearizing inside
+br_nd_send() itself.
 
-Wire br_is_nd_neigh_msg() into the new ndisc_check_ns_na() helper, which
-enforces the full RFC 4861 section 7.1.1/7.1.2 receive validation:
-hop limit of 255, valid checksum, correct code, and type-specific rules
-(NS target not multicast; NA solicited flag clear for multicast
-destinations).
+Move the linearization up into br_is_nd_neigh_msg(), right after
+ndisc_check_ns_na() has validated the message as an NS/NA. This makes a
+linear buffer a property of every recognized ND message, so that this and
+any future ND message handling operate on a linear skb and cannot
+reintroduce that class of bug by forgetting to linearize.
 
-MLD messages are already validated by ipv6_mc_check_mld() before the
-bridge acts on them; this brings NS/NA to the same standard.
+Since the skb is now linear by the time br_nd_send() runs, drop the
+linearization there and derive ns from the transport header set by
+ndisc_check_ns_na(), instead of recomputing it from the network header.
 
-As a side effect, the skb parameter of br_is_nd_neigh_msg() changes from
-const to non-const, since ndisc_check_ns_na() may reallocate the skb head
-via pskb_may_pull() and sets the transport header. The returned pointer is
-now derived from skb_transport_header() rather than a direct cast.
+If linearization fails under memory pressure, br_is_nd_neigh_msg() returns
+NULL and the packet falls back to normal forwarding rather than being
+suppressed.
 
 Reviewed-by: Petr Machata <petrm@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 Signed-off-by: Danielle Ratson <danieller@nvidia.com>
 ---
- net/bridge/br_arp_nd_proxy.c | 11 ++++-------
- net/bridge/br_private.h      |  2 +-
- 2 files changed, 5 insertions(+), 8 deletions(-)
+
+Notes:
+    v2:
+    	* Add a comment noting that br_is_nd_neigh_msg() also linearizes the
+    	  skb.
+
+ net/bridge/br_arp_nd_proxy.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index db08c3272001..445c930ed59b 100644
+index 445c930ed59b..6b6de0eff38c 100644
 --- a/net/bridge/br_arp_nd_proxy.c
 +++ b/net/bridge/br_arp_nd_proxy.c
-@@ -19,6 +19,7 @@
- #include <net/addrconf.h>
- #if IS_ENABLED(CONFIG_IPV6)
- #include <net/ip6_checksum.h>
-+#include <net/ndisc.h>
- #endif
- 
- #include "br_private.h"
-@@ -234,16 +235,12 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
+@@ -235,11 +235,17 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
  #endif
  
  #if IS_ENABLED(CONFIG_IPV6)
--struct nd_msg *br_is_nd_neigh_msg(const struct sk_buff *skb)
-+struct nd_msg *br_is_nd_neigh_msg(struct sk_buff *skb)
++/* Validate skb as an NS/NA and linearize it for br_nd_send()'s ND
++ * option parsing; returns the nd_msg, or NULL on failure.
++ */
+ struct nd_msg *br_is_nd_neigh_msg(struct sk_buff *skb)
  {
--	struct nd_msg *m = (struct nd_msg *)(ipv6_hdr(skb) + 1);
--
--	if (m->icmph.icmp6_code != 0 ||
--	    (m->icmph.icmp6_type != NDISC_NEIGHBOUR_SOLICITATION &&
--	     m->icmph.icmp6_type != NDISC_NEIGHBOUR_ADVERTISEMENT))
-+	if (ndisc_check_ns_na(skb))
+ 	if (ndisc_check_ns_na(skb))
  		return NULL;
  
--	return m;
-+	return (struct nd_msg *)skb_transport_header(skb);
++	if (skb_linearize(skb))
++		return NULL;
++
+ 	return (struct nd_msg *)skb_transport_header(skb);
  }
  
- static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index e31439cb4420..d337b1cfb980 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -2367,7 +2367,7 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- 			      u16 vid, struct net_bridge_port *p);
- void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 		       u16 vid, struct net_bridge_port *p, struct nd_msg *msg);
--struct nd_msg *br_is_nd_neigh_msg(const struct sk_buff *skb);
-+struct nd_msg *br_is_nd_neigh_msg(struct sk_buff *skb);
- bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid);
- bool br_is_neigh_forward_grat_enabled(const struct net_bridge_port *p, u16 vid);
- #endif
+@@ -259,7 +265,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 	bool dad;
+ 	u16 pvid;
+ 
+-	if (!dev || skb_linearize(request))
++	if (!dev)
+ 		return;
+ 
+ 	len = LL_RESERVED_SPACE(dev) + sizeof(struct ipv6hdr) +
+@@ -276,8 +282,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 	skb_set_mac_header(reply, 0);
+ 
+ 	daddr = eth_hdr(request)->h_source;
+-	ns = (struct nd_msg *)(skb_network_header(request) +
+-			       sizeof(struct ipv6hdr));
++	ns = (struct nd_msg *)skb_transport_header(request);
+ 
+ 	/* Do we need option processing ? */
+ 	ns_olen = request->len - (skb_network_offset(request) +
 -- 
 2.54.0
 
