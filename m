@@ -1,284 +1,200 @@
-Received: from mail-oi1-f205.google.com (mail-oi1-f205.google.com [209.85.167.205])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010000.outbound.protection.outlook.com [52.101.46.0])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF1EB39A05D
-	for <bridge@lists.linux.dev>; Sat,  1 Aug 2026 00:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.205
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785545739; cv=none; b=PXzH7Grn/fg7xBcfxUm5cu39KRrrjc0zFpGUiz6SWXeMui4A/gKzJblDUO0mFkuX+icD44bPtLXJ4365nx23x1Ho2nIpo8M8ZYn5WYRnvGx7OKtLkZLnPfBZODWiU7KptqYJ1a9Xl3TczMqTuyXsvmV4bmXu+ETi8PfhcYjEXkY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785545739; c=relaxed/simple;
-	bh=aWz4kcV/AjqntA6nJMXU3T9F1qlrOtVLGAyfwShjzng=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=HZGMDTIm9ucsumDM2kiCXhvdPMPp62Gph51vsu5jEnFBF//ZTiBrtaf4LYzsui5qd20TFchQ6PUtfswtEO/RbjNUQtRHNrHxEbZ8iFoUyHwO2fklIoWC0AzED3wopwE9Y0nD4pZTFaw1TGLTSNecdKTHmhYdC9FePmgqhKEZ5PY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.205
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f205.google.com with SMTP id 5614622812f47-4a36606e230so2047903b6e.2
-        for <bridge@lists.linux.dev>; Fri, 31 Jul 2026 17:55:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785545734; x=1786150534;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ZA5LvUEt2FwGgOBdTzltpKIALnlVONsI8sGo9/aAobg=;
-        b=hKjcwMWNESOvF95rRyxAg6nEaaF7FxzDviUtTiYZAUZ4sWLy6nLjecMVtfbtsIdi2H
-         m0+CN+Es/exNbY7e/GbWkSSwMruEAUYRZ1jqG1BtxaL3ZM/jils2KgLwDl93hpAhSy6F
-         i0YmEABhN4xXAKxhhOMa5Rvo4y7XXr0aYUO1T9jEitUeKKF0Scup+R+k0vTxbn69lYc/
-         b09X6wJv2uYzk2uQ5IL4LZv+j+kT9WnT883XcO1JIyzfWctOz4uXDmHMv06m5X8AD9lR
-         +5HnSobm4zLCcLUYbBRSzWgsF/V+Gvs/O7jjVeRbl675N5896TTVazGBpnJzJgtog3ib
-         S29g==
-X-Gm-Message-State: AOJu0YzTb920ogNJwEFhYyQ1/aI6KfZhi/WNHm37u/DUnsHcrngCDvOT
-	UmH/Ddy1onIMubPoaCzaoa3SPITFnNb5Hm2cHCp9zyscFJ9e/cNulp4wEJ1psd9aMcLrM0kNQAU
-	rj4hXy60F02qVOqPStJmmCf42Egem7LJORUu26cfp4/l1TtN5BT7eOWNW2FTEdA==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3D813B6C18
+	for <bridge@lists.linux.dev>; Mon,  3 Aug 2026 11:25:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.0
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785756346; cv=fail; b=PQkXN/fKo+UoHFCO0o3dF3Vqzedf/a+JNBm4CrwJcrvP4m6imn0GYAbt3/rfyx9JxVok/fTdhmmDXoxa9wAdYVrvXDOrgocSZCNLffnwXFTtdD8+DIByErC1Xj/oijDBzvVRIrFg4Uwvb4Y5k9i1vEkWiLG8xys3MSVsrzvz59w=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785756346; c=relaxed/simple;
+	bh=S/C0jxqid/DI6K8aM3dzz7cRcHNweovqUdx0IFhDFeQ=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=TQCHXmPZVnnktjgJNBF+zzY6u6Qs8KthfbKZ6bqU9SOWEVltlECpFNi0fj/j+NJO6087q180x4O7YMRv+UKaCDR64hguRfg1MLJ5vmR3PCwbRJqfEO0k166zFMBA0CMFCLib7SWw0dD3I6+ahU4ZmOxaQjNy8VdUOyC7avbI4V0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=WDUZjqQy; arc=fail smtp.client-ip=52.101.46.0
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="WDUZjqQy"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=PyodJAIjn+EN/ZE50m9URR138fktib/u53vXyM1VWUy1h0YX34LdyAJwLMxsfvky9OGFmFRf04TXxDuu1c5kmZ56ovmbMZ8qVss4E5cbGaSrtWS8i1c8De5j+HgB4I/Ny+7pUehdZlb15hEl5el/8fWrqR/NWqchsyX7Lu3d4+w6XcwEI+23EbcFXuzUP4aiQFtYgfFtwWVcGcVnI3HpzXnOEaxw818t5JFJyeL90hDEBkIbD29qw1HVXZdS8UiAxTyJ8xkdzDzpluavgyA8ldHq4lxf74dd1WnhJiRQn+ry3U+T7+d7Uk03nCFWE36h3wIymmOGdc+CkANBImSqFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=n1FQSqiCe4Chh7xPc+dCuUrByWlhJLcOONkFNzskHs4=;
+ b=Er2fYISwu9PQi35MbBE8utdu+/ymAEsAN6/1Wsu2mfc0ei8chEkHH49gVsPaNeoJK2FPfvxvjeXRVQcD9HxL8AXKI7dvwigLu6BbmbDKVAj/CiQXvDjnKofEuuV2uGxUwBwGdc/GCIDXImtz6HAkWZ+HHs7gPFFIRxg+u+55IqMTEQ9jG7uDOkekYX/CrAvbAR25fS32EWJ73Ly6q0a2ITeeFaPuP4i4EaxHJvbqUnE2a7zxlUEdkHH9bnYF8wMUF9CIljecUmnsyKMTXz6iDpxkLM/f8uI22azQOUMBvijsB89aoPmANJATMUq8oCcHI3MYrFeEnRYhIIDfEt8cog==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n1FQSqiCe4Chh7xPc+dCuUrByWlhJLcOONkFNzskHs4=;
+ b=WDUZjqQyX+lG6b0FR2BIb/Gw45P2nSj6/ONnNvRTDeSvRHPnIVo5o0d5YpWZUmFcFTBxdsHLfeYGRdXmC0QUR9TgKmf10nN1OUKVLWe5vapxA9IzGrDflX28z4M+Jak8zj1mUIeYvevQX4ItL9odiYxYkudYyYpOXUXcri9THZ9EsQCV3kJfGrZoKW+0Xfkk5Qk78w6TLVdGxg7VOcCDaVPoTxCKKhj4YUiGWhBNtsRR6YX5BvxKinWM8qO3KeHAX/VymN/oQgAtvdBEbQhzzN9A+hZn+SAmbNPpUjvWEFIMZPXMnTE8UW6+/kZHY6hBFpPlonaW9rXRjW3IORSPnw==
+Received: from BN9PR03CA0749.namprd03.prod.outlook.com (2603:10b6:408:110::34)
+ by LV0PR12MB999093.namprd12.prod.outlook.com (2603:10b6:408:32e::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.18; Mon, 3 Aug
+ 2026 11:25:41 +0000
+Received: from BN1PEPF00004685.namprd03.prod.outlook.com
+ (2603:10b6:408:110:cafe::13) by BN9PR03CA0749.outlook.office365.com
+ (2603:10b6:408:110::34) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.17 via Frontend Transport; Mon, 3
+ Aug 2026 11:25:41 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ BN1PEPF00004685.mail.protection.outlook.com (10.167.243.86) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.292.8 via Frontend Transport; Mon, 3 Aug 2026 11:25:41 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 3 Aug
+ 2026 04:25:28 -0700
+Received: from dev-r-vrt-155.mtr.labs.mlnx (10.126.231.37) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Mon, 3 Aug 2026 04:25:24 -0700
+From: Danielle Ratson <danieller@nvidia.com>
+To: <netdev@vger.kernel.org>
+CC: <dsahern@kernel.org>, <idosch@nvidia.com>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<horms@kernel.org>, <razor@blackwall.org>, <ja@ssi.bg>, <petrm@nvidia.com>,
+	<fw@strlen.de>, <kuniyu@google.com>, <bridge@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>, Danielle Ratson <danieller@nvidia.com>
+Subject: [PATCH net-next v2 1/5] bridge: Use direct pointer in br_is_nd_neigh_msg()
+Date: Mon, 3 Aug 2026 14:25:01 +0300
+Message-ID: <20260803112505.613873-2-danieller@nvidia.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260803112505.613873-1-danieller@nvidia.com>
+References: <20260803112505.613873-1-danieller@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:2225:b0:4ab:230c:5faa with SMTP id
- 5614622812f47-4af5e3e5522mr3607854b6e.18.1785545734163; Fri, 31 Jul 2026
- 17:55:34 -0700 (PDT)
-Date: Fri, 31 Jul 2026 17:55:34 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a6d4406.2d659fcc.1d46f5.01ad.GAE@google.com>
-Subject: [syzbot] [bridge?] KASAN: slab-use-after-free Read in br_handle_frame
-From: syzbot <syzbot+128e9f5a0f85a51215b1@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	horms@kernel.org, idosch@nvidia.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
-	razor@blackwall.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN1PEPF00004685:EE_|LV0PR12MB999093:EE_
+X-MS-Office365-Filtering-Correlation-Id: 49f04d08-66ba-4dcf-ea05-08def151f381
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|1800799024|82310400026|36860700016|23010399003|11063799006|10067099003|56012099006|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	JpGF031hLcr5D927rKs6naqano5qUKXAlveyrdlaXISOPJEPZ4nX89JRy6zhMufoEHaMHzHDz18k+DKiNYwgrbFf/xNutgupAEog61xGAZHFZ9VsmeRNop5qLYEByX+woYqjqukdxKN2PEgg7EXXXbcsLb+QeslFpkURp9GGyzNihPsHsraL8TWDlFNcZceBkyiRoIgiAgAjPAHkxAfx/qcCSew1asmMJHrXaWvgJLKSVWI22E9JO4GifgMyN/J26rFsceEanHpUtrDIPUICgbYK0+NNjF2TPIXNPQFeD3ocdw+S+mW0z96YjfMFfcCcSQK3dA+k78CPpgn5UByxZR8iVERb8yjFf87cPsYqe+6cLgMeVgv6rPQcnB86iHC2duhloBc8WmU8ab4sziMuxllSphte7MhGRmlobn7jtnu2nMgGDVxMUrLGcmZa/kWOl5YCjt/MEz6sEsGegAHygXaNlNJEQz0ocG4aXCMUBmmUe/l2+KqypFHQmdR8Mf6lVQDqa2M7PQ3FE8Eze9qVigCkk5VpVQoPq6TI6E+eipRCLMIBXZQjHTXl/2/um7tea23pRRgbrKWkokyYdOazHMLnvfwLZdtTtUZiH8/vWPxcZqio9830YoA9N7Y5Xt2a6gMJ3ZaB3CUAIAUN2udTmj0tnrTFf/XMIRmbhDl6mIVvHRiXkiiQsZ3TP4nylyC5oT6Eiu27VrEGz+/Eo+V1CA==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(82310400026)(36860700016)(23010399003)(11063799006)(10067099003)(56012099006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	obApSBVvR5LLSLDhG1TgRBBdSVVeUiwB0rR+7i89ZW4LWUH9XQgIXy1shvTvfqbiLpUbx3dURfBCAMoUMKREGrElRlvrRQ7GUViikZg+tooCkCMOtSRRMQuF4UGITlMwHdguhN5nmqIGalPw+67akAJ0NqOhJNlb1mogGLLiCPSZuAQtAna0MwfEh42p3D1NuOw6e7TIa1YJMMvJY8hkzW08SLpUNXfy8CL5ndzLjw/a2xBTLAvo4cEWliVAO0c5BVfwPZISxRvrmQsLLITIr+uvpIVWoZKG2raPjoXRt8eoS6bDlsiivR6Oep1+BUPaxi8+lioV9eUgAugy+IOBXsNXtQ4fTVBxCJzIS63r5siOfzS77uqN3+HcS6LonR5V/5rJswC9vX2LRjAHAu4zzsjc8kx0c0e9nWJ+1D21vtZIdsZS9GpVHIc+IO+mIlnn
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2026 11:25:41.1214
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 49f04d08-66ba-4dcf-ea05-08def151f381
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN1PEPF00004685.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV0PR12MB999093
 
-Hello,
+Both callers of br_is_nd_neigh_msg() already call pskb_may_pull() to
+ensure sizeof(struct ipv6hdr) + sizeof(struct nd_msg) bytes are in the
+linear area before invoking this function. The skb_header_pointer()
+call and its fallback buffer are therefore unnecessary.
 
-syzbot found the following issue on:
+Replace skb_header_pointer() with a direct cast to ipv6_hdr(skb) + 1
+and drop the now-unused 'msg' parameter and its corresponding stack
+buffer from all callers.
 
-HEAD commit:    04026c998c24 net/rds: use krealloc_array() for iovector gr..
-git tree:       net-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=1141c49e580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=f9f592a4e0cc86da
-dashboard link: https://syzkaller.appspot.com/bug?extid=128e9f5a0f85a51215b1
-compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/4f82b6352d02/disk-04026c99.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/9b29e52c71b2/vmlinux-04026c99.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/0b1e84e828d6/bzImage-04026c99.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+128e9f5a0f85a51215b1@syzkaller.appspotmail.com
-
-bridge0: received packet on bridge_slave_1 with own address as source address (addr:aa:aa:aa:aa:aa:0c, vlan:1)
-bridge0: received packet on bridge_slave_1 with own address as source address (addr:aa:aa:aa:aa:aa:0c, vlan:1)
-ip6_tunnel: ip6tnl2 xmit: Local address not yet configured!
-==================================================================
-BUG: KASAN: slab-use-after-free in is_multicast_ether_addr include/linux/etherdevice.h:133 [inline]
-BUG: KASAN: slab-use-after-free in is_valid_ether_addr include/linux/etherdevice.h:209 [inline]
-BUG: KASAN: slab-use-after-free in br_handle_frame+0xcfb/0x1510 net/bridge/br_input.c:349
-Read of size 4 at addr ffff88807c476008 by task kworker/R-bat_e/3227
-
-CPU: 1 UID: 0 PID: 3227 Comm: kworker/R-bat_e Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/16/2026
-Workqueue: bat_events batadv_tt_purge
-Call Trace:
- <IRQ>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- print_address_description+0x55/0x1e0 mm/kasan/report.c:378
- print_report+0x58/0x70 mm/kasan/report.c:482
- kasan_report+0x117/0x150 mm/kasan/report.c:595
- is_multicast_ether_addr include/linux/etherdevice.h:133 [inline]
- is_valid_ether_addr include/linux/etherdevice.h:209 [inline]
- br_handle_frame+0xcfb/0x1510 net/bridge/br_input.c:349
- __netif_receive_skb_core+0x989/0x30b0 net/core/dev.c:6102
- __netif_receive_skb_one_core net/core/dev.c:6213 [inline]
- __netif_receive_skb net/core/dev.c:6328 [inline]
- process_backlog+0x706/0x1860 net/core/dev.c:6679
- __napi_poll+0xaa/0x330 net/core/dev.c:7738
- napi_poll net/core/dev.c:7801 [inline]
- net_rx_action+0x61d/0xf50 net/core/dev.c:7958
- handle_softirqs+0x225/0x840 kernel/softirq.c:622
- do_softirq+0x76/0xd0 kernel/softirq.c:523
- </IRQ>
- <TASK>
- __local_bh_enable_ip+0xf8/0x130 kernel/softirq.c:450
- spin_unlock_bh include/linux/spinlock.h:396 [inline]
- batadv_tt_local_purge+0x2c1/0x340 net/batman-adv/translation-table.c:1366
- batadv_tt_purge+0x35/0xa10 net/batman-adv/translation-table.c:3565
- process_one_work kernel/workqueue.c:3322 [inline]
- process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405
- rescuer_thread+0x7b6/0x10b0 kernel/workqueue.c:3629
- kthread+0x388/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-
-Allocated by task 5627:
- kasan_save_stack mm/kasan/common.c:57 [inline]
- kasan_save_track+0x3e/0x80 mm/kasan/common.c:78
- poison_kmalloc_redzone mm/kasan/common.c:398 [inline]
- __kasan_kmalloc+0x93/0xb0 mm/kasan/common.c:415
- kasan_kmalloc include/linux/kasan.h:263 [inline]
- __do_kmalloc_node mm/slub.c:5362 [inline]
- __kmalloc_node_track_caller_noprof+0x4c3/0x730 mm/slub.c:5497
- kmalloc_reserve net/core/skbuff.c:637 [inline]
- __alloc_skb+0x2bd/0x7a0 net/core/skbuff.c:715
- alloc_skb include/linux/skbuff.h:1384 [inline]
- mld_newpack+0x165/0xcb0 net/ipv6/mcast.c:1790
- add_grhead net/ipv6/mcast.c:1901 [inline]
- add_grec+0x119f/0x19d0 net/ipv6/mcast.c:2040
- mld_send_cr net/ipv6/mcast.c:2126 [inline]
- mld_ifc_work+0x30e/0xd60 net/ipv6/mcast.c:2711
- process_one_work kernel/workqueue.c:3322 [inline]
- process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405
- worker_thread+0xa47/0xfb0 kernel/workqueue.c:3486
- kthread+0x388/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-Freed by task 3227:
- kasan_save_stack mm/kasan/common.c:57 [inline]
- kasan_save_track+0x3e/0x80 mm/kasan/common.c:78
- kasan_save_free_info+0x40/0x50 mm/kasan/generic.c:584
- poison_slab_object mm/kasan/common.c:253 [inline]
- __kasan_slab_free+0x5c/0x80 mm/kasan/common.c:285
- kasan_slab_free include/linux/kasan.h:235 [inline]
- slab_free_hook mm/slub.c:2705 [inline]
- slab_free mm/slub.c:6405 [inline]
- kfree+0x1c5/0x640 mm/slub.c:6720
- skb_kfree_head net/core/skbuff.c:1077 [inline]
- skb_free_head net/core/skbuff.c:1089 [inline]
- pskb_expand_head+0x469/0x13a0 net/core/skbuff.c:2338
- netif_skb_check_for_xdp net/core/dev.c:5580 [inline]
- netif_receive_generic_xdp net/core/dev.c:5611 [inline]
- do_xdp_generic+0x9a5/0x12d0 net/core/dev.c:5679
- __netif_receive_skb_core+0x10e0/0x30b0 net/core/dev.c:6025
- __netif_receive_skb_one_core net/core/dev.c:6213 [inline]
- __netif_receive_skb net/core/dev.c:6328 [inline]
- netif_receive_skb_internal net/core/dev.c:6414 [inline]
- netif_receive_skb+0x1fe/0xbf0 net/core/dev.c:6473
- NF_HOOK+0xa4/0x3a0 include/linux/netfilter.h:325
- br_handle_frame_finish+0x1192/0x1990 net/bridge/br_input.c:-1
- br_nf_hook_thresh+0x3dd/0x4c0 net/bridge/br_netfilter_hooks.c:-1
- br_nf_pre_routing_finish_ipv6+0x90c/0xc40 net/bridge/br_netfilter_ipv6.c:-1
- NF_HOOK include/linux/netfilter.h:325 [inline]
- br_nf_pre_routing_ipv6+0x382/0x6f0 net/bridge/br_netfilter_ipv6.c:183
- nf_hook_entry_hookfn include/linux/netfilter.h:165 [inline]
- nf_hook_bridge_pre net/bridge/br_input.c:291 [inline]
- br_handle_frame+0x127f/0x1510 net/bridge/br_input.c:442
- __netif_receive_skb_core+0x989/0x30b0 net/core/dev.c:6102
- __netif_receive_skb_one_core net/core/dev.c:6213 [inline]
- __netif_receive_skb net/core/dev.c:6328 [inline]
- process_backlog+0x706/0x1860 net/core/dev.c:6679
- __napi_poll+0xaa/0x330 net/core/dev.c:7738
- napi_poll net/core/dev.c:7801 [inline]
- net_rx_action+0x61d/0xf50 net/core/dev.c:7958
- handle_softirqs+0x225/0x840 kernel/softirq.c:622
- do_softirq+0x76/0xd0 kernel/softirq.c:523
- __local_bh_enable_ip+0xf8/0x130 kernel/softirq.c:450
- spin_unlock_bh include/linux/spinlock.h:396 [inline]
- batadv_tt_local_purge+0x2c1/0x340 net/batman-adv/translation-table.c:1366
- batadv_tt_purge+0x35/0xa10 net/batman-adv/translation-table.c:3565
- process_one_work kernel/workqueue.c:3322 [inline]
- process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405
- rescuer_thread+0x7b6/0x10b0 kernel/workqueue.c:3629
- kthread+0x388/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-The buggy address belongs to the object at ffff88807c476000
- which belongs to the cache kmalloc-2k of size 2048
-The buggy address is located 8 bytes inside of
- freed 2048-byte region [ffff88807c476000, ffff88807c476800)
-
-The buggy address belongs to the physical page:
-page: refcount:0 mapcount:0 mapping:0000000000000000 index:0xffff88807c472000 pfn:0x7c470
-head: order:3 mapcount:0 entire_mapcount:0 nr_pages_mapped:0 pincount:0
-flags: 0xfff00000000240(workingset|head|node=0|zone=1|lastcpupid=0x7ff)
-page_type: f5(slab)
-raw: 00fff00000000240 ffff88801b005000 ffffea0001f06210 ffffea00013ad810
-raw: ffff88807c472000 0000000800080001 00000000f5000000 0000000000000000
-head: 00fff00000000240 ffff88801b005000 ffffea0001f06210 ffffea00013ad810
-head: ffff88807c472000 0000000800080001 00000000f5000000 0000000000000000
-head: 00fff00000000003 fffffffffffffe01 00000000ffffffff 00000000ffffffff
-head: ffffffffffffffff 0000000000000000 00000000ffffffff 0000000000000008
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 3, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 29164, tgid 29161 (syz.4.10629), ts 619315175671, free_ts 619310279727
- set_page_owner include/linux/page_owner.h:32 [inline]
- post_alloc_hook+0x1f9/0x250 mm/page_alloc.c:1859
- prep_new_page mm/page_alloc.c:1867 [inline]
- get_page_from_freelist+0x21fa/0x2270 mm/page_alloc.c:3946
- __alloc_frozen_pages_noprof+0x18d/0x380 mm/page_alloc.c:5304
- alloc_slab_page mm/slub.c:3294 [inline]
- allocate_slab+0x79/0x5e0 mm/slub.c:3408
- new_slab mm/slub.c:3454 [inline]
- refill_objects+0x2d5/0x350 mm/slub.c:7338
- refill_sheaf mm/slub.c:2832 [inline]
- __pcs_replace_empty_main+0x2bf/0x6b0 mm/slub.c:4703
- alloc_from_pcs mm/slub.c:4801 [inline]
- slab_alloc_node mm/slub.c:4933 [inline]
- __do_kmalloc_node mm/slub.c:5361 [inline]
- __kmalloc_node_track_caller_noprof+0x557/0x730 mm/slub.c:5497
- kmalloc_reserve net/core/skbuff.c:637 [inline]
- __alloc_skb+0x2bd/0x7a0 net/core/skbuff.c:715
- alloc_skb include/linux/skbuff.h:1384 [inline]
- alloc_skb_with_frags+0xc6/0x760 net/core/skbuff.c:6769
- sock_alloc_send_pskb+0x878/0x990 net/core/sock.c:3013
- sock_alloc_send_skb include/net/sock.h:1907 [inline]
- llc_ui_sendmsg+0x459/0xe30 net/llc/af_llc.c:968
- sock_sendmsg_nosec+0x13a/0x180 net/socket.c:775
- __sock_sendmsg net/socket.c:790 [inline]
- sock_sendmsg+0x1ca/0x2d0 net/socket.c:813
- splice_to_socket+0xb5e/0x12a0 fs/splice.c:884
- do_splice_from fs/splice.c:936 [inline]
- direct_splice_actor+0x101/0x160 fs/splice.c:1159
- splice_direct_to_actor+0x57b/0xcb0 fs/splice.c:1103
-page last free pid 29163 tgid 29158 stack trace:
- reset_page_owner include/linux/page_owner.h:25 [inline]
- __free_pages_prepare mm/page_alloc.c:1406 [inline]
- __free_frozen_pages+0xc1e/0xd10 mm/page_alloc.c:2950
- rcu_do_batch kernel/rcu/tree.c:2645 [inline]
- rcu_core+0x78b/0x10a0 kernel/rcu/tree.c:2897
- handle_softirqs+0x225/0x840 kernel/softirq.c:622
- __do_softirq kernel/softirq.c:656 [inline]
- invoke_softirq kernel/softirq.c:496 [inline]
- __irq_exit_rcu+0xca/0x220 kernel/softirq.c:735
- irq_exit_rcu+0x9/0x30 kernel/softirq.c:752
- instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
- sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1062
- asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
-
-Memory state around the buggy address:
- ffff88807c475f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88807c475f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88807c476000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff88807c476080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88807c476100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Signed-off-by: Danielle Ratson <danieller@nvidia.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ net/bridge/br_arp_nd_proxy.c | 9 ++-------
+ net/bridge/br_device.c       | 4 ++--
+ net/bridge/br_input.c        | 4 ++--
+ net/bridge/br_private.h      | 2 +-
+ 4 files changed, 7 insertions(+), 12 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
+index 23eb6931a2b4..db08c3272001 100644
+--- a/net/bridge/br_arp_nd_proxy.c
++++ b/net/bridge/br_arp_nd_proxy.c
+@@ -234,14 +234,9 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+-struct nd_msg *br_is_nd_neigh_msg(const struct sk_buff *skb, struct nd_msg *msg)
++struct nd_msg *br_is_nd_neigh_msg(const struct sk_buff *skb)
+ {
+-	struct nd_msg *m;
+-
+-	m = skb_header_pointer(skb, skb_network_offset(skb) +
+-			       sizeof(struct ipv6hdr), sizeof(*msg), msg);
+-	if (!m)
+-		return NULL;
++	struct nd_msg *m = (struct nd_msg *)(ipv6_hdr(skb) + 1);
+ 
+ 	if (m->icmph.icmp6_code != 0 ||
+ 	    (m->icmph.icmp6_type != NDISC_NEIGHBOUR_SOLICITATION &&
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index e7f343ab22d3..ff55dab73632 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -80,9 +80,9 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		   pskb_may_pull(skb, sizeof(struct ipv6hdr) +
+ 				 sizeof(struct nd_msg)) &&
+ 		   ipv6_hdr(skb)->nexthdr == IPPROTO_ICMPV6) {
+-			struct nd_msg *msg, _msg;
++			struct nd_msg *msg;
+ 
+-			msg = br_is_nd_neigh_msg(skb, &_msg);
++			msg = br_is_nd_neigh_msg(skb);
+ 			if (msg)
+ 				br_do_suppress_nd(skb, br, vid, NULL, msg);
+ 	}
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+index ddb8f002a40e..d87a5f9fa92b 100644
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -176,9 +176,9 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
+ 		   pskb_may_pull(skb, sizeof(struct ipv6hdr) +
+ 				 sizeof(struct nd_msg)) &&
+ 		   ipv6_hdr(skb)->nexthdr == IPPROTO_ICMPV6) {
+-			struct nd_msg *msg, _msg;
++			struct nd_msg *msg;
+ 
+-			msg = br_is_nd_neigh_msg(skb, &_msg);
++			msg = br_is_nd_neigh_msg(skb);
+ 			if (msg)
+ 				br_do_suppress_nd(skb, br, vid, p, msg);
+ 	}
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 4cf8b1ab9047..e31439cb4420 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -2367,7 +2367,7 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
+ 			      u16 vid, struct net_bridge_port *p);
+ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
+ 		       u16 vid, struct net_bridge_port *p, struct nd_msg *msg);
+-struct nd_msg *br_is_nd_neigh_msg(const struct sk_buff *skb, struct nd_msg *m);
++struct nd_msg *br_is_nd_neigh_msg(const struct sk_buff *skb);
+ bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid);
+ bool br_is_neigh_forward_grat_enabled(const struct net_bridge_port *p, u16 vid);
+ #endif
+-- 
+2.54.0
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
