@@ -1,64 +1,64 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C50903B101C
-	for <bridge@lists.linux.dev>; Tue, 18 Aug 2026 15:08:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC4B73AF657
+	for <bridge@lists.linux.dev>; Tue, 18 Aug 2026 15:08:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787065693; cv=none; b=euT7jA9SEMt/bFnwn1etS9a/bv7pVBlQhBOsjQzijr1tV8wBqtf29Re3MamQRrxH2VLNHRWhb9IAbgpBfRgDd/LZOw7Aey0EAKVEWPfUJFuUxdrRZaSlD99Kz/g2+CVLYirsEcOqPcmcpHXPL35HAqoCa1uhjsQEProgyYgmxTI=
+	t=1787065694; cv=none; b=qc9TLFtleRMnpoR3eq0f7RxObPNRvkEdHUwJtWBiLvBUASZWlwbIwHb+vUGYwe8rdDlHxYDuvRyDi0HcP5IWe/I2TZBiw9eBnTFtM6dKRgClXZfe9e2wm9IBmwsDqNoCTjdvsTgno3AIXyxVXR9NDyU3aChbxsQ5kCfaOBRssFM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787065693; c=relaxed/simple;
-	bh=2+julbhixxofNca4aNVTNk/zs/niG81pBE7X/ZshghQ=;
+	s=arc-20240116; t=1787065694; c=relaxed/simple;
+	bh=t+JIdzgNDB+wXkLvzEVmEGCGBEGugUb504qbpH6q2Sk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dKpsZrSqNcnHyqObpAl95DRgsSdwPNkQGBOX3gBOMPyr6ZzQwO7w7MJ4aLzioPiM4W6nYYqL8nh1zDNycHJUOBxGYZMtXfTvPoxeP7y6XZ+1cHo33QSeEpndSbunu2japyFEXxnJcvhHnORKNfnTzvyyWdXaroc8ZFH9SIWsKyM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=Qc9cwbbK; arc=none smtp.client-ip=209.85.221.51
+	 MIME-Version; b=py0Ggkwud39ToRcEZOxpLr7mHmaYfgs773SIzp7C2PP9INY3QfAoNBEH2Uuh7WC0aWxhUsshmvM7XRwYDMhuxRG0dvxeFXWalPLCdypnycLAbUFTaXNDmlbPCWjh/YMaeT21l4isL8NiJ/ThHD3DE+HER3VW5l1l5ie/b34Ke64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=LLadrFDR; arc=none smtp.client-ip=209.85.221.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="Qc9cwbbK"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-47f84023916so4506824f8f.3
-        for <bridge@lists.linux.dev>; Tue, 18 Aug 2026 08:08:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="LLadrFDR"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47fe2d179e2so3139566f8f.1
+        for <bridge@lists.linux.dev>; Tue, 18 Aug 2026 08:08:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1787065690; x=1787670490; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1787065691; x=1787670491; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=DhoaR4OOIJXqNDBU5cYw/oNUY2j8DBMQ31bUaBG3FrI=;
-        b=Qc9cwbbK7k8xpB2eooyjWP58xbPLm1L6aYpja94ct8+ZBL8FrXJK53/JOML+hnnFEK
-         +/KW17OoGAnl/Bc1zcRMNIvkYCal3W71G4Fzni9jLYsR9utSQoTDz4GW3hmB+xhfz4Gv
-         hLzchDXoNedp6vSgFfw4l6ZPP+QiIiwDTBSRu2lT0of3rOyoHEVDCJxCogPrIuvjUA9b
-         3nJzvPR/L1Pe3hwfsnWO19qyr3yt5x5fuRockod9pbU8lJJyVOAWcjJM1Kc0YX+JykfB
-         pIZDNdRAwizASybzGhn73SwkBguMIoWzse/nioHtWVpxjaO/tx2ybJsqv07YZol8RWcd
-         CRmg==
+        bh=fsJTTJLMftxjOk/8vHlxHx3gsMZIHruqB4aZN98cgQg=;
+        b=LLadrFDRsS6lqkrzHxnv2qiWIVv2Gidr8gbi8iPZibIe2tWSp5v0t6JSgsgLuHm4mF
+         y0eTwKXvul4p/LK1PClaF5nwex0JXVxrSnrA6DIcgb8V1wzqXX2gKlIHkATfC61cqiky
+         Mbjc9/sO62UzZSFQGnoSMGXjbCId5tJPDTi/Sm1ATA+UKc4QH1zxPMDLSX9jJMHRAlRF
+         P4EpqKoZtjiF/plROslKkGsUn5le4K20yuspGqHGE9DfgDT0dT+qMOdWABQ5z8thRGXX
+         yWs1T5+/MSyEXZJGgzIharVYfqPeCCdPVp8JvYSvV47SvIxI/iens5KwbrQDfWLGzlno
+         zAeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787065690; x=1787670490;
+        d=1e100.net; s=20251104; t=1787065691; x=1787670491;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=DhoaR4OOIJXqNDBU5cYw/oNUY2j8DBMQ31bUaBG3FrI=;
-        b=CCn0xThgeKwrr5ZNRL4bY+zp3snRkRDMvp9McPAEx2QyAdkEUhn8YQdHCR8SPyMnzY
-         FpqlNFgeyDK6i3kYMZfbdonaokVxZM7orWRV4npUfc238TMMmSr/MSvOAJTtV3cL6YwQ
-         PKMDVE1+TrywppDTJqdDL2/IgUICQ/wq/35fyV/evxi88B9gJheILzo6FEPxU2ER++fL
-         QD/QcIdRhfKvdm29vLuG9L8FMcddF/PPAQ9zQAeCZe2jKtMRrA6cgWgJlzg86Ln4qe4a
-         repdk0JpK5+HVO5hpMj6Qkjy/rCog67A1DrOTNyFbjMoDs46qFiuVK3OJ5tAn63Qdx7j
-         6bgQ==
-X-Forwarded-Encrypted: i=1; AHgh+RormNd3xYKNWoUSq+EKbxrX2CL+zLFryRb4qsdBFZrKKO/y182DS1RNa1JonTcKWkvn5x4ggZE=@lists.linux.dev
-X-Gm-Message-State: AOJu0YxepgzSQ5+k6/8//GML70Nroj1SjFYY1s+JuJPK+nnPuKSfYgvd
-	W5gcRrkJBTsKawhU4XlVr1jMSp3jjeeLIavWYSJ2jOZKn/ynFXLWIcHSfHxLot/uCok=
-X-Gm-Gg: AR+sD13gTkK2b7RR3vxNQmz9ltCUVIetiXxAIMohLxzvqDGIZGGlzKsBSk8OQ3gm5o1
-	v7cWs0LK2l8Phapz50V6WkDBFCJ6wPwoKzn1+ewe3R9C0C/mGnphLwIr0Idc1E0QMnc+ZSTvuRI
-	pedmuslM972K8CeigN5W+NxSq2wOyNokRcITpsHVngHd4cERX1zE/Z6DNlgLmhgW16IbY121cMo
-	hDttqRCFLo7knHIkUFmoEBgwUx1RRknGHVZFXeH04JaLy9PP7E7dT6B2yMBATwAm8aBajo815xL
-	/1leHwyQvddRh0HS8UT9yeWOlAOrhPpR/L4RJNvwjX98fX+P0u9f7YF39RaOTUS2y5SZUhQuQ/W
-	QqG9rbz12IDffXzrCZqiF9XXQ3jLt+SifRVRsmbqapPXXVbEgWmQe0TT6pllJxzs9tjCK1gHPmX
-	5MjMGOB/F3pkurogclQvKee4UwPmmD6ykeKvJlZ3oPflXzwsnxuJnRhfASqEQIxDcPimM+zGZVN
-	eRuEVtuLhg=
-X-Received: by 2002:a05:6000:47:b0:47f:eac2:6f55 with SMTP id ffacd0b85a97d-482a90cd11fmr11978229f8f.19.1787065689829;
-        Tue, 18 Aug 2026 08:08:09 -0700 (PDT)
+        bh=fsJTTJLMftxjOk/8vHlxHx3gsMZIHruqB4aZN98cgQg=;
+        b=E4srrwVf8Sd8/eJuARbgyr8UXgCtsVPwkIPRGPYuX0MfvR+C/ly/VaUdJQ6s6QugZQ
+         sJ9uAmdxUao3H//RngK6TSzbVbGk503OleyM7v4IgcCSHMj++x6n+w4+JeJYgbS8Ri5W
+         StQPj/Ycbviw893o15WniBjokzK4enE0iNeBlWCdXnV2vbU4tH0xSW4nSXRNIUy1+aB/
+         jBt3VUnF1/ZnftGZUfCfgLDsBjV5bZHMLuIw1ho40y9gIEJ7RXEOQ1y7o9eI6Bv1j7Zw
+         /D1/+I+QgCvVcikm7q0cSJdZVSInsBpBbp/yuwvxlkPjD/BMZCkWEfuVN0pc1mBsFT+e
+         9ksQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrP3ImJkKxZlrvK+kfosG1r6RrWRdds7DtjQeSaDAfDEzmmfiKGy78+WYvwHypNz5GZRql6RrQ=@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy1XMAJTOti3TizvcjPqgxswfJ+tAnJR30JVv0JYpHR60rNf3gg
+	u+lKKhNvueMfRbXWCezm6Ty2rN7SkSpzijIDbw4vAuikS22TVIyyS72CxAHpIfygXVY=
+X-Gm-Gg: AR+sD12mcVtuXkpQnNnWBJJGAZ4C0CVTmKn/P0ez95esxbrZdB2xrauFXj92XBB3UYT
+	KrRNkoDnclY5sxw3m+vXf1RhSC7J6eQQdD+kpEnrU5FiPv8hPzzwuPlQqfF1jhTWIXh/PUJEmsu
+	3+K69dFWb1YYPMUBQEEYyldd2RP7thJ8CtWnnW8vGqUW3etI0DXTuqWVmf0B8jc698QS7LH7x+/
+	WnzpkR09zg3XmuJKWDxaeCyTcE8N8Eg7TZzAmBsTIvs7Is0KkK1z2vss7f7dVLL43qXDh91n9jj
+	pSVY5XbTFVIK1WYx4L3bZgSaT4EuTWym939qJnYXPLuA+Xlc3+fQ+AhZz/IZmiXx2zeZlXgqVbf
+	OW6XGmEUcEQZ4qxRkAvvy2C0qm78o6Xq9RS4kdIvtzq3YMyjl4hDoZAv/SkUgyx5sI5Vi3hdHR3
+	lRsgiGlhSWImU5/gtg997TMayLI5Cxi0rexfwgi+dltk1CpMR2WEpP+64PomP82AxjEHu1QTSK3
+	2ZutEtpqjw=
+X-Received: by 2002:adf:fd0a:0:b0:481:51b7:290b with SMTP id ffacd0b85a97d-481607630fdmr42455679f8f.14.1787065691040;
+        Tue, 18 Aug 2026 08:08:11 -0700 (PDT)
 Received: from localhost (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-482a9f0dec2sm7924392f8f.10.2026.08.18.08.08.09
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-482a5a3157fsm12203428f8f.3.2026.08.18.08.08.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 08:08:09 -0700 (PDT)
+        Tue, 18 Aug 2026 08:08:10 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: idosch@nvidia.com,
@@ -73,9 +73,9 @@ Cc: idosch@nvidia.com,
 	dlstevens@us.ibm.com,
 	amwang@redhat.com,
 	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net v2 1/2] net: bridge: arp/nd proxy: fix reading neigh ha
-Date: Tue, 18 Aug 2026 18:07:55 +0300
-Message-ID: <20260818150756.890025-2-razor@blackwall.org>
+Subject: [PATCH net v2 2/2] vxlan: fix reading neigh ha
+Date: Tue, 18 Aug 2026 18:07:56 +0300
+Message-ID: <20260818150756.890025-3-razor@blackwall.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260818150756.890025-1-razor@blackwall.org>
 References: <20260818150756.890025-1-razor@blackwall.org>
@@ -87,12 +87,13 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Currently neigh ha address is read directly, but that can result in
-torn/partial reads if the neigh is being updated. Use neigh_ha_snapshot
-to take a stable snapshot of the address.
+Currently arp/neigh_reduce read neigh ha directly which can lead to
+partial reads while the neigh is being updated. Use neigh_ha_snapshot to
+take a stable snapshot of the address similar to route_shortcircuit which
+already does the right thing.
 
-Fixes: 057658cb33fb ("bridge: suppress arp pkts on BR_NEIGH_SUPPRESS ports")
-Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+Fixes: e4f67addf158 ("add DOVE extensions for VXLAN")
+Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
 v2: - use ETH_ALEN instead of MAX_ADDR_LEN, the bridge devices all use
@@ -100,109 +101,97 @@ v2: - use ETH_ALEN instead of MAX_ADDR_LEN, the bridge devices all use
       so it also always uses ETH_ALEN
     - align ha to 2 bytes because ether_addr_copy() expects it (Sashiko)
 
- net/bridge/br_arp_nd_proxy.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ drivers/net/vxlan/vxlan_core.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 23eb6931a2b4..fd65d6af4f35 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -195,13 +195,15 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- 	n = neigh_lookup(&arp_tbl, &tip, vlandev);
- 	if (n) {
- 		struct net_bridge_fdb_entry *f;
-+		u8 ha[ETH_ALEN] __aligned(2);
+diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
+index 824144bb7774..a94168f7a18e 100644
+--- a/drivers/net/vxlan/vxlan_core.c
++++ b/drivers/net/vxlan/vxlan_core.c
+@@ -1881,6 +1881,7 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
  
- 		if (!(READ_ONCE(n->nud_state) & NUD_VALID)) {
- 			neigh_release(n);
- 			return;
+ 	if (n) {
+ 		struct vxlan_rdst *rdst = NULL;
++		u8 ha[ETH_ALEN] __aligned(2);
+ 		struct vxlan_fdb *f;
+ 		struct sk_buff	*reply;
+ 
+@@ -1889,8 +1890,10 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+ 			goto out;
  		}
  
--		f = br_fdb_find_rcu(br, n->ha, vid);
 +		neigh_ha_snapshot(ha, n, n->dev);
-+		f = br_fdb_find_rcu(br, ha, vid);
- 		if (f) {
- 			const struct net_bridge_port *dst = READ_ONCE(f->dst);
- 			bool replied = false;
-@@ -211,10 +213,10 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- 			    br_is_neigh_suppress_enabled(dst, vid)) {
- 				if (!vid)
- 					br_arp_send(br, p, skb->dev, sip, tip,
--						    sha, n->ha, sha, 0, 0);
-+						    sha, ha, sha, 0, 0);
- 				else
- 					br_arp_send(br, p, skb->dev, sip, tip,
--						    sha, n->ha, sha,
-+						    sha, ha, sha,
- 						    skb->vlan_proto,
- 						    skb_vlan_tag_get(skb));
- 				replied = true;
-@@ -252,7 +254,7 @@ struct nd_msg *br_is_nd_neigh_msg(const struct sk_buff *skb, struct nd_msg *msg)
- }
++
+ 		rcu_read_lock();
+-		f = vxlan_find_mac_tx(vxlan, n->ha, vni);
++		f = vxlan_find_mac_tx(vxlan, ha, vni);
+ 		if (f)
+ 			rdst = first_remote_rcu(f);
+ 		if (rdst && vxlan_addr_any(&rdst->remote_ip)) {
+@@ -1902,7 +1905,7 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+ 		rcu_read_unlock();
  
- static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
--		       struct sk_buff *request, struct neighbour *n,
-+		       struct sk_buff *request, struct neighbour *n, u8 *ha,
- 		       __be16 vlan_proto, u16 vlan_tci)
+ 		reply = arp_create(ARPOP_REPLY, ETH_P_ARP, sip, dev, tip, sha,
+-				n->ha, sha);
++				   ha, sha);
+ 
+ 		neigh_release(n);
+ 
+@@ -1935,7 +1938,8 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
+-	struct neighbour *n, bool isrouter)
++				       struct neighbour *n, u8 *ha,
++				       bool isrouter)
  {
  	struct net_device *dev = request->dev;
-@@ -310,7 +312,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
- 		ipv6_eth_mc_map(&in6addr_linklocal_allnodes, eth_hdr(reply)->h_dest);
- 	else
- 		ether_addr_copy(eth_hdr(reply)->h_dest, daddr);
+ 	struct sk_buff *reply;
+@@ -1981,7 +1985,7 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
+ 
+ 	/* Ethernet header */
+ 	ether_addr_copy(eth_hdr(reply)->h_dest, daddr);
 -	ether_addr_copy(eth_hdr(reply)->h_source, n->ha);
 +	ether_addr_copy(eth_hdr(reply)->h_source, ha);
  	eth_hdr(reply)->h_proto = htons(ETH_P_IPV6);
  	reply->protocol = htons(ETH_P_IPV6);
  
-@@ -340,7 +342,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+@@ -2010,7 +2014,7 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
  	na->icmph.icmp6_override = 1;
- 	na->icmph.icmp6_solicited = dad ? 0 : 1;
+ 	na->icmph.icmp6_solicited = 1;
  	na->target = ns->target;
 -	ether_addr_copy(&na->opt[2], n->ha);
 +	ether_addr_copy(&na->opt[2], ha);
  	na->opt[0] = ND_OPT_TARGET_LL_ADDR;
  	na->opt[1] = na_olen >> 3;
  
-@@ -369,7 +371,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
- 		__vlan_hwaccel_put_tag(reply, vlan_proto, vlan_tci);
+@@ -2051,6 +2055,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
  
- 	netdev_dbg(dev, "nd send dev %s dst %pI6 dst_hw %pM src %pI6 src_hw %pM\n",
--		   dev->name, &pip6->daddr, daddr, &pip6->saddr, n->ha);
-+		   dev->name, &pip6->daddr, daddr, &pip6->saddr, ha);
- 
- 	if (p) {
- 		dev_queue_xmit(reply);
-@@ -472,24 +474,26 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 	n = neigh_lookup(&nd_tbl, &msg->target, vlandev);
  	if (n) {
- 		struct net_bridge_fdb_entry *f;
+ 		struct vxlan_rdst *rdst = NULL;
 +		u8 ha[ETH_ALEN] __aligned(2);
+ 		struct vxlan_fdb *f;
+ 		struct sk_buff *reply;
  
- 		if (!(READ_ONCE(n->nud_state) & NUD_VALID)) {
- 			neigh_release(n);
- 			return;
+@@ -2059,7 +2064,8 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+ 			goto out;
  		}
  
--		f = br_fdb_find_rcu(br, n->ha, vid);
+-		f = vxlan_find_mac_tx(vxlan, n->ha, vni);
 +		neigh_ha_snapshot(ha, n, n->dev);
-+		f = br_fdb_find_rcu(br, ha, vid);
- 		if (f) {
- 			const struct net_bridge_port *dst = READ_ONCE(f->dst);
- 			bool replied = false;
++		f = vxlan_find_mac_tx(vxlan, ha, vni);
+ 		if (f)
+ 			rdst = first_remote_rcu(f);
+ 		if (rdst && vxlan_addr_any(&rdst->remote_ip)) {
+@@ -2068,7 +2074,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+ 			goto out;
+ 		}
  
- 			if (br_is_neigh_suppress_enabled(dst, vid)) {
- 				if (vid != 0)
--					br_nd_send(br, p, skb, n,
-+					br_nd_send(br, p, skb, n, ha,
- 						   skb->vlan_proto,
- 						   skb_vlan_tag_get(skb));
- 				else
--					br_nd_send(br, p, skb, n, 0, 0);
-+					br_nd_send(br, p, skb, n, ha, 0, 0);
- 				replied = true;
- 			}
+-		reply = vxlan_na_create(skb, n,
++		reply = vxlan_na_create(skb, n, ha,
+ 					!!(f ? f->flags & NTF_ROUTER : 0));
  
+ 		neigh_release(n);
 -- 
 2.47.3
 
