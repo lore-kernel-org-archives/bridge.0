@@ -1,197 +1,161 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC4B73AF657
-	for <bridge@lists.linux.dev>; Tue, 18 Aug 2026 15:08:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BEE1350285;
+	Wed, 19 Aug 2026 02:29:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787065694; cv=none; b=qc9TLFtleRMnpoR3eq0f7RxObPNRvkEdHUwJtWBiLvBUASZWlwbIwHb+vUGYwe8rdDlHxYDuvRyDi0HcP5IWe/I2TZBiw9eBnTFtM6dKRgClXZfe9e2wm9IBmwsDqNoCTjdvsTgno3AIXyxVXR9NDyU3aChbxsQ5kCfaOBRssFM=
+	t=1787106552; cv=none; b=rr6KSn/XVCLpGk9c18lEkjXzRUyIGr0XAQ4CzFa+W3xYcow9zbinH40WnSWUmYmmnOBrc/IcInV7LA0PaTo3LuHWuPRLxFIQOBbvSbhjflUAFZfKnAZA8OzbMM2lXrnh0V1un8vOA/YxITqC4W62FEdYlzrrmhqsOZr5nFn1ofE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787065694; c=relaxed/simple;
-	bh=t+JIdzgNDB+wXkLvzEVmEGCGBEGugUb504qbpH6q2Sk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=py0Ggkwud39ToRcEZOxpLr7mHmaYfgs773SIzp7C2PP9INY3QfAoNBEH2Uuh7WC0aWxhUsshmvM7XRwYDMhuxRG0dvxeFXWalPLCdypnycLAbUFTaXNDmlbPCWjh/YMaeT21l4isL8NiJ/ThHD3DE+HER3VW5l1l5ie/b34Ke64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=LLadrFDR; arc=none smtp.client-ip=209.85.221.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1787106552; c=relaxed/simple;
+	bh=hSDaHlp+AtiPrqNRHKQvKu/6PNks2N1dJWDbN7fuL1I=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=M3obCYh3yuV3cLmZLquVY2dZPjBiW1NRdl9M6VCITfSdhHphNAxMcyx29s7CRPvqKBa0ZTUGYG2V8bDMpa//O6zS2EZvmJ28jiYC0UrDzRQSj+Op6VXElFgsEyrrQO3ONauN7G9osrwf9s7ec77g9KF2tJn2nTYQsuSjs4GH4xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=n2z84/Bk; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="LLadrFDR"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47fe2d179e2so3139566f8f.1
-        for <bridge@lists.linux.dev>; Tue, 18 Aug 2026 08:08:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1787065691; x=1787670491; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=fsJTTJLMftxjOk/8vHlxHx3gsMZIHruqB4aZN98cgQg=;
-        b=LLadrFDRsS6lqkrzHxnv2qiWIVv2Gidr8gbi8iPZibIe2tWSp5v0t6JSgsgLuHm4mF
-         y0eTwKXvul4p/LK1PClaF5nwex0JXVxrSnrA6DIcgb8V1wzqXX2gKlIHkATfC61cqiky
-         Mbjc9/sO62UzZSFQGnoSMGXjbCId5tJPDTi/Sm1ATA+UKc4QH1zxPMDLSX9jJMHRAlRF
-         P4EpqKoZtjiF/plROslKkGsUn5le4K20yuspGqHGE9DfgDT0dT+qMOdWABQ5z8thRGXX
-         yWs1T5+/MSyEXZJGgzIharVYfqPeCCdPVp8JvYSvV47SvIxI/iens5KwbrQDfWLGzlno
-         zAeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787065691; x=1787670491;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fsJTTJLMftxjOk/8vHlxHx3gsMZIHruqB4aZN98cgQg=;
-        b=E4srrwVf8Sd8/eJuARbgyr8UXgCtsVPwkIPRGPYuX0MfvR+C/ly/VaUdJQ6s6QugZQ
-         sJ9uAmdxUao3H//RngK6TSzbVbGk503OleyM7v4IgcCSHMj++x6n+w4+JeJYgbS8Ri5W
-         StQPj/Ycbviw893o15WniBjokzK4enE0iNeBlWCdXnV2vbU4tH0xSW4nSXRNIUy1+aB/
-         jBt3VUnF1/ZnftGZUfCfgLDsBjV5bZHMLuIw1ho40y9gIEJ7RXEOQ1y7o9eI6Bv1j7Zw
-         /D1/+I+QgCvVcikm7q0cSJdZVSInsBpBbp/yuwvxlkPjD/BMZCkWEfuVN0pc1mBsFT+e
-         9ksQ==
-X-Forwarded-Encrypted: i=1; AHgh+RrP3ImJkKxZlrvK+kfosG1r6RrWRdds7DtjQeSaDAfDEzmmfiKGy78+WYvwHypNz5GZRql6RrQ=@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy1XMAJTOti3TizvcjPqgxswfJ+tAnJR30JVv0JYpHR60rNf3gg
-	u+lKKhNvueMfRbXWCezm6Ty2rN7SkSpzijIDbw4vAuikS22TVIyyS72CxAHpIfygXVY=
-X-Gm-Gg: AR+sD12mcVtuXkpQnNnWBJJGAZ4C0CVTmKn/P0ez95esxbrZdB2xrauFXj92XBB3UYT
-	KrRNkoDnclY5sxw3m+vXf1RhSC7J6eQQdD+kpEnrU5FiPv8hPzzwuPlQqfF1jhTWIXh/PUJEmsu
-	3+K69dFWb1YYPMUBQEEYyldd2RP7thJ8CtWnnW8vGqUW3etI0DXTuqWVmf0B8jc698QS7LH7x+/
-	WnzpkR09zg3XmuJKWDxaeCyTcE8N8Eg7TZzAmBsTIvs7Is0KkK1z2vss7f7dVLL43qXDh91n9jj
-	pSVY5XbTFVIK1WYx4L3bZgSaT4EuTWym939qJnYXPLuA+Xlc3+fQ+AhZz/IZmiXx2zeZlXgqVbf
-	OW6XGmEUcEQZ4qxRkAvvy2C0qm78o6Xq9RS4kdIvtzq3YMyjl4hDoZAv/SkUgyx5sI5Vi3hdHR3
-	lRsgiGlhSWImU5/gtg997TMayLI5Cxi0rexfwgi+dltk1CpMR2WEpP+64PomP82AxjEHu1QTSK3
-	2ZutEtpqjw=
-X-Received: by 2002:adf:fd0a:0:b0:481:51b7:290b with SMTP id ffacd0b85a97d-481607630fdmr42455679f8f.14.1787065691040;
-        Tue, 18 Aug 2026 08:08:11 -0700 (PDT)
-Received: from localhost (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-482a5a3157fsm12203428f8f.3.2026.08.18.08.08.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Aug 2026 08:08:10 -0700 (PDT)
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: netdev@vger.kernel.org
-Cc: idosch@nvidia.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	roopa@nvidia.com,
-	bridge@lists.linux.dev,
-	andrew+netdev@lunn.ch,
-	dlstevens@us.ibm.com,
-	amwang@redhat.com,
-	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net v2 2/2] vxlan: fix reading neigh ha
-Date: Tue, 18 Aug 2026 18:07:56 +0300
-Message-ID: <20260818150756.890025-3-razor@blackwall.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260818150756.890025-1-razor@blackwall.org>
-References: <20260818150756.890025-1-razor@blackwall.org>
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="n2z84/Bk"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Subject:Date:From:From:Reply-To;
+	bh=gXUB1QrnxsrjbOi4xhXBQHCEC2KmzTwW0NuAmy9Ikto=; b=n2z84/Bkg38wflHDu1N8jwEOo2
+	ZhL3oGXbc/uFEJNt0XoVhkQqsRre2N2fOyTCQuNQcmupM5U4xH/zfSaLtYI1aRIDo/YO0g1gqt4Ju
+	7p9NoN2QQbxE+l00ISPoz7HIP+7oCZcG92EJgUl3QzGaqJjQh9auxNr8bS4ZA9nATHJaFhzpDvRmO
+	UlKyIzG3ehc7I51bRyD7vFd+x0m4H27sXkgltjUagvY3qf8XeMChZzB0feZbvbrgL7xapazL7ucBq
+	NhoOXUbeOhAb812rK3zQurHa3LPJNqJjitOwEpKMCimzS3v+RLDXhGMeQuH+MLoIeR1UI6irvfMur
+	sXWvDxfA==;
+Received: from 186-249-144-28.shared.desktop.com.br ([186.249.144.28] helo=[127.0.1.1])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1wwW39-005tfG-1g; Wed, 19 Aug 2026 04:29:07 +0200
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+Date: Tue, 18 Aug 2026 23:28:00 -0300
+Subject: [PATCH RFC v2 01/13] keys, pidns, fs/verity, riscv/vector: reorder
+ '#include <linux/sysctl.h>'
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Message-Id: <20260818-sysctl-module-aliases-v2-1-d5a69dae5798@igalia.com>
+References: <20260818-sysctl-module-aliases-v2-0-d5a69dae5798@igalia.com>
+In-Reply-To: <20260818-sysctl-module-aliases-v2-0-d5a69dae5798@igalia.com>
+To: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
+ Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>
+Cc: kernel-dev@igalia.com, linux-riscv@lists.infradead.org, 
+ linux-kernel@vger.kernel.org, fsverity@lists.linux.dev, 
+ keyrings@vger.kernel.org, bpf@vger.kernel.org, 
+ linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+ netdev@vger.kernel.org, linux-wpan@vger.kernel.org, 
+ lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+ coreteam@netfilter.org, linux-sctp@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+ bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com, 
+ virtualization@lists.linux.dev, Mauricio Faria de Oliveira <mfo@igalia.com>
+X-Mailer: b4 0.14.2
 
-Currently arp/neigh_reduce read neigh ha directly which can lead to
-partial reads while the neigh is being updated. Use neigh_ha_snapshot to
-take a stable snapshot of the address similar to route_shortcircuit which
-already does the right thing.
+Fix an include loop error in preparation for sysctl.h to include module.h:
 
-Fixes: e4f67addf158 ("add DOVE extensions for VXLAN")
-Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+    CC [M]  arch/x86/events/amd/uncore.o
+  In file included from .../include/linux/fs.h:44,         <<<
+                   from .../include/linux/compat.h:17,
+                   from .../arch/x86/include/asm/ia32.h:7,
+                   from .../arch/x86/include/asm/elf.h:10,
+                   from .../include/linux/elf.h:6,
+                   from .../include/linux/module.h:20,     <<<
+                   from .../include/linux/sysctl.h:245,    <<<
+                   from .../include/linux/key.h:17,        <<<
+                   from .../include/linux/cred.h:13,       <<<
+                   from .../include/linux/sched/signal.h:10,
+                   from .../include/linux/ptrace.h:7,
+                   from .../include/uapi/asm-generic/bpf_perf_event.h:4,
+                   from ./arch/x86/include/generated/uapi/asm/
+                        bpf_perf_event.h:1,
+                   from .../include/uapi/linux/bpf_perf_event.h:11,
+                   from .../include/linux/perf_event.h:18,
+                   from .../arch/x86/events/amd/uncore.c:8:
+  .../include/linux/mnt_idmapping.h: In function ‘mapped_fsuid’:
+  .../include/linux/mnt_idmapping.h:231:59: error: implicit declaration
+    of function ‘current_fsuid’ [-Wimplicit-function-declaration]
+
+Reason:
+ - cred.h includes key.h *before* defining current_fsuid();
+ - key.h includes sysctl.h;
+ - sysctl.h includes module.h;
+ - module.h includes fs.h via elf.h > asm/elf.h > asm/ia32.h > compat.h;
+ - fs.h includes mnt_idmapping.h, which uses *undefined* current_fsuid().
+
+Note that fs.h does include cred.h (which defines current_fsuid()) right
+before mnt_idmapping.h (which uses it), but it is not parsed because the
+include guard of cred.h is defined earlier.
+
+Address this by removing sysctl.h from key.h, which does not need it,
+and adding it to files that actually need it.
+
+Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
 ---
-v2: - use ETH_ALEN instead of MAX_ADDR_LEN, the bridge devices all use
-      ETH_ALEN and vxlan allows arp/nd reduce only when not in raw/gpe
-      so it also always uses ETH_ALEN
-    - align ha to 2 bytes because ether_addr_copy() expects it (Sashiko)
+ arch/riscv/kernel/vector.c    | 1 +
+ fs/verity/init.c              | 1 +
+ include/linux/key.h           | 1 -
+ include/linux/pid_namespace.h | 1 +
+ 4 files changed, 3 insertions(+), 1 deletion(-)
 
- drivers/net/vxlan/vxlan_core.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+diff --git a/arch/riscv/kernel/vector.c b/arch/riscv/kernel/vector.c
+index b112166d51e9f584f84c52d0f84feb92ccd60df1..9eac47c99f114304521fdc539018f3f84507e75f 100644
+--- a/arch/riscv/kernel/vector.c
++++ b/arch/riscv/kernel/vector.c
+@@ -10,6 +10,7 @@
+ #include <linux/sched.h>
+ #include <linux/uaccess.h>
+ #include <linux/prctl.h>
++#include <linux/sysctl.h>
+ 
+ #include <asm/thread_info.h>
+ #include <asm/processor.h>
+diff --git a/fs/verity/init.c b/fs/verity/init.c
+index 3aa55dec88fc919792a2cb4be476f8481ef78a9e..d460eef74fcfe49f6cf69974a8194a65de486819 100644
+--- a/fs/verity/init.c
++++ b/fs/verity/init.c
+@@ -9,6 +9,7 @@
+ #include "fsverity_private.h"
+ 
+ #include <linux/ratelimit.h>
++#include <linux/sysctl.h>
+ 
+ #ifdef CONFIG_SYSCTL
+ static const struct ctl_table fsverity_sysctl_table[] = {
+diff --git a/include/linux/key.h b/include/linux/key.h
+index 81b8f05c68985c6f0a5c5bbe0f1fd6661912c618..a74f8f1b7936d6ede584c0a8cd520f858f6a9758 100644
+--- a/include/linux/key.h
++++ b/include/linux/key.h
+@@ -14,7 +14,6 @@
+ #include <linux/list.h>
+ #include <linux/rbtree.h>
+ #include <linux/rcupdate.h>
+-#include <linux/sysctl.h>
+ #include <linux/rwsem.h>
+ #include <linux/atomic.h>
+ #include <linux/assoc_array.h>
+diff --git a/include/linux/pid_namespace.h b/include/linux/pid_namespace.h
+index b20baaa7e62b755e7e561fcd8018e2b61213503e..94b23471c7dec135e24c4c0c1fdbf841cea2e5de 100644
+--- a/include/linux/pid_namespace.h
++++ b/include/linux/pid_namespace.h
+@@ -10,6 +10,7 @@
+ #include <linux/nsproxy.h>
+ #include <linux/ns_common.h>
+ #include <linux/idr.h>
++#include <linux/sysctl.h>
+ 
+ /* MAX_PID_NS_LEVEL is needed for limiting size of 'struct pid' */
+ #define MAX_PID_NS_LEVEL 32
 
-diff --git a/drivers/net/vxlan/vxlan_core.c b/drivers/net/vxlan/vxlan_core.c
-index 824144bb7774..a94168f7a18e 100644
---- a/drivers/net/vxlan/vxlan_core.c
-+++ b/drivers/net/vxlan/vxlan_core.c
-@@ -1881,6 +1881,7 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 
- 	if (n) {
- 		struct vxlan_rdst *rdst = NULL;
-+		u8 ha[ETH_ALEN] __aligned(2);
- 		struct vxlan_fdb *f;
- 		struct sk_buff	*reply;
- 
-@@ -1889,8 +1890,10 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 			goto out;
- 		}
- 
-+		neigh_ha_snapshot(ha, n, n->dev);
-+
- 		rcu_read_lock();
--		f = vxlan_find_mac_tx(vxlan, n->ha, vni);
-+		f = vxlan_find_mac_tx(vxlan, ha, vni);
- 		if (f)
- 			rdst = first_remote_rcu(f);
- 		if (rdst && vxlan_addr_any(&rdst->remote_ip)) {
-@@ -1902,7 +1905,7 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 		rcu_read_unlock();
- 
- 		reply = arp_create(ARPOP_REPLY, ETH_P_ARP, sip, dev, tip, sha,
--				n->ha, sha);
-+				   ha, sha);
- 
- 		neigh_release(n);
- 
-@@ -1935,7 +1938,8 @@ static int arp_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 
- #if IS_ENABLED(CONFIG_IPV6)
- static struct sk_buff *vxlan_na_create(struct sk_buff *request,
--	struct neighbour *n, bool isrouter)
-+				       struct neighbour *n, u8 *ha,
-+				       bool isrouter)
- {
- 	struct net_device *dev = request->dev;
- 	struct sk_buff *reply;
-@@ -1981,7 +1985,7 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
- 
- 	/* Ethernet header */
- 	ether_addr_copy(eth_hdr(reply)->h_dest, daddr);
--	ether_addr_copy(eth_hdr(reply)->h_source, n->ha);
-+	ether_addr_copy(eth_hdr(reply)->h_source, ha);
- 	eth_hdr(reply)->h_proto = htons(ETH_P_IPV6);
- 	reply->protocol = htons(ETH_P_IPV6);
- 
-@@ -2010,7 +2014,7 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
- 	na->icmph.icmp6_override = 1;
- 	na->icmph.icmp6_solicited = 1;
- 	na->target = ns->target;
--	ether_addr_copy(&na->opt[2], n->ha);
-+	ether_addr_copy(&na->opt[2], ha);
- 	na->opt[0] = ND_OPT_TARGET_LL_ADDR;
- 	na->opt[1] = na_olen >> 3;
- 
-@@ -2051,6 +2055,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 
- 	if (n) {
- 		struct vxlan_rdst *rdst = NULL;
-+		u8 ha[ETH_ALEN] __aligned(2);
- 		struct vxlan_fdb *f;
- 		struct sk_buff *reply;
- 
-@@ -2059,7 +2064,8 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 			goto out;
- 		}
- 
--		f = vxlan_find_mac_tx(vxlan, n->ha, vni);
-+		neigh_ha_snapshot(ha, n, n->dev);
-+		f = vxlan_find_mac_tx(vxlan, ha, vni);
- 		if (f)
- 			rdst = first_remote_rcu(f);
- 		if (rdst && vxlan_addr_any(&rdst->remote_ip)) {
-@@ -2068,7 +2074,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 			goto out;
- 		}
- 
--		reply = vxlan_na_create(skb, n,
-+		reply = vxlan_na_create(skb, n, ha,
- 					!!(f ? f->flags & NTF_ROUTER : 0));
- 
- 		neigh_release(n);
 -- 
 2.47.3
 
