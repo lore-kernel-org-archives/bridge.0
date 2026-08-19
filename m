@@ -1,132 +1,320 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013025.outbound.protection.outlook.com [40.93.196.25])
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC4E444D035
-	for <bridge@lists.linux.dev>; Wed, 19 Aug 2026 15:50:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.25
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787154606; cv=fail; b=A+nE1hJZFMfLL060+AXkJy93cik+IfoglJdsgMkzBr72nmkrE+lyWqKofG4I9kYPlXGCrc7TlgusCTdpwzoHbqaBaO0LP933hVFAUg+PFKKsp0PsCbPuTog9mM8uAezJcIiW1XTSZp4+SOtUBiV/rXqA2ORjYnRM6VePyaniPnA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787154606; c=relaxed/simple;
-	bh=eWxVKKbV6fYP+8gTobSXDDxXaYBBCfDpGoDuaWvWG8s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=ssaQ5YPVch7mdjSm0f/RvmYivmuiWuYLhrJ8wL64IK33MKVLECp948z9vg/IsBYqgu4T7u6jMjZ7WNMoXMmoHERArEZS4BoNwKSBuK7uHhDh/nErvxan3EaLupmZaCCGRoDQRSbiciTDbtofaBhxNZEIsOm1pdbPVJaumzasbZo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=cVgXRd0U; arc=fail smtp.client-ip=40.93.196.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2AB23CEB99;
+	Wed, 19 Aug 2026 18:15:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787163362; cv=none; b=YurhwXLgyGnCx12C4vHn17j/xvW9GYCwkjlFy+dMo4kcryl9Eo3LY6ddHeSeQ33obcUvPaXxT3/6QsZHnAc+58qW0tNvgEbW9KEZFaWpeSlb97YW5QBDG5JF7cZPZwXVXqp1CHX5ef5zVVOGt/7jAHo/Z2ZJdu6rZGvTjpl5Qd4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787163362; c=relaxed/simple;
+	bh=hxty/hn4eltm6C0Y4EZQnHbws7rSxIFBmMOEDEavcn4=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ugTBPWmn6bPhWtL10mP0QU1x35L1uU195HfhaImiPwHumpOWfEePfEWLsU4Z+7OnUMqT0L0wkgJT6cOUnCDWZxUXm81VLNcZwF9YAW6TCc0+slMdgM3D1jmeE2nUFIGzFZDiq89qohnSmTI5s7ZMGx429R3IgWS2pHVT06KwoLs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=j6B0Jy5s; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="cVgXRd0U"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Dgn38EtH45FXKXSA9DvsFAUmBiqpJM8tq3OoLC5ncoORJ25TNuIRD5gyh/+S/YTrgp5c8GemSaCDXpXICXft617k5TP3FX4JgWypMj/OdljUff1i6r68uyjdiAe8uxbymiW0Iee3UfF/xUv9l35KRE1pFU3UMqlqx7Sl53Blr/pFdrzJmn+/pORwYp8YCCxDjUJjOK8+v9H3ft0+YuTUq14RZAxuXWqia4YvAWFNFv2JJI1QIDttIxMBL0EpWh66tQXYo0Lejz8ZAgTh4OOY5+KSq08sDXlgzixzv0jX8K6fgHZwvyLBZB+Ha4CNU5xi1yG6nc2W3usA4B9dtJX/4w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Ayv4XeWGAmoUFvbJFhvwApSWNF5497dX0axSg+oLFqc=;
- b=G/VnqEZV5rBr5YAEFg9ay6B27P2waRCdm8Sa0exJYrbHFyzJDh2uHxcmQvoYSYZJXxVnkz8SaRpErCHOUtCQIhwi7DEgKEagIXa4pS+RaA76v9gNLQ3nSfH3W9cnlSwwJ1xNqxX1dJZ3BuTo7e6lQK0hu+CGexX/UtN1GgTH06/eKY+fXZ2nEKhboQt5cIcFxpl0QxDl1D/pclF1cwOxqR7Wa0LDrMQIo692jElOhbpiaG6UjcXX6HoEFL250o3CFtNf1Dbjxti7ne+aqPFYrb3MOL7eAJSBdU1x93p6nUo7IwiaTeZdIrf3nCCuMLy2IbRC3S6OQdmqbDYJ49ZEXQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ayv4XeWGAmoUFvbJFhvwApSWNF5497dX0axSg+oLFqc=;
- b=cVgXRd0UJBuW2+PxVnZOfzP91LBF8oryueXtZF9uJX7ms/T3YevR5xqFjpUYU+NYHS96cYuRQyPlLbLqAXmWQgzFVwLY7yfcQjj7/n6t43OW7BviV3XJJCAAbgRPLyG8HsPf91LqN6iKdHrZR6b3UUeq/GA+c2DyOeXjRmQaaXBwAhHt5ZPsaQEi5wyZciSF1G0B7pSZHiXEZkm3fUuvplhijdT3d8z7jsEoduP9SALRaW/OyYLa1ql89kKmSR+IESkx2K2UQoBysvoe1Hp3hGKXzRnd/a9gh8AyqOmoMlyF70Hvmp0zAS9ciTLAm+9Sh7ayL5R9gATZXdUz/ZQjgw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com (2603:10b6:806:306::12)
- by CY5PR12MB6036.namprd12.prod.outlook.com (2603:10b6:930:2c::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.339.8; Wed, 19 Aug
- 2026 15:50:00 +0000
-Received: from SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2]) by SA3PR12MB7901.namprd12.prod.outlook.com
- ([fe80::6f7f:5844:f0f7:acc2%5]) with mapi id 15.21.0339.007; Wed, 19 Aug 2026
- 15:50:00 +0000
-Date: Wed, 19 Aug 2026 18:49:50 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-	roopa@nvidia.com, bridge@lists.linux.dev, andrew+netdev@lunn.ch,
-	dlstevens@us.ibm.com, amwang@redhat.com
-Subject: Re: [PATCH net v2 2/2] vxlan: fix reading neigh ha
-Message-ID: <20260819154950.GB1280224@shredder>
-References: <20260818150756.890025-1-razor@blackwall.org>
- <20260818150756.890025-3-razor@blackwall.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260818150756.890025-3-razor@blackwall.org>
-X-ClientProxiedBy: FR3P281CA0185.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:a4::18) To SA3PR12MB7901.namprd12.prod.outlook.com
- (2603:10b6:806:306::12)
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="j6B0Jy5s"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Cc:To:Content-Transfer-Encoding:Content-Type:MIME-Version:
+	Message-Id:Date:Subject:From:From:Reply-To;
+	bh=fdQkiyp3Qsqh2GCyFxM5saepTDceNMzdb1x19L1bJys=; b=j6B0Jy5s0l1rIqoAIFUFYRNw0A
+	O8zrKTcRNqYe8rdyon/tzyD/f+r40qZQ7xbPPGamCanY/2lKECgUFlsAbWuIiWsKJ1uNL7wtKRWk+
+	cPXGDEGxS3HvolMLPzNOY28Kvn6oRBQCJdkcQsttJeBjiMHhNAR5TCc275oy7UBPYFoxzvLCb2dsT
+	s+0Bni82WNohP8aBWozbNZO3ullR3nDwaNzrKvoTnob3s/xCOxd7ENU0zSyAh33ApHNg5CrkT0jyW
+	tx4C8qWCUjFsSc/ZqPM+8Cf3aly39EwR7qsWIcA1xwW4acnjRr5lLTbFLnksh8HBG1pzPaVoHK1Nr
+	wEee9tBw==;
+Received: from 186-249-147-181.shared.desktop.com.br ([186.249.147.181] helo=[127.0.1.1])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1wwkpH-006ENH-4M; Wed, 19 Aug 2026 20:15:47 +0200
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+Subject: [PATCH RFC v3 00/13] sysctl: add module aliases
+Date: Wed, 19 Aug 2026 15:16:13 -0300
+Message-Id: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA3PR12MB7901:EE_|CY5PR12MB6036:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6c360469-3523-4626-e227-08defe0986d7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|1800799024|366016|23010399003|56012099006|10067099003|4143699003|11063799006|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	DS2xWI//nr0pQbSrsUfGkWiZsxFO2cSGC76mK92T2nNGetqnmZjuWf4anCbRpuMhV0pb6copqQ90E2ufXou7Ekt/eKE5Ck27JaFYzYONy1QTpXmmQgzIZwdrTQdVztiVw+Z7ZHesbxHx06KGzm8iLqillGz23yvG28WTeaVMaSHYCSeLxpiG8uVEGfd0WxbDYu6IVZ2pgYxK81Qjz75YZWnyw2JVbQFC2qDdxlwBz0UGVjDmZMr7aQAvcr17mC7CUFtfsZWNAsaTJhAcouJ+8J6Pr1irnuITcrUioSRyfMryHSOl24cykFRb4oiVjctTwtCyW3kyFtmhjyh0V0ttZ9ckLy/wgQChOqy4I5i3RfMuJF3zt0ZZ6I3pZbWpotc/1RybPSUfxeTXlToPkEK8Y1TD2PrTVQFSXmnulon42d1M8J7DjGqW7GP1KieCfhwNgc50WN6AsZzgbmh/FJSvp/O/213RUWsViG+AKs13+8LBnGdY4XtRkh0urzz1YfHK1JtRSxhcsUZ/2bJWmftL3RUgZvLKqoGytQpGRxw4Qid7PKSF3uKvd1PFExzrj9DsCLrn3C+a1snNUi+8Ie8c5YdliOvr7GZD5rtWZgL0QOlTPHzFpXdg0FxOo42sE1klKsdmRC6n1FFaeKStZfVcRAgl46LTYUbKatS9i6pbcFQ=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA3PR12MB7901.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(23010399003)(56012099006)(10067099003)(4143699003)(11063799006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?34DkQJe63EBH/hwOXPq0WLcd957UK6HhgfthafwakBvnU6VlIo6TPTMgyn7M?=
- =?us-ascii?Q?o834nBL5ycXublbCjdfpcdbMQXOTWKTQZ9C9pJxWLSZ01DALDCaYspZTCjkV?=
- =?us-ascii?Q?vyQgIZpZ3cggWkVp8rV+owN5NpQr3K78vnOjUarT57v66oRmtCG8meYNwx/U?=
- =?us-ascii?Q?ed7C19JisTE7b7K63vZlXTs9F+nQb+0Myzfl7dZUfB+OojI9T5r3UIfqZq+I?=
- =?us-ascii?Q?7tRKNDyx+PGftvizNoDEK3MfXsPlJ2rDIPCPlmeAc0mVRABPohfnVQes0oSS?=
- =?us-ascii?Q?4hrkQDQDQNQ10va+aoBEhzdol+o1qfa70EwJN5uo4zFKWVCSXgisXTYOijxH?=
- =?us-ascii?Q?oN/OkwipKEviexpw9HRCIf5txWWTx8vKq1BRXyW/2SVzOdqWFVIG5SBEqPzy?=
- =?us-ascii?Q?sH2AZfg3B3/RD1ZfSFYLoqF6nge14C507JP8h8Omjjz6MEU77Q2bmhg0O0w8?=
- =?us-ascii?Q?EeOxT8KN/K3bmf63qF6SYLxnsUyDw6DrA3Ot+rJ1XZVOKMp2mg/zNHwWqCZd?=
- =?us-ascii?Q?RWrLp0YyzW9EW4xVv8H1nnksGZ/ZYG5Y7Y0EuMc6rJknEAirJQnCO/C++E/W?=
- =?us-ascii?Q?Xhyljj5w7I3dl1YrHFod4xgaDeE6W+/bt/yA/DoTRE70Q+sBTxeGy03Pgw38?=
- =?us-ascii?Q?oYomP/1DT5N+z9ShDKo/9WRpDUn5yhbNC9pJ+StIMTLTtrCAEj4diHBm0pKt?=
- =?us-ascii?Q?9upFOflI7sq6+HS01rDufiIg1MTcTTSRq2F8XcbQBaQ+AVXIkCVJ5b4KMuxW?=
- =?us-ascii?Q?fFM6C4huwAzfyBGoMcK1nawY4rRCBO3yGYGfEt1wm95Whz/tzR8Fz+WCfAfJ?=
- =?us-ascii?Q?Ga/EKOoJtwtl/d3eHC+B3RQmJ6LaNHZGZe7yc8OwbJ/knwon33Sm3WQ3JbDx?=
- =?us-ascii?Q?NKejMY2Wd4yKhm8/75RiEYFrSwdaaWh8iiaGkkXbo36E2knUhIGGG4HDk0Uh?=
- =?us-ascii?Q?pj23BdKH/M9TEKMZ9Pw5cZ+DQERX0wo2SCJhZ7jq/VQzKnMqEmJKqS3JbbUO?=
- =?us-ascii?Q?fGHyKq5rMZprldRsU4IZPWsH3Upds6PWFBToI88rtzHfl+99Gw6TQQNwGUCC?=
- =?us-ascii?Q?rAHTi2eEC1ULqbsIzsQJnbYWZPgETyGkuWrYZZCNeOLNYcvJ0RpIPtBGvHGj?=
- =?us-ascii?Q?13IAKNKkxuaIb0froMyCvvD90pGjNfYB6zxi1llHa5NJO8iIAZTvlJE/iDhG?=
- =?us-ascii?Q?5rkotl11/etotga7GLjROKdKntlwKOJzb0qnGLftDxh9ebf2j4ikVFhtzz+7?=
- =?us-ascii?Q?pJOPFrIz4ViWdqsMNIUqhyvJ9MlaH3XGDh0bxZakAzZr0Vd+tZJ2vU561AkQ?=
- =?us-ascii?Q?iC6Olb2vyMoxwmNrjS2oEza6cy5ilkOnPnPeooSENqIxDyFl3Z3Xr8olPn/Q?=
- =?us-ascii?Q?utuhJUNqyqtFobPtGXlEJ9qFIdLOD3w1gV3OHYv5TbU0ONQ0G8Her+l7ngps?=
- =?us-ascii?Q?vIxUxE0Fk1WxqwGGMAMIegdIetXU5MtzR5mepy+lMTuPQY9c7fAY8Q7RYL42?=
- =?us-ascii?Q?G93zYHidL5aMeiTwfq1ev7FnMJ18ZE0iRgTyUytjWLcIfyXbHXxU0uKPjtKe?=
- =?us-ascii?Q?AWZnDvKvysL8wGK43lU1c6h94jpzG6fSAUhhjtis8nACD3VXq8xFkwiZciFp?=
- =?us-ascii?Q?rlprInU7ofYpCBOrClQWZcytEBKQyzeLY2WET1tgI4b5XwZTR7hXuMqHzv5t?=
- =?us-ascii?Q?H7ZpP6yV6daNvyCo6JZWYpBHovMB6cYQq40RA1+ApdyomJOq?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6c360469-3523-4626-e227-08defe0986d7
-X-MS-Exchange-CrossTenant-AuthSource: SA3PR12MB7901.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Aug 2026 15:50:00.4420
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: oDVJ4WpNQz1mt4eUZg9kWZQMLvkdTTPFI/l+0AQ7puio4cHfwc2TTCrBZFN63w/rr3wyrSnND/cww5BT5S98Ng==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6036
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAO3yhWoC/4WNQQqDMBBFryKzbkqSosauhEIP0G1xEc2oA2pKx
+ kpFvHtTL9Dl/4///gaMgZDhmmwQcCEmP8VwOSXQ9HbqUJCLGbTUmTTKCF65mQcxevceUNiBLCM
+ L3aZGqlphnSuI21fAlj6H9wmP+w2qWPbEsw/r8bXoA/3RLlpI4VKbFc5imhempO7Hzo0fodr3/
+ QtVQJ5iwAAAAA==
+X-Change-ID: 20260818-sysctl-module-aliases-2f5801b1eb71
+To: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
+ Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>
+Cc: kernel-dev@igalia.com, linux-riscv@lists.infradead.org, 
+ linux-kernel@vger.kernel.org, fsverity@lists.linux.dev, 
+ keyrings@vger.kernel.org, bpf@vger.kernel.org, 
+ linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+ netdev@vger.kernel.org, linux-wpan@vger.kernel.org, 
+ lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+ coreteam@netfilter.org, linux-sctp@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+ bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com, 
+ virtualization@lists.linux.dev, Mauricio Faria de Oliveira <mfo@igalia.com>
+X-Mailer: b4 0.14.2
 
-On Tue, Aug 18, 2026 at 06:07:56PM +0300, Nikolay Aleksandrov wrote:
-> Currently arp/neigh_reduce read neigh ha directly which can lead to
-> partial reads while the neigh is being updated. Use neigh_ha_snapshot to
-> take a stable snapshot of the address similar to route_shortcircuit which
-> already does the right thing.
-> 
-> Fixes: e4f67addf158 ("add DOVE extensions for VXLAN")
-> Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
-> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+        $ modinfo ./mpls_router.ko  | grep sysctl:
+        alias:          sysctl:*/net/mpls/conf/*/input
+        alias:          sysctl:*/net/mpls/default_ttl
+        alias:          sysctl:*/net/mpls/ip_ttl_propagate
+        alias:          sysctl:*/net/mpls/platform_labels
+
+It provides a trivial way to map /proc/sys files to modules (not trivial today),
+and for userspace to handle nonexistent /proc/sys files (e.g., procps's sysctl
+and systemd-sysctl applying tunables) with "modprobe sysctl:<...>" and a retry.
+
+This is done almost automatically with register_sysctl(), register_net_sysctl()
+and friends as wrappers of MODULE_SYSCTL_TABLE (similar to MODULE_DEVICE_TABLE),
+which emits symbols for file2alias/modpost to find and parse the sysctl tables.
+
+The big exception to 'almost' are sysctl tables and paths allocated or defined
+at runtime (e.g., per-namespace or per-device), as all information is required
+at build-time. Fortunately, such tables and paths are often based on 'templates'
+which are static and can be used.
+
+This is done by plumbing the template table/path as optional arguments (macros
+with default values as default_gfp()), so not to create functions for all cases:
+
+        register_sysctl(path, table [, table_tmpl [, path_tmpl]]);
+        register_net_sysctl(net, path, table [, table_tmpl[, path_tmpl]]);
+        register_net_sysctl_sz(net, path, table, size [, table_tmpl[, path_tmpl]]);
+
+In this series:
+- Patch 1 prevents a build error later.
+- Patch 2 adds CONFIG_SYSCTL_MODULE_ALIASES.
+- Patch 3 adds MODULE_SYSCTL_TABLE().
+- Patches 4-5 add register_sysctl() wrapper and update some callers.
+- Patches 6-10 add register_net_sysctl[_sz]() wrappers and update some callers.
+- Patches 11-13 add file2alias support.
+
+Not all maintainers/reviewers (specially for the many changes in net/) are
+in To/Cc in respect of their time, as this RFC probably needs more general
+and earlier feedback before settling on specific changes for their review.
+All lists are included for visibility, though.
+
+Example
+=======
+
+To put it all together, 'mpls_router.ko' (used above) from 'net/mpls/af_mpls.c':
+        
+- Tables:
+
+        static const struct ctl_table mpls_table[] = {
+                {
+                        .procname       = "platform_labels",
+                ...
+                        .procname       = "ip_ttl_propagate",
+                ...
+                        .procname       = "default_ttl",
+                },
+        };
+        
+        static const struct ctl_table mpls_dev_table[] = {
+                {
+                        .procname       = "input",
+                ...
+                },
+        };
+
+- Registration:
+
+        net->mpls.ctl = register_net_sysctl_sz(net, "net/mpls", table,
+                                               table_size, mpls_table);
+
+        #define path_template "net/mpls/conf/%s"
+        ...
+        mdev->sysctl = register_net_sysctl_sz(net, path, table, table_size,
+                                              mpls_dev_table, path_template);
+
+- Symbols:
+
+        $ objdump -t net/mpls/mpls_router.ko \
+          | grep '__mod_device_table__.*__sysctl__'
+        0000000000000900 l     O .data  0000000000000018
+                __mod_device_table__kmod_mpls_router__sysctl__mpls_table.177
+        0000000000000940 l     O .data  0000000000000018
+                __mod_device_table__kmod_mpls_router__sysctl__mpls_dev_table.174
+
+- file2alias:
+
+        $ grep '^MODULE_ALIAS("sysctl:' net/mpls/mpls_router.mod.c
+        MODULE_ALIAS("sysctl:*/net/mpls/platform_labels");
+        MODULE_ALIAS("sysctl:*/net/mpls/ip_ttl_propagate");
+        MODULE_ALIAS("sysctl:*/net/mpls/default_ttl");
+        MODULE_ALIAS("sysctl:*/net/mpls/conf/*/input");
+
+- modinfo:
+
+        $ modinfo ./mpls_router.ko  | grep sysctl:
+        alias:          sysctl:*/net/mpls/conf/*/input
+        alias:          sysctl:*/net/mpls/default_ttl
+        alias:          sysctl:*/net/mpls/ip_ttl_propagate
+        alias:          sysctl:*/net/mpls/platform_labels
+
+Testing
+=======
+
+Configurations:
+- allmodconfig with the option enabled (check for 'MODULE_ALIAS("sysctl:' lines)
+- allmodconfig with the option disabled (check for code errors)
+- allyesconfig with the option enabled (check for include errors)
+
+Architectures (test different bitness, endianness, and ELF handling)
+- x86_64, i386
+- arm, arm64
+- arc
+- alpha
+- loongarch
+- m68k
+- mips(64)(el)
+- parisc(64)
+- powerpc(64(le))
+- riscv
+- sparc64
+- s390
+
+The resulting '.mod.c' files of allmodconfig with the option enabled was checked
+for consistency across all architectures, and that the new aliases lines are the
+difference to allmodconfig with the option disabled.
+
+Disabling
+=========
+
+- Per-call:
+
+  Use 'register_sysctl_sz()' or '__register_net_sysctl_sz()' directly.
+
+- Per-file:
+
+  Use '#define SYSCTL_MODULE_ALIASES_DISABLE'.
+
+- System-wide:
+
+  Maybe something along these lines:
+
+        # cat /etc/modprobe.d/no-sysctl.conf
+        alias sysctl:* no-sysctl
+        install no-sysctl /bin/false
+
+        # modinfo -F name sysctl:/proc/net/mpls/default_ttl
+        mpls_router
+
+        # modprobe sysctl:/proc/net/mpls/default_ttl
+        modprobe: ERROR: Error running install command '/bin/false' for module no_sysctl: retcode 1
+        modprobe: ERROR: could not insert 'no_sysctl': Invalid argument
+
+P.S.
+====
+
+I wrote proof-of-concept patches for procps sysctl and systemd-sysctl some time
+ago, which worked as expected, i.e., successfully set sysctl tunables which did
+not exist in /proc/sys, by running 'modprobe sysctl:/proc/sys/...' and retrying.
+
+Should this series eventually be merged, the patches will be submitted upstream
+as well, for userspace to start consuming it.
+
+Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
+
+Changes in v3:
+- All issues were reported by sashiko-bot@kernel.org.
+- Tested allmodconfig with option enabled on x86_64.
+- Patch 2:
+  - Fix typo ('s/options/option/').
+- Patch 3:
+  - Fix usage of __UNIQUE_ID().
+  - Add __must_be_array() in MODULE_SYSCTL_TABLE().
+- Patch 4:
+  - Remove trailing backslash in register_sysctl().
+- Patch 6:
+  - Fix missing __register_net_sysctl_sz() in !CONFIG_SYSCTL.
+- Patch 13:
+  - Fix potential out-of-bounds read in do_sysctl_entry().
+  - Add check for entry size of zero.
+- Link to v2: https://lore.kernel.org/r/20260818-sysctl-module-aliases-v2-0-d5a69dae5798@igalia.com
+
+Changes in v2:
+- This is based on the series submitted 4 years ago,
+  with Originally-by: tags added in related patches.
+- Link to v1: https://lore.kernel.org/linux-fsdevel/20220722022416.137548-1-mfo@canonical.com/
+
+---
+Mauricio Faria de Oliveira (13):
+      keys, pidns, fs/verity, riscv/vector: reorder '#include <linux/sysctl.h>'
+      proc: add config option SYSCTL_MODULE_ALIASES
+      sysctl, mod_devicetable: add macro MODULE_SYSCTL_TABLE
+      sysctl: add register_sysctl() wrapper for MODULE_SYSCTL_TABLE
+      sysctl, parport: update register_sysctl() callers with template arguments
+      sysctl, net: add register_net_sysctl{_sz}() wrappers for MODULE_SYSCTL_TABLE
+      sysctl, net: update register_net_sysctl{_sz}() callers with template arguments
+      sysctl, net: update register_net_sysctl_sz(ARRAY_SIZE(table_tmpl)) with template arguments
+      sysctl, ipv6: update register_net_sysctl{_sz}() callers with template arguments
+      sysctl, net: update register_net_sysctl_sz() edge case
+      sysctl: unrandomize struct ctl_table.procname
+      modpost: move addend_*_rel() calls into addend_rel()
+      modpost: handle MODULE_SYSCTL_TABLE symbols
+
+ arch/riscv/kernel/vector.c              |   1 +
+ drivers/net/vrf.c                       |   3 +-
+ drivers/parport/procfs.c                |  26 +++-
+ fs/proc/Kconfig                         |  13 ++
+ fs/verity/init.c                        |   1 +
+ include/linux/key.h                     |   1 -
+ include/linux/mod_devicetable.h         |   7 +
+ include/linux/pid_namespace.h           |   1 +
+ include/linux/sysctl.h                  | 110 ++++++++++++++-
+ include/net/ipv6.h                      |   6 +-
+ include/net/net_namespace.h             |  47 ++++++-
+ net/bridge/br_netfilter_hooks.c         |   3 +-
+ net/core/neighbour.c                    |  11 +-
+ net/core/sysctl_net_core.c              |   3 +-
+ net/ieee802154/6lowpan/reassembly.c     |   2 +-
+ net/ipv4/devinet.c                      |  12 +-
+ net/ipv4/ip_fragment.c                  |   3 +-
+ net/ipv4/route.c                        |   3 +-
+ net/ipv4/sysctl_net_ipv4.c              |   2 +-
+ net/ipv4/xfrm4_policy.c                 |   3 +-
+ net/ipv6/addrconf.c                     |   7 +-
+ net/ipv6/icmp.c                         |   6 +-
+ net/ipv6/netfilter/nf_conntrack_reasm.c |   4 +-
+ net/ipv6/reassembly.c                   |   3 +-
+ net/ipv6/route.c                        |  10 +-
+ net/ipv6/sysctl_net_ipv6.c              |  13 +-
+ net/ipv6/xfrm6_policy.c                 |   3 +-
+ net/mpls/af_mpls.c                      |   9 +-
+ net/mptcp/ctrl.c                        |   3 +-
+ net/netfilter/ipvs/ip_vs_ctl.c          |   4 +-
+ net/netfilter/ipvs/ip_vs_lblc.c         |   3 +-
+ net/netfilter/ipvs/ip_vs_lblcr.c        |   3 +-
+ net/netfilter/nf_conntrack_standalone.c |   5 +-
+ net/netfilter/nf_log.c                  |   9 +-
+ net/rds/tcp.c                           |   4 +-
+ net/sctp/sysctl.c                       |   3 +-
+ net/smc/smc_sysctl.c                    |   2 +-
+ net/sysctl_net.c                        |  10 +-
+ net/unix/sysctl_net_unix.c              |   3 +-
+ net/vmw_vsock/af_vsock.c                |   4 +-
+ net/xfrm/xfrm_sysctl.c                  |   2 +-
+ scripts/mod/devicetable-offsets.c       |   6 +
+ scripts/mod/file2alias.c                | 237 ++++++++++++++++++++++++++++++++
+ scripts/mod/modpost.c                   |  46 ++++---
+ scripts/mod/modpost.h                   |  25 ++++
+ 45 files changed, 575 insertions(+), 107 deletions(-)
+---
+base-commit: 2697ef8943c9985c14708a6429e21812693857b2
+change-id: 20260818-sysctl-module-aliases-2f5801b1eb71
+
+Best regards,
+-- 
+Mauricio Faria de Oliveira <mfo@igalia.com>
+
