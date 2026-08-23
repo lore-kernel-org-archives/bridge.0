@@ -1,160 +1,187 @@
-Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05475306B08
-	for <bridge@lists.linux.dev>; Sun, 23 Aug 2026 13:32:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16B0C33F368
+	for <bridge@lists.linux.dev>; Sun, 23 Aug 2026 22:12:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787491974; cv=none; b=UHoBNxpV6yi3EAHo4a+8wW8O89hVGm+HPk6bz+cAhB3yIWn6Zo6d9unTQShsVK+DaqskBzJFdxutytEsZEDXmkVDjvgnp69HQtAX9OKnySVARu5TcrLlzCZoTZItf0uJFW1NKT37bkuk2R9fbIP+igaU42ISLXxz8xwqBFLHo9E=
+	t=1787523165; cv=none; b=JThhUv7DSHznNdMyr3PS6lKiz9lHeIT8Eyn4DWoMhUs1iWKZaOTZl/cdvZvL0iGt1qLxFz6+3W0GurHT/nM3yqjHmNSzy5t2tm11Dc0YamBqBLSNdt0gVirx0M7S4OJ/omiW7vwb4FSy083jZQA+m7Z0rmP/oofBaDUaQjtoUxs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787491974; c=relaxed/simple;
-	bh=QnsqlWV2+HTY6HhUI51xQCDZ22CyVTT5ZguwayhWJac=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hy6pEREw/pkZnHL6Q+1qZSkQr0uaPF/hYrHa5P8Iy/go0G6cQg5uTdNJlKkc9znnryOPW3W2rV3Th3+tzon1Og136aOtUjuKfBPi9FYd77LL5lvR/yGMo90Zz7lxVhEDHwuqE00VZOkzFNKK/qowelzIKn750mhVL2BM6bGfv4c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=UL+eesOr; arc=none smtp.client-ip=209.85.218.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1787523165; c=relaxed/simple;
+	bh=GqPg7liRNMqrm8j4qggfPJWb6w6iifsnP6+v+SgJcSk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UJoLWNww6ir0/qNi9RS4Mv9hPhkZMhwfT/sJczH1hYBvhxK6UfMEPJxhAGPYmKNT8MR4z5zK027vRQVjFvsVsszpL91vk9cOayryfdYuFUeP0e7dJeCe/sUF4noDfT3SKjjuhx6aZB/FbHhLB8q5MYE0Fg3TFsB+lTb5J9fhUPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=FPfqc06J; arc=none smtp.client-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="UL+eesOr"
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-c247f6687dcso277291966b.2
-        for <bridge@lists.linux.dev>; Sun, 23 Aug 2026 06:32:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="FPfqc06J"
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6a17211b9ecso7352001a12.2
+        for <bridge@lists.linux.dev>; Sun, 23 Aug 2026 15:12:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1787491971; x=1788096771; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=oKNZxXkQOBpNNoBVz2Q1UXI7fB4yjnJyzapqPLmW9AA=;
-        b=UL+eesOrBl9Ayp8F85uTUmZb5Ul3b0ynQ2jJFQbuU/Py+eD2OoK/VD5MR1dzqzwhOd
-         dkjOHpDWNVTOGtWnkkX01qrUrXMj1l0jzQXaOZ2SFHXTSY2ATgIZVBinO1jwo9omxD/J
-         O+0YnZf8DKueyUWg7YoHjIpbe7ANom14Y1RR77A9gksOCzUiI/fYVHIomnkLeKjdIY96
-         zRqtUku1C/zA0b/HE/5EWFLifWSGq056DAvYpxF5uhAiijU4Efu88ddN5Z8UNO9oKlYq
-         HUyqcG8nhFCfNL5EVDNeD2S9618raozG52GtaqDx1fiBWFgPunaj4pHIs/eofzo0Y0Qv
-         bcZw==
+        d=baylibre.com; s=google; t=1787523160; x=1788127960; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=//7iEXuM0dwaErrYwlxiIsbco7Xb10BSWAJJRQqIeEQ=;
+        b=FPfqc06Jb3ITFgV1DG3qV2CPOcxOxTNhFSrjBwOPkCMCz17ZRp2+6V4ZbQ7XLsPcTO
+         R9V+oRekps23w4ZcqeUA/y9rlEwc3KNa9ansJxDTz07/jmKAI8p+Nn0iMZ+DLU5KvqaS
+         taIQxLGjXIJfNOK9CX40J4vLOtu6zKpzgO0RMTbjZCQMBdk1Lsae7fP3EMqgTxu/ggju
+         E2Q2vtWA5pqCjAt3KkpzWycNCJqqwIDrur4h4E7Z2+3n1n3X0uF6TUFmCl/FDYiV34iz
+         KGpEShIqs4vS7RNaGkqwNTjm1V5otMFKFYo0df0tl3zH2/l7yzYKHt/Ftv8hxAMFG9R5
+         kICw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787491971; x=1788096771;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=oKNZxXkQOBpNNoBVz2Q1UXI7fB4yjnJyzapqPLmW9AA=;
-        b=szt94AT1WV9tSzyAZpJHY3izvcCYC1deTiT6EwUEuTqoORZ26ah0PFspYn8rL57rau
-         vTb8tlDyx1BIxHy4Fw9cHeaDJoolYpBu7yPfqmatrhb9ed0iMOS+ruSHLPHhRslZkuF6
-         EGazXqvOSkY2BrI/XNd3rZY3auL/uApufgzxNfqD+VxTlbMGxg4TXnUcyLFs4Swk29IH
-         7S44R+9tLhvYqivqCifkxf8qs6jl59FzgAu+r7cB+Hw5nB+71oRtZjmD3GORyHOC69EC
-         Pi5Euur2KI7paJYUVhmYIcpv2psIgpXUTMlTxlV2E9yKAlba1RNrkDtNJuKU+yZhS8a0
-         jJuA==
-X-Forwarded-Encrypted: i=1; AHgh+RpaUEnTNHb7hTmSy2uGAd/O5ndSqcnoCBnji3tLrcCCwJBa7HwSAvviMGnxcbI5obksmhnt65M=@lists.linux.dev
-X-Gm-Message-State: AFuF++l3SWyBBxdc2IRe++PrZ4q4p2FWp9b9SR/A+ARhW100FN18AiQr
-	HL6WGxiOLiy3U0hZdRd7epJFMO8Bqzsm+VSKRg2Ub75jfHiLRkv7sKQzB3tuO22nrsU=
-X-Gm-Gg: AR+sD10uZLdhw2SlDPrtgYmv4dANUSPH8EMdvGFA60Z5/kwrdIVt3c4j5voz7ZFlsft
-	c4pe1qomwHRAqC7UzFCGoXeb8RUEmP6E7i6j0e6L3Iy/2aDR8l1KMTuyRbfZaGy1/pMI4DqNzYj
-	zKp2TS7fnBqrOOlDlMNH/uy8tzGgRMoDOhoX0tGb4Z2FAMTTHA7j14sIdHTFz4XiUbrs35XDlQG
-	smasEmavy5ill0jTraLk9FmfAuAezRPg8222PjzRJ6H13QyebgZPchNbsuFc1NifTJfnKjV/Y1Q
-	2HBT1H8Wp8ad1CvyiRon+uSLGwOiDLX7NXwdny8rI0y4VK6M8mN0E04SAbsJFWVy/m33PnBpbuE
-	m2cLeWJgDaG/zhmePRtXw6SZpXhC/4j4D0YVH9UWNEFNM/awhffAmxr7pZrNyDAsN0dtEDbebh1
-	ub5B715zOdHL8uqZiyTAD9ZSwBvg+t5qqs7zgJAQRWFeaZN+QlOR8xbdXsCpvblaIsuORdrzbY7
-	n5/Ttzr8YN2asZbP1k=
-X-Received: by 2002:a17:907:6094:b0:c1f:9c3b:96a7 with SMTP id a640c23a62f3a-c246a6269d2mr2107478766b.17.1787491971003;
-        Sun, 23 Aug 2026 06:32:51 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c249629563dsm794720866b.17.2026.08.23.06.32.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 23 Aug 2026 06:32:50 -0700 (PDT)
-Message-ID: <a7cc297b-ae54-40b6-92fc-2d1311f2e76f@blackwall.org>
-Date: Sun, 23 Aug 2026 16:32:48 +0300
+        d=1e100.net; s=20251104; t=1787523160; x=1788127960;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=//7iEXuM0dwaErrYwlxiIsbco7Xb10BSWAJJRQqIeEQ=;
+        b=bcta2TbHaMVGpF7bS6RodWYPuZUfRDX/RKKhhplip8XCDxMLkKSF15uy4UWa0FZBaH
+         C+U0dYK4hF06LwXCMXFXEo8TklZ2TA9UEPZ8zLQyCkW/lqY4HoJY1Ec9orZmR7G1rcDC
+         GkeiRKITrRkbBDXi1LScbCeo5y1WNi5ldw7lKe2iAWjL+3kZGQLZ0UJIyYKjFwzQwKBT
+         1tBXIwlBa3HpF7Z/aAj7yYaBIOINmqFrDBHg4LGvtlxOFv1u2xnVp05YNfbqQMsDjhZ/
+         YcAAGURa4x50XW0M7DlUanPPwdsaJk70tIVKT0SfoMtclljon5JQqiicVW8rPV0uHUGT
+         BXMA==
+X-Forwarded-Encrypted: i=1; AHgh+Rr2qnkXCUOEuAK4s9sgblsu60in7sU2lWkmkFUFnDM5j/Qg+KCV425SA3LWzV5kjMRgRv9Vksk=@lists.linux.dev
+X-Gm-Message-State: AFuF++l9dKjEz6AfYkTmmtOe6c8EBdr4sb1LbluhlhjjzpLkPXG4Vytd
+	PgrbgaP8lMUwVByeAotdOcgRw60ffeeeg5mIcd2q61qY8eHBhVn4lusSZgyALHmZ6+M=
+X-Gm-Gg: AR+sD12bu/AuvRfjO6m7AniHdpSq8J337KvAZjm5rkjISoPB0EAI3IdFXAUnJu7ieCM
+	4/lRi28jNz+HW5J2LF52OThLc0gBxFFfMyBZAwYkkDv+C69hg3xroaBNKGJa7nB1W/LVixiYirQ
+	6gvo8vKc5FBR/veqDM4dV6ZNj8U7sbD1tgLSmrANmLhLK79T1WdIa6vFzFyer7fxTNg6L2MVEXh
+	bySBJJpeylakj7Yq6/7MJoB3Uds3JBmchq2/uv8i+YPy29T7ommYLe8Vdz4TA/UzT2rls9HqF+E
+	lCe6e3ZfZ2Fhos7AW5eg7ilD0w5msjYKFW82AzIuaKN0SEZQCjHocgeF7pVi420yPS3TdU4cTKY
+	1G3OH5L0zL74mTklzU3nQggw/sTB9PWog5+/P4EM9TtfwAdvMMrgYBAIy8xY5pu+XHKqeguuDP2
+	KuZz4JyBEKcjpZdi/5dF+PEBa7RhfbraAkCXDFRrjPVdfL16Ceu/MAJ2RDNogbO6LqsCCndaMwD
+	WKX
+X-Received: by 2002:a05:6402:505b:b0:69c:811f:8f5 with SMTP id 4fb4d7f45d1cf-6a42f1b9325mr25356134a12.6.1787523160405;
+        Sun, 23 Aug 2026 15:12:40 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-6a59e00108asm7547158a12.2.2026.08.23.15.12.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 23 Aug 2026 15:12:39 -0700 (PDT)
+Date: Mon, 24 Aug 2026 00:12:38 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Mauricio Faria de Oliveira <mfo@igalia.com>
+Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
+	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+Message-ID: <aotteDcc588iwC6g@monoceros>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
+ <aomlfGJM61qZKxx2@monoceros>
+ <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net: bridge: mcast: fix use-after-free of a master
- VLAN's multicast context
-Content-Language: en-US, bg
-To: Norbert Szetei <norbert@doyensec.com>, netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, bridge@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <B41EB55B-E5FC-431D-956C-503CA7B95C30@doyensec.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <B41EB55B-E5FC-431D-956C-503CA7B95C30@doyensec.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="6dsww6grbwx7uy7i"
+Content-Disposition: inline
+In-Reply-To: <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
 
-On 23/08/2026 14:58, Norbert Szetei wrote:
-> br_multicast_toggle_one_vlan() clears BR_VLFLAG_MCAST_ENABLED under
-> br->multicast_lock before stopping a VLAN's multicast context.  That is
-> the teardown handshake: lockless readers gate on the flag through
-> br_multicast_ctx_should_use() -> br_multicast_ctx_vlan_disabled(), so
-> once it is cleared under the lock no reader can arm the context again.
-> 
-> For a master VLAN the handshake never runs.  __vlan_del() clears
-> BRIDGE_VLAN_INFO_BRENTRY before calling br_vlan_put_master(), so
-> br_multicast_toggle_one_vlan(masterv, false) returns early on
-> !br_vlan_is_brentry(vlan): the flag stays set and br->multicast_lock is
-> never taken.  br_vlan_put_master() then drains the context in
-> br_multicast_ctx_deinit() and frees the VLAN through call_rcu(), while a
-> reader still inside rcu_read_lock() sees the context as enabled and
-> re-arms it.  The port and port-VLAN branch of the function has no
-> br_vlan_is_brentry() test and flips the flag under br->multicast_lock,
-> so it is not affected.
-> 
-> The reader is the bridge transmit path.  For a master VLAN
-> br_multicast_rcv() selects brmctx = &vlan->br_mcast_ctx with
-> pmctx = NULL, so IGMP sent to the bridge device re-arms the context's
-> timers after br_multicast_ctx_deinit() has already stopped them.
-> 
-> Any user able to create a bridge can trigger this, which includes an
-> unprivileged user in a user namespace, by deleting and re-adding the
-> master VLAN while sending IGMP to the bridge device:
-> 
 
-So much AI slop... at least drop this paragraph which is completely useless.
+--6dsww6grbwx7uy7i
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+MIME-Version: 1.0
 
->    BUG: KASAN: slab-use-after-free in detach_if_pending+0x412/0x4a0
->    Write of size 8 at addr ffff88810ac39918 by task brmc/601
->     __mod_timer+0x51a/0xc50
->     br_multicast_host_join+0x25b/0x390
->     __br_multicast_add_group+0x468/0x530
->     br_ip4_multicast_add_group+0x1a0/0x260
->     br_multicast_rcv+0x2cda/0x61e0
->     br_dev_xmit+0x6c4/0x1540
->    Allocated by task 610:
->     br_vlan_add+0x111/0xb40
->     br_vlan_info+0x370/0x3e0
->    Freed by task 0:
->     kfree+0x1a7/0x4f0
->     rcu_core+0x7dc/0x10a0
-> 
-> Only test br_vlan_is_brentry() when enabling, like the
-> br_multicast_ctx_vlan_global_disabled() test next to it.  Disabling then
-> always clears BR_VLFLAG_MCAST_ENABLED under br->multicast_lock before
-> br_multicast_ctx_deinit() drains the context.
-> 
-> Fixes: 7b54aaaf53cb ("net: bridge: multicast: add vlan state initialization and control")
-> Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-5
-> Signed-off-by: Norbert Szetei <norbert@doyensec.com>
-> ---
->   net/bridge/br_multicast.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 75e1e2a8fc83..3ef5d8bbf552 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -4377,8 +4377,8 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
->   	if (br_vlan_is_master(vlan)) {
->   		br = vlan->br;
->   
-> -		if (!br_vlan_is_brentry(vlan) ||
-> -		    (on &&
-> +		if (on &&
-> +		    (!br_vlan_is_brentry(vlan) ||
->   		     br_multicast_ctx_vlan_global_disabled(&vlan->br_mcast_ctx)))
->   			return;
->   
+Hello Mauricio,
 
+On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wrote:
+> On 2026-08-22 10:41, Uwe Kleine-K=F6nig wrote:
+> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wr=
+ote:
+> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table varia=
+ble
+> >> with pointers to a sysctl table's path and entries, and table/entry si=
+zes.
+> >=20
+> > That new struct doesn't seem to contain any pointer?
+>=20
+> The struct module_sysctl_table fields .path and .table are pointers,
+> although with kernel_ulong_t type so that the same 32/64-bit size is
+> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
+> which might differ with CROSS_COMPILE).
+
+Cross compilation isn't an issue for the already existing device id
+structures; many of them also contain pointers.
+(While modpost doesn't use the pointers, the size of the structures must
+be known to correctly interpret the arrays.)
+Also sizeof(long) differs between architectures and I can compile for
+arm(32) just fine on amd64.
+
+Additionally there is hardware out there that has sizeof(void *) =3D 16
+but sizeof(long) =3D 8. Up until recently I worked on mainlining that (and
+it has business reasons only I stopped, so I guess and hope I will
+continue at some point in the future). See
+https://lwn.net/Articles/1037974/ for some details if you're interested.
+
+I would be great if your series didn't introduce a new obstacle for
+that.
+
+> >> That symbol will be handled by file2alias.c (modpost) with the changes=
+ in
+> >> mod_devicetable.h and devicetable-offsets.c.
+> >>=20
+> >> The option macros MODULE_SYSCTL_TABLE_{DISABLE,UNIQUE_ID} can be used =
+on
+> >> a per-file basis to disable the macro and change the symbol name patte=
+rn.
+> >>=20
+> >> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
+> >> ---
+> >>  include/linux/mod_devicetable.h   |  7 +++++++
+> >>  include/linux/sysctl.h            | 42 ++++++++++++++++++++++++++++++=
++++++++++
+> >>  scripts/mod/devicetable-offsets.c |  6 ++++++
+> >>  3 files changed, 55 insertions(+)
+> >=20
+> > Please put the new struct in a separate header. Apart from not being
+> > about a device table, I'm currently work on removing
+> > <linux/mod_devicetable.h>. See commit
+> > ad428f5811bd7fb3d91fa002174de533f9da94d7 for more details.
+>=20
+> Sure; I looked at that earlier (thanks for the instructive commit
+> message, by the way) and found the new struct to be similar to "struct
+> cpu_feature isn't really a device_id struct" (not moved), but apparently
+> missed the trailing "fow now", which is clearer now. Fixed for v4.
+
+Yeah, I didn't move that because it was an outlier in the header as it's
+not a device id. IMHO it should go to something like
+include/linux/cpu_feature.h.
+
+Best regards
+Uwe
+
+--6dsww6grbwx7uy7i
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqLcFMACgkQj4D7WH0S
+/k74fgf+L2E+C5s7/Uv60MggM8SluqqYOIYVRQMrJ0YZ292Po2lSpcrxuhUuQU2B
+oXhO4fsc1HgZsK331x/O/bMuTOPLltQaKOsxLiMi24UglNQqmujyzSUFLnsr9NlL
+1xjI1icd6tMaie8k1PK7ynotnvtfYE9Fbl/52MAUgNFbTbWqnaXhNv+fzm/C72Cc
+xjp+GuDi0DimbriiFBYP3aUccUEUCgsrwh3Zwss3iQSaV2gZ3Y+jYlUBB3YlBSZQ
++m5a8ZWC4FeqCD+8NXyqc01adbOF9gkilqmoa2KsUhRY9+jPqn0pQhpfPxEl6Lf9
+/YNG96sk855Er0BHcQ1R8Pg+AcsRrg==
+=t37g
+-----END PGP SIGNATURE-----
+
+--6dsww6grbwx7uy7i--
