@@ -1,200 +1,143 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8533A3B6BFE;
-	Tue, 25 Aug 2026 19:10:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59D5F175A6D
+	for <bridge@lists.linux.dev>; Wed, 26 Aug 2026 01:42:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787685054; cv=none; b=MBPFQ3JgaDmKBiwp2KDEEb4ecL+mLtph2ZDH5dUDq281tYFeEFrYTLqmj0fBsymWglvCHWxzIyTDZH9MReokSD6fJm8HvhUVSdj64YaC6gFEul3gP+c1AhtP9aAPtjK4OhXlImrdGrh8yAEgF7mDS3GGgLhWgOKsl1c6AF3TeI4=
+	t=1787708567; cv=none; b=t1bERf6lKhwrkZUTeBikHpBkfPcRlGGKcuCs8rONIdTG+HtAa/MI2hVvlKFEbriuLsGL4J8YU8+Ob5AiiZaLChBBUnFerMKBQRPCPYVR+5R5cxjq+VAUDhCGtOPF7JoxZ5SxU1+ItPnDapxzLiaby9d1GsEabjWGhkdyjOwoXr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787685054; c=relaxed/simple;
-	bh=OtchHb6GBRRv68k/gioU/7xbxZ19B8WsvvWJaYWNtpk=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=ipvLNwRYVe5qMCdwNi3DiLYUr8wa3BDCTTRR0oDbzguPyZv8t4cUzxHe9TeftT02dHk+LbW69SxsAwO7zSBhor2O9024k3t1P3Jqc+SNVIrIC9YItyp7L0nInMqvVzRwIKyPuzRPy4Mm4VQ7gBGxSu1mtANzzbw4nfK7j1dIW1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=RHvx1Ado; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1787708567; c=relaxed/simple;
+	bh=xkHYSMpPHPn5UAznXrMTLNZUM0GY8dMnzzBw3PK9Ecw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kJ7DG3E1tGDI95i/Bov2PNBHgrLs8Cv60m/Ps+kaDiUXsOdiUqlzTBvNUfA/039UVqesvx+5UIfGseRF+jjTyvCly31tHWvMfS2wXyx1/ns+H0sbUJYu8Nu+yya71IjCGAmB3AI9QnDAh5LLNcCevGrvy9RxGm12sY9Jk7Lxmn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jcJS7Pmi; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="RHvx1Ado"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
-	:From:Date:MIME-Version:From:Reply-To;
-	bh=elAJm2a/yvCuwNZQN8cT8iWBlOljI1OpyGvFLYC11uo=; b=RHvx1Ado+WH9EzbHIOX+ZddNR4
-	p497xG/usjgdtyDE/kA/xbjOpyLIBJuOI92EZRwc1yOZOItUmNe5+oSRd4oxCZHOSJIg77xqmE+Tc
-	K5PFV0rWFpwnhQ6m9KAj6Aq1yxVDoopN2BKsaUVqLC48h9H3wG5IGBXSnMlrjvxadR17ZpA62zFv6
-	qnk+hsPSnk1nJmmcLcs7OjTT5cXXOefE42zyl0b94RK82DSvgwElUXWEAW9MTO2l5NBp9Zejkwn6T
-	YNgx8l8tDqfY2WGCtiFY0jVvYc0jEiv34rN7tch6qSf2TkOPn3XRxDKM1uTJZIDi4f2h9zACbsB7B
-	9kW+H63w==;
-Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
-	by fanzine2.igalia.com with esmtps 
-	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wywXL-009BHb-A7; Tue, 25 Aug 2026 21:10:19 +0200
-Received: from webmail.service.igalia.com ([192.168.21.45])
-	by mail.igalia.com with esmtp (Exim)
-	id 1wywXJ-00530G-Og; Tue, 25 Aug 2026 21:10:19 +0200
-Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
-	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
-	(envelope-from <mfo@igalia.com>)
-	id 1wywXJ-00000003he5-2ugE;
-	Tue, 25 Aug 2026 21:10:17 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jcJS7Pmi"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2caed617615so5163695ad.3
+        for <bridge@lists.linux.dev>; Tue, 25 Aug 2026 18:42:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787708566; x=1788313366; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=uX7w3zYS1582cLpnHIAGQCV970wUYP+EwxQlHWpL6X4=;
+        b=jcJS7PmijGreoE9cHYn2Zr99NRQ+MD2zlQ3MKmOGCxXUZiRThs/TsEexdmFpQK4XY8
+         ruTen70vKQAoLAhMZYzRvjYkEg2e6JpIM4pB4qmg6AtVdT2QsPSiFXgp1LVGFpwZ/m+o
+         2y421dLEfxrohsfQDw2cbjKLoDOA2QnmgUEEL/RoQOY1sbiYwZQqt9teH/t9n/GyIJVy
+         wAsglUKosU1O47KiUCecEMdYd20dtXULkrAbdqITK/hpXWUo/CApasudxIubfXE0VSq+
+         emu9zORz7MQT0Bgluuo9P542ULQCNA4QD2HqGR4SBKojQYnl1bfmSraxcrMj8yHXK19V
+         rEZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787708566; x=1788313366;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=uX7w3zYS1582cLpnHIAGQCV970wUYP+EwxQlHWpL6X4=;
+        b=NptYfQ+uQSKLl3ybL+Jxmy6WFSFwuExYFETtcZfSUDcYe2eKPcOeC5eyzpozccYN/y
+         45W6OIRRH4lXT1wmi4ZAkY4eYeCLYolK5G0EvOx9Nj1aFCu9FcFN3KT9dFtxBJcbnpFq
+         0OEogVbBL6Z4aKcFscukpkevifAd7EZEU/RGZi8fDWiPVaWtBWNnBFCW1qivmjX3EOoa
+         RoJ+HC6hWIFQAML72azReA7nwjW3v23D8hC2x98c1svgbq7eTERxINxWUJZG7rDPz+DN
+         Ej0HluNkf5ClMQKJr5DS8VlultkVyULlxwohctsXo+f7RrgEP/EmT0ejJxXdMkJFtca4
+         +Ipg==
+X-Forwarded-Encrypted: i=1; AHgh+RqSHGghnDh4KPTd6Fu8Uwk733DXwsD1oOc3hDAfBlmwb57Mjtqzt5dBcv4hYu6ihFmNepq242I=@lists.linux.dev
+X-Gm-Message-State: AFuF++kIGjL7RaZuZ9g7gOrT8SGYKWVroQJuT/alAuGX7BTROup1jrEH
+	M+Ked5AKlvvz4o8TZSbXYxmcvLxClyqvSls14ucVXHju9KVi8djx91Y8
+X-Gm-Gg: AR+sD11E99cZ3YJk8Y6lBIWUQKC0M4oW+G7lggVX/G/x+/M5GPMj+vv0nFHslFWcYxi
+	LXLpn7fLkdivB7v4Gn6y3a+DUuH9FV6z9cOmn4s3ybcSaFqKoi8JP9mSTNV0cGWtSrzLJFTeswL
+	jI/n6onp5hWNcWjSII7Ej/ngUVXaegUCs3gcQr62Uhlqh1o/ewlt32FQ/9qMSMI5UJGeiBvpdMK
+	yR1XII6dni9l9q0qBFslmvHsL8OGTzuJci+ZXqaFYlT3gRquPVjEWfguwD/S1KfJpX3Ez5G8FB+
+	CYi0UXt/Uytrm6KuvNFpq94FHrq9vavGLZD4rIOjo4yFxnAnli2EoZVVpvMQb7sGu08FrafMnpF
+	xQZTp5ht8ACYSv7hPeIdwLMa4+7oh5lDyUj0LBNBYbEbJkzzmZofIm6cHDs5fQiRDW5em7a7Eex
+	jVgLbUNiq7iN5v818YeWyIgfS6Z99zTK+XsL1KZqah/RJo0CXH48N16gGZhIoePg==
+X-Received: by 2002:a17:903:2c03:b0:2d6:ee6b:1b08 with SMTP id d9443c01a7336-2d707a2f363mr42050785ad.3.1787708565680;
+        Tue, 25 Aug 2026 18:42:45 -0700 (PDT)
+Received: from TENCENT64.site ([103.7.29.106])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d7049aac32sm2943735ad.33.2026.08.25.18.42.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Aug 2026 18:42:45 -0700 (PDT)
+From: Jun Yang <littleddfu@gmail.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Simon Horman <horms@kernel.org>,
+	stable@vger.kernel.org,
+	TencentOS Corvus AI <corvus@tencent.com>,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Jun Yang <junvyyang@tencent.com>
+Subject: [PATCH net v2] net: bridge: mcast: don't truncate the port group walk on teardown
+Date: Wed, 26 Aug 2026 09:41:44 +0800
+Message-ID: <20260826014200.362304-1-littleddfu@gmail.com>
+X-Mailer: git-send-email 2.43.7
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Tue, 25 Aug 2026 16:10:17 -0300
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon
- Horman <horms@kernel.org>, kernel-dev@igalia.com,
- linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
- netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
- lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-sctp@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-In-Reply-To: <ao1P_mEJdyRExG3v@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
- <aomlfGJM61qZKxx2@monoceros> <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
- <aotteDcc588iwC6g@monoceros> <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
- <ao1P_mEJdyRExG3v@monoceros>
-Message-ID: <4a7925a800f0c9b36078a70bf35e960d@igalia.com>
-X-Sender: mfo@igalia.com
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
-X-Spam-Score: -20
-X-Spam-Bar: --
 
-On 2026-08-25 05:24, Uwe Kleine-König wrote:
-> Hello,
-> 
-> On Mon, Aug 24, 2026 at 06:04:03PM -0300, Mauricio Faria de Oliveira wrote:
->> On 2026-08-23 19:12, Uwe Kleine-König wrote:
->> > On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wrote:
->> >> On 2026-08-22 10:41, Uwe Kleine-König wrote:
->> >> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wrote:
->> >> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table variable
->> >> >> with pointers to a sysctl table's path and entries, and table/entry sizes.
->> >> >
->> >> > That new struct doesn't seem to contain any pointer?
->> >>
->> >> The struct module_sysctl_table fields .path and .table are pointers,
->> >> although with kernel_ulong_t type so that the same 32/64-bit size is
->> >> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
->> >> which might differ with CROSS_COMPILE).
->> >
->> > Cross compilation isn't an issue for the already existing device id
->> > structures; many of them also contain pointers.
->> > (While modpost doesn't use the pointers, the size of the structures must
->> > be known to correctly interpret the arrays.)
->> 
->> Indeed. I missed some device_id structures with pointers, and that
->> devicetable-offsets.c is cross-compiled to generate
->> devicetable-offsets.h for file2alias.c to use offsets and sizes of the
->> target architecture.
->> 
->> I'll change .path and .table to pointers in the next version.
-> 
-> I *think* the existing device-id structs use char[] for strings that are
-> relevant for modpost. I look forward to you finding out if there is
-> still a justification for that :-D
+From: Jun Yang <junvyyang@tencent.com>
 
-AFAICT, an array is simpler to read in file2alias as it is stored
-directly in the symbol:
+__br_multicast_disable_port_ctx() and br_multicast_del_port() walk
+port->mglist with hlist_for_each_entry_safe(). However,
+br_multicast_find_del_pg() can also delete other entries from the same
+list through br_multicast_fwd_src_remove() or __fwd_del_star_excl().
 
-For example:
+If such an entry is the iterator's saved next node, hlist_del_init()
+clears its ->next and terminates the walk early. The reproducer triggers
+this in both teardown walks, leaving port groups in the bridge mdb with
+a dangling ->key.port after del_nbp() frees the port:
 
-@ include/linux/device-id/of.h 
+  BUG: KASAN: slab-use-after-free in __mdb_fill_info+0x1191/0x1320
+   __mdb_fill_info+0x1191/0x1320
+   br_mdb_dump+0x594/0xe40
+   rtnl_mdb_dump+0x1cf/0x5d0
 
-	struct of_device_id {
-	...
-		char compatible[128];
-	...
+Use hlist_del_init_rcu() to unlink the group while preserving ->next.
+br_multicast_del_pg() and the teardown walks run under
+br->multicast_lock. The GC worker must acquire the same lock before
+detaching the group for destruction, so the node remains alive while
+the walk uses the preserved pointer.
 
-@ drivers/net/ethernet/korina.c
+Fixes: b08123684bd5 ("net: bridge: mcast: install S,G entries automatically based on reports")
+Cc: stable@vger.kernel.org
+Suggested-by: Nikolay Aleksandrov <razor@blackwall.org>
+Reported-by: TencentOS Corvus AI <corvus@tencent.com>
+Assisted-by: tencentos-corvus-ai:kimi-k3
+Signed-off-by: Jun Yang <junvyyang@tencent.com>
+---
+v2: delete with hlist_del_init_rcu() to preserve ->next for an in-progress
+    teardown walk, per Nikolay's suggestion, instead of restarting the walks.
+    Tested on 7.2-rc7 with KASAN: the original use-after-free is no longer
+    reported.
 
-	static const struct of_device_id korina_match[] = {
-		{
-		        .compatible = "idt,3243x-emac",
-	...
-	MODULE_DEVICE_TABLE(of, korina_match);
+v1: https://lore.kernel.org/all/20260812113435.1854275-1-junvyyang@tencent.com/
 
-which builds
+ net/bridge/br_multicast.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-	$ objdump -t drivers/net/ethernet/korina.o | grep __mod_device_table
-	0000000000001020 l     O .rodata	0000000000000190
-__mod_device_table__kmod_korina__of__korina_match
-
-	$ objdump -s -j .rodata --start-address=0x1020
---stop-address=$((0x1020+0x190)) drivers/net/ethernet/korina.o
-	...
-	 1020 00000000 00000000 00000000 00000000  ................
-	 1030 00000000 00000000 00000000 00000000  ................
-	 1040 00000000 00000000 00000000 00000000  ................
-	 1050 00000000 00000000 00000000 00000000  ................
-	 1060 6964742c 33323433 782d656d 61630000  idt,3243x-emac..
-	 1070 00000000 00000000 00000000 00000000  ................
-	...
-
-@ scripts/mod/file2lias.c
-
-	#define DEF_FIELD_ADDR(m, devid, f) \
-		typeof(((struct devid *)0)->f) *f = ((m) + OFF_##devid##_##f)
-
-	static void do_of_entry(struct module *mod, void *symval)
-	{
-	...
-		DEF_FIELD_ADDR(symval, of_device_id, compatible);
-	...
-	
-void handle_moddevtable(struct module *mod, struct elf_info *info,
-                        Elf_Sym *sym, const char *symname)
-{
-        void *symval;
-...
-                symval = sym_get_data(info, sym);
-
-On the other hand, a pointer is stored indirectly through a relocation
-in the symbol, which is not as simple to read (i.e., 1. find the
-relocation section for the symbol's section; 2. find the relocation in
-that section by matching relocation offsets with an offset in the symbol
-+ symbol address; 3. finally read the relocation's target).
-
->> > I would be great if your series didn't introduce a new obstacle for
->> > [CHERI].
->> 
->> Absolutely. I'll be happy to adjust the series and testing for that.
->> 
->> Could you please confirm one should just follow [1], which uses [2] to
->> build the LLVM toolchain, and use it to build the kernel [3]?
->> 
->> [1] https://github.com/cheri-linux#building-and-running
->> [2] https://github.com/cheri-linux/buildroot
->> [3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
-> 
-> I used
-> https://github.com/CHERI-Alliance/meta-cheri/tree/codasip-scarthgap and
-> didn't care about toolchain and rootfs. It also has qemu integrated, so
-> you can actually test it.
-
-I'll take a look; thanks!
-
-cheers,
-
-> 
-> Best regards
-> Uwe
-
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 00aa9b2879d6..8022c7f12169 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -808,7 +808,11 @@ void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
+ 	struct hlist_node *tmp;
+ 
+ 	rcu_assign_pointer(*pp, pg->next);
+-	hlist_del_init(&pg->mglist);
++	/* Keep ->next (held under multicast_lock, freed later by the GC work):
++	 * a port->mglist teardown walk may have latched this node as its next,
++	 * and deleting other groups of the same port must not truncate it.
++	 */
++	hlist_del_init_rcu(&pg->mglist);
+ 	br_multicast_eht_clean_sets(pg);
+ 	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node)
+ 		br_multicast_del_group_src(ent, false);
 -- 
-Mauricio
+2.43.7
+
