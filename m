@@ -1,163 +1,163 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+Received: from bg-bec.cloudflare-smtp.org (bg-bec.cloudflare-smtp.org [104.30.16.142])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA4EA33970F
-	for <bridge@lists.linux.dev>; Wed, 26 Aug 2026 09:14:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34A483B52EA
+	for <bridge@lists.linux.dev>; Thu, 27 Aug 2026 12:42:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.30.16.142
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787735645; cv=none; b=EN07/vxuhCadx07GlUX+Oaxm09u2GLcJ8TIeuJWuIgdX0uJtg92Qj23Etj3ERPbTRSdwKST8klwiXae/QzerdTJ7BxJWv0M2kPsNojIYxuYaidj3sp+cdUO1qwT3aCOhvV8jHBiUSiL2G+Sc20MzsOHexywwAZbcQNprzL9cgdw=
+	t=1787834576; cv=none; b=VR/Pc92agXx831Tanckkf0HV/c/7RwDzS5J1pe0J4IhLuLTKL8fNtFkO+IjhqaUFmTmtdWWifB1nNI++RC2rrmQ5ibf6BqmaKneGrZfLcbiD/dMUIBaRCz/Icd5Tc3/7Plnlw5NBXqMOLpUbX5dHdHlJzg+2ipezYZs1XYImTKc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787735645; c=relaxed/simple;
-	bh=8cNcQmSBEQa/bqsTILDfnq+twu8/JgZiX/XoG+xyzZk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UxWEOj/yKQMJU8Uegw0FC3H3pvN1WBgJg+94xC9UwO+o+Ud1yE5kGVWB1Kj/yc4H/nLZPJCdpUc4E4ZSWgN2b7LXEUe0gytajZe5yq//17IcDkPiJCKEleKFF/AgyYpAb/XOzYmn4ofo3mhtOGOfQpENXpRnYLGx5P4SL75U0Wg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=DYQvit2J; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1787834576; c=relaxed/simple;
+	bh=Fyq8W1C5NIE2ID3dj//V5ozh3f+RWS9ymH5093GPYoY=;
+	h=From:Message-ID:Date:Subject:To:MIME-Version:Content-Type; b=W0UHvKasj+mwtnbQciiixm2yEu1uK5oHMQLJYmwaN/zJHN52rHlYKRsngNTDUtZN/16WaLsmR2Ax+gGlkCieTrGGTT2V4M7pE72cHui2M98zRQbTArF/HCHdb/Dcr7WGs2BvsvsLZljw1zB1OD91POfDzkNc8rl/ZzvRb99O0Sw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bugs.sh; spf=pass smtp.mailfrom=cf-bounce.bugs.sh; dkim=pass (2048-bit key) header.d=cloudflare-smtp.org header.i=@cloudflare-smtp.org header.b=Gik/z/rw; dkim=pass (2048-bit key) header.d=bugs.sh header.i=@bugs.sh header.b=Cx8KHar9; arc=none smtp.client-ip=104.30.16.142
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bugs.sh
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cf-bounce.bugs.sh
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="DYQvit2J"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6a0794669a6so1331566a12.2
-        for <bridge@lists.linux.dev>; Wed, 26 Aug 2026 02:14:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1787735642; x=1788340442; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6kHnb1LiNoLhJZjgOJ2+mjeSBKbJsOHUehEEF4uHAow=;
-        b=DYQvit2JbfmdODZdUbxLYScJPEA7jHKHnIYxGB6ZHNdWAI/pzE4kTNQhcC0OiPy2nZ
-         FBwiK50YJytctF2G7cIsAq/gLPnFp/Y3KrJtQU9oGr5GCDDluU+hcp+EmfoTtkb9a18P
-         TH6ctgah8RudD7wWHPAodTlUSkA0e1dbAKX3FhmguyijSwWFRhm+56QBTeZIa7dfJTq/
-         SQhDmvxQ1iDmehIzeEjzq+sNtDVp1nC2XGWKp7iigMFZAqVHFdwac/8r4YsW6z0H6acG
-         AVGG2cSSkXVi8xbERt7ZdqmiHMzE4sGOvihb0tyh1P/uhtXTknqgwbU26JDOAaPJ85yt
-         hfow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787735642; x=1788340442;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=6kHnb1LiNoLhJZjgOJ2+mjeSBKbJsOHUehEEF4uHAow=;
-        b=M7MwOnJ7FjQi/7roaQAO+zX2TiBEPspnNmnHi+rB53wCZPn+k5NSpPPcS5hhwrEd35
-         KPk1/Gn3yYEKWf39y4aFj7CZor1zMh0Ib33kZKmVLudIY3BGOiPDDlOrzgMy1oTSZ2vT
-         vDMrXI5HgI0uz7wFbAtQalA17gOZiCeHnjzGkIk0/6y1TDEwjyQOca2W0nRfV40mganu
-         xwDajPN3hW6P2Rf/cFQvdzmU2lnrrBFvfktCrhvcwqno9LOJ6B5oosCaO8uakfQnVxBK
-         R5WkB0T54108mOdBFdNGFnIgFJxMleYuM/nDDlhFLw86AdmBhhdfN0Lmvp5HM5qlcDB7
-         d/ow==
-X-Forwarded-Encrypted: i=1; AHgh+RrDSCbh1kW52mhR5sFxxpZSzIeEKGSzKGX1smy9Oayeb/g20GpMaEvzsn5MpXt/oU2q/Nhx0pc=@lists.linux.dev
-X-Gm-Message-State: AFuF++kC1C8fqfUjivBZoFblFNFHSudh4lpl7gXU0mXBtLEsOzQb8Z4B
-	xnGY+0O3bT0cRVlM3Eg/1nTZZhsahQ0tK1JF2pHZ24EAeoWyyNav+8+y3+Zx3dQaWqM=
-X-Gm-Gg: AR+sD12hEtCD4uYpGAzKmo6eqJaTHZ0RCgqfTXXOAhzUo7+u2+I5HLBQLuoX01K7WT+
-	VkzsrhoIax/lapXomL/X1g/3AkgywzlMkOL52EOuvb1CIZ1EXxsiCD3rFxn8swUj+G6pbYyGX57
-	LjXrfy0uwfsnwT3lnUR3g24C3FVdNGKQhqEGuJFc9UrO6I/a/oc0jva5qhJBRuYBN0IopJRuxcN
-	HfdX97fWFypmQ/AWpyRN/ERHcfjE7OzacORabj7P2qAV6I9OlgCWZwUd3wgHUFllgcUPJywz553
-	9mKshk4MJDyj1Z1J31ilqYNfz1iLD9CZmiJPW2dSRTTboJLkQATv/5GpK0106MdlCIp5309v4UH
-	tCGyQTzQwbvse0xFiVUE1ulFhvp5lhaQjO3ej+oGbnc73NOamqDtEKWi3DeeTkSQQ5hbngfUNr2
-	wu0gl+4MbxaiuWv0Pg51i3K7PX8meZdSP04YvCUMAzWYGQjuz9OQbqzPkoWv7KjxxA75oOmWi27
-	as7J3j1Uw/HfNdaosY=
-X-Received: by 2002:a05:6402:a0c4:b0:6a5:d7cd:fb9b with SMTP id 4fb4d7f45d1cf-6a5df327ce6mr6566059a12.0.1787735641083;
-        Wed, 26 Aug 2026 02:14:01 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a5de8ea6d0sm4038428a12.13.2026.08.26.02.13.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 26 Aug 2026 02:14:00 -0700 (PDT)
-Message-ID: <4e6fcd1a-779d-4777-ba39-d8cacda0862b@blackwall.org>
-Date: Wed, 26 Aug 2026 12:13:59 +0300
+	dkim=pass (2048-bit key) header.d=cloudflare-smtp.org header.i=@cloudflare-smtp.org header.b="Gik/z/rw";
+	dkim=pass (2048-bit key) header.d=bugs.sh header.i=@bugs.sh header.b="Cx8KHar9"
+DKIM-Signature: v=1; a=rsa-sha256; s=cf2024-1; d=cloudflare-smtp.org; c=relaxed/relaxed;
+	h=To:Subject:Date:From:Feedback-ID:from:reply-to:cc:resent-date
+	:resent-from:resent-to:resent-cc:in-reply-to:references:list-id:list-help
+	:list-unsubscribe:list-unsubscribe-post:list-subscribe:list-post
+	:list-owner:list-archive; t=1787834566; x=1788439366; bh=IETVInWIvmTv02Nai9
+	QrkDPchLUk3qge893iEYEYjUA=; b=Gik/z/rwMWNiToV3uZyt84Pk0llATqG30a82UuX/on6ti
+	pxJLRmShRaz1a71X9KugptFLrugzTAPjrw/v2t+IqGHUeh9PmQXCsr6OL5shuSWr/tKTWP83g73
+	VDFBL0Miu7sTcez9crTFK+GjnVooqksAyS95se+cvbJIAoPjeJipJGlnMQpEybywEGZPFSA4Dj3
+	gBMT5F/BPcbd0d/rt7vMSqOpu7wcnoCdDPs1Lxe5rEJ5BDgHUWxJ0iNn1nsDfIOnWqMSDMt+Qck
+	bigj3tzj09GTBrTzkqF/ktNHBwmiJWgRLuZo4R7TlpFhESK9a1ttVC+KcwiUHnPxX9M55V9w==;
+DKIM-Signature: v=1; a=rsa-sha256; s=cf-bounce; d=bugs.sh; c=relaxed/relaxed;
+	h=To:Subject:Date:From:Feedback-ID:from:reply-to:cc:resent-date
+	:resent-from:resent-to:resent-cc:in-reply-to:references:list-id:list-help
+	:list-unsubscribe:list-unsubscribe-post:list-subscribe:list-post
+	:list-owner:list-archive; t=1787834566; x=1788439366; bh=IETVInWIvmTv02Nai9
+	QrkDPchLUk3qge893iEYEYjUA=; b=Cx8KHar9vznihLABqlemqceJAVKnKLL4QPuZGPXrP3T+z
+	jof8MV6cRtHJL/5VdXDHSQZSC11winNJz+MzJEhQtea55WdzyLiClrOWx265JnOTHj4aFVCgDkB
+	1zzFm4SFOIOByyKXDGX3PQtdOz9NGU/vZtKHp0e14v8wDA3wGlvqo8hArP2iwLYOUZmRZW6aawX
+	6FBE64O15XGSn1IqpL0rmX9lCJ8DwpD5xUmXeLZ9IjDPUAeHaI6lxliWkc1kC/4bXwyzXWxG2Z2
+	sPHbx0LaZqMkE2Pbg2iuwMn8LopW+GSeN+tKDCQdQwZUJkXJtJMsia/7Ff5ipZDj6DevEumQ==;
+Feedback-ID: bugs.sh:5:6:Cloudflare
+From: co <co+a720ac0c47d2d165@bugs.sh>
+Message-ID: <zKVpkZXjE75xVdFiLMgHlG0eo0eFhEoMzS81@bugs.sh>
+Date: Thu, 27 Aug 2026 12:42:38 +0000
+Subject: [BUG] net/bridge: wild access in br_handle_frame_finish()
+To: netfilter-devel@vger.kernel.org, coreteam@netfilter.org, netdev@vger.kernel.org, bridge@lists.linux.dev, "Pablo
+ Neira Ayuso" <pablo@netfilter.org>, "Florian Westphal" <fw@strlen.de>, "David
+ S. Miller" <davem@davemloft.net>, "Eric Dumazet" <edumazet@google.com>, "Jakub
+ Kicinski" <kuba@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Nikolay
+ Aleksandrov" <razor@blackwall.org>, "Ido Schimmel" <idosch@nvidia.com>, "Phil
+ Sutter" <phil@nwl.cc>, "Simon Horman" <horms@kernel.org>, "Jiri Pirko" <jiri@resnulli.us>, linux-kernel@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2] net: bridge: mcast: fix use-after-free of a master
- VLAN's multicast context
-Content-Language: en-US, bg
-To: Norbert Szetei <norbert@doyensec.com>, netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, bridge@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <D400F6C7-543A-4B79-9E5B-D1D8974DE5C9@doyensec.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <D400F6C7-543A-4B79-9E5B-D1D8974DE5C9@doyensec.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 26/08/2026 12:12, Norbert Szetei wrote:
-> br_multicast_toggle_one_vlan() clears BR_VLFLAG_MCAST_ENABLED under
-> br->multicast_lock before stopping a VLAN's multicast context.  That is
-> the teardown handshake: lockless readers gate on the flag through
-> br_multicast_ctx_should_use() -> br_multicast_ctx_vlan_disabled(), so
-> once it is cleared under the lock no reader can arm the context again.
-> 
-> For a master VLAN the handshake never runs.  __vlan_del() clears
-> BRIDGE_VLAN_INFO_BRENTRY before calling br_vlan_put_master(), so
-> br_multicast_toggle_one_vlan(masterv, false) returns early on
-> !br_vlan_is_brentry(vlan): the flag stays set and br->multicast_lock is
-> never taken.  br_vlan_put_master() then drains the context in
-> br_multicast_ctx_deinit() and frees the VLAN through call_rcu(), while a
-> reader still inside rcu_read_lock() sees the context as enabled and
-> re-arms it.  The port and port-VLAN branch of the function has no
-> br_vlan_is_brentry() test and flips the flag under br->multicast_lock,
-> so it is not affected.
-> 
-> The reader is the bridge transmit path.  For a master VLAN
-> br_multicast_rcv() selects brmctx = &vlan->br_mcast_ctx with
-> pmctx = NULL, so IGMP sent to the bridge device re-arms the context's
-> timers after br_multicast_ctx_deinit() has already stopped them.
-> 
->    BUG: KASAN: slab-use-after-free in detach_if_pending+0x412/0x4a0
->    Write of size 8 at addr ffff88810ac39918 by task brmc/601
->     __mod_timer+0x51a/0xc50
->     br_multicast_host_join+0x25b/0x390
->     __br_multicast_add_group+0x468/0x530
->     br_ip4_multicast_add_group+0x1a0/0x260
->     br_multicast_rcv+0x2cda/0x61e0
->     br_dev_xmit+0x6c4/0x1540
->    Allocated by task 610:
->     br_vlan_add+0x111/0xb40
->     br_vlan_info+0x370/0x3e0
->    Freed by task 0:
->     kfree+0x1a7/0x4f0
->     rcu_core+0x7dc/0x10a0
-> 
-> Only test br_vlan_is_brentry() when enabling, like the
-> br_multicast_ctx_vlan_global_disabled() test next to it.  Disabling then
-> always clears BR_VLFLAG_MCAST_ENABLED under br->multicast_lock before
-> br_multicast_ctx_deinit() drains the context.
-> 
-> Fixes: 7b54aaaf53cb ("net: bridge: multicast: add vlan state initialization and control")
-> Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-5
-> Signed-off-by: Norbert Szetei <norbert@doyensec.com>
-> ---
-> Changes in v2:
-> - drop the paragraph above the splat, per review
-> - no functional change
-> 
-> Reproducer available on request.
-> 
-> v1: https://lore.kernel.org/netdev/B41EB55B-E5FC-431D-956C-503CA7B95C30@doyensec.com/
->   net/bridge/br_multicast.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-> index 75e1e2a8fc83..3ef5d8bbf552 100644
-> --- a/net/bridge/br_multicast.c
-> +++ b/net/bridge/br_multicast.c
-> @@ -4377,8 +4377,8 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
->   	if (br_vlan_is_master(vlan)) {
->   		br = vlan->br;
->   
-> -		if (!br_vlan_is_brentry(vlan) ||
-> -		    (on &&
-> +		if (on &&
-> +		    (!br_vlan_is_brentry(vlan) ||
->   		     br_multicast_ctx_vlan_global_disabled(&vlan->br_mcast_ctx)))
->   			return;
->   
+We found a bug reachable in:
 
-Thanks,
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+    path    net/bridge
+    crash   wild access in br_handle_frame_finish()
+    commit  4e15e89faac9 ("net: bnxt: ring the doorbell when SW USO exits e=
+arly")
+
+Config, environment, the sanitizer report and a C reproducer follow.
+
+=3D=3D Notes =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+    If you patch the bug based on our artifacts, a tag would be
+    appreciated:
+
+Reported-by: co+a720ac0c47d2d165@bugs.sh
+
+    Everything in this mail is validated by the reproducer below.
+
+    We also hold an LLM-generated root-cause analysis and a candidate
+    patch. The patch passes an A/B test: the same reproducer panics the
+    unpatched kernel and runs clean on the patched one. Neither has had
+    human review, so both still require validation before you send or
+    apply them. Available on:
+
+        patch.diff  https://bugs.sh/b/a720ac0c47d2d165/patch.diff
+        report.md   https://bugs.sh/b/a720ac0c47d2d165/report.md
+
+    This is an open science project. The code and the full set of PoCs
+    are not public at this moment, as we intend to disclose our findings
+    in an ethical way.
+
+    Happy to test patches. Complaints and suggestions about our work
+    are welcome at:
+
+        cedalion@bugs.sh
+
+=3D=3D Environment =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+    Reproduced on  4e15e89faac9 ("net: bnxt: ring the doorbell when SW USO =
+exits early")
+    VM setup       https://bugs.sh/b/a720ac0c47d2d165/run.sh
+    config         https://bugs.sh/b/a720ac0c47d2d165/config.gz
+    poc            https://bugs.sh/b/a720ac0c47d2d165/repro.c
+
+=3D=3D Sanitizer Report =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Oops: general protection fault, probably for non-canonical address 0xe0001b=
+ffe0002001: 0000 [#1] SMP KASAN NOPTI
+KASAN: maybe wild-memory-access in range [0x0000ffff00010008-0x0000ffff0001=
+000f]
+CPU: 0 UID: 1000 PID: 146 Comm: exploit Not tainted 7.2.0+ #57 PREEMPTLAZY
+RIP: 0010:fdb_find_rcu (include/linux/rhashtable.h:152 include/linux/rhasht=
+able.h:629 include/linux/rhashtable.h:672 net/bridge/br_fdb.c:216)
+Call Trace:
+<IRQ>
+br_handle_frame_finish (net/bridge/br_input.c:204 (discriminator 1))
+br_nf_hook_thresh (net/bridge/br_netfilter_hooks.c:1165)
+br_nf_pre_routing_finish (net/bridge/br_netfilter_hooks.c:430)
+br_nf_pre_routing (include/linux/netfilter.h:325 include/linux/netfilter.h:=
+319 net/bridge/br_netfilter_hooks.c:539)
+br_handle_frame (include/linux/netfilter.h:165 net/bridge/br_input.c:291 ne=
+t/bridge/br_input.c:442)
+__netif_receive_skb_core.constprop.0 (net/core/dev.c:6151)
+__netif_receive_skb_one_core (net/core/dev.c:6262)
+process_backlog (net/core/dev.c:6377 net/core/dev.c:6728)
+__napi_poll (net/core/dev.c:7787)
+net_rx_action (net/core/dev.c:7850 net/core/dev.c:8007)
+handle_softirqs (kernel/softirq.c:645)
+do_softirq.part.0 (kernel/softirq.c:546 (discriminator 20))
+</IRQ>
+__local_bh_enable_ip (kernel/softirq.c:538 kernel/softirq.c:473)
+__dev_queue_xmit (include/linux/bottom_half.h:33 (discriminator 1) include/=
+linux/rcupdate.h:914 (discriminator 1) net/core/dev.c:4961 (discriminator 1=
+))
+packet_sendmsg (net/packet/af_packet.c:3110 net/packet/af_packet.c:3142)
+__sys_sendto (net/socket.c:800 (discriminator 1) net/socket.c:815 (discrimi=
+nator 1) net/socket.c:2281 (discriminator 1))
+__x64_sys_sendto (net/socket.c:2288 net/socket.c:2284 net/socket.c:2284)
+do_syscall_64 (arch/x86/entry/syscall_64.c:61 arch/x86/entry/syscall_64.c:8=
+4)
+entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)
+Kernel panic - not syncing: Fatal exception in interrupt
+
+
+---
+The report format is based on syzbot bug report.
+
+This report is generated by a bot. It may contain errors.
+See https://github.com/n132/cedalion for more information.
+
+For any issue with this report, reach out to cedalion@bugs.sh
+
+If the report is already addressed, let us know by replying with:
+#co fix: <commit hash>
+
+If the report is a duplicate of another one, reply with:
+#co dup: <lore link>
+
+If you want to undo deduplication, reply with:
+#co undup
+
 
