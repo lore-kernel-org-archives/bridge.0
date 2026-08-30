@@ -1,135 +1,230 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010006.outbound.protection.outlook.com [40.93.198.6])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D352290DBB
-	for <bridge@lists.linux.dev>; Sun, 30 Aug 2026 07:03:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.6
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788073398; cv=fail; b=XcBgPvdKGdbFwJkI01IByweOftyUibZLdPvC35o+nwwrPs2L9h8msoTYJ10Kos2dYfnLwYobETs0BWackFlUxp3s+0OpdbkQ3aI+7YYuaLaPPNwX6R2goi52nfpqcInF/epVYa7Yw2GmOQkGVRbluPAiGKEJTgRUGJY8sfUgTE0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788073398; c=relaxed/simple;
-	bh=PfZGQtf7C+vFBpgYSQDgpXDdSFBbens8vulx1+JHMmk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=AAAhyXWxoeJBoJcWzjS2sIJzCtZn8x1NKj1MIjYsZ6awBZIVXCMGkjd0NG2w+D0gtP2ySLIJaoMNzIQErYbAzGhOcA3oOBYaMudmCD2ZJDaB1C1HDM0TsNWTF3/Fym2G7QsuFlGxvBcq9vQybFab98TdwAzDOBqV5rtksmPoqu8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=e2/QZNDL; arc=fail smtp.client-ip=40.93.198.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D01B1A9F87
+	for <bridge@lists.linux.dev>; Sun, 30 Aug 2026 08:29:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788078598; cv=none; b=qUtTXAzmISUJpPCT1aUF2iopoDauKWhhG7bzVtSQ19jg4QEjkpV9Q16SMfRjBGyTcC6aE+yykA1EIZmmtlOtzgaGSGuOyFdgpB0g76D3C41/sWWHyQ6i6RThFyOKNZQDMQIBMhlDRkQeXM+RCBDiIoYjCTpFbiuUDYBFI0SElWQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788078598; c=relaxed/simple;
+	bh=K7G9RCI0/tBJ3Upvcml4SlVmXmX54r23emAr8xKlBgI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=h2r99seYwiiU3ozJ2+nsHsnntGV+nk0vgTqU7JiIfXZCvmtHOl0V22lQjgHJzbBdOiiKfmtE21V9pqyib+iQR4dY7JempsRcBaFc8wXfr4VZZsPvA6hrAj0GD6QWWSVnEcBviaBYyqyrFAHtehMIUFPfIVMIMSCztUkY+YXSnLI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=j4Ms5ILc; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="e2/QZNDL"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Ynwd4QCYPWXs50JogvUN4IBs6PdD+2dBp9mKOkUhcTUUdgrIN4nGpq9925FugTmNGMfsd+4uP2rlkqSGNBfR2ytLLiSHnPrzbObF+dZWqSHIW/w9o+dNNnRfIpuQga4vUpSljpDfAHYTDe15tGKYrMceCrKEsn/RRQ7EusJBNQJJhRIJ5eme9xDdNuw1lWCGoYlrl91pkT8peirfaVPWASlDn57Nb4MPxQZe1726hMAyH6vKBJv2pkUf7+0xtoGaWSU1/80A356h/g4vCYyzWlFR/aLdJUGavX6rpq490F9U5zRFzW++6BqNBaxfpv+YuRLpvnnP5+L6BYWM5XviFQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LI1sgWxaQPz9nBsgoGnnLC3heOuqvc2lOip8HRBmMRs=;
- b=WIcdO53hlKDrdjkqXgMSnVRbaTrRTNmgjhK243aEvZSILJYDh6QH0jaACjzTpZcwK5s0sag6w/BttmgHUFAd0iDSUzeWakpNVy7tDsA6flD/wN7cFIv+TY3pM4/qVDnxhee7hQljIat/mNOWFHxxfPXfou+Dhr8gE3MIPVATQieldbl3lA+b9ToKrqtg6GVov6eNyjOzhDG0KGtDY0TtjyASJo4b3HS20Mtr9PRpnlkS7taNOJleVXh17+K4CPQOeq/uzQWIudUdnbKyS1gFHzyvC4pQ3S2RPlNItJWPVy17Uo9QNpwweXEcYJ6JRY15p0Oca0Gz4lxAH9/mulY+oA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LI1sgWxaQPz9nBsgoGnnLC3heOuqvc2lOip8HRBmMRs=;
- b=e2/QZNDLIFxKx0etL42aCTzz4VuZfwtq1piWYY/qlj8/dIig0rZhogWARMbE72Q5lc1wJcLN+XGZO7oGSThKWavOnJPyZetpXvck0ndlxEzovFRD4KOe1UGr21C+IsEBFmwIpXHB6sBLPSY/I9h7X/9DMvvKuKNcewhbyKlvxTamKq1KOs8ffJSwHshqOyDZB/mqWnh8bPQxFi5iOUvPQsf6Wd6kvdpcTM+EAE1pY8k0PopyHMhjnqHDyos4QDi45tD38d3oUz0id+1rHdFCFwCMg3XfHqaBT8EYBrtcj0BdiWjUgjpmrtpmLEZTC364u1ELCJeFZe/+CP1xP0nFXQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com (2603:10b6:510:281::22)
- by LV1PR12MB999328.namprd12.prod.outlook.com (2603:10b6:408:3f8::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Sun, 30 Aug
- 2026 07:03:13 +0000
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499]) by PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499%3]) with mapi id 15.21.0360.008; Sun, 30 Aug 2026
- 07:03:13 +0000
-Date: Sun, 30 Aug 2026 10:03:04 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-	linus.luessing@c0d3.blue, bridge@lists.linux.dev
-Subject: Re: [PATCH net] net: bridge: mcast: fix br_multicast_list_adjacent
- rcu walk of mglist
-Message-ID: <20260830070304.GA2757218@shredder>
-References: <20260828100642.2664347-1-razor@blackwall.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260828100642.2664347-1-razor@blackwall.org>
-X-ClientProxiedBy: FR4P281CA0250.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:f5::8) To PH0PR12MB7957.namprd12.prod.outlook.com
- (2603:10b6:510:281::22)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="j4Ms5ILc"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-49b965570d7so20865825e9.0
+        for <bridge@lists.linux.dev>; Sun, 30 Aug 2026 01:29:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1788078593; x=1788683393; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1bNOSJbklivuD8yC2PVBqkUNR9N+X/0O0I9jhmTrMxw=;
+        b=j4Ms5ILczLxM1/fGVDWXWGRUwEL3L2DGjHHC4RfOVNCCdHks6Mw5rjQVGgu1J5Jiub
+         GJNZBIXnk3C34LV2hilHpy6lJXwqw4mctTa1ejfV8xUephwJe0TcaMB7ezP0AC4VNSNP
+         4A/qHamH1TYWafMVcYpw2NyD03ZyNHgO3cNid9IrPSgfwFvopJeNs12o2KKrX+QFwSa6
+         nSMEK8Qi4BneB/U+mnSIrpcLAXkJoiCWuP8rayVklODiN0rLS2B/B7Fp7O+fDQGb3YMN
+         ClXKmc8U0FkAKn2zTxelsRM2b9oTGnAxn3hs0ZVzmaIXSTmrV4R2+thRM7RVy6Jb1w4n
+         K+4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788078593; x=1788683393;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1bNOSJbklivuD8yC2PVBqkUNR9N+X/0O0I9jhmTrMxw=;
+        b=OQgi0U3r19L8lScqoeeFXxhpziM9kFVHWlVnZt5G5Hbe4IZ8HAgoqbAREFwMGeky06
+         2i5N77RC4gDrgK4qdWzVuCzJFJgRSGsMCrDJ2KEDWLgzQWauR1NLCo/wFmj3FSlZiRCV
+         FrtA8TqZS6Mkd2sq9w8f7tLD7BjipHDSXaVAE6Fx8e5zRclb64Cwa4PnKtSk0Gkzb1HA
+         UPhXsMu4uh4CFXGX0/qvfzOyYLathn5mEejmt/lJqdw5dCE4c5Xy/H09WG0YRW4xXPEL
+         ZlbumVl+Gvic+K/7GuCQ0gFldpN7dbfcJHlamn0nFFKKUiNM1ywmZiPVqdzh7ortZ6KB
+         jPPA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro7tdBVOCM5OQyFuLTHXIf2Z+9my/uxVwnXDo+w9We9cOqtKxBfcl6zd79k5PAAkSod4JB8gYM=@lists.linux.dev
+X-Gm-Message-State: AFuF++kMRNuEZXH9JpUrqGnX1wbNK/O54sX53ymzarhTGUPVvHb+rpvT
+	j7UyFGORmT05B4n0yM61sQXC6wv43s5UQj8jfzRd4wEZctgdn5cQHXoXHrCB+FvTUpw=
+X-Gm-Gg: AR+sD13rAfd9+81AeN5fkN7xXN183hG3YB+EkxBHVcr73wI3HqjAEwEzqs15rWRGx7w
+	7gh+WOWmi8uXMNSSETiXCCOycyMhlz1/BS8hhmD8d/PAZw0SkF6EdZJPzlsi3egkqwrp1+WW3mj
+	CFYiLTPW+gFOlrRdT79EBEx/5X4r8vDcn31zH0I+Dy7gxMupgbnA7tLTqbKTWvH48n3PwbKhA7U
+	EHlOstjQaEfLxOJYJvi9YljkWNX4rwRpMZ8M9IXwc8YhE3e+Y8L1XQgJU7c0l4C920NZko1BONV
+	xNcET794/Rc1wPZdwsPiJWVllkp7GBFWSJABATNWCJbWQG3XynLbEGUShehncyNSbpCrf58mF9x
+	maYljTa7HenQBaaAUZXxDdSZ6WTL+AuOR1OqpEvmSEI1/DMFxR3NodTFUUqkojqm7uMo+Qsh1Ol
+	YNFP5wGLkth63qnox3j8SuKDN/bop6dBZwM+g3mzSCgaIsWLqt1UZE7ezWUgb4Yor4DOgUOga4Q
+	kJWDAdAUgJmXXyzkps=
+X-Received: by 2002:a05:600c:8b6b:b0:49b:c8e:8e6 with SMTP id 5b1f17b1804b1-49b91bd99b7mr294303225e9.0.1788078593038;
+        Sun, 30 Aug 2026 01:29:53 -0700 (PDT)
+Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49b963c3c0asm313438015e9.10.2026.08.30.01.29.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 30 Aug 2026 01:29:52 -0700 (PDT)
+Message-ID: <15fce8a9-9657-4efb-8308-921f8d498640@blackwall.org>
+Date: Sun, 30 Aug 2026 11:29:51 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR12MB7957:EE_|LV1PR12MB999328:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1432090a-9c32-4696-5e4a-08df0664c239
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|23010399003|376014|10067099003|11063799006|56012099006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	ZQqRvPodmG+RTHHEitBuBSUjTCW5oQVtgCB7BAIOYmuhzIVQeJyXtPGHfA0RKbXEfiHL0aJbm7InrB2aMt5t0cdOl9Imj+aeQlW5cAr73BkxKikbNTyfm0Mc3dFQ1MTRiRT04iLifk1W2pnDU33zi5V8e7OhcegZrm23QU/CneEB3iKmz/qPWWLRDeg/oksrRSzA55YrbAS3dwt8sEGhgOUIrbMg1kY3XpGvaOOvYHBjUAbUJ/CYSn3fWH+75MCadbcTfkAFoXVRtyzvfBXm820BnfcckatYzwAyZ3KfhWOVr+UXrwgnxdHid1tVlkG2hLJ46wyeK1J1tZ5sdhxDDIKJcDlPM7AfB0o0mPIXfMSMQt6TgYPBYfxgmGwvy+maAzXqx8TXZEVj2uyC8IOaXry5lPeST5eglNcIP+ps3IytHCrOXpLLufbof0Fb2dnvv2oN5528jY9oMUXIUzPp+j/KvrBxiaRGCjY2AdVO+86VMVWgsbmlFjRIz3gc6LN2LseBnErowiYPTATDlnC+LC4DvHzn0U0gh+D/SE2IrxCvCR3rMoDQfRND8hCtwMQy3Zj65oc3Z86P+U4ev0wwldl2yde/dpVQWKfIDZ6x8srYZ5dvmvNbSwf10qyARlvBAoyXqT95F7sjSSNvxbBQdeMsBz1RlZE/+hxMpQ4is+8=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7957.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(23010399003)(376014)(10067099003)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?KZglCVwrLwtIOFNeKG10dDfH2sOpikuF7qzyIChsDx9FAzUxcJeVtvOoS9nu?=
- =?us-ascii?Q?vDRGiGHwAd6Ba/5ng33MFd+7vz+/LkoVkQ9p7j6zYx7OQ6Fdl0KNKaJ4Yow6?=
- =?us-ascii?Q?/ZCnlD6odmu+49U1blGqk/tdcMs+8SCmZ5tsTOcW4/7O7CU9cJkZf0Q5ssQE?=
- =?us-ascii?Q?JZExbU+XdQINKu1QVBPZ3Pszah7styjH+Wgh40hjklMD4QzoCZQAmMTQJOkx?=
- =?us-ascii?Q?9y6Qn4+BtzXjhtYDMBeWdvO2QN2ZSdcaDEwleekBZUMriGq0H6hnoXLn0eWT?=
- =?us-ascii?Q?YvRJoNE7zCTIFFuPytIUHXMWWCzyevR0YXcNqa32u1SLDd1bqQxqws97ABNk?=
- =?us-ascii?Q?7pZEeuguSGKrPocVBz+TybG0/YyuXC9DIytMiHE6kDPfQcb8TP5PqQvB/JhM?=
- =?us-ascii?Q?BRXxiE7K+zEaIGcYgwdMYnbTDoGvJXOdcH2ecB7LeJVQGtdBIDob37T9lu/W?=
- =?us-ascii?Q?f9M5Ob1BBce3EXJ9oFzNxfkerl6FZ54wx2OojxrkNOwu+Ut6189sJBPErOwS?=
- =?us-ascii?Q?00SrK6CBNB3JP9DLKtpNmi65xJuZRf5gkWWe+ObMknvYWI2y1tkLmAgnG13Z?=
- =?us-ascii?Q?NGMvpzCk5afY7yvYpjCwUfbM3lwGdaRLDBp8FTbY5xsmzEyq3YfHcC8VvLv8?=
- =?us-ascii?Q?P9kGJO+Sn10AXk0zf1tyuwoawKlKgbW9DIzyXeWvRFsSIuyO2f9tfpG9hN8O?=
- =?us-ascii?Q?c8ndTiqwIwwmbk7r8YZejxmPvy9ADt6tE/s913jkubM1jXNMCNN5bmNq1Ynp?=
- =?us-ascii?Q?JUjbwVtNBo8+1LYGlX4iyJrnK8A9OViIjyxRUXyCMxhPsEpqK86jmCCUEhsn?=
- =?us-ascii?Q?9oRenToIuLGwiuS/3JlnYSn+pWTf+bfTcqfBPlAh7C9TD7hBKiDj5Klwf7fI?=
- =?us-ascii?Q?DrkDlmQd8Pp71EIFbnTh3PoMuFwl+z/BBzTKmkRNUlzA0y+3fBuco26K/Vcx?=
- =?us-ascii?Q?xXXQw8KV4BxAeyJYZiS8xKDflgkPdY28k8uFDoV62SPi6ryuzkHtVEbChqzO?=
- =?us-ascii?Q?3xhBfF40ivfieBT76ZJlh2fBvGqIfUmn+5HyiVh5+kJzcwYUPuUHUPj64z9l?=
- =?us-ascii?Q?Zub1pt2/ELXSEKU22PkH43JdEcxfGizDF3MW0e0gKLN9qk4Q2/oA7C3aaHs5?=
- =?us-ascii?Q?wN+szW74cAmxzhUzQAfM6pwxveMNLymDiLqcVY+G3lkBr7CUucUeYDSswI1s?=
- =?us-ascii?Q?zxuOSHbXOuPpT/D+inh6tNzETtIybqH4DNTa8/ENT2eSIhyVIKEeWNhu8uQI?=
- =?us-ascii?Q?uyMuxDL91SvjfoRpTZkSk7Z4c/lSBq7DOChHQ3XH8MKLC+Nbmnuz5zCjvDBj?=
- =?us-ascii?Q?BkLmH4FyZ/cgaaiAd216GE7qvnwO5eE14F0T+pNhrUvwmuCwc2j95LCCFAWD?=
- =?us-ascii?Q?d43sRK7cZhYE//QrfVSsdAacusLoKI8t7WxRxbYWPbFE/scTLymNk6tBQ/L+?=
- =?us-ascii?Q?KGUIDPt8UwDNZbJBWsujqYOhXE7BSXrIHwH7onqQZPmUOuVsgUV1HJxWTEoA?=
- =?us-ascii?Q?Sj1Sv4g4UXtrtLc2aoMPsBrGSoXjkfG0felIID2VNKw8BOz8j1+ExBALWhyN?=
- =?us-ascii?Q?Q4DmmCO67+KiG6Q5I8URqQMyp6VSEXQ8HbHrAn5Ii7UnVao/y8z4bfpy/w9i?=
- =?us-ascii?Q?6Edj6AvJQ7MiK4LUdnIGZlrnMeWFMF5V4Lp/lILBczvaRV0bFSnqrUWyBfLt?=
- =?us-ascii?Q?kyWbrFCkDlvqLCuAHvUGmpaYqoQdviUVtDo8wJALR/byP09Y?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1432090a-9c32-4696-5e4a-08df0664c239
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7957.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Aug 2026 07:03:13.7025
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 3vE7PkIEAKrXkSd87sQgTsF1MfZMF1YA0DUH8uVIDYS3j22WsQa/VlU7rokiYY2P7gKRkxvMqLWyI2XdzN73gA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV1PR12MB999328
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/1] net: bridge: cfm: use a per-bridge frame type
+Content-Language: en-US, bg
+To: Yuan Tan <yuantan098@gmail.com>
+Cc: Yilin Zhu <zylzyl2333@gmail.com>, Ren Wei <n05ec@lzu.edu.cn>,
+ bridge@lists.linux.dev, netdev@vger.kernel.org, idosch@nvidia.com,
+ horatiu.vultur@microchip.com, kuba@kernel.org,
+ henrik.bjoernlund@microchip.com, yifanwucs@gmail.com,
+ tomapufckgml@gmail.com, bird@lzu.edu.cn, ronbogo@outlook.com
+References: <cover.1778378864.git.zylzyl2333@gmail.com>
+ <7198fe2845c30c60c6b3833dd78cead8c5966931.1778378864.git.zylzyl2333@gmail.com>
+ <e1f1b080-cfde-4ea4-b444-b64d43778b2f@blackwall.org>
+ <9263d4c1-0c57-4926-930b-1d701e1f17db@blackwall.org>
+ <CAAAOPT8mBxW9Fd9Sr=xWAb-fa4MUHCqKaQf86-DFNqaB9Xvgng@mail.gmail.com>
+ <7ffc7cdc-8140-4ea2-b3bd-c86abe6e6cff@blackwall.org>
+ <6c1c6972-c212-4139-b629-4603a8801cbb@blackwall.org>
+ <CAPuPA7KykYqE71P+7-7=1A50S1H3Ksi7ONk+kb_xR0Ep8HKBaw@mail.gmail.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <CAPuPA7KykYqE71P+7-7=1A50S1H3Ksi7ONk+kb_xR0Ep8HKBaw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, Aug 28, 2026 at 01:06:42PM +0300, Nikolay Aleksandrov wrote:
-> Sashiko reported a bug [1] that br_multicast_del_port_group unlists the
-> port group not using proper rcu helper that preserves the next pointer and
-> after that immediately frees the port group without waiting for rcu grace
-> period. The only rcu walker of mglist is br_multicast_list_adjacent() and
-> it turns out that function has always been buggy because mglist was never
-> converted to RCU. Fix it by acquiring the bridge's multicast lock for the
-> mglist walk. We can do a proper mglist rcu conversion later.
+On 28/08/2026 22:44, Yuan Tan wrote:
+> On Fri, Aug 28, 2026 at 3:23 AM Nikolay Aleksandrov <razor@blackwall.org> wrote:
+>>
+>> On 12/05/2026 11:09, Nikolay Aleksandrov wrote:
+>>> On 12/05/2026 08:21, Yilin Zhu wrote:
+>>>> On Sun, 10 May 2026 at 04:40, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+>>>>>
+>>>>> On 10/05/2026 13:05, Nikolay Aleksandrov wrote:
+>>>>>> On 10/05/2026 12:15, Ren Wei wrote:
+>>>>>>> From: Yilin Zhu <zylzyl2333@gmail.com>
+>>>>>>>
+>>>>>>> CFM registers a bridge frame handler when the first MEP is created and
+>>>>>>> unregisters it when the last MEP is deleted. The registered object also
+>>>>>>> contains the hlist_node used by the bridge-local frame_type_list.
+>>>>>>>
+>>>>>>> The CFM frame type is currently global, so enabling CFM on multiple
+>>>>>>> bridges links the same hlist_node into multiple bridge-local lists. A
+>>>>>>> later unregister on one bridge can then operate on list state belonging
+>>>>>>> to another bridge.
+>>>>>>>
+>>>>>>> Move the CFM frame type into struct net_bridge and register/unregister
+>>>>>>> the bridge-owned object. This keeps frame handler list membership local
+>>>>>>> to the bridge while preserving the existing first-MEP/last-MEP lifetime.
+>>>>>>>
+>>>>>>> Fixes: dc32cbb3dbd7 ("bridge: cfm: Kernel space implementation of CFM. CCM
+>>>>>>> frame RX added.")
+>>>>>>> Cc: stable@kernel.org
+>>>>>>> Reported-by: Yuan Tan <yuantan098@gmail.com>
+>>>>>>> Reported-by: Yifan Wu <yifanwucs@gmail.com>
+>>>>>>> Reported-by: Juefei Pu <tomapufckgml@gmail.com>
+>>>>>>> Reported-by: Xin Liu <bird@lzu.edu.cn>
+>>>>>>> Co-developed-by: Peihan Liu <ronbogo@outlook.com>
+>>>>>>> Signed-off-by: Peihan Liu <ronbogo@outlook.com>
+>>>>>>> Signed-off-by: Yilin Zhu <zylzyl2333@gmail.com>
+>>>>>>> Signed-off-by: Ren Wei <n05ec@lzu.edu.cn>
+>>>>>>> ---
+>>>>>>>     net/bridge/br_cfm.c     | 14 ++++++--------
+>>>>>>>     net/bridge/br_private.h | 18 +++++++++++-------
+>>>>>>>     2 files changed, 17 insertions(+), 15 deletions(-)
+>>>>>>>
+>>>>>>
+>>>>>> I think MRP suffers from the same bug, but I also think we can contain the
+>>>>>> fix within the packet type structure instead of making the already huge
+>>>>>> struct net_bridge even bigger. Also, linking a struct within net_bridge
+>>>>>> to a list within the same net_bridge looks weird.
+>>>>>>
+>>>>>> IMO br_add_frame should take a type & a frame_handler, allocate a br_frame_type
+>>>>>> dynamically and link it, then br_del_frame should take a type instead of a ptr
+>>>>>> and remove that frame type and free it with kfree_rcu. That would require
+>>>>>> br_add_frame return value to be checked in the respective cfm/mrp functions.
+>>>>>> Warnings for already existing types on add or missing types on del should be
+>>>>>> added.
+>>>>>>
+>>>>>
+>>>>> Actually I have a better idea since these handlers can be added only once per
+>>>>> bridge, we can do away with a simple bitmask (e.g. use net_bridge's options
+>>>>> which is in a Rx hot cache line) and even reduce net_bridge size while fixing
+>>>>> these bugs, and also remove a conditional from the fast-path when CFM/MRP are
+>>>>> not compiled in. Would you like me to prepare it or do you want to give it a go?
+>>>>>
+>>>>
+>>>> Hi Nik,
+>>>>
+>>>> Thanks for the suggestion.
+>>>>
+>>>> I'll give it a go. IIUC, the idea is to remove the shared
+>>>> br_frame_type list entries for CFM/MRP, track their per-bridge enable
+>>>> state with bridge option bits, and dispatch the CFM/MRP handlers directly
+>>>> from the receive path when the corresponding EtherType and option bit
+>>>> match.
+>>>>
+>>>> I'll include MRP in v2.
+>>>>
+>>>> Thanks,
+>>>> Yilin
+>>>>
+>>>
+>>> Great, thank you. That should simplify the code and give us 8 bytes of Rx hot
+>>> cache line back. The important point is that there haven't been any new
+>>> handlers since these were added back in 2020, and also these are not
+>>> common, so making their impact on the fast-path as small as possible
+>>> while fixing the bug sounds good.
+>>>
+>>> A quick & dirty sketch of the fixes gives me:
+>>> 5 files changed, 47 insertions(+), 66 deletions(-)
+>>>
+>>> That can probably be improved (i.e. more deletions).
+>>>
+>>> Just please make sure that if CFM/MRP are not enabled in .config, they
+>>> would not affect the fast-path at all.
+>>>
+>>> Cheers,
+>>>    Nik
+>>>
+>>
+>> Hi Yilin,
+>> Are you still considering fixing these problems? A few months passed since
+>> we last spoke.
+>>
+>> Cheers,
+>>    Nik
+>>
+>>
 > 
-> [1] https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260826014200.362304-1-littleddfu%40gmail.com
+> Hi Nik,
 > 
-> Fixes: 07f8ac4a1e26 ("bridge: add export of multicast database adjacent to net_dev")
-> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+> I’m very sorry for the long delay. Yilin has gone back to continue his
+> studies and unfortunately no longer has the time to finish this patch.
+> 
+> There was also an issue on my side in keeping track of this work, and
+> I failed to notice that the patch had been left without a follow-up
+> for so long. I apologize for that.
+> 
+> I can take over the patch, address the remaining feedback, and send a
+> new version. That said, I’m not sure whether it might actually be
+> easier for you to make the changes directly, if you are willing to do
+> so. I’ve heard from maintainers that reviewing and iterating on
+> someone else’s patch can sometimes take more effort than simply making
+> the fix themselves, so I wanted to ask which approach you would
+> prefer.
+> 
+> If you would prefer to fix the issue directly, could you please
+> include the following tags?
+> Reported-by: zylzyl2333@gmail.com
+> Reported-by: vega@nebusec.ai
+> 
+> Otherwise, I’m happy to take over and prepare the next revision.
+> What would you prefer?
+> 
+> Best,
+> Yuan
 
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Please take over and do the next revision. Just make sure the new cfm/mrp
+option bits are checked together first and as an unlikely case.
+
+Thanks,
+  Nik
+
