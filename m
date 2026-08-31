@@ -1,127 +1,89 @@
-Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010058.outbound.protection.outlook.com [52.101.46.58])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB1D03F65F9
-	for <bridge@lists.linux.dev>; Mon, 31 Aug 2026 12:25:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.58
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788179153; cv=fail; b=Om2Ohq/mRffcMX59G92Gyk0VJhsBSg9zQkbaBDtNB4en3zXNb8rVCrzk3R+868JLn3NpC8ILx+i/9e3Oli0qv/zBd2/9RQKNOrCA4T7TY+vwYA4dK7rOrykY62GpYgfi2ofUsotZbL2W9ZE9Hj7MbCS3jc4ny2zGLZcjNhOxZFw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788179153; c=relaxed/simple;
-	bh=Hc55XJfMSHZjWM+RJz29WaHqu2IsjF7f7VuZxwMSj/M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=KMxZA/+aa1jlrWTulDwz1Blz1SFh4KktkK+53t+stqnmcjaZA3E122kN1TTzXJ3ROKA8hy+j/a5khzppggzKm7PJ3MZnFpPYSihyauauC53QAf7+wXPjYz+wd8SlXh/bxJmYY06HEU5817+sM9bf1pTRrtJixt0Wi2CPxqDgIlg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=I2vJnI/L; arc=fail smtp.client-ip=52.101.46.58
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3DB53FF88D
+	for <bridge@lists.linux.dev>; Mon, 31 Aug 2026 12:31:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788179486; cv=none; b=qtjnbA2n1qLgXzkW3HSZLO310MiVsZYP+j0McEQhhQshqbiNM50R4Wcg8xRiH06Drd3IGxR/xmEUmOvnhlUfoZVxr+u4L2hyD3EqiVyABaNLP7M0Qngv8WlzoRArZ7zdkGXzEy7H2Hvou9+qFzH5QyCFRP/np44qsOu/jo3rwhM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788179486; c=relaxed/simple;
+	bh=Y0V/3uw6Dclec70rKLWcztfNr2TyqhPTDR3WmwbMJ+Q=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=noCnbQspJHp1zFEwQ5U7zKEtlT0eJdHW/GyruGpEVFoD7X0MBGdg/nK7jvy0bMOUMC3ngMWmE0dricnPb81IlAPG56XCW/lLYH4c55v1oT6lRFyDsZb8vbtaHxAA29gybz1ESSlIIOTan0D64S9R57ytrTAvc6GMwSgqyHACimA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=hSbkLE+o; arc=none smtp.client-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="I2vJnI/L"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=PN24r9fHlohvnk52FrVUce9XYkVJYDt/MFzfalnRP1zuLGxeJ3KUhUWTkQG2ggWsx6dZhdIRw8AtRco+U8ha18ECmc0t1lFEWJmTZqczfjsmqxe0pgbmoJD8F1CQWgkffafuzPOZwRywdLP0+wvseZAjly9lYNsUSdBp2dba+k4+TLAPDUrnOYu5/avICuOyF1xb58vxmYqksY35SavyIGj3b0kfwH4qNTqW2FNzYSN/1Qxu/rc3hAyjtlJ/sHsVPNAFaTY9rz3R4lV8OJFwGZsY02cAostoJ/45teklJvnI4fgcm30FHmweZaMPmMndgCPqYfaneaXG3qomHCIAoA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9ZeTWI1HO92NXpSiaWmvXAa0mifRGIJZXWDdsVjZKY8=;
- b=LOTIg5b5fbwJm+bDS0gXKjzY1XuvUS8TbBrQLwx9/zmQIbvcq2V4whpdCsCCRMjk1HuRHxLeX+Ez/Ci7SpVJE9fOulBPymNryAG1shKM6+xFH5vRoVfRHHcpv7st42u3RLOMHNrYBpAtD+6pOY8DYh9eURU15GkxLqW/LvlJZ9ZYCS/DrMsUAOvkRv0S7Y2d3YePHcx6FqdHfSIRe0K6y3hyPnouaA2jEvk2E5cdmoi1R+oQTqnsXpz6zBELqS7H4GiG7uuba8+07B7Sr/OD01SxhH1ZCmFR0h+QBjYnWK+8S4qz4SVu5FCYYdhi2szANweozJ3OtoJ2wqrq9siwWQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9ZeTWI1HO92NXpSiaWmvXAa0mifRGIJZXWDdsVjZKY8=;
- b=I2vJnI/LnUGucEyqlHhd3gr/tKboqMQ5T+WL4vAvFp7jfII/8lP0oEIY7PPo0v6QubqybX4c0+AbQ8IeqbmDqnENp7mrv9XKT2sPKq4izJeZPVAWuC1xmpzdN+Ac0mHRJQLAZFjT+a9eiKJYHTpA4euK3T3D3x0/5JpLh2XFGIjIEISCtH0SbCUSN/tpAQnsSSTOaweImchOJt0FU8eVS/Jq7gkuWZ10nssjpKU5bx38V1SAb2Nd2c3GF48RCfRWEMFozTvykQp4MaBCo2e7sW/UO0UhdHfOx8TxrHBAR/MQGelvZkrl1Mpsgrs94pdjex8ak+nqtz7ersOfgg8Wlg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com (2603:10b6:510:281::22)
- by DS7PR12MB5840.namprd12.prod.outlook.com (2603:10b6:8:7b::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Mon, 31 Aug
- 2026 12:25:42 +0000
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499]) by PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499%3]) with mapi id 15.21.0360.008; Mon, 31 Aug 2026
- 12:25:42 +0000
-Date: Mon, 31 Aug 2026 15:25:34 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: Zhao ShiRong <shxzhaosr@163.com>
-Cc: netdev@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	bridge@lists.linux.dev,
-	syzbot+128e9f5a0f85a51215b1@syzkaller.appspotmail.com
-Subject: Re: [PATCH net] bridge: skip generic XDP on locally re-injected
- packets
-Message-ID: <20260831122534.GA3247474@shredder>
-References: <20260831113051.13072-1-shxzhaosr@163.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260831113051.13072-1-shxzhaosr@163.com>
-X-ClientProxiedBy: FR4P281CA0298.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:e7::7) To PH0PR12MB7957.namprd12.prod.outlook.com
- (2603:10b6:510:281::22)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="hSbkLE+o"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-490cf322ed0so39754675e9.1
+        for <bridge@lists.linux.dev>; Mon, 31 Aug 2026 05:31:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1788179483; x=1788784283; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=hMHSz/yOqpOw4BUuWyRgv2r2RwaD0GDIsQCXrSNiv3U=;
+        b=hSbkLE+olRNBA01H0ps8VkkvVQHftsL91L054PajSCIa/Wl6xqVIeX92LQucsmHaWc
+         47rKtAQbGzs3YZGcQc2EKvu5ZSVFHVRkbjFzyqCaKA8ElW5ofC63F3B+7w04mGpF5P9K
+         tRigNBy3KW2fC+jsVB0NrJkrvaJoWHI/j8NZFMb0ahoCFtRYCA12C2NR9dpt569rAg+F
+         6V118sYN5ZMdNKwtgdwOEafixpFLyqTUwPWqnGsDrE+mJYnsqBR3jnjgSIUmOQonHb7L
+         XGisiyWj1zvJX+Ie3R6mj9nhmdrYCYXUoFtF1q/Nid50YLQHku3X9gxeSb+P2vcrkE/3
+         7HeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788179483; x=1788784283;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=hMHSz/yOqpOw4BUuWyRgv2r2RwaD0GDIsQCXrSNiv3U=;
+        b=oGUOeGC8ggxvL9r3UkdhDqwZv+fkUKMkT4GGfXeO9E1evhR5kNyVXuN5GK3ouLiK4G
+         ruBz64zn/2mL1cqRMEaxA3ZdKU+nVO2NUtOIw2RUvBM1QX9rxDFHhzfdi7yLlpiu8sEi
+         KXgWqCE7/z/bPtIDoMLjsoTBbimmO+BcmhEW3ZiIzqC8wOusqB1wMNl3vYSetZoi4kHv
+         5KHRcFbCoW8HKqE5gn/UP1SRhDk0Mp/7TaabuP9BuFlsDO1CNL2Ac/W6fB/R7p6uLfBA
+         fTit3Z+hTFMOSRAksw7HvzM/EiXTJBxvZTuWvgSHNbKmWlWqZ7fsRkm7LFiNjcNq1Bwg
+         6uyg==
+X-Forwarded-Encrypted: i=1; AHgh+RrNyINF/61cMwpL5d8kak53hH4RTxRnT+larJmIdTc/CZq6Bdrc1HYTZVBJ97lZHLPXbOeoQio=@lists.linux.dev
+X-Gm-Message-State: AFuF++njm88hYdAiq6735kacYm8pvBkGcwP6d3oGTg58UFVCvDoxSwVR
+	PbSiOs92irNI8WE+Ls9NpNgajon4EMEFWgFTK7voVoVdeAk+7opgMQneUEbjQE9A1Z0=
+X-Gm-Gg: AR+sD10fw86+8iZlh1iqCDuEtWmJnrXU3TAWp98jcNvUGWooONM8nmm3g3VdUce82zQ
+	mIu/QEHyx5hn8DBpmVWs5wpSJJU1KEnbmRaUMENQNdenUurBXu4gZJq8S5KfLq5NkPNh6bn39Gr
+	U1MAPytkpfQHxSOWw9Y45Y7sQXzI6d73XSmwhLmlcVCvnT6RIYZukxRKUnjIB8Y27xgCfZRANvD
+	plV6a1mlVRbbSOKaCaLgJcxu6sYAqNgwdwZepHOly0gnFPwsOtKze2loW8AhMHqom6USkSOEWZQ
+	N+zAnECRTXKMYsXj7glHs4ab7Nggw9eaBGcE4P3TOVbJ8PNjbW36WgIzsbJ9WFyxPfMaSLgl6e0
+	ONO8Gueuhmveh6KRWwmzhSaSUlY3uYB9zfM5gB/kqF9/JVmFQgHBwgSxr8qsCuCIHfAevswCsP2
+	LDpQ1ELT4WRzyotapbZa1i4iF8X4GhGvzjeDnCasSFKLN9A+gRuTsVPdmdClcohxKp0ch5YgrDL
+	qiQ+i1pL8rQx8iWUd8=
+X-Received: by 2002:a05:600d:8498:20b0:499:dbae:86be with SMTP id 5b1f17b1804b1-49b91c4de9bmr308024275e9.14.1788179482535;
+        Mon, 31 Aug 2026 05:31:22 -0700 (PDT)
+Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49ccae954f9sm216243985e9.13.2026.08.31.05.31.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 31 Aug 2026 05:31:20 -0700 (PDT)
+Message-ID: <b30a2594-b154-4f52-9afd-2db0f9d78bb3@blackwall.org>
+Date: Mon, 31 Aug 2026 15:31:19 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR12MB7957:EE_|DS7PR12MB5840:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7bfecdfb-fb81-45f9-0b9d-08df075af9a5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|23010399003|366016|56012099006|10067099003|11063799006|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	A2WlhqRMbFPLK3K4ktUclimM+tlY6YcyT07LpRcN66T7ZAmtMwlDSTzP8C7tpG2yB65Im7uYzk2kBXi6xW9IafSLlJnLEzcTkg5d6L19IUi9HREbCfaqmtUctxAn1g0a3nrODKqH19RfDPIvwlQx8UcRW+gKuVML52s7xknkllbTckaf4l8nM5p+wuwWa4ntZ5+qdodK/4g/s9out6kjAz+mFds/sE0hyuPvzzR7H26xdmDqEaNznJHNAPxYEvewff90Z0QiNJycBeMygjBUsO5uJvGEeHrO2/u59rXTMvp9028khcBi1wTEbU6x/vrhha6M2QiPKnq630kOcJ6zHtYqxHwbG9eQwaH+uIiML72I5OZmhuRGMXXRV+IBhoUG2LIaaPRJgp/n0CaLpYZddSDueZ8eZTlyjgeXfdVgjwTkBooPX24hbIhuXCzLNck2JBAy8ydPdbYUzq1ZWdgQwjYIs0nfVmWP3Fqf9t6sdWd1ovtdoKRlTrXIdbnTULghkP/6Cwrjb4xzzMqU5IxXPq27wG/Me/Ho/XE9cq8MAeVQyj2bUzQcL68wPVM6Ipz+/M0ZmV/Y5M8Bqu0e8mZdtcic8dl3PGc65QCPh/b9BH+ZmEhc6WmdQCdFaN04FsC6b7891VNoRjpOs1man8HIWN6qir7tGu16VpY5MrIo5HY=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7957.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(23010399003)(366016)(56012099006)(10067099003)(11063799006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?GRO9p6LTpOjNo1RZF286IR6g0/o2BF8u3GPYwGjzbwgi9i2OZas06cEYcyRn?=
- =?us-ascii?Q?954oljb16cvu+UBEAOWpfUco8p/MNcGaUIZGEm51KbXMyhYMf0iIpkOHf+ta?=
- =?us-ascii?Q?QBS8Jchyikhqk4acK/C6hc+NW+Nei02p+7Dt9e7Im4diOjsgT3N8IRT5l3Fw?=
- =?us-ascii?Q?0w6XcVembHN20+23ysvPeTzPSUrgA60b9+7Nj9jym138t+oxL89SgsWJa7hU?=
- =?us-ascii?Q?GRuqh5G3sfqzEcqjTocx4myI6hIq+BI8wFBCedAMmjwSLl6End3MO+UpwWW5?=
- =?us-ascii?Q?OulWR9Og8Wv+waMaAiMny6T6vtV+EGgnxPfVlbFIWGgOjCKxe8mTBQkSfSej?=
- =?us-ascii?Q?msdJA6Djf+xuCt1LQxFdZi4N0nx/L5s6mCVEco9FJaeW1YV4wTauqedzCKRK?=
- =?us-ascii?Q?J5S6ZS34iqNUFMvlpo502B9q8EOVJqBYVTH1cztWxQYRq1ilpAnWP6z3LBtn?=
- =?us-ascii?Q?py7JZeiCDjvqbbc8jl+yU4KNTRlIfppWWUcX7H+0xLZjqNRkX8pjDDLjMJtp?=
- =?us-ascii?Q?d4OR8pPy3OLGmbaoqwwa77njSTuZ5VJFp6ydFh1wwsx1bC9XgH3H1/J5ONfl?=
- =?us-ascii?Q?Ju6LFfKKzLwJKXToqln1Cn1Naku41dv8gAASjSi6uIflHIzHXZnxBC2sFzf8?=
- =?us-ascii?Q?DcFx+Kk5y7XvSMOj92SbUlbEGjm8Xa2dfkYffbFsxdQT1oQXImdhVG1PHmX0?=
- =?us-ascii?Q?sAiiLK3K1MQokUbH2Cu+os62CkAJ2D4tmxJoztDrtFbY2WPdtU7rwYiQYON5?=
- =?us-ascii?Q?PYABMt/3fOPdJ+BF/9VFjGcj9lIWtazA1dK0LLcIdj8DhVdfZ51oZbFL2oWZ?=
- =?us-ascii?Q?Ix5hBuzuBeASxAoPj5ndVx+8O2xdaU0dug5UCfKhhvSfga/p3aLhxwak8/HX?=
- =?us-ascii?Q?5REpVXt1FGxCjFk+kARRxVukA1NBm4r7GQSH4h4UMoqos3j4Pd/CI/91oZdf?=
- =?us-ascii?Q?uCPeayxkYttoeevYDY6L0LOW9cTDUC5dH9+6pjQ6iGaBLzCnU9nPQM9S4DMm?=
- =?us-ascii?Q?A4fGNzhuj67PQ/Nyj1ho5mMdZBd1oyzraxRSvG9BkRUVZod8qFwMScm6VFa9?=
- =?us-ascii?Q?RMeotfI/Z+F/ljNt4z6u4REjVLRJtm/hH+HFKTfhU+iLDAYbmsojtZelNaYk?=
- =?us-ascii?Q?S6fPHM86Gp0ZPaFz6WB1j0rnY+X0nNMFsREvr4WpLssARIWeLBvvSXL7i6B8?=
- =?us-ascii?Q?XPtW3Jlk1kdDnCC1vONT9noES3dhKLMJTVtIGVQb475Wsm9WsPt9YNUqkTCs?=
- =?us-ascii?Q?07iXsO9+XCA1ijKjGimp0bv/vfqr+mcUZd1UkobvqY1YFyRnwav/AwOsGw+A?=
- =?us-ascii?Q?pEaW3398K7JNLpyHdJ4KDZ9QDSNbZmdAIT5umhnHJQsNw8lJhh1E8cG8vEhf?=
- =?us-ascii?Q?QzpS1rPFj2TGZy6VLleSBR/BB/Y0xSWS64qLBBGub1lLwGUf4gSehQAu3Pb6?=
- =?us-ascii?Q?icYq3SAUWmKNmKbh+gm2rwJc4fQGkgCoRpKL9AW8DM9k/pXIp5kxg/rmxWu/?=
- =?us-ascii?Q?WWt+Fj4cZRGMLuONry8wpKYg8AQNr1tsByEfcLHCnqDXcKxPY0rNpYGMRv89?=
- =?us-ascii?Q?WK+MBEdMyN5MVFmEQqbhfQ+9nXkxLZL37bej82zaT3ZFbj66yli7eGhIIQ7P?=
- =?us-ascii?Q?iaxCWG6O3uFZ02sKmyKbzFDlbnGZ1C4Ty/Tfq1x1Uql3ub5JOtKDv714mNUY?=
- =?us-ascii?Q?/FPoIqzInZnBRW4/VhlbvA3ZjGNv7rZKTi0F7ZGBiuzy4ev9?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7bfecdfb-fb81-45f9-0b9d-08df075af9a5
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7957.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Aug 2026 12:25:42.8650
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: KI/5WtETP34b2pzNsW8qDPC/aWVzGAtP3pmPm27QlSlMZ9KuAIoxby7lzUcKAEDhs1K6satVPi2JUs6jQTrtLQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB5840
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] bridge: skip generic XDP on locally re-injected
+ packets
+Content-Language: en-US, bg
+To: Zhao ShiRong <shxzhaosr@163.com>, netdev@vger.kernel.org
+Cc: Ido Schimmel <idosch@nvidia.com>, "David S . Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ bridge@lists.linux.dev, syzbot+128e9f5a0f85a51215b1@syzkaller.appspotmail.com
+References: <20260831113051.13072-1-shxzhaosr@163.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20260831113051.13072-1-shxzhaosr@163.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Aug 31, 2026 at 07:30:51PM +0800, Zhao ShiRong wrote:
+On 31/08/2026 14:30, Zhao ShiRong wrote:
 > Packets locally delivered by the bridge are re-injected into the
 > receive path via br_pass_frame_up() -> br_netif_receive_skb() ->
 > netif_receive_skb() with skb->dev set to the bridge device.  If the
@@ -136,9 +98,9 @@ On Mon, Aug 31, 2026 at 07:30:51PM +0800, Zhao ShiRong wrote:
 > (br_handle_frame() / br_handle_frame_finish()) is still using, leading
 > to a use-after-free read in br_handle_frame():
 > 
->   BUG: KASAN: slab-use-after-free in is_multicast_ether_addr [inline]
->   BUG: KASAN: slab-use-after-free in is_valid_ether_addr [inline]
->   BUG: KASAN: slab-use-after-free in br_handle_frame+0xcfb/0x1510 net/bridge/br_input.c:349
+>    BUG: KASAN: slab-use-after-free in is_multicast_ether_addr [inline]
+>    BUG: KASAN: slab-use-after-free in is_valid_ether_addr [inline]
+>    BUG: KASAN: slab-use-after-free in br_handle_frame+0xcfb/0x1510 net/bridge/br_input.c:349
 > 
 > netif_receive_generic_xdp() already refuses to run generic XDP on
 > reinjected packets by checking skb_is_redirected().  Reuse that marker:
@@ -148,7 +110,35 @@ On Mon, Aug 31, 2026 at 07:30:51PM +0800, Zhao ShiRong wrote:
 > Reported-by: syzbot+128e9f5a0f85a51215b1@syzkaller.appspotmail.com
 > Link: https://lore.kernel.org/all/6a6d4406.2d659fcc.1d46f5.01ad.GAE@google.com/T/
 > Signed-off-by: Zhao ShiRong <shxzhaosr@163.com>
+> ---
+>   net/bridge/br_input.c | 6 ++++++
+>   1 file changed, 6 insertions(+)
+> 
+> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+> --- a/net/bridge/br_input.c
+> +++ b/net/bridge/br_input.c
+> @@ -26,6 +26,12 @@ static int
+>   br_netif_receive_skb(struct net *net, struct sock *sk, struct sk_buff *skb)
+>   {
+>   	br_drop_fake_rtable(skb);
+> +
+> +	/* Re-injected for local delivery: do not let generic XDP run on the
+> +	 * bridge device a second time, it could reallocate the head via
+> +	 * pskb_expand_head() and free a buffer still in use.
+> +	 */
+> +	skb_set_redirected_noclear(skb, false);
+>   	return netif_receive_skb(skb);
+>   }
+>   
+> --
+> 2.43.0
+> 
 
-Eric sent a fix for this issue earlier today:
+Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-https://lore.kernel.org/netdev/20260831095952.3385596-1-edumazet@google.com/
+This is wrong on multiple levels, use your head for 2 seconds before blindly
+sending AI crap. This was sent ~2 hours after the report was sent, did you
+even test your patch or just hit send? Very disturbing practice anyway.
+
+Perhaps we should clone the skb for passing it up to the bridge when a fwding
+helper is using it (i.e. when there are actually clones).
