@@ -1,48 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8117439F83;
-	Mon, 31 Aug 2026 13:33:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6021443551C;
+	Mon, 31 Aug 2026 13:35:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788183219; cv=none; b=utmCBGYyuYe9g3lpiqBRwdT/BDq/L8GCFUJJaQXz+Ry/IjuKVUzf6ObHid90A8f1+UWEEXJCfljldeBoRUcmNJVoLrtCK7S8CA1zCp3dLe6dZv55U88QrxENohWA0D1DmYKJ0Q4Cq94qnIwvoGGo14yPMrBABPcorpMYYmGi8mA=
+	t=1788183348; cv=none; b=IbsX4seMvB2UOLWvxNnXzEyi4yB3wBCDqVJZXQdb9Pl+HaShNL+GtqGgm3YHfdJCQk8MfvFnDMQoazxkOqLv8i+UxtFoLUzoWHZRvZA1V5LzXFcIz2ywmLAmYyc7EfwCxuqdg/rmwjRZihVzDfBXwpSueR6Stl7B5inbVti0H1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788183219; c=relaxed/simple;
-	bh=AM8PKwI9A0Nx7pJTy2BhPnlvxqcGOVjc0qnmTKZ8RgI=;
+	s=arc-20240116; t=1788183348; c=relaxed/simple;
+	bh=7l7lvK+aB4gQ3iCDJTw6A7BYZzi5QX1wl84648JHtLA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eOaaH32ZRcduN90cAcuHaXLMzTonwAONve8ksWpoIm1hJkFnTcbEuVK3ox6xZG34vkF7f4HEkrz84LTkuUqviAwGSDHyAIIG5UJL/fCbY48HoE/VW0zEVQFSkt9WaCTVW4F5IgNJsa7QmAnfJqhwjC3s/ZtNh5i9ZspWiYxkH5E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WUy5UOY3; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=cZY3+F8vph/dZHhE/2f5X2lKm3tkHYvhf1bT9jHryQrCIRbljT/5qLU39/5wyk9Y4eUyl3gZhuXCyEwYCjmAXuXUER7O/7eKESJIeTe6NIdPi/ivZ2QeXwIlWefe7bA5LJyZXW1F4pb2XjvG3RPBELpGkdr2jtwN7S/baWUt4+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k1DT18Og; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WUy5UOY3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5773A1F000E9;
-	Mon, 31 Aug 2026 13:33:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k1DT18Og"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D9E1F00A3E;
+	Mon, 31 Aug 2026 13:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788183217;
-	bh=s2WzExxrbNaGa4Q4CVRnZE3JXWCu0m9Sj1QCKWehbB8=;
+	s=k20260515; t=1788183346;
+	bh=9Ao9wT2ArHIe1NkALWV4+zl2w4fygwsr6gDpM2oa/W8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=WUy5UOY3h+1/ZdSD2JYEOQ5E3GnsevExIG3tmXuYYea5nUUnJc4RQZ+medCKI+hxB
-	 Fy4vj94zf1vZMJu0Sy/ZoYf7VsC4GVQ1YWi3lYMgfuoW7EK4zqC2WM1HoVV/S4zpiC
-	 EuCtOYW+D7EEj6QA5gDmzlcvpni4PSI77TMdkND2qRRioWhJ+Yn7q9FnOciJ/tY99a
-	 kHuVNY672ZkLjB1n5r1wM8kZeiN32D09FIhQoCuzJO8ThVhDnPnGIU2sYc6xaB4TTK
-	 pv760pg6+fa8U9UOV86zPyugvf9oIOTNwNv/54pC6egDJHdcLozz6xA+2RgmsMWNaT
-	 CEBA0m4DPCMTA==
+	b=k1DT18Ogb7I1YOtLZNi2zkfo4x8tVfD43jKSgEROlW0oMN9AhCBBcUc1kp1HPNMFE
+	 FRqm7QjkhRhPjiE8kpkB+mJugqG6ewLUgItUT7PqqxZVhF6n6+Z43LCoRUEdcMP2Un
+	 H9z+JLHShuH4IiqG/wM0XUsNUyEdOvVRVU215guHCSz+LbrGTH/KC1iZ4sqtBWJgTG
+	 o00V97hiuxtbpJVfYUuOnh1CqlVO+UHy2yZHN44x6q975qOD1dISRU6bL6PqKD+LVx
+	 jf6HcpDj2KCb2/Sg9tH3QgqsLQzR5kx69/a7EQhgAwdfl4xpyJhLPw85k08jhmAIUB
+	 MjWweYsfo7p7w==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>,
-	Nikolay Aleksandrov <nikolay@nvidia.com>,
+Cc: Danielle Ratson <danieller@nvidia.com>,
+	Ido Schimmel <idosch@nvidia.com>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
-	razor@blackwall.org,
 	davem@davemloft.net,
 	edumazet@google.com,
 	pabeni@redhat.com,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-6.6] bridge: Add missing READ_ONCE() annotations around FDB destination port
-Date: Mon, 31 Aug 2026 09:20:43 -0400
-Message-ID: <20260831133314.4125787-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] bridge: Do not suppress ARP probes and DAD NS unconditionally
+Date: Mon, 31 Aug 2026 09:22:01 -0400
+Message-ID: <20260831133314.4125787-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260831133314.4125787-1-sashal@kernel.org>
 References: <20260831133314.4125787-1-sashal@kernel.org>
@@ -58,464 +58,481 @@ X-stable-base: Linux 6.18.48
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Danielle Ratson <danieller@nvidia.com>
 
-[ Upstream commit bcdfd9fb109e0c9d76c345b2346b6b75ed1f476d ]
+[ Upstream commit fee1fc1d5a5475f5516d406a03e443348cd0f06c ]
 
-When roaming, the FDB destination port can change without holding the
-bridge's hash lock. Therefore, add missing READ_ONCE() annotations in
-both RCU readers and readers that hold the lock. In the latter case, the
-annotation is not needed in places where the FDB entry was already
-validated to be a local entry since such entries cannot roam.
+When neighbor suppression is enabled on a VXLAN port, the bridge is
+expected to reply to ARP/NS messages on behalf of remote hosts when both
+FDB and neighbor entries exist. This allows the bridge to suppress
+flooding of these messages to the VXLAN overlay.
 
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://patch.msgid.link/20260517115009.175163-1-idosch@nvidia.com
+According to RFC 9161 ("Operational Aspects of Proxy ARP/ND in Ethernet
+Virtual Private Networks"):
+"A PE SHOULD reply to broadcast/multicast address resolution messages,
+i.e., ARP Requests, ARP probes, NS messages, as well as DAD NS messages.
+An ARP probe is an ARP Request constructed with an all-zero sender IP
+address that may be used by hosts for IPv4 Address Conflict Detection as
+specified in [RFC5227]".
+
+However, the current implementation unconditionally suppresses ARP probes
+and DAD Neighbor Solicitations, which breaks Duplicate Address Detection
+(DAD) over EVPN.
+
+For DAD to work correctly over the VXLAN fabric:
+- When the bridge does not know the answer:
+  flood the probe/DAD packet to allow remote VTEPs to respond.
+- When the bridge knows the answer:
+  reply to indicate the address is in use.
+
+Fix by adjusting the early suppression checks to exclude ARP probes and
+DAD NS from unconditional suppression.
+
+When replying to a DAD NS, br_nd_send() is adjusted to set the NA
+destination to the all-nodes multicast address (ff02::1) and clear the
+Solicited flag, in accordance with RFC 4861 section 7.2.4.
+
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Danielle Ratson <danieller@nvidia.com>
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+Link: https://patch.msgid.link/20260429062405.1386417-2-danieller@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-# Stable Backport Analysis: `bridge: Add missing READ_ONCE() annotations
-around FDB destination port`
+# Stable Backport Analysis: bridge: Do not suppress ARP probes and DAD
+NS unconditionally
 
-**Local tree:** `v6.18.44` (Makefile: 6.18.44)
+**Local tree:** Linux **6.18.43** (`git describe HEAD` →
+`v6.18.43-1-gc7f0dac02d232`)
 
 ---
 
 ## PHASE 1: COMMIT MESSAGE FORENSICS
 
-**Step 1.1 — Subject line**
+### Step 1.1: PARSE THE SUBJECT LINE
+**Record:** `[bridge]` `[fix implicit: "Do not"]` — Stop unconditionally
+suppressing ARP probes and DAD Neighbor Solicitations when neighbor
+suppression is enabled on bridge/VXLAN ports.
 
-Record: `[bridge]` `[add]` missing `READ_ONCE()` annotations around FDB
-destination port during concurrent roaming updates.
+### Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
+**Record:**
+- **Reviewed-by:** Ido Schimmel \<idosch@nvidia.com\> (bridge
+  maintainer)
+- **Acked-by:** Nikolay Aleksandrov \<razor@blackwall.org\> (bridge
+  maintainer)
+- **Signed-off-by:** Danielle Ratson \<danieller@nvidia.com\> (author)
+- **Signed-off-by:** Jakub Kicinski \<kuba@kernel.org\> (netdev
+  maintainer)
+- **Link:**
+  https://patch.msgid.link/20260429062405.1386417-2-danieller@nvidia.com
+  (patch 2/N in series)
+- No Fixes:, Reported-by:, Tested-by:, or Cc: stable tags
+- Notable: dual maintainer review (Ido Schimmel + Nikolay Aleksandrov
+  Ack)
 
-**Step 1.2 — Tags**
+### Step 1.3: ANALYZE THE COMMIT BODY TEXT
+**Record:**
+- **Bug:** With `BR_NEIGH_SUPPRESS` enabled on VXLAN ports, the bridge
+  unconditionally suppresses ARP probes (sender IP 0.0.0.0) and DAD NS
+  (source address ::), preventing them from being flooded or proxied.
+- **Symptom:** Duplicate Address Detection (DAD) fails over EVPN/VXLAN
+  fabrics; hosts cannot detect address conflicts across the overlay.
+- **RFC basis:** RFC 9161 says PEs SHOULD reply to (or forward) ARP
+  probes and DAD NS; RFC 4861 §7.2.4 governs DAD NA format.
+- **Expected behavior:** Flood probe/DAD when unknown; proxy-reply when
+  FDB+neighbor entry exist.
+- **Root cause:** Early-return suppression checks treat probe/DAD
+  packets the same as other suppressible traffic by matching
+  `ipv4_is_zeronet(sip)` and `ipv6_addr_any(saddr)`.
 
-Record:
-- `Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>` — bridge
-  maintainer ack
-- `Signed-off-by: Ido Schimmel <idosch@nvidia.com>` — bridge
-  maintainer/author
-- `Signed-off-by: Jakub Kicinski <kuba@kernel.org>` — networking tree
-  maintainer
-- `Link:
-  https://patch.msgid.link/20260517115009.175163-1-idosch@nvidia.com`
-- No `Fixes:`, `Reported-by:`, `Cc: stable@vger.kernel.org`, `Tested-
-  by:`, or syzbot tags
-
-**Step 1.3 — Body analysis**
-
-Record:
-- **Bug:** `fdb->dst` can change during MAC roaming without holding
-  `br->hash_lock`.
-- **Symptom:** Readers can observe a changing destination port; without
-  `READ_ONCE()`, loads are not paired with existing `WRITE_ONCE()`
-  writers and may be inconsistent across a read/use sequence.
-- **Root cause:** `br_fdb_update()` updates `fdb->dst` locklessly on the
-  fast path (`WRITE_ONCE(fdb->dst, source)` at line 1030 in `br_fdb.c`),
-  while several readers still used plain `f->dst` / `dst->dst` loads.
-- **Version info:** None in the message.
-
-**Step 1.4 — Hidden bug fix?**
-
-Record: **Yes.** Although labeled as annotation work, this is a real
-concurrency correctness fix in the bridge forwarding and FDB management
-paths, completing an established `READ_ONCE`/`WRITE_ONCE` pattern for
-`fdb->dst`.
+### Step 1.4: DETECT HIDDEN BUG FIXES
+**Record:** Not disguised — this is an explicit protocol-correctness bug
+fix, not cleanup. The `br_nd_send()` changes fix incorrect NA
+destination (unicast to ::) and wrong Solicited flag for DAD replies.
 
 ---
 
 ## PHASE 2: DIFF ANALYSIS
 
-**Step 2.1 — Inventory**
+### Step 2.1: INVENTORY THE CHANGES
+**Record:**
+- **Files:** `net/bridge/br_arp_nd_proxy.c` only (+14 / -8 lines net)
+- **Functions modified:** `br_do_proxy_suppress_arp()`, `br_nd_send()`,
+  `br_do_suppress_nd()`
+- **Scope:** Single-file surgical fix
 
-Record:
-- `net/bridge/br_device.c`: 1 line changed (`br_dev_xmit`)
-- `net/bridge/br_input.c`: 1 line changed (`br_handle_frame_finish`)
-- `net/bridge/br_fdb.c`: 4 lines changed across 3 functions
-- **Total:** ~6 functional lines, 3 files, surgical scope
-- **Functions modified:** `br_dev_xmit`, `br_handle_frame_finish`,
-  `br_fdb_changeaddr`, `br_fdb_delete_by_port`, `br_fdb_clear_offload`
+### Step 2.2: CODE FLOW CHANGE (per hunk)
 
-**Step 2.2 — Code flow changes**
+**Hunk 1 — `br_do_proxy_suppress_arp()`:**
+- **Before:** `(ipv4_is_zeronet(sip) || sip == tip)` → set
+  `proxyarp_replied=1`, return (drop from flooding).
+- **After:** Only `sip == tip` triggers early suppression; ARP probes
+  (sip=0.0.0.0) fall through to lookup/flood/proxy logic.
 
-Record:
-| Location | Before | After |
-|---|---|---|
-| `br_dev_xmit` | `br_forward(dst->dst, ...)` after RCU FDB lookup |
-`br_forward(READ_ONCE(dst->dst), ...)` — single stable snapshot of
-roaming port |
-| `br_handle_frame_finish` | same pattern on receive/forward path | same
-fix |
-| `br_fdb_changeaddr` | `f->dst == p` under `hash_lock` |
-`READ_ONCE(f->dst) == p` |
-| `br_fdb_delete_by_port` | `f->dst != p` under `hash_lock` |
-`READ_ONCE(f->dst) != p` |
-| `br_fdb_clear_offload` | `f->dst == p` under `hash_lock` |
-`READ_ONCE(f->dst) == p` |
+**Hunk 2–4 — `br_nd_send()`:**
+- **Before:** Always unicast NA to requester; always set Solicited=1.
+- **After:** Detect DAD (`ipv6_addr_any(saddr)`); for DAD, multicast NA
+  to all-nodes (ff02::1), clear Solicited flag per RFC 4861.
 
-**Step 2.3 — Bug mechanism**
+**Hunk 5 — `br_do_suppress_nd()`:**
+- **Before:** `ipv6_addr_any(saddr) || saddr==daddr` → suppress
+  unconditionally.
+- **After:** Only `saddr==daddr` suppressed; DAD NS (saddr=::) processed
+  normally.
 
-Record: **Race condition / data-race correctness fix.** Category (b)
-synchronization. `br_fdb_update()` changes `fdb->dst` without
-`hash_lock`:
+### Step 2.3: BUG MECHANISM
+**Record:** **Logic/correctness fix** in neighbor-suppression proxy
+path. Setting `proxyarp_replied=1` causes `br_forward.c` to skip
+flooding to `BR_NEIGH_SUPPRESS` ports:
 
-```1026:1031:net/bridge/br_fdb.c
-                        /* fastpath: update of existing entry */
-                        if (unlikely(source != READ_ONCE(fdb->dst) &&
-                                     !test_bit(BR_FDB_STICKY,
-&fdb->flags))) {
-                                br_switchdev_fdb_notify(br, fdb,
-RTM_DELNEIGH);
-                                WRITE_ONCE(fdb->dst, source);
+```233:236:net/bridge/br_forward.c
+                if (BR_INPUT_SKB_CB(skb)->proxyarp_replied &&
+                    ((p->flags & BR_PROXYARP_WIFI) ||
+                     br_is_neigh_suppress_enabled(p, vid)))
+                        continue;
 ```
 
-Readers on hot forwarding paths and FDB iterators could observe a
-changing `dst` pointer. `br_forward()` handles `NULL` (`if
-(unlikely(!to))`), but a stale non-NULL port causes mis-forwarding
-during roam; FDB iterators can miss or mishandle entries during
-concurrent updates.
+Unconditional suppression of probes/DAD meant these packets never
+reached remote VTEPs, breaking cross-overlay DAD.
 
-**Step 2.4 — Fix quality**
-
-Record: **High quality, minimal, obviously correct.** Matches the
-existing subsystem convention from `3e19ae7c6fd62` and follow-up
-`5424e678f9b30`. Regression risk is very low — only adds documented
-single-load snapshots.
+### Step 2.4: FIX QUALITY
+**Record:** Fix is minimal, RFC-aligned, and obviously correct.
+Regression risk is low — only narrows the early-suppression condition;
+`sip==tip` and `saddr==daddr` cases retain prior behavior. No new locks
+or APIs.
 
 ---
 
 ## PHASE 3: GIT HISTORY INVESTIGATION
 
-**Step 3.1 — Blame**
+### Step 3.1: BLAME THE CHANGED LINES
+**Record:** Buggy suppression logic dates to **ed842faeb2bd** (Oct 2017,
+"bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports" by Roopa Prabhu).
+Original commit already had `ipv4_is_zeronet(sip)` and
+`ipv6_addr_any(saddr)` checks. Present in this 6.18.43 tree.
 
-Record:
-- `br_device.c:110` and `br_input.c:226`: original code from 2016
-  (Nikolay Aleksandrov), predating `READ_ONCE` annotations
-- `br_fdb.c:473`: from 2019, also predating full annotation coverage
-- Buggy plain loads have been present since before `3e19ae7c6fd62`
-  (2021)
+### Step 3.2: FOLLOW THE FIXES: TAG
+**Record:** No Fixes: tag in commit message. Related stable fixes in
+same file reference `Fixes: ed842faeb2bd` (e.g. `837392a384457`,
+`9c55e41c73af5` for `br_nd_send()` hardening). The introducing commit
+**is** in this tree.
 
-**Step 3.2 — Fixes: tag**
+### Step 3.3: FILE HISTORY FOR RELATED CHANGES
+**Record:** Recent changes to `br_arp_nd_proxy.c` in this tree:
+- `5424e678f9b30` — FDB dst snapshot (RCU)
+- `837392a384457` — ND option length validation (Cc: stable)
+- `9c55e41c73af5` — skb linearize before ND parsing (Cc: stable)
+- File introduced at Linux 6.18-rc7 (split from prior monolithic bridge
+  code; logic unchanged since 2017)
 
-Record: Not applicable — no `Fixes:` tag.
+### Step 3.4: AUTHOR'S OTHER COMMITS
+**Record:** Danielle Ratson has no other commits in `net/bridge/` in
+this checkout. Fix author is NVIDIA bridge contributor; reviewers are
+subsystem maintainers.
 
-**Step 3.3 — Related file history**
-
-Record:
-- `3e19ae7c6fd62` — introduced `READ_ONCE`/`WRITE_ONCE` for `fdb->dst`
-  broadly (in tree)
-- `5424e678f9b30` — “use a stable FDB dst snapshot in RCU readers”;
-  fixed `br_fdb_fillbuf`, `fdb_delete_local` writers, etc.; `Cc:
-  stable@vger.kernel.org` (in tree)
-- `17071fb5cb9c2` — annotated `fdb->{updated,used}` races (in tree)
-- This commit fills remaining gaps after those fixes
-- **Standalone:** yes, no series dependency
-
-**Step 3.4 — Author context**
-
-Record: Ido Schimmel is an active bridge maintainer (`Reviewed-by` on
-related stable-bound fix `5424e678`). Nikolay Aleksandrov acked.
-
-**Step 3.5 — Prerequisites**
-
-Record:
-- Requires `WRITE_ONCE(fdb->dst, ...)` writers — present since
-  `3e19ae7c6fd62`
-- Requires roaming fast path in `br_fdb_update()` — present
-- No additional commits required; patch dry-run applies cleanly
+### Step 3.5: DEPENDENT/PREREQUISITE COMMITS
+**Record:** Message-ID indicates patch **2/N** in a series. The diff is
+self-contained in one file with no new symbols or structures. `git apply
+--check` succeeds cleanly against current tree. No code dependencies
+identified; patch 1 may be documentation/tests (unverified).
 
 ---
 
 ## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
 
-**Step 4.1 — Original discussion**
+### Step 4.1: ORIGINAL PATCH DISCUSSION
+**Record:** UNVERIFIED — lore.kernel.org and patch.msgid.link blocked by
+bot protection. `b4 dig -c <commit>` not possible (commit not in local
+tree). Message-ID suffix `-2-` confirms multi-patch series.
 
-Record: **UNVERIFIED** — `b4 dig -c <commit>` could not be run (commit
-not present locally); lore.kernel.org and patch.msgid.link blocked by
-bot protection (Anubis).
+### Step 4.2: REVIEWERS
+**Record:** UNVERIFIED via b4 dig -w. Commit message shows Reviewed-by
+Ido Schimmel and Acked-by Nikolay Aleksandrov (verified bridge
+maintainers from prior commits in tree).
 
-**Step 4.2 — Reviewers**
+### Step 4.3: BUG REPORT
+**Record:** No Reported-by or bugzilla/syzbot links. Bug identified via
+RFC 9161 compliance analysis by author.
 
-Record: **UNVERIFIED** via `b4 dig -w`. Commit message shows maintainer
-ack from Nikolay Aleksandrov and merge by Jakub Kicinski.
+### Step 4.4: RELATED PATCHES/SERIES
+**Record:** Part of Danielle Ratson series (patch 2). Same file recently
+received stable-nominated `br_nd_send()` fixes from different authors.
+This patch is logically independent.
 
-**Step 4.3 — Bug report**
-
-Record: Not applicable — no `Reported-by:` or syzbot link.
-
-**Step 4.4 — Related patches**
-
-Record: Part of ongoing `fdb->dst` concurrency hardening; directly
-complements in-tree `5424e678f9b30`.
-
-**Step 4.5 — Stable list history**
-
-Record: **UNVERIFIED** — lore stable search inaccessible.
+### Step 4.5: STABLE MAILING LIST
+**Record:** UNVERIFIED — could not access lore stable archive.
 
 ---
 
 ## PHASE 5: CODE SEMANTIC ANALYSIS
 
-**Step 5.1 — Key functions**
+### Step 5.1: KEY FUNCTIONS
+**Record:** `br_do_proxy_suppress_arp()`, `br_nd_send()`,
+`br_do_suppress_nd()`
 
-Record: `br_dev_xmit`, `br_handle_frame_finish`, `br_fdb_changeaddr`,
-`br_fdb_delete_by_port`, `br_fdb_clear_offload`
+### Step 5.2: CALLERS
+**Record:**
+- `br_input.c:172` — ingress path for every ARP/RARP frame on bridge
+  ports
+- `br_input.c:183` — ingress path for IPv6 ND when neighbor suppress
+  enabled
+- `br_device.c:76,87` — bridge device xmit path
 
-**Step 5.2 — Callers / reachability**
+All are hot networking paths reachable during normal host traffic and
+address configuration.
 
-Record:
-- `br_dev_xmit` — bridge device transmit hot path (every locally
-  originated unicast frame)
-- `br_handle_frame_finish` — bridge receive/forward hot path (every
-  forwarded unicast frame)
-- `br_fdb_delete_by_port` — port removal/teardown
-- `br_fdb_changeaddr` — MAC address change on port
-- `br_fdb_clear_offload` — switchdev offload cleanup
+### Step 5.3: CALLEES
+**Record:** `neigh_lookup()`, `br_fdb_find_rcu()`, `br_arp_send()`,
+`br_nd_send()`, `br_is_neigh_suppress_enabled()`, `ipv6_eth_mc_map()`,
+`in6addr_linklocal_allnodes` (all present in tree).
 
-All are reachable in normal bridge operation; forwarding paths are among
-the hottest networking code paths.
+### Step 5.4: CALL CHAIN / REACHABILITY
+**Record:** Userspace/host DAD and ARP probe → bridge ingress
+(`br_handle_frame_finish`) →
+`br_do_proxy_suppress_arp`/`br_do_suppress_nd` → sets `proxyarp_replied`
+→ affects flooding in `__br_forward`. **Reachable from normal network
+traffic** on EVPN/VXLAN deployments with neighbor suppression.
 
-**Step 5.3 — Callees**
-
-Record: `br_forward()` dereferences port and forwards skb;
-`br_fdb_find_rcu()` provides RCU-protected FDB entry; concurrent writer
-is `br_fdb_update()`.
-
-**Step 5.4 — User triggerability**
-
-Record: **Yes.** Any bridge with learned MACs that roam between ports
-triggers `br_fdb_update()` lockless `fdb->dst` changes while packets are
-being forwarded.
-
-**Step 5.5 — Similar patterns**
-
-Record: Most other `fdb->dst` readers in this tree already use
-`READ_ONCE()` — e.g. `br_fdb_fillbuf`, `br_fdb_test_addr`,
-`br_switchdev_fdb_notify`, `br_arp_nd_proxy.c`. The patched sites are
-the remaining outliers.
+### Step 5.5: SIMILAR PATTERNS
+**Record:** Kernel's own `ndisc.c` already handles DAD NA with
+`in6addr_linklocal_allnodes` and Solicited=0 — the fix aligns bridge
+proxy behavior with core ND stack.
 
 ---
 
-## PHASE 6: CROSS-REFERENCE AGAINST LOCAL TREE (v6.18.44)
+## PHASE 6: CROSS-REFERENCING AGAINST LOCAL TREE
 
-**Step 6.1 — Buggy code present?**
+### Step 6.1: DOES THE BUGGY CODE EXIST?
+**Record:** **YES.** Verified at:
+- `br_arp_nd_proxy.c:168` — `(ipv4_is_zeronet(sip) || sip == tip)`
+- `br_arp_nd_proxy.c:439` — `ipv6_addr_any(saddr) ||
+  !ipv6_addr_cmp(saddr, daddr)`
+- `br_nd_send()` lacks DAD handling (lines 305, 321, 334)
 
-Record: **Yes.** Verified missing annotations at:
-- `br_device.c:110`: `br_forward(dst->dst, ...)`
-- `br_input.c:226`: `br_forward(dst->dst, ...)`
-- `br_fdb.c:473`, `881`, `1663`: plain `f->dst` comparisons
+Bug present since ed842faeb2bd (2017), well before 6.18 branch.
 
-Roaming writer path is present (`br_fdb.c:1030`).
+### Step 6.2: BACKPORT COMPLICATIONS
+**Record:** **Clean apply** — `git apply --check
+/tmp/bridge_dad_fix.patch` succeeds with no conflicts. No refactoring
+churn in the changed hunks since the 6.18 file split.
 
-**Step 6.2 — Backport difficulty**
-
-Record: **Clean apply** — `patch --dry-run` succeeded with no conflicts.
-
-**Step 6.3 — Related fixes already present?**
-
-Record: Partial fix `5424e678f9b30` is already in this tree; this commit
-is the remaining coverage, not a duplicate.
-
----
-
-## PHASE 7: SUBSYSTEM CONTEXT
-
-**Step 7.1 — Subsystem / criticality**
-
-Record: `net/bridge` — **IMPORTANT** (widely deployed in servers, VMs,
-containers, embedded networking).
-
-**Step 7.2 — Activity**
-
-Record: Actively maintained; recent stable-relevant bridge fixes in this
-tree (UAF, sleep-in-atomic, FDB snapshot).
+### Step 6.3: RELATED FIXES ALREADY PRESENT?
+**Record:** `git log --grep="Do not suppress ARP"` returns nothing. Fix
+**not** yet in this tree. Related `br_nd_send()` hardening commits are
+present but do not address DAD suppression.
 
 ---
 
-## PHASE 8: IMPACT AND RISK
+## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 
-**Step 8.1 — Who is affected**
+### Step 7.1: SUBSYSTEM CRITICALITY
+**Record:** **net/bridge** — IMPORTANT. Affects datacenter EVPN/VXLAN
+overlay networking; not universal but widely deployed in
+cloud/enterprise fabrics.
 
-Record: All systems using Linux bridge forwarding with dynamic FDB
-learning and MAC roaming.
+### Step 7.2: SUBSYSTEM ACTIVITY
+**Record:** Active — multiple bridge commits in 6.18.y including UAF
+fixes, netfilter bridge fixes, and neighbor-suppress-related patches.
 
-**Step 8.2 — Trigger conditions**
+---
 
-Record: Host moves between bridge ports; concurrent forwarding while
-`br_fdb_update()` roams `fdb->dst`. Common in Wi-Fi/Ethernet mobility,
-VM migration, and active L2 networks.
+## PHASE 8: IMPACT AND RISK ASSESSMENT
 
-**Step 8.3 — Failure mode / severity**
+### Step 8.1: WHO IS AFFECTED
+**Record:** Users running Linux bridges with **neighbor suppression**
+(`BR_NEIGH_SUPPRESS` / VLAN neigh suppress) over **VXLAN/EVPN**
+overlays. Config-specific, but targets production datacenter networking.
 
-Record:
-- **Forwarding paths:** packet delivered to wrong port (connectivity bug
-  / potential traffic leakage) — **MEDIUM-HIGH**
-- **FDB management paths:** missed or incorrect entry handling during
-  concurrent roam — **MEDIUM**
-- **Kernel crash:** unlikely on these specific hunks (`br_forward()`
-  handles `NULL`); sibling fix `5424e678` addressed a confirmed NULL-
-  deref in sysfs path
-- **KCSAN/data-race:** definite without fix — **MEDIUM** for
-  CI/sanitizer builds
+### Step 8.2: TRIGGER CONDITIONS
+**Record:** Host performs IPv4 ACD (ARP probe) or IPv6 DAD (NS with ::
+source) on a VLAN behind a bridge with neighbor suppression toward VXLAN
+ports. **Common during interface bring-up and address assignment.**
+Unprivileged users can trigger DAD on their own interfaces.
 
-**Step 8.4 — Risk/benefit**
+### Step 8.3: FAILURE MODE SEVERITY
+**Record:** DAD silently fails → duplicate IP addresses may go
+undetected across VTEPs → connectivity blackholes, flapping, or traffic
+hijacking. **Not a kernel oops**, but **HIGH operational severity** for
+affected deployments (silent network misconfiguration).
 
-Record:
-- **Benefit:** HIGH for bridge users with roaming; completes an already-
-  stable-nominated fix family
-- **Risk:** VERY LOW — 6-line annotation-only change matching
-  established pattern
-- **Ratio:** strongly favors backport
+### Step 8.4: RISK-BENEFIT
+**Record:**
+- **Benefit:** HIGH for EVPN/VXLAN users — restores RFC-compliant
+  DAD/ACD behavior
+- **Risk:** LOW — ~20 lines, narrow condition change, maintainer-
+  reviewed
+- **Ratio:** Strong benefit for affected users, minimal regression risk
 
 ---
 
 ## PHASE 9: FINAL SYNTHESIS
 
-**Step 9.1 — Evidence summary**
+### Step 9.1: EVIDENCE COMPILED
 
-**FOR:**
-- Real concurrency bug in hot forwarding path
-- Small, surgical, maintainer-acked
-- Prerequisites and related stable fix already in v6.18.44
-- Applies cleanly
-- Follows established subsystem convention since 2021
-- Complements already-backported `5424e678f9b30`
+**FOR backport:**
+- Real, long-standing bug (since 2017) present in 6.18.43
+- Breaks DAD/ACD over EVPN — concrete user impact
+- RFC 9161 / RFC 4861 compliance
+- Small, surgical, applies cleanly
+- Reviewed by bridge maintainers (Schimmel, Aleksandrov)
+- Same file recently had other fixes nominated to stable
+- Fixes incorrect DAD NA format in `br_nd_send()` (would send unicast NA
+  to ::)
 
-**AGAINST:**
-- No syzbot/crash report for these exact sites
-- Primary user impact is mis-forwarding rather than panic
-- Mailing list/stable discussion not verified
+**AGAINST backport:**
+- Not a kernel crash, security CVE, or memory corruption
+- Only affects neighbor-suppress + overlay configurations
+- No user bug reports or syzbot in commit message
+- Lore/stable discussion unverified
 
 **UNRESOLVED:**
-- Full lore review thread content
+- Full mailing list thread and whether patch 1/N is required
 - Whether reviewers explicitly nominated for stable
 
-**Step 9.2 — Stable rules checklist**
+### Step 9.2: STABLE RULES CHECKLIST
+1. Obviously correct and tested? **PASS** — RFC-aligned logic;
+   maintainer-reviewed (no Tested-by)
+2. Fixes a real bug affecting users? **PASS** — DAD broken on EVPN/VXLAN
+   with neigh suppress
+3. Important issue? **PASS** — silent DAD failure → duplicate IPs /
+   overlay misconfiguration (HIGH operational impact for affected
+   configs)
+4. Small and contained? **PASS** — single file, ~20 lines
+5. No new features/APIs? **PASS** — behavior correction only
+6. Can apply to local tree? **PASS** — verified clean apply
 
-| Criterion | Result |
-|---|---|
-| 1. Obviously correct and tested? | **PASS** — pattern proven in-tree;
-maintainer ack |
-| 2. Fixes a real user-affecting bug? | **PASS** — roaming race in
-forwarding/FDB paths |
-| 3. Important issue? | **PASS** — forwarding correctness on common
-bridge deployments |
-| 4. Small and contained? | **PASS** — 6 lines, 3 files |
-| 5. No new features/APIs? | **PASS** — annotation only |
-| 6. Can apply to local tree? | **PASS** — clean dry-run apply; code and
-writers present |
+### Step 9.3: EXCEPTION CATEGORIES
+**Record:** None (not device ID, quirk, DT, build, or docs). Standard
+protocol-correctness bug fix.
 
-**Step 9.3 — Exception category**
+### Step 9.4: DECISION RATIONALE
 
-Record: Not a device-ID/quirk/DT/build/doc exception; qualifies as a
-standard concurrency correctness bug fix.
-
-**Step 9.4 — Problem statement for stable users**
-
-When a MAC address roams between bridge ports, `fdb->dst` is updated
-locklessly. The remaining unannotated readers in transmit/receive
-forwarding and FDB cleanup paths can observe a changing destination
-port, causing frames to be forwarded to the wrong port or FDB
-maintenance to behave incorrectly. This patch completes the
-`READ_ONCE`/`WRITE_ONCE` pairing already used throughout the rest of the
-bridge FDB code and in the recently backported `5424e678` fix.
+For **Linux 6.18.y**, this fix should be backported. The buggy code is
+present, has been there since the 2017 neighbor-suppression feature, and
+the patch restores essential DAD/ACD behavior required for correct EVPN
+operation per RFC 9161. While not a kernel panic, broken duplicate-
+address detection in overlay networks is a serious, user-visible
+correctness bug in a configuration pattern common in production
+datacenter deployments. The fix is minimal, applies cleanly, and carries
+maintainer endorsement.
 
 ---
 
 ## Verification
 
-- [Phase 1] Parsed commit message and tags from user-provided diff
-- [Phase 2] Diff analysis: 6 lines across `br_device.c`, `br_input.c`,
-  `br_fdb.c`
-- [Phase 3] `git describe HEAD` → `v6.18.44`
-- [Phase 3] `git blame` on lines 110/226/473 → pre-2021 code missing
-  annotations
-- [Phase 3] `git show 3e19ae7c6fd62` → original `READ_ONCE`/`WRITE_ONCE`
-  introduction
-- [Phase 3] `git show 5424e678f9b30` → related stable-nominated FDB dst
-  snapshot fix, already in tree
-- [Phase 3] `git merge-base --is-ancestor` → both `3e19ae7` and
-  `5424e678` are ancestors of HEAD
-- [Phase 4] **UNVERIFIED:** lore.kernel.org and patch.msgid.link
-  blocked; `b4 dig` not usable without local commit hash
-- [Phase 5] `grep READ_ONCE.*dst` → most readers annotated; patched
-  sites are outliers
-- [Phase 5] Read `br_fdb_update()` → confirmed lockless
-  `WRITE_ONCE(fdb->dst, source)` roaming path
-- [Phase 5] Read `br_forward()` → confirmed `NULL` port handled safely
-- [Phase 6] Read current sources → buggy plain loads confirmed present
-- [Phase 6] `patch --dry-run` → applies cleanly
-- [Phase 8] Assessed failure mode as mis-forwarding during roam, not
-  typical kernel oops
+- **[Phase 1]** Parsed subject, tags (Reviewed-by, Acked-by, Link), and
+  body text from provided commit message
+- **[Phase 2]** Analyzed full diff: 3 functions, 1 file, logic-
+  classification as protocol correctness
+- **[Phase 3]** `git describe HEAD` → v6.18.43; Makefile → 6.18.43
+- **[Phase 3]** `git show ed842faeb2bd` → original 2017 commit with same
+  buggy conditions; commit exists in tree
+- **[Phase 3]** `git blame` / `git log --oneline ed842faeb2bd..HEAD --
+  net/bridge/br_arp_nd_proxy.c` → bug predates 6.18
+- **[Phase 3]** `git log --grep="Do not suppress ARP"` → empty; fix not
+  present
+- **[Phase 4]** WebFetch lore.kernel.org → blocked (bot protection);
+  **UNVERIFIED** mailing list discussion
+- **[Phase 4]** `b4 dig -c` → cannot use (commit not in tree);
+  **UNVERIFIED** series patch 1 content
+- **[Phase 5]** `grep br_do_proxy_suppress_arp/br_do_suppress_nd` →
+  callers in `br_input.c`, `br_device.c`
+- **[Phase 5]** `grep proxyarp_replied` → flooding gate in
+  `br_forward.c:233-236`
+- **[Phase 5]** `grep in6addr_linklocal_allnodes/ipv6_eth_mc_map` →
+  symbols exist in tree
+- **[Phase 6]** `grep` confirmed buggy lines at 168 and 439 in current
+  tree
+- **[Phase 6]** `git apply --check /tmp/bridge_dad_fix.patch` → **clean
+  apply**
+- **[Phase 6]** `git log --grep` → no duplicate fix already applied
+- **[Phase 7]** `git log --oneline -20 -- net/bridge/` → active
+  subsystem
+- **[Phase 8]** Failure mode assessed from code path: `proxyarp_replied`
+  blocks flooding to neigh-suppress ports
 
-**YES**
+**YES**The background `git log -S "BR_NEIGH_SUPPRESS"` search timed out
+because it scanned the full repo history. I killed it and reran a scoped
+search under `net/bridge/` instead.
 
- net/bridge/br_device.c | 2 +-
- net/bridge/br_fdb.c    | 7 ++++---
- net/bridge/br_input.c  | 2 +-
- 3 files changed, 6 insertions(+), 5 deletions(-)
+That narrower search wasn’t very useful on its own (it only hit the
+tree-import commit), but the analysis already had the real answer from
+`git show ed842faeb2bd`: neighbor suppression and the buggy probe/DAD
+suppression logic were introduced in October 2017 and are present in
+this 6.18.43 tree.
 
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index 525d4eccd194a..966fac7017225 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -107,7 +107,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 		else
- 			br_flood(br, skb, BR_PKT_MULTICAST, false, true, vid);
- 	} else if ((dst = br_fdb_find_rcu(br, dest, vid)) != NULL) {
--		br_forward(dst->dst, skb, false, true);
-+		br_forward(READ_ONCE(dst->dst), skb, false, true);
- 	} else {
- 		br_flood(br, skb, BR_PKT_UNICAST, false, true, vid);
+The backport recommendation stands: **YES** — a small, RFC-aligned fix
+for broken DAD/ACD over EVPN/VXLAN when neighbor suppression is enabled.
+
+ net/bridge/br_arp_nd_proxy.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
+index 7ace0f4941bb6..4cd3470e5f56c 100644
+--- a/net/bridge/br_arp_nd_proxy.c
++++ b/net/bridge/br_arp_nd_proxy.c
+@@ -165,7 +165,7 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
+ 			return;
+ 		if (parp->ar_op != htons(ARPOP_RREQUEST) &&
+ 		    parp->ar_op != htons(ARPOP_RREPLY) &&
+-		    (ipv4_is_zeronet(sip) || sip == tip)) {
++		    sip == tip) {
+ 			/* prevent flooding to neigh suppress ports */
+ 			BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+ 			return;
+@@ -263,6 +263,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 	int ns_olen;
+ 	int i, len;
+ 	u8 *daddr;
++	bool dad;
+ 	u16 pvid;
+ 
+ 	if (!dev || skb_linearize(request))
+@@ -301,8 +302,13 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 		}
  	}
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index 6eb3ab69a5140..fe85c8f197e67 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -470,7 +470,8 @@ void br_fdb_changeaddr(struct net_bridge_port *p, const unsigned char *newaddr)
- 	spin_lock_bh(&br->hash_lock);
- 	vg = nbp_vlan_group(p);
- 	hlist_for_each_entry(f, &br->fdb_list, fdb_node) {
--		if (f->dst == p && test_bit(BR_FDB_LOCAL, &f->flags) &&
-+		if (READ_ONCE(f->dst) == p &&
-+		    test_bit(BR_FDB_LOCAL, &f->flags) &&
- 		    !test_bit(BR_FDB_ADDED_BY_USER, &f->flags)) {
- 			/* delete old one */
- 			fdb_delete_local(br, p, f);
-@@ -878,7 +879,7 @@ void br_fdb_delete_by_port(struct net_bridge *br,
  
- 	spin_lock_bh(&br->hash_lock);
- 	hlist_for_each_entry_safe(f, tmp, &br->fdb_list, fdb_node) {
--		if (f->dst != p)
-+		if (READ_ONCE(f->dst) != p)
- 			continue;
++	dad = ipv6_addr_any(&ipv6_hdr(request)->saddr);
++
+ 	/* Ethernet header */
+-	ether_addr_copy(eth_hdr(reply)->h_dest, daddr);
++	if (dad)
++		ipv6_eth_mc_map(&in6addr_linklocal_allnodes, eth_hdr(reply)->h_dest);
++	else
++		ether_addr_copy(eth_hdr(reply)->h_dest, daddr);
+ 	ether_addr_copy(eth_hdr(reply)->h_source, n->ha);
+ 	eth_hdr(reply)->h_proto = htons(ETH_P_IPV6);
+ 	reply->protocol = htons(ETH_P_IPV6);
+@@ -318,7 +324,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 	pip6->priority = ipv6_hdr(request)->priority;
+ 	pip6->nexthdr = IPPROTO_ICMPV6;
+ 	pip6->hop_limit = 255;
+-	pip6->daddr = ipv6_hdr(request)->saddr;
++	pip6->daddr = dad ? in6addr_linklocal_allnodes : ipv6_hdr(request)->saddr;
+ 	pip6->saddr = *(struct in6_addr *)n->primary_key;
  
- 		if (!do_all)
-@@ -1660,7 +1661,7 @@ void br_fdb_clear_offload(const struct net_device *dev, u16 vid)
+ 	skb_pull(reply, sizeof(struct ipv6hdr));
+@@ -331,7 +337,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 	na->icmph.icmp6_type = NDISC_NEIGHBOUR_ADVERTISEMENT;
+ 	na->icmph.icmp6_router = (n->flags & NTF_ROUTER) ? 1 : 0;
+ 	na->icmph.icmp6_override = 1;
+-	na->icmph.icmp6_solicited = 1;
++	na->icmph.icmp6_solicited = dad ? 0 : 1;
+ 	na->target = ns->target;
+ 	ether_addr_copy(&na->opt[2], n->ha);
+ 	na->opt[0] = ND_OPT_TARGET_LL_ADDR;
+@@ -436,7 +442,7 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
+ 	saddr = &iphdr->saddr;
+ 	daddr = &iphdr->daddr;
  
- 	spin_lock_bh(&p->br->hash_lock);
- 	hlist_for_each_entry(f, &p->br->fdb_list, fdb_node) {
--		if (f->dst == p && f->key.vlan_id == vid)
-+		if (READ_ONCE(f->dst) == p && f->key.vlan_id == vid)
- 			clear_bit(BR_FDB_OFFLOADED, &f->flags);
- 	}
- 	spin_unlock_bh(&p->br->hash_lock);
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 2cbae0f9ae1f0..470615675bdc0 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -223,7 +223,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 
- 		if (now != READ_ONCE(dst->used))
- 			WRITE_ONCE(dst->used, now);
--		br_forward(dst->dst, skb, local_rcv, false);
-+		br_forward(READ_ONCE(dst->dst), skb, local_rcv, false);
- 	} else {
- 		if (!mcast_hit)
- 			br_flood(br, skb, pkt_type, local_rcv, false, vid);
+-	if (ipv6_addr_any(saddr) || !ipv6_addr_cmp(saddr, daddr)) {
++	if (!ipv6_addr_cmp(saddr, daddr)) {
+ 		/* prevent flooding to neigh suppress ports */
+ 		BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
+ 		return;
 -- 
 2.53.0
 
