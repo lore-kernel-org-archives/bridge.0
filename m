@@ -1,48 +1,48 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6021443551C;
-	Mon, 31 Aug 2026 13:35:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F3BE582B82;
+	Mon, 31 Aug 2026 13:49:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788183348; cv=none; b=IbsX4seMvB2UOLWvxNnXzEyi4yB3wBCDqVJZXQdb9Pl+HaShNL+GtqGgm3YHfdJCQk8MfvFnDMQoazxkOqLv8i+UxtFoLUzoWHZRvZA1V5LzXFcIz2ywmLAmYyc7EfwCxuqdg/rmwjRZihVzDfBXwpSueR6Stl7B5inbVti0H1k=
+	t=1788184197; cv=none; b=XMbqOjTkWI45CKQk701QWjBW+bB9QUdpNF8E45F9Inrt+5XLQ5R0Yb0ifQYezk5v/EujS3C6DsQYfae/cDbEk5hd1+JtIlydHH7LjCVlY03vTHzXkiIwvm1yNvMp4WBEh8RJ3AzD+ww62OId1DNfviThLCRSY3wpWetM7KXiu0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788183348; c=relaxed/simple;
-	bh=7l7lvK+aB4gQ3iCDJTw6A7BYZzi5QX1wl84648JHtLA=;
+	s=arc-20240116; t=1788184197; c=relaxed/simple;
+	bh=cEIZjVXRfd+mKXvLlidGrD8yGxVGNRhDU8f0aHmnmgA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cZY3+F8vph/dZHhE/2f5X2lKm3tkHYvhf1bT9jHryQrCIRbljT/5qLU39/5wyk9Y4eUyl3gZhuXCyEwYCjmAXuXUER7O/7eKESJIeTe6NIdPi/ivZ2QeXwIlWefe7bA5LJyZXW1F4pb2XjvG3RPBELpGkdr2jtwN7S/baWUt4+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k1DT18Og; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=iPYMZGgx9Cizry+dGtIGY0IL8LVzPqenonh+SaJSYV5UVE1nQ+2Tltg7rSAUPOcedE9JlEvO2Sx4R0W0+kaVAF0/9Qma6YsKbG8cVKAJ1YNm6mLG8z+kFoNwysC8qSBQ7R1t147zOxFTWCKgD57oRsj9OPgKev0jB6Qdsxwtevg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KqLBVTR5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k1DT18Og"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D9E1F00A3E;
-	Mon, 31 Aug 2026 13:35:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KqLBVTR5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8A521F00A3F;
+	Mon, 31 Aug 2026 13:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788183346;
-	bh=9Ao9wT2ArHIe1NkALWV4+zl2w4fygwsr6gDpM2oa/W8=;
+	s=k20260515; t=1788184195;
+	bh=hKH0tZRDdHMNPnmyCNcAIcyxU04yp78Tf160s2ctNsA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=k1DT18Ogb7I1YOtLZNi2zkfo4x8tVfD43jKSgEROlW0oMN9AhCBBcUc1kp1HPNMFE
-	 FRqm7QjkhRhPjiE8kpkB+mJugqG6ewLUgItUT7PqqxZVhF6n6+Z43LCoRUEdcMP2Un
-	 H9z+JLHShuH4IiqG/wM0XUsNUyEdOvVRVU215guHCSz+LbrGTH/KC1iZ4sqtBWJgTG
-	 o00V97hiuxtbpJVfYUuOnh1CqlVO+UHy2yZHN44x6q975qOD1dISRU6bL6PqKD+LVx
-	 jf6HcpDj2KCb2/Sg9tH3QgqsLQzR5kx69/a7EQhgAwdfl4xpyJhLPw85k08jhmAIUB
-	 MjWweYsfo7p7w==
+	b=KqLBVTR5OUNSzYIrnJHG7Fbzu963cwmEkWsW3MSHmZsospjoMdFNZVzJwPs9Spj0t
+	 L79KnaX+SeahVXS2c/vhRylweR59zbElJYtTthth9u9ISYxrE0NJbq2DVF5o+ZpavB
+	 HxcnXeqE8Y58jFjGAM5629TdIlE/yheyDeA/feAeU7gwCcCAKYMQ0NI55R/FIA5Z5D
+	 dN4VgoUxmmUi6Iu6I1Xbmwa6o0Axu+mla828QXla7pnyXkHXVtlm/T6ykoemURuwyv
+	 Vmr6Cob7HI6xtuIhZYLrCJaXcupRg6mshRqG3r4zDBiyR4ZfnRVPHUGHDTHeYvRxCr
+	 I0erGB4SuiE2g==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Danielle Ratson <danieller@nvidia.com>,
+Cc: Eric Dumazet <edumazet@google.com>,
+	Jakub Sitnicki <jakub@cloudflare.com>,
 	Ido Schimmel <idosch@nvidia.com>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
 	davem@davemloft.net,
-	edumazet@google.com,
 	pabeni@redhat.com,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] bridge: Do not suppress ARP probes and DAD NS unconditionally
-Date: Mon, 31 Aug 2026 09:22:01 -0400
-Message-ID: <20260831133314.4125787-93-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] net: bridge: remove stale rcu_barrier() in br_multicast_dev_del()
+Date: Mon, 31 Aug 2026 09:29:36 -0400
+Message-ID: <20260831133314.4125787-548-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260831133314.4125787-1-sashal@kernel.org>
 References: <20260831133314.4125787-1-sashal@kernel.org>
@@ -58,481 +58,408 @@ X-stable-base: Linux 6.18.48
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Danielle Ratson <danieller@nvidia.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fee1fc1d5a5475f5516d406a03e443348cd0f06c ]
+[ Upstream commit 25ae123db10ba9ab890b56bcdb0a4363aee8529a ]
 
-When neighbor suppression is enabled on a VXLAN port, the bridge is
-expected to reply to ARP/NS messages on behalf of remote hosts when both
-FDB and neighbor entries exist. This allows the bridge to suppress
-flooding of these messages to the VXLAN overlay.
+This rcu_barrier() came from a time call_rcu() calls were used in
+net/bridge/br_multicast.c.
 
-According to RFC 9161 ("Operational Aspects of Proxy ARP/ND in Ethernet
-Virtual Private Networks"):
-"A PE SHOULD reply to broadcast/multicast address resolution messages,
-i.e., ARP Requests, ARP probes, NS messages, as well as DAD NS messages.
-An ARP probe is an ARP Request constructed with an all-zero sender IP
-address that may be used by hosts for IPv4 Address Conflict Detection as
-specified in [RFC5227]".
+Now kfree_rcu() is there, we can remove this problematic rcu_barrier()
+which causes extreme RTNL pressure in many syzbot reports.
 
-However, the current implementation unconditionally suppresses ARP probes
-and DAD Neighbor Solicitations, which breaks Duplicate Address Detection
-(DAD) over EVPN.
+INFO: task syz-executor:77945 is blocked on a mutex likely owned by task kworker/u1024:5:36537.
+task:kworker/u1024:5 state:D stack:24616 pid:36537 tgid:36537 ppid:2      task_flags:0x4208060 flags:0x00080000 last_sleep:612797637337
+Workqueue: netns cleanup_net
+Call Trace:
+ <TASK>
+  [<ffffffff81914eaa>] context_switch+0xf2a/0x1730 kernel/sched/core.c:6483
+  [<ffffffff81201143>] __schedule+0x1133/0x43a0 kernel/sched/core.c:8411
+  [<ffffffff8120446b>] __schedule_loop kernel/sched/core.c:8514 [inline]
+  [<ffffffff8120446b>] schedule+0xab/0x260 kernel/sched/core.c:8529
+  [<ffffffff8121a093>] schedule_timeout+0xc3/0x2b0 kernel/time/sleep_timeout.c:75
+  [<ffffffff81205347>] do_wait_for_common kernel/sched/completion.c:100 [inline]
+  [<ffffffff81205347>] __wait_for_common kernel/sched/completion.c:121 [inline]
+  [<ffffffff81205347>] wait_for_common kernel/sched/completion.c:132 [inline]
+  [<ffffffff81205347>] wait_for_completion+0x2c7/0x5d0 kernel/sched/completion.c:153
+  [<ffffffff81b8f27f>] rcu_barrier+0x49f/0x620 kernel/rcu/tree.c:3888
+  [<ffffffff860091b3>] br_multicast_dev_del+0x303/0x350 net/bridge/br_multicast.c:4459
+  [<ffffffff85fb5dbc>] br_dev_uninit+0x1c/0x40 net/bridge/br_device.c:157
+  [<ffffffff8568058c>] unregister_netdevice_many_notify+0x1c1c/0x2300 net/core/dev.c:12599
+  [<ffffffff8562be43>] ops_exit_rtnl_list net/core/net_namespace.c:187 [inline]
+  [<ffffffff8562be43>] ops_undo_list+0x3d3/0x940 net/core/net_namespace.c:248
 
-For DAD to work correctly over the VXLAN fabric:
-- When the bridge does not know the answer:
-  flood the probe/DAD packet to allow remote VTEPs to respond.
-- When the bridge knows the answer:
-  reply to indicate the address is in use.
-
-Fix by adjusting the early suppression checks to exclude ARP probes and
-DAD NS from unconditional suppression.
-
-When replying to a DAD NS, br_nd_send() is adjusted to set the NA
-destination to the all-nodes multicast address (ff02::1) and clear the
-Solicited flag, in accordance with RFC 4861 section 7.2.4.
-
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
 Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
 Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://patch.msgid.link/20260429062405.1386417-2-danieller@nvidia.com
+Link: https://patch.msgid.link/20260519095540.2643318-1-edumazet@google.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-# Stable Backport Analysis: bridge: Do not suppress ARP probes and DAD
-NS unconditionally
+## Phase 1: Commit Message Forensics
 
-**Local tree:** Linux **6.18.43** (`git describe HEAD` →
-`v6.18.43-1-gc7f0dac02d232`)
+### Step 1.1: Subject Line
+**Record:** `[net: bridge]` `[remove]` — remove a stale `rcu_barrier()`
+call from `br_multicast_dev_del()`.
 
----
-
-## PHASE 1: COMMIT MESSAGE FORENSICS
-
-### Step 1.1: PARSE THE SUBJECT LINE
-**Record:** `[bridge]` `[fix implicit: "Do not"]` — Stop unconditionally
-suppressing ARP probes and DAD Neighbor Solicitations when neighbor
-suppression is enabled on bridge/VXLAN ports.
-
-### Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
+### Step 1.2: Commit Message Tags
 **Record:**
-- **Reviewed-by:** Ido Schimmel \<idosch@nvidia.com\> (bridge
-  maintainer)
-- **Acked-by:** Nikolay Aleksandrov \<razor@blackwall.org\> (bridge
-  maintainer)
-- **Signed-off-by:** Danielle Ratson \<danieller@nvidia.com\> (author)
-- **Signed-off-by:** Jakub Kicinski \<kuba@kernel.org\> (netdev
-  maintainer)
+- **Fixes:** — not present (expected for manual review)
+- **Reported-by:** — not present; syzbot impact described in body
+- **Tested-by:** — not present
+- **Reviewed-by:** Jakub Sitnicki `<jakub@cloudflare.com>`, Ido Schimmel
+  `<idosch@nvidia.com>`
+- **Acked-by:** Nikolay Aleksandrov `<razor@blackwall.org>` (bridge
+  multicast maintainer)
 - **Link:**
-  https://patch.msgid.link/20260429062405.1386417-2-danieller@nvidia.com
-  (patch 2/N in series)
-- No Fixes:, Reported-by:, Tested-by:, or Cc: stable tags
-- Notable: dual maintainer review (Ido Schimmel + Nikolay Aleksandrov
-  Ack)
+  https://patch.msgid.link/20260519095540.2643318-1-edumazet@google.com
+- **Cc: stable:** — not present (not a negative signal)
+- **Signed-off-by:** Eric Dumazet, Jakub Kicinski (ignore pipeline-added
+  SOBs)
 
-### Step 1.3: ANALYZE THE COMMIT BODY TEXT
+Notable: maintainer ack + two subsystem reviewers; syzbot deadlock stack
+trace in body.
+
+### Step 1.3: Commit Body Analysis
 **Record:**
-- **Bug:** With `BR_NEIGH_SUPPRESS` enabled on VXLAN ports, the bridge
-  unconditionally suppresses ARP probes (sender IP 0.0.0.0) and DAD NS
-  (source address ::), preventing them from being flooded or proxied.
-- **Symptom:** Duplicate Address Detection (DAD) fails over EVPN/VXLAN
-  fabrics; hosts cannot detect address conflicts across the overlay.
-- **RFC basis:** RFC 9161 says PEs SHOULD reply to (or forward) ARP
-  probes and DAD NS; RFC 4861 §7.2.4 governs DAD NA format.
-- **Expected behavior:** Flood probe/DAD when unknown; proxy-reply when
-  FDB+neighbor entry exist.
-- **Root cause:** Early-return suppression checks treat probe/DAD
-  packets the same as other suppressible traffic by matching
-  `ipv4_is_zeronet(sip)` and `ipv6_addr_any(saddr)`.
+- **Bug:** `rcu_barrier()` in `br_multicast_dev_del()` is leftover from
+  the `call_rcu()` era; multicast teardown now uses `kfree_rcu()`.
+- **Symptom:** Extreme RTNL pressure; syzbot reports tasks blocked on
+  mutex during `cleanup_net` workqueue processing.
+- **Failure mode:** `cleanup_net` → `ops_exit_rtnl_list` (RTNL held) →
+  `unregister_netdevice_many` → `br_dev_uninit` → `br_multicast_dev_del`
+  → `rcu_barrier()` → hung task waiting on completion while kworker
+  holds RTNL.
+- **Root cause (author):** Global `rcu_barrier()` drains unrelated RCU
+  callbacks while RTNL is held, creating lock-order / pressure problems.
 
-### Step 1.4: DETECT HIDDEN BUG FIXES
-**Record:** Not disguised — this is an explicit protocol-correctness bug
-fix, not cleanup. The `br_nd_send()` changes fix incorrect NA
-destination (unicast to ::) and wrong Solicited flag for DAD replies.
+### Step 1.4: Hidden Bug Fix Detection
+**Record:** Yes — described as cleanup, but it fixes a real
+hang/deadlock during network namespace teardown. Not cosmetic.
 
 ---
 
-## PHASE 2: DIFF ANALYSIS
+## Phase 2: Diff Analysis
 
-### Step 2.1: INVENTORY THE CHANGES
+### Step 2.1: Change Inventory
 **Record:**
-- **Files:** `net/bridge/br_arp_nd_proxy.c` only (+14 / -8 lines net)
-- **Functions modified:** `br_do_proxy_suppress_arp()`, `br_nd_send()`,
-  `br_do_suppress_nd()`
-- **Scope:** Single-file surgical fix
+- **Files:** `net/bridge/br_multicast.c` only (−2 lines)
+- **Function:** `br_multicast_dev_del()`
+- **Scope:** Single-file, surgical deletion
 
-### Step 2.2: CODE FLOW CHANGE (per hunk)
-
-**Hunk 1 — `br_do_proxy_suppress_arp()`:**
-- **Before:** `(ipv4_is_zeronet(sip) || sip == tip)` → set
-  `proxyarp_replied=1`, return (drop from flooding).
-- **After:** Only `sip == tip` triggers early suppression; ARP probes
-  (sip=0.0.0.0) fall through to lookup/flood/proxy logic.
-
-**Hunk 2–4 — `br_nd_send()`:**
-- **Before:** Always unicast NA to requester; always set Solicited=1.
-- **After:** Detect DAD (`ipv6_addr_any(saddr)`); for DAD, multicast NA
-  to all-nodes (ff02::1), clear Solicited flag per RFC 4861.
-
-**Hunk 5 — `br_do_suppress_nd()`:**
-- **Before:** `ipv6_addr_any(saddr) || saddr==daddr` → suppress
-  unconditionally.
-- **After:** Only `saddr==daddr` suppressed; DAD NS (saddr=::) processed
-  normally.
-
-### Step 2.3: BUG MECHANISM
-**Record:** **Logic/correctness fix** in neighbor-suppression proxy
-path. Setting `proxyarp_replied=1` causes `br_forward.c` to skip
-flooding to `BR_NEIGH_SUPPRESS` ports:
-
-```233:236:net/bridge/br_forward.c
-                if (BR_INPUT_SKB_CB(skb)->proxyarp_replied &&
-                    ((p->flags & BR_PROXYARP_WIFI) ||
-                     br_is_neigh_suppress_enabled(p, vid)))
-                        continue;
-```
-
-Unconditional suppression of probes/DAD meant these packets never
-reached remote VTEPs, breaking cross-overlay DAD.
-
-### Step 2.4: FIX QUALITY
-**Record:** Fix is minimal, RFC-aligned, and obviously correct.
-Regression risk is low — only narrows the early-suppression condition;
-`sip==tip` and `saddr==daddr` cases retain prior behavior. No new locks
-or APIs.
-
----
-
-## PHASE 3: GIT HISTORY INVESTIGATION
-
-### Step 3.1: BLAME THE CHANGED LINES
-**Record:** Buggy suppression logic dates to **ed842faeb2bd** (Oct 2017,
-"bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports" by Roopa Prabhu).
-Original commit already had `ipv4_is_zeronet(sip)` and
-`ipv6_addr_any(saddr)` checks. Present in this 6.18.43 tree.
-
-### Step 3.2: FOLLOW THE FIXES: TAG
-**Record:** No Fixes: tag in commit message. Related stable fixes in
-same file reference `Fixes: ed842faeb2bd` (e.g. `837392a384457`,
-`9c55e41c73af5` for `br_nd_send()` hardening). The introducing commit
-**is** in this tree.
-
-### Step 3.3: FILE HISTORY FOR RELATED CHANGES
-**Record:** Recent changes to `br_arp_nd_proxy.c` in this tree:
-- `5424e678f9b30` — FDB dst snapshot (RCU)
-- `837392a384457` — ND option length validation (Cc: stable)
-- `9c55e41c73af5` — skb linearize before ND parsing (Cc: stable)
-- File introduced at Linux 6.18-rc7 (split from prior monolithic bridge
-  code; logic unchanged since 2017)
-
-### Step 3.4: AUTHOR'S OTHER COMMITS
-**Record:** Danielle Ratson has no other commits in `net/bridge/` in
-this checkout. Fix author is NVIDIA bridge contributor; reviewers are
-subsystem maintainers.
-
-### Step 3.5: DEPENDENT/PREREQUISITE COMMITS
-**Record:** Message-ID indicates patch **2/N** in a series. The diff is
-self-contained in one file with no new symbols or structures. `git apply
---check` succeeds cleanly against current tree. No code dependencies
-identified; patch 1 may be documentation/tests (unverified).
-
----
-
-## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-
-### Step 4.1: ORIGINAL PATCH DISCUSSION
-**Record:** UNVERIFIED — lore.kernel.org and patch.msgid.link blocked by
-bot protection. `b4 dig -c <commit>` not possible (commit not in local
-tree). Message-ID suffix `-2-` confirms multi-patch series.
-
-### Step 4.2: REVIEWERS
-**Record:** UNVERIFIED via b4 dig -w. Commit message shows Reviewed-by
-Ido Schimmel and Acked-by Nikolay Aleksandrov (verified bridge
-maintainers from prior commits in tree).
-
-### Step 4.3: BUG REPORT
-**Record:** No Reported-by or bugzilla/syzbot links. Bug identified via
-RFC 9161 compliance analysis by author.
-
-### Step 4.4: RELATED PATCHES/SERIES
-**Record:** Part of Danielle Ratson series (patch 2). Same file recently
-received stable-nominated `br_nd_send()` fixes from different authors.
-This patch is logically independent.
-
-### Step 4.5: STABLE MAILING LIST
-**Record:** UNVERIFIED — could not access lore stable archive.
-
----
-
-## PHASE 5: CODE SEMANTIC ANALYSIS
-
-### Step 5.1: KEY FUNCTIONS
-**Record:** `br_do_proxy_suppress_arp()`, `br_nd_send()`,
-`br_do_suppress_nd()`
-
-### Step 5.2: CALLERS
+### Step 2.2: Code Flow Change
 **Record:**
-- `br_input.c:172` — ingress path for every ARP/RARP frame on bridge
-  ports
-- `br_input.c:183` — ingress path for IPv6 ND when neighbor suppress
-  enabled
-- `br_device.c:76,87` — bridge device xmit path
+- **Before:** After synchronous GC (`br_multicast_gc`) and
+  `cancel_work_sync(&br->mcast_gc_work)`, call global `rcu_barrier()`.
+- **After:** Return immediately after GC work is synchronized.
+- **Path affected:** Bridge netdev teardown during namespace/device
+  unregistration (error/cleanup path, not hot path).
 
-All are hot networking paths reachable during normal host traffic and
-address configuration.
+### Step 2.3: Bug Mechanism
+**Record:** **Category:** Deadlock / hung task from unnecessary global
+synchronization.
+- `rcu_barrier()` waits for all RCU callbacks system-wide.
+- Called under RTNL during `cleanup_net`.
+- Other workers may need RTNL to complete their RCU callbacks → circular
+  wait.
+- With `kfree_rcu()` only (no `call_rcu()` in this file), the barrier
+  has no bridge-multicast callbacks of its own to wait for; it only
+  stalls unrelated subsystems.
 
-### Step 5.3: CALLEES
-**Record:** `neigh_lookup()`, `br_fdb_find_rcu()`, `br_arp_send()`,
-`br_nd_send()`, `br_is_neigh_suppress_enabled()`, `ipv6_eth_mc_map()`,
-`in6addr_linklocal_allnodes` (all present in tree).
-
-### Step 5.4: CALL CHAIN / REACHABILITY
-**Record:** Userspace/host DAD and ARP probe → bridge ingress
-(`br_handle_frame_finish`) →
-`br_do_proxy_suppress_arp`/`br_do_suppress_nd` → sets `proxyarp_replied`
-→ affects flooding in `__br_forward`. **Reachable from normal network
-traffic** on EVPN/VXLAN deployments with neighbor suppression.
-
-### Step 5.5: SIMILAR PATTERNS
-**Record:** Kernel's own `ndisc.c` already handles DAD NA with
-`in6addr_linklocal_allnodes` and Solicited=0 — the fix aligns bridge
-proxy behavior with core ND stack.
-
----
-
-## PHASE 6: CROSS-REFERENCING AGAINST LOCAL TREE
-
-### Step 6.1: DOES THE BUGGY CODE EXIST?
-**Record:** **YES.** Verified at:
-- `br_arp_nd_proxy.c:168` — `(ipv4_is_zeronet(sip) || sip == tip)`
-- `br_arp_nd_proxy.c:439` — `ipv6_addr_any(saddr) ||
-  !ipv6_addr_cmp(saddr, daddr)`
-- `br_nd_send()` lacks DAD handling (lines 305, 321, 334)
-
-Bug present since ed842faeb2bd (2017), well before 6.18 branch.
-
-### Step 6.2: BACKPORT COMPLICATIONS
-**Record:** **Clean apply** — `git apply --check
-/tmp/bridge_dad_fix.patch` succeeds with no conflicts. No refactoring
-churn in the changed hunks since the 6.18 file split.
-
-### Step 6.3: RELATED FIXES ALREADY PRESENT?
-**Record:** `git log --grep="Do not suppress ARP"` returns nothing. Fix
-**not** yet in this tree. Related `br_nd_send()` hardening commits are
-present but do not address DAD suppression.
+### Step 2.4: Fix Quality
+**Record:** Obviously correct and minimal. Bridge maintainer confirmed
+the barrier is stale. Regression risk is very low: synchronous GC +
+`cancel_work_sync` already ensure teardown ordering; `kfree_rcu` handles
+deferred freeing without a global barrier. Precedent: `writeback: drop
+now-unnecessary rcu_barrier()` was backported to stable (commit
+`29de8448174cf` in this tree).
 
 ---
 
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+## Phase 3: Git History Investigation
 
-### Step 7.1: SUBSYSTEM CRITICALITY
-**Record:** **net/bridge** — IMPORTANT. Affects datacenter EVPN/VXLAN
-overlay networking; not universal but widely deployed in
-cloud/enterprise fabrics.
-
-### Step 7.2: SUBSYSTEM ACTIVITY
-**Record:** Active — multiple bridge commits in 6.18.y including UAF
-fixes, netfilter bridge fixes, and neighbor-suppress-related patches.
-
----
-
-## PHASE 8: IMPACT AND RISK ASSESSMENT
-
-### Step 8.1: WHO IS AFFECTED
-**Record:** Users running Linux bridges with **neighbor suppression**
-(`BR_NEIGH_SUPPRESS` / VLAN neigh suppress) over **VXLAN/EVPN**
-overlays. Config-specific, but targets production datacenter networking.
-
-### Step 8.2: TRIGGER CONDITIONS
-**Record:** Host performs IPv4 ACD (ARP probe) or IPv6 DAD (NS with ::
-source) on a VLAN behind a bridge with neighbor suppression toward VXLAN
-ports. **Common during interface bring-up and address assignment.**
-Unprivileged users can trigger DAD on their own interfaces.
-
-### Step 8.3: FAILURE MODE SEVERITY
-**Record:** DAD silently fails → duplicate IP addresses may go
-undetected across VTEPs → connectivity blackholes, flapping, or traffic
-hijacking. **Not a kernel oops**, but **HIGH operational severity** for
-affected deployments (silent network misconfiguration).
-
-### Step 8.4: RISK-BENEFIT
+### Step 3.1: Blame
 **Record:**
-- **Benefit:** HIGH for EVPN/VXLAN users — restores RFC-compliant
-  DAD/ACD behavior
-- **Risk:** LOW — ~20 lines, narrow condition change, maintainer-
-  reviewed
-- **Ratio:** Strong benefit for affected users, minimal regression risk
+- `rcu_barrier()` at line 4460 introduced by Nikolay Aleksandrov, commit
+  `4329596cb10d23` (2018-12-05), when switching from `call_rcu_bh` to
+  `kfree_rcu`.
+- `cancel_work_sync` added in `e12cec65b5546` (2020-09-07) with the GC
+  refactor.
+- Bug present since 2018; deadlock surfaced under syzbot stress.
+
+### Step 3.2: Fixes: Tag
+**Record:** N/A — no `Fixes:` tag. Original introduction:
+`4329596cb10d23` ("net: bridge: multicast: use non-bh rcu flavor"),
+which is an ancestor of this tree.
+
+### Step 3.3: Related File History
+**Record:**
+- `4329596cb10d23`: `call_rcu_bh` → `kfree_rcu`, kept `rcu_barrier()`
+  (changed from `rcu_barrier_bh()`).
+- `e12cec65b5546`: GC refactor; `br_multicast_dev_del` now uses
+  synchronous `br_multicast_gc()`.
+- No `call_rcu` remains in `br_multicast.c` (verified).
+- Standalone one-patch series (v1 only per `b4 dig -a`).
+
+### Step 3.4: Author Context
+**Record:** Eric Dumazet is a senior networking developer. Nikolay
+Aleksandrov (bridge maintainer) acked. No conflicting follow-up fixes
+found.
+
+### Step 3.5: Dependencies
+**Record:** No dependencies. Prerequisites (`kfree_rcu` migration, GC
+refactor) are both ancestors of HEAD. Patch applies cleanly (`git apply
+--check` → **APPLIES CLEANLY**). Fix commit `25ae123db10ba` is **NOT**
+in this tree.
 
 ---
 
-## PHASE 9: FINAL SYNTHESIS
+## Phase 4: Mailing List and External Research
 
-### Step 9.1: EVIDENCE COMPILED
+### Step 4.1: Original Discussion
+**Record:**
+- `b4 dig -c 25ae123db10ba` →
+  https://patch.msgid.link/20260519095540.2643318-1-edumazet@google.com
+- Single revision (v1, 2026-05-19).
+- Nikolay Aleksandrov: **Acked-by** — confirms barrier is no longer
+  needed.
+- No NAKs found in thread.
+- No explicit `Cc: stable` in thread, but that is not required.
 
-**FOR backport:**
-- Real, long-standing bug (since 2017) present in 6.18.43
-- Breaks DAD/ACD over EVPN — concrete user impact
-- RFC 9161 / RFC 4861 compliance
-- Small, surgical, applies cleanly
-- Reviewed by bridge maintainers (Schimmel, Aleksandrov)
-- Same file recently had other fixes nominated to stable
-- Fixes incorrect DAD NA format in `br_nd_send()` (would send unicast NA
-  to ::)
+### Step 4.2: Reviewers
+**Record:** CC'd: David Miller, Jakub Kicinski, Paolo Abeni, Simon
+Horman, netdev@, Nikolay Aleksandrov, Ido Schimmel. Appropriate
+maintainers/reviewers involved.
 
-**AGAINST backport:**
-- Not a kernel crash, security CVE, or memory corruption
-- Only affects neighbor-suppress + overlay configurations
-- No user bug reports or syzbot in commit message
-- Lore/stable discussion unverified
+### Step 4.3: Bug Report
+**Record:** syzbot-style hung-task trace in commit message and patch.
+Task blocked on mutex during `cleanup_net` / `rcu_barrier`. Reproducible
+under fuzzing; affects netns teardown with bridges.
+
+### Step 4.4: Related Patches
+**Record:** Standalone patch, not part of a series. Similar pattern in
+writeback (`29de8448174cf`, already backported here).
+
+### Step 4.5: Stable List History
+**Record:** Not searched on lore stable@ (WebFetch blocked by bot
+protection for direct lore). No evidence this was rejected for stable.
+Fix is not yet in `stable/linux-6.18.y`.
+
+---
+
+## Phase 5: Code Semantic Analysis
+
+### Step 5.1: Key Functions
+**Record:** `br_multicast_dev_del()` modified.
+
+### Step 5.2: Callers
+**Record:**
+- `br_dev_uninit()` in `net/bridge/br_device.c:157` — called during
+  netdev unregistration.
+- Reachable from `unregister_netdevice_many()` → `ops_exit_rtnl_list()`
+  → `cleanup_net` workqueue.
+- Affects all bridge teardown when `CONFIG_BRIDGE_IGMP_SNOOPING` is
+  enabled.
+
+### Step 5.3: Callees
+**Record:** `br_multicast_del_mdb_entry`, `br_multicast_ctx_deinit`,
+`br_multicast_gc`, `cancel_work_sync`, (removed) `rcu_barrier`.
+- `br_multicast_gc` synchronously calls destroy callbacks that use
+  `kfree_rcu()` for mdb entries, port groups, and group sources.
+
+### Step 5.4: Call Chain / Reachability
+**Record:**
+`unshare(CLONE_NEWNET)` / container stop / `ip netns delete` → netns
+refcount drop → `cleanup_net` → bridge device unregister →
+`br_multicast_dev_del`. Userspace-triggerable via namespace lifecycle;
+common in containers.
+
+### Step 5.5: Similar Patterns
+**Record:**
+- `br.c:506` still has `rcu_barrier()` at **module unload** — different
+  context (fdb kmem_cache teardown), intentionally kept.
+- `writeback` had identical stale-`rcu_barrier` removal backported to
+  stable.
+
+---
+
+## Phase 6: Cross-Reference Against Local Tree
+
+### Step 6.1: Buggy Code Present?
+**Record:** **Yes.** Local tree is **Linux 6.18.44**
+(`stable/linux-6.18.y`). `rcu_barrier()` present at
+`net/bridge/br_multicast.c:4460`. Fix commit `25ae123db10ba` is **not**
+merged.
+
+### Step 6.2: Backport Complications
+**Record:** Clean apply confirmed. No conflicting refactors in this
+function between mainline fix and 6.18.y.
+
+### Step 6.3: Related Fixes Already Present?
+**Record:** No equivalent fix in tree. `git grep "remove stale
+rcu_barrier"` returns nothing. Prerequisites (`kfree_rcu`, GC refactor)
+are present.
+
+---
+
+## Phase 7: Subsystem and Maintainer Context
+
+### Step 7.1: Subsystem Criticality
+**Record:** **net/bridge** — IMPORTANT. Bridge is widely used in
+virtualization, containers, and enterprise networking.
+
+### Step 7.2: Subsystem Activity
+**Record:** Actively maintained; recent multicast fixes from Nikolay
+Aleksandrov in 6.18.y.
+
+---
+
+## Phase 8: Impact and Risk Assessment
+
+### Step 8.1: Who Is Affected
+**Record:** Users with `CONFIG_BRIDGE` + `CONFIG_BRIDGE_IGMP_SNOOPING`
+who tear down bridges during network namespace cleanup (containers, LXC,
+Kubernetes CNI, test harnesses).
+
+### Step 8.2: Trigger Conditions
+**Record:** Network namespace deletion with bridge devices present.
+syzbot reproduces under stress. Not every boot, but realistic in
+container orchestration. Unprivileged users can trigger via user
+namespaces + bridge setup.
+
+### Step 8.3: Failure Severity
+**Record:** Hung task / RTNL deadlock during cleanup — **CRITICAL**
+(namespace teardown stalls, can leave system in degraded state).
+
+### Step 8.4: Risk-Benefit
+**Record:**
+- **Benefit:** HIGH — prevents real hangs in namespace teardown.
+- **Risk:** VERY LOW — 2-line deletion, maintainer-acked, synchronous GC
+  already in place.
+- **Ratio:** Strongly favors backport.
+
+---
+
+## Phase 9: Final Synthesis
+
+### Step 9.1: Evidence Summary
+
+**FOR:**
+- Real, reproducible hung-task / RTNL pressure (syzbot).
+- Critical failure mode during netns cleanup.
+- Minimal, maintainer-acked fix.
+- Buggy code present in 6.18.44.
+- Applies cleanly.
+- `kfree_rcu` has been used since 2018; `rcu_barrier` is genuinely
+  stale.
+- Precedent: similar `rcu_barrier` removal backported in writeback.
+
+**AGAINST:**
+- Only affects configs with bridge IGMP snooping (not universal, but
+  very common in distros).
+- No explicit `Cc: stable` (irrelevant per review rules).
 
 **UNRESOLVED:**
-- Full mailing list thread and whether patch 1/N is required
-- Whether reviewers explicitly nominated for stable
+- Exact syzkaller bug URL not fetched (lore bot-blocked); stack trace in
+  commit is sufficient.
 
-### Step 9.2: STABLE RULES CHECKLIST
-1. Obviously correct and tested? **PASS** — RFC-aligned logic;
-   maintainer-reviewed (no Tested-by)
-2. Fixes a real bug affecting users? **PASS** — DAD broken on EVPN/VXLAN
-   with neigh suppress
-3. Important issue? **PASS** — silent DAD failure → duplicate IPs /
-   overlay misconfiguration (HIGH operational impact for affected
-   configs)
-4. Small and contained? **PASS** — single file, ~20 lines
-5. No new features/APIs? **PASS** — behavior correction only
-6. Can apply to local tree? **PASS** — verified clean apply
+### Step 9.2: Stable Rules Checklist
+1. Obviously correct and tested? **PASS** — maintainer ack, two reviews,
+   syzbot validation.
+2. Fixes a real bug? **PASS** — hung task during netns cleanup.
+3. Important issue? **PASS** — deadlock/hang, CRITICAL severity.
+4. Small and contained? **PASS** — 2 lines, 1 file.
+5. No new features/APIs? **PASS** — deletion only.
+6. Can apply to local tree? **PASS** — clean apply verified.
 
-### Step 9.3: EXCEPTION CATEGORIES
-**Record:** None (not device ID, quirk, DT, build, or docs). Standard
-protocol-correctness bug fix.
+### Step 9.3: Exception Categories
+**Record:** Not a device-ID/quirk/DT/build/doc exception. Qualifies as a
+straight bug fix.
 
-### Step 9.4: DECISION RATIONALE
-
-For **Linux 6.18.y**, this fix should be backported. The buggy code is
-present, has been there since the 2017 neighbor-suppression feature, and
-the patch restores essential DAD/ACD behavior required for correct EVPN
-operation per RFC 9161. While not a kernel panic, broken duplicate-
-address detection in overlay networks is a serious, user-visible
-correctness bug in a configuration pattern common in production
-datacenter deployments. The fix is minimal, applies cleanly, and carries
-maintainer endorsement.
+### Step 9.4: Decision Rationale
+The stale `rcu_barrier()` in `br_multicast_dev_del()` causes real hangs
+when bridges are torn down during network namespace cleanup. The barrier
+was needed for `call_rcu()` callbacks that no longer exist — all
+multicast objects now use `kfree_rcu()` with synchronous GC beforehand.
+Removing it is safe, tiny, and maintainer-approved. The bug exists in
+Linux 6.18.44 and the fix applies cleanly.
 
 ---
 
 ## Verification
 
-- **[Phase 1]** Parsed subject, tags (Reviewed-by, Acked-by, Link), and
-  body text from provided commit message
-- **[Phase 2]** Analyzed full diff: 3 functions, 1 file, logic-
-  classification as protocol correctness
-- **[Phase 3]** `git describe HEAD` → v6.18.43; Makefile → 6.18.43
-- **[Phase 3]** `git show ed842faeb2bd` → original 2017 commit with same
-  buggy conditions; commit exists in tree
-- **[Phase 3]** `git blame` / `git log --oneline ed842faeb2bd..HEAD --
-  net/bridge/br_arp_nd_proxy.c` → bug predates 6.18
-- **[Phase 3]** `git log --grep="Do not suppress ARP"` → empty; fix not
-  present
-- **[Phase 4]** WebFetch lore.kernel.org → blocked (bot protection);
-  **UNVERIFIED** mailing list discussion
-- **[Phase 4]** `b4 dig -c` → cannot use (commit not in tree);
-  **UNVERIFIED** series patch 1 content
-- **[Phase 5]** `grep br_do_proxy_suppress_arp/br_do_suppress_nd` →
-  callers in `br_input.c`, `br_device.c`
-- **[Phase 5]** `grep proxyarp_replied` → flooding gate in
-  `br_forward.c:233-236`
-- **[Phase 5]** `grep in6addr_linklocal_allnodes/ipv6_eth_mc_map` →
-  symbols exist in tree
-- **[Phase 6]** `grep` confirmed buggy lines at 168 and 439 in current
+- [Phase 1] `git show 25ae123db10ba`: parsed subject, tags, body, stack
+  trace
+- [Phase 2] Read `br_multicast_dev_del()` at lines 4444–4461; confirmed
+  −2 line diff
+- [Phase 2] `grep call_rcu net/bridge/br_multicast.c`: no matches (only
+  `kfree_rcu`)
+- [Phase 3] `git blame -L 4458,4461`: `rcu_barrier` from
+  `4329596cb10d23` (2018)
+- [Phase 3] `git show 4329596cb10d23`: `call_rcu_bh` → `kfree_rcu`, kept
+  `rcu_barrier`
+- [Phase 3] `git show e12cec65b5546`: GC refactor with synchronous
+  destroy
+- [Phase 3] `git merge-base --is-ancestor`: both prerequisite commits in
   tree
-- **[Phase 6]** `git apply --check /tmp/bridge_dad_fix.patch` → **clean
-  apply**
-- **[Phase 6]** `git log --grep` → no duplicate fix already applied
-- **[Phase 7]** `git log --oneline -20 -- net/bridge/` → active
-  subsystem
-- **[Phase 8]** Failure mode assessed from code path: `proxyarp_replied`
-  blocks flooding to neigh-suppress ports
+- [Phase 3] `git merge-base --is-ancestor 25ae123db10ba HEAD`: **NOT IN
+  TREE**
+- [Phase 3] `git apply --check`: **APPLIES CLEANLY**
+- [Phase 4] `b4 dig -c 25ae123db10ba`: lore URL found
+- [Phase 4] `b4 dig -w`: netdev maintainers CC'd
+- [Phase 4] `b4 dig -a`: v1 only, no later revisions
+- [Phase 4] mbox: Acked-by Nikolay Aleksandrov; Reviewed-by Sitnicki,
+  Schimmel
+- [Phase 5] `grep br_multicast_dev_del`: caller `br_dev_uninit` at
+  `br_device.c:157`
+- [Phase 5] Read `ops_exit_rtnl_list` at `net_namespace.c:165–189`: RTNL
+  held during unregister
+- [Phase 5] Read `br_multicast_gc` at lines 893–902: synchronous destroy
+  with `kfree_rcu`
+- [Phase 6] `git describe HEAD`: v6.18.44; `make kernelversion`: 6.18.44
+- [Phase 6] Confirmed `rcu_barrier()` at line 4460 still present
+- [Phase 6] `git log stable/linux-6.18.y --grep="stale rcu_barrier"`: no
+  match
+- [Phase 8] `git show 29de8448174cf`: precedent for stale `rcu_barrier`
+  removal in stable
+- [Phase 8] `grep rcu_barrier net/bridge/`: only `br_multicast.c:4460`
+  and `br.c:506` (module exit)
 
-**YES**The background `git log -S "BR_NEIGH_SUPPRESS"` search timed out
-because it scanned the full repo history. I killed it and reran a scoped
-search under `net/bridge/` instead.
+**YES**The background checks finished and match the earlier analysis.
 
-That narrower search wasn’t very useful on its own (it only hit the
-tree-import commit), but the analysis already had the real answer from
-`git show ed842faeb2bd`: neighbor suppression and the buggy probe/DAD
-suppression logic were introduced in October 2017 and are present in
-this 6.18.43 tree.
+**Task 65367** (`git log -S "rcu_barrier"` on `br_multicast.c`): the
+only relevant hit was `10cc2b50eb4b0` (RCU race fix in
+`br_multicast_stop`). The `rcu_barrier()` in `br_multicast_dev_del()`
+came from the 2018 `kfree_rcu` migration (`4329596cb10d23`).
 
-The backport recommendation stands: **YES** — a small, RFC-aligned fix
-for broken DAD/ACD over EVPN/VXLAN when neighbor suppression is enabled.
+**Task 65368** (stable branch search): the fix commit `25ae123db10ba` is
+**not** in `stable/linux-6.18.y`. The stale `rcu_barrier()` is still
+present at line 4460 in this tree.
 
- net/bridge/br_arp_nd_proxy.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+**Verdict unchanged: YES** — backport to Linux 6.18.y. It’s a 2-line
+removal that fixes syzbot-reported hangs during netns/bridge teardown,
+applies cleanly, and is acked by the bridge maintainer.
 
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 7ace0f4941bb6..4cd3470e5f56c 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -165,7 +165,7 @@ void br_do_proxy_suppress_arp(struct sk_buff *skb, struct net_bridge *br,
- 			return;
- 		if (parp->ar_op != htons(ARPOP_RREQUEST) &&
- 		    parp->ar_op != htons(ARPOP_RREPLY) &&
--		    (ipv4_is_zeronet(sip) || sip == tip)) {
-+		    sip == tip) {
- 			/* prevent flooding to neigh suppress ports */
- 			BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
- 			return;
-@@ -263,6 +263,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
- 	int ns_olen;
- 	int i, len;
- 	u8 *daddr;
-+	bool dad;
- 	u16 pvid;
+ net/bridge/br_multicast.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index ce34881a9d96e..1014f6221472e 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -4456,8 +4456,6 @@ void br_multicast_dev_del(struct net_bridge *br)
+ 	br_multicast_ctx_deinit(&br->multicast_ctx);
+ 	br_multicast_gc(&deleted_head);
+ 	cancel_work_sync(&br->mcast_gc_work);
+-
+-	rcu_barrier();
+ }
  
- 	if (!dev || skb_linearize(request))
-@@ -301,8 +302,13 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
- 		}
- 	}
- 
-+	dad = ipv6_addr_any(&ipv6_hdr(request)->saddr);
-+
- 	/* Ethernet header */
--	ether_addr_copy(eth_hdr(reply)->h_dest, daddr);
-+	if (dad)
-+		ipv6_eth_mc_map(&in6addr_linklocal_allnodes, eth_hdr(reply)->h_dest);
-+	else
-+		ether_addr_copy(eth_hdr(reply)->h_dest, daddr);
- 	ether_addr_copy(eth_hdr(reply)->h_source, n->ha);
- 	eth_hdr(reply)->h_proto = htons(ETH_P_IPV6);
- 	reply->protocol = htons(ETH_P_IPV6);
-@@ -318,7 +324,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
- 	pip6->priority = ipv6_hdr(request)->priority;
- 	pip6->nexthdr = IPPROTO_ICMPV6;
- 	pip6->hop_limit = 255;
--	pip6->daddr = ipv6_hdr(request)->saddr;
-+	pip6->daddr = dad ? in6addr_linklocal_allnodes : ipv6_hdr(request)->saddr;
- 	pip6->saddr = *(struct in6_addr *)n->primary_key;
- 
- 	skb_pull(reply, sizeof(struct ipv6hdr));
-@@ -331,7 +337,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
- 	na->icmph.icmp6_type = NDISC_NEIGHBOUR_ADVERTISEMENT;
- 	na->icmph.icmp6_router = (n->flags & NTF_ROUTER) ? 1 : 0;
- 	na->icmph.icmp6_override = 1;
--	na->icmph.icmp6_solicited = 1;
-+	na->icmph.icmp6_solicited = dad ? 0 : 1;
- 	na->target = ns->target;
- 	ether_addr_copy(&na->opt[2], n->ha);
- 	na->opt[0] = ND_OPT_TARGET_LL_ADDR;
-@@ -436,7 +442,7 @@ void br_do_suppress_nd(struct sk_buff *skb, struct net_bridge *br,
- 	saddr = &iphdr->saddr;
- 	daddr = &iphdr->daddr;
- 
--	if (ipv6_addr_any(saddr) || !ipv6_addr_cmp(saddr, daddr)) {
-+	if (!ipv6_addr_cmp(saddr, daddr)) {
- 		/* prevent flooding to neigh suppress ports */
- 		BR_INPUT_SKB_CB(skb)->proxyarp_replied = 1;
- 		return;
+ int br_multicast_set_router(struct net_bridge_mcast *brmctx, unsigned long val)
 -- 
 2.53.0
 
