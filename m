@@ -1,67 +1,67 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3DB53FF88D
-	for <bridge@lists.linux.dev>; Mon, 31 Aug 2026 12:31:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 549C3408017
+	for <bridge@lists.linux.dev>; Mon, 31 Aug 2026 12:37:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788179486; cv=none; b=qtjnbA2n1qLgXzkW3HSZLO310MiVsZYP+j0McEQhhQshqbiNM50R4Wcg8xRiH06Drd3IGxR/xmEUmOvnhlUfoZVxr+u4L2hyD3EqiVyABaNLP7M0Qngv8WlzoRArZ7zdkGXzEy7H2Hvou9+qFzH5QyCFRP/np44qsOu/jo3rwhM=
+	t=1788179833; cv=none; b=tYNhQwWHSF6367C77yAc4RTiA+qdeRTt3opFCXnAi6yCuSwkE5Q6+DbyMXq/qWrZjp3ERAJzH8onKSVqj7iwJrjeKpVVZtH/XcQsKmft4d1JjEvdf263EomAvwO2whtqQlR0rOeWwupjA1kl3Rpq2jMy0iinsgQDOrlpaKbsBHE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788179486; c=relaxed/simple;
-	bh=Y0V/3uw6Dclec70rKLWcztfNr2TyqhPTDR3WmwbMJ+Q=;
+	s=arc-20240116; t=1788179833; c=relaxed/simple;
+	bh=vU5Pm5j/kRRP83h0uEZ8fm34t1t9ZA6JsaLkvTmcYuY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=noCnbQspJHp1zFEwQ5U7zKEtlT0eJdHW/GyruGpEVFoD7X0MBGdg/nK7jvy0bMOUMC3ngMWmE0dricnPb81IlAPG56XCW/lLYH4c55v1oT6lRFyDsZb8vbtaHxAA29gybz1ESSlIIOTan0D64S9R57ytrTAvc6GMwSgqyHACimA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=hSbkLE+o; arc=none smtp.client-ip=209.85.128.54
+	 In-Reply-To:Content-Type; b=fTuD6uQUOWrAt7Gj9+sIndHqa2rjOJW5n4AgHonn4uDrD+eH6pPWzj3pOLbaDnaqw0FMjzy1d6NSW0onglnzOwvC0Rp2mB4cvW3iJ8sx76kq/5ugIDbBL7zcLSxl4V3ThtHleC94AayC54Ci5sdZh63Uz0/Wld1hpRK44ujqyyo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=m42ER0Sp; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="hSbkLE+o"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-490cf322ed0so39754675e9.1
-        for <bridge@lists.linux.dev>; Mon, 31 Aug 2026 05:31:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="m42ER0Sp"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4998b5a63e2so32467635e9.1
+        for <bridge@lists.linux.dev>; Mon, 31 Aug 2026 05:37:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1788179483; x=1788784283; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1788179828; x=1788784628; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=hMHSz/yOqpOw4BUuWyRgv2r2RwaD0GDIsQCXrSNiv3U=;
-        b=hSbkLE+olRNBA01H0ps8VkkvVQHftsL91L054PajSCIa/Wl6xqVIeX92LQucsmHaWc
-         47rKtAQbGzs3YZGcQc2EKvu5ZSVFHVRkbjFzyqCaKA8ElW5ofC63F3B+7w04mGpF5P9K
-         tRigNBy3KW2fC+jsVB0NrJkrvaJoWHI/j8NZFMb0ahoCFtRYCA12C2NR9dpt569rAg+F
-         6V118sYN5ZMdNKwtgdwOEafixpFLyqTUwPWqnGsDrE+mJYnsqBR3jnjgSIUmOQonHb7L
-         XGisiyWj1zvJX+Ie3R6mj9nhmdrYCYXUoFtF1q/Nid50YLQHku3X9gxeSb+P2vcrkE/3
-         7HeQ==
+        bh=bcg00jdxBoVgvjWMidECdjzP3FFCwSJCVtYTTaC2+bg=;
+        b=m42ER0SpLBLXwaUXRmMy522SMMf85QoFYGJAMIxRZfYUjwu3SRzZkeLL4nBoVL4+2+
+         Hn/C+3Z6Dc8maWXJ3EEHzqAGZOwJIfIXFCDijkkLe0x2GvuGZ2jHjbZmgL+48qG3fmeO
+         HzWtRTJAD5zJEv0SX57kDC0YjsG0JRJ+DYjDwAMvVeb2nk90dOll3cBiBV6QxkXEa9Mu
+         ycwelR0a72219yt6SPPr77jpHCIW8VTSTSRCrvqrZqQGQV5uVQc8ZnzRtN5ys0WTS36d
+         Mc32DzczDBgd+0C3AOEdKYBMYX9W5y0zAYoeRGFOQ+/zbdl9aHz7ynU3Hzg/vdvidxBh
+         Qy9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788179483; x=1788784283;
+        d=1e100.net; s=20251104; t=1788179828; x=1788784628;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=hMHSz/yOqpOw4BUuWyRgv2r2RwaD0GDIsQCXrSNiv3U=;
-        b=oGUOeGC8ggxvL9r3UkdhDqwZv+fkUKMkT4GGfXeO9E1evhR5kNyVXuN5GK3ouLiK4G
-         ruBz64zn/2mL1cqRMEaxA3ZdKU+nVO2NUtOIw2RUvBM1QX9rxDFHhzfdi7yLlpiu8sEi
-         KXgWqCE7/z/bPtIDoMLjsoTBbimmO+BcmhEW3ZiIzqC8wOusqB1wMNl3vYSetZoi4kHv
-         5KHRcFbCoW8HKqE5gn/UP1SRhDk0Mp/7TaabuP9BuFlsDO1CNL2Ac/W6fB/R7p6uLfBA
-         fTit3Z+hTFMOSRAksw7HvzM/EiXTJBxvZTuWvgSHNbKmWlWqZ7fsRkm7LFiNjcNq1Bwg
-         6uyg==
-X-Forwarded-Encrypted: i=1; AHgh+RrNyINF/61cMwpL5d8kak53hH4RTxRnT+larJmIdTc/CZq6Bdrc1HYTZVBJ97lZHLPXbOeoQio=@lists.linux.dev
-X-Gm-Message-State: AFuF++njm88hYdAiq6735kacYm8pvBkGcwP6d3oGTg58UFVCvDoxSwVR
-	PbSiOs92irNI8WE+Ls9NpNgajon4EMEFWgFTK7voVoVdeAk+7opgMQneUEbjQE9A1Z0=
-X-Gm-Gg: AR+sD10fw86+8iZlh1iqCDuEtWmJnrXU3TAWp98jcNvUGWooONM8nmm3g3VdUce82zQ
-	mIu/QEHyx5hn8DBpmVWs5wpSJJU1KEnbmRaUMENQNdenUurBXu4gZJq8S5KfLq5NkPNh6bn39Gr
-	U1MAPytkpfQHxSOWw9Y45Y7sQXzI6d73XSmwhLmlcVCvnT6RIYZukxRKUnjIB8Y27xgCfZRANvD
-	plV6a1mlVRbbSOKaCaLgJcxu6sYAqNgwdwZepHOly0gnFPwsOtKze2loW8AhMHqom6USkSOEWZQ
-	N+zAnECRTXKMYsXj7glHs4ab7Nggw9eaBGcE4P3TOVbJ8PNjbW36WgIzsbJ9WFyxPfMaSLgl6e0
-	ONO8Gueuhmveh6KRWwmzhSaSUlY3uYB9zfM5gB/kqF9/JVmFQgHBwgSxr8qsCuCIHfAevswCsP2
-	LDpQ1ELT4WRzyotapbZa1i4iF8X4GhGvzjeDnCasSFKLN9A+gRuTsVPdmdClcohxKp0ch5YgrDL
-	qiQ+i1pL8rQx8iWUd8=
-X-Received: by 2002:a05:600d:8498:20b0:499:dbae:86be with SMTP id 5b1f17b1804b1-49b91c4de9bmr308024275e9.14.1788179482535;
-        Mon, 31 Aug 2026 05:31:22 -0700 (PDT)
+        bh=bcg00jdxBoVgvjWMidECdjzP3FFCwSJCVtYTTaC2+bg=;
+        b=JbyulmkwK0uEhP1tJzbondRH3GX/pJrC5qAJShMDLxT0GJsZsdCShNrWMeiRzIgd6b
+         KsqFh9Pw+yBanzXDB0JAUaTk9Sv7IpPpy2DRd4QZBT99AiSyg2GOou6b2/MDTG/GtpfU
+         3Pmymf5tmPch0SO8C0G+bMup7tZLF3UbwDcKbp2In+ZxMhPpFADhX8JHq9mP+U1aXf8n
+         VUadVmTdWDrWlgaeCJ0RFL+d81Zf8M77T9YGFbFxjoPogJPC+s94jnlxpUYj7JljT4gL
+         eEHl7HiaDY7YnEqDsSKm8c0Ao+Qga5/0Qov8W81KzhO1lzSHm6/AiKU7C88r+6+eCNSZ
+         qoHw==
+X-Forwarded-Encrypted: i=1; AHgh+Rq4WDIq+WsX12I0BPetXt21civiVOFlKsIiNVPoIfTxdgVs8GbfFRGb+RiXu21/+p9tIzwL46k=@lists.linux.dev
+X-Gm-Message-State: AFuF++lRNGYTjcmq15NVU9jV/l6XJ7mkEKZ9M8NB9SwUXihGpwXyaco+
+	esQoBUXMqpUHarCsICSkuaS8dOhOw/4laNoK74zrUWNkKnwxLeMEMROjOe6VfwABTsU=
+X-Gm-Gg: AR+sD13pGJjLadnO7cdwLqblutT96pKmqm3fK5s99LVJaOu/IhTmK1uNXqbUddLxjb6
+	lTGduklCO9DG/i+6e0oK7UywG2r3joxgcoZisdcPCv+zNovy/ZO543CSTtHKXprRA+yxSgetXV1
+	XYL2khbRI2MRgYejbYjtR8zIvMND6g+cIgu1dIEP3/v1e8lERDbBNOXzrPnj0NQY0FaM8jhKGT+
+	7UlcXRMM2H6jZJ2eH1kOp8L7u4wah5lv1p5AGqN5I92MlHWEvgBpFlW5Sgp4kYoiB9m9oTItBZB
+	sYZKPDOwxWaLU58QFgB4gaAW/uhBmuM/hHdEa+d8DxIesGOUcB9Qoo2EjHaATkbivEUOHguwPMj
+	MhPGhrK0aHB9Lf49CQkx6a8QFIhm47DSIeaFl7frNOsNY5DU+MAqFqsMJPXe75w0d6kcmQoqVW5
+	FuJZWXDglWQghdOHaZ667CycejFvVS/AWnq5R3kEvg38me3JrOChSXoBAfKcSWckKQVDpVAe1XZ
+	dp1b2GapL/Y0PQ/7VQ=
+X-Received: by 2002:a05:600c:34d2:b0:49c:cbad:1c44 with SMTP id 5b1f17b1804b1-49ccbad1cf1mr290301455e9.6.1788179827630;
+        Mon, 31 Aug 2026 05:37:07 -0700 (PDT)
 Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49ccae954f9sm216243985e9.13.2026.08.31.05.31.19
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48436e2af3asm12016571f8f.12.2026.08.31.05.37.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Aug 2026 05:31:20 -0700 (PDT)
-Message-ID: <b30a2594-b154-4f52-9afd-2db0f9d78bb3@blackwall.org>
-Date: Mon, 31 Aug 2026 15:31:19 +0300
+        Mon, 31 Aug 2026 05:37:06 -0700 (PDT)
+Message-ID: <e9dfedbf-b49c-436e-b01b-cd9cc02618cc@blackwall.org>
+Date: Mon, 31 Aug 2026 15:37:05 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -69,76 +69,104 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] bridge: skip generic XDP on locally re-injected
- packets
+Subject: Re: [PATCH net v3] net: bridge: mcast: don't truncate the port group
+ walk on teardown
 Content-Language: en-US, bg
-To: Zhao ShiRong <shxzhaosr@163.com>, netdev@vger.kernel.org
-Cc: Ido Schimmel <idosch@nvidia.com>, "David S . Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- bridge@lists.linux.dev, syzbot+128e9f5a0f85a51215b1@syzkaller.appspotmail.com
-References: <20260831113051.13072-1-shxzhaosr@163.com>
+To: Jun Yang <littleddfu@gmail.com>, Ido Schimmel <idosch@nvidia.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>
+Cc: Simon Horman <horms@kernel.org>, stable@vger.kernel.org,
+ TencentOS Corvus AI <corvus@tencent.com>, bridge@lists.linux.dev,
+ netdev@vger.kernel.org, Jun Yang <junvyyang@tencent.com>
+References: <20260831111330.199543-1-junvyyang@tencent.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260831113051.13072-1-shxzhaosr@163.com>
+In-Reply-To: <20260831111330.199543-1-junvyyang@tencent.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 31/08/2026 14:30, Zhao ShiRong wrote:
-> Packets locally delivered by the bridge are re-injected into the
-> receive path via br_pass_frame_up() -> br_netif_receive_skb() ->
-> netif_receive_skb() with skb->dev set to the bridge device.  If the
-> bridge device has an XDP program attached, __netif_receive_skb_core()
-> runs do_xdp_generic() a second time on such packets.
+On 31/08/2026 14:13, Jun Yang wrote:
+> __br_multicast_disable_port_ctx() and br_multicast_del_port() walk
+> port->mglist with hlist_for_each_entry_safe(). However,
+> br_multicast_find_del_pg() can also delete other entries from the same
+> list through br_multicast_fwd_src_remove() or __fwd_del_star_excl().
 > 
-> A locally-delivered packet that was allocated on the TX path (e.g. an
-> MLD packet built by mld_newpack()) does not carry the
-> XDP_PACKET_HEADROOM that generic XDP requires, so
-> netif_skb_check_for_xdp() calls pskb_expand_head() and reallocates the
-> skb head buffer.  This frees the head that the bridge rx path
-> (br_handle_frame() / br_handle_frame_finish()) is still using, leading
-> to a use-after-free read in br_handle_frame():
+> If such an entry is the iterator's saved next node, hlist_del_init()
+> clears its ->next and terminates the walk early. The reproducer triggers
+> this in both teardown walks, leaving port groups in the bridge mdb with
+> a dangling ->key.port after del_nbp() frees the port:
 > 
->    BUG: KASAN: slab-use-after-free in is_multicast_ether_addr [inline]
->    BUG: KASAN: slab-use-after-free in is_valid_ether_addr [inline]
->    BUG: KASAN: slab-use-after-free in br_handle_frame+0xcfb/0x1510 net/bridge/br_input.c:349
+>    BUG: KASAN: slab-use-after-free in __mdb_fill_info+0x1191/0x1320
+>     __mdb_fill_info+0x1191/0x1320
+>     br_mdb_dump+0x594/0xe40
+>     rtnl_mdb_dump+0x1cf/0x5d0
 > 
-> netif_receive_generic_xdp() already refuses to run generic XDP on
-> reinjected packets by checking skb_is_redirected().  Reuse that marker:
-> set it right before the bridge re-injects the packet, so generic XDP is
-> skipped and the head buffer is left intact.
+> Use hlist_del_init_rcu() to unlink the group while preserving ->next.
+> br_multicast_del_pg() and the teardown walks run under
+> br->multicast_lock. The GC worker must acquire the same lock before
+> detaching the group for destruction, so the node remains alive while
+> the walk uses the preserved pointer.
 > 
-> Reported-by: syzbot+128e9f5a0f85a51215b1@syzkaller.appspotmail.com
-> Link: https://lore.kernel.org/all/6a6d4406.2d659fcc.1d46f5.01ad.GAE@google.com/T/
-> Signed-off-by: Zhao ShiRong <shxzhaosr@163.com>
+> Preserving ->next means a walk can now reach a group that an earlier
+> iteration already deleted as a side effect. That group is off mp->ports,
+> so br_multicast_find_del_pg() would fall through its port scan and hit
+> the trailing WARN_ON(1). Skip such groups at the top of that helper: a
+> port group is put on port->mglist when it is created and only unlinked
+> when it is deleted, so hlist_unhashed() identifies exactly this case.
+> 
+> Fixes: b08123684bd5 ("net: bridge: mcast: install S,G entries automatically based on reports")
+> Cc: stable@vger.kernel.org
+> Suggested-by: Nikolay Aleksandrov <razor@blackwall.org>
+> Reported-by: TencentOS Corvus AI <corvus@tencent.com>
+> Assisted-by: tencentos-corvus-ai:kimi-k3
+> Signed-off-by: Jun Yang <junvyyang@tencent.com>
 > ---
->   net/bridge/br_input.c | 6 ++++++
->   1 file changed, 6 insertions(+)
+> v3: skip already-unlinked groups at the top of br_multicast_find_del_pg()
+>      instead of in each teardown walk, per Nikolay's suggestion, so the
+>      preserved ->next no longer leads to the trailing WARN_ON(1).
 > 
-> diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-> --- a/net/bridge/br_input.c
-> +++ b/net/bridge/br_input.c
-> @@ -26,6 +26,12 @@ static int
->   br_netif_receive_skb(struct net *net, struct sock *sk, struct sk_buff *skb)
->   {
->   	br_drop_fake_rtable(skb);
-> +
-> +	/* Re-injected for local delivery: do not let generic XDP run on the
-> +	 * bridge device a second time, it could reallocate the head via
-> +	 * pskb_expand_head() and free a buffer still in use.
-> +	 */
-> +	skb_set_redirected_noclear(skb, false);
->   	return netif_receive_skb(skb);
->   }
+> v2: https://lore.kernel.org/netdev/20260826014200.362304-1-littleddfu@gmail.com/
+>      Use hlist_del_init_rcu() to preserve ->next, as suggested by Nikolay,
+>      instead of restarting the walks.
+> 
+> v1: https://lore.kernel.org/all/20260812113435.1854275-1-junvyyang@tencent.com/
+> 
+>   net/bridge/br_multicast.c | 13 ++++++++++++-
+>   1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+> index 00aa9b2879d6..ea0a50eb8b77 100644
+> --- a/net/bridge/br_multicast.c
+> +++ b/net/bridge/br_multicast.c
+> @@ -808,7 +808,11 @@ void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
+>   	struct hlist_node *tmp;
 >   
-> --
-> 2.43.0
-> 
+>   	rcu_assign_pointer(*pp, pg->next);
+> -	hlist_del_init(&pg->mglist);
+> +	/* Keep ->next (held under multicast_lock, freed later by the GC work):
+> +	 * a port->mglist teardown walk may have latched this node as its next,
+> +	 * and deleting other groups of the same port must not truncate it.
+> +	 */
+> +	hlist_del_init_rcu(&pg->mglist);
+>   	br_multicast_eht_clean_sets(pg);
+>   	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node)
+>   		br_multicast_del_group_src(ent, false);
+> @@ -835,6 +839,13 @@ static void br_multicast_find_del_pg(struct net_bridge *br,
+>   	struct net_bridge_mdb_entry *mp;
+>   	struct net_bridge_port_group *p;
+>   
+> +	/* A teardown walk over port->mglist can reach a group that an earlier
+> +	 * iteration already deleted as a side effect. It is off mp->ports by
+> +	 * now, so skip it instead of falling through to the WARN_ON() below.
+> +	 */
+> +	if (hlist_unhashed(&pg->mglist))
+> +		return;
+> +
+>   	mp = br_mdb_ip_get(br, &pg->key.addr);
+>   	if (WARN_ON(!mp))
+>   		return;
 
-Nacked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-This is wrong on multiple levels, use your head for 2 seconds before blindly
-sending AI crap. This was sent ~2 hours after the report was sent, did you
-even test your patch or just hit send? Very disturbing practice anyway.
+This should be fine, let's also see what sashiko thinks. :)
 
-Perhaps we should clone the skb for passing it up to the bridge when a fwding
-helper is using it (i.e. when there are actually clones).
+Reviewed-by: Nikolay Aleksandrov <razor@blackwall.org>
+
