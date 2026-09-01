@@ -1,64 +1,64 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7AEE38D401
-	for <bridge@lists.linux.dev>; Tue,  1 Sep 2026 12:07:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 702FA37C923
+	for <bridge@lists.linux.dev>; Tue,  1 Sep 2026 12:07:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788264467; cv=none; b=DJY6RIrATzHz8mdvSooFC7Xs0L2LdE/uw9PzzMJEZTcaMSODSSTfVrZ0M644wSX3ZOV0QG/kcPMFhuHo2tfnBpHbOijO1t6dxNnjcpJqmmiNZi8EX3BfZoNAn7tOU2nIkT7MkgbsPgaZj59UHcobUrQYUO7QJtFVvcfddPk4Rao=
+	t=1788264468; cv=none; b=VDwajZMntxHGh6HoauNFiwUO1QsdgC4AGH/qzO56oZTqNTZI3MkHmn/De217CG6UgnPELxvkbq5JsSR9G9Ze4zpDJzLVzm7bvuqsMZmcg/2AdXQ+glYO2kcHHKxBGUDM4GipDwneCd/QYL6YWCJ/BpCJkZJk5QifvtVoTzvNglI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788264467; c=relaxed/simple;
-	bh=wXTs7/mwUOm9B82JGE5NjvfCN2BrknQqFyvqV/ssMQM=;
+	s=arc-20240116; t=1788264468; c=relaxed/simple;
+	bh=yJfkb3hM5Pba0nKvWUAIgOdfux2UtM7ON45POiZc+dE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hA8Wjy/6VXkJ7ofVAsOL0gILcSqLb6vrOKKHMnakWHBYjdkvluArroaUik+iqozj6xleu1kU5Ww2GYQG8YsD/US+g8lS0THTm8/fVEtlhI5K01RP9GaNgWoFkd61bKu77VjYc58XK3pyVEdzmqJJ6SFWThqkfeoebK5HjjDVUTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=FgwGotHt; arc=none smtp.client-ip=209.85.128.46
+	 MIME-Version; b=L0VsjUwlCv8Um0XTYpXrR9o+3qLLOuaS3vTpncELLjSwP9w8Oo0jZe731jAGlD/HW3XKJuBo2saJ2ecYV18pKBEztWEOlx2CaK4H+hhi+axo4KjhViSnsMKru2Gc2VGlqHJMembAjnJU5c0wTBZQmS0SQAmPNiLP8MRSknlRaSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=NaEyfW0b; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="FgwGotHt"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4957eefd361so6425045e9.1
-        for <bridge@lists.linux.dev>; Tue, 01 Sep 2026 05:07:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="NaEyfW0b"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-49b0d78a801so37737945e9.2
+        for <bridge@lists.linux.dev>; Tue, 01 Sep 2026 05:07:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1788264464; x=1788869264; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1788264466; x=1788869266; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=17pAeXAPWqC20adwChneYdX1dfRnINnx5gBEzZVTcEg=;
-        b=FgwGotHtRvrpn0z6zx93Anyf2tfcYs7UCz2+vW3s1oK00tjiWxcBr1Mp6OtSnQ2V5U
-         IMvdh+Pa9LtzZsV/18t0GI6bKQvuaehsMLO/3KGTVT3lehS1qcUfpTQ8ttz6rtgj4sE/
-         pxW/IzBaP3/xuuqAmkRo88WfbMLBtuwS1p8TJ/CNHdwkuWFeZQNzvFcOauDAox6sSofx
-         5eJSVpwd64G8cHdiboLB1txaFaWEZMWRsSKAA7C//3n7G0wyDkRgdhdJgPCcX/d6YXCn
-         EzA3voVKJ7Rm/Oijh5UpbiI8tD6i1I6y6QY0/0WEcNEKYP/jkL7touXqE/m0txLKxa2+
-         HbyA==
+        bh=2HFs9DuHBOZWo0pRLMgZ/aZaO5LCPX7IYZ0kiem5E6M=;
+        b=NaEyfW0bn/WsN5F+/I/LMgQ8mxz9ewsrroHKjOUP6alHDXdeHMVfGTIel/26E0GZEo
+         2eVb3VUo/KtsmGbCCsQmsQfxxAZvKWyNI8Bvcvx8bCa1Euqbt7m0yURxydG8bYJmnya3
+         az1orB9Bn1KuXIDlEWz2DuNFGLhOCqr4bMj/VOSy3B86FPWzV5PQOdMID60Khwprsgyt
+         vbu89h9L2h5IFoEiC+Q69wlOhRa7UeAWzCljkIExPVQW+H3Xd0D2Y/TPewy8rrGHYp3a
+         Ib1EgryzLae4aD54nh/KWJYnyNQFWv8n+oDZLJPQnw1WOk93OWtNXu1Wr4NalISRZpkE
+         /Kbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788264464; x=1788869264;
+        d=1e100.net; s=20251104; t=1788264466; x=1788869266;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=17pAeXAPWqC20adwChneYdX1dfRnINnx5gBEzZVTcEg=;
-        b=gu854rc5ce0oQMz1ul+j5tyFWWijrSv+BLC3dTZAKzBR+5suQKLHzZwWmq1GMtx6m9
-         C0NwwQ+BLIwC1ltKc/dGvLxRhJEw/wOuDyrLuGiV95fE/Ve+QPNBMgOh6wf/NZ12NQHb
-         /UGGNS5BEa+laWfN3b6W3QK66QM6ja4Y0nfHsBByH2lGMnQ4vlsVHcfnruVjodQAUBqW
-         brYFDj/eoG49ZjiX2gZl3lZ/C/4H52N1/S3ZPOtkxRMB46fmMsAzS+Tus2c9T7eNjQt2
-         GoosurlyAHmKiIq1gUe0tdUmXdwsW2VkYwW4q/TwBAZGld7GvZJe4zvZctAfiBIsOYOm
-         zXMQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rp0W9AkHuV4YzLE2TQhiaMnmfmfwAxc/4uG0b7ZeeM5mZK/5UwTWz7/TAmyF9WQz1HqG9tb+Y4=@lists.linux.dev
-X-Gm-Message-State: AFuF++kLdWRoDFVFEwGMWhREPzbiNkyo/JtB0bVXFepMMXjvlMoIkoSL
-	N1iW+iR/AGVT+BVSQWnwXrGbsLAh4VIYsvkvboNcke3TJb9MIXIgDQcWAfa0huZi0p4=
-X-Gm-Gg: AR+sD13YZ6wqtdArQod+x0FUgkYn2yHG092E6sDOoeAcW5q6EcXsuEKujFOqtUMeYaS
-	DC4q61K50dz++8jxFG/TCOj4IqXHbTC8gQsNMfD3IPGrtTl0l6HGtx1M0EWxcwWQrkN4sgJuNyh
-	g0uoOq6fvU8vx0rR50lm6t/JFuszqKsIluLmTyqxY3TMSfefAevvxkB6L+iD5xq8MUCzOR9K/cB
-	HCHIKbDOR2jmEVqbnc8d5NUA+BafKV5BOee+rROZbxV/blgEWxBMaY+eInwur9O8cqNOY5d7dbm
-	iybDatORZh+BvmdjrfKEABLzQ10GIPrO/F/97WnYfpqiZq/xVC5+sDfNKdGbPVi1TLis+yNYnKY
-	2fTQ6OegQyoCKOxx1YwwFMPdLOCPc0TieqSQLvLjNYbn/GGNy35zDzYbegK1h5aMCF+z21dTHJt
-	GLlY0OtEFNWQ932ECc2nyNByaqKGE36snj8SNuL45fo4OQPaEuti4Xb9Dq63xJUzqvlhmhY7/Ju
-	n7NoZcZij3x
-X-Received: by 2002:a05:600c:1549:b0:49c:d294:41e5 with SMTP id 5b1f17b1804b1-49cd294439fmr280766635e9.8.1788264463460;
-        Tue, 01 Sep 2026 05:07:43 -0700 (PDT)
+        bh=2HFs9DuHBOZWo0pRLMgZ/aZaO5LCPX7IYZ0kiem5E6M=;
+        b=WQ2+IANvnf4MJ6v8dI9hVB2pZG8x0Cg/+RqZBWmR1qK73xmQzQUj+j6YAiOBzYWBZ4
+         bu4d/n5hB/DFw81VVndQyt01F/3b3SaNp6pzRCZ26lodOLcEA5LNJ5TGnQl3JIo0QlaL
+         05fsMIm0wpY0GVkbLWvg/U8dCiLuusB/VSmx4/loSdijwzF1UhYXG5tmMfcHjJwYFw7A
+         X7m42BeLkEJdihls5JfmLEwToa5ho2D5C4Zn9nz1Oq42iuk9Gr5heWEl7BeICdi2LVFk
+         veOultYXdvotkV9f3iiN01Bm2x7jMBlbnNjAtVtf36mkv0V5rz1WNJtSllepWeDqYshu
+         tw3w==
+X-Forwarded-Encrypted: i=1; AHgh+RqF34aIyTTb48zqfKh575gCmiRFpz9erhMXnXAh8TNp/KKIPQytvim9jUkq8YZ83D008GPyrl4=@lists.linux.dev
+X-Gm-Message-State: AFuF++lG2ZvumO0wcDzfxD6AM/bIjINEL3JmjX7of+0iaN6E5GkmuQ7r
+	MqcmjThq5bVHISls5hGDR4XCiJp2cTA8ou2PhqUCVFoZsq0x2KHvw6q+SpRNLaCnjF4=
+X-Gm-Gg: AR+sD13gOzw97XIDuzmu0y4RWL7IAfIA05hojE/ROf3dw/wY1AnlXG3Z7+hdgrvtDrD
+	Zh0BVkWro8QJQ82yJUVAfj89IWHFuv/1sMrqZt98RjlFhsm4acwaHSA3s0bPNkbHizSHNii9UvM
+	QgajesAk1XQWr6mNrq+wF2MzgQO9g91PkMKyHvjNd7HpN58rLOL1E4mTj15YgZGHJGF4koIjxE0
+	8J9ar3uZsle1zT4rRdZhtAuX9O/cx6113Jq2S2laVndYVKMO4A5IzlxPKyT/UT5j7XvQfTrEz0/
+	f8ivqt1wf52UN0j7rC2JkA1WbyqwNpOcWaWDOQyTlsIEDmXy5rRLjV8/rD01pN+m5utT9zcHo1n
+	gH69r3i251pFvoASTOfMuBMn/86wYYV/37HsBGC7pyK+ozobkMyrwG7UB0gtmO4BWXb1AYniPcK
+	yW7OJo5mCPSJIgnVYcgDbeai6lnsbtlJB1HdblFW8ivxeCaSgKQrCQBSKuncNCXmxSBFCjEEnMH
+	lc0u5v9XBU=
+X-Received: by 2002:a05:600c:8107:b0:49c:d26a:cf70 with SMTP id 5b1f17b1804b1-49cd26ad005mr330907835e9.15.1788264465295;
+        Tue, 01 Sep 2026 05:07:45 -0700 (PDT)
 Received: from localhost (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-49cdce10148sm61876185e9.5.2026.09.01.05.07.42
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-49cdce1a3fesm66474005e9.12.2026.09.01.05.07.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2026 05:07:42 -0700 (PDT)
+        Tue, 01 Sep 2026 05:07:44 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: idosch@nvidia.com,
@@ -69,9 +69,9 @@ Cc: idosch@nvidia.com,
 	horms@kernel.org,
 	bridge@lists.linux.dev,
 	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net-next 5/9] net: bridge: vlan: annotate lockless use of private flags
-Date: Tue,  1 Sep 2026 15:07:17 +0300
-Message-ID: <20260901120721.747908-6-razor@blackwall.org>
+Subject: [PATCH net-next 6/9] net: bridge: vlan: annotate lockless use of num_vlans
+Date: Tue,  1 Sep 2026 15:07:18 +0300
+Message-ID: <20260901120721.747908-7-razor@blackwall.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260901120721.747908-1-razor@blackwall.org>
 References: <20260901120721.747908-1-razor@blackwall.org>
@@ -83,171 +83,84 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Annotate vlan private flags data races, they can be read lockless.
+Annotate data races around vlan group's num_vlans, it can be read lockless.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_arp_nd_proxy.c |  6 ++++--
- net/bridge/br_multicast.c    | 16 ++++++++++------
- net/bridge/br_private.h      |  9 ++++++---
- net/bridge/br_vlan.c         |  2 +-
- net/bridge/br_vlan_options.c |  6 ++++--
- 5 files changed, 25 insertions(+), 14 deletions(-)
+ net/bridge/br_netlink.c |  4 ++--
+ net/bridge/br_vlan.c    | 10 +++++-----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index 87a40e2f1c50..b82fa6589ab9 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -521,7 +521,8 @@ bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid)
- 		v = br_vlan_find(vg, vid);
- 		if (!v)
- 			return false;
--		return !!(v->priv_flags & BR_VLFLAG_NEIGH_SUPPRESS_ENABLED);
-+		return !!(READ_ONCE(v->priv_flags) &
-+			  BR_VLFLAG_NEIGH_SUPPRESS_ENABLED);
- 	}
- 	return test_bit(BR_NEIGH_SUPPRESS_BIT, &p->flags);
- }
-@@ -535,7 +536,8 @@ bool br_is_neigh_forward_grat_enabled(const struct net_bridge_port *p, u16 vid)
- 		v = br_vlan_find(vg, vid);
- 		if (!v)
- 			return false;
--		return !!(v->priv_flags & BR_VLFLAG_NEIGH_FORWARD_GRAT_ENABLED);
-+		return !!(READ_ONCE(v->priv_flags) &
-+			  BR_VLFLAG_NEIGH_FORWARD_GRAT_ENABLED);
- 	}
- 	return test_bit(BR_NEIGH_FORWARD_GRAT_BIT, &p->flags);
- }
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index bbcaedf15ca1..cd984173320f 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -2172,7 +2172,7 @@ static void br_multicast_enable_port_ctx(struct net_bridge_mcast_port *pmctx)
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 62ce96d9ba32..ae76df0de05a 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -81,7 +81,7 @@ static int br_get_num_vlan_infos(struct net_bridge_vlan_group *vg,
+ 		return 0;
  
- 	spin_lock_bh(&br->multicast_lock);
- 	if (br_multicast_port_ctx_is_vlan(pmctx) &&
--	    !(pmctx->vlan->priv_flags & BR_VLFLAG_MCAST_ENABLED)) {
-+	    !(READ_ONCE(pmctx->vlan->priv_flags) & BR_VLFLAG_MCAST_ENABLED)) {
- 		spin_unlock_bh(&br->multicast_lock);
- 		return;
- 	}
-@@ -2209,7 +2209,7 @@ static void br_multicast_disable_port_ctx(struct net_bridge_mcast_port *pmctx)
+ 	if (filter_mask & RTEXT_FILTER_BRVLAN)
+-		return vg->num_vlans;
++		return READ_ONCE(vg->num_vlans);
  
- 	spin_lock_bh(&br->multicast_lock);
- 	if (br_multicast_port_ctx_is_vlan(pmctx) &&
--	    !(pmctx->vlan->priv_flags & BR_VLFLAG_MCAST_ENABLED)) {
-+	    !(READ_ONCE(pmctx->vlan->priv_flags) & BR_VLFLAG_MCAST_ENABLED)) {
- 		spin_unlock_bh(&br->multicast_lock);
- 		return;
- 	}
-@@ -4083,7 +4083,8 @@ int br_multicast_rcv(struct net_bridge_mcast **brmctx,
- 			*pmctx = &vlan->port_mcast_ctx;
- 		}
- 
--		if (!(masterv->priv_flags & BR_VLFLAG_GLOBAL_MCAST_ENABLED))
-+		if (!(READ_ONCE(masterv->priv_flags) &
-+		      BR_VLFLAG_GLOBAL_MCAST_ENABLED))
- 			return 0;
- 	}
- 
-@@ -4383,7 +4384,8 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
- 			return;
- 
- 		spin_lock_bh(&br->multicast_lock);
--		vlan->priv_flags ^= BR_VLFLAG_MCAST_ENABLED;
-+		WRITE_ONCE(vlan->priv_flags, vlan->priv_flags ^
-+					    BR_VLFLAG_MCAST_ENABLED);
- 		spin_unlock_bh(&br->multicast_lock);
- 
- 		if (on)
-@@ -4399,7 +4401,8 @@ void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on)
- 
- 		br = vlan->port->br;
- 		spin_lock_bh(&br->multicast_lock);
--		vlan->priv_flags ^= BR_VLFLAG_MCAST_ENABLED;
-+		WRITE_ONCE(vlan->priv_flags, vlan->priv_flags ^
-+					    BR_VLFLAG_MCAST_ENABLED);
- 		if (on)
- 			__br_multicast_enable_port_ctx(&vlan->port_mcast_ctx);
+ 	rcu_read_lock();
+ 	num_vlans = __get_num_vlan_infos(vg, filter_mask);
+@@ -531,7 +531,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
  		else
-@@ -4477,7 +4480,8 @@ bool br_multicast_toggle_global_vlan(struct net_bridge_vlan *vlan, bool on)
- 	if (on == !!(vlan->priv_flags & BR_VLFLAG_GLOBAL_MCAST_ENABLED))
- 		return false;
+ 			vg = br_vlan_group_rcu(br);
  
--	vlan->priv_flags ^= BR_VLFLAG_GLOBAL_MCAST_ENABLED;
-+	WRITE_ONCE(vlan->priv_flags, vlan->priv_flags ^
-+				    BR_VLFLAG_GLOBAL_MCAST_ENABLED);
- 	br_multicast_toggle_vlan(vlan, on);
- 
- 	return true;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 96554d293d22..c7b64b5da012 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1273,21 +1273,24 @@ br_multicast_ctx_vlan_global_disabled(const struct net_bridge_mcast *brmctx)
- {
- 	return br_multicast_ctx_is_vlan(brmctx) &&
- 	       (!br_opt_get(brmctx->br, BROPT_MCAST_VLAN_SNOOPING_ENABLED) ||
--		!(brmctx->vlan->priv_flags & BR_VLFLAG_GLOBAL_MCAST_ENABLED));
-+		!(READ_ONCE(brmctx->vlan->priv_flags) &
-+		  BR_VLFLAG_GLOBAL_MCAST_ENABLED));
- }
- 
- static inline bool
- br_multicast_ctx_vlan_disabled(const struct net_bridge_mcast *brmctx)
- {
- 	return br_multicast_ctx_is_vlan(brmctx) &&
--	       !(brmctx->vlan->priv_flags & BR_VLFLAG_MCAST_ENABLED);
-+	       !(READ_ONCE(brmctx->vlan->priv_flags) &
-+		 BR_VLFLAG_MCAST_ENABLED);
- }
- 
- static inline bool
- br_multicast_port_ctx_vlan_disabled(const struct net_bridge_mcast_port *pmctx)
- {
- 	return br_multicast_port_ctx_is_vlan(pmctx) &&
--	       !(pmctx->vlan->priv_flags & BR_VLFLAG_MCAST_ENABLED);
-+	       !(READ_ONCE(pmctx->vlan->priv_flags) &
-+		 BR_VLFLAG_MCAST_ENABLED);
- }
- 
- static inline bool
+-		if (!vg || !vg->num_vlans) {
++		if (!vg || !READ_ONCE(vg->num_vlans)) {
+ 			rcu_read_unlock();
+ 			goto done;
+ 		}
 diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index c8b2e3bfd42d..102792f20a5e 100644
+index 102792f20a5e..95187a607ec2 100644
 --- a/net/bridge/br_vlan.c
 +++ b/net/bridge/br_vlan.c
-@@ -1497,7 +1497,7 @@ int br_vlan_fill_forward_path_mode(struct net_bridge *br,
- 
- 	if (path->bridge.vlan_mode == DEV_PATH_BR_VLAN_TAG)
- 		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_KEEP;
--	else if (v->priv_flags & BR_VLFLAG_TAGGING_BY_SWITCHDEV)
-+	else if (READ_ONCE(v->priv_flags) & BR_VLFLAG_TAGGING_BY_SWITCHDEV)
- 		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_UNTAG_HW;
- 	else
- 		path->bridge.vlan_mode = DEV_PATH_BR_VLAN_UNTAG;
-diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
-index cb0f556ff40d..bd049d268fe7 100644
---- a/net/bridge/br_vlan_options.c
-+++ b/net/bridge/br_vlan_options.c
-@@ -276,7 +276,8 @@ static int br_vlan_process_one_opts(const struct net_bridge *br,
+@@ -344,7 +344,7 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags,
+ 				goto out_filt;
+ 			}
  		}
- 
- 		if (val != enabled) {
--			v->priv_flags ^= BR_VLFLAG_NEIGH_SUPPRESS_ENABLED;
-+			WRITE_ONCE(v->priv_flags, v->priv_flags ^
-+				   BR_VLFLAG_NEIGH_SUPPRESS_ENABLED);
- 			*changed = true;
- 		}
+-		vg->num_vlans++;
++		WRITE_ONCE(vg->num_vlans, vg->num_vlans + 1);
  	}
-@@ -292,7 +293,8 @@ static int br_vlan_process_one_opts(const struct net_bridge *br,
- 		}
  
- 		if (val != enabled) {
--			v->priv_flags ^= BR_VLFLAG_NEIGH_FORWARD_GRAT_ENABLED;
-+			WRITE_ONCE(v->priv_flags, v->priv_flags ^
-+				   BR_VLFLAG_NEIGH_FORWARD_GRAT_ENABLED);
- 			*changed = true;
- 		}
+ 	/* set the state before publishing */
+@@ -367,7 +367,7 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags,
+ out_fdb_insert:
+ 	if (br_vlan_should_use(v)) {
+ 		br_fdb_find_delete_local(br, p, dev->dev_addr, v->vid);
+-		vg->num_vlans--;
++		WRITE_ONCE(vg->num_vlans, vg->num_vlans - 1);
+ 	}
+ 
+ out_filt:
+@@ -417,7 +417,7 @@ static int __vlan_del(struct net_bridge_vlan *v)
+ 
+ 	if (br_vlan_should_use(v)) {
+ 		WRITE_ONCE(v->flags, v->flags & ~BRIDGE_VLAN_INFO_BRENTRY);
+-		vg->num_vlans--;
++		WRITE_ONCE(vg->num_vlans, vg->num_vlans - 1);
+ 	}
+ 
+ 	if (masterv != v) {
+@@ -695,7 +695,7 @@ bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
+ 		return true;
+ 
+ 	vg = nbp_vlan_group_rcu(p);
+-	if (!vg || !vg->num_vlans)
++	if (!vg || !READ_ONCE(vg->num_vlans))
+ 		return false;
+ 
+ 	if (!br_vlan_get_tag(skb, vid) && skb->vlan_proto != br->vlan_proto)
+@@ -757,7 +757,7 @@ static int br_vlan_add_existing(struct net_bridge *br,
+ 
+ 		refcount_inc(&vlan->refcnt);
+ 		WRITE_ONCE(vlan->flags, vlan->flags | BRIDGE_VLAN_INFO_BRENTRY);
+-		vg->num_vlans++;
++		WRITE_ONCE(vg->num_vlans, vg->num_vlans + 1);
+ 		*changed = true;
+ 		br_multicast_toggle_one_vlan(vlan, true);
  	}
 -- 
 2.47.3
