@@ -1,64 +1,64 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E2138F926
-	for <bridge@lists.linux.dev>; Tue,  1 Sep 2026 12:07:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4112B3C0A02
+	for <bridge@lists.linux.dev>; Tue,  1 Sep 2026 12:07:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788264461; cv=none; b=WpX5wYuQU9K8M0CRoNSTJekkRC6AZxIE33LCVsPshKEVITcTP8/1hetAORc8/lBfcQGmeEkUFIwNa+dtLVjS+A4+gZWXHMaBbwF/w3H6w23VMmCbrDFWFyqD0xixUwbN2X8saIUO/ZfSnG7jmSlDJz9rAN9dBsaGPxQArfyvezk=
+	t=1788264464; cv=none; b=C9vhxB9xEG+nCQAoDDMP0lp5e1MQjiN+QsCuaOuZLQKSCa6TIEDpUedrJo+D6BS72v8DfAJOitXskpdvjLWLpGt1A2FXNNqwA6wlnWjCR4usgqHLVydM2wSqkEmn84nDDBWEWpN+0xO7H4qucnKXFZgpkryeuh84yPw5tQDBzM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788264461; c=relaxed/simple;
-	bh=FEur/ri54hGyH4cUJi+IzbPc4XzKpmrDPdVGZZlD3ZU=;
+	s=arc-20240116; t=1788264464; c=relaxed/simple;
+	bh=vDHm7CkTNErA2+VH4D/qGhWbmoMxmNZSOesyPx+peIM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Rbx45pV1+nlMCc1vb67x5P9B2jM9sF/q1ydCDyl/KyCTdwk4xJy9P9umTyJYM1rrQvvn43aO5w+/85fN7CUNDAB0IUDeiOtkYD8YjFXjKn4JUjmjALrE6FQXmyLwZX4rbFdIUKKPI/gou7zQ2qObWIcyXzc0O4BQxOMZqfnF//8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=MC1+R4PI; arc=none smtp.client-ip=209.85.221.53
+	 MIME-Version; b=MXdFZQIgIiZQFBQ0wWUXWvhfdja8A8en5pITPwAXgHsq24OJ9s9+d5tXsDRDM9Fd6uUA4aBNBS9HPmq8ie9EAvn6lJU64gTkFLMD1OQRHEjOGyUOklPhGO2vGoBGxnfZaTexepgSqdh+4QxHBxqJXPZm0Q+uG9wQaGZ84zYncM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=RnXF5oot; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="MC1+R4PI"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-4843efcbdb2so1045296f8f.2
-        for <bridge@lists.linux.dev>; Tue, 01 Sep 2026 05:07:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="RnXF5oot"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-49b8e527d63so8931915e9.2
+        for <bridge@lists.linux.dev>; Tue, 01 Sep 2026 05:07:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1788264458; x=1788869258; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1788264460; x=1788869260; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=+bgh+p7Ku2uvfVDGLLZ5aGg6OM4iEpOCQPH5ASYbm68=;
-        b=MC1+R4PIc8Vb66O+MarA9X186Gy834qfLmi/2/nQiKTxUt3saTB7I+uctBwRuVDrcZ
-         yMTox+3jPQ6t2Z0j8A9P4M41d1zP8gpDe4CnQjYosPZy+39IhUJQF5ZkyXmcMn0upUp7
-         d32+Pc0qU3HpZTCDc/0hW+efJmGmH9we94rNBl8rMQ2ddZTeXNKLPHXxnFS3FUoXen/t
-         UanF9yhVmD3rOj8PjdXk0gPQo65aguklD3SkXnIl0HXSWLZ6OhWcpFx93YI8xK3Zfw04
-         2y9nJ442FCC16EZWxTi8yD1kaurOKoz37uArhE9Wf75nsA/50HCM4wJnmAREurtyEbCK
-         nkZw==
+        bh=R+TeBJucdheuLQOVi4XpjZrYuesJgF3ndjF41LXDZJI=;
+        b=RnXF5ootMrg2YnSK95VZlkRamDu3hy+Z0ygQitDLJa44SdSu9GHntDJ48POnkNOXq9
+         obO7LUXFGfR5pSSKQgLzkv/BqQgV4l36oCxVIrDTJ6LvrU/JrulnX1Wg75cuuaa0/80S
+         ylRq9O4CxzmiWEzv9WX8kNJ8OZLGHhGYqTbNHzl4ACwZISoSiYTsWP0Wmp06Hh6wKMRO
+         7Z3t4Sa7VoWJqKOyGivT3kHQFrJQqEXeqVVPqzyzJo5LuXzrgjyLc6imGXBozdcPSa1/
+         OrNhcOTPXbb0JqrjBO8jRGglS3rOGgOaktW8Pus/xcbdnhWdJbmXfsWaqNNGXKxozM2I
+         7imQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788264458; x=1788869258;
+        d=1e100.net; s=20251104; t=1788264460; x=1788869260;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+bgh+p7Ku2uvfVDGLLZ5aGg6OM4iEpOCQPH5ASYbm68=;
-        b=jUTLLpXRV6JR7yuBxWIQ8WylznBW5AlCVxSCnHs/JLRHY/EZN6sT/r9BRVdlOtHOzH
-         FY36gbo5ECq/O6K6ASKllgPgVBsexUf1g+Y36g4dTLMPRJqY9vhPqt+KYv223JkfEpnf
-         WiPu0xDEQfHkxDyy6W10+7pbgtWZrHBACW0/f7YMdDXLkWsphcWmsSkB564Il9TTS4eO
-         U0NvflmjNtJBLXYPThTtyCgzp4i3fobkYWtlIgchts/lFlHrXM8z9ddX2EpkrCdfkYYx
-         70AEaYwYjJdIPHV4NIC2aP6R6uqQBsdn2+p8lwJP6/e06fRhtw8AyGXn9ToMvfAAJxWC
-         ypgQ==
-X-Forwarded-Encrypted: i=1; AKwUvByV2fMNjDvUMV/Kj979T7So18cg0cPVdmy/aii2u1u6BJBohCjBh+fl2mPXcqaBTI7ktmUVVeo=@lists.linux.dev
-X-Gm-Message-State: AFuF++ntIq6KhrtNvx+zHcep9tSYO56pvs2tkqWnPue1NXc0FWYiMJoL
-	PBuOWt+G9kzrNLjVi3UFqvlYJ1KiXChmR+vtQmn6hP8UNnaE52G/XRbiqB2/baaMxIA=
-X-Gm-Gg: AYBFou2tw02y+AS47rEKEH07q8+lhDFvvPwn9rhSqnO8G/WspQzpF/DBV0mklL0eyzU
-	p7sNhkXObvyfGw2xqacDe368I/5O02aCA9fYz80kQg1H0GnK3EJxb/SOX87zQrZfGSljdzvoxA5
-	QCuRCp6okQnywRA4z7L/dw4RL3f+LKtQ5JzvqPU7YpmIjZGpsV4/MKTaiS3j4U9fbLAeP011RhN
-	qVo4yrLnXurxRz1J8x8+frVkIDrge5Nybbc4i0IpDdGJ0Fc4kv+WrWPf2EARQ6G2+SmSzSvlFd+
-	R1lpWxELr6E0VMvOUKzXMukQvCza7nALXqc+g+AnB9xtm8t5YacGl+Iq6kGSi0CkPVIDbKM/1Ox
-	SE+4J7/FLGKU5v0XTUgOvptfGkZtemRwpJ+Uud4WTpJMbT7yxyIAls4wJHnFrnFsUeRcOkFyyK+
-	mNmYXEesLyBcS99cGC83iQJnarib8jWnHZ1SxL/6Cq7Bmu308DUPcthkMrgl+X9ILh94u2Tu1IF
-	u/w3EHM+RmecaLsceqlTg==
-X-Received: by 2002:a5d:5d01:0:b0:482:fd9c:5d25 with SMTP id ffacd0b85a97d-4844101181dmr14309649f8f.16.1788264458091;
-        Tue, 01 Sep 2026 05:07:38 -0700 (PDT)
+        bh=R+TeBJucdheuLQOVi4XpjZrYuesJgF3ndjF41LXDZJI=;
+        b=on28P1D3foyl4TLzNZ13sYM9f3vIBbjrb6bvMUd609Pr4WqmW1ba3VZ1mGy2M9DDXH
+         JSCIDuZhvxLI2E8fp2t9TWawHxsgnFi+oOdmcaaRvNsFmlYIcpFaJ/nBLzXbjEMhxnzm
+         uRHFBS/qTroAr9dtpd4zw5FRilhTlPbUrRVGUQnb5nUdgMKSQ9dR9xEOtY5JXRiy6cPZ
+         TjM/s3xwnfF+UGVDz5B5KSpg49qTzNLGqpfpP5BYHTHokQ4cy0dCNfCKOD2OmKbXebHB
+         FhOnMNUzIFwF2UZFjQmb2i5QtVLJrOtNqUonIe582SO7xa+aaaCwZAgECcxRq7vx9yPt
+         jiig==
+X-Forwarded-Encrypted: i=1; AHgh+RputDUuPINx1HAsL2KTRPjYNKYc93E3PqGJk+gYlCIG+OiORWRN7hhGOQuQc9rgwhPsw3/0Ci8=@lists.linux.dev
+X-Gm-Message-State: AFuF++l69O9BFQVjWE3xqMvywJeD+5gJOqNQxVUfUzGitGlURa8x5bdV
+	GXT+0xwxJWN4+Dd9X2smZGFvUmYuMeJHBxzuRCBjPCkosArU9cZHvKeZroOtLhDoQ20=
+X-Gm-Gg: AR+sD10/o3eZn8oVeBRb9u3Wi61nbwYCdPkym0J89nYaLUNnmj0jN/azMkMxVemyPH6
+	CjwMopv3z6fzZwUzIO7Bgkk2LyfqxbNFxguT5QutkI9oOWKJjfgUMAVKGnmGgm44Lk297QFAKD7
+	ajkq5UJ2hEGmC0qWwm51zBT05vAzruSEjl8Iys21zgJf6sHXtBOqMWk9J/QkQO/8pmQZ8UYudBJ
+	00W+iYet7c5MzWr91GLGnDoNz3unP7u/ZKeVeNg5rtBzd0qKTGO4ntzcxgMpTS4JI2/G48ViUlu
+	n8tWE6TyJq1cpZsx2LpYmF0ZbeuXPJvSm8jEeyDGcsz9gW50xriSZdn3eov6+XalEnw2Tynqrdg
+	yxYUDgutxvX1keOAQL25ezJUmIqsiBhb635pbhx+pk7WzReL4ZkGsvwZT/ZVpCZ3aqHXZnCCyKt
+	KWL42H89Ap2Pm2Alo10paw0T+crrurXXP+/Mgzmd/KVB4HncDGxYAS2rYsY288OssnD2Jgdi9Rz
+	CJmlASjQKk=
+X-Received: by 2002:a05:600c:4fcb:b0:499:db27:7b1 with SMTP id 5b1f17b1804b1-49b91c62d9bmr504091125e9.15.1788264459996;
+        Tue, 01 Sep 2026 05:07:39 -0700 (PDT)
 Received: from localhost (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48442d6e826sm4430021f8f.19.2026.09.01.05.07.37
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48442d78444sm5107623f8f.25.2026.09.01.05.07.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2026 05:07:37 -0700 (PDT)
+        Tue, 01 Sep 2026 05:07:39 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: idosch@nvidia.com,
@@ -69,9 +69,9 @@ Cc: idosch@nvidia.com,
 	horms@kernel.org,
 	bridge@lists.linux.dev,
 	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net-next 2/9] net: bridge: vlan: annotate lockless pvid use
-Date: Tue,  1 Sep 2026 15:07:14 +0300
-Message-ID: <20260901120721.747908-3-razor@blackwall.org>
+Subject: [PATCH net-next 3/9] net: bridge: mst: use br_get_pvid helper
+Date: Tue,  1 Sep 2026 15:07:15 +0300
+Message-ID: <20260901120721.747908-4-razor@blackwall.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260901120721.747908-1-razor@blackwall.org>
 References: <20260901120721.747908-1-razor@blackwall.org>
@@ -83,51 +83,27 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use READ/WRITE_ONCE to annotate lockless pvid use, br_get_pvid() is the
-helper that should be used outside of the bridge vlan code. The rest of
-the vlan places that access pvid directly all have rtnl.
+The only place that accessed pvid directly outside of the bridge vlan code
+was mst, change it to use the br_get_pvid helper.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_private.h | 2 +-
- net/bridge/br_vlan.c    | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/bridge/br_mst.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 5b2c22ad669e..0efd2e79e255 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1687,7 +1687,7 @@ static inline u16 br_get_pvid(const struct net_bridge_vlan_group *vg)
- 	if (!vg)
- 		return 0;
- 
--	return vg->pvid;
-+	return READ_ONCE(vg->pvid);
- }
- 
- static inline u16 br_vlan_flags(const struct net_bridge_vlan *v, u16 pvid)
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 2ae6ffb23399..a53054fcc093 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -41,7 +41,7 @@ static void __vlan_add_pvid(struct net_bridge_vlan_group *vg,
+diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
+index 43a300ae6bfa..95e49ec8065e 100644
+--- a/net/bridge/br_mst.c
++++ b/net/bridge/br_mst.c
+@@ -86,7 +86,7 @@ static void br_mst_vlan_set_state(struct net_bridge_vlan_group *vg,
+ 	if (br_vlan_get_state(v) == state)
  		return;
  
- 	br_vlan_set_pvid_state(vg, v->state);
--	vg->pvid = v->vid;
-+	WRITE_ONCE(vg->pvid, v->vid);
- }
+-	if (v->vid == vg->pvid)
++	if (v->vid == br_get_pvid(vg))
+ 		br_vlan_set_pvid_state(vg, state);
  
- static void __vlan_delete_pvid(struct net_bridge_vlan_group *vg, u16 vid)
-@@ -49,7 +49,7 @@ static void __vlan_delete_pvid(struct net_bridge_vlan_group *vg, u16 vid)
- 	if (vg->pvid != vid)
- 		return;
- 
--	vg->pvid = 0;
-+	WRITE_ONCE(vg->pvid, 0);
- }
- 
- /* Update the BRIDGE_VLAN_INFO_PVID and BRIDGE_VLAN_INFO_UNTAGGED flags of @v.
+ 	br_vlan_set_state(v, state);
 -- 
 2.47.3
 
