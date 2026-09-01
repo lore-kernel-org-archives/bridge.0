@@ -1,64 +1,64 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8C73AE195
-	for <bridge@lists.linux.dev>; Tue,  1 Sep 2026 12:07:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 231393D7D6C
+	for <bridge@lists.linux.dev>; Tue,  1 Sep 2026 12:07:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788264470; cv=none; b=udPSKXK+GiPRFDIO5FK3vyQlyFIzLcjnbvuMe1mCuTLEK+Rn2bUszAquP+zv6jMIIReirZAwvIZDcsDRlMJvxqCoT5nXabpY+X51noNTcwq20clYqV5oiCpKCKVjPyWhvp8L2qyWLetDJZXLmQNRdzp+lxLr5IDk2CwupYbTC6k=
+	t=1788264472; cv=none; b=FM9Y+GRoSEXKI1IrAodjW7iEuEJoNSV9GVIw8o47PTqi++c0QgXdiPYt2N3cuJwgoMfLZ+CCRDFHYgXmBWbGYUSE/aZB/3EIa3AoAcz2wrLmsnTSAb0ScKKPK8HOoi8kBjAESMwWKefIlj5UsNYaxpxMblCQWXmWLy1FOfLgA74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788264470; c=relaxed/simple;
-	bh=SxImGqPf0zfqDmVkBuiZjei+0XPbUZkCD0Ehro4yeHc=;
+	s=arc-20240116; t=1788264472; c=relaxed/simple;
+	bh=w14NQGUpkvlFQCiflKIsxCzYZ1NbuTyJ6r2h4/Ei098=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HrQegAmqxutQCZKfdZMNNr2fb7yhV+WyK2yOHLAxfX+QiUExUlY0ZU/YQfXxbixDBcEG+pS8kJ0x1fmhCXQQoxpSK1miOGwTlp7p+RT2sPA3gzPG52SJXlBu01oHd8vvOyLk7M4xfTV7qdklDWOZbIN9o+g/lxWerAQVYhaZ+10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=aMBTFy/n; arc=none smtp.client-ip=209.85.221.43
+	 MIME-Version; b=d/d/fXY8RohZKAXyai9wfi8gVVUlZ1h7JVWwjN6vPWclXDzUxYldlnolfjfNemPX8s5ALdL1QMxCmX6mKNvjNlD3bNZFMVKyr+U2UqyJAum4bJ550v+e0PmrtM7BJT4haMbHfeSOEkLD4330MdzsQXmW0B3A0/m3SJyJp5FVZW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=h+vyvnN8; arc=none smtp.client-ip=209.85.221.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="aMBTFy/n"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-48431648f33so729131f8f.0
-        for <bridge@lists.linux.dev>; Tue, 01 Sep 2026 05:07:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="h+vyvnN8"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-4843e397f74so892162f8f.1
+        for <bridge@lists.linux.dev>; Tue, 01 Sep 2026 05:07:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1788264467; x=1788869267; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1788264469; x=1788869269; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=RIFTrDCPgDQphKZqho55YQsD68R4VC9Mx+L02Osc+Z4=;
-        b=aMBTFy/nkwPK9Dn15E59XtvZ9Vwz3GDY+kxY10zil1bwfIFFrUDvnFo74yZAdcZ0So
-         Osn3U/Y/BD1wKZZffvk9UtOWkzUuSkn7S1lSSAqAd4N91BSjfQZptMaXO+N9Xt5lKgSZ
-         t76oY8TI4/KAkdSUjAzPe3YRy7zSWO3pXj4U599wE1Mi4FFpqMaPj6Gwzckp9wZEaw96
-         R5il4ZaR25DX8/unDWDjJzvKwcvJlw7WE0c/us6Gg91FbD2pPryLwvgSltC0k1tE5dl6
-         mFZnPEeexjqgJB7P0Fer5Dhod5N8ImHd0xFRgD/5eWy8jpUMSF8KwpI+3dlBlbp0t1U2
-         J+dg==
+        bh=U/aTEnKjA69JOD+I1au9uLwwmHbzGmgWlhznTgaQ+Ps=;
+        b=h+vyvnN8cFSc6RJLJ/8hoqvkPWEhJQ0ta6dygHJ4fapDwBGLpNy/vTPZYSqouc55j5
+         hiMHlimfLAZGGQaocPdenYVi9ljaZkjJGzETNj6kg+x8TPyAVejDPtO7Q93Skjq6iLK5
+         vbu9dhJ/e159pQ2ShTL4XKDtprPDv/9N30MyZi4VOM8WBkBKfEJ0Z+wpCzuP7y5+ylNl
+         +VC951AadBEvVEFObQPwPNrs/4jslV8KZTMaduqsvqX96V5X+mt8Q6baaj1jks+EbeDL
+         WjqnKOCyTikEU0Z4PvmTtsCGBrASfgp2tM9449QG6yImORkWu8Nm334WrOhVy3cHHWza
+         CR6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788264467; x=1788869267;
+        d=1e100.net; s=20251104; t=1788264469; x=1788869269;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=RIFTrDCPgDQphKZqho55YQsD68R4VC9Mx+L02Osc+Z4=;
-        b=KXa+KqoJx95jho51DQTzOF7iJ5qAHepRkZ4GrRUSiyUp4/+Y6xLcSXWZaX2wqB2qll
-         MZymxgwZVGuYBu2WhLwgjaC4bJhSC4dTuLNAW+YTvbH849qdjt+B8v6+zKBKhkkVD016
-         iqyWzjE2z3VzJyIKoaG0Plc8TA6v4NPg5fpQadZ558gv8+DTdWEQBNUHHV3ySi8t2FaG
-         GbYS6uZnyK4gJzge04x9uQBZq/XX7sSm0/CnaraDSEF+bYqgLd0HWSR2ZEPDznAgtFWS
-         w+3q+ksHpPEimu6z0cTRiXJXSn2Btr/4Ea4yECnTQMAluH4J31SJqClpmxFWN0iTK/fj
-         SH5Q==
-X-Forwarded-Encrypted: i=1; AKwUvBy8DOkD/EbHYO2lr8A5diFAqg7/0i9aZt8GcLeXQYV9IB1fwoTm7n4SMBP1sptf7yMVwCa+kQo=@lists.linux.dev
-X-Gm-Message-State: AFuF++n6bHyRPnyM2IHmJ/lcRXv4Z8N5WGiGCXCvhAFZZatDue/9ToGL
-	eRXgzoLzeiYz3d9Osc0lkaFxQg4sa2m4Zbw3WN4yViJWz463wvduPgTrslxdiTgceaw=
-X-Gm-Gg: AYBFou1TFYxPn+9Ha4uCV7Qmp1rbZai8UNLCh9zW9q1pseOy79VRvJc6IA1HKZG6joZ
-	90UxsTsYZD6wZP6dl8eqGecm3FBzrgkLhyr42CCWO9b/22d4MouOcJG+RTxaA8DIXbaAP3qGoiX
-	AOPwJjbEaRIxtR2WyL8/4ybTfpNjGQSv5oShAVQbM6MNRif2q0K+LFaGDVfvN5VZcmM5MoVC/+4
-	SY+td0J9qwFvoIq9QS1N2GSol4syckvbiqhb8E3ajoWOncMcYfgL1Oh+aEv/qAHbnIOmi2My0FK
-	RMN0MSr2+xgIMUp7qLow66/7h5pIUv0o4hs/WYkcCOkGrfw5f3/2ZrM9lUT7gxzzA6QrB0hKDaO
-	IUKcazLfuZqeilwUE1InZAxNJtrAgm2Hy8O5XGpMDTG4Az2ZzFA4pIKUKIlT5uzmpzMtgIVjZro
-	+wRFFrJGdeiLNgbtQuLuALYoUUucvxiP5mf/fZuHyljfiapUUVGiHDBRRDD4/LTV5kf/NGJh/2B
-	cYc9a/p7mU=
-X-Received: by 2002:a05:6000:46cf:b0:484:44ec:2c3a with SMTP id ffacd0b85a97d-48444ec2e31mr5495395f8f.0.1788264467369;
-        Tue, 01 Sep 2026 05:07:47 -0700 (PDT)
+        bh=U/aTEnKjA69JOD+I1au9uLwwmHbzGmgWlhznTgaQ+Ps=;
+        b=KuM8j37RSjAXD8y8761732B3uvxAJ8GAkX2fk0bQuIiOBpOcUxAEDeyRlYd/sDSeGm
+         T91Nr7y33pUk8Xb8rXL7bgXhvGOdSI4+9Rfp2NhJOFG0oJfQ/zq+qbKBBgJEztUW50wZ
+         PnJON+3pnuJfZZVYMGa1u/qWyLXyyJhMdcIm5mzpOhsSZa3mdV9QuNwEArEoGQCh16wY
+         I7BvF3CNQOfPA1z8Pe6bexpCng/usg1dE91RZDMvpGYCBrTE07VAbu3c8Xgfdj111vFM
+         wuDZfMaGEWHpbQS3d8b/EGXpZdjSLcfjWefnHeod0mMltMCM5vmGO+cjyyDE+UgI9S70
+         kWFA==
+X-Forwarded-Encrypted: i=1; AKwUvBwIZN9HAndyeELthBSUMYx3vGRvsnHjs5H3ky1lWUz3pmEuHf1ZlPeKEEJxEagui7y091GYAGc=@lists.linux.dev
+X-Gm-Message-State: AFuF++lmUNbdRB3wE8kEIHmp4RQGSSf8Iq1JB+4EJXbibmmGD4T+6kgH
+	Ku18UazQ3f+5U2YBi7tsu5veW+lrJHHhF57vJlIpTgzd7ZCMnP6hmI4myZW52+Q1+B4=
+X-Gm-Gg: AYBFou11Ojyle+I/xd9azvjW1m/A70fCj2XKVmkWolUB8iOepXZJETCOmc1e0KcoKmy
+	84xg2jHnKm3yGpeGIV+aozxr/IwbyEXpAtOHVT5dhp4sg7Kv/Es4kAX/SgIOu/zzTU0brRQpdH9
+	77Ce5VCHM7JPu72PuHWak1XECs5ETSvfCpIvUpTbkvXjMjZajdY2WNgyvjf44QhAnwgYIS8r/5h
+	b6CBpas8JPBYCj9grdFZ+aKh/nJc0m57TvR3bgU/NQf1vSVioVnF3FuJqIFWFgemHvLJOpDtcQc
+	ckV8+khY6g9RPSD25lgkM02hcpKdfCCAbO7jApTY+DEbfCJZpETFqf+XuRcB7/5F68E50/C7RZZ
+	MoDN4FJSLt/+GhqkhatokPAnK1RjhsDyACknTsTvAXxss4AYt+hhrvZkMNNIyiPtAQY7DnbaNPp
+	L1FQ9Yxp3t1rCImXBRVW+Bo/K0rcR2fcZpSMbojaoWg1pTdALcde0PSiXUrzU+hmnN2vAXrhIVK
+	Fe8mMLzJdM=
+X-Received: by 2002:adf:e00f:0:10b0:484:42c1:41bc with SMTP id ffacd0b85a97d-48442c142aamr6299098f8f.5.1788264469283;
+        Tue, 01 Sep 2026 05:07:49 -0700 (PDT)
 Received: from localhost (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48442d78444sm5108478f8f.25.2026.09.01.05.07.46
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48442d781bcsm4241292f8f.26.2026.09.01.05.07.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2026 05:07:46 -0700 (PDT)
+        Tue, 01 Sep 2026 05:07:48 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: idosch@nvidia.com,
@@ -69,9 +69,9 @@ Cc: idosch@nvidia.com,
 	horms@kernel.org,
 	bridge@lists.linux.dev,
 	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net-next 7/9] net: bridge: vlan: annotate lockless use of msti
-Date: Tue,  1 Sep 2026 15:07:19 +0300
-Message-ID: <20260901120721.747908-8-razor@blackwall.org>
+Subject: [PATCH net-next 8/9] net: bridge: vlan: add missing tinfo.tunnel_id annotations
+Date: Tue,  1 Sep 2026 15:07:20 +0300
+Message-ID: <20260901120721.747908-9-razor@blackwall.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260901120721.747908-1-razor@blackwall.org>
 References: <20260901120721.747908-1-razor@blackwall.org>
@@ -83,55 +83,75 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Annotate data races around vlan msti field, it can be read lockless.
+When I annotated data races around tinfo.tunnel_id before, I missed a few
+places (e.g. bridge notifications, rhashtable compare), so add them now.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_mst.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/bridge/br_netlink_tunnel.c | 12 ++++++------
+ net/bridge/br_vlan_tunnel.c    |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
-index 95e49ec8065e..76a5bf287578 100644
---- a/net/bridge/br_mst.c
-+++ b/net/bridge/br_mst.c
-@@ -123,7 +123,7 @@ int br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
+diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
+index e7eceab5b515..58ec7bf1d8f5 100644
+--- a/net/bridge/br_netlink_tunnel.c
++++ b/net/bridge/br_netlink_tunnel.c
+@@ -29,8 +29,8 @@ static size_t __get_vlan_tinfo_size(void)
+ bool vlan_tunid_inrange(const struct net_bridge_vlan *v_curr,
+ 			const struct net_bridge_vlan *v_last)
+ {
+-	__be32 tunid_curr = tunnel_id_to_key32(v_curr->tinfo.tunnel_id);
+-	__be32 tunid_last = tunnel_id_to_key32(v_last->tinfo.tunnel_id);
++	__be32 tunid_curr = tunnel_id_to_key32(READ_ONCE(v_curr->tinfo.tunnel_id));
++	__be32 tunid_last = tunnel_id_to_key32(READ_ONCE(v_last->tinfo.tunnel_id));
  
- 	err = 0;
+ 	return (be32_to_cpu(tunid_curr) - be32_to_cpu(tunid_last)) == 1;
+ }
+@@ -43,7 +43,7 @@ static int __get_num_vlan_tunnel_infos(struct net_bridge_vlan_group *vg)
+ 	/* Count number of vlan infos */
  	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
--		if (v->brvlan->msti != msti)
-+		if (READ_ONCE(v->brvlan->msti) != msti)
+ 		/* only a context, bridge vlan not activated */
+-		if (!br_vlan_should_use(v) || !v->tinfo.tunnel_id)
++		if (!br_vlan_should_use(v) || !READ_ONCE(v->tinfo.tunnel_id))
  			continue;
  
- 		br_mst_vlan_set_state(vg, v, state);
-@@ -176,7 +176,7 @@ int br_mst_vlan_set_msti(struct net_bridge_vlan *mv, u16 msti)
- 	if (err && err != -EOPNOTSUPP)
- 		return err;
+ 		if (!vtbegin) {
+@@ -124,19 +124,19 @@ static int br_fill_vlan_tinfo_range(struct sk_buff *skb,
+ 	if (vtend && (vtend->vid - vtbegin->vid) > 0) {
+ 		/* add range to skb */
+ 		err = br_fill_vlan_tinfo(skb, vtbegin->vid,
+-					 vtbegin->tinfo.tunnel_id,
++					 READ_ONCE(vtbegin->tinfo.tunnel_id),
+ 					 BRIDGE_VLAN_INFO_RANGE_BEGIN);
+ 		if (err)
+ 			return err;
  
--	mv->msti = msti;
-+	WRITE_ONCE(mv->msti, msti);
+ 		err = br_fill_vlan_tinfo(skb, vtend->vid,
+-					 vtend->tinfo.tunnel_id,
++					 READ_ONCE(vtend->tinfo.tunnel_id),
+ 					 BRIDGE_VLAN_INFO_RANGE_END);
+ 		if (err)
+ 			return err;
+ 	} else {
+ 		err = br_fill_vlan_tinfo(skb, vtbegin->vid,
+-					 vtbegin->tinfo.tunnel_id,
++					 READ_ONCE(vtbegin->tinfo.tunnel_id),
+ 					 0);
+ 		if (err)
+ 			return err;
+diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
+index 257cae9f1569..04751f15d708 100644
+--- a/net/bridge/br_vlan_tunnel.c
++++ b/net/bridge/br_vlan_tunnel.c
+@@ -22,7 +22,7 @@ static inline int br_vlan_tunid_cmp(struct rhashtable_compare_arg *arg,
+ 	const struct net_bridge_vlan *vle = ptr;
+ 	__be64 tunid = *(__be64 *)arg->key;
  
- 	list_for_each_entry(p, &mv->br->port_list, list) {
- 		vg = nbp_vlan_group(p);
-@@ -249,7 +249,9 @@ size_t br_mst_info_size(const struct net_bridge_vlan_group *vg)
- 	sz = nla_total_size(0);
+-	return vle->tinfo.tunnel_id != tunid;
++	return READ_ONCE(vle->tinfo.tunnel_id) != tunid;
+ }
  
- 	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
--		if (test_bit(v->brvlan->msti, seen))
-+		u16 msti = READ_ONCE(v->brvlan->msti);
-+
-+		if (test_bit(msti, seen))
- 			continue;
- 
- 		/* IFLA_BRIDGE_MST_ENTRY */
-@@ -259,7 +261,7 @@ size_t br_mst_info_size(const struct net_bridge_vlan_group *vg)
- 			/* IFLA_BRIDGE_MST_ENTRY_STATE */
- 			nla_total_size(sizeof(u8));
- 
--		__set_bit(v->brvlan->msti, seen);
-+		__set_bit(msti, seen);
- 	}
- 
- 	return sz;
+ static const struct rhashtable_params br_vlan_tunnel_rht_params = {
 -- 
 2.47.3
 
