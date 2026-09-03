@@ -1,64 +1,63 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4DD4B715B
-	for <bridge@lists.linux.dev>; Thu,  3 Sep 2026 14:32:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34DC34BB5DD
+	for <bridge@lists.linux.dev>; Thu,  3 Sep 2026 14:32:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788445942; cv=none; b=EMZz7r6fOfhPTnr/HuXmmXfo1kasSid+D+SDlJziKRe9p5kxxmVhZW18pnU1h7arvi0WmwKv6WzmVEVkFBsdKogqJ6xqsoGRpA1R5QovoY7OWTY5LLf2hz/FQtTOqyLIlvM/yqAwix8eGRoMIXZ2njLz/m9fmKrHhihdmAH2bVU=
+	t=1788445949; cv=none; b=JjUz0rTS6IliMYmRK7L2rWaRT7QiyEpGSfgiR7VhEbF2hxmYBu5maFLW7gEk+bnN5YPGjAfbgQSiJYYPmkd5FIKQ/PgLJAwue4xi+iE20yUlghxzl4V9TWuklPpgrkLC6ZxBQufQ2VxvxC26/mG9BKMdFnGUmrmYOdxo6SO6y1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788445942; c=relaxed/simple;
-	bh=yJfkb3hM5Pba0nKvWUAIgOdfux2UtM7ON45POiZc+dE=;
+	s=arc-20240116; t=1788445949; c=relaxed/simple;
+	bh=JQ9WHNXd1zUXM8hq9MaOXxZqBdxkm2SZKoBtKHz7Wpk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uWw2IBy1+ytqhlt5lbrCyB58qbaoMd+SRp6ysywA8UxURB/wd2UIHxEyfpMM39U3CKtUqaQ24mTkkcMbnikRNi6s/YeN6vm8U1k+ZWfy+KXl8ujCLqfBhKfn/VtZQMRwU1R7Jh4cTk0OD4TE2G01SByI3fQVr8XJNh2+GMhGUFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=i4+PyDNR; arc=none smtp.client-ip=209.85.128.50
+	 MIME-Version; b=UJrZNYTujUdT0OhjCJJBuHnxZvihairQQ1MAi0uGWWt/UQVWZZTh0oGNpJzi2WiQ/K774rmwvnAfu07YS00zujp4UFQTeC1yp92T60eWd8roE+7vKEkjnn1bKSvG/pHnjpc4mKHsxI8k9UJHE6a+bV/Cdo1P1qJ+cQazt71ozjk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=SQRsGKjv; arc=none smtp.client-ip=209.85.218.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="i4+PyDNR"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-49cd77e0f95so24809075e9.3
-        for <bridge@lists.linux.dev>; Thu, 03 Sep 2026 07:32:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="SQRsGKjv"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c255c58156bso418385166b.3
+        for <bridge@lists.linux.dev>; Thu, 03 Sep 2026 07:32:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1788445930; x=1789050730; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1788445935; x=1789050735; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=2HFs9DuHBOZWo0pRLMgZ/aZaO5LCPX7IYZ0kiem5E6M=;
-        b=i4+PyDNRWfYDSL2bzKXrIOHLCn9dZOCdif7qNs0J1VrpNpilg/D27uvAfiq2jg0bWv
-         aeXbX0GuzQyLFOFN+l5p/pcbsFYmlkBHETjLYEsP+hssam7z3RBdODyd91+O7KAch82G
-         mb4/RDw0pAnZUYHuepe6ixPNic1u3ZEpxW60CHVx7OJIP/sGKQDk5px0MwTWgK0IO7TN
-         czyEpRn7/0Tq1MP2Ognf+j0EC7RYyvBdT7NtZwSKGupTPrRP27I0NH/g8l21qes7QbiL
-         vfTJP6lkBQb/Nbf6hL8TZq0eNMMtMsRc9PSRENEIfx4HhRva3vh/FTNMPqvpqmINXy82
-         TMvg==
+        bh=QYYOG0Do4xCECmpKXiXD6Dgae1lqnmNhz5mhp7Y8ks0=;
+        b=SQRsGKjv1l+zC/+eqwzWnWMgd/2y+z0/0xZIiWJAGHfV4rofZ6utR4C+AmxGn8RIbw
+         2N3S9KEcgPmGXqM3I6tY9H9y+OgsFNxS2DVR6VvlDajurEehF3lyUGwwVCx0aGHeDOhm
+         rTp2OIsVYC+CtoweIHDWIfUzYqFH9d9n1hqxbvw113PkgRIXV+tRfVt6l4LpA7KIdm6n
+         kiCvYua6N6XdQeV8HWVx1ssQe0PLz1G6xFH5UuR4hN7AoiD7FGs1rzYWULObQp+UqQZt
+         zENvbdG1mrL7yesZFoy5HX0CehhOjEv0WQci10YqMjktvYFXw2r2pVoUPPMW8emsc2ds
+         YXCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788445930; x=1789050730;
+        d=1e100.net; s=20251104; t=1788445935; x=1789050735;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=2HFs9DuHBOZWo0pRLMgZ/aZaO5LCPX7IYZ0kiem5E6M=;
-        b=fuZLYEYpkh1wIDPgiZFNDX8Ck4cg9ZOZ/M1a8CT30sqDTKzJo89J96TuOsihdgOmcY
-         xrx1rr+kRJ26Ny2pl/6MNdYoWYJuQ5xIE6srQWQ7O9sMmRJgcba8R9cJIlZIjlqmNTbH
-         9ik1siHIhkYjTknbS6xh1zkam1xFhadqQpb6DRSOENvDMKppwJX61cJFgEjWlUrI0BTg
-         +3D2Xbw15q1XrBtN0rVqI+L1JMcMTQZcm8hAjuvPqTZfsoZqcoYqjM2/3AX7sFWXn8e4
-         OjJZ2Gf/yXandx82v4KvQyE9PcI8e+y0CeF+yqwhqcuKyMZZraD4gBKy5/tEcxBWRF75
-         q9NA==
-X-Forwarded-Encrypted: i=1; AKwUvByXYdgEVuEJmyx1tFuCYTkocgwljStomKoHiKsd0NCc+dozJlgnUOhxHHeA6Fir2IHVda+mtKM=@lists.linux.dev
-X-Gm-Message-State: AFuF++khMDgB15BWJjJiguABjn2GXpKH1eKt4D2R0DlMDlhjiKc0Ptre
-	Bcpv7KasZG9283cl3QhvtRYc8ZBWCCdZy+yIbPgazItANcpOZapMns90SGQKXPKta9Y=
-X-Gm-Gg: AYBFou0HDe01pcSfJOqJtLU5MNDgHdbdmj0wIUNjBkqzmjztJV5rBFFQVPmD5uoqrGP
-	hn6qpPeTPQpO0jgaDobyU9f5bnmGV4NLcw+IAlPpd/BWisVxdHgorGo3P6Q6xk5WrG1L7p11iwI
-	AAY87Yf0DtqgVwy14oCCMZ8E65QsKJwDjW4g/2xrBhqWFY5SUTHkW1j4a58ynwrFmIjgGjEW7ET
-	fYr6qguLeQcO+pxOnMbKs/8UMur6IFuUZDa71FYBohhQipcR1tUierW/vHGaIRUjenyH5fwKjV0
-	eE9fg6tvWKfRwkTAfMrzXo3Ijmaj67SBIwfoU/L7Y7rBBhK1F7tDLW9Sf5HZ+evpSzqRaJ4ZGtx
-	Ti7WyVzQbNcW+OH9FzP0X0GhzZMYud7jAWpmEXFw3NbbeKqcAEWEV9meW+9nWHma136Y2m2gAvd
-	zvzHDjsk0qUj3xoBgJJhDQK9jTzDEdS5h/mRShN7sQNN/Qrw/w7OKeBNnaXWcF0i6jkW1VcVKEU
-	V+jtty/yH0=
-X-Received: by 2002:a05:600c:224b:b0:49b:96a0:5c00 with SMTP id 5b1f17b1804b1-49cf5c03b82mr6106425e9.13.1788445930276;
-        Thu, 03 Sep 2026 07:32:10 -0700 (PDT)
+        bh=QYYOG0Do4xCECmpKXiXD6Dgae1lqnmNhz5mhp7Y8ks0=;
+        b=hBWQaPoJHwRuZX+A9odphTi6+bnfeMqZYv7GknTI7yVW29y6dI5Jp5IswFYt5eL8S6
+         xVlLsFt7xn+cl0s35VY2/7Z0aCINmhbm9DzvMS45ghqdZTxQnRotoTFlimKEJcSBPFkE
+         O/9zuKTKt7A2hjBXySTsFLr4KzWnBedsvifUkR/QAeQ0nMBWlWml9YIMjGB6jDxqwfpG
+         snQZvABX5YZJVoHIvJyDkGsFvLRxeXDCOGq2ZmnwT1B51jB0t1pUi8CqH9JZGy2BSUBy
+         XVTCp1iGSEnrQpYzxEKnn0UxIkNFym+cUCs9rAPE15swOqo+NiAd+TcXxrQXiU7SzXjs
+         v9Fg==
+X-Forwarded-Encrypted: i=1; AKwUvBylmeAzUh8dC+ewfLgVqXOXwhowz9ZlmmCd2Bu/+K4gIjWTM9BjaNEC3LKeQ8icrcoxpMYtg0c=@lists.linux.dev
+X-Gm-Message-State: AFuF++nUH/vsKVoD+jQylAgEIlHLxKTUGUnjos+Liec0QRbslqVV2Mp6
+	l9nuAOaXkI4ljTGPXSwIVqBJxlwQKYX/4Dk9LP0gCQeCGf6IbakXSZx2V9rixPV1R6w=
+X-Gm-Gg: AYBFou1X4VgqzybughDQBeylpg4Tq7xgKqMqiH+zKuL0n+05MH8ePLj2vbU813r59X6
+	Rkw0O8/BovRfN584zerRQap4cdbbDFwFF8CRv88VHJEl+ZcxYkVyfE/x47lnwXSU6B9NAyHrQ3G
+	wYgztYl6bRgMnd+JgvFPqqLxuc8fm/EiROF4GbhPkVBGdkgG4sJ0MiuSTUegYRQqJxTR7TCfpOX
+	LxBrYaf9jsNVqnrQeTxnOmZ4DoJCH5Q2LE/4yF8ujgWElMAQ180dNtwGLA76ZeSPOMgyPmlLTPk
+	/JKpjSW99iB9/mLqDzpK1Kv318BIZ8bIU4Xkdf0qqiTSXqzaOJLmbOFcl9GN6/pIy3aNze4NtF0
+	b0GaxahyUlYlxT/X1V34m6JWEziJBmBD7RDXjZ0paI5nKJY0+NPVc9+KD7tjZUm117j6B5GEMpQ
+	RhC1esooPKvDZNSPdIvwTjj6vlU6CTU6hl72+MCx9RjZ20xZ+BB2MldBq5+WlxbNmCoAjJ
+X-Received: by 2002:a17:906:f58e:b0:c25:c954:faf2 with SMTP id a640c23a62f3a-c25d563a41cmr836658066b.21.1788445935349;
+        Thu, 03 Sep 2026 07:32:15 -0700 (PDT)
 Received: from localhost (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-49cee5d587csm81801485e9.4.2026.09.03.07.32.08
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-c25f42861c1sm107705166b.63.2026.09.03.07.32.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 07:32:09 -0700 (PDT)
+        Thu, 03 Sep 2026 07:32:14 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: idosch@nvidia.com,
@@ -69,9 +68,9 @@ Cc: idosch@nvidia.com,
 	horms@kernel.org,
 	bridge@lists.linux.dev,
 	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net-next v2 6/9] net: bridge: vlan: annotate lockless use of num_vlans
-Date: Thu,  3 Sep 2026 17:31:35 +0300
-Message-ID: <20260903143138.1574598-7-razor@blackwall.org>
+Subject: [PATCH net-next v2 8/9] net: bridge: vlan: add missing tinfo.tunnel_id annotations
+Date: Thu,  3 Sep 2026 17:31:37 +0300
+Message-ID: <20260903143138.1574598-9-razor@blackwall.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260903143138.1574598-1-razor@blackwall.org>
 References: <20260903143138.1574598-1-razor@blackwall.org>
@@ -83,85 +82,79 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Annotate data races around vlan group's num_vlans, it can be read lockless.
+When I annotated data races around tinfo.tunnel_id before, I missed a few
+places (e.g. bridge notifications, rhashtable compare), so add them now.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
- net/bridge/br_netlink.c |  4 ++--
- net/bridge/br_vlan.c    | 10 +++++-----
- 2 files changed, 7 insertions(+), 7 deletions(-)
+v2: assign tunid_curr/last later due to long lines
 
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 62ce96d9ba32..ae76df0de05a 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -81,7 +81,7 @@ static int br_get_num_vlan_infos(struct net_bridge_vlan_group *vg,
- 		return 0;
+ net/bridge/br_netlink_tunnel.c | 14 ++++++++------
+ net/bridge/br_vlan_tunnel.c    |  2 +-
+ 2 files changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/net/bridge/br_netlink_tunnel.c b/net/bridge/br_netlink_tunnel.c
+index e7eceab5b515..e64054628ac9 100644
+--- a/net/bridge/br_netlink_tunnel.c
++++ b/net/bridge/br_netlink_tunnel.c
+@@ -29,8 +29,10 @@ static size_t __get_vlan_tinfo_size(void)
+ bool vlan_tunid_inrange(const struct net_bridge_vlan *v_curr,
+ 			const struct net_bridge_vlan *v_last)
+ {
+-	__be32 tunid_curr = tunnel_id_to_key32(v_curr->tinfo.tunnel_id);
+-	__be32 tunid_last = tunnel_id_to_key32(v_last->tinfo.tunnel_id);
++	__be32 tunid_curr, tunid_last;
++
++	tunid_curr = tunnel_id_to_key32(READ_ONCE(v_curr->tinfo.tunnel_id));
++	tunid_last = tunnel_id_to_key32(READ_ONCE(v_last->tinfo.tunnel_id));
  
- 	if (filter_mask & RTEXT_FILTER_BRVLAN)
--		return vg->num_vlans;
-+		return READ_ONCE(vg->num_vlans);
+ 	return (be32_to_cpu(tunid_curr) - be32_to_cpu(tunid_last)) == 1;
+ }
+@@ -43,7 +45,7 @@ static int __get_num_vlan_tunnel_infos(struct net_bridge_vlan_group *vg)
+ 	/* Count number of vlan infos */
+ 	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
+ 		/* only a context, bridge vlan not activated */
+-		if (!br_vlan_should_use(v) || !v->tinfo.tunnel_id)
++		if (!br_vlan_should_use(v) || !READ_ONCE(v->tinfo.tunnel_id))
+ 			continue;
  
- 	rcu_read_lock();
- 	num_vlans = __get_num_vlan_infos(vg, filter_mask);
-@@ -531,7 +531,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
- 		else
- 			vg = br_vlan_group_rcu(br);
+ 		if (!vtbegin) {
+@@ -124,19 +126,19 @@ static int br_fill_vlan_tinfo_range(struct sk_buff *skb,
+ 	if (vtend && (vtend->vid - vtbegin->vid) > 0) {
+ 		/* add range to skb */
+ 		err = br_fill_vlan_tinfo(skb, vtbegin->vid,
+-					 vtbegin->tinfo.tunnel_id,
++					 READ_ONCE(vtbegin->tinfo.tunnel_id),
+ 					 BRIDGE_VLAN_INFO_RANGE_BEGIN);
+ 		if (err)
+ 			return err;
  
--		if (!vg || !vg->num_vlans) {
-+		if (!vg || !READ_ONCE(vg->num_vlans)) {
- 			rcu_read_unlock();
- 			goto done;
- 		}
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 102792f20a5e..95187a607ec2 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -344,7 +344,7 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags,
- 				goto out_filt;
- 			}
- 		}
--		vg->num_vlans++;
-+		WRITE_ONCE(vg->num_vlans, vg->num_vlans + 1);
- 	}
+ 		err = br_fill_vlan_tinfo(skb, vtend->vid,
+-					 vtend->tinfo.tunnel_id,
++					 READ_ONCE(vtend->tinfo.tunnel_id),
+ 					 BRIDGE_VLAN_INFO_RANGE_END);
+ 		if (err)
+ 			return err;
+ 	} else {
+ 		err = br_fill_vlan_tinfo(skb, vtbegin->vid,
+-					 vtbegin->tinfo.tunnel_id,
++					 READ_ONCE(vtbegin->tinfo.tunnel_id),
+ 					 0);
+ 		if (err)
+ 			return err;
+diff --git a/net/bridge/br_vlan_tunnel.c b/net/bridge/br_vlan_tunnel.c
+index 257cae9f1569..04751f15d708 100644
+--- a/net/bridge/br_vlan_tunnel.c
++++ b/net/bridge/br_vlan_tunnel.c
+@@ -22,7 +22,7 @@ static inline int br_vlan_tunid_cmp(struct rhashtable_compare_arg *arg,
+ 	const struct net_bridge_vlan *vle = ptr;
+ 	__be64 tunid = *(__be64 *)arg->key;
  
- 	/* set the state before publishing */
-@@ -367,7 +367,7 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags,
- out_fdb_insert:
- 	if (br_vlan_should_use(v)) {
- 		br_fdb_find_delete_local(br, p, dev->dev_addr, v->vid);
--		vg->num_vlans--;
-+		WRITE_ONCE(vg->num_vlans, vg->num_vlans - 1);
- 	}
+-	return vle->tinfo.tunnel_id != tunid;
++	return READ_ONCE(vle->tinfo.tunnel_id) != tunid;
+ }
  
- out_filt:
-@@ -417,7 +417,7 @@ static int __vlan_del(struct net_bridge_vlan *v)
- 
- 	if (br_vlan_should_use(v)) {
- 		WRITE_ONCE(v->flags, v->flags & ~BRIDGE_VLAN_INFO_BRENTRY);
--		vg->num_vlans--;
-+		WRITE_ONCE(vg->num_vlans, vg->num_vlans - 1);
- 	}
- 
- 	if (masterv != v) {
-@@ -695,7 +695,7 @@ bool br_should_learn(struct net_bridge_port *p, struct sk_buff *skb, u16 *vid)
- 		return true;
- 
- 	vg = nbp_vlan_group_rcu(p);
--	if (!vg || !vg->num_vlans)
-+	if (!vg || !READ_ONCE(vg->num_vlans))
- 		return false;
- 
- 	if (!br_vlan_get_tag(skb, vid) && skb->vlan_proto != br->vlan_proto)
-@@ -757,7 +757,7 @@ static int br_vlan_add_existing(struct net_bridge *br,
- 
- 		refcount_inc(&vlan->refcnt);
- 		WRITE_ONCE(vlan->flags, vlan->flags | BRIDGE_VLAN_INFO_BRENTRY);
--		vg->num_vlans++;
-+		WRITE_ONCE(vg->num_vlans, vg->num_vlans + 1);
- 		*changed = true;
- 		br_multicast_toggle_one_vlan(vlan, true);
- 	}
+ static const struct rhashtable_params br_vlan_tunnel_rht_params = {
 -- 
 2.47.3
 
