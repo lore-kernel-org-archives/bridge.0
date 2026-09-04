@@ -1,175 +1,206 @@
-Received: from mail-oo1-f79.google.com (mail-oo1-f79.google.com [209.85.161.79])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60A201EFF93
-	for <bridge@lists.linux.dev>; Fri,  4 Sep 2026 00:40:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.79
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2C2C4A1DE8;
+	Fri,  4 Sep 2026 13:41:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788482434; cv=none; b=F2GcafOR51oWNMXCqw5CgMd2oCUgskidgS4ptRcLw4ghX74vwtcizKrSKS4Gy1OH+fw6wtF3U7Xh/+kUmEW0IAXJ7DYF6Fq/FDvAKsRAy72c8zWEImFiyrb8Bze3k76XI9NCuqBBhWxvCY5GJxCqYpzOovVMx/HvOXBhR0bEfaE=
+	t=1788529286; cv=none; b=H9EmPDx8oMcGvDWXOdj5ac4izD0UfDi3JjNy6lTv2D747VzViCDjRt6CF9UIhRBMZw3Er9EuzIGcPYz2c+2CbuLd5FeX7hMT4G98bBy5cRsFqXz8hh2LbXyFV9PHe8KvhcNUy1pfK9gxJIUk81eBDB2FvhrhdVwa8AHEB+9uTYw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788482434; c=relaxed/simple;
-	bh=7LQpb0Pa73PlrS8iOd6HJy/L6pdf8Fsn9gXcja5ixfo=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=X0pXqUotHj9QRBKiMsnaVi9kkX94HBiTLC86Ts4WGy4lP6Q/R63LKzPb7xyObhs2PXyTLhxteK6pBqBqUbZp+IsfZ3NJ6RJ+yr+vBagunpSQOzlZBM8YHhQu02Lh1VRxDrEQ7e5ABAMWZN/ub1q3ybQODotTRhO/1c0RwFCUpCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.79
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f79.google.com with SMTP id 006d021491bc7-6b163fddf0aso1639104eaf.1
-        for <bridge@lists.linux.dev>; Thu, 03 Sep 2026 17:40:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788482431; x=1789087231;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=hNPf08Y7tBx8DkNypiWcYaCaJCCHHn5rIsGOQMKw6+M=;
-        b=O8oe9bK2cpbBhulTzkrMFb3w/rAwhAFXRds2pndUEODyitUAhBzwVEczTajCPqHbKM
-         uRJR2UxQfX8DB0nUC+fYGM+ttAioEXrXgx0T0ZQTcbeXL38t64tfzleTn1zIL1sE6G7W
-         LT8UirbYl92aJQ/JIdGjqg39xicDJcCGgpFbvYHz1qAlzIQrp/5bCF65gD9GYJXz89Nf
-         hCH0ASwXaAK5YXGoJW6iYgdYBvQ7f9CICB0OFv+5G8/Ff6PFCeiImmvzqgBQxxJTxn/W
-         H+m0RFMbRokzdBUa7mJsv4ltMGnc/WDCwBdK2VlPRqxN9E95+n3F/9sVZNRk/r6c6trp
-         UoJw==
-X-Gm-Message-State: AFuF++m36Npdch1UPxH1+br+xXEdsaR8ekjO9bGPlJq02oyNrGYIPgZn
-	/8RnXo0TTFISPvXDU5Wd8OBP5XSoFIqPjwVI4PCTJpwlV4O9Xr/ahDpLcv+E8gkOc3972ZVaUxA
-	qLFZf5q5AA3hpkc0XxvqLbZaZR8IbAwDGlKKgSYq4hODWZtctS/+tTVHnnxeETw==
+	s=arc-20240116; t=1788529286; c=relaxed/simple;
+	bh=XpJfIMIhQlpWkBS3G8YydbBP5+NYWNB6n3UR3QCht1w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IFfaoYEPtHUkJvOJmefWFUbviSf3neTRZt014Ta5t7PUF0dNvVqnmtPy23xbwOUJSuhWsjIggeA0LV86zPXew/9IBnVtLxvhDHLEVA6ltC6+/RTXzHC1JmA6zYRKHj8eyOLytXndt/WEyN3T0r4bGjK+kOorsV37waGjaCpCEsg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tl3HNtlX; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tl3HNtlX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0867A1F00A3E;
+	Fri,  4 Sep 2026 13:41:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788529284;
+	bh=sdodzR4Na8Sqljw2U9YzO1/rhfdn+6lstjf3xmHL5yY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Tl3HNtlXjcpki9vJTKEAAdlO/sey7IATDkDXoGNKQfG6pfaXr4LGdJJGRG8VQgzou
+	 M2pMGSsjenEtPt2HYbit8AGm+zwRYU5v9RbQSzJXr8V0rQyNFsminbBOzSV0N/aKVy
+	 T4tc0TMfejuONmEj3jri/Jm7C22kCrbauJZDyv4yvs6lFrYeqtaQ8mYSZwNVYPTehg
+	 cT52vtqmWpeUlt6o2nazGP1yTRVmu/xV1wgVt7M30HHfVo+7BRpk5YyYZU+0oqF4Pn
+	 MWvpnb80OGvr0tGNxDUJrHuklEe72v1ymZTXWjhbrsp5Xlo+jUMr6KkZv93KHG7u4Z
+	 HKQTZQoMlaj1A==
+Date: Fri, 4 Sep 2026 15:41:09 +0200
+From: Joel Granados <joel.granados@kernel.org>
+To: Mauricio Faria de Oliveira <mfo@igalia.com>
+Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
+	Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, kernel-dev@igalia.com, 
+	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, fsverity@lists.linux.dev, 
+	keyrings@vger.kernel.org, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, linux-wpan@vger.kernel.org, 
+	lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
+	linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com, 
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
+Message-ID: <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
+ <53155340c897560bfc67e61ba9568fd6@igalia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:4df8:b0:6b6:1db8:5d1f with SMTP id
- 006d021491bc7-6b627d58214mr2086763eaf.13.1788482431355; Thu, 03 Sep 2026
- 17:40:31 -0700 (PDT)
-Date: Thu, 03 Sep 2026 17:40:31 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a9a137f.9266084e.bf0d7.02e3.GAE@google.com>
-Subject: [syzbot] [bridge?] general protection fault in br_del_frame
-From: syzbot <syzbot+1df7473ef265fe8ba6e1@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	horms@kernel.org, idosch@nvidia.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
-	razor@blackwall.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
-
-Hello,
-
-syzbot found the following issue on:
-
-HEAD commit:    818bebeb63dd drm/xe: Don't hand out the flat CCS storage a..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=1596a979580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=ccca94d2c01b9e78
-dashboard link: https://syzkaller.appspot.com/bug?extid=1df7473ef265fe8ba6e1
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1431e625580000
-
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-818bebeb.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/6e4100526b12/vmlinux-818bebeb.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/723c4783ee96/bzImage-818bebeb.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+1df7473ef265fe8ba6e1@syzkaller.appspotmail.com
-
-bridge0: port 2(bridge_slave_1) entered disabled state
-bridge_slave_0: left allmulticast mode
-bridge_slave_0: left promiscuous mode
-bridge0: port 1(bridge_slave_0) entered disabled state
-Oops: general protection fault, probably for non-canonical address 0xfbd59c0000000024: 0000 [#1] SMP KASAN NOPTI
-KASAN: maybe wild-memory-access in range [0xdead000000000120-0xdead000000000127]
-CPU: 1 UID: 0 PID: 12 Comm: kworker/u32:0 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-Workqueue: netns cleanup_net
-RIP: 0010:__hlist_del include/linux/list.h:1038 [inline]
-RIP: 0010:hlist_del_rcu include/linux/rculist.h:599 [inline]
-RIP: 0010:br_del_frame+0x106/0x1a0 net/bridge/br_input.c:482
-Code: 00 fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 87 00 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8b 65 18 4c 89 e2 48 c1 ea 03 <80> 3c 02 00 75 76 49 89 1c 24 48 85 db 74 24 e8 c6 45 72 f7 48 8d
-RSP: 0018:ffffc900000f78e8 EFLAGS: 00010a06
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 1bd5a00000000024 RSI: ffffffff8a98bb9f RDI: ffffffff91453338
-RBP: ffffffff91453320 R08: 0000000000000001 R09: 000000000000002c
-R10: 0000000000000200 R11: 0000000000000001 R12: dead000000000122
-R13: ffff88802e200800 R14: 000000000000001c R15: ffff88802e200800
-FS:  0000000000000000(0000) GS:ffff8880d5ca2000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fdcf9541e9c CR3: 0000000026926000 CR4: 0000000000352ef0
-Call Trace:
- <TASK>
- mep_delete_implementation+0x292/0x340 net/bridge/br_cfm.c:591
- br_cfm_port_del+0x14f/0x1e0 net/bridge/br_cfm.c:872
- del_nbp+0x168/0xd50 net/bridge/br_if.c:348
- br_dev_delete+0x96/0x1c0 net/bridge/br_if.c:387
- br_net_exit_rtnl+0xdb/0x140 net/bridge/br.c:414
- ops_exit_rtnl_list net/core/net_namespace.c:181 [inline]
- ops_undo_list+0x896/0xab0 net/core/net_namespace.c:249
- cleanup_net+0x499/0x920 net/core/net_namespace.c:706
- process_one_work+0xac7/0x1b10 kernel/workqueue.c:3387
- process_scheduled_works kernel/workqueue.c:3470 [inline]
- worker_thread+0x5ef/0xe50 kernel/workqueue.c:3551
- kthread+0x373/0x450 kernel/kthread.c:436
- ret_from_fork+0x730/0xd60 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
-RIP: 0010:__hlist_del include/linux/list.h:1038 [inline]
-RIP: 0010:hlist_del_rcu include/linux/rculist.h:599 [inline]
-RIP: 0010:br_del_frame+0x106/0x1a0 net/bridge/br_input.c:482
-Code: 00 fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 87 00 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8b 65 18 4c 89 e2 48 c1 ea 03 <80> 3c 02 00 75 76 49 89 1c 24 48 85 db 74 24 e8 c6 45 72 f7 48 8d
-RSP: 0018:ffffc900000f78e8 EFLAGS: 00010a06
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 1bd5a00000000024 RSI: ffffffff8a98bb9f RDI: ffffffff91453338
-RBP: ffffffff91453320 R08: 0000000000000001 R09: 000000000000002c
-R10: 0000000000000200 R11: 0000000000000001 R12: dead000000000122
-R13: ffff88802e200800 R14: 000000000000001c R15: ffff88802e200800
-FS:  0000000000000000(0000) GS:ffff8880d5ca2000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fdcf9541e9c CR3: 0000000026926000 CR4: 0000000000352ef0
-----------------
-Code disassembly (best guess):
-   0:	00 fc                	add    %bh,%ah
-   2:	ff                   	lcall  (bad)
-   3:	df 48 89             	fisttps -0x77(%rax)
-   6:	fa                   	cli
-   7:	48 c1 ea 03          	shr    $0x3,%rdx
-   b:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1)
-   f:	0f 85 87 00 00 00    	jne    0x9c
-  15:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
-  1c:	fc ff df
-  1f:	4c 8b 65 18          	mov    0x18(%rbp),%r12
-  23:	4c 89 e2             	mov    %r12,%rdx
-  26:	48 c1 ea 03          	shr    $0x3,%rdx
-* 2a:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1) <-- trapping instruction
-  2e:	75 76                	jne    0xa6
-  30:	49 89 1c 24          	mov    %rbx,(%r12)
-  34:	48 85 db             	test   %rbx,%rbx
-  37:	74 24                	je     0x5d
-  39:	e8 c6 45 72 f7       	call   0xf7724604
-  3e:	48                   	rex.W
-  3f:	8d                   	.byte 0x8d
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="f2bekayrv5kknxjs"
+Content-Disposition: inline
+In-Reply-To: <53155340c897560bfc67e61ba9568fd6@igalia.com>
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+--f2bekayrv5kknxjs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
+> On 2026-08-20 09:51, Joel Granados wrote:
+> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wr=
+ote:
+> >> This series adds 'sysctl:' aliases to modules that register sysctl tab=
+les; e.g.:
+> >>=20
+> >>         $ modinfo ./mpls_router.ko  | grep sysctl:
+> >>         alias:          sysctl:*/net/mpls/conf/*/input
+> >>         alias:          sysctl:*/net/mpls/default_ttl
+> >>         alias:          sysctl:*/net/mpls/ip_ttl_propagate
+> >>         alias:          sysctl:*/net/mpls/platform_labels
+> >>=20
+> >> It provides a trivial way to map /proc/sys files to modules (not trivi=
+al today),
+> >> and for userspace to handle nonexistent /proc/sys files (e.g., procps'=
+s sysctl
+> >> and systemd-sysctl applying tunables) with "modprobe sysctl:<...>" and=
+ a retry.
+> >>=20
+> >> This is done almost automatically with register_sysctl(), register_net=
+_sysctl()
+> >> and friends as wrappers of MODULE_SYSCTL_TABLE (similar to MODULE_DEVI=
+CE_TABLE),
+> >> which emits symbols for file2alias/modpost to find and parse the sysct=
+l tables.
+> >>=20
+> >> The big exception to 'almost' are sysctl tables and paths allocated or=
+ defined
+> >> at runtime (e.g., per-namespace or per-device), as all information is =
+required
+> >> at build-time. Fortunately, such tables and paths are often based on '=
+templates'
+> >> which are static and can be used.
+> >>=20
+> >> This is done by plumbing the template table/path as optional arguments=
+ (macros
+> >> with default values as default_gfp()), so not to create functions for =
+all cases:
+> >>=20
+> >>         register_sysctl(path, table [, table_tmpl [, path_tmpl]]);
+> >>         register_net_sysctl(net, path, table [, table_tmpl[, path_tmpl=
+]]);
+> >>         register_net_sysctl_sz(net, path, table, size [, table_tmpl[, =
+path_tmpl]]);
+> >=20
+> > The "what" is described but I'm missing more clarity on the "why". Why
+> > does this need to be trivial? Where is it that you will know the sysctl
+> > file path of a module and not the module name or alias?
+>=20
+> Thanks for looking at this.
+>=20
+> The problem this feature addresses is sysctl settings not applied
+> because modules aren't yet loaded when systemd-sysctl/procps's sysctl
+> runs on boot, and the usage of /etc/modules as a workaround.
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+Sorry for insisting, but is it not possible to set the sysctls after the
+modules have been loaded? Why is the order to first set the sysctl and
+then load the module?
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+>=20
+> This can be addressed with a way for sysctl tools to load the module for
+> a non-existent sysctl file path.
+> For that, the mapping between a sysctl file path (known) and its module
+> (unknown) needs to be trivial.
+This touches on my question. How is the file path known and the module
+not known? The module is the one providing the paths, not the other way
+around. Why choose to just work with sysctl path lists and not include
+the modules that go with them?
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+>=20
+> It may not seem serious at first, but I've seen this consume significant
+> engineering time and impact production systems, in a previous technical
+> support job.
+> An example: cloud deployments with non-scalable network routing
+> performance due to nf_conntrack_max not applied after reboot or an
+> upgrade because the component which turned out to help with the
+> /etc/modules workaround had its placement changed from network router
+> nodes.
+This is more understandable to me. The issue is that you loose the
+relationship between sysctl paths and modules on updates. Are there
+other cases where the module would not be loaded?
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+And doesn't it create another problem where you will load modules that
+you don't expect (on the update)?
 
-If you want to undo deduplication, reply with:
-#syz undup
+>=20
+> > Additionally, sysctls are not module specific; they are a way to
+> > read/write kernel variables. Putting a module specific aspect in the
+> > function arguments (that needs to be ignored in non-module cases) seems
+> > wrong. Why not use the module subsys to add sysctl alias instead of the
+> > sysctl subsys?
+>=20
+> Fair point. The current design has 2 reasons:
+>=20
+> 1) Use the 'path' argument (raised in [1]), only available in the
+> register sysctl functions.
+> 2) Use a more implicit/transparent approach, instead of more
+> explicit/declarative approach.=20
+
+I get that the data is there and you would be able to do it, but it
+still seems misplaced. Additionally, are you planning to move all the
+modules to this scheme? If not, does that mean that some modules would
+work and some wouldn't? And how would you make sure that modules would
+use the correct call moving forward?
+
+>=20
+> I guess that a different design could use MODULE_SYSCTL_TABLE() as
+> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
+> register sysctl functions.
+> However, it seems to require moving the value of the path argument (or
+> its template) into the macro and still referencing it in the function
+> (or its instantiation of the template), which adds obfuscation, to all
+> callers.=20
+>=20
+> What do you think?
+It might be that having it inside the module subsys is more work, but I
+believe that there is the right place to have it. I still don't see that
+adding a module specific arg to the sysctl register is a good thing.
+
+
+Best
+
+--f2bekayrv5kknxjs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmqaymwACgkQupfNUreW
+QU+lGQv9G3M3cE2j6nFu2ajfmqXn/HK3F13D57StjtuTwbNUrTKJAl5NYfXzFtv/
+WI0RRjBuOJKO4tZwqjX37MLUYJqa3GYA6eoQ8efnCCygEUInpicx3wittaZqtnv0
+TGnCLpyb4BHmtJRx6lEoZFyU4juYti6APKn4p2+CBQN9jPCn2RbFf8fRCql2G7F2
+LpM/O+tkXTZ8iY6iGjkROFdKmbNXq0JO5m6dOOgtyJt/m4dLF+ivs7HxExEvaAdq
+0vMjANmTDelElI17ouGEstSU8WLY1R+rMEzMbm5Y5lTWK0MxCkReBjJSEx/yAQEZ
+ecNJej849cFo1mun6yzEB6+3tiB1IGZaTerj7LfxHm+Ku9nVZ4p29/emoQ0UzWdd
+SkWXhwUZbVGehFGYaCTT7KVDcv5fZiCr2WBM0POFIXhmSIk0CSLezhFr6JDElVov
+R12dzrMN46WspdvHiWrBWBGMtUh+8hxByKgR+YduWJfKyeKBoQnsai2u+4zJ7Ayp
+sBanGs6K
+=SHqf
+-----END PGP SIGNATURE-----
+
+--f2bekayrv5kknxjs--
