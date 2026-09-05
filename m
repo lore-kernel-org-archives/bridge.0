@@ -1,228 +1,158 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-oo2-f6.google.com (mail-oo2-f6.google.com [74.125.231.134])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83AC31ADC97
-	for <bridge@lists.linux.dev>; Sat,  5 Sep 2026 21:17:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 426A93168E6
+	for <bridge@lists.linux.dev>; Sat,  5 Sep 2026 23:56:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.134
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788643061; cv=none; b=E30MWfg2RqgK7ylIkM1g3uiyw/vx5O9EXLmP9CE0OzvC0R3t6RksuPJ6FTIqVQFel+xTrRzRnjb7V9Tvd3H/iy9nI8tNOrp1CcxLrZfjkT/hc5w9Oom/uQV33zQmuDjpz1/oFiIuvNSn0APlbFekNPNhrPMWyeZ1iLhXRg/ZQ9Y=
+	t=1788652598; cv=none; b=hTZlbvptwKo9qUSuEy0laZ1QOA+mOhs+bGQ2qc16T5kKfum4toG8dttxVVHKrJlGVBcrquEnHivp3WP9aR1wfkeP5rFFQVX0Q/faEYNwkPjrszAFtF4fmOjf2up1YS9P+QUrJjgYWKJslT04vnURMQGWXAOqoflvKETD8GtETMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788643061; c=relaxed/simple;
-	bh=zZL53EEjw9D1RZgfinpAjxAnatcoOrPLnw/a2JQ7lgQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pizhpKZHXbVrG2z1fcKG10xUMJKO+eBGhl7MRRebemHYzF1dW9wzbgMdjJ2AZ2nZFS/bu4xBfEk/kHyD6T6ofj/qMfqhZrv0dY/kAUYhBzx0JGnP1GHvjQL23S0rTI8btiM0hwZQnRtbVtvkiEsDI5tQz1QsmM6mtvVAUHZ1ngM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=PimzKgKW; arc=none smtp.client-ip=209.85.221.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="PimzKgKW"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-48436216a98so1440566f8f.0
-        for <bridge@lists.linux.dev>; Sat, 05 Sep 2026 14:17:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1788643057; x=1789247857; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=AY+HihG4agfNBeK2I6zqAOhhokWdRfXRGsAmqq96xZI=;
-        b=PimzKgKW84vxBQ6VpKTXDNQH9hUvL/sWale3FbUaTreMAYfPWSgB33+sanBFNKNHzP
-         pjb2AlQYqV8R6Ycnl+MtML2jmHfkYwTgz23JTnETDY5dGSe6m8adesHW4jDa3y8DVtBx
-         KYDKnq3CEVGrWT75eJd93Uk8OmzB0Bz58caWoKb4XoYVEQT3qzW+MUs60LvfoQRZ+XkQ
-         uRNsc0AWKE5YyFvw9+9vaqn0YUPtDVDTpW51VrvyaDkqlw2Ypvkg629VnVzuEQXiLS4r
-         wgsXq5b7rZnJ/0MbkA6WEJ/ppl+3eQHbdQl5pH1j6ZK9Cx06igkxMA8WB36GmfCHsm5j
-         OUXw==
+	s=arc-20240116; t=1788652598; c=relaxed/simple;
+	bh=pddK2N0duwoQb1mI4YqZ2LJG7qWQL7Meue62j2M7jOU=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=LgAbUYcopV6y2SJGFkqlZTbwFLtbjXJaAL3Iubts1TZ00LqO187UvWjAmEBa2mWZhr0BN25SZaMDQXTi6NzToKSAE6gHqeogywTvvTLD5NxGqgzKDLOAa9e11cTthEUs9idH59/PAHFajmB/FItCy8KoVea7DTG8KjV+kZEutUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.134
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo2-f6.google.com with SMTP id 006d021491bc7-6b1b32cc57bso183846eaf.1
+        for <bridge@lists.linux.dev>; Sat, 05 Sep 2026 16:56:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788643057; x=1789247857;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=AY+HihG4agfNBeK2I6zqAOhhokWdRfXRGsAmqq96xZI=;
-        b=Ew+z8ncdrOttk0raDZGSFLrxsbvr8DGZXXNtqKPssSnLdfxiUWwMf/w8My4LCulX/n
-         kOdahC6OFW53mBkkbuigIHXjZE3dZK6/IxxkEPdn7Iudzhx/uIaS22FWRPGxulXYbSUY
-         9pWuFMllqqq3tigseUcioXrp12nPot4tuxCCsSjI7cmigjvmiFXX3KejrbOIIq//nFH3
-         Bmy0SySGgC+GjhjKzZ5WkgTGfyQOzoSl1q64sae94HccNg4DqIB+D8p49/Iot8CpDPcM
-         0R8bDQoTuqJv91jmdX2vjF+d9JHRJWVMjMhWkcQJsXv2O0RywfjQLp6W0rD//uYDb7KL
-         maKQ==
-X-Forwarded-Encrypted: i=1; AKwUvBznPTPVXsHqLB3ksyfuY90SBQ1y25h8qhOs2GskaBQhuDHhYbTSOqK+35AL+Dx1BklhV4zCkTQ=@lists.linux.dev
-X-Gm-Message-State: AFuF++m1P2JngFpB7+Jd1DqOAdbz/Iou9zop2KNs+ZsMzniCZJ7JWDbN
-	m9jZyBiysMFB2r2i1qn72wKj4jZLX/tp4LZuYCy1lBbl9E9aqPIh98QSih6/KKqWN74=
-X-Gm-Gg: AYBFou1dBmVtFVxt3t4p14pPoTJDnY94bVrvVssfjh28EfRuj9PJPAz/T+w4GvrB0fA
-	mpt9jwk4xr3am0jsYmIk4T9M6ztH81qCsXYDevP6RhafPnSN/UQOpgchhlrE7PEp69NZTHPjWm8
-	nbT1LlxmuMWkeds7ke7aGkRn3XCXHQ/EIvsDdpEg+JrhESKXULCEF95LylLgm7XFLeiBEd6N8Jz
-	pSgQdMEuHJnNfu/C4RTEI7d7v9UQTezIuEOHVTvalllWBFQxKRlo+tGvC/v2naOQ02AqUu3C6w5
-	svvdZWUzyuyvshtDF0aIRc8Gq9oX7h14wWdxH1ri80p4IB/AIhB7Co6L6euQUeJGEWR82xyS8f7
-	cLlL4ACKznHzxCUfiFjasxc/F0ZdyPlM/sps0vFmUyRosaVe1M4xW900fgnyiM3iceh6b2LSb07
-	XL6JsaX09Llb706/Im9kWB8ltzd0o0ELaLjro8x6Le3YUXfWtMQNvYbWqxXpZVu7fcZGV0/K9Zq
-	ssYSAfUo4Hjcy/zLms=
-X-Received: by 2002:a05:6000:26d3:b0:482:a8b1:aa6d with SMTP id ffacd0b85a97d-48587091389mr16889952f8f.10.1788643056177;
-        Sat, 05 Sep 2026 14:17:36 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-15-182.ip.btc-net.bg. [78.154.15.182])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485885bf3f0sm17665272f8f.33.2026.09.05.14.17.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 05 Sep 2026 14:17:35 -0700 (PDT)
-Message-ID: <ac7e3f4e-7a0f-410f-afb2-9bf65549cbdf@blackwall.org>
-Date: Sun, 6 Sep 2026 00:17:34 +0300
+        d=1e100.net; s=20251104; t=1788652596; x=1789257396;
+        h=content-type:to:from:subject:message-id:in-reply-to:date
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=JnrjshyuggTKeO2OGoYPIVvGnKtaActQ8ii8qn0UbNs=;
+        b=ssnau362hUGD1kq6NW38ZSsXYdimXUj5MHhiFoSEmQPw9vJS+Iniy+WBt5byBwcFjb
+         iXinjjZPefv/VC4z1aAwd3de2M8tFDRq6VdC3QtNybmiZ7VpUzBDYD3UEG8rYgVEsfte
+         NOx4UkWcLuJggUZvTgNRq+T+OWY5J4ClJeCt5SioQXD2zC2CxTHRj7XrDdrQDhlwED4B
+         UWNZHdK/F+GH9NRe9DuwDhSUn1ErCPKMcoM2H4VnbpPOc2d6qR7Kd9cuqzw4gQdkdPGn
+         aNf90x4np92TDnc6J5brlOMkq5Fz50J6r0C0zBFpMj2SWlAWirM2ICOaRjp5SAsIIEBl
+         3ASA==
+X-Forwarded-Encrypted: i=1; AKwUvBwbLG0ZLOZKDxjnnDk4iS74dZlsek6/BS9DbzS2lPKGXx0qYKO5G2jThx12OWFAlD9zfpt/8VU=@lists.linux.dev
+X-Gm-Message-State: AFuF++mq25T2WJU8ENSD7NkmNhSFFCAbr5uiBLeH5wN2KgcsV9edOkU5
+	xeFWCje9LzylnGzE8ebO6uE8Q7WH5+nxa+vmdZun4xm6H+8qx0ZusOPcWZRwgwTLyAhFLwqLF2a
+	xxFi7CmMF9fK5k2EHa9nj/hpO4xYiqFTMEe4kJQ2Ji9z99ziZy0ggwIZqmtg=
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 1/9] net: bridge: vlan: drop legacy memory
- barriers
-Content-Language: en-US, bg
-To: netdev-bot+sashiko@kernel.org
-Cc: netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- bridge@lists.linux.dev
-References: <20260903143138.1574598-2-razor@blackwall.org>
- <178864007675.219967.6069320085194764242@kernel.org>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <178864007675.219967.6069320085194764242@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6820:179b:b0:6ae:9815:7c8e with SMTP id
+ 006d021491bc7-6b6fd2cea24mr10082448eaf.21.1788652596282; Sat, 05 Sep 2026
+ 16:56:36 -0700 (PDT)
+Date: Sat, 05 Sep 2026 16:56:36 -0700
+In-Reply-To: <6a9a137f.9266084e.bf0d7.02e3.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a9cac34.37659fcc.e790.0005.GAE@google.com>
+Subject: Re: [syzbot] [bridge?] general protection fault in br_del_frame
+From: syzbot <syzbot+1df7473ef265fe8ba6e1@syzkaller.appspotmail.com>
+To: andrew@lunn.ch, bridge@lists.linux.dev, davem@davemloft.net, 
+	edumazet@google.com, eric.dumazet@gmail.com, horms@kernel.org, 
+	idosch@nvidia.com, kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 05/09/2026 23:27, netdev-bot+sashiko@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential
-> issue(s) to consider:
-> 
-> Critical: 0 · High: 0 · Medium: 1 · Low: 0 (1)
-> 
-> - [Medium] Writer-side publish ordering removed: in `__vlan_add()`
->    (net/bridge/br_vlan.c) a new VLAN is made visible to RCU readers…
-> 
-> Pre-existing issues:
-> - [Low] Concern (retained for policy combination, but validated as
->    resolved within this series): after this patch `vg->pvid` is read and…
-> 
+syzbot has found a reproducer for the following issue on:
 
-I don't think there's anything wrong with the patch, I've answered below.
+HEAD commit:    4d7d9486c04d Merge tag 'integrity-v7.3-rc2' of git://git.k..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=16aeeb49580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=85bc5cc2fc7394d9
+dashboard link: https://syzkaller.appspot.com/bug?extid=1df7473ef265fe8ba6e1
+compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+userspace arch: i386
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10da9125580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15aeeb49580000
 
-> --
-> 
-> net: bridge: vlan: drop legacy memory barriers
-> 
-> This removes the smp_wmb() calls from __vlan_add_pvid() and
-> __vlan_delete_pvid() and the smp_rmb() from br_get_pvid(), on the grounds
-> that the pvid is written under lock and read under rcu in the fast-path.
-> A couple of questions about the write side below.
-> 
->> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
->> index d337b1cfb980..5b2c22ad669e 100644
->> --- a/net/bridge/br_private.h
->> +++ b/net/bridge/br_private.h
->> @@ -1687,7 +1687,6 @@ static inline u16 br_get_pvid(const struct net_bridge_vlan_group *vg)
->>   	if (!vg)
->>   		return 0;
->>   
->> -	smp_rmb();
->>   	return vg->pvid;
->>   }
-> 
-> [Severity: Low]
-> This isn't a bug introduced by this patch, but with the barriers gone
-> vg->pvid is left as a plain C access on both sides: br_get_pvid() does
-> "return vg->pvid;", and the writers in br_vlan.c do "vg->pvid = v->vid;"
-> and "vg->pvid = 0;". There is also a direct read outside the helper in
-> br_mst_vlan_set_state():
-> 
-> net/bridge/br_mst.c:br_mst_vlan_set_state() {
-> 	...
-> 	if (v->vid == vg->pvid)
-> 	...
-> }
-> 
-> The sibling field in the same struct is only touched through accessors
-> that mark the access:
-> 
-> net/bridge/br_private.h {
-> 	static inline void br_vlan_set_pvid_state(struct net_bridge_vlan_group *vg,
-> 						  u8 state)
-> 	{
-> 		WRITE_ONCE(vg->pvid_state, state);
-> 	}
-> }
-> 
-> The follow-up patches in this series do address this - "net: bridge: vlan:
-> annotate lockless pvid use" converts br_get_pvid() to READ_ONCE() and both
-> writers to WRITE_ONCE(), and "net: bridge: mst: use br_get_pvid helper"
-> converts the br_mst.c read - so this only applies to the intermediate tree
-> state at this commit. Would it be simpler to fold the annotation into this
-> patch so no intermediate state has an unmarked pvid access?
-> 
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-4d7d9486.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/1233b136bf9d/vmlinux-4d7d9486.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/25eb977d33cf/bzImage-4d7d9486.xz
 
-This is not the point of the change here and it isn't relevant at all.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+1df7473ef265fe8ba6e1@syzkaller.appspotmail.com
 
->> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
->> index 1e0e436629ec..2ae6ffb23399 100644
->> --- a/net/bridge/br_vlan.c
->> +++ b/net/bridge/br_vlan.c
->> @@ -40,7 +40,6 @@ static void __vlan_add_pvid(struct net_bridge_vlan_group *vg,
->>   	if (vg->pvid == v->vid)
->>   		return;
->>   
->> -	smp_wmb();
->>   	br_vlan_set_pvid_state(vg, v->state);
->>   	vg->pvid = v->vid;
->>   }
-> 
-> [Severity: Medium]
-> The commit message says "nothing to commit prior to changing it".  Is that
-> accurate for the add path?  In __vlan_add() the vlan is published to rcu
-> readers first, and the pvid store happens after that:
-> 
-> net/bridge/br_vlan.c:__vlan_add() {
-> 	...
-> 	/* set the state before publishing */
-> 	br_vlan_init_state(v);
-> 
-> 	err = rhashtable_lookup_insert_fast(&vg->vlan_hash, &v->vnode,
-> 					    br_vlan_rht_params);
-> 	if (err)
-> 		goto out_fdb_insert;
-> 
-> 	__vlan_add_list(v);
-> 	__vlan_flags_commit(v, flags);	/* -> __vlan_add_pvid() */
-> 	...
-> }
-> 
-> So the removed smp_wmb() sat between the rhashtable insert / list add and
-> the vg->pvid store.  On a weakly ordered architecture, can a fast-path
-> reader observe the new vg->pvid before the matching net_bridge_vlan is
-> visible in vg->vlan_hash?  The rhashtable bucket store has release
-> semantics for the insert itself, but nothing orders the later plain pvid
-> store after it, and the WRITE_ONCE() added by the next patch in the series
-> does not provide store-store ordering either.
-> 
-> If that can happen, the reader in __allowed_ingress() picks up the new pvid
-> and then fails the lookup:
-> 
-> net/bridge/br_vlan.c:__allowed_ingress() {
-> 	...
-> 	v = br_vlan_find(vg, *vid);
-> 	if (!v || !br_vlan_should_use(v))
-> 		goto drop;
-> 	...
-> }
-> 
-> which would drop untagged/priority-tagged frames for the length of the
-> window (this lookup is reached when BROPT_MCAST_VLAN_SNOOPING_ENABLED or
-> BROPT_VLAN_STATS_ENABLED is set), triggered by something like
-> "bridge vlan add dev <port> vid N pvid untagged" for a new vlan while
-> untagged traffic is received on that port.
-> 
-> For the read side the analysis looks fine: the smp_rmb() in br_get_pvid()
-> preceded the pvid load, so it never ordered the pvid load against the
-> following hash lookup - that direction comes from the address dependency
-> into the bucket computation.
-> 
-> If the write-side ordering is still wanted without a fence in the
-> fast-path, would smp_store_release(&vg->pvid, v->vid) here be the right
-> replacement?
-> 
+bridge_slave_0: left allmulticast mode
+bridge_slave_0: left promiscuous mode
+bridge0: port 1(bridge_slave_0) entered disabled state
+Oops: general protection fault, probably for non-canonical address 0xfbd59c0000000024: 0000 [#1] SMP KASAN NOPTI
+KASAN: maybe wild-memory-access in range [0xdead000000000120-0xdead000000000127]
+CPU: 1 UID: 0 PID: 5761 Comm: kworker/u32:2 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: netns cleanup_net
+RIP: 0010:__hlist_del include/linux/list.h:1045 [inline]
+RIP: 0010:hlist_del_rcu include/linux/rculist.h:599 [inline]
+RIP: 0010:br_del_frame+0x106/0x1a0 net/bridge/br_input.c:482
+Code: 00 fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 87 00 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8b 65 18 4c 89 e2 48 c1 ea 03 <80> 3c 02 00 75 76 49 89 1c 24 48 85 db 74 24 e8 36 8b 6b f7 48 8d
+RSP: 0018:ffffc9000497f8e8 EFLAGS: 00010a06
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 1bd5a00000000024 RSI: ffffffff8a9fb08f RDI: ffffffff91470cb8
+RBP: ffffffff91470ca0 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000000 R12: dead000000000122
+R13: ffff888068c49400 R14: 000000000000001c R15: ffff888068c49400
+FS:  0000000000000000(0000) GS:ffff888096a63000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000f7036630 CR3: 00000000223c0000 CR4: 0000000000352ef0
+Call Trace:
+ <TASK>
+ mep_delete_implementation+0x292/0x340 net/bridge/br_cfm.c:591
+ br_cfm_port_del+0x14f/0x1e0 net/bridge/br_cfm.c:872
+ del_nbp+0x168/0xd50 net/bridge/br_if.c:348
+ br_dev_delete+0x96/0x1c0 net/bridge/br_if.c:387
+ br_net_exit_rtnl+0xdb/0x140 net/bridge/br.c:414
+ ops_exit_rtnl_list net/core/net_namespace.c:181 [inline]
+ ops_undo_list+0x896/0xab0 net/core/net_namespace.c:249
+ cleanup_net+0x499/0x920 net/core/net_namespace.c:706
+ process_one_work+0xac7/0x1b10 kernel/workqueue.c:3396
+ process_scheduled_works kernel/workqueue.c:3479 [inline]
+ worker_thread+0x5ef/0xe50 kernel/workqueue.c:3560
+ kthread+0x373/0x450 kernel/kthread.c:436
+ ret_from_fork+0x730/0xd60 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:__hlist_del include/linux/list.h:1045 [inline]
+RIP: 0010:hlist_del_rcu include/linux/rculist.h:599 [inline]
+RIP: 0010:br_del_frame+0x106/0x1a0 net/bridge/br_input.c:482
+Code: 00 fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 87 00 00 00 48 b8 00 00 00 00 00 fc ff df 4c 8b 65 18 4c 89 e2 48 c1 ea 03 <80> 3c 02 00 75 76 49 89 1c 24 48 85 db 74 24 e8 36 8b 6b f7 48 8d
+RSP: 0018:ffffc9000497f8e8 EFLAGS: 00010a06
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 1bd5a00000000024 RSI: ffffffff8a9fb08f RDI: ffffffff91470cb8
+RBP: ffffffff91470ca0 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000000 R12: dead000000000122
+R13: ffff888068c49400 R14: 000000000000001c R15: ffff888068c49400
+FS:  0000000000000000(0000) GS:ffff888096a63000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000f7036630 CR3: 00000000223c0000 CR4: 0000000000352ef0
+----------------
+Code disassembly (best guess):
+   0:	00 fc                	add    %bh,%ah
+   2:	ff                   	lcall  (bad)
+   3:	df 48 89             	fisttps -0x77(%rax)
+   6:	fa                   	cli
+   7:	48 c1 ea 03          	shr    $0x3,%rdx
+   b:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1)
+   f:	0f 85 87 00 00 00    	jne    0x9c
+  15:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+  1c:	fc ff df
+  1f:	4c 8b 65 18          	mov    0x18(%rbp),%r12
+  23:	4c 89 e2             	mov    %r12,%rdx
+  26:	48 c1 ea 03          	shr    $0x3,%rdx
+* 2a:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1) <-- trapping instruction
+  2e:	75 76                	jne    0xa6
+  30:	49 89 1c 24          	mov    %rbx,(%r12)
+  34:	48 85 db             	test   %rbx,%rbx
+  37:	74 24                	je     0x5d
+  39:	e8 36 8b 6b f7       	call   0xf76b8b74
+  3e:	48                   	rex.W
+  3f:	8d                   	.byte 0x8d
 
-This synchronization window is acceptable, we might drop a few packets. The write barrier
-here keeping it shorter was really an accident, the barriers predate my conversion of
-the vlan code to rhashtable when bitmaps were used and needed the sync.
 
+---
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
