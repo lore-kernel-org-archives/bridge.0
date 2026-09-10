@@ -1,126 +1,198 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 801C037C0FC;
-	Wed,  9 Sep 2026 17:29:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C4D0267B89;
+	Thu, 10 Sep 2026 06:44:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788974998; cv=none; b=R6/YiAQskoq0KQt6FN+n1A+bmyloJq62Nr8D0IZueSLhK4TQ+RLwipgDSe3JIGX7yWmpx8M+q2ObyOu/12SCEyAIlacxV8Ocpm1i7MATTiLL8T/xtiEpXcHJJCN+panfBiKuXPhpWGLCLvxFzwTjJPmP+RAwCzItkLaVEtXotJQ=
+	t=1789022698; cv=none; b=rGyRXwz54d/AZhQM74wDDFTmSQQRCrJwljucRObKiSPnnitM4CMT64aE/op6Nyw+7i+Q1IggrvwAh5Dj3WlUtVr6Tz+jKgQD/ObyEhZuy3QhkDuLrkfJpDyrCGn9EEu64u3r1doRUURqWm9lBlP28Ho1zMgMGsVyv64+4L8mfSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788974998; c=relaxed/simple;
-	bh=5D7SoVhjzEokScNygSteAqf9Ex3y5nz2gk7swf3GT9c=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=gDmwF+J/rj7iNGvZy3//wBz1/35Picg7f9t1poNBw0/DUxD5eepICxeAVl+LFazpl9xLP0p89B86qUlsMLn/t4T8AyA/J2RZKBC6ioBxB3fQ1NlqIGKe9lu1n92gP6M5r0iwAFB7yqqwxruQpoDsxBasB4WA0viOKdfBu8MVEXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=KMw6Bqep; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1789022698; c=relaxed/simple;
+	bh=u27dG1rBmqmjpK8YSsvlrOYBUK4zx068XOmkDunU4jM=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=F/tPlc1/lA/prIxNEesETdk8trpz169NdaC/VwUFa/X3EKLlGgIOPtpiFxU2PBbshBnkLtFl/UHRamxfUPV7WMqHIoUhSVHmzk7hbaz6hk9MBnWzjDoi+pSypwPuKhPbuHO9GScaG1Ii3tbK1mVxOL333C2M8UB874hgY5QQ2WQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YG35K4ZE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="KMw6Bqep"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
-	:From:Date:MIME-Version:From:Reply-To;
-	bh=ixMZSD8+UhNtarF+6aKvQsI19PdlMWk8UdPjHUJ+BP8=; b=KMw6Bqep7POVCO8ABQLqn26u4z
-	Vm92Tg+j/0+PmqqK/dvW828O7HrV+w+lZ60KY8e00z2BinoAcJO+teusI18GQwPZa93g46fWpKzrh
-	AgVGA7OW13ikcCWBdkNHyCF5MJrQ4LKcZ+GKP5SaO3VjFYCmljrmH6AfZWccpFDtmCtNfrdPm7mPs
-	y4KaCldihKnLxKrccLdvn9dRcj2yIzJUCoUAgq4c2VAAZwBqHbq49TxRAg0vo9Q8rWDVmDAvS1GYm
-	9TAWMFQFYzZ/e/mtZNAnThAS4lu2g6BMirzitO5ItyIEr8XkzcaGF4jYGgtJDCV/itEvyRHzncwMa
-	n8Da47kw==;
-Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
-	by fanzine2.igalia.com with esmtps 
-	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1x4M72-00HA6O-2e; Wed, 09 Sep 2026 19:29:32 +0200
-Received: from webmail.service.igalia.com ([192.168.21.45])
-	by mail.igalia.com with esmtp (Exim)
-	id 1x4M71-008Hsn-5l; Wed, 09 Sep 2026 19:29:31 +0200
-Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
-	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
-	(envelope-from <mfo@igalia.com>)
-	id 1x4M71-00000007Q64-0Tnk;
-	Wed, 09 Sep 2026 19:29:30 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YG35K4ZE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0FC91F000FF;
+	Thu, 10 Sep 2026 06:44:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789022696;
+	bh=Jw8hlI2fgUpdKqVVf7y3g+RPckF+M6yOdJNAGCV+/24=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=YG35K4ZEzL46QJvVk8j5eft9Mca4Ek9yJut1QvkMDtXVBlVcI6B0SfnbkZ4gppkSI
+	 GYee+f22LByOEjWT5VxspBSmpVAObT2IBnWcvPCQVBSWDideSGeAZvVuAzSKFKgUmO
+	 1Hyb49eCD46/izAUICWqro3ur1BUwtW7TL01if6tM+gQivuHDi5Q4Jhg8rB3BhfR3R
+	 OTZzdOrQIedBm6XxeNqXAug3w/YN2GDd0J9Ws4lA3lfJ/o3N37ralpH8m0OFo6l30B
+	 pIkJw0PC0hElxhmnQ5mAxBdCjroaYacWpBa/xk6smB5LfQJPh5Ndh/GVhAeQ3SmUvG
+	 FOErVgFivz52g==
+Subject: Re: [PATCH net-next] net: bridge: bound the port VLAN lists in the
+ IFLA_AF_SPEC nest
+From: netdev-bot+sashiko@kernel.org
+To: iprintercanon@gmail.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
+ idosch@nvidia.com, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ horms@kernel.org, davem@davemloft.net, corbet@lwn.net,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Thu, 10 Sep 2026 06:44:55 +0000
+Message-ID: <178902269514.219967.12409929351424983943@kernel.org>
+In-Reply-To: <20260906224246.21719-1-iprintercanon@gmail.com>
+References: <20260906224246.21719-1-iprintercanon@gmail.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Date: Wed, 09 Sep 2026 14:29:30 -0300
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-To: Joel Granados <joel.granados@kernel.org>
-Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>,
- Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- kernel-dev@igalia.com, linux-riscv@lists.infradead.org,
- linux-kernel@vger.kernel.org, fsverity@lists.linux.dev,
- keyrings@vger.kernel.org, bpf@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
- netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
- lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-sctp@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
-In-Reply-To: <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
- <53155340c897560bfc67e61ba9568fd6@igalia.com>
- <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
- <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
- <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
-Message-ID: <6e93af907298022f077126f1be7bd386@igalia.com>
-X-Sender: mfo@igalia.com
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
-X-Spam-Score: -20
-X-Spam-Bar: --
 
-On 2026-09-09 11:07, Joel Granados wrote:
-> On Fri, Sep 04, 2026 at 02:45:23PM -0300, Mauricio Faria de Oliveira wrote:
->> On 2026-09-04 10:41, Joel Granados wrote:
->> > On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
->> >> On 2026-08-20 09:51, Joel Granados wrote:
->> >> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
->> >> >> This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
-> <... snip ...>
->> > use the correct call moving forward?
->> 
->> This scheme currently covers all modules, AFAIK, as it is wrapped in the
->> functions that register sysctl tables.
->> 
->> On moving forward: usage of such functions in a way that breaks a
->> requirement of this series (e.g., failing to specify the template
->> table/path parameter(s), or not having constant initializers) hits a
->> build error, as the requirements are actually from the compiler.
->> 
->> >> I guess that a different design could use MODULE_SYSCTL_TABLE() as
->> >> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
->> >> register sysctl functions.
->> >> However, it seems to require moving the value of the path argument (or
->> >> its template) into the macro and still referencing it in the function
->> >> (or its instantiation of the template), which adds obfuscation, to all
->> >> callers. 
->> >> 
->> >> What do you think?
->> > It might be that having it inside the module subsys is more work, but I
->> > believe that there is the right place to have it. I still don't see that
->> > adding a module specific arg to the sysctl register is a good thing.
->> 
->> Ok, cool. I can work on a different design.
->> 
->> Please just let me know whether you are OK with the remaining (above),
->> and I'll be happy to tackle this.
-> 
-> What is "the remaining"?
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider:
 
-I meant the rest of the email, addressing the points/questions you
-raised.
+Critical: 0 · High: 0 · Medium: 1 (1) · Low: 0
 
-cheers,
+- [Medium] No Fixes: tag on a patch that fixes user-visible malformed
+  netlink output.
 
-> 
-> Best
+Pre-existing issues:
+- [Medium] The u16 nla_len wrap of the IFLA_AF_SPEC nest remains
+  reachable for the bridge device: br_fill_ifinfo() still emits…
+
+--
+
+net: bridge: bound the port VLAN lists in the IFLA_AF_SPEC nest
+
+The patch stops br_fill_ifinfo() from putting more than 65535 bytes into
+the single IFLA_AF_SPEC nest by asking br_af_spec_has_room() for room
+before each VLAN, VLAN tunnel or MST entry, and clamps the size estimate
+in br_get_link_af_size_filtered() to U16_MAX. Documentation/networking/bridge.rst
+gets a section describing the per-entry costs and pointing at RTM_GETVLAN.
+
+Two questions below, one about the tag block and one about the remaining
+paths into the same nest.
+
+> net: bridge: bound the port VLAN lists in the IFLA_AF_SPEC nest
+>
+> br_fill_ifinfo() opens one IFLA_AF_SPEC nest, fills it with the VLAN
+> information of a bridge port and closes it with nla_nest_end(), which
+> stores the accumulated length into nla_len. That field is a u16, so for
+> a nest larger than 65535 bytes the stored length wraps modulo 65536.
+> The encoding has never been able to describe more than that; nothing
+> regressed.
+
+[Severity: Medium]
+Should this carry a Fixes: tag anyway?
+
+The rest of the changelog describes user visible breakage in shipped
+kernels: a 115048 byte RTM_NEWLINK with an nla_len of 49088 broadcast to
+every RTNLGRP_LINK listener in the netns, 2341 attributes after the nest
+misread as IFLA_IFNAME, a 147776 byte RTM_GETLINK reply whose attribute
+walk derails 16672 bytes in, and a CONFIG_DEBUG_NET splat from
+nla_nest_end(). Without a Fixes: line stable selection has no anchor.
+
+The sibling fix cited a few paragraphs later, bdd39576bf50a ("net: bridge:
+prevent too big nested attributes in br_fill_linkxstats()"), does carry
+one:
+
+    Fixes: a60c090361ea ("bridge: netlink: export per-vlan stats")
+
+For the two lists that can fill the nest on their own the candidates would
+be efa5356b0d97 ("bridge: per vlan dst_metadata netlink support") for
+br_fill_vlan_tunnel_info() and IFLA_BRIDGE_VLAN_TUNNEL_INFO, and the commit
+that added br_mst_fill_info() and IFLA_BRIDGE_MST_ENTRY.
+
+> Assisted-by: Claude:claude-opus-5
+> Signed-off-by: Artem Lytkin <iprintercanon@gmail.com>
+
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index b2cd4e39326d0..643ae06f7df8c 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+
+[ ... ]
+
+> @@ -117,11 +128,19 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
+>  		vinfo_sz += br_get_vlan_tunnel_info_size(vg);
+>  
+>  	/* Each VLAN is returned in bridge_vlan_info along with flags */
+> -	vinfo_sz += num_vlan_infos * nla_total_size(sizeof(struct bridge_vlan_info));
+> +	vinfo_sz += num_vlan_infos * BR_VLAN_INFO_SIZE;
+>  
+>  	if (p && vg && (filter_mask & RTEXT_FILTER_MST))
+>  		vinfo_sz += br_mst_info_size(vg);
+>  
+> +	/* These three lists share the IFLA_AF_SPEC nest, whose length is a
+> +	 * u16, and br_fill_ifinfo() stops once it is full. Do not size the
+> +	 * skb for entries that will not be emitted. The CFM size below is
+> +	 * only added for the bridge device, which carries no tunnel or MST
+> +	 * entries and so stays far below the clamp.
+> +	 */
+> +	vinfo_sz = min_t(size_t, vinfo_sz, U16_MAX);
+> +
+>  	if (!(filter_mask & RTEXT_FILTER_CFM_STATUS))
+>  		return vinfo_sz;
+>  
+
+[Severity: Medium]
+This is a pre-existing issue and not introduced by the patch, but can the
+same nla_len wrap still be reached for the bridge device through the CFM
+status list?
+
+The changelog says so explicitly ("CFM peer status can grow past the limit
+on its own; that is a separate change"), so this is more a question about
+whether the new helper could cover it in the same series than a complaint
+about the scope.
+
+br_cfm_status_fill_info() walks br->mep_list and each mep->peer_mep_list
+appending roughly 64 to 76 bytes per entry with no aggregate cap:
+
+net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
+	hlist_for_each_entry_rcu(mep, &br->mep_list, head) {
+		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_STATUS_INFO);
+	...
+}
+
+br_cfm_mep_create() and br_cfm_cc_peer_mep_add() only reject duplicate
+instance and mepid values under RTNL, so on the order of 860 MEP and peer
+MEP entries push skb_tail_pointer(skb) - af past 65535, and the
+nla_nest_end(skb, af) at the 'done:' label in br_fill_ifinfo() stores a
+length truncated modulo 65536, which is the same failure this patch closes
+for the port lists. Neither the IFLA_BRIDGE_CFM nest nor
+br_mrp_fill_info() consults br_af_spec_has_room().
+
+Also, the clamp above runs before the CFM terms are added, so it does not
+constrain that path at all. Was that ordering intentional? The per-peer
+accounting that follows the clamp also omits the
+IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO nest header for each peer, which can
+undersize the skb and make br_fill_ifinfo() return -EMSGSIZE.
+
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index d337b1cfb980d..55dfa44269c90 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+
+[ ... ]
+
+> @@ -2161,6 +2168,18 @@ static inline int br_cfm_peer_mep_count(struct net_bridge *br, u32 *count)
+>  #endif
+>  
+>  /* br_netlink.c */
+> +/* The IFLA_AF_SPEC nest that br_fill_ifinfo() builds is a single netlink
+> + * attribute, so everything put inside it has to fit in the u16 nla_len.
+> + * The entries have fixed sizes, so ask for room before adding one instead
+> + * of closing the nest with a length that wrapped.
+> + */
+> +static inline bool br_af_spec_has_room(const struct sk_buff *skb,
+> +				       const struct nlattr *af, size_t size)
+> +{
+> +	return skb_tail_pointer(skb) - (const unsigned char *)af + size <=
+> +	       U16_MAX;
+> +}
+> +
+
+[ ... ]
 
 -- 
-Mauricio
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260906224246.21719-1-iprintercanon%40gmail.com
