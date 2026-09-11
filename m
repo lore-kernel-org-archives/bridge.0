@@ -1,149 +1,208 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com (sonic301-38.consmr.mail.ne1.yahoo.com [66.163.184.207])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 962DC369224
-	for <bridge@lists.linux.dev>; Fri, 11 Sep 2026 15:22:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7834C3EE1C3
+	for <bridge@lists.linux.dev>; Fri, 11 Sep 2026 17:56:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789140176; cv=none; b=J2yen/ek0OtsoUY0cZ5nw2fv7sBMKNi+1nWrEl+VLmIBBRjwIP9VDN/eY7WaeOMhnZzrYDOhB7kvGNUWdMpc6PoEz+3abIufMaWw7zUBv04ZMbli7LMZdaX85Fc8So3UC6v8Q71WJhFSRMfVx20Ozt+NCJtfyKg6/WtXbaTa/MQ=
+	t=1789149387; cv=none; b=DPt2vRsZsu8kbjcRbI7jb9LEU+wPTEDx8GFvzjvWL6TB0bNiU4ravVgjYsYyeKBG+R1vbZObdE2RQg+NnGniUbwtyVopwU2JGU/VBp2WHpJl/CdetuIWqeNJZkydDHTKhkY4DM1LWAOUp+PNwtLPRJFNIFfY1JesQeohxWTXpD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789140176; c=relaxed/simple;
-	bh=XvBFvoj3NtxLfiq/QPGad++OX0rfUzOCIFlG+2oc4js=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VVhc1nojlwouxQEqdBc2V264xUgjtKTtNziqaMKcxsf3yakIvKbTCF4U59jgNlM9ukuvFtDsZ34T6wTPEoQhkIqVEePtd1BKsFzW17xFVsgYoAKNHuOww2QY/9+tRFVjXcMgTZgHWRwQiV2wuN3R2/7BI64wRBO4xBPosInLpCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=GwjM3qjP; arc=none smtp.client-ip=74.125.225.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1789149387; c=relaxed/simple;
+	bh=Z57Iku1thXyXrd/tJuHixAzTq3I2TFBtAiDxp2vv5n8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Q+uKLGPCcjMvdFV5ANgnX51hPgtB2GAtq4S7rML+57GLyHFX36SBjuN/tEgV+ER4n//y1sYj1gmMqosYpfaMf6fjKNw31US/15Tl6/13fasJbyjsYddfGP4XSXqX7rrDvDp5YRM2i0ovgvrGnpbAJ6NeeKe1aTVvnaH+DV3SUFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=kUOHH1CJ; arc=none smtp.client-ip=66.163.184.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="GwjM3qjP"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-485933b2522so816854f8f.0
-        for <bridge@lists.linux.dev>; Fri, 11 Sep 2026 08:22:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1789140173; x=1789744973; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uPVHK0UKh13XuzvPAq0t2DICkCsJRRtiu4q34ZJGYJA=;
-        b=GwjM3qjPiSnEJa9KFAxQC7QX8EPU64QSjfsGo8p8n4Cbeq9gKnPiWrTYF2dbrNl/Xu
-         fqskAh4b+T7dQZ5sm7mXwmpoQeA0BjcSm99rURv56o1JI17+adPiiVd9Jjo/XZBzVlAG
-         ZqloBUnVl9T+pZYSx3ZutpbDq5/7Y8YmT8pL8mnzCDjgS4L+Wc9fa3OJ41nnpkx02vK4
-         yGlqooAgpNXasKN4247uh+mQhxuJdUrmoR2L8zQTatZixY/QO6hDZejmW+QFGedar12P
-         wlrogwROKmrAr04HC3Lp7yjKRizjaaQedSdLLjMC/xIBYW2IJqSzrkKhbd+PKHAjj0fg
-         pOwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789140173; x=1789744973;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=uPVHK0UKh13XuzvPAq0t2DICkCsJRRtiu4q34ZJGYJA=;
-        b=EMabmwPP/4mCui9v+KvXBv33An/4KQ/AKlgRv+Aca6w482ozvKCRefEP5TO5KFCtMw
-         gUpCNhVDuzbW6n5ioBQnvHXhinzDoqJDGg0SiILDl9pLThcQjlt9mq6Bcj0uTFdyrmZt
-         2rIsdvMHo9PARkrLLWqfAU5bEeGFsh+9n3wIKqZWHzR9UJE9YR5jAEeJqyXH7q1VFxda
-         uQdq0yKtdILRku8zFEdAwSNNDFTxouLtxG6PwzieLkN7Ufh13SXERSjh2w9iQnD8VVXC
-         ycoj69Kxg7mCrIfLHEJ3FwrkF2nXsyyHlFpc8eL2r7u1ZgWYMz82UF9wIl8cXpd5fmsw
-         Kzug==
-X-Forwarded-Encrypted: i=1; AKwUvBy/crNX8cBnePaQUMySgq7zqUphUI5MJYQcl5xC6kew8DbmRIjmKgdsd2LeyU9EGU9d7olHeiE=@lists.linux.dev
-X-Gm-Message-State: AFuF++lrzrkr1LlYXSKzFHJJLxgHQCYUgxd/knnuBi8btEKvKRTJX7Uw
-	vOdNLTT+ZApJNR2bw+r+bQc7X5fKsNZr70X3joUE4lWrwC3a+ts4OPtdUFux7Pw4GRs=
-X-Gm-Gg: AYBFou2B1X9EZraN4qFG3em+/rVgfCqzHN77LPOPixyjH1kCl3ZW462wtntfafKnX0J
-	sJw8+QsjOBcnpu1l6mKvW02uLdUS1h5zKk8dRcZlwjhwma0ycfIedDfKx8FymjZ9IB948T+R9Zp
-	ACzg2fnIU06XECWkAUu4MBTxCmw7in6n7OSUv6sYv3enwmUTkFFsY96eA9IhGMdl44gkCWvcafn
-	SgbQvI+vrkcXJU3NLv9qaiGxdpHE6NwIKpPLoy23NvmeScBx4AlSB0Cd76AXjJplK6PUYjw7lKX
-	gl8gW1ZhqBrNoiH9Cx2v3nOQTgw2/rKTQlJqpHO5B5mxS4rM3hQPiQueEPENd4/323+s3sKD7GH
-	sC3dtDFfJDm8KYAapQK8ZauJTB8J4wZ11kxv7TGbxvZxN7ieHpC1xq3INlGSrp5q8G8sUPFZgon
-	3aegs5iu3igebs2mLo/P4Tf3nFaP4t1dTb4q9CFQSFQVst/JKOwcUX7dVPvMdbDiyq+lILWhyru
-	0DVNHIjAmI/KqNR6p7ELQ==
-X-Received: by 2002:a05:6000:4b1d:b0:484:3312:f127 with SMTP id ffacd0b85a97d-486eb35fc9cmr11591303f8f.27.1789140172622;
-        Fri, 11 Sep 2026 08:22:52 -0700 (PDT)
-Received: from localhost (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-486eb34e608sm6815862f8f.23.2026.09.11.08.22.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 08:22:51 -0700 (PDT)
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: netdev@vger.kernel.org
-Cc: idosch@nvidia.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	tobias@waldekranz.com,
-	bridge@lists.linux.dev,
-	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net] net: bridge: mst: move switchdev call outside rcu
-Date: Fri, 11 Sep 2026 13:50:21 +0300
-Message-ID: <20260911105021.1385934-1-razor@blackwall.org>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="kUOHH1CJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789149384; bh=N0ksFx+o56aUgsrzSCG07cwcgBEXSZlDOBLwLo9KB9k=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=kUOHH1CJnva/7coLlZukW2dwTQIOIGNGgsLVYEnqrRxW46p4Eg12vGB9daCeMG/PY6PuJia/OTcgpetDX88ONvnhiNlQ5OXGgmeZXSjxgOKzrljv69fKL+HYpOtOmwIdKcUgdhaAH405B5gXqDJdWh7eSfAjJxekjTPkKCRjxTlEm8Kfash4FfFU/zz/iH1UFy4QCMIKvWDsp48xyuTavESTv3vNZbQbn9TFgDjU6AoknKRFBJkrmWRNMKDZulwiXr4EEvzEIbYtWoMNj11dieyq9j97nP86M3F9ZoCXvGYoz109kCt8rs34NvAtS67dzPx5/xTbud0zn38IVX1ztQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789149384; bh=QteuM3bUaCgRvhHrdjxrBH5tgfktjA5yuwH09UlDHN5=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=lokMXD2veYYzTpKrNSdw60aI1KhFbVsAg1RU+yyGXzkCKKx8/ACxRfmBhJh00fS7USPG1HVCERJ6EFY20/L4xpMULg8vwaId7eV/kzhRhx7RoezqIKg+oaVf7rbsej+xWlwbyChH2R5l/U9/Oh8s3Y6wGmKkunohA+sAHOMuWBvSKi+uI8Wnff/peZZ9Or96ndLsDbZs97sp1Ltg0PYjJ2LrXYtthL2QF7lvtMKSbPeQ27d5aimzlDyggm9fqTS0FrK9wuotrha07eWLQEcNNqatxg8ui5l4EhRVOfs+o3cclAwGLg7f3hL601aDDGaOHypDomKVsHdrSwYdXkpOqw==
+X-YMail-OSG: Z9UMG9YVM1lctHC24HnZvwkpAFOQdH7gglIMIGoN9uePiY6tmM1qasTJ0aPnTzX
+ tzt29oMHmILoCJ0h7IC3u49YVUVYpMiAR3DOapJZF7js1zavVTijW7mz6eDy0Aknu2cJAIMBsqct
+ C3ya42KOnkk9oeom.b.QTEgcQUSRb.xUyEOV838qqsLQzKYF7X4scufuZH2ZMtPbL4WXhFrvUpaa
+ b2h7qJsroiEU4KnSo_4R743CTWkEixpeInkhNH0gSxv83Oy2Qp2WDEFOmBoIryMYglQrGdPXsoBd
+ pWMZwxUFVMji3.9WaIrRLWEwU0aCVr.y7dg7LlQywAhwgodXzjq7xYZrwHNyfNkFOZOORAsIxvzh
+ T2.QUhV.JpcG1Fb6DrNXHkSYUzD9f0kby6nX1oVX_X3RSxKW_gdPGix0Yg2F.SZCIlWjZiWlfSct
+ EHuva2iR3235_wLAiNbAoBnNIA0auBPdbrWlPKgBy8dD1rjj1N.QzBmZteeApzGC5cTnvC6GdB_Y
+ pj2GFD41VlRPuSGzC1TI4dE8UtcO9WCWDGJJ.N9ljlE7ridZHp5sXcvrlb2a1bJn8b8g.gM_k0Y.
+ rhnpwwCd5hEjjm.jA8eaExquIyZEltU8Mn8S09036R4ZIVIUqtSgx2_UM_72JpAgdr93yUloY4Ni
+ ZkPaUGtv8xsIZjdsKhzb9Di_L2bWvEmHR1tEWk0sRpWSJgpkcV4TInr7E.FKZCDYRWAgpQas1uQJ
+ 1TOZ6fnSFy0FwYnc34A27vgJO53IRnC3i1fXQzozdz_ciT8l.ZAKAjYby7iyEEUlPZ7AuInZrPza
+ IEdzUZNoQry0p.FCLskNePKfkzaolmO7kf1Xy1P9r1wU3jjfCqpzfxKG3gMpYwfVAsVNnOv6gDzl
+ McJQL.IE2U_X9ZGVZjg4rkSvsjGUx_bL4lOIDeQWj5nb8EO_hS3ZFeOXVa76rEtJBTamfTTW_7Zc
+ elKXzO0c0jsF_iGOvV2sX9TtagZFju13DPJgDpCFgKnK8RfROr.IP761grH7JdkzCRfBscbKj8k7
+ Ahwv8KwS_qMFpGCZsVnKIueTdlB7CJitfx_aC17KoiI.w5vP5MeCFnyYnZ36ZuvoA4KiKo_Ncwrm
+ CZCI96cIwehGcjN454ZgHYgmbxlMsQdtxl0ALCXIEd231qZxI5r3jKKzqWBRQBT6wyOE.JLSQXU3
+ bZlUojN5mC7Gx19NhnLlG.lg751JnoD40Ciw_ysQAywCq2134cpLDvJiqE5XaWXg_KeWNaSx07Rp
+ Z.Hp4cWssIRHg5vMk_aZs5Z7gP2r111AT0tPqB.Zl36I7EcMncMSuoK6TpjUpeCFPNA2Uzn6lWpv
+ Ayq9XnDzPBBYPg3Z5Yq8pSj2VM5qO2prq6fi4wRQysNvd_1lqrs3VtFc9ydPyX8RD8VYVSxv1uJ1
+ FB2N7hJH1gYewxLqD1TrMgTjhWKaalb0ZCqhrFy0PdSKktKHFroGOPZfZWAV4mekQimDDZkSUtnC
+ yw.h8nHeNuzHO8V0HTM_P4nsUeGGf6aLnKrOA9cgDr2U7b1pfnZjwOEC9f3OwqLxHVtN7DxbxRBt
+ XbRaMJ0t0JXpnmzFjCEwxOIe4YxMA79ojl0uBwAtD0Fy0woxF6BF3RJ1ZPPU0_PUXxNYTPAv797g
+ hCvs4V7D7ilhn2pHF7zgioCgAymlDwbbb1kS25sFEgT.ab0mYvR_DTYvZdm8xvptaKga9_3Q_4la
+ Nfg7LDwLu90rXbR_jFSVDg8_CRrWzNGZoExyv2KC5Ioxx4w5Z.vFZMm71aSdZqcz97awS9O27LEy
+ zOpyEkEiGjFrw1cgZZtyu3Ew0HqIQ0h4xkl52jQ4XgT.30ChKEVFYvIV7iuJxGT28kntbVLk7n5h
+ Qgdut7ArndRx8PCSev3URpMnf8AM0zR8NhPyD_xl.PBWGf9W2RDA6RRWpdjmgFHBTId2lKL_nSJl
+ LkxGwDO7rDn_SxbCFne8eoKNae0qOWs798diQQVJL0Ddb8aFSC4LFGAwrr_d22T4W8yy.Ndfb49y
+ z2dOYbOpJhAl12Ftt1XOzJGQFgwPv5Q_tiwpkT27_1AfToPZ2tfNNwEU5LXsoecZNMjPL637Fs88
+ Pm9FtfEyd0XJbD1XOE.f.OBlHHpbiaJgp4mXcZx0q4HZOY4DX10_8VcqfbSEaXrmk1KmYyVyvbHM
+ 3QxDwZXAF5FNMwXncGbQWYGe_Azdm2WnLc5rY4RP0yu0DZzoy5yQFXvQ.VZQ0.Ig5LzjCVNNskre
+ .fT9yhcSlPWI3IHZaEsNbS3ASejCKAAQtyEkTugxQ5eM1GTORRydzR8ohwGmxc5gursUvWq1obkV
+ s1L1HzWgkFSZ7
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: b76ab4a0-2ab9-47b3-8cf5-8bdd5faf0803
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Fri, 11 Sep 2026 17:56:24 +0000
+Received: by hermes--production-gq1-678d9dd684-kwnw4 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 399694003e99ff36e3a7b206375e9b12;
+          Fri, 11 Sep 2026 17:46:02 +0000 (UTC)
+Message-ID: <ee89e26c-3dad-450b-8861-badf19afa141@schaufler-ca.com>
+Date: Fri, 11 Sep 2026 10:46:00 -0700
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 01/13 net-next] net: ipv4: introduce CONFIG_IPV4 to
+ decouple the IPv4 stack
+To: Fernando Fernandez Mancera <fmancera@suse.de>, netdev@vger.kernel.org
+Cc: horms@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, davem@davemloft.net, Jason Gunthorpe <jgg@ziepe.ca>,
+ Leon Romanovsky <leon@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ Elad Nachman <enachman@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+ Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
+ Edward Cree <ecree.xilinx@gmail.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Arend van Spriel <arend.vanspriel@broadcom.com>,
+ Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+ Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+ Chaitanya Kulkarni <kch@nvidia.com>, Saurav Kashyap <skashyap@marvell.com>,
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, Nilesh Javali <njavali@marvell.com>,
+ Manish Rangankar <mrangankar@marvell.com>, Varun Prakash
+ <varun@chelsio.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
+ Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
+ Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+ Marek Lindner <marek.lindner@mailbox.org>,
+ Simon Wunderlich <sw@simonwunderlich.de>,
+ Antonio Quartulli <antonio@mandelbit.com>,
+ Sven Eckelmann <sven@narfation.org>,
+ Nikolay Aleksandrov <razor@blackwall.org>,
+ Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
+ Phil Sutter <phil@nwl.cc>, Johannes Berg <johannes@sipsolutions.net>,
+ Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
+ Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+ Aaron Conole <aconole@redhat.com>, Eelco Chaudron <echaudro@redhat.com>,
+ Ilya Maximets <i.maximets@ovn.org>, Allison Henderson <achender@kernel.org>,
+ Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+ Xin Long <lucien.xin@gmail.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
+ <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ Jon Maloy <jmaloy@redhat.com>, Tung Quang Nguyen
+ <tung.quang.nguyen@est.tech>, Steffen Klassert
+ <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Vikas Gupta
+ <vikas.gupta@broadcom.com>,
+ Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
+ Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
+ Nicolai Buchwitz <nb@tipi-net.de>, =?UTF-8?Q?Markus_Bl=C3=B6chl?=
+ <markus@blochl.de>, Arnd Bergmann <arnd@arndb.de>,
+ Heiner Kallweit <hkallweit1@gmail.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Qingfang Deng <qingfang.deng@linux.dev>, Julian Braha
+ <julianbraha@gmail.com>, Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ Willem de Bruijn <willemb@google.com>, Alyssa Ross <hi@alyssa.is>,
+ Joel Granados <joel.granados@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+ intel-wired-lan@lists.osuosl.org, oss-drivers@corigine.com,
+ linux-net-drivers@amd.com, linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
+ brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+ linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+ target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
+ b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux.dev,
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+ mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+ linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20260910144914.8025-1-fmancera@suse.de>
+ <20260910144914.8025-2-fmancera@suse.de>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20260910144914.8025-2-fmancera@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.26525 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-This is a follow-up of one of sashiko's pre-existing bug reports.
-br_mst_set_state() calls switchdev_port_attr_set() for nonzero MSTIs
-while holding rcu_read_lock() which invokes the blocking switchdev
-notifier chain and may sleep. Nonzero MSTI changes come from netlink
-with rtnl held. Move the switchdev call before entering the rcu section and
-assert that rtnl is held.
+On 9/10/2026 7:48 AM, Fernando Fernandez Mancera wrote:
+> Historically, the IPv4 protocol has been linked to the core INET
+> subsystem. Because shared infrastructure like the TCP/UDP engine,
+> routing or INET hashtables live inside net/ipv4/, it has been impossible
+> to compile a kernel with only IPv6 support.
+>
+> This patch introduces the CONFIG_IPV4 Kconfig symbol, which is set to
+> 'def_bool y' for now. This does not allow to completely disable the
+> IPv4 stack yet but it lays the necessary build-system work for that
+> goal.
+>
+> In addition, multiple subsystems Kconfig symbols across networking
+> features like tunnels, drivers and filesystems have been adjusted to
+> depend on IPv4. Keep on mind that follow-up work is required to convert
+> the Kconfig symbol to bool and remove the dependency on IPv4 where it
+> makes sense.
+>
+> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+> ---
+>  
 
-The call cannot be deferred because netlink needs its error and extack.
-Also DSA reads the old bridge MST state during the callback and checks it.
-A deferred callback will be late and will see the updated state.
+...
 
-Fixes: 7ae9147f4312 ("net: bridge: mst: Notify switchdev drivers of MST state changes")
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
----
- net/bridge/br_mst.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
-index 43a300ae6bfa..ce537cb71fe8 100644
---- a/net/bridge/br_mst.c
-+++ b/net/bridge/br_mst.c
-@@ -107,21 +107,24 @@ int br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
- 	struct net_bridge_vlan *v;
- 	int err = 0;
- 
--	rcu_read_lock();
--	vg = nbp_vlan_group_rcu(p);
--	if (!vg)
--		goto out;
--
- 	/* MSTI 0 (CST) state changes are notified via the regular
--	 * SWITCHDEV_ATTR_ID_PORT_STP_STATE.
-+	 * SWITCHDEV_ATTR_ID_PORT_STP_STATE. All other MSTIs are handled via
-+	 * netlink with RTNL held
- 	 */
- 	if (msti) {
-+		ASSERT_RTNL();
-+
- 		err = switchdev_port_attr_set(p->dev, &attr, extack);
- 		if (err && err != -EOPNOTSUPP)
- 			goto out;
-+		err = 0;
- 	}
- 
--	err = 0;
-+	rcu_read_lock();
-+	vg = nbp_vlan_group_rcu(p);
-+	if (!vg)
-+		goto out_rcu_unlock;
-+
- 	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
- 		if (v->brvlan->msti != msti)
- 			continue;
-@@ -129,8 +132,9 @@ int br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
- 		br_mst_vlan_set_state(vg, v, state);
- 	}
- 
--out:
-+out_rcu_unlock:
- 	rcu_read_unlock();
-+out:
- 	return err;
- }
- 
--- 
-2.47.3
+>  security/smack/Kconfig                        |  1 +
+>  54 files changed, 126 insertions(+), 66 deletions(-)
+>
+...
+
+> diff --git a/security/smack/Kconfig b/security/smack/Kconfig
+> index 5a8dfad469c3..b4e6d0168bd1 100644
+> --- a/security/smack/Kconfig
+> +++ b/security/smack/Kconfig
+> @@ -3,6 +3,7 @@ config SECURITY_SMACK
+>  	bool "Simplified Mandatory Access Control Kernel Support"
+>  	depends on NET
+>  	depends on INET
+> +	depends on IPV4
+>  	depends on SECURITY
+>  	select NETLABEL
+>  	select SECURITY_NETWORK
+
+Why would this make sense? You're introducing the capability to use
+IP6 by itself, which is admirable, but you're disallowing that configuration
+with the Smack LSM. It appears that you've done a mechanical lookup in the
+Kconfig files and applied the minimal change to make the kernel compile,
+which probably works for most cases. It does not work for Smack. Unless
+there's a strong argument that Smack with IPv6 and without IPv4 is and always
+will be a pointless configuration you have my NAK.
 
