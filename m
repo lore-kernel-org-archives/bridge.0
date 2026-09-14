@@ -1,238 +1,141 @@
-Received: from mail-oo2-f5.google.com (mail-oo2-f5.google.com [74.125.231.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011020.outbound.protection.outlook.com [40.93.194.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FD8A25B093
-	for <bridge@lists.linux.dev>; Sun, 13 Sep 2026 01:31:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789263096; cv=none; b=F3CNG8dye4Udth6dYMHDiCtKntsTY+G/4MyNv6Luodhfpa/mT0ZGZGgpCVMKhHJ32eVrqIJpfdPhQafvFXkzVLbLcpRZl4+tkWttTT2S9+BWHlcqXgXCxHscXkzQ4exAVXtwMseLl/OWvojq02XZqpX63JfMcXCvadoqpTfxM2U=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789263096; c=relaxed/simple;
-	bh=95MGt0HZYqffJwT5rtnedtXz7zhgit7A214Ryl4v+xs=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=pk2X67jxeDMtv7d7z9CV/1AbqqkamnprancfbBj6oPT5nW8yHmOlOkT18lMDd25ZvrbJ+quAGf8VzFbYJRqMzUvz04HClnnIIt1mWcLmS6UIw4Zi8vinXvsWF2XFeIM+C5J1CVzZZNDirOML1fO5qXuS6flMmoJrfX5QgIiUo/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo2-f5.google.com with SMTP id 46e09a7af769-7f66624aa21so440464a34.1
-        for <bridge@lists.linux.dev>; Sat, 12 Sep 2026 18:31:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789263094; x=1789867894;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RMsHE5/zXRdmTcppBYZecH1Szld/jb42UiBCQemOLyc=;
-        b=SL7wVl81XnixOoDFGsCVZc/Ujq3g/F2JTyJtwkw5mTMkt48uVWzpWPGCJeOlGk7Gbe
-         qoh7RRrgJrU8zcCyRpydgqO9a5xbAkXR1NECqKvmEdGaZ+9YV1CFb6eHWrEfQqMGRXYP
-         yLUechFCOi7sUEJv+3l2sJ3frZ/roC7t4uBiABcBnxQcAQz2Xo876PGDBUuJYl7Jrlrp
-         a0lQyuCWRgwewgr/5jQjGPxlxnyl3RTEk3vYXXUf21Ad8Oaf7kXp2NPH00DL1/Ttn2jg
-         p+MzlKdPZkc1he/KV4zJObBaheyoUL2Jg84kWv2qpwwNCSz+TaE/HfBzmCWpwKxUNau5
-         ACtw==
-X-Gm-Message-State: AFuF++nXuFtdxJ1olDUnnoih0r8biuOBLvN/8YIvtRQ9TMKA/oawPGeB
-	oJUkTFbsRrZ7VVWg5sbG/2rwUDF90T04qLuDsL1VkRCc5rWv/HbKsTVg14BYzUowO6yA4U+uPVB
-	aZ+dmNQGJDTspxJ9L/sIueC0v7JnO3xZL8M8Ug7mD7tCJ4i1fSd1N2KZZ+zRcyg==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1377D2FE057
+	for <bridge@lists.linux.dev>; Mon, 14 Sep 2026 06:16:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.20
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789366564; cv=fail; b=XrRTsT5XfTmHv0xHDGPyNPAjksKQY9z+3mmiPQgkA2swgvyyWZ8ylWIKgUa2mWMyGWmfRWg4TiacGhMxlAlCX7S/dvKnX/2sS0Q4sGG4Q7AiQfUPQfCepFhu33NAOeLzjHcj2m8DzEJoMdFSB9meJA9dWUgnU54LDac/+ImqS90=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789366564; c=relaxed/simple;
+	bh=rA+PyGV/ZKVhguAFA3pQVGSvG31cZGpCstejK1ePCqY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=MHgycdBecvSO5dWuWK1oR5PcZAPR+TT6Iitmy+SMnHZeHZWvzhEpwGXUJXz8BkrG2vQXmLFPtbdxj3I0HynsxEzm/kMkQ8RmMdoSoRmg8vUgC3RcoJaE7dySBl1hzOfpRK3Gf6B5+LJZf4z94BUdOOhVTaqcIL/4iNaX0LLdgG8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=B/cIIPgJ; arc=fail smtp.client-ip=40.93.194.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="B/cIIPgJ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=j4L++5RU9iOXKR4MpxJL1kKQ/BhZ/IQ8eC2VzsKJEy3kKidh5WLXdCS1d7XB894sFZAn8y3qKx7pSeyBiYtw/u4taxcO8DNad3GbNIIe6/uyEjvURX63e/CvWxkrAHwz4spcZymaLvNCBx3bIrPwdMDHV+OFczDtIY0WFYawes1Tkdx4fwuGJSUx3TkmocZWBm9tkDcxyRYHd05tesAyJLSWtR/73//qRTrP+1nvHqlqzgit/l5bZU/31yyRcb438LtiwOZzWSzgVEpbu85DtU2FyyCoVsTOFqqOZ4JAVoIeHEsogV4TbnIl2UrZWGksbfv6Wuuwqmkq1DUxgQBgwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=e43Bjdlsr2iSmKqzJi0ByvqzpzO3OPvcLouQ9LNrgXc=;
+ b=k+xgSL1YNeFEuJuDQbq8oWbYbnY2cZxuMnZvOOyinISRjwsbqX7TGfJaiklahRGZp/NlVqVO2pz93y8UXB47qPgGEs4Cq7s56sZju59yX7gAdep+YiiLlTNdv0O/znaiVylF9EP8EbH3agjxGAa7lkoYbGqGVfDcj90OTQANbMJcth9wSmbsiiqcA2M4epUW7Jw1roJs2m8VK0Rf61RahKlIVjsGmebYsV9c3qehIsAQ0xoI+nywK49tU2Y50EltI7bi+I4yr2gpp1FNyLz7aoSmWesiivbcG6BlrpJF/t+qmG2q1q3uaTqHW7wcz8rjBRPE2AjYT41AriHoRPK2CA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=e43Bjdlsr2iSmKqzJi0ByvqzpzO3OPvcLouQ9LNrgXc=;
+ b=B/cIIPgJCYvFpDtMFyAqChlAPhW7gl4CfHvFZ36s34w76gG/eBYuDpslKP39/pP/8OP9LiqYIa+46ctWcX4fhQE3rrP82y5NIGfaiOq2PrnhBgnrIvUQh0eHA4o6LtLbz23gFG1L3LNAImPVN9GvnVjNOdwbLpxO4+XMZnlrrNgvFdXcpB3ZmDk9S68tJjAsqZKvUnrTMM6HqE4/Hx03+iZCK7lQZKNkmxYtgH2ys3w3tEaO1kc0A6n1mIBV+JnaBGLePjyDuSCot9Riis+CbMlULx2+nFKBF9G0Wmn6gFSVlnXgYwO7tox5Q87wAZfPkG/UUZlW+L5oRKzUZ7PVAQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from PH0PR12MB7957.namprd12.prod.outlook.com (2603:10b6:510:281::22)
+ by PH7PR12MB5593.namprd12.prod.outlook.com (2603:10b6:510:133::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Mon, 14 Sep
+ 2026 06:15:59 +0000
+Received: from PH0PR12MB7957.namprd12.prod.outlook.com
+ ([fe80::9251:acc2:cc63:3499]) by PH0PR12MB7957.namprd12.prod.outlook.com
+ ([fe80::9251:acc2:cc63:3499%3]) with mapi id 15.21.0406.007; Mon, 14 Sep 2026
+ 06:15:59 +0000
+Date: Mon, 14 Sep 2026 09:15:48 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+	tobias@waldekranz.com, bridge@lists.linux.dev
+Subject: Re: [PATCH net] net: bridge: mst: move switchdev call outside rcu
+Message-ID: <20260914061548.GA132848@shredder>
+References: <20260911105021.1385934-1-razor@blackwall.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260911105021.1385934-1-razor@blackwall.org>
+X-ClientProxiedBy: FR5P281CA0005.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:f2::18) To PH0PR12MB7957.namprd12.prod.outlook.com
+ (2603:10b6:510:281::22)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:810b:b0:6c1:6080:f32f with SMTP id
- 006d021491bc7-6c24f650f4dmr2428675eaf.64.1789263094127; Sat, 12 Sep 2026
- 18:31:34 -0700 (PDT)
-Date: Sat, 12 Sep 2026 18:31:34 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6aa5fcf6.f2639fcc.29487d.0048.GAE@google.com>
-Subject: [syzbot] [bridge?] WARNING: locking bug in match_held_lock
-From: syzbot <syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com>
-To: bridge@lists.linux.dev, davem@davemloft.net, edumazet@google.com, 
-	herbert@gondor.apana.org.au, horms@kernel.org, idosch@nvidia.com, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	pabeni@redhat.com, razor@blackwall.org, steffen.klassert@secunet.com, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR12MB7957:EE_|PH7PR12MB5593:EE_
+X-MS-Office365-Filtering-Correlation-Id: 147786ed-f9c4-4f40-a159-08df1227a4d3
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|376014|23010399003|1800799024|5023799004|11063799006|56012099006|10067099003|22082099003|18002099003|6133799003;
+X-Microsoft-Antispam-Message-Info:
+	kK/GKluN5DcKSZMJJep3QVV9U2UO/T99WvE56syB28hOBh4RWO21EUMIFsj+Dg0uuhfSdUVg5+y8KJgxjKA9TyQ4V++kD2sJocnpH1IvrZX5LqT+pqtbTCgB2G7gw3qZ2gK5hSSHOrEJbpPK5a5DocpO69c0zVg19OcEgZQMCuwjS/RJ+E3BhdytWF63ouOa682/8gdjFrZdPTJzn8fNmZkfpqPkVHRN7HIX0BLe+3TXIPNlL2m2YHvJIQeG623UF83p7SMlfdKjFBj5wlbCKf4BC+CEJn8atikeUDpyheugIJSOvHiyY6McN1Kf5WWgFyKpHeyrPqbIBFuXarYxoP7kV/Qf9mMfo3+bPKG0Mk8GSjzHTVpFO2ujotaHYEgy5JC40uog4wlQRcIvfxe8dqsGTvGydgwGdVNwAjiBiPrW+sAMnMNQ2HyUiLZtnxA6er7vCWcABNvpa0itpme8GavTQglegI6GSOlpLjBIQPMW7e6svnZhyKklbTxKIHDmpNR3Nm8i4hyQapl6jOeGlJZT7G7JFummvHIagpLWMtUHDh6ZpfcGnld2wFYlXn6X92v9napVMhycGDV/Q4bUXWJU8XQFHfuacDYfJF0IxRTpTNWa/dVkDmWvlWteJOWMzDUwqZ/aEY3hkApuGkwC2ZlAXT6XIGcuoNKFvQYY1p0=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7957.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(23010399003)(1800799024)(5023799004)(11063799006)(56012099006)(10067099003)(22082099003)(18002099003)(6133799003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?8MCFzd51no/52FyQtOZlq1MAfKB9fkzmgUAb7HWcyIHUJW90SGp1/weaKejx?=
+ =?us-ascii?Q?3KJbclBOQpfltNquvvd/0/VxvKD3qxOxvED6rDA8uxr/swNqRocHGaBcbJaD?=
+ =?us-ascii?Q?4ssZ3TYyxxjdngTOCBza6mLShJaLzDwXOtVml1rDlpdKQzeR5qzPlGsTwyCA?=
+ =?us-ascii?Q?ffZkRkUDeeln5v+8rjA4Ho2WON44ejJ2RQb7GuAN4ASK0oXaDkRGHYraJ89g?=
+ =?us-ascii?Q?jgD/M3vrya9l4rFMKhBqn2A+4vQngOWnLjtU4KUrX/sCA1RufhSiiKV0NaKO?=
+ =?us-ascii?Q?LaSkoLy3GY49ULODg0mmz1fpD0ydm56QZswPqDK2bpaUTHk/k+O7UxMC4cIY?=
+ =?us-ascii?Q?22RLiJCXKU67FrEGe+jqWK9777pYdHDoUpIKiqkq2/D/v4A57WO+iWY7ILQX?=
+ =?us-ascii?Q?RJDkWnLNHvxtFUuJ5Lhgsfc85NLkO5Fe5HNrRkDG/tfPz8L5fsKfI04CCGM9?=
+ =?us-ascii?Q?yaceynpV0o+U4YdWzdcGR997YpWPX7nwszM+uRqhllg/qV+MZb3whnzp3ONv?=
+ =?us-ascii?Q?vyEV7c5riQktA5gyXiOuwgSjJJoHDsfDXa/8Lc1k88QQiJ+0kMV/DdHzxLbg?=
+ =?us-ascii?Q?J9OlVrFJF2siL0Bt3d/O0u96BSZemX3seDyNQw5/2dYCKQNBhJMnt++vqxM3?=
+ =?us-ascii?Q?3KxriurovSn0ERLGLEoEa0pJqyV9GvwEA0M1JBSWEe744+1CdW6V45xwb4B7?=
+ =?us-ascii?Q?agQk4cM65K4PX/PpIfTjRMr3WNE6KdHU/dwIR8ER8zYNo2bQM7NVFJi6SsmC?=
+ =?us-ascii?Q?g+eDMdhSx29Mj3B66V78QSyVrHCS/Yo8N06rb4fN3zNJOhJNGFfiLo0oJJum?=
+ =?us-ascii?Q?5ZibrrPx9KJTxezJ+MCBmOmPNv6HKq0MxLXd/oQnBbivhThwsD8nQvJzV8d5?=
+ =?us-ascii?Q?bEDO5iSvncHer3gfjS4Er576EskYJWnLnk8I69/es1/A/OFC2RSniROuUMvn?=
+ =?us-ascii?Q?FW2ktWPBQpFtWz+RSctyuPVfDyqUqxRmCh9QcxAHhUWHczQ3c3DrHNhmfmeA?=
+ =?us-ascii?Q?cuIFAbocB+R4N0r8edBZi6K7Va9DzUcyzcnaCjvru2Dbw5pmspmUGTWm1wtb?=
+ =?us-ascii?Q?LD/1yiFHitCRli9yTgu9lrbax8F7URjX5/tskxnqc062cBMqLSooNuc7ByL1?=
+ =?us-ascii?Q?u5fn44wcjZExXZmUMnjac6QD1QijsU3RpKagFHwfR19MHiB03p/dNSQF53le?=
+ =?us-ascii?Q?+NM/J6MELqrsIdQjx/OabuU/P2jn1S9lU8TekNWuEZtsK5NhigGfHtyv5zNW?=
+ =?us-ascii?Q?KjfO3Hedz8dBEFpfzNTvC0Z9hUH+rpjwp4W33mVX263mU2S3OoBQjgkaNRee?=
+ =?us-ascii?Q?ydm74tcCPmCsN813mo6o0b3Jf1swUlM417jIl8dq3ZhGQiBU80Z/lUdGd88G?=
+ =?us-ascii?Q?1/WiscdyV8YR2d03bzwTaq1Be4Cdm9fCECB+WNeHTQd7hLQOoYEmEbIE3GsB?=
+ =?us-ascii?Q?YcsQ6yFn2E6Zgfdy19fWsPZnw4o28a1Mg+u64cdkAArGtizhloPLv92rzpRL?=
+ =?us-ascii?Q?vEaCxR87jQk7fLpRMfdVIS1eU6naoS4QFlikNnRhpEibm+x07hSI4LIKIlwQ?=
+ =?us-ascii?Q?CHU/LpULNPwVe55OQEoXuofZTulZbdrdjS3JsbLafABMBiWbfZC2CJfKRsus?=
+ =?us-ascii?Q?fS+MntDs/LLs+dmomgXpyyNclP2BirLc585da0x1zcVN7rImzjuEuaBG9err?=
+ =?us-ascii?Q?FHv6b/jxzGBMlj8ZJnbv8co8nDZSVDvxzf6Ioks8zhl3u7p4?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 147786ed-f9c4-4f40-a159-08df1227a4d3
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7957.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2026 06:15:59.1059
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: CnaKCAqGfeoQuL+F4NOF0r2vCJKrwn4+6U5+2xwmd3gmEVhlPp6TM7b9rCuZFIAPB1VhlyuLJlKsvgq+Pfr3dA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5593
 
-Hello,
+On Fri, Sep 11, 2026 at 01:50:21PM +0300, Nikolay Aleksandrov wrote:
+> This is a follow-up of one of sashiko's pre-existing bug reports.
+> br_mst_set_state() calls switchdev_port_attr_set() for nonzero MSTIs
+> while holding rcu_read_lock() which invokes the blocking switchdev
+> notifier chain and may sleep. Nonzero MSTI changes come from netlink
+> with rtnl held. Move the switchdev call before entering the rcu section and
+> assert that rtnl is held.
+> 
+> The call cannot be deferred because netlink needs its error and extack.
+> Also DSA reads the old bridge MST state during the callback and checks it.
+> A deferred callback will be late and will see the updated state.
+> 
+> Fixes: 7ae9147f4312 ("net: bridge: mst: Notify switchdev drivers of MST state changes")
 
-syzbot found the following issue on:
+Nit: blaming 3a7c1661ae13 ("net: bridge: mst: fix vlan use-after-free")
+would be more accurate, but in practice it doesn't matter since this
+commit blamed ec7328b59176 that is present in the same release as
+7ae9147f4312.
 
-HEAD commit:    a9d7ced84989 Add linux-next specific files for 20260908
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=10880f49580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=17eeb09695a2b3c9
-dashboard link: https://syzkaller.appspot.com/bug?extid=4d0e4d2db6dfde01b52f
-compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/4f470407358e/disk-a9d7ced8.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/858b9d7ba687/vmlinux-a9d7ced8.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/ef971d22d75f/bzImage-a9d7ced8.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com
-
-------------[ cut here ]------------
-Looking for class "&ht->mutex" with key xfrm_policy_init.__key.84, but found a different class "key" with the same key
-WARNING: kernel/locking/lockdep.c:958 at look_up_lock_class+0x8c/0x110 kernel/locking/lockdep.c:955, CPU#1: kworker/1:6/5751
-Modules linked in:
-CPU: 1 UID: 0 PID: 5751 Comm: kworker/1:6 Tainted: G             L      syzkaller #0 PREEMPT(full) 
-Tainted: [L]=SOFTLOCKUP
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
-Workqueue: usb_hub_wq hub_event
-RIP: 0010:look_up_lock_class+0x9a/0x110 kernel/locking/lockdep.c:955
-Code: 00 00 49 3b 46 18 0f 84 82 00 00 00 49 81 3e d0 44 58 94 74 79 48 8d 3d 44 f2 94 04 49 8b 16 49 8b 76 18 48 8b 8b b8 00 00 00 <67> 48 0f b9 3a eb 5d 90 89 f3 e8 67 0a f4 f8 e8 32 5c be f5 48 c7
-RSP: 0018:ffffc90000a38070 EFLAGS: 00010002
-RAX: ffffffff8c6bb940 RBX: ffffffff94478508 RCX: ffffffff8c6bb940
-RDX: ffffffff9af23440 RSI: ffffffff8c6bb900 RDI: ffffffff907ddb20
-RBP: 00000000ffffffff R08: 0000000000000100 R09: 0000000000000004
-R10: 0000000000000003 R11: 0000000000000300 R12: 0000000000000246
-R13: ffff8880307a8000 R14: ffffffff9af232c8 R15: ffffffff9af23440
-FS:  0000000000000000(0000) GS:ffff888124db7000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b3401aff8 CR3: 0000000074540000 CR4: 00000000003526f0
-Call Trace:
- <IRQ>
- match_held_lock+0x9a/0x120 kernel/locking/lockdep.c:5364
- __lock_is_held kernel/locking/lockdep.c:5654 [inline]
- lock_is_held_type+0x89/0x150 kernel/locking/lockdep.c:6016
- __rhashtable_lookup include/linux/rhashtable.h:623 [inline]
- rhashtable_lookup include/linux/rhashtable.h:668 [inline]
- xfrm_policy_inexact_lookup_rcu+0x60/0x750 net/xfrm/xfrm_policy.c:2068
- xfrm_policy_lookup_bytype+0xb35/0x1840 net/xfrm/xfrm_policy.c:2193
- xfrm_policy_lookup net/xfrm/xfrm_policy.c:2225 [inline]
- xfrm_bundle_lookup net/xfrm/xfrm_policy.c:3100 [inline]
- xfrm_lookup_with_ifid+0x416/0x1db0 net/xfrm/xfrm_policy.c:3241
- xfrmi_xmit2 net/xfrm/xfrm_interface_core.c:456 [inline]
- xfrmi_xmit+0x72d/0x1b80 net/xfrm/xfrm_interface_core.c:572
- __netdev_start_xmit include/linux/netdevice.h:5433 [inline]
- netdev_start_xmit include/linux/netdevice.h:5442 [inline]
- xmit_one net/core/dev.c:3937 [inline]
- dev_hard_start_xmit+0x2cd/0x830 net/core/dev.c:3953
- __dev_queue_xmit+0x14c0/0x3820 net/core/dev.c:4926
- NF_HOOK_COND include/linux/netfilter.h:314 [inline]
- ip6_output+0x337/0x540 net/ipv6/ip6_output.c:248
- dst_output include/net/dst.h:471 [inline]
- NF_HOOK include/linux/netfilter.h:325 [inline]
- ndisc_send_skb+0xcb2/0x1650 net/ipv6/ndisc.c:513
- addrconf_rs_timer+0x2d2/0x6c0 net/ipv6/addrconf.c:4078
- call_timer_fn+0x18d/0x5f0 kernel/time/timer.c:1748
- expire_timers kernel/time/timer.c:1799 [inline]
- __run_timers kernel/time/timer.c:2374 [inline]
- __run_timer_base+0x652/0x8b0 kernel/time/timer.c:2386
- run_timer_base kernel/time/timer.c:2395 [inline]
- run_timer_softirq+0xb7/0x170 kernel/time/timer.c:2405
- handle_softirqs+0x223/0x840 kernel/softirq.c:645
- __do_softirq kernel/softirq.c:679 [inline]
- invoke_softirq kernel/softirq.c:519 [inline]
- __irq_exit_rcu+0xcb/0x220 kernel/softirq.c:758
- irq_exit_rcu+0x9/0x30 kernel/softirq.c:775
- instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
- sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1062
- </IRQ>
- <TASK>
- asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
-RIP: 0010:finish_task_switch+0x413/0xc60 kernel/sched/core.c:5378
-Code: 04 00 00 41 c7 84 24 20 0e 00 00 00 00 00 00 0f 1f 44 00 00 49 83 c4 48 4c 89 e7 e8 57 48 55 0a e8 d2 1b 3a 00 fb 4c 8b 65 c8 <49> 8d bc 24 10 17 00 00 48 89 f8 48 c1 e8 03 42 0f b6 04 30 84 c0
-RSP: 0018:ffffc900043ad940 EFLAGS: 00000206
-RAX: 000000000004ba5f RBX: ffff8880b873cb20 RCX: 8000000000000001
-RDX: 0000000000000006 RSI: ffffffff8e47d8da RDI: ffffffff8c6dc080
-RBP: ffffc900043ad990 R08: ffffffff907a9cbf R09: 1ffffffff20f5397
-R10: dffffc0000000000 R11: fffffbfff20f5398 R12: ffff8880307a8000
-R13: ffff8880b873cae8 R14: dffffc0000000000 R15: 1ffff110170e7964
- context_switch kernel/sched/core.c:5530 [inline]
- __schedule+0x17e5/0x5940 kernel/sched/core.c:7295
- preempt_schedule_common+0x7f/0xd0 kernel/sched/core.c:7474
- preempt_schedule_thunk+0x16/0x40 arch/x86/entry/thunk.S:12
- __mutex_lock_common kernel/locking/mutex.c:656 [inline]
- __mutex_lock+0x31b/0x15a0 kernel/locking/mutex.c:821
- clear_eld drivers/gpu/drm/drm_edid.c:5691 [inline]
- update_display_info+0x455/0x9630 drivers/gpu/drm/drm_edid.c:6934
- drm_edid_connector_update+0x9b/0x13d0 drivers/gpu/drm/drm_edid.c:7338
- drm_connector_update_edid_property+0xde/0x140 drivers/gpu/drm/drm_edid.c:7396
- drm_helper_probe_single_connector_modes+0x126b/0x1880 drivers/gpu/drm/drm_probe_helper.c:644
- drm_client_modeset_probe+0x4e8/0x60c0 drivers/gpu/drm/drm_client_modeset.c:869
- __drm_fb_helper_initial_config_and_unlock+0x10e/0x1b50 drivers/gpu/drm/drm_fb_helper.c:1717
- drm_fbdev_client_hotplug+0x16c/0x230 drivers/gpu/drm/clients/drm_fbdev_client.c:66
- drm_client_register+0x16e/0x200 drivers/gpu/drm/drm_client.c:143
- drm_fbdev_client_setup+0x1a0/0x450 drivers/gpu/drm/clients/drm_fbdev_client.c:168
- drm_client_setup+0x107/0x220 drivers/gpu/drm/clients/drm_client_setup.c:46
- udl_usb_probe+0x137/0x150 drivers/gpu/drm/udl/udl_drv.c:105
- usb_probe_interface+0x788/0xe50 drivers/usb/core/driver.c:399
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x254/0xae0 drivers/base/dd.c:706
- __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
- driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
- __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
- bus_for_each_drv+0x258/0x2f0 drivers/base/bus.c:500
- __device_attach+0x2c4/0x450 drivers/base/dd.c:1098
- device_initial_probe+0xa1/0xd0 drivers/base/dd.c:1153
- bus_probe_device+0x12a/0x220 drivers/base/bus.c:620
- device_add+0x7d7/0xb80 drivers/base/core.c:3776
- usb_set_configuration+0x1ad8/0x2180 drivers/usb/core/message.c:2268
- usb_generic_driver_probe+0x8d/0x150 drivers/usb/core/generic.c:250
- usb_probe_device+0x1c3/0x3b0 drivers/usb/core/driver.c:293
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x254/0xae0 drivers/base/dd.c:706
- __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
- driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
- __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
- bus_for_each_drv+0x258/0x2f0 drivers/base/bus.c:500
- __device_attach+0x2c4/0x450 drivers/base/dd.c:1098
- device_initial_probe+0xa1/0xd0 drivers/base/dd.c:1153
- bus_probe_device+0x12a/0x220 drivers/base/bus.c:620
- device_add+0x7d7/0xb80 drivers/base/core.c:3776
- usb_new_device+0x9aa/0x1690 drivers/usb/core/hub.c:2708
- hub_port_connect drivers/usb/core/hub.c:5580 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5720 [inline]
- port_event drivers/usb/core/hub.c:5884 [inline]
- hub_event+0x28e8/0x4d30 drivers/usb/core/hub.c:5966
- process_one_work kernel/workqueue.c:3407 [inline]
- process_scheduled_works+0xc3d/0x1630 kernel/workqueue.c:3490
- worker_thread+0xa47/0xfb0 kernel/workqueue.c:3571
- kthread+0x38b/0x480 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-----------------
-Code disassembly (best guess):
-   0:	00 00                	add    %al,(%rax)
-   2:	49 3b 46 18          	cmp    0x18(%r14),%rax
-   6:	0f 84 82 00 00 00    	je     0x8e
-   c:	49 81 3e d0 44 58 94 	cmpq   $0xffffffff945844d0,(%r14)
-  13:	74 79                	je     0x8e
-  15:	48 8d 3d 44 f2 94 04 	lea    0x494f244(%rip),%rdi        # 0x494f260
-  1c:	49 8b 16             	mov    (%r14),%rdx
-  1f:	49 8b 76 18          	mov    0x18(%r14),%rsi
-  23:	48 8b 8b b8 00 00 00 	mov    0xb8(%rbx),%rcx
-* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
-  2f:	eb 5d                	jmp    0x8e
-  31:	90                   	nop
-  32:	89 f3                	mov    %esi,%ebx
-  34:	e8 67 0a f4 f8       	call   0xf8f40aa0
-  39:	e8 32 5c be f5       	call   0xf5be5c70
-  3e:	48                   	rex.W
-  3f:	c7                   	.byte 0xc7
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
