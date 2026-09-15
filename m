@@ -1,196 +1,215 @@
-Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011060.outbound.protection.outlook.com [40.107.208.60])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 318603B8130
-	for <bridge@lists.linux.dev>; Tue, 15 Sep 2026 13:07:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.60
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789477636; cv=fail; b=SOzaWjbqlqe5rsjPyE9fwXGbbiTUqYvlH4e1kXbmrpUd/3yMNzyzxlwkRIc1BFnt7uwL/iFMxnO/IDGdM7y7ZRR7rkp235ByRfomtAxgPRZJOdXRCVlRt5eSuQ6hcixbGr0MP1ZQ+YEWzj4UHb5FeUvfcQOULJHFGK8KtIqcxkQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789477636; c=relaxed/simple;
-	bh=BlaNg20Zmz0JOjJ2kVCN8MNa6nz5+ZVnjEtzuNwEy3w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=UfTiumKdYqGHXXKlW940JznQaLeCHzOblKrh+VCsqRhR3MOVLaI5g9V6TFebWLdhQbsm2NyNIAhCdNEyTOn6G3hKU0F/Waet2IM4dhTGQdcilov1pKd11QpYOYLYssb4hkwOAcknkl4mYiIsNriQ0ckpNp50eP6BYRqjZtCxFSo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Gk4qtOQQ; arc=fail smtp.client-ip=40.107.208.60
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18A084C9543;
+	Tue, 15 Sep 2026 18:51:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789498319; cv=none; b=RfcaQtKP7+Kan5UIdOyJPPLTaPDu6rK7i3mlV59vpBw9SMezvq56Piw72ud+5v6S3q6GB9zQ6fl5F2IiLYdPG6XoniQyI5CPky0y/EDE9JCT5l6xc19ttdZf3979lPeCv/6Egoy2R/5BtZgkXgD6igLrCl2lHIa16N2/Z+suqqg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789498319; c=relaxed/simple;
+	bh=4pxf8aIjib0BRZxZRH4FGi8jsaJE+JnA3k+xYag0u28=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=nwMEADnGpWxGFyKQIYlnry6jJPfS+bQJTSN/9c477+/EpCRDoNVB/MxuscN0PrVs6gSm/hiE0va/7noAXKxLE6Uywl8YBGjbFP6bZKQybR7pdoYYyG5OSi6hg9J3sMBmkgmQ1DG8tDjn9GyqJ5tcWohNjCxrPHuxX8Ys/8219YQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IvOpH985; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Gk4qtOQQ"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=b8v+mfBBfBspcwQQpAbivrluEok5RNDd/BaZu8UzqsqndXiEPYkEcwCY3lbLKk27p1hCnFg+vQ6rMcI8YejQpq43GD9Kw4pmXNp33u6q33INZ/nyZCS+Zj+mum48O1jVSDfaD+CydKmwVc5xI5IlexIaNd8GE7lJdG7m6ZTWvYFrJ1Hi2N/sl5rHTRw4B2/TfR8y+PglGotacEk/6YoFxolxs/M7voAOI31Rv2qMOPODi0dyurKiNA++H6mywusudI+I/zKWSRjqeWrKr6wozAQGokJni3+g+EdTRNE7/YC2xnR2grJXrs1NrbB1F76NbljQniqYozN6LP2ClP8T+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Sr/SGTleog2qhtB+B+vd6Dh7ez3FxuBsUEAnbdAVFss=;
- b=TfHsAx0wpSz76Uc2Jfm2QLoIb16kaB7zBvrt/Hp6t+eAWl/8D3rqSiOhWmHH6wXLPzvltl1RmXSUIhOREeQ7Zr1SA8KK5ofv0mwr7i53y4UX8oxk3K7P7Ivpcpt4yYgg6ejC+jKHQT4KHfVhubP/Emut9b1JOpe0BEdql1bTIAVi2yrZ2+q2cSznUKQKXuOAfckiM697KSKt3+RKv0XAua1RkzQbSucoSU/ytHC8jxBSXIilHfCalRllLgNYtc1Vw4ik8OvqtYqTzeJSIjTt/k/Bc7murMWRBsWHGBt97oz2+EeeoGRLpy96dAcikpYQCernFfNeKyMblvKwhvP6Pw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Sr/SGTleog2qhtB+B+vd6Dh7ez3FxuBsUEAnbdAVFss=;
- b=Gk4qtOQQ9mV8XEqeVYgpo7rF8fbiQxQrWVdIMNBDiVkUIaQNKtmnzj10TnvS2bPsn2D8psQwa8UYnEnW8GDx/1323jLbrjtHIdhSTMJx6hJnIRXtf7rKdkI8/ak3pw6GmdF5WNOYydXp6rZ9INwJXMqSzJYKP8U5AOxJnad3hiBG6yiZQquIOg/kXgk7U+5iOxKUDudp7fsOKf7eeOC9PhEJSoGfOAlI3dC0aO4nkbGb1X68C01uxeM5ioZcdw8owY7YtZaTYtGXhGMFjmyPTy/S8HYl2SRduE/liWvqpcciXWNydihISWfyI4BlhX42rCILFZ7tLwFw5DhlYO3OEw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com (2603:10b6:510:281::22)
- by DS2PR12MB911612.namprd12.prod.outlook.com (2603:10b6:8:405::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.428.9; Tue, 15 Sep
- 2026 13:07:11 +0000
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499]) by PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499%3]) with mapi id 15.21.0406.007; Tue, 15 Sep 2026
- 13:07:11 +0000
-Date: Tue, 15 Sep 2026 16:07:01 +0300
-From: Ido Schimmel <idosch@nvidia.com>
-To: =?utf-8?B?0JDQu9C10LrRgdC10Lk=?= <ioctl@ya.ru>
-Cc: razor@blackwall.org, bridge@lists.linux.dev
-Subject: Re: [PATCH bridge] Allow MSTI 0 state setting the same way as
- non-zero MSTI
-Message-ID: <20260915130701.GA656073@shredder>
-References: <4150481789460597@ddf99c15-6b70-4f37-97c6-5b57e045b15b>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IvOpH985"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B4C51F000FF;
+	Tue, 15 Sep 2026 18:51:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789498317;
+	bh=6Zd0kC+Yy9Ng843KwX37t61erK5Sw7cuOKPZQI6ppzc=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=IvOpH985U8Dx0YGCxtSn8aHcEX1CsCN7dkKQBfKqsCUJxJaSEMSDxOtT9GEI/HLAH
+	 r+Li9ccW37WAm4wjjstzLwP1TJ3US4KKO4u5/3MoMxyN+VwcUuZQpVsZLd0W5oFS1k
+	 PTRavUfay78CMXmlR5BBpInf71aJP9vbFfUWDobmsq5ntitzBLSbkGpUJkbdOUCJAI
+	 a8yE97PKje1S1hWktfvA1Cf82YQuZIQVK/43roT41GIyGdIIRemo4wMlh4JvQe/OOs
+	 abuuKhaDqjTv8/0TM5HJBjnYbahUulcKROHkrQ8vjMSehqWVR+XiB5S0D/V8+g69LM
+	 lAjlNHyYU5nWw==
+Subject: Re: [PATCH net-next v2 2/2] net: bridge: fail link info that does not
+ fit the IFLA_AF_SPEC nest
+From: netdev-bot+sashiko@kernel.org
+To: iprintercanon@gmail.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
+ idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, andrew+netdev@lunn.ch, kuniyu@google.com,
+ michael.chan@broadcom.com, pavan.chebbi@broadcom.com,
+ ajit.khaparde@broadcom.com, sriharsha.basavapatna@broadcom.com,
+ anthony.l.nguyen@intel.com, przemyslaw.kitszel@intel.com,
+ intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
+ mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
+ aswin@linux.ibm.com, linux-s390@vger.kernel.org
+Date: Tue, 15 Sep 2026 18:51:55 +0000
+Message-ID: <178949831579.22033.2772389608829417270@kernel.org>
+In-Reply-To: <20260912135022.1701-3-iprintercanon@gmail.com>
+References: <20260912135022.1701-3-iprintercanon@gmail.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <4150481789460597@ddf99c15-6b70-4f37-97c6-5b57e045b15b>
-X-ClientProxiedBy: TLZP290CA0015.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:9::11) To PH0PR12MB7957.namprd12.prod.outlook.com
- (2603:10b6:510:281::22)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR12MB7957:EE_|DS2PR12MB911612:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1e532d1a-4fb3-4aa5-c787-08df132a412d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|23010399003|1800799024|376014|10067099003|18002099003|22082099003|56012099006|11063799006;
-X-Microsoft-Antispam-Message-Info:
-	W2d/8yz+K3lIh0BSHJ7jnMMjpdeDrJdJC8TVzPRl2Uvbc2f3torgesGijelZm79YvcvwEq4qTh4MYtnl9icwkcs/qosKCOBHOaBbV2uFPSJzyP02lFprl69QGdhxVfPJLPW9b6XoeefIraG6YUfnEbDlRS4CFxrQx577qnus8CG9DSVzFBGFRPF46fBggc2d/s7FCCwOnCRqSwUADy3rKcTzGAtoUp8afp+CcDzwnqZD3ayyCSVgzSzxs/b1IAd8WQ9CwAgCOnhdV8C5ZeonYP4vy1zsjNu3AJw9MU3Wulm98wCxxlXOAKXopn+T5VgwOs68aGTKk9Jp8/m3c6TcmoOUwoSBb9QX13FCrelXR9db3QRpX6ANELq6LMyd7fFqZFU5JRtxvJVMKeaQOpUmF+o2teeEnbFAbOEZeHUbs++Qj9sItjtrLbvBGqBsgTP1OBZrBlwbs9rhjdjlvDvww5LWna3mqCS18DMsfns0EY8jFl3PIbz6MSlhmPsQeFmUPy91nIX98hf5MBEkjFe/w1XSARduy5cCJh3Zxy6LmDs+IY1ty0TwJTEajFeyeigI0JZ9HJpltL16/WJEaCpRxBh4j2k80lryP7Wh5KNb0D7+wgJf1RHuWitOzkisweW2CSpW9njFzqg+SV3oii6viB0HJI7KgyClHMlxftUwnps=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7957.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(1800799024)(376014)(10067099003)(18002099003)(22082099003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?ZkNhYm1pbHpncUZTY1JzdnY0ZVFPRGp3ZFRyNkkxSENidm85b2ZWNWpyYThw?=
- =?utf-8?B?bjZ4L2xmT0xBN3U5MFVCeWRWYzkvTlFzODdHQzJ4anJhR3d6Ry92MXJlc0Uv?=
- =?utf-8?B?SG8wQnRjY2NxMHZLWU16L1dFaXg4OW5sR01mWmJvQUZyZ1lLcTBHaGZwNjRG?=
- =?utf-8?B?RDNpcG5Zd0lrM1FJOVpHeEFhNWNaeHVhYkxmMUJya0Fmc1Zqck40Q0JHQ2p3?=
- =?utf-8?B?VG4rbFhRMHJnTTlYMExDN0craFV4K2w2SmYvV2o0SERodURrUVVobWtaR0lT?=
- =?utf-8?B?R3FlUUxQaGRHaWQ2QmtGcG0rZVlTekc2VitQaEtROFZOUW9FWXoxOU5xMEpy?=
- =?utf-8?B?UHZ4Z2U0ckNuYWNPekRIQ0F0Y2NqS1pwUVhqZFZ4dTF6ZDF1UVNqNWVCSGdj?=
- =?utf-8?B?WmM4bkI4bU1YZmtxM24weVJQZjZHVWl6NTNDdllnRTkvMkFmSzJwbDg4RllO?=
- =?utf-8?B?QUJRQ3lCK3U3eXJFcmJzaW5kUS9LQVM5TmRJQ25uaXJtMmRwS0tyUWZRM3Ix?=
- =?utf-8?B?M1JuWTRTSm44SlU3a1pFdjRrTDRtaVR6SUEwd1AvMnh1ck4xV2RDbzRxTGM1?=
- =?utf-8?B?NmN2VjdTcWdQNlhmV1lsQnc0blZJTEJuYTVsNysvNUlWMnMzOVZRRXREVk1k?=
- =?utf-8?B?QmtGNDJQZEtUZFFCbzY1UDduQU1CQmh3TFhVK2FwWW9sWDZzK1Z1OEpxczdX?=
- =?utf-8?B?dzlLcVhIdy9JRjdYTmlQU25DTEdoK0FJWWJ2RVRmLzR6ZnYxVXZEQmNwNUc3?=
- =?utf-8?B?UHRQU2FPVHpla25NejFhRFRCQzFKYkw3L2RMeGFjS2wwbUttUHdEMU5vb2tR?=
- =?utf-8?B?SkRFV3RiT25xOVRqdUVQbmZNOTJzNUpKV3lZS1E2UHVna0VjYXdHSmR5UUo5?=
- =?utf-8?B?eExsUWdnQ2VHSVlGSkszbjkrZ3d1OXhKNXlza1NoWFhCb1dHQTBpTnhvTVQr?=
- =?utf-8?B?T0dWWUhjSDVyMkppRkVoRlNDQkdFcUJoRzhaWmxDakNmZW9oeXp6aG83TzVw?=
- =?utf-8?B?NGpUdG0xYXZRSUxSK2c2VFZQRVBVWDNKL2VzOFdDUWE4UW1Vd1E1bGdVYTVu?=
- =?utf-8?B?UmZQRVE3WFJNNnpFeUdJb0lDREt6MUhXL2ZUZEJabWpPNVFYdFRmTTI1SEpK?=
- =?utf-8?B?QnVvelVPZEhsdy9iNTFYdUl5WDVsQ2FXbTZTeEphalJqSi9zZHcrQkllTXJC?=
- =?utf-8?B?ZDBJc2tMMlNWWmdWSDR3MzZPT0NoNnp3VzU4czVmZ2pSR29sdVlSQjVNd3Z4?=
- =?utf-8?B?ZkJoUFRadE9HYXFBSThlUWlNdHl5Z1RYKzhtemZMbVNBeVphbXIwbDdYZGxk?=
- =?utf-8?B?WGlKcWxscVM2WTRNcFl6S1NyU3QrcEd1aXRPQXppTDBvUGc0enMvazBFVkdn?=
- =?utf-8?B?UjYvU2d5Zm1xaGlHV3hVV3U1Q3VZbnJCSkdnUWlpVGdBOTI2UnNZQmtCVkN0?=
- =?utf-8?B?UjBENFBhbjFTYnhUVkFpbHc4NGRsVitFTkdqTWtMZ2NxSFRPRG1VR21wM1RK?=
- =?utf-8?B?dDduZEpRTjl6dkNENUhpY21pMHdiME45VFpnZU5vRmJmWFJWY29odmVZb05C?=
- =?utf-8?B?Y3hXOGJmNjRmZC9kL1V0bHZ2VlVFR2pteEduelhGREpvWTR3aGErVmNJUDZh?=
- =?utf-8?B?MGJIcnlvNDJETzZhZUZUUERyWE4wcWdmWEN3akx4VHJHQkR3MFB2OXFrSjRF?=
- =?utf-8?B?WTVuYlpraHpnRkc3QVFqY2xUMkt6QS9pbkQ2dStsTzhHL3BnVGVGcjl5eDJk?=
- =?utf-8?B?enVEVzZXelBQYUNPZm14OVdtYWF1aGNaKzdpekVUd1lyeEtLVGdCTk9aNE1R?=
- =?utf-8?B?Qm5vdlhCd3JiRllwY0loZjN1enJSUlF6TUNKVEttSEVWR1dvQzA5RGExMW00?=
- =?utf-8?B?MjFZWlVaZndyVm5La1VDUlhteFN2NlhydkxEenRIMlhHeXNON3d5OWdIRjVk?=
- =?utf-8?B?QWc5NmZOT1Q0SkRCQTUrZEt0amxkMWVBNVhaSy9nU0MvZWNsdEo2a2NzTHps?=
- =?utf-8?B?R0U2WHlOeGkvb1lodWs5UG5xcWtWZWd5M1RQSWhYNmRlajdTNVIydFdIeGpl?=
- =?utf-8?B?MmZMam0yeXdGMkltbmxzWHhTV3pSczdHOU43RDlQa0xndlNLRXVxc2F3dGRZ?=
- =?utf-8?B?emYyYTZMclV5Q1ZCaW9ZcVdxQVNTS0pMQnJNODZ6Q2JLa3RYRkIzb3lFcjFI?=
- =?utf-8?B?QXowaG5VcTlmRGxDUDBtQ3laRTgrOGN3c2JhVkpWVlkxOFZ5ZFJqMWQwWGdH?=
- =?utf-8?B?cHkzQnFxMnlPSXYwZ1dJdEhXbDIwNnlXZ0JTb0Zpb2JwdE5tMTAxczFEdi92?=
- =?utf-8?B?UVRRcDEwb241aUdrZHQ1aVJZdk43YlJsa2NnUS9NUElaNDAwejZEZz09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1e532d1a-4fb3-4aa5-c787-08df132a412d
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7957.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Sep 2026 13:07:11.5728
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: g6HZe/7/yoN+VNO7GJPT6OdvYo+2OJO4pBBDZ7nlpgNQpfNucNXd/Oi5FkkgYpdxB5L1YLe2nw4USKVAv4HWYQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS2PR12MB911612
 
-On Tue, Sep 15, 2026 at 11:23:17AM +0300, Алексей wrote:
-> Hello!
-> 
-> For now kernel rejects setting MSTI 0 instance state in the same way as another instances.
-> I.e. any non-zero instance state can be set with the following command:
-> # bridge mst set dev <dev> msti <instance> state <state>
-> 
-> While MST 0 instance state cannot be set in the same way and requires another command:
-> # bridge link set dev <dev> state <state>
-> 
-> This look a little bit inconsistent.
-> The following change fixes it:
-> 
-> ---
-> Allow setting the MSTI 0 state the same way as non-zero MSTI.
-> 
-> Signed-off-by: Aleksey S. Kazantsev <ioctl@yandex.ru>
-> 
-> diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
-> index 43a300ae6bfa..852e21b88c69 100644
-> --- a/net/bridge/br_mst.c
-> +++ b/net/bridge/br_mst.c
-> @@ -112,14 +112,12 @@ int br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
->         if (!vg)
->                 goto out;
-> 
-> -       /* MSTI 0 (CST) state changes are notified via the regular
-> +       /* MSTI 0 (CST) state changes are also can be notified via the regular
->          * SWITCHDEV_ATTR_ID_PORT_STP_STATE.
->          */
-> -       if (msti) {
-> -               err = switchdev_port_attr_set(p->dev, &attr, extack);
-> -               if (err && err != -EOPNOTSUPP)
-> -                       goto out;
-> -       }
-> +       err = switchdev_port_attr_set(p->dev, &attr, extack);
-> +       if (err && err != -EOPNOTSUPP)
-> +               goto out;
+Thank you for your contribution! Sashiko AI review found 3 potential
+issue(s) to consider:
 
-1. This is going to conflict with:
+Critical: 0 · High: 1 · Medium: 1 · Low: 1
 
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=18a6fe05fb6e18de29fa90d388bb34044114b3d8
+- [High] Incomplete bounds check: the new U16_MAX guard only measures the
+  outer IFLA_AF_SPEC nest and only runs at the 'done:' label, i.e. after…
+- [Medium] Returning -E2BIG from br_fill_ifinfo()/br_getlink() aborts the
+  whole RTM_GETLINK/AF_BRIDGE dump at the offending device:…
+- [Low] The patch changes user-visible behaviour to fix a data-corruption
+  bug (the commit message itself says 'a large enough port produces a…
 
-2. switchdev_port_attr_set() can block and msti 0 can be set from
-softIRQ context, so you will get sleeping in an atomic context splat.
+--
 
-3. This is not how a patch is supposed to be submitted. Please refer to
-the kernel docs regarding this and look at other bridge patches for
-reference.
+net: bridge: fail link info that does not fit the IFLA_AF_SPEC nest
 
-The code seems fine as-is.
+br_fill_ifinfo() now measures the IFLA_AF_SPEC nest at the done: label and,
+if the accumulated payload exceeds U16_MAX, cancels the message and returns
+-E2BIG with an extack.  An extack argument is threaded into br_fill_ifinfo()
+from br_getlink(), while br_info_notify() passes NULL.
 
-> 
->         err = 0;
->         list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
-> @@ -294,7 +292,7 @@ int br_mst_fill_info(struct sk_buff *skb,
-> 
->  static const struct nla_policy br_mst_nl_policy[IFLA_BRIDGE_MST_ENTRY_MAX + 1] = {
->         [IFLA_BRIDGE_MST_ENTRY_MSTI] = NLA_POLICY_RANGE(NLA_U16,
-> -                                                  1, /* 0 reserved for CST */
-> +                                                  0,
->                                                    VLAN_N_VID - 1),
->         [IFLA_BRIDGE_MST_ENTRY_STATE] = NLA_POLICY_RANGE(NLA_U8,
->                                                     BR_STATE_DISABLED,
-> --
-> 
-> Aleksey Kazantsev
+A couple of questions on the placement of the check and on the resulting
+dump behaviour.
+
+First, on the commit message trailers:
+
+>     Assisted-by: Claude:claude-opus-5
+>     Signed-off-by: Artem Lytkin <iprintercanon@gmail.com>
+
+[Severity: Low]
+The commit message describes a user-visible corruption ("a large enough port
+produces a nest whose length wraps and userspace reads garbage"), but there
+is no Fixes: tag.  Should one be added naming the commit that first made more
+than 64 KiB of IFLA_AF_SPEC content possible, for example the per-VLAN
+tunnel-info netlink support or the IFLA_BRIDGE_MST support, so that stable
+tooling picks this up and the affected range is clear?
+
+Also, Assisted-by: is not one of the documented trailers.
+
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 855a46aec3a89..53676df9e4d11 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+
+[ ... ]
+
+> @@ -613,6 +613,12 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+>  
+>  done:
+>  	if (af) {
+> +		if (skb_tail_pointer(skb) - (unsigned char *)af > U16_MAX) {
+> +			NL_SET_ERR_MSG_MOD(extack,
+> +					   "VLAN information does not fit in one message, use RTM_GETVLAN");
+> +			nlmsg_cancel(skb, nlh);
+> +			return -E2BIG;
+> +		}
+
+[Severity: High]
+Does this check come too late to cover the inner nests?
+
+The MST and CFM nests are closed earlier in br_fill_ifinfo(), before control
+reaches done:
+
+net/bridge/br_netlink.c:br_fill_ifinfo() {
+	...
+		err = br_mst_fill_info(skb, vg);
+		if (err)
+			goto nla_put_failure;
+
+		nla_nest_end(skb, mst_nest);
+	}
+
+done:
+	if (af) {
+		if (skb_tail_pointer(skb) - (unsigned char *)af > U16_MAX) {
+	...
+}
+
+and nla_nest_end() both warns and performs the truncating store:
+
+include/net/netlink.h:nla_nest_end() {
+	unsigned long diff = skb_tail_pointer(skb) - (unsigned char *)start;
+
+	DEBUG_NET_WARN_ON_ONCE(diff > U16_MAX);
+	start->nla_len = diff;
+	...
+}
+
+Can IFLA_BRIDGE_MST alone exceed 65535 bytes?  br_mst_fill_info() emits one
+roughly 20 byte IFLA_BRIDGE_MST_ENTRY per distinct MSTI, with no aggregate
+size accounting:
+
+net/bridge/br_mst.c:br_mst_fill_info() {
+	list_for_each_entry(v, &vg->vlan_list, vlist) {
+		if (test_bit(v->brvlan->msti, seen))
+			continue;
+
+		nest = nla_nest_start_noflag(skb, IFLA_BRIDGE_MST_ENTRY);
+	...
+}
+
+With up to 4094 distinct MSTIs that is roughly 82 KB, and the same applies to
+IFLA_BRIDGE_CFM where each peer-MEP status entry is roughly 76 bytes.  The
+dump skb is sized from br_get_link_af_size_filtered() via rtnl_calcit() into
+cb->min_dump_alloc, which is a u32 with no 64 KiB cap, so the oversized nest
+is actually written out.
+
+So for the inner nests the wrapped nla_len is still stored, and on
+CONFIG_DEBUG_NET kernels the DEBUG_NET_WARN_ON_ONCE fires from an ordinary
+unprivileged RTM_GETLINK/AF_BRIDGE dump.  Would the size have to be bounded
+while each nest is being filled, rather than once after the whole message has
+been serialized?
+
+[Severity: Medium]
+Does returning -E2BIG here stop the rest of the dump?
+
+The chain is rtnl_bridge_getlink() -> br_getlink() -> br_fill_ifinfo(), and
+rtnl_bridge_getlink() treats any negative error other than -EOPNOTSUPP as
+terminal for the whole walk:
+
+net/core/rtnetlink.c:rtnl_bridge_getlink() {
+	...
+				if (err < 0 && err != -EOPNOTSUPP) {
+					if (likely(skb->len))
+						break;
+
+					goto out_err;
+				}
+			}
+			idx++;
+	...
+	err = skb->len;
+out_err:
+	rcu_read_unlock();
+	cb->args[0] = idx;
+}
+
+Since idx is not incremented for the failing device, cb->args[0] still points
+at it on the retry round.  That round starts with skb->len == 0, so it takes
+goto out_err and the dump ends with -E2BIG.  Are all ports after the
+offending one then never enumerated, and does every subsequent dump fail at
+the same device again?  Before the patch the same configuration produced one
+message with a wrapped AF_SPEC length but the walk continued.
+
+The commit message says only that "the error goes to userspace"; should it
+mention that the remainder of the dump is dropped?
+
+On the extack text: the same overflow is reachable for a request that sets
+only RTEXT_FILTER_MST or only RTEXT_FILTER_CFM_CONFIG / RTEXT_FILTER_CFM_STATUS,
+where no VLAN data is emitted at all and RTM_GETVLAN is not a substitute.
+Could the message be made specific to what actually overflowed?
+
+>  		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
+>  			nla_nest_end(skb, af);
+>  		else
+
+[ ... ]
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260912135022.1701-1-iprintercanon%40gmail.com
