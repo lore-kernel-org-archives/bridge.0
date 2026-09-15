@@ -1,215 +1,382 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from fout-a5-smtp.messagingengine.com (fout-a5-smtp.messagingengine.com [103.168.172.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18A084C9543;
-	Tue, 15 Sep 2026 18:51:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B99139A078
+	for <bridge@lists.linux.dev>; Tue, 15 Sep 2026 21:06:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789498319; cv=none; b=RfcaQtKP7+Kan5UIdOyJPPLTaPDu6rK7i3mlV59vpBw9SMezvq56Piw72ud+5v6S3q6GB9zQ6fl5F2IiLYdPG6XoniQyI5CPky0y/EDE9JCT5l6xc19ttdZf3979lPeCv/6Egoy2R/5BtZgkXgD6igLrCl2lHIa16N2/Z+suqqg=
+	t=1789506394; cv=none; b=Q4b/06IvXNFNH4XF7uYWcya7J7/gAN83TNTGRpntZ3tNmGtJ9/TjZ4yo2gwka6aYseZY/sZ4ebx1X7ToFfy5mYWeiMRpGTjuj6RAWCYs0sYBT/DDr9i0RtRZXzbJ1Fzson29w2kpacM+PkMzXWhtTGxlVfPEPqTWJZNR2Q2+48A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789498319; c=relaxed/simple;
-	bh=4pxf8aIjib0BRZxZRH4FGi8jsaJE+JnA3k+xYag0u28=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nwMEADnGpWxGFyKQIYlnry6jJPfS+bQJTSN/9c477+/EpCRDoNVB/MxuscN0PrVs6gSm/hiE0va/7noAXKxLE6Uywl8YBGjbFP6bZKQybR7pdoYYyG5OSi6hg9J3sMBmkgmQ1DG8tDjn9GyqJ5tcWohNjCxrPHuxX8Ys/8219YQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IvOpH985; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789506394; c=relaxed/simple;
+	bh=g3K+lfhUgnaE/mezC2FggeKY+3skAs7DftoJWFLXh1w=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=mygNQOIqWohZAw8wLDOHCm8AywujtgQoDLcxh/RTDtVASargxMkDPF6GmBLuEeJoQVqnmPFm6zD3/WBiICm6E2d2tyTOXC8xPv0YnJr7tnCH2FbdOLWdnu24+VXY2aJ+5mij32yq2QiMqkLDgEIb5iOB5A3s69A8m2luIDWHPqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=CgGIkxKc; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=abZOEX13; arc=none smtp.client-ip=103.168.172.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IvOpH985"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B4C51F000FF;
-	Tue, 15 Sep 2026 18:51:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789498317;
-	bh=6Zd0kC+Yy9Ng843KwX37t61erK5Sw7cuOKPZQI6ppzc=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=IvOpH985U8Dx0YGCxtSn8aHcEX1CsCN7dkKQBfKqsCUJxJaSEMSDxOtT9GEI/HLAH
-	 r+Li9ccW37WAm4wjjstzLwP1TJ3US4KKO4u5/3MoMxyN+VwcUuZQpVsZLd0W5oFS1k
-	 PTRavUfay78CMXmlR5BBpInf71aJP9vbFfUWDobmsq5ntitzBLSbkGpUJkbdOUCJAI
-	 a8yE97PKje1S1hWktfvA1Cf82YQuZIQVK/43roT41GIyGdIIRemo4wMlh4JvQe/OOs
-	 abuuKhaDqjTv8/0TM5HJBjnYbahUulcKROHkrQ8vjMSehqWVR+XiB5S0D/V8+g69LM
-	 lAjlNHyYU5nWw==
-Subject: Re: [PATCH net-next v2 2/2] net: bridge: fail link info that does not
- fit the IFLA_AF_SPEC nest
-From: netdev-bot+sashiko@kernel.org
-To: iprintercanon@gmail.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
- idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, andrew+netdev@lunn.ch, kuniyu@google.com,
- michael.chan@broadcom.com, pavan.chebbi@broadcom.com,
- ajit.khaparde@broadcom.com, sriharsha.basavapatna@broadcom.com,
- anthony.l.nguyen@intel.com, przemyslaw.kitszel@intel.com,
- intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
- mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
- aswin@linux.ibm.com, linux-s390@vger.kernel.org
-Date: Tue, 15 Sep 2026 18:51:55 +0000
-Message-ID: <178949831579.22033.2772389608829417270@kernel.org>
-In-Reply-To: <20260912135022.1701-3-iprintercanon@gmail.com>
-References: <20260912135022.1701-3-iprintercanon@gmail.com>
-X-sashiko-severity: High
+	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="CgGIkxKc";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="abZOEX13"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.phl.internal (Postfix) with ESMTP id 17D99EC0E47;
+	Tue, 15 Sep 2026 17:06:27 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-04.internal (MEProxy); Tue, 15 Sep 2026 17:06:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to; s=fm1; t=
+	1789506387; x=1789592787; bh=pSGhn5yb2ykQHa2+aS4x0aFSjk4p7/mwMgu
+	lDmeHEfI=; b=CgGIkxKcPckL2520PVEYtzWYJetiw5vFeYlNNv2vp5Mfb22pxYH
+	Z3AeutYDYz64s+5TK1RqBcmA7RbBREX8wPxvh0584SPPYew3QgpjBlPo2/dhmZgT
+	mTBOasxxH9hAwXvde0rydO48NfddKivQLtx56ZwL7Iz1gXzFRod4tNozprjoXIGo
+	9mpXIvxQ3cO/HdQb/TETSh+JQKks6rL1i/18pQOl6vJn2eWcICSZ56wTx5PQKJBF
+	HC+XLRRzPVok8DzJEs2ARwLoBKwD16bUKgD8449V/5qSKZHxdhMwpg2s0KWpXyJ4
+	7Ce0hxV9e+jfjB7/VGOZBkK6nB0WQB9xJwQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789506387; x=
+	1789592787; bh=pSGhn5yb2ykQHa2+aS4x0aFSjk4p7/mwMgulDmeHEfI=; b=a
+	bZOEX13veVaxfTH9bLCCccEDlmcfsW+SWN7V0AGCUl/u0pgbbhYhgWYCS6fmUYHq
+	oC7hUo+tUXrM7xhiwtXRGCwujKPeYxNOt27vlaDZ+9URcD/CQ/A2RuM7B+Y9DmRK
+	YLaq853LOAnvCGxb3570NqstfkkmXTHeov9gt2Xbvf4SxpSNz3s5uMlNzVL2YP0O
+	zWlwcLEltPsbZcpPLa2iMTXaPou7GaPNmZdwFmgfL8Wa+CVf8/l4th6cas1euomi
+	sLSCZfnlGTEl6f3K4pUqzTW9vUDLEbOU2P4AbGhMoquTQ/3AuO8vrODQ5bOfKuXg
+	3GmqEOFube8t0WXZA5Bxw==
+X-ME-Sender: <xms:UbOparFGbSXihTaj0SLZ6yYMKW7RA2xkA36-P3YSOKl-itdh0OZAMg>
+    <xme:UbOpavR8GdsKOZsh3fxLA59J8vYUUrFCKR6qbyM8laze54yY7_wUQSg3NscupXVBk
+    7yd9yaFSm1ulNvNjniFNf7lQC5aYVsCztGgeLN_itTbOhWwkQ>
+X-ME-Received: <xmr:UbOpaiO-_KpZOlsKebvR0-rsMkr2DNIRjVhVaoZ293TZj5QbzEcYhTKY_s2fyWbpmg>
+X-ME-Proxy-Cause: dmFkZTGla0jEqEOCi/nzNPCoo0ScIh2JaZoq/4ebKgNohM8wDfdyIavrkNjshsND0P8tAs
+    YhtJcgxY8ykXaMgTLV/PAPKJBCPJIZajcIR5EweJMqjOb2vZSnR4CeIgVRzxWmJX/xFJn7
+    1a4tUOzgCBFodCqSJZaKfGFB6cgCAYzxBzIwS63QgFT6wWVOBcy9MDzMapV05p1KdzDuei
+    j95DMmwaNUq7OLYkcjLYuUzH5HXYPbN7fSaJSeC8pvuikyYJkizg+ZIgbsAxuNyEKs8hFp
+    WBrrz0c1CjdAGYnAIwfX5V7HPHVKo17fBEA3/JW5/KyDlNhLH7gvRkzZhrP1FhlvukvsqI
+    ZJr5IQgxcnkpH6PeJTjjIg0oXlGXXkgjB13qbSnrrgppM61DAq1jmz15SmDbdLzhSILo6G
+    32KR8G+HesNpe+GCrZb8WvmDpiXfpJ2kv4NUy+SdqWyAhWsYNrVN7m9KyrJWkiTLSp4xCe
+    cKTabAmHjfZmAKKJRR44NmeaSKN4MlpmYoGYRFbJR44ZIC+5rVQDqWFOoEvA4/Wzqa4oNn
+    sYDwXvRPqdHIhqFKIZNR3bIrvTS/IBtFf75SfzaHkirF4Thyhe7ujZ7RBdXkwtXUghdgqC
+    VZMXofDt33LkpijoWqrkvU0sk2xgnbY295PQnKCGfdY8d4uQ7Q5c/BeGAsRA
+X-ME-Proxy: <xmx:UbOpagOfaqcQ-p9_U2E_Bv59vZp6XZHuDujeIgGZbIFCODBdt4HLXQ>
+    <xmx:UbOpasFaZV5WbjePIApkS6hC5XK4LZl1rpuQ7wEXrmZzV2qYR5m1ow>
+    <xmx:UbOpaqPhbsXQPsPmLDVCFXjBp5nxyOsYRA2_Qmtx1-sSRITQWLnneA>
+    <xmx:UbOpauvMfj7bSQ-vW5v9T23uRHHxzrYkPZPPp4oc6yipNh9Lgz-XHA>
+    <xmx:U7OpalEEvf1Cb9epx-tleNX3emopc13DaR9ZdGM8ccS9zbAaf7Y8qtDp>
+Feedback-ID: i9d664b8f:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 15 Sep 2026 17:06:20 -0400 (EDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+From: NeilBrown <neilb@ownmail.net>
+To: "Herbert Xu" <herbert@gondor.apana.org.au>
+Cc: "Eric Dumazet" <edumazet@google.com>,
+ "Shin'ichiro Kawasaki" <shinichiro.kawasaki@wdc.com>,
+ "syzbot" <syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com>,
+ bridge@lists.linux.dev, davem@davemloft.net, horms@kernel.org,
+ idosch@nvidia.com, kuba@kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org,
+ steffen.klassert@secunet.com, syzkaller-bugs@googlegroups.com,
+ "Thomas Graf" <tgraf@suug.ch>, linux-crypto@vger.kernel.org,
+ "quanyeyang" <quanyemostima@gmail.com>
+Subject: Re: [PATCH] rhashtable: Use separate lockdep keys for each lock
+In-reply-to: <aqjf7LNmE6InABpw@gondor.apana.org.au>
+References: <6aa5fcf6.f2639fcc.29487d.0048.GAE@google.com>
+  <aqi7fpazv2KDDdvn@shinmob>
+  <CANn89iJd0QnoDo0tjrFED2myec38U8joyqR05d6BVnJ-sX=NVg@mail.gmail.com>
+  <aqjf7LNmE6InABpw@gondor.apana.org.au>
+Date: Wed, 16 Sep 2026 07:06:16 +1000
+Message-id: <178950637640.207413.1725604371084195628@noble.neil.brown.name>
+Reply-To: NeilBrown <neil@brown.name>
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issue(s) to consider:
+On Tue, 15 Sep 2026, Herbert Xu wrote:
+> On Mon, Sep 14, 2026 at 09:06:49PM -0700, Eric Dumazet wrote:
+> >
+> > Try to revert 4333ab90aaae ("rhashtable: use private lockdep class for
+> > all locks.")
+>=20
+> Yes this is indeed buggy.  I know nothing about lockdep but Gemini
+> reckons that it should use separate keys instead of different
+> depths which seems fair enough:
+>=20
+> ---8<---
+> Use separate lockdep keys for the different types of locks in
+> rhashtable (mutex, spin lock, and bucket locks).  They are
+> separate and not normally nested with respect to each other.
+>=20
+> Also move the rhashtable_init/rhltable_init kdoc to the header
+> file as that's where the macros are defined.
+>=20
+> Fixes: 4333ab90aaae ("rhashtable: use private lockdep class for all locks.")
+> Reported-by: syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com
+> Assisted-by: Gemini:gemini-3.6-flash
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Critical: 0 · High: 1 · Medium: 1 · Low: 1
+That's a much better approach - thanks for that.
 
-- [High] Incomplete bounds check: the new U16_MAX guard only measures the
-  outer IFLA_AF_SPEC nest and only runs at the 'done:' label, i.e. after…
-- [Medium] Returning -E2BIG from br_fill_ifinfo()/br_getlink() aborts the
-  whole RTM_GETLINK/AF_BRIDGE dump at the offending device:…
-- [Low] The patch changes user-visible behaviour to fix a data-corruption
-  bug (the commit message itself says 'a large enough port produces a…
+Reviewed-by: NeilBrown <neil@brown.name>
 
---
+Thanks,
+NeilBrown
 
-net: bridge: fail link info that does not fit the IFLA_AF_SPEC nest
 
-br_fill_ifinfo() now measures the IFLA_AF_SPEC nest at the done: label and,
-if the accumulated payload exceeds U16_MAX, cancels the message and returns
--E2BIG with an extack.  An extack argument is threaded into br_fill_ifinfo()
-from br_getlink(), while br_info_notify() passes NULL.
+>=20
+> diff --git a/include/linux/rhashtable-types.h b/include/linux/rhashtable-ty=
+pes.h
+> index 0e1b172a4f6c..afbc12ba71f5 100644
+> --- a/include/linux/rhashtable-types.h
+> +++ b/include/linux/rhashtable-types.h
+> @@ -70,6 +70,14 @@ struct rhashtable_params {
+>  	rht_obj_cmpfn_t		obj_cmpfn;
+>  };
+> =20
+> +struct rhashtable_lockdep_keys {
+> +#ifdef CONFIG_LOCKDEP
+> +	struct lock_class_key lock_key;
+> +	struct lock_class_key mutex_key;
+> +	struct lock_class_key bucket_key;
+> +#endif
+> +};
+> +
+>  /**
+>   * struct rhashtable - Hash table handle
+>   * @tbl: Bucket table
+> @@ -141,24 +149,77 @@ struct rhashtable_iter {
+> =20
+>  int __rhashtable_init_noprof(struct rhashtable *ht,
+>  		    const struct rhashtable_params *params,
+> -		    struct lock_class_key *key);
+> +		    struct rhashtable_lockdep_keys *keys);
+>  #define rhashtable_init_noprof(ht, params)				\
+>  ({									\
+> -	static struct lock_class_key __key;				\
+> +	static struct rhashtable_lockdep_keys __keys;			\
+>  									\
+> -	__rhashtable_init_noprof(ht, params, &__key);			\
+> +	__rhashtable_init_noprof(ht, params, &__keys);			\
+>  })
+> +
+> +/**
+> + * rhashtable_init - initialize a new hash table
+> + * @ht:		hash table to be initialized
+> + * @params:	configuration parameters
+> + *
+> + * Initializes a new hash table based on the provided configuration
+> + * parameters. A table can be configured either with a variable or
+> + * fixed length key:
+> + *
+> + * Configuration Example 1: Fixed length keys
+> + * struct test_obj {
+> + *	int			key;
+> + *	void *			my_member;
+> + *	struct rhash_head	node;
+> + * };
+> + *
+> + * struct rhashtable_params params =3D {
+> + *	.head_offset =3D offsetof(struct test_obj, node),
+> + *	.key_offset =3D offsetof(struct test_obj, key),
+> + *	.key_len =3D sizeof(int),
+> + *	.hashfn =3D jhash,
+> + * };
+> + *
+> + * Configuration Example 2: Variable length keys
+> + * struct test_obj {
+> + *	[...]
+> + *	struct rhash_head	node;
+> + * };
+> + *
+> + * u32 my_hash_fn(const void *data, u32 len, u32 seed)
+> + * {
+> + *	struct test_obj *obj =3D data;
+> + *
+> + *	return [... hash ...];
+> + * }
+> + *
+> + * struct rhashtable_params params =3D {
+> + *	.head_offset =3D offsetof(struct test_obj, node),
+> + *	.hashfn =3D jhash,
+> + *	.obj_hashfn =3D my_hash_fn,
+> + * };
+> + */
+>  #define rhashtable_init(...)	alloc_hooks(rhashtable_init_noprof(__VA_ARGS_=
+_))
+> =20
+>  int __rhltable_init_noprof(struct rhltable *hlt,
+>  		  const struct rhashtable_params *params,
+> -		  struct lock_class_key *key);
+> +		  struct rhashtable_lockdep_keys *keys);
+>  #define rhltable_init_noprof(hlt, params)				\
+>  ({									\
+> -	static struct lock_class_key __key;				\
+> +	static struct rhashtable_lockdep_keys __keys;			\
+>  									\
+> -	__rhltable_init_noprof(hlt, params, &__key);			\
+> +	__rhltable_init_noprof(hlt, params, &__keys);			\
+>  })
+> +
+> +/**
+> + * rhltable_init - initialize a new hash list table
+> + * @hlt:	hash list table to be initialized
+> + * @params:	configuration parameters
+> + *
+> + * Initializes a new hash list table.
+> + *
+> + * See documentation for rhashtable_init.
+> + */
+>  #define rhltable_init(...)	alloc_hooks(rhltable_init_noprof(__VA_ARGS__))
+> =20
+>  #endif /* _LINUX_RHASHTABLE_TYPES_H */
+> diff --git a/include/linux/rhashtable.h b/include/linux/rhashtable.h
+> index 6c5e6d9accba..ec853c1b9af3 100644
+> --- a/include/linux/rhashtable.h
+> +++ b/include/linux/rhashtable.h
+> @@ -328,8 +328,7 @@ static inline unsigned long rht_lock_nested(struct buck=
+et_table *tbl,
+> =20
+>  	local_irq_save(flags);
+>  	bit_spin_lock(0, (unsigned long *)bucket);
+> -	/* subclass 0 is used for ->lock and 1 for ->mutex. 2+ for bitlocks */
+> -	lock_acquire_exclusive(&tbl->dep_map, subclass+2, 0, NULL, _THIS_IP_);
+> +	lock_acquire_exclusive(&tbl->dep_map, subclass, 0, NULL, _THIS_IP_);
+>  	return flags;
+>  }
+> =20
+> diff --git a/lib/rhashtable.c b/lib/rhashtable.c
+> index 5da0e53a8d42..918f15a2ac69 100644
+> --- a/lib/rhashtable.c
+> +++ b/lib/rhashtable.c
+> @@ -432,7 +432,7 @@ static void rht_deferred_worker(struct work_struct *wor=
+k)
+>  	int err =3D 0;
+> =20
+>  	ht =3D container_of(work, struct rhashtable, run_work);
+> -	mutex_lock_nested(&ht->mutex, 1);
+> +	mutex_lock(&ht->mutex);
+> =20
+>  	tbl =3D rht_dereference(ht->tbl, ht);
+>  	tbl =3D rhashtable_last_table(ht, tbl);
+> @@ -1122,51 +1122,9 @@ static u32 rhashtable_jhash2(const void *key, u32 le=
+ngth, u32 seed)
+>  	return jhash2(key, length, seed);
+>  }
+> =20
+> -/**
+> - * rhashtable_init - initialize a new hash table
+> - * @ht:		hash table to be initialized
+> - * @params:	configuration parameters
+> - *
+> - * Initializes a new hash table based on the provided configuration
+> - * parameters. A table can be configured either with a variable or
+> - * fixed length key:
+> - *
+> - * Configuration Example 1: Fixed length keys
+> - * struct test_obj {
+> - *	int			key;
+> - *	void *			my_member;
+> - *	struct rhash_head	node;
+> - * };
+> - *
+> - * struct rhashtable_params params =3D {
+> - *	.head_offset =3D offsetof(struct test_obj, node),
+> - *	.key_offset =3D offsetof(struct test_obj, key),
+> - *	.key_len =3D sizeof(int),
+> - *	.hashfn =3D jhash,
+> - * };
+> - *
+> - * Configuration Example 2: Variable length keys
+> - * struct test_obj {
+> - *	[...]
+> - *	struct rhash_head	node;
+> - * };
+> - *
+> - * u32 my_hash_fn(const void *data, u32 len, u32 seed)
+> - * {
+> - *	struct test_obj *obj =3D data;
+> - *
+> - *	return [... hash ...];
+> - * }
+> - *
+> - * struct rhashtable_params params =3D {
+> - *	.head_offset =3D offsetof(struct test_obj, node),
+> - *	.hashfn =3D jhash,
+> - *	.obj_hashfn =3D my_hash_fn,
+> - * };
+> - */
+>  int __rhashtable_init_noprof(struct rhashtable *ht,
+> -		    const struct rhashtable_params *params,
+> -		    struct lock_class_key *key)
+> +			     const struct rhashtable_params *params,
+> +			     struct rhashtable_lockdep_keys *keys)
+>  {
+>  	struct bucket_table *tbl;
+>  	size_t size;
+> @@ -1176,13 +1134,11 @@ int __rhashtable_init_noprof(struct rhashtable *ht,
+>  		return -EINVAL;
+> =20
+>  	memset(ht, 0, sizeof(*ht));
+> -	/* mutex_lock must use nesting level 1 */
+> -	mutex_init_with_key(&ht->mutex, key);
+> +	mutex_init_with_key(&ht->mutex, &keys->mutex_key);
+>  	spin_lock_init(&ht->lock);
+> -	/* spin_lock can use nesting level 0 */
+> -	lockdep_set_class(&ht->lock, key);
+> +	lockdep_set_class(&ht->lock, &keys->lock_key);
+>  #ifdef CONFIG_LOCKDEP
+> -	ht->lockdep_key =3D key;
+> +	ht->lockdep_key =3D &keys->bucket_key;
+>  #endif
+>  	memcpy(&ht->p, params, sizeof(*params));
+> =20
+> @@ -1236,22 +1192,13 @@ int __rhashtable_init_noprof(struct rhashtable *ht,
+>  }
+>  EXPORT_SYMBOL_GPL(__rhashtable_init_noprof);
+> =20
+> -/**
+> - * rhltable_init - initialize a new hash list table
+> - * @hlt:	hash list table to be initialized
+> - * @params:	configuration parameters
+> - *
+> - * Initializes a new hash list table.
+> - *
+> - * See documentation for rhashtable_init.
+> - */
+>  int __rhltable_init_noprof(struct rhltable *hlt,
+>  			   const struct rhashtable_params *params,
+> -			   struct lock_class_key *key)
+> +			   struct rhashtable_lockdep_keys *keys)
+>  {
+>  	int err;
+> =20
+> -	err =3D __rhashtable_init_noprof(&hlt->ht, params, key);
+> +	err =3D __rhashtable_init_noprof(&hlt->ht, params, keys);
+>  	hlt->ht.rhlist =3D true;
+>  	return err;
+>  }
+> diff --git a/lib/test_rhashtable.c b/lib/test_rhashtable.c
+> index 85a615e74591..b767a38a74f9 100644
+> --- a/lib/test_rhashtable.c
+> +++ b/lib/test_rhashtable.c
+> @@ -477,7 +477,7 @@ static unsigned int __init print_ht(struct rhltable *rh=
+lt)
+> =20
+>  	ht =3D &rhlt->ht;
+>  	/* Take the mutex to avoid RCU warning */
+> -	mutex_lock_nested(&ht->mutex, 1);
+> +	mutex_lock(&ht->mutex);
+>  	tbl =3D rht_dereference(ht->tbl, ht);
+>  	for (i =3D 0; i < tbl->size; i++) {
+>  		struct rhash_head *pos, *next;
+> --=20
+> Email: Herbert Xu <herbert@gondor.apana.org.au>
+> Home Page: http://gondor.apana.org.au/~herbert/
+> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+>=20
 
-A couple of questions on the placement of the check and on the resulting
-dump behaviour.
-
-First, on the commit message trailers:
-
->     Assisted-by: Claude:claude-opus-5
->     Signed-off-by: Artem Lytkin <iprintercanon@gmail.com>
-
-[Severity: Low]
-The commit message describes a user-visible corruption ("a large enough port
-produces a nest whose length wraps and userspace reads garbage"), but there
-is no Fixes: tag.  Should one be added naming the commit that first made more
-than 64 KiB of IFLA_AF_SPEC content possible, for example the per-VLAN
-tunnel-info netlink support or the IFLA_BRIDGE_MST support, so that stable
-tooling picks this up and the affected range is clear?
-
-Also, Assisted-by: is not one of the documented trailers.
-
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 855a46aec3a89..53676df9e4d11 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-
-[ ... ]
-
-> @@ -613,6 +613,12 @@ static int br_fill_ifinfo(struct sk_buff *skb,
->  
->  done:
->  	if (af) {
-> +		if (skb_tail_pointer(skb) - (unsigned char *)af > U16_MAX) {
-> +			NL_SET_ERR_MSG_MOD(extack,
-> +					   "VLAN information does not fit in one message, use RTM_GETVLAN");
-> +			nlmsg_cancel(skb, nlh);
-> +			return -E2BIG;
-> +		}
-
-[Severity: High]
-Does this check come too late to cover the inner nests?
-
-The MST and CFM nests are closed earlier in br_fill_ifinfo(), before control
-reaches done:
-
-net/bridge/br_netlink.c:br_fill_ifinfo() {
-	...
-		err = br_mst_fill_info(skb, vg);
-		if (err)
-			goto nla_put_failure;
-
-		nla_nest_end(skb, mst_nest);
-	}
-
-done:
-	if (af) {
-		if (skb_tail_pointer(skb) - (unsigned char *)af > U16_MAX) {
-	...
-}
-
-and nla_nest_end() both warns and performs the truncating store:
-
-include/net/netlink.h:nla_nest_end() {
-	unsigned long diff = skb_tail_pointer(skb) - (unsigned char *)start;
-
-	DEBUG_NET_WARN_ON_ONCE(diff > U16_MAX);
-	start->nla_len = diff;
-	...
-}
-
-Can IFLA_BRIDGE_MST alone exceed 65535 bytes?  br_mst_fill_info() emits one
-roughly 20 byte IFLA_BRIDGE_MST_ENTRY per distinct MSTI, with no aggregate
-size accounting:
-
-net/bridge/br_mst.c:br_mst_fill_info() {
-	list_for_each_entry(v, &vg->vlan_list, vlist) {
-		if (test_bit(v->brvlan->msti, seen))
-			continue;
-
-		nest = nla_nest_start_noflag(skb, IFLA_BRIDGE_MST_ENTRY);
-	...
-}
-
-With up to 4094 distinct MSTIs that is roughly 82 KB, and the same applies to
-IFLA_BRIDGE_CFM where each peer-MEP status entry is roughly 76 bytes.  The
-dump skb is sized from br_get_link_af_size_filtered() via rtnl_calcit() into
-cb->min_dump_alloc, which is a u32 with no 64 KiB cap, so the oversized nest
-is actually written out.
-
-So for the inner nests the wrapped nla_len is still stored, and on
-CONFIG_DEBUG_NET kernels the DEBUG_NET_WARN_ON_ONCE fires from an ordinary
-unprivileged RTM_GETLINK/AF_BRIDGE dump.  Would the size have to be bounded
-while each nest is being filled, rather than once after the whole message has
-been serialized?
-
-[Severity: Medium]
-Does returning -E2BIG here stop the rest of the dump?
-
-The chain is rtnl_bridge_getlink() -> br_getlink() -> br_fill_ifinfo(), and
-rtnl_bridge_getlink() treats any negative error other than -EOPNOTSUPP as
-terminal for the whole walk:
-
-net/core/rtnetlink.c:rtnl_bridge_getlink() {
-	...
-				if (err < 0 && err != -EOPNOTSUPP) {
-					if (likely(skb->len))
-						break;
-
-					goto out_err;
-				}
-			}
-			idx++;
-	...
-	err = skb->len;
-out_err:
-	rcu_read_unlock();
-	cb->args[0] = idx;
-}
-
-Since idx is not incremented for the failing device, cb->args[0] still points
-at it on the retry round.  That round starts with skb->len == 0, so it takes
-goto out_err and the dump ends with -E2BIG.  Are all ports after the
-offending one then never enumerated, and does every subsequent dump fail at
-the same device again?  Before the patch the same configuration produced one
-message with a wrapped AF_SPEC length but the walk continued.
-
-The commit message says only that "the error goes to userspace"; should it
-mention that the remainder of the dump is dropped?
-
-On the extack text: the same overflow is reachable for a request that sets
-only RTEXT_FILTER_MST or only RTEXT_FILTER_CFM_CONFIG / RTEXT_FILTER_CFM_STATUS,
-where no VLAN data is emitted at all and RTM_GETVLAN is not a substitute.
-Could the message be made specific to what actually overflowed?
-
->  		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
->  			nla_nest_end(skb, af);
->  		else
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260912135022.1701-1-iprintercanon%40gmail.com
