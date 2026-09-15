@@ -1,323 +1,105 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
+Received: from forward200b.mail.yandex.net (forward200b.mail.yandex.net [178.154.239.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8D3D3D810D;
-	Tue, 15 Sep 2026 06:04:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DD5483BC7
+	for <bridge@lists.linux.dev>; Tue, 15 Sep 2026 08:26:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789452282; cv=none; b=Gf/n0oEp1ySsAfIHHTW2USRBjAdoHXno3iw3ouI9p8XRYRcqvSdtQhySAPzmzGXYy1Axf1W9I6pt7R13keH5UkGOuP2fj21/C/6c8a0HX8YRXU2om4kn3GKnnJh4R+KbU8CLMO6DeA5BP4vAGA4C+rEd+nuJnhq8j6L6NObzy3k=
+	t=1789460792; cv=none; b=Xk/eBlrqQFWQvJpL5NL7DvJ2ekNhmaHsXHOLrGoWdSO68CSC9ycQ4EjRN+93y46G8Jp/6XKoR445k3stE+9rcp37n7R2xEpXJr9rWC3eCIz0bAxCkYe3Dmjg5/qSDLbVnakqe3jN5zFgTT88Sv5aUe60S2NxmaB//fYgvKiDmdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789452282; c=relaxed/simple;
-	bh=fQU8Y/TjGzEbCBHbYKX2kLXq0pcEXR0TtcKeXeVP4vM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AxsakLLUATQX4s1wznPBhSfPhOi5j95/axvfPl0THL4247akkrSvNAEE3TWCn9jDl96qYe/10v4w8I4UqscnS+Xkiah/jiCZVrqygzDGn64mxh/5V+yoU/xd9nuNh1imox/p2vbdM5vrPGYkBDXk/HuSxmuDhmPRmBVzPaC+jjs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=HNao7bFe; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1789460792; c=relaxed/simple;
+	bh=7vU8bMonAZkxVqIAInFyLMmd0cCGJtePl7fRCKcr+5o=;
+	h=From:To:Subject:MIME-Version:Date:Message-Id:Content-Type; b=qnSgZGXXEaiNxQH7E5L9Om4M9po5v/jRm2i4vlM+/5EEMfk4yL/MaJs36j8HoexKN5TmP11UUiVa/QsB0WAzvZKSa0Sp9AMaAhucZo2JxMVQg79tE6c2c5gNglEOBk2s+ngg71jTnTyzki5/PK6NT2VLxXsCeInVdMNeuCojfMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ya.ru; spf=pass smtp.mailfrom=ya.ru; dkim=pass (1024-bit key) header.d=ya.ru header.i=@ya.ru header.b=K2zCOnAU; arc=none smtp.client-ip=178.154.239.157
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ya.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ya.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="HNao7bFe"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=2YZiibc/bXVRXD1UnU5ITV7I8YK2sNqAjajxZP9oZrA=; 
-	b=HNao7bFep1+cjJ8RvkgmToZNZ9GYEAd1GKYgq7c0yjKY0oyfk/zqwWrLsOF3PlTY6g5QqJGC6//
-	wy1oqOJZ755mS3+WFUXNncAOH9z1DNRNzZVeWvJ6W59KBarv9hNjAPxKS8GLoK7Aez527zpV0J7ZM
-	QM76ecMFl4misMU+7IRmet8uT8KVJzBUWhwqbhWWlIHk3eeIPoNNC8g1PzLfuBM0dXWIodgbiAeFg
-	3HF76mTSClwwbbq6tfJB/5m1EL3A2hB+hbasyDGFWdJG5uaD2A8smu3psdP3QH6KqdWchZ/T579Dv
-	Xn8n+nFZWFZKEvEdQQtjbLxBqAK/hsCLxoiw==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
-	id 1x6MHM-0000000E5xo-4BEB;
-	Tue, 15 Sep 2026 14:04:30 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Tue, 15 Sep 2026 16:04:28 +1000
-Date: Tue, 15 Sep 2026 16:04:28 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Eric Dumazet <edumazet@google.com>
-Cc: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-	syzbot <syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com>,
-	bridge@lists.linux.dev, davem@davemloft.net, horms@kernel.org,
-	idosch@nvidia.com, kuba@kernel.org, linux-kernel@vger.kernel.org,
-	netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org,
-	steffen.klassert@secunet.com, syzkaller-bugs@googlegroups.com,
-	Thomas Graf <tgraf@suug.ch>, linux-crypto@vger.kernel.org,
-	NeilBrown <neilb@ownmail.net>, quanyeyang <quanyemostima@gmail.com>
-Subject: [PATCH] rhashtable: Use separate lockdep keys for each lock
-Message-ID: <aqjf7LNmE6InABpw@gondor.apana.org.au>
-References: <6aa5fcf6.f2639fcc.29487d.0048.GAE@google.com>
- <aqi7fpazv2KDDdvn@shinmob>
- <CANn89iJd0QnoDo0tjrFED2myec38U8joyqR05d6BVnJ-sX=NVg@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=ya.ru header.i=@ya.ru header.b="K2zCOnAU"
+Received: from forward103b.mail.yandex.net (forward103b.mail.yandex.net [IPv6:2a02:6b8:c02:900:1:45:d181:d103])
+	by forward200b.mail.yandex.net (postfix) with ESMTPS id E070284C43
+	for <bridge@lists.linux.dev>; Tue, 15 Sep 2026 11:23:25 +0300 (MSK)
+Received: from mail-nwsmtp-mxback-production-main-40.sas.yp-c.yandex.net (mail-nwsmtp-mxback-production-main-40.sas.yp-c.yandex.net [IPv6:2a02:6b8:c1e:4911:0:640:4f4:0])
+	by forward103b.mail.yandex.net (postfix) with ESMTPS id 49B7DC007E;
+	Tue, 15 Sep 2026 11:23:18 +0300 (MSK)
+Received: from mail.yandex.ru (2a02:6b8:c24:1726:0:640:f778:0 [2a02:6b8:c24:1726:0:640:f778:0])
+	by mail-nwsmtp-mxback-production-main-40.sas.yp-c.yandex.net (mxback) with HTTPS id ENPo3J0xkmI0-6V9IxMWg;
+	Tue, 15 Sep 2026 11:23:17 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ya.ru; s=mail;
+	t=1789460597; bh=T8pfusannTcyvHRvaFJ/4uYqL4WOXDp4p0rDFOjPFd0=;
+	h=Message-Id:Date:Subject:To:From;
+	b=K2zCOnAU/DDWnGFyoGJHwXF3t5F3HVdWWK9x54Dt4RkMsPFefQ5smogAg3uN4PLi/
+	 k8tQbB7VytaDaTRZUKbZ9DXmIyrIhOrAU7jxyfeI8cVduZCOOzl4TFy/3FFqP3sxEj
+	 GQ9UPxcp7gks5JGdCxOSTRJjnHFUCHaTVNjsKZUA=
+Authentication-Results: mail-nwsmtp-mxback-production-main-40.sas.yp-c.yandex.net; dkim=pass header.i=@ya.ru
+Received: by mail-sendbernar-production-main-35.sas.yp-c.yandex.net (sendbernar) with HTTPS id eb480002f35d61b4fd5b45c77bc63bba;
+	Tue, 15 Sep 2026 11:23:17 +0300
+From: =?utf-8?B?0JDQu9C10LrRgdC10Lk=?= <ioctl@ya.ru>
+To: razor@blackwall.org,
+	idosch@nvidia.com,
+	bridge@lists.linux.dev
+Subject: [PATCH bridge] Allow MSTI 0 state setting the same way as non-zero MSTI
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CANn89iJd0QnoDo0tjrFED2myec38U8joyqR05d6BVnJ-sX=NVg@mail.gmail.com>
+X-Mailer: Yamail [ http://yandex.ru ] 5.0
+Date: Tue, 15 Sep 2026 11:23:17 +0300
+Message-Id: <4150481789460597@ddf99c15-6b70-4f37-97c6-5b57e045b15b>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 
-On Mon, Sep 14, 2026 at 09:06:49PM -0700, Eric Dumazet wrote:
->
-> Try to revert 4333ab90aaae ("rhashtable: use private lockdep class for
-> all locks.")
+Hello!
 
-Yes this is indeed buggy.  I know nothing about lockdep but Gemini
-reckons that it should use separate keys instead of different
-depths which seems fair enough:
+For now kernel rejects setting MSTI 0 instance state in the same way as another instances.
+I.e. any non-zero instance state can be set with the following command:
+# bridge mst set dev <dev> msti <instance> state <state>
 
----8<---
-Use separate lockdep keys for the different types of locks in
-rhashtable (mutex, spin lock, and bucket locks).  They are
-separate and not normally nested with respect to each other.
+While MST 0 instance state cannot be set in the same way and requires another command:
+# bridge link set dev <dev> state <state>
 
-Also move the rhashtable_init/rhltable_init kdoc to the header
-file as that's where the macros are defined.
+This look a little bit inconsistent.
+The following change fixes it:
 
-Fixes: 4333ab90aaae ("rhashtable: use private lockdep class for all locks.")
-Reported-by: syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com
-Assisted-by: Gemini:gemini-3.6-flash
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+Allow setting the MSTI 0 state the same way as non-zero MSTI. 
 
-diff --git a/include/linux/rhashtable-types.h b/include/linux/rhashtable-types.h
-index 0e1b172a4f6c..afbc12ba71f5 100644
---- a/include/linux/rhashtable-types.h
-+++ b/include/linux/rhashtable-types.h
-@@ -70,6 +70,14 @@ struct rhashtable_params {
- 	rht_obj_cmpfn_t		obj_cmpfn;
- };
+Signed-off-by: Aleksey S. Kazantsev <ioctl@yandex.ru>
+
+diff --git a/net/bridge/br_mst.c b/net/bridge/br_mst.c
+index 43a300ae6bfa..852e21b88c69 100644
+--- a/net/bridge/br_mst.c
++++ b/net/bridge/br_mst.c
+@@ -112,14 +112,12 @@ int br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
+        if (!vg)
+                goto out;
  
-+struct rhashtable_lockdep_keys {
-+#ifdef CONFIG_LOCKDEP
-+	struct lock_class_key lock_key;
-+	struct lock_class_key mutex_key;
-+	struct lock_class_key bucket_key;
-+#endif
-+};
-+
- /**
-  * struct rhashtable - Hash table handle
-  * @tbl: Bucket table
-@@ -141,24 +149,77 @@ struct rhashtable_iter {
+-       /* MSTI 0 (CST) state changes are notified via the regular
++       /* MSTI 0 (CST) state changes are also can be notified via the regular
+         * SWITCHDEV_ATTR_ID_PORT_STP_STATE.
+         */
+-       if (msti) {
+-               err = switchdev_port_attr_set(p->dev, &attr, extack);
+-               if (err && err != -EOPNOTSUPP)
+-                       goto out;
+-       }
++       err = switchdev_port_attr_set(p->dev, &attr, extack);
++       if (err && err != -EOPNOTSUPP)
++               goto out;
  
- int __rhashtable_init_noprof(struct rhashtable *ht,
- 		    const struct rhashtable_params *params,
--		    struct lock_class_key *key);
-+		    struct rhashtable_lockdep_keys *keys);
- #define rhashtable_init_noprof(ht, params)				\
- ({									\
--	static struct lock_class_key __key;				\
-+	static struct rhashtable_lockdep_keys __keys;			\
- 									\
--	__rhashtable_init_noprof(ht, params, &__key);			\
-+	__rhashtable_init_noprof(ht, params, &__keys);			\
- })
-+
-+/**
-+ * rhashtable_init - initialize a new hash table
-+ * @ht:		hash table to be initialized
-+ * @params:	configuration parameters
-+ *
-+ * Initializes a new hash table based on the provided configuration
-+ * parameters. A table can be configured either with a variable or
-+ * fixed length key:
-+ *
-+ * Configuration Example 1: Fixed length keys
-+ * struct test_obj {
-+ *	int			key;
-+ *	void *			my_member;
-+ *	struct rhash_head	node;
-+ * };
-+ *
-+ * struct rhashtable_params params = {
-+ *	.head_offset = offsetof(struct test_obj, node),
-+ *	.key_offset = offsetof(struct test_obj, key),
-+ *	.key_len = sizeof(int),
-+ *	.hashfn = jhash,
-+ * };
-+ *
-+ * Configuration Example 2: Variable length keys
-+ * struct test_obj {
-+ *	[...]
-+ *	struct rhash_head	node;
-+ * };
-+ *
-+ * u32 my_hash_fn(const void *data, u32 len, u32 seed)
-+ * {
-+ *	struct test_obj *obj = data;
-+ *
-+ *	return [... hash ...];
-+ * }
-+ *
-+ * struct rhashtable_params params = {
-+ *	.head_offset = offsetof(struct test_obj, node),
-+ *	.hashfn = jhash,
-+ *	.obj_hashfn = my_hash_fn,
-+ * };
-+ */
- #define rhashtable_init(...)	alloc_hooks(rhashtable_init_noprof(__VA_ARGS__))
+        err = 0;
+        list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
+@@ -294,7 +292,7 @@ int br_mst_fill_info(struct sk_buff *skb,
  
- int __rhltable_init_noprof(struct rhltable *hlt,
- 		  const struct rhashtable_params *params,
--		  struct lock_class_key *key);
-+		  struct rhashtable_lockdep_keys *keys);
- #define rhltable_init_noprof(hlt, params)				\
- ({									\
--	static struct lock_class_key __key;				\
-+	static struct rhashtable_lockdep_keys __keys;			\
- 									\
--	__rhltable_init_noprof(hlt, params, &__key);			\
-+	__rhltable_init_noprof(hlt, params, &__keys);			\
- })
-+
-+/**
-+ * rhltable_init - initialize a new hash list table
-+ * @hlt:	hash list table to be initialized
-+ * @params:	configuration parameters
-+ *
-+ * Initializes a new hash list table.
-+ *
-+ * See documentation for rhashtable_init.
-+ */
- #define rhltable_init(...)	alloc_hooks(rhltable_init_noprof(__VA_ARGS__))
- 
- #endif /* _LINUX_RHASHTABLE_TYPES_H */
-diff --git a/include/linux/rhashtable.h b/include/linux/rhashtable.h
-index 6c5e6d9accba..ec853c1b9af3 100644
---- a/include/linux/rhashtable.h
-+++ b/include/linux/rhashtable.h
-@@ -328,8 +328,7 @@ static inline unsigned long rht_lock_nested(struct bucket_table *tbl,
- 
- 	local_irq_save(flags);
- 	bit_spin_lock(0, (unsigned long *)bucket);
--	/* subclass 0 is used for ->lock and 1 for ->mutex. 2+ for bitlocks */
--	lock_acquire_exclusive(&tbl->dep_map, subclass+2, 0, NULL, _THIS_IP_);
-+	lock_acquire_exclusive(&tbl->dep_map, subclass, 0, NULL, _THIS_IP_);
- 	return flags;
- }
- 
-diff --git a/lib/rhashtable.c b/lib/rhashtable.c
-index 5da0e53a8d42..918f15a2ac69 100644
---- a/lib/rhashtable.c
-+++ b/lib/rhashtable.c
-@@ -432,7 +432,7 @@ static void rht_deferred_worker(struct work_struct *work)
- 	int err = 0;
- 
- 	ht = container_of(work, struct rhashtable, run_work);
--	mutex_lock_nested(&ht->mutex, 1);
-+	mutex_lock(&ht->mutex);
- 
- 	tbl = rht_dereference(ht->tbl, ht);
- 	tbl = rhashtable_last_table(ht, tbl);
-@@ -1122,51 +1122,9 @@ static u32 rhashtable_jhash2(const void *key, u32 length, u32 seed)
- 	return jhash2(key, length, seed);
- }
- 
--/**
-- * rhashtable_init - initialize a new hash table
-- * @ht:		hash table to be initialized
-- * @params:	configuration parameters
-- *
-- * Initializes a new hash table based on the provided configuration
-- * parameters. A table can be configured either with a variable or
-- * fixed length key:
-- *
-- * Configuration Example 1: Fixed length keys
-- * struct test_obj {
-- *	int			key;
-- *	void *			my_member;
-- *	struct rhash_head	node;
-- * };
-- *
-- * struct rhashtable_params params = {
-- *	.head_offset = offsetof(struct test_obj, node),
-- *	.key_offset = offsetof(struct test_obj, key),
-- *	.key_len = sizeof(int),
-- *	.hashfn = jhash,
-- * };
-- *
-- * Configuration Example 2: Variable length keys
-- * struct test_obj {
-- *	[...]
-- *	struct rhash_head	node;
-- * };
-- *
-- * u32 my_hash_fn(const void *data, u32 len, u32 seed)
-- * {
-- *	struct test_obj *obj = data;
-- *
-- *	return [... hash ...];
-- * }
-- *
-- * struct rhashtable_params params = {
-- *	.head_offset = offsetof(struct test_obj, node),
-- *	.hashfn = jhash,
-- *	.obj_hashfn = my_hash_fn,
-- * };
-- */
- int __rhashtable_init_noprof(struct rhashtable *ht,
--		    const struct rhashtable_params *params,
--		    struct lock_class_key *key)
-+			     const struct rhashtable_params *params,
-+			     struct rhashtable_lockdep_keys *keys)
- {
- 	struct bucket_table *tbl;
- 	size_t size;
-@@ -1176,13 +1134,11 @@ int __rhashtable_init_noprof(struct rhashtable *ht,
- 		return -EINVAL;
- 
- 	memset(ht, 0, sizeof(*ht));
--	/* mutex_lock must use nesting level 1 */
--	mutex_init_with_key(&ht->mutex, key);
-+	mutex_init_with_key(&ht->mutex, &keys->mutex_key);
- 	spin_lock_init(&ht->lock);
--	/* spin_lock can use nesting level 0 */
--	lockdep_set_class(&ht->lock, key);
-+	lockdep_set_class(&ht->lock, &keys->lock_key);
- #ifdef CONFIG_LOCKDEP
--	ht->lockdep_key = key;
-+	ht->lockdep_key = &keys->bucket_key;
- #endif
- 	memcpy(&ht->p, params, sizeof(*params));
- 
-@@ -1236,22 +1192,13 @@ int __rhashtable_init_noprof(struct rhashtable *ht,
- }
- EXPORT_SYMBOL_GPL(__rhashtable_init_noprof);
- 
--/**
-- * rhltable_init - initialize a new hash list table
-- * @hlt:	hash list table to be initialized
-- * @params:	configuration parameters
-- *
-- * Initializes a new hash list table.
-- *
-- * See documentation for rhashtable_init.
-- */
- int __rhltable_init_noprof(struct rhltable *hlt,
- 			   const struct rhashtable_params *params,
--			   struct lock_class_key *key)
-+			   struct rhashtable_lockdep_keys *keys)
- {
- 	int err;
- 
--	err = __rhashtable_init_noprof(&hlt->ht, params, key);
-+	err = __rhashtable_init_noprof(&hlt->ht, params, keys);
- 	hlt->ht.rhlist = true;
- 	return err;
- }
-diff --git a/lib/test_rhashtable.c b/lib/test_rhashtable.c
-index 85a615e74591..b767a38a74f9 100644
---- a/lib/test_rhashtable.c
-+++ b/lib/test_rhashtable.c
-@@ -477,7 +477,7 @@ static unsigned int __init print_ht(struct rhltable *rhlt)
- 
- 	ht = &rhlt->ht;
- 	/* Take the mutex to avoid RCU warning */
--	mutex_lock_nested(&ht->mutex, 1);
-+	mutex_lock(&ht->mutex);
- 	tbl = rht_dereference(ht->tbl, ht);
- 	for (i = 0; i < tbl->size; i++) {
- 		struct rhash_head *pos, *next;
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+ static const struct nla_policy br_mst_nl_policy[IFLA_BRIDGE_MST_ENTRY_MAX + 1] = {
+        [IFLA_BRIDGE_MST_ENTRY_MSTI] = NLA_POLICY_RANGE(NLA_U16,
+-                                                  1, /* 0 reserved for CST */
++                                                  0,
+                                                   VLAN_N_VID - 1),
+        [IFLA_BRIDGE_MST_ENTRY_STATE] = NLA_POLICY_RANGE(NLA_U8,
+                                                    BR_STATE_DISABLED,
+--
+
+Aleksey Kazantsev
