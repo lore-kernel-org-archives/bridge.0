@@ -1,382 +1,166 @@
-Received: from fout-a5-smtp.messagingengine.com (fout-a5-smtp.messagingengine.com [103.168.172.148])
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B99139A078
-	for <bridge@lists.linux.dev>; Tue, 15 Sep 2026 21:06:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B116B342538;
+	Wed, 16 Sep 2026 00:41:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789506394; cv=none; b=Q4b/06IvXNFNH4XF7uYWcya7J7/gAN83TNTGRpntZ3tNmGtJ9/TjZ4yo2gwka6aYseZY/sZ4ebx1X7ToFfy5mYWeiMRpGTjuj6RAWCYs0sYBT/DDr9i0RtRZXzbJ1Fzson29w2kpacM+PkMzXWhtTGxlVfPEPqTWJZNR2Q2+48A=
+	t=1789519270; cv=none; b=dUY0FdVr0exrJEzroe7SUjafV7yxgyq4cojbwdJhxhwpDYNhT6/tZDIfCeW1EZ9KpHzn+UWcAoF1aT4LIikTLyOcZOlZ2RSM9V2ITBrf5SU4MwtaDUPgR+17DZMeAB26R9hFvkPA0PJeSCTTXM2u6OF6fdCc1wq8fgtjMWuXsxA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789506394; c=relaxed/simple;
-	bh=g3K+lfhUgnaE/mezC2FggeKY+3skAs7DftoJWFLXh1w=;
-	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
-	 References:Date:Message-id; b=mygNQOIqWohZAw8wLDOHCm8AywujtgQoDLcxh/RTDtVASargxMkDPF6GmBLuEeJoQVqnmPFm6zD3/WBiICm6E2d2tyTOXC8xPv0YnJr7tnCH2FbdOLWdnu24+VXY2aJ+5mij32yq2QiMqkLDgEIb5iOB5A3s69A8m2luIDWHPqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net; spf=pass smtp.mailfrom=ownmail.net; dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b=CgGIkxKc; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=abZOEX13; arc=none smtp.client-ip=103.168.172.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ownmail.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ownmail.net
+	s=arc-20240116; t=1789519270; c=relaxed/simple;
+	bh=PiYQJkAGkuJBIyzKHKtgcR6WQgdtYuoTQCzilchGnWs=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=t7H5uJX4wCQHoxL/0fZS3oKhXLd5fBMXQJ2HGsYsaMFBOmrif/3xEGFfxUzZ7o7ign6+boHVuURfhPUAB7pcmo1P0t1mIRnDMmMZHF5g8cyV2HKanlppZV8BhBeZ3yoGp5Of4KfGFnBYTD+yCRPh6ZgV6kulCosOcuUv5KRU0uY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=sOZbLu5e; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ownmail.net header.i=@ownmail.net header.b="CgGIkxKc";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="abZOEX13"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id 17D99EC0E47;
-	Tue, 15 Sep 2026 17:06:27 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Tue, 15 Sep 2026 17:06:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ownmail.net; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to; s=fm1; t=
-	1789506387; x=1789592787; bh=pSGhn5yb2ykQHa2+aS4x0aFSjk4p7/mwMgu
-	lDmeHEfI=; b=CgGIkxKcPckL2520PVEYtzWYJetiw5vFeYlNNv2vp5Mfb22pxYH
-	Z3AeutYDYz64s+5TK1RqBcmA7RbBREX8wPxvh0584SPPYew3QgpjBlPo2/dhmZgT
-	mTBOasxxH9hAwXvde0rydO48NfddKivQLtx56ZwL7Iz1gXzFRod4tNozprjoXIGo
-	9mpXIvxQ3cO/HdQb/TETSh+JQKks6rL1i/18pQOl6vJn2eWcICSZ56wTx5PQKJBF
-	HC+XLRRzPVok8DzJEs2ARwLoBKwD16bUKgD8449V/5qSKZHxdhMwpg2s0KWpXyJ4
-	7Ce0hxV9e+jfjB7/VGOZBkK6nB0WQB9xJwQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789506387; x=
-	1789592787; bh=pSGhn5yb2ykQHa2+aS4x0aFSjk4p7/mwMgulDmeHEfI=; b=a
-	bZOEX13veVaxfTH9bLCCccEDlmcfsW+SWN7V0AGCUl/u0pgbbhYhgWYCS6fmUYHq
-	oC7hUo+tUXrM7xhiwtXRGCwujKPeYxNOt27vlaDZ+9URcD/CQ/A2RuM7B+Y9DmRK
-	YLaq853LOAnvCGxb3570NqstfkkmXTHeov9gt2Xbvf4SxpSNz3s5uMlNzVL2YP0O
-	zWlwcLEltPsbZcpPLa2iMTXaPou7GaPNmZdwFmgfL8Wa+CVf8/l4th6cas1euomi
-	sLSCZfnlGTEl6f3K4pUqzTW9vUDLEbOU2P4AbGhMoquTQ/3AuO8vrODQ5bOfKuXg
-	3GmqEOFube8t0WXZA5Bxw==
-X-ME-Sender: <xms:UbOparFGbSXihTaj0SLZ6yYMKW7RA2xkA36-P3YSOKl-itdh0OZAMg>
-    <xme:UbOpavR8GdsKOZsh3fxLA59J8vYUUrFCKR6qbyM8laze54yY7_wUQSg3NscupXVBk
-    7yd9yaFSm1ulNvNjniFNf7lQC5aYVsCztGgeLN_itTbOhWwkQ>
-X-ME-Received: <xmr:UbOpaiO-_KpZOlsKebvR0-rsMkr2DNIRjVhVaoZ293TZj5QbzEcYhTKY_s2fyWbpmg>
-X-ME-Proxy-Cause: dmFkZTGla0jEqEOCi/nzNPCoo0ScIh2JaZoq/4ebKgNohM8wDfdyIavrkNjshsND0P8tAs
-    YhtJcgxY8ykXaMgTLV/PAPKJBCPJIZajcIR5EweJMqjOb2vZSnR4CeIgVRzxWmJX/xFJn7
-    1a4tUOzgCBFodCqSJZaKfGFB6cgCAYzxBzIwS63QgFT6wWVOBcy9MDzMapV05p1KdzDuei
-    j95DMmwaNUq7OLYkcjLYuUzH5HXYPbN7fSaJSeC8pvuikyYJkizg+ZIgbsAxuNyEKs8hFp
-    WBrrz0c1CjdAGYnAIwfX5V7HPHVKo17fBEA3/JW5/KyDlNhLH7gvRkzZhrP1FhlvukvsqI
-    ZJr5IQgxcnkpH6PeJTjjIg0oXlGXXkgjB13qbSnrrgppM61DAq1jmz15SmDbdLzhSILo6G
-    32KR8G+HesNpe+GCrZb8WvmDpiXfpJ2kv4NUy+SdqWyAhWsYNrVN7m9KyrJWkiTLSp4xCe
-    cKTabAmHjfZmAKKJRR44NmeaSKN4MlpmYoGYRFbJR44ZIC+5rVQDqWFOoEvA4/Wzqa4oNn
-    sYDwXvRPqdHIhqFKIZNR3bIrvTS/IBtFf75SfzaHkirF4Thyhe7ujZ7RBdXkwtXUghdgqC
-    VZMXofDt33LkpijoWqrkvU0sk2xgnbY295PQnKCGfdY8d4uQ7Q5c/BeGAsRA
-X-ME-Proxy: <xmx:UbOpagOfaqcQ-p9_U2E_Bv59vZp6XZHuDujeIgGZbIFCODBdt4HLXQ>
-    <xmx:UbOpasFaZV5WbjePIApkS6hC5XK4LZl1rpuQ7wEXrmZzV2qYR5m1ow>
-    <xmx:UbOpaqPhbsXQPsPmLDVCFXjBp5nxyOsYRA2_Qmtx1-sSRITQWLnneA>
-    <xmx:UbOpauvMfj7bSQ-vW5v9T23uRHHxzrYkPZPPp4oc6yipNh9Lgz-XHA>
-    <xmx:U7OpalEEvf1Cb9epx-tleNX3emopc13DaR9ZdGM8ccS9zbAaf7Y8qtDp>
-Feedback-ID: i9d664b8f:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 15 Sep 2026 17:06:20 -0400 (EDT)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="sOZbLu5e"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
+	:From:Date:MIME-Version:From:Reply-To;
+	bh=NheJufshGj64fhQKNC2c1j1k0ck6W8lDGbWhTay9uUc=; b=sOZbLu5ewE2w8rWxU4D/CswcOx
+	vscT/TR8V1ChxhajcNhxsAxXX1GdIm1/RSRx7ubFcr0dhqE/e/Aer1+4AVYBL2AlOv1C4Q4APfSgV
+	bRUb14/0B5DwqRLMIYou200gkuWYkYtB9Mb8rQ6eSfBtDTDYS7QqI4UH9SzM8KxR8GhZrq7sMc/Bd
+	DSCwoISx0sN0zEwd5oiMfAhueKhCXJO8CRKnmS91PYW62IzBRAnIGt97wWKyLxiNvisbUFbYC3vBs
+	gLqbtDk2oQLAcdruS5xD7b4sKxqWd7Y/XGluJ1o57LoXxm07Kd4Y5Oari8tZ2vtnzM3eg77XVBp+Z
+	mnfwUndg==;
+Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
+	by fanzine2.igalia.com with esmtps 
+	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1x6dhc-002hgB-1A; Wed, 16 Sep 2026 02:40:43 +0200
+Received: from webmail.service.igalia.com ([192.168.21.45])
+	by mail.igalia.com with esmtp (Exim)
+	id 1x6dha-0087zL-Kq; Wed, 16 Sep 2026 02:40:43 +0200
+Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
+	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
+	(envelope-from <mfo@igalia.com>)
+	id 1x6dha-00000002ADJ-2w79;
+	Wed, 16 Sep 2026 02:40:42 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: NeilBrown <neilb@ownmail.net>
-To: "Herbert Xu" <herbert@gondor.apana.org.au>
-Cc: "Eric Dumazet" <edumazet@google.com>,
- "Shin'ichiro Kawasaki" <shinichiro.kawasaki@wdc.com>,
- "syzbot" <syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com>,
- bridge@lists.linux.dev, davem@davemloft.net, horms@kernel.org,
- idosch@nvidia.com, kuba@kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, pabeni@redhat.com, razor@blackwall.org,
- steffen.klassert@secunet.com, syzkaller-bugs@googlegroups.com,
- "Thomas Graf" <tgraf@suug.ch>, linux-crypto@vger.kernel.org,
- "quanyeyang" <quanyemostima@gmail.com>
-Subject: Re: [PATCH] rhashtable: Use separate lockdep keys for each lock
-In-reply-to: <aqjf7LNmE6InABpw@gondor.apana.org.au>
-References: <6aa5fcf6.f2639fcc.29487d.0048.GAE@google.com>
-  <aqi7fpazv2KDDdvn@shinmob>
-  <CANn89iJd0QnoDo0tjrFED2myec38U8joyqR05d6BVnJ-sX=NVg@mail.gmail.com>
-  <aqjf7LNmE6InABpw@gondor.apana.org.au>
-Date: Wed, 16 Sep 2026 07:06:16 +1000
-Message-id: <178950637640.207413.1725604371084195628@noble.neil.brown.name>
-Reply-To: NeilBrown <neil@brown.name>
+Date: Tue, 15 Sep 2026 21:40:42 -0300
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>,
+ Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ kernel-dev@igalia.com, linux-riscv@lists.infradead.org,
+ linux-kernel@vger.kernel.org, fsverity@lists.linux.dev,
+ keyrings@vger.kernel.org, bpf@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+ netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
+ lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, linux-sctp@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
+In-Reply-To: <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
+ <53155340c897560bfc67e61ba9568fd6@igalia.com>
+ <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
+ <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
+ <rywhz6soawf5dzyui5g7dnbufsgpxr7ma7honuhejwgncemzrm@f32at7hl6ugm>
+ <6e93af907298022f077126f1be7bd386@igalia.com>
+ <uufwu7rqyxf7h55lgavcwrnylnq5gdbd7o5d7mfugrxpblds2d@adra5c2z22gg>
+Message-ID: <cdc75421500371a8839fe5347af5c103@igalia.com>
+X-Sender: mfo@igalia.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
+X-Spam-Score: -20
+X-Spam-Bar: --
 
-On Tue, 15 Sep 2026, Herbert Xu wrote:
-> On Mon, Sep 14, 2026 at 09:06:49PM -0700, Eric Dumazet wrote:
-> >
-> > Try to revert 4333ab90aaae ("rhashtable: use private lockdep class for
-> > all locks.")
->=20
-> Yes this is indeed buggy.  I know nothing about lockdep but Gemini
-> reckons that it should use separate keys instead of different
-> depths which seems fair enough:
->=20
-> ---8<---
-> Use separate lockdep keys for the different types of locks in
-> rhashtable (mutex, spin lock, and bucket locks).  They are
-> separate and not normally nested with respect to each other.
->=20
-> Also move the rhashtable_init/rhltable_init kdoc to the header
-> file as that's where the macros are defined.
->=20
-> Fixes: 4333ab90aaae ("rhashtable: use private lockdep class for all locks.")
-> Reported-by: syzbot+4d0e4d2db6dfde01b52f@syzkaller.appspotmail.com
-> Assisted-by: Gemini:gemini-3.6-flash
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+On 2026-09-10 04:29, Joel Granados wrote:
+> On Wed, Sep 09, 2026 at 02:29:30PM -0300, Mauricio Faria de Oliveira wrote:
+>> On 2026-09-09 11:07, Joel Granados wrote:
+>> > On Fri, Sep 04, 2026 at 02:45:23PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> On 2026-09-04 10:41, Joel Granados wrote:
+>> >> > On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> >> On 2026-08-20 09:51, Joel Granados wrote:
+>> >> >> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> >> >> This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
+>> > <... snip ...>
+>> >> > use the correct call moving forward?
+>> >>
+>> >> This scheme currently covers all modules, AFAIK, as it is wrapped in the
+>> >> functions that register sysctl tables.
+>> >>
+>> >> On moving forward: usage of such functions in a way that breaks a
+>> >> requirement of this series (e.g., failing to specify the template
+>> >> table/path parameter(s), or not having constant initializers) hits a
+>> >> build error, as the requirements are actually from the compiler.
+>> >>
+>> >> >> I guess that a different design could use MODULE_SYSCTL_TABLE() as
+>> >> >> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
+>> >> >> register sysctl functions.
+>> >> >> However, it seems to require moving the value of the path argument (or
+>> >> >> its template) into the macro and still referencing it in the function
+>> >> >> (or its instantiation of the template), which adds obfuscation, to all
+>> >> >> callers.
+>> >> >>
+>> >> >> What do you think?
+>> >> > It might be that having it inside the module subsys is more work, but I
+>> >> > believe that there is the right place to have it. I still don't see that
+>> >> > adding a module specific arg to the sysctl register is a good thing.
+>> >>
+>> >> Ok, cool. I can work on a different design.
+>> >>
+>> >> Please just let me know whether you are OK with the remaining (above),
+>> >> and I'll be happy to tackle this.
+>> >
+>> > What is "the remaining"?
+>> 
+>> I meant the rest of the email, addressing the points/questions you
+>> raised.
+> 
+> * The dependency on a sysctl path to load a module still is
+>   backwards to me. It should be: I need feature A, I load modules
+>   M{1,2,3} for A and I set sysctl S{1,2,3...}. Not sure why sysctl tools
+>   do it the other way around.
 
-That's a much better approach - thanks for that.
+Right, but note:
+- the feature may, or may not, be built as a module (unknown to sysctl
+tool).
+- there is no simple way to identify which module provides a sysctl,
+today.
 
-Reviewed-by: NeilBrown <neil@brown.name>
+Let's compare this with device-id module aliases: userspace doesn't know
+whether a driver is built-in or a module, but it can load the module, if
+any, based on the device-id, not the module name.
 
-Thanks,
-NeilBrown
+> * The fact that the invariance is in the sysctl path and not the module
+>   identifier maybe points to a deeper issue.
 
+It does seem that the invariance in the sysctl path is correct, as that
+doesn't change with the variable of whether the code is built-in or a
+module.
 
->=20
-> diff --git a/include/linux/rhashtable-types.h b/include/linux/rhashtable-ty=
-pes.h
-> index 0e1b172a4f6c..afbc12ba71f5 100644
-> --- a/include/linux/rhashtable-types.h
-> +++ b/include/linux/rhashtable-types.h
-> @@ -70,6 +70,14 @@ struct rhashtable_params {
->  	rht_obj_cmpfn_t		obj_cmpfn;
->  };
-> =20
-> +struct rhashtable_lockdep_keys {
-> +#ifdef CONFIG_LOCKDEP
-> +	struct lock_class_key lock_key;
-> +	struct lock_class_key mutex_key;
-> +	struct lock_class_key bucket_key;
-> +#endif
-> +};
-> +
->  /**
->   * struct rhashtable - Hash table handle
->   * @tbl: Bucket table
-> @@ -141,24 +149,77 @@ struct rhashtable_iter {
-> =20
->  int __rhashtable_init_noprof(struct rhashtable *ht,
->  		    const struct rhashtable_params *params,
-> -		    struct lock_class_key *key);
-> +		    struct rhashtable_lockdep_keys *keys);
->  #define rhashtable_init_noprof(ht, params)				\
->  ({									\
-> -	static struct lock_class_key __key;				\
-> +	static struct rhashtable_lockdep_keys __keys;			\
->  									\
-> -	__rhashtable_init_noprof(ht, params, &__key);			\
-> +	__rhashtable_init_noprof(ht, params, &__keys);			\
->  })
-> +
-> +/**
-> + * rhashtable_init - initialize a new hash table
-> + * @ht:		hash table to be initialized
-> + * @params:	configuration parameters
-> + *
-> + * Initializes a new hash table based on the provided configuration
-> + * parameters. A table can be configured either with a variable or
-> + * fixed length key:
-> + *
-> + * Configuration Example 1: Fixed length keys
-> + * struct test_obj {
-> + *	int			key;
-> + *	void *			my_member;
-> + *	struct rhash_head	node;
-> + * };
-> + *
-> + * struct rhashtable_params params =3D {
-> + *	.head_offset =3D offsetof(struct test_obj, node),
-> + *	.key_offset =3D offsetof(struct test_obj, key),
-> + *	.key_len =3D sizeof(int),
-> + *	.hashfn =3D jhash,
-> + * };
-> + *
-> + * Configuration Example 2: Variable length keys
-> + * struct test_obj {
-> + *	[...]
-> + *	struct rhash_head	node;
-> + * };
-> + *
-> + * u32 my_hash_fn(const void *data, u32 len, u32 seed)
-> + * {
-> + *	struct test_obj *obj =3D data;
-> + *
-> + *	return [... hash ...];
-> + * }
-> + *
-> + * struct rhashtable_params params =3D {
-> + *	.head_offset =3D offsetof(struct test_obj, node),
-> + *	.hashfn =3D jhash,
-> + *	.obj_hashfn =3D my_hash_fn,
-> + * };
-> + */
->  #define rhashtable_init(...)	alloc_hooks(rhashtable_init_noprof(__VA_ARGS_=
-_))
-> =20
->  int __rhltable_init_noprof(struct rhltable *hlt,
->  		  const struct rhashtable_params *params,
-> -		  struct lock_class_key *key);
-> +		  struct rhashtable_lockdep_keys *keys);
->  #define rhltable_init_noprof(hlt, params)				\
->  ({									\
-> -	static struct lock_class_key __key;				\
-> +	static struct rhashtable_lockdep_keys __keys;			\
->  									\
-> -	__rhltable_init_noprof(hlt, params, &__key);			\
-> +	__rhltable_init_noprof(hlt, params, &__keys);			\
->  })
-> +
-> +/**
-> + * rhltable_init - initialize a new hash list table
-> + * @hlt:	hash list table to be initialized
-> + * @params:	configuration parameters
-> + *
-> + * Initializes a new hash list table.
-> + *
-> + * See documentation for rhashtable_init.
-> + */
->  #define rhltable_init(...)	alloc_hooks(rhltable_init_noprof(__VA_ARGS__))
-> =20
->  #endif /* _LINUX_RHASHTABLE_TYPES_H */
-> diff --git a/include/linux/rhashtable.h b/include/linux/rhashtable.h
-> index 6c5e6d9accba..ec853c1b9af3 100644
-> --- a/include/linux/rhashtable.h
-> +++ b/include/linux/rhashtable.h
-> @@ -328,8 +328,7 @@ static inline unsigned long rht_lock_nested(struct buck=
-et_table *tbl,
-> =20
->  	local_irq_save(flags);
->  	bit_spin_lock(0, (unsigned long *)bucket);
-> -	/* subclass 0 is used for ->lock and 1 for ->mutex. 2+ for bitlocks */
-> -	lock_acquire_exclusive(&tbl->dep_map, subclass+2, 0, NULL, _THIS_IP_);
-> +	lock_acquire_exclusive(&tbl->dep_map, subclass, 0, NULL, _THIS_IP_);
->  	return flags;
->  }
-> =20
-> diff --git a/lib/rhashtable.c b/lib/rhashtable.c
-> index 5da0e53a8d42..918f15a2ac69 100644
-> --- a/lib/rhashtable.c
-> +++ b/lib/rhashtable.c
-> @@ -432,7 +432,7 @@ static void rht_deferred_worker(struct work_struct *wor=
-k)
->  	int err =3D 0;
-> =20
->  	ht =3D container_of(work, struct rhashtable, run_work);
-> -	mutex_lock_nested(&ht->mutex, 1);
-> +	mutex_lock(&ht->mutex);
-> =20
->  	tbl =3D rht_dereference(ht->tbl, ht);
->  	tbl =3D rhashtable_last_table(ht, tbl);
-> @@ -1122,51 +1122,9 @@ static u32 rhashtable_jhash2(const void *key, u32 le=
-ngth, u32 seed)
->  	return jhash2(key, length, seed);
->  }
-> =20
-> -/**
-> - * rhashtable_init - initialize a new hash table
-> - * @ht:		hash table to be initialized
-> - * @params:	configuration parameters
-> - *
-> - * Initializes a new hash table based on the provided configuration
-> - * parameters. A table can be configured either with a variable or
-> - * fixed length key:
-> - *
-> - * Configuration Example 1: Fixed length keys
-> - * struct test_obj {
-> - *	int			key;
-> - *	void *			my_member;
-> - *	struct rhash_head	node;
-> - * };
-> - *
-> - * struct rhashtable_params params =3D {
-> - *	.head_offset =3D offsetof(struct test_obj, node),
-> - *	.key_offset =3D offsetof(struct test_obj, key),
-> - *	.key_len =3D sizeof(int),
-> - *	.hashfn =3D jhash,
-> - * };
-> - *
-> - * Configuration Example 2: Variable length keys
-> - * struct test_obj {
-> - *	[...]
-> - *	struct rhash_head	node;
-> - * };
-> - *
-> - * u32 my_hash_fn(const void *data, u32 len, u32 seed)
-> - * {
-> - *	struct test_obj *obj =3D data;
-> - *
-> - *	return [... hash ...];
-> - * }
-> - *
-> - * struct rhashtable_params params =3D {
-> - *	.head_offset =3D offsetof(struct test_obj, node),
-> - *	.hashfn =3D jhash,
-> - *	.obj_hashfn =3D my_hash_fn,
-> - * };
-> - */
->  int __rhashtable_init_noprof(struct rhashtable *ht,
-> -		    const struct rhashtable_params *params,
-> -		    struct lock_class_key *key)
-> +			     const struct rhashtable_params *params,
-> +			     struct rhashtable_lockdep_keys *keys)
->  {
->  	struct bucket_table *tbl;
->  	size_t size;
-> @@ -1176,13 +1134,11 @@ int __rhashtable_init_noprof(struct rhashtable *ht,
->  		return -EINVAL;
-> =20
->  	memset(ht, 0, sizeof(*ht));
-> -	/* mutex_lock must use nesting level 1 */
-> -	mutex_init_with_key(&ht->mutex, key);
-> +	mutex_init_with_key(&ht->mutex, &keys->mutex_key);
->  	spin_lock_init(&ht->lock);
-> -	/* spin_lock can use nesting level 0 */
-> -	lockdep_set_class(&ht->lock, key);
-> +	lockdep_set_class(&ht->lock, &keys->lock_key);
->  #ifdef CONFIG_LOCKDEP
-> -	ht->lockdep_key =3D key;
-> +	ht->lockdep_key =3D &keys->bucket_key;
->  #endif
->  	memcpy(&ht->p, params, sizeof(*params));
-> =20
-> @@ -1236,22 +1192,13 @@ int __rhashtable_init_noprof(struct rhashtable *ht,
->  }
->  EXPORT_SYMBOL_GPL(__rhashtable_init_noprof);
-> =20
-> -/**
-> - * rhltable_init - initialize a new hash list table
-> - * @hlt:	hash list table to be initialized
-> - * @params:	configuration parameters
-> - *
-> - * Initializes a new hash list table.
-> - *
-> - * See documentation for rhashtable_init.
-> - */
->  int __rhltable_init_noprof(struct rhltable *hlt,
->  			   const struct rhashtable_params *params,
-> -			   struct lock_class_key *key)
-> +			   struct rhashtable_lockdep_keys *keys)
->  {
->  	int err;
-> =20
-> -	err =3D __rhashtable_init_noprof(&hlt->ht, params, key);
-> +	err =3D __rhashtable_init_noprof(&hlt->ht, params, keys);
->  	hlt->ht.rhlist =3D true;
->  	return err;
->  }
-> diff --git a/lib/test_rhashtable.c b/lib/test_rhashtable.c
-> index 85a615e74591..b767a38a74f9 100644
-> --- a/lib/test_rhashtable.c
-> +++ b/lib/test_rhashtable.c
-> @@ -477,7 +477,7 @@ static unsigned int __init print_ht(struct rhltable *rh=
-lt)
-> =20
->  	ht =3D &rhlt->ht;
->  	/* Take the mutex to avoid RCU warning */
-> -	mutex_lock_nested(&ht->mutex, 1);
-> +	mutex_lock(&ht->mutex);
->  	tbl =3D rht_dereference(ht->tbl, ht);
->  	for (i =3D 0; i < tbl->size; i++) {
->  		struct rhash_head *pos, *next;
-> --=20
-> Email: Herbert Xu <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
->=20
+A similar comparison with device-id module aliases applies, IIUIC.
 
+> * I still believe that this is better placed outside the sysctl
+>   subsys as it does not cater solely to module loading.
+
+Understood; your point about a module-specific argument in sysctl
+register functions precisely confirmed that this approach is misplaced.
+
+I'll try a different design, more similar to MODULE_DEVICE_TABLE().
+Maybe the only requirement from sysctl is for struct
+ctl_table.procname's offset to be zero (for file2alias). And apparently
+something with the path string in a table declaration macro. We'll see.
+
+Thanks again for reviewing and providing constructive feedback. That's
+very appreciated.
+
+> 
+> Best
+
+-- 
+Mauricio
