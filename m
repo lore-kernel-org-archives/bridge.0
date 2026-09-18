@@ -1,64 +1,64 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D2BD3CF039
-	for <bridge@lists.linux.dev>; Fri, 18 Sep 2026 15:30:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCE115013D1
+	for <bridge@lists.linux.dev>; Fri, 18 Sep 2026 15:30:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789745405; cv=none; b=gBFuLKRcpenisi0t2vAFgWv8UmSWiNuWWAtviDp39IwrtvkvcHy8N7SLW6dydFrxbGeIJgnmMnM6PWFGibBrGIBqqWwbcu2HeBBL6QSct0wS2inTZpazbN70igqpki5TyPO7bHdBccuvtfa/VaVmkqc2/Ca+418Nu/8KdChdv9A=
+	t=1789745405; cv=none; b=UK61SjgyRER1SDV5qWND4jrcqaQMYwc2nJ6BiaSpyx+bfb439aAJryL8qx0X8F37vIox3JZD8gKh2UvbD0tfwBAZ68A8bfStnQdL5S3DcRkNR0izROiP0c7+2E4BG8cWAm3SCCBtnCriPF2iWMPrfqN5HqVx5kbzUbDiv4/R+9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789745405; c=relaxed/simple;
-	bh=wh/bHCNeZ8brFM9mHguqzK+B6LsJ1VdkUPeyNq6PVRM=;
+	bh=vPdVL81FDVg0TO4uofdiBt+hhnNdQuJHDjmcN1sb5bs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lTH/ABnnbscD799tPb1FJhN6VKzv6c29R/TiQtyUC/PVFMz2nud2xR0+X/8aIoHhwRbVjbd4l5ftEkOzQViKxoL3v/1K6p/7XMFKuryylgBFOZkhaR2Jl2VCf0M+ldoghctqF41fwfovZll7AqTYzjiWAsIniPLOY2SCGI32XB8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=e4oJBqxu; arc=none smtp.client-ip=209.85.128.51
+	 MIME-Version; b=s6uKMhqy4efvXCo33zni3EBcZA31Qi8eh1XvMY3wazwOBMuvVkG6yIvb7OMQkkQxgBhc8JK1AojBE2Ot1IRS56xn2MAQgrmdvdNH5ojirj+WRi8qJiqAv51w1r63Tp1KEX00r2y6U5TB5W5CiLpxxpM/b8w4x6HodjXr/N8idWE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=RveNDkt4; arc=none smtp.client-ip=74.125.225.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="e4oJBqxu"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4980fe6b3beso8193705e9.0
-        for <bridge@lists.linux.dev>; Fri, 18 Sep 2026 08:30:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="RveNDkt4"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912e4b11so5288225e9.3
+        for <bridge@lists.linux.dev>; Fri, 18 Sep 2026 08:30:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1789745400; x=1790350200; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1789745402; x=1790350202; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=V/mESpr7P8gp/+NUtEjgIAXHo83bjFVemJXHNz8KJSA=;
-        b=e4oJBqxuzfa4kot/mx7EVhFCjtgRQshvI/6Y3MdR0NYOZDiHYbsBcEcoRXU74VdPLp
-         wa4aIQ367YK1sbEF35X+1BwFEtGr2VuUIv4+3kaB6/gfFBPZouv2lhy8s9rivf5Ey0J7
-         w1t9KZaylorCZevMx8DYa3tvOvmFeydbuFz9yJTTwHNOC75ibpXslMVepnAQq28LD+mh
-         yADZ4TDqe6N4CT2FwXd0vD3aPY4AveyJJbA8P6ytG0XZ7Fpq1/ykAjqKNcZQFAfMpZpj
-         dQCrMh3/qqS+xnC3Eb+axWoOMzrf4oXaN93RdPD+FgZS7eplqzd13HmaEIsbfVnckboI
-         4/Dw==
+        bh=amEgsq9/x54qq2eWnuO6h/vQWTMXR2GmqJyXo88O4/k=;
+        b=RveNDkt4MoAKNXaLXPpUne1/zxEURwXWrH3G0SFdm1PHF7wcAvL6NuDmWqpssEZeNh
+         jKS3Q9dSaBaWI4zZmQVl8VV11ZCHuovEL7h40d7rEE+cyVhSi8ccBi8mPxYJdL/2VBbd
+         lHR+uu2jqi2fWmTX8J1Fqoj1seM2BRqEI61wD7+Jvu/1PDWZnVHbX4qLG6UC3LqTNjVP
+         BeLYkT6gKzssEuPrEg+j2wwUjoBQCr64ZwysSgiF5V7H//OJbZcbRLZ7J4VldmHZipEx
+         qeiTdkAbFW8V+6+s1HSYyJL3G9is7FLa8tfUHfO5PyDIftLp0S9UQF+8+7HP+YqYpo2/
+         3y+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789745400; x=1790350200;
+        d=1e100.net; s=20260707; t=1789745402; x=1790350202;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=V/mESpr7P8gp/+NUtEjgIAXHo83bjFVemJXHNz8KJSA=;
-        b=j0Ts/ppjgNCRG9LP+Hof1MCOUaiwt7bHZIce6RqRvzmbPZx6sbKgWXXfkOb/on5JwO
-         W8TvDMe2eU2NTXqQVnPYRWrEuiGi/IwlWdLkiEgS/a4T0v75a3NlkrFnsruYJFKpBlub
-         BrddTZjruzhkjWTygggmI5h7ElfRmDZe82SYFpsCSxw+nVCKPv2sF5ykbMUtTGAoZlOJ
-         /SbMQa3IEDbQpysEbA26fmWMcjom9O6kn6pcP4xQrl457wn3mfYuTt9aej265Nlbd0Lj
-         q7KqtivplbalCBUvc7jXbU3FaAKWREcDswXdB6zX53OhZWROEVKtDU3gTnWyRu4Tfcee
-         95sg==
-X-Forwarded-Encrypted: i=1; AKwUvBxjXqv/2GXwiR0+m3F4wwIpB8aW5VRMmc3Vnja/7qhc6D1OQcwCs6mcu+DhQRh042mo8IDrIfk=@lists.linux.dev
-X-Gm-Message-State: AFuF++mrqdDygQ06mrg21y7S9+0vwxdJH17vJFwToZyAremqR/U0XKYk
-	AmWRXy+eHd8MQnhu/ZAZxAB7Fc/hHyyIX9H7NwkY59CgtUzDRrvcdw0IMTiqqx3BNgA=
-X-Gm-Gg: AYBFou22xS5UkNai3inXEY3gKIbcEzuNosc8/8BNICi8g7eCxon41/5xkMiOi+9Oj8b
-	QNcb69nD+D6kGOfD3RXrcqn5ToOtCdAu9bmdHmtPJ2hEKAF9yGWrEZo61aTBB8z//9OXEW2kzgD
-	KpSe+FAmjjfznwNG/ItX3hThU1D6WtYGY8KHUjskR872vRPFdBtHcK2a7sU4SsTA6or4fh+JJpl
-	/yVELKcpSOgbn40tk9BFQFg8OlnRlK4/iCxcSsxB8ntbchu5UtPNPYMUfP8NyfeD44QSeDPR5DZ
-	RXFbDD3a4nJGg/+lcDP7oOYsZXLlXMGdLxEQdhq73Qbsp8cz4ZRcXHOqiaStWH64skk+l0GEvCD
-	hBUSi0s9/W37IkmOIrOWjjKrnXLA6nf1yDcVUj9hqBUyQsCihXvWkC59pr5Ndv49D1EuhpO9d9j
-	y7zexzVMShJKpQ+0ylGF1+OojU4mRkdjl1BvjVz1vR+KtiIgkyR2jOj0FzkNDOqAz3GN4m0dowg
-	q+UkUMh/Sf1V6QjpwxtVQ==
-X-Received: by 2002:a7b:cb46:0:b0:49e:7185:22ac with SMTP id 5b1f17b1804b1-49fbd148e69mr72188415e9.0.1789745400017;
-        Fri, 18 Sep 2026 08:30:00 -0700 (PDT)
+        bh=amEgsq9/x54qq2eWnuO6h/vQWTMXR2GmqJyXo88O4/k=;
+        b=oKZpTGPrJURM7rv3HLJA8y4GsD49e4kPTa4HQOuH8ReRdbvCCNMrUdYemLM8kUg5da
+         5X+hNWN3tB2LIB6Xes6VaudajW+BB+UAgUrT0QHKmSZI216ZLau/C0hQqsvv4qlvwP9h
+         k+p5OqjWzhipxi3eJaOo48vqScLYLawu4859J3KgHXXnoZWIr5SzqJe1MT6xOs1UFGIj
+         vRUAt+oGm2nDR1bEh8Y4du4Q/SsyGxGkhvXewfC1tB9QVZEP2kKtYojBcHixtfCvFfW5
+         w/j3Nb6iGtvmg2AxLPC8JGRpok2clN58Tr0cUeai2ZTfMswCXrvUkWQIPYvTPVKcgyCs
+         dqYw==
+X-Forwarded-Encrypted: i=1; AKwUvByCZUpkPOOvYcabrnG/90skP6hV0p6JRNCLM3wir06ATvzodKme+8Xe6ErNsOcdWlKNu9+InRs=@lists.linux.dev
+X-Gm-Message-State: AFuF++mpU/XB4scYQKGOsjx070jIdzm+bgeu48Hj5r5pIst7WF1QBJx/
+	XV1C7upbS+k8KtcwtPWlIqPs7I4WgcfLi9Pj0VVfDyYs4CVCfcjBg9YXWrinczNe2M4=
+X-Gm-Gg: AYBFou1GZFlJGoLsiJ89zSyPppLFZ0ux24WieJX30PG58tye0HixjFSKtjRidT6BsUu
+	O+0vXE/MQssyGNz2kn2/Q/mdKWDgjxIjIWfqfwSngyLWFjinfwmQXCa1OarvO/sOJF7aHVHnGsS
+	mavbbnZaESumJ1D14MSh6TP7UTiHfRhNlkvoTvd65GqCx1reECAn5spR+AiYrxb8sRQ6/6QzgHu
+	Xp9CtPRJO2ZrcviOHAF2Wf8zjScK5yVvKPgRPBPEo7ktxmG1cVQ2iYwAltEbgrCDX/EVZgJX4j/
+	666dK1cnBxh7xFZT44BhS+QXGdsTPFIYjl94xHlqO+CSPzK20hDJUqQ82+xja5XYEego9bZt56Q
+	u3LpktnVh3JcFM2AIkd0p4JzOwHVAgdldjz/ROpZCwVA/WKF7a4FiyHXErvhHcx4LFnrlRyhBDF
+	vMR5+iSfqB2qrGTOWhW/s74OoT3zDMA20fvCniZwV+oHcpuGQo4aKyWHLoanrX9aLf9pNtxFi7X
+	jV5dpamCgVXrM8g06p8dg==
+X-Received: by 2002:a05:600c:6217:b0:49e:8418:389d with SMTP id 5b1f17b1804b1-49fc571423dmr37735005e9.9.1789745401448;
+        Fri, 18 Sep 2026 08:30:01 -0700 (PDT)
 Received: from localhost (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4872008f34dsm5013491f8f.36.2026.09.18.08.29.59
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-49fc6ca43edsm63465895e9.0.2026.09.18.08.30.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Sep 2026 08:29:59 -0700 (PDT)
+        Fri, 18 Sep 2026 08:30:00 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: idosch@nvidia.com,
@@ -69,9 +69,9 @@ Cc: idosch@nvidia.com,
 	horms@kernel.org,
 	bridge@lists.linux.dev,
 	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net-next 5/9] net: bridge: consider only port-VLAN members when flooding
-Date: Fri, 18 Sep 2026 18:29:46 +0300
-Message-ID: <20260918152950.1938259-6-razor@blackwall.org>
+Subject: [PATCH net-next 6/9] net: bridge: vlan: use an RCU array for large flood sets
+Date: Fri, 18 Sep 2026 18:29:47 +0300
+Message-ID: <20260918152950.1938259-7-razor@blackwall.org>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260918152950.1938259-1-razor@blackwall.org>
 References: <20260918152950.1938259-1-razor@blackwall.org>
@@ -83,174 +83,203 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use the port-VLAN list that is in every master VLAN and consider only
-participating port-VLANs when flooding packets. This is the first
-optimization that greatly improves performance for sparse port VLANs
-e.g. 2 out of 32 ports participating in a single VLAN: before the
-bridge would consider all 32 ports and forward the packet only through
-the 2, now it will only consider the participating 2 ports.
+Walking the master VLAN's port-VLAN list avoids considering ports outside
+the VLAN but its pointer chasing becomes more expensive than array when
+many ports participate. Add an rcu array of port-VLAN pointers for larger
+flood sets. Rebuild and publish the array under RTNL when VLAN membership
+changes. Continue using the list for small flood sets and as a fallback
+if the array allocation fails.
 
 Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 ---
  From local sashiko run:
  [Severity: Medium]
- Can this loop skip a newly added port VLAN while __vlan_add() is between
- its two RCU publication steps?
+ Could these rebuilds be amortized or batched for large VLAN memberships?
 
- In net/bridge/br_vlan.c:__vlan_add(), the port VLAN is first published in
- the ingress lookup hash:
+ In net/bridge/br_vlan.c, br_vlan_rebuild_port_array() allocates and copies the
+ complete masterv->port_vlist whenever count exceeds
+ BR_VLAN_PORT_ARRAY_THRESHOLD. It then defers freeing the previous complete
+ array through kvfree_rcu(), so sustained updates can retain several full-array
+ generations until their RCU grace periods finish.
 
-    err = rhashtable_lookup_insert_fast(&vg->vlan_hash, &v->vnode,
-                                        br_vlan_rht_params);
-    if (err)
-        goto out_fdb_insert;
+ Every successful individual port-VLAN addition calls this helper from
+ __vlan_add(), while every individual deletion calls it from __vlan_del().
+ Growing a flood set from nine entries to N therefore copies
+ 9 + 10 + ... + N pointers, and shrinking it performs the same quadratic work
+ while RTNL is held.
 
-    __vlan_add_list(v);
+ Can this cause a control-plane CPU and transient-memory regression during
+ large incremental bridge VLAN updates? The later patches in the series retain
+ this rebuild-on-add/delete path in the final series state.
 
- Only the subsequent net/bridge/br_vlan.c:__vlan_add_list() call publishes
- it in the list now used by net/bridge/br_forward.c:br_flood():
+ Nik: Yes, that is well understood but it is control path and I have tested
+      sustained 2k / sec VLAN add/delete with 64 VLAN ports in each VLAN.
+      If it ever becomes a problem we can optimize it, I think for the
+      initial implementation would be best to keep it simple.
 
-    list_add_rcu(&v->port_vlist, &v->brvlan->port_vlist);
+ net/bridge/br_forward.c | 39 ++++++++++++++++++++++++++++++---------
+ net/bridge/br_private.h | 13 +++++++++++++
+ net/bridge/br_vlan.c    | 37 ++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 79 insertions(+), 10 deletions(-)
 
- A concurrent tagged frame can follow br_handle_frame_finish() through
- net/bridge/br_vlan.c:__allowed_ingress() and find the new VLAN here:
-
-    v = br_vlan_find(vg, *vid);
-
- If the destination requires flooding, can it then reach br_flood() before
- the port VLAN appears in port_vlist?  With hairpin mode enabled, that would
- omit the required copy through the ingress port.  The same window can omit
- the newly enabled port for broadcast, multicast, or unknown-unicast traffic
- originated by net/bridge/br_device.c:br_dev_xmit().
-
- RTNL serializes configuration writers, but the RCU packet path does not take
- RTNL.  Is there another mechanism that makes the hash insertion and
- port_vlist insertion appear atomic to these readers?
-
- Before this change, br_flood() traversed every bridge port, and its egress
- VLAN lookup could find the already hash-published VLAN.  Could the flood
- membership publication be made consistent with the hash publication before
- the secondary membership set becomes authoritative?
-
- The later series state appears to select masterv->port_array when present
- and masterv->port_vlist otherwise, so it still floods exclusively through a
- secondary membership set.  Would the same hash-before-secondary-publication
- window remain in that state as well?
-
- Nik: Yes, both loops (list and array) can skip it, but that is ok.
-
- net/bridge/br_device.c  |  8 ++++----
- net/bridge/br_forward.c | 29 +++++++++++++++++++++--------
- net/bridge/br_input.c   |  2 +-
- net/bridge/br_private.h |  6 +++---
- 4 files changed, 29 insertions(+), 16 deletions(-)
-
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index e01c44a90d84..ce9ea9ac3d0a 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -89,10 +89,10 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	dest = eth_hdr(skb)->h_dest;
- 	if (is_broadcast_ether_addr(dest)) {
--		br_flood(br, skb, BR_PKT_BROADCAST, false, true, vid);
-+		br_flood(br, vlan, skb, BR_PKT_BROADCAST, false, true);
- 	} else if (is_multicast_ether_addr(dest)) {
- 		if (unlikely(netpoll_tx_running(dev))) {
--			br_flood(br, skb, BR_PKT_MULTICAST, false, true, vid);
-+			br_flood(br, vlan, skb, BR_PKT_MULTICAST, false, true);
- 			goto out;
- 		}
- 		if (br_multicast_rcv(&brmctx, &pmctx_null, vlan, skb, vid)) {
-@@ -105,11 +105,11 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 		    br_multicast_querier_exists(brmctx, eth_hdr(skb), mdst))
- 			br_multicast_flood(mdst, skb, brmctx, false, true);
- 		else
--			br_flood(br, skb, BR_PKT_MULTICAST, false, true, vid);
-+			br_flood(br, vlan, skb, BR_PKT_MULTICAST, false, true);
- 	} else if ((dst = br_fdb_find_rcu(br, dest, vid)) != NULL) {
- 		br_forward(READ_ONCE(dst->dst), skb, false, true);
- 	} else {
--		br_flood(br, skb, BR_PKT_UNICAST, false, true, vid);
-+		br_flood(br, vlan, skb, BR_PKT_UNICAST, false, true);
- 	}
- out:
- 	rcu_read_unlock();
 diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index a696c6c128e3..251d61e7c312 100644
+index 251d61e7c312..e8f30f2df1ed 100644
 --- a/net/bridge/br_forward.c
 +++ b/net/bridge/br_forward.c
-@@ -262,19 +262,32 @@ static void br_flood_port(struct net_bridge_port **prev,
+@@ -261,6 +261,35 @@ static void br_flood_port(struct net_bridge_port **prev,
+ 	*prev = maybe_deliver(*prev, p, skb, local_orig);
  }
  
- /* called under rcu_read_lock */
--void br_flood(struct net_bridge *br, struct sk_buff *skb,
--	      enum br_pkt_type pkt_type, bool local_rcv, bool local_orig,
--	      u16 vid)
-+void br_flood(struct net_bridge *br, struct net_bridge_vlan *v,
-+	      struct sk_buff *skb, enum br_pkt_type pkt_type,
-+	      bool local_rcv, bool local_orig)
- {
- 	struct net_bridge_port *prev = NULL;
--	struct net_bridge_port *p;
- 
- 	br_tc_skb_miss_set(skb, pkt_type != BR_PKT_BROADCAST);
- 
--	list_for_each_entry_rcu(p, &br->port_list, list) {
--		br_flood_port(&prev, p, skb, pkt_type, local_orig, vid);
--		if (IS_ERR(prev))
--			break;
-+	if (v) {
-+		struct net_bridge_vlan *masterv, *pv;
++static void br_flood_vlan(struct net_bridge_port **prev,
++			  struct net_bridge_vlan *v, struct sk_buff *skb,
++			  enum br_pkt_type pkt_type, bool local_orig)
++{
++	struct net_bridge_vlan_port_array *array;
++	struct net_bridge_vlan *masterv, *pv;
 +
-+		masterv = br_vlan_is_master(v) ? v : v->brvlan;
-+		list_for_each_entry_rcu(pv, &masterv->port_vlist, port_vlist) {
-+			br_flood_port(&prev, pv->port, skb, pkt_type,
++	masterv = br_vlan_is_master(v) ? v : v->brvlan;
++	array = rcu_dereference(masterv->port_array);
++	if (array) {
++		unsigned int i;
++
++		for (i = 0; i < array->count; i++) {
++			pv = array->vlans[i];
++			br_flood_port(prev, pv->port, skb, pkt_type,
 +				      local_orig, v->vid);
-+			if (IS_ERR(prev))
++			if (IS_ERR(*prev))
 +				break;
 +		}
 +	} else {
-+		struct net_bridge_port *p;
-+
-+		list_for_each_entry_rcu(p, &br->port_list, list) {
-+			br_flood_port(&prev, p, skb, pkt_type, local_orig, 0);
-+			if (IS_ERR(prev))
++		list_for_each_entry_rcu(pv, &masterv->port_vlist, port_vlist) {
++			br_flood_port(prev, pv->port, skb, pkt_type,
++				      local_orig, v->vid);
++			if (IS_ERR(*prev))
 +				break;
 +		}
- 	}
++	}
++}
++
+ /* called under rcu_read_lock */
+ void br_flood(struct net_bridge *br, struct net_bridge_vlan *v,
+ 	      struct sk_buff *skb, enum br_pkt_type pkt_type,
+@@ -271,15 +300,7 @@ void br_flood(struct net_bridge *br, struct net_bridge_vlan *v,
+ 	br_tc_skb_miss_set(skb, pkt_type != BR_PKT_BROADCAST);
  
- 	br_flood_finish(prev, skb, local_rcv, local_orig);
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 8bed72baf161..b20c7c182a80 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -226,7 +226,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 		br_forward(READ_ONCE(dst->dst), skb, local_rcv, false);
+ 	if (v) {
+-		struct net_bridge_vlan *masterv, *pv;
+-
+-		masterv = br_vlan_is_master(v) ? v : v->brvlan;
+-		list_for_each_entry_rcu(pv, &masterv->port_vlist, port_vlist) {
+-			br_flood_port(&prev, pv->port, skb, pkt_type,
+-				      local_orig, v->vid);
+-			if (IS_ERR(prev))
+-				break;
+-		}
++		br_flood_vlan(&prev, v, skb, pkt_type, local_orig);
  	} else {
- 		if (!mcast_hit)
--			br_flood(br, skb, pkt_type, local_rcv, false, vid);
-+			br_flood(br, vlan, skb, pkt_type, local_rcv, false);
- 		else
- 			br_multicast_flood(mdst, skb, brmctx, local_rcv, false);
- 	}
+ 		struct net_bridge_port *p;
+ 
 diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index b2a12b6298cb..239cf58d2268 100644
+index 239cf58d2268..a33da6e9765f 100644
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -912,9 +912,9 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
- void br_forward(const struct net_bridge_port *to, struct sk_buff *skb,
- 		bool local_rcv, bool local_orig);
- int br_forward_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
--void br_flood(struct net_bridge *br, struct sk_buff *skb,
--	      enum br_pkt_type pkt_type, bool local_rcv, bool local_orig,
--	      u16 vid);
-+void br_flood(struct net_bridge *br, struct net_bridge_vlan *v,
-+	      struct sk_buff *skb, enum br_pkt_type pkt_type,
-+	      bool local_rcv, bool local_orig);
+@@ -190,6 +190,17 @@ enum {
+ 	BR_VLFLAG_NEIGH_FORWARD_GRAT_ENABLED = BIT(6),
+ };
  
- /* return true if both source port and dest port are isolated */
- static inline bool br_skb_isolated(const struct net_bridge_port *to,
++/* start publishing arrays when there're > BR_VLAN_PORT_ARRAY_THRESHOLD
++ * port-VLANs
++ */
++#define BR_VLAN_PORT_ARRAY_THRESHOLD 8
++
++struct net_bridge_vlan_port_array {
++	struct rcu_head		rcu;
++	unsigned int		count;
++	struct net_bridge_vlan	*vlans[];
++};
++
+ /**
+  * struct net_bridge_vlan - per-vlan entry
+  *
+@@ -210,6 +221,7 @@ enum {
+  * @port_mcast_ctx: if MASTER flag unset, this is the per-port/vlan multicast
+  *                  context
+  * @msti: if MASTER flag set, this holds the VLANs MST instance
++ * @port_array: if MASTER flag set, this is the port-VLAN array
+  * @port_vlist: if MASTER flag set, this is the port-VLAN list
+  * @vlist: sorted list of VLAN entries
+  * @rcu: used for entry destruction
+@@ -245,6 +257,7 @@ struct net_bridge_vlan {
+ 
+ 	u16				msti;
+ 
++	struct net_bridge_vlan_port_array __rcu *port_array;
+ 	struct list_head		port_vlist;
+ 	struct list_head		vlist;
+ 
+diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+index 34d1df59d190..d750581df64d 100644
+--- a/net/bridge/br_vlan.c
++++ b/net/bridge/br_vlan.c
+@@ -258,6 +258,36 @@ static void br_vlan_init_state(struct net_bridge_vlan *v)
+ 	v->msti = 0;
+ }
+ 
++static unsigned int br_vlan_num_ports(const struct net_bridge_vlan *masterv)
++{
++	return refcount_read(&masterv->refcnt) - br_vlan_is_brentry(masterv);
++}
++
++static void br_vlan_rebuild_port_array(struct net_bridge_vlan *masterv,
++				       unsigned int count)
++{
++	struct net_bridge_vlan_port_array *array = NULL, *old;
++	unsigned int i = 0;
++
++	WARN_ON(!br_vlan_is_master(masterv));
++
++	if (count > BR_VLAN_PORT_ARRAY_THRESHOLD)
++		array = kvmalloc(struct_size(array, vlans, count), GFP_KERNEL);
++
++	if (array) {
++		struct net_bridge_vlan *pv;
++
++		array->count = count;
++		list_for_each_entry(pv, &masterv->port_vlist, port_vlist)
++			array->vlans[i++] = pv;
++	}
++
++	old = rtnl_dereference(masterv->port_array);
++	rcu_assign_pointer(masterv->port_array, array);
++	if (old)
++		kvfree_rcu(old, rcu);
++}
++
+ /* This is the shared VLAN add function which works for both ports and bridge
+  * devices. There are four possible calls to this function in terms of the
+  * vlan entry type:
+@@ -368,8 +398,10 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags,
+ 	__vlan_flags_commit(v, flags);
+ 	br_multicast_toggle_one_vlan(v, true);
+ 
+-	if (p)
++	if (p) {
++		br_vlan_rebuild_port_array(masterv, br_vlan_num_ports(masterv));
+ 		nbp_vlan_set_vlan_dev_state(p, v->vid);
++	}
+ out:
+ 	return err;
+ 
+@@ -438,6 +470,9 @@ static void __vlan_del(struct net_bridge_vlan *v)
+ 		rhashtable_remove_fast(&vg->vlan_hash, &v->vnode,
+ 				       br_vlan_rht_params);
+ 		__vlan_del_list(v);
++		/* -1 because br_vlan_put_master() is called later */
++		br_vlan_rebuild_port_array(masterv,
++					   br_vlan_num_ports(masterv) - 1);
+ 		nbp_vlan_set_vlan_dev_state(p, v->vid);
+ 		br_multicast_toggle_one_vlan(v, false);
+ 		br_multicast_port_ctx_deinit(&v->port_mcast_ctx);
 -- 
 2.47.3
 
