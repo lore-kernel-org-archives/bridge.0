@@ -1,67 +1,67 @@
 Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3F6D4A2A52
-	for <bridge@lists.linux.dev>; Mon, 21 Sep 2026 13:57:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C0C34A4F01
+	for <bridge@lists.linux.dev>; Mon, 21 Sep 2026 14:14:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789999066; cv=none; b=k8RgH5bdLbQR1CumAw6ukWWhFZkfBs+yV1W7QZ2mbC9UoxgPAoeuINUrX0BNGkFewSzawuMWQuMtXGtN6eCI83uLqscjsYWLidAdL5dSNFKl40DXBZ1keMqQqmN+Vw8N3cCFl7+lP3NiaCAhsj8+x/C4wcxQxriFsk5M9endbDc=
+	t=1790000082; cv=none; b=s2qLUvDyVPx1GiFw65t9JdK/WZbsw2zeXc59lmIeRX0SqZO1qP3gvFAn6FhFr8k9zuJ/EdKog4tDRqEiX7rk45h9CDOHLJnv8nPC7HwAL2QO35QjVVb1fTun2dn2xClAyYLvol/J/2/l7/CxsiwpJfxgFiM1OchBSTDn1Cb0AyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789999066; c=relaxed/simple;
-	bh=Tb+naUYdOEbqWhCgBQoqJYUsxvDutMO2RLyfrlwQ7pc=;
+	s=arc-20240116; t=1790000082; c=relaxed/simple;
+	bh=A3lMAoHzvdrIRHmu0U9O1DHYioyKBVDwytLfoEf9Ugk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fWqysa8SkhxpVkYc3474q+XgKdYzrruWc5ooGvOsWaWqraHnRNxnZEoQq1K1D5z4otO59E4sX6fyDea0tdwMzGtwPdK158XASUpyB8qxD4ZJpCg9CHKCNxjxDpQcncWFUYgaOH/B+8Nh7XQcJcoxhIX9JlwZ9JmC3cXeAk81oEw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=TtbGLmfM; arc=none smtp.client-ip=74.125.225.141
+	 In-Reply-To:Content-Type; b=FjeS3cpYIRgSFGV8UrXQh9Ozrz07uS8iAFylj9nbPOlDPJ5q6cb18Gy8mjwrKycFNSIUXA36A6gBz/nM6NVjxJjk7Kmk8sezn71NMm0y3DSMQKy/SVLmAuYQSJxNjJA95q7r9BQSJRa/FaHStIJo9u7sPwU+I5WllTZp3n/R+8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=A82UDoCI; arc=none smtp.client-ip=74.125.225.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="TtbGLmfM"
-Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e7bcb94d3so20884625e9.2
-        for <bridge@lists.linux.dev>; Mon, 21 Sep 2026 06:57:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="A82UDoCI"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e620fa473so18091145e9.1
+        for <bridge@lists.linux.dev>; Mon, 21 Sep 2026 07:14:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1789999063; x=1790603863; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1790000078; x=1790604878; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Bv3nJ81FTi9YRl87roXZd095J9UesWmHL2qfxaLM+IU=;
-        b=TtbGLmfMkibK2acGuFMzQG6tU2AOyxaaDL1aFHO+Dj/4wofHB9r85WkrEPL+lFj0ve
-         tr4l6vaMFiChqerrmou0VJKXJj2nAkEueJ1BT1+Zue3WbxdTSKu6Wrv/cEDidIam9rmn
-         gCzO+w7aLjdRPXruggngLFnNNQQHc8t6tdsNz2nDMH97RgcTPSRfLQw3x00efRI34URy
-         nEXaI/1UqYhQprIraov5PGwd1yvN0Lnp5dxV4TOLm+XmNLZoWB67MOHBsy/PHvf/tp7Q
-         SM1s5URpr9ASndI3mcaqq+2sZ2X8ltZ1uQgM9OF6lh8D+WyTmuddDoDt/bJ/7b3h2wWf
-         eUlg==
+        bh=+gnaVA0UVg6a41pLazpe1rvpHFpADsMibbWOKFLPcI8=;
+        b=A82UDoCIltGv/5ZC/9qSF97RypLU0C4ZFQOM8CRcjypxPVAwp6a00q728399jQsQSO
+         Rcm5EtWVSEy7/TU741TT5xku9usAgPgrl43j1vN1k8DLauEL3bEw+S6Brxu2gSPQf6Bb
+         FBv5f9at0pCbHzdC7s11xYXilTEZLcK0FLcureCcrw23udc9oGmTqkR+4oG3kHz5xnFp
+         Onkriegfc4+2OaynkI29dtkwynps/tdj9ENZWztp2noQ+eyOc1Bd8GOzXiBSs0E6NiwQ
+         gCa9azLgfP/Gg6c2odwpaEQmDF/Ov5V2O5GfE5hUidDPYTiyyDjLBaDds+yEbQA910pL
+         eU3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789999063; x=1790603863;
+        d=1e100.net; s=20260707; t=1790000078; x=1790604878;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Bv3nJ81FTi9YRl87roXZd095J9UesWmHL2qfxaLM+IU=;
-        b=iW6BzoX5y8E9siJY8MEmRSTy9hVD9hCuJo7hIZEFWjNw6gv2OZgg/G+1Z4jrVKUOJ7
-         N0W8VGRriFwDnZakMUx+GM4XQGfztzq621BYSkzPUV6t69mq9oClBRUJL1bQ9ED8eis8
-         adSCL7xNC1pvtq2ODDjYaf9xnSTBypBYP9j8pdetFm8L/6vohjZeiITDssiL81FFTEgO
-         NAVdQc1AHyEkk1qzZNtH7uoDHqnTG0L/Pn9uwANIPdIBSUQsfT3FN4zzO72+bH8mdjLw
-         Pg6gXCdeRBNKz1UpbbCisD85oiSChF3DVm/pTCu1KTKHnNOd+LrhJ5zvYPtY1kFDVu6K
-         Zpfg==
-X-Forwarded-Encrypted: i=1; AKwUvBxa8qc8INuWpZJRfJixinLx6kylvEBMealUNkC6p3U5V7Cj09XxnFnnO0tPp2lqZmIa3AAbY7E=@lists.linux.dev
-X-Gm-Message-State: AFuF++niNBcvMNPb73xMWrToWXGtjdmTXt++JXtfpxYlt7GGmwcJ5PkQ
-	UOW/F5eA7QRP8VDw1Jfr1k2JU1tQHMg1x8dcqntXnGWyfEkjQCZml5wPsErOEoEjGto=
-X-Gm-Gg: AYBFou0P9ZVtQC6dz6x42ZILMFNlt3tNiuNUZufPcmRphG0N+0/gVcX5QCdCicwedD8
-	/f5TI2j2pkA5Q2OfPygVzrCWo772n7Q8l1WCWp6DZpZuFSH8FFbfvfCAYNSajvPof55T8f37Z/d
-	wZpkhmPGKsA+5YQyANzPlcgcXzd0ckN1QC/reJ2FtYpKEz0UBBBAUPfdT86fwBT9rFEquM9EW2H
-	y8kqWgjpgE9PeD4Nz5iyISJ54ufv890d3No+j0qSL5ELo0//2GFKVMaDgw4XN/u9l7diEuMrqDS
-	XQv1nRzGYAE/mAT50QQoH5EvE7htMEtBU5SLBpoXe0pp2ci0RSo4dVBWf4ICv892YL7DBQx4EXS
-	9oovgsqtAE2qTkEEU4gHjSTbxlvTeqoW39X1w1p2LMa0m6SShQ/R1s563PLTL9gfz6RkkquzBGv
-	L15lhyyCX31uemaMkrqG4OtKRlxaemRqk0wqy+PyVYXYanzPAgaklHYTV4R4OsKxAztO3SIUZaJ
-	Nhoibs53Gr1//mXIEmBuWYTnplw/Q==
-X-Received: by 2002:a05:600c:81c5:b0:49d:1a02:4797 with SMTP id 5b1f17b1804b1-49fc5737cd1mr132113045e9.17.1789999062539;
-        Mon, 21 Sep 2026 06:57:42 -0700 (PDT)
+        bh=+gnaVA0UVg6a41pLazpe1rvpHFpADsMibbWOKFLPcI8=;
+        b=yEDedov3UqdamSer/dqifbK3RujtvpD+upBcMARKxCkIJHooFhYrOz/OyM9m+uQptL
+         AlrBpMo200cUmQqb5tk0EsUlsfWpx6eLtdmHXZRR0kYlUmcYnP5B2rrFX83VcYn/SRmE
+         lo8/MCg3oP3WNHEL+4dJjXUZyUffE8SUTYGULUfnGs5nLmYfkkJ/yoy9ran0Bsx/OzPS
+         od6ccnmg+PtgKrkh4rvyd1ddbRmVbjZufAmcwrpA4397DiMjm35zifZBKj4xxEU9riQ8
+         9Fbv/gC4bcUKPQV45cy51ywZVUUH6ahbf384aex+jUpRurkDk3YdGk26AdBKxWtx4Zjp
+         LVdw==
+X-Forwarded-Encrypted: i=1; AKwUvBw4h9PTDKbozlxS8f7NXj9qH7Ia9Ebr4TZCNnl/mGsHCN+2/Ett2N1Xq4Sv2UrxMpnXy212AW4=@lists.linux.dev
+X-Gm-Message-State: AFuF++k0D74Mkl7b2bvrF5Eac9Vbuu4FOivF6zWuTfHvhBcAVnic8NY+
+	vopWQtHXEVnesjTSegTPgS6EHdf5ZHgXgakHHaO2DmnX602nFmKdi+dfv5IRfqc4+wA=
+X-Gm-Gg: AYBFou22TcV3cjUN8GHQ7UC+00BdFwXY+U3Om1jMdyxvVLmeASG+KVomE4gR3kojHJB
+	oWBT4SN5Gw2ec/2CCILXcvjZ802XNj769nuQ8nCLW4zi912Yc2s9pzN894J3dW8XxW9wcAIFXr2
+	qVltuw/N0Gnx9eEJO7ZlqIfee84tkZAFBvfp0SgfQXsx5mvEcSOjy1unu411KBvcMXp2GsY2lP/
+	mgc+D7324lPfHZwAqVSNF//ejnN+CtYirb+mhG02Z2rGZtxnyv2XP88rOJTSxVdqoNyZFKuPmyJ
+	MZg0XwSEGJlO3YqvtkcKEdbwGH75sEBdG0KVVVB8Fe1Z1Fp4rRWE/Kgmn6juMNlmxy6S0Pm7Z1a
+	BWkEHBJeYY7aAXBEUWLmTw/iRuWkKGYtKQNXNMfLNoNkV/lmwOhik6a0nnCn4nPzJQgTS90tIZj
+	+vXD/LxjssVL0ZqEf9OVml38i7eGnKxIqJa/XoPRz1sgSE7Q6k7ZD+Y2BVj0LkuOWVbWVhMTk52
+	fc6FzVeYAtYzvktl5ARH6IXv9VrjA==
+X-Received: by 2002:a05:600c:3b8e:b0:49f:bc43:9e96 with SMTP id 5b1f17b1804b1-49fc57144aamr194759525e9.8.1790000078224;
+        Mon, 21 Sep 2026 07:14:38 -0700 (PDT)
 Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fc585920fsm619266685e9.4.2026.09.21.06.57.41
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-487244229d5sm24216068f8f.2.2026.09.21.07.14.36
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Sep 2026 06:57:42 -0700 (PDT)
-Message-ID: <3d92300f-a3bc-420e-b94d-f59d7b928229@blackwall.org>
-Date: Mon, 21 Sep 2026 16:57:41 +0300
+        Mon, 21 Sep 2026 07:14:37 -0700 (PDT)
+Message-ID: <ab670ef7-7650-4a39-9871-b5182725beb1@blackwall.org>
+Date: Mon, 21 Sep 2026 17:14:35 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -69,68 +69,67 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 0/9] net: bridge: vlan: broadcast fwding path
- optimizations
+Subject: Re: [PATCH net] net: bridge: mdb: restart port group walk after
+ deletion
 Content-Language: en-US, bg
-To: Ido Schimmel <idosch@nvidia.com>
-Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, bridge@lists.linux.dev
-References: <20260918152950.1938259-1-razor@blackwall.org>
- <20260921134458.GA2199421@shredder>
+To: Fourie Zhang <littleddfu@gmail.com>, netdev@vger.kernel.org
+Cc: TencentOS Corvus AI <corvus@tencent.com>, stable@vger.kernel.org,
+ Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Petr Machata <petrm@nvidia.com>, bridge@lists.linux.dev
+References: <20260920110852.60293-1-fouriezhang@tencent.com>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260921134458.GA2199421@shredder>
+In-Reply-To: <20260920110852.60293-1-fouriezhang@tencent.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 21/09/2026 16:44, Ido Schimmel wrote:
-> On Fri, Sep 18, 2026 at 06:29:41PM +0300, Nikolay Aleksandrov wrote:
->> Hi,
->> This patch-set is the first step to removing unnecessary VLAN hash lookups
->> from the bridge fast-path and also provides additional broadcast path
->> optimization by considering only the port-VLANs that actually participate
->> in the VLAN instead of all bridge ports. Combined these changes bring
->> considerable improvements[1] and open the path to do the same for the most
->> common fdb forwarding path. As expected the pathological cases have the
->> largest gain, e.g. if we have 1 client / VM facing port and 1 upstream port
->> only participating in a VLAN with many other bridge ports, we consider only
->> those 2 when broadcasting in that VLAN.
->>
->> For up to 8 ports we only use the port-VLAN list as the array doesn't make
->> much of a difference and is unnecessary. Note that the array is rebuilt on
->> every member add or delete when >8 members, I tested that and could do
->> 2000 VLAN add/delete with 64 port-VLAN members / sec on my test VM.
->> If it ever becomes a problem we can optimize it further, for the time
->> being I prefer it is simpler.
+On 20/09/2026 14:08, Fourie Zhang wrote:
+> br_mdb_flush_pgs() keeps a pointer-to-pointer cursor while walking
+> mp->ports. br_multicast_del_pg() can re-enter the same MDB entry through
+> br_multicast_sg_del_exclude_ports() and unlink other port groups. If the
+> cursor points into one of those groups, the next iteration dereferences a
+> stale cursor and can leave mp->ports pointing at freed memory.
 > 
-> Very nice!
+> A following RTM_GETMDB exposes the dangling pointer:
 > 
-> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+>    BUG: KASAN: slab-use-after-free in br_mdb_dump
+>    Read of size 8
+>      br_mdb_dump
+>      rtnl_mdb_dump
+>      rtnl_dumpit
+>      netlink_dump
 > 
+> Reset the cursor to mp->ports after every deletion. The deletion removes at
+> least the selected group, so the restarted walk always makes progress.
+> 
+> Fixes: a6acb535afb2 ("bridge: mdb: Add MDB bulk deletion support")
+> Cc: stable@vger.kernel.org
+> Assisted-by: tencentos-corvus-ai:hy4-preview
+> Signed-off-by: Fourie Zhang <fouriezhang@tencent.com>
+> ---
+> A reproducer for this issue is available if requested.
+> 
+>   net/bridge/br_mdb.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+> index e0c7020b1..a01bd280c 100644
+> --- a/net/bridge/br_mdb.c
+> +++ b/net/bridge/br_mdb.c
+> @@ -1523,6 +1523,8 @@ static void br_mdb_flush_pgs(struct net_bridge *br,
+>   		}
+>   
+>   		br_multicast_del_pg(mp, p, pp);
+> +		/* br_multicast_del_pg() can remove other groups from this list. */
+> +		pp = &mp->ports;
+>   	}
+>   }
+>   
 
-Thank you!
+Yeah, this seems like the simplest fix for stable. I will post my conversion to
+standard list primitives and will remove these issues altogether with it in
+net-next.
 
-> A couple of nits that you can handle later (or not):
-> 
-> 1. Patch #3:
-> 
-> __vlan_delete_pvid(vg, rtnl_dereference(vg->pvid));
-> 
-> Can be simplified to:
-> 
-> RCU_INIT_POINTER(vg->pvid, NULL);
-> 
-> 2. Patch #7:
-> 
-> Initially I thought that 'fwd.vlan' is never set, but then I realized
-> that in the only place where this field is actually set it's called
-> 'dst.vlan', which is a bit confusing given that in the context of the
-> bridge driver 'dst' is usually an FDB entry. I would probably rename it
-> to 'fwd' to be consistent with the rest of the code.
-
-Ack, I will deal with these in a follow-up, I have another set that removes
-the two egress vlan hash lookups for standard unicast fdb path and will add
-these as cleanups to it.
-
-Cheers,
-  Nik
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
 
