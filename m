@@ -1,290 +1,161 @@
-Received: from mail-qk2-f13.google.com (mail-qk2-f13.google.com [74.125.230.205])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BYAPR05CU005.outbound.protection.outlook.com (mail-westusazon11010026.outbound.protection.outlook.com [52.101.85.26])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B53C433438F
-	for <bridge@lists.linux.dev>; Mon, 21 Sep 2026 02:53:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.205
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789959236; cv=none; b=aec45tIgeLMaA9q63p4KHVgnL3E9XqBv+lQricUGFsCR2DNbNBVdW+QYYR6IhEbI9l3MWQJ61EAvigxch9g6+nyzO5IEXm03IBeJPvRFtTx8RDucfI9AaUJE01jKjfP8Fr9R8zjcr7x7F1JQX/nja7JV6LN8nQPitrblgRw5NHk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789959236; c=relaxed/simple;
-	bh=o7u+Ilnkg+4xjG93z/0C0NZxlAlBcA2mnfdP5ehaM74=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uUbVJe0XD60Khsp9Z5mQIOqvLplY+XSlOo1wcd4yCYfOYo0Lg1nZbkh6PbjDt8w/jQMP06nJMqE9cDLScHMkawpvtg1zLxB6b5egB9EGJQJjfk29wt7UJPFe1aPMuHqyr1vdaF2nc7KeY0jMusYfLCY5NGkOzhEUkL85TpT9Qus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bqneQHKc; arc=none smtp.client-ip=74.125.230.205
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B2B48EC69
+	for <bridge@lists.linux.dev>; Mon, 21 Sep 2026 13:47:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.85.26
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789998424; cv=fail; b=YWh2/989pQj0t/zWcnnr/hqJ2q3i98wOHHckaM9iBXM1ykNPTRTZYP+FQDs1AAYXM7CcLwo/HeiCC8d/MLLxzyGaTRgJY8fyLrgjgZ++R2K6WHH4VKzS8NVRURpKsqt22xofF6eqM6OXDm+O/JqNUEk5mWnrk/sOWIgG9332Xsg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789998424; c=relaxed/simple;
+	bh=1lFC5J7WBOuLKojC3fL0djRqQ7qz5BE+bM9kT6+s4tk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=O1XSfIoyHk+ci+pZVQIyQl6wu8RnlHYfa4L+bDlhDhdvAeFw4PEyQeVz6IsqemT5xffdQGnVrTdJudEK8dQL5n/Fnnjd5WkXPylS07vwqxFnlwoT5uiH/mdZcpqq88XP4XMONNkGXScXvF42+cjWd/fgIKU5IYjGVLxLqoiuUeI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=K1oGb1/z; arc=fail smtp.client-ip=52.101.85.26
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bqneQHKc"
-Received: by mail-qk2-f13.google.com with SMTP id af79cd13be357-93910cc46c4so240878185a.2
-        for <bridge@lists.linux.dev>; Sun, 20 Sep 2026 19:53:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789959233; x=1790564033; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=u8Ct4yW9W4ymcEv428o4m/ZX/KrAWtAnJ7CKPNzyvYY=;
-        b=bqneQHKchCRiDLZpRqrdZtPfhXCf+eFhDL2tx2yItR58QQq7xKhJJ/ROQ1ODj8i8wr
-         78RzeAFUgl53lFImce1jOWetl5U86xT33YUgeLpIYWdVtZAmZr/+NtD0i1XGDDakAI0s
-         geIM6/N5AfKCaAafSaznN3s6Fbl5D10pFdv2YfP817oxtpe8VOe6ubPbFgEqJC2zFEi7
-         0K1Z+sO+I1RLQfaVCBSIe1ufAf9Rcn7Vocx9G77/xhot0jKOuuOFoTwo3evp74bnebvB
-         ODfjBeoLNtPtflNKDYcOPgNuPjgRyxv3UgOmnzyUQicwdrd6OR8Zz6TaibdN4UlvjpIr
-         9CPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789959233; x=1790564033;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=u8Ct4yW9W4ymcEv428o4m/ZX/KrAWtAnJ7CKPNzyvYY=;
-        b=u9OGCToGc44VwdUeGeE/k5FGCWYcDg1LUZdoaAgGlOWi87VtGYoMAug+4W3+xHNdWX
-         QqeYLbW2CnWDFzrvvO4z683blhTQwVzSuhQKHU+zcq7oI/hUtLuOgMvcTHEQQlDrZzJb
-         wa1HzU3Zj6+DsdZH6pdpK1WwWKgrqvFzvlKxT/GvkJtRqkx8PXi3ubxpp4bMvETE9SDx
-         gPpOWchDZ2gzAzYYqeSufvZQimslRZa83strqlvz3WRFwguzqKwOMfKmO6nAd5JkC2bu
-         mEGy7K3K37Cv8dZppdM+gx/CpUnN9ww+MGRAR+heErXNXMopOJwGtKm2bvxyuP23A9ek
-         QNVA==
-X-Forwarded-Encrypted: i=1; AKwUvBz8A0SJq16ajeYIqL6b/i+LhT6vviQfeuJCEu7kpLsd20Em4z6wpOLEY8yS4IlZKuPrxZIJ9kI=@lists.linux.dev
-X-Gm-Message-State: AFuF++lDd7XxRm4Zy0ieAIaE3SLTUi0oDiQVW90Q9FDOs9uqytDPRC73
-	H4TcfYEHryBs7Vb5zwrYLNYhxPtE2PeY+1d8nGveIbZU/YgAM7ReC/7g
-X-Gm-Gg: AYBFou3GK/pL/ooG9w4ka2Tm6FhHF0t667Tde7Wev/n+nVLDllYLQGREj3TmdOEqW+e
-	R4KpTq8Ere6xkSKSaGBh87ZLd+QzcZbgQ6tGlqvKO3bE0d/MuXZhUgRh31nDBF0tQfJBgCLmIE+
-	x3s/RaV14hC6eIQR+9yi5y5z4IK8db3WCdPlSARGZFQYqKfHJLq9UQZiQXM38wFziuwGF5zHcMl
-	xoj9iL6AMYcHgCnllssxwlcW37S8P0eQX0OjhypfI87oK9K6+mdvkerE+BbSLiviJQBqX7sTiTE
-	qfZaTokIMDEwFCCUWz/PUxfCJSPngiCtHxYVNWjxKwnb0vfjxqwF9R7nBDAHFyQoWgUOaIcmgMU
-	Ybzq8c2ezWQ5xXLkyEAeEl+9byEj6shR1Drce0PV8wqNcYH1R7vZK4fK7sh7VA9sp6KmIeVnsRT
-	X4hvs3bRaZm4vPTR+fhojM8ybDhMXmTJj3D/YA3FBMnKXe+nDO5jEmbQRBRMBWXz28d909SJaF8
-	1924gY2Ip6EJFNZ8fk7HBbtCuiXfUityqiXDs/737qqwqKrCXdRij/nPNnqLcpP7lIyxmXH
-X-Received: by 2002:a05:620a:1724:b0:93b:d7a0:d9f0 with SMTP id af79cd13be357-93bf57eea2emr869731285a.74.1789959232559;
-        Sun, 20 Sep 2026 19:53:52 -0700 (PDT)
-Received: from localhost.localdomain ([2601:155:4200:2c80:64b9:5e22:f77c:324e])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93bedb3de58sm528732785a.37.2026.09.20.19.53.50
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sun, 20 Sep 2026 19:53:51 -0700 (PDT)
-From: Paulos Yibelo <habte.yibelo@gmail.com>
-To: netdev@vger.kernel.org
-Cc: richard@nod.at,
-	anton.ivanov@cambridgegreys.com,
-	johannes@sipsolutions.net,
-	willemdebruijn.kernel@gmail.com,
-	jasowangio@gmail.com,
-	mst@redhat.com,
-	eperezma@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	andrew+netdev@lunn.ch,
-	pablo@netfilter.org,
-	fw@strlen.de,
-	phil@nwl.cc,
-	razor@blackwall.org,
-	idosch@nvidia.com,
-	dsahern@kernel.org,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	linux-um@lists.infradead.org,
-	virtualization@lists.linux.dev,
-	netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org,
-	bridge@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net v5 2/2] ip: reject partial checksums covering network headers
-Date: Sun, 20 Sep 2026 22:53:41 -0400
-Message-ID: <20260921025341.44846-3-habte.yibelo@gmail.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20260921025341.44846-1-habte.yibelo@gmail.com>
-References: <20260920004733.6473-1-habte.yibelo@gmail.com>
- <20260921025341.44846-1-habte.yibelo@gmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="K1oGb1/z"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ggKAdQpGOOtYfZUpcV7H9O2C4MIcGBb2hAmPGN8ETSx5eSR0ZUJA1M3qb/Fy0SmuQuB1HFkhLBA/qMlmu4w7uzfKTiNt/h6WtPlQtiGLliakiLVxr48JzGDWPVogXZp4jUkP7mA+9vu8GqvNUprtoRMkw2lBLERgSQEctNXzCbCCCRBmLQ2FZrVfswu8WbW9WxnEKxIAffkmtSFdhM9HnAQlmOSdvzSvcCC5CYBknUE1nq00tSqJ3PNyD92qtDOALp/vUSgvzjJ4bjlcAQBDxmsGlR6c0i3MxQzt21mjeW3INTG4rekR7zxPykRDrP21UH773+3QtuSZUSWfSuCJvw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=BDTy0i9KNlH7L22D8QfHsGM2Uwh00uLyo/1QN+tRomc=;
+ b=zKEy8IpiSeEWtBDGDklqYSBk0huchL2CGKIbSLKo5+i2w+kvxPrcgPJzJUlPL/tPu6E8OFjCvrI4Fl3gRaL91/DgJXx1z/iL3zwTx5oHwwnfFpsBK68ZUzcp9U0oeFATLfZNzaeMfFIuEJGkgPEHNt8Aa+M5D+Qcx4ciyFWoHss11gdP6C4EJMcbzgwzXHq9vqbO4H9fhGcroNJY0zzhsxC4rbKMwA94xYzovK87N8nQx+jltSYiFMEmHJSTtf1pkbNgkCeyJSNiVM8719N3JmqVxkQGoRwfA+4xABHyiRMVhlAQnikq6jRhHV/HipFsEkGmso+Vwdhtq9Sxo4Z9wQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BDTy0i9KNlH7L22D8QfHsGM2Uwh00uLyo/1QN+tRomc=;
+ b=K1oGb1/zZSKinExUCjgBTHbtEzJQmxCOrCVXP3LyJ6XG+LAfKg3BYmz3XT0QRilEADVbsZ6cmL6cHBq+QvIeMppztEtjQB6Z5IUQMIPGrOTaIIK3p5UAnlTX2PlmgS02TP5Bqs3ym2X4J/41Q/yAztRoQrSt6xYWSgdUVD9fqgPnqugxB46Pga1+7E3V3Xhyjv6mAo1qKI3ni8J22+K+ldB/Xo2w4cGWmyDsDYAw4kekQ/MPzxbvfoa6Fj+zdI3thnuG+qUZpWKSnsjSo9MQep7sLNDyjYAANMEzWo4b/FWcnKuTpLFiUcToUC652JyOVOn8QTLsz9pycHqplZ0JAA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from PH0PR12MB7957.namprd12.prod.outlook.com (2603:10b6:510:281::22)
+ by SJ1PR12MB6314.namprd12.prod.outlook.com (2603:10b6:a03:457::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Mon, 21 Sep
+ 2026 13:45:10 +0000
+Received: from PH0PR12MB7957.namprd12.prod.outlook.com
+ ([fe80::9251:acc2:cc63:3499]) by PH0PR12MB7957.namprd12.prod.outlook.com
+ ([fe80::9251:acc2:cc63:3499%3]) with mapi id 15.21.0428.015; Mon, 21 Sep 2026
+ 13:45:10 +0000
+Date: Mon, 21 Sep 2026 16:44:58 +0300
+From: Ido Schimmel <idosch@nvidia.com>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+	bridge@lists.linux.dev
+Subject: Re: [PATCH net-next 0/9] net: bridge: vlan: broadcast fwding path
+ optimizations
+Message-ID: <20260921134458.GA2199421@shredder>
+References: <20260918152950.1938259-1-razor@blackwall.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260918152950.1938259-1-razor@blackwall.org>
+X-ClientProxiedBy: FR0P281CA0246.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:af::11) To PH0PR12MB7957.namprd12.prod.outlook.com
+ (2603:10b6:510:281::22)
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH0PR12MB7957:EE_|SJ1PR12MB6314:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1cff5bc0-3dc9-4833-cba2-08df17e68e13
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|23010399003|1800799024|366016|18002099003|22082099003|10067099003|56012099006|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	yPrKR7yrbPbP4f85kg8/5k0iiamRqtUTCfRPzpt4z4HntZQDm6arSg3QQ42+rxMi1FhznpuYvBsj5fGN1zTAoagkupuR1JhgMiOqbV/ZchkJH09VrVPxmhlwstN1ntjiYo3sT0HmO6dCvNLH3qYxv9YxOWRpNNNNxEJa2HUl2Tmm7vHVTJIgyrrOehq/R9abuZ6Y+vKqHK5o863zAvC31zBpGVMtvzMkn5g0n31fGe8TBPQWC5aUXImVoqjZl4iuQ/kx0fSlIu3GeeoNpwS3qEYv8Cy1y5tUNcDZDRAv22tNSohIn0ougV71iwkoWHf50rix8V/HFmtuAcRru/RL8Vr7U0SXM1ZRZyxb3bOnj49zM9z2mNstfNW+HrvQM/cpqJTMe3u3KWG/GYTrLp8bYkNMnkxF7ErsaskjUCHk7ziiue/zMTbMy27WPIYZPOAWZS+LfT7iRhB/eetSIj7GgVHi9vZkD1w//RNw/R9aajuKIu0LnM/Y5+VSMD9YJAiJuukErX5HJ74eVlTjvpyPuwaO4QHAYS73xOlUd9qCu1/pgDjlrwlCm1iIMebjCeOuEAvuNs8wMoR9HmVY6X0/ImmZtl8OUBpKtscaOIel9KAuTDSeuMNA17NbncXg7qTmZYOO9bylXvvorx0QBR0eqenp6oi86HYmc5EJD1WfLCg=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7957.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(1800799024)(366016)(18002099003)(22082099003)(10067099003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?2lyCwxYNJfhgE3laxlgFTTWD1xE0Thn0MUasfgx7V2SosMHaeHLuUYQt9jgN?=
+ =?us-ascii?Q?pSOfTQx/wb/os41SPsp5qD2WuQOK0w+ev7e8RFeUK0yB8gMJ9xAB+VPUJq2/?=
+ =?us-ascii?Q?4nZ7/e+FbUHnSbysEdfIHHQNuO3RVfSaV0TyccE5IsQUgIhDZEPWeN6SwK9W?=
+ =?us-ascii?Q?fP1aMg8vHz3/qSDshfXA6HZQSZMFdSy6ZsN9rIzaf4ZBNKSlpM+4hdVtul6f?=
+ =?us-ascii?Q?n5h6udx4eS2nyHMwfm9aYV4esSwbNgi9krp8GY8kVQ/pHEaZoPFOdLdsatST?=
+ =?us-ascii?Q?PqaTlG2JVKRs9DpkIMKmfunPeuNRpk5cZLUxH8zOhj0wqynbp45tEtHC5WCs?=
+ =?us-ascii?Q?Ui8AxgGte1hHq9yToNmRN2jOou4C38R9zB+qTPUPlq8+3Ra2piULH1CzBN2v?=
+ =?us-ascii?Q?qV1W089XWqqGRzGf4H4PCl2ho7sv8BDQsK4Ob19/g4TQ9EKxeSEQ1ZXWLfyM?=
+ =?us-ascii?Q?ZiX6wQ0dzAsWoRbiXTOmqUzJihNkoDyNsNE5aD4Btm+3+6m9qPOjPlOfLZg6?=
+ =?us-ascii?Q?m14i5B7R/lMh5EChivtgY2MbE1rn46E0OKfXPcLwo2ybY3amcS6lJtzC7JDm?=
+ =?us-ascii?Q?sZXJfnqXXTfeccFoFkLTj9wDswdNS1vAcBXLd/yH6+e/2Lu69hUj+N9H7lCU?=
+ =?us-ascii?Q?Jh5j5yTfWKo9iO6fuIHc18MHrz3Kb+YwI9XQYqR/8TS/x875vPx9gZOtInO/?=
+ =?us-ascii?Q?lKJx5ZL/5RjM9ePXkjXJFSWe2Pio+ErANnB0YZTUrOzHyMUsn2irnyYWP7UP?=
+ =?us-ascii?Q?ZgAZQ3La/xFsSN3E8CoSalXagV2dxOxTg2w7oufcEEFeazPeNIUMxwD+0uUo?=
+ =?us-ascii?Q?SUcOlLejrJkGjY4tcmgG9uB9UeA6/bSmB58PQFVM5Qra3fFwNvs4jCTTud1q?=
+ =?us-ascii?Q?WcgVE/7kJglZvhYewo96uZQb2WNMRZobowQ7HAw2ilaYs/fSBzaMftTm86Wg?=
+ =?us-ascii?Q?9HUYWMWoq2jLpZfuru82PfwRpLD5bwZxiLavjjuTpHpjtr+KJkEFV1PxY4Us?=
+ =?us-ascii?Q?tUMc+turrkfd1taoFGnD/NGgrZP38m8j9joD3z+35s2MLxX0rTr5v0c/d4CY?=
+ =?us-ascii?Q?BUU2GxkIprctKStOn2Rw43coBaXskeXebxyJhaOeatbsKh4pFppy0CdUZbDB?=
+ =?us-ascii?Q?RXI0GjZjHywugPCr2Y0rJH2joyN4Q9u+ui2+MYIiqJ805c3+r5cO6HIaT9rQ?=
+ =?us-ascii?Q?55I2PHqNaHuxszRLSK0gQKIOnxGL8WZYQ27WdEcvR+DkNHxbIqDQ+sC28h3P?=
+ =?us-ascii?Q?dZpyhqXu3CeWISHCiWKNVbkVJUKfGneC2u1M9cyHeZY+u4l5YHQ3LSKrbQyD?=
+ =?us-ascii?Q?2TLq4XX7j0SPY07Vn+spnVu8cRRhnxGfnpZmGY5IXPKGSCud3fn8bvucwJXV?=
+ =?us-ascii?Q?Sgmv1bUwFfQy9J7HINUi1iCuAb2r5mH95ekt7s1SM9n+nFKe4PYHmairE+hh?=
+ =?us-ascii?Q?V8kpiqWl3B7K7fa55PxiRPhcrW3jpqatVtubIJfZGDJi9FfFXfxk/flz5cBe?=
+ =?us-ascii?Q?Mbjve67bJqiSD0v+VBt4I1G2PEzcRQDsknTn/XkVAXMvXxRZj4QwPLL2i9PM?=
+ =?us-ascii?Q?z9Ei6XBXjuP2e0tskevCQD2E8eZm1Iu4h9fJp2uLMv2cNTgjPfcc14iZIwUN?=
+ =?us-ascii?Q?SSsPsv+91HMYWL5d0cwvxnCvcXboB1ZPOc5o7h0Lm61AVpJTii0zDpf1mEgP?=
+ =?us-ascii?Q?7T4wkrQA8MFxi0V+V0rsYfk9aWOY5IJ9S0BhbllcGXZ7nKI7W9e2oYAsMivf?=
+ =?us-ascii?Q?eQK5fJ37xg=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1cff5bc0-3dc9-4833-cba2-08df17e68e13
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7957.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Sep 2026 13:45:10.4560
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: uU9WhyszPoWt1wNV5nyloxUBsv3tMTWYai3JZSrth4+wYp3J4Ie65mHKni/ZPiAhidJ2SKqEWZahV77Iiw8XFw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6314
 
-ip_do_fragment() and nf_br_ip_fragment() complete a CHECKSUM_PARTIAL skb
-before reading the IPv4 header length. ip6_fragment() and br_ip6_fragment()
-complete one after parsing the IPv6 header chain. A virtualization
-interface can supply a checksum start which, after link-layer removal,
-still points inside that parsed network header.
+On Fri, Sep 18, 2026 at 06:29:41PM +0300, Nikolay Aleksandrov wrote:
+> Hi,
+> This patch-set is the first step to removing unnecessary VLAN hash lookups
+> from the bridge fast-path and also provides additional broadcast path
+> optimization by considering only the port-VLANs that actually participate
+> in the VLAN instead of all bridge ports. Combined these changes bring
+> considerable improvements[1] and open the path to do the same for the most
+> common fdb forwarding path. As expected the pathological cases have the
+> largest gain, e.g. if we have 1 client / VM facing port and 1 upstream port
+> only participating in a VLAN with many other bridge ports, we consider only
+> those 2 when broadcasting in that VLAN.
+> 
+> For up to 8 ports we only use the port-VLAN list as the array doesn't make
+> much of a difference and is unnecessary. Note that the array is rebuilt on
+> every member add or delete when >8 members, I tested that and could do
+> 2000 VLAN add/delete with 64 port-VLAN members / sec on my test VM.
+> If it ever becomes a problem we can optimize it further, for the time
+> being I prefer it is simpler.
 
-skb_checksum_help() then writes the completed checksum into header bytes
-the stack has already consumed. For IPv4, changing iph->ihl after routing
-and validation can make fragmentation copy beyond the skb's logical linear
-head into transmitted options. A negative checksum-start offset is rejected
-by skb_checksum_help(), but only after a WARN_ONCE which can panic a
-panic_on_warn system.
+Very nice!
 
-Validate the checksum start against the parsed header length before
-completing it. For IPv4, read and validate IHL first, retain it, and
-reacquire iph after skb_checksum_help() in both implementations. For IPv6,
-use the length returned by ip6_find_1stfragopt() in both implementations.
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 
-Compare the signed checksum-start offset with the bounded signed header
-length so integer promotion cannot bypass either boundary.
+A couple of nits that you can handle later (or not):
 
-Fixes: dbd3393c56a8 ("ipv4: add defensive check for CHECKSUM_PARTIAL skbs in ip_fragment")
-Fixes: 405c92f7a541 ("ipv6: add defensive check for CHECKSUM_PARTIAL skbs in ip_fragment")
-Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
-Fixes: 764dd163ac92 ("netfilter: nf_conntrack_bridge: add support for IPv6")
-Reported-by: Paulos Yibelo <habte.yibelo@gmail.com>
-Link: https://lore.kernel.org/netdev/20260920004733.6473-3-habte.yibelo@gmail.com/
-Cc: stable@vger.kernel.org
-Signed-off-by: Paulos Yibelo <habte.yibelo@gmail.com>
----
-Changes in v5:
-- Compare the checksum-start offset and IPv4 header length as signed
-  values.
-- Add parsed-header checks to the IPv4/IPv6 output and bridge-netfilter
-  fragmentation paths.
-- Drop the prior Acked-by and Reviewed-by tags because the code changed.
+1. Patch #3:
 
-Changes in v4:
-- State that a TUN device is sufficient and no guest is required, as
-  noted by Michael S. Tsirkin.
+__vlan_delete_pvid(vg, rtnl_dereference(vg->pvid));
 
-Changes in v3:
-- No code changes.
+Can be simplified to:
 
-Changes in v2:
-- No code changes.
+RCU_INIT_POINTER(vg->pvid, NULL);
 
- net/bridge/netfilter/nf_conntrack_bridge.c | 21 +++++++++++++++-----
- net/ipv4/ip_output.c                       | 23 ++++++++++++++++------
- net/ipv6/ip6_output.c                      | 12 ++++++++---
- net/ipv6/netfilter.c                       | 12 ++++++++---
- 4 files changed, 51 insertions(+), 17 deletions(-)
+2. Patch #7:
 
-diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
-index 7ecb8a26b..d81ed8692 100644
---- a/net/bridge/netfilter/nf_conntrack_bridge.c
-+++ b/net/bridge/netfilter/nf_conntrack_bridge.c
-@@ -38,18 +38,29 @@ static int nf_br_ip_fragment(struct net *net, struct sock *sk,
- 	struct iphdr *iph;
- 	int err = 0;
- 
--	/* for offloaded checksums cleanup checksum before fragmentation */
--	if (skb->ip_summed == CHECKSUM_PARTIAL &&
--	    (err = skb_checksum_help(skb)))
-+	iph = ip_hdr(skb);
-+	hlen = iph->ihl * 4;
-+	if (unlikely(hlen < sizeof(*iph) || hlen > skb_headlen(skb))) {
-+		err = -EINVAL;
- 		goto blackhole;
-+	}
- 
--	iph = ip_hdr(skb);
-+	/* Complete offloaded checksums only after the validated IP header. */
-+	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
-+			err = -EINVAL;
-+			goto blackhole;
-+		}
-+		err = skb_checksum_help(skb);
-+		if (err)
-+			goto blackhole;
-+		iph = ip_hdr(skb);
-+	}
- 
- 	/*
- 	 *	Setup starting values
- 	 */
- 
--	hlen = iph->ihl * 4;
- 	frag_max_size -= hlen;
- 	ll_rs = LL_RESERVED_SPACE(skb->dev);
- 	mtu = skb->dev->mtu;
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index a24cc8ee1..fa6a74d20 100644
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -770,16 +770,28 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 	struct ip_frag_state state;
- 	int err = 0;
- 
--	/* for offloaded checksums cleanup checksum before fragmentation */
--	if (skb->ip_summed == CHECKSUM_PARTIAL &&
--	    (err = skb_checksum_help(skb)))
--		goto fail;
--
- 	/*
- 	 *	Point into the IP datagram header.
- 	 */
- 
- 	iph = ip_hdr(skb);
-+	hlen = iph->ihl * 4;
-+	if (unlikely(hlen < sizeof(*iph) || hlen > skb_headlen(skb))) {
-+		err = -EINVAL;
-+		goto fail;
-+	}
-+
-+	/* Complete offloaded checksums only after the validated IP header. */
-+	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
-+			err = -EINVAL;
-+			goto fail;
-+		}
-+		err = skb_checksum_help(skb);
-+		if (err)
-+			goto fail;
-+		iph = ip_hdr(skb);
-+	}
- 
- 	mtu = ip_skb_dst_mtu(sk, skb);
- 	if (IPCB(skb)->frag_max_size && IPCB(skb)->frag_max_size < mtu)
-@@ -789,7 +801,6 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 	 *	Setup starting values.
- 	 */
- 
--	hlen = iph->ihl * 4;
- 	if (mtu < hlen + 8) {
- 		err = -EMSGSIZE;
- 		goto fail;
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 550965058..d157b6ade 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -942,9 +942,15 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 	frag_id = ipv6_select_ident(net, &ipv6_hdr(skb)->daddr,
- 				    &ipv6_hdr(skb)->saddr);
- 
--	if (skb->ip_summed == CHECKSUM_PARTIAL &&
--	    (err = skb_checksum_help(skb)))
--		goto fail;
-+	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
-+			err = -EINVAL;
-+			goto fail;
-+		}
-+		err = skb_checksum_help(skb);
-+		if (err)
-+			goto fail;
-+	}
- 
- 	prevhdr = skb_network_header(skb) + nexthdr_offset;
- 	hroom = LL_RESERVED_SPACE(rt->dst.dev);
-diff --git a/net/ipv6/netfilter.c b/net/ipv6/netfilter.c
-index a7025ec87..da7ada12f 100644
---- a/net/ipv6/netfilter.c
-+++ b/net/ipv6/netfilter.c
-@@ -144,9 +144,15 @@ int br_ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
- 	frag_id = ipv6_select_ident(net, &ipv6_hdr(skb)->daddr,
- 				    &ipv6_hdr(skb)->saddr);
- 
--	if (skb->ip_summed == CHECKSUM_PARTIAL &&
--	    (err = skb_checksum_help(skb)))
--		goto blackhole;
-+	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		if (unlikely(skb_checksum_start_offset(skb) < (int)hlen)) {
-+			err = -EINVAL;
-+			goto blackhole;
-+		}
-+		err = skb_checksum_help(skb);
-+		if (err)
-+			goto blackhole;
-+	}
- 
- 	prevhdr = skb_network_header(skb) + nexthdr_offset;
- 	hroom = LL_RESERVED_SPACE(skb->dev);
--- 
-2.46.0
+Initially I thought that 'fwd.vlan' is never set, but then I realized
+that in the only place where this field is actually set it's called
+'dst.vlan', which is a bit confusing given that in the context of the
+bridge driver 'dst' is usually an FDB entry. I would probably rename it
+to 'fwd' to be consistent with the rest of the code.
