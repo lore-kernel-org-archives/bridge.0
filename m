@@ -1,198 +1,211 @@
-Received: from mail-vs2-f40.google.com (mail-vs2-f40.google.com [74.125.227.40])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 620BC542EF1
-	for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 12:40:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.40
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B0249B5A2;
+	Tue, 22 Sep 2026 18:44:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790080803; cv=none; b=fKh/L7Gv3etcu8EHBkqSNPN57f6GQCVnSVVFSxkm8lTPBSS21q2dB//+TTwH23XiM9ao795qlRaA7t/tiuCVvesdn3H1Id6Wfzx8n6ZuFcVU1vF86hu3fCitAAv8d3p8x81nHBL3HMQV9K7hrMV0isA0lKk52Rsn5zSzTGO8S8A=
+	t=1790102669; cv=none; b=Iaq+sHin2fEDMiP95rwrVBt46DPMUS/W3+h9S8TgANk/oXmZPWVX/mL4T0c/jd2R/yiCL45FFBbtmctUb0t2C3gXqVDe3VWGRXIiGrskimJVKQxkpb0BkS+y9Om/iOxmajsFqj4Yut/SjsStvhkF2SvtfCWQv5TKyGqbMm9OXng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790080803; c=relaxed/simple;
-	bh=wFmJBrwWil7bpAeYIpoN4GzUL1HvXOt5ldn6IIIiFHY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uv+JsT0Yb8zIVSy5mU86bYClC1mSuIj1GrLxmQifRnGxXqKlQtxI0QgjSfDpL2RtdmbI8gWOvX3lZs/9SU1Iu6EFwOM1+tfsSw6Y6uRUdo5B+uCaqW/TxzNcajnKzDwHbGiPqQJW//OSIBT+CwJh8KGvjBB3Yrdb+6GobOUTH+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=GV3lsffK; arc=none smtp.client-ip=74.125.227.40
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ieee.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
+	s=arc-20240116; t=1790102669; c=relaxed/simple;
+	bh=7PLii7ETIvCKdWk31bzgi6aDo157/lglI8HsoGMnRdM=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=nuvqKCq6s55uocC1FY7Rf+SF0eEyRV2kbROiRx5ZHEK17XdnmUlnmgdDU9qIRbTW7cpTydTIgTWqASS/yunTxUHv1GJw4NoH/G1SM0ZIzhMp4q72a5D2kUOyWRLEulPvZto7ydPci8fXyt/Rw3uaiUK9ip7z+AbCkrdVpgasl4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kAXyt4bd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="GV3lsffK"
-Received: by mail-vs2-f40.google.com with SMTP id 71dfb90a1353d-5c9a1536864so2849969e0c.2
-        for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 05:40:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google; t=1790080799; x=1790685599; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=o9blDfaIlaDE7zWOzf7sAkl81n8mIgiGQIMLz8R8dVg=;
-        b=GV3lsffKgYbMPBOsez8i7whbgaoi8Nj8eWM9E+ojKmpW+hU3iYxfpWZK6O7qs/GrOh
-         4D14JOQlYmX//RblMcJD6GDos9U8Az2gZlCPnwXoiLHP9cYIv3D8IlyEtgzA634iaRFv
-         NIpWneWMJKc8KKWR12bC9irKp3FQFzsswqGSs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790080799; x=1790685599;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=o9blDfaIlaDE7zWOzf7sAkl81n8mIgiGQIMLz8R8dVg=;
-        b=jMqeQ5iClbV+cTnhcAb8eZoV4PuVH7YUFMYqNj8bcUFjVx0Zel8lhTd53QhxaG3mNY
-         Hg2qIX/IaBt+P3msPcI8yL8ST7diKc32FmJg9/1m8v5YVeiIV66vYF6E7dyMPh7Zxpc/
-         RFAgv1am2mhTUvLDgkSu1Y0yS/cN4cfaBMB3Bo6xrYjx59ka/Kyh7q2VEklzcW8Vr2BF
-         w+v9zc4qPDMIhz4RJswXxV8pmunz4/fcYoTSIGgm2ON/eeen2ewblSdj9GysKV5TMxXC
-         K42gfO1LejeVqILu6UnnDRyquhmbJ33wCK1XIfiVMa7K3uANz/eIggLBQ/gWC/cOJ8tn
-         +7pw==
-X-Forwarded-Encrypted: i=1; AKwUvBxWYCE5MVu6KCgLaOOxYu21XTJ6sG1IWi8G9JF2pXqVbtputspA70aH6gMDli11iMVLJqOq7CY=@lists.linux.dev
-X-Gm-Message-State: AFuF++kUxG5Rqhdx7Cc2yFkIYRL6ZFSA4lNHVroPtsgewaBzwKUHl3aa
-	gwYUObN2XY0SYUvaGrvDOyDBGowzMXmKzT++2gsPbpHS3Fqy2wNV9yrBKmkZLFoEPA==
-X-Gm-Gg: AYBFou3YCQRj4HrLveKpZs3e3KC0xhlott1xRnqteRbdFm8e1m9FstksQfY0/Qy+cDk
-	Cj19gII2MqnkEzIAj0Ala1v0+z7Vxl8OigZUzeM1GV1Ajw99l/+B9oIN2wlQVg2IS/vzYpp58cO
-	R9spehIxaqljEBiRwqm+u9aFpalwZlwP5uBW16/gMlSatfB1pjFezHFiovGmCytxHjaOTpwVG6q
-	So+mBIUYl7u7qWSoMOJ4sHXlx20AnDrKDajr1biaBp7ODffYJRKZGC07u2u14hJxlasfEVWDkND
-	q3gKwj6v7D2rvGmujVavyDT85fmB7YBF7wloB97IkxezYzcyFy9TS2i9z5Tg0OKEPIog2Ig5n/4
-	Df2wZ0ZbwxLC5sayqv6+TjxvCFNOT9FFGeSrOCUcZ1QICFx4nrIIY09jWtbpQotM+JYUPw56mNh
-	rWhWCowAhYIOwhcVtVMAIF9j0uZSzv1gH18aGh163j0fKo9dgXZxvQq4rFiwpcdG8n/UGy+1z29
-	ND6
-X-Received: by 2002:a05:6122:e22b:b0:5c9:a60c:2736 with SMTP id 71dfb90a1353d-5c9b598e442mr8405960e0c.14.1790080799199;
-        Tue, 22 Sep 2026 05:39:59 -0700 (PDT)
-Received: from [172.22.22.28] ([73.62.185.64])
-        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-91402535ce1sm14566906d6.48.2026.09.22.05.39.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Sep 2026 05:39:53 -0700 (PDT)
-Message-ID: <d2052425-3fb4-4104-b1ed-f2d53e5a710d@ieee.org>
-Date: Tue, 22 Sep 2026 07:39:47 -0500
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kAXyt4bd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A7911F000FF;
+	Tue, 22 Sep 2026 18:44:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790102660;
+	bh=UjEou/Ftu9I+L9AdcUk1ScJDdFJXrMrfvwt0cglL1Ok=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=kAXyt4bdygdTvDTWP9ntXNYI0zgVyiwrs67bi2HRbSIo7Wxqaz2v4x7icoTZqR80V
+	 4/QXnH3/sd24yVc/cs5JtVq0uYoQMMUbKh9FzQIi0n7njAPMg37w9FzAXz4QGiiZd9
+	 cI31Q4kq6LXby1RYeHzlYuo3ZEp/1U0JGUj2rYqNShaGDbQN5YdP7kgEX4mDj5klRd
+	 NHFVCZ0Zd+RfrOSR9297bdJEI3sU2cF4MTUYjZMEBGDYtx2tPm56BZ0LFh/EAKBU5Z
+	 CDn92FXS8UicEfgNeEv+Az9kh+5afz1FxuSaETQ6grP7RiGfWcErFY5TR+u1cPTj7D
+	 GACtiByAkm2XA==
+Subject:
+ Re: [PATCH net-next v3 1/2] rtnetlink: pass extack to ndo_bridge_getlink()
+From: netdev-bot+sashiko@kernel.org
+To: iprintercanon@gmail.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
+ idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, andrew+netdev@lunn.ch, kuniyu@google.com,
+ michael.chan@broadcom.com, pavan.chebbi@broadcom.com,
+ ajit.khaparde@broadcom.com, sriharsha.basavapatna@broadcom.com,
+ anthony.l.nguyen@intel.com, przemyslaw.kitszel@intel.com,
+ intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
+ mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
+ aswin@linux.ibm.com, linux-s390@vger.kernel.org
+Date: Tue, 22 Sep 2026 18:44:18 +0000
+Message-ID: <179010265895.2160803.373522142695973642@kernel.org>
+In-Reply-To: <20260919134333.49379-2-iprintercanon@gmail.com>
+References: <20260919134333.49379-2-iprintercanon@gmail.com>
+X-sashiko-severity: Low
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/3] umh, treewide: Explicitly include linux/umh.h
- where needed
-To: Petr Pavlu <petr.pavlu@suse.com>, Tony Luck <tony.luck@intel.com>,
- Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
- Philipp Reisner <philipp.reisner@linbit.com>,
- Lars Ellenberg <lars.ellenberg@linbit.com>,
- =?UTF-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
- Jens Axboe <axboe@kernel.dk>, Johan Hovold <johan@kernel.org>,
- Alex Elder <elder@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Michal Januszewski <spock@gentoo.org>, Helge Deller <deller@gmx.de>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
- Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
- NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
- Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
- Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>,
- Joseph Qi <joseph.qi@linux.alibaba.com>, Tejun Heo <tj@kernel.org>,
- Johannes Weiner <hannes@cmpxchg.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
- <mkoutny@suse.com>, Luis Chamberlain <mcgrof@kernel.org>,
- Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
- Aaron Tomlin <atomlin@atomlin.com>, Pavel Machek <pavel@kernel.org>,
- Len Brown <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- Danilo Krummrich <dakr@kernel.org>, Nikolay Aleksandrov
- <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, David Howells <dhowells@redhat.com>,
- Jarkko Sakkinen <jarkko@kernel.org>, Paul Moore <paul@paul-moore.com>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Kentaro Takeda <takedakn@nttdata.co.jp>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
- drbd-dev@lists.linux.dev, linux-block@vger.kernel.org,
- greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org,
- linux-acpi@vger.kernel.org, linux-fbdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-fsdevel@vger.kernel.org,
- linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
- cgroups@vger.kernel.org, linux-modules@vger.kernel.org,
- linux-pm@vger.kernel.org, driver-core@lists.linux.dev,
- bridge@lists.linux.dev, netdev@vger.kernel.org, keyrings@vger.kernel.org,
- linux-security-module@vger.kernel.org
-References: <20260911-module-include-kmod-v3-0-6ebccc3e0731@suse.com>
- <20260911-module-include-kmod-v3-1-6ebccc3e0731@suse.com>
-Content-Language: en-US
-From: Alex Elder <elder@ieee.org>
-In-Reply-To: <20260911-module-include-kmod-v3-1-6ebccc3e0731@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 9/11/26 9:46 AM, Petr Pavlu wrote:
-> The usermode helper declarations were previously provided by linux/kmod.h
-> but commit c1f3fa2a4fde ("kmod: split off umh headers into its own file")
-> moved them to linux/umh.h in 2017.
-> 
-> Add explicit includes of linux/umh.h to files that use usermode helpers and
-> remove linux/kmod.h where it is no longer needed.
-> 
-> Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-> ---
->   arch/x86/kernel/cpu/mce/dev-mcelog.c | 2 +-
->   drivers/block/drbd/drbd_nl.c         | 1 +
->   drivers/greybus/svc_watchdog.c       | 1 +
+Thank you for your contribution! Sashiko AI review found more severe
+issue(s) in other patches of this series. This mail is only an FYI, in case
+you want to address the nit picks below when you respin.
 
-For Greybus:
+Low priority / nit picks for your consideration:
 
-Acked-by: Alex Elder <elder@riscstar.com>
+- [Low] Patch 1 ("rtnetlink: pass extack to ndo_bridge_getlink()")
+  threads a `struct netlink_ext_ack *extack` through the…
 
->   drivers/macintosh/windfarm_core.c    | 1 +
->   drivers/pnp/pnpbios/core.c           | 2 +-
->   drivers/video/fbdev/uvesafb.c        | 1 +
->   fs/coredump.c                        | 2 +-
->   fs/nfs/cache_lib.c                   | 2 +-
->   fs/nfsd/nfs4layouts.c                | 2 +-
->   fs/nfsd/nfs4recover.c                | 1 +
->   fs/ocfs2/stackglue.c                 | 1 +
->   kernel/cgroup/cgroup-v1.c            | 2 +-
->   kernel/module/kmod.c                 | 1 +
->   kernel/power/process.c               | 2 +-
->   kernel/reboot.c                      | 2 +-
->   kernel/umh.c                         | 2 +-
->   lib/kobject_uevent.c                 | 2 +-
->   net/bridge/br_stp_if.c               | 2 +-
->   security/keys/request_key.c          | 2 +-
->   security/tomoyo/common.h             | 2 +-
->   20 files changed, 20 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/mce/dev-mcelog.c b/arch/x86/kernel/cpu/mce/dev-mcelog.c
-> index 053555206d81..af4e76babe7a 100644
-> --- a/arch/x86/kernel/cpu/mce/dev-mcelog.c
-> +++ b/arch/x86/kernel/cpu/mce/dev-mcelog.c
-> @@ -11,7 +11,7 @@
->   
->   #include <linux/miscdevice.h>
->   #include <linux/slab.h>
-> -#include <linux/kmod.h>
-> +#include <linux/umh.h>
->   #include <linux/poll.h>
->   
->   #include "internal.h"
-> diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
-> index b77f901fc3ef..6f5d059394b3 100644
-> --- a/drivers/block/drbd/drbd_nl.c
-> +++ b/drivers/block/drbd/drbd_nl.c
-> @@ -14,6 +14,7 @@
->   #define pr_fmt(fmt)	KBUILD_MODNAME ": " fmt
->   
->   #include <linux/module.h>
-> +#include <linux/umh.h>
->   #include <linux/drbd.h>
->   #include <linux/in.h>
->   #include <linux/fs.h>
-> diff --git a/drivers/greybus/svc_watchdog.c b/drivers/greybus/svc_watchdog.c
-> index 16e6de5e9eff..b318eb34bcca 100644
-> --- a/drivers/greybus/svc_watchdog.c
-> +++ b/drivers/greybus/svc_watchdog.c
-> @@ -7,6 +7,7 @@
->   
->   #include <linux/delay.h>
->   #include <linux/suspend.h>
-> +#include <linux/umh.h>
->   #include <linux/workqueue.h>
->   #include <linux/greybus.h>
->   
-. . .
+Pre-existing issues:
+- [Medium] This problem wasn't introduced by this patch, but in
+  `br_fill_ifinfo()` (net/bridge/br_netlink.c) the VLAN-fill result is…
+
+--
+
+rtnetlink: pass extack to ndo_bridge_getlink()
+
+The patch adds a struct netlink_ext_ack *extack argument to the
+ndo_bridge_getlink op, to ndo_dflt_bridge_getlink() and to br_getlink(),
+and updates the eight in-tree implementations plus the two rtnetlink call
+sites. The commit describes itself as no functional change.
+
+> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+> index e3444fd24061..a341e06f47d3 100644
+> --- a/net/core/rtnetlink.c
+> +++ b/net/core/rtnetlink.c
+> @@ -5420,7 +5420,8 @@ int ndo_dflt_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+>  			    u32 filter_mask,
+>  			    int (*vlan_fill)(struct sk_buff *skb,
+>  					     struct net_device *dev,
+> -					     u32 filter_mask))
+> +					     u32 filter_mask),
+> +			    struct netlink_ext_ack *extack)
+>  {
+>  	struct nlmsghdr *nlh;
+>  	struct ifinfomsg *ifm;
+
+[Severity: Low]
+Taken on its own, does this patch leave extack unused in every callee it
+touches?
+
+ndo_dflt_bridge_getlink() gains the parameter but none of its failure
+paths reference it:
+
+net/core/rtnetlink.c:ndo_dflt_bridge_getlink() {
+	...
+	nlh = nlmsg_put(skb, pid, seq, RTM_NEWLINK, sizeof(*ifm), nlflags);
+	if (nlh == NULL)
+		return -EMSGSIZE;
+	...
+nla_put_failure:
+	nlmsg_cancel(skb, nlh);
+	return err ? err : -EMSGSIZE;
+}
+
+So for the eight drivers that use the default helper the extack stays
+empty, and the commit message statement "So the bridge can say why filling
+the link info failed" is only realized by the next patch in the series,
+which adds the extack argument to br_fill_ifinfo() and emits
+NL_SET_ERR_MSG_MOD() there. Would it help to say in the changelog that
+this is preparation and that the message is added by the following patch?
+
+[ ... ]
+
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index ae76df0de05a..855a46aec3a8 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -680,7 +680,8 @@ void br_ifinfo_notify(int event, const struct net_bridge *br,
+>   * Dump information about all ports, in response to GETLINK
+>   */
+>  int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+> -	       struct net_device *dev, u32 filter_mask, int nlflags)
+> +	       struct net_device *dev, u32 filter_mask, int nlflags,
+> +	       struct netlink_ext_ack *extack)
+>  {
+>  	struct net_bridge_port *port = br_port_get_rtnl(dev);
+>  
+
+[Severity: Low]
+br_getlink() accepts extack here but drops it, since the call below is
+left unchanged:
+
+net/bridge/br_netlink.c:br_getlink() {
+	...
+	return br_fill_ifinfo(skb, port, pid, seq, RTM_NEWLINK, nlflags,
+			      filter_mask, dev, true);
+}
+
+br_fill_ifinfo() is the function that actually returns -EMSGSIZE, so does
+anything in the bridge get to use the new argument until the follow-up
+patch wires it into br_fill_ifinfo()?
+
+While looking at br_fill_ifinfo() for the above, one unrelated
+observation:
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but in br_fill_ifinfo() the
+VLAN fill result is overwritten before it is tested:
+
+net/bridge/br_netlink.c:br_fill_ifinfo() {
+	...
+		if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
+			err = br_fill_ifvlaninfo_compressed(skb, vg);
+		else
+			err = br_fill_ifvlaninfo(skb, vg);
+
+		if (port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
+			err = br_fill_vlan_tunnel_info(skb, vg);
+		rcu_read_unlock();
+		if (err)
+			goto nla_put_failure;
+	...
+}
+
+Can an -EMSGSIZE from br_fill_ifvlaninfo[_compressed]() be lost here?
+br_fill_vlan_tunnel_info() in net/bridge/br_netlink_tunnel.c skips every
+VLAN that has no tinfo.tunnel_dst and returns 0 without touching the skb,
+which happens after "bridge link set dev X vlan_tunnel on" with no
+tunnel_info id mappings configured:
+
+net/bridge/br_netlink_tunnel.c:br_fill_vlan_tunnel_info() {
+	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
+		if (!br_vlan_should_use(v))
+			continue;
+
+		if (!v->tinfo.tunnel_dst)
+			continue;
+	...
+	return 0;
+}
+
+In that configuration a partially filled VLAN list appears to be
+finalized as success, and rtnl_bridge_getlink() then advances idx and
+records it in cb->args[0], so the port is not retried in the next dump
+round:
+
+net/core/rtnetlink.c:rtnl_bridge_getlink() {
+	...
+				if (err < 0 && err != -EOPNOTSUPP) {
+					if (likely(skb->len))
+						break;
+
+					goto out_err;
+				}
+			}
+			idx++;
+	...
+}
+
+Would testing the VLAN fill error before calling
+br_fill_vlan_tunnel_info() be the right fix? This code is identical in
+the baseline and is unchanged by the series, so it is a separate patch.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919134333.49379-1-iprintercanon%40gmail.com
