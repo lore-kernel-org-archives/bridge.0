@@ -1,309 +1,270 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx2-f13.google.com (mail-yx2-f13.google.com [74.125.224.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E7C3B7B7F;
-	Tue, 22 Sep 2026 18:44:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FA55522F0C
+	for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 22:29:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790102669; cv=none; b=aVROGE7fzynzfW/pdovCbDv9WIc9984VcXIfPWkPM3tGklY6VJoKhKJkR5+/sPsNbV39D0kBNreG9iXZ/1YYwXU642WbZFKhrSwSuIkZntWt94iuH+QZPQh9Vc0cJI7HWIuiZ0j/bXRLbQTFcVpgZzDMNOMjanfVzar/Fki9+fs=
+	t=1790116206; cv=none; b=BJEdoCZ5m6VuAziJZu3imgWyKUoqV6RGeoZrxWWR5HC1ls7x2Xod4OWkGUUBFSPI1a0EX1w1+r2w+KoWHqb71MtdGoE8jaCkm/BrvuswZ7eeKKx3djuFJgiakK6WHf5nJGlSSFJCTRoz4eiYvJmLGzbvWF7XsIO3VEB/4SsIGcQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790102669; c=relaxed/simple;
-	bh=h6IVm2PcH9mfF7+RczPWWLWohajk9HLBHhcz9iSYAjk=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Hl+61GrhFrMuBwallpkmyt5/6Vy8Jjm49Z4vb4N3nvO3UEMFnx0i0BHpqQiOdk6fbFRwtVXcj1oI7MHeOx+3sbhzopCt5uqgkkSoZ5fRl3h9qJ/MbAG2mywPBCXQ72f2zfL7CEnaNGnHU1xfwk9Ko65hLY1oJvTKM7TQ6tZIXnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ULqOnm5o; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790116206; c=relaxed/simple;
+	bh=GPLKcgE/IGUmibjYksV+m38Ut7/zFBjUgzhUH19TbD8=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type; b=meL0dfIHzUYMlJZ9Y5McnJstqdlVzhmJBlYWTLmylXf9flShtPPQk/6DfWmF/BViM1I/DJKWZTOKJYAGoEeyb7E8ny7473a05ddRVEJTLoJNosO/La8/T1UH7lDRBwGlNIkiXViKqsalDgOyBfAnh1B1mmliEgF5ZcabUO2L7w8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dh+9zi6k; arc=none smtp.client-ip=74.125.224.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ULqOnm5o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A42C1F00893;
-	Tue, 22 Sep 2026 18:44:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790102662;
-	bh=1IxyZtZmcdhtuM2dKvn8d1mOOIfkqTrxHyUtB5yx34Q=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ULqOnm5olO9jV8adygoNsZuOmn8oIHOEmnsVGOtWjLKoo9wQbcDWm9aR2sEVyAa5P
-	 xV8PP0GuJSs+MeZkf6/jt+3FTOKmFN3h/k/JlrGcdMfpwhTkrruHS+IhO9K2Wsj8sh
-	 351uf+RCPeL1LQMBYTh301MfjqFFk3O7RbjsfLTpJYNFppizAwZYww2vQFKb63Y/yY
-	 xUQBE1X+UGVTd1ZX/WndoRNElx59rsUwWC2c+tTzrXA7mdP8a3NyVE8A7Ku0AY0zwH
-	 MEktnmSp+MONIClqYr0NgDhG8dvwcc/XkcgoWk/UylAecU+cEy6xqgX7cr9or2G+Oa
-	 4d9WjI/4ulIOw==
-Subject: Re: [PATCH net-next v3 2/2] net: bridge: fail link info that does not
- fit in a netlink attribute
-From: netdev-bot+sashiko@kernel.org
-To: iprintercanon@gmail.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
- idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, andrew+netdev@lunn.ch, kuniyu@google.com,
- michael.chan@broadcom.com, pavan.chebbi@broadcom.com,
- ajit.khaparde@broadcom.com, sriharsha.basavapatna@broadcom.com,
- anthony.l.nguyen@intel.com, przemyslaw.kitszel@intel.com,
- intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
- mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
- aswin@linux.ibm.com, linux-s390@vger.kernel.org
-Date: Tue, 22 Sep 2026 18:44:20 +0000
-Message-ID: <179010266085.2160803.3521506082186980077@kernel.org>
-In-Reply-To: <20260919134333.49379-3-iprintercanon@gmail.com>
-References: <20260919134333.49379-3-iprintercanon@gmail.com>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dh+9zi6k"
+Received: by mail-yx2-f13.google.com with SMTP id 00721157ae682-85d45ae011aso6075147b3.0
+        for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 15:29:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790116191; x=1790720991; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=0qPZh/r/REXP5ZSy0nxs+oUBSRD0aY6qVWm9CYsML3E=;
+        b=dh+9zi6k29YOHXOI95L7mm/zLAVesm8aybOR/mSE4cMZsD6o7wE8xPfsa17uf2bKiF
+         okQnYJtIRdsjAmOAKXe4L1iPwGkz8LO9MA5iiJTHVr1uN/jGDv99X00FBi5rBqE+GBUu
+         V0lLXhb0RlWaqAX7lqhGkRhwxfc1RpjDu+Oe+M8Zs/2ERQ6Zl8wFWvRqJYWEGgcRlurv
+         Sxi2Mw7fwf+aNECxi85UC9XOVeVTz4a29XXhQDdjy3qC7y6ZT5+q23Kq3RyJkqm4lwG+
+         +AWlk2sTGrTo+aMzIJBJY5YHjV+T373FsKqifqYHlmJmnzYcbcks9pA/sDg3N1Fr6MaN
+         xpDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790116191; x=1790720991;
+        h=content-transfer-encoding:content-type:mime-version:subject
+         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0qPZh/r/REXP5ZSy0nxs+oUBSRD0aY6qVWm9CYsML3E=;
+        b=dycpQ69uZF36WQ8I7mm1LO15qAQI3DKB0dlpmm3Gk9NlImz+7L427JMrPcEBfFYHvs
+         bNLvGNCn43FTHjHNnbsz54uuexw8YoSKWsRX4KFJ/TtEqPki1UZnp9paZzST4pBlnEWt
+         f7pmcV+HQXOftMfNO0ar0ndECgSIqpjlunw7F1H3W6ESpKFnMTcLhEqaEhnBuQ/+bH1E
+         u6bSvuCK5Y++00tqOrMzbBXDdsYM1GgEN3jGNFxIkd8Xgtd7KTBfUoKsgYC98jlTPkFB
+         cLW7/i/zU3YMBmGm+ZXj/EeiHuqhZFzXgFCCVdlCzSfDAB/cHygMqANmtZTDTC4kxmVl
+         mTEQ==
+X-Forwarded-Encrypted: i=1; AKwUvBysHKPO1qovGL4gWrdOmQ9krnHiAC/C8MERCIs84hg7kVUtv+haWUqncpuAoGz6V2aHRu37OLQ=@lists.linux.dev
+X-Gm-Message-State: AFuF++kHe+dqXScbFc5+rWW+5wJDFAAqImBe4GkFWuKS/PvWuB/FIdgw
+	Get4HmWjF56kXjXclfi7pP1cHlJVpYdX0RyYkdHGhAgCkRn3J+euUTtC
+X-Gm-Gg: AYBFou2VFXCADIs0Wk+On1ExrzTneNUpw1mzkXgXlXVI7seqiQTmVOS2nuDtRQWGDKA
+	4zTyGrw+JqbkExQ5E+cl0Ndu0c6AJzFceCl6dH4zeXhAfgU+t54JmVxNVQGZvo7ZhY/AfN7vhaa
+	rPc0vR00UG8M84cvFWGj5qHJhh6aydxl1ByvhZoBpuUfLJIgXOkJw75uQP3/Lwo6wtB9Ps/fs7l
+	eQ1WUaMRNteK5tIZOCM6aklq4Me0dyLWCWCfabi77d/bnNwcb38ZsNbYjqbuSC2AkH6LOakO9qW
+	Dk/XecRW7OKpKHyBv9JW2Vrxo58OOPqD3RHAqBKrrYuLC5tponYk3XCxCDBMbAKfoASMjgvhl21
+	IHmWsqZA1+naHbmiIhr/9++YEbN5J2i9Jlj1ilXPsMCZYvWaKSgAcCLUcAgJYvUcpRCS+ofFPC3
+	S5g1XE09zxzTiDMrj2ax0BXCxOMuwe0PwKpWDLxAFOST36x9jQx+gWGM6msv69EZZsFte6fbI8F
+	bObkzH8+p8M7PhGziS14QJDGnRGgJZ/Fmf3lfwq2UNX79F57pdl
+X-Received: by 2002:a05:690c:c:b0:873:5bb2:6c32 with SMTP id 00721157ae682-8a45bb75c4bmr5165927b3.57.1790116191128;
+        Tue, 22 Sep 2026 15:29:51 -0700 (PDT)
+Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-8a465ec41acsm3153167b3.26.2026.09.22.15.29.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Sep 2026 15:29:50 -0700 (PDT)
+Date: Tue, 22 Sep 2026 18:29:49 -0400
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Paulos Yibelo <habte.yibelo@gmail.com>, 
+ netdev@vger.kernel.org
+Cc: richard@nod.at, 
+ anton.ivanov@cambridgegreys.com, 
+ johannes@sipsolutions.net, 
+ willemdebruijn.kernel@gmail.com, 
+ jasowangio@gmail.com, 
+ mst@redhat.com, 
+ eperezma@redhat.com, 
+ xuanzhuo@linux.alibaba.com, 
+ andrew+netdev@lunn.ch, 
+ pablo@netfilter.org, 
+ fw@strlen.de, 
+ phil@nwl.cc, 
+ razor@blackwall.org, 
+ idosch@nvidia.com, 
+ dsahern@kernel.org, 
+ davem@davemloft.net, 
+ edumazet@google.com, 
+ kuba@kernel.org, 
+ pabeni@redhat.com, 
+ horms@kernel.org, 
+ linux-um@lists.infradead.org, 
+ virtualization@lists.linux.dev, 
+ netfilter-devel@vger.kernel.org, 
+ coreteam@netfilter.org, 
+ bridge@lists.linux.dev, 
+ linux-kernel@vger.kernel.org
+Message-ID: <willemdebruijn.kernel.259bc7096258d@gmail.com>
+In-Reply-To: <20260922030310.8684-2-habte.yibelo@gmail.com>
+References: <20260922030310.8684-1-habte.yibelo@gmail.com>
+ <20260922030310.8684-2-habte.yibelo@gmail.com>
+Subject: Re: [PATCH net v6 1/2] net: validate virtio checksum start after
+ network header
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issue(s) to consider.
+Paulos Yibelo wrote:
+> __virtio_net_hdr_to_skb() checks a minimum network-header length for
+> CHECKSUM_PARTIAL packets. Its checksum start is relative to skb->data,
+> but some callers have not established skb->network_header when they
+> convert the virtio header.
+> =
 
-Critical: 0 · High: 0 · Medium: 1 (2) · Low: 2
+> Pass the data-relative L3 origin explicitly. Ethernet receive paths
+> parse the frame and nested VLAN headers without changing skb state.
+> AF_PACKET uses the frame's actual L3 origin even when the socket
+> protocol is ETH_P_IP and the raw frame carries VLAN tags. Non-Ethernet
+> AF_PACKET devices retain their established skb network offset.
+> =
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+> Also pass the actual L3 protocol so IPv6 packets use the 40-byte base
+> header minimum even without TCPv6 GSO. IFF_TUN obtains that protocol
+> from the packet before skb->protocol is set. Name the Ethernet parser
+> accordingly, use the same origin for tunnel validation, and propagate
+> conversion failures in UML.
+> =
 
-- [Medium] New error path discards already-consumed CFM status.
-- [Low] Missing `Fixes:` tag / stable routing information for a user-
-  visible uAPI bug fix.
-- [Low] The single `nla_nest_too_large` label emits "AF_SPEC info too
-  large, use per-object dumps (e.g. RTM_GETVLAN)" for all three overflow…
+> The bound remains a minimum; fragmentation paths separately validate
+> the parsed IPv4 or IPv6 header length before completing a checksum.
+> =
 
-Pre-existing issues:
-- [Medium] This problem wasn't introduced by this patch, but it
-  undermines the notification behaviour the commit message describes:…
-- [Medium] This problem wasn't introduced by this patch, but it sits
-  directly in the rewritten function: in `br_fill_ifinfo()` the return…
+> Fixes: 49d14b54a527 ("net: test for not too small csum_start in virtio_=
+net_hdr_to_skb()")
+> Fixes: a2fb4bc4e2a6 ("net: implement virtio helpers to handle UDP GSO t=
+unneling.")
+> Reported-by: Paulos Yibelo <habte.yibelo@gmail.com>
+> Link: https://lore.kernel.org/netdev/20260920004733.6473-2-habte.yibelo=
+@gmail.com/
+> Cc: stable@vger.kernel.org
+> Assisted-by: LLM
+> Signed-off-by: Paulos Yibelo <habte.yibelo@gmail.com>
+> ---
+>  arch/um/drivers/vector_transports.c | 13 ++++-
+>  drivers/net/tun_vnet.h              | 52 ++++++++++++++++-
+>  drivers/net/virtio_net.c            | 10 +++-
+>  include/linux/virtio_net.h          | 87 ++++++++++++++++++++++++-----=
 
---
+>  net/packet/af_packet.c              | 24 +++++++-
+>  5 files changed, 163 insertions(+), 23 deletions(-)
 
-net: bridge: fail link info that does not fit in a netlink attribute
+The fix may still miss the case IPv4 packets have options.
 
-br_fill_ifinfo() now finalizes the IFLA_AF_SPEC, IFLA_BRIDGE_CFM and
-IFLA_BRIDGE_MST nests with nla_nest_end_safe() and returns -E2BIG with an
-extack message when a nest payload exceeds what the u16 nla_len can
-describe.  br_fill_ifinfo() gains an extack argument, passed through from
-br_getlink() and NULL from br_info_notify().
+This version is a very large patch.
 
-A few questions on the change below.
+Untested shorter first suggestion by bot, which looks plausible as a
+starting point for discussion.
 
-> nla_len is a u16, and a port with enough VLANs, tunnels or MST entries
-> makes the IFLA_AF_SPEC nest wrap, so userspace reads garbage. Same for
-> the inner MST and CFM nests.
+    --- a/drivers/net/tun_vnet.h
+    +++ b/drivers/net/tun_vnet.h
+    @@ -152,6 +152,9 @@ static inline int tun_vnet_hdr_to_skb(unsigned in=
+t flags, struct sk_buff *skb,
+                           const struct virtio_net_hdr *hdr)
+     {
+    +    if ((flags & TUN_TYPE_MASK) =3D=3D IFF_TUN)
+    +        skb_reset_network_header(skb);
+    +
+         return virtio_net_hdr_to_skb(skb, hdr, tun_is_little_endian(flag=
+s));
+     }
 
-[Severity: Low]
-Since the commit message describes pre-existing user-visible breakage
-("userspace reads garbage") rather than a cleanup, should this carry a
-Fixes: tag so it gets routed to stable?
+    --- a/include/linux/virtio_net.h
+    +++ b/include/linux/virtio_net.h
+    @@ -71,9 +71,27 @@ static inline int __virtio_net_hdr_to_skb(struct s=
+k_buff *skb,
+             if (!pskb_may_pull(skb, needed))
+                 return -EINVAL;
+     =
 
-The overflow does look reachable: __get_vlan_tinfo_size() in
-br_netlink_tunnel.c charges 28 bytes per tunnel mapping
+    +        if (!skb_network_header_was_set(skb) ||
+    +            (skb->dev && skb->dev->type =3D=3D ARPHRD_ETHER)) {
+    +            int nhoff =3D ETH_HLEN;
+    +
+    +            if (unlikely(start < ETH_HLEN + nh_min_len))
+    +                return -EINVAL;
+    +            __vlan_get_protocol(skb, eth_hdr(skb)->h_proto, &nhoff);=
 
-	return nla_total_size(0) + nla_total_size(sizeof(u32)) +
-	       nla_total_size(sizeof(u16)) + nla_total_size(sizeof(u16));
+    +            nh_min_len +=3D nhoff;
+    +        } else {
+    +            nh_min_len +=3D skb_network_offset(skb);
+    +        }
+    +        if (unlikely(start < nh_min_len))
+    +            return -EINVAL;
+    +
+    +        const struct iphdr *iph =3D (void *)(skb->data + nh_min_len =
+- sizeof(*iph));
+    +        if (iph->version =3D=3D 4)
+    +            nh_min_len +=3D max_t(u32, iph->ihl * 4, sizeof(*iph)) -=
+ sizeof(*iph);
+    +        else if (iph->version =3D=3D 6)
+                 /* ..here I don't trust the initial bug output, but the =
+branch is clear.. */
+    +        if (unlikely(start < nh_min_len))
+    +            return -EINVAL;
+    +
+             if (!skb_partial_csum_set(skb, start, off))
+                 return -EINVAL;
+    -        if (skb_transport_offset(skb) < nh_min_len)
+    -            return -EINVAL;
+         }
 
-so roughly 4094 VLANs with non-consecutive tunnel IDs push the AF_SPEC
-payload past U16_MAX, and br_info_notify() allocates an skb of exactly
-br_nlmsg_size() bytes for it.
+    --- a/net/ipv4/ip_output.c
+    +++ b/net/ipv4/ip_output.c
+    @@ -772,7 +772,9 @@ int ip_do_fragment(struct net *net, struct sock *=
+sk, struct sk_buff *skb,
+         if (skb->ip_summed =3D=3D CHECKSUM_PARTIAL &&
+             (!(dev->features & NETIF_F_CSUM_MASK) ||
+    -         skb_checksum_help(skb)))
+    +         skb_checksum_start_offset(skb) < (int)(iph->ihl * 4) ||
+    +         skb_checksum_help(skb)))
+             goto fail;
+  =
 
-Candidate anchors would be the commit that introduced the AF_SPEC nesting
-(b6c02ef54913) and the later CFM/MST reporting additions.
+And the summary of the problem:
 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 855a46aec3a8..fbd91b86d426 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
+  ### 1. What the Problem Is
 
-[ ... ]
+  When userspace (AF_PACKET, TUN/TAP, vhost-net) or a device (virtio_net,=
+ UML) injects a CHECKSUM_PARTIAL packet using struct virtio_net_hdr,
+  virtio_net.h:47-119 validates hdr->csum_start:
 
-> @@ -588,7 +588,8 @@ static int br_fill_ifinfo(struct sk_buff *skb,
->  				goto nla_put_failure;
->  		}
->  
-> -		nla_nest_end(skb, cfm_nest);
-> +		if (nla_nest_end_safe(skb, cfm_nest) < 0)
-> +			goto nla_nest_too_large;
->  	}
+    // include/linux/virtio_net.h:107 (added by commit 49d14b54a527)
+    if (skb_transport_offset(skb) < nh_min_len)
+        return -EINVAL;
 
-[Severity: Medium]
-Can this new exit throw away CFM status that has already been consumed?
+  This validation has three bugs:
 
-br_getlink() calls br_fill_ifinfo() with getlink = true, and
-br_cfm_status_fill_info() clears the "seen" indications as it serializes
-each record:
+  1. Missing L2 + VLAN offset: skb_transport_offset(skb) (hdr->csum_start=
+) is an offset from skb->data, which points to the L2 header (14
+  bytes for Ethernet + 4 * n bytes for 802.1Q/802.1ad VLAN tags) on Ether=
+net callers (virtio_net, IFF_TAP, PACKET_SOCK_DGRAM/SOCK_RAW).
+  Comparing csum_start < 20 allows csum_start to land inside the L2 VLAN =
+tags (14..21) or inside the L3 header (22..33).
+  2. Wrong nh_min_len for IPv6 non-GSO: nh_min_len defaults to sizeof(str=
+uct iphdr) (20) and is only raised to sizeof(struct ipv6hdr) (40)
+  when gso_type is VIRTIO_NET_HDR_GSO_TCPV6. A non-GSO or GSO_UDP_L4 IPv6=
+ packet is only checked against 20 bytes.
+  3. Ignores IPv4 options (iph->ihl > 5): Even without an L2 header (IFF_=
+TUN), an IPv4 header with options can be up to 60 bytes (ihl =3D 15),
+  allowing csum_start =3D 20 to point 40 bytes inside the IPv4 options ar=
+ea.
 
-net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
-	...
-	if (getlink) {
-		/* Clear all 'seen' indications */
-		mep->status.opcode_unexp_seen = false;
-		mep->status.version_unexp_seen = false;
-		mep->status.rx_level_low_seen = false;
-	}
-	...
-		if (getlink) { /* Only clear if this is a GETLINK */
-			/* Clear all 'seen' indications */
-			peer_mep->cc_status.seen = false;
-			peer_mep->cc_status.tlv_seen = false;
-			peer_mep->cc_status.seq_unexp_seen = false;
-		}
-	...
-}
+  This causes two kernel bugs downstream:
 
-Nothing bounds the peer MEP count so that the IFLA_BRIDGE_CFM nest stays
-below U16_MAX (each peer status record is around 76 bytes, so roughly 860
-peers overflow it).  The nest check then jumps to nla_nest_too_large, which
-cancels the whole message and returns -E2BIG, after the flags were already
-cleared.
-
-A retry returns -E2BIG again, so that generation of defect and
-unexpected-opcode information is gone.  Before this patch the malformed
-message was at least delivered.  The existing nla_put_failure path has the
-same clear-then-cancel shape; would validating the nest size before
-consuming the state be preferable to adding another cancel-after-clear
-exit?
-
-> @@ -608,20 +609,27 @@ static int br_fill_ifinfo(struct sk_buff *skb,
->  		if (err)
->  			goto nla_put_failure;
->  
-> -		nla_nest_end(skb, mst_nest);
-> +		if (nla_nest_end_safe(skb, mst_nest) < 0)
-> +			goto nla_nest_too_large;
->  	}
->  
->  done:
->  	if (af) {
-> -		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
-> -			nla_nest_end(skb, af);
-> -		else
-> +		if (nla_nest_end_safe(skb, af) < 0)
-> +			goto nla_nest_too_large;
-> +		if (!nla_len(af))
->  			nla_nest_cancel(skb, af);
->  	}
->  
->  	nlmsg_end(skb, nlh);
->  	return 0;
->  
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but it lands right in the
-rewritten function: can the done: block finalize a truncated AF_SPEC nest
-and report success?
-
-Earlier in br_fill_ifinfo() the VLAN fill result is clobbered:
-
-	if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
-		err = br_fill_ifvlaninfo_compressed(skb, vg);
-	else
-		err = br_fill_ifvlaninfo(skb, vg);
-
-	if (port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
-		err = br_fill_vlan_tunnel_info(skb, vg);
-	rcu_read_unlock();
-	if (err)
-		goto nla_put_failure;
-
-br_fill_vlan_tunnel_info() in br_netlink_tunnel.c returns 0 without writing
-anything when no VLAN in the group has a tunnel_dst:
-
-	if (!v->tinfo.tunnel_dst)
-		continue;
-	...
-	return 0;
-
-vlan_tunnel is a port flag that can be set without any per-VLAN tunnel
-mapping, so an -EMSGSIZE from the VLAN fill is overwritten with 0, the
-goto nla_put_failure is skipped, and control reaches done: which ends the
-nest and returns 0.  In a dump rtnl_bridge_getlink() then does
-
-	idx++;
-
-and moves past the device, so the missing VLANs are never emitted.
-
-> +nla_nest_too_large:
-> +	NL_SET_ERR_MSG_MOD(extack,
-> +			   "AF_SPEC info too large, use per-object dumps (e.g. RTM_GETVLAN)");
-> +	nlmsg_cancel(skb, nlh);
-> +	return -E2BIG;
-> +
-
-[Severity: Low]
-All three overflow sites share this label, so an oversized
-IFLA_BRIDGE_CFM nest also tells userspace to retry with RTM_GETVLAN.
-
-The bridge only registers PF_BRIDGE handlers for the VLAN and MDB commands:
-
-net/bridge/br_vlan.c:
-	{THIS_MODULE, PF_BRIDGE, RTM_GETVLAN, NULL, br_vlan_rtm_dump, 0},
-
-There is no RTM_GET* command that dumps CFM MEP config or status; those
-attributes are only produced by br_cfm_config_fill_info() and
-br_cfm_status_fill_info(), reachable solely from br_fill_ifinfo(), and
-include/uapi/linux/rtnetlink.h has no CFM command.  The same applies to the
-per-port IFLA_BRIDGE_MST nest, for which RTM_GETVLAN returns only the
-indirect per-VLAN state.
-
-Would a per-site message be better here, so the advice matches what the
-kernel can actually return?
-
->  nla_put_failure:
->  	nlmsg_cancel(skb, nlh);
->  	return -EMSGSIZE;
-> @@ -654,7 +662,8 @@ void br_info_notify(int event, const struct net_bridge *br,
->  	if (skb == NULL)
->  		goto errout;
->  
-> -	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false);
-> +	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false,
-> +			     NULL);
->  	if (err < 0) {
->  		/* -EMSGSIZE implies BUG in br_nlmsg_size() */
->  		WARN_ON(err == -EMSGSIZE);
-
-[Severity: Medium]
-This is a pre-existing issue, but it affects the notification behaviour
-described in the changelog: on the CFM status notification path the skb can
-be too small, so this WARN_ON fires before the new -E2BIG check is reached.
-
-br_cfm_status_fill_info() opens one nest per record:
-
-net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
-	...
-	tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_STATUS_INFO);
-	if (!tb)
-		goto nla_info_failure;
-	...
-}
-
-and likewise one IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO nest per peer MEP, but
-br_get_link_af_size_filtered() only charges the outer nest plus the child
-attributes:
-
-net/bridge/br_netlink.c:br_get_link_af_size_filtered() {
-	...
-	vinfo_sz += nla_total_size(0);	/* IFLA_BRIDGE_CFM */
-	/* For each status struct the MEP instance (u32) is added */
-	vinfo_sz += num_cfm_mep_infos *
-		    (nla_total_size(sizeof(u32)) ...
-	...
-}
-
-No nla_total_size(0) is added for the enclosing per-record nests, so the
-estimate is 4 bytes short per record.  br_cfm_notify() reaches this path:
-
-net/bridge/br_cfm.c:br_cfm_notify() {
-	u32 filter = RTEXT_FILTER_CFM_STATUS;
-
-	br_info_notify(event, port->br, NULL, filter);
-}
-
-The deficit grows with the record count while the slack from kmalloc bucket
-rounding does not, so for some MEP/peer counts nla_nest_start() fails with
--EMSGSIZE, the "implies BUG in br_nlmsg_size()" WARN_ON triggers and the
-notification is dropped instead of taking the new -E2BIG path.
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919134333.49379-1-iprintercanon%40gmail.com
+  =E2=80=A2 Bug A (WARN_ONCE / panic_on_warn in skb_checksum_help): With =
+2 VLAN tags (22 bytes L2), csum_start =3D 20 passes 20 >=3D 20. Once
+  eth_type_trans() + skb_vlan_untag() pull 22 bytes, skb_checksum_start_o=
+ffset(skb) (csum_start - skb_headroom(skb)) becomes -2. In
+  dev.c:3645, offset >=3D skb_headlen(skb) promotes signed -2 to 0xffffff=
+feU, firing WARN_ONCE(1, ...) and crashing panic_on_warn=3D1 hosts.
+  =E2=80=A2 Bug B (TOCTOU L3 Header Corruption -> OOB Read in ip_do_fragm=
+ent): With csum_start =3D 20, csum_offset =3D 0 on TAP/AF_PACKET, csum_st=
+art
+  lands at byte 6 of struct iphdr (frag_off) or byte 0 (version/ihl on do=
+uble-VLAN frames). In ip_output.c:774 and nf_conntrack_bridge.c:42,
+  skb_checksum_help(skb) runs before hlen =3D iph->ihl * 4 is read. The 1=
+6-bit checksum write corrupts iph->ihl (e.g. from 5 [20B] to 15 [60B])
+  after ip_rcv_core() already validated it, causing ip_do_fragment() to r=
+ead 60 bytes out-of-bounds from skb->data.
