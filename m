@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D382D23BD06;
-	Tue, 22 Sep 2026 00:31:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12FE42F60B2;
+	Tue, 22 Sep 2026 00:51:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790037093; cv=none; b=ozOFzHmQ8JOsUFnLPyQTOqvVMBBduc5OFLErqfyC5D1YsZ9cGN9dlpdIoG7XBJuT6GXobdkTF1rs0UoeQDfBTG02qwumKd4rvskEh38trdy+z1BPZlpr0qCtLxsxilKQ2WKsh/ajFypknX7EJ3/jc4Zr50x4cWOn4u8h7ZDU0l8=
+	t=1790038277; cv=none; b=J9/Uf6pvjJqSbjM+yKy4tZrUTYdVnW747hxqlqCkfHqbjo9psTwgq6OOefZ2ZEYpKOMDZSzKqtbfijBa7a4VlOR7IYpUeZd65okWOsNMEXCKgD2HL/6ZzSXtPUgUqOe3OtDxCjZNXozELsXm6NyG2/Ry3LfywCvlDQeHTtocXAA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790037093; c=relaxed/simple;
-	bh=xrAoS2lbPIjmuDo3x75RRez5baTTW8g9IZOVigYYkVI=;
+	s=arc-20240116; t=1790038277; c=relaxed/simple;
+	bh=XPnrRnmoVbYM+gANGJotvHbtyeUVC9eXk8xkBRFYyx0=;
 	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=bCQXvVM5f+gJqUGiK1XtBvrQ+rebjt5h+scXoQrIGAQafPvgRQcUY8XnDqE7b5q/vGKTZB7SKjj3KMzBR1Eo1Rya+IajY7xLfYhMhYGNU/NhEL4TYmZy5pb0eJDKJ5cfK+2v5lPXy12qLaSizd4itKEhqJroqIV8mHZzL5PK5cI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gDW8edXQ; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=dH9M2gCSE5813d53kbmmYdEh0JOet55PLKq2lg4yQ5zoP6UgVJiMVs7ePwjnXjvcKgeUt3MnQbF4Yrd2kknRfO0CzR442W/ZC/l+cXCMKCtN+vwmtEt+SDsrGwOxX/4TqI6pvQ8n50pC5jo8ioXikhvL/xlgfhgmmETSLpcRTNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NBCtUg8y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gDW8edXQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D271F000FF;
-	Tue, 22 Sep 2026 00:31:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NBCtUg8y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B84341F000FF;
+	Tue, 22 Sep 2026 00:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790037085;
-	bh=+gylHeSN9wOe1CSp8YJJlUiPkKFBx1Baw+rpY728J/8=;
+	s=k20260515; t=1790038275;
+	bh=M/EGhUNyOjiv69FuqXOz9IYGQ8zPdA+OLDNFtrBCCFM=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=gDW8edXQ0fO4PPQFAyg1k5liJeWB7IeLlMX5Wu5ukbmLFX6XsF8SpHrsBaTCLvWHZ
-	 KQJg3wwbV9h27KVTx+53G5W5n/j2ORLZNNJ8ubAjC0kYWX+ppKodWjJ/v4nRx7f7g3
-	 XDK6sx3temLoti4wCj3s4GBVOE3lK31vpXbQhr+40kv5eleu6ZI3kPlV/+apUZKU8W
-	 mkMTFYvjGt3yiQnnKmuqcmbkmvm2wyDH1J3vcBliAk4oao19bDM0UcWclV02tZzh3T
-	 w8MffvFDJf0S0MkMt2CU/dGKeonF7Ofcy16uxdw1XQ52xMpc/ltbRDdey7eGXZq+xv
-	 /2c7nFH9poZ5w==
+	b=NBCtUg8yGk4kGud1B/APADH5JOedP7DD4DLRfSR0hFJDmLuUcTnOXMl2VmQ3Ouzqp
+	 mK96JYR+uMkwepBmt3liZMLWZlMy9G6bakpfBNhLe6h9JK65RVmP9AupkV3FnVF2hY
+	 kYaTElHOgrYGOTLUVQOkRWWR1Jd70ZRRCQ4BoBiGdqVMftgOMcUB4l2c0xFWNwUQOn
+	 S9efc4qQ+mw8O7Uw7UXaoyrpNqNpVf4hVDeDsrI8qiv4EMXbrcGWBXTxRkw6C2xOEL
+	 HBXnrgzM+idE3Or3h65PaAcOoypRRZprZG4cSE4b8kmLPxgZ/FVVpP/7XDLV6E4X77
+	 jkSeDNkPZm4Qg==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 199423930203;
-	Tue, 22 Sep 2026 00:30:18 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 568A03930205;
+	Tue, 22 Sep 2026 00:50:08 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -37,40 +37,57 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] net: protocol: use assign_bit() where applicable
+Subject: Re: [PATCH net-next 0/9] net: bridge: vlan: broadcast fwding path
+ optimizations
 From: patchwork-bot+netdevbpf@kernel.org
 Message-Id: 
- <179003701664.3305732.17812200087292035808.git-patchwork-notify@kernel.org>
-Date: Tue, 22 Sep 2026 00:30:16 +0000
-References: <20260920022745.3145847-1-peng.fan@oss.nxp.com>
-In-Reply-To: <20260920022745.3145847-1-peng.fan@oss.nxp.com>
-To: Peng Fan <peng.fan@oss.nxp.com>
-Cc: alex.aring@gmail.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, razor@blackwall.org,
- idosch@nvidia.com, woojung.huh@microchip.com, UNGLinuxDriver@microchip.com,
- andrew@lunn.ch, olteanv@gmail.com, sam@mendozajonas.com, fercerpav@gmail.com,
- ms@dev.tdt.de, linux-kernel@vger.kernel.org, peng.fan@nxp.com,
- linux-bluetooth@vger.kernel.org, linux-wpan@vger.kernel.org,
- netdev@vger.kernel.org, bridge@lists.linux.dev, linux-x25@vger.kernel.org
+ <179003820717.3312649.14212413224809356956.git-patchwork-notify@kernel.org>
+Date: Tue, 22 Sep 2026 00:50:07 +0000
+References: <20260918152950.1938259-1-razor@blackwall.org>
+In-Reply-To: <20260918152950.1938259-1-razor@blackwall.org>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ bridge@lists.linux.dev
 
 Hello:
 
-This patch was applied to netdev/net-next.git (main)
+This series was applied to netdev/net-next.git (main)
 by Jakub Kicinski <kuba@kernel.org>:
 
-On Sun, 20 Sep 2026 10:27:44 +0800 you wrote:
-> From: Peng Fan <peng.fan@nxp.com>
-> 
-> Convert open-coded if/else with set_bit/clear_bit and their
-> non-atomic __set_bit/__clear_bit variants to the assign_bit/__assign_bit
-> API. Where a bit is toggled based on its own value, use change_bit()
-> instead.
+On Fri, 18 Sep 2026 18:29:41 +0300 you wrote:
+> Hi,
+> This patch-set is the first step to removing unnecessary VLAN hash lookups
+> from the bridge fast-path and also provides additional broadcast path
+> optimization by considering only the port-VLANs that actually participate
+> in the VLAN instead of all bridge ports. Combined these changes bring
+> considerable improvements[1] and open the path to do the same for the most
+> common fdb forwarding path. As expected the pathological cases have the
+> largest gain, e.g. if we have 1 client / VM facing port and 1 upstream port
+> only participating in a VLAN with many other bridge ports, we consider only
+> those 2 when broadcasting in that VLAN.
 > 
 > [...]
 
 Here is the summary with links:
-  - net: protocol: use assign_bit() where applicable
-    https://git.kernel.org/netdev/net-next/c/ab86dbf4a6ad
+  - [net-next,1/9] net: bridge: factor out common flood completion handling
+    https://git.kernel.org/netdev/net-next/c/d7fddeed325d
+  - [net-next,2/9] net: bridge: factor out port flooding
+    https://git.kernel.org/netdev/net-next/c/25622bef8885
+  - [net-next,3/9] net: bridge: vlan: cache the pvid vlan entry directly
+    https://git.kernel.org/netdev/net-next/c/b82e41db0085
+  - [net-next,4/9] net: bridge: vlan: introduce a list of port-VLANs in the master VLAN
+    https://git.kernel.org/netdev/net-next/c/f69acdd819b0
+  - [net-next,5/9] net: bridge: consider only port-VLAN members when flooding
+    https://git.kernel.org/netdev/net-next/c/d5219589e4cf
+  - [net-next,6/9] net: bridge: vlan: use an RCU array for large flood sets
+    https://git.kernel.org/netdev/net-next/c/9c30ccaa7327
+  - [net-next,7/9] net: bridge: introduce a forwarding destination structure
+    https://git.kernel.org/netdev/net-next/c/911afcbaa7cd
+  - [net-next,8/9] net: bridge: avoid egress VLAN lookups when flooding
+    https://git.kernel.org/netdev/net-next/c/4e0c8f54f605
+  - [net-next,9/9] net: bridge: avoid VLAN lookups for flood neighbour suppression
+    https://git.kernel.org/netdev/net-next/c/fee4e7663e5c
 
 You are awesome, thank you!
 -- 
