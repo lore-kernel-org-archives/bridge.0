@@ -1,127 +1,153 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D840752E07F
-	for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 08:46:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BD474DEC2B
+	for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 09:58:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790066818; cv=none; b=TXGHviBxkmkyQ3ATgt3TjMn5XzgP1v9x2MwSQxdOEq/9jgGccYQu02gGjmzOCPzlT/2tmKJIgGbQeIG10ZeWVVzqg4Gg8u5GBeauUddm2uLUJIU6rqkidHcyVYKu513Z4EpKO5YN3xR2Warl59QwGRgEUqAwz5lAjta4u8WRtPc=
+	t=1790071106; cv=none; b=QscLk/cxc0qZzSNERKlAhkOH6sIxE0WXPG1j2p0NwfnrnaLxes496EEpdVlAJfVQWfbXta6+ppqXCF8VaYhvsxNhcOHtszC6bvrsjeI/W5LNCn9dSZeM+oa29ly9QjNNvgRu8Rzg9Atk9Qknh2FEB31VGx/30+qCtY7BFaIbYzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790066818; c=relaxed/simple;
-	bh=hEj5nL9MRpMH+JX12YZNspzZFd1+3Fuf+CZGgePMxM4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DZEvTbh83MzhWd23V6O+827pk9sEkP9d/H+z4oqmd46mKb6xPz5fjW+8ICR+UKtTuXb80Duv0afA3K8hfA9xXEuTo2sqPyiaem3k1mjfwqiT5/T32vD3OWmB2ldwUQE7Bi2R0ndH4cT3LaGLC/vve8xGVGAfsAdvkcRGC6yNEsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IYBKNLtQ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1790071106; c=relaxed/simple;
+	bh=zYbfbPSv4oN0DQRZXu+ig0WpHZAE1jueUN/5aUe+dpQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hFPOkEcXdWCwn1O7pm/iHo67B/9NJ/q1/WCJPPtudn3AJcKmV8Qmg88wfGFO4zQyNU2dm9Vc/4CyHrNvJ4igoPf0Vo3Buz/ug022txHG/x71U117C0X+OSnKAaMR1a51wntRm3xtMQjX1OU/RHAN95XQxiXpQaHRA83XxUAlhp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=c3QLVBky; arc=none smtp.client-ip=74.125.225.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IYBKNLtQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1790066815;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=C95bRAv5IkFCsxK5LjzncGYLGpBLHTNK6JTZFhyWW0M=;
-	b=IYBKNLtQq8wTUycH85md9ifO3UzdBdQpmXnhcI9WuMUbzlJTZb2nJoqTJfUGv/jkxW+2df
-	Q6/0abTDQLcb41eolbGg5OtlRpucdzzl5QIHymKupyLRdX/r9s70yGIJ1MliJgs8JNm5Z+
-	SWpooAx5kvmxb+KysJsp5NFMcJny9wA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-607-WVjjtLyZO4GYugpUqQfwqQ-1; Tue, 22 Sep 2026 04:46:54 -0400
-X-MC-Unique: WVjjtLyZO4GYugpUqQfwqQ-1
-X-Mimecast-MFC-AGG-ID: WVjjtLyZO4GYugpUqQfwqQ_1790066813
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49e6ba4abdfso49783345e9.1
-        for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 01:46:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790066813; x=1790671613;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="c3QLVBky"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e6c0fce17so20333635e9.1
+        for <bridge@lists.linux.dev>; Tue, 22 Sep 2026 02:58:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1790071102; x=1790675902; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=C95bRAv5IkFCsxK5LjzncGYLGpBLHTNK6JTZFhyWW0M=;
-        b=PzGbU9HV/UtyzZcsCqAH+GLLa8I8eEmUSLzNkeq4hoDqBXJ3zlK5kRD7+g9QraA/nV
-         5MiF5HyXgP9nFNP2kbOXPibv7iImArVac1jwj8DYpvAv/epqFPpjI3mW3ZpLVgXMPPLn
-         Hlx/8uHBvGaN0STlot3KOZRWgvSji4ko8R2+Blt8JVxRztN47xFnlJFI4PACrRvj446r
-         tvOayxLU19fYB1l6fwBbaYwnK91ty9k1koWNBH+oclE/7xZQFRv0UJoiNjhE7RvbhUf/
-         wlXGf6a5Q9feOakStunAAlg6AIiys07fLCCa2xPLkVx199/uiGTEMwBsCfU88YqXJ/Dl
-         YYUA==
-X-Forwarded-Encrypted: i=1; AKwUvBxOyKeSIRJNRZBPtWr55IzaCQ2SzVoH8Q1Ve7LNZ5Vjqlnz2uu2Gi1lDKqjkuJn7x2xqhI2HTM=@lists.linux.dev
-X-Gm-Message-State: AFuF++ltXR7+ICKhc8BU82s/0mHU1/jBSkbnxVeNmAwEI/OInzX54Hfu
-	WE9X0z0++lc/zRR+nvaIoBNvH2mTMfYKc72L3qEOkokCoBZ5dNLBsPlnvOm+LmsOFT1E2qzjyzN
-	II9x0Ygv72BhNjom/7RQaZLrcoVREKybPQUVY1z6apz40R973/RJlOblk+A==
-X-Gm-Gg: AYBFou3LRekmRfj3MSrNuZlVZGHbjAOLuRP3ebXiQxfkDNTtk0F1bXnN7Hr4uonpxma
-	hwYxJb6sNV0DLNZ+R5KKtqW3S5OdAizeTRZFGtO+bwh/0Y3f5bO5BfbmlLWjRd3a1lNO3OFoPQU
-	e8jAfxeoK0kPzlJU13o36y9SdiaNW9dFh86V6MSLA1Flz02i7qjQUr5on5qGxswMB9HE1iClixx
-	Ol5zcYhWtbTxV/pxaq6pdpvoZ5OOSkoFzqsxmqRgNVel02eHTIhGbbZqXIaQBjne8ZxX4a0tuR6
-	pPHmGjKhCPf6hwXfZkXzuW8K0XiyvW1vU3I8wJNhOEM/uCzc1tlWW2PskeNsNr/V7lI5ilb1uId
-	8xwyciL193zQ9O+K9Jh3Txcg=
-X-Received: by 2002:a05:600c:19cd:b0:499:7a15:fcec with SMTP id 5b1f17b1804b1-49fc5695861mr190094915e9.13.1790066813181;
-        Tue, 22 Sep 2026 01:46:53 -0700 (PDT)
-X-Received: by 2002:a05:600c:19cd:b0:499:7a15:fcec with SMTP id 5b1f17b1804b1-49fc5695861mr190094445e9.13.1790066812661;
-        Tue, 22 Sep 2026 01:46:52 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fd8ccd185sm65246905e9.8.2026.09.22.01.46.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2026 01:46:52 -0700 (PDT)
-Date: Tue, 22 Sep 2026 04:46:47 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Paulos Yibelo <habte.yibelo@gmail.com>, netdev@vger.kernel.org,
-	richard@nod.at, anton.ivanov@cambridgegreys.com,
-	willemdebruijn.kernel@gmail.com, jasowangio@gmail.com,
-	eperezma@redhat.com, xuanzhuo@linux.alibaba.com,
-	andrew+netdev@lunn.ch, pablo@netfilter.org, fw@strlen.de,
-	phil@nwl.cc, razor@blackwall.org, idosch@nvidia.com,
-	dsahern@kernel.org, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
-	linux-um@lists.infradead.org, virtualization@lists.linux.dev,
-	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-	bridge@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v6 1/2] net: validate virtio checksum start after
- network header
-Message-ID: <20260922044627-mutt-send-email-mst@kernel.org>
-References: <20260922030310.8684-1-habte.yibelo@gmail.com>
- <20260922030310.8684-2-habte.yibelo@gmail.com>
- <20260922005353-mutt-send-email-mst@kernel.org>
- <aa560d2d2cbf94e50397740159c12e24e0ecf820.camel@sipsolutions.net>
+        bh=nZUNZdA2VreC5ZuzVVTaU77y9kWQRV4FmcQNBHWyLvk=;
+        b=c3QLVBky+a+r/8iQ6N+F6FYbzYyzrNfBkBbfLdxuBsLj6tl4eG8iktcOD+TEIACUNB
+         OOaIWxim/rlD5q17fJpvFmd/UtCfoORL6AyCp/heMcVpAZe0P/x28mQNXpH2YqKHCAbA
+         fqVFyHI6+Vf/g+b+mUxLdO6gGxNy9hYUokRNU6HeK9r3HIx04UCoSz9fXkCXfK+pNufL
+         AuHAFtKuEqURtf6YId4Rfoo48uegRR5JRpAaHJem91Ag/gP6l0POBq+FLCc0RstMtLYi
+         r+xAsElcWWnjXlmQI6QxsUQH62A8nhLMx4ai3ZvA3XXTP5ghS6HrmzZ0td32ADUqjKqt
+         f8bA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790071102; x=1790675902;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=nZUNZdA2VreC5ZuzVVTaU77y9kWQRV4FmcQNBHWyLvk=;
+        b=qP1UyeJQXTqn3bG8SsbmwJb9vC+Itpzw1h/A61iFeaagwZ0F+TF+/bHjwuIUP68VjH
+         3bGvoz/unc3AGum31/RJzhSXzvvrBDdxZiAKKJJgY7lCUDxX4YxShpmo9EEMAhmjArXa
+         GElFwm6fyf5W7pPLMsi9WKNlysRmKgB2woy5h03MhejtFLyIGML2RzjdewgsT/7QyC1t
+         JIM+hvYUNb3rCi/hpQAuUezPJrTvFJEEzp/H2bIqxcAsLonKsvJ0oc+pAXCBiyGw7I7b
+         oEoCU06OFvhglHi9UooQH92sO59sKVmgpKNwgsAl2fjW1OJolfTuNafDYQANrPp4S+Mv
+         X4xw==
+X-Forwarded-Encrypted: i=1; AKwUvBwhG4Mah30kOuCk+0CHeTVh42Rd0++S9+vaSt+Ej0RjJ7U9kn6LS65lmhbMzFLQ1vO4Sahks3I=@lists.linux.dev
+X-Gm-Message-State: AFuF++lqGQ/QsgeF88vjRn9ZADhDWG60yKhxLK9onpUCIXV6lrtmMOH/
+	jl/xcqb6Vu5WCLY3RzGvD8iTVAsstpX1m34J/21n6aR839m8BAxKpmbepeiXRGma+bY=
+X-Gm-Gg: AYBFou0PCdlPs9Ax8LjR7JzDpOSV77GH5lXgiYat3V5A3it/nHMR12DvmgcWxQTblrJ
+	TiVnAgkTkfSn0XERGArcuGmSIejtS+5Luutq+LeNwACY3CflLnCzqQKyTH9Yb2mi+oLtC9aAFZV
+	NiiMEIN3tc+B7mnHlRLGnpCWIoupjpBTk5kzZ/vSDMpAFpGa2qK6mHNE9t/Q/qYAw4tLIwePCIk
+	XIS0J+BZtQIycUHQj+TS3d2a5SngsDMH6YQsiXqVsWmOnOjFY6CaON5ERgJaN3rjDFpwJ7YP2Fn
+	yGNV/9qU65gkPX6lmC8mt/+a9B8c1SvHXRE7j+JpBkHYs7OlWL+a/j3w2yVpVlTFgatuMJgCspx
+	rTthJZvTrfSQV/R3ypq+kNxHdLi5UD332COQEA5GH9fKOnyg5v7l745oGukVpLOGUXlzkn38U2w
+	avL6mWamogICwlhYGN+24uTb7dEoMPGL/qp+X+fFXuS9M2TXi7cuVEjM8TuxdVpYunG/fteRuTw
+	/7cATNVC89qs5pCkvwOP9fVXiDTdtL4p/dXcD/vrJ5gpk9PeHnoZ8tnDN6ch8Ao44nTKNBYqO8x
+	fPuwNFplplRy7Qdk1fXZBsoLRnHXbwlayld++dW6
+X-Received: by 2002:a05:600c:a0a:b0:49e:84bf:6110 with SMTP id 5b1f17b1804b1-49fc56dbb49mr199597855e9.6.1790071101618;
+        Tue, 22 Sep 2026 02:58:21 -0700 (PDT)
+Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fdab0c240sm27108755e9.4.2026.09.22.02.58.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Sep 2026 02:58:21 -0700 (PDT)
+Message-ID: <2bf82e0b-a032-4ee7-8d93-c5604222723d@suse.com>
+Date: Tue, 22 Sep 2026 11:58:18 +0200
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aa560d2d2cbf94e50397740159c12e24e0ecf820.camel@sipsolutions.net>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tUgm-LIURdpW2bjugOXNDgy25i5tN1oetNFGaoAA9sc_1790066813
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 0/3] Bring includes in linux/kmod.h up to date
+To: petr.pavlu@suse.com
+Cc: Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Philipp Reisner <philipp.reisner@linbit.com>,
+ Lars Ellenberg <lars.ellenberg@linbit.com>,
+ =?UTF-8?Q?Christoph_B=C3=B6hmwalder?= <christoph.boehmwalder@linbit.com>,
+ Jens Axboe <axboe@kernel.dk>, Johan Hovold <johan@kernel.org>,
+ Alex Elder <elder@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Michal Januszewski <spock@gentoo.org>, Helge Deller <deller@gmx.de>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
+ Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
+ Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+ Mark Fasheh <mark@fasheh.com>, Joel Becker <jlbec@evilplan.org>,
+ Joseph Qi <joseph.qi@linux.alibaba.com>, Tejun Heo <tj@kernel.org>,
+ Johannes Weiner <hannes@cmpxchg.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
+ <mkoutny@suse.com>, Luis Chamberlain <mcgrof@kernel.org>,
+ Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>,
+ Aaron Tomlin <atomlin@atomlin.com>, Pavel Machek <pavel@kernel.org>,
+ Len Brown <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
+ Danilo Krummrich <dakr@kernel.org>, Nikolay Aleksandrov
+ <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, David Howells <dhowells@redhat.com>,
+ Jarkko Sakkinen <jarkko@kernel.org>, Paul Moore <paul@paul-moore.com>,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Kentaro Takeda <takedakn@nttdata.co.jp>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+ drbd-dev@lists.linux.dev, linux-block@vger.kernel.org,
+ greybus-dev@lists.linaro.org, linuxppc-dev@lists.ozlabs.org,
+ linux-acpi@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linux-fsdevel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+ cgroups@vger.kernel.org, linux-modules@vger.kernel.org,
+ linux-pm@vger.kernel.org, driver-core@lists.linux.dev,
+ bridge@lists.linux.dev, netdev@vger.kernel.org, keyrings@vger.kernel.org,
+ linux-security-module@vger.kernel.org
+References: <20260911-module-include-kmod-v3-0-6ebccc3e0731@suse.com>
+Content-Language: en-US
+From: Petr Pavlu <petr.pavlu@suse.com>
+In-Reply-To: <20260911-module-include-kmod-v3-0-6ebccc3e0731@suse.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Sep 22, 2026 at 07:56:23AM +0200, Johannes Berg wrote:
-> On Tue, 2026-09-22 at 01:14 -0400, Michael S. Tsirkin wrote:
-> > 
-> > >  
-> > > +/*
-> > > + * Return the L3 offset and protocol of an Ethernet frame starting at skb->data.
-> > > + * The offset is unused without NEEDS_CSUM, so avoid parsing and return zero.
-> > > + */
-> > 
-> > for networking code multiline comments:
-> > 
-> > /* always
-> >  * look like this
-> >  */
-> > 
-> > /*
-> >  * never
-> >  * like this
-> >  */
+On 9/11/26 4:46 PM, Petr Pavlu wrote:
+> The usermode helper declarations were previously provided by linux/kmod.h
+> but commit c1f3fa2a4fde ("kmod: split off umh headers into its own file")
+> moved them to linux/umh.h in 2017. Add explicit includes of linux/umh.h to
+> files that use usermode helpers and remove linux/kmod.h where it is no
+> longer needed.
 > 
-> This, for the record, is't really true any more - we dropped the special
-> rule a few years ago.
+> Also add a missing include of linux/sysctl.h to kernel/time/jiffies.c.
 > 
-> johannes
+> Finally, clean up linux/kmod.h so that it includes only the headers that it
+> actually requires, importantly removing the compat linux/umh.h include.
+> 
+> This cleanup is motivated by trying to reduce the preprocessed size of
+> linux/module.h, which includes linux/kmod.h. linux/module.h appears in
+> roughly 15k #include directives across the kernel. This makes it a "hot"
+> header, so it should avoid pulling in unnecessary definitions. Note that
+> this series doesn't immediately improve the situation, since most of the
+> files included by linux/kmod.h are, for now, also included by
+> linux/module.h through other paths.
+> 
+> Apologies for the wide distribution. Acked-bys are appreciated.
 
-Oh good to know. thanks!
+I've queued the series on modules-next for 7.4-rc1.
 
+-- 
+Thanks,
+Petr
