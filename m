@@ -1,121 +1,76 @@
-Received: from mail-wr2-f33.google.com (mail-wr2-f33.google.com [74.125.225.97])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFF0D4078D3
-	for <bridge@lists.linux.dev>; Thu, 24 Sep 2026 10:25:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECAD93F12E5;
+	Thu, 24 Sep 2026 17:18:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790245559; cv=none; b=msNX3SKBwObCklc9TVWzUkSEIdfpJk7YeYkfgsjqkxwmYk+GMLQh6C1/Pi8mSU4HPvoy+KI7DsmAv4cj8An2agFiQH0MWoAkuAQ0wVGGQDXmkRPOpPz6Vk0GJggMDz/z+yyUoivScSMgPpM+APVLrqWbgEKP0HYAoVneCRkcQgo=
+	t=1790270290; cv=none; b=cxyx5nVNPFHWGMHWRkufCOrWJ13sZ3yhH2Apm+FLbSHmcAUfUhh2PiT0qqsOu2L9aYw0qBlr3mXBFU6uZf5gI+l6glqf8U4VQvovAdavIKnZuWoUJ0w2fX7dTPYs4Y1jN594HO0L6EDQbrAuI3z1KARzKQYHwmhdlMir+fhE1mY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790245559; c=relaxed/simple;
-	bh=vNOz10Y52SylWqLAxXpDtRKVnu0yA6ICaPesQyqWfok=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aqUehxz74jdGA2ti3XsRYHTp9GiuZBuDRUnDLeQ6peECVfbCId8fveX0YIz+nM4zpGrZbEI/D7sj23TBAR9gXAZAWqWvUGSczW9hpoSlwA3aGYiaM9eDjZ9NBahScTaRU5bm10PM7G1bTidhK7z9UaGYZnrXjOcN851vR+SP2H8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=dwYpMcC2; arc=none smtp.client-ip=74.125.225.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1790270290; c=relaxed/simple;
+	bh=OqajQe8QEnAY4peKBL7bBwYtDL5rUL6DmZKld9YtEJ0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NZRZ6liAwmbxZ+ZBnlWPONkXavRorbgBZg2wN8IUn5GP3LV4FyFicJWlDFoTvgtbXc+EOrYBCrlM+bkzCq7fAzfM1TuKOjjynmuP/UqUAq5bdbu7EsaBk95MnyqXRd0AmEtLPYWP8VJCSP2KWgJinWgsyYCtB0fFFniKrP/uly4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bFb1KWLf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="dwYpMcC2"
-Received: by mail-wr2-f33.google.com with SMTP id ffacd0b85a97d-482f6351831so1185755f8f.1
-        for <bridge@lists.linux.dev>; Thu, 24 Sep 2026 03:25:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1790245556; x=1790850356; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=aH8cj72YzC0YBKtfZhE3DhN84f2mpL6hc+PS7300/kI=;
-        b=dwYpMcC2fKb0QuCGsgVDSCwl8DPX5pTQUJbpbRer7ZCcKrVZu8UEVYmxeg60NTcaZQ
-         5nK5hJBxDtKwelpl0u7qUGNMUMae7THwdKXWG9FFVVryPijC3N2lV+lu0RvyO45IpHsn
-         mB+okQvuCGZPM1rfCqm49MNjQgQP4/oeYu4XsfOCBtOe4hyzvaaHtK3djfIEVVes1SZK
-         8+0vyyDhRwi0Mx1IJmfLYIjVZaegY5PxdjfyrbaGCNNdNsmdjDk0sjz7mQxiL7M9uUEu
-         u8wrq2t2O3gOPJUfNAjV7DkXIojbcXs3DPIHobX8rm0R2eWbGVifPycUsvkgKfBvPTui
-         028w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790245556; x=1790850356;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=aH8cj72YzC0YBKtfZhE3DhN84f2mpL6hc+PS7300/kI=;
-        b=2Nkh+qNaHJn2Km7UFqQJpB64/z1y3dkK3D8+xmyIzwFiH06HfCK2k9mEqR2kc8zlsZ
-         X72dpcosu/rMa8d083SGR/e3sNJVI0EhLr0tFseUiHf0ZAg2izI9hTsbCPRNqBapimUr
-         j0nx0UFCrv0L03WXeli5iQfEH9crlvoA+tAlaTLkeRQ8G7uDr+lF1BGuBDX8lEq+Aggy
-         c5HMtN6qExDDYWBFzvOcQY028jzhSHPbCl9ehffjrbVgOg16k198xfzTW4Tgjd316Scn
-         oA9JW8sGeGsUqfo4BrWsfnJ182aJuatxlziSUFAP2oZci4hdKv/dbhZC6m3kiYmbsnPL
-         rbIg==
-X-Forwarded-Encrypted: i=1; AKwUvBwTG2H1/LZgcHcBqlMfKtQr6ntiYuC0FX2cP0VaLHHjMQoLdWHLEAe/M2WbrCXJZVUs4nAtOlE=@lists.linux.dev
-X-Gm-Message-State: AFuF++lpHPbseqJMCB10N5Pg5AY2o7xZ14iZQ83LEb4McCPdr/wXaxLE
-	c9kMQYnE+9JhJ7QmCxNXiTkBFJOEhIAj8hdVU0ps0J8zkwwNxjuYBJ0CKVtbX1AfgD0=
-X-Gm-Gg: AYBFou0GUjPMfn7kBEJCIS8zny8YEsP0u6HOC4EB7Bi4CEHodf8XEPM5pGZ1KeUwB/g
-	+jhKT2rQk7y3hMJnptbs5+osZR4N8On8IE//JcD7eACJilFzXZwBvyf1BmdGEioHMpAk+h2CUWp
-	CqY9iTMjXYnm5FCGErmsO8/4TLfk3pyyCTjIgeUPUpix5oDkVegMTGYUff9Zfv0sAHraietZSMT
-	JlEfW0VFo+N3XArpYZoSz/exPfecoQQlciO5HHD+UeBXqko+7v8xneLp2Fy5ff8UPCW/6BoLt53
-	rbZ9la61a34qvaEj3VdYaorzsQomfpxhfIuJXQnKSbypKFyWkB3i7hmecjjBh2IYc8+L15xhQt9
-	E3bJD6BcMwPdBqwudNo1RGj2fMAS1TS806t/6FAfDg4/GRRQk22DCc3+FNZspB2p988QcrtkTr1
-	P4kye5xOHBvbWVDEzdEgJUpUJhMOoJWDMuT6Tbp0vFDzeB+h/0yon4VGkag2Wv5eRtQuoMAZVis
-	Ha5JADQpbqqQDBpD3n2FmvhbXzr
-X-Received: by 2002:a05:6000:4282:b0:486:e9ab:2b86 with SMTP id ffacd0b85a97d-48871759fd6mr3288299f8f.39.1790245555726;
-        Thu, 24 Sep 2026 03:25:55 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-488682673bdsm13504490f8f.2.2026.09.24.03.25.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Sep 2026 03:25:55 -0700 (PDT)
-Message-ID: <392eb8c9-6254-4ae6-ad44-e38af8bb2956@blackwall.org>
-Date: Thu, 24 Sep 2026 13:25:54 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bFb1KWLf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B84CF1F000FF;
+	Thu, 24 Sep 2026 17:18:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790270289;
+	bh=E8FD4iT6RJg3BgIUMg1u6lq1AX2COPGo3VlgxX8d3j4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=bFb1KWLfsVCfUNGf+4PHOZ6lOgMe6SwcajHMwk56U8Fa+GX2ljNEmHA5KRn3ss0ST
+	 NTSEaL+MjRAJzME2l+QO1Mls8EstWL6jr6DxGSdjLtTEG3rsu2Jb0GTGx2DL+KGq3H
+	 ipF40Ay6CajjrrElzhXEKf8h7IiadJUYcT5dZukeqXkCRZE3FmsdI64q+wiHTqqAO9
+	 I2eQ1MgvqpKCGNuREB55Lt9UhM8kMQSLymhgu5F505Naiec7yVrCX50Bz5ToR8A5o+
+	 THT4B0Ja6xkIIf2v+caT4h1lUIswlSDyyO9Oft/aoVXe8K+xBrgEsQXqEEkion/xnu
+	 +yj1e5V91ReJQ==
+Date: Thu, 24 Sep 2026 10:18:08 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Eric Dumazet <edumazet@google.com>, Willem de Bruijn
+ <willemdebruijn.kernel@gmail.com>, Paulos Yibelo <habte.yibelo@gmail.com>,
+ netdev@vger.kernel.org, richard@nod.at, anton.ivanov@cambridgegreys.com,
+ johannes@sipsolutions.net, jasowangio@gmail.com, eperezma@redhat.com,
+ xuanzhuo@linux.alibaba.com, andrew+netdev@lunn.ch, pablo@netfilter.org,
+ fw@strlen.de, phil@nwl.cc, razor@blackwall.org, idosch@nvidia.com,
+ dsahern@kernel.org, davem@davemloft.net, pabeni@redhat.com,
+ horms@kernel.org, linux-um@lists.infradead.org,
+ virtualization@lists.linux.dev, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v6 1/2] net: validate virtio checksum start after
+ network header
+Message-ID: <20260924101808.638f2d22@kernel.org>
+In-Reply-To: <20260923081209-mutt-send-email-mst@kernel.org>
+References: <20260922030310.8684-1-habte.yibelo@gmail.com>
+	<20260922030310.8684-2-habte.yibelo@gmail.com>
+	<willemdebruijn.kernel.259bc7096258d@gmail.com>
+	<willemdebruijn.kernel.2cdfef118aa1d@gmail.com>
+	<20260923061215-mutt-send-email-mst@kernel.org>
+	<CANn89iJaE5UarTdg6FMEp=rZ9mG3g=xrVRLyvMS5S02iE8CwGg@mail.gmail.com>
+	<20260923081209-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 net 2/4] bridge: check llc_mac_hdr_init() return value
- in br_send_bpdu()
-Content-Language: en-US, bg
-To: Eric Dumazet <edumazet@google.com>, "David S . Miller"
- <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>
-Cc: Simon Horman <horms@kernel.org>, netdev@vger.kernel.org,
- edumazet@kernel.org, Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux.dev
-References: <20260924082951.1599377-1-edumazet@google.com>
- <20260924082951.1599377-3-edumazet@google.com>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20260924082951.1599377-3-edumazet@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 24/09/2026 11:29, Eric Dumazet wrote:
-> If llc_mac_hdr_init() fails (for instance if the port device type does
-> not support LLC or dev_hard_header() fails), br_send_bpdu() should drop
-> the skb instead of resetting the mac header to the LLC payload and
-> transmitting a malformed frame.
-> 
-> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> Closes: https://lore.kernel.org/netdev/179022851638.2160803.1808206741379444999@kernel.org/
-> Cc: Nikolay Aleksandrov <razor@blackwall.org>
-> Cc: Ido Schimmel <idosch@nvidia.com>
-> Cc: bridge@lists.linux.dev
-> Signed-off-by: Eric Dumazet <edumazet@google.com>
-> ---
->   net/bridge/br_stp_bpdu.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
-> index 74ec42ba1e7d086cbfde608c93f5fa24d6b4ed7b..21d092f5acbb81f1d0ccd80200cebdbda722f4bf 100644
-> --- a/net/bridge/br_stp_bpdu.c
-> +++ b/net/bridge/br_stp_bpdu.c
-> @@ -52,7 +52,10 @@ static void br_send_bpdu(struct net_bridge_port *p,
->   			    LLC_SAP_BSPAN, LLC_PDU_CMD);
->   	llc_pdu_init_as_ui_cmd(skb);
->   
-> -	llc_mac_hdr_init(skb, p->dev->dev_addr, p->br->group_addr);
-> +	if (llc_mac_hdr_init(skb, p->dev->dev_addr, p->br->group_addr)) {
-> +		kfree_skb(skb);
-> +		return;
-> +	}
->   
->   	skb_reset_mac_header(skb);
->   
+On Wed, 23 Sep 2026 22:02:57 -0400 Michael S. Tsirkin wrote:
+> $ git grep 'skb->csum_start\ ='
+> drivers/net/ethernet/hisilicon/hns3/hns3_enet.c:        skb->csum_start = (unsigned char *)th - skb->head;
+> drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:        skb->csum_start = (unsigned char *)uh - skb->head;
+> drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:        skb->csum_start = (unsigned char *)uh - skb->head;
+> drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:        skb->csum_start = (unsigned char *)tcp - skb->head;
+> drivers/net/ethernet/mellanox/mlx5/core/en_rx.c:        skb->csum_start = (unsigned char *)tcp - skb->head;
 
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+These are HW-GRO, ASIC coalesced TCP segments so it better know 
+the _correct_ offsets of things. And it's hardly remote-provided?
 
+> drivers/net/ethernet/stmicro/stmmac/stmmac_selftests.c:         skb->csum_start = skb_transport_header(skb) - skb->head;
+
+selftest
