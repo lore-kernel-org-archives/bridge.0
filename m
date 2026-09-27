@@ -1,82 +1,41 @@
-Received: from mail-pz2-f39.google.com (mail-pz2-f39.google.com [74.125.228.39])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF4D62EEE8C
-	for <bridge@lists.linux.dev>; Sat, 26 Sep 2026 17:05:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.39
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED8563B27EA;
+	Sun, 27 Sep 2026 16:30:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790442303; cv=none; b=GfkknBcJHSRylQLxzB1mYfDZogiTfuCoQc0DYi9IyxWVXk7B+Og3IzZEG9KUU33YOQp44LNE4XTiI260e+Gkg9kbLVnrPy9/CynSATV/Tnn2OJB7u/Dy6ZH85eawfqFcbS+79c07HK1y9kCIvDsPteSj9BmqVSH8DnPHPIoQfiE=
+	t=1790526657; cv=none; b=jSE8JD24VsHE49cwHi7/oE8HRboq4fqrmimWMJTFWoabQD8HYJAQNizyYGTghlg5v2XZPvPG/L0YtV204BPukZNlag+pxNpe5CjeyD/Rk4Cu/zbf/D945Kk1A90vOioZxmnqufxuvaT50EeXoGQPNCOfNuQnBM+hXgOq1JtOIys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790442303; c=relaxed/simple;
-	bh=Fi/1kfxh/5xJvhFsjZtyC8k+s6AHgCpHivjoRYy1j5E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZR+5NX5+YlTG67mFvtZiyvEXl7CkB1YmgnMN9oLExfobRpOJkKQr/FO/zVajKn58peCnARQi1PkIeAwWR8lK5+5Zh9iUz4aXvhjWfCxmLJ04VJJzg6QPeYLAFQ2a8IXNnbNsUTIaTOUjN08zNhR+D00YPsDMcqbWHWzBwqfCZyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nebusec.ai; spf=pass smtp.mailfrom=nebusec.ai; dkim=pass (2048-bit key) header.d=nebusec.ai header.i=@nebusec.ai header.b=YbEcqxlQ; arc=none smtp.client-ip=74.125.228.39
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nebusec.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nebusec.ai
+	s=arc-20240116; t=1790526657; c=relaxed/simple;
+	bh=cz219Ueq6Jevfex7jh3M5pkgbuS9YfxgWT+/6fGTzFs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=k302jYNjUO+116AwCrdNAw1rd9MZw0eAyPz1Ej3HlRkX/qJC7gcoJTK1Knw7fcoCwcJSx37Kxczw3snvjPH1YpQLQHsMnig8S1G/EuXI4f+TzcdYAZYHclE1azIcGqHk4g8DP0Dcqfw8bufpv6kh++qEBfkNgY5Fh29Z1S6gaiU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=VdpUEwc1; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nebusec.ai header.i=@nebusec.ai header.b="YbEcqxlQ"
-Received: by mail-pz2-f39.google.com with SMTP id 41be03b00d2f7-cc79223bcfbso875095a12.1
-        for <bridge@lists.linux.dev>; Sat, 26 Sep 2026 10:05:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nebusec.ai; s=google; t=1790442301; x=1791047101; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=w3r5hOlOFibYDjtqVxddRZ/SThl5LCtzkfgboA5uvPc=;
-        b=YbEcqxlQdzU5OaeG7jT3vCKvW/oWkMNKLh8D2x/giT405tUUVw45QXHHjH1/8ckrds
-         dwnmy/OWxgJdbnUG1UBJDG6JpZxce5L8H2LaCVawfcTLgTGkAPn5+XCt8qXKxExgZKn1
-         osqKUOiKi4gpPsQjnWwMzEoBYcPGY7L3XGRG2rKKpJmUyHOHoEZx0Yv2U1rr7aB48qRJ
-         z8IUuP6C2evAT4KvGf3SesKuBOg1LnfRuTNNEubUlCvDZeSaWTsFvZhd77+dgYtZi96L
-         HS3zzPJjdGT7RIYtxIUWZCPbrF4tzIGCdiIuCG5d7Ii3Z2NBPAIUehyHqG7za2oeSEy+
-         2D8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790442301; x=1791047101;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=w3r5hOlOFibYDjtqVxddRZ/SThl5LCtzkfgboA5uvPc=;
-        b=L3IZCRFbXFPO1I8ZGicHjn5l5899Dg2xbTF4/iVaL/o7JN+jggMga3VevB1UIY/Wxa
-         dNZt29MPVA/WqUItAXfX0io5EUJzeTO95419R5x9bc0HAKqpslSQ3fA9Aqv8GTYJV/eD
-         tc7qM+kXJTWX7gBY10qHIA2dQk3YoB3JqC0WC5BHOahW16lJGo/zx6dAWA1jWjuIkc1T
-         gQHMha/FyrTpOUO5UswS+5nAelcfMqea0PG7s+HSC6D2JULgdLFVCJPKuA44y3oQof4H
-         gUaPuN33xU/9dyuB9C8q3BIgM45vGSsRrvpwxsz5A5TgdYC7MV/L76ilou34CtTVvgCp
-         OM6Q==
-X-Gm-Message-State: AFq9FYJ9hYMvnuPoVT/6Qidw3+VaF9bhUIK3lM8AvjFfsPhTRRynQexB
-	Fz1ssG2BqKNdqDkIWo7B+yNYaZ9WPWGr896UDsmaI7MaRaoPBvfJAWRo5224ErdVcA/XaQB0zQU
-	XemvtqTh2
-X-Gm-Gg: AYBFou2CidX3ON+IfLyA17Y+/C8hDdk+bSjSOYlJN+T6lpXZO6eDhKiGiCahpTen/RL
-	HGZ8LDN8qcMWQ16wRvBm0SelvZduqiIiCmhe4mwFIYODMuASHJdqWY9BiEXct2UoI4y4G2YWO1E
-	AwZRkRXwAcEg1/ypI3hvsawlLWOuJGkr30Jb0c/apCG50wBWuqLrFo12TNnKhj8ZA9iQ3kLk9Gp
-	rXd6rjEvfsezQXKoONYZA/t1AgZh4JdX5lPXFNDTOo0N2r9w9i7bbPQ+ZWH0xtya2VqLQ/ICWRu
-	AQL6nmel1Nb/14u8wSxm6gNP++1AQUeo7OB2GMjCC+2gJQALtt97u8Y5mEg0sZUiQIm7+TnlUG0
-	O49RMxgtpz/pPyT2PCtUOxQl17tLZe11jEStw03AqaSi9MDKmyiELfztLtcqcod7HCD9aMNQhQA
-	rGwFJulug3Cful49Pxs5+CtOZuCXykDTuEEMP//b+z3EbBRdV3yuvLKo/mLU/gcnDmPR+dM3v2p
-	d9q6Z2u
-X-Received: by 2002:a17:90b:3c87:b0:39e:4c7e:f040 with SMTP id 98e67ed59e1d1-3a098b9e6f8mr7273421a91.29.1790442300945;
-        Sat, 26 Sep 2026 10:05:00 -0700 (PDT)
-Received: from enjou-Legion-Y7000P-2019 ([167.71.204.91])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc78791c072sm2540444a12.15.2026.09.26.10.04.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Sep 2026 10:05:00 -0700 (PDT)
-From: Ren Wei <weir@nebusec.ai>
-To: bridge@lists.linux.dev,
-	netdev@vger.kernel.org
-Cc: razor@blackwall.org,
-	idosch@nvidia.com,
-	davem@davemloft.net,
-	edumazet@kernel.org,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	vega@nebusec.ai,
-	petalzu987@gmail.com,
-	weir@nebusec.ai
-Subject: [PATCH net 1/1] net: bridge: avoid recursive multicast port cleanup
-Date: Sun, 27 Sep 2026 01:04:39 +0800
-Message-ID: <22b6678adf1451f4dd5bdd34b4f5288d725dd13f.1790323012.git.petalzu987@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <cover.1790323012.git.petalzu987@gmail.com>
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="VdpUEwc1"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=SqnfWlcUIbsU5xlr2zjxeGqUi1yl8oUH2J4t/jjj8ec=; b=VdpUEwc1v8u0oxVYV2LXo+Ijow
+	emJ2DDzl9cw4wUrEaKXGUBqdJeOnNAqVRZ5BNhWVX6NxLvjH+MeX8rF4H2R2OB6+qqZPmSYDyTJgP
+	ANxq9324QsSTH2LXhnuH/JhPLZW3s3RzMwG6VRr7i63UCHXOKQXLfcC+RVCBTDhfSWR0=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1xArm7-007XfC-2h; Sun, 27 Sep 2026 18:30:51 +0200
+Date: Sun, 27 Sep 2026 18:30:51 +0200
+From: Andrew Lunn <andrew@lunn.ch>
+To: Ren Wei <weir@nebusec.ai>
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org, razor@blackwall.org,
+	idosch@nvidia.com, davem@davemloft.net, edumazet@kernel.org,
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+	vega@nebusec.ai, petalzu987@gmail.com
+Subject: Re: [PATCH net 0/1] net: bridge: avoid recursive multicast cleanup
+Message-ID: <156c41b1-fc86-4ecf-8181-461944734be9@lunn.ch>
 References: <cover.1790323012.git.petalzu987@gmail.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
@@ -84,91 +43,48 @@ List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1790323012.git.petalzu987@gmail.com>
 
-From: Zixuan Chai <petalzu987@gmail.com>
+On Sun, Sep 27, 2026 at 01:04:38AM +0800, Ren Wei wrote:
+> From: Zixuan Chai <petalzu987@gmail.com>
+> 
+> Hi Linux kernel maintainers,
+> 
+> We found and validated an issue in net/bridge/br_multicast.c. The bug is
+> reachable by a non-root user via user and network namespaces. We've tested
+> it, and it should not affect any other bridge multicast functionality.
+> 
+> This bug is tracked at: https://bugtracker.nebusec.ai/f/4342
+> 
+> We will provide detailed information about the bug in this email, along
+> with a PoC to trigger it.
+> 
+> ---- details below ----
+> 
+> Bug details:
+> 
+> When an EXCLUDE (*,G) port is deleted, br_multicast_star_g_handle_mode()
+> removes its corresponding temporary STAR_EXCL (S,G) port. For an (S,G)
+> entry, br_multicast_del_pg() then calls
+> br_multicast_sg_del_exclude_ports() to remove the remaining automatically
+> added ports. That helper also calls br_multicast_del_pg() for each port,
+> which re-enters the same cleanup and adds another stack frame per port.
+> With enough ports, the task hits the kernel stack guard page.
 
-br_multicast_sg_del_exclude_ports() removes automatically added STAR_EXCL
-port groups by calling br_multicast_del_pg(). For S,G entries, that
-deletion calls back into br_multicast_sg_del_exclude_ports(), so a large
-number of STAR_EXCL ports consumes one kernel stack frame per port and can
-hit the stack guard page.
+What is the value of "enough"?
 
-Keep the complete port-group deletion path for cleanup, but suppress the
-S,G exclude-port cleanup while that helper is already walking the same
-entry. Normal deletion callers retain the existing behavior.
+We get lots of bug reports for theoretical issues which in practice
+will never happen. And we get some reports for real issues which can
+happen. You are more likely to get your reported looked at if you make
+it clear the issues really can happen, give todays systems.
 
-Fixes: 8266a0491e92 ("net: bridge: mcast: handle port group filter modes")
-Cc: stable@vger.kernel.org
-Reported-by: Vega <vega@nebusec.ai>
-Assisted-by: LLM
-Signed-off-by: Zixuan Chai <petalzu987@gmail.com>
-Signed-off-by: Ren Wei <weir@nebusec.ai>
----
- net/bridge/br_multicast.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+> The PoC uses unshare -Urn, creates 256 temporary EXCLUDE ports and a
+> permanent INCLUDE source entry with IGMPv3 enabled, then deletes one
+> EXCLUDE port.
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 2f9bb30e1a1f..3fbad7b59769 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -81,6 +81,10 @@ __br_multicast_add_group(struct net_bridge_mcast *brmctx,
- 			 bool blocked);
- static void br_multicast_find_del_pg(struct net_bridge *br,
- 				     struct net_bridge_port_group *pg);
-+static void __br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
-+				  struct net_bridge_port_group *pg,
-+				  struct net_bridge_port_group __rcu **pp,
-+				  bool sg_del_exclude_ports);
- static void __br_multicast_stop(struct net_bridge_mcast *brmctx);
- 
- static int br_mc_disabled_update(struct net_device *dev, bool value,
-@@ -458,7 +462,7 @@ static void br_multicast_sg_del_exclude_ports(struct net_bridge_mdb_entry *sgmp)
- 	for (pp = &sgmp->ports;
- 	     (p = mlock_dereference(*pp, sgmp->br)) != NULL;) {
- 		if (!(p->flags & MDB_PG_FLAGS_PERMANENT))
--			br_multicast_del_pg(sgmp, p, pp);
-+			__br_multicast_del_pg(sgmp, p, pp, false);
- 		else
- 			pp = &p->next;
- 	}
-@@ -799,9 +803,10 @@ static void br_multicast_destroy_port_group(struct net_bridge_mcast_gc *gc)
- 	kfree_rcu(pg, rcu);
- }
- 
--void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
--			 struct net_bridge_port_group *pg,
--			 struct net_bridge_port_group __rcu **pp)
-+static void __br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
-+				  struct net_bridge_port_group *pg,
-+				  struct net_bridge_port_group __rcu **pp,
-+				  bool sg_del_exclude_ports)
- {
- 	struct net_bridge *br = pg->key.port->br;
- 	struct net_bridge_group_src *ent;
-@@ -820,7 +825,8 @@ void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
- 	if (!br_multicast_is_star_g(&mp->addr)) {
- 		rhashtable_remove_fast(&br->sg_port_tbl, &pg->rhnode,
- 				       br_sg_port_rht_params);
--		br_multicast_sg_del_exclude_ports(mp);
-+		if (sg_del_exclude_ports)
-+			br_multicast_sg_del_exclude_ports(mp);
- 	} else {
- 		br_multicast_star_g_handle_mode(pg, MCAST_INCLUDE);
- 	}
-@@ -832,6 +838,13 @@ void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
- 		mod_timer(&mp->timer, jiffies);
- }
- 
-+void br_multicast_del_pg(struct net_bridge_mdb_entry *mp,
-+			 struct net_bridge_port_group *pg,
-+			 struct net_bridge_port_group __rcu **pp)
-+{
-+	__br_multicast_del_pg(mp, pg, pp, true);
-+}
-+
- static void br_multicast_find_del_pg(struct net_bridge *br,
- 				     struct net_bridge_port_group *pg)
- {
--- 
-2.34.1
+So a hardware switch with 256 ports is on the high side, but this
+could happen in an SDN setup.
+
+      Andrew
