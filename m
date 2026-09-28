@@ -1,149 +1,137 @@
-Received: from mail-qv2-f0.google.com (mail-qv2-f0.google.com [74.125.230.128])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out28-221.mail.aliyun.com (out28-221.mail.aliyun.com [115.124.28.221])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCA2D3E0C57
-	for <bridge@lists.linux.dev>; Sun, 27 Sep 2026 19:35:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.230.128
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790537741; cv=pass; b=PetwmdHkFh41G9ERiKD6cgPsYUgxfumEVKs1yckoEqf8cR6Flmox5X7wOaVpirVa7kCwL2O1yh1YEumWUwORNCElh8v8S9igzxrE6IIZ4/GxzQBrPTqWS4YSaHfwlJcu+uLDRgVelOvQTDXkNUKqmEe1SysKSSTCNUCT8XrVuEM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790537741; c=relaxed/simple;
-	bh=mrOC+K0YOCPbrTmQM9IR744v9j1UjcD4tQT9sNiYbXw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SLi1chzRCS82JMG1RS91M36PYnqRNgyj7YhhsQd6sIlCYBUpLsZnBUZYKY1lIZnm4LQUVtFjKCSTuBmOOG0T/3WipCU/BDpFd6nXWvYoKICixYfNOZ9SPP4TrwLYFaRVLF04L9Gi+AZlafjsWYlFhOv/H7lC68AvH0PkxgPdZtY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZTiuhTJC; arc=pass smtp.client-ip=74.125.230.128
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 258993F7AAC
+	for <bridge@lists.linux.dev>; Mon, 28 Sep 2026 08:34:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.28.221
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790584462; cv=none; b=A7hA1iN0ZmDliEP/ujeEBQV4ekEIH/nDj01fh1qGpt8mDjjjcmV4U/+kJfwbZX5/0SzscH8ZWwPyaScgx/KiUbTY0sEQdRwYm/kqraJ2/OlnqzWoukU1qhhVWBjIzXZr7Ie0mKD6C39/fgfkMRJKEvaqzWUevJMwVs6eJ6lypw8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790584462; c=relaxed/simple;
+	bh=mR+r3uGBzJtrwy13qloZwh2TNqoWWjI2DQS3mzd64FE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BxI8JHBYOTQQNFhmzlD/E0u3wctD3ia6RCVlS3YJS82RsdpRe1kg3vUbdCO/+kRWgbeB/Y2No5o4a+uKSir5lFTbPc2+1y5hfX6oCj6kpD8hISVxyf8IAaE3nfh8WslRvdblZQO2EIe2NSvF6cbsie3+zviIAMkTf/+IzQ8zb18=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com; spf=pass smtp.mailfrom=xiaopeng.com; dkim=pass (1024-bit key) header.d=xiaopeng.com header.i=@xiaopeng.com header.b=ZG53DtjE; arc=none smtp.client-ip=115.124.28.221
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZTiuhTJC"
-Received: by mail-qv2-f0.google.com with SMTP id 6a1803df08f44-910603aa531so10136826d6.1
-        for <bridge@lists.linux.dev>; Sun, 27 Sep 2026 12:35:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790537739; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Q3MyKi+rGk6wwllqwx1a2SWSs3pMR4eS/KzY2lhtFaB2tvAwMYdNOQ7MGYkK7k/qtX
-         kD65eEE6GVFEXmy4uOsmjPhB0kDstw7Yek8zT3uROWhgrRckl4exws5J/CSHvUnYtP2V
-         cLPBVaN3oyZLA3/zt4jH9WwXUmELePgsTjnvwdBj8voLJXYEX7WhwDh7yYCjOJYKSxUe
-         cnxXrZvyzIay0fDnN+5mRiM+an1vN2uqxdS9H/zQht55efX7AW0+KuLReJMh3VS8lNIs
-         BrTgw9W847gSzeu8+NV7ddgGC/5CEUHo2QvxKoHskHI8DiS5dK2rv6ecsGPAPuz3xKxA
-         q13g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=mrOC+K0YOCPbrTmQM9IR744v9j1UjcD4tQT9sNiYbXw=;
-        fh=+ps5MkrSw3MrrRG8wHCCSCNldg7iM2AEut2A5ql/A48=;
-        b=rYj+7DrAv5gspkmyLQcH6l4CSXZHxE9iuZmH8zfup9ucQQO9497fSJXRG9Vx4enwgj
-         L7FyXnS5E14eUK7VHDY+sIRiVeV0r/Wo6I9jr9dgKDfPIo4jUug76AYd1h5hignp/FGc
-         2J7bNm8r3HnPJaqNoQ9PhASn/wkgsgpATu1GviQlrlhM+GqXAKrqNjJq71B91LvDU3wp
-         0xeMkDVHEcMrN+fEA3DJcuMRTS/TEIsfG9xXEWmv1cHBC0CvJxhmlH9VdoFPjKsjCKxh
-         BKyOba7V9hEuY1l7B20O+y0CDtkfQDxTzKhJKI9zJK2A4HFjCbLpia0FTXOFD9T9qZ+1
-         BhrQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790537739; x=1791142539; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=mrOC+K0YOCPbrTmQM9IR744v9j1UjcD4tQT9sNiYbXw=;
-        b=ZTiuhTJCcXu779QaiDdKEOISD/sVuH2b59OL1zajdPfCB6QjktAYgKBhKA0jAnqz2h
-         Xyu78TaHmjabzQ4OoIfmu7a5tiZ1wZPqxfVWU8AvIfS2j0KKa/uCcdTLouxS6cL3YWkx
-         5SgpVmor0H3414SQLFg98eepJ2BykxhvtmD8VxipK4dFIHmgmyvAHUI2jUuY7JOECZiU
-         P3zoGJwEcz5Nblp1+Tr+RcbSI5H0cDqsEhYGdoS9/SeWlNEuZ6brrZ5iEQjNuN+UgTKe
-         Nt7Ox/oBO5AZwT6vdxtjtxfEkTFQ2+zmzyYklI05ysR2dWzTds3AO01hCGqWxY3yve5C
-         biZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790537739; x=1791142539;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=mrOC+K0YOCPbrTmQM9IR744v9j1UjcD4tQT9sNiYbXw=;
-        b=PPRbQr8uqmtYgW2WFXX7ani56mHSPPhBXW75Y6NL3wiBRKbV7/ClvX/zaXHklPCIBx
-         PlxsHUL7vLZeeDr3Tg/gixSWdzHSXF2R+BB269WmtxXNKgsrs7VGe+66tWKlsS6NhorJ
-         L277Q8TSwlOGngkacP77ZHXUN0zgA+pz88P1HtgpLI6MTE0o+t6nPnyobXHg9eX6ECJb
-         Yk8l9gAml6tlsDGbf3AMv5oQ4oTDlEZmQWIYkwP7ygHjvTNJEtP/O1Un7P6xxM4h/dO+
-         luYSOEXX7C5N6cCw4EspKV3f7uZMgXZOIB6tAl8wO0jFl9G67X7Ru9abW8gqumKmc+nQ
-         FfIw==
-X-Forwarded-Encrypted: i=1; AKwUvBxbEv9bAJTu731cWLuh3Xp1q9D0yaXJecWHIYQDcgIO8F005Dz+2jN3WbGLcpQJ+XRIu2tHTnM=@lists.linux.dev
-X-Gm-Message-State: AFq9FYLJgJ//giXx78v51rfzKy4N3yPj/+eQFkLy1NXx03JzWiSQ2Q8g
-	cOORgPHpreMFop4pH7pcGsArkrDGfoiVvnhNeKH4/mV7CbfYyAEllGjKaQQILyX3buVT0zPfKC5
-	1je3/pMFcColXXaeVgDZeyzB0OjdEfYM=
-X-Gm-Gg: AYBFou1Rhl4eZJxE/OFgkkUTRld4qRvwweDH62LAhT7jFzOUxGgpZ7qvj1G2sAguOiC
-	uy+A6jjYQsSdccZXmXL0ySG5rFMEXWzndriLF6uf+V/eNcO5RAqDllGfAgr1muBuVpivgDfBobO
-	ik+9y1JfkBflauVpP1c0PQ4FLhsA4zqPYIP5pniOyGuRiydiGfqCR8Z1tYKWpylxwHFUoAsKBqy
-	cXv7/kBcnIgsoXm0QkCtJo+zdPKPp23mu5tr4vD3NsO5sUtpXFXllprbF/x6c3a33AMbAH6RsuQ
-	U9AMCFVJntneRAHR92Dhpk0i5BpEB6xRp7lDfHSQL92Sqkib523xJKe+
-X-Received: by 2002:a05:6214:590f:b0:914:2c1b:7d29 with SMTP id
- 6a1803df08f44-91441fdca4fmr122933726d6.6.1790537738641; Sun, 27 Sep 2026
- 12:35:38 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=xiaopeng.com header.i=@xiaopeng.com header.b="ZG53DtjE"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=xiaopeng.com; s=default;
+	t=1790584457; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=38M1SpqtY4Y4kGGMo4lFDwqzGnfS5lW46jvslGgoIXE=;
+	b=ZG53DtjEgH/dw7o/bDhYyRZPgjslx2nnA5XXIuyOnQKohEHna7R7DncROdb8Xbsye5aEnzrU65mQxjczF6jZXAuCG1p69doEVvuozE4jDx7qAgBNlBzUqDSf97y0t/iPjgs3yGV7JFUGNxsLMhNlNjvxRl8cgGjLHqtOX32MVew=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.07440555|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.228353-0.00216327-0.769483;FP=18347645252747136519|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033068016216;MF=guozh23@xiaopeng.com;NM=1;PH=DS;RN=15;RT=15;SR=0;TI=SMTPD_---.jQ0CZhn_1790584138;
+Received: from localhost(mailfrom:guozh23@xiaopeng.com fp:SMTPD_---.jQ0CZhn_1790584138 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Mon, 28 Sep 2026 16:28:59 +0800
+From: Guo Zihao <guozh23@xiaopeng.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	Phil Sutter <phil@nwl.cc>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] netfilter: ebtables: ebt_802_3: drop short frames before the match reads LLC
+Date: Mon, 28 Sep 2026 16:28:58 +0800
+Message-ID: <20260928082858.3009191-1-guozh23@xiaopeng.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <cover.1790323012.git.petalzu987@gmail.com> <156c41b1-fc86-4ecf-8181-461944734be9@lunn.ch>
-In-Reply-To: <156c41b1-fc86-4ecf-8181-461944734be9@lunn.ch>
-From: Zixuan Chai <petalzu987@gmail.com>
-Date: Mon, 28 Sep 2026 03:35:27 +0800
-X-Gm-Features: AclHuK_WZK7MrZ0bZXc1PSjSrdd-S31NImpwP6KMGVrKPrjwr_b812NLnM_khgA
-Message-ID: <CADTzadLbmd5E73RG16kQ1rFmwYESNuQqgc-JCX2RVhY0FRh8nw@mail.gmail.com>
-Subject: Re: [PATCH net 0/1] net: bridge: avoid recursive multicast cleanup
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Ren Wei <weir@nebusec.ai>, bridge@lists.linux.dev, netdev@vger.kernel.org, 
-	razor@blackwall.org, idosch@nvidia.com, davem@davemloft.net, 
-	edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
-	vega@nebusec.ai
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Mon, 28 Sept 2026 at 00:31, Andrew Lunn <andrew@lunn.ch> wrote:
->
-> On Sun, Sep 27, 2026 at 01:04:38AM +0800, Ren Wei wrote:
-> > From: Zixuan Chai <petalzu987@gmail.com>
-> >
-> > Hi Linux kernel maintainers,
-> >
-> > We found and validated an issue in net/bridge/br_multicast.c. The bug is
-> > reachable by a non-root user via user and network namespaces. We've tested
-> > it, and it should not affect any other bridge multicast functionality.
-> >
-> > This bug is tracked at: https://bugtracker.nebusec.ai/f/4342
-> >
-> > We will provide detailed information about the bug in this email, along
-> > with a PoC to trigger it.
-> >
-> > ---- details below ----
-> >
-> > Bug details:
-> >
-> > When an EXCLUDE (*,G) port is deleted, br_multicast_star_g_handle_mode()
-> > removes its corresponding temporary STAR_EXCL (S,G) port. For an (S,G)
-> > entry, br_multicast_del_pg() then calls
-> > br_multicast_sg_del_exclude_ports() to remove the remaining automatically
-> > added ports. That helper also calls br_multicast_del_pg() for each port,
-> > which re-enters the same cleanup and adds another stack frame per port.
-> > With enough ports, the task hits the kernel stack guard page.
->
-> What is the value of "enough"?
+ebt_802_3_mt() takes the frame pointer from skb_mac_header() and reads
+the LLC union fields (dsap, ssap, ctrl, type) without making sure that
+those bytes are in the linear area. For an 802.3 frame (length field
+below 1536) the payload is LLC, but only ETH_HLEN bytes are guaranteed
+linear by the time the bridge hooks run, and neither ebt_do_table() nor
+ebt_basic_match() pulls more.
 
-Thanks for your review.
-By "enough", we mean 151 temporary EXCLUDE ports in our tested setup.
-This is the smallest number of ports we have tested that triggers the
-issue.
+A frame that carries nothing past the 14 byte Ethernet header therefore
+reads into the skb tailroom. Check that sizeof(struct ebt_802_3_hdr)
+bytes are actually linear before reading, and drop the packet through
+par->hotdrop when they are not, the same signalling other ebt matches
+use for a packet they cannot examine.
 
-> We get lots of bug reports for theoretical issues which in practice
-> will never happen. And we get some reports for real issues which can
-> happen. You are more likely to get your reported looked at if you make
-> it clear the issues really can happen, give todays systems.
->
-> > The PoC uses unshare -Urn, creates 256 temporary EXCLUDE ports and a
-> > permanent INCLUDE source entry with IGMPv3 enabled, then deletes one
-> > EXCLUDE port.
->
-> So a hardware switch with 256 ports is on the high side, but this
-> could happen in an SDN setup.
+No Fixes tag. The unchecked skb_mac_header() dereference comes from the
+initial ebtables merge and has not been touched since.
 
-We also believe this is realistic in SDN and container setups, where a
-single bridge can have hundreds of virtual ports.
+Reviewed-by: Liu Chao <liuc63@xiaopeng.com>
+Signed-off-by: Guo Zihao <guozh23@xiaopeng.com>
+---
+ net/bridge/netfilter/ebt_802_3.c | 36 +++++++++++++++++++++++---------
+ 1 file changed, 26 insertions(+), 10 deletions(-)
 
-Thanks,
-Zixuan Chai
+diff --git a/net/bridge/netfilter/ebt_802_3.c b/net/bridge/netfilter/ebt_802_3.c
+index 68c2519bd..533f0d36e 100644
+--- a/net/bridge/netfilter/ebt_802_3.c
++++ b/net/bridge/netfilter/ebt_802_3.c
+@@ -14,27 +14,43 @@
+ #include <linux/skbuff.h>
+ #include <uapi/linux/netfilter_bridge/ebt_802_3.h>
+ 
+-static struct ebt_802_3_hdr *ebt_802_3_hdr(const struct sk_buff *skb)
+-{
+-	return (struct ebt_802_3_hdr *)skb_mac_header(skb);
+-}
+-
+ static bool
+ ebt_802_3_mt(const struct sk_buff *skb, struct xt_action_param *par)
+ {
+ 	const struct ebt_802_3_info *info = par->matchinfo;
+-	const struct ebt_802_3_hdr *hdr = ebt_802_3_hdr(skb);
+-	__be16 type = hdr->llc.ui.ctrl & IS_UI ? hdr->llc.ui.type : hdr->llc.ni.type;
++	struct ebt_802_3_hdr _frame;
++	const struct ebt_802_3_hdr *frame;
++	int mac_offset = skb_mac_offset(skb);
++	__be16 type;
++
++	/* skb->data sits past the Ethernet header when the match runs, so the
++	 * frame starts before skb->data. skb_header_pointer() takes an offset
++	 * relative to skb->data and cannot express that, so check the linear
++	 * area against the mac header ourselves and use skb_mac_header()
++	 * directly once the check has passed.
++	 */
++	if (mac_offset < 0)
++		mac_offset = -mac_offset;
++	if (mac_offset + sizeof(_frame) > skb_headlen(skb)) {
++		/* The frame is too short to hold an LLC header. */
++		par->hotdrop = true;
++		return false;
++	}
++
++	frame = (const struct ebt_802_3_hdr *)skb_mac_header(skb);
++	type = frame->llc.ui.ctrl & IS_UI ? frame->llc.ui.type :
++					    frame->llc.ni.type;
+ 
+ 	if (info->bitmask & EBT_802_3_SAP) {
+-		if (NF_INVF(info, EBT_802_3_SAP, info->sap != hdr->llc.ui.ssap))
++		if (NF_INVF(info, EBT_802_3_SAP, info->sap != frame->llc.ui.ssap))
+ 			return false;
+-		if (NF_INVF(info, EBT_802_3_SAP, info->sap != hdr->llc.ui.dsap))
++		if (NF_INVF(info, EBT_802_3_SAP, info->sap != frame->llc.ui.dsap))
+ 			return false;
+ 	}
+ 
+ 	if (info->bitmask & EBT_802_3_TYPE) {
+-		if (!(hdr->llc.ui.dsap == CHECK_TYPE && hdr->llc.ui.ssap == CHECK_TYPE))
++		if (!(frame->llc.ui.dsap == CHECK_TYPE &&
++		      frame->llc.ui.ssap == CHECK_TYPE))
+ 			return false;
+ 		if (NF_INVF(info, EBT_802_3_TYPE, info->type != type))
+ 			return false;
+-- 
+2.50.1
+
