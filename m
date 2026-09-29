@@ -1,185 +1,148 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79C664F93B9
-	for <bridge@lists.linux.dev>; Mon, 28 Sep 2026 19:32:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1919B3A9017
+	for <bridge@lists.linux.dev>; Tue, 29 Sep 2026 07:44:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790623950; cv=none; b=oTkvJKWFRAMOBz3E2v2FFxycralPYnxo7VIp4/sP5z5gLc/x+KNMlPmvTVTpo5mJm5D++NW8p1lnQVKJUby0xhNROO+PK5oUKHnFSObtsU4whFezptYa9fIv9mxbnnjgwf2CiWq+M7DCKWkzHmChBnTnzhtPcKcNnnSLmfwHmng=
+	t=1790667852; cv=none; b=A9fZzJzdSayrqP1UVtzgTYwjtpSCvHgEY9t30kodFKFSWyOzwWHdUU8zAKcsdGIjWkBWCcsK/7WvGU01SEhVgOMdgn9iGpLkHQwl/RKVinMwY+yTizoRB2n89TDClhjaEdBDX1sX6tigmnlZY4k2wzYv+T5hi2KMxUgcgDH+krU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790623950; c=relaxed/simple;
-	bh=2ArWc7PKEsYEx+mNuhgkZOQUdQG2ojj+JQqjWtrHnB0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dhxx45X4AxonTQxJoFC8uJageOlapSFenodtjuFzWyvxT0wFJm8Rw1VNzHmbZBwSkx0pgU2IfVizusEO3r0nCXl1PwLaDAwW+bOpyB0AsOLNhhMnCq50AiXS0RYobpqpl5LBjoDM8Ldgc37KYC1H33n3cwrxdWCWwPPfNrQmFzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=HcaselTZ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1NTSBWTO; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nh4+NyJ8; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=awFvs/Rf; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1790667852; c=relaxed/simple;
+	bh=Z4HLh6x3TXcq+IGnxeku780VsScevwodu7+asM0q/T0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Rlcs6Ni4WaufILLh51QvQJ8ZnoZybkoUHoI/gyLxpiYxlYKYPALlvtC9wtrhoumEUKKUUuZLjfeN2xODXB1U2YkFxTLr4FuISHLFUNd168CP3mD2S7aH8piL1NsvibpCpgK4kNjhIOur1Q63zPq6NVCHifu8tK4dxHD4VYbftrI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=fr5B4Dha; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="HcaselTZ";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1NTSBWTO";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nh4+NyJ8";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="awFvs/Rf"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 662F121BF1;
-	Mon, 28 Sep 2026 19:32:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1790623942; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JZ8h5Jzz8XpngoZnKBoT06ZAWwhOL69A3yCz3x1aRlA=;
-	b=HcaselTZPkQclKcIFmpORAAhKEsYYzXgdTIcP9iut6oCnZ8S/tLEAljCWMnF1K9WfEj0Ad
-	VjzYV/Do1UNUDziznAi2v9FPoCLdhvyLjJCRg5fs8At7Oqr59xBcO3n/VgSPmuMQhtsWlg
-	wmpgncDEYXkk5bRLAb61KguBXzmEUjI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1790623942;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JZ8h5Jzz8XpngoZnKBoT06ZAWwhOL69A3yCz3x1aRlA=;
-	b=1NTSBWTOL5jM9NYam5D3QAOejgEawc9czQLxWXPx98iwWxsfK4gkSO6M0gixjus0I+eBk0
-	P5sLoZSRZVUZsZBw==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1790623938; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JZ8h5Jzz8XpngoZnKBoT06ZAWwhOL69A3yCz3x1aRlA=;
-	b=nh4+NyJ8mmYRt5TqEMmBvpEHOHx8QynfIuYDVh5tkF6d2sH6+lT1yTrmIcFVZVuork2QyL
-	BVs5AW12doU92aFHUOjygAGg+ERAQglV1BkbcSd7ZtTwBK5l2mvbDE9HBGhJcAq9dUpg0Q
-	bWQeijJD4vLpXUR80o8nnQjmCZC3TWY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1790623938;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JZ8h5Jzz8XpngoZnKBoT06ZAWwhOL69A3yCz3x1aRlA=;
-	b=awFvs/RfPrlCPz4TJ2/m3tybU96vNvANo4sUBSpN1B3g2esqIPnUX3pqx7AyZdXvMHygZK
-	4+IuDffXmwFtv+DA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9413D133F1;
-	Mon, 28 Sep 2026 19:32:17 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 4RBiFn3AumpWOAAAD6G6ig:T14
-	(envelope-from <fmancera@suse.de>); Mon, 28 Sep 2026 19:32:17 +0000
-From: Fernando Fernandez Mancera <fmancera@suse.de>
-To: netdev@vger.kernel.org
-Cc: horms@kernel.org,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	edumazet@kernel.org,
-	davem@davemloft.net,
-	Fernando Fernandez Mancera <fmancera@suse.de>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	Eric Dumazet <edumazet@google.com>,
-	bridge@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 13/16 net-next v2] net: bridge: guard ARP/RARP proxy and suppression with CONFIG_IPV4
-Date: Mon, 28 Sep 2026 21:30:09 +0200
-Message-ID: <20260928193046.6698-14-fmancera@suse.de>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260928193046.6698-1-fmancera@suse.de>
-References: <20260928193046.6698-1-fmancera@suse.de>
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="fr5B4Dha"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912d37b6so20709335e9.0
+        for <bridge@lists.linux.dev>; Tue, 29 Sep 2026 00:44:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall.org; s=google; t=1790667848; x=1791272648; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=D1gEgNNUIuRxKLIUuOnRgjSxzo/gFqBNwHA7M+ft3uk=;
+        b=fr5B4DhaMIg9yTTYUKwpIP/SkOOKUtAb2JUB4W7e+TT8mXIQC5VDC/neSi11Tk64Ng
+         nm4mQWqSJrWQFH1cSjzBhU9Ox3aGRU8IR9H2mIHzmD/x/5Ur2Rvn0/ikv6tP2IhdOG2Q
+         7uqP9JADQjI+UpcXo3aDl26BUxdFwkA6Jwl0W0piqeYzLyMZ5zzDXCyA0nvCF+VHlTrS
+         MNubiV8ZgeQCRnGcxiVJ8AidDth695LMPKK9lJJaSKQ9xTBrAYS/MeUak9GVkMLdcIXP
+         o4xVUFln2d2FaeikQfN4Uy8v4o596ZIKRUbAvZVYlT6v2hNd9JlqfSHdyYTCmVP/Az/g
+         6PRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790667848; x=1791272648;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=D1gEgNNUIuRxKLIUuOnRgjSxzo/gFqBNwHA7M+ft3uk=;
+        b=Y75g5DoV2YYUr9MjeFNZOWu0mllU+5/Ahm1zWrqjz0kf6HZKEbxHH0JNXky82RXezz
+         /v8Y7IMHM+PbdIbyxGcekzDGz5gZTAjnNFBMuB3IDzYZvKYrIRheLJYMDZlXnnbHy6iO
+         1+XrwFmHtNKeZ7ywyIVkRzRr1AWmVYH/7phf+bhxLobD6Qz9EMKfhPnF47m8UUbLVu0g
+         0WzCigxKs9H7pWe+W6+D/OsVNeeF4w6c6UH1PMl6nJm1crTZsmnaIZoqOZQWH7hSjvFl
+         pqF5eqiqB6rkIoSiMgRqRjD/aRgax/KSYCztp38xFx/AhD6GJayk627XupHsBGxh/uV9
+         0w3w==
+X-Forwarded-Encrypted: i=1; AKwUvBxyj2B21ObaFh1iBy91TfgFIJfvyEaie2KAJL7JBZz1IqeqpnX/PhtvttNQvXzc8xDviqFSseo=@lists.linux.dev
+X-Gm-Message-State: AFuF++lCszfURG2UC62kgiZ+eJNWZtPY3ntngbmhth/TFJNJ5voXWDDZ
+	kODa1E4aOttpyfEVTfb4a0egI0kgtvU+0pyYHhg7GZL7uxEwDs7Fy4iUKyoo1Kd7SgE=
+X-Gm-Gg: AYBFou0ea5tTTsn6EeaZFvj5w2tTZAA6SyekQuwoen/lF90ZIPtELRfuo/YgWknVtXS
+	RmOzbxzNcTFmaetj1+RrzW/o0DQ5NeNwaNpGNkdIBmTsyr6AYwmJYKS73sx/F7rxscw4yelkEtW
+	Jks62alSuays0h3t3r18TjoR5TVw7IcmP70rGxeEng7PCODbbeq+PM0WfPtdtXbg0gFcvWSEnPo
+	9rhDVZmi73oGw3ADx5acBsQIE4IRPSOO3mSihb3Y3cny/aSxsByY36klLpIdG483X4IIbgws4+j
+	ozQC5m1h/J1f0is12t/3hMa9WsecvroL2LKUNK7P8HwnKGHg4hP7luIjzV3PgQAKyLqCv51s8rS
+	CXrK01y7BTI2OSvko354WA7RHRUYEleAYHRIC6NjpwHRh4G8JY9X9cH9dcrEHa+s7in7pnghFab
+	P+3J0vLEjoCrbcdUIM8ADMUXDqpMej+pWYME/rydiRbkqVnrUTiaaSeGZQ14cFe6dCGX9XP79z1
+	rlumFzWPU/nSgUG2fBJi5QUj69m
+X-Received: by 2002:a05:600c:870c:b0:49e:6050:9fbe with SMTP id 5b1f17b1804b1-49fe66d76camr258621725e9.15.1790667847789;
+        Tue, 29 Sep 2026 00:44:07 -0700 (PDT)
+Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a00d45ce1csm37147125e9.3.2026.09.29.00.44.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 29 Sep 2026 00:44:06 -0700 (PDT)
+Message-ID: <b8ad269f-186a-4279-887d-60ef9968025f@blackwall.org>
+Date: Tue, 29 Sep 2026 10:44:05 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spam-Score: -2.80
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.997];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	RCPT_COUNT_TWELVE(0.00)[12];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_TLS_ALL(0.00)[]
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 0/1] net: bridge: avoid recursive multicast cleanup
+Content-Language: en-US, bg
+To: Zixuan Chai <petalzu987@gmail.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: Ren Wei <weir@nebusec.ai>, bridge@lists.linux.dev,
+ netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
+ edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ vega@nebusec.ai
+References: <cover.1790323012.git.petalzu987@gmail.com>
+ <156c41b1-fc86-4ecf-8181-461944734be9@lunn.ch>
+ <CADTzadLbmd5E73RG16kQ1rFmwYESNuQqgc-JCX2RVhY0FRh8nw@mail.gmail.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <CADTzadLbmd5E73RG16kQ1rFmwYESNuQqgc-JCX2RVhY0FRh8nw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Historically, the bridge subsystem relied on CONFIG_INET to guard ARP
-and RARP proxy and suppression routines. As CONFIG_IPV4 is decoupled
-from the core stack and made optional, relying on CONFIG_INET is no
-longer accurate, as ARP and RARP are exclusively IPv4 protocols.
+On 27/09/2026 22:35, Zixuan Chai wrote:
+> On Mon, 28 Sept 2026 at 00:31, Andrew Lunn <andrew@lunn.ch> wrote:
+>>
+>> On Sun, Sep 27, 2026 at 01:04:38AM +0800, Ren Wei wrote:
+>>> From: Zixuan Chai <petalzu987@gmail.com>
+>>>
+>>> Hi Linux kernel maintainers,
+>>>
+>>> We found and validated an issue in net/bridge/br_multicast.c. The bug is
+>>> reachable by a non-root user via user and network namespaces. We've tested
+>>> it, and it should not affect any other bridge multicast functionality.
+>>>
+>>> This bug is tracked at: https://bugtracker.nebusec.ai/f/4342
+>>>
+>>> We will provide detailed information about the bug in this email, along
+>>> with a PoC to trigger it.
+>>>
+>>> ---- details below ----
+>>>
+>>> Bug details:
+>>>
+>>> When an EXCLUDE (*,G) port is deleted, br_multicast_star_g_handle_mode()
+>>> removes its corresponding temporary STAR_EXCL (S,G) port. For an (S,G)
+>>> entry, br_multicast_del_pg() then calls
+>>> br_multicast_sg_del_exclude_ports() to remove the remaining automatically
+>>> added ports. That helper also calls br_multicast_del_pg() for each port,
+>>> which re-enters the same cleanup and adds another stack frame per port.
+>>> With enough ports, the task hits the kernel stack guard page.
+>>
+>> What is the value of "enough"?
+> 
+> Thanks for your review.
+> By "enough", we mean 151 temporary EXCLUDE ports in our tested setup.
+> This is the smallest number of ports we have tested that triggers the
+> issue.
+> 
+>> We get lots of bug reports for theoretical issues which in practice
+>> will never happen. And we get some reports for real issues which can
+>> happen. You are more likely to get your reported looked at if you make
+>> it clear the issues really can happen, give todays systems.
+>>
+>>> The PoC uses unshare -Urn, creates 256 temporary EXCLUDE ports and a
+>>> permanent INCLUDE source entry with IGMPv3 enabled, then deletes one
+>>> EXCLUDE port.
+>>
+>> So a hardware switch with 256 ports is on the high side, but this
+>> could happen in an SDN setup.
+> 
+> We also believe this is realistic in SDN and container setups, where a
+> single bridge can have hundreds of virtual ports.
+> 
+> Thanks,
+> Zixuan Chai
 
-Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
----
- net/bridge/br_arp_nd_proxy.c | 2 +-
- net/bridge/br_device.c       | 2 +-
- net/bridge/br_input.c        | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+Noone will setup an mdb with 150 ports, sorry but it is not realistic at all,
+not even by a long shot. I'd send this for net-next.
 
-diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
-index da15f4d7c1ae..d739b8697429 100644
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -39,7 +39,6 @@ void br_recalculate_neigh_suppress_enabled(struct net_bridge *br)
- 	br_opt_toggle(br, BROPT_NEIGH_SUPPRESS_ENABLED, neigh_suppress);
- }
- 
--#if IS_ENABLED(CONFIG_INET)
- static bool
- br_is_neigh_suppress_enabled_vid(const struct net_bridge_port *p, u16 vid)
- {
-@@ -57,6 +56,7 @@ br_is_neigh_suppress_enabled_vid(const struct net_bridge_port *p, u16 vid)
- 	return br_is_neigh_suppress_enabled(p, v);
- }
- 
-+#if IS_ENABLED(CONFIG_IPV4)
- static void br_arp_send(struct net_bridge *br, struct net_bridge_port *p,
- 			struct net_device *dev, __be32 dest_ip, __be32 src_ip,
- 			const unsigned char *dest_hw,
-diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-index ce9ea9ac3d0a..a3e5a521178f 100644
---- a/net/bridge/br_device.c
-+++ b/net/bridge/br_device.c
-@@ -69,7 +69,7 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
- 				&state, &vlan))
- 		goto out;
- 
--	if (IS_ENABLED(CONFIG_INET) &&
-+	if (IS_ENABLED(CONFIG_IPV4) &&
- 	    (eth_hdr(skb)->h_proto == htons(ETH_P_ARP) ||
- 	     eth_hdr(skb)->h_proto == htons(ETH_P_RARP)) &&
- 	    br_opt_get(br, BROPT_NEIGH_SUPPRESS_ENABLED)) {
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index 4357d78524a6..584ac6c2215c 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -166,7 +166,7 @@ int br_handle_frame_finish(struct net *net, struct sock *sk, struct sk_buff *skb
- 	BR_INPUT_SKB_CB(skb)->brdev = br->dev;
- 	BR_INPUT_SKB_CB(skb)->src_port_isolated = test_bit(BR_ISOLATED_BIT, &p->flags);
- 
--	if (IS_ENABLED(CONFIG_INET) &&
-+	if (IS_ENABLED(CONFIG_IPV4) &&
- 	    (skb->protocol == htons(ETH_P_ARP) ||
- 	     skb->protocol == htons(ETH_P_RARP))) {
- 		br_do_proxy_suppress_arp(skb, br, vid, p);
--- 
-2.55.0
+Either way the fix is small and looks correct.
+
+Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
+
 
