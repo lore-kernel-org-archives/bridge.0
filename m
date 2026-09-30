@@ -1,62 +1,64 @@
 Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6322F449EB8
-	for <bridge@lists.linux.dev>; Wed, 30 Sep 2026 07:14:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC792449B3A
+	for <bridge@lists.linux.dev>; Wed, 30 Sep 2026 07:14:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790752495; cv=none; b=F0Y1OrwislCDww0LLZwRuvF8f8M/Y9KWYmb36QKEVUv0fHRAWDrTmX738cXNZr0cbr0BAHnWPB4eNdWTsI38x4ML626EeAq8SY0CV+1FHdvjuke0ltrylRNS0dDh6W5OrkqsixxIXhogknZMdvtY+v5oWmRZVYgo5gDxpMANPlg=
+	t=1790752503; cv=none; b=MCbjM4GuZGpDQGLzYvWOo97c4WkPP8X3WZEpePHXmYmG8sQc0Uff6OUXbqNzCUR2QYTAjkMYkY2ExjrtiTbVG+AaOY6b9MqAcQ3P3oI9qIHQ8fyHIVKWdzvO+wAnt9MvzNF6/TzDb615EDD9ea/9v69JbRgmkFErhJQWnPme/48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790752495; c=relaxed/simple;
-	bh=r4WBstP8E1wpz6/uG5wDcPqY6nEpJ2c97HTH1sCETKQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=O9KbRKiQPjBQ+/p3TUw/Jziaf4cSDGSaipyPhmnlAEXjhwCqr1+SF1gFTt4ZRbQu3MY+0mhYKX7UZJVEgN8wgTz+ar87bhhbunc4IkD8eaLR8IHfyz1HL/QmNoGpwYWLXg+cfjmXFLnktO0ghfFWxNeB+O4zcSR4rTw894srQE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=iJi/7xNZ; arc=none smtp.client-ip=74.125.225.98
+	s=arc-20240116; t=1790752503; c=relaxed/simple;
+	bh=HGcuEmCO1LQ0WKJA5UC1Yie15kNyMhHRdI2k1TnxTL4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bz+eEQf4McDdcNrpnICg0VNLtsS5RecU23P8yK8cdShhPwjjU/fDgJcLSmgTrGtvt6uxWXOkvJm87wiYr4j87lS2CWZ8e1bfyrO+vu+dM7h3/1kpCnr50i2RyJr3t4eMsc6lfsWHxh4v8o5cEfiB6ecC2YpCzxYltvqxd0lY0zY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=c52hs/po; arc=none smtp.client-ip=74.125.225.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="iJi/7xNZ"
-Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48afe3b2383so406195f8f.1
-        for <bridge@lists.linux.dev>; Wed, 30 Sep 2026 00:14:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="c52hs/po"
+Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48b01c4f4daso158405f8f.1
+        for <bridge@lists.linux.dev>; Wed, 30 Sep 2026 00:14:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1790752491; x=1791357291; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=8k3N5NCfHWljQVwTPRV950V+62uw1NSwz7X6rrxFOfs=;
-        b=iJi/7xNZv3/VlbdiUNjugJoWryoAeA9DuX6/9xhZ54AoLBNFVmd17uDk4oczfULY2w
-         ifLqng/wYsFD6dafbd6J1c8GTPrpayJXA+dGAoASZT8dnlakuO55vpZ0Ouc9zPF89NPi
-         OvmGqsywSeHnQYkInyOGE4XwOoj9lreJmGqJTA9srOjBI2Hw+yifngVoFT+dySQMvJcZ
-         nW9T2Zw13KNNWULHdgTqq0JS+yhTTux4ZbfNcNJbhgTO0SrU34HMmteUka4EmzDep6vZ
-         Gu8dqNfW1qleGTrkwMdbqKdDqrOo2Kd6cvS7lxpzTnZefSOkjyaPSybZGvKmyY6IZqlB
-         U84Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790752491; x=1791357291;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=blackwall.org; s=google; t=1790752498; x=1791357298; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=8k3N5NCfHWljQVwTPRV950V+62uw1NSwz7X6rrxFOfs=;
-        b=dcUhhIeXTIyO/An5Dj+RFDUvZMHpP83fQqVICzqcQ94Y0FrYb2geE0nkx7p3QK9Boe
-         1x8Dk6mHoZF+QuXCfIF9Em7tmD2juyWannEOi5EIN/SkfdBQdzZRy6H2znU5YY5cqUZJ
-         7oHy5TXL1PbXVtvdsVKFaVNNFvd21GEe1pRR7JL9SqsnRTQbn5I0kazc2YV7KBxHwhj7
-         dg/R9Q76itjSPvnHd4jds0tcjiM8oxAuKx+Dxc61pe7/tX+H9NFp3jVXVSbQXodLeBaj
-         qPK2caA22BRbXdMi/xVwaOlr5G8Whfnyef8ErTjD35UEJ7368ytn4lTbqo/OGOzY589P
-         PiMA==
-X-Forwarded-Encrypted: i=1; AKwUvBwennge3BxLed/waJ8W56/GYafV3v62HdYY6E14FQT8brNwiE91Pc1yg4yHvBPuALoZBCLNT6U=@lists.linux.dev
-X-Gm-Message-State: AFuF++m/3AsEQlHDXSjg87czlNldSYfxFeBVFWcAZIUyMOqqZ8R4Y7V4
-	0SayRLe6oIH7o/5A5Qq1S0TT+zNNuJH9QNErEq0+Y9wd6f2u3SK7LtM1xk5Tks/vRi4=
-X-Gm-Gg: AYBFou3e4fpC6Vfd1oGIr1a1/wZviV1/Ct4+xAVcWQ82JL75MHy0Mb7+lhWa5HUJuxL
-	NPN2PbAJaUI4x5MiUSCzxZ/CbqiDD9AjYxvWFDvxOlIO70rejl/GzxuEuedbxAqkdWuVPDM2UMl
-	kO2FF+0nJVAZzGSd6R+hXADGvKA8GcpBCP3uow9PULSQB6646o8PpOIGHg7uA/khsbHKzFnzH8O
-	vSNeIBUo9KtNpwZ+NVuQ2F4ndwXs/RN2wsTTHTfAqyrdUCmNe+1aT5OMB/7VDkKbycepPAiaST3
-	9dmqg+Z1J13MfZFtVdmrzcxtuqcfx1aFlwGtqAlQ8VqIGynpCNBQlc6yKvWjzEQx5q5l2ThgTjN
-	BfIz/qZHPuAik6ihnx66cz2Lg95X5L0uhcKIrwXZRtZFzj+GUooaI+3gfrF5tVpcWDF/RLDVUCN
-	ZIUzAbPRnpxSi74I39H0V7m4XGJEIbBKX7zXMv21v2yXlVZhSy9w2m+KQQzvqetVei1ooas8MW4
-	OAGwOlwbkLrKpIR4z8N
-X-Received: by 2002:a05:600c:1d0d:b0:4a0:151e:f743 with SMTP id 5b1f17b1804b1-4a01b00fba0mr5657535e9.19.1790752491395;
-        Wed, 30 Sep 2026 00:14:51 -0700 (PDT)
+        bh=pwxGLqNQgpZLReeYWZoTPk0vbZx9ySXeua7zM2Z2aLA=;
+        b=c52hs/po37ocaiHyr/GZLcVbd1M9Rd+B8tgqUsXks4k9j6KbvE+MCZQ+vN0r40atf6
+         EC7kB1JvHA9PkWZqEqYAE6eAuGwDVVtScGfN49i36RkW1JpCjklT/aIGP3Y1FdaQAR7m
+         DJ1IsSZ2jolt2ObzJPtZR039DBvod4sn/RaL2lk6nHhWufjgq02z4d0qEM5jZo+tfKhI
+         6bCUiWFreYvlkDbMEO6bQ2gE1Uva4eG6GcWcLw6uEFRJbpMVXHV834phG8AWQziBICWv
+         OcPx7YkAf06h21hTYQK06q8XmdOvcBAJ+YOYuzMQ6kW8Uflg41XTJgcDqEQQpA/mhxkP
+         vsbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790752498; x=1791357298;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=pwxGLqNQgpZLReeYWZoTPk0vbZx9ySXeua7zM2Z2aLA=;
+        b=Q0NBp7eJ8BIroehocx7ioJPyeC2AIM3qsvw3R4qvmVRY0ZoVr+refJ8ZDaG3T9tkJs
+         V3B+WTWYArogzU1Xxa3569qQkIVH2FMQRlUsleWl5+0TQuhGbVMKHFDcMmClX0aw2pzi
+         QVUJGJvYvauyjrAPn8sbDgy3iLnRPcp3sQea8XPD9XxoOnj3LF1B71Iv8YDpzNBefXga
+         En8OB5xPb0ZqnADaCN8jc7ptfy8nVxO/0XhtmSHLwOxph04zTw2mKEO/ImGD5i+qn2vP
+         aU34naWa27spbhL5UEi1h4qVLPWgMesLL7Z2dYnSmx4Fn/Ls9/vGhMszcPGQkuzuAzOz
+         pOng==
+X-Forwarded-Encrypted: i=1; AKwUvByUEx9ILdYxufZxqmwP27gs6AbnmsMX5pKuflle+6GVhT0SH64n2wzOtvHet06cT6Ns7DYP/Ks=@lists.linux.dev
+X-Gm-Message-State: AFq9FYInI7z2Ru3iEBvFc/NpgxmUDxkwbHhsOFfZCCnpXZJQonznueQ/
+	C4YAfgs7TGvDI2A39G5jzR/hATOBQ3dL6qr49lJFTFkw+M5LK7wl2vr947vyCZ3Ejn8=
+X-Gm-Gg: AYBFou1bOddjGKK1oXzmKBd6G6r/0/usi+WzxJBOh6VCd3OmETrbJ8cxsjfSjFONBkY
+	1qbByoUaUWAFxzK2FP7+m4IOHVzO7CMam1pRhz8dqBi+SZRzTIIgddY6RyOMoMYC/3aZWdEIy4a
+	Cscl78WAmHmRXN1uP4DPUOwrWxds4a+Ugaro+YmS2hk1oMO82IrmAHMzhWsVMvoasUd+E3FWxlr
+	5IdcmCBk2/jidpC4YuGe/fKwT3Sscv5R22Gq2bg03p/rpqM+nLMr7wX3IAkiSwuzjBFNKPM2yNs
+	xTA3PB7nH1ztVz1IIpgn4lGrzShHAQrJVWSUynVUHUya/cvGQEuCJuJCNKT48fyLecIWwA7I36v
+	4PuACnAfElsXpaFCXSN4fA0OgeScfnz9kqdhmygA7BRMtznu5rwKs+l7Jb05X8V+MrrbYaPUJAT
+	uoKpOfhaIzdu1tytMX+fDYaeqd/eNg0cG7VH2uyUG1KZ140DE9bCBBf7N35q1d/hPzqAczqICNe
+	MJ4KvJim1r1DJtq5nqe
+X-Received: by 2002:a05:6000:1788:b0:488:8ad2:e169 with SMTP id ffacd0b85a97d-48b0255cce1mr902065f8f.56.1790752497656;
+        Wed, 30 Sep 2026 00:14:57 -0700 (PDT)
 Received: from localhost (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4a0175025b5sm17893405e9.0.2026.09.30.00.14.50
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48b029d99bbsm1222968f8f.16.2026.09.30.00.14.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Sep 2026 00:14:50 -0700 (PDT)
+        Wed, 30 Sep 2026 00:14:57 -0700 (PDT)
 From: Nikolay Aleksandrov <razor@blackwall.org>
 To: netdev@vger.kernel.org
 Cc: idosch@nvidia.com,
@@ -67,10 +69,12 @@ Cc: idosch@nvidia.com,
 	horms@kernel.org,
 	bridge@lists.linux.dev,
 	Nikolay Aleksandrov <razor@blackwall.org>
-Subject: [PATCH net-next 00/12] net: bridge: vlan: optimize standard fdb fwding path
-Date: Wed, 30 Sep 2026 10:13:59 +0300
-Message-ID: <20260930071411.2786201-1-razor@blackwall.org>
+Subject: [PATCH net-next 01/12] net: bridge: introduce a bridge destination type
+Date: Wed, 30 Sep 2026 10:14:00 +0300
+Message-ID: <20260930071411.2786201-2-razor@blackwall.org>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260930071411.2786201-1-razor@blackwall.org>
+References: <20260930071411.2786201-1-razor@blackwall.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -79,123 +83,73 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi,
-This patch-set is a follow-up after the bridge flood fwding path
-optimizations and applies the same idea to the standard fdb fwding path.
-We are able to remove 2 vlan hash lookups in the standard fdb fwding
-path by caching the port-VLAN pointer in the fdb, to do that we switch the
-fdb dst to an opaque type that can be either a port pointer or vlan pointer
-differentiated by a bit. The field is a struct and also has a __private tag
-so we can catch direct users, it should be used only via the helpers.
-Sharing a field makes it easier to pass it around and also allows us to
-save struct space for the fast-path. Interesting case is when an fdb is
-promoted from a raw port to port-VLAN on the same port, it needs to be
-handled carefully so we use cmpxchg to make sure we don't generate
-deletion/replace notifications because it doesn't change the port.
-I tested VLAN deletion after these changes (we now wait a grace period for
-every delete) and the hit was ~20% reduction in deleted VLANs / sec
-deleting 4k VLANs took 14ms more and on my VM the VLANs deleted / sec went
-from 63k to 52k / sec. The complexity to batch them is not worth it.
+Add an opaque destination type and helpers for representing bridge port
+destinations. Using a separate structure makes raw pointer assignments and
+comparisons fail at build time while marking its value member __private
+makes sparse warn about accesses that bypass the helpers.
 
-Note again internal sashiko finds some pre-existing issues - I will take
-care of those separately as usual.
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+---
+ net/bridge/br_private.h | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-Overall the improvement is +10% Mpps and -10% cycles spent in fdb fwding:
- 64 byte vlan packets, 4k randomized fdb hits with 4k fdbs, 5 million
- packets passed 5 times for every case
-     VIDs  Ports       Mpps                 Gbps             CPU1 cycles/input
-                  before   after     gain    before  after   before  after  reduction
-       64    8/2  2.375486 2.635811  11.0%   1.216   1.350   1724.6  1553.7    9.9%
-       64    8/4  2.376731 2.636459  10.9%   1.217   1.350   1714.8  1554.7    9.3%
-       64    8/8  2.376621 2.635783  10.9%   1.217   1.350   1722.6  1553.2    9.8%
-       64   32/2  2.375876 2.637897  11.0%   1.216   1.351   1726.7  1552.3   10.1%
-       64  32/16  2.376442 2.636426  10.9%   1.217   1.350   1721.3  1554.2    9.7%
-       64  32/32  2.376763 2.636268  10.9%   1.217   1.350   1726.8  1553.5   10.0%
-       64   64/2  2.375678 2.638707  11.1%   1.216   1.351   1725.0  1552.1   10.0%
-       64  64/32  2.376681 2.637359  11.0%   1.217   1.350   1725.1  1555.9    9.8%
-       64  64/64  2.376787 2.638396  11.0%   1.217   1.351   1722.8  1550.9   10.0%
-     1024    8/2  2.263768 2.498881  10.4%   1.159   1.279   1808.5  1637.1    9.5%
-     1024    8/4  2.264519 2.499075  10.4%   1.159   1.280   1807.6  1638.8    9.3%
-     1024    8/8  2.263551 2.499231  10.4%   1.159   1.280   1812.0  1640.2    9.5%
-     1024   32/2  2.263841 2.499120  10.4%   1.159   1.280   1806.8  1639.6    9.3%
-     1024  32/16  2.263990 2.499562  10.4%   1.159   1.280   1806.1  1639.2    9.2%
-     1024  32/32  2.263719 2.498905  10.4%   1.159   1.279   1807.7  1639.3    9.3%
-     1024   64/2  2.263635 2.501889  10.5%   1.159   1.281   1809.4  1635.6    9.6%
-     1024  64/32  2.264467 2.500359  10.4%   1.159   1.280   1806.5  1633.0    9.6%
-     1024  64/64  2.240494 2.470246  10.3%   1.147   1.265   1810.0  1637.1    9.6%
-
-This information has been also included in the commit that removes the
-lookups.
-
-Quick patch overview:
-Patch 01 - adds the new opaque destination type with its basic helpers
-Patch 02 - uses the new dsts for standard port fdb destinations
-Patch 03 - adds port-VLAN pointer support to the destination type
-Patch 04 - changes ingress helpers so we can get rid of the vid argument
-           and pass a vlan pointer around
-Patch 05 - passes VLAN pointers instead of vid to br_fdb_update
-Patch 06 - consolidates vlan fdb cleanups, that will allow us to clean
-           entries in one pass later on
-Patch 07 - splits vlan unpublishing from hash and flood array from deletion
-           that will be needed to optimize bulk deletes and flushes
-Patch 08 - makes sure that readers cannot publish the vlan dst before
-           cleaning up all fdbs that use it
-Patch 09 - factors out the fdb update path to prepare it for port-VLAN dsts
-Patch 10 - the first port-VLAN publishing, fdbs can now have port-VLAN dsts
-Patch 11 - port-VLAN dst publishing for configured entries
-Patch 12 - remove 2 vlan hash lookups in fdb fwding fast-path
-
-For sashiko:
- [Severity: High]
- Could nbp_vlan_delete() in net/bridge/br_vlan.c avoid waiting for a network
- RCU grace period once per VLAN while RTNL is held?
-
- Nik: Yes, it could but the complexity this brings is not worth it.
-      See above.
-
- [Severity: High]
- Could this synchronize_net() in
- net/bridge/br_vlan.c:nbp_vlan_delete() be batched by its callers?
-
- Nik: Yes, it could but again same thing - it is not worth the complexity
-      and deleting VLANs is still fast enough.
-
-Thanks,
- Nik
-
-
-Nikolay Aleksandrov (12):
-  net: bridge: introduce a bridge destination type
-  net: bridge: use net_bridge_dst for fdb destinations
-  net: bridge: add VLAN support to bridge destinations
-  net: bridge: vlan: return VLAN entries from ingress helpers
-  net: bridge: fdb: pass VLAN entries to learning updates
-  net: bridge: fdb: consolidate port-VLAN cleanup
-  net: bridge: vlan: split unpublishing from deletion
-  net: bridge: vlan: quiesce readers before freeing port VLANs
-  net: bridge: fdb: factor out existing entry updates
-  net: bridge: fdb: cache port VLANs in learned entries
-  net: bridge: fdb: cache VLAN destinations in configured entries
-  net: bridge: fdb: avoid VLAN lookups in unicast forwarding
-
- include/trace/events/bridge.h            |   7 +-
- net/bridge/br.c                          |   2 +-
- net/bridge/br_arp_nd_proxy.c             |   4 +-
- net/bridge/br_device.c                   |   9 +-
- net/bridge/br_fdb.c                      | 270 +++++++++++++++--------
- net/bridge/br_forward.c                  |  24 +-
- net/bridge/br_if.c                       |  13 +-
- net/bridge/br_input.c                    |  26 ++-
- net/bridge/br_mrp.c                      |   6 +-
- net/bridge/br_netlink.c                  |   2 +-
- net/bridge/br_private.h                  | 157 ++++++++++++-
- net/bridge/br_stp_if.c                   |   2 +-
- net/bridge/br_switchdev.c                |   2 +-
- net/bridge/br_sysfs_if.c                 |   3 +-
- net/bridge/br_vlan.c                     | 107 +++++----
- net/bridge/netfilter/nft_reject_bridge.c |   8 +-
- 16 files changed, 448 insertions(+), 194 deletions(-)
-
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 67117fb3dc88..1146187aa2ba 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -306,6 +306,10 @@ struct net_bridge_fdb_key {
+ 	u16 vlan_id;
+ };
+ 
++struct net_bridge_dst {
++	unsigned long __private value;
++};
++
+ struct net_bridge_fdb_entry {
+ 	struct rhash_head		rhnode;
+ 	struct net_bridge_port		*dst;
+@@ -670,6 +674,40 @@ struct br_input_skb_cb {
+ #define br_debug(br, format, args...)			\
+ 	pr_debug("%s: " format,  (br)->dev->name, ##args)
+ 
++static inline struct net_bridge_dst
++br_dst_read(const struct net_bridge_dst *src)
++{
++	struct net_bridge_dst dst;
++
++	ACCESS_PRIVATE(&dst, value) =
++		READ_ONCE(ACCESS_PRIVATE(src, value));
++
++	return dst;
++}
++
++static inline void br_dst_write(struct net_bridge_dst *dst,
++				struct net_bridge_dst src)
++{
++	WRITE_ONCE(ACCESS_PRIVATE(dst, value),
++		   ACCESS_PRIVATE(&src, value));
++}
++
++static inline struct net_bridge_dst
++br_port_to_dst(const struct net_bridge_port *p)
++{
++	struct net_bridge_dst dst;
++
++	ACCESS_PRIVATE(&dst, value) = (unsigned long)p;
++
++	return dst;
++}
++
++static inline struct net_bridge_port *
++br_dst_port(struct net_bridge_dst dst)
++{
++	return (struct net_bridge_port *)ACCESS_PRIVATE(&dst, value);
++}
++
+ /* called under bridge lock */
+ static inline int br_is_root_bridge(const struct net_bridge *br)
+ {
 -- 
 2.47.3
 
