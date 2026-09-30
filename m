@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B442B4F85CA;
-	Wed, 30 Sep 2026 16:43:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0C084F5E0E;
+	Wed, 30 Sep 2026 16:56:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790786586; cv=none; b=CPbb/b4suxMH4guR2xxQ06o/7XxTSbIPZNaO/1DrX9KEixa24MYS3ItJtXO/9qamOR+cBFZaEzbwjkFDS+6fLfs51dUVJQeB3yXlU34TNAQfGGVdxC620mgGPoNyvevX0fDnEsmtvbIVBWPkq0qEyd5+VOFDW68OCydJpT6Cd+w=
+	t=1790787418; cv=none; b=A9DCGDDWDg3soAL0IWpuLQLx9DwV+acc2R5zEHCmortov7ILYQWmecSOvSOlfYL+9dODgt4pOBLVEB+Jr1+D5vbgH/Gu5bSya4Y2P4BmLS5iDXfKI1bVlhAMFEmcQ+OizBW5YzJxhKkhBaBplpNKh2XhpCmAx8WTfXy8b2hENQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790786586; c=relaxed/simple;
-	bh=q8vt18I0APi2cvHJnEKMStMxKRwynv5722WvCdBnlLo=;
+	s=arc-20240116; t=1790787418; c=relaxed/simple;
+	bh=vnIADg9PI3KBrNPxTq791sPeUS7u6WfWsYwzzgnQCFs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=loLjLZDq/4THdc/di9ZwVAQB4IOwx1lvLxRNUperZ1twVNIXZLWmCwYygXYadW+TtuzCvVyHgEyYb2dHbVwU63/Wn7jHI0E3pjhkOY0cq9/rUJ4sdGL92FSJL8yzd2bXtATGJpQaAmV0Ll23ynYls2a8ZNrqGYN51LGZA2+Dq2k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=eFKLEARv; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=j0ZtBQNHPoK0woJTCf6Z4AnIwikHmzhAlauRWi0gQQ0kqKw2yxaoGSLDHhUyns7LrESslpW9ZLPEQdzm9tr37d0kzx8Y/wRMTKN6qP1IzYOQgKREnnnbDylCgYCzhokukLsqq6uywHNhUN9AJZDiyksFEIx20RjWejTaK2DBKVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=qoZY6Smo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="eFKLEARv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 208901F000FF;
-	Wed, 30 Sep 2026 16:43:04 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="qoZY6Smo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CCE51F000FF;
+	Wed, 30 Sep 2026 16:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1790786585;
-	bh=mQHUrmu9vu2W8IQERQKW3F98ojxwOXtrFaEDN2irRN8=;
+	s=korg; t=1790787416;
+	bh=1ndGKIPMGobYz+8/YAFMKjLdeB/yV8ods1wNEDHuuIE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=eFKLEARv8jKQbDbzyPi3rwICYfkByhlmFmgcCQ0bT8Qh42sD95HeE6NHb9MPDe25W
-	 R1xoCD1i3Blh40SOHfYfOCHnRzFksF5nPbppK4mIKCm+uUFKg7fisO5knNOj2lQ/vY
-	 5JLe/tFgBFPw0vcpV8c7E1dMjEVpOy/QUwp2DbNw=
+	b=qoZY6Smo5hW260pJLAf40ztYwNZX+NmI7KqyPNiXsrLt/OP80BBLhV998ghRV/txh
+	 YDTD5JGef0IkQTs023ybb4fQqeJQ1+h9TkwOATUPppqsiTWte5PJasQVV2FSsyhq9k
+	 7xx8lVp5fdm8XJWz5SAE27DoY5S5NdNnzON/Hk+Y=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,12 +33,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 913/982] bridge: check llc_mac_hdr_init() return value in br_send_bpdu()
-Date: Wed, 30 Sep 2026 17:27:29 +0200
-Message-ID: <20260930152436.350283074@linuxfoundation.org>
+Subject: [PATCH 7.2 223/457] bridge: check llc_mac_hdr_init() return value in br_send_bpdu()
+Date: Wed, 30 Sep 2026 17:25:28 +0200
+Message-ID: <20260930152350.862440120@linuxfoundation.org>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260930152416.775402466@linuxfoundation.org>
-References: <20260930152416.775402466@linuxfoundation.org>
+In-Reply-To: <20260930152346.024115587@linuxfoundation.org>
+References: <20260930152346.024115587@linuxfoundation.org>
 User-Agent: quilt/0.69
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -50,7 +50,7 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-6.1-stable review patch.  If anyone has any objections, please let me know.
+7.2-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -78,7 +78,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
-index 0e4572f313307..1917d11411d72 100644
+index 74ec42ba1e7d0..21d092f5acbb8 100644
 --- a/net/bridge/br_stp_bpdu.c
 +++ b/net/bridge/br_stp_bpdu.c
 @@ -52,7 +52,10 @@ static void br_send_bpdu(struct net_bridge_port *p,
