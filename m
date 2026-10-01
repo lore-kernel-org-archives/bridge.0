@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0C4D370AE5;
-	Thu,  1 Oct 2026 10:19:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2B649A3D6;
+	Thu,  1 Oct 2026 11:59:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790849998; cv=none; b=jQBPawXAZ5gzIml9cQ+uA6nSowUF94QAWM8S8XTVxt0iZYB0WzrW2AzfB87z8tdwCS2r3/pKkfhs3Jn9mcWPgEYPS6WcpeDk+5wUyOVrJixNbxbolZtdKHz/+VbTrX9mfAkiufYQqwA/8HYAzv3RHPVFusMT9A3stgiHUmS46yo=
+	t=1790855956; cv=none; b=aZHhaYiK37E4T0eNRy4X+N0L2YIeqfB1IhzIvvrSu6NP03exLDtNLPMl7jtPxxOQanObiaHGd7U9vyoHRi/GlDaEWXpRdg268v/EjR/Wmtv1Jtbb+35C1lx1fyXAXVqqCHl+kjmXVFQXUkxlDT/mhudGoR/Uc9BAIEIXell4ZPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790849998; c=relaxed/simple;
-	bh=nVFES05dJdPdNH4MvPtS3SfLoUIzWsT8FsNMooMXZRU=;
+	s=arc-20240116; t=1790855956; c=relaxed/simple;
+	bh=l3ffvqJcT9cxYbCaYxoa7krkO5s5wFI9u5DNiq7KD5M=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=cem4oFlgAqy4mUnFbZTmAM9Rih8zc90QRlQBun34X5/puFTK50YOqHZ/pkBFFDE/BO7lhQSngNpUuFpZRUYRlz49Uo7tcn44ty/BAbfUlwyoCSUcQ0d0NiDbs0Oo/lJuJxtNK25rWbi5EpNNU342mepWl9S5FC1fSKUR7hryA3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EoApCBXv; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=kwUOEW5KcxnVoTheoWqcXG3Nesnjqoo+5ihBIR3W9AWThNQQpbExiYnEnB5TRiSGpMQgTjN3xbkQ72fTHR+Ys+MX5GXL4CK14sy/BiOdYY2+d0H0p6hMpHC9w7ARIrj78fbIOLFOYjIj1Xq0f206uAEJQLeiWRVcaKpYv08duWE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ervGpyfE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EoApCBXv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE781F000FF;
-	Thu,  1 Oct 2026 10:19:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ervGpyfE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EE0B1F000FF;
+	Thu,  1 Oct 2026 11:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790849996;
-	bh=KPrAr2tai6AeurnhqCq4tRsFxzEy/I/Zax5DtbQXaII=;
+	s=k20260515; t=1790855950;
+	bh=W6hgFj+3tmIhywyIDHage8g9Szjc7DXc3/BZ/RIDNL4=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=EoApCBXvxZoi7zVyJMA602KkcF+ZoaM4cJCUSc2VPSN3fQ6ixDJm99WEme7sMnzAg
-	 3J+ajeLXLeM2rUDT+acSsvGbhLvrOnlg/JVCiDI5aTCsAn+5MkODw8u+AK6pOZfmNC
-	 VA1eOx67thlTwrbwNlwZtY/2DAEHuimfxIJEaGFJmOD9pLd866dHdOEXfO0POV2Tjg
-	 kvwJXlzzbzm1MNPFQ08paN8oFZgO270js5dRWHSD1prNaGmfak4nK+gX0QENJ0+Qwz
-	 SLQGJvbkg2Zyrd1p0TGWZVmFFmyEq4f5I4Ph1nNKI3sC3mUN4WEBipms9PYcTP8OJU
-	 +i5MQSgCbk0hQ==
-Subject: Re: [PATCH nf] netfilter: br_netfilter: restore VLAN tag on
- refragmented IPv6 packets
+	b=ervGpyfEBZEEjYEQPbQV+1zvmV0xPkpWR9AIySCw7N0Zm8wEzGOAw5R83+v+mHNBw
+	 sdII3b5rQpnrnHj7Xr9owz8BfdazSrsgxLVeFpm9HCi5F8VPwBruCNdpRtMpfUxYF2
+	 CXQN4x5b8hYcBubOkrs1fGmGMAAiHMmBvHaK1opDk//36taXZExbN/423XepruAC7+
+	 ZkifwItfw+1+938oxgQLmeIfhtiWmbsp1UvI9B4dHChjEA0cjcezUjypfdAv+uj3tT
+	 m/O5C4KChH/uJjqIsIWKBKDO9iDFFWCCbA/QI/rab9nEB8aYGmIFlaMBmoWVHpOswx
+	 g4S6s39agvVjA==
+Subject: Re: [PATCH net-next 03/12] net: bridge: add VLAN support to bridge
+ destinations
 From: netdev-bot+sashiko@kernel.org
-To: parri.andrea@gmail.com
-Cc: pablo@netfilter.org, fw@strlen.de, netfilter-devel@vger.kernel.org,
- phil@nwl.cc, razor@blackwall.org, idosch@nvidia.com, coreteam@netfilter.org,
- bridge@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, kuba@kernel.org
-Date: Thu, 01 Oct 2026 10:19:55 +0000
-Message-ID: <179084999520.434549.4764913674478855382@kernel.org>
-In-Reply-To: <20260928161830.351199-1-parri.andrea@gmail.com>
-References: <20260928161830.351199-1-parri.andrea@gmail.com>
-X-sashiko-severity: High
+To: razor@blackwall.org
+Cc: netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ bridge@lists.linux.dev
+Date: Thu, 01 Oct 2026 11:59:09 +0000
+Message-ID: <179085594902.434549.16785666588384507596@kernel.org>
+In-Reply-To: <20260930071411.2786201-4-razor@blackwall.org>
+References: <20260930071411.2786201-4-razor@blackwall.org>
+X-sashiko-severity: Low
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -48,102 +47,94 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
+Thank you for your contribution! Sashiko AI review found more severe
+issue(s) in other patches of this series. This mail is only an FYI, in case
+you want to address the nit picks below when you respin.
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 0
+Low priority / nit picks for your consideration:
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [High] The fix is incomplete.
+- [Low] Baseline decision: false positive.
 
 --
 
-netfilter: br_netfilter: restore VLAN tag on refragmented IPv6 packets
+net: bridge: add VLAN support to bridge destinations
 
-This commit moves saving the L2 header and VLAN tag into a new helper,
-br_nf_save_frag_data(). Both the IPv4 and IPv6 refragmentation branches of
-br_nf_dev_queue_xmit() now call it. Before this change, the IPv6 branch
-reused whatever VLAN tag the last IPv4 refragmentation on that CPU had left
-in per-CPU storage.
+This commit sets bit 0 of struct net_bridge_dst to mark a port-VLAN
+pointer, so it can be told apart from a bridge port pointer. It adds
+helpers that build VLAN destinations and decode them back into a port and
+a VLAN. Nothing creates a VLAN destination yet.
 
-> diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-> index 0a394e5f4391..ec69d6254e34 100644
-> --- a/net/bridge/br_netfilter_hooks.c
-> +++ b/net/bridge/br_netfilter_hooks.c
-> @@ -832,6 +832,25 @@ static unsigned int nf_bridge_mtu_reduction(const struct sk_buff *skb)
->  	return 0;
+> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+> index bbb59b53e7452..2bf7f4429a3b2 100644
+> --- a/net/bridge/br_private.h
+> +++ b/net/bridge/br_private.h
+
+[ ... ]
+
+> @@ -702,10 +704,56 @@ br_port_to_dst(const struct net_bridge_port *p)
+>  	return dst;
 >  }
 >  
-> +/* Fragments may not inherit the MAC header or VLAN tag. */
-> +static void br_nf_save_frag_data(struct sk_buff *skb)
+> +static inline struct net_bridge_dst
+> +br_vlan_to_dst(const struct net_bridge_vlan *v)
 > +{
-> +	struct brnf_frag_data *data = this_cpu_ptr(&brnf_frag_data_storage);
+> +	struct net_bridge_dst dst;
 > +
-> +	if (skb_vlan_tag_present(skb)) {
-> +		data->vlan_tci = skb->vlan_tci;
-> +		data->vlan_proto = skb->vlan_proto;
-> +	} else {
-> +		data->vlan_proto = 0;
+> +	ACCESS_PRIVATE(&dst, value) = (unsigned long)v | BR_DST_VLAN_TAG;
+> +
+> +	return dst;
+> +}
+> +
+> +static inline void br_dst_decode(struct net_bridge_dst dst,
+> +				 struct net_bridge_port **port,
+> +				 struct net_bridge_vlan **vlan)
+> +{
+> +	struct net_bridge_vlan *v;
+> +	unsigned long value;
+> +
+> +	value = ACCESS_PRIVATE(&dst, value);
+> +	if (!(value & BR_DST_VLAN_TAG)) {
+> +		*port = (struct net_bridge_port *)value;
+> +		*vlan = NULL;
+> +		return;
 > +	}
+> +
+> +	v = (struct net_bridge_vlan *)(value & ~BR_DST_VLAN_TAG);
+> +	*port = v->port;
 
-[Severity: High]
-What happens when the head skb goes out untagged but the fragments still
-carry a tag?
+[Severity: Low]
+This isn't a bug, but br_vlan_to_dst() takes any struct net_bridge_vlan
+pointer, and br_dst_decode() reads v->port without checking which kind of
+VLAN entry it has.
 
-For an untagged packet this helper saves vlan_proto = 0. The consumer only
-ever sets a tag and never clears one:
+In struct net_bridge_vlan, port is in a union with br:
 
-net/bridge/br_netfilter_hooks.c:br_nf_push_frag_xmit() {
-    ...
-	if (data->vlan_proto)
-		__vlan_hwaccel_put_tag(skb, data->vlan_proto, data->vlan_tci);
-    ...
-}
+	union {
+		struct net_bridge	*br;
+		struct net_bridge_port	*port;
+	};
 
-For IPv6, nf_ct_frag6_reasm() calls inet_frag_reasm_finish(..., false).
-Each original fragment stays as its own skb on the head's frag_list and
-keeps its own ingress vlan_all.
+For a bridge master VLAN, br is the active member. Decoding one would hand
+back a struct net_bridge pointer typed as a struct net_bridge_port.
+Passing NULL would encode to 0x1, and decoding that would dereference a
+near-NULL address.
 
-On egress to an untagged VLAN (or a BR_VLAN_TUNNEL port), br_handle_vlan()
-clears the tag on the head skb only:
+As far as I can tell, no caller can hit this. Later in the series, all of
+br_fdb_update(), __br_fdb_add(), br_fdb_resolve_dst() and
+nbp_vlan_delete() pass a non-NULL VLAN taken from a port VLAN group.
+__br_fdb_add() also excludes the bridge master case on purpose:
 
-	if (v->flags & BRIDGE_VLAN_INFO_UNTAGGED &&
-	    !br_switchdev_frame_uses_tx_fwd_offload(skb))
-		__vlan_hwaccel_clear_tag(skb);
+	dst = p && vlan ? br_vlan_to_dst(vlan) : br_port_to_dst(p);
 
-A unicast-forwarded reassembled skb normally takes the skb_has_frag_list()
-fast path in ip6_fragment(). On that path,
-ip6_fraglist_prepare()->ip6_copy_metadata() does not copy or reset vlan_all.
+Would a comment on br_vlan_to_dst() be worth adding, stating that it only
+takes non-NULL port VLANs? Something like
+WARN_ON_ONCE(br_vlan_is_master(v)) would also enforce that.
 
-So would fragments 2..N reach br_nf_push_frag_xmit()->br_dev_queue_push_xmit()
-with their ingress 802.1Q/802.1ad tag still set, while the first fragment
-goes out untagged?
-
-The conntrack bridge restore path handles this case:
-
-net/bridge/netfilter/nf_conntrack_bridge.c:nf_ct_bridge_frag_restore() {
-    ...
-	if (data->vlan_present)
-		__vlan_hwaccel_put_tag(skb, data->vlan_proto, data->vlan_tci);
-	else if (skb_vlan_tag_present(skb))
-		__vlan_hwaccel_clear_tag(skb);
-    ...
-}
-
-Without a similar else branch in br_nf_push_frag_xmit(), does the commit
-message's claim that IPv6 fragments now "use the current packet's VLAN
-information" still hold? The same branch would also cover the IPv4 path,
-since ip_copy_metadata() does not touch vlan_all either.
-
-Also, the comment "Fragments may not inherit the MAC header or VLAN tag"
-does not seem accurate for reused frag_list skbs, which keep their own tag.
+> +	*vlan = v;
+> +}
+> +
 
 [ ... ]
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260928161830.351199-1-parri.andrea%40gmail.com
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260930071411.2786201-1-razor%40blackwall.org
