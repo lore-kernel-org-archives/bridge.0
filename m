@@ -1,240 +1,127 @@
 Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D61943ED5B9
-	for <bridge@lists.linux.dev>; Thu,  1 Oct 2026 12:07:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 558CB30AD05
+	for <bridge@lists.linux.dev>; Thu,  1 Oct 2026 12:19:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790856453; cv=none; b=NMfLqi6NDkJtcA98/B8NLN3QRFK71bKkTGv+KeXWsVLoNANU+XQrXgsjaFlLDCKNQsVI1QGNkT4HMAKvto4p8x+nwmgrOEnBu43Ff9DwVJQRbp+pGOrzT3qRFQoJhj8yyI6MOhUFGan0R/sO07sGS5EtHdJhKBKUy9cJhUjqsqw=
+	t=1790857197; cv=none; b=Y708yhCrQa2bKjh6D0d5/niKOtY72q/npPvSC7uc4WJKHYqOvhr79MYFwVRwuvhhrAOPX2Yrb6KFGLagImPwXxDbLYhUGzCimDJnv8tPV17sgs7RMWRRZ7Ffce73bWlKcb+MKPMwSdUh/92tccRcuvd9eWZerWSMv4YX292Lnh0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790856453; c=relaxed/simple;
-	bh=THUYFu6sAj7ZsQg03U1SBfX/R1UfJ52AW7mFtCGdIQY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RT4FO/ZwvPaJ+EIeDVkWnu3krfpGofhD+pUKfKkIR7pz8Hv7vt3fNjCQvjzCDTPK9t8/QNtTPnXXzM3XeuTPpsd2fyolCwcbxfQUgGLwmaDH8eznwPnWg/4ZTM8Sb5XnlysZ3M86QXGsDdRA9Gj5Hlia9TF4TX6eZMAv6B3nLIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=hrpQOSKo; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1790857197; c=relaxed/simple;
+	bh=nRbfMwngHUKsiqlMccbHxJzWFiHdULg4qLygabHKz1s=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=mmaCP2wxp3i+FddbZgdobC963KYtRKi5OFEOpxk3oaTNuQkvaflVr4Gv9pGNHsdtYJqsk3lmteSBXa1DPHp5hwEwdtm768jymH+kAmOd772NM3gWARPzCKP3mgLuTVXyWds3Mt9cBX/OpGg+Sn/R7YF5r5q1vDKdJkcO8sr8lLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GPiHviEe; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="hrpQOSKo"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49ff9621c5dso39207405e9.0
-        for <bridge@lists.linux.dev>; Thu, 01 Oct 2026 05:07:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GPiHviEe"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49ce364488dso10463295e9.0
+        for <bridge@lists.linux.dev>; Thu, 01 Oct 2026 05:19:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1790856443; x=1791461243; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xuEUyonZ+x3J1OyEqFQIWsDxR3lMvEKhljQtywXlu4c=;
-        b=hrpQOSKooXG3eat5ZZ7HAqf5+cO+BnGUTOBGUMp/WuydPrFnyl64FbmO4QzGW0IkCn
-         NBH21i+A8IYu4IMB0e0B65Tlvp38zjS+DZN7aCTUoTs046CXOFRPST/pXSXOGLK1gs4b
-         7m0yjbIYxg2Yn5UeaHR6+8B9jr43hn8XWlTfXBvm0rYhdTTchYO6yyW3uAFmU+3wOZDG
-         G1Dgokn3O84S/vo230Si2z+q+gXv6t6wDaNtoUsVeRd7iROBSWy7pLZKtu0X6vtvBrJJ
-         noMxHoAuBs8scZisA5h/w5iArfqNb7JqCQIieRIRVukRaRQW+jy1GCx6jHqfFIHaxyrm
-         cUeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790856443; x=1791461243;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1790857194; x=1791461994; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=xuEUyonZ+x3J1OyEqFQIWsDxR3lMvEKhljQtywXlu4c=;
-        b=SSlqtY78Yjx9QavOuvLCRkEaBH5/oF5QBuARcUBmsq17AhLd98LQXx1qcxDuFE6DD4
-         9dPZ9o6okT/KWZZ/3ds9f1EACMmoQ/YPDoy4Z59tDEHXGIIVftvN9XeSzYABExbgmwiW
-         gb08OuinG1LZSTGFhGYlSshhFpGFTkVETYgRNK3wHI0l8rSydk2vtiJ6HeZ0XTijV7S8
-         QdvlmUZ8aTXZ6qLUBSLGPwLAWOB0tNYcPSSZQ3g6pZNEBwxw/y9qdkT/o9RBlViRrxtT
-         hEFiV7LANNP3NadrrgdGmnfkxrc6mtlX9WPsgJkK7MfoqihoxGExRCjlF2d8snL5qAL8
-         bBBg==
-X-Forwarded-Encrypted: i=1; AKwUvBxl0Um1rEj5PrLzeRPjXcuINt9OWH8xBirxkmgdprGp5DP9t9r2SroBdfQNjDU5ssnHq9Wtyhc=@lists.linux.dev
-X-Gm-Message-State: AFuF++kCx+FUZtJAjV1OEMqqIYJ12T3qR89erKuAgc543OpP+g5d7P/J
-	tMbNvkYMA6t1mGZ9nutImL8RdcGC1e4cUXaSBKSYDGxALT1z2arclwN/GuWfGl6qD0w=
-X-Gm-Gg: AYBFou27/E9sJap3Cb9M2YKc4Mov+mvzwrE25JzCQjL6U2T0ZBeTcJc9oeIYixaFCdx
-	JCcxbnZgRRIcBaQjenrOoUDGutftLGLxbcRfYlXLfc8EedEtDWmUiRuePcDBHE9qFnpXTXL7qWb
-	x2/W3b7vOK4WU0CGixsNaRWU+QOIi7BIv9ntNivw1Y31jnWs03py3OhuO9/7WYt2XtwDfFP75nj
-	c53xLgJ5A4CPDl7HCl9OLEV5X2GmoZwvtmA8Jg0uuCPZ4LSlqdXzqNYe6sjk+tm/62T4YHjz7qu
-	JvaoQ9qgeZyG35Yuwp2wJrKRusbqiNRIAkjoNTzK1+LLE8bQjW40WKozkEJCZ9L23+e+9ZCNSzq
-	8GH0HjKCn2o+f1pvjTDdqd/7FjMl5YzgNxCW1a14F5EoQd+IZ6KTyptlCaFhj99fcXh83DdoN0i
-	GIOcDJhlnCO07uqVPV4xlZJxvli+TtuwSeDTsT/DR2wOYgBP9Gn5qzkPRnTdyRf6OhbqUPzobFn
-	4iG6DSDDZOPaPepXvpRqpXaJY3Kq+v8GHHn5SM=
-X-Received: by 2002:a05:600c:a02:b0:4a0:1efa:c748 with SMTP id 5b1f17b1804b1-4a01efad866mr43064615e9.15.1790856443256;
-        Thu, 01 Oct 2026 05:07:23 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01fa137basm61069715e9.1.2026.10.01.05.07.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Oct 2026 05:07:22 -0700 (PDT)
-Message-ID: <f529d8a9-a4ab-4398-8754-d6c7528133c7@blackwall.org>
-Date: Thu, 1 Oct 2026 15:07:21 +0300
+        bh=VqJs1lu9yYEnrWjWAn/NSnJmVPwl6cd9S/MSijAAG84=;
+        b=GPiHviEeijxM33Tmdr1EHrUU54QqpeHcCdclXaJ9OaV+Yv8L9fjx9EA1fOQHmVRFBh
+         Kidc3vqhise5XjdqL9wEkNJFvCiKH2rEKbiagrRMYlnyuwz9T3QiH9Sf1MSztq/Stfud
+         /8hU7uhwCubDMJW+VT6lhKKIC2Pvv6F1TWYe6FvKTqkorSoI5Jbx3JeVn/iZqYIxf1O2
+         gUkTubIFWTe5k6keyCpLINeNe3MrWy5tGOkKgTRz6y/JPqAuni48IStpyhdztmEFZ06/
+         ac/2XfNMGz9H+N91oVNb7qYnkI8txPUvlkHIsgNkp8/Nqo2kMLLCllnSRtiYbhdu8f47
+         Uj7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790857194; x=1791461994;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VqJs1lu9yYEnrWjWAn/NSnJmVPwl6cd9S/MSijAAG84=;
+        b=UbwRz7Cqa4dj5C9nZVkAk96wyokY203X7ry5agMSgYFNaD43GvspsUkpry+bwtUHBE
+         21EvWsGpUVApcpY7FwSafng6M0OXwcTwgv3YYap/aL24gL/PiuBZgXq4g5+5jejfiIVc
+         b00ktpAWMnECC26OS/fNNlToEoMp2dNunmuSwXzfJrK7EA4H5UCGzh8ifxaostf/aL0W
+         20m2frgxulDAzCH+DKyJ9FPlpQVyIhy9vPH9tjuSe4fRq+SLTl8L4pbtPWOtLEVb7MDt
+         /Er2bZtTVDAfFbIwMiPoGllI/tDUwAYd4/tdajrUyjA40IpMu6lFlUHcF0RGKGezpsox
+         /3GA==
+X-Forwarded-Encrypted: i=1; AKwUvBwIsFiE9SR2SKK46aX4KEW2jkFWylqgYA3mtHfEnpOg8NqJbZyg5jDL5+eF0Lo1jfdt3Fwk1pw=@lists.linux.dev
+X-Gm-Message-State: AFuF++muXLFytc9dhDGjWxQaM6Gsx0G0ADC5KEsTBReKZHSdlbmcgFsf
+	BdEg9lwXy9If10BvFBU/JprkBJi/6+osqSlkEiK50Tp7D7JVA/WmwSys
+X-Gm-Gg: AYBFou2rTJTgssZQJ4EyqCa11Ayg1W/L/o39vlaVJBeGczcc4c6B3ZUUDeQ8Q+SxwGF
+	cv5yHX7hawzrg3Co2C7aajaG0QDLWrJmTuvXIdAvDFnQ6MRyyfG7Lbe502IMm/VoziSyERuZ+Ba
+	35ei0j6chofOKdQRiHvZa6fuN+d2s5Vp8PeRrMslToSz2HFrOZzTcNP81S5zvIewXoGzgXoDmdz
+	wlFRO+pUVdDQEIBgqkwV5+qklfZXhD2uSb+n+4QHW0bECNLUEW8GnUpSt9302jWZe2cw7xQ5Av1
+	UcKpqSoUQLvKQZp7IYjiAGopvVlAV51vleWvfXWVV8G3AJuDw9GJZBad4XXatZG51hmACHCej8d
+	D5zv9x33nywEfnoncXWE4cpO1yopD7uWLPpScGi7WHwRwB2paice+xKNSEA+JbSmYoUmE7kpgMp
+	pYwEoEG3lmK2PUdqvYK1+/shrQfviMht1UK5LD75B+xqZXrVlFK1OfCvBEgkYknIl3Jqm6lsao6
+	JLU8Hef/LB9paqEIrFidjqLmG4R/K/1tO0qJpoAS5cvEHHn
+X-Received: by 2002:a05:600c:859c:b0:49c:e37e:4389 with SMTP id 5b1f17b1804b1-4a01eaf5b37mr37503985e9.4.1790857193367;
+        Thu, 01 Oct 2026 05:19:53 -0700 (PDT)
+Received: from andreayoga.localdomain ([151.43.138.29])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01f923320sm69506935e9.7.2026.10.01.05.19.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Oct 2026 05:19:52 -0700 (PDT)
+From: Andrea Parri <parri.andrea@gmail.com>
+To: netdev-bot+sashiko@kernel.org
+Cc: Andrea Parri <parri.andrea@gmail.com>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	netfilter-devel@vger.kernel.org,
+	Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH nf] netfilter: br_netfilter: restore VLAN tag on refragmented IPv6 packets
+Date: Thu,  1 Oct 2026 14:19:34 +0200
+Message-ID: <20261001121941.31364-1-parri.andrea@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <179084999520.434549.4764913674478855382@kernel.org>
+References: <20260928161830.351199-1-parri.andrea@gmail.com> <179084999520.434549.4764913674478855382@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 08/12] net: bridge: vlan: quiesce readers before
- freeing port VLANs
-Content-Language: en-US, bg
-To: netdev-bot+sashiko@kernel.org
-Cc: netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- bridge@lists.linux.dev
-References: <20260930071411.2786201-9-razor@blackwall.org>
- <179085595119.434549.4421493167752460988@kernel.org>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <179085595119.434549.4421493167752460988@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 01/10/2026 14:59, netdev-bot+sashiko@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential
-> issue(s) to consider.
-> 
-> Critical: 0 · High: 0 · Medium: 1 · Low: 1
-> 
-> If you believe none of the issues are legitimate, please reply to each
-> issue of Medium severity or higher and explain why the AI is wrong.
-> If any of them are legitimate and you plan to respin, please let patchwork
-> know by including "pw-bot: cr" as a separate line at the end of your reply
-> (one such reply per series is enough).
-> 
-> - [Medium] nbp_vlan_delete() in net/bridge/br_vlan.c now calls
->    synchronize_net() for every port-VLAN it deletes.
-> - [Low] br_fdb_cleanup_by_dst() in net/bridge/br_fdb.c reads f->dst once
->    into `dst`.
-> 
-> --
-> 
+On Thu, Oct 01, 2026 at 10:19:55AM +0000, netdev-bot+sashiko@kernel.org wrote:
+> For an untagged packet this helper saves vlan_proto = 0. The consumer only
+> ever sets a tag and never clears one:
+[...]
+> So would fragments 2..N reach br_nf_push_frag_xmit()->br_dev_queue_push_xmit()
+> with their ingress 802.1Q/802.1ad tag still set, while the first fragment
+> goes out untagged?
 
-I already answered, but here it is again:
+Yes. Conntrack defrag keeps the original fragments on frag_list for both
+IPv6 and IPv4 here (ip_frag_coalesce_ok() is true only for local
+delivery), each with its ingress tag, and br_handle_vlan() clears the
+tag of the head skb only. On the fast path those skbs are sent as the
+fragments.
 
-> net: bridge: vlan: quiesce readers before freeing port VLANs
-> 
-> This patch prepares for fdb entries caching port-VLAN pointers. A port
-> VLAN is now unpublished, a grace period passes, and only then are the fdb
-> references purged or rewritten and the VLAN freed. During port teardown
-> the whole VLAN group is unpublished first, so all VLANs share one grace
-> period.
-> 
->> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
->> index 7c68b540b3580..307f9c12914ef 100644
->> --- a/net/bridge/br_fdb.c
->> +++ b/net/bridge/br_fdb.c
->> @@ -883,7 +883,9 @@ void br_fdb_cleanup_by_dst(struct net_bridge *br,
->>
->>   	spin_lock_bh(&br->hash_lock);
->>   	hlist_for_each_entry_safe(f, tmp, &br->fdb_list, fdb_node) {
->> -		if (br_fdb_dst_port(f) != p)
->> +		struct net_bridge_dst dst = br_fdb_dst_read(f);
->> +
->> +		if (br_dst_port(dst) != p)
->>   			continue;
->>
-> 
-> [ ... ]
-> 
->> +			     !test_bit(BR_FDB_OFFLOADED, &f->flags))) {
->> +				/* The entry outlives the VLAN, so it must fall
->> +				 * back to the raw port destination
->> +				 */
->> +				if (vlan && br_dst_vlan(dst) == vlan)
->> +					br_fdb_dst_write(f,
->> +							 br_port_to_dst(p));
-> 
-> [Severity: Low]
-> Can this unconditional write lose a concurrent roam?
-> 
-> dst is read once at the top of the loop. br_fdb_update() roams entries by
-> writing fdb->dst under RCU only, without br->hash_lock:
-> 
-> br_fdb_update()
->      br_fdb_dst_write(fdb, br_port_to_dst(source));
-> 
-> If a roam lands between br_fdb_dst_read() and this br_fdb_dst_write(), the
-> new port would be overwritten with p.
-> 
-> This branch can't be reached at this commit. Every br_fdb_dst_write()
-> caller stores br_port_to_dst(), so br_dst_vlan(dst) is always NULL here.
-> 
-> Later in the series, "net: bridge: fdb: cache port VLANs in learned
-> entries" replaces this with br_fdb_dst_replace(f, dst, br_port_to_dst(p)).
-> That is a cmpxchg against the snapshot, so a concurrent roam is kept.
-> 
-> Would it make sense to use the conditional replace here from the start?
-> 
+I extended my reproducer with a port that is untagged in VLAN 10 and a
+static FDB entry, so the packet is not cloned. With this patch applied,
+6/9 IPv6 and 6/9 IPv4 fragments left that port with "vlan 10"; only the
+first fragment of each packet was untagged. This is not introduced by
+this patch, but it means the changelog claim was too broad.
 
-- No, we're fine with the roam race, it is normal. Trying to change these races
-   requires much more work and isn't worth it at the moment.
+v2 will add a second patch that clears the tag in br_nf_push_frag_xmit()
+when none was saved, as nf_ct_bridge_frag_restore() does, and narrow the
+changelog of this one to the fragments ip6_fragment() builds.
 
->>   				continue;
->> +			}
->> +		}
-> 
-> [ ... ]
-> 
->> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
->> index 8a914e249767a..0675f74cf1b99 100644
->> --- a/net/bridge/br_vlan.c
->> +++ b/net/bridge/br_vlan.c
->> @@ -1406,23 +1406,32 @@ int nbp_vlan_delete(struct net_bridge_port *port, u16 vid)
->>   	v = br_vlan_find(vg, vid);
->>   	if (!v)
->>   		return -ENOENT;
->> -	br_fdb_cleanup_by_dst(port->br, br_vlan_to_dst(v), vid, 0);
->>   	__vlan_unpublish(vg, v);
->> +	synchronize_net();
-> 
-> [Severity: Medium]
-> Does this add one expedited grace period for each port VLAN deleted, all
-> while RTNL is held?
-> 
-> Every caller of nbp_vlan_delete() holds RTNL, so synchronize_net() always
-> goes through synchronize_rcu_expedited(). Range requests are processed one
-> VID at a time under a single RTNL hold:
-> 
-> br_process_vlan_info()
->      for (v = (*vinfo_last)->vid; v <= vinfo_curr->vid; v++) {
->          br_vlan_info()
->              nbp_vlan_delete(p, vinfo->vid)
->                  synchronize_net()
-> 
-> So a request like "bridge vlan del dev swp1 vid 1-4094" could run up to
-> 4094 expedited grace periods back to back with RTNL held. The
-> cond_resched() in that loop doesn't drop RTNL.
-> 
-> The per-port loops in br_vlan_disable_default_pvid() and
-> __br_vlan_set_default_pvid() also now take one grace period per bridge
-> port. That includes the error unwind loop in __br_vlan_set_default_pvid().
-> 
-> Before this patch, nbp_vlan_delete() waited for no grace period at all,
-> because __vlan_del() only queues call_rcu().
-> 
-> The commit message only describes batching for port teardown:
-> 
->    "This lets all VLANs share one grace period."
-> 
-> Could range deletion be batched the same way? For example, unpublish the
-> whole range, wait once, then clean the fdbs and free the VLANs.
-> 
-> At this commit, no fdb writer stores a VLAN dst yet. That starts with "net:
-> bridge: fdb: cache port VLANs in learned entries". The per-VLAN
-> synchronize_net() is still unchanged at the end of the series, in "net:
-> bridge: fdb: avoid VLAN lookups in unicast forwarding".
-> 
+The BR_VLAN_TUNNEL case does not reach the refragmentation code:
+br_handle_egress_vlan_tunnel() attaches a metadata dst, so
+br_nf_dev_queue_xmit() drops the packet at the !skb_valid_dst() check.
 
-- Yes, they can be batched and I had them batched initially but when I ran my tests I didn't
-   notice any problems deleting a full VLAN range. It took 79ms on my host to delete 4k VLANs.
-   As I've stated in my cover letter - the complexity is not worth it, so I dropped that patch.
+> Also, the comment "Fragments may not inherit the MAC header or VLAN tag"
+> does not seem accurate for reused frag_list skbs, which keep their own tag.
 
-   (from my previous reply)
+Agreed, v2 rewords it.
 
->> +	/* Traffic may still use v through cached fdb dsts until they are
->> +	 * cleaned below. This is acceptable during vlan deletion. Above we
->> +	 * drain the readers that could republish the dst before cleaning it
->> +	 */
->> +	br_fdb_cleanup_by_dst(port->br, br_vlan_to_dst(v), vid, 0);
->>   	__vlan_del(vg, v);
->>
->>   	return 0;
->>   }
-> 
-> [ ... ]
-> 
+pw-bot: cr
 
+Thanks,
+  Andrea
