@@ -1,67 +1,67 @@
-Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07EBE3F86FE
-	for <bridge@lists.linux.dev>; Thu,  1 Oct 2026 12:05:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D61943ED5B9
+	for <bridge@lists.linux.dev>; Thu,  1 Oct 2026 12:07:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790856318; cv=none; b=BCG7JI2XZS7ERnQia582T4W1YNVaM/wi2iWbfxCLYBAOzmsPRYLbfQEn2TB7zODDYjaNDX2wwg9A8cDsOCDkCE2P7RsMqbnvpgyaAvCdG1ORuIXlvmT0d0q8ByJ5inIMuDx9P11aG7esawRUDEcbyo7mxH2tTMp4d43uofJP/rA=
+	t=1790856453; cv=none; b=NMfLqi6NDkJtcA98/B8NLN3QRFK71bKkTGv+KeXWsVLoNANU+XQrXgsjaFlLDCKNQsVI1QGNkT4HMAKvto4p8x+nwmgrOEnBu43Ff9DwVJQRbp+pGOrzT3qRFQoJhj8yyI6MOhUFGan0R/sO07sGS5EtHdJhKBKUy9cJhUjqsqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790856318; c=relaxed/simple;
-	bh=T8dzVeHIzAA0O84LgNjofXhcQq9IO4xmtqYc5GVGHXg=;
+	s=arc-20240116; t=1790856453; c=relaxed/simple;
+	bh=THUYFu6sAj7ZsQg03U1SBfX/R1UfJ52AW7mFtCGdIQY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PhAV8tNsNSSQbL2gOuPrmoWHypliqMJwzRmE/VOSPVMFnPDWBgQh/VhaIL+MK6gXyN+nR8PGz5AQuHNque4R0/wQNmoXVfFrz9sr3sQEiFvnVSwT3NneLVOO0bUw7yrwNNV2P0hL7NbS428kdwWeS0nYdsjZax4tN6enEjfM2Bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=OnD29U30; arc=none smtp.client-ip=74.125.225.98
+	 In-Reply-To:Content-Type; b=RT4FO/ZwvPaJ+EIeDVkWnu3krfpGofhD+pUKfKkIR7pz8Hv7vt3fNjCQvjzCDTPK9t8/QNtTPnXXzM3XeuTPpsd2fyolCwcbxfQUgGLwmaDH8eznwPnWg/4ZTM8Sb5XnlysZ3M86QXGsDdRA9Gj5Hlia9TF4TX6eZMAv6B3nLIQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=hrpQOSKo; arc=none smtp.client-ip=74.125.225.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="OnD29U30"
-Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48b01c41135so1208070f8f.0
-        for <bridge@lists.linux.dev>; Thu, 01 Oct 2026 05:05:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="hrpQOSKo"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49ff9621c5dso39207405e9.0
+        for <bridge@lists.linux.dev>; Thu, 01 Oct 2026 05:07:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1790856313; x=1791461113; darn=lists.linux.dev;
+        d=blackwall.org; s=google; t=1790856443; x=1791461243; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=KnsYoCtXPP1/HI5phCRlP3AUYjFusJ8JvjYJTN9SY58=;
-        b=OnD29U30LyRnXvcu2CXBsz7WmBTTTis1nX9XOoKRwes0fECBQjR/SOIOYjeU6Htw80
-         rcWb+d7ApRwCK91i0AiEJxwEcYw+sD41H8GBpPfbp+NMA3+dF2AYCartGpbiuuj080az
-         WnXefeg6RtL73W00KCjXEKAvySY5jVRRMOgTSGip/fe4TV9+yLaQ8Km14LXdxvgt3xgt
-         Sh+85iC9KQuUNyjKNoclAdeCMIkR3r+iyUamnVgI6qmUfgJnQ14arLhdsYqXBYsta/8d
-         WG0tiXtKHLT6M92STxzXSZYz2QOitlGM1ZaDzR19GwoTWfGxUkhRKKv4irf/3wvSRAMh
-         S/iw==
+        bh=xuEUyonZ+x3J1OyEqFQIWsDxR3lMvEKhljQtywXlu4c=;
+        b=hrpQOSKooXG3eat5ZZ7HAqf5+cO+BnGUTOBGUMp/WuydPrFnyl64FbmO4QzGW0IkCn
+         NBH21i+A8IYu4IMB0e0B65Tlvp38zjS+DZN7aCTUoTs046CXOFRPST/pXSXOGLK1gs4b
+         7m0yjbIYxg2Yn5UeaHR6+8B9jr43hn8XWlTfXBvm0rYhdTTchYO6yyW3uAFmU+3wOZDG
+         G1Dgokn3O84S/vo230Si2z+q+gXv6t6wDaNtoUsVeRd7iROBSWy7pLZKtu0X6vtvBrJJ
+         noMxHoAuBs8scZisA5h/w5iArfqNb7JqCQIieRIRVukRaRQW+jy1GCx6jHqfFIHaxyrm
+         cUeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790856313; x=1791461113;
+        d=1e100.net; s=20260707; t=1790856443; x=1791461243;
         h=content-transfer-encoding:content-type:in-reply-to:from:references
          :cc:to:content-language:subject:user-agent:mime-version:date
          :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=KnsYoCtXPP1/HI5phCRlP3AUYjFusJ8JvjYJTN9SY58=;
-        b=mwN37GudI7MP8pTtVDhP2GX8qF2cKk0uircnfgyHLLE8mN7+qJOfo0MVdFxvLDlEXL
-         PIzMg+WXqKFS5kYM02YmxYU7Ndl/UTxiBhw37UQEqjc9KmvpPDLGGUVtFDoBeTSIJBpu
-         ht6T/YlWUP0LHx9S8U7kVs5GH81eqDXMC5rGX+vT+J493jYgAsJiBoIF+vu0elfph84s
-         EYWIKY+SgLE7Yr0TTAEG7+IHd+tQ0vU41bWhkc/QewBfV2j/GRvbJmb9eF8W7bkLe6AY
-         45lVu3z4///tUjxzfbMlGlrgAGmQ8epCfIFe+NDOGeSzO95bHCcfEaprjcArgxyu7TMI
-         CDvA==
-X-Forwarded-Encrypted: i=1; AKwUvBxksArkSIYcGXWgroroVIpo2o2gyEeodo8snbRSVMqyPzQfv5CHnhlHgZhQoL9/rOX6C25Rtx4=@lists.linux.dev
-X-Gm-Message-State: AFq9FYIj3CpsboZ3H1HiEEDfQlOJ5RNRYccoNQ1JgjORVCY+c1qv0j+3
-	kCcyi6vGQLLisqnyeWoWICMOjyvZwQyG0KSVzProTOTSkVAyk8HPA0DTWb/UqMfdwmM=
-X-Gm-Gg: AYBFou0H6SKTeisRLIumVqoL4ol3VnFSqOrsLFvnYh5EJGHE2pQ7KAPeeaga4z++0tW
-	XjpCkjQ+NoDdnWsPTLbFZqTboKNi0EYOZ52spDGATvZn8KGG0CyzfNPLZwJFubH6/meAfbJ+uhP
-	ejizWLkWs0IJmYYYVtMnA5E8e1ryqSzudG/+mf6nJJ1jBRZgsW+WIiJJhcGR3KUHPlqlt2u2ExR
-	JEEV/wJoVrOF4sPx75ZOivIB0RyqExNo0kb5L2PTLLXks1EWR8xT6dU7Bq3thxNGAoxSeXNzjWH
-	IODPXTJjKKNEth+nPh3oXAD376qh9qCek4SEz+2RunP+oixGhp9RIaCo2DNJ3+1alUemJSo9jhQ
-	faJJ8nWNVI1G7bBouW4UeQI+Is/QRwzxuAsrrpdFSLBM9VJIwC7NTm3gRyp645SugfSJhmnGg31
-	hiT0EGV9wz21TfcauciLsRAE7Nigks4NSsq3Y+eQdJ2EzgIEcrnLch/xdafNgt3W4lCpBO3wwEn
-	hS7Zomcq9hsqFBd9Y7sdulCVEeF
-X-Received: by 2002:a05:6000:2003:b0:48b:e25:21e6 with SMTP id ffacd0b85a97d-48b0e25238bmr2956261f8f.15.1790856312097;
-        Thu, 01 Oct 2026 05:05:12 -0700 (PDT)
+        bh=xuEUyonZ+x3J1OyEqFQIWsDxR3lMvEKhljQtywXlu4c=;
+        b=SSlqtY78Yjx9QavOuvLCRkEaBH5/oF5QBuARcUBmsq17AhLd98LQXx1qcxDuFE6DD4
+         9dPZ9o6okT/KWZZ/3ds9f1EACMmoQ/YPDoy4Z59tDEHXGIIVftvN9XeSzYABExbgmwiW
+         gb08OuinG1LZSTGFhGYlSshhFpGFTkVETYgRNK3wHI0l8rSydk2vtiJ6HeZ0XTijV7S8
+         QdvlmUZ8aTXZ6qLUBSLGPwLAWOB0tNYcPSSZQ3g6pZNEBwxw/y9qdkT/o9RBlViRrxtT
+         hEFiV7LANNP3NadrrgdGmnfkxrc6mtlX9WPsgJkK7MfoqihoxGExRCjlF2d8snL5qAL8
+         bBBg==
+X-Forwarded-Encrypted: i=1; AKwUvBxl0Um1rEj5PrLzeRPjXcuINt9OWH8xBirxkmgdprGp5DP9t9r2SroBdfQNjDU5ssnHq9Wtyhc=@lists.linux.dev
+X-Gm-Message-State: AFuF++kCx+FUZtJAjV1OEMqqIYJ12T3qR89erKuAgc543OpP+g5d7P/J
+	tMbNvkYMA6t1mGZ9nutImL8RdcGC1e4cUXaSBKSYDGxALT1z2arclwN/GuWfGl6qD0w=
+X-Gm-Gg: AYBFou27/E9sJap3Cb9M2YKc4Mov+mvzwrE25JzCQjL6U2T0ZBeTcJc9oeIYixaFCdx
+	JCcxbnZgRRIcBaQjenrOoUDGutftLGLxbcRfYlXLfc8EedEtDWmUiRuePcDBHE9qFnpXTXL7qWb
+	x2/W3b7vOK4WU0CGixsNaRWU+QOIi7BIv9ntNivw1Y31jnWs03py3OhuO9/7WYt2XtwDfFP75nj
+	c53xLgJ5A4CPDl7HCl9OLEV5X2GmoZwvtmA8Jg0uuCPZ4LSlqdXzqNYe6sjk+tm/62T4YHjz7qu
+	JvaoQ9qgeZyG35Yuwp2wJrKRusbqiNRIAkjoNTzK1+LLE8bQjW40WKozkEJCZ9L23+e+9ZCNSzq
+	8GH0HjKCn2o+f1pvjTDdqd/7FjMl5YzgNxCW1a14F5EoQd+IZ6KTyptlCaFhj99fcXh83DdoN0i
+	GIOcDJhlnCO07uqVPV4xlZJxvli+TtuwSeDTsT/DR2wOYgBP9Gn5qzkPRnTdyRf6OhbqUPzobFn
+	4iG6DSDDZOPaPepXvpRqpXaJY3Kq+v8GHHn5SM=
+X-Received: by 2002:a05:600c:a02:b0:4a0:1efa:c748 with SMTP id 5b1f17b1804b1-4a01efad866mr43064615e9.15.1790856443256;
+        Thu, 01 Oct 2026 05:07:23 -0700 (PDT)
 Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48b0db6de18sm2540025f8f.44.2026.10.01.05.05.10
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01fa137basm61069715e9.1.2026.10.01.05.07.21
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Oct 2026 05:05:11 -0700 (PDT)
-Message-ID: <2add34b9-2e3b-4ae2-be56-aa10177a8158@blackwall.org>
-Date: Thu, 1 Oct 2026 15:05:10 +0300
+        Thu, 01 Oct 2026 05:07:22 -0700 (PDT)
+Message-ID: <f529d8a9-a4ab-4398-8754-d6c7528133c7@blackwall.org>
+Date: Thu, 1 Oct 2026 15:07:21 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -69,130 +69,172 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 06/12] net: bridge: fdb: consolidate port-VLAN
- cleanup
+Subject: Re: [PATCH net-next 08/12] net: bridge: vlan: quiesce readers before
+ freeing port VLANs
 Content-Language: en-US, bg
 To: netdev-bot+sashiko@kernel.org
 Cc: netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
  edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
  bridge@lists.linux.dev
-References: <20260930071411.2786201-7-razor@blackwall.org>
- <179085595018.434549.16034696945314071975@kernel.org>
+References: <20260930071411.2786201-9-razor@blackwall.org>
+ <179085595119.434549.4421493167752460988@kernel.org>
 From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <179085595018.434549.16034696945314071975@kernel.org>
+In-Reply-To: <179085595119.434549.4421493167752460988@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
 On 01/10/2026 14:59, netdev-bot+sashiko@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found more severe
-> issue(s) in other patches of this series. This mail is only an FYI, in case
-> you want to address the nit picks below when you respin.
+> Thank you for your contribution! Sashiko AI review found 2 potential
+> issue(s) to consider.
 > 
-> Low priority / nit picks for your consideration:
+> Critical: 0 · High: 0 · Medium: 1 · Low: 1
 > 
-> - [Low] The patch rewrote the header comment of br_fdb_cleanup_by_dst()
->    in net/bridge/br_fdb.c, but the comment does not describe what the…
+> If you believe none of the issues are legitimate, please reply to each
+> issue of Medium severity or higher and explain why the AI is wrong.
+> If any of them are legitimate and you plan to respin, please let patchwork
+> know by including "pw-bot: cr" as a separate line at the end of your reply
+> (one such reply per series is enough).
+> 
+> - [Medium] nbp_vlan_delete() in net/bridge/br_vlan.c now calls
+>    synchronize_net() for every port-VLAN it deletes.
+> - [Low] br_fdb_cleanup_by_dst() in net/bridge/br_fdb.c reads f->dst once
+>    into `dst`.
 > 
 > --
 > 
-> net: bridge: fdb: consolidate port-VLAN cleanup
+
+I already answered, but here it is again:
+
+> net: bridge: vlan: quiesce readers before freeing port VLANs
 > 
-> This renames br_fdb_delete_by_port() to br_fdb_cleanup_by_dst() and passes
-> a bridge dst, so the function can tell a port-VLAN from a raw port. For a
-> port-VLAN dst, the port's automatically generated local entry for that VLAN
-> is now removed in the same locked fdb walk that flushes dynamic entries.
-> As a result, nbp_vlan_delete() no longer calls br_fdb_find_delete_local()
-> separately.
+> This patch prepares for fdb entries caching port-VLAN pointers. A port
+> VLAN is now unpublished, a grace period passes, and only then are the fdb
+> references purged or rewritten and the VLAN freed. During port teardown
+> the whole VLAN group is unpublished first, so all VLANs share one grace
+> period.
 > 
 >> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
->> index 9cd6deae86359..7c68b540b3580 100644
+>> index 7c68b540b3580..307f9c12914ef 100644
 >> --- a/net/bridge/br_fdb.c
 >> +++ b/net/bridge/br_fdb.c
->> @@ -868,15 +868,16 @@ int br_fdb_delete_bulk(struct nlmsghdr *nlh, struct net_device *dev,
->>   	return 0;
->>   }
->>   
->> -/* Flush all entries referring to a specific port.
->> +/* Clean up all entries referring to a specific destination.
->>    * if do_all is set also flush static entries
->>    * if vid is set delete all entries that match the vlan_id
->>    */
->> -void br_fdb_delete_by_port(struct net_bridge *br,
->> -			   const struct net_bridge_port *p,
->> -			   u16 vid,
->> +void br_fdb_cleanup_by_dst(struct net_bridge *br,
->> +			   struct net_bridge_dst cleanup_dst, u16 vid,
->>   			   int do_all)
->>   {
->> +	const struct net_bridge_vlan *vlan = br_dst_vlan(cleanup_dst);
->> +	const struct net_bridge_port *p = br_dst_port(cleanup_dst);
->>   	struct net_bridge_fdb_entry *f;
->>   	struct hlist_node *tmp;
->>   
->> @@ -885,6 +886,14 @@ void br_fdb_delete_by_port(struct net_bridge *br,
->>   		if (br_fdb_dst_port(f) != p)
->>   			continue;
->>   
->> +		if (vlan && f->key.vlan_id == vlan->vid &&
->> +		    test_bit(BR_FDB_LOCAL, &f->flags) &&
->> +		    !test_bit(BR_FDB_ADDED_BY_USER, &f->flags) &&
->> +		    ether_addr_equal(f->key.addr.addr, p->dev->dev_addr)) {
->> +			fdb_delete_local(br, p, f);
->> +			continue;
->> +		}
+>> @@ -883,7 +883,9 @@ void br_fdb_cleanup_by_dst(struct net_bridge *br,
+>>
+>>   	spin_lock_bh(&br->hash_lock);
+>>   	hlist_for_each_entry_safe(f, tmp, &br->fdb_list, fdb_node) {
+>> -		if (br_fdb_dst_port(f) != p)
+>> +		struct net_bridge_dst dst = br_fdb_dst_read(f);
 >> +
->>   		if (!do_all)
->>   			if (test_bit(BR_FDB_STATIC, &f->flags) ||
->>   			    (test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &f->flags) &&
+>> +		if (br_dst_port(dst) != p)
+>>   			continue;
+>>
+> 
+> [ ... ]
+> 
+>> +			     !test_bit(BR_FDB_OFFLOADED, &f->flags))) {
+>> +				/* The entry outlives the VLAN, so it must fall
+>> +				 * back to the raw port destination
+>> +				 */
+>> +				if (vlan && br_dst_vlan(dst) == vlan)
+>> +					br_fdb_dst_write(f,
+>> +							 br_port_to_dst(p));
 > 
 > [Severity: Low]
-> This isn't a bug, but does the rewritten header comment above
-> br_fdb_cleanup_by_dst() still describe what the function does?
+> Can this unconditional write lose a concurrent roam?
 > 
-> The comment says static entries are only flushed when do_all is set. With a
-> port-VLAN dst, the new branch runs before the do_all check. It removes the
-> port's auto-generated local entry even when do_all == 0. fdb_add_local()
-> creates that entry as static:
+> dst is read once at the top of the loop. br_fdb_update() roams entries by
+> writing fdb->dst under RCU only, without br->hash_lock:
 > 
-> net/bridge/br_fdb.c:fdb_add_local() {
->      ...
-> 	fdb = fdb_create(br, source, addr, vid,
-> 			 BIT(BR_FDB_LOCAL) | BIT(BR_FDB_STATIC));
->      ...
-> }
+> br_fdb_update()
+>      br_fdb_dst_write(fdb, br_port_to_dst(source));
 > 
-> The comment also says the function cleans up "all entries referring to a
-> specific destination". The walk only compares the port part of the dst:
+> If a roam lands between br_fdb_dst_read() and this br_fdb_dst_write(), the
+> new port would be overwritten with p.
 > 
-> 	if (br_fdb_dst_port(f) != p)
-> 		continue;
+> This branch can't be reached at this commit. Every br_fdb_dst_write()
+> caller stores br_port_to_dst(), so br_dst_vlan(dst) is always NULL here.
 > 
-> The VLAN part is used only for the local-entry case.
+> Later in the series, "net: bridge: fdb: cache port VLANs in learned
+> entries" replaces this with br_fdb_dst_replace(f, dst, br_port_to_dst(p)).
+> That is a cmpxchg against the snapshot, so a concurrent roam is kept.
 > 
-> The local-entry match uses vlan->vid, but the dynamic-entry filter uses the
-> separate vid argument, and nothing ties the two together. nbp_vlan_delete()
-> is fine today because it gets v from br_vlan_find(vg, vid).
-> 
-> A later caller might pass br_vlan_to_dst(v) with vid == 0 or with a
-> different vid. That call would remove v's local entry. It would then flush
-> dynamic entries across all of the port's VLANs, or in a different VLAN.
-> 
-> Could the comment say that vid is expected to match the VLAN's vid when a
-> VLAN dst is passed?
-> 
-> The line "if vid is set delete all entries that match the vlan_id" was
-> already inaccurate before this patch, because vid is ignored under do_all
-> and static or ext-learned entries are kept. That part is pre-existing, but
-> the patch kept the line when it rewrote the comment.
-> 
-> Later in the series, in "net: bridge: fdb: avoid VLAN lookups in unicast
-> forwarding", the comment is still the same. By then the function does more
-> VLAN-specific work, including falling back from the VLAN dst to the port
-> dst.
+> Would it make sense to use the conditional replace here from the start?
 > 
 
-Hmm ok, I'd prefer to take care of the comment in a follow up as I have a few
-minor cleanups gathered from the previous set review and can add this on top.
-I'll take care of the pre-existing inaccuracy as well.
+- No, we're fine with the roam race, it is normal. Trying to change these races
+   requires much more work and isn't worth it at the moment.
 
+>>   				continue;
+>> +			}
+>> +		}
+> 
+> [ ... ]
+> 
+>> diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
+>> index 8a914e249767a..0675f74cf1b99 100644
+>> --- a/net/bridge/br_vlan.c
+>> +++ b/net/bridge/br_vlan.c
+>> @@ -1406,23 +1406,32 @@ int nbp_vlan_delete(struct net_bridge_port *port, u16 vid)
+>>   	v = br_vlan_find(vg, vid);
+>>   	if (!v)
+>>   		return -ENOENT;
+>> -	br_fdb_cleanup_by_dst(port->br, br_vlan_to_dst(v), vid, 0);
+>>   	__vlan_unpublish(vg, v);
+>> +	synchronize_net();
+> 
+> [Severity: Medium]
+> Does this add one expedited grace period for each port VLAN deleted, all
+> while RTNL is held?
+> 
+> Every caller of nbp_vlan_delete() holds RTNL, so synchronize_net() always
+> goes through synchronize_rcu_expedited(). Range requests are processed one
+> VID at a time under a single RTNL hold:
+> 
+> br_process_vlan_info()
+>      for (v = (*vinfo_last)->vid; v <= vinfo_curr->vid; v++) {
+>          br_vlan_info()
+>              nbp_vlan_delete(p, vinfo->vid)
+>                  synchronize_net()
+> 
+> So a request like "bridge vlan del dev swp1 vid 1-4094" could run up to
+> 4094 expedited grace periods back to back with RTNL held. The
+> cond_resched() in that loop doesn't drop RTNL.
+> 
+> The per-port loops in br_vlan_disable_default_pvid() and
+> __br_vlan_set_default_pvid() also now take one grace period per bridge
+> port. That includes the error unwind loop in __br_vlan_set_default_pvid().
+> 
+> Before this patch, nbp_vlan_delete() waited for no grace period at all,
+> because __vlan_del() only queues call_rcu().
+> 
+> The commit message only describes batching for port teardown:
+> 
+>    "This lets all VLANs share one grace period."
+> 
+> Could range deletion be batched the same way? For example, unpublish the
+> whole range, wait once, then clean the fdbs and free the VLANs.
+> 
+> At this commit, no fdb writer stores a VLAN dst yet. That starts with "net:
+> bridge: fdb: cache port VLANs in learned entries". The per-VLAN
+> synchronize_net() is still unchanged at the end of the series, in "net:
+> bridge: fdb: avoid VLAN lookups in unicast forwarding".
+> 
+
+- Yes, they can be batched and I had them batched initially but when I ran my tests I didn't
+   notice any problems deleting a full VLAN range. It took 79ms on my host to delete 4k VLANs.
+   As I've stated in my cover letter - the complexity is not worth it, so I dropped that patch.
+
+   (from my previous reply)
+
+>> +	/* Traffic may still use v through cached fdb dsts until they are
+>> +	 * cleaned below. This is acceptable during vlan deletion. Above we
+>> +	 * drain the readers that could republish the dst before cleaning it
+>> +	 */
+>> +	br_fdb_cleanup_by_dst(port->br, br_vlan_to_dst(v), vid, 0);
+>>   	__vlan_del(vg, v);
+>>
+>>   	return 0;
+>>   }
+> 
+> [ ... ]
+> 
 
