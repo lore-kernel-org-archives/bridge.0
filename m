@@ -1,104 +1,110 @@
-Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF09544213A
-	for <bridge@lists.linux.dev>; Fri,  2 Oct 2026 20:00:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 062904CDDCA;
+	Fri,  2 Oct 2026 20:00:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790971202; cv=none; b=jC7k8uz7nZbIPzWMGlleDKxynUirjxRNPLHilu1TvcamfhLiJXfFNbOTMQ42QAIVHjwaO+YV8zgwmsNZYJctZvXg3+8h/dTNNJdWkxM0PVANYCl1kT1Xsif+vmBGG8v1V/quQElsKLGmI0OYnBptfENMJgI+M51CF2BUhOgEmN4=
+	t=1790971216; cv=none; b=Z8+GtdLGRMd/C/1xmfszrXpFbdXurcvpoMA+d1pOgi6z5cZXtrxXdtNd7p5CE/d0KkokJK2dMY3V307juC67uYCI7JkTUGklbQIDnb64qCO+bmhsgAe9mCx/pfVGteRg5jHAnIJExJflcXSNDiU4VUDApNrvxYsB1dd2XUsMFk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790971202; c=relaxed/simple;
-	bh=bdiQLzVnx2a+F/wPqBLr4YiITMZ5yz7T1A6LJ/0pfnw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lCFckjWNb5v/GyGMQ40mJp2ThyURWkEmblnB8xk8cBb+b5EcHX5UloLp7VQ8eoGlG04crf1PNeCk6J7faV2/7rXoV3G6VYbY2evcLvgGFy7+Nj1HIak/Rtwr/rZ0+LurOTuFEVztrmfoYQ8wpFp7eileb0TB69dUqwQU7NwCCJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=lm8PkkCC; arc=none smtp.client-ip=74.125.225.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	s=arc-20240116; t=1790971216; c=relaxed/simple;
+	bh=4puJqDhMH/yMl5WE7XAM1y41DhQ2DVsN1Wxf9Rf5Fqk=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=PUm4QkQzI+nPDYhsPtFZTmdYs0lH3FNBx80YbAxHDZBbPxn94ajmUCJpe12n1HdAPIkmt1tz6jje2UaLrk4KUle2AvDdbKvIfyQSx46imSxF9AxAnOvWxtdd3AZw4+/uLab5pKtDuWYHC7lXZmVSKMUNDyUvsoho//GOnZTNbaI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HJ7/z70d; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="lm8PkkCC"
-Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e79a408deso1294985e9.2
-        for <bridge@lists.linux.dev>; Fri, 02 Oct 2026 13:00:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1790971199; x=1791575999; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=tdi1g/9HctPzl2xgKw5LeRr2kShiiRFjAD27/Ur/UmA=;
-        b=lm8PkkCCnnIP1YWn7rQUV/QY824BgO4IyTG5FR/mO0tB6O8drjb1TsxZOY3x9NZXLJ
-         qyxqk1pT0O1mIq1ZTskuVUIU112NAZyskYhG/ljzuMtziOmRE2z5EKXwloHFAA4SmpQk
-         MNlDUs/t7xB4uc9SRvJ9m0MumHqOSAWJ6JQwjx+jdFVNlNRtOd4XYcqi0sx0S6+DihqN
-         q/5WoNkISydNVOOhKfZ4d47PO7C7LfDK+YKBJMBdM4rQvOdFXRdgu8XjtD8ZKGiIxcNZ
-         vxmBu/A3s8VXtOFkMmkxChOPwqPEOQaerr1dFYCcHTlgxrMGrGgd3FsG9hBhk4kjJ8HA
-         hQVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790971199; x=1791575999;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=tdi1g/9HctPzl2xgKw5LeRr2kShiiRFjAD27/Ur/UmA=;
-        b=2YC6JOgHFB+8EcAXYHOw4zxQuvBrBf3iW7r2vF7Jy7PJ8RtyTAiT6Y1KSHXiu8aKTX
-         59QvLKOBjqL/jLx1YT/95VYgc1eV3AS/oRtUUCId8bcZlLpXl19cKN/gnjMDa3K6qiRW
-         QZQqjRX0k/0I2k4farGcCrqLxAFtL7QDyBWRT8dtAHvBHSQlZntE+kksJuO58K0QhaMk
-         Y076hdZ8iAIWcXzoIHwnqA57VJQsVWb4Mi3v57TydCKQy8U7GsbfQy3s1CGL8Wu3jkDd
-         YY7Rma5ZPHpkem+J+SOFR7xXdlxvEU62WLy/nv8VXt/tJs902s7t8tFA8oohCxezF2Ow
-         plEg==
-X-Forwarded-Encrypted: i=1; AKwUvBxFhk3OnpUGIO4FaES6brYuImZ8KS7X5AHI//fCzLSAeuXPS+YBCYobKcziyAnKyvcA8PegA5k=@lists.linux.dev
-X-Gm-Message-State: AFuF++lEKie0uZTQvXR9JpJB2W2oluGuydVcx5zdkz8EKyqbCYWoTKcc
-	iNcUMsaPUdd/mOrYfJILWDjwx6qf16SggkhE0Fcq7Um+HpdN+2cJbuyNoRzF3zn14lM=
-X-Gm-Gg: AYBFou0pgF6KslmULbefbm63idhGIFMLgc+RpPjTjQfPySzc50KH13WU9rDS92/m7WK
-	0kZg05F88hFCYcRVK/0PHZvyXBFBQA/vcPDVYsH3MKOgcR8DPEkcJkROtVCxr5qVdOgBK1/9wHm
-	//u39c/+jffw5mQajSaBFr0BvRR8tJ/0q3dd5CeOun0hM/f3t+x3uVwCb70Kh5N8lvjVlG0BEI7
-	2PvEAT1mD5TceOnpy6CbRWzvuwFVx/jkw6oPdEtdH4gRR70P+ZPtVVoRTgCvFfOJRoP/fWh65Sx
-	PMSTweFsuROcnjZ5Px9k4MGw4uwRo0vxmoUlInUgAkNvrZLY6hX09fjh+ZOdMKmV6vISLx6lHI5
-	ywFm2TGvbDO84MNj1nIE33hU3Vhjv07zUjwNe1mh7Sfg1R3jNJnpFjumpZgs9aZ6wI5HV2OCiNO
-	fiLobgaMxIKiXUyIm8QCirXXKlh39MJtjgA3+qCMEqYNqezOgN2UYBMLJlSd+MuCJNTfL8BawHU
-	tMME/cL/IFtVuhJJFkvrgmKg/kElw==
-X-Received: by 2002:a05:600c:548c:b0:4a0:1eb1:133b with SMTP id 5b1f17b1804b1-4a0275599aamr64108765e9.12.1790971198949;
-        Fri, 02 Oct 2026 12:59:58 -0700 (PDT)
-Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a039505568sm92985945e9.3.2026.10.02.12.59.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 Oct 2026 12:59:58 -0700 (PDT)
-Message-ID: <29eac8d5-4b2a-4f34-8792-76eecaefa184@blackwall.org>
-Date: Fri, 2 Oct 2026 22:59:57 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HJ7/z70d"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE531F000FF;
+	Fri,  2 Oct 2026 20:00:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790971214;
+	bh=cKRmuOxnOhh6/MOH4zYO1BD8bfYFPQM55SyJF1XMWqE=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=HJ7/z70d0SpSTwR6yFd8xeOx0wjjz1FTaFGAPJVgzyphM2XUV9ZaDVbz3vcV2xfVt
+	 8FlUK3+SyZP4w0E2Ikzm5NAvq4z2Pb0PUP57oV2Jq9dSb8qTPRCj1aMKOab5oyLE3R
+	 vqmS1NvMlOBjdsxps2pqyWFbbGKkKPi/FTwdig1V8Qt0EfpyG7TRRzd/vFRulzKchK
+	 cWiC4fg7FAHQO/KPUgql5sfhobm2J0WkFVcvI36DChar9XxQ9FHaCU0I39g6H9DmKD
+	 lJFRBW4xFRTakf/LJqbiYi9AU+FIqepYD7iJZH1J7k12HXezAsZZbCvOHnT1a/Midk
+	 zMdfWWBQW+3Xg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7737A3811A72;
+	Fri,  2 Oct 2026 20:00:14 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next 08/12] net: bridge: vlan: quiesce readers before
- freeing port VLANs
-Content-Language: en-US, bg
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev-bot+sashiko@kernel.org, netdev@vger.kernel.org, idosch@nvidia.com,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- horms@kernel.org, bridge@lists.linux.dev
-References: <20260930071411.2786201-9-razor@blackwall.org>
- <179085595119.434549.4421493167752460988@kernel.org>
- <f529d8a9-a4ab-4398-8754-d6c7528133c7@blackwall.org>
- <20261002125005.15b6b56e@kernel.org>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20261002125005.15b6b56e@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next 00/12] net: bridge: vlan: optimize standard fdb
+ fwding path
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <179097121302.3565478.15729563050864292363.git-patchwork-notify@kernel.org>
+Date: Fri, 02 Oct 2026 20:00:13 +0000
+References: <20260930071411.2786201-1-razor@blackwall.org>
+In-Reply-To: <20260930071411.2786201-1-razor@blackwall.org>
+To: Nikolay Aleksandrov <razor@blackwall.org>
+Cc: netdev@vger.kernel.org, idosch@nvidia.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ bridge@lists.linux.dev
 
-On 02/10/2026 22:50, Jakub Kicinski wrote:
-> On Thu, 1 Oct 2026 15:07:21 +0300 Nikolay Aleksandrov wrote:
->> - Yes, they can be batched and I had them batched initially but when
->>    I ran my tests I didn't notice any problems deleting a full VLAN
->>    range. It took 79ms on my host to delete 4k VLANs. As I've stated in
->>    my cover letter - the complexity is not worth it, so I dropped that
->>    patch.
+Hello:
+
+This series was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Wed, 30 Sep 2026 10:13:59 +0300 you wrote:
+> Hi,
+> This patch-set is a follow-up after the bridge flood fwding path
+> optimizations and applies the same idea to the standard fdb fwding path.
+> We are able to remove 2 vlan hash lookups in the standard fdb fwding
+> path by caching the port-VLAN pointer in the fdb, to do that we switch the
+> fdb dst to an opaque type that can be either a port pointer or vlan pointer
+> differentiated by a bit. The field is a struct and also has a __private tag
+> so we can catch direct users, it should be used only via the helpers.
+> Sharing a field makes it easier to pass it around and also allows us to
+> save struct space for the fast-path. Interesting case is when an fdb is
+> promoted from a raw port to port-VLAN on the same port, it needs to be
+> handled carefully so we use cmpxchg to make sure we don't generate
+> deletion/replace notifications because it doesn't change the port.
+> I tested VLAN deletion after these changes (we now wait a grace period for
+> every delete) and the hit was ~20% reduction in deleted VLANs / sec
+> deleting 4k VLANs took 14ms more and on my VM the VLANs deleted / sec went
+> from 63k to 52k / sec. The complexity to batch them is not worth it.
 > 
-> For the 79ms number - how big was the system and was it busy?
+> [...]
 
-It was a VM with 3 vCPUs, not load. The baseline (without patches) was ~25% faster.
-This is still a slow path and deleting 4k VLANs is not a common thing. :)
+Here is the summary with links:
+  - [net-next,01/12] net: bridge: introduce a bridge destination type
+    https://git.kernel.org/netdev/net-next/c/13bb47965e02
+  - [net-next,02/12] net: bridge: use net_bridge_dst for fdb destinations
+    https://git.kernel.org/netdev/net-next/c/fd7a8eb03c32
+  - [net-next,03/12] net: bridge: add VLAN support to bridge destinations
+    https://git.kernel.org/netdev/net-next/c/a39c339fd6c5
+  - [net-next,04/12] net: bridge: vlan: return VLAN entries from ingress helpers
+    https://git.kernel.org/netdev/net-next/c/cebd6130e6c2
+  - [net-next,05/12] net: bridge: fdb: pass VLAN entries to learning updates
+    https://git.kernel.org/netdev/net-next/c/8247ef76032b
+  - [net-next,06/12] net: bridge: fdb: consolidate port-VLAN cleanup
+    https://git.kernel.org/netdev/net-next/c/f0a349b92120
+  - [net-next,07/12] net: bridge: vlan: split unpublishing from deletion
+    https://git.kernel.org/netdev/net-next/c/e5c71bf91447
+  - [net-next,08/12] net: bridge: vlan: quiesce readers before freeing port VLANs
+    https://git.kernel.org/netdev/net-next/c/83edc87a9172
+  - [net-next,09/12] net: bridge: fdb: factor out existing entry updates
+    https://git.kernel.org/netdev/net-next/c/941056f91907
+  - [net-next,10/12] net: bridge: fdb: cache port VLANs in learned entries
+    https://git.kernel.org/netdev/net-next/c/8009eb405fc6
+  - [net-next,11/12] net: bridge: fdb: cache VLAN destinations in configured entries
+    https://git.kernel.org/netdev/net-next/c/8533e9b85bd2
+  - [net-next,12/12] net: bridge: fdb: avoid VLAN lookups in unicast forwarding
+    https://git.kernel.org/netdev/net-next/c/f1829618e0ad
 
-Note that flushing all VLANs usually happens when a port is being deleted and
-that is still fast as before (it doesn't wait a gp for every VLAN).
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
