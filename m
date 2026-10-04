@@ -1,155 +1,120 @@
-Received: from mail-yx2-f38.google.com (mail-yx2-f38.google.com [74.125.224.166])
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED92C34D3B0
-	for <bridge@lists.linux.dev>; Sun,  4 Oct 2026 16:05:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.166
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791129941; cv=pass; b=GMii56bqPwf0zAjgZksPtlKkc2v98mthxyI0btd29sDUsMsOb4c6r3a6+lKS41DI6y/a8ePeC5bXCvWMcaqsFVKmoVDjGTufKkYRI8OxZ0tb/wrt5sQKi9ztTz8n08ycwl99UHPGpLyqULrS2f+GX/r7v5Z8NaMwVD/F8Bs+ARM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791129941; c=relaxed/simple;
-	bh=JqhgSbKXiRs9KJieJ1Lo+MaB0d6v2jx8N12NDJx+2Yk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cffLh7ksFsq5kt8j+DRirqsAewNMcDSjIdr3Jgf+c6KtzveLfBhiSSSLsG5q8cf197/zOJtXz5iXVAK5beoMCOzS6TJHPEdWGjmVTFVcrYRDadCZiPwxBCmRL2VRSnHWIfkSWwpQktA/jVqAfA55FEJgCEVD/ZHr3B+zeBZAdwA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de; spf=pass smtp.mailfrom=bairaktaris.de; dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.b=DTrqzHKk; arc=pass smtp.client-ip=74.125.224.166
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587BF4A99B5
+	for <bridge@lists.linux.dev>; Sun,  4 Oct 2026 21:24:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791149082; cv=none; b=rt8D7LLulKAhc03kNVTKHufnUkRTqPHnJd66gQyfy8OOegDZnjGccx2YFqgtar91DaNZ4W5W5cTikMiBiWKixhSMZCywfSSVkweSuMLNkshZbm2SMYLnay4cbiXHmLL9376eb38E50hNScJ6NGNPFgdeU9f9UXNM0/Os6aDPHTw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791149082; c=relaxed/simple;
+	bh=g4wrCZPfDP7wCd12CyPcGfR1zTDHVfS0kS2wAb83fj4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UwM457aelG/5dYJ4El9yCWpsKrWxEMmIguq5UeDSj2xwM/XECdmQ+vD73UJ0fF92d5MSXrpEs/E1Z56Jeg5Eyt9sRdglxXVXG2SCv5Ei4ntmryIT5ZmjUdjqtMXZMWnQiddniRmJQkmNpqHl///p/BYJ6pio1obiY06ks7hdINM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AVOeYHp7; arc=none smtp.client-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.b="DTrqzHKk"
-Received: by mail-yx2-f38.google.com with SMTP id 956f58d0204a3-675617094f5so599664d50.1
-        for <bridge@lists.linux.dev>; Sun, 04 Oct 2026 09:05:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791129939; cv=none;
-        d=google.com; s=arc-20260327;
-        b=IRQI4GIsMztQcQFG/CL/1UgLDV/QFd/BI8vqGN2FuXM29kkSaVssSEgz9tt/6uol2c
-         Am3gv+jyU46n0+pnM+wRVpoj5nvf58etLxjHgiayhVrpXCaQPpRBJ7hs0Y3lEzvgUR8a
-         MOZsR/CTs+VCs1xrnxGRjjUQc4k1O4eCylkUcU3MNe4iVss6ptieaoQzcMcZ3Kilbziy
-         sYBjKQx8YpoZxmZGjBWN+w4g3HZ0sqUepJUIj/HvoL2y6JGDdasjunSM2lL2Hr11xVFo
-         h35d2fLwlYNRheU/v4SK2nmJkeXKcmoqQCCcAHCYYtMTvIKlaJfe9uz/UT1q5SlAdLYI
-         HZVw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=y3fsU5omFgw6BhNB+mUuwA3rZgfGs6fxlIGxVAPmPAU=;
-        fh=disYsKunjqPVRlOHgA1TVltyd7LcgVVautrnGqm2dvc=;
-        b=ozBBR8cfd3SxDMAVXX+BfwFlfVr7ZltkyLLNf7MJBbttAsyMDfwp8Qa5PARJIRjA8S
-         GSeRrJlV0SqFyoy6Uiw5S5CV3Ua2adXl22JpWXZvnhpZtu82FzDj7UYoTsztabp/n9Xo
-         xVvOgruX4VaQmnb4S1NBhflkbUfjrp7RkLMDU6jDtrAOz13qJJs4J2hsPqNcbb6FL9SZ
-         utgTJ99ZparLGm7srT7E/T3/DQ2VDp914BbZBEddAN1MiPjjiYRdEtzuTdGmW0zH+UND
-         5pfc9tFGy0dOojcVagu7+fMAfAwpRf/X3Eu9EaisGCYPXzPAyeVQix7X6sHfXyE3SGvn
-         57Og==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AVOeYHp7"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-48b06bb6e40so833872f8f.0
+        for <bridge@lists.linux.dev>; Sun, 04 Oct 2026 14:24:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bairaktaris.de; s=google; t=1791129939; x=1791734739; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=y3fsU5omFgw6BhNB+mUuwA3rZgfGs6fxlIGxVAPmPAU=;
-        b=DTrqzHKkHsupdJ7WFhwxuNcC4nfHgAIx5v4yrXN9r44MM3SAf152XV8ySlai8mT6/8
-         YY9Q4Lssg2ipfhVpcQSDCJu2DRHePryYWPwUbkyEME1f2w3lr6/dD0TNQEUeg2ML53px
-         YHQUvcphouJWDSGh9te/WgfvPfHTkekFCtjE+Ccx4OIh5JEBIJufHN0bcn23a26nYCZ+
-         9FlQTMlhOrXRvEUzvALagCmn5yOHS/ScpLnySot3duFP0Iib1K4zSuiG2Sh7d83s/kxH
-         OoKtnwJwjDiWZ2lZK1rdMhWzkpFaRkM9fk1gwHSUM5RKBtseGZXU2u3BnpG3LQZzkGiD
-         rrkQ==
+        d=gmail.com; s=20251104; t=1791149079; x=1791753879; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=iquxO7jnYX2lg3f86GXs02ckl6WQPTZjoaobmRLuQcU=;
+        b=AVOeYHp7guruPSdXHC001ATQByTBFRAFzgLFH1lDi8yUNUSO3qpfYqvdjYbWM3+Lra
+         RaDwh/Cz67Yzdy0bd3qT4aH5f+RdehG4yf9H/wH/3iDyOCLy47j8ccMwIf76PPJzBKIJ
+         DbUvEUKmBA91N4uCcxbFQsYxggNeWGDt/beh/NPe9V3xukQRJT9qD2WPxfxtKz3r3IRW
+         Gs22S9s0cgrsnzJjrzHINr+7IduB6lJNh9ycTs/jnk+3S1LIJXSwl4Kq5lwFbqITNt3U
+         fio0KaxD5j6ogKGaS5tfJ1ZXEmzmpCkPr7Xi9O5QzWwHODJrS1hyIxLXSOPEQaCqd9Es
+         EpgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791129939; x=1791734739;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=y3fsU5omFgw6BhNB+mUuwA3rZgfGs6fxlIGxVAPmPAU=;
-        b=zqnCfrWz6DX6kuYXoG1ITvNOumyVihkieLvtZsTFYgmASX6TH1EYoBvtaULr2paOeM
-         xGz/i7/ddo0TwhTCGfx2c2ybuGyB2ptJdA+dHDOKS1A8Rx7D7y2t9WdOPykAVl38vxNX
-         cddTnWm8l9cMun4LFfezccEsJEADWW6cH34+JtC8JwWybcxOkcf4xa0lrB0Q5WLcW5Zd
-         Ms04jzCFE5IVelWNpMhdBkENKoVs6q+3BWe42vYEhTeoYIbYXtsx1O5xoOlJuYwDGyhd
-         M0SrmChFa0urmnrDLkJNwDYsp1A4QILHhOM913V+ekbobTn5u54PFyv9+CtfNDeupCSj
-         FSmQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwXl+vGFloLjtC8lHSl8W4stNldroVx7X8S45KRUj3BRwOG+4Z1Ai5PYImWSlSBqvh3na5GuYY=@lists.linux.dev
-X-Gm-Message-State: AFq9FYJ8ZgoBYCEsBJdKJ/X9oELuwbsVrwfHibkv6z6J+4Id0qywleKc
-	pjjsX93uZm/gaYNVjeTHXV2a5FzWpILBiEi1Yjg6uA0SvtrJn2OcA40zLG7wMGVqIlKDV94NyQP
-	rVxF5SGOj2W4djZtsEzVXAhfk0yt/VuyvP3E0T5Zx
-X-Gm-Gg: AYBFou3QmBDbfzUcrrcb53FzaLYPLsjohepwTf+j1j5A/q10y6HZSQ0OvofDEaTKjpX
-	UD4cmOmOMRQ6G9GAi54bc2DiBjnQdDTaSsx3bCtLP9lO5gyogawccCG8yvIN/DL09vGR9uJM+ze
-	ZhG6Djf755YJPgMGBmgoqjqooE5Xp51H5iouGuLQ5Z7G2pIlEWQuM8hi1Jfe4wCjRizuf3pF2cZ
-	rm1CkElAWyqN3soKFieMsHRaHHAQJa3xuxchUHcOW2EXpCi7mHAli/RtXCsc8weIvftCym/CCmI
-	ICebYsiiVCESFzcKs92a0t1f61wLNXF3XHr+9EkBuxstbUOEs1z7CrUNNZxNHl3Laz4aYsls4Zh
-	WrNmjRiHPrn6szhZmSx9BvOn4/PucFc9kj6s2uDvwbyKt3nqyXZr0co+mCeV2uUdblZy/3g7z14
-	vWrdKAX2oNTcAtqhU4U82XoImurtIHP9R2ajpZtTylriwyNiPWwla7FwluvXCkMhF/hT8MRt44q
-	vw/vc1TYh4BXoMTfJyuJTL+Y7p+aE1mni9aWRGK2GOjJ2Taiw/B3i4/hgpq8q15q150uA==
-X-Received: by 2002:a05:690e:1616:b0:672:be40:5eaf with SMTP id
- 956f58d0204a3-677ac079547mr3282301d50.54.1791129938951; Sun, 04 Oct 2026
- 09:05:38 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791149079; x=1791753879;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=iquxO7jnYX2lg3f86GXs02ckl6WQPTZjoaobmRLuQcU=;
+        b=HCxFA9I1UbqY+d0KUInECcEG0RR6mSsdph0tFNZMkxlbwIx9r3I3OSgWmFfvdzbLSM
+         HCN2x811UVEOmCt7xAoU4N6kGTqlH/GixpAG8437sZgw0Zc4dzIIE0J16IdDYlue+Ei7
+         b9WOiI0Ryu239LCbDo/q5xt0wtJ3dk2vjathpxi9m2eEJi5SDGjSrJQq03T1yq9KytYH
+         LDYuzRC8hgn9ygjR8hgnEFxAm39qh66gQH7582hsbYeqlasmzE6BaQ8/H5BKF2ZAR8AH
+         jHn/vWH612/muXCKps5GbXQr5OixgE6KdXwp7ZR6/GJ0yQo2F5fTEZVcYGn+MR99k4vU
+         SIfA==
+X-Forwarded-Encrypted: i=1; AKwUvBz2tq0MEYKJm2/m7v106phOByMX/SFJ9Yg00Uj87B8T5/pMf7Zyia0YKFdt673aWzWE4ldRaaE=@lists.linux.dev
+X-Gm-Message-State: AFq9FYIOVygtxlcc3I10PsF4rrHYIalyjegbx9HNy40GV+YTGZLdAFDW
+	P09gbT9Z8b0vYm7ayIR3PjB9LpHvul6xBybEDYhX9Suwx1Bu12T6oAMG
+X-Gm-Gg: AYBFou0j65CpyTBucu5vwn9urVqGNP4XLRl2TV3LkkKwufyd3QJFlN8F4Qxx1K0nlcK
+	4QLVyOKKyBjyGCMbY8cv0ADDm4rSIv8Oio6Wps7GeDMz3ZdusuwCer7QCb42lQkGcUTasN2VNii
+	xW6bDHXWdsE9iKHZW35FUbPP2z9nuqSdHVPmBeYs2Xh2/yETcBzkmz8N0yvXnaUnnM4FTjDsIKf
+	H68OTdq/XF5luPDe2LUBVMnTQTAjPxeRMR9wxYupMqfFhXMPEnSMK3lKLnG2d/5UDZCuKaMQpSx
+	6UET4y6vEpdSHOkd1BNDJvpTxFzquU8Eg02aDC0NZmc3C4dQ05hFkAvxGCBCjtxn625mBu6tKj2
+	Lz2KlFUNmKxcdA5s7zyhK9mUqa1/WkgXHMqCsqYgKzg7gGmMZOVMLZNFrwnx69MaVNa6fZ41fsW
+	6/eySZ6rd7WY3zWVOVRe2yVoStdVNrSQu/yW9jLBce/er1vkZ0sUCRi5nKEkO1QHOkSOgYfGXwB
+	XjoRo1cm5qm15/Ht6DfXXyIy0eVaI3OPmhNPeQU46CK7XHeex5aIYNe5BTM
+X-Received: by 2002:a5d:6f01:0:b0:48b:6b4:db5c with SMTP id ffacd0b85a97d-48c47c8d305mr9575410f8f.6.1791149079168;
+        Sun, 04 Oct 2026 14:24:39 -0700 (PDT)
+Received: from andreayoga.localdomain ([195.122.200.174])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48b38104417sm20407354f8f.27.2026.10.04.14.24.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Oct 2026 14:24:38 -0700 (PDT)
+From: Andrea Parri <parri.andrea@gmail.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	netfilter-devel@vger.kernel.org
+Cc: Andrea Parri <parri.andrea@gmail.com>,
+	Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Bernhard Thaler <bernhard.thaler@wvnet.at>,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH nf v2 0/2] netfilter: preserve bridge egress VLAN tags
+Date: Sun,  4 Oct 2026 23:24:26 +0200
+Message-ID: <20261004212429.3648-1-parri.andrea@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20261004124254.3525496-1-julius@bairaktaris.de> <01600be7-3d8b-48b2-a59a-1125eb452714@blackwall.org>
-In-Reply-To: <01600be7-3d8b-48b2-a59a-1125eb452714@blackwall.org>
-From: Julius Bairaktaris <julius@bairaktaris.de>
-Date: Sun, 4 Oct 2026 16:05:02 +0000
-X-Gm-Features: AclHuK90kbEfr1-jBe_BFIZ77DR1u5zlZLof02Y-HmHYvTegFl8NjlWTcp5jAKI
-Message-ID: <CAC1t37+4-Pf3j_x4_cYj-+_hj50W66f7TZWQaLavPJwSzmAf5Q@mail.gmail.com>
-Subject: Re: [PATCH net] net: bridge: fdb: hold hash_lock when an entry roams
-To: Nikolay Aleksandrov <razor@blackwall.org>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, 
-	Ido Schimmel <idosch@nvidia.com>, "David S . Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, Andrew Lunn <andrew@lunn.ch>, 
-	Vladimir Oltean <vladimir.oltean@nxp.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hi Nik,
+Conntrack-reassembled packets forwarded by a VLAN-aware bridge must
+retain the VLAN state selected for their egress port when br_netfilter
+refragments them.
 
-Thanks for the review. Sounds reasonable to me and I will look into it.
+The first patch saves the VLAN metadata for IPv6 as well as IPv4. The
+second clears stale ingress tags on reused fragments when the egress
+packet is untagged.
 
-Julius
+Both patches were tested under virtme-ng on a VLAN-aware bridge with
+br_netfilter and nftables conntrack. With the series applied, all
+fragments have the expected tag. The test is available on request.
 
-Am So., 4. Okt. 2026 um 13:44 Uhr schrieb Nikolay Aleksandrov
-<razor@blackwall.org>:
->
-> On 04/10/2026 15:42, Julius Bairaktaris wrote:
-> > br_fdb_update() lets an entry roam to a new port without holding
-> > hash_lock. It notifies switchdev that the entry left the old port,
-> > writes the new port, then notifies the addition. When two CPUs receive
-> > the same source address on different ports, these steps interleave: a
-> > driver sees two deletions for one addition, or an addition for the port
-> > the other CPU wrote.
-> >
-> > DSA counts references to a host address on the CPU port. The extra
-> > deletion fails and the extra addition is never released:
-> >
-> >    qca-ppe 3a000000.ppe: port 5 failed to delete 02:5a:0b:a2:1a:46 vid 0 from fdb: -2
-> >
-> > With one address roaming between a DSA user port and a Wi-Fi AP port of
-> > the same bridge, the error appears 3-6 times per address when the two
-> > ports receive on different CPUs, and not at all when they share one CPU
-> > (4 runs each). With this change it does not appear (6 runs, different
-> > CPUs).
-> >
-> > Take hash_lock when the entry roams or its flags change, and send both
-> > notifications under it. The common case, where the entry neither roams
-> > nor changes, stays lockless.
-> >
-> > Fixes: 90dc8fd36078 ("net: bridge: notify switchdev of disappearance of old FDB entry upon migration")
-> > Assisted-by: Claude:claude-opus-5-5
-> > Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
-> > ---
-> >
-> > Notes:
-> >      net-next 941056f91907 ("net: bridge: fdb: factor out existing entry updates")
-> >      moves this code into __fdb_update(); the same change applies there.
-> >
-> >   net/bridge/br_fdb.c | 14 ++++++++++++--
-> >   1 file changed, 12 insertions(+), 2 deletions(-)
-> >
->
-> Absolutely not, this was made intentionally. Taking the hash_lock would further kill learning
-> and roaming scaling. Surely switchdev drivers must have dealt with this for some time
-> now, if you'd like to fix it do it so the software path isn't affected.
->
-> Cheers,
->   Nik
->
->
->
+Changes in v2:
+  - Add a second fix to clear stale ingress VLAN tags from reused
+    frag_list skbs on untagged egress.
+  - Document the reproduced symptoms and the separate IPv4 and IPv6
+    origins, narrow the first fix's claim to newly built fragments,
+    reword the helper comment, and make the helper take a const skb.
+
+v1: https://lore.kernel.org/all/20260928161830.351199-1-parri.andrea@gmail.com/
+
+Andrea Parri (2):
+  netfilter: br_netfilter: restore VLAN tag on refragmented IPv6 packets
+  netfilter: br_netfilter: clear stale VLAN tag on refragmented packets
+
+ net/bridge/br_netfilter_hooks.c | 51 +++++++++++++++++----------------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
+
+-- 
+2.53.0
+
