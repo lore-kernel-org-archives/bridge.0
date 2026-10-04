@@ -1,156 +1,131 @@
-Received: from mail-ej2-f43.google.com (mail-ej2-f43.google.com [74.125.228.171])
+Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1808E448392
-	for <bridge@lists.linux.dev>; Sun,  4 Oct 2026 12:43:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0F6939FCC8
+	for <bridge@lists.linux.dev>; Sun,  4 Oct 2026 13:44:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791117784; cv=none; b=kNqR4q9mtCnV79kuUQ8m/J6MPTJx5h6F1B6LoapFQnChUoCT1A4coL+ywuRuCKnx81gPxtahCAtb8nDNIVywqF8Wxtdxe869sxzwM/HwCdN6FbHKTnsaJMU2ta9uNKipoYJ3cs72WI5CqaRqYEphFA166RERb0Nm+dec2WzHmdQ=
+	t=1791121485; cv=none; b=tWeRpnzkaERgqT1ZAmDA4imFpBOfIWsxdSwwjCBD38MUZ4PAD2wWKWLXFbCPuQ3yEKqzRMFw9hx8nWsbap3pRtEfH6mQe9NfcmeX7M9TFwv5h/hdXSBNtJLXy98YaxPDd2ueOyYhx9x8v1tTcBViSaKMbIihNqOznLaja9HvhY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791117784; c=relaxed/simple;
-	bh=tTgrBs3Hgw+xZh6szNsKjeuhK4AVLdIPNXX+P4056Go=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZQsGM+9QmoJpN3swWsjCdGnRnDJDQyU82q4LLizVufw2PdDB2D3p+O6aV3N07e8ddvIN0HH+aVNyJTuR9KPBXTN96d/YOax8FZB98bLMtdasFUNRgEMWSlG6PEisJdzD6sdyJUH6TFTWBpjNU2VNcoCAmYr10bQxffnSw7m7HJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de; spf=pass smtp.mailfrom=bairaktaris.de; dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.b=yQ0IUCqD; arc=none smtp.client-ip=74.125.228.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
+	s=arc-20240116; t=1791121485; c=relaxed/simple;
+	bh=ln9flUKLuXflNGj9stfywtJ7V/181gsJo/hWYooAygk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Gb6V7e01nz5lf8X4w0yOCZHATVnQvjR3tG6C8e6P4THR2WGfkClxSPMHGz0lgESjoH1apSUV8TxbeCeoHUIAN7Nmcb9H8GVZgCDcWWPk3o7R92hyEOicWbrdZD6nPgFKqcaRChDCtGZ/W9MvtzP9ykFAVGmeCeZ3fk947/q7hew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org; spf=none smtp.mailfrom=blackwall.org; dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b=MdME/3FV; arc=none smtp.client-ip=74.125.225.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.b="yQ0IUCqD"
-Received: by mail-ej2-f43.google.com with SMTP id a640c23a62f3a-c2e227422e3so143153366b.3
-        for <bridge@lists.linux.dev>; Sun, 04 Oct 2026 05:43:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.b="MdME/3FV"
+Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48af0707d41so415094f8f.1
+        for <bridge@lists.linux.dev>; Sun, 04 Oct 2026 06:44:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bairaktaris.de; s=google; t=1791117779; x=1791722579; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=eos+MZIZfy20RrX7r6puDDSBR2yAZWLtl2ZkahKdzuk=;
-        b=yQ0IUCqDYvpTIN2ylNXDoa2PUfR0RaX4ehJ51uupgdP0rZIZBrQT/k959y69GDIw1+
-         uRqQ/C8rbMpp195jggF8un9J9Tkj3EV5oy2z+Dy3ecXYv6AeTKdeZNZ4szrkXwOvNlYi
-         FKccQ4n7zgrnmDGwIQWHzrm1+Xf4JW3HsZV1Wutr4oTJCz/TOe6AP9e5xIwLQ61NCA4b
-         pnrSmYud/aAzfKbMfJnNREHqqtfJW8W79MqRmRw2L+gFml1qBptZh4Ozde4L2OdGJpZH
-         ewC80EoTe4b4swnfsG64lIJj8FuA6LlLQwdLYYPABjI/IeQr8JSwbOuGkcY0HDcVX2i4
-         2JZg==
+        d=blackwall.org; s=google; t=1791121482; x=1791726282; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=/AXmPQS6GE1nJ+OCjL7tvM9iqkO2JwhEp916Dgp8F+U=;
+        b=MdME/3FViRMGYkI0XF0Dy7HQF2oYomRJOvb7NrbevBSfxsJxQnZc/+ePvCz9ucogdF
+         /azU3xUKkjWHnRl/AcF48FZ71UJjvj7DPWqB2beOkTwDLP+9xyByjplOTCA51187gNjd
+         IsMR4I7zukV8OIMuAksi/Imn0r9RW4P9pTITDqDZZGqRK1RzHatiFOVyrXXYnLKbD+C5
+         6JaNSWXwLRIc7LS0oy6/rTuT7W1bwXfTw/B7XFp9Vmap2G/RowbcQtSKP9fidGttJexk
+         UwhK2u0IzArqPu9W6xn6zmcfq5vQW5Jss+fcpfvWE/Wf4LaNmF7H2J9jSW2M73RS0TmZ
+         EpyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791117779; x=1791722579;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20260707; t=1791121482; x=1791726282;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=eos+MZIZfy20RrX7r6puDDSBR2yAZWLtl2ZkahKdzuk=;
-        b=A6SNvToRnOYN9EBzvI/M7q6mquYCCi0Z+wLQ7O9V9darZuZoaDkaqSMzRgsIbHswNw
-         /GZcTs9ekYUc7E9Z3NWCuMibfJ84FgfJPmfvOOBKP4/XxyNB77MkpAbNOgEsdgV510fY
-         tS95OJdE+L1Mch8q2wXgnidpiRuGAGoOOqH6eWqjzhU5vAWAh5uDakIeQX8MRu67K6Rg
-         MXbaGIHDkIsbssESxevO9ePlzH/4to6FXY/CXrr7Eh5oZg+joVB9nJ8ugHiFm5uiTg5H
-         wUf3dyjKbTz0jPzcQb/fMpd+uC+O82d+j/K3VZbjzLiTrauBEODZf9XWuuPv3QU7V++0
-         j0FA==
-X-Forwarded-Encrypted: i=1; AKwUvBy65s9D1YUAgLTpBYl9M5vDxFTnTQQC2yhL6/l20Yc8rpm0Y6X1NW4cWHSEcVPzUG0WO4nHPgw=@lists.linux.dev
-X-Gm-Message-State: AFuF++nhE/fVyJXzj/vbBdf/2EWRRIeeFu1wnMOAb3cPM4UuT/zHuCqP
-	aaHxOYGaUdqTg4O7IWKy//RT+z5wg2ZSAdE6adLcyhljix4oO0lztqaAKJGzYjBNcA==
-X-Gm-Gg: AYBFou0gF1ZqrfJAwqWYJV2kjK6nC0kFdqLLn8SLTGmOkSPxBLlvsVkRjFd6A3m4NRc
-	Yy3qyYEGmy1jeuSUzpnYOWHbvm2GexC4GVb68fdFL0GUhjzx0FYm5YZWYjnvBQ+Ht1dYi+bO69i
-	9jo5PfI2WCGunoXr2baAUsW8hf821WSNMw2mTEI48PIbKxsA7ijbrvtFKIJ3gomsKQ7wDes+l3F
-	TtkK49LYzoGy74gKlPK8YGZotzSPwskoY3m/ZV8pvzit7eOJex1uFyXwWpAcaPL2wvvpqOjUYaO
-	aLiO+CxDEhiIo6M/RgPfPDI9+5w2/GuxKJKxi7BpTG5gw+V5EYDnhIwenSqTaI6QWeNSAZDGQHk
-	LTyrqBJMdMMszc3mqQ/PpW67itug07Cq97fBP+jvcCFkWorgoWRJznhXA7RXPIMWeBUilMY1ZvW
-	rGjbJVMKpldo20GxVf2JeaQR8Wv9oolFolIYxaI1FuwUhWSCXcULMUATf+EaujcsOEBdTG3C0WA
-	FT/m/4229h9yNGKCoqqTr+ZlR2OIgwYbw6mNWHb37KZx83VrhaMbWJ3p8S6dDgyhZVNenPaN7QY
-	ct2Wy49ocXdw77Qwlbclt7zma8KF/eeUNr9UnSQ9M6NOsQ5br/coHwewXz/dCOeJt5zSvyEgjWD
-	XpThggh7G+heG+gePuAI+7st0vm96lwWxJvj9ffIxR/oG4HKr1gO92ttJWup6L/hqcsyCILmiU8
-	TtpQG2u9pos9sf4seD7BUK6s3/Hw+7lhZm9xcAiQ==
-X-Received: by 2002:a17:907:6d0f:b0:c2e:4196:b167 with SMTP id a640c23a62f3a-c2e4af2bd94mr627719266b.18.1791117779193;
-        Sun, 04 Oct 2026 05:42:59 -0700 (PDT)
-Received: from Desktop.fritz.box (p54aff5a5.dip0.t-ipconnect.de. [84.175.245.165])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2e878b1784sm62473966b.3.2026.10.04.05.42.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Oct 2026 05:42:58 -0700 (PDT)
-From: Julius Bairaktaris <julius@bairaktaris.de>
-To: netdev@vger.kernel.org,
-	bridge@lists.linux.dev
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Vladimir Oltean <vladimir.oltean@nxp.com>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net] net: bridge: fdb: hold hash_lock when an entry roams
-Date: Sun,  4 Oct 2026 14:42:54 +0200
-Message-ID: <20261004124254.3525496-1-julius@bairaktaris.de>
-X-Mailer: git-send-email 2.53.0
+        bh=/AXmPQS6GE1nJ+OCjL7tvM9iqkO2JwhEp916Dgp8F+U=;
+        b=I7fAU7ms3FSKaIjH1L38+mYZeFow2Hg/ZBNQwYOPqjOJlQ7JxnSdeKfJz6gw+d26Qf
+         27P/QYT74FMLXDgdj7o4ceb8frPM87mB0JUOmyRjDe1Crm7aPPCifB9VWAJxDgEzmKbs
+         6rwgSQtw7tzZoinMJ0T40aQ8hdSUDgWH5D3l3WeXaO0XGT/sgHeoqiK2H80gV9p2g3Ia
+         +Ifgy7nz4Iw073HLHfoc82TW/u55ypDovEX9sT6PuuryYmjOY/Pw3rrC+RQ13wmjSVCC
+         vz9rog9oCXJFq2cnqxCASDzIFgU1seVpL+eyi5CFwhDEA9oVT7tFVZmA58KmRAC1oO3B
+         +RcQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwPv0oW+tF4+6DXDiEGbHdJ4tygA1/x1LCyG02Bo8Y61MsxIChjNKHpbzk76vrzOd+GFnjpiU8=@lists.linux.dev
+X-Gm-Message-State: AFuF++nYOJyojvUve1XxGeK+kKjkJG/WQiAhis4RtkV5HYrhaz7bTnxL
+	4JkS2EaBgb9ka68SQEWNrBd+AJ/6wmufZPm5TxSMi16mffeJqcsOF8MQCyI4y1xNm80=
+X-Gm-Gg: AYBFou3+PTvL+xWFaD7YT/8+os3RGtKhrF8xBScBYSjCsEhDwyGYR3sW0Tq/pY2FVBP
+	rCKJ4Umr2O8xGCg66xNkGJ8BCuMJdUf8T34SYDL+Dtfn/GPVaVrAli6qSdhB6U5mt3L4gULl5jG
+	kcIt7xzJiUON4hDZCr2KTpmDiCsXuQ0T4X+WBOpNibyjTZvUMLubOkrWcZOZhh/q72pgU5mPww3
+	3UD3Zj1vEAr3Ex2pUuzSmn24etcJ91oXkUxD+5TiVS2gHN6jPkq0EWd+n50kkmgEVxf55ggb/sj
+	DSw9t6U5QcCewE/djn+inbx0/h+8juSeKUaschyKyKBViLgGrQkRH+fFYQDUFyXT6kxUSfa6LdA
+	jlAL6LR6PHpfTYatqHCOD+oss+rIQkpD8Hwpax2P2/413WKnD0Dt/P5SscN5rEwhYbVWwKEU3WM
+	DcLFIgs3FQLJBb11tOJ/Mf793e3iEo8UyQWO+IX3/TPnnthv0HrWoNm0GPLJnBJcrgv/xZZUWRG
+	1fA+SUofI/FsWKj/kJ0wfYoB6xQ
+X-Received: by 2002:a05:600c:530e:b0:49e:63cc:6324 with SMTP id 5b1f17b1804b1-4a027534c46mr151316115e9.6.1791121481987;
+        Sun, 04 Oct 2026 06:44:41 -0700 (PDT)
+Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a0280be5dfsm287188975e9.7.2026.10.04.06.44.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 04 Oct 2026 06:44:41 -0700 (PDT)
+Message-ID: <01600be7-3d8b-48b2-a59a-1125eb452714@blackwall.org>
+Date: Sun, 4 Oct 2026 16:44:39 +0300
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net: bridge: fdb: hold hash_lock when an entry roams
+Content-Language: en-US, bg
+To: Julius Bairaktaris <julius@bairaktaris.de>, netdev@vger.kernel.org,
+ bridge@lists.linux.dev
+Cc: Ido Schimmel <idosch@nvidia.com>, "David S . Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+ Vladimir Oltean <vladimir.oltean@nxp.com>, linux-kernel@vger.kernel.org
+References: <20261004124254.3525496-1-julius@bairaktaris.de>
+From: Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <20261004124254.3525496-1-julius@bairaktaris.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-br_fdb_update() lets an entry roam to a new port without holding
-hash_lock. It notifies switchdev that the entry left the old port,
-writes the new port, then notifies the addition. When two CPUs receive
-the same source address on different ports, these steps interleave: a
-driver sees two deletions for one addition, or an addition for the port
-the other CPU wrote.
+On 04/10/2026 15:42, Julius Bairaktaris wrote:
+> br_fdb_update() lets an entry roam to a new port without holding
+> hash_lock. It notifies switchdev that the entry left the old port,
+> writes the new port, then notifies the addition. When two CPUs receive
+> the same source address on different ports, these steps interleave: a
+> driver sees two deletions for one addition, or an addition for the port
+> the other CPU wrote.
+> 
+> DSA counts references to a host address on the CPU port. The extra
+> deletion fails and the extra addition is never released:
+> 
+>    qca-ppe 3a000000.ppe: port 5 failed to delete 02:5a:0b:a2:1a:46 vid 0 from fdb: -2
+> 
+> With one address roaming between a DSA user port and a Wi-Fi AP port of
+> the same bridge, the error appears 3-6 times per address when the two
+> ports receive on different CPUs, and not at all when they share one CPU
+> (4 runs each). With this change it does not appear (6 runs, different
+> CPUs).
+> 
+> Take hash_lock when the entry roams or its flags change, and send both
+> notifications under it. The common case, where the entry neither roams
+> nor changes, stays lockless.
+> 
+> Fixes: 90dc8fd36078 ("net: bridge: notify switchdev of disappearance of old FDB entry upon migration")
+> Assisted-by: Claude:claude-opus-5-5
+> Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
+> ---
+> 
+> Notes:
+>      net-next 941056f91907 ("net: bridge: fdb: factor out existing entry updates")
+>      moves this code into __fdb_update(); the same change applies there.
+> 
+>   net/bridge/br_fdb.c | 14 ++++++++++++--
+>   1 file changed, 12 insertions(+), 2 deletions(-)
+> 
 
-DSA counts references to a host address on the CPU port. The extra
-deletion fails and the extra addition is never released:
+Absolutely not, this was made intentionally. Taking the hash_lock would further kill learning
+and roaming scaling. Surely switchdev drivers must have dealt with this for some time
+now, if you'd like to fix it do it so the software path isn't affected.
 
-  qca-ppe 3a000000.ppe: port 5 failed to delete 02:5a:0b:a2:1a:46 vid 0 from fdb: -2
+Cheers,
+  Nik
 
-With one address roaming between a DSA user port and a Wi-Fi AP port of
-the same bridge, the error appears 3-6 times per address when the two
-ports receive on different CPUs, and not at all when they share one CPU
-(4 runs each). With this change it does not appear (6 runs, different
-CPUs).
 
-Take hash_lock when the entry roams or its flags change, and send both
-notifications under it. The common case, where the entry neither roams
-nor changes, stays lockless.
-
-Fixes: 90dc8fd36078 ("net: bridge: notify switchdev of disappearance of old FDB entry upon migration")
-Assisted-by: Claude:claude-opus-5-5
-Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
----
-
-Notes:
-    net-next 941056f91907 ("net: bridge: fdb: factor out existing entry updates")
-    moves this code into __fdb_update(); the same change applies there.
-
- net/bridge/br_fdb.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
-
-diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-index e4570bbed854..c8680ae3ef08 100644
---- a/net/bridge/br_fdb.c
-+++ b/net/bridge/br_fdb.c
-@@ -995,8 +995,17 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 				fdb_modified = __fdb_mark_active(fdb);
- 			}
- 
--			/* fastpath: update of existing entry */
--			if (unlikely(source != READ_ONCE(fdb->dst) &&
-+			if (likely(!fdb_modified &&
-+				   (source == READ_ONCE(fdb->dst) ||
-+				    test_bit(BR_FDB_STICKY, &fdb->flags)) &&
-+				   !test_bit(BR_FDB_ADDED_BY_USER, &flags)))
-+				return;
-+
-+			/* keep a roam and its two switchdev notifications
-+			 * atomic against a roam on another CPU
-+			 */
-+			spin_lock(&br->hash_lock);
-+			if (unlikely(source != fdb->dst &&
- 				     !test_bit(BR_FDB_STICKY, &fdb->flags))) {
- 				br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
- 				WRITE_ONCE(fdb->dst, source);
-@@ -1023,6 +1032,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
- 				trace_br_fdb_update(br, source, addr, vid, flags);
- 				fdb_notify(br, fdb, RTM_NEWNEIGH, true);
- 			}
-+			spin_unlock(&br->hash_lock);
- 		}
- 	} else {
- 		spin_lock(&br->hash_lock);
--- 
-2.53.0
 
