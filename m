@@ -1,205 +1,273 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1457B313547
-	for <bridge@lists.linux.dev>; Mon,  5 Oct 2026 04:38:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B24747F2FA;
+	Mon,  5 Oct 2026 12:43:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791175124; cv=none; b=sOWKcFCqIJS27rVbNdDQK4GKslV/gZiQ6+xcYMbWlVHJsOeX46OQq+sT1xrjgYVFWzq39i57HbgJVhsQRpJNFZpBFo6CTM12jV88dhHOlDfWrBoDZNmE8/+FF7pklSwtWBwyE4Jzgncm3P5780L6+b47ccAHXoqVFF0kpwDQPVc=
+	t=1791204183; cv=none; b=EaN+L92tXoEmixQQ8aek4xyMG4VPbbuyGtwaWnGzbHeSojcC2qJrl5d7gEdmniWSjVpHZL9EHS9sER/HDklbBaX8wCEojsMQ9DEz4mh3w9PeL8p9nM2HblCCNKwlhGarclwLeAQGCEUkKOjNuDJ3TuKDuYPYA3Q17ScDy7eeeU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791175124; c=relaxed/simple;
-	bh=tWTj7sa3HSz20eoE7iU48Ov4FXB/O8yPqTq5z9H7G1k=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a47/JKV9K64y18YA+hn+djUfQiscuJmvoCBWjz+o5mwGXuzjPHRiUnazMgcPI/guNqTC2iBlaM+RjGKdJVo0hkfdodHeTYiYYYqzMD3MASeacA4QxH7NbbzP1B2sJSsucj6U6bNZvxB1vIjMVBBXvaa9+an8Ljqo5CGaOeX6Gsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T3C+30x7; arc=none smtp.client-ip=74.125.82.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791204183; c=relaxed/simple;
+	bh=+TC0b0KdY6aXNXFyI+Caifs/LZbEPr30Xvs6kvDT+pY=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=IQTIEAC85k/YMvkFtIoPmi7OVupIYyP9yIJG01aIudmQXVvtUE0hb0pUkf+bNESLuwkV3FHaBT6PM7zR68BkwEHYjIjL4Uax6pZD/RHI9Fl3TFRxP/XbZ+i6wBkmvUuJkP5pY9GwWqY6SOeG+9Gpq1CES9X7fJsV3fxZIAuwZCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UNphiJi1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T3C+30x7"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-35120d43ecaso1724571eec.1
-        for <bridge@lists.linux.dev>; Sun, 04 Oct 2026 21:38:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791175121; x=1791779921; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=miahjqq1TAdqXeL2Jl7n/7P9i8eCMUOcl23EpJEiCcg=;
-        b=T3C+30x7ht7/2lmjpi6LbFKPb3/awqBrhFD7PwcXQy+R6Wl0fBzW91ppjJw4ktGwUs
-         LMzXmc7bFMh1Bs/phUuaotDvZ7OLX2pF1ymQz7oijBnYawM/Qsac4Z5VUJ1qncakyGq2
-         O9GqR5gWASTqx0q2wi4Lqy8Hzcks9oTk7jF2BTC1DEEHPFcN4UrZtejqE+hNnqd7Kar8
-         G92ktWn9MawGO0q3iZm57vpoijBkk6fr03gZQrOOmVfTRmukafkifxMd44W/J5DTkqB+
-         vKr3VMm8bCnpq1mGBaDv7rWjp6tNjxFrlIVM2n1d8ynFyGlTgwLpad53fPXAJxNLWE27
-         uJxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791175121; x=1791779921;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=miahjqq1TAdqXeL2Jl7n/7P9i8eCMUOcl23EpJEiCcg=;
-        b=XAmvsNVYWKrE7MGlTzzLdnjUPtRPCz7gHjBcv5s/nVVUHCQz/V+IxByG/51kWl3vye
-         B57M40rtq9ZY6YPp0lxvvPdTaTi2KpQZVJJrMJozTYCZlbFrzMhWtoY03J7Nfaw4ij7t
-         OhfKB/aNMGMKpUC7pBncmZ2N9LA1oEGqOyGJiFnywTV/E0Q97XBRAtPsuNSCMZWRVttK
-         ceXtsZd4y0oXs3zwxX78Es2EI+WCbFhkyhi6QgfTnvTJFfkj/L5oBXmNNCASQF0yS/Ub
-         h639USlhgc8Bp3eMZqcRkSoPJ/P8tOqVf6aRCNtUFTsIubigYX/MSh5fNmt1iw5/nZXK
-         DI6A==
-X-Forwarded-Encrypted: i=1; AKwUvBwVfOdh43iqrOrqR+D56Vtyb2Yu4bcwC0AaLvWZjmDmkMb1LKPPMXNorEjAJLmFNCESmC2xELo=@lists.linux.dev
-X-Gm-Message-State: AFuF++nPRdbVTcrZhKbZY6wpEEpVfSWHkmiGibyUNaQ5c/RfU0vv1H3M
-	LPRcb5NULAubYxRrTO/hlyDKEMo+GmYVkgPucQ8cY+A/3KRUadbKnthj
-X-Gm-Gg: AYBFou0V9OwSTmYA1io4w7q9hHBbNQJJ9AJwWCSAZ9k4PCUo5y73aiy4V5R7FPO2QXj
-	uLs1F2Sy6jZvN0aSQiRUwC5aWzUrClYmUrZWayMuBVFJFVI7gAMd2luvlkUwfLgNY8BmbBCuhQL
-	NzqwceoY5HSpgbyEjEldpRMi4tomMWeC0RPYP/yATKaF01uAtb+FiOe7nls3xnZ2zpc+oYxuBl6
-	xLVfIt+qAZuPGfvxg5y8WU9Sv+IA3VS/XKjoSH0EmsZGZFmo3AfkhU4l7++AYJSJmRa7aXU0KOP
-	4XZRZ+2p/JlfCFcAxF9mFDsWFV5EIEg6UFXHfgOANdYewR7Lw0ZnCJz6rBQGjWOR8T51nv7W1Ou
-	LVD12+u57+TDX69ik/fdECvhBjvB6//47mFI3C2v6PzV5so8sUq5ySRVT9pgajoFH0l4qdLkIsA
-	pFt7v39MKeYEWYpzGxpjW/PEYTxXAbCpalRF2UIYxlzbMR6RXg9/gan4hBJVn69bjGEkFB0EpbW
-	gVlsBk=
-X-Received: by 2002:a05:7300:f801:b0:34c:b75a:ac1e with SMTP id 5a478bee46e88-3511150f264mr9866587eec.33.1791175121098;
-        Sun, 04 Oct 2026 21:38:41 -0700 (PDT)
-Received: from vscode-11-19.w453y.xyz ([59.164.88.43])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-35127136b8esm9518581eec.6.2026.10.04.21.38.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Oct 2026 21:38:40 -0700 (PDT)
-From: Abdul Wasey <w453y.me@gmail.com>
-To: netdev@vger.kernel.org
-Cc: razor@blackwall.org,
-	idosch@nvidia.com,
-	davem@davemloft.net,
-	edumazet@kernel.org,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	horatiu.vultur@microchip.com,
-	bridge@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v2 3/3] net: bridge: cfm: notify userspace on CFM config changes
-Date: Mon,  5 Oct 2026 04:38:22 +0000
-Message-ID: <20261005043822.3106580-4-w453y.me@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261005043822.3106580-1-w453y.me@gmail.com>
-References: <20261005043822.3106580-1-w453y.me@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UNphiJi1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83A441F000FF;
+	Mon,  5 Oct 2026 12:43:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791204182;
+	bh=UEJCS7FV2WIHrYzkjgOwV9Dni0wyjgpaELEWgL9L5tQ=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=UNphiJi1TIMAY4TMAiXwr5yD46uWnO29Iao+n8SH1sJbsUNxc4GQ3zLbSZ0Xwglyz
+	 7EcvXy16IHQ4KDPfiK/xN/79bYAPHnhiAf4kvW9+GMLV4JgXqPkXgZGd0NVDffXkzo
+	 UWHgRj2XLmfm09V3D4bGqrXDz2x+7zy8ctsDuqMNBIjBQbTjd5evSGVqUCaL7kdvcg
+	 rW+KVEk+Rpafd4so+DJGLqlGcFwP+JIuJ5mJrHx7AZJAJde1Henhd/OaB+61rINZqP
+	 8c6iTHG8I+TSU6QnTt4aqYLjGuyX1qbaS5U+lUtSCkgDdq8VsvFmtZxTKSA77kyJQw
+	 NI1dvmqTUd7lg==
+Subject: Re: [PATCH net] net: bridge: fdb: hold hash_lock when an entry roams
+From: netdev-bot+sashiko@kernel.org
+To: julius@bairaktaris.de
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
+ idosch@nvidia.com, davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, andrew@lunn.ch, vladimir.oltean@nxp.com,
+ linux-kernel@vger.kernel.org
+Date: Mon, 05 Oct 2026 12:43:01 +0000
+Message-ID: <179120418105.434549.6770789108608147842@kernel.org>
+In-Reply-To: <20261004124254.3525496-1-julius@bairaktaris.de>
+References: <20261004124254.3525496-1-julius@bairaktaris.de>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-CFM status changes are sent to userspace by br_cfm_notify(), but config
-changes are not. br_afspec() calls br_cfm_parse() without the "changed"
-pointer, so creating a MEP, adding a peer or starting CCM transmission
-never sends an RTM_NEWLINK. Today the only way to see these changes is
-to poll RTM_GETLINK with RTEXT_FILTER_CFM_CONFIG.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-Send one RTM_NEWLINK with RTEXT_FILTER_CFM_CONFIG from br_cfm_parse()
-once any group in the request has been applied. If a later group in the
-same request fails, still send it, since the earlier groups already
-changed the config.
+Critical: 0 · High: 1 (1) · Medium: 0 (2) · Low: 0
 
-br_ifinfo_notify() is not used because it asks for
-RTEXT_FILTER_BRVLAN_COMPRESSED, so the message would not carry the CFM
-attributes. This calls br_info_notify() the same way br_cfm_notify()
-does for status.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-Signed-off-by: Abdul Wasey <w453y.me@gmail.com>
----
- net/bridge/br_cfm_netlink.c | 32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+- [High] br_fdb_update() looks up the entry with fdb_find_rcu() and
+  checks it without a lock, then takes br->hash_lock…
 
-diff --git a/net/bridge/br_cfm_netlink.c b/net/bridge/br_cfm_netlink.c
-index 91b9922dc..56309e6f4 100644
---- a/net/bridge/br_cfm_netlink.c
-+++ b/net/bridge/br_cfm_netlink.c
-@@ -382,6 +382,7 @@ int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
- 		 struct nlattr *attr, int cmd, struct netlink_ext_ack *extack)
- {
- 	struct nlattr *tb[IFLA_BRIDGE_CFM_MAX + 1];
-+	bool changed = false;
- 	int err;
- 
- 	/* When this function is called for a port then the br pointer is
-@@ -399,59 +400,72 @@ int br_cfm_parse(struct net_bridge *br, struct net_bridge_port *p,
- 		err = br_mep_create_parse(br, tb[IFLA_BRIDGE_CFM_MEP_CREATE],
- 					  extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
- 	if (tb[IFLA_BRIDGE_CFM_MEP_DELETE]) {
- 		err = br_mep_delete_parse(br, tb[IFLA_BRIDGE_CFM_MEP_DELETE],
- 					  extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
- 	if (tb[IFLA_BRIDGE_CFM_MEP_CONFIG]) {
- 		err = br_mep_config_parse(br, tb[IFLA_BRIDGE_CFM_MEP_CONFIG],
- 					  extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
- 	if (tb[IFLA_BRIDGE_CFM_CC_CONFIG]) {
- 		err = br_cc_config_parse(br, tb[IFLA_BRIDGE_CFM_CC_CONFIG],
- 					 extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
- 	if (tb[IFLA_BRIDGE_CFM_CC_PEER_MEP_ADD]) {
- 		err = br_cc_peer_mep_add_parse(br, tb[IFLA_BRIDGE_CFM_CC_PEER_MEP_ADD],
- 					       extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
- 	if (tb[IFLA_BRIDGE_CFM_CC_PEER_MEP_REMOVE]) {
- 		err = br_cc_peer_mep_remove_parse(br, tb[IFLA_BRIDGE_CFM_CC_PEER_MEP_REMOVE],
- 						  extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
- 	if (tb[IFLA_BRIDGE_CFM_CC_RDI]) {
- 		err = br_cc_rdi_parse(br, tb[IFLA_BRIDGE_CFM_CC_RDI],
- 				      extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
- 	if (tb[IFLA_BRIDGE_CFM_CC_CCM_TX]) {
- 		err = br_cc_ccm_tx_parse(br, tb[IFLA_BRIDGE_CFM_CC_CCM_TX],
- 					 extack);
- 		if (err)
--			return err;
-+			goto out;
-+		changed = true;
- 	}
- 
--	return 0;
-+out:
-+	/* Earlier groups may have been applied even if a later one failed */
-+	if (changed)
-+		br_info_notify(RTM_NEWLINK, br, NULL, RTEXT_FILTER_CFM_CONFIG);
-+
-+	return err;
- }
- 
- int br_cfm_config_fill_info(struct sk_buff *skb, struct net_bridge *br)
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but on a MAB-
+  enabled locked port, br_fdb_update() can roam an existing entry onto…
+- [Medium] Peer-site inconsistency, not introduced by this patch.
+- [Medium] TOCTOU on BR_FDB_LOCAL, not introduced by this patch.
+
+--
+
+net: bridge: fdb: hold hash_lock when an entry roams
+
+With this patch, br_fdb_update() takes br->hash_lock when an existing
+entry roams to a new port or its flags change. The switchdev delete and
+add notifications for the roam are then sent under that lock. The common
+case, where the entry neither roams nor changes, stays lockless.
+
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index e4570bbed8544..c8680ae3ef08b 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -995,8 +995,17 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+>  				fdb_modified = __fdb_mark_active(fdb);
+>  			}
+>  
+> -			/* fastpath: update of existing entry */
+> -			if (unlikely(source != READ_ONCE(fdb->dst) &&
+> +			if (likely(!fdb_modified &&
+> +				   (source == READ_ONCE(fdb->dst) ||
+> +				    test_bit(BR_FDB_STICKY, &fdb->flags)) &&
+> +				   !test_bit(BR_FDB_ADDED_BY_USER, &flags)))
+> +				return;
+> +
+> +			/* keep a roam and its two switchdev notifications
+> +			 * atomic against a roam on another CPU
+> +			 */
+> +			spin_lock(&br->hash_lock);
+> +			if (unlikely(source != fdb->dst &&
+>  				     !test_bit(BR_FDB_STICKY, &fdb->flags))) {
+>  				br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
+>  				WRITE_ONCE(fdb->dst, source);
+
+[Severity: High]
+Is fdb still in the table by the time hash_lock is taken here?
+
+The entry was found with fdb_find_rcu() before the lock was taken. In
+that window, any hash_lock holder can run fdb_delete() on it:
+
+net/bridge/br_fdb.c:fdb_delete() {
+    ...
+	hlist_del_init_rcu(&f->fdb_node);
+	rhashtable_remove_fast(&br->fdb_hash_tbl, &f->rhnode,
+			       br_fdb_rht_params);
+    ...
+	fdb_notify(br, f, RTM_DELNEIGH, swdev_notify);
+	kfree_rcu(f, rcu);
+}
+
+fdb_delete() does not touch fdb->dst. So when this CPU gets the lock,
+source != fdb->dst is still true and the following happens:
+
+- a second switchdev RTM_DELNEIGH goes out for the old port
+- fdb->dst is rewritten
+- a switchdev add and a netlink RTM_NEWNEIGH go out for the new port
+
+At that point the entry is in neither fdb_list nor the rhashtable, so
+nothing will ever send the matching delete. The next frame from that MAC
+then goes through fdb_create() and sends another add.
+
+Isn't this the same "two deletions for one addition" imbalance the commit
+message describes, with the DSA CPU port host address refcount leaking?
+
+Possible deleters include br_fdb_delete_by_port() (port disable or
+removal), br_fdb_cleanup() (ageing and STP fast ageing), br_fdb_flush(),
+and user or external-learn deletes. br_fdb_delete_by_port() holds
+hash_lock for its whole walk. A roaming CPU spinning on the lock would
+only get it after the entry has already been removed.
+
+Other code in this file that finds an entry locklessly re-checks it after
+taking the lock. For example, br_fdb_cleanup():
+
+			spin_lock_bh(&br->hash_lock);
+			if (!hlist_unhashed(&f->fdb_node))
+				fdb_delete(br, f, true);
+			spin_unlock_bh(&br->hash_lock);
+
+Would a similar check right after spin_lock() be needed here?
+
+	if (unlikely(hlist_unhashed(&fdb->fdb_node))) {
+		spin_unlock(&br->hash_lock);
+		return;
+	}
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but br_fdb_update() tests
+BR_FDB_LOCAL before taking the lock and does not test it again inside the
+new hash_lock section:
+
+		if (unlikely(test_bit(BR_FDB_LOCAL, &fdb->flags))) {
+
+A concurrent "bridge fdb replace ... permanent" runs fdb_add_entry() under
+hash_lock. In that window it can set the local and static bits on the
+entry:
+
+		if (state & NUD_PERMANENT) {
+			set_bit(BR_FDB_LOCAL, &fdb->flags);
+			if (!test_and_set_bit(BR_FDB_STATIC, &fdb->flags))
+				fdb_add_hw_addr(br, addr);
+
+Could the roam then move a newly permanent entry onto the receiving port?
+Since the lock is now held here anyway, could BR_FDB_LOCAL be re-checked
+under it?
+
+The impact looks limited. The switchdev notifications stay balanced
+because both target br->dev for local entries, and frames to a local
+entry are still delivered locally. Hitting this needs CAP_NET_ADMIN and
+the right timing.
+
+[Severity: High]
+This is a pre-existing issue, but can this roam move an entry onto a
+locked MAB port and leave it unlocked?
+
+br_handle_frame_finish() decides about the locked port from a lockless
+lookup. On a mismatch it drops "without roaming":
+
+net/bridge/br_input.c:br_handle_frame_finish() {
+    ...
+		if (!fdb_src) {
+			...
+			if (test_bit(BR_PORT_MAB_BIT, &p->flags))
+				br_fdb_update(br, p, eth_hdr(skb)->h_source,
+					      vid, BIT(BR_FDB_LOCKED));
+			goto drop;
+		} else if (READ_ONCE(fdb_src->dst) != p ||
+			   test_bit(BR_FDB_LOCAL, &fdb_src->flags)) {
+			/* FDB mismatch. Drop the packet without roaming. */
+			goto drop;
+		} else if (test_bit(BR_FDB_LOCKED, &fdb_src->flags)) {
+			...
+			br_fdb_update(br, p, eth_hdr(skb)->h_source, vid,
+				      BIT(BR_FDB_LOCKED));
+			goto drop;
+		}
+    ...
+}
+
+br_fdb_update() then does the lookup again. On the existing-entry path it
+ignores BIT(BR_FDB_LOCKED) in flags. It roams whenever source != fdb->dst
+and BR_FDB_STICKY is clear, and it clears BR_FDB_LOCKED on the assumption
+that it is "roaming to an unlocked port".
+
+Two interleavings seem possible.
+
+In the first, the lookup in br_handle_frame_finish() misses. Before
+br_fdb_update() does its own lookup, a legitimate host on unlocked port q
+creates the entry. The entry is then roamed onto locked port p with
+BR_FDB_LOCKED cleared.
+
+In the second, a locked entry for MAC M sits on p. The legitimate host on
+q roams it to q, which clears BR_FDB_LOCKED. A concurrent frame on p has
+already passed the dst == p && BR_FDB_LOCKED check. It calls
+br_fdb_update(br, p, ..., BIT(BR_FDB_LOCKED)), sees dst == q, and roams
+the entry back to p, unlocked.
+
+In both cases, later frames from p with that source MAC pass the locked
+port check and are forwarded. Traffic for M also goes to p until the
+host roams the entry back.
+
+The roam now runs under hash_lock. Would that be a good place to refuse
+the roam when BIT(BR_FDB_LOCKED) is set in flags, or when the source port
+is locked?
+
+[ ... ]
+
+> @@ -1023,6 +1032,7 @@ void br_fdb_update(struct net_bridge *br, struct net_bridge_port *source,
+>  				trace_br_fdb_update(br, source, addr, vid, flags);
+>  				fdb_notify(br, fdb, RTM_NEWNEIGH, true);
+>  			}
+> +			spin_unlock(&br->hash_lock);
+>  		}
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but the other places that
+change fdb->dst don't use the order this path uses: delete for the old
+port, then add for the new one.
+
+fdb_add_entry() does:
+
+		if (READ_ONCE(fdb->dst) != source) {
+			WRITE_ONCE(fdb->dst, source);
+			modified = true;
+		}
+
+br_fdb_external_learn_add() does:
+
+		if (READ_ONCE(fdb->dst) != p) {
+			WRITE_ONCE(fdb->dst, p);
+			modified = true;
+		}
+
+Afterwards both only call fdb_notify() with RTM_NEWNEIGH. Neither sends a
+switchdev RTM_DELNEIGH for the old port.
+
+Can a "bridge fdb replace" that moves a static or ext-learned entry
+between a foreign port and a DSA user port unbalance the DSA CPU port
+host address refcount in the same way? This needs CAP_NET_ADMIN, and it
+is separate from the race this patch addresses.
+
+[ ... ]
+
 -- 
-2.53.0
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261004124254.3525496-1-julius%40bairaktaris.de
