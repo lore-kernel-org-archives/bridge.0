@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C97C3B2D39;
-	Wed,  7 Oct 2026 19:38:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEAF84E532A;
+	Wed,  7 Oct 2026 19:38:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791401906; cv=none; b=Yk5mqfyHUhkSW+RPVoi7l4OOYY7Za2xx/YAqITBvvzZglzAJNd8G/Wz4YON6QNUu71rAxlRO7NulPoi2AZ3S0On4VC3rtGW9VAijTrlo7Qwey6ND7LneYRJEwfTk2krb+wHpxRSo5jV0j5DwXyRcntlF+8i/eTY2h7jKoubhlaA=
+	t=1791401908; cv=none; b=m6iLwb1s3F4hSqxWzQ21CZQ0TjUawrkf/aHY7yUSGiNRL56BI/oXBh/GCs25pZ/yI+NBLZFpVdukVB6I4Ng8hUVsxb35KLZQdrE+bxedOo+KZEktrrEQ2k7n1x6qQ/aMyOU6zirx6fdOTex05B+RoTOLqkpUGV4xKrmFivVqoTE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791401906; c=relaxed/simple;
-	bh=19lq77Pl/58KA26XnoMZyITRapZiNac8RqllR8MSs+g=;
+	s=arc-20240116; t=1791401908; c=relaxed/simple;
+	bh=m96NchbNgEjsE3Lu4KxezPfVLpDEvdP7+L0VUHNLQFY=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=cH0AtVDyl0uVz7YPsi3BKlwTV8HPJRuiiki1V4Je8V7kbJcOnPSUhnHv6i/BWLM71GhMYmGHQHfbkoRAUt+GwOOE3DGezNWj6LpNvVTKCuE5Ttmwo6iywx7Ym48fn8CASMmcCBhC+Vu5A2rh1f2/6R7UmSzWe+OZRmTzIpgJ+4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TjXBqSvS; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=APEYG5/EWJzzzNDI7odVvLdEFfMvGknxzF/xANoXrdXKB/fHdZm362csTP/VCNoSu4QhxohTSqstMV4R8+QowDmc4gMo94fYKMkE5dVOZqOMRaC296IavQWByKFOrAxUAW6/20mfwuH9s6lah06Xz1YxPi0fg70d77Qg0/6uaCg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ya0ti4cw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TjXBqSvS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F2591F000FF;
-	Wed,  7 Oct 2026 19:38:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ya0ti4cw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B38241F00893;
+	Wed,  7 Oct 2026 19:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791401905;
-	bh=7+GrqV3l/plJNEr+wEy6AFv7KYtUviY1keByiJ9a8go=;
+	s=k20260515; t=1791401906;
+	bh=znraM8Heq9xYfdQsMDRax6NDlKnKBPkbdm21j+sd4HU=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=TjXBqSvScAFQVbj/dBlo8GquW+0lCybNlde4G5RizgMmR5Lfj+IS0/Blh+2VqnFd6
-	 lLr5BWAL5gAzJqRUGgVkkeDsBbdLdZtJTZ+zrPY1i78t8c6/5RzmD2RE2fZUc0RDyu
-	 qujriPvq+qWcpubKfpUkIkhw9rT9l30EdrX5/d+OiDADqXTuP3aV0cLbdMu8+IC6iI
-	 yw3mPDCqM7jh+4TR9GvSbarExTBxCFn5SftyKuR+9Nr9agY9GBiWT9cAL3ayIqQS8k
-	 geDmhMG9Ac5RemMv70vqUZf7GRkiWmflt/L4LSctKzEDBvxAc7jv0qHFFuAxrLK4I0
-	 VaaTbXg8vcOSg==
-Subject: Re: [PATCH net-next v2 1/3] net: bridge: cfm: count CFM config
- attributes in the link message size
+	b=Ya0ti4cwHK8kIfJsnqS4gXda2W1aV2GNwSsi6X6tjsFEh6DiMiUAQfQibnSBYpooh
+	 Q6Svk2OGaDNLBKo/waNP0izrPCMwEnBw2aikfnDeSJA3HQtzOLwo+JN4sRK2Hg9L2m
+	 A3ru7tTrjVifAQ06v034kEaWvlvcIhC/Luj/35eT/HkCW+TgXWcI2C8fhb6IoOXykb
+	 /jgDD0OGD9WUxIQH2jpH5DM1uWTJTISlmwZ0nLXcEIMtPaPJxcTEjm2+T6V7KQletd
+	 CK3U5Tkm74n302Tb4MS/vCi1XxMh8P7cUjYthhE8YI8zCW/M+5t9sDwTXP7jJ0yd5b
+	 vdcUDCKytR1Pg==
+Subject: Re: [PATCH net-next v2 2/3] net: bridge: cfm: send an empty CFM nest
+ when a bridge has no MEPs
 From: netdev-bot+sashiko@kernel.org
 To: w453y.me@gmail.com
 Cc: netdev@vger.kernel.org, razor@blackwall.org, idosch@nvidia.com,
  davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
  horms@kernel.org, horatiu.vultur@microchip.com, bridge@lists.linux.dev,
  linux-kernel@vger.kernel.org
-Date: Wed, 07 Oct 2026 19:38:24 +0000
-Message-ID: <179140190403.434549.10861688299324701975@kernel.org>
-In-Reply-To: <20261005043822.3106580-2-w453y.me@gmail.com>
-References: <20261005043822.3106580-2-w453y.me@gmail.com>
-X-sashiko-severity: Medium
+Date: Wed, 07 Oct 2026 19:38:25 +0000
+Message-ID: <179140190527.434549.17731059672642938002@kernel.org>
+In-Reply-To: <20261005043822.3106580-3-w453y.me@gmail.com>
+References: <20261005043822.3106580-3-w453y.me@gmail.com>
+X-sashiko-severity: Low
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -48,158 +48,152 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
+Thank you for your contribution! Sashiko AI review found more severe
+issue(s) in other patches of this series. This mail is only an FYI, in case
+you want to address the nit picks below when you respin.
 
-Critical: 0 · High: 0 · Medium: 1 (1) · Low: 0
+Low priority / nit picks for your consideration:
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [Medium] The commit message is wrong about the dump path and the patch
-  has no Fixes: tag.
+- [Low] At this commit alone, the new `!IS_ENABLED(CONFIG_BRIDGE_CFM)`
+  branch in br_fill_ifinfo() (net/bridge/br_netlink.c:609) cannot send…
+- [Low] The patch also changes GETLINK dump replies, and the commit
+  message does not say so plainly.
+- [Low] This patch removed the only caller of br_cfm_created() (in
+  br_fill_ifinfo()), and nothing calls it any more.
 
 Pre-existing issues:
-- [Medium] This problem wasn't introduced by this patch, but the CFM
-  status sizing in br_get_link_af_size_filtered() leaves out the per-…
+- [Low] In br_fill_ifinfo(), two earlier sections jump to `done` and skip
+  the CFM block: - the VLAN section: `if (!vg ||…
 
 --
 
-net: bridge: cfm: count CFM config attributes in the link message size
+net: bridge: cfm: send an empty CFM nest when a bridge has no MEPs
 
-With this patch, br_get_link_af_size_filtered() counts the CFM config
-attributes (MEP create/config, CC config, RDI, CCM TX and peer MEP info)
-when RTEXT_FILTER_CFM_CONFIG is set. Before, only RTEXT_FILTER_CFM_STATUS
-caused any CFM sizing. The change prepares for a later patch that sends a
-CFM config notification through br_info_notify().
-
-> Dumps cope with that, they just get a bigger buffer. A message built by
-> br_info_notify() can't, it fails with -EMSGSIZE and hits the WARN_ON
-> there. No notification asks for the CFM config today, but the next
-> patch adds one.
-
-[Severity: Medium]
-
-Is this an accurate description of the dump path?
-
-br_get_link_af_size_filtered() is also the .get_link_af_size callback in
-br_af_ops, so it sizes the dump buffer as well:
-
-rtnetlink_rcv_msg()
-    min_dump_alloc = rtnl_calcit(skb, nlh)
-        if_nlmsg_size(dev, ext_filter_mask)
-            rtnl_link_get_af_size()
-                br_get_link_af_size_filtered()
-
-So the bigger buffer that dumps get is sized by the same estimate that
-undercounts the CFM config.
-
-Before this patch, a PF_BRIDGE RTM_GETLINK dump with only
-RTEXT_FILTER_CFM_CONFIG in IFLA_EXT_MASK added nothing for CFM to
-min_dump_alloc. For the bridge master, br_fill_ifinfo() still wrote about
-248 bytes per MEP and 20 bytes per peer MEP.
-
-If that single message does not fit in the dump skb, the skb is still
-empty, so rtnl_bridge_getlink() passes the error back to userspace:
-
-net/core/rtnetlink.c:rtnl_bridge_getlink() {
-    ...
-				if (err < 0 && err != -EOPNOTSUPP) {
-					if (likely(skb->len))
-						break;
-
-					goto out_err;
-				}
-    ...
-}
-
-That happens at roughly 15 MEPs for the first skb, and at roughly 130
-MEPs with a 32 KiB receive buffer.
-
-Doesn't that mean this patch also fixes a -EMSGSIZE dump failure that
-userspace can see today? If so, could the commit message say that? It
-could also carry a Fixes: tag for commit 5e312fc0e7fb ("bridge: cfm:
-Netlink GET configuration Interface"), so the fix is picked up for net
-and stable.
+This patch changes br_fill_ifinfo() so that a bridge master with no MEPs
+gets an empty IFLA_BRIDGE_CFM nest when CFM config or status is requested.
+Before, it got no nest at all. The goal is to let notification listeners
+see that the last MEP has been deleted. Ports still get no CFM nest.
 
 > diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index f65b8b6ca97c0..5160e801d62db 100644
+> index 5160e801d62db..68ec4529f0d2b 100644
 > --- a/net/bridge/br_netlink.c
 > +++ b/net/bridge/br_netlink.c
-
-[ ... ]
-
-> @@ -122,17 +152,25 @@ static size_t br_get_link_af_size_filtered(const struct net_device *dev,
-
-[ ... ]
-
-> -	/* CFM status info must be added */
->  	br_cfm_mep_count(br, &num_cfm_mep_infos);
->  	br_cfm_peer_mep_count(br, &num_cfm_peer_mep_infos);
+> @@ -603,7 +603,10 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+>  		struct nlattr *cfm_nest = NULL;
+>  		int err;
 >  
->  	vinfo_sz += nla_total_size(0);	/* IFLA_BRIDGE_CFM */
-> +
-> +	if (filter_mask & RTEXT_FILTER_CFM_CONFIG)
-> +		vinfo_sz += br_cfm_config_info_size(num_cfm_mep_infos,
-> +						    num_cfm_peer_mep_infos);
-> +
-> +	if (!(filter_mask & RTEXT_FILTER_CFM_STATUS))
-> +		return vinfo_sz;
-> +
-> +	/* CFM status info must be added */
->  	/* For each status struct the MEP instance (u32) is added */
->  	/* MEP instance (u32) + br_cfm_mep_status */
->  	vinfo_sz += num_cfm_mep_infos *
+> -		if (!br_cfm_created(br) || port)
+> +		/* A bridge with no MEPs gets an empty IFLA_BRIDGE_CFM, so a
+> +		 * listener can tell that the last MEP is gone.
+> +		 */
+> +		if (!IS_ENABLED(CONFIG_BRIDGE_CFM) || port)
+>  			goto done;
 
-[Severity: Medium]
+[Severity: Low]
+With only this patch applied, can any notification carry the new empty
+nest?
 
-This is a pre-existing issue, not one introduced by this patch. Does the
-status part of this estimate leave out the nest header for each object?
+This block only runs when filter_mask contains RTEXT_FILTER_CFM_CONFIG or
+RTEXT_FILTER_CFM_STATUS. The generic bridge notification path asks for
+neither:
 
-br_cfm_status_fill_info() opens a nest for every MEP and every peer MEP:
-
-net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
+net/bridge/br_netlink.c:br_ifinfo_notify() {
     ...
-	hlist_for_each_entry_rcu(mep, &br->mep_list, head) {
-		tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_STATUS_INFO);
-    ...
-		hlist_for_each_entry_rcu(peer_mep, &mep->peer_mep_list, head) {
-			tb = nla_nest_start(skb,
-					    IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO);
+	u32 filter = RTEXT_FILTER_BRVLAN_COMPRESSED;
     ...
 }
 
-The status sums in br_get_link_af_size_filtered() count only the leaf
-attributes. That gives 32 bytes per MEP against 36 written, and 72 bytes
-per peer MEP against 76 written.
+The IFLA_BRIDGE_CFM case in br_afspec() does not set *changed. Also,
+br_cfm_notify() only fires from the peer MEP CCM paths, which need a live
+MEP.
 
-The new br_cfm_config_info_size() does wrap each group in
-nla_total_size(), so the config and status parts of this function now
-count differently.
+So at this point in the series, deleting the last MEP sends no
+CFM-filtered RTM_NEWLINK. The only visible change is in RTM_GETLINK
+replies.
 
-br_cfm_notify() already sends a status notification for the bridge
-master:
+The next patch in the series, "net: bridge: cfm: notify userspace on CFM
+config changes", seems to fix this. It sets changed after a successful
+br_mep_delete_parse() and adds this to br_cfm_parse():
 
-net/bridge/br_cfm.c:br_cfm_notify() {
-	u32 filter = RTEXT_FILTER_CFM_STATUS;
+	if (changed)
+		br_info_notify(RTM_NEWLINK, br, NULL, RTEXT_FILTER_CFM_CONFIG);
 
-	br_info_notify(event, port->br, NULL, filter);
-}
+Could the commit message mention that it depends on that follow-up patch?
 
-For a bridge master, br_nlmsg_size() leaves only about 400 bytes of
-slack. The shortfall grows by 4 bytes per MEP and per peer MEP, and the
-kernel does not limit either count.
+Even at the end of the series, one case still seems to send no
+CFM_CONFIG notification. When a port is deleted, its MEPs are removed
+implicitly:
 
-With a few hundred peer MEPs, can br_fill_ifinfo() return -EMSGSIZE,
-which would trigger WARN_ON(err == -EMSGSIZE) in br_info_notify() and
-drop the notification? The trigger can be ccm_rx_work_expired() or
-br_cfm_frame_rx() when a CCM frame arrives.
+del_nbp()
+  br_cfm_port_del()
+    mep_delete_implementation()
 
-Would it make sense to add nla_total_size(0) to the per-MEP and
-per-peer-MEP status terms while this function is being changed?
+In that path only br_ifinfo_notify(RTM_DELLINK, NULL, p) is sent for the
+port. How is a listener expected to notice that the MEPs are gone?
+
+[Severity: Low]
+This also changes RTM_GETLINK and dump replies, not just notifications.
+
+Before, a bridge with no MEPs took goto done with an empty IFLA_AF_SPEC,
+and the epilogue cancelled that nest:
+
+done:
+	if (af) {
+		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
+			nla_nest_end(skb, af);
+		else
+			nla_nest_cancel(skb, af);
+	}
+
+Now, with CONFIG_BRIDGE_CFM enabled, every bridge master dumped with
+RTEXT_FILTER_CFM_CONFIG or RTEXT_FILTER_CFM_STATUS gets an IFLA_AF_SPEC
+that holds an empty IFLA_BRIDGE_CFM. Before, the reply for such a bridge
+had no IFLA_AF_SPEC at all.
+
+The commit message says:
+
+    For a dump that is fine, but a notification sent after the last
+    MEP is deleted then looks like any other RTM_NEWLINK for the bridge,
+
+Could the commit message also say that dump output changes for bridges
+without MEPs? Userspace can no longer treat the presence of
+IFLA_BRIDGE_CFM as meaning "MEPs are configured".
+
+The buffer sizing in br_get_link_af_size_filtered() already counts the
+empty nest, so that part looks fine.
+
+[Severity: Low]
+This isn't a bug, but this removes the last caller of br_cfm_created().
+Three pieces are left behind:
+
+- the definition in net/bridge/br_cfm.c
+- the prototype in net/bridge/br_private.h
+- the !CONFIG_BRIDGE_CFM static inline stub in net/bridge/br_private.h
+
+The later patches in the series add no new user. Should these be removed
+here too?
+
+[Severity: Low]
+This is a pre-existing issue and was not introduced by this patch. Two
+earlier sections of br_fill_ifinfo() can jump to done before the CFM
+block runs:
+
+	if (!vg || !READ_ONCE(vg->num_vlans)) {
+		rcu_read_unlock();
+		goto done;
+	}
+    ...
+		if (!br_mrp_enabled(br) || port)
+			goto done;
+
+Suppose an RTM_GETLINK request combines RTEXT_FILTER_CFM_* with either
+RTEXT_FILTER_BRVLAN* on a bridge with no VLANs, or RTEXT_FILTER_MRP on a
+bridge without MRP. The reply then has no IFLA_BRIDGE_CFM at all: neither
+the new empty nest nor real MEP data when MEPs exist.
+
+Is that intended for combined filter masks? The notification added later
+in the series uses RTEXT_FILTER_CFM_CONFIG alone, so it does not hit
+these early exits.
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261005043822.3106580-1-w453y.me%40gmail.com
