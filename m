@@ -1,128 +1,401 @@
-Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [13.76.78.106])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3639F2DF13B
-	for <bridge@lists.linux.dev>; Fri,  9 Oct 2026 08:33:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.76.78.106
+Received: from proxmox-new.maurer-it.com (proxmox-new.maurer-it.com [94.136.29.106])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033B048C403
+	for <bridge@lists.linux.dev>; Fri,  9 Oct 2026 15:02:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.136.29.106
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791534789; cv=none; b=cbz/DPOijOArbFW80d/Q/H9BJ2DGUoe47lrd3GP1Ij+Od1knGXTmBlzrTAVPPxuHkalTVxWNOJ/FCnk/6f4TwpCvcBqLqgDgaoLeVZ9oAPOd5UjR8YL/LZS14jTWWs9o4blWj6a0NUuPV5lARPa6riw33pT2uffAahd7LryOa78=
+	t=1791558181; cv=none; b=Py46gfSKpOBv2VoelI+DQSLp5sD8KZ+hCd3zNZPJ0CsTxJsKSxtCjjI4J4VdGaRYGlDHIGSaf/Ih3+Fu8O2Eo0YqW7USSgsp9BVybe0djRRH41aXDGZzgkOgj9qswtaltAPY9BK9dKEvXcHBFGQMI3jNHzAZ2tCbTWYYyqNOX8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791534789; c=relaxed/simple;
-	bh=yf/wra2SOTTsbuDe3enLqP6Q1+4gTVDdYiGFBlsnM44=;
-	h=Date:From:To:Cc:Subject:Content-Type:MIME-Version:Message-ID; b=aRQLrPrIIty//1G6//lQt2rSsYg+n4eaSot0KaTm3xp9QDPpTPy/KkHFPcZyXn0FDhakNH9apso9L2XkEZ6hHNYHpl2W34MLxm/oz5qXQz0HIqlcRXINR4Y868HkKT2/2wgxSMDdaWludJCad7uA8/7VZqDRVyw1hitBWSKPeVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=buaa.edu.cn; spf=pass smtp.mailfrom=buaa.edu.cn; dkim=fail (0-bit key) header.d=buaa.edu.cn header.i=@buaa.edu.cn header.b=VFoZo7Eq reason="key not found in DNS"; arc=none smtp.client-ip=13.76.78.106
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=buaa.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=buaa.edu.cn
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=buaa.edu.cn header.i=@buaa.edu.cn header.b="VFoZo7Eq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=buaa.edu.cn; s=buaa; h=Received:Date:From:To:Cc:Subject:
-	Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID;
-	bh=9RWiVnG3CCIspG3+dqA68OpTHQ+xbAu9o/H8zg+u4Y0=; b=VFoZo7EqckMer
-	V62CAWFkycIHGa6HtkMWMfIjqh6op1augEZV0w93WzxYqKL6uD3IbbCTct+YOKM0
-	n9X1mbkV1s6qhEkv2DOHW1iy8uZVavJxTAzp7S6SjJPoARlSL8hcGMM0hEdczXNC
-	PD4dpaOZwM7MdLW4Nf5FeruF1MLzCk=
-Received: from yunlong_ma$buaa.edu.cn ( [122.224.165.141] ) by
- ajax-webmail-coremail-app2 (Coremail) ; Fri, 9 Oct 2026 16:32:54 +0800
- (GMT+08:00)
-Date: Fri, 9 Oct 2026 16:32:54 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From: =?UTF-8?B?6ams5LqR6b6Z?= <yunlong_ma@buaa.edu.cn>
-To: razor@blackwall.org, idosch@nvidia.com
-Cc: bridge@lists.linux.dev, netdev@vger.kernel.org
-Subject: [BUG] net: bridge: mcast: rejected report leaves an orphan MDB
- entry that can disable snooping
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT5 build
- 20240305(0ac2fdd1) Copyright (c) 2002-2026 www.mailtech.cn
- mispb-63b7ebb9-fa87-40c1-9aec-818ec5a006d9-buaa.edu.cn
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+	s=arc-20240116; t=1791558181; c=relaxed/simple;
+	bh=CKFy9RneaWo+MxLvPfi1gEFuTHVSDODhWnnSpr3hcNk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Fy9St/V+GItsNLvSn4HfJ2ukrDjLqHJ8NDcRp4ecgQtRq6w08AjJc7a2j+CxYMVpigw6V4N6KpuIOXz7KblTNBgtb0qDjqKctHAN5hU6s0id/r81oQMwQ0vlLJBRfs5hKfo7BkYZjJLT1BFNU/1Np8J4pPTyAH/BmUJirXiuyJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=proxmox.com; spf=pass smtp.mailfrom=proxmox.com; arc=none smtp.client-ip=94.136.29.106
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=proxmox.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proxmox.com
+Received: from proxmox-new.maurer-it.com (localhost.localdomain [127.0.0.1])
+	by proxmox-new.maurer-it.com (Proxmox) with ESMTP id C4A4341878;
+	Fri, 09 Oct 2026 17:02:56 +0200 (CEST)
+From: Gabriel Goller <g.goller@proxmox.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>,
+	Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Shuah Khan <shuah@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kselftest@vger.kernel.org
+Subject: [RFC PATCH net-next] netfilter: bridge: refragment reassembled packets passed up
+Date: Fri,  9 Oct 2026 17:02:38 +0200
+Message-ID: <20261009150246.443127-1-g.goller@proxmox.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <2f5b61e2.1e71a.1a11fcb3809.Coremail.yunlong_ma@buaa.edu.cn>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:Nyz+CgCH1Rq2pshqq7sKAQ--.20201W
-X-CM-SenderInfo: l2esjjirrqmqpexdthxhgxhubq/1tbiAQIPDmdDD7ZQ-wABsx
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWkKw
-	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-	daVFxhVjvjDU=
+Content-Transfer-Encoding: 8bit
+X-Bm-Milter-Handled: 55990f41-d878-4baa-be0a-ee34c49e34d2
+X-Bm-Transport-Timestamp: 1791558173869
 
-SGkgTmlrb2xheSwgSWRvLAoKV2hlbiBfX2JyX211bHRpY2FzdF9hZGRfZ3JvdXAoKSBjcmVhdGVz
-IGEgbmV3IE1EQiBlbnRyeSBhbmQgdGhlbiBmYWlscwp0byBjcmVhdGUgdGhlIHBvcnQgZ3JvdXAs
-IHRoZSBuZXcgZW50cnkgaXMgbGVmdCBpbiB0aGUgTURCIGhhc2ggdGFibGUKd2l0aCBubyBwb3J0
-cywgaG9zdF9qb2luZWQgPT0gZmFsc2UgYW5kIG1wLT50aW1lciBuZXZlciBhcm1lZC4gTm90aGlu
-ZwpldmVyIHJlbW92ZXMgaXQsIGJ1dCBpdCBzdGlsbCBjb3VudHMgdG93YXJkcyBoYXNoX21heC4g
-V2l0aAptY2FzdF9tYXhfZ3JvdXBzIHNldCBvbiBhIHBvcnQsIGEgaG9zdCBiZWhpbmQgdGhhdCBw
-b3J0IGNhbiBjcmVhdGUKdGhlc2UgZW50cmllcyBhdCB3aWxsIGJ5IHNlbmRpbmcgSUdNUC9NTEQg
-cmVwb3J0cyBmb3IgbmV3IGdyb3VwcywgYW5kCm9uY2UgdGhlIHRhYmxlIHJlYWNoZXMgaGFzaF9t
-YXggdGhlIGJyaWRnZSB0dXJucyBtdWx0aWNhc3Qgc25vb3BpbmcKb2ZmLgoKRGV0YWlscwotLS0t
-LS0tCgpuZXQvYnJpZGdlL2JyX211bHRpY2FzdC5jLCBfX2JyX211bHRpY2FzdF9hZGRfZ3JvdXAo
-KSAodjcuMi45IGFuZApjdXJyZW50IG1haW5saW5lLCB1bmNoYW5nZWQpOgoKCW1wID0gYnJfbXVs
-dGljYXN0X25ld19ncm91cChicm1jdHgtPmJyLCBncm91cCk7CgkuLi4KCXAgPSBicl9tdWx0aWNh
-c3RfbmV3X3BvcnRfZ3JvdXAocG1jdHgtPnBvcnQsIGdyb3VwLCAqcHAsIDAsIHNyYywKCQkJCQlm
-aWx0ZXJfbW9kZSwgUlRQUk9UX0tFUk5FTCwgTlVMTCk7CglpZiAodW5saWtlbHkoIXApKSB7CgkJ
-cCA9IEVSUl9QVFIoLUVOT01FTSk7CgkJZ290byBvdXQ7Cgl9Cgpicl9tdWx0aWNhc3RfbmV3X2dy
-b3VwKCkgaGFzIGFscmVhZHkgaW5zZXJ0ZWQgdGhlIG5ldyBtcCBpbnRvCm1kYl9oYXNoX3RibC4g
-YnJfbXVsdGljYXN0X25ld19wb3J0X2dyb3VwKCkgcmV0dXJucyBOVUxMIHdoZW4KYnJfbXVsdGlj
-YXN0X3BvcnRfbmdyb3Vwc19pbmMoKSBoaXRzIG1jYXN0X21heF9ncm91cHMgKC1FMkJJRyksIG9y
-IHdoZW4KdGhlIEdGUF9BVE9NSUMgYWxsb2NhdGlvbiBmYWlscy4gVGhlIGVycm9yIHBhdGggcmV0
-dXJucyB3aXRob3V0CnRvdWNoaW5nIG1wLgoKVGhlIG9ubHkgYXV0b21hdGljIHdheSB0byByZW1v
-dmUgYW4gbXAgaXMgYnJfbXVsdGljYXN0X2dyb3VwX2V4cGlyZWQoKSwKZHJpdmVuIGJ5IG1wLT50
-aW1lciwgd2hpY2ggaXMgbmV2ZXIgYXJtZWQgZm9yIHRoaXMgZW50cnkuIE90aGVyIHBhdGhzCmtl
-ZXAgdGhlICJubyBwb3J0cyBhbmQgbm90IGhvc3Rfam9pbmVkIG1lYW5zIGRlbGV0ZSBvciBhcm0g
-dGhlIHRpbWVyIgpydWxlIChicl9tdWx0aWNhc3RfZGVsX3BnKCksIGJyX211bHRpY2FzdF9ob3N0
-X2xlYXZlKCkgdmlhIHRoZSB0aW1lciwKYnJfbWRiX2ZsdXNoX2hvc3QoKSk7IHRoaXMgb25lIGRv
-ZXMgbm90LgoKQ29uc2VxdWVuY2VzOgoKLSBUaGUgZW50cnkgaXMgaW52aXNpYmxlOiBicl9tZGJf
-ZHVtcCgpIG9ubHkgZW1pdHMgZW50cmllcyB3aXRoIHBvcnRzCiAgb3IgaG9zdF9qb2luZWQsIGFu
-ZCBSVE1fR0VUTURCIHJlamVjdHMgZW1wdHkgZW50cmllcyBzaW5jZQogIDU1NWY0NWQyNGJhNyAo
-ImJyaWRnZTogbWNhc3Q6IEZhaWwgTURCIGdldCByZXF1ZXN0IG9uIGVtcHR5IGVudHJ5IikuCiAg
-SXQgaXMgbm90IGNvdW50ZWQgaW4gdGhlIHBvcnQncyBtY2FzdF9uX2dyb3VwcyBlaXRoZXIuCi0g
-SXQgc3RheXMgdW50aWwgdGhlIGJyaWRnZSBpcyBkZWxldGVkIG9yIGFuIHVuZmlsdGVyZWQgTURC
-IGZsdXNoIHJ1bnMuCiAgVG9nZ2xpbmcgbWNhc3Rfc25vb3Bpbmcgb2ZmIGFuZCBvbiBkb2VzIG5v
-dCBjbGVhciBtZGJfbGlzdCwgc28gdGhlCiAgbmV4dCBuZXcgZ3JvdXAgZGlzYWJsZXMgc25vb3Bp
-bmcgYWdhaW4uCi0gV2hlbiBtZGJfaGFzaF90YmwubmVsZW1zIHJlYWNoZXMgaGFzaF9tYXgsIGJy
-X211bHRpY2FzdF9uZXdfZ3JvdXAoKQogIHR1cm5zIEJST1BUX01VTFRJQ0FTVF9FTkFCTEVEIG9m
-ZiBhbmQgdGhlIGJyaWRnZSBmYWxscyBiYWNrIHRvCiAgZmxvb2RpbmcgbXVsdGljYXN0IHRvIGFs
-bCBwb3J0cy4KCkJlZm9yZSBiNTdlOGQ4NzBkNTIgKCJuZXQ6IGJyaWRnZTogTWFpbnRhaW4gbnVt
-YmVyIG9mIE1EQiBlbnRyaWVzIGluCm5ldF9icmlkZ2VfbWNhc3RfcG9ydCIpIHRoaXMgYnJhbmNo
-IHdhcyBvbmx5IHJlYWNoYWJsZSBvbiBhbGxvY2F0aW9uCmZhaWx1cmUuIFdpdGggbWNhc3RfbWF4
-X2dyb3VwcyBpdCBpcyByZWFjaGFibGUgZnJvbSBhbnkgaG9zdCBiZWhpbmQgYQpsaW1pdGVkIHBv
-cnQsIHVzaW5nIG9yZGluYXJ5IElHTVB2Mi92MyBvciBNTER2MS92MiByZXBvcnRzIGZvciBncm91
-cHMKdGhhdCBkbyBub3QgZXhpc3Qgb24gdGhlIGJyaWRnZSB5ZXQuIEEgcG9ydCBsaW1pdCwgbWVh
-bnQgdG8gc3RvcCBvbmUKcG9ydCBmcm9tIGZpbGxpbmcgdGhlIGdsb2JhbCB0YWJsZSwgZW5kcyB1
-cCBsZXR0aW5nIHRoYXQgcG9ydCBmaWxsIGl0CndpdGggZW50cmllcyB0aGF0IG5ldmVyIGV4cGly
-ZS4gUG9ydHMgd2l0aCB0aGUgZGVmYXVsdAptY2FzdF9tYXhfZ3JvdXBzID09IDAgYXJlIG9ubHkg
-YWZmZWN0ZWQgb24gYWxsb2NhdGlvbiBmYWlsdXJlLgoKVGhlIFJUTV9ORVdNREIgcGF0aCBsb29r
-cyBsaWtlIGl0IGhhcyB0aGUgc2FtZSBwYXR0ZXJuCihicl9tZGJfYWRkX2dyb3VwKCkgY2FsbHMg
-YnJfbXVsdGljYXN0X25ld19ncm91cCgpLCB0aGVuCmJyX21kYl9hZGRfZ3JvdXBfc2coKS9icl9t
-ZGJfYWRkX2dyb3VwX3N0YXJfZygpIGNhbiByZXR1cm4gLUVOT01FTQp3aGVuIGJyX211bHRpY2Fz
-dF9uZXdfcG9ydF9ncm91cCgpIGZhaWxzKSwgYnV0IHRoYXQgbmVlZHMKQ0FQX05FVF9BRE1JTiBh
-bmQgSSBoYXZlIG5vdCB0ZXN0ZWQgaXQuCgpSZXByb2R1Y3Rpb24KLS0tLS0tLS0tLS0tCgpUZXN0
-ZWQgb24gdjcuMi45ICh4ODZfNjQsIDQgdkNQVXMpLiBBIGJyaWRnZSB3aXRoIG1jYXN0X3Nub29w
-aW5nIDEsCm1jYXN0X2hhc2hfbWF4IDE2IGFuZCBtY2FzdF9tZW1iZXJzaGlwX2ludGVydmFsIDJz
-LCB0d28gdmV0aCBwb3J0cyBBCmFuZCBCLCBJR01QdjIgcmVwb3J0cyBpbmplY3RlZCBmcm9tIHRo
-ZSB2ZXRoIHBlZXJzIHdpdGggQUZfUEFDS0VULiBUaGUKc2FtZSBydW4gaGFzIGEgY29udHJvbCBi
-cmlkZ2UgKHBvcnQgQSBtY2FzdF9tYXhfZ3JvdXBzIDApIGFuZCBhIHRlc3QKYnJpZGdlIChwb3J0
-IEEgbWNhc3RfbWF4X2dyb3VwcyAxKToKCiAgc3RlcCAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgY29udHJvbCAobWF4IDApICB0ZXN0IChtYXggMSkKICBzdGFydCAocGVlciBNTEQgYXV0
-by1qb2luKSAgICAgICAgICBzbm9vcD0xIG1kYj00ICAgIHNub29wPTEgbWRiPTQKICAxMCBuZXcg
-SUdNUCBncm91cHMgZnJvbSBwb3J0IEEgICAgICBtZGI9MTQgICAgICAgICAgIG1kYj00IChhbGwg
-MTAgcmVqZWN0ZWQpCiAgd2FpdCAxMHMgKD4gNXggbWVtYmVyc2hpcCBpbnR2bCkgICAgbWRiPTAg
-ICAgICAgICAgICBtZGI9MAogIDggbmV3IElHTVAgZ3JvdXBzIGZyb20gcG9ydCBCICAgICAgIHNu
-b29wPTEgbWRiPTggICAgc25vb3A9MCBtZGI9NgoKIm1kYiIgaXMgdGhlIG51bWJlciBvZiBlbnRy
-aWVzIGluIGFuIFJUTV9HRVRNREIgZHVtcC4gT24gdGhlIHRlc3QKYnJpZGdlIHRoZSAxMCByZWpl
-Y3RlZCBncm91cHMgbGVmdCAxMCBpbnZpc2libGUgZW50cmllcywgc28gYWZ0ZXIgNgpuZXcgZ3Jv
-dXBzIHRoZSB0YWJsZSB3YXMgYXQgMTYgKGhhc2hfbWF4KSBhbmQgdGhlIDd0aCB0dXJuZWQgc25v
-b3BpbmcKb2ZmLiBSZXByb2R1Y2VkIGluIDMgb3V0IG9mIDMgcnVuczsgbm8gS0NTQU4vbG9ja2Rl
-cCByZXBvcnRzLiBUaGUKcmVwcm9kdWNlciBpcyBhIHJhdy1uZXRsaW5rIEMgcHJvZ3JhbTsgSSBj
-YW4gc2VuZCBpdCBpZiB1c2VmdWwuCgpQb3NzaWJsZSBmaXgKLS0tLS0tLS0tLS0tCgpVbnRlc3Rl
-ZCBpZGVhOiBpbiB0aGUgZmFpbHVyZSBicmFuY2gsIGlmIHRoZSBlbnRyeSBpcyBlbXB0eSwgbGV0
-IHRoZQpleGlzdGluZyBleHBpcnkgcGF0aCByZW1vdmUgaXQsIGUuZy4KCglpZiAodW5saWtlbHko
-IXApKSB7CgkJaWYgKCFtcC0+cG9ydHMgJiYgIW1wLT5ob3N0X2pvaW5lZCkKCQkJbW9kX3RpbWVy
-KCZtcC0+dGltZXIsIGppZmZpZXMpOwoJCXAgPSBFUlJfUFRSKC1FTk9NRU0pOwoJCWdvdG8gb3V0
-OwoJfQoKb3IgZGVsZXRlIGl0IGRpcmVjdGx5LiBUaGUgUlRNX05FV01EQiBlcnJvciBwYXRocyB3
-b3VsZCBuZWVkIHRoZSBzYW1lCnRyZWF0bWVudC4gUGxlYXNlIHBpY2sgd2hhdGV2ZXIgc2hhcGUg
-eW91IHByZWZlci4KClRoYW5rcywKWXVubG9uZyBNYQ==
+A bridge can have an upper device that is a port of another bridge,
+e.g. a VLAN device on br0 that is enslaved to br1:
+
+  eth0 -- br0 -- br0.241 (VLAN device) -- br1 -- eth1
+
+br0 reassembles fragments in prerouting so conntrack sees the whole
+packet. If br0 forwards the packet, postrouting splits it into the
+original fragments again. If br0 passes it up instead, it stays whole.
+br1 then cannot refragment it, because frag_max_size is kept in
+skb->cb, which br1 clears on input. Packets larger than the MTU of
+eth1 are dropped.
+
+Refragment in local input as well, unless the packet is addressed to
+the bridge itself, i.e. pkt_type is PACKET_HOST. That is the case if
+the destination is the MAC address of the bridge or of the port the
+frame arrived on. Other packets reach local input if they are
+broadcast or multicast, sent to the MAC address of another port, or
+sent to any address while the bridge is promiscuous. The bridge is
+promiscuous if an upper device is a port of another bridge, has its
+own MAC address (e.g. a macvlan device), or if a packet capture is
+running.
+
+Passing a packet up leaves the bridge just like forwarding, so handle
+it the same way: reassemble only to track, then hand on the received
+fragments. The layer above sees the same packets as without
+conntrack, whatever kind of device it is, and nothing has to be
+looked up per packet. Packets for the bridge itself are not bridged
+again. They stay whole, so the inet stack can use their conntrack
+entry without reassembling again. Fragments are passed up without
+conntrack, as the layer above would otherwise skip reassembly and
+tracking.
+
+Changes for existing setups with bridge conntrack:
+
+  - Upper devices with their own MAC address and local receivers of
+    fragmented broadcast or multicast get fragments and reassemble
+    them again. (not good, but also not very common)
+  - Packet captures on the bridge see fragments, as without conntrack.
+    (not sure if this is a big issue)
+  - Packets that cannot be refragmented still stay whole: those whose
+    fragments exceed the bridge MTU, IPv6 packets with fragments below
+    IPV6_MIN_MTU, and packets that are no longer plain IP because VLAN
+    ingress moved a tag of a foreign protocol into the payload.
+
+A selftest covers bridge, VLAN, bridge and bridge, macvlan, bridge
+topologies. Fragmented IPv4 and IPv6 pings across them fail in both
+directions without the fix.
+
+Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
+Signed-off-by: Gabriel Goller <g.goller@proxmox.com>
+---
+
+RFC: I'm not confident in this patch. Refragmenting on local input
+affects every setup with something above a conntrack-enabled bridge,
+not just stacked bridges, and may break things I haven't foreseen.
+
+An alternative would be to keep frag_max_size with the packet in a
+new skb extension, as br_netfilter does, and let br1 restore it. That
+would avoid reassembling twice, but costs an extension id and an
+allocation per packet passed up, and the extension has to be removed
+on every path that does not use it.
+
+ net/bridge/netfilter/nf_conntrack_bridge.c    |  66 ++++++++
+ .../testing/selftests/net/netfilter/Makefile  |   1 +
+ .../net/netfilter/bridge_conntrack_frag.sh    | 157 ++++++++++++++++++
+ tools/testing/selftests/net/netfilter/config  |   1 +
+ 4 files changed, 225 insertions(+)
+ create mode 100755 tools/testing/selftests/net/netfilter/bridge_conntrack_frag.sh
+
+diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
+index b5444335b86f..d738ef5f6dc8 100644
+--- a/net/bridge/netfilter/nf_conntrack_bridge.c
++++ b/net/bridge/netfilter/nf_conntrack_bridge.c
+@@ -295,6 +295,41 @@ static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
+ 	return nf_conntrack_in(skb, &bridge_state);
+ }
+ 
++static unsigned int
++nf_ct_bridge_refrag(struct sk_buff *skb, const struct nf_hook_state *state,
++		    int (*output)(struct net *, struct sock *sk,
++				  const struct nf_bridge_frag_data *data,
++				  struct sk_buff *));
++static int nf_ct_bridge_refrag_in(struct net *net, struct sock *sk,
++				  const struct nf_bridge_frag_data *data,
++				  struct sk_buff *skb);
++
++/* Prerouting reassembled the packet for tracking. Unless it is for the bridge
++ * itself, an upper device may bridge it again without frag_max_size and drop
++ * it, so pass up the original fragments. Keep the packet whole if
++ * refragmenting would drop it.
++ */
++static bool nf_ct_bridge_refrag_up(const struct sk_buff *skb)
++{
++	u16 frag_max_size = BR_INPUT_SKB_CB(skb)->frag_max_size;
++
++	if (skb->pkt_type == PACKET_HOST || !frag_max_size ||
++	    frag_max_size > skb->dev->mtu)
++		return false;
++
++	/* VLAN ingress may have moved a tag of a foreign protocol into the
++	 * payload since prerouting, so the packet is no longer plain IP.
++	 */
++	switch (skb->protocol) {
++	case htons(ETH_P_IP):
++		return true;
++	case htons(ETH_P_IPV6):
++		return frag_max_size >= IPV6_MIN_MTU;
++	default:
++		return false;
++	}
++}
++
+ static unsigned int nf_ct_bridge_in(void *priv, struct sk_buff *skb,
+ 				    const struct nf_hook_state *state)
+ {
+@@ -302,6 +337,14 @@ static unsigned int nf_ct_bridge_in(void *priv, struct sk_buff *skb,
+ 	struct nf_conntrack *nfct = skb_nfct(skb);
+ 	struct nf_conn *ct;
+ 
++	if (nf_ct_bridge_refrag_up(skb)) {
++		/* Fragments carrying conntrack would make the layer above skip
++		 * reassembly and tracking.
++		 */
++		nf_reset_ct(skb);
++		return nf_ct_bridge_refrag(skb, state, nf_ct_bridge_refrag_in);
++	}
++
+ 	if (promisc) {
+ 		nf_reset_ct(skb);
+ 		return NF_ACCEPT;
+@@ -387,6 +430,29 @@ static int nf_ct_bridge_frag_restore(struct sk_buff *skb,
+ 	return 0;
+ }
+ 
++static int nf_ct_bridge_refrag_in(struct net *net, struct sock *sk,
++				  const struct nf_bridge_frag_data *data,
++				  struct sk_buff *skb)
++{
++	int err;
++
++	err = nf_ct_bridge_frag_restore(skb, data);
++	if (err < 0)
++		return err;
++
++	/* The fast path reuses the reassembled head as the first fragment. Its
++	 * ignore_df from defrag would let IPv6 forwarding refragment it.
++	 */
++	skb->ignore_df = 0;
++
++	/* Unlike the transmit path, receive keeps the Ethernet header pulled. */
++	skb_set_mac_header(skb, -ETH_HLEN);
++	br_drop_fake_rtable(skb);
++	netif_receive_skb(skb);
++
++	return 0;
++}
++
+ static int nf_ct_bridge_refrag_post(struct net *net, struct sock *sk,
+ 				    const struct nf_bridge_frag_data *data,
+ 				    struct sk_buff *skb)
+diff --git a/tools/testing/selftests/net/netfilter/Makefile b/tools/testing/selftests/net/netfilter/Makefile
+index df3c20c90f5d..d3bc881deaf7 100644
+--- a/tools/testing/selftests/net/netfilter/Makefile
++++ b/tools/testing/selftests/net/netfilter/Makefile
+@@ -12,6 +12,7 @@ TEST_PROGS := \
+ 	br_netfilter.sh \
+ 	br_netfilter_queue.sh \
+ 	bridge_brouter.sh \
++	bridge_conntrack_frag.sh \
+ 	conntrack_clash.sh \
+ 	conntrack_dump_flush.sh \
+ 	conntrack_icmp_related.sh \
+diff --git a/tools/testing/selftests/net/netfilter/bridge_conntrack_frag.sh b/tools/testing/selftests/net/netfilter/bridge_conntrack_frag.sh
+new file mode 100755
+index 000000000000..04402f0f9fdf
+--- /dev/null
++++ b/tools/testing/selftests/net/netfilter/bridge_conntrack_frag.sh
+@@ -0,0 +1,157 @@
++#!/bin/bash
++# SPDX-License-Identifier: GPL-2.0
++# Copyright (C) 2026 Proxmox Server Solutions GmbH, Gabriel Goller <g.goller@proxmox.com>
++#
++# Bridge conntrack reassembles fragments. Packets passed up a bridge must be
++# refragmented, or a stacked bridge drops them if they exceed its egress MTU:
++#
++# vlan:    sender                   bridge                       receiver
++#          eth0.241 -- eth0 <-> veth0 -- br0 -- br0.241 -- br1 -- veth1 <-> eth0
++#
++# macvlan: sender             bridge                             receiver
++#          eth0 <-> veth0 -- br0 -- mv0 (passthru) -- br1 -- veth1 <-> eth0
++#
++# br0 is promiscuous because its upper device is a bridge port.
++
++source lib.sh
++
++checktool "nft --version" "run test without nft"
++
++ret=0
++
++trap cleanup_all_ns EXIT
++
++add_dev()
++{
++	if ! ip "$@"; then
++		# Do not hide failures of an earlier topology.
++		[ "$ret" -eq 0 ] || exit "$ret"
++		echo "SKIP: Cannot create required network device"
++		exit $ksft_skip
++	fi
++}
++
++setup_topology()
++{
++	local upper=$1 knob
++
++	setup_ns sender nsbr receiver || exit $ksft_skip
++
++	add_dev link add veth0 netns "$nsbr" type veth peer name eth0 netns "$sender"
++	add_dev link add veth1 netns "$nsbr" type veth peer name eth0 netns "$receiver"
++	add_dev -net "$nsbr" link add br0 type bridge
++	add_dev -net "$nsbr" link add br1 type bridge
++
++	case "$upper" in
++	vlan)
++		add_dev -net "$nsbr" link add link br0 name br0.241 type vlan id 241
++		add_dev -net "$sender" link add link eth0 name eth0.241 type vlan id 241
++		upper_dev=br0.241
++		sender_dev=eth0.241
++		;;
++	macvlan)
++		add_dev -net "$nsbr" link add link br0 name mv0 type macvlan mode passthru
++		upper_dev=mv0
++		sender_dev=eth0
++		;;
++	esac
++
++	# br1 could otherwise take over br0's address from its upper device port,
++	# and traffic to br1 would no longer reach br0 via promiscuous delivery.
++	ip -net "$nsbr" link set br1 address 02:00:00:00:00:20
++
++	# br_netfilter would call the inet hooks on bridged traffic.
++	for knob in bridge-nf-call-iptables bridge-nf-call-ip6tables; do
++		ip netns exec "$nsbr" sysctl -qw "net.bridge.$knob=0" 2>/dev/null
++	done
++
++	ip -net "$nsbr" link set veth0 master br0
++	ip -net "$nsbr" link set "$upper_dev" master br1
++	ip -net "$nsbr" link set veth1 master br1
++
++	for dev in veth0 veth1 br0 "$upper_dev" br1; do
++		ip -net "$nsbr" link set "$dev" up
++	done
++	ip -net "$sender" link set eth0 up
++	ip -net "$sender" link set "$sender_dev" up
++	ip -net "$receiver" link set eth0 up
++
++	ip -net "$sender" addr add 192.0.2.1/24 dev "$sender_dev"
++	ip -net "$receiver" addr add 192.0.2.2/24 dev eth0
++	ip -net "$nsbr" addr add 192.0.2.3/24 dev br1
++	ip -net "$sender" addr add 2001:db8:1::1/64 dev "$sender_dev" nodad
++	ip -net "$receiver" addr add 2001:db8:1::2/64 dev eth0 nodad
++	ip -net "$nsbr" addr add 2001:db8:1::3/64 dev br1 nodad
++}
++
++check_ping()
++{
++	local ns=$1 dst=$2 desc=$3
++
++	if ip netns exec "$ns" ping -q -c 2 -i 0.1 -w 3 -M dont -s 4000 "$dst" \
++		>/dev/null 2>&1; then
++		echo "PASS: $phase $desc"
++	else
++		echo "FAIL: $phase $desc"
++		ret=1
++	fi
++}
++
++check_paths()
++{
++	local prefix
++
++	for prefix in 192.0.2. 2001:db8:1::; do
++		check_ping "$sender" "${prefix}2" "sender -> receiver ${prefix}2"
++		check_ping "$receiver" "${prefix}1" "receiver -> sender ${prefix}1"
++		check_ping "$sender" "${prefix}3" "sender -> bridge host ${prefix}3"
++	done
++}
++
++run_test()
++{
++	local upper=$1 family
++
++	setup_topology "$upper"
++
++	phase="$upper without conntrack:"
++	check_paths
++	# A broken setup must not be hidden by a later skip.
++	[ "$ret" -eq 0 ] || exit "$ret"
++
++	# The ct expression enables the bridge conntrack hooks. Count oversized
++	# packets at br0 input to make sure they were reassembled there.
++	if ! ip netns exec "$nsbr" nft -f - <<'NFT'
++table bridge br_frag {
++	counter tracked4 { }
++	counter tracked6 { }
++	chain input {
++		type filter hook input priority 0; policy accept;
++		iifname "veth0" ct state new,established meta length > 1500 \
++			ip saddr 192.0.2.1 counter name tracked4
++		iifname "veth0" ct state new,established meta length > 1500 \
++			ip6 saddr 2001:db8:1::1 counter name tracked6
++	}
++}
++NFT
++	then
++		echo "SKIP: Bridge conntrack is not available"
++		exit $ksft_skip
++	fi
++
++	phase="$upper with conntrack:"
++	check_paths
++
++	for family in 4 6; do
++		if ! ip netns exec "$nsbr" nft list counter bridge br_frag "tracked$family" |
++			grep -q 'packets [1-9]'; then
++			echo "FAIL: $phase no reassembled IPv$family packets at br0 input"
++			ret=1
++		fi
++	done
++}
++
++run_test vlan
++run_test macvlan
++
++exit "$ret"
+diff --git a/tools/testing/selftests/net/netfilter/config b/tools/testing/selftests/net/netfilter/config
+index 629b2b29ed1a..91985320c292 100644
+--- a/tools/testing/selftests/net/netfilter/config
++++ b/tools/testing/selftests/net/netfilter/config
+@@ -62,6 +62,7 @@ CONFIG_NET_SCH_HTB=m
+ CONFIG_NET_SCH_NETEM=m
+ CONFIG_NET_VRF=y
+ CONFIG_NF_CONNTRACK=m
++CONFIG_NF_CONNTRACK_BRIDGE=m
+ CONFIG_NF_CONNTRACK_EVENTS=y
+ CONFIG_NF_CONNTRACK_FTP=m
+ CONFIG_NF_CONNTRACK_MARK=y
+-- 
+2.47.3
+
+
