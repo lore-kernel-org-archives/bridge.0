@@ -1,83 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C5A74DDB31;
-	Thu,  8 Oct 2026 18:40:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from azure-sdnproxy.icoremail.net (azure-sdnproxy.icoremail.net [13.76.78.106])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3639F2DF13B
+	for <bridge@lists.linux.dev>; Fri,  9 Oct 2026 08:33:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.76.78.106
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791484812; cv=none; b=kol+ZRq88GozVRbRFZIMuN6JuW7q6GVlXxDFofIxtfCSRGPjeQWDyZVVa6DgpDwYIfbCMrT9h9W5HWAoVVr6WBqa49v9Syro82CTe4i4tWgGr1sGnzP5Tib84w2qCKyVntSQfX0hEUo4t8V3VxbGf34ipf4V4V1WogbjcBNLqoc=
+	t=1791534789; cv=none; b=cbz/DPOijOArbFW80d/Q/H9BJ2DGUoe47lrd3GP1Ij+Od1knGXTmBlzrTAVPPxuHkalTVxWNOJ/FCnk/6f4TwpCvcBqLqgDgaoLeVZ9oAPOd5UjR8YL/LZS14jTWWs9o4blWj6a0NUuPV5lARPa6riw33pT2uffAahd7LryOa78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791484812; c=relaxed/simple;
-	bh=lHEfRP0X3S/XPTmII8KvHZ2dsrEM/XJZDkdisO/QJZQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=CzRubkpDnEtFLdbSW+7eCHgDTVNkwB+CxNHiZxWW1OS0monAwjsZG1epI1efTzY3VTYctqpL6x0Tsc3TJx/MyKuWB9Ur4X8dP5PB5b9Sz887pyZWOtaroYibw4Kmtm7dZjGciICqbj94WRpv5HuyWZEGxTAvU3aSf/gQQbRAgCQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MWwuDYT+; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791534789; c=relaxed/simple;
+	bh=yf/wra2SOTTsbuDe3enLqP6Q1+4gTVDdYiGFBlsnM44=;
+	h=Date:From:To:Cc:Subject:Content-Type:MIME-Version:Message-ID; b=aRQLrPrIIty//1G6//lQt2rSsYg+n4eaSot0KaTm3xp9QDPpTPy/KkHFPcZyXn0FDhakNH9apso9L2XkEZ6hHNYHpl2W34MLxm/oz5qXQz0HIqlcRXINR4Y868HkKT2/2wgxSMDdaWludJCad7uA8/7VZqDRVyw1hitBWSKPeVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=buaa.edu.cn; spf=pass smtp.mailfrom=buaa.edu.cn; dkim=fail (0-bit key) header.d=buaa.edu.cn header.i=@buaa.edu.cn header.b=VFoZo7Eq reason="key not found in DNS"; arc=none smtp.client-ip=13.76.78.106
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=buaa.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=buaa.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MWwuDYT+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CAAB1F0089D;
-	Thu,  8 Oct 2026 18:40:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791484811;
-	bh=7Rf+eyYaG9U/bMmoktQ3BwZa9LqnSqguhQVu3gdpBEw=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=MWwuDYT+CG8wkzfbibtXBdmSO/dqcwNc+f/L2T/6SVhawzAc/l/XfiRJr0tKWSXDp
-	 KXTOQtiBZ1RJfdtOBIXH920IdhPyXABRXPRS/ubUZ6cJGno8P4DK2EXH0Fcb4wvmPe
-	 iSyNmhVipj49Xr3LK7YGwEHvsOEGiHWwNafexmced6UGxMNOzxaCiIVhTwW3tW/vCT
-	 PE3NNDl49odCjxFJVXXGw92mvFSOF0yOECz22QB0Aae5Zm3ECSSty/LBom27gM/6dD
-	 W9f6hobjll1aDM51rxps2Lz0jxA/zJYkvZ4eT+jHcyHLtmY3SmETbtTNlXsEe3yBrZ
-	 qMhGBebQQQztw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id F1750380CEC8;
-	Thu,  8 Oct 2026 18:40:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=buaa.edu.cn header.i=@buaa.edu.cn header.b="VFoZo7Eq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=buaa.edu.cn; s=buaa; h=Received:Date:From:To:Cc:Subject:
+	Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID;
+	bh=9RWiVnG3CCIspG3+dqA68OpTHQ+xbAu9o/H8zg+u4Y0=; b=VFoZo7EqckMer
+	V62CAWFkycIHGa6HtkMWMfIjqh6op1augEZV0w93WzxYqKL6uD3IbbCTct+YOKM0
+	n9X1mbkV1s6qhEkv2DOHW1iy8uZVavJxTAzp7S6SjJPoARlSL8hcGMM0hEdczXNC
+	PD4dpaOZwM7MdLW4Nf5FeruF1MLzCk=
+Received: from yunlong_ma$buaa.edu.cn ( [122.224.165.141] ) by
+ ajax-webmail-coremail-app2 (Coremail) ; Fri, 9 Oct 2026 16:32:54 +0800
+ (GMT+08:00)
+Date: Fri, 9 Oct 2026 16:32:54 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From: =?UTF-8?B?6ams5LqR6b6Z?= <yunlong_ma@buaa.edu.cn>
+To: razor@blackwall.org, idosch@nvidia.com
+Cc: bridge@lists.linux.dev, netdev@vger.kernel.org
+Subject: [BUG] net: bridge: mcast: rejected report leaves an orphan MDB
+ entry that can disable snooping
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT5 build
+ 20240305(0ac2fdd1) Copyright (c) 2002-2026 www.mailtech.cn
+ mispb-63b7ebb9-fa87-40c1-9aec-818ec5a006d9-buaa.edu.cn
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] ipv4: validate checksum_start before completing
- checksum
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <179148480952.386807.5254564638914693441.git-patchwork-notify@kernel.org>
-Date: Thu, 08 Oct 2026 18:40:09 +0000
-References: 
- <0a012b4923e189c4c593ef4f471e5ff0edbe9030.1791412497.git.mst@redhat.com>
-In-Reply-To: 
- <0a012b4923e189c4c593ef4f471e5ff0edbe9030.1791412497.git.mst@redhat.com>
-To: Michael S. Tsirkin <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, dsahern@kernel.org, idosch@nvidia.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, pablo@netfilter.org, fw@strlen.de, phil@nwl.cc,
- razor@blackwall.org, steffen.klassert@secunet.com,
- herbert@gondor.apana.org.au, willemdebruijn.kernel@gmail.com,
- netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev
+Message-ID: <2f5b61e2.1e71a.1a11fcb3809.Coremail.yunlong_ma@buaa.edu.cn>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:Nyz+CgCH1Rq2pshqq7sKAQ--.20201W
+X-CM-SenderInfo: l2esjjirrqmqpexdthxhgxhubq/1tbiAQIPDmdDD7ZQ-wABsx
+X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWkKw
+	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
+	daVFxhVjvjDU=
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Wed, 7 Oct 2026 18:42:49 -0400 you wrote:
-> If a packet with bad checksum metadata gets into the ipv4 stack,
-> skb_checksum_help can corrupt the network header and cause a bunch of
-> mischief.
-> 
-> This was discovered and reported by Paulos, and has been reporoduced
-> by others independently since.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net] ipv4: validate checksum_start before completing checksum
-    https://git.kernel.org/netdev/net/c/6785011f8b16
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+SGkgTmlrb2xheSwgSWRvLAoKV2hlbiBfX2JyX211bHRpY2FzdF9hZGRfZ3JvdXAoKSBjcmVhdGVz
+IGEgbmV3IE1EQiBlbnRyeSBhbmQgdGhlbiBmYWlscwp0byBjcmVhdGUgdGhlIHBvcnQgZ3JvdXAs
+IHRoZSBuZXcgZW50cnkgaXMgbGVmdCBpbiB0aGUgTURCIGhhc2ggdGFibGUKd2l0aCBubyBwb3J0
+cywgaG9zdF9qb2luZWQgPT0gZmFsc2UgYW5kIG1wLT50aW1lciBuZXZlciBhcm1lZC4gTm90aGlu
+ZwpldmVyIHJlbW92ZXMgaXQsIGJ1dCBpdCBzdGlsbCBjb3VudHMgdG93YXJkcyBoYXNoX21heC4g
+V2l0aAptY2FzdF9tYXhfZ3JvdXBzIHNldCBvbiBhIHBvcnQsIGEgaG9zdCBiZWhpbmQgdGhhdCBw
+b3J0IGNhbiBjcmVhdGUKdGhlc2UgZW50cmllcyBhdCB3aWxsIGJ5IHNlbmRpbmcgSUdNUC9NTEQg
+cmVwb3J0cyBmb3IgbmV3IGdyb3VwcywgYW5kCm9uY2UgdGhlIHRhYmxlIHJlYWNoZXMgaGFzaF9t
+YXggdGhlIGJyaWRnZSB0dXJucyBtdWx0aWNhc3Qgc25vb3BpbmcKb2ZmLgoKRGV0YWlscwotLS0t
+LS0tCgpuZXQvYnJpZGdlL2JyX211bHRpY2FzdC5jLCBfX2JyX211bHRpY2FzdF9hZGRfZ3JvdXAo
+KSAodjcuMi45IGFuZApjdXJyZW50IG1haW5saW5lLCB1bmNoYW5nZWQpOgoKCW1wID0gYnJfbXVs
+dGljYXN0X25ld19ncm91cChicm1jdHgtPmJyLCBncm91cCk7CgkuLi4KCXAgPSBicl9tdWx0aWNh
+c3RfbmV3X3BvcnRfZ3JvdXAocG1jdHgtPnBvcnQsIGdyb3VwLCAqcHAsIDAsIHNyYywKCQkJCQlm
+aWx0ZXJfbW9kZSwgUlRQUk9UX0tFUk5FTCwgTlVMTCk7CglpZiAodW5saWtlbHkoIXApKSB7CgkJ
+cCA9IEVSUl9QVFIoLUVOT01FTSk7CgkJZ290byBvdXQ7Cgl9Cgpicl9tdWx0aWNhc3RfbmV3X2dy
+b3VwKCkgaGFzIGFscmVhZHkgaW5zZXJ0ZWQgdGhlIG5ldyBtcCBpbnRvCm1kYl9oYXNoX3RibC4g
+YnJfbXVsdGljYXN0X25ld19wb3J0X2dyb3VwKCkgcmV0dXJucyBOVUxMIHdoZW4KYnJfbXVsdGlj
+YXN0X3BvcnRfbmdyb3Vwc19pbmMoKSBoaXRzIG1jYXN0X21heF9ncm91cHMgKC1FMkJJRyksIG9y
+IHdoZW4KdGhlIEdGUF9BVE9NSUMgYWxsb2NhdGlvbiBmYWlscy4gVGhlIGVycm9yIHBhdGggcmV0
+dXJucyB3aXRob3V0CnRvdWNoaW5nIG1wLgoKVGhlIG9ubHkgYXV0b21hdGljIHdheSB0byByZW1v
+dmUgYW4gbXAgaXMgYnJfbXVsdGljYXN0X2dyb3VwX2V4cGlyZWQoKSwKZHJpdmVuIGJ5IG1wLT50
+aW1lciwgd2hpY2ggaXMgbmV2ZXIgYXJtZWQgZm9yIHRoaXMgZW50cnkuIE90aGVyIHBhdGhzCmtl
+ZXAgdGhlICJubyBwb3J0cyBhbmQgbm90IGhvc3Rfam9pbmVkIG1lYW5zIGRlbGV0ZSBvciBhcm0g
+dGhlIHRpbWVyIgpydWxlIChicl9tdWx0aWNhc3RfZGVsX3BnKCksIGJyX211bHRpY2FzdF9ob3N0
+X2xlYXZlKCkgdmlhIHRoZSB0aW1lciwKYnJfbWRiX2ZsdXNoX2hvc3QoKSk7IHRoaXMgb25lIGRv
+ZXMgbm90LgoKQ29uc2VxdWVuY2VzOgoKLSBUaGUgZW50cnkgaXMgaW52aXNpYmxlOiBicl9tZGJf
+ZHVtcCgpIG9ubHkgZW1pdHMgZW50cmllcyB3aXRoIHBvcnRzCiAgb3IgaG9zdF9qb2luZWQsIGFu
+ZCBSVE1fR0VUTURCIHJlamVjdHMgZW1wdHkgZW50cmllcyBzaW5jZQogIDU1NWY0NWQyNGJhNyAo
+ImJyaWRnZTogbWNhc3Q6IEZhaWwgTURCIGdldCByZXF1ZXN0IG9uIGVtcHR5IGVudHJ5IikuCiAg
+SXQgaXMgbm90IGNvdW50ZWQgaW4gdGhlIHBvcnQncyBtY2FzdF9uX2dyb3VwcyBlaXRoZXIuCi0g
+SXQgc3RheXMgdW50aWwgdGhlIGJyaWRnZSBpcyBkZWxldGVkIG9yIGFuIHVuZmlsdGVyZWQgTURC
+IGZsdXNoIHJ1bnMuCiAgVG9nZ2xpbmcgbWNhc3Rfc25vb3Bpbmcgb2ZmIGFuZCBvbiBkb2VzIG5v
+dCBjbGVhciBtZGJfbGlzdCwgc28gdGhlCiAgbmV4dCBuZXcgZ3JvdXAgZGlzYWJsZXMgc25vb3Bp
+bmcgYWdhaW4uCi0gV2hlbiBtZGJfaGFzaF90YmwubmVsZW1zIHJlYWNoZXMgaGFzaF9tYXgsIGJy
+X211bHRpY2FzdF9uZXdfZ3JvdXAoKQogIHR1cm5zIEJST1BUX01VTFRJQ0FTVF9FTkFCTEVEIG9m
+ZiBhbmQgdGhlIGJyaWRnZSBmYWxscyBiYWNrIHRvCiAgZmxvb2RpbmcgbXVsdGljYXN0IHRvIGFs
+bCBwb3J0cy4KCkJlZm9yZSBiNTdlOGQ4NzBkNTIgKCJuZXQ6IGJyaWRnZTogTWFpbnRhaW4gbnVt
+YmVyIG9mIE1EQiBlbnRyaWVzIGluCm5ldF9icmlkZ2VfbWNhc3RfcG9ydCIpIHRoaXMgYnJhbmNo
+IHdhcyBvbmx5IHJlYWNoYWJsZSBvbiBhbGxvY2F0aW9uCmZhaWx1cmUuIFdpdGggbWNhc3RfbWF4
+X2dyb3VwcyBpdCBpcyByZWFjaGFibGUgZnJvbSBhbnkgaG9zdCBiZWhpbmQgYQpsaW1pdGVkIHBv
+cnQsIHVzaW5nIG9yZGluYXJ5IElHTVB2Mi92MyBvciBNTER2MS92MiByZXBvcnRzIGZvciBncm91
+cHMKdGhhdCBkbyBub3QgZXhpc3Qgb24gdGhlIGJyaWRnZSB5ZXQuIEEgcG9ydCBsaW1pdCwgbWVh
+bnQgdG8gc3RvcCBvbmUKcG9ydCBmcm9tIGZpbGxpbmcgdGhlIGdsb2JhbCB0YWJsZSwgZW5kcyB1
+cCBsZXR0aW5nIHRoYXQgcG9ydCBmaWxsIGl0CndpdGggZW50cmllcyB0aGF0IG5ldmVyIGV4cGly
+ZS4gUG9ydHMgd2l0aCB0aGUgZGVmYXVsdAptY2FzdF9tYXhfZ3JvdXBzID09IDAgYXJlIG9ubHkg
+YWZmZWN0ZWQgb24gYWxsb2NhdGlvbiBmYWlsdXJlLgoKVGhlIFJUTV9ORVdNREIgcGF0aCBsb29r
+cyBsaWtlIGl0IGhhcyB0aGUgc2FtZSBwYXR0ZXJuCihicl9tZGJfYWRkX2dyb3VwKCkgY2FsbHMg
+YnJfbXVsdGljYXN0X25ld19ncm91cCgpLCB0aGVuCmJyX21kYl9hZGRfZ3JvdXBfc2coKS9icl9t
+ZGJfYWRkX2dyb3VwX3N0YXJfZygpIGNhbiByZXR1cm4gLUVOT01FTQp3aGVuIGJyX211bHRpY2Fz
+dF9uZXdfcG9ydF9ncm91cCgpIGZhaWxzKSwgYnV0IHRoYXQgbmVlZHMKQ0FQX05FVF9BRE1JTiBh
+bmQgSSBoYXZlIG5vdCB0ZXN0ZWQgaXQuCgpSZXByb2R1Y3Rpb24KLS0tLS0tLS0tLS0tCgpUZXN0
+ZWQgb24gdjcuMi45ICh4ODZfNjQsIDQgdkNQVXMpLiBBIGJyaWRnZSB3aXRoIG1jYXN0X3Nub29w
+aW5nIDEsCm1jYXN0X2hhc2hfbWF4IDE2IGFuZCBtY2FzdF9tZW1iZXJzaGlwX2ludGVydmFsIDJz
+LCB0d28gdmV0aCBwb3J0cyBBCmFuZCBCLCBJR01QdjIgcmVwb3J0cyBpbmplY3RlZCBmcm9tIHRo
+ZSB2ZXRoIHBlZXJzIHdpdGggQUZfUEFDS0VULiBUaGUKc2FtZSBydW4gaGFzIGEgY29udHJvbCBi
+cmlkZ2UgKHBvcnQgQSBtY2FzdF9tYXhfZ3JvdXBzIDApIGFuZCBhIHRlc3QKYnJpZGdlIChwb3J0
+IEEgbWNhc3RfbWF4X2dyb3VwcyAxKToKCiAgc3RlcCAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgY29udHJvbCAobWF4IDApICB0ZXN0IChtYXggMSkKICBzdGFydCAocGVlciBNTEQgYXV0
+by1qb2luKSAgICAgICAgICBzbm9vcD0xIG1kYj00ICAgIHNub29wPTEgbWRiPTQKICAxMCBuZXcg
+SUdNUCBncm91cHMgZnJvbSBwb3J0IEEgICAgICBtZGI9MTQgICAgICAgICAgIG1kYj00IChhbGwg
+MTAgcmVqZWN0ZWQpCiAgd2FpdCAxMHMgKD4gNXggbWVtYmVyc2hpcCBpbnR2bCkgICAgbWRiPTAg
+ICAgICAgICAgICBtZGI9MAogIDggbmV3IElHTVAgZ3JvdXBzIGZyb20gcG9ydCBCICAgICAgIHNu
+b29wPTEgbWRiPTggICAgc25vb3A9MCBtZGI9NgoKIm1kYiIgaXMgdGhlIG51bWJlciBvZiBlbnRy
+aWVzIGluIGFuIFJUTV9HRVRNREIgZHVtcC4gT24gdGhlIHRlc3QKYnJpZGdlIHRoZSAxMCByZWpl
+Y3RlZCBncm91cHMgbGVmdCAxMCBpbnZpc2libGUgZW50cmllcywgc28gYWZ0ZXIgNgpuZXcgZ3Jv
+dXBzIHRoZSB0YWJsZSB3YXMgYXQgMTYgKGhhc2hfbWF4KSBhbmQgdGhlIDd0aCB0dXJuZWQgc25v
+b3BpbmcKb2ZmLiBSZXByb2R1Y2VkIGluIDMgb3V0IG9mIDMgcnVuczsgbm8gS0NTQU4vbG9ja2Rl
+cCByZXBvcnRzLiBUaGUKcmVwcm9kdWNlciBpcyBhIHJhdy1uZXRsaW5rIEMgcHJvZ3JhbTsgSSBj
+YW4gc2VuZCBpdCBpZiB1c2VmdWwuCgpQb3NzaWJsZSBmaXgKLS0tLS0tLS0tLS0tCgpVbnRlc3Rl
+ZCBpZGVhOiBpbiB0aGUgZmFpbHVyZSBicmFuY2gsIGlmIHRoZSBlbnRyeSBpcyBlbXB0eSwgbGV0
+IHRoZQpleGlzdGluZyBleHBpcnkgcGF0aCByZW1vdmUgaXQsIGUuZy4KCglpZiAodW5saWtlbHko
+IXApKSB7CgkJaWYgKCFtcC0+cG9ydHMgJiYgIW1wLT5ob3N0X2pvaW5lZCkKCQkJbW9kX3RpbWVy
+KCZtcC0+dGltZXIsIGppZmZpZXMpOwoJCXAgPSBFUlJfUFRSKC1FTk9NRU0pOwoJCWdvdG8gb3V0
+OwoJfQoKb3IgZGVsZXRlIGl0IGRpcmVjdGx5LiBUaGUgUlRNX05FV01EQiBlcnJvciBwYXRocyB3
+b3VsZCBuZWVkIHRoZSBzYW1lCnRyZWF0bWVudC4gUGxlYXNlIHBpY2sgd2hhdGV2ZXIgc2hhcGUg
+eW91IHByZWZlci4KClRoYW5rcywKWXVubG9uZyBNYQ==
