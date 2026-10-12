@@ -1,49 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7830B45FFD3;
-	Sun, 11 Oct 2026 22:02:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56DC4397E86;
+	Mon, 12 Oct 2026 03:43:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791756157; cv=none; b=WE82+DoRyCWPZUJ1PZB9BPtCvfvR9odxGvVlh9RegGLD52zF/Xs5bPoxJ2orSF5Bo+DjCsac68HmVsjuIcQhdbHl4A8hVSjZ6HWBeVJYeU3d96rplSeaeAH16txuWLbjN5ACXb636HKnvKgb0b5Z1ZIQzVWvr4HeEsqsKHh/kRY=
+	t=1791776582; cv=none; b=lGEDgFLRTLctAW/113aLmbaaF7imBsa76HVcoircFh6wsnKK4MI9SYZGtR7SkgNPBjEc59oaphf59ZaiBHrVM1A/R8Kdw9ceLdaikOo9xb/D89CKDCbHbfywbxOoQVU6PgUxVhkFJ9bRXB01kOSMA5E7zTRel7qR096n/YVE2+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791756157; c=relaxed/simple;
-	bh=nr/9dyWwQ8/7rDus24i2sml5MK/WWaozn8G6uswlxGc=;
+	s=arc-20240116; t=1791776582; c=relaxed/simple;
+	bh=1Yatm2bkBHGatM/f4l3ONLHfivAPAiPYQN+9EPPJA1s=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=bC3hqA0cvPlmnDhllMey+TV/0/+LCdeOqOa2S4y4qNPtZ/cncTWoOcn2U7mSlq0xX7kVDlC9yxZYxPwbZmxb1VOIWiW+jHBY1rS8OignW5Zz/hFTp2WN/UQMDl5CuuouVZ5Ssg7VfCPVGarwFuTYxdZWVIl0IHTlR2q1xTaQoUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EGk0D/A2; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=NKS3iCpTAH3aD7SinKTYEm/hpg9g5UJmfn92ZvAH8DVmQaZXi3JTSnjVs5QyocKC6PU8i9d/DBkIW1KltFQVu2mg+Ctn9VfslZe9k0M1n3cf8pYtmPFGr6MjMwUbIYuMJFeJgFZ3uNPppYjU73wLUtcu4BiXFQIbYtVcmUSEA1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V8b/NILj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EGk0D/A2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9541F0089C;
-	Sun, 11 Oct 2026 22:02:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V8b/NILj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11FFB1F0089B;
+	Mon, 12 Oct 2026 03:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791756156;
-	bh=iVwZC1zpaojyreCpC1U9ymCY1AzhHbrEKn75qtJ80T4=;
+	s=k20260515; t=1791776580;
+	bh=ZzxgQD2SMPs5sT/NYSKNh8vCxo0raIQzh0NGC3Qt3UE=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=EGk0D/A2N5BvsTUXUCE+9ktn0CUc9Tw/PwOfsvHiu76L2/u0Etv82rrCMM3/gRy10
-	 GesSkjo4v1GcrGMVa4L7+Ri2fnuwPlqWuf1e9tQwCTLKyejggpedlnjrA31B1qYd2k
-	 uhR8N876g67gavywKUli8/EsRoOuSejg0SG3tfi5ACEbq78m7X5TMOI/Oz/j0Y9I0p
-	 foaUU7d74RkUTGiMvQpT2PkEmj7uuJLTq1SroaDQKx3SkjTd0VLaXNcaH/mkDp0Fui
-	 3RAQdSYVbVprNkWzGvci0uMZ412ZMhKGUHOpPAyz3bJd8QJpUgE91ukNqBQzM4Q8oW
-	 6ty0giaNt/Vag==
-Subject:
- Re: [PATCH net] ipv4: validate checksum_start before completing checksum
+	b=V8b/NILjBiWnmdKnaDCrezkGZzf1hhfCdc198Vj9fb7Ox+wbITMhcUjgEZrDNoYkY
+	 pFb9bkU6vQ0byqjXdfeQIJEDCVXUaqp8B/SM2FBybuaiSZToK8AxbQZm0Gq8LrAuP0
+	 oSNInbHQ4zvTGgvjjejFasUOXkT/BPRVS2uHUNbdd74rpv/FCi9pJF9cXvLO+JJcw2
+	 w9IO8zlMW+Duv2UL/kQ/+ENbvYxvyCsMUvfDkBNRk3KwbgtuCrjTNwq6bXjQNuv7Oy
+	 q/EDzBTbjD+S1O0H5iywVsvZuvS0hpIa92spTPg7oGxYB9LLcb2yy02Zu3LacBi5tP
+	 ukiTv1SWzzSbA==
+Subject: Re: [PATCH net v2] netfilter: ebtables: ebt_802_3: check the LLC
+ fields before reading them
 From: netdev-bot+sashiko@kernel.org
-To: mst@redhat.com
-Cc: linux-kernel@vger.kernel.org, dsahern@kernel.org, idosch@nvidia.com,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- horms@kernel.org, pablo@netfilter.org, fw@strlen.de, phil@nwl.cc,
- razor@blackwall.org, steffen.klassert@secunet.com,
- herbert@gondor.apana.org.au, willemdebruijn.kernel@gmail.com,
- netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev
-Date: Sun, 11 Oct 2026 22:02:34 +0000
-Message-ID: <179175615475.434549.9706462488069659983@kernel.org>
-In-Reply-To:
- <0a012b4923e189c4c593ef4f471e5ff0edbe9030.1791412497.git.mst@redhat.com>
-References:
- <0a012b4923e189c4c593ef4f471e5ff0edbe9030.1791412497.git.mst@redhat.com>
-X-sashiko-severity: High
+To: guozh23@xiaopeng.com
+Cc: pablo@netfilter.org, fw@strlen.de, phil@nwl.cc, razor@blackwall.org,
+ idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Date: Mon, 12 Oct 2026 03:42:59 +0000
+Message-ID: <179177657959.434549.13718920312504127960@kernel.org>
+In-Reply-To: <20261008024539.4106699-1-guozh23@xiaopeng.com>
+References: <20261008024539.4106699-1-guozh23@xiaopeng.com>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -53,10 +49,10 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 5 potential
+Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider.
 
-Critical: 0 · High: 2 · Medium: 2 · Low: 1
+Critical: 0 · High: 0 · Medium: 1 (2) · Low: 1
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -64,323 +60,186 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] The patch checks only IPv4, including inside shared code it
-  edits, and leaves IPv6 open to the same untrusted csum_start.
-- [High] The patch does not guard the most commonly reached checksum
-  completion on egress.
-- [Medium] IP-TFS SAs skip the new xfrm check entirely.
-- [Medium] The NFQUEUE check in nf_queue_checksum_help() keys on the
-  outer skb->protocol (`entskb->protocol == htons(ETH_P_IP)`), so PPPoE-…
-- [Low] ip_check_csum_start() takes its lower bound from the untrusted
-  iph->ihl field (`skb->network_header + ip_hdrlen(skb)`, with…
+- [Medium] In ebt_802_3_mt() (net/bridge/netfilter/ebt_802_3.c), the
+  patch makes every rule with EBT_802_3_TYPE require sizeof(struct…
+- [Low] The new comment in ebt_802_3_mt()
+  (net/bridge/netfilter/ebt_802_3.c, lines 27-30), and the matching…
+
+Pre-existing issues:
+- [Medium] This problem wasn't introduced by this patch, but it is kept
+  here because the concern requires validation.
+- [Medium] This problem wasn't introduced by this patch, but it is kept
+  here because the concern requires validation.
 
 --
 
-ipv4: validate checksum_start before completing checksum
+netfilter: ebtables: ebt_802_3: check the LLC fields before reading them
 
-The patch adds an ip_check_csum_start() helper. It rejects CHECKSUM_PARTIAL
-skbs whose csum_start points inside the IPv4 header. The helper runs before
-skb_checksum_help() in ip_do_fragment(), nf_br_ip_fragment(),
-nf_queue_checksum_help(), the CHECKSUM target and xfrm_output(), as a
-defence in depth measure against bad checksum metadata coming from tun and
-packet sockets.
+This patch changes ebt_802_3_mt() to read the LLC header with
+skb_header_pointer() at the mac header offset instead of dereferencing
+skb_mac_header() directly. Rules without SAP or TYPE constraints now return
+early, and the fetch length depends on which fields the rule examines.
+Frames too short for the requested fields now fail to match.
 
-Closes: https://lore.kernel.org/netdev/20260922030310.8684-2-habte.yibelo@gmail.com/
+> diff --git a/net/bridge/netfilter/ebt_802_3.c b/net/bridge/netfilter/ebt_802_3.c
+> index 68c2519bdc528..1a67376d146f8 100644
+> --- a/net/bridge/netfilter/ebt_802_3.c
+> +++ b/net/bridge/netfilter/ebt_802_3.c
 
-> diff --git a/include/net/ip.h b/include/net/ip.h
-> index 6f602df72ee62..d07c2c5730240 100644
-> --- a/include/net/ip.h
-> +++ b/include/net/ip.h
-> @@ -74,6 +74,13 @@ static inline unsigned int ip_hdrlen(const struct sk_buff *skb)
->  	return ip_hdr(skb)->ihl * 4;
->  }
->  
-> +static inline int ip_check_csum_start(const struct sk_buff *skb)
-> +{
-> +	if (unlikely(skb->csum_start < skb->network_header + ip_hdrlen(skb)))
-> +		return -EINVAL;
+[ ... ]
+
+>  static bool
+>  ebt_802_3_mt(const struct sk_buff *skb, struct xt_action_param *par)
+>  {
+>  	const struct ebt_802_3_info *info = par->matchinfo;
+> -	const struct ebt_802_3_hdr *hdr = ebt_802_3_hdr(skb);
+> -	__be16 type = hdr->llc.ui.ctrl & IS_UI ? hdr->llc.ui.type : hdr->llc.ni.type;
+> +	struct ebt_802_3_hdr _frame;
+> +	const struct ebt_802_3_hdr *frame;
+> +	unsigned int hlen;
+> +	__be16 type;
+> +
+> +	/* Without SAP or TYPE constraints the match only selects 802.3
+> +	 * frames, which ebt_basic_match() has already decided from the
+> +	 * ethertype/length field. Nothing in the LLC header is read.
+> +	 */
 
 [Severity: Low]
-The lower bound here comes from iph->ihl, and not every caller validates
-that field first. If ihl is below 5, can a csum_start inside the fixed
-20-byte IPv4 header still pass? With ihl == 0 the check becomes
-csum_start < network_header.
+Is this comment accurate? The commit message makes the same claim:
 
-One caller that can see an unvalidated ihl is nf_queue_checksum_help(),
-which only pulls sizeof(struct iphdr). For a bridge-family nft queue rule,
-nft_do_chain_bridge() calls nft_set_pktinfo_ipv4_validate(). That function
-treats ihl < 5 as unspec, but the chain is still evaluated:
+  "a rule without any SAP or TYPE constraint selects frames by their
+  802.3 length field alone, which ebt_basic_match() has already handled."
 
-tap frame with ihl = 0, csum_start = IP + 6..19
-  nft_do_chain_bridge()
-    nft_set_pktinfo_ipv4_validate()   -> falls back to unspec
-  queue verdict
-    nfqnl_build_packet_message()
-      nf_queue_checksum_help()
-        ip_check_csum_start()         -> returns 0
-        skb_checksum_help()           -> writes into IP header bytes 6..19
+ebt_basic_match() only checks the 802.3 length when the entry has
+EBT_802_3 set:
 
-The header is already invalid in this case, so the practical impact looks
-limited. Since this is a generic inline in include/net/ip.h, could the
-bound be clamped to at least sizeof(struct iphdr), or could ihl < 5 be
-rejected?
-
-> +	return 0;
-> +}
-> +
-
-[ ... ]
-
-> diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-> index a24cc8ee11d3e..eaa6fabda347e 100644
-> --- a/net/ipv4/ip_output.c
-> +++ b/net/ipv4/ip_output.c
-> @@ -771,9 +771,13 @@ int ip_do_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
->  	int err = 0;
->  
->  	/* for offloaded checksums cleanup checksum before fragmentation */
-> -	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-> -	    (err = skb_checksum_help(skb)))
-> -		goto fail;
-> +	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-> +		err = ip_check_csum_start(skb);
-> +		if (!err)
-> +			err = skb_checksum_help(skb);
-> +		if (err)
-> +			goto fail;
-> +	}
-
-[Severity: High]
-This covers the fragmentation path. What about the generic egress
-fallback? validate_xmit_skb()->skb_csum_hwoffload_help() finishes the
-checksum in software without any csum_start check:
-
-net/core/dev.c:skb_csum_hwoffload_help() {
+net/bridge/netfilter/ebtables.c:ebt_basic_match() {
     ...
-	if (features & NETIF_F_HW_CSUM)
-		return 0;
-
-	if (features & (NETIF_F_IP_CSUM | NETIF_F_IPV6_CSUM)) {
-		if (skb_has_ipv6_extension_hdr(skb))
-			goto sw_checksum;
-
-		switch (skb->csum_offset) {
-		case offsetof(struct tcphdr, check):
-		case offsetof(struct udphdr, check):
-			return 0;
-		}
-	}
-
-sw_checksum:
-	return skb_checksum_help(skb);
+	if (e->bitmask & EBT_802_3) {
+		if (NF_INVF(e, EBT_IPROTO, eth_proto_is_802_3(ethproto)))
+			return 1;
+	} else if (!(e->bitmask & EBT_NOPROTO) &&
+    ...
 }
 
-Any device without NETIF_F_HW_CSUM takes this path. NETIF_F_IP_CSUM
-devices take it too whenever csum_offset is not the TCP or UDP check
-offset. The sender picks csum_offset, so it can force the software path.
+ebt_802_3_mt_check() only checks info->bitmask and info->invflags
+against EBT_802_3_MASK. It never looks at the entry, so the kernel
+accepts this match on a rule with any protocol. Only the ebtables
+userspace tool enforces -p Length.
 
-__virtio_net_hdr_to_skb() accepts csum_start >= skb->data + 20, which is
-IP + 6 on tap. Take a forwarded IPv4 packet with csum_start at IP + 12. It
-can pass through ip_rcv(), ip_forward(), FORWARD and POSTROUTING
-(including SNAT) with CHECKSUM_PARTIAL intact. Could its saddr, daddr or
-protocol then be overwritten here, at the last step?
+On the nft_compat bridge path, nft_match_set_mtchk_param() fills in only
+ebt.ethproto and ebt.invflags. __nft_match_eval() then calls
+match->match() directly and never runs ebt_basic_match().
 
-Other places that finish checksums on arbitrary IPv4 traffic also have no
-check. Examples are netem_enqueue() in sch_netem.c, the DSA taggers
-(tag_ksz.c, tag_ocelot_8021q.c, tag_rtl8_4.c, tag_hellcreek.c) and
-xfrm_iptfs.c.
+The early return behaves the same as the old code. Could the comment be
+reworded so it doesn't imply that SAP/TYPE rules only ever see 802.3/LLC
+frames? As it stands, they can read Ethernet II payload bytes as
+dsap/ssap/type.
 
-The commit message says:
-
-  let's also check before we complete the checksum.
-
-Is it intended that the most common completion site is left out? Or is
-this meant to be covered by the input validation the commit message
-describes as forthcoming?
-
-[ ... ]
-
-> diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-> index a3bc002800510..477fc632657f4 100644
-> --- a/net/netfilter/nfnetlink_queue.c
-> +++ b/net/netfilter/nfnetlink_queue.c
+> +	if (!(info->bitmask & (EBT_802_3_SAP | EBT_802_3_TYPE)))
+> +		return true;
+> +
+> +	/* Only the dsap/ssap pair is examined for a SAP-only rule; the
+> +	 * type field (and the control byte that selects between the ui
+> +	 * and ni views of the union) is needed for a TYPE rule alone.
+> +	 */
+> +	hlen = sizeof(_frame);
+> +	if (!(info->bitmask & EBT_802_3_TYPE))
+> +		hlen = offsetof(struct ebt_802_3_hdr, llc.ui.ctrl);
 
 [ ... ]
 
-> @@ -674,6 +675,12 @@ static int nfqnl_put_bridge(struct nf_queue_entry *entry, struct sk_buff *skb)
->  
->  static int nf_queue_checksum_help(struct sk_buff *entskb)
->  {
-> +	if (entskb->protocol == htons(ETH_P_IP)) {
+> +	frame = skb_header_pointer(skb, skb_mac_offset(skb), hlen, &_frame);
+> +	if (!frame)
+> +		return false;
 
 [Severity: Medium]
-This test uses the outer skb->protocol. Can PPPoE-encapsulated IPv4 on a
-bridge skip the check?
+Can this reject well-formed SNAP UI frames for TYPE rules?
 
-With br_netfilter and filter_pppoe_tagged enabled, br_nf_forward_ip()
-pulls the encapsulation and runs br_validate_ipv4() and the IPv4 FORWARD
-hooks. br_nf_forward_finish() then restores the outer protocol before the
-bridge FORWARD hooks continue:
+For any rule with EBT_802_3_TYPE, hlen is sizeof(struct ebt_802_3_hdr),
+which is 24 bytes. That size comes from the hdr_ni member. Its type field
+sits at frame bytes 22..23, after a padding byte, which makes the union
+10 bytes.
 
-net/bridge/br_netfilter_hooks.c:br_nf_forward_finish() {
-    ...
-		nf_bridge_update_protocol(skb);
-	} else {
-		in = *((struct net_device **)(skb->cb));
-	}
-	nf_bridge_push_encap_header(skb);
-    ...
-}
+For a UI frame (ctrl & IS_UI), the TYPE branch only reads dsap, ssap and
+ctrl (frame bytes 14..16) and llc.ui.type (frame bytes 20..21). That is
+22 bytes in total.
 
-A later bridge-family nft queue rule (copy-packet, without
-NFQA_CFG_F_GSO) would reach this function with protocol ETH_P_PPP_SES.
-ip_check_csum_start() is skipped, and skb_checksum_help() then writes into
-the inner IPv4 header that was already validated.
+Take a complete SNAP UI frame (dsap = ssap = 0xaa, ctrl = 0x03) that is
+22 or 23 bytes long from the mac header. For that frame,
+skb_header_pointer() returns NULL here, and the match returns false
+whether or not the rule is inverted. Before the patch, every byte read
+for such a frame was inside the frame.
 
-The inner IP header sits at mac + 22, and virtio allows csum_start
->= mac + 20, so the write can even hit version/ihl.
+Physical NICs pad frames to 60 bytes. Tap, veth and AF_PACKET senders on
+a bridge port can still inject frames this short, and the bridge does not
+pad them. A rule like "--802_3-type 0x0800 -j ACCEPT" no longer matches
+these frames, and "--802_3-type ! X -j DROP" no longer drops them.
 
-After an accept verdict, br_nf_post_routing() treats the packet as IPv4
-again without revalidating it:
+This also seems at odds with the commit message, which says the patch
+will:
 
-net/bridge/br_netfilter_hooks.c:br_nf_post_routing() {
-    ...
-	nf_bridge_pull_encap_header(skb);
-	if (pf == NFPROTO_IPV4)
-		skb->protocol = htons(ETH_P_IP);
-    ...
-}
+  "require only the bytes each rule actually examines"
 
-NF_INET_POST_ROUTING (conntrack/NAT) and br_nf_dev_queue_xmit() then run
-on the modified header.
+Would it work to fetch up to and including ctrl first? The code could
+then require offsetof(struct ebt_802_3_hdr, llc.ui.type) + 2 for UI, or
+the end of the ni type for NI. A second skb_header_pointer() for just
+the selected type field would also work.
 
-> +		if (!pskb_network_may_pull(entskb, sizeof(struct iphdr)) ||
-> +		    ip_check_csum_start(entskb))
-> +			return -EINVAL;
-> +	}
-> +
->  	if (skb_csum_is_sctp(entskb))
->  		return skb_crc32c_csum_help(entskb);
 >  
-> diff --git a/net/netfilter/xt_CHECKSUM.c b/net/netfilter/xt_CHECKSUM.c
-> index 9d99f5a3d1764..1fb0f8118404d 100644
-> --- a/net/netfilter/xt_CHECKSUM.c
-> +++ b/net/netfilter/xt_CHECKSUM.c
+>  	if (info->bitmask & EBT_802_3_SAP) {
 
 [ ... ]
 
-> @@ -25,8 +26,11 @@ MODULE_ALIAS("ip6t_CHECKSUM");
->  static unsigned int
->  checksum_tg(struct sk_buff *skb, const struct xt_action_param *par)
->  {
-> -	if (skb->ip_summed == CHECKSUM_PARTIAL && !skb_is_gso(skb))
-> +	if (skb->ip_summed == CHECKSUM_PARTIAL && !skb_is_gso(skb)) {
-> +		if (xt_family(par) == NFPROTO_IPV4 && ip_check_csum_start(skb))
-> +			return NF_DROP;
->  		skb_checksum_help(skb);
-
-[Severity: High]
-checksum_tg() is also registered for NFPROTO_IPV6 in checksum_tg_reg[], so
-ip6t_CHECKSUM still calls skb_checksum_help() with no check. Is IPv6 left
-out on purpose?
-
-The other shared paths in this patch work the same way.
-nf_queue_checksum_help() and xfrm_output() only check
-skb->protocol == htons(ETH_P_IP). The IPv6 versions of the two
-fragmenters hardened here keep the old pattern:
-
-net/ipv6/ip6_output.c:ip6_fragment() {
-    ...
-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-	    (err = skb_checksum_help(skb)))
-		goto fail;
-    ...
-}
-
-net/ipv6/netfilter.c:br_ip6_fragment() {
-    ...
-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-	    (err = skb_checksum_help(skb)))
-		goto blackhole;
-    ...
-}
-
-Both commits named in Fixes: also send IPv6 through
-__virtio_net_hdr_to_skb(). For non-GSO packets, nh_min_len stays at
-sizeof(struct iphdr), so csum_start can point inside the 40-byte IPv6
-header.
-
-Even in IFF_TUN mode, csum_start = IP + 20 is accepted, which lets the
-write land in daddr. With tap, nexthdr, hop_limit, saddr and daddr can
-all be reached.
-
-Couldn't this rewrite an IPv6 header after ipv6_rcv() validation, routing
-and ip6tables/nft filtering, through ip6t_CHECKSUM, NFQUEUE reinjection or
-xfrm output? The commit message doesn't mention IPv6. Could both families
-be covered here, or could the commit message explain why IPv6 is left out?
-
-> +	}
->  
->  	return XT_CONTINUE;
->  }
-> diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-> index e305ba32e356b..f1f612cd7b438 100644
-> --- a/net/xfrm/xfrm_output.c
-> +++ b/net/xfrm/xfrm_output.c
-> @@ -823,16 +823,22 @@ int xfrm_output(struct sock *sk, struct sk_buff *skb)
->  	}
->  
->  	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-> -		err = skb_checksum_help(skb);
-> -		if (err) {
-> -			XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTERROR);
-> -			kfree_skb(skb);
-> -			return err;
-> +		if (skb->protocol == htons(ETH_P_IP)) {
-> +			err = ip_check_csum_start(skb);
-> +			if (err)
-> +				goto error;
->  		}
+>  	if (info->bitmask & EBT_802_3_TYPE) {
+> -		if (!(hdr->llc.ui.dsap == CHECK_TYPE && hdr->llc.ui.ssap == CHECK_TYPE))
+> +		type = frame->llc.ui.ctrl & IS_UI ? frame->llc.ui.type :
+> +						    frame->llc.ni.type;
 
 [Severity: Medium]
-Do IP-TFS SAs bypass this check? xfrm_bundle_create() sets:
+This isn't a bug introduced by this patch, but does this choose the
+right view of the union for S-format and I-format frames?
 
-	dst1->output = xfrm[i]->mode_cbs->output;
+frame->llc.ui.ctrl & IS_UI is true when either of the two low bits is
+set. The uAPI header says the control field is one byte only when the
+first byte is 0x03. That matches LLC_PDU_TYPE_IS_U() in
+include/net/llc_pdu.h:
 
-For IP-TFS this is iptfs_output_collect(), so inner IPv4 packets never
-reach xfrm4_output()/xfrm_output() with their own checksum metadata.
+#define LLC_PDU_TYPE_IS_U(pdu) \
+	(((pdu->ctrl_1 & LLC_PDU_TYPE_U_MASK) == LLC_PDU_TYPE_U) ? 1 : 0)
 
-iptfs_output_collect() only segments GSO skbs. A non-GSO CHECKSUM_PARTIAL
-skb is queued as is, and its checksum is finished later without a
-csum_start check:
+Control bytes 0x01 (S-format) and 0x02 (I-format) both have two-byte
+control fields, but here they select the ui view. With
+dsap = ssap = 0xaa, a TYPE rule then compares frame bytes 20..21 instead
+of the ni type location. That can produce false matches or false
+non-matches.
 
-net/xfrm/xfrm_iptfs.c:iptfs_first_skb() {
-    ...
-	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-		err = skb_checksum_help(skb);
-		if (err)
-			return err;
-    ...
-}
+Should the test be (frame->llc.ui.ctrl & IS_UI) == IS_UI?
 
-net/xfrm/xfrm_iptfs.c:iptfs_output_queued() {
-    ...
-			if (skb2->ip_summed == CHECKSUM_PARTIAL) {
-				if (skb_checksum_help(skb2)) {
-    ...
-}
+[Severity: Medium]
+This is also a pre-existing issue, but does frame->llc.ni.type read the
+SNAP type from the right offset?
 
-xfrm_output() only runs later, on the outer IP-TFS packet, which is
-already CHECKSUM_NONE. Consider a tap guest packet routed into an IP-TFS
-tunnel. Could its inner header still be rewritten after ip_rcv()
-validation and FORWARD filtering, then encrypted and sent to the peer?
+struct hdr_ni in include/uapi/linux/netfilter_bridge/ebt_802_3.h is not
+packed:
 
-> +		err = skb_checksum_help(skb);
-> +		if (err)
-> +			goto error;
->  	}
+struct hdr_ni {
+	__u8 dsap;
+	__u8 ssap;
+	__be16 ctrl;
+	__u8  orig[3];
+	__be16 type;
+};
 
-[ ... ]
+Natural alignment adds a padding byte after orig[3], so type ends up at
+LLC offset 8 (frame bytes 22..23). On the wire, a header with a 2-byte
+control field and a 3-byte OUI has the type at LLC offset 7 (frame bytes
+21..22).
+
+So whenever the ni view is picked, the comparison uses the second type
+byte plus the next payload byte, not the real SNAP type. The same padding
+is what makes sizeof(struct ebt_802_3_hdr) 24, which feeds into the hlen
+question above.
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/0a012b4923e189c4c593ef4f471e5ff0edbe9030.1791412497.git.mst%40redhat.com
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261008024539.4106699-1-guozh23%40xiaopeng.com
