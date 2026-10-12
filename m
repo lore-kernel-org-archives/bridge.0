@@ -1,245 +1,176 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56DC4397E86;
-	Mon, 12 Oct 2026 03:43:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF36C33FE33
+	for <bridge@lists.linux.dev>; Mon, 12 Oct 2026 08:04:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791776582; cv=none; b=lGEDgFLRTLctAW/113aLmbaaF7imBsa76HVcoircFh6wsnKK4MI9SYZGtR7SkgNPBjEc59oaphf59ZaiBHrVM1A/R8Kdw9ceLdaikOo9xb/D89CKDCbHbfywbxOoQVU6PgUxVhkFJ9bRXB01kOSMA5E7zTRel7qR096n/YVE2+0=
+	t=1791792245; cv=none; b=n5Y66KegteOTA3ABZcHpfesMfb7sWWi5op0kTykWdGJ+SBQXG71rUTN0RX7OQx4vzTnETzwWzmJr3I4NI52vUD+YaPK++mMz2CDM0wd1zWoSrGar8UfVQtLcr1O7oAs2rWhyDTGhxCNHWgXgCahTNVGI8MHjkLhoTsbpCB5lyFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791776582; c=relaxed/simple;
-	bh=1Yatm2bkBHGatM/f4l3ONLHfivAPAiPYQN+9EPPJA1s=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=NKS3iCpTAH3aD7SinKTYEm/hpg9g5UJmfn92ZvAH8DVmQaZXi3JTSnjVs5QyocKC6PU8i9d/DBkIW1KltFQVu2mg+Ctn9VfslZe9k0M1n3cf8pYtmPFGr6MjMwUbIYuMJFeJgFZ3uNPppYjU73wLUtcu4BiXFQIbYtVcmUSEA1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V8b/NILj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791792245; c=relaxed/simple;
+	bh=K9em4Tm9ugxQTtAX4IiYzZsiBtvjzXORczke2gHj6ls=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tPxPY6T2SpjUC2aNmRqwnT3AJf/P3V6HtGGOPSU6Dc6+Mi5eO0kDAgqnDwbNkgtyIJHQUluf3Fk9ZzzyvOSJiRlQ7xrg95V4KoydmXQVQigbkTtX9DvR98IhRBMz7gLWGbbjDXvAIdfEGUs8X9g90rh7Uux7erIc6AUBgC3qAus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NoTujpuE; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V8b/NILj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11FFB1F0089B;
-	Mon, 12 Oct 2026 03:43:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791776580;
-	bh=ZzxgQD2SMPs5sT/NYSKNh8vCxo0raIQzh0NGC3Qt3UE=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=V8b/NILjBiWnmdKnaDCrezkGZzf1hhfCdc198Vj9fb7Ox+wbITMhcUjgEZrDNoYkY
-	 pFb9bkU6vQ0byqjXdfeQIJEDCVXUaqp8B/SM2FBybuaiSZToK8AxbQZm0Gq8LrAuP0
-	 oSNInbHQ4zvTGgvjjejFasUOXkT/BPRVS2uHUNbdd74rpv/FCi9pJF9cXvLO+JJcw2
-	 w9IO8zlMW+Duv2UL/kQ/+ENbvYxvyCsMUvfDkBNRk3KwbgtuCrjTNwq6bXjQNuv7Oy
-	 q/EDzBTbjD+S1O0H5iywVsvZuvS0hpIa92spTPg7oGxYB9LLcb2yy02Zu3LacBi5tP
-	 ukiTv1SWzzSbA==
-Subject: Re: [PATCH net v2] netfilter: ebtables: ebt_802_3: check the LLC
- fields before reading them
-From: netdev-bot+sashiko@kernel.org
-To: guozh23@xiaopeng.com
-Cc: pablo@netfilter.org, fw@strlen.de, phil@nwl.cc, razor@blackwall.org,
- idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Date: Mon, 12 Oct 2026 03:42:59 +0000
-Message-ID: <179177657959.434549.13718920312504127960@kernel.org>
-In-Reply-To: <20261008024539.4106699-1-guozh23@xiaopeng.com>
-References: <20261008024539.4106699-1-guozh23@xiaopeng.com>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NoTujpuE"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2e8246b13cbso13101285ad.2
+        for <bridge@lists.linux.dev>; Mon, 12 Oct 2026 01:04:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791792243; x=1792397043; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Hc3DP5cOmEiiLgrIASB39ibcWyYPqeHj3lgqxS6llMQ=;
+        b=NoTujpuEz0Bj5QuirH9qqwAX6C2jowtwl5v6jcFqI0MWC82+uG9L3DUuxlZJolV1eR
+         o4+Tb+ly2xt0LKPtPorexUd6dZAqwS1pSL+7Dmu3TrBa2SXj16rHE8EsVTwaCuJrTWA2
+         YOe+VCISZIUiaG/iLgHL0nzZj1CKatHTJfXVyeIrF9Z6yvZfIYnl89LCVQ25hR95ijkA
+         4+nEKtOT1GWHXx+qN4G/y92OF8QQZO+CaPGgsDGI44eEq+Aj78LLBpPKpKk61PyLkmHI
+         7D70/3lDL9x3KigGDOGbnqNUYuTNVM3Zky5bstAUouNER8EAZvMD49oVFtrpTtUGoFkN
+         Kp4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791792243; x=1792397043;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Hc3DP5cOmEiiLgrIASB39ibcWyYPqeHj3lgqxS6llMQ=;
+        b=YOx09fsNf8JEp9Kygp50lZqen+1nKKQ4GF7Skqq/cgJrLIxDI4o24lFq5jE8MC/5eZ
+         E00G7dB4sYG14wQa8Z1iSFe/oJoDGfF4C2vjY3Zh3gqew745r6SqFdNXjbiBcO6l8GG+
+         rhBnZU1D6vItR8FfQupQSE0KELuhlwWxSrvF5NpEdIMyu6+3khf8en7IASNuns0wb4sv
+         NFkFp/IfbP6qWmx400rfiQq/cSV4ia8gZeKUFtaOQ4dp0oqxaXCRSZCYr4rGRR2mNPk4
+         xA0Y5nbEyEEga3umK1DzQHLo0RRIELWKQGHl1/VazhCT0c8QLXG5Oszvq+dyIkAaoBQp
+         3twA==
+X-Forwarded-Encrypted: i=1; AKwUvBzvRUCq9LFhIg4RmvZ9dd8K8E9/+Fa4Zg+wKMsd7I264RVKKgo3hiNC9sqL8d3dfQqZY8LekZ0=@lists.linux.dev
+X-Gm-Message-State: AFq9FYIn4yXAfVu79rO5RMjdDqbKEjLfTYcP/RcE1ooiuyK4sTL7mEre
+	moswP7BI91iuIduyGetKhH+siKb5jqAhiPvOuv/Px88f08kO8t4C1TZ5
+X-Gm-Gg: AYBFou3QKUpOhya6pYIrbOwbtFnxuKMi8v1t1ViD5d716/uux3HJ0v2Q8TRBTwxgZh8
+	4Y0T1/HXcHQWt3YVRjSXHOy1z9lrxecqKLVkUv6qhSZRXUMrIFN0fGWc/VnIIIRPw6kysTAQ6Sx
+	82Dn2c/akjN4TUyB+5UqGFyUcpLEWgofhpBFo/jsxAiFY1/WNa6e0Id0B/3kMLJUX9+YDZ79Fbi
+	DzNUnu36Z8LsG23XOpNysWFpLqJMMWXEw+09egYN0tj6R+1Py49CgfBx/v8+8mA0aH0H5dlbx/J
+	IbHzqxJKADzCud0RLEft4N6m1BdF6WtdC2zXSPRFz9AGuSQm7mbAFkuo8bQ6w6sDbwi09Ck8mdR
+	dlKmdyIX/pH5kp3u4+dy4QTWwvplCJM3tkj+Bb7PMWwChO4q76HhAodjubLhexO8Rrd5XR2oWE/
+	Xi3dTEbpkWQNQhPR0SnaM1w/+vnhSo4KkvZQVNVu3ztuhi/J7OAIVqj2Ya3j8B6Ji4gPPVEFfQy
+	9Iz1tqBMv4VkZDR17fdRmysZnHKCJPy/pDgilDqkyDRbtMI3hFSNi8rKQ==
+X-Received: by 2002:a17:902:db0a:b0:2dd:c053:9c71 with SMTP id d9443c01a7336-2e842ac8b2bmr84273155ad.39.1791792242900;
+        Mon, 12 Oct 2026 01:04:02 -0700 (PDT)
+Received: from JUNVYYANG-MC1.tencent.com ([43.132.141.24])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e8422da9b1sm40189785ad.66.2026.10.12.01.04.00
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 12 Oct 2026 01:04:02 -0700 (PDT)
+From: Jun Yang <juny24602@gmail.com>
+To: razor@blackwall.org,
+	idosch@nvidia.com
+Cc: davem@davemloft.net,
+	edumazet@kernel.org,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	horatiu.vultur@microchip.com,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Jun Yang <junvyyang@tencent.com>,
+	stable@kernel.org,
+	TencentOS Corvus AI <corvus@tencent.com>
+Subject: [PATCH net] net: bridge: don't re-arm the STP port timers on MRP driven ports
+Date: Mon, 12 Oct 2026 16:03:53 +0800
+Message-ID: <20261012080357.29015-1-juny24602@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+From: Jun Yang <junvyyang@tencent.com>
 
-Critical: 0 · High: 0 · Medium: 1 (2) · Low: 1
+br_set_state() returns without touching p->state when the port is MRP
+aware, so br_stp_disable_port() cannot move such a port to
+BR_STATE_DISABLED.  The br_port_state_selection() call at the end of
+br_stp_disable_port() therefore still processes the port: it is past the
+"if (p->state == BR_STATE_DISABLED) continue" test, it is a designated
+port (br_become_designated_port() ran a few lines earlier), and if MRP
+left it in BR_STATE_BLOCKING then br_make_forwarding() re-arms
+p->forward_delay_timer - after the timer_delete() that
+br_stp_disable_port() just did.
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+del_nbp() then frees the port through call_rcu() with the timer still
+queued on a timer base, and the timer wheel writes into (and eventually
+calls a function pointer out of) freed memory:
 
-- [Medium] In ebt_802_3_mt() (net/bridge/netfilter/ebt_802_3.c), the
-  patch makes every rule with EBT_802_3_TYPE require sizeof(struct…
-- [Low] The new comment in ebt_802_3_mt()
-  (net/bridge/netfilter/ebt_802_3.c, lines 27-30), and the matching…
+  BUG: KASAN: slab-use-after-free in __run_timers (include/linux/list.h:1175 kernel/time/timer.c:1820 kernel/time/timer.c:2356)
+  Write of size 8 at addr ffff88800ba32070 by task swapper/1/0
+   __run_timers (include/linux/list.h:1175 kernel/time/timer.c:1820 kernel/time/timer.c:2356)
+   run_timer_softirq (kernel/time/timer.c:2386 kernel/time/timer.c:2405)
+   handle_softirqs (kernel/softirq.c:645)
+  Allocated by task 1:
+   br_add_if (net/bridge/br_if.c:440 net/bridge/br_if.c:596)
+   do_set_master (net/core/rtnetlink.c:3076)
+  Freed by task 24:
+   kfree (mm/slub.c:6792)
+   kobject_put (lib/kobject.c:737)
+   rcu_core (kernel/rcu/tree.c:2919)
+  Last potentially related work creation:
+   __call_rcu_common.constprop.0 (kernel/rcu/tree.c:3181)
+   br_del_if (net/bridge/br_if.c:736)
+   do_set_master (net/core/rtnetlink.c:3060)
+  The buggy address is located 112 bytes inside of
+   freed 2048-byte region [ffff88800ba32000, ffff88800ba32800)
 
-Pre-existing issues:
-- [Medium] This problem wasn't introduced by this patch, but it is kept
-  here because the concern requires validation.
-- [Medium] This problem wasn't introduced by this patch, but it is kept
-  here because the concern requires validation.
+Skip the STP forwarding state machine for MRP driven ports, and for good
+measure shut the three port timers down in del_nbp() before the port is
+handed to call_rcu(), the way commit 2a00517db8de ("bridge: stp: Fix a
+potential use-after-free when deleting a bridge") did for the bridge
+timers.  timer_shutdown_sync() also makes any later arming attempt a
+no-op.
 
---
+Fixes: 419dba8a49d7 ("net: bridge: Add checks for enabling the STP.")
+Cc: stable@kernel.org
+Reported-by: TencentOS Corvus AI <corvus@tencent.com>
+Assisted-by: tencentos-corvus-ai:hy4-preview
+Signed-off-by: Jun Yang <junvyyang@tencent.com>
+---
+A KASAN reproducer for this issue is available if requested.
+---
+ net/bridge/br_if.c  | 4 ++++
+ net/bridge/br_stp.c | 6 ++++++
+ 2 files changed, 10 insertions(+)
 
-netfilter: ebtables: ebt_802_3: check the LLC fields before reading them
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index c52613431f88..ea36da07b56f 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -374,6 +374,10 @@ static void del_nbp(struct net_bridge_port *p)
+ 
+ 	br_netpoll_disable(p);
+ 
++	timer_shutdown_sync(&p->message_age_timer);
++	timer_shutdown_sync(&p->forward_delay_timer);
++	timer_shutdown_sync(&p->hold_timer);
++
+ 	call_rcu(&p->rcu, destroy_nbp_rcu);
+ }
+ 
+diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
+index c7e7e924f155..5f4bca38a40b 100644
+--- a/net/bridge/br_stp.c
++++ b/net/bridge/br_stp.c
+@@ -463,6 +463,12 @@ static void br_make_forwarding(struct net_bridge_port *p)
+ 	if (p->state != BR_STATE_BLOCKING)
+ 		return;
+ 
++	/* br_set_state() will not move an MRP driven port out of BLOCKING,
++	 * so arming forward_delay_timer for it only leaks a live timer.
++	 */
++	if (test_bit(BR_MRP_AWARE_BIT, &p->flags))
++		return;
++
+ 	if (br->stp_enabled == BR_NO_STP || br->forward_delay == 0) {
+ 		br_set_state(p, BR_STATE_FORWARDING);
+ 		br_topology_change_detection(br);
 
-This patch changes ebt_802_3_mt() to read the LLC header with
-skb_header_pointer() at the mac header offset instead of dereferencing
-skb_mac_header() directly. Rules without SAP or TYPE constraints now return
-early, and the fetch length depends on which fields the rule examines.
-Frames too short for the requested fields now fail to match.
-
-> diff --git a/net/bridge/netfilter/ebt_802_3.c b/net/bridge/netfilter/ebt_802_3.c
-> index 68c2519bdc528..1a67376d146f8 100644
-> --- a/net/bridge/netfilter/ebt_802_3.c
-> +++ b/net/bridge/netfilter/ebt_802_3.c
-
-[ ... ]
-
->  static bool
->  ebt_802_3_mt(const struct sk_buff *skb, struct xt_action_param *par)
->  {
->  	const struct ebt_802_3_info *info = par->matchinfo;
-> -	const struct ebt_802_3_hdr *hdr = ebt_802_3_hdr(skb);
-> -	__be16 type = hdr->llc.ui.ctrl & IS_UI ? hdr->llc.ui.type : hdr->llc.ni.type;
-> +	struct ebt_802_3_hdr _frame;
-> +	const struct ebt_802_3_hdr *frame;
-> +	unsigned int hlen;
-> +	__be16 type;
-> +
-> +	/* Without SAP or TYPE constraints the match only selects 802.3
-> +	 * frames, which ebt_basic_match() has already decided from the
-> +	 * ethertype/length field. Nothing in the LLC header is read.
-> +	 */
-
-[Severity: Low]
-Is this comment accurate? The commit message makes the same claim:
-
-  "a rule without any SAP or TYPE constraint selects frames by their
-  802.3 length field alone, which ebt_basic_match() has already handled."
-
-ebt_basic_match() only checks the 802.3 length when the entry has
-EBT_802_3 set:
-
-net/bridge/netfilter/ebtables.c:ebt_basic_match() {
-    ...
-	if (e->bitmask & EBT_802_3) {
-		if (NF_INVF(e, EBT_IPROTO, eth_proto_is_802_3(ethproto)))
-			return 1;
-	} else if (!(e->bitmask & EBT_NOPROTO) &&
-    ...
-}
-
-ebt_802_3_mt_check() only checks info->bitmask and info->invflags
-against EBT_802_3_MASK. It never looks at the entry, so the kernel
-accepts this match on a rule with any protocol. Only the ebtables
-userspace tool enforces -p Length.
-
-On the nft_compat bridge path, nft_match_set_mtchk_param() fills in only
-ebt.ethproto and ebt.invflags. __nft_match_eval() then calls
-match->match() directly and never runs ebt_basic_match().
-
-The early return behaves the same as the old code. Could the comment be
-reworded so it doesn't imply that SAP/TYPE rules only ever see 802.3/LLC
-frames? As it stands, they can read Ethernet II payload bytes as
-dsap/ssap/type.
-
-> +	if (!(info->bitmask & (EBT_802_3_SAP | EBT_802_3_TYPE)))
-> +		return true;
-> +
-> +	/* Only the dsap/ssap pair is examined for a SAP-only rule; the
-> +	 * type field (and the control byte that selects between the ui
-> +	 * and ni views of the union) is needed for a TYPE rule alone.
-> +	 */
-> +	hlen = sizeof(_frame);
-> +	if (!(info->bitmask & EBT_802_3_TYPE))
-> +		hlen = offsetof(struct ebt_802_3_hdr, llc.ui.ctrl);
-
-[ ... ]
-
-> +	frame = skb_header_pointer(skb, skb_mac_offset(skb), hlen, &_frame);
-> +	if (!frame)
-> +		return false;
-
-[Severity: Medium]
-Can this reject well-formed SNAP UI frames for TYPE rules?
-
-For any rule with EBT_802_3_TYPE, hlen is sizeof(struct ebt_802_3_hdr),
-which is 24 bytes. That size comes from the hdr_ni member. Its type field
-sits at frame bytes 22..23, after a padding byte, which makes the union
-10 bytes.
-
-For a UI frame (ctrl & IS_UI), the TYPE branch only reads dsap, ssap and
-ctrl (frame bytes 14..16) and llc.ui.type (frame bytes 20..21). That is
-22 bytes in total.
-
-Take a complete SNAP UI frame (dsap = ssap = 0xaa, ctrl = 0x03) that is
-22 or 23 bytes long from the mac header. For that frame,
-skb_header_pointer() returns NULL here, and the match returns false
-whether or not the rule is inverted. Before the patch, every byte read
-for such a frame was inside the frame.
-
-Physical NICs pad frames to 60 bytes. Tap, veth and AF_PACKET senders on
-a bridge port can still inject frames this short, and the bridge does not
-pad them. A rule like "--802_3-type 0x0800 -j ACCEPT" no longer matches
-these frames, and "--802_3-type ! X -j DROP" no longer drops them.
-
-This also seems at odds with the commit message, which says the patch
-will:
-
-  "require only the bytes each rule actually examines"
-
-Would it work to fetch up to and including ctrl first? The code could
-then require offsetof(struct ebt_802_3_hdr, llc.ui.type) + 2 for UI, or
-the end of the ni type for NI. A second skb_header_pointer() for just
-the selected type field would also work.
-
->  
->  	if (info->bitmask & EBT_802_3_SAP) {
-
-[ ... ]
-
->  	if (info->bitmask & EBT_802_3_TYPE) {
-> -		if (!(hdr->llc.ui.dsap == CHECK_TYPE && hdr->llc.ui.ssap == CHECK_TYPE))
-> +		type = frame->llc.ui.ctrl & IS_UI ? frame->llc.ui.type :
-> +						    frame->llc.ni.type;
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but does this choose the
-right view of the union for S-format and I-format frames?
-
-frame->llc.ui.ctrl & IS_UI is true when either of the two low bits is
-set. The uAPI header says the control field is one byte only when the
-first byte is 0x03. That matches LLC_PDU_TYPE_IS_U() in
-include/net/llc_pdu.h:
-
-#define LLC_PDU_TYPE_IS_U(pdu) \
-	(((pdu->ctrl_1 & LLC_PDU_TYPE_U_MASK) == LLC_PDU_TYPE_U) ? 1 : 0)
-
-Control bytes 0x01 (S-format) and 0x02 (I-format) both have two-byte
-control fields, but here they select the ui view. With
-dsap = ssap = 0xaa, a TYPE rule then compares frame bytes 20..21 instead
-of the ni type location. That can produce false matches or false
-non-matches.
-
-Should the test be (frame->llc.ui.ctrl & IS_UI) == IS_UI?
-
-[Severity: Medium]
-This is also a pre-existing issue, but does frame->llc.ni.type read the
-SNAP type from the right offset?
-
-struct hdr_ni in include/uapi/linux/netfilter_bridge/ebt_802_3.h is not
-packed:
-
-struct hdr_ni {
-	__u8 dsap;
-	__u8 ssap;
-	__be16 ctrl;
-	__u8  orig[3];
-	__be16 type;
-};
-
-Natural alignment adds a padding byte after orig[3], so type ends up at
-LLC offset 8 (frame bytes 22..23). On the wire, a header with a 2-byte
-control field and a 3-byte OUI has the type at LLC offset 7 (frame bytes
-21..22).
-
-So whenever the ni view is picked, the comparison uses the second type
-byte plus the next payload byte, not the real SNAP type. The same padding
-is what makes sizeof(struct ebt_802_3_hdr) 24, which feeds into the hlen
-question above.
-
+base-commit: e6b6078ea1731b05b3b552497b3bce4bf8b014ae
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261008024539.4106699-1-guozh23%40xiaopeng.com
+2.55.0
+
