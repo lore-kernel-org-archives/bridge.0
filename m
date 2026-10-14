@@ -1,35 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C9FC414420;
-	Wed, 14 Oct 2026 18:52:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4669747FB19
+	for <bridge@lists.linux.dev>; Wed, 14 Oct 2026 23:56:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792003930; cv=none; b=XmgTD+aWSyheVtL1Ysu802TfLN+3nsAExPasa/IHYACkTEdCx518maXsDntzIiffdlZMZlNBVtxUenicKBRd6c9mPAitfqDZUhypTpPfCNOOJ5YTcuAIu2zcZoF2MFYivkfTdfOJr9tG30pBobx7GA8OYUd5PwjeuvrUgvbGtls=
+	t=1792022194; cv=none; b=RiPLA02dwKCc46Fzuos+pNbLeSgtPd+csMIV3Reymfg8avB6BqIOB2rT0MnYR2X1sDFeoNptw2OoGqN9O0PISfY2LxXFcv/8iiN9VdJMYhWqj6dM4F5J0Os/DdlNxAjl7njGOAbcEw6e8UqO1cib1HyszxXCm3bKOqbroFZxlEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792003930; c=relaxed/simple;
-	bh=kZGH7MMg2Wja19RtiSj+1Amamfv1gUdu4bTkRRmWSj0=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=YQdc7543bqk41bE+Q4uYJj48mUoJHCc/uM9yeMHgAyZ7Fq6MMMBRbOWYA+xjRYWhTK9n1LdundOKJQvs+csCp8/7i076fd3XqbB/75x96pl2nmWhMnTeCXvUM9xQyl7ISUHqK0V3wi2YS17Nu50fjOJ/G4W6Ze15HUCVWpCf0rc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CMQs2zYV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792022194; c=relaxed/simple;
+	bh=nLu9+jS/Cn6oFT3DAy2pgKLYerUk78AHPFMk+9gkrY0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a2HqA0GZbcPgN1GQOYUR8MloJSswPKKCUuo+q9Qfpj0skB8CzCnrtLEbjwmR68Y4qr5NT0NUNPOaJIiseXb6pugFREHkXYWIhLo91yHGzj3QBlXQ90mSH4af4rh4kVE9NO7fQ1TZrD03udzreJvhKxjXW7qEsSiZbAtOIRlUKn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de; spf=pass smtp.mailfrom=bairaktaris.de; dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.b=Y1ziNk7m; arc=none smtp.client-ip=209.85.218.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CMQs2zYV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82BFE1F000C4;
-	Wed, 14 Oct 2026 18:52:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792003928;
-	bh=FbdBpumkp5+TpG0Fvg4ZlYm6pvo7OQXZOJFAULwlruw=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=CMQs2zYVlrOTPI2e3vvIGR/Aqn8snA0+6m88Npnasq9AMvw7t4YuRdgKw3R/7VVFN
-	 pmdQzHku+yQpgYvMb5hl+Me+ObYFMga9pkOx190Z0CFUtkGi/z8JRAjjqRJH7vEmHz
-	 kdRG316YHio7c+yVYgfdgoXpRgstu027FIhR/wDhy/XSjjud1m6fgWvUHEI3r6n+Py
-	 Zfr0ulzUIrYG2+8AMT04kSojpY8UXdpYsSw8joEZ6RPFx1q0krxtmOfEhUXgu1JmM0
-	 ye+JAMS57028W8IHoqzEhVYV93jjddpowM8iIX11HpwVwH/ATX0qbdz+6n8tnxqsfF
-	 zk+lSMb2njXoQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 773CE3A5499A;
-	Wed, 14 Oct 2026 18:52:08 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.b="Y1ziNk7m"
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-c350db5a761so619235366b.1
+        for <bridge@lists.linux.dev>; Wed, 14 Oct 2026 16:56:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bairaktaris.de; s=google; t=1792022191; x=1792626991; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ujWOXhajkBZtlCmsZmCoVumMM+X/QUn/djLaiVsONPE=;
+        b=Y1ziNk7m6JunzWNV0Sg/fGPe5DTgtTbH3jr+TVr4nXcwcSfBor6PVLYbd+Oki+ntlZ
+         nplgT97HPnqY5VfcYRx5bDCADUq0ob8Yd3H9T6MAM82g6zgz1BAWhF22+DYJSTRJXG1T
+         7DDUQnZ1HrHmeowKHq7odiPJJCbUzl0r93fi30dL/PKzAWIhBgE8YAzCe5oFVMC3yT91
+         5E1EcsZDTViDcV3NljBST8Wx8Uj8s5nn2oYHKMkwipFT4qna7ODjzcY9v/LvOey8dMdM
+         yEunRf8pRlSsDkf5rU6S8IAPEgCWSSagmJqeq8sU67mAZnSjCdQPvGQlTcgiTCOlNQ4u
+         s/Bg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792022191; x=1792626991;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=ujWOXhajkBZtlCmsZmCoVumMM+X/QUn/djLaiVsONPE=;
+        b=pN7+aF5SqHrsgepilXhT2Wa3Bz1cjXp71frdWKF4oypGEEAMTr5ChMKnb1pqqZd6r6
+         ctD/TZSB0PjsxKNcMSpbFvSpVpLBCZeAvdIMPzfkG19cARaGCCHAKYGgHVAnqrPuziDH
+         0WeeBIJ0Kd1exIo5+t+hS1cZ4zBWtRvU/SXYyBy9brH2eZjUnw+DcxhCTEQ6A7ExsGYB
+         BFMt7nsOxXPRK0qIcVI8NgkVwVwjcHNTW/4JIUjWHYND3yAuJAYcQ7VXXqqBSqhIIP8u
+         LvXJzrze5fdgRO8sCB7d9XGN5Aff8Pp0LEzrJz6IaYfg6H4uC+NKJmrbl96r8xWLIw7C
+         QbWA==
+X-Forwarded-Encrypted: i=1; AKwUvByfN/SsF049VrXyRVuaUXJmarA1wyJiCJEFAAUpC8w1mINoxnLPXvRMQWtZR9uyIwUfoU11Pvw=@lists.linux.dev
+X-Gm-Message-State: AFq9FYJiiKFy3QciVEYgXZYRoG1Uv53iB/aVHaMPtapWQWAtMG4K8uod
+	Hw0caoqAKYV+aPYtbEESzmemsrn8h6btvJaBJLID1VUw+IyANn5bd96IyMweaA6guw==
+X-Gm-Gg: AYBFou27OIkKcD7jTNcM6OvZPw+/kdESfCp7xin0UlbHFM5h34B3OWIVnkF9IlkCPRj
+	hiifIp84g7mb3EAurMfIpqsxWr+Xzyr86g1fO/FvTqQmJb8tNHCWGlUjJG57+92IXlO1bx3KqwG
+	/YVChDASVgnlv4DXG9H73XzXzt0Z4NM/sAN2e3aFdGdaFghlqF2GtmetR/4F/EUAhEGVo1Vw39i
+	LkXBN6/E0+XF6AXFJCMGRX6hPCdTyPwNid6NJ2WPyaBf6pQhl++arGX/vPIL+ZG4TKyOdOah5qx
+	1tuZZ1bbArduttmUp/PqNKEjtEdwfL2ke8nnbRSOBJsVBOpwcHOsPuCBlsWZ2fgshu4dRaYcS0V
+	maYokPzbftAuNypemeiP53PAOHTBTOXU1M7twnpfUJpbW3Hu9DbtyN77ysDev+HzFS+EuEvIo3I
+	mzdDSFDThs308dZC80gtjMtO15x2kj3e9tcbBQW0o8Yph/1WVNChPPdWa5qA10nJtDYuQLx9Ge0
+	L811pFMd92tUcO31rvw2Z2FGDlM4XHJOrEdvH39V/7tWlfNh7viKXe3qDpyoXdl+uOdAGWNc7s0
+	vHfPN6Pbib7T7Z3+Ob512CnlXh3BHoRA5CwhAdJ2MPMcFxJ4GTMESue33GLn8ZlNpwH6IR2YNMJ
+	obUqXn1mQAVFfFaKZ6z1tgS1LEp/ffCQ204PI3nO/b1hbZKKdFNKn7YF4v/iLKwb6OPsclpYJ8Z
+	5VoWBcGhusdetmEc3SVCkIPAQ=
+X-Received: by 2002:a17:907:3d52:b0:c26:1648:a076 with SMTP id a640c23a62f3a-c31aa0e93bdmr1626520966b.49.1792022191008;
+        Wed, 14 Oct 2026 16:56:31 -0700 (PDT)
+Received: from Desktop (p54affd5a.dip0.t-ipconnect.de. [84.175.253.90])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c3edab12007sm46101666b.82.2026.10.14.16.56.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Oct 2026 16:56:30 -0700 (PDT)
+From: Julius Bairaktaris <julius@bairaktaris.de>
+To: netfilter-devel@vger.kernel.org
+Cc: pablo@netfilter.org,
+	fw@strlen.de,
+	kadlec@netfilter.org,
+	phil@nwl.cc,
+	horms@kernel.org,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	shuah@kernel.org,
+	razor@blackwall.org,
+	idosch@nvidia.com,
+	ericwouds@gmail.com,
+	dqfext@gmail.com,
+	netdev@vger.kernel.org,
+	coreteam@netfilter.org,
+	linux-kselftest@vger.kernel.org,
+	bridge@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH nf-next v7 0/2] netfilter: flowtable: tear down bridged flows on layer 2 roaming
+Date: Thu, 15 Oct 2026 01:56:25 +0200
+Message-ID: <20261014235628.197976-1-julius@bairaktaris.de>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -37,44 +92,51 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] net: protocol: use assign_bit() where applicable
-From: patchwork-bot+bluetooth@kernel.org
-Message-Id: 
- <179200392701.2906069.4708864552723867241.git-patchwork-notify@kernel.org>
-Date: Wed, 14 Oct 2026 18:52:07 +0000
-References: <20260920022745.3145847-1-peng.fan@oss.nxp.com>
-In-Reply-To: <20260920022745.3145847-1-peng.fan@oss.nxp.com>
-To: Peng Fan <peng.fan@oss.nxp.com>
-Cc: alex.aring@gmail.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, razor@blackwall.org,
- idosch@nvidia.com, woojung.huh@microchip.com, UNGLinuxDriver@microchip.com,
- andrew@lunn.ch, olteanv@gmail.com, sam@mendozajonas.com, fercerpav@gmail.com,
- ms@dev.tdt.de, linux-kernel@vger.kernel.org, peng.fan@nxp.com,
- linux-bluetooth@vger.kernel.org, linux-wpan@vger.kernel.org,
- netdev@vger.kernel.org, bridge@lists.linux.dev, linux-x25@vger.kernel.org
 
-Hello:
+A flowtable flow that transmits straight to a bridge port keeps sending
+to the old port when the host moves to another port, for example a
+Wi-Fi station roaming between access points.
 
-This patch was applied to bluetooth/bluetooth-next.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Patch 1 makes the gc tear such a flow down, using the bridge fdb lookup
+from Pablo's patch. Patch 2 adds selftest cases.
 
-On Sun, 20 Sep 2026 10:27:44 +0800 you wrote:
-> From: Peng Fan <peng.fan@nxp.com>
-> 
-> Convert open-coded if/else with set_bit/clear_bit and their
-> non-atomic __set_bit/__clear_bit variants to the assign_bit/__assign_bit
-> API. Where a bit is toggled based on its own value, use change_bit()
-> instead.
-> 
-> [...]
+Tested on nf-next a5e7d8e446af in an x86 guest: nft_flowtable.sh passes,
+including all seven roaming cases, and ftrace shows no
+flow_offload_teardown during 10 s of steady traffic in any of them.
+flow_offload grows by 16 bytes (296 to 312 on x86_64).
 
-Here is the summary with links:
-  - net: protocol: use assign_bit() where applicable
-    https://git.kernel.org/bluetooth/bluetooth-next/c/ab86dbf4a6ad
+Changes in v7:
+- look up the fdb entry through a bridge hook instead of walking the
+  forward path again (from Pablo's patch)
+- save the vid of the fdb lookup; the encap stack does not have it for
+  untagged ports of a vlan_filtering bridge
+- build br_nf_utils.o only with CONFIG_NF_FLOW_TABLE
+- selftest: vlan_filtering case
 
-You are awesome, thank you!
+v6: https://lore.kernel.org/netfilter-devel/20261004171605.3544792-1-julius@bairaktaris.de/
+Pablo's patch: https://lore.kernel.org/netfilter-devel/20261014210256.1573072-1-pablo@netfilter.org/
+
+Julius Bairaktaris (2):
+  netfilter: flowtable: tear down direct xmit flows when the fdb entry
+    moves
+  selftests: netfilter: nft_flowtable.sh: roam a host between two bridge
+    ports
+
+ include/linux/netfilter.h                     |   8 +
+ include/net/netfilter/nf_flow_table.h         |   4 +
+ net/bridge/Makefile                           |   2 +
+ net/bridge/br.c                               |   2 +
+ net/bridge/br_nf_utils.c                      |  40 ++++
+ net/bridge/br_private.h                       |  13 ++
+ net/netfilter/core.c                          |   3 +
+ net/netfilter/nf_flow_table_core.c            |  27 +++
+ net/netfilter/nf_flow_table_path.c            |   9 +
+ .../selftests/net/netfilter/nft_flowtable.sh  | 204 ++++++++++++++++++
+ 10 files changed, 312 insertions(+)
+ create mode 100644 net/bridge/br_nf_utils.c
+
+
+base-commit: a5e7d8e446af9803e37a3b6a4d416fb41178348f
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.53.0
 
