@@ -1,52 +1,32 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from proxmox-new.maurer-it.com (proxmox-new.maurer-it.com [94.136.29.106])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682CA2367B8;
-	Fri, 16 Oct 2026 11:56:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CB95416853
+	for <bridge@lists.linux.dev>; Fri, 16 Oct 2026 15:51:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.136.29.106
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792151776; cv=none; b=eAyZ17W8/Ftvh2fIGqq4Gb/eQYDwTMubLOnjgwbtnL1hK1x7QH0t1GxoH7QVsTPc5dWF8n7Z9e0jpI+AhBemibw18+08esuSBOHtwjw5CYX6lSs9drtifRVr1PPmhmcDwoZAcY00QpIiVAUMN283JvnqDA86mNqndSy1G/t1Rio=
+	t=1792165910; cv=none; b=ABNSzqRA/bZMGZgPEGzg3FuCaGshxwznaZ/W8eLqNhp65YQSgn3G+YeIXeoxnoZzuueu0mb600n9rgYT4LonvqHUgYvHC58K64jheL+cBx/gOzUS4UbiRmLurzswux1U+6BUlBhWLrx6NqD876z332Q8qYqLC5yXRAA4UflHsPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792151776; c=relaxed/simple;
-	bh=HyzdCibjmBuu+Mz4LlCW22CV/VlkMRvQdGIUrWUb808=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=Fvkkkbk1gZjiOtANUxkEUTV3v2gByYmvPu0WUWiqb+L4pgpXV4wVdu+67zebqVud0d+TaOn95vm12To8Ap87sNRaLHNDqsUjp7DWHfqMwRafuYlK1TkrycofcxZ0+Ql15ede8OH+d56bsAPttK6zhzj3exw6MkSJwi29Zq9UxYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D8d8CjKV; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D8d8CjKV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B6E11F000C4;
-	Fri, 16 Oct 2026 11:56:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792151775;
-	bh=HyzdCibjmBuu+Mz4LlCW22CV/VlkMRvQdGIUrWUb808=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=D8d8CjKVNhFOL0ZW1vZLe5n6wQ26trtMwAg7EsG7zapwri+Lvwj4ZOE4hvFVMQmae
-	 uMoWfwfoupMlrD2ucAt7Sb9Ir/vw8aWgvP9YS9YaZdfUrcuWVi2spo7Yv4Z3jUa+ww
-	 Q14d6WGAlfruoisaThHdRqgl7y/bIm2dnYy4kmUwrNwmS0R97jLrjB6HOio6fLFOlb
-	 9NQvrHi8gKQWFpGPU/anFZRUBWpwyBLvRX/5w37LnJ/+W7Tm0yt9ZeMNxI/YxrGx0O
-	 FOnNVlLlIVBEP+gJyGCU3i3dDiY35OtyGMC7McI+O/NZBteKjHyNdeW+BxOgW2d1zT
-	 tPHSuBr9nTxZA==
-From: =?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Jason Wang
- <jasowangio@gmail.com>, Eugenio =?utf-8?Q?P=C3=A9rez?=
- <eperezma@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "David
- S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- netdev@vger.kernel.org, virtualization@lists.linux.dev, Rusty Russell
- <rusty@rustcorp.com.au>, Max Krasnyansky <maxk@qualcomm.com>, Pablo Neira
- Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, Phil Sutter
- <phil@nwl.cc>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel
- <idosch@nvidia.com>, Simon Horman <horms@kernel.org>, David Ahern
- <dsahern@kernel.org>, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, bridge@lists.linux.dev
-Subject: Re: [PATCH net-next v2 6/7] net: add ip4_parse()
-In-Reply-To: <2645c102b2f73292d1973b82c95def24e48064e1.1792067836.git.mst@redhat.com>
-References: <cover.1792067836.git.mst@redhat.com>
- <2645c102b2f73292d1973b82c95def24e48064e1.1792067836.git.mst@redhat.com>
-Date: Fri, 16 Oct 2026 13:56:12 +0200
-Message-ID: <87h5il506b.fsf@all.your.base.are.belong.to.us>
+	s=arc-20240116; t=1792165910; c=relaxed/simple;
+	bh=dEV7hzEa6Vta9NCBnSztXL8acglcKteH4D2HOXHWrro=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=g1YK0OiVKPwju9SU+Y2hrvrd+bCc0Qf7Fe55fMAypisZidktRFWq/Vet5+6sHpkqKCfz6mYdzao5RqyZi3fY0ErdyhEDGYv8pDTCVti9uM1Z7GnGMpQUCy6rNzJktCe7f/tuLaiYiVGguym3iKBhmbDY1rzxy34rLk730lpyti0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=proxmox.com; spf=pass smtp.mailfrom=proxmox.com; arc=none smtp.client-ip=94.136.29.106
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=proxmox.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proxmox.com
+Received: from proxmox-new.maurer-it.com (localhost.localdomain [127.0.0.1])
+	by proxmox-new.maurer-it.com (Proxmox) with ESMTP id B02DE489FA;
+	Fri, 16 Oct 2026 17:51:39 +0200 (CEST)
+Date: Fri, 16 Oct 2026 17:51:38 +0200
+From: Gabriel Goller <g.goller@proxmox.com>
+To: Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, davem@davemloft.net, 
+	kuba@kernel.org, pabeni@redhat.com, edumazet@kernel.org, razor@blackwall.org, 
+	horms@kernel.org, petrm@nvidia.com, yunlong_ma@buaa.edu.cn
+Subject: Re: [PATCH net 0/2] bridge: mcast: Fix MDB exhaustion by rejected
+ entries
+Message-ID: <atJH5h69c6jAuXg5@luna.proxmox.com>
+References: <20261016101407.2030133-1-idosch@nvidia.com>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -54,19 +34,40 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+In-Reply-To: <20261016101407.2030133-1-idosch@nvidia.com>
+User-Agent: NeoMutt/20260504
+X-Bm-Milter-Handled: 55990f41-d878-4baa-be0a-ee34c49e34d2
+X-Bm-Transport-Timestamp: 1792165899147
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
+On 16.10.2026 13:14, Ido Schimmel wrote:
+> When the bridge fails to create a port group for a new MDB entry, the
+> entry is left behind with no ports and is never deleted, but it is still
+> counted towards mcast_hash_max. Since the introduction of
+> mcast_max_groups, a host behind a port that reached its maximum can use
+> this to exhaust the MDB and disable multicast snooping.
+> 
+> Patch #1 fixes the problem by deleting the entry upon failure.
+> 
+> Patch #2 adds a selftest.
+> 
+> Ido Schimmel (2):
+>   bridge: mcast: Delete empty MDB entry when port group creation fails
+>   selftests: forwarding: bridge_mdb_max: Add a test for rejected MDB
+>     entries
+> 
+>  net/bridge/br_mdb.c                           |  16 +-
+>  net/bridge/br_multicast.c                     |   9 ++
+>  net/bridge/br_private.h                       |   1 +
+>  .../net/forwarding/bridge_mdb_max.sh          | 138 ++++++++++++++++++
+>  4 files changed, 161 insertions(+), 3 deletions(-)
+> 
+> -- 
+> 2.56.0
 
-> Multiple places in the net stack open-code the same minimal IPv4 header
-> validation: pull the fixed header, check version 4 and IHL >=3D 5 (where 5
-> is the fixed header size in 32-bit units) - and locate the transport
-> header at IHL * 4 past the network header.
->
-> Add a helper for doing that: it returns the validated header and
-> the transport header offset, or NULL if truncated or malformed.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: LLM
+Thanks,
+Consider:
 
-Reviewed-by: Bj=C3=B6rn T=C3=B6pel <bjorn@kernel.org>
+Tested-by: Gabriel Goller <g.goller@proxmox.com>
+Reviewed-by: Gabriel Goller <g.goller@proxmox.com>
+
