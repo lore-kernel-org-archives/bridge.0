@@ -1,336 +1,515 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C08334EC653
-	for <bridge@lists.linux.dev>; Mon, 19 Oct 2026 12:03:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DFB04D73B8;
+	Mon, 19 Oct 2026 14:02:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792411429; cv=none; b=rRhlNdFoBNvAAvAJgkeBL9W2V+3tvHwxcUy3Izum8x1SKJWKXkAhx3qgosyGWvuaY4StlgYxsbyM5CJjxaoS0vwT+pk3oLuTxfEU6Yz37/rXtLjk5B3ESPLV4LUZuqBuFft+DA0aKlex3wmVTu7k4iHtBbtnvSVyWtnwHVwm8Pk=
+	t=1792418526; cv=none; b=GetcLJtOMoaYpl4cEa7reYjmQqqh5NXFUkCzSthPHkvfCL+mgpkXNrFV149Oex8HCnJwrXirKzG4S4ZbWClFKMYqnO7NUA9ih4kyUxiXdrXmppSv8NJWENznHw8S8aKLH9nTmkozNIdyvTJFRpFAKg0uAaDZw1ptG4a7HfHOo7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792411429; c=relaxed/simple;
-	bh=4xBJ6J3iuSF36G6RpbWT4lVJdCclbuvdUzPPgykXxfc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qOpUnkRlciHCQMdRpw0wPOfQx6JgBIZCOrja11Jt9sXEgxwny7R/KRDPjjTTUvlV2moFDlkdEzrNVBo2u6RA4P0NSf9qvOIcAe0ELuRbDAI+B8j0AL+Dj9qXX/nUwUi7Kni9vRE78YD8JVRZYs8cH6pA27kwvqPGi6+nAw4Lgpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YYOrPr0J; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1792418526; c=relaxed/simple;
+	bh=Qb75CgYlwdM8XV9iRNoXRIk8ViIQgsrvj9Ml8WaJ+Ns=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=aMvkikubKQiUQC5boMck/3tvZQliWs/UBSV1Lfj3VVGatJAexDx4LBBgmm4m4aHXd4bE0uCHEBTXdqghU7IKi9dQsVcf9g9eIB4yUJGaCWA4d6iKk8apwkCg8PRGEKygl8k8czUoijPGzzSHD9mvE1kIlQL5ESIiW5Vg5KQ/SUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a/39ILUj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YYOrPr0J"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792411425;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gCjp2dQNMUJar27ptT1bxSKOhQtdKOeP9BpU3pm389M=;
-	b=YYOrPr0Jt2yZKJOynOSar4oUeGPlP4R2jtS2/tMHUR6m381fKZoITXTw7n+U5wW44RlIes
-	w4iavWLYzwW6WZDGNzEKeWzgkB2jJJyWQ/UrP9DlmQaAkILWHEfgUFr8C/+byj1gUxWynD
-	w0mOwvSpuwXlsT2jGjg92yrAbq+suAY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-184-ywIxqbJFMNSOU7EVMKvvrg-1; Mon, 19 Oct 2026 12:03:44 +0000
-X-MC-Unique: ywIxqbJFMNSOU7EVMKvvrg-1
-X-Mimecast-MFC-AGG-ID: ywIxqbJFMNSOU7EVMKvvrg_1792411423
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a1e295b702so13126555e9.2
-        for <bridge@lists.linux.dev>; Mon, 19 Oct 2026 05:03:44 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792411423; x=1793016223;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=gCjp2dQNMUJar27ptT1bxSKOhQtdKOeP9BpU3pm389M=;
-        b=ffXNjuC1+Ez+tpYit9qH6zGtM+uy1fowbCkkTP7Erz7SX/aEizjCfuWWsUwPVnK2qk
-         bwfUBckhZRaOt/UaLI/1VIRwUn2hBVO8dSW/b7z3vzXvM5/O6CUhei9k5qEXd1KdaCkc
-         OczwzlU3FXCe/2oYFwcr6SXqoOyWn65ZQB24sMhzqRQv4h45AYSItuyf5Wdct2asqbrW
-         RjNuPowqKVupI7bCr6Vi8JKd00WvYGvukodTQC+6yk0GP//scLc12Zig7Xq+yw1pyTmP
-         eM9kfx9twVKqwaP7x8GuQWWtp4q6LN85D9Lm4lDZh+wCJ8+z0d4IrPngCX/0rAaEMCpL
-         7BPA==
-X-Forwarded-Encrypted: i=1; AKwUvBxOljVMN3poLdWiz2PYiMSNwzz1p6N/MaXSu1I78iEafKBMK4kitf4Q8qJE97l4V5GM1cIVlq0=@lists.linux.dev
-X-Gm-Message-State: AFq9FYKmI4uZLDR9l8QeqcP4EqRiNl23i7ilgnMalIM6TFQPN2C4DMMP
-	XQLFZzUfDxtFbhwro9GPoO74C4VpPP4d20IiPkVEDlldxD7BWQVAhmsFt2VgP3zYYsbq/eSXEU9
-	5dQl7DzZQPQpw2ZCg0xc78JhJgFN0DyLCOQ4e5jU+vtRO9y+XOOl9GScrbw==
-X-Gm-Gg: AYBFou1l+Dd4zQo17natL1xBIgqiAIYpJnXJIglniTC28jNcoD66P4QM2qavQHc5v8V
-	osc0GDiNF/AWqK6WkCPud+ff59+UXy/DHhu1r3uijSSWW8ROeUmhHA+ZwKSFiCffAZnVX0nIo1v
-	RU9CgZ7kItt/VniDhH9c/JB4lbpkIPaKdPJjALA18nkZAgjN2TrtQH5+LXxE5hHLchD3glKafa0
-	hAF5HMTiLIDCJub/iyqyZGWXhRuTe8kNeR+VUhmselkMSsWouDOxJ7bjYVP8Ng1TN/h+42v/n2e
-	SbktX6pcxYDai0FYtZzaNs+SiWczJ2Cy9l2tF6Jp3ZiNm1FQZ3g5APRCRrYGVEDmdjEKNA==
-X-Received: by 2002:a05:600c:64c9:b0:4a1:f0ca:2de6 with SMTP id 5b1f17b1804b1-4a1f0ca3812mr1628065e9.14.1792411422875;
-        Mon, 19 Oct 2026 05:03:42 -0700 (PDT)
-X-Received: by 2002:a05:600c:64c9:b0:4a1:f0ca:2de6 with SMTP id 5b1f17b1804b1-4a1f0ca3812mr1626725e9.14.1792411422109;
-        Mon, 19 Oct 2026 05:03:42 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:3fd7:5300:3d6b:52a4:a23f:9d0b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd9c001dsm356079805e9.12.2026.10.19.05.03.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Oct 2026 05:03:41 -0700 (PDT)
-Date: Mon, 19 Oct 2026 08:03:37 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Chris Arges <carges@cloudflare.com>,
-	=?utf-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a/39ILUj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B67381F000C6;
+	Mon, 19 Oct 2026 14:02:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792418524;
+	bh=Ma8s4LVFQY649KjDepXzI1/wOG9UbmIpugztJsBFM5g=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=a/39ILUjHHJR8izdvcINKSvGFnYZJzUU3Q7dbGNfu2S1hYFkNFHahDGvSFUZwG4ut
+	 LWVadlWxQVY8licl2LSyQHSgh6KybNnAxRIrmV/h1MaqknsCde57n/g1tHrnVwX5It
+	 GDuDLX1V+0nCveOzRCZi5w+DbRWLKc0/6KYNR64oXakGtAhVHt6aEQxYyGQuytyLfI
+	 CbiUxZLWtkUyvzXjqj6lcanZc+FinnDG/JmeNd6Id62rccqspj4f8Nk7E0f+P/omXi
+	 BK1tYVwST6HnHXXkqzFG+BIxJlJ9raMZHBDgDR/zxOSOdcpR4xQhS4lnuFCR7IlCFm
+	 XaLQss2dwDyBw==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
+	stable@vger.kernel.org
+Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
 	Florian Westphal <fw@strlen.de>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>, Simon Horman <horms@kernel.org>,
-	David Ahern <dsahern@kernel.org>, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev
-Subject: [PATCH net v3 7/8] net: add ip4_parse()
-Message-ID: <8a90cdf35017ad3e2baf04c209718dd4e8d93b0b.1792411304.git.mst@redhat.com>
-References: <cover.1792411304.git.mst@redhat.com>
+	Sasha Levin <sashal@kernel.org>,
+	pablo@netfilter.org,
+	razor@blackwall.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@kernel.org,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.18-5.10] netfilter: ebtables: bound num_counters like nentries in do_replace()
+Date: Mon, 19 Oct 2026 09:50:00 -0400
+Message-ID: <20261019135441.1420968-309-sashal@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
+References: <20261019135441.1420968-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1792411304.git.mst@redhat.com>
-X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vSkC_xOo83c4Qy_QdHy2brRd0OY_T5YWl7fwYMMUD3E_1792411423
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.18.57
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Multiple places in the net stack open-code the same minimal IPv4 header
-validation: pull the fixed header, check version 4 and IHL >= 5 (where 5
-is the fixed header size in 32-bit units) - and locate the transport
-header at IHL * 4 past the network header.
+From: Jiayuan Chen <jiayuan.chen@linux.dev>
 
-Add a helper for doing that: it returns the validated header and
-the transport header offset, or NULL if truncated or malformed.
+[ Upstream commit 43ae85af154b27f9a0ff602f7a01e3a7583ffdab ]
 
-As noted by Phil Sutter, there are more places that could use this
-helper, e.g. ip_mc_check_iphdr(). They will be converted in a follow-up
-patch.
+do_replace_finish() allocates the counter buffer before it is validated:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Assisted-by: LLM
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
-Reviewed-by: Phil Sutter <phil@nwl.cc>
+   counterstmp = vmalloc_array(repl->num_counters, sizeof(*counterstmp));
+
+do_replace() only checks num_counters against INT_MAX / sizeof(struct
+ebt_counter), so vmalloc_array() can be asked for up to 134217726 * 16 =
+2147483616 bytes (~2 GiB).
+
+num_counters must in fact equal nentries: do_replace_finish() later
+rejects the request when repl->num_counters != t->private->nentries.
+get_counters() folds the per-CPU counters back into one entry per rule,
+so what userspace gets is bounded by nentries, never by nentries *
+nr_cpus. Apply the same upper bound used for nentries (MAX_EBT_ENTRIES)
+to the incoming num_counters so the over-sized allocation can no longer
+be requested.
+
+The allocation is still kept outside the ebt_mutex, since vmalloc() may
+sleep and trigger reclaim; only the bound is tightened.
+
+Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ip.h                  | 27 +++++++++++++++++++++++++++
- include/linux/virtio_net.h          | 28 +---------------------------
- net/bridge/br_netfilter_hooks.c     | 15 +++++----------
- net/ipv4/ip_input.c                 | 13 +++++--------
- net/ipv4/netfilter/nf_reject_ipv4.c | 13 +++++--------
- 5 files changed, 43 insertions(+), 53 deletions(-)
 
-diff --git a/include/linux/ip.h b/include/linux/ip.h
-index d11c25f5030a..7dc666e55a72 100644
---- a/include/linux/ip.h
-+++ b/include/linux/ip.h
-@@ -56,4 +56,31 @@ static inline void iph_set_totlen(struct iphdr *iph, unsigned int len)
- {
- 	iph->tot_len = len <= IP_MAX_MTU ? htons(len) : 0;
- }
-+
-+/**
-+ * ip4_parse - pull and minimally validate an IPv4 header
-+ * @skb: buffer to parse
-+ * @nhoff: offset of the IPv4 header within the linear data
-+ * @thoff: returns the transport header offset
-+ *
-+ * Only the fixed header is guaranteed linear on return: callers
-+ * that need the options or the transport header must pull
-+ * further.
-+ */
-+static inline struct iphdr *ip4_parse(struct sk_buff *skb,
-+				      unsigned int nhoff,
-+				      unsigned int *thoff)
-+{
-+	struct iphdr *iph;
-+
-+	if (!pskb_may_pull(skb, nhoff + sizeof(struct iphdr)))
-+		return NULL;
-+
-+	iph = (struct iphdr *)(skb->data + nhoff);
-+	if (iph->version != 4 || iph->ihl < sizeof(struct iphdr) / sizeof(u32))
-+		return NULL;
-+
-+	*thoff = nhoff + iph->ihl * sizeof(u32);
-+	return iph;
-+}
- #endif	/* _LINUX_IP_H */
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 25aa95c11e31..beaecd9cd28d 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -53,32 +53,6 @@ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
- 	return 0;
- }
+LLM Generated explanations, may be completely bogus:
+
+This is a real allocate-before-validate bound bug in legacy ebtables
+`do_replace()`. The local tree is **6.18.53**; the buggy checks are
+present here and the fix is small enough to apply cleanly.
+
+===============================================================
+PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
+
+Step 1.1: PARSE THE SUBJECT LINE
+- Subsystem: `netfilter: ebtables`
+- Action verb: **bound** (limit an existing userspace-controlled size)
+- Intent: cap `num_counters` with the same ceiling already used for
+  `nentries` in `do_replace()`
+Record: [netfilter/ebtables] [bound] [tighten `num_counters` so
+`do_replace()` cannot request a ~2 GiB counter `vmalloc`]
+
+Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
+- Signed-off-by: Jiayuan Chen \<jiayuan.chen@linux.dev\> (author)
+- Signed-off-by: Florian Westphal \<fw@strlen.de\> (netfilter/ebtables
+  maintainer; applied the patch)
+- Signed-off-by: Sasha Levin — **ignored** (pipeline)
+- `[Upstream commit 43ae85af154b…]` — **ignored** (pipeline)
+- No Fixes:, Reported-by:, Tested-by:, Reviewed-by:, Acked-by:, Link:,
+  or Cc: stable
+Record: Author SOB + maintainer SOB only. Absence of Fixes/Cc-stable is
+expected and not a negative.
+
+Step 1.3: ANALYZE THE COMMIT BODY TEXT
+Bug: `do_replace_finish()` does `vmalloc_array(repl->num_counters,
+sizeof(*counterstmp))` **before** checking `repl->num_counters !=
+t->private->nentries`. `do_replace()` only rejects `num_counters >=
+INT_MAX / sizeof(struct ebt_counter)`, so the allocation can be up to
+`134217726 * 16 = 2147483616` bytes (~2 GiB). Semantically
+`num_counters` must equal the current table’s `nentries`;
+`get_counters()` returns one summed entry per rule, not per-CPU.
+Symptom: a crafted `EBT_SO_SET_ENTRIES` sockopt can force a huge
+`vmalloc` and reclaim/OOM, then the request is rejected.
+Root cause: allocate-then-validate; the `nentries` overflow formula is
+much tighter than the `num_counters` formula.
+Record: [oversized counter vmalloc before validation] [memory exhaustion
+/ reclaim DoS] [bug present since the 2010 overflow checks] [same
+MAX_EBT_ENTRIES ceiling as nentries]
+
+Step 1.4: DETECT HIDDEN BUG FIXES
+Not disguised. Explicit bound-check fix for a userspace-controlled
+allocation. Extracting the existing `nentries` formula into
+`MAX_EBT_ENTRIES` is mechanical, not a hidden refactor.
+Record: [Direct bug fix, not a hidden cleanup]
+
+===============================================================
+PHASE 2: DIFF ANALYSIS - LINE BY LINE
+===============================================================
+
+Step 2.1: INVENTORY THE CHANGES
+File: `net/bridge/netfilter/ebtables.c` — 6 insertions, 6 deletions.
+Functions: file-scope `#define MAX_EBT_ENTRIES`; `do_replace()`;
+`compat_copy_ebt_replace_from_user()`.
+Record: [1 file, ±6 lines] [do_replace,
+compat_copy_ebt_replace_from_user] [single-file surgical fix]
+
+Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
+Hunk 1: existing `nentries` overflow expression becomes
+`MAX_EBT_ENTRIES` (same formula).
+Hunk 2 (`do_replace`): `num_counters >= INT_MAX / sizeof(struct
+ebt_counter)` → `num_counters >= MAX_EBT_ENTRIES`.
+Hunk 3 (compat): same `num_counters` change.
+Normal sockopt replace path, before any allocation of `newinfo` /
+`counterstmp`.
+Record: [before: num_counters allowed up to ~134M; after: same ceiling
+as nentries]
+
+Step 2.3: IDENTIFY THE BUG MECHANISM
+Category: memory-safety / resource-exhaustion bound check (not UAF,
+leak, or race).
+Mechanism: `num_counters` is independent of sockopt `len` (`len` only
+covers `sizeof(ebt_replace) + entries_size`). A small blob plus a huge
+`num_counters` still reaches `vmalloc_array()`. `vmalloc_array()` uses
+`check_mul_overflow`, so this is not an integer-wrap heap overflow; it
+is a ~2 GiB allocation request. Later `do_replace_finish()` rejects
+mismatched `num_counters` and `vfree`s the buffer.
+Record: [resource exhaustion] [userspace size used for vmalloc before
+semantic validation]
+
+Step 2.4: ASSESS THE FIX QUALITY
+Obviously correct: `num_counters` must equal current `nentries`, and
+`nentries` was already capped by this formula. Kernel-registered initial
+tables (`ebtable_filter` etc.) have a handful of entries. No API/ABI
+change; oversized requests now get `-ENOMEM` earlier instead of
+allocating then `-EINVAL`. Allocation stays outside `ebt_mutex` (vmalloc
+may sleep). Regression risk is very low.
+Record: [minimal, maintainer-applied] [very low regression risk]
+
+===============================================================
+PHASE 3: GIT HISTORY INVESTIGATION
+===============================================================
+
+Step 3.1: BLAME THE CHANGED LINES
+The pair of overflow checks was added in `e788759f44b2` (“netfilter:
+ebtables: split do_replace into two functions”, Florian Westphal,
+2010-02-04), first appearing around **v2.6.34-rc1**. The loose
+`num_counters` bound has been unchanged since then (aside from a 2015
+revert of an unrelated `num_counters == 0` check).
+Record: [e788759f44b2, v2.6.34-rc1] [bug ~16 years old; present in this
+6.18.y tree]
+
+Step 3.2: FOLLOW THE FIXES: TAG
+No Fixes: tag. The introducing commit is an ancestor of HEAD and of
+`v6.18.53`.
+Record: [no Fixes tag] [introducing commit is in this tree] [no
+intermediate tightening of this bound]
+
+Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
+Nearby ebtables work (`terminate table name`, `zero chainstack`, `module
+names must be null-terminated`) is independent. This commit is not patch
+N/M.
+Record: [standalone] [no prerequisites beyond the 2010 overflow checks]
+
+Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
+Jiayuan Chen is not the ebtables maintainer. Florian Westphal applied
+it. Same-period netfilter work from this author is unrelated (`nft_ct`).
+Record: [regular contributor; maintainer SOB] [no dependent series]
+
+Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
+`MAX_EBT_ENTRIES` is introduced here from an in-tree formula.
+`vmalloc_array()` exists (`mm/util.c`). Compat path exists under
+`CONFIG_NETFILTER_XTABLES_COMPAT`. Applies standalone.
+Record: [none] [standalone apply]
+
+===============================================================
+PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+===============================================================
+
+Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
+`b4 dig -c 43ae85af154b` →
+https://patch.msgid.link/20260610030259.194456-1-jiayuan.chen@linux.dev
+Subject: `[PATCH nf-next] netfilter: ebtables: bound num_counters like
+nentries in do_replace()`
+v1 only (`b4 dig -a`). Mbox is the patch itself; **no replies, NAKs, or
+Cc: stable**. Applied as-is by Florian on 2026-07-02. Merged via `nf-
+next-26-07-02`; pull text: “Bound num_counters in ebtables: do_replace()
+by MAX_EBT_ENTRIES to prevent oversized vmalloc_array() allocations.”
+Record: [msgid 20260610030259.194456-1] [v1 only] [no review comments]
+[sent to nf-next, not nf] [no stable nomination in thread]
+
+Step 4.2: CHECK WHO REVIEWED THE PATCH
+`b4 dig -w`: To netfilter-devel@vger.kernel.org and the author only.
+Florian’s SOB is the review.
+Record: [netfilter-devel + maintainer applied]
+
+Step 4.3: SEARCH FOR THE BUG REPORT
+No Reported-by, syzbot, bugzilla, or CVE in the commit or thread. Bug is
+derived from code analysis in the message (exact 2 GiB arithmetic).
+Record: [no external bug report] [mechanism documented in the patch]
+
+Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
+Standalone v1. iptables still uses `INT_MAX / sizeof(xt_counters)` plus
+`xt_counters_alloc()`’s extra `XT_MAX_TABLE_SIZE` (512 MiB) cap.
+ebtables had no equivalent extra cap before this patch.
+Record: [standalone] [iptables already had a tighter allocator cap]
+
+Step 4.5: CHECK STABLE MAILING LIST HISTORY
+lore.kernel.org HTTP fetch returned 403. `b4 dig` mbox has no stable@
+traffic. No evidence it was rejected for stable.
+Record: [no stable-list discussion found; lore HTTP 403]
+
+===============================================================
+PHASE 5: CODE SEMANTIC ANALYSIS
+===============================================================
+
+Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF
+Record: [`do_replace`, `compat_copy_ebt_replace_from_user`; allocation
+in `do_replace_finish`]
+
+Step 5.2: TRACE CALLERS
+`do_ebt_set_ctl()` (CAP_NET_ADMIN via `ns_capable(net->user_ns,
+CAP_NET_ADMIN)`) → `EBT_SO_SET_ENTRIES` → `do_replace()` /
+`compat_do_replace()` → `compat_copy_ebt_replace_from_user()` then
+`do_replace_finish()`.
+Record: [privileged sockopt; user_ns capable] [not IRQ; process context]
+
+Step 5.3: TRACE CALLEES
+`vmalloc_array()` → overflow-checked `__vmalloc`. `get_counters()`
+memcpy/sum into `nentries` slots. `copy_to_user` of `num_counters`
+entries only after the match check.
+Record: [vmalloc_array, get_counters, copy_to_user]
+
+Step 5.4: FOLLOW THE CALL CHAIN
+Reachable from `setsockopt` with `EBT_SO_SET_ENTRIES`. `len` need not
+include the counter array. Unprivileged user namespaces that have
+CAP_NET_ADMIN in that netns can call it if
+`CONFIG_BRIDGE_NF_EBTABLES_LEGACY` is loaded. `find_table_lock` failure
+still happens **after** the `counterstmp` allocation.
+Record: [userspace sockopt] [reachable; userns-relevant]
+
+Step 5.5: SEARCH FOR SIMILAR PATTERNS
+`do_update_counters()` also `vmalloc_array(num_counters)` but `len` must
+equal `sizeof(hlp) + num_counters * sizeof(ebt_counter)`, so the sockopt
+size bounds it. `copy_counters_to_user()` allocates from validated
+`nentries`. Sibling not the same bug; this commit does not need to wait
+for a series.
+Record: [replace path is the unbounded one]
+
+===============================================================
+PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+===============================================================
+
+Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
+Local tree: `git describe HEAD` = `v6.18.53-5049-g0f0bdc2b0dffb`; `make
+kernelversion` = **6.18.53**; Makefile VERSION/PATCHLEVEL/SUBLEVEL =
+6.18.53.
+At `v6.18.53`, `do_replace()` still has the old `INT_MAX / sizeof(struct
+ebt_counter)` check. `git merge-base --is-ancestor 43ae85af154b
+v6.18.53` fails (fix not in 6.18.53). Introducing commit **is** in
+6.18.53.
+Record: [yes, both native and compat replace] [introduced v2.6.34-rc1]
+
+Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
+The overflow-check lines at `v6.18.53` match the pre-image of this
+patch. `MAX_EBT_ENTRIES` is new here. Clean apply expected.
+Record: [clean apply]
+
+Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
+No earlier equivalent bound on `num_counters`. Name-termination commits
+nearby do not fix this.
+Record: [no alternate fix in 6.18.y]
+
+===============================================================
+PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+===============================================================
+
+Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
+`net/bridge/netfilter/ebtables.c`, `CONFIG_BRIDGE_NF_EBTABLES_LEGACY`
+(default n). Still used by docker/libvirt/firewalld-style bridge
+filtering on distro kernels that enable it.
+Record: [netfilter/ebtables legacy] [IMPORTANT for those configs, not
+core mm/VFS]
+
+Step 7.2: ASSESS SUBSYSTEM ACTIVITY
+Mature (2002-era) with occasional correctness/security fixes. Not churny
+new code.
+Record: [mature/stable]
+
+===============================================================
+PHASE 8: IMPACT AND RISK ASSESSMENT
+===============================================================
+
+Step 8.1: DETERMINE WHO IS AFFECTED
+Systems with legacy ebtables loaded. Trigger is a sockopt, not data-
+plane forwarding.
+Record: [config-specific / legacy-ebtables users]
+
+Step 8.2: DETERMINE THE TRIGGER CONDITIONS
+Crafted `EBT_SO_SET_ENTRIES`: small `entries_size`, `num_counters` near
+`INT_MAX/16`. Cheap. Needs CAP_NET_ADMIN in the socket’s user_ns
+(`ns_capable`), so unprivileged userns can hit it when the module is
+present. Not every boot; attacker- or test-triggered.
+Record: [malicious/buggy replace] [easy if capable] [userns-capable, not
+world-unprivileged without userns]
+
+Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
+Success: ~2 GiB kernel vmalloc held through verify/translate, then freed
+— OOM/reclaim. Failure: `-ENOMEM`. Not UAF, not silent corruption, not a
+panic by itself. iptables caps similar allocations at 512 MiB; ebtables
+could request ~4× that.
+Record: [local memory-exhaustion DoS] [HIGH, not crash/corruption
+CRITICAL]
+
+Step 8.4: CALCULATE RISK-BENEFIT RATIO
+Benefit: stops a documented ~2 GiB sockopt vmalloc on a long-lived path;
+high for hosts that ship legacy ebtables. Risk: 6-line bound change,
+same formula as `nentries`; very low.
+Record: [high benefit for ebtables users] [very low risk] [favorable]
+
+===============================================================
+PHASE 9: FINAL SYNTHESIS
+===============================================================
+
+Step 9.1: COMPILE THE EVIDENCE
+FOR:
+- Real allocate-before-validate bug; commit shows the 2 GiB request
+- Small (6/6), obviously correct, maintainer-applied
+- Bug in this 6.18.y tree since v2.6.34; patch applies cleanly
+- Reachable from `setsockopt`; `ns_capable` makes userns relevant
+- Matches stable “oh, that’s not good” / security-DoS class
+- Does not add features or APIs
+
+AGAINST:
+- Sent to **nf-next**, not `nf` (not treated as an urgent -rc fix)
+- No user/syzbot/CVE report
+- Legacy ebtables, Kconfig default n
+- Requires CAP_NET_ADMIN in the netns user_ns
+- Transient allocation (freed on the later `-EINVAL` path), not a leak
+
+UNRESOLVED:
+- lore.kernel.org WebFetch 403; thread recovered via `b4 dig -m` (patch-
+  only)
+- No stable@ discussion found
+
+Step 9.2: APPLY THE STABLE RULES CHECKLIST
+1. Obviously correct and tested? **PASS** — same ceiling as `nentries`;
+   maintainer applied v1
+2. Fixes a real bug that affects users? **PASS** — oversized vmalloc
+   from a sockopt field that is later rejected
+3. Important (crash/security/corruption/deadlock)? **PASS** — local DoS
+   / “oh, that’s not good” memory exhaustion, including userns
+   CAP_NET_ADMIN; not a panic
+4. Small and contained? **PASS** — 6 lines, one file
+5. No new features or APIs? **PASS**
+6. Can apply to the local tree? **PASS** — pre-image matches v6.18.53
+
+Step 9.3: CHECK FOR EXCEPTION CATEGORIES
+Not a device ID, quirk, DT, build, or docs exception. Ordinary small
+bugfix.
+
+Step 9.4: MAKE YOUR DECISION
+nf-next targeting and lack of a reporter argue it is hardening rather
+than an emergency, but the defect is concrete, old, reachable, and the
+patch is the lowest-risk way to close a ~2 GiB kernel allocation. That
+is appropriate for 6.18.y.
+
+What the commit solves for stable users: a crafted ebtables replace can
+ask `vmalloc` for up to ~2 GiB of counter scratch space before the
+kernel checks that `num_counters` equals the table’s `nentries`.
+Tightening that field to `MAX_EBT_ENTRIES` stops the request without
+moving vmalloc under `ebt_mutex`.
+
+Risk vs benefit: benefit is preventing reclaim/OOM on a privileged (and
+userns-capable) sockopt; risk is a stricter `-ENOMEM` on values that
+could never succeed the later equality check.
+
+Verification:
+- [Phase 1] Parsed tags: author + Florian Westphal SOB only; no
+  Fixes/Reported-by/Cc-stable
+- [Phase 1] Body: 134217726 * 16 = 2147483616 documented; verified
+  `sizeof(struct ebt_counter)` is two `__u64` in `ebtables.h`
+- [Phase 2] Diff: 6/6 in `ebtables.c`; `do_replace` + compat copy;
+  `MAX_EBT_ENTRIES` is the old nentries formula
+- [Phase 2] Pre-fix at `c06e4b417f61^` and `v6.18.53`: `num_counters >=
+  INT_MAX / sizeof(struct ebt_counter)`
+- [Phase 2] `do_replace_finish()` still allocates then checks
+  `num_counters != t->private->nentries` (lines 1025–1056)
+- [Phase 2] `get_counters()` copies/sums `nentries` entries only (lines
+  992–1011)
+- [Phase 3] `git log -L` on the overflow checks: introduced
+  `e788759f44b2` (2010-02-04); `git describe --contains` → v2.6.34-rc1
+- [Phase 3] `git merge-base --is-ancestor e788759f44b2 v6.18.53` exit 0;
+  `43ae85af154b` not ancestor of v6.18.53
+- [Phase 3] No MAX_EBT_ENTRIES before this commit (`git log -S
+  MAX_EBT_ENTRIES`)
+- [Phase 4] `b4 dig -c 43ae85af154b`: msgid 20260610030259.194456-1; nf-
+  next; v1 only
+- [Phase 4] `b4 dig -w`: netfilter-devel only; `b4 dig -m`: 110-line
+  mbox, no replies
+- [Phase 4] Florian nf-next pull `b73bc9ca3686b` item 11 describes
+  oversized vmalloc_array prevention
+- [Phase 4] UNVERIFIED: stable@ lore search (HTTP 403)
+- [Phase 5] Callers: `do_ebt_set_ctl` requires `ns_capable(...,
+  CAP_NET_ADMIN)`; `EBT_SO_SET_ENTRIES`
+- [Phase 5] `vmalloc_array` uses `check_mul_overflow`
+  (`mm/util.c:656-662`) — overflow-safe, still ~2 GiB
+- [Phase 5] `xt_counters_alloc` extra cap `XT_MAX_TABLE_SIZE` 512 MiB;
+  ebtables lacked that
+- [Phase 6] `git describe HEAD` v6.18.53-5049; kernelversion 6.18.53
+- [Phase 6] `git show v6.18.53:net/bridge/netfilter/ebtables.c` still
+  has the loose num_counters checks at 1132 and 2275
+- [Phase 7] `obj-$(CONFIG_BRIDGE_NF_EBTABLES_LEGACY) += ebtables.o`;
+  Kconfig default n
+- [Phase 8] Failure mode: vmalloc/reclaim/OOM DoS, not oops/corruption
+- UNVERIFIED: whether a specific distro 6.18 config enables
+  BRIDGE_NF_EBTABLES_LEGACY
+
+The patch meets the stable rules for this 6.18.y tree: real, important,
+small, and it applies.
+
+**YES**
+
+ net/bridge/netfilter/ebtables.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index 96176aa881117..5266f4d021c6d 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -39,6 +39,8 @@
+ #define COUNTER_OFFSET(n) (SMP_ALIGN(n * sizeof(struct ebt_counter)))
+ #define COUNTER_BASE(c, n, cpu) ((struct ebt_counter *)(((char *)c) + \
+ 				 COUNTER_OFFSET(n) * cpu))
++#define MAX_EBT_ENTRIES (((INT_MAX - sizeof(struct ebt_table_info)) / \
++			 NR_CPUS - SMP_CACHE_BYTES) / sizeof(struct ebt_counter))
  
--/* TODO: nothing virtio specific here, move to ip.h */
--
--/*
-- * Pull and minimally validate the IPv4 header at @nhoff.
-- * Returns the header and stores the transport header offset in
-- * @thoff, or NULL if truncated or malformed.  Only the fixed header
-- * is guaranteed linear; callers that need the options or the
-- * transport header must pull further.
-- */
--static inline struct iphdr *virtio_net_ip4_parse(struct sk_buff *skb,
--						  unsigned int nhoff,
--						  unsigned int *thoff)
--{
--	struct iphdr *iph;
--
--	if (!pskb_may_pull(skb, nhoff + sizeof(struct iphdr)))
--		return NULL;
--
--	iph = (struct iphdr *)(skb->data + nhoff);
--	if (iph->version != 4 ||
--	    iph->ihl < sizeof(struct iphdr) / sizeof(u32))
--		return NULL;
--
--	*thoff = nhoff + iph->ihl * sizeof(u32);
--	return iph;
--}
- /* Defined in net/core/dev.c, enabled while any network namespace
-  * has net.core.virtio_net_hdr_csum_check set to 0.
-  */
-@@ -153,7 +127,7 @@ virtio_net_l4_start(struct sk_buff *skb, unsigned int nhoff, __be16 proto,
- 		    unsigned int *thoff, int *ip_proto)
- {
- 	if (proto == htons(ETH_P_IP)) {
--		const struct iphdr *iph = virtio_net_ip4_parse(skb, nhoff, thoff);
-+		const struct iphdr *iph = ip4_parse(skb, nhoff, thoff);
+ struct ebt_pernet {
+ 	struct list_head tables;
+@@ -1126,10 +1128,9 @@ static int do_replace(struct net *net, sockptr_t arg, unsigned int len)
+ 		return -EINVAL;
  
- 		if (!iph || ip_is_fragment(iph))
- 			return false;
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 0a394e5f4391..e89da0e41542 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -206,18 +206,13 @@ static inline void nf_bridge_pull_encap_header_rcsum(struct sk_buff *skb)
- static int br_validate_ipv4(struct net *net, struct sk_buff *skb)
- {
- 	const struct iphdr *iph;
--	u32 len;
-+	u32 len, thoff;
+ 	/* overflow check */
+-	if (tmp.nentries >= ((INT_MAX - sizeof(struct ebt_table_info)) /
+-			NR_CPUS - SMP_CACHE_BYTES) / sizeof(struct ebt_counter))
++	if (tmp.nentries >= MAX_EBT_ENTRIES)
+ 		return -ENOMEM;
+-	if (tmp.num_counters >= INT_MAX / sizeof(struct ebt_counter))
++	if (tmp.num_counters >= MAX_EBT_ENTRIES)
+ 		return -ENOMEM;
  
--	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
-+	iph = ip4_parse(skb, 0, &thoff);
-+	if (!iph)
- 		goto inhdr_error;
+ 	tmp.name[sizeof(tmp.name) - 1] = 0;
+@@ -2269,10 +2270,9 @@ static int compat_copy_ebt_replace_from_user(struct ebt_replace *repl,
+ 	if (tmp.entries_size == 0)
+ 		return -EINVAL;
  
--	iph = ip_hdr(skb);
--
--	/* Basic sanity checks */
--	if (iph->ihl < 5 || iph->version != 4)
--		goto inhdr_error;
--
--	if (!pskb_may_pull(skb, iph->ihl*4))
-+	if (!pskb_may_pull(skb, thoff))
- 		goto inhdr_error;
+-	if (tmp.nentries >= ((INT_MAX - sizeof(struct ebt_table_info)) /
+-			NR_CPUS - SMP_CACHE_BYTES) / sizeof(struct ebt_counter))
++	if (tmp.nentries >= MAX_EBT_ENTRIES)
+ 		return -ENOMEM;
+-	if (tmp.num_counters >= INT_MAX / sizeof(struct ebt_counter))
++	if (tmp.num_counters >= MAX_EBT_ENTRIES)
+ 		return -ENOMEM;
  
- 	iph = ip_hdr(skb);
-@@ -228,7 +223,7 @@ static int br_validate_ipv4(struct net *net, struct sk_buff *skb)
- 	if (skb->len < len) {
- 		__IP_INC_STATS(net, IPSTATS_MIB_INTRUNCATEDPKTS);
- 		goto drop;
--	} else if (len < (iph->ihl*4))
-+	} else if (len < thoff)
- 		goto inhdr_error;
- 
- 	if (pskb_trim_rcsum(skb, len)) {
-diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
-index 9860178752b8..5adf01763e85 100644
---- a/net/ipv4/ip_input.c
-+++ b/net/ipv4/ip_input.c
-@@ -500,7 +500,7 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
- {
- 	const struct iphdr *iph;
- 	int drop_reason;
--	u32 len;
-+	u32 len, thoff;
- 
- 	/* When the interface is in promisc. mode, drop all the crap
- 	 * that it receives, do not try to analyse it.
-@@ -520,10 +520,6 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
- 	}
- 
- 	drop_reason = SKB_DROP_REASON_NOT_SPECIFIED;
--	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
--		goto inhdr_error;
--
--	iph = ip_hdr(skb);
- 
- 	/*
- 	 *	RFC1122: 3.2.1.2 MUST silently discard any IP frame that fails the checksum.
-@@ -536,7 +532,8 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
- 	 *	4.	Doesn't have a bogus length
- 	 */
- 
--	if (iph->ihl < 5 || iph->version != 4)
-+	iph = ip4_parse(skb, 0, &thoff);
-+	if (!iph)
- 		goto inhdr_error;
- 
- 	BUILD_BUG_ON(IPSTATS_MIB_ECT1PKTS != IPSTATS_MIB_NOECTPKTS + INET_ECN_ECT_1);
-@@ -546,7 +543,7 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
- 		       IPSTATS_MIB_NOECTPKTS + (iph->tos & INET_ECN_MASK),
- 		       max_t(unsigned short, 1, skb_shinfo(skb)->gso_segs));
- 
--	if (!pskb_may_pull(skb, iph->ihl*4))
-+	if (!pskb_may_pull(skb, thoff))
- 		goto inhdr_error;
- 
- 	iph = ip_hdr(skb);
-@@ -559,7 +556,7 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *skb, struct net *net)
- 		drop_reason = SKB_DROP_REASON_PKT_TOO_SMALL;
- 		__IP_INC_STATS(net, IPSTATS_MIB_INTRUNCATEDPKTS);
- 		goto drop;
--	} else if (len < (iph->ihl*4))
-+	} else if (len < thoff)
- 		goto inhdr_error;
- 
- 	/* Our transport medium may have padded the buffer out. Now we know it
-diff --git a/net/ipv4/netfilter/nf_reject_ipv4.c b/net/ipv4/netfilter/nf_reject_ipv4.c
-index 59ec465a9df9..42d639854ddf 100644
---- a/net/ipv4/netfilter/nf_reject_ipv4.c
-+++ b/net/ipv4/netfilter/nf_reject_ipv4.c
-@@ -25,22 +25,19 @@ nf_reject_ip_tcphdr_get(struct sk_buff *oldskb,
- static int nf_reject_iphdr_validate(struct sk_buff *skb)
- {
- 	struct iphdr *iph;
--	u32 len;
-+	u32 len, thoff;
- 
--	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
--		return 0;
--
--	iph = ip_hdr(skb);
--	if (iph->ihl < 5 || iph->version != 4)
-+	iph = ip4_parse(skb, 0, &thoff);
-+	if (!iph)
- 		return 0;
- 
- 	len = ntohs(iph->tot_len);
- 	if (skb->len < len)
- 		return 0;
--	else if (len < (iph->ihl*4))
-+	else if (len < thoff)
- 		return 0;
- 
--	if (!pskb_may_pull(skb, iph->ihl*4))
-+	if (!pskb_may_pull(skb, thoff))
- 		return 0;
- 
- 	return 1;
+ 	memcpy(repl, &tmp, offsetof(struct ebt_replace, hook_entry));
 -- 
-MST
+2.53.0
 
