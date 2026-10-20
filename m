@@ -1,61 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=217.70.190.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792484612;
-	b=iL+GC3TnybwXU4IJC/qnGqy4VJ5cOI0rwkAaTZGhLLzFtFiRsmn3fHhC4vVjnJoyuM2A
-	 DnpSkhE04eeFkEbLZv5YBGIpG5Us1OzfVSFSVM0e3d3VALQDDcQB5o6EXn58nAzN2pt+5
-	 ejZXBR4vLOLIEwUkZn+Vszpxl74U4kRbCoCfo4B6VLirqvOw23sH5qurI0NizP/PeLjQJ
-	 HuPM7wZs15MZzRf3HGLzjBUCUpS5leq3zsrVT6tzhlEIy9MCPdma5TrQF+PCtbe6ObUrt
-	 i5K+QOzH4esNGQ+NUKiC3Z+gSY8iEthC00sgaKf5G4bEHGX9eXoakH6ysQKyESPGz/g==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792484612;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-Spam-Status:X-Spam-Checker-Version;
-	bh=c8b9XjfdKOQjyStjm92ZuKkGIRSFabLgQBgcYtuQkFQ=;
-	b=YafJaeYm0WpbnULf/K8V2kMs8kjd97jkD1/uWUJes7au7dzLG2kWCylcmZRfbTA/bqDj
-	 IhKzZdzY4YomR9snFI0avTCMS5k1zfuyGyxbQ/pSQmNzytpFkN6nLhJaESBwSGDfGZG79
-	 SPAj8QZR6bpSNvAOrthR3n5l9WML6xeQfNJceb9/GeGWOa3XUmr0ITmh5MS4yJMQSA6w3
-	 av7gBFY/iZeEDdlkSHihV74R1ypoBMrWgQ2HBUHdM8f4zLRpsut6EioK1wpnFSwRLWSgP
-	 C67kl8wXOeJusNeigK1JcgoAJh/C/28XlQqUimqGQQ+n2dWHxQuByZWdpTcycxY2lFQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=netfilter.org;
-	spf=pass smtp.mailfrom=netfilter.org;
-	arc=none smtp.remote-ip=217.70.190.124
-Received: from mail.netfilter.org (mail.netfilter.org [217.70.190.124])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.15
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792502979;
+	b=YQK135xDASF7/PvWZrbdTI36cGCclKlDuTgrzU1MPYDYlvrXAHOOfa5oc9byThSk58LY
+	 2HmyqZQP7KqDXT8pCYJ400biFlBXZIlrHZnqbB9vfcPUsMRNl6Tk8DarUdA2HhrzyA48S
+	 O6SmitcRb098syAkQnBNCyQPxhh3ei+aETBC6+m1BAmLjX6rNMT9nYVhGkHc3eVqDeAUU
+	 W57MHbSMoQcO4DKc6NiO9uabKyNMezChVr0L00nZmilAZyCVHEFPZNKFw/8grksQaM3lH
+	 2XN0XIlhJqv/Cz8UGzLiSPzccn54SBSYXy3nr5VBnJz7qaXc9ySCJ7WiMBABpOUA2Lg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792502979;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-ZohoMailClient;
+	bh=faqcXlf3am5ayTseexfa5cqCZPxHait6Gq7hGss05/o=;
+	b=2N4DnUBECGALcLmAnILx58bcDRdlcEgWQYbtTX2nH+YLk1kFPbI72/imAuS15RVxB9Jn
+	 o+gT0u6syuFnlXG6xapWCNWZZuOEyNAmc8q5TWmcTvargfVflMnTfgkLE/U5aAafCEt8t
+	 yillpMRhrllBk7mwQ6EPMiAw2jU07c/0Cd7JtZ4Xvw8gjNFhr34ivR9gi87VTuzcZDxam
+	 IX+pPrSHomb4ABWZsHMJK27CZ/dGQwhDd5nJZYRDO3PLLC21el8XKEhqVaSvYh6HnBTq2
+	 D4dnu/sJbHnPGNwgrJYeKxy6jWQGgPjuBZ2JQiYuP8EPf9FjFIMBu3+w+PiS6pQdVAw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=laveeshbansal.com;
+	spf=pass smtp.mailfrom=laveeshbansal.com;
+	dkim=pass header.d=laveeshbansal.com header.i=laveeshb@laveeshbansal.com header.a=rsa-sha256 header.s=zoho header.b="R2ntOH/z";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.15
+Received: from sender6-op-o15.zoho.com (sender6-op-o15.zoho.com [165.173.180.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id E9A5E606A31C
-	for <bridge@lists.linux.dev>; Tue, 20 Oct 2026 08:23:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E9A5E606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=netfilter.org
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
-	s=2025; t=1792484603;
-	bh=c8b9XjfdKOQjyStjm92ZuKkGIRSFabLgQBgcYtuQkFQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=lagFGVlbecSfkqNHV7xGW7o5dHNBXRP3s/pexhLgj3U0OaPplUGA17J6QLlPWhlfs
-	 n81RxixYjZUeMhs5AbRyHQlHHoGlk+WPOoMZxKQ31UjAaLMG25/pte3je6OvHtYFMk
-	 h04k4Wqr8mU6HVMTDJKd+nW+TecRkBKMWunlRbRioLyLFDGGq4oAm1/osfxK2uDDBf
-	 0ZnDrMlXcxptKj58zBDzTkGjh3UokarQsDpoDhEqPax7KbJvdZ+yIGd7KFp1NZoBcm
-	 xMGRZb063xHjA+5ltNt4PrLbXLvTLjOT2Wd22Te67YZnPz8uvUoKwF+ypJbe64zNQk
-	 BiNfrSRpLUkMg==
-Received: from netfilter.org (mail-agni [217.70.190.124])
-	by mail.netfilter.org (Postfix) with UTF8SMTPSA id 66F7360056;
-	Tue, 20 Oct 2026 10:23:23 +0200 (CEST)
-Date: Tue, 20 Oct 2026 10:23:20 +0200
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-To: Laveesh Bansal <laveeshb@laveeshbansal.com>
-Cc: Florian Westphal <fw@strlen.de>,
-	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev,
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86A0B606A32C
+	for <bridge@lists.linux.dev>; Tue, 20 Oct 2026 13:29:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 86A0B606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=laveeshbansal.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=laveeshbansal.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key, unprotected) header.d=laveeshbansal.com header.i=laveeshb@laveeshbansal.com header.a=rsa-sha256 header.s=zoho header.b=R2ntOH/z
+ARC-Seal: i=1; a=rsa-sha256; t=1792502973; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=EuD8bntbTMkMeHimUzqDTvJkp5gf2DKwzcTvVhBYZRbLdSFKytmJR1eJAFbIhoWbf1Tf7+gAjOjBPp/L2+eOihyXKpqlMe4JmcDn6lWy2Ajj9DQLaApTgrVzO7Nod2YCobHoqu2HRm54UbAxE9L+qHReVfOE3+2Jfx6UaqEleP0=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1792502973; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=faqcXlf3am5ayTseexfa5cqCZPxHait6Gq7hGss05/o=; 
+	b=E8c7QAJxpNL6PofIIb4S7ospQ8SfgCZ7q/Jahia6lK97gqRLA6q7/tfY3GrnzRI6XIVs5YdwWSnrLMNALcNJcKdA0Lkvf5tU6WJAE9e0PpAqAWUpw7fUSrfyUu1CoaPhhCA3GQUni0mBVxwsLN2d/Z7FxZTvxwnGSimQZuMXKKY=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=laveeshbansal.com;
+	spf=pass  smtp.mailfrom=laveeshb@laveeshbansal.com;
+	dmarc=pass header.from=<laveeshb@laveeshbansal.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1792502973;
+	s=zoho; d=laveeshbansal.com; i=laveeshb@laveeshbansal.com;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=faqcXlf3am5ayTseexfa5cqCZPxHait6Gq7hGss05/o=;
+	b=R2ntOH/z5zrP4NH6DRLJy731eTb0c/6yaJH66gxC0lYeKUy7fmHPgdS3xOV28yaI
+	DNunMDYmzgh3Iirhx6vnJa9w2Lkt7SYTd0Qn3DlJUaC7WJLpdCTTcEns3oMnI7wIYO4
+	UsUo1etcDjWFji08Hl2zhl8IUd4hzRIqexcSE+fI=
+Received: by smtp.zohomail.com with SMTPS id 1792502972236450.06009507923477;
+	Tue, 20 Oct 2026 06:29:32 -0700 (PDT)
+From: Laveesh Bansal <laveeshb@laveeshbansal.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>,
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
 	netdev@vger.kernel.org
-Subject: Re: [PATCH 1/2] netfilter: bridge: refragment packets with a vlan
- tag moved by the bridge
-Message-ID: <atck-NoWvemxIsF6@chamomile>
-References: <20261020000308.37362-1-laveeshb@laveeshbansal.com>
- <20261020005403.38212-1-laveeshb@laveeshbansal.com>
+Subject: [PATCH nf v2] netfilter: bridge: use DEBUG_NET_WARN_ON_ONCE in nf_ct_bridge_refrag()
+Date: Tue, 20 Oct 2026 06:29:11 -0700
+Message-ID: <20261020132911.43696-1-laveeshb@laveeshbansal.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -65,50 +75,54 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261020005403.38212-1-laveeshb@laveeshbansal.com>
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Mon, Oct 19, 2026 at 05:54:03PM -0700, Laveesh Bansal wrote:
-> With vlan_filtering enabled, br_allowed_ingress() moves the vlan tag back
-> into the packet when its protocol differs from the bridge's vlan_protocol,
-> an 802.1Q tag on an 802.1ad bridge for instance, and sets skb->protocol to
-> the vlan ethertype. That happens after the NF_BR_PRE_ROUTING hooks.
-> 
-> Bridge conntrack has already defragmented the packet by then, based on the
-> original protocol. In postrouting nf_ct_bridge_refrag() finds a vlan
-> ethertype it cannot fragment, warns and drops the packet:
-> 
->  WARNING: net/bridge/netfilter/nf_conntrack_bridge.c:361 at nf_ct_bridge_post
->  Call trace:
->   nf_ct_bridge_post
->   nf_hook_slow
->   br_forward_finish
->   __br_forward
->   deliver_clone
->   br_flood
->   br_handle_frame_finish
->   br_handle_frame
-> 
-> The warning is the smaller problem. Every fragmented IPv4 or IPv6 packet
-> that crosses such a bridge is dropped while unfragmented traffic is fine,
-> so it looks like an MTU issue. And anyone who can send fragments into a
-> port of such a bridge can trigger the warning, which takes the machine
-> down with panic_on_warn.
-> 
-> Look past the vlan tag in nf_ct_bridge_refrag(): remember it, pull it,
-> fragment as before and push it back onto each fragment in
-> nf_ct_bridge_frag_restore(), together with the outer protocol, so that
-> br_dev_queue_push_xmit() sees the fragments like any other tagged frame.
-> The protocol behind the tag comes from the packet, so check it against the
-> header before fragmenting.
-> 
-> Removing the WARN_ON_ONCE() would only hide the problem, the packets would
-> still be dropped. Not tracking these frames in nf_ct_bridge_pre() instead
-> would change what is tracked today for unfragmented traffic, and would have
-> to duplicate the decision that br_allowed_ingress() makes later.
+nf_ct_bridge_refrag() warns when skb->protocol is neither IPv4 nor IPv6.
+A vlan filtering bridge can get there with a vlan ethertype: if the
+protocol of the tag of a frame differs from the vlan_protocol of the
+bridge, br_allowed_ingress() moves the tag back into the packet after
+NF_BR_PRE_ROUTING, where bridge conntrack has already defragmented it.
 
-Yes, but let's just fix this by turning this into a
-DEBUG_NET_WARN_ON_ONCE(1) and let the packet be dropped.
+Anyone who can send fragments into a port of such a bridge can trigger the
+warning, which takes the machine down with panic_on_warn. The packet is
+dropped either way, so only warn on kernels built with CONFIG_DEBUG_NET.
 
-Then, we can follow up to fill the gap for this feature in in nf-next.
+This only avoids the warning. Such fragmented packets are still dropped.
+syzbot reported the warning. It keeps triggering on CONFIG_DEBUG_NET
+kernels until the vlan tag is handled, which is left for a follow-up:
+
+  https://syzkaller.appspot.com/bug?extid=a8ba738fe2db6b4bb27f
+
+Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
+Assisted-by: LLM
+Signed-off-by: Laveesh Bansal <laveeshb@laveeshbansal.com>
+---
+v2:
+- Reduced to DEBUG_NET_WARN_ON_ONCE(), as suggested by Pablo. Handling the
+  vlan tag and the selftest will follow for nf-next.
+- Dropped Reported-by, Closes and Cc: stable. This does not fix the syzbot
+  report, its config has CONFIG_DEBUG_NET=y.
+- Only the commit that added the warning is listed in Fixes:.
+
+v1: https://lore.kernel.org/r/20261020005403.38212-1-laveeshb@laveeshbansal.com
+
+ net/bridge/netfilter/nf_conntrack_bridge.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
+index b5444335b86f..8c83dc05114b 100644
+--- a/net/bridge/netfilter/nf_conntrack_bridge.c
++++ b/net/bridge/netfilter/nf_conntrack_bridge.c
+@@ -358,7 +358,7 @@ nf_ct_bridge_refrag(struct sk_buff *skb, const struct nf_hook_state *state,
+ 		nf_br_ip6_fragment(state->net, state->sk, skb, &data, output);
+ 		break;
+ 	default:
+-		WARN_ON_ONCE(1);
++		DEBUG_NET_WARN_ON_ONCE(1);
+ 		return NF_DROP;
+ 	}
+ 
+-- 
+2.43.0
+
