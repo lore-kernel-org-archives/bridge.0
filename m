@@ -1,74 +1,74 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.72
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.69
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792611325;
-	b=IHWXBq+00egqu9rbT9Tsfji4q89N7jk0bMwY2GIU62cOH/yMGK4MbakpFn+wn3i3d8Tq
-	 IvbTE0Ghn24OrMjaLPVv1cavsyT/jacOqQ8mAXyXSs5O6mw5W3gcvacsDFAubsM+GAcce
-	 IrLpVRO1YXaQvgrF6/3qN0HEKCtMeFAD/TJ2ixds+B6lh/3dJh3iyC3tJkAcufmfMbIu+
-	 3BAW+aWi2g9KF6s9NOBc5kCu0Z1vtF33z5ilTylFnGjDatVrtVuD05mBoBgiovwJFGffC
-	 6QOOu7Ul4Tj9YR9oUf+2v3FWa3/wygiMG2W4wpYRez+RfcLlGSVw7f2yKSU9aMxxNZA==
+	t=1792611326;
+	b=NxyGDlymSx8MjCJG+MgHzaagw1tLYVKSVk6C4VTLMK4XNSxPCtw9e2EUVxaNnQKzYEDH
+	 cuJanj3KQOwAeXReOEhE9u9JhrFI2V2VFytc9ObCVXBZe7u/o1917Ofo7pkPQ9Rwgt/De
+	 Johpnn4AFJdx2TpvlugsGD9f4s0PycpcfJr88e6/ZG6hPuuFv/F/EjkHBI4kXFcCN5fkR
+	 rmYixoNfNDmdR/Kyx5tinvVdPz9Fk8LpDLQQ7czhzI1Zb96pihnXG7bf5u2Dc0GywlfgD
+	 /Fa8MJFB2SsDlS/i4020mgd6ZCYK16lhU2whGNDOgZaK7Mertl/y5Tg91TY1DzJLDMA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792611325;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792611326;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
 	 Mime-Version:References:X-Mailer:Message-ID:Subject:From:To:Cc:
 	 Content-Type;
-	bh=ntydpfW1d30II09RtQRM5wPDP9t6AwfW5fmKsjgca+U=;
-	b=226B5DiElc1rqarUDeO8ct8flbWw1gpHDldH589fpk9C9MzsMDVqYZ2l1uJS5277V3do
-	 kJs1O/mYVjTCNjqa5gTUYDfjKyzWR5zjWw/uKo62svy/dr0LtkCXQzRxudSohqw6ozO2E
-	 5FycqPvW1ChB4S8QUxf/sb4tykP6FhyEpJ8ho7MhYblyjA2SwDdxBruQM7RdYnmFrge2P
-	 LIFL2IF4gBj4Sc//9xb6qLMuc0/yJ6xk6+dURe0Ueg758GqVOT20T5Rmntm6ZTAEu4qEO
-	 feswq7+IbNvH73Y02bW2v7y873tSUeiMuVNsF/AtWSb1eP7vg6K6IYGd+CbsDwhRgYg==
+	bh=vIq4J9MzmzYl9oQxr9an2njN9RrUmQCNsR3GT631TE0=;
+	b=uLMEMp2c2iyN2rM9ZY35JrOK19WOdtr2KMmpSY2Qlz0ZIF73yUVpo/6a+5SaIscVqGSO
+	 x7il0pnYGmqCxZe04c/v8YVwV2e4nq2+mzwFKsj/9Y3LwKNpbqTGZSPni24eFd3Fqs5Up
+	 xhWJHB0QeLTj6owwHSQf9qSYD+cd/HUIy3CvttUamFaRfcGJE273zsxs9YJVHELv5u1Tc
+	 uBkPcppV767LAV83i+IMAUkE1u+JA6G4hSH+jKm83HPilj7kwH2sE5DsSBR8uxfCs3VI+
+	 NEDDh7t6WuFXRK5tcwokLLysaDuTeWSQslf1Uc1Vp76dPKWDWt8M/dk9cbT/LvocMRw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=google.com;
 	spf=pass smtp.mailfrom=flex--aojea.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b="NPF/uesr";
-	arc=none smtp.remote-ip=209.85.218.72
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com [209.85.218.72])
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=tUJCA+xO;
+	arc=none smtp.remote-ip=209.85.218.69
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com [209.85.218.69])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B549E606A319
-	for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 19:35:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B549E606A319
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0756606A326
+	for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 19:35:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0756606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aojea.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=NPF/uesr
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-c44903d6927so112738066b.3
-        for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 12:35:24 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=tUJCA+xO
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-c4048584447so95522866b.1
+        for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 12:35:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1792611323; x=1793216123; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1792611324; x=1793216124; darn=lists.linux.dev;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ntydpfW1d30II09RtQRM5wPDP9t6AwfW5fmKsjgca+U=;
-        b=NPF/uesrm8HGkLeLl7wpaJl6+c0oEgipgVCVNZW6UxzPD5r6pztK+Hh7KZTKNuM6hX
-         Tnz5MruPg+FYLVuvcC0BWl1wiqwiYvO221io5mvUq17Lq41k73sZ3Qpof953khtd1LBL
-         E1qpULYXL0B+/5iTdAepoYI+F99GzLi8Drir8MBf9tXMqxNQJ1yaM2XnsJqDUJKiZ7Xr
-         skb8vrHssFxEt7vLxAyV+Y+aPjT1vjIa4zJkk2PQyapHFgqpooT42dplfmEtd421E/aV
-         80C9M3j0xw5Z9EO/ItieuKEpa0265puC2CS7pKVsz3EFoFf6M/6urOsO+3ByEQcoJu+g
-         0RdQ==
+        bh=vIq4J9MzmzYl9oQxr9an2njN9RrUmQCNsR3GT631TE0=;
+        b=tUJCA+xOKv0KW3phvzrZSi5cvkIWpGicVYqFhrfW+19hOKiuhpRaPidxx9ti5b2nWv
+         aFgFAA8t/3svGwGO40nosHGWHuFS+J6mNngT0q8JDwePVALmw2tEOEDdXZmG0lLPAtxb
+         77QkEkUUykoeD+OVu/RlpTHNBODLr8aX6E2e8bLBHGMxw00KE3+JcrLGcOfHLbMJ0cXM
+         ZR9hR6fMHn9PyzjZiJ4RDUCsX0f8i3utjjHLVgli0aI/4Kaan4qrT9idWr9QbPUz29mb
+         k2jTodPC5c3+7q9Dyn5ceZqCLHKbBIlaYo4HCC0Qqx0aguhzJOelXU3GL8RNludTai3y
+         Sl/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792611323; x=1793216123;
+        d=1e100.net; s=20260707; t=1792611324; x=1793216124;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ntydpfW1d30II09RtQRM5wPDP9t6AwfW5fmKsjgca+U=;
-        b=xn0/ieh+y+lPPOCvEuLaths6x9uTCYmetKoQ3oGtj7G4LlYc1WIGEQkR4dGe7nlnKc
-         L4yGA3X4AWd1UexHWnSPZtzKufatxX6Qwwyen9AXi6rAUolcJVziCioFGC9Cq7zetP6o
-         FrD7B3OhnYd50u5UlrzcdSuqC4mHkyA6twu+FEkolRJCSDxdGjGia8BxZxK48Q8q48E8
-         R7IR8FI3vyTXOjgsiNmLVK+4ji+Nfco2pXCcRaS/jLtBs3IzCiPAOh2Il9va5xB7wIeb
-         EV9x1dcnbhI28Rw0ReGP4CTrQY4SWPcmUNPgO30kkXpux/FCkBG3JK5hjtuTQHhmhdWf
-         tjJQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwAH5h125bvmoh6jvB/TkYK2Y8yu9SQZ7TS65QQXACGkPHgd+jIjUVaqVUVFxepslT4CFRlthg=@lists.linux.dev
-X-Gm-Message-State: AFq9FYIKPxfhc0LlCeHaPmuqKL+bLgJ0gqSH7AmWvR9QkBjRlX8oIzU5
-	BHDw1ETRBHKG3AIoDF9QtEWPscFpJheOj15vM8eQgdqVd3JhykKgw9Lc9fzp7S8rw0dxOIBiqsx
-	LTw==
-X-Received: from ejcwz4-n1.prod.google.com ([2002:a17:907:b044:10b0:c3f:54fa:21fa])
- (user=aojea job=prod-delivery.src-stubby-dispatcher) by 2002:a17:907:3d88:b0:c29:f5d8:9c75
- with SMTP id a640c23a62f3a-c46797aef75mr271703066b.36.1792611322773; Wed, 21
- Oct 2026 12:35:22 -0700 (PDT)
-Date: Wed, 21 Oct 2026 19:35:11 +0000
+        bh=vIq4J9MzmzYl9oQxr9an2njN9RrUmQCNsR3GT631TE0=;
+        b=CEtbK2NLJGdiQHHk0czgnZMRGBClvuEkgimv5IMU1YO2UFV4TIRptnCeZN5+siIGXL
+         MdaMGTodCofhIjdNy2AcuPrZdxLSQV+Q5CTh9NIqrzbt5AmlbDXubhiXjGX9qjrIH4nr
+         2npagWIOseD6/gVqovULVpgBI3chnYA7/G0bQIxvqwj5pJ+qy3s4OmDnlTX6Qt9a6QSG
+         FhCMntL+0Herxr6qWSpQj7jn3FfV9Sl2+Ij4iNmwdh3eidCCC+Gz+n5ZuSi2Gf1d0pQT
+         gwZriwCFnsBidIM2MXBQjcTjR97V10IQp0DN9gKDJ+15mVqPnH0hz2UUtt0u0FQKfrR8
+         vfaQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwiaZkKTcJbK48CfgaPvGCM7J3K5FYO4WEFoKx3pkGFSJOb5ZA1ij0x5dzvHgx0hvU2gsM3GlQ=@lists.linux.dev
+X-Gm-Message-State: AFq9FYLUNWJ5ml3Ml8VgxpufFtP+/v5J/7DVUVFCqDEq1jleTx0YHb4j
+	LCij2tZZGgh085eLQq00yIi2mzWmpSJENrnCT9tlB8kT65qGMZMMkXdYEMeenqBD+7yisoJa5uH
+	V3A==
+X-Received: from ejdq8.prod.google.com ([2002:a17:906:3888:b0:c3f:6152:2d8])
+ (user=aojea job=prod-delivery.src-stubby-dispatcher) by 2002:a17:906:9f85:b0:c40:bbd2:62f3
+ with SMTP id a640c23a62f3a-c4679b9d976mr267535966b.49.1792611323850; Wed, 21
+ Oct 2026 12:35:23 -0700 (PDT)
+Date: Wed, 21 Oct 2026 19:35:12 +0000
 In-Reply-To: <20261021193512.2302587-1-aojea@google.com>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -81,9 +81,8 @@ Precedence: list
 Mime-Version: 1.0
 References: <20261021193512.2302587-1-aojea@google.com>
 X-Mailer: git-send-email 2.56.0.218.g1ec904b173-goog
-Message-ID: <20261021193512.2302587-4-aojea@google.com>
-Subject: [PATCH nf-next 3/4] selftests: netfilter: nft_queue.sh: fix the exit
- status on failure
+Message-ID: <20261021193512.2302587-5-aojea@google.com>
+Subject: [PATCH nf-next 4/4] selftests: netfilter: nft_queue.sh: harden test_hook_drop_scope
 From: Antonio Ojea <aojea@google.com>
 To: Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>
 Cc: netfilter-devel@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, 
@@ -91,74 +90,89 @@ Cc: netfilter-devel@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>,
 	"Sashiko (nipa)" <sashiko-bot@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 
-Tests record a failure by setting the global ret=1 and the script ends
-with exit $ret. test_queue() overwrites that flag with the status of a
-bare wait, which is always 0. test_queue_bridge() runs last and calls
-test_queue() twice, so a failure recorded by any earlier test is lost
-and the script exits 0. Drop the assignment: test_queue() checks the
-listener output itself and exits on a mismatch.
+hook_drop_case() ignored two outcomes that make its result meaningless:
+when the 20 packets do not all reach the queue before the timeout, the
+drop case still passes with an empty queue, and when the nft command
+under test fails, nothing is unregistered and the keep case still
+passes. Report both as failures.
 
-Three connectivity checks exit with $ret after printing FAIL; ret is
-still 0 when nothing has failed before, so the script exits 0 there as
-well. Exit with 1.
-
-Replacing the test_hook_drop_scope call with ret=1 shows the difference:
-the script exited 0 before this patch and exits 1 with it.
+The keep case deleted an ip6 prerouting chain, which differs from the
+ipv4 output packets in both the family and the hook number, so a
+nf_hook_cmp() that compared only one of the two would still pass. Add
+a keep case for each: an ip6 output chain and an ip prerouting chain.
 
 Reported-by: Sashiko (nipa) <sashiko-bot@kernel.org>
 Closes: https://lore.kernel.org/netfilter-devel/179237288374.3135.9473018103688224106@kernel.org/
 Assisted-by: LLM
 Signed-off-by: Antonio Ojea <aojea@google.com>
 ---
- .../testing/selftests/net/netfilter/nft_queue.sh  | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ .../selftests/net/netfilter/nft_queue.sh      | 30 +++++++++++++++----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
 
 diff --git a/tools/testing/selftests/net/netfilter/nft_queue.sh b/tools/testing/selftests/net/netfilter/nft_queue.sh
-index a07652813a4b..516d9012d2e4 100755
+index 516d9012d2e4..954b7bc4d789 100755
 --- a/tools/testing/selftests/net/netfilter/nft_queue.sh
 +++ b/tools/testing/selftests/net/netfilter/nft_queue.sh
-@@ -240,17 +240,16 @@ test_queue()
- 	busywait "$BUSYWAIT_TIMEOUT" nf_queue_wait "$nsrouter" 1
+@@ -912,10 +912,18 @@ table inet nfqscope {
+ 	}
+ 	counter delivered {}
+ }
++table ip unrelated {
++	chain prerouting {
++		type filter hook prerouting priority 0; policy accept;
++	}
++}
+ table ip6 unrelated {
+ 	chain prerouting {
+ 		type filter hook prerouting priority 0; policy accept;
+ 	}
++	chain output {
++		type filter hook output priority 0; policy accept;
++	}
+ }
+ EOF
+ 	ip netns exec "$ns1" ./nf_queue -c -q 1 -H -t "$timeout" > "$TMPFILE1" 2>&1 &
+@@ -926,13 +934,19 @@ EOF
+ 	ip netns exec "$ns1" bash -c \
+ 		"for i in \$(seq $packets); do echo x > /dev/udp/127.0.0.1/12345; done"
  
- 	if ! test_ping;then
--		echo "FAIL: netns routing/connectivity with active listener on queues 0 and 1: $ret" 1>&2
--		exit $ret
-+		echo "FAIL: netns routing/connectivity with active listener on queues 0 and 1" 1>&2
-+		exit 1
- 	fi
+-	busywait "$BUSYWAIT_TIMEOUT" hook_drop_all_queued "$packets"
+-
+-	ip netns exec "$ns1" nft "$@"
+-	queued=$(hook_drop_queued)
++	if ! busywait "$BUSYWAIT_TIMEOUT" hook_drop_all_queued "$packets"; then
++		echo "FAIL: $desc: $(hook_drop_queued) of $packets packets queued" 1>&2
++		ret=1
++	elif ! ip netns exec "$ns1" nft "$@"; then
++		echo "FAIL: $desc: nft $* failed" 1>&2
++		ret=1
++	else
++		queued=$(hook_drop_queued)
++	fi
  
- 	if ! test_ping_router;then
--		echo "FAIL: netns router unreachable listener on queue 0 and 1: $ret" 1>&2
--		exit $ret
-+		echo "FAIL: netns router unreachable listener on queue 0 and 1" 1>&2
-+		exit 1
- 	fi
+ 	kill -USR1 "$nfqpid"
+ 	wait "$nfqpid"
++	[ -z "$queued" ] && return
+ 	delivered=$(hook_drop_delivered)
  
- 	wait
--	ret=$?
+ 	if [ "$queued" = "$packets" ] && [ "$delivered" = "$packets" ] &&
+@@ -955,9 +969,15 @@ EOF
  
- 	for file in $TMPFILE0 $TMPFILE1; do
- 		last=$(tail -n1 "$file")
-@@ -851,7 +850,7 @@ test_queue_bridge()
+ test_hook_drop_scope()
+ {
+-	# the hook array of another hook point changes, queued packets stay
++	# the hook array of another hook point changes, queued packets stay.
++	# The packets are ipv4 at output; cover a chain that differs in both
++	# family and hook, in the family only and in the hook only.
+ 	hook_drop_case keep "base chain removed at another hook point" \
+ 		delete chain ip6 unrelated prerouting
++	hook_drop_case keep "base chain removed at the same hook of another family" \
++		delete chain ip6 unrelated output
++	hook_drop_case keep "base chain removed at another hook of the same family" \
++		delete chain ip unrelated prerouting
  
- 	if ! test_ping;then
- 		echo "FAIL: netns bridge connectivity" 1>&2
--		exit $ret
-+		exit 1
- 	fi
- 
- 	load_ruleset "bridge" "filter" 10
-@@ -979,8 +978,8 @@ if test_ping; then
- 	# queue bypass works (rules were skipped, no listener)
- 	echo "PASS: ${ns1} can reach ${ns2}"
- else
--	echo "FAIL: ${ns1} cannot reach ${ns2}: $ret" 1>&2
--	exit $ret
-+	echo "FAIL: ${ns1} cannot reach ${ns2}" 1>&2
-+	exit 1
- fi
- 
- test_queue_blackhole ip
+ 	# the hook array of the queueing hook point changes, the position of
+ 	# the queued packets in it is stale, they are dropped
 -- 
 2.56.0.218.g1ec904b173-goog
 
