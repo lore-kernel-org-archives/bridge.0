@@ -1,119 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.70
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792599515;
-	b=eps9/qv/hhjpGMy2k+f8VNJxPe+nywS6/w+uG51WD3gNL91vKZcie784sPdhvzCwz5Yf
-	 YehqoTju+wA3ffxhN12O00AV3ZQpsR+iyE7KXUUtXHI+xH7T4hCztuzFD6OaHVIeviVCx
-	 OT1tVTFM56J0AWsMfAcoj/a9WiLW6jbe0d+z56+bRW1wNxJewJCufftzPjBEUOPKEv4Rv
-	 rh3zXLX3DbBgIIPgAT4kjPOCRKB/k5LiKyBLvb5brWmH6i/oXJekk3u1pAu6xpprgSV3d
-	 bloaZStyw0UQOC6uL5rGnHxeX4GjN0Ma/G4ODXvfmurVvRSUDVUE9e8zdhcsYp3+sFA==
+	t=1792611322;
+	b=wc21OCOvUGY4JNc0CgCXWMjZuRPsdVAioXS/wtHFRNZUUSU98f6japWar+yie2JlVthq
+	 nRBIDbJFSjzTTh7BFk8SByFkMyt/NV4FTDRFvWUNSELPBmzxN6WZHP0eeYjuo6ICmsH2C
+	 wZ7knS1pCJ+HmA5dS37dnvciqCe8E+Bz06Yw2KAhqGEprqVmdOysPVCkyc1IWraq3YWEz
+	 o+3aS8HSySIup11LP0EqQBsWUSRaUxCRYi++3dGRIMYXSrFj+u1PVzFczoLBY8QnnwhNp
+	 QscohFBbsP9CjdjnXuYHFErr8rPbnYZsr8uWrl8CWy4gWz07/YvAUlrfvRCy2fbLreg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792599515;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792611322;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=UrbNAcrvvqBJ2+CGBxSM/krMHIMJIRsTQjY9f7twsUM=;
-	b=YG8wW2i9V2F4d+eeRs3UI/AZdcRcf7EVWJ2yLKwLY7pvuO1W0y6bzHkPR8Iiq23XmNLT
-	 bzQMzHZ3dGiAwSjw1V+XaOKvGc8/T4xsv9ELUTH4mjTxVTNNx5T9ZqTpArILnNHrUw+yY
-	 +fDoQurxskhXEJhH+K1v25sYhrrjUhUNJwget7Unqu1RzqfydHf5Bni3Qr6bqhlHWfQ+q
-	 ILJxPBYYxHHMeecCikbT+VZI/hj4pb925c2yqzQfuYXad5LGYsBfoGKpdjTjfkjFbEy8E
-	 IzDz5nu/iec7x2idJm5su9jSHZRvC9/4Fi3cTwlTI3Ms1PgFMnlGBqbgGqFu9eAjcTQ==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:Mime-Version:
+	 X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type;
+	bh=8mOlKY38CaqqsXX6hCu9uSO+ENgj+XOaLp+dwJtx33w=;
+	b=J6Y4y6yN3copRxMm7KzW/fC5xLeXP3jXQvqXzQrV9FmjLnpNHe69JeUE8Rz3H0p5/kxx
+	 3ewWdeLiCxGecCz49Q3hEH0o05Lxg8IZQCa5fSVFTFPuFUFc6I95OHzKk8rSK6tgbDdpp
+	 Zgrf7r+XEcNbRL5hvkEMzViwba1gtKZiM/ofQFU0cWyVviT6GpuDH/YXB6/mwB+kW9tdC
+	 q3fewTbioMYRI92prZYMeVtDCCmfpTyQK2GtBEsirX9Udx5gbuMt/456ekIYDGLkwGBCt
+	 y9NF1VwQNHSx6J8wS2EqjylK1B3ZiVi2g80mIY+aUDxowRIuUhpCbAQWEWhRwYD8l5Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=qYdVcKNs;
-	arc=none smtp.remote-ip=209.85.222.43
-Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com [209.85.222.43])
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--aojea.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=cw7piBq8;
+	arc=none smtp.remote-ip=209.85.218.70
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com [209.85.218.70])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80B86606BF31
-	for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 16:18:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 80B86606BF31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52723606A31B
+	for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 19:35:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52723606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--aojea.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=qYdVcKNs
-Received: by mail-ua1-f43.google.com with SMTP id a1e0cc1a2514c-97ca72f2cd9so590878241.2
-        for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 09:18:34 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=cw7piBq8
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-c42f98f3571so111388066b.3
+        for <bridge@lists.linux.dev>; Wed, 21 Oct 2026 12:35:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792599513; x=1793204313; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=UrbNAcrvvqBJ2+CGBxSM/krMHIMJIRsTQjY9f7twsUM=;
-        b=qYdVcKNsztxleXKzUwLa3nh8zmJgP6jawwP42i0gMuU6FN9qCX7xfT1h3aSMj7ldPV
-         mRQF7ifLMhKQYnPR+pj/piPVL0RvuoFC6T8EiaHZ0Z1hgWCqYGxUnQ/p+bcGtRzMN5uS
-         4jgi5jyx8v+mUEkveJNxz27IcJzRvi/mqoTxNFGwTwByN/sXrDZ51WznTY4A4ujAweRM
-         PFG7PWGvEcgZhdrLHV4Hd73SjNZV6nm8pfi7D2DdQZDWqTe8aP5XCJhc0mVrUV/izzsj
-         rw+GgnaI50bbf8imQcxKv0vYBNc90ERbZ4Z1N+Mk5NAuhze42889UjqxW6Z6A99+6ZCx
-         OTng==
+        d=google.com; s=20251104; t=1792611320; x=1793216120; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=8mOlKY38CaqqsXX6hCu9uSO+ENgj+XOaLp+dwJtx33w=;
+        b=cw7piBq8YbI/CgYbfMLDsG8dcl5xM1CaVQp0YGb7cLuMs9yR4c5dyCSAJTuRCZkxrH
+         uE02KiKGubtpk2HK794Jk9UGy9ZPAaR0A6dCu0hkHPddhW2XVdmZxJ6zwQdNSm7jghB4
+         HwDt4OBNPXOYDygIZik6wPF0SM3i9DtzrawvDpV7SnjrrRiMJCyW+VIA7/ma5I0xqiKa
+         CBVcyDpbYDhdY71lZ3RvIs6MYFGlEGc1xWCZsQrflnbRKuVvyi9RF/uxDH/xtu5e1fj7
+         L6phy88/I6xmoHfgUGbr0HaG8LlI9nkD4sFFehcPn9UQvxIDuqlmcOZLJxg8RxXkSdGc
+         nLAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792599513; x=1793204313;
-        h=content-transfer-encoding:content-type:mime-version:subject
-         :references:in-reply-to:message-id:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1792611320; x=1793216120;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=UrbNAcrvvqBJ2+CGBxSM/krMHIMJIRsTQjY9f7twsUM=;
-        b=vI200VFyvLN94nGthFZgANJUCs+EL03PBzXcO6y5gLaJzD0VdVmu0ZzY+YEYAxI9GN
-         xd0SZj3/oPSZd5hXJDRV1NSrG43JkIgIx3OVRGhEDFtWt6RSaugFcb096EiZhRdMBXTN
-         KtOMLYyCUaYIgzI/NowXNU3alFm3FI85LBExoric7P84FPtimOGAGxZ4Nu9RZQ99LM4B
-         +l7ydK9TlNY37hgByAmExG5dMuZlVIOKxlssXjXao6paccTE8c5O4/0ymPgHVb0XHO5l
-         3ASICs7h45R4OHZnmfPzPKDAIbzj4OMdvBIRVx9zpHJWS6V98NMKlngHAK58jvKgC46c
-         DLDQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwV8R2N/0d5eA4haENdVQ4WSSggjuzw6RTrZg11BO4HBJyEvIeoremQxE4u8gEE6Wf6BIwI/Ss=@lists.linux.dev
-X-Gm-Message-State: AFq9FYKm4OMuU464wRw3lkK81LheqOy/CBANK6c53/HnxFkqv1M+ETMw
-	hrmyYkCfvLHc2DtTDdfprO8arQzfB17i7TiCXOC6JfDSR7vd76lpBlaL
-X-Gm-Gg: AYBFou1jTkW5RxssP/1I0CW3whJ2XOQBAlgu23Fg8U+KHluJbiwvZv7ybiW9RllWf61
-	gdm7FgUAjgGGDwPut/r5Ac0sN8tODd0x02aMN4tmJ1+KJla9MX9jbSSUVPWsFQZN9jsSBxntHU2
-	zRDWQcgLVo7qUfQfoU+7sMtCi/1EZRID7x/LtJQOlaYOfQb4ySia1Ssz77GqTiOkifdSbTOIJlv
-	+9sqZwOCBsGbZuljoA+MRT7lnh5OOGB/GPZ68jwEbryj0UockrXsB0g+vXVJD6WjiqgrUQx4KDk
-	v43KW4NXKeBJ2EhEUYru5CCoFQI489Asn61ighEk9GLY+Gl5ACw3D602HfRVjEQEgkCApV6Rn+P
-	v8dlv1EKpRrTWwa0w3Xrm3LXtKY5Rh5vcm1KTiJQOaGHq7cis3+OUL55qRvjZBUjJFRFMaYcAX+
-	uKjCfzXthtqvcpdSLTHtfc59P16j9kJTfRlxjXnhJGbFdD/uXaHMCnGQdMmObdQG0caCSf7R45w
-	L84lwC2CekXn63VfoiAC8NcK6ZQt0phiE0hM36EnHgy0By3X3Hk9N5YJHUJNcAhhWyfahVvJhHc
-	UomO3SYsBqyopXka2dRUxD4QqsWl0bZKkAcCEdItFd+Wyha1TnRXHim1sMXlFJkHMlGx2xVnXIT
-	mASqVo5JmKW26Bauxmvg6R+GDrhWfWBofshWlV2Nq
-X-Received: by 2002:a05:6102:3e8b:b0:79e:2b00:b4da with SMTP id ada2fe7eead31-7cc9263e66bmr1074589137.6.1792599513253;
-        Wed, 21 Oct 2026 09:18:33 -0700 (PDT)
-Received: from gmail.com (111.46.245.35.bc.googleusercontent.com. [35.245.46.111])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-7cc9236f63csm3160917137.5.2026.10.21.09.18.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 09:18:32 -0700 (PDT)
-Date: Wed, 21 Oct 2026 12:18:32 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- linux-kernel@vger.kernel.org
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Chris Arges <carges@cloudflare.com>, 
- =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>, 
- Phil Sutter <phil@nwl.cc>, 
- Jason Wang <jasowangio@gmail.com>, 
- =?UTF-8?B?RXVnZW5pbyBQw6lyZXo=?= <eperezma@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@kernel.org>, 
- Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, 
- netdev@vger.kernel.org, 
- virtualization@lists.linux.dev, 
- Max Krasnyansky <maxk@qualcomm.com>, 
- Rusty Russell <rusty@rustcorp.com.au>, 
- Pablo Neira Ayuso <pablo@netfilter.org>, 
- Florian Westphal <fw@strlen.de>, 
- Nikolay Aleksandrov <razor@blackwall.org>, 
- Ido Schimmel <idosch@nvidia.com>, 
- Simon Horman <horms@kernel.org>, 
- David Ahern <dsahern@kernel.org>, 
- netfilter-devel@vger.kernel.org, 
- coreteam@netfilter.org, 
- bridge@lists.linux.dev
-Message-ID: <willemdebruijn.kernel.c4a4cd674948@gmail.com>
-In-Reply-To: <aa1551c0357a149a84d01761872cb4d3b489d1af.1792565282.git.mst@redhat.com>
-References: <be251d104f881a309cfef150455efa128ebb101d.1792565282.git.mst@redhat.com>
- <aa1551c0357a149a84d01761872cb4d3b489d1af.1792565282.git.mst@redhat.com>
-Subject: Re: [PATCH net v4 6/7] net: add ip4_parse()
+        bh=8mOlKY38CaqqsXX6hCu9uSO+ENgj+XOaLp+dwJtx33w=;
+        b=qGEsznmoxsZ0vE0VjYoMglweEdHdJ5c2dWp82qEGEPeewktISI38Beh9l7eYcgRpfs
+         GHFPcQm5mL1SAqk5k/JzORRDXK77zbLmE4cNz/n13epbi7UzIYCerxIW/QxPumLqqBgk
+         9WeZFI17vcHCG3rfsjcx5ACF03dlqfTD18u3A4SlLj5bxONwdQLd5H1Ed0LAi380+O0I
+         aZOeuGcxrugEZBDbLhVB0gcajJwTCEsofOtvOdQlgE4Zjic8WI7CDp+cD5wqkHewq0HQ
+         vMbYiOWvbezrbMTp64cji4plLneuOhxZ2Oqna39EB+dTQvkpmvLk2B2WYCS/lw1BA9rR
+         c1aA==
+X-Forwarded-Encrypted: i=1; AKwUvBygott+av2e6+/e57npWqbuCidzi7VCogi8LRjjTzfALjeFS5MvKY1a9ti9MLRCsJcBepjMY7s=@lists.linux.dev
+X-Gm-Message-State: AFq9FYIzYJyX1k9cJnKh0x9NchmG66TcpbzZwTxr2g7nqk1fx5hB68OX
+	hL9AtLMCV5myqta6V/ltpm3UbZFRMyyQSRDHC4/BdAy/RYxuRT+iQbBIBIhJGGy9Ok+d4nTSQgL
+	BtA==
+X-Received: from ejdq8.prod.google.com ([2002:a17:906:3888:b0:c3f:6152:2d8])
+ (user=aojea job=prod-delivery.src-stubby-dispatcher) by 2002:a17:907:3e89:b0:c40:36ca:9d1b
+ with SMTP id a640c23a62f3a-c46796eb68emr257680466b.40.1792611319463; Wed, 21
+ Oct 2026 12:35:19 -0700 (PDT)
+Date: Wed, 21 Oct 2026 19:35:08 +0000
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -122,298 +75,75 @@ List-Subscribe: <mailto:bridge+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.0.218.g1ec904b173-goog
+Message-ID: <20261021193512.2302587-1-aojea@google.com>
+Subject: [PATCH nf-next 0/4] netfilter: nf_queue: follow-ups to the hook drop
+ flush change
+From: Antonio Ojea <aojea@google.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>
+Cc: netfilter-devel@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>, 
+	Ido Schimmel <idosch@nvidia.com>, bridge@lists.linux.dev, Antonio Ojea <aojea@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Michael S. Tsirkin wrote:
-> Multiple places in the net stack open-code the same minimal IPv4 header=
+Follow-up to commit 72ac1c0937df ("netfilter: nf_queue: limit the hook
+drop flush to the unregistered hook point"), merged into net-next with
+the nf-next-26-10-18 pull request, as requested in the review of that
+pull request. The series is based on net-next main, which has that
+commit; nf-next main does not have it yet.
 
-> validation: pull the fixed header, check version 4 and IHL >=3D 5 (wher=
-e 5
-> is the fixed header size in 32-bit units) - and locate the transport
-> header at IHL * 4 past the network header.
-> =
+The hook drop flush now only covers the hook point of the hook being
+unregistered. Two module exit paths relied on the old flush of every
+queued packet and need an explicit one:
 
-> Add a helper for doing that: it returns the validated header and
-> the transport header offset, or NULL if truncated or malformed.
-> =
+- br_netfilter queues packets from the ip, ip6 and arp forward and
+  postrouting hook points with an okfn inside the module, so a verdict
+  after rmmod br_netfilter jumps into freed module text (patch 1). The
+  hook removal moves to a pre_exit callback so that the grace period
+  the pernet core runs before exit separates it from the flush. The
+  patch also moves the nf_queue_nf_hook_drop() declaration to
+  nf_queue.h so that code outside net/netfilter can call it.
 
-> As noted by Phil Sutter, there are more places that could use this
-> helper, e.g. ip_mc_check_iphdr(). They will be converted in a follow-up=
+- packets queued from forward keep their conntrack reference, so
+  rmmod nf_conntrack blocks in nf_conntrack_cleanup_net_list() until
+  userspace sends a verdict (patch 2).
 
-> patch.
-> =
+Patches 3 and 4 address the review comments on the nft_queue.sh test
+added with that commit. Patch 3 fixes a pre-existing problem that
+affects the whole script: test_queue() resets the failure flag, so a
+failure in any test that runs before the bridge tests leaves the exit
+status at 0. Patch 4 makes test_hook_drop_scope fail when its setup
+does not complete and adds the keep cases that tell the family check
+and the hook check apart.
 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Reviewed-by: Bj=C3=B6rn T=C3=B6pel <bjorn@kernel.org>
-> Reviewed-by: Phil Sutter <phil@nwl.cc>
-> ---
->  include/linux/ip.h                  | 30 +++++++++++++++++++++++++++++=
+Both kernel changes were reproduced in virtme-ng with the modules built
+as modules, before and after; the details are in each patch.
+nft_queue.sh passes with all four patches applied.
 
->  include/linux/virtio_net.h          | 28 +--------------------------
->  net/bridge/br_netfilter_hooks.c     | 15 +++++----------
->  net/ipv4/ip_input.c                 | 13 +++++--------
->  net/ipv4/netfilter/nf_reject_ipv4.c | 13 +++++--------
->  5 files changed, 46 insertions(+), 53 deletions(-)
-> =
+Review of the pull request:
+https://lore.kernel.org/netfilter-devel/179237288267.3135.9555179349652175002@kernel.org/
+https://lore.kernel.org/netfilter-devel/179237288374.3135.9473018103688224106@kernel.org/
+Request for the follow-up:
+https://lore.kernel.org/netfilter-devel/athscka5B9UmNsJz@strlen.de/
 
-> diff --git a/include/linux/ip.h b/include/linux/ip.h
-> index d11c25f5030a..aba37cd60212 100644
-> --- a/include/linux/ip.h
-> +++ b/include/linux/ip.h
-> @@ -56,4 +56,34 @@ static inline void iph_set_totlen(struct iphdr *iph,=
- unsigned int len)
->  {
->  	iph->tot_len =3D len <=3D IP_MAX_MTU ? htons(len) : 0;
->  }
-> +
-> +/**
-> + * ip4_parse - pull and minimally validate an IPv4 header
+Antonio Ojea (4):
+  netfilter: br_netfilter: flush nfqueue entries when the hooks are
+    removed
+  netfilter: conntrack: flush nfqueue entries before waiting for the
+    conntrack count
+  selftests: netfilter: nft_queue.sh: fix the exit status on failure
+  selftests: netfilter: nft_queue.sh: harden test_hook_drop_scope
 
-This only pulls sizeof(struct iphdr).
-
-To match function comment and generally be robust: pull again
-if ihl !=3D 0.
-
-Apparently virtio_net_hdr_tnl_to_skb will set =
-
-skb->transport_header to the thoff reported here, which may be
-beyond the end of the linear packet.
-
-> + * @skb: buffer to parse
-> + * @nhoff: offset of the IPv4 header within the linear data
-> + * @thoff: returns the transport header offset
-> + *
-> + * Only the fixed header is guaranteed linear on return: callers
-> + * that need the options or the transport header must pull
-> + * further.
-> + *
-> + * Return: the validated IPv4 header, or NULL if truncated or
-> + * malformed.
-> + */
-> +static inline struct iphdr *ip4_parse(struct sk_buff *skb,
-> +				      unsigned int nhoff,
-> +				      unsigned int *thoff)
-> +{
-> +	struct iphdr *iph;
-> +
-> +	if (!pskb_may_pull(skb, nhoff + sizeof(struct iphdr)))
-> +		return NULL;
-> +
-> +	iph =3D (struct iphdr *)(skb->data + nhoff);
-> +	if (iph->version !=3D 4 || iph->ihl < sizeof(struct iphdr) / sizeof(u=
-32))
-> +		return NULL;
-> +
-> +	*thoff =3D nhoff + iph->ihl * sizeof(u32);
-> +	return iph;
-> +}
->  #endif	/* _LINUX_IP_H */
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index b3bbecbd023c..724ab8659501 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -53,32 +53,6 @@ static inline int virtio_net_hdr_set_proto(struct sk=
-_buff *skb,
->  	return 0;
->  }
->  =
-
-> -/* TODO: nothing virtio specific here, move to ip.h */
-> -
-> -/*
-> - * Pull and minimally validate the IPv4 header at @nhoff.
-> - * Returns the header and stores the transport header offset in
-> - * @thoff, or NULL if truncated or malformed.  Only the fixed header
-> - * is guaranteed linear; callers that need the options or the
-> - * transport header must pull further.
-> - */
-> -static inline struct iphdr *virtio_net_ip4_parse(struct sk_buff *skb,
-> -						  unsigned int nhoff,
-> -						  unsigned int *thoff)
-> -{
-> -	struct iphdr *iph;
-> -
-> -	if (!pskb_may_pull(skb, nhoff + sizeof(struct iphdr)))
-> -		return NULL;
-> -
-> -	iph =3D (struct iphdr *)(skb->data + nhoff);
-> -	if (iph->version !=3D 4 ||
-> -	    iph->ihl < sizeof(struct iphdr) / sizeof(u32))
-> -		return NULL;
-> -
-> -	*thoff =3D nhoff + iph->ihl * sizeof(u32);
-> -	return iph;
-> -}
->  /* Defined in net/core/dev.c, enabled while any network namespace
->   * has net.core.virtio_net_hdr_validate set to 0.
->   */
-> @@ -157,7 +131,7 @@ virtio_net_l4_start(struct sk_buff *skb, unsigned i=
-nt nhoff, __be16 proto,
->  		    unsigned int *thoff, int *ip_proto)
->  {
->  	if (proto =3D=3D htons(ETH_P_IP)) {
-> -		const struct iphdr *iph =3D virtio_net_ip4_parse(skb, nhoff, thoff);=
-
-> +		const struct iphdr *iph =3D ip4_parse(skb, nhoff, thoff);
->  =
-
->  		if (!iph || ip_is_fragment(iph))
->  			return false;
-> diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_=
-hooks.c
-> index 0a394e5f4391..e89da0e41542 100644
-> --- a/net/bridge/br_netfilter_hooks.c
-> +++ b/net/bridge/br_netfilter_hooks.c
-> @@ -206,18 +206,13 @@ static inline void nf_bridge_pull_encap_header_rc=
-sum(struct sk_buff *skb)
->  static int br_validate_ipv4(struct net *net, struct sk_buff *skb)
->  {
->  	const struct iphdr *iph;
-> -	u32 len;
-> +	u32 len, thoff;
->  =
-
-> -	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
-> +	iph =3D ip4_parse(skb, 0, &thoff);
-> +	if (!iph)
->  		goto inhdr_error;
->  =
-
-> -	iph =3D ip_hdr(skb);
-> -
-> -	/* Basic sanity checks */
-> -	if (iph->ihl < 5 || iph->version !=3D 4)
-> -		goto inhdr_error;
-> -
-> -	if (!pskb_may_pull(skb, iph->ihl*4))
-> +	if (!pskb_may_pull(skb, thoff))
->  		goto inhdr_error;
->  =
-
->  	iph =3D ip_hdr(skb);
-> @@ -228,7 +223,7 @@ static int br_validate_ipv4(struct net *net, struct=
- sk_buff *skb)
->  	if (skb->len < len) {
->  		__IP_INC_STATS(net, IPSTATS_MIB_INTRUNCATEDPKTS);
->  		goto drop;
-> -	} else if (len < (iph->ihl*4))
-> +	} else if (len < thoff)
->  		goto inhdr_error;
->  =
-
->  	if (pskb_trim_rcsum(skb, len)) {
-> diff --git a/net/ipv4/ip_input.c b/net/ipv4/ip_input.c
-> index 9860178752b8..5adf01763e85 100644
-> --- a/net/ipv4/ip_input.c
-> +++ b/net/ipv4/ip_input.c
-> @@ -500,7 +500,7 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *=
-skb, struct net *net)
->  {
->  	const struct iphdr *iph;
->  	int drop_reason;
-> -	u32 len;
-> +	u32 len, thoff;
->  =
-
->  	/* When the interface is in promisc. mode, drop all the crap
->  	 * that it receives, do not try to analyse it.
-> @@ -520,10 +520,6 @@ static struct sk_buff *ip_rcv_core(struct sk_buff =
-*skb, struct net *net)
->  	}
->  =
-
->  	drop_reason =3D SKB_DROP_REASON_NOT_SPECIFIED;
-> -	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
-> -		goto inhdr_error;
-> -
-> -	iph =3D ip_hdr(skb);
->  =
-
->  	/*
->  	 *	RFC1122: 3.2.1.2 MUST silently discard any IP frame that fails the=
- checksum.
-> @@ -536,7 +532,8 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *=
-skb, struct net *net)
->  	 *	4.	Doesn't have a bogus length
->  	 */
->  =
-
-> -	if (iph->ihl < 5 || iph->version !=3D 4)
-> +	iph =3D ip4_parse(skb, 0, &thoff);
-> +	if (!iph)
->  		goto inhdr_error;
->  =
-
->  	BUILD_BUG_ON(IPSTATS_MIB_ECT1PKTS !=3D IPSTATS_MIB_NOECTPKTS + INET_E=
-CN_ECT_1);
-> @@ -546,7 +543,7 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *=
-skb, struct net *net)
->  		       IPSTATS_MIB_NOECTPKTS + (iph->tos & INET_ECN_MASK),
->  		       max_t(unsigned short, 1, skb_shinfo(skb)->gso_segs));
->  =
-
-> -	if (!pskb_may_pull(skb, iph->ihl*4))
-> +	if (!pskb_may_pull(skb, thoff))
->  		goto inhdr_error;
->  =
-
->  	iph =3D ip_hdr(skb);
-> @@ -559,7 +556,7 @@ static struct sk_buff *ip_rcv_core(struct sk_buff *=
-skb, struct net *net)
->  		drop_reason =3D SKB_DROP_REASON_PKT_TOO_SMALL;
->  		__IP_INC_STATS(net, IPSTATS_MIB_INTRUNCATEDPKTS);
->  		goto drop;
-> -	} else if (len < (iph->ihl*4))
-> +	} else if (len < thoff)
->  		goto inhdr_error;
->  =
-
->  	/* Our transport medium may have padded the buffer out. Now we know i=
-t
-> diff --git a/net/ipv4/netfilter/nf_reject_ipv4.c b/net/ipv4/netfilter/n=
-f_reject_ipv4.c
-> index 59ec465a9df9..42d639854ddf 100644
-> --- a/net/ipv4/netfilter/nf_reject_ipv4.c
-> +++ b/net/ipv4/netfilter/nf_reject_ipv4.c
-> @@ -25,22 +25,19 @@ nf_reject_ip_tcphdr_get(struct sk_buff *oldskb,
->  static int nf_reject_iphdr_validate(struct sk_buff *skb)
->  {
->  	struct iphdr *iph;
-> -	u32 len;
-> +	u32 len, thoff;
->  =
-
-> -	if (!pskb_may_pull(skb, sizeof(struct iphdr)))
-> -		return 0;
-> -
-> -	iph =3D ip_hdr(skb);
-> -	if (iph->ihl < 5 || iph->version !=3D 4)
-> +	iph =3D ip4_parse(skb, 0, &thoff);
-> +	if (!iph)
->  		return 0;
->  =
-
->  	len =3D ntohs(iph->tot_len);
->  	if (skb->len < len)
->  		return 0;
-> -	else if (len < (iph->ihl*4))
-> +	else if (len < thoff)
->  		return 0;
->  =
-
-> -	if (!pskb_may_pull(skb, iph->ihl*4))
-> +	if (!pskb_may_pull(skb, thoff))
->  		return 0;
->  =
-
->  	return 1;
-> -- =
-
-> MST
-> =
+ include/net/netfilter/nf_queue.h              |  5 +++
+ net/bridge/br_netfilter_hooks.c               | 21 +++++++--
+ net/netfilter/nf_conntrack_core.c             |  7 +++
+ net/netfilter/nf_internals.h                  |  3 --
+ net/netfilter/nft_ct.c                        |  1 +
+ .../selftests/net/netfilter/nft_queue.sh      | 45 +++++++++++++------
+ 6 files changed, 63 insertions(+), 19 deletions(-)
 
 
+base-commit: 279d5c8afcd38bd841832a39bfe1aa4f8518d98e
+-- 
+2.56.0.218.g1ec904b173-goog
 
