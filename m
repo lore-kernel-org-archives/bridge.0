@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.47
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792660574;
-	b=ObaWiHuLGHqXUCTJYEAlhC294e/Zk9IAiaiwKjk8ZsjIQGxqfTYNWRHXtr0rDPVPWU5l
-	 Z8LjmenfOhgWvILLV+IDx+GOpAMJqGLoJUcapTGiVDuxYql2TVPFMfzW+y/o8hlRu0tLw
-	 eqRNLWZuCJWhZmit2ltynSAzApQtQx8WQyGVYZ+3Y3I0RBuReZfN7pwD64SHDyhcHDemB
-	 DsxWA/tRxagdWMCv1mXd8kp+MtoED5FJxTeIJpTzXAmDgKIDUZff4PO2CqWkX5nz8/oOG
-	 QQGhO1EyYBXxV4MRSy+gVCOU8vGwKSn1sVrmFoS7I9Ct4aBRuwqU3XQ8jq1dzZoqTCA==
+	t=1792660586;
+	b=vmQeLhBOIO2/ilsXfY/SZKvf9seknH2ymMJhVjsSBJWXjLjIfIdo8lFYEEGAXb1Gh4wr
+	 GrRaEUzI2x2uKKrDw3gT1XQCdG0Nne+d7MtPOJ4yb9gOx8MjJwSBhlwRBkj/z9VKMD8eT
+	 VbEH4cckQCGGuiefVaOyUaT3T+ZGeIDvzdh1kz4yDf0B6NdkFlZ1ZhW3XMEGxa97uJPIf
+	 kxM8qSJwJ6ilvFu6j63YhZMRDzUXGdY4/y+hueq+BDrHyHIExwS0gFlCpmP6SN3y3uKay
+	 2MjpGgeJ7bz1ei5as24NYv7MCgDGFsKeVTlG1vdM4/Ccc3EKWyT8KY0df5S5IpQtAIg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792660574;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792660586;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=y4SBB/zAR7G8uWNCyu3PQ07icMwXcC5cIWOIKYHE0eo=;
-	b=eWZzrRyWVBhm4HsHc3VHpOleu6NsYhhLfS4xBq+U9pFU2XkFt4xkeOtCjtXLr/yJw5Rj
-	 fzWpLxO1gGzyalxgQBzmBjk03G0vMnK2UXgRnafpD5FY1z5torb9FON/11pPa6x+K4K1m
-	 lRZRU6KQ8ku8VQNLnQIXmsXvTV67yvuIRqszvUZ1KWWZxSxrZtOpaZovebSi3bmCrU3S1
-	 kSJlpLt+8jqdE5SvWN2aeoX5Ikvpr0Nkb1MDUUolw8OCVy5mRsg5trLMq3/VKXIbsFVaP
-	 /Wc3AGt8OQ8qd+SnicWnRrVbCc8/4YAKsFCbUhtbihdjC5eJHKJ5KWweRAKNjzPy3yw==
+	bh=s3Hbpdq8bJvy97QquSYSmiPRVKUjmKCEWWHbHnrtGGY=;
+	b=bPSCizF2C4MiJ7agel6w7sJRDemEAcLUgWUbMFzBK+SCK0XO4SF5hFuVFalYAaW5J86e
+	 c11QGrD0Opi5KWjrSHufp9YKMSynHDpJf5Z1JkzRtMPHqeBJc8L0n8J93aI7cWjESBPaQ
+	 464kCk35d3fno1sywZgb3nS9Rrs4RVdNF7IwaBl99USJmf0K/h8F7yzerCM3PttyPYGlo
+	 weWmkxRviu8Ts9EAc7pkGrA/YuezoSKmnGX9+1n/+7RB1BTDxSJtDz84LE7urSJc5pVg0
+	 A3TfwWwiz2w+rIo3aIF20n+WqvidnwZfCi8ma+OQfYHb+5jnyjqHp7BNeOZXvhbfOrw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=H2d1eUlQ;
-	arc=none smtp.remote-ip=74.125.82.181
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=X0kEKiKp;
+	arc=none smtp.remote-ip=74.125.82.47
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE173606A31B
-	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:16:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE173606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACAC9606A323
+	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:16:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ACAC9606A323
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=H2d1eUlQ
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-353804b591eso2971640eec.0
-        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:16:13 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=X0kEKiKp
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-181516de561so326275c88.1
+        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:16:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792660573; x=1793265373; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1792660585; x=1793265385; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=y4SBB/zAR7G8uWNCyu3PQ07icMwXcC5cIWOIKYHE0eo=;
-        b=H2d1eUlQnEt5hUP6KJ4qCce1MoUvdjlC2nxHUt/K/2icmxGJEa2/6hQYDZbnN5b8bq
-         XdNfZhDa1h0VlHQtUz9JcogVAgbIc8w8RYGGhc/z4bYXHOyrAguSrg51MPvjOIXhjq+y
-         nG+6mJRGVWRlqCPC4u0uphoqW/MMH6lPqb8vBSNRuESLQYzvr4Z5KzK/S12LJYXzCro+
-         pqTx09vFDcS9ziLelOQBiv3TFd+e3eZIBR5sUVffMeogc3rywxzDEwY7xAfma6Br9toL
-         6ZeBCp6OohjgvfLuQtwC1NsesJLuj+2A1VaxELp5ab5ns+zwk4GCTSFTm8bsGOxTzpfc
-         frAw==
+        bh=s3Hbpdq8bJvy97QquSYSmiPRVKUjmKCEWWHbHnrtGGY=;
+        b=X0kEKiKpWdfiA+oJSPHfS7pOGr/HyPev34+0VSzRaYFksik+GmU+1Tebn3xfkT+cut
+         tMAUiWAJleUXXHkakCSznqJGhD5lgdn8xWLPOY0VuMDuG1M3UwlPie7BNPWeyBL3pYJf
+         PGqGIohKt1/GIOoR2+2kaRgf+CWzTIsAwZSeh79lrHsw2UpRSzT/j2lwixkwea761ZF1
+         Z8pzyV4x/0AY2fBnUL3twYVcHqBCBv//BFwpjmuQQOHd0/Jt5B1JXzhDyqCYCBDUc6m7
+         5ulFraBH2kxOqiljdHohWEjip+/mWIsDB8zqzo4POKdv4t+uQHn60SZLGtOYUBI5okWJ
+         MsQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792660573; x=1793265373;
+        d=1e100.net; s=20260707; t=1792660585; x=1793265385;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=y4SBB/zAR7G8uWNCyu3PQ07icMwXcC5cIWOIKYHE0eo=;
-        b=HqkeQnLBUspbBVZW/UMcaPXTZY/gmUwlMkDylnif3c3nDbvYLhsge2U9tLe/uI4d06
-         0iTzK8pHrjowHHBIjrYELloV1nWUFP0hxMzuX2sQtZ3eJeN4r078wvmgYN/Nrh7KV+uu
-         A160nb3tMmYwKk4KGx8mj8f4uRM10r6fXrgUCGp81HFYMRL0lJrM/wx+fWnuSBFp+LOK
-         Edd9dm4VGTwL+z4bGAIw6R0bh8e9lG8pSc5xXn/qSQUw54BNEOHY4ACs4Opbjufug9hy
-         hVe4L3vGF8tq0gP3VNWzP9sRmjpGLNyNUkG1s997JEWx4x1vYKYBMVoHtfyv5MyhP6Tm
-         4UFw==
-X-Forwarded-Encrypted: i=1; AKwUvBwKBQUP4GfzAtpstEIvYjX+8+4pqxAWTWIOi5HLkMuGY17LDm26zLN7WgWfMHhQZNAqwLoGhW0=@lists.linux.dev
-X-Gm-Message-State: AFq9FYJrpLpzkD+MfFVjyZjMeeLwETpFHSV1IpW1z3yW+x+O2bX+PLCq
-	09OD/jGIm/Rak6XZsQnEnoTr7o2X6JThATvsGaUKqaiNjuF/J+gKT9Y7
-X-Gm-Gg: AYBFou083PZD3yfmDgn7OxDx7j1p6G7btQDszDFZ6CW3lUcrtEtnHVG+vOHD60ctNni
-	3KywATk6paK/dp00gNTA+aASRSpSWv/6UgJIc4rVQcPSHtr93ukdnU8S9INfhZODzBE5wW98+5f
-	DBm5yHhXRC63mK7J7QEgm5nwSNDpZAAKRiRHs6wT/iqYD8pnpESvOwzS4iC+EdSRuWdLV7LzJ2r
-	u5kZswMiJOIDdWJ1sxoWS9NOd+neH25RVC/Ufwd+Ixq5NhYTzJ0DZ8wy6dNb/VBsu5/SsrSK44T
-	GXJ7OgWylH3jc5qKQJ/nnkAXw/B9nLzylivbYfiisi2UhphyrC4nzwDEQz79lDqho8szTMgGQhI
-	gTP4mc7vDV4Ng/bpAjcZ2ePU1TBtsw/eOXA/PUW/JFX452asFcVHHe2JsGeo8WDC+RI+c0tVk3f
-	rPiERpefAEjcuEuD7tfmON7syNcSC1m93eGMTAn0v1W7fihNJAfhbiYbcVqXKXue9CrA6q/W1gg
-	kz0Xh9nMGoQrt/Fd8yeIyUaGLye0Yv+oRlAuyP/BCR9WSawtoe7PUmvpvd5gbKAEukyr6u5XHQ5
-	WGA41zo1mlGI3h4D5Zc=
-X-Received: by 2002:a05:693c:20ce:10b0:366:9ac5:34fb with SMTP id 5a478bee46e88-3674c92e0f7mr6089640eec.13.1792660572901;
-        Thu, 22 Oct 2026 02:16:12 -0700 (PDT)
+        bh=s3Hbpdq8bJvy97QquSYSmiPRVKUjmKCEWWHbHnrtGGY=;
+        b=Mng+D2/FreGkDBgcKpTnSbzd4f/2JtoULMgTJeJMyFQgVE2tmfwAuRyKCDgXqYJhJa
+         a1hFhe4i9INOprzYTbPQMwamFqlKDHvjAvUrlDZbd9RCP4G/vO+JAlLy+GRmglcqtv8h
+         tbIinHVJsddn1bM4qi1IfjoyXKog4+rTIGNfjEV95km6hQaZi9lLGHSDF4O6ZNiuHaHV
+         dnBj/kIAX3fhalDOLZLh/k2D7YBjzWWsjtWVsKkSfGW5LNfTFS31ecpjo6S9Y+oksBzN
+         4Mjlh+amPymzdk1JUE1N/lK8HPDnBQmIo72GqsKG1QveXBtaEqI/twS8tHu8W/0EPo/Z
+         PxPA==
+X-Forwarded-Encrypted: i=1; AKwUvByS7QgY/fFmmbCU255uYql3Pv+FsX4Nkl8reMNARb2CFsgHIAE34a7PClyNyAC/OMUj3x/wzcA=@lists.linux.dev
+X-Gm-Message-State: AFq9FYJsNFNZvga6enNU9OeMBDp9q1uXdv+nL1NFbJ0nwoJqKH0kWzc1
+	V1egzynPRdLkrozz2UvXUhL3yeQRZ0WJLxAd273zgwbIZZXeUxHiJFvB
+X-Gm-Gg: AYBFou2EcbtACLP8HbYnYyxbD1aooC/mNBGN5Gtl6wCW87an1h6PkFyzxP6n7vWGLrV
+	Gu92FezCyOdhAfXnnxFXW+U7qJClery6KBwpgr9SUcosiKLhAPO+9EQBNbucY1qY4+gvri6Wivm
+	zRp9pE7q8odER7XW0HT82MPXB8GMRBj+EKLSC4otHF6G+PPQqzNtYyicktrgDmRvzBETt8MevrI
+	cKWKsfhNB8G6ADRMK19VugnhwYmfLAgmKa1dVsoxm9Vto8pWMKh4H5Ix6TynNezJDHiyhTkNIr2
+	BwBk/oGoD1io66sD4H1J9YG73R2/5mwEDG9MqBtd8l2FaE67+w4C+Q2qBIgzcNmnV/N+4qt6/Ym
+	70PP3mTE8aw26U14XBhHK50Wm4B0mRnT2ajwHz4RqbDaaOrljbNP5zBgdIrq2n3UCrQZPKF0Pq3
+	ze3hYNYCKjhxlO/N//znVxYK4NPkBIljpAFLdDa4izaYs7O2JNrOXfS1fl1OJt/NJXkGaOmJbso
+	eQ66CgI+DLZxc0Jr677vG2zgSi4lCyQ6DUi1QkjMYf+fud/29XfZQSy9UwY5Ry36YBwh9FXHdgF
+	jGkWaQDdj7tlRBCcydE=
+X-Received: by 2002:a05:7022:127:b0:14a:6a66:f6e3 with SMTP id a92af1059eb24-192f4fb0ed2mr3798839c88.20.1792660584630;
+        Thu, 22 Oct 2026 02:16:24 -0700 (PDT)
 Received: from youngkk-vm.localdomain (67.216.200.102.16clouds.com. [67.216.200.102])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-367411bc89fsm18131777eec.16.2026.10.22.02.16.09
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903ca044d4sm14095227c88.17.2026.10.22.02.16.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 02:16:12 -0700 (PDT)
+        Thu, 22 Oct 2026 02:16:24 -0700 (PDT)
 From: Cheng Yongkang <teel4res@gmail.com>
 To: Nikolay Aleksandrov <razor@blackwall.org>,
 	Ido Schimmel <idosch@nvidia.com>
@@ -89,9 +89,9 @@ Cc: "David S . Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [BUG] net: bridge: failed VLAN tunnel update suppresses state notification
-Date: Thu, 22 Oct 2026 02:16:05 -0700
-Message-Id: <20261022091605.3651677-1-teel4res@gmail.com>
+Subject: [BUG] net: bridge: VLAN operations emit wrong link event types
+Date: Thu, 22 Oct 2026 02:16:18 -0700
+Message-Id: <20261022091618.3651826-1-teel4res@gmail.com>
 X-Mailer: git-send-email 2.34.1
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -107,44 +107,40 @@ Content-Transfer-Encoding: 8bit
 
 Hi all,
 
-br_vlan_process_one_opts() commits BRIDGE_VLANDB_ENTRY_STATE before it
-attempts BRIDGE_VLANDB_ENTRY_TUNNEL_INFO.  If tunnel insertion fails,
-the option loop exits before that VID's changed flag is included in the
-notification range.
-
-The new VLAN state remains active, the request returns an error, and no
-RTM_NEWVLAN reports the state transition.  This makes netlink listeners
-disagree with the kernel VLAN database.
+br_vlan_rtm_process_one() reuses the VLAN operation command map for
+the RTNLGRP_LINK notification type.  A successful RTM_NEWVLAN therefore
+multicasts RTM_SETLINK, while RTM_DELVLAN multicasts RTM_DELLINK even
+though the target netdevice still exists.  br_fill_ifinfo() also omits
+IFLA_PROTINFO unless the event is RTM_NEWLINK.
 
 Observed on Linux v7.3, commit
-08ab31164c55f20c7a2653de3186ae333470e2c1.  A range request for
-VID 10..12 set state BLOCKING and tunnel IDs starting at 100.  VID 11's
-tunnel ID 101 collided with an existing mapping:
+08ab31164c55f20c7a2653de3186ae333470e2c1:
 
-  request result:          -EEXIST
-  VID 11 kernel state:     BLOCKING
-  VID 11 tunnel mapping:   absent
-  VID 12 kernel state:     FORWARDING
-  RTM_NEWVLAN for VID 11:  absent
-  RTM_NEWLINK for the port: absent
+  RTM_NEWVLAN -> ACK 0
+  link notification nlmsg_type=19 (RTM_SETLINK)
+  IFLA_PROTINFO absent
 
-The listener was opened after setup and pre-existing multicast events
-were drained.
+  RTM_DELVLAN -> ACK 0
+  link notification nlmsg_type=17 (RTM_DELLINK)
+  IFLA_PROTINFO absent
 
-Correct behavior is per-VID atomicity: validate/prepare all options
-that can fail before committing state, and roll back any earlier
-successful option writes on failure.  If partial commits are
-intentional, the failing VID must still be notified before returning
-the error.
+  target port still exists after the DELVLAN
 
-CVE-2026-90114 covers a different defect in the same batched range code
-(descending ranges and an uninitialized error value).  I found no
-matching fix for this state/notification loss.
+The kernel's dynamic-debug output independently confirmed
+br_fill_ifinfo event 19 and event 17 for the port.
 
-The PoC and two independent logs are available on request.
+The request handlers need RTM_SETLINK/RTM_DELLINK operation semantics,
+but successful VLAN changes should emit RTM_NEWLINK, matching the older
+br_setlink()/br_dellink() notification paths.  The 2015 notification
+compatibility fix established that ABI, and the later RTM VLAN path
+regressed it.
 
-This was found with a multi-agent workflow; the exact
-notification/state divergence was reproduced in QEMU/KVM.
+I found no matching upstream fix or CVE.
+
+The self-contained PoC and full serial log are available on request.
+
+This was found with a multi-agent workflow; both event
+types were reproduced in QEMU.
 
 Thanks,
 Cheng Yongkang
