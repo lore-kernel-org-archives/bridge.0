@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792660528;
-	b=LH6MKlHkIyiS/CAuNzsz8YglJYST+rRYboVTAM3cOseuyht4kI++M2AKvH5OOsTXN5+R
-	 1G+MjUjrXMM09RQcKHzUzdauM7STPdbDYtx29QlBL1aK/fKOIuysSAUlD3GlFTyJkiKkA
-	 3m0X2Wd8dqejJLz6BT9n0Ah7+3m+xq1XDrBJb8SkmHHZfYIkJ9jXLnuqqEp03XCzcw6bR
-	 XEPvRstQRoc6QaEjC8nVlE4XJU2cNtlkzx+O72zYdPTVqbwYNNz25YVdVfEn+26huhQxZ
-	 8FvXIY+nBh3lvj1sGk1EFAfIJt6+x9v5HRBRRfx2ZX+RLw1MHBYd1bJBbyWpIFvnX/Q==
+	t=1792660541;
+	b=Dudz4Ub5mG7WlH8k5vdeVbd0aZ0DYkiBrwUZJRWuwuVsh8u9s/9stSTH7xd6Ut1bbox1
+	 GxkKqLYPe7HV3WZLBR00w9kAmp3C5bDu9eMLf2Vj/U/zvzK8fDK6yPdI3kzNsYeCiQJbI
+	 PWvurZqiqpGJQbMg3VbUnnEfjA2DrmO0PUBBAHbx7gfPcVVJXAi1mdZOxWJ+jmkfj7Lfa
+	 CndRDkmEK/nH0Y+vOez6sTRRzIZRJi9SNczRuSwA0UqwQXd6CiUqJT0HaMX7MUVN5sXxR
+	 2GSZR5H8iHUzAfQVqCnLBF5lqVwdZ+uT8PzCId1a+0JqpBFcBoHPKetkWig727fy6/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792660528;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792660541;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=gJVw9ABNp21KP8Dhio2Mev+A1bfhiVXJze+OMhpKRQE=;
-	b=4iR8n8yjqPylgGJ8CEqJQ9PR1JmrtBCcqJz57flNFYZ5GOEyCLtGR9Kp8AmeVzB7Uokp
-	 N/u9tomNLZrArvuwo5ap/XWiBLOxdvFUqXbnovp7URW/3yYmbG7NVSIYA/MTieG4ZdC9O
-	 0L7dO2T7XI3unczuHs0gTXvLm5ruzJjXlGirqhwzDdT8IirvPMb+ols5HCl6rlcEh5wlB
-	 BYs22ZsrmvCIzyNYA0ZflOMWjkzxMLNGNIJF+XLoQgAVtmtUOLGQQcYXZD9rnYRMM9nPp
-	 h9OzgG1QMocs4YDXKoYredPmYMbfUOUSXDhGJti5wisJFS0yQ7QpWTrjYaDuYeSScbg==
+	bh=cE1oRv74Uai/JOHCCDXA2NxiKeZ88D+LuOVAazAETn0=;
+	b=GhMJ9m7knamCiKAdwm/XwINS/AhM98VQgZlUFU25sh5XzrcmO7hR18tIEDhJlSwF/TbT
+	 WmCdYwG/Kn7UaMpYnRdErMMaMJBkkvBRCTAozJCaZeOn3UBaWl4sMEFEOj0tI+q05u1Xs
+	 iQTFe9JEy7FzZ+0Yy73OWZeDrceYXLve8wdAQYVpEOkUonoDLT2UtaQgF2rzvK280uv86
+	 gYq2NHqK/+uLh0CwUEz6ZFhLZOxqmRWmVBA9ZE4KxvUVN1xr+m+g/5EzlbJlQ2EdiLDsx
+	 Ish9H/u1DX5apL4ctENdmWe15AVN90xiH5jBOdsJa3RUSz5herap/UiPAyLfay8Pxgw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jfCDv9QM;
-	arc=none smtp.remote-ip=74.125.82.41
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=EhxxW298;
+	arc=none smtp.remote-ip=74.125.82.46
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E420606A31D
-	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:15:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2E420606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 113A0606A33E
+	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:15:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 113A0606A33E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jfCDv9QM
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-14394530ec6so2177896c88.1
-        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:15:28 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=EhxxW298
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-15ea896ddc8so2344329c88.0
+        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:15:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792660527; x=1793265327; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1792660540; x=1793265340; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=gJVw9ABNp21KP8Dhio2Mev+A1bfhiVXJze+OMhpKRQE=;
-        b=jfCDv9QM0cz98bczKwlMRK6sJzKqAwMJ4e3wM19j/+wyWZs1Rd8N9BM+/CH1mWl+MN
-         gHKwGC6b7QcWDPjdtK7Qe1qJY/pUJMzJPztYadQmFNDA+uE0XaXqaqMQwgLrge3y0rOO
-         0gTrPA3CPtsHaqGMo3KgO2ZsIJTdAJr1b6tmn5kn+ghQtdhQHv4D2yqCbbRaIeOe05Ev
-         WpXQeIAozKp6Sp1JGsBKTPOjD0IdUX1Lne5vJNkz/KfUZRyMTgi4F0VcKhguScasqBJ1
-         4+yQBCA324U0JhOrgbyWfpkd2z1DGDA7kEwdzIvtP06tYCYPLLeFlJmQmr2sfvA8n4fH
-         qVcg==
+        bh=cE1oRv74Uai/JOHCCDXA2NxiKeZ88D+LuOVAazAETn0=;
+        b=EhxxW2989TdOoqz8O+Y/PaBz7T0MwGBywSdCR8jrd/SezV5JxN0r+AatHQLuvQIq4+
+         G8QWBpr0s1mT4vV31ew3Z1Dpsf/2r2mOYRJoQTCa4GFiHOclVyeVG/RKcwG2X1TQbNmf
+         vY2r6EmIuYsRtgninKJr/ApUtXW7KSbKiBG1ljC4SgfZXoLPoz3mnm7VL6HEgmF+w6Ny
+         1m5Re3ypsmVRWGFYw152mUbS5kRIYH/QffGt3t1zrDbNfTkSIIsAiI6s9a1dqpoLZcSD
+         k4rJgyOKw7nVF5KIbzMwwe4F2H9SSpdFOY2EMs5wTvfCcQhIxEfuLt51p+1rz90Ovv5i
+         7/hQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792660527; x=1793265327;
+        d=1e100.net; s=20260707; t=1792660540; x=1793265340;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=gJVw9ABNp21KP8Dhio2Mev+A1bfhiVXJze+OMhpKRQE=;
-        b=KvmC3I2pZlHO3E8N2JHZkvmIX+E0QJCMccmHfZ9YjpeFmlEhM/ZPcVMXMawRwg5Fhk
-         2h5xevjx9pyQTc3MLTKXuvmMDcTg29c4/XCEwzKFEGJjBguUuSGUr9FWmYLQEl+87ib+
-         K0BFXoIpdpXCTK4kZL5IiGiC6LZdCkW+PXuJlAsPgUOrquTr+X8uC6QBJsSRYP8r7Wm9
-         9IS4BNSd2ruT7Fi9ZS9OD78abgtwAxDRn5566VVCsLtX92scdbJCTCJ0/TZe1rMrhSB0
-         mjtKSxeZBn3To2cKmS81GvWMO+KR2JwQoOZymbD5f4WqlybN5wA/0wYqAgv1FsKQ7AkB
-         Rovg==
-X-Forwarded-Encrypted: i=1; AKwUvBy59EOLL11VvB6BQiRILTII4/JghQPPLqJHceFhbhAbvUgXVLcUmQ4ujnMTaVMx78kyzlJXj5Y=@lists.linux.dev
-X-Gm-Message-State: AFq9FYKyIL64BImUQQ3spZdsmqLCxbtamHPlX8hrchmQjIgtuTvvNOJU
-	RGxDqE+gPDteEPEdf9rIzsUF7K86kyFayUMGqG3rAHlSIxtOT+vhnZAq
-X-Gm-Gg: AYBFou353RWiaETLTonWDetETe8nevNV/KnCAQmcHdzjBQKcdtRYvxi/SCU/lFD4CsD
-	+4YihLoj4g72klSAtZGKwHK/Eh4QeZISio1xbJbdDJVjOo5yamBnBJbp+kW8OGA5y0xqZUj29QY
-	QC0d85UfZKU5A5eyxmF9gwKCe+CFt55ciS0yZm/wBYU+ThwzEODUkQTvnWpXh3OBs6dlX5eKLCT
-	QnwwPad7MMsvihC8Wjs0nYw65ot0xdsJM/lfhD5qaKXcbm7GXyxhVtWD2+SF5DUQEkqck/+72CM
-	b+467T/jM7t/ssnbp2WgaPu7Rmvzx2qvpWBvJh4NewIOmTmfEWC1nqsqh2QpObz8Z4lkKOsa436
-	Rw+/PiqhCmEoqSAxkVmj4UyH2m19Q3DpWGDHqR/1OFZXqxZpOnwfj07+T5es1LhhilQ9IjyjrUD
-	FhyXr/Rur9dqNABwq4A17y/n3LojHrIS7EoPRK98UUyNw7idWa4sVnu/U/+k1sxZ+FcYUqTyuGa
-	qJDf4oh/X4Of00gO06e8I3INnTCFwcFRdtsNgJVG81/qBRz50T40T8D3HmraCuSq3kR7o4qkpKH
-	6I8Dgoh5FebjQN08oKk=
-X-Received: by 2002:a05:701b:4189:20b0:144:fa58:95d8 with SMTP id a92af1059eb24-190a599a3b9mr6064440c88.27.1792660527292;
-        Thu, 22 Oct 2026 02:15:27 -0700 (PDT)
+        bh=cE1oRv74Uai/JOHCCDXA2NxiKeZ88D+LuOVAazAETn0=;
+        b=Cb5NiLqmP5tlsHGSeQz70ZyRQRJf15O5UFyEXROPOTQtsxm9VtGHppchINs3GQFLxI
+         d64Fu8fdKmUI4Y364HOFP0tQ5v358NuHA3lPQA1nQmevimq38B0K7fr54T7alWm0zEyh
+         Nj+vHPa24dYW+gpGZ0hEulOhbRpLF+VfxM82m54txdYTQNZ8Jr8jmCs1/1xjtraXelUW
+         Ayf/QtTLzbRe8aHIYOf1hVeW1gJkGMfJGumVXlRCoBdHAqMY9j+w2LpPJWndpPWpCKvs
+         ODTOUygXZqvbMohLZ6Xgq7SyBlOivKKB7Z/YF0ZQ/U9si5UxzsYYCjycd9n1l+9URjqY
+         t8nw==
+X-Forwarded-Encrypted: i=1; AKwUvBzSwAaXnN2IpDWUehc7l2vxvBqVoL+VOS/0+G3rPpRyj7pZaa/9bLPThq8hmATMbHdFxxflycc=@lists.linux.dev
+X-Gm-Message-State: AFq9FYLhmw2zDWfAOKQWyQPgDppDI3oRFwPQPrgGZE62HI/ZUHu6I8dH
+	FBHA26STqjfDMcA2mzTchs70lYvl/X787IxLQPBRgg93vhYEDr10K8rB
+X-Gm-Gg: AYBFou3aRledOgBZVfeEsrgFXxqjRP/2WUGnvRq4UNp98UBzs7kvamWnBsJbRL6PRlo
+	0+OT23MzVxrcLj88RnQ9lcmnwWnsAiHRy55xlWpk6ubE9111iH+kN3OSJEAG+xpMATGseyWiXLF
+	+8LGTzWgNLib8FVhtdfBBnnTwmapQ1jXOaAyheMxo9mu0ROeRzMZml5Gh2WNd9z94xttenhsK11
+	Ait6ckGeGjh1Le43+BjPnGe0Tz6sEafBh2whxFQBvJeCRWlQmkkwPUufz864twu/nCoMruO0pCN
+	L3ey2JWeBR92bqwaQ2boyj5fh4cPWU90J7ruVZZvZaZ7OHz1Fs7Yaae+4rXssXdnj4a5nLNEqzc
+	q0pakZ6MtVI2Z6etCiI4R4prsys2C+M0QPT4nkCaOQR7ENZhxr8FDGHNbEewUDAkERTc4HcFB8X
+	cS3jZfKyg8etbC36+OeIl5h4fq8hRynRwudYTJOe+6pTQPuIzvCNR1im6kJk+kouUUG4G/S2sTW
+	nJh2xCn6+YqUxLmXmxkhWbklQcSKA9TyuHSt3eRb78/LOJaXedNriPHjMuntUlpRGr8J56jHWyF
+	WVYglJtHR/W3z6pGKf8=
+X-Received: by 2002:a05:7023:c018:b0:144:fa57:c617 with SMTP id a92af1059eb24-190a756bfcdmr5268242c88.34.1792660539942;
+        Thu, 22 Oct 2026 02:15:39 -0700 (PDT)
 Received: from youngkk-vm.localdomain (67.216.200.102.16clouds.com. [67.216.200.102])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903a275026sm19853944c88.5.2026.10.22.02.15.24
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903bf5d0a1sm13415991c88.14.2026.10.22.02.15.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 02:15:26 -0700 (PDT)
+        Thu, 22 Oct 2026 02:15:39 -0700 (PDT)
 From: Cheng Yongkang <teel4res@gmail.com>
 To: Nikolay Aleksandrov <razor@blackwall.org>,
 	Ido Schimmel <idosch@nvidia.com>
@@ -89,9 +89,9 @@ Cc: "David S . Miller" <davem@davemloft.net>,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [BUG] net: bridge: MRP state is not propagated to MSTI zero
-Date: Thu, 22 Oct 2026 02:15:20 -0700
-Message-Id: <20261022091520.3651032-1-teel4res@gmail.com>
+Subject: [BUG] net: bridge: received STP timer fields need range validation
+Date: Thu, 22 Oct 2026 02:15:33 -0700
+Message-Id: <20261022091533.3651250-1-teel4res@gmail.com>
 X-Mailer: git-send-email 2.34.1
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -107,46 +107,48 @@ Content-Transfer-Encoding: 8bit
 
 Hi all,
 
-With MST enabled, the bridge data path uses MSTI-0 per-VLAN state.
-br_set_state() normally synchronizes MSTI 0 through br_mst_set_state(),
-but br_mrp_set_port_state() changes only p->state and sends a switchdev
-notification.
+br_stp_rcv() copies peer-controlled max_age, hello_time and
+forward_delay after checking only message_age <= max_age.  It does not
+apply the ranges enforced by br_set_max_age(), br_set_hello_time() and
+br_set_forward_delay().
 
-The MRP-aware guard prevents other STP transitions from synchronizing
-MSTI 0.  Direct bridge MST commands cannot address MSTI 0, and direct
-VLAN-state changes are rejected while MST is enabled.  A ring port
-marked BLOCKING by MRP therefore keeps its PVID/MSTI-0 state at
-FORWARDING and continues to pass data.
+Zero and oversized values have several externally visible consequences:
+
+  max_age=0: br_transmit_config() cannot emit configuration BPDUs while
+             non-root, while a zero-delay message-age timer forces rapid
+             root/designated-port recomputation
+
+  forward_delay=0: a later BLOCKING-port transition uses the zero
+                   shortcut and skips LISTENING/LEARNING
+
+  hello_time=0: once the non-root retained value becomes active, the
+                hello timer repeatedly re-arms at the rounded minimum
+                interval
 
 Observed on Linux v7.3, commit
-08ab31164c55f20c7a2653de3186ae333470e2c1:
+08ab31164c55f20c7a2653de3186ae333470e2c1.  A superior-BPDU flood with
+max_age=0 and message_age=0 produced:
 
-  net_bridge_port.state: BLOCKING
-  port VLAN state:       forwarding
+  max_age=0 in 904/1000 sampled intervals
+  attacker root_id in 897/1000 intervals
+  68 non-root-to-root restorations
+  122 message-age timer expiries
 
-  MST disabled control:  egress=0 ingress=0
-  MST enabled candidate: egress=1 ingress=1
+The bridge returned to its configured 600 jiffy max_age and own root ID
+after the flood; the impact is rapid flapping and transient suppression
+of valid configuration BPDUs, not a permanent takeover.
 
-The MRP instance add and PORT_STATE BLOCKED requests both returned
-success.  The port was observably blocked in sysfs but still forwarded
-real broadcast Ethernet frames.
+Received timer fields should be range-checked before they become bridge
+or port state.  Candidate BR-035 is canonical; BR-036, BR-037 and
+BR-041 are different consequences of the same missing validation.
 
-The MRP port-state path needs to synchronize MSTI 0, for example by
-calling br_mst_set_state(p, 0, port_state, NULL), in addition to
-updating p->state.
+I found no matching upstream validation patch or CVE.
 
-This is distinct from candidate BR-039 (MST with VLAN filtering disabled)
-and from BR-005 (deletion-time MRP forwarding).  I found no matching
-upstream fix or CVE.
+The BPDU reproducer, verifier, and complete serial log are available on
+request.
 
-The test used a diagnostic switchdev endpoint only to acknowledge the
-MRP object.  It did not change bridge port state, VLAN state or packet
-forwarding.
-
-The PoC, module source and full logs are available on request.
-
-This was found with a multi-agent workflow; the
-state/forwarding differential was reproduced in QEMU.
+This was found with a multi-agent workflow; the full
+state transition pattern was reproduced in QEMU.
 
 Thanks,
 Cheng Yongkang
