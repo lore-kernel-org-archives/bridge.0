@@ -1,97 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.229.8
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792685406;
-	b=fhnkg5GEmX86yMoOFoO0Pbfv/YdgdhCPNOG4cKDWVqfylZ7o2fzFkiw/zAFjZ+2MtlqD
-	 +dfIA/yi1baLpO0uVvkzyYtFLo0sUnjmE1lZ2mx+ljDjX6uriPeSfAnVO5dwm5HGAALn5
-	 hkHXIuXTaL9eqaUrHmj1S7hNNq+72ydEDnJoQDSoy04973WbN4Q2Y3Q5j35NpkOQMWHsG
-	 KuukwsP5Mx0hBl30su9+IOYWoBqDsE/7W9kkIdTo/XiyIcDB4z7uSYTZhQLbkT8ZlsNWb
-	 76LLqfjpMm5s3wf3Cnlj4TH/Qaw7AXDPQfx7Hik7rDQQnmivV3KHJ7hVTwS2K8YqhkQ==
+	t=1792685614;
+	b=eFbUAMS4qXlFjWTYqe3muIigWmC8h8i00Alw/U6wyBzmqipELzBLHEzO8g13hS+Z4Usp
+	 CXZoRoKBNJcOybNZGs3g+3dUxXFXCu0Il7rj3pAdFI34tE3wWKh9fLzKdJTWOjSlDn6di
+	 l2gM2x+1lL9SK3hgkj/gRZG9N6y+D28C8R9EpigmNza2fQ7JoWfHpRYyZJrm74MLei4MN
+	 b7jDz9rp7ar1goyNcQo0fl4rRXOvmb5XN+9EUflZ4QojLzKwpDzsB8UN7nwovlq6+/M+U
+	 cotnpuE+ukpbM/t2cJdXoyTNfSoREgapaynF9EwrAl7AoGojWPfcF2jmi9pxSz6reRg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792685406;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Subject:Date:Message-ID:X-Mailer:Content-Type:
+	a=rsa-sha256; c=relaxed/relaxed; t=1792685614;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
+	 In-Reply-To:References:Auto-Submitted:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=TKiZFeJUlLaF2cjWlbWxlK679IXDg+jtMCj4786GFco=;
-	b=mdul3Hq3uRcJnmhN0mBxnHpgv7DiFJiV0bEk4F7KM9DRLLQa/NWgrZvoR+CP9SKurYFP
-	 MSZ8zdRqhmUt3G9HKA2WMaoLw/MEReEwT8Ql2RMB278AZM7mbOT4XS9xm7cyXbPzexx4V
-	 BIrZyoyRAwbKZpEwRm16iYdut8vfcFkNUw6tetw2C7xUlKCQB4eIE1FlBRjGbrBn0x+6e
-	 Xfs+Hv4E6M5s8amvfHCGUZZfBaspCN3c8cGwzivpeagCEsIN/VZ0LCf0tqvwAhDxfo7Ol
-	 hSicaN57EmOxCy+VFpYyQVXC6N0mgZL7onMqHl7EdKqOCDjGzsQEMTmoCZmn0xdEBVQ==
+	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
+	b=V0+NYhdZz+0+nK8vHQf39p1Q4t+KjPeBW6Fj/qmLCMDf//eS24PWBfVw88coEZabRu1z
+	 R0Eeng9j+db6mxZTWRfXWHP8KyUT1qBroBQTw3r3J+hqrjTcI+TcdFqybXaFZlL0i5cFv
+	 6JmjT32u3imwX3X5hbKwSr4rMrE03uNGtQc3Ji+ic7MyIj1xKXJB+MV4xo5RUsjSDZXqK
+	 fTEe6/CZFM3Dwcfy2m6Fc3YJCFOTeUR1bWAaHU8LjR0Lh4gHnbXe+HUDOFD1TJcaAJ2TW
+	 MPfQG1BzWcVxgOvcmDIW3dBWEAneFqPtOxNyqTmbL+f5XxDLASfHW8nbGbkKoIktOiA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="p/LZfTni";
-	arc=none smtp.remote-ip=74.125.229.8
-Received: from mail-dy2-f8.google.com (mail-dy2-f8.google.com [74.125.229.8])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Js74pIVz;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2CE6606A31D
-	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 16:10:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E2CE6606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 079B3606A32F;
+	Thu, 22 Oct 2026 16:13:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=p/LZfTni
-Received: by mail-dy2-f8.google.com with SMTP id 5a478bee46e88-33baa8eb238so1208022eec.0
-        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:10:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792685405; x=1793290205; darn=lists.linux.dev;
-        h=mime-version:content-transfer-encoding:content-type:message-id:date
-         :subject:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=TKiZFeJUlLaF2cjWlbWxlK679IXDg+jtMCj4786GFco=;
-        b=p/LZfTniMN8ZZTbu+gHuus5c/ZhdHNTrycSv4j9+TwljbxTZBkKdjamM7vYdFkPcqI
-         H1dt3l8YODryYWjWsfL45Z0ft2+PeV8vqninVEBUIMHFUkjSjH8yB0O46I6JP5l4jjJb
-         FrLdME8cEFypuZAAPhoyHk7CQ8OjMgz2YNgBRskV4r6UuklY5KxZk4CrvPIUrpCvwLZ/
-         GOcuZIjcLFfGDsC8jJQ5Ioj+RKuBykZTID3iokTHyE5cjnAH0uyQL7vW9xlEdeBrOFQM
-         x4WKN1NAn7lQ3PcNBPO6GbpK/72Whnt2jpsVkzTnYxaf9DJhZNqdaHgOWRTHN9KqzJQR
-         i8NA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792685405; x=1793290205;
-        h=mime-version:content-transfer-encoding:content-type:message-id:date
-         :subject:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=TKiZFeJUlLaF2cjWlbWxlK679IXDg+jtMCj4786GFco=;
-        b=R7eVbu12JkOYGfAleeTcHuPppr6VthFyuVXeYGNozgoDMFkSo4nApWAbjKd4BXASc1
-         JU9/js3amGMu5Q+pawgRYRJFzgfiLu+BrERdMjqqDqTPw/HqMv9bq6GO53u5fpV5mJCA
-         dJAXH+k/wV6iWTrAYDca600wJ0DIkW6UG6fsb6QP0ColvkTt+YSwEGpPrOJsloOpMQYo
-         IW2SOT4e3NC0171BxhMU8m232YELF/gfyQq4OWw2OtV6O+QQ9I3zSiug2k+DXOvsvOtD
-         n091PPJsVDQPPM8VL/dPa9qZz0WMJtj+CjOOP9wOgqj7KDkyC6HkGZ7FEf34Vv2ZiIWL
-         g91Q==
-X-Forwarded-Encrypted: i=1; AKwUvByUCiWTmK/dxVlPaRwoY9oQfAnsjcKVjTdnkdhd7kpCRHYBbjjQB82SHowf3/YLHmZ68Zw+jJY=@lists.linux.dev
-X-Gm-Message-State: AFq9FYJhmGQCcRWPeW8QqenBzSZ5NZ5TmhWssyr1VFZ+JOE+12v5KPjD
-	DHX78b27PKOTYSAMB08/1FU2SwElKH94qQqUZxyTpl2RoUx6cf5WzNycagAFW1NlHfyPVA==
-X-Gm-Gg: AYBFou3XJ+8b08Bx3U1bl5GCD4HFE+eisvQkDFIpVj0YptTg9DG66RDw3mJrFhu5KEA
-	W2KGk3N8N+uZNQ1LTRGxuvGmfQnpO3IYsQm65OM5VJvIXb9nh0ItjcMEzA3HpvLFy3p+1qV1sUh
-	LWrpfYxDr6HBoVVlBv8XlNkKOutOzb96WW0LS9jalEfgD0HbD/C9mX7bFguYf0KQdTIko/Qr37Q
-	6JI4ExCs8PyjCpNwG6lSdHtaqAljdvZXdmhahToDOKISlWOMFo9Gc9/cTykqSnHxPKZOx+eagI4
-	sa9r3XCP6/XJyLIUpDLhe2fRiNuShQDVquWKwJ/oUGE6DYaEJR6hX/mXonALLYIGffCitHN6OWR
-	Z9M/l9TxEtP9Pr7oDFYLxX5WMOOMRcoNIqIFPVtQWjoNJeasTbRpDXnI3c7bwY91N9iEaPlz2yp
-	Mc3+c5ci9UnKr/srYgcQR1n5Lve+rXGVeV2uJh53+lOR9j4/iW39lMmD8sFyJPwBTHicfHm/E4J
-	/n4ISI/SJa2EIMUYFbS1lt2qJLiVmOI6QS5wWtU/1DS+tcM5KmWasyN/DzBOtuL8w3lr2VjfrJK
-	EP1A
-X-Received: by 2002:a05:7022:b045:20b0:183:3c2a:ae8 with SMTP id a92af1059eb24-190a84c288fmr7338019c88.41.1792685404837;
-        Thu, 22 Oct 2026 09:10:04 -0700 (PDT)
-Received: from [127.0.1.1] (67.216.200.102.16clouds.com. [67.216.200.102])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903e4f2eacsm14594124c88.23.2026.10.22.09.10.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 09:10:04 -0700 (PDT)
-From: Cheng Yongkang <teel4res@gmail.com>
-To: Nikolay Aleksandrov <razor@blackwall.org>,
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Js74pIVz
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA3751F031E2;
+	Thu, 22 Oct 2026 16:13:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792685613;
+	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=Js74pIVzFWnQT8PFLmiLS1pYM1SiEA9d9CnXf6t+5PPTyrt4TIWo86pVNljzdeNR+
+	 aLOccAIPC3uENYB5Jm9csHJn3VQZ2iu+MSADCSHinU4LuwiHYCY9X2fbmBagfqYZSB
+	 B2PW1lCrRmj6/bLLqcm3H9CDOAA0g4/lZL98wmuMjhxMFUsHLXS90rvng1X9HzN8zr
+	 tAYAUzqKR78ZrjPJ/9+A3GNR44UzPNFy57HXSroQBJn8AI4IUkCpDtZ/vuKd7aoPrl
+	 H9w5xOxVtYMiUOW3DrDM3s2G+iIfCxqKF6MrApK4UdF9WLgQUwzwpYXbtY4KkCAkmb
+	 VjW5h0xcq0wuw==
+From: netdev-bot+sinfo@kernel.org
+To: Cheng Yongkang <teel4res@gmail.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>,
  Ido Schimmel <idosch@nvidia.com>, "David S. Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
  bridge@lists.linux.dev, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  Tobias Waldekranz <tobias@waldekranz.com>
-Subject: [PATCH net] net: bridge: do not bypass port state for MST without
+Subject: Re: [PATCH net] net: bridge: do not bypass port state for MST without
  VLAN filtering
-Date: Thu, 22 Oct 2026 08:26:49 -0700
-Message-ID: <179268538303.70821.3493915601694605045@gmail.com>
-X-Mailer: git-send-email 2.34.1
+Date: Thu, 22 Oct 2026 16:13:32 +0000
+Message-ID: <179268561245.3290.10488272547860177966@kernel.org>
+In-Reply-To: <179268538303.70821.3493915601694605045@gmail.com>
+References: <179268538303.70821.3493915601694605045@gmail.com>
+Auto-Submitted: auto-generated
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -102,52 +67,20 @@ List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
 
-br_mst_is_enabled() is true when the bridge MST option is set and the
-port has a VLAN group, and nbp_vlan_init() installs a VLAN group on
-every port even when VLAN filtering is disabled.  While it is true,
-ingress treats the port as forwarding and egress skips the
-BR_STATE_FORWARDING check, so that the per-VLAN MST state is enforced
-instead.  That state is only checked when VLAN filtering is enabled,
-though: br_allowed_ingress() returns early otherwise, and
-br_allowed_egress() only checks frames that were VLAN-filtered on
-ingress.
+Hi!
 
-With MST enabled and VLAN filtering disabled, no port state is enforced
-at all, and a port in BR_STATE_BLOCKING or BR_STATE_DISABLED still
-forwards traffic, defeating STP and MRP loop protection.  MST can be
-enabled in this configuration, since br_mst_set_enabled() only requires
-that no port has a VLAN, for example with default_pvid 0.  In that setup
-a BLOCKING port kept forwarding broadcast frames while MST was enabled,
-and stopped when MST was disabled.
+This is an automated message. This series looks like a fix, but its
+commit messages seem to be missing some information:
 
-Commit 8dca36978aa8 ("net: bridge: fix use-after-free due to MST port
-state bypass") stopped this bypass during port deletion by also
-requiring the port VLAN group; the bypass itself remained.
+ - How the issue was discovered, e.g. hit in production, hit during
+   development, syzbot report, manual code inspection, LLM or static
+   analysis tool scan.
 
-Also require VLAN filtering in br_mst_is_enabled(), so the normal port
-state checks apply until VLAN filtering is enabled.
+Please do not repost the series just to address the above. Instead,
+reply to this email with the missing information, so that reviewers
+can take it into account. If the series needs another revision for
+other reasons, please include the information in the commit messages
+then.
 
-Fixes: ec7328b59176 ("net: bridge: mst: Multiple Spanning Tree (MST) mode")
-Assisted-by: LLM
-Signed-off-by: Cheng Yongkang <teel4res@gmail.com>
----
- net/bridge/br_private.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index ff746f036f54..85065304597e 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -1953,6 +1953,7 @@ static inline bool br_mst_is_enabled(const struct net_bridge_port *p)
- 	/* check the port's vlan group to avoid racing with port deletion */
- 	return static_branch_unlikely(&br_mst_used) &&
- 	       br_opt_get(p->br, BROPT_MST_ENABLED) &&
-+	       br_opt_get(p->br, BROPT_VLAN_ENABLED) &&
- 	       rcu_access_pointer(p->vlgrp);
- }
- 
-
-base-commit: f4377bf85887f57b59abb5479f7660a81ffe4449
--- 
-2.34.1
-
+The evaluation is done by an LLM so it may be wrong, if you think
+that is the case please reply and explain.
