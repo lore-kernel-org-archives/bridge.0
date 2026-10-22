@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792660035;
-	b=MIZdKBQIWDMG8DCVu73hxENXjKZlOnng7GKUzjUYTcUS4DGdC4lj01hHcqIxH752m7h9
-	 0Rmhc1aPLo7Ub9+Wt/z+Fx2devnJKc9nJ8hswv1WZHaEpyKfsmW4XsMkQ8ga3pejNdB1Y
-	 FYLPphwZ/bJVcBl9X+g2+DPXNAW4YNMSg0NBV8OrWt/1Z31wV0xi0c5Vore1l7WmlsVrX
-	 3Aq7ZhmQhDEiQxUUYZDrafTlFogRvSf455GeJ3xeThpi8lqUL5iMYuG3SbdKGCvoCmtB8
-	 lkF1S754z2nDDf1lwq4nhULoB5K4oULNyu1mG7CYG8HVNlI1XcSAHHlm3igRm//XlQA==
+	t=1792660053;
+	b=4H60iIxPngXubsaK65nfTqKR/Oj4PKIHL1AAiTwJOwT+QqzIoim0eNKMMbOTHLv9aOO3
+	 cAs9e9ofu2eiJ1TASn2FuR70wIaEj5RyG3w7h/nzm4DpXsp47+RvPj4E9Cdh049tjyfJj
+	 AQ3Zw1YamR5KwGgmKs+KdET1C2kRogaeMRr7ae/DXAzE4MSVVNBH9FiitcZtWn2rjQK88
+	 ZZ7cZTfSRn/eNDYx1PtQ26ayGzo/p++x+kIjg/nI2rf3A1kgdzOciuu79tLTEYq207stv
+	 1iQx3hDW0OH3qZhZCjVqNRL/ePzj02qXIXcMClXjJVh1SGpp++locvCq4oySoisH5ag==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792660035;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792660053;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding;
-	bh=/tMNXcr5k0x0ZqGSCg5kBGjjTxYYU7yHe7YyZnPL11k=;
-	b=duvErApNsMjO6nGblsxbdTGtUUeyaDfKWx7zszwXAn0JtjC4e57jXq5lMoXRNQuzULPK
-	 ZIumHW1CksFxQQb75Q/NGo4JArGyo9/SyPvBCe3UlYPI7fEzDdWS04m0Rwe6SyxR5Tfk0
-	 21J0UlxjItHOEl62LSezw/afj4mVVbQZm/wN7GlKyY7jpPwwbf1PvJAtzuFnAmP3FQvVU
-	 zLL/hmoh3s0OowvGKPbJHl9p2Ly0+cqyz1d8LP1YgpVM/y3ZugfxaNIyI06gyAx1Rh6o9
-	 p76kyx870JUeHrzbSiKxVwxPjvTvcuBUXcKaTjzOP1F3YpnesaU8LGkQqg1dJKw/O5g==
+	bh=9URtOwr/J7TkzlGgRbYmOknzNQNn+Yi2oYcy4B3bLaI=;
+	b=nu9EMQYCwYh5lz9/Kc3bRIrHKv/oBvqTRrQjQWrxZHrNsMLvQ5zFk8xrTge4tIvnh4yp
+	 hxrhmQNSQVZwoZ1IVEocUkV3UaWN9zF/yNJC4HMIZeeE5Hb44Ytupl4lp4n2imXKZyGRj
+	 r1cx7QBQNWdCxg7rwjV67V8PzSI+jB0EenKCxqOnsFCcsHVLVMHwX6VF5QNx5i6nE1amg
+	 GeIUyPiR5ibhrJBNyi5ZJh7d2TYYGiaXGKxpphSZRBYeQTitOIAfp1NaW4Je0kOMjUBuq
+	 93UOQ7kTCv5LhxhgVdILgltvt7lP4442mc2V6HDavDJK80xZWvSoN1FXI8Neh7erMyQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=IHm33Q3W;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=nMH8fLnl;
+	arc=none smtp.remote-ip=74.125.82.46
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 258F0606A31D
-	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:07:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 258F0606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D13F606A31F
+	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:07:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1D13F606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=IHm33Q3W
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-3535a54bed9so2339258eec.1
-        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:07:14 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=nMH8fLnl
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1438d9363fbso575265c88.0
+        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:07:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792660034; x=1793264834; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1792660052; x=1793264852; darn=lists.linux.dev;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=/tMNXcr5k0x0ZqGSCg5kBGjjTxYYU7yHe7YyZnPL11k=;
-        b=IHm33Q3WeEUE1uMmlrW+OYcr5Q7ZTWfozp/ADwnDOtZ7Kxg4LmJGrFunqCGLJKHgiq
-         8WcafzDpGnRjXegIvL4K9hJyvynpmY4e/TsYMicOESH3HOin1bfFShg5NMkJIw7Zdwap
-         hM9o++oulhdeVSBtp+bnHKD+eATx4lAYjxm6S1JmEgToHc0ghLmFOht5urcKj+V/iL+U
-         ZLU4SYyPfxkaaIqapFBUGqm4IApatphEhXw6qiEtxdL2JTSHs4/B6x2p4s5sbydBRPLO
-         YaXQRll4Q4AS7z6U3258ooOkpNRUrmF8hcvIITkjDNqdTATlAHzkytJCqG+RP4f41/Hq
-         uD1w==
+        bh=9URtOwr/J7TkzlGgRbYmOknzNQNn+Yi2oYcy4B3bLaI=;
+        b=nMH8fLnlrvwOrpWsms+D06wVZipKxwmkCDVTzqTzEAYBDmktuLRDKGKR6rjBPcWoFy
+         TymLWuceCZp+wuLMP86B9R8hGFb9652oFvBiRVNfx9LX2tRdBaf5ORwdS7ZIjHOIY0iU
+         VU7wwumGVEo0URsm0WKAq8tJvfwiSyJqgONqjvHzvj/mSyG04RTuoQyXhltT7zIa3Yuh
+         Eh9Y+Nfs62CkDKi7P6toyTDTusCUdO4EH3eVvLdzflJtzWfjJxysuiwlG1JQg41RXwHG
+         mPmDX2lhnUSp9Iol2R4R35Dmb7e9lL4IhMxDh0utA83BvgqH0pgS8TomY1Mz73eZTzUX
+         p4iQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792660034; x=1793264834;
+        d=1e100.net; s=20260707; t=1792660052; x=1793264852;
         h=content-transfer-encoding:content-type:mime-version:message-id:date
          :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=/tMNXcr5k0x0ZqGSCg5kBGjjTxYYU7yHe7YyZnPL11k=;
-        b=SUG1hJO7B4efBIyDHx2Ile2oiDw3S/6pj1P1vapOML6Kkp66OWGKHww9TEGk/LQlmu
-         Yd92OOfCMHN2Jsv0TNzzXaXNvoNCcxCqLIKVxI84H2zx3b0RNeYB1gfQKurBAW7e2owK
-         ioGiDO+x4yn1RsCNFcD8/sUpCZB3qE2/Xyxkhk0xJ2wT65dWvvXH8zZMv+kd5Kcz0tqt
-         iu04oqxkagLPeXoY5xMph3MryMWyqC1A7IncPSk7RQquMCSVHPx/h5VCalQXU/5gEvyg
-         x1ecFFzZs1HTemSpjcXcibSVkMu+bVcBFzyojTnWjO+lIsCutfM+LjY42jt0dA0o94oW
-         U88A==
-X-Forwarded-Encrypted: i=1; AKwUvBwpiZLq6o/BvzF3Kv9ffVTWPXyaLIsWXaNlXZLZwVbMkaBguBtF5MgQQRNOOahnGNlZcT3dYPw=@lists.linux.dev
-X-Gm-Message-State: AFq9FYLJwwpq7DU9+fA+IDgf1tWRqQyiq4n/1ACuRCDuuNvpIC/c9RQQ
-	m/G3MENwdoi3hpyHo35RqUsnl5DotlJWAqjG/kR9ZRqpxtv/GM7Bq4PS
-X-Gm-Gg: AYBFou0Le+qycYGB6Z1o6u9HxrIWZQXcXE4flCEloacc/bQBHMEVGYBl10kIqXZGKys
-	n6auhZ6pFaG0Jj/s+XV/qJyMr3Tu3p9a2NIWCk4MwPS+NCYccka53q0dxpyv8/5uvki4f62BuWh
-	GKR9gSvwZT6esCw8H785U6NympZDMCNm0958oFKXVPcoyMCte1D3pVH+M2rwAIFs8ClRywakVTA
-	vkFx+8+7tVRx2ogSCdecX08N/I5madJQRrymjhdJtjr95XsROxNx8kmIJCA4UZow1sskXg1VHNJ
-	PXX17bbLGN9LXYSxKTKQuXG3k/QUJSUmCG5WYWnwAqBx/SsIjFcvJGa5P0nTAvjon1VlUrLjo3x
-	ro/daYTBMXb9R0CjZF/mFRRMMPn7FGeiqnhE4v27kUjRKC1kR8aDPt+aXCOJCVq4Hl3i2x2cS8V
-	SthI2FNhMLURgsISXR29rgaAc+cVMzMr8qdTVbZ0J95PxOnC/RWkAAjzhovj9xfHHZ8wcyVWpo9
-	Pjfs39aTpYhP1ZOvM4Lis6nZFpo3pYzKdDiVlPaFJc2DaF4mjJisVqHd+SDA0jjcp/EOfGdEa2Q
-	JPalrWzxvbP3AOTrgOE=
-X-Received: by 2002:a05:7300:8a18:b0:35b:c1d2:eab9 with SMTP id 5a478bee46e88-3674df4ef40mr6319732eec.39.1792660033972;
-        Thu, 22 Oct 2026 02:07:13 -0700 (PDT)
+        bh=9URtOwr/J7TkzlGgRbYmOknzNQNn+Yi2oYcy4B3bLaI=;
+        b=eQpZGemimDJ2BviwRi9AXBQEjoBXiePGh1lsPgGgj2FC+RUrWK/3ysbR0zm6xJi2Tb
+         iK0DgIHIplMUGxIGzZUc08h+zSaipBhhj2nfkGlqRGnLnmAka4kIg80zJcv6akiegi80
+         aDzji1YPLfYW9lFWMdxpJN753hF4XdgZQLKwBJA/d9xeydDnQd42cw7RNjQl/X3dXF1w
+         g4VqvFmWjREDo3khWYFmjUTFjeIp5fJED4Nk2yUhKmuYeoUaLeqi1w2+k1pQ2XfUyu3O
+         +Wt6za5C2JUZ5gGr3eWLonyGrxnYQw6Q5Mt2SiqqpYRUEtwODvjfw90UzGU3BjdTZpVF
+         RgnA==
+X-Forwarded-Encrypted: i=1; AKwUvBwrfEi89pnWnwfqORx4N/sDnINnyjCO3KCZFcnHuOsXRXjBcRududG2k/44TqUSIXhxdkJ2fmE=@lists.linux.dev
+X-Gm-Message-State: AFq9FYJ3CtvH/3TpjkjlGwM48i5hebAZ/QAagZw/hwIIGb+KbvDUhFXy
+	4FGCsAKg5z0VM0xEFjCJpPNrNPLWmNMhCdnp57qW5ibRDrPHtXrkCsJM
+X-Gm-Gg: AYBFou0dQCC7n5sjdL7uE/hjPllAbZXNS8395VUxaCooVNWBmrpo/2TFZsDLeVCUQZE
+	+z2Y3AsswLxcWeMJctDXQvGehOr2x4WQnXDcAAgTUuDHQl24sozcHQ3kbyLIhoGJMv5euie3m8Q
+	Iv8nscahi8avpENog3l2BMsXEeCcZNf+gOaQuP9llv0q467fjQvYGyrBc13/3+09l4c7u13GYwH
+	dUq+L6cj3GwUv1SFCXtnGrENvS83VF0jpM8SnTbiu4/ZbR5YzjTRGHg6kErK3YE7XoMQOxUvhXU
+	Ocp2/q3o5cdYv9VwpO3MnAPXWsJD3pYi0w8bvRNIocBNoZ1OZl0gsfMt+uY1BUx1ben4auLtHHR
+	+wOtd/gzA+O0ScCtpOoLnFhhr/xioKEvxDn6aKJlcnTmcO4YSpLqs4q2omY9qe9Onj3skbZQykW
+	HW7LoJqkf2V9VrAGQgp7ovGQnaXmmOawb2DuX1+XHYK2HBc74O6pgzazLSgrCEw24y3HySYtJPm
+	D0lXYkQSrFRT9lJ+Q59EbSW9a2yIsMeTQhMqwk7jBvaowh1Js24jJ6rTJ0+P9NYO/ETZzCfA/V7
+	eRwgV75BW/+KfoO8HAU=
+X-Received: by 2002:a05:701b:280a:b0:14e:61bb:ec3d with SMTP id a92af1059eb24-192f03cb940mr2225519c88.16.1792660052045;
+        Thu, 22 Oct 2026 02:07:32 -0700 (PDT)
 Received: from youngkk-vm.localdomain (67.216.200.102.16clouds.com. [67.216.200.102])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36741e71eaesm30337818eec.26.2026.10.22.02.07.10
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-190e29381d9sm11175412c88.18.2026.10.22.02.07.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 02:07:13 -0700 (PDT)
+        Thu, 22 Oct 2026 02:07:31 -0700 (PDT)
 From: Cheng Yongkang <teel4res@gmail.com>
 To: Nikolay Aleksandrov <razor@blackwall.org>,
 	Ido Schimmel <idosch@nvidia.com>
@@ -91,9 +91,9 @@ Cc: Andrew Lunn <andrew@lunn.ch>,
 	bridge@lists.linux.dev,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [BUG] net: bridge: DSA LAG self-match leaves hwdom zero
-Date: Thu, 22 Oct 2026 02:07:06 -0700
-Message-Id: <20261022090706.3643840-1-teel4res@gmail.com>
+Subject: [BUG] net: bridge: failed offload leaks busy hwdoms and TX refs
+Date: Thu, 22 Oct 2026 02:07:23 -0700
+Message-Id: <20261022090723.3644079-1-teel4res@gmail.com>
 X-Mailer: git-send-email 2.34.1
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
@@ -109,57 +109,50 @@ Content-Transfer-Encoding: 8bit
 
 Hi all,
 
-When a DSA LAG member joins a bond that is already present in
-br->port_list, nbp_switchdev_hwdom_set() can iterate over the joining
-port itself.  The self-match leaves hwdom at the unassigned sentinel 0
-while the port is marked offloaded and tx_fwd_offload is enabled.
-No busy_hwdoms bit is reserved.
+br_add_if() can fail after a switchdev bridge port has partially
+offloaded.  For a bond over DSA user ports whose LAG members report
+different switch IDs, the first member successfully reserves a
+busy_hwdoms bit and increments the tx-forward-offload static key.  The
+second member returns -EBUSY, which aborts the upper-device link and
+eventually frees the new net_bridge_port.
 
-DSA frames may still carry offload_fwd_mark.  If another port also has
-hwdom 0, nbp_switchdev_allowed_egress() treats the two ports as the
-same hardware domain, so an otherwise valid forwarded frame is
-suppressed at bridge egress.
+The br_add_if() error unwind does not call nbp_switchdev_del() for this
+partially offloaded port.  The reserved domain and TX static-key
+reference remain with no bridge port owner.  Repeated failures consume
+BR_HWDOM_MAX domains globally for that bridge.
 
 Observed on Linux v7.3, commit
-08ab31164c55f20c7a2653de3186ae333470e2c1.  The exact DSA LAG route ran:
+08ab31164c55f20c7a2653de3186ae333470e2c1:
 
-  dsa_port_lag_join
-  dsa_port_bridge_join
-  switchdev_bridge_port_offload
+  before attach:        busy_hwdoms=0x0, key count=0
+  after one failure:    busy_hwdoms=0x2, key count=1
+  after three failures: busy_hwdoms=0xe, key count=3
 
-After the join:
+After every failed RTM_SETLINK, bond0 had no bridge port and
+/sys/class/net/bond0/brport did not exist.  The bridge port list had no
+owner for the reserved bits.
 
-  offload_count=1 hwdom=0 busy_hwdoms=0 tx_fwd_offload=1
+The target bridge and DSA code were unchanged.  Because the VM has no
+physical DSA driver, an in-tree dsa_loop build was exposed as an
+external test module and a second switch ID was supplied through the
+normal DSA identity objects.  The reproduced path was:
 
-With a second port using a different switch parent ID and also left at
-hwdom 0:
+  br_add_if -> NETDEV_CHANGEUPPER
+    -> dsa_user_lag_changeupper
+    -> dsa_port_lag_join
+    -> dsa_port_bridge_join
+    -> switchdev_bridge_port_offload
 
-  unmarked control frame:                 delivered 8/8
-  identical frame with offload_fwd_mark=1: delivered 0/8
+The failed br_add_if() unwind must fully undo partial bridge switchdev
+offload before the port is destroyed.
 
-The result repeated with two independent netdevsim switch IDs.  There
-was no KASAN report, oops, or panic; the defect is packet suppression.
+Candidate BR-030 is a distinct packet-suppression bug caused by a
+self-match and hwdom 0; it is not this resource leak.
 
-The target bridge and DSA core code were unchanged.  The test VM has no
-physical DSA driver, so an in-tree dsa_loop build was exposed as an
-external module with only port_lag_join/port_lag_leave and
-tx_fwd_offload behavior.  A diagnostic hook set the same
-offload_fwd_mark bit a hardware switch would set.
+The module sources, harness, and full logs are available on request.
 
-hwdom allocation must exclude the joining port, or publication must
-occur only after a nonzero domain is reserved.  Candidate BR-031 is a
-different error-path leak in the same bridge switchdev code, not a
-duplicate of this packet path.
-
-I found no matching self-match allocation fix.  A 2024 generic
-offload_fwd_mark/hwdom-0 comparison patch is also absent from the target
-source, but that patch does not fix the unassigned-domain state created
-here.
-
-The module sources, PoC, and full logs are available on request.
-
-This was found with AI-assisted source analysis and fuzzing; the
-packet-drop differential was reproduced in QEMU.
+This was found with AI-assisted source analysis and fuzzing; the exact
+resource progression was reproduced in QEMU.
 
 Thanks,
 Cheng Yongkang
