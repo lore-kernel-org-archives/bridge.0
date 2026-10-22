@@ -1,98 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792660621;
-	b=o6TV9c4g77XMF9w2rYzBW2ZAbroP7zZk2FAJVKEZZIByuPeSGtdMumL7VxtXyDWw26p8
-	 d6Zksi6NvniWk0Ls5tBawL3Z7t3xGz++HYAeLYoPNkhzoYmZ/BidEwYUYnLXP38zvs5sF
-	 ZIwxer4FhJOra4cdPfCai5Y4oiu6T6jaXfS5t4AM/RL8OA4jSkuKlgFiuziFaYQ4hbYby
-	 RWvDObAgUkDn8D6zFHtx02YXM8DmtSZ7fJ6vuIOUZqEU5hn2G2YjHbBdwLsV8uGb6x5kx
-	 eE/o2q/NZ8ehEQ81IJB27iDGURuY4EiK2mh+g8yPHptQzEJYGFKOjqCpdfR6NN3Ei4g==
+	t=1792661290;
+	b=vHGzX39BwIYafuiv6AeHxI9SLjx4CjUW/z41FTmVziNzJDH/v5khlJ6chiEHZgNXGuOX
+	 1z+/cR+CWpFctyaTnrG0kafZa2cp9tNuISb+EMQdzNIbReCJeeholZwLoEVA6IHy40x9I
+	 kCvfBBLZBBj4dZY6BeHBdqje1urSkTLAZ3V+3wsIkt0S1WTq4YbQLRe+qjGWu3BNnFBzi
+	 u4FGFGpFuoQ0d4yKDHwf2yz9veDwcQ8x8mhLXRu3p2k93SHCpj1ACtSINEOc/YKIx7TiV
+	 Rx5G37zv0PKweDWNUUVv7xaZuKnqyX0k4qVQgzs699zKEH73JwbO5Q9UlVmcOiWcdsg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792660621;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=74Vw0j5rE4cQu4U2NNcGbj29GdZNeea1qUhNAa2u8VA=;
-	b=K+ZzEpHYR80mEKZUjvA55MUVcvTx3p6trJIeTOaHSYMTzn52peytSStSmXGZA9lDgwHf
-	 4fJwcCeQecKuQBDXezNH0gzHvTY6aWSkV2kxy0Bfz7pZoWq8RaGYRVc9u2Op7RFk3noKa
-	 LosyV5aXwXkEIEuYI95EAl8wRty7KIxpVUHvQq/MZ063SgnRJabs6tTWPxwzgC2guvmYc
-	 JlsYZGa0wzYMP5Zn8QhsEer3aUGPL6uWXEN2QpLXN51uPUrsj/5FcHIojbQRX0/NIplv2
-	 TH1s1SoedqP7ZtiUBsf33lnjesA5BlmgFxIyY94lYTC70F5l0JGhHjQ2DNVJsMkoEkw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792661290;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=b16AqzWrmx6PCjjmVkdtVIc26QQOCuhEY/Lbc4sfw0A=;
+	b=QL+P8aHVGjZf8k9FYIgswEfbAKbvJvR4gw8NQ/c+fQzSYZqDJ6SsXyDea7NtDG/WS+2b
+	 PsRN2xX1WKNQ08f6fffJv3Z28w/lewNvDSuTyPInN0DRr1lKOCX0+MCzfUesIgIhNcMXP
+	 lttvWf9U/o3aUwXts1wc14ph7A+E+TLsHJ10/Jk245rNT8wzIN9F5U1sz8OfHBlFg/6lE
+	 w8LwJ6CRWeWOxWdnozUpduF7CIZxNw1JLD9uZAtzKo24e3Alh/7b9JNDlvb9z2Cgg8YHA
+	 5yT/9sf4erjq2XSqdFDC0KINX0Bgg7lKOmoYpzROyzCBWUCLYFBEtKyT52S8DjaX99w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=rJ33Eqnw;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SOqbMHwP;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD9EA606A31D
-	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:17:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BD9EA606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B1D1606A323
+	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:28:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=rJ33Eqnw
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-368581df789so856051eec.1
-        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:17:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792660620; x=1793265420; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=74Vw0j5rE4cQu4U2NNcGbj29GdZNeea1qUhNAa2u8VA=;
-        b=rJ33EqnwJNqsmuD5cSx2I+Uz0hr0WBtVmqoW2t5E1QpGDJjbJj/El0kCk1JrM+fBBV
-         8ofRi+XddKwptIdvjZuXnqcy8dHD7uh0/SyU+G9m4pofA9cLNS8UMQlYNjSbDyQNn56I
-         S0QGaDddiVEQ2NvvponthVE0kgYunO0S7nGWN6Fo45BdOBa0u+/x8NBFqtsck9F9RUe0
-         WtMnAu88saEAEAw3zmdNE0MeJyCa6Yv46NW73+N19uMmUPfEfF+HZOduC98pIR6L/6ES
-         Zro14ZNSoUYvuTc7ZZj0QyM1BqjVAKtwlSNp4GnxvyysOCjwn+A5fR7VRlZkTTt2L0Rd
-         UpXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792660620; x=1793265420;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=74Vw0j5rE4cQu4U2NNcGbj29GdZNeea1qUhNAa2u8VA=;
-        b=Jrx5/kon69JyV5OI+uH9c8LP0ODbdhsTUhGvWUje5BKAU69AL8K1qZd3hGMRBi6M9R
-         cFeQMce4VZ+Lid5QyITwhJ3DYqB8tCrbYmbnilQfd7m8UTvo8GFkyV3NAbPoFtdW9KN4
-         TPeLtcDAW+iZ5l2ZpMOHx32qOVVhkLPoUL9eRiy//Mevq34ng0grgOoHvimnJwEIudru
-         UUG8yFnsOBqXkx79XbsHN9Z92HFkO4ThSbinLUlAcqB2VhO39K5S+y63xnqqmQSY+4uD
-         ytZZ3jz5W4EHd+x7hGjQAmWFN0fhv5rN2hwOldTCVj2DiXSRzIuHfzGROS9JzrENpA+V
-         tFqA==
-X-Forwarded-Encrypted: i=1; AKwUvByOZUzI0pXiBrtQFKapNCUdBWCsHiOtOxBl5FCE1mu7VJnV28voBbSaliVOcM0lP0TUR6o08xI=@lists.linux.dev
-X-Gm-Message-State: AFq9FYKqEAJK3RvB2CuoFbh2FI97F6MQvG+i0hxyyGlD0VGg6d5C2lWS
-	z09KD+Yz7f17AoXV9qpbq1WBnZsdsi4ypNpS33SCk27GKLfIO1eI0IHw
-X-Gm-Gg: AYBFou2XjLbNk6vnMXBG2udxSknJ5ELXS4c7O9oEqqI/tDGJ9e7QSKGJ6gBUSsmpv2E
-	M13AyVH/G5UP1E1qTOOte55YXpYj9RWv0xBW9jJ/AGXhnTteFfVS7Yh2fUk0ekicyaHA6Pfc2lU
-	KNrcgSyKuU7z01JZzKUsQJI+aQiBZj6subTCHOdVAKrxFVejQXQ8uzHpliE8eq/v3QLo2gC4S2u
-	haZAYTIAUvKfz3uQ7A65BG3iBmVyYggMHgiDfyrZLEt6aysr9YGh2sJO8yN+F4Mzu8iARngMqHK
-	yojsw5qeJwrAcPuZHyY7Zpo/GUHgPrnJJV5DC73K9BKGCHKvZRn+g/9/4A6Jf6gT+zuR6AW9Bgf
-	1TLbu1T20uFDA5Z7li5aHIdR86cMa3SeWEYpIXCvQnNk0RGSjS+DgLn63qNjgeCTHQ0Wq+7w0Va
-	SWL/DK4QGrrXmH6duVVTFax4RuRLJhWnvjYUhq04sKV1A1tNHVUKKh68iO7EXCBSwdx81NLrguW
-	eAhbGeOUtRAPqCSHk3WADgQU0biORj1ZQPB1AHzzdupeEI+8y58ZQCz276bbn2Eyfol02e80iv2
-	IEUXtmBHEowWHfG1aLs=
-X-Received: by 2002:a05:7301:7e17:b0:366:6c79:212b with SMTP id 5a478bee46e88-368b122ff22mr2280564eec.25.1792660619861;
-        Thu, 22 Oct 2026 02:16:59 -0700 (PDT)
-Received: from youngkk-vm.localdomain (67.216.200.102.16clouds.com. [67.216.200.102])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36740cc8439sm15295791eec.11.2026.10.22.02.16.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Oct 2026 02:16:59 -0700 (PDT)
-From: Cheng Yongkang <teel4res@gmail.com>
-To: Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>
-Cc: "David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	bridge@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [BUG] net: bridge: CFM CCM transmission state races with delayed work
-Date: Thu, 22 Oct 2026 02:16:53 -0700
-Message-Id: <20261022091653.3652341-1-teel4res@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SOqbMHwP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAEB21F000CA
+	for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 09:28:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792661289;
+	bh=b16AqzWrmx6PCjjmVkdtVIc26QQOCuhEY/Lbc4sfw0A=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=SOqbMHwPQWFi2YRT3gLRpyy8kS0AYPzz7YKl/yzqATxW9ta/dm6RhhDSfjkwA4amX
+	 g/tTTeX5NXjQnfQXtbIdL97EgeJq8IXdqtOOa5JnfqBigVr6pNhdGOuuWPwSbz63k/
+	 tzAI3vIllHt2tYqlzyshzMJqPwtb+J2xw3KrFEZukUufJA4RMwksRmiIuhvWeJiZ7n
+	 dJEb0T+pg13rQbtKwNBIYyy6lJ+Y5zmiHhjAy6iq19ZsOI4Wu2NfzwyeiIXICAF/at
+	 we1+CP0j/Mm1Rb3ASiPxyWArpqwlgckHqGZ6ES2hB/uQhc5NakCOEyEzwHSN5RIoxb
+	 wni9+cctFAlYg==
+Received: by mail-oa1-f53.google.com with SMTP id 586e51a60fabf-48e2d5a69c4so846019fac.3
+        for <bridge@lists.linux.dev>; Thu, 22 Oct 2026 02:28:09 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBwR92ai2HJfIxsydf/TXTGQ2uj1Xnb781ZBOttasxq28m13/M7sQd5UfwGOSkrnDSHxOf05pHM=@lists.linux.dev
+X-Gm-Message-State: AFq9FYLJjdDroGQMk2WqNYj7OK3a/mvaLqlDZWgX3qfIxQCKnf7YQJKk
+	Zt+bl91c+uaqXV+vUHlrlXCRXVBx5eayCg0OeMiRp4QDi1cO/JySQ6mb3SIpNfLjW/XcnXbWMkg
+	0gLYVXAi77lw93qRTsxBNioFRBu1Rju8=
+X-Received: by 2002:a05:6871:6681:b0:49d:c3f6:4191 with SMTP id
+ 586e51a60fabf-4a7dc15cb9emr2583880fac.18.1792661289186; Thu, 22 Oct 2026
+ 02:28:09 -0700 (PDT)
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -102,59 +59,84 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20261022090431.3641707-1-teel4res@gmail.com>
+In-Reply-To: <20261022090431.3641707-1-teel4res@gmail.com>
+From: Eric Dumazet <edumazet@kernel.org>
+Date: Thu, 22 Oct 2026 11:27:57 +0200
+X-Gmail-Original-Message-ID: <CAL4Wiip9-oGNjrgQV-VSkDR_hfq35d_+ymX_itYk29u9scY=Mg@mail.gmail.com>
+X-Gm-Features: AclHuK-mJUESD7RYwjo_wmXzNyLsWvwMRTYfXqXRI4IDUC_o01XXw1PdqN8O9Bg
+Message-ID: <CAL4Wiip9-oGNjrgQV-VSkDR_hfq35d_+ymX_itYk29u9scY=Mg@mail.gmail.com>
+Subject: Re: [BUG] net: bridge: late FDB learning can outlive an MRP port
+To: Cheng Yongkang <teel4res@gmail.com>
+Cc: Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
+	"David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Simon Horman <horms@kernel.org>, bridge@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi all,
+Le jeu. 22 oct. 2026 =C3=A0 11:04, Cheng Yongkang <teel4res@gmail.com> a =
+=C3=A9crit :
+>
+> Hi all,
+>
+> An MRP-aware bridge port can remain in BR_STATE_FORWARDING during
+> del_nbp().  The terminal br_fdb_delete_by_port() runs before
+> netdev_rx_handler_unregister(), so a frame received in that window can
+> learn a new FDB entry whose dst is the port being deleted.  No second
+> FDB sweep follows.  The port is then RCU-freed, leaving the FDB entry
+> with a stale net_bridge_port pointer.
+>
+> Observed on Linux v7.3, commit
+> 08ab31164c55f20c7a2653de3186ae333470e2c1, with KASAN+UBSAN:
+>
+>   BUG: KASAN: slab-use-after-free in br_forward+0x55/0x3c0
+>   Read of size 8
+>     br_forward
+>     br_handle_frame_finish
+>     br_handle_frame
+>   Allocated by:
+>     new_nbp
+>     br_add_if
+>   Freed by:
+>     kfree
+>     kobject_put
+>     rcu_core
+>
+> The failing sequence is:
+>
+>   br_stp_disable_port() leaves the MRP-aware port forwarding
+>   br_mrp_del_impl() restores BR_STATE_FORWARDING
+>   br_fdb_delete_by_port()
+>   ... late ingress frame learns fdb->dst =3D=3D p ...
+>   netdev_rx_handler_unregister()
+>   call_rcu(&p->rcu, destroy_nbp_rcu)
+>   later frame -> br_forward(stale dst)
+>
+> This reproduced in three independent VM boots.  The target bridge code
+> was unchanged.  Because the test VM has no driver that accepts
+> SWITCHDEV_OBJ_ID_MRP, a small diagnostic switchdev endpoint claimed the
+> MRP object and widened the already-existing post-FDB-flush/pre-unregister
+> window.  It did not replace bridge logic, modify FDB entries, or alter
+> net_bridge_port lifetime.
+>
+> The deletion path should stop new RX processing before the final FDB
+> sweep, or drain the deferred/FDB state after the RX handler is
+> unregistered and before queueing the port for RCU free.
+>
+> I found no matching upstream fix.  Candidate BR-007, BR-040 and BR-058
+> are consequences of this same root cause.  BR-040 gives the forwarding
+> window; BR-058 independently describes the stale-FDB lifetime.
+>
+> The reproducer, module source, and complete serial logs are available
+> on request.
+>
+> This was found with AI-assisted source analysis and fuzzing; the kernel
+> behavior above was reproduced under KASAN.
+>
+> Thanks,
+> Cheng Yongkang
 
-br_cfm_cc_ccm_tx() and ccm_tx_work_expired() mutate
-mep->ccm_tx_end and mep->cc_ccm_tx_info.period without a common lock.
-The start path also queues ccm_tx_dwork before saving the new
-cc_ccm_tx_info.
+I suggest you stop sending these emails, we all have LLM you know.
 
-One reachable interleaving is:
-
-  writer: store ccm_tx_end
-  writer: queue ccm_tx_dwork
-  worker: observe an expired end, store period = 0, do not requeue
-  writer: store the requested nonzero period
-
-The final state reports an active nonzero CCM period, but no delayed
-work remains and no CCM frames are sent.  The keep-alive branch has the
-mirror interleaving: it can update ccm_tx_end and return success while
-the worker subsequently clears period and stops transmitting.
-
-Observed on Linux v7.3, commit
-08ab31164c55f20c7a2653de3186ae333470e2c1.  A self-checking userspace
-program exercised the start-path ordering and found six phantom states
-in 384 attempts:
-
-  start_period=67108864
-  probe_period=12738873
-  two readbacks remained 12738873
-  keepalive returned success
-  final period remained 12738873 with no pending work
-
-Four independent snapshot-VM boots produced 98 explicit confirmations
-in total.  KASAN and UBSAN were clean, as expected for a control-plane
-liveness defect.  The target lacked KCSAN, so the report does not rely
-on a KCSAN warning: the queue-before-save ordering is directly visible
-in source and the inconsistent externally visible state was observed.
-
-The worker and configuration path need serialization, and the new CCM
-state should be stored before the delayed work can execute.
-
-This is distinct from candidate BR-038, which reports the 32-bit period
-conversion overflow in the same state fields; that arithmetic bug needs
-a separate fix.
-
-I found no matching upstream fix or CVE.
-
-The self-contained reproducer and complete logs are available on
-request.
-
-This was found with a multi-agent workflow; the state
-mismatch was reproduced in QEMU.
-
-Thanks,
-Cheng Yongkang
+What is the point, if you do not send patches?
