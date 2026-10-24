@@ -1,114 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=212.227.126.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792774128;
-	b=j5AGbbOoTBsIU+6PcnAwTVi9/4TcSMjgdw9NSWDLR21a96/u6+8fGAy1NGajDMesmct/
-	 vkuPrBjoroi/6BwVf1CkUsFAP5KZzxZUOW9rkKW2bNWauFFx/PAVAlO7qpuOQJzXkGi89
-	 fSp2ZgYMdME1hEKIAC4HVbPQRy0q2LtsoopjJ7gHXefJIyhsYSlXoXyVwDKEobOQ6aeNc
-	 lfeERnMnFkE5x4ZagifBqVPLE6H7M2dzmsr8OWSkhqtoMJ1/TGU920tg9ln6pSlefPj4W
-	 QBGbIZDdWkIK5lECz2J+jMUioQSkC9aXuFzBY/bCYD9fRPSkP/mGcBVry+bUin5f8Yg==
+	t=1792840187;
+	b=fJryABcNiu3zP/8+PQytQmZ4wfLTdmRnkkxlh0DBIv6cgmKbHyL0I3in6FWDpynQQbYk
+	 cXJMXUVPug8zF0GMGuYa8Pq7cRQvCp6D9tQLmxygDiIF4M5GC69iaszkxUYlv5p7y61Or
+	 nF1pZRUj2rGv72YKSYmuAAnmF7iUYM1CoiopbA8TC3G0GBd8rpA125NsdsHu57RfpDxMj
+	 2DMMsd6XtwKvMH+bS9lcsHrzf9JibUygzYwDKw1/qE4sKsIFJ4nyVl32XeOwwYXNpfucn
+	 csoKRefB9fHqpd59+JXHsKoRegFJtsvu4jgSVwxieK/m4RDISgWLGA8qb0YvWrkdaOA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792774128;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Date:From:To:Cc:Subject:Message-ID:References:
-	 MIME-Version:In-Reply-To:X-Mimecast-Spam-Score:X-Mimecast-MFC-PROC-ID:
-	 X-Mimecast-Originator:Content-Type:Content-Disposition;
-	bh=l4yjbuyU9tYNCrKIyPpIJSh4fdlXELraeddszflbbg8=;
-	b=nlgfYCEz7dHipBVIfM8XboWsgYx5mYr+pRRBuuX/irehwAHaj3nDLnRXdEdiIrxu/EaI
-	 jQGW0p7BmMCUa9HdCLi9G+K0F/Ri+4FJlNf/IORPOOn3HjnasYBr26ngMr5vDYxivyiLx
-	 fCRvD2kAeWT+Kx/52NsuIAAHYqrxWRc28Mz78e/Ktrf/RgbMQA+ClVesAjD78Qsn0s/JC
-	 CJhrE2Y4L3XZ0RSgL3Y0mUhpLgIaZaiva+WPmXVLz92ASEzQyv/2gejepnQZr6W1choIa
-	 xvSZRrHOs7M9iW5H1V7TZ3G4NwC650GG+B08X7XtcYgJXNezd9tCAZZWzIAFKMGgPvA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792840187;
+	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding:X-Provags-ID:X-Spam-Flag:
+	 UI-OutboundReport;
+	bh=UPAv9d1T+NKBfd7KTcOtP0zpC8MhO7AiTIoJ2ie3NwQ=;
+	b=vSppyNnH3goTBB0i3kOcrzqqAF/OeFYI2FmmPoyHJ1Sdt0exrTZ/sTzqrkYiF+3IiUGC
+	 plFPtXVcPriqIlmXoSLg6QI0jK9MrnVa2It7L90EEcTVfS/QfDDwBQxe3fqKQPdXUCBsc
+	 EjJtwNSjYh7ZjDjqx3HDpLRzNGYcjHtEMElfcuf78I+aUpzf4jmQPS6b0++RS0LR1lf67
+	 PDwP6ph+NiUXCUaoLe2n/LgXjEh4D0tQ1PI5tzrsXnbOhNLfPrP0VmiwCxeuPlMG+WMlo
+	 uslChKw7or8VllYI7uBC3jP7iPGdbXpTdZFNK5l/K1Y2fpVOJoXlVbCZzMBD1oNiGkA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gU82Iq7X;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dmarc=pass header.from=kernelscan.io;
+	spf=pass smtp.mailfrom=kernelscan.io;
+	arc=none smtp.remote-ip=212.227.126.131
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FAEC606A329
-	for <bridge@lists.linux.dev>; Fri, 23 Oct 2026 16:48:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9FAEC606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gU82Iq7X
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1792774126;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l4yjbuyU9tYNCrKIyPpIJSh4fdlXELraeddszflbbg8=;
-	b=gU82Iq7Xsy1bpWiIWtNPit9g5SQIShMVBOyJwx+nwb+BjP3l+EB4PoCljAmCX4l/1T7dUD
-	+6tTkweWJ8evAupHVvRN6kSm2boS84zitk73UcCxFYaXggpoiJzkpIUtJC6FUrJtrqd0rN
-	IVMs4Kh2OrhM3PI9LV69RzWvXdes1A0=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-683-rF-3dyIePnqoPSvD1FhsHQ-1; Fri, 23 Oct 2026 12:48:45 -0400
-X-MC-Unique: rF-3dyIePnqoPSvD1FhsHQ-1
-X-Mimecast-MFC-AGG-ID: rF-3dyIePnqoPSvD1FhsHQ_1792774124
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-48b027578a4so1007186f8f.3
-        for <bridge@lists.linux.dev>; Fri, 23 Oct 2026 09:48:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792774124; x=1793378924;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=l4yjbuyU9tYNCrKIyPpIJSh4fdlXELraeddszflbbg8=;
-        b=X2qz3Y1S/aZXu/7x2qHOjfehnSUDKlL0kqNFMTrRcQY5wSNzcopOKazZgXKcWXhTzv
-         doSZWpkc4Ct8lnuXU8HkJFxQI6mIgjgZS51thDjEJ9GY48yxPQPasNqCqFCCGAkz4bOA
-         +3BoorC02F11Ij637VPtfADbglSub4B8AaqH3b/7ri4Zk51wOKLDjAFjAxyHX3sRcNY3
-         cZnBmNBXUp20tuxFqABO/M45XyfFgYyS0IFoxWWXG242Uh5QCYousryw7Wah1aw+j2JP
-         hEnMLe9lFkHuiS9BaYWPru/kzfXpr9vnTfGlms+CcQS3uQ7Ym/pU7SZcMvGI6UBuvAvx
-         Qa7w==
-X-Forwarded-Encrypted: i=1; AKwUvBwrSY+BpdCiYbU+ZS1y73c2gJh1OOFc1OOf00swfSuR1ztOvMWysp2u8rwfEfM5X4lJaxJvzyk=@lists.linux.dev
-X-Gm-Message-State: AFq9FYIfRhfatE7X/YIXeB52c4nbJihZ5wFtpq6W/3mBE7PRZ+5Hfy5N
-	B3NIFSOfI6M9pcO4pZTeQuy3790IiR7pX4ktWkYhN1k/y2tevFU1S9qYm8zqK0lKLbhgbd5JcEV
-	EoNW5OSW3aGgwBimKROid81bDntQPwspiuHeG78hrFHb0HC1BheqGiUNx0w==
-X-Gm-Gg: AYBFou072W4zBkxASs4MFYvBcoI6JnAk6nZGiEZ75BT0hggbT8QrU7YGQvxrUiP7tRM
-	xaWEGfj1NSWV6Cz2OeCS3VqEQN0xnzDsxZCI4ANAKAGnzGmhhwTc9dsCKTW1vZ+NfSypR9ijT7u
-	aGYrHY0qk4nW4DCFVtShR3eplYV3qAv8nc7jGg+T0nPVlARdDZavm3KNKj4DgLbCtE6pvVn4vyS
-	FSOwaqlTWqjhXLq2EL28zXe9mp5tKutRxrg6emewzC7x/wHAXt0YLSbuCTfLsf0PECXnP34pRby
-	c60E8lvxHjrPmSohAbGKsYc4oaTNjfnRdOOXCXW/31zhNC/qXfH1BnheVMWpB6GuuJ0zhAQ=
-X-Received: by 2002:a05:6000:4026:b0:48d:eb6b:9d0f with SMTP id ffacd0b85a97d-48e385ac430mr4702387f8f.11.1792774124020;
-        Fri, 23 Oct 2026 09:48:44 -0700 (PDT)
-X-Received: by 2002:a05:6000:4026:b0:48d:eb6b:9d0f with SMTP id ffacd0b85a97d-48e385ac430mr4702351f8f.11.1792774123549;
-        Fri, 23 Oct 2026 09:48:43 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73f6:2400:30a8:9e33:7d82:c035])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3d37c4b7sm1157431f8f.2.2026.10.23.09.48.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2026 09:48:42 -0700 (PDT)
-Date: Fri, 23 Oct 2026 12:48:39 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Chris Arges <carges@cloudflare.com>,
-	=?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
-	Phil Sutter <phil@nwl.cc>, Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	Max Krasnyansky <maxk@qualcomm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Florian Westphal <fw@strlen.de>,
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915F7606A31A
+	for <bridge@lists.linux.dev>; Sat, 24 Oct 2026 11:09:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 915F7606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kernelscan.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernelscan.io
+Received: from client.hidden.invalid by mrelayeu.kundenserver.de (mreue012
+ [213.165.67.97]) with ESMTPSA (Nemesis) id 1MP2zs-1wvL6m1Ymy-00IylD; Sat, 24
+ Oct 2026 13:09:32 +0200
+From: Steffen Pfendtner <steffen.pfendtner@kernelscan.io>
+To: stable@vger.kernel.org
+Cc: Ido Schimmel <idosch@nvidia.com>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>, Simon Horman <horms@kernel.org>,
-	David Ahern <dsahern@kernel.org>, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, bridge@lists.linux.dev
-Subject: Re: [PATCH net v6 6/6] net: add ip4_parse()
-Message-ID: <20261023124740-mutt-send-email-mst@kernel.org>
-References: <cover.v6.git.mst@redhat.com>
- <970e2341834eadcf265fa7dd61a05ee305fdc1e4.1792687500.git.mst@redhat.com>
+	bridge@lists.linux.dev
+Subject: [PATCH 5.15.y] bridge: mcast: Fix use-after-free during router port configuration
+Date: Sat, 24 Oct 2026 13:09:29 +0200
+Message-ID: <20261024110929.47253-1-steffen.pfendtner@kernelscan.io>
+X-Mailer: git-send-email 2.50.1
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -118,13 +51,250 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-In-Reply-To: <970e2341834eadcf265fa7dd61a05ee305fdc1e4.1792687500.git.mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xTKOFGrKmww3TwdiMoO-WsQikuE6zNm_EmAIQyeZpuY_1792774124
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:otaAU5hrSZhT4ov8L45qmn8yQsdWFSOngRrUbxxsTuESDzsQMuF
+ BegP62/vZlgB3A0foR7j95cDUKzqy1ov4nCCMGIjg1/BnX7wLxhQNj1i7cM4G95u2Ed4AKT
+ H/yVmYsxpgc9Y/v0uldwNEtMasuXv9nMczAVvijZBHKJGwVVawMggG+BaYJTZmHJF/NS84h
+ 49wL83P+nt00q/F13dacQ==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:c0hNBqVZAsE=;+vT9BBDwLhd3dh+yYtq1o9sErgL
+ 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
+ grGQYsmlVDKIMOC6eHxa2LUppZMZg==
 
+From: Ido Schimmel <idosch@nvidia.com>
 
-This one was sent by mistake. Pls ignore.
+[ Upstream commit 7544f3f5b0b58c396f374d060898b5939da31709 ]
+
+The bridge maintains a global list of ports behind which a multicast
+router resides. The list is consulted during forwarding to ensure
+multicast packets are forwarded to these ports even if the ports are not
+member in the matching MDB entry.
+
+When per-VLAN multicast snooping is enabled, the per-port multicast
+context is disabled on each port and the port is removed from the global
+router port list:
+
+ # ip link add name br1 up type bridge vlan_filtering 1 mcast_snooping 1
+ # ip link add name dummy1 up master br1 type dummy
+ # ip link set dev dummy1 type bridge_slave mcast_router 2
+ $ bridge -d mdb show | grep router
+ router ports on br1: dummy1
+ # ip link set dev br1 type bridge mcast_vlan_snooping 1
+ $ bridge -d mdb show | grep router
+
+However, the port can be re-added to the global list even when per-VLAN
+multicast snooping is enabled:
+
+ # ip link set dev dummy1 type bridge_slave mcast_router 0
+ # ip link set dev dummy1 type bridge_slave mcast_router 2
+ $ bridge -d mdb show | grep router
+ router ports on br1: dummy1
+
+Since commit 4b30ae9adb04 ("net: bridge: mcast: re-implement
+br_multicast_{enable, disable}_port functions"), when per-VLAN multicast
+snooping is enabled, multicast disablement on a port will disable the
+per-{port, VLAN} multicast contexts and not the per-port one. As a
+result, a port will remain in the global router port list even after it
+is deleted. This will lead to a use-after-free [1] when the list is
+traversed (when adding a new port to the list, for example):
+
+ # ip link del dev dummy1
+ # ip link add name dummy2 up master br1 type dummy
+ # ip link set dev dummy2 type bridge_slave mcast_router 2
+
+Similarly, stale entries can also be found in the per-VLAN router port
+list. When per-VLAN multicast snooping is disabled, the per-{port, VLAN}
+contexts are disabled on each port and the port is removed from the
+per-VLAN router port list:
+
+ # ip link add name br1 up type bridge vlan_filtering 1 mcast_snooping 1 mcast_vlan_snooping 1
+ # ip link add name dummy1 up master br1 type dummy
+ # bridge vlan add vid 2 dev dummy1
+ # bridge vlan global set vid 2 dev br1 mcast_snooping 1
+ # bridge vlan set vid 2 dev dummy1 mcast_router 2
+ $ bridge vlan global show dev br1 vid 2 | grep router
+       router ports: dummy1
+ # ip link set dev br1 type bridge mcast_vlan_snooping 0
+ $ bridge vlan global show dev br1 vid 2 | grep router
+
+However, the port can be re-added to the per-VLAN list even when
+per-VLAN multicast snooping is disabled:
+
+ # bridge vlan set vid 2 dev dummy1 mcast_router 0
+ # bridge vlan set vid 2 dev dummy1 mcast_router 2
+ $ bridge vlan global show dev br1 vid 2 | grep router
+       router ports: dummy1
+
+When the VLAN is deleted from the port, the per-{port, VLAN} multicast
+context will not be disabled since multicast snooping is not enabled
+on the VLAN. As a result, the port will remain in the per-VLAN router
+port list even after it is no longer member in the VLAN. This will lead
+to a use-after-free [2] when the list is traversed (when adding a new
+port to the list, for example):
+
+ # ip link add name dummy2 up master br1 type dummy
+ # bridge vlan add vid 2 dev dummy2
+ # bridge vlan del vid 2 dev dummy1
+ # bridge vlan set vid 2 dev dummy2 mcast_router 2
+
+Fix these issues by removing the port from the relevant (global or
+per-VLAN) router port list in br_multicast_port_ctx_deinit(). The
+function is invoked during port deletion with the per-port multicast
+context and during VLAN deletion with the per-{port, VLAN} multicast
+context.
+
+Note that deleting the multicast router timer is not enough as it only
+takes care of the temporary multicast router states (1 or 3) and not the
+permanent one (2).
+
+[1]
+BUG: KASAN: slab-out-of-bounds in br_multicast_add_router.part.0+0x3f1/0x560
+Write of size 8 at addr ffff888004a67328 by task ip/384
+[...]
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x6f/0xa0
+ print_address_description.constprop.0+0x6f/0x350
+ print_report+0x108/0x205
+ kasan_report+0xdf/0x110
+ br_multicast_add_router.part.0+0x3f1/0x560
+ br_multicast_set_port_router+0x74e/0xac0
+ br_setport+0xa55/0x1870
+ br_port_slave_changelink+0x95/0x120
+ __rtnl_newlink+0x5e8/0xa40
+ rtnl_newlink+0x627/0xb00
+ rtnetlink_rcv_msg+0x6fb/0xb70
+ netlink_rcv_skb+0x11f/0x350
+ netlink_unicast+0x426/0x710
+ netlink_sendmsg+0x75a/0xc20
+ __sock_sendmsg+0xc1/0x150
+ ____sys_sendmsg+0x5aa/0x7b0
+ ___sys_sendmsg+0xfc/0x180
+ __sys_sendmsg+0x124/0x1c0
+ do_syscall_64+0xbb/0x360
+ entry_SYSCALL_64_after_hwframe+0x4b/0x53
+
+[2]
+BUG: KASAN: slab-use-after-free in br_multicast_add_router.part.0+0x378/0x560
+Read of size 8 at addr ffff888009f00840 by task bridge/391
+[...]
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x6f/0xa0
+ print_address_description.constprop.0+0x6f/0x350
+ print_report+0x108/0x205
+ kasan_report+0xdf/0x110
+ br_multicast_add_router.part.0+0x378/0x560
+ br_multicast_set_port_router+0x6f9/0xac0
+ br_vlan_process_options+0x8b6/0x1430
+ br_vlan_rtm_process_one+0x605/0xa30
+ br_vlan_rtm_process+0x396/0x4c0
+ rtnetlink_rcv_msg+0x2f7/0xb70
+ netlink_rcv_skb+0x11f/0x350
+ netlink_unicast+0x426/0x710
+ netlink_sendmsg+0x75a/0xc20
+ __sock_sendmsg+0xc1/0x150
+ ____sys_sendmsg+0x5aa/0x7b0
+ ___sys_sendmsg+0xfc/0x180
+ __sys_sendmsg+0x124/0x1c0
+ do_syscall_64+0xbb/0x360
+ entry_SYSCALL_64_after_hwframe+0x4b/0x53
+
+Fixes: 2796d846d74a ("net: bridge: vlan: convert mcast router global option to per-vlan entry")
+Fixes: 4b30ae9adb04 ("net: bridge: mcast: re-implement br_multicast_{enable, disable}_port functions")
+Reported-by: syzbot+7bfa4b72c6a5da128d32@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/all/684c18bd.a00a0220.279073.000b.GAE@google.com/T/
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://patch.msgid.link/20250619182228.1656906-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[ Backport to 5.15.y: resolved a context conflict in
+  br_multicast_port_ctx_deinit() where mainline uses the post-6.15
+  timer_delete_sync() name; 5.15 still spells it del_timer_sync().
+  The three rport-del helpers already exist in 5.15 (since 4b30ae9adb04),
+  so the fix applies unchanged otherwise. ]
+Assisted-by: Claude:claude-opus-4-8
+Signed-off-by: Steffen Pfendtner <steffen.pfendtner@kernelscan.io>
+---
+The 6.1.y backport of this fix is already in the stable queue; this is the
+5.15.y counterpart. The only conflict was the timer_delete_sync() rename.
+
+Build-tested on arm64, and boot-tested under QEMU with KASAN: bridge
+multicast router-port configuration (global and per-VLAN, including port
+and VLAN deletion followed by re-adding a router port) works as before,
+with no KASAN reports.
+
+ net/bridge/br_multicast.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index a91c133ce296..cc832477f290 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1859,10 +1859,19 @@ void br_multicast_port_ctx_init(struct net_bridge_port *port,
+ 
+ void br_multicast_port_ctx_deinit(struct net_bridge_mcast_port *pmctx)
+ {
++	struct net_bridge *br = pmctx->port->br;
++	bool del = false;
++
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	del_timer_sync(&pmctx->ip6_mc_router_timer);
+ #endif
+ 	del_timer_sync(&pmctx->ip4_mc_router_timer);
++
++	spin_lock_bh(&br->multicast_lock);
++	del |= br_ip6_multicast_rport_del(pmctx);
++	del |= br_ip4_multicast_rport_del(pmctx);
++	br_multicast_rport_del_notify(pmctx, del);
++	spin_unlock_bh(&br->multicast_lock);
+ }
+ 
+ int br_multicast_add_port(struct net_bridge_port *port)
+-- 
+2.50.1 (Apple Git-155)
 
