@@ -1,58 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=117.135.210.9
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793032458;
-	b=FOvlN49+TibJbq52SavdwD8ywAR3Pb0QH2ba8frlJcTxSS2e4NDdnslMu4O5lNqBUuXc
-	 ZfN/iLgmL1pDLjEOEkFw1XNVUO3EAIfC9ccwKc7Kgxe/UUal4TFEtXFzc9WtsG0x7/Sbv
-	 L4AqIn18/9Uj8nHBZXh5oxSA0MJjoilCcbNzYbRaUS08IN2roIWgvZVbIv1ro9oRz+YDq
-	 /x1eDU2xrdWLJjtev7ZHIu7hBxI7pcAXwisk9aB8RJHgbPFJx7v7jfMG8FEFroGHycPME
-	 pfT3YG/YzAAxVpGo+e5nciXTNecRjuDc8kXfHXwZ91ELDoigjDtHopCpWLUiflrBgCQ==
+	t=1793091154;
+	b=1+00hIE2YBPIdrtUAjemf+j4VWRcRcnKUb5/nA/X7J3w6dcLsJ6+M4JtPkZpT55tDtCh
+	 VpM32JTCieRmSuR19Oqs5c88t9t/Miyqtsp5J7JJwetVIyGfY4KH17tcSoZG3D3dT/xdN
+	 C7EXAOMVuuIAgWVmXl/lkQIlC/L37LV906I3mWQU5TbhELMWvXmB1BnpvwRqtjvjDvDtR
+	 DdOPFnO6Ad2clhiL+5mhu9FHS+epuOPotNeS2q1cfZtjA7MCCBzdqr+u+MAu56xQENU2v
+	 DTqNXCuJhoRa6w3ZtWc4sKGOtK4R7bJAZFHOx16jHCEINASu8XYChsQJe1Jf3bR9GAQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793032458;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=1pw5Y2kdhl00k3SU/S/VeRlGVRN9vDxsTMvxZUbr8bQ=;
-	b=yyfQvMYDb/eUCUmEyy7rV9BEe1XS95lkDu5z0Dnulv9rP7JTK0XddCryk1xdtGAMYbFC
-	 X3kWgjnQsbvc0jvY6ibwsa7KkUb59nJQl3d350Y4Fu2h4pp0TECMviTYPE0dt6VMJrjly
-	 rpf9cwUCpoR9do9ZAnufO2QoM5267BGZFFxPkTTG9uEMV0wywXpuNKs+CIivE/QAniTcC
-	 CRLb5IkeTdUglo0o27XzOgYqBNemylRunsYJ+72F7FIBFiFvgZBLRBOFl1pehiNxOgepG
-	 4eHGnOA8rDR0nKmw/TigVfwu+JnJFhjp6TiyemfmXHr3YOl0Q1SDbNbk+4a1hu5ipvg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793091154;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-Id:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-CM-TRANSID:X-Coremail-Antispam:X-CM-SenderInfo;
+	bh=ZvZnWihFbxw483qh4KeYM/1CzNFyVp8lIcdiBtlen3M=;
+	b=oSkXGEKVqe9IqemTKTQq9sC5nFS28aJz8pl7F4O883FhUW4IkGQEfjzIxSWivpPXt9gf
+	 iX9X2lw3ZIB0/PnpBAeXwRdh4W9/f5DOLIDus4cguEkhIcn7bUi18w5c+hv1k5bJg28Qp
+	 HDOWaLdPpTj50fNtMaiWw0shuDy3JsgR3BEozlnpEmpRt8HpBeqlRmlq+LnQW8M0dJMlg
+	 DxekuDRtxpUz1zUcHYjIp7R1UXBOR5tMq35i5AsxYFeY1Uk7o5Wmbp0Qmnk0TtBxIwAYm
+	 MeGn1X8PXQNBcgvU5qkCZTr9Kmo9rhN2F90UzNXlFpEnLCOhdgJU4lqDG5iR33B5EdQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OHkmh3Zk;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=126.com;
+	spf=pass smtp.mailfrom=126.com;
+	dkim=pass header.d=126.com header.i=@126.com header.a=rsa-sha256 header.s=s110527 header.b="oFA46/Eq";
+	arc=none smtp.remote-ip=117.135.210.9
+Received: from m16.mail.126.com (m16.mail.126.com [117.135.210.9])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C269606A31F;
-	Mon, 26 Oct 2026 16:34:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35787606A321
+	for <bridge@lists.linux.dev>; Tue, 27 Oct 2026 08:52:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 35787606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=126.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=126.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OHkmh3Zk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B35C1F01825;
-	Mon, 26 Oct 2026 16:34:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793032457;
-	bh=1pw5Y2kdhl00k3SU/S/VeRlGVRN9vDxsTMvxZUbr8bQ=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=OHkmh3ZkWaqiY0jDyhdkQR+428Cgt7Zr9rUn+iczuAAWr66kZKYc9EcNYqBJl8ayL
-	 c52SBDaSrFV9/WeM4qPS3SySJO5YZlYhJAQxPF0FK9CK0bAvmulqKZi2qua5nhizqa
-	 2FfY3An+/dOouKpS5yv2gPfIi3yjsE2s1t6XWUg2GbaximXQSoUeaMQladnQDsHgKJ
-	 COP+C37Pv5IuHuPAsKh7+mCVLKlLjjf2m9g93fGfbkzo8FvuOTDV0AUjYyKz3re/lt
-	 qCpCSMlwdhMQyPOYUbK9ESNF9QNeojvwqbEbVpdLxl3vXBpX0GO8jjefasiWL4lLln
-	 wa4nmwfqH7MsA==
-Subject:
- Re: [PATCH net] bridge: cfm: keep RX work disabled while CC is disabled
-From: netdev-bot+sashiko@kernel.org
-To: pocj8ur4in@gmail.com
-Cc: razor@blackwall.org, idosch@nvidia.com, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kuba@kernel.org
-Date: Mon, 26 Oct 2026 16:34:16 +0000
-Message-ID: <179303245691.3134.18367923447939876610@kernel.org>
-In-Reply-To: <20261025163215.62509-1-pocj8ur4in@gmail.com>
-References: <20261025163215.62509-1-pocj8ur4in@gmail.com>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (1024-bit key, unprotected) header.d=126.com header.i=@126.com header.a=rsa-sha256 header.s=s110527 header.b=oFA46/Eq
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Zv
+	ZnWihFbxw483qh4KeYM/1CzNFyVp8lIcdiBtlen3M=; b=oFA46/Eq8QxcasNRIA
+	4jWYHtRr1xdc2ztzFZsbbdze6+3AMhxnEPBOWHa93r33KRfGyjWjkFkgGy/E2uxm
+	VGIkILhxS8B+T4whXK/Dj1ysdzBXkrCpwW2iSywhw7y7W2qCkxKXYkzsHdMucw8r
+	WRmjNh9FbCiZ6x/nLPgtTHb5k=
+Received: from localhost.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-0 (Coremail) with SMTP id _____wD3H+UzZuBqVA77BA--.59983S2;
+	Tue, 27 Oct 2026 16:52:05 +0800 (CST)
+From: Linkui Xiao <xiaolinkui@126.com>
+To: razor@blackwall.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@kernel.org,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org
+Cc: bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Linkui Xiao <xiaolinkui@kylinos.cn>
+Subject: [PATCH net] net: bridge: netlink: do not clear the vlan info dump error
+Date: Tue, 27 Oct 2026 16:52:00 +0800
+Message-Id: <20261027085200.1501599-1-xiaolinkui@126.com>
+X-Mailer: git-send-email 2.25.1
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -62,134 +67,54 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wD3H+UzZuBqVA77BA--.59983S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7tryUur45tr45GF1xCrWUtwb_yoW8Aw15pF
+	4Y9r9xJrWqqay8Kw109F4jqa43ZwnxGFW5CFn2kryIyF90gF1kZFZ5KFZ3Cw1UAF4kJFWY
+	v3ZFqr1Yyrn8uFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07UlhFsUUUUU=
+X-CM-SenderInfo: p0ld0z5lqn3xa6rslhhfrp/xtbBlBV5UGrgZjUJcQAA3J
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
+From: Linkui Xiao <xiaolinkui@kylinos.cn>
 
-Critical: 0 · High: 0 · Medium: 1 (1) · Low: 0
+br_fill_ifinfo() assigns the result of br_fill_vlan_tunnel_info() over
+the result of br_fill_ifvlaninfo() or br_fill_ifvlaninfo_compressed()
+instead of only running the second helper when the first one succeeded.
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+When the vlan information no longer fits in the skb but the port has no
+vlan mapped to a tunnel dst, br_fill_vlan_tunnel_info() walks the vlan
+list and returns 0 without touching the skb. The -EMSGSIZE is lost,
+br_fill_ifinfo() completes a message whose IFLA_AF_SPEC is truncated,
+and the dump carries on to the next interface instead of stopping, so
+userspace silently sees an incomplete vlan list.
 
-- [Medium] The patch only partly closes the post-disable behaviour its
-  own commit message describes.
+Only fill the tunnel information when the vlan information was filled
+successfully.
 
-Pre-existing issues:
-- [Medium] This problem wasn't introduced by this patch, but it sits on
-  the cc_peer_enable() path the patch modifies.
+This was flagged as a pre-existing issue in the Sashiko review of the
+net-next series, which noted that the VLAN fill result is overwritten
+before it is tested (see the Link tag below).
 
---
+Fixes: efa5356b0d97 ("bridge: per vlan dst_metadata netlink support")
+Link: https://lore.kernel.org/bridge/ed1de95e-e112-4076-93f0-6f7668e657ad@blackwall.org/T/#u#5
+Signed-off-by: Linkui Xiao <xiaolinkui@kylinos.cn>
+---
+ net/bridge/br_netlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-bridge: cfm: keep RX work disabled while CC is disabled
-
-This patch initializes each peer MEP's ccm_rx_dwork in the disabled
-state. It enables the work in cc_peer_enable() and switches
-cc_peer_disable() to disable_delayed_work_sync(). The goal is to stop
-br_cfm_frame_rx() from requeueing the RX work, and reporting a new loss
-defect, after CC has been turned off.
-
-> diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
-> index 9dcc97d63a6fc..8576f387d037e 100644
-> --- a/net/bridge/br_cfm.c
-> +++ b/net/bridge/br_cfm.c
-> @@ -150,12 +150,13 @@ static void cc_peer_enable(struct br_cfm_peer_mep *peer_mep)
->  	memset(&peer_mep->cc_status, 0, sizeof(peer_mep->cc_status));
->  	peer_mep->ccm_rx_count_miss = 0;
->  
-> +	enable_delayed_work(&peer_mep->ccm_rx_dwork);
->  	ccm_rx_timer_start(peer_mep);
->  }
-
-[Severity: Medium]
-This is a pre-existing issue and was not introduced by this patch, but it
-is on the cc_peer_enable() path changed here. When br_cfm_cc_config_set()
-calls ccm_rx_timer_start(), which exp_interval does it see?
-
-br_cfm_cc_config_set() enables the peers before it stores the new config:
-
-    if (config->enable && !mep->cc_config.enable)
-        /* CC is enabled */
-        hlist_for_each_entry(peer_mep, &mep->peer_mep_list, head)
-            cc_peer_enable(peer_mep);
-    ...
-    mep->cc_config = *config;
-
-ccm_rx_timer_start() then reads the old value:
-
-    interval_us = interval_to_us(peer_mep->mep->cc_config.exp_interval);
-
-On the first enable of a newly created MEP, cc_config is all zeroes. That
-makes exp_interval BR_CFM_CCM_INTERVAL_NONE, so interval_to_us() returns 0
-and the RX work is queued with a 0 jiffy delay.
-
-If the kworker runs before mep->cc_config is updated, can
-ccm_rx_work_expired() keep requeueing itself with a 0 delay? If so, it
-could reach the miss limit and latch a spurious ccm_defect, with a
-notification.
-
-The same ordering matters when enable and an interval change arrive in
-one request. For example, CC was disabled with a 10 min interval and is
-now enabled with 3.3 ms. The first tick would then fire after a quarter
-of the old interval, which delays loss detection by up to about 2.5
-minutes.
-
-Could the new config be stored before the peers are enabled?
-
->  
->  static void cc_peer_disable(struct br_cfm_peer_mep *peer_mep)
->  {
-> -	cancel_delayed_work_sync(&peer_mep->ccm_rx_dwork);
-> +	disable_delayed_work_sync(&peer_mep->ccm_rx_dwork);
->  }
-
-[Severity: Medium]
-Does this cover everything the commit message describes? The commit
-message says:
-
-    After CC is turned off, a valid CCM can still reach br_cfm_frame_rx(),
-    clear the peer defect and restart its RX timer.
-
-This change only prevents the timer restart. The CCM branch of
-br_cfm_frame_rx() still does not check mep->cc_config.enable:
-
-    /* A valid CCM frame is received */
-    if (peer_mep->cc_status.ccm_defect) {
-        peer_mep->cc_status.ccm_defect = false;
-
-        /* Change in CCM defect status - notify */
-        br_cfm_notify(RTM_NEWLINK, port);
-
-        /* Start CCM RX timer */
-        ccm_rx_timer_start(peer_mep);
-    }
-
-    peer_mep->cc_status.seen = true;
-    peer_mep->ccm_rx_count_miss = 0;
-
-cc_peer_disable() does not touch cc_status, so a ccm_defect latched
-before CC was disabled stays set.
-
-When a valid CCM arrives after that, won't br_cfm_frame_rx() still clear
-the defect and send an RTM_NEWLINK notification for a MEP whose CC is
-disabled? The only difference is that ccm_rx_timer_start() now does
-nothing, because queue_delayed_work() refuses the disabled work.
-
-A receive that is already in flight when br_cfm_cc_config_set() disables
-CC seems to behave the same way. disable_delayed_work_sync() returns and
-the request is acked, but the in-flight br_cfm_frame_rx() can still clear
-the defect and notify.
-
-The same path also keeps updating seen, ccm_rx_count_miss, rdi,
-seq_unexp_seen, the TLV status and mep->ccm_rx_snumber.
-
-Would it close the remaining gap to also gate the CCM processing branch
-of br_cfm_frame_rx() on mep->cc_config.enable? Disabling the work would
-still be needed for the in-flight requeue race.
-
-[ ... ]
-
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index b2cd4e39326d..8ed86bf71a00 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -540,7 +540,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 		else
+ 			err = br_fill_ifvlaninfo(skb, vg);
+ 
+-		if (port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
++		if (!err && port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
+ 			err = br_fill_vlan_tunnel_info(skb, vg);
+ 		rcu_read_unlock();
+ 		if (err)
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261025163215.62509-1-pocj8ur4in%40gmail.com
+2.25.1
+
