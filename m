@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.44
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793206058;
-	b=m1QrLJrDd+VrUmpnLfosZ3g8199ssAE7GLQVjps3gKp6hPLZisXUrEFtvAU2g0444fj/
-	 e91DqoHQHLfWyPbS6oU9wy/sEASmPHT9CmjlO8oXWOfGtl4bIDYK15f4zSc2ovyv5Hksl
-	 XpBUdPqDBUBoeBl4G/rikHYBlGtvFl0fUGiRtA1I6vSv8QAUPzFDN5Mf5oBxykmc+ZrbQ
-	 /FL8wCJ09RXNFYxdekH7kpIYnt9Vvr2x2M9ze0QRjeRkF12teOf6myzQL9wtreH2wu6Rl
-	 3MqYLfDRgyFtZ3i/A+oI8/+91DYpF68r9ue7xqK/gPqp1xYhhgMmEDuL/DWXnFZDtBQ==
+	t=1793206059;
+	b=G2mQfgezgFaQMjic2ZdJuBHpw8HEX8scxf/NTgnnHKBcbVQ8A9NtyHw3dOqzVu38NKAW
+	 QwUB+Vj8VcHjJIjbfcGJgJteF9eSL+nIfiYtBXbzQzvJ+7GAM8AgLbwrX4KMsMJTp5W54
+	 3QOSBnS1iMQG6xC8vaoEVTWbyMUresCaU8jG6URuUhmCv28CiAgDKfOLo0KwtwysPipgo
+	 sUoUxZSK8oNN6V64lF5d8JQJhDNWy1YUXYHm2J1IYavJ3vrWFrd3Cjbilqy0OqqWqw1qx
+	 8+dUJ9YleTi2ZnCB/2r6P3d83AGdcRQ3yowFsUsldXG+QHW2qOBLcl53Tuakwjbt6mg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793206058;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793206059;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=wyc8C+NvW8Oi6c2BSOE1temIwM0U908BwU/ZONk8yec=;
-	b=TC7R7G8JWc+PJsuO3+EKjlUlNWH91RMq+w3bg1cKZJyZyMK4dI1B3HGK+3gvHlwURPMs
-	 OyM/D9S8NCixFFktuFaTQcSGZL+//ziN8dH+uuYVOy/E2T3VMYsOf5usEuiMzkY+TYXFt
-	 qpm+3xHUAyR/hB3Hq/pQ2kZLOqvnC3Cs8aNcQ5o8nxfFQ0YATJwCNFAr0+PUK5vtrzFde
-	 RdtDVNSlUzr7QjN6ORrV1y7QLLW3nt9ywT7vRx4p1w4GrZID/VRYuKIMPGAPamgRfDp1F
-	 5hFOoxeHvfMoeI6JpyfDAdf8+0y00ggMvMdjB0u9FeJCCjnizgLC5iGWn4TwB2YQSsQ==
+	bh=YP63UdSvRgH+U6RYpSmgw00Aw6otHrAc8+AYLP+kjNM=;
+	b=WK/RzJtmC/oS05blNSQvXCLJVu1kcqwd1+1G7kPtEmxzuSbNWemKgj3EE/Hl5BXMQuEb
+	 C+XUran+9BCGJmxPJvx2FTD6awFjGsSzJiNY8wrR2ruQ0lN4wIt+digwdbOBgUcItMJLw
+	 ez0hEAC4SdQ0tI6orcCKtZdpkjKENt7dvq3Jdz8ZASF6OEKvXdbScmv0w9rIFYh6grdCj
+	 F23DDkkx9Vv6Ov8gISDnqYMswVBjMdgMOpKJduhzkcXZ4jiK0Bm/ix4xVBS/EjtfdjD61
+	 a9YxT+XmiKDb9K6k+sa8JSA8qExJRaInYhzX1D5dCEPnWq2GKOS6U+YUx3N4ht6+qLQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=t7RZdDYW;
-	arc=none smtp.remote-ip=209.85.214.178
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=X6Mp0kP2;
+	arc=none smtp.remote-ip=209.85.216.44
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18E26606A338
-	for <bridge@lists.linux.dev>; Wed, 28 Oct 2026 16:47:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 18E26606A338
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BDD4606A33A
+	for <bridge@lists.linux.dev>; Wed, 28 Oct 2026 16:47:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3BDD4606A33A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=t7RZdDYW
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2e9eb579c0eso7517175ad.3
-        for <bridge@lists.linux.dev>; Wed, 28 Oct 2026 09:47:36 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=X6Mp0kP2
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-3ad41b47541so1035198a91.1
+        for <bridge@lists.linux.dev>; Wed, 28 Oct 2026 09:47:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793206056; x=1793810856; darn=lists.linux.dev;
+        d=gmail.com; s=20260707; t=1793206058; x=1793810858; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=wyc8C+NvW8Oi6c2BSOE1temIwM0U908BwU/ZONk8yec=;
-        b=t7RZdDYW8gUqdTUsx5QXda8h3NBv3bYOr0YsGx8bfPq+cR1q3F7LS4/j2q+oHxjgB+
-         tg4uIT4lKbne8fOSTYeGzbegq2VxcZOWyuPI/e2HggJueoRO2cs8Bq9aUxLZmfiZFH+K
-         QVCQ4uF1R2yF5AQq5oALGU5GoTSkev+gvDbQqOZ/S2EHnuvgXLfbJ6yFE0rDxEKh1A4h
-         JXpsK+jeoRlHDM/WjBlICPYHtzm97f+jEuJXish/vLnIMa3f5IncA1vOiCPf0digBgF+
-         qroS7PpZ1XjxhugG0T6rY8JsFze+wHK5YQIr0f5OcvmimSF/9yDl6vBO5phS07x8xKvg
-         5swQ==
+        bh=YP63UdSvRgH+U6RYpSmgw00Aw6otHrAc8+AYLP+kjNM=;
+        b=X6Mp0kP2a7XgJv6SREkMKJSFedqLje+6aC+X/Bq4EQKsR6AZJI/KVNK57x/ASfR8cW
+         9LI9+OnTh93aVJ5g67y0JUX3kJy+vVCSXzv+6A4GX/WaL7LU0QoYHkzwd2AfvYJcQWFQ
+         bJ7x3cH+tglpYXeqy7Edq+yNE6AZattXmx7tYyM9SGE9Mu7qYRCXlr/HjYFtEieYbqPZ
+         3l7JcHHPkLxuikG3STMXLJkmrtoJEz+6+luoDH8ZWDLvgKg2GYcM7qejeWr2ADlpTaOi
+         s+djdhq2koTydhpcRNxKEMJ2oi9MxZasIZUCUwwQupszXSwXn4r2DeHN7b98zdUizkAf
+         1h6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793206056; x=1793810856;
+        d=1e100.net; s=20260707; t=1793206058; x=1793810858;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=wyc8C+NvW8Oi6c2BSOE1temIwM0U908BwU/ZONk8yec=;
-        b=y0A5iw8V3NRYrZVYf+qa/tEPl3I4AGad746hngGLUH8cYODShO0L/966elm3iMElV3
-         oScp0aIfIylMAfvzJ0RSfJdGqt/2Xat2+3n1uQt8GIU195Z9mMsD0Buu6wXSULBAKH7W
-         eHjFnuWDa03UQDvCx6NL2YFYh7+iJihpAXsDcxD0XJGxpjDvtLaHF1HfXi0D88CBppZR
-         9Z04hHz17NXZ3vROSLZhtvd+PvlN7f4/4whuAZZuUgnKwLDAqv5KLMXqd0iQ0eHmnAwg
-         1boX7gk+mwGX5jn4hE2kvY1LHXfCmm/kBwU79DEyfTGtF9AVOOtv86FRGpfoBT/V8h0J
-         r8EA==
-X-Forwarded-Encrypted: i=1; AKwUvBxmD8Y/Fw2UHdBgFyI2NIME3lxDfzukvZwA/uPsbl5u7tGHil0HC26Bp8FXGCvA3F8YP69z7go=@lists.linux.dev
-X-Gm-Message-State: AFq9FYLdkJZumW634gPMQ3/2qoGrAammvj8y4vb13WKOizpXJWwks1Rq
-	g4HjD4bBCDbE00g6UfxMNmclFVOfRkPwO2sBhMpdR8ik5Mxt+KOjGzs0
-X-Gm-Gg: AYBFou0iGlfbpnuRMVtb7gTDQ9aVEMWhwUslxVEOlLR9PV/FDPkNL6bShpXqrHm6Ntb
-	h51C03kwFUID2IngyByw9dNyt/t66xffjtczcfnP7DaAeDDeEZB7vgUS+WQ2X8ej03AjaEb4iub
-	dnuGGcxNoKR6YRWXIRpWr3D+FAg2iv9waHvp4x08SYGgVkJmfPp1Fh2oifVs67ufDd2oK7VHz1E
-	FSIg5sp9AsY+SqhiaWb/aFQ4FjUus7oEWGx7lC9TftvbzEBLS4sXCB+JTN/hx5MK0YIQBCSVpLr
-	fIoHK7p4xM0gZrebtsqePP0SD2xXMl0TfyfaebS2MuujVmlCYm1DQBf9Cl8hoLaY3rUReyDD9KO
-	m0P/JQ2QZ6fv3WhM1K7XzoatPPmsyBepPC+YSznFc2sGh3qqkHFs2XdbfD9Bajyg8pPTiyHWFfh
-	JXEewwygdW02Eh+40j3f1Mqeyfg03Y9onUxOS6DdfWUUYOdrsmbs2xshtUPp5RPNHUX+3Pj0fPE
-	X7mjN9+bC8PpgS5eXWTHKSCsXGukWbOL7xn4NtqYm7P7UAmL9+Tbv8FOmNOtvOLaSpOKISpZdtP
-	CkjzagZjf8Bk/bfOSAuS2Lt0z7GwjTRdP5UkEqOE8U21KA==
-X-Received: by 2002:a17:90b:3c43:b0:3a7:a463:54bf with SMTP id 98e67ed59e1d1-3ae581440f9mr1759178a91.33.1793206056440;
-        Wed, 28 Oct 2026 09:47:36 -0700 (PDT)
+        bh=YP63UdSvRgH+U6RYpSmgw00Aw6otHrAc8+AYLP+kjNM=;
+        b=D4Yd+W8wsxUWviXGtZavMYoDAPdguPZbCLXk8CkH7/XkZelIe8Br0CBHiQetn6L9zw
+         cRIC92l4kqNj4g/xPSvQ35xuBSDAIN+nJK9rKKT6gLfBufxZ40pY3HsFoS4xcxWpkCcI
+         Yf4NjvRCptsvZJnX6D2WcZx9javtsXsoO2ljp4HhuQbQgPXFRr+fE3VV4dfTq9GeqIRd
+         2F1quasqh8qU5GKFeN/MnP6v6kmKPCyQ+ouwboRw9FmQf2dZz0yYKtIJC17V9w5y9MBn
+         S+Rxg9KNks8XWOHSXNBUlxcVHJk/qlcF8C34Ejro1FSHRO37njeBAFQpowslkAmp1jn+
+         SAEA==
+X-Forwarded-Encrypted: i=1; AKwUvBxlj95MOf4daFPKmn2flzzEYK9LOYkbKkjLGw/GTNbfiPWkIS24MM5lPVtQo+KqiVrdDq2UyJU=@lists.linux.dev
+X-Gm-Message-State: AFq9FYIlH5mvsljRYBvMe20mMCVObnweKkW78QHBYSgNf2/+ebyIxvsR
+	9ib0L2Uk3JwQQhuVBdPup+q9+Izvqtkihav7sPq2969HbNz7aU7kLbj0jE9JiQ==
+X-Gm-Gg: AYBFou16qIDrH4FtjZk6dhs9rfaBefrgEBCS6m/N24mIG66aF6jh4YbFzdaFwpuaLYy
+	04ezubr+eWRT3YVDqmjZWCOdY8leOMxDTa//o08zn2kXwmSKJrThMD3oH9qmrJMyJQ7FLZCAbTq
+	OJWiBZ5oV4p5hzUBTDJpPJi2FKZv3kaoFLOVVmEO1hpZ/9RISSy9ml8/bMK2vRkgX73BOuyS2zJ
+	bN5cbOKti0n3oYg+8pMrB3JJ7yiAb71Sbtf9eNNFtj9i40vnPqzzwW4pqLt79MzvPNFUEsWggRN
+	SRLsZ6Tk3pThQAaW1Rd3a7jQZWBz+UF/g0VXNCNhoBC6CM7lOIlIemRcfxEV3vTG3lc26fW5dfK
+	FzNw7FlEpAkXh9+dmjdy/Dyn4UXWeQRjHc8i5K3dJtqJYKDKEVGxAw7FhWe+fIN2gY9ImYRdmvp
+	D/jgAq88c2ncsVr1aoX3Z2M19GG9eNDoe/+dBLuqbpCMTHIalvZqc1RTyDMs+SIez/X85fh2Z11
+	Jp7WcylpY9+Tv2Los4RGrWZLi+CiCe0R2IHNGBSIXJQ7Pa9MRtaLbCUgQuJfnh1mWOg5QxF11nU
+	IZv9BbOMrkZgxnl/KepFA4sOz/HodKBCN47R0Q4P4dWSXA==
+X-Received: by 2002:a17:90b:48c6:b0:3ac:86a0:5766 with SMTP id 98e67ed59e1d1-3ae5836cbd4mr2201584a91.63.1793206058606;
+        Wed, 28 Oct 2026 09:47:38 -0700 (PDT)
 Received: from asahi.tail4da9e3.ts.net ([218.48.198.193])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ae579c5b77sm2173048a91.3.2026.10.28.09.47.34
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ae579c5b77sm2173048a91.3.2026.10.28.09.47.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 09:47:36 -0700 (PDT)
+        Wed, 28 Oct 2026 09:47:38 -0700 (PDT)
 From: "Baek Kyu, Kim" <pocj8ur4in@gmail.com>
 To: Nikolay Aleksandrov <razor@blackwall.org>
 Cc: Ido Schimmel <idosch@nvidia.com>,
@@ -85,9 +85,9 @@ Cc: Ido Schimmel <idosch@nvidia.com>,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	"Baek Kyu, Kim" <pocj8ur4in@gmail.com>
-Subject: [PATCH net v2 1/2] bridge: cfm: Store the new CC configuration before enabling peers
-Date: Thu, 29 Oct 2026 01:47:29 +0900
-Message-ID: <20261028164730.253238-2-pocj8ur4in@gmail.com>
+Subject: [PATCH net v2 2/2] bridge: cfm: ignore CCM while CC is disabled
+Date: Thu, 29 Oct 2026 01:47:30 +0900
+Message-ID: <20261028164730.253238-3-pocj8ur4in@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261028164730.253238-1-pocj8ur4in@gmail.com>
 References: <20261028164730.253238-1-pocj8ur4in@gmail.com>
@@ -102,64 +102,64 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-br_cfm_cc_config_set() enables existing peers before storing the new
-CC configuration. The receive timer therefore starts with the previous
-expected interval, delaying CCM loss detection when enabling CC with a
-shorter interval. For example, disabling CC at 1s and re-enabling it at
-100ms schedules the first check after 250ms instead of 25ms, before
-rounding to jiffies.
+A valid CCM received after CC is disabled can clear the peer defect
+and restart its RX timer. Cancelling pending work does not stop a later
+receive from queuing it again. Even with RX work disabled, that receive
+can still update peer status and notify userspace.
 
-Save the disabled-to-enabled transition and store the new configuration
-before enabling peers. Keep cancellation on disable before replacing
-the configuration.
+Keep RX work disabled until CC is explicitly enabled, and skip CCM
+processing while CC is disabled. This prevents a later CCM from changing
+peer status or restarting RX monitoring.
 
 Fixes: dc32cbb3dbd7 ("bridge: cfm: Kernel space implementation of CFM. CCM frame RX added.")
 Signed-off-by: Baek Kyu, Kim <pocj8ur4in@gmail.com>
 ---
-On the combined v2 kernel under ARM64 QEMU/KVM, all 8 CC interval and
-transition checks passed with bridge/veth and netlink configuration.
+On ARM64 QEMU/KVM with bridge/veth, a valid CCM after the disable ACK
+cleared the peer defect on v1 but left it set on the combined v2 kernel.
+Re-enabling CC allowed a valid CCM to clear the defect. All 3 status
+checks passed on v2; 2 failed on v1 as expected.
 
- net/bridge/br_cfm.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ net/bridge/br_cfm.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
-index 9dcc97d63a6f..28b40dbf4073 100644
+index 28b40dbf4073..115cccf1d327 100644
 --- a/net/bridge/br_cfm.c
 +++ b/net/bridge/br_cfm.c
-@@ -634,6 +634,7 @@ int br_cfm_cc_config_set(struct net_bridge *br,
+@@ -150,12 +150,13 @@ static void cc_peer_enable(struct br_cfm_peer_mep *peer_mep)
+ 	memset(&peer_mep->cc_status, 0, sizeof(peer_mep->cc_status));
+ 	peer_mep->ccm_rx_count_miss = 0;
+ 
++	enable_delayed_work(&peer_mep->ccm_rx_dwork);
+ 	ccm_rx_timer_start(peer_mep);
+ }
+ 
+ static void cc_peer_disable(struct br_cfm_peer_mep *peer_mep)
  {
- 	struct br_cfm_peer_mep *peer_mep;
- 	struct br_cfm_mep *mep;
-+	bool enable;
+-	cancel_delayed_work_sync(&peer_mep->ccm_rx_dwork);
++	disable_delayed_work_sync(&peer_mep->ccm_rx_dwork);
+ }
  
- 	ASSERT_RTNL();
+ static struct sk_buff *ccm_frame_build(struct br_cfm_mep *mep,
+@@ -414,6 +415,9 @@ int br_cfm_frame_rx(struct net_bridge_port *port, struct sk_buff *skb)
  
-@@ -648,17 +649,20 @@ int br_cfm_cc_config_set(struct net_bridge *br,
- 	if (memcmp(config, &mep->cc_config, sizeof(*config)) == 0)
- 		return 0;
- 
--	if (config->enable && !mep->cc_config.enable)
--		/* CC is enabled */
--		hlist_for_each_entry(peer_mep, &mep->peer_mep_list, head)
--			cc_peer_enable(peer_mep);
--
- 	if (!config->enable && mep->cc_config.enable)
- 		/* CC is disabled */
- 		hlist_for_each_entry(peer_mep, &mep->peer_mep_list, head)
- 			cc_peer_disable(peer_mep);
- 
-+	enable = config->enable && !mep->cc_config.enable;
+ 	if (hdr->opcode == BR_CFM_OPCODE_CCM) {
+ 		/* CCM PDU received. */
++		if (!READ_ONCE(mep->cc_config.enable))
++			return 1;
 +
- 	mep->cc_config = *config;
-+
-+	if (enable)
-+		/* CC is enabled */
-+		hlist_for_each_entry(peer_mep, &mep->peer_mep_list, head)
-+			cc_peer_enable(peer_mep);
-+
- 	mep->ccm_rx_snumber = 0;
- 	mep->ccm_tx_snumber = 1;
+ 		/* MA ID is after common header + sequence number + MEP ID */
+ 		maid = skb_header_pointer(skb,
+ 					  CFM_CCM_PDU_MAID_OFFSET,
+@@ -699,6 +703,8 @@ int br_cfm_cc_peer_mep_add(struct net_bridge *br, const u32 instance,
+ 	peer_mep->mepid = mepid;
+ 	peer_mep->mep = mep;
+ 	INIT_DELAYED_WORK(&peer_mep->ccm_rx_dwork, ccm_rx_work_expired);
++	/* Keep RX work disabled until CC is enabled. */
++	disable_delayed_work(&peer_mep->ccm_rx_dwork);
  
+ 	if (mep->cc_config.enable)
+ 		cc_peer_enable(peer_mep);
 -- 
 2.55.0
 
