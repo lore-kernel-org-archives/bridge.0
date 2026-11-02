@@ -1,55 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793552517;
-	b=c69zGNTM3e+HJnWbEjf/7UVrgjZBKDVgBEnrqCPzzJlCCbMy6JMw2ICxVytud64/ttmz
-	 KED12fSBwQkbeTq0ctpAY+z9CGH7KjqL4kwYXpz7E4Cl+Qfsj4Q4uzfJlBL6A6Ee+LM/m
-	 0DwgPFxKINFnlQZBHTcXSa5dWlNZ/dEMlCJ/Ko4bMCFBLbebiGFBqoODt8aW+c3fxTGL+
-	 cpp/qK0fl5PH79pS0eNyYJhQ++zTZSGtYS0X6SzGXUl1F1gPVsz0P58knu8zKyF/IIkvL
-	 drgSsS/CfSvrSrXChbEXVN9y6lKD+3ngCwQsXWUcOiCOt8Gh2/7mbxbA3+c36OnkFhg==
+	t=1793595052;
+	b=cG2mvkU09gEqOEkDVSsPt6LQwKm1WH8IPF9YtGWmM+9qz1YCdRbLUJVbaePs/8xussTn
+	 K7RRiY9Jueg3FuVbf+SDp3vzDZz+ORFTpVmDuJYIdx7nLCtqthcMdCHSt/arjPxbKYLKt
+	 /bRZk3gaNwvWBLxNGFVdWxEDqs8wNTUhW3v8cZT2/6xSJ0BH7PPPPqCVvNwf4RWrTXpQw
+	 lw911Ya0Bxa5I0r1SqXwq7yrhBK/cK8UppxmyHN65DUI2Q5TXws3a3tlYqNLiRo7koCzD
+	 9khWyJUTQ5u0Zm8nOrJ36K+7SXP0k/NhqzpQFlWfYxsN0vQlVM7Dxa/K0hJJPFoZfWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793552517;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793595052;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=C3LoBN5t64bHrUu7cG47Kku/wEVXrt6OuNyUMHATThI=;
-	b=oVaMY7xleYkXyiGzREMTmOhht8w6X03/8COCF/R0Hk1w3LV2tCruPWQkA0yEfq95DbZ8
-	 fe6/kpcNmgCD7cCbsFsYb3jceJIL28zRZxgqqx6btSDIZa3sB92f0qjVUNS1XG7rnXPpf
-	 8K/uxzoMYsjZpsfTRMFrPLUlNUOD7zmdl1tu7hy7FY5r56oGDEi0zwpenP1RdTkj+EAgZ
-	 H/IDC+OMggOFBIXvINfGiLFR0FRjfufJRrQv63vqAWnWptPc5qJBiZjCICe41FMK2tiCE
-	 5Qf+giuHiP8iwTotdo5ainvGvWMqz37pLgvGVkoj4JhL50jua6d3ica+UZDME/8wrHw==
+	bh=9NjwTKigzXyJcNab5AKVuwtkEGTVfIQKZBQ4FCtvQwA=;
+	b=ddpSFxh+83u8S27Pi2l3OvlWt5OSk1wFV9Sv2P4xyZVTPgM8EFf/MXc7g4oAITUmgfmj
+	 Noj3O3BPPy33s5xUeAprd4mnlazysvIeudz/A5Aqn8J36Yn3Xgt0CQjuGwBd62K0sx2HQ
+	 msHz0dp3z9EDydm6yjXQel66kc7VOOpGQXmajmSgLMjrojbXOoulraXztkVhPUMHNAwbB
+	 Fe6nVSf63sx3kfHbmlQJC60B3FmDKPQVuOa8Wfm2vQncO3GZX33a30QtlX1Wgf5Mq2E+u
+	 DKGOgcKzUOaMquUMMjtEbngVugxAcFuAf1maxoA8d60Q7whfCRej2MpfKHRKI+WFX6g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="jQQQk8s/";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IOLSLxfQ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA018606A32E;
-	Sun,  1 Nov 2026 17:01:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DE38606A324;
+	Mon,  2 Nov 2026 04:50:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jQQQk8s/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78F81F00919;
-	Sun,  1 Nov 2026 17:01:55 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IOLSLxfQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A701F000C1;
+	Mon,  2 Nov 2026 04:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793552516;
-	bh=C3LoBN5t64bHrUu7cG47Kku/wEVXrt6OuNyUMHATThI=;
+	s=k20260515; t=1793595051;
+	bh=9NjwTKigzXyJcNab5AKVuwtkEGTVfIQKZBQ4FCtvQwA=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=jQQQk8s/ycZfIU1impLbY4+koomODpq+frVnPk56b5tkm2EbR4lCbD2MYCHSkHZRy
-	 UmdTFkAy5b7Uu1cPDM8Q1i3M8tfdd9Unbb1Lqib9j+fSzogq4EaywaQGs1T5izP1Fx
-	 paYxu2JhhYQytvoY556jNcOz6ySVIFr7MXDo1LTqg71GzQkUpP7/Fr+rMzPUE7mOAM
-	 7U65FzjzP1T2w6mn1mxZqFtOCnxQBprdjGeYR1e4ef8hCEFYhsGKaQ9NFGJU+o34OG
-	 mxamgoYGtEe/x2lKHqHy5gM/HOH9cKzs8B26mJ/aqpAKTt+LeNsWOpjbtHc5ngGpuG
-	 LyB6vdBt4su4A==
-Subject: Re: [PATCH net v2 2/2] bridge: cfm: ignore CCM while CC is disabled
+	b=IOLSLxfQGXSJq1mJoNmIBhj1iuVg335HttuJX0YH0goMJX9+RTkhuipnqvh3VzmRa
+	 nUN3UFGqRlYvmAL4655Eq9Pu0n9Flfk0B+EiIFyzGq9IcovHkkpu6OxjzHGQxLu4yl
+	 wAUgQi6C7iTa/IfMQk9GPSIQd2zuDHtq6U4EdaglhoihP9V5c3/0fJklIsbc/a3+FU
+	 gzK4JQC0KjTLq25/pmRAdGjRdgOcq1oLyH3RKtgnS8u3IJn+0iI88E4FzlbOCUXQfd
+	 zQoUk+6mi1yZaSqjuz6o6oFN1GsGIvt/Dz8yrYZkOdPfdcRh3JT12N/BKSYtzN0SJs
+	 f0GYmxuA//bxA==
+Subject: Re: [PATCH net v3] net: bridge: disable MRP ports before the FDB
+ flush in del_nbp()
 From: netdev-bot+sashiko@kernel.org
-To: pocj8ur4in@gmail.com
-Cc: razor@blackwall.org, idosch@nvidia.com, bridge@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kuba@kernel.org
-Date: Sun, 01 Nov 2026 17:01:55 +0000
-Message-ID: <179355251548.3131.13821521898777428651@kernel.org>
-In-Reply-To: <20261028164730.253238-3-pocj8ur4in@gmail.com>
-References: <20261028164730.253238-3-pocj8ur4in@gmail.com>
-X-sashiko-severity: Medium
+To: teel4res@gmail.com
+Cc: idosch@nvidia.com, razor@blackwall.org, davem@davemloft.net,
+ edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ horatiu.vultur@microchip.com, bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Date: Mon, 02 Nov 2026 04:50:50 +0000
+Message-ID: <179359505012.3131.7814662128826235179@kernel.org>
+In-Reply-To: <20261101044840.1595584-1-1020691186@qq.com>
+References: <20261101044840.1595584-1-1020691186@qq.com>
+X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
@@ -65,7 +68,7 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 2 potential
 issue(s) to consider.
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 1
+Critical: 0 · High: 2 · Medium: 0 · Low: 0
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -73,122 +76,172 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Medium] The CC-disable path in br_cfm_cc_config_set()
-  (net/bridge/br_cfm.c) does things in the wrong order and does not wait…
-- [Low] The patch adds a lockless reader,
-  READ_ONCE(mep->cc_config.enable) in br_cfm_frame_rx()…
+- [High] The fix leaves the use-after-free reachable when
+  CONFIG_BRIDGE_VLAN_FILTERING=n.
+- [High] The reorder only clears BR_MRP_AWARE_BIT when br_mrp_find_port()
+  can still find the port in an MRP instance.
 
 --
 
-bridge: cfm: ignore CCM while CC is disabled
+net: bridge: disable MRP ports before the FDB flush in del_nbp()
 
-This patch keeps the per-peer CCM RX delayed work disabled from creation
-until CC is enabled. It switches cc_peer_disable() to
-disable_delayed_work_sync(), and br_cfm_frame_rx() now drops CCM PDUs
-while mep->cc_config.enable is false.
+This patch moves br_mrp_port_del() and br_cfm_port_del() ahead of
+br_stp_disable_port() in del_nbp(). The idea is to clear
+BR_MRP_AWARE_BIT before the port is moved to BR_STATE_DISABLED. That
+should stop frames received during port removal from learning FDB entries
+that still point at the port after the final FDB flush.
 
-> diff --git a/net/bridge/br_cfm.c b/net/bridge/br_cfm.c
-> index 28b40dbf40734..115cccf1d327d 100644
-> --- a/net/bridge/br_cfm.c
-> +++ b/net/bridge/br_cfm.c
-> @@ -150,12 +150,13 @@ static void cc_peer_enable(struct br_cfm_peer_mep *peer_mep)
->  	memset(&peer_mep->cc_status, 0, sizeof(peer_mep->cc_status));
->  	peer_mep->ccm_rx_count_miss = 0;
+Link: https://lore.kernel.org/netdev/20261012123051.GA714215@shredder/
+Closes: https://lore.kernel.org/netdev/20261022090431.3641707-1-teel4res@gmail.com/
+
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 2c05ebc1299d1..fb25ce3e5e646 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -341,13 +341,13 @@ static void del_nbp(struct net_bridge_port *p)
 >  
-> +	enable_delayed_work(&peer_mep->ccm_rx_dwork);
->  	ccm_rx_timer_start(peer_mep);
->  }
+>  	nbp_delete_promisc(p);
 >  
->  static void cc_peer_disable(struct br_cfm_peer_mep *peer_mep)
->  {
-> -	cancel_delayed_work_sync(&peer_mep->ccm_rx_dwork);
-> +	disable_delayed_work_sync(&peer_mep->ccm_rx_dwork);
->  }
+> +	br_mrp_port_del(br, p);
+> +	br_cfm_port_del(br, p);
+> +
 
-[Severity: Medium]
-Can a CCM still change peer status after the RX work has been disabled?
+[Severity: High]
 
-br_cfm_cc_config_set() disables the RX work for every peer first and
-clears the enable flag only after that:
+Does this reorder cover a port that is still MRP-aware but is no longer
+referenced by any MRP instance?
 
-net/bridge/br_cfm.c:br_cfm_cc_config_set() {
-    ...
-	if (!config->enable && mep->cc_config.enable)
-		/* CC is disabled */
-		hlist_for_each_entry(peer_mep, &mep->peer_mep_list, head)
-			cc_peer_disable(peer_mep);
+br_mrp_port_del() only clears BR_MRP_AWARE_BIT when br_mrp_find_port()
+finds an instance whose p_port, s_port or i_port is this port:
 
-	enable = config->enable && !mep->cc_config.enable;
+br_mrp_port_del() {
+	struct br_mrp *mrp = br_mrp_find_port(br, p);
 
-	mep->cc_config = *config;
+	/* If the port is not part of a MRP instance just bail out */
+	if (!mrp)
+		return;
     ...
 }
 
-disable_delayed_work_sync() can sleep while a running
-ccm_rx_work_expired() finishes. For that whole loop,
-mep->cc_config.enable is still true.
+br_mrp_set_port_role() overwrites the role pointer. It does not clear the
+displaced port's bit, and it does not swap the roles:
 
-br_cfm_frame_rx() runs in softirq under RCU without RTNL, and it checks
-the flag only once. A CCM handled on another CPU during the loop, or one
-that read enable just before the store, passes the new check and then
-does this:
+br_mrp_set_port_role() {
+    ...
+	switch (role) {
+	case BR_MRP_PORT_ROLE_PRIMARY:
+		rcu_assign_pointer(mrp->p_port, p);
+		break;
+	case BR_MRP_PORT_ROLE_SECONDARY:
+		rcu_assign_pointer(mrp->s_port, p);
+		break;
+    ...
+}
 
-	if (peer_mep->cc_status.ccm_defect) {
-		peer_mep->cc_status.ccm_defect = false;
-		br_cfm_notify(RTM_NEWLINK, port);
-		ccm_rx_timer_start(peer_mep);
-	}
+Take an instance with p_port=A and s_port=B. An IFLA_BRIDGE_MRP_PORT_ROLE
+request that makes B primary leaves p_port == s_port == B. Port A stays in
+BR_STATE_FORWARDING with BR_MRP_AWARE_BIT set. A follow-up request to make
+A secondary fails with -EINVAL, because br_mrp_find_port(A) returns NULL.
 
-It also updates seen, rdi, seq_unexp_seen and mep->ccm_rx_snumber.
+When A is later removed through br_del_if()->del_nbp(), br_mrp_port_del()
+returns early. br_stp_disable_port()->br_set_state() then still skips the
+state change:
 
-The RX work is already disabled at that point, so ccm_rx_timer_start()
-does nothing and the defect stays cleared while CC is off. Nothing like
-synchronize_net() follows the store, so such a receiver can also finish
-after the netlink request has returned.
+br_set_state() {
+	if (test_bit(BR_MRP_AWARE_BIT, &p->flags))
+		return;
+    ...
+}
 
-This seems to be the case the commit message says it prevents:
+With runtime VLAN filtering off, br_allowed_ingress() still returns true
+after the VLAN group is unpublished. So br_handle_frame_finish() can keep
+learning on A after the final br_fdb_cleanup_by_dst(), up until
+netdev_rx_handler_unregister(). That window includes the
+netdev_upper_dev_unlink() notifier chain that the reproducer delays. The
+learned entries outlive destroy_nbp_rcu(), and a later frame to those MACs
+would hit the same br_forward() use-after-free.
 
-    This prevents a later CCM from changing
-    peer status or restarting RX monitoring.
+The commit message says the reorder means that "br_stp_disable_port()
+actually transitions it to BR_STATE_DISABLED". Does that hold for this
+state?
 
-Would it work to clear the flag first with
-WRITE_ONCE(mep->cc_config.enable, false), then call synchronize_net() so
-in-flight RX handlers drain, and only then disable the per-peer RX work?
+The role bookkeeping in br_mrp_set_port_role() predates this patch. Still,
+should del_nbp() clear BR_MRP_AWARE_BIT (or force BR_STATE_DISABLED)
+unconditionally? Or should br_mrp_set_port_role() be changed so it cannot
+leave a port orphaned like this?
 
-[ ... ]
+>  	spin_lock_bh(&br->lock);
+>  	br_stp_disable_port(p);
+>  	spin_unlock_bh(&br->lock);
 
-> @@ -414,6 +415,9 @@ int br_cfm_frame_rx(struct net_bridge_port *port, struct sk_buff *skb)
->  
->  	if (hdr->opcode == BR_CFM_OPCODE_CCM) {
->  		/* CCM PDU received. */
-> +		if (!READ_ONCE(mep->cc_config.enable))
-> +			return 1;
-> +
+[Severity: High]
 
-[Severity: Low]
-Should the writer side of this flag be annotated too?
+Can the use-after-free still happen when CONFIG_BRIDGE_VLAN_FILTERING=n?
 
-This READ_ONCE() is a new lockless reader. The only writer is still the
-plain struct copy in br_cfm_cc_config_set():
+The commit message relies on nbp_vlan_group_unpublish() to drain the
+receive path:
 
-	mep->cc_config = *config;
+  With CONFIG_BRIDGE_VLAN_FILTERING=y, synchronize_net() in
+  nbp_vlan_group_unpublish() also drains receive paths that could still
+  learn with the old state before the final FDB cleanup.
 
-The writer runs under RTNL and the reader runs in softirq under RCU, so
-no common lock serializes them. The copy covers exp_interval, the 48 byte
-exp_maid and enable, and the compiler may emit it as a memcpy. KCSAN can
-then report a data race against this marked read.
+When VLAN filtering is compiled out, that function is an empty stub in
+br_private.h:
 
-Would a separate WRITE_ONCE(mep->cc_config.enable, ...) work here, placed
-at the right point in the disable and enable sequences?
+static inline void nbp_vlan_group_unpublish(struct net_bridge_port *port)
+{
+}
 
-The same RX path also reads exp_maid and exp_interval without annotation
-while they are being rewritten. Those reads were there before this patch.
+CONFIG_BRIDGE_MRP only depends on CONFIG_BRIDGE, and
+CONFIG_BRIDGE_VLAN_FILTERING defaults to n. So a build with MRP=y and
+VLAN_FILTERING=n is valid.
 
->  		/* MA ID is after common header + sequence number + MEP ID */
->  		maid = skb_header_pointer(skb,
->  					  CFM_CCM_PDU_MAID_OFFSET,
+In that build, br_mrp_del_impl() sets the port back to BR_STATE_FORWARDING
+(if the bridge is up) before it clears BR_MRP_AWARE_BIT. A reader in
+br_handle_frame_finish() can read p->state without a lock, see FORWARDING,
+and only reach br_fdb_update() later:
+
+br_handle_frame_finish() {
+    ...
+		if (p->state == BR_STATE_DISABLED) {
+			reason = SKB_DROP_REASON_BRIDGE_INGRESS_STP_STATE;
+			goto drop;
+		}
+
+		state = p->state;
+    ...
+		br_fdb_update(br, p, vlan, eth_hdr(skb)->h_source, 0);
+    ...
+}
+
+Between the DISABLED store and the final flush, del_nbp() never waits for
+such a reader:
+
+del_nbp()
+  br_stp_disable_port()          /* p->state = BR_STATE_DISABLED */
+  br_ifinfo_notify(RTM_DELLINK, ...)
+  list_del_rcu(&p->list)
+  nbp_vlan_group_unpublish(p)    /* empty stub, no synchronize_net() */
+  br_fdb_cleanup_by_dst(br, br_port_to_dst(p), 0, 1)
+  ...
+  netdev_rx_handler_unregister(dev)
+  call_rcu(&p->rcu, destroy_nbp_rcu)
+
+br_fdb_update() does not check whether the source port is being removed.
+If the reader gets to fdb_create() after br_fdb_cleanup_by_dst() has run,
+the new entry points at the dying port. The same happens if the reader was
+spinning on br->hash_lock while the cleanup held it.
+
+netdev_rx_handler_unregister() only waits for the reader to finish. It
+does not remove the entry. A later frame to the learned MAC would then
+reach br_forward() through the freed port. In this configuration, the same
+window seems to apply to ordinary ports as well.
+
+Would an unconditional synchronize_net() between br_stp_disable_port() and
+the final br_fdb_cleanup_by_dst() be needed here, instead of relying on a
+side effect of VLAN filtering?
 
 [ ... ]
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261028164730.253238-1-pocj8ur4in%40gmail.com
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261101044840.1595584-1-1020691186%40qq.com
