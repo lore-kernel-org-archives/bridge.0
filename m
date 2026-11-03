@@ -1,98 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.195.21
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793608353;
-	b=YW10NK/XBpEBdv20iv/hE+Cwf7Lz+BrMyOmkcGiPGbI4oVWVUhJFinmziB9VpNyxRxNl
-	 jpE6Jw0iNCkZ9Xs4x7wMqRMsFXP5msASc00ah1UrrTlFH6amFlPEWRTp5JQ1gBLvFFGPS
-	 oTASu/H5SxCdZr3ZwPYJo2wNwfTqlwUHsXGYY+GrrezbeEFMaTp0AlFc2Ne9cplLKBl80
-	 wUemOrD0/k9X+Crepz7ntg2pEMthpUy3y596d65jLC0ZibA7Dn/0+eU+V+cM8sip3mxl/
-	 W/StSQlJ3sl4OBllN3yqik2GgYdEurFuIE0yJNGkJPdOMT5f3il7aG8R8SVqpHGJaGg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793608353;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:Content-Type:Content-Disposition:
-	 In-Reply-To:X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=PJNCXYIN4tLzumfSWxbAhtwN90Qu9INV8Dum43WK9W8=;
-	b=o18kSpEwD5SCNeXU4cAlODxanwAyPOa7qhze/K9fIX98iHCgYodE+xcSNUwGvGmDk8cA
-	 3Nr/ZVGSE4HZRHvfnygGS4/xqRrQN2v+ox6wpn+yGsJw7WKnN3g/EScGddKRKc6UvgCJZ
-	 q7Q/LCjAxJU7l0NkZOxDVu1bkxCow4kqBrOw+ATrx5uaiC6MMR8Q+YJUCRYiFAHnBHhBH
-	 hL3XR9OwwYHwt6eLXc76SUZeDfzby9kp4IAt4q21Y3G0PCCEgaW4FrS0pqL2VgpIA7GuV
-	 8a4Wu6wrKP+kE+saEQs43U8YKZ1je6p+bs9P4UWjIs0jvYxFIA1CxBwNASPYLW0yddw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nvidia.com;
-	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Sp4dzyk4;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.195.21
-Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012021.outbound.protection.outlook.com [40.93.195.21])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793679522;
+	b=kp5PADt9Q5pUPV8WeLCR9a/y8rPuExSanj8U7DlwBtZTHSmF5ogAj9fp2o5K3h4C9698
+	 2Z0VGT3NpHf3EZ0Sql4k4iHq/JFPsn+w8Vfl2cM0dPDKwaWxcOwpZBlt9QURIsy5PBkRs
+	 RWQQdq8iKmeNwSu7IfqYmdL9JcRGkl/78by7ayZ5kL+XjQjdYAUQ7xihtTH/PJAhXjtK1
+	 jhdlkrIGpU/pZCAl48O6YoOaXSwo+OpAjf2SjPfizbCqcdLscEC7PSyO1C4fHdOUpMBjL
+	 T2IJr8mYSd2QFGSkkGQDETZki2DuheiEgqN4mCO9mrkM1r7KpimVwhEvPCWJ8EMmSUw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793679522;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=AJFKR2DVegmCOvKm+XgKiQZC99Uzm4Ks3f9FW73MosI=;
+	b=FXak1FuGGNH5ruK1df4wUxmmWdd8QtvQuPZxK73UY7i95hMu1V3zSsVCs/YFmhSVrKeB
+	 7Ry9uEnOGyU6Gkz2xyV4pX0ymoXPHrDVlUWEuTEnTjLVY5K+1uULE4dbAsHwlAgCxXm+E
+	 0XMiWYiwaVn5797FJTOR3f64J9cv4Z9towaDEmwsyS1G7CAXRNksy0LSnKtM2JdtXcBWq
+	 xFajkkY2kvCWL2J/6oYV2roj7UdqErmOdg4HCOl0D7I4EVh8gK3M9+YSNpGyFdRaIc0b9
+	 A+LzDijtnxh9R8Uwv+2RaWIbZPjo/HRIcULd3WlvcBK+PEQ5E131012jw8pKCfv5uog==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d2M0IvLc;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76663606A329
-	for <bridge@lists.linux.dev>; Mon,  2 Nov 2026 08:32:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 76663606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AADE7606A338;
+	Tue,  3 Nov 2026 04:18:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Sp4dzyk4
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ScL6rWiTTYZU6YAngfxoOvvqkIanKgRjds4+PjPTn8/2m1MnNFpjp4vNSr2z9C+/FXKixFYKUgD2QpE4OZgQO89MPvHHIdLwridRHd4/KqXsb/7je0ZjY6QDlUf+XVuiV4+R3jlNul468AZSYs4lcUXYt5mjSkT7iE1jYVxhyRveHtxofl+GJ0laaHCh6rrh104H02EfJbScqM9nyacijwzlZiZORs7eHHcZOPVmUdDaP7WMH3gE17b4jH8nq9vp11zS9qLdF4+w+d40vxBm53agY3vUBL2fk8Mh9iQQefSDvKO7TBsq2rsZnLEMvBoX6LOVldJXhoXep3fREMaRaA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PJNCXYIN4tLzumfSWxbAhtwN90Qu9INV8Dum43WK9W8=;
- b=rOPOCC8QLswTwxNpgDFAaOz0VP05EZBZE39DiIzSc9+/qg9EBunK6ce088vTUYx6JXIWhb+tDUI3aB4IJYMUHZ10cvlmNio9crtmtZgZ1atOg/bbaOjU6frrLhf9W/gCKPn80xCwW/BuY4kj4H4JiOYxKbYTjQa8Lgkl700wb3joHVv+uoc5dg62QOV1Y4PlCcikCc3cAePy67dgr7Y8BsYA98TTHhDrmb7yv66eOaM1Ot7fKvAzkBmmGoirZP5RrpAbkTK9Z30EcD9R89+sHjNplLnLoUrAoBj+cclbGghLsAJvO4/uq8eGUBlX/BxwSQcBajQLZLYImdM6R3UruQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PJNCXYIN4tLzumfSWxbAhtwN90Qu9INV8Dum43WK9W8=;
- b=Sp4dzyk4uElbxw0v9mfH0CZ+0lo6pPERzvqwmuxUYMCsoVPcYXwKmzEN44nGDlY5ox2zVe87GiSqzzmakJaOOHyNPMWqVSmsGDHji5xw9yIjYAZopzmuswFzoPJofBiCmlUgQ4rqADrB19UJMXhzFYmw6kz/VXuIYR1CK3Nfsbef8VI/mITt+IxZqI3xvktLHi2OfCY1g8GYD36We/FMUSrfQhGjReOg1AORRoNZoSKkzwbNIRZ/bGRAqCMGcKaABag8zoivy8cqLS0eg+KqoVd+C/YQAhTW4ccXz5vso/6GWcGsYCGpT3h2jEcJ49LIH3VhhsV+PAH18DdeHrb0fw==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com (2603:10b6:510:281::22)
- by DS7PR12MB8324.namprd12.prod.outlook.com (2603:10b6:8:ec::9) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.569.12; Mon, 2 Nov 2026 08:32:26 +0000
-Received: from PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499]) by PH0PR12MB7957.namprd12.prod.outlook.com
- ([fe80::9251:acc2:cc63:3499%3]) with mapi id 15.21.0569.008; Mon, 2 Nov 2026
- 08:32:25 +0000
-Date: Mon, 2 Nov 2026 10:32:16 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: xiaoblac <teel4res@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Horatiu Vultur <horatiu.vultur@microchip.com>,
-	bridge@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v3] net: bridge: disable MRP ports before the FDB
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d2M0IvLc
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D191F00919;
+	Tue,  3 Nov 2026 04:18:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793679521;
+	bh=AJFKR2DVegmCOvKm+XgKiQZC99Uzm4Ks3f9FW73MosI=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=d2M0IvLcWRf9nosJBt3+PWZBmLgaROlN4XFALkCf7RFXZWo3jq6bzyTLqJIcf1RAK
+	 5BdHk33tG7M5c8e0xvOV6YqdFwEj1RmmN3DrleFIxfE23+lsgHMNuT7fe2PQ0r+JQa
+	 KxXLEwKQ8IX6KzY63ldagGkvcmU1aRQ0VC/yQ9V5cTADLzTzhM6ZAZHmqb/IEtcRDv
+	 NqQugqweg2ll4i843lt4p8z0Idug/0UDqtlJ3YLJ2SUsBDkujcRnH031H/4l4LAu1y
+	 l7z339Bv+XIyf5gTKsOccBD9sPA0R/s/9NyQCn0izzAyfhfTbUzFBBEBbwsa3oGvpZ
+	 qiqF1sXbAjjmw==
+Subject: Re: [PATCH net v2] net: bridge: disable MRP ports before the FDB
  flush in del_nbp()
-Message-ID: <20261102083216.GA794532@shredder>
-References: <20261101044840.1595584-1-1020691186@qq.com>
- <20261102082553.GB778610@shredder>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261102082553.GB778610@shredder>
-X-ClientProxiedBy: MR1P264CA0140.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:501:51::6) To PH0PR12MB7957.namprd12.prod.outlook.com
- (2603:10b6:510:281::22)
+From: netdev-bot+sashiko@kernel.org
+To: teel4res@gmail.com
+Cc: idosch@nvidia.com, razor@blackwall.org, davem@davemloft.net,
+ edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ horatiu.vultur@microchip.com, bridge@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Date: Tue, 03 Nov 2026 04:18:40 +0000
+Message-ID: <179367952018.488856.4094824897348236390@kernel.org>
+In-Reply-To: <179333317814.2102764.8780283783548366593@gmail.com>
+References: <179333317814.2102764.8780283783548366593@gmail.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -102,111 +64,201 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR12MB7957:EE_|DS7PR12MB8324:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0c267fa0-b331-4551-4166-08df38bbd2ba
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|7416014|376014|1800799024|366016|10067099003|22082099003|18002099003|56012099006|4143699003|11063799006|5023799004|261021121427099003|261021123027099003|261022105027099003|261026140227099003|261022075727099003|261026121527099003|261009223027099003|261028144727099003|260925021311599003|260925022911599003|260925021911599003;
-X-Microsoft-Antispam-Message-Info:
-	jU49IPA87kUs3NAHdEAsJBFJKa1SjusJ9nW8K5QfKAfY+kwPXuVNYv3GALYcpTL9Cy7Y2OnyubKFSrKDxmhPt9I6ZLrvUZItlLPFcIAh0xpgdpEuXst7vY3v/aN7PFWTKT9GRvOjk/bFWSTDCgW4udQTAsj3wpnFwaU4vCv9lt3NodjCqD42dHQnTzz4GR52zxpM5X8Vg/74xrOJcmfrGF/xss2nG7cVBC/2sG2ikniw6Bli9Q9IIbWNd+E9v3rlW8Ses+WqvZP2ovq2bb2BERnifejiqQszbVvBfdj1kaFE/Q/IG5QL88JWyD3nZ8w5/R/+4Y8DAsFC8l4PPJ82lzgLRnynBgw6SqbWSf0IsKLtueeMsql/v8Rmi3uwI4OkpQX7zxQSL2FU/skFSy7JTwJd1tEMR0dcGiwHVnTKrxrruSma7fH/1dFylDXxJKTuse/mNoe1rOI8oJAW6JQUOhXqyrD430BgIQNoGLjGSKyqjs566bDQDqNFKlX+Ok95H9yWUKeZ2CvTlFYZdAGe1CNcBtXhrIkNWV7+wBVNOtOrnQgYKGydHFkWmMYiB8jjBX5p3YzbAL6MxhKQvmskG84BEcD74IwV9JZ47GZW4A5JuB3Zpto3ylsJhKDZnM7OZ49ETvrBYdOYBeYczRLTXhn0VrGkAkEK4QfG9uuo9kk=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR12MB7957.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(7416014)(376014)(1800799024)(366016)(10067099003)(22082099003)(18002099003)(56012099006)(4143699003)(11063799006)(5023799004)(261021121427099003)(261021123027099003)(261022105027099003)(261026140227099003)(261022075727099003)(261026121527099003)(261009223027099003)(261028144727099003)(260925021311599003)(260925022911599003)(260925021911599003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?i2vtULFdyDF7zK852mx0EtJrZqsgjrMTk3pTsLANqrH7KOU2UZEijr8v6hXB?=
- =?us-ascii?Q?3WQ64eYQfv0ttfyydIK7hSpEEO+Nus+QSdX9dX5z+0vm7AT8IaX0udt878kB?=
- =?us-ascii?Q?TkVXQHuBc3ed1cUx/pq8zDvQRu9lO98DodFEExXeoeK8TGh2F3qqGpA7FOxf?=
- =?us-ascii?Q?oTHFe/IW2hbMv2etvYcSxzBV2Fobuz7JNQLHUVIXIIOuKRVLT8WpPfyEQgjx?=
- =?us-ascii?Q?gL6ROEvssU2tiRiW7c8pOHdsof58yv7A5EcJnJ0tllBo2t++/LkW7vqz7sLE?=
- =?us-ascii?Q?iKL22CCtyX7Aii35++XRecDUAVP+UbNZfNxxQgtcst9BXTbF42CSRYY/D3fS?=
- =?us-ascii?Q?g/iS4cesidTXgXl9Vx9jxmn6wXNvuQjk4WwRCcJyNYb0gvBkF8OxSIDa7tTZ?=
- =?us-ascii?Q?Gj5SJzVGzeI0eu0t9ZaHJ36RJvCDEQEIdhhslJgO2+zuhoZdJJlA2j8sleqC?=
- =?us-ascii?Q?ILH57Lph+xXVYajhcDgRrHEG1+9Hu3PWQ5YtBBbBrkL6b8WyR7Ru1HEtJTwl?=
- =?us-ascii?Q?0R1K1OnQaWnczK1h5eK+/Ntv+Y2RDiae0NXNLFeyddOzF+tCl3Xoq5L5Pj5U?=
- =?us-ascii?Q?m1YCke9HZNsZwz0kkF/YDfg4DS0H1blqPuknArtbMFVnW6Ondmm6/m77vHWj?=
- =?us-ascii?Q?OJ4MEZeDdcwTPFWr+Zc6t7wf0NKmuIMZGQ/67fyUYSZqFcnaD2qWhjm6Vmc5?=
- =?us-ascii?Q?VCwr7b7/dLghIqyh9zlIZitxicXzFLzDJlWId4MS6BiHb3Yqam8SOxM+a7TF?=
- =?us-ascii?Q?JPDlmIX/GAUhgmSNRRFFoW/jqYT4D0yMfJf78/EyEDxr73hnWNKp4ibFfo+/?=
- =?us-ascii?Q?yRVpzlaHlOCq9o9jtGMCR/ldjtB3ypcIyXi4DUeSY0fUtd2JI5BUBgapyFN3?=
- =?us-ascii?Q?T3AYiV1S/Zpk9GBn/ylsxMv0KLcV2CFuzL+fZ+XgqPglc8j57/h3iVE9kDOJ?=
- =?us-ascii?Q?LKS2ExCA3xjYLheuuFzIuEORwRLFiCiaxId6uKz9ft4F387JLmrwpy6vN7jx?=
- =?us-ascii?Q?INZ1ShZhcqe28AOtNaT5IyrDeldmv3JF0CfjeqNeOmEXJayKXNjZjY2RV+3o?=
- =?us-ascii?Q?ArwsulhsAtQbE7eL8SsuVCRPIlgIzNoyeDTUk9kUh51qeqXlSRpETByMsNvT?=
- =?us-ascii?Q?h4NU8z1xwApKUgma9WwhYOd4hiV4VsZmh6uyRM2kR0yxbNNY4+ndMos3mdPg?=
- =?us-ascii?Q?0PqZTFaS/QleHuRqR99r/9GNIDDcWYI9YeeZ+RWcFxry78WZFeQuRq+dhhMk?=
- =?us-ascii?Q?ZI+HaUfQT6NU1ZxylrjFcMCsvTV3W8l6EiWoeMfpKWyq+/aQIggMYJoSilzo?=
- =?us-ascii?Q?1yoxrsLK7nJq4aRcL64KYBJthllG/ueZ3wSDUer/wQl6L+XInXABOC5hOSu3?=
- =?us-ascii?Q?HbuH9nuTafuXnaA7kEv05snZMirN9ErfUZMgd2KO9VqgmWfLrjhIJg+b5dQk?=
- =?us-ascii?Q?iluiRT2fs6qinbgPjUeuhiOIKXgqb5KXJ6KJRh9zLTRkAfAlKOMjEbdG+9y5?=
- =?us-ascii?Q?kXg4LCoIe9U3YN7rBdZtRfT3B2egAXH1Sj1OCunNRXvxb/CuJFhIfRkn3Ps7?=
- =?us-ascii?Q?eHU2duf/5DTkrk9c/PBoSi85KJ9E/HMMR5+J4dndBzg87QrDEGLIZpU0SYEE?=
- =?us-ascii?Q?wG/PiOOSKKARsJ02en0j0G6QgOyVCsAJPuEyn+QZW/dQm89pyShdXHATTeAY?=
- =?us-ascii?Q?/54hTqj8SD+XVBkOZsm8iXzcbw3SLuy+WDluvOBeXDM8UW6M?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0c267fa0-b331-4551-4166-08df38bbd2ba
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB7957.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Nov 2026 08:32:25.6627
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: v/04/lrqLmx9Zou1QjtWaRI0GL4nAETHW2isI4YUX40Tm1nXT0b2IMbVlzZWrMy8ZTYEmVAkDbsGHSWUEAMC+w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB8324
 
-On Mon, Nov 02, 2026 at 10:25:53AM +0200, Ido Schimmel wrote:
-> On Sat, Oct 31, 2026 at 09:48:40PM -0700, xiaoblac wrote:
-> > From: Cheng Yongkang <teel4res@gmail.com>
-> > 
-> > del_nbp() flushes the port's FDB entries before it unregisters the RX
-> > handler. For a normal port, br_stp_disable_port() moves the port to
-> > BR_STATE_DISABLED before this cleanup.
-> > 
-> > That does not hold for an MRP ring port. br_set_state() ignores state
-> > changes while BR_MRP_AWARE_BIT is set, so br_stp_disable_port() leaves
-> > the port state alone. br_mrp_port_del() then restores forwarding when
-> > the bridge is up before clearing the bit. A frame received between
-> > br_fdb_cleanup_by_dst() and netdev_rx_handler_unregister() can therefore
-> > create a new FDB entry referencing the dying port. Nothing removes that
-> > entry before destroy_nbp_rcu() frees the port, so a later frame to the
-> > learned MAC can be forwarded through the freed port.
-> > 
-> > Remove the MRP and CFM instances before disabling the port, so that
-> > br_stp_disable_port() actually transitions it to BR_STATE_DISABLED.
-> > With CONFIG_BRIDGE_VLAN_FILTERING=y, synchronize_net() in
-> > nbp_vlan_group_unpublish() also drains receive paths that could still
-> > learn with the old state before the final FDB cleanup.
-> > 
-> > Found through an LLM-assisted source code analysis workflow and
-> > reproduced on net with KASAN and CONFIG_BRIDGE_VLAN_FILTERING=y in QEMU.
-> > A diagnostic switchdev module accepts MRP objects and delays the
-> > NETDEV_CHANGEUPPER callback for 1.5 s, holding del_nbp() after the FDB
-> > cleanup and before RX handler removal. The reproducer floods the MRP
-> > port with rotating source MACs, waits for the port's RCU callback
-> > through the module's rcu_barrier(), then sends frames to those MACs
-> > from another port. The unpatched kernel reports:
-> > 
-> >   BUG: KASAN: slab-use-after-free in br_forward+0xb1/0x820
-> >   Call Trace:
-> >    <IRQ>
-> >    br_forward+0xb1/0x820
-> >    br_handle_frame_finish+0x148b/0x1e50
-> >    br_handle_frame+0x90a/0x15c0
-> > 
-> > With this patch, three runs of six cycles each reach the delay without
-> > a KASAN report.
-> > 
-> > Fixes: 6536993371fa ("bridge: mrp: Integrate MRP into the bridge")
-> > Suggested-by: Ido Schimmel <idosch@nvidia.com>
-> > Link: https://lore.kernel.org/netdev/20261012123051.GA714215@shredder/
-> > Closes: https://lore.kernel.org/netdev/20261022090431.3641707-1-teel4res@gmail.com/
-> > Signed-off-by: Cheng Yongkang <teel4res@gmail.com>
-> 
-> Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Thank you for your contribution! Sashiko AI review found 3 potential
+issue(s) to consider.
 
-I replied to Sashiko before tagging this patch, but looks like the mail
-didn't make it to the list. The two issues that it flagged are separate
-pre-existing issues. The current patch fixes a UAF and doesn't make the
-situation worse.
+Critical: 0 · High: 2 · Medium: 1 · Low: 0
+
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [High] The fix needs an RCU grace period between br_stp_disable_port()
+  writing p->state = BR_STATE_DISABLED (br_if.c:348) and the final…
+- [High] The reorder assumes br_mrp_port_del() always clears
+  BR_MRP_AWARE_BIT on the port being deleted, so that…
+- [Medium] The commit message's safety argument describes code that is
+  not in the target tree.
+
+--
+
+net: bridge: disable MRP ports before the FDB flush in del_nbp()
+
+This patch moves br_mrp_port_del() and br_cfm_port_del() ahead of
+br_stp_disable_port() in del_nbp(). An MRP ring port then has
+BR_MRP_AWARE_BIT cleared before STP disables it. The goal is for the port
+to really reach BR_STATE_DISABLED before the FDB flush, so that no frame
+is learned with dst == p and later forwarded to the freed port.
+
+Link: https://lore.kernel.org/netdev/20261012123051.GA714215@shredder/
+
+> Remove the MRP and CFM instances before disabling the port, so that
+> br_stp_disable_port() actually transitions the port to BR_STATE_DISABLED.
+> The synchronize_net() in nbp_vlan_flush() then drains the receive paths
+> that could still learn with the old state, and the FDB flush that
+> follows removes their entries.  No frame can be learned after that
+> flush and before netdev_rx_handler_unregister().
+
+[Severity: Medium]
+Does this description match the tree the patch applies to?
+
+Earlier in the message the flush is called br_fdb_delete_by_port(), but
+that function no longer exists under net/bridge/. The current del_nbp()
+does this:
+
+	vg = nbp_vlan_group(p);
+	nbp_vlan_group_unpublish(p);
+	br_fdb_cleanup_by_dst(br, br_port_to_dst(p), 0, 1);
+	nbp_vlan_flush(p, vg);
+
+nbp_vlan_flush() contains no synchronize_net(), and it runs after the FDB
+flush:
+
+net/bridge/br_vlan.c:nbp_vlan_flush() {
+	ASSERT_RTNL();
+
+	__vlan_flush(port->br, port, vg);
+	__vlan_group_free(vg);
+}
+
+The only grace period before the flush is in nbp_vlan_group_unpublish():
+
+net/bridge/br_vlan.c:nbp_vlan_group_unpublish() {
+	ASSERT_RTNL();
+
+	RCU_INIT_POINTER(port->vlgrp, NULL);
+	synchronize_net();
+}
+
+This layout came from commit 83edc87a9172 ("net: bridge: vlan: quiesce
+readers before freeing port VLANs"). The testing in the changelog was
+done on v7.3, which still has the older ordering.
+
+Could the message name nbp_vlan_group_unpublish() and
+br_fdb_cleanup_by_dst() instead, or describe both layouts if a stable
+backport is intended? Could the patch also be tested on the target tree?
+
+> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+> index 2c05ebc1299d1..fb25ce3e5e646 100644
+> --- a/net/bridge/br_if.c
+> +++ b/net/bridge/br_if.c
+> @@ -341,13 +341,13 @@ static void del_nbp(struct net_bridge_port *p)
+>  
+>  	nbp_delete_promisc(p);
+>  
+> +	br_mrp_port_del(br, p);
+> +	br_cfm_port_del(br, p);
+> +
+
+[Severity: High]
+Does br_mrp_port_del() always clear BR_MRP_AWARE_BIT on the port being
+deleted?
+
+br_mrp_set_port_role() can leave a port MRP-aware with no instance
+pointing at it. Take a ring with primary A and secondary B. Setting
+IFLA_BRIDGE_MRP_PORT_ROLE=PRIMARY on B is accepted, because B is
+MRP-aware and br_mrp_find_port() finds the instance:
+
+net/bridge/br_mrp.c:br_mrp_set_port_role() {
+	...
+	case BR_MRP_PORT_ROLE_PRIMARY:
+		rcu_assign_pointer(mrp->p_port, p);
+		break;
+	...
+}
+
+Now p_port == s_port == B. A keeps BR_MRP_AWARE_BIT and stays in the
+BR_STATE_FORWARDING state that br_mrp_add() set.
+
+Later, when A is removed from the bridge, br_mrp_find_port(br, A) checks
+only p_port, s_port and i_port. So br_mrp_port_del() returns early:
+
+	if (!mrp)
+		return;
+
+br_stp_disable_port()->br_set_state() also returns early:
+
+	if (test_bit(BR_MRP_AWARE_BIT, &p->flags))
+		return;
+
+As a result, A stays FORWARDING.
+
+If VLAN filtering is disabled at runtime, br_allowed_ingress() returns
+true without looking at the unpublished VLAN group. A frame that arrives
+between br_fdb_cleanup_by_dst() and netdev_rx_handler_unregister() is then
+learned with dst == A. Nothing flushes that entry before
+call_rcu(&p->rcu, destroy_nbp_rcu). A later frame to that MAC would reach
+br_forward() with the freed port.
+
+This looks like the same use-after-free as the one in the changelog. It
+needs no reader preemption, only traffic during the teardown window.
+
+Should teardown force the port out of MRP-aware mode, or disable it
+directly, even when no instance references it? Alternatively, should
+br_mrp_set_port_role() avoid orphaning the port it displaces?
+
+>  	spin_lock_bh(&br->lock);
+>  	br_stp_disable_port(p);
+>  	spin_unlock_bh(&br->lock);
+
+[Severity: High]
+Is there still a window here with CONFIG_BRIDGE_VLAN_FILTERING=n?
+
+The fix needs a grace period between br_stp_disable_port() writing
+BR_STATE_DISABLED and the final br_fdb_cleanup_by_dst(br,
+br_port_to_dst(p), 0, 1) in del_nbp(). The only synchronize_net() in that
+window is in nbp_vlan_group_unpublish(). Without VLAN filtering, that
+function is an empty stub:
+
+net/bridge/br_private.h:
+static inline void nbp_vlan_group_unpublish(struct net_bridge_port *port)
+{
+}
+
+Nothing else in the window synchronizes. That includes br_ifinfo_notify(),
+list_del_rcu(), update_headroom() and netdev_reset_rx_headroom().
+
+One possible interleaving:
+
+CPU1 (RX softirq, br_handle_frame_finish())
+    reads p->state and sees FORWARDING
+    passes the BR_STATE_DISABLED check
+
+CPU0 (del_nbp())
+    br_stp_disable_port()
+        br_set_state(p, BR_STATE_DISABLED)
+    br_fdb_cleanup_by_dst(br, br_port_to_dst(p), 0, 1)
+
+CPU1
+    br_fdb_update(br, p, vlan, eth_hdr(skb)->h_source, 0)
+        fdb_create(br, dst, addr, vid, flags)   /* dst == p */
+
+br_fdb_update() does not check the port state again. No FDB flush runs
+after this point: netdev_rx_handler_unregister() only drains, and
+destroy_nbp() does no FDB cleanup. After call_rcu(destroy_nbp_rcu), a
+frame to the learned MAC would reach br_forward() with the freed port.
+
+BRIDGE_MRP and BRIDGE_CFM depend only on BRIDGE. BRIDGE_VLAN_FILTERING is
+default n and depends on VLAN_8021Q. So MRP=y with VLAN_FILTERING=n is a
+valid configuration. The window is short on !PREEMPT_RT, but on PREEMPT_RT
+the softirq reader can be preempted inside it.
+
+This also seems to contradict this line in the changelog: "No frame can
+be learned after that flush and before netdev_rx_handler_unregister()".
+
+Would an unconditional synchronize_net() after br_stp_disable_port() and
+before the final FDB flush close this window?
+
+>  
+> -	br_mrp_port_del(br, p);
+> -	br_cfm_port_del(br, p);
+> -
+>  	br_ifinfo_notify(RTM_DELLINK, NULL, p);
+>  
+>  	list_del_rcu(&p->list);
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/179333317814.2102764.8780283783548366593%40gmail.com
