@@ -1,60 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793679522;
-	b=kp5PADt9Q5pUPV8WeLCR9a/y8rPuExSanj8U7DlwBtZTHSmF5ogAj9fp2o5K3h4C9698
-	 2Z0VGT3NpHf3EZ0Sql4k4iHq/JFPsn+w8Vfl2cM0dPDKwaWxcOwpZBlt9QURIsy5PBkRs
-	 RWQQdq8iKmeNwSu7IfqYmdL9JcRGkl/78by7ayZ5kL+XjQjdYAUQ7xihtTH/PJAhXjtK1
-	 jhdlkrIGpU/pZCAl48O6YoOaXSwo+OpAjf2SjPfizbCqcdLscEC7PSyO1C4fHdOUpMBjL
-	 T2IJr8mYSd2QFGSkkGQDETZki2DuheiEgqN4mCO9mrkM1r7KpimVwhEvPCWJ8EMmSUw==
+	t=1793692488;
+	b=jsyJnOrH2GhGoR/SKT2VYOSJihuiEURGPx+s+/lGy3erpXXWmba6krLgTchNPcVGI+XA
+	 71CzS8PQO6Ri6k3gWNAd4oEQD50mKtS5yuKGzIfp9vb8ZB5jLQMTjXB8TjT0x5Hv/9QNq
+	 yLkqeZmXtmYj+7OJ7DoOARy4NeRCVt/j2OOtFtd/lMLSUprinIvuqlp2lJUofrBHczm2f
+	 WyTwX6+4dgT/BEq/cpV7n7abAg5MebOGXYHSk8mJMn+WMGOYpG33r2ionAhywBSCLWIDk
+	 Sjds8MQXKfmu83iQwEPD3wpwz/Chgrikq87zBgJ+4vcZ3zrk211chTGsxIw+XS+p/Dg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793679522;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=AJFKR2DVegmCOvKm+XgKiQZC99Uzm4Ks3f9FW73MosI=;
-	b=FXak1FuGGNH5ruK1df4wUxmmWdd8QtvQuPZxK73UY7i95hMu1V3zSsVCs/YFmhSVrKeB
-	 7Ry9uEnOGyU6Gkz2xyV4pX0ymoXPHrDVlUWEuTEnTjLVY5K+1uULE4dbAsHwlAgCxXm+E
-	 0XMiWYiwaVn5797FJTOR3f64J9cv4Z9towaDEmwsyS1G7CAXRNksy0LSnKtM2JdtXcBWq
-	 xFajkkY2kvCWL2J/6oYV2roj7UdqErmOdg4HCOl0D7I4EVh8gK3M9+YSNpGyFdRaIc0b9
-	 A+LzDijtnxh9R8Uwv+2RaWIbZPjo/HRIcULd3WlvcBK+PEQ5E131012jw8pKCfv5uog==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793692488;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=LrPtbrewofDNM9Dsgj1ZDWN+FRXhLMYsDsPjwvet0xk=;
+	b=RVmZec5MIDgD/zc8gpy7XnY1rytFcMmPxGeBR8v0GgDljlMUEoi+OlSQDeEKCsna9j5g
+	 X/RF2FtV7g8KV+sA3o+2zPJa/zTXdEW38LpD6mnHaGrAESwGjSPwZyjkpWVoFiVVlCKni
+	 CouHcqY7jBNqNwPKh2U+tRSreFjSUfK6cxj4yJZ4sl1HR6TezQK45b2UzWoT6g6AFeD12
+	 2sJ1J7JGi5yGvNyq7MYFSqSbFckhswvCfnDyaoE50HDnUNqFMAWGxQlGs/p157hpwBaf5
+	 50eScHpXLFUeQ2ChFujOKKIwmlSbd+RQCY3fMApx8SZuP+vtgnYAj/fkwARMIldpR/g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d2M0IvLc;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MTSdNjNr;
+	arc=none smtp.remote-ip=209.85.216.45
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AADE7606A338;
-	Tue,  3 Nov 2026 04:18:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 504C5606D803
+	for <bridge@lists.linux.dev>; Tue,  3 Nov 2026 07:54:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 504C5606D803
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=d2M0IvLc
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D191F00919;
-	Tue,  3 Nov 2026 04:18:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793679521;
-	bh=AJFKR2DVegmCOvKm+XgKiQZC99Uzm4Ks3f9FW73MosI=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=d2M0IvLcWRf9nosJBt3+PWZBmLgaROlN4XFALkCf7RFXZWo3jq6bzyTLqJIcf1RAK
-	 5BdHk33tG7M5c8e0xvOV6YqdFwEj1RmmN3DrleFIxfE23+lsgHMNuT7fe2PQ0r+JQa
-	 KxXLEwKQ8IX6KzY63ldagGkvcmU1aRQ0VC/yQ9V5cTADLzTzhM6ZAZHmqb/IEtcRDv
-	 NqQugqweg2ll4i843lt4p8z0Idug/0UDqtlJ3YLJ2SUsBDkujcRnH031H/4l4LAu1y
-	 l7z339Bv+XIyf5gTKsOccBD9sPA0R/s/9NyQCn0izzAyfhfTbUzFBBEBbwsa3oGvpZ
-	 qiqF1sXbAjjmw==
-Subject: Re: [PATCH net v2] net: bridge: disable MRP ports before the FDB
- flush in del_nbp()
-From: netdev-bot+sashiko@kernel.org
-To: teel4res@gmail.com
-Cc: idosch@nvidia.com, razor@blackwall.org, davem@davemloft.net,
- edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
- horatiu.vultur@microchip.com, bridge@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Date: Tue, 03 Nov 2026 04:18:40 +0000
-Message-ID: <179367952018.488856.4094824897348236390@kernel.org>
-In-Reply-To: <179333317814.2102764.8780283783548366593@gmail.com>
-References: <179333317814.2102764.8780283783548366593@gmail.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MTSdNjNr
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-3ace1f3897cso1777091a91.0
+        for <bridge@lists.linux.dev>; Mon, 02 Nov 2026 23:54:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793692488; x=1794297288; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LrPtbrewofDNM9Dsgj1ZDWN+FRXhLMYsDsPjwvet0xk=;
+        b=MTSdNjNrDgDbImGveor6ThmbnW8NooM2eFU2fRHnpVPZonimGkNHlsrYZb2Ur8drmV
+         Seou4AAkQ2uRLrRcXo94BT/aryD4ozjR1jMHyhXNkvaFpXlEDCRJvOTfQ9ZJEu6CjG5a
+         jE84O5WQNqzXc8Sviua3tTVuliA+lZY75ZxbaIHywU73vzNqCHKK4oQmNcIzpCINy1Qk
+         PskjOR2WCVPn99Zh4HsABuYl51XHLug+hjPy5JSkj9w4ulAX59xmleo+5wKrpMEWbfzP
+         JjU+rt/CRUdzm0MW5kZuQw7LeudU/rnwCEoS0mM3ihmrzEsyRinYpmYDnmyjkqH3McUD
+         qMQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793692488; x=1794297288;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LrPtbrewofDNM9Dsgj1ZDWN+FRXhLMYsDsPjwvet0xk=;
+        b=EApx58yJ+uZMV5SCc4JrAw2sDrAODRmu5LGqT/OozWa+lH+GyqVoHvCEHefzvoSKX5
+         3l71Ty/VPhgUaaLgA+IupJMb+V65skeKn1YZLFfYbK/3HN7Kia44nVrBRlmbLeUHKd3T
+         X0ayvryL6MUut5zrCtIubc4yUWh0MOe9M65iZqYu6UL3pVQxhmXvrwpqNr72hWqqtGoG
+         TPiZJDHPJ4v9AJVwD5EACvGhTJCNg8jfi8rJkxV9xLf28b387C1XADt8fPYnUhnSPOzN
+         50HO8IAUWOeGXSWuzJ/mAPj83z/XXd/75FjNULuO7n8XlzjkTNOu8Hp2kt11G60lvqdw
+         4nWg==
+X-Forwarded-Encrypted: i=1; AKwUvBycEsjRpaVAUcMTBrc/QFartu9kXldOX1zTlsTbGSZVDrUyWIp4X5cL2AgOg0csp9xGQaR8SO4=@lists.linux.dev
+X-Gm-Message-State: APuU4Z+YSv2h8GN7m5A6WPxigf8BNH0dIJ3mJFl1kJWX44EIXTvvnzUw
+	dBSSMqSBQJVlO+oxqsFhicsPJPc7ZDTT6MWPpztTiqdadhdxFQxVPey8
+X-Gm-Gg: AYBFou1AQJDXhrwFQ+PF0uGX6LLQ8phL8S3emjBlrI9i/Thl1bIWVLqeybAwZwD4g+/
+	52Wk51ZEdz19zeOl4rqaph6wAOUlfPSjpL9gnsLvbXoe1bIU8z+9aHx832VgzBsMmfMM825vzwS
+	PakCUaXoK0ux9E0uMLg8pZs5A1i70tzqbaiRQ4C3+pUXuzIuM+GuBrNpLW4GZqAdpMRoP1COHLm
+	LYtGRucWbw3neo78lQbNrqT10Va1RwyS0Qb3ZJOqj3iXn6HNSjVzZNCGJHaf5H+yUaJMkT9CmSG
+	FU+uXM0xu+TVH7xqtUTY6My2qvdDvul37s2k3xGg+AgV/NB1nk5i7AJwiCB4SXPIOXpvdqlGy5l
+	+HjV3paCGaSPymJPDjGExaz20ICBTharsp/cBilzNbAq7Ur2KlfV+n/Pdccl9dawKAp5f04Kbj4
+	7m7pYjlsaDkp9p+YMlnwSz58uuLM0HyAe7wmVv+FzTaZmOdXIxS2U0OgC41VyRizvjDTaFlNGzh
+	A5XVIB3e7GN54JqBCaizs6zreddCF6iqYhU017BP6M+0A1HQabNTZFdcDxBYMe23VVI0/On2+fz
+	fjHhvbAD/mB5DS9qdpM9m8ZtdEqbGG0vm5C0W3S3GwRDkl3Yt/ZbDXjudfGlowptK/CuNepARjy
+	cDqZXjlXLMLCaIQ==
+X-Received: by 2002:a17:90b:57cb:b0:39e:4c81:6c5f with SMTP id 98e67ed59e1d1-3ae897f6192mr10394588a91.26.1793692487076;
+        Mon, 02 Nov 2026 23:54:47 -0800 (PST)
+Received: from JUNVYYANG-MC1.tencent.com ([43.132.141.21])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cdb364a987esm829086a12.22.2026.11.02.23.54.42
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 02 Nov 2026 23:54:46 -0800 (PST)
+From: Jun Yang <juny24602@gmail.com>
+To: razor@blackwall.org,
+	idosch@nvidia.com
+Cc: davem@davemloft.net,
+	edumazet@kernel.org,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	roopa@cumulusnetworks.com,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Jun Yang <junvyyang@tencent.com>,
+	stable@kernel.org,
+	TencentOS Corvus AI <corvus@tencent.com>
+Subject: [PATCH net] net: bridge: use one headroom snapshot for ND replies
+Date: Tue,  3 Nov 2026 15:54:37 +0800
+Message-ID: <20261103075439.43644-1-juny24602@gmail.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -64,201 +105,63 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issue(s) to consider.
+From: Jun Yang <junvyyang@tencent.com>
 
-Critical: 0 · High: 2 · Medium: 1 · Low: 0
+br_nd_send() calls LL_RESERVED_SPACE(dev) once to size the reply skb and
+again to reserve its headroom. When a port requiring more headroom is
+added to the bridge, br_add_if() can increase dev->needed_headroom
+between the two calls. The reserved headroom can then exceed the space
+accounted for by alloc_skb().
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+Take one headroom snapshot and use it for both the allocation size and
+skb_reserve().
 
-- [High] The fix needs an RCU grace period between br_stp_disable_port()
-  writing p->state = BR_STATE_DISABLED (br_if.c:348) and the final…
-- [High] The reorder assumes br_mrp_port_del() always clears
-  BR_MRP_AWARE_BIT on the port being deleted, so that…
-- [Medium] The commit message's safety argument describes code that is
-  not in the target tree.
+Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+Cc: stable@kernel.org
+Reported-by: TencentOS Corvus AI <corvus@tencent.com>
+Assisted-by: tencentos-corvus-ai:hy4-preview
+Signed-off-by: Jun Yang <junvyyang@tencent.com>
+---
+A KASAN reproducer for this issue is available if requested.
 
---
+ net/bridge/br_arp_nd_proxy.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-net: bridge: disable MRP ports before the FDB flush in del_nbp()
+diff --git a/net/bridge/br_arp_nd_proxy.c b/net/bridge/br_arp_nd_proxy.c
+index 87a40e2f1c50..985ed43f7e30 100644
+--- a/net/bridge/br_arp_nd_proxy.c
++++ b/net/bridge/br_arp_nd_proxy.c
+@@ -262,6 +262,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 	struct sk_buff *reply;
+ 	struct ipv6hdr *pip6;
+ 	int na_olen = 8; /* opt hdr + ETH_ALEN for target */
++	int headroom;
+ 	int ns_olen;
+ 	u8 *daddr;
+ 	bool dad;
+@@ -271,7 +272,8 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 	if (!dev)
+ 		return;
+ 
+-	len = LL_RESERVED_SPACE(dev) + sizeof(struct ipv6hdr) +
++	headroom = LL_RESERVED_SPACE(dev);
++	len = headroom + sizeof(struct ipv6hdr) +
+ 		sizeof(*na) + na_olen + dev->needed_tailroom;
+ 
+ 	reply = alloc_skb(len, GFP_ATOMIC);
+@@ -280,7 +282,7 @@ static void br_nd_send(struct net_bridge *br, struct net_bridge_port *p,
+ 
+ 	reply->protocol = htons(ETH_P_IPV6);
+ 	reply->dev = dev;
+-	skb_reserve(reply, LL_RESERVED_SPACE(dev));
++	skb_reserve(reply, headroom);
+ 	skb_push(reply, sizeof(struct ethhdr));
+ 	skb_set_mac_header(reply, 0);
+ 
 
-This patch moves br_mrp_port_del() and br_cfm_port_del() ahead of
-br_stp_disable_port() in del_nbp(). An MRP ring port then has
-BR_MRP_AWARE_BIT cleared before STP disables it. The goal is for the port
-to really reach BR_STATE_DISABLED before the FDB flush, so that no frame
-is learned with dst == p and later forwarded to the freed port.
-
-Link: https://lore.kernel.org/netdev/20261012123051.GA714215@shredder/
-
-> Remove the MRP and CFM instances before disabling the port, so that
-> br_stp_disable_port() actually transitions the port to BR_STATE_DISABLED.
-> The synchronize_net() in nbp_vlan_flush() then drains the receive paths
-> that could still learn with the old state, and the FDB flush that
-> follows removes their entries.  No frame can be learned after that
-> flush and before netdev_rx_handler_unregister().
-
-[Severity: Medium]
-Does this description match the tree the patch applies to?
-
-Earlier in the message the flush is called br_fdb_delete_by_port(), but
-that function no longer exists under net/bridge/. The current del_nbp()
-does this:
-
-	vg = nbp_vlan_group(p);
-	nbp_vlan_group_unpublish(p);
-	br_fdb_cleanup_by_dst(br, br_port_to_dst(p), 0, 1);
-	nbp_vlan_flush(p, vg);
-
-nbp_vlan_flush() contains no synchronize_net(), and it runs after the FDB
-flush:
-
-net/bridge/br_vlan.c:nbp_vlan_flush() {
-	ASSERT_RTNL();
-
-	__vlan_flush(port->br, port, vg);
-	__vlan_group_free(vg);
-}
-
-The only grace period before the flush is in nbp_vlan_group_unpublish():
-
-net/bridge/br_vlan.c:nbp_vlan_group_unpublish() {
-	ASSERT_RTNL();
-
-	RCU_INIT_POINTER(port->vlgrp, NULL);
-	synchronize_net();
-}
-
-This layout came from commit 83edc87a9172 ("net: bridge: vlan: quiesce
-readers before freeing port VLANs"). The testing in the changelog was
-done on v7.3, which still has the older ordering.
-
-Could the message name nbp_vlan_group_unpublish() and
-br_fdb_cleanup_by_dst() instead, or describe both layouts if a stable
-backport is intended? Could the patch also be tested on the target tree?
-
-> diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-> index 2c05ebc1299d1..fb25ce3e5e646 100644
-> --- a/net/bridge/br_if.c
-> +++ b/net/bridge/br_if.c
-> @@ -341,13 +341,13 @@ static void del_nbp(struct net_bridge_port *p)
->  
->  	nbp_delete_promisc(p);
->  
-> +	br_mrp_port_del(br, p);
-> +	br_cfm_port_del(br, p);
-> +
-
-[Severity: High]
-Does br_mrp_port_del() always clear BR_MRP_AWARE_BIT on the port being
-deleted?
-
-br_mrp_set_port_role() can leave a port MRP-aware with no instance
-pointing at it. Take a ring with primary A and secondary B. Setting
-IFLA_BRIDGE_MRP_PORT_ROLE=PRIMARY on B is accepted, because B is
-MRP-aware and br_mrp_find_port() finds the instance:
-
-net/bridge/br_mrp.c:br_mrp_set_port_role() {
-	...
-	case BR_MRP_PORT_ROLE_PRIMARY:
-		rcu_assign_pointer(mrp->p_port, p);
-		break;
-	...
-}
-
-Now p_port == s_port == B. A keeps BR_MRP_AWARE_BIT and stays in the
-BR_STATE_FORWARDING state that br_mrp_add() set.
-
-Later, when A is removed from the bridge, br_mrp_find_port(br, A) checks
-only p_port, s_port and i_port. So br_mrp_port_del() returns early:
-
-	if (!mrp)
-		return;
-
-br_stp_disable_port()->br_set_state() also returns early:
-
-	if (test_bit(BR_MRP_AWARE_BIT, &p->flags))
-		return;
-
-As a result, A stays FORWARDING.
-
-If VLAN filtering is disabled at runtime, br_allowed_ingress() returns
-true without looking at the unpublished VLAN group. A frame that arrives
-between br_fdb_cleanup_by_dst() and netdev_rx_handler_unregister() is then
-learned with dst == A. Nothing flushes that entry before
-call_rcu(&p->rcu, destroy_nbp_rcu). A later frame to that MAC would reach
-br_forward() with the freed port.
-
-This looks like the same use-after-free as the one in the changelog. It
-needs no reader preemption, only traffic during the teardown window.
-
-Should teardown force the port out of MRP-aware mode, or disable it
-directly, even when no instance references it? Alternatively, should
-br_mrp_set_port_role() avoid orphaning the port it displaces?
-
->  	spin_lock_bh(&br->lock);
->  	br_stp_disable_port(p);
->  	spin_unlock_bh(&br->lock);
-
-[Severity: High]
-Is there still a window here with CONFIG_BRIDGE_VLAN_FILTERING=n?
-
-The fix needs a grace period between br_stp_disable_port() writing
-BR_STATE_DISABLED and the final br_fdb_cleanup_by_dst(br,
-br_port_to_dst(p), 0, 1) in del_nbp(). The only synchronize_net() in that
-window is in nbp_vlan_group_unpublish(). Without VLAN filtering, that
-function is an empty stub:
-
-net/bridge/br_private.h:
-static inline void nbp_vlan_group_unpublish(struct net_bridge_port *port)
-{
-}
-
-Nothing else in the window synchronizes. That includes br_ifinfo_notify(),
-list_del_rcu(), update_headroom() and netdev_reset_rx_headroom().
-
-One possible interleaving:
-
-CPU1 (RX softirq, br_handle_frame_finish())
-    reads p->state and sees FORWARDING
-    passes the BR_STATE_DISABLED check
-
-CPU0 (del_nbp())
-    br_stp_disable_port()
-        br_set_state(p, BR_STATE_DISABLED)
-    br_fdb_cleanup_by_dst(br, br_port_to_dst(p), 0, 1)
-
-CPU1
-    br_fdb_update(br, p, vlan, eth_hdr(skb)->h_source, 0)
-        fdb_create(br, dst, addr, vid, flags)   /* dst == p */
-
-br_fdb_update() does not check the port state again. No FDB flush runs
-after this point: netdev_rx_handler_unregister() only drains, and
-destroy_nbp() does no FDB cleanup. After call_rcu(destroy_nbp_rcu), a
-frame to the learned MAC would reach br_forward() with the freed port.
-
-BRIDGE_MRP and BRIDGE_CFM depend only on BRIDGE. BRIDGE_VLAN_FILTERING is
-default n and depends on VLAN_8021Q. So MRP=y with VLAN_FILTERING=n is a
-valid configuration. The window is short on !PREEMPT_RT, but on PREEMPT_RT
-the softirq reader can be preempted inside it.
-
-This also seems to contradict this line in the changelog: "No frame can
-be learned after that flush and before netdev_rx_handler_unregister()".
-
-Would an unconditional synchronize_net() after br_stp_disable_port() and
-before the final FDB flush close this window?
-
->  
-> -	br_mrp_port_del(br, p);
-> -	br_cfm_port_del(br, p);
-> -
->  	br_ifinfo_notify(RTM_DELLINK, NULL, p);
->  
->  	list_del_rcu(&p->list);
-
+base-commit: ffdf678dd16610e3f006dac904bd37c09684673c
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/179333317814.2102764.8780283783548366593%40gmail.com
+2.54.0 (Apple Git-157)
+
