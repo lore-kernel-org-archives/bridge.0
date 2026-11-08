@@ -1,87 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794153228;
-	b=OB5x6hOtbXPLzti4wVBbuERKL2eRxaWYKK/hZGTJSuCe4NxUvUdGCNgvNvfIqlKySve5
-	 Rb2tkptenR2NaopoLZMfP175LJ+FyqRTA0khEqRgXKVE6V/slDmnctcrWZIhf+Q0gesfy
-	 ZJKKsS4nc3JfbYppgLAhi2G4Nag2sSRk3BwMCyWaJ76OHfNRXdAXFYr1UEMXa/IWE+/Ng
-	 iISKupiZXAzmH5HExl+6yXgCoqPITQ16Itoqv54KzyFdScvqUCGUdPNKP/jPhHdqrVh34
-	 9COQMhbfvpakoXY7f7FAbHvgDpzsgYJvR+JvhGCh04ylW7TqA/YcXImUCrXwLY41pGg==
+	t=1794153229;
+	b=1Tv1iTWm3QLXwFfo9dDD/q9oFDFa0doL6hXobujunEbIMT4HUmL3PrPLMGmL4xjCiP/Y
+	 TI9i4gKTSI9eca3UmJkTX4zUPALEVZsGVmdS+iaHphU+QaIMykft9M0WS0jEfbs6Dkv/k
+	 mh66OFvPz/K5eR1voxrNTDeHOvU8dscTdMehVZNRe7rT9h/++1EYZEGKOVWHbsfQjFY1f
+	 Uc60HlMr26vBwgq0khPx2eP3poI/Sr43VStCMSsIOp+3L07RT1TBxgJmNLo/+DStPFdNW
+	 D+KTL7F1jDQnVXVtyQD1I6diCqWS21v5OLI+BmhMrkZA5ZGVQqPCLxGEROPkw+5qebw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794153228;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794153229;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=puOmjAIPgIiLDy8Ot4FwAIFzyOF16FeUvkFVhIy11VA=;
-	b=dElMDm+UnSJU8fsHZb4N1g5Krc6dPhi/XAU4s3CqFYLQCMkbjaYcTmyTYhHhlicZ6vc6
-	 cUHt49U02WKW07ZvJ/5MYutKMvQA1jOEzmuWYPGusNFB3tyJWo8wmTRxsxPZgOlrq4X7q
-	 NtB/cC6ihDjBWUU8UUrePjbGcMCv8xtKT+54l7YXCtAZESWPlAR6EvIFS814LuRqMqELP
-	 7qOQ841Va94mFeTtEQ8s9SluZrtV+zhV1sN5agsgdxff2aCA3yzlEjrZrjtgWxMGYK2sl
-	 qHxwqlOf5BQqgzQRN/eCwguIA7dhOzvVhN39Gz5Apb644gmjwtGuxCljiA4rJ5JZWcw==
+	bh=FubH8KoHiuIQlI9rasAoR9CVcyoiptaz9tuOv9X2T9A=;
+	b=TJylDfgK2GY3OSrG4D+rNeIbNxvzD2bOMRxYVDYDZQTTsZyq9vfbpBJ46GFkAf8UbCd1
+	 L5RwVOAEJRMsnZYkJxBGCp7YaKg7OVuIfFWBs/d2YjAfL9KFzl6hBT5uhkc181f+877T5
+	 VMKyAgYuo9JU9CLnACOmvate6I272i7joIDEN0ELLg1vrgMb3kqSeQfFVopKhqG6BFtC4
+	 HF+eig2ZKnsCctzgJQJFFYHMmXU9BBO8M9jNvPHaOY3prHkWzcg2O3yLhllo9sJkkfGB2
+	 onMUIYS+aZ0o8VgHZEzKoZ+hNpYREXEkM9FGY0S1XhLf3AOgkm9ZHsG6gDzAOct37Zg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bairaktaris.de;
 	spf=pass smtp.mailfrom=bairaktaris.de;
-	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=rVQyvwLI;
-	arc=none smtp.remote-ip=209.85.208.51
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=QwR56Dqt;
+	arc=none smtp.remote-ip=209.85.218.51
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85007606A334
-	for <bridge@lists.linux.dev>; Sun,  8 Nov 2026 15:53:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 85007606A334
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87F1D606D806
+	for <bridge@lists.linux.dev>; Sun,  8 Nov 2026 15:53:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 87F1D606D806
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=rVQyvwLI
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-6b7245ab5e2so270115a12.1
-        for <bridge@lists.linux.dev>; Sun, 08 Nov 2026 07:53:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=QwR56Dqt
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c3fd91337baso25260066b.3
+        for <bridge@lists.linux.dev>; Sun, 08 Nov 2026 07:53:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bairaktaris.de; s=google; t=1794153226; x=1794758026; darn=lists.linux.dev;
+        d=bairaktaris.de; s=google; t=1794153227; x=1794758027; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=puOmjAIPgIiLDy8Ot4FwAIFzyOF16FeUvkFVhIy11VA=;
-        b=rVQyvwLIFlMQnMF2uac+RNSZnNdOkLPpBLZMHpeOBGHoHEr1OZ5dXUM6MHuHRxlK3+
-         6nfikOZGLDko2tb7MyFXddMSmZgwKp89F8Iue9MFSE6va82vZVjrLyqvQLhn+J07r+BT
-         PWRqtiJ2/5ciP0uVyp/6SrK4bGF2PbV95IrcL/8ZNkUM/psT6vp0xOm288wvBhWXM12k
-         RL7jlANBt9+SLKSNuV/lQ1jtYARXUS7mI7XAKox9tg7dvVjN5NYVETDkeagVKIjn5fSS
-         LmZMbefIQB8mTuEnoSPqB7NvlA162Uqub/bydtfeXdVu1PeByw0i/8urrf5HJY1s5N92
-         yCxw==
+        bh=FubH8KoHiuIQlI9rasAoR9CVcyoiptaz9tuOv9X2T9A=;
+        b=QwR56DqtOkw7EuwwTrymyskVyc7SHlpnJHcrDaxkFGxujgtV6KOVO8G41Aaa3FZ1+b
+         TJKBjS1rHBqhYaz8vaAJ2tJWUOOfcj96fs177FpIdqJ7QERHh9o92OUD1AY08nTd0mhx
+         Uzltr1bEe3TchiZ2EsMg7rjtMRXRc70F45BEurdFDUJOA3MBI2kXE3dOxb5R0xz5FhtD
+         f6LiuJL0wcpQjVhgRXQ0hjmyblFdQgmhsTyjRnpS3+dKlY2BXNO+e24txgdXMOOdICGc
+         Ybqz0GeUDYVHBH3VWt2R5rHLqvniUNvUtmZzwxLP+RgAEyBnRy6EuEiPOGrr5POkTAsE
+         8T1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794153226; x=1794758026;
+        d=1e100.net; s=20260707; t=1794153227; x=1794758027;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=puOmjAIPgIiLDy8Ot4FwAIFzyOF16FeUvkFVhIy11VA=;
-        b=DoAbs8BvcifPl4ezW2mKB0VvplzRHaLpPoV+YGdYp72HixflDaITYrWZtZz4CgCxGT
-         AGxzkZRruUD5hhpcwR6IAMPai00qtEXcB9xx8RA1E19ZVEJcjPd0T7hyt655riaEO3/L
-         bqT0qbZrcqDMnUFCG/aIHKGEUqn0Sx/SJ0XxDSBFE+6WgmexqPlZ0EMxiRKWgLI/RX+N
-         5GOIEmC954/53hnZE028VlL2RQWzWALx9ZA+GuABaU7XBl8dSiIAoJIiasI8stWcrw1X
-         0yy6LCFK5Gy84Bjg2KRtgrrIRrWaZ1U+yNarhfaZXwyCLyy1lcX27REB67vj8icP5Vyf
-         44Vw==
-X-Forwarded-Encrypted: i=1; AL+hErETpnriZUXX7SGnRv6AEvys0Xl7bQn36+6vZmdpC1a6nJ74i8VtO4m8Tz16I6xed/Kk11yas6o=@lists.linux.dev
-X-Gm-Message-State: APuU4Z+JafIig4dzk3Mbh0TwnW68GAxKUYjew8xd4GYWZ42fFMZpoKVV
-	zzUVCg+PCt1wXXqUT67HqbobW3lqe17ktkfatIJA9OJEM+f1xpM/bXWAs9BGJMLpUg==
-X-Gm-Gg: AYBFou0UVAAmPN6ohYf0eX1frwlODfZbUlOLd8+8hSlf9XI14Dr2leyPEh4B5oRXOcA
-	bnD0RHXSYhRaykwG6wJYEAFd02PASUk2Y/0LDS1B4+IRZA6Jn1bPIY8C3rvj7O2mVzizTOtXdJw
-	t+bYbBW14dy38GXW7lk6GdgQFDtiN0qxF9xN/hd9MP0sjFNNEsEcMhDSNJQuNc+/OR+DhmobiLW
-	pgCS3Yu29W0DXpA/YrwkCAM6NYym7mKPX/zjkwhysLnii8hHASKyHWPi6zHc7TPgBlpFr+bQWWY
-	M6kECQN7yvPAx5+HE0N8/q8I33nafm1MIL9mKYaIBJAmb0fE89F9U+IE9L83V/HCBbV7qJWE40A
-	8tSNFCyQv6TIW5q38Lh8igLJKKuqc8U0HDTgSUp902nUJn94pawiflTNrpPSJwHuJlXNcNQLgXO
-	1/RmaCmyFPmB7lMLbpX5ICKmSZ2X3azVBTzuUei3OBCw99D1qdTbZi/XEIE64IKNwLh44+0ImZ4
-	hnkEjP89H3Kcg7U2GL06aO52+aKM9pItTP/ihlTLfpeicl+/xus3o+FTk3/ja8QGOCwmafHHBm0
-	GaiONrzB2m8IYIqLj6GojUnWtJXCA/Hg8ZXuNNugIni/0rMmspdx0UdnrybxKzJ2bRkxsTKAEnE
-	7FX8nPLpWralfRE7bMaQVmPlae9rI8MtviNiHLGNkpnriRUAEPE3zyL18f7fxDseNOAcZ7uimue
-	pRoyVkup7WFZqGma9hv7b8BqrUU7JUgYsS1mJbnl0QlpaDlMmKCyDf9PgRMMOqsNyaBHsWlGhGl
-	50KqKawhqOmbko8mCqPD4Zx4PQ0rGYL0KmSwN5X/dNlZJtXTl+paFvKUDjHlskhwFDDf5q4Q3dn
-	hteSjeN/OtahM1MbHVMxejsBWV3kQYCo8cHCpueh
-X-Received: by 2002:a17:907:94cc:b0:c48:a838:c17e with SMTP id a640c23a62f3a-c4d5278459amr262933366b.14.1794153225978;
-        Sun, 08 Nov 2026 07:53:45 -0800 (PST)
+        bh=FubH8KoHiuIQlI9rasAoR9CVcyoiptaz9tuOv9X2T9A=;
+        b=XdtERq56yYM0BbwgUkcz9BXds8PqR90jTFpF5CmdtBni77+dnGk5ycyjov0M/b3DQL
+         dOPb3FaTIxdQN5j+2WnjupeONJMwMs/q01yYZDf+L/cQWjPJpivCxvOMYyIsKrzpStEi
+         MHQkwH4csiUuHH+yDVQt5U8J9bTDSRVeh2Eh8C60jdnR/vd4ZQS4xLx/xVfFesxpIlKR
+         ZqL4J9V+VoPc9ORaxrX49bwPhPpeOMP2a+JDHrPwrjBFBkRFIdEuRkLGkCziA9F6VSS9
+         UmFN4b/SRPff1PnlAUk/e9tIoWbSHdFLePfWw+KmZ+vLS2rK4Bo3a8sR2Gwm3XPwWfm2
+         Shrg==
+X-Forwarded-Encrypted: i=1; AL+hErHM/03qACIiwCWgJPK1/3Jtzm7wVZlOrw0vACwGY0XB2CLKxIhXEbgUeFSTSu9vMPke6zMQGUk=@lists.linux.dev
+X-Gm-Message-State: APuU4Z8+45qwPB2nbAgRxKuWXOwPOwvyRpHbPtRIhdPX3ACRmT79Huco
+	AbdwIqxkFA3bCFdQ955dUGMrVOt5SHJdhm1qwZdW7GTrykuhLTByBads+gwZTTKu3g==
+X-Gm-Gg: AYBFou2alhcyV+IJcFqMPkCm7hoYZnv7POr5xQ/AIEEKqO+wl+PShuwdlp26Umbu+Bz
+	v515mgFgBIX4IM+FQhKY6aoZEgmpVh/ngDBZKb+mfbamWEURLtcCQP3YQvTxUTa6EfZTZ5YbLEQ
+	2XOZHa2SCCj6IHRzDoyh/Y0Ryf2XEnIv6RtubK6IkCgOdv6PNIarBQ8bOftElp7MYeetY3VN74p
+	JpDmmj4e3REX/7f9wM52iSPem5TTVVf+tRdCXHWrOK6wB6lqogNpmmq4db3JHkbwFSvTtvsaPZy
+	EQeVGbfU0NR5FVW3k6qnkCBcVYM0hlK/T3+mQBFFnxg8MfYj21xzPe5ZjmiyZggtD+sJLZhR218
+	88IUKNmhikiaASJ4l1sVAMGuclATgcbkK+U1F7Y4OMTOQRITNk4h8prZnmzBhbHLBXvVbCGBLSq
+	tghZZv9VEgoSQZP55vjPf1WFaSn5BeIGuQ8PLYXTeWvkTjYtQSZPnbsPJjdm1aMnnN90VceJf2z
+	qKruBwJ16Qyd2wXZHiNtoHUMmzLxjpPN2RFlO9gwXKoAgO4KXzXNgoudNCEhrDDmKZIGuKBaVVP
+	3bwUhAnYlqv+3IJY9BuT2nFk6IFSTLxhavQ5K0+jjIEsYu2K6ozYNHVIE74px6KckBMlxvfKmxu
+	H8Em3txJf3TLk8MyDSjk1jb0UFgj6DJLOdY5FL/B5UQ+YquLjkOUJNyOUqcjr6DfYUGtETzVRUw
+	9qMxq7tf2i2JlmjvC6NUaHGLQjzCQnWGwqIn7rM66hQXJcUlN+8mWugaWd8drkbRm2378XkmSiv
+	k+x4nFlyX/cM+HhXTREKHvO7ggpCU724plAdAQ50pxTpYWVkbtUmVOf0o6ldEqNcz0Nh/RUGJjO
+	6dcqQ3IBMy9m7vOGwgw=
+X-Received: by 2002:a17:907:2d13:b0:c4d:331c:2e97 with SMTP id a640c23a62f3a-c4d6d7d957dmr125306866b.36.1794153226811;
+        Sun, 08 Nov 2026 07:53:46 -0800 (PST)
 Received: from Desktop (p54aff56f.dip0.t-ipconnect.de. [84.175.245.111])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d68d52f4bsm71648166b.8.2026.11.08.07.53.44
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d68d52f4bsm71648166b.8.2026.11.08.07.53.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Nov 2026 07:53:45 -0800 (PST)
+        Sun, 08 Nov 2026 07:53:46 -0800 (PST)
 From: Julius Bairaktaris <julius@bairaktaris.de>
 To: netfilter-devel@vger.kernel.org
 Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
@@ -98,9 +98,9 @@ Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
 	Eric Woudstra <ericwouds@gmail.com>,
 	netdev@vger.kernel.org,
 	bridge@lists.linux.dev
-Subject: [PATCH nf-next v9 1/2] netfilter: flowtable: tear down direct xmit flows when the fdb entry moves
-Date: Sun,  8 Nov 2026 16:53:43 +0100
-Message-ID: <20261108155344.35845-2-julius@bairaktaris.de>
+Subject: [PATCH nf-next v9 2/2] selftests: netfilter: nft_flowtable.sh: roam a host between two bridge ports
+Date: Sun,  8 Nov 2026 16:53:44 +0100
+Message-ID: <20261108155344.35845-3-julius@bairaktaris.de>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261108155344.35845-1-julius@bairaktaris.de>
 References: <20261108155344.35845-1-julius@bairaktaris.de>
@@ -115,343 +115,285 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+Move a host to another port of a bridge on the router while its flow is
+offloaded, and check that the transfer continues and is offloaded again.
+The cases are plain and vlan bridge ports, vlan ports whose real devices
+are ports of another bridge, "bridge fdb replace", a pinned and then
+deleted fdb entry, an aged out entry (the flow must stay), the plain
+case over IPv6, and a vlan_filtering bridge with untagged ports, with
+tagged plain and vlan ports, and with the router address on a vlan
+device on the bridge. The last case makes a vlan device of another
+bridge the bridge port.
 
-A direct xmit flow that reaches a bridge port keeps sending to that port
-when the host moves to another port of the bridge, and packets from the
-other side keep the flow from timing out.
+Without the gc check the transfer stalls when the host moves.
 
-The gc now checks the fdb entry next to the dst check, through
-nf_br_utils_hook, and tears the flow down when the entry points to
-another port. An entry that aged out does not tear it down, because
-offloaded packets do not refresh it.
-
-One possibility to address this issue is to subscribe to
-SWITCHDEV_FDB_DEL_TO_DEVICE event notifications, however, this requires
-iterating over the whole flowtable whenever a fdb entry is removed.
-
-The bridge port is found from out.ifidx through the vlan devices that
-the forward path has below the port. The vid is the bridge vlan in the
-encap stack, or the pvid of the port for an untagged port of a
-vlan_filtering bridge.
-
-Reported-by: Eric Woudstra <ericwouds@gmail.com>
-Link: https://lore.kernel.org/netfilter-devel/20250925182623.114045-1-ericwouds@gmail.com/
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-[julius@bairaktaris.de: find the bridge port below the vlan devices of the
- path, take the vid from a bridge vlan or the port pvid, keep a flow whose
- entry aged out, check the bridge the flow transmits on, follow struct
- net_bridge_dst, build br_nf_utils.o only with the flowtable]
-Link: https://lore.kernel.org/netfilter-devel/20261014210256.1573072-1-pablo@netfilter.org/
 Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
 ---
- include/linux/netfilter.h             |  7 +++++
- include/net/netfilter/nf_flow_table.h |  8 ++++-
- net/bridge/Makefile                   |  2 ++
- net/bridge/br.c                       |  2 ++
- net/bridge/br_nf_utils.c              | 38 ++++++++++++++++++++++
- net/bridge/br_private.h               | 13 ++++++++
- net/netfilter/core.c                  |  3 ++
- net/netfilter/nf_flow_table_core.c    | 45 +++++++++++++++++++++++++--
- net/netfilter/nf_flow_table_path.c    | 20 ++++++++++--
- 9 files changed, 133 insertions(+), 5 deletions(-)
- create mode 100644 net/bridge/br_nf_utils.c
+ .../selftests/net/netfilter/nft_flowtable.sh  | 251 ++++++++++++++++++
+ 1 file changed, 251 insertions(+)
 
-diff --git a/include/linux/netfilter.h b/include/linux/netfilter.h
-index e99afc1414cd3..be85d8f68b452 100644
---- a/include/linux/netfilter.h
-+++ b/include/linux/netfilter.h
-@@ -67,6 +67,13 @@ static inline void nf_inet_addr_mask(const union nf_inet_addr *a1,
- #endif
- }
+diff --git a/tools/testing/selftests/net/netfilter/nft_flowtable.sh b/tools/testing/selftests/net/netfilter/nft_flowtable.sh
+index 449c518bd947d..ed6eb2e3204ed 100755
+--- a/tools/testing/selftests/net/netfilter/nft_flowtable.sh
++++ b/tools/testing/selftests/net/netfilter/nft_flowtable.sh
+@@ -851,6 +851,257 @@ test_ipip
  
-+struct nf_br_utils {
-+	bool (*fdb_valid_dst)(const struct net_device *dev,
-+			      const unsigned char *addr, u16 vid);
-+};
-+
-+extern const struct nf_br_utils __rcu *nf_br_utils_hook;
-+
- int netfilter_init(void);
+ test_bridge
  
- struct sk_buff;
-diff --git a/include/net/netfilter/nf_flow_table.h b/include/net/netfilter/nf_flow_table.h
-index 5b22d31cb1407..220ece9490e8e 100644
---- a/include/net/netfilter/nf_flow_table.h
-+++ b/include/net/netfilter/nf_flow_table.h
-@@ -153,6 +153,9 @@ struct flow_offload_tuple {
- 					xmit_type:3,
- 					encap_num:2,
- 					needs_gso_segment:1,
-+					bridge_path:1,
-+					bridge_vlan:1,
-+					port_vlans:2,
- 					tun_num:2,
- 					in_vlan_ingress:2;
- 	u16				mtu;
-@@ -235,7 +238,10 @@ struct nf_flow_route {
- 			u32			hw_ifindex;
- 			u8			h_source[ETH_ALEN];
- 			u8			h_dest[ETH_ALEN];
--			u8			needs_gso_segment:1;
-+			u8			needs_gso_segment:1,
-+						bridge_path:1,
-+						bridge_vlan:1,
-+						port_vlans:2;
- 		} out;
- 		enum flow_offload_xmit_type	xmit_type;
- 	} tuple[FLOW_OFFLOAD_DIR_MAX];
-diff --git a/net/bridge/Makefile b/net/bridge/Makefile
-index 1203dc19e15c9..fc53c332246de 100644
---- a/net/bridge/Makefile
-+++ b/net/bridge/Makefile
-@@ -14,6 +14,8 @@ bridge-$(CONFIG_SYSFS) += br_sysfs_if.o br_sysfs_br.o
- 
- bridge-$(subst m,y,$(CONFIG_BRIDGE_NETFILTER)) += br_nf_core.o
- 
-+bridge-$(subst m,y,$(CONFIG_NF_FLOW_TABLE)) += br_nf_utils.o
-+
- br_netfilter-y := br_netfilter_hooks.o
- br_netfilter-$(subst m,y,$(CONFIG_IPV6)) += br_netfilter_ipv6.o
- obj-$(CONFIG_BRIDGE_NETFILTER) += br_netfilter.o
-diff --git a/net/bridge/br.c b/net/bridge/br.c
-index d9a39ff98868d..c0618ef6dac5c 100644
---- a/net/bridge/br.c
-+++ b/net/bridge/br.c
-@@ -458,6 +458,7 @@ static int __init br_init(void)
- 		goto err_out6;
- 
- 	brioctl_set(br_ioctl_stub);
-+	br_nf_utils_init();
- 
- #if IS_MODULE(CONFIG_BRIDGE_NETFILTER)
- 	pr_info("bridge: filtering via arp/ip/ip6tables is no longer available "
-@@ -486,6 +487,7 @@ static int __init br_init(void)
- 
- static void __exit br_deinit(void)
- {
-+	br_nf_utils_fini();
- 	stp_proto_unregister(&br_stp_proto);
- 	br_netlink_fini();
- 	unregister_switchdev_blocking_notifier(&br_switchdev_blocking_notifier);
-diff --git a/net/bridge/br_nf_utils.c b/net/bridge/br_nf_utils.c
-new file mode 100644
-index 0000000000000..300bce6c1b0b8
---- /dev/null
-+++ b/net/bridge/br_nf_utils.c
-@@ -0,0 +1,38 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/netdevice.h>
-+#include <linux/netfilter.h>
-+
-+#include "br_private.h"
-+
-+static bool nf_br_fdb_valid_dst(const struct net_device *dev,
-+				const unsigned char *addr, u16 vid)
++# Roam a host between two ports of a bridge on the router while its flow is
++# offloaded, as a station moving between two access points attached to ports
++# of one bridge. The host keeps its address and mac on a bridge of its own
++# and roams by moving that bridge's port, so only the fdb changes. With a vid
++# the bridge ports are vlan devices, whose ifindex differs from the device
++# the flow transmits on. With "replace" the router's fdb entry is sticky and
++# the move is a "bridge fdb replace". With "del" the host stays, its entry is
++# pinned to the other port and then deleted, and a ping relearns it. With
++# "age" the host stays and its entry ages out, which must not tear the flow
++# down. A flow that stays on the fast path leaves no more than a few packets
++# in the forward chain, the counter tells offloaded from slow path. The
++# plain roam also runs over IPv6, and on a vlan_filtering bridge: with
++# untagged ports ("vf"), whose fdb entries are keyed by the pvid of the
++# port, with tagged ports ("tag"), and with untagged ports and the router
++# address on a vlan device on the bridge ("upper"). With "stack" the port of
++# br0 is a vlan device on br1, whose ports the host moves between.
++test_bridge_roam()
 +{
-+	const struct net_bridge_fdb_entry *f;
-+	const struct net_bridge_port *p;
++	local vid=$1 how=$2 fam=${3:-4} vf=$4 trunk=$5
++	local p0=sr0 p1=sr1 r0=rr0 r1=rr1 rbr=br0
++	local mac=02:00:00:09:01:99
++	local what="roaming on bridge${vf:+ with vlan_filtering}"
++	[ "$vf" = tag ] && what="$what and tagged ports"
++	[ "$vf" = upper ] && what="$what and a vlan device on the bridge"
++	what="$what${vid:+ with vlan ports}${how:+ by fdb $how}"
++	[ "$trunk" = trunk ] &&
++		what="$what whose real devices are ports of another bridge"
++	[ "$trunk" = stack ] && what="$what on a vlan device of another bridge"
++	local hn=10.9.1 wn=10.9.2 dot=. len=24 nodad="" ip6="" srv=10.9.2.99
++	local min=10000000
++	local dev old new slow fdb lpid cpid win=2
 +
-+	p = br_port_get_check_rcu(dev);
-+	if (!p)
-+		return false;
++	if [ "$fam" = 6 ]; then
++		hn=dead:9:1 wn=dead:9:2 dot=:: len=64 nodad=nodad ip6=-6
++		srv="[dead:9:2::99]"
++		what="$what over IPv6"
++	fi
 +
-+	if (!vid && br_opt_get(p->br, BROPT_VLAN_ENABLED))
-+		vid = br_get_pvid(nbp_vlan_group_rcu(p));
++	setup_ns rns1 rnsr rns2
 +
-+	/* Offloaded packets do not refresh the entry, it can age out. */
-+	f = br_fdb_find_rcu(p->br, addr, vid);
++	if ! ip -net "$rnsr" link add br0 type bridge ${vf:+vlan_filtering 1} 2>/dev/null; then
++		echo "SKIP: could not add bridge for $what"
++		[ "$ret" -eq 0 ] && ret=$ksft_skip
++		return
++	fi
 +
-+	return !f || br_fdb_dst_port(f) == p;
++	ip link add sr0 netns "$rns1" type veth peer name rr0 netns "$rnsr"
++	ip link add sr1 netns "$rns1" type veth peer name rr1 netns "$rnsr"
++	ip link add rw0 netns "$rnsr" type veth peer name w0 netns "$rns2"
++	for dev in sr0 sr1; do
++		ip -net "$rns1" link set "$dev" up
++	done
++	for dev in rr0 rr1; do
++		ip -net "$rnsr" link set "$dev" up
++	done
++
++	if [ -n "$vid" ]; then
++		for dev in sr0 sr1; do
++			ip -net "$rns1" link add link "$dev" name "$dev.$vid" type vlan id "$vid"
++			ip -net "$rns1" link set "$dev.$vid" up
++		done
++		p0=sr0.$vid; p1=sr1.$vid
++	fi
++	if [ -n "$vid" ] && [ "$trunk" != stack ]; then
++		for dev in rr0 rr1; do
++			ip -net "$rnsr" link add link "$dev" name "$dev.$vid" type vlan id "$vid"
++			ip -net "$rnsr" link set "$dev.$vid" up
++		done
++		r0=rr0.$vid; r1=rr1.$vid
++	fi
++	if [ -n "$trunk" ]; then
++		ip -net "$rnsr" link add br1 type bridge
++		ip -net "$rnsr" link set rr0 master br1
++		ip -net "$rnsr" link set rr1 master br1
++		ip -net "$rnsr" link set br1 up
++	fi
++	if [ "$trunk" = stack ]; then
++		ip -net "$rnsr" link add link br1 name br1.$vid type vlan id "$vid"
++		ip -net "$rnsr" link set br1.$vid up
++		r0=br1.$vid; r1=br1.$vid
++	fi
++
++	ip -net "$rnsr" link set "$r0" master br0
++	ip -net "$rnsr" link set "$r1" master br0
++	ip -net "$rnsr" link set br0 up
++	if [ "$vf" = tag ]; then
++		for dev in "$r0" "$r1"; do
++			bridge -n "$rnsr" vlan add vid 10 dev "$dev"
++		done
++		bridge -n "$rnsr" vlan add vid 10 dev br0 self pvid untagged
++		for dev in "$p0" "$p1"; do
++			ip -net "$rns1" link add link "$dev" name "$dev.10" type vlan id 10
++			ip -net "$rns1" link set "$dev.10" up
++		done
++		p0=$p0.10; p1=$p1.10
++	elif [ "$vf" = upper ]; then
++		for dev in "$r0" "$r1"; do
++			bridge -n "$rnsr" vlan add vid 10 dev "$dev" pvid untagged
++		done
++		bridge -n "$rnsr" vlan add vid 10 dev br0 self
++		ip -net "$rnsr" link add link br0 name br0.10 type vlan id 10
++		ip -net "$rnsr" link set br0.10 up
++		rbr=br0.10
++	fi
++	ip -net "$rnsr" addr add $hn${dot}1/$len dev $rbr $nodad
++	ip -net "$rnsr" addr add $wn${dot}1/$len dev rw0 $nodad
++	ip -net "$rnsr" link set rw0 up
++	ip netns exec "$rnsr" sysctl -q net.ipv4.ip_forward=1
++	ip netns exec "$rnsr" sysctl -q net.ipv6.conf.all.forwarding=1
++
++	ip -net "$rns1" link add stbr type bridge
++	ip -net "$rns1" link set stbr address $mac
++	ip -net "$rns1" link set "$p0" master stbr
++	ip -net "$rns1" link set stbr up
++	ip -net "$rns1" addr add $hn${dot}99/$len dev stbr $nodad
++	ip $ip6 -net "$rns1" route add default via $hn${dot}1
++
++	ip -net "$rns2" addr add $wn${dot}99/$len dev w0 $nodad
++	ip -net "$rns2" link set w0 up
++	ip $ip6 -net "$rns2" route add default via $wn${dot}1
++
++	# no neighbour probes, so the host only sends when it receives
++	ip -net "$rnsr" neigh replace $hn${dot}99 lladdr $mac nud permanent dev $rbr
++	ip -net "$rns1" neigh replace $hn${dot}1 nud permanent dev stbr \
++		lladdr "$(ip -net "$rnsr" -br link show br0 | awk '{print $3}')"
++
++	if ! ip netns exec "$rnsr" nft -f - <<EOF
++table inet filter {
++  counter roam_repl { }
++  flowtable f1 { hook ingress priority 0; devices = { rr0, rr1, rw0 }; }
++  chain forward {
++    type filter hook forward priority 0; policy accept;
++    meta oif "rw0" tcp dport 12345 flow add @f1
++    meta iif "rw0" tcp sport 12345 counter name roam_repl flow add @f1
++  }
++}
++EOF
++	then
++		echo "SKIP: could not load ruleset for $what"
++		[ "$ret" -eq 0 ] && ret=$ksft_skip
++		return
++	fi
++
++	# the host discards what it receives, its socket byte counter is read
++	rx_bytes() { ip netns exec "$rns1" ss -tin "dst $srv" 2>/dev/null |
++		grep -o 'bytes_received:[0-9]*' | head -1 | cut -d: -f2; }
++	rx_started() { local n; n=$(rx_bytes); [ "${n:-0}" -gt 0 ]; }
++	# forward chain packets of the reply direction since the last call
++	slow_pkts() { ip netns exec "$rnsr" nft reset counter inet filter roam_repl |
++		grep -o 'packets [0-9]*' | cut -d' ' -f2; }
++	roam_listener_ready() { ss -N "$rns2" -lnt -o "sport = :12345" | grep -q 12345; }
++
++	roam_stop() { kill "$cpid" "$lpid" 2>/dev/null; wait "$cpid" "$lpid" 2>/dev/null; }
++
++	timeout $((SOCAT_TIMEOUT * 5)) ip netns exec "$rns2" socat -u \
++		OPEN:/dev/zero TCP$fam-LISTEN:12345,reuseaddr &
++	lpid=$!
++	if ! busywait "$BUSYWAIT_TIMEOUT" roam_listener_ready; then
++		echo "FAIL: $what: listener did not start" 1>&2
++		ret=1
++		kill "$lpid" 2>/dev/null; wait "$lpid" 2>/dev/null
++		return
++	fi
++	timeout $((SOCAT_TIMEOUT * 5)) ip netns exec "$rns1" socat -u \
++		TCP$fam:$srv:12345 OPEN:/dev/null &
++	cpid=$!
++
++	if ! busywait "$BUSYWAIT_TIMEOUT" rx_started; then
++		echo "FAIL: $what: transfer did not start" 1>&2
++		ret=1
++		roam_stop
++		return
++	fi
++	sleep 2
++	slow_pkts > /dev/null
++	old=$(rx_bytes)
++	sleep 2
++	new=$(rx_bytes)
++	slow=$(slow_pkts)
++	if [ -z "$slow" ] || [ $((${new:-0} - ${old:-0})) -lt $min ] ||
++	   [ "$slow" -gt 100 ]; then
++		echo "FAIL: $what: not offloaded before the roam:" \
++		     "$((${new:-0} - ${old:-0})) bytes, ${slow:-no} forward chain packets" 1>&2
++		ret=1
++		roam_stop
++		return
++	fi
++
++	if [ "$how" = age ]; then
++		# ageing_time is in centiseconds
++		ip -net "$rnsr" link set br0 type bridge ageing_time 200
++		win=10
++	elif [ "$how" = del ]; then
++		bridge -n "$rnsr" fdb replace $mac dev "$r1" master static sticky
++		sleep 2
++		bridge -n "$rnsr" fdb del $mac dev "$r1" master static
++		ip netns exec "$rns1" ping $ip6 -c 2 -W 1 -q $hn${dot}1 >/dev/null 2>&1
++	else
++		# roam: move the host bridge to the other port and send on it
++		if [ "$how" = replace ]; then
++			bridge -n "$rnsr" fdb replace $mac dev "$r0" master static sticky
++		fi
++		ip -net "$rns1" link set "$p0" nomaster
++		ip -net "$rns1" link set "$p1" master stbr
++		ip netns exec "$rns1" ping $ip6 -c 2 -W 1 -q $hn${dot}1 >/dev/null 2>&1
++		if [ "$how" = replace ]; then
++			bridge -n "$rnsr" fdb replace $mac dev "$r1" master static sticky
++		fi
++	fi
++
++	# the bytes in flight at the roam drain within the first seconds; a
++	# stale flow delivers nothing after that, a torn down one resumes and
++	# is offloaded again.
++	sleep 4
++	old=$(rx_bytes)
++	sleep 4
++	new=$(rx_bytes)
++	slow_pkts > /dev/null
++	sleep $win
++	slow=$(slow_pkts)
++	# before the host's FIN passes the bridge and relearns the entry
++	fdb=$(bridge -n "$rnsr" fdb show br br0 | grep "$mac.*master")
++	roam_stop
++
++	if [ "$how" = age ] && [ -n "$fdb" ]; then
++		echo "FAIL: $what: the host's fdb entry did not age out" 1>&2
++		ret=1
++	elif [ $((${new:-0} - ${old:-0})) -lt $min ]; then
++		echo "FAIL: $what: transfer stalled after the roam" 1>&2
++		ret=1
++	elif [ "$slow" != 0 ]; then
++		echo "FAIL: $what: $slow forward chain packets after the roam" 1>&2
++		ret=1
++	else
++		echo "PASS: flow offload for $what"
++	fi
 +}
 +
-+static const struct nf_br_utils nf_br_utils = {
-+	.fdb_valid_dst	= nf_br_fdb_valid_dst,
-+};
++test_bridge_roam ""
++test_bridge_roam 100
++test_bridge_roam "" replace
++test_bridge_roam "" del
++test_bridge_roam "" age
++test_bridge_roam "" "" 6
++test_bridge_roam "" "" 4 vf
++test_bridge_roam "" "" 4 tag
++test_bridge_roam 100 "" 4 tag
++test_bridge_roam 100 "" 4 "" trunk
++test_bridge_roam 100 "" 4 "" stack
++test_bridge_roam "" "" 4 upper
 +
-+void br_nf_utils_init(void)
-+{
-+	rcu_assign_pointer(nf_br_utils_hook, &nf_br_utils);
-+}
-+
-+void br_nf_utils_fini(void)
-+{
-+	RCU_INIT_POINTER(nf_br_utils_hook, NULL);
-+}
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 014d0b8db8c73..3b68f8d85672b 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -2165,6 +2165,19 @@ struct nf_br_ops {
- };
- extern const struct nf_br_ops __rcu *nf_br_ops;
- 
-+#if IS_ENABLED(CONFIG_NF_FLOW_TABLE)
-+void br_nf_utils_init(void);
-+void br_nf_utils_fini(void);
-+#else
-+static inline void br_nf_utils_init(void)
-+{
-+}
-+
-+static inline void br_nf_utils_fini(void)
-+{
-+}
-+#endif
-+
- /* br_netfilter.c */
- #if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
- int br_nf_core_init(void);
-diff --git a/net/netfilter/core.c b/net/netfilter/core.c
-index 44c856c1e621c..92e9852c80c0c 100644
---- a/net/netfilter/core.c
-+++ b/net/netfilter/core.c
-@@ -814,6 +814,9 @@ static struct pernet_operations netfilter_net_ops = {
- 	.exit = netfilter_net_exit,
- };
- 
-+const struct nf_br_utils __rcu *nf_br_utils_hook;
-+EXPORT_SYMBOL_GPL(nf_br_utils_hook);
-+
- int __init netfilter_init(void)
- {
- 	int ret;
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 0d72dc8ae47a1..113580adf10d3 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -5,6 +5,7 @@
- #include <linux/netfilter.h>
- #include <linux/rhashtable.h>
- #include <linux/netdevice.h>
-+#include <linux/if_vlan.h>
- #include <net/ip.h>
- #include <net/ip6_route.h>
- #include <net/netfilter/nf_tables.h>
-@@ -139,6 +140,9 @@ static int flow_offload_fill_route(struct flow_offload *flow,
- 		memcpy(flow_tuple->out.h_source, route->tuple[dir].out.h_source,
- 		       ETH_ALEN);
- 		flow_tuple->out.ifidx = route->tuple[dir].out.ifindex;
-+		flow_tuple->bridge_path = route->tuple[dir].out.bridge_path;
-+		flow_tuple->bridge_vlan = route->tuple[dir].out.bridge_vlan;
-+		flow_tuple->port_vlans = route->tuple[dir].out.port_vlans;
- 		break;
- 	case FLOW_OFFLOAD_XMIT_XFRM:
- 	case FLOW_OFFLOAD_XMIT_NEIGH:
-@@ -572,6 +576,43 @@ static void nf_flow_table_extend_ct_timeout(struct nf_conn *ct)
- 	nf_ct_put(ct);
- }
- 
-+static bool nf_flow_dst_valid(struct nf_flowtable *flow_table,
-+			      struct flow_offload *flow, int dir)
-+{
-+	struct flow_offload_tuple *other = &flow->tuplehash[!dir].tuple;
-+	struct flow_offload_tuple *tuple = &flow->tuplehash[dir].tuple;
-+	struct net *net = read_pnet(&flow_table->net);
-+	const struct nf_br_utils *br_utils;
-+	struct net_device *dev;
-+	bool valid = true;
-+	u16 vid = 0;
-+	int i;
-+
-+	if (!nf_flow_dst_check(tuple))
-+		return false;
-+
-+	if (!tuple->bridge_path)
-+		return true;
-+
-+	rcu_read_lock();
-+	br_utils = rcu_dereference(nf_br_utils_hook);
-+	if (!br_utils)
-+		goto out;
-+
-+	dev = dev_get_by_index_rcu(net, tuple->out.ifidx);
-+	for (i = 0; dev && i < tuple->port_vlans; i++)
-+		dev = __vlan_find_dev_deep_rcu(dev, other->encap[i].proto,
-+					       other->encap[i].id);
-+	if (tuple->bridge_vlan)
-+		vid = other->encap[i].id;
-+
-+	valid = dev && br_utils->fdb_valid_dst(dev, tuple->out.h_dest, vid);
-+out:
-+	rcu_read_unlock();
-+
-+	return valid;
-+}
-+
- static void nf_flow_offload_gc_step(struct nf_flowtable *flow_table,
- 				    struct flow_offload *flow, void *data)
- {
-@@ -584,8 +625,8 @@ static void nf_flow_offload_gc_step(struct nf_flowtable *flow_table,
- 
- 	if (nf_flow_has_expired(flow) ||
- 	    nf_ct_is_dying(flow->ct) ||
--	    !nf_flow_dst_check(&flow->tuplehash[FLOW_OFFLOAD_DIR_ORIGINAL].tuple) ||
--	    !nf_flow_dst_check(&flow->tuplehash[FLOW_OFFLOAD_DIR_REPLY].tuple) ||
-+	    !nf_flow_dst_valid(flow_table, flow, FLOW_OFFLOAD_DIR_ORIGINAL) ||
-+	    !nf_flow_dst_valid(flow_table, flow, FLOW_OFFLOAD_DIR_REPLY) ||
- 	    nf_flow_custom_gc(flow_table, flow)) {
- 		flow_offload_teardown(flow);
- 		teardown = true;
-diff --git a/net/netfilter/nf_flow_table_path.c b/net/netfilter/nf_flow_table_path.c
-index 841f099434d98..cd3098c1d0de6 100644
---- a/net/netfilter/nf_flow_table_path.c
-+++ b/net/netfilter/nf_flow_table_path.c
-@@ -95,7 +95,10 @@ struct nft_forward_info {
- 	u8 ingress_vlans;
- 	u8 h_source[ETH_ALEN];
- 	u8 h_dest[ETH_ALEN];
--	bool needs_gso_segment;
-+	u8 needs_gso_segment:1,
-+	   bridge_path:1,
-+	   bridge_vlan:1,
-+	   port_vlans:2;
- 	enum flow_offload_xmit_type xmit_type;
- };
- 
-@@ -107,7 +110,7 @@ static int nft_dev_path_info(struct net_device_path_stack *stack,
- 			     unsigned char *ha, struct nft_flowtable *ft)
- {
- 	const struct net_device_path *path;
--	int i;
-+	int i, n;
- 
- 	memcpy(info->h_dest, ha, ETH_ALEN);
- 
-@@ -149,6 +152,8 @@ static int nft_dev_path_info(struct net_device_path_stack *stack,
- 				info->encap[info->num_encaps].proto =
- 					path->encap.proto;
- 				info->num_encaps++;
-+				if (info->bridge_path)
-+					info->port_vlans++;
- 			}
- 			if (path->type == DEV_PATH_PPPOE) {
- 				memcpy(info->h_dest, path->encap.h_dest, ETH_ALEN);
-@@ -184,6 +189,14 @@ static int nft_dev_path_info(struct net_device_path_stack *stack,
- 			case DEV_PATH_BR_VLAN_KEEP:
- 				break;
- 			}
-+			info->bridge_path = 1;
-+			info->port_vlans = 0;
-+			n = info->num_encaps;
-+			info->bridge_vlan = path->bridge.vlan_id && n &&
-+					    info->encap[n - 1].id ==
-+					    path->bridge.vlan_id &&
-+					    info->encap[n - 1].proto ==
-+					    path->bridge.vlan_proto;
- 			info->xmit_type = FLOW_OFFLOAD_XMIT_DIRECT;
- 			break;
- 		default:
-@@ -262,6 +275,9 @@ static int nft_dev_forward_path(const struct nft_pktinfo *pkt,
- 	if (info.xmit_type == FLOW_OFFLOAD_XMIT_DIRECT) {
- 		memcpy(route->tuple[dir].out.h_source, info.h_source, ETH_ALEN);
- 		memcpy(route->tuple[dir].out.h_dest, info.h_dest, ETH_ALEN);
-+		route->tuple[dir].out.bridge_path = info.bridge_path;
-+		route->tuple[dir].out.bridge_vlan = info.bridge_vlan;
-+		route->tuple[dir].out.port_vlans = info.port_vlans;
- 		route->tuple[dir].xmit_type = info.xmit_type;
- 	}
- 	route->tuple[dir].out.needs_gso_segment = info.needs_gso_segment;
+ KEY_SHA="0x"$(ps -af | sha1sum | cut -d " " -f 1)
+ KEY_AES="0x"$(ps -af | md5sum | cut -d " " -f 1)
+ SPI1=$RANDOM
 -- 
 2.53.0
 
