@@ -1,63 +1,108 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.47
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794136944;
-	b=xGqFj+D0e7k78JRebaue7rm7bNVk9nbBUJGzUgQ+gpwQhYG32zqztEo/cJWei0m0E9/S
-	 jrrFE49NWdsl4laFyyMSB+MEZf+QB5OFKeQVGYXGy5Q8T8R04WvaiokkjaMqjfd1662/O
-	 YvJwspNugVUOnRE0oeh4KPOlP7FKRmEufmo1Cr32tQU8r1GrezorOtwmE6dgyd0kJwd3E
-	 MBRZOU3kqGdz82b0QrkAUmwyfS0p5G7/LF74yx5w4k9J7cU4RLODGI8WLTGufSvTBnTA/
-	 tTTbeRpYQ+Hlgg2EQNdZRB026WU7lyaPr2KtkF6t+Y7UNpXFESLuDsaymBB9pZ2Iz8Q==
+	t=1794138454;
+	b=zO8FkWVc3yDiSUER256KVOPbI1UqJJFpu4FbNfnQP3tMFvLw8OS1UvJhTuRUrD0QTO0T
+	 e9QNh9ja9jn3tIyFYJGfGnKfAibYEwOxIPGFVqpXbNy8HCsCUAGPXHQAmhT1NeJ0GTreZ
+	 jEEK05b1cMCCnvO44SPOqMkpsiAfQfYDqGSzqHWqShf2EAgF9rBcVReQ/ToVMcIgvEDcl
+	 cdYR+C1HKibZXg9Pxfv0jRGjuH1BChV2CDP4Dw6btKKdes0Cfj8pa5CQctiSMLwVJ6TDh
+	 hCn5Jzzz327Me/wSUF3Ti365ilWjn1ghJyqfNXyH/zqEOFgK1pu0VYcyDNeBvrxQ7Xw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794136944;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Auto-Submitted:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	b=g10D/bTzFs/e9X+cpkcbTaKRNVxweDFcaU4JuFcPHM+ip4kIyM2LM1SGlr258TXLvYF2
-	 /DgSO3odIxi5iUBeCNf7kXFforESzjzh0B3h8Lz4vXEOUaOva0yXaIziKxXbn4AfVvyv2
-	 jw51z2j2ixW1d8tx3rc7cZIjDqy4SyRNT9SuT+IMxB46YpiMJ1ynpZZSc1GRn5GKVSDSK
-	 sBcztLMWFEghKqfZmu7tZogvgDnbJ/9tuZ3CVpG5SBLLqoWDEkn5HffteLkGefanFlK9S
-	 b+mquB1JfV42oPgq3wgMCP4DKND8NfW+G2HnE6gNc8YBKO//xacBjJdAJL7GSbShC6w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794138454;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=1Y8EnhS7o4bUUaMd+9kBk4x0A+szwvlZw6MXN768V/Y=;
+	b=2WxD5GPZrPMh1XzLKBZYJb2l3f5xwBQ4AfGSjGOAScmDXLPPVWKim5zY7nj6nGhYgLeb
+	 NFkKL97EakCcD+ghLXBNb7+oBrOqQDFh1UVdblvRyxMBuuxM313vTXYa67AlFYOEazaCs
+	 9CwX6O2Esd2WHwRA+b6Bj7JmVKYPrYhbpHCeyz7XcsEr3S0HYIUYJl45kr9nBKf3mVrmW
+	 Ii6t+io3alKV3B8dcEdFxCwD6paXLDGV6pAXF/7TlbroCsncdT//BHQDog9pD1qvQyc5w
+	 NZXaTcOE0NUHwgSrzarAyTBQhQlRAUQ/erRSzPkx7dQ8vUEAqIVM6nDx1Hc9c3ia6gw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hyzsRi4D;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=bairaktaris.de;
+	spf=pass smtp.mailfrom=bairaktaris.de;
+	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=fdmMnvSJ;
+	arc=none smtp.remote-ip=209.85.218.47
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F8D4606A31C;
-	Sun,  8 Nov 2026 11:22:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEDD3606A323
+	for <bridge@lists.linux.dev>; Sun,  8 Nov 2026 11:47:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DEDD3606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hyzsRi4D
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 724BD1F0089F;
-	Sun,  8 Nov 2026 11:22:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794136943;
-	bh=PJRu7W6/Or1we5Gv3BgoLEtby0D0Y0UGgfjBHfRc5+k=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=hyzsRi4DsM7nNwp5QM/4HFQRr1AY2DxYMZDLzNIiz3oGiwb+geR7hFCaCjc29X91b
-	 3Mn5bMiR45NBlFk4ZNeiV/V7JAhfYhXcrI45xnqVvPZOSWdjPKIQxlR8HwCHzzWgKx
-	 FyhnN9Kbl+ZM6wx2kuONok7nxoGhJKxnGrIGyJjv4c5S3bvsl+VW7sSlBCKIWMdZjY
-	 QGSWJfgfn8KGfMwdle0AG2Ckg/NIzX4PYMoVkVkEnWAdZBgK+w01Y+P22Q2nva08hR
-	 gLoT3MPkOzM2w0neEdf8gL+xqjajVaVlqoIJB5qGo8lKDc5ru5x5b7kR8D7QxhjDcN
-	 A//+mfT42hnUg==
-From: netdev-bot+sinfo@kernel.org
-To: Julius Bairaktaris <julius@bairaktaris.de>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
- Ido Schimmel <idosch@nvidia.com>, Andrew Lunn <andrew@lunn.ch>,
- Vladimir Oltean <olteanv@gmail.com>, netdev@vger.kernel.org,
- bridge@lists.linux.dev, "David S . Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- linux-kernel@vger.kernel.org
-Subject: 
- Re: [PATCH net-next 0/2] net: dsa: fix host fdb refcount when an entry roams
-Date: Sun, 08 Nov 2026 11:22:21 +0000
-Message-ID: <179413694195.488859.17529427355608385770@kernel.org>
-In-Reply-To: <cover.1794134495.git.julius@bairaktaris.de>
-References: <cover.1794134495.git.julius@bairaktaris.de>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=fdmMnvSJ
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c4cb6834eaaso7896266b.2
+        for <bridge@lists.linux.dev>; Sun, 08 Nov 2026 03:47:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bairaktaris.de; s=google; t=1794138452; x=1794743252; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1Y8EnhS7o4bUUaMd+9kBk4x0A+szwvlZw6MXN768V/Y=;
+        b=fdmMnvSJHu0bfGT3U+rof51h1Zr6LSqlVPMuxyCcBiRpbwnab2JsWYSrNTu9xW3YnO
+         COAD9tIdNlXc04Yt4PiNllP4GwPD6eYL65aB9oH0weC8p5KpNqKdFvDXxhu0nlEhtzD/
+         SQUSXv1DaLr5QFVCT/a9eVPm4rizE7wyxA7mU9+KjEmiT8Zr/Zy52IozTy1UPq1LoKD0
+         jkHQyDNPqXn7R7beoMNaJE6OvGjpLlmM6W1suVGCe0Ty5mkJemJqLeaIzS7/3Tuv9QQe
+         T7RAcUS7BSeY16uCbcFjPxLGr5jC84yLj7ateRX08aCTCg9tQFjeoLceVhn6DX6sgIKE
+         xbkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794138452; x=1794743252;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1Y8EnhS7o4bUUaMd+9kBk4x0A+szwvlZw6MXN768V/Y=;
+        b=uRxM9Sab+25Aj2j5Tm7NqawFHOQjDhMJjQGR8CM4EVdTJuuh2hel8ZiAMu52agYw4k
+         Lk2sCqAaIecCC3FWLpQvTbiNUAa6djuo+6YZoPXWAAawLQ7aKWhkE2TBhV8m/qkh71NW
+         iXbcLYsdn70sOBOopm31AzDXfnekJMMCggVgcdBuqsIfQI9yhCiAk5M1ZrdFcZIawgKa
+         Yh+dkwjkotfsMAn2xNIrQchAydZdewxuUtDm+JBXZckl9U6xqB4iGtm/a9FqCVMCCgUw
+         j3FvcbSdlN+VFjFT1RX3CT6gue7ufuh803MJ6kz6PNOcukiUmpo/9dmnu13a6QeVKaQY
+         bvMg==
+X-Forwarded-Encrypted: i=1; AKwUvByAhvJkIa3GkW+f15bmJisgHPUX44mnhIAC4IefNn1gBj+eQgdoqXp9xZSrbYCMe8kbsnybwM4=@lists.linux.dev
+X-Gm-Message-State: APuU4Z9WMHnFScCfQpCcizqR7V3RMQFDZjKPd+NYZkhYTp5BY14FNilN
+	EkPkaiPdRie3QXozVV4CjMNBYZax6rQDibAaejpfwSkc7NPjA/sQ+WpfI7os++ihoIpKPYWjBo6
+	As2QCffs/
+X-Gm-Gg: AYBFou2E97UyXhwlMPSyJmLIXnmx2WR6yRORmGLeMh6Omrl9YOoe0kREI0ck3WinwlB
+	05QNEJIiOQiaLkccmj0S9b7U3T6db+15JmO/YGxZcdKVAOlBrAxnN/Of0yJCnxDqnbZDcaZUbth
+	CdZG2JhbM27/Oc6/s4oOHar7c2IRpFmkkwc0f2dyTD/3jKmB9+LeGb6QrvwB0CHORjvIRqWEfcg
+	EbOuy+NC4Bo1HNYe9NPr/jbx7UDtGuVfMhGVG+wMQuRvxyADLQuUkwQWpxIwCpcLABo9B1WFFkZ
+	QSBPQzz852faNwQhr1JneG+6H96wi+F0Eylne+vxYKpA406yvyObRqhC1ZI854TpdkMz2mstyBk
+	KG+/FKzarL5fEGZzJ0kM142WJkUMFPG6etvJvJtY3jc4mXiALJmFfoudKqhTTwZbLY22/mVFkF4
+	i8myylSkP736bYTbBKlpUBYs0SNzUr77ruka3JtgLFyH50XhRLvfEMo+bsWsAtb3aUacFPGiZrv
+	stNQuOqvj7UlQ1+hADKePHfsfZolVQr8MIRVjNZ78V7snwS6nQbeM2vTLddELxabDif/Z4o9Av+
+	2+zdWUjBhlaSzPMApSiYof8UVkD8Mu7KIVf8pI/x4KEZE3lFBnDfbDQ1TgITOQVx4qQ1nlzreDj
+	Nx8QZuesWccRN2k7ajOz4tSEclab+FHRVWq8RSELxsCxs4Nw9RpUr5nf7I8czkrxp7rsznXNXUM
+	UCLm7GecX03NWk7RTr3KrejXefh64OuBXG1Ci8FWzOwwxNhhymkRpcITuAOiw7omlEidsLihUzL
+	JqxhRDLWBljtlDZ993+wNg8uUlNgUWF9VJmP81EZjOMpQQdj5c+r2phdD/E8u8q2QP8E3POdPLA
+	bySOLsvZ5znSm/C0vA==
+X-Received: by 2002:a17:907:80b:b0:c4d:2cb4:7bbd with SMTP id a640c23a62f3a-c4d6d7c1ac0mr93601366b.47.1794138452222;
+        Sun, 08 Nov 2026 03:47:32 -0800 (PST)
+Received: from Desktop (p54afff19.dip0.t-ipconnect.de. [84.175.255.25])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d6a99320bsm56079066b.67.2026.11.08.03.47.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 Nov 2026 03:47:31 -0800 (PST)
+From: Julius Bairaktaris <julius@bairaktaris.de>
+To: razor@blackwall.org
+Cc: netdev@vger.kernel.org,
+	bridge@lists.linux.dev,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@kernel.org,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	andrew@lunn.ch,
+	olteanv@gmail.com,
+	vladimir.oltean@nxp.com,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] net: bridge: fdb: hold hash_lock when an entry roams
+Date: Sun,  8 Nov 2026 12:47:31 +0100
+Message-ID: <20261108114731.123174-1-julius@bairaktaris.de>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <01600be7-3d8b-48b2-a59a-1125eb452714@blackwall.org>
+References: <20261004124254.3525496-1-julius@bairaktaris.de> <01600be7-3d8b-48b2-a59a-1125eb452714@blackwall.org>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -67,21 +112,22 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi!
+(Resent with the lists on Cc; the first copy went to the To:
+address only.)
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+On 04/10/2026 15:44, Nikolay Aleksandrov wrote:
+> Absolutely not, this was made intentionally. Taking the hash_lock would further kill learning
+> and roaming scaling. Surely switchdev drivers must have dealt with this for some time
+> now, if you'd like to fix it do it so the software path isn't affected.
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+The fix moved to DSA, with br_fdb_update() unchanged: "[PATCH net-next
+0/2] net: dsa: fix host fdb refcount when an entry roams". DSA no longer
+counts the roam events; when it handles each event from its workqueue,
+it looks up where the bridge has the entry. The only bridge change is
+that RCU lookup and the filter it shares with br_switchdev_fdb_notify().
 
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
+https://lore.kernel.org/netdev/cover.1794134495.git.julius@bairaktaris.de/
 
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
+Julius
