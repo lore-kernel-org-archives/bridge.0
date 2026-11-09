@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.202
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.226
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794193170;
-	b=zQ/LRYot+Ob0k1mJEDI1gaBVLFbYkFolIZ8cicsIaIiz9tffCB+voPKAmRMdjjp2P8jA
-	 UGIsxx4WsoiXDoivf/cKgg03Mc9JC9N9vQu23PuRCTywZt525NvQ6ldPxNfhC1IJOpztl
-	 UR6BFZZz4u4hBeg63MDu97Xhq/Ykdx9IF/+QxVVqEVOFtdphKh6ri/IjdnFsayA8AIykP
-	 uacpTuv//Cr5IMryQY8wCBia624dlk7FCpgJaNcm+KkVdRd+zICvMSw8kLmQ73akpRw8a
-	 Gd1n4hWJUsE7vuZZWiJY2exhzSwzZJyaRCycZ8A5EOJnKwpsW+Gc7+yTUYS9Py7Hkeg==
+	t=1794193195;
+	b=kerhNq3IknTQQYv5SuZpVqF6lCWzptgg8MHYtfgtw5FkPNzmCGgPnjzGVC8aN5vBooaC
+	 Gm+j2xWSdnpfczSIb343XUkYUncgEmEYuS4rmFShkT4IB0UVUxF6ZoItTEFF8iXweJa1K
+	 F2gYt1Fl+iaizjVxukVx1AxFeXbAXcPbBYZFxUMCGO5JMqopUU/w1Hea88zXf6x6NDRdI
+	 MI/yLGDqyiBbO3c9bM8FLmuu9zmHE6dQRUlsfmmsHtRw80PBio5LsqeNDZcTR87uZVA4o
+	 K/LnpYR01s/C9KGz2y+yJUeyGDaIyGhFOCucX2atWHzop+kXLKKlIefDEpLtwoRYwHw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794193170;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794193195;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=0LOz5L54nWXPFnHL/Mb3fPQeqh/eofMGeNrfaibpa3c=;
-	b=iHRd9hAasePJWTwWNPYmGBJmiEGcQP/Yy/2WK3IagVIduxsB5I+ZL9U3pcEid+lU2D7z
-	 fCQNJ4+1n4fdepc4oVczGd1TOCqrYSG4eesZXaff4ssSZeO/G+J/L9/j/MQ0Woo3LjFtK
-	 dK8tzATFn2nVmRU+0DkIFgLJUgUTW5tc1vjx+nrWKQaMwU+8mXuGxVSUILj/dS8QH8Npp
-	 vKJUNmoZ3gN2f4qTkM/HIhtMslv+qb176DhMadsP9UaJR/GYZJeZmKxVc31NiJxvvOTJU
-	 N97+8ZOLIsQvizuwSmI5rSvF4TW/2sPQTzaAVi/OZR5rw0qV8Hl+oYQmX8cfWzmiIBQ==
+	bh=UezxR/RVhvOuKMLfKYFtEXdNaCdMZDx1R+ftmuecF3o=;
+	b=RTOhqKeMo6qyc8LHytkWwT3E+S5YJZ3ZmOyG5l6Rt4fQ0upjsG/xR/ZBn0hHQket7BsU
+	 oWBw3B93zeqrJUexMufQCk3ebIWrRP5i5BHXLj1s1zDrLks0Ii8SUJ78DlHS80kv7XHTD
+	 t2RQGI5tEiZRdffDuTarT9TWEF7gfDWqpWhlgTgi/a+Hp33PukQVDCrvbbqzIgasro4qW
+	 aiLDszk7ESo5s8pM/fYa7256JS1bgp8PfG74xbjY3LZ9BBTmQsH4k9rHOyhkurbnRyFD2
+	 zATYAPtmfgTTfwlzoLrig9QxkyHt0/IEBbrRJHvhusmYrMZOtAelFBPF01c8Rrml29g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=ckwWJYna;
-	arc=none smtp.remote-ip=95.215.58.202
-Received: from mta1.migadu.com (out-202.mta1.migadu.com [95.215.58.202])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=MoPa0baO;
+	arc=none smtp.remote-ip=95.215.58.226
+Received: from mta1.migadu.com (out-226.mta1.migadu.com [95.215.58.226])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28888606A330
-	for <bridge@lists.linux.dev>; Mon,  9 Nov 2026 02:59:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 28888606A330
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BDFD606A332
+	for <bridge@lists.linux.dev>; Mon,  9 Nov 2026 02:59:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5BDFD606A332
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=ckwWJYna
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=MoPa0baO
 X-Envelope-To: bridge@lists.linux.dev
-DKIM-Signature: a=rsa-sha256; bh=v8X1DpkjtfbDlgHCJDasGfHlMnkFTI38sTWUwIHdKjY=;
+DKIM-Signature: a=rsa-sha256; bh=wx43d8n0K+8YSmZ04mpxkSU8au8Gzn0GNnkK1AtjfNw=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1794193168; v=1; x=1794797968;
- b=ckwWJYnaim0Q1IIfjBwnZgv/sq+mCLAlHhvNQX8O8FZXVWtRzlYGI/bGRMhzGRrPhRMbO9hl
- FGMN/UNeAIiB7+LxPiP2GgFgHhKUUTyojNYMY/8RTFJzwlRhQoafdpTWruk3mgzL4ZvBYbpLLlu
- HlGw6Dj7Xz09BFe797qFit4U=
+ t=1794193192; v=1; x=1794797992;
+ b=MoPa0baOVxNIrfh9CrrfPmCMAMIBoUMHjj7mObHSlKRGquE4KgSzpsPSSjycYUCbHcn2S2LK
+ lVK/v/fc2+Pul9bBumA+D660lPoX4LNd1zXWsOTFxjSHIrpC0JFdH4FiWSWr5NdMiGowJToXxHe
+ vU0xfxL3UXua3ZBHCwjt3CJA=
 X-Envelope-To: bridge@lists.linux.dev
-Received: by smtp.migadu.com with ESMTPS id c4c637c1dc94c2eb;
-	Mon, 09 Nov 2026 02:59:28 +0000
-X-Mizu-Trace-ID: c4c637c1dc94c2eb
+Received: by smtp.migadu.com with ESMTPS id e327f1cd4dbd98e8;
+	Mon, 09 Nov 2026 02:59:51 +0000
+X-Mizu-Trace-ID: e327f1cd4dbd98e8
 X-Migadu-Flow: FLOW_OUT
 From: Jiayuan Chen <jiayuan.chen@linux.dev>
 To: netdev@vger.kernel.org
@@ -86,9 +86,9 @@ Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
 	rds-devel@oss.oracle.com,
 	linux-sctp@vger.kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH net-next 10/14] netfilter: bridge: annotate data-races around br_netfilter and nf_log sysctls
-Date: Mon,  9 Nov 2026 10:52:09 +0800
-Message-ID: <20261109025425.328445-11-jiayuan.chen@linux.dev>
+Subject: [PATCH net-next 11/14] ipvs: annotate data-races around lblc_expiration and lblcr_expiration
+Date: Mon,  9 Nov 2026 10:52:10 +0800
+Message-ID: <20261109025425.328445-12-jiayuan.chen@linux.dev>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261109025425.328445-1-jiayuan.chen@linux.dev>
 References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
@@ -103,166 +103,42 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-bridge-nf-call-arptables, bridge-nf-call-iptables,
-bridge-nf-call-ip6tables, bridge-nf-filter-vlan-tagged,
-bridge-nf-filter-pppoe-tagged, bridge-nf-pass-vlan-input-dev and
-nf_log_all_netns are read in the packet path without any lock while their
-sysctl handlers update them, and brnf_sysctl_call_tables() normalizes the
-value with a plain write. Add READ_ONCE() to the readers and WRITE_ONCE()
-to that handler.
-
-KCSAN reports it when bridge-nf-call-iptables is changed while packets
-are bridged:
-
-  BUG: KCSAN: data-race in br_nf_pre_routing / do_proc_int_conv
-
-  write (marked) to 0xffff8d7242d8ec50 of 4 bytes by task 824 on cpu 0:
-   do_proc_int_conv+0xa9/0xd0
-   proc_vec_conv+0x21/0x40
-   proc_vec+0x21e/0x6f0
-   proc_dointvec+0x16/0x30
-   brnf_sysctl_call_tables+0x19/0x70
-   proc_sys_call_handler+0x282/0x3a0
-   proc_sys_write+0x13/0x20
-   ...
-
-  read to 0xffff8d7242d8ec50 of 4 bytes by interrupt on cpu 1:
-   br_nf_pre_routing+0x1a9/0x9d0
-   br_handle_frame+0x523/0x990
-   __netif_receive_skb_core.constprop.0+0x3b2/0x1cf0
-   __netif_receive_skb_one_core+0x51/0xe0
-   __netif_receive_skb+0x23/0xb0
-   process_backlog+0x27a/0x950
-   ...
-
-  value changed: 0x00000001 -> 0x00000000
+sysctl_lblc_expiration and sysctl_lblcr_expiration are read without any
+lock while their sysctl handlers update them with WRITE_ONCE(). Add
+READ_ONCE() to the readers.
 
 Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
 ---
- net/bridge/br_netfilter_hooks.c | 20 ++++++++++----------
- net/bridge/netfilter/ebt_log.c  |  2 +-
- net/netfilter/nf_log_syslog.c   |  2 +-
- 3 files changed, 12 insertions(+), 12 deletions(-)
+ net/netfilter/ipvs/ip_vs_lblc.c  | 2 +-
+ net/netfilter/ipvs/ip_vs_lblcr.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index e15355ff215a7..8a47fe4e8eb61 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -94,7 +94,7 @@ static inline bool is_vlan_ip(const struct sk_buff *skb, const struct net *net)
+diff --git a/net/netfilter/ipvs/ip_vs_lblc.c b/net/netfilter/ipvs/ip_vs_lblc.c
+index e1111c3b27211..21bb820e02914 100644
+--- a/net/netfilter/ipvs/ip_vs_lblc.c
++++ b/net/netfilter/ipvs/ip_vs_lblc.c
+@@ -249,7 +249,7 @@ static void ip_vs_lblc_flush(struct ip_vs_service *svc)
+ static int sysctl_lblc_expiration(struct ip_vs_service *svc)
  {
- 	struct brnf_net *brnet = net_generic(net, brnf_net_id);
- 
--	return vlan_proto(skb) == htons(ETH_P_IP) && brnet->filter_vlan_tagged;
-+	return vlan_proto(skb) == htons(ETH_P_IP) && READ_ONCE(brnet->filter_vlan_tagged);
- }
- 
- static inline bool is_vlan_ipv6(const struct sk_buff *skb,
-@@ -103,14 +103,14 @@ static inline bool is_vlan_ipv6(const struct sk_buff *skb,
- 	struct brnf_net *brnet = net_generic(net, brnf_net_id);
- 
- 	return vlan_proto(skb) == htons(ETH_P_IPV6) &&
--	       brnet->filter_vlan_tagged;
-+	       READ_ONCE(brnet->filter_vlan_tagged);
- }
- 
- static inline bool is_vlan_arp(const struct sk_buff *skb, const struct net *net)
+ #ifdef CONFIG_SYSCTL
+-	return svc->ipvs->sysctl_lblc_expiration;
++	return READ_ONCE(svc->ipvs->sysctl_lblc_expiration);
+ #else
+ 	return DEFAULT_EXPIRATION;
+ #endif
+diff --git a/net/netfilter/ipvs/ip_vs_lblcr.c b/net/netfilter/ipvs/ip_vs_lblcr.c
+index dfb5bf83750db..33d6e30968a95 100644
+--- a/net/netfilter/ipvs/ip_vs_lblcr.c
++++ b/net/netfilter/ipvs/ip_vs_lblcr.c
+@@ -413,7 +413,7 @@ static void ip_vs_lblcr_flush(struct ip_vs_service *svc)
+ static int sysctl_lblcr_expiration(struct ip_vs_service *svc)
  {
- 	struct brnf_net *brnet = net_generic(net, brnf_net_id);
- 
--	return vlan_proto(skb) == htons(ETH_P_ARP) && brnet->filter_vlan_tagged;
-+	return vlan_proto(skb) == htons(ETH_P_ARP) && READ_ONCE(brnet->filter_vlan_tagged);
- }
- 
- static inline __be16 pppoe_proto(const struct sk_buff *skb)
-@@ -124,7 +124,7 @@ static inline bool is_pppoe_ip(const struct sk_buff *skb, const struct net *net)
- 	struct brnf_net *brnet = net_generic(net, brnf_net_id);
- 
- 	return skb->protocol == htons(ETH_P_PPP_SES) &&
--	       pppoe_proto(skb) == htons(PPP_IP) && brnet->filter_pppoe_tagged;
-+	       pppoe_proto(skb) == htons(PPP_IP) && READ_ONCE(brnet->filter_pppoe_tagged);
- }
- 
- static inline bool is_pppoe_ipv6(const struct sk_buff *skb,
-@@ -134,7 +134,7 @@ static inline bool is_pppoe_ipv6(const struct sk_buff *skb,
- 
- 	return skb->protocol == htons(ETH_P_PPP_SES) &&
- 	       pppoe_proto(skb) == htons(PPP_IPV6) &&
--	       brnet->filter_pppoe_tagged;
-+	       READ_ONCE(brnet->filter_pppoe_tagged);
- }
- 
- /* largest possible L2 header, see br_nf_dev_queue_xmit() */
-@@ -442,7 +442,7 @@ static struct net_device *brnf_get_logical_dev(struct sk_buff *skb,
- 
- 	br = bridge_parent(dev);
- 
--	if (brnet->pass_vlan_indev == 0 || !skb_vlan_tag_present(skb))
-+	if (READ_ONCE(brnet->pass_vlan_indev) == 0 || !skb_vlan_tag_present(skb))
- 		return br;
- 
- 	vlan = __vlan_find_dev_deep_rcu(br, skb->vlan_proto,
-@@ -502,7 +502,7 @@ static unsigned int br_nf_pre_routing(void *priv,
- 	brnet = net_generic(state->net, brnf_net_id);
- 	if (IS_IPV6(skb) || is_vlan_ipv6(skb, state->net) ||
- 	    is_pppoe_ipv6(skb, state->net)) {
--		if (!brnet->call_ip6tables &&
-+		if (!READ_ONCE(brnet->call_ip6tables) &&
- 		    !br_opt_get(br, BROPT_NF_CALL_IP6TABLES))
- 			return NF_ACCEPT;
- 		if (!ipv6_mod_enabled()) {
-@@ -514,7 +514,7 @@ static unsigned int br_nf_pre_routing(void *priv,
- 		return br_nf_pre_routing_ipv6(priv, skb, state);
- 	}
- 
--	if (!brnet->call_iptables && !br_opt_get(br, BROPT_NF_CALL_IPTABLES))
-+	if (!READ_ONCE(brnet->call_iptables) && !br_opt_get(br, BROPT_NF_CALL_IPTABLES))
- 		return NF_ACCEPT;
- 
- 	if (!IS_IP(skb) && !is_vlan_ip(skb, state->net) &&
-@@ -740,7 +740,7 @@ static unsigned int br_nf_forward_arp(struct sk_buff *skb,
- 	br = p->br;
- 
- 	brnet = net_generic(state->net, brnf_net_id);
--	if (!brnet->call_arptables && !br_opt_get(br, BROPT_NF_CALL_ARPTABLES))
-+	if (!READ_ONCE(brnet->call_arptables) && !br_opt_get(br, BROPT_NF_CALL_ARPTABLES))
- 		return NF_ACCEPT;
- 
- 	if (is_vlan_arp(skb, state->net))
-@@ -1178,7 +1178,7 @@ int brnf_sysctl_call_tables(const struct ctl_table *ctl, int write,
- 	ret = proc_dointvec(ctl, write, buffer, lenp, ppos);
- 
- 	if (write && *(int *)(ctl->data))
--		*(int *)(ctl->data) = 1;
-+		WRITE_ONCE(*(int *)(ctl->data), 1);
- 	return ret;
- }
- 
-diff --git a/net/bridge/netfilter/ebt_log.c b/net/bridge/netfilter/ebt_log.c
-index e2eea1daaf8ba..f360414a2814e 100644
---- a/net/bridge/netfilter/ebt_log.c
-+++ b/net/bridge/netfilter/ebt_log.c
-@@ -79,7 +79,7 @@ ebt_log_packet(struct net *net, u_int8_t pf, unsigned int hooknum,
- 	unsigned int bitmask;
- 
- 	/* FIXME: Disabled from containers until syslog ns is supported */
--	if (!net_eq(net, &init_net) && !sysctl_nf_log_all_netns)
-+	if (!net_eq(net, &init_net) && !READ_ONCE(sysctl_nf_log_all_netns))
- 		return;
- 
- 	spin_lock_bh(&ebt_log_lock);
-diff --git a/net/netfilter/nf_log_syslog.c b/net/netfilter/nf_log_syslog.c
-index c3fd398ffcd77..2907f47c83423 100644
---- a/net/netfilter/nf_log_syslog.c
-+++ b/net/netfilter/nf_log_syslog.c
-@@ -43,7 +43,7 @@ struct arppayload {
- /* Guard against containers flooding syslog. */
- static bool nf_log_allowed(const struct net *net)
- {
--	return net_eq(net, &init_net) || sysctl_nf_log_all_netns;
-+	return net_eq(net, &init_net) || READ_ONCE(sysctl_nf_log_all_netns);
- }
- 
- static void nf_log_dump_vlan(struct nf_log_buf *m, const struct sk_buff *skb)
+ #ifdef CONFIG_SYSCTL
+-	return svc->ipvs->sysctl_lblcr_expiration;
++	return READ_ONCE(svc->ipvs->sysctl_lblcr_expiration);
+ #else
+ 	return DEFAULT_EXPIRATION;
+ #endif
 -- 
 2.43.0
 
