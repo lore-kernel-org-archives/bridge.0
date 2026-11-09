@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.193
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.59
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794192942;
-	b=kBvFJLYxWT0Q0VM8P7gB3m1/mfwCFl6P5npE44vmMtaVcoq0qh7BjkjTuPLze/dGKUiZ
-	 8HmbhDxCw/52za8EMtrmo/D8v6AQG9UMkNEl9PwMCoav18Pw4V8IMO63RQGNVDIWuHoo9
-	 +XASrdNPrsH98/r/z2mCQgUTstijR3Bq42kpi+KSaLeo4JmQpKex2etfWwc5xgw3lsOr7
-	 K8VhV1aChHLS+t2Ukcmi0zicjiG7zpmZ8w88DNApMHfoncOnl8U3RalUuMDh5fGuet1LM
-	 sx1idfhJBL/Av4B/DWr1Lv8RFcWYwY5AIKqS45Sufp55Rr8DVtE4+bBq5u0Rw0eCETQ==
+	t=1794192975;
+	b=5LxwfeYX+4w0Ovnpx5zp33zBTYJQmZKJXKgShSEZ+p7rvvWzbDGIP/Xg2kFYlYEN27+n
+	 IClVfkuMskFxCkAtQTxtmkETCOPJIWWh+OJM55XfEn751gEDhzkJ3Odji9dh/4S8WPcTO
+	 nAywxtvo24wNJTim2xYYiWwwiByMz3nJqFmEotcnIgZr0fIuiQyqF52LZ2ahuM7y2VG+5
+	 QqEh3qJhV/7Gb76xSaDsykXE5Pj/KWXKPVqWhrWzC2xlwzSHZPQn7Upn4ksNDkUjx8JKY
+	 or82uDek4YOBqWhMOhkAsAD19wkA2qiUM8pywenXC+/5FyrZNODfovC2zyQ+V/UwJMg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794192942;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794192975;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=98LE/RewkB/mIgXW5VS/v06u2iEnrqunStfHDCrZQtU=;
-	b=dFyKW3NN3+dtADTTadjp+xW3y6YZcnI5zTgmmGQJKrSrnK9O2uz/k2RGeZOQEtwz7Ziz
-	 6plz+58KUi3w7UPKy3C3Ku07PYiCgHvgFbt5J2vnJI+Fdc2G/7DB7ouZJfnW3DFM+yOcK
-	 H/0FByHE1QIwn01P+gj9zlp2xJ6gQwun3RoL1SIa1iGF8gs+tqTjiNNKh9h8WH8RqePTH
-	 G9kYBXGyZ9+XDx7Jsufj+C5+NBzf/RjA6D30rlMCMYlSxsRnRSPrclKpq2cJdnBTJRFzM
-	 vd31iJDu4i6+/rpW+52IblueOszUVLwdYrEYIVCztI7mzZ6/es6iyZ627Ij1lZ19H2g==
+	bh=RaQtkVcxzBk9BCoME2U3bmc9YHf7+BB9h58s0wdq0EY=;
+	b=WkokuQUZM0Zi7qjSxEUSb/W/17rSBwkcmp6H9ub71ONwWMHmxtebr9/94i9bZ4QpMqFi
+	 /q3fR3svn0+lUcZ/2nZA+LEUkyATEj3RaLWMK7xG+RF5JyiuSnVNVu7vEWU/U4gb3qCj0
+	 pe95FXd60ZuKJQ4KcNOSCiXYto8nW56Vm/iKJ/dPjRzhi4r0N2hkl1HT/Urd/0kUJDwME
+	 o523rX1/zCwjs0Vul0ld+QOa0L8bvKpGLdg6V1m7uDUwbvZy+g6DxqBsDM2P+WrGzRMcq
+	 b3y1z0ZVXuD2fFgd3fJx5i8ky7c7+SV8LhXUWDY3NqFBExy9kWDOffRbSQvNQMjK6Gg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=iI2LcmRa;
-	arc=none smtp.remote-ip=95.215.58.193
-Received: from mta1.migadu.com (out-193.mta1.migadu.com [95.215.58.193])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=FsBofEml;
+	arc=none smtp.remote-ip=91.218.175.59
+Received: from mta0.migadu.com (out-59.mta0.migadu.com [91.218.175.59])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62195606A325
-	for <bridge@lists.linux.dev>; Mon,  9 Nov 2026 02:55:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 62195606A325
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C613D606A320
+	for <bridge@lists.linux.dev>; Mon,  9 Nov 2026 02:56:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C613D606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=iI2LcmRa
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=FsBofEml
 X-Envelope-To: bridge@lists.linux.dev
-DKIM-Signature: a=rsa-sha256; bh=inXLUMxi88jjAjyCcfXQ3nh2o8NgWQcLnFDb+eW27Lc=;
+DKIM-Signature: a=rsa-sha256; bh=4k7ckGD6tUfxybB5EnqooZtc5aOl3FhWKSEZts3QU7E=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1794192939; v=1; x=1794797739;
- b=iI2LcmRasFlQzTx7E98oTGlrxuh1S2bLkUrCIFxe1ZlAF6kLGUddPYJW6zYzHQRKHB2Yv3fF
- ll/9lQm6Tgs5e4uucNeJYUgHgfeKABgVutNp6wI7DpAw7ttQo9SIZGXOBix2Slxz/zgIpAwRf3g
- Jf11DyC87DaEm1JYPyebyLy4=
+ t=1794192973; v=1; x=1794797773;
+ b=FsBofEmlRIbPlkk4ZDS8UDMWKDKHtQstweEMsT9a0++VR8XDkeu4s4aBCeZVmvwFfVTDzZXX
+ rVQx/ia93GGLRIirb65+ELR85BxjnHFHA9RZYd2JA8hy/mxBQ0+1nXSSBANZlKYP/FDuL9v5obR
+ wBeygGon3H0vcYLoFxiq6PTI=
 X-Envelope-To: bridge@lists.linux.dev
-Received: by smtp.migadu.com with ESMTPS id 582f103ddfa10910;
-	Mon, 09 Nov 2026 02:55:19 +0000
-X-Mizu-Trace-ID: 582f103ddfa10910
+Received: by smtp.migadu.com with ESMTPS id 07673be978d49c6a;
+	Mon, 09 Nov 2026 02:56:12 +0000
+X-Mizu-Trace-ID: 07673be978d49c6a
 X-Migadu-Flow: FLOW_OUT
 From: Jiayuan Chen <jiayuan.chen@linux.dev>
 To: netdev@vger.kernel.org
@@ -86,9 +86,9 @@ Cc: Jiayuan Chen <jiayuan.chen@linux.dev>,
 	rds-devel@oss.oracle.com,
 	linux-sctp@vger.kernel.org,
 	linux-s390@vger.kernel.org
-Subject: [PATCH net-next 01/14] ipv4: annotate data-races around ip_rt_* sysctls
-Date: Mon,  9 Nov 2026 10:52:00 +0800
-Message-ID: <20261109025425.328445-2-jiayuan.chen@linux.dev>
+Subject: [PATCH net-next 02/14] inet: frags: annotate data-races around fqdir->timeout and fqdir->max_dist
+Date: Mon,  9 Nov 2026 10:52:01 +0800
+Message-ID: <20261109025425.328445-3-jiayuan.chen@linux.dev>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261109025425.328445-1-jiayuan.chen@linux.dev>
 References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
@@ -103,157 +103,60 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ip_rt_redirect_number, ip_rt_redirect_load, ip_rt_redirect_silence,
-ip_rt_error_cost, ip_rt_error_burst, ip_rt_gc_timeout, ip_rt_min_pmtu,
-ip_rt_mtu_expires and ip_rt_min_advmss are read without any lock while
-their sysctl handlers update them with WRITE_ONCE(). Add READ_ONCE() to
-the readers.
-
-KCSAN reports it when net.ipv4.route.min_adv_mss is changed while TCP
-connections are being opened:
-
-  BUG: KCSAN: data-race in do_proc_int_conv / ipv4_default_advmss
-
-  write (marked) to 0xffffffffb0828f70 of 4 bytes by task 715 on cpu 0:
-   do_proc_int_conv+0xa9/0xd0
-   proc_vec_conv+0x21/0x40
-   proc_vec+0x21e/0x6f0
-   proc_dointvec+0x16/0x30
-   proc_sys_call_handler+0x282/0x3a0
-   proc_sys_write+0x13/0x20
-   ...
-
-  read to 0xffffffffb0828f70 of 4 bytes by task 719 on cpu 1:
-   ipv4_default_advmss+0x98/0x2c0
-   __tcp_transmit_skb+0x1df4/0x28f0
-   tcp_connect+0x266b/0x3c30
-   tcp_v4_connect+0x9a1/0xae0
-   __inet_stream_connect+0x1cc/0x760
-   inet_stream_connect+0x49/0x80
-   ...
-
-  value changed: 0x00000100 -> 0x00000101
+fqdir->timeout and fqdir->max_dist are read without any lock while their
+sysctl handlers update them with WRITE_ONCE(). Add READ_ONCE() to the
+readers.
 
 Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
 ---
- net/ipv4/route.c | 34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ net/ipv4/inet_fragment.c | 2 +-
+ net/ipv4/ip_fragment.c   | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index d0a5f6d77094c..83f49b2d4c36a 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -829,7 +829,7 @@ static void __ip_do_redirect(struct rtable *rt, struct sk_buff *skb, struct flow
- 				nhc = FIB_RES_NHC(res);
- 				update_or_create_fnhe(nhc, fl4->daddr, new_gw,
- 						0, false,
--						jiffies + ip_rt_gc_timeout);
-+						jiffies + READ_ONCE(ip_rt_gc_timeout));
- 			}
- 			if (kill_route)
- 				WRITE_ONCE(rt->dst.obsolete, DST_OBSOLETE_KILL);
-@@ -930,7 +930,7 @@ void ip_rt_send_redirect(struct sk_buff *skb)
- 	/* No redirected packets during ip_rt_redirect_silence;
- 	 * reset the algorithm.
- 	 */
--	if (time_after(jiffies, peer->rate_last + ip_rt_redirect_silence)) {
-+	if (time_after(jiffies, peer->rate_last + READ_ONCE(ip_rt_redirect_silence))) {
- 		peer->rate_tokens = 0;
- 		peer->n_redirects = 0;
+diff --git a/net/ipv4/inet_fragment.c b/net/ipv4/inet_fragment.c
+index 0b8d22ffafca6..ba10aec88cc9b 100644
+--- a/net/ipv4/inet_fragment.c
++++ b/net/ipv4/inet_fragment.c
+@@ -415,7 +415,7 @@ static struct inet_frag_queue *inet_frag_create(struct fqdir *fqdir,
+ 		inet_frag_putn(q, 2);
+ 		return NULL;
  	}
-@@ -938,7 +938,7 @@ void ip_rt_send_redirect(struct sk_buff *skb)
- 	/* Too many ignored redirects; do not send anything
- 	 * set dst.rate_last to the last seen redirected packet.
- 	 */
--	if (peer->n_redirects >= ip_rt_redirect_number) {
-+	if (peer->n_redirects >= READ_ONCE(ip_rt_redirect_number)) {
- 		peer->rate_last = jiffies;
- 		goto out_unlock;
- 	}
-@@ -946,7 +946,7 @@ void ip_rt_send_redirect(struct sk_buff *skb)
- 	/* Check for load limit; set rate_last to the latest sent
- 	 * redirect.
- 	 */
--	backoff = (u64)ip_rt_redirect_load << min(peer->n_redirects, 31U);
-+	backoff = (u64)READ_ONCE(ip_rt_redirect_load) << min(peer->n_redirects, 31U);
- 	backoff = min_t(u64, backoff, MAX_JIFFY_OFFSET);
- 	if (peer->n_redirects == 0 ||
- 	    time_after(jiffies, peer->rate_last + (unsigned long)backoff)) {
-@@ -956,7 +956,7 @@ void ip_rt_send_redirect(struct sk_buff *skb)
- 		peer->rate_last = jiffies;
- 		++peer->n_redirects;
- 		if (IS_ENABLED(CONFIG_IP_ROUTE_VERBOSE) && log_martians &&
--		    peer->n_redirects == ip_rt_redirect_number)
-+		    peer->n_redirects == READ_ONCE(ip_rt_redirect_number))
- 			net_warn_ratelimited("host %pI4/if%d ignores redirects for %pI4 to %pI4\n",
- 					     &ip_hdr(skb)->saddr, inet_iif(skb),
- 					     &ip_hdr(skb)->daddr, &gw);
-@@ -1027,13 +1027,16 @@ static int ip_error(struct sk_buff *skb)
- 			       l3mdev_master_ifindex_rcu(skb->dev));
- 	send = true;
- 	if (peer) {
-+		int burst = READ_ONCE(ip_rt_error_burst);
-+		int cost = READ_ONCE(ip_rt_error_cost);
-+
- 		now = jiffies;
- 		peer->rate_tokens += now - peer->rate_last;
--		if (peer->rate_tokens > ip_rt_error_burst)
--			peer->rate_tokens = ip_rt_error_burst;
-+		if (peer->rate_tokens > burst)
-+			peer->rate_tokens = burst;
- 		peer->rate_last = now;
--		if (peer->rate_tokens >= ip_rt_error_cost)
--			peer->rate_tokens -= ip_rt_error_cost;
-+		if (peer->rate_tokens >= cost)
-+			peer->rate_tokens -= cost;
- 		else
- 			send = false;
- 	}
-@@ -1063,14 +1066,14 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
+-	mod_timer(&q->timer, jiffies + fqdir->timeout);
++	mod_timer(&q->timer, jiffies + READ_ONCE(fqdir->timeout));
+ 	spin_unlock_bh(&q->lock);
+ 	return q;
+ }
+diff --git a/net/ipv4/ip_fragment.c b/net/ipv4/ip_fragment.c
+index 36105dd192823..e70ef3fe5e331 100644
+--- a/net/ipv4/ip_fragment.c
++++ b/net/ipv4/ip_fragment.c
+@@ -89,7 +89,7 @@ static void ip4_frag_init(struct inet_frag_queue *q, const void *a)
  
- 	rcu_read_lock();
- 	net = dst_dev_net_rcu(dst);
--	if (mtu < net->ipv4.ip_rt_min_pmtu) {
-+	if (mtu < READ_ONCE(net->ipv4.ip_rt_min_pmtu)) {
- 		lock = true;
--		mtu = min(old_mtu, net->ipv4.ip_rt_min_pmtu);
-+		mtu = min(old_mtu, READ_ONCE(net->ipv4.ip_rt_min_pmtu));
- 	}
+ 	q->key.v4 = *key;
+ 	qp->ecn = 0;
+-	if (q->fqdir->max_dist) {
++	if (READ_ONCE(q->fqdir->max_dist)) {
+ 		rcu_read_lock();
+ 		p = inet_getpeer_v4(net->ipv4.peers, key->saddr, key->vif);
+ 		if (p && !refcount_inc_not_zero(&p->refcnt))
+@@ -220,7 +220,7 @@ static struct ipq *ip_find(struct net *net, struct iphdr *iph,
+ static int ip_frag_too_far(struct ipq *qp)
+ {
+ 	struct inet_peer *peer = qp->peer;
+-	unsigned int max = qp->q.fqdir->max_dist;
++	unsigned int max = READ_ONCE(qp->q.fqdir->max_dist);
+ 	unsigned int start, end;
  
- 	if (rt->rt_pmtu == mtu && !lock &&
- 	    time_before(jiffies, READ_ONCE(dst->expires) -
--				 net->ipv4.ip_rt_mtu_expires / 2))
-+				 READ_ONCE(net->ipv4.ip_rt_mtu_expires) / 2))
- 		goto out;
+ 	int rc;
+@@ -242,7 +242,7 @@ static int ip_frag_too_far(struct ipq *qp)
  
- 	if (fib_lookup(net, fl4, &res, 0) == 0) {
-@@ -1086,14 +1089,15 @@ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
- 				if (!nhc)
- 					break;
- 				update_or_create_fnhe(nhc, fl4->daddr, 0, mtu, lock,
--						      jiffies + net->ipv4.ip_rt_mtu_expires);
-+						      jiffies +
-+						      READ_ONCE(net->ipv4.ip_rt_mtu_expires));
- 			}
- 			goto out;
- 		}
- #endif /* CONFIG_IP_ROUTE_MULTIPATH */
- 		nhc = FIB_RES_NHC(res);
- 		update_or_create_fnhe(nhc, fl4->daddr, 0, mtu, lock,
--				      jiffies + net->ipv4.ip_rt_mtu_expires);
-+				      jiffies + READ_ONCE(net->ipv4.ip_rt_mtu_expires));
- 	}
- out:
- 	rcu_read_unlock();
-@@ -1367,7 +1371,7 @@ static unsigned int ipv4_default_advmss(const struct dst_entry *dst)
- 	rcu_read_lock();
- 	net = dst_dev_net_rcu(dst);
- 	advmss = max_t(unsigned int, ipv4_mtu(dst) - header_size,
--				   net->ipv4.ip_rt_min_advmss);
-+				   READ_ONCE(net->ipv4.ip_rt_min_advmss));
- 	rcu_read_unlock();
+ static int ip_frag_reinit(struct ipq *qp)
+ {
+-	if (!mod_timer_pending(&qp->q.timer, jiffies + qp->q.fqdir->timeout))
++	if (!mod_timer_pending(&qp->q.timer, jiffies + READ_ONCE(qp->q.fqdir->timeout)))
+ 		return -ETIMEDOUT;
  
- 	return min(advmss, IPV4_MAX_PMTU - header_size);
+ 	inet_frag_queue_flush(&qp->q, SKB_DROP_REASON_FRAG_TOO_FAR);
 -- 
 2.43.0
 
