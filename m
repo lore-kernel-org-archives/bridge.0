@@ -1,65 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=217.70.190.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794272911;
-	b=rmHBtSsH8eRPYK+uBExDxb+lETMJGQtAyqXS4PNbtktYdYxDTRKH2KWMCcURKTqM2+WK
-	 Piud73hirTJ31Nk9upFQNOQMhCv4Rg80pnCnqvHKWpeEQSvHZB9ASh2V9eViGFViuHjqs
-	 ALoAkEaDTbIblN4DCMELarWOg/alPqb0NlFt51k/0JmV+mB/V+FwBJpa8nzDp5PHeG3tm
-	 7+r2bCgcuBhuZMfHJ8gmKJlOnL43JeaSMpYca9XdKEX3rfhLA+Yq2qOwkl694acBVqXMM
-	 PRpzQ+oAt83z0cOAxYaCmMIa8TuvAht4eGq79Bj9zomhMnONZPy0fFdJm8J7dQTbmvQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794272911;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-Spam-Status:X-Spam-Checker-Version;
-	bh=x36i1u1Ug+CsRO14sJNtHgtErxuuo8Mk9cH4G1xa/s4=;
-	b=ssEweJKp1ve9NiGMvB0rPMAAcmRv/Z7UQf2Ev6aY9rrA6u9kJJd5n0euMWalAZbcVC5P
-	 LFlyyqV6WXjf7DSjxrAEK5OCirqglV5hBtqc2og5S0DJE6BhjIC90TP5NxJpFVAe6uhaL
-	 rlrVcOeX7VhJYOpQtBtsP97TIYt3PmjlfWL+2/4rGzSd2c8KAfxmOkKhQwzs4hJJo3kG5
-	 TkQr6N0zCitQOu8svpZrp7KbIGL0AYIWJelg6GDlBcuB87m5fknjC9wKYc3H0LFQtgKef
-	 IKLw5GELQ1cFTg5Tpt/U3opbi6NLNnSKWUpCx0S+RkkWzC7iotXz0UeJCVFvIWVg54w==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=netfilter.org;
-	spf=pass smtp.mailfrom=netfilter.org;
-	dkim=pass header.d=netfilter.org header.i=@netfilter.org header.a=rsa-sha256 header.s=2025 header.b=MdsVN4E4;
-	arc=none smtp.remote-ip=217.70.190.124
-Received: from mail.netfilter.org (mail.netfilter.org [217.70.190.124])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.14
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794273773;
+	b=t42yQK929mR88LMvw5ExaejrSnyN6n/yJ/M+hW5wv88LlMaUDtoG98YdZdjZcQ55CJBT
+	 fpkAvECpU1lDH6XnT27QvxSMdmatvOABMENELdeJxFCf4ch/3/jzaB8Fek3d9NMTaYn9b
+	 Vg3H/UNPWphlAjGNXl+enKt/WsA5SOLolD5DjghxSRur2xwRgQPwy82qLLzKyFCTTLUXu
+	 1A2FUr24hPsD/iD7CKF+WB/pBoRMZRiptSUPMZy3EX1W6Ai6T+XdAW8rmXI/toUD+018W
+	 dY8Bcx0BDZ735SNTtDtyhHIZU4jWzxkw3OuIHCEWVIUr0ZLTYr4YIfUA52/HjiDcOzQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794273773;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-ZohoMailClient;
+	bh=rlHy0y49llRfh6fikqJG2D8BwX2hQJXYBow41oy5Q2M=;
+	b=Q+fOgzL+QIlx/TWWE5z34njF9D6KQ7ryISWIGK3a/4q8WdDk2c0BPC7pDUwLM5pbgt49
+	 cdjTLP1/unh5poHOGsrTpFoUlmzl/HTPqv8WHjJ7Rl4k0Z109faxTXv/G0FwwneQbguHT
+	 sWSSudQx26tmC5p8DOzoVBPpOBLbYAq9snSPsQJJ9kHwwrBGfcxHdYW/ipFiTE4DHOb79
+	 wA9CZ95FZ3S4+JrRoCb8+dAHa26FcI29aa4HnPeBSIIB2xbL6juVLBowG3VpilqsA+mks
+	 fqLR8TbxDN9GS1ZdEJtLLkOisbB/TlqY9iGB4rwaMcbzcdlSZ6H3zlBArueOCuEk49A==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=laveeshbansal.com;
+	spf=pass smtp.mailfrom=laveeshbansal.com;
+	dkim=pass header.d=laveeshbansal.com header.i=@laveeshbansal.com header.a=rsa-sha256 header.s=zoho header.b=Ixuoifn6;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.14
+Received: from sender6-op-o14.zoho.com (sender6-op-o14.zoho.com [165.173.180.14])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id B3DB1606A31C
-	for <bridge@lists.linux.dev>; Tue, 10 Nov 2026 01:08:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B3DB1606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=netfilter.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B25860A380A
+	for <bridge@lists.linux.dev>; Tue, 10 Nov 2026 01:22:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5B25860A380A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=laveeshbansal.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=laveeshbansal.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.a=rsa-sha256 header.s=2025 header.b=MdsVN4E4
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
-	s=2025; t=1794272909;
-	bh=x36i1u1Ug+CsRO14sJNtHgtErxuuo8Mk9cH4G1xa/s4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=MdsVN4E4iogadZhZ7ORSwt0JptmXZKE9Us7gR3oCWvLOqMMkL+9bl6sQEoYNBy38p
-	 qPE6DOfvXgo+w6Y8hupDpGG8gSet1Lw17pKNtG/V8awdSWb5YBloR0Mk1I8i7qQelq
-	 Dfb0HLiH88Fcvr8ZxvyaaV730A+RBly4n09VMRHxc1g82EStp0LrLx02IY4zZAL/wT
-	 QG8tyqcwgqdoBhxUMCNyYqBgDTQR35vfv6vGiQh7VsJOsh8hVa4NBIwQ12CqCdh0GJ
-	 ftuEAnqjcPyEjhk4496fHKAdGiKaevYwdy56CVDU8WC70XFJ7bz6Poq10UnWeO8hz+
-	 /vpxzE/zToGxg==
-Received: from netfilter.org (mail-agni [217.70.190.124])
-	by mail.netfilter.org (Postfix) with UTF8SMTPSA id F28146005B;
-	Tue, 10 Nov 2026 02:08:28 +0100 (CET)
-Date: Tue, 10 Nov 2026 02:08:26 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-To: Laveesh Bansal <laveeshb@laveeshbansal.com>
+	dkim=pass (1024-bit key) header.d=laveeshbansal.com header.i=@laveeshbansal.com header.a=rsa-sha256 header.s=zoho header.b=Ixuoifn6
+ARC-Seal: i=1; a=rsa-sha256; t=1794273772; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=iDGzEyufbjEQX95PG5nPvHvs5AMuZmtGu4mw0NdgDlk73mtUNJJs4DPlPf68OY3XdeWa0qRpXgjVbHL4zg93Tw0nmCaFg6+dj7b9pCzMd7lukcQIgHnrk2AJ3U6yPIv7MNC/Cn8k2K8gHzdQSHkw6sXnzYRxC7sMvxrUTZN7pds=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1794273772; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=rlHy0y49llRfh6fikqJG2D8BwX2hQJXYBow41oy5Q2M=; 
+	b=kYEso761Ka2+hBJ4bPYq+9XhWLsYgyQm51BIJLLeJol7wnqLzfe270i4Z4UOyilHOuttVrs9tBbMMkB5gwSnTniL1lzdHo2PxtFxGAipnd1+M5rKiDj1WFlXLlsvZDTe8v2CmHAvv++CV9zDMYZZKBycaR+FTJm2FdSgaE83K6E=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=laveeshbansal.com;
+	spf=pass  smtp.mailfrom=laveeshb@laveeshbansal.com;
+	dmarc=pass header.from=<laveeshb@laveeshbansal.com>
+DKIM-Signature: a=rsa-sha256; b=Ixuoifn6KXRdy+uBBsMQal6LYGKErlO6lUAzmKWQdYzDzYEtpzdithJnHXn6+6/3fqlMU6F73bvJ4NLsa9QUdAJDaryvd0zHPCZIauUU7lRH2xuEbk8N/Yv1drV/X0noUpGjBB0z24bFZyssv3/GMBFFfS7vP/ghHNIUFlCvcks=; c=relaxed/relaxed; s=zoho; d=laveeshbansal.com; v=1; bh=rlHy0y49llRfh6fikqJG2D8BwX2hQJXYBow41oy5Q2M=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1794273770551191.82694000317304;
+	Mon, 9 Nov 2026 17:22:50 -0800 (PST)
+From: Laveesh Bansal <laveeshb@laveeshbansal.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>
 Cc: Florian Westphal <fw@strlen.de>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
 	Ido Schimmel <idosch@nvidia.com>,
 	syzbot+a8ba738fe2db6b4bb27f@syzkaller.appspotmail.com,
-	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-	bridge@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: [PATCH nf-next 0/2] netfilter: bridge: refragment packets with a
- vlan tag moved by the bridge
-Message-ID: <avJuijtALFuuk7yd@chamomile>
-References: <avJo2nhgnulY776l@chamomile>
- <20261110010450.68995-1-laveeshb@laveeshbansal.com>
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH nf-next 0/2] netfilter: bridge: refragment packets with a vlan tag moved by the bridge
+Date: Mon,  9 Nov 2026 17:22:44 -0800
+Message-ID: <20261110012244.69518-1-laveeshb@laveeshbansal.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <avJuijtALFuuk7yd@chamomile>
+References: <avJuijtALFuuk7yd@chamomile>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -69,21 +72,12 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261110010450.68995-1-laveeshb@laveeshbansal.com>
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Mon, Nov 09, 2026 at 05:04:50PM -0800, Laveesh Bansal wrote:
-> On Tue, Nov 10, 2026 at 01:44:10AM +0100, Pablo Neira Ayuso wrote:
-> > Do you have a usecase for this?
-> 
-> I found this through the syzbot report and haven't seen a user report of
-> it.
+On Tue, Nov 10, 2026 at 02:08:26AM +0100, Pablo Neira Ayuso wrote:
+> But does it make sense what syzbot is trying in real life?
 
-Yes, there is a patch to fix replace the WARN_ON_ONCE() that could be
-found. But does it make sense what syzbot is trying in real life?
-
-> This is the follow-up for nf-next we discussed in
-> https://lore.kernel.org/r/atck-NoWvemxIsF6@chamomile.
-
-Yes, I remember, thanks for the link.
+Here is a sample scenario: a customer sends large fragmented UDP packets
+into a bridge doing QinQ with stateful bridge rules. It takes that
+combination so it is rare.
