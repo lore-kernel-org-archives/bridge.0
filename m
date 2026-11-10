@@ -1,64 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=217.70.190.124
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794271456;
-	b=zjYp57xwEaLY5bUQ/dIvgaciJdN6yCczYyl/GG86vj8Txhn15uVtMnIx8DhAy1ViN+fu
-	 heOr99N5Sag1FiKepz3oV17W30ictLCIn2UmkhV+rL1JHNgOByvQzwM7BHEq48AaJJ2gq
-	 gvROeWLCtHFMzViEvHzdVRLjU0nKLH668I09CBHAYPt4ixIF+6JPM80of1oXRWbgSkBV7
-	 AwHzZrZS3/4AUlpPMZNLCSD39nGgmbQa/65BkgD++DKJ4Jt8SnLuVL4QhOFZyv+5DvaKA
-	 zHmRdF9QoGKiJH1UxCkERyNAzEqaea7264+vIDgmCe2q++9OnBq13LB2vgKGx6AcKiA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794271456;
-	h=DMARC-Filter:DKIM-Signature:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-Spam-Status:X-Spam-Checker-Version;
-	bh=X7vRBwY1YVP+YsmylbzJovNrvWSg1Yr0Awx7ynFxjKQ=;
-	b=zJAekXdTMDnCNaSqMHQxewR0Epj+ZTLBLNkOgH2oXruoNfOD8VDxd5w/DGfik8SopueJ
-	 2L4fWJShC1eo3LKISc7cQhf9y1sdtep912p4ttL64VdYuC+baakBYwEGIlBI3Rbu6Uwsp
-	 /uhkDNdj9NwDaBJwauo+m5VylYTuiIfjvhlIFu6lRvS3OA4PNZudTn3lZr3W5lqppGDNG
-	 HfwC2AWX+sCg9LPbviT7lAvAkNfcG41jVW7eTepJBhWP1pPq+oMLhNRqI7HtLTkHIVbUL
-	 r1qpnzvEOWxtf2YCXqZJcvb/uFXdEucH5bT3Jurvsbw5rywqTIY2yQsf4YOaHtpEr8g==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=netfilter.org;
-	spf=pass smtp.mailfrom=netfilter.org;
-	dkim=pass header.d=netfilter.org header.i=@netfilter.org header.a=rsa-sha256 header.s=2025 header.b=fYwpeXq7;
-	arc=none smtp.remote-ip=217.70.190.124
-Received: from mail.netfilter.org (mail.netfilter.org [217.70.190.124])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.14
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1794272703;
+	b=g4WdFi13sHe2c4WF+H2AFmqHSb7Dvznk+EWmHGUt6W1PXOzIFjHLbFhH7JTXMudls+OA
+	 6Cs364TGnyHcGwDu44H3mL1vK8chHK+p09m5wajH64fMMDPDsfcpiyiG66KxgkaL/OK9l
+	 vrbpYbXRAdwTiSqdIdb6UBupS1ShHFVw4d68CoO0lzx2IhZgvfpXSpx/Rbv8UxxItniFL
+	 nBZghyII3Ug4pENHOrm+4ItAB4a4sieOPeBKOScmufGMPvBVwss6DniRtMaY5f0msvYKC
+	 cLQ/oBnvksvKFxHE+XgAyhqam4wTyv3YXpzOAV4CI66/MxApVizKQewWbqIA+THU5mg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794272703;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-ZohoMailClient;
+	bh=2yNEwyjlHqJdzN2rYHtxePRIGUY6zEHInx2Q7VBrP4k=;
+	b=NUzhQEfBqSpH25ZyA1fRvZpigdJTawK80sGAAIaEL24C23eFuwUIu9KQtpjY7GYw7+cO
+	 osGTFav8+25P9nPEr+h5d4SCeo9LQUhoxknFsW3gqF4ij7h1c0mtqyBd1cWqbyqd0ig78
+	 N0ZskAIHt2Ts1cL9WlJN2hMXVK+ZpA+aI/3lkOjnudGu8Z4ZAVKjXTIFYUU1LnfC7ws+e
+	 OZIOEWq6vvzdqQHcY5V/VhaDyjrwNRP1eUX3A77ZFBJE82sasxUs9OZua4eE7hyhyBDTQ
+	 7Ww3G+ZmmaWYirud/05EBhely99GpuargLguM6IAuDnRcruak4HN2VPRnvaRe2FScWA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=laveeshbansal.com;
+	spf=pass smtp.mailfrom=laveeshbansal.com;
+	dkim=pass header.d=laveeshbansal.com header.i=@laveeshbansal.com header.a=rsa-sha256 header.s=zoho header.b=BV9wWXhv;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.182.14
+Received: from sender5-op-o14.zoho.com (sender5-op-o14.zoho.com [165.173.182.14])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 61DFE606A326
-	for <bridge@lists.linux.dev>; Tue, 10 Nov 2026 00:44:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 61DFE606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=netfilter.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=netfilter.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B897C606A321
+	for <bridge@lists.linux.dev>; Tue, 10 Nov 2026 01:05:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B897C606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=laveeshbansal.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=laveeshbansal.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=netfilter.org header.i=@netfilter.org header.a=rsa-sha256 header.s=2025 header.b=fYwpeXq7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netfilter.org;
-	s=2025; t=1794271452;
-	bh=X7vRBwY1YVP+YsmylbzJovNrvWSg1Yr0Awx7ynFxjKQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=fYwpeXq7MHbhkmAE9/6mASGiHNWLPD/BBzKdUdgs9L3DoLl0WjwoHaZbj8eAEaHLm
-	 XsnyBydw8vrqKuBZhsw1PDe/bHSEx3TBEMpsTidQNOhVokFfsaXflQLcadPGkLPN8y
-	 PtJIw9HfU9XFf+T6dUYT+Q/zBTB0nhXPoUVOOBcx63KN7qn2w2gVr34KYdFgiyP0b6
-	 gYaTDBwjSVSQqUFRFyQk7yIiLfo9yQu+K5v8jK5luV+UWOn3uu6vnXkswbTy3mmmX2
-	 wW39nDuHHBrmFT/rpD6yI6gcAwrqbH1mP3Pg3K7nk+EX2DL6HoiDg+eqmZRpQCzlEd
-	 VVqcpw5wSQ5gw==
-Received: from netfilter.org (mail-agni [217.70.190.124])
-	by mail.netfilter.org (Postfix) with UTF8SMTPSA id A9F3A60058;
-	Tue, 10 Nov 2026 01:44:12 +0100 (CET)
-Date: Tue, 10 Nov 2026 01:44:10 +0100
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-To: Laveesh Bansal <laveeshb@laveeshbansal.com>
+	dkim=pass (1024-bit key, unprotected) header.d=laveeshbansal.com header.i=@laveeshbansal.com header.a=rsa-sha256 header.s=zoho header.b=BV9wWXhv
+ARC-Seal: i=1; a=rsa-sha256; t=1794272701; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=P9AtOnRKOJ6acn081xxHPlZ0YqbuFZRhoodGJdrBm7+3VqDTsMHr5b+3Ie+n8YEOWHsQA/1AHAnRyRSTX/5UvUkGyhYN2+lph2B1MPIuxdxT1tEirX82ghYISGSSZp/lk65yEm5RyMGxkyaT37We9CpVeOuQjcRMBIDAfe4BhHU=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1794272701; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=2yNEwyjlHqJdzN2rYHtxePRIGUY6zEHInx2Q7VBrP4k=; 
+	b=dPeH0c12LSXWHtXvT/e9JQYN4AuqKYg0353b7BFmDQcloYcgk8CJpABEAo6n9KWt2n+1fZyWvAne+a25D/gwmMAYOPopGghoyk/UVGQ0QtGm3ANSwCexNBLiOmU+4K5VcuvgT4ZwXz6oex4oJQ7Ufo8gDXRaRJZ7kbBTQBL44Mk=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=laveeshbansal.com;
+	spf=pass  smtp.mailfrom=laveeshb@laveeshbansal.com;
+	dmarc=pass header.from=<laveeshb@laveeshbansal.com>
+DKIM-Signature: a=rsa-sha256; b=BV9wWXhvHRd8AEd8v500nKPCfMN5Kda7ob93BL6v7MWkrlmomIYJ/MNQrbtYuZL3OCUgWab1uhPQA9Tgf84gfLdFCL8LAp/fXUvHHSy8HknubRMIQBM3CSSIImdh6wGGcjXNXV1ejDZckKLJXQiTRSIz+3CBEGEZW/JWnD3CAfM=; c=relaxed/relaxed; s=zoho; d=laveeshbansal.com; v=1; bh=2yNEwyjlHqJdzN2rYHtxePRIGUY6zEHInx2Q7VBrP4k=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
+Received: by smtp.zohomail.com with SMTPS id 1794272700085876.3702122985849;
+	Mon, 9 Nov 2026 17:05:00 -0800 (PST)
+From: Laveesh Bansal <laveeshb@laveeshbansal.com>
+To: Pablo Neira Ayuso <pablo@netfilter.org>
 Cc: Florian Westphal <fw@strlen.de>,
 	Nikolay Aleksandrov <razor@blackwall.org>,
 	Ido Schimmel <idosch@nvidia.com>,
 	syzbot+a8ba738fe2db6b4bb27f@syzkaller.appspotmail.com,
-	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-	bridge@lists.linux.dev, netdev@vger.kernel.org
-Subject: Re: [PATCH nf-next 0/2] netfilter: bridge: refragment packets with a
- vlan tag moved by the bridge
-Message-ID: <avJo2nhgnulY776l@chamomile>
-References: <20261109191842.57359-1-laveeshb@laveeshbansal.com>
+	netfilter-devel@vger.kernel.org,
+	coreteam@netfilter.org,
+	bridge@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: Re: [PATCH nf-next 0/2] netfilter: bridge: refragment packets with a vlan tag moved by the bridge
+Date: Mon,  9 Nov 2026 17:04:50 -0800
+Message-ID: <20261110010450.68995-1-laveeshb@laveeshbansal.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <avJo2nhgnulY776l@chamomile>
+References: <avJo2nhgnulY776l@chamomile>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -68,53 +72,12 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261109191842.57359-1-laveeshb@laveeshbansal.com>
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-Hi,
+On Tue, Nov 10, 2026 at 01:44:10AM +0100, Pablo Neira Ayuso wrote:
+> Do you have a usecase for this?
 
-On Mon, Nov 09, 2026 at 11:18:40AM -0800, Laveesh Bansal wrote:
-> Fragmented packets are dropped on a vlan filtering bridge with bridge
-> conntrack when the protocol of their vlan tag differs from the bridge's
-> vlan_protocol, an 802.1Q tag on an 802.1ad bridge for instance. Patch 1
-> handles the tag when refragmenting. Patch 2 adds a selftest.
-> 
-> As discussed with Pablo in the first posting
-> (https://lore.kernel.org/r/atck-NoWvemxIsF6@chamomile), the
-> DEBUG_NET_WARN_ON_ONCE() change went to nf on its own and is now in the net
-> tree as 683ff28ab18a. This series is based on that commit and is meant
-> for nf-next, which does not have it yet.
-> 
-> Changes since the first posting
-> (https://lore.kernel.org/r/20261020000308.37362-1-laveeshb@laveeshbansal.com):
-> patch 1 keeps the tag together with the ethernet header instead of in
-> separate fields, and the selftest runs its checks even if the kernel had
-> warned before.
-> 
-> I used an LLM tool for the analysis, the code and the test runs.
-
-Do you have a usecase for this?
-
-> I tested the series on arm64 and x86_64, with and without KASAN, lockdep
-> and kmemleak. The selftest fails without patch 1.
-> 
-> Laveesh Bansal (2):
->   netfilter: bridge: refragment packets with a vlan tag moved by the
->     bridge
->   selftests: netfilter: add bridge conntrack test for vlan protocol
->     mismatch
-> 
->  include/linux/netfilter_bridge.h              |   4 +-
->  net/bridge/netfilter/nf_conntrack_bridge.c    |  46 +++-
->  .../testing/selftests/net/netfilter/Makefile  |   1 +
->  .../net/netfilter/bridge_ct_vlan_proto.sh     | 198 ++++++++++++++++++
->  tools/testing/selftests/net/netfilter/config  |   1 +
->  5 files changed, 241 insertions(+), 9 deletions(-)
->  create mode 100755 tools/testing/selftests/net/netfilter/bridge_ct_vlan_proto.sh
-> 
-> 
-> base-commit: 683ff28ab18accb25268741a724645eee839d41a
-> -- 
-> 2.43.0
-> 
+I found this through the syzbot report and haven't seen a user report of
+it. This is the follow-up for nf-next we discussed in
+https://lore.kernel.org/r/atck-NoWvemxIsF6@chamomile.
