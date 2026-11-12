@@ -1,107 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=67.231.153.30
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794416441;
-	b=ti6l+uNohKFtzewRoe8g85cEZazV9CjFPcDqbkdhFUv4lUIcKaNosJ1BcfAikLYZzb4j
-	 G/2k+DBhL30Ho3yuqqfmw1g1O3FtI4QbkW5LcDRhRs6VzRZxcS4a73ecpEh7LsNRp0O/2
-	 CSmY6bbPXKRbonCsvMca5TVK6kAy4t6pVHoLtk5K0EWo+0LEgZSAWhOZ0GAIDTsBpm92A
-	 d/q3C275klyRBJR3ACfmMJiVoCpgUmw1fGMTxLPmebKEHn5sJFOOrY4JD+XiOjZ5nx2QV
-	 RP5N56+mGGfxpgp0aV6n4887z6YQmiIV56N0CR1dUT+vAfii2qg1vYJOJkf/Krbj38w==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794416441;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 X-Google-DKIM-Signature:X-Forwarded-Encrypted:X-Gm-Message-State:
-	 X-Gm-Gg:X-Received:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Virus-Version;
-	bh=74FoFchhuSQQ2jSNjsBXa6BV1QiK2Fm+lk28fFAbdUE=;
-	b=pdg4i3ySyy54F48GXH/FGayKrC+jT8is+nF20415MS4gniZZ868Fr7QM6ZF6Z+1rRruN
-	 9xgJQf5sI+BN3y1Vh4IhX52X38P+17DTLwlNFjFDIk+oIh5RUI//ABcd6IOJq5LeB/6SI
-	 5WG4I+QgbZRYDl0RmdXEzyAEr4tpIRUOpYGl5afBXH5RwUSU8CJ1aR1RXvrKEoLCSOB/r
-	 SvaIwYK6p7L5un2CIocOD3Scw34VUgAAen1KXvZAtnrBrX2a58Xntz2048xEoZWgh4UpB
-	 Lo3DGdDVijrk/zBeIOxWV3ILGrhwENBwezEOdCFtiQkMd99sxSdHrXaFecj52kpLjEw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=meta.com;
-	spf=pass smtp.mailfrom=meta.com;
-	dkim=pass header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=KKDUZEPW;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=67.231.153.30
-Received: from mx0a-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.30.118
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1794459294;
+	b=WI2NewjmJRKxgO3ABW1mhS2LW0ntJAVgjm8tsdq0fPgL5+wIWKZDZQTHc/nxa9+76s+C
+	 qqUyGmEMgwPVUophdemGIGL5AhvZPXk7S4dCW5qNR9H2JNWyAyf6QYcGcI/ysZnAogyUA
+	 ike5M4HiCmgoddGKCCmzRwqLaGrQUEHks3cmE9saq2tGu7h+yWhr1Q3i2ffxmfMK85+rl
+	 S2v6tQcA8qdMGDeHYq6ltwp/uzMUKmStP2AKFXll+bKaVjQyTjb9pDiy5rQeTQ8o9TKfy
+	 OcnmYUhZPbaI4eXiIl06bSlfR2vRXmaebeHQBGm2Hppx/+dELY8gC184yBdEaOKB8xw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794459294;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:Date:From:To:
+	 Cc:Subject:Message-ID:Reply-To:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=/V28rCHXi3T9oO9LFCn5sfVOcz0zmvubCJbcVebXDxQ=;
+	b=fBb7eseBCkd2IM+kgFyV/zHd3da1x9tRtxd8zc27+nsrfwWEQ/YnI7/3Th2Ly3upEaG/
+	 9A5sPbR4cdXJ/q35XZSlgV/vWnPqqovqxNUbcLB+ICQOkiUTuy6uacLGYTDJF0VG3cOZM
+	 CjqwJ+dlsFrQo3dSIQHzxPysKZhpdtjdwz4S5yScfRMfpiNJJBCVwCCaIB3A7rWHzXLAf
+	 WdRAXvWEfE9G6LXjIYu/HD3Woe6jtjb32dVRYYMFWpFFaT36Lhb3lENy/A02L3HVphMN8
+	 06id2o7DzBnmR6jD1+te6PPBQa4N9BgMjVmtD2WCXLb/tYNLPHsLbZA8ZDS7uECG/KA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.alibaba.com;
+	spf=pass smtp.mailfrom=linux.alibaba.com;
+	dkim=pass header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kWO8viIu;
+	arc=none smtp.remote-ip=115.124.30.118
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F517606A324
-	for <bridge@lists.linux.dev>; Wed, 11 Nov 2026 17:00:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4F517606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B914A60A2622;
+	Thu, 12 Nov 2026 04:54:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B914A60A2622
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.a=rsa-sha256 header.s=pps82601-s2048-2026-q3 header.b=KKDUZEPW
-Received: from pps.filterd (m0001303.ppops.net [127.0.0.1])
-	by m0001303.ppops.net (8.18.1.11/8.18.1.11) with ESMTP id 6ABF2hrJ2306571
-	for <bridge@lists.linux.dev>; Wed, 11 Nov 2026 09:00:40 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pps82601-s2048-2026-q3; bh=74FoFchhuSQ
-	Q2jSNjsBXa6BV1QiK2Fm+lk28fFAbdUE=; b=KKDUZEPWjFxEuM39SyRtvJ/r0/c
-	+hQ8uhEGP6gr2JUPPDpEGcq0NTiQEyQ9i8Y2g3dv39QgOtx59p8EVdbDUQLa6L+t
-	94/0SvdQaKFzm4Cv+3qMAatvhm6L/NQDjRHUOOvxpSMqYTskbxEpPNPMbZb8J28Q
-	VEnA6gATK7C0rGaA8Xc8mBs9uwKNehQFzrIi16cEvw7v7laleiJrStlzJ6yosvTH
-	sB1t+/ZON2DzbCDWmVTFGDgroxRJzYUeSJWeXZaQlf4jqciqfQuDmTSiFxExpl88
-	c+tWUz6RkiMrJFompExetsSO2R/KCDNAgyE+nnENK5DPuycgfbYUa5suUXQ==
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com [209.85.221.71])
-	by m0001303.ppops.net (PPS) with ESMTPS id 4hv72prg3x-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <bridge@lists.linux.dev>; Wed, 11 Nov 2026 09:00:40 -0800 (PST)
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-48e29c25101so1715784f8f.3
-        for <bridge@lists.linux.dev>; Wed, 11 Nov 2026 09:00:40 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794416439; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ptX9ZwssprS0kOSl0y1NV69O5AG7aZiIh/eQzQ1HLX6kpCj3yRuCPNES5y1urbQ8kR
-         85g11dJfHswLAeFau9lUnaTtZpGkzBAFnAr78HkLKXDM5KMm8Cf8wAp7RPHnzLMZYJTy
-         ECFM4j82qAsGCkD99O+2qvTPkhnFo1ze3LZjquaVtaHKO6daZDqzjtRJZuM5w7G13w4K
-         y9cI6oS5OWuaCZHNVFr0NaJTXaDXgZZdaGUMCElUNRlMETPNd7cys94L8sM0iUAQ63Bx
-         ktyH92Corun2OJz4rsAbU6KjL0ULuh0m5/cV3mL34dHBfyuZdPl5IaX7NPxUCbNcnl1m
-         EO3g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version;
-        bh=74FoFchhuSQQ2jSNjsBXa6BV1QiK2Fm+lk28fFAbdUE=;
-        fh=sNk+33jG5CfYwRNnTdq7vMFlafwymiflFP87yEFzYn8=;
-        b=o+wlcPSfL/yF/wEQdN0zWDOLZOUF7Jx/dzJksvjIrcq0PPCZ0+ZzUNegqmDpj4tljh
-         zOUxlCPE32pwOLOuciQg19bWFwnylNFIoOYSjE2g3IocTKQQdCQj8aS9ivPu8rRdKYdp
-         XErXGzg3ZmsEjFEoQZEgi4ZcuoBrvdvfedOssTusJlDzJRl5Z9PnziGyMi4SLUGcHURs
-         KObIX9eCREVInQPPQklmDJAIcAE2GDfMjUVckxVWTMLIG/JqRTCkZp6uLKLHHtw8Tk3z
-         +3bhIwfy1VgBAERPYNtjlEzlEk99pSw7RH5xUNmbJdsn3pbbLOEPotpaeEGeuVDNPwLY
-         JhXQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794416439; x=1795021239;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=74FoFchhuSQQ2jSNjsBXa6BV1QiK2Fm+lk28fFAbdUE=;
-        b=0eS7l5UEHhNSWU7rUum2AGvbtjNAP3Tlo2MwN2iDIgIycVKm90jnhXYNuMVspO41Kh
-         y8HapoI+G5KKZTLahIElzyy0108JbKubX1JqCN/wNbuVU7l/KuNsD5FZbYt/PsQuebRV
-         l26SFMt76VRH5YHQMFFr+PDzjscvvXeXMje6Wv+RTUcjLvcAfPyhgGzKB55Rgvd5a57i
-         +TGYrsxn8Jj7rGCxOr4NKmXy8QAU5D1hc5KhoUHLeqDRzuUiP9RoI1Zm3BPJJgHSoBsP
-         mTCDsjJlGuLrURvX4ty5T1iNa5lRYbe0Qn1k8Mj9s7fwhZfxDt6PjExxOAbfw8QP0L7c
-         orTg==
-X-Forwarded-Encrypted: i=1; AL+hErEmGGRPoG0skza7au40LntC+WgN/eVsJ0rtgjY0gghWHJhbg2Ebu003KF/T4nqjLq0E45vcZis=@lists.linux.dev
-X-Gm-Message-State: APuU4Z/WzgmEAVrBlt6W7bel96Rhk+Phu6lrBvF3A1b7xo8GJDmrkTjh
-	c71lnAI4LxU113/JO6BlJSJONuoJ8jHr3gbBla3B6u2tS2C7ktdMG8wL9/uUxP58P+vK0yuGLs2
-	NMmLQSgCmlAEybjgFifRRQlybaygTwSIWDDExnj4EUJtWr/gLRBk+jKAhHvkam0wiOICXoAMmSh
-	8rL/BLx9BoMuw6yVeCQWhXwP3kcN40XZE=
-X-Gm-Gg: AYBFou2DmpMUoKTEczjKXvME/n3BDj2+76owQra8Mhi7BqMJppkNB/ol/17Um4WjiXh
-	O7EPY54BlyxSrHpgjkXlbO7L4gLLlUdpDn2yXnA5YexqTCkNM3LaPoRkVnZu4xhefy/SCQgANJv
-	1DFUAoWzjrPjcMRPCzWOFj/z6EohYe3F710ImL0KVTt2Kex35mlEutYVSmdDW2hPm8mc/ZNKdUd
-	f9GUrTB4+q3LI8VaiINuYkoN+IIz0Qo
-X-Received: by 2002:a05:6000:401e:b0:495:5c83:51bc with SMTP id ffacd0b85a97d-499c3b9ff3emr5473698f8f.5.1794416439115;
-        Wed, 11 Nov 2026 09:00:39 -0800 (PST)
-X-Received: by 2002:a05:6000:401e:b0:495:5c83:51bc with SMTP id
- ffacd0b85a97d-499c3b9ff3emr5473639f8f.5.1794416438735; Wed, 11 Nov 2026
- 09:00:38 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=kWO8viIu
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1794459285; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=/V28rCHXi3T9oO9LFCn5sfVOcz0zmvubCJbcVebXDxQ=;
+	b=kWO8viIuv8RUEVlMfrf+Uw19zvw0wj9bbmp4cLOvF65Ud2PHsFC5AZK747aPa8w+8teeQVWdw07aiNyK9wLR5O/pIdclGfz8AsMGuXyt7+uFh/5kyQEMxwJC/pHm8WgLKOFMvesD7ygu27EK5DKhtyfJdxqFE40PuJdDJrN6XZg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=37;SR=0;TI=SMTPD_---0XEaoXEq_1794459281;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XEaoXEq_1794459281 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 12 Nov 2026 12:54:41 +0800
+Date: Thu, 12 Nov 2026 12:54:41 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Jiayuan Chen <jiayuan.chen@linux.dev>, netdev@vger.kernel.org
+Cc: David Ahern <dsahern@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Pablo Neira Ayuso <pablo@netfilter.org>,
+	Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>,
+	Nikolay Aleksandrov <razor@blackwall.org>,
+	Paul Moore <paul@paul-moore.com>,
+	Matthieu Baerts <matttbe@kernel.org>,
+	Mat Martineau <martineau@kernel.org>,
+	Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+	Allison Henderson <achender@kernel.org>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+	netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+	bridge@lists.linux.dev, linux-security-module@vger.kernel.org,
+	mptcp@lists.linux.dev, lvs-devel@vger.kernel.org,
+	linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com,
+	linux-sctp@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH net-next 12/14] net/smc: annotate data-races around smc
+ sysctls
+Message-ID: <avVGkcI_j0hDPjQB@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20261109025425.328445-1-jiayuan.chen@linux.dev>
+ <20261109025425.328445-13-jiayuan.chen@linux.dev>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -111,56 +85,123 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-References: <20261111003111.3826942-1-toddfreed@meta.com> <179435738198.2168702.12439855185550580348@kernel.org>
-In-Reply-To: <179435738198.2168702.12439855185550580348@kernel.org>
-From: Todd Bert Freed <toddfreed@meta.com>
-Date: Wed, 11 Nov 2026 09:00:26 -0800
-X-Gm-Features: AclHuK8tjqwSs5WvfY5ngy_lWto0eQaig-gnzMnKLMUSIRvHhVTmNTSnDzSw4Ys
-Message-ID: <CADh2yMyWd2JMajjp42yx-2JEa6NsMoX1JK+2qVaci9vths6WkA@mail.gmail.com>
-Subject: Re: [PATCH nf-next 0/2] netfilter: don't send decrypted skbs in clear text
-To: netdev-bot+sinfo@kernel.org
-Cc: netfilter-devel@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        Boris Pismenny <borisp@nvidia.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Daniel Zahka <daniel.zahka@gmail.com>,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
-        coreteam@netfilter.org, bridge@lists.linux.dev, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTExMDA2NyBTYWx0ZWRfX6a7bFPiBgOvp
- Q4qgAsL7RxomDZhmjDEBJv/Ww+++pcswGDTjP3ybqob+AmAxQBeNATNRlAjeVq9BLQxE71OrNhv
- HU1Z44iHW4HZLBEsB+QqL39811HEG5KnpFXJ8a7q5AghcibntCt2Fz9Wbt2UT7LyjJMnDp0fLD9
- oLfFy7mmyKwd7D1EF/ndNe7MAMNpCpJC5FCQA4iIPGPL8124iaV1ib9WJkacbptDxAWfEMFeu1g
- nr17dEIkeXvwApszMCmInbKv/7MU6I6wiBy7JHzcqhKmpFHCs1OzssmZQjzK2yRt3RlCNXMP519
- nyyEKbn6ynB+5uMv0E1A1kAaRER2/qlRu8n6D66i7KvqJxGMypEqzSBgNYFhTxWXo7n9dJ8IADc
- PJ8BhQ4fQAPQpU5hAaOjtmxs+4Kx9zWH2tpiYTPiFsBfDQRuvSVCZ3bNQu0/58lLsW2MLb/7qw2
- hc2Ip3rdRO4EANR5unQ==
-X-Proofpoint-GUID: tQdDkH2uzQKdsd3fHR3g4QqFcMNftBhV
-X-Authority-Analysis: v=2.4 cv=TtlzFzXh c=1 sm=1 tr=0 ts=6af49f38 cx=c_pps
- a=pX1sPZUoWPGeQgUnKQNIgA==:117 a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22 a=_78whYxrdx1mplLwxq1U:22
- a=v81qpcjm-LW16Aac8AIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: tQdDkH2uzQKdsd3fHR3g4QqFcMNftBhV
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTExMDA2NyBTYWx0ZWRfX/7v3qbZ1MOqu
- clIUKci5vKttQ1OqlS0c92wHjhTSFoKouq0SEdmZXeUEZIVp8yFi7dqXVpOY8XfISPZfqPOuB2u
- m7lbdytDMKDjxjHYywGQ/yYYFNQijpo=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-11_04,2026-11-11_02,2025-10-01_01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261109025425.328445-13-jiayuan.chen@linux.dev>
 
->  - How the issue was discovered, e.g. hit in production, hit during
->    development, syzbot report, manual code inspection, LLM or static
->    analysis tool scan.
+On 2026-11-09 10:52:11, Jiayuan Chen wrote:
+>autocorking_size, smcr_buf_type, smcr_max_links_per_lgr,
+>smcr_max_conns_per_lgr and limit_smc_hs are read without any lock while
+>their sysctl handlers update them with WRITE_ONCE(), and the SMC netlink
+>handlers toggle limit_smc_hs with plain writes. Add READ_ONCE() to the
+>readers and WRITE_ONCE() to those handlers.
+>
+>Signed-off-by: Jiayuan Chen <jiayuan.chen@linux.dev>
+Acked-by: Dust Li <dust.li@linux.alibaba.com>
 
-Hit during development on crypto offloads on the net series that I
-linked to.
+Best regards,
+Dust
 
--Todd
+>---
+> net/smc/af_smc.c   | 8 ++++----
+> net/smc/smc_clc.c  | 8 ++++----
+> net/smc/smc_core.c | 2 +-
+> net/smc/smc_tx.c   | 2 +-
+> 4 files changed, 10 insertions(+), 10 deletions(-)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index d10244af5bd29..9a657172be8f9 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -88,7 +88,7 @@ int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
+> 		return -ENOMEM;
+> 
+> 	if (nla_put_u8(skb, SMC_NLA_HS_LIMITATION_ENABLED,
+>-		       sock_net(skb->sk)->smc.limit_smc_hs))
+>+		       READ_ONCE(sock_net(skb->sk)->smc.limit_smc_hs)))
+> 		goto err;
+> 
+> 	genlmsg_end(skb, hdr);
+>@@ -102,13 +102,13 @@ int smc_nl_dump_hs_limitation(struct sk_buff *skb, struct netlink_callback *cb)
+> 
+> int smc_nl_enable_hs_limitation(struct sk_buff *skb, struct genl_info *info)
+> {
+>-	sock_net(skb->sk)->smc.limit_smc_hs = true;
+>+	WRITE_ONCE(sock_net(skb->sk)->smc.limit_smc_hs, true);
+> 	return 0;
+> }
+> 
+> int smc_nl_disable_hs_limitation(struct sk_buff *skb, struct genl_info *info)
+> {
+>-	sock_net(skb->sk)->smc.limit_smc_hs = false;
+>+	WRITE_ONCE(sock_net(skb->sk)->smc.limit_smc_hs, false);
+> 	return 0;
+> }
+> 
+>@@ -411,7 +411,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
+> 	spin_lock_init(&smc->conn.send_lock);
+> 	mutex_init(&smc->clcsock_release_lock);
+> 	smc_init_saved_callbacks(smc);
+>-	smc->limit_smc_hs = net->smc.limit_smc_hs;
+>+	smc->limit_smc_hs = READ_ONCE(net->smc.limit_smc_hs);
+> 	smc->use_fallback = false; /* assume rdma capability first */
+> 	smc->fallback_rsn = 0;
+> 	smc_close_init(smc);
+>diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+>index 014d527d5462d..df0afeef67cbd 100644
+>--- a/net/smc/smc_clc.c
+>+++ b/net/smc/smc_clc.c
+>@@ -990,8 +990,8 @@ int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
+> 	}
+> 	if (smcr_indicated(ini->smc_type_v2)) {
+> 		memcpy(v2_ext->roce, ini->smcrv2.ib_gid_v2, SMC_GID_SIZE);
+>-		v2_ext->max_conns = net->smc.sysctl_max_conns_per_lgr;
+>-		v2_ext->max_links = net->smc.sysctl_max_links_per_lgr;
+>+		v2_ext->max_conns = READ_ONCE(net->smc.sysctl_max_conns_per_lgr);
+>+		v2_ext->max_links = READ_ONCE(net->smc.sysctl_max_links_per_lgr);
+> 	}
+> 
+> 	pclc_base->hdr.length = htons(plen);
+>@@ -1272,12 +1272,12 @@ int smc_clc_srv_v2x_features_validate(struct smc_sock *smc,
+> 
+> 	if (ini->smcr_version & SMC_V2) {
+> 		ini->max_conns = min_t(u8, pclc_v2_ext->max_conns,
+>-				       net->smc.sysctl_max_conns_per_lgr);
+>+				       READ_ONCE(net->smc.sysctl_max_conns_per_lgr));
+> 		if (ini->max_conns < SMC_CONN_PER_LGR_MIN)
+> 			return SMC_CLC_DECL_MAXCONNERR;
+> 
+> 		ini->max_links = min_t(u8, pclc_v2_ext->max_links,
+>-				       net->smc.sysctl_max_links_per_lgr);
+>+				       READ_ONCE(net->smc.sysctl_max_links_per_lgr));
+> 		if (ini->max_links < SMC_LINKS_ADD_LNK_MIN)
+> 			return SMC_CLC_DECL_MAXLINKERR;
+> 	}
+>diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>index 6021322253e93..3d338019a1b8b 100644
+>--- a/net/smc/smc_core.c
+>+++ b/net/smc/smc_core.c
+>@@ -990,7 +990,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+> 		lgr->net = smc_ib_net(lnk->smcibdev);
+> 		lgr_list = &smc_lgr_list.list;
+> 		lgr_lock = &smc_lgr_list.lock;
+>-		lgr->buf_type = lgr->net->smc.sysctl_smcr_buf_type;
+>+		lgr->buf_type = READ_ONCE(lgr->net->smc.sysctl_smcr_buf_type);
+> 		atomic_inc(&lgr_cnt);
+> 	}
+> 	smc->conn.lgr = lgr;
+>diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+>index 0f0c6df3bf2ce..30bffe79d06a3 100644
+>--- a/net/smc/smc_tx.c
+>+++ b/net/smc/smc_tx.c
+>@@ -148,7 +148,7 @@ static bool smc_should_autocork(struct smc_sock *smc)
+> 	int corking_size;
+> 
+> 	corking_size = min_t(unsigned int, conn->sndbuf_desc->len >> 1,
+>-			     sock_net(&smc->sk)->smc.sysctl_autocorking_size);
+>+			     READ_ONCE(sock_net(&smc->sk)->smc.sysctl_autocorking_size));
+> 
+> 	if (atomic_read(&conn->cdc_pend_tx_wr) == 0 ||
+> 	    smc_tx_prepared_sends(conn) > corking_size)
+>-- 
+>2.43.0
