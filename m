@@ -1,86 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.52
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794704165;
-	b=YKd2g1pu/XeEfYf7Gp5zz/9nGr6w78tD9OsbCBel5vo3vTUB2OoUr8T3kZR34k6LdBum
-	 HoEqtf1Z49kLrCkzPCAtHdrcZqi6Zt8/OAOwKdT9GvcrDBiAoLZ0ICrcr8GHp3YAWy1jm
-	 fXh35RGun/SSLAv2uwh8zqybSYK9obWf/veysuIujxfWuQ+z972Bz2mVqK5oL+o7qXCaX
-	 c8bhDwhy/oCFWkP4eRqhsbLMLufe53DQd4MbsFfBfSrSWhvFN2hXwM4t0bDy61C5hW2Hu
-	 qDGP1Lt+4Q/A/q3w3qYX5+DE1xNP6j/IhDSDW2FNIhPyPfIfWkWPLY5cZxvVoI1PMoA==
+	t=1794704169;
+	b=17UgSxtKTrYNUExprIiYvB6z9yij/Xea/KpzR/1gN2WGTBIfwOVoHZR5R1Tr2YP8rj0E
+	 MP1FYPhSU+upxRGbjJ6Xj/6/ZGN70ZhJ6JQzIRLiMVRG/cxSQEkyf1P82ZYGOW56YuDN5
+	 G+2VgDz6xw4UYAXrf2QNVA05ACC9dmZSmDg0jMItthXs12O9F1pvUeh92Ck3pu7L0XhZp
+	 HdynCbCNv4ym2LgfVtYZfMzz/+wFGUboq86ANwwEAXgC0C3zu0jUCwqmfGBUKAoq9ZBnN
+	 LaU+Xnm/j74q8JSZIPDhawd78ONAUN3sJVG3srnZ6QjOKv7eQ6hauLOLI6bEslM9bEw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794704165;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794704169;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=TEe8D5P09T7tDxCiTRWgdiV435JqX7aUW5WkZ/vkqBo=;
-	b=paCLe2TMuCf8K4elvSm148K+slTKAG3X4JziHYp+vIT7TwfNAYLFeOOs+DNZVbQAB1EC
-	 mA5ECiPd1C3RAxED16dbPJ949n/gT5Tozg18D3LrYdioQA9OQJZiUYtlTvUNlUt9I+b6i
-	 XOIyqP68lL89K4fn+iWxNSi68VR8R4ZYeZKXI3pzFQi57FjdvLijg7G4usEctA1z4iWs0
-	 aoLciSUg+aOVPaDtSHswpWYakiWfTpDcE+xGlr7oWepRyAb4gzYjfCgOm2rm3YX2nAuyV
-	 +/o6unzyThwgulTU5NKBrgbVwGHiVlg1GnX44KItQcYBes3uJKXrV0HjeWuWpLGYRYA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=EXiLXVBflQGlm4cX13sHzQkGhpIOp9cmpNR58hxiL1A=;
+	b=mS0aUQvnPT4zcIIBC5XsIkJFJA/6dA7nMOEWsrInRZhwDTuHtkOdB/MJgH7Dwcm/tBRw
+	 /3B5tHNIqTT1JrZzxydHnjcXzAu1XAHQ4BnvkMJAikSG82uKKJet8hiEhI5qCx3A3wo8s
+	 pFElLUJeRCh1OVg/V+AwjVLeXD67Cf2tlM8g13nnaNRSrF1XtlAf4zWmtHoYRGWcIZffL
+	 bn1dZijw1PJWnZGymEDpMYDgyw6v5uHz+QUPNGDfco9HG22CzsW+JNquto8WadN1uteIN
+	 vVdyEUA6uYnZxhTcgn6429EB6D2FgyWTeExYw17yqj64rmZ5Xk4IpKmM/nhkugEkcuw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=bairaktaris.de;
 	spf=pass smtp.mailfrom=bairaktaris.de;
-	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=Teb9SuPC;
-	arc=none smtp.remote-ip=209.85.218.48
-Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b="PMoS/JTx";
+	arc=none smtp.remote-ip=209.85.218.52
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22AD6606A329
-	for <bridge@lists.linux.dev>; Sun, 15 Nov 2026 00:56:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 22AD6606A329
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E40AB606A330
+	for <bridge@lists.linux.dev>; Sun, 15 Nov 2026 00:56:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E40AB606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=Teb9SuPC
-Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-c4d581da0aaso294727566b.2
-        for <bridge@lists.linux.dev>; Sat, 14 Nov 2026 16:56:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=PMoS/JTx
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c50a4a2132cso283844966b.3
+        for <bridge@lists.linux.dev>; Sat, 14 Nov 2026 16:56:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bairaktaris.de; s=google; t=1794704163; x=1795308963; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TEe8D5P09T7tDxCiTRWgdiV435JqX7aUW5WkZ/vkqBo=;
-        b=Teb9SuPC0sGk7jRrqycm5zXMg2RZQnHcyAnoecM2bjE8oKCPd0NNjc4ku4d0ldRc8d
-         pf/x9SsDEVo/RKW6TCE6ngZPKEJ2xfcY1MH84XJq+hMVf/K4u7Ih5injIIPz10PtYj9/
-         yPc8R3u7XAPdYSdvhpLEZoHZ0RPAWIeQMInV5pxzv+EMUjrW2+CHD5J8BNBiHEz1QwgU
-         3KmUVPLDCDoCVd25UMEYezRVE4mHREaJIUPlxrbDyZsnjS5up1iZAUdRzS3MBsF9AsBi
-         iFeC+B+NfgiBXXjm6ApgirdioO0uI5cz6njlxIgBHW1202YryThvDjXLN7zM4kRvNaLu
-         FQ8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794704163; x=1795308963;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=bairaktaris.de; s=google; t=1794704167; x=1795308967; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=TEe8D5P09T7tDxCiTRWgdiV435JqX7aUW5WkZ/vkqBo=;
-        b=dRO3vnTYZWvtRwy91y4DLJc4mP9NRT3NbUICrBDuCKqTsS3vg6wrwUNATeYSoqpcH7
-         hwLyS9CetQpVnadvKs3eiXJo6FtPGRFMMuzMRUZaYfk/CR5jiBFXV2IL+hrqEBesdVpk
-         7mJaYn6CLLIcjyBRy+IPjNXbSncz3bJ7BymCqu96/GYmL69q6BzYOOfcdQBl6Czqgk7I
-         aZncsgAlZ/qCTiFMmaxrkjw8kVefYkz5qSwgezUuC5njhRsaeyDXnl/rTCldeW4dxsbB
-         gfXC90qo/OR9YG1qyMPzvaztAQh1BQ3FZvb7qQ64qkebRMcRH6bGA3zLN8QeTSwsUSjN
-         WBeQ==
-X-Forwarded-Encrypted: i=1; AL+hErHmSv3W1cIYwaKRDA+hG+AKmvkLnwAR2a/1dF3cmjv1SCHgfmw6XKYNwsYwWDKASF9hxw1ivBk=@lists.linux.dev
-X-Gm-Message-State: APuU4Z8D2M1Ki1J2xRtU7hHKEw3ZEiQfioRhENUA56lfz/Mc3eny9QLe
-	8M3y7VzhJp0h59XBsOwOfrDrFxR1N3+Ewtqu6dDBeO6WFKSMoJDeG8sa6WVMAr+vdA==
-X-Gm-Gg: AYBFou3WiEDwi/+gJ25aXGnVmVBBfwVgqZVIPY3NTTnFOZrhapKUPkBbbGqj/83wPbZ
-	1ykG0pq24tLe/AkppI81fHPRJG/4cnmM1B6EZf/dTtH4nx4aDsv88hGPE7x3zruyO+jl+TyaA4W
-	i1heiHshizXVjiAnL1A/2wdbZX4N1T90zUE5KWb15s0WplkrlTOKEIBrYiRY90cKx51/n58MSL4
-	srYpSSwyeME5ehYtQePTU8xNMmxM/thKS8uRoqAVzHjiaipRup+awZCSlUwNhGeGNLK25BL1InV
-	Ekg0SE300IzHgcCsfERChGopPYs2vwZlnEDiJCPodZjxEohrT1UHnWg8qSBxQqub9fJe+y+wEzj
-	y4z0br8/N5avLvHgy/lLigwb0ckDBmUgTOc1hec44j3Vs8GqWbNU3m6On3bnaEKLeRPQ2gUtusd
-	O5tMY7dx5tiTr2+sMcQBA3T62tneDcirs5y0m0eM0eYkH/YsHIeC77LtdUU2l4Ud7IHqyPVfXJa
-	CySx7ClBv/z3XvdWMwhCFgHpRLY1A/VpzaeUgm4vfJIDlBxtXR+p9etiOa3YwmvIChR2P2oI93p
-	rsXijkg9v7f0lkMiNwlbN7q1GSFir0EnHMYlos7yfYITOEoWYBTw11gVk4dApreNR49QR0rNA6f
-	/mZEhTySkEVtLy4p6laMCgV0NB5zew7R51XNbe11dRgZvvk+otbQkDpM08HB6pfAGQ/ORwUTegz
-	Ee22ZxCnsKSHLyxTO8KI8L3rmgbudbt5oGwhYQxHkb4QdbT63hHLbsJhk+3vzserXqAb5eHvGOt
-	XqaI3HAeBtMsDTTkqwibuqfhx718yNB/XffwrckQARdUJeTpHu4EstiUbQPF9u/3krjTZLV641v
-	k/lZnmdtBdz0hlf1+7ojWDEm0Rf2s73W6L/oBQcDhNXGois6qoH+GKJ10qRzQ2CgvUUGqvXl
-X-Received: by 2002:a17:907:3d44:b0:c40:4965:72c3 with SMTP id a640c23a62f3a-c509637c12emr491035466b.19.1794704162921;
-        Sat, 14 Nov 2026 16:56:02 -0800 (PST)
+        bh=EXiLXVBflQGlm4cX13sHzQkGhpIOp9cmpNR58hxiL1A=;
+        b=PMoS/JTxg/+0ZMX60+H0DzKU5R6QWtDYxA8ae3FTNcKa0iA/YnskdFu8LIC+ILPqlr
+         FoE3DU+HV08p3q6Guzt9JnXqxeDus4nYj98XUuUBkmOT6vKVoRr/uvhE6PwSA5OOxQcQ
+         CjXiEX8pwzcbU1jMRwKhDc6HWZvCGva1TuOySSKqxdQAm/TX5BLz691ViGDV/KQILGSF
+         PaHn4MUDGC27SRXDMCE5raeveOUcZ4QQqgzw0MxwbIoNk6pOee/GPqyjHDMMeoEvmTaG
+         /alBYJqiWK/PXcVnVjRMFJGb+qcQxAsdHmkiXUgJ3EySF8e7FWoTb7UMueuOmnkCge3y
+         ECSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794704167; x=1795308967;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=EXiLXVBflQGlm4cX13sHzQkGhpIOp9cmpNR58hxiL1A=;
+        b=j3EaHTeWLk0RkaiAOi0HPu5RUK0k6jiNJkfTiSNY00OIIG88BSwnfEAPktoxbLJasj
+         xqRzFpB4J1YkM9PsxSIEwfsSVP+fCb/YBmKxxWxScFXtTyrpNPiBpSj8rdxlga+9bzTO
+         qrVN/zXkDQpgjJRcIxm1sA+4wb8+GnWg9drVXfbc+zdH+b7At2N0jukqfiaA2o/vHv6g
+         LBPrpWZZuSkBUCn/PYbpe9o5gFEn5HWMW1iMS+4WmsuxQ5XlcGIWI0+CDBhwwvWNne7z
+         dhWiojiebiCiXzmX47gWfS5/Pm854bBUg9Z0li7Vgv9fWLeuCEHN8ChyjviQJy65NJ8p
+         8ViQ==
+X-Forwarded-Encrypted: i=1; AL+hErEvMNp2HkwavqBkB2yUBxKBtUlmbLgLoMg6i9+f8LO2IEoxtfl5+AtZjTAwWu9E6Rex0JQoj2Y=@lists.linux.dev
+X-Gm-Message-State: APuU4Z8gDwHg7c3XovdcTsGZSRYRjOumCBzsj8UhnozBpCMyi7nxyGK1
+	j0nm8+ZdIWrIqVz8VZjQznBb9YdwZnOQnI965jeUPVSFVScOgtwlorWrij6ttCb8Eg==
+X-Gm-Gg: AYBFou2Qzzb1SHxRuwNGzNJXRs90/pAqM8OZeQ6Ir63v38QTMxhKL7dKgnfc3e/Bifv
+	WTYbeKcYIJA1JiYWW1WlukqUs2FwOlnY8sWMEDZLfOVGA1zj/UuEMMjI8Q7hTx3utG3FV2onzTC
+	QollF4Ku2YtIuoJXDdK7w2SQvw2U2mHLHlN9VMwdMUo7Fa9OVu0xwBn2Mk+VNwjuGpYMC+cNXYx
+	XnhbqcCTnvFLHNY+2wQO0wig9dHSqWEXxrj24h9RIET0SBM0DUTRl1wI2lMJeKvRoG+uYC+Fcf0
+	dbxQV21TQEzbLBcSUYloMaNi4sD2TrrakzMH2bptrGoUFk3sIF4oTizju8Gyuy3hvSNWHnzdHF0
+	g7nyNQrVYHNaujdNQVxjPJ/O4plKjd0Y5rPxNTccpDiPX9vmaSH+GcR27dH3j6WVhY8P7oVyTOj
+	DqUg9/hZTdAs3aevyh0Eyu8X8zImNg4xZ0o8Z5CtSmjb2Ye52b/liw6jDjM9wNKtrCD1xuN5ive
+	kAKvPsOhpLzW6XiI8jKcowAWMw8dCN36rb5sxjTE6Ck6k7/auaKs0hAUHeC4RZRf4zp+NApL/GF
+	Fuck+/DA2KIlZVfqD0WP3NLqbjUAkNMry4vCm8AP7RNv97Vi75uZcQVVkYIlMLk3w1mpZEBeSOV
+	xqtkCe/RiBAQSJJC533dcA0FqHQlxdxvjQO7ZRmNBES9Nb5TUzCMFUNRgytKpo2AmFqbV9cDq/p
+	4RVUiXoPjNTlRL1Vi017rD236o/e8rfrAUCmFNvVxxDwjtA/gDju5JQGN20T/mnNWoY4pDJwpr2
+	tEgATRN2+RZtx8UVSVBR/x0gadmvLjp2/sjuFL+PoxiNVeLdAhyac82OSZK1iihsu3C4P7rxvf8
+	umrHUsewSUeHpMLdXDGBOBW0kd3Az/CGwzsaAvW1n0Gkcq5LJRQ=
+X-Received: by 2002:a17:907:6d02:b0:c46:9ca9:f524 with SMTP id a640c23a62f3a-c50963b6917mr545268566b.32.1794704167251;
+        Sat, 14 Nov 2026 16:56:07 -0800 (PST)
 Received: from Desktop (p200300f2470a670069e45948b1a17361.dip0.t-ipconnect.de. [2003:f2:470a:6700:69e4:5948:b1a1:7361])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5095b921d4sm266313166b.83.2026.11.14.16.55.58
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c5095b921d4sm266313166b.83.2026.11.14.16.56.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Nov 2026 16:56:01 -0800 (PST)
+        Sat, 14 Nov 2026 16:56:06 -0800 (PST)
 From: Julius Bairaktaris <julius@bairaktaris.de>
 To: netfilter-devel@vger.kernel.org
 Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
@@ -99,10 +100,12 @@ Cc: Pablo Neira Ayuso <pablo@netfilter.org>,
 	bridge@lists.linux.dev,
 	coreteam@netfilter.org,
 	linux-kselftest@vger.kernel.org
-Subject: [PATCH nf-next v10 0/3] netfilter: flowtable: tear down bridged flows on layer 2 roaming
-Date: Sun, 15 Nov 2026 01:55:52 +0100
-Message-ID: <20261115005555.645727-1-julius@bairaktaris.de>
+Subject: [PATCH nf-next v10 1/3] net: bridge: fill a forward path only to a port that forwards
+Date: Sun, 15 Nov 2026 01:55:53 +0100
+Message-ID: <20261115005555.645727-2-julius@bairaktaris.de>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261115005555.645727-1-julius@bairaktaris.de>
+References: <20261115005555.645727-1-julius@bairaktaris.de>
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -114,125 +117,80 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A flowtable flow that transmits straight to a bridge port keeps sending
-to the old port when the host moves to another port, for example a Wi-Fi
-station roaming between access points.
+br_fill_forward_path() resolves the destination port from the fdb and
+checks only that the vlan exists on it. A port in STP blocking, learning
+or disabled state, or an MST vlan that is not forwarding on it, still
+gets a path, so the flowtable transmits straight to a port the bridge
+itself does not deliver to (should_deliver()).
 
-Patch 1 is a bridge fix the series needs: br_fill_forward_path() fills a
-path to a port that does not forward (STP blocking or disabled, an MST
-vlan not forwarding), so the flowtable transmits where the bridge would
-not. Patch 2 makes the gc tear a flow down when the fdb entry moves or
-the port no longer forwards in its vid. It is Pablo's patch with my
-changes on top: it keeps his authorship, his Signed-off-by from his
-posting and a note of what I changed. Patch 3 adds selftest cases.
+Add br_port_forwards(), the port and vlan part of should_deliver(), and
+fill a path only to a port it accepts.
 
-The gc finds the bridge port from out.ifidx through the vlan devices of
-the path and the bridge from the port, and looks the entry up in the vid
-the forward path used, which the tuple now keeps in out.bridge_vid. With
-two bridges on the path it also checks the outer one. struct
-flow_offload grows from 296 to 312 bytes on x86_64; its slab cache is
-SLAB_HWCACHE_ALIGN, so an object takes 320 bytes either way. A gc pass
-over 2000 flows, 1021 of them offloaded to a bridge port, took 277 to
-278 us with the series and 171 to 281 us without it (median of each of
-three runs), and no flow was torn down.
+Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
+---
+v10: new; v9 transmitted to a disabled port and in a vlan removed from
+the port, which the gc then left in place
 
-Tested on nf-next 734bef548a96 in an x86_64 guest with PROVE_LOCKING:
-nft_flowtable.sh passes three runs out of three, including the eighteen
-roaming cases in both of its passes, with no lockdep splat; the "block"
-case took its final form after those runs and passes three runs of its
-own. On v9 the cases for the fixes of this version fail (stacked
-bridges, the untagged vlan that is not the pvid, the disabled port, the
-vlan leaving the port); without the series every roaming case but "del"
-and "age" fails. net/netfilter and net/bridge build without warnings
-with W=1 (x86_64 allmodconfig), each patch on its own, and with
-BRIDGE_VLAN_FILTERING off.
+ net/bridge/br_device.c  |  2 +-
+ net/bridge/br_forward.c | 19 +++++++++++++++++++
+ net/bridge/br_private.h |  1 +
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
-I used Claude (Anthropic) to help write these patches.
-
-Changes in v10:
-- the tuple keeps the vid of the fdb lookup (out.bridge_vid) instead of
-  the bridge_vlan bit and the port pvid: a bridge vlan that leaves the
-  port untagged is popped from the encap stack (DEV_PATH_BR_VLAN_UNTAG)
-  or never pushed (DEV_PATH_BR_VLAN_KEEP), so v9 looked in the pvid of
-  the port, which is another vlan when the untagged one is not the pvid,
-  and kept the stale flow (Sashiko). This answers Pablo's v7 question on
-  bridge_vid: no bit can recover that vid
-- the gc also tears the flow down when the port stops forwarding in its
-  vid (STP blocking or a disabled port, a vlan removed from the port,
-  vlan_filtering toggled); v9 kept sending to a disabled port and in a
-  vlan removed from the port. The new patch 1 keeps the forward path
-  from recreating such a flow
-- with two stacked bridges the gc checks the outer one too; v9 checked
-  only the bridge of the transmit port and missed a move on the outer
-- selftest: vid 10 untagged on ports of pvid 1 through a vlan device on
-  the bridge and through the bridge pvid; a move from behind the inner
-  to a port of the outer bridge; the host's port disabled; the vlan
-  leaving the port; vlan_filtering turned off before a roam
-- selftest: the IPv4 roaming cases turn IPv6 off on the host, whose
-  router solicitations crossed the bridge and refreshed the entry the
-  "age" case waits to expire (2 of 8 runs failed)
-- selftest: lines wrapped to 80 columns, namespace names initialised
-  (NIPA checkpatch and shellcheck on v9)
-- Cc coreteam and linux-kselftest (NIPA cc_maintainers on v9)
-
-Changes in v9:
-- reset port_vlans at each bridge in the forward path, so the gc checks
-  the bridge the flow transmits on: with a vlan device of one bridge
-  enslaved to another, v8 counted the vlans below both bridges, looked
-  up the bridge port from the wrong device and read past encap[]
-  (Sashiko)
-- selftest: a bridge port that is a vlan device of another bridge
-- selftest: the roaming cases give socat five times SOCAT_TIMEOUT, as
-  roam_stop() ends it; on a loaded host a case took 109 s and the 60 s
-  timeout ended the transfer before the check
-- authorship: Pablo's patch is credited as such, with his sign-off from
-  his posting and a note of my changes, instead of Co-developed-by; his
-  paragraph on the switchdev notifier alternative is back in the commit
-  message
-- rebased onto current nf-next
-
-Changes in v8:
-- drop bridge_ifidx and bridge_vid (Pablo): the bridge port is found
-  from out.ifidx through the vlan devices below the port, the vid comes
-  from the encap stack (bridge_vlan bit) or is the pvid of an untagged
-  port of a vlan_filtering bridge
-- the fdb check sits in nf_flow_dst_valid() next to nf_flow_dst_check(),
-  the hook is fdb_valid_dst() again, and the comments Pablo pointed out
-  are gone
-
-v9: https://lore.kernel.org/netfilter-devel/20261108155344.35845-1-julius@bairaktaris.de/
-v8: https://lore.kernel.org/netfilter-devel/20261017235849.1066624-1-julius@bairaktaris.de/
-v7: https://lore.kernel.org/netfilter-devel/20261014235628.197976-1-julius@bairaktaris.de/
-v6: https://lore.kernel.org/netfilter-devel/20261004171605.3544792-1-julius@bairaktaris.de/
-v5: https://lore.kernel.org/netfilter-devel/20260914072541.897040-1-julius@bairaktaris.de/
-Pablo's patch: https://lore.kernel.org/netfilter-devel/20261014210256.1573072-1-pablo@netfilter.org/
-
-Julius Bairaktaris (2):
-  net: bridge: fill a forward path only to a port that forwards
-  selftests: netfilter: nft_flowtable.sh: roam a host between two bridge
-    ports
-
-Pablo Neira Ayuso (1):
-  netfilter: flowtable: tear down direct xmit flows when the fdb entry
-    moves
-
- include/linux/netfilter.h                     |   7 +
- include/net/netfilter/nf_flow_table.h         |  22 +-
- net/bridge/Makefile                           |   2 +
- net/bridge/br.c                               |   2 +
- net/bridge/br_device.c                        |   2 +-
- net/bridge/br_forward.c                       |  19 +
- net/bridge/br_nf_utils.c                      |  35 ++
- net/bridge/br_private.h                       |  14 +
- net/netfilter/core.c                          |   3 +
- net/netfilter/nf_flow_table_core.c            |  68 +++-
- net/netfilter/nf_flow_table_path.c            |  29 +-
- .../selftests/net/netfilter/nft_flowtable.sh  | 364 ++++++++++++++++++
- 12 files changed, 561 insertions(+), 6 deletions(-)
- create mode 100644 net/bridge/br_nf_utils.c
-
-
-base-commit: 734bef548a96e8774d6eef5dfa2026c6edc4e80b
+diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
+index 0a1ce9e59a4d4..f5860e88dbe95 100644
+--- a/net/bridge/br_device.c
++++ b/net/bridge/br_device.c
+@@ -402,7 +402,7 @@ static int br_fill_forward_path(struct net_device_path_ctx *ctx,
+ 		return -1;
+ 
+ 	dst = br_fdb_dst_port(f);
+-	if (!dst)
++	if (!dst || !br_port_forwards(dst, path->bridge.vlan_id))
+ 		return -1;
+ 
+ 	if (br_vlan_fill_forward_path_mode(br, dst, path))
+diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
+index 54365c6104b5c..9dbe9c9495582 100644
+--- a/net/bridge/br_forward.c
++++ b/net/bridge/br_forward.c
+@@ -31,6 +31,25 @@ static bool should_deliver_vlan(const struct br_fwd_dst *fwd,
+ 	return br_allowed_egress(nbp_vlan_group_rcu(fwd->port), skb);
+ }
+ 
++/* Called under RCU. Whether @p forwards a frame in @vid, 0 without vlan
++ * filtering, as should_deliver() decides for a frame filtered at input.
++ */
++bool br_port_forwards(const struct net_bridge_port *p, u16 vid)
++{
++	struct net_bridge_vlan *v;
++
++	if (!br_mst_is_enabled(p) && p->state != BR_STATE_FORWARDING)
++		return false;
++
++	if (!br_opt_get(p->br, BROPT_VLAN_ENABLED))
++		return !vid;
++
++	v = br_vlan_find(nbp_vlan_group_rcu(p), vid);
++
++	return v && br_vlan_should_use(v) &&
++	       br_vlan_state_allowed(br_vlan_get_state(v), false);
++}
++
+ /* Don't forward packets to originating port or forwarding disabled */
+ static __always_inline bool should_deliver(const struct br_fwd_dst *fwd,
+ 					   const struct sk_buff *skb)
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 014d0b8db8c73..2c73d2549eaec 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1048,6 +1048,7 @@ int br_dev_queue_push_xmit(struct net *net, struct sock *sk, struct sk_buff *skb
+ void br_forward(struct net_bridge_dst dst, struct sk_buff *skb,
+ 		bool local_rcv, bool local_orig);
+ int br_forward_finish(struct net *net, struct sock *sk, struct sk_buff *skb);
++bool br_port_forwards(const struct net_bridge_port *p, u16 vid);
+ void br_flood(struct net_bridge *br, struct net_bridge_vlan *v,
+ 	      struct sk_buff *skb, enum br_pkt_type pkt_type,
+ 	      bool local_rcv, bool local_orig);
 -- 
 2.53.0
 
