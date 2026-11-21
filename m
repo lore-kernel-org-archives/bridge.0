@@ -1,96 +1,105 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.62.42
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795187622;
-	b=X6jWtMKmbR45EEkj3P3DsgpjAHucWys3zxW1SdgMiI1bHlpyaY5Hf2+ztdVSMdPqsXDI
-	 d1RPduqJlvG3YDBWJFgcgBFRt5RkotddCE4Rs6XUQtuALN5E5N5dA9tQa+l5dATzLauQU
-	 M0jOexkP7rd1HJpUNrfEORigNW0mwQaFdky0wffO6ibOymEsQYMmm9Y0b8HHKybnPizKI
-	 Si0DlW2xYnEh1k6jsiO6xt+VHyhbL/bX7siKBVzNdwS3zPgjcPBCvgXMyw+8yY8eyEEEm
-	 FAZ+lMAPtZtCf4UKLbFHEMeudfWCesp3qCPBbl3nisok0/zWOpVe6tvu5W+uTIKW75Q==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795187622;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:Content-Type:Content-Disposition:
-	 In-Reply-To:X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=PeJaU9HETn+BvQzI2bDUD85UgGgazaNwhJXZAmpAEy8=;
-	b=bP0y9/ATDdYpocDg9915p5WnAftCOzbTmFKpaXfXXGYCt3VrkgdDx22TxXrpp11ak6Np
-	 RybCeD2Oc4Pj3zM8B1kEI4IdP4WefRPsvTWBf7xhA+0qHFXZNDFFVkR17dOC7NoWsP/cf
-	 FxcaptktSOhuHIhd70FWWHdTNBNXPy1ixxDyq6GwgRxSpGzrn5ggYTCQkBC9fFbYqsnkO
-	 qTzBGrDztpKn8QvWY3JaGchbfn2udwzf8+ldMK+c9XSg9HG6NLL4r4gtCJEH8hylJkPwR
-	 rL/K3eAFKJYhhqTlu2odXOQO6r3sOFF3esgC4NxK7gXO4KMYb5aw7kCuteGENZbOGDw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nvidia.com;
-	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=iH7QLc9Y;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.62.42
-Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011042.outbound.protection.outlook.com [52.101.62.42])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.48
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795288600;
+	b=W9W3VmAe0sq2cRuknJjg6FWyfZp9eDQGkZPgWn6ZPekd7Vven0nwtypLGdKBO7woxDcl
+	 0UsP+9f6E08w/UI5BGxDN72vZhuEjIdHpzfG6wu9B/YjUxy+BFhyWB8r/s2hXe/Ain1/G
+	 QGGrPU1dnX2WCAtgKWWO1P0f7ZuOuHJFg1NTK7lnItvv26SXjKTZjRhh6uk0VTonzYnKK
+	 x7AZrNFA5KZ0qw4HVqTxiznKCd43Al4IDUb/nbRQrcqfx+55Slog+3VVLv2DRN3fE9eYt
+	 wxoDqm/va0AqlV3ZJ7NFAc8bHQ8OqKs32OrT9Ke/HyogqqFwnFMromPYU2MavBQT9iA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795288600;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=TgHFnT0Aq23ijZjgXPqXmSzHBW3c5oZyz2iVakOwM3E=;
+	b=MFTCJQwtHwGosibAlxDfQY8y8omDvI3zz/k1B0ShfhAV4xLQRpHbXtx5PESODjQjwl1z
+	 9g98jD9VNr/tPinN/kLfTyL174y3reqKQqDkIRorJM63KdpouEE5oNluuVT4izFyROJSS
+	 snl8hF3qlLkx7auYON5Grc34KR9SMoG288h87nBMXQM9x9iAjMDbRJrQtmlwEXGhZgMLC
+	 vgmLjHuKYF5XoUr0dDEIbEvic+5+xGbfZR4A3XlFprXxHiQcko5MAS9X5k4+pQaqQX5p+
+	 4phxKP8Bu+Ob3zLiy8SJ/SlqPURNOWACHwCr/JQ7Md3PR39o9GBrIO2sgX8xvypCK1Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=bairaktaris.de;
+	spf=pass smtp.mailfrom=bairaktaris.de;
+	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=GQeMcdoC;
+	arc=none smtp.remote-ip=209.85.218.48
+Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com [209.85.218.48])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3404606A326
-	for <bridge@lists.linux.dev>; Fri, 20 Nov 2026 15:13:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B3404606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C54A606A32C
+	for <bridge@lists.linux.dev>; Sat, 21 Nov 2026 19:16:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3C54A606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=iH7QLc9Y
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=s+8h0ZEkS4hT/2NamvGfLomt+R5D3g4ghjkgkMsPZgUitDg/EfcDKFbi3EcQcqz5f/8P79K4dbsaOXEzvB6yBj86IiXeZQiQYLZLscWPOZpWrV0/C6uRsay1CRj10AsvuZ+RGX5Zl76QinMTIIqyr9n7RL6vaIh8Ppx8kEc/iltfzVnBjV73NVvuRqJMpI4/s5XJvHijopjRuAUwI2Jt2a0dZQLJzKdRnYCi+zZjphetw+1GAeSYqWM50fGgn0xrjk4O6VYgJDbdanyeiAppiHES+bQmjF7DsGkxl0b8JszhdKdWQwCMijNrPM1iwB5lNfM87+SIEOj3juvL7Q2P6Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PeJaU9HETn+BvQzI2bDUD85UgGgazaNwhJXZAmpAEy8=;
- b=GcKFlz4W/OvDS7XFYsiIon6aeoykUzXR2HwxkAvWElY0w1YH/XUxH9yARfGP2KorKDS7Bz6tUfE063DQDGiDWbIYi3IPflNEk/2QeH6vKv2H4W8aSwPq72P5M+RI9MpEj15H/M9Pgz45O2lrG++s7Myvvms47JvKiOto+jTHHv5BauhIZp8LoxcBtS7WjoQ1Sf/Zz054Hy5MyFkE9mZIvhNbll5mV48480+ST0+7yQHoMKl0Wy2NJwhLntf5hMbnynyiuFAVD1hjedK408Gv/xKUSwZVFgYYiPuTuo4EspDynO8B+5T62JvwG1beFg0B6RzGryHdW8S44pTaIRz9FA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PeJaU9HETn+BvQzI2bDUD85UgGgazaNwhJXZAmpAEy8=;
- b=iH7QLc9Y7ynAOoLmsNIIh7AkEmDtTW3WY8iPNFTjNkpru7yLj4cxU7522yLwduL8Wf7UwSDPtuxjMRxej/RUWIYU9r+yNIoP3JVTa2Xzg/4AQ0Fqv9mLs2SHiyng8uZeUXzYhyY4KW20ZUlknnQNwR1nD7DJ/ik8KUBK3eYqaecUup8Hkzu/sMPlI006sJE+sLGOvTMm09pUnE1K5diFlFYl1sOnF2eyeyBPRm/Q37UuKRkBWDdZiIaSu0ES1M5FbjTlsXQ5BfznCH583sZOu8QgSxi6NmR4UjYE6wiSaT03xvAZWKnCtCOcZF0wrARs/K2bD3c8m6Ik90fkBbkLJg==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV8PR12MB9407.namprd12.prod.outlook.com (2603:10b6:408:1f9::13)
- by MW4PR12MB6731.namprd12.prod.outlook.com (2603:10b6:303:1eb::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.12; Fri, 20 Nov
- 2026 15:13:12 +0000
-Received: from LV8PR12MB9407.namprd12.prod.outlook.com
- ([fe80::208b:424e:47e9:8a96]) by LV8PR12MB9407.namprd12.prod.outlook.com
- ([fe80::208b:424e:47e9:8a96%4]) with mapi id 15.21.0639.010; Fri, 20 Nov 2026
- 15:13:12 +0000
-Date: Fri, 20 Nov 2026 17:13:03 +0200
-From: Ido Schimmel <idosch@nvidia.com>
-To: Kyuwon Cho <kyuwoncho18@gmail.com>
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	"David S. Miller" <davem@davemloft.net>,
+	dkim=pass (2048-bit key, unprotected) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=GQeMcdoC
+Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-c4322d310e7so359436866b.0
+        for <bridge@lists.linux.dev>; Sat, 21 Nov 2026 11:16:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bairaktaris.de; s=google; t=1795288598; x=1795893398; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=TgHFnT0Aq23ijZjgXPqXmSzHBW3c5oZyz2iVakOwM3E=;
+        b=GQeMcdoCVWQdIfKjRcMrHvUufZ6fvoxNh54L1Y+L2o/pvqjRstQCViQ6931QjeIHF2
+         Fn7boCT3Kr2hzZEwJfKPmT9JPEvLA6B1f3Nl0dsdlOauTnsd83+JH5Xyl9HYjRMPJFJD
+         hPv/PK4gb4qhIgnWZRJVQTrIr+VPAtLvo7WSkzoxpebMFW0CanHxW2rZM/HGUZ0Ym6F4
+         ZjZyELumc+M7g6MgzhxQZdlON/ara5G1dIbMGHIkZNMHJUgs2MkAn3jOhFb7vzM0PFfe
+         QIE6cSL2/JnNbMVTgFnHDLLDLCf+PX/3rru8TTGGxzL+UsbFTmYyqQ80FgHbnBRnRqQ1
+         eyaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1795288598; x=1795893398;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=TgHFnT0Aq23ijZjgXPqXmSzHBW3c5oZyz2iVakOwM3E=;
+        b=Zf/zBUxL1BqRefJlT/m9xEz4/5h3MjUnLUPCwLu4lHGeo0dYRGlc/z6kvLAIkPBt0/
+         JKoFWnIUeEIfgotX9sYVp1/6FRcYD2G7BjC6a9emR348IPjMlH69TVEsTkSwfe09Y9P3
+         HYVZEHfiGUaE1X9kSqYqBGffUdn29AyYdSXqecKbj//4xrnGscIYgc5+NYw29Hh86Uwu
+         TTOSohMpy5Pj4o9Z6lTsbCzD4tAYcEGb33N76BOpw2IyAy5DrV7eH0eyVZn6vMsFEEPp
+         VstgIC7InVjHFDZC/rZnaUTE2szYMiF/3ZiKfm5Iyz5+LAbYxfO1vlafF7ELPmI3nRMc
+         7KiA==
+X-Forwarded-Encrypted: i=1; AL+hErEaQzJb+BNtx919A1RMCHhloGold/rMg2P6XJvHnxJTk+fMb7hGygKZqrieBowW3x0JWevJL/Y=@lists.linux.dev
+X-Gm-Message-State: APuU4Z/XzrKV+faHV127PQiGIsXA6sXioreAajJMoNAj7a7UJrpdaFfV
+	Vm0XNSsK6sBda9Lm+CpLqrBxbD7X+jmlaQIjKR3Mp0GLa5SxqpOrdH3Dd0oMgH+z8Q==
+X-Gm-Gg: AZFdTZdtGw9QATxL6b1sSpXqgiI7So3/XlQ26gSQ6zxoPTRpO+tbmPW0PfxUnjuGLVq
+	eq7hOVW8P3mEjedEcRbEGr5/6esCpE26Cjh5qL9yNgbYI57qkiBpY+K0hwjByojHBI5VCmEybs4
+	Pn39Qr2AvPkOISVOPA1yYw2wWVB/xJh760QR/7LV3Hn++72Wp7AJ6fN9RjHH5J9K0jvNKAW56QE
+	jZES7xJXTsRs2bOCQI24lpYlD2jqSYVap1EYwr/wsFwaWurHWObUGv6TfSz/rKObKs1Ng+6a2mR
+	2sc1hw0CaF7CBBqKYwV2AM/mJx+i+zToNwhhvCGjGZZggD3rEVdWyn3A3cEL2JawGaVSzo4WwHY
+	AslAP6ET2OrMfBE1TJI0lRljFrO4GQhIA7ucwWGl2Mu3IsQleGTBiSCeyC1r5l5e32LuYKs9FpU
+	E23xlA2P0f/3wtqWHWRsiAx0sp1QRRxtkoYw2QLTUSE+dyTeIs0P/wvkLS6bucRySniZF2EjpyA
+	YizAnVHJDrhkchyn1Fy+PMlqOIxW56csQy9pOLr6PYaw7Cd5aFN7CdS5v/tRdaWYy8vt7CCT3tk
+	n48/AC28VxMht0PdjuJyhlfXuMSORE1SECNyhaIcNlzRSb+10z2JtHqTAR0zU12Z6f2Xwie8GSY
+	BmtiRG9aCJenF7FVPWf4wFuHtYLkjKEuhMw7fMRi69rJFdcWzUNivS0or/6sdG9nYwvdMx6Vzah
+	KVcHDu6+KG08kOqxhPYKjvOpEyKvcj+BEqoXLFH2hBJWRFM0U6cO9Vr74S6LfthAeaRrZbeRjP/
+	1RRteqc3Iytey6LdN6O0Q/eySxvR7fAp0MQGgcWXBV5XS/4aCAZ96t2L6b9b7gEYeENMgiP+19w
+	yRJzckDBGYBedAScfizRds3ykGy3zWD1aIhnmSBTjcx4ujdU5xCFa4Ls3ibxL/VdisTmeiqRQOQ
+	q
+X-Received: by 2002:a17:906:3d21:b0:c51:24a4:1dfb with SMTP id a640c23a62f3a-c513ac7edecmr423647466b.40.1795288598612;
+        Sat, 21 Nov 2026 11:16:38 -0800 (PST)
+Received: from Desktop.tail070c67.ts.net (p200300f2470dfa000000000000000a27.dip0.t-ipconnect.de. [2003:f2:470d:fa00::a27])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c513ae66674sm226439266b.15.2026.11.21.11.16.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 21 Nov 2026 11:16:38 -0800 (PST)
+From: Julius Bairaktaris <julius@bairaktaris.de>
+To: Nikolay Aleksandrov <razor@blackwall.org>,
+	Ido Schimmel <idosch@nvidia.com>
+Cc: netdev@vger.kernel.org,
+	bridge@lists.linux.dev,
+	"David S . Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>, bridge@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] net: bridge: mdb: duplicate sources make the RTM_NEWMDB
- error path delete a source twice
-Message-ID: <20261120151303.GA2280404@shredder>
-References: <179489219555.3099318.10297266282803881244@gmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <179489219555.3099318.10297266282803881244@gmail.com>
-X-ClientProxiedBy: TL2P290CA0014.ISRP290.PROD.OUTLOOK.COM
- (2603:1096:950:2::17) To LV8PR12MB9407.namprd12.prod.outlook.com
- (2603:10b6:408:1f9::13)
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Willem de Bruijn <willemb@google.com>,
+	Simon Horman <horms@kernel.org>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Vladimir Oltean <vladimir.oltean@nxp.com>,
+	Jesse Brandeburg <jbrandeb@kernel.org>
+Subject: [PATCH net] net: bridge: withdraw the switchdev entry of an fdb entry made dynamic
+Date: Sat, 21 Nov 2026 20:16:38 +0100
+Message-ID: <20261121191638.1724620-1-julius@bairaktaris.de>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -100,115 +109,108 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV8PR12MB9407:EE_|MW4PR12MB6731:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7b5b7a5d-3f32-43bf-430f-08df4718cadf
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|1800799024|376014|7416014|366016|261026140227099003|261026121527099003|261021121427099003|261021135927099003|261022105027099003|261028144727099003|261022075727099003|261021123027099003|261102123227099003|11063799006|56012099006|10067099003|261009223027099003|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	bf48g2bCp7ZdmOcRdz0GRmfY7pZMJa8Yz0KPVpfiviYJy5zrnae+KJFFxH0kboQb4SpriE9fHMV+O5Rnl+Rs9w8CQlZmAzuoY6wr1wr/mjPABNcWt+sYE6CjIWypnX+TTHy+Oir1W2ARJJUzVc8GrgV8G9VzxqAxS2eG/FGzgnR4yUSfc49uWFjuNYmgWw/hg/dHuRNf2kmIlKFB3QaDjwUGkvpRf/lUaZPQFiRXHseeRK6TVrF/+dyxn/SymzNt0hbo2DC3xOy9rfrOAsE36sz303QEI40lgBLN4MPf46F1aYHtO1DtV9YOfEJg6YQTZUmeiCM0m3ts/5GLp/nMLLcg/myEzCE4sgyZM8PTsIpe5wc4D6sWrs813z9z/apVRwOFGQP+nW41rSUYMSwZGxCo5bhCYW8GlOLfg/OzouaZKVzFg3uz56n5ob39yJuqZxTs3q6C6UHiXjw/jippYTeFPuFeZkGmxNylMuXp1BT1CCNzf/RKSWAbtCz2k1kkJ/F0mKbhe6fR0s4+OT8hP4Vj5bnjBHcOIgQuQaDTg/KYUWiDoPMiyXfbeQHAYxEKH9XvDy6No7o+Y7q+1oHwl5IA8RsTeFBNnBuBzIQatLwaePtrklQsNmG3qfTIowx+IRi1kxBaP4si7MYtkXCmc7eBcpz/Lm6T+Ek5YjLoidQ=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9407.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(7416014)(366016)(261026140227099003)(261026121527099003)(261021121427099003)(261021135927099003)(261022105027099003)(261028144727099003)(261022075727099003)(261021123027099003)(261102123227099003)(11063799006)(56012099006)(10067099003)(261009223027099003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?z/VqswSfoaXWwaqEPb8RN0+aCOZsxM0xHR9L1HnSjQxgMl49Qxitr++TBm2w?=
- =?us-ascii?Q?fAgmZW9sxJxNVEV/e0P+3tHC4Ex3Lg1o/qpjfXWsqsQhW7Uxtzi/M86L53rk?=
- =?us-ascii?Q?vs0sdUVC1otsXXfAJpIY+Whq/GKvpl6ZdaqLn3lwwCYgfAZxVBmBfU2vDIwi?=
- =?us-ascii?Q?5VTjnO9QnLr6+cytEQM+YZsQtgK+I1/5fQx5Fh2RBAivmrFo+RwLEKdfYUnt?=
- =?us-ascii?Q?yF1z52FcGCQSIE0VD1Z3BSgk7562rl7OyLET35D+Tt6L+MQq37Mf7PHToAcy?=
- =?us-ascii?Q?k0Kiy/amyuKro9HhRQkKHJsfZteQEksyOdihWC6HTCjqUaOQBFNcskUNPuEi?=
- =?us-ascii?Q?3X1fYMURNR591b6gZdmp0DPIZb2GpIPCvTOyJLqv7Yhk9q+VL45D+16pfrNs?=
- =?us-ascii?Q?VET/0vahOlYD89pUdPzY/BwY5bJoH152OWIH5vm1rv1eCeW31lnBx83X3soy?=
- =?us-ascii?Q?wQn2pktbUeAjYsB6tsBFUW5G5vyL3dLvC0aza9JWsVe6Zi8gWxLBRgho0iLJ?=
- =?us-ascii?Q?Zuy29pe4Wb9DXf8JOcbGBmr5lTN+tv8kgms4oVRO/wVx57NilmbMTEofG2Yv?=
- =?us-ascii?Q?SSV9Z0wjDdSRHfb1L4bSFsYgsNQZlg84EoPjZkMSLyGcP2fIgjBjh9Bdtm1c?=
- =?us-ascii?Q?E/8mSx4uv4KP3Hf3prubHXYH4q+a2nuZ2kXFV/xHlnvP5NZuHKycJN7kpACi?=
- =?us-ascii?Q?NfTYVR3gl4qEqs5nwFcn3uJxPJtZ8NO6KFkgyUr+pcdcuFLFwUodM0UYEFke?=
- =?us-ascii?Q?Zo2NiG7SS7L5jxgV8rA8JW1WK/ZQM7q0phkXNCBeitz2AFHR75bklxPl6ORG?=
- =?us-ascii?Q?+wDZtjTFWJPq8SmbNV0GsZxFC8bcWA3xqinoUSUbse5/fBRHnrdZj0d2WwlG?=
- =?us-ascii?Q?jO4J/E1Efhhi87wHLQGIGY2pvoLvkpdo5jlq7LkIUGbruzcnoE7weUXiMEYN?=
- =?us-ascii?Q?Zy0nfzIzGyEK/HFEa89hrtVbs7nvdPEmEphztBNgDlIL9dzOa6NVCY7iu2LG?=
- =?us-ascii?Q?KArn7//6jBhrfrEvXCA64Dm5x8zWlUD6nrt/uLPWFiBlKAyxEmXmYULuYtek?=
- =?us-ascii?Q?dJjf0hu580LY1RGq8RE1Vsm08S296Sd0rx3TXAh+yK1PgvISIkAlNEL/28MI?=
- =?us-ascii?Q?nVEP8MgqwsbtUD3oBHvMOpQrA9pQ9ug/uENrXtFg1wtD1Hi3bO9maw4neH7/?=
- =?us-ascii?Q?DfBHQr2ZtyZDKs50+7MbbNZ1ZyDyp+Yd/Ghk1/L5MJ8kjhJE4UniK68C7Hcw?=
- =?us-ascii?Q?I7fLLTw+ExXP/7D+rswEV6MuLy1zViMpwE0GCRS2xFMhD3Fz5XkwcMpKQ95l?=
- =?us-ascii?Q?8zaeRRBjv6JKQmeX3sCfMbXdzt32GW2RMME0t5xWcWrUyJjNqt6XJHDRHW8B?=
- =?us-ascii?Q?Mu+6Tb0VNnDgyEcBJLf7+JfeT0aav4bT5Gf660+8JEx8hoC5PThs5vv6GPmk?=
- =?us-ascii?Q?TyzhEHzi6YskhVvQizTAe9c9NGJ1G0bilpB6MoNvcFw4xaBHvE+yQfHK++wb?=
- =?us-ascii?Q?GfzMGgqB9YMQVISYHd4YUxGSti/fW6iX46ilKbP4Dr7wAbn3U26EioT2ZzLa?=
- =?us-ascii?Q?BcURXeXxXZJ1N4+WNHDRWMqM7QeEErXCdxnNJeNqdCftsFPlbR04A69XiZBJ?=
- =?us-ascii?Q?Rd+025581453+gIxG2JcS3XtjIqfKh5jBEvIZyCXSnFELRdpU42cyGqXmrx0?=
- =?us-ascii?Q?mljizoCQvhXl++LFqpqHjtsXI67khoGiJ7L7ugK8EFEartAp?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7b5b7a5d-3f32-43bf-430f-08df4718cadf
-X-MS-Exchange-CrossTenant-AuthSource: LV8PR12MB9407.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Nov 2026 15:13:12.0390
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8X+ZW4woTKgMrTwz9JGIz6Yq6TtqggR7RlTJY1FNWgFXMvTrVM0n3IVIkBzjKvA0eAUDjzZmKx9nQMDe83XkSA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB6731
+Content-Transfer-Encoding: 8bit
 
-On Mon, Nov 16, 2026 at 09:10:10PM -0800, Kyuwon Cho wrote:
-> Hi Nikolay, Ido,
-> 
-> While testing v7.4-rc3 with an LLM-guided test generator that we are
-> developing as a research prototype, we found that an RTM_NEWMDB request
-> with a repeated source address and a later invalid source hits the
-> WARN_ON_ONCE() in br_mdb_del_group_src(). An unprivileged user can do
-> this from its own user and network namespace:
-> 
->   WARNING: net/bridge/br_mdb.c:901 at br_mdb_add_group_srcs+0x375/0x4a0, CPU#1: test/106
->   CPU: 1 UID: 65534 PID: 106 Comm: test Not tainted 7.4.0-rc3 #1 PREEMPT(lazy) 
->   RIP: 0010:br_mdb_add_group_srcs+0x375/0x4a0
->   Call Trace:
->    <TASK>
->    br_mdb_add+0x7e2/0x1390
->    rtnl_mdb_add+0x218/0x490
->    rtnetlink_rcv_msg+0x2f7/0xb80
->    netlink_rcv_skb+0x11f/0x350
->    netlink_unicast+0x518/0x870
-> 
-> br_mdb_config_src_list_init() counts and parses the MDBE_ATTR_SRC_LIST
-> entries but does not reject duplicates. In br_mdb_add_group_srcs() the
-> second copy of a source finds the entry that the first copy created, so
-> both refer to the same struct net_bridge_group_src. When a later source
-> fails (here 0.0.0.0, which is_valid_mdb_source() accepts but
-> br_multicast_new_group_src() rejects), the error path deletes every
-> source added so far, duplicates included:
-> 
-> 	err_del_group_srcs:
-> 		for (i--; i >= 0; i--)
-> 			br_mdb_del_group_src(pg, &cfg->src_entries[i]);
-> 
-> The first deletion frees the entry, and the second does not find it:
-> 
-> 	ent = br_multicast_find_group_src(pg, &src->addr);
-> 	if (WARN_ON_ONCE(!ent))
-> 		return;
-> 
-> We have not seen memory corruption from this; the effect is the warning,
-> which panics a machine with panic_on_warn.
-> 
-> Rejecting duplicate source entries in br_mdb_config_src_list_init(), or
-> making the error path delete only the sources this request created,
-> should avoid it. We have not tested either change.
-> 
-> The reproducer runs as an unprivileged user (uid 65534) that creates a
-> user and network namespace, makes a bridge with a port, and sends
-> RTM_NEWMDB with NLM_F_REPLACE and the sources 10.0.0.1, 10.0.0.1 and
-> 0.0.0.0. On an x86_64 QEMU guest with 2 vCPUs and KASAN (gcc 13.3,
-> config attached), it warns in every run (5 of 5).
-> 
-> Checked against v7.4-rc3 (aebb72744764); br_mdb.c is the same in
-> net-next (6ff4c5942a30). We found no earlier report on syzbot or on the
-> bridge list.
-> 
-> The reproducer (repro.c) and the kernel config are attached.
+Since commit 927cdea5d209 ("net: bridge: switchdev: don't notify FDB
+entries with "master dynamic""), br_switchdev_fdb_notify() reports
+neither the addition nor the deletion of an entry that the user added
+without NUD_PERMANENT or NUD_NOARP. The user can turn an entry that
+switchdev was told about, a learned one or a static one, into such an
+entry: fdb_add_entry() does it for "bridge fdb replace ... master
+dynamic", and __fdb_update() for "bridge fdb replace ... master use"
+(NTF_USE), which marks a learned entry as added by the user. The
+drivers then keep the entry they were given, and since its later
+deletion is not reported either, they keep it after the bridge has
+dropped it.
 
-Thanks. I will send a fix and a selftest.
+Report the deletion of the old entry to switchdev before either path
+makes it one that is no longer reported, as br_fdb_update() does before
+an entry moves to another port; br_switchdev_fdb_notify() tests the old
+flags, so only an entry that was reported is withdrawn. Entries with
+the extern_learn flag stay reported and are left alone. The NTF_USE
+branch is only reached from netlink: the packet path passes no
+BR_FDB_ADDED_BY_USER to br_fdb_update(). The offloaded flag of the
+entry stays as the drivers report it.
+
+Found while reviewing how DSA tracks host addresses for bridge FDB
+entries. In QEMU with KASAN and dsa_loop given FDB operations and
+assisted learning, an address learned on a veth port of the bridge is a
+host address on the CPU port. After "bridge fdb replace <addr> dev vA
+master dynamic", or "... master use", and the deletion of the entry,
+net keeps the address on the CPU port in 3 of 3 boots for each command;
+with this change it is deleted at the replace in 3 of 3 boots for each.
+
+Fixes: 927cdea5d209 ("net: bridge: switchdev: don't notify FDB entries with "master dynamic"")
+Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
+---
+I used Claude (Anthropic) to help write these patches.
+
+ net/bridge/br_fdb.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+index b601245ad923..377ca8341029 100644
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -996,6 +996,16 @@ static bool __fdb_mark_active(struct net_bridge_fdb_entry *fdb)
+ 		  test_and_clear_bit(BR_FDB_NOTIFY_INACTIVE, &fdb->flags));
+ }
+ 
++/* Called before @fdb becomes an entry that the user added as dynamic, which
++ * br_switchdev_fdb_notify() does not report: report the deletion of the entry
++ * switchdev was told about, if it was
++ */
++static void fdb_switchdev_hide(struct net_bridge *br,
++			       const struct net_bridge_fdb_entry *fdb)
++{
++	br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
++}
++
+ static void __fdb_update(struct net_bridge *br,
+ 			 struct net_bridge_fdb_entry *fdb,
+ 			 struct net_bridge_port *source,
+@@ -1005,6 +1015,7 @@ static void __fdb_update(struct net_bridge *br,
+ 	struct net_bridge_port *old_port;
+ 	struct net_bridge_dst old_dst;
+ 	bool fdb_modified = false;
++	bool roamed = false;
+ 	unsigned long now;
+ 
+ 	/* attempt to update an entry for a local interface */
+@@ -1032,6 +1043,7 @@ static void __fdb_update(struct net_bridge *br,
+ 			br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
+ 			br_fdb_dst_write(fdb, dst);
+ 			fdb_modified = true;
++			roamed = true;
+ 			/* take over HW learned entry */
+ 			if (unlikely(test_bit(BR_FDB_ADDED_BY_EXT_LEARN,
+ 					      &fdb->flags)))
+@@ -1048,7 +1060,12 @@ static void __fdb_update(struct net_bridge *br,
+ 		}
+ 	}
+ 
++	/* Only from netlink (NTF_USE), with the user's flag in @flags */
+ 	if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
++		/* After a roam the deletion was reported above */
++		if (!roamed && !test_bit(BR_FDB_STATIC, &fdb->flags) &&
++		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
++			fdb_switchdev_hide(br, fdb);
+ 		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+ 		if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
+ 			atomic_dec(&br->fdb_n_learned);
+@@ -1262,6 +1279,10 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_dst dst,
+ 		if (flags & NLM_F_EXCL)
+ 			return -EEXIST;
+ 
++		if (!(state & (NUD_PERMANENT | NUD_NOARP)) &&
++		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
++			fdb_switchdev_hide(br, fdb);
++
+ 		old_dst = br_fdb_dst_read(fdb);
+ 		modified = fdb_update_dst(fdb, old_dst, dst);
+ 
+
+base-commit: d5b89d55a322b632e2b465b392a4c1d9d338db9c
+-- 
+2.53.0
+
