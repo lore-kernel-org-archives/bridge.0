@@ -1,20 +1,20 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.46.45
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.193.33
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795332336;
-	b=tOiMLhl6lFfkxj1pSv5TRNbksDrE7opDZ5v0PaBZ1f7A2SNlCGy76M9hIL06Bcs2taYO
-	 4xS73L4XpQVUkmyXYd6tj8enOiAthEGrM+9CeamK5DihouF1BE12uQ9hkeuz7EeNYvCZo
-	 XuyBzYSvaknNktMS6EJk+eJwpzBqLLqKD+CY05z+02tnBE4oujYkUQ2vBUeTVLc2lgkBu
-	 TvyU2rJaS54H+eulnWCXqvLmkngISatprW6sbLKdF+z1u6Lfh1dHaQwi9o5cutn3sR83U
-	 vVhDmDWeikzrmGRz6onhaYHU6KyQ4bG5mAGdv420xmP9V0aV8KFhnP76245ANY5btnA==
+	t=1795332464;
+	b=s/fHgceR2eAH3Yh1XHdFLaMm74GuZSY/djcUxtnFtKUBw1iItM56X8/i+aD95DAsz7EO
+	 tl54tp/aJN0FwymZ++hrROdkg0hRmUyfatTkIHEb2sAwDPgnlIABqCYquCbkFDnN5Zt7X
+	 BoZ4bY3MestCqY95d3DotknbmPc07Aht7A9GoRQgWPqZKJB3upyBk2NmSCJmeaiHBDvfe
+	 YC1OCoXmePsFLQUsnzANAjwpzlOEqft7X6qYBck05IxcS58sAvCnAIB4MjUOucCDWpZ4f
+	 w8maMIVzUdJXHqnIwKZKou0mJMKZ59WJlATZbbGvK8rzYsdkllouPGoAYQeJCY2OG9Q==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795332336;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795332464;
 	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:Content-Transfer-Encoding:Content-Type:
-	 X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
+	 Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 Content-Transfer-Encoding:Content-Type:X-ClientProxiedBy:MIME-Version:
+	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
+	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
+	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
+	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
 	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
 	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
 	 X-MS-Exchange-CrossTenant-Network-Message-Id:
@@ -24,54 +24,54 @@ ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
 	 X-MS-Exchange-CrossTenant-UserPrincipalName:
 	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=EMY7DJIOerV5r7YOeatV6kOfxXbiHjnusDoSrKo5ls0=;
-	b=NBF8+1/yiaH4U/a+pAA4wQVDxgw3xzv72hPrfi/u/82K9ooD7bzJuuoTuEwlbjEcuVC2
-	 Z0B17go+ontVRWt7/K6EwXt5cpSUkifNz6EQv/Ce9x2ImAU1cG4RxWI9Y9+cFcoSyVkxR
-	 mKltZM65fJOC4wDEmDHuTg4IaRrr5zi2XOyMLeQUOZAip9pEFSoHrccVALvb4wMgrViu9
-	 fSsWImRyWx88GPOSG0/xHPOpCm1ku5mM0DNDdygW3yUFWujJygfHox3Bx7TThxVdiZWd5
-	 fM48i1xM3PA9yYMVnkeeIdNQU9WNNz50SVEua+YViWn166g2n0nGd9pueFp69DUNtCA==
+	bh=WCZate8X2fWlqf2Jlj+3L5Aa6pNXKCWjylCRCfTpxQ8=;
+	b=4mEr/v9PgNPnXJlrPl9u+aGaKNpEoCoEIXg4BXzRgeP/6UsSbbRvp+pGXX/HS6UyH0Tq
+	 zRAd/yAE3lAn4J7bFa6u7221FG1aGV8hSVOLotvhWjm84kFwW210GH4zXhnxxPKja0dnL
+	 gFrG4XWHYY9cyCKL6/wHXZLwrO0inV9lmE2PG6vxkmQFdHVeTo/sW6j68M8nukd9V+7D0
+	 AC2ENzxBef/4MdxRdVgLnThvMlRIFRgoAkTLSDgg+RhObzUVJDEwGyNauevO9AlPtacyt
+	 zoyZ2rGygu1IoslqfRpHNkXbEXJ0WERhAlN72IO14YKFHXF6gUM3RhfYEGgZ/1p5q/Q==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=nvidia.com;
 	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b="tmQrm/11";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.46.45
-Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010045.outbound.protection.outlook.com [52.101.46.45])
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b="hzT3sX/N";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.193.33
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010033.outbound.protection.outlook.com [52.101.193.33])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C68ED606A32C
-	for <bridge@lists.linux.dev>; Sun, 22 Nov 2026 07:25:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C68ED606A32C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D281606A320
+	for <bridge@lists.linux.dev>; Sun, 22 Nov 2026 07:27:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8D281606A320
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=tmQrm/11
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=hzT3sX/N
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=N32h2TGmODo3vw21t1HBXCEuCYz/rLwILEQ8nJxtv/W8BgIhjNoFW5VlpzwBGrEtqvlLpFP/EzFlkl9EO50UU96VVq34HQ+C3SPA64zmhjo1gdGZwEfJ2gHVrRtrxHruvm+Ji1t2h4sWUB8usE5ZRa16DMl48918D4VHZ5MHxtTqOpEAGHJU2qhBigoI5kzyIZOT6gABCqZIgaDFx0y0DS90A4oB9MjTn84En24qnPfgIh0lRyi+Uic9JnhxEVxTl/4WDhOPlMDewQ9jhS8qKOQYEkmefgnnZsgHFM4dHX2mVd/EZERi1AoS0uGDiRF1a3uOR+uc64ywUT521Lnomw==
+ b=VSvgMcc3c+eQx8aK3fyDAtaiC9MMX1C1reuJzJkQikR75IoxjBVahUbngnb5y90RGLDzhgjXMKmqEmDvCLL6svhfoOMd8rnHCHyQKqayTd5jsSalM47x+OVmnZr6eLdrJQFNWpMHGyJojsOdPg95uuds+N0G5pnt3Wpg12CQ/68XzGLn1Gv9F03Y++Cyyzt8Yjfkjb1lN2l1jArGDn8djw9eKAy6Mbt08gVl758L21HaGztKuqdsx5N0w9GzQl57Y/phTRW0LtenEoDz+Kl9dk1CXbdR/yPRR+Gs67bh+FQUuaY4iMTDPeQ8La1AzoAtlI0nbDmV9CNeV90H3jQSUw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=EMY7DJIOerV5r7YOeatV6kOfxXbiHjnusDoSrKo5ls0=;
- b=P9Sd09211tZlzFDpTe6iTZ4NCOwc/r7WZfPWNcZzBFXT0SNShLG4T0FzEQaLLbVh7fnSGNzgDcbHp7bq/mnFo7DXQztCoKTNRf6DVjbaVYfnn+XAOibfdo+NYLW7mFKT5lTbm3QwDFvqrV4AC6YzFkFxnIEXYfAjA02bCD/0bvEk2h9QkUgP9ZohaCqNL99ncudPKn5LSj46Wo3se3KH2a3570yxSpRokmcRQth4g7tjCx+x2MiwT7inqohmYfB0aw+e1uXkzbrDotacEFFDRQQMN2+x7QOZno3CUK6wnpxMCuk9I5mZO37MzSOTYAVUvCeZn4AAhXzA/KvG3uYI1w==
+ bh=WCZate8X2fWlqf2Jlj+3L5Aa6pNXKCWjylCRCfTpxQ8=;
+ b=KTzVEvLKm/QZ5p/FqQg/FoMg7cMQdIAq+4RiL25gquF1pG1WclDwObTrLPYzIOcR1Ivb5PDfdKkEYASgUWYahgabeyYK4PLKz03hnclUKrEjZbaIAGwbnMPEKv4oecKs9eSQENlScetCQFIs01xb9ffS2QWD38FNXn/tiuTvU/eHFUuE68Hk/QopC8EqWJuuHbfIL3te6n+44emdkI2fy2BrOUlBXjes4WVWqGEFG13P88wWMi7IoMtYFpSLIzhfAUFGf+p+UEYo1j3d3tdCwI83kQmoHjKsFom2ZqyUZmkg6noS6qLM4pZo8jfoDIjJeSM9sZ3SjQVKveufbogsNA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EMY7DJIOerV5r7YOeatV6kOfxXbiHjnusDoSrKo5ls0=;
- b=tmQrm/11ohSM/JSCeOZtpJQT7ehkyCcLjbCbUsOi7+RCHL21EcMTAfpMGXq079uXHqIm2teNJfOe6fvOZOWNaWttdCta7IUi7dq+C5OFKhA+omkLn779UUs7swkKgKoRpOA98jCtbop4JEYLpK5IJqSvisNZFsU3ZzCBPPp1ZIoWq6YvXnM3NHehV3x8JbAEd2qUZbJqYMSuOLNn2YewdwSnZdii5o/CLOEZdrPNCxZB2A5aKhGTqJgnacpgD0z9G/xjsN5pWdBiJYB9Cn9I1XjzUh31rtSSqQcBFgitabEVzB2AYLPLHnKTriDX2o74XmTBo5MTUXjpEoVFJX9nNQ==
+ bh=WCZate8X2fWlqf2Jlj+3L5Aa6pNXKCWjylCRCfTpxQ8=;
+ b=hzT3sX/NPAy1gGwtcO9kM1n0/z1tkB2UUflZiRnxIIddOqowBfTiud4pAsroUHU4s+jv/lPDFVwaB4/xkzYtrocCRWaZZDATyuQHIxvWClUQbiB6LN0dgZ+GMaHGJYiBHiT9h7TH4yMeeIC+VozzsKrvsJrK+JQakUNAeeQ4cyTCpXqwyM0pT2VRIxtZvt8z19LixySbLpPAXZWib7jqsRxi5CqF8QIaCZHn5tMfwcmf5TaT4VEufimEBVvHnZ26Yq4YwwxJ/KGaNEBWUIEq70pJvgNYWl/ROSl7vYMFXiwIaclX4xMui/gVx4oKQdEPh9iV+B3nXFFKftyhwBXQcA==
 Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from LV8PR12MB9407.namprd12.prod.outlook.com (2603:10b6:408:1f9::13)
  by SJ2PR12MB7963.namprd12.prod.outlook.com (2603:10b6:a03:4c1::6) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.639.13; Sun, 22 Nov
- 2026 07:25:28 +0000
+ 2026 07:25:36 +0000
 Received: from LV8PR12MB9407.namprd12.prod.outlook.com
  ([fe80::208b:424e:47e9:8a96]) by LV8PR12MB9407.namprd12.prod.outlook.com
  ([fe80::208b:424e:47e9:8a96%4]) with mapi id 15.21.0639.012; Sun, 22 Nov 2026
- 07:25:28 +0000
+ 07:25:36 +0000
 From: Ido Schimmel <idosch@nvidia.com>
 To: netdev@vger.kernel.org
 Cc: davem@davemloft.net,
@@ -86,16 +86,18 @@ Cc: davem@davemloft.net,
 	bridge@lists.linux.dev,
 	linux-kselftest@vger.kernel.org,
 	kyuwoncho18@gmail.com,
-	Ido Schimmel <idosch@nvidia.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net 1/2] bridge: mcast: Fix source list rollback on failure
-Date: Sun, 22 Nov 2026 09:25:03 +0200
-Message-ID: <20261122072504.2623702-1-idosch@nvidia.com>
+	Ido Schimmel <idosch@nvidia.com>
+Subject: [PATCH net 2/2] selftests: bridge_mdb: Test failed source list replace
+Date: Sun, 22 Nov 2026 09:25:04 +0200
+Message-ID: <20261122072504.2623702-2-idosch@nvidia.com>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261122072504.2623702-1-idosch@nvidia.com>
+References: <20261122072504.2623702-1-idosch@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: TL0P290CA0006.ISRP290.PROD.OUTLOOK.COM (2603:1096:950:5::9)
- To LV8PR12MB9407.namprd12.prod.outlook.com (2603:10b6:408:1f9::13)
+X-ClientProxiedBy: TL2P290CA0025.ISRP290.PROD.OUTLOOK.COM
+ (2603:1096:950:3::20) To LV8PR12MB9407.namprd12.prod.outlook.com
+ (2603:10b6:408:1f9::13)
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -107,180 +109,134 @@ Precedence: list
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: LV8PR12MB9407:EE_|SJ2PR12MB7963:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1be2a8c4-09cf-4616-2131-08df4869c832
+X-MS-Office365-Filtering-Correlation-Id: a781b6ae-04d3-4201-c0e6-08df4869cd89
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|23010399003|6133799003|18002099003|261009223027099003|261021121427099003|261021123027099003|261022105027099003|261026140227099003|261026121527099003|261028144727099003|56012099006|10067099003|261102123227099003|11063799006;
+	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|23010399003|6133799003|18002099003|22082099003|261009223027099003|3023799007|261021121427099003|261021123027099003|261022105027099003|261026140227099003|261026121527099003|261022075727099003|261028144727099003|56012099006|10067099003|261102123227099003|11063799006;
 X-Microsoft-Antispam-Message-Info:
-	/XABfpr/Ye//dlEz6zLWkF4K0vEmbstnVKZyWHkufQKziJ7kQgO/n3cM1ORSYiZffCVJuM3S9RLAxmINjIt0M/BYv49sIHC9K+0q2QAemUIz+L1zlPJ0K8yYvig45SC4M37hfP+jaIuYgSuNtl9MkzcJqNwhSIDYXSszIL+Ksm+kPbiPh12Hugfjznp2olapTPY30cLiCL/ttYDSjEMBdU4O1OhcrhehdrSUvZ67Epvx0qH5AWkoG+sZNaDGyJo4rPRp1Bqa+UlL+cYHJ8yBX06A6eIqFtTi3k3k9bW2mJNhIcq77Gh37DG3QkIxB8Qr/geQcwHQsT2WifIhbSoDB5fC+l/FqyVhjooqz+TAFLQ2v74bNofpKhHV5sALpwZHgGuA7l/kKFoCScGpl9u+eVl4Eg4yCNv1wkvX0+guveeaCzNh4GRNRXke7tCRkv6X4AZHVh6XHDG04ieIiIgmIV5cBRvY1VkL39uSBjpT0Mise5LR3egfXAwQyCoTGaxZxPKVpHp4+k5y7ymP0WCnOS8ED5P5kmtZj6Xx/rwIsCIan6FbGI+CsW8phiQ41cXPTPUOW+etzHqLDqvrOJ8z0Iy06OTpLONu/4F7Yzg1NldwiRd8UeOdwGrYwvFZJXEIcTygwg6FJWwqjnhFQtFALXwe5AqhtMZzMDVwKj6P1cw=
+	onsob16pgyXZ/V+i/merykmMW53OAEusdqSQ3LlqrI6nva/eQSH61H3wFy3i/iO1eYTMEQgEj8IM/YgJOuhMyOK3Ax/LcInCQH25ZGgr20PXjPhooH5PkTAfsM1zcHmZZET778Dfb60g8fVa8w8k6FBgk1EN0yDc6TQ0rebAFxEPvINfa8xbu5O3VcOZM/qfJcF/rXERQ+y+7IK9Ub+5Yn4j8qz5B3GdNFNbHfB7DVUwwP0kf0Gs5NUV0M3cOdWtSoAWq2Fm8N1R8YDshwmlN2gSz6G/nnvfLpWzE2kYGNjzO263MuSxKcfD2AtLDw3nLNDnVfBlQfKTe5qNw35LSo0BOUkTC/LXKMg/fvG+CIeldwpbyU3qNcMdUyTSosRE1miVz5f3NmKfCSBA/j7KRTSp11Nb6ARKCTnGQWhAFSIg6u3NsHjaOu3+EeGkhrubK+xtbbTX45OHE5T8h8JmIz2zZSep9gJ06e12RH8SA+MFy98twwZLJtKvzWAR3onSk27a4rYTYJbhfATVy7qYWsUeRziKxVAb3o/zpE+Ckv9OpIy6o93D6nyJsh5PywxVl64KaU/kvO2YtXI8TftJab+0kRZPgpaBWle3gQP+esUlbRdPOi435WniO7SwFkSYS12RjfgfyLQm5v1y0mty8jSyy9YDE9kPqGn3Q9Cdzes=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9407.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(23010399003)(6133799003)(18002099003)(261009223027099003)(261021121427099003)(261021123027099003)(261022105027099003)(261026140227099003)(261026121527099003)(261028144727099003)(56012099006)(10067099003)(261102123227099003)(11063799006);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9407.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(23010399003)(6133799003)(18002099003)(22082099003)(261009223027099003)(3023799007)(261021121427099003)(261021123027099003)(261022105027099003)(261026140227099003)(261026121527099003)(261022075727099003)(261028144727099003)(56012099006)(10067099003)(261102123227099003)(11063799006);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?S1jGE0q1MxaA5tQjY1Eeto6mfjg9v40vzfztnzTLFrzOcx6UqQShMWiWcgjY?=
- =?us-ascii?Q?T8472M2z+okBcIlnBZWrBnznUTAw0BhQiLxaRuzN3QwZ/Lkbn+pDOfv4X2w+?=
- =?us-ascii?Q?936rW3OEHI23HgR8k4Xg/LipCg7unmUSXal7RpCvmvVlReDsRaLvrTJpRgcA?=
- =?us-ascii?Q?gdFnpGD9akPy/hDfTMeJSDGe23Ky/rOP/Qzp1ocssk3LkCEkNTZws0Xb2Fpq?=
- =?us-ascii?Q?sNLLb+jXdFNT9t7oPlPm1ePPBtm3SneuqeaZLUiqVQQmZuNNjvvnnQuwujRQ?=
- =?us-ascii?Q?w80AOAb6xOX5o3dgmiT09CBFZG8Knd+UflE/4cNRWqtjVYkKYkhST+1zrHuW?=
- =?us-ascii?Q?c0uUeoXHw6kc5aGAH8idL9+fdWjhkTAjUn/Wnhs4wOaGqk4BKO4Wf5gBhTgR?=
- =?us-ascii?Q?Dk6BmgBI4oaTdUwh/GQmdLLhCdqzGljvxB0V0KnvZnf8ti3tYVhmv5g8RvQR?=
- =?us-ascii?Q?8dP6rEjBZSuxEsT7g1RAaGJJ2RltxB4wztWFf/KOt/cMWSuhAUNZdNN6QOUC?=
- =?us-ascii?Q?TItZPa8Ffhth3QV+DS/ylHWdtJXgteIMaifclNP8OnsUl1uDBlM5wB03zNjm?=
- =?us-ascii?Q?/fN0HmyqKgYn/9baAF1Oyo3f4wS9EiOSAB39N0dwfyxOOLlI8ItigTK+gJBx?=
- =?us-ascii?Q?mnhbDwS8IjhRWRhy/BLKago7lp51vUgp0pJase6fYxPHJnWNL71DE6g3q9HD?=
- =?us-ascii?Q?7eq8d1dskaMAgSM/9Cm4xnKAf4NdKY0Ze0wuKJTnjNFzJQw8YcfQLWOUCa4F?=
- =?us-ascii?Q?5CrBMStzRDhZ56BxKa2Zy66jQx0CZbT3PTeVAi9+U3FEgvraDjyZae2gbZWT?=
- =?us-ascii?Q?aXd1cUfGtx667++3YxdYAEbfX7xQrgodcxjIGtdWRKpxZZdcK3C/jvskJNdS?=
- =?us-ascii?Q?9GwMSIDmTqD/BJtUrua5v7YCPghUeZYTmhU0MHIpx1X4lmjO1O1X9BwLDfAP?=
- =?us-ascii?Q?M9/IuRru1Dykzy4hkQr73t6MBBHUekLMChP+aM2QUzM0C7GFTqFeoNzfkA/q?=
- =?us-ascii?Q?1Yu5sUU0g9U12iEOJoBmsbZBz+Fk+lWZ8Xg0Y/1DWSr+YG6RxNPSqkieDR6a?=
- =?us-ascii?Q?uXrCmS/xHcBOUKR1rqnyJrp94mKw2IIukfPQB2BV+UgddhUscyEmCRJcPSa4?=
- =?us-ascii?Q?EA4srYFLMfVbJ4bISGH40eK9715Uug9VU5bZgL8B6CZIBpXtg3Q5Ax3Z52Pz?=
- =?us-ascii?Q?CAuL6itQLqJ8y024EAJIE3pPExtvySILZoVMD6/XrvBZNA/2wZOgVcNFwcLA?=
- =?us-ascii?Q?FXLARHvlGbAXxF2YD2YCCiO+TO1ckYizAB9TXBi/X9b+WtZi18Y8FdF1+N86?=
- =?us-ascii?Q?fKyp4lMhcNdeIwPSCTKl1vm9bo6EYEc7t4uWahyGNVktvrxcdw/pYEZBr4v/?=
- =?us-ascii?Q?IZt/IiQK69RbHt0SpJftW8ga8vuFTWvvKG+cQZ6ZYnvR0kdWd1eaozOJRiJ3?=
- =?us-ascii?Q?srcj8rij8ApQVsuA5BgqaKphYkoTb3GZwPDhUhANTzG0RrLtJh3G6JtmX980?=
- =?us-ascii?Q?OJHiwhTxhCxDtQPmtIweeLi87f7veD5AN8T2Xy0ty78upupB8UVPxm9m4vdu?=
- =?us-ascii?Q?R73cTBZB8UHXy6zVVkfulKTLKdUVJowG3xOg5hGCznny6U0iYUiM0P7lj+3T?=
- =?us-ascii?Q?k6Ki1ASsLaQwEPlqUJZxAwvNtrfI4ZuE2TTRRJ9vM4+RS6U6xfoX+uacM37h?=
- =?us-ascii?Q?dBMdEKXUu0MPbtUrGHFU11qP34lbhBzcY75rhxNqL2s0Mano?=
+	=?us-ascii?Q?ugmnoDz266Cj2QpE7hXPgHLfiRYNMKyUoVWj5wvcWXW/1t1VufP6TqnphMhy?=
+ =?us-ascii?Q?tbNHvC9kSx8eAaoXGx02MpQXlnfDFpmdxB1WYQTXyQErJt4YSgVpMjGxrDV6?=
+ =?us-ascii?Q?JPqR6yK2KG8ZPWw8hXuutdzj6BzUtntG017sIFfcHAlCoN5Lsa68qmG2ac68?=
+ =?us-ascii?Q?dmcobQ/hEqFhLdcql0FkhJkMe4cvfpwvqEAZY4gfuJf8+EZtDQwlDTiGGPdE?=
+ =?us-ascii?Q?XLL8sAcCzdsM3VzHF1EMGiy3vVT6YIu+pDYnu+3i21E+Upy9REh4pZz1iPLQ?=
+ =?us-ascii?Q?KRM8oR7McGCVwFMHYSUq9IgNAoXEmt05pP9XUNKDQsrz8XtiWgmgX/w9hUFX?=
+ =?us-ascii?Q?NOtnQMuQqaWkBOgjd0c5QWbmAZKtU+v9XlBGOhqplTNa8hb7okN1ZS7u6qoU?=
+ =?us-ascii?Q?qyvmEUTmttbot2PDyJeimiI5WfSOp+MhOXFPMWEkbDhOX5VkTFVVDMPOgMu7?=
+ =?us-ascii?Q?M7OJ5JsLqW+Ia+ATCyk8HexyZu2tyFvtiJKF8rL/WDpgMRFU4fKEF9AdOiu+?=
+ =?us-ascii?Q?KdcUcg4FuXTC4uptSvXUGmNIOcjvGwlKbog0h/PKc6OZ1kTa9+CmrrRVCw3g?=
+ =?us-ascii?Q?YCWswJXlOLSdWzW2Rh1AN0c/R3HD6Y2TBKROC5sg+Aiw6XSN0X+B4epRf/Ok?=
+ =?us-ascii?Q?VYMcQjQD8Dk1OxhH2AQQbd5IJFsSwOSj/es9SxzDnuod7litFYmfIZqnzIF7?=
+ =?us-ascii?Q?r/1j7n1iUHsJvKERITo/c5IGk+FBCDcAhwQi1f7kYPPYZrzCFlKZUa4IrbXD?=
+ =?us-ascii?Q?xE9WbAzK5q3o4d9rntMbQPxXjnhDIOFWPhfTFFLh07JLxPlh9cEMPrGk+Q7w?=
+ =?us-ascii?Q?CYZdF2DGfKN7ECep9N5E0qYY3qUvQ0j5I/LYzMz+66YMBpWBCyYkNETAF7/f?=
+ =?us-ascii?Q?qq/JtbFLCN2l/nmlBRwqrLWkRIhR22samLpWmfiwBy6e/C9ItD4G7CiT1zYG?=
+ =?us-ascii?Q?SMXjX6w3sUC6gzVV45yj7R6W5P55p0YIKccw5wRmXpyn/OSaaOF+m1z93rHI?=
+ =?us-ascii?Q?vIHa5Jex/O5FuVYLpO3RFkKvZQ1hnbcinhpEr8RBYX9UHAGGb9HIdys9G+Ar?=
+ =?us-ascii?Q?OYfQL+foB72BESw5MuI075DbJ/d81o/kIuplxjoX2/EKCGTuM1rGy/3dkiSC?=
+ =?us-ascii?Q?CsG9URJt0Q70b5//W+prO5akmsVhEkciAam3ygiPkPTWF/Nznqj4fJtdWinI?=
+ =?us-ascii?Q?+UBcP4uaJ1hqRCFJwMC67dbPsH97XyBn46DXG/Q4cAh6ZDR/NTH01STdM1JU?=
+ =?us-ascii?Q?fDxRgSY8nCwji1GRmzvmCwguvroAEmN9blo1EDyNUg7NtEEFcdjyfCCQrdGK?=
+ =?us-ascii?Q?iAZg5/9lhB2sFw8/59YhuDKHt00hGwVr7kYEoO79hZ0J9D3KYz1x4DJ3m0bz?=
+ =?us-ascii?Q?bx0xpVJaBq8q/J28ZlC1zfJ/aziw3o+Wo2SWToQ6IMdHWl1WrjTpzHWUyuba?=
+ =?us-ascii?Q?GiG47mw/ruzGp1gQ9AkZlKcCBpTaDrMBbgj5snnK2da03UDSGzZPg0hntPmZ?=
+ =?us-ascii?Q?Wis91hf5UURlCcLrqpN8RU45Mm9ghA6ej4eEXpZyvWPZaTk01lKwm/xWkQMA?=
+ =?us-ascii?Q?1hocA62pnYeCQ3QcWDLTlaxgpgxm/oMCM1ajPCwWxYTctU9Nn2xDMCxAyfPA?=
+ =?us-ascii?Q?NpNKGw9W1Qmz5rUoS6/OEaQGXFdCSNQCoBmlTkzmJpdu9HIpApR7PIWcrm6z?=
+ =?us-ascii?Q?iEFzmAUxDbWCfsnb1NOYBGgSD2zBTYJ0l3W6GDz/QPsaoOS5?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1be2a8c4-09cf-4616-2131-08df4869c832
+X-MS-Exchange-CrossTenant-Network-Message-Id: a781b6ae-04d3-4201-c0e6-08df4869cd89
 X-MS-Exchange-CrossTenant-AuthSource: LV8PR12MB9407.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2026 07:25:27.8865
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2026 07:25:36.8454
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sIm74rqKKK+6vCY/eyR+BzX4wqKSq6Z7dqWJ4YLzIjqPzWX12wJKYwYHzsGYeruagD9njTZeA7zQUwXxtu6gcw==
+X-MS-Exchange-CrossTenant-UserPrincipalName: CL1K2dt7teQx0VAxatqjAHjcUbK0gpepItTud5dn+rz+YJ3+upMsOUTl0gnK9+GzqrRW3XZjcf2bsnWkGXttvQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB7963
 
-When the bridge fails to add or replace an MDB entry with a source list,
-br_mdb_add_group_srcs() rolls back the operation by looking up and
-deleting the source entries of all the sources that were already
-processed. This is wrong for two reasons.
+Add a test case for the issues that were fixed in "bridge: mcast: Fix
+source list rollback on failure". Check that a failed replace of a
+(*, G) entry does not change its source list, with one of the existing
+sources specified twice and a new source.
 
-First, with NLM_F_REPLACE, a source can appear more than once in the
-source list. Its source entry is deleted when rolling back one
-occurrence and the lookup fails for the other, triggering a
-WARN_ON_ONCE() [1].
+Output without the fix:
 
-Second, when replacing an existing entry fails, sources from the new
-source list that already existed before the replace are deleted together
-with their (S, G) entries instead of being kept.
-
-Fix by marking source entries that were created by the current operation
-and only deleting them on failure.
-
-[1]
-WARNING: net/bridge/br_mdb.c:901 at br_mdb_add_group_srcs+0x310/0x440, CPU#10: repro/304
-[...]
-RIP: 0010:br_mdb_add_group_srcs (net/bridge/br_mdb.c:901 (discriminator 2) net/bridge/br_mdb.c:924 (discriminator 2))
-[...]
-Call Trace:
- <TASK>
- br_mdb_add_group_star_g (net/bridge/br_mdb.c:1021)
- br_mdb_add_group (net/bridge/br_mdb.c:1082)
- br_mdb_add (net/bridge/br_mdb.c:1097 net/bridge/br_mdb.c:1360)
- rtnl_mdb_add (net/core/rtnetlink.c:6925)
- rtnetlink_rcv_msg (net/core/rtnetlink.c:7178)
+ # ./bridge_mdb.sh
+ [...]
+ TEST: IPv4 (*, G) port group entries configuration tests            [FAIL]
+         (S, G) entry for source 192.0.2.1 deleted after failed replace
+ TEST: IPv6 (*, G) port group entries configuration tests            [FAIL]
+         (S, G) entry for source 2001:db8:1::1 deleted after failed replace
  [...]
 
-Fixes: 61f2183512a7 ("bridge: mcast: Support replacement of MDB port group entries")
-Cc: stable@vger.kernel.org
-Reported-by: Kyuwon Cho <kyuwoncho18@gmail.com>
-Closes: https://lore.kernel.org/netdev/179489219555.3099318.10297266282803881244@gmail.com/
+Output with the fix:
+
+ # ./bridge_mdb.sh
+ [...]
+ TEST: IPv4 (*, G) port group entries configuration tests            [ OK ]
+ TEST: IPv6 (*, G) port group entries configuration tests            [ OK ]
+ [...]
+
 Signed-off-by: Ido Schimmel <idosch@nvidia.com>
 ---
- net/bridge/br_mdb.c     | 29 ++++++++++++++---------------
- net/bridge/br_private.h |  1 +
- 2 files changed, 15 insertions(+), 15 deletions(-)
+ .../selftests/net/forwarding/bridge_mdb.sh    | 23 +++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-index 0adcd1524ab2..be65976c2f32 100644
---- a/net/bridge/br_mdb.c
-+++ b/net/bridge/br_mdb.c
-@@ -867,6 +867,7 @@ static int br_mdb_add_group_src(const struct br_mdb_config *cfg,
- 			NL_SET_ERR_MSG_MOD(extack, "Failed to add new source entry");
- 			return -ENOSPC;
- 		}
-+		ent->flags |= BR_SGRP_F_NEW;
- 	} else if (!(cfg->nlflags & NLM_F_REPLACE)) {
- 		NL_SET_ERR_MSG_MOD(extack, "Source entry already exists");
- 		return -EEXIST;
-@@ -883,31 +884,24 @@ static int br_mdb_add_group_src(const struct br_mdb_config *cfg,
- 	if (err)
- 		goto err_del_sg;
+diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+index e86d77946585..712b9a5a0e5f 100755
+--- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
++++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+@@ -293,6 +293,7 @@ __cfg_test_port_ip_star_g()
+ 	local grp=$1; shift
+ 	local invalid_grp=$1; shift
+ 	local src_prefix=$1; shift
++	local invalid_src=$1; shift
+ 	local src1=${src_prefix}1
+ 	local src2=${src_prefix}2
+ 	local src3=${src_prefix}3
+@@ -487,6 +488,23 @@ __cfg_test_port_ip_star_g()
  
--	ent->flags = BR_SGRP_F_INSTALLED | BR_SGRP_F_USER_ADDED;
-+	ent->flags = BR_SGRP_F_INSTALLED | BR_SGRP_F_USER_ADDED |
-+		     (ent->flags & BR_SGRP_F_NEW);
+ 	bridge mdb del dev br0 port $swp1 grp $grp vid 10
  
- 	return 0;
- 
- err_del_sg:
--	__br_multicast_del_group_src(ent);
-+	if (ent->flags & BR_SGRP_F_NEW)
-+		__br_multicast_del_group_src(ent);
- 	return err;
- }
- 
--static void br_mdb_del_group_src(struct net_bridge_port_group *pg,
--				 struct br_mdb_src_entry *src)
--{
--	struct net_bridge_group_src *ent;
--
--	ent = br_multicast_find_group_src(pg, &src->addr);
--	if (WARN_ON_ONCE(!ent))
--		return;
--	br_multicast_del_group_src(ent, false);
--}
--
- static int br_mdb_add_group_srcs(const struct br_mdb_config *cfg,
- 				 struct net_bridge_port_group *pg,
- 				 struct net_bridge_mcast *brmctx,
- 				 struct netlink_ext_ack *extack)
- {
-+	struct net_bridge_group_src *ent;
-+	struct hlist_node *tmp;
- 	int i, err;
- 
- 	for (i = 0; i < cfg->num_src_entries; i++) {
-@@ -917,11 +911,16 @@ static int br_mdb_add_group_srcs(const struct br_mdb_config *cfg,
- 			goto err_del_group_srcs;
- 	}
- 
-+	hlist_for_each_entry(ent, &pg->src_list, node)
-+		ent->flags &= ~BR_SGRP_F_NEW;
++	# Check that a failed replace does not change the source list.
++	bridge mdb add dev br0 port $swp1 grp $grp temp vid 10 \
++		filter_mode exclude source_list $src1,$src2
 +
- 	return 0;
++	bridge mdb replace dev br0 port $swp1 grp $grp temp vid 10 \
++		filter_mode exclude source_list $src1,$src1,$src3,$invalid_src \
++		&> /dev/null
++	check_fail $? "Managed to replace source list with an invalid source"
++	bridge -d mdb get dev br0 grp $grp src $src1 vid 10 &> /dev/null
++	check_err $? "(S, G) entry for source $src1 deleted after failed replace"
++	bridge -d mdb get dev br0 grp $grp src $src2 vid 10 &> /dev/null
++	check_err $? "(S, G) entry for source $src2 deleted after failed replace"
++	bridge -d mdb get dev br0 grp $grp src $src3 vid 10 &> /dev/null
++	check_fail $? "(S, G) entry for source $src3 created after failed replace"
++
++	bridge mdb del dev br0 port $swp1 grp $grp vid 10
++
+ 	# Check that protocol can be modified.
+ 	bridge mdb add dev br0 port $swp1 grp $grp temp vid 10 \
+ 		filter_mode exclude source_list $src1 proto zebra
+@@ -568,8 +586,9 @@ cfg_test_port_ip_star_g()
  
- err_del_group_srcs:
--	for (i--; i >= 0; i--)
--		br_mdb_del_group_src(pg, &cfg->src_entries[i]);
-+	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node) {
-+		if (ent->flags & BR_SGRP_F_NEW)
-+			br_multicast_del_group_src(ent, false);
-+	}
- 	return err;
+ 	cfg_test_port_common "IPv4 (*, G)" "grp 239.1.1.1"
+ 	cfg_test_port_common "IPv6 (*, G)" "grp ff0e::1"
+-	__cfg_test_port_ip_star_g "IPv4" "239.1.1.1" "224.0.0.1" "192.0.2."
+-	__cfg_test_port_ip_star_g "IPv6" "ff0e::1" "ff02::1" "2001:db8:1::"
++	__cfg_test_port_ip_star_g "IPv4" "239.1.1.1" "224.0.0.1" "192.0.2." \
++		"0.0.0.0"
++	__cfg_test_port_ip_star_g "IPv6" "ff0e::1" "ff02::1" "2001:db8:1::" "::"
  }
  
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 014d0b8db8c7..97ad9d7bab27 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -347,6 +347,7 @@ struct net_bridge_fdb_flush_desc {
- #define BR_SGRP_F_SEND		BIT(1)
- #define BR_SGRP_F_INSTALLED	BIT(2)
- #define BR_SGRP_F_USER_ADDED	BIT(3)
-+#define BR_SGRP_F_NEW		BIT(4)
- 
- struct net_bridge_mcast_gc {
- 	struct hlist_node		gc_node;
+ __cfg_test_port_ip_sg()
 -- 
 2.56.0
 
