@@ -1,87 +1,101 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.52
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795345087;
-	b=TMkdeYwbgSd8/Avr7OiXALOemokJhhtQ70hHH3nE0jXeUEltwLz4Of/z09sN+y7gk088
-	 rKp/ZVR5Ck0w74qQJCykxrCF/6yr85UPZypBipT2n9etaAj/qLa26JqWptd5lxTQHEkUk
-	 T9bGxAjM6l/YWBjn/ocmudRSjDReM+EeaebsTiTCxJ9Uk6Kn/iZI+RvDDTLiJ2xEwX2nV
-	 Ghcxy7YKWOJ3Xut5bXEfFXYFL0RZzz3XL0m/RwqC8C5XU0DxQ926Ee9ZPHVy9dq69WSBZ
-	 33SS2rom67AGVfRiBnoKfJ/ScjItrViBorqbR1jntv28wPhe0R1HUIcT8EECFWlKEFQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795345087;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.174
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1795348926;
+	b=Bzl/DEhzJyMVgYKbAvCU8LhweeT0pnv/YO5RUkJMLVbNrX5yBsGqkuQXiG9e0sIWmHLF
+	 XdJ/lURhkM+7YxvOjg9YcRojrTbMpW2CLBfVpro5CDC1Hx/OeyrUslxR9OqzwQh6pj9N3
+	 3hwCO5mwcn946lhAGLAO96HPjg7xQapPeU8PNTBleFzA7iL1jRS3BZPZzGHINSexujoDB
+	 bPu6e7TB+Q+ZZNTGO/8OsA9f7tinF3O1lMAm1uCqxf55OdMM7t2TTv9J3FUdQpdAUFgOC
+	 s/GraOnUdeKPH3L1dQrFQ06cpB7ZcJaBPeTCym43oig855YAgTWNM2UNdeW71IEHIrQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795348926;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:Subject:Content-Language:To:
-	 Cc:References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=1BgKHSd3CQAdu9W4c7Bsjn/CT1XjSRVEIx6RizkYoTw=;
-	b=O/8pHlr4PwHhA9pvRm0oGAjtfseeZ8Ccc0pIdJLLdA4QoPUvoUBoZ3fXQRnAac2HdvNx
-	 xtZWz8dCVgDkjGHCwaFSu80bdQ9DkIk2+KHl497+KIsu/78qx2eEwHQxcZqPGwnAnfdXe
-	 npbAFW7bomsBnHEfPlBOnQ/sHRApRMEnTeo/OGK9UqdqWjfluuo3pLaFotyQGTN9kxEBy
-	 +jrVlzQfTEkUTxyjNaHLvDq13T5+E7hJG1rptI5tOFpUUBtRleDO/9qLnmprAXs3HdClI
-	 L+oe8wc9o192vj7xTBA6wRUltzJzzayW2ROy4aWDERNNGKfePmKlMwlwthQUtLXaSow==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=blackwall.org;
-	spf=none smtp.mailfrom=blackwall.org;
-	dkim=pass header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=YZ5bDllE;
-	arc=none smtp.remote-ip=209.85.128.52
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type;
+	bh=VDAY2l0Py9SC2OiRZKfmkxrUpoDnsAjefW9a1e5gT+g=;
+	b=DPEtwDDSDfnAd0eyTkbkH7lhNpialqZk8j2+GEzMpKTX7mVJ6bSLl3jWoykHCUIPUKFl
+	 adCpuiGoU9BHgjHhCUQ3Bthpb4koD7Upzs6B+X0nSrFU3xyX4buEq84Dz8JjiBwK4N+cv
+	 nusD79OXQpemjX/eU6Rzln7VZ6FqcpR2tjRhFZpTRCf1CW3zINou6GczciuVxp8tkYFXS
+	 ZADjnICLvWFnoA2MhLhDHkYBBw97yfOzYZNb5mh4TM1Wy79PgpRS6I/mra1g/5UqQz8tQ
+	 DJCrUc//gtt5UMtwtg4n/rzUNx2WleaCGgYNvqplaXgr3Qk53GVbrMYgbQgpcT660NA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=bairaktaris.de;
+	spf=pass smtp.mailfrom=bairaktaris.de;
+	dkim=pass header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=dHQOf8gG;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.174
+Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95739606A338
-	for <bridge@lists.linux.dev>; Sun, 22 Nov 2026 10:58:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 95739606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7B09606A32C
+	for <bridge@lists.linux.dev>; Sun, 22 Nov 2026 12:02:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E7B09606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bairaktaris.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bairaktaris.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=YZ5bDllE
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4bb5b8ef642so18674245e9.1
-        for <bridge@lists.linux.dev>; Sun, 22 Nov 2026 02:58:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=bairaktaris.de header.i=@bairaktaris.de header.a=rsa-sha256 header.s=google header.b=dHQOf8gG
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-8b4c2da74c0so13649907b3.1
+        for <bridge@lists.linux.dev>; Sun, 22 Nov 2026 04:02:05 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1795348925; cv=none;
+        d=google.com; s=arc-20260327;
+        b=FsRkB+N8GujQEIRXyn1S5Um8HaDGipmADGCngxAnLUDLhnWrPSFSJWm5QlhzE7YgNM
+         JtKfN1pU8pJBANLjLKHMZ+4hn7ClNIg89YBxF6AJL7GzpdyKj6CE/Ox17w9fl5h+ucfw
+         I1aJf0ZTFSQF9ZlGw/7GUrYgavbgmwRlWJDIuSHxYWJw4mNEozxlxTXKeOBn4cBNwNpa
+         Dqb8LmUUVAuUpNG2dgDZkBFgKm7NajjlfEIq9snk6RqprOlizPPuihcki+elTfI7nQ8b
+         X8SqRWn2S/2XKtaC8vpeKziImNvyT43vAHGoCtCHVAkRQOJKRUXwXFRV4UV0pHHw/Zdx
+         xbEQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=VDAY2l0Py9SC2OiRZKfmkxrUpoDnsAjefW9a1e5gT+g=;
+        fh=W/SS/lqBudPEtLyi8GErSJQu5qsLxRAdkzNRRyDa4w0=;
+        b=e3VDghTC4PSj76l2iMyz/QBr4THSahvdGNa3ndlh+hiiufinxUpRt7Xh52Pn/m/NMR
+         bMWjpyf0NQ4rk5iqUr263TTeDznxHl3eLZJb58CsvAIUS1McClKZxV5n6e0NB2h/qwXV
+         LlqwjbQ19NUUgNI9Z9heyON1MvxVkhJwulzqw/Now+H70TaJU6JlOwecVtoU2gneSrGN
+         tI+Em/e6g53pJFA4f5J/oy26uRXNGbBEG1RzdQvcvwszdBmFImPiC/O6f+wsfSezi8Ge
+         IlryhcJbimZ/pGs4pnmPbjQFSphFICckmJqdGjQ/1XonwU17yYsnt4xeevKnPdes2xrL
+         ieEg==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1795345086; x=1795949886; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=1BgKHSd3CQAdu9W4c7Bsjn/CT1XjSRVEIx6RizkYoTw=;
-        b=YZ5bDllE7BUWMDYFieiobEjZVxN5TdkQWHrvZ12txftnZYNc4vr0mBnHowrNuP/nfo
-         YZ+ib2Tgww3kVOtaO1KzHF7XJQCMYpKZKhghQq8HONhBPfPRmy+bAOvi9SC5v84eVksI
-         Czh1MECKBW5s0knQXcoTK0Vch2pKd1MA7fcT9QBJRngVJ9KGHBcA62UISdNR6zdufUJb
-         lpNuzI82NWY30P0jUO18KaOhear+bUuKHOJmRDPC5gUjEc1UvRe3F9xo7A9BARSFYkla
-         2zcpq5INRKCWsix7i1ufuRedhP0TVGlqMGvTP1Op/33TDoMwgoc2ZzWiaFQ8YAdIraGs
-         /cWA==
+        d=bairaktaris.de; s=google; t=1795348925; x=1795953725; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VDAY2l0Py9SC2OiRZKfmkxrUpoDnsAjefW9a1e5gT+g=;
+        b=dHQOf8gGOodWTsaKi5dgfQNsLTkRXIRY7JVT0QBt5GWmt5sAPg2VkmlMtcdJ0LeF84
+         Xu8jT40A4eXSq92wL5v8Dt6kzbEBbm9Z4SA6gb7IIUoBqGWE2IJmsQn1MKCz5E0b16pv
+         0fbGYmqiG1jMYaYkX2scq1jbOwhexXQTpj1UQej36YKtEuawplCVLDtbmMC1v6mceiWv
+         HeinbDtqR+rNsQu2rRMi5o0fRDX071TyqvpRHjoUEyLCcjXhiI4rVND/QVzDVrvGt6tL
+         +XeltXPqSHv+++/OWHqufEX5T15Cj8njNTh+4xeBZfvG675uFvb39V+2Bdi31pYtuk3Z
+         q1Pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795345086; x=1795949886;
-        h=content-transfer-encoding:content-type:in-reply-to:from:references
-         :cc:to:content-language:subject:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=1BgKHSd3CQAdu9W4c7Bsjn/CT1XjSRVEIx6RizkYoTw=;
-        b=2xSMH1VN4822HS7hreHDw69O0phQywa3tlNeoUnuPQUqxYSpgPHN4nTzK4lqhbtTEg
-         UAjbFlynyluN7AhWg5FHKpxJqZcUDvxArSG5nfHR9x+fzNlmOe0TBEWlAbTg9fhIGdCK
-         /YO62hUV47uvZAV1bSL/Lb/DJHbRtL9HfDQc2RIS1DFY6RBsRCk5BpPazhhIuwGVwwok
-         NQBRXXUpIQOm7YRLmGadm57bOHu0Gt32gf7yM8f35M4dWZapGoq3Roq9v+OonIS4dw00
-         JTouAam8VCCahIGheJfocnvAPodFj0NSZX9cCnO72Q851KycJluR/Zu3NNyrmAeghYJt
-         1hnA==
-X-Forwarded-Encrypted: i=1; AL+hErFJ6YQB3GJDEyj/C/Dj9NdeybXIJnEMPDFUCiWh1g6FhHy0AKwxeUvNNLgjsQP2unoEOCBDbOE=@lists.linux.dev
-X-Gm-Message-State: APuU4Z8xuwT4J9ZY6OKvu3wLMFX3C1xSobEuH08MHS3iSFyXX5oZAvIy
-	hj1DWZXl6LDHOQbweAP+Ne9hrLTDcHiZBimwrcPJXr8dYChHZp0Uw6MFmv26qJH5BTw=
-X-Gm-Gg: AZFdTZdoYgSgvk42E4gO9tn0PHO6rBAVpAY4L0bgpD63HjVMHjbpcHrvrmqrTm0Pty4
-	HmzFovMJgd/29QJVbvAlmN/3KY2KhmyJh2faBSDqb6UsiB3Y8Af0SwuSjfXv7DU0+pZdDD39sTW
-	b1I4j0dUzNmLr0U8mbSvqBxviTkSaXKtxkk//29UZYJUOsNfoqBnBgp/dvbz4U/ZIGBExHDBq1r
-	+VcaRJ5kGUoUzZXzlOoYmGjhbg+KLrXPhswGxnpBPXcCVXbXuLQsc+/zQxP8rMhWgpZWh193SEr
-	KdN8tjipYyUPLPn6JDs2Y2F1lqnwkZzmXPLsTTYdOedQOuprqQXEqmv7OWBZoIKoEFnUMIz0S40
-	8aUzSvjsAQUrT64dgTZ+rPixSF9yDe9hb5cyja22K1GpS8EJafepQ0BJwxyTdGjhDOwiFrKPsx1
-	0wPuDhNdFAtOopOKv+O0ekyGwDehHrFd7rP4RL8UXrjF7sAHqDL3sbrpgSeNcWf7Xgi/CaiufKy
-	17y0ny+G2nDcZBl5vK7KuoS9ZQzgA5lJcpO5pwCL7CEeDFQmDZRvIIhyMfsUbQqIvHy1izyY7Wi
-	nk5cXT+3nEyK3U8sbCAEGAaRS7i7Q9lX3GVQLZ+2EbL95lL77bfn1O6ai0aG
-X-Received: by 2002:a05:600c:820d:b0:4a1:dfaf:f465 with SMTP id 5b1f17b1804b1-4bb887c2ca3mr186411065e9.4.1795345085983;
-        Sun, 22 Nov 2026 02:58:05 -0800 (PST)
-Received: from [192.168.0.161] (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4bb906e4ce6sm105568865e9.4.2026.11.22.02.58.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 22 Nov 2026 02:58:05 -0800 (PST)
-Message-ID: <4937f07a-6238-4136-94ca-a98b2f4b8db5@blackwall.org>
-Date: Sun, 22 Nov 2026 12:58:04 +0200
+        d=1e100.net; s=20260707; t=1795348925; x=1795953725;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=VDAY2l0Py9SC2OiRZKfmkxrUpoDnsAjefW9a1e5gT+g=;
+        b=Et2gfJ99eQU1sP7l7iXEXfw148DzzEdvdTKaPOw8P5MhUZNtmTv8Tc0HtkLw46lMfI
+         ujFz4FazPjIHaedtzKR8S0IoppNlgOttdIgcECEDKWiTmmkFbJOj3FdUnTUzgZB6KrZF
+         GNWaYQ9Hvl0sgWPGYhUHg2YnjYTP3uU4iJIRFS6nMtAFZR6zALKZdvNxGM503ivY8uUA
+         R3YC13amoc3g7UNo9S/Y2iU1gCMOjI73E2G+xho74MqOaWxfthlzie9BOf4h05lj1kl5
+         yHxZW/6NfLQq7wKkkTKIFzU4+Uoxf6D0g0vsdiKn5TdpAEntLosmPpnC/n86MsozRrE/
+         mplQ==
+X-Forwarded-Encrypted: i=1; AL+hErHSrEucBRfAAzxnGLHrw8tjAENNHd2zbwM9aA4F7U2n7qc2Dxyst+WQ6F0V9OTGO3jrK5kYLDQ=@lists.linux.dev
+X-Gm-Message-State: APuU4Z+FOzjzMi9qFduzNajxyfiH5e+x3cDmfpeM85Fpy58FLpmSAoUq
+	IXtAV3VEGUn+lmetNgtpeb7odrlfxVIObUxN3+ra3myxEDgXjlbc4YrUmU4+a52RDxt41lnce8y
+	xFtizKnrETBgDyyIiRiuUyNYsoTlX/Yu0rm+20qeB
+X-Gm-Gg: AZFdTZdzRQnY3nUsdq+H1qsZe3+YTOmmhQYeUCJfbitO4p2+OQQjmxPydQz41x5F+Qf
+	YZTqcRqOFfaPsvcBarsLGoaZHq0QEC/EHt7hPWO89NyMWYrKOzM8NrL792KsV5iPVk2EIwlpdSh
+	AMc0Lzzb+mIrXAcoceU/7Aq3+kAGyA2yuzsu4KQrbD1eaPc5MQUJsE1AHRJL18DLgIwu07NfTtM
+	S625RZUGGzYTm+shPOSba1HHF966JBrc2HRWiv7lgKNPqwg2302hsxSxLsAFMhH5mKGGAvxBdNA
+	6vgd/j82LlAGo1thukhCRsOe6AoUxDaYFV6niQvzk7G4AjYePtMjwsgt8pzxaRFju5eMDqlZk1B
+	o/CrzusVWKREFxr26t2j1O/Ph+fVwtWYO/DDDckdtyYIEBgLYP1+WGHlEL9aC5yuTidwTcTNsov
+	GGI7o7kDV8Iweu+WWQHAy4PixpI0XY8DcYo8PAFVGx11bBgtfUhzC9ZPA1SCSnpOxM6ZLG4cbhE
+	z7NWQguULIoZR95uA6CICzD1w+lLHghQDKPW0dCDTlUfeZSZ0kIw2A8GiMPIW+83XfdT4vts3c4
+	enDgRjqouqSUWPtrI92CcsOjyQso08lqRbqojgLEB4o0Objap2x172gebRCjrYXGTGPEs3htJCQ
+	WelsihCchAQv7WugEa/exk9d7oUG1y29oKInpv7HQuzf2UTUOUPM=
+X-Received: by 2002:a05:690c:88d:b0:8b0:d646:95ae with SMTP id
+ 00721157ae682-8b520436e42mr29583277b3.18.1795348924716; Sun, 22 Nov 2026
+ 04:02:04 -0800 (PST)
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -91,145 +105,43 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net: bridge: withdraw the switchdev entry of an fdb
- entry made dynamic
-Content-Language: en-US, bg
-To: Julius Bairaktaris <julius@bairaktaris.de>,
- Ido Schimmel <idosch@nvidia.com>
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev,
- "David S . Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Willem de Bruijn <willemb@google.com>,
- Simon Horman <horms@kernel.org>, Vladimir Oltean <olteanv@gmail.com>,
- Vladimir Oltean <vladimir.oltean@nxp.com>,
- Jesse Brandeburg <jbrandeb@kernel.org>
-References: <20261121191638.1724620-1-julius@bairaktaris.de>
-From: Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <20261121191638.1724620-1-julius@bairaktaris.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Julius Bairaktaris <julius@bairaktaris.de>
+Date: Sun, 22 Nov 2026 12:01:29 +0000
+X-Gm-Features: Aa3M54pGP5Y5GelDYyIRXPac7qaJVRqnpPRHmYC1fODXTa_3sxZD5zd8Qe6ua_w
+Message-ID: <CAC1t37+WBG97C5ZeimO9SXAKChk0BU1kRC5E6yKAaOHXvWDpMg@mail.gmail.com>
+Subject: Re: [PATCH nf-next v11 2/3] netfilter: flowtable: tear down direct
+ xmit flows when the fdb entry moves
+To: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: netfilter-devel@vger.kernel.org, Florian Westphal <fw@strlen.de>, 
+	Phil Sutter <phil@nwl.cc>, Nikolay Aleksandrov <razor@blackwall.org>, Ido Schimmel <idosch@nvidia.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@kernel.org>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Shuah Khan <shuah@kernel.org>, Eric Woudstra <ericwouds@gmail.com>, netdev@vger.kernel.org, 
+	bridge@lists.linux.dev, coreteam@netfilter.org, 
+	linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 21/11/2026 21:16, Julius Bairaktaris wrote:
-> Since commit 927cdea5d209 ("net: bridge: switchdev: don't notify FDB
-> entries with "master dynamic""), br_switchdev_fdb_notify() reports
-> neither the addition nor the deletion of an entry that the user added
-> without NUD_PERMANENT or NUD_NOARP. The user can turn an entry that
-> switchdev was told about, a learned one or a static one, into such an
-> entry: fdb_add_entry() does it for "bridge fdb replace ... master
-> dynamic", and __fdb_update() for "bridge fdb replace ... master use"
-> (NTF_USE), which marks a learned entry as added by the user. The
-> drivers then keep the entry they were given, and since its later
-> deletion is not reported either, they keep it after the bridge has
-> dropped it.
-> 
-> Report the deletion of the old entry to switchdev before either path
-> makes it one that is no longer reported, as br_fdb_update() does before
-> an entry moves to another port; br_switchdev_fdb_notify() tests the old
-> flags, so only an entry that was reported is withdrawn. Entries with
-> the extern_learn flag stay reported and are left alone. The NTF_USE
-> branch is only reached from netlink: the packet path passes no
-> BR_FDB_ADDED_BY_USER to br_fdb_update(). The offloaded flag of the
-> entry stays as the drivers report it.
-> 
-> Found while reviewing how DSA tracks host addresses for bridge FDB
-> entries. In QEMU with KASAN and dsa_loop given FDB operations and
-> assisted learning, an address learned on a veth port of the bridge is a
-> host address on the CPU port. After "bridge fdb replace <addr> dev vA
-> master dynamic", or "... master use", and the deletion of the entry,
-> net keeps the address on the CPU port in 3 of 3 boots for each command;
-> with this change it is deleted at the replace in 3 of 3 boots for each.
-> 
-> Fixes: 927cdea5d209 ("net: bridge: switchdev: don't notify FDB entries with "master dynamic"")
-> Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
-> ---
-> I used Claude (Anthropic) to help write these patches.
-> 
->   net/bridge/br_fdb.c | 21 +++++++++++++++++++++
->   1 file changed, 21 insertions(+)
-> 
+On Sat, Nov 21, 2026 at 10:10:15PM +0100, Pablo Neira Ayuso wrote:
+> > +struct flow_offload_br_outer {
+> > + u16 vid;
+> > + u8 present:1,
+> > + link_vlans:2,
+> > + link_untag:1,
+> > + link_8021ad:1,
+> > + inner_tag:1;
+> > +};
+>
+> What scenario are you trying to support with this?
 
-I think this has never worked, so this patch can go to net-next.
-A few nits below.
+A vlan device of one bridge as port of another: br1.100 is a port of
+br0, which has the router address, and the host moves from rr0, a port
+of br1, to rr2, a port of br0. nf-next offloads the flow to rr0. After
+the move only br0's entry changes; br1's still points to rr0 until it
+ages out, so the gc must also look the host up in br0, through br1.100.
+That is the "stackout" case of 3/3, which stalls on nf-next.
 
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index b601245ad923..377ca8341029 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
-> @@ -996,6 +996,16 @@ static bool __fdb_mark_active(struct net_bridge_fdb_entry *fdb)
->   		  test_and_clear_bit(BR_FDB_NOTIFY_INACTIVE, &fdb->flags));
->   }
->   
-> +/* Called before @fdb becomes an entry that the user added as dynamic, which
-> + * br_switchdev_fdb_notify() does not report: report the deletion of the entry
-> + * switchdev was told about, if it was
-> + */
-> +static void fdb_switchdev_hide(struct net_bridge *br,
-> +			       const struct net_bridge_fdb_entry *fdb)
-> +{
-> +	br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
-> +}
+And thanks for the review! Can I send out the other patches to get
+some sashiko reviews, or do you want to keep the rule of 1 patch at a
+time?
 
-This helper isn't helpful. Just call br_switchdev_fdb_notify directly.
-
-> +
->   static void __fdb_update(struct net_bridge *br,
->   			 struct net_bridge_fdb_entry *fdb,
->   			 struct net_bridge_port *source,
-> @@ -1005,6 +1015,7 @@ static void __fdb_update(struct net_bridge *br,
->   	struct net_bridge_port *old_port;
->   	struct net_bridge_dst old_dst;
->   	bool fdb_modified = false;
-> +	bool roamed = false;
->   	unsigned long now;
->   
->   	/* attempt to update an entry for a local interface */
-> @@ -1032,6 +1043,7 @@ static void __fdb_update(struct net_bridge *br,
->   			br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
->   			br_fdb_dst_write(fdb, dst);
->   			fdb_modified = true;
-> +			roamed = true;
->   			/* take over HW learned entry */
->   			if (unlikely(test_bit(BR_FDB_ADDED_BY_EXT_LEARN,
->   					      &fdb->flags)))
-> @@ -1048,7 +1060,12 @@ static void __fdb_update(struct net_bridge *br,
->   		}
->   	}
->   
-> +	/* Only from netlink (NTF_USE), with the user's flag in @flags */
-
-This comment is useless.
-
->   	if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
-> +		/* After a roam the deletion was reported above */
-> +		if (!roamed && !test_bit(BR_FDB_STATIC, &fdb->flags) &&
-> +		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-> +			fdb_switchdev_hide(br, fdb);
->   		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
->   		if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
->   			atomic_dec(&br->fdb_n_learned);
-> @@ -1262,6 +1279,10 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_dst dst,
->   		if (flags & NLM_F_EXCL)
->   			return -EEXIST;
->   
-> +		if (!(state & (NUD_PERMANENT | NUD_NOARP)) &&
-> +		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags))
-> +			fdb_switchdev_hide(br, fdb);
-> +
-
-I played around with the possible bits that can result from this change and I think
-I got 1 bad case:
-What if a user adds a master static entry (created with BR_FDB_ADDED_BY_USER but without
-ext_learn) which is later programmed and gets BR_FDB_OFFLOADED set, then a replace with
-"master dynamic"?
-That is,
-bridge fdb add master static, bridge -> swdev driver issues add (entry is now ADDED_BY_USER | STATIC),
-swdev -> bridge (entry is now with | OFFLOADED), bridge fdb replace master dynamic (ADDED_BY_USER | OFFLOADED)
-but the entry has been deleted in dsa / mlxsw due to the new swdev del that is sent
-
->   		old_dst = br_fdb_dst_read(fdb);
->   		modified = fdb_update_dst(fdb, old_dst, dst);
->   
-> 
-> base-commit: d5b89d55a322b632e2b465b392a4c1d9d338db9c
-
+Julius
