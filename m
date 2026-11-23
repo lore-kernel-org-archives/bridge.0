@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795418884;
-	b=teeR6JI5Sil9VG6k/XjBBnssaBvq/j4P9Kz3ixTBKj5sEaKkoMhe2uLXT1pKGNbrhmuu
-	 oafPGb0oXgbTBOm6zelb4Aq9+GA5PTuDA8hKW8rmfw/8dIjMuwwyvl2By6TaMv8rUu8p5
-	 1OwEKXgESNlunI34d7dP0m2ZkkpxYdYfGF6jCo5NBmMUxjHJ5aGXNF83r8zdDgeLPwCwZ
-	 zdGocxWm+SgVFMa+fdxgsDMdLxJtw7GyqKLfnPw6en4dx7QGyE6XoMv1az5efJGWxJ4Lb
-	 KoKn7bybdeHPXx78QvMuh8EUbuNe7+cRC86F61HOv7mgK+LRQRtmCp7GksetPraQUdQ==
+	t=1795418885;
+	b=gmjGUb7kD5K6uG+u/yKujhtZZ5G2clsNGRqg8n9G/LvTt1CEVMQYVFeWxy0/WBojVLt/
+	 8vT9nIDPm4ZkI4pw/ZWf35XxINXux36mLf65AgCdhUY9vgr6ksASytMs2PfexC7FNxm0J
+	 G5BUfkb0duihdk8Rh6mjPDCwLHhvKqH+eIzybH6cDYhR0EJlxlM3oW49Dkh5B3NeslRx1
+	 ZLivL9oojvdxd0A/HaGu6e2Y+IF3oYKfKwLytBcKHgs9dKiy1y4RR9PYVjn9HSjKE4K/G
+	 2QVR3KCbjYQK/I7YKvXCnzkdLM3TkuhCGkb8f1xx2iEVFOhhX1BzWpPuSPQ6q4VRQBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795418884;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795418885;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=JR6Iu4izND+o7EkZgh6TIoF3sPp+Q9MpVOR8wNz04Uk=;
-	b=LA+bylAdwUG4JxpfxtaBgS5bxc4xn+ZOxBglq6V2j45kEdlYSNUOoKbiS9rB3Bj2aXmj
-	 yq0290MQUKSLxO/5tVY5fq93R6c9BqOlaDO7UwIhUFSlufdZU+7ifFv9tDlZOsAC+qmCF
-	 YFYLKLhKqgASKOJQCqUH/85aKNPGTfdhHWZJYF7yCLzezuGq1tpe4cv9M9HVb0s0PUAud
-	 gSWCUQ/ugwPl2N6TjRm5BWH3Y6ypTRoLKI7eQ7hcvoKkIXimbAKbst+ikxGc1ng59TIVG
-	 x7MUNapW9Y6dirw4td196zkT/prGc/YwJkYwvzDu2vTKCZC77miYoKyMTxmdz8+1teg==
+	bh=BFjNFEEl1ZT74xqErJR3pC77rX17KqsrmpJsd3ndC1c=;
+	b=yFGh9qYpXtLYAhzuixkm7deWJp7qu2k6aFsc3jL9EpvHXcvr+diJpVWvmg1LcluGty90
+	 pc4FF9BgcsQ7Dmh/EQiL4xi9QE4+FgFEWu+rNBE5ihspiU1AqSbRpKjQaMam2Z6rrNusa
+	 QtWyVhT/kO3OpUujZy2Y6kvJhUD4Q/XrDak38snAprF3hEOwAlqYcxGyTdZryPjOIFtKR
+	 ha/tWD7vX3NPuhL3/FUEfpTgEJN5fuPx91I4XiQm0puwJf1kzGhmo5lz/C07fkO3B6Fhl
+	 zQcxc1swDjl20l//l9WNexKU3I899oHgu/7TvS8f+OKX7Nqy9exajcgmZXr8EY4HobQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=foSVDFke;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Txo8TGOe;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 050A4606A31A;
-	Mon, 23 Nov 2026 07:28:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48054606A32E;
+	Mon, 23 Nov 2026 07:28:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=foSVDFke
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 992C51F000C4;
-	Mon, 23 Nov 2026 07:28:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Txo8TGOe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D6CF1F000CF;
+	Mon, 23 Nov 2026 07:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795418883;
-	bh=JR6Iu4izND+o7EkZgh6TIoF3sPp+Q9MpVOR8wNz04Uk=;
+	s=k20260515; t=1795418884;
+	bh=BFjNFEEl1ZT74xqErJR3pC77rX17KqsrmpJsd3ndC1c=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=foSVDFkecBOEdYbs2RnoyFmZTnjyVcZsZQCq+mwgFP5ttgsQ6WOFEzDU9RR8clAa7
-	 7ftxPNYYCag35HYYoYtL+MUnqYZk0jHBauhdLQNhJogxVM1yMvng32rpQdvz+0sOpJ
-	 apWWJV5V/VM/aWpSSMahVTKmIQh4AxfHwmyUgWBERAtR8cCCcPDeVJK535S0Z5in8q
-	 I+eY+c1kM0o3igqnb9Qcs3rPcA7hQ2hZ97f/lUzdNtLPqlvawi3ahGgZ4FJU9ZTJtt
-	 PkYoj3QNEXi1Ffka1Agbo+kJWl++asitPHNa0PUO+w9kd+6CbMnt1oan+UToaT3ndK
-	 Q5y/TA1rEWu5g==
+	b=Txo8TGOeVw2zWIThv5bGWVZsmXDaNUK+q6gnWiORIoXhewj9czojPiJYAqgmcuvzM
+	 fMk8LX9Pmds7/cH6qbiiIzYP5lHPVx6vcHJr2/gNTOO1YfL9oeDzTziRT5mO782ulC
+	 44n3rtgnziBhKi97kCfmRkgv/gkqVSD3YXLWJ9aw6qd24upSWWw6IiK4m0JoDYMAU5
+	 QQKtHbcwqKN0lT0r5H5uJzfX2v3KA7Y6+ulWoeTrDjc9aR59qGSvFIGz0T0viHnGpU
+	 1jReja7KeCtGsU/ahGIZbuyLWeTagJCOSw8s7mUNEayOlUJ+gpKpZTzi7V2+Ci9pKW
+	 eg8NVlDwgjsQg==
 Subject:
- Re: [PATCH net 1/2] bridge: mcast: Fix source list rollback on failure
+ Re: [PATCH net 2/2] selftests: bridge_mdb: Test failed source list replace
 From: netdev-bot+sashiko@kernel.org
 To: idosch@nvidia.com
 Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
@@ -49,11 +49,11 @@ Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
  razor@blackwall.org, dsahern@kernel.org, shuah@kernel.org,
  bridge@lists.linux.dev, linux-kselftest@vger.kernel.org,
  kyuwoncho18@gmail.com
-Date: Mon, 23 Nov 2026 07:28:02 +0000
-Message-ID: <179541888207.3135.7176816464038643772@kernel.org>
-In-Reply-To: <20261122072504.2623702-1-idosch@nvidia.com>
-References: <20261122072504.2623702-1-idosch@nvidia.com>
-X-sashiko-severity: High
+Date: Mon, 23 Nov 2026 07:28:03 +0000
+Message-ID: <179541888360.3135.4706984344785286288@kernel.org>
+In-Reply-To: <20261122072504.2623702-2-idosch@nvidia.com>
+References: <20261122072504.2623702-2-idosch@nvidia.com>
+X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
@@ -69,7 +69,7 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue(s) to consider.
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 0
+Critical: 0 · High: 0 · Medium: 1 · Low: 0
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -77,151 +77,131 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [High] This patch makes a failed `NLM_F_REPLACE` keep the (*, G) source
-  entries that existed before the request, but it keeps them in the…
+- [Medium] A failed (*, G) replace still leaves the existing sources
+  partly changed, and the new test cannot see it.
 
 --
 
-bridge: mcast: Fix source list rollback on failure
+selftests: bridge_mdb: Test failed source list replace
 
-This commit changes the rollback in br_mdb_add_group_srcs(). On failure, it
-now deletes only the source entries that the current add or replace
-operation created, marked with a new BR_SGRP_F_NEW flag. Source entries
-that existed before an NLM_F_REPLACE request are kept, which also avoids a
-WARN_ON_ONCE() when a source appears more than once in the list.
+This commit adds a test case to __cfg_test_port_ip_star_g() in
+bridge_mdb.sh for the fix in "bridge: mcast: Fix source list rollback on
+failure". The replace request lists an existing source twice, then a new
+source, then an invalid source. The test checks that after the failed
+replace the existing (S, G) entries are still present and the new one was
+not created.
 
-Closes: https://lore.kernel.org/netdev/179489219555.3099318.10297266282803881244@gmail.com/
-
-> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
-> index 0adcd1524ab24..be65976c2f32f 100644
-> --- a/net/bridge/br_mdb.c
-> +++ b/net/bridge/br_mdb.c
-
-[ ... ]
-
-> @@ -883,31 +884,24 @@ static int br_mdb_add_group_src(const struct br_mdb_config *cfg,
->  	if (err)
->  		goto err_del_sg;
->  
-> -	ent->flags = BR_SGRP_F_INSTALLED | BR_SGRP_F_USER_ADDED;
-> +	ent->flags = BR_SGRP_F_INSTALLED | BR_SGRP_F_USER_ADDED |
-> +		     (ent->flags & BR_SGRP_F_NEW);
->  
->  	return 0;
->  
->  err_del_sg:
-> -	__br_multicast_del_group_src(ent);
-> +	if (ent->flags & BR_SGRP_F_NEW)
-> +		__br_multicast_del_group_src(ent);
->  	return err;
->  }
+> diff --git a/tools/testing/selftests/net/forwarding/bridge_mdb.sh b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+> index e86d779465853..712b9a5a0e5fe 100755
+> --- a/tools/testing/selftests/net/forwarding/bridge_mdb.sh
+> +++ b/tools/testing/selftests/net/forwarding/bridge_mdb.sh
 
 [ ... ]
 
-> @@ -917,11 +911,16 @@ static int br_mdb_add_group_srcs(const struct br_mdb_config *cfg,
->  			goto err_del_group_srcs;
->  	}
+> @@ -487,6 +488,23 @@ __cfg_test_port_ip_star_g()
 >  
-> +	hlist_for_each_entry(ent, &pg->src_list, node)
-> +		ent->flags &= ~BR_SGRP_F_NEW;
+>  	bridge mdb del dev br0 port $swp1 grp $grp vid 10
+>  
+> +	# Check that a failed replace does not change the source list.
+> +	bridge mdb add dev br0 port $swp1 grp $grp temp vid 10 \
+> +		filter_mode exclude source_list $src1,$src2
 > +
->  	return 0;
->  
->  err_del_group_srcs:
-> -	for (i--; i >= 0; i--)
-> -		br_mdb_del_group_src(pg, &cfg->src_entries[i]);
-> +	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node) {
-> +		if (ent->flags & BR_SGRP_F_NEW)
-> +			br_multicast_del_group_src(ent, false);
-> +	}
+> +	bridge mdb replace dev br0 port $swp1 grp $grp temp vid 10 \
+> +		filter_mode exclude source_list $src1,$src1,$src3,$invalid_src \
+> +		&> /dev/null
+> +	check_fail $? "Managed to replace source list with an invalid source"
+> +	bridge -d mdb get dev br0 grp $grp src $src1 vid 10 &> /dev/null
+> +	check_err $? "(S, G) entry for source $src1 deleted after failed replace"
+> +	bridge -d mdb get dev br0 grp $grp src $src2 vid 10 &> /dev/null
+> +	check_err $? "(S, G) entry for source $src2 deleted after failed replace"
+> +	bridge -d mdb get dev br0 grp $grp src $src3 vid 10 &> /dev/null
+> +	check_fail $? "(S, G) entry for source $src3 created after failed replace"
 
-[Severity: High]
-With NLM_F_REPLACE, the pre-existing sources that are now kept on failure
-were already changed by br_mdb_add_group_src() earlier in the loop. Is that
-state ever restored?
+[Severity: Medium]
+The add and the failed replace both use temp, filter_mode exclude and the
+default proto. The test then only checks whether the (S, G) entries exist.
+Would a partly applied replace of an existing source be caught here?
 
-For each pre-existing source in the new list, br_mdb_add_group_src() first
-changes the source timer:
+In net/bridge/br_mdb.c the replace path is:
 
+br_mdb_replace_group_star_g()
+  br_mdb_replace_group_srcs()
+    br_mdb_add_group_srcs()
+      br_mdb_add_group_src()    <- once per source, in order
+
+For a source that already exists, br_mdb_add_group_src() changes its timer
+and replaces its (S, G) entry before the later sources are processed:
+
+net/bridge/br_mdb.c:br_mdb_add_group_src() {
+    ...
 	if (cfg->filter_mode == MCAST_INCLUDE &&
 	    cfg->entry->state == MDB_TEMPORARY)
 		mod_timer(&ent->timer, now + br_multicast_gmi(brmctx));
 	else
 		timer_delete(&ent->timer);
 
-Then this call chain rewrites the existing (S, G) port group and notifies
-user space:
+	/* Install a (S, G) forwarding entry for the source. */
+	err = br_mdb_add_group_src_fwd(cfg, &src->addr, brmctx, extack);
+    ...
+}
 
-br_mdb_add_group_src_fwd()
-  br_mdb_add_group_sg()
-    br_mdb_replace_group_sg()
+br_mdb_add_group_src_fwd()->br_mdb_add_group_sg()->br_mdb_replace_group_sg()
+then rewrites the existing (S, G) port group and notifies userspace:
 
+net/bridge/br_mdb.c:br_mdb_replace_group_sg() {
+    ...
 	pg->flags = flags;
 	pg->rt_protocol = cfg->rt_protocol;
 	...
 	br_mdb_notify(cfg->br->dev, mp, pg, RTM_NEWMDB);
+    ...
+}
 
-Finally, the ent->flags assignment above overwrites the source flags and
-drops bits such as BR_SGRP_F_SEND.
+A later source can fail. In this test that is 0.0.0.0 or ::, where
+br_multicast_new_group_src() returns NULL and the call returns -ENOSPC.
+The rollback then only removes BR_SGRP_F_NEW entries and clears
+BR_SGRP_F_DELETE:
 
-If a later source fails, this loop deletes only the BR_SGRP_F_NEW entries.
-br_mdb_replace_group_star_g() then returns before it updates the parent:
+br_mdb_add_group_srcs():
+err_del_group_srcs:
+	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node) {
+		if (ent->flags & BR_SGRP_F_NEW)
+			br_multicast_del_group_src(ent, false);
+	}
+	return err;
 
-	err = br_mdb_replace_group_srcs(cfg, pg, brmctx, extack);
-	if (err)
-		return err;
+br_mdb_replace_group_srcs():
+err_clear_delete:
+	hlist_for_each_entry(ent, &pg->src_list, node)
+		ent->flags &= ~BR_SGRP_F_DELETE;
+	return err;
 
-	pg->flags = flags;
-	pg->filter_mode = cfg->filter_mode;
-	...
+br_mdb_replace_group_star_g() then returns early. The (*, G) port group
+keeps its old flags, filter_mode and protocol. Its existing sources and
+their (S, G) entries keep the new settings.
 
-So the (*, G) keeps its old configuration, but the kept sources and their
-(S, G) entries carry the new one. User space has also already received
-RTM_NEWMDB for the (S, G) changes.
+For example:
 
-This failure is easy to trigger. A source of 0.0.0.0 or :: passes
-is_valid_mdb_source(), but br_multicast_new_group_src() rejects it, so the
-request fails with -ENOSPC. The selftest in the next patch ("selftests:
-bridge_mdb: Test failed source list replace") uses this trigger. It only
-checks that the (S, G) entries still exist, not their flags or timers.
+  bridge mdb add ... temp filter_mode include source_list S1
+  bridge mdb replace ... permanent filter_mode include source_list S1,0.0.0.0
 
-Some states this can leave behind:
+Does this delete S1's source timer, so the temporary INCLUDE entry never
+ages out? Does it also leave the (S, G) entry PERMANENT while the (*, G)
+entry is still temporary? Userspace would also get an RTM_NEWMDB
+notification for a request that failed.
 
-(a) A permanent INCLUDE (*, G) {S1} is replaced with a temporary INCLUDE
-source list S1,0.0.0.0. S1's timer is now armed on a permanent pg, and
-(S1, G) has lost MDB_PG_FLAGS_PERMANENT. After GMI,
-br_multicast_group_src_expired() sees INCLUDE mode and does this:
+Before this series, the rollback deleted every source it had processed, so
+the changed state did not survive. "bridge: mcast: Fix source list rollback
+on failure" now keeps the existing entries, which leaves the changed state
+in place.
 
-	if (pg->filter_mode == MCAST_INCLUDE) {
-		br_multicast_del_group_src(src, false);
-		if (!hlist_empty(&pg->src_list))
-			goto out;
-		br_multicast_find_del_pg(br, pg);
+Should that fix also restore the timer and (S, G) state of the existing
+sources? Could the replace in this test also use different attributes, for
+example permanent, filter_mode include or a different proto? It could then
+check that the existing (S, G) entries keep their original flags, protocol
+and timer.
 
-That deletes S1 and its (S1, G) entry, and then the permanent (*, G) entry.
-
-(b) A temporary INCLUDE (*, G) {S1} is replaced with a permanent
-S1,0.0.0.0. S1's timer is deleted, and the pg timer is only armed in
-EXCLUDE mode, so the temporary entry never ages out.
-
-(c) An EXCLUDE (*, G) {S1} is replaced with INCLUDE S1,0.0.0.0. (S1, G)
-loses MDB_PG_FLAGS_BLOCKED while (*, G) is still EXCLUDE with S1 listed.
-Traffic from S1 is then forwarded to a port that should exclude it.
-
-The commit message says this patch fixes the case where:
-
-    sources from the new source list that already existed before the replace
-    are deleted together with their (S, G) entries instead of being kept.
-
-In case (a), aren't those sources and their (S, G) entries still deleted,
-only one GMI later, together with the permanent (*, G) entry?
-
-Could the replace path validate or allocate everything before it touches
-existing entries? Alternatively, it could save the per-source and (S, G)
-state and restore it on failure.
-
->  	return err;
->  }
+[ ... ]
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261122072504.2623702-1-idosch%40nvidia.com
