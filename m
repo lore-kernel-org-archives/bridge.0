@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795461804;
-	b=f+KDmD4On+WB+S6AYWC8TA7YJ8crt/S1O3AJK6HgotBXS28kUjEB0Hh1FXSOV823vW0+
-	 Ke+gdOXSI4fkJ/Dl1Qnj9iuJXcuCjtQ90kcbXcsqsmAK1gOTf3BIOMHUyXkPZkcAU1Syw
-	 Hko5XNlP27v5qY76QLC/vWsRIPx9EZEg+qQTT4+VO5hnteC8ZK8DLoLw/JdhwmHL8CUO4
-	 OVyY7EhK3ZlKREohbBtDPEgZfVPo6qUm6plUeZeCk0qNe9OIHuml3nzyc2NF1827bOip+
-	 9Qqlc6xvkfRTjkiuuBMNFvw8CewKP1huX4D3VcCvmOopAKKCREvZ4unUJdXH2MKmHMg==
+	t=1795461806;
+	b=WNWorlOmYQnhWrj1p4w23JxHfobkUMq3fUMX70LzMDpZdi+RAhijm88r2JzezspXxsIN
+	 mPkkVRub78bLbLZnKU4OYFeCFD15WIQbjUyXq8ZBME9DxrJUlOClFmGA6J4oVo1UUniuk
+	 734jobwZW/v+kcHdALLHe1izHpwydbnkYWo3A2G1u7p56G3K5dKrdjpzZeyPr67darAS5
+	 baANkiTIH/nTHg3zSMsfkGpE61eMu9/lcKX//4osO446JxwIpuiSHoyV8F1+daOG/1Tn1
+	 qiYlZQZvH5VceDE91Cfd1UGFmBY1F9hQtyD5BVGc9cfssfTn1t8WDbzD7OUQsVQkFxA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795461804;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795461806;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=fhUKm+do3TxAyyEFU4NqF0vG45kG3h279znbQEFbaTE=;
-	b=rXMEybIVDT9zKjOuOxloMtRYE4wveZ2vdek2jgouwReIvKb3N/OVJJMMZJ6FT89zOXif
-	 C6vhelzZvpqlwtfYsIsJAKyuZCixPFM4uk9E3nw43xt9dW3HBzQ2ZhyEb9tP+sbSCR78k
-	 cB6SOwN4UaTwOZl2qzcJIkicax5/OhXXrVpu8CdUu4h3KjottC6ngwfPQ+9qwJk1u79+/
-	 fBBUTPFXd4ogiyS82QrC2nGlGYkcmPJNUShS8+ljql8QXnTmkvy6PM+FYT6fa+FH77Nej
-	 pyX6XLnDwMZ1D5UcyCwaxb1oUK/im8RTdi62dfplxuxvTQtmTCYhNTR95rO7DGC5Oew==
+	bh=2FASoa1vEglgVFuA3JUwSekEBLuZRvSl3QGz4VTG3T4=;
+	b=mnRLP7Iett+TGiUtlcIMPnTzvmhKvwENLCmGqb8RUssSgJg9XCV9aduV1mvEJVyM8nm1
+	 43BCGwD9ZestsQ/v3WBd1jiR1vbX4RySW7+I3J5xdPin7YqulQqj/xTqygjPFXiUIP6tD
+	 rNeKdw8oAMo8aG75BpLSGfK+eOEZNfcPVEcSS406dFG6PV0GQCOA77IUii4/58kkyrQyb
+	 +nZDR/tq4bhdTjtZVFfKuJST4pffoHFwFVzYubv6MMwj9kSVW/Y32HPCi8p4npCImti+B
+	 JyIWlEfvWuncPw3wrVJgAcECN9ACYegXswarSSxKUu6Tl+USugoPBxi4492kKTVGZPg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MFBOQgTC;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mg1jfK5e;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9809606A31A;
-	Mon, 23 Nov 2026 19:23:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9DB606A326;
+	Mon, 23 Nov 2026 19:23:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MFBOQgTC
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC111F000CF;
-	Mon, 23 Nov 2026 19:23:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mg1jfK5e
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9B261F000CF;
+	Mon, 23 Nov 2026 19:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1795461804;
-	bh=fhUKm+do3TxAyyEFU4NqF0vG45kG3h279znbQEFbaTE=;
+	s=k20260515; t=1795461805;
+	bh=2FASoa1vEglgVFuA3JUwSekEBLuZRvSl3QGz4VTG3T4=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=MFBOQgTCSu5rbSwBW/SqlX9d7qB+cyS88fufP4nm9z+y7FDjjzNn9PpuH/+eYINrt
-	 QWDHRGjOzC4QzPBG4evm828OGlyOxi8jm03ZvymlmFin9qcvubM7Uuwvp/5bdBaOvk
-	 AnvXaQgrVx6/n9X3RK3rQdr1GLLAMgfxa/nB4XbDz72KxS0V3O7lAf8k0n22NG7aLx
-	 nW7rrx73FmRyvxZkbZ4Egv6SDwD9RLkqN5CvEv5kJkr8SrXJ52ZH7jzqlnRvv3uqKc
-	 5hr+bo42pefH9TQuWP4uiumJTz7RGmZqcCiHV7LmJYptN1VXcHey+YEFh4LTbjR0of
-	 HswAq/oDDClxA==
-Subject: Re: [PATCH net-next v2 1/2] net: bridge: withdraw the switchdev entry
- of an fdb entry made dynamic
+	b=mg1jfK5e37ljeM8EVICIYfInGrpJ+YJ4MrA3xub2rdG68dQCGsBeWT3gABO8KLey6
+	 OZAQpBwa7G7pzvc52uRJH0EI3Do+XtMGYHV1v5Qw7V6tvrgbjPIHRfHaYkRSDnq+8V
+	 mcQ8MaVkvfJHmGKz6vDVyKKg15MbT/cuCjMi7uJPyfvjxcf4y0wS04SoYlW9KqvGJJ
+	 YPGG007gKWfI2OcePG0VWT8Y6BnYNGsqUu8SMAY2b5dekh2rl0fpst7Bmbs4ODSFjm
+	 br/IFekHZQkeb5SO3e6tGyDoAATU9CCwNQygJleSCxgBUIqw9D7Z8WXIc2KOezns5X
+	 i/+ORLrWWgShQ==
+Subject: Re: [PATCH net-next v2 2/2] net: bridge: clear the offloaded flag of
+ an fdb entry that roams
 From: netdev-bot+sashiko@kernel.org
 To: julius@bairaktaris.de
 Cc: razor@blackwall.org, idosch@nvidia.com, netdev@vger.kernel.org,
  bridge@lists.linux.dev, davem@davemloft.net, edumazet@kernel.org,
  kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, olteanv@gmail.com,
  vladimir.oltean@nxp.com, jbrandeb@kernel.org
-Date: Mon, 23 Nov 2026 19:23:22 +0000
-Message-ID: <179546180293.3135.5862034760494795708@kernel.org>
-In-Reply-To: <20261122192118.1204290-2-julius@bairaktaris.de>
-References: <20261122192118.1204290-2-julius@bairaktaris.de>
+Date: Mon, 23 Nov 2026 19:23:24 +0000
+Message-ID: <179546180446.3135.1475958862197579079@kernel.org>
+In-Reply-To: <20261122192118.1204290-3-julius@bairaktaris.de>
+References: <20261122192118.1204290-3-julius@bairaktaris.de>
 X-sashiko-severity: Medium
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -68,7 +68,7 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 3 potential
 issue(s) to consider.
 
-Critical: 0 · High: 0 · Medium: 3 · Low: 0
+Critical: 0 · High: 0 · Medium: 1 · Low: 2
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -76,230 +76,131 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Medium] A late driver offload report can set BR_FDB_OFFLOADED again
-  after the new withdrawal has cleared it.
-- [Medium] The new withdrawal does its check and its action as separate
-  steps, with nothing that excludes the lockless packet path.
-- [Medium] The patch treats br_switchdev_fdb_notify()'s filter as the
-  definition of what is reported, and withdraws an entry…
+- [Medium] The new clear_bit() in __fdb_update()
+  (net/bridge/br_fdb.c:1034) is not ordered against offload reports from…
+- [Low] The patch fixes a user-visible defect: after a roam in
+  __fdb_update(), the entry is shown with NTF_OFFLOADED and matched by…
+- [Low] The commit message body, above the `---` line, says: "Found by an
+  LLM review of __fdb_update() while patch 1 was reworked after the…
 
 --
 
-net: bridge: withdraw the switchdev entry of an fdb entry made dynamic
+net: bridge: clear the offloaded flag of an fdb entry that roams
 
-Two paths turn an fdb entry into a user-added dynamic entry, which
-br_switchdev_fdb_notify() no longer reports. They are fdb_add_entry()
-("replace ... master dynamic") and the NTF_USE branch of __fdb_update()
-("replace ... master use"). Before either path does so, the patch now
-sends a switchdev deletion for the entry and clears BR_FDB_OFFLOADED, and
-br_fdb_offloaded_set() now assigns the offloaded flag instead of toggling
-it.
-
-> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
-> index b601245ad9239..4af091c192449 100644
-> --- a/net/bridge/br_fdb.c
-> +++ b/net/bridge/br_fdb.c
+When an entry roams to another port, this patch clears BR_FDB_OFFLOADED
+in __fdb_update() right after the switchdev deletion for the old port is
+sent. The goal is that the entry is no longer shown as offloaded, or
+matched by "bridge fdb flush ... offloaded", when the new port does not
+hold it.
 
 [ ... ]
 
-> @@ -1032,6 +1033,7 @@ static void __fdb_update(struct net_bridge *br,
+> Found by an LLM review of __fdb_update() while patch 1 was
+> reworked after the review of its v1.
+
+[Severity: Low]
+This isn't a bug, but "patch 1" and "v1" won't mean anything once this
+is in git history.
+
+Could the dependency be named by its subject instead? That would be
+"net: bridge: withdraw the switchdev entry of an fdb entry made dynamic",
+which provides the roamed variable used in this hunk. Version history
+could go below the --- line or in the cover letter.
+
+[ ... ]
+
+> Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
+
+[Severity: Low]
+Should this have a Fixes: tag? The roam-time withdrawal that left
+BR_FDB_OFFLOADED set seems to come from:
+
+commit 90dc8fd36078 ("net: bridge: notify switchdev of disappearance of
+old FDB entry upon migration")
+
+Commit 6eb38bf8eb90 only added the br argument to that
+br_switchdev_fdb_notify() call, so it doesn't look like the right target.
+
+The message also doesn't say whether this is meant for net or net-next.
+The hunk depends on the roamed variable from "net: bridge: withdraw the
+switchdev entry of an fdb entry made dynamic". Could that dependency be
+recorded for backports?
+
+> diff --git a/net/bridge/br_fdb.c b/net/bridge/br_fdb.c
+> index 4af091c192449..8bb40645bd6b3 100644
+> --- a/net/bridge/br_fdb.c
+> +++ b/net/bridge/br_fdb.c
+> @@ -1031,6 +1031,7 @@ static void __fdb_update(struct net_bridge *br,
+>  		      !test_bit(BR_FDB_STICKY, &fdb->flags)))) {
+>  		if (source != old_port) {
 >  			br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
->  			br_fdb_dst_write(fdb, dst);
->  			fdb_modified = true;
-> +			roamed = true;
->  			/* take over HW learned entry */
->  			if (unlikely(test_bit(BR_FDB_ADDED_BY_EXT_LEARN,
->  					      &fdb->flags)))
-> @@ -1049,6 +1051,12 @@ static void __fdb_update(struct net_bridge *br,
->  	}
->  
->  	if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
-> +		if (!test_bit(BR_FDB_STATIC, &fdb->flags) &&
-> +		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags)) {
-> +			if (!roamed)
-> +				br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
 > +			clear_bit(BR_FDB_OFFLOADED, &fdb->flags);
-> +		}
-> +		set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
 
 [Severity: Medium]
-Can the packet path slip in between this withdrawal and the
-set_bit(BR_FDB_ADDED_BY_USER) below it?
+Can a late offload report from the old port set the flag again after
+this clear?
 
-The NTF_USE branch gets here from __br_fdb_add() holding only
-local_bh_disable() and rcu_read_lock(). The packet path,
-br_fdb_update() -> fdb_find_rcu() -> __fdb_update(), takes no lock at
-all.
+DSA programs FDB entries from its workqueue. After the hardware add, it
+reports the offload using the orig_dev that was saved when the work was
+queued:
 
-Three things happen in separate steps: the check that the entry is still
-reported, the DEL, and the move to the never-reported state.
-
-Take M learned on port A, with a frame from M arriving on a non-sticky
-port B:
-
-CPU0 (bridge fdb replace M dev vA master use)
-__fdb_update()
-    br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);    /* DEL for A */
-
-CPU1 (frame from M on port B)
-__fdb_update()
-    if (source != old_port) {
-        br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH); /* DEL for A again */
-        br_fdb_dst_write(fdb, dst);
+net/dsa/user.c:dsa_fdb_offload_notify() {
     ...
-    fdb_notify(br, fdb, RTM_NEWNEIGH, true);           /* ADD for B */
+	info.offloaded = true;
+	call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED,
+				 switchdev_work->orig_dev, &info.info, NULL);
+}
 
-CPU0
-    clear_bit(BR_FDB_OFFLOADED, &fdb->flags);
-    set_bit(BR_FDB_ADDED_BY_USER, &fdb->flags);
+br_switchdev_event() gets the port p from orig_dev and passes it to
+br_fdb_offloaded_set(). That function looks up the entry by {addr, vid}
+only and never checks p against the entry's current dst port:
 
-CPU1's notifications get through the filter in br_switchdev_fdb_notify()
-because BR_FDB_ADDED_BY_USER is still clear.
-
-Once CPU0 sets the bit, the filter drops every later notification for
-the entry, including its final deletion. So the hardware entry for B is
-never withdrawn. For a host address on the DSA CPU port, the refcounted
-entry from dsa_port_do_fdb_add() stays installed after the bridge drops
-or moves the entry.
-
-The second DEL for A has no matching ADD. On the CPU port,
-dsa_port_do_fdb_del() returns -ENOENT. With fdb_isolation off,
-db.bridge.num is 0 and shared across bridges, so it can instead drop a
-reference that another bridge holds for the same addr/vid.
-
-fdb_add_entry() holds hash_lock, but the packet path doesn't take it. So
-the same window exists there, between the DEL and the later
-fdb_update_dst(), set_bit(BR_FDB_ADDED_BY_USER) and clearing of
-BR_FDB_STATIC.
-
-The following patch in the series only adds clear_bit(BR_FDB_OFFLOADED)
-on the roam path, so it doesn't close this window.
-
->  		if (test_and_clear_bit(BR_FDB_DYNAMIC_LEARNED, &fdb->flags))
->  			atomic_dec(&br->fdb_n_learned);
-> @@ -1262,6 +1270,12 @@ static int fdb_add_entry(struct net_bridge *br, struct net_bridge_dst dst,
->  		if (flags & NLM_F_EXCL)
->  			return -EEXIST;
->  
-> +		if (!(state & (NUD_PERMANENT | NUD_NOARP)) &&
-> +		    !test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &fdb->flags)) {
-> +			br_switchdev_fdb_notify(br, fdb, RTM_DELNEIGH);
-> +			clear_bit(BR_FDB_OFFLOADED, &fdb->flags);
-> +		}
-> +
-
-[Severity: Medium]
-How does this withdrawal interact with br_switchdev_fdb_replay()?
-
-The patch treats the br_switchdev_fdb_notify() filter as the definition
-of which entries are reported. Replay doesn't use that filter. It walks
-every entry, including user-added dynamic ones:
-
-net/bridge/br_switchdev.c:br_switchdev_fdb_replay() {
+net/bridge/br_fdb.c:br_fdb_offloaded_set() {
     ...
-	hlist_for_each_entry_rcu(fdb, &br->fdb_list, fdb_node) {
-		err = br_switchdev_fdb_replay_one(br, nb, fdb, action, ctx);
+	fdb = br_fdb_find(br, addr, vid);
+	if (fdb)
+		assign_bit(BR_FDB_OFFLOADED, &fdb->flags, offloaded);
     ...
 }
 
-When a DSA port leaves the bridge, a converted entry gets a second DEL:
+With the setup from the commit message, this sequence looks possible:
 
-dsa_port_pre_bridge_leave()
-    switchdev_bridge_port_unoffload()
-        br_switchdev_fdb_replay(adding=false)
+1. The address is learned on veth. fdb_notify() sends
+   SWITCHDEV_FDB_ADD_TO_DEVICE. DSA treats it as a host address and
+   queues the work. The bit is still clear.
 
-added_by_user is now set, so switchdev_fdb_is_dynamically_learned() in
-dsa_user_fdb_event() doesn't filter this DEL. It reaches
-dsa_port_bridge_host_fdb_del() or dsa_port_fdb_del(), and
-dsa_flush_workqueue() runs while dp->bridge is still valid.
+2. Before the work runs, a frame with the same source address arrives on
+   the DSA user port. __fdb_update() sends RTM_DELNEIGH, which is queued
+   behind the ADD. This clear_bit() does nothing because the bit is not
+   set yet, and dst becomes the user port. DSA ignores the NEWNEIGH for
+   its own user port.
 
-Before this patch, the replay DEL was the only DEL for a converted
-entry. Now it has no matching ADD:
+3. The worker runs the ADD and calls dsa_fdb_offload_notify() with
+   orig_dev = veth. br_fdb_offloaded_set() then sets BR_FDB_OFFLOADED on
+   the entry, which now points at the user port.
 
-- On the CPU port, dsa_port_do_fdb_del() returns -ENOENT and the driver
-  logs "port %d failed to delete %pM vid %d from fdb".
-- With fdb_isolation off, it can drop another bridge's reference for the
-  same addr/vid.
+4. The worker runs the DEL. DSA doesn't report offloaded=false on delete,
+   so the flag stays set until the entry ages out or changes.
 
-The other direction has a problem too. A port that joins after the
-conversion gets a replay ADD for the user-dynamic entry. Its later
-ageing or deletion is filtered by br_switchdev_fdb_notify(), so drivers
-can still keep the entry after the bridge has dropped it.
+The entry is then shown as offloaded and matched by "bridge fdb flush
+... offloaded" while nothing holds it in hardware. That is the state this
+patch is meant to remove. With MAC flapping between two ports, each roam
+queues another ADD/DEL pair.
 
-That direction already affects every user-dynamic entry since commit
-927cdea5d209. It doesn't match the commit message, though, which says
-br_switchdev_fdb_notify():
+The commit message says:
 
-  "reports neither the addition nor the deletion of an entry that the
-  user added without NUD_PERMANENT or NUD_NOARP"
+    A roam that races a driver reporting the address as learned on
+    another port can still leave the flag wrong
 
-Replay reports both. The following patch in the series doesn't touch
-replay either.
+This case is different: it is a deferred SWITCHDEV_FDB_OFFLOADED report
+from the old port, not a learned report.
 
->  		old_dst = br_fdb_dst_read(fdb);
->  		modified = fdb_update_dst(fdb, old_dst, dst);
->  
-> @@ -1706,8 +1720,8 @@ void br_fdb_offloaded_set(struct net_bridge *br, struct net_bridge_port *p,
->  	spin_lock_bh(&br->hash_lock);
->  
->  	fdb = br_fdb_find(br, addr, vid);
-> -	if (fdb && offloaded != test_bit(BR_FDB_OFFLOADED, &fdb->flags))
-> -		change_bit(BR_FDB_OFFLOADED, &fdb->flags);
-> +	if (fdb)
-> +		assign_bit(BR_FDB_OFFLOADED, &fdb->flags, offloaded);
+Does br_fdb_offloaded_set() also need to ignore reports whose p no longer
+matches the entry's dst port?
 
-[Severity: Medium]
-Can a late offload report from the driver set BR_FDB_OFFLOADED again
-after the new withdrawal in fdb_add_entry() or __fdb_update() has
-cleared it?
-
-DSA programs FDB entries from an ordered workqueue:
-dsa_user_fdb_event() calls dsa_schedule_work(), which queues on dsa_owq.
-
-When an ADD work item finishes, it calls dsa_fdb_offload_notify() with
-offloaded=true. That goes through br_switchdev_event() to
-br_fdb_offloaded_set(). A DEL work item never reports offloaded=false.
-
-For example:
-
-  bridge fdb add A dev lan1 master static
-      queues ADD work
-  bridge fdb replace A dev lan1 master dynamic
-      fdb_add_entry() queues DEL work and clears BR_FDB_OFFLOADED,
-      which isn't set yet
-  ADD work runs
-      programs the hardware and reports offloaded=true
-      br_fdb_offloaded_set() -> assign_bit(..., true)
-  DEL work runs
-      removes A from the hardware
-
-The entry is now ADDED_BY_USER, !STATIC and !EXT_LEARN, so
-br_switchdev_fdb_notify() filters every later notification and nothing
-corrects the flag.
-
-fdb_fill_info() keeps reporting NTF_OFFLOADED, and
-"bridge fdb flush ... offloaded" keeps matching the entry. The NTF_USE
-path in __fdb_update() does the same when a learned or host entry still
-has ADD work pending.
-
-The commit message says the clear is there so the entry is not:
-
-  "still be shown as offloaded, and matched as such by "bridge fdb
-  flush", after the hardware dropped it"
-
-Moving to assign_bit() stops a concurrent report from inverting the
-flag, but it doesn't stop a late report from setting it.
-
-Could br_fdb_offloaded_set() ignore entries that br_switchdev_fdb_notify()
-no longer reports?
-
-The following patch in the series, "net: bridge: clear the offloaded
-flag of an fdb entry that roams", doesn't touch br_fdb_offloaded_set(),
-so this window is still there at the end of the series.
-
->  
->  	spin_unlock_bh(&br->hash_lock);
->  }
+>  			br_fdb_dst_write(fdb, dst);
+>  			fdb_modified = true;
+>  			roamed = true;
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261122192118.1204290-1-julius%40bairaktaris.de
