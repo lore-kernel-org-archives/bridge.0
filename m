@@ -1,102 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795403457;
-	b=alHPwIHhAFaHDjGsXsLL5aP24IiC22bgAUs+QMtHAurawA66xhYAJ2sv2FBBx464E6dr
-	 e18D/zSxveZ9fRz857bjqSMhRi/Qzi3nYBbsrVwm1SPaYt1KWbcrfoZ0kHecKYhT3DkcY
-	 LwfUXJB8bLcTI/YgSGsidpCwJUslJRwV9mEs+Sv3heh2zXIVa3RU29sYZwyhzmefCjd/9
-	 fiURyUj0KoB5KnPf8vvxvDt/YskQGuxkOr7kn9bguMcg+gPO/d74lfjCmlVBaYYjdP+N3
-	 57L7QMqoL6CqEvm860FIZsjRB2m1G4BBrM1UWz3afQ6a53xAchJ8TOdulbjZ6J4KaYA==
+	t=1795418884;
+	b=teeR6JI5Sil9VG6k/XjBBnssaBvq/j4P9Kz3ixTBKj5sEaKkoMhe2uLXT1pKGNbrhmuu
+	 oafPGb0oXgbTBOm6zelb4Aq9+GA5PTuDA8hKW8rmfw/8dIjMuwwyvl2By6TaMv8rUu8p5
+	 1OwEKXgESNlunI34d7dP0m2ZkkpxYdYfGF6jCo5NBmMUxjHJ5aGXNF83r8zdDgeLPwCwZ
+	 zdGocxWm+SgVFMa+fdxgsDMdLxJtw7GyqKLfnPw6en4dx7QGyE6XoMv1az5efJGWxJ4Lb
+	 KoKn7bybdeHPXx78QvMuh8EUbuNe7+cRC86F61HOv7mgK+LRQRtmCp7GksetPraQUdQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795403457;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=xC8uNV0eir7OkjvnqZSoZuHi/kEMl+1aERjTTAXCD8w=;
-	b=Dv9xn6fQzy9PzuenBtEPZTX3iUJ9rAPsrL3NsbrNKhVFLmxDvi9OPW8HPpnZcgysrfuN
-	 LlJcMPGhkk5fw15dpKCkI4EzAO4zfxXQERzpfrCUy1cp0fLWsyK1KQESBdmHcpdWcqMhL
-	 B+H85NjwSDQl7AlmuH/KFXYE49lQGhvUVPtnnQzsW7xWL6zD1DCxTqBbvFEuTGN5vxdQ6
-	 ObrSGtSLEzOsCjNuDnVubx7H9qs7QcJtUCDHGcW76YP/Ac4D4lTlOGQzqGURhSysQKn2M
-	 +SSoJNAixSJbqqFXF0MmvJjdLidqDvZbP5eUWZ6+Wa/NYAzOQ8NA70o4kLYXy32jTug==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795418884;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=JR6Iu4izND+o7EkZgh6TIoF3sPp+Q9MpVOR8wNz04Uk=;
+	b=LA+bylAdwUG4JxpfxtaBgS5bxc4xn+ZOxBglq6V2j45kEdlYSNUOoKbiS9rB3Bj2aXmj
+	 yq0290MQUKSLxO/5tVY5fq93R6c9BqOlaDO7UwIhUFSlufdZU+7ifFv9tDlZOsAC+qmCF
+	 YFYLKLhKqgASKOJQCqUH/85aKNPGTfdhHWZJYF7yCLzezuGq1tpe4cv9M9HVb0s0PUAud
+	 gSWCUQ/ugwPl2N6TjRm5BWH3Y6ypTRoLKI7eQ7hcvoKkIXimbAKbst+ikxGc1ng59TIVG
+	 x7MUNapW9Y6dirw4td196zkT/prGc/YwJkYwvzDu2vTKCZC77miYoKyMTxmdz8+1teg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nebusec.ai;
-	spf=pass smtp.mailfrom=nebusec.ai;
-	dkim=pass header.d=nebusec.ai header.i=@nebusec.ai header.a=rsa-sha256 header.s=google header.b=Z58feEG7;
-	arc=none smtp.remote-ip=209.85.210.169
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=foSVDFke;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D0A2606A31E
-	for <bridge@lists.linux.dev>; Mon, 23 Nov 2026 03:10:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9D0A2606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nebusec.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nebusec.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 050A4606A31A;
+	Mon, 23 Nov 2026 07:28:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nebusec.ai header.i=@nebusec.ai header.a=rsa-sha256 header.s=google header.b=Z58feEG7
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-8b5e5e64494so1471330b3a.1
-        for <bridge@lists.linux.dev>; Sun, 22 Nov 2026 19:10:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nebusec.ai; s=google; t=1795403456; x=1796008256; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=xC8uNV0eir7OkjvnqZSoZuHi/kEMl+1aERjTTAXCD8w=;
-        b=Z58feEG7Bd3PfByOeLRu0UtPtHv38uCiiGvI7nC36w2rzSGRDTQHnyba0KUXmoYgde
-         teoFemWQQ2ln19bdXJcDJbt6jU2lSSG7vq2ngAuXKEdNsbpa0FwIYAYhWsiI8BErVoRP
-         iVogNKm+l2lT0yUiSlwoCgPeAfmUuvrUg9lUQ1iI0YdMWHc84xS1IbjOpBzVsBxAzmuA
-         JTdIU29xcltOA2Usz6LllC6PKlFcaG54d5Wlk/cBBHpW45zPb5zQu3hRZ8no2e93qLk9
-         yETobl6Nl9e4tqPvV0f15/GqVT3T8YxtNHVnT+7FmeilQ8KYT4GdvK7Nmh6zOQ/lGr++
-         5AhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795403456; x=1796008256;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xC8uNV0eir7OkjvnqZSoZuHi/kEMl+1aERjTTAXCD8w=;
-        b=0XbM0ngRRR2TuM+0WPyPIptfldecXzyorQ5Q0wadbSpvdUX/ERklFp0t14ykhSUbIO
-         HGm9stPxESyrjjBDhBM5SlxIsjD8jaNd1WRk5V0fPYCaIIUMFq2G5ytIjW3SJ3ff5ZhX
-         OpgHj6uspzv/4sK864qI3em9d/zKTAnssI+5AmuFGbG8NgzwapIhAtb/tDgGFuwIcTF7
-         iLNdbNINy/AcgxJSVzf+13Pmx7+/4X3OMa2EAFjTetqgj17sWHuxT5CEcrWmpfhwWu+t
-         18rwyRnUPVmE2H6HkpeRSmkVXW9KO7fNR66CZt6gX4LO09xld1Adnr4BORIVSXP0fO8T
-         6Dog==
-X-Forwarded-Encrypted: i=1; AL+hErEwSxCQ8mX7SazdijOF7GjefOV78jASfK7FyyeCXTgjXKx02q5IFBotnMmbxM1pq0YuXXJbpic=@lists.linux.dev
-X-Gm-Message-State: APuU4Z96UdejB2VOjut/rXK1vDGZ/EGy6J3MPSN8Y2E8fbUuOquzFkCM
-	xYsARQdHSHPiHnBCkp6YSLVOKKNdvHA8dTLFh9sba4+8ovuHnKph4yExXNrtS8oWEPRk
-X-Gm-Gg: AZFdTZccVX/S3htEE9WjFdajPNAF4/nZxfTiiBwVmSr2l9M/CLEjtsflNuSdgVHxJvn
-	/RJVN6A3w9DAnTDWU9ON7GFRXqdIIfXFpTQzB8zYYkbUslE4WngkaU1XqIpISpEMSSrnfIvABZj
-	kTZK7m1K8b2e7wCdk7vM9HUOQi56RUAShS9xRGoFjJRv5aN7oGxZ3as+8toc6nNhu4b8aBauwM+
-	zR5wAPvaVgxinuRYkTqZhPQ+nUWMX8KH3jb6Qy3aZ3kpOi6h37IIP/9wFUvYZQ75iUrB5bXFAfV
-	HUuin+WtKVEthBIsgYTpsOjAcm5+ygOCR23D68f9CKJdotlvsSm1ZhalmD30ucvrAi7ZQNt6kq/
-	ONHrFmMedpJAoWTTWDSEvDZp34X3d+w+VQ14R/byMAAwlL8p0Dd7FtYpnZ2U6+ek/+I74qaqfL3
-	/4FonBD8rteHb6FVSoV6/QdnJWQ4N3rio7zKnAl4tVGKDpxWNzKqbHw7mmjbv9tSIaSc/qzHVJF
-	SOPo4BaH8kU7Y7ZKw5OKAvkKIIJqwLDirWwDGA0G6RPtOpLM3f3HP3gZSZYsZAZwtVHZGeippk6
-	wDJnnQQkIcyoKM7xZf70js3W+uibXnyLLaTYzYP8
-X-Received: by 2002:a05:6a00:4c19:b0:8b5:f313:9f54 with SMTP id d2e1a72fcca58-8c87d32b35cmr8423896b3a.56.1795403455931;
-        Sun, 22 Nov 2026 19:10:55 -0800 (PST)
-Received: from enjou-Legion-Y7000P-2019 ([191.223.218.36])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8c87343fe6csm4826392b3a.37.2026.11.22.19.10.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Nov 2026 19:10:55 -0800 (PST)
-From: Ren Wei <weir@nebusec.ai>
-To: netfilter-devel@vger.kernel.org,
-	bridge@lists.linux.dev
-Cc: pablo@netfilter.org,
-	fw@strlen.de,
-	phil@nwl.cc,
-	razor@blackwall.org,
-	idosch@nvidia.com,
-	davem@davemloft.net,
-	vega@nebusec.ai,
-	sashiko-bot@kernel.org,
-	rakukuip@gmail.com,
-	weir@nebusec.ai
-Subject: [PATCH nf 1/1] netfilter: bridge: detach conntrack template on invalid IP frames
-Date: Mon, 23 Nov 2026 11:11:01 +0800
-Message-ID: <b2d3ea42b2d8d4d9c97452a123dd5f6c3cded1c4.1795348417.git.rakukuip@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <cover.1795348417.git.rakukuip@gmail.com>
-References: <cover.1795348417.git.rakukuip@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=foSVDFke
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 992C51F000C4;
+	Mon, 23 Nov 2026 07:28:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795418883;
+	bh=JR6Iu4izND+o7EkZgh6TIoF3sPp+Q9MpVOR8wNz04Uk=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=foSVDFkecBOEdYbs2RnoyFmZTnjyVcZsZQCq+mwgFP5ttgsQ6WOFEzDU9RR8clAa7
+	 7ftxPNYYCag35HYYoYtL+MUnqYZk0jHBauhdLQNhJogxVM1yMvng32rpQdvz+0sOpJ
+	 apWWJV5V/VM/aWpSSMahVTKmIQh4AxfHwmyUgWBERAtR8cCCcPDeVJK535S0Z5in8q
+	 I+eY+c1kM0o3igqnb9Qcs3rPcA7hQ2hZ97f/lUzdNtLPqlvawi3ahGgZ4FJU9ZTJtt
+	 PkYoj3QNEXi1Ffka1Agbo+kJWl++asitPHNa0PUO+w9kd+6CbMnt1oan+UToaT3ndK
+	 Q5y/TA1rEWu5g==
+Subject:
+ Re: [PATCH net 1/2] bridge: mcast: Fix source list rollback on failure
+From: netdev-bot+sashiko@kernel.org
+To: idosch@nvidia.com
+Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+ pabeni@redhat.com, edumazet@kernel.org, willemb@google.com, horms@kernel.org,
+ razor@blackwall.org, dsahern@kernel.org, shuah@kernel.org,
+ bridge@lists.linux.dev, linux-kselftest@vger.kernel.org,
+ kyuwoncho18@gmail.com
+Date: Mon, 23 Nov 2026 07:28:02 +0000
+Message-ID: <179541888207.3135.7176816464038643772@kernel.org>
+In-Reply-To: <20261122072504.2623702-1-idosch@nvidia.com>
+References: <20261122072504.2623702-1-idosch@nvidia.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -106,103 +65,163 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Luxiao Xu <rakukuip@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-A bridge rule such as nftables `ct zone set` can attach a conntrack
-template with IP_CT_NEW to an skb before nf_ct_bridge_pre() runs. When
-a frame has an ETH_P_IP or ETH_P_IPV6 protocol, nf_ct_bridge_pre()
-performs header pull, length trimming, and nf_ct_br_ip_check() /
-nf_ct_br_ipv6_check() validation before invoking defragmentation and
-nf_conntrack_in().
+Critical: 0 · High: 1 · Medium: 0 · Low: 0
 
-If any of those six checks fails, nf_ct_bridge_pre() returns NF_ACCEPT
-immediately without passing the skb to nf_conntrack_in(), which would
-normally clear skb->_nfct and drop the template reference on parse
-failure. Because nft_ct_get_eval() evaluates NFT_CT_STATE from ct and
-ctinfo before rejecting template objects, the retained template causes
-malformed, truncated, or wrong-version IP frames to match `ct state new`
-instead of `ct state invalid`.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-Jump to a shared error path that calls nf_reset_ct(skb) before returning
-NF_ACCEPT on all IPv4 and IPv6 header/length rejection paths so the
-template reference is released and the frame is treated as invalid,
-even on kernels without downstream template filtering in ct readers.
+- [High] This patch makes a failed `NLM_F_REPLACE` keep the (*, G) source
+  entries that existed before the request, but it keeps them in the…
 
-Fixes: 3c171f496ef5 ("netfilter: bridge: add connection tracking system")
-Cc: stable@vger.kernel.org
-Reported-by: VEGA <vega@nebusec.ai>
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://sashiko.dev/#/patchset/3cf187b612fd78f8835fa9dad870326ce380f82f.1785479514.git.zhilinz@nebusec.ai
-Signed-off-by: Luxiao Xu <rakukuip@gmail.com>
-Signed-off-by: Ren Wei <weir@nebusec.ai>
----
-Note on related upstream work:
-Florian Westphal's series "[v2,nf-next] netfilter: conntrack: add and
-use nf_ct_get_real()" (linked below) mitigates the downstream symptom
-by making ct state readers such as nft_ct_get_eval() treat retained
-templates as NULL (INVALID rather than NEW). However, nf_ct_get_real()
-targets nf-next and is not present in nf or -stable kernels, and
-nf_ct_bridge_pre() still leaves an unconsumed template attached to
-skb->_nfct on malformed IP frames until freed. Resetting ct state at
-the rejection site in nf_ct_bridge_pre() aligns it with
-nf_conntrack_in() and the existing non-IP default branch.
-Link: https://lore.kernel.org/netfilter-devel/20260923122741.30468-1-fw@strlen.de/
+--
 
- net/bridge/netfilter/nf_conntrack_bridge.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+bridge: mcast: Fix source list rollback on failure
 
-diff --git a/net/bridge/netfilter/nf_conntrack_bridge.c b/net/bridge/netfilter/nf_conntrack_bridge.c
-index b5444335b86f..0da0f899edb8 100644
---- a/net/bridge/netfilter/nf_conntrack_bridge.c
-+++ b/net/bridge/netfilter/nf_conntrack_bridge.c
-@@ -257,28 +257,28 @@ static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
- 	switch (skb->protocol) {
- 	case htons(ETH_P_IP):
- 		if (!pskb_may_pull(skb, sizeof(struct iphdr)))
--			return NF_ACCEPT;
-+			goto invalid;
- 
- 		len = skb_ip_totlen(skb);
- 		if (pskb_trim_rcsum(skb, len))
--			return NF_ACCEPT;
-+			goto invalid;
- 
- 		if (nf_ct_br_ip_check(skb))
--			return NF_ACCEPT;
-+			goto invalid;
- 
- 		bridge_state.pf = NFPROTO_IPV4;
- 		ret = nf_ct_br_defrag4(skb, &bridge_state);
- 		break;
- 	case htons(ETH_P_IPV6):
- 		if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
--			return NF_ACCEPT;
-+			goto invalid;
- 
- 		len = sizeof(struct ipv6hdr) + skb_ipv6_payload_len(skb);
- 		if (pskb_trim_rcsum(skb, len))
--			return NF_ACCEPT;
-+			goto invalid;
- 
- 		if (nf_ct_br_ipv6_check(skb))
--			return NF_ACCEPT;
-+			goto invalid;
- 
- 		bridge_state.pf = NFPROTO_IPV6;
- 		ret = nf_ct_br_defrag6(skb, &bridge_state);
-@@ -293,6 +293,10 @@ static unsigned int nf_ct_bridge_pre(void *priv, struct sk_buff *skb,
- 		return ret;
- 
- 	return nf_conntrack_in(skb, &bridge_state);
-+
-+invalid:
-+	nf_reset_ct(skb);
-+	return NF_ACCEPT;
- }
- 
- static unsigned int nf_ct_bridge_in(void *priv, struct sk_buff *skb,
+This commit changes the rollback in br_mdb_add_group_srcs(). On failure, it
+now deletes only the source entries that the current add or replace
+operation created, marked with a new BR_SGRP_F_NEW flag. Source entries
+that existed before an NLM_F_REPLACE request are kept, which also avoids a
+WARN_ON_ONCE() when a source appears more than once in the list.
+
+Closes: https://lore.kernel.org/netdev/179489219555.3099318.10297266282803881244@gmail.com/
+
+> diff --git a/net/bridge/br_mdb.c b/net/bridge/br_mdb.c
+> index 0adcd1524ab24..be65976c2f32f 100644
+> --- a/net/bridge/br_mdb.c
+> +++ b/net/bridge/br_mdb.c
+
+[ ... ]
+
+> @@ -883,31 +884,24 @@ static int br_mdb_add_group_src(const struct br_mdb_config *cfg,
+>  	if (err)
+>  		goto err_del_sg;
+>  
+> -	ent->flags = BR_SGRP_F_INSTALLED | BR_SGRP_F_USER_ADDED;
+> +	ent->flags = BR_SGRP_F_INSTALLED | BR_SGRP_F_USER_ADDED |
+> +		     (ent->flags & BR_SGRP_F_NEW);
+>  
+>  	return 0;
+>  
+>  err_del_sg:
+> -	__br_multicast_del_group_src(ent);
+> +	if (ent->flags & BR_SGRP_F_NEW)
+> +		__br_multicast_del_group_src(ent);
+>  	return err;
+>  }
+
+[ ... ]
+
+> @@ -917,11 +911,16 @@ static int br_mdb_add_group_srcs(const struct br_mdb_config *cfg,
+>  			goto err_del_group_srcs;
+>  	}
+>  
+> +	hlist_for_each_entry(ent, &pg->src_list, node)
+> +		ent->flags &= ~BR_SGRP_F_NEW;
+> +
+>  	return 0;
+>  
+>  err_del_group_srcs:
+> -	for (i--; i >= 0; i--)
+> -		br_mdb_del_group_src(pg, &cfg->src_entries[i]);
+> +	hlist_for_each_entry_safe(ent, tmp, &pg->src_list, node) {
+> +		if (ent->flags & BR_SGRP_F_NEW)
+> +			br_multicast_del_group_src(ent, false);
+> +	}
+
+[Severity: High]
+With NLM_F_REPLACE, the pre-existing sources that are now kept on failure
+were already changed by br_mdb_add_group_src() earlier in the loop. Is that
+state ever restored?
+
+For each pre-existing source in the new list, br_mdb_add_group_src() first
+changes the source timer:
+
+	if (cfg->filter_mode == MCAST_INCLUDE &&
+	    cfg->entry->state == MDB_TEMPORARY)
+		mod_timer(&ent->timer, now + br_multicast_gmi(brmctx));
+	else
+		timer_delete(&ent->timer);
+
+Then this call chain rewrites the existing (S, G) port group and notifies
+user space:
+
+br_mdb_add_group_src_fwd()
+  br_mdb_add_group_sg()
+    br_mdb_replace_group_sg()
+
+	pg->flags = flags;
+	pg->rt_protocol = cfg->rt_protocol;
+	...
+	br_mdb_notify(cfg->br->dev, mp, pg, RTM_NEWMDB);
+
+Finally, the ent->flags assignment above overwrites the source flags and
+drops bits such as BR_SGRP_F_SEND.
+
+If a later source fails, this loop deletes only the BR_SGRP_F_NEW entries.
+br_mdb_replace_group_star_g() then returns before it updates the parent:
+
+	err = br_mdb_replace_group_srcs(cfg, pg, brmctx, extack);
+	if (err)
+		return err;
+
+	pg->flags = flags;
+	pg->filter_mode = cfg->filter_mode;
+	...
+
+So the (*, G) keeps its old configuration, but the kept sources and their
+(S, G) entries carry the new one. User space has also already received
+RTM_NEWMDB for the (S, G) changes.
+
+This failure is easy to trigger. A source of 0.0.0.0 or :: passes
+is_valid_mdb_source(), but br_multicast_new_group_src() rejects it, so the
+request fails with -ENOSPC. The selftest in the next patch ("selftests:
+bridge_mdb: Test failed source list replace") uses this trigger. It only
+checks that the (S, G) entries still exist, not their flags or timers.
+
+Some states this can leave behind:
+
+(a) A permanent INCLUDE (*, G) {S1} is replaced with a temporary INCLUDE
+source list S1,0.0.0.0. S1's timer is now armed on a permanent pg, and
+(S1, G) has lost MDB_PG_FLAGS_PERMANENT. After GMI,
+br_multicast_group_src_expired() sees INCLUDE mode and does this:
+
+	if (pg->filter_mode == MCAST_INCLUDE) {
+		br_multicast_del_group_src(src, false);
+		if (!hlist_empty(&pg->src_list))
+			goto out;
+		br_multicast_find_del_pg(br, pg);
+
+That deletes S1 and its (S1, G) entry, and then the permanent (*, G) entry.
+
+(b) A temporary INCLUDE (*, G) {S1} is replaced with a permanent
+S1,0.0.0.0. S1's timer is deleted, and the pg timer is only armed in
+EXCLUDE mode, so the temporary entry never ages out.
+
+(c) An EXCLUDE (*, G) {S1} is replaced with INCLUDE S1,0.0.0.0. (S1, G)
+loses MDB_PG_FLAGS_BLOCKED while (*, G) is still EXCLUDE with S1 listed.
+Traffic from S1 is then forwarded to a port that should exclude it.
+
+The commit message says this patch fixes the case where:
+
+    sources from the new source list that already existed before the replace
+    are deleted together with their (S, G) entries instead of being kept.
+
+In case (a), aren't those sources and their (S, G) entries still deleted,
+only one GMI later, together with the permanent (*, G) entry?
+
+Could the replace path validate or allocate everything before it touches
+existing entries? Alternatively, it could save the per-source and (S, G)
+state and restore it on failure.
+
+>  	return err;
+>  }
+
 -- 
-2.43.0
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261122072504.2623702-1-idosch%40nvidia.com
