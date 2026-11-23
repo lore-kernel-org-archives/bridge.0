@@ -1,99 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.45
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795429727;
-	b=IX6paI+5IdcaS0wRFDCPTCiNSJRwQlrO/xbszj7o2bW+Sxpie61EbA7Csw80j0/xVT0z
-	 yp+eR3D4Hj/37S3XeoNPU8UYo23j8/eLcqda83Xo0y20qq6uMK+s1UuTWFwaTQwGG+Kxb
-	 xsPjmF/bhVHP8U2g58BgBCERJNcrfUmJSHDOpR4RXEnlRXTDMfWB4k7BaTlWStVEwCEc2
-	 Z7rZpfLfklS/h7hUMKFk3xrt1RUh1aA7t+P9Ctv/WxjfuDvC9TTa9R5zS40Eb2JLYjfXO
-	 7TSJlYPqXimR5T6nVxjz1YpEdyZL2QppTYRepYi0BLCjohcn7HLwVXJvrxjqMSMUtEQ==
+	t=1795455901;
+	b=Hmm9L8jHmaE961cdhWDo5fa+8MfzZIU2Mhz6LTJoJp+k7gpIv2JB2e1XOkiUHwWWDCmt
+	 hsJKRelCRJg9PVPBcqDZV3AfDfpk82y/mMUrFo/GAhSTcT0XjAoP9QFE6BzrVeMuDgnr3
+	 E37mcz3XDRacCmEXafQfP94/4XFtujhF1ZPurIW7q+asUQ/jVjKRjAbwOdvTuJqrhaU3O
+	 mjkvY4DC8ln3R6+cr4PJVc4kvPEVxGbrGhdVen8yGPYJuRUsG63SBFLUAR81GxnNLD+f2
+	 FReAbKeWoe5YIbCAqviuFs91rEKKPCqGSdUMNOTsZdP+dpFA6DQ1uN11NjstZdhrojA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795429727;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=vvhL2dudRhqTXrzfmMeH03EnlFMuQX0Rpev63eT5Nl8=;
-	b=Hu4SeRGgxzKjeAXbyFG5TC9SRU3jxL+y+IIpLywlO8p+XD2Je+vtsd8vRQhwPf5FLs8k
-	 NVy8W5mItGs3pqIVbtWzO9xSf45VmvAP2z/YkTM2T34q+yJRvkO6kUVvtMw/Xm94uaR4i
-	 F+l1h9+UBVjI1DQczSKq1HSpEG61cEBxPEEf73M+rYvwhXNljBydqchfhUH5x1gkiT2Ku
-	 O3UETOLLciGirob3KIECZgfdeIlqBFtfoH6m5RloWh3VmOL5k9ZbDf3xbB3gd6gyp3erj
-	 gvzx63EyjCLH3oJoquxQyiBUiDzXY7Aidv/vwzzZFUFvxVC0akUHkPVvYRapZrVGiTA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1795455901;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=wjnzW4AkNebRLX32Od1ytfWiOGsb5QSUWsfOI4yrqJk=;
+	b=UWTWW4ox1XcA188wCUGqyzYU0iWvvTrqAX8GDmf90jq3bD1U8jrS1+UFiH5ED5JbnwLT
+	 Z0dbzkDhRrka8DvOppSZep5vxjeAPohRvdZFaw7TL2pqV33cC2ndI775mVbhl6qD/WYac
+	 LQZ9N0s/3Ekp1y2SK7I8dcy4AAJAxw3Akk9rqkeQ5g+H/eUT6H8OJVbAtoV8JW1HpQfUl
+	 yltec+Gdr6yit8vdyIL4y2eZBa57wd6wO34NTpgXn2WYJskvlBWd8Af8niRZkoJWec4o8
+	 fCTwTZX+QSBtrpr63vw8JNIaB40UPQEKrWWzBEF5u3Tg7Isr2s3UluzSX/9V+qM2YjQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=blackwall.org;
-	spf=none smtp.mailfrom=blackwall.org;
-	dkim=pass header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=c+Reg1O2;
-	arc=none smtp.remote-ip=209.85.221.45
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eBPNp0af;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FA3E606A33D
-	for <bridge@lists.linux.dev>; Mon, 23 Nov 2026 10:28:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2FA3E606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=blackwall.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=blackwall.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60445606A335;
+	Mon, 23 Nov 2026 17:45:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=blackwall.org header.i=@blackwall.org header.a=rsa-sha256 header.s=google header.b=c+Reg1O2
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-491971ac844so2853049f8f.2
-        for <bridge@lists.linux.dev>; Mon, 23 Nov 2026 02:28:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall.org; s=google; t=1795429724; x=1796034524; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=vvhL2dudRhqTXrzfmMeH03EnlFMuQX0Rpev63eT5Nl8=;
-        b=c+Reg1O2XfuudO8asyLDjwKviERYvMvfoayy/4RRv5Fmx7n/cESl35Dr3QxreJcm7H
-         aNRRvqR0EFwYStk3F9XeHoUt+cO02UQhftXupHhD0VZmqxrxkJyOQLi+mO3cD8BBS35Y
-         LtLBNeTiqyJSF8kYvsfpd8Y/kWHoAfJhssZslCNxfWJVi67+5/o5PxYgsnC/rR3IwAFO
-         dg9wRxGwOxTSrp6+ZzL6l3qE15wK+1r4uEvYd/y7S3mnhrhoIPw4pFi9oyJ/P8KEjH89
-         dmNe4b0fJ2nUqDgwdmJirkss4ZnzezosL+avTSJy3DfFyhVlvUvHjWDhqHhhPi9zLVhP
-         6/5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795429724; x=1796034524;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=vvhL2dudRhqTXrzfmMeH03EnlFMuQX0Rpev63eT5Nl8=;
-        b=Iht15ChFH8PY7s1L/ZbheGJjRVOsrPWVpzsU8qG0WqmoW7UiFSZFT7+yZ5B5cqgZLZ
-         rJJSQi1BwLElifcCq+zpYlyh2imBnGpsXHcghj7ADzQhBIetsEOouaX0hw+ZnGZ+Pq5Y
-         J3pp2sgYyAtBW39R9XZ1enpKfHsFbzDRrXt7wNfwwrAV9vZjLdGyx1cCEtO7EKeprROA
-         +6dfrQEPRU3/aCkvHtvbFdBI35sHl4DZLhipT/A5O0XkG6snCkRIwN9Lg05iAxg5cZTe
-         8no5i5UstHQDVmxw5pRO7o3FbwVkeYlCA+N1ZXSm7Z2RmJQqnE2Z2eZxZrAUhFAAeF3R
-         VcUA==
-X-Forwarded-Encrypted: i=1; AL+hErFR13AQWGaikv1DA93TLtHu2yGTNRvXjaB94UarE7SJVuvQ2SlRUVn+fLNnKEiTwv1a4BFgzmQ=@lists.linux.dev
-X-Gm-Message-State: APuU4Z/Cm2Ty+2zXKYGVfccUIIdP89Wc44Jmur9tHes4FNVRHsHTzAja
-	SHG+DOJV9fbnt/8delYJJGDas7+n59d0rmTDFUwWkUYssPDgjzJAyyMnZKCdnHwSbOU=
-X-Gm-Gg: AZFdTZfQCKa1lEaulQ05Cxm5+y8ZtehNhTu97azB623rkmtbF0u3SVaAeoXgjGrpVqe
-	T9tWheO0nW1bPQNt+uIWefdFl+LSJpZA93ZJv1si8i+jlPVp3Z4PsIdmmpBvKu3NgGF+8c4/VxT
-	0Yv5qa6foeFWqp+ZPlf6VVy52KZ5pJEschxS/ntxSzg6baVD/chEUL1y0lMxuwalRbJp4aD5zEC
-	Ojo211N3b3PPUqAdPUQqCNtY3waCXacAJyJUJaNHJDcRuDyPLuA4ppxOs5bdeDMyt9xfnvh0AvE
-	jcbvFtmmnSCRDUW9tK8owdKhO5K3vFZ+EeOH+cynoCCH99Q0krQoInGhBcUVfx5M6g96GORbZzl
-	JLjk7pRT9FD0ddrwEjz4P04pvNZumWCNRcrVCH4+tnqHASyYgDm0dCgwlrYSKADgYY5NrBOkJcU
-	tFQKC43qa2iUynwbFgPe/U2cITwPpnJNnIUDUXEIHL5vrvafeENdGWUxe86tnBfLCM2xvhKDloB
-	whanNDzGGrMwQw262+x7f9tpG3Zm1HCjYrSVqPeGpTcjN2rHuUvfAhxlpkHRsPQajloKs8e/3DE
-	JckefHtALDKDWxPHgDPJlmP9IN0s+ZYXmSbER1eoDENdosO63Gk=
-X-Received: by 2002:a05:6000:29d3:b0:4a2:6542:989a with SMTP id ffacd0b85a97d-4abb4b85a5cmr11933643f8f.52.1795429724549;
-        Mon, 23 Nov 2026 02:28:44 -0800 (PST)
-Received: from localhost (78-154-14-127.ip.btc-net.bg. [78.154.14.127])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4abbd84e661sm19882368f8f.18.2026.11.23.02.28.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Nov 2026 02:28:44 -0800 (PST)
-From: Nikolay Aleksandrov <razor@blackwall.org>
-To: netdev@vger.kernel.org
-Cc: Nikolay Aleksandrov <razor@blackwall.org>,
-	Ido Schimmel <idosch@nvidia.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	bridge@lists.linux.dev
-Subject: [PATCH net-next 3/3] net: bridge: mdb: avoid VLAN lookups in listener forwarding
-Date: Mon, 23 Nov 2026 12:28:33 +0200
-Message-ID: <20261123102833.924427-4-razor@blackwall.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261123102833.924427-1-razor@blackwall.org>
-References: <20261123102833.924427-1-razor@blackwall.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eBPNp0af
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78B161F000F4;
+	Mon, 23 Nov 2026 17:45:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1795455901;
+	bh=wjnzW4AkNebRLX32Od1ytfWiOGsb5QSUWsfOI4yrqJk=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=eBPNp0afnYM2C+a0rSGhfPeklRhzCqVexhpHRDpPBLU7GsDmIe1bjKzTIdA9Vob++
+	 hmhFE+OVO+W6rBn/yQpecxVldpKoserZAztnQ01RUqeWJvZgZG87gR1EX2Zgx0FwTn
+	 Pxc56L6TGVOB2KsdQ8lB8CZfpyA46W+BACS70fwZFBqlrRJpYOVIq7k+oGsOYz70My
+	 U6lvkCsouxMQsIyHaBvTwb5b7+qek65rSLCPxoolkphowBC/k6fsuAyDjkzY37y7zA
+	 8NOpkGPJRo2LHu3blpaob6klLzPZeb3NSbxTNYyf8GrogaT60G1uE0mH3WdRGCPxv2
+	 Z5OaFJLYUjOfA==
+Subject: Re: [PATCH net-next] net: dsa: report a deleted FDB entry as no
+ longer offloaded
+From: netdev-bot+sashiko@kernel.org
+To: julius@bairaktaris.de
+Cc: andrew@lunn.ch, olteanv@gmail.com, razor@blackwall.org, idosch@nvidia.com,
+ netdev@vger.kernel.org, bridge@lists.linux.dev, davem@davemloft.net,
+ edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org
+Date: Mon, 23 Nov 2026 17:44:59 +0000
+Message-ID: <179545589967.3135.15910184280641420924@kernel.org>
+In-Reply-To: <20261122174434.975426-1-julius@bairaktaris.de>
+References: <20261122174434.975426-1-julius@bairaktaris.de>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: bridge@lists.linux.dev
 List-Id: <bridge.lists.linux.dev>
 List-Post: <mailto:bridge@lists.linux.dev>
@@ -103,212 +63,231 @@ List-Unsubscribe: <mailto:bridge+unsubscribe@lists.linux.dev>
 List-Owner: <mailto:bridge+owner@lists.linux.dev>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Cache a port or port-VLAN destination in each mdb port group and pass
-its resolved VLAN to listener and multicast-to-unicast forwarding.
-Groups with port VLAN membership can validate egress and handle tagging
-without VLAN lookups.
+Thank you for your contribution! Sashiko AI review found 4 potential
+issue(s) to consider.
 
-Adding or deleting a port VLAN rewrites the cached destination of every
-group in that VLAN so its cost grows linearly with the VLAN's groups.
+Critical: 0 · High: 1 · Medium: 0 · Low: 3
 
-When a listener is also a global multicast router, use its cached
-destination while retaining router delivery semantics.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-VLAN forwarding improvement:
-  VLANs  Listeners  Mpps before  Mpps after  Gain %  Cycles before  Cycles after  Saved %
-  ---------------------------------------------------------------------------------------
-    8          4     0.785571    0.865156  +10.13         3771.2        3381.2    10.34
-    8          8     0.454257    0.511490  +12.60         6900.5        6091.0    11.73
-    8         16     0.249896    0.288575  +15.48        13144.0       11362.9    13.55
-   64          4     0.765468    0.841916   +9.99         3881.6        3462.1    10.81
-   64          8     0.437448    0.501744  +14.70         7153.6        6215.6    13.11
-   64         16     0.238901    0.279188  +16.86        13690.2       11674.2    14.73
- 4094          4     0.583447    0.695246  +19.16         5271.6        4339.3    17.68
- 4094          8     0.293712    0.373710  +27.24        11001.0        8492.8    22.80
- 4094         16     0.140026    0.191269  +36.60        23509.6       17213.7    26.78
+- [High] Use-after-free of a foreign bridge port's net_device in the new
+  deletion report.
+- [Low] The commit message describes a user-visible defect: 'bridge fdb
+  show' keeps the offload flag, and 'bridge fdb flush ... offloaded'…
+- [Low] The new offloaded=false report is a delayed, per-port message
+  meaning 'DSA's copy of (addr, vid) towards orig_dev is gone'.
+- [Low] The new DEL path reports offloaded=false whenever the deletion
+  returns 0, but for refcounted entries 0 does not mean the entry left…
 
-Medians of 6 runs, 64b frames, one group per VLAN and packet VIDs
-chosen at random. Cycles are PMU cycles / input packet on the fwding CPU.
+--
 
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
----
-CC: Ido Schimmel <idosch@nvidia.com>
-CC: David S. Miller <davem@davemloft.net>
-CC: Eric Dumazet <edumazet@kernel.org>
-CC: Jakub Kicinski <kuba@kernel.org>
-CC: Paolo Abeni <pabeni@redhat.com>
-CC: Simon Horman <horms@kernel.org>
-CC: bridge@lists.linux.dev
+net: dsa: report a deleted FDB entry as no longer offloaded
 
- net/bridge/br_forward.c   | 16 +++++++++-------
- net/bridge/br_multicast.c | 24 ++++++++++++++++++++++++
- net/bridge/br_private.h   |  7 +++++++
- net/bridge/br_vlan.c      |  2 ++
- 4 files changed, 42 insertions(+), 7 deletions(-)
+After a successful FDB deletion requested by the bridge,
+dsa_user_switchdev_event_work() now reports SWITCHDEV_FDB_OFFLOADED with
+offloaded=false. The bridge then clears BR_FDB_OFFLOADED on entries the
+switch no longer holds. Deletions replayed for a single port that leaves a
+bridge or LAG (ctx != NULL) are not reported.
 
-diff --git a/net/bridge/br_forward.c b/net/bridge/br_forward.c
-index b725e8f1b29a..321e63495548 100644
---- a/net/bridge/br_forward.c
-+++ b/net/bridge/br_forward.c
-@@ -353,17 +353,15 @@ void br_flood(struct net_bridge *br, struct net_bridge_vlan *v,
- }
- 
- #ifdef CONFIG_BRIDGE_IGMP_SNOOPING
--static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
-+static void maybe_deliver_addr(struct br_fwd_dst *fwd, struct sk_buff *skb,
- 			       const unsigned char *addr, bool local_orig)
- {
- 	struct net_device *dev = BR_INPUT_SKB_CB(skb)->brdev;
- 	const unsigned char *src = eth_hdr(skb)->h_source;
--	struct br_fwd_dst fwd = {
--		.port = p,
--	};
-+	struct net_bridge_port *p = fwd->port;
- 	struct sk_buff *nskb;
- 
--	if (!should_deliver(&fwd, skb))
-+	if (!should_deliver(fwd, skb))
- 		return;
- 
- 	/* Even with hairpin, no soliloquies - prevent breaking IPv6 DAD */
-@@ -383,7 +381,7 @@ static void maybe_deliver_addr(struct net_bridge_port *p, struct sk_buff *skb,
- 	if (!is_broadcast_ether_addr(addr))
- 		memcpy(eth_hdr(skb)->h_dest, addr, ETH_ALEN);
- 
--	__br_forward(&fwd, skb, local_orig);
-+	__br_forward(fwd, skb, local_orig);
- }
- 
- /* called with rcu_read_lock */
-@@ -421,10 +419,11 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- 
- 		if ((unsigned long)lport > (unsigned long)rport) {
- 			port = lport;
-+			br_dst_decode(br_dst_read(&p->dst), &fwd.port, &fwd.vlan);
- 
- 			if (test_bit(BR_MULTICAST_TO_UNICAST_BIT,
- 				     &port->flags)) {
--				maybe_deliver_addr(lport, skb, p->eth_addr,
-+				maybe_deliver_addr(&fwd, skb, p->eth_addr,
- 						   local_orig);
- 				goto delivered;
- 			}
-@@ -435,6 +434,9 @@ void br_multicast_flood(struct net_bridge_mdb_entry *mdst,
- 		} else {
- 			port = rport;
- 			fwd.vlan = rpmctx->vlan;
-+			if (!fwd.vlan && lport == rport)
-+				br_dst_decode(br_dst_read(&p->dst),
-+					      &fwd.port, &fwd.vlan);
- 		}
- 
- 		fwd.port = port;
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 7285229ca6d7..907918b31251 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -1423,6 +1423,22 @@ br_multicast_new_group_src(struct net_bridge_port_group *pg, struct br_ip *src_i
- 	return grp_src;
- }
- 
-+void br_multicast_update_vlan_dst(struct net_bridge_vlan *vlan, bool add)
-+{
-+	struct net_bridge_port *port = vlan->port;
-+	struct net_bridge_port_group *pg;
-+	struct net_bridge_dst dst;
-+
-+	ASSERT_RTNL();
-+
-+	dst = add ? br_vlan_to_dst(vlan) : br_port_to_dst(port);
-+	spin_lock_bh(&port->br->multicast_lock);
-+	hash_for_each_possible(port->mdb_vlan_hash, pg, vlan_node, vlan->vid)
-+		if (pg->key.addr.vid == vlan->vid)
-+			br_dst_write(&pg->dst, dst);
-+	spin_unlock_bh(&port->br->multicast_lock);
-+}
-+
- struct net_bridge_port_group *br_multicast_new_port_group(
- 			struct net_bridge_port *port,
- 			const struct br_ip *group,
-@@ -1433,9 +1449,12 @@ struct net_bridge_port_group *br_multicast_new_port_group(
- 			u8 rt_protocol,
- 			struct netlink_ext_ack *extack)
- {
-+	struct net_bridge_vlan *vlan = NULL;
- 	struct net_bridge_port_group *p;
- 	int err;
- 
-+	lockdep_assert_held_once(&port->br->multicast_lock);
-+
- 	err = br_multicast_port_ngroups_inc(port, group, extack);
- 	if (err)
- 		return NULL;
-@@ -1448,6 +1467,11 @@ struct net_bridge_port_group *br_multicast_new_port_group(
- 
- 	p->key.addr = *group;
- 	p->key.port = port;
-+	rcu_read_lock();
-+	if (group->vid)
-+		vlan = br_vlan_find(nbp_vlan_group_rcu(port), group->vid);
-+	br_dst_write(&p->dst, vlan ? br_vlan_to_dst(vlan) : br_port_to_dst(port));
-+	rcu_read_unlock();
- 	p->flags = flags;
- 	p->filter_mode = filter_mode;
- 	p->rt_protocol = rt_protocol;
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 04430dc32d02..b4a35bd05879 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -377,6 +377,7 @@ struct net_bridge_port_group_sg_key {
- struct net_bridge_port_group {
- 	struct net_bridge_port_group __rcu *next;
- 	struct net_bridge_port_group_sg_key key;
-+	struct net_bridge_dst		dst;
- 	unsigned char			eth_addr[ETH_ALEN] __aligned(2);
- 	unsigned char			flags;
- 	unsigned char			filter_mode;
-@@ -1211,6 +1212,7 @@ void br_multicast_port_ctx_init(struct net_bridge_port *port,
- 				struct net_bridge_vlan *vlan,
- 				struct net_bridge_mcast_port *pmctx);
- void br_multicast_port_ctx_deinit(struct net_bridge_mcast_port *pmctx);
-+void br_multicast_update_vlan_dst(struct net_bridge_vlan *vlan, bool add);
- void br_multicast_update_vlan_mcast_ctx(struct net_bridge_vlan *v, u8 state);
- void br_multicast_toggle_one_vlan(struct net_bridge_vlan *vlan, bool on);
- int br_multicast_toggle_vlan_snooping(struct net_bridge *br, bool on,
-@@ -1682,6 +1684,11 @@ static inline void br_multicast_port_ctx_deinit(struct net_bridge_mcast_port *pm
- {
- }
- 
-+static inline void br_multicast_update_vlan_dst(struct net_bridge_vlan *vlan,
-+						bool add)
-+{
-+}
-+
- static inline void br_multicast_update_vlan_mcast_ctx(struct net_bridge_vlan *v,
- 						      u8 state)
- {
-diff --git a/net/bridge/br_vlan.c b/net/bridge/br_vlan.c
-index 6f6b574a359d..43ca46a5b926 100644
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -383,6 +383,7 @@ static int __vlan_add(struct net_bridge_vlan *v, u16 flags,
- 	br_multicast_toggle_one_vlan(v, true);
- 
- 	if (p) {
-+		br_multicast_update_vlan_dst(v, true);
- 		br_vlan_rebuild_port_array(masterv, br_vlan_num_ports(masterv));
- 		nbp_vlan_set_vlan_dev_state(p, v->vid);
- 	}
-@@ -424,6 +425,7 @@ static void __vlan_unpublish(struct net_bridge_vlan_group *vg,
- 		rhashtable_remove_fast(&vg->vlan_hash, &v->vnode,
- 				       br_vlan_rht_params);
- 		__vlan_del_list(v);
-+		br_multicast_update_vlan_dst(v, false);
- 		/* -1 because br_vlan_put_master() is called later */
- 		br_vlan_rebuild_port_array(masterv,
- 					   br_vlan_num_ports(masterv) - 1);
+> The addition has been reported since commit c9eb3e0f8701 ("net: dsa: Add
+> support for learning FDB through notification"); a deletion never was.
+
+[ ... ]
+
+> Signed-off-by: Julius Bairaktaris <julius@bairaktaris.de>
+
+[Severity: Low]
+This isn't a bug, but should this have a Fixes: tag?
+
+The message names the origin commit in the text. It also describes a
+defect users can see in "bridge fdb show" and
+"bridge fdb flush ... offloaded". The prerequisite is sent as
+[PATCH net]. However, the only trailer is Signed-off-by.
+
+> diff --git a/net/dsa/user.c b/net/dsa/user.c
+> index 041f9060c8ef0..fdeb1c68c2f4b 100644
+> --- a/net/dsa/user.c
+> +++ b/net/dsa/user.c
+
+[ ... ]
+
+> @@ -3628,13 +3629,14 @@ static int dsa_user_netdevice_event(struct notifier_block *nb,
+>  }
+>  
+>  static void
+> -dsa_fdb_offload_notify(struct dsa_switchdev_event_work *switchdev_work)
+> +dsa_fdb_offload_notify(struct dsa_switchdev_event_work *switchdev_work,
+> +		       bool offloaded)
+>  {
+>  	struct switchdev_notifier_fdb_info info = {};
+>  
+>  	info.addr = switchdev_work->addr;
+>  	info.vid = switchdev_work->vid;
+> -	info.offloaded = true;
+> +	info.offloaded = offloaded;
+>  	call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED,
+>  				 switchdev_work->orig_dev, &info.info, NULL);
+>  }
+
+[ ... ]
+
+> @@ -3681,8 +3683,13 @@ static void dsa_user_switchdev_event_work(struct work_struct *work)
+>  			dev_err(ds->dev,
+>  				"port %d failed to delete %pM vid %d from fdb: %d\n",
+>  				dp->index, addr, vid, err);
+> +			break;
+>  		}
+> -
+> +		/* A deletion replayed for this port alone, as it leaves the
+> +		 * bridge or a LAG, can leave the entry held for other ports
+> +		 */
+> +		if (!switchdev_work->replayed)
+> +			dsa_fdb_offload_notify(switchdev_work, false);
+
+[Severity: High]
+Can this call use a freed net_device?
+
+Before this patch, the DEL branch only used switchdev_work->dev.
+dsa_flush_workqueue() in dsa_port_pre_bridge_leave() keeps that device
+alive.
+
+The DEL branch now calls dsa_fdb_offload_notify(), which passes
+switchdev_work->orig_dev to call_switchdev_notifiers().
+dsa_user_fdb_event() stores orig_dev without netdev_hold() or dev_hold():
+
+    switchdev_work->orig_dev = orig_dev;
+
+orig_dev can be a foreign bridge port such as a veth. Suppose that port
+has FDB entries DSA offloaded, either static or learned with
+ds->assisted_learning_on_cpu_port, and it is then deleted:
+
+ip link del veth0
+  br_del_if()
+    del_nbp()
+      br_fdb_cleanup_by_dst()
+        br_switchdev_fdb_notify()     /* SWITCHDEV_FDB_DEL_TO_DEVICE */
+          __switchdev_handle_fdb_event_to_device()
+            dsa_user_fdb_event()      /* ctx == NULL, replayed == false */
+              dsa_schedule_work()
+      netdev_upper_dev_unlink()
+
+Nothing flushes dsa_owq when a foreign device unregisters.
+dsa_user_netdevice_event() has no NETDEV_UNREGISTER case, and
+dsa_flush_workqueue() only runs when DSA ports or LAGs leave the bridge.
+
+So netdev_run_todo() and free_netdev() can free veth0 while these works
+are still queued, for example behind slow MDIO or SPI port_fdb_del calls.
+The work then runs:
+
+dsa_user_switchdev_event_work()
+  dsa_fdb_offload_notify(switchdev_work, false)
+    call_switchdev_notifiers(SWITCHDEV_FDB_OFFLOADED, orig_dev, ...)
+      br_switchdev_event()
+        p = br_port_get_rtnl_rcu(dev);     /* dev already freed */
+
+The existing ADD report has the same lifetime gap, but only through a
+narrow race with unregistration. Here, the teardown of orig_dev is what
+generates the DEL report.
+
+The note below the '---' line says this depends on "net: dsa: hold the
+device a queued FDB event is reported to". That patch is not in this
+tree, and git am drops the note.
+
+Could the two go in as a series, or could the dependency be recorded in
+the commit message itself? Otherwise this patch could be applied or
+backported without it.
+
+[Severity: Low]
+Does a return value of 0 here mean the entry has left the switch?
+
+Host addresses on CPU and DSA ports are refcounted, and so are LAG
+entries. dsa_port_do_fdb_del() returns 0 when only the refcount drops:
+
+net/dsa/switch.c:dsa_port_do_fdb_del() {
+    ...
+	if (!refcount_dec_and_test(&a->refcount)) {
+		trace_dsa_fdb_del_drop(dp, addr, vid, &db, &a->refcount);
+		goto out;
+	}
+
+	err = ds->ops->port_fdb_del(ds, port, addr, vid, db);
+	...
+	if (err) {
+		refcount_set(&a->refcount, 1);
+		goto out;
+	}
+    ...
+}
+
+Take a host address X added for DSA user ports A and B, giving a refcount
+of 2 on the CPU port:
+
+- A's DEL drops the refcount to 1 and reports false.
+- B's DEL then fails in port_fdb_del(). The refcount is restored to 1 and
+  nothing is reported.
+
+The last report the bridge received is false, but the switch still holds
+X.
+
+The same thing can happen if the GFP_ATOMIC allocation in
+dsa_user_fdb_event() fails for B. __switchdev_handle_fdb_event_to_device()
+stops at the first error other than -EOPNOTSUPP:
+
+	if (err && err != -EOPNOTSUPP)
+		return err;
+
+Doesn't that contradict this line in the commit message: "the last one
+for an entry gives the state the switch was left in"?
+
+[Severity: Low]
+Can this report reach a different bridge than the one the deletion was
+for?
+
+The report goes to the orig_dev captured at queue time. However,
+br_switchdev_event() finds the bridge from orig_dev's current bridge port
+when the work runs. br_fdb_offloaded_set() also ignores p and matches
+only addr and vid:
+
+net/bridge/br_fdb.c:br_fdb_offloaded_set() {
+    ...
+	fdb = br_fdb_find(br, addr, vid);
+	if (fdb && offloaded != test_bit(BR_FDB_OFFLOADED, &fdb->flags))
+		change_bit(BR_FDB_OFFLOADED, &fdb->flags);
+    ...
+}
+
+Suppose foreign port V leaves bridge B1, so del_nbp() queues DSA DEL
+works with orig_dev = V. V then joins bridge B2 before dsa_owq runs those
+works.
+
+Would the report then clear BR_FDB_OFFLOADED on B2's (addr, vid) entry?
+One example is V's own local address added again in B2, even if another
+switchdev driver in B2 offloaded it.
+
+The commit message covers the same-bridge case ("a deletion still queued
+here can clear the flag that driver set on an entry re-created on one of
+its ports"). It does not cover this cross-bridge case.
+
+br_fdb_cleanup_by_dst() keeps ext-learned entries only while
+BR_FDB_OFFLOADED is clear:
+
+			if (test_bit(BR_FDB_STATIC, &f->flags) ||
+			    (test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &f->flags) &&
+			     !test_bit(BR_FDB_OFFLOADED, &f->flags))) {
+
+So a wrongly cleared flag in either case also changes which entries those
+flushes delete.
+
+>  		break;
+>  	}
+>  
+
+[ ... ]
+
 -- 
-2.47.3
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261122174434.975426-1-julius%40bairaktaris.de
